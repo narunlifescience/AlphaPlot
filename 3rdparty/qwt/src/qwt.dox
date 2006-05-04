@@ -1,0 +1,180 @@
+/* -*- mode: C++ ; c-file-style: "stroustrup" -*- *****************************
+ * Qwt Widget Library
+ * Copyright (C) 1997   Josef Wilgen
+ * Copyright (C) 2002   Uwe Rathmann
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the Qwt License, Version 1.0
+ *****************************************************************************/
+
+/*
+  This file contains NO source code, just some documentation for doxygen to
+  parse.
+*/
+
+/*!
+  \mainpage Qwt - Qt Widgets for Technical Applications
+
+The Qwt library contains GUI Components and utility classes which are primarily
+useful for programs with a technical background. Beside a 2D plot widget
+it provides scales, sliders, dials, compasses, thermometers, wheels and knobs 
+to control or display values, arrays, or ranges of type double.
+
+  \image html plot.gif
+
+  \section homepage Project page
+  The official project page is hosted at 
+	<a href="http://qwt.sourceforge.net">sourceforge</a>
+
+  \section license License
+
+  Qwt is distributed under the terms of the \ref qwtlicense.
+
+  \section mailinglist Mailing list 
+  For all kind of Qwt related questions there is a Qwt <a href="http://sourceforge.net/mail/?group_id=13693">mailing list</a>.
+
+  \section supportedplatforms Supported platforms
+
+  Qwt might be usable in all environments where you find a
+  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a> >= 2.3.0. 
+  Unfortunately the resources of the Qwt team are limited. All we are using is:
+  - Qt/X11 with gcc on Linux\n
+  - Qt/Win 2.3.0 non commercial
+
+  \section screenshotsonmainpage Screenshots
+  - \ref plotscreenshots\n
+  - \ref curvescreenshots\n
+  - \ref scalescreenshots\n
+  - \ref knobscreenshots\n
+  - \ref sliderscreenshots\n
+  - \ref dialscreenshots\n
+  - \ref compassscreenshots\n
+  - \ref thermoscreenshots\n
+  - \ref wheelscreenshots\n
+  - \ref counterscreenshots\n
+  - \ref pushbuttonscreenshots
+
+  \latexonly Screenshots are only available in the HTML docs.\endlatexonly
+
+  \section downloads Downloads
+  Stable releases, prereleases and snapshots are available at the Qwt <a href="http://sourceforge.net/projects/qwt">project page</a>.
+
+  Qwt doesn´t distribute binary packages, but you find some
+  for the following Linux distributions: 
+  <a href="http://packages.qa.debian.org/libq/libqwt.html">Debian</a>,
+  <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. Please
+  report links that are not listed here.
+
+  For anonymous CVS (a couple of hours old) try:
+  \code
+cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt login
+cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt co qwt
+  \endcode
+
+  \section installonmainpage Installation
+ 
+  Have a look at the qwt.pro project file. It is prepared for building
+  dynamic libraries in Win32 and Unix/X11 environments. 
+  If you don't know what to do with it, read the file \ref qwtinstall and/or 
+  Trolltechs 
+  <a href="http://www.trolltech.com/developer/documentation/index.html">tmake/qmake</a> documentation. Once you have build the library you have to install 
+  all files from the lib, include and doc directories.
+
+  On RPM based systems you can adjust \ref qwtspec and build your own
+  RPM package. Read the comments in qwt.spec for the details.
+
+ 
+  \section relatedprojects Related Projects
+
+  <a href="http://pyqwt.sourceforge.net">PyQwt</a>, a set of Qwt Python bindings.\n
+  <a href="http://qwtplot3d.sourceforge.net">QwtPlot3D</a>, an OpenGL 3D plot widget.\n
+  <a href="http://pvbrowser.org">ProcessViewBrowser</a>, including a RPC 
+  interface to the Qwt widget set.\n
+  <a href="http://soft.proindependent.com/qtiplot.html">QtiPlot</a>, 
+  data analysis and scientific plotting tool, using QwtPlot.
+
+  \section credits Credits:
+  \par Authors: 
+    Josef Wilgen ( <= Qwt 0.2 ), Uwe Rathmann
+  \par Project admin:
+    Uwe Rathmann \<rathmann@users.sourceforge.net\>
+  \par Developers:
+    Gerard Vermeulen, Micha Bieber, Roy Dennington
+  \par Contributors:
+    Pieter van Beek, Borries Demeler, Andy Thaller, Dimitri Papadopolis, 
+	Jan Kellmer, Kai Engels, Karl Waedt 
+*/
+
+/*!
+  \page qwtlicense Qwt License, Version 1.0
+  \include "COPYING"
+*/
+
+/*!
+  \page qwtinstall INSTALL
+  \include "INSTALL"
+*/
+
+/*!
+  \page qwtspec qwt.spec
+  \include "qwt.spec"
+*/
+
+/*!
+  \page plotscreenshots QwtPlot
+
+  \image html plot.gif 
+
+  \image html cpuplot1.gif 
+*/
+
+/*!
+  \page curvescreenshots QwtCurve
+  \image html curves.gif 
+*/
+
+/*!
+  \page scalescreenshots QwtScaleDraw
+  \image html scldraw.gif 
+*/
+
+/*!
+  \page knobscreenshots QwtKnob
+  \image html knob.gif 
+*/
+
+/*!
+  \page sliderscreenshots QwtSlider
+  \image html sliders.gif 
+*/
+
+/*!
+  \page dialscreenshots QwtDial
+  \image html dial.gif 
+*/
+
+/*!
+  \page compassscreenshots QwtCompass
+  \image html compass1.gif 
+  \image html compass2.gif 
+*/
+
+/*!
+  \page thermoscreenshots QwtThermo
+  \image html thermo.gif 
+*/
+
+/*!
+  \page wheelscreenshots QwtWheel
+  \image html wheel.gif 
+*/
+
+/*!
+  \page counterscreenshots QwtCounter
+  \image html counter.gif 
+*/
+
+/*!
+  \page pushbuttonscreenshots QwtPushButton
+  \image html richtextbutton.gif 
+*/
