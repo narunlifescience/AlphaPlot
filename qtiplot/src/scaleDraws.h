@@ -351,12 +351,10 @@ public:
 	if (sign == '-')
 		s.prepend(sign);
 	
-	/*if (list[0] == "1")
+	if (list[0] == "1")
 		return "10<sup>" + s + "</sup>";
-	else*/
+	else
 		return list[0] + "x10<sup>" + s + "</sup>";
-
-	//return list[0]+"x10<sup><font size=+1>"+s+"</font></sup>";
 	};
 	
 //! Draws the number label for a major scale tick
@@ -391,15 +389,15 @@ void drawLabel(QPainter *p, double val) const
 			p->restore();
         }
 	}
-	};
+};
 
-	QwtText *labelText(double value) const
+QwtText *labelText(double value) const
 	{
 	const QString lbl = label(value);
 	return QwtText::makeText(lbl, labelAlignment(), d_font, d_color);
 	};
 	
-	QRect labelBoundingRect(const QFontMetrics &fm, double val) const
+QRect labelBoundingRect(const QFontMetrics &fm, double val) const
 	{
 	char f;
 	int prec, fieldwidth;
@@ -425,14 +423,14 @@ void drawLabel(QPainter *p, double val) const
 
     labelPlacement(fm, val, pos, alignment, rotation);
     if ( alignment )
-    {
+		{
        const int w = ltxt->boundingRect().width();
        const int h = ltxt->boundingRect().height();
 				
         QWMatrix m = labelWorldMatrix(fm, pos, alignment, rotation, lbl);
         br = QwtMetricsMap::translate(m, QRect(0, 0, w, h));
         br.moveBy(-pos.x(), -pos.y());
-    }
+		}
 	
 	delete ltxt;
     return br;

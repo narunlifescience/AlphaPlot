@@ -16,8 +16,6 @@ CanvasPicker::CanvasPicker(Graph *plot):
 {
 	moved=FALSE;
 	movedGraph=FALSE;
-	resizedGraph=FALSE;
-	ShiftButton=FALSE;
 	pointSelected = false;
 	plotWidget=plot->plotWidget();
 
@@ -81,11 +79,25 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			
 		case QEvent::MouseButtonPress:
 			{
-			const QMouseEvent *me = (const QMouseEvent *)e;		
-				
-			if(me->state()==Qt::ShiftButton)
-				ShiftButton=TRUE;
+			const QMouseEvent *me = (const QMouseEvent *)e;	
 			
+			bool allAxisDisabled = true;
+			for (int i=0; i < QwtPlot::axisCnt; i++)
+				{
+				if (plotWidget->axisEnabled(i))
+					{
+					allAxisDisabled = FALSE;
+					break;
+					}
+				}
+			if (allAxisDisabled && plotWidget->margin() < 2 && plotWidget->lineWidth() < 2)
+				{
+				QRect r = plotWidget->canvas()->rect();
+				r.addCoords(2, 2, -2, -2);
+				if (!r.contains(me->pos()))
+					emit highlightGraph();
+				}
+							
 			emit selectPlot();			
 
 			xMouse=me->pos().x();
@@ -230,17 +242,9 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			moveMarker(pos);
 		else if (!plot()->zoomOn() )
 			{
-			if  (!ShiftButton)
-				{
-				plotWidget->canvas()->setCursor(Qt::PointingHandCursor);
-				movedGraph=TRUE;
-				emit moveGraph(pos);
-				}
-			else
-				{
-				resizedGraph=TRUE;
-				emit resizeGraph(pos);
-				}		
+			plotWidget->canvas()->setCursor(Qt::PointingHandCursor);
+			movedGraph=TRUE;
+			emit moveGraph(pos);
 			}
 		return TRUE;
 		}
@@ -295,13 +299,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				emit releasedGraph();
 				movedGraph=FALSE;
 				}
-			else if (resizedGraph)
-				{
-				resizedGraph=FALSE;
-				emit newSizeGraph();
-				}
 		
-		ShiftButton=FALSE;
 		return TRUE;			
 		}
 		break;
@@ -595,7 +593,9 @@ void CanvasPicker::drawTextMarker(const QPoint& point)
 {
 LegendMarker mrkT(plotWidget);			
 mrkT.setOrigin(point);
-mrkT.setText("enter your text here");
+mrkT.setBackground(plot()->textMarkerDefaultFrame());
+mrkT.setFont(plot()->defaultTextMarkerFont());
+mrkT.setText(tr("enter your text here"));
 plot()->insertTextMarker(&mrkT);		
 plot()->drawText(FALSE);
 emit drawTextOff();

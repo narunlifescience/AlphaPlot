@@ -12,8 +12,6 @@ public:
 
 	Matrix(int r, int c, const QString& label, QWidget* parent=0, const char* name=0, WFlags f=0);
 	~Matrix(){};
-
-	virtual WidgetType rtti(){return MatrixWidget;};
 	
 	int numRows();
 	int numCols();
@@ -25,8 +23,6 @@ public:
 
 	//event handlers
 	bool eventFilter(QObject *object, QEvent *e);
-	void closeEvent( QCloseEvent *e );
-	void resizeEvent(QResizeEvent *);
 	void contextMenuEvent(QContextMenuEvent *e);
 
 public slots:
@@ -89,10 +85,6 @@ public slots:
 	void setCoordinates(double xs, double xe, double ys, double ye);
 
 signals:
-	void modifiedMatrix (QWidget *);
-	void closedMatrix(QWidget*);
-	void hiddenMatrix(QWidget*);
-	void resizedMatrix(QWidget*);
 	void showContextMenu();
 
 private:

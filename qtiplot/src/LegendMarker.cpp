@@ -20,7 +20,7 @@ LegendMarker::LegendMarker(QwtPlot *plot):
 d_text= QwtText::makeText(QString::null,Qt::RichText,Qt::AlignTop|Qt::AlignLeft, 
 		QFont("Arial",12, QFont::Normal, FALSE),Qt::black,QPen(Qt::NoPen),QBrush(Qt::NoBrush));
 	
-bkgType=1;
+bkgType=0;
 angle=0;
 bkgColor = plot->paletteBackgroundColor();
 }

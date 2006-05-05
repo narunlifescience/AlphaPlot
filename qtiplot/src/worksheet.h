@@ -22,8 +22,6 @@ public:
 	Table(int r,int c, const QString &label, QWidget* parent=0, const char* name=0, WFlags f=0);
 	~Table();
 	
-	virtual WidgetType rtti(){return TableWidget;};
-
 public slots:
 	QTable* table(){return worksheet;};
 	void copy(Table *m);
@@ -94,8 +92,6 @@ public slots:
 	void print();
 	
 	// event handlers 
-	void closeEvent( QCloseEvent *);
-	void resizeEvent(QResizeEvent *);
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
 	
@@ -220,7 +216,7 @@ public slots:
 					bool renameCols, bool stripSpaces, bool simplifySpaces, int importFileAs);
 
 	//saving
-	QString saveToString(const QString& geometry, const QString& birth);
+	QString saveToString(const QString& geometry);
 	QString saveHeader();
 	QString saveComments();
 	QString saveCommandes();
@@ -266,15 +262,12 @@ signals:
 	void plotXYZ(Table *,const QString&, int);
 
 	void plotCol(Table *,const QStringList&, int);
-	void closedTable(QWidget*);
 	void changedColHeader(const QString&, const QString&);
 	void removedCol(const QString&);
 	void modifiedData(const QString&);
-	void modifiedTable(QWidget*);
 	void optionsDialog();
 	void colValuesDialog();
 	void resizedTable(QWidget*);
-	void hiddenTable(QWidget*);
 	void colMenu(int);
 	void showContextMenu();
 	void createTable(const QString&,int,int,const QString&);

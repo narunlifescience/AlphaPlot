@@ -663,18 +663,12 @@ void configDialog::languageChange()
     buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Close" ) );
 	buttonApply->setText( tr( "&Apply" ) );
-	buttonText->setText( tr( "Te&xt" ) );
-	buttonHeader->setText( tr( "Lab&els" ) );
-	buttonBackground->setText( tr( "&Background" ) );
 	buttonTextFont->setText( tr( "&Text Font" ) );
 	buttonHeaderFont->setText( tr( "&Labels Font" ) );
 	buttonAxesFont->setText( tr( "A&xes Legend" ) );
 	buttonNumbersFont->setText( tr( "Axes &Numbers" ) );
 	buttonLegendFont->setText( tr( "&Legend" ) );
 	buttonTitleFont->setText( tr( "T&itle" ) );
-	btnWorkspace->setText( tr( "&Workspace" ) );
-	btnPanels->setText( tr( "Pa&nels" ) );
-	btnPanelsText->setText( tr( "Panels Te&xt" ) );
 
 	//application page
 	GroupBoxApp->setTitle(tr("General"));

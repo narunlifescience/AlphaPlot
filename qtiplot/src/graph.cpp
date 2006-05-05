@@ -194,16 +194,13 @@ setGridOptions(grid);
 initScales();
 
 connect (d_plot,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
+connect (d_plot,SIGNAL(selectPlot()),this,SLOT(highlightGraph()));
 connect (d_plot,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
 connect (d_plot,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
-connect (d_plot,SIGNAL(resizeGraph(const QPoint&)),this,SLOT(resizeGraph(const QPoint&)));
-connect (d_plot,SIGNAL(resizedGraph()),this,SLOT(newSizeGraph()));
 
-connect (cp,SIGNAL(resizeGraph(const QPoint&)),this,SLOT(resizeGraph(const QPoint&)));
 connect (cp,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
 connect (cp,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
-connect (cp,SIGNAL(newSizeGraph()),this,SLOT(newSizeGraph()));
-
+connect (cp,SIGNAL(highlightGraph()),this,SLOT(highlightGraph()));
 connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
@@ -214,18 +211,18 @@ connect (cp,SIGNAL(showPieDialog()),this,SIGNAL(showPieDialog()));
 connect (cp,SIGNAL(showMarkerPopupMenu()),this,SIGNAL(showMarkerPopupMenu()));
 connect (cp,SIGNAL(modified()), this, SLOT(modified()));
 connect (cp,SIGNAL(modified()), this, SIGNAL(modifiedGraph()));
-connect (cp,SIGNAL(calculateProfile(const QPoint&, const QPoint&))
-					,this,SLOT(calculateLineProfile(const QPoint&, const QPoint&)));
+connect (cp,SIGNAL(calculateProfile(const QPoint&, const QPoint&)),
+		 this,SLOT(calculateLineProfile(const QPoint&, const QPoint&)));
 
+connect (titlePicker,SIGNAL(highlightGraph()),this,SLOT(highlightGraph()));
 connect (titlePicker,SIGNAL(showTitleMenu()),this,SLOT(showTitleContextMenu()));
 connect (titlePicker,SIGNAL(doubleClicked()),this,SIGNAL(viewTitleDialog()));
 connect (titlePicker,SIGNAL(removeTitle()),this,SLOT(removeTitle()));
 connect (titlePicker,SIGNAL(clicked()), this,SLOT(selectTitle()));
 connect (titlePicker,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
 connect (titlePicker,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
-connect (titlePicker,SIGNAL(resizeGraph(const QPoint&)),this,SLOT(resizeGraph(const QPoint&)));
-connect (titlePicker,SIGNAL(resizedGraph()),this,SLOT(newSizeGraph()));
 
+connect (scalePicker,SIGNAL(highlightGraph()),this,SLOT(highlightGraph()));
 connect (scalePicker,SIGNAL(clicked()),this,SLOT(activateGraph()));
 connect (scalePicker,SIGNAL(clicked()),this,SLOT(deselectMarker()));
 connect (scalePicker,SIGNAL(clicked()),this,SLOT(deselectTitle()));
@@ -236,8 +233,6 @@ connect (scalePicker,SIGNAL(xAxisTitleDblClicked()),this,SIGNAL(xAxisTitleDblCli
 connect (scalePicker,SIGNAL(yAxisTitleDblClicked()),this,SIGNAL(yAxisTitleDblClicked()));
 connect (scalePicker,SIGNAL(rightAxisTitleDblClicked()),this,SIGNAL(rightAxisTitleDblClicked()));
 connect (scalePicker,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(topAxisTitleDblClicked()));
-connect (scalePicker,SIGNAL(resizeGraph(const QPoint&)),this,SLOT(resizeGraph(const QPoint&)));
-connect (scalePicker,SIGNAL(resizedGraph()),this,SLOT(newSizeGraph()));
 connect (scalePicker,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
 connect (scalePicker,SIGNAL(releasedGraph()),this, SLOT(releaseGraph()));
 
@@ -254,11 +249,6 @@ void Graph::modified()
 emit modifiedGraph(this);
 }
 
-void Graph::resizeGraph(const QPoint& pos)
-{
-emit resizeGraph(this,pos);
-}
-
 void Graph::moveGraph(const QPoint& pos)
 {
 emit moveGraph(this, pos);
@@ -267,11 +257,6 @@ emit moveGraph(this, pos);
 void Graph::releaseGraph()
 {
 emit releaseGraph(this);
-}
-
-void Graph::newSizeGraph()
-{
-emit newSizeGraph(this);
 }
 
 void Graph::activateGraph()
@@ -469,8 +454,10 @@ bool Graph::pickerActivated()
 return pickerEnabled;
 }
 
-void Graph::initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt)
+void Graph::initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt, 
+					  const QFont &textMarkerFnt)
 {
+defaultMarkerFont = textMarkerFnt;
 for (int i = 0;i<QwtPlot::axisCnt;i++)
 	{
 	d_plot->setAxisFont (i,numbersFnt);
@@ -2018,7 +2005,7 @@ pic.fill (QColor(255, 255, 255));
 QPainter paint;
 paint.begin(&pic);
 	
-QRect rect = QRect (lw, lw, d_plot->width(), d_plot->height());
+QRect rect = QRect(lw, lw, d_plot->width() - 2*lw, d_plot->height() - 2*lw);
 
 QwtPlotLayout *layout= d_plot->plotLayout ();
 layout->activate(d_plot, rect, 0);
@@ -2029,11 +2016,10 @@ filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle 
 
 if (d_plot->paletteBackgroundColor() != QColor(255, 255, 255))
 	paint.fillRect(rect, d_plot->paletteBackgroundColor());
-	
-d_plot->print(&paint, rect, filter);
 
-if (lw > 0)
-	d_plot->printFrame(&paint, rect);
+d_plot->drawPixmap(&paint, rect);
+d_plot->printFrame(&paint, QRect(lw/2,lw/2, 
+				   d_plot->width()-lw, d_plot->height()-lw));//draw plot frame
 
 paint.end();
 
@@ -4951,9 +4937,6 @@ d_plot->setTitle(QString::null);
 
 QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();  
 canvas->setLineWidth(1);
-/*QPalette pal = canvas->palette();
-pal.setColor(QColorGroup::Foreground,QColor(black));
-canvas->setPalette(pal);*/
 
 scalePicker->refresh();
 d_plot->replot();
@@ -4992,7 +4975,11 @@ bool Graph::insertCurve(Table* w, const QString& name, int style)
 {//provided for convenience
 int ycol = w->colIndex(name);
 int xcol = w->colX(ycol);
-return insertCurve(w, w->colName(xcol), name, style);
+
+bool succes = insertCurve(w, w->colName(xcol), name, style);
+if (succes)
+	emit modifiedGraph();
+return succes;
 }
 
 bool Graph::insertCurve(Table* w, int xcol, const QString& name, int style)
@@ -6437,12 +6424,12 @@ if (n > 1)
 	for (int i = 0; i < n; i++)
 		columns+= "<p><b>" + emptyColumns[i] + "</b></p>";
 
-	QMessageBox::warning(parent, "QtiPlot - Warning", 
-		tr("The columns: "+ columns + "are empty and will not be added to the plot!"));
+	QMessageBox::warning(parent, tr("QtiPlot - Warning"), 
+		tr("The columns")+": "+columns+tr("are empty and will not be added to the plot!"));
 	}
 else if (n == 1)
-	QMessageBox::warning(parent, "QtiPlot - Warning", 
-	tr("The column: <p><b>" + emptyColumns[0] + "</b></p>" + "is empty and will not be added to the plot!"));
+	QMessageBox::warning(parent, tr("QtiPlot - Warning"), 
+	tr("The column")+": <p><b>" + emptyColumns[0] + "</b></p>" + tr("is empty and will not be added to the plot!"));
 }
 
 void Graph::moveMarkerBy(int dx, int dy)

@@ -88,7 +88,7 @@ accel->connectItem( accel->insertItem( Key_Tab ), this, SLOT(moveCurrentCell()))
 accel->connectItem( accel->insertItem( CTRL+Key_A ), this, SLOT(selectAllTable()) );
 
 connect(worksheet, SIGNAL(valueChanged(int,int)),this, SLOT(cellEdited(int,int)));
-specifications = saveToString("geometry\n", birthDate());
+specifications = saveToString("geometry\n");
 }
 
 void Table::setBackgroundColor(const QColor& col)
@@ -213,7 +213,7 @@ void Table::cellEdited(int,int col)
 {
 QString name=colName(col);
 emit modifiedData(name);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 int Table::colX(int col)
@@ -255,7 +255,7 @@ if (col_plot_type[selectedCol] == X)
 	
 col_plot_type[selectedCol] = X;
 setHeaderColType();
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::disregardCol()
@@ -265,7 +265,7 @@ if (col_plot_type[selectedCol] == None)
 
 col_plot_type[selectedCol] = None;
 setHeaderColType();
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setYCol()
@@ -275,7 +275,7 @@ if (col_plot_type[selectedCol] == Y)
 
 col_plot_type[selectedCol] = Y;
 setHeaderColType();
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setZCol()
@@ -285,7 +285,7 @@ if (col_plot_type[selectedCol] == Z)
 
 col_plot_type[selectedCol] = Z;
 setHeaderColType();
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setPlotDesignation(PlotDesignation pd)
@@ -295,7 +295,7 @@ for (int i=0;i<(int) list.count(); i++)
 	col_plot_type[colIndex(list[i])] = pd;
 
 setHeaderColType();
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::columnNumericFormat(int col, int &f, int &precision)
@@ -392,13 +392,13 @@ for (int i=0; i<worksheet->numCols(); i++)
 return s + "\n";
 }
 
-QString Table::saveToString(const QString& geometry, const QString& birth)
+QString Table::saveToString(const QString& geometry)
 {
 QString s="<table>\n";
 s+=QString(name())+"\t";
 s+=QString::number(worksheet->numRows())+"\t";
 s+=QString::number(worksheet->numCols())+"\t";
-s+=birth+"\n";
+s+=birthDate()+"\n";
 s+=geometry;
 s+=saveHeader();
 s+=saveColumnWidths();
@@ -464,7 +464,7 @@ for (int i=selectedCol; i<(int)worksheet->numCols(); i++)
 	emit changedColHeader(caption+oldLabels[i],colName(i));
 	n++;
 	}	
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setColComment(const QString& s)
@@ -483,7 +483,7 @@ if (allCols)
 	for (int i=0;i<cols;i++)
 		worksheet->setColumnWidth (i, width);
 	
-	emit modifiedTable(this);
+	emit modifiedWindow(this);
 	}
 else
 	{
@@ -491,7 +491,7 @@ else
 		return;
 	
 	worksheet->setColumnWidth (selectedCol, width);
-	emit modifiedTable(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -523,7 +523,7 @@ commandes.gres("col("+colLabel(selectedCol)+")", "col("+text+")", true);
 	
 setColName(selectedCol, text);	
 emit changedColHeader(oldName, newName);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setColName(int col, const QString& text)
@@ -690,7 +690,7 @@ for (i=0; i<count; i++)
 void Table::insertCol()
 {
 insertCols(selectedCol,1);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::insertRow()
@@ -699,7 +699,7 @@ int cr = worksheet->currentRow();
 if (worksheet->isRowSelected (cr, true))
 	{
 	worksheet->insertRows(cr,1);
-	emit modifiedTable(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -733,7 +733,7 @@ col_format<<"0/6";
 col_label<< QString::number(max+1);
 col_plot_type << Y;
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::addColumns(int c)
@@ -770,7 +770,7 @@ for (int i=0;i<rows;i++)
 	}
 QString name=colName(selectedCol);
 emit modifiedData(name);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::clearCell(int row, int col)
@@ -779,7 +779,7 @@ worksheet->setText(row, col, "");
 
 QString name=colName(col);
 emit modifiedData(name);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 int Table::atRow(int col, double value)
@@ -810,11 +810,9 @@ for (i=top; i<=bottom; i++)
 
 int cols=worksheet->numCols();
 for (i=0; i<cols; i++)
-	{
-	QString name=colName(i);
-	emit modifiedData(name);
-	}
-emit modifiedTable(this);
+	emit modifiedData(colName(i));
+
+emit modifiedWindow(this);
 }
 
 void Table::cutSelection()
@@ -924,7 +922,7 @@ else
 		}
 	}
 }
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::copySelection()
@@ -1076,7 +1074,7 @@ for (i=top; i<top+rows; i++)
 for (i=left; i<left+cols; i++)
 	emit modifiedData(colName(i));
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -1124,7 +1122,7 @@ for (int i=0; i<(int) list.count(); i++)
 		}
 	emit removedCol(name);
 	}	
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -1223,7 +1221,7 @@ col_plot_type[cols] = X;
 setHeaderColType();
 
 emit plotCol(this, QStringList(QString(this->name())+"_"+label), 0);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();	
 }
 
@@ -1236,7 +1234,7 @@ for (int i=0; i<(int)s.count(); i++)
 	normalizeCol();
 	}
 	
-emit modifiedTable(this);	
+emit modifiedWindow(this);	
 }
 
 void Table::normalizeTable()
@@ -1246,7 +1244,7 @@ for (int i=0; i<worksheet->numCols(); i++)
 	selectedCol = i;
 	normalizeCol();
 	}
-emit modifiedTable(this);	
+emit modifiedWindow(this);	
 }
 
 void Table::normalizeCol()
@@ -1369,7 +1367,7 @@ else
 		}
 	delete[] p;
 	}
-emit modifiedTable(this);	
+emit modifiedWindow(this);	
 }
 
 void Table::sortColAsc()
@@ -1429,7 +1427,7 @@ for (i=0;i<rows;i++)
 gsl_vector_free (v);
 QString name=colName(selectedCol);
 emit modifiedData(name);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::sortColDesc()
@@ -1487,7 +1485,7 @@ for (i=0;i<rows;i++)
 gsl_vector_free (v);
 QString name=colName(selectedCol);
 emit modifiedData(name);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 int Table::tableRows()
@@ -1652,7 +1650,7 @@ if (applyToAll)
 else
 	setColNumericFormat(f, prec, selectedCol);
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::setColNumericFormat(int f, int prec, int col)
@@ -1705,7 +1703,7 @@ if (applyToAll)
 else
 	setDateTimeFormat(f, format, selectedCol);
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 
 QApplication::restoreOverrideCursor();	
 }
@@ -1892,7 +1890,7 @@ for (int j=0;j<(int) list.count(); j++)
 	emit modifiedData(name);
 	}
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -2001,7 +1999,7 @@ for (int j=0;j<(int) list.count(); j++)
 	emit modifiedData(name);
 	}
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -2093,7 +2091,7 @@ freeMatrix();
 
 commandes[selectedCol]=text;
 emit modifiedData(colName(selectedCol));
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -2121,7 +2119,7 @@ for (int i=startRow-1; i<endRow; i++)
 
 commandes[selectedCol]=rs;
 emit modifiedData(colName(selectedCol));
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -2826,47 +2824,10 @@ f.close();
 return true;
 }
 
-void Table::resizeEvent(QResizeEvent *)
-{
-emit resizedTable(this);
-}
-
 void Table::contextMenuEvent(QContextMenuEvent *e)
 {
 emit showContextMenu();
 e->accept();
-}
-
-void Table::closeEvent( QCloseEvent *e )
-{
-if (confirmClose())
-    {
-    switch( QMessageBox::information(0,tr("QtiPlot"),
-				      tr("Do you want to hide or delete <p><b>'"
-					   +QString(name())+"'</b> ?"),
-				      "Delete", "Hide", "Cancel",
-				      0,2) ) 
-	{
-    case 0:	
-	e->accept();
-	emit closedTable(this);
-	break;
-
-    case 1:
-	e->ignore();
-	emit hiddenTable(this);
-	break;
-
-	case 2:
-	e->ignore();
-	break;
-    } 
-    }
-else 
-    {
-    e->accept();
-    emit closedTable(this);
-    }
 }
 
 void Table::moveCurrentCell()
@@ -3155,7 +3116,7 @@ specifications=s;
 
 void Table::setNewSpecifications()
 {
-newSpecifications= saveToString("geometry\n", birthDate());
+newSpecifications= saveToString("geometry\n");
 }
 
 QString& Table::getNewSpecifications()
@@ -3327,10 +3288,10 @@ if (rows == r)
 
 if (rows > r)
 	{
-	QString text="Rows will be deleted from the table!";
-	text+="<p>Do you really want to continue?";
+	QString text= tr("Rows will be deleted from the table!");
+	text+="<p>"+tr("Do you really want to continue?");
 	int i,cols = worksheet->numCols();
-	switch( QMessageBox::information(0,"QtiPlot", text,"Yes", "Cancel", 0, 1 ) ) 
+	switch( QMessageBox::information(0,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
     	case 0:
 		QApplication::setOverrideCursor(waitCursor);
@@ -3353,7 +3314,7 @@ else
 	QApplication::restoreOverrideCursor();
 	}
 
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::resizeCols(int c)
@@ -3405,7 +3366,7 @@ else
 	setHeaderColType();
 	QApplication::restoreOverrideCursor();
 	}
-emit modifiedTable(this);
+emit modifiedWindow(this);
 }
 
 void Table::convolute(int sign)
@@ -3482,7 +3443,7 @@ col_plot_type[cols] = X;
 setHeaderColType();
 
 emit plotCol(this, QStringList(QString(this->name())+"_"+label), 0);
-emit modifiedTable(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();	
 }
 

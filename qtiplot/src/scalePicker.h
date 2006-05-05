@@ -38,11 +38,10 @@ signals:
 	
 	void moveGraph(const QPoint&);
 	void releasedGraph();
-	void resizeGraph(const QPoint&);
-	void resizedGraph();
+	void highlightGraph();
 
 private:
-	bool movedGraph, ShiftButton, graphToResize;
+	bool movedGraph;
 };
 
 class TitlePicker: public QObject
@@ -58,13 +57,12 @@ signals:
 	void removeTitle();
 	void showTitleMenu();
 
-	//moving and resizing the plot parent
+	//moving and highlighting the plot parent
 	void moveGraph(const QPoint&);
 	void releasedGraph();
-	void resizeGraph(const QPoint&);
-	void resizedGraph();
+	void highlightGraph();
 
 protected:
 	QLabel *title;
-	bool movedGraph, ShiftButton, graphToResize;
+	bool movedGraph;
 };

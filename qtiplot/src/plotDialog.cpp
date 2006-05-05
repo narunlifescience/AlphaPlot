@@ -465,7 +465,6 @@ plusBox->setChecked( TRUE );
    
     new QLabel(tr( "Color" ), GroupBox1, "TextLabel3_3",0 );
     colorBox = new ColorButton(GroupBox1);
-	colorBox->setText(tr("Co&lor"));
 
 	new QLabel(tr( "Line Width" ), GroupBox1, "TextLabel3_3_2",0 );
     widthBox = new QComboBox( FALSE, GroupBox1, "widthBox" );

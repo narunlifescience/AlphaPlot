@@ -1986,7 +1986,7 @@ const size_t n=iEnd-iStart+1;
 if ((int)n<m)
 	{
 	QMessageBox::critical(this, tr("QtiPlot - Warning"),
-				tr("You need at least "+QString::number(m)+" points to fit!"));
+	tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(m)));
 	return "";
 	}
 	
@@ -2043,11 +2043,11 @@ QString infoA;
 for (i = 0; i < m; i++)
     {
 	double ci=gsl_vector_get(c,i);
-	infoA.sprintf("a%d = %.5f +/- %.5f\n", i, ci, sqrt(gsl_matrix_get(cov, i, i)));
+	infoA.sprintf("a%d = %.6G +/- %.6G\n", i, ci, sqrt(gsl_matrix_get(cov, i, i)));
 	info+=infoA;
 	}
 info+="-------------------------------------------------------------\n";
-info+="Chi^2 = "+QString::number(chisq);
+info+="Chi^2 = "+QString::number(chisq, 'G', 6);
 info+="\n-------------------------------------------------------------\n";
 
 gsl_multifit_linear_free (work);
@@ -2090,28 +2090,26 @@ if (showFormula)
 		rect.setTopLeft(QPoint(p.x(),p.y()+10));
 		}
 	aux->setOrigin(rect.topLeft());
-	aux->setBackground(2);
 		
-	QString s;
 	cj=gsl_vector_get(c,0);
-	t=QString::number(cj);
+	t= "Y=" + QString::number(cj, 'G', 6);
 		
-	s.sprintf("%.5f",cj);
-	if (s == "-0.00000" || s == "0.00000")
-			t="";
 	for (j= 1; j < m; j++)
 		{
 		cj=gsl_vector_get(c,j);
-		s.sprintf("%.5f",cj);
-		if (s != "-0.00000" && s != "0.00000")
+		if (cj>0 && !t.isEmpty())
+			t+="+";
+
+		QString s;
+		s.sprintf("%.5f",cj);	
+		if (s != "1.00000")
+			t+=QString::number(cj, 'G', 6);
+			
+		t+="X";
+		if (j>1)
 			{
-			if (cj>0 && !t.isEmpty())
-				t+="+";
-			if (s != "1.00000")
-				t+=QString::number(cj);
-			t+="X<sup>";
-			if (j>1)
-				t+=QString::number(j);
+			t+="<sup>";
+			t+=QString::number(j);
 			t+="</sup>";
 			}
 		}

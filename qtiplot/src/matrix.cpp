@@ -128,7 +128,7 @@ if (numeric)
 else
 	table->setText(row, col, "");
 
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 }
 
 QString Matrix::text (int row, int col)
@@ -179,7 +179,7 @@ x_end = xe;
 y_start = ys;
 y_end = ye;
 
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 }
 
 QString Matrix::saveToString(const QString &info)
@@ -188,6 +188,7 @@ QString s= "<matrix>\n";
 s+= QString(name()) + "\t";
 s+= QString::number(table->numRows())+"\t";
 s+= QString::number(table->numCols())+"\t";
+s+= birthDate() + "\n";
 s+= info;
 s+= "ColWidth\t" + QString::number(table->columnWidth(0))+"\n";
 s+= "Formula\t" + formula_str + "\n";
@@ -289,7 +290,7 @@ for (int i=0; i<rows; i++)
 		}		
 	}
 
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -315,7 +316,7 @@ if (width == columnsWidth())
 for (int i=0; i<table->numCols(); i++)
 	table->setColumnWidth (i, width);
 
-emit modifiedMatrix(this);	
+emit modifiedWindow(this);	
 }
 
 void Matrix::setMatrixDimensions(int rows, int cols)
@@ -339,7 +340,7 @@ if (rows < r || cols < c)
 		if (rows != r)
 			table->setNumRows(rows);
 		QApplication::restoreOverrideCursor();
-		emit modifiedMatrix(this);
+		emit modifiedWindow(this);
 		break;
 		
    		case 1:
@@ -355,7 +356,7 @@ else
 	if (rows != r)
 		table->setNumRows(rows);
 	QApplication::restoreOverrideCursor();
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -543,7 +544,7 @@ if (numeric)
 	if (formula_str != txt)
 		formula_str = txt;
 
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 	return;
 	}
@@ -645,7 +646,7 @@ if (formula_str != txt)
 free_matrix(data_matrix, 0, rows-1, 0, cols-1);
 delete[] vars;
 
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
 }
 
@@ -664,7 +665,7 @@ for (int i=0; i<table->numCols(); i++)
 
 if (colSelection)
 	{
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	return;
 	}
 else
@@ -675,7 +676,7 @@ else
 		for (int j= sel.leftCol();j<= sel.rightCol();j++)
 			table->setText(i, j, "");
 		}
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -753,7 +754,7 @@ for (int i=top; i<=bottom; i++)
 	rows[i-top]= i;
 
 table->removeRows(rows);
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 }
 
 void Matrix::insertColumn()
@@ -762,7 +763,7 @@ int cr = table->currentColumn();
 if (table->isColumnSelected (cr, true))
 	{
 	table->insertColumns(cr,1);
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -790,7 +791,7 @@ for (int i=0; i<table->numCols(); i++)
 		}
 	}
 table->removeColumns(cols);
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 }
 
 void Matrix::insertRow()
@@ -799,7 +800,7 @@ int cr = table->currentRow();
 if (table->isRowSelected (cr, true))
 	{
 	table->insertRows(cr,1);
-	emit modifiedMatrix(this);
+	emit modifiedWindow(this);
 	}
 }
 
@@ -908,45 +909,8 @@ for (i=top; i<top+rows; i++)
 		table->setText(i, j, cellTexts[j-left]);
 	}
 
-emit modifiedMatrix(this);
+emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
-}
-
-void Matrix::closeEvent( QCloseEvent *e )
-{
-if (confirmClose())
-    {
-    switch( QMessageBox::information(0,tr("QtiPlot"),
-				      tr("Do you want to hide or delete <p><b>'"
-					   + QString(name()) +"'</b> ?"),
-				      "Delete", "Hide", "Cancel",
-				      0,2) ) 
-	{
-    case 0:	
-	e->accept();
-	emit closedMatrix(this);
-	break;
-
-    case 1:
-	e->ignore();
-	emit hiddenMatrix(this);
-	break;
-
-	case 2:
-	e->ignore();
-	break;
-    } 
-    }
-else 
-    {
-    e->accept();
-    emit closedMatrix(this);
-    }
-}
-
-void Matrix::resizeEvent(QResizeEvent *)
-{
-emit resizedMatrix(this);
 }
 
 void Matrix::contextMenuEvent(QContextMenuEvent *e)

@@ -33,7 +33,7 @@ polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool moda
 	boxOrder->setValue(2);
 	
 	new QLabel( tr("Fit curve # pts"), GroupBox1, "TextLabel3",0 );
-	boxPoints = new QSpinBox(1,200,1,GroupBox1, "boxPoints" );
+	boxPoints = new QSpinBox(1,1000,50,GroupBox1, "boxPoints" );
 	
 	new QLabel( tr("Fit curve Xmin"), GroupBox1, "TextLabel4",0 );
 	boxStart = new QLineEdit(GroupBox1, "boxStart" );
@@ -156,7 +156,8 @@ else
 	boxStart->setText(QString::number(c->minXValue(), 'g', 15));
 	boxEnd->setText(QString::number(c->maxXValue(), 'g', 15));
 	}
-boxPoints->setValue(c->dataSize());
+
+boxPoints->setValue(QMAX(c->dataSize(), 100));
 };
 
 void polynomFitDialog::changeCurve(int index)

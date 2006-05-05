@@ -29,6 +29,10 @@ public:
 	void mousePressEvent ( QMouseEvent * e );
 	void mouseReleaseEvent ( QMouseEvent * e );
 	void mouseMoveEvent ( QMouseEvent * e );
+
+	void drawPixmap(QPainter *painter, const QRect &rect);
+	virtual void print(QPainter *, const QRect &rect,
+        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 	
 protected:
 	void printCanvas(QPainter *painter, const QRect &canvasRect,

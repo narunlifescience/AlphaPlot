@@ -28,17 +28,22 @@ class MultiLayer: public myWidget
 public:
     MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, WFlags f=0);
 	QWidgetList* graphPtrs(){return graphsList;};
-	LayerButton* addLayerButton();
+	LayerButton* addLayerButton();	
 
-	virtual WidgetType rtti(){return Plot2D;};
-	
+	enum HorAlignement{HCenter, Left, Right};
+	enum VertAlignement{VCenter, Top, Bottom};
+
 	//event handlers
-	void contextMenuEvent(QContextMenuEvent *e);
-	void closeEvent(QCloseEvent *e);
-	void wheelEvent ( QWheelEvent * e );
-	void keyPressEvent(QKeyEvent * e);
-	bool eventFilter(QObject *object, QEvent *e);
-	bool resizeLayers (const QResizeEvent *re);
+	void mousePressEvent(QMouseEvent *);
+	void mouseMoveEvent(QMouseEvent *);
+	void mouseReleaseEvent(QMouseEvent *);
+	void contextMenuEvent(QContextMenuEvent *);
+	void wheelEvent(QWheelEvent *);
+	void keyPressEvent(QKeyEvent *);
+	bool eventFilter(QObject *object, QEvent *);
+	bool resizeLayers (const QResizeEvent *);
+
+	void releaseLayer();
 	
 	QWidgetList *buttonsList, *graphsList;
 	QHBox  *hbox1;
@@ -49,6 +54,7 @@ public slots:
 	Graph* addLayer();
 	Graph* addLayerToOrigin();
 	Graph* addLayer(int x, int y, int width, int height);
+	void setLayersNumber(int n);
 
 	bool isEmpty();
     void removeLayer();
@@ -61,18 +67,17 @@ public slots:
 	void setActiveGraph(Graph* g);
 	void activateGraph(LayerButton* button);
 	
-	void resizeGraph(Graph* g, const QPoint& pos);
 	void moveGraph(Graph* g, const QPoint& pos);
 	void releaseGraph(Graph* g);
-	void newSizeGraph(Graph* g);
 	
 	void setGraphOrigin(const QPoint& pos);
 	void setGraphGeometry(int x, int y, int w, int h);
 
 	void findBestLayout(int &rows, int &cols);
-	void arrangeLayers(int c, int r, int colsGap, int rowsGap);
-	void arrangeLayers(int c, int r, int colsGap, int rowsGap, bool fit); 
-	QSize calculateMaxCanvasSize(int c, int r);
+	
+	QSize arrangeLayers(bool userSize);
+	void arrangeLayers(bool fit, bool userSize);
+	
 	QSize maxSize();
 	
 	int getRows(){return rows;};
@@ -83,7 +88,21 @@ public slots:
 	
 	int colsSpacing(){return colsSpace;};
 	int rowsSpacing(){return rowsSpace;};
-	
+	void setSpacing (int rgap, int cgap);
+
+	int leftMargin(){return left_margin;};
+	int rightMargin(){return right_margin;};
+	int topMargin(){return top_margin;};
+	int bottomMargin(){return bottom_margin;};
+	void setMargins (int lm, int rm, int tm, int bm);
+
+	QSize layerCanvasSize(){return QSize(l_canvas_width, l_canvas_height);};
+	void setLayerCanvasSize (int w, int h);
+
+	int horizontalAlignement(){return hor_align;};
+	int verticalAlignement(){return vert_align;};
+	void setAlignement (int ha, int va);
+
 	int graphsNumber(){return graphs;};
 	
 	// print and export
@@ -106,8 +125,16 @@ public slots:
 	void connectLayer(Graph *g);
 	bool overlapsLayers(Graph *g);
 	bool hasOverlapingLayers();
+	bool allLayersTransparent();
 
+	void highlightLayer(Graph*g);
+	void drawLayerFocusRect(const QRect& fr);
+	void showLayers(bool ok);
+
+	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
+
+	int layerButtonHeight();
 
 signals:   
 	void showTextDialog();
@@ -123,9 +150,6 @@ signals:
 	void showTopAxisTitleDialog();
 	void showRightAxisTitleDialog();
 	void showMarkerPopupMenu();
-	void closedPlot(QWidget*);
-	void hidePlot(QWidget*);
-	void resizedPlot(QWidget*);
 	void modifiedPlot();
 	void cursorInfo(const QString&);
 	void showImageDialog();
@@ -145,13 +169,13 @@ signals:
 	
 private:
 	Graph* active_graph;
+	QRect aux_rect;//used for resizing of layers
+	QPixmap cache_pix;
 	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
-	int xMouse, yMouse, xActiveGraph, yActiveGraph;
-	bool movedGraph, addTextOn;
-
-// used when resizing layer by mouse-dragging (all of them really necessary?)
-	int xlb, ytb, xrb, ybb, Save_oldw, Save_oldh, xInt, yInt, oldw, oldh, xrMouse, yrMouse;
-	bool resizedGraph, yesResize,ChangeOrigin;
+	int left_margin, right_margin, top_margin, bottom_margin;
+	int l_canvas_width, l_canvas_height, hor_align, vert_align;
+	int xMouse, yMouse, xActiveGraph, yActiveGraph;//used for moving layers
+	bool movedGraph, addTextOn, highlightedLayer;
 };
 
 	
@@ -160,10 +184,10 @@ class LayerButton: public QWidget
 	Q_OBJECT
 
 public:
-    LayerButton (const QString& text, QWidget* parent, const char* name);
+    LayerButton (const QString& text = QString::null, QWidget* parent = 0, const char* name = 0);
 	~LayerButton();
 
-	 QPushButton  *btn;
+	QPushButton  *btn;
 
 	bool eventFilter(QObject *object, QEvent *e);
 

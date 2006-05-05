@@ -14,15 +14,8 @@ public:
 	~Note(){};
 
 	QTextEdit *te;
-
-	virtual WidgetType rtti(){return NoteWidget;};
 		
 	void init();
-
-	//event handlers
-	void closeEvent( QCloseEvent *e );
-	void resizeEvent(QResizeEvent *);
-	void contextMenuEvent(QContextMenuEvent *e);
 
 public slots:
 	QString saveToString(const QString &info);
@@ -31,14 +24,7 @@ public slots:
 	QString text(){return te->text();};
 	void setText(const QString &s){te->setText(s);};
 	void modifiedNote();
-	void print();
-
-signals:
-	void modifiedNote(QWidget *);
-	void closedNote(QWidget*);
-	void hiddenNote(QWidget*);
-	void resizedNote(QWidget*);
-	void showContextMenu();
+	void print();	
 };
    
 #endif

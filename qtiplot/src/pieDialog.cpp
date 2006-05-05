@@ -118,14 +118,12 @@ QButtonGroup *GroupBox1 = new QButtonGroup(2,QGroupBox::Horizontal, tr("Backgrou
 	
 new QLabel(tr("Color"), GroupBox1, "TextLabel1_53",0 );
 boxBackgroundColor= new ColorButton(GroupBox1);
-boxBackgroundColor->setText( tr( "Co&lor" ) );
 	
 new QLabel(tr("Border Width"),GroupBox1, "TextLabel1_54",0 );
 boxBorderWidth= new QSpinBox(GroupBox1);
 
 new QLabel(tr("Border Color" ),GroupBox1, "TextLabel1_53",0 );
 boxBorderColor= new ColorButton(GroupBox1);
-boxBorderColor->setText( tr( "Colo&r" ) );
 
 QButtonGroup *GroupBox2 = new QButtonGroup(2,QGroupBox::Horizontal,tr("Options"), frame, "GroupBox2" );
 new QLabel(tr( "Margin" ),GroupBox2, "TextLabel1_541",0 );

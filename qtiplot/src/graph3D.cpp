@@ -1769,7 +1769,7 @@ if (!ignoreFonts && this->isVisible())
 	}
 
 sp->updateGL();
-emit resizedPlot(this);
+emit resizedWindow(this);
 emit modified();
 }
 
@@ -2166,38 +2166,6 @@ return FALSE;
 return QObject::eventFilter(object, e);
 }
 
-void Graph3D::closeEvent( QCloseEvent *e )
-{
-if (confirmClose())
-	{
-	switch( QMessageBox::information(0,tr("QtiPlot"),
-				      tr("Do you want to hide or delete <p><b>'"
-					   + QString(name()) + "'</b> ?"),
-				      "Delete", "Hide", "Cancel",
-				      0,2) ) 
-		{
-		case 0:	
-		emit closedGraph(this);
-		e->accept(); 
-		break;
-
-		case 1:
-		emit hiddenPlot(this);
-		e->ignore();
-		break;
-
-		case 2:
-		e->ignore();
-		break;
-		}  
-	}
-else
-	{
-	emit closedGraph(this);
-	e->accept(); 
-	}
-}
-
 void Graph3D::setPointOptions(double size, bool s)
 {
 if (pointSize == size && smooth == s)
@@ -2529,13 +2497,13 @@ else
 	return plotAssociation;
 }
 
-QString Graph3D::saveToString(const QString& geometry, const QString& birth)
+QString Graph3D::saveToString(const QString& geometry)
 {
 QString s="<SurfacePlot>\n";
 s+= QString(name())+"\t";
-s+=birth + "\n";		
-s+=geometry;
-s+="SurfaceFunction\t";
+s+= birthDate() + "\n";		
+s+= geometry;
+s+= "SurfaceFunction\t";
 
 sp->makeCurrent();	
 if (func)
@@ -2958,7 +2926,7 @@ sp->updateGL();
 
 QString Graph3D::saveAsTemplate(const QString& geometryInfo) 
 {
-QString s = saveToString(geometryInfo, QString::null);
+QString s = saveToString(geometryInfo);
 QStringList lst = QStringList::split("\n", s, false);
 QStringList l = QStringList::split("\t", lst[3], true);
 l[1] = QString::null;

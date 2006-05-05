@@ -200,6 +200,10 @@ public slots:
 	 void highlightTextMarker(long markerID);
 	 void highlightImageMarker(long markerID);
 	 void moveMarkerBy(int dx, int dy);
+	 QFont defaultTextMarkerFont(){return defaultMarkerFont;};
+
+	 int textMarkerDefaultFrame(){return defaultMarkerFrame;};
+	 void setTextMarkerDefaultFrame(int f){defaultMarkerFrame = f;};
 	 
 	 MarkerType copiedMarkerType(){return selectedMarkerType;};
 	 void setCopiedMarkerType(Graph::MarkerType type){selectedMarkerType=type;};
@@ -280,7 +284,7 @@ public slots:
 
 	 void setAxisFont(int axis,const QFont &fnt);
 	 QFont axisFont(int axis);
-	 void initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt);
+	 void initFonts(const QFont &scaleTitleFnt,const QFont &numbersFnt,const QFont &textMarkerFnt);
 	
 	 QColor axisTitleColor(int axis);
 	 void setXAxisTitleColor(const QColor& c);
@@ -541,9 +545,8 @@ public slots:
 	 void createWorksheet(const QString& name);
 	 void activateGraph();
 	 void moveGraph(const QPoint& pos);
-	 void resizeGraph(const QPoint& pos);
 	 void releaseGraph();
-	 void newSizeGraph();
+	 void highlightGraph(){emit highlightGraph(this);};
 
 	//vector curves
 	void plotVectorCurve(Table* w, const QStringList& colList, int style);
@@ -574,6 +577,8 @@ public slots:
 
 	void updateSecondaryAxis(int axis);
 	void enableAutoscaling(bool yes){autoscale = yes;};
+
+	bool autoscaleFonts(){return autoScaleFonts;};
 	void setAutoscaleFonts(bool yes){autoScaleFonts = yes;};
 
 	static int obsoleteSymbolStyle(int type);
@@ -604,10 +609,9 @@ public slots:
 	bool selectPeaksOn();
 
 signals:
+	void highlightGraph(Graph*);
     void releaseGraph(Graph*);
-	void newSizeGraph(Graph*);
 	void moveGraph(Graph*, const QPoint& pos);
-	void resizeGraph(Graph*, const QPoint& pos);
     void selectedGraph (Graph*);
 	void closedGraph();
 	void drawTextOff();
@@ -665,14 +669,14 @@ private:
 	QMemArray<long> images; // images on plot keys
 	QStringList tickLabelsOn;// tells wich axes have tick labels enabled
 	QPen mrkLinePen;
-	QFont auxMrkFont;
+	QFont auxMrkFont, defaultMarkerFont;
 	QColor auxMrkColor, auxMrkBkgColor;
 	QPoint auxMrkStart,auxMrkEnd;
 	Qt::PenStyle auxMrkStyle;
 	QString auxMrkFileName, auxMrkText;
 
 	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
-	int selectedCol,xCol,widthLine,fitID,linesOnPlot;
+	int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
 	int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 	int auxArrowHeadLength, auxArrowHeadAngle;
 	int axesLineWidth, translationDirection;

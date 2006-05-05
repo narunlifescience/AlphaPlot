@@ -25,7 +25,6 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 
 	new QLabel(tr( "Color" ), GroupBox1, "TextLabel1",0);
 	colorBox = new ColorButton(GroupBox1);
-	colorBox->setText(tr("Co&lor"));
 
 	new QLabel(tr( "Line type" ),GroupBox1, "TextLabel1_2_2",0 );
     styleBox = new QComboBox( FALSE, GroupBox1, "styleBox" );

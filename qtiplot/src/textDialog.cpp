@@ -52,7 +52,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent,  const char* name, bool m
 	new QLabel(tr( "Color" ), GroupBox1, "TextLabel2",0 );
 	
     colorBox = new ColorButton(GroupBox1);
-	colorBox->setText(tr("Co&lor"));
 
 	buttonOk = new QPushButton( GroupBox1, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
@@ -94,7 +93,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent,  const char* name, bool m
 		{
 		new QLabel(tr("Background"), GroupBox1, "TextLabel2",0 );
 		backgroundBtn = new ColorButton(GroupBox1);
-		backgroundBtn->setText(tr("&Background"));
 
 		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
 		}

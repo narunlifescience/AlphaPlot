@@ -26,7 +26,7 @@ private:
 	QPoint startLinePoint, endLinePoint;
 	
 	int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
-	bool moved,	movedGraph, resizedGraph, ShiftButton, pointSelected, select_peaks;	
+	bool moved,	movedGraph, pointSelected, select_peaks;	
 	
 signals:
 	void showPieDialog();
@@ -40,7 +40,6 @@ signals:
 	void calculateProfile(const QPoint&, const QPoint&);
 	void selectPlot();
 	void moveGraph(const QPoint&);
-	void resizeGraph(const QPoint&);
 	void releasedGraph();
-	void newSizeGraph();
+	void highlightGraph();
 };

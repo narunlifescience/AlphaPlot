@@ -1234,7 +1234,6 @@ void axesDialog::initAxesPage()
 
 	new QLabel(tr( "Color" ),GroupBox7, "TextLabel1_51",0 );	
 	boxAxisColor= new ColorButton(GroupBox7);
-	boxAxisColor->setText( tr( "Co&lor" ) );
 
 	new QLabel(tr( "Ticks" ), GroupBox7, "TextLabel1_511",0 );	
 	boxTicksType= new QComboBox(GroupBox7);
@@ -1312,7 +1311,6 @@ boxFramed->setCheckable (true);
 	
 new QLabel(tr( "Color" ), boxFramed, "TextLabel1_53",0 );
 boxFrameColor= new ColorButton(boxFramed);
-boxFrameColor->setText( tr( "C&olor" ) );
 
 new QLabel(tr( "Width" ), boxFramed, "TextLabel1_54",0 );
 boxFrameWidth= new QSpinBox(boxFramed);
@@ -1322,14 +1320,12 @@ QButtonGroup *GroupBox55 = new QButtonGroup(2,QGroupBox::Horizontal,tr("Backgrou
 	
 new QLabel(tr( "Color" ),GroupBox55, "TextLabel1_53",0 );
 boxBackgroundColor= new ColorButton(GroupBox55);
-boxBackgroundColor->setText( tr( "Co&lor" ) );
 	
 new QLabel(tr( "Border Width" ),GroupBox55, "TextLabel1_54",0 );
 boxBorderWidth= new QSpinBox(GroupBox55);
 
 new QLabel(tr("Border Color" ),GroupBox55, "TextLabel1_53",0 );
 boxBorderColor= new ColorButton(GroupBox55);
-boxBorderColor->setText( tr( "Colo&r" ) );
 
 QVBox *vbox2 = new QVBox(frame, "vbox2");
 vbox2->setSpacing(5);

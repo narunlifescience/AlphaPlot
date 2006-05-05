@@ -19,8 +19,6 @@ public:
 	Graph3D (const QString& label, QWidget* parent, const char* name, WFlags f);
 	~Graph3D();
 
-	virtual WidgetType rtti(){return Plot3D;};
-
 	enum PlotType{Scatter=0, Trajectory = 1, Bars = 2};
 	enum PointStyle{None=0, Dots=1, VerticalBars=2, HairCross=3, Cones=4};
 
@@ -69,7 +67,6 @@ public slots:
 
 	//event handlers
 	bool eventFilter(QObject *object, QEvent *e);
-	void closeEvent( QCloseEvent *e );
 	void resizeEvent ( QResizeEvent *);
 	void contextMenuEvent(QContextMenuEvent *e);
 	void scaleFonts(double factor);
@@ -138,7 +135,7 @@ public slots:
 	void copyImage();
 	void saveImageToFile(const QString& fname, const QString& format);
 	void saveImage();
-	QString saveToString(const QString& geometry, const QString& birth);
+	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
 
 	void zoomChanged(double);
@@ -277,9 +274,6 @@ public slots:
 signals:   
 	void showContextMenu();
 	void showOptionsDialog();
-	void closedGraph(QWidget*);
-	void hiddenPlot(QWidget*);
-	void resizedPlot(QWidget*);
 	void modified();
 	void custom3DActions(QWidget*);
 	

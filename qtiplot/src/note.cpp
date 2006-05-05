@@ -2,7 +2,6 @@
 
 #include <qdatetime.h>
 #include <qlayout.h>
-#include <qmessagebox.h>
 #include <qapplication.h>
 #include <qprinter.h>
 #include <qpainter.h>
@@ -32,7 +31,7 @@ connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 
 void Note::modifiedNote()
 {
-emit modifiedNote(this);
+emit modifiedWindow(this);
 }
 
 QString Note::saveToString(const QString &info)
@@ -44,49 +43,6 @@ s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + 
 s+= te->text()+"\n";
 s+="</note>\n";
 return s;
-}
-
-void Note::closeEvent( QCloseEvent *e )
-{
-if (confirmClose())
-    {
-    switch( QMessageBox::information(0,tr("QtiPlot"),
-				      tr("Do you want to hide or delete <p><b>'"
-					   + QString(name()) +"'</b> ?"),
-				      tr("Delete"), tr("Hide"), tr("Cancel"),
-				      0,2) ) 
-	{
-    case 0:	
-	e->accept();
-	emit closedNote(this);
-	break;
-
-    case 1:
-	e->ignore();
-	emit hiddenNote(this);
-	break;
-
-	case 2:
-	e->ignore();
-	break;
-    } 
-    }
-else 
-    {
-    e->accept();
-    emit closedNote(this);
-    }
-}
-
-void Note::resizeEvent(QResizeEvent *)
-{
-emit resizedNote(this);
-}
-
-void Note::contextMenuEvent(QContextMenuEvent *e)
-{
-emit showContextMenu();
-e->accept();
 }
 
 void Note::print()
