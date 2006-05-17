@@ -26,11 +26,9 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-
-
 #ifndef PLOTWIZARD_H
 #define PLOTWIZARD_H
-
+ 
 #include <qvariant.h>
 #include <qdialog.h>
 
@@ -38,13 +36,13 @@ class QButtonGroup;
 class QPushButton;
 class QListBox;
 class QComboBox;
-
+ 
 //! A wizard type dialog class to create new plots
-class plotWizard : public QDialog
-{
-    Q_OBJECT
-
-public:
+ class plotWizard : public QDialog
+ {
+     Q_OBJECT
+ 
+ public:
 	//! Constructor
 	/**
 	 * \param parent parent widget
@@ -52,10 +50,10 @@ public:
 	 * \param modal flag: decides wheather the dialog is model or not
 	 * \param fl Qt window flags
 	 */
-    plotWizard( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+     plotWizard( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
 	//! Destructor
-    ~plotWizard();
-
+     ~plotWizard();
+ 
 				//! Button "Plot"
     QPushButton* buttonOk,
 				//! Button "<->xErr" 
@@ -81,51 +79,51 @@ public:
 				//! Button group defining the layout
 				*GroupBox3;
 				//! Combo box to select the table
-    QComboBox* boxTables;
+     QComboBox* boxTables;
 				//! List of the columns in the selected table
 	QListBox *columnsList, 
 				//! List of the plots to generate
 			 *plotAssociations;
-
-public slots:
+ 
+ public slots:
 	//! Slot: Update the columns list box to contain the columns of 'table'
-	void changeColumnsList(const QString &table);
+ 	void changeColumnsList(const QString &table);
 	//! Slot: Insert a list of tables into the tables combo box
-	void insertTablesList(const QStringList& tables);
+ 	void insertTablesList(const QStringList& tables);
 	//! Slot: Set the contents of the columns list box to the strings in 'cols' 
-	void insertColumnsList(const QStringList& cols);
+ 	void insertColumnsList(const QStringList& cols);
 	//! Slot: Set the internal columns list to 'cols'
-	void setColumnsList(const QStringList& cols);
+ 	void setColumnsList(const QStringList& cols);
 	//! Slot: Add new curve
-	void addCurve();
+ 	void addCurve();
 	//! Slot: Delete selected curve
-	void toggleCurve();
+ 	void toggleCurve();
 	//! Slot: Add column as X
-	void addXCol();
+ 	void addXCol();
 	//! Slot: Add column as Y
-	void addYCol();
+ 	void addYCol();
 	//! Slot: Add column as X error
-	void addXErrCol();
+ 	void addXErrCol();
 	//! Slot: Add column as Y error
-	void addYErrCol();
+ 	void addYErrCol();
 	//! Slot: Accept settings, close the dialog
-	void accept();
+ 	void accept();
 	//! Slot: Display a warning that a new curve must be added first before the selection of the columns
-	bool noCurves();
+ 	bool noCurves();
 	//! Slot: Add column as Z
-	void addZCol();
-
-signals:
+ 	void addZCol();
+ 
+ signals:
 	//! Signal: New plots need to be created
-	void plot (const QStringList&);
+ 	void plot (const QStringList&);
 	//! Signal: A new 3D plot needs to be generated
-	void plot3D (const QString&);
+ 	void plot3D (const QString&);
 	//! Signal: A new 3D ribbon plot needs to be generated
-	void plot3DRibbon (const QString&);
-
-private:
+ 	void plot3DRibbon (const QString&);
+ 
+ private:
 	//! Internal list of columns (contains all columns in all tables)
-	QStringList columns;
-};
-
+ 	QStringList columns;
+ };
+ 
 #endif //  PLOTWIZARD_H

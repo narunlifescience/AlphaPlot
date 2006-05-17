@@ -103,7 +103,9 @@ HEADERS  = src/application.h \
 	 src/smoothCurveDialog.h\
 	 src/filterDialog.h\
 	 src/fftDialog.h\
-	 src/note.h
+	 src/note.h\
+	 src/folder.h\
+	 src/findDialog.h
      
 SOURCES  = src/application.cpp \
      src/graph.cpp \
@@ -173,7 +175,9 @@ SOURCES  = src/application.cpp \
 	 src/smoothCurveDialog.cpp\
 	 src/filterDialog.cpp\
 	 src/fftDialog.cpp\
-	 src/note.cpp
+	 src/note.cpp\
+	 src/folder.cpp\
+	 src/findDialog.cpp
 
 #parser (muParser_v1.26)
 HEADERS+=../3rdparty/muParser/muParser.h \

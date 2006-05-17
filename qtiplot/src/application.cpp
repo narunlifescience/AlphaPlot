@@ -45,6 +45,8 @@
 #include "fftDialog.h"
 #include "epsExportDialog.h"
 #include "note.h"
+#include "folder.h"
+#include "findDialog.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -80,6 +82,8 @@
 #include <qapplication.h>
 #include <qprocess.h>
 #include <qtranslator.h>
+#include <qsplitter.h>
+#include <qobjectlist.h>
 
 #include <zlib.h>
 
@@ -143,13 +147,43 @@ initToolBars();
 initPlot3DToolBar();
 initMainMenu();
 
-explorerWindow = new dockWindow (this, "explorerWindow", 0 );
+explorerWindow = new QDockWindow (this, "explorerWindow", 0 );
 explorerWindow->setResizeEnabled (true);
 explorerWindow->setCloseMode(QDockWindow::Always);
 explorerWindow->setFixedExtentHeight(150);
 addDockWindow (explorerWindow, Qt::DockBottom);
 
-lv = new QListView( explorerWindow, 0);
+QSplitter *splitter = new QSplitter( Qt::Horizontal, explorerWindow );
+
+folders = new FolderListView( splitter );
+folders->header()->setClickEnabled( FALSE );
+folders->addColumn( tr("Folder") );
+folders->setRootIsDecorated( TRUE );
+folders->setResizeMode(QListView::LastColumn);
+folders->header()->hide();
+folders->setSelectionMode(QListView::Single);
+
+connect(folders, SIGNAL(currentChanged(QListViewItem *)), 
+		this, SLOT(folderItemChanged(QListViewItem *)));
+connect(folders, SIGNAL(itemRenamed(QListViewItem *, int, const QString &)), 
+		this, SLOT(renameFolder(QListViewItem *, int, const QString &)));
+connect(folders, SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)), 
+		this, SLOT(showFolderPopupMenu(QListViewItem *, const QPoint &, int)));
+connect(folders, SIGNAL(dragItems(QPtrList<QListViewItem>)), 
+		this, SLOT(dragFolderItems(QPtrList<QListViewItem>)));
+connect(folders, SIGNAL(dropItems(QListViewItem *)), 
+		this, SLOT(dropFolderItems(QListViewItem *)));
+connect(folders, SIGNAL(renameItem(QListViewItem *)), 
+		this, SLOT(startRenameFolder(QListViewItem *)));
+connect(folders, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+connect(folders, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
+
+current_folder = new Folder( 0, tr("UNTITLED"));
+FolderListItem *fli = new FolderListItem(folders, current_folder);
+current_folder->setFolderListItem(fli);
+fli->setOpen( TRUE );
+
+lv = new FolderListView( splitter );
 lv->addColumn (tr("Name"),-1 );
 lv->addColumn (tr("Type"),-1 );
 lv->addColumn (tr("View"),-1 );
@@ -158,8 +192,9 @@ lv->addColumn (tr("Created"),-1);
 lv->addColumn (tr("Label"),-1);
 lv->setResizeMode(QListView::LastColumn);
 lv->setMinimumHeight(80);
+lv->setSelectionMode(QListView::Extended);
 
-explorerWindow->setWidget(lv);
+explorerWindow->setWidget(splitter);
 explorerWindow->hide();
 
 logWindow = new QDockWindow (this, 0, 0 );
@@ -186,10 +221,8 @@ createLanguagesList();
 insertTranslatedStrings();
 
 QAccel *accel = new QAccel(this);
-accel->connectItem( accel->insertItem( Key_F5 ),
-                            ws, SLOT(activateNextWindow()) );
-accel->connectItem( accel->insertItem( Key_F6 ),
-                            ws, SLOT(activatePrevWindow()) );
+accel->connectItem( accel->insertItem( Key_F5 ), ws, SLOT(activateNextWindow()) );
+accel->connectItem( accel->insertItem( Key_F6 ), ws, SLOT(activatePrevWindow()) );
 
 connect(actionShowLog, SIGNAL(toggled(bool)), this, SLOT(showResults(bool)));
 connect(logWindow,SIGNAL(visibilityChanged(bool)),actionShowLog,SLOT(setOn(bool)));
@@ -197,10 +230,26 @@ connect(explorerWindow,SIGNAL(visibilityChanged(bool)),actionShowExplorer,SLOT(s
 connect(tablesDepend, SIGNAL(activated(int)), this, SLOT(showTable(int)));
 
 connect(this, SIGNAL(modified()),this, SLOT(modifiedProject()));
-connect(this, SIGNAL(windowClosed(const QString&)),this, SLOT(updateListView(const QString&)));
+connect(this, SIGNAL(windowClosed(const QString&)), 
+		this, SLOT(updateListView(const QString&)));
 connect(ws, SIGNAL(windowActivated (QWidget*)),this, SLOT(windowActivated(QWidget*)));
-connect(lv, SIGNAL(doubleClicked(QListViewItem *)),this, SLOT(maximizeWindow(QListViewItem *)));
-connect(lv, SIGNAL(rightButtonClicked(QListViewItem *, const QPoint &, int)), this, SLOT(showWindowPopupMenu(QListViewItem *, const QPoint &, int)));
+connect(lv, SIGNAL(doubleClicked(QListViewItem *)),
+		this, SLOT(maximizeWindow(QListViewItem *)));
+connect(lv, SIGNAL(doubleClicked(QListViewItem *)), 
+		this, SLOT(folderItemDoubleClicked(QListViewItem *)));
+connect(lv, SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)), 
+		this, SLOT(showWindowPopupMenu(QListViewItem *, const QPoint &, int)));
+connect(lv, SIGNAL(dragItems(QPtrList<QListViewItem>)), 
+		this, SLOT(dragFolderItems(QPtrList<QListViewItem>)));
+connect(lv, SIGNAL(dropItems(QListViewItem *)), 
+		this, SLOT(dropFolderItems(QListViewItem *)));
+connect(lv, SIGNAL(renameItem(QListViewItem *)), 
+		this, SLOT(startRenameFolder(QListViewItem *)));
+connect(lv, SIGNAL(addFolderItem()), this, SLOT(addFolder()));
+connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
+connect(lv, SIGNAL(itemRenamed(QListViewItem *, int, const QString &)), 
+		this, SLOT(renameWindow(QListViewItem *, int, const QString &)));
+
 connect(recent, SIGNAL(activated(int)),this, SLOT(openRecentProject(int)));
 }
 
@@ -222,19 +271,20 @@ activeGraph=0;
 lastCopiedLayer=0;
 copiedLayer=FALSE;
 copiedMarkerType=Graph::None;
-aw=0, wmax=0;
+aw=0;
 logInfo=QString::null;
 savingTimerId=0;
 renameColumns = true;
 strip_spaces = false;
 simplify_spaces = false;
+show_windows_policy = ActiveFolder;
 
 appFont = QFont();
 QString family = appFont.family();
 int pointSize = appFont.pointSize();
 tableTextFont=appFont;
 tableHeaderFont=appFont;
-plotAxesFont=QFont(family, pointSize, QFont::Bold, FALSE );
+plotAxesFont=QFont(family, pointSize, QFont::Bold, FALSE);
 plotNumbersFont=QFont(family, pointSize );
 plotLegendFont=appFont;
 plotTitleFont=QFont(family, pointSize + 2, QFont::Bold,FALSE);
@@ -1046,19 +1096,6 @@ else
 	explorerWindow->hide();
 }
 
-void ApplicationWindow::maximizeWindow(QListViewItem * lbi)
-{
-QWidget *w = window(lbi);
-if (!w)
-	return;
-
-updateWindowLists(w);
-
-w->showMaximized();
-lbi->setText(2,tr("Maximized"));
-emit modified();
-}
-
 void ApplicationWindow::plot3DRibbon()
 {
 Table* w = (Table*)ws->activeWindow();
@@ -1499,6 +1536,28 @@ for (int i=0;i<c;i++)
 	}
 }
 
+void ApplicationWindow::changeMatrixName(const QString& oldName, const QString& newName)
+{
+int index = matrixWindows.findIndex(oldName);
+matrixWindows[index] = newName;
+
+QWidget *w;
+QWidgetList *lst = windowsList();
+for (w = lst->first(); w; w = lst->next() )
+	{
+	if (w->isA("Graph3D"))
+		{
+		QString s = ((Graph3D*)w)->formula();
+		if (s.contains(oldName))
+			{
+			s.replace(oldName, newName);
+			((Graph3D*)w)->setPlotAssociation(s);
+			}
+		}
+	}
+delete lst;
+}
+
 void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 {
 QWidgetList windows = ws->windowList();
@@ -1679,7 +1738,7 @@ Graph3D* ApplicationWindow::newPlot3D(const QString& formula, double xl, double 
 {
 graphs++;
 QString label="graph"+QString::number(graphs);
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1716,7 +1775,7 @@ plot->addFunction(formula, xl, xr, yl, yr, zl, zr);
 plot->update();
 	
 QString label=caption;
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1734,7 +1793,7 @@ QApplication::setOverrideCursor(waitCursor);
 
 graphs++;
 QString label="graph"+QString::number(graphs);
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1777,7 +1836,7 @@ plot->addData(w, xCol, yCol, xl, xr, yl, yr, zl, zr);
 plot->update();
 
 QString label=caption;
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1812,7 +1871,7 @@ Graph3D* ApplicationWindow::dataPlot3D(const QString& formula)
 	QString yColName=caption+formula.mid(posX+2,posY-posX-2);
 
 	QString label="graph"+QString::number(++graphs);
-	while(allreadyUsedName(label))
+	while(alreadyUsedName(label))
 		{
 		label="graph"+QString::number(++graphs);
 		}
@@ -1837,7 +1896,7 @@ Graph3D* ApplicationWindow::dataPlotXYZ(Table* table, const QString& zColName, i
 QApplication::setOverrideCursor(waitCursor);
 graphs++;
 QString label="graph"+QString::number(graphs);
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1893,7 +1952,7 @@ plot->addData(w, xCol, yCol, zCol, xl, xr, yl, yr, zl, zr);
 plot->update();
 
 QString label=caption;
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	graphs++;
 	label="graph"+QString::number(graphs);
@@ -1939,7 +1998,7 @@ plot->addData(w, xCol, yCol, zCol, 1);
 plot->resize(500,400);
 
 QString label="graph"+QString::number(++graphs);
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
 	label="graph"+QString::number(++graphs);
 	}
@@ -1976,19 +2035,13 @@ plot->setTitleFont(plot3DTitleFont);
 void ApplicationWindow::initPlot3D(Graph3D *plot)
 {
 connectSurfacePlot(plot);
-QPixmap icon = QPixmap(trajectory_xpm);
 
-plot->setIcon(icon);
+plot->setIcon(QPixmap(trajectory_xpm));
 plot->show();
 plot->setFocus();
 
-QListViewItem *element=new QListViewItem (lv);
-element->setPixmap (0, icon);
-element->setText (0, plot->name());
-element->setText (1, tr("Plot 3D"));
-element->setText (2, tr("Normal"));
-element->setText (3, QString::number(8*sizeof(plot)/1024.0, 'f', 1)+" kB");
-element->setText (4, plot->birthDate());
+addListViewItem(plot);
+current_folder->addWindow(plot);
 
 plot3DWindows << plot->name();
 
@@ -2142,7 +2195,7 @@ if (style == Graph::HorizontalBars)
 }
 
 MultiLayer* ApplicationWindow::multilayerPlot(const QString& caption)
-{//used when restoring a plot from a project file
+{
 MultiLayer* g = new MultiLayer("", ws,0,WDestructiveClose);
 QString label=caption;
 initMultilayerPlot(g, label.replace(QRegExp("_"),"-"));
@@ -2321,19 +2374,10 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 connectMultilayerPlot(g);
 	
 QString label = name;
-while(allreadyUsedName(label))
+while(alreadyUsedName(label))
 	{
-	graphs++;
-	label="graph"+QString::number(graphs);
+	label="graph"+QString::number(++graphs);
 	}
-
-QListViewItem *element=new QListViewItem (lv);
-element->setPixmap (0,QPixmap(graph_xpm));
-element->setText (0,label);
-element->setText (1, tr("Plot"));
-element->setText (3,QString::number(8*sizeof(g)/1024.0, 'f', 1)+ " kB");
-element->setText (2, tr("Normal"));
-element->setText (4, g->birthDate());
 
 plotWindows<<label;
 
@@ -2342,6 +2386,9 @@ g->setName(label);
 g->setIcon(QPixmap(graph_xpm));
 g->showNormal();
 g->setFocus();
+
+addListViewItem(g);
+current_folder->addWindow(g);
 }
 
 void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& textColor,
@@ -2464,6 +2511,15 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 {
 Table* w = new Table(r, c, "", ws,0,WDestructiveClose);
 initTable(w, caption);
+if (w->name() != caption)//the table was renamed
+	{
+	renamedTables << caption << w->name();
+
+	QApplication::restoreOverrideCursor();
+	QMessageBox:: warning(this, "QtiPlot - Renamed Window", 
+	tr("The table '%1' already exists. It has been renamed '%2'.").arg(caption).arg(w->name()));
+	QApplication::setOverrideCursor(waitCursor);
+	}
 return w;
 }
 
@@ -2516,7 +2572,7 @@ for (int i=0; i<r; i++)
 initTable(w, lst[0]);
 w->setCaptionPolicy(myWidget::Both);
 outWindows->append(w);
-setListView(w->name(),"Hidden");
+setListView(w->name(),tr("Hidden"));
 return w;
 }
 
@@ -2528,25 +2584,16 @@ customTable(w);
 QString name=caption;
 name=name.replace ("_","-");
 
-while(allreadyUsedName(name))
-	{
-	tables++;
-	name="table"+QString::number(tables);
-	}
+while(alreadyUsedName(name)){
+	name="table"+QString::number(++tables);}
 
 tableWindows<<name;
 w->setCaption(name);
 w->setName(name);
 w->setIcon( QPixmap(worksheet_xpm) );
 	
-QListViewItem *element=new QListViewItem (lv);
-element->setPixmap (0,QPixmap(worksheet_xpm));
-element->setText (0, name);
-element->setText (1, tr("Table"));
-element->setText (2, tr("Normal"));
-element->setText (3, QString::number(8*sizeof(Table)/1024.0, 'f', 1)+ " kB");
-element->setText (4, w->birthDate());
-element->setText (5, w->windowLabel());
+addListViewItem(w);
+current_folder->addWindow(w);
 	
 emit modified();
 }
@@ -2574,7 +2621,7 @@ return m;
 void ApplicationWindow::initNote(Note* m, const QString& caption)
 {
 QString name=caption;
-while(allreadyUsedName(name))
+while(alreadyUsedName(name))
 	name = "Note"+QString::number(++notes);
 
 noteWindows<<name;
@@ -2584,21 +2631,15 @@ m->setName(name);
 m->setIcon( QPixmap(note_xpm) );
 m->askOnCloseEvent(confirmCloseNotes);
 
-QListViewItem *element=new QListViewItem (lv);
-element->setPixmap (0,QPixmap(note_xpm));
-element->setText (0, name);
-element->setText (1, tr("Note"));
-element->setText (2, tr("Normal"));
-element->setText (3, QString::number(sizeof m) + " B");
-element->setText (4, m->birthDate());
+addListViewItem(m);
+current_folder->addWindow(m);
 
 connect(m->textWidget(), SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
 connect(m->textWidget(), SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
 connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
 connect(m, SIGNAL(closedWindow(QWidget*)), this, SLOT(closeWindow(QWidget*)));
-connect(m, SIGNAL(hiddenWindow(QWidget*)), this, SLOT(hideWindow(QWidget*)));
-connect(m, SIGNAL(resizedWindow(QWidget*)), this, SLOT(resizedWindow(QWidget*)));
-connect(m, SIGNAL(showContextMenu()), this, SLOT(showWindowContextMenu()));
+connect(m, SIGNAL(hiddenWindow(myWidget*)), this, SLOT(hideWindow(myWidget*)));
+connect(m,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
 		
 emit modified();
 }
@@ -2621,8 +2662,17 @@ return m;
 */
 Matrix* ApplicationWindow::newMatrix(const QString& caption, int r, int c)
 {
-Matrix* w = new Matrix(r,c,"",ws,0,WDestructiveClose);
+Matrix* w = new Matrix(r, c, "", ws,0,WDestructiveClose);
 initMatrix(w, caption);
+if (w->name() != caption)//the matrix was renamed
+	{
+	renamedTables << caption << w->name();
+
+	QApplication::restoreOverrideCursor();
+	QMessageBox:: warning(this, "QtiPlot - Renamed Window", 
+	tr("The matrix '%1' already exists. It has been renamed '%2'.").arg(caption).arg(w->name()));
+	QApplication::setOverrideCursor(waitCursor);
+	}
 return w;
 }
 
@@ -2698,10 +2748,9 @@ return w;
 void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 {
 QString name=caption;
-while(allreadyUsedName(name))
+while(alreadyUsedName(name))
 	{
-	matrixes++;
-	name = "Matrix"+QString::number(matrixes);
+	name = "Matrix"+QString::number(++matrixes);
 	}
 
 matrixWindows<<name;
@@ -2711,19 +2760,14 @@ m->setName(name);
 m->setIcon( QPixmap(matrix_xpm) );
 m->askOnCloseEvent(confirmCloseMatrix);
 
-QListViewItem *element=new QListViewItem (lv);
-element->setPixmap (0,QPixmap(matrix_xpm));
-element->setText (0, name);
-element->setText (1, tr("Matrix"));
-element->setText (2, tr("Normal"));
-element->setText (3, QString::number(sizeof m) + " B");
-element->setText (4, m->birthDate());
+addListViewItem(m);
+current_folder->addWindow(m);
 
 connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject()));
 connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(update3DMatrixPlots(QWidget *)));
 connect(m, SIGNAL(closedWindow(QWidget*)), this, SLOT(closeWindow(QWidget*)));
-connect(m, SIGNAL(hiddenWindow(QWidget*)), this, SLOT(hideWindow(QWidget*)));
-connect(m, SIGNAL(resizedWindow(QWidget*)), this, SLOT(resizedWindow(QWidget*)));
+connect(m, SIGNAL(hiddenWindow(myWidget*)), this, SLOT(hideWindow(myWidget*)));
+connect(m, SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
 connect(m, SIGNAL(showContextMenu()), this, SLOT(showWindowContextMenu()));
 		
 emit modified();
@@ -2757,27 +2801,6 @@ w->resize(m->size());
 w->showNormal();
 
 QApplication::restoreOverrideCursor();
-return w;
-}
-
-QWidget* ApplicationWindow::window(QListViewItem *it)
-{
-if (!it)
-	return 0;
-
-QWidget*w=0;
-QString caption=it->text(0);
-QString hidden=it->text(2);
-QWidgetList *windows = windowsList();
-for (int i=0;i<(int)windows->count(); i++)
-	{
-	if (windows->at(i)->name()==caption)
-		{
-		w=windows->at(i);
-		break;
-		}
-	}
-delete windows;
 return w;
 }
 
@@ -2819,34 +2842,42 @@ Table* ApplicationWindow::table(const QString& name)
 {
 int pos=name.find("_",0);
 QString caption=name.left(pos);
-Table* w=0;
-QWidgetList *windows = windowsList();
-for (int i = 0; i < int(windows->count());i++ )
+
+QWidget *w;
+QWidgetList *lst = windowsList();
+for (w = lst->first(); w; w = lst->next() )
 	{
-	if (tableWindows.contains(caption) && windows->at(i)->name()==caption)
+	if (w->isA("Table") && w->name() == caption)
 		{
-		w =(Table*)windows->at(i);
-		break;
+		delete lst;
+		return (Table*)w;
 		}
 	}
-delete windows;
-return  w;
+delete lst;
+return  0;
 }
 
 Matrix* ApplicationWindow::matrix(const QString& name)
 {
-Matrix* w=0;
-QWidgetList *windows = windowsList();
-for (int i = 0; i < int(windows->count());i++ )
+QString caption = name;
+if (!renamedTables.isEmpty() && renamedTables.contains(caption))
 	{
-	if (matrixWindows.contains(name) && windows->at(i)->name() == name)
+	int index = renamedTables.findIndex (caption);
+	caption = renamedTables[index+1];	
+	}
+
+QWidget *w;
+QWidgetList *lst = windowsList();
+for (w = lst->first(); w; w = lst->next() )
+	{
+	if (w->isA("Matrix") && w->name() == caption)
 		{
-		w=(Matrix*)windows->at(i);
-		break;
+		delete lst;
+		return (Matrix*)w;
 		}
 	}
-delete windows;
-return  w;
+delete lst;
+return  0;
 }
 
 void ApplicationWindow::windowActivated(QWidget *w)
@@ -3458,13 +3489,36 @@ progress.setLabelText(title);
 progress.setTotalSteps(widgets);
 progress.setActiveWindow();
 progress.setMinimumDuration(10000);
-//progress.move(0,0);
+
+Folder *cf = app->projectFolder();
+app->folders->blockSignals (true);
+app->blockSignals (true);
+//rename project folder item
+FolderListItem *item = (FolderListItem *)app->folders->firstChild();
+item->setText(0, fi.baseName());
+item->folder()->setFolderName(fi.baseName());
+
 //process tables and matrix information
 while ( !t.eof() && !progress.wasCanceled())
 	{
 	s = t.readLine();
 	list.clear();
-	if  (s == "<table>")
+	if  (s.left(8) == "<folder>")
+		{
+		list = QStringList::split ("\t",s,TRUE);
+		Folder *f = new Folder(app->current_folder, list[1]);
+		f->setBirthDate(list[2]);
+		f->setModificationDate(list[3]);
+		if (list[4] == "current")
+			cf = f;
+
+		FolderListItem *fli = new FolderListItem(app->current_folder->folderListItem(), f);
+		fli->setText(0, list[1]);
+		f->setFolderListItem(fli);
+	
+		app->current_folder = f;
+		}
+	else if  (s == "<table>")
 		{
 		title = titleBase + QString::number(++aux)+"/"+QString::number(widgets);
 		progress.setLabelText(title);
@@ -3533,6 +3587,14 @@ while ( !t.eof() && !progress.wasCanceled())
 		m->setText(text.remove("</note>\n"));
 		progress.setProgress(aux);
 		}
+	else if  (s == "</folder>")
+		{
+		Folder *parent = (Folder *)app->current_folder->parent();
+		if (!parent)
+			app->current_folder = projectFolder();
+		else
+			app->current_folder = parent;
+		}
 	}
 f.close();
 
@@ -3550,7 +3612,12 @@ MultiLayer *plot=0;
 while ( !t.eof() && !progress.wasCanceled())
 	{
 	s=t.readLine();
-	if  (s == "<multiLayer>")
+	if  (s.left(8) == "<folder>")
+		{
+		list = QStringList::split ("\t",s,TRUE);
+		app->current_folder = app->current_folder->findSubfolder(list[1]);
+		}
+	else if  (s == "<multiLayer>")
 		{//process multilayers information
 		title = titleBase + QString::number(++aux)+"/"+QString::number(widgets);
 		progress.setLabelText(title);
@@ -3568,7 +3635,9 @@ while ( !t.eof() && !progress.wasCanceled())
 			date = graph[3];
 
 		app->setListViewDate(caption,date);
-		plot->setBirthDate(date);		
+		plot->setBirthDate(date);
+		plot->blockSignals(true);	
+
 		restoreWindowGeometry(app, plot, t.readLine());
 		
 		if (fileVersion > 71)
@@ -3613,6 +3682,7 @@ while ( !t.eof() && !progress.wasCanceled())
 				openGraph(app,plot,list);
 				}
 			}
+		plot->blockSignals(false);
 		progress.setProgress(aux);
 		}
 	else if  (s == "<SurfacePlot>")
@@ -3627,6 +3697,14 @@ while ( !t.eof() && !progress.wasCanceled())
 			}
 		openSurfacePlot(app,list);
 		progress.setProgress(aux);
+		}
+	else if  (s == "</folder>")
+		{
+		Folder *parent = (Folder *)app->current_folder->parent();
+		if (!parent)
+			app->current_folder = projectFolder();
+		else
+			app->current_folder = parent;
 		}
 	else if  (s.left(5)=="<log>")
 		{//process analysis information
@@ -3657,20 +3735,6 @@ app->recentProjects.remove(fileName);
 app->recentProjects.push_front(fileName);
 app->updateRecentProjectsList();
 	
-QWidget *wm = app->wmax;		
-if (wm)
-	{
-	app->aw = wm;
-	if (app->plot3DWindows.contains(wm->name()))
-		{
- 		((Graph3D*)wm)->setIgnoreFonts(true);
-		 wm->showMaximized();
-		((Graph3D*)wm)->setIgnoreFonts(false);
-		}
-	else
-		wm->showMaximized();
-	}
-	
 if (app->aw)
 	{
 	app->aw->setFocus();
@@ -3680,6 +3744,16 @@ if (app->aw)
 
 app->saved=TRUE;
 app->actionSaveProject->setEnabled(false);
+
+if (app->show_windows_policy == HideAll)
+	app->hideFolderWindows(app->projectFolder());
+
+app->folders->setCurrentItem(cf->folderListItem());
+app->folders->blockSignals (false);
+//change folder to user defined current folder
+app->changeFolder(cf);
+app->blockSignals (false);
+app->renamedTables.clear();
 return app;
 }
 
@@ -3945,6 +4019,7 @@ askForSupport = settings.readBoolEntry ("/askForSupport", true, 0);
 appLanguage = settings.readEntry("/appLanguage", "en");
 workingDir=settings.readEntry("/workingDir", qApp->applicationDirPath());
 helpFilePath=settings.readEntry("/helpFilePath", helpFilePath);
+show_windows_policy = (ShowWindowsPolicy)settings.readNumEntry("/ShowWindowsPolicy", ActiveFolder);
 
 recentProjects=settings.readListEntry("/recentProjects");
 updateRecentProjectsList();
@@ -3984,6 +4059,7 @@ majTicksLength=settings.readNumEntry ("/majTicksLength", 9, 0);
 
 legendFrameStyle=settings.readNumEntry ("/legendFrameStyle", LegendMarker::Line, 0);
 QStringList graphFonts=settings.readListEntry("/graphFonts");
+confirmCloseFolder=settings.readBoolEntry ("/confirmCloseFolder", true, 0);
 confirmCloseTable=settings.readBoolEntry ("/confirmCloseTable", true, 0);
 confirmCloseMatrix=settings.readBoolEntry ("/confirmCloseMatrix", true, 0);
 confirmClosePlot2D=settings.readBoolEntry ("/confirmClosePlot2D", true, 0);
@@ -4202,6 +4278,7 @@ settings.writeEntry("/askForSupport", askForSupport);
 settings.writeEntry("/appLanguage", appLanguage);
 settings.writeEntry("/workingDir", workingDir);
 settings.writeEntry("/helpFilePath", helpFilePath);
+settings.writeEntry("/ShowWindowsPolicy", show_windows_policy);
 settings.writeEntry("/recentProjects", recentProjects);
 settings.writeEntry("/functions", functions);
 settings.writeEntry("/fitFunctions", fitFunctions);
@@ -4234,6 +4311,7 @@ settings.writeEntry("/majTicksLength", majTicksLength);
 
 settings.writeEntry("/legendFrameStyle", legendFrameStyle);
 settings.writeEntry("/graphFonts", graphFonts);
+settings.writeEntry("/confirmCloseFolder", confirmCloseFolder);
 settings.writeEntry("/confirmCloseTable", confirmCloseTable);
 settings.writeEntry("/confirmCloseMatrix", confirmCloseMatrix);
 settings.writeEntry("/confirmClosePlot2D", confirmClosePlot2D);
@@ -4603,9 +4681,9 @@ QString ApplicationWindow::windowGeometryInfo(QWidget *w)
 {
 QString s = "geometry\t";
 
-if (minimized(w))
+if (((myWidget *)w)->status() == myWidget::Minimized)
 	s+="minimized\n";
-else if (maximized(w))
+else if (((myWidget *)w)->status() == myWidget::Maximized)
 	s+="maximized\n";
 else
 	{
@@ -4631,6 +4709,11 @@ else
 return s;
 }
 
+Folder* ApplicationWindow::projectFolder()
+{
+return ((FolderListItem *)folders->firstChild())->folder();
+}
+
 bool ApplicationWindow::saveProject()
 {
 if (projectname == "untitled" || projectname.contains(".opj", false))
@@ -4638,69 +4721,10 @@ if (projectname == "untitled" || projectname.contains(".opj", false))
 	saveProjectAs();
 	return false;
 	}
-QFile f( projectname );
-if (f.exists())
-	{// make byte-copy of current file so that there's always a copy of the data on disk
-	QFile backup(projectname + "~");
-    while (!f.open(IO_ReadOnly) || !backup.open(IO_WriteOnly))
-      {
-       if (f.isOpen()) 
-		   f.close();
-       if (backup.isOpen()) 
-		   backup.close();
-       int choice = QMessageBox::warning(this, tr("QtiPlot - File Backup Error"),
-	   tr("Cannot make a backup copy of <b>%1</b> (to %2).<br>If you ignore this, you run the risk of <b>data loss</b>.").arg(projectname).arg(projectname+"~"),
-	  QMessageBox::Retry|QMessageBox::Default, QMessageBox::Abort|QMessageBox::Escape, QMessageBox::Ignore);
-      if (choice == QMessageBox::Abort) 
-		  return false;
-      if (choice == QMessageBox::Ignore) 
-		  break;
-      }
 
-   if (f.isOpen() && backup.isOpen())
-    {
-     while (!f.atEnd())
-        backup.putch(f.getch());
+saveFolder(projectFolder(), projectname);
 
-     backup.close();
-     f.close();
-    }
-  }
-
-if ( !f.open( IO_WriteOnly ) )
-	{
-	QMessageBox::about(this, tr("QtiPlot - File Save Error"), tr("The file: <br><b>%1</b> is opened in read-only mode").arg(projectname));
-	return false;
-	}	
-	
-QApplication::setOverrideCursor(waitCursor);
-QString text="QtiPlot " + QString::number(majVersion)+"."+ QString::number(minVersion)+"."+
-QString::number(patchVersion)+" project file\n";
-
-text+="<windows>\t"+QString::number(plot3DWindows.count()+plotWindows.count()+
-					tableWindows.count()+matrixWindows.count()+noteWindows.count())+"\n";
-
-QWidgetList *windows = windowsList(); 
-for (int i=0; i<(int)windows->count(); i++)
-	{
-	myWidget *w = (myWidget*)windows->at(i);
-	QString s = w->saveToString(windowGeometryInfo(w));
-	if (w->isA("Table"))
-		((Table*)w)->setSpecifications (s);
-	else if (w->isA("Graph3D"))
-		s=QString::null;
-	text += s;
-	setListViewSize(w->name(),QString::number(s.length()*sizeof(QChar)/1024)+" kB");
-	}
-text+="<log>\n"+logInfo+"</log>";
-delete windows;
-
-QTextStream t( &f );
-t.setEncoding(QTextStream::UnicodeUTF8);
-t << text;
-f.close();
 setCaption("QtiPlot - "+projectname);
-
 saved=TRUE;
 actionSaveProject->setEnabled(false);
 actionUndo->setEnabled(false);
@@ -4749,6 +4773,12 @@ if ( !fn.isEmpty() )
 			recentProjects.remove(projectname);
 			recentProjects.push_front(projectname);
 			updateRecentProjectsList();
+
+			QFileInfo fi(fn);
+			QString baseName = fi.baseName();
+			FolderListItem *item = (FolderListItem *)folders->firstChild();
+			item->setText(0, baseName);
+			item->folder()->setFolderName(baseName);
 			}
 		if (selectedFilter.contains(".gz"))
 			file_compress((char *)fn.ascii(), "wb9");
@@ -4828,8 +4858,8 @@ rwd->setActiveWindow();
 
 void ApplicationWindow::renameWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-myWidget *w= (myWidget*)window(lbi);
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w= it->window();
 if (!w)
 	return;
 
@@ -4837,6 +4867,87 @@ renameWindowDialog *rwd = new renameWindowDialog(this,"polyDialog",TRUE,WStyle_T
 rwd->setWidget(w);
 rwd->showNormal();
 rwd->setActiveWindow();
+}
+
+void ApplicationWindow::renameWindow(QListViewItem *item, int, const QString &text)
+{
+if (!item)
+	return;
+
+myWidget *w = ((WindowListItem *)item)->window();
+if (!w || text == w->name())
+	return;
+
+while(!renameWindow(w, text))
+	{
+	item->setRenameEnabled (0, true);
+	item->startRename (0);
+	return;
+	}
+}
+
+bool ApplicationWindow::renameWindow(myWidget *w, const QString &text)
+{
+if (!w)
+	return false;
+
+QString name = w->name();
+
+if (text.isEmpty())
+	{
+	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
+	return false;
+	}
+else if (text.contains(QRegExp("\\W")))
+	{
+	QMessageBox::critical(0, tr("QtiPlot - Error"),
+			   tr("The name you chose is not valid: only letters and digits are allowed!")+
+			   "<p>" + tr("Please choose another name!"));
+	return false;
+	}
+
+while(alreadyUsedName(text))
+	{
+	QMessageBox::critical(this,tr("QtiPlot - Error"),
+				tr("Name already exists!")+"\n"+tr("Please choose another name!"));
+	return false;
+	}
+
+if (w->isA("Graph"))
+	{
+	int id=plotWindows.findIndex(name);
+	plotWindows[id]=text;
+	}
+else if (w->isA("Graph3D"))
+	{
+	int id=plot3DWindows.findIndex(name);
+	plot3DWindows[id]=text;
+	}
+else if (w->isA("Table"))
+	{
+	QStringList labels=((Table *)w)->colNames();
+	if (labels.contains(text)>0)
+		{
+		QMessageBox::critical(0,tr("QtiPlot - Error"),
+		tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
+		return false;
+		}
+
+	int id=tableWindows.findIndex(name);
+	tableWindows[id]=text;
+	updateTableNames(name,text);
+	}
+else if (w->isA("Matrix"))
+	changeMatrixName(name, text);
+else if (w->isA("Note"))
+	{
+	int id=noteWindows.findIndex(name);
+	noteWindows[id]=text;
+	}
+
+w->setName(text);
+w->setCaptionPolicy(w->captionPolicy());
+return true;
 }
 
 QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
@@ -6089,9 +6200,8 @@ print(w);
 // print window from project explorer
 void ApplicationWindow::printWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
-
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w= it->window();
 if (!w)
 	return;
 
@@ -6946,6 +7056,12 @@ if ( m )
 
 void ApplicationWindow::clearSelection()
 {
+if(lv->hasFocus())
+  {
+  deleteSelectedItems();
+  return;
+  }
+
 QWidget* m = (QWidget*)ws->activeWindow();
 if (!m)
 	return;
@@ -7133,7 +7249,7 @@ Table *w = 0, *m = (Table*)ws->activeWindow();
 if (m)
 	{
 	QString caption="table"+QString::number(++tables);
-	while (allreadyUsedName(caption))
+	while (alreadyUsedName(caption))
 		{
 		tables++;
 		caption="table"+QString::number(tables);
@@ -7145,7 +7261,7 @@ if (m)
 	w->setSpecifications(spec.replace(m->name(),caption));
 
 	w->showNormal();
-	setListViewSize(caption, QString::number(8*sizeof(Table)/1024.0, 'f', 1)+ " kB");
+	setListViewSize(caption, m->sizeToString());
 	emit modified();
 	}
 return w;
@@ -7157,7 +7273,7 @@ Matrix *w = 0, *m = (Matrix*)ws->activeWindow();
 if (m)
 	{
 	QString caption="Matrix"+QString::number(++matrixes);
-	while(allreadyUsedName(caption))
+	while(alreadyUsedName(caption))
 		caption = "Matrix"+QString::number(++matrixes);
 
 	int c=m->numCols();
@@ -7173,7 +7289,7 @@ if (m)
 	w->setFormula(m->formula());
 	w->setTextFormat(m->textFormat(), m->precision());
 	w->showNormal();
-	setListViewSize(caption, QString::number(sizeof w) + " B");
+	setListViewSize(caption, m->sizeToString());
 	emit modified();
 	}
 return w;
@@ -7193,7 +7309,7 @@ if (g && plot3DWindows.contains(g->name()))
 		}
 
 	QString caption="graph"+QString::number(++graphs);
-	while(allreadyUsedName(caption))
+	while(alreadyUsedName(caption))
 		caption="graph"+QString::number(++graphs);
 
 	Graph3D *g2=0;
@@ -7266,7 +7382,7 @@ if (g && plot3DWindows.contains(g->name()))
 	g2->update();
 	customToolBars((QWidget*)g2);
 
-	setListViewSize(caption, QString::number(8*sizeof(g2)/1024.0, 'f', 1)+ " kB");
+	setListViewSize(caption, g->sizeToString());
 	return g2;
 	}
 else
@@ -7280,7 +7396,7 @@ MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 if (plot &&  plotWindows.contains(plot->name()))
 	{
 	QString caption="graph"+QString::number(++graphs);
-	while(allreadyUsedName(caption))
+	while(alreadyUsedName(caption))
 		caption="graph"+QString::number(++graphs);
 
 	plot2=multilayerPlot(caption);
@@ -7303,8 +7419,9 @@ if (plot &&  plotWindows.contains(plot->name()))
 		plot2->connectLayer(g2);
 		g2->setIgnoreResizeEvents(!autoResizeLayers);
 		g2->setAutoscaleFonts(autoScaleFonts);
-		setListViewSize(caption, QString::number(8*sizeof(g)/1024.0, 'f', 1)+ " kB");
 		}
+
+	setListViewSize(caption, plot->sizeToString());
 	}
 return plot2;
 }
@@ -7321,7 +7438,6 @@ if (!g)
 	}
 
 QApplication::setOverrideCursor(waitCursor);
-bool maxi = maximized(g);
 
 if (g->isA("MultiLayer"))
 	w = copyGraph();
@@ -7343,13 +7459,13 @@ if (w)
     if (g->isA("MultiLayer"))
 		{
  		((MultiLayer*)w)->updateTransparency();
-		if (maxi)
+		if (g->status() == myWidget::Maximized)
 			w->showMaximized();
 		}
 	else if (g->isA("Graph3D"))
 		{
  		((Graph3D*)w)->setIgnoreFonts(true);
-		if (maxi)
+		if (g->status() == myWidget::Maximized)
 			{
 			g->showNormal();
 			g->resize(500,400);
@@ -7446,65 +7562,26 @@ if (hiddenWindows->containsRef (window) || outWindows->containsRef (window))
 return FALSE;
 }
 
-bool ApplicationWindow::maximized(QWidget* window)
+void ApplicationWindow::updateWindowStatus(myWidget* w)
 {
-bool aux=FALSE;
-int w=window->visibleRect().width();
-int h=window->visibleRect().height();
-int W=ws->width();
-int H=ws->height();
-if (w==W && h==H)
-	aux=TRUE;
-return aux;
-}
+setListView(w->name(), w->aspect());
 
-bool ApplicationWindow::minimized(QWidget* window)
-{
-bool aux=FALSE;
-if (window->visibleRect().isEmpty() && !hidden(window) 
-	&& !outWindows->containsRef(window))
-	aux=TRUE;
-return aux;
-}
+if (w->status() == myWidget::Maximized)
+	{//set any other window having status = Maximized to status = Normal
+	QPtrList <myWidget> lst = current_folder->windowsList();
+	if (!lst.containsRef (w))
+		return;
 
-void ApplicationWindow::checkMinimizedWindows()
-{
-QWidgetList windows = ws->windowList(QWorkspace::StackingOrder);
-
-for (int i=0;i<(int)windows.count();i++)
-	{
-	QString caption=windows.at(i)->name();
-	QListViewItem *it=lv->findItem ( caption,0, Qt::ExactMatch | Qt::CaseSensitive );
-	if (it)
+	myWidget *aw;
+	for (aw = lst.first(); aw ; aw = lst.next())
 		{
-		bool min = minimized(windows.at(i));
-		if (min)
-			setListView(caption, "Minimized");
-		else if (!min && it->text(2) == "Minimized")
+		if (aw != w && aw->status() == myWidget::Maximized)
 			{
-			if (maximized(windows.at(i)))
-				setListView(caption, "Maximized");
-			else
-				setListView(caption, "Normal");
+			aw->setNormal();
+			return;
 			}
 		}
 	}
-}
-
-void ApplicationWindow::resizedWindow(QWidget* window)
-{
-QString view,caption=window->name();
-
-if (minimized(window))
-	view="Minimized";
-else if (maximized(window))
-	view="Maximized";
-else if (hidden(window))
-	view="Hidden";
-else 
-	view="Normal";
-
-setListView(caption,view);
 }
 
 void ApplicationWindow::resizeActiveWindow()
@@ -7525,40 +7602,36 @@ id->setActiveWindow();
 
 void ApplicationWindow::hideActiveWindow()
 {
-QWidget *w=(QWidget *)ws->activeWindow();
+myWidget *w=(myWidget *)ws->activeWindow();
 if (!w)
 	return;
 
-hiddenWindows->append(w);
-setListView(w->name(),tr("Hidden"));
-w->hide();
-emit modified();
+hideWindow(w);
 }
 
-void ApplicationWindow::hideWindow(QWidget* window)
+void ApplicationWindow::hideWindow(myWidget* w)
 {
-hiddenWindows->append(window);
-window->hide();
-setListView(window->name(),tr("Hidden"));
+hiddenWindows->append(w);
+w->hide();
+setListView(w->name(),tr("Hidden"));
+//w->setHidden();
 emit modified();
 }
 
 void ApplicationWindow::hideWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w= it->window();
+if (!w)
+	return;
 
-hiddenWindows->append(w);
-w->hide();
-lbi->setText(2,tr("Hidden"));
-emit modified();
+hideWindow(w);
 }
 
 void ApplicationWindow::resizeWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
-
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w= it->window();
 if (!w)
 	return;
 
@@ -7574,8 +7647,12 @@ id->setActiveWindow();
 
 void ApplicationWindow::activateWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+activateWindow(it->window());
+}
+
+void ApplicationWindow::activateWindow(QWidget *w)
+{
 if (!w)
 	return;
 
@@ -7583,37 +7660,37 @@ updateWindowLists(w);
 
 w->showNormal();
 w->setActiveWindow();
-lbi->setText(2,tr("Normal"));
+emit modified();
+}
 
+void ApplicationWindow::maximizeWindow(QListViewItem * lbi)
+{
+if (!lbi || lbi->rtti() == FolderListItem::ListItemType)
+	return;
+
+QWidget *w = ((WindowListItem*)lbi)->window();
+if (!w)
+	return;
+
+updateWindowLists(w);
+w->showMaximized();
 emit modified();
 }
 
 void ApplicationWindow::maximizeWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
-if (!w)
-	return;
-
-updateWindowLists(w);
-
-w->showMaximized();
-lbi->setText(2,tr("Maximized"));
-emit modified();
+maximizeWindow(lv->currentItem());
 }
 
 void ApplicationWindow::minimizeWindow()
 {
-QListViewItem *lbi=lv->currentItem();
-QWidget *w=window(lbi);
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w= it->window();
 if (!w)
 	return;
 
 updateWindowLists(w);
-
 w->showMinimized();
-lbi->setText(2,tr("Minimized"));
-
 emit modified();
 }
 
@@ -7638,30 +7715,27 @@ if (w)
 	w->close();
 }
 
-void ApplicationWindow::closeWindow(QWidget* window)
+void ApplicationWindow::removeWindowFromLists(QWidget* w)
 {
-if (!window)
-	return;
-
-QString caption=window->name();
-if (window->isA("Table"))
+QString caption = w->name();
+if (w->isA("Table"))
 	{
-	Table* m=(Table*)window;		
+	Table* m=(Table*)w;		
 	for (int i=0; i<m->tableCols(); i++)
 		{
 		QString name=m->colName(i);
 		removeCurves(name);
 		}
 	tableWindows.remove(caption);
-	if (window == lastModified)
+	if (w == lastModified)
 		{
 		actionUndo->setEnabled(FALSE);
 		actionRedo->setEnabled(FALSE);
 		}
 	}
-else if (window->isA("MultiLayer"))
+else if (w->isA("MultiLayer"))
 	{
-	MultiLayer *ml =  (MultiLayer*)window;
+	MultiLayer *ml =  (MultiLayer*)w;
 	Graph *g = ml->activeGraph();
 		
 	if (g && (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() ||
@@ -7669,30 +7743,36 @@ else if (window->isA("MultiLayer"))
 		{
 		btnPointer->setOn(true);
 		activeGraph = 0;
-		}
-	
+		}	
 	plotWindows.remove(caption);
 	}	
-else if (window->isA("Graph3D"))
-	{
+else if (w->isA("Graph3D"))
 	plot3DWindows.remove(caption);
-	}
-else if (window->isA("Matrix"))
+else if (w->isA("Matrix"))
 	{
-	remove3DMatrixPlots((Matrix*)window);
+	remove3DMatrixPlots((Matrix*)w);
 	matrixWindows.remove(caption);
 	}
-else if (window->isA("Note"))
+else if (w->isA("Note"))
 	noteWindows.remove(caption);
 
-if (hiddenWindows->containsRef(window))
-	hiddenWindows->take(hiddenWindows->find(window));
-else if (outWindows->containsRef(window))
-	outWindows->take(outWindows->find(window));		
+if (hiddenWindows->containsRef(w))
+	hiddenWindows->take(hiddenWindows->find(w));
+else if (outWindows->containsRef(w))
+	outWindows->take(outWindows->find(w));
+}
+
+void ApplicationWindow::closeWindow(QWidget* window)
+{
+if (!window)
+	return;
+	
+removeWindowFromLists(window);
+current_folder->removeWindow((myWidget*)window);
 
 emit modified();
-emit windowClosed(caption);
-window->close(TRUE);
+emit windowClosed(window->name());
+delete window;
 }
 
 void ApplicationWindow::about()
@@ -7703,7 +7783,7 @@ QString version = "QtiPlot " + QString::number(majVersion) + "." +
 QMessageBox::about(this,tr("About QtiPlot"),
 			 tr("<h2>"+ version + "</h2>"
 			 "<p><h3>Copyright(C): Ion Vasilief</h3>"
-			 "<p><h3>Released: 15/04/2006</h3>"));
+			 "<p><h3>Released: 17/05/2006</h3>"));
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()
@@ -7723,11 +7803,9 @@ void ApplicationWindow::windowsMenuAboutToShow()
 			   ws, SLOT(activatePrevWindow()), Key_F6);
 	windowsMenu->insertSeparator();
 	actionRename->addTo(windowsMenu);
-	windowsMenu->insertItem(QPixmap(duplicate_xpm),tr("&Duplicate"),
-			   this, SLOT(copyWindow()));
+	actionCopyWindow->addTo(windowsMenu);
 	windowsMenu->insertSeparator();
-	windowsMenu->insertItem(tr("Window &Geometry..."),
-			   this, SLOT(resizeActiveWindow()));
+	actionResizeActiveWindow->addTo(windowsMenu);
 	windowsMenu->insertItem(tr("&Hide Window"),
 			   this, SLOT(hideActiveWindow()));
  	windowsMenu->insertItem(QPixmap(close_xpm), tr("Close &Window"),
@@ -7850,22 +7928,10 @@ lastModified=w;
 
 void ApplicationWindow::timerEvent ( QTimerEvent *e)
 {
-if (e->timerId() == timerId)
-	checkMinimizedWindows();
-else if (e->timerId() == savingTimerId)
+if (e->timerId() == savingTimerId)
 	saveProject();
 else
 	QWidget::timerEvent(e);
-}
-
-void ApplicationWindow::showEvent ( QShowEvent *)
-{
-timerId= startTimer(100);
-}
-
-void ApplicationWindow::hideEvent ( QHideEvent *)
-{
-killTimer(timerId);
 }
 
 void ApplicationWindow::dropEvent( QDropEvent* e )
@@ -7896,6 +7962,12 @@ if (QUriDrag::decodeLocalFiles(e, fileNames))
 
 void ApplicationWindow::dragEnterEvent( QDragEnterEvent* e )
 {
+if (e->source())
+	{
+	e->ignore();
+	return;
+	}
+
 e->accept(QUriDrag::canDecode(e));
 }
 
@@ -7931,9 +8003,96 @@ else
 	}
 }
 
+void ApplicationWindow::deleteSelectedItems()
+{
+if (folders->hasFocus() && folders->currentItem() != folders->firstChild())
+	{//we never allow the user to delete the project folder item
+	deleteFolder();
+	return;
+	}
+
+QListViewItem *item;
+QPtrList<QListViewItem> lst;
+for (item = lv->firstChild(); item; item = item->nextSibling())
+	{
+	if (item->isSelected())
+		lst.append(item);
+	}
+
+folders->blockSignals(true);
+for (item = lst.first(); item; item = lst.next())
+	{
+	if (item->rtti() == FolderListItem::ListItemType)
+		{
+		Folder *f = ((FolderListItem *)item)->folder();
+		if (deleteFolder(f))
+			delete item; 
+		}
+	else
+		((WindowListItem *)item)->window()->close();
+	}
+folders->blockSignals(false);
+}
+
+void ApplicationWindow::showListViewSelectionMenu(const QPoint &p)
+{
+QPopupMenu cm(this);
+cm.insertItem(tr("&Delete Selection"), this, SLOT(deleteSelectedItems()), Key_F8);
+cm.exec(p);
+}
+
+void ApplicationWindow::showListViewPopupMenu(const QPoint &p)
+{
+QPopupMenu cm(this);
+QPopupMenu window(this);
+
+actionNewTable->addTo(&window);
+actionNewMatrix->addTo(&window);
+actionNewNote->addTo(&window);
+actionNewGraph->addTo(&window);
+actionNewFunctionPlot->addTo(&window);
+actionNewSurfacePlot->addTo(&window);
+cm.insertItem(tr("New &Window"), &window);
+
+cm.insertItem(QPixmap(newfolder_xpm), tr("New F&older"), this, SLOT(addFolder()), Key_F7);
+cm.insertSeparator();
+cm.insertItem(tr("Auto &Column Width"), lv, SLOT(adjustColumns()));
+cm.exec(p);
+}
+
 void ApplicationWindow::showWindowPopupMenu(QListViewItem *it, const QPoint &p, int)
 {
-QWidget *w = window(it);
+if (folders->isRenaming())
+	return;
+
+if (!it) 
+	{
+	showListViewPopupMenu(p);
+	return;
+	}
+
+QListViewItem *item;
+int selected = 0;
+for (item = lv->firstChild(); item; item = item->nextSibling())
+	{
+	if (item->isSelected())
+		selected++;
+	
+	if (selected>1)
+		{
+		showListViewSelectionMenu(p);
+		return;
+		}
+	}
+
+if (it->rtti() == FolderListItem::ListItemType)
+	{
+	current_folder = ((FolderListItem *)it)->folder();
+	showFolderPopupMenu(it, p, false);
+	return;
+	}
+
+myWidget *w= ((WindowListItem *)it)->window();
 if (w)
 	{
 	QPopupMenu cm(this);
@@ -7945,12 +8104,14 @@ if (w)
 	cm.insertSeparator();
 	if (!hidden(w))
 		actionHideWindow->addTo(&cm);
-	cm.insertItem(tr("&Delete Window"), w, SLOT(close()));
+	cm.insertItem(QPixmap(close_xpm), tr("&Delete Window"), w, SLOT(close()), Key_F8);
 	cm.insertSeparator();
-	cm.insertItem(tr("&Rename Window"), this, SLOT(renameWindow()));
+	cm.insertItem(tr("&Rename Window"), this, SLOT(renameWindow()), Key_F2);
 	actionResizeWindow->addTo(&cm);
 	cm.insertSeparator();
 	actionPrintWindow->addTo(&cm);
+	cm.insertSeparator();
+	cm.insertItem(tr("&Properties..."), this, SLOT(windowProperties()));
 
 	if (w->isA("Table"))
 		{
@@ -8221,7 +8382,7 @@ if (w->isA("MultiLayer"))
 	prints.insertItem(tr("&Window"),plot, SLOT(print()));
 	cm.insertItem(QPixmap(fileprint_xpm),tr("&Print"),&prints);
 	cm.insertSeparator();
-	cm.insertItem(tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
+	cm.insertItem(QPixmap(resize_xpm), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 	cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
 	cm.insertSeparator();
 	cm.insertItem(QPixmap(close_xpm), tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
@@ -8588,13 +8749,9 @@ if (fd)
 
 void ApplicationWindow::newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,QValueList<double> &ranges,QValueList<int> &points)
 {
-graphs++;
-QString label="graph"+QString::number(graphs);
-while(allreadyUsedName(label))
-	{
-	graphs++;
-	label="graph"+QString::number(graphs);
-	}
+QString label="graph"+QString::number(++graphs);
+while(alreadyUsedName(label)){
+	label="graph"+QString::number(++graphs);}
 
 MultiLayer* plot = multilayerPlot(label);
 Graph* g=plot->addLayer();
@@ -8602,9 +8759,8 @@ customGraph(g);
 g->addFunctionCurve(type,formulas,vars,ranges,points);
 g->newLegend(plotLegendFont, legendFrameStyle);
 
-plot->connectLayer(g);
 plot->showNormal();
-setListViewSize(plot->name(),QString::number(8*sizeof(g)/1024.0, 'f', 1)+ " kB");
+setListViewSize(plot->name(), plot->sizeToString());
 
 updateFunctionLists(type, formulas);
 }
@@ -9352,26 +9508,34 @@ if (s.contains ("minimized"))
 	{
 	w->setGeometry(0, 0, 500, 400);
 	w->showMinimized();
+	((myWidget *)w)->setStatus(myWidget::Minimized);
 	app->setListView(caption, tr("Minimized"));
 	}
 else if (s.contains ("maximized"))
 	{
 	w->setGeometry(0, 0, 500, 400);
+	if (w->isA("Graph3D"))
+		((Graph3D*)w)->setIgnoreFonts(true);
+
+	w->hide();//trick used in order to avoid a resize event
 	w->showMaximized();
-	app->wmax = w;
+
+	if (w->isA("Graph3D"))
+		((Graph3D*)w)->setIgnoreFonts(false);
+
+	((myWidget *)w)->setStatus(myWidget::Maximized);
 	app->setListView(caption, tr("Maximized"));
 	}
 else
 	{
-	QStringList list=QStringList::split ("\t",s,TRUE);
-
+	QStringList lst=QStringList::split ("\t",s,TRUE);
+	w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 	w->showNormal();
-	w->parentWidget()->setGeometry(list[1].toInt(), list[2].toInt(),
-								   list[3].toInt(), list[4].toInt());
-	if (list[5]=="active")
-		app->aw=(QWidget*)w;
+	((myWidget *)w)->setStatus(myWidget::Normal);
 
-	if (list[5]=="hidden")
+	if (lst[5] == "active")
+		app->aw=(QWidget*)w;
+	else if (lst[5] == "hidden")
 		{
 		app->hiddenWindows->append(w);
 		w->hide();
@@ -9632,9 +9796,19 @@ for (int j=0;j<(int)list.count()-1;j++)
 			ag->plotPie(app->table(curve[1]),curve[1],pen,curve[5].toInt(),
 						curve[6].toInt(),curve[7].toInt());
 			}
-		else if (s.left(6)=="curve\t")
+	else if (s.left(6)=="curve\t")
 			{
-			curve=QStringList::split ("\t",s,TRUE);
+			curve = QStringList::split ("\t",s,TRUE);
+			if (!app->renamedTables.isEmpty())
+				{
+				QString caption = (curve[2]).left((curve[2]).find("_",0));
+				if (app->renamedTables.contains(caption))
+					{//modify the name of the curve according to the new table name
+					int index = app->renamedTables.findIndex (caption);
+					QString newCaption = app->renamedTables[++index];
+					curve.gres(caption+"_", newCaption+"_", true);
+					}
+				}
 
 			if (fileVersion <= 60)
 				cl.connectType=curve[4].toInt()+1;
@@ -10004,7 +10178,7 @@ if (!plot)
 
 app->setListViewDate(caption,date);
 plot->setBirthDate(date);
-app->setListViewSize(caption, QString::number(8*sizeof(plot)/1024.0, 'f', 1)+ " kB");
+//app->setListViewSize(caption, plot->sizeToString());
 
 if (caption.contains ("graph",TRUE))
 	{
@@ -10081,7 +10255,7 @@ if (fileVersion > 71)
 	}
 
 plot->update();
-plot->setIgnoreFonts(false);
+plot->setIgnoreFonts(true);
 return plot;
 }
 
@@ -10263,8 +10437,8 @@ void ApplicationWindow::connectSurfacePlot(Graph3D *plot)
 connect (plot,SIGNAL(showContextMenu()),this,SLOT(showWindowContextMenu()));
 connect (plot,SIGNAL(showOptionsDialog()),this,SLOT(showPlot3dDialog()));
 connect (plot,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
-connect (plot,SIGNAL(hiddenWindow(QWidget*)),this, SLOT(hideWindow(QWidget*)));
-connect (plot,SIGNAL(resizedWindow(QWidget*)),this, SLOT(resizedWindow(QWidget*)));
+connect (plot,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
+connect (plot,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
 connect (plot,SIGNAL(modified()),this, SIGNAL(modified()));
 connect (plot,SIGNAL(custom3DActions(QWidget*)),this, SLOT(custom3DActions(QWidget*)));
 
@@ -10288,8 +10462,8 @@ connect (g,SIGNAL(showRightAxisTitleDialog()),this,SLOT(showRightAxisTitleDialog
 connect (g,SIGNAL(showTopAxisTitleDialog()),this,SLOT(showTopAxisTitleDialog()));
 connect (g,SIGNAL(showMarkerPopupMenu()),this,SLOT(showMarkerPopupMenu()));
 connect (g,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
-connect (g,SIGNAL(hiddenWindow(QWidget*)),this, SLOT(hideWindow(QWidget*)));
-connect (g,SIGNAL(resizedWindow(QWidget*)),this, SLOT(resizedWindow(QWidget*)));
+connect (g,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
+connect (g,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
 connect (g,SIGNAL(cursorInfo(const QString&)),info,SLOT(setText(const QString&)));
 connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
 connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
@@ -10318,8 +10492,8 @@ g->askOnCloseEvent(confirmClosePlot2D);
 
 void ApplicationWindow::connectTable(Table* w)
 {
-connect (w,SIGNAL(hiddenWindow(QWidget*)),this, SLOT(hideWindow(QWidget*)));
-connect (w,SIGNAL(resizedWindow(QWidget*)),this, SLOT(resizedWindow(QWidget*)));
+connect (w,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
+connect (w,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
 connect (w,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
 connect (w,SIGNAL(removedCol(const QString&)),this,SLOT(removeCurves(const QString&)));
 connect (w,SIGNAL(modifiedData(const QString&)),this,SLOT(updateCurves(const QString&)));
@@ -10462,7 +10636,7 @@ void ApplicationWindow::createActions()
   actionShowExplorer->setOn(FALSE);
   connect(actionShowExplorer, SIGNAL(activated()), this, SLOT(showExplorer()));
 
-  actionShowLog = new QAction(QPixmap(start_xpm), tr("Results &Log"), QString::null, this);
+  actionShowLog = new QAction(QPixmap(log_xpm), tr("Results &Log"), QString::null, this);
   actionShowLog->setToggleAction(TRUE);
   actionShowLog->setOn(FALSE);
   
@@ -10715,7 +10889,7 @@ void ApplicationWindow::createActions()
   actionPrintHelp = new QAction(QPixmap(fileprint_xpm), tr("Print"), QString::null, this);
   connect(actionPrintHelp, SIGNAL(activated()), this, SLOT(printHelp()));
 
-  actionResizeActiveWindow = new QAction(tr("Window &Geometry..."), QString::null, this);
+  actionResizeActiveWindow = new QAction(QPixmap(resize_xpm), tr("Window &Geometry..."), QString::null, this);
   connect(actionResizeActiveWindow, SIGNAL(activated()), this, SLOT(resizeActiveWindow()));
 
   actionHideActiveWindow = new QAction(tr("&Hide Window"), QString::null, this);
@@ -10751,13 +10925,13 @@ void ApplicationWindow::createActions()
   actionHideWindow = new QAction(tr("&Hide Window"), QString::null, this);
   connect(actionHideWindow, SIGNAL(activated()), this, SLOT(hideWindow()));
 
-  actionResizeWindow = new QAction(tr("Re&size Window..."), QString::null, this);
+  actionResizeWindow = new QAction(QPixmap(resize_xpm), tr("Re&size Window..."), QString::null, this);
   connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
-  actionPrintWindow = new QAction(tr("&Print Window"), QString::null, this);
+  actionPrintWindow = new QAction(QPixmap(fileprint_xpm),tr("&Print Window"), QString::null, this);
   connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
 
-  actionShowPlotGeometryDialog = new QAction(tr("&Layer geometry"), QString::null, this);
+  actionShowPlotGeometryDialog = new QAction(QPixmap(resize_xpm), tr("&Layer geometry"), QString::null, this);
   connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this, SLOT(showPlotGeometryDialog()));
 
   actionEditSurfacePlot = new QAction(tr("&Surface..."), QString::null, this);
@@ -11307,14 +11481,14 @@ Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QStr
 QString name = matrix_name;
 name.remove("matrix<", true);
 name.remove(">");
-Matrix* w=matrix(name);
-if (!w)
+Matrix* m = matrix(name);
+if (!m)
 	return 0;
 
 Graph3D *plot=new Graph3D("", ws, 0, WDestructiveClose);
 plot->setCaption(caption);
 plot->setName(caption);
-plot->addMatrixData(w, xl, xr, yl, yr, zl, zr);
+plot->addMatrixData(m, xl, xr, yl, yr, zl, zr);
 plot->update();
 
 initPlot3D(plot);
@@ -11678,8 +11852,14 @@ bool ApplicationWindow::open_browser(QWidget* parent, const QString& rUrl)
 bool result = false;
 QApplication::setOverrideCursor(Qt::WaitCursor);
 #ifdef Q_WS_WIN
-	result = int(ShellExecuteW(parent->winId(), 0, rUrl.ucs2(),
-                  0, 0, SW_SHOWNORMAL)) > 32;
+	#if defined(_MSC_VER) //MSVC compiler
+		result = int(ShellExecuteW(parent->winId(), 0, rUrl.ucs2(), 0, 0, SW_SHOWNORMAL)) > 32;
+	#else //MinGW compiler
+		QApplication::restoreOverrideCursor();
+
+		QMessageBox::information(this, "QtiPlot - Error", 
+		tr("Sorry, QtiPlot couldn't start the default browser! Please start a browser manually and visit the following link")+":\n"+rUrl);
+	#endif
 #else
     Q_UNUSED(parent);
     //Try a range of browsers available on UNIX, until we (hopefully) find one that works.  
@@ -11836,7 +12016,7 @@ else
 insertTranslatedStrings();
 }
 
-bool ApplicationWindow::allreadyUsedName(const QString& label)
+bool ApplicationWindow::alreadyUsedName(const QString& label)
 {
 if (plotWindows.contains(label) || plot3DWindows.contains(label) ||
 	tableWindows.contains(label) || matrixWindows.contains(label) || 
@@ -11844,6 +12024,1257 @@ if (plotWindows.contains(label) || plot3DWindows.contains(label) ||
 	return true;
 
 return false;
+}
+
+void ApplicationWindow::appendProject()
+{
+QString filter = tr("QtiPlot project") + " (*.qti);;";
+filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
+
+QString fn = QFileDialog::getOpenFileName(workingDir, filter, this, 0,
+			tr("QtiPlot - Open Project"), 0, TRUE);
+
+if (fn.isEmpty())
+	return;
+
+QFileInfo fi(fn);
+workingDir = fi.dirPath(true);
+		
+if (fn.contains(".qti",TRUE))
+	{
+	QFileInfo f(fn);
+	if (!f.exists ())
+		{
+		QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+				tr("The file: <b>%1</b> doesn't exist!").arg(fn));
+		return;
+		}
+	}
+else
+	{
+	QMessageBox::critical(this,tr("QtiPlot - File openning error"),
+				tr("The file: <b>%1</b> is not a QtiPlot project file!").arg(fn));
+	return;
+	}
+
+QApplication::setOverrideCursor(waitCursor);
+
+QString fname = fn;
+if (fn.contains(".qti.gz"))
+	{//decompress using zlib
+	file_uncompress((char *)fname.ascii());
+	fname.remove(".gz");
+	}
+
+QFile f(fname);
+QTextStream t( &f );
+t.setEncoding(QTextStream::UnicodeUTF8);
+f.open(IO_ReadOnly);
+
+QString s = t.readLine();
+QStringList lst = QStringList::split (QRegExp("\\s"),s,false);
+QString version = lst[1];
+lst = QStringList::split (".", version, false);
+fileVersion =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+
+t.readLine(); 
+if (fileVersion < 73)
+	t.readLine();
+
+Folder *cf = current_folder;
+FolderListItem *item = (FolderListItem *)current_folder->folderListItem();
+folders->blockSignals (true);
+blockSignals (true);
+
+QString baseName = fi.baseName();
+lst = current_folder->subfolders();
+int n = (int)lst.contains(baseName);
+if (n)
+	{//avoid identical subfolder names
+	while ((int)lst.contains(baseName + QString::number(n)))
+			n++;
+	baseName += QString::number(n);
+	}
+
+current_folder = new Folder(current_folder, baseName);
+FolderListItem *fli = new FolderListItem(item, current_folder);
+current_folder->setFolderListItem(fli);
+
+//process tables and matrix information
+while ( !t.eof())
+	{
+	s = t.readLine();
+	lst.clear();
+	if  (s.left(8) == "<folder>")
+		{
+		lst = QStringList::split ("\t",s,TRUE);
+		Folder *f = new Folder(current_folder, lst[1]);
+		f->setBirthDate(lst[2]);
+		f->setModificationDate(lst[3]);
+		if (lst[4] == "current")
+			cf = f;
+
+		FolderListItem *fli = new FolderListItem(current_folder->folderListItem(), f);
+		fli->setText(0, lst[1]);
+		f->setFolderListItem(fli);
+	
+		current_folder = f;
+		}
+	else if  (s == "<table>")
+		{
+		if (fileVersion < 69)
+			{
+			while ( s!="</table>" )
+				{
+				s=t.readLine();
+				lst<<s;
+				}
+			 openTable(this,lst);
+			}
+		else
+			{
+			while ( s != "<data>" )
+				{
+				s=t.readLine();
+				lst<<s;
+				}
+			Table *w = openTable(this, lst);
+			int cols = w->tableCols();				
+			s = t.readLine();
+			while ( s != "</data>" )
+				{
+				w->addDataRow(s, cols);
+				s = t.readLine();
+				}				
+			}
+		}
+	else if  (s == "<matrix>")
+		{
+		while ( s != "<data>" )
+			{
+			s=t.readLine();
+			lst<<s;
+			}
+		Matrix *w = openMatrix(this, lst);
+		int cols = w->numCols();				
+		s = t.readLine();
+		while ( s != "</data>" )
+			{
+			w->addDataRow(s, cols);
+			s = t.readLine();
+			}
+		}
+	else if  (s == "<note>")
+		{
+		for (int i=0; i<3; i++)
+			{
+			s = t.readLine();
+			lst << s;
+			}
+		Note* m = openNote(this, lst);
+		QString text = QString::null;
+		while ( s != "</note>" )
+			{
+			s=t.readLine();
+			text += s+"\n";
+			}
+		m->setText(text.remove("</note>\n"));
+		}
+	else if  (s == "</folder>")
+		{
+		Folder *parent = (Folder *)current_folder->parent();
+		if (!parent)
+			current_folder = projectFolder();
+		else
+			current_folder = parent;
+		}
+	}
+f.close();
+
+//process the rest
+f.open(IO_ReadOnly);
+
+MultiLayer *plot=0;
+while ( !t.eof())
+	{
+	s=t.readLine();
+	if  (s.left(8) == "<folder>")
+		{
+		lst = QStringList::split ("\t",s,TRUE);
+		current_folder = current_folder->findSubfolder(lst[1]);
+		}
+	else if  (s == "<multiLayer>")
+		{//process multilayers information
+		s=t.readLine();
+		QStringList graph=QStringList::split ("\t",s,TRUE);
+		QString caption=graph[0];
+		plot=multilayerPlot(caption);
+		plot->setCols(graph[1].toInt());
+		plot->setRows(graph[2].toInt());
+		QString date=QString::null;
+		if (fileVersion < 63)
+			date = graph[5];
+		else
+			date = graph[3];
+
+		setListViewDate(caption,date);
+		plot->setBirthDate(date);
+		plot->blockSignals(true);	
+
+		restoreWindowGeometry(this, plot, t.readLine());
+		
+		if (fileVersion > 71)
+			{
+			QStringList lst=QStringList::split ("\t", t.readLine(), true);
+			plot->setWindowLabel(lst[1]);
+			setListViewLabel(plot->name(),lst[1]);
+			plot->setCaptionPolicy((myWidget::CaptionPolicy)lst[2].toInt());
+			}
+
+		if (caption.contains ("graph",TRUE))
+			{
+			bool ok;
+			int gr=caption.remove("graph").toInt(&ok);
+			if (gr > graphs && ok) 
+				graphs = gr;
+			}
+
+		if (fileVersion > 83)
+			{
+			QStringList lst=QStringList::split ("\t", t.readLine(), false);
+			plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
+			lst=QStringList::split ("\t", t.readLine(), false);
+			plot->setSpacing(lst[1].toInt(),lst[2].toInt());
+			lst=QStringList::split ("\t", t.readLine(), false);
+			plot->setLayerCanvasSize(lst[1].toInt(),lst[2].toInt());
+			lst=QStringList::split ("\t", t.readLine(), false);
+			plot->setAlignement(lst[1].toInt(),lst[2].toInt());
+			}
+
+		while ( s!="</multiLayer>" )
+			{//open layers
+			s=t.readLine();
+			if (s.left(7)=="<graph>")
+				{
+				lst.clear();
+				while ( s!="</graph>" )
+					{
+					s=t.readLine();
+					lst<<s;
+					}
+				openGraph(this,plot, lst);
+				}
+			}
+		plot->blockSignals(false);
+		}
+	else if  (s == "<SurfacePlot>")
+		{//process 3D plots information
+		lst.clear();
+		while ( s!="</SurfacePlot>" )
+			{
+			s=t.readLine();
+			lst<<s;
+			}
+		openSurfacePlot(this,lst);
+		}
+	else if  (s == "</folder>")
+		{
+		Folder *parent = (Folder *)current_folder->parent();
+		if (!parent)
+			current_folder = projectFolder();
+		else
+			current_folder = parent;
+		}
+	}
+f.close();
+			
+folders->blockSignals (false);
+//change folder to user defined current folder
+changeFolder(cf);
+blockSignals (false);
+renamedTables = QStringList();
+QApplication::restoreOverrideCursor();
+}
+
+void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
+{
+QFile f( fn );
+if (f.exists())
+	{// make byte-copy of current file so that there's always a copy of the data on disk
+	QFile backup(fn + "~");
+    while (!f.open(IO_ReadOnly) || !backup.open(IO_WriteOnly))
+      {
+       if (f.isOpen()) 
+		   f.close();
+       if (backup.isOpen()) 
+		   backup.close();
+       int choice = QMessageBox::warning(this, tr("QtiPlot - File Backup Error"),
+	   tr("Cannot make a backup copy of <b>%1</b> (to %2).<br>If you ignore this, you run the risk of <b>data loss</b>.").arg(projectname).arg(projectname+"~"),
+	  QMessageBox::Retry|QMessageBox::Default, QMessageBox::Abort|QMessageBox::Escape, QMessageBox::Ignore);
+      if (choice == QMessageBox::Abort) 
+		  return;
+      if (choice == QMessageBox::Ignore) 
+		  break;
+      }
+
+   if (f.isOpen() && backup.isOpen())
+    {
+     while (!f.atEnd())
+        backup.putch(f.getch());
+
+     backup.close();
+     f.close();
+    }
+  }
+
+if ( !f.open( IO_WriteOnly ) )
+	{
+	QMessageBox::about(this, tr("QtiPlot - File Save Error"), tr("The file: <br><b>%1</b> is opened in read-only mode").arg(fn));
+	return;
+	}
+QApplication::setOverrideCursor(waitCursor);
+
+QPtrList<myWidget> lst = folder->windowsList();
+myWidget *w;
+int windows = 0;
+QString text;
+for (w = lst.first(); w; w = lst.next())
+	{
+	text += w->saveToString(windowGeometryInfo(w));
+	windows++;
+	}
+
+FolderListItem *fi = folder->folderListItem();
+FolderListItem *item = (FolderListItem *)fi->firstChild();
+int opened_folders = 0;
+int initial_depth = fi->depth();
+while (item && item->depth() > initial_depth)
+	{
+	Folder *dir = (Folder *)item->folder();
+	text += "<folder>\t"+dir->folderName()+"\t"+dir->birthDate()+"\t"+dir->modificationDate();
+	if (dir == current_folder)
+		text += "\tcurrent\n";
+	else
+		text += "\n";
+
+	lst = dir->windowsList();
+	for (w = lst.first(); w; w = lst.next())
+		{
+		text += w->saveToString(windowGeometryInfo(w));
+		windows++;
+		}
+
+	if (!dir->children())
+		text += "</folder>\n";
+	else
+		opened_folders++;
+
+	int depth = item->depth();
+	item = (FolderListItem *)item->itemBelow();
+	if (item && item->depth() < depth && item->depth() > initial_depth)
+		{
+		text += "</folder>\n";
+		opened_folders--;
+		}
+	else if (!item)
+		{
+		for (int i = 0; i<opened_folders; i++)
+			text += "</folder>\n";
+		opened_folders = 0;
+		}
+	}
+text += "<log>\n"+logInfo+"</log>";
+text.prepend("<windows>\t"+QString::number(windows)+"\n");
+text.prepend("QtiPlot " + QString::number(majVersion)+"."+ QString::number(minVersion)+"."+
+			QString::number(patchVersion)+" project file\n");
+
+QTextStream t( &f );
+t.setEncoding(QTextStream::UnicodeUTF8);
+t << text;
+f.close();
+
+QApplication::restoreOverrideCursor();
+}
+
+void ApplicationWindow::saveAsProject()
+{
+saveFolderAsProject(current_folder);
+}
+
+void ApplicationWindow::saveFolderAsProject(Folder *f)
+{
+QString filter = tr("QtiPlot project")+" (*.qti);;";
+filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
+
+QString selectedFilter;
+QString fn = QFileDialog::getSaveFileName(workingDir, filter, this, "project",
+			tr("Save Project As"), &selectedFilter, false);
+if ( !fn.isEmpty() )
+	{
+	QFileInfo fi(fn);
+	workingDir = fi.dirPath(true);
+	QString baseName = fi.fileName();	
+	if (!baseName.contains("."))
+		fn.append(".qti");
+	
+	if ( QFile::exists(fn) && !selectedFilter.contains(".gz") &&
+        QMessageBox::question(this, tr("QtiPlot -- Overwrite File? "),
+            tr("A file called: <p><b>%1</b><p>already exists.\n"
+                "Do you want to overwrite it?")
+                .arg(fn), tr("&Yes"), tr("&No"),QString::null, 0, 1 ) )
+        return ;
+	else
+		{
+		saveFolder(f, fn);
+		if (selectedFilter.contains(".gz"))
+			file_compress((char *)fn.ascii(), "wb9");
+		}
+    }
+}
+
+void ApplicationWindow::showFolderPopupMenu(QListViewItem *it, const QPoint &p, int)
+{
+showFolderPopupMenu(it, p, true);
+}
+
+//! fromFolders = TRUE means the user clicked right mouse buttom on a list iten from QListView "folders"
+void ApplicationWindow::showFolderPopupMenu(QListViewItem *it, const QPoint &p, bool fromFolders)
+{
+if (!it || folders->isRenaming())
+	return;
+
+QPopupMenu cm(this);
+QPopupMenu window(this);
+QPopupMenu viewWindowsMenu(this);
+viewWindowsMenu.setCheckable ( true );
+
+cm.insertItem(tr("&Find..."), this, SLOT(showFindDialogue()));	
+cm.insertSeparator();
+cm.insertItem(tr("App&end Project..."), this, SLOT(appendProject()));
+if (((FolderListItem *)it)->folder()->parent())
+	cm.insertItem(tr("Save &As Project..."), this, SLOT(saveAsProject()));
+else
+	cm.insertItem(tr("Save Project &As..."), this, SLOT(saveProjectAs()));
+cm.insertSeparator();
+
+if (fromFolders && show_windows_policy != HideAll)
+	{
+	cm.insertItem(tr("&Show All Windows"), this, SLOT(showAllFolderWindows()));
+	cm.insertItem(tr("&Hide All Windows"), this, SLOT(hideAllFolderWindows()));
+	cm.insertSeparator();
+	}
+
+if (((FolderListItem *)it)->folder()->parent())
+	{
+	cm.insertItem(QPixmap(close_xpm), tr("&Delete Folder"), this, SLOT(deleteFolder()), Key_F8);
+	cm.insertItem(tr("&Rename"), this, SLOT(startRenameFolder()), Key_F2);
+	cm.insertSeparator();
+	}
+
+if (fromFolders)
+	{
+	actionNewTable->addTo(&window);
+	actionNewMatrix->addTo(&window);
+	actionNewNote->addTo(&window);
+	actionNewGraph->addTo(&window);
+	actionNewFunctionPlot->addTo(&window);
+	actionNewSurfacePlot->addTo(&window);
+	cm.insertItem(tr("New &Window"), &window);
+	}
+
+cm.insertItem(QPixmap(newfolder_xpm), tr("New F&older"), this, SLOT(addFolder()), Key_F7);
+cm.insertSeparator();
+
+QStringList lst;
+lst << tr("&None") << tr("&Windows in Active Folder") << tr("Windows in &Active Folder && Subfolders");
+for (int i = 0; i < 3; ++i) 
+	{
+    int id = viewWindowsMenu.insertItem(lst[i],this, SLOT( setShowWindowsPolicy( int ) ) );
+    viewWindowsMenu.setItemParameter( id, i );
+    viewWindowsMenu.setItemChecked( id, show_windows_policy == i );
+    }
+cm.insertItem(tr("&View Windows"), &viewWindowsMenu);
+cm.insertSeparator();
+cm.insertItem(tr("&Properties..."), this, SLOT(folderProperties()));
+cm.exec(p);
+}
+
+void ApplicationWindow::setShowWindowsPolicy(int p)
+{
+if (show_windows_policy == (ShowWindowsPolicy)p)
+	return;
+
+show_windows_policy = (ShowWindowsPolicy)p;
+if (show_windows_policy == HideAll)
+	{
+	QWidgetList *lst = windowsList(); 
+	QWidget *w;
+	for (w = lst->first(); w; w = lst->next())
+		{
+		hiddenWindows->append(w);
+		w->hide();
+		setListView(w->name(),tr("Hidden"));
+		}
+	delete lst;
+	}
+else
+	showAllFolderWindows();		
+}
+
+void ApplicationWindow::showFindDialogue()
+{
+findDialog *fd = new findDialog(this, 0, TRUE, WStyle_Tool|WDestructiveClose);
+fd->showNormal();
+fd->setActiveWindow();
+}
+
+void ApplicationWindow::startRenameFolder()
+{
+FolderListItem *fi = current_folder->folderListItem();
+if (!fi)
+	return;
+
+disconnect(folders, SIGNAL(currentChanged(QListViewItem *)), this, SLOT(folderItemChanged(QListViewItem *)));
+fi->setRenameEnabled (0, true);
+fi->startRename (0);
+}
+
+void ApplicationWindow::startRenameFolder(QListViewItem *item)
+{
+if (!item || item == folders->firstChild())
+	return;
+
+disconnect(folders, SIGNAL(currentChanged(QListViewItem *)), this, SLOT(folderItemChanged(QListViewItem *)));
+
+if (item->listView() == lv && item->rtti() == FolderListItem::ListItemType)
+	{
+	current_folder = ((FolderListItem *)item)->folder();
+	FolderListItem *it = current_folder->folderListItem();
+	it->setRenameEnabled (0, true);
+	it->startRename (0);
+	}
+else
+	{
+	item->setRenameEnabled (0, true);
+	item->startRename (0);
+	}
+}
+
+void ApplicationWindow::renameFolder(QListViewItem *it, int col, const QString &text)
+{
+if (!it)
+	return;
+
+Folder *parent = (Folder *)current_folder->parent();
+if (!parent)//the parent folder is the project folder (it always exists)
+	parent = projectFolder();
+
+while(text.isEmpty())
+	{
+	QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Please enter a valid name!"));
+	it->setRenameEnabled (0, true);
+	it->startRename (0);
+	return;
+	}
+
+QStringList lst = parent->subfolders();
+lst.remove(current_folder->folderName());
+while(lst.contains(text))
+	{
+	QMessageBox::critical(this,tr("QtiPlot - Error"),
+				tr("Name already exists!")+"\n"+tr("Please choose another name!"));
+
+	it->setRenameEnabled (0, true);
+	it->startRename (0);
+	return;
+	}
+
+current_folder->setFolderName(text);
+it->setRenameEnabled (0, false);
+connect(folders, SIGNAL(currentChanged(QListViewItem *)), 
+		this, SLOT(folderItemChanged(QListViewItem *)));
+folders->setCurrentItem(parent->folderListItem());//update the list views
+}
+
+void ApplicationWindow::showAllFolderWindows()
+{
+QPtrList<myWidget> lst = current_folder->windowsList();
+myWidget *w;
+for (w = lst.first(); w; w = lst.next())
+	{//force show all windows in current folder
+	if (w)
+		{
+		updateWindowLists(w);
+		switch (w->status())
+			{
+			case myWidget::Hidden:
+				w->showNormal();
+			break;
+
+			case myWidget::Normal:
+				w->showNormal();
+			break;
+
+			case myWidget::Minimized:
+				w->showMinimized();
+			break;
+
+			case myWidget::Maximized:
+				w->showMaximized();
+			break;
+			}
+		}
+	}
+
+if (!current_folder->children())
+	return;
+
+FolderListItem *fi = current_folder->folderListItem();
+FolderListItem *item = (FolderListItem *)fi->firstChild();
+int initial_depth = item->depth();
+while (item && item->depth() >= initial_depth)
+	{// show/hide windows in all subfolders
+	lst = ((Folder *)item->folder())->windowsList();
+	for (w = lst.first(); w; w = lst.next())
+		{
+		if (w && show_windows_policy == SubFolders)
+			{
+			updateWindowLists(w);
+			switch (w->status())
+				{
+				case myWidget::Hidden:
+					w->showNormal();
+				break;
+
+				case myWidget::Normal:
+					w->showNormal();
+				break;
+
+				case myWidget::Minimized:
+					w->showMinimized();
+				break;
+
+				case myWidget::Maximized:
+					w->showMaximized();
+				break;
+				}
+			}
+		else
+			w->hide();
+		}
+
+	item = (FolderListItem *)item->itemBelow();
+	}
+}
+
+void ApplicationWindow::hideAllFolderWindows()
+{
+QPtrList<myWidget> lst = current_folder->windowsList();
+myWidget *w;
+for (w = lst.first(); w; w = lst.next())
+	hideWindow(w);
+
+if (!current_folder->children())
+	return;
+
+if (show_windows_policy == SubFolders)
+	{
+	FolderListItem *fi = current_folder->folderListItem();
+	FolderListItem *item = (FolderListItem *)fi->firstChild();
+	int initial_depth = item->depth();
+	while (item && item->depth() >= initial_depth)
+		{
+		lst = item->folder()->windowsList();
+		for (w = lst.first(); w; w = lst.next())
+			hideWindow(w);
+
+		item = (FolderListItem *)item->itemBelow();
+		}
+	}
+}
+
+void ApplicationWindow::projectProperties()
+{
+QString s = current_folder->folderName() + "\n\n";
+s += "\n\n\n";
+s += tr("Type") + ": " + tr("Project")+"\n\n";
+if (projectname != "untitled")
+	{
+	s += tr("Path") + ": " + projectname + "\n\n";
+
+	QFileInfo fi(projectname);
+	s += tr("Size") + ": " + QString::number(fi.size()) + " " + tr("bytes")+ "\n\n";
+	}
+
+QWidgetList *lst = windowsList();
+s += tr("Contents") + ": " + QString::number(lst->count()) + " " + tr("Windows");
+delete lst;
+
+s += ", " + QString::number(current_folder->subfolders().count()) + " " + tr("Folders") + "\n\n";
+s += "\n\n\n";
+
+if (projectname != "untitled")
+	{
+	QFileInfo fi(projectname);
+	s += tr("Created") + ": " + fi.created().toString(Qt::LocalDate) + "\n\n";
+	s += tr("Modified") + ": " + fi.lastModified().toString(Qt::LocalDate) + "\n\n";
+	}
+else
+	s += tr("Created") + ": " + current_folder->birthDate() + "\n\n";
+
+QMessageBox *mbox = new QMessageBox ( tr("Properties"), s, QMessageBox::NoIcon, 
+						QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
+
+mbox->setIconPixmap(QPixmap( qtiplot_logo_xpm ));
+mbox->show();
+}
+
+void ApplicationWindow::folderProperties()
+{
+if (!current_folder->parent())
+	{
+	projectProperties();
+	return;
+	}
+
+QString s = current_folder->folderName() + "\n\n";
+s += "\n\n\n";
+s += tr("Type") + ": " + tr("Folder")+"\n\n";
+s += tr("Path") + ": " + current_folder->path() + "\n\n";
+s += tr("Size") + ": " + current_folder->sizeToString() + "\n\n";
+s += tr("Contents") + ": " + QString::number(current_folder->windowsList().count()) + " " + tr("Windows");
+s += ", " + QString::number(current_folder->subfolders().count()) + " " + tr("Folders") + "\n\n";
+//s += "\n\n\n";
+s += tr("Created") + ": " + current_folder->birthDate() + "\n\n";
+//s += tr("Modified") + ": " + current_folder->modificationDate() + "\n\n";
+
+QMessageBox *mbox = new QMessageBox ( tr("Properties"), s, QMessageBox::NoIcon, 
+						QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
+
+mbox->setIconPixmap(QPixmap( folder_open_xpm ));
+mbox->show();
+}
+
+void ApplicationWindow::addFolder()
+{
+QStringList lst = current_folder->subfolders();
+QString name =  tr("New Folder");
+lst = lst.grep( name );
+if (!lst.isEmpty())
+	name += " ("+ QString::number(lst.size()+1)+")";
+
+Folder *f = new Folder(current_folder, name);
+addFolderListViewItem(f);
+
+FolderListItem *fi = new FolderListItem(current_folder->folderListItem(), f);
+if (fi)
+	{
+	f->setFolderListItem(fi);
+	fi->setRenameEnabled (0, true);
+	fi->startRename(0);
+	}
+}
+
+bool ApplicationWindow::deleteFolder(Folder *f)
+{
+if (confirmCloseFolder && QMessageBox::information(this, tr("QtiPlot - Delete folder?"),
+	tr("Delete folder '%1' and all the windows it contains?").arg(f->folderName()),
+	tr("Yes"), tr("No"), 0, 0))
+	return false;
+else
+	{
+	FolderListItem *fi = f->folderListItem();
+	QPtrList<myWidget> lst = f->windowsList();
+	myWidget *w;
+	for (w = lst.first(); w; w = lst.next())
+		removeWindowFromLists(w);
+
+	if (f->children())
+		{
+		FolderListItem *item = (FolderListItem *)fi->firstChild();
+		int initial_depth = item->depth();
+		while (item && item->depth() >= initial_depth)
+			{
+			lst = ((Folder *)item->folder())->windowsList();
+			for (w = lst.first(); w; w = lst.next())
+				removeWindowFromLists(w);
+
+			item = (FolderListItem *)item->itemBelow();
+			}
+		}
+
+	delete f;
+	delete fi;
+	return true;
+	}
+}
+
+void ApplicationWindow::deleteFolder()
+{
+Folder *parent = (Folder *)current_folder->parent();
+if (!parent)
+	parent = projectFolder();
+
+folders->blockSignals(true);
+
+if (deleteFolder(current_folder))
+	{
+	current_folder = parent;
+	folders->setCurrentItem(parent->folderListItem());
+	changeFolder(parent, true);
+	}
+
+folders->blockSignals(false);
+folders->setFocus();
+}
+
+void ApplicationWindow::folderItemDoubleClicked(QListViewItem *it)
+{
+if (!it || it->rtti() != FolderListItem::ListItemType)
+	return;
+
+FolderListItem *item = ((FolderListItem *)it)->folder()->folderListItem();
+folders->setCurrentItem(item);
+}
+
+void ApplicationWindow::folderItemChanged(QListViewItem *it)
+{
+if (!it)
+	return;
+
+it->setOpen(true);
+changeFolder (((FolderListItem *)it)->folder());
+folders->setFocus();
+}
+
+void ApplicationWindow::hideFolderWindows(Folder *f)
+{
+QPtrList<myWidget> lst = f->windowsList();
+myWidget *w;
+for (w = lst.first(); w; w = lst.next())
+	{
+	if (w && !w->isHidden())
+		w->hide();
+	}
+
+if (!f->children())
+	return;
+
+FolderListItem *fi = f->folderListItem();
+FolderListItem *item = (FolderListItem *)fi->firstChild();
+int initial_depth = item->depth();
+while (item && item->depth() >= initial_depth)
+	{
+	lst = item->folder()->windowsList();
+	for (w = lst.first(); w; w = lst.next())
+		{
+		if (w && w->isVisible())
+			w->hide();
+		}
+	item = (FolderListItem *)item->itemBelow();
+	}
+}
+
+void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
+{
+desactivateFolders();
+newFolder->folderListItem()->setActive(true);
+
+if (current_folder == newFolder && !force)
+	return;
+
+hideFolderWindows(current_folder);
+current_folder = newFolder;
+
+lv->clear();
+
+QObjectList* folderLst = (QObjectList*)newFolder->children();
+if (folderLst)
+	{
+	Folder *f;
+	for (f = (Folder*)folderLst->first(); f; f = (Folder*)folderLst->next())
+		addFolderListViewItem(f);
+	}
+
+QPtrList<myWidget> lst = newFolder->windowsList();
+myWidget *w;
+for (w = lst.first(); w; w = lst.next())
+	{//show only windows in the current folder which are not hidden by the user
+	if (w)
+		{
+		if (!hiddenWindows->containsRef(w) && !outWindows->containsRef(w) &&
+			show_windows_policy != HideAll)
+			{
+			switch (w->status())
+				{
+				case myWidget::Normal:
+					w->showNormal();
+				break;
+				case myWidget::Minimized:
+					w->showMinimized();
+				break;
+				case myWidget::Maximized:
+					{
+					if (w->isA("Graph3D"))
+						((Graph3D *)w)->setIgnoreFonts(true);
+
+					w->showMaximized();
+
+					if (w->isA("Graph3D"))
+						((Graph3D *)w)->setIgnoreFonts(false);
+					}
+				break;
+				}
+			}
+		else
+			w->setStatus(myWidget::Hidden);
+
+		addListViewItem(w);
+		}
+	}
+
+if (!newFolder->children())
+	return;
+
+FolderListItem *fi = newFolder->folderListItem();
+FolderListItem *item = (FolderListItem *)fi->firstChild();
+int initial_depth = item->depth();
+while (item && item->depth() >= initial_depth)
+	{//show/hide windows in subfolders
+	lst = ((Folder *)item->folder())->windowsList();
+	for (w = lst.first(); w; w = lst.next())
+		{
+		if (w &&!hiddenWindows->containsRef(w) && !outWindows->containsRef(w))
+			{
+			if (show_windows_policy == SubFolders)
+				{
+				switch (w->status())
+					{
+					case myWidget::Normal:
+						w->showNormal();
+					break;
+					case myWidget::Minimized:
+						w->showMinimized();
+					break;
+					case myWidget::Maximized:
+						if (w->isA("Graph3D"))
+							((Graph3D*)w)->setIgnoreFonts(true);
+							
+						w->showMaximized();
+
+						if (w->isA("Graph3D"))
+							((Graph3D*)w)->setIgnoreFonts(false);
+					break;
+					}
+				}
+			else if (w->isVisible())
+				w->hide();
+			}
+		}
+
+	item = (FolderListItem *)item->itemBelow();
+	}
+}
+
+void ApplicationWindow::desactivateFolders()
+{
+FolderListItem *item = (FolderListItem *)folders->firstChild();
+while (item)
+	{
+	item->setActive(false);
+	item = (FolderListItem *)item->itemBelow();
+	}
+}
+
+void ApplicationWindow::addListViewItem(myWidget *w)
+{
+if (!w)
+	return;
+
+WindowListItem* it = new WindowListItem(lv, w);
+
+if (w->isA("Matrix"))
+	{
+	it->setPixmap(0, QPixmap(matrix_xpm));
+	it->setText(1, tr("Matrix"));
+	}
+else if (w->isA("Table"))
+	{
+	it->setPixmap(0, QPixmap(worksheet_xpm));
+	it->setText(1, tr("Table"));
+	}
+else if (w->isA("Note"))
+	{
+	it->setPixmap(0, QPixmap(note_xpm));
+	it->setText(1, tr("Note"));
+	}
+else if (w->isA("MultiLayer"))
+	{
+	it->setPixmap(0, QPixmap(graph_xpm));
+	it->setText(1, tr("Plot"));
+	}
+else if (w->isA("Graph3D"))
+	{
+	it->setPixmap(0, QPixmap(trajectory_xpm));
+	it->setText(1, tr("Plot 3D"));
+	}
+
+it->setText(0, w->name());
+if (w->isHidden())
+	it->setText(2, tr("Hidden"));
+else
+	it->setText(2, w->aspect());
+
+it->setText(3, w->sizeToString());
+it->setText(4, w->birthDate());
+it->setText(5, w->windowLabel());
+}
+
+void ApplicationWindow::windowProperties()
+{
+WindowListItem *it = (WindowListItem *)lv->currentItem();
+myWidget *w = it->window();
+if (!w)
+	return;
+
+QMessageBox *mbox = new QMessageBox ( tr("Properties"), QString::null, QMessageBox::NoIcon, 
+						QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
+
+QString s = QString(w->name()) + "\n\n";
+s += "\n\n\n";
+
+s += tr("Label") + ": " + ((myWidget *)w)->windowLabel() + "\n\n";
+
+if (w->isA("Matrix"))
+	{
+	mbox->setIconPixmap(QPixmap(matrix_xpm));
+	s +=  tr("Type") + ": " + tr("Matrix") + "\n\n";
+	}
+else if (w->isA("Table"))
+	{
+	mbox->setIconPixmap(QPixmap(worksheet_xpm));
+	s +=  tr("Type") + ": " + tr("Table") + "\n\n";
+	}
+else if (w->isA("Note"))
+	{
+	mbox->setIconPixmap(QPixmap(note_xpm));
+	s +=  tr("Type") + ": " + tr("Note") + "\n\n";
+	}
+else if (w->isA("MultiLayer"))
+	{
+	mbox->setIconPixmap(QPixmap(graph_xpm));
+	s +=  tr("Type") + ": " + tr("Plot") + "\n\n";
+	}
+else if (w->isA("Graph3D"))
+	{
+	mbox->setIconPixmap(QPixmap(trajectory_xpm));
+	s +=  tr("Type") + ": " + tr("Plot 3D") + "\n\n";
+	}
+s += tr("Path") + ": " + current_folder->path() + "\n\n";
+s += tr("Size") + ": " + w->sizeToString() + "\n\n";
+s += tr("Created") + ": " + w->birthDate() + "\n\n";
+s += tr("Status") + ": " + it->text(2) + "\n\n";
+mbox->setText(s);
+mbox->show();
+}
+
+void ApplicationWindow::addFolderListViewItem(Folder *f)
+{
+if (!f)
+	return;
+
+FolderListItem* it = new FolderListItem(lv, f);
+it->setActive(false);
+it->setText(0, f->folderName());
+it->setText(1, tr("Folder"));
+it->setText(3, f->sizeToString());
+it->setText(4, f->birthDate());
+}
+
+void ApplicationWindow::find(const QString& s, bool windowNames, bool labels, 
+							 bool folderNames, bool caseSensitive, bool partialMatch, 
+							 bool subfolders)
+{
+if (windowNames || labels)
+	{
+	myWidget *w = current_folder->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
+	if (w)
+		{
+		activateWindow(w);
+		return;
+		}
+
+	if (subfolders)
+		{
+		FolderListItem *item = (FolderListItem *)folders->currentItem()->firstChild();
+		while (item)
+			{
+			Folder *f = item->folder();
+			myWidget *w = f->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
+			if (w)
+				{
+				folders->setCurrentItem(f->folderListItem());
+				activateWindow(w);
+				return;
+				} 
+			item = (FolderListItem *)item->itemBelow();
+			}
+		}
+	}
+
+if (folderNames)
+	{
+	Folder *f = current_folder->findSubfolder(s, caseSensitive, partialMatch);
+	if (f)
+		{
+		folders->setCurrentItem(f->folderListItem());
+		return;
+		} 
+
+	if (subfolders)
+		{
+		FolderListItem *item = (FolderListItem *)folders->currentItem()->firstChild();
+		while (item)
+			{
+			Folder *f = item->folder()->findSubfolder(s, caseSensitive, partialMatch);
+			if (f)
+				{
+				folders->setCurrentItem(f->folderListItem());
+				return;
+				}
+			
+			item = (FolderListItem *)item->itemBelow();
+			}
+		}
+	}
+
+QMessageBox::warning(this, tr("QtiPlot - No match found"),
+					 tr("Sorry, no match found for string: '%1'").arg(s));
+}
+
+void ApplicationWindow::dropFolderItems(QListViewItem *dest)
+{
+if (!dest || draggedItems.isEmpty ())
+	return;
+
+Folder *dest_f = ((FolderListItem *)dest)->folder();
+
+QListViewItem *it;
+QStringList subfolders = dest_f->subfolders();
+
+for (it = draggedItems.first(); it; it = draggedItems.next())
+	{
+	if (it->rtti() == FolderListItem::ListItemType)
+		{
+		Folder *f = ((FolderListItem *)it)->folder();
+		FolderListItem *src = f->folderListItem();
+		if (dest_f == f)
+			{
+			QMessageBox::critical(this, "QtiPlot - Error", tr("Cannot move an object to itself!"));
+			return;
+			}
+
+		if (((FolderListItem *)dest)->isChildOf(src))
+			{
+			QMessageBox::critical(this,"QtiPlot - Error",tr("Cannot move a parent folder into a child folder!"));
+			draggedItems.clear();
+			folders->setCurrentItem(current_folder->folderListItem());
+			return;
+			}
+
+		Folder *parent = (Folder *)f->parent();
+		if (!parent)
+			parent = projectFolder();
+		if (dest_f == parent)
+			return;
+
+		if (subfolders.contains(f->folderName()))
+			{
+			QMessageBox::critical(this, "QtiPlot - Skipped Moving Folder", 
+			tr("The destination folder already contains a folder called '%1'! Folder skipped!").arg(f->folderName()));
+			}
+		else
+			moveFolder(src, (FolderListItem *)dest);
+		}
+	else
+		{
+		if (dest_f == current_folder)
+			return;
+
+		myWidget *w = ((WindowListItem *)it)->window();
+		if (w)
+			{
+			current_folder->removeWindow(w);
+			w->hide();
+			dest_f->addWindow(w);
+			delete it;
+			}
+		}
+	}
+
+draggedItems.clear();
+current_folder = dest_f;
+folders->setCurrentItem(dest_f->folderListItem());
+changeFolder(dest_f, true);
+folders->setFocus();
+}
+
+void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
+{
+folders->blockSignals(true);
+
+Folder *dest_f = dest->folder();
+Folder *src_f = src->folder();
+
+dest_f = new Folder(dest_f, src_f->folderName());
+dest_f->setBirthDate(src_f->birthDate());
+dest_f->setModificationDate(src_f->modificationDate());
+
+FolderListItem *copy_item = new FolderListItem(dest, dest_f);
+copy_item->setText(0, src_f->folderName());
+dest_f->setFolderListItem(copy_item);
+
+QPtrList <myWidget> lst = QPtrList<myWidget>(src_f->windowsList());
+myWidget *w;
+for (w = lst.first(); w; w = lst.next())
+	{
+	src_f->removeWindow(w);
+	w->hide();
+	dest_f->addWindow(w);
+	}	
+
+if (src_f->children())
+	{
+	FolderListItem *item = (FolderListItem *)src->firstChild();
+	int initial_depth = item->depth();
+	while (item && item->depth() >= initial_depth)
+		{
+		src_f = (Folder *)item->folder();
+
+		dest_f = new Folder(dest_f, src_f->folderName());
+		dest_f->setBirthDate(src_f->birthDate());
+		dest_f->setModificationDate(src_f->modificationDate());
+
+		copy_item = new FolderListItem(copy_item, dest_f);
+		copy_item->setText(0, src_f->folderName());
+		dest_f->setFolderListItem(copy_item);
+
+		lst = QPtrList<myWidget>(src_f->windowsList());
+		for (w = lst.first(); w; w = lst.next())
+			{
+			src_f->removeWindow(w);
+			w->hide();
+			dest_f->addWindow(w);
+			}
+
+		item = (FolderListItem *)item->itemBelow();
+		}
+	}
+
+src_f = src->folder();
+delete src_f;
+delete src;
+folders->blockSignals(false);
 }
 
 ApplicationWindow::~ApplicationWindow()

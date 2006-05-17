@@ -6984,6 +6984,7 @@ for (i = 0; i<w->tableRows(); i++ )
 	}
 if (!size)
 	return;
+
 double *y = new double[size];
 int it=0;
 for (i = 0; i<w->tableRows(); i++ )
@@ -6992,11 +6993,16 @@ for (i = 0; i<w->tableRows(); i++ )
 	if (!s.isEmpty())
 		y[it++] = s.toDouble();
 	}
+
+gsl_sort (y, 1, size);//the data must be sorted first!
+
 BoxCurve *c = new BoxCurve(d_plot,0);
 QwtSingleArrayData dat(l[1].toDouble(), y, size);
 c->setData(dat);
+delete[] y;
 
 long curveID = d_plot->insertCurve(c);
+
 c_keys.resize(++n_curves);
 c_keys[n_curves-1] = curveID;
 c_type.resize(n_curves);

@@ -324,7 +324,7 @@ if (text_type)
 	emit changeColor(colorBox->color());
 	}
 else
-	emit values(getText(),0,backgroundType(),f, colorBox->color(), backgroundBtn->color());
+	emit values(LineEdit->text(),0,backgroundType(),f, colorBox->color(), backgroundBtn->color());
 }
 
 void TextDialog::accept()
@@ -415,11 +415,6 @@ if ( !c.isValid() || c ==  backgroundBtn->color() )
 	return;
 
 backgroundBtn->setColor ( c ) ;
-}
-
-QString TextDialog::getText()
-{
-return LineEdit->text();
 }
 
 TextDialog::~TextDialog()

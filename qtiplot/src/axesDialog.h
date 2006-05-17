@@ -18,6 +18,7 @@ class QTabWidget;
 class QWidget;
 class QStringList;
 class QButtonGroup;
+class QGroupBox;
 class ColorBox;
 class ColorButton;
 class MultiLayer;
@@ -82,8 +83,8 @@ public:
     QWidget* axesPage, *frame;
     QListBox* axesTitlesList;
     QCheckBox* boxShowAxis, *boxShowLabels;
-    QLineEdit* boxTitle;
-	QTextEdit *boxFormula;
+	
+	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
     QPushButton* btnAxesFont;
 	QCheckBox *boxBackbones, *boxAll, *boxShowFormula;
@@ -98,6 +99,9 @@ public:
 	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
 	QComboBox *boxUnit, *boxTableName;
 	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
+	QGroupBox  *labelBox;
+	QPushButton *buttonIndice, *buttonExp, *buttonSym, *buttonB, *buttonI;
+    QPushButton *buttonU, *buttonMinGreek, *buttonMajGreek, *btnLabelFont;
 	
 public slots:
 	QStringList scaleLimits(int axis, double start, double end, double step, 
@@ -167,6 +171,18 @@ public slots:
 	void showGridPage();
 	void showFormulaBox();
 	void showAxisFormula(int axis);
+
+	void addIndex();
+	void addExp();
+	void addUnderline();
+	void addItalic();
+	void addBold();
+	void addCurve();
+
+	void showMinGreek();
+	void showMajGreek();
+	void addSymbol(const QString& letter);
+	void customAxisLabelFont();
 
 signals:
 	void updateAxisTitle(int,const QString&);

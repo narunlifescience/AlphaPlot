@@ -160,6 +160,7 @@ active_graph=0;
 addTextOn=FALSE;
 movedGraph=FALSE;
 highlightedLayer = false;
+ignore_resize = false;
 aux_rect = QRect();
 cache_pix = QPixmap();
 	
@@ -170,11 +171,6 @@ graphsList=new QWidgetList();
 graphsList->setAutoDelete( TRUE );
 	
 hbox1=new QHBox(this, "hbox1"); 
-//LayerButton *button = new LayerButton(QString::number(1),hbox1,0);
-//hbox1->setFixedHeight(button->height());
-//setGeometry(QRect( 0, 0, graph_width, graph_height + button->height()));
-//delete button;
-
 int h = layerButtonHeight();
 hbox1->setFixedHeight(h);
 setGeometry(QRect( 0, 0, graph_width, graph_height + h));
@@ -187,6 +183,8 @@ layout->addWidget(hbox1);
 layout->addWidget(canvas);
 
 setFocusPolicy(QWidget::StrongFocus);
+connect (this, SIGNAL(resizeCanvas (const QResizeEvent *)),
+		 this, SLOT(resizeLayers (const QResizeEvent *)));
 }
 
 int MultiLayer::layerButtonHeight()
@@ -360,13 +358,13 @@ emit showWindowContextMenu();
 e->accept();
 }
 
-bool MultiLayer::resizeLayers (const QResizeEvent *re)
+void MultiLayer::resizeLayers (const QResizeEvent *re)
 {
 QSize oldSize=re->oldSize();
 QSize size=re->size();
 
-if ( size == oldSize || maxSize().width() > oldSize.width() )
-	return false;
+if ( size == oldSize || (maxSize().width() > oldSize.width()) || !userRequested())
+	return;
 
 QApplication::setOverrideCursor(waitCursor);
 
@@ -396,7 +394,6 @@ emit modifiedPlot();
 emit resizedWindow(this);
 
 QApplication::restoreOverrideCursor();
-return TRUE; 
 }
 
 void MultiLayer::confirmRemoveLayer()
@@ -518,8 +515,6 @@ setCursor(Qt::PointingHandCursor);
 if (!movedGraph)
 	{
 	movedGraph=TRUE;
-	if (cache_pix.isNull())
-		cache_pix = canvasPixmap();
 	showLayers(false);
 
 	xMouse=pos.x();
@@ -530,7 +525,7 @@ if (!movedGraph)
 	yActiveGraph=aux.y();
 	}
 	
-QPixmap pix = cache_pix;
+QPixmap pix = canvasPixmap();//Faster then using cache_pix;
 QPainter painter(&pix);
 painter.setRasterOp(Qt::NotROP);
 
@@ -564,7 +559,6 @@ for (int i=0;i<(int)graphsList->count();i++)
 	gr->show();
 	}
 movedGraph=FALSE;
-cache_pix = QPixmap();
 }
 
 QSize MultiLayer::arrangeLayers(bool userSize)
@@ -876,7 +870,6 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 										int quality, bool transparent)
 {
 QPixmap pic=canvasPixmap();
-	
 if (transparent)
 	{//save transparency
 	QBitmap mask(pic.size());
@@ -1276,8 +1269,7 @@ switch(e->type())
 
 	case QEvent::Resize:
 		{
-		const QResizeEvent *re = (const QResizeEvent *)e;
-		resizeLayers(re);
+		resizeLayers((const QResizeEvent *)e);
 		}
 
 	default:
@@ -1661,6 +1653,7 @@ active_graph->plotWidget()->resize(active_graph->size());
 
 canvas->erase();
 updateTransparency();
+showLayers(true);//must be called for coloured background layers
 
 highlightedLayer = false;
 aux_rect = QRect();
@@ -1735,3 +1728,6 @@ else
 
 emit modifiedPlot();
 }
+
+
+

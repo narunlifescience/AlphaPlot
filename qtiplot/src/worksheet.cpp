@@ -2413,10 +2413,10 @@ if ( f.open(IO_ReadOnly) )
 		rows++;
 		}
 
-	if (stripSpaces)
-		s = s.stripWhiteSpace();
-	else if (simplifySpaces)
-		s = s.simplifyWhiteSpace();
+	if (simplifySpaces)
+  		s = s.simplifyWhiteSpace();
+  	else if (stripSpaces)
+  		s = s.stripWhiteSpace();
 	QStringList line = QStringList::split(sep, s, true);
 	cols = (int)line.count();
 
@@ -2472,10 +2472,11 @@ if ( f.open(IO_ReadOnly) )
 	if (renameCols && !allNumbers)
 		{//use first line to set the table header
 		s = t.readLine();
-		if (stripSpaces)
-			s = s.stripWhiteSpace();
-		else if (simplifySpaces)
-			s = s.simplifyWhiteSpace();
+		if (simplifySpaces)
+  			s = s.simplifyWhiteSpace();
+  		else if (stripSpaces)
+  			s = s.stripWhiteSpace();
+
 		line = QStringList::split(sep, s, false);	
 		int end = startCol+(int)line.count();
 		for (i=startCol; i<end; i++)
@@ -2510,10 +2511,10 @@ if ( f.open(IO_ReadOnly) )
 		for (int k=0; k<1000; k++)
 			{
 			s = t.readLine();
-			if (stripSpaces)
-				s = s.stripWhiteSpace();
-			else if (simplifySpaces)
-				s = s.simplifyWhiteSpace();
+			if (simplifySpaces)
+  				s = s.simplifyWhiteSpace();
+  			else if (stripSpaces)
+  				s = s.stripWhiteSpace();
 			line = QStringList::split(sep, s, true);
 			for (int j=startCol; j<worksheet->numCols(); j++)
 				worksheet->setText(startRow + k, j, line[j-startCol]);
@@ -2526,10 +2527,10 @@ if ( f.open(IO_ReadOnly) )
 	 for (i=startRow; i<worksheet->numRows(); i++)
 		{
 		s = t.readLine(); 
-		if (stripSpaces)
-			s = s.stripWhiteSpace();
-		else if (simplifySpaces)
-			s = s.simplifyWhiteSpace();
+		if (simplifySpaces)
+  			s = s.simplifyWhiteSpace();
+  		else if (stripSpaces)
+  			s = s.stripWhiteSpace();
 		line = QStringList::split(sep, s, true);
 		for (int j=startCol; j<worksheet->numCols(); j++)
 			worksheet->setText(i, j, line[j-startCol]);
@@ -2565,10 +2566,11 @@ if ( f.open(IO_ReadOnly) )
 		rows++;
 		}
 
-	if (stripSpaces)
-		s = s.stripWhiteSpace();
-	else if (simplifySpaces)//All space chars (including TAB) are replaces with a single white space
-		s = s.simplifyWhiteSpace();
+	if (simplifySpaces)
+  		s = s.simplifyWhiteSpace();
+  	else if (stripSpaces)
+  		s = s.stripWhiteSpace();
+
 	QStringList line = QStringList::split(sep, s, true);
 	cols = (int)line.count();
 
@@ -2626,10 +2628,10 @@ if ( f.open(IO_ReadOnly) )
 	if (renameCols && !allNumbers)
 		{//use first line to set the table header
 		s = t.readLine();
-		if (stripSpaces)
-			s = s.stripWhiteSpace();
-		else if (simplifySpaces)
-			s = s.simplifyWhiteSpace();
+		if (simplifySpaces)
+  			s = s.simplifyWhiteSpace();
+  		else if (stripSpaces)
+  			s = s.stripWhiteSpace();
 		line = QStringList::split(sep, s, false);	
 		for (i=0; i<(int)line.count(); i++)
 			{
@@ -2665,10 +2667,10 @@ if ( f.open(IO_ReadOnly) )
 		for (int k=0; k<1000; k++)
 			{
 			s = t.readLine();
-			if (stripSpaces)
-				s = s.stripWhiteSpace();
-			else if (simplifySpaces)
-				s = s.simplifyWhiteSpace();
+			if (simplifySpaces)
+  				s = s.simplifyWhiteSpace();
+  			else if (stripSpaces)
+  				s = s.stripWhiteSpace();
 			line = QStringList::split(sep, s, true);
 			for (int j=0; j<cols; j++)
 				worksheet->setText(start + k, j, line[j]);
@@ -2680,10 +2682,10 @@ if ( f.open(IO_ReadOnly) )
 	 for (i=start; i<rows; i++)
 		{
 		s = t.readLine(); 
-		if (stripSpaces)
-			s = s.stripWhiteSpace();
-		else if (simplifySpaces)
-			s = s.simplifyWhiteSpace();
+		if (simplifySpaces)
+  			s = s.simplifyWhiteSpace();
+  		else if (stripSpaces)
+  			s = s.stripWhiteSpace();
 		line = QStringList::split(sep, s, true);
 		for (int j=0; j<cols; j++)
 			worksheet->setText(i, j, line[j]);

@@ -28,7 +28,7 @@ exportDialog::exportDialog( QWidget* parent, const char* name, bool modal, WFlag
 
 	new QLabel( tr( "Table" ), hbox1, "TextLabel1", 0 );
 	boxTable = new QComboBox( FALSE, hbox1, "boxTable" );
-	boxTable->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+	boxTable->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
 	boxAllTables = new QCheckBox(hbox1, "boxAllTables" );
     boxAllTables->setChecked(false);

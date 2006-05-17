@@ -40,7 +40,7 @@ QString s= "<note>\n";
 s+= QString(name()) + "\t" + birthDate() + "\n";
 s+= info;
 s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-s+= te->text()+"\n";
+s+= te->text().stripWhiteSpace()+"\n";
 s+="</note>\n";
 return s;
 }

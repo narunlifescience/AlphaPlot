@@ -104,24 +104,8 @@ QString text = boxNameLine->text().remove("_").remove("=").remove(QRegExp("\\s")
 QString label = boxLabelEdit->text();
 
 myWidget::CaptionPolicy policy = getCaptionPolicy();
-if (text == name && 
-	label == window->windowLabel() &&
-	window->captionPolicy() == policy)
+if (text == name && label == window->windowLabel() && window->captionPolicy() == policy)
 	close();
-
-if (text.isEmpty())
-	{
-	QMessageBox::critical(0, tr("QtiPlot - Error"),
-			   tr("Please enter a valid name!"));
-	return;
-	}
-else if (text.contains(QRegExp("\\W")))
-	{
-	QMessageBox::critical(0, tr("QtiPlot - Error"),
-			   tr("The name you chose is not valid: only letters and digits are allowed!")+
-			   "<p>" + tr("Please choose another name!"));
-	return;
-	}
 
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 if (!app)
@@ -129,53 +113,11 @@ if (!app)
 
 if (text != name)
 	{
-	while(app->allreadyUsedName(text))
-		{
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
-				tr("Name already exists!")+"\n"+tr("Please choose another name!"));
+	if(!app->renameWindow(window, text))
 		return;
-		}
 
-	int id;
-	if (app->plotWindows.contains(name))
-		{
-		id=app->plotWindows.findIndex(name);
-		app->plotWindows[id]=text;
-		}
-	else if (app->plot3DWindows.contains(name))
-		{
-		id=app->plot3DWindows.findIndex(name);
-		app->plot3DWindows[id]=text;
-		}
-	else if (app->tableWindows.contains(name))
-		{
-		QStringList labels=((Table *)window)->colNames();
-		if (labels.contains(text)>0)
-			{
-			QMessageBox::critical(0,tr("QtiPlot - Error"),
-			tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
-			return;
-			}
-
-		id=app->tableWindows.findIndex(name);
-		app->tableWindows[id]=text;
-		app->updateTableNames(name,text);
-		}
-	else if (app->matrixWindows.contains(name))
-		{
-		id=app->matrixWindows.findIndex(name);
-		app->matrixWindows[id]=text;
-		}
-	else if (app->noteWindows.contains(name))
-		{
-		id=app->noteWindows.findIndex(name);
-		app->noteWindows[id]=text;
-		}
-
-	window->setName(text);
 	app->renameListViewItem(name,text);
 	}
-
 
 label.replace("\n"," ").replace("\t"," ");
 window->setWindowLabel(label);

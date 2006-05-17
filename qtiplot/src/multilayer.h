@@ -41,8 +41,6 @@ public:
 	void wheelEvent(QWheelEvent *);
 	void keyPressEvent(QKeyEvent *);
 	bool eventFilter(QObject *object, QEvent *);
-	bool resizeLayers (const QResizeEvent *);
-
 	void releaseLayer();
 	
 	QWidgetList *buttonsList, *graphsList;
@@ -50,6 +48,8 @@ public:
 	QWidget *canvas;
 
 public slots:
+	void resizeLayers (const QResizeEvent *re);
+
 	Graph* insertFirstLayer();
 	Graph* addLayer();
 	Graph* addLayerToOrigin();
@@ -135,6 +135,7 @@ public slots:
 	QString saveAsTemplate(const QString& geometryInfo);
 
 	int layerButtonHeight();
+	void ignoreResizeEvent(bool ignore){ignore_resize = ignore;};
 
 signals:   
 	void showTextDialog();
@@ -166,6 +167,7 @@ signals:
 	void pasteMarker();
 	void createIntensityTable(const QPixmap&);
 	void setPointerCursor();
+	void resizeCanvas(const QResizeEvent *);
 	
 private:
 	Graph* active_graph;
@@ -175,7 +177,7 @@ private:
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	int xMouse, yMouse, xActiveGraph, yActiveGraph;//used for moving layers
-	bool movedGraph, addTextOn, highlightedLayer;
+	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
 };
 
 	

@@ -6,6 +6,8 @@
 #include "parser.h"
 #include "colorButton.h"
 #include "multilayer.h"
+#include "txt_icons.h"
+#include "symbolDialog.h"
 
 #include <qtextedit.h>
 #include <qcolordialog.h>
@@ -990,8 +992,6 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 		setName( "axesDialog" );
     setCaption( tr( "QtiPlot - General Plot Options" ) );
 
-	setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
-
     generalDialog = new QTabWidget( this, "generalDialog" );
 
 	initScalesPage();
@@ -1019,6 +1019,8 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 
 	for (int i=0;i<4;i++)
 		titles<<"";
+
+	setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
 // signals and slots connections
 connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -1189,36 +1191,81 @@ void axesDialog::initAxesPage()
     QPixmap image5( ( const char** ) image5_data );
     QPixmap image6( ( const char** ) image6_data );
     QPixmap image7( ( const char** ) image7_data );
-    axesPage = new QWidget( generalDialog, "axesPage" );
+
+    axesPage = new QWidget( generalDialog);
 	
-    axesTitlesList = new QListBox( axesPage, "axesTitlesList" );
+    axesTitlesList = new QListBox(axesPage);
     axesTitlesList->insertItem( image4, QString::null );
     axesTitlesList->insertItem( image5, QString::null );
     axesTitlesList->insertItem( image6, QString::null );
     axesTitlesList->insertItem( image7, QString::null );
 	axesTitlesList->setCurrentItem(0);
-	axesTitlesList->setMaximumWidth(80);
+	axesTitlesList->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 		
-	QVBox  *box=new QVBox (axesPage, "box2"); 
+	QVBox *box = new QVBox (axesPage); 
+	box->setSpacing(5);
+	box->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-	QHBox  *hbox1=new QHBox (box, "hbox1"); 
-	hbox1->setMargin (5);
-	hbox1->setSpacing(10);
-	
-	new QLabel(tr( "Show" ),hbox1, "TextLabel1_555",0 );
+	QHBox *hbox0 = new QHBox (box); 
+	hbox0->setSpacing(5);
+	hbox0->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-	boxShowAxis = new QCheckBox(hbox1, "boxShowAxis" );
+	boxShowAxis = new QCheckBox(tr("Show"), hbox0);
 	boxShowAxis->setChecked(TRUE);
+
+	labelBox = new QGroupBox (2, Qt::Horizontal, hbox0);
+	labelBox->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 	
-	new QLabel(tr( "Title" ),hbox1, "TextLabel1_5555",0 );
-    boxTitle = new QLineEdit( hbox1, "boxTitle" ); 
+	QLabel *l = new QLabel(tr( "Title" ), labelBox);
+    boxTitle = new QTextEdit(labelBox);
+	boxTitle->setTextFormat(Qt::PlainText);
+	boxTitle->setMaximumHeight(int(1.5*l->height()));
+
+	btnLabelFont = new QPushButton(tr("&Font"), labelBox);
+
+	QHBox *editBox = new QHBox (labelBox); 
+	editBox->setMaximumWidth(280);
+
+	buttonIndice = new QPushButton( editBox); 
+    buttonIndice->setPixmap (QPixmap(index_xpm));
+	buttonIndice->setMaximumWidth(40);
+
+    buttonExp = new QPushButton( editBox);
+    buttonExp->setPixmap (QPixmap(exp_xpm));
+	buttonExp->setMaximumWidth(40);
+
+    buttonMinGreek = new QPushButton(QChar(0x3B1), editBox); 
+	buttonMinGreek->setMaximumWidth(40);
+
+	buttonMajGreek = new QPushButton(QChar(0x393), editBox); 
+	buttonMajGreek->setMaximumWidth(40);
+
+	QFont font = this->font();
+	font.setBold(true);
+
+    buttonB = new QPushButton(tr("B"), editBox); 
+    buttonB->setFont(font);
+	buttonB->setMaximumWidth(40);
+
+	font = this->font();
+	font.setItalic(true);
+    buttonI = new QPushButton(tr("It"), editBox);
+	buttonI->setFont(font);
+	buttonI->setMaximumWidth(40);
+
+	font = this->font();
+	font.setUnderline(true);
+
+    buttonU = new QPushButton(tr("U"), editBox);
+	buttonU->setFont(font);
+	buttonU->setMaximumWidth(40);
 	
-	QHBox  *hbox2=new QHBox (box, "hbox2"); 
+	QHBox  *hbox2=new QHBox (box); 
 	hbox2->setSpacing(5);
 	
-	QButtonGroup *GroupBox7 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""), hbox2, "GroupBox7" );
+	QButtonGroup *GroupBox7 = new QButtonGroup(2,QGroupBox::Horizontal, QString::null, hbox2);
 
-	new QLabel(tr( "Type" ),GroupBox7, "TextLabel1_517",0 );	
+	new QLabel(tr( "Type" ),GroupBox7);	
 	boxAxisType= new QComboBox(GroupBox7, "boxAxisType");
 	boxAxisType->insertItem(tr("Numeric"));
 	boxAxisType->insertItem(tr("Text from table"));
@@ -1228,57 +1275,61 @@ void axesDialog::initAxesPage()
 	boxAxisType->insertItem(tr("Date"));
 	boxAxisType->insertItem(tr("Column Headings"));
 
-	new QLabel(tr( "Font" ),GroupBox7, "TextLabel1_55",0 );
-	btnAxesFont = new QPushButton(GroupBox7, "btnAxesFont" );
+	new QLabel(tr( "Font" ),GroupBox7);
+	btnAxesFont = new QPushButton(GroupBox7);
     btnAxesFont->setText( tr( "Axis &Font" ) );	
 
-	new QLabel(tr( "Color" ),GroupBox7, "TextLabel1_51",0 );	
+	new QLabel(tr( "Color" ),GroupBox7);	
 	boxAxisColor= new ColorButton(GroupBox7);
 
-	new QLabel(tr( "Ticks" ), GroupBox7, "TextLabel1_511",0 );	
+	new QLabel(tr( "Ticks" ), GroupBox7);	
 	boxTicksType= new QComboBox(GroupBox7);
 	boxTicksType->insertItem(tr( "In" ) );
 	boxTicksType->insertItem(tr( "Out" ) );
 	boxTicksType->insertItem(tr( "Both" ) );
 	boxTicksType->insertItem(tr( "None" ) );
 	
-	new QLabel(tr("Stand-off"), GroupBox7, "TextLabel1_5111",0 );
+	new QLabel(tr("Stand-off"), GroupBox7);
 	boxBaseline = new QSpinBox(0,1000,1,GroupBox7, "boxBaseline");
 	
 	QButtonGroup *GroupBox8= new QButtonGroup(2,QGroupBox::Horizontal,tr(""), hbox2, "GroupBox8" );
 	
-	new QLabel(QString::null, GroupBox8, "TextLabel1_533",0);	
+	new QLabel(QString::null, GroupBox8);	
 	boxShowLabels = new QCheckBox(GroupBox8, "boxShowLabels");
 	boxShowLabels->setText(tr("Show Labels"));
 	boxShowLabels->setChecked(TRUE);
 	
-	label1 = new QLabel(tr("Table"),GroupBox8, "TextLabel1_5131",0 );	
+	label1 = new QLabel(tr("Table"),GroupBox8);	
 	boxColName = new QComboBox(GroupBox8, "Datasheet");
 
-	labelTable = new QLabel(tr("Table"),GroupBox8, "TextLabel1_5131",0 );	
+	labelTable = new QLabel(tr("Table"),GroupBox8);	
 	boxTableName = new QComboBox(GroupBox8, "boxTableName");
 
-	label2 = new QLabel(tr( "Format" ),GroupBox8, "TextLabel1_513",0 );	
+	label2 = new QLabel(tr( "Format" ),GroupBox8);	
 	boxFormat = new QComboBox(GroupBox8, "boxFormat");
 	boxFormat->setDuplicatesEnabled(false);
 	
-	label3 = new QLabel(tr( "Precision" ),GroupBox8, "TextLabel1_515",0 );		
-	boxPrecision= new QSpinBox(0,10,1,GroupBox8, "boxPrecision");
+	label3 = new QLabel(tr( "Precision" ),GroupBox8);		
+	boxPrecision= new QSpinBox(0,10,1,GroupBox8);
 	
-	new QLabel(tr( "Angle" ),GroupBox8, "TextLabel1_5151",0 );		
-	boxAngle = new QSpinBox(-90,90,5,GroupBox8, "boxAngle");
+	new QLabel(tr( "Angle" ),GroupBox8);		
+	boxAngle = new QSpinBox(-90,90,5,GroupBox8);
 
-	boxShowFormula = new QCheckBox(tr( "For&mula" ),GroupBox8, "boxShowFormula");		
-	boxFormula = new QTextEdit(GroupBox8, "boxFormula");
-	boxFormula->setMaximumHeight(2*boxTitle->height());
+	boxShowFormula = new QCheckBox(tr( "For&mula" ),GroupBox8);		
+	boxFormula = new QTextEdit(GroupBox8);
+	boxFormula->setTextFormat(Qt::PlainText);
+	boxFormula->setMaximumHeight(int(1.5*l->height()));
+	boxFormula->hide();
 
-	QHBoxLayout* hlayout3 = new QHBoxLayout(axesPage,5,5, "hlayout3");
+	QHBoxLayout* hlayout3 = new QHBoxLayout(axesPage, 5, 5);
 	hlayout3->addWidget(axesTitlesList);
     hlayout3->addWidget(box);
 
 	generalDialog->insertTab( axesPage, tr( "Axis" ) );
 
 //signals and slots connections
+connect(btnLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
+
 connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
 connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateShowBox(int) ) );	
 connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateAxisColor(int)));
@@ -1300,6 +1351,14 @@ connect(btnAxesFont, SIGNAL(clicked()), this, SLOT(customAxisFont()));
 connect(boxBaseline, SIGNAL(valueChanged(int)), this, SLOT(changeBaselineDist(int)));
 connect(boxAxisType,SIGNAL(activated(int) ), this, SLOT(showAxisFormatOptions(int)));
 connect(boxPrecision,SIGNAL(valueChanged(int) ), this, SLOT(setLabelsNumericFormat(int)));
+
+connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
+connect( buttonIndice, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
+connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
+connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
+connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
+connect(buttonMinGreek, SIGNAL(clicked()), this, SLOT(showMinGreek()));
+connect(buttonMajGreek, SIGNAL(clicked()), this, SLOT(showMajGreek()));
 }
 
 void axesDialog::initFramePage()
@@ -1350,7 +1409,7 @@ QButtonGroup *GroupBox66 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""),vbox2
 new QLabel(tr( "Margin" ),GroupBox66, "TextLabel1_541",0 );
 boxMargin= new QSpinBox(0, 1000, 5, GroupBox66);
 
-boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox66, "boxShowAxis" );
+boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox66);
 
 QHBoxLayout* hlayout4 = new QHBoxLayout(frame,5,5, "hlayout4");
 hlayout4->addWidget(vbox);
@@ -1787,6 +1846,7 @@ boxShowLabels->setEnabled(ok);
 boxTicksType->setEnabled(ok);
 boxAxisType->setEnabled(ok);
 boxBaseline->setEnabled(ok);
+labelBox->setEnabled(ok);
 
 int axis=-1;
 int a=axesTitlesList->currentItem();	
@@ -1899,7 +1959,8 @@ btnAxesFont->setEnabled(ok);
 boxShowLabels->setEnabled(ok);
 boxTicksType->setEnabled(ok);
 boxAxisType->setEnabled(ok);
-boxBaseline->setEnabled(ok);	
+boxBaseline->setEnabled(ok);
+labelBox->setEnabled(ok);	
 }
 
 void axesDialog::initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR )
@@ -2817,6 +2878,127 @@ if (boxShowFormula->isChecked())
 	boxFormula->show();
 else
 	boxFormula->hide();
+}
+
+void axesDialog::showMinGreek()
+{
+symbolDialog *greekLetters = new symbolDialog(symbolDialog::minGreek, this,"greekLetters",
+											  false, WStyle_Tool|WDestructiveClose);
+connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+greekLetters->show();
+greekLetters->setActiveWindow();
+}
+
+void axesDialog::showMajGreek()
+{
+symbolDialog *greekLetters = new symbolDialog(symbolDialog::majGreek, this, "greekLetters",
+											  false, WStyle_Tool|WDestructiveClose);
+connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+greekLetters->show();
+greekLetters->setActiveWindow();
+}
+
+void axesDialog::addSymbol(const QString& letter)
+{
+boxTitle->insert(letter);
+}
+
+void axesDialog::addCurve()
+{
+int line=0, col=0;
+boxTitle->getCursorPosition (&line,&col);
+boxTitle->insert("\\c{}");
+boxTitle->setCursorPosition (line,col+3);
+}
+
+void axesDialog::addUnderline()
+{
+if (boxTitle->hasSelectedText())
+	{	
+	QString markedText=boxTitle->selectedText();
+	boxTitle->insert("<u>" + markedText + "</u>");
+	}
+else
+	{	
+	int line=0, col=0;
+	boxTitle->getCursorPosition (&line,&col);
+	boxTitle->insert("<u></u>");
+	boxTitle->setCursorPosition (line,col+3);
+	}
+}
+
+void axesDialog::addItalic()
+{
+if (boxTitle->hasSelectedText())
+	{	
+	QString markedText=boxTitle->selectedText ();
+	boxTitle->insert("<i>"+markedText+"</i>");
+	}
+else
+	{	
+	int line=0, col=0;
+	boxTitle->getCursorPosition (&line,&col);
+	boxTitle->insert("<i></i>");
+	boxTitle->setCursorPosition (line,col+3);
+	}
+}
+
+void axesDialog::addBold()
+{	
+if (boxTitle->hasSelectedText())
+	{	
+	QString markedText=boxTitle->selectedText ();
+	boxTitle->insert("<b>"+markedText+"</b>");
+	}
+else
+	{
+	int line=0, col=0;
+	boxTitle->getCursorPosition (&line,&col);
+	boxTitle->insert("<b></b>");
+	boxTitle->setCursorPosition (line,col+3);
+	}
+}
+
+void axesDialog::addIndex()
+{	
+if (boxTitle->hasSelectedText())
+	{	
+	QString markedText=boxTitle->selectedText ();
+	boxTitle->insert("<sub>"+markedText+"</sub>");
+	}
+else
+	{	
+	int line=0, col=0;
+	boxTitle->getCursorPosition (&line,&col);
+	boxTitle->insert("<sub></sub>");
+	boxTitle->setCursorPosition (line,col+5);
+	}
+}
+
+void axesDialog::addExp()
+{
+if (boxTitle->hasSelectedText())
+	{	
+	QString markedText=boxTitle->selectedText ();
+	boxTitle->insert("<sup>"+markedText+"</sup>");
+	}
+else
+	{
+	int line, col;
+	boxTitle->getCursorPosition (&line,&col);
+	boxTitle->insert("<sup></sup>");
+	boxTitle->setCursorPosition (line,col+5);
+	}
+}
+
+void axesDialog::customAxisLabelFont()
+{
+int axis = mapToQwtAxisId();
+bool okF;
+QFont oldFont = d_graph->axisTitleFont(axis);
+QFont fnt = QFontDialog::getFont( &okF, oldFont,this);
+if (okF && fnt != oldFont)
+	d_graph->setAxisTitleFont(axis, fnt);
 }
 
 axesDialog::~axesDialog()

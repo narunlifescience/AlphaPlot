@@ -49,7 +49,6 @@ public slots:
 	void setAlignment(int align);
 
 	void setText(const QString & t);
-	QString getText();
 
 	void customFont();
 	QFont font(){return f;};

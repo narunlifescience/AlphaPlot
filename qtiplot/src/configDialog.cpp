@@ -245,13 +245,16 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
 	confirm = new QWidget( generalDialog, "confirm" );
 	
 	GroupBoxConfirm = new QButtonGroup( 1,QGroupBox::Horizontal,tr("Prompt on closing"),confirm,"GroupBoxConfirm" );
-    boxTables= new QCheckBox(GroupBoxConfirm, "boxTables" );
+	boxFolders = new QCheckBox(GroupBoxConfirm);
+	boxFolders->setChecked(app->confirmCloseFolder);
+	
+	boxTables = new QCheckBox(GroupBoxConfirm);
 	boxTables->setChecked(app->confirmCloseTable);
 
-	boxMatrixes = new QCheckBox(GroupBoxConfirm, "boxMatrixes" );
+	boxMatrixes = new QCheckBox(GroupBoxConfirm);
 	boxMatrixes->setChecked(app->confirmCloseMatrix);
 
-    boxPlots2D = new QCheckBox(GroupBoxConfirm, "boxPlots2D" );
+    boxPlots2D = new QCheckBox(GroupBoxConfirm);
 	boxPlots2D->setChecked(app->confirmClosePlot2D);
 
 	boxPlots3D = new QCheckBox(GroupBoxConfirm, "boxPlots3D" );
@@ -566,15 +569,6 @@ QButtonGroup *GroupBox77 = new QButtonGroup( 2,QGroupBox::Horizontal,QString::nu
     
 lblCurveStyle = new QLabel(GroupBox77, "lblCurveStyle",0 ); 	
 boxCurveStyle = new QComboBox(GroupBox77,"boxCurveStyle");
-boxCurveStyle->insertItem( QPixmap(lPlot_xpm), tr( " Line" ) );
-boxCurveStyle->insertItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
-boxCurveStyle->insertItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
-boxCurveStyle->insertItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
-boxCurveStyle->insertItem( QPixmap(spline_xpm), tr( " Spline" ) );
-boxCurveStyle->insertItem( QPixmap(steps_xpm), tr( " Vertical steps" ) );
-boxCurveStyle->insertItem( QPixmap(area_xpm), tr( " Area" ) );
-boxCurveStyle->insertItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
-boxCurveStyle->insertItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
 
 lblLineWidth = new QLabel(GroupBox77, "lblLineWidth",0 ); 
 boxCurveLineWidth = new QSpinBox(1,100,1,GroupBox77, "boxCurveLineWidth");
@@ -654,6 +648,7 @@ void configDialog::languageChange()
 
 	//confirmations page
 	GroupBoxConfirm->setTitle(tr("Prompt on closing"));
+	boxFolders->setText(tr("Folders"));
 	boxTables->setText(tr("Tables"));
 	boxPlots3D->setText(tr("3D Plots"));
 	boxPlots2D->setText(tr("2D Plots"));
@@ -706,6 +701,17 @@ void configDialog::languageChange()
 	lblCurveStyle->setText(tr( "Default curve style" )); 	
 	lblLineWidth->setText(tr( "Line width" )); 
 	lblSymbSize->setText(tr( "Symbol size" )); 
+
+	boxCurveStyle->clear();
+	boxCurveStyle->insertItem( QPixmap(lPlot_xpm), tr( " Line" ) );
+	boxCurveStyle->insertItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
+	boxCurveStyle->insertItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
+	boxCurveStyle->insertItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
+	boxCurveStyle->insertItem( QPixmap(spline_xpm), tr( " Spline" ) );
+	boxCurveStyle->insertItem( QPixmap(steps_xpm), tr( " Vertical steps" ) );
+	boxCurveStyle->insertItem( QPixmap(area_xpm), tr( " Area" ) );
+	boxCurveStyle->insertItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
+	boxCurveStyle->insertItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
 
 	//plots 3D
 	lblResolution->setText(tr("Resolution")); 
@@ -788,6 +794,7 @@ else if (generalDialog->visibleWidget()==(QWidget*)application)
 	}
 else if (generalDialog->visibleWidget()==(QWidget*)confirm)
 	{
+	app->confirmCloseFolder = boxFolders->isChecked();
 	app->updateConfirmOptions(boxTables->isChecked(), boxMatrixes->isChecked(),
 							  boxPlots2D->isChecked(), boxPlots3D->isChecked(),
 							  boxNotes->isChecked());

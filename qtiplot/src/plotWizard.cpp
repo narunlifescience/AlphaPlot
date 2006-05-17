@@ -15,7 +15,6 @@ plotWizard::plotWizard( QWidget* parent, const char* name, bool modal, WFlags fl
     if ( !name )
 	setName( "plotWizard" );
 	setCaption( tr("QtiPlot - Select Columns to Plot") );
-    setMouseTracking( TRUE );
     setSizeGripEnabled( TRUE );
 	
 	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
