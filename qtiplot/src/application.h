@@ -35,6 +35,7 @@ class Folder;
 class FolderListItem;
 class FolderListView;
 
+//! QtiPlot's main window
 class ApplicationWindow: public QMainWindow
 {
     Q_OBJECT

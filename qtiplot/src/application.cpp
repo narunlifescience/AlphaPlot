@@ -2572,7 +2572,7 @@ for (int i=0; i<r; i++)
 initTable(w, lst[0]);
 w->setCaptionPolicy(myWidget::Both);
 outWindows->append(w);
-setListView(w->name(),tr("Hidden"));
+w->setHidden();
 return w;
 }
 
@@ -6259,7 +6259,7 @@ activeGraph=g;
 aw= (QWidget *)plot;
 
 expDecayDialog *edd = new expDecayDialog(type, this,"polyDialog", false, WStyle_Tool|WDestructiveClose);
-connect (plot, SIGNAL(closedPlot(QWidget*)), edd, SLOT(close()));
+connect (plot, SIGNAL(closedWindow(QWidget*)), edd, SLOT(close()));
 	
 edd->setGraph(g);
 edd->showNormal();
@@ -6305,7 +6305,7 @@ fitDialog *fd=new fitDialog(this,"fitDialog", false, WDestructiveClose);
 connect (fd, SIGNAL(clearFunctionsList()), this, SLOT(clearFitFunctionsList()));
 connect (fd, SIGNAL(saveFunctionsList(const QStringList&)), 
 		 this, SLOT(saveFitFunctionsList(const QStringList&)));
-connect (plot, SIGNAL(closedPlot(QWidget*)), fd, SLOT(close()));
+connect (plot, SIGNAL(closedWindow(QWidget*)), fd, SLOT(close()));
 	
 fd->insertFunctionsList(fitFunctions);
 fd->setGraph(g);
@@ -6506,7 +6506,7 @@ if (!g || !g->validCurvesDataSize())
 	return;
 
 interpolationDialog *id=new interpolationDialog(this,"interpolationDialog",false,WStyle_Tool|WDestructiveClose);	
-connect (plot, SIGNAL(closedPlot(QWidget*)), id, SLOT(close()));
+connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 id->setGraph(g);
 id->show();
 id->setActiveWindow();
@@ -6525,7 +6525,7 @@ activeGraph=g;
 aw=(QWidget*)plot;
 
 polynomFitDialog *pfd=new polynomFitDialog(this,"polyDialog",false,WStyle_Tool|WDestructiveClose);	
-connect (plot, SIGNAL(closedPlot(QWidget*)), pfd, SLOT(close()));
+connect (plot, SIGNAL(closedWindow(QWidget*)), pfd, SLOT(close()));
 pfd->setGraph(g);
 pfd->showNormal();
 pfd->setActiveWindow();
@@ -6562,7 +6562,7 @@ if (!g || !g->validCurvesDataSize())
 	return;
 	
 intDialog *id=new intDialog(this,"intDialog",false,WStyle_Tool|WDestructiveClose);
-connect (plot, SIGNAL(closedPlot(QWidget*)), id, SLOT(close()));
+connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 id->setGraph(g);
 id->showNormal();
 id->setActiveWindow();
@@ -7612,9 +7612,7 @@ hideWindow(w);
 void ApplicationWindow::hideWindow(myWidget* w)
 {
 hiddenWindows->append(w);
-w->hide();
-setListView(w->name(),tr("Hidden"));
-//w->setHidden();
+w->setHidden();
 emit modified();
 }
 
@@ -11530,7 +11528,7 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 {
 QApplication::setOverrideCursor(waitCursor);
 
-ApplicationWindow *app= new ApplicationWindow();
+ApplicationWindow *app = new ApplicationWindow();
 app->applyUserSettings();
 app->setCaption("QtiPlot - " + filename);
 app->showMaximized();
@@ -11539,15 +11537,10 @@ app->recentProjects.remove(filename);
 app->recentProjects.push_front(filename);
 app->updateRecentProjectsList();
 
-ImportOPJ import(app, filename);
-if (!import.error())
-	{
-	app->close();
-	return 0;
-	}
+ImportOPJ(app, filename);
 
 QApplication::restoreOverrideCursor();
-return 0;
+return app;
 }
 
 void ApplicationWindow::deleteFitTables()

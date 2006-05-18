@@ -4,10 +4,14 @@ liborigin and opj2dat
 Author : Stefan Gerlach
 
 compiling :
-	make -f Makefile.orig
+	$ make -f Makefile.LINUX
+	or for Darwin :
+	$ make -f Makefile.DARWIN
 Usage :
-	# export LD_LIBRARY_PATH=.
-	# ./opj2dat <project.opj>
+	$ ./opj2dat <project.opj>
+
+Note :
+If it crashes : reduce maximum numbers in OPJFile.h.
 
 ---------------------------------------------------------------------------
 FEATURES :
@@ -16,19 +20,29 @@ FEATURES :
 
 ---------------------------------------------------------------------------
 TODO :
-	* CRASH : handle field length of label type correct (50 bytes not 10 bytes per entry)
-		* valuesize != 10 for label column type
-	* read MATRIX tables
-	* improve 5.0 : 5.0/Ori50TableA4cols.OPJ doesn't work
-	* read graphs : 7.5/graphs
+	* support FUNCTION : drf_spin
+	* support MATRIX tables
+	* support extra graph (no link to data) : power_cdw
+	* read spreadsheet infos (LAYER section) with better method
+	* fix various problems (check ORIGIN/README)
+	* read graphs
 
 ---------------------------------------------------------------------------
 Changelog :
 
-09-23-05	* read 4.1 projects
+05-16-06	* better method for storing label data (Entry)
+11-15-05	* read empty entries
+		* read label columns
+11-12-05	* read valuesize from file
+		* get names with multiple '_' correct
+11-10-05	* 4.1 projects : data reading
+11-09-05	* completely redesigned (using '\n')
+10-25-05	* fixed problems reading column types
+		* general column names and spreadsheet sections
+09-23-05	* read also 4.1 projects
 09-22-05	* new spreadsheet name finding and corrected column names
 09-21-05	* new version resolving 6.0SR4 vs 6.1 problems
 		* Spreadsheet SECTION for 6.1,6.04,6.0,5.0
 09-20-05	* SPREADSHEET section for all spreadsheets (7.5,7.0)
-09-09-05	* import 5.0 projects
+09-09-05	* import also 5.0 projects
 09-03-05	* STARTED project liborigin from LabPlot import filter

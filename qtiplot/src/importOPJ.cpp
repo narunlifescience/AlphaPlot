@@ -1,28 +1,22 @@
 #include "importOPJ.h"
+#include "application.h"
 #include "../3rdparty/liborigin/OPJFile.h"
 
 #include <qregexp.h>
-#include <qmessagebox.h>
 #include <qworkspace.h>
-#include <qapplication.h>
 
-ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) 
-	: mw(app),filename(filename) 
+ImportOPJ::ImportOPJ(ApplicationWindow *parent, const QString& filename) 
+	: QObject( parent, filename) 
 {
 OPJFile opj((char *)filename.latin1());
 parse_error = opj.Parse();
-if (!parse_error)
-	importTables(opj);
-else
-	{
-	QApplication::restoreOverrideCursor();
-	QMessageBox::critical(app, "QtiPlot - Error", "Could not open file: <br><br><b> filename </b><br><br>"
-				"<b>liborigin</b> has encountered an error, please inform its author <b>Stefan Gerlach</b> about this!");
-	}
+
+importTables(opj);
 }
 
 bool ImportOPJ::importTables(OPJFile opj) 
 {
+ApplicationWindow *mw = (ApplicationWindow *)this->parent();
 for (int s=0; s<opj.numSpreads(); s++) 
 	{	
 	int nr_cols = opj.numCols(s);
@@ -49,7 +43,7 @@ for (int s=0; s<opj.numSpreads(); s++)
 		for (int i=0; i<opj.numRows(s,j); i++) 
 			{
 			double val = opj.Data(s,j)[i];
-			if(fabs(val) > 2e-300) 
+			if(fabs(val) > 2e-300 || val == 0) 
 				table->setText(i, j, QString::number(val));
 			}		
 		}

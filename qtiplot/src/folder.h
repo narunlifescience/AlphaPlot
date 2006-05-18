@@ -134,10 +134,10 @@ protected:
     void contentsDropEvent( QDropEvent *e );
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMousePressEvent( QMouseEvent *e );
-    void contentsMouseReleaseEvent( QMouseEvent *e );
 	void contentsMouseDoubleClickEvent( QMouseEvent* e );
-
 	void keyPressEvent ( QKeyEvent * e );
+    void contentsMouseReleaseEvent( QMouseEvent *){mousePressed = FALSE;};
+	void enterEvent(QEvent *){mousePressed = FALSE;};
 
 signals:
 	void dragItems(QPtrList<QListViewItem> items);

@@ -3,13 +3,26 @@
 #ifndef OPJFILE_H
 #define OPJFILE_H
 
+// if it crashes : reduce numbers here
 #if defined(_MSC_VER) //MSVC Compiler
-#define MAX_SPREADS 123
+#define MAX_SPREADS 128
+#define MAX_COLUMNS 128
+#define MAX_ENTRIES 8192
 #else
-#define MAX_SPREADS 255
+#define MAX_SPREADS 1024
+#define MAX_COLUMNS 1024
+#define MAX_ENTRIES 65535
 #endif
 
-#define MAX_COLUMNS 255
+// for string entries
+struct Entry {
+	short spread;
+	short column;
+	short row;
+	char *name;
+};
+
+typedef Entry Entry;
 
 class OPJFile
 {
@@ -24,7 +37,16 @@ public:
 	int maxRows(int s) { return maxrows[s]; }		//!< get maximum number of rows of spreadsheet s
 	char *colName(int s, int c) { return colname[s][c]; }	//!< get name of column c of spreadsheet s
 	char *colType(int s, int c) { return coltype[s][c]; }	//!< get type of column c of spreadsheet s
-	double* Data(int s,int c) { return data[s][c]; }	//!< get data of column c of spreadsheet s
+	double* Data(int s, int c) { return data[s][c]; }	//!< get data of column c of spreadsheet s
+	char* SData(int s, int c, int r) { 
+		for (int i=0;i<MAX_ENTRIES;i++) {
+			if(sdata[i].spread != s) continue;
+			if(sdata[i].column != c) continue;
+			if(sdata[i].row != r) continue;
+			return sdata[i].name;
+		}					
+		return 0;
+	}	//!< get data strings of column c/row r of spreadsheet s
 private:
 	char* filename;				//!< project file name
 	int version;				//!< project version
@@ -34,9 +56,10 @@ private:
 	int nr_rows[MAX_SPREADS][MAX_COLUMNS];	//!< number of rows per column of spreadsheet
 	int maxrows[MAX_SPREADS];		//!< max number of rows of spreadsheet
 	double *data[MAX_SPREADS][MAX_COLUMNS];	//!< data per column per spreadsheet
-	char *colname[MAX_SPREADS][MAX_COLUMNS];	//!< column names
-	char *coltype[MAX_SPREADS][MAX_COLUMNS];	//!< column types
-
+	Entry sdata[MAX_ENTRIES];		// should be enough
+	int entry;
+	char* colname[MAX_SPREADS][MAX_COLUMNS];	//!< column names
+	char* coltype[MAX_SPREADS][MAX_COLUMNS];	//!< column types
 };
 
 #endif // OPJFILE_H

@@ -119,7 +119,7 @@ emit statusChanged (this);
 
 void myWidget::showMaximized()
 {
-user_request = this->isVisible(); 
+user_request = this->isVisible();
 QWidget::showMaximized();
 }
 

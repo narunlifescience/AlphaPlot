@@ -2075,8 +2075,6 @@ for (i=0;i<points;i++)
 	}
 		
 addResultCurve(points, a, b, colorIndex, table_name, label);	
-emit createTable(table_name+"\t"+label, points, 2, text);
-
 updatePlot();
 	
 if (showFormula)

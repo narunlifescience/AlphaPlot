@@ -356,38 +356,25 @@ void FolderListView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 }
 
 void FolderListView::contentsMousePressEvent( QMouseEvent* e )
-{
-	if (isRenaming())
-		{
-		mousePressed = FALSE;
-		e->ignore();
-		return;
-		}
-	
-	QListView::contentsMousePressEvent(e);
-    QPoint p( contentsToViewport( e->pos() ) );
-    QListViewItem *i = itemAt( p );
+{	
+QListView::contentsMousePressEvent(e);
+QPoint p( contentsToViewport( e->pos() ) );
+QListViewItem *i = itemAt( p );
 
-    if ( i ) 
+if ( i ) 
 		{// if the user clicked into the root decoration of the item, don't try to start a drag!
 		if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
 			treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
-			p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
+			p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) 
+			{
 			presspos = e->pos();
-	    mousePressed = TRUE;
-		}
-    }
+	    	mousePressed = TRUE;
+			}
+    	}
 }
 
 void FolderListView::contentsMouseMoveEvent( QMouseEvent* e )
 {
-if (isRenaming())
-		{
-		mousePressed = FALSE;
-		e->ignore();
-		return;
-		}
-
 if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) 
 	{
 	mousePressed = FALSE;
@@ -395,11 +382,6 @@ if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::s
 	if ( item ) 
 		startDrag();
     }
-}
-
-void FolderListView::contentsMouseReleaseEvent( QMouseEvent * )
-{
-    mousePressed = FALSE;
 }
 
 void FolderListView::adjustColumns()

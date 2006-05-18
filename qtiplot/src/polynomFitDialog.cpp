@@ -21,10 +21,11 @@ polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool moda
 	setName( "polynomFitDialog" );
 	setCaption(tr("QtiPlot - Polynomial Fit Options"));
     setSizeGripEnabled(true);
-	setFixedHeight(sizeHint().height());
+	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 	
 	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
-
+	GroupBox1->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	
 	new QLabel( tr("Polynomial Fit of"), GroupBox1, "TextLabel1",0 );
 	boxName = new QComboBox(GroupBox1, "boxShow" );
 	
@@ -53,7 +54,7 @@ polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool moda
 	GroupBox2 = new QButtonGroup(1,QGroupBox::Horizontal,tr(""),this,"GroupBox2" );
 	GroupBox2->setFlat (TRUE);
 	GroupBox2->setLineWidth (0);
-	
+
 	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
     buttonFit->setAutoDefault( TRUE );
     buttonFit->setDefault( TRUE );
@@ -66,6 +67,7 @@ polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool moda
 	hlayout->addWidget(GroupBox2);
 
     languageChange();
+	setMaximumHeight(GroupBox1->height());
    
     // signals and slots connections
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT( fit() ) );
@@ -181,4 +183,3 @@ double end = graph->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 }
-
