@@ -223,6 +223,8 @@ insertTranslatedStrings();
 QAccel *accel = new QAccel(this);
 accel->connectItem( accel->insertItem( Key_F5 ), ws, SLOT(activateNextWindow()) );
 accel->connectItem( accel->insertItem( Key_F6 ), ws, SLOT(activatePrevWindow()) );
+accel->connectItem( accel->insertItem( Key_Delete ), this, SLOT(clearSelection()) );
+
 
 connect(actionShowLog, SIGNAL(toggled(bool)), this, SLOT(showResults(bool)));
 connect(logWindow,SIGNAL(visibilityChanged(bool)),actionShowLog,SLOT(setOn(bool)));
@@ -10626,7 +10628,7 @@ void ApplicationWindow::createActions()
   actionPasteSelection = new QAction(QPixmap(paste_xpm), tr("&Paste selection"), tr("Ctrl+V"), this);
   connect(actionPasteSelection, SIGNAL(activated()), this, SLOT(pasteSelection()));
 
-  actionClearSelection = new QAction(QPixmap(erase_xpm), tr("&Delete selection"), tr("Delete"), this);
+  actionClearSelection = new QAction(QPixmap(erase_xpm), tr("&Delete selection"), tr("Key_Delete"), this);
   connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
 
   actionShowExplorer = new QAction(QPixmap(folder_xpm), tr("Project &explorer"), tr("Ctrl+E"), this);
@@ -11128,7 +11130,7 @@ void ApplicationWindow::translateActionsStrings()
 
   actionClearSelection->setMenuText(tr("&Delete selection"));
   actionClearSelection->setToolTip(tr("Delete selection"));
-  actionClearSelection->setAccel(tr("Delete"));
+  actionClearSelection->setAccel(tr("Key_Delete"));
 
   actionShowExplorer->setMenuText(tr("Project &explorer"));
   actionShowExplorer->setAccel(tr("Ctrl+E"));
@@ -13183,7 +13185,7 @@ for (it = draggedItems.first(); it; it = draggedItems.next())
 
 		if (subfolders.contains(f->folderName()))
 			{
-			QMessageBox::critical(this, "QtiPlot - Skipped Moving Folder", 
+			QMessageBox::critical(this, tr("QtiPlot") +" - " + tr("Skipped Moving Folder"), 
 			tr("The destination folder already contains a folder called '%1'! Folder skipped!").arg(f->folderName()));
 			}
 		else
