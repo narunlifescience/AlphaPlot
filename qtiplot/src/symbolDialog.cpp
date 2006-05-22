@@ -20,9 +20,9 @@ symbolDialog::symbolDialog(CharSet charsSet, QWidget* parent, const char* name, 
 	GroupBox1->moveFocus (0);
 
 	if (!charsSet)
-		initMinGreekChars();
+		initLowerGreekChars();
 	else
-		initMajGreekChars();
+		initUpperGreekChars();
 
 	QHBoxLayout* hlayout = new QHBoxLayout(this, 0, 0, "hlayout2");
     hlayout->addWidget(GroupBox1);
@@ -32,22 +32,21 @@ symbolDialog::symbolDialog(CharSet charsSet, QWidget* parent, const char* name, 
 	connect (GroupBox1, SIGNAL(clicked(int)), this, SLOT(getChar(int)));
 
 	QAccel *accel = new QAccel(this);
-	accel->connectItem( accel->insertItem( Key_Return ),
-                            this, SLOT(addCurrentChar()) );
+	accel->connectItem( accel->insertItem( Key_Return ), this, SLOT(addCurrentChar()) );
 }
 
-void symbolDialog::initMinGreekChars()
+void symbolDialog::initLowerGreekChars()
 {
 for (int i=0;i<25;i++)
 	{
 	QPushButton *btn = new QPushButton(QChar(i+0x3B1), GroupBox1, 0);
-	btn->setMaximumWidth(30);
+	btn->setMaximumWidth(40);
 	btn->setFlat ( true );
 	btn->setAutoDefault (false);
 	}
 }
 
-void symbolDialog::initMajGreekChars()
+void symbolDialog::initUpperGreekChars()
 {
 new QPushButton(QChar(0x393), GroupBox1, 0);
 new QPushButton(QChar(0x394), GroupBox1, 0);
@@ -63,7 +62,7 @@ new QPushButton(QChar(0x3A9), GroupBox1, 0);
 for (int i=0;i<GroupBox1->count();i++)
 	{
 	QPushButton *btn = (QPushButton *) GroupBox1->find (i);
-	btn->setMaximumWidth(30);
+	btn->setMaximumWidth(40);
 	btn->setFlat ( true );
 	btn->setAutoDefault (false);
 	}

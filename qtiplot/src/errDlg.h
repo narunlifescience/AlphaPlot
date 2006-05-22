@@ -21,7 +21,7 @@ public:
     ~errDialog();
 
     QLabel* TextLabel1;
-    QComboBox* nameLabel, *colNamesBox;
+    QComboBox* nameLabel, *tableNamesBox, *colNamesBox;
     QGroupBox *GroupBox2;
 	QButtonGroup *GroupBox1, *GroupBox3;
     QRadioButton* standardBox, *columnBox;
@@ -38,11 +38,15 @@ protected slots:
 public slots:
 	void add();
 	void setCurveNames(const QStringList& names);
-	void setExistingColumns(const QStringList& columns);
+	void setSrcTables(QWidgetList* tables);
+	void selectSrcTable(int tabnr);
 
 signals:
 	void options(const QString&,int, const QString&,int);
 	void options(const QString&, const QString&, int);
+
+private:
+	QWidgetList *srcTables;
 };
 
 #endif // ERRDIALOG_H

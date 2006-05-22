@@ -532,7 +532,7 @@ delete[] y;
 delete[] amp; 
 delete[] result;
 
-emit createTable(label, n, 5, text);	
+emit createHiddenTable(label, n, 5, text);	
 QApplication::restoreOverrideCursor();
 }
 
@@ -645,7 +645,7 @@ for (i = 1; i < n-1; i++)
 	text+="\n";
 	}
 	
-emit createTable(c->title()+"\tDerivative of "+c->title(),n-2,2,text);
+emit createHiddenTable(c->title()+"\t"+ tr("Derivative of")+" "+c->title(),n-2,2,text);
 free_vector(x,0,n-1);free_vector(y,0,n-1);free_vector(result,0,n-2);
 return true;
 }
@@ -1083,7 +1083,7 @@ if (fitType)
 else
 	legend = tr("Gauss");
 legend += "(" + QString::number(n_peaks) +") " + tr("multi-peak");
-emit createTable(tableName+"\t"+legend+" "+tr("fit of")+" "+curveTitle, n1, 2+n_peaks, text);
+emit createHiddenTable(tableName+"\t"+legend+" "+tr("fit of")+" "+curveTitle, n1, 2+n_peaks, text);
 updatePlot();
 emit showFitResults(outputFitString(n1, 1e-4, X0, XN, iter, 0, status, par, s, params,
 					curveTitle, QString::null, legend));
@@ -2684,7 +2684,7 @@ for (int i=0; i<n; i++)
 free_vector(x,0,n-1);
 free_vector(y,0,n-1);
 
-emit createTable(tableName+"\t"+legend, n, 2, text);
+emit createHiddenTable(tableName+"\t"+legend, n, 2, text);
 updatePlot();
 }
 

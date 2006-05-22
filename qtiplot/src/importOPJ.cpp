@@ -1,12 +1,11 @@
 #include "importOPJ.h"
-#include "application.h"
 #include "../3rdparty/liborigin/OPJFile.h"
 
 #include <qregexp.h>
 #include <qworkspace.h>
 
 ImportOPJ::ImportOPJ(ApplicationWindow *parent, const QString& filename) 
-	: QObject( parent, filename) 
+	: mw(parent)
 {
 OPJFile opj((char *)filename.latin1());
 parse_error = opj.Parse();
@@ -16,7 +15,9 @@ importTables(opj);
 
 bool ImportOPJ::importTables(OPJFile opj) 
 {
-ApplicationWindow *mw = (ApplicationWindow *)this->parent();
+if (!mw)
+	return false;
+
 for (int s=0; s<opj.numSpreads(); s++) 
 	{	
 	int nr_cols = opj.numCols(s);

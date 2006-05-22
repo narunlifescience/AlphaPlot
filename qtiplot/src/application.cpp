@@ -2476,8 +2476,8 @@ Graph *g=(Graph*)plot->activeGraph();
 if (g)
 	{
 	g->setTitle("");
-	g->setXAxisTitle("pixels");
-	g->setYAxisTitle("pixel intensity (a.u.)");
+	g->setXAxisTitle(tr("pixels"));
+	g->setYAxisTitle(tr("pixel intensity (a.u.)"));
 	}
 }
 
@@ -2919,7 +2919,7 @@ if ( g )
 		QStringList curvesOnPlot=activeGraph->curvesList();
 
 		ed->setCurveNames(curvesOnPlot);
-		ed->setExistingColumns(columnsList(Table::All));
+		ed->setSrcTables(tableList());
 		ed->showNormal();
 		ed->setActiveWindow();
 		}
@@ -4008,11 +4008,11 @@ helpFilePath="/usr/share/doc/qtiplot/index.html";
 	helpFilePath=qApp->applicationDirPath()+"/index.html";
 #endif
 	
-QSettings settings;
 #ifdef Q_OS_MAC // Mac 
-	settings = QSettings(QSettings::Ini);
+	QSettings settings(QSettings::Ini);
 	settings.setPath("Ion Vasilief", "QtiPlot", QSettings::User);
 #else
+	QSettings settings;
 	settings.setPath("Ion Vasilief", "QtiPlot");
 #endif
 
@@ -4267,11 +4267,11 @@ plot3DFonts<<QString::number(plot3DAxesFont.pointSize());
 plot3DFonts<<QString::number(plot3DAxesFont.weight());
 plot3DFonts<<QString::number(plot3DAxesFont.italic());
 
-QSettings settings;
 #ifdef Q_OS_MAC // Mac 
-	settings = QSettings(QSettings::Ini);
+	QSettings settings(QSettings::Ini);
 	settings.setPath("Ion Vasilief", "QtiPlot", QSettings::User);
 #else
+	QSettings settings;
 	settings.setPath("Ion Vasilief", "QtiPlot");
 #endif
 
@@ -10466,8 +10466,12 @@ connect (g,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
 connect (g,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
 connect (g,SIGNAL(cursorInfo(const QString&)),info,SLOT(setText(const QString&)));
 connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
-connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
-connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),this,SLOT(newHiddenTable(const QString&,int,int,const QString&)));
+connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
+		 this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
+connect (g,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)),
+		 this,SLOT(newHiddenTable(const QString&,int,int,const QString&)));
+connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
+		 this,SLOT(newTable(const QString&,int,int,const QString&)));
 connect (g,SIGNAL(showPieDialog()),this,SLOT(showPieDialog()));
 connect (g,SIGNAL(viewTitleDialog()),this,SLOT(showTitleDialog()));
 connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));

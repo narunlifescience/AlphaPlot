@@ -3,7 +3,7 @@
 #include "parser.h"
 
 #include <qcombobox.h>
-#include <qlineedit.h>
+#include <qspinbox.h>
 #include <qtextedit.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
@@ -49,12 +49,25 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
 	QLabel *TextLabel1 = new QLabel(hbox2, "TextLabel1" );
     TextLabel1->setText( tr( "For row (i)" ) );
 	
-	start = new QLineEdit(hbox2, "start" );
+	start = new QSpinBox(hbox2, "start" );
    
     QLabel *TextLabel2 = new QLabel(hbox2, "TextLabel2" );
     TextLabel2->setText( tr( "to" ) );
 
-    end = new QLineEdit(hbox2, "end" );
+    end = new QSpinBox(hbox2, "end" );
+
+    start->setMinValue(1);
+    end->setMinValue(1);
+    if (sizeof(int)==2)
+	 { // 16 bit signed integer
+	 start->setMaxValue(0x7fff);
+	 end->setMaxValue(0x7fff);
+	 }
+    else
+	 { // 32 bit signed integer
+	 start->setMaxValue(0x7fffffff);
+	 end->setMaxValue(0x7fffffff);
+	 }
   
 	QButtonGroup *GroupBox0 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),box2, "GroupBox0" );
 	GroupBox0->setLineWidth(0);
@@ -74,10 +87,10 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
 	hbox6->setSpacing (5);
 
 	buttonPrev = new QPushButton( hbox6, "buttonPrev" );
-	buttonPrev->setText("<<");
+	buttonPrev->setText("&<<");
 
 	buttonNext = new QPushButton( hbox6, "buttonNext" );
-	buttonNext->setText(">>");
+	buttonNext->setText("&>>");
 
 	addCellButton = new QPushButton(GroupBox0, "addCellButton" );
     addCellButton->setText( tr( "Add cell" ) );
@@ -183,7 +196,7 @@ catch (mu::ParserError &)
 
 if (numeric)
 	{
-	table->setColValues(val, start->text().toInt(),end->text().toInt());
+	table->setColValues(val, start->value(),end->value());
 	return true;
 	}
 
@@ -263,7 +276,7 @@ catch(mu::ParserError &e)
 
 delete[] vars;
 table->setColValues(commandes->text(), aux, variables, rowIndexes, 
-				   start->text().toInt(),end->text().toInt());
+				   start->value(),end->value());
 return true;
 }
 
@@ -314,8 +327,8 @@ int cols = w->tableCols();
 for (int i=0; i<cols; i++)
 	boxColumn->insertItem("col("+colNames[i]+")",i); 
 
-start->setText("1");
-end->setText(QString::number(w->tableRows())); 
+start->setValue(1);
+end->setValue(w->tableRows());
 updateColumn(w->selectedColumn());
 }
 

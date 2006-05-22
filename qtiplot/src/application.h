@@ -99,6 +99,7 @@ public slots:
 	ApplicationWindow* open(const QString& fn);
 	ApplicationWindow* openProject(const QString& fn);
 	ApplicationWindow* importOPJ(const QString& filename);
+
 	ApplicationWindow * plotFile(const QString& fn);
 	void updatePlotsTransparency();
 

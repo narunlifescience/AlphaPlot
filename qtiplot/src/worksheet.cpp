@@ -54,6 +54,14 @@ worksheet= new QTable (rows,cols,this,"table");
 worksheet->setFocusPolicy(QWidget::StrongFocus);
 worksheet->setFocus();
 worksheet->setSelectionMode (QTable::Single);
+worksheet->setRowMovingEnabled(true);
+// TODO: would be useful, but then we have to interpret
+// signal QHeader::indexChange ( int section, int fromIndex, int toIndex )
+// and update some variables
+//worksheet->setColumnMovingEnabled(true);
+
+connect(worksheet->verticalHeader(), SIGNAL(indexChange ( int, int, int )),
+		this, SLOT(notifyChanges()));
 
 QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
 hlayout->addWidget(worksheet);
@@ -82,6 +90,8 @@ if (rows>11)
 else
 	h=(rows+1)*(worksheet->verticalHeader())->sectionSize(0);
 setGeometry(50,50,w + 45, h);
+
+worksheet->verticalHeader()->setResizeEnabled(false);
 
 QAccel *accel = new QAccel(this);
 accel->connectItem( accel->insertItem( Key_Tab ), this, SLOT(moveCurrentCell()));
@@ -802,17 +812,10 @@ void Table::deleteSelectedRows()
 {
 QTableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();
-int bottom=sel.bottomRow();
-
-int i;
-for (i=top; i<=bottom; i++)
+for (int i=top; i<= sel.bottomRow(); i++)
 	worksheet->removeRow(top);
 
-int cols=worksheet->numCols();
-for (i=0; i<cols; i++)
-	emit modifiedData(colName(i));
-
-emit modifiedWindow(this);
+notifyChanges();
 }
 
 void Table::cutSelection()
@@ -1063,12 +1066,25 @@ if (rows>r || cols>c)
 	}
 
 QApplication::setOverrideCursor(waitCursor);	
+int prec;
+char f;
+bool numeric;
+double value;
 for (i=top; i<top+rows; i++)
 	{
 	s = ts2.readLine();
 	cellTexts=QStringList::split ("\t", s, TRUE);
 	for (j=left; j<left+cols; j++)					
-		worksheet->setText(i, j, cellTexts[j-left]);
+		{
+		value = cellTexts[j-left].toDouble(&numeric);
+	  	if (numeric)
+			{
+			columnNumericFormat(j, f, prec);
+			worksheet->setText(i, j, QString::number(value, f, prec));
+			}
+		else
+			worksheet->setText(i, j, cellTexts[j-left]);
+		}
 	}
 			
 for (i=left; i<left+cols; i++)
@@ -3656,6 +3672,14 @@ setColumnTypes(l);
 l = QStringList::split ("\t", lst[4], true);
 l.remove(l.first());
 setColComments(l);
+}
+
+void Table::notifyChanges()
+{
+for (int i=0; i<worksheet->numCols(); i++)
+	emit modifiedData(colName(i));
+
+emit modifiedWindow(this);
 }
 
 Table::~Table()

@@ -8,7 +8,7 @@ class QHBoxLayout;
 class QGridLayout; 
 class QComboBox;
 class QTextEdit;
-class QLineEdit;
+class QSpinBox;
 class QPushButton;
 class QLabel;
 class Table;
@@ -31,7 +31,7 @@ public:
     QPushButton* btnCancel;
     QTextEdit* commandes;
     QTextEdit* explain;
-	QLineEdit* start, *end;
+	QSpinBox* start, *end;
 	QPushButton *buttonPrev, *buttonNext, *addCellButton, *btnApply;
 	QLabel *colNameLabel;
 

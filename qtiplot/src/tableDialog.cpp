@@ -40,11 +40,11 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	hboxb->setMaximumWidth(100);
 
 	buttonPrev = new QPushButton( hboxb, "buttonPrev" );
-	buttonPrev->setText("<<");
+	buttonPrev->setText("&<<");
 	buttonPrev->setMaximumWidth(40);
 
 	buttonNext = new QPushButton( hboxb, "buttonNext" );
-	buttonNext->setText(">>");
+	buttonNext->setText("&>>");
 	buttonNext->setMaximumWidth(40);
 
 	QVBox  *vbox01 = new QVBox (hbox1, "vbox01");

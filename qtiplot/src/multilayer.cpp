@@ -75,9 +75,9 @@
 LayerButton::LayerButton(const QString& text, QWidget* parent, const char* name)
         : QWidget (parent,name)
 {
-const int btn_size = 20;
+int btn_size = 20;
 #ifdef Q_OS_MAC // Mac 
-	const int btn_size = 40;
+	btn_size = 40;
 #endif
 
 btn=new QPushButton(text,this,"button");
@@ -1189,7 +1189,10 @@ void MultiLayer::connectLayer(Graph *g)
 {
 connect (g,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 connect (g,SIGNAL(showPlotDialog(long)),this,SIGNAL(showPlotDialog(long)));
-connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),this,SIGNAL(createTable(const QString&,int,int,const QString&)));
+connect (g,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)),
+		 this,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)));
+connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
+		 this,SIGNAL(createTable(const QString&,int,int,const QString&)));
 connect (g,SIGNAL(viewLineDialog()),this,SIGNAL(showLineDialog()));
 connect (g,SIGNAL(showContextMenu()),this,SIGNAL(showGraphContextMenu()));
 connect (g,SIGNAL(showAxisDialog(int)),this,SIGNAL(showAxisDialog(int)));

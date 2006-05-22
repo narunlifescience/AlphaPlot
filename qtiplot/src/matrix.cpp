@@ -47,28 +47,39 @@ table = new QTable (rows, cols, this, "table");
 table->setFocusPolicy(QWidget::StrongFocus);
 table->setFocus();
 table->setSelectionMode (QTable::Single);
+table->setRowMovingEnabled(true);
+
+/*
+//!TODO: enable column moving, right now it doesn't work because of the event filter
+//installed on hHeader
+table->setColumnMovingEnabled(true);
+connect(hHeader, SIGNAL(indexChange (int, int, int)), this, SLOT(notifyChanges()));
+*/
 
 QColor background = QColor(255, 255, 128);
 table->setPaletteBackgroundColor(background);
 table->setBackgroundColor(background);
 
-QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
+QVBoxLayout* hlayout = new QVBoxLayout(this,0,0);
 hlayout->addWidget(table);
 
-QHeader* head=(QHeader*)table->horizontalHeader();
-head->installEventFilter(this);
-head->setMouseTracking(TRUE);
+QHeader* hHeader=(QHeader*)table->horizontalHeader();
+hHeader->installEventFilter(this);
+hHeader->setMouseTracking(TRUE);
+
+QHeader* vHeader=(QHeader*)table->verticalHeader();
+vHeader->setResizeEnabled (false);
 
 int w, h;
 if (cols>3)
-	w=3*(table->horizontalHeader())->sectionSize(0);
+	w=3*hHeader->sectionSize(0);
 else
-	w=cols*(table->horizontalHeader())->sectionSize(0);
+	w=cols*hHeader->sectionSize(0);
 
 if (rows>11)
-	h=11*(table->verticalHeader())->sectionSize(0);
+	h=11*vHeader->sectionSize(0);
 else
-	h=(rows+1)*(table->verticalHeader())->sectionSize(0);
+	h=(rows+1)*vHeader->sectionSize(0);
 setGeometry(50,50,w+55,h);
 
 QAccel *accel = new QAccel(this);
@@ -78,6 +89,7 @@ accel->connectItem( accel->insertItem( CTRL+Key_A ),
                             this, SLOT(selectAll()));
 
 connect(table, SIGNAL(valueChanged(int,int)), this, SLOT(cellEdited(int,int)));
+connect(vHeader, SIGNAL(indexChange (int, int, int)), this, SLOT(notifyChanges()));
 }
 
 void Matrix::selectAll()
@@ -901,12 +913,20 @@ if (rows>r || cols>c)
 	}
 
 QApplication::setOverrideCursor(waitCursor);	
+bool numeric;
+double value;
 for (i=top; i<top+rows; i++)
 	{
 	s = ts2.readLine();
 	cellTexts=QStringList::split ("\t", s, TRUE);
 	for (j=left; j<left+cols; j++)					
-		table->setText(i, j, cellTexts[j-left]);
+		{
+		value = cellTexts[j-left].toDouble(&numeric);
+	  	if (numeric)
+			table->setText(i, j, QString::number(value, txt_format, num_precision));
+		else
+			table->setText(i, j, cellTexts[j-left]);
+		}
 	}
 
 emit modifiedWindow(this);
@@ -921,11 +941,11 @@ e->accept();
 
 bool Matrix::eventFilter(QObject *object, QEvent *e)
 {
-if ( object != (QObject *)table->horizontalHeader())
+QHeader *header = table->horizontalHeader();
+if ( object != (QObject *)header)
 	return FALSE;
 
-QHeader *header = table->horizontalHeader();
-int offset =header->offset();
+int offset = header->offset();
 switch(e->type())
     {
         case QEvent::MouseButtonDblClick:

@@ -84,6 +84,9 @@ public slots:
 	double yEnd(){return y_end;};
 	void setCoordinates(double xs, double xe, double ys, double ye);
 
+	//!Slot: notifies the main application that the matrix has been modified
+	void notifyChanges(){emit modifiedWindow(this);};
+
 signals:
 	void showContextMenu();
 
@@ -93,6 +96,7 @@ private:
 	QChar txt_format;
 	int selectedCol, lastSelectedCol, num_precision;
 	bool LeftButton;
+	//!Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, x_end, y_start, y_end;
 };

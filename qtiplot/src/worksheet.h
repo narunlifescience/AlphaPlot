@@ -256,6 +256,9 @@ public slots:
 
 	QString saveAsTemplate(const QString& geometryInfo);
 	void restore(const QStringList& lst);
+
+	//!Slot: notifies the main application that the table has been modified. Triggers the update of 2D plots.
+	void notifyChanges();
 				
 signals:
 	void plot3DRibbon(Table *,const QString&);

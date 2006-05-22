@@ -52,7 +52,7 @@ public slots:
 
 	void customFont();
 	QFont font(){return f;};
-	void setFont(const QFont& fnt){f=fnt;};
+	void setFont(const QFont& fnt);
 
 	void pickTextColor();
 	void setTextColor(QColor c);

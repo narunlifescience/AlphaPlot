@@ -159,6 +159,7 @@ signals:
 	void viewTitleDialog();
 	void createTablePlot(const QString&,int,int,const QString&);
 	void createTable(const QString&,int,int,const QString&);
+	void createHiddenTable(const QString&,int,int,const QString&);
 	void createHistogramTable(const QString&,int,int,const QString&);
 	void updateTable(const QString&,int,const QString&);
 	void updateTableColumn(const QString&, double *, int);

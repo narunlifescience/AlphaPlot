@@ -155,7 +155,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent,  const char* name, bool m
 	buttonU->setMaximumWidth(40);
 
     LineEdit = new QMultiLineEdit( this, "LineEdit" );
-    LineEdit->setFont(QFont("Arial",12,QFont::Normal,FALSE));
 
 	setFocusPolicy(QWidget::StrongFocus);
 	setFocusProxy(LineEdit);
@@ -185,6 +184,10 @@ void TextDialog::showMinGreek()
 symbolDialog *greekLetters = new symbolDialog(symbolDialog::minGreek, this,"greekLetters",
 											  false, WStyle_Tool|WDestructiveClose);
 connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+
+QFont fnt = f;
+fnt.setPointSize(14);
+greekLetters->setFont(fnt);
 greekLetters->show();
 greekLetters->setActiveWindow();
 }
@@ -194,6 +197,10 @@ void TextDialog::showMajGreek()
 symbolDialog *greekLetters = new symbolDialog(symbolDialog::majGreek, this, "greekLetters",
 											  false, WStyle_Tool|WDestructiveClose);
 connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+
+QFont fnt = f;
+fnt.setPointSize(14);
+greekLetters->setFont(fnt);
 greekLetters->show();
 greekLetters->setActiveWindow();
 }
@@ -375,8 +382,14 @@ void TextDialog::customFont()
 bool okF;
 QFont fnt = QFontDialog::getFont( &okF,f,this);
 if (okF)
-f=fnt;
-emit changeFont (fnt);
+	{
+	f=fnt;
+	
+	fnt.setPointSize(12);
+	LineEdit->setFont(fnt);
+
+	emit changeFont (f);
+	}
 }
 
 void TextDialog::setAngle(int angle)
@@ -415,6 +428,15 @@ if ( !c.isValid() || c ==  backgroundBtn->color() )
 	return;
 
 backgroundBtn->setColor ( c ) ;
+}
+
+void TextDialog::setFont(const QFont& fnt)
+{
+f=fnt; 
+
+QFont auxf = f;
+auxf.setPointSize(12);
+LineEdit->setFont(auxf);
 }
 
 TextDialog::~TextDialog()
