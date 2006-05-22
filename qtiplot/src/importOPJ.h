@@ -3,15 +3,14 @@
 
 #include "application.h"
 
-class ApplicationWindow;
 class OPJFile;
-
+	
 class ImportOPJ
 {
 public:
-	ImportOPJ(ApplicationWindow *mw, const QString& filename);
+	ImportOPJ(ApplicationWindow *app, const QString& filename);
 
-	bool importTables(OPJFile opj);
+	bool importTables (OPJFile opj);
 	int error(){return parse_error;};
 
 private:

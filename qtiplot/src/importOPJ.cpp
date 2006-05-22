@@ -2,11 +2,10 @@
 #include "../3rdparty/liborigin/OPJFile.h"
 
 #include <qregexp.h>
-#include <qworkspace.h>
 
-ImportOPJ::ImportOPJ(ApplicationWindow *parent, const QString& filename) 
-	: mw(parent)
-{
+ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
+	mw(app)
+{	
 OPJFile opj((char *)filename.latin1());
 parse_error = opj.Parse();
 
@@ -15,9 +14,6 @@ importTables(opj);
 
 bool ImportOPJ::importTables(OPJFile opj) 
 {
-if (!mw)
-	return false;
-
 for (int s=0; s<opj.numSpreads(); s++) 
 	{	
 	int nr_cols = opj.numCols(s);
@@ -48,10 +44,7 @@ for (int s=0; s<opj.numSpreads(); s++)
 				table->setText(i, j, QString::number(val));
 			}		
 		}
-
 	table->showNormal();
 	}
-mw->ws->cascade ();
 return true;
 }
-

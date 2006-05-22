@@ -4,13 +4,13 @@
 #define OPJFILE_H
 
 // if it crashes : reduce numbers here
-#if defined(_MSC_VER) //MSVC Compiler
 #define MAX_SPREADS 128
+
+#if defined(_MSC_VER) //MSVC Compiler
 #define MAX_COLUMNS 128
-#define MAX_ENTRIES 8192
+#define MAX_ENTRIES 16384
 #else
-#define MAX_SPREADS 1024
-#define MAX_COLUMNS 1024
+#define MAX_COLUMNS 512
 #define MAX_ENTRIES 65535
 #endif
 

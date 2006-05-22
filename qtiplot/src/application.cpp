@@ -264,7 +264,7 @@ void ApplicationWindow::initGlobalConstants()
 #endif
 
 askForSupport = true;
-majVersion = 0; minVersion = 8; patchVersion = 4;
+majVersion = 0; minVersion = 8; patchVersion = 5;
 graphs=0; tables=0; matrixes = 0; notes = 0; fitNumber=0;
 projectname="untitled";
 ignoredLines=0;
@@ -7783,7 +7783,7 @@ QString version = "QtiPlot " + QString::number(majVersion) + "." +
 QMessageBox::about(this,tr("About QtiPlot"),
 			 tr("<h2>"+ version + "</h2>"
 			 "<p><h3>Copyright(C): Ion Vasilief</h3>"
-			 "<p><h3>Released: 17/05/2006</h3>"));
+			 "<p><h3>Released: 23/05/2006</h3>"));
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()
@@ -12029,6 +12029,7 @@ void ApplicationWindow::appendProject()
 {
 QString filter = tr("QtiPlot project") + " (*.qti);;";
 filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
+filter += tr("Origin project") + " (*.opj);;";
 
 QString fn = QFileDialog::getOpenFileName(workingDir, filter, this, 0,
 			tr("QtiPlot - Open Project"), 0, TRUE);
@@ -12039,7 +12040,7 @@ if (fn.isEmpty())
 QFileInfo fi(fn);
 workingDir = fi.dirPath(true);
 		
-if (fn.contains(".qti",TRUE))
+if (fn.contains(".qti",TRUE) || fn.contains(".opj",false))
 	{
 	QFileInfo f(fn);
 	if (!f.exists ())
@@ -12052,7 +12053,7 @@ if (fn.contains(".qti",TRUE))
 else
 	{
 	QMessageBox::critical(this,tr("QtiPlot - File openning error"),
-				tr("The file: <b>%1</b> is not a QtiPlot project file!").arg(fn));
+				tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
 	return;
 	}
 
@@ -12064,29 +12065,14 @@ if (fn.contains(".qti.gz"))
 	file_uncompress((char *)fname.ascii());
 	fname.remove(".gz");
 	}
-
-QFile f(fname);
-QTextStream t( &f );
-t.setEncoding(QTextStream::UnicodeUTF8);
-f.open(IO_ReadOnly);
-
-QString s = t.readLine();
-QStringList lst = QStringList::split (QRegExp("\\s"),s,false);
-QString version = lst[1];
-lst = QStringList::split (".", version, false);
-fileVersion =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
-
-t.readLine(); 
-if (fileVersion < 73)
-	t.readLine();
-
+	
 Folder *cf = current_folder;
 FolderListItem *item = (FolderListItem *)current_folder->folderListItem();
 folders->blockSignals (true);
 blockSignals (true);
 
 QString baseName = fi.baseName();
-lst = current_folder->subfolders();
+QStringList lst = current_folder->subfolders();
 int n = (int)lst.contains(baseName);
 if (n)
 	{//avoid identical subfolder names
@@ -12099,6 +12085,25 @@ current_folder = new Folder(current_folder, baseName);
 FolderListItem *fli = new FolderListItem(item, current_folder);
 current_folder->setFolderListItem(fli);
 
+if (fn.contains(".opj", FALSE))
+	ImportOPJ(this, fn);
+else
+{
+QFile f(fname);
+QTextStream t( &f );
+t.setEncoding(QTextStream::UnicodeUTF8);
+f.open(IO_ReadOnly);
+
+QString s = t.readLine();
+lst = QStringList::split (QRegExp("\\s"),s,false);
+QString version = lst[1];
+lst = QStringList::split (".", version, false);
+fileVersion =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+
+t.readLine(); 
+if (fileVersion < 73)
+	t.readLine();
+	
 //process tables and matrix information
 while ( !t.eof())
 	{
@@ -12286,7 +12291,8 @@ while ( !t.eof())
 		}
 	}
 f.close();
-			
+}
+
 folders->blockSignals (false);
 //change folder to user defined current folder
 changeFolder(cf);
