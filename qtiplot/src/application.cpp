@@ -265,7 +265,8 @@ void ApplicationWindow::initGlobalConstants()
 #endif
 
 askForSupport = true;
-majVersion = 0; minVersion = 8; patchVersion = 5;
+majVersion = 0; minVersion = 8; patchVersion = 6;
+versionSuffix = "alpha1";
 graphs=0; tables=0; matrixes = 0; notes = 0; fitNumber=0;
 projectname="untitled";
 ignoredLines=0;
@@ -7779,12 +7780,12 @@ delete window;
 void ApplicationWindow::about()
 {
 QString version = "QtiPlot " + QString::number(majVersion) + "." +
-				  QString::number(minVersion) + "." + QString::number(patchVersion);
+				  QString::number(minVersion) + "." + QString::number(patchVersion) + versionSuffix;
 
 QMessageBox::about(this,tr("About QtiPlot"),
 			 tr("<h2>"+ version + "</h2>"
 			 "<p><h3>Copyright(C): Ion Vasilief</h3>"
-			 "<p><h3>Released: 23/05/2006</h3>"));
+			 "<p><h3>Released: not yet</h3>"));
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()

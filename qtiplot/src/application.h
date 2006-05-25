@@ -695,6 +695,8 @@ public:
 	enum {MaxRecentProjects = 5};
 	int fileVersion;
 	int majVersion, minVersion, patchVersion;
+	//! Extra suffix to the version string like "rc1", "beta7" or similar
+	QString versionSuffix;
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
 	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport;
