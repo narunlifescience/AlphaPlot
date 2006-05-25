@@ -2,6 +2,7 @@
 #define ERRORBARS_H
 
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 class QwtErrorPlotCurve: public QwtPlotCurve
 {
@@ -15,11 +16,11 @@ public:
 
 	QwtDoubleRect boundingRect() const;
 
-	virtual void draw(QPainter *painter,const QwtDiMap &xMap, 
-		const QwtDiMap &yMap, int from, int to);
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to);
 
-	virtual void drawErrorBars(QPainter *painter, const QwtDiMap &xMap, 
-		const QwtDiMap &yMap, int from, int to);
+	virtual void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to);
 
 	QwtArray<double> errors();
 	void setErrors(const QwtArray<double>&data);
@@ -58,5 +59,4 @@ private:
 };
 
 #endif
-
 

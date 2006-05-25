@@ -9,18 +9,18 @@
 
 // vim: expandtab
 
-#ifndef QWT_PLOT_ZOOMER
-#define QWT_PLOT_ZOOMER
+#ifndef QWT_PLOT_ZOOMER_H
+#define QWT_PLOT_ZOOMER_H
 
+#include <qglobal.h>
+#if QT_VERSION < 0x040000
 #include <qvaluestack.h>
+#else
+#include <qstack.h>
+#endif
+
 #include "qwt_double_rect.h"
 #include "qwt_plot_picker.h"
-
-#if defined(QWT_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class QWT_EXPORT QValueStack<QwtDoubleRect>;
-// MOC_SKIP_END
-#endif
 
 /*!
   \brief QwtPlotZoomer provides stacked zooming for a plot widget
@@ -40,14 +40,12 @@ template class QWT_EXPORT QValueStack<QwtDoubleRect>;
   the initial size. 
   
   QwtPlotZoomer is tailored for plots with one x and y axis, but it is
-  allowed to attach a second QwtPlotZoomer for the other axes, even when
-  one or both of them are disabled. In most situations it is 
-  recommended to disable rubber band and cursor label for one of the zoomers.
+  allowed to attach a second QwtPlotZoomer for the other axes.
 
   \note The realtime example includes an derived zoomer class that adds 
         scrollbars to the plot canvas.
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is FALSE
+  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
            leaves the axis in an 'intermediate' state.
            In this case, to prevent buggy behaviour, your must call
        QwtPlot::replot() before calling QwtPlotPicker::scaleRect(),
@@ -60,11 +58,12 @@ class QWT_EXPORT QwtPlotZoomer: public QwtPlotPicker
 {
     Q_OBJECT
 public:
-    QwtPlotZoomer(QwtPlotCanvas *, const char *name = 0);
-    QwtPlotZoomer(int xAxis, int yAxis, 
-        QwtPlotCanvas *, const char *name = 0);
-    QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
-        DisplayMode cursorLabelMode, QwtPlotCanvas *, const char *name = 0);
+    explicit QwtPlotZoomer(QwtPlotCanvas *);
+    explicit QwtPlotZoomer(int xAxis, int yAxis, QwtPlotCanvas *);
+    explicit QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
+        DisplayMode trackerMode, QwtPlotCanvas *);
+
+    virtual ~QwtPlotZoomer();
 
     virtual void setZoomBase();
     virtual void setZoomBase(const QwtDoubleRect &);
@@ -77,7 +76,11 @@ public:
     void setMaxStackDepth(int);
     int maxStackDepth() const;
 
+#if QT_VERSION < 0x040000
     const QValueStack<QwtDoubleRect> &zoomStack() const;
+#else
+    const QStack<QwtDoubleRect> &zoomStack() const;
+#endif
     uint zoomRectIndex() const;
 
     virtual void setSelectionFlags(int);
@@ -102,8 +105,6 @@ signals:
     void zoomed(const QwtDoubleRect &rect);
 
 protected:
-    QValueStack<QwtDoubleRect> &zoomStack();
-
     virtual void rescale();
 
     virtual QwtDoubleSize minZoomSize() const;
@@ -112,23 +113,15 @@ protected:
     virtual void widgetKeyPressEvent(QKeyEvent *);
 
     virtual void begin();
-    virtual bool end(bool ok = TRUE);
-    virtual bool accept(QPointArray &) const;
+    virtual bool end(bool ok = true);
+    virtual bool accept(SelectedPoints &) const;
 
 private:
     void init(int selectionFlags = RectSelection & ClickSelection, 
-        DisplayMode cursorLabelMode = ActiveOnly);
+        DisplayMode trackerMode = ActiveOnly);
 
-    uint d_zoomRectIndex;
-    QValueStack<QwtDoubleRect> d_zoomStack;
-
-    int d_maxStackDepth;
+    class PrivateData;
+    PrivateData *d_data;
 };
             
 #endif
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

@@ -84,6 +84,7 @@
 #include <qtranslator.h>
 #include <qsplitter.h>
 #include <qobjectlist.h>
+#include <qsimplerichtext.h>
 
 #include <zlib.h>
 
@@ -10337,7 +10338,7 @@ else if(g->curves() == 1)
 	{
 	const QwtPlotCurve *c = g->curve(0);
 	if (c)
-		analyzeCurve(whichFit,c->title());
+		analyzeCurve(whichFit,c->title().text());
 	}
 else
 	showAnalysisDialog(whichFit);
@@ -13292,3 +13293,4 @@ delete outWindows;
 
 QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
+

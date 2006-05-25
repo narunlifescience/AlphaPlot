@@ -14,9 +14,9 @@
 #include <qpen.h>
 #include <qsize.h>
 #include "qwt_global.h"
-#include "qwt.h"
 
 class QPainter;
+class QRect;
 
 //! A class for drawing symbols
 class QWT_EXPORT QwtSymbol

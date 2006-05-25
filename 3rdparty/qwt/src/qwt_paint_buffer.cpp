@@ -7,11 +7,15 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+
+#include <qglobal.h>
+#if QT_VERSION < 0x040000
+
 #include <qwidget.h>
 #include <qpainter.h>
 #include "qwt_paint_buffer.h"
 
-bool QwtPaintBuffer::d_enabled = TRUE;
+bool QwtPaintBuffer::d_enabled = true;
 
 //! Default constructor
 QwtPaintBuffer::QwtPaintBuffer():
@@ -79,7 +83,7 @@ void QwtPaintBuffer::setEnabled(bool enable)
 }
 
 /*! 
-  \return TRUE if double buffering is enabled, FALSE otherwise.
+  \return true if double buffering is enabled, false otherwise.
 */
 bool QwtPaintBuffer::isEnabled() 
 { 
@@ -108,11 +112,9 @@ void QwtPaintBuffer::open(QPaintDevice *device,
 
     if ( isEnabled() )
     {
-#if QT_VERSION >= 300
 #ifdef Q_WS_X11
         if ( d_pixBuffer.x11Screen() != d_device->x11Screen() )
             d_pixBuffer.x11SetScreen(d_device->x11Screen());
-#endif
 #endif
         d_pixBuffer.resize(d_rect.size());
 
@@ -139,7 +141,7 @@ void QwtPaintBuffer::open(QPaintDevice *device,
         if ( d_device->devType() == QInternal::Widget )
         {
             QWidget *w = (QWidget *)d_device;
-            if ( w->testWFlags( Qt::WRepaintNoErase | Qt::WResizeNoErase) )
+            if ( w->testWFlags( Qt::WNoAutoErase ) )
                 d_painter->eraseRect(d_rect);
         }
     }
@@ -195,3 +197,5 @@ void QwtPaintBuffer::close()
     d_painter = 0;
     d_devicePainter = 0;
 } 
+
+#endif // QT_VERSION < 0x040000

@@ -11,9 +11,12 @@
 
 #include <qwt_plot_canvas.h>
 
+//FIXME: All functionality disabled for now (needs port to Qwt5)
+
 CanvasPicker::CanvasPicker(Graph *plot):
     QObject(plot)
 {
+#if false
 	moved=FALSE;
 	movedGraph=FALSE;
 	pointSelected = false;
@@ -21,10 +24,12 @@ CanvasPicker::CanvasPicker(Graph *plot):
 
     QwtPlotCanvas *canvas = plotWidget->canvas();
     canvas->installEventFilter(this);
+#endif
 }
 
 bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 {
+#if false
     QMemArray<long> images=plot()->imageMarkerKeys();	
 	QMemArray<long> texts=plot()->textMarkerKeys();
 	QMemArray<long> lines=plot()->lineMarkerKeys();	
@@ -475,10 +480,12 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
             break;
     	}
     return QObject::eventFilter(object, e);
+#endif
 }
 
 void CanvasPicker::releaseMarker()
 {
+#if false
 QMemArray<long> images=plot()->imageMarkerKeys();	
 QMemArray<long> texts=plot()->textMarkerKeys();
 QMemArray<long> lines=plot()->lineMarkerKeys();
@@ -521,10 +528,12 @@ moved=FALSE;
 emit modified();	
 
 QApplication::restoreOverrideCursor();	
+#endif
 }
 
 void CanvasPicker::moveMarker(QPoint& point)
 {
+#if false
 QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor), true);
 
 QMemArray<long> images=plot()->imageMarkerKeys();	
@@ -587,10 +596,12 @@ xMouse=point.x();
 yMouse=point.y();
 moved=TRUE;
 emit modified();	
+#endif
 }
 
 void CanvasPicker::drawTextMarker(const QPoint& point)
 {
+#if false
 LegendMarker mrkT(plotWidget);			
 mrkT.setOrigin(point);
 mrkT.setBackground(plot()->textMarkerDefaultFrame());
@@ -599,10 +610,12 @@ mrkT.setText(tr("enter your text here"));
 plot()->insertTextMarker(&mrkT);		
 plot()->drawText(FALSE);
 emit drawTextOff();
+#endif
 }
 
 void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 {
+#if false
 plotWidget->replot();
 LineMarker mrk(plotWidget);
 
@@ -623,11 +636,13 @@ else
 
 QPainter painter(plot()->plotWidget()->canvas());
 mrk.draw(&painter,0,0,QRect(0,0,0,0));		
+#endif
 }
 
 // Selects and highlights the marker 
 bool CanvasPicker::selectMarker(const QPoint& point)
 {
+#if false
 QMemArray<long> images=plot()->imageMarkerKeys();	
 QMemArray<long> texts=plot()->textMarkerKeys();
 QMemArray<long> lines=plot()->lineMarkerKeys();
@@ -679,7 +694,6 @@ for (i=0;i<p;i++)
 		}
 	}
 return FALSE;
+#endif
 }
-
-
 

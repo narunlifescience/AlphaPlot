@@ -10,8 +10,12 @@
 #ifndef QWT_PICKER_MACHINE
 #define QWT_PICKER_MACHINE 1
 
+#include "qwt_global.h"
+#if QT_VERSION < 0x040000
 #include <qvaluelist.h>
-#include "qwt_array.h"
+#else
+#include <qlist.h>
+#endif
 
 class QEvent;
 class QwtEventPattern;
@@ -36,10 +40,16 @@ public:
         End
     };
 
+#if QT_VERSION < 0x040000
+    typedef QValueList<Command> CommandList;
+#else
+    typedef QList<Command> CommandList;
+#endif
+
     virtual ~QwtPickerMachine();
 
     //! Transition
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *) = 0;
     void reset(); 
 
@@ -64,7 +74,7 @@ private:
 class QWT_EXPORT QwtPickerClickPointMachine: public QwtPickerMachine
 {
 public:
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
 
@@ -78,7 +88,7 @@ public:
 class QWT_EXPORT QwtPickerDragPointMachine: public QwtPickerMachine
 {
 public:
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
 
@@ -98,7 +108,7 @@ public:
 class QWT_EXPORT QwtPickerClickRectMachine: public QwtPickerMachine
 {
 public:
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
 
@@ -117,7 +127,7 @@ public:
 class QWT_EXPORT QwtPickerDragRectMachine: public QwtPickerMachine
 {
 public:
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
 
@@ -135,7 +145,7 @@ public:
 class QWT_EXPORT QwtPickerPolygonMachine: public QwtPickerMachine
 {
 public:
-    virtual QValueList<Command> transition(
+    virtual CommandList transition(
         const QwtEventPattern &, const QEvent *);
 };
 

@@ -36,10 +36,9 @@ to control or display values, arrays, or ranges of type double.
   \section supportedplatforms Supported platforms
 
   Qwt might be usable in all environments where you find a
-  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a> >= 2.3.0. 
-  Unfortunately the resources of the Qwt team are limited. All we are using is:
-  - Qt/X11 with gcc on Linux\n
-  - Qt/Win 2.3.0 non commercial
+  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a> >= Qt 3.x. 
+  Unfortunately the resources of the Qwt team are limited. Our development 
+  platform is: Qt/X11 with gcc on Linux\n
 
   \section screenshotsonmainpage Screenshots
   - \ref plotscreenshots\n
@@ -52,7 +51,6 @@ to control or display values, arrays, or ranges of type double.
   - \ref thermoscreenshots\n
   - \ref wheelscreenshots\n
   - \ref counterscreenshots\n
-  - \ref pushbuttonscreenshots
 
   \latexonly Screenshots are only available in the HTML docs.\endlatexonly
 
@@ -62,8 +60,11 @@ to control or display values, arrays, or ranges of type double.
   Qwt doesn´t distribute binary packages, but you find some
   for the following Linux distributions: 
   <a href="http://packages.qa.debian.org/libq/libqwt.html">Debian</a>,
+  <a href="http://packman.links2linux.de/?action=618">S.u.S.E</a>,
   <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. Please
   report links that are not listed here.
+
+  Sourceforge builds <a href="http://cvs.sourceforge.net/cvstarballs/qwt-cvsroot.tar.bz2">tarballs</a> of the CVS every night.
 
   For anonymous CVS (a couple of hours old) try:
   \code
@@ -77,7 +78,7 @@ cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt co qwt
   dynamic libraries in Win32 and Unix/X11 environments. 
   If you don't know what to do with it, read the file \ref qwtinstall and/or 
   Trolltechs 
-  <a href="http://www.trolltech.com/developer/documentation/index.html">tmake/qmake</a> documentation. Once you have build the library you have to install 
+  <a href="http://www.trolltech.com/developer/documentation/index.html">qmake</a> documentation. Once you have build the library you have to install 
   all files from the lib, include and doc directories.
 
   On RPM based systems you can adjust \ref qwtspec and build your own
@@ -95,14 +96,11 @@ cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt co qwt
 
   \section credits Credits:
   \par Authors: 
-    Josef Wilgen ( <= Qwt 0.2 ), Uwe Rathmann
+    Uwe Rathmann, Josef Wilgen ( <= Qwt 0.2 )
   \par Project admin:
     Uwe Rathmann \<rathmann@users.sourceforge.net\>
   \par Developers:
     Gerard Vermeulen, Micha Bieber, Roy Dennington
-  \par Contributors:
-    Pieter van Beek, Borries Demeler, Andy Thaller, Dimitri Papadopolis, 
-	Jan Kellmer, Kai Engels, Karl Waedt 
 */
 
 /*!
@@ -172,9 +170,4 @@ cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt co qwt
 /*!
   \page counterscreenshots QwtCounter
   \image html counter.gif 
-*/
-
-/*!
-  \page pushbuttonscreenshots QwtPushButton
-  \image html richtextbutton.gif 
 */

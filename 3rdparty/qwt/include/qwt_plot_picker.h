@@ -9,11 +9,10 @@
 
 // vim: expandtab
 
-#ifndef QWT_PLOT_PICKER
-#define QWT_PLOT_PICKER
+#ifndef QWT_PLOT_PICKER_H
+#define QWT_PLOT_PICKER_H
 
 #include "qwt_double_rect.h"
-#include "qwt_array.h"
 #include "qwt_plot_canvas.h"
 #include "qwt_picker.h"
 
@@ -26,7 +25,7 @@ class QwtPlot;
   a plot canvas. It is set to a x-Axis and y-Axis and
   translates all pixel coordinates into this coodinate system.
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is FALSE
+  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
            leaves the axis in an 'intermediate' state.
            In this case, to prevent buggy behaviour, your must call
        QwtPlot::replot() before calling QwtPlotPicker::scaleRect(),
@@ -40,14 +39,14 @@ class QWT_EXPORT QwtPlotPicker: public QwtPicker
     Q_OBJECT
 
 public:
-    QwtPlotPicker(QwtPlotCanvas *, const char *name = 0);
+    explicit QwtPlotPicker(QwtPlotCanvas *);
 
-    QwtPlotPicker(int xAxis, int yAxis,
-        QwtPlotCanvas *, const char *name = 0);
+    explicit QwtPlotPicker(int xAxis, int yAxis,
+        QwtPlotCanvas *);
 
-    QwtPlotPicker(int xAxis, int yAxis, int selectionFlags, 
-        RubberBand rubberBand, DisplayMode cursorLabelMode, 
-        QwtPlotCanvas *, const char *name = 0);
+    explicit QwtPlotPicker(int xAxis, int yAxis, int selectionFlags, 
+        RubberBand rubberBand, DisplayMode trackerMode, 
+        QwtPlotCanvas *);
 
     virtual void setAxis(int xAxis, int yAxis);
 
@@ -108,12 +107,12 @@ protected:
     QwtDoublePoint invTransform(const QPoint &) const;
     QPoint transform(const QwtDoublePoint &) const;
 
-    virtual QString cursorLabel(const QPoint &) const;
-    virtual QString cursorLabel(const QwtDoublePoint &) const;
+    virtual QwtText trackerText(const QPoint &) const;
+    virtual QwtText trackerText(const QwtDoublePoint &) const;
 
     virtual void move(const QPoint &);
     virtual void append(const QPoint &);
-    virtual bool end(bool ok = TRUE);
+    virtual bool end(bool ok = true);
 
 private:
     int d_xAxis;
@@ -121,9 +120,3 @@ private:
 };
             
 #endif
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

@@ -4,7 +4,9 @@
 
 #include <qwt_array.h>
 #include <qwt_plot.h>
-#include <qwt_plot_classes.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_marker.h>
 
 class QwtErrorPlotCurve: public QwtPlotCurve
 {
@@ -13,17 +15,17 @@ public:
 	QwtPlot *parent, const char *name = 0):
 	QwtPlotCurve(parent,name) {};
     virtual void draw(QPainter *painter,
-		      const QwtDiMap &xMap, const QwtDiMap &yMap,
+		      const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 		      int from = 0, int to = -1);
 private:
     void QwtErrorPlotCurve::drawErrorBars(
-	QPainter *painter, const QwtDiMap &xMap, const QwtDiMap &yMap,
+	QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 	int from, int to);
 
 };
 
 void QwtErrorPlotCurve::draw(QPainter *painter,
-			     const QwtDiMap &xMap, const QwtDiMap &yMap,
+			     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
 			     int from, int to)
 {
     if ( !painter || dataSize() <= 0 )
@@ -42,7 +44,7 @@ void QwtErrorPlotCurve::draw(QPainter *painter,
 }
 
 void QwtErrorPlotCurve::drawErrorBars(
-    QPainter *painter, const QwtDiMap &xMap, const QwtDiMap &yMap,
+    QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     int from, int to)
 {
     for (int i = from; i <= to; i++) {

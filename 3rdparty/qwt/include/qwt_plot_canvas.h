@@ -15,7 +15,6 @@
 #include <qframe.h>
 #include <qpen.h>
 #include "qwt_global.h"
-#include "qwt.h"
 
 class QwtPlot;
 class QPixmap;
@@ -32,14 +31,44 @@ class QWT_EXPORT QwtPlotCanvas : public QFrame
     friend class QwtPlot;
 
 public:
+
+    /*!
+      \brief Paint attributes
+ 
+      - PaintCached\n
+        Paint double buffered and reuse the content of the pixmap buffer 
+        for some spontaneous repaints that happen when a plot gets unhidden, 
+        deiconified or changes the focus.
+        Disabling the cache will improve the performance for
+        incremental paints (using QwtPlotCurve::draw). 
+
+      - PaintPacked\n
+        Suppress system background repaints and paint it together with 
+        the canvas contents.
+        Painting packed might avoid flickering for expensive repaints,
+        when there is a notable gap between painting the background
+        and the plot contents.
+
+      The default setting enables PaintCached and PaintPacked
+
+      \sa setPaintAttribute(), testPaintAttribute(), paintCache()
+     */
+    enum PaintAttribute
+    {
+        PaintCached = 1,
+        PaintPacked = 2
+    };
+
     /*!
       \brief Focus indicator
 
       - NoFocusIndicator\n
         Don´t paint a focus indicator
+
       - CanvasFocusIndicator\n
         The focus is related to the complete canvas.
         Paint the focus indicator using paintFocus()
+
       - ItemFocusIndicator\n
         The focus is related to an item (curve, point, ...) on
         the canvas. It is up to the application to display a
@@ -58,99 +87,31 @@ public:
     void setFocusIndicator(FocusIndicator);
     FocusIndicator focusIndicator() const;
 
-    void setCacheMode(bool on);
-    bool cacheMode() const;
-    const QPixmap *cache() const;
-    void invalidateCache();
+    void setPaintAttribute(PaintAttribute, bool on = true);
+    bool testPaintAttribute(PaintAttribute) const;
+
+    QPixmap *paintCache();
+    const QPixmap *paintCache() const;
+    void invalidatePaintCache();
 
 protected:
-    QwtPlotCanvas(QwtPlot *);
+    explicit QwtPlotCanvas(QwtPlot *);
     virtual ~QwtPlotCanvas();
 
-    QPixmap *cache();
+    virtual void hideEvent(QHideEvent *);
 
-    virtual void frameChanged();
+    virtual void paintEvent(QPaintEvent *);
+
     virtual void drawContents(QPainter *);
-    virtual void drawFocusIndicator(QPainter *, const QRect &);
+    virtual void drawFocusIndicator(QPainter *);
 
     void drawCanvas(QPainter *painter = NULL);
 
 private:    
-    FocusIndicator d_focusIndicator;
-    bool d_cacheMode;
-    QPixmap *d_cache;
+    void setSystemBackground(bool);
 
-#ifndef QWT_NO_COMPAT
-public:
-    void enableOutline(bool tf);
-    bool outlineEnabled() const;
-
-    void setOutlinePen(const QPen &p);
-    const QPen& outlinePen() const;
-
-    void setOutlineStyle(Qwt::Shape os);
-    Qwt::Shape outlineStyle() const;
-    
-signals:
-    /*!
-      A signal which is emitted when the mouse is pressed in the canvas.
-
-      \warning Outlining functionality is obsolete: use QwtPlotPicker or
-      QwtPlotZoomer.
-      
-      \param e Mouse event object
-    */
-    void mousePressed(const QMouseEvent &e);
-    /*!
-      A signal which is emitted when a mouse button has been released in the
-      canvas.
-
-      \warning Outlining functionality is obsolete: use QwtPlotPicker or
-      QwtPlotZoomer.
-
-      \param e Mouse event object
-    */
-    void mouseReleased(const QMouseEvent &e);
-    /*!
-      A signal which is emitted when the mouse is moved in the canvas.
-
-      \warning Outlining functionality is obsolete: use QwtPlotPicker or
-      QwtPlotZoomer.
-
-      \param e Mouse event object
-    */
-    void mouseMoved(const QMouseEvent &e);
-
-protected:
-    virtual void mousePressEvent(QMouseEvent *);
-    virtual void mouseReleaseEvent(QMouseEvent *);
-    virtual void mouseMoveEvent(QMouseEvent *);
-
-private:    
-    bool d_outlineEnabled;
-    bool d_outlineActive;
-    bool d_mousePressed;
-
-    void drawOutline(QPainter &p);
-
-    Qwt::Shape d_outline;
-    QPen d_pen;
-    QPoint d_entryPoint;
-    QPoint d_lastPoint;
-#else
-private:
-    // needed because of mocs #ifdef ignorance
-    void mousePressed(const QMouseEvent &);
-    void mouseReleased(const QMouseEvent &);
-    void mouseMoved(const QMouseEvent &);
-#endif // !QWT_NO_COMPAT
-
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

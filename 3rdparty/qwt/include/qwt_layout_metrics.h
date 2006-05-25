@@ -11,15 +11,23 @@
 #define QWT_LAYOUT_METRICS_H
 
 #include <qsize.h>
+#include <qrect.h>
+#if QT_VERSION < 0x040000
+#include <qpointarray.h>
+#else
+#include <qpolygon.h>
+#endif
 #include "qwt_global.h"
 
 class QPainter;
-class QRect;
-class QPoint;
-class QPointArray;
 class QString;
-class QSimpleRichText;
-class QPaintDeviceMetrics;
+class QFontMetrics;
+#if QT_VERSION < 0x040000
+class QWMatrix;
+#else
+class QMatrix;
+#endif
+class QPaintDevice;
 
 class QWT_EXPORT QwtMetricsMap
 {
@@ -28,8 +36,8 @@ public:
 
     bool isIdentity() const;
 
-    void setMetrics(const QPaintDeviceMetrics &layoutMetrics,
-        const QPaintDeviceMetrics &deviceMetrics);
+    void setMetrics(const QPaintDevice *layoutMetrics,
+        const QPaintDevice *deviceMetrics);
 
     int layoutToDeviceX(int x) const;
     int deviceToLayoutX(int x) const;
@@ -53,13 +61,23 @@ public:
     QRect deviceToLayout(const QRect &, const QPainter * = NULL) const;
     QRect screenToLayout(const QRect &) const;
 
+#if QT_VERSION < 0x040000
     QPointArray layoutToDevice(const QPointArray &, 
         const QPainter * = NULL) const;
     QPointArray deviceToLayout(const QPointArray &, 
         const QPainter * = NULL) const;
 
-    static QRect translate(const QWMatrix &, const QRect &);
     static QPointArray translate(const QWMatrix &, const QPointArray &);
+    static QRect translate(const QWMatrix &, const QRect &);
+#else
+    QPolygon layoutToDevice(const QPolygon &, 
+        const QPainter * = NULL) const;
+    QPolygon deviceToLayout(const QPolygon &, 
+        const QPainter * = NULL) const;
+
+    static QPolygon translate(const QMatrix &, const QPolygon &);
+    static QRect translate(const QMatrix &, const QRect &);
+#endif
 
 private:
     double d_screenToLayoutX;
@@ -67,33 +85,6 @@ private:
 
     double d_deviceToLayoutX;
     double d_deviceToLayoutY;
-};
-
-
-class QWT_EXPORT QwtLayoutMetrics
-{
-public:
-    QwtLayoutMetrics();
-    QwtLayoutMetrics(const QwtMetricsMap &);
-
-    void setMap(const QwtMetricsMap &);
-
-    QRect boundingRect(const QString &, int flags, QPainter *) const;
-    QRect boundingRect(const QString &, int flags, const QFontMetrics &) const;
-
-    int heightForWidth(const QString &,
-        int width, int flags, const QFontMetrics &) const;
-    int heightForWidth(const QString &,
-        int width, int flags, QPainter *) const;
-
-#ifndef QT_NO_RICHTEXT
-    QRect boundingRect(const QSimpleRichText &, 
-        int flags, QPainter * = NULL) const;
-    int heightForWidth(QSimpleRichText &, int width) const;
-#endif
-
-private:
-    QwtMetricsMap d_map;
 };
 
 inline bool QwtMetricsMap::isIdentity() const

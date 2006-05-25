@@ -12,157 +12,32 @@
 #ifndef QWT_LEGEND_H
 #define QWT_LEGEND_H
 
-#include <qpen.h>
-#include <qscrollview.h>
-#include <qlabel.h>
+#include <qframe.h>
 #include "qwt_global.h"
-#include "qwt_symbol.h"
-#include "qwt_push_button.h"
-
 #if QT_VERSION < 0x040000
-#include <qwidgetintdict.h>
+#include <qvaluelist.h>
 #else
-#include "qwt_plot_dict.h"
-class QWT_EXPORT QWidgetIntDict: public QwtSeqDict<QWidget>
-{
-public:
-    QWidgetIntDict() {}
-};
-typedef QIntDictIterator<QWidget> QWidgetIntDictIt;
+#include <qlist.h>
 #endif
 
-class QPainter;
-class QwtText;
-
-/*!
-  A legend item
-  \sa QwtLegend, QwtCurve
-*/
-class QwtLegendItem
-{
-public:
-    /*!
-       \brief Identifier mode
-
-       Default is ShowLine | ShowText
-       \sa QwtLegendItem::identifierMode, QwtLegendItem::setIdentifierMode
-     */
-
-    enum IdentifierMode
-    {
-        NoIdentifier = 0,
-        ShowLine = 1,
-        ShowSymbol = 2,
-        ShowText = 4
-    };
-
-    QwtLegendItem();
-    QwtLegendItem(const QwtSymbol &, const QPen &);
-
-    virtual ~QwtLegendItem();
-
-    void setIdentifierMode(int);
-    int identifierMode() const;
-
-    void setSymbol(const QwtSymbol &);
-    const QwtSymbol& symbol() const;
-
-    void setCurvePen(const QPen &);
-    const QPen& curvePen() const;
-
-    virtual void drawIdentifier(QPainter *, const QRect &) const;
-    virtual void drawItem(QPainter *p, const QRect &) const; 
-    
-    virtual void setTitle(const QString &) = 0;
-    virtual QString title() const = 0;
-
-protected:
-    virtual QwtText *titleText() const = 0;
-    virtual void updateItem();
-
-private:
-    int d_identifierMode; 
-    QwtSymbol d_symbol;
-    QPen d_curvePen;
-};
-
-/*!
-  \brief A legend button
-
-  QwtLegendButton represents a curve on a legend. 
-  It displays an curve identifier with an explaining text. 
-  The identifier might be a combination of curve symbol and line.
-  
-  \sa QwtLegend, QwtCurve
-*/
-
-class QWT_EXPORT QwtLegendButton: public QwtPushButton, public QwtLegendItem
-{
-    Q_OBJECT
-public:
-    QwtLegendButton(QWidget *parent = 0, const char *name = 0);
-    QwtLegendButton(const QwtSymbol &, const QPen &,
-        const QString &, QWidget *parent = 0, const char *name = 0);
-
-    virtual void setTitle(const QString &);
-    virtual QString title() const;
-
-protected:
-    virtual QwtText *titleText() const;
-    virtual void updateItem();
-    virtual void updateIconset();
-
-private:
-    void init();
-};
-
-/*!
-  \brief A legend label
-
-  QwtLegendLabel represents a curve on a legend.
-  It displays an curve identifier with an explaining text.
-  The identifier might be a combination of curve symbol and line.
-
-  \sa QwtLegend, QwtCurve
-*/
-class QWT_EXPORT QwtLegendLabel: public QLabel, public QwtLegendItem
-{
-    Q_OBJECT
-public:
-    QwtLegendLabel(QWidget *parent = 0, const char *name = 0);
-    QwtLegendLabel(const QwtSymbol &, const QPen &,
-        const QString &, QWidget *parent = 0, const char *name = 0);
-
-    virtual void setTitle(const QString &);
-    virtual QString title() const;
-
-protected:
-    virtual QwtText *titleText() const;
-    virtual void drawContents(QPainter *);
-    virtual void updateItem();
-
-private:
-    void init();
-};
+class QScrollBar;
+class QwtPlotItem;
 
 /*!
   \brief The legend widget
 
   The QwtLegend widget is a tabular arrangement of legend items. Legend
   items might be any type of widget, but in general they will be
-  a QwtLegendButton.
+  a QwtLegendItem.
 
-  \sa QwtLegendButton, QwtPlot
+  \sa QwtLegendItem, QwtPlot
 */
 
-class QWT_EXPORT QwtLegend : public QScrollView
+class QWT_EXPORT QwtLegend : public QFrame
 {
     Q_OBJECT
 
-    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
-
 public:
-
     /*!
       \brief Display policy
 
@@ -191,27 +66,38 @@ public:
         Auto = 2
     };
 
-    QwtLegend(QWidget *parent = 0, const char *name = 0);
-    
-    void setReadOnly(bool readOnly);
-    bool isReadOnly() const;
+    enum LegendItemMode
+    {
+        ReadOnlyItem,
+        ClickableItem,
+        CheckableItem
+    };
 
+    explicit QwtLegend(QWidget *parent = NULL);
+    virtual ~QwtLegend();
+    
     void setDisplayPolicy(LegendDisplayPolicy policy, int mode = -1);
     LegendDisplayPolicy displayPolicy() const;
+
+    void setItemMode(LegendItemMode);
+    LegendItemMode itemMode() const;
 
     int identifierMode() const;
 
     QWidget *contentsWidget();
     const QWidget *contentsWidget() const;
 
-    void insertItem(QWidget *, long key);
-    QWidget *findItem(long key);
-    const QWidget *findItem(long key) const;
-    QWidget *takeItem(long key);
+    void insert(const QwtPlotItem *, QWidget *);
+    void remove(const QwtPlotItem *);
 
-    virtual QWidgetIntDictIt itemIterator() const;
+    QWidget *find(const QwtPlotItem *) const;
+    QwtPlotItem *find(const QWidget *) const;
 
-    long key(const QWidget *) const;
+#if QT_VERSION < 0x040000
+    virtual QValueList<QWidget *> legendItems() const;
+#else
+    virtual QList<QWidget *> legendItems() const;
+#endif
 
     void clear();
     
@@ -223,28 +109,16 @@ public:
     virtual QSize sizeHint() const;
     virtual int heightForWidth(int w) const;
 
+    QScrollBar *horizontalScrollBar() const;
+    QScrollBar *verticalScrollBar() const;
+
 protected:
-    virtual void viewportResizeEvent(QResizeEvent *);
+    virtual void resizeEvent(QResizeEvent *);
     virtual void layoutContents();
 
 private:
-    bool d_readOnly;
-    LegendDisplayPolicy d_displayPolicy;
-    int d_identifierMode;
-    QWidgetIntDict d_items;
-    QWidget *d_contentsWidget;
+    class PrivateData;
+    PrivateData *d_data;
 };
-
-//! Return TRUE, if there are no legend items.
-inline bool QwtLegend::isEmpty() const 
-{ 
-    return d_items.count() == 0; 
-}
-
-//! Return the number of legend items.
-inline uint QwtLegend::itemCount() const 
-{ 
-    return d_items.count(); 
-}
 
 #endif // QWT_LEGEND_H

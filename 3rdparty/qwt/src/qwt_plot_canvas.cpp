@@ -11,6 +11,13 @@
 
 #include <qpainter.h>
 #include <qstyle.h>
+#if QT_VERSION >= 0x040000
+#include <qstyleoption.h>
+#include <qpaintengine.h>
+#ifdef Q_WS_X11
+#include <qx11info_x11.h>
+#endif
+#endif
 #include <qevent.h>
 #include "qwt_painter.h"
 #include "qwt_math.h"
@@ -18,90 +25,143 @@
 #include "qwt_paint_buffer.h"
 #include "qwt_plot_canvas.h"
 
-static const int dim = 5000;
+class QwtPlotCanvas::PrivateData
+{
+public:
+    PrivateData():
+        focusIndicator(CanvasFocusIndicator),
+        paintAttributes(0),
+        cache(NULL)
+    {
+    }
 
-//! Sets a cross cursor, and an invisible red outline
+    ~PrivateData()
+    {
+        delete cache;
+    }
+
+    FocusIndicator focusIndicator;
+    int paintAttributes;
+    QPixmap *cache;
+};
+
+//! Sets a cross cursor, enables QwtPlotCanvas::PaintCached
 
 QwtPlotCanvas::QwtPlotCanvas(QwtPlot *plot):
-    QFrame(plot, "canvas", Qt::WRepaintNoErase|Qt::WResizeNoErase),
-    d_focusIndicator(CanvasFocusIndicator),
-    d_cacheMode(TRUE),
-    d_cache(NULL)
-#ifndef QWT_NO_COMPAT
-    ,d_outlineEnabled(FALSE),
-    d_outlineActive(FALSE),
-    d_mousePressed(FALSE),
-    d_outline(Qwt::Rect),
-    d_pen(Qt::red)
-#endif
+    QFrame(plot)
 {
+    d_data = new PrivateData;
+
+#if QT_VERSION >= 0x040100
+    setAutoFillBackground(true);
+#endif
+
+#if QT_VERSION < 0x040000
+    setWFlags(Qt::WNoAutoErase);
     setCursor(Qt::crossCursor);
+#else
+    setAttribute(Qt::WA_PaintOnScreen, true);
+    setCursor(Qt::CrossCursor);
+#endif // >= 0x040000
+
+    setPaintAttribute(PaintCached, true);
+    setPaintAttribute(PaintPacked, true);
 }
 
 //! Destructor
 QwtPlotCanvas::~QwtPlotCanvas()
 {
-    delete d_cache;
+    delete d_data;
 }
 
 /*!
-  \brief En/Disable caching
+  \brief Changing the paint attributes
 
-  When cache mode is enabled the canvas contents are copied to
-  a pixmap that is used for trivial repaints. Such repaints happen
-  when a plot gets unhidden, deiconified or changes the focus.
+  \param attribute Paint attribute
+  \param on On/Off
 
-  The win of caching depends on the costs of QwtPlot::drawCanvas. In
-  case of plots with huge data it might be significant. The price of
-  caching is wasting memory for the cache, what is a pixmap in size
-  of contentsRect(). In case of QwtPaintBuffer::isEnabled() updating 
-  the cache produces no performance overhead as it reuses the 
-  temporary paintbuffer of the double buffering.  
-  Otherwise canvas updates have to painted twice to widget and cache.
+  The default setting enables PaintCached and PaintPacked
 
-  \param on Enable caching, when TRUE
-
-  \sa cacheMode(), drawCanvas(), drawContents(), cache()
+  \sa testPaintAttribute(), drawCanvas(), drawContents(), paintCache()
 */
-void QwtPlotCanvas::setCacheMode(bool on)
+void QwtPlotCanvas::setPaintAttribute(PaintAttribute attribute, bool on)
 {
-    if ( d_cacheMode != on )
+    if ( bool(d_data->paintAttributes & attribute) == on )
+        return;
+
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
+
+    switch(attribute)
     {
-        d_cacheMode = on;
-        if (!d_cacheMode )
+        case PaintCached:
         {
-            delete d_cache;
-            d_cache = NULL;
+            if ( on )
+            {
+                if ( d_data->cache == NULL )
+                    d_data->cache = new QPixmap();
+
+                if ( isVisible() )
+                {
+                    const QRect cr = contentsRect();
+                    *d_data->cache = QPixmap::grabWidget(this,
+                        cr.x(), cr.y(), cr.width(), cr.height() );
+                }
+            }
+            else
+            {
+                delete d_data->cache;
+                d_data->cache = NULL;
+            }
+            break;
+        }
+        case PaintPacked:
+        {
+            /*
+              If not visible, changing of the background mode
+              is delayed until it becomes visible. This tries to avoid 
+              looking through the canvas when the canvas is shown the first 
+              time.
+             */
+
+            if ( on == false || isVisible() )
+                QwtPlotCanvas::setSystemBackground(!on);
+
+            break;
         }
     }
 }
 
 /*!
-  \return Cache mode
-  \sa setCacheMode
+  Test wether a paint attribute is enabled
+
+  \param attribute Paint attribute
+  \return true if the attribute is enabled
 */
-bool QwtPlotCanvas::cacheMode() const
+bool QwtPlotCanvas::testPaintAttribute(PaintAttribute attribute) const
 {
-    return d_cacheMode;
+    return (d_data->paintAttributes & attribute) != 0;
 }
 
 //! Return the paint cache, might be null
-QPixmap *QwtPlotCanvas::cache()
+QPixmap *QwtPlotCanvas::paintCache()
 {
-    return d_cache;
+    return d_data->cache;
 }
 
 //! Return the paint cache, might be null
-const QPixmap *QwtPlotCanvas::cache() const
+const QPixmap *QwtPlotCanvas::paintCache() const
 {
-    return d_cache;
+    return d_data->cache;
 }
 
 //! Invalidate the internal paint cache
-void QwtPlotCanvas::invalidateCache()
+void QwtPlotCanvas::invalidatePaintCache()
 {
-    if ( d_cache )
-        d_cache->resize(0, 0);
+    if ( d_data->cache )
+        *d_data->cache = QPixmap();
 }
 
 /*!
@@ -111,7 +171,7 @@ void QwtPlotCanvas::invalidateCache()
 */
 void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 {
-    d_focusIndicator = focusIndicator;
+    d_data->focusIndicator = focusIndicator;
 }
 
 /*!
@@ -121,54 +181,76 @@ void QwtPlotCanvas::setFocusIndicator(FocusIndicator focusIndicator)
 */
 QwtPlotCanvas::FocusIndicator QwtPlotCanvas::focusIndicator() const
 {
-    return d_focusIndicator;
+    return d_data->focusIndicator;
 }
 
-//! Requires layout updates of the parent plot
-void QwtPlotCanvas::frameChanged()
+void QwtPlotCanvas::hideEvent(QHideEvent *e)
 {
-    QFrame::frameChanged();
+    QFrame::hideEvent(e);
 
-    // frame changes change the size of the contents rect, what
-    // is related to the axes. So we have to update the layout.
+    if ( d_data->paintAttributes & PaintPacked )
+    {
+        // enable system background to avoid the "looking through
+        // the canvas" effect, for the next show
 
-    ((QwtPlot *)parent())->updateLayout();
+        setSystemBackground(true);
+    }
+}
+
+void QwtPlotCanvas::paintEvent(QPaintEvent *event)
+{
+#if QT_VERSION >= 0x040000
+    QPainter painter(this);
+    
+    if ( !contentsRect().contains( event->rect() ) ) 
+    {
+        painter.save();
+        painter.setClipRegion( event->region() & frameRect() );
+        drawFrame( &painter );
+        painter.restore(); 
+    }
+
+#if defined(Q_WS_WIN)
+
+#ifdef __GNUC__
+#warning Clipping bugs on Win32
+#endif
+
+#else
+    painter.setClipRegion(event->region() & contentsRect());
+#endif
+
+    drawContents( &painter );
+#else // QT_VERSION < 0x040000
+    QFrame::paintEvent(event);
+#endif
+
+    if ( d_data->paintAttributes & PaintPacked )
+        setSystemBackground(false);
 }
 
 //! Redraw the canvas, and focus rect
 void QwtPlotCanvas::drawContents(QPainter *painter)
 {
-    if ( cacheMode() && d_cache 
-        && d_cache->size() == contentsRect().size() )
+    if ( d_data->paintAttributes & PaintCached && d_data->cache 
+        && d_data->cache->size() == contentsRect().size() )
     {
-        painter->drawPixmap(contentsRect().topLeft(), *d_cache);
+        painter->drawPixmap(contentsRect().topLeft(), *d_data->cache);
     }
     else
         drawCanvas(painter);
 
-#ifndef QWT_NO_COMPAT
-    if ( d_outlineActive )
-        drawOutline(*painter); // redraw outline
-#endif
-
     if ( hasFocus() && focusIndicator() == CanvasFocusIndicator )
-    {
-        const int margin = 1;
-        QRect focusRect = contentsRect();
-        focusRect.setRect(focusRect.x() + margin, focusRect.y() + margin,
-            focusRect.width() - 2 * margin, focusRect.height() - 2 * margin);
-
-        drawFocusIndicator(painter, focusRect);
-    }
+        drawFocusIndicator(painter);
 }
 
 /*!
   Draw the the canvas
 
   Paints all plot items to the contentsRect(), using QwtPlot::drawCanvas
-  and updates the cache.
+  and updates the paint cache.
 
-  \sa QwtPlot::drawCanvas, setCacheMode(), cacheMode()
+  \sa QwtPlot::drawCanvas, setPaintAttributes(), testPaintAttributes()
 */
 
 void QwtPlotCanvas::drawCanvas(QPainter *painter)
@@ -176,326 +258,98 @@ void QwtPlotCanvas::drawCanvas(QPainter *painter)
     if ( !contentsRect().isValid() )
         return;
 
-    QRect clipRect = contentsRect();
-    if ( !cacheMode() || !QwtPaintBuffer::isEnabled() )
+    if ( d_data->paintAttributes & PaintCached && d_data->cache )
     {
-        // If we don´t need the paint buffer as cache we can
-        // use the clip for painting to the buffer too. 
+        *d_data->cache = QPixmap(contentsRect().size());
 
-        if ( painter && !painter->clipRegion().isNull() )
-            clipRect = painter->clipRegion().boundingRect();
-    }
-
-    QwtPaintBuffer paintBuffer(this, clipRect, painter);
-    ((QwtPlot *)parent())->drawCanvas(paintBuffer.painter());
-
-    if ( cacheMode() )
-    {
-        if ( d_cache == NULL )
-        {
-            d_cache = new QPixmap(contentsRect().size());
-#if QT_VERSION >= 300
 #ifdef Q_WS_X11
-            if ( d_cache->x11Screen() != x11Screen() )
-                d_cache->x11SetScreen(x11Screen());
+#if QT_VERSION >= 0x040000
+        if ( d_data->cache->x11Info().screen() != x11Info().screen() )
+            d_data->cache->x11SetScreen(x11Info().screen());
+#else
+        if ( d_data->cache->x11Screen() != x11Screen() )
+            d_data->cache->x11SetScreen(x11Screen());
 #endif
 #endif
-        }
-        else
-            d_cache->resize(contentsRect().size());
 
-        if ( QwtPaintBuffer::isEnabled() )
-            *d_cache = paintBuffer.buffer();
-        else
+        if ( d_data->paintAttributes & PaintPacked )
         {
-            d_cache->fill(this, 0, 0);
-            QPainter cachePainter(d_cache);
-            cachePainter.translate(-contentsRect().x(),
-                -contentsRect().y());
-            ((QwtPlot *)parent())->drawCanvas(&cachePainter);
+            QPainter bgPainter(d_data->cache);
+            bgPainter.setPen(Qt::NoPen);
+
+            QBrush bgBrush;
+#if QT_VERSION >= 0x040000
+                bgBrush = palette().brush(backgroundRole());
+#else
+            QColorGroup::ColorRole role = 
+                QPalette::backgroundRoleFromMode( backgroundMode() );
+            bgBrush = colorGroup().brush( role );
+#endif
+            bgPainter.setBrush(bgBrush);
+            bgPainter.drawRect(d_data->cache->rect());
         }
+        else
+            d_data->cache->fill(this, d_data->cache->rect().topLeft());
+
+        QPainter cachePainter(d_data->cache);
+        cachePainter.translate(-contentsRect().x(),
+            -contentsRect().y());
+
+        ((QwtPlot *)parent())->drawCanvas(&cachePainter);
+
+        cachePainter.end();
+
+        painter->drawPixmap(contentsRect(), *d_data->cache);
+    }
+    else
+    {
+        if ( d_data->paintAttributes & PaintPacked )
+        {
+            painter->save();
+            painter->setPen(Qt::NoPen);
+
+            const QBrush brush =
+#if QT_VERSION < 0x040000
+                backgroundBrush();
+#else
+                palette().brush(backgroundRole());
+#endif
+            painter->setBrush(brush);
+
+            painter->drawRect(contentsRect());
+            painter->restore();
+        }
+        ((QwtPlot *)parent())->drawCanvas(painter);
     }
 }
 
 //! Draw the focus indication
-void QwtPlotCanvas::drawFocusIndicator(QPainter *painter, const QRect &rect)
+void QwtPlotCanvas::drawFocusIndicator(QPainter *painter)
 {
-#if QT_VERSION < 300
-        style().drawFocusRect(painter, rect, colorGroup());
+    const int margin = 1;
+
+    QRect focusRect = contentsRect();
+    focusRect.setRect(focusRect.x() + margin, focusRect.y() + margin,
+        focusRect.width() - 2 * margin, focusRect.height() - 2 * margin);
+
+    QwtPainter::drawFocusRect(painter, this, focusRect);
+}
+
+void QwtPlotCanvas::setSystemBackground(bool on)
+{
+#if QT_VERSION < 0x040000
+    if ( backgroundMode() == Qt::NoBackground )
+    {
+        if ( on )
+            setBackgroundMode(Qt::PaletteBackground);
+    }
+    else
+    {
+        if ( !on )
+            setBackgroundMode(Qt::NoBackground);
+    }
 #else
-        style().drawPrimitive(QStyle::PE_FocusRect, painter,
-            rect, colorGroup());
+    if ( testAttribute(Qt::WA_NoSystemBackground) == on )
+        setAttribute(Qt::WA_NoSystemBackground, !on);
 #endif
 }
-
-#ifndef QWT_NO_COMPAT
-
-//! Mouse event handler
-void QwtPlotCanvas::mousePressEvent(QMouseEvent *e)
-{
-    if (d_outlineActive)
-    {
-        QPainter p(this);
-        drawOutline(p); // Delete active outlines
-    }
-
-    d_outlineActive = FALSE;
-
-    //
-    // store this point as entry point
-    //
-    d_lastPoint = e->pos();
-    d_entryPoint = e->pos();
-
-    if (d_outlineEnabled)
-    {
-        QPainter p(this);
-        drawOutline(p); // draw new outline
-        d_outlineActive = TRUE;
-    }
-
-    d_mousePressed = TRUE;
-
-    QMouseEvent m(QEvent::MouseButtonPress, 
-        e->pos() - rect().topLeft(), e->button(), e->state());
-
-    emit mousePressed(m);
-}
-
-//! Mouse event handler
-void QwtPlotCanvas::mouseReleaseEvent(QMouseEvent *e)
-{
-    if (d_outlineActive)
-    {
-        QPainter p(this);
-        drawOutline(p);
-    }
-
-    d_outlineActive = FALSE;
-    d_mousePressed = FALSE;
-
-    QMouseEvent m(QEvent::MouseButtonRelease, 
-        e->pos() - rect().topLeft(), e->button(), e->state());
-
-    emit mouseReleased(m);
-}
-
-//! Mouse event handler
-void QwtPlotCanvas::mouseMoveEvent(QMouseEvent *e)
-{
-    if (d_outlineActive)
-    {
-        QPainter p(this);
-        drawOutline(p);
-        d_lastPoint = e->pos();
-        drawOutline(p);
-    }
-
-    QMouseEvent m(QEvent::MouseMove, 
-        e->pos() - rect().topLeft(), e->button(), e->state());
-
-    emit mouseMoved(m);
-}
-
-/*!
-  \brief Enables or disables outline drawing.
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  When the outline feature is enabled, a shape will be drawn
-  in the plotting region  when the user presses
-  or drags the mouse. It can be used to implement crosshairs,
-  mark a selected region, etc.
-  \param tf \c TRUE (enabled) or \c FALSE (disabled)
-  \warning An outline style has to be specified.
-  \sa QwtPlotCanvas::setOutlineStyle()
-*/
-
-void QwtPlotCanvas::enableOutline(bool tf)
-{
-
-    //
-    //  If the mouse is pressed, erase existing outline
-    //  or draw new outline if 'tf' changes the 'enabled' state.
-    //
-    if ((tf != d_outlineEnabled) && d_mousePressed)
-    {
-        QPainter p(this);
-        drawOutline(p);
-        d_outlineActive = tf;
-    }
-    d_outlineEnabled = tf;
-}
-
-/*!
-  \return \c TRUE if the outline feature is enabled
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \sa QwtPlotCanvas::enableOutline
-*/
-
-bool QwtPlotCanvas::outlineEnabled() const 
-{ 
-    return d_outlineEnabled; 
-}
-
-/*!
-  \brief Specify the style of the outline
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  The outline style determines which kind of shape is drawn
-  in the plotting region when the user presses a mouse button
-  or drags the mouse. Valid Styles are:
-  \param os Outline Style. Valid values are: \c Qwt::HLine, \c Qwt::VLine,
-            \c Qwt::Cross, \c Qwt::Rect, \c Qwt::Ellipse
-  <dl>
-  <dt>Qwt::Cros
-  <dd>Cross hairs are drawn across the plotting area
-      when the user presses a mouse button. The lines
-      intersect at the point where the mouse was pressed
-      and move with the mouse pointer.
-  <dt>Qwt::HLine, Qwt::VLine
-  <dd>A horizontal or vertical line appears when
-      the user presses a mouse button. This is useful
-      for moving line markers.
-  <dt>Qwt::Rect
-  <dd>A rectangle is displayed when the user drags
-      the mouse. One corner is fixed at the point where
-      the mouse was pressed, and the opposite corner moves
-      with the mouse pointer. This can be used for selecting
-      regions.
-  <dt>Qwt::Ellipse
-  <dd>Similar to Qwt::Rect, but with an ellipse inside
-      a bounding rectangle.
-  </dl>
-  \sa QwtPlotCanvas::enableOutline(), QwtPlotCanvas::outlineStyle()
-*/
-
-void QwtPlotCanvas::setOutlineStyle(Qwt::Shape os)
-{
-    if (d_outlineActive)
-    {
-        QPainter p(this); // erase old outline
-        drawOutline(p);
-    }
-
-    d_outline = os;
-
-    if (d_outlineActive)
-    {
-        QPainter p(this);
-        drawOutline(p); // draw new outline
-    }
-}
-
-/*!
-  \return the outline style
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \sa QwtPlotCanvas::setOutlineStyle()
-*/
-Qwt::Shape QwtPlotCanvas::outlineStyle() const 
-{ 
-    return d_outline; 
-}
-
-/*!
-  \brief Specify a pen for the outline
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \param pen new pen
-  \sa QwtPlotCanvas::outlinePen
-*/
-
-void QwtPlotCanvas::setOutlinePen(const QPen &pen)
-{
-    d_pen = pen;
-}
-
-/*!
-  \return the pen used to draw outlines
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \sa QwtPlotCanvas::setOutlinePen
-*/
-
-const QPen& QwtPlotCanvas::outlinePen() const 
-{ 
-    return d_pen; 
-}
-
-/*!
-  draw an outline
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-*/
-void QwtPlotCanvas::drawOutline(QPainter &p)
-{
-    const QRect &r = contentsRect();
-
-    QColor bg = ((QwtPlot *)parent())->canvasBackground();
-
-    QPen pn = d_pen;
-    pn.setColor(QColor(bg.rgb() ^ d_pen.color().rgb()));
-
-    p.setPen(pn);
-    p.setRasterOp(XorROP);
-    p.setClipRect(r);
-    p.setClipping(TRUE);
-
-    switch(d_outline)
-    {
-        case Qwt::VLine:
-            QwtPainter::drawLine(&p, d_lastPoint.x(), 
-                r.top(), d_lastPoint.x(), r.bottom());
-            break;
-        
-        case Qwt::HLine:
-            QwtPainter::drawLine(&p, r.left(), 
-                d_lastPoint.y(), r.right(), d_lastPoint.y());
-            break;
-        
-        case Qwt::Cross:
-            QwtPainter::drawLine(&p, r.left(), 
-                d_lastPoint.y(), r.right(), d_lastPoint.y());
-            QwtPainter::drawLine(&p, d_lastPoint.x(), 
-                r.top(), d_lastPoint.x(), r.bottom());
-            break;
-
-        case Qwt::Rect:
-            QwtPainter::drawRect(&p, d_entryPoint.x(), d_entryPoint.y(),
-               d_lastPoint.x() - d_entryPoint.x() + 1,
-               d_lastPoint.y() - d_entryPoint.y() + 1);
-            break;
-        
-        case Qwt::Ellipse:
-            p.drawEllipse(d_entryPoint.x(), d_entryPoint.y(),
-               d_lastPoint.x() - d_entryPoint.x() + 1,
-               d_lastPoint.y() - d_entryPoint.y() + 1);
-            break;
-
-        default:
-            break;
-    }
-}
-
-#endif // !QWT_NO_COMPAT
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
-

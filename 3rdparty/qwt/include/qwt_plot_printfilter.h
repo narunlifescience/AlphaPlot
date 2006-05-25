@@ -12,12 +12,10 @@
 
 #include <qcolor.h>
 #include <qfont.h>
-#include <qintdict.h>
-#include <qvaluelist.h>
 #include "qwt_global.h"
 
 class QwtPlot;
-class QwtPlotPrintFilterCache;
+class QwtPlotItem;
 
 /*!
   \brief A base class for plot print filters
@@ -58,34 +56,24 @@ public:
         WidgetBackground
     };
 
-    QwtPlotPrintFilter();
+    explicit QwtPlotPrintFilter();
     virtual ~QwtPlotPrintFilter(); 
 
-    virtual QColor color(const QColor &, Item item, int id = -1) const;
-    virtual QFont font(const QFont &, Item item, int id = -1) const;
+    virtual QColor color(const QColor &, Item item) const;
+    virtual QFont font(const QFont &, Item item) const;
 
-/*!
-    \brief Set plot print options
-    \param options Or'd QwtPlotPrintFilter::Options values
-    
-    \sa QwtPlotPrintFilter::options()
-*/
-
-    void setOptions(int options) { d_options = options; }
-
-/*!
-    \brief Get plot print options
-    \sa QwtPlotPrintFilter::setOptions()
-*/
-
-    int options() const { return d_options; }
+    void setOptions(int options);
+    int options() const;
 
     virtual void apply(QwtPlot *) const;
     virtual void reset(QwtPlot *) const;
 
+    virtual void apply(QwtPlotItem *) const;
+    virtual void reset(QwtPlotItem *) const;
+
 private:
-    int d_options;
-    QwtPlotPrintFilterCache *d_cache;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif

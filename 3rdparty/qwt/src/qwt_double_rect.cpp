@@ -7,58 +7,73 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include <qglobal.h>
+
+#if QT_VERSION < 0x040000
+
+#include "qwt_math.h"
 #include "qwt_double_rect.h"
 
-//! Constructs a point with coordinates (0.0, 0.0) (isNull() returns TRUE). 
+/*! 
+    Constructs a null point.
 
+    \sa QwtDoublePoint::isNull
+*/
 QwtDoublePoint::QwtDoublePoint():
     d_x(0.0),
     d_y(0.0)
 {
 }
 
-//! Constructs a point with x value xpos and y value ypos.
-
+//! Constructs a point with coordinates specified by x and y.
 QwtDoublePoint::QwtDoublePoint(double x, double y ):
     d_x(x),
     d_y(y)
 {
 }
 
-//! Copy constructor
+/*! 
+    Copy constructor. 
+
+    Constructs a point using the values of the point specified.
+*/
 QwtDoublePoint::QwtDoublePoint(const QPoint &p):
     d_x(double(p.x())),
     d_y(double(p.y()))
 {
 }
 
-//! Returns TRUE if point and other are equal; otherwise returns FALSE. 
+/*! 
+    Returns true if point1 is equal to point2; otherwise returns false.
+
+    Two points are equal to each other if both x-coordinates and 
+    both y-coordinates are the same.
+*/
 bool QwtDoublePoint::operator==(const QwtDoublePoint &other) const
 {
     return (d_x == other.d_x) && (d_y == other.d_y);
 }
 
-//! Returns TRUE if point and other are not equal; otherwise returns FALSE. 
+//! Returns true if point1 is not equal to point2; otherwise returns false.
 bool QwtDoublePoint::operator!=(const QwtDoublePoint &other) const
 {
     return !operator==(other);
 }
 
 /*! 
-  Returns the point formed by changing the sign of both components, 
-  equivalent to QDoublePoint(-x(), -y());
+    Negates the coordinates of the point, and returns a point with the 
+    new coordinates. (Inversion).
 */
-
 const QwtDoublePoint QwtDoublePoint::operator-() const
 {
     return QwtDoublePoint(-d_x, -d_y);
 }
 
 /*! 
-  Returns the point formed by adding both components by 
-  the components of other. Each component is added separately.
+    Adds the coordinates of the point to the corresponding coordinates of 
+    the other point, and returns a point with the new coordinates. 
+    (Vector addition.)
 */
-
 const QwtDoublePoint QwtDoublePoint::operator+(
     const QwtDoublePoint &other) const
 {
@@ -66,32 +81,41 @@ const QwtDoublePoint QwtDoublePoint::operator+(
 }
 
 /*! 
-  Returns the point formed by subtracting both components by 
-  the components of other. Each component is subtracted separately.
+    Subtracts the coordinates of the other point from the corresponding 
+    coordinates of the given point, and returns a point with the new 
+    coordinates. (Vector subtraction.)
 */
-
 const QwtDoublePoint QwtDoublePoint::operator-(
     const QwtDoublePoint &other) const
 {
     return QwtDoublePoint(d_x - other.d_x, d_y - other.d_y);
 }
 
-//! Returns the point formed by multiplying both components by c. 
-
-const QwtDoublePoint QwtDoublePoint::operator*(double c) const
+/*!
+    Multiplies the coordinates of the point by the given scale factor, 
+    and returns a point with the new coordinates. 
+    (Scalar multiplication of a vector.)
+*/
+const QwtDoublePoint QwtDoublePoint::operator*(double factor) const
 {
-    return QwtDoublePoint(d_x * c, d_y * c);
+    return QwtDoublePoint(d_x * factor, d_y * factor);
 }
 
-//! Returns the point formed by dividing both components by c.
-
-const QwtDoublePoint QwtDoublePoint::operator/(double c) const
+/*!
+    Divides the coordinates of the point by the given scale factor, 
+    and returns a point with the new coordinates. 
+    (Scalar division of a vector.)
+*/
+const QwtDoublePoint QwtDoublePoint::operator/(double factor) const
 {
-    return QwtDoublePoint(d_x / c, d_y / c);
+    return QwtDoublePoint(d_x / factor, d_y / factor);
 }
 
-//! Adds point other to this point and returns a reference to this point.
-  
+/*!
+    Adds the coordinates of this point to the corresponding coordinates 
+    of the other point, and returns a reference to this point with the 
+    new coordinates. This is equivalent to vector addition.
+*/
 QwtDoublePoint &QwtDoublePoint::operator+=(const QwtDoublePoint &other)
 {
     d_x += other.d_x;
@@ -99,8 +123,11 @@ QwtDoublePoint &QwtDoublePoint::operator+=(const QwtDoublePoint &other)
     return *this;
 }
 
-//! Subtracts point other from this point and returns a reference to this point. 
-
+/*!
+    Subtracts the coordinates of the other point from the corresponding 
+    coordinates of this point, and returns a reference to this point with 
+    the new coordinates. This is equivalent to vector subtraction.
+*/
 QwtDoublePoint &QwtDoublePoint::operator-=(const QwtDoublePoint &other)
 {
     d_x -= other.d_x;
@@ -108,50 +135,52 @@ QwtDoublePoint &QwtDoublePoint::operator-=(const QwtDoublePoint &other)
     return *this;
 }
 
-//! Multiplies this point's x and y by c, and returns a reference to this point.
-
-QwtDoublePoint &QwtDoublePoint::operator*=(double c)
+/*!
+    Multiplies the coordinates of this point by the given scale factor, 
+    and returns a reference to this point with the new coordinates. 
+    This is equivalent to scalar multiplication of a vector.
+*/
+QwtDoublePoint &QwtDoublePoint::operator*=(double factor)
 {
-    d_x *= c;
-    d_y *= c;
+    d_x *= factor;
+    d_y *= factor;
     return *this;
 }
 
-//! Divides both x and y by c, and returns a reference to this point.
-
-QwtDoublePoint &QwtDoublePoint::operator/=(double c)
+/*!
+    Divides the coordinates of this point by the given scale factor, 
+    and returns a references to this point with the new coordinates. 
+    This is equivalent to scalar division of a vector.
+*/
+QwtDoublePoint &QwtDoublePoint::operator/=(double factor)
 {
-    d_x /= c;
-    d_y /= c;
+    d_x /= factor;
+    d_y /= factor;
     return *this;
 }
 
-//! Constructs a size with a width and height of 0.0. 
-
+//! Constructs an invalid size.
 QwtDoubleSize::QwtDoubleSize():
-    d_width(0.0),
-    d_height(0.0)
+    d_width(-1.0),
+    d_height(-1.0)
 {   
 }   
 
-//! Constructs a size with a width w and height h.
-
-QwtDoubleSize::QwtDoubleSize( double w, double h ):
-    d_width(w),
-    d_height(h)
+//! Constructs a size with width width and height height.
+QwtDoubleSize::QwtDoubleSize( double width, double height ):
+    d_width(width),
+    d_height(height)
 {   
 }   
 
-//! Copy constructor
-
+//! Constructs a size with floating point accuracy from the given size.
 QwtDoubleSize::QwtDoubleSize(const QSize &sz):
     d_width(double(sz.width())),
     d_height(double(sz.height()))
 {   
 }   
 
-//! Swaps the values of width and height. 
-
+//! Swaps the width and height values.
 void QwtDoubleSize::transpose()
 {   
     double tmp = d_width;
@@ -160,62 +189,46 @@ void QwtDoubleSize::transpose()
 }
 
 /*! 
-  Returns a size with the maximum width and height 
-  of this size and other.
+    Returns a size with the maximum width and height of this 
+    size and other.
 */
-
 QwtDoubleSize QwtDoubleSize::expandedTo(
     const QwtDoubleSize &other) const
 {   
     return QwtDoubleSize(
-        QMAX(d_width, other.d_width),
-        QMAX(d_height, other.d_height)
+        qwtMax(d_width, other.d_width),
+        qwtMax(d_height, other.d_height)
     );  
 }   
 
 /*!
-  Returns a size with the minimum width and height of 
-  this size and other.
+    Returns a size with the minimum width and height of this size and other.
 */
-
 QwtDoubleSize QwtDoubleSize::boundedTo(
     const QwtDoubleSize &other) const
 {   
     return QwtDoubleSize(
-        QMIN(d_width, other.d_width),
-        QMIN(d_height, other.d_height)
+        qwtMin(d_width, other.d_width),
+        qwtMin(d_height, other.d_height)
     );  
 }   
 
-//! Returns TRUE if the size is equal to other; otherwise returns FALSE. 
-
+//! Returns true if s1 and s2 are equal; otherwise returns false.
 bool QwtDoubleSize::operator==(const QwtDoubleSize &other) const
 { 
     return d_width == other.d_width && d_height == other.d_height;
 }   
 
-//! Returns TRUE if the size is not equal to other; otherwise returns FALSE. 
-
+//! Returns true if s1 and s2 are different; otherwise returns false.
 bool QwtDoubleSize::operator!=(const QwtDoubleSize &other) const
 { 
     return !operator==(other);
 }   
 
 /*! 
-  Returns the size formed by changing the sign of both components,
-  equivalent to QwtDoubleSize(-width(), -height());
-*/
-
-const QwtDoubleSize QwtDoubleSize::operator-() const
-{
-    return QwtDoubleSize(-d_width, -d_height);
-}
-
-/*! 
   Returns the size formed by adding both components by
   the components of other. Each component is added separately.
 */
-
 const QwtDoubleSize QwtDoubleSize::operator+(
     const QwtDoubleSize &other) const
 {   
@@ -227,7 +240,6 @@ const QwtDoubleSize QwtDoubleSize::operator+(
   Returns the size formed by subtracting both components by
   the components of other. Each component is subtracted separately.
 */  
-
 const QwtDoubleSize QwtDoubleSize::operator-(
     const QwtDoubleSize &other) const
 {   
@@ -236,21 +248,18 @@ const QwtDoubleSize QwtDoubleSize::operator-(
 }       
 
 //! Returns the size formed by multiplying both components by c.
-
 const QwtDoubleSize QwtDoubleSize::operator*(double c) const
 { 
     return QwtDoubleSize(d_width * c, d_height * c);
 }   
 
 //! Returns the size formed by dividing both components by c.
-
 const QwtDoubleSize QwtDoubleSize::operator/(double c) const
 { 
     return QwtDoubleSize(d_width / c, d_height / c);
 }   
 
 //! Adds size other to this size and returns a reference to this size.
-
 QwtDoubleSize &QwtDoubleSize::operator+=(const QwtDoubleSize &other)
 {   
     d_width += other.d_width; 
@@ -259,7 +268,6 @@ QwtDoubleSize &QwtDoubleSize::operator+=(const QwtDoubleSize &other)
 }
 
 //! Subtracts size other from this size and returns a reference to this size.
-
 QwtDoubleSize &QwtDoubleSize::operator-=(const QwtDoubleSize &other)
 {   
     d_width -= other.d_width; 
@@ -271,7 +279,6 @@ QwtDoubleSize &QwtDoubleSize::operator-=(const QwtDoubleSize &other)
   Multiplies this size's width and height by c, 
   and returns a reference to this size.
 */
-
 QwtDoubleSize &QwtDoubleSize::operator*=(double c)
 {   
     d_width *= c; 
@@ -283,7 +290,6 @@ QwtDoubleSize &QwtDoubleSize::operator*=(double c)
   Devides this size's width and height by c, 
   and returns a reference to this size.
 */
-
 QwtDoubleSize &QwtDoubleSize::operator/=(double c)
 {
     d_width /= c;
@@ -293,10 +299,10 @@ QwtDoubleSize &QwtDoubleSize::operator/=(double c)
 
 //! Constructs an rectangle with all components set to 0.0 
 QwtDoubleRect::QwtDoubleRect():
-    d_x1(0.0),
-    d_x2(0.0),
-    d_y1(0.0),
-    d_y2(0.0)
+    d_left(0.0),
+    d_right(0.0),
+    d_top(0.0),
+    d_bottom(0.0)
 {
 }
 
@@ -304,45 +310,44 @@ QwtDoubleRect::QwtDoubleRect():
   Constructs an rectangle with x1 to x2 as x-range and,
   y1 to y2 as y-range.
 */
-
-QwtDoubleRect::QwtDoubleRect(double x1, double x2,
-        double y1, double y2):
-    d_x1(x1),
-    d_x2(x2),
-    d_y1(y1),
-    d_y2(y2)
+QwtDoubleRect::QwtDoubleRect(double left, double top,
+        double width, double height):
+    d_left(left),
+    d_right(left + width),
+    d_top(top),
+    d_bottom(top + height)
 {
 }
 
 /*! 
-  Constructs an rectangle with x1 to x1 + size.width() as x-range and,
-  y1 to y1 + size.height() as y-range.
+  Constructs a rectangle with topLeft as the top-left corner and 
+  size as the rectangle size.
 */
-
-QwtDoubleRect::QwtDoubleRect(double x, double y, const QwtDoubleSize &size):
-    d_x1(x),
-    d_x2(x + size.width()),
-    d_y1(y),
-    d_y2(y + size.height())
+QwtDoubleRect::QwtDoubleRect(
+        const QwtDoublePoint &p, const QwtDoubleSize &size):
+    d_left(p.x()),
+    d_right(p.x() + size.width()),
+    d_top(p.y()),
+    d_bottom(p.y() + size.height())
 {
 }
 
 /*! 
   Set the x-range from x1 to x2 and the y-range from y1 to y2.
 */
-void QwtDoubleRect::setRect(double x1, double x2, double y1, double y2)
+void QwtDoubleRect::setRect(double left, double top, 
+    double width, double height)
 {
-    d_x1 = x1;
-    d_x2 = x2;
-    d_y1 = y1;
-    d_y2 = y2;
+    d_left = left;
+    d_right = left + width;
+    d_top = top;
+    d_bottom = top + height;
 }
 
 /*!
   Sets the size of the rectangle to size. 
   Changes x2 and y2 only.
 */
-
 void QwtDoubleRect::setSize(const QwtDoubleSize &size)
 {
     setWidth(size.width());
@@ -355,29 +360,28 @@ void QwtDoubleRect::setSize(const QwtDoubleSize &size)
 
   It swaps x1 and x2 if x1() > x2(), and swaps y1 and y2 if y1() > y2(). 
 */
-
-QwtDoubleRect QwtDoubleRect::normalize() const
+QwtDoubleRect QwtDoubleRect::normalized() const
 {
     QwtDoubleRect r;
-    if ( d_x2 < d_x1 ) 
+    if ( d_right < d_left ) 
     {
-        r.d_x1 = d_x2;
-        r.d_x2 = d_x1;
+        r.d_left = d_right;
+        r.d_right = d_left;
     } 
     else 
     {
-        r.d_x1 = d_x1;
-        r.d_x2 = d_x2; 
+        r.d_left = d_left;
+        r.d_right = d_right; 
     }
-    if ( d_y2 < d_y1 ) 
+    if ( d_bottom < d_top ) 
     { 
-        r.d_y1 = d_y2; 
-        r.d_y2 = d_y1;
+        r.d_top = d_bottom; 
+        r.d_bottom = d_top;
     } 
     else 
     {
-        r.d_y1 = d_y1;
-        r.d_y2 = d_y2;
+        r.d_top = d_top;
+        r.d_bottom = d_bottom;
     }
     return r;
 }
@@ -386,7 +390,6 @@ QwtDoubleRect QwtDoubleRect::normalize() const
   Returns the bounding rectangle of this rectangle and rectangle other. 
   r.unite(s) is equivalent to r|s. 
 */
-
 QwtDoubleRect QwtDoubleRect::unite(const QwtDoubleRect &other) const
 {
     return *this | other;
@@ -396,33 +399,29 @@ QwtDoubleRect QwtDoubleRect::unite(const QwtDoubleRect &other) const
   Returns the intersection of this rectangle and rectangle other. 
   r.intersect(s) is equivalent to r&s. 
 */
-
 QwtDoubleRect QwtDoubleRect::intersect(const QwtDoubleRect &other) const
 {
     return *this & other;
 }
 
 /*!
-  Returns TRUE if this rectangle intersects with rectangle other; 
-  otherwise returns FALSE. 
+  Returns true if this rectangle intersects with rectangle other; 
+  otherwise returns false. 
 */
-
 bool QwtDoubleRect::intersects(const QwtDoubleRect &other) const
 {
-    return ( QMAX(d_x1, other.d_x1) <= QMIN(d_x2, other.d_x2) ) &&
-         ( QMAX(d_y1, other.d_y1 ) <= QMIN(d_y2, other.d_y2) );
+    return ( qwtMax(d_left, other.d_left) <= qwtMin(d_right, other.d_right) ) &&
+         ( qwtMax(d_top, other.d_top ) <= qwtMin(d_bottom, other.d_bottom) );
 }
 
-//! Returns TRUE if this rect and other are equal; otherwise returns FALSE. 
-
+//! Returns true if this rect and other are equal; otherwise returns false. 
 bool QwtDoubleRect::operator==(const QwtDoubleRect &other) const
 {
-    return d_x1 == other.d_x1 && d_x2 == other.d_x2 && 
-        d_y1 == other.d_y1 && d_y2 == other.d_y2;
+    return d_left == other.d_left && d_right == other.d_right && 
+        d_top == other.d_top && d_bottom == other.d_bottom;
 }
 
-//! Returns TRUE if this rect and other are different; otherwise returns FALSE. 
-
+//! Returns true if this rect and other are different; otherwise returns false. 
 bool QwtDoubleRect::operator!=(const QwtDoubleRect &other) const
 {
     return !operator==(other);
@@ -433,32 +432,43 @@ bool QwtDoubleRect::operator!=(const QwtDoubleRect &other) const
   The bounding rectangle of a nonempty rectangle and an empty or 
   invalid rectangle is defined to be the nonempty rectangle. 
 */
-
 QwtDoubleRect QwtDoubleRect::operator|(const QwtDoubleRect &other) const
 {
-    if ( !isValid() ) 
+    if ( !isEmpty() ) 
         return other;
 
-    if ( !other.isValid() ) 
+    if ( !other.isEmpty() ) 
         return *this;
         
-    return QwtDoubleRect(QMIN(d_x1, other.d_x1), QMAX(d_x2, other.d_x2),
-        QMIN(d_y1, other.d_y1), QMAX(d_y2, other.d_y2) );
+    const double minX = qwtMin(d_left, other.d_left);
+    const double maxX = qwtMax(d_right, other.d_right);
+    const double minY = qwtMin(d_top, other.d_top);
+    const double maxY = qwtMax(d_bottom, other.d_bottom);
+
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
 /*!
   Returns the intersection of this rectangle and rectangle other. 
   Returns an empty rectangle if there is no intersection. 
 */
-
 QwtDoubleRect QwtDoubleRect::operator&(const QwtDoubleRect &other) const
 {
-    return QwtDoubleRect(QMAX(d_x1, other.d_x1), QMIN(d_x2, other.d_x2),
-        QMAX(d_y1, other.d_y1), QMIN(d_y2, other.d_y2));
+    if (isNull() || other.isNull())
+        return QwtDoubleRect();
+
+    const QwtDoubleRect r1 = normalized();
+    const QwtDoubleRect r2 = other.normalized();
+
+    const double minX = qwtMax(r1.left(), r2.left());
+    const double maxX = qwtMin(r1.right(), r2.right());
+    const double minY = qwtMax(r1.top(), r2.top());
+    const double maxY = qwtMin(r1.bottom(), r2.bottom());
+
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
 //! Unites this rectangle with rectangle other. 
-
 QwtDoubleRect &QwtDoubleRect::operator|=(const QwtDoubleRect &other)
 {
     *this = *this | other;
@@ -466,7 +476,6 @@ QwtDoubleRect &QwtDoubleRect::operator|=(const QwtDoubleRect &other)
 }
 
 //! Intersects this rectangle with rectangle other. 
-
 QwtDoubleRect &QwtDoubleRect::operator&=(const QwtDoubleRect &other)
 {
     *this = *this & other;
@@ -474,102 +483,110 @@ QwtDoubleRect &QwtDoubleRect::operator&=(const QwtDoubleRect &other)
 }
 
 //! Returns the center point of the rectangle. 
-
 QwtDoublePoint QwtDoubleRect::center() const
 {
-    return QwtDoublePoint(d_x1 + (d_x2 - d_x1) / 2.0, 
-        d_y1 + (d_y2 - d_y1) / 2.0);
+    return QwtDoublePoint(d_left + (d_right - d_left) / 2.0, 
+        d_top + (d_bottom - d_top) / 2.0);
 }
 
 /*!
-  Returns TRUE if the point (x, y) is inside or on the edge of the rectangle; 
-  otherwise returns FALSE. 
+  Returns true if the point (x, y) is inside or on the edge of the rectangle; 
+  otherwise returns false. 
 
-  If proper is TRUE, this function returns TRUE only if p is inside 
+  If proper is true, this function returns true only if p is inside 
   (not on the edge). 
 */
-
 bool QwtDoubleRect::contains(double x, double y, bool proper) const
 {
     if ( proper )
-        return x > d_x1 && x < d_x2 && y > d_y1 && y < d_y2;
+        return x > d_left && x < d_right && y > d_top && y < d_bottom;
     else
-        return x >= d_x1 && x <= d_x2 && y >= d_y1 && y <= d_y2;
+        return x >= d_left && x <= d_right && y >= d_top && y <= d_bottom;
 }
 
 /*!
-  Returns TRUE if the point p is inside or on the edge of the rectangle; 
-  otherwise returns FALSE. 
+  Returns true if the point p is inside or on the edge of the rectangle; 
+  otherwise returns false. 
 
-  If proper is TRUE, this function returns TRUE only if p is inside 
+  If proper is true, this function returns true only if p is inside 
   (not on the edge). 
 */
-
 bool QwtDoubleRect::contains(const QwtDoublePoint &p, bool proper) const
 {
     return contains(p.x(), p.y(), proper);
 }
 
 /*!
-  Returns TRUE if the rectangle other is inside this rectangle; 
-  otherwise returns FALSE. 
+  Returns true if the rectangle other is inside this rectangle; 
+  otherwise returns false. 
 
-  If proper is TRUE, this function returns TRUE only if other is entirely 
+  If proper is true, this function returns true only if other is entirely 
   inside (not on the edge). 
 */
-
 bool QwtDoubleRect::contains(const QwtDoubleRect &other, bool proper) const
 {
-    return contains(other.d_x1, other.d_y1, proper) && 
-        contains(other.d_x2, other.d_y2, proper);
+    return contains(other.d_left, other.d_top, proper) && 
+        contains(other.d_right, other.d_bottom, proper);
 }
 
 //! moves x1() to x, leaving the size unchanged
-
-void QwtDoubleRect::moveX(double x)
+void QwtDoubleRect::moveLeft(double x)
 {
     const double w = width();
-    d_x1 = x;
-    d_x2 = d_x1 + w;
+    d_left = x;
+    d_right = d_left + w;
+}
+
+//! moves x1() to x, leaving the size unchanged
+void QwtDoubleRect::moveRight(double x)
+{
+    const double w = width();
+    d_right = x;
+    d_left = d_right - w;
 }
 
 //! moves y1() to y, leaving the size unchanged
-
-void QwtDoubleRect::moveY(double y)
+void QwtDoubleRect::moveTop(double y)
 {
     const double h = height();
-    d_y1 = y;
-    d_y2 = d_y1 + h;
+    d_top = y;
+    d_bottom = d_top + h;
 }
 
-//! moves x1() to x and y1() to y, leaving the size unchanged
-
-void QwtDoubleRect::move(double x, double y)
+//! moves y1() to y, leaving the size unchanged
+void QwtDoubleRect::moveBottom(double y)
 {
-    moveX(x);
-    moveY(y);
+    const double h = height();
+    d_bottom = y;
+    d_top = d_bottom - h;
+}
+
+//! moves left() to x and top() to y, leaving the size unchanged
+void QwtDoubleRect::moveTo(double x, double y)
+{
+    moveLeft(x);
+    moveTop(y);
 }
 
 //! moves x1() by dx and y1() by dy. leaving the size unchanged
-
 void QwtDoubleRect::moveBy(double dx, double dy)
 {
-    d_x1 += dx;
-    d_x2 += dx;
-    d_y1 += dy;
-    d_y2 += dy;
+    d_left += dx;
+    d_right += dx;
+    d_top += dy;
+    d_bottom += dy;
 }
 
 //! moves the center to pos, leaving the size unchanged
-
 void QwtDoubleRect::moveCenter(const QwtDoublePoint &pos)
 {
     moveCenter(pos.x(), pos.y());
 }
 
 //! moves the center to (x, y), leaving the size unchanged
-
 void QwtDoubleRect::moveCenter(double x, double y)
 {
-    move(x - width() / 2.0, y - height() / 2.0);
+    moveTo(x - width() / 2.0, y - height() / 2.0);
 }
+
+#endif // QT_VERSION < 0x040000

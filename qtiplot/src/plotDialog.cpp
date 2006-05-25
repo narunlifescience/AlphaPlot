@@ -333,7 +333,7 @@ void plotDialog::initBoxPage()
 	boxCoef = new QSpinBox(50, 100, 5, GroupBox0, "boxCoef" );
 
 	boxCntLabel = new QLabel(tr( "Coef" ), GroupBox0, "TextLabel3_2",0 );
-	boxCnt = new QwtCounter(GroupBox0, "boxCnt");
+	boxCnt = new QwtCounter(GroupBox0);
 	boxCnt->setRange(0.0, 100.0, 0.01);             // From 0.0 to 100, step 0.1
 	boxCnt->setValue(1.0);
 	boxCnt->setNumButtons(2);                      // Two buttons each side
@@ -361,7 +361,7 @@ void plotDialog::initBoxPage()
 	boxWhiskersCoef = new QSpinBox(50, 100, 5, GroupBox1, "boxWhiskersCoef" );
 
 	whiskerCntLabel = new QLabel(tr( "Coef" ), GroupBox1, "TextLabel3_2",0 );
-	whiskerCnt = new QwtCounter(GroupBox1, "whiskerCnt");
+	whiskerCnt = new QwtCounter(GroupBox1);
 	whiskerCnt->setRange(0.0, 100.0, 0.01); 
 	whiskerCnt->setValue(1.0);
 	whiskerCnt->setNumButtons(2);                      // Two buttons each side

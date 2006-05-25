@@ -10,6 +10,9 @@
 #ifndef QWT_PAINT_BUFFER_H
 #define QWT_PAINT_BUFFER_H 1
 
+#include <qglobal.h>
+#if QT_VERSION < 0x040000
+
 #include <qpixmap.h>
 #include "qwt_global.h"
 
@@ -26,8 +29,8 @@ class QPainter;
 class QWT_EXPORT QwtPaintBuffer
 {
 public:
-    QwtPaintBuffer();
-    QwtPaintBuffer(QPaintDevice *, const QRect &, QPainter *p = NULL);
+    explicit QwtPaintBuffer();
+    explicit QwtPaintBuffer(QPaintDevice *, const QRect &, QPainter *p = NULL);
 
     virtual ~QwtPaintBuffer();
 
@@ -56,5 +59,7 @@ private:
 
     static bool d_enabled;
 };
+
+#endif // QT_VERSION < 0x040000
 
 #endif

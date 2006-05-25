@@ -11,26 +11,36 @@
 #define QWT_PAINTER_H
 
 #include <qpoint.h>
-#include <qpointarray.h>
 #include <qrect.h>
 #include "qwt_global.h"
 #include "qwt_layout_metrics.h"
 
 class QPainter;
+class QBrush;
+class QColor;
+class QWidget;
+
+#if QT_VERSION < 0x040000
+class QColorGroup;
+class QSimpleRichText;
+#else
+class QPalette;
+class QTextDocument;
+#endif
 
 #if defined(Q_WS_X11)
 // Warning: QCOORD_MIN, QCOORD_MAX are wrong on X11.
 #define QWT_COORD_MAX 16384
 #define QWT_COORD_MIN (-QWT_COORD_MAX - 1)
 #else
-#define QWT_COORD_MAX QCOORD_MAX
-#define QWT_COORD_MIN QCOORD_MIN
+#define QWT_COORD_MAX 2147483647
+#define QWT_COORD_MIN -QWT_COORD_MAX - 1
 #endif
 
 /*!
   \brief A collection of QPainter workarounds
 
-  1) Clipping to coordinate system limits
+  1) Clipping to coordinate system limits (Qt3 only)
 
   On X11 pixel coordinates are stored in shorts. Qt 
   produces overruns when mapping QCOORDS to shorts. 
@@ -43,26 +53,11 @@ class QPainter;
   implementation, QwtPainter adds scaling of these geometries.
   (Unfortunately QPainter::scale scales both types of paintings,
    so the objects of the first type would be scaled twice).
-
-  3) Hide some Qt2/3 incompatibilities
 */
 
 class QWT_EXPORT QwtPainter
 {
 public:
-    /*!
-      Indicates a method to work around a bug in the drawing of text using the
-      XorROP raster operator on the X Window system. Has no effect on other
-      platforms.
-
-      \sa  QwtPainter::setTextXorRopMode
-     */
-    enum TextXorRopMode {
-        XorRopTextNormal = 0,
-        XorRopTextKeepFont = 1,
-        XorRopTextKeepColor = 2
-    };
-
     static void setMetricsMap(const QPaintDevice *layout,
         const QPaintDevice *device);
     static void setMetricsMap(const QwtMetricsMap &);
@@ -75,17 +70,22 @@ public:
     static void setClipRect(QPainter *, const QRect &);
 
     static void drawText(QPainter *, int x, int y, 
-        const QString &, int len = -1);
+        const QString &);
     static void drawText(QPainter *, const QPoint &, 
-        const QString &, int len = -1);
+        const QString &);
     static void drawText(QPainter *, int x, int y, int w, int h, 
-        int flags, const QString &, int len = -1);
+        int flags, const QString &);
     static void drawText(QPainter *, const QRect &, 
-        int flags, const QString &, int len = -1);
+        int flags, const QString &);
 
 #ifndef QT_NO_RICHTEXT
+#if QT_VERSION < 0x040000
     static void drawSimpleRichText(QPainter *, const QRect &,
         int flags, QSimpleRichText &);
+#else
+    static void drawSimpleRichText(QPainter *, const QRect &,
+        int flags, QTextDocument &);
+#endif
 #endif
 
     static void drawRect(QPainter *, int x, int y, int w, int h);
@@ -96,32 +96,45 @@ public:
 
     static void drawLine(QPainter *, int x1, int y1, int x2, int y2);
     static void drawLine(QPainter *, const QPoint &p1, const QPoint &p2);
+#if QT_VERSION < 0x040000
     static void drawPolygon(QPainter *, const QPointArray &pa);
     static void drawPolyline(QPainter *, const QPointArray &pa);
+#else
+    static void drawPolygon(QPainter *, const QPolygon &pa);
+    static void drawPolyline(QPainter *, const QPolygon &pa);
+#endif
     static void drawPoint(QPainter *, int x, int y);
 
+#if QT_VERSION < 0x040000
     static void drawRoundFrame(QPainter *, const QRect &,
         int width, const QColorGroup &cg, bool sunken);
+#else
+    static void drawRoundFrame(QPainter *, const QRect &,
+        int width, const QPalette &, bool sunken);
+#endif
+    static void drawFocusRect(QPainter *, QWidget *);
+    static void drawFocusRect(QPainter *, QWidget *, const QRect &);
 
+#if QT_VERSION < 0x040000
     static QPointArray clip(const QPointArray &);
-
-    static int textXorRopMode();
-    static int setTextXorRopMode(TextXorRopMode mode);
+#else
+    static QPolygon clip(const QPolygon &);
+#endif
 
 private:
-    static const QRect &deviceClipRect();
     static void drawColoredArc(QPainter *, const QRect &,
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2);
 
+    static const QRect &deviceClipRect();
     static bool d_deviceClipping;
     static QwtMetricsMap d_metricsMap;
-    static int d_textXorRopMode;
 };
 
-#endif
+//!  Wrapper for QPainter::drawLine()
+inline void QwtPainter::drawLine(QPainter *painter,
+    const QPoint &p1, const QPoint &p2)
+{
+    drawLine(painter, p1.x(), p1.y(), p2.x(), p2.y());
+}
 
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
+#endif

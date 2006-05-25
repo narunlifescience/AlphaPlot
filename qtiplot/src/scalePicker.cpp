@@ -1,13 +1,17 @@
 #include "scalePicker.h"
 #include <qpainter.h>
 #include <qwt_plot.h>
-#include <qwt_scale.h>
+//FIXME: QwtScale is now QwtScaleWidget
+#include <qwt_scale_widget.h>
 
 #include <qmessagebox.h>
+
+//FIXME: All functionality disabled for now (needs port to Qwt5)
 
 ScalePicker::ScalePicker(QwtPlot *plot):
     QObject(plot)
 {
+#if false
 	movedGraph=FALSE;
 	
     for ( uint i = 0; i < QwtPlot::axisCnt; i++ )
@@ -16,10 +20,12 @@ ScalePicker::ScalePicker(QwtPlot *plot):
         if ( scale )
             scale->installEventFilter(this);
 		}
+#endif
 }
 
 bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 {  
+#if false
 	if ( object->inherits("QwtScale") && e->type() == QEvent::MouseButtonDblClick)
     	{
 		mouseDblClicked((const QwtScale *)object, ((QMouseEvent *)e)->pos());
@@ -71,10 +77,12 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
     	}
 		
 return QObject::eventFilter(object, e);
+#endif
 }
 
 void ScalePicker::mouseDblClicked(const QwtScale *scale, const QPoint &pos) 
 {
+#if false
 QRect rect = scaleRect(scale);
 
 int margin = 2; // pixels tolerance
@@ -110,10 +118,12 @@ else
             }
 		}
 	}
+#endif
 }
 
 void ScalePicker::mouseRightClicked(const QwtScale *scale, const QPoint &pos) 
 {
+#if false
 QRect rect = scaleRect(scale);
 
 int margin = 2; // pixels tolerance
@@ -137,11 +147,13 @@ else
 	else if (scale->position() == QwtScale::Bottom)
 		emit axisTitleRightClicked(QwtScale::Top);
 	}
+#endif
 }
 
 // The rect of a scale without the title
 QRect ScalePicker::scaleRect(const QwtScale *scale) const
 {
+#if false
     const int bld = scale->baseLineDist();
     const int mjt = scale->scaleDraw()->majTickLength();
     const int sbd = scale->startBorderDist();
@@ -184,10 +196,12 @@ QRect ScalePicker::scaleRect(const QwtScale *scale) const
         }
     }
     return rect;
+#endif
 }
 
 int ScalePicker::maxLabelWidth(const QwtScale *scale) const
 {
+#if false
 	QFontMetrics fm(scale->font());
 	const QwtScaleDraw * scaleDraw=scale->scaleDraw ();
 	const QwtScaleDiv 	scaleDiv=scaleDraw->scaleDiv();
@@ -211,10 +225,12 @@ int ScalePicker::maxLabelWidth(const QwtScale *scale) const
     }
 
     return maxWidth;
+#endif
 }
 
 int ScalePicker::maxLabelHeight(const QwtScale *scale) const
 {
+#if false
 	QFontMetrics fm(scale->font());
 	const QwtScaleDraw * scaleDraw=scale->scaleDraw ();
 	const QwtScaleDiv 	scaleDiv=scaleDraw->scaleDiv();
@@ -231,31 +247,37 @@ int ScalePicker::maxLabelHeight(const QwtScale *scale) const
     }
 	
     return maxHeight;
+#endif
 }
 
 void ScalePicker::refresh()
 {	
+#if false
     for ( uint i = 0; i < QwtPlot::axisCnt; i++ )
     {
         QwtScale *scale = (QwtScale *)plot()->axis(i);
         if ( scale )
             scale->installEventFilter(this);
     }
+#endif
 }
 
 TitlePicker::TitlePicker(QwtPlot *plot):
     QObject(plot)
 {
+#if false
 movedGraph=FALSE;
 
 title = (QLabel *)plot->titleLabel();
 title->setFocusPolicy(QWidget::StrongFocus);
 if (title)
 	title->installEventFilter(this);
+#endif
 }
 
 bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 {
+#if false
 	if (object != (QObject *)title)
 		return FALSE;
 	
@@ -321,4 +343,5 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 		}
 
     return QObject::eventFilter(object, e);
+#endif
 }

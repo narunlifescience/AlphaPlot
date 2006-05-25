@@ -11,10 +11,12 @@
 #define QWT_RECT_H
 
 #include <qrect.h>
+#if QT_VERSION < 0x040000
+#include <qpointarray.h>
+#else
+#include <qpolygon.h>
+#endif
 #include "qwt_global.h"
-
-class QPoint;
-class QPointArray;
 
 /*!
   \brief Some extensions for QRect
@@ -26,18 +28,20 @@ public:
     QwtRect();
     QwtRect(const QRect &r);
 
-    QRect cutTop(int h , int distTop = 0, int distBottom = 0);
-    QRect cutBottom(int h, int distTop = 0, int distBottom = 0);
-    QRect cutLeft(int w, int distLeft = 0, int distRight = 0);
-    QRect cutRight(int w, int distLeft = 0, int distRight = 0);
-    const QwtRect &cutMargin(int mLeft, int mRight, int Top, int mBottom);
-
+#if QT_VERSION < 0x040000
     QPointArray clip(const QPointArray &) const;
+#else
+    QPolygon clip(const QPolygon &) const;
+#endif
 
 private:
     enum Edge { Left, Top, Right, Bottom, NEdges };
 
+#if QT_VERSION < 0x040000
     void clipEdge(Edge, const QPointArray &, QPointArray &) const;
+#else
+    void clipEdge(Edge, const QPolygon &, QPolygon &) const;
+#endif
     bool insideEdge(const QPoint &, Edge edge) const;
     QPoint intersectEdge(const QPoint &p1, 
         const QPoint &p2, Edge edge) const;

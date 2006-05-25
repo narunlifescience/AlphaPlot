@@ -1,0 +1,71 @@
+Unix
+====
+
+Builds need qmake, that is official part of Qt.
+
+qmake qwt.pro 
+make
+
+
+To build the designer plugin:
+
+cd designer
+qmake qwtplugin.pro
+make
+make install
+
+
+If you like to build the examples:
+
+cd examples
+qmake examples.pro 
+make
+
+If you like to run the examples, don't forget to install the qwt libraries
+or set the LD_LIBRARY_PATH to the lib directory of your local build.
+
+Qwt doesn't distribute binary unix packages. qwt.spec is a template
+spec file for building rpm packages. Read the comments at the beginning 
+of qwt.pro how to use it.
+
+Win32
+-----
+
+Please read the qmake documentation how to convert 
+your *.pro files into your development environment.
+
+F.e MSVC with nmake:
+qmake qwt.pro
+nmake
+
+cd designer
+qmake qwtplugin.pro
+nmake
+nmake install
+
+cd examples
+qmake examples.pro
+nmake
+
+There is a msvc-qmake.bat batch file for Visual Studio users with Qt >= 3.0 to
+generate makefiles or project files (.dsp for MSVC-6.0 or vcproj for MSVC.NET)
+for Qwt, all examples and the designer plugin.
+To generate makefiles, type: msvc-qmake
+To generate project files, type: msvc-qmake vc
+
+Win32/Qt 4.0.0
+
+If you use the MinGW compiler from the MSYS shell do:
+
+export MINGW_IN_SHELL=1;
+qmake;
+make
+cd designer
+qmake qwtplugin.pro
+make
+make install
+cd examples
+qmake 
+make -i
+
+Good luck !

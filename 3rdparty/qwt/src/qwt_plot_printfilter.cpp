@@ -9,77 +9,111 @@
 
 // vim: expandtab
 
-#include <qlabel.h>
+#include <qmap.h>
 #include "qwt_plot.h"
-#include "qwt_plot_dict.h"
+#include "qwt_plot_grid.h"
+#include "qwt_plot_curve.h"
+#include "qwt_plot_marker.h"
+#include "qwt_symbol.h"
 #include "qwt_legend.h"
-#include "qwt_scale.h"
+#include "qwt_legend_item.h"
+#include "qwt_scale_widget.h"
+#include "qwt_text_label.h"
 #include "qwt_plot_printfilter.h"
 
-class QwtPlotPrintFilterCache
-{
-    friend class QwtPlotPrintFilter;
+#if QT_VERSION < 0x040000
+typedef QColorGroup Palette;
+#else
+typedef QPalette Palette;
+#endif
 
-protected:
-    QwtPlotPrintFilterCache()
+class QwtPlotPrintFilter::PrivateData
+{
+public:
+    PrivateData():
+        options(QwtPlotPrintFilter::PrintAll),
+        cache(NULL)
     {
-        legendFonts.setAutoDelete(TRUE);
-        curveColors.setAutoDelete(TRUE);
-        curveSymbolBrushColors.setAutoDelete(TRUE);
-        curveSymbolPenColors.setAutoDelete(TRUE);
-        markerFonts.setAutoDelete(TRUE);
-        markerLabelColors.setAutoDelete(TRUE);
-        markerLineColors.setAutoDelete(TRUE);
-        markerSymbolBrushColors.setAutoDelete(TRUE);
-        markerSymbolPenColors.setAutoDelete(TRUE);
     }
 
-    QColor titleColor;
-    QFont titleFont;
+    ~PrivateData()
+    {
+        delete cache;
+    }
 
-    QColor scaleColor[4];
-    QFont scaleFont[4];
-    QColor scaleTitleColor[4];
-    QFont scaleTitleFont[4];
+    class Cache
+    {
+    public:
+        QColor titleColor;
+        QFont titleFont;
 
-    QIntDict<QFont> legendFonts;
+        QwtText scaleTitle[QwtPlot::axisCnt];
+        QColor scaleColor[QwtPlot::axisCnt];
+        QFont scaleFont[QwtPlot::axisCnt];
+        QColor scaleTitleColor[QwtPlot::axisCnt];
+        QFont scaleTitleFont[QwtPlot::axisCnt];
 
-    QColor widgetBackground;
-    QColor canvasBackground;
-    QColor gridColors[2];
+        QMap<QWidget *, QFont> legendFonts;
 
-    QIntDict<QColor> curveColors;
-    QIntDict<QColor> curveSymbolBrushColors;
-    QIntDict<QColor> curveSymbolPenColors;
+        QColor widgetBackground;
+        QColor canvasBackground;
+        QColor gridColors[2];
 
-    QIntDict<QFont> markerFonts;
-    QIntDict<QColor> markerLabelColors;
-    QIntDict<QColor> markerLineColors;
-    QIntDict<QColor> markerSymbolBrushColors;
-    QIntDict<QColor> markerSymbolPenColors;
+        QMap<const QwtPlotItem *, QColor> curveColors;
+        QMap<const QwtPlotItem *, QColor> curveSymbolBrushColors;
+        QMap<const QwtPlotItem *, QColor> curveSymbolPenColors;
+
+        QMap<const QwtPlotItem *, QFont> markerFonts;
+        QMap<const QwtPlotItem *, QColor> markerLabelColors;
+        QMap<const QwtPlotItem *, QColor> markerLineColors;
+        QMap<const QwtPlotItem *, QColor> markerSymbolBrushColors;
+        QMap<const QwtPlotItem *, QColor> markerSymbolPenColors;
+    };
+
+    int options;
+    mutable Cache *cache;
 };
+
 
 /*!
   Sets filter options to QwtPlotPrintFilter::PrintAll
 */  
 
-QwtPlotPrintFilter::QwtPlotPrintFilter():
-    d_options(PrintAll),
-    d_cache(0)
+QwtPlotPrintFilter::QwtPlotPrintFilter()
 {
+    d_data = new PrivateData;
 }
 
 //! Destructor
 QwtPlotPrintFilter::~QwtPlotPrintFilter()
 {
-    delete d_cache;
+    delete d_data;
+}
+
+/*!
+  \brief Set plot print options
+  \param options Or'd QwtPlotPrintFilter::Options values
+
+  \sa QwtPlotPrintFilter::options()
+*/
+void QwtPlotPrintFilter::setOptions(int options) 
+{ 
+    d_data->options = options; 
+}
+
+/*! 
+  \brief Get plot print options
+  \sa QwtPlotPrintFilter::setOptions()
+*/
+int QwtPlotPrintFilter::options() const 
+{ 
+    return d_data->options; 
 }
 
 /*!
   \brief Modifies a color for printing
   \param c Color to be modified
   \param item Type of item where the color belongs
-  \param id Optional id of the item (curveId/markerId)
   \return Modified color.
 
   In case of !(QwtPlotPrintFilter::options() & PrintBackground) 
@@ -87,7 +121,7 @@ QwtPlotPrintFilter::~QwtPlotPrintFilter()
   All other colors are returned unmodified.
 */
 
-QColor QwtPlotPrintFilter::color(const QColor &c, Item item, int) const
+QColor QwtPlotPrintFilter::color(const QColor &c, Item item) const
 {
     if ( !(options() & PrintCanvasBackground))
     {
@@ -107,12 +141,11 @@ QColor QwtPlotPrintFilter::color(const QColor &c, Item item, int) const
   \brief Modifies a font for printing
   \param f Font to be modified
   \param item Type of item where the font belongs
-  \param id Optional id of the item (curveId/markerId)
 
   All fonts are returned unmodified
 */
 
-QFont QwtPlotPrintFilter::font(const QFont &f, Item, int) const
+QFont QwtPlotPrintFilter::font(const QFont &f, Item) const
 {
     return f;
 }
@@ -123,157 +156,210 @@ QFont QwtPlotPrintFilter::font(const QFont &f, Item, int) const
 */
 void QwtPlotPrintFilter::apply(QwtPlot *plot) const
 {
-    QwtPlotPrintFilter *that = (QwtPlotPrintFilter *)this;
+    const bool doAutoReplot = plot->autoReplot();
+    plot->setAutoReplot(false);
 
-    delete that->d_cache;
-    that->d_cache = new QwtPlotPrintFilterCache;
+    delete d_data->cache;
+    d_data->cache = new PrivateData::Cache;
 
-    QwtPlotPrintFilterCache &cache = *that->d_cache;
+    PrivateData::Cache &cache = *d_data->cache;
 
-    if ( plot->d_lblTitle )
+    if ( plot->titleLabel() )
     {
-        QPalette palette = plot->d_lblTitle->palette();
+        QPalette palette = plot->titleLabel()->palette();
         cache.titleColor = palette.color(
-            QPalette::Active, QColorGroup::Foreground);
-        palette.setColor(QPalette::Active, QColorGroup::Foreground,
+            QPalette::Active, Palette::Text);
+        palette.setColor(QPalette::Active, Palette::Text,
                          color(cache.titleColor, Title));
-        plot->d_lblTitle->setPalette(palette);
+        plot->titleLabel()->setPalette(palette);
 
-        cache.titleFont = plot->d_lblTitle->font();
-        plot->d_lblTitle->setFont(font(cache.titleFont, Title));
+        cache.titleFont = plot->titleLabel()->font();
+        plot->titleLabel()->setFont(font(cache.titleFont, Title));
     }
-    if ( plot->d_legend )
+    if ( plot->legend() )
     {
-        QIntDictIterator<QWidget> it = plot->d_legend->itemIterator();
-        for ( QWidget *w = it.toFirst(); w != 0; w = ++it)
+#if QT_VERSION < 0x040000
+        QValueList<QWidget *> list = plot->legend()->legendItems();
+        for ( QValueListIterator<QWidget *> it = list.begin();
+            it != list.end(); ++it )
+#else
+        QList<QWidget *> list = plot->legend()->legendItems();
+        for ( QList<QWidget*>::iterator it = list.begin();
+            it != list.end(); ++it )
+#endif
         {
-            const int key = it.currentKey();
+            QWidget *w = *it;
 
-            cache.legendFonts.insert(it.currentKey(), new QFont(w->font()));
-            w->setFont(font(w->font(), Legend, key));
+            cache.legendFonts.insert(w, w->font());
+            w->setFont(font(w->font(), Legend));
 
-            if ( w->inherits("QwtLegendButton") )
+            if ( w->inherits("QwtLegendItem") )
             {
-                QwtLegendButton *btn = (QwtLegendButton *)w;
+                QwtLegendItem *label = (QwtLegendItem *)w;
 
-                QwtSymbol symbol = btn->symbol();
+                QwtSymbol symbol = label->symbol();
                 QPen pen = symbol.pen();
                 QBrush brush = symbol.brush();
 
-                pen.setColor(color(pen.color(), CurveSymbol, key));
-                brush.setColor(color(brush.color(), CurveSymbol, key));
+                pen.setColor(color(pen.color(), CurveSymbol));
+                brush.setColor(color(brush.color(), CurveSymbol));
 
                 symbol.setPen(pen);
                 symbol.setBrush(brush);
-                btn->setSymbol(symbol);
+                label->setSymbol(symbol);
 
-                pen = btn->curvePen();
-                pen.setColor(color(pen.color(), Curve, key));
-                btn->setCurvePen(pen);
+                pen = label->curvePen();
+                pen.setColor(color(pen.color(), Curve));
+                label->setCurvePen(pen);
             }
         }
     }
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
-        QwtScale *scale = plot->d_scale[axis];
-        if ( scale )
+        QwtScaleWidget *scaleWidget = plot->axisWidget(axis);
+        if ( scaleWidget )
         {
-            cache.scaleColor[axis] = scale->palette().color(
-                QPalette::Active, QColorGroup::Foreground);
-            QPalette palette = scale->palette();
-            palette.setColor(QPalette::Active, QColorGroup::Foreground,
-                             color(cache.scaleColor[axis], AxisScale, axis));
-            scale->setPalette(palette);
+            cache.scaleColor[axis] = scaleWidget->palette().color(
+                QPalette::Active, Palette::Foreground);
+            QPalette palette = scaleWidget->palette();
+            palette.setColor(QPalette::Active, Palette::Foreground,
+                             color(cache.scaleColor[axis], AxisScale));
+            scaleWidget->setPalette(palette);
 
-            cache.scaleFont[axis] = scale->font();
-            scale->setFont(font(cache.scaleFont[axis], AxisScale, axis));
+            cache.scaleFont[axis] = scaleWidget->font();
+            scaleWidget->setFont(font(cache.scaleFont[axis], AxisScale));
 
-            cache.scaleTitleColor[axis] = scale->titleColor();
-            scale->setTitleColor(
-                color(cache.scaleTitleColor[axis], AxisTitle, axis));
+            cache.scaleTitle[axis] = scaleWidget->title();
 
-            cache.scaleTitleFont[axis] = scale->titleFont();
-            scale->setTitleFont(
-                font(cache.scaleTitleFont[axis], AxisTitle, axis));
+            QwtText scaleTitle = scaleWidget->title();
+            if ( scaleTitle.paintAttributes() & QwtText::PaintUsingTextColor )
+            {
+                cache.scaleTitleColor[axis] = scaleTitle.color();
+                scaleTitle.setColor(
+                    color(cache.scaleTitleColor[axis], AxisTitle));
+            }
+
+            if ( scaleTitle.paintAttributes() & QwtText::PaintUsingTextFont )
+            {
+                cache.scaleTitleFont[axis] = scaleTitle.font();
+                scaleTitle.setFont(
+                    font(cache.scaleTitleFont[axis], AxisTitle));
+            }
+
+            scaleWidget->setTitle(scaleTitle);
 
             int startDist, endDist;
-            scale->minBorderDist(startDist, endDist);
-            scale->setBorderDist(startDist, endDist);
+            scaleWidget->getBorderDistHint(startDist, endDist);
+            scaleWidget->setBorderDist(startDist, endDist);
         }
     }
 
-    cache.widgetBackground = plot->backgroundColor();
-    plot->setBackgroundColor(color(cache.widgetBackground, WidgetBackground));
+
+    QPalette p = plot->palette();
+    cache.widgetBackground = plot->palette().color(
+        QPalette::Active, Palette::Background);
+    p.setColor(QPalette::Active, Palette::Background, 
+        color(cache.widgetBackground, WidgetBackground));
+    plot->setPalette(p);
 
     cache.canvasBackground = plot->canvasBackground();
     plot->setCanvasBackground(color(cache.canvasBackground, CanvasBackground));
 
-    QPen pen = plot->d_grid->majPen();
-    cache.gridColors[0] = pen.color();
-    pen.setColor(color(pen.color(), MajorGrid));
-    plot->d_grid->setMajPen(pen);
-
-    pen = plot->d_grid->minPen();
-    cache.gridColors[1] = pen.color();
-    pen.setColor(color(pen.color(), MinorGrid));
-    plot->d_grid->setMinPen(pen);
-    
-    QIntDictIterator<QwtPlotCurve> itc(*plot->d_curves);
-    for (QwtPlotCurve *c = itc.toFirst(); c != 0; c = ++itc )
+    const QwtPlotItemList& itmList = plot->itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
     {
-        const int key = itc.currentKey();
-
-        QwtSymbol symbol = c->symbol();
-
-        QPen pen = symbol.pen();
-        cache.curveSymbolPenColors.insert(key, new QColor(pen.color()));
-        pen.setColor(color(pen.color(), CurveSymbol, key));
-        symbol.setPen(pen);
-
-        QBrush brush = symbol.brush();
-        cache.curveSymbolBrushColors.insert(key, new QColor(brush.color()));
-        brush.setColor(color(brush.color(), CurveSymbol, key));
-        symbol.setBrush(brush);
-
-        c->setSymbol(symbol);
-
-        pen = c->pen();
-        cache.curveColors.insert(key, new QColor(pen.color()));
-        pen.setColor(color(pen.color(), Curve, key));
-        c->setPen(pen);
+        apply(*it);
     }
 
-    QIntDictIterator<QwtPlotMarker> itm(*plot->d_markers);
-    for (QwtPlotMarker *m = itm.toFirst(); m != 0; m = ++itm )
+    plot->setAutoReplot(doAutoReplot);
+}
+
+void QwtPlotPrintFilter::apply(QwtPlotItem *item) const
+{
+    PrivateData::Cache &cache = *d_data->cache;
+
+    switch(item->rtti())
     {
-        const int key = itm.currentKey();
+        case QwtPlotItem::Rtti_PlotGrid:
+        {
+            QwtPlotGrid *grid = (QwtPlotGrid *)item;
 
-        cache.markerFonts.insert(key, new QFont(m->font()));
-        m->setFont(font(m->font(), Marker, key));
+            QPen pen = grid->majPen();
+            cache.gridColors[0] = pen.color();
+            pen.setColor(color(pen.color(), MajorGrid));
+            grid->setMajPen(pen);
 
-        QPen pen = m->labelPen();
-        cache.markerLabelColors.insert(key, new QColor(pen.color()));
-        pen.setColor(color(pen.color(), Marker, key));
-        m->setLabelPen(pen);
-        
-        pen = m->linePen();
-        cache.markerLineColors.insert(key, new QColor(pen.color()));
-        pen.setColor(color(pen.color(), Marker, key));
-        m->setLinePen(pen);
+            pen = grid->minPen();
+            cache.gridColors[1] = pen.color();
+            pen.setColor(color(pen.color(), MinorGrid));
+            grid->setMinPen(pen);
 
-        QwtSymbol symbol = m->symbol();
+            break;
+        }
+        case QwtPlotItem::Rtti_PlotCurve:
+        {
+            QwtPlotCurve *c = (QwtPlotCurve *)item;
 
-        pen = symbol.pen();
-        cache.markerSymbolPenColors.insert(key, new QColor(pen.color()));
-        pen.setColor(color(pen.color(), MarkerSymbol, key));
-        symbol.setPen(pen);
+            QwtSymbol symbol = c->symbol();
 
-        QBrush brush = symbol.brush();
-        cache.markerSymbolBrushColors.insert(key, new QColor(brush.color()));
-        brush.setColor(color(brush.color(), MarkerSymbol, key));
-        symbol.setBrush(brush);
+            QPen pen = symbol.pen();
+            cache.curveSymbolPenColors.insert(c, pen.color());
+            pen.setColor(color(pen.color(), CurveSymbol));
+            symbol.setPen(pen);
 
-        m->setSymbol(symbol);
+            QBrush brush = symbol.brush();
+            cache.curveSymbolBrushColors.insert(c, brush.color());
+            brush.setColor(color(brush.color(), CurveSymbol));
+            symbol.setBrush(brush);
+
+            c->setSymbol(symbol);
+
+            pen = c->pen();
+            cache.curveColors.insert(c, pen.color());
+            pen.setColor(color(pen.color(), Curve));
+            c->setPen(pen);
+
+            break;
+        }
+        case QwtPlotItem::Rtti_PlotMarker:
+        {
+            QwtPlotMarker *m = (QwtPlotMarker *)item;
+
+#ifdef __GNUC__
+#warning filtering of rectPen/rectBrush missing
+#endif
+
+            QwtText label = m->label();
+            cache.markerFonts.insert(m, label.font());
+            label.setFont(font(label.font(), Marker));
+            cache.markerLabelColors.insert(m, label.color());
+            label.setColor(color(label.color(), Marker));
+            m->setLabel(label);
+            
+            QPen pen = m->linePen();
+            cache.markerLineColors.insert(m, pen.color());
+            pen.setColor(color(pen.color(), Marker));
+            m->setLinePen(pen);
+
+            QwtSymbol symbol = m->symbol();
+
+            pen = symbol.pen();
+            cache.markerSymbolPenColors.insert(m, pen.color());
+            pen.setColor(color(pen.color(), MarkerSymbol));
+            symbol.setPen(pen);
+
+            QBrush brush = symbol.brush();
+            cache.markerSymbolBrushColors.insert(m, brush.color());
+            brush.setColor(color(brush.color(), MarkerSymbol));
+            symbol.setBrush(brush);
+
+            m->setSymbol(symbol);
+
+            break;
+        }
+        default:    
+            break;
     }
 }
 
@@ -283,183 +369,225 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
 */
 void QwtPlotPrintFilter::reset(QwtPlot *plot) const
 {
-    if ( d_cache == 0 )
+    if ( d_data->cache == 0 )
         return;
 
-    QFont *font;
-    QColor *color;
+    const bool doAutoReplot = plot->autoReplot();
+    plot->setAutoReplot(false);
 
-    if ( plot->d_lblTitle )
+    const PrivateData::Cache &cache = *d_data->cache;
+
+    if ( plot->titleLabel() )
     {
-        QPalette palette = plot->d_lblTitle->palette();
-        palette.setColor(
-            QPalette::Active, QColorGroup::Foreground, d_cache->titleColor);
-        plot->d_lblTitle->setPalette(palette);
+        QwtTextLabel* title = plot->titleLabel();
+        if ( title->text().paintAttributes() & QwtText::PaintUsingTextFont )
+        {
+            QwtText text = title->text();
+            text.setColor(cache.titleColor);
+            title->setText(text);
+        }
+        else
+        {
+            QPalette palette = title->palette();
+            palette.setColor(
+                QPalette::Active, Palette::Text, cache.titleColor);
+            title->setPalette(palette);
+        }
 
-        plot->d_lblTitle->setFont(d_cache->titleFont);
+        if ( title->text().paintAttributes() & QwtText::PaintUsingTextFont )
+        {
+            QwtText text = title->text();
+            text.setFont(cache.titleFont);
+            title->setText(text);
+        }
+        else
+        {
+            title->setFont(cache.titleFont);
+        }
     }
 
-    if ( plot->d_legend )
+    if ( plot->legend() )
     {
-        QIntDictIterator<QWidget> it = plot->d_legend->itemIterator();
-        for ( QWidget *w = it.toFirst(); w != 0; w = ++it)
+#if QT_VERSION < 0x040000
+        QValueList<QWidget *> list = plot->legend()->legendItems();
+        for ( QValueListIterator<QWidget *> it = list.begin();
+            it != list.end(); ++it )
+#else
+        QList<QWidget *> list = plot->legend()->legendItems();
+        for ( QList<QWidget*>::iterator it = list.begin();
+            it != list.end(); ++it )
+#endif
         {
-            const int key = it.currentKey();
+            QWidget *w = *it;
 
-            font = d_cache->legendFonts.find(key);
-            if ( font )
-                w->setFont(*font);
+            if ( cache.legendFonts.contains(w) )
+                w->setFont(cache.legendFonts[w]);
 
-            if ( w->inherits("QwtLegendButton") )
+            if ( w->inherits("QwtLegendItem") )
             {
-                QwtLegendButton *btn = (QwtLegendButton *)w;
+                QwtLegendItem *label = (QwtLegendItem *)w;
+                const QwtPlotItem *plotItem = plot->legend()->find(label);
 
-                QwtSymbol symbol = btn->symbol();
-                color = d_cache->curveSymbolPenColors.find(key);
-                if ( color )
+                QwtSymbol symbol = label->symbol();
+                if ( cache.curveSymbolPenColors.contains(plotItem) )
                 {
                     QPen pen = symbol.pen();
-                    pen.setColor(*color);
+                    pen.setColor(cache.curveSymbolPenColors[plotItem]);
                     symbol.setPen(pen);
                 }
 
-                color = d_cache->curveSymbolBrushColors.find(key);
-                if ( color )
+                if ( cache.curveSymbolBrushColors.contains(plotItem) )
                 {
                     QBrush brush = symbol.brush();
-                    brush.setColor(*color);
+                    brush.setColor(cache.curveSymbolBrushColors[plotItem]);
                     symbol.setBrush(brush);
                 }
-                btn->setSymbol(symbol);
+                label->setSymbol(symbol);
 
-                color = d_cache->curveColors.find(key);
-                if ( color )
+                if ( cache.curveColors.contains(plotItem) )
                 {
-                    QPen pen = btn->curvePen();
-                    pen.setColor(*color);
-                    btn->setCurvePen(pen);
+                    QPen pen = label->curvePen();
+                    pen.setColor(cache.curveColors[plotItem]);
+                    label->setCurvePen(pen);
                 }
             }
         }
     }
     for ( int axis = 0; axis < QwtPlot::axisCnt; axis++ )
     {
-        QwtScale *scale = plot->d_scale[axis];
-        if ( scale )
+        QwtScaleWidget *scaleWidget = plot->axisWidget(axis);
+        if ( scaleWidget )
         {
-            QPalette palette = scale->palette();
-            palette.setColor(QPalette::Active, QColorGroup::Foreground,
-                             d_cache->scaleColor[axis]);
-            scale->setPalette(palette);
-            scale->setFont(d_cache->scaleFont[axis]);
+            QPalette palette = scaleWidget->palette();
+            palette.setColor(QPalette::Active, Palette::Foreground,
+                             cache.scaleColor[axis]);
+            scaleWidget->setPalette(palette);
 
-            scale->setTitleColor(d_cache->scaleTitleColor[axis]);
-            scale->setTitleFont(d_cache->scaleTitleFont[axis]);
+            scaleWidget->setFont(cache.scaleFont[axis]);
+            scaleWidget->setTitle(cache.scaleTitle[axis]);
 
             int startDist, endDist;
-            scale->minBorderDist(startDist, endDist);
-            scale->setBorderDist(startDist, endDist);
+            scaleWidget->getBorderDistHint(startDist, endDist);
+            scaleWidget->setBorderDist(startDist, endDist);
         }
     }
 
-    plot->setBackgroundColor(d_cache->widgetBackground);
-    plot->setCanvasBackground(d_cache->canvasBackground);
+    QPalette p = plot->palette();
+    p.setColor(QPalette::Active, Palette::Background, cache.widgetBackground);
+    plot->setPalette(p);
 
-    QPen pen = plot->d_grid->majPen();
-    pen.setColor(d_cache->gridColors[0]);
-    plot->d_grid->setMajPen(pen);
-
-    pen = plot->d_grid->minPen();
-    pen.setColor(d_cache->gridColors[1]);
-    plot->d_grid->setMinPen(pen);
-    
-    QIntDictIterator<QwtPlotCurve> itc(*plot->d_curves);
-    for (QwtPlotCurve *c = itc.toFirst(); c != 0; c = ++itc )
+    plot->setCanvasBackground(cache.canvasBackground);
+   
+    const QwtPlotItemList& itmList = plot->itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
     {
-        const int key = itc.currentKey();
-
-        QwtSymbol symbol = c->symbol();
-
-        color = d_cache->curveSymbolPenColors.find(key);
-        if ( color )
-        {
-            QPen pen = symbol.pen();
-            pen.setColor(*color);
-            symbol.setPen(pen);
-        }
-
-        color = d_cache->curveSymbolBrushColors.find(key);
-        if ( color )
-        {
-            QBrush brush = symbol.brush();
-            brush.setColor(*color);
-            symbol.setBrush(brush);
-        }
-        c->setSymbol(symbol);
-
-        color = d_cache->curveColors.find(key);
-        if ( color )
-        {
-            QPen pen = c->pen();
-            pen.setColor(*color);
-            c->setPen(pen);
-        }
+        reset(*it);
     }
 
-    QIntDictIterator<QwtPlotMarker> itm(*plot->d_markers);
-    for (QwtPlotMarker *m = itm.toFirst(); m != 0; m = ++itm )
-    {
-        const int key = itm.currentKey();
+    delete d_data->cache;
+    d_data->cache = 0;
 
-        font = d_cache->markerFonts.find(key);
-        if ( font )
-            m->setFont(*font);
-
-        color = d_cache->markerLabelColors.find(key);
-        if ( color )
-        {
-            QPen pen = m->labelPen();
-            pen.setColor(*color);
-            m->setLabelPen(pen);
-        }
-
-        color = d_cache->markerLineColors.find(key);
-        if ( color )
-        {
-            QPen pen = m->linePen();
-            pen.setColor(*color);
-            m->setLinePen(pen);
-        }
-        
-        QwtSymbol symbol = m->symbol();
-
-        color = d_cache->markerSymbolPenColors.find(key);
-        if ( color )
-        {
-            QPen pen = symbol.pen();
-            pen.setColor(*color);
-            symbol.setPen(pen);
-        }
-
-        color = d_cache->markerSymbolBrushColors.find(key);
-        if ( color )
-        {
-            QBrush brush = symbol.brush();
-            brush.setColor(*color);
-            symbol.setBrush(brush);
-        }
-
-        m->setSymbol(symbol);
-
-    }
-
-    QwtPlotPrintFilter *that = (QwtPlotPrintFilter *)this;
-    delete that->d_cache;
-    that->d_cache = 0;
+    plot->setAutoReplot(doAutoReplot);
 }
 
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
+void QwtPlotPrintFilter::reset(QwtPlotItem *item) const
+{
+    if ( d_data->cache == 0 )
+        return;
+
+    const PrivateData::Cache &cache = *d_data->cache;
+
+    switch(item->rtti())
+    {
+        case QwtPlotItem::Rtti_PlotGrid:
+        {
+            QwtPlotGrid *grid = (QwtPlotGrid *)item;
+
+            QPen pen = grid->majPen();
+            pen.setColor(cache.gridColors[0]);
+            grid->setMajPen(pen);
+
+            pen = grid->minPen();
+            pen.setColor(cache.gridColors[1]);
+            grid->setMinPen(pen);
+
+            break;
+        }
+        case QwtPlotItem::Rtti_PlotCurve:
+        {
+            QwtPlotCurve *c = (QwtPlotCurve *)item;
+
+            QwtSymbol symbol = c->symbol();
+
+            if ( cache.curveSymbolPenColors.contains(c) )
+            {
+                symbol.setPen(cache.curveSymbolPenColors[c]);
+            }
+
+            if ( cache.curveSymbolBrushColors.contains(c) )
+            {
+                QBrush brush = symbol.brush();
+                brush.setColor(cache.curveSymbolBrushColors[c]);
+                symbol.setBrush(brush);
+            }
+            c->setSymbol(symbol);
+
+            if ( cache.curveColors.contains(c) )
+            {
+                QPen pen = c->pen();
+                pen.setColor(cache.curveColors[c]);
+                c->setPen(pen);
+            }
+
+            break;
+        }
+        case QwtPlotItem::Rtti_PlotMarker:
+        {
+            QwtPlotMarker *m = (QwtPlotMarker *)item;
+
+            if ( cache.markerFonts.contains(m) )
+            {
+                QwtText label = m->label();
+                label.setFont(cache.markerFonts[m]);
+                m->setLabel(label);
+            }
+
+            if ( cache.markerLabelColors.contains(m) )
+            {
+                QwtText label = m->label();
+                label.setColor(cache.markerLabelColors[m]);
+                m->setLabel(label);
+            }
+
+            if ( cache.markerLineColors.contains(m) )
+            {
+                QPen pen = m->linePen();
+                pen.setColor(cache.markerLineColors[m]);
+                m->setLinePen(pen);
+            }
+            
+            QwtSymbol symbol = m->symbol();
+
+            if ( cache.markerSymbolPenColors.contains(m) )
+            {
+                QPen pen = symbol.pen();
+                pen.setColor(cache.markerSymbolPenColors[m]);
+                symbol.setPen(pen);
+            }
+
+            if ( cache.markerSymbolBrushColors.contains(m) )
+            {
+                QBrush brush = symbol.brush();
+                brush.setColor(cache.markerSymbolBrushColors[m]);
+                symbol.setBrush(brush);
+            }
+
+            m->setSymbol(symbol);
+
+            break;
+        }
+        default:
+            break;
+    }
+}

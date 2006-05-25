@@ -14,10 +14,7 @@
 
 #include <qwidget.h>
 #include "qwt_global.h"
-#include "qwt_drange.h"
-
-class QwtArrowButton;
-class QLineEdit;
+#include "qwt_double_range.h"
 
 /*!
   \brief The Counter Widget
@@ -60,7 +57,7 @@ connect(cnt, SIGNAL(valueChanged(double)), my_class, SLOT(newValue(double)));
 \endcode
  */
 
-class QWT_EXPORT QwtCounter : public QWidget, public QwtDblRange
+class QWT_EXPORT QwtCounter : public QWidget, public QwtDoubleRange
 {
     Q_OBJECT
 
@@ -72,41 +69,26 @@ class QWT_EXPORT QwtCounter : public QWidget, public QwtDblRange
     Q_PROPERTY( int stepButton2 READ stepButton2 WRITE setStepButton2 )
     Q_PROPERTY( int stepButton3 READ stepButton3 WRITE setStepButton3 )
     Q_PROPERTY( double value READ value WRITE setValue )
+    Q_PROPERTY( bool editable READ editable WRITE setEditable )
 
 public:
     /*!
         Button index
     */
 
-    enum Button { Button1, Button2, Button3, ButtonCnt };
+    enum Button 
+    {   
+        Button1,    
+        Button2,    
+        Button3,    
+        ButtonCnt   
+    };
 
-    QwtCounter(QWidget *parent = 0, const char *name = 0);
+    explicit QwtCounter(QWidget *parent = NULL);
+    virtual ~QwtCounter();
 
-    //! returns the step size
-    double step() const {return QwtDblRange::step();}
-    //! sets the step size
-    void setStep(double s) {QwtDblRange::setStep(s);}
-    //! returns the minimum value of the range
-    double minVal() const {return minValue();}
-    //! sets the minimum value of the range
-    void setMinValue(double m) { setRange(m, maxValue(), step());}
-    //! returns the maximum value of the range
-    double maxVal() const {return QwtDblRange::maxValue();}
-    //! sets the maximum value of the range
-    void setMaxValue(double m) {setRange(minValue(), m, step());}
-    //! set the number of increment steps for button 1
-    void setStepButton1(int nSteps) {setIncSteps(Button1, nSteps);}
-    //! returns the number of increment steps for button 1
-    int stepButton1() const {return incSteps(Button1);}
-    //! set the number of increment steps for button 2
-    void setStepButton2(int nSteps) {setIncSteps(Button2, nSteps);}
-    //! returns the number of increment steps for button 2
-    int stepButton2() const {return incSteps(Button2);}
-    //! set the number of increment steps for button 3
-    void setStepButton3(int nSteps) {setIncSteps(Button3, nSteps);}
-    //! returns the number of increment steps for button 3
-    int stepButton3() const {return incSteps(Button3);}
-    virtual double value() const { return QwtDblRange::value();}
+    bool editable() const;
+    void setEditable(bool);
  
     void setNumButtons(int n);
     int numButtons() const;
@@ -115,10 +97,25 @@ public:
     int incSteps(QwtCounter::Button btn) const;
 
     virtual void setValue(double);
-    virtual QSizePolicy sizePolicy() const;
     virtual QSize sizeHint() const;
 
-    virtual bool eventFilter(QObject *, QEvent *);
+    virtual void polish();
+
+    // a set of dummies to help the designer
+
+    double step() const;
+    void setStep(double s);
+    double minVal() const;
+    void setMinValue(double m);
+    double maxVal() const;
+    void setMaxValue(double m);
+    void setStepButton1(int nSteps);
+    int stepButton1() const;
+    void setStepButton2(int nSteps);
+    int stepButton2() const;
+    void setStepButton3(int nSteps);
+    int stepButton3() const;
+    virtual double value() const;
 
 signals:
     /*!
@@ -134,27 +131,23 @@ signals:
     void valueChanged (double value);
 
 protected:
+    virtual bool event(QEvent *);
+    virtual void wheelEvent(QWheelEvent *);
+    virtual void keyPressEvent(QKeyEvent *);
     virtual void rangeChange();
-    virtual void fontChange(const QFont &f);
 
 private slots:
     void btnReleased();
     void btnClicked();
+    void textChanged();
 
 private:
     void updateButtons();
     void showNum(double);
     virtual void valueChange();
-
-    QwtArrowButton *d_buttonDown[ButtonCnt];
-    QwtArrowButton *d_buttonUp[ButtonCnt];
-    QLineEdit *d_valueEdit;
-
-    int d_increment[ButtonCnt];
-    int d_nButtons;
-
-    bool d_blockKeys;
-    bool d_keyPressed;
+    
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif

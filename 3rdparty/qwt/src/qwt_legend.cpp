@@ -10,420 +10,257 @@
 // vim: expandtab
 
 #include <qapplication.h> 
-#include <qpainter.h>
-#include <qbitmap.h>
-#include <qstyle.h>
-#include "qwt_text.h"
-#include "qwt_legend.h"
-#include "qwt_painter.h"
+#include <qmap.h> 
+#if QT_VERSION >= 0x040000
+#include <qscrollbar.h> 
+#endif
+#include "qwt_math.h"
 #include "qwt_dyngrid_layout.h"
+#include "qwt_plot_item.h"
+#include "qwt_legend_item.h"
+#include "qwt_legend.h"
 
-static const int IdentifierWidth = 8;
-static const int Margin = 2;
-
-//! Create an item with mode = ShowLine|ShowText and no pen
-QwtLegendItem::QwtLegendItem():
-    d_identifierMode(ShowLine | ShowText),
-    d_curvePen(Qt::NoPen)
+class QwtLegend::PrivateData
 {
-}
-
-/*! 
-  Constructor with mode = ShowLine|ShowText
-  \param symbol Symbol
-  \param curvePen Curve pen
-*/
-QwtLegendItem::QwtLegendItem(const QwtSymbol &symbol, const QPen &curvePen):
-    d_identifierMode(ShowLine | ShowText),
-    d_symbol(symbol),
-    d_curvePen(curvePen)
-{
-}
-
-//! Destructor
-QwtLegendItem::~QwtLegendItem()
-{
-}
-
-/*! 
-  Set identifier mode.
-  Default is ShowLine | ShowText.
-  \param mode Or'd values of IdentifierMode
-
-  \sa QwtLegendItem::identifierMode()
-*/
-void QwtLegendItem::setIdentifierMode(int mode) 
-{
-    if ( mode != d_identifierMode )
+public:
+    class LegendMap
     {
-        d_identifierMode = mode;
-        updateItem();
-    }
-}
+    public:
+        void insert(const QwtPlotItem *, QWidget *);
 
-/*!
-  Or'd values of IdentifierMode.
-  \sa QwtLegendButton::setIdentifierMode(), QwtLegendItem::IdentifierMode
-*/
-int QwtLegendItem::identifierMode() const 
-{ 
-    return d_identifierMode; 
-}
+        void remove(const QwtPlotItem *);
+        void remove(QWidget *);
 
-/*! 
-  Set curve symbol.
-  \param symbol Symbol
+        void clear();
 
-  \sa QwtLegendItem::symbol()
-*/
-void QwtLegendItem::setSymbol(const QwtSymbol &symbol) 
+        uint count() const;
+
+        inline const QWidget *find(const QwtPlotItem *) const;
+        inline QWidget *find(const QwtPlotItem *);
+
+        inline const QwtPlotItem *find(const QWidget *) const;
+        inline QwtPlotItem *find(const QWidget *);
+
+        const QMap<QWidget *, const QwtPlotItem *> &widgetMap() const;
+        QMap<QWidget *, const QwtPlotItem *> &widgetMap();
+
+    private:
+        QMap<QWidget *, const QwtPlotItem *> d_widgetMap;
+        QMap<const QwtPlotItem *, QWidget *> d_itemMap;
+    };
+
+    QwtLegend::LegendItemMode itemMode;
+    QwtLegend::LegendDisplayPolicy displayPolicy;
+    int identifierMode;
+
+    LegendMap map;
+
+    class LegendView;
+    LegendView *view;
+};
+
+#if QT_VERSION < 0x040000
+#include <qscrollview.h>
+
+class QwtLegend::PrivateData::LegendView: public QScrollView
 {
-    if ( symbol != d_symbol )
+public:
+    LegendView(QWidget *parent):
+        QScrollView(parent)
     {
-        d_symbol = symbol;
-        updateItem();
-    }
-}
-    
-/*!
-  \return The curve symbol.
-  \sa QwtLegendButton::setSymbol()
-*/
-const QwtSymbol& QwtLegendItem::symbol() const 
-{ 
-    return d_symbol; 
-}
-    
+        setResizePolicy(Manual);
 
-/*! 
-  Set curve pen.
-  \param pen Curve pen
+        viewport()->setBackgroundMode(Qt::NoBackground); // Avoid flicker
 
-  \sa QwtLegendItem::curvePen()
-*/
-void QwtLegendItem::setCurvePen(const QPen &pen) 
-{
-    if ( pen != d_curvePen )
-    {
-        d_curvePen = pen;
-        updateItem();
-    }
-}
+        contentsWidget = new QWidget(viewport());
 
-/*!
-  \return The curve pen.
-  \sa QwtLegendButton::setCurvePen()
-*/
-const QPen& QwtLegendItem::curvePen() const 
-{ 
-    return d_curvePen; 
-}
-
-//! Update the item
-void QwtLegendItem::updateItem()
-{
-}
-
-/*! 
-  Paint the identifier to a given rect.
-  \param painter Painter
-  \param rect Rect where to paint
-*/
-void QwtLegendItem::drawIdentifier(
-    QPainter *painter, const QRect &rect) const
-{
-    if ( rect.isEmpty() )
-        return;
-
-    if ( (d_identifierMode & ShowLine ) && (d_curvePen.style() != Qt::NoPen) )
-    {
-        painter->save();
-        painter->setPen(d_curvePen);
-        QwtPainter::drawLine(painter, rect.left(), rect.center().y(), 
-            rect.right(), rect.center().y());
-        painter->restore();
+        addChild(contentsWidget);
     }
 
-    if ( (d_identifierMode & ShowSymbol) 
-        && (d_symbol.style() != QwtSymbol::None) )
+    void viewportResizeEvent(QResizeEvent *e)
     {
-        QSize symbolSize = 
-            QwtPainter::metricsMap().screenToLayout(d_symbol.size());
+        QScrollView::viewportResizeEvent(e);
 
-        // scale the symbol size down if it doesn't fit into rect.
+        // It's not safe to update the layout now, because
+        // we are in an internal update of the scrollview framework.
+        // So we delay the update by posting a LayoutHint.
 
-        if ( rect.width() < symbolSize.width() )
+        QApplication::postEvent(contentsWidget, 
+            new QEvent(QEvent::LayoutHint));
+    }
+
+    QWidget *contentsWidget;
+};
+
+#else // QT_VERSION >= 0x040000
+
+#include <qscrollarea.h>
+
+class QwtLegend::PrivateData::LegendView: public QScrollArea
+{
+public:
+    LegendView(QWidget *parent):
+        QScrollArea(parent)
+    {
+        contentsWidget = new QWidget(this);
+
+        setWidget(contentsWidget);
+        setWidgetResizable(false);
+    }
+
+    virtual bool viewportEvent(QEvent *e) 
+    {
+        bool ok = QScrollArea::viewportEvent(e);
+
+        if ( e->type() == QEvent::Resize )
         {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setWidth(rect.width());
-            symbolSize.setHeight(qRound(symbolSize.height() / ratio));
+            QApplication::postEvent(contentsWidget, 
+                new QEvent(QEvent::LayoutRequest));
         }
-        if ( rect.height() < symbolSize.height() )
-        {
-            const double ratio = 
-                double(symbolSize.width()) / double(rect.width());
-            symbolSize.setHeight(rect.height());
-            symbolSize.setWidth(qRound(symbolSize.width() / ratio));
-        }
-
-        QRect symbolRect;
-        symbolRect.setSize(symbolSize);
-        symbolRect.moveCenter(rect.center());
-
-        painter->save();
-        painter->setBrush(d_symbol.brush());
-        painter->setPen(d_symbol.pen());
-        d_symbol.draw(painter, symbolRect);
-        painter->restore();
+        return ok;
     }
-}
 
-/*!
-  Draw the legend item to a given rect.
-  \param painter Painter
-  \param rect Rect where to paint the button
-*/
-
-void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
-{
-    const QwtMetricsMap &map = QwtPainter::metricsMap();
-
-    const int margin = map.screenToLayoutX(Margin);
-
-    const QRect identifierRect(rect.x() + margin, rect.y(), 
-        map.screenToLayoutX(IdentifierWidth), rect.height());
-    drawIdentifier(painter, identifierRect);
-
-    // Label
-
-    QwtText *txt = titleText();
-    if ( txt )
+    QSize viewportSize(int w, int h) const
     {
-        QRect titleRect = rect;
-        titleRect.setX(identifierRect.right() + 2 * margin);
-     
-        txt->draw(painter, titleRect);
-        delete txt;
-    }
-}
-
-
-/*!
-  \param parent Parent widget
-  \param name Widget name
-*/
-QwtLegendButton::QwtLegendButton(QWidget *parent, const char *name): 
-    QwtPushButton(parent, name)
-{
-    init();
-}
+        const int sbHeight = horizontalScrollBar()->sizeHint().height();
+        const int sbWidth = verticalScrollBar()->sizeHint().width();
     
-/*!
-  \param symbol Curve symbol
-  \param curvePen Curve pen
-  \param text Button text
-  \param parent Parent widget
-  \param name Widget name
-*/
-QwtLegendButton::QwtLegendButton(
-        const QwtSymbol &symbol, const QPen &curvePen, const QString &text,
-        QWidget *parent, const char *name): 
-    QwtPushButton(text, parent, name),
-    QwtLegendItem(symbol, curvePen)
+        const int cw = contentsRect().width();
+        const int ch = contentsRect().height();
+
+        int vw = cw;
+        int vh = ch;
+
+        if ( w > vw )
+            vh -= sbHeight;
+
+        if ( h > vh )
+        {
+            vw -= sbWidth;
+            if ( w > vw && vh == ch )
+                vh -= sbHeight;
+        }
+        return QSize(vw, vh);
+    }
+
+    QWidget *contentsWidget;
+};
+
+#endif
+
+
+void QwtLegend::PrivateData::LegendMap::insert(
+    const QwtPlotItem *item, QWidget *widget)
 {
-    init();
+    d_itemMap.insert(item, widget);
+    d_widgetMap.insert(widget, item);
 }
 
-void QwtLegendButton::init()
+void QwtLegend::PrivateData::LegendMap::remove(const QwtPlotItem *item)
 {
-    setFlat(TRUE);
-    setAlignment(Qt::AlignLeft | Qt::AlignVCenter | 
-        Qt::ExpandTabs | Qt::WordBreak);
-    setIndent(2 * Margin);
-    updateIconset();
+    QWidget *widget = d_itemMap[item];
+    d_itemMap.remove(item);
+    d_widgetMap.remove(widget);
 }
 
-void QwtLegendButton::updateItem()
+void QwtLegend::PrivateData::LegendMap::remove(QWidget *widget)
 {
-    updateIconset();
+    const QwtPlotItem *item = d_widgetMap[widget];
+    d_itemMap.remove(item);
+    d_widgetMap.remove(widget);
 }
 
-/*! 
-  Update the iconset according to the current identifier properties
-*/
-void QwtLegendButton::updateIconset()
+void QwtLegend::PrivateData::LegendMap::clear()
 {
-    const QFontMetrics fm(font());
+    QMap<QWidget *, const QwtPlotItem *>::const_iterator it;
+    for ( it = d_widgetMap.begin(); it != d_widgetMap.end(); ++it ) 
+        delete it.key();
 
-    QPixmap pm(IdentifierWidth, fm.height());
-    pm.fill(this, 0, 0);
-
-    QPainter p(&pm);
-    drawIdentifier(&p, QRect(0, 0, pm.width(), pm.height()) );
-    p.end();
-
-    pm.setMask(pm.createHeuristicMask());
-
-    setIconSet(QIconSet(pm));
+    d_itemMap.clear();
+    d_widgetMap.clear();
 }
 
-/*! 
-  Set the title of the button
-  \param title New title
-
-  \sa QwtLegendButton::title
-*/
-void QwtLegendButton::setTitle(const QString &title)
+uint QwtLegend::PrivateData::LegendMap::count() const
 {
-    setText(title);
+    return d_itemMap.count();
 }
 
-/*! 
-  \return The button title
-  \sa QwtLegendButton::setTitle. 
-*/
-QString QwtLegendButton::title() const
+inline const QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtPlotItem *item) const
 {
-    return text();
+    if ( !d_itemMap.contains((QwtPlotItem *)item) )
+        return NULL;
+
+    return d_itemMap[(QwtPlotItem *)item];
 }
 
-/*! 
-  \return The item title
-  \sa QwtLegendButton::setTitle. 
-*/
-QwtText *QwtLegendButton::titleText() const
+inline QWidget *QwtLegend::PrivateData::LegendMap::find(const QwtPlotItem *item)
 {
-    return QwtText::makeText(text(), usedTextFormat(),
-        alignment(), font());
+    if ( !d_itemMap.contains((QwtPlotItem *)item) )
+        return NULL;
+
+    return d_itemMap[(QwtPlotItem *)item];
 }
 
-/*!
-  \param parent Parent widget
-  \param name Widget name
-*/
-QwtLegendLabel::QwtLegendLabel(QWidget *parent, const char *name):
-    QLabel(parent, name)
+inline const QwtPlotItem *QwtLegend::PrivateData::LegendMap::find(
+    const QWidget *widget) const
 {
-    init();
+    if ( !d_widgetMap.contains((QWidget *)widget) )
+        return NULL;
+
+    return d_widgetMap[(QWidget *)widget];
 }
 
-/*!
-  \param symbol Curve symbol
-  \param curvePen Curve pen
-  \param text Label text
-  \param parent Parent widget
-  \param name Widget name
-*/
-QwtLegendLabel::QwtLegendLabel(const QwtSymbol &symbol, 
-        const QPen &curvePen, const QString &text, 
-        QWidget *parent, const char *name):
-    QLabel(text, parent, name),
-    QwtLegendItem(symbol, curvePen)
+inline QwtPlotItem *QwtLegend::PrivateData::LegendMap::find(
+    const QWidget *widget)
 {
-    init();
+    if ( !d_widgetMap.contains((QWidget *)widget) )
+        return NULL;
+
+    return (QwtPlotItem *)d_widgetMap[(QWidget *)widget];
 }
 
-void QwtLegendLabel::init()
+inline const QMap<QWidget *, const QwtPlotItem *> &
+    QwtLegend::PrivateData::LegendMap::widgetMap() const
 {
-    setAlignment(Qt::AlignLeft | Qt::AlignVCenter | 
-        Qt::ExpandTabs | Qt::WordBreak);
-    setIndent(Margin + IdentifierWidth + 2 * Margin);
-    setMargin(Margin);
-}
+    return d_widgetMap;
+} 
 
-/*! 
-  Set the title of the label
-  \param title New title
-
-  \sa QwtLegendLabel::title
-*/
-void QwtLegendLabel::setTitle(const QString &title)
+inline QMap<QWidget *, const QwtPlotItem *> &
+    QwtLegend::PrivateData::LegendMap::widgetMap() 
 {
-    setText(title);
-}
-
-/*! 
-  \return The label title
-  \sa QwtLegendLabel::setTitle. 
-*/
-QString QwtLegendLabel::title() const
-{
-    return text();
-}
-
-/*! 
-  \return The item title
-  \sa QwtLegendLabel::setTitle.
-*/
-QwtText *QwtLegendLabel::titleText() const
-{
-    return QwtText::makeText(text(), textFormat(), 
-        alignment(), font());
-}
-
-/*!
-  \param painter Painter
-*/
-void QwtLegendLabel::drawContents(QPainter *painter)
-{
-    QLabel::drawContents(painter);
-
-    QRect rect = contentsRect();
-    rect.setX(rect.x() + Margin);
-    rect.setWidth(IdentifierWidth);
-
-    drawIdentifier(painter, rect);
-}
-
-void QwtLegendLabel::updateItem()
-{
-    update();
-}
+    return d_widgetMap;
+} 
 
 /*!
   \param parent Parent widget
-  \param name Widget name
 */
-QwtLegend::QwtLegend(QWidget *parent, const char *name): 
-    QScrollView(parent, name),
-    d_readOnly(FALSE),
-    d_displayPolicy(QwtLegend::Auto),
-    d_identifierMode(QwtLegendButton::ShowLine
-             | QwtLegendButton::ShowSymbol
-             | QwtLegendButton::ShowText)
+QwtLegend::QwtLegend(QWidget *parent): 
+    QFrame(parent)
 {
     setFrameStyle(NoFrame);
-    setResizePolicy(Manual);
 
-    viewport()->setBackgroundMode(NoBackground); // Avoid flicker
+    d_data = new QwtLegend::PrivateData;
+    d_data->itemMode = QwtLegend::ReadOnlyItem;
+    d_data->displayPolicy = QwtLegend::Auto;
+    d_data->identifierMode = QwtLegendItem::ShowLine | 
+        QwtLegendItem::ShowSymbol | QwtLegendItem::ShowText;
 
-    d_contentsWidget = new QWidget(viewport());
-    d_contentsWidget->installEventFilter(this);
+    d_data->view = new QwtLegend::PrivateData::LegendView(this);
+    d_data->view->setFrameStyle(NoFrame);
 
-    QwtDynGridLayout *layout = new QwtDynGridLayout(d_contentsWidget);
+    QwtDynGridLayout *layout = new QwtDynGridLayout(
+        d_data->view->contentsWidget);
+#if QT_VERSION < 0x040000
+    layout->setAutoAdd(true);
+#endif
     layout->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-    layout->setAutoAdd(TRUE);
 
-    addChild(d_contentsWidget);
+    d_data->view->contentsWidget->installEventFilter(this);
 }
 
-/*!
-  A mode telling QwtPlot to insert read only items
-  \sa isReadOnly
-*/
-void QwtLegend::setReadOnly(bool readOnly)
+QwtLegend::~QwtLegend()
 {
-    d_readOnly = readOnly;
-}
-
-/*! 
-  A mode telling QwtPlot to insert read only items
-  \sa setReadOnly
-*/
-bool QwtLegend::isReadOnly() const
-{
-    return d_readOnly;
+    delete d_data;
 }
 
 /*!
@@ -436,9 +273,24 @@ bool QwtLegend::isReadOnly() const
 */
 void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 {
-    d_displayPolicy = policy;
+    d_data->displayPolicy = policy;
     if (-1 != mode)
-       d_identifierMode = mode;
+       d_data->identifierMode = mode;
+
+    QMap<QWidget *, const QwtPlotItem *> &map = 
+        d_data->map.widgetMap();
+
+    QMap<QWidget *, const QwtPlotItem *>::iterator it;
+    for ( it = map.begin(); it != map.end(); ++it ) 
+    {
+#if QT_VERSION < 0x040000
+        QwtPlotItem *item = (QwtPlotItem *)it.data();
+#else
+        QwtPlotItem *item = (QwtPlotItem *)it.value();
+#endif
+        if ( item )
+            item->updateLegend(this);
+    }
 }
 
 /*! 
@@ -449,7 +301,17 @@ void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 
 QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const 
 { 
-    return d_displayPolicy; 
+    return d_data->displayPolicy; 
+}
+
+void QwtLegend::setItemMode(LegendItemMode mode)
+{
+    d_data->itemMode = mode;
+}
+
+QwtLegend::LegendItemMode QwtLegend::itemMode() const
+{
+    return d_data->itemMode;
 }
 
 /*!
@@ -461,7 +323,7 @@ QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const
 
 int QwtLegend::identifierMode() const
 {
-    return d_identifierMode;
+    return d_data->identifierMode;
 }
 
 /*! 
@@ -470,7 +332,17 @@ int QwtLegend::identifierMode() const
 */
 QWidget *QwtLegend::contentsWidget() 
 { 
-    return d_contentsWidget; 
+    return d_data->view->contentsWidget; 
+}
+
+QScrollBar *QwtLegend::horizontalScrollBar() const
+{
+    return d_data->view->horizontalScrollBar();
+}
+
+QScrollBar *QwtLegend::verticalScrollBar() const
+{
+    return d_data->view->horizontalScrollBar();
 }
 
 /*!  
@@ -480,125 +352,107 @@ QWidget *QwtLegend::contentsWidget()
 
 const QWidget *QwtLegend::contentsWidget() const 
 { 
-    return d_contentsWidget; 
+    return d_data->view->contentsWidget; 
 }
 
 /*!
-  Insert a new item for a specific key.
-  \param item New legend item
-  \param key Unique key. Key must be >= 0.
+  Insert a new item for a plot item
+  \param plotItem Plot item
+  \param legendItem New legend item
   \note The parent of item will be changed to QwtLegend::contentsWidget()
-  \note In case of key < 0, nothing will be inserted.
 */
-void QwtLegend::insertItem(QWidget *item, long key)
+void QwtLegend::insert(const QwtPlotItem *plotItem, QWidget *legendItem)
 {
-    if ( item == NULL || key < 0 )
+    if ( legendItem == NULL || plotItem == NULL )
         return;
 
-    if ( item->parent() != d_contentsWidget )
-        item->reparent(d_contentsWidget, QPoint(0, 0));
+    QWidget *contentsWidget = d_data->view->contentsWidget;
 
-    item->show();
+    if ( legendItem->parent() != contentsWidget )
+    {
+#if QT_VERSION >= 0x040000
+        legendItem->setParent(contentsWidget);
+#else
+        legendItem->reparent(contentsWidget, QPoint(0, 0));
+#endif
+    }
 
-    if ( d_items.count() > d_items.size() - 5 )
-        d_items.resize(d_items.count() + 5);
+    legendItem->show();
 
-    d_items.insert(key, item);
+    d_data->map.insert(plotItem, legendItem);
 
     layoutContents();
 
-    QWidget *w = 0;
-
-    if ( d_contentsWidget->layout() )
+    if ( contentsWidget->layout() )
     {
+#if QT_VERSION >= 0x040000
+        contentsWidget->layout()->addWidget(legendItem);
+#endif
+
         // set tab focus chain
 
-        QLayoutIterator layoutIterator = 
-            d_contentsWidget->layout()->iterator();
+        QWidget *w = NULL;
 
+#if QT_VERSION < 0x040000
+        QLayoutIterator layoutIterator = 
+            contentsWidget->layout()->iterator();
         for ( QLayoutItem *item = layoutIterator.current();
             item != 0; item = ++layoutIterator)
         {
+#else
+        for (int i = 0; i < contentsWidget->layout()->count(); i++)
+        {
+            QLayoutItem *item = contentsWidget->layout()->itemAt(i);
+#endif
             if ( w && item->widget() )
+            {
                 QWidget::setTabOrder(w, item->widget());
-
-            w = item->widget();
+                w = item->widget();
+            }
         }
     }
 }
 
-//! Find the item for a given key.
-QWidget *QwtLegend::findItem(long key)
+QWidget *QwtLegend::find(const QwtPlotItem *plotItem) const
 {
-    return d_items.find(key);
+    return d_data->map.find(plotItem);
 }
 
-//! Find the item for a given key.
-const QWidget *QwtLegend::findItem(long key) const 
-{ 
-    return d_items.find(key); 
-}
-    
-//! Find the item for a given key and remove it from the item list.
-QWidget *QwtLegend::takeItem(long key) 
-{ 
-    return d_items.take(key); 
+QwtPlotItem *QwtLegend::find(const QWidget *legendItem) const
+{
+    return d_data->map.find(legendItem);
 }
 
-/*!
-  Return the key of an legend item.
-  \param item Legend item
-  \return key of the item, or -1 if the item can't be found.
-*/
-long QwtLegend::key(const QWidget *item) const
-{
-    QWidgetIntDictIt it(d_items);
-    for ( const QWidget *w = it.toFirst(); w != 0; w = ++it)
-    {
-        if ( w == item )
-            return it.currentKey();
-    }
-    return -1;
+//! Find the corresponding item for a plotItem and remove it from the item list.
+void QwtLegend::remove(const QwtPlotItem *plotItem)
+{ 
+    QWidget *legendItem = d_data->map.find(plotItem);
+    d_data->map.remove(legendItem); 
+    delete legendItem;
 }
 
 //! Remove all items.
 void QwtLegend::clear()
 {
-    // We can't delete the items while we are running
-    // through the iterator. So we collect them in
-    // a list first.
-
-    QValueList<QWidget *> clearList;
-    
-    QWidgetIntDictIt it(d_items);
-    for ( QWidget *item = it.toFirst(); item != 0; item = ++it)
-        clearList += item;
-
-    for ( uint i = 0; i < clearList.count(); i++ )
-        delete clearList[i];
-
-#if QT_VERSION < 232
-    // In Qt 2.3.0 the ChildRemoved events are not sent, before the
-    // first show of the legend. Thus the deleted items are not cleared
-    // from the list in QwtLegend::eventFilter. In most cases
-    // the following clear is useless, but is is safe to do so.
-    
-    d_items.clear();
+#if QT_VERSION < 0x040000
+    bool doUpdate = isUpdatesEnabled();
+#else
+    bool doUpdate = updatesEnabled();
 #endif
-}
+    setUpdatesEnabled(false);
 
-//! Return an item iterator.
-QWidgetIntDictIt QwtLegend::itemIterator() const
-{
-    return QWidgetIntDictIt(d_items);
+    d_data->map.clear();
+
+    setUpdatesEnabled(doUpdate);
+    update();
 }
 
 //! Return a size hint.
 QSize QwtLegend::sizeHint() const
 {
-    QSize hint = d_contentsWidget->sizeHint();
+    QSize hint = d_data->view->contentsWidget->sizeHint();
     hint += QSize(2 * frameWidth(), 2 * frameWidth());
-    
+
     return hint;
 }
 
@@ -609,16 +463,20 @@ int QwtLegend::heightForWidth(int w) const
 {
     w -= 2 * frameWidth();
 
-    int h = d_contentsWidget->heightForWidth(w);
-    if ( h <= 0 ) // not implemented, we try the layout
+    int h = d_data->view->contentsWidget->heightForWidth(w);
+#if QT_VERSION < 0x040000
+
+    // Asking the layout is the default implementation in Qt4 
+
+    if ( h <= 0 ) 
     {
-        QLayout *l = d_contentsWidget->layout();
+        QLayout *l = d_data->view->contentsWidget->layout();
         if ( l && l->hasHeightForWidth() )
-        {
             h = l->heightForWidth(w);
-            h += 2 * frameWidth();
-        }
     }
+#endif
+    if ( h >= 0 )
+        h += 2 * frameWidth();
 
     return h;
 }
@@ -628,40 +486,39 @@ int QwtLegend::heightForWidth(int w) const
 */
 void QwtLegend::layoutContents()
 {
-    const QSize visibleSize = viewport()->size();
+    const QSize visibleSize = d_data->view->viewport()->size();
 
-    const QLayout *l = d_contentsWidget->layout();
+    const QLayout *l = d_data->view->contentsWidget->layout();
     if ( l && l->inherits("QwtDynGridLayout") )
     {
         const QwtDynGridLayout *tl = (const QwtDynGridLayout *)l;
 
         const int minW = int(tl->maxItemWidth()) + 2 * tl->margin();
 
-        int w = QMAX(visibleSize.width(), minW);
-        int h = QMAX(tl->heightForWidth(w), visibleSize.height());
+        int w = qwtMax(visibleSize.width(), minW);
+        int h = qwtMax(tl->heightForWidth(w), visibleSize.height());
 
-        const int vpWidth = viewportSize(w, h).width();
-
+        const int vpWidth = d_data->view->viewportSize(w, h).width();
         if ( w > vpWidth )
         {
-            w = QMAX(vpWidth, minW);
-            h = QMAX(tl->heightForWidth(w), visibleSize.height());
+            w = qwtMax(vpWidth, minW);
+            h = qwtMax(tl->heightForWidth(w), visibleSize.height());
         }
 
-        d_contentsWidget->resize(w, h);
-        resizeContents(w, h);
+        d_data->view->contentsWidget->resize(w, h);
+#if QT_VERSION < 0x040000
+        d_data->view->resizeContents(w, h);
+#endif
     }
 }
 
 /*
-  Filter QEvent::ChildRemoved, and QEvent::LayoutHint for
-  QwtLegend::contentsWidget().
+  Filter layout related events of QwtLegend::contentsWidget().
 */
 
-//! Event filter
 bool QwtLegend::eventFilter(QObject *o, QEvent *e)
 {
-    if ( o == d_contentsWidget )
+    if ( o == d_data->view->contentsWidget )
     {
         switch(e->type())
         {
@@ -669,33 +526,70 @@ bool QwtLegend::eventFilter(QObject *o, QEvent *e)
             {   
                 const QChildEvent *ce = (const QChildEvent *)e;
                 if ( ce->child()->isWidgetType() )
-                    (void)takeItem(key((QWidget *)ce->child()));
+                    d_data->map.remove((QWidget *)ce->child());
                 break;
             }
+#if QT_VERSION < 0x040000
             case QEvent::LayoutHint:
+#else
+            case QEvent::LayoutRequest:
+#endif
             {
                 layoutContents();
                 break;
             }
+#if QT_VERSION < 0x040000
+            case QEvent::Resize:
+            {
+                updateGeometry();
+                break;
+            }
+#endif
             default:
                 break;
         }
     }
     
-    return QScrollView::eventFilter(o, e);
+    return QFrame::eventFilter(o, e);
 }
 
-/*!
-  Resize the viewport() and post a QEvent::LayoutHint to
-  QwtLegend::contentsWidget() to update the layout.
-*/
-void QwtLegend::viewportResizeEvent(QResizeEvent *e)
+
+//! Return true, if there are no legend items.
+bool QwtLegend::isEmpty() const
 {
-    QScrollView::viewportResizeEvent(e);
+    return d_data->map.count() == 0;
+}
 
-    // It's not safe to update the layout now, because
-    // we are in an internal update of the scrollview framework.
-    // So we delay the update by posting a LayoutHint.
+//! Return the number of legend items.
+uint QwtLegend::itemCount() const
+{
+    return d_data->map.count();
+}
 
-    QApplication::postEvent(d_contentsWidget, new QEvent(QEvent::LayoutHint));
+#if QT_VERSION < 0x040000
+QValueList<QWidget *> QwtLegend::legendItems() const
+#else
+QList<QWidget *> QwtLegend::legendItems() const
+#endif
+{
+    const QMap<QWidget *, const QwtPlotItem *> &map = 
+        d_data->map.widgetMap();
+
+#if QT_VERSION < 0x040000
+    QValueList<QWidget *> list;
+#else
+    QList<QWidget *> list;
+#endif
+
+    QMap<QWidget *, const QwtPlotItem *>::const_iterator it;
+    for ( it = map.begin(); it != map.end(); ++it ) 
+        list += it.key();
+
+    return list;
+}
+
+void QwtLegend::resizeEvent(QResizeEvent *e)
+{
+    QFrame::resizeEvent(e);
+    d_data->view->setGeometry(contentsRect());
 }

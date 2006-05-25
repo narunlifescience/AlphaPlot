@@ -12,11 +12,13 @@
 
 #include <qlayout.h>
 #include <qsize.h>
-#include "qwt_array.h"
+#if QT_VERSION >= 0x040000
+#include <qlist.h>
+#else
 #include <qvaluelist.h>
+#endif
 #include "qwt_global.h"
-
-class QwtDynGridLayoutPrivate;
+#include "qwt_array.h"
 
 /*!
   \brief The QwtDynGridLayout class lays out widgets in a grid,
@@ -31,10 +33,11 @@ class QWT_EXPORT QwtDynGridLayout : public QLayout
 {
     Q_OBJECT
 public:
-    QwtDynGridLayout(QWidget *, int margin=0, 
-        int space=-1, const char *name = 0);
-    QwtDynGridLayout(QLayout *, int space=-1, const char * name = 0 );
-    QwtDynGridLayout(int space=-1, const char * name=0 );
+    explicit QwtDynGridLayout(QWidget *, int margin = 0, int space = -1);
+#if QT_VERSION < 0x040000
+    explicit QwtDynGridLayout(QLayout *, int space = -1);
+#endif
+    explicit QwtDynGridLayout(int space = -1);
 
     virtual ~QwtDynGridLayout();
 
@@ -47,7 +50,22 @@ public:
     uint numCols () const;
 
     virtual void addItem(QLayoutItem *);
+
+#if QT_VERSION >= 0x040000
+    virtual QLayoutItem *itemAt( int index ) const;
+    virtual QLayoutItem *takeAt( int index );
+    virtual int count() const;
+
+    void setExpandingDirections(Qt::Orientations);
+    virtual Qt::Orientations expandingDirections() const;
+    QList<QRect> layoutItems(const QRect &, uint numCols) const;
+#else
     virtual QLayoutIterator iterator();
+
+    void setExpanding(QSizePolicy::ExpandData);
+    virtual QSizePolicy::ExpandData expanding() const;
+    QValueList<QRect> layoutItems(const QRect &, uint numCols) const;
+#endif
 
     virtual int maxItemWidth() const;
 
@@ -58,20 +76,15 @@ public:
 
     virtual QSize sizeHint() const;
 
-    void setExpanding(QSizePolicy::ExpandData);
-    virtual QSizePolicy::ExpandData expanding() const;
-
     virtual bool isEmpty() const;
     uint itemCount() const;
 
     virtual uint columnsForWidth(int width) const;
 
-    QValueList<QRect> layoutItems(const QRect &, uint numCols) const;
-
 protected:
 
     void layoutGrid(uint numCols,
-            QwtArray<int>& rowHeight, QwtArray<int>& colWidth) const;
+        QwtArray<int>& rowHeight, QwtArray<int>& colWidth) const;
     void stretchGrid(const QRect &rect, uint numCols, 
         QwtArray<int>& rowHeight, QwtArray<int>& colWidth) const;
 
@@ -81,18 +94,8 @@ private:
     int maxRowWidth(int numCols) const;
     void updateLayoutCache();
 
-    uint d_maxCols;
-    uint d_numRows;
-    uint d_numCols;
-    
-    QSizePolicy::ExpandData d_expanding;
-    QwtDynGridLayoutPrivate *d_layoutData;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
 #endif
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

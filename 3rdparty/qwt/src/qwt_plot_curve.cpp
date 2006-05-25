@@ -2,763 +2,1468 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include "qwt_plot.h"
-#include "qwt_plot_dict.h"
-#include "qwt_math.h"
+#include <qpainter.h>
+#include <qpixmap.h>
+#include <qbitarray.h>
+#include "qwt_global.h"
 #include "qwt_legend.h"
+#include "qwt_legend_item.h"
+#include "qwt_data.h"
+#include "qwt_rect.h"
+#include "qwt_scale_map.h"
+#include "qwt_double_rect.h"
+#include "qwt_math.h"
+#include "qwt_painter.h"
+#include "qwt_plot.h"
+#include "qwt_plot_canvas.h"
+#include "qwt_spline.h"
+#include "qwt_symbol.h"
+#include "qwt_plot_curve.h"
 
-//! Return an iterator for the plot curves
-QwtPlotCurveIterator QwtPlot::curveIterator() const
+#if QT_VERSION >= 0x040000
+
+#include <qevent.h>
+
+class QwtPlotCurvePaintHelper: public QObject
 {
-    return QwtPlotCurveIterator(*d_curves);
-}
-
-/*!
-  Find the curve which is closest to a
-  specified point in the plotting area.
-  \param xpos
-  \param ypos position in the plotting region
-  \retval dist distance in points between (xpos, ypos) and the
-               closest data point
-  \return Key of the closest curve or 0 if no curve was found.
-*/
-long QwtPlot::closestCurve(int xpos, int ypos, int &dist) const
-{
-    double x,y;
-    int index;
-    return closestCurve(xpos, ypos, dist, x,y, index);
-}
-
-/*!
-  Find the curve which is closest to a point in the plotting area.
-  
-  Determines the position and index of the closest data point.
-  \param xpos
-  \param ypos coordinates of a point in the plotting region
-  \retval xval 
-  \retval yval values of the closest point in the curve's data array
-  \retval dist -- distance in points between (xpos, ypos) and the
-                  closest data point
-  \retval index -- index of the closest point in the curve's data array
-  \return Key of the closest curve or 0 if no curve was found.
-*/
-long QwtPlot::closestCurve(int xpos, int ypos, int &dist, double &xval,
-                           double &yval, int &index) const
-{
-    QwtDiMap map[axisCnt];
-    for ( int axis = 0; axis < axisCnt; axis++ )
-        map[axis] = canvasMap(axis);
-
-    long rv = 0;
-    double dmin = 1.0e10;
-
-    QwtPlotCurveIterator itc = curveIterator();
-    for (QwtPlotCurve *c = itc.toFirst(); c != 0; c = ++itc )
+public:
+    QwtPlotCurvePaintHelper(const QwtPlotCurve *curve, int from, int to):
+        _curve(curve),
+        _from(from),
+        _to(to)
     {
-        for (int i=0; i<c->dataSize(); i++)
-        {
-            double cx = map[c->xAxis()].xTransform(c->x(i)) - double(xpos);
-            double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);
-
-            double f = qwtSqr(cx) + qwtSqr(cy);
-            if (f < dmin)
-            {
-                dmin = f;
-                rv = itc.currentKey();
-                xval = c->x(i);
-                yval = c->y(i);
-                index = i;
-            }
-        }
     }
 
-    dist = int(sqrt(dmin));
+    virtual bool eventFilter(QObject *, QEvent *event)
+    {
+        if ( event->type() == QEvent::Paint )
+        {
+            _curve->draw(_from, _to);
+            return true;
+        }
+        return false;
+    }
+private:
+    const QwtPlotCurve *_curve;
+    int _from;
+    int _to;
+};
+
+#endif // QT_VERSION >= 0x040000
+
+#if QT_VERSION < 0x040000
+#define QwtPointArray QPointArray
+#else
+#define QwtPointArray QPolygon
+#endif
+
+class QwtPlotCurve::PrivateData
+{
+public:
+    class PixelMatrix: private QBitArray
+    {
+    public:
+        PixelMatrix(const QRect& rect):
+            QBitArray(rect.width() * rect.height()),
+            _rect(rect)
+        {
+            fill(false);
+        }
+
+        inline bool testPixel(const QPoint& pos)
+        {
+            if ( !_rect.contains(pos) )
+                return false;
+
+            const int idx = _rect.width() * (pos.y() - _rect.y()) + 
+                (pos.x() - _rect.x());
+
+            const bool marked = testBit(idx);
+            if ( !marked )
+                setBit(idx, true);
+
+            return !marked;
+        }
+
+    private:
+        QRect _rect;
+    };
+
+    PrivateData()
+    {
+        pen = QPen(Qt::black, 0);
+        reference = 0.0;
+        splineSize = 250;
+        attributes = Auto;
+        paintAttributes = 0;
+        style = QwtPlotCurve::Lines;
+    }
+
+    QwtPlotCurve::CurveStyle style;
+    double reference;
+
+    QwtSymbol sym;
+
+    QPen pen;
+    QBrush brush;
+    QwtText title;
+
+    int attributes;
+    int splineSize;
+    int paintAttributes;
+};
+
+static int qwtChkMono(const double *array, int size)
+{
+    if (size < 2)
+        return 0;
+
+    int rv = qwtSign(array[1] - array[0]);
+    for (int i = 1; i < size - 1; i++)
+    {
+        if ( qwtSign(array[i+1] - array[i]) != rv )
+        {
+            rv = 0;
+            break;
+        }
+    }
     return rv;
 }
 
-
-
-/*!
-  \return the style of the curve indexed by key
-  \param key Key of the curve
-  \sa setCurveStyle()
-*/
-int QwtPlot::curveStyle(long key) const
+static void qwtTwistArray(double *array, int size)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->style() : 0;
-}
+    const int s2 = size / 2;
 
-/*!
-  \brief the symbol of the curve indexed by key
-  \param key Key of the curve
-  \return The symbol of the specified curve. If the key is invalid,
-          a symbol of type 'NoSymbol'.
-*/
-QwtSymbol QwtPlot::curveSymbol(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->symbol() : QwtSymbol();
-}
-
-/*!
-  \return the brush of the curve indexed by key
-  \param key Key of the curve
-*/
-QPen QwtPlot::curvePen(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->pen() : QPen();
-}
-
-/*!
-  \return the pen of the curve indexed by key
-  \param key Key of the curve
-  \sa QwtPlot::setCurveBrush(), QwtCurve::setBrush()
-*/
-QBrush QwtPlot::curveBrush(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->brush() : QBrush();
-}
-/*!
-  \return the drawing options of the curve indexed by key
-  \param key Key of the curve
-*/
-int QwtPlot::curveOptions(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->options() : 0;
-}
-
-/*!
-  \return the spline size of the curve indexed by key
-  \param key Key of the curve
-*/
-int QwtPlot::curveSplineSize(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->splineSize() : 0;
-}
-
-/*!
-  \return the title of the curve indexed by key
-  \param key Key of the curve
-*/
-QString QwtPlot::curveTitle(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->title() : QString::null;
-}
-
-/*!
-  \return an array containing the keys of all curves
-*/
-QwtArray<long> QwtPlot::curveKeys() const
-{
-    QwtArray<long> keys(d_curves->count());
-
-    int i = 0;
-
-    QwtPlotCurveIterator itc = curveIterator();
-    for (const QwtPlotCurve *c = itc.toFirst(); c != 0; c = ++itc, i++ )
-        keys[i] = itc.currentKey();
-
-    return keys;
-}
-
-/*!
-  \brief Return the index of the x axis to which a curve is mapped
-  \param key Key of the curve
-  \return x axis of the curve or -1 if the key is invalid.
-*/
-int QwtPlot::curveXAxis(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->xAxis() : -1;
-}
-
-
-/*!
-  \brief the index of the y axis to which a curve is mapped
-  \param key Key of the curve
-  \return y axis of the curve or -1 if the key is invalid.
-*/
-int QwtPlot::curveYAxis(long key) const
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    return c ? c->yAxis() : -1;
-}
-
-
-/*!
-  \brief Generate a unique key for a new curve
-  \return new unique key or 0 if no key could be found.
-*/
-long QwtPlot::newCurveKey()
-{
-    long newkey = d_curves->count() + 1;
-
-    if (newkey > 1)                     // size > 0: check if key exists
+    for (int i=0; i < s2; i++)
     {
-        if (d_curves->find(newkey))     // key size+1 exists => there must be a
-                                        // free key <= size
-        {
-            // find the first available key <= size
-            newkey = 1;
-            while (newkey <= long(d_curves->count()))
-            {
-                if (d_curves->find(newkey))
-                   newkey++;
-                else
-                   break;
-            }
-
-            // This can't happen. Just paranoia.
-            if (newkey > long(d_curves->count()))
-            {
-                while (!d_curves->find(newkey))
-                {
-                    newkey++;
-                    if (newkey > 10000) // prevent infinite loop
-                    {
-                        newkey = 0;
-                        break;
-                    }
-                }
-            }
-        }
+        const int itmp = size - 1 - i;
+        const double dtmp = array[i];
+        array[i] = array[itmp];
+        array[itmp] = dtmp;
     }
-    return newkey;
 }
 
 /*!
-  \brief Insert a curve
-  \param curve Curve
-  \return The key of the new curve or 0 if no new key could be found
-          or if no new curve could be allocated.
+  \brief Ctor
 */
-
-long QwtPlot::insertCurve(QwtPlotCurve *curve)
+QwtPlotCurve::QwtPlotCurve()
 {
-    if (curve == 0)
-        return 0;
+    init(QwtText());
+}
 
-    long key = newCurveKey();
-    if (key == 0)
-        return 0;
+/*!
+  \brief Ctor
+  \param title title of the curve   
+*/
+QwtPlotCurve::QwtPlotCurve(const QwtText &title)
+{
+    init(title);
+}
 
-    curve->reparent(this);
+/*!
+  \brief Ctor
+  \param title title of the curve   
+*/
+QwtPlotCurve::QwtPlotCurve(const QString &title)
+{
+    init(title);
+}
 
-    d_curves->insert(key, curve);
-    if (d_autoLegend)
+/*!
+  \brief Copy Constructor
+*/
+QwtPlotCurve::QwtPlotCurve(const QwtPlotCurve &c):
+    QwtPlotItem(c)
+{
+    init(c.d_data->title);
+    copy(c);
+}
+
+//! Dtor
+QwtPlotCurve::~QwtPlotCurve()
+{
+    delete d_xy;
+    delete d_data;
+}
+
+/*!
+  \brief Initialize data members
+*/
+void QwtPlotCurve::init(const QwtText &title)
+{
+    setItemAttribute(QwtPlotItem::Legend);
+    setItemAttribute(QwtPlotItem::AutoScale);
+
+    d_data = new PrivateData;
+    d_data->title = title;
+
+    d_xy = new QwtDoublePointData(QwtArray<QwtDoublePoint>());
+
+    setZ(20.0);
+}
+
+/*!
+  \brief Copy the contents of a curve into another curve
+*/
+void QwtPlotCurve::copy(const QwtPlotCurve &c)
+{
+    if (this != &c)
     {
-        insertLegendItem(key);
-        updateLayout();
+        *d_data = *c.d_data;
+
+        delete d_xy;
+        d_xy = c.d_xy->copy();
+
+        itemChanged();
     }
-
-    return key;
-}
-
-/*!
-  \brief Insert a new curve and return a unique key
-  \param title title of the new curve
-  \param xAxis x axis to be attached. Defaults to xBottom.
-  \param yAxis y axis to be attached. Defaults to yLeft.
-  \return The key of the new curve or 0 if no new key could be found
-          or if no new curve could be allocated.
-*/
-long QwtPlot::insertCurve(const QString &title, int xAxis, int yAxis)
-{
-    QwtPlotCurve *curve = new QwtPlotCurve(this);
-    if (!curve)
-        return 0;
-
-    curve->setAxis(xAxis, yAxis);
-    curve->setTitle(title);
-
-    long key = insertCurve(curve);
-    if ( key == 0 )
-        delete curve;
-
-    return key;
-}
-
-/*!
-  \brief Find and return an existing curve.
-  \param key Key of the curve
-  \return The curve for the given key or 0 if key is not valid.
-*/
-QwtPlotCurve *QwtPlot::curve(long key)
-{
-    return d_curves->find(key);
-}
-
-/*!
-  \brief Find and return an existing curve.
-  \param key Key of the curve
-  \return The curve for the given key or 0 if key is not valid.
-*/
-const QwtPlotCurve *QwtPlot::curve(long key) const
-{
-    return d_curves->find(key);
 }
 
 
 /*!
-  \brief remove the curve indexed by key
-  \param key Key of the curve
+  \brief Copy Assignment
 */
-bool QwtPlot::removeCurve(long key)
+const QwtPlotCurve& QwtPlotCurve::operator=(const QwtPlotCurve &c)
 {
-    bool ok = d_curves->remove(key);
-    if ( !ok )
-        return FALSE;
+    copy(c);
+    return *this;
+}
 
-    QWidget *item = d_legend->findItem(key);
-    if ( item )
+int QwtPlotCurve::rtti() const
+{
+    return QwtPlotItem::Rtti_PlotCurve;
+}
+
+/*!
+  \brief Specify an attribute how to draw the curve
+
+  The attributes can be used to modify the drawing algorithm.
+
+  The following attributes are defined:<dl>
+  <dt>QwtPlotCurve::PaintFiltered</dt>
+  <dd>Tries to reduce the data that has to be painted, by sorting out
+      duplicates, or paintings outside the visible area. Might have a
+      notable impact on curves with many close points. 
+      Only a couple of very basic filtering algos are implemented.</dd>
+  <dt>QwtPlotCurve::ClipPolygons</dt>
+  <dd>Clip polygons before painting them.
+  </dl>
+
+  The default is, that no paint attributes are enabled.
+
+  \param attribute Paint attribute
+  \param on On/Off
+  /sa QwtPlotCurve::testPaintAttribute()
+*/
+void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
+{
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
+}
+
+/*!
+    \brief Return the current paint attributes
+    \sa QwtPlotCurve::setPaintAttribute
+*/
+bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
+{
+    return (d_data->paintAttributes & attribute);
+}
+
+/*!
+  \brief Set the curve's drawing style
+
+  Valid styles are:
+  <dl>
+  <dt>QwtPlotCurve::NoCurve</dt>
+  <dd>Don't draw a curve. Note: This doesn't affect the symbol. </dd>
+  <dt>QwtPlotCurve::Lines</dt>
+  <dd>Connect the points with straight lines.</dd>
+  <dt>QwtPlotCurve::Sticks</dt>
+  <dd>Draw vertical sticks from a baseline which is defined by setBaseline().</dd>
+  <dt>QwtPlotCurve::Steps</dt>
+  <dd>Connect the points with a step function. The step function
+      is drawn from the left to the right or vice versa,
+      depending on the 'Inverted' option.</dd>
+  <dt>QwtPlotCurves::Dots</dt>
+  <dd>Draw dots at the locations of the data points. Note:
+      This is different from a dotted line (see setPen()).</dd>
+  <dt>QwtPlotCurve::Spline</dt>
+  <dd>Interpolate the points with a spline. The spline
+      type can be specified with setCurveAttribute(),
+      the size of the spline (= number of interpolated points)
+      can be specified with setSplineSize().</dd>
+  <dt>QwtPlotCurve::UserCurve ...</dt>
+  <dd>Styles >= QwtPlotCurve::UserCurve are reserved for derived
+      classes of QwtPlotCurve that overload QwtPlotCurve::draw() with
+      additional application specific curve types.</dd>
+  </dl>
+  \sa QwtPlotCurve::style()
+*/
+void QwtPlotCurve::setStyle(CurveStyle style)
+{
+    if ( style != d_data->style )
     {
-        delete item;
-        updateLayout();
+        d_data->style = style;
+        itemChanged();
     }
-    
-    autoRefresh();
-    return TRUE;
 }
 
 /*!
-  \brief Assign a pen to a curve indexed by key
-  \param key Key of the curve
-  \param pen new pen
-  \return \c TRUE if the curve exists
+    \fn CurveStyle QwtPlotCurve::style() const
+    \brief Return the current style
+    \sa QwtPlotCurve::setStyle
 */
-bool QwtPlot::setCurvePen(long key, const QPen &pen)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-    
-    c->setPen(pen);
-    updateLegendItem(key);
-
-    return TRUE;
+QwtPlotCurve::CurveStyle QwtPlotCurve::style() const 
+{ 
+    return d_data->style; 
 }
 
 /*!
-  \brief Assign a brush to a curve indexed by key
-         The brush will be used to fill the area between the 
-         curve and the baseline. 
-  \param key Key of the curve
-  \param brush new brush
-  \return \c TRUE if the curve exists
-  \sa QwtCurve::setBrush for further details.
-  \sa QwtPlot::brush(), QwtPlot::setCurveBaseline
+  \brief Assign a symbol
+  \param s symbol
+  \sa QwtSymbol
 */
-bool QwtPlot::setCurveBrush(long key, const QBrush &brush)
+void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-    
-    c->setBrush(brush);
-    updateLegendItem(key);
-
-    return TRUE;
+    d_data->sym = s;
+    itemChanged();
 }
 
 /*!
-  \brief Assign a symbol to the curve indexed by key
-  \param key key of the curve
-  \param symbol new symbol
-  \return \c TRUE if the curve exists
+    \brief Return the current symbol
+    \sa QwtPlotCurve::setSymbol
 */
-bool QwtPlot::setCurveSymbol(long key, const QwtSymbol &symbol)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setSymbol(symbol);
-    updateLegendItem(key);
-
-    return TRUE;
+const QwtSymbol &QwtPlotCurve::symbol() const 
+{ 
+    return d_data->sym; 
 }
 
 /*!
-  \brief  Initialize the curve data by pointing to memory blocks which are not
-  managed by QwtPlot.
-
-  \param key Key of the curve
-  \param xData pointer to x data
-  \param yData pointer to y data
-  \param size size of x and y
-  \return \c TRUE if the curve exists
-
-  \warning setRawData is provided for efficiency.  The programmer should not
-  delete the data during the lifetime of the underlying QwtCPointerData class.
-
-  \sa QwtPlot::setCurveData(), QwtCurve::setRawData()
+  \brief Assign a pen
+  \param p New pen
 */
-bool QwtPlot::setCurveRawData(long key, 
-    const double *xData, const double *yData, int size)
+void QwtPlotCurve::setPen(const QPen &p)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setRawData(xData, yData, size);
-    return TRUE;
+    if ( p != d_data->pen )
+    {
+        d_data->pen = p;
+        itemChanged();
+    }
 }
 
 /*!
-  \brief Assign a title to the curve indexed by key.
-  \param key key of the curve
-  \param title new title
-  \return \c TRUE if the curve exists
+    \brief Return the pen used to draw the lines
+    \sa QwtPlotCurve::setPen
 */
-bool QwtPlot::setCurveTitle(long key, const QString &title)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setTitle(title);
-    updateLegendItem(key);
-
-    return TRUE;
+const QPen& QwtPlotCurve::pen() const 
+{ 
+    return d_data->pen; 
 }
 
 /*!
-  \brief Set curve data by copying x- and y-values from specified blocks.
+  \brief Assign a brush. 
+         In case of brush.style() != QBrush::NoBrush 
+         and style() != QwtPlotCurve::Sticks
+         the area between the curve and the baseline will be filled.
+         In case !brush.color().isValid() the area will be filled by
+         pen.color(). The fill algorithm simply connects the first and the
+         last curve point to the baseline. So the curve data has to be sorted 
+         (ascending or descending). 
+  \param brush New brush
+    \sa QwtPlotCurve::brush, QwtPlotCurve::setBaseline, QwtPlotCurve::baseline
+*/
+void QwtPlotCurve::setBrush(const QBrush &brush)
+{
+    if ( brush != d_data->brush )
+    {
+        d_data->brush = brush;
+        itemChanged();
+    }
+}
+
+/*!
+  \brief Return the brush used to fill the area between lines and the baseline
+
+  \sa QwtPlotCurve::setBrush, QwtPlotCurve::setBaseline, QwtPlotCurve::baseline
+*/
+const QBrush& QwtPlotCurve::brush() const 
+{
+    return d_data->brush;
+}
+
+
+/*!
+  \brief Set data by copying x- and y-values from specified memory blocks
   Contrary to \b QwtPlot::setCurveRawData, this function makes a 'deep copy' of
   the data.
 
-  \param key curve key
   \param xData pointer to x values
   \param yData pointer to y values
   \param size size of xData and yData
-  \return \c TRUE if the curve exists
 
-  \sa setCurveRawData(), QwtCurve::setData
+  \sa QwData::setData.
 */
-bool QwtPlot::setCurveData(long key, 
-    const double *xData, const double *yData, int size)
+void QwtPlotCurve::setData(const double *xData, const double *yData, int size)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setData(xData, yData, size);
-    return TRUE;
+    delete d_xy;
+    d_xy = new QwtArrayData(xData, yData, size);
+    itemChanged();
 }
-    
-/*!
-  \brief Initialize curve data with x- and y-arrays (data is explicitly shared)
 
-  \param key curve key
-  \param xData array with x-values
-  \param yData array with y-values
-  \return \c TRUE if the curve exists
+/*!
+  \brief Initialize data with x- and y-arrays (explicitly shared)
+
+  \param xData x data
+  \param yData y data
+
+  \sa QwtData::setData.
 */
-bool QwtPlot::setCurveData(long key, 
-    const QwtArray<double> &xData, const QwtArray<double> &yData)
+void QwtPlotCurve::setData(const QwtArray<double> &xData, 
+    const QwtArray<double> &yData)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setData(xData, yData);
-    return TRUE;
+    delete d_xy;
+    d_xy = new QwtArrayData(xData, yData);
+    itemChanged();
 }
-    
-/*!
-  \brief Initialize curve data with a array of points (explicitly shared)
 
-  \param key curve key
+/*!
+  Initialize data with an array of points (explicitly shared).
+
   \param data Data
-  \return \c TRUE if the curve exists
+
+  \sa QwtDoublePointData::setData.
 */
-bool QwtPlot::setCurveData(long key, const QwtArray<QwtDoublePoint> &data)
+void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setData(data);
-    return TRUE;
+    delete d_xy;
+    d_xy = new QwtDoublePointData(data);
+    itemChanged();
 }
-    
-/*!
-  \brief Initialize curve data with any QwtData object
 
-  \param key curve key
+/*!
+  Initialize data with a pointer to QwtData.
+
   \param data Data
-  \return \c TRUE if the curve exists
+
+  \sa QwtData::copy.
 */
-bool QwtPlot::setCurveData(long key, const QwtData &data)
+void QwtPlotCurve::setData(const QwtData &data)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setData(data);
-    return TRUE;
-}
-    
-/*!
-  \brief Change a curve's style
-  \param key Key of the curve
-  \param s display style of the curve
-  \param options style options
-  \return \c TRUE if the curve exists
-  \sa QwtCurve::setStyle() for a detailed description of valid styles.
-*/
-bool QwtPlot::setCurveStyle(long key, int s, int options)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setStyle(s, options);
-    updateLegendItem(key);
-
-    return TRUE;
+    delete d_xy;
+    d_xy = data.copy();
+    itemChanged();
 }
 
 /*!
-  \brief Set the style options of a curve indexed by key
-  \param key The curve's key
-  \param opt curve options
-  \return \c TRUE if the specified curve exists.
-  \sa QwtCurve::setOptions for a detailed description of valid options.
-*/
-bool QwtPlot::setCurveOptions(long key, int opt)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
+  \brief Initialize the data by pointing to memory blocks which are not managed
+  by QwtPlotCurve.
 
-    c->setOptions(opt);
-    return TRUE;
+  setRawData is provided for efficiency. It is important to keep the pointers
+  during the lifetime of the underlying QwtCPointerData class.
+
+  \param xData pointer to x data
+  \param yData pointer to y data
+  \param size size of x and y
+
+  \sa QwtCPointerData::setData.
+*/
+void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size)
+{
+    delete d_xy;
+    d_xy = new QwtCPointerData(xData, yData, size);
+    itemChanged();
 }
 
 /*!
-  \brief Set the number of interpolated points of a curve indexed by key
-  \param key key of the curve
-  \param s size of the spline
-  \return \c TRUE if the curve exists
+  \brief Assign a title to a curve
+  \param title new title
 */
-bool QwtPlot::setCurveSplineSize(long key, int s)
+void QwtPlotCurve::setTitle(const QString &title)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setSplineSize(s);
-    return TRUE;
-}
-
-
-/*!
-  \brief Attach a curve to an x axis
-  \param key key of the curve
-  \param axis x axis to be attached
-  \return \c TRUE if the curve exists
-*/
-bool QwtPlot::setCurveXAxis(long key, int axis)
-{
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
-
-    c->setXAxis(axis);
-    return TRUE;
+    setTitle(QwtText(title));
 }
 
 /*!
-  \brief Attach a curve to an y axis
-  \param key key of the curve
-  \param axis y axis to be attached
-  \return \c TRUE if the curve exists
+  \brief Assign a title to a curve
+  \param title new title
 */
-bool QwtPlot::setCurveYAxis(long key, int axis)
+void QwtPlotCurve::setTitle(const QwtText &title)
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
+    d_data->title = title;
+    itemChanged();
+}
 
-    c->setYAxis(axis);
-    return TRUE;
+/*!
+    \brief Return the title.
+    \sa QwtPlotCurve::setTitle
+*/
+const QwtText &QwtPlotCurve::title() const 
+{ 
+    return d_data->title; 
+}
+
+/*!
+  Returns the bounding rectangle of the curve data. If there is
+  no bounding rect, like for empty data the rectangle is invalid:
+  QwtDoubleRect.isValid() == false
+*/
+
+QwtDoubleRect QwtPlotCurve::boundingRect() const
+{
+    if ( d_xy == NULL )
+        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
+
+    return d_xy->boundingRect();
 }
 
 
 /*!
-  \brief Set the baseline for a specified curve
-
-  The baseline is needed for the curve style QwtCurve::Sticks,
-  \param key curve key
-  \param ref baseline offset from zero
-  \sa QwtCurve::setBaseline
-  \return \c TRUE if the curve exists
+  \brief Checks if a range of indices is valid and corrects it if necessary
+  \param i1 Index 1
+  \param i2 Index 2
 */
-bool QwtPlot::setCurveBaseline(long key, double ref)
+int QwtPlotCurve::verifyRange(int &i1, int &i2) const
 {
-    QwtPlotCurve *c = d_curves->find(key);
-    if ( !c )
-        return FALSE;
+    int size = dataSize();
 
-    c->setBaseline(ref);
-    return TRUE;
+    if (size < 1) return 0;
+
+    i1 = qwtLim(i1, 0, size-1);
+    i2 = qwtLim(i2, 0, size-1);
+
+    if ( i1 > i2 )
+        qSwap(i1, i2);
+
+    return (i2 - i1 + 1);
+}
+
+void QwtPlotCurve::draw(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QRect &) const
+{
+    draw(painter, xMap, yMap, 0, -1);
 }
 
 /*!
-  \brief Return the baseline offset for a specified curve
-  \param key curve key
-  \return Baseline offset of the specified curve,
-          or 0 if the curve doesn't exist
-  \sa setCurveBaseline()
+  \brief Draw a set of points of a curve.
+
+  When observing an measurement while it is running, new points have to be
+  added to an existing curve. drawCurve can be used to display them avoiding
+  a complete redraw of the canvas.
+
+  Setting plot()->canvas()->setAttribute(Qt::WA_PaintOutsidePaintEvent, true);
+  will result in faster painting, if the paint engine of the canvas widget
+  supports this feature. 
+
+  \param from Index of the first point to be painted
+  \param to Index of the last point to be painted. If to < 0 the
+         curve will be painted to its last point.
+
+  \sa QwtCurve::draw
 */
-double QwtPlot::curveBaseline(long key) const
+void QwtPlotCurve::draw(int from, int to) const
 {
-    double rv = 0.0;
-    QwtPlotCurve *c;
-    if ((c = d_curves->find(key)))
-        rv = c->baseline();
-    return rv;
-}
+    if ( !plot() )
+        return;
 
-/*!
-  \brief Insert a QwtLegendItem for a specified curve
+    QwtPlotCanvas *canvas = plot()->canvas();
 
-  In case of legend()->isReadOnly the item will be a QwtLegendLabel,
-  otherwise a QwtLegendButton.
+    bool directPaint = true;
 
-  \param curveKey curve key
-  \sa QwtLegendButton, QwtLegendItem, QwtLegend, updateLegendItem(), printLegendItem()
-*/
-void QwtPlot::insertLegendItem(long curveKey)
-{
-    if ( d_legend->isReadOnly() )
+#if QT_VERSION >= 0x040000
+    if ( !canvas->testAttribute(Qt::WA_WState_InPaintEvent) &&
+        !canvas->testAttribute(Qt::WA_PaintOutsidePaintEvent) )
     {
-        QwtLegendLabel *label = 
-            new QwtLegendLabel(d_legend->contentsWidget());
-        d_legend->insertItem(label, curveKey);
+        /*
+          We save curve and range in helper and call repaint.
+          The helper filters the Paint event, to repeat
+          the QwtPlotCurve::draw, but now from inside the paint
+          event.
+         */
+
+        QwtPlotCurvePaintHelper helper(this, from, to);
+        canvas->installEventFilter(&helper);
+        canvas->repaint();
+
+        return;
+    }
+#endif
+
+    const QwtScaleMap xMap = plot()->canvasMap(xAxis());
+    const QwtScaleMap yMap = plot()->canvasMap(yAxis());
+
+    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
+        canvas->paintCache() && !canvas->paintCache()->isNull() )
+    {
+        QPainter cachePainter((QPixmap *)canvas->paintCache());
+        cachePainter.translate(-canvas->contentsRect().x(),
+            -canvas->contentsRect().y());
+
+        draw(&cachePainter, xMap, yMap, from, to);
+    }
+
+    if ( directPaint )
+    {
+        QPainter painter(canvas);
+
+        painter.setClipping(true);
+        painter.setClipRect(canvas->contentsRect());
+
+        draw(&painter, xMap, yMap, from, to);
+
+        return;
+    }
+
+#if QT_VERSION >= 0x040000
+    if ( canvas->testPaintAttribute(QwtPlotCanvas::PaintCached) &&
+        canvas->paintCache() )
+    {
+        /*
+          The cache is up to date. We flush it via repaint to the
+          canvas. This works flicker free but is much ( > 10x )
+          slower than direct painting.
+         */
+
+        const bool noBG = canvas->testAttribute(Qt::WA_NoBackground);
+        if ( !noBG )
+            canvas->setAttribute(Qt::WA_NoBackground, true);
+
+        canvas->repaint(canvas->contentsRect());
+
+        if ( !noBG )
+            canvas->setAttribute(Qt::WA_NoBackground, false);
+
+        return;
+    }
+#endif
+
+    // Ok, we give up 
+    canvas->repaint(canvas->contentsRect());
+}
+
+/*!
+  \brief Draw an interval of the curve
+  \param painter Painter
+  \param xMap maps x-values into pixel coordinates.
+  \param yMap maps y-values into pixel coordinates.
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted. If to < 0 the 
+         curve will be painted to its last point.
+
+  \sa QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots,
+      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline,
+      QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+*/
+void QwtPlotCurve::draw(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
+{
+    if ( !painter || dataSize() <= 0 )
+        return;
+
+    if (to < 0)
+        to = dataSize() - 1;
+
+    if ( verifyRange(from, to) > 0 )
+    {
+        painter->save();
+        painter->setPen(d_data->pen);
+
+        /*
+          Qt 4.0.0 is slow when drawing lines, but it´s even 
+          slower when the painter has a brush. So we don't
+          set the brush before we need it.
+         */
+
+        drawCurve(painter, d_data->style, xMap, yMap, from, to);
+        painter->restore();
+
+        if (d_data->sym.style() != QwtSymbol::None)
+        {
+            painter->save();
+            drawSymbols(painter, d_data->sym, xMap, yMap, from, to);
+            painter->restore();
+        }
+    }
+}
+
+/*!
+  \brief Draw the line part (without symbols) of a curve interval. 
+  \param painter Painter
+  \param style curve style, see QwtPlotCurve::CurveStyle
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \sa QwtPlotCurve::draw, QwtPlotCurve::drawDots, QwtPlotCurve::drawLines,
+      QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+*/
+
+void QwtPlotCurve::drawCurve(QPainter *painter, int style,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
+{
+    switch (style)
+    {
+        case Lines:
+            drawLines(painter, xMap, yMap, from, to);
+            break;
+        case Sticks:
+            drawSticks(painter, xMap, yMap, from, to);
+            break;
+        case Steps:
+            drawSteps(painter, xMap, yMap, from, to);
+            break;
+        case Spline:
+            if ( from > 0 || to < dataSize() - 1 )
+                drawLines(painter, xMap, yMap, from, to);
+            else
+                drawSpline(painter, xMap, yMap);
+            break;
+        case Dots:
+            drawDots(painter, xMap, yMap, from, to);
+            break;
+        case NoCurve:
+        default:
+            break;
+    }
+}
+
+/*!
+  \brief Draw lines
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \sa QwtPlotCurve::draw, QwtPlotCurve::drawLines, QwtPlotCurve::drawDots, 
+      QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+*/
+void QwtPlotCurve::drawLines(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
+{
+    const int size = to - from + 1;
+    if ( size <= 0 )
+        return;
+
+    QwtPointArray polyline(size);
+
+    if ( d_data->paintAttributes & PaintFiltered )
+    {
+        QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
+        polyline.setPoint(0, pp);
+
+        int count = 1;
+        for (int i = from + 1; i <= to; i++)
+        {
+            const QPoint pi(xMap.transform(x(i)), yMap.transform(y(i)));
+            if ( pi != pp )
+            {
+                polyline.setPoint(count, pi);
+                count++;
+
+                pp = pi;
+            }
+        }
+        if ( count != size )
+            polyline.resize(count);
     }
     else
     {
-        QwtLegendButton *button = 
-            new QwtLegendButton(d_legend->contentsWidget());
-        connect(button, SIGNAL(clicked()), SLOT(lgdClicked()));
+        for (int i = from; i <= to; i++)
+        {
+            int xi = xMap.transform(x(i));
+            int yi = yMap.transform(y(i));
 
-        d_legend->insertItem(button, curveKey);
+            polyline.setPoint(i - from, xi, yi);
+        }
     }
 
-    updateLegendItem(curveKey);
+    if ( d_data->paintAttributes & ClipPolygons )
+    {
+        QwtRect r = painter->window();
+        polyline = r.clip(polyline);
+    }
+
+    QwtPainter::drawPolyline(painter, polyline);
+
+    if ( d_data->brush.style() != Qt::NoBrush )
+        fillCurve(painter, xMap, yMap, polyline);
 }
 
 /*!
-  Update the legend item of a specified curve
-  \param curveKey curve key
-  \sa QwtLegendButton, QwtLegend, insertLegendItem(), printLegendItem()
+  \brief Draw sticks
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots, 
+      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps
 */
-void QwtPlot::updateLegendItem(long curveKey)
+void QwtPlotCurve::drawSticks(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
 {
-    const QwtPlotCurve *curve = d_curves->find(curveKey);
-    if ( !curve )
-        return;
+    int x0 = xMap.transform(d_data->reference);
+    int y0 = yMap.transform(d_data->reference);
 
-    QWidget *item = d_legend->findItem(curveKey);
-    if (item && item->inherits("QwtLegendButton")) 
+    for (int i = from; i <= to; i++)
     {
-        QwtLegendButton *button = (QwtLegendButton *)item;
+        const int xi = xMap.transform(x(i));
+        const int yi = yMap.transform(y(i));
 
-        const bool doUpdate = button->isUpdatesEnabled();
-        button->setUpdatesEnabled(FALSE);
-
-        updateLegendItem(curve, button);
-
-        button->setUpdatesEnabled(doUpdate);
-        button->update();
-    }
-    if (item && item->inherits("QwtLegendLabel")) 
-    {
-        QwtLegendLabel *label = (QwtLegendLabel *)item;
-
-        const bool doUpdate = label->isUpdatesEnabled();
-        label->setUpdatesEnabled(FALSE);
-
-        updateLegendItem(curve, label);
-
-        label->setUpdatesEnabled(doUpdate);
-        label->update();
+        if (d_data->attributes & Xfy)
+            QwtPainter::drawLine(painter, x0, yi, xi, yi);
+        else
+            QwtPainter::drawLine(painter, xi, y0, xi, yi);
     }
 }
 
 /*!
-  Update a liegen item for a specified curve
-  \param curve Curve
-  \param item Legend item
-  \sa QwtLegendButton, QwtLegend, insertLegendItem(), printLegendItem()
+  \brief Draw dots
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \sa QwtPlotCurve::drawPolyline, QwtPlotCurve::drawLine, 
+      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps
+      QwtPlotCurve::drawPolyline, QwtPlotCurve::drawPolygon
 */
-void QwtPlot::updateLegendItem(
-    const QwtPlotCurve *curve, QwtLegendItem *item)
+void QwtPlotCurve::drawDots(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
 {
-    if ( !curve || !item )
+    const QRect window = painter->window();
+    if ( window.isEmpty() )
         return;
 
-    int policy = d_legend->displayPolicy();
+    const bool doFill = d_data->brush.style() != Qt::NoBrush;
 
-    if (policy == QwtLegend::Fixed) 
+    QwtPointArray polyline;
+    if ( doFill )
+        polyline.resize(to - from + 1);
+
+    if ( to > from && d_data->paintAttributes & PaintFiltered )
     {
-        int mode = d_legend->identifierMode();
+        int count = 0;
 
-        if (mode & QwtLegendButton::ShowLine) 
-            item->setCurvePen(curve->pen());
+        if ( doFill )   
+        {
+            QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
+            polyline.setPoint(0, pp);
 
-        if (mode & QwtLegendButton::ShowSymbol) 
-            item->setSymbol(curve->symbol());
+            int count = 1;
+            for (int i = from + 1; i <= to; i++)
+            {
+                const QPoint pi(xMap.transform(x(i)), yMap.transform(y(i)));
+                if ( pi != pp )
+                {
+                    polyline.setPoint(count, pi);
+                    count++;
 
-        if (mode & QwtLegendButton::ShowText) 
-            item->setTitle(curve->title());
-        else 
-            item->setTitle(QString::null);
+                    pp = pi;
+                }
+            }
+        }
+        else
+        {
+            // if we don't need to fill, we can sort out
+            // duplicates independent from the order
 
-        item->setIdentifierMode(mode);
-    } 
-    else if (policy == QwtLegend::Auto) 
+            PrivateData::PixelMatrix pixelMatrix(window);
+
+            for (int i = from; i <= to; i++)
+            {
+                const QPoint p( xMap.transform(x(i)),
+                    yMap.transform(y(i)) );
+
+                if ( pixelMatrix.testPixel(p) )
+                {
+                    polyline[count] = p;
+                    count++;
+                }
+            }
+        }
+        if ( int(polyline.size()) != count )
+            polyline.resize(count);
+    }
+    else
+    {
+        for (int i = from; i <= to; i++)
+        {
+            const int xi = xMap.transform(x(i));
+            const int yi = yMap.transform(y(i));
+            QwtPainter::drawPoint(painter, xi, yi);
+
+            if ( doFill )
+                polyline.setPoint(i - from, xi, yi);
+        }
+    }
+
+    if ( d_data->paintAttributes & ClipPolygons )
+    {
+        const QwtRect r = painter->window();
+        polyline = r.clip(polyline);
+    }
+
+    if ( doFill )
+        fillCurve(painter, xMap, yMap, polyline);
+}
+
+/*!
+  \brief Draw step function
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots, 
+      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSticks
+*/
+void QwtPlotCurve::drawSteps(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
+{
+    QwtPointArray polyline(2 * (to - from) + 1);
+
+    bool inverted = d_data->attributes & Yfx;
+    if ( d_data->attributes & Inverted )
+        inverted = !inverted;
+
+    int i,ip;
+    for (i = from, ip = 0; i <= to; i++, ip += 2)
+    {
+        const int xi = xMap.transform(x(i));
+        const int yi = yMap.transform(y(i));
+
+        if ( ip > 0 )
+        {
+            if (inverted)
+                polyline.setPoint(ip - 1, polyline[ip-2].x(), yi);
+            else
+                polyline.setPoint(ip - 1, xi, polyline[ip-2].y());
+        }
+
+        polyline.setPoint(ip, xi, yi);
+    }
+
+    if ( d_data->paintAttributes & ClipPolygons )
+    {
+        const QwtRect r = painter->window();
+        polyline = r.clip(polyline);
+    }
+
+    QwtPainter::drawPolyline(painter, polyline);
+
+    if ( d_data->brush.style() != Qt::NoBrush )
+        fillCurve(painter, xMap, yMap, polyline);
+}
+
+/*!
+  \brief Draw a spline
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots,
+      QwtPlotCurve::drawLines, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+*/
+void QwtPlotCurve::drawSpline(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
+{
+    int i;
+
+    const int size = dataSize();
+    double *txval = new double[size];
+    double *tyval = new double[size];
+
+    //
+    // Transform x and y values to window coordinates
+    // to avoid a distinction between linear and
+    // logarithmic scales.
+    //
+    for (i=0;i<size;i++)
+    {
+        txval[i] = xMap.xTransform(x(i));
+        tyval[i] = yMap.xTransform(y(i));
+    }
+
+    int stype;
+    if (! (d_data->attributes & (Yfx|Xfy|Parametric)))
+    {
+        if (qwtChkMono(txval, size))
+        {
+            stype = Yfx;
+        }
+        else if(qwtChkMono(tyval, size))
+        {
+            stype = Xfy;
+        }
+        else
+        {
+            stype = Parametric;
+            if ( (d_data->attributes & Periodic) ||
+                ( (x(0) == x(size-1))
+                && (y(0) == y(size-1))))
+            {
+                stype |= Periodic;
+            }
+        }
+    }
+    else
+    {
+        stype = d_data->attributes;
+    }
+
+    bool ok = false;
+    QwtPointArray polyline(d_data->splineSize);
+
+    if (stype & Parametric)
+    {
+        //
+        // setup parameter vector
+        //
+        double *param = new double[size];
+        param[0] = 0.0;
+        for (i=1; i<size; i++)
+        {
+            const double delta = sqrt( qwtSqr(txval[i] - txval[i-1])
+                          + qwtSqr( tyval[i] - tyval[i-1]));
+            param[i] = param[i-1] + qwtMax(delta, 1.0);
+        }
+
+        //
+        // setup splines
+        QwtSpline spx, spy;
+        ok = spx.recalc(param, txval, size, stype & Periodic);
+        if (ok)
+            ok = spy.recalc(param, tyval, size, stype & Periodic);
+
+        if ( ok )
+        {
+            // fill point array
+            const double delta = 
+                param[size - 1] / double(d_data->splineSize-1);
+            for (i = 0; i < d_data->splineSize; i++)
+            {
+                const double dtmp = delta * double(i);
+                polyline.setPoint(i, qRound(spx.value(dtmp)), 
+                    qRound(spy.value(dtmp)) );
+            }
+        }
+        delete[] param;
+    }
+    else if (stype & Xfy)
+    {
+        if (tyval[size-1] < tyval[0])
+        {
+            qwtTwistArray(txval, size);
+            qwtTwistArray(tyval, size);
+        }
+
+        // 1. Calculate spline coefficients
+        QwtSpline spx;
+        ok = spx.recalc(tyval, txval, size, stype & Periodic);
+        if ( ok )
+        {
+            const double ymin = qwtGetMin(tyval, size);
+            const double ymax = qwtGetMax(tyval, size);
+            const double delta = (ymax - ymin) / double(d_data->splineSize - 1);
+
+            for (i = 0; i < d_data->splineSize; i++)
+            {
+                const double dtmp = ymin + delta * double(i);
+                polyline.setPoint(i, 
+                    qRound(spx.value(dtmp)), qRound(dtmp + 0.5));
+            }
+        }
+    }
+    else
+    {
+        if (txval[size-1] < txval[0])
+        {
+            qwtTwistArray(tyval, size);
+            qwtTwistArray(txval, size);
+        }
+
+        // 1. Calculate spline coefficients
+        QwtSpline spy;
+        ok = spy.recalc(txval, tyval, size, stype & Periodic);
+        if ( ok )
+        {
+            const double xmin = qwtGetMin(txval, size);
+            const double xmax = qwtGetMax(txval, size);
+            const double delta = (xmax - xmin) / double(d_data->splineSize - 1);
+
+            for (i = 0; i < d_data->splineSize; i++)
+            {
+                double dtmp = xmin + delta * double(i);
+                polyline.setPoint(i, 
+                    qRound(dtmp), qRound(spy.value(dtmp)));
+            }
+        }
+    }
+
+    delete[] txval;
+    delete[] tyval;
+
+    if ( ok )
+    {
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            const QwtRect r = painter->window();
+            polyline = r.clip(polyline);
+        }
+
+        QwtPainter::drawPolyline(painter, polyline);
+
+        if ( d_data->brush.style() != Qt::NoBrush )
+            fillCurve(painter, xMap, yMap, polyline);
+    }
+    else
+        drawLines(painter, xMap, yMap, 0, size - 1);
+}
+
+/*!
+  \brief Specify an attribute for the drawing style  
+
+  The attributes can be used to modify the drawing style.
+  The following attributes are defined:<dl>
+  <dt>QwtPlotCurve::Auto</dt>
+  <dd>The default setting. For QwtPlotCurve::spline,
+      this means that the type of the spline is
+      determined automatically, depending on the data.
+      For all other styles, this means that y is
+      regarded as a function of x.</dd>
+  <dt>QwtPlotCurve::Yfx</dt>
+  <dd>Draws y as a function of x (the default). The
+      baseline is interpreted as a horizontal line
+      with y = baseline().</dd>
+  <dt>QwtPlotCurve::Xfy</dt>
+  <dd>Draws x as a function of y. The baseline is
+      interpreted as a vertical line with x = baseline().</dd>
+  <dt>QwtPlotCurve::Parametric</dt>
+  <dd>For QwtPlotCurve::Spline only. Draws a parametric spline.</dd>
+  <dt>QwtPlotCurve::Periodic</dt>
+  <dd>For QwtPlotCurve::Spline only. Draws a periodic spline.</dd>
+  <dt>QwtPlotCurve::Inverted</dt>
+  <dd>For QwtPlotCurve::Steps only. Draws a step function
+      from the right to the left.</dd></dl>
+
+  \param attribute Curve attribute
+  \param on On/Off
+  /sa QwtPlotCurve::testCurveAttribute()
+*/
+void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
+{
+    if ( bool(d_data->attributes & attribute) == on )
+        return;
+
+    if ( on )
+        d_data->attributes |= attribute;
+    else
+        d_data->attributes &= ~attribute;
+
+    itemChanged();
+}
+
+/*!
+    \brief Return the current curve attributes
+    \sa QwtPlotCurve::setCurveAttribute
+*/
+bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const 
+{ 
+    return d_data->attributes & attribute;
+}
+
+/*!
+  \brief Change the number of interpolated points
+  \param s new size
+  \warning The default is 250 points.
+*/
+void QwtPlotCurve::setSplineSize(int s)
+{
+    d_data->splineSize = qwtMax(s, 10);
+    itemChanged();
+}
+
+/*!
+    \fn int QwtPlotCurve::splineSize() const
+    \brief Return the spline size
+    \sa QwtPlotCurve::setSplineSize
+*/
+
+int QwtPlotCurve::splineSize() const 
+{ 
+    return d_data->splineSize; 
+}
+
+/*! 
+  Fill the area between the polygon and the baseline with 
+  the curve brush
+
+  \param painter Painter
+  \param xMap x map
+  \param yMap y map
+  \param pa Polygon
+
+  \sa QwtPlotCurve::setBrush()
+*/
+
+void QwtPlotCurve::fillCurve(QPainter *painter,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    QwtPointArray &pa) const
+{
+    if ( d_data->brush.style() == Qt::NoBrush )
+        return;
+
+    closePolyline(xMap, yMap, pa);
+    if ( pa.count() <= 2 ) // a line can't be filled
+        return;
+
+    QBrush b = d_data->brush;
+    if ( !b.color().isValid() )
+        b.setColor(d_data->pen.color());
+
+    painter->save();
+
+    painter->setPen(QPen(Qt::NoPen));
+    painter->setBrush(b);
+
+    QwtPainter::drawPolygon(painter, pa);
+
+    painter->restore();
+}
+
+/*!
+  \brief Complete a polygon to be a closed polygon 
+         including the area between the original polygon
+         and the baseline.
+  \param xMap X map
+  \param yMap Y map
+  \param pa Polygon to be completed
+*/
+
+void QwtPlotCurve::closePolyline(
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    QwtPointArray &pa) const
+{
+    const int sz = pa.size();
+    if ( sz < 2 )
+        return;
+
+    pa.resize(sz + 2);
+
+    if ( d_data->attributes & QwtPlotCurve::Xfy )
+    {
+        pa.setPoint(sz,
+            xMap.transform(d_data->reference), pa.point(sz - 1).y());
+        pa.setPoint(sz + 1,
+            xMap.transform(d_data->reference), pa.point(0).y());
+    }
+    else
+    {
+        pa.setPoint(sz,
+            pa.point(sz - 1).x(), yMap.transform(d_data->reference));
+        pa.setPoint(pa.size() - 1,
+            pa.point(0).x(), yMap.transform(d_data->reference));
+    }
+}
+
+/*!
+  \brief Draw symbols
+  \param painter Painter
+  \param symbol Curve symbol
+  \param xMap x map
+  \param yMap y map
+  \param from index of the first point to be painted
+  \param to index of the last point to be painted
+*/
+void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
+    int from, int to) const
+{
+    painter->setBrush(symbol.brush());
+    painter->setPen(symbol.pen());
+
+    QRect rect;
+    rect.setSize(QwtPainter::metricsMap().screenToLayout(symbol.size()));
+
+    if ( to > from && d_data->paintAttributes & PaintFiltered )
+    {
+        const QRect window = painter->window();
+        if ( window.isEmpty() )
+            return;
+
+        PrivateData::PixelMatrix pixelMatrix(window);
+
+        for (int i = from; i <= to; i++)
+        {
+            const QPoint pi( xMap.transform(x(i)),
+                yMap.transform(y(i)) );
+
+            if ( pixelMatrix.testPixel(pi) )
+            {
+                rect.moveCenter(pi);
+                symbol.draw(painter, rect);
+            }
+        }
+    }
+    else
+    {
+        for (int i = from; i <= to; i++)
+        {
+            const int xi = xMap.transform(x(i));
+            const int yi = yMap.transform(y(i));
+
+            rect.moveCenter(QPoint(xi, yi));
+            symbol.draw(painter, rect);
+        }
+    }
+}
+
+/*!
+  \brief Set the value of the baseline
+
+  The baseline is needed for filling the curve with a brush or
+  the QwtPlotCurve::Sticks drawing style. 
+  The default value is 0.0. The interpretation
+  of the baseline depends on the style options. With QwtPlotCurve::Yfx,
+  the baseline is interpreted as a horizontal line at y = baseline(),
+  with QwtPlotCurve::Yfy, it is interpreted as a vertical line at
+  x = baseline().
+  \param reference baseline
+  \sa QwtPlotCurve::setBrush(), QwtPlotCurve::setStyle(), QwtPlotCurve::setCurveAttribute()
+*/
+void QwtPlotCurve::setBaseline(double reference)
+{
+    if ( d_data->reference != reference )
+    {
+        d_data->reference = reference;
+        itemChanged();
+    }
+}
+
+/*!
+    \brief Return the value of the baseline
+    \sa QwtPlotCurve::setBaseline
+*/
+double QwtPlotCurve::baseline() const 
+{ 
+    return d_data->reference; 
+}
+
+/*!
+  Return the size of the data arrays
+*/
+int QwtPlotCurve::dataSize() const
+{
+    return d_xy->size();
+}
+
+int QwtPlotCurve::closestPoint(const QPoint &pos, double *dist) const
+{
+    if ( plot() == NULL || dataSize() <= 0 )
+        return -1;
+
+    const QwtScaleMap xMap = plot()->canvasMap(xAxis());
+    const QwtScaleMap yMap = plot()->canvasMap(yAxis());
+
+    int index = -1;
+    double dmin = 1.0e10;
+
+    for (int i=0; i < dataSize(); i++)
+    {
+        const double cx = xMap.xTransform(x(i)) - pos.x();
+        const double cy = yMap.xTransform(y(i)) - pos.y();
+
+        const double f = qwtSqr(cx) + qwtSqr(cy);
+        if (f < dmin)
+        {
+            index = i;
+            dmin = f;
+        }
+    }
+    if ( dist )
+        *dist = sqrt(dmin);
+
+    return index;
+}
+
+void QwtPlotCurve::updateLegend(QwtLegend *legend) const
+{
+    if ( !legend )
+        return;
+
+    QwtPlotItem::updateLegend(legend);
+
+    QWidget *widget = legend->find(this);
+    if ( !widget || !widget->inherits("QwtLegendItem") )
+        return;
+
+    QwtLegendItem *legendItem = (QwtLegendItem *)widget;
+
+#if QT_VERSION < 0x040000
+    const bool doUpdate = legendItem->isUpdatesEnabled();
+#else
+    const bool doUpdate = legendItem->updatesEnabled();
+#endif
+    legendItem->setUpdatesEnabled(false);
+
+    const int policy = legend->displayPolicy();
+
+    if (policy == QwtLegend::Fixed)
+    {
+        int mode = legend->identifierMode();
+
+        if (mode & QwtLegendItem::ShowLine)
+            legendItem->setCurvePen(pen());
+
+        if (mode & QwtLegendItem::ShowSymbol)
+            legendItem->setSymbol(symbol());
+
+        if (mode & QwtLegendItem::ShowText)
+            legendItem->setText(title());
+        else
+            legendItem->setText(QwtText());
+
+        legendItem->setIdentifierMode(mode);
+    }
+    else if (policy == QwtLegend::Auto)
     {
         int mode = 0;
 
-        if (QwtCurve::NoCurve != curve->style()) 
+        if (QwtPlotCurve::NoCurve != style())
         {
-            item->setCurvePen(curve->pen());
-            mode |= QwtLegendButton::ShowLine;
+            legendItem->setCurvePen(pen());
+            mode |= QwtLegendItem::ShowLine;
         }
-        if (QwtSymbol::None != curve->symbol().style()) 
+        if (QwtSymbol::None != symbol().style())
         {
-            item->setSymbol(curve->symbol());
-            mode |= QwtLegendButton::ShowSymbol;
+            legendItem->setSymbol(symbol());
+            mode |= QwtLegendItem::ShowSymbol;
         }
-        if ( !curve->title().isEmpty() )
-        { 
-            item->setTitle(curve->title());
-            mode |= QwtLegendButton::ShowText;
-        } 
-        else 
+        if ( !title().isEmpty() )
         {
-            item->setTitle(QString::null);
+            legendItem->setText(title());
+            mode |= QwtLegendItem::ShowText;
         }
-        item->setIdentifierMode(mode);
+        else
+        {
+            legendItem->setText(QwtText());
+        }
+        legendItem->setIdentifierMode(mode);
     }
-}
 
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
+    legendItem->setUpdatesEnabled(doUpdate);
+    legendItem->update();
+}

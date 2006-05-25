@@ -16,12 +16,11 @@
 #include "qwt_array.h"
 #include "qwt_double_rect.h"
 
-#if defined(QWT_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class QWT_EXPORT QwtArray<QwtDoublePoint>;
+#if defined(QWT_TEMPLATEDLL)
 template class QWT_EXPORT QwtArray<double>;
+#endif 
 // MOC_SKIP_END
-#endif
 
 /*!
   \brief QwtData defines an interface to any type of data.
@@ -92,6 +91,8 @@ public:
     virtual double x(size_t i) const;
     virtual double y(size_t i) const;
 
+    const QwtArray<QwtDoublePoint> data() const;
+
 private:
     QwtArray<QwtDoublePoint> d_data;
 };
@@ -111,6 +112,9 @@ public:
     virtual size_t size() const;
     virtual double x(size_t i) const;
     virtual double y(size_t i) const;
+
+    const QwtArray<double> &xData() const;
+    const QwtArray<double> &yData() const;
 
     virtual QwtDoubleRect boundingRect() const;
 
@@ -141,6 +145,9 @@ public:
     virtual double x(size_t i) const;
     virtual double y(size_t i) const;
 
+    const double *xData() const;
+    const double *yData() const;
+
     virtual QwtDoubleRect boundingRect() const;
 
 private:
@@ -150,10 +157,3 @@ private:
 };
 
 #endif // !QWT_DATA
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
-

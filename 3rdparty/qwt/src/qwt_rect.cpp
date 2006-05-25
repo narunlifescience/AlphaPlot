@@ -7,8 +7,14 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#include <qpointarray.h>
+#include "qwt_math.h"
 #include "qwt_rect.h"
+
+#if QT_VERSION < 0x040000
+#define QwtPointArray QPointArray
+#else
+#define QwtPointArray QPolygon
+#endif
 
 //! Constructor
 
@@ -23,61 +29,9 @@ QwtRect::QwtRect(const QRect &r):
 {
 }
 
-QRect QwtRect::cutTop(int h, int distTop, int distBottom)
+inline static void addPoint(QwtPointArray &pa, uint pos, const QPoint &point)
 {
-    QRect rv;
-    rv.setTop(top() + distTop);
-    rv.setHeight(h);
-    setTop(rv.bottom() + distBottom + 1);
-    rv.setLeft(left());
-    rv.setRight(right());
-    return rv;
-}
-
-QRect QwtRect::cutBottom(int h, int distTop, int distBottom)
-{
-    QRect rv;
-    setBottom(bottom() - h - distBottom - distTop);
-    rv.setTop(bottom() + 1 + distTop);
-    rv.setHeight(h);
-    rv.setLeft(left());
-    rv.setRight(right());
-    return rv;
-}
-
-QRect QwtRect::cutLeft(int w, int distLeft, int distRight)
-{
-    QRect rv;
-    rv.setLeft(left() + distLeft);
-    rv.setWidth(w);
-    setLeft(rv.right() + distRight + 1);
-    rv.setTop(top());
-    rv.setBottom(bottom());
-    return rv;
-}
-
-QRect QwtRect::cutRight(int w, int distLeft, int distRight)
-{
-    QRect rv;
-    setRight(right() - w - distRight - distLeft);
-    rv.setLeft(right() + 1 + distLeft);
-    rv.setWidth(w);
-    rv.setTop(top());
-    rv.setBottom(bottom());
-    return rv;
-}
-
-const QwtRect& QwtRect::cutMargin(int mLeft, int mRight, int mTop, int mBottom)
-{
-    setHeight(height() - mTop - mBottom);
-    setWidth(width() - mLeft - mRight);
-    moveBy(mLeft, mTop);
-    return *this;
-}
-
-inline void addPoint(QPointArray &pa, uint pos, const QPoint &point)
-{
-    if ( pa.size() <= pos ) 
+    if ( uint(pa.size()) <= pos ) 
         pa.resize(pos + 5);
 
     pa.setPoint(pos, point);
@@ -85,16 +39,21 @@ inline void addPoint(QPointArray &pa, uint pos, const QPoint &point)
 
 //! Sutherland-Hodgman polygon clipping
 
-QPointArray QwtRect::clip(const QPointArray &pa) const
+QwtPointArray QwtRect::clip(const QwtPointArray &pa) const
 {
     if ( contains( pa.boundingRect() ) )
         return pa;
 
-    QPointArray cpa(pa.size());
+    QwtPointArray cpa(pa.size());
 
-    for ( uint edge = 0; edge < NEdges; edge++ ) 
+    clipEdge((Edge)0, pa, cpa);
+
+    for ( uint edge = 1; edge < NEdges; edge++ ) 
     {
-        const QPointArray rpa = (edge == 0) ? pa : cpa.copy();
+        const QwtPointArray rpa = cpa;
+#if QT_VERSION < 0x040000
+        cpa.detach();
+#endif
         clipEdge((Edge)edge, rpa, cpa);
     }
 
@@ -117,7 +76,7 @@ bool QwtRect::insideEdge(const QPoint &p, Edge edge) const
             break;
     }
 
-    return FALSE;
+    return false;
 }
 
 QPoint QwtRect::intersectEdge(const QPoint &p1, 
@@ -133,22 +92,22 @@ QPoint QwtRect::intersectEdge(const QPoint &p1,
     {
         case Left:
             x = left();
-            m = double(QABS(p1.x() - x)) / QABS(dx);
+            m = double(qwtAbs(p1.x() - x)) / qwtAbs(dx);
             y = p1.y() + int(dy * m);
             break;
         case Top:
             y = top();
-            m = double(QABS(p1.y() - y)) / QABS(dy);
+            m = double(qwtAbs(p1.y() - y)) / qwtAbs(dy);
             x = p1.x() + int(dx * m);
             break;
         case Right:
             x = right();
-            m = double(QABS(p1.x() - x)) / QABS(dx);
+            m = double(qwtAbs(p1.x() - x)) / qwtAbs(dx);
             y = p1.y() + int(dy * m);
             break;
         case Bottom:
             y = bottom();
-            m = double(QABS(p1.y() - y)) / QABS(dy);
+            m = double(qwtAbs(p1.y() - y)) / qwtAbs(dy);
             x = p1.x() + int(dx * m);
             break;
         default:
@@ -158,7 +117,8 @@ QPoint QwtRect::intersectEdge(const QPoint &p1,
     return QPoint(x,y);
 }
 
-void QwtRect::clipEdge(Edge edge, const QPointArray &pa, QPointArray &cpa) const
+void QwtRect::clipEdge(Edge edge, 
+    const QwtPointArray &pa, QwtPointArray &cpa) const
 {
     if ( pa.count() == 0 )
     {

@@ -2,77 +2,50 @@
  * Qwt Widget Library
  * Copyright (C) 1997   Josef Wilgen
  * Copyright (C) 2002   Uwe Rathmann
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
+
+// vim: expandtab
 
 #ifndef QWT_PLOT_DICT
 #define QWT_PLOT_DICT
 
 #include "qwt_global.h"
-#include "qwt_plot_classes.h"
-#include <qintdict.h>
+#include "qwt_plot_item.h"
 
-//
-//   Template classes used by QwtPlot
-//
+#if QT_VERSION < 0x040000
+#include <qvaluelist.h>
+typedef QValueListConstIterator<QwtPlotItem *> QwtPlotItemIterator;
+typedef QValueList<QwtPlotItem *> QwtPlotItemList;
+#else
+#include <qlist.h>
+typedef QList<QwtPlotItem *>::ConstIterator QwtPlotItemIterator;
+typedef QList<QwtPlotItem *> QwtPlotItemList;
+#endif
 
-template<class type>
-class QWT_EXPORT QwtSeqDict : public QIntDict<type>
+class QWT_EXPORT QwtPlotDict
 {
 public:
-    QwtSeqDict(): QIntDict<type>() {}
-    void insert(long key, const type *item) 
-    {
-        uint prime;
-        if ((uint(key) >= this->size()) && (prime = nextPrime(uint(key))))
-            this->resize(prime);
-        QIntDict<type>::insert(key, item);
-    }
+    explicit QwtPlotDict();
+    ~QwtPlotDict();
+
+    void setAutoDelete(bool);
+    bool autoDelete() const;
+
+    const QwtPlotItemList& itemList() const;
+
+    void detachItems(int rtti = QwtPlotItem::Rtti_PlotItem,
+        bool autoDelete = true);
+
 private:
-    uint nextPrime(uint i) 
-    {
-        // first primes bigger than 1<<n for n = 2, 3, .., 15
-        uint primes[] = 
-        {
-            17,
-            37,
-            67,
-            131,
-            257,
-            521,
-            1031,
-            2053,
-            4099,
-            8209,
-            16411,
-            32771,
-        };
+    friend class QwtPlotItem;
 
-        for (uint j=0; j<sizeof(primes); j++)
-        {
-            if (i<primes[j])
-                return primes[j];
-        }
-        
-        return 0;
-    }
+    void attachItem(QwtPlotItem *, bool);
+
+    class PrivateData;
+    PrivateData *d_data;
 };
-
-class QWT_EXPORT QwtCurveDict : public QwtSeqDict<QwtPlotCurve>
-{
-public:
-    QwtCurveDict() { setAutoDelete(TRUE); }
-};
-
-class QWT_EXPORT QwtMarkerDict : public QwtSeqDict<QwtPlotMarker>
-{
-public:
-    QwtMarkerDict() { setAutoDelete(TRUE); }
-};
-
-typedef QIntDictIterator<QwtPlotCurve> QwtPlotCurveIterator;
-typedef QIntDictIterator<QwtPlotMarker> QwtPlotMarkerIterator;
 
 #endif

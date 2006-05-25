@@ -2,6 +2,7 @@
 #define BARCURVE_H
 
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 class QwtBarCurve: public QwtPlotCurve
 {
@@ -12,8 +13,8 @@ public:
 
 	void copy(const QwtBarCurve *b);
 
-	virtual void draw(QPainter *painter,const QwtDiMap &xMap, 
-		const QwtDiMap &yMap, int from, int to);
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to);
 
 	virtual QwtDoubleRect boundingRect() const;
 

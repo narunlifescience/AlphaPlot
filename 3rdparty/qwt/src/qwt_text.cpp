@@ -9,450 +9,381 @@
 
 // vim: expandtab
 
+#include <qfont.h>
+#include <qcolor.h>
+#include <qpen.h>
+#include <qbrush.h>
 #include <qpainter.h>
-#include <qpalette.h>
-#include <qstylesheet.h>
 #include "qwt_painter.h"
+#include "qwt_text_engine.h"
 #include "qwt_text.h"
-
-Qt::TextFormat QwtText::d_defaultFormat = Qt::AutoText;
-
-/*!
-  \brief Constructor
-
-  \param text Text
-  \param font Font
-  \param align Alignment flags
-  \param color Color
-  \param pen Pen
-  \param brush Brush
-*/
-
-QwtText::QwtText(const QString &text, const QFont &font, 
-        int align, const QColor &color, const QPen &pen, const QBrush &brush):
-    d_align(align),
-    d_text(text),
-    d_font(font),
-    d_color(color),
-    d_fm(font),
-    d_rectPen(pen),
-    d_rectBrush(brush)
+#if QT_VERSION >= 0x040000
+#include <qapplication.h>
+#include <qdesktopwidget.h>
+#endif
+class QwtText::PrivateData
 {
+public:
+    PrivateData():
+        flags(Qt::AlignCenter),
+        backgroundPen(Qt::NoPen),
+        backgroundBrush(Qt::NoBrush),
+        paintAttributes(QwtText::PaintUsingPainter),
+        layoutAttributes(QwtText::DefaultLayout),
+        textEngine(NULL)
+    {
+    }
+
+    int flags;
+    QString text;
+    QFont font;
+    QColor color;
+    QPen backgroundPen;
+    QBrush backgroundBrush;
+
+    int paintAttributes;
+    int layoutAttributes;
+
+    QwtTextEngine *textEngine;
+};
+
+class QwtText::LayoutCache
+{
+public:
+    void invalidate()
+    {
+        textSize = QSize();
+    }
+
+    QFont font;
+    QSize textSize;
+};
+
+QwtText::QwtText(const QString &text, QwtText::TextFormat textFormat)
+{
+    d_data = new PrivateData;
+    d_data->text = text;
+    d_data->textEngine = textEngine(text, textFormat);
+
+    d_layoutCache = new LayoutCache;
+}
+
+QwtText::QwtText(const QwtText &other)
+{
+    d_data = new PrivateData;
+    *d_data = *other.d_data;
+
+    d_layoutCache = new LayoutCache;
+    *d_layoutCache = *other.d_layoutCache;
 }
 
 //! Destructor
 QwtText::~QwtText() 
 {
+    delete d_data;
+    delete d_layoutCache;
 }
 
-/*!
-  Factory function for QwtText objects. Creates a text according
-  to QwtText::defaultFormat()
-
-  \param text Contents of the text
-  \param align Or'd values of Qt::AlignmentFlags for drawing the text
-  \param font Font of the text
-  \param color Color of the text
-  \param pen Pen to draw the enclosing rectangle
-  \param brush Brush to draw the enclosing rectangle 
-  \return Pointer to a new QwtPlainText or QwtRichText object
-  \sa QwtText::defaultFormat, QwtText::setDefaultFormat
-*/
-QwtText *QwtText::makeText(const QString &text, 
-    int align, const QFont &font, const QColor &color,
-    const QPen &pen, const QBrush &brush)
+QwtText &QwtText::operator=(const QwtText &other)
 {
-    return makeText(text, d_defaultFormat, align, font, color, pen, brush);
+    *d_data = *other.d_data;
+    *d_layoutCache = *other.d_layoutCache;
+    return *this;
 }
-
-/*!
-  Factory function for QwtText objects.
-
-  \param text Contents of the text
-  \param format Format of the text
-  \param align Or'd values of Qt::AlignmentFlags for drawing the text
-  \param font Font of the text
-  \param color Color of the text
-  \param pen Pen to draw the enclosing rectangle
-  \param brush Brush to draw the enclosing rectangle 
-  \return Pointer to a new QwtPlainText or QwtRichText object
-*/
-
-QwtText *QwtText::makeText(const QString &text, Qt::TextFormat format,
-    int align, const QFont &font, const QColor &color,
-    const QPen &pen, const QBrush &brush)
+    
+int QwtText::operator==(const QwtText &other) const
 {
-#ifndef QT_NO_RICHTEXT
-    if (format == Qt::RichText || ((format == Qt::AutoText)
-            && QStyleSheet::mightBeRichText(text)))
-    {
-        return new QwtRichText(text, font, align, color, pen, brush);
-    }
-    else
-#endif
-    {
-        return new QwtPlainText(text, font, align, color, pen, brush);
-    }
+    return d_data->flags == other.d_data->flags &&
+        d_data->text == other.d_data->text &&
+        d_data->font == other.d_data->font &&
+        d_data->color == other.d_data->color &&
+        d_data->backgroundPen == other.d_data->backgroundPen &&
+        d_data->backgroundBrush == other.d_data->backgroundBrush &&
+        d_data->paintAttributes == other.d_data->paintAttributes &&
+        d_data->textEngine == other.d_data->textEngine;
 }
 
-//!  Set the default format for the QwtText factory
-void QwtText::setDefaultFormat(Qt::TextFormat format)
+int QwtText::operator!=(const QwtText &other) const // invalidate
 {
-    d_defaultFormat = format;
+   return !(other == *this);
 }
 
-//! Return default format for the QwtText factory
-Qt::TextFormat QwtText::defaultFormat()
-{
-    return d_defaultFormat;
-}
-
-//! Set the text.
-void QwtText::setText(const QString &text) 
+void QwtText::setText(const QString &text, 
+    QwtText::TextFormat textFormat) 
 { 
-    d_text = text; 
+    d_data->text = text; 
+    d_data->textEngine = textEngine(text, textFormat);
+    d_layoutCache->invalidate();
 }
 
 //! Return the text.
 QString QwtText::text() const 
 { 
-    return d_text; 
+    return d_data->text; 
+}
+
+void QwtText::setFlags(int flags) 
+{ 
+    if ( flags != d_data->flags )
+    {
+        d_data->flags = flags; 
+#if 1
+        d_layoutCache->invalidate();
+#endif
+    }
+}
+
+int QwtText::flags() const 
+{ 
+    return d_data->flags; 
 }
 
 //! Set the font.
 void QwtText::setFont(const QFont &font) 
 {
-    d_font = font; 
-    d_fm = QFontMetrics(font);
+    d_data->font = font; 
+    d_data->paintAttributes |= PaintUsingTextFont;
 }
 
 //! Return the font.
 QFont QwtText::font() const 
 { 
-    return d_font; 
+    return d_data->font; 
 }
 
-//! Return the font metrics.
-QFontMetrics QwtText::fontMetrics() const 
-{ 
-    return d_fm; 
+QFont QwtText::usedFont(const QFont &font) const
+{
+    if ( d_data->paintAttributes & PaintUsingTextFont )
+        return d_data->font;
+
+    return font;
 }
 
-/*!
-  Set the alignment flags.
-  \param align Or'd Qt::Alignment flags
-*/
-void QwtText::setAlignment(int align) 
-{ 
-    d_align = align; 
-}
-
-//! Get the alignment flags.
-int QwtText::alignment() const 
-{ 
-    return d_align; 
-}
-
-//! Set the color.
 void QwtText::setColor(const QColor &color) 
 { 
-    d_color = color; 
+    d_data->paintAttributes |= PaintUsingTextColor;
+    d_data->color = color; 
 }
 
-//! Return the color.
 QColor QwtText::color() const 
 { 
-    return d_color; 
+    return d_data->color; 
 }
 
-//! Set the rectangle pen.
-void QwtText::setRectPen(const QPen &pen) 
+QColor QwtText::usedColor(const QColor &color) const
+{
+    if ( d_data->paintAttributes & PaintUsingTextColor )
+        return d_data->color;
+
+    return color;
+}
+
+void QwtText::setBackgroundPen(const QPen &pen) 
 { 
-    d_rectPen = pen; 
+    d_data->paintAttributes |= PaintBackground;
+    d_data->backgroundPen = pen; 
 }
 
-//! Return the rectangle pen.
-QPen QwtText::rectPen() const 
+QPen QwtText::backgroundPen() const 
 { 
-    return d_rectPen; 
+    return d_data->backgroundPen; 
 }
 
-//! Set the rectangle brush.
-void QwtText::setRectBrush(const QBrush &brush) 
+void QwtText::setBackgroundBrush(const QBrush &brush) 
 { 
-    d_rectBrush = brush; 
+    d_data->paintAttributes |= PaintBackground;
+    d_data->backgroundBrush = brush; 
 }
 
-//! Return the rectangle brush.
-QBrush QwtText::rectBrush() const 
+QBrush QwtText::backgroundBrush() const 
 { 
-    return d_rectBrush; 
+    return d_data->backgroundBrush; 
 }
 
-/*!
-  \brief Constructor
-
-  \param text Contents of the text
-  \param font Font of the text
-  \param align Or'd values of Qt::AlignmentFlags for drawing the text
-  \param color Color of the text
-  \param pen Pen to draw the enclosing rectangle
-  \param brush Brush to draw the enclosing rectangle 
-*/
-
-QwtPlainText::QwtPlainText(const QString &text, const QFont &font,
-        int align, const QColor &color, const QPen &pen, const QBrush &brush):
-    QwtText(text, font, align, color, pen, brush) 
+void QwtText::setPaintAttributes(int attributes)
 {
+    d_data->paintAttributes = attributes;
 }
 
-/*!
-  \brief Constructor
-  \param text Text
-  \param font Font
-  \param color Color
-*/
-
-QwtPlainText::QwtPlainText(const QString &text, 
-        const QFont &font, const QColor &color):
-    QwtText(text, font, 
-        Qt::AlignCenter | Qt::WordBreak | Qt::ExpandTabs, color) 
+int QwtText::paintAttributes() const
 {
+    return d_data->paintAttributes;
 }
 
-//! Create a clone
-QwtText *QwtPlainText::clone() const
+void QwtText::setLayoutAttributes(int attributes)
 {
-    return new QwtPlainText(
-        text(), font(), alignment(), color(), rectPen(), rectBrush());
+    d_data->layoutAttributes = attributes;
 }
 
-/*!
-  \brief Find the height for a given width.
-  \param width Width
-  \return height Height 
-*/
-int QwtPlainText::heightForWidth(int width) const
+int QwtText::layoutAttributes() const
 {
-    const QwtLayoutMetrics metrics(QwtPainter::metricsMap());
-    return metrics.heightForWidth(text(), width, alignment(), fontMetrics());
+    return d_data->layoutAttributes;
 }
 
-/*!
-  \brief Draw the text in a clipping rectangle.
-  \param painter Painter
-  \param rect Clipping rectangle
-*/
-void QwtPlainText::draw(QPainter *painter, const QRect &rect) const
+int QwtText::heightForWidth(int width, const QFont &font) const
 {
-    painter->save();
-    painter->setPen(rectPen());
-    painter->setBrush(rectBrush());
-    QwtPainter::drawRect(painter, rect);
-    painter->restore();
+    const QwtMetricsMap map = QwtPainter::metricsMap();
+    width = map.layoutToScreenX(width);
 
-    painter->save();
-    painter->setFont(font());
-    painter->setPen(color());
-    QwtPainter::drawText(painter, rect, alignment(), text());
-    painter->restore();
-}
-
-QRect QwtPlainText::boundingRect(QPainter *painter) const
-{
-    const QwtLayoutMetrics metrics(QwtPainter::metricsMap());
-    
-    if (painter)
-    {
-        painter->save();
-        painter->setFont(font());
-        const QRect rect = metrics.boundingRect(text(), 
-            alignment(), painter);
-        painter->restore();
-        return rect;
-    }
-
-    return metrics.boundingRect(text(), alignment(), fontMetrics());
-}
-
-#ifndef QT_NO_RICHTEXT
-
-/*!
-  \brief Constructor
-
-  \param text Contents of the text
-  \param font Font of the text
-  \param align Or'd values of Qt::AlignmentFlags for drawing the text
-  \param color Color of the text
-  \param pen Pen to draw the enclosing rectangle
-  \param brush Brush to draw the enclosing rectangle 
-*/
-
-QwtRichText::QwtRichText(const QString &text, const QFont &font,
-        int align, const QColor &color, const QPen &pen, const QBrush &brush):
-    QwtText(text, font, align, color, pen, brush),
-    d_doc(new QSimpleRichText(text, font))
-{ 
-    setText(text); 
-}
-
-/*!
-  \brief Constructor
-  \param text Text
-  \param font Font
-  \param color Color
-*/
-
-QwtRichText::QwtRichText(const QString &text, const QFont &font,
-        const QColor &color):
-    QwtText(text, font,
-        Qt::AlignCenter | Qt::WordBreak | Qt::ExpandTabs, color),
-    d_doc(new QSimpleRichText(text, font))
-{ 
-    setText(text); 
-}
-
-//! Destructor
-QwtRichText::~QwtRichText() 
-{ 
-    delete d_doc; 
-}
-
-//! Create a clone
-QwtText *QwtRichText::clone() const
-{
-    return new QwtRichText(
-        text(), font(), alignment(), color(), rectPen(), rectBrush());
-}
-
-//! Set the text
-void QwtRichText::setText(const QString &text)
-{
-    QwtText::setText(text);
-
-    delete d_doc;
-    d_doc = new QSimpleRichText(taggedText(text, alignment()), font());
-}
-
-//! Set the font
-void QwtRichText::setFont(const QFont &font)
-{
-#if QT_VERSION >= 300
-    d_doc->setDefaultFont(font);
-#endif
-    QwtText::setFont(font);
-}
-
-//! Set the alignment
-void QwtRichText::setAlignment(int align)
-{
-    QwtText::setAlignment(align);
-
-    delete d_doc;
-    d_doc = new QSimpleRichText(taggedText(text(), align), font());
-}
-
-/*!
-  \brief Find the height for a given width
-  \param width Width
-  \return height Height 
-*/
-int QwtRichText::heightForWidth(int width) const
-{
-#if QT_VERSION < 300
-    const QFont defaultFont = QFont::defaultFont();
-    QFont::setDefaultFont(font());
-#endif
-
-    const QwtLayoutMetrics metrics(QwtPainter::metricsMap());
-    const int height = metrics.heightForWidth(*d_doc, width);
-
-#if QT_VERSION < 300
-    QFont::setDefaultFont(defaultFont);
-#endif
-
-    return height;
-}
-
-/*!
-  \brief Draw the text in a clipping rectangle
-  \param painter Painter
-  \param rect Clipping rectangle
-*/
-void QwtRichText::draw(QPainter *painter, const QRect &rect) const
-{
-    painter->save();
-    painter->setPen(rectPen());
-    painter->setBrush(rectBrush());
-    QwtPainter::drawRect(painter, rect);
-    painter->restore();
-
-    painter->save();
-
-    painter->setPen(color());
-#if QT_VERSION < 300
-    const QFont defaultFont = QFont::defaultFont();
-    QFont::setDefaultFont(font());
+#if QT_VERSION < 0x040000
+    const QFont fnt = usedFont(font);
 #else
-    painter->setFont(font());
+    // We want to calculate in screen metrics. So
+    // we need a font that uses screen metrics
+
+    const QFont fnt(usedFont(font), QApplication::desktop());
 #endif
 
-    QwtPainter::drawSimpleRichText(painter, rect, alignment(), *d_doc);
+    int h = 0;
 
-#if QT_VERSION < 300
-    QFont::setDefaultFont(defaultFont);
+    if ( d_data->layoutAttributes & MinimumLayout )
+    {
+        int left, right, top, bottom;
+        d_data->textEngine->textMargins(fnt, d_data->text,
+            left, right, top, bottom);
+
+        h = d_data->textEngine->heightForWidth(
+            fnt, d_data->flags, d_data->text, 
+            width + left + right);
+
+        h -= top + bottom;
+    }
+    else
+    {
+        h = d_data->textEngine->heightForWidth(
+            fnt, d_data->flags, d_data->text, width);
+    }
+
+    h = map.screenToLayoutY(h);
+    return h;
+}
+
+QSize QwtText::textSize(const QFont &font) const
+{
+#if QT_VERSION < 0x040000
+    const QFont fnt(usedFont(font));
+#else
+    // We want to calculate in screen metrics. So
+    // we need a font that uses screen metrics
+
+    const QFont fnt(usedFont(font), QApplication::desktop());
 #endif
+
+    if ( !d_layoutCache->textSize.isValid() 
+        || d_layoutCache->font != fnt )
+    {
+        d_layoutCache->textSize = d_data->textEngine->textSize(
+            fnt, d_data->flags, d_data->text);
+        d_layoutCache->font = fnt;
+    }
+
+    QSize sz = d_layoutCache->textSize;
+
+    if ( d_data->layoutAttributes & MinimumLayout )
+    {
+        int left, right, top, bottom;
+        d_data->textEngine->textMargins(fnt, d_data->text,
+            left, right, top, bottom);
+        sz -= QSize(left + right, top + bottom);
+    }
+
+    const QwtMetricsMap map = QwtPainter::metricsMap();
+    sz = map.screenToLayout(sz);
+    return sz;
+}
+
+void QwtText::draw(QPainter *painter, const QRect &rect) const
+{
+    if ( d_data->paintAttributes & PaintBackground )
+    {
+        if ( d_data->backgroundPen != Qt::NoPen || 
+            d_data->backgroundBrush != Qt::NoBrush )
+        {
+            painter->save();
+            painter->setPen(d_data->backgroundPen);
+            painter->setBrush(d_data->backgroundBrush);
+            QwtPainter::drawRect(painter, rect);
+            painter->restore();
+        }
+    }
+
+    painter->save();
+
+    if ( d_data->paintAttributes & PaintUsingTextFont )
+    {
+        painter->setFont(d_data->font);
+    }
+
+    if ( d_data->paintAttributes & PaintUsingTextColor )
+    {
+        if ( d_data->color.isValid() )
+            painter->setPen(d_data->color);
+    }
+
+    QRect expandedRect = rect;
+    if ( d_data->layoutAttributes & MinimumLayout )
+    {
+#if QT_VERSION < 0x040000
+        const QFont fnt(painter->font());
+#else
+        // We want to calculate in screen metrics. So
+        // we need a font that uses screen metrics
+
+        const QFont fnt(painter->font(), QApplication::desktop());
+#endif
+
+        int left, right, top, bottom;
+        d_data->textEngine->textMargins(
+            fnt, d_data->text,
+            left, right, top, bottom);
+
+        const QwtMetricsMap map = QwtPainter::metricsMap();
+        left = map.screenToLayoutX(left);
+        right = map.screenToLayoutX(right);
+        top = map.screenToLayoutY(top);
+        bottom = map.screenToLayoutY(bottom);
+
+        expandedRect.setTop(rect.top() - top);
+        expandedRect.setBottom(rect.bottom() + bottom);
+        expandedRect.setLeft(rect.left() - left);
+        expandedRect.setRight(rect.right() + right);
+    }
+
+    d_data->textEngine->draw(painter, expandedRect, 
+        d_data->flags, d_data->text);
+
     painter->restore();
 }
 
-QRect QwtRichText::boundingRect(QPainter *painter) const
+QwtTextEngine *QwtText::textEngine(const QString &text,
+    QwtText::TextFormat format) const
 {
-#if QT_VERSION < 300
-    const QFont defaultFont = QFont::defaultFont();
-    QFont::setDefaultFont(font());
+#ifndef QT_NO_RICHTEXT
+    static QwtRichTextEngine richTextEngine;
 #endif
+    static QwtPlainTextEngine plainTextEngine;
 
-    const QwtLayoutMetrics metrics(QwtPainter::metricsMap());
-    const QRect rect = metrics.boundingRect(*d_doc, alignment(), painter);
-
-#if QT_VERSION < 300
-    QFont::setDefaultFont(defaultFont);
+    switch(format)
+    {
+        case QwtText::AutoText:
+        {
+#ifndef QT_NO_RICHTEXT
+            if ( richTextEngine.mightRender(text) )
+                return &richTextEngine;
 #endif
-
-    return rect;
-}
-
-//! Wrap text into <div align=...> </div> tags according align
-QString QwtRichText::taggedText(const QString &text, int align) const
-{
-    QString rich = text;
-
-    // By default QwtSimpleRichText is Qt::AlignLeft
-#if QT_VERSION >= 300
-    if (align & Qt::AlignJustify) 
-    {
-        rich.prepend(QString::fromLatin1("<div align=\"justify\">"));
-        rich.append(QString::fromLatin1("</div>"));
-    } else
+            break;
+        }
+        case QwtText::RichText:
+        {
+#ifndef QT_NO_RICHTEXT
+            return &richTextEngine;
 #endif
-    if (align & Qt::AlignRight)
-    {
-        rich.prepend(QString::fromLatin1("<div align=\"right\">"));
-        rich.append(QString::fromLatin1("</div>"));
-    }
-    else if (align & Qt::AlignHCenter) 
-    {
-        rich.prepend(QString::fromLatin1("<div align=\"center\">"));
-        rich.append(QString::fromLatin1("</div>"));
+            break;
+        }
+        case QwtText::PlainText:
+        default:
+            return &plainTextEngine;
     }
 
-    return rich;
+    return &plainTextEngine;
 }
-
-#endif
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

@@ -10,6 +10,7 @@
 #ifndef QWT_EVENT_PATTERN
 #define QWT_EVENT_PATTERN 1
 
+#include <qnamespace.h>
 #include "qwt_array.h"
 
 class QMouseEvent;
@@ -195,6 +196,18 @@ private:
 #pragma warning(pop)
 #endif
 };
+
+inline bool operator==(QwtEventPattern::MousePattern b1, 
+   QwtEventPattern::MousePattern  b2)
+{ 
+    return b1.button == b2.button && b1.state == b2.state; 
+}
+
+inline bool operator==(QwtEventPattern::KeyPattern b1, 
+   QwtEventPattern::KeyPattern  b2)
+{ 
+    return b1.key == b2.key && b1.state == b2.state; 
+}
 
 #if defined(QWT_TEMPLATEDLL)
 // MOC_SKIP_BEGIN

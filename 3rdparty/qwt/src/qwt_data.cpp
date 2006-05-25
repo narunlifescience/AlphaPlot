@@ -7,8 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-// vim: expandtab
-
+#include "qwt_math.h"
 #include "qwt_data.h"
 
 QwtData::QwtData()
@@ -22,7 +21,7 @@ QwtData::~QwtData()
 /*!
   Returns the bounding rectangle of the data. If there is
   no bounding rect, like for empty data the rectangle is invalid:
-  QwtDoubleRect::isValid() == FALSE
+  QwtDoubleRect::isValid() == false
 
   \warning This is an slow implementation iterating over all points. 
            It is intended to be overloaded by derived classes. In case of
@@ -35,7 +34,7 @@ QwtDoubleRect QwtData::boundingRect() const
     const size_t sz = size();
 
     if ( sz <= 0 )
-        return QwtDoubleRect(1.0, -1.0, 1.0, -1.0); // invalid
+        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
     double minX, maxX, minY, maxY;
     minX = maxX = x(0);
@@ -55,7 +54,7 @@ QwtDoubleRect QwtData::boundingRect() const
         if ( yv > maxY )
             maxY = yv;
     }
-    return QwtDoubleRect(minX, maxX, minY, maxY);
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
 QwtDoublePointData::QwtDoublePointData(const QwtArray<QwtDoublePoint> &data):
@@ -89,6 +88,11 @@ double QwtDoublePointData::y(size_t i) const
     return d_data[int(i)].y(); 
 }
 
+const QwtArray<QwtDoublePoint> QwtDoublePointData::data() const
+{
+    return d_data;
+}
+
 QwtData *QwtDoublePointData::copy() const 
 { 
     return new QwtDoublePointData(d_data); 
@@ -100,7 +104,9 @@ QwtData *QwtDoublePointData::copy() const
   \sa QwtCurve::setData and QwtPlot::setCurveData.
 */
 QwtArrayData::QwtArrayData(
-    const QwtArray<double> &x, const QwtArray<double> &y): d_x(x), d_y(y)
+        const QwtArray<double> &x, const QwtArray<double> &y): 
+    d_x(x), 
+    d_y(y)
 {
 }
 
@@ -111,10 +117,19 @@ QwtArrayData::QwtArrayData(
 */
 QwtArrayData::QwtArrayData(const double *x, const double *y, size_t size)
 {
+#if QT_VERSION >= 0x040000
+    d_x.resize(size);
+    qMemCopy(d_x.data(), x, size * sizeof(double));
+
+    d_y.resize(size);
+    qMemCopy(d_y.data(), y, size * sizeof(double));
+#else
     d_x.detach();
     d_x.duplicate(x, size);
+
     d_y.detach();
     d_y.duplicate(y, size);
+#endif
 }
 
 //! Assignment 
@@ -130,7 +145,7 @@ QwtArrayData& QwtArrayData::operator=(const QwtArrayData &data)
 
 size_t QwtArrayData::size() const 
 { 
-    return QMIN(d_x.size(), d_y.size()); 
+    return qwtMin(d_x.size(), d_y.size()); 
 }
 
 double QwtArrayData::x(size_t i) const 
@@ -143,6 +158,16 @@ double QwtArrayData::y(size_t i) const
     return d_y[int(i)]; 
 }
 
+const QwtArray<double> &QwtArrayData::xData() const
+{
+    return d_x;
+}
+
+const QwtArray<double> &QwtArrayData::yData() const
+{
+    return d_y;
+}
+
 QwtData *QwtArrayData::copy() const 
 { 
     return new QwtArrayData(d_x, d_y); 
@@ -151,14 +176,14 @@ QwtData *QwtArrayData::copy() const
 /*!
   Returns the bounding rectangle of the data. If there is
   no bounding rect, like for empty data the rectangle is invalid:
-  QwtDoubleRect::isValid() == FALSE
+  QwtDoubleRect::isValid() == false
 */
 QwtDoubleRect QwtArrayData::boundingRect() const
 {
     const size_t sz = size();
 
     if ( sz <= 0 )
-        return QwtDoubleRect(1.0, -1.0, 1.0, -1.0); // invalid
+        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
     double minX, maxX, minY, maxY;
     QwtArray<double>::ConstIterator xIt = d_x.begin();
@@ -181,7 +206,7 @@ QwtDoubleRect QwtArrayData::boundingRect() const
         if ( yv > maxY )
             maxY = yv;
     }
-    return QwtDoubleRect(minX, maxX, minY, maxY);
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
 QwtCPointerData::QwtCPointerData(const double *x, const double *y,
@@ -217,6 +242,16 @@ double QwtCPointerData::y(size_t i) const
     return d_y[int(i)]; 
 }
 
+const double *QwtCPointerData::xData() const
+{
+    return d_x;
+}
+
+const double *QwtCPointerData::yData() const
+{
+    return d_y;
+}
+
 QwtData *QwtCPointerData::copy() const 
 {
     return new QwtCPointerData(d_x, d_y, d_size);
@@ -225,14 +260,14 @@ QwtData *QwtCPointerData::copy() const
 /*!
   Returns the bounding rectangle of the data. If there is
   no bounding rect, like for empty data the rectangle is invalid:
-  QwtDoubleRect::isValid() == FALSE
+  QwtDoubleRect::isValid() == false
 */
 QwtDoubleRect QwtCPointerData::boundingRect() const
 {
     const size_t sz = size();
 
     if ( sz <= 0 )
-        return QwtDoubleRect(1.0, -1.0, 1.0, -1.0); // invalid
+        return QwtDoubleRect(1.0, 1.0, -2.0, -2.0); // invalid
 
     double minX, maxX, minY, maxY;
     const double *xIt = d_x;
@@ -255,11 +290,5 @@ QwtDoubleRect QwtCPointerData::boundingRect() const
         if ( yv > maxY )
             maxY = yv;
     }
-    return QwtDoubleRect(minX, maxX, minY, maxY);
+    return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

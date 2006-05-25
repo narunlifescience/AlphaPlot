@@ -2,6 +2,8 @@
 #define BOXCURVE_H
 
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_symbol.h>
 
 class BoxCurve: public QwtPlotCurve
 {
@@ -12,11 +14,11 @@ public:
 
 	void copy(const BoxCurve *b);
 
-	virtual void draw(QPainter *painter,const QwtDiMap &xMap, 
-		const QwtDiMap &yMap, int from, int to);
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to);
 
-	void drawBox(QPainter *painter, const QwtDiMap &xMap, const QwtDiMap &yMap, double *dat, int size);
-	void drawSymbols(QPainter *painter, const QwtDiMap &xMap, const QwtDiMap &yMap, double *dat, int size);
+	void drawBox(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, double *dat, int size);
+	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, double *dat, int size);
 
 	virtual QwtDoubleRect boundingRect() const;
 
@@ -77,3 +79,4 @@ private:
 };
 
 #endif
+

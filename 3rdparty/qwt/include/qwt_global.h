@@ -13,12 +13,12 @@
 #define QWT_GLOBAL_H
 
 #include <qglobal.h>
-#if QT_VERSION < 400
+#if QT_VERSION < 0x040000
 #include <qmodules.h>
 #endif
 
-#define QWT_VERSION       0x040200
-#define QWT_VERSION_STR   "4.2.0"
+#define QWT_VERSION       0x050000
+#define QWT_VERSION_STR   "5.0.0cvs"
 
 //
 // Create Qwt DLL if QWT_DLL is defined (Windows only)
@@ -58,28 +58,6 @@
 
 #ifndef QWT_EXPORT
 #define QWT_EXPORT
-#endif
-
-#if QT_VERSION < 300
-// Use old QArray instead of QMemArray
-#define QWT_NO_MEMARRAY 1
-#endif
-
-#if defined(Q_WS_X11) 
-#if (QT_VERSION >= 300) && (QT_VERSION < 0x040000)
-
-// Raster operations with texts don´t work together with antialiasing.
-// On X11 it doesn´t work with Xft at all, even if antialiasing
-// is disabled. QWT_BROKEN_RASTEROP_FONT disables font antialiasing
-// whenever raster operations are set. All other texts are not affected.
-// We hope that TrollTech will have added a similar workaround 
-// to Qt >= 4.x. 
-
-#ifndef QT_NO_XFTFREETYPE
-#define QWT_BROKEN_RASTEROP_FONT 1
-#endif
-
-#endif
 #endif
 
 // #define QWT_NO_COMPAT 1 // disable withdrawn functionality

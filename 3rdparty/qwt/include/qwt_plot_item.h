@@ -7,12 +7,19 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
-#ifndef QWT_PLOT_ITEM
-#define QWT_PLOT_ITEM
+#ifndef QWT_PLOT_ITEM_H
+#define QWT_PLOT_ITEM_H
 
 #include "qwt_global.h"
+#include "qwt_double_rect.h"
 
+class QRect;
+class QPainter;
+class QWidget;
 class QwtPlot;
+class QwtLegend;
+class QwtScaleMap;
+class QwtScaleDiv;
 
 /*!
   \brief Base class for items on the plot canvas
@@ -21,37 +28,57 @@ class QwtPlot;
 class QWT_EXPORT QwtPlotItem
 {
 public:
-    QwtPlotItem(QwtPlot *parent, bool nbl = TRUE);
+    enum RttiValues
+    { 
+        Rtti_PlotItem = 0,
+
+        Rtti_PlotGrid,
+        Rtti_PlotMarker,
+        Rtti_PlotCurve,
+        Rtti_PlotHistogram,
+
+        Rtti_PlotUserItem = 1000
+    };
+
+    enum ItemAttribute
+    {
+        Legend = 1,
+        AutoScale = 2
+    };
+
+#if QT_VERSION >= 0x040000
+    enum RenderHint
+    {
+        RenderAntialiased = 1
+    };
+#endif
+
+    explicit QwtPlotItem();
     virtual ~QwtPlotItem();
 
-    void reparent(QwtPlot *plot);
+    void attach(QwtPlot *plot);
+    void detach() { attach(NULL); }
 
-    //! Return parent plot
-    QwtPlot *parentPlot() { return d_parent; }
-
-    //! Return parent plot
-    const QwtPlot *parentPlot() const { return d_parent; }
+    QwtPlot *plot() const;
     
-    virtual void setEnabled(bool);
-    bool enabled() const;
+    virtual int rtti() const;
 
-    virtual void itemChanged();
+    void setItemAttribute(ItemAttribute, bool on = true);
+    bool testItemAttribute(ItemAttribute) const;
 
-private:
-    bool d_enabled;
-    QwtPlot *d_parent;
-};
-            
+#if QT_VERSION >= 0x040000
+    void setRenderHint(RenderHint, bool on = true);
+    bool testRenderHint(RenderHint) const;
+#endif
 
-/*!
-  \brief Base class for items on the plot canvas,
-  that are attached to x and y axes.
-*/
-class QWT_EXPORT QwtPlotMappedItem : public QwtPlotItem 
-{
-public:
-    QwtPlotMappedItem(QwtPlot *parent, bool nbl = TRUE);
-    
+    double z() const; 
+    void setZ(double z);
+
+    void show();
+    void hide();
+    virtual void setVisible(bool);
+    bool isVisible () const;
+
     void setAxis(int xAxis, int yAxis);
 
     void setXAxis(int axis);
@@ -60,9 +87,23 @@ public:
     void setYAxis(int axis);
     int yAxis() const;
 
-private:
-    int d_xAxis;
-    int d_yAxis;
-};
+    virtual void itemChanged();
 
+    virtual void draw(QPainter *p, 
+        const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+        const QRect &rect) const = 0;
+
+    virtual QwtDoubleRect boundingRect() const;
+
+    virtual void updateLegend(QwtLegend *) const;
+    virtual void updateScaleDiv(const QwtScaleDiv&,
+        const QwtScaleDiv&);
+
+    virtual QWidget *legendItem() const;
+
+private:
+    class PrivateData;
+    PrivateData *d_data;
+};
+            
 #endif

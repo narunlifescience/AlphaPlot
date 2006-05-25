@@ -14,9 +14,14 @@
 #include <qpen.h>
 #include <qfont.h>
 #include <qrect.h>
-#include <qpointarray.h>
-#include "qwt_event_pattern.h"
 #include "qwt_global.h"
+#include "qwt_text.h"
+#include "qwt_event_pattern.h"
+#if QT_VERSION < 0x040000
+#include <qpointarray.h>
+#else
+#include <qpolygon.h>
+#endif
 
 class QWidget;
 class QMouseEvent;
@@ -31,7 +36,7 @@ class QwtPickerMachine;
   and translates them into an array of selected points. Depending
   on the QwtPicker::SelectionType the selection might be a single point,
   a rectangle or a polygon. The selection process is supported by 
-  optional rubberbands (rubberband selection) and position labels. 
+  optional rubberbands (rubberband selection) and position trackers. 
 
   QwtPicker is useful for widgets where the event handlers
   can´t be overloaded, like for components of composite widgets.
@@ -41,8 +46,8 @@ class QwtPickerMachine;
   \verbatim #include <qwt_picker.h>
 
 QwtPicker *picker = new QwtPicker(widget);
-picker->setCursorLabelMode(QwtPicker::ActiveOnly);
-connect(picker, SIGNAL(selected(const QPointArray &)), ...);
+picker->setTrackerMode(QwtPicker::ActiveOnly);
+connect(picker, SIGNAL(selected(const SelectedPoints &)), ...);
 
 // emit the position of clicks on widget
 picker->setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
@@ -64,8 +69,8 @@ picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
   by overloading stateMachine().
 
   The picker is active (isActive()), between begin() and end().
-  In active state the rubberband is displayed, and the cursor label is visible
-  in case of cursorLabelMode is ActiveOnly or AlwaysOn.
+  In active state the rubberband is displayed, and the tracker is visible
+  in case of trackerMode is ActiveOnly or AlwaysOn.
 
   The cursor can be moved using the arrow keys. All selections can be aborted
   using the abort key. (QwtEventPattern::KeyPatternCode)
@@ -73,7 +78,7 @@ picker->setRubberBand(QwtPicker::RectRubberBand); \endverbatim\n
   \warning In case of QWidget::NoFocus the focus policy of the observed
            widget is set to QWidget::WheelFocus and mouse tracking
            will be manipulated for ClickSelection while the picker is active,
-           or if cursorLabelMode() is AlwayOn.
+           or if trackerMode() is AlwayOn.
 */
 
 class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
@@ -85,21 +90,14 @@ class QWT_EXPORT QwtPicker: public QObject, public QwtEventPattern
     Q_ENUMS(ResizeMode)
 
     Q_PROPERTY(int selectionFlags READ selectionFlags WRITE setSelectionFlags)
-    Q_PROPERTY(DisplayMode cursorLabelMode 
-        READ cursorLabelMode WRITE setCursorLabelMode)
-    Q_PROPERTY(QFont cursorLabelFont 
-        READ cursorLabelFont WRITE setCursorLabelFont)
+    Q_PROPERTY(DisplayMode trackerMode READ trackerMode WRITE setTrackerMode)
+    Q_PROPERTY(QFont trackerFont READ trackerFont WRITE setTrackerFont)
     Q_PROPERTY(RubberBand rubberBand READ rubberBand WRITE setRubberBand)
     Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setEnabled)
 
-#if QT_VERSION >= 300
-    // Unfortunately moc is not aware of #ifdefs. To enable the QPen
-    // attributes as properties uncomment the following lines.
-
-    //Q_PROPERTY(QPen cursorLabelPen READ cursorLabelPen WRITE setCursorLabelPen)
-    //Q_PROPERTY(QPen rubberBandPen READ rubberBandPen WRITE setRubberBandPen)
-#endif
+    Q_PROPERTY(QPen trackerPen READ trackerPen WRITE setTrackerPen)
+    Q_PROPERTY(QPen rubberBandPen READ rubberBandPen WRITE setRubberBandPen)
 
 public:
     /*! 
@@ -108,7 +106,7 @@ public:
       and passed to QwtPicker::setSelectionFlags()
       - NoSelection\n
         Selection is disabled. Note this is different to the disabled
-        state, as you might have a cursor label.
+        state, as you might have a tracker.
       - PointSelection\n
         Select a single point.
       - RectSelection\n
@@ -166,6 +164,11 @@ public:
         DragSelection = 2048
     };
 
+#if QT_VERSION < 0x040000
+    typedef QPointArray SelectedPoints;
+#else
+    typedef QPolygon SelectedPoints;
+#endif
     /*! 
       Rubberband style
       - NoRubberBand\n
@@ -217,7 +220,7 @@ public:
       - ActiveOnly\n
         Display only when the selection is active.
 
-      \sa QwtPicker::setCursorLabelMode(), QwtPicker::cursorLabelMode(), 
+      \sa QwtPicker::setTrackerMode(), QwtPicker::trackerMode(), 
           QwtPicker::isActive()
     */
     enum DisplayMode
@@ -245,9 +248,9 @@ public:
         KeepSize
     };
 
-    QwtPicker(QWidget *, const char *name = 0);
-    QwtPicker(int selectionFlags, RubberBand rubberBand,
-        DisplayMode cursorLabelMode, QWidget *, const char *name = 0);
+    explicit QwtPicker(QWidget *parent);
+    explicit QwtPicker(int selectionFlags, RubberBand rubberBand,
+        DisplayMode trackerMode, QWidget *);
 
     virtual ~QwtPicker();
 
@@ -257,8 +260,8 @@ public:
     virtual void setRubberBand(RubberBand);
     RubberBand rubberBand() const;
 
-    virtual void setCursorLabelMode(DisplayMode);
-    DisplayMode cursorLabelMode() const;
+    virtual void setTrackerMode(DisplayMode);
+    DisplayMode trackerMode() const;
 
     virtual void setResizeMode(ResizeMode);
     ResizeMode resizeMode() const;
@@ -266,11 +269,11 @@ public:
     virtual void setRubberBandPen(const QPen &);
     QPen rubberBandPen() const;
 
-    virtual void setCursorLabelPen(const QPen &);
-    QPen cursorLabelPen() const;
+    virtual void setTrackerPen(const QPen &);
+    QPen trackerPen() const;
 
-    virtual void setCursorLabelFont(const QFont &);
-    QFont cursorLabelFont() const;
+    virtual void setTrackerFont(const QFont &);
+    QFont trackerFont() const;
 
     bool isEnabled() const;
     virtual void setEnabled(bool);
@@ -283,9 +286,10 @@ public:
     const QWidget *parentWidget() const;
 
     virtual QRect pickRect() const;
-    const QPointArray &selection() const; 
+    const SelectedPoints &selection() const; 
 
-    virtual bool event(QEvent *);
+    virtual void drawRubberBand(QPainter *) const;
+    virtual void drawTracker(QPainter *) const;
 
 signals:
     /*!
@@ -294,7 +298,7 @@ signals:
 
       \param pa Selected points
     */
-    void selected(const QPointArray &pa);
+    void selected(const QwtPicker::SelectedPoints &pa);
 
     /*!
       A signal emitted when a point has been appended to the selection
@@ -320,7 +324,7 @@ signals:
       \param pa Changed selection
       \sa stretchSelection()
     */
-    void changed(const QPointArray &pa);
+    void changed(const SelectedPoints &pa);
 
 protected:
     /*!
@@ -329,16 +333,16 @@ protected:
       Accepts all selections unmodified
     
       \param selection Selection to validate and fixup
-      \return TRUE, when accepted, FALSE otherwise
+      \return true, when accepted, false otherwise
     */
-    virtual bool accept(QPointArray &selection) const;
+    virtual bool accept(SelectedPoints &selection) const;
 
     virtual void transition(const QEvent *);
 
     virtual void begin();
     virtual void append(const QPoint &);
     virtual void move(const QPoint &);
-    virtual bool end(bool ok = TRUE);
+    virtual bool end(bool ok = true);
 
     virtual void widgetMousePressEvent(QMouseEvent *);
     virtual void widgetMouseReleaseEvent(QMouseEvent *);
@@ -348,49 +352,26 @@ protected:
     virtual void widgetKeyPressEvent(QKeyEvent *); 
     virtual void widgetKeyReleaseEvent(QKeyEvent *); 
 
-    virtual void drawRubberBand(const QRect &clipRect = QRect()) const;
-    virtual void drawRubberBand(QPainter *, 
-        const QRect &rect, const QPointArray &) const;
-
-    virtual void drawCursorLabel(const QRect &clipRect = QRect()) const;
-    virtual void drawCursorLabel(QPainter *, const QRect &rect, 
-        const QPoint &, const QPointArray &) const;
+    QRect trackerRect(QPainter *painter) const;
 
     virtual void stretchSelection(const QSize &oldSize, 
         const QSize &newSize);
 
-    virtual QString cursorLabel(const QPoint &pos) const;
+    virtual QwtText trackerText(const QPoint &pos) const;
 
     virtual QwtPickerMachine *stateMachine(int) const;
 
-    void repaint(const QRect &rect = QRect());
-
 private:
     void init(QWidget *, int selectionFlags, RubberBand rubberBand,
-        DisplayMode cursorLabelMode);
+        DisplayMode trackerMode);
 
     void setStateMachine(QwtPickerMachine *);
     void setMouseTracking(bool);
 
-    bool d_enabled;
+    void updateDisplay();
 
-    QwtPickerMachine *d_stateMachine;
-
-    int d_selectionFlags;
-    ResizeMode d_resizeMode;
-
-    RubberBand d_rubberBand;
-    QPen d_rubberBandPen;
-
-    DisplayMode d_cursorLabelMode;
-    QPen d_cursorLabelPen;
-    QFont d_cursorLabelFont;
-
-    QPointArray d_selection;
-    bool d_isActive;
-    QPoint d_labelPosition;
-
-    bool d_mouseTracking; // used to save previous value
+    class PrivateData;
+    PrivateData *d_data;
 };
             
 #endif

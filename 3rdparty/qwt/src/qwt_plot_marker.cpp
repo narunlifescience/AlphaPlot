@@ -9,657 +9,378 @@
 
 // vim: expandtab
 
-#include "qwt_plot.h"
-#include "qwt_plot_dict.h"
+#include <qpainter.h>
+#include "qwt_painter.h"
+#include "qwt_scale_map.h"
+#include "qwt_plot_marker.h"
+#include "qwt_symbol.h"
+#include "qwt_text.h"
 #include "qwt_math.h"
 
-//! Return an iterator for the plot curves
-QwtPlotMarkerIterator QwtPlot::markerIterator() const
+static const int LabelDist = 2;
+
+class QwtPlotMarker::PrivateData
 {
-    return QwtPlotMarkerIterator(*d_markers);
+public:
+    PrivateData():
+        align(Qt::AlignCenter),
+        style(NoLine),
+        xValue(0.0),
+        yValue(0.0)
+    {
+    }
+
+    QwtText label;
+#if QT_VERSION < 0x040000
+    int align;
+#else
+    Qt::Alignment align;
+#endif
+    QPen pen;
+    QwtSymbol sym;
+    LineStyle style;
+
+    double xValue;
+    double yValue;
+};
+
+//! Sets alignment to Qt::AlignCenter, and style to NoLine
+QwtPlotMarker::QwtPlotMarker()
+{
+    d_data = new PrivateData;
+    setZ(30.0);
+}
+
+//! Destructor
+QwtPlotMarker::~QwtPlotMarker()
+{
+    delete d_data;
 }
 
 /*!
-  \brief Find the marker which is closest to a given point.
-  \param xpos
-  \param ypos coordinates of a point in the plotting region
-  \retval dist Distance in points between the marker and the specified point.
-  \return Key of the closest marker or 0 if no marker was found
+  \brief Copy constructor
+  \param m Marker
 */
-long QwtPlot::closestMarker(int xpos, int ypos, int &dist) const
+QwtPlotMarker::QwtPlotMarker(const QwtPlotMarker &m):
+    QwtPlotItem(m)
 {
-    QwtDiMap map[axisCnt];
-    for ( int axis = 0; axis < axisCnt; axis++ )
-        map[axis] = canvasMap(axis);
+    *this = m;
+}
 
-    long rv = 0;
-    double dmin = 1.0e10;
-    
-    QwtPlotMarkerIterator itm = markerIterator();
-    for (QwtPlotMarker *m = itm.toFirst(); m != 0; m = ++itm )
+/*!
+  \brief Assignment operator
+  \param m Marker
+*/
+QwtPlotMarker& QwtPlotMarker::operator=(const QwtPlotMarker &m)
+{
+    if (this != &m)
     {
-        double cx = map[m->xAxis()].xTransform(m->xValue());
-        double cy = map[m->yAxis()].xTransform(m->yValue());
+        QwtPlotItem::operator=((const QwtPlotItem &)m);
 
-        if (m->lineStyle() == QwtMarker::HLine)
+        d_data->label = m.d_data->label;
+        d_data->align = m.d_data->align;
+        d_data->pen = m.d_data->pen;
+        d_data->sym = m.d_data->sym;
+        d_data->style = m.d_data->style;
+        d_data->xValue = m.d_data->xValue;
+        d_data->yValue = m.d_data->yValue;
+
+        itemChanged(); 
+    }
+
+    return *this;
+}
+
+int QwtPlotMarker::rtti() const
+{
+    return QwtPlotItem::Rtti_PlotMarker;
+}
+
+//! Return Value
+QwtDoublePoint QwtPlotMarker::value() const
+{
+    return QwtDoublePoint(d_data->xValue, d_data->yValue);
+}
+
+//! Return x Value
+double QwtPlotMarker::xValue() const 
+{ 
+    return d_data->xValue; 
+}
+
+//! Return y Value
+double QwtPlotMarker::yValue() const 
+{ 
+    return d_data->yValue; 
+}
+
+//! Set Value
+void QwtPlotMarker::setValue(const QwtDoublePoint& pos)
+{
+    setValue(pos.x(), pos.y());
+}
+
+//! Set Value
+void QwtPlotMarker::setValue(double x, double y) 
+{
+    if ( x != d_data->xValue || y != d_data->yValue )
+    {
+        d_data->xValue = x; 
+        d_data->yValue = y; 
+        itemChanged(); 
+    }
+}
+
+//! Set X Value
+void QwtPlotMarker::setXValue(double x) 
+{ 
+    setValue(x, d_data->yValue);
+}
+
+//! Set Y Value
+void QwtPlotMarker::setYValue(double y) 
+{ 
+    setValue(d_data->xValue, y);
+}
+
+/*!
+  \brief Draw the marker
+  \param p Painter
+  \param xMap x Scale Map
+  \param yMap y Scale Map
+  \param r Bounding rect, where to paint
+*/
+void QwtPlotMarker::draw(QPainter *p,
+    const QwtScaleMap &xMap, const QwtScaleMap &yMap,
+    const QRect &r) const
+{
+    const int x = xMap.transform(d_data->xValue);
+    const int y = yMap.transform(d_data->yValue);
+
+    // draw lines
+    if (d_data->style != NoLine)
+    {
+        p->setPen(d_data->pen);
+        if ((d_data->style == HLine) || (d_data->style == Cross))
+            QwtPainter::drawLine(p, r.left(), y, r.right(), y);
+        if ((d_data->style == VLine)||(d_data->style == Cross))
+            QwtPainter::drawLine(p, x, r.top(), x, r.bottom());
+    }
+
+    // draw symbol
+    QSize sSym(0, 0);
+    if (d_data->sym.style() != QwtSymbol::None)
+    {
+        sSym = d_data->sym.size();
+        d_data->sym.draw(p, x, y);
+    }
+
+    // draw label
+    if (!d_data->label.isEmpty())
+    {
+        int xlw = qwtMax(int(d_data->pen.width()), 1);
+        int ylw = xlw;
+        int xlw1;
+        int ylw1;
+
+        const int xLabelDist = 
+            QwtPainter::metricsMap().screenToLayoutX(LabelDist);
+        const int yLabelDist = 
+            QwtPainter::metricsMap().screenToLayoutY(LabelDist);
+
+        if ((d_data->style == VLine) || (d_data->style == HLine))
         {
-            if (m->symbol().style() == QwtSymbol::None)
-               cx = double(xpos);
+            xlw1 = (xlw + 1) / 2 + xLabelDist;
+            xlw = xlw / 2 + xLabelDist;
+            ylw1 = (ylw + 1) / 2 + yLabelDist;
+            ylw = ylw / 2 + yLabelDist;
         }
-        else if (m->lineStyle() == QwtMarker::VLine)
+        else 
         {
-            if (m->symbol().style() == QwtSymbol::None)
-               cy = double(ypos);
+            xlw1 = qwtMax((xlw + 1) / 2, (sSym.width() + 1) / 2) + xLabelDist;
+            xlw = qwtMax(xlw / 2, (sSym.width() + 1) / 2) + xLabelDist;
+            ylw1 = qwtMax((ylw + 1) / 2, (sSym.height() + 1) / 2) + yLabelDist;
+            ylw = qwtMax(ylw / 2, (sSym. height() + 1) / 2) + yLabelDist;
         }
-        
-        double f = qwtSqr(cx - double(xpos)) + qwtSqr(cy - double(ypos));
-        if (f < dmin)
+
+        QRect tr(QPoint(0, 0), d_data->label.textSize(p->font()));
+        tr.moveCenter(QPoint(0, 0));
+
+        int dx = x;
+        int dy = y;
+
+        if (d_data->style == VLine)
         {
-            dmin = f;
-            rv = itm.currentKey();
+            if (d_data->align & (int) Qt::AlignTop)
+                dy = r.top() + yLabelDist - tr.y();
+            else if (d_data->align & (int) Qt::AlignBottom)
+                dy = r.bottom() - yLabelDist + tr.y();
+            else
+                dy = r.top() + r.height() / 2;
         }
-    }
-
-    dist = int(sqrt(dmin));
-    return rv;
-}
-
-//! Generate a key for a new marker
-long QwtPlot::newMarkerKey()
-{
-    long newkey = d_markers->count() + 1;
-
-    if (newkey > 1)                     // count > 0
-    {
-        if (d_markers->find(newkey))    // key count+1 exists => there must be a
-                                        // free key <= count
+        else
         {
-            // find the first available key <= count
-            newkey = 1;
-            while (newkey <= long(d_markers->count()))
-            {
-                if (d_markers->find(newkey))
-                   newkey++;
-                else
-                   break;
-            }
-
-            // This can't happen. Just paranoia.
-            if (newkey > long(d_markers->count()))
-            {
-                while (!d_markers->find(newkey))
-                {
-                    newkey++;
-                    if (newkey > 10000) // prevent infinite loop
-                    {
-                        newkey = 0;
-                        break;
-                    }
-                }
-            }
+            if (d_data->align & (int) Qt::AlignTop)
+                dy += tr.y() - ylw1;
+            else if (d_data->align & (int) Qt::AlignBottom)
+                dy -= tr.y() - ylw1;
         }
+
+
+        if (d_data->style == HLine)
+        {
+            if (d_data->align & (int) Qt::AlignLeft)
+                dx = r.left() + xLabelDist - tr.x();
+            else if (d_data->align & (int) Qt::AlignRight)
+                dx = r.right() - xLabelDist + tr.x();
+            else
+                dx = r.left() + r.width() / 2;
+        }
+        else
+        {
+            if (d_data->align & (int) Qt::AlignLeft)
+                dx += tr.x() - xlw1;
+            else if (d_data->align & (int) Qt::AlignRight)
+                dx -= tr.x() - xlw1;
+        }
+
+#if QT_VERSION < 0x040000
+        tr.moveBy(dx, dy);
+#else
+        tr.translate(dx, dy);
+#endif
+        d_data->label.draw(p, tr);
     }
-    return newkey;
+}
+
+/*!
+  \brief Set the line style
+  \param st Line style. Can be one of QwtPlotMarker::NoLine,
+    QwtPlotMarker::HLine, QwtPlotMarker::VLine or QwtPlotMarker::Cross
+  \sa QwtPlotMarker::lineStyle()
+*/
+void QwtPlotMarker::setLineStyle(QwtPlotMarker::LineStyle st)
+{
+    if ( st != d_data->style )
+    {
+        d_data->style = st;
+        itemChanged();
+    }
+}
+
+/*!
+  \return the line style
+  \sa For a description of line styles, see QwtPlotMarker::setLineStyle()
+*/
+QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const 
+{ 
+    return d_data->style; 
+}
+
+/*!
+  \brief Assign a symbol
+  \param s New symbol 
+  \sa QwtSymbol, QwtPlotMarker::symbol()
+*/
+void QwtPlotMarker::setSymbol(const QwtSymbol &s)
+{
+    d_data->sym = s;
+    itemChanged();
+}
+
+/*!
+  \return the symbol
+  \sa QwtPlotMarker::setSymbol(), QwtSymbol
+*/
+const QwtSymbol &QwtPlotMarker::symbol() const 
+{ 
+    return d_data->sym; 
+}
+
+/*!
+  \brief Set the label
+  \param label label text
+  \sa QwtPlotMarker::label()
+*/
+void QwtPlotMarker::setLabel(const QwtText& label)
+{
+    if ( label != d_data->label )
+    {
+        d_data->label = label;
+        itemChanged();
+    }
+}
+
+/*!
+  \return the label
+  \sa QwtPlotMarker::setLabel()
+*/
+QwtText QwtPlotMarker::label() const 
+{ 
+    return d_data->label; 
+}
+
+/*!
+  \brief Set the alignment of the label
+
+  The alignment determines where the label is drawn relative to
+  the marker's position.
+
+  \param align Alignment. A combination of AlignTop, AlignBottom,
+    AlignLeft, AlignRight, AlignCenter, AlgnHCenter,
+    AlignVCenter.  
+  \sa QwtPlotMarker::labelAlignment()
+*/
+#if QT_VERSION < 0x040000
+void QwtPlotMarker::setLabelAlignment(int align)
+#else
+void QwtPlotMarker::setLabelAlignment(Qt::Alignment align)
+#endif
+{
+    if ( align == d_data->align )
+        return;
     
+    d_data->align = align;
+    itemChanged();
 }
 
 /*!
-  This function is a shortcut to insert a horizontal or vertical
-  line marker, dependent on the specified axis.
-  \param label Label
-  \param axis Axis to be attached
-  \return New key if the marker could be inserted, 0 if not.
+  \return the label alignment
+  \sa QwtPlotMarker::setLabelAlignment()
 */
-long QwtPlot::insertLineMarker(const QString &label, int axis)
-{
-    QwtMarker::LineStyle lineStyle = QwtMarker::NoLine;
-    int xAxis = QwtPlot::xBottom;
-    int yAxis = QwtPlot::yLeft;
-
-    switch(axis)
-    {
-        case yLeft:
-        case yRight:
-            yAxis = axis;
-            lineStyle = QwtMarker::HLine;
-            break;
-        case xTop:
-        case xBottom:
-            xAxis = axis;
-            lineStyle = QwtMarker::VLine;
-            break;
-    }
-
-    QwtPlotMarker *marker = new QwtPlotMarker(this);
-    if ( marker == 0 )
-        return 0;
-
-    marker->setAxis(xAxis, yAxis);
-    marker->setLabel(label);
-    marker->setLineStyle(lineStyle);
-    marker->setLabelAlignment(Qt::AlignRight|Qt::AlignTop);
-
-    long key = insertMarker(marker);
-    if ( key == 0 )
-        delete marker;
-
-    return key;
+#if QT_VERSION < 0x040000
+int QwtPlotMarker::labelAlignment() const 
+#else
+Qt::Alignment QwtPlotMarker::labelAlignment() const 
+#endif
+{ 
+    return d_data->align; 
 }
 
 /*!
-  \brief Insert a new marker
-  \param label Label
-  \param xAxis X axis to be attached
-  \param yAxis Y axis to be attached
-  \return New key if the marker could be inserted, 0 if not.
-*/
-long QwtPlot::insertMarker(const QString &label, int xAxis, int yAxis)
-{
-    QwtPlotMarker *marker = new QwtPlotMarker(this);
-    if ( marker == 0 )
-        return 0;
-
-    marker->setAxis(xAxis, yAxis);
-    marker->setLabel(label);
-
-    long key = insertMarker(marker);
-    if ( key == 0 )
-        delete marker;
-
-    return key;
-}
-
-/*!
-  \brief Insert a new marker
-  \param marker Marker
-  \return New key if the marker could be inserted, 0 if not.
-*/
-long QwtPlot::insertMarker(QwtPlotMarker *marker)
-{
-    if ( marker == 0 )
-        return 0;
-
-    long key = newMarkerKey();
-    if ( key == 0 )
-        return 0;
-
-    marker->reparent(this);
-    d_markers->insert(key, marker);
-
-    autoRefresh();
-
-    return key;
-}
-
-/*!
-  \brief Find and return an existing marker.
-  \param key Key of the marker
-  \return The marker for the given key or 0 if key is not valid.
-*/
-
-QwtPlotMarker *QwtPlot::marker(long key)
-{
-    return d_markers->find(key);
-}
-
-/*!
-  \brief Find and return an existing marker.
-  \param key Key of the marker
-  \return The marker for the given key or 0 if key is not valid.
-*/
-
-const QwtPlotMarker *QwtPlot::marker(long key) const
-{
-    return d_markers->find(key);
-}
-
-/*!
-  \return an array containing the keys of all markers
-*/
-QwtArray<long> QwtPlot::markerKeys() const
-{
-    QwtArray<long> keys(d_markers->count());
-
-    int i = 0;
-
-    QwtPlotMarkerIterator itm = markerIterator();
-    for (const QwtPlotMarker *m = itm.toFirst(); m != 0; m = ++itm, i++ )
-        keys[i] = itm.currentKey();
-
-    return keys;
-}
-
-/*!
-  \return the font of a marker
-*/
-QFont QwtPlot::markerFont(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->font();
-    else
-        return QFont();
-}
-
-/*!
-  \return a marker's label
-  \param key Marker key
-*/
-const QString QwtPlot::markerLabel(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->label();
-    else
-        return QString::null;
-}
-
-/*!
-  \return a marker's label alignment
-  \param key Marker key
-*/
-int QwtPlot::markerLabelAlign(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->labelAlignment();
-    else
-        return 0;
-}
-
-/*!
-  \return the pen of a marker's label
-  \param key Marker key
-*/
-QPen QwtPlot::markerLabelPen(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->labelPen();
-    else
-        return QPen();
-    
-}
-
-/*!
-  \return a marker's line pen
-  \param key Marker key
-*/
-QPen QwtPlot::markerLinePen(long key) const 
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->linePen();
-    else
-        return QPen();
-    
-}
-
-/*!
-  \return a marker's line style
-  \param key Marker key
-*/
-QwtMarker::LineStyle QwtPlot::markerLineStyle(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->lineStyle();
-    else
-        return QwtMarker::NoLine;
-}
-
-/*!
-  \brief Get the position of a marker
-  \param key Marker key
-  \retval mx
-  \retval my Marker position 
-*/
-
-void QwtPlot::markerPos(long key, double &mx, double &my ) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-    {
-        mx = m->xValue();
-        my = m->yValue();
-    }
-    else
-    {
-        mx = 0;
-        my = 0;
-    }
-}
-
-/*!
-  \return a marker's symbol
-  \param key Marker key
-*/
-QwtSymbol QwtPlot::markerSymbol(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->symbol();
-    else
-        return QwtSymbol();
-}
-
-
-/*!
-  \return the x axis to which a marker is attached
-  \param key Marker key
-*/
-int QwtPlot::markerXAxis(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->xAxis();
-    else
-        return -1;
-    
-}
-
-
-/*!
-  \return the y axis to which a marker is attached
-  \param key Marker key
-*/
-int QwtPlot::markerYAxis(long key) const
-{
-    QwtPlotMarker *m = d_markers->find(key);
-    if (m)
-        return m->yAxis();
-    else
-        return -1;
-    
-}
-
-/*!
-  \brief Remove the marker indexed by key
-  \param key unique key
-*/
-bool QwtPlot::removeMarker(long key)
-{
-    if (d_markers->remove(key))
-    {
-        autoRefresh();
-        return TRUE;
-    }
-    else
-       return FALSE;
-}
-
-
-/*!
-  \brief Attach the marker to an x axis
-  \return \c TRUE if the specified marker exists.
-*/
-bool QwtPlot::setMarkerXAxis(long key, int axis)
-{
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setXAxis(axis);
-        return TRUE;
-    }
-    else
-       return FALSE;
-}
-
-/*!
-  \brief Attach the marker to a Y axis
-  \param key Marker key
-  \param axis Axis to be attached
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerYAxis(long key, int axis)
-{
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setYAxis(axis);
-        return TRUE;
-    }
-    else
-       return FALSE;
-}
-
-/*!
-  \brief Specify a font for a marker's label
-  \param key Marker key
-  \param f New font
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerFont(long key, const QFont &f)
-{
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setFont(f);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-/*!
-  \brief Specify a pen for a marker's line
-  \param key Marker key
+  \brief Specify a pen for the line.
   \param p New pen
-  \return \c TRUE if the specified marker exists
+  \sa QwtPlotMarker::linePen()
 */
-bool QwtPlot::setMarkerLinePen(long key, const QPen &p)
+void QwtPlotMarker::setLinePen(const QPen &p)
 {
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
+    if ( p != d_data->pen )
     {
-        m->setLinePen(p);
-        rv = TRUE;
+        d_data->pen = p;
+        itemChanged();
     }
-    return rv;
-
-}
-
-
-/*!
-  \brief Specify the line style for a marker
-  \param key Marker key
-  \param st Line style: <code>QwtMarker::HLine, QwtMarker::VLine,
-                        QwtMarker::NoLine</code> or a combination of them.
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerLineStyle(long key, QwtMarker::LineStyle st)
-{
-    int rv = FALSE;
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLineStyle(st);
-        rv = TRUE;
-    }
-    return rv;
 }
 
 /*!
-  \brief Specify a pen for a marker's label.
-  \param key Marker key
-  \param p New pen
-  \return \c TRUE if the specified marker exists
+  \return the line pen
+  \sa QwtPlotMarker::setLinePen()
 */
-bool QwtPlot::setMarkerPen(long key, const QPen &p)
-{
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLinePen(p);
-        m->setLabelPen(p);
-        rv = TRUE;
-    }
-    return rv;
+const QPen &QwtPlotMarker::linePen() const 
+{ 
+    return d_data->pen; 
 }
 
-
-/*!
-  \brief Change the position of a marker
-  \param key Marker key
-  \param xval
-  \param yval Position of the marker in axis coordinates.
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerPos(long key, double xval, double yval)
+QwtDoubleRect QwtPlotMarker::boundingRect() const
 {
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setXValue(xval);
-        m->setYValue(yval);
-        rv = TRUE;
-    }
-    return rv;
+    return QwtDoubleRect(d_data->xValue, d_data->yValue, 0.0, 0.0);
 }
-
-/*!
-  \brief Specify the X position of a marker
-  \param key Marker key
-  \param val X position of the marker
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerXPos(long key, double val)
-{
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setXValue(val);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-/*!
-  \brief Specify the Y position of the marker
-  \param key Marker key
-  \param val Y position of the marker
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerYPos(long key, double val)
-{
-    int rv = FALSE;
-    
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setYValue(val);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-/*!
-  \brief Assign a symbol to a specified marker
-  \param key Marker key
-  \param s new symbol
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerSymbol(long key, const QwtSymbol &s)
-{
-    int rv = FALSE;
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setSymbol(s);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-/*!
-  \brief Assign a text to the label of a marker
-  \param key Marker key
-  \param text Label text
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerLabelText(long key, const QString &text)
-{
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLabelText(text);
-        return TRUE;
-    }
-    return FALSE;
-}
-
-/*!
-  \brief Set the marker label
-  \param key Marker key
-  \param text the label text
-  \param font the font of the label text
-  \param color the color of the label text
-  \param pen the pen of the bounding box of the label text
-  \param brush the brush of the bounding box of the label text
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerLabel(long key, const QString &text, const QFont &font,
-    const QColor &color, const QPen &pen, const QBrush &brush)
-{
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLabel(text, font, color, pen, brush);
-        return TRUE;
-    }
-    return FALSE;
-}
-
-/*!
-  \brief Specify the alignment of a marker's label
-
-  The alignment determines the position of the label relative to the
-  marker's position. The default setting is AlignCenter.
-  \param key Marker key
-  \param align Alignment: AlignLeft, AlignRight, AlignTop, AlignBottom,
-                          AlignHCenter, AlignVCenter, AlignCenter
-                          or a combination of them.
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerLabelAlign(long key, int align)
-{
-    int rv = FALSE;
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLabelAlignment(align);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-/*!
-  \brief Specify a pen for a marker's label
-  \param key Marker key
-  \param p Label pen
-  \return \c TRUE if the specified marker exists
-*/
-bool QwtPlot::setMarkerLabelPen(long key, const QPen &p)
-{
-    int rv = FALSE;
-    QwtPlotMarker *m;
-    if ((m = d_markers->find(key)))
-    {
-        m->setLabelPen(p);
-        rv = TRUE;
-    }
-    return rv;
-}
-
-
-
-

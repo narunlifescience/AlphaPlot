@@ -1,8 +1,10 @@
 #ifndef LINEMARKER_H
 #define LINEMARKER_H
 
-#include <qwt_plot_classes.h>
-#include <qwt_marker.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_marker.h>
+#include <qwt_scale_map.h>
 	
 class LineMarker: public QwtPlotMarker
 {
@@ -41,7 +43,7 @@ public:
 	bool filledArrowHead(){return filledArrow;};
 	void fillArrowHead(bool fill);
 	
-	static QwtDiMap mapCanvasToDevice(QPainter *p, QwtPlot *plot, int axis) ;
+	static QwtScaleMap mapCanvasToDevice(QPainter *p, QwtPlot *plot, int axis) ;
 		
 private:
 	QPoint start,end;
@@ -49,4 +51,6 @@ private:
 	bool startArrow,endArrow, filledArrow;
 	int d_headAngle, d_headLength;
 };
+
 #endif
+

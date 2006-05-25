@@ -12,23 +12,171 @@
 #include <qpainter.h>
 #include <qframe.h>
 #include <qcursor.h>
-#include "qwt_text.h"
+#include <qbitmap.h>
+#include "qwt_math.h"
 #include "qwt_painter.h"
 #include "qwt_picker_machine.h"
 #include "qwt_picker.h"
+#if QT_VERSION < 0x040000
+#include <qguardedptr.h>
+#else
+#include <qpointer.h>
+#endif
+
+class QwtPicker::PrivateData
+{
+public:
+    class PickerWidget: public QWidget
+    {
+    public:
+        enum Type
+        {
+            RubberBand,
+            Text
+        };
+        PickerWidget(QwtPicker *, QWidget *, Type);
+        virtual void updateMask();
+
+    protected:
+        virtual void paintEvent(QPaintEvent *);
+
+        QwtPicker *d_picker;
+        Type d_type;
+    };
+
+    bool enabled;
+
+    QwtPickerMachine *stateMachine;
+
+    int selectionFlags;
+    QwtPicker::ResizeMode resizeMode;
+
+    QwtPicker::RubberBand rubberBand;
+    QPen rubberBandPen;
+
+    QwtPicker::DisplayMode trackerMode;
+    QPen trackerPen;
+    QFont trackerFont;
+
+    QwtPicker::SelectedPoints selection;
+    bool isActive;
+    QPoint labelPosition;
+
+    bool mouseTracking; // used to save previous value
+
+    /*
+      On X11 the widget below the picker widgets gets paint events
+      with a region that is the bounding rect of the mask, if it is complex.
+      In case of (f.e) a CrossRubberBand and a text this creates complete
+      repaints of the widget. So we better use two different widgets.
+     */
+     
+#if QT_VERSION < 0x040000
+    QGuardedPtr<PickerWidget> rubberBandWidget;
+    QGuardedPtr<PickerWidget> textLabelWidget;
+#else
+    QPointer<PickerWidget> rubberBandWidget;
+    QPointer<PickerWidget> textLabelWidget;
+#endif
+};
+
+QwtPicker::PrivateData::PickerWidget::PickerWidget(
+        QwtPicker *picker, QWidget *parent, Type type):
+    QWidget(parent),
+    d_picker(picker),
+    d_type(type)
+{
+#if QT_VERSION >= 0x040000
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    setAttribute(Qt::WA_NoSystemBackground);
+    setAttribute(Qt::WA_PaintOnScreen);
+    setFocusPolicy(Qt::NoFocus);
+#else
+    setBackgroundMode(Qt::NoBackground);
+    setFocusPolicy(QWidget::NoFocus);
+#endif
+    hide();
+}
+
+void QwtPicker::PrivateData::PickerWidget::updateMask()
+{
+    QBitmap bm(width(), height());
+    bm.fill(Qt::color0);
+
+    QPainter painter(&bm);
+
+    if ( d_type == RubberBand )
+    {
+        QPen pen = d_picker->rubberBandPen();
+        pen.setColor(Qt::color1);
+        painter.setPen(pen);
+
+        d_picker->drawRubberBand(&painter);
+    }
+    if ( d_type == Text )
+    {
+        QPen pen = d_picker->trackerPen();
+        pen.setColor(Qt::color1);
+        painter.setPen(pen);
+
+        d_picker->drawTracker(&painter);
+    }
+
+    painter.end();
+
+
+#if QT_VERSION < 0x040000
+    QWidget *w = parentWidget();
+    const bool doUpdate = w->isUpdatesEnabled();
+    const Qt::BackgroundMode bgMode = w->backgroundMode();
+    w->setUpdatesEnabled(false);
+    if ( bgMode != Qt::NoBackground )
+        w->setBackgroundMode(Qt::NoBackground);
+#endif
+
+    const QRegion r(bm);
+    setMask(r);
+
+#if QT_VERSION < 0x040000
+    if ( bgMode != Qt::NoBackground )
+        w->setBackgroundMode(bgMode);
+
+    w->setUpdatesEnabled(doUpdate);
+#endif
+
+    setShown(!r.isEmpty());
+}
+
+void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
+{
+    QPainter painter(this);
+
+    if ( d_type == RubberBand )
+    {
+        painter.setClipRegion(e->region());
+        painter.setPen(d_picker->rubberBandPen());
+        d_picker->drawRubberBand(&painter);
+    }
+
+    if ( d_type == Text )
+    {
+        painter.setClipRegion(e->region());
+        painter.setPen(d_picker->trackerPen());
+        d_picker->drawTracker(&painter);
+    }
+}
 
 /*!
   Constructor
 
-  Creates an picker that is enabled, but where selection flags
-  s set to NoSelection, rubberband and cursor label are disabled.
+  Creates an picker that is enabled, but where selection flag
+  is set to NoSelection, rubberband and tracker are disabled.
   
   \param parent Parent widget, that will be observed
-  \param name Object name
  */
 
-QwtPicker::QwtPicker(QWidget *parent, const char *name):
-    QObject(parent, name)
+QwtPicker::QwtPicker(QWidget *parent):
+    QObject(parent)
 {
     init(parent, NoSelection, NoRubberBand, AlwaysOff);
 }
@@ -39,49 +187,61 @@ QwtPicker::QwtPicker(QWidget *parent, const char *name):
   \param selectionFlags Or´d value of SelectionType, RectSelectionType and 
                         SelectionMode
   \param rubberBand Rubberband style
-  \param cursorLabelMode Cursor label mode
+  \param trackerMode Tracker mode
   \param parent Parent widget, that will be observed
-  \param name Object name
  */
 QwtPicker::QwtPicker(int selectionFlags, RubberBand rubberBand,
-        DisplayMode cursorLabelMode, QWidget *parent, const char *name):
-    QObject(parent, name)
+        DisplayMode trackerMode, QWidget *parent):
+    QObject(parent)
 {
-    init(parent, selectionFlags, rubberBand, cursorLabelMode);
+    init(parent, selectionFlags, rubberBand, trackerMode);
 }
 
 //! Destructor
 QwtPicker::~QwtPicker()
 {
-    setMouseTracking(FALSE);
-    delete d_stateMachine;
+    setMouseTracking(false);
+    delete d_data->stateMachine;
+    delete d_data->rubberBandWidget;
+    delete d_data->textLabelWidget;
+    delete d_data;
 }
 
 //! Init the picker, used by the constructors
 void QwtPicker::init(QWidget *parent, int selectionFlags, 
-    RubberBand rubberBand, DisplayMode cursorLabelMode)
+    RubberBand rubberBand, DisplayMode trackerMode)
 {
-    d_rubberBand = rubberBand;
-    d_enabled = FALSE;
-    d_resizeMode = Stretch;
-    d_cursorLabelMode = AlwaysOff;
-    d_isActive = FALSE;
-    d_labelPosition = QPoint(-1, -1);
-    d_mouseTracking = FALSE;
+    d_data = new PrivateData;
 
-    d_stateMachine = NULL;
+    d_data->rubberBandWidget = NULL;
+    d_data->textLabelWidget = NULL;
+
+    d_data->rubberBand = rubberBand;
+    d_data->enabled = false;
+    d_data->resizeMode = Stretch;
+    d_data->trackerMode = AlwaysOff;
+    d_data->isActive = false;
+    d_data->labelPosition = QPoint(-1, -1);
+    d_data->mouseTracking = false;
+
+    d_data->stateMachine = NULL;
     setSelectionFlags(selectionFlags);
 
     if ( parent )
     {
+#if QT_VERSION >= 0x040000
+        if ( parent->focusPolicy() == Qt::NoFocus )
+            parent->setFocusPolicy(Qt::WheelFocus);
+#else
         if ( parent->focusPolicy() == QWidget::NoFocus )
             parent->setFocusPolicy(QWidget::WheelFocus);
+#endif
 
-        d_cursorLabelFont = parent->font();
-        d_mouseTracking = parent->hasMouseTracking();
-        setEnabled(TRUE);
+        d_data->trackerFont = parent->font();
+        d_data->mouseTracking = parent->hasMouseTracking();
+        setEnabled(true);
     }
-    setCursorLabelMode(cursorLabelMode);
+    setTrackerMode(trackerMode);
 }
 
 /*!
@@ -89,16 +249,16 @@ void QwtPicker::init(QWidget *parent, int selectionFlags,
 */
 void QwtPicker::setStateMachine(QwtPickerMachine *stateMachine)
 {
-    if ( d_stateMachine != stateMachine )
+    if ( d_data->stateMachine != stateMachine )
     {
         if ( isActive() )
-            end(FALSE);
+            end(false);
 
-        delete d_stateMachine;
-        d_stateMachine = stateMachine;
+        delete d_data->stateMachine;
+        d_data->stateMachine = stateMachine;
 
-        if ( d_stateMachine )
-            d_stateMachine->reset();
+        if ( d_data->stateMachine )
+            d_data->stateMachine->reset();
     }
 }
 
@@ -172,7 +332,7 @@ const QWidget *QwtPicker::parentWidget() const
 
 void QwtPicker::setSelectionFlags(int flags)
 {
-    d_selectionFlags = flags;
+    d_data->selectionFlags = flags;
     setStateMachine(stateMachine(flags));
 }
 
@@ -183,7 +343,7 @@ void QwtPicker::setSelectionFlags(int flags)
 */
 int QwtPicker::selectionFlags() const
 {
-    return d_selectionFlags;
+    return d_data->selectionFlags;
 }
 
 /*!
@@ -196,7 +356,7 @@ int QwtPicker::selectionFlags() const
 */
 void QwtPicker::setRubberBand(RubberBand rubberBand)
 {
-    d_rubberBand = rubberBand;
+    d_data->rubberBand = rubberBand;
 }
 
 /*!
@@ -205,41 +365,41 @@ void QwtPicker::setRubberBand(RubberBand rubberBand)
 */
 QwtPicker::RubberBand QwtPicker::rubberBand() const
 {
-    return d_rubberBand;
+    return d_data->rubberBand;
 }
 
 /*!
-  \brief Set the display mode of the cursor label.
+  \brief Set the display mode of the tracker.
 
-  A cursor label dispays the current position of
+  A tracker displays information about current position of
   the cursor as a string. The display mode controls
-  if the label has to be displayed whenever the observed
+  if the tracker has to be displayed whenever the observed
   widget has focus and cursor (AlwaysOn), never (AlwaysOff), or
   only when the selection is active (ActiveOnly).
   
-  \param mode Cursor label display mode
+  \param mode Tracker display mode
 
   \warning In case of AlwaysOn, mouseTracking will be enabled
            for the observed widget.
-  \sa cursorLabelMode(), DisplayMode
+  \sa trackerMode(), DisplayMode
 */
 
-void QwtPicker::setCursorLabelMode(DisplayMode mode)
+void QwtPicker::setTrackerMode(DisplayMode mode)
 {   
-    if ( d_cursorLabelMode != mode )
+    if ( d_data->trackerMode != mode )
     {
-        d_cursorLabelMode = mode;
-        setMouseTracking(d_cursorLabelMode == AlwaysOn);
+        d_data->trackerMode = mode;
+        setMouseTracking(d_data->trackerMode == AlwaysOn);
     }
 }   
 
 /*!
-  \return Cursor label display mode
-  \sa setCursorLabelMode(), DisplayMode
+  \return Tracker display mode
+  \sa setTrackerMode(), DisplayMode
 */
-QwtPicker::DisplayMode QwtPicker::cursorLabelMode() const
+QwtPicker::DisplayMode QwtPicker::trackerMode() const
 {   
-    return d_cursorLabelMode;
+    return d_data->trackerMode;
 }   
 
 /*!
@@ -258,7 +418,7 @@ QwtPicker::DisplayMode QwtPicker::cursorLabelMode() const
 */
 void QwtPicker::setResizeMode(ResizeMode mode)
 {
-    d_resizeMode = mode;
+    d_data->resizeMode = mode;
 }   
 
 /*!
@@ -268,103 +428,94 @@ void QwtPicker::setResizeMode(ResizeMode mode)
 
 QwtPicker::ResizeMode QwtPicker::resizeMode() const
 {   
-    return d_resizeMode;
+    return d_data->resizeMode;
 }
 
 /*!
   \brief En/disable the picker
 
-  When enabled is TRUE an event filter is installed for
+  When enabled is true an event filter is installed for
   the observed widget, otherwise the event filter is removed.
 
-  \param enabled TRUE or FALSE
+  \param enabled true or false
   \sa isEnabled(), eventFilter()
 */
 void QwtPicker::setEnabled(bool enabled)
 {
-    if ( d_enabled != enabled )
+    if ( d_data->enabled != enabled )
     {
+        d_data->enabled = enabled;
+
         QWidget *w = parentWidget();
-        if ( !w )
-            return;
+        if ( w )
+        {
+            if ( enabled )
+                w->installEventFilter(this);
+            else
+                w->removeEventFilter(this);
+        }
 
-        d_enabled = enabled;
-        drawCursorLabel();
-
-        if ( d_enabled )
-            w->installEventFilter(this);
-        else
-            w->removeEventFilter(this);
+        updateDisplay();
     }
 }
 
 /*!
-  \return TRUE when enabled, FALSE otherwise
+  \return true when enabled, false otherwise
   \sa setEnabled, eventFilter()
 */
 
 bool QwtPicker::isEnabled() const
 {
-    return d_enabled;
+    return d_data->enabled;
 }
 
 /*!
-  Set the font for the cursor label
+  Set the font for the tracker
 
-  \param font Cursor label font
-  \sa cursorLabelFont(), setCursorLabelMode(), setCursorLabelPen()
+  \param font Tracker font
+  \sa trackerFont(), setTrackerMode(), setTrackerPen()
 */
-void QwtPicker::setCursorLabelFont(const QFont &font)
+void QwtPicker::setTrackerFont(const QFont &font)
 {
-    if ( font != d_cursorLabelFont )
+    if ( font != d_data->trackerFont )
     {
-        if ( isEnabled() )
-            drawCursorLabel(); // erase
-
-        d_cursorLabelFont = font;
-
-        if ( isEnabled() )
-            drawCursorLabel(); // repaint
+        d_data->trackerFont = font;
+        updateDisplay();
     }
 }
 
 /*!
-  \return Cursor label font
-  \sa setCursorLabelFont(), cursorLabelMode(), cursorLabelPen()
+  \return Tracker font
+  \sa setTrackerFont(), trackerMode(), trackerPen()
 */
 
-QFont QwtPicker::cursorLabelFont() const
+QFont QwtPicker::trackerFont() const
 {
-    return d_cursorLabelFont;
+    return d_data->trackerFont;
 }
 
 /*!
-  Set the pen for the cursor label
+  Set the pen for the tracker
 
-  \param pen Cursor label pen
-  \sa cursorLabelPen(), setCursorLabelMode(), setCursorLabelFont()
+  \param pen Tracker pen
+  \sa trackerPen(), setTrackerMode(), setTrackerFont()
 */
-void QwtPicker::setCursorLabelPen(const QPen &pen)
+void QwtPicker::setTrackerPen(const QPen &pen)
 {
-    if ( pen != d_cursorLabelPen )
+    if ( pen != d_data->trackerPen )
     {
-        if ( isEnabled() )
-            drawCursorLabel(); // erase
-
-        d_cursorLabelPen = pen;
-
-        if ( isEnabled() )
-            drawCursorLabel(); // repaint
+        d_data->trackerPen = pen;
+        updateDisplay();
     }
 }
 
 /*!
-  \return Cursor label pen
-  \sa setCursorLabelPen(), cursorLabelMode(), cursorLabelFont()
+  \return Tracker pen
+  \sa setTrackerPen(), trackerMode(), trackerFont()
 */
-QPen QwtPicker::cursorLabelPen() const
+QPen QwtPicker::trackerPen() const
 {
-    return d_cursorLabelPen;
+    return d_data->trackerPen;
 }
 
 /*!
@@ -375,11 +526,10 @@ QPen QwtPicker::cursorLabelPen() const
 */
 void QwtPicker::setRubberBandPen(const QPen &pen)
 {
-    if ( pen != d_rubberBandPen )
+    if ( pen != d_data->rubberBandPen )
     {
-        drawRubberBand(); // erase
-        d_rubberBandPen = pen;
-        drawRubberBand(); // repaint
+        d_data->rubberBandPen = pen;
+        updateDisplay();
     }
 }
 
@@ -389,7 +539,7 @@ void QwtPicker::setRubberBandPen(const QPen &pen)
 */
 QPen QwtPicker::rubberBandPen() const
 {
-    return d_rubberBandPen;
+    return d_data->rubberBandPen;
 }
 
 /*!
@@ -405,7 +555,7 @@ QPen QwtPicker::rubberBandPen() const
    \return Converted position as string
 */
 
-QString QwtPicker::cursorLabel(const QPoint &pos) const
+QwtText QwtPicker::trackerText(const QPoint &pos) const
 {
     QString label;
 
@@ -424,56 +574,23 @@ QString QwtPicker::cursorLabel(const QPoint &pos) const
 }
 
 /*!
-   \brief Draw the rubberband
+   Draw a rubberband , depending on rubberBand() and selectionFlags()
 
-   The rubberband is painted in Qt::XorROP mode, what means
-   the first call paints the second erases the painted rubberband.
-   
-   \param clipRect Clipping rectangle. If it is now valid the result
-                   of pickRect() is used instead.
+   \param painter Painter, initialized with clip rect 
 
-   \sa pickRect(), QPainter::setRasterOp(), QPainter::setClipRect()
+   \sa rubberBand(), RubberBand, selectionFlags()
 */
-void QwtPicker::drawRubberBand(const QRect &clipRect) const
+
+void QwtPicker::drawRubberBand(QPainter *painter) const
 {
-    QWidget *widget = (QWidget *)parentWidget();
-    if ( !widget || !isActive() || rubberBand() == NoRubberBand || 
+    if ( !isActive() || rubberBand() == NoRubberBand || 
         rubberBandPen().style() == Qt::NoPen )
     {
         return;
     }
 
-    const QColor bg = widget->backgroundColor();
-
-    QPainter painter(widget);
-    painter.setClipRect(clipRect.isValid() ? clipRect : pickRect());
-    painter.setClipping(TRUE);
-    painter.setRasterOp(XorROP);
-
-    QPen pen = d_rubberBandPen;
-    pen.setColor(QColor(bg.rgb() ^ pen.color().rgb()));
-    painter.setPen(pen);
-
-    drawRubberBand(&painter, pickRect(), d_selection);
-}
-
-/*!
-   Draw a rubberband , depending on rubberBand() and selectionFlags()
-
-   \param painter Painter, initialized with clip rect, 
-                  in Qt::XorROP mode of rubberband pen and background color
-                  of the observed widget.
-   \param pickRect Rectangle where selection can happen.
-   \param pa Current selection
-
-   \sa rubberBand(), RubberBand, selectionFlags()
-*/
-
-void QwtPicker::drawRubberBand(QPainter *painter,
-    const QRect &pickRect, const QPointArray &pa) const
-{
-    if ( rubberBand() == NoRubberBand )
-        return;
+    const QRect &pRect = pickRect();
+    const SelectedPoints &pa = d_data->selection;
 
     if ( selectionFlags() & PointSelection )
     {
@@ -486,19 +603,19 @@ void QwtPicker::drawRubberBand(QPainter *painter,
         {
             case VLineRubberBand:
                 QwtPainter::drawLine(painter, pos.x(),
-                    pickRect.top(), pos.x(), pickRect.bottom());
+                    pRect.top(), pos.x(), pRect.bottom());
                 break;
 
             case HLineRubberBand:
-                QwtPainter::drawLine(painter, pickRect.left(), 
-                    pos.y(), pickRect.right(), pos.y());
+                QwtPainter::drawLine(painter, pRect.left(), 
+                    pos.y(), pRect.right(), pos.y());
                 break;
 
             case CrossRubberBand:
                 QwtPainter::drawLine(painter, pos.x(),
-                    pickRect.top(), pos.x(), pickRect.bottom());
-                QwtPainter::drawLine(painter, pickRect.left(), 
-                    pos.y(), pickRect.right(), pos.y());
+                    pRect.top(), pos.x(), pRect.bottom());
+                QwtPainter::drawLine(painter, pRect.left(), 
+                    pos.y(), pRect.right(), pos.y());
                 break;
             default:
                 break;
@@ -520,40 +637,27 @@ void QwtPicker::drawRubberBand(QPainter *painter,
         }
         else if ( selectionFlags() & CenterToRadius )
         {
-            const int radius = QMAX(QABS(p2.x() - p1.x()), 
-                QABS(p2.y() - p1.y()));
+            const int radius = qwtMax(qwtAbs(p2.x() - p1.x()), 
+                qwtAbs(p2.y() - p1.y()));
             p2.setX(p1.x() + radius);
             p2.setY(p1.y() + radius);
             p1.setX(p1.x() - radius);
             p1.setY(p1.y() - radius);
         }
 
+#if QT_VERSION < 0x040000
         const QRect rect = QRect(p1, p2).normalize();
+#else
+        const QRect rect = QRect(p1, p2).normalized();
+#endif
         switch(rubberBand())
         {
             case EllipseRubberBand:
                 QwtPainter::drawEllipse(painter, rect);
                 break;
-
             case RectRubberBand:
-            {
-                // In case of height == 0 or width == 0 the
-                // 2 edges erase each other in XOR mode.
-
-                if ( rect.height() <= 1 )
-                {
-                    QwtPainter::drawLine(painter, 
-                        rect.topLeft(), rect.topRight());
-                }
-                else if ( rect.width() <= 1 )
-                {
-                    QwtPainter::drawLine(painter, 
-                        rect.topLeft(), rect.bottomLeft());
-                }
-                else
-                    QwtPainter::drawRect(painter, rect);
+                QwtPainter::drawRect(painter, rect);
                 break;
-            }
             default:
                 break;
         }
@@ -566,71 +670,48 @@ void QwtPicker::drawRubberBand(QPainter *painter,
 }
 
 /*!
-   \brief Draw the cursor label
+   Draw the tracker
 
-   The cursor label is painted in Qt::XorROP mode, what means
-   the first call paints the second erases the painted rubberband.
-
-   \param clipRect Clipping rectangle. If it is now valid the result
-                   of pickRect() is used instead.
-
-   \sa pickRect(), QPainter::setRasterOp(), QPainter::setClipRect()
+   \param painter Painter
+   \sa trackerRect(), trackerText()
 */
 
-void QwtPicker::drawCursorLabel(const QRect &clipRect) const
+void QwtPicker::drawTracker(QPainter *painter) const
 {
-    QWidget *widget = (QWidget *)QwtPicker::parentWidget();
-    if ( !widget )
-        return;
-
-    if ( cursorLabelMode() == AlwaysOff || 
-        (cursorLabelMode() == ActiveOnly && !isActive() ) )
+    const QRect textRect = trackerRect(painter);
+    if ( !textRect.isEmpty() )
     {
-        return;
+        QwtText label = trackerText(d_data->labelPosition);
+        if ( !label.isEmpty() )
+            label.draw(painter, textRect);
     }
-
-    if ( d_labelPosition.x() < 0 || d_labelPosition.y() < 0 )
-        return;
-
-    const QColor bg = widget->backgroundColor();
-
-    QPainter painter(widget);
-    painter.setClipRect(clipRect.isValid() ? clipRect : pickRect());
-    painter.setClipping(TRUE);
-    painter.setRasterOp(XorROP);
-
-    QPen pen = d_cursorLabelPen;
-    pen.setColor(QColor((bg.rgb() ^ pen.color().rgb())));
-
-    painter.setPen(pen);
-    painter.setFont(d_cursorLabelFont);
-
-    drawCursorLabel(&painter, pickRect(), d_labelPosition, d_selection);
 }
 
-/*!
-   \brief Draw a cursor label.
-
-   The default position of the label is top-right of the cursor.
-   In case of a rubberband the label is placed not to conflict with
-   the rubberband. 
-
-   \param painter Painter, initialized with clip rect, 
-                  in Qt::XorROP mode of cursor label pen and background color
-                  of the observed widget.
-   \param pickRect Rectangle where selections can happen.
-   \param pos Cursor position
-   \param pa Current selection
-
-   \sa rubberBand(), RubberBand, selectionFlags()
-*/
-void QwtPicker::drawCursorLabel(QPainter *painter, const QRect &pickRect,
-        const QPoint &pos, const QPointArray &pa) const
+QRect QwtPicker::trackerRect(QPainter *painter) const
 {
-    int alignment = 0;
-    if ( isActive() && pa.count() > 1 && rubberBand() != NoRubberBand )
+    if ( trackerMode() == AlwaysOff || 
+        (trackerMode() == ActiveOnly && !isActive() ) )
     {
-        const QPoint last = pa[int(pa.count()) - 2];
+        return QRect();
+    }
+
+    if ( d_data->labelPosition.x() < 0 || d_data->labelPosition.y() < 0 )
+        return QRect();
+
+    QwtText text = trackerText(d_data->labelPosition);
+    if ( text.isEmpty() )
+        return QRect();
+
+    QRect textRect(QPoint(0, 0), text.textSize(painter->font()));
+
+    const QPoint &pos = d_data->labelPosition;
+
+    int alignment = 0;
+    if ( isActive() && d_data->selection.count() > 1 
+        && rubberBand() != NoRubberBand )
+    {
+        const QPoint last = 
+            d_data->selection[int(d_data->selection.count()) - 2];
 
         alignment |= (pos.x() >= last.x()) ? Qt::AlignRight : Qt::AlignLeft;
         alignment |= (pos.y() > last.y()) ? Qt::AlignBottom : Qt::AlignTop;
@@ -638,88 +719,40 @@ void QwtPicker::drawCursorLabel(QPainter *painter, const QRect &pickRect,
     else
         alignment = Qt::AlignTop | Qt::AlignRight;
 
-    QString label = cursorLabel(pos);
-    if ( !label.isEmpty() )
-    {
-        QwtText *text = QwtText::makeText(label, 0, painter->font(),
-            painter->pen().color());
+    const int margin = 5;
 
-        QRect textRect = text->boundingRect(painter);
+    int x = pos.x();
+    if ( alignment & Qt::AlignLeft )
+        x -= textRect.width() + margin;
+    else if ( alignment & Qt::AlignRight )
+        x += margin;
 
-        const int margin = 5;
+    int y = pos.y();
+    if ( alignment & Qt::AlignBottom )
+        y += margin;
+    else if ( alignment & Qt::AlignTop )
+        y -= textRect.height() + margin;
+    
+    textRect.moveTopLeft(QPoint(x, y));
 
-        int x = pos.x();
-        if ( alignment & Qt::AlignLeft )
-            x -= textRect.width() + margin;
-        else if ( alignment & Qt::AlignRight )
-            x += margin;
+    int right = qwtMin(textRect.right(), pickRect().right() - margin);
+    int bottom = qwtMin(textRect.bottom(), pickRect().bottom() - margin);
+    textRect.moveBottomRight(QPoint(right, bottom));
 
-        int y = pos.y();
-        if ( alignment & Qt::AlignBottom )
-            y += margin;
-        else if ( alignment & Qt::AlignTop )
-            y -= textRect.height() + margin;
-        
-        textRect.moveTopLeft(QPoint(x, y));
+    int left = qwtMax(textRect.left(), pickRect().left() + margin);
+    int top = qwtMax(textRect.top(), pickRect().top() + margin);
+    textRect.moveTopLeft(QPoint(left, top));
 
-        int right = QMIN(textRect.right(), pickRect.right() - margin);
-        int bottom = QMIN(textRect.bottom(), pickRect.bottom() - margin);
-        textRect.moveBottomRight(QPoint(right, bottom));
-
-        int left = QMAX(textRect.left(), pickRect.left() + margin);
-        int top = QMAX(textRect.top(), pickRect.top() + margin);
-        textRect.moveTopLeft(QPoint(left, top));
-
-        text->draw(painter, textRect);
-
-        delete text;
-    }
-}
-
-/*!
-  \brief Repaint cursor label and rubberband on top of the widget
-
-  Send a QEvent::Paint event to the picker
-
-  \param rect Rectangle which has to be repainted. In case of 
-              !rect.isValid() a complete repaint ill be initiated.
-*/
-void QwtPicker::repaint(const QRect &rect)
-{
-    QApplication::postEvent(this, new QPaintEvent(rect));
-}
-
-/*!
-  \brief Event Handler
-
-  Paint events for the observed widgets require to repaint rubberband
-  an cursor label too. To delay them until the widget is repainted
-  the event filter sends a QEvent::Paint to the picker, that is handled
-  here.
-
-  \sa repaint, eventFilter(), drawRubberBand(), drawCursorLabel()
-*/
-bool QwtPicker::event(QEvent *e)
-{
-    if ( e->type() == QEvent::Paint )
-    {
-        const QRect clipRect = ((const QPaintEvent *)e)->rect();
-
-        drawRubberBand(clipRect);
-        drawCursorLabel(clipRect);
-        return TRUE;
-    }
-
-    return QObject::event(e);
+    return textRect;
 }
 
 /*!
   \brief Event filter
 
-  When isEnabled() == TRUE all events of the observed widget are filtered.
+  When isEnabled() == true all events of the observed widget are filtered.
   Mouse and keyboard events are translated into widgetMouse- and widgetKey-
   and widgetWheel-events. Paint and Resize events are handled to keep 
-  rubberband and cursor label up to date.
+  rubberband and tracker up to date.
 
   \sa event(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
@@ -727,44 +760,21 @@ bool QwtPicker::event(QEvent *e)
 */
 bool QwtPicker::eventFilter(QObject *o, QEvent *e)
 {
-    /*
-      Because of the XorROP mode the delayed paint has to
-      be completed to have a stable state for processing other
-      events. Unfortunately the internally posted paint event
-      might be too late in event queue. So we process it first.
-     */
-
-    QApplication::sendPostedEvents(this, QEvent::Paint);
-
     if ( o && o == parentWidget() )
     {
         switch(e->type())
         {
-            case QEvent::Paint:
-            {
-                // We have to wait until the widget is updated
-                // before we can repaint cursor label and
-                // rubberband. So we post an event to delay the repaint.
-
-                const QPaintEvent *re = (QPaintEvent *)e;
-                repaint(re->rect());
-                break;
-            }
             case QEvent::Resize:
             {
-                if ( d_resizeMode == Stretch )
-                {
-                    // erase
-                    drawRubberBand();
-                    drawCursorLabel();
-
-                    const QResizeEvent *re = (QResizeEvent *)e;
+                const QResizeEvent *re = (QResizeEvent *)e;
+                if ( d_data->resizeMode == Stretch )
                     stretchSelection(re->oldSize(), re->size());
 
-                    // repaint
-                    drawRubberBand();
-                    drawCursorLabel(); 
-                }
+                if ( d_data->rubberBandWidget )
+                    d_data->rubberBandWidget->resize(re->size());
+             
+                if ( d_data->textLabelWidget )
+                    d_data->textLabelWidget->resize(re->size());
                 break;
             }
             case QEvent::MouseButtonPress:
@@ -792,7 +802,7 @@ bool QwtPicker::eventFilter(QObject *o, QEvent *e)
                 break;
         }
     }
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -813,7 +823,7 @@ void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
 /*!
   Handle a mouse move event for the observed widget.
 
-  Move the last point of the selection in case of isActive() == TRUE
+  Move the last point of the selection in case of isActive() == true
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(),
@@ -821,15 +831,13 @@ void QwtPicker::widgetMousePressEvent(QMouseEvent *e)
 */
 void QwtPicker::widgetMouseMoveEvent(QMouseEvent *e)
 {
-    drawCursorLabel(); // erase
-
     if ( pickRect().contains(e->pos()) )
-    {
-        d_labelPosition = e->pos();
-        drawCursorLabel(); // Paint
-    }
+        d_data->labelPosition = e->pos();
     else
-        d_labelPosition = QPoint(-1, -1);
+        d_data->labelPosition = QPoint(-1, -1);
+
+    if ( !isActive() )
+        updateDisplay();
 
     transition(e);
 }
@@ -867,7 +875,7 @@ void QwtPicker::widgetMouseDoubleClickEvent(QMouseEvent *me)
 /*!
   Handle a wheel event for the observed widget.
 
-  Move the last point of the selection in case of isActive() == TRUE
+  Move the last point of the selection in case of isActive() == true
 
   \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
       widgetMouseDoubleClickEvent(), widgetMouseMoveEvent(),
@@ -875,15 +883,12 @@ void QwtPicker::widgetMouseDoubleClickEvent(QMouseEvent *me)
 */
 void QwtPicker::widgetWheelEvent(QWheelEvent *e)
 {
-    drawCursorLabel(); // erase
-
     if ( pickRect().contains(e->pos()) )
-    {
-        d_labelPosition = e->pos();
-        drawCursorLabel(); // Paint
-    }
+        d_data->labelPosition = e->pos();
     else
-        d_labelPosition = QPoint(-1, -1);
+        d_data->labelPosition = QPoint(-1, -1);
+
+    updateDisplay();
 
     transition(e);
 }
@@ -920,11 +925,11 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
         dy = offset;
     else if ( keyMatch(KeyAbort, ke) )
     {
-        if ( d_stateMachine )
-            d_stateMachine->reset();
+        if ( d_data->stateMachine )
+            d_data->stateMachine->reset();
 
         if (isActive())
-            end(FALSE);
+            end(false);
     }
     else
         transition(ke);
@@ -935,12 +940,12 @@ void QwtPicker::widgetKeyPressEvent(QKeyEvent *ke)
         const QPoint pos = parentWidget()->mapFromGlobal(QCursor::pos());
 
         int x = pos.x() + dx;
-        x = QMAX(rect.left(), x);
-        x = QMIN(rect.right(), x);
+        x = qwtMax(rect.left(), x);
+        x = qwtMin(rect.right(), x);
 
         int y = pos.y() + dy;
-        y = QMAX(rect.top(), y);
-        y = QMIN(rect.bottom(), y);
+        y = qwtMax(rect.top(), y);
+        y = qwtMin(rect.bottom(), y);
 
         QCursor::setPos(parentWidget()->mapToGlobal(QPoint(x, y)));
     }
@@ -969,15 +974,29 @@ void QwtPicker::widgetKeyReleaseEvent(QKeyEvent *ke)
 */
 void QwtPicker::transition(const QEvent *e)
 {
-    if ( !d_stateMachine )
+    if ( !d_data->stateMachine )
         return;
 
-    QValueList<QwtPickerMachine::Command> commandList =
-        d_stateMachine->transition(*this, e);
+    QwtPickerMachine::CommandList commandList =
+        d_data->stateMachine->transition(*this, e);
 
-    const QPoint pos = parentWidget()->mapFromGlobal(QCursor::pos());
+    QPoint pos;
+    switch(e->type())
+    {
+        case QEvent::MouseButtonDblClick:
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseMove:
+        {
+            const QMouseEvent *me = (QMouseEvent *)e;
+            pos = me->pos();
+            break;
+        }
+        default:
+            pos = parentWidget()->mapFromGlobal(QCursor::pos());
+    }
 
-    for ( uint i = 0; i < commandList.count(); i++ )
+    for ( uint i = 0; i < (uint)commandList.count(); i++ )
     {
         switch(commandList[i])
         {
@@ -1012,23 +1031,24 @@ void QwtPicker::transition(const QEvent *e)
 */
 void QwtPicker::begin()
 {
-    drawCursorLabel(); // erase
+    if ( d_data->isActive )
+        return;
 
-    d_selection.resize(0);
-    d_isActive = TRUE;
+    d_data->selection.resize(0);
+    d_data->isActive = true;
 
-    if ( cursorLabelMode() != AlwaysOff )
+    if ( trackerMode() != AlwaysOff )
     {
-        if ( d_labelPosition.x() < 0 || d_labelPosition.y() < 0 ) 
+        if ( d_data->labelPosition.x() < 0 || d_data->labelPosition.y() < 0 ) 
         {
             QWidget *w = parentWidget();
             if ( w )
-                d_labelPosition = w->mapFromGlobal(QCursor::pos());
+                d_data->labelPosition = w->mapFromGlobal(QCursor::pos());
         }
     }
 
-    drawCursorLabel(); // repaint
-    setMouseTracking(TRUE);
+    updateDisplay();
+    setMouseTracking(true);
 }
 
 /*!
@@ -1036,43 +1056,40 @@ void QwtPicker::begin()
 
   The selection is validated and maybe fixed by QwtPicker::accept().
 
-  \param ok If TRUE, complete the selection and emit a selected signal
+  \param ok If true, complete the selection and emit a selected signal
             otherwise discard the selection.
-  \return TRUE if the selection is accepted, FALSE otherwise
+  \return true if the selection is accepted, false otherwise
   \sa isActive, begin(), append(), move(), selected(), accept()
 */
 bool QwtPicker::end(bool ok)
 {
-    if ( d_isActive )
+    if ( d_data->isActive )
     {
-        setMouseTracking(FALSE);
+        setMouseTracking(false);
 
-        drawCursorLabel(); // erase
-        drawRubberBand(); // erase
+        d_data->isActive = false;
 
-        d_isActive = FALSE;
-
-        drawCursorLabel(); // repaint
-
-        if ( cursorLabelMode() == ActiveOnly )
-            d_labelPosition = QPoint(-1, -1);
+        if ( trackerMode() == ActiveOnly )
+            d_data->labelPosition = QPoint(-1, -1);
 
         if ( ok )
-            ok = accept(d_selection);
+            ok = accept(d_data->selection);
 
         if ( ok )
-            emit selected(d_selection);
+            emit selected(d_data->selection);
         else
-            d_selection.resize(0);
+            d_data->selection.resize(0);
+
+        updateDisplay();
     }
     else
-        ok = FALSE;
+        ok = false;
 
     return ok;
 }
 
 /*!
-  Append a point to the selection and update rubberband and cursor label.
+  Append a point to the selection and update rubberband and tracker.
   The appended() signal is emitted.
 
   \param pos Additional point
@@ -1081,17 +1098,13 @@ bool QwtPicker::end(bool ok)
 */
 void QwtPicker::append(const QPoint &pos)
 {
-    if ( d_isActive )
+    if ( d_data->isActive )
     {
-        drawRubberBand(); // erase
-        drawCursorLabel(); // erase
+        const int idx = d_data->selection.count();
+        d_data->selection.resize(idx + 1);
+        d_data->selection[idx] = pos;
 
-        const int idx = d_selection.count();
-        d_selection.resize(idx + 1);
-        d_selection[idx] = pos;
-
-        drawRubberBand(); // repaint
-        drawCursorLabel(); // repaint
+        updateDisplay();
 
         emit appended(pos);
     }
@@ -1107,38 +1120,41 @@ void QwtPicker::append(const QPoint &pos)
 */
 void QwtPicker::move(const QPoint &pos)
 {
-    if ( d_isActive )
+    if ( d_data->isActive )
     {
-        const int idx = d_selection.count() - 1;
+        const int idx = d_data->selection.count() - 1;
         if ( idx >= 0 )
         {
-            drawRubberBand(); // erase
-            d_selection[idx] = pos;
-            drawRubberBand(); // repaint
+            if ( d_data->selection[idx] != pos )
+            {
+                d_data->selection[idx] = pos;
 
-            emit moved(pos);
+                updateDisplay();
+
+                emit moved(pos);
+            }
         }
     }
 }
 
-bool QwtPicker::accept(QPointArray &) const
+bool QwtPicker::accept(SelectedPoints &) const
 {
-    return TRUE;
+    return true;
 }
 
 /*!
   A picker is active between begin() and end().
-  \return TRUE if the selection is active.
+  \return true if the selection is active.
 */
 bool QwtPicker::isActive() const 
 {
-    return d_isActive;
+    return d_data->isActive;
 }
 
 //!  Return Selected points
-const QPointArray &QwtPicker::selection() const
+const QwtPicker::SelectedPoints &QwtPicker::selection() const
 {
-    return d_selection;
+    return d_data->selection;
 }
 
 /*!
@@ -1157,26 +1173,26 @@ void QwtPicker::stretchSelection(const QSize &oldSize, const QSize &newSize)
     const double yRatio =
         double(newSize.height()) / double(oldSize.height());
 
-    for ( int i = 0; i < int(d_selection.count()); i++ )
+    for ( int i = 0; i < int(d_data->selection.count()); i++ )
     {
-        QPoint &p = d_selection[i];
+        QPoint &p = d_data->selection[i];
         p.setX(qRound(p.x() * xRatio));
         p.setY(qRound(p.y() * yRatio));
 
-        emit changed(d_selection);
+        emit changed(d_data->selection);
     }
 }
 
 /*!
   Set mouse tracking for the observed widget.
 
-  In case of enable is TRUE, the previous value
-  is saved, that is restored when enable is FALSE.
+  In case of enable is true, the previous value
+  is saved, that is restored when enable is false.
 
-  \warning Even when enable is FALSE, mouse tracking might be restored
-           to TRUE. When mouseTracking for the observed widget
+  \warning Even when enable is false, mouse tracking might be restored
+           to true. When mouseTracking for the observed widget
            has been changed directly by QWidget::setMouseTracking
-           while mouse tracking has been set to TRUE, this value can´t
+           while mouse tracking has been set to true, this value can´t
            be restored.
 */
 
@@ -1188,12 +1204,12 @@ void QwtPicker::setMouseTracking(bool enable)
 
     if ( enable )
     {
-        d_mouseTracking = widget->hasMouseTracking();
-        widget->setMouseTracking(TRUE);
+        d_data->mouseTracking = widget->hasMouseTracking();
+        widget->setMouseTracking(true);
     }
     else
     {
-        widget->setMouseTracking(d_mouseTracking);
+        widget->setMouseTracking(d_data->mouseTracking);
     }
 }
 
@@ -1218,8 +1234,61 @@ QRect QwtPicker::pickRect() const
     return rect;
 }
 
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:
+void QwtPicker::updateDisplay()
+{
+    QWidget *w = parentWidget();
+
+    bool showRubberband = false;
+    bool showTracker = false;
+    if ( w && w->isVisible() && d_data->enabled )
+    {
+        if ( rubberBand() != NoRubberBand && isActive() &&
+            rubberBandPen().style() != Qt::NoPen )
+        {
+            showRubberband = true;
+        }
+
+        if ( trackerMode() == AlwaysOn ||
+            (trackerMode() == ActiveOnly && isActive() ) )
+        {
+            if ( trackerPen() != Qt::NoPen )
+                showTracker = true;
+        }
+    }
+
+#if QT_VERSION < 0x040000
+    QGuardedPtr<PrivateData::PickerWidget> &rw = d_data->rubberBandWidget;
+#else
+    QPointer<PrivateData::PickerWidget> &rw = d_data->rubberBandWidget;
+#endif
+    if ( showRubberband )
+    {
+        if ( rw.isNull() )
+        {
+            rw = new PrivateData::PickerWidget(
+                this, w, PrivateData::PickerWidget::RubberBand);
+            rw->resize(w->size());
+        }
+        rw->updateMask();
+    }
+    else
+        delete rw;
+
+#if QT_VERSION < 0x040000
+    QGuardedPtr<PrivateData::PickerWidget> &tw = d_data->textLabelWidget;
+#else
+    QPointer<PrivateData::PickerWidget> &tw = d_data->textLabelWidget;
+#endif
+    if ( showTracker )
+    {
+        if ( tw.isNull() )
+        {
+            tw = new PrivateData::PickerWidget(
+                this, w, PrivateData::PickerWidget::Text);
+            tw->resize(w->size());
+        }
+        tw->updateMask();
+    }
+    else
+        delete tw;
+}

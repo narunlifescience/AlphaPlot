@@ -1,0 +1,29 @@
+Qwt 5.x TODO list
+
+A) Planned (5.0)
+   -------
+
+1) MathML texts (using the QtMml from Qt solutions)
+2) MathML texts, using another (L)GPL Qt/MathML render engine 
+3) Qt4 designer support
+
+B) Wish List ( >= 5.1 )
+   -------
+
+1) Grid of QwtPlots
+2) QwtPolarPlot
+3) Adding error bars
+4) Adding candle sticks
+5) Adding box plots
+6) Time/Date scale engine
+7) OpenGL plot canvas
+8) Histograms
+9) Spectrograms
+10) Using doubles in QwtPainter
+11) Interval scale labels
+
+C) Open Tasks (5.0)
+   ----------
+1) QwtPlotRect/QwtDoubleRect in QwtPlotZoomer
+2) Sort order updates for changing z-values
+3) QwtScaleWidget: Aligned/Opposite modes for the title

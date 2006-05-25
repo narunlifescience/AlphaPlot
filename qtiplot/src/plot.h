@@ -36,16 +36,16 @@ public:
 	
 protected:
 	void printCanvas(QPainter *painter, const QRect &canvasRect,
-   			 const QwtArray<QwtDiMap> &map, const QwtPlotPrintFilter &pfilter) const;
+   			 const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const;
 
 	virtual void drawCanvasItems (QPainter *painter, const QRect &rect,
-			const QwtArray< QwtDiMap > &map, const QwtPlotPrintFilter &pfilter) const;
+			const QwtArray< QwtScaleMap > &map, const QwtPlotPrintFilter &pfilter) const;
 
 	void drawInwardTicks(QPainter *painter, const QRect &rect, 
-							const QwtDiMap&map, int axis) const;
+							const QwtScaleMap&map, int axis) const;
 
 	void drawInwardMinorTicks(QPainter *painter, const QRect &rect, 
-							const QwtDiMap &map, int axis) const;
+							const QwtScaleMap &map, int axis) const;
 signals:
 	void selectPlot();
 	void moveGraph(const QPoint&);
@@ -60,6 +60,4 @@ protected:
 };
 
 #endif 
-
-
 

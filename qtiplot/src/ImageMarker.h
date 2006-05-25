@@ -3,8 +3,9 @@
 
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
-#include <qwt_plot_classes.h>
-#include <qwt_marker.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_grid.h>
+#include <qwt_plot_marker.h>
 	
 class ImageMarker: public QwtPlotMarker
 {
@@ -37,3 +38,4 @@ private:
 };
 
 #endif
+

@@ -5,39 +5,48 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the Qwt License, Version 1.0
- *
- *
- *Modifications added by Ion Vasilief to function: void QwtPlot::updateAxes()
  *****************************************************************************/
 
-// vim: expandtab
-#include <qapplication.h>
-#include <qlabel.h>
 #include <qpainter.h>
+#if QT_VERSION < 0x040000
 #include <qfocusdata.h>
+#else
+#include <qpaintengine.h>
+#endif
+#include <qapplication.h>
 #include <qevent.h>
 #include "qwt_plot.h"
-#include "qwt_plot_layout.h"
 #include "qwt_plot_dict.h"
+#include "qwt_plot_layout.h"
 #include "qwt_rect.h"
-#include "qwt_scale.h"
-#include "qwt_scale.h"
+#include "qwt_scale_widget.h"
+#include "qwt_scale_engine.h"
+#include "qwt_text_label.h"
 #include "qwt_legend.h"
 #include "qwt_dyngrid_layout.h"
 #include "qwt_plot_canvas.h"
-#include "qwt_math.h"
 #include "qwt_paint_buffer.h"
+
+class QwtPlot::PrivateData
+{
+public:
+    QwtTextLabel *lblTitle;
+    QwtPlotCanvas *canvas;
+    QwtLegend *legend;
+    QwtPlotLayout *layout;
+
+    bool autoReplot;
+};
 
 /*!
   \brief Constructor
   \param parent Parent widget
-  \param name Widget name
  */
 
-QwtPlot::QwtPlot(QWidget *parent, const char *name) :
-    QFrame(parent, name, Qt::WRepaintNoErase|Qt::WResizeNoErase)
+QwtPlot::QwtPlot(QWidget *parent):
+    QFrame(parent)
 {
-    initPlot();
+    initPlot(QwtText());
 }
 
 
@@ -45,10 +54,9 @@ QwtPlot::QwtPlot(QWidget *parent, const char *name) :
   \brief Constructor
   \param title Title text
   \param parent Parent widget
-  \param name Widget name
  */
-QwtPlot::QwtPlot(const QString &title, QWidget *parent, const char *name) :
-    QFrame(parent, name, Qt::WRepaintNoErase|Qt::WResizeNoErase)
+QwtPlot::QwtPlot(const QwtText &title, QWidget *parent) :
+    QFrame(parent)
 {
     initPlot(title);
 }
@@ -56,121 +64,89 @@ QwtPlot::QwtPlot(const QString &title, QWidget *parent, const char *name) :
 //! Destructor
 QwtPlot::~QwtPlot()
 {
-    delete d_layout;
-    delete d_curves;
-    delete d_markers;
-    delete d_grid;
+    detachItems(QwtPlotItem::Rtti_PlotItem, autoDelete());
+
+    delete d_data->layout;
+    deleteAxesData();
+    delete d_data;
 }
 
 /*!
   \brief Initializes a QwtPlot instance
   \param title Title text
  */
-void QwtPlot::initPlot(const QString &title)
+void QwtPlot::initPlot(const QwtText &title)
 {
-    d_layout = new QwtPlotLayout;
+    d_data = new PrivateData;
 
-    d_curves = new QwtCurveDict;
-    d_markers = new QwtMarkerDict;
+#if QT_VERSION < 0x040000
+    setWFlags(Qt::WNoAutoErase);
+#endif 
 
-    d_autoReplot = FALSE;
+    d_data->layout = new QwtPlotLayout;
 
-    d_lblTitle = new QLabel(title, this);
-    d_lblTitle->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
-    d_lblTitle->setAlignment(Qt::AlignCenter|Qt::WordBreak|Qt::ExpandTabs);
+    d_data->autoReplot = false;
 
-    d_legend = new QwtLegend(this);
-    d_autoLegend = FALSE;
+    d_data->lblTitle = new QwtTextLabel(title, this);
+    d_data->lblTitle->setFont(QFont(fontInfo().family(), 14, QFont::Bold));
 
-    d_scale[yLeft] = new QwtScale(QwtScale::Left, this, "yLeft");
-    d_scale[yRight] = new QwtScale(QwtScale::Right, this, "yRight");
-    d_scale[xTop] = new QwtScale(QwtScale::Top, this, "xTop");
-    d_scale[xBottom] = new QwtScale(QwtScale::Bottom, this, "xBottom");
-
-    initAxes();
-
-    d_grid = new QwtPlotGrid(this);
-    d_grid->setPen(QPen(Qt::black, 0, Qt::DotLine));
-    d_grid->enableXMin(FALSE);
-    d_grid->enableYMin(FALSE);
-    d_grid->setAxis(xBottom, yLeft);
-
-    d_canvas = new QwtPlotCanvas(this);
-    d_canvas->setFrameStyle(QFrame::Panel|QFrame::Sunken);
-    d_canvas->setLineWidth(2);
-    d_canvas->setMidLineWidth(0);
-
-#ifndef QWT_NO_COMPAT
-    connect(d_canvas, SIGNAL(mousePressed(const QMouseEvent &)),
-        this, SIGNAL(plotMousePressed(const QMouseEvent &)));
-    connect(d_canvas, SIGNAL(mouseMoved(const QMouseEvent &)),
-        this, SIGNAL(plotMouseMoved(const QMouseEvent &)));
-    connect(d_canvas, SIGNAL(mouseReleased(const QMouseEvent &)),
-        this, SIGNAL(plotMouseReleased(const QMouseEvent &)));
+    QwtText text(title);
+    int flags = Qt::AlignCenter;
+#if QT_VERSION < 0x040000
+    flags |= Qt::WordBreak | Qt::ExpandTabs;
+#else
+    flags |= Qt::TextWordWrap;
 #endif
+    text.setFlags(flags);
+    d_data->lblTitle->setText(text);
+
+    d_data->legend = NULL;
+
+    initAxesData();
+
+    d_data->canvas = new QwtPlotCanvas(this);
+    d_data->canvas->setFrameStyle(QFrame::Panel|QFrame::Sunken);
+    d_data->canvas->setLineWidth(2);
+    d_data->canvas->setMidLineWidth(0);
 
     updateTabOrder();
 
-    QSizePolicy sp;
-    sp.setHorData( QSizePolicy::MinimumExpanding );
-    sp.setVerData( QSizePolicy::MinimumExpanding );
-    setSizePolicy(sp);
-}
-
-//! Initialize axes
-void QwtPlot::initAxes()
-{
-    int axis;
-
-    QFont fscl(fontInfo().family(), 10);
-    QFont fttl(fontInfo().family(), 12, QFont::Bold);
-
-    for(axis = 0; axis < axisCnt; axis++)
-    {
-        d_scale[axis]->setFont(fscl);
-        d_scale[axis]->setTitleFont(fttl);
-        d_scale[axis]->setBaselineDist(2);
-    }
-
-    d_axisEnabled[yLeft] = TRUE;
-    d_axisEnabled[yRight] = FALSE;
-    d_axisEnabled[xBottom] = TRUE;
-    d_axisEnabled[xTop] = FALSE;
-
-    for (axis=0; axis < axisCnt; axis++)
-    {
-        d_as[axis].adjust(0.0,1000.0,TRUE);
-        d_scale[axis]->setScaleDiv(d_as[axis].scaleDiv());
-    }
+    setSizePolicy(QSizePolicy::MinimumExpanding, 
+        QSizePolicy::MinimumExpanding);
 }
 
 /*!
-  \brief Adds handling of QEvent::LayoutHint
+  \brief Adds handling of layout requests
 */
 bool QwtPlot::event(QEvent *e)
 {
     bool ok = QFrame::event(e);
     switch(e->type())
     {
-#if 0
-        case QEvent::ChildInserted:
-        case QEvent::ChildRemoved:
-#endif
+#if QT_VERSION < 0x040000
         case QEvent::LayoutHint:
+#else
+        case QEvent::LayoutRequest:
+#endif
             updateLayout();
             break;
+#if QT_VERSION >= 0x040000
+        case QEvent::PolishRequest:
+            polish();
+            break;
+#endif
         default:;
     }
     return ok;
 }
 
 /*!
-  \brief Replots the plot if QwtPlot::autoReplot() is \c TRUE.
+  \brief Replots the plot if QwtPlot::autoReplot() is \c true.
 */
 
 void QwtPlot::autoRefresh()
 {
-    if (d_autoReplot)
+    if (d_data->autoReplot)
         replot();
 }
 
@@ -182,23 +158,23 @@ void QwtPlot::autoRefresh()
   to leave this option switched off and call replot()
   explicitly if necessary.
 
-  The autoReplot option is set to FALSE by default, which
+  The autoReplot option is set to false by default, which
   means that the user has to call replot() in order to make
   changes visible.
-  \param tf \c TRUE or \c FALSE. Defaults to \c TRUE.
+  \param tf \c true or \c false. Defaults to \c true.
   \sa replot()
 */
 void QwtPlot::setAutoReplot(bool tf)
 {
-    d_autoReplot = tf;
+    d_data->autoReplot = tf;
 }
 
 /*!
-    \return TRUE if the autoReplot option is set.
+    \return true if the autoReplot option is set.
 */
 bool QwtPlot::autoReplot() const
 {
-    return d_autoReplot; 
+    return d_data->autoReplot; 
 }
 
 /*!
@@ -207,34 +183,25 @@ bool QwtPlot::autoReplot() const
 */
 void QwtPlot::setTitle(const QString &t)
 {
-    d_lblTitle->setText(t);
+    d_data->lblTitle->setText(t);
+}
+
+/*!
+  \brief Change the plot's title
+  \param t new title
+*/
+void QwtPlot::setTitle(const QwtText &t)
+{
+    d_data->lblTitle->setText(t);
 }
 
 /*!
   \return the plot's title
 */
 
-QString QwtPlot::title() const
+QwtText QwtPlot::title() const
 {
-    return d_lblTitle->text();
-}
-
-
-/*!
-  \brief Change the title font
-  \param f new title font
-*/
-void QwtPlot::setTitleFont(const QFont &f)
-{
-    d_lblTitle->setFont(f);
-}
-
-/*!
-  \return the plot's title font
-*/
-QFont QwtPlot::titleFont() const
-{
-    return d_lblTitle->font();
+    return d_data->lblTitle->text();
 }
 
 /*!
@@ -242,7 +209,7 @@ QFont QwtPlot::titleFont() const
 */
 QwtPlotLayout *QwtPlot::plotLayout()
 {
-    return d_layout;
+    return d_data->layout;
 }
 
 /*!
@@ -250,41 +217,41 @@ QwtPlotLayout *QwtPlot::plotLayout()
 */
 const QwtPlotLayout *QwtPlot::plotLayout() const
 {
-    return d_layout;
+    return d_data->layout;
 }
 
 /*!
   \return the plot's titel label.
 */
-QLabel *QwtPlot::titleLabel()
+QwtTextLabel *QwtPlot::titleLabel()
 {
-    return d_lblTitle;
+    return d_data->lblTitle;
 }
 
 /*!
   \return the plot's titel label.
 */
-const QLabel *QwtPlot::titleLabel() const
+const QwtTextLabel *QwtPlot::titleLabel() const
 {
-    return d_lblTitle;
+    return d_data->lblTitle;
 }
 
 /*!
   \return the plot's legend
-  \sa insertLegendItem(), updateLegendItem(), printLegendItem()
+  \sa printLegendItem()
 */
 QwtLegend *QwtPlot::legend()
 { 
-    return d_legend;
+    return d_data->legend;
 }   
 
 /*!
   \return the plot's legend
-  \sa insertLegendItem(), updateLegendItem(), printLegendItem()
+  \sa printLegendItem()
 */
 const QwtLegend *QwtPlot::legend() const
 { 
-    return d_legend;
+    return d_data->legend;
 }   
 
 
@@ -293,7 +260,7 @@ const QwtLegend *QwtPlot::legend() const
 */
 QwtPlotCanvas *QwtPlot::canvas()
 { 
-    return d_canvas;
+    return d_data->canvas;
 }   
 
 /*!
@@ -301,7 +268,16 @@ QwtPlotCanvas *QwtPlot::canvas()
 */
 const QwtPlotCanvas *QwtPlot::canvas() const
 { 
-    return d_canvas;
+    return d_data->canvas;
+}
+
+void QwtPlot::polish()
+{
+    replot();
+
+#if QT_VERSION < 0x040000
+    QFrame::polish();
+#endif
 }
 
 /*!  
@@ -313,25 +289,26 @@ QSize QwtPlot::sizeHint() const
 {
     int dw = 0;
     int dh = 0;
-    for ( int axis = 0; axis < axisCnt; axis++ )
+    for ( int axisId = 0; axisId < axisCnt; axisId++ )
     {
-        if ( d_axisEnabled[axis] )
+        if ( axisEnabled(axisId) )
         {   
             const int niceDist = 40;
-            const QwtScale *scale = d_scale[axis];
-            const int majCnt = scale->scaleDraw()->scaleDiv().majCnt();
+            const QwtScaleWidget *scaleWidget = axisWidget(axisId);
+            const QwtScaleDiv &scaleDiv = scaleWidget->scaleDraw()->scaleDiv();
+            const int majCnt = scaleDiv.ticks(QwtScaleDiv::MajorTick).count();
 
-            if ( axis == yLeft || axis == yRight )
+            if ( axisId == yLeft || axisId == yRight )
             {
                 int hDiff = (majCnt - 1) * niceDist 
-                    - scale->minimumSizeHint().height();
+                    - scaleWidget->minimumSizeHint().height();
                 if ( hDiff > dh )
                     dh = hDiff;
             }
             else
             {
                 int wDiff = (majCnt - 1) * niceDist 
-                    - scale->minimumSizeHint().width();
+                    - scaleWidget->minimumSizeHint().width();
                 if ( wDiff > dw )
                     dw = wDiff;
             }
@@ -345,7 +322,7 @@ QSize QwtPlot::sizeHint() const
 */
 QSize QwtPlot::minimumSizeHint() const
 {
-    QSize hint = d_layout->minimumSizeHint(this);
+    QSize hint = d_data->layout->minimumSizeHint(this);
     hint += QSize(2 * frameWidth(), 2 * frameWidth());
 
     return hint;
@@ -371,15 +348,45 @@ void QwtPlot::resizeEvent(QResizeEvent *e)
 void QwtPlot::replot()
 {
     bool doAutoReplot = autoReplot();
-    setAutoReplot(FALSE);
+    setAutoReplot(false);
 
     updateAxes();
-	// Force the scales to resize to prevent that
-    // the scales and canvas are drawn with different maps.
-    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 
-    d_canvas->invalidateCache();
-    d_canvas->repaint(d_canvas->contentsRect(), FALSE);
+    /*
+      Maybe the layout needs to be updated, because of changed
+      axes labels. We need to process them here before painting
+      to avoid that scales and canvas get out of sync.
+     */
+#if QT_VERSION >= 0x040000
+    QApplication::sendPostedEvents(this, QEvent::LayoutRequest);
+#else
+    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+#endif
+
+    QwtPlotCanvas &canvas = *d_data->canvas;
+
+    canvas.invalidatePaintCache();
+
+    /*
+      In case of cached or packed painting the canvas
+      is repainted completely and doesn't need to be erased.
+     */
+    const bool erase = 
+        !canvas.testPaintAttribute(QwtPlotCanvas::PaintPacked) 
+        && !canvas.testPaintAttribute(QwtPlotCanvas::PaintCached);
+
+#if QT_VERSION >= 0x040000
+    const bool noBackgroundMode = canvas.testAttribute(Qt::WA_NoBackground);
+    if ( !erase && !noBackgroundMode )
+        canvas.setAttribute(Qt::WA_NoBackground, true);
+
+    canvas.repaint(canvas.contentsRect());
+
+    if ( !erase && !noBackgroundMode )
+        canvas.setAttribute(Qt::WA_NoBackground, false);
+#else
+    canvas.repaint(canvas.contentsRect(), erase);
+#endif
 
     setAutoReplot(doAutoReplot);
 }
@@ -390,184 +397,123 @@ void QwtPlot::replot()
 */
 void QwtPlot::updateLayout()
 {
-    d_layout->activate(this, contentsRect());
+    d_data->layout->activate(this, contentsRect());
 
     //
     // resize and show the visible widgets
     //
-    if (!d_lblTitle->text().isEmpty())
+    if (!d_data->lblTitle->text().isEmpty())
     {
-        d_lblTitle->setGeometry(d_layout->titleRect());
-        if (!d_lblTitle->isVisible())
-            d_lblTitle->show();
+        d_data->lblTitle->setGeometry(d_data->layout->titleRect());
+        if (!d_data->lblTitle->isVisible())
+            d_data->lblTitle->show();
     }
     else
-        d_lblTitle->hide();
+        d_data->lblTitle->hide();
 
-    for (int axis = 0; axis < axisCnt; axis++ )
+    for (int axisId = 0; axisId < axisCnt; axisId++ )
     {
-        if (d_axisEnabled[axis])
+        if (axisEnabled(axisId) )
         {
-            d_scale[axis]->setGeometry(d_layout->scaleRect(axis));
+            axisWidget(axisId)->setGeometry(d_data->layout->scaleRect(axisId));
 
-            if ( axis == xBottom || axis == xTop )
+            if ( axisId == xBottom || axisId == xTop )
             {
-                QRegion r(d_layout->scaleRect(axis));
-                if ( d_axisEnabled[yLeft] )
-                    r = r.subtract(QRegion(d_layout->scaleRect(yLeft)));
-                if ( d_axisEnabled[yRight] )
-                    r = r.subtract(QRegion(d_layout->scaleRect(yRight)));
-                r.translate(-d_layout->scaleRect(axis).x(), 
-                    -d_layout->scaleRect(axis).y());
+                QRegion r(d_data->layout->scaleRect(axisId));
+                if ( axisEnabled(yLeft) )
+                    r = r.subtract(QRegion(d_data->layout->scaleRect(yLeft)));
+                if ( axisEnabled(yRight) )
+                    r = r.subtract(QRegion(d_data->layout->scaleRect(yRight)));
+                r.translate(-d_data->layout->scaleRect(axisId).x(), 
+                    -d_data->layout->scaleRect(axisId).y());
 
-                d_scale[axis]->setMask(r);
+                axisWidget(axisId)->setMask(r);
             }
-            if (!d_scale[axis]->isVisible())
-                d_scale[axis]->show();
+            if (!axisWidget(axisId)->isVisible())
+                axisWidget(axisId)->show();
         }
         else
-            d_scale[axis]->hide();
+            axisWidget(axisId)->hide();
     }
 
-    if (d_legend->itemCount() > 0)
+    if ( d_data->legend )
     {
-        d_legend->setGeometry(d_layout->legendRect());
-        d_legend->show();
-    }
-    else
-        d_legend->hide();
-
-    d_canvas->setGeometry(d_layout->canvasRect());
-}
-
-//! Rebuild the scales and maps
-void QwtPlot::updateAxes()
-{
-    int i;
-    bool resetDone[axisCnt];
-    for (i = 0; i < axisCnt; i++)
-        resetDone[i] = FALSE;
-
-    //
-    //  Adjust autoscalers
-    //
-
-    QwtPlotCurveIterator itc = curveIterator();
-    for (const QwtPlotCurve *c = itc.toFirst(); c != 0; c = ++itc )
-    {
-        const int xAxis = c->xAxis();
-        const int yAxis = c->yAxis();
-
-        if ( d_as[xAxis].autoScale() || d_as[yAxis].autoScale() )
+        if (d_data->legend->itemCount() > 0)
         {
-            const QwtDoubleRect rect = c->boundingRect();
-            if ( rect.isValid() )
-            {
-                if ( d_as[xAxis].autoScale() )
-                {
-                    if ( !resetDone[xAxis] )
-                    {
-                        d_as[xAxis].reset();
-                        resetDone[xAxis] = TRUE;
-                    }
-                    d_as[xAxis].adjust(rect.x1(), rect.x2());
-                }
-
-                if ( d_as[yAxis].autoScale() )
-                {
-                    if ( !resetDone[yAxis] )
-                    {
-                        d_as[yAxis].reset();
-                        resetDone[yAxis] = TRUE;
-                    }
-                    d_as[yAxis].adjust(rect.y1(), rect.y2());
-                }
-            }
+            d_data->legend->setGeometry(d_data->layout->legendRect());
+            d_data->legend->show();
         }
+        else
+            d_data->legend->hide();
     }
 
-    //
-    // Adjust scales
-    //
-
-	/*******************************************************/
-	//modifications added by Ion Vasilief in order to synchronize oposite axes
-
-	d_scale[xBottom]->setScaleDiv(d_as[xBottom].scaleDiv());
-	d_scale[xTop]->setScaleDiv(d_as[xBottom].scaleDiv());
-	d_scale[yLeft]->setScaleDiv(d_as[yLeft].scaleDiv());
-	d_scale[yRight]->setScaleDiv(d_as[yLeft].scaleDiv());
-
-	int startDist, endDist;
-    d_scale[yLeft]->minBorderDist(startDist, endDist);
-	d_scale[yLeft]->setBorderDist(startDist, endDist);
-    d_scale[yRight]->setBorderDist(startDist, endDist);
-	
-	d_scale[xBottom]->minBorderDist(startDist, endDist);
-	d_scale[xBottom]->setBorderDist(startDist, endDist);
-    d_scale[xTop]->setBorderDist(startDist, endDist);
-	/*******************************************************/
-
-    d_grid->setXDiv(d_as[d_grid->xAxis()].scaleDiv());
-    d_grid->setYDiv(d_as[d_grid->yAxis()].scaleDiv());
+    d_data->canvas->setGeometry(d_data->layout->canvasRect());
 }
 
 //! Update the focus tab order
 
 void QwtPlot::updateTabOrder()
 {
+#if QT_VERSION >= 0x040000
+    using namespace Qt; // QWidget::NoFocus/Qt::NoFocus
+#endif
+    if ( !legend() || legend()->legendItems().count() == 0
+        || d_data->canvas->focusPolicy() == NoFocus )
+    {
+        return;
+    }
+
     // Depending on the position of the legend the 
     // tab order will be changed that the canvas is
-    // next to the last legend item, or directly before
-    // the first one. The following code seems much too
-    // complicated but is there a better implementation ?
+    // next to the last legend item, or before
+    // the first one. 
 
-    if ( d_canvas->focusPolicy() == QWidget::NoFocus || focusData() == NULL )
+    const bool canvasFirst = 
+        d_data->layout->legendPosition() == QwtPlot::BottomLegend ||
+        d_data->layout->legendPosition() == QwtPlot::RightLegend;
+
+    QWidget *previous = NULL; 
+
+    QWidget *w;
+#if QT_VERSION >= 0x040000
+    while ( nextInFocusChain() != d_data->canvas );
+    while ( (w = nextInFocusChain()) != d_data->canvas )
+#else
+    if ( focusData() == NULL )
         return;
 
-    // move the cursor to the canvas
-
-    for ( int i = 0; i < focusData()->count(); i++ )
+    while ( focusData()->next() != d_data->canvas );
+    while ( (w = focusData()->next()) != d_data->canvas )
+#endif
     {
-        if ( focusData()->next() == d_canvas )
-            break;
-    }
-
-    const bool canvasFirst = d_layout->legendPosition() == QwtPlot::Bottom ||
-        d_layout->legendPosition() == QwtPlot::Right;
-
-    for ( int j = 0; j < focusData()->count(); j++ )
-    {
-        QWidget *w = canvasFirst ? focusData()->next() : focusData()->prev();
-
-        if ( w->focusPolicy() != QWidget::NoFocus 
-            && w->parent() && w->parent() == d_legend->contentsWidget() )
+        bool isLegendItem = false;
+        if ( w->focusPolicy() != NoFocus 
+            && w->parent() && w->parent() == d_data->legend->contentsWidget() )
         {
-            if ( canvasFirst )
-            {
-                do // go back to last non legend item
-                {
-                    w = focusData()->prev(); // before the first legend item
-                } while ( w->focusPolicy() == QWidget::NoFocus );
-            }
+            isLegendItem = true;
+        }
 
-            if ( w != d_canvas )
-                setTabOrder(w, d_canvas);
-            break;
+        if ( canvasFirst )
+        {
+            if ( isLegendItem )
+                break;
+
+            previous = w;
+        }
+        else
+        {
+            if ( isLegendItem )
+                previous = w;
+            else
+            {
+                if ( previous )
+                    break;
+            }
         }
     }
-}
 
-//! drawContents
-// \sa QFrame::drawContents
-
-void QwtPlot::drawContents( QPainter * )
-{
-    // We must erase the region that is not
-    // occupied by our children
-    QRegion cr( contentsRect() );
-    cr = cr.subtract( childrenRegion() );
-    erase( cr );
+    if ( previous && previous != d_data->canvas)
+        setTabOrder(previous, d_data->canvas);
 }
 
 /*! 
@@ -582,12 +528,12 @@ void QwtPlot::drawContents( QPainter * )
 
 void QwtPlot::drawCanvas(QPainter *painter)
 {
-    QwtArray<QwtDiMap> map(axisCnt);
-    for ( int axis = 0; axis < axisCnt; axis++ )
-        map[axis] = canvasMap(axis);
+    QwtArray<QwtScaleMap> maps(axisCnt);
+    for ( int axisId = 0; axisId < axisCnt; axisId++ )
+        maps[axisId] = canvasMap(axisId);
 
-    drawCanvasItems(painter, 
-        d_canvas->contentsRect(), map, QwtPlotPrintFilter());
+    drawItems(painter, 
+        d_data->canvas->contentsRect(), maps, QwtPlotPrintFilter());
 }
 
 /*! 
@@ -598,134 +544,90 @@ void QwtPlot::drawCanvas(QPainter *painter)
   \param pfilter Plot print filter
 */
 
-void QwtPlot::drawCanvasItems(QPainter *painter, const QRect &rect, 
-        const QwtArray<QwtDiMap> &map, const QwtPlotPrintFilter &pfilter) const
+void QwtPlot::drawItems(QPainter *painter, const QRect &rect, 
+        const QwtArray<QwtScaleMap> &map, 
+        const QwtPlotPrintFilter &pfilter) const
 {
-    //
-    // draw grid
-    //
-    if ( pfilter.options() & QwtPlotPrintFilter::PrintGrid )
-    {
-        if ( d_grid->enabled() )
-        {
-            d_grid->draw(painter, rect, 
-                map[d_grid->xAxis()], map[d_grid->yAxis()]);
-        }
-    }
+    painter->save();
 
-    //
-    //  draw curves
-    //
-    QwtPlotCurveIterator itc = curveIterator();
-    for (QwtPlotCurve *curve = itc.toFirst(); curve != 0; curve = ++itc )
+    const QwtPlotItemList& itmList = itemList();
+    for ( QwtPlotItemIterator it = itmList.begin();
+        it != itmList.end(); ++it )
     {
-        if ( curve->enabled() )
+        QwtPlotItem *item = *it;
+        if ( item && item->isVisible() )
         {
-            curve->draw(painter, 
-                map[curve->xAxis()], map[curve->yAxis()]);
-        }
-    }
+            if ( !(pfilter.options() & QwtPlotPrintFilter::PrintGrid)
+                && item->rtti() == QwtPlotItem::Rtti_PlotGrid )
+            {
+                continue;
+            }
 
-    //
-    // draw markers
-    //
-    QwtPlotMarkerIterator itm = markerIterator();
-    for (QwtPlotMarker *marker = itm.toFirst(); marker != 0; marker = ++itm )
-    {
-        if ( marker->enabled() )
-        {
-            marker->draw(painter,
-                map[marker->xAxis()].transform(marker->xValue()),
-                map[marker->yAxis()].transform(marker->yValue()),
+#if QT_VERSION >= 0x040000
+            const QPaintEngine *pe = painter->device()->paintEngine();
+            if (pe->hasFeature(QPaintEngine::Antialiasing) )
+            {
+                painter->setRenderHint(QPainter::Antialiasing,
+                    item->testRenderHint(QwtPlotItem::RenderAntialiased) );
+            }
+#endif
+
+            item->draw(painter, 
+                map[item->xAxis()], map[item->yAxis()],
                 rect);
         }
     }
+
+    painter->restore();
 }
 
 /*!
-  \brief Draw a set of points of a curve.
-  When observing an measurement while it is running, new points have to be
-  added to an existing curve. drawCurve can be used to display them avoiding
-  a complete redraw of the canvas.
-
-  \param key curve key
-  \param from index of the first point to be painted
-  \param to index of the last point to be painted. If to < 0 the
-         curve will be painted to its last point.
-  \sa QwtCurve::draw
-*/
-void QwtPlot::drawCurve(long key, int from, int to)
-{
-    QwtPlotCurve *curve = d_curves->find(key);
-    if ( !curve )
-        return;
-
-    QPainter p(canvas());
-
-    p.setClipping(TRUE);
-    p.setClipRect(canvas()->contentsRect());
-
-    curve->draw(&p,
-        canvasMap(curve->xAxis()), canvasMap(curve->yAxis()),
-        from, to);
-
-    if ( canvas()->cacheMode() && canvas()->cache())
-    {
-        QPainter cachePainter(canvas()->cache());
-        cachePainter.translate(-canvas()->contentsRect().x(),
-            -canvas()->contentsRect().y());
-
-        curve->draw(&cachePainter,
-            canvasMap(curve->xAxis()), canvasMap(curve->yAxis()),
-            from, to);
-    }
-}
-
-/*!
-  \param axis Axis
+  \param axisId Axis
   \return Map for the axis on the canvas. With this map pixel coordinates can
           translated to plot coordinates and vice versa.
-  \sa QwtDiMap, QwtPlot::transform, QwtPlot::invTransform
+  \sa QwtScaleMap, QwtPlot::transform, QwtPlot::invTransform
   
 */
-QwtDiMap QwtPlot::canvasMap(int axis) const
+QwtScaleMap QwtPlot::canvasMap(int axisId) const
 {
-    QwtDiMap map;
-    if ( !d_canvas )
+    QwtScaleMap map;
+    if ( !d_data->canvas )
         return map;
 
-    const QwtScaleDiv &sd = d_as[axis].scaleDiv();
-    map.setDblRange(sd.lBound(), sd.hBound(), sd.logScale());
+    map.setTransformation(axisScaleEngine(axisId)->transformation());
 
-    if ( axisEnabled(axis) )
+    const QwtScaleDiv *sd = axisScaleDiv(axisId);
+    map.setScaleInterval(sd->lBound(), sd->hBound());
+
+    if ( axisEnabled(axisId) )
     {
-        const QwtScale *s = d_scale[axis];
-        if ( axis == yLeft || axis == yRight )
+        const QwtScaleWidget *s = axisWidget(axisId);
+        if ( axisId == yLeft || axisId == yRight )
         {
-            int y = s->y() + s->startBorderDist() - d_canvas->y();
+            int y = s->y() + s->startBorderDist() - d_data->canvas->y();
             int h = s->height() - s->startBorderDist() - s->endBorderDist();
-            map.setIntRange(y + h - 1, y);
+            map.setPaintInterval(y + h - 1, y);
         }
         else
         {
-            int x = s->x() + s->startBorderDist() - d_canvas->x();
+            int x = s->x() + s->startBorderDist() - d_data->canvas->x();
             int w = s->width() - s->startBorderDist() - s->endBorderDist();
-            map.setIntRange(x, x + w - 1);
+            map.setPaintInterval(x, x + w - 1);
         }
     }
     else
     {
-        const int margin = plotLayout()->canvasMargin(axis);
+        const int margin = plotLayout()->canvasMargin(axisId);
 
-        const QRect &canvasRect = d_canvas->contentsRect();
-        if ( axis == yLeft || axis == yRight )
+        const QRect &canvasRect = d_data->canvas->contentsRect();
+        if ( axisId == yLeft || axisId == yRight )
         {
-            map.setIntRange(canvasRect.bottom() - margin, 
+            map.setPaintInterval(canvasRect.bottom() - margin, 
                 canvasRect.top() + margin);
         }
         else
         {
-            map.setIntRange(canvasRect.left() + margin, 
+            map.setPaintInterval(canvasRect.left() + margin, 
                 canvasRect.right() - margin);
         }
     }
@@ -744,9 +646,9 @@ void QwtPlot::setMargin(int margin)
     if ( margin < 0 )
         margin = 0;
 
-    if ( margin != d_layout->margin() )
+    if ( margin != d_data->layout->margin() )
     {
-        d_layout->setMargin(margin);
+        d_data->layout->setMargin(margin);
         updateLayout();
     }
 }
@@ -757,7 +659,7 @@ void QwtPlot::setMargin(int margin)
 */
 int QwtPlot::margin() const
 {
-    return d_layout->margin();
+    return d_data->layout->margin();
 }
 
 /*!
@@ -770,10 +672,16 @@ int QwtPlot::margin() const
 */
 void QwtPlot::setCanvasBackground(const QColor &c)
 {
-    QPalette p = d_canvas->palette();
+    QPalette p = d_data->canvas->palette();
 
     for ( int i = 0; i < QPalette::NColorGroups; i++ )
+    {
+#if QT_VERSION < 0x040000
         p.setColor((QPalette::ColorGroup)i, QColorGroup::Background, c);
+#else
+        p.setColor((QPalette::ColorGroup)i, QPalette::Background, c);
+#endif
+    }
 
     canvas()->setPalette(p);
 }
@@ -786,8 +694,13 @@ void QwtPlot::setCanvasBackground(const QColor &c)
 */
 const QColor & QwtPlot::canvasBackground() const
 {
+#if QT_VERSION < 0x040000
     return canvas()->palette().color(
         QPalette::Normal, QColorGroup::Background);
+#else
+    return canvas()->palette().color(
+        QPalette::Normal, QPalette::Background);
+#endif
 }
 
 /*!
@@ -811,122 +724,13 @@ int QwtPlot::canvasLineWidth() const
     return canvas()->lineWidth();
 }
 
-#ifndef QWT_NO_COMPAT
-
 /*!
-  \brief Enables or disables outline drawing.
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  When the outline feature is enabled, a shape will be drawn
-  in the plotting region  when the user presses
-  or drags the mouse. It can be used to implement crosshairs,
-  mark a selected region, etc.
-  \param tf \c TRUE (enabled) or \c FALSE (disabled)
-  \warning An outline style has to be specified.
-  \sa setOutlineStyle()
-*/
-void QwtPlot::enableOutline(bool tf)
-{
-    d_canvas->enableOutline(tf);
-}
-
-/*!
-  \brief Specify the style of the outline
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  The outline style determines which kind of shape is drawn
-  in the plotting region when the user presses a mouse button
-  or drags the mouse. Valid Styles are:
-  \param os Outline Style. Valid values are: \c Qwt::HLine, \c Qwt::VLine,
-            \c Qwt::Cross, \c Qwt::Rect, \c Qwt::Ellipse
-  <dl>
-  <dt>Qwt::Cross
-  <dd>Cross hairs are drawn across the plotting area
-      when the user presses a mouse button. The lines
-      intersect at the point where the mouse was pressed
-      and move with the mouse pointer.
-  <dt>Qwt::HLine, Qwt::VLine
-  <dd>A horizontal or vertical line appears when
-      the user presses a mouse button. This is useful
-      for moving line markers.
-  <dt>Qwt::Rect
-  <dd>A rectangle is displayed when the user drags
-      the mouse. One corner is fixed at the point where
-      the mouse was pressed, and the opposite corner moves
-      with the mouse pointer. This can be used for selecting
-      regions.
-  <dt>Qwt::Ellipse
-  <dd>Similar to Qwt::Rect, but with an ellipse inside
-      a bounding rectangle.
-  </dl>
-  \sa enableOutline()
-*/
-void QwtPlot::setOutlineStyle(Qwt::Shape os)
-{
-    d_canvas->setOutlineStyle(os);
-}
-
-/*!
-  \brief Specify a pen for the outline
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \param pn new pen
-*/
-void QwtPlot::setOutlinePen(const QPen &pn)
-{
-    d_canvas->setOutlinePen(pn);
-}
-
-/*!
-  \return \c TRUE if the outline feature is enabled
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-*/
-bool QwtPlot::outlineEnabled() const
-{
-     return d_canvas->outlineEnabled();
-}
-
-/*!
-  \return the pen used to draw outlines
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-*/
-const QPen & QwtPlot::outlinePen() const
-{
-    return d_canvas->outlinePen();
-}
-
-/*!
-  \return the outline style
-
-  \warning Outlining functionality is obsolete: use QwtPlotPicker or
-  QwtPlotZoomer.
-
-  \sa setOutlineStyle()
-*/
-Qwt::Shape QwtPlot::outlineStyle() const
-{
-    return d_canvas->outlineStyle();
-}
-
-#endif // ! QWT_NO_COMPAT
-
-/*!
-  \return \c TRUE if the specified axis exists, otherwise \c FALSE
-  \param axis axis index
+  \return \c true if the specified axis exists, otherwise \c false
+  \param axisId axis index
  */
-bool QwtPlot::axisValid(int axis)
+bool QwtPlot::axisValid(int axisId)
 {
-    return ((axis >= QwtPlot::yLeft) && (axis < QwtPlot::axisCnt));
+    return ((axisId >= QwtPlot::yLeft) && (axisId < QwtPlot::axisCnt));
 }
 
 /*!
@@ -934,136 +738,50 @@ bool QwtPlot::axisValid(int axis)
   Emits a legendClicked() signal.
 */
 
-void QwtPlot::lgdClicked()
+void QwtPlot::legendItemClicked()
 {
-    if ( sender()->isWidgetType() )
+    if ( d_data->legend && sender()->isWidgetType() )
     {
-        long key = d_legend->key((QWidget *)sender());
-        if ( key >= 0 )
-            emit legendClicked(key);
+        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        if ( plotItem )
+            emit legendClicked(plotItem);
+    }
+}
+
+void QwtPlot::legendItemChecked(bool on)
+{
+    if ( d_data->legend && sender()->isWidgetType() )
+    {
+        QwtPlotItem *plotItem = d_data->legend->find((QWidget *)sender());
+        if ( plotItem )
+            emit legendChecked(plotItem, on);
     }
 }
 
 //! Remove all curves and markers
 void QwtPlot::clear()
 {
-    d_legend->clear();
-    d_curves->clear();
-    d_markers->clear();
-}
-
-
-//! Remove all curves
-void QwtPlot::removeCurves()
-{
-    d_curves->clear();
-    d_legend->clear();
-    autoRefresh();
-}
-
-//! Remove all markers
-void QwtPlot::removeMarkers()
-{
-    d_markers->clear();
-    autoRefresh();
+    detachItems(QwtPlotItem::Rtti_PlotCurve);
+    detachItems(QwtPlotItem::Rtti_PlotMarker);
 }
 
 /*!
-  \brief Set or reset the autoLegend option
-  If the autoLegend option is set, a item will be added
-  to the legend whenever a curve is inserted.
+  \brief Insert a legend
 
-  The autoLegend option is set to FALSE by default, which
-  means that the user has to call enableLegend.
-  \param tf \c TRUE or \c FALSE. Defaults to \c FALSE.
-  \sa QwtPlot::enableLegend()
-*/
-void QwtPlot::setAutoLegend(bool tf)
-{
-    d_autoLegend = tf;
-}
-
-/*!
-    \return TRUE if the autoLegend option is set.
-*/
-bool QwtPlot::autoLegend() const
-{
-    return d_autoLegend;
-}
-
-
-/*!
-  \brief Enable or disable the legend
-  \param enable \c TRUE (enabled) or \c FALSE (disabled)
-  \param curveKey Key of a existing curve.
-                  If curveKey < 0 the legends for all
-                  curves will be updated.
-  \sa QwtPlot::setAutoLegend()
-  \sa QwtPlot::setLegendPosition()
-*/
-void QwtPlot::enableLegend(bool enable, long curveKey)
-{
-    bool isUpdateEnabled = d_legend->isUpdatesEnabled();
-    d_legend->setUpdatesEnabled(FALSE);
-
-    if ( curveKey < 0 ) // legends for all curves
-    {
-        if ( enable )
-        {
-            if ( d_legend->itemCount() < d_curves->count() )
-            {
-                // not all curves have a legend
-
-                d_legend->clear();
-
-                QwtPlotCurveIterator itc = curveIterator();
-                for ( const QwtPlotCurve *curve = itc.toFirst();
-                    curve != 0; curve = ++itc )
-                {
-                    insertLegendItem(itc.currentKey());
-                }
-            }
-        }
-        else
-        {
-            d_legend->clear();
-        }
-    }
-    else
-    {
-        QWidget *legendItem = d_legend->findItem(curveKey);
-        if ( enable )
-        {
-            if ( d_curves->find(curveKey) && !legendItem )
-                insertLegendItem(curveKey);
-        }
-        else
-            delete legendItem;
-    }
-
-    d_legend->setUpdatesEnabled(isUpdateEnabled);
-    updateLayout();
-}
-
-/*!
-  \param curveKey Curve key.
-  \return \c TRUE if legend is enabled, otherwise \c FALSE
-*/
-
-bool QwtPlot::legendEnabled(long curveKey) const
-{
-    return d_legend->findItem(curveKey) != 0;
-}
-
-/*!
-  Specify the position of the legend within the widget.
-  If the position legend is \c QwtPlot::Left or \c QwtPlot::Right
+  If the position legend is \c QwtPlot::LeftLegend or \c QwtPlot::RightLegend
   the legend will be organized in one column from top to down. 
   Otherwise the legend items will be placed be placed in a table 
   with a best fit number of columns from left to right.
+
+  The plot widget will become parent of the legend. It
+  will be deleted when the plot is deleted, or another
+  legend is set with insertLegend().
        
-  \param pos The legend's position. Valid values are \c QwtPlot::Left,
-           \c QwtPlot::Right, \c QwtPlot::Top, \c QwtPlot::Bottom.
+  \param legend Legend
+  \param pos The legend's position. Valid values are \c QwtPlot::LeftLegend,
+           \c QwtPlot::RightLegend, \c QwtPlot::TopLegend, 
+           \c QwtPlot::BottomLegend.
+
   \param ratio Ratio between legend and the bounding rect
                of title, canvas and axes. The legend will be shrinked
                if it would need more space than the given ratio.
@@ -1071,150 +789,51 @@ bool QwtPlot::legendEnabled(long curveKey) const
                it will be reset to the default ratio.
                The default vertical/horizontal ratio is 0.33/0.5.
 
-  \sa QwtPlot::legendPosition(), QwtPlotLayout::setLegendPosition()
+  \sa QwtPlotLayout::legendPosition(), QwtPlotLayout::setLegendPosition()
 */
-void QwtPlot::setLegendPosition(QwtPlot::Position pos, double ratio)
+void QwtPlot::insertLegend(QwtLegend *legend, 
+    QwtPlot::LegendPosition pos, double ratio)
 {
-    if (pos != d_layout->legendPosition())
+    d_data->layout->setLegendPosition(pos, ratio);
+
+    if ( legend != d_data->legend )
     {
-        d_layout->setLegendPosition(pos, ratio);
+        delete d_data->legend;
+        d_data->legend = legend;
 
-        QLayout *l = d_legend->contentsWidget()->layout();
-        if ( l && l->inherits("QwtDynGridLayout") )
+        if ( d_data->legend )
         {
-            QwtDynGridLayout *tl = (QwtDynGridLayout *)l;
-            if ( d_layout->legendPosition() == QwtPlot::Top ||
-                d_layout->legendPosition() == QwtPlot::Bottom )
+            if ( d_data->legend->parent() != this )
             {
-                tl->setMaxCols(0); // unlimited
+#if QT_VERSION < 0x040000
+                d_data->legend->reparent(this, QPoint(0, 0));
+#else
+                d_data->legend->setParent(this);
+#endif
             }
-            else
-                tl->setMaxCols(1); // 1 column: align vertical
-        }
 
-        updateLayout();
+            const QwtPlotItemList& itmList = itemList();
+            for ( QwtPlotItemIterator it = itmList.begin();
+                it != itmList.end(); ++it )
+            {
+                (*it)->updateLegend(d_data->legend);
+            }
+
+            QLayout *l = d_data->legend->contentsWidget()->layout();
+            if ( l && l->inherits("QwtDynGridLayout") )
+            {
+                QwtDynGridLayout *tl = (QwtDynGridLayout *)l;
+                if ( d_data->layout->legendPosition() == QwtPlot::TopLegend ||
+                    d_data->layout->legendPosition() == QwtPlot::BottomLegend )
+                {
+                    tl->setMaxCols(0); // unlimited
+                }
+                else
+                    tl->setMaxCols(1); // 1 column: align vertical
+            }
+        }
         updateTabOrder();
     }
-}
 
-/*!
-  Specify the position of the legend within the widget.
-  If the position legend is \c QwtPlot::Left or \c QwtPlot::Right
-  the legend will be organized in one column from top to down. 
-  Otherwise the legend items will be placed be placed in a table 
-  with a best fit number of columns from left to right.
-       
-  \param pos The legend's position. Valid values are \c QwtPlot::Left,
-           \c QwtPlot::Right, \c QwtPlot::Top, \c QwtPlot::Bottom.
-
-  \sa QwtPlot::legendPosition(), QwtPlotLayout::setLegendPosition()
-*/
-void QwtPlot::setLegendPosition(QwtPlot::Position pos)
-{
-    setLegendPosition(pos, 0.0);
-}
-
-/*!
-    \return position of the legend
-    \sa QwtPlot::setLegendPosition(), QwtPlotLayout::legendPosition()
-*/
-QwtPlot::Position QwtPlot::legendPosition() const
-{
-    return d_layout->legendPosition();
-}
-
-#ifndef QWT_NO_COMPAT
-
-/*!
-  Specify the position of the legend within the widget.
-  If the position legend is \c QwtPlot::Left or \c QwtPlot::Right
-  the legend will be organized in one column from top to down. 
-  Otherwise the legend items will be placed be placed in a table 
-  with a best fit number of columns from left to right.
-       
-  \param pos The legend's position. Valid values are \c QwtPlot::Left,
-           \c QwtPlot::Right, \c QwtPlot::Top, \c QwtPlot::Bottom.
-  \param ratio Ratio between legend and the bounding rect
-               of title, canvas and axes. The legend will be shrinked
-               if it would need more space than the given ratio.
-               The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0
-               it will be reset to the default ratio.
-               The default vertical/horizontal ratio is 0.33/0.5.
-
-  \sa QwtPlot::legendPosition(), QwtPlotLayout::setLegendPosition()
-  \warning This function is deprecated. Use QwtPlot::setLegendPosition().
-*/
-void QwtPlot::setLegendPos(int pos, double ratio)
-{
-    setLegendPosition(QwtPlot::Position(pos), ratio);
-}
-
-/*!
-  \return position of the legend
-  \sa QwtPlot::setLegendPosition(), QwtPlotLayout::legendPosition()
-  \warning This function is deprecated. Use QwtPlot::legendPosition().  
-*/
-int QwtPlot::legendPos() const
-{
-    return d_layout->legendPosition();
-}
-
-#endif // !QWT_NO_COMPAT
-
-/*!
-  \brief Change the font of the legend items
-  \param f new font
-*/
-void QwtPlot::setLegendFont(const QFont &f)
-{
-    d_legend->setFont(f);
-    if (d_legend->isVisible())
-        updateLayout();
-}
-
-/*!
-  \brief Change the legend's frame style
-  \param st Frame Style. See Qt manual on QFrame.
-*/
-void QwtPlot::setLegendFrameStyle(int st)
-{
-    d_legend->setFrameStyle(st);
     updateLayout();
 }
-
-/*!
-  \return the frame style of the legend
-*/
-int QwtPlot::legendFrameStyle() const
-{
-    return d_legend->frameStyle();
-}
-
-/*!
-  \return the font of the legend items
-*/
-const QFont QwtPlot::legendFont() const
-{
-    return d_legend->font();
-}
-
-/*!
-  Set the identifier display policy of the legend.
-  \param policy new policy.
-  \param mode new mode.
-  \sa QwtLegend::setDisplayPolicy, QwtLegend::LegendDisplayPolicy
-*/
-void QwtPlot::setLegendDisplayPolicy(
-    QwtLegend::LegendDisplayPolicy policy, int mode)
-{
-    d_legend->setDisplayPolicy(policy, mode);
-    
-    for (QwtPlotCurveIterator iter=curveIterator(); iter.current(); ++iter)
-        updateLegendItem(iter.currentKey());
-}
-
-// Local Variables:
-// mode: C++
-// c-file-style: "stroustrup"
-// indent-tabs-mode: nil
-// End:

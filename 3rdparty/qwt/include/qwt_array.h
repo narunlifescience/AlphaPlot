@@ -16,14 +16,14 @@
 
 /*!
   \def QwtArray
-  Aliases QArray (Qt-2.x) and QMemArray (Qt-3.x) to QwtArray
  */
-#ifdef QWT_NO_MEMARRAY
-#include <qarray.h>
-#define QwtArray QArray
-#else
+
+#if QT_VERSION < 0x040000
 #include <qmemarray.h>
 #define QwtArray QMemArray
+#else
+#include <qvector.h>
+#define QwtArray QVector
 #endif
 
 #endif

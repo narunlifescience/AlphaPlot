@@ -10,11 +10,8 @@
 #ifndef QWT_PLOT_LAYOUT_H
 #define QWT_PLOT_LAYOUT_H
 
-#include <qlayout.h>
 #include "qwt_global.h"
 #include "qwt_plot.h"
-
-class QwtPlotLayoutData;
 
 /*!
   \brief Layout class for QwtPlot.
@@ -34,7 +31,7 @@ public:
         IgnoreLegend = 16
     };
 
-    QwtPlotLayout();
+    explicit QwtPlotLayout();
     virtual ~QwtPlotLayout();
 
     void setMargin(int);
@@ -49,18 +46,12 @@ public:
     void setSpacing(int);
     int spacing() const;
 
-    void setLegendPosition(QwtPlot::Position pos, double ratio);
-    void setLegendPosition(QwtPlot::Position pos);
-    QwtPlot::Position legendPosition() const;
+    void setLegendPosition(QwtPlot::LegendPosition pos, double ratio);
+    void setLegendPosition(QwtPlot::LegendPosition pos);
+    QwtPlot::LegendPosition legendPosition() const;
 
     void setLegendRatio(double ratio);
     double legendRatio() const;
-
-#ifndef QWT_NO_COMPAT    
-    // The following two functions are deprecated
-    void setLegendPos(int pos, double ratio = 0.0);
-    int legendPos() const;
-#endif
 
     virtual QSize minimumSizeHint(const QwtPlot *) const;    
 
@@ -86,20 +77,11 @@ protected:
     void alignScales(int options, QRect &canvasRect,
         QRect scaleRect[QwtPlot::axisCnt]) const;
 
-    QRect d_titleRect;
-    QRect d_legendRect;
-    QRect d_scaleRect[QwtPlot::axisCnt];
-    QRect d_canvasRect;
-
-    QwtPlotLayoutData *d_layoutData;
-
 private:
-    QwtPlot::Position d_legendPos;
-    double d_legendRatio;
-    unsigned int d_margin;
-    unsigned int d_spacing;
-    unsigned int d_canvasMargin[QwtPlot::axisCnt];
-    bool d_alignCanvasToScales;
+    class LayoutData;
+    class PrivateData;
+
+    PrivateData *d_data;
 };
 
 #endif

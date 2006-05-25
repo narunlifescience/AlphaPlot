@@ -8,10 +8,17 @@
  *****************************************************************************/
 
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
 #include <qapplication.h>
 #include "qwt_painter.h"
 #include "qwt_symbol.h"
+
+#if QT_VERSION < 0x040000
+#include <qpointarray.h>
+#define QwtPointArray QPointArray
+#else
+#include <qpolygon.h>
+#define QwtPointArray QPolygon
+#endif
 
 /*!
   Default Constructor
@@ -115,9 +122,6 @@ void QwtSymbol::draw(QPainter *painter, int x, int y) const
 */
 void QwtSymbol::draw(QPainter *painter, const QRect& r) const
 {
-    const int w2 = r.width() / 2;
-    const int h2 = r.height() / 2;
-
     switch(d_style)
     {
         case QwtSymbol::Ellipse:
@@ -128,7 +132,10 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             break;
         case QwtSymbol::Diamond:
         {
-            QPointArray pa(4);
+            const int w2 = r.width() / 2;
+            const int h2 = r.height() / 2;
+
+            QwtPointArray pa(4);
             pa.setPoint(0, r.x() + w2, r.y());
             pa.setPoint(1, r.right(), r.y() + h2);
             pa.setPoint(2, r.x() + w2, r.bottom());
@@ -137,21 +144,30 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             break;
         }
         case QwtSymbol::Cross:
+        {
+            const int w2 = r.width() / 2;
+            const int h2 = r.height() / 2;
+
             QwtPainter::drawLine(painter, r.x() + w2, r.y(), 
                 r.x() + w2, r.bottom());
             QwtPainter::drawLine(painter, r.x(), r.y() + h2, 
                 r.right(), r.y() + h2);
             break;
+        }
         case QwtSymbol::XCross:
+        {
             QwtPainter::drawLine(painter, r.left(), r.top(), 
                 r.right(), r.bottom());
             QwtPainter::drawLine(painter, r.left(), r.bottom(), 
                 r.right(), r.top());
             break;
+        }
         case QwtSymbol::Triangle:
         case QwtSymbol::UTriangle:
         {
-            QPointArray pa(3);
+            const int w2 = r.width() / 2;
+
+            QwtPointArray pa(3);
             pa.setPoint(0, r.x() + w2, r.y());
             pa.setPoint(1, r.right(), r.bottom());
             pa.setPoint(2, r.x(), r.bottom());
@@ -160,16 +176,20 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         }
         case QwtSymbol::DTriangle:
         {
-            QPointArray pa(3);
+            const int w2 = r.width() / 2;
+
+            QwtPointArray pa(3);
             pa.setPoint(0, r.x(), r.y());
             pa.setPoint(1, r.right(), r.y());
-            pa.setPoint(2, r.x() +  w2, r.bottom());
+            pa.setPoint(2, r.x() + w2, r.bottom());
             QwtPainter::drawPolygon(painter, pa);
             break;
         }
         case QwtSymbol::RTriangle:
         {
-            QPointArray pa(3);
+            const int h2 = r.height() / 2;
+
+            QwtPointArray pa(3);
             pa.setPoint(0, r.x(), r.y());
             pa.setPoint(1, r.right(), r.y() + h2);
             pa.setPoint(2, r.x(), r.bottom());
@@ -178,7 +198,9 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
         }
         case QwtSymbol::LTriangle:
         {
-            QPointArray pa(3);
+            const int h2 = r.height() / 2;
+
+            QwtPointArray pa(3);
             pa.setPoint(0, r.right(), r.y());
             pa.setPoint(1, r.x(), r.y() + h2);
             pa.setPoint(2, r.right(), r.bottom());

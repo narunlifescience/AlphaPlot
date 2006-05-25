@@ -10,7 +10,6 @@
 #ifndef QWT_SPLINE_H
 #define QWT_SPLINE_H
 
-#include "qwt_array.h"
 #include "qwt_global.h"
 
 /*!
@@ -67,41 +66,17 @@ public:
     ~QwtSpline();
 
     double value(double x) const;
-    int recalc(double *x, double *y, int n, int periodic = 0);
-    int recalc(const QwtArray<double> &x, const QwtArray<double> &y,
-        int periodic = 0);
-    void copyValues(int tf = 1);
+    bool recalc(double *x, double *y, int n, bool periodic = false);
+    void copyValues(bool tf = true);
 
 private:
-    int buildPerSpline();
-    int buildNatSpline();
+    bool buildPerSpline();
+    bool buildNatSpline();
     int lookup(double x) const;
     void cleanup();
 
-    // coefficient vectors
-    double *d_a;
-    double *d_b;
-    double *d_c;
-    double *d_d;
-
-    // values
-    double *d_x;
-    double *d_y;
-    double *d_xbuffer;
-    double *d_ybuffer;
-    int d_size;
-
-    //flags
-    int d_buffered;
+    class PrivateData;
+    PrivateData *d_data;
 };
 
-
-
-
-
 #endif
-
-
-
-
-
