@@ -207,3 +207,4 @@ SOURCES+=../3rdparty/liborigin/OPJFile.cpp
 
 #Compression (zlib123)
 SOURCES+=../3rdparty/zlib123/minigzip.c
+
