@@ -42,6 +42,8 @@
 #include <QDragEnterEvent>
 #include <QTranslator>
 
+#include <QMainWindow>
+
 #include "graph3D.h"
 #include "plot3DDialog.h"
 

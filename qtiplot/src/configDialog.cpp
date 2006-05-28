@@ -543,11 +543,13 @@ GroupBoxApp = new Q3ButtonGroup( 2,Qt::Horizontal,tr("General"),application,"Gro
 	insertLanguagesList();
 
 	lblStyle = new QLabel(GroupBoxApp); 
-	boxStyle = new QComboBox(GroupBoxApp,"style");
+	boxStyle = new QComboBox(GroupBoxApp);
+	// TODO: remark by thzs: On my linux box changing from style CDE to another leads
+	// to a segfault, all others work fine
 	QStringList styles = QStyleFactory::keys();
 	styles.sort();
-	boxStyle->insertStringList(styles);
-	boxStyle->setCurrentText(app->appStyle);
+	boxStyle->addItems(styles);
+	boxStyle->setCurrentIndex(boxStyle->findText(app->appStyle,Qt::MatchWildcard));
 	
 	#ifdef Q_OS_MACX // Mac 
 	 if (QApplication::macVersion() == QSysInfo::MV_10_3)

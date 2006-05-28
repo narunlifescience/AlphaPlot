@@ -97,7 +97,7 @@ worksheet->setRowMovingEnabled(true);
 connect(worksheet->verticalHeader(), SIGNAL(indexChange ( int, int, int )),
 		this, SLOT(notifyChanges()));
 
-Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,0,0, "hlayout1");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(this);
 hlayout->addWidget(worksheet);
 
 for (int i=0; i<cols; i++)

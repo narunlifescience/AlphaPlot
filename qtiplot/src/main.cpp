@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include <qapplication.h>
 #include <qaction.h>
- #include "application.h"
+#include "application.h"
  
 // The following stuff is for the doxygen title page
 /*!  \mainpage QtiPlot - Data analysis and scientific plotting - API documentation
@@ -73,7 +73,6 @@ int main( int argc, char ** argv )
 		mw = new ApplicationWindow();
 		mw->applyUserSettings();
 		mw->newTable();
-		mw->setWindowTitle("QtiPlot - untitled");
 		mw->showMaximized();
 		mw->saved=TRUE;
 		mw->actionSaveProject->setEnabled(false);

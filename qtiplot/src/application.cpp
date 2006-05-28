@@ -185,6 +185,7 @@ extern "C"
 
 void ApplicationWindow::init()
 {
+	setWindowTitle(tr("QtiPlot - untitled"));
 	initGlobalConstants();			
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
@@ -305,11 +306,7 @@ void ApplicationWindow::init()
 
 void ApplicationWindow::initGlobalConstants()
 {
-#ifdef Q_OS_MACX // Mac 
-	appStyle = "Macintosh (Aqua)";
-#else
-	appStyle = "Windows";
-#endif
+	appStyle = qApp->style()->objectName();
 
 	askForSupport = true;
 	majVersion = 0; minVersion = 8; patchVersion = 6;
@@ -2099,6 +2096,7 @@ void ApplicationWindow::customPlot3D(Graph3D *plot)
 
 void ApplicationWindow::initPlot3D(Graph3D *plot)
 {
+	ws->addWindow(plot);
 	connectSurfacePlot(plot);
 
 	plot->setIcon(QPixmap(trajectory_xpm));
@@ -2440,6 +2438,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 
 void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 {
+	ws->addWindow(g);
 	connectMultilayerPlot(g);
 
 	QString label = name;
@@ -2537,7 +2536,7 @@ void ApplicationWindow::customGraph(Graph* g)
 
 void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, const QString& text)
 {
-	Table* w =newTable(caption, r, c, text);
+	Table* w = newTable(caption, r, c, text);
 	MultiLayer* plot=multilayerPlot(w, QStringList(QString(w->name())+"_intensity"), 0);
 	Graph *g=(Graph*)plot->activeGraph();
 	if (g)
@@ -2652,6 +2651,7 @@ Table* ApplicationWindow::newHiddenTable(const QString& caption, int r, int c, c
 
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
+	ws->addWindow(w);
 	connectTable(w);
 	customTable(w);
 
@@ -2695,6 +2695,7 @@ Note* ApplicationWindow::newNote(const QString& caption)
 
 void ApplicationWindow::initNote(Note* m, const QString& caption)
 {
+	ws->addWindow(m);
 	QString name=caption;
 	while(alreadyUsedName(name))
 		name = "Note"+QString::number(++notes);
@@ -2825,6 +2826,7 @@ Table* ApplicationWindow::convertMatrixToTable()
 
 void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 {
+	ws->addWindow(m);
 	QString name=caption;
 	while(alreadyUsedName(name))
 	{
@@ -3200,18 +3202,17 @@ void ApplicationWindow::setSaveSettings(bool autoSaving, int min)
 
 void ApplicationWindow::changeAppStyle(const QString& s)
 {
-	if (appStyle == s)
+	// style keys are case insensitive
+	if (appStyle.toLower() == s.toLower())
 		return;
 
-	if (QStyle *style = QStyleFactory::create(s))
-	{			
-		qApp->setStyle(style);
-		appStyle = s;
+	qApp->setStyle(s);
+	appStyle = qApp->style()->objectName();
 
-		QPalette pal = qApp->palette();
-		pal.setColor (QPalette::Active, QColorGroup::Base, QColor(panelsColor));
-		qApp->setPalette(pal, true, 0);
-	}
+	QPalette pal = qApp->palette();
+	pal.setColor (QPalette::Active, QColorGroup::Base, QColor(panelsColor));
+	qApp->setPalette(pal);
+
 }
 
 void ApplicationWindow::changeAppFont(const QFont& f)
