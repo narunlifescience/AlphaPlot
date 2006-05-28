@@ -302,6 +302,7 @@ void ApplicationWindow::init()
 			this, SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
 
 	connect(recent, SIGNAL(activated(int)),this, SLOT(openRecentProject(int)));
+	connect(&http, SIGNAL(done(bool)), this, SLOT(getVersionDone(bool)));
 }
 
 void ApplicationWindow::initGlobalConstants()
@@ -799,7 +800,7 @@ void ApplicationWindow::initMainMenu()
 	actionChooseHelpFolder->addTo(help);
 	help->insertSeparator();
 	actionHomePage->addTo(help);
-	//actionCheckUpdates->addTo(help);
+	actionCheckUpdates->addTo(help);
 	actionDownloadManual->addTo(help);
 	actionTranslations->addTo(help);
 	help->insertSeparator();
@@ -11166,8 +11167,8 @@ void ApplicationWindow::createActions()
 	actionMultiPeakLorentz = new Q3Action(tr("&Lorentzian..."), QKeySequence(), this);
 	connect(actionMultiPeakLorentz, SIGNAL(activated()), this, SLOT(fitMultiPeakLorentz()));
 
-	actionCheckUpdates = new Q3Action(tr("&Search for Updates"), QKeySequence(), this);
-	connect(actionCheckUpdates, SIGNAL(activated()), this, SLOT(checkUpdates()));
+	actionCheckUpdates = new Q3Action(tr("Search for &Updates"), QKeySequence(), this);
+	connect(actionCheckUpdates, SIGNAL(activated()), this, SLOT(getVersionFile()));
 
 	actionHomePage = new Q3Action(tr("&QtiPlot Homepage"), QKeySequence(), this);
 	connect(actionHomePage, SIGNAL(activated()), this, SLOT(showHomePage()));
@@ -11493,7 +11494,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
 	actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
 	actionHomePage->setMenuText(tr("&QtiPlot Homepage"));
-	actionCheckUpdates->setMenuText(tr("&Search for Updates"));
+	actionCheckUpdates->setMenuText(tr("Search for &Updates"));
 	actionDownloadManual->setMenuText(tr("Download &manual"));
 	actionTranslations->setMenuText(tr("&Translations"));
 	actionDonate->setMenuText(tr("Make a &donation"));
@@ -11959,20 +11960,6 @@ void ApplicationWindow::downloadManual()
 void ApplicationWindow::downloadTranslation()
 {
 	open_browser(this, "http://soft.proindependent.com/translations.html");
-}
-
-void ApplicationWindow::checkUpdates()
-{
-	Q3UrlOperator *op = new Q3UrlOperator();
-	connect(op, SIGNAL(finished(Q3NetworkOperation *)), 
-			this, SLOT(checkUpdates(Q3NetworkOperation *)));
-	//op.get();
-	op->copy("http://soft.proindependent.com/version.txt", "./tmp.txt", false, true);
-}
-
-void ApplicationWindow::checkUpdates(Q3NetworkOperation *op)
-{
-	QMessageBox::information(this, "", QString::number(op->errorCode()));
 }
 
 void ApplicationWindow::showHomePage()
@@ -13427,6 +13414,57 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 	delete src_f;
 	delete src;
 	folders->blockSignals(false);
+}
+
+void ApplicationWindow::getVersionDone(bool error)
+{
+if (error)
+	{
+	QMessageBox::warning(this, tr("QtiPlot - HTTP Get Version File"),
+		tr("Error while fetching version file with HTTP: %1.").arg(http.errorString()));
+	return;
+	}
+
+versionFile.close();
+
+if (versionFile.open(IO_ReadOnly))
+	{
+	QTextStream t( &versionFile );
+	t.setEncoding(QTextStream::UnicodeUTF8);
+	QString version = t.readLine();
+	QStringList lst = QStringList::split(".", version); 
+	int lastVersion = 100*lst[0].toInt()+10*lst[1].toInt()+lst[2].toInt();
+	versionFile.close();
+	versionFile.remove();
+
+	int currentVersion = 100*majVersion + 10*minVersion + patchVersion;
+	if (currentVersion == lastVersion)
+		{
+		QMessageBox::information(this, tr("QtiPlot - No Updates Available"),
+			tr("No updates available. Your current version %1 is the last version available!").arg(version));
+		}
+	else
+		{
+		if(QMessageBox::question(this, tr("QtiPlot - Updates Available"),
+		tr("There is a newer version of QtiPlot (%1) available for download. Would you like to download it?").arg(version),
+		QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
+			open_browser(this, "http://soft.proindependent.com/download.html");
+		}
+	}
+}
+
+void ApplicationWindow::getVersionFile()
+{
+versionFile.setName("qtiplot_last_version.txt");
+if (!versionFile.open(IO_WriteOnly))
+	{
+	QMessageBox::warning(this, tr("QtiPlot - HTTP Get Version File"),
+		tr("Cannot write file %1\n%2.").arg(versionFile.name()).arg(versionFile.errorString()));
+	return;
+	}
+http.setHost("soft.proindependent.com");
+http.get("/version.txt", &versionFile);
+http.closeConnection();
 }
 
 ApplicationWindow::~ApplicationWindow()
