@@ -1,36 +1,67 @@
+/***************************************************************************
+    File                 : plot3DDialog.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Surface plot options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef PLOT3DDIALOG_H
 #define PLOT3DDIALOG_H
 
 #include <qvariant.h>
 #include <qdialog.h>
-#include <qmemarray.h>
+#include <q3memarray.h>
 #include <qstring.h>
 
 #include <qwt3d_color.h> 
+//Added by qt3to4:
+#include <QLabel>
  
 class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
-class QListBox;
-class QListBoxItem;
+class Q3ListBox;
+class Q3ListBoxItem;
 class QPushButton;
 class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 class QWidget;
 class QStringList;
-class QButtonGroup;
-class QWidgetStack;
+class Q3ButtonGroup;
+class Q3WidgetStack;
 	
 using namespace Qwt3D;
 
+//! Surface plot options dialog
 class plot3DDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
     ~plot3DDialog();
 
 	void initScalesPage();
@@ -42,26 +73,26 @@ public:
 	QSpinBox *boxMeshLineWidth;
     QPushButton* buttonApply;
     QPushButton* buttonOk;
-    QPushButton* buttonCancel, *buttonMinGreek, *buttonMajGreek;
+    QPushButton* buttonCancel, *buttonLowerGreek, *buttonUpperGreek;
 	QPushButton* btnTitleColor, *btnTitleFont, *btnLabelFont, *btnGrid;
 	QPushButton *btnBackground, *btnMesh, *btnAxes, *btnTitle, *btnLabels, *btnNumbers;
 	QPushButton *btnNumbersFont, *btnFromColor, *btnToColor, *btnTable;
-	QPushButton *buttonAxisMinGreek, *buttonAxisMajGreek;
+	QPushButton *buttonAxisLowerGreek, *buttonAxisUpperGreek;
     QTabWidget* generalDialog;
 	QWidget *scale, *colors, *general, *axes, *title, *bars, *points;
 	QLineEdit *boxTitle, *boxFrom, *boxTo, *boxLabel;
 	QSpinBox *boxMajors, *boxMinors;
-	QButtonGroup *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
-	QButtonGroup *GroupBox5, *GroupBox6, *GroupBox8, *TicksGroupBox;
-	QButtonGroup *GroupBox10, *GroupBox7;
+	Q3ButtonGroup *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
+	Q3ButtonGroup *GroupBox5, *GroupBox6, *GroupBox8, *TicksGroupBox;
+	Q3ButtonGroup *GroupBox10, *GroupBox7;
 	QSpinBox *boxResolution, *boxDistance, *boxTransparency;
 	QCheckBox *boxLegend, *boxSmooth, *boxBoxed, *boxCrossSmooth;
-	QListBox *axesList, *axesList2;
+	Q3ListBox *axesList, *axesList2;
 	QComboBox *boxType, *boxPointStyle;
 	QLineEdit *boxMajorLength, *boxMinorLength, *boxConesRad;
 	QSpinBox *boxZoom, *boxXScale, *boxYScale, *boxZScale, *boxQuality;
 	QLineEdit *boxSize, *boxBarsRad, *boxCrossRad, *boxCrossLinewidth;
-	QWidgetStack *	optionStack;
+	Q3WidgetStack *	optionStack;
 	QWidget *dotsPage, *conesPage, *crossPage;
 	
 public slots:
@@ -128,8 +159,8 @@ public slots:
 	void changeZoom(int);
 	void changeTransparency(int val);
 
-	void showMinGreek();
-	void showMajGreek();
+	void showLowerGreek();
+	void showUpperGreek();
 	void addSymbol(const QString& letter);
 	void showGeneralTab();
 

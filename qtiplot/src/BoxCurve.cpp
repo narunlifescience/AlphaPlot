@@ -1,6 +1,36 @@
+/***************************************************************************
+    File                 : BoxCurve.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Box curve
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "BoxCurve.h"
 #include <qpainter.h>
 #include <qwt_symbol.h>
+//Added by qt3to4:
+#include <Q3PointArray>
 #include <gsl/gsl_statistics.h>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
@@ -116,7 +146,7 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap, const QwtScal
 	}
 	else if (b_style == Diamond)
 	{
-		const QPointArray pa(4);	
+		const Q3PointArray pa(4);	
 		pa[0] = QPoint(px, b_upperq);	
 		pa[1] = QPoint(px + hbw, median);
 		pa[2] = QPoint(px, b_lowerq);
@@ -129,7 +159,7 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap, const QwtScal
 	{
 		const int lowerq = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.25));
 		const int upperq = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.75));
-		const QPointArray pa(8);	
+		const Q3PointArray pa(8);	
 		pa[0] = QPoint(px + hbw, b_upperq);	
 		pa[1] = QPoint(int(px + 0.4*box_width), upperq);
 		pa[2] = QPoint(int(px + 0.4*box_width), lowerq);
@@ -149,7 +179,7 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap, const QwtScal
 		const int lowerCI = yMap.transform(dat[j]);
 		const int upperCI = yMap.transform(dat[k]);
 
-		const QPointArray pa(10);	
+		const Q3PointArray pa(10);	
 		pa[0] = QPoint(px + hbw, b_upperq);	
 		pa[1] = QPoint(px + hbw, upperCI);
 		pa[2] = QPoint(int(px + 0.25*hbw), median);

@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : layerDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Arrange layers dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "layerDialog.h"
 #include "multilayer.h"
 
@@ -7,17 +35,19 @@
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qtabwidget.h>
 #include <qwidget.h>
 #include <qmessagebox.h>
-#include <qhbox.h>
-#include <qvbox.h>
+#include <q3hbox.h>
+#include <q3vbox.h>
 #include <qfont.h>
 #include <qfontdialog.h>
 #include <qcombobox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
-layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
@@ -28,16 +58,15 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
 
 	layout = new QWidget( generalDialog, "layout" );
 
-	QButtonGroup *box = new QButtonGroup(2,QGroupBox::Horizontal,QString::null,layout);
+	Q3ButtonGroup *box = new Q3ButtonGroup(2,Qt::Horizontal,QString::null,layout);
 	box->setFlat (true);
-	box->setLineWidth (0);
 	box->setInsideMargin (0);
 
-	QVBox *vbox = new QVBox(box);
+	Q3VBox *vbox = new Q3VBox(box);
 	vbox->setMargin(5);
 	vbox->setSpacing(5);
 
-	QHBox *hbox1 = new QHBox(vbox);
+	Q3HBox *hbox1 = new Q3HBox(vbox);
 	hbox1->setSpacing(5);
 
 	new QLabel( tr( "Number of Layers" ), hbox1);
@@ -46,7 +75,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	fitBox=new QCheckBox(vbox);
 	fitBox->setChecked(FALSE);
 
-	QButtonGroup *groupAlign = new QButtonGroup(2,QGroupBox::Horizontal,tr("Alignement"),box);
+	Q3ButtonGroup *groupAlign = new Q3ButtonGroup(2,Qt::Horizontal,tr("Alignement"),box);
 
     new QLabel( tr("Horizontal" ), groupAlign, 0,0 );
 	alignHorBox = new QComboBox( FALSE, groupAlign, 0 );
@@ -60,10 +89,10 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	alignVertBox->insertItem( tr( "Top" ) );
 	alignVertBox->insertItem( tr( "Bottom" ) );
 
-	QVBox *vbox2 = new QVBox(box);
+	Q3VBox *vbox2 = new Q3VBox(box);
 	vbox2->setSpacing(5);
 
-	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr("Grid"),vbox2);
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Grid"),vbox2);
 
     new QLabel( tr( "Columns" ), GroupBox1, "TextLabel1",0 );
 	boxX = new QSpinBox(1,100,1,GroupBox1, "boxX" );
@@ -71,7 +100,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
     new QLabel( tr( "Rows" ), GroupBox1, "TextLabel2",0 );
 	boxY = new QSpinBox(1,100,1,GroupBox1, "boxY" );
 
-	GroupCanvasSize = new QButtonGroup(2,QGroupBox::Horizontal,tr("&Layer Canvas Size"),vbox2);
+	GroupCanvasSize = new Q3ButtonGroup(2,Qt::Horizontal,tr("&Layer Canvas Size"),vbox2);
 	GroupCanvasSize->setCheckable(true);
 	GroupCanvasSize->setChecked(false);
 
@@ -83,7 +112,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	boxCanvasHeight = new QSpinBox(0,10000,50,GroupCanvasSize, "boxCanvasHeight" );
 	boxCanvasHeight->setSuffix(tr(" pixels"));
 
-	GroupBox4 = new QButtonGroup( 2,QGroupBox::Horizontal,tr("Spacing"),box);
+	GroupBox4 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Spacing"),box);
 
   	new QLabel( tr( "Columns gap" ), GroupBox4, "TextLabel4",0 );
 	boxColsGap = new QSpinBox(0,100,5,GroupBox4, "boxColsGap" );
@@ -109,25 +138,25 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	boxBottomSpace = new QSpinBox(0,1000,5,GroupBox4, "boxBottomSpace" );
 	boxBottomSpace->setSuffix(tr(" pixels"));
 
-	QVBoxLayout* hlayout1 = new QVBoxLayout(layout,5,5, "hlayout1");
+	Q3VBoxLayout* hlayout1 = new Q3VBoxLayout(layout,5,5, "hlayout1");
 	hlayout1->addWidget(box);
 
 	generalDialog->insertTab(layout, tr( "Layout" ) );
 
 	fonts = new QWidget( generalDialog, "fonts" );
-	GroupBox2 = new QButtonGroup( 1,QGroupBox::Horizontal, QString::null,fonts,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup( 1,Qt::Horizontal, QString::null,fonts,"GroupBox2" );
 
     btnTitle = new QPushButton(GroupBox2, "btnTitle" );
 	btnAxisLegend = new QPushButton(GroupBox2, "btnAxisLegend" );
 	btnAxisNumbers = new QPushButton(GroupBox2, "btnAxisNumbers" );
 	btnLegend = new QPushButton(GroupBox2, "btnLegend" );
 
-	QVBoxLayout* vl2 = new QVBoxLayout(fonts,5,5, "vl2");
+	Q3VBoxLayout* vl2 = new Q3VBoxLayout(fonts,5,5, "vl2");
 	vl2->addWidget(GroupBox2);
  
 	generalDialog->insertTab(fonts, tr( "Fonts" ) );
 
-	QHBox *hbox2=new QHBox(this, "hbox2");
+	Q3HBox *hbox2=new Q3HBox(this, "hbox2");
 	hbox2->setSpacing(5);
 
 	buttonApply = new QPushButton(hbox2, "buttonApply" );
@@ -139,7 +168,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, WFlags 
     buttonCancel = new QPushButton(hbox2, "buttonCancel" );
     buttonCancel->setAutoDefault( TRUE );
 
-	QVBoxLayout* vl = new QVBoxLayout(this,10, 5, "vl");
+	Q3VBoxLayout* vl = new Q3VBoxLayout(this,10, 5, "vl");
 	vl->addWidget(generalDialog);
     vl->addWidget(hbox2);
 
@@ -167,7 +196,7 @@ layerDialog::~layerDialog()
 
 void layerDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Arrange Layers" ) );
+    setWindowTitle( tr( "QtiPlot - Arrange Layers" ) );
 	buttonApply->setText( tr( "&Apply" ) );
     buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );

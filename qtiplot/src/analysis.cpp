@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : analysis.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Analysis methods for class 'Graph'
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "graph.h"
 #include "plot.h"
 #include "fit.h"
@@ -13,6 +41,9 @@
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <qlibrary.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3MemArray>
 
 #include <math.h>
 #include <stdlib.h>
@@ -54,7 +85,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 	int ycol=w->colIndex(curveName);
 	int r=w->tableRows();
 
-	QMemArray<double> Y(1);
+	Q3MemArray<double> Y(1);
 	int it=0;
 	for (i = 0;i<r;i++ )
 	{
@@ -69,7 +100,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 
 	if(it<2 || (it==2 && Y[0] == Y[1]))
 	{//non valid histogram
-		QMemArray<double> X(2); 
+		Q3MemArray<double> X(2); 
 		Y.resize(2);
 		for (i = 0;i<2;i++ )
 		{
@@ -127,7 +158,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 	for (i = 0;i<it;i++ )
 		gsl_histogram_increment (h, Y[i]);
 
-	QMemArray<double> X(n); //stores ranges (x) and bins (y)
+	Q3MemArray<double> X(n); //stores ranges (x) and bins (y)
 	Y.resize(n);
 	for (i = 0;i<n;i++ )
 	{
@@ -156,7 +187,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 	int ycol=w->colIndex(curveName);
 	int r=w->tableRows();
 
-	QMemArray<double> Y(1);
+	Q3MemArray<double> Y(1);
 	int it=0;
 	for (i = 0;i<r;i++ )
 	{
@@ -174,7 +205,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 
 	if(it<2 || (it==2 && Y[0] == Y[1]))
 	{//non valid histogram data
-		QMemArray<double> X(2); 
+		Q3MemArray<double> X(2); 
 		Y.resize(2);
 		for (i = 0;i<2;i++ )
 		{
@@ -236,7 +267,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 	for (i = 0;i<it;i++ )
 		gsl_histogram_increment (h, Y[i]);
 
-	QMemArray<double> X(n); //stores ranges (x) and bins (y)
+	Q3MemArray<double> X(n); //stores ranges (x) and bins (y)
 	Y.resize(n);
 	for (i = 0;i<n;i++ )
 	{
@@ -264,7 +295,7 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 	int ycol=w->colIndex(curveName);
 	int r=w->tableRows();
 
-	QMemArray<double> Y(1);
+	Q3MemArray<double> Y(1);
 	int it=0;
 	for (i = 0;i<r;i++ )
 	{
@@ -328,7 +359,7 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 	for (i = 0;i<it;i++ )
 		gsl_histogram_increment (h, Y[i]);
 
-	QMemArray<double> X(n); //stock ranges (x) and bins (y)
+	Q3MemArray<double> X(n); //stock ranges (x) and bins (y)
 	Y.resize(n);
 	for (i = 0;i<n;i++ )
 	{
@@ -369,13 +400,13 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 #endif
 }
 
-void Graph::initHistogram(long curveID, const QMemArray<double>& Y, int it)
+void Graph::initHistogram(long curveID, const Q3MemArray<double>& Y, int it)
 {
 #if false
 	int i;
 	if(it<2 || (it==2 && Y[0] == Y[1]))
 	{//non valid histogram data
-		QMemArray<double> x(2),y(2); 
+		Q3MemArray<double> x(2),y(2); 
 		for (i = 0;i<2;i++ )
 		{
 			y[i] = 0;
@@ -392,7 +423,7 @@ void Graph::initHistogram(long curveID, const QMemArray<double>& Y, int it)
 		return;
 
 	int n=10;//default value
-	QMemArray<double> x(n),y(n); //store ranges (x) and bins (y)
+	Q3MemArray<double> x(n),y(n); //store ranges (x) and bins (y)
 	gsl_histogram * h = gsl_histogram_alloc (n); 
 	if (!h)  
 		return;
@@ -436,7 +467,7 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i, i2, n=curve->dataSize();
 	int n2 = n/2;
@@ -2779,7 +2810,7 @@ void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i,n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2842,7 +2873,7 @@ void Graph::smoothFFT(long curveKey, int points, int colIndex)
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i, n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2885,7 +2916,7 @@ void Graph::smoothAverage(long curveKey, int points, int colIndex)
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i,j, n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2942,7 +2973,7 @@ void Graph::filterFFT(long curveKey, int filter_type, double lf, double hf, bool
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i, n=curve->dataSize();
 	double *x = vector(0,n-1);

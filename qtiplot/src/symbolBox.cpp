@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : symbolBox.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Plot symbol combo box
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "symbolBox.h"
 #include <algorithm>
 
@@ -31,12 +59,12 @@ SymbolBox::SymbolBox(QWidget *parent) : QComboBox(parent)
 void SymbolBox::init()
 {
 	QPixmap icon = QPixmap(14, 14);
-	icon.fill ( QColor (gray) );
+	icon.fill ( QColor (Qt::gray) );
 	const QRect r= QRect(0, 0, 14, 14);
 	QPainter p(&icon);
-	p.setBackgroundColor(QColor(gray));
+	p.setBackgroundColor(QColor(Qt::gray));
 	QwtSymbol symb;
-	p.setBrush(QBrush(QColor(white)));
+	p.setBrush(QBrush(QColor(Qt::white)));
 
 	this->insertItem(tr("No Symbol" ));
 

@@ -1,15 +1,50 @@
+/***************************************************************************
+    File                 : canvaspicker.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Canvas picker
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "canvaspicker.h"
 #include "ImageMarker.h"
 #include "LegendMarker.h"
 #include "LineMarker.h"
 
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 #include <qpixmapcache.h> 
 #include <qcursor.h> 
 #include <qapplication.h> 
 
 #include <qwt_plot_canvas.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <QPaintEvent>
+#include <Q3MemArray>
+#include <QKeyEvent>
+#include <QEvent>
+#include <QMouseEvent>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -30,9 +65,9 @@ CanvasPicker::CanvasPicker(Graph *plot):
 bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 {
 #if false
-    QMemArray<long> images=plot()->imageMarkerKeys();	
-	QMemArray<long> texts=plot()->textMarkerKeys();
-	QMemArray<long> lines=plot()->lineMarkerKeys();	
+    Q3MemArray<long> images=plot()->imageMarkerKeys();	
+	Q3MemArray<long> texts=plot()->textMarkerKeys();
+	Q3MemArray<long> lines=plot()->lineMarkerKeys();	
 	
 	if (object != (QObject *)plot()->plotWidget()->canvas())
         return FALSE;
@@ -140,13 +175,13 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				return TRUE;
 				}
 
-			if (me->button()==QMouseEvent::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
+			if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
 				{ 	
 				startLinePoint= me->pos();
 				plot()->copyCanvas(TRUE);
 				}
 			
-			if (me->button()==QMouseEvent::LeftButton && drawText)
+			if (me->button()==Qt::LeftButton && drawText)
 				drawTextMarker(me->pos());		
 			
 			if (moveRangeSelector)
@@ -155,7 +190,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				plot()->moveRangeSelector();
 				}
 				
-			if (me->button()==QMouseEvent::RightButton && select)
+			if (me->button()==Qt::RightButton && select)
 				emit showMarkerPopupMenu();				
 			return TRUE;	
 			}		
@@ -383,7 +418,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
                 case Qt::Key_Right:
                 case Qt::Key_Plus:
-						if (((const QKeyEvent *)e)->state ()==Qt::ControlButton)
+						if (((const QKeyEvent *)e)->state ()==Qt::ControlModifier)
                         	plot()->moveRangeSelector(TRUE);
 						else
 							plot()->shiftRangeSelector(TRUE);
@@ -391,7 +426,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
                 case Qt::Key_Left:
                 case Qt::Key_Minus:
-                        if (((const QKeyEvent *)e)->state ()==Qt::ControlButton)
+                        if (((const QKeyEvent *)e)->state ()==Qt::ControlModifier)
                         	plot()->moveRangeSelector(FALSE);
 						else
 							plot()->shiftRangeSelector(TRUE);
@@ -407,28 +442,28 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				{
 				switch(key)
 					{
-                case Key_1: 
+                case Qt::Key_1: 
                     plot()->moveBy(-delta, delta);
                     break;
-                case Key_2:
+                case Qt::Key_2:
                     plot()->moveBy(0, delta);
                     break;
-                case Key_3: 
+                case Qt::Key_3: 
                     plot()->moveBy(delta, delta);
                     break;
-                case Key_4:
+                case Qt::Key_4:
                     plot()->moveBy(-delta, 0);
                     break;
-                case Key_6: 
+                case Qt::Key_6: 
                     plot()->moveBy(delta, 0);
                     break;
-                case Key_7:
+                case Qt::Key_7:
                     plot()->moveBy(-delta, -delta);
                     break;
-                case Key_8:
+                case Qt::Key_8:
                     plot()->moveBy(0, -delta);
                     break;
-                case Key_9:
+                case Qt::Key_9:
                     plot()->moveBy(delta, -delta);
                     break;
 					}
@@ -440,16 +475,16 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				int delta = 1;
 				switch(key)
 					{
-					case Key_Left: 
+					case Qt::Key_Left: 
 						plot()->moveMarkerBy(-delta, 0);
                     break;
-					case Key_Right:
+					case Qt::Key_Right:
 						plot()->moveMarkerBy(delta, 0);
                     break;
-					case Key_Up: 
+					case Qt::Key_Up: 
 						plot()->moveMarkerBy(0, -delta);
                     break;
-					case Key_Down:
+					case Qt::Key_Down:
 						plot()->moveMarkerBy(0, delta);
                     break;
 					}
@@ -486,9 +521,9 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 void CanvasPicker::releaseMarker()
 {
 #if false
-QMemArray<long> images=plot()->imageMarkerKeys();	
-QMemArray<long> texts=plot()->textMarkerKeys();
-QMemArray<long> lines=plot()->lineMarkerKeys();
+Q3MemArray<long> images=plot()->imageMarkerKeys();	
+Q3MemArray<long> texts=plot()->textMarkerKeys();
+Q3MemArray<long> lines=plot()->lineMarkerKeys();
 
 bool line = false, image = false;
 	
@@ -536,16 +571,16 @@ void CanvasPicker::moveMarker(QPoint& point)
 #if false
 QApplication::setOverrideCursor(QCursor(Qt::PointingHandCursor), true);
 
-QMemArray<long> images=plot()->imageMarkerKeys();	
-QMemArray<long> texts=plot()->textMarkerKeys();
-QMemArray<long> lines=plot()->lineMarkerKeys();
+Q3MemArray<long> images=plot()->imageMarkerKeys();	
+Q3MemArray<long> texts=plot()->textMarkerKeys();
+Q3MemArray<long> lines=plot()->lineMarkerKeys();
 			
 QPainter painter(plotWidget->canvas());
 	
 int w=plotWidget->canvas()->width();
 int h=plotWidget->canvas()->height();
 QPixmap pix(w,h,-1);
-pix.fill( QColor(white));
+pix.fill( QColor(Qt::white));
 QPixmapCache::find ("field",pix);
 painter.drawPixmap(0,0,pix,0,0,-1,-1);
 	
@@ -643,9 +678,9 @@ mrk.draw(&painter,0,0,QRect(0,0,0,0));
 bool CanvasPicker::selectMarker(const QPoint& point)
 {
 #if false
-QMemArray<long> images=plot()->imageMarkerKeys();	
-QMemArray<long> texts=plot()->textMarkerKeys();
-QMemArray<long> lines=plot()->lineMarkerKeys();
+Q3MemArray<long> images=plot()->imageMarkerKeys();	
+Q3MemArray<long> texts=plot()->textMarkerKeys();
+Q3MemArray<long> lines=plot()->lineMarkerKeys();
 int n=texts.size();	
 int m=lines.size();			
 int p=images.size();

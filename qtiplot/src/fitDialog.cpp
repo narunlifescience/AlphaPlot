@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : fitDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Nonlinear curve fitting dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "fitDialog.h"
 #include "parser.h"
 #include "graph.h"
@@ -8,37 +36,39 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
 #include <qcombobox.h>
 #include <qregexp.h> 
-#include <qhbox.h> 
-#include <qwidgetstack.h>
-#include <qvbox.h>
-#include <qlistbox.h>
-#include <qtextedit.h>
+#include <q3hbox.h> 
+#include <q3widgetstack.h>
+#include <q3vbox.h>
+#include <q3listbox.h>
+#include <q3textedit.h>
 #include <qcheckbox.h>
 #include <qspinbox.h>
 #include <qregexp.h>
 #include <qlibrary.h>
 #include <qdir.h>
 #include <qapplication.h>
-#include <qfiledialog.h>
-#include <qtable.h>
-#include <qheader.h>
+#include <q3filedialog.h>
+#include <q3table.h>
+#include <q3header.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
 #include <stdio.h> 
 
-fitDialog::fitDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+fitDialog::fitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 if ( !name )
 	setName( "fitDialog" );
-setCaption(tr("QtiPlot - Non-linear curve fit"));
+setWindowTitle(tr("QtiPlot - Non-linear curve fit"));
 setSizeGripEnabled( true );
 	
-tw = new QWidgetStack( this, "tw" );
+tw = new Q3WidgetStack( this, "tw" );
 tw->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred, 2, 0, FALSE ));
 initEditPage();
 initFitPage();
@@ -46,7 +76,7 @@ initFitPage();
 tw->addWidget(editPage, 0);
 tw->addWidget(fitPage, 1);
 
-QVBoxLayout* hlayout = new QVBoxLayout(this, 5, 5, "hlayout");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
 hlayout->addWidget(tw);
 
 setBuiltInFunctionNames();
@@ -61,7 +91,7 @@ loadPlugins();
 void fitDialog::initFitPage()
 {
 fitPage = new QWidget( tw, "fitPage" );
-QButtonGroup *GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""), fitPage,"GroupBox1" );
+Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), fitPage,"GroupBox1" );
 	
 new QLabel( tr("Curve"), GroupBox1, "TextLabel22",0 );
 boxCurve = new QComboBox(GroupBox1, "boxCurve" );
@@ -70,12 +100,12 @@ new QLabel( tr("Function"), GroupBox1, "TextLabel2",0 );
 lblFunction = new QLabel(GroupBox1, "boxOrder" );
 
 new QLabel(QString::null, GroupBox1, "TextLabel2",0 );
-boxFunction = new QTextEdit(GroupBox1, "boxOrder" );
+boxFunction = new Q3TextEdit(GroupBox1, "boxOrder" );
 boxFunction->setReadOnly(true);
 boxFunction->setMaximumHeight(60);
 
 new QLabel( tr("Initial guesses"), GroupBox1, "TextLabel23",0 );
-boxParams = new QTable(GroupBox1, "boxParams");
+boxParams = new Q3Table(GroupBox1, "boxParams");
 boxParams->setNumCols(2);
 QStringList header;
 header << tr("Parameter") << tr("Value");
@@ -91,12 +121,12 @@ boxSolver->insertItem(tr("Nelder-Mead Simplex"));
 
 new QLabel( tr("Color"), GroupBox1, "boxColorLabel",0 );
 boxColor = new ColorBox( FALSE, GroupBox1);
-boxColor->setColor(QColor(red));
+boxColor->setColor(QColor(Qt::red));
 	
-QHBox *hbox=new QHBox(fitPage,"hbox");
+Q3HBox *hbox=new Q3HBox(fitPage,"hbox");
 hbox->setSpacing(5);
 	
-QButtonGroup* GroupBox4 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),hbox, "GroupBox4" );
+Q3ButtonGroup* GroupBox4 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),hbox, "GroupBox4" );
 	
 new QLabel( tr("From x="), GroupBox4, "TextLabel3",0 );
 boxFrom = new QLineEdit(GroupBox4, "boxFrom" );
@@ -104,7 +134,7 @@ boxFrom = new QLineEdit(GroupBox4, "boxFrom" );
 new QLabel( tr("To x="), GroupBox4, "TextLabel5",0 );
 boxTo = new QLineEdit(GroupBox4, "boxOrder" );
 	
-QButtonGroup *GroupBox3 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),hbox,"GroupBox3" );
+Q3ButtonGroup *GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),hbox,"GroupBox3" );
 			
 new QLabel( tr("Iterations"), GroupBox3, "TextLabel4",0 );
 boxPoints = new QSpinBox(10, 10000, 50, GroupBox3, "boxStart" );
@@ -114,9 +144,8 @@ new QLabel( tr("Tolerance"), GroupBox3, "TextLabel41",0 );
 boxTolerance = new QLineEdit(GroupBox3, "boxTolerance" );
 boxTolerance->setText("1e-4");
 
-QButtonGroup *GroupBox2 = new QButtonGroup(4,QGroupBox::Horizontal,tr(""),fitPage,"GroupBox2" );
+Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),fitPage,"GroupBox2" );
 GroupBox2->setFlat (TRUE);
-GroupBox2->setLineWidth (0);
 
 buttonEdit = new QPushButton(GroupBox2, "buttonOk" );
 buttonEdit->setText( tr( "<< &Edit function" ) );
@@ -132,7 +161,7 @@ buttonOk->setDefault( TRUE );
 buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
 buttonCancel->setText( tr( "&Cancel" ) );
 
-QVBoxLayout* hlayout = new QVBoxLayout(fitPage, 5, 5, "hlayout");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(fitPage, 5, 5, "hlayout");
 hlayout->addWidget(GroupBox1);
 hlayout->addWidget(hbox);
 hlayout->addWidget(GroupBox2);
@@ -151,31 +180,31 @@ void fitDialog::initEditPage()
 {
 editPage = new QWidget( tw, "editPage" );
 
-QHBox *hbox1=new QHBox(editPage,"hbox1");
+Q3HBox *hbox1=new Q3HBox(editPage,"hbox1");
 hbox1->setSpacing(5);
 
-QVBox *vbox1=new QVBox(hbox1,"vbox1");
+Q3VBox *vbox1=new Q3VBox(hbox1,"vbox1");
 vbox1->setSpacing(5);
 new QLabel( tr("Category"), vbox1, "TextLabel41",0 );
-categoryBox = new QListBox( vbox1, "categoryBox" );
+categoryBox = new Q3ListBox( vbox1, "categoryBox" );
 categoryBox->insertItem(tr("User defined"));
 categoryBox->insertItem(tr("Built-in"));
 categoryBox->insertItem(tr("Basic"));
 categoryBox->insertItem(tr("Plugins"));
 categoryBox->setSizePolicy(QSizePolicy (QSizePolicy::Fixed, QSizePolicy::Expanding, 2, 0, FALSE ));
 
-QVBox *vbox2=new QVBox(hbox1,"vbox2");
+Q3VBox *vbox2=new Q3VBox(hbox1,"vbox2");
 vbox2->setSpacing(5);
 new QLabel( tr("Function"), vbox2, "TextLabel41",0 );
-funcBox = new QListBox( vbox2, "funcBox" );
+funcBox = new Q3ListBox( vbox2, "funcBox" );
 
-QVBox *vbox3=new QVBox(hbox1,"vbox3");
+Q3VBox *vbox3=new Q3VBox(hbox1,"vbox3");
 vbox3->setSpacing(5);
 new QLabel( tr("Expresion"), vbox3, "TextLabel41",0 );
-explainBox = new QTextEdit( vbox3, "explainBox" );
+explainBox = new Q3TextEdit( vbox3, "explainBox" );
 explainBox->setReadOnly(true);
 
-QHBox *hbox3=new QHBox(editPage,"hbox3");
+Q3HBox *hbox3=new Q3HBox(editPage,"hbox3");
 hbox3->setSpacing(5);
 
 boxUseBuiltIn = new QCheckBox(hbox3,"boxUseBuiltIn");
@@ -186,7 +215,7 @@ buttonPlugins = new QPushButton(hbox3, "buttonPlugins" );
 buttonPlugins->setText( tr( "&Choose plugins folder..." ) );
 buttonPlugins->hide();
 
-QButtonGroup *GroupBox1 = new QButtonGroup( 3,QGroupBox::Horizontal,tr(""),editPage,"GroupBox3" );
+Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 3,Qt::Horizontal,tr(""),editPage,"GroupBox3" );
 
 new QLabel( tr("Name"), GroupBox1, "TextLabel41",0 );
 boxName = new QLineEdit(GroupBox1, "boxName" );
@@ -202,14 +231,14 @@ boxParam->setText("a, b");
 btnDelFunc = new QPushButton(GroupBox1, "btnDelFunc" );
 btnDelFunc->setText( tr( "&Remove" ) );
 
-QHBox *hbox2=new QHBox(editPage,"hbox2");
+Q3HBox *hbox2=new Q3HBox(editPage,"hbox2");
 hbox2->setSpacing(5);
 
-editBox = new QTextEdit( hbox2, "editBox" );
+editBox = new Q3TextEdit( hbox2, "editBox" );
 editBox->setTextFormat(Qt::PlainText);
 editBox->setFocus();
 
-QVBox *vbox4=new QVBox(hbox2,"vbox4");
+Q3VBox *vbox4=new Q3VBox(hbox2,"vbox4");
 vbox4->setSpacing(5);
 
 btnAddTxt = new QPushButton(vbox4, "btnAddTxt" );
@@ -224,7 +253,7 @@ buttonClear->setText( tr( "Clear user &list" ) );
 btnContinue = new QPushButton(vbox4, "btnContinue" );
 btnContinue->setText( tr( "&Fit >>" ) );
 	
-QVBoxLayout* hlayout = new QVBoxLayout(editPage, 5, 5, "hlayout");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(editPage, 5, 5, "hlayout");
 hlayout->addWidget(hbox1);
 hlayout->addWidget(hbox3);
 hlayout->addWidget(GroupBox1);
@@ -392,7 +421,7 @@ if (!boxUseBuiltIn->isChecked() ||
 	boxParams->horizontalHeader()->setLabel(2, tr("Constant"));
 	for (int j=0; j<boxParams->numRows(); j++ )
 		{
-		QCheckTableItem *cb = new QCheckTableItem(boxParams, QString::null );
+		Q3CheckTableItem *cb = new Q3CheckTableItem(boxParams, QString::null );
 		boxParams->setItem(j, 2, cb);
 		}
 	boxParams->showColumn(2);
@@ -554,7 +583,7 @@ showExpresion(0);
 void fitDialog::choosePluginsFolder()
 {
 ApplicationWindow *app = (ApplicationWindow *)this->parent();
-QString dir = QFileDialog::getExistingDirectory(QDir::currentDirPath(), this, "get directory",
+QString dir = Q3FileDialog::getExistingDirectory(QDir::currentDirPath(), this, "get directory",
                     tr("Choose the plugins folder"), true, true);
 if (!dir.isEmpty())
 	{
@@ -718,7 +747,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Start limit error"),e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 	boxFrom->setFocus();
 	return;
 	}	
@@ -731,7 +760,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - End limit error"),e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
 	boxTo->setFocus();
 	return;
 	}	
@@ -752,7 +781,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Tolerance input error"),e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Tolerance input error"),QString::fromStdString(e.GetMsg()));
 	boxTolerance->setFocus();
 	return;
 	}	
@@ -770,7 +799,7 @@ if (boxParams->numCols() == 3)
 	{
 	for (i=0;i<rows;i++)
 		{//count the non-constant parameters
-		QCheckTableItem *it = (QCheckTableItem *)boxParams->item (i, 2);
+		Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 		if (!it->isChecked())
 			n++;
 		}
@@ -809,7 +838,7 @@ try
 		{
 		for (i=0;i<rows;i++)
 			{
-			QCheckTableItem *it = (QCheckTableItem *)boxParams->item (i, 2);
+			Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 			int j = 0;
 			if (!it->isChecked())
 				{
@@ -842,7 +871,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QString errorMsg = boxFunction->text() + " = " + formula + "\n" + e.GetMsg() + "\n" +
+	QString errorMsg = boxFunction->text() + " = " + formula + "\n" + QString::fromStdString(e.GetMsg()) + "\n" +
 					tr("Please verify that you have initialized all the parameters!");
 
 	QMessageBox::critical(0, tr("QtiPlot - Input function error"), errorMsg);
@@ -874,7 +903,7 @@ if (!error)
 		int j = 0;
 		for (i=0;i<rows;i++)
 			{
-			QCheckTableItem *it = (QCheckTableItem *)boxParams->item (i, 2);
+			Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 			if (!it->isChecked())
 				boxParams->setText(i, 1, res[j++]);
 			}
@@ -997,7 +1026,7 @@ for (int i=0; i<boxParams->numRows(); i++)
 		}
 	catch (mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),e.GetMsg());
+		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxParams->setCurrentCell (i,1);
 		return false;
 		}

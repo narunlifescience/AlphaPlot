@@ -1,42 +1,72 @@
+/***************************************************************************
+    File                 : matrixValuesDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Set matrix values dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "matrixValuesDialog.h"
 #include "parser.h"
 
 #include <qcombobox.h>
 #include <qspinbox.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qmessagebox.h>
 #include <qlabel.h>
-#include <qvbox.h>
-#include <qhbox.h>
-#include <qbuttongroup.h>
+#include <q3vbox.h>
+#include <q3hbox.h>
+#include <q3buttongroup.h>
+//Added by qt3to4:
+#include <Q3Frame>
+#include <Q3VBoxLayout>
 
-matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "matrixValuesDialog" );
 
-    setCaption( tr( "QtiPlot - Set Matrix Values" ) );
-    setFocusPolicy( QDialog::StrongFocus );
+    setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
+    setFocusPolicy( Qt::StrongFocus );
 	
-	QHBox *hbox1=new QHBox (this, "hbox1"); 
+	Q3HBox *hbox1=new Q3HBox (this, "hbox1"); 
 	hbox1->setSpacing (5);
 	
-	QVBox *box1=new QVBox (hbox1, "box2"); 
+	Q3VBox *box1=new Q3VBox (hbox1, "box2"); 
 	box1->setSpacing (5);
 
-	explain = new QTextEdit(box1, "explain" );
+	explain = new Q3TextEdit(box1, "explain" );
 	explain->setReadOnly (true);
 	
-	QVBox *box2=new QVBox (hbox1, "box2"); 
+	Q3VBox *box2=new Q3VBox (hbox1, "box2"); 
 	box2->setMargin(5);
-	box2->setFrameStyle (QFrame::Box);
+	box2->setFrameStyle (Q3Frame::Box);
 
-	QButtonGroup *GroupBox1 = new QButtonGroup(4,QGroupBox::Horizontal, "",box2, "GroupBox0" );
-	GroupBox1->setLineWidth(0);
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal, "",box2, "GroupBox0" );
 	GroupBox1->setFlat(true);
 	
 	QLabel *TextLabel1 = new QLabel(GroupBox1, "TextLabel1" );
@@ -61,7 +91,7 @@ matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool
 
     endCol = new QSpinBox(1, 1000000, 1, GroupBox1, "endCol" );
 
-	QHBox *hbox5=new QHBox (box2, "hbox5"); 
+	Q3HBox *hbox5=new Q3HBox (box2, "hbox5"); 
 	hbox5->setSpacing (5);
 	hbox5->setMargin(5);
 
@@ -73,18 +103,18 @@ matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool
 	btnAddCell = new QPushButton(hbox5, "btnAddCell" );
     btnAddCell->setText( tr( "Add Cell" ) );
 
-	QHBox *hbox4=new QHBox (this, "hbox4"); 
+	Q3HBox *hbox4=new Q3HBox (this, "hbox4"); 
 	hbox4->setSpacing (5);
 	
 	QLabel *TextLabel5 = new QLabel(hbox4, "TextLabel2" );
     TextLabel5->setText( tr( "Cell(i,j)=" ) );
 
-	commandes = new QTextEdit( hbox4, "commandes" );
-	commandes->setTextFormat(Qt::PlainText);
-    commandes->setGeometry( QRect(10, 100, 260, 70) );
-	commandes->setFocus();
+	commands = new Q3TextEdit( hbox4, "commands" );
+	commands->setTextFormat(Qt::PlainText);
+    commands->setGeometry( QRect(10, 100, 260, 70) );
+	commands->setFocus();
 	
-	QVBox *box3=new QVBox (hbox4,"box3"); 
+	Q3VBox *box3=new Q3VBox (hbox4,"box3"); 
 	box3->setSpacing (5);
 	
 	btnOk = new QPushButton(box3, "btnOk" );
@@ -96,7 +126,7 @@ matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool
     btnCancel = new QPushButton( box3, "btnCancel" );
     btnCancel->setText( tr( "Cancel" ) );
 	
-	QVBoxLayout* layout = new QVBoxLayout(this,5,5, "hlayout3");
+	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
     layout->addWidget(hbox1);
 	layout->addWidget(hbox5);
 	layout->addWidget(hbox4);
@@ -125,12 +155,12 @@ if (apply())
 
 bool matrixValuesDialog::apply()
 {
-QString aux=commandes->text().lower();	
+QString aux=commands->text().lower();	
 aux.remove("\n");
 	
 int pos1,pos2,pos3,i;
 QStringList variables, rowIndexes, colIndexes;
-int n=aux.contains("cell(");
+int n = aux.count("cell(");
 for (i=0; i<n; i++)
 	{
 	pos1=aux.find("cell(",0,TRUE);
@@ -182,7 +212,7 @@ try
 			}
 		catch(mu::ParserError &e)
 			{
-			QMessageBox::critical(0,"QtiPlot - Row index input error", e.GetMsg());
+			QMessageBox::critical(0,"QtiPlot - Row index input error", QString::fromStdString(e.GetMsg()));
 			return false;
    			}	
 		
@@ -193,7 +223,7 @@ try
 			}
 		catch(mu::ParserError &e)
 			{
-			QMessageBox::critical(0,"QtiPlot - Column index input error", e.GetMsg());
+			QMessageBox::critical(0,"QtiPlot - Column index input error", QString::fromStdString(e.GetMsg()));
 			return false;
 			}
 
@@ -208,7 +238,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QString errString = e.GetMsg();
+	QString errString = QString::fromStdString(e.GetMsg());
 	for (i=0;i<m;i++)
 		errString.replace(variables[i], "cell(" + rowIndexes[i] + "," + colIndexes[i] + ")", TRUE);
 
@@ -216,14 +246,14 @@ catch(mu::ParserError &e)
 	return false;
     }
 delete[] vars;
-emit setValues(commandes->text(), aux, rowIndexes, colIndexes,
+emit setValues(commands->text(), aux, rowIndexes, colIndexes,
 			   startRow->value(), endRow->value(), startCol->value(), endCol->value());
 return true;
 }
 
 void matrixValuesDialog::setFormula(const QString& s)
 {
-	commandes->setText(s);
+	commands->setText(s);
 }
 
 void matrixValuesDialog::setColumns(int c)
@@ -249,24 +279,24 @@ explain->setText(myParser::explainFunction(index));
 void matrixValuesDialog::insertFunction()
 {
 QString f=functions->currentText();
-if (commandes->hasSelectedText())
+if (commands->hasSelectedText())
 	{	
 	f=f.remove(")");
-	QString markedText=commandes->selectedText();
-	commandes->insert(f+markedText+")");
+	QString markedText=commands->selectedText();
+	commands->insert(f+markedText+")");
 	}
 else
 	{
-	commandes->insert( f );
+	commands->insert( f );
 	int index, para;
-	commandes->getCursorPosition (&para,&index);
-	commandes->setCursorPosition (para,index-1);
+	commands->getCursorPosition (&para,&index);
+	commands->setCursorPosition (para,index-1);
 	}
 }
 
 void matrixValuesDialog::addCell()
 {
-commandes->insert("cell(i, j)");
+commands->insert("cell(i, j)");
 }
 
 matrixValuesDialog::~matrixValuesDialog()

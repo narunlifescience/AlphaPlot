@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : plot.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Plot window class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "plot.h"
 #include "scaleDraws.h"
 
@@ -6,6 +34,10 @@
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3Frame>
+#include <QMouseEvent>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -15,7 +47,7 @@
 #if false
 	movedGraph=FALSE;
 	graphToResize=FALSE;
-	ShiftButton=FALSE;
+	Qt::ShiftModifier=FALSE;
 
 	d_lineWidth = 1;		
 	minTickLength = 5;
@@ -43,18 +75,18 @@
 	pLayout->setCanvasMargin(0);
 
 	QwtPlotCanvas* plCanvas=canvas();
-	plCanvas->setFocusPolicy(QWidget::StrongFocus);
+	plCanvas->setFocusPolicy(Qt::StrongFocus);
 	plCanvas->setFocusIndicator(QwtPlotCanvas::ItemFocusIndicator);
 	plCanvas->setFocus();
 	plCanvas->setFrameShadow( QwtPlot::Plain);
 	plCanvas->setCursor(Qt::arrowCursor);
 	plCanvas->setLineWidth(0);
 
-	setFocusPolicy(QWidget::StrongFocus);
+	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
 
-	setFrameShape (QFrame::Box);
-	setFrameShadow(QFrame::Plain);
+	setFrameShape (Q3Frame::Box);
+	setFrameShadow(Q3Frame::Plain);
 	setLineWidth(0);
 #endif
 }
@@ -148,7 +180,7 @@ void Plot::drawInwardTicks(QPainter *painter, const QRect &rect,
 	QColor color=pal.color(QPalette::Active, QColorGroup::Foreground);
 
 	painter->save();	
-	painter->setPen(QPen(color,d_lineWidth,QPainter::SolidLine));
+	painter->setPen(QPen(color,d_lineWidth,Qt::SolidLine));
 
 	QwtScaleDiv *scDiv=(QwtScaleDiv *)axisScale(axis);
 	int minTicks=scDiv->minCnt();
@@ -252,7 +284,7 @@ void Plot::drawInwardMinorTicks(QPainter *painter, const QRect &rect,
 	QColor color=pal.color(QPalette::Active, QColorGroup::Foreground);
 
 	painter->save();	
-	painter->setPen(QPen(color, d_lineWidth, QPainter::SolidLine));
+	painter->setPen(QPen(color, d_lineWidth, Qt::SolidLine));
 
 	QwtScaleDiv *scDiv=(QwtScaleDiv *)axisScale(axis);
 	int minTicks=scDiv->minCnt();
@@ -346,8 +378,8 @@ void Plot::setTicksType(int axis, int type)
 void Plot::mousePressEvent ( QMouseEvent * e )
 {
 #if false
-	if(e->state()==Qt::ShiftButton)
-		ShiftButton=TRUE;
+	if(e->state()==Qt::ShiftModifier)
+		Qt::ShiftModifier=TRUE;
 
 	emit selectPlot();
 #endif
@@ -356,7 +388,7 @@ void Plot::mousePressEvent ( QMouseEvent * e )
 void Plot::mouseMoveEvent ( QMouseEvent * e )
 {
 #if false
-	if(ShiftButton)
+	if(Qt::ShiftModifier)
 	{
 		graphToResize=TRUE;
 		emit resizeGraph(e->pos());	
@@ -382,7 +414,7 @@ void Plot::mouseReleaseEvent ( QMouseEvent *)
 	{
 		emit resizedGraph();
 		graphToResize=FALSE;
-		ShiftButton=FALSE;
+		Qt::ShiftModifier=FALSE;
 	}
 #endif
 }
@@ -472,7 +504,7 @@ void Plot::print(QPainter *painter, const QRect &plotRect,
 #if QT_VERSION < 300 
 	if ( painter->device()->isExtDev() )
 	{
-		QPaintDeviceMetrics metrics(painter->device());
+		Q3PaintDeviceMetrics metrics(painter->device());
 		if ( metrics.logicalDpiX() == 72 && metrics.logicalDpiY() == 72 )
 		{
 			// In Qt 2.x QPrinter returns hardcoded wrong metrics.

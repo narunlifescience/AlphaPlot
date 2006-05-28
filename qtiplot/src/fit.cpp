@@ -700,7 +700,7 @@ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0,"QtiPlot - user_f",e.GetMsg());
+	QMessageBox::critical(0,"QtiPlot - user_f",QString::fromStdString(e.GetMsg()));
 	}
 return GSL_SUCCESS;
 }
@@ -738,7 +738,7 @@ double user_d(const gsl_vector * x, void *params)
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0,"QtiPlot - user_f",e.GetMsg());
+	QMessageBox::critical(0,"QtiPlot - user_f",QString::fromStdString(e.GetMsg()));
 	}
 return val;
 }
@@ -776,7 +776,7 @@ int user_df(const gsl_vector *x, void *params, gsl_matrix *J)
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0,"QtiPlot - Input function error",e.GetMsg());
+	QMessageBox::critical(0,"QtiPlot - Input function error",QString::fromStdString(e.GetMsg()));
 	}
 return GSL_SUCCESS;
 }

@@ -1,66 +1,102 @@
+/***************************************************************************
+    File                 : multilayer.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Multi layer widget
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include <qspinbox.h>
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qfont.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qdialog.h>
-#include <qfiledialog.h>
+#include <q3filedialog.h>
 #include <qinputdialog.h>
 #include <qtextstream.h>
-#include <qgrid.h>
+#include <q3grid.h>
 #include <qrect.h> 
-#include <qframe.h> 
+#include <q3frame.h> 
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvariant.h>
-#include <qgroupbox.h>
-#include <qhbox.h>
-#include <qaccel.h>
+#include <q3groupbox.h>
+#include <q3hbox.h>
+#include <q3accel.h>
 #include <qfileinfo.h> 
 #include <qdir.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpixmap.h> 
-#include <qkeycode.h>
+#include <qnamespace.h>
 #include <qlayout.h>
 #include <qpainter.h>
-#include <qtoolbar.h>
+#include <q3toolbar.h>
 #include <qtoolbutton.h> 
 #include <qprinter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 #include <qcolordialog.h>
 #include <qfontdialog.h>
 #include <qradiobutton.h>
 #include <qcheckbox.h>
-#include <qiconset.h>
-#include <qmemarray.h>
-#include <qvbox.h>
-#include <qtabdialog.h>
-#include <qbuttongroup.h>
+#include <qicon.h>
+#include <q3memarray.h>
+#include <q3vbox.h>
+#include <q3tabdialog.h>
+#include <q3buttongroup.h>
 #include <qregexp.h> 
 #include <qcombobox.h>
-#include <qvaluelist.h>
+#include <q3valuelist.h>
 #include <qpen.h>
 #include <qcolor.h>
 #include <qcursor.h>
 #include <qpixmap.h>
 #include <qpixmapcache.h> 
-#include <qstylesheet.h> 
+#include <q3stylesheet.h> 
 #include <qdatetime.h> 
-#include <qwmatrix.h> 
+#include <qmatrix.h> 
 #include <qlabel.h> 
 #include <qimage.h>
 #include <qmessagebox.h>
 #include <qclipboard.h>
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qbitmap.h>
-#include <qwidgetlist.h>
-#include <qpicture.h>
+#include <qwidget.h>
+#include <q3picture.h>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
+//Added by qt3to4:
+#include <QResizeEvent>
+#include <QMouseEvent>
+#include <Q3VBoxLayout>
+#include <QKeyEvent>
+#include <QEvent>
+#include <QContextMenuEvent>
+#include <QWheelEvent>
 
 #include "multilayer.h"
 #include "graph.h"
@@ -89,7 +125,7 @@
 	btn->setMaximumHeight(btn_size);
 	btn->installEventFilter(this);
 
-	QVBoxLayout *l = new QVBoxLayout( this, 0,0,"buttonLayout" );
+	Q3VBoxLayout *l = new Q3VBoxLayout( this, 0,0,"buttonLayout" );
 	l->addWidget( btn );
 
 	setMaximumWidth(btn_size);
@@ -128,9 +164,9 @@ bool LayerButton::eventFilter(QObject *object, QEvent *e)
 		case QEvent::MouseButtonPress:
 			{
 				const QMouseEvent *me = (const QMouseEvent *)e;
-				if (me->button()==QMouseEvent::RightButton)	
+				if (me->button()==Qt::RightButton)	
 					emit showLayerMenu();
-				else if (me->button()==QMouseEvent::LeftButton)	
+				else if (me->button()==Qt::LeftButton)	
 				{
 					if (!btn->isOn())
 						emit clicked(this);
@@ -150,14 +186,14 @@ LayerButton::~LayerButton()
 #endif
 }
 
-	MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, WFlags f)
+	MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : myWidget(label,parent,name,f)
 {
 #if false
 	if ( !name )
 		setName( "multilayer plot" );
 
-	setPaletteBackgroundColor( QColor(white) );
+	setPaletteBackgroundColor( QColor(Qt::white) );
 
 	QDateTime dt = QDateTime::currentDateTime ();
 	setBirthDate(dt.toString(Qt::LocalDate));
@@ -183,7 +219,7 @@ LayerButton::~LayerButton()
 	graphsList=new QWidgetList();
 	graphsList->setAutoDelete( TRUE );
 
-	hbox1=new QHBox(this, "hbox1"); 
+	hbox1=new Q3HBox(this, "hbox1"); 
 	int h = layerButtonHeight();
 	hbox1->setFixedHeight(h);
 	setGeometry(QRect( 0, 0, graph_width, graph_height + h));
@@ -191,11 +227,11 @@ LayerButton::~LayerButton()
 	canvas=new QWidget (this, "canvas");
 	canvas->installEventFilter(this);
 
-	QVBoxLayout* layout = new QVBoxLayout(this,0,0, "hlayout3");
+	Q3VBoxLayout* layout = new Q3VBoxLayout(this,0,0, "hlayout3");
 	layout->addWidget(hbox1);
 	layout->addWidget(canvas);
 
-	setFocusPolicy(QWidget::StrongFocus);
+	setFocusPolicy(Qt::StrongFocus);
 	connect (this, SIGNAL(resizeCanvas (const QResizeEvent *)),
 			this, SLOT(resizeLayers (const QResizeEvent *)));
 #endif
@@ -256,7 +292,8 @@ Graph* MultiLayer::addLayer()
 #if false
 	addLayerButton();
 
-	Graph* g = new Graph(canvas,0,WDestructiveClose);
+	Graph* g = new Graph(canvas,0);
+	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->setGeometry(QRect(0,0,graph_width, graph_height));
 	g->plotWidget()->resize(QSize(graph_width, graph_height));	
 	graphsList->append(g);
@@ -273,7 +310,8 @@ Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 #if false
 	addLayerButton();
 
-	Graph* g = new Graph(canvas,0,WDestructiveClose);
+	Graph* g = new Graph(canvas,0);
+	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->removeLegend();
 
 	QSize size=QSize(width,height);
@@ -399,7 +437,7 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 	if ( size == oldSize || (maxSize().width() > oldSize.width()) || !userRequested())
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	double w_ratio=(double)size.width()/(double)oldSize.width();
 	double h_ratio=(double)(size.height())/(double)(oldSize.height());
@@ -599,7 +637,7 @@ void MultiLayer::releaseGraph(Graph* g)
 	for (int i=0;i<(int)graphsList->count();i++)
 	{
 		Graph *gr=(Graph *)graphsList->at(i);
-		if (gr->plotWidget()->paletteBackgroundColor() == QColor(white))
+		if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
 			makeTransparentLayer(gr);
 		gr->show();
 	}
@@ -729,18 +767,18 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 		int x = left_margin + col*colsSpace;
 		if (hor_align == HCenter)
 			x += int (l_canvas_width*(gsl_vector_get(X, col) + gsl_vector_get(maxYLeftWidth, col) - gsl_vector_get(yLeftR, i)));
-		else if (hor_align == Left)
+		else if (hor_align == Qt::DockLeft)
 			x += int(l_canvas_width*gsl_vector_get(X, col));
-		else if (hor_align == Right)
+		else if (hor_align == Qt::DockRight)
 			x += int(l_canvas_width*(gsl_vector_get(X, col) + gsl_vector_get(maxYLeftWidth, col) - gsl_vector_get(yLeftR, i)+
 						gsl_vector_get(maxYRightWidth, col) - gsl_vector_get(yRightR, i)));
 
 		int y = top_margin + row*rowsSpace;
 		if (vert_align == VCenter)	
 			y += int(l_canvas_height*(gsl_vector_get(Y, row) + gsl_vector_get(maxXTopHeight, row) - gsl_vector_get(xTopR, i)));
-		else if (vert_align == Top)	
+		else if (vert_align == Qt::DockTop)	
 			y += int(l_canvas_height*gsl_vector_get(Y, row));
-		else if (vert_align == Bottom)	
+		else if (vert_align == Qt::DockBottom)	
 			y += int(l_canvas_height*(gsl_vector_get(Y, row) + gsl_vector_get(maxXTopHeight, row) - gsl_vector_get(xTopR, i)+
 						+ gsl_vector_get(maxXBottomHeight, row) - gsl_vector_get(xBottomR, i)));
 
@@ -811,7 +849,7 @@ void MultiLayer::findBestLayout(int &rows, int &cols)
 void MultiLayer::arrangeLayers(bool fit, bool userSize)
 {
 #if false
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	if (fit)
 		findBestLayout(rows, cols);	
@@ -914,7 +952,7 @@ QPixmap MultiLayer::canvasPixmap()
 		QRect rect = QRect(gr->x() + lw, gr->y() + lw, myPlot->width() - 2*lw, 
 				myPlot->height() - 2*lw);
 
-		if (myPlot->paletteBackgroundColor() != QColor(white))
+		if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
 			paint.fillRect(rect, myPlot->paletteBackgroundColor());
 
 		myPlot->drawPixmap(&paint, rect);
@@ -984,7 +1022,7 @@ void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientatio
 	printer.setOutputFileName(fname);
 
 	QPainter paint(&printer);
-	QPaintDeviceMetrics pdmTo(&printer);
+	Q3PaintDeviceMetrics pdmTo(&printer);
 
 	int dpiy = pdmTo.logicalDpiY();
 	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
@@ -1011,7 +1049,7 @@ void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientatio
 
 		QRect rect = QRect(pos,QSize(width,height));
 
-		if (myPlot->paletteBackgroundColor() != QColor(white))
+		if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
 			paint.fillRect(rect, myPlot->paletteBackgroundColor());
 
 		int lw = myPlot->lineWidth();
@@ -1037,7 +1075,7 @@ void MultiLayer::copyAllLayers()
 #if false
 	QPixmap pic = canvasPixmap();	
 	QImage image= pic.convertToImage();		
-	QApplication::clipboard()->setData( new QImageDrag (image,canvas,0) );	
+	QApplication::clipboard()->setData( new Q3ImageDrag (image,canvas,0) );	
 #endif
 }
 
@@ -1075,7 +1113,7 @@ void MultiLayer::printAllLayers(QPainter *painter)
 	if (!painter)
 		return;
 
-	QPaintDeviceMetrics metrics(painter->device());
+	Q3PaintDeviceMetrics metrics(painter->device());
 
 	int dpiy = metrics.logicalDpiY();
 	int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
@@ -1100,7 +1138,7 @@ void MultiLayer::printAllLayers(QPainter *painter)
 		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
 
 		QRect rect = QRect(pos,QSize(width,height));
-		if (myPlot->paletteBackgroundColor() != QColor(white))
+		if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
 			painter->fillRect(rect, myPlot->paletteBackgroundColor());
 
 		int lw = myPlot->lineWidth();
@@ -1212,7 +1250,7 @@ void MultiLayer::updateTransparency()
 	{
 		Graph *gr=(Graph *)graphsList->at(i);
 		QColor c = gr->plotWidget()->paletteBackgroundColor();
-		if (c == QColor(white))
+		if (c == QColor(Qt::white))
 		{
 			allColored = false;
 			break;
@@ -1221,14 +1259,14 @@ void MultiLayer::updateTransparency()
 	if (allColored)
 		return;
 
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	showLayers(false);
 
 	for (i=0; i<graphs; i++)
 	{	
 		Graph *gr=(Graph *)graphsList->at(i);
-		if (gr->plotWidget()->paletteBackgroundColor() == QColor(white))
+		if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
 			makeTransparentLayer(gr);
 		gr->show();
 	}
@@ -1316,7 +1354,7 @@ void MultiLayer::addTextLayer()
 {
 #if false
 	addTextOn=TRUE;
-	QApplication::setOverrideCursor(IbeamCursor);
+	QApplication::setOverrideCursor(Qt::IBeamCursor);
 	canvas->grabMouse();
 #endif
 }
@@ -1326,7 +1364,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 #if false
 	Graph* g=addLayer();
 	g->setTitle("");
-	QMemArray<bool> axesOn(4);
+	Q3MemArray<bool> axesOn(4);
 	for (int j=0;j<4;j++)
 		axesOn[j]=FALSE;
 	g->enableAxes(axesOn);
@@ -1357,7 +1395,7 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 			{
 				const QMouseEvent *me = (const QMouseEvent *)e;
 
-				if (me->button()==QMouseEvent::LeftButton && addTextOn)	
+				if (me->button()==Qt::LeftButton && addTextOn)	
 					addTextLayer(me->pos());
 
 				return false; 
@@ -1408,7 +1446,7 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 		return;
 	}
 
-	if (highlightedLayer && (e->key() == Key_Enter || e->key() == Key_Return))
+	if (highlightedLayer && (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return))
 	{
 		releaseLayer();
 		return;
@@ -1434,7 +1472,7 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 void MultiLayer::wheelEvent ( QWheelEvent * e ) 
 {
 #if false
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	bool resize=FALSE;
 	QPoint aux;
@@ -1457,11 +1495,11 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 			}
 		}
 	}
-	if(resize && (e->state()==Qt::AltButton || e->state()==Qt::ControlButton || e->state()==Qt::ShiftButton))
+	if(resize && (e->state()==Qt::AltModifier || e->state()==Qt::ControlModifier || e->state()==Qt::ShiftModifier))
 	{
 		intSize=resize_graph->plotWidget()->size();
 		// If alt is pressed then change the width
-		if(e->state()==Qt::AltButton)
+		if(e->state()==Qt::AltModifier)
 		{
 			if(e->delta()>0)
 			{
@@ -1473,7 +1511,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 			}
 		}
 		// If crt is pressed then changed the height
-		else if(e->state()==Qt::ControlButton)
+		else if(e->state()==Qt::ControlModifier)
 		{
 			if(e->delta()>0)
 			{
@@ -1485,7 +1523,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 			}
 		}
 		// If shift is pressed then resize 
-		else if(e->state()==Qt::ShiftButton)
+		else if(e->state()==Qt::ShiftModifier)
 		{
 			if(e->delta()>0)
 			{
@@ -1576,7 +1614,7 @@ bool MultiLayer::allLayersTransparent()
 	{
 		Graph *gr=(Graph *)graphsList->at(i);
 		QColor c = gr->plotWidget()->paletteBackgroundColor();
-		if (c != QColor(white))
+		if (c != QColor(Qt::white))
 			return  false;
 	}
 	return allTransparent;
@@ -1635,13 +1673,13 @@ void MultiLayer::mouseMoveEvent ( QMouseEvent * e )
 	int dy = pos.y() - yMouse;
 
 	if(dx!=0 && dy==0)
-		this->setCursor(SizeHorCursor);	
+		this->setCursor(Qt::SizeHorCursor);	
 	else if(dx==0 && dy!=0) 
-		this->setCursor(SizeVerCursor);
+		this->setCursor(Qt::SizeVerCursor);
 	else if( (dx>0 && dy>0) || (dx<0 && dy<0))
-		this->setCursor(SizeFDiagCursor);
+		this->setCursor(Qt::SizeFDiagCursor);
 	else if( (dx<0 && dy>0) || (dx>0 && dy<0))
-		this->setCursor(SizeBDiagCursor);
+		this->setCursor(Qt::SizeBDiagCursor);
 
 	QPoint center = QPoint(aux_rect.x()+aux_rect.width()/2, aux_rect.y()+aux_rect.height()/2);	
 
@@ -1675,10 +1713,10 @@ void MultiLayer::drawLayerFocusRect(const QRect& fr)
 	QPixmap pix = cache_pix;
 	QPainter painter(&pix);
 	painter.setRasterOp(Qt::NotXorROP);
-	painter.setPen(QPen(QColor(red), lw, Qt::SolidLine));
+	painter.setPen(QPen(QColor(Qt::red), lw, Qt::SolidLine));
 
 	painter.drawRect(fr);
-	painter.setBrush(QBrush(QColor(red), QBrush::SolidPattern));
+	painter.setBrush(QBrush(QColor(Qt::red), Qt::SolidPattern));
 
 	QRect sr = QRect (QPoint(0,0), QSize(lw, lw));
 	sr.moveCenter (fr.topLeft());
@@ -1787,7 +1825,7 @@ void MultiLayer::releaseLayer()
 	aux_rect = QRect();
 	cache_pix = QPixmap();
 
-	this->setCursor(arrowCursor);
+	this->setCursor(Qt::arrowCursor);
 	emit modifiedPlot();
 #endif
 }

@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : scaleDraws.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Extension to QwtScaleDraw
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef SCALEDRAWS_H
 #define SCALEDRAWS_H
 
@@ -13,6 +41,7 @@
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
+//! Extension to QwtScaleDraw
 class ScaleDraw: public QwtScaleDraw
 {
 	public:		
@@ -96,19 +125,19 @@ class ScaleDraw: public QwtScaleDraw
 
 				switch(orientation())
 				{
-					case Left:
+					case Qt::DockLeft:
 						QwtPainter::drawLine(p, xorg + 1, tval, xorg - len, tval);
 						break;
 
-					case Right:
+					case Qt::DockRight:
 						QwtPainter::drawLine(p, xorg, tval, xorg + len, tval);
 						break;
 
-					case Bottom: 
+					case Qt::DockBottom: 
 						QwtPainter::drawLine(p, tval, yorg, tval, yorg + len);
 						break;
 
-					case Top:
+					case Qt::DockTop:
 						QwtPainter::drawLine(p, tval, yorg + 1, tval, yorg - len);
 						break;
 
@@ -127,7 +156,7 @@ class ScaleDraw: public QwtScaleDraw
 
 				switch(orientation())
 				{
-					case Left:
+					case Qt::DockLeft:
 						{
 							if (!options())
 								QwtPainter::drawLine(p, xorg + 1, tval, xorg - len, tval);
@@ -136,7 +165,7 @@ class ScaleDraw: public QwtScaleDraw
 							break;
 						}
 
-					case Right:
+					case Qt::DockRight:
 						{
 							if (!options())
 								QwtPainter::drawLine(p, xorg, tval, xorg + len, tval);
@@ -148,14 +177,14 @@ class ScaleDraw: public QwtScaleDraw
 							break;
 						}
 
-					case Bottom: 
+					case Qt::DockBottom: 
 						{
 							const int bw = p->pen().width() / 2;
 							QwtPainter::drawLine(p, tval, yorg + bw, tval, yorg + len);
 							break;
 						}
 
-					case Top:
+					case Qt::DockTop:
 						QwtPainter::drawLine(p, tval, yorg, tval, yorg - len);
 						break;
 
@@ -180,14 +209,14 @@ class ScaleDraw: public QwtScaleDraw
 
 				switch(orientation())
 				{
-					case Left:
+					case Qt::DockLeft:
 						{
 							const int bw2 = (pw - 1) / 2;
 							QwtPainter::drawLine(p, xorg - bw2, yorg, xorg - bw2, yorg + l - 1);
 							break;
 						}
 
-					case Right:
+					case Qt::DockRight:
 						{
 							int bw2 = pw / 2;
 							if (p->device()->isExtDev() && pw == 1)
@@ -197,14 +226,14 @@ class ScaleDraw: public QwtScaleDraw
 							break;
 						}
 
-					case Top:
+					case Qt::DockTop:
 						{
 							const int bw2 = (pw - 1) / 2;
 							QwtPainter::drawLine(p, xorg, yorg - bw2, xorg + l - 1, yorg - bw2);
 							break;
 						}
 
-					case Bottom:
+					case Qt::DockBottom:
 						{
 							const int bw2 = pw / 2;
 							QwtPainter::drawLine(p, xorg, yorg + bw2, xorg + l - 1, yorg + bw2);
@@ -243,7 +272,7 @@ class QwtNoLabelsScaleDraw: public ScaleDraw
 
 		virtual QwtText label(double) const
 		{
-			return QString::null;
+			return QwtText(QString());
 		};
 };
 
@@ -406,7 +435,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 				const QString txt = label(val);
 				if ( !txt.isEmpty() )
 				{
-					QWMatrix m = labelWorldMatrix(d_font, pos, alignment, rotation, txt);
+					QMatrix m = labelWorldMatrix(d_font, pos, alignment, rotation, txt);
 
 					p->save();
 #ifndef QT_NO_TRANSFORMATIONS
@@ -467,7 +496,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 				const int w = ltxt->boundingRect().width();
 				const int h = ltxt->boundingRect().height();
 
-				QWMatrix m = labelWorldMatrix(fm, pos, alignment, rotation, lbl);
+				QMatrix m = labelWorldMatrix(fm, pos, alignment, rotation, lbl);
 				br = QwtMetricsMap::translate(m, QRect(0, 0, w, h));
 				br.moveBy(-pos.x(), -pos.y());
 			}
@@ -478,7 +507,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 		};
 
 		//! Return the world matrix for painting the label 
-		QWMatrix labelWorldMatrix(const QFontMetrics &,
+		QMatrix labelWorldMatrix(const QFontMetrics &,
 				const QPoint &pos, int alignment, 
 #ifdef QT_NO_TRANSFORMATIONS
 				double,
@@ -509,7 +538,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 			else // Qt::AlignVCenter
 				y = - (h/2);
 
-			QWMatrix m;
+			QMatrix m;
 			m.translate(pos.x(), pos.y());
 #ifndef QT_NO_TRANSFORMATIONS
 			m.rotate(rotation);

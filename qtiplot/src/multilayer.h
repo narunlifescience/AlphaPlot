@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : multilayer.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Multi layer widget
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef MULTILAYER_H
 #define MULTILAYER_H
 
@@ -7,9 +35,18 @@
 #include <qwidget.h>
 #include <qpushbutton.h>
 #include <qobject.h>
-#include <qhbox.h>
-#include <qptrlist.h>
+#include <q3hbox.h>
+#include <q3ptrlist.h>
 #include <qprinter.h>
+//Added by qt3to4:
+#include <QWheelEvent>
+#include <QPixmap>
+#include <QKeyEvent>
+#include <QEvent>
+#include <QLabel>
+#include <QContextMenuEvent>
+#include <QResizeEvent>
+#include <QMouseEvent>
 
 #include <gsl/gsl_vector.h>
 
@@ -21,12 +58,13 @@ class Graph;
 class Table;
 class LayerButton;
 	
+//! Multi layer widget
 class MultiLayer: public myWidget
 {
 	Q_OBJECT
 
 public:
-    MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, WFlags f=0);
+    MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	QWidgetList* graphPtrs(){return graphsList;};
 	LayerButton* addLayerButton();	
 
@@ -44,7 +82,7 @@ public:
 	void releaseLayer();
 	
 	QWidgetList *buttonsList, *graphsList;
-	QHBox  *hbox1;
+	Q3HBox  *hbox1;
 	QWidget *canvas;
 
 public slots:

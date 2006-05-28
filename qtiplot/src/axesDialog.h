@@ -1,24 +1,56 @@
+/***************************************************************************
+    File                 : axesDialog.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : General plot options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef AXESDIALOG_H
 #define AXESDIALOG_H
 
 #include <qvariant.h>
 #include <qdialog.h>
+//Added by qt3to4:
+#include <Q3MemArray>
+#include <QLabel>
+#include <Q3ValueList>
 
-class QTextEdit;
+class Q3TextEdit;
 class QCheckBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
-class QListBox;
-class QListBoxItem;
+class Q3ListBox;
+class Q3ListBoxItem;
 class QPushButton;
 class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 class QWidget;
 class QStringList;
-class QButtonGroup;
-class QGroupBox;
+class Q3ButtonGroup;
+class Q3GroupBox;
 class ColorBox;
 class ColorButton;
 class MultiLayer;
@@ -39,12 +71,13 @@ typedef struct{
   int yZeroOn;
 }  gridOptions;
 
+//! General plot options dialog
 class axesDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    axesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    axesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
     ~axesDialog();
 
 	void initAxesPage();
@@ -67,7 +100,7 @@ public:
     QCheckBox* btnStep, *btnInvert;
     QSpinBox* boxMajorValue;
     QCheckBox* btnMinor;
-    QListBox* axesList;
+    Q3ListBox* axesList;
     QWidget* gridPage;
     QCheckBox* boxMajorGrid;
     QCheckBox* boxMinorGrid;
@@ -79,34 +112,34 @@ public:
     QSpinBox* boxWidthMinor;
     QCheckBox* boxXLine;
     QCheckBox* boxYLine;
-    QListBox* axesGridList;
+    Q3ListBox* axesGridList;
     QWidget* axesPage, *frame;
-    QListBox* axesTitlesList;
+    Q3ListBox* axesTitlesList;
     QCheckBox* boxShowAxis, *boxShowLabels;
 	
-	QTextEdit *boxFormula, *boxTitle;
+	Q3TextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
     QPushButton* btnAxesFont;
 	QCheckBox *boxBackbones, *boxAll, *boxShowFormula;
 	ColorButton* boxAxisColor;
 	QComboBox* boxTicksType, *boxFormat, *boxAxisType, *boxColName;
-	QButtonGroup* GroupBox0;
-	QButtonGroup* GroupBox1;
-	QButtonGroup* GroupBox2;
-	QButtonGroup* GroupBox3;
-	QButtonGroup *boxFramed, *GroupBox6;
+	Q3ButtonGroup* GroupBox0;
+	Q3ButtonGroup* GroupBox1;
+	Q3ButtonGroup* GroupBox2;
+	Q3ButtonGroup* GroupBox3;
+	Q3ButtonGroup *boxFramed, *GroupBox6;
 	QLabel *label1, *label2, *label3, *boxScaleTypeLabel, *minorBoxLabel, *labelTable;
 	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
 	QComboBox *boxUnit, *boxTableName;
 	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
-	QGroupBox  *labelBox;
+	Q3GroupBox  *labelBox;
 	QPushButton *buttonIndice, *buttonExp, *buttonSym, *buttonB, *buttonI;
-    QPushButton *buttonU, *buttonMinGreek, *buttonMajGreek, *btnLabelFont;
+    QPushButton *buttonU, *buttonLowerGreek, *buttonUpperGreek, *btnLabelFont;
 	
 public slots:
 	QStringList scaleLimits(int axis, double start, double end, double step, 
 							const QString& majors, const QString&minors);
-	void setAxesType(const QValueList<int>& list);
+	void setAxesType(const Q3ValueList<int>& list);
 	void setAxisType(int axis);
 	void updateAxisType(int axis);
 	void setAxisTitles(QStringList t);
@@ -127,7 +160,7 @@ public slots:
 	void customAxisFont();
 	void showAxis();
 	void updateShowBox(int axis);
-	void setEnabledAxes(QMemArray<bool> ok);
+	void setEnabledAxes(Q3MemArray<bool> ok);
 	void drawFrame(bool framed);
 
 	void pickAxisColor();
@@ -137,7 +170,7 @@ public slots:
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
 	void updateTickLabelsList();
-	void setTicksType(const QValueList<int>& list);
+	void setTicksType(const Q3ValueList<int>& list);
 	void setTicksType(int);
 	void setCurrentScale(int axisPos);
 	void initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR );
@@ -155,7 +188,7 @@ public slots:
 	void showAxisFormatOptions(int format);
 	void setBaselineDist(int);
 	void changeBaselineDist(int baseline);
-	void setAxesBaseline(const QValueList<int>& lst);
+	void setAxesBaseline(const Q3ValueList<int>& lst);
 	void changeMinorTicksLength (int minLength);
 	void changeMajorTicksLength (int majLength);
 	void updateBackbones (bool on);
@@ -179,8 +212,8 @@ public slots:
 	void addBold();
 	void addCurve();
 
-	void showMinGreek();
-	void showMajGreek();
+	void showLowerGreek();
+	void showUpperGreek();
 	void addSymbol(const QString& letter);
 	void customAxisLabelFont();
 
@@ -192,7 +225,7 @@ signals:
 
 protected:
 	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo, labelsNumericFormat, tablesList;
-	QValueList<int> ticks, axesType, axesBaseline;
+	Q3ValueList<int> ticks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;
 	gridOptions grid;
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;

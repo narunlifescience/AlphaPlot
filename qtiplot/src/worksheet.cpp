@@ -1,10 +1,38 @@
+/***************************************************************************
+    File                 : worksheet.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Table worksheet class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "worksheet.h"
 #include "sortDialog.h"
 #include "parser.h"
 #include "nrutil.h"
 
-#include <qpopupmenu.h>
-#include <qfiledialog.h>
+#include <q3popupmenu.h>
+#include <q3filedialog.h>
 #include <qmessagebox.h>
 #include <qregexp.h>
 #include <qtextstream.h>
@@ -14,11 +42,17 @@
 #include <qdatetime.h>
 #include <qprinter.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
-#include <qdragobject.h>
+#include <q3paintdevicemetrics.h>
+#include <q3dragobject.h>
 #include <qlayout.h>
-#include <qaccel.h>
-#include <qprogressdialog.h>
+#include <q3accel.h>
+#include <q3progressdialog.h>
+//Added by qt3to4:
+#include <Q3MemArray>
+#include <QEvent>
+#include <QContextMenuEvent>
+#include <Q3VBoxLayout>
+#include <QMouseEvent>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
@@ -30,13 +64,13 @@
 
 Table::Table(const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
-			 QWidget* parent, const char* name, WFlags f)
+			 QWidget* parent, const char* name, Qt::WFlags f)
         : myWidget(label, parent,name,f)
 {
 importASCII(fname, sep, ignoredLines, renameCols, stripSpaces, simplifySpaces, true);
 }
 
-Table::Table(int r, int c, const QString& label, QWidget* parent, const char* name, WFlags f)
+Table::Table(int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
         : myWidget(label,parent,name,f)
 {
 init(r,c);	
@@ -50,10 +84,10 @@ LeftButton=FALSE;
 QDateTime dt = QDateTime::currentDateTime ();
 setBirthDate(dt.toString(Qt::LocalDate));
 
-worksheet= new QTable (rows,cols,this,"table");
-worksheet->setFocusPolicy(QWidget::StrongFocus);
+worksheet= new Q3Table (rows,cols,this,"table");
+worksheet->setFocusPolicy(Qt::StrongFocus);
 worksheet->setFocus();
-worksheet->setSelectionMode (QTable::Single);
+worksheet->setSelectionMode (Q3Table::Single);
 worksheet->setRowMovingEnabled(true);
 // TODO: would be useful, but then we have to interpret
 // signal QHeader::indexChange ( int section, int fromIndex, int toIndex )
@@ -63,12 +97,12 @@ worksheet->setRowMovingEnabled(true);
 connect(worksheet->verticalHeader(), SIGNAL(indexChange ( int, int, int )),
 		this, SLOT(notifyChanges()));
 
-QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,0,0, "hlayout1");
 hlayout->addWidget(worksheet);
 
 for (int i=0; i<cols; i++)
 	{
-	commandes << "col(1)";
+	commands << "col(1)";
 	colTypes << Numeric;
 	col_format << "0/6";
 	comments << "";
@@ -76,7 +110,7 @@ for (int i=0; i<cols; i++)
 	col_plot_type << Y;
 	}
 
-QHeader* head=(QHeader*)worksheet->horizontalHeader();
+Q3Header* head=(Q3Header*)worksheet->horizontalHeader();
 head->installEventFilter(this);
 head->setMouseTracking(TRUE);
 
@@ -93,9 +127,9 @@ setGeometry(50,50,w + 45, h);
 
 worksheet->verticalHeader()->setResizeEnabled(false);
 
-QAccel *accel = new QAccel(this);
-accel->connectItem( accel->insertItem( Key_Tab ), this, SLOT(moveCurrentCell()));
-accel->connectItem( accel->insertItem( CTRL+Key_A ), this, SLOT(selectAllTable()) );
+Q3Accel *accel = new Q3Accel(this);
+accel->connectItem( accel->insertItem( Qt::Key_Tab ), this, SLOT(moveCurrentCell()));
+accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_A ), this, SLOT(selectAllTable()) );
 
 connect(worksheet, SIGNAL(valueChanged(int,int)),this, SLOT(cellEdited(int,int)));
 specifications = saveToString("geometry\n");
@@ -139,12 +173,12 @@ if (printer.setup())
         QPainter p;
         if ( !p.begin(&printer ) )
             return; // paint on printer
-        QPaintDeviceMetrics metrics( p.device() );
+        Q3PaintDeviceMetrics metrics( p.device() );
         int dpiy = metrics.logicalDpiY();
         const int margin = (int) ( (1/2.54)*dpiy ); // 2 cm margins
 		
-		QHeader *hHeader = worksheet->horizontalHeader();
-		QHeader *vHeader = worksheet->verticalHeader();
+		Q3Header *hHeader = worksheet->horizontalHeader();
+		Q3Header *vHeader = worksheet->verticalHeader();
 
 		int rows=worksheet->numRows();
 		int cols=worksheet->numCols();
@@ -154,7 +188,7 @@ if (printer.setup())
 		
 		// print header
 		p.setFont(hHeader->font());
-		QRect br=p.boundingRect(br,Qt::AlignCenter,	hHeader->label(0),-1,0);
+		QRect br=p.boundingRect(br,Qt::AlignCenter,	hHeader->label(0));
 		p.drawLine(right,height,right,height+br.height());
 		QRect tr(br);	
 		
@@ -181,7 +215,7 @@ if (printer.setup())
 			{
 			right=margin;
 			QString text=vHeader->label(i)+"\t";
-			tr=p.boundingRect(tr,Qt::AlignCenter,text,-1,0);
+			tr=p.boundingRect(tr,Qt::AlignCenter,text);
 			p.drawLine(right,height,right,height+tr.height());
 
 			br.setTopLeft(QPoint(right,height));	
@@ -195,7 +229,7 @@ if (printer.setup())
 				{
 				int w=worksheet->columnWidth (j);
 				text=worksheet->text(i,j)+"\t";
-				tr=p.boundingRect(tr,Qt::AlignCenter,text,-1,0);
+				tr=p.boundingRect(tr,Qt::AlignCenter,text);
 				br.setTopLeft(QPoint(right,height));	
 				br.setWidth(w);	
 				br.setHeight(tr.height());
@@ -387,10 +421,10 @@ for (int i=0; i<worksheet->numCols(); i++)
 return s+"\n";
 }
 
-QString Table::saveCommandes()
+QString Table::saveCommands()
 {
 QString s="com\t";
-s+=commandes.join ("\t")+"\n";
+s+=commands.join ("\t")+"\n";
 return s;
 }
 
@@ -412,7 +446,7 @@ s+=birthDate()+"\n";
 s+=geometry;
 s+=saveHeader();
 s+=saveColumnWidths();
-s+=saveCommandes();
+s+=saveCommands();
 s+=saveColumnTypes();
 s+=saveComments();
 s+="WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
@@ -448,12 +482,12 @@ for (int j=0; j<worksheet->numCols(); j++)
 return xcol;
 }
 
-void Table::setCommandes(const QString& com)
+void Table::setCommands(const QString& com)
 {
 QStringList list=QStringList::split ("\t",com,FALSE);
 for (int i=0;i<int(list.count());i++)
 	{
-	commandes[i]=list[i+1];
+	commands[i]=list[i+1];
 	}
 }
 
@@ -469,7 +503,7 @@ int n=1;
 for (int i=selectedCol; i<(int)worksheet->numCols(); i++)
 	{
 	QString newLabel=oldLabel+QString::number(n);
-	commandes.gres("col("+colLabel(i)+")", "col("+newLabel+")", true);
+	commands.gres("col("+colLabel(i)+")", "col("+newLabel+")", true);
 	setColName(i, newLabel);
 	emit changedColHeader(caption+oldLabels[i],colName(i));
 	n++;
@@ -529,7 +563,7 @@ if (labels.contains(text)>0)
 	return;	
 	}
 
-commandes.gres("col("+colLabel(selectedCol)+")", "col("+text+")", true);	
+commands.gres("col("+colLabel(selectedCol)+")", "col("+text+")", true);	
 	
 setColName(selectedCol, text);	
 emit changedColHeader(oldName, newName);
@@ -638,12 +672,12 @@ if (col<0 || col >=worksheet->numCols())
 return QString(this->name())+"_"+col_label[col];
 }
 
-QMemArray<double> Table::col(int ycol)
+Q3MemArray<double> Table::col(int ycol)
 {
 int i;
 int rows=worksheet->numRows();
 int cols=worksheet->numCols();
-QMemArray<double> Y(rows);
+Q3MemArray<double> Y(rows);
 if (ycol<=cols)
 	{
 	for (i=0;i<rows;i++)
@@ -669,23 +703,19 @@ for (i=0; i<cols; i++)
 	}
 max++;
 	
-QStringList::Iterator it=commandes.at(++start);
-commandes.insert(it++, count, "col(" +col_label[0]+")");
-it=col_format.at(start);
-col_format.insert(it++, count, "0/6");
-it=comments.at(start);
-comments.insert(it++, count, QString::null);
-it=col_label.at(start);
-col_label.insert(it++, count, QString::null);
+for(i=start+1 ; i<(count+start+1) ; i++ );
+{
+	commands.insert(i, "col(" +col_label[0]+")");
+	col_format.insert(i, "0/6");
+	comments.insert(i, QString());
+	col_label.insert(i, QString());
+	colTypes.insert(i, Numeric);
+	col_plot_type.insert(i, Y);
+}
 
-QValueListIterator<int> itt=colTypes.at(start);
-colTypes.insert(itt++, count, Numeric);
-itt=col_plot_type.at(start);
-col_plot_type.insert(itt++, count, Y);
-	
 worksheet->insertColumns (start, count);
 
-QHeader *head = worksheet->horizontalHeader();
+Q3Header *head = worksheet->horizontalHeader();
 for (i=0; i<count; i++)
 	{
 	int col = start+i;
@@ -737,7 +767,7 @@ else
 worksheet->ensureCellVisible ( 0, cols );
 	
 comments << QString::null;
-commandes<<"col("+col_label[0]+")";
+commands<<"col("+col_label[0]+")";
 colTypes<<Numeric;
 col_format<<"0/6";
 col_label<< QString::number(max+1);
@@ -763,7 +793,7 @@ worksheet->insertColumns(cols,c);
 for (i=0; i<c; i++)
 	{	
 	comments << QString::null;
-	commandes<<"col("+col_label[0]+")";
+	commands<<"col("+col_label[0]+")";
 	colTypes<<Numeric;
 	col_format<<"0/6";
 	col_label<< QString::number(max+i);
@@ -810,7 +840,7 @@ else
 
 void Table::deleteSelectedRows()
 {
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();
 for (int i=top; i<= sel.bottomRow(); i++)
 	worksheet->removeRow(top);
@@ -827,7 +857,7 @@ clearSelection();
 bool Table::singleCellSelected()
 {
 bool single=TRUE;
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();
 int bottom=sel.bottomRow();
 int left=sel.leftCol();
@@ -841,7 +871,7 @@ return single;
 bool Table::multipleRowsSelected()
 {
 bool selected = true;
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();
 int bottom=sel.bottomRow();
 	
@@ -858,7 +888,7 @@ return selected;
 
 bool Table::singleRowSelected()
 {
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();	
 if (top == sel.bottomRow() && worksheet->isRowSelected (top, true))
 	return true;
@@ -868,7 +898,7 @@ return false;
 
 void Table::selectAllTable()
 {	
-worksheet->addSelection (QTableSelection( 0, 0, worksheet->numRows(), worksheet->numCols() ));
+worksheet->addSelection (Q3TableSelection( 0, 0, worksheet->numRows(), worksheet->numCols() ));
 }
 
 void Table::deselect()
@@ -893,7 +923,7 @@ for (i=0;i<n;i++)
 }
 else
 {
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 int top=sel.topRow();
 int bottom=sel.bottomRow();
 int left=sel.leftCol();
@@ -935,7 +965,7 @@ int i,j;
 int rows=worksheet->numRows();
 int cols=worksheet->numCols();
 
-QMemArray<int> selection(1);
+Q3MemArray<int> selection(1);
 int c=0;	
 for (i=0;i<cols;i++)
 	{
@@ -962,7 +992,7 @@ else
 		text=worksheet->text(worksheet->currentRow(),worksheet->currentColumn());
 	else
 		{
-		QTableSelection sel=worksheet->selection(selnum);
+		Q3TableSelection sel=worksheet->selection(selnum);
 		int top=sel.topRow();
 		int bottom=sel.bottomRow();
 		int left=sel.leftCol();
@@ -977,19 +1007,19 @@ else
 	}		
 	
 // Copy text into the clipboard
-QApplication::clipboard()->setData(new QTextDrag(text,worksheet,0));
+QApplication::clipboard()->setData(new Q3TextDrag(text,worksheet,0));
 }
 
 // Paste text from the clipboard
 void Table::pasteSelection()
 {	
 QString text;		
-if (!QTextDrag::decode(QApplication::clipboard()->data(), text) || text.isNull())
+if (!Q3TextDrag::decode(QApplication::clipboard()->data(), text) || text.isNull())
 	return;
 
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	
-QTextStream ts( &text, IO_ReadOnly );
+QTextStream ts( &text, QIODevice::ReadOnly );
 QString s = ts.readLine(); 
 QStringList cellTexts=QStringList::split ("\t", s, TRUE);
 int cols=int(cellTexts.count());
@@ -1002,7 +1032,7 @@ while(!ts.atEnd())
 ts.reset();
 	
 int i, j, top, bottom, right, left, firstCol=firstSelectedColumn();
-QTableSelection sel=worksheet->selection(worksheet->currentSelection());
+Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
 if (!sel.isEmpty())
 	{// not columns but only cells are selected
 	top=sel.topRow();
@@ -1031,7 +1061,7 @@ else
  		}
 	}
 
-QTextStream ts2( &text, IO_ReadOnly );	
+QTextStream ts2( &text, QIODevice::ReadOnly );	
 int r = bottom-top+1;
 int c = right-left+1;
 
@@ -1065,7 +1095,7 @@ if (rows>r || cols>c)
 		}
 	}
 
-QApplication::setOverrideCursor(waitCursor);	
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));	
 int prec;
 char f;
 bool numeric;
@@ -1102,39 +1132,33 @@ removeCol(list);
 
 void Table::removeCol(const QStringList& list)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-for (int i=0; i<(int) list.count(); i++)
+for (int i=0; i<list.count(); i++)
 	{
-	QString name=list[i];
-	int id=colIndex(name);
+	QString name = list[i];
+	int id = colIndex(name);
 	if (id >= 0)
 		{
-		QStringList::Iterator it=commandes.at(id);
-		if ( it != commandes.end() )
-			commandes.remove (it);
+		if ( id < commands.size() )
+			commands.removeAt(id);
 
-		it=col_label.at(id);
-		if ( it != col_label.end() )
-			col_label.remove (it);
+		if ( id < col_label.size() )
+			col_label.removeAt(id);
 	
-		it=col_format.at(id);
-		if ( it != col_format.end() )
-			col_format.remove (it);
+		if ( id < col_format.size() )
+			col_format.removeAt(id);
 	
-		it=comments.at(id);
-		if ( it != comments.end() )
-			comments.remove (it);
+		if ( id < comments.size() )
+			comments.removeAt(id);
 
-		QValueListIterator<int> itt=colTypes.at(id);
-		if ( itt != colTypes.end() )
-			colTypes.remove (itt);
+		if ( id < colTypes.size() )
+			colTypes.removeAt(id);
 	
-		itt=col_plot_type.at(id);
-		if ( itt != col_plot_type.end() )
-			col_plot_type.remove (itt);
+		if ( id < col_plot_type.size() )
+			col_plot_type.removeAt(id);
 
-		worksheet->removeColumn (id);
+		worksheet->removeColumn(id);
 		}
 	emit removedCol(name);
 	}	
@@ -1177,7 +1201,7 @@ else
 	return;
 	}
 
-QApplication::setOverrideCursor(waitCursor);	
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));	
 // calculate the FFTs of the two functions
 if( gsl_fft_real_radix2_transform( tmpdata, 1, N ) == 0 && 
    gsl_fft_real_radix2_transform( tmpdata2, 1, N ) == 0) 
@@ -1295,7 +1319,8 @@ emit modifiedData(name);
 void Table::sortColumnsDialog()
 {
 QStringList s=selectedColumns();
-sortDialog *sortd=new sortDialog(this,"sortDialog",TRUE,WStyle_Tool|WDestructiveClose);
+sortDialog *sortd=new sortDialog(this,"sortDialog",TRUE,Qt::Tool);
+sortd->setAttribute(Qt::WA_DeleteOnClose);
 connect (sortd,SIGNAL(sort(int, int, const QString&)),
 		 this,SLOT(sortColumns(int, int, const QString&)));
 sortd->insertColumnsList(s);
@@ -1305,7 +1330,8 @@ sortd->setActiveWindow();
 
 void Table::sortTableDialog()
 {
-sortDialog *sortd=new sortDialog(this,"sortDialog",TRUE,WStyle_Tool|WDestructiveClose);
+sortDialog *sortd=new sortDialog(this,"sortDialog",TRUE,Qt::Tool);
+sortd->setAttribute(Qt::WA_DeleteOnClose);
 connect (sortd,SIGNAL(sort(int, int, const QString&)),
 		 this,SLOT(sortTable(int, int, const QString&)));
 sortd->insertColumnsList(colNames());
@@ -1341,7 +1367,7 @@ else
 	{
 	int i,j, leadcol=colIndex(leadCol);
 	int rows=worksheet->numRows();
-	QMemArray<double> r(rows), rtemp(rows);
+	Q3MemArray<double> r(rows), rtemp(rows);
 	// Find the permutation index for the lead col
 	size_t *p= new size_t[rows];
 	for (j = 0; j <rows; j++)
@@ -1390,8 +1416,8 @@ void Table::sortColAsc()
 {
 //changed from version 0.5.9
 int rows=worksheet->numRows();
-QMemArray<int> aux(rows);
-QMemArray<double> r(rows);
+Q3MemArray<int> aux(rows);
+Q3MemArray<double> r(rows);
 int i,n=0;
 for (i = 0; i <rows; i++)
 	{
@@ -1449,8 +1475,8 @@ emit modifiedWindow(this);
 void Table::sortColDesc()
 {//changed from version 0.5.9
 int rows=worksheet->numRows();
-QMemArray<int> aux(rows);
-QMemArray<double> r(rows);
+Q3MemArray<int> aux(rows);
+Q3MemArray<double> r(rows);
 int i,n=0;
 for (i = 0; i <rows; i++)
 	{
@@ -1708,7 +1734,7 @@ col_format = lst;
 	
 void Table::setDateTimeFormat(int f, const QString& format, bool applyToAll)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int cols=worksheet->numCols();
 if (applyToAll)
@@ -1872,13 +1898,13 @@ else if (format == "longDayName")
 
 void Table::setRandomValues()
 {	
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int i;
 double max=0.0;
 int rows=worksheet->numRows();
 QStringList list=selectedColumns();
-QMemArray<double> r(rows);
+Q3MemArray<double> r(rows);
 
 for (int j=0;j<(int) list.count(); j++)
 	{
@@ -1954,7 +1980,7 @@ return col_label.findIndex(label);
 
 void Table::setHeaderColType()
 {
-QHeader *head=worksheet->horizontalHeader();
+Q3Header *head=worksheet->horizontalHeader();
 int xcols=0;
 for (int j=0;j<(int)worksheet->numCols();j++) 
 	{
@@ -1995,7 +2021,7 @@ else
 
 void Table::setAscValues()
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int rows=worksheet->numRows();
 QStringList list=selectedColumns();
@@ -2027,7 +2053,7 @@ QStringList labels=colLabels;
 double result;
 
 int m=(int)colLabels.count();
-QMemArray<double> vars(m); 
+Q3MemArray<double> vars(m); 
 
 bool error=FALSE;
 myParser parser, rparser;
@@ -2064,7 +2090,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0,"QtiPlot - Input function error",e.GetMsg());
+	QMessageBox::critical(0,"QtiPlot - Input function error",QString::fromStdString(e.GetMsg()));
 	error=TRUE;	
     }
 
@@ -2086,7 +2112,7 @@ void Table::setColValues(const QString& text, const QString& com,
 						const QStringList& colLabels, const QStringList& rowIndexes,
 						int startRow, int endRow)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int rows=worksheet->numRows();
 if (endRow>rows) 
@@ -2105,7 +2131,7 @@ for (int i=startRow-1; i<endRow; i++)
 //we free the memory	
 freeMatrix();
 
-commandes[selectedCol]=text;
+commands[selectedCol]=text;
 emit modifiedData(colName(selectedCol));
 emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
@@ -2113,7 +2139,7 @@ QApplication::restoreOverrideCursor();
 
 void Table::setColValues(double val, int startRow, int endRow)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int rows=worksheet->numRows();
 if (endRow>rows) 
@@ -2133,7 +2159,7 @@ if (rs.contains ("#") || rs.contains ("inf"))//inf or undefined values
 for (int i=startRow-1; i<endRow; i++) 
 	worksheet->setText(i, selectedCol, rs);
 
-commandes[selectedCol]=rs;
+commands[selectedCol]=rs;
 emit modifiedData(colName(selectedCol));
 emit modifiedWindow(this);
 QApplication::restoreOverrideCursor();
@@ -2412,9 +2438,9 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 {
 QFile f(fname);
 QTextStream t( &f );// use a text stream
-if ( f.open(IO_ReadOnly) )
+if ( f.open(QIODevice::ReadOnly) )
 	{
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i, rows = 1, cols = 0;
 	int r = worksheet->numRows();
@@ -2448,8 +2474,8 @@ if ( f.open(IO_ReadOnly) )
 	if (renameCols && !allNumbers)
 		rows--;
 
-	QProgressDialog progress(0, "progress", true, WStyle_StaysOnTop|WStyle_Tool);
-	progress.setCaption("Qtiplot - Reading file...");
+	Q3ProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+	progress.setWindowTitle("Qtiplot - Reading file...");
 	progress.setLabelText(fname);
 	progress.setActiveWindow();
 	progress.setAutoClose(true);
@@ -2499,13 +2525,12 @@ if ( f.open(IO_ReadOnly) )
 			{
 			comments[i] = line[i-startCol];
 			s = line[i-startCol].remove(QRegExp("\\W")).replace("_","-");
-			int n = (int)col_label.contains(s);
-			if (n)
-				{//avoid identical col names
-				while ((int)col_label.contains(s+QString::number(n)))
-					n++;
-				s+=QString::number(n);
-				}
+			int n = col_label.count(s);
+			//avoid identical col names
+			while (col_label.contains(s+QString::number(n)))
+				n++;
+			s += QString::number(n);
+			
 			col_label[i] = s;
 			}
 		}
@@ -2567,9 +2592,9 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 {
 QFile f(fname);
 QTextStream t( &f );// use a text stream
-if ( f.open(IO_ReadOnly) )
+if ( f.open(QIODevice::ReadOnly) )
 	{
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int i, c, rows = 1, cols = 0;
     for (i=0; i<ignoredLines; i++)
@@ -2602,8 +2627,8 @@ if ( f.open(IO_ReadOnly) )
 	if (renameCols && !allNumbers)
 		rows--;
 
-	QProgressDialog progress(0, "progress", true, WStyle_StaysOnTop|WStyle_Tool);
-	progress.setCaption("Qtiplot - Reading file...");
+	Q3ProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+	progress.setWindowTitle("Qtiplot - Reading file...");
 	progress.setLabelText(fname);
 	progress.setActiveWindow();
 	progress.setAutoClose(true);
@@ -2653,13 +2678,12 @@ if ( f.open(IO_ReadOnly) )
 			{
 			comments[i] = line[i];
 			s = line[i].remove(QRegExp("\\W")).replace("_","-");
-			int n = (int)col_label.contains(s);
-			if (n)
-				{//avoid identical col names
-				while ((int)col_label.contains(s+QString::number(n)))
-					n++;
-				s+=QString::number(n);
-				}
+			int n = col_label.count(s);
+			//avoid identical col names
+			while (col_label.contains(s+QString::number(n)))
+				n++;
+			s += QString::number(n);
+			
 			col_label[i] = s;
 			}
 		}
@@ -2728,7 +2752,7 @@ bool Table::exportToASCIIFile(const QString& fname, const QString& separator,
 							  bool withLabels,bool exportSelection)
 {
 QFile f(fname);
-if ( !f.open( IO_WriteOnly ) ) 
+if ( !f.open( QIODevice::WriteOnly ) ) 
 	{
 	QApplication::restoreOverrideCursor();
 	QMessageBox::critical(0, tr("QtiPlot - ASCII Export Error"),
@@ -2869,7 +2893,7 @@ else
 
 bool Table::eventFilter(QObject *object, QEvent *e)
 {
-QHeader *header = worksheet->horizontalHeader();
+Q3Header *header = worksheet->horizontalHeader();
 if (object != (QObject *)header)
 	return FALSE;
 
@@ -2887,7 +2911,7 @@ switch(e->type())
 		case QEvent::MouseButtonPress:
 			{
 			const QMouseEvent *me = (const QMouseEvent *)e;
-			if (me->button() == QMouseEvent::RightButton)	
+			if (me->button() == Qt::RightButton)	
 				{
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				selectedCol=header->sectionAt (me->pos().x() + offset);
@@ -2895,15 +2919,15 @@ switch(e->type())
 				worksheet->setCurrentCell (0, selectedCol);
 				}
 			
-			if (me->button() == QMouseEvent::LeftButton)	
+			if (me->button() == Qt::LeftButton)	
 				{
 				LeftButton=TRUE;
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				
-				if (((const QMouseEvent *)e)->state ()==Qt::ControlButton)
+				if (((const QMouseEvent *)e)->state ()==Qt::ControlModifier)
 					{
 					int current=worksheet->currentSelection();
-					QTableSelection sel=worksheet->selection(current);
+					Q3TableSelection sel=worksheet->selection(current);
 					if (sel.topRow() != 0 || sel.bottomRow() != (worksheet->numRows() - 1))
 						//select only full columns
 						worksheet->removeSelection(sel);						
@@ -2930,7 +2954,7 @@ switch(e->type())
 					{// This means that we are in the next column
 					if(worksheet->isColumnSelected(selectedCol,TRUE))
 						{//Since this column is selected, deselect it
-						worksheet->removeSelection(QTableSelection (0,lastSelectedCol,worksheet->numRows()-1,lastSelectedCol));
+						worksheet->removeSelection(Q3TableSelection (0,lastSelectedCol,worksheet->numRows()-1,lastSelectedCol));
 						}
 					else
 						worksheet->selectColumn (selectedCol);
@@ -3144,7 +3168,7 @@ return newSpecifications;
 
 QString Table::oldCaption()
 {
-QTextStream ts( &specifications, IO_ReadOnly );
+QTextStream ts( &specifications, QIODevice::ReadOnly );
 ts.readLine();
 QString s=ts.readLine();
 int pos=s.find("\t",0);
@@ -3153,23 +3177,26 @@ return s.left(pos);
 
 QString Table::newCaption()
 {
-QTextStream ts(&newSpecifications, IO_ReadOnly );
+QTextStream ts(&newSpecifications, QIODevice::ReadOnly );
 ts.readLine();
 QString s=ts.readLine();
 int pos=s.find("\t",0);
 return s.left(pos);
 }
 
+// TODO: This should probably be changed to restore(QString * spec)
 void Table::restore(QString& spec)
 {
 int i, j, row;
 int cols=worksheet->numCols();
 int rows=worksheet->numRows();
 
-QTextStream t(spec, IO_ReadOnly);	
+QString specCopy = spec;
+
+QTextStream t(&specCopy, QIODevice::ReadOnly);	
 t.readLine();	//table tag
-QString s= t.readLine();
-QStringList list=QStringList::split ("\t",s,TRUE);
+QString s = t.readLine();
+QStringList list = s.split("\t");
 
 QString oldCaption = name();
 QString newCaption=list[0];
@@ -3226,11 +3253,11 @@ list.remove(list.first());
 if (columnWidths() != list)
 	setColWidths(list);
 
-s = t.readLine();	//commandes line
+s = t.readLine();	//commands line
 list = QStringList::split ("\t", s,TRUE);
 list.remove(list.first());
-if (list != commandes)
-	commandes = list;
+if (list != commands)
+	commands = list;
 
 s= t.readLine();	//colType line ?
 list = QStringList::split ("\t", s,TRUE);
@@ -3312,7 +3339,7 @@ if (rows > r)
 	switch( QMessageBox::information(0,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
     	case 0:
-		QApplication::setOverrideCursor(waitCursor);
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		worksheet->setNumRows(r);
 		for (i=0; i<cols; i++)
 			emit modifiedData(colName(i));
@@ -3327,7 +3354,7 @@ if (rows > r)
 	}
 else
 	{
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	worksheet->setNumRows(r);
 	QApplication::restoreOverrideCursor();
 	}
@@ -3345,30 +3372,26 @@ if (cols > c)
 	{
 	QString text= tr("Columns will be deleted from the table!");
 	text+="<p>"+tr("Do you really want to continue?");
-	QMemArray<int> columns (cols-c);
+	Q3MemArray<int> columns(cols-c);
 	switch( QMessageBox::information(0,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
     	case 0:
-		QApplication::setOverrideCursor(waitCursor);
-		for (i=c; i<cols; i++)
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		for (i=cols-1; i>=c; i--)
 			{
 			QString name = colName(i);
 			emit removedCol(name);
 			columns[i-c]=i;
 
-			QStringList::Iterator it=commandes.end();
-			commandes.remove (--it);
-	
-			it=comments.end(); comments.remove(--it);
-			it=col_format.end(); col_format.remove(--it);
-			it=col_label.end(); col_label.remove(--it);
- 	
- 			QValueListIterator<int> itt=colTypes.end();
- 			colTypes.remove (--itt);
-			itt=col_plot_type.end(); col_plot_type.remove(--itt);
+			commands.removeLast();
+			comments.removeLast();
+			col_format.removeLast();
+			col_label.removeLast();
+ 			colTypes.removeLast();
+			col_plot_type.removeLast();
 			}
 		
-		worksheet->removeColumns (columns);
+		worksheet->removeColumns(columns);
 		QApplication::restoreOverrideCursor();
 		break;
 		
@@ -3379,7 +3402,7 @@ if (cols > c)
 	}
 else
 	{
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	addColumns(c-cols);
 	setHeaderColType();
 	QApplication::restoreOverrideCursor();
@@ -3416,7 +3439,7 @@ else if (m%2 == 0)
 	return;
 	}
 
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int n = 16;// tmp number of points
 while (n < rows + m/2) 
@@ -3521,7 +3544,7 @@ gsl_fft_halfcomplex_radix2_inverse(sig,1,n);// inverse fft
 void Table::fft(double sampling, const QString& realColName, const QString& imagColName,
 				bool forward, bool normalize, bool order)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 int i, i2;
 int rows = worksheet->numRows();
@@ -3637,7 +3660,7 @@ col_label = m->colNames();
 col_plot_type = m->plotDesignations();
 setHeaderColType();
 
-commandes = m->getCommandes();
+commands = m->getCommands();
 setColumnTypes(m->columnTypes());
 col_format = m->getColumnsFormat();
 comments = m->colComments();
@@ -3650,7 +3673,7 @@ s+=QString::number(worksheet->numCols())+"\n";
 s+=geometryInfo;
 s+=saveHeader();
 s+=saveColumnWidths();
-s+=saveCommandes();
+s+=saveCommands();
 s+=saveColumnTypes();
 s+=saveComments();
 return s;
@@ -3663,7 +3686,7 @@ l.remove(l.first());
 loadHeader(l);
 	
 setColWidths(QStringList::split ("\t",lst[1].right(lst[1].length()-9), FALSE ));
-setCommandes(lst[2]);
+setCommands(lst[2]);
 
 l = QStringList::split ("\t", lst[3], false);
 l.remove(l.first());

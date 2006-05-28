@@ -1,20 +1,52 @@
+/***************************************************************************
+    File                 : curvesDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Add/remove curves dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "curvesDialog.h"
 #include "graph.h"
 #include "worksheet.h"
 
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
+#include <q3whatsthis.h>
 #include <qmessagebox.h>
 #include <qcombobox.h>
-#include <qvbox.h>
-#include <qpopupmenu.h>
-#include <qaccel.h>
-#include <qwidgetlist.h>
+#include <q3vbox.h>
+#include <q3popupmenu.h>
+#include <q3accel.h>
+#include <qwidget.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3VBoxLayout>
+#include <Q3ListView>
 
 static const char * remove_xpm[] = {
 "16 17 27 1",
@@ -290,16 +322,16 @@ static const char * vertBars_xpm[] = {
 ".+++..+++..+++.",
 ".+++..+++..+++."};
 
-curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 	setName( "curvesDialog" );
 	setMinimumSize(QSize(400,200));
-    setCaption( tr( "QtiPlot - Add/Remove curves" ) );
+    setWindowTitle( tr( "QtiPlot - Add/Remove curves" ) );
 	setFocus();
 	
-	QHBox *box5 = new QHBox (this, "box5"); 
+	Q3HBox *box5 = new Q3HBox (this, "box5"); 
 	box5->setSpacing (5);
 	box5->setMargin(5);
 
@@ -315,20 +347,20 @@ curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, WFla
 	boxStyle->insertItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxStyle->insertItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
 
-	QHBox  *box0 = new QHBox (this, "box0"); 
+	Q3HBox  *box0 = new Q3HBox (this, "box0"); 
 	box0->setSpacing (5);
 
-	QVBox  *box1=new QVBox (box0, "box1"); 
+	Q3VBox  *box1=new Q3VBox (box0, "box1"); 
 	box1->setMargin(5);
 	box1->setSpacing (5);
 	
 	TextLabel1 = new QLabel(box1, "TextLabel1" );
     TextLabel1->setText( tr( "Available data" ) );
 
-    available = new QListBox( box1, "available" );
-	available->setSelectionMode (QListBox::Multi);
+    available = new Q3ListBox( box1, "available" );
+	available->setSelectionMode (Q3ListBox::Multi);
 	
-	QVBox  *box2=new QVBox (box0, "box2"); 
+	Q3VBox  *box2=new Q3VBox (box0, "box2"); 
 	box2->setMargin(5);
 	box2->setSpacing (5);
 
@@ -342,17 +374,17 @@ curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, WFla
 	btnRemove->setFixedWidth (35);
 	btnRemove->setFixedHeight(30);
 		
-	QVBox  *box3=new QVBox (box0, "box3"); 
+	Q3VBox  *box3=new Q3VBox (box0, "box3"); 
 	box3->setMargin(5);
 	box3->setSpacing (5);
 	
 	TextLabel2 = new QLabel(box3, "TextLabel2" );
     TextLabel2->setText( tr( "Graph contents" ) );
 
-    contents = new QListBox( box3, "contents" );
-	contents->setSelectionMode (QListBox::Multi);
+    contents = new Q3ListBox( box3, "contents" );
+	contents->setSelectionMode (Q3ListBox::Multi);
 
-	QVBox  *box4=new QVBox (box0, "box4"); 
+	Q3VBox  *box4=new Q3VBox (box0, "box4"); 
 	box4->setMargin(5);
 	box4->setSpacing (5);
 
@@ -371,7 +403,7 @@ curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, WFla
     btnCancel = new QPushButton(box4, "btnCancel" );
     btnCancel->setText( tr( "Close" ) );
 
-	QVBoxLayout* layout = new QVBoxLayout(this,5,5, "hlayout3");
+	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
     layout->addWidget(box5);
 	layout->addWidget(box0);
 
@@ -386,11 +418,11 @@ connect(btnAdd, SIGNAL(clicked()),this, SLOT(enableRemoveBtn()));
 connect(btnRemove, SIGNAL(clicked()),this, SLOT(enableRemoveBtn()));
 
 connect(contents, SIGNAL(highlighted (int)), this, SLOT(showCurveBtn(int)));
-connect(contents, SIGNAL(rightButtonClicked(QListBoxItem *, const QPoint &)), this, SLOT(deletePopupMenu(QListBoxItem *, const QPoint &)));
-connect(available, SIGNAL(rightButtonClicked(QListBoxItem *, const QPoint &)), this, SLOT(addPopupMenu(QListBoxItem *, const QPoint &)));
+connect(contents, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(deletePopupMenu(Q3ListBoxItem *, const QPoint &)));
+connect(available, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(addPopupMenu(Q3ListBoxItem *, const QPoint &)));
 
-QAccel *accel = new QAccel(this);
-accel->connectItem( accel->insertItem( Key_Delete ), this, SLOT(removeCurve()) );
+Q3Accel *accel = new Q3Accel(this);
+accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(removeCurve()) );
 }
 
 void curvesDialog::showCurveBtn(int) 
@@ -428,20 +460,20 @@ QSize curvesDialog::sizeHint() const
 return QSize(400, 200 );
 }
 
-void curvesDialog::deletePopupMenu(QListBoxItem *it, const QPoint &point)
+void curvesDialog::deletePopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 selectedCurve=contents->index (it);
 	
-QPopupMenu contextMenu(this);
+Q3PopupMenu contextMenu(this);
 contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
 contextMenu.exec(point);
 }
 
-void curvesDialog::addPopupMenu(QListBoxItem *it, const QPoint &point)
+void curvesDialog::addPopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 selectedCurve=available->index (it);
 	
-QPopupMenu contextMenu(this);
+Q3PopupMenu contextMenu(this);
 contextMenu.insertItem(tr("&Plot"), this, SLOT(addSelectedCurve()));
 contextMenu.exec(point);
 }
@@ -468,7 +500,7 @@ void curvesDialog::addSelectedCurve()
 {
 QStringList emptyColumns;
 QString text=available->text(selectedCurve);
-if (!contents->findItem(text, Qt::ExactMatch))
+if (!contents->findItem(text, Q3ListView::ExactMatch))
 	{
 	if (!addCurve(text))
 		emptyColumns << text;
@@ -486,7 +518,7 @@ for (int i=0;i<int(available->count());i++)
 	if (available->isSelected(i))
 		{
 		QString text=available->text(i);
-		if (!contents->findItem(text, Qt::ExactMatch))
+		if (!contents->findItem(text, Q3ListView::ExactMatch))
 			{
 			if (!addCurve(text))
 				emptyColumns << text;
@@ -602,7 +634,7 @@ for (i=0;i<int(contents->count());i++)
 
 for (i=0;i<int(texts.count());i++)
 	{
-	QListBoxItem *it=contents->findItem (texts[i],Qt::ExactMatch);
+	Q3ListBoxItem *it=contents->findItem (texts[i],Q3ListView::ExactMatch);
 	
 	int index=contents->index(it);		
 	g->removeCurve(index);

@@ -1,23 +1,69 @@
+/***************************************************************************
+    File                 : colorBox.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : A combo box to select a standard color
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef COLORBOX_H
 #define COLORBOX_H
 
-#include <qcombobox.h>
+#include <QComboBox>
 
+//! A combo box to select a standard color
 class ColorBox : public QComboBox
 {
-  Q_OBJECT
-public:
-  ColorBox(bool rw, QWidget *parent);
-  ColorBox(QWidget *parent);
-  void setColor(const QColor& c);
-  QColor color() const;
+	Q_OBJECT
 
-  static int colorIndex(const QColor& c);
-  static QColor color(int colorIndex);
-  static const QColor colors[];
+public:
+	//! Constructor
+	/**
+	 * \param rw flag: box editable or not
+	 * \param parent parent widget
+	 */
+	ColorBox(bool rw, QWidget *parent);
+	//! Constructor
+	/**
+	 * \param parent parent widget
+	 */
+	ColorBox(QWidget *parent);
+	//! Set the current color
+	void setColor(const QColor& c);
+	//! Return the current color
+	QColor color() const;
+		
+	//! Return the index for a given color
+	static int colorIndex(const QColor& c);
+	//! Return the color at index 'colorindex'
+	static QColor color(int colorIndex);
 
 protected:
-  void init();
+	//! Internal initialization function
+	void init();
+	//! Array containing the 16 colors
+	static const QColor colors[];
 };
 
 #endif
+

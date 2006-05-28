@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : patternBox.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Pattern combox box
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "patternBox.h"
 
 #include <algorithm>
@@ -38,84 +66,84 @@ void PatternBox::init()
   icon.fill ( QColor (Qt::white) );
   const QRect r= QRect(0, 0, 28, 14);
   QPainter p(&icon);
-  QBrush br = QBrush(QColor(darkGray), Qt::SolidPattern);
+  QBrush br = QBrush(QColor(Qt::darkGray), Qt::SolidPattern);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Solid" ) );
 
-  br = QBrush(QColor(darkGray), Qt::HorPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::HorPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Horizontal" ) );
 
-  br = QBrush(QColor(darkGray), Qt::VerPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::VerPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Vertical" ) );
 
-  br = QBrush(QColor(darkGray), Qt::CrossPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::CrossPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Cross" ) );
 
-  br = QBrush(QColor(darkGray), Qt::BDiagPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::BDiagPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "BDiagonal" ) );
 
-  br = QBrush(QColor(darkGray), Qt::FDiagPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::FDiagPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "FDiagonal" ) );
 
-  br = QBrush(QColor(darkGray), Qt::DiagCrossPattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::DiagCrossPattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "DiagCross" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense1Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense1Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense1" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense2Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense2Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense2" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense3Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense3Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense3" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense4Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense4Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense4" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense5Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense5Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense5" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense6Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense6Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);
   this->insertItem(icon, tr( "Dense6" ) );
 
-  br = QBrush(QColor(darkGray), Qt::Dense7Pattern);
+  br = QBrush(QColor(Qt::darkGray), Qt::Dense7Pattern);
   p.eraseRect(r);
   p.fillRect(r, br);
   p.drawRect(r);

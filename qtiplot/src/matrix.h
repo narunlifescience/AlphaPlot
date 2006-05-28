@@ -1,16 +1,48 @@
+/***************************************************************************
+    File                 : matrix.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Matrix worksheet class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <qtable.h>
+#include <q3table.h>
+//Added by qt3to4:
+#include <QContextMenuEvent>
+#include <QEvent>
 #include "widget.h"
 	
+//! Matrix worksheet class
 class Matrix: public myWidget
 {
     Q_OBJECT
 
 public:
 
-	Matrix(int r, int c, const QString& label, QWidget* parent=0, const char* name=0, WFlags f=0);
+	Matrix(int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Matrix(){};
 	
 	int numRows();
@@ -84,14 +116,14 @@ public slots:
 	double yEnd(){return y_end;};
 	void setCoordinates(double xs, double xe, double ys, double ye);
 
-	//!Slot: notifies the main application that the matrix has been modified
+	//! This slot notifies the main application that the matrix has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
 
 signals:
 	void showContextMenu();
 
 private:
-	QTable *table;
+	Q3Table *table;
 	QString formula_str;
 	QChar txt_format;
 	int selectedCol, lastSelectedCol, num_precision;

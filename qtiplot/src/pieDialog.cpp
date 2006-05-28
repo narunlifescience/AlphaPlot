@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : pieDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Pie plot dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "pieDialog.h"
 #include "textDialog.h"
 #include "colorBox.h"
@@ -9,29 +37,32 @@
 
 #include <qcheckbox.h>
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qtabwidget.h>
 #include <qwidget.h>
 #include <qlayout.h>
 #include <qvariant.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qcolordialog.h>
-#include <qwidgetlist.h>
-#include <qpopupmenu.h>
+#include <qwidget.h>
+#include <q3popupmenu.h>
 
 #include <qwt_plot.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 
-pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "pieDialog" );
 	setFixedWidth(521);
 	setFixedHeight(260);
-    setCaption( tr( "QtiPlot - Pie Options" ) );
+    setWindowTitle( tr( "QtiPlot - Pie Options" ) );
     setSizeGripEnabled( FALSE );
 
     generalDialog = new QTabWidget( this, "generalDialog" );
@@ -39,8 +70,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, WFlags fl 
 	initPiePage();
 	initBorderPage();
 	
-	QButtonGroup *GroupBox1 = new QButtonGroup(4,QGroupBox::Horizontal,tr(""),this, "GroupBox1" );
-	GroupBox1->setLineWidth(0);
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),this, "GroupBox1" );
 	GroupBox1->setFlat (TRUE);
 	
 	buttonWrk = new QPushButton( GroupBox1, "buttonWrk" );
@@ -56,7 +86,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, WFlags fl 
     buttonCancel = new QPushButton(GroupBox1, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
 	
-	QVBoxLayout* vl = new QVBoxLayout(this,5,5, "vl");
+	Q3VBoxLayout* vl = new Q3VBoxLayout(this,5,5, "vl");
 	vl->addWidget(generalDialog);
     vl->addWidget(GroupBox1);
    
@@ -70,9 +100,9 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, WFlags fl 
 void pieDialog::initPiePage()
 {
 	pieOptions = new QWidget( generalDialog, "pieOptions" );
-	curvesList = new QListBox(pieOptions, "listBox" );
+	curvesList = new Q3ListBox(pieOptions, "listBox" );
 	
-	QButtonGroup *GroupBox3 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "Border" ),pieOptions, "GroupBox3" );
+	Q3ButtonGroup *GroupBox3 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Border" ),pieOptions, "GroupBox3" );
 
     new QLabel( tr( "Color" ), GroupBox3, "TextLabel4",0 );
 
@@ -89,7 +119,7 @@ void pieDialog::initPiePage()
 	new QLabel(tr( "Width" ), GroupBox3, "TextLabel3",0 );  
     boxLineWidth = new QSpinBox( GroupBox3, "boxLineWidth" );
 	
-	QButtonGroup *GroupBox2 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "Fill" ),pieOptions, "GroupBox2" );
+	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Fill" ),pieOptions, "GroupBox2" );
 
     new QLabel( tr( "First color" ), GroupBox2, "TextLabel4",0 ); 
     boxFirstColor = new ColorBox( FALSE, GroupBox2);
@@ -100,21 +130,21 @@ void pieDialog::initPiePage()
 	new QLabel(tr( "Pie ray" ), GroupBox2, "rayLabel",0 );  
     boxRay= new QSpinBox(0,2000,10,GroupBox2, "boxRay");
 	
-	QHBoxLayout* hlayout1 = new QHBoxLayout(pieOptions,5,5, "hlayout1");
+	Q3HBoxLayout* hlayout1 = new Q3HBoxLayout(pieOptions,5,5, "hlayout1");
 	hlayout1->addWidget(curvesList);
     hlayout1->addWidget(GroupBox3);
 	hlayout1->addWidget(GroupBox2);
 	
 	generalDialog->insertTab(pieOptions, tr( "Pie" ) );
 
-connect(curvesList, SIGNAL(rightButtonClicked(QListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(QListBoxItem *, const QPoint &)));
+connect(curvesList, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(Q3ListBoxItem *, const QPoint &)));
 }
 
 void pieDialog::initBorderPage()
 {
 frame = new QWidget( generalDialog, "frame" );	
 
-QButtonGroup *GroupBox1 = new QButtonGroup(2,QGroupBox::Horizontal, tr("Background"), frame, "GroupBox5" );
+Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal, tr("Background"), frame, "GroupBox5" );
 	
 new QLabel(tr("Color"), GroupBox1, "TextLabel1_53",0 );
 boxBackgroundColor= new ColorButton(GroupBox1);
@@ -125,13 +155,13 @@ boxBorderWidth= new QSpinBox(GroupBox1);
 new QLabel(tr("Border Color" ),GroupBox1, "TextLabel1_53",0 );
 boxBorderColor= new ColorButton(GroupBox1);
 
-QButtonGroup *GroupBox2 = new QButtonGroup(2,QGroupBox::Horizontal,tr("Options"), frame, "GroupBox2" );
+Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Options"), frame, "GroupBox2" );
 new QLabel(tr( "Margin" ),GroupBox2, "TextLabel1_541",0 );
 boxMargin= new QSpinBox(0, 1000, 5, GroupBox2);
 
 boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox2, "boxShowAxis" );
 
-QHBoxLayout* hlayout = new QHBoxLayout(frame, 5, 5, "hlayout");
+Q3HBoxLayout* hlayout = new Q3HBoxLayout(frame, 5, 5, "hlayout");
 hlayout->addWidget(GroupBox1);
 hlayout->addWidget(GroupBox2);
 
@@ -179,7 +209,7 @@ else
 		g->setBackgroundColor(c);
 	}
 
-if (c == QColor(white) && mPlot->hasOverlapingLayers())
+if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
 	mPlot->updateTransparency();
 }
 
@@ -261,9 +291,9 @@ emit worksheet(curvesList->currentText ());
 close();
 }
 
-void pieDialog::showPopupMenu(QListBoxItem *, const QPoint &point)
+void pieDialog::showPopupMenu(Q3ListBoxItem *, const QPoint &point)
 {
-QPopupMenu contextMenu(this);
+Q3PopupMenu contextMenu(this);
 contextMenu.insertItem("&Delete", this, SLOT(removeCurve()));
 contextMenu.exec(point);
 }
@@ -340,7 +370,7 @@ if (generalDialog->currentPage()==(QWidget*)frame)
 			g->setBackgroundColor(c);
 			}
 		}
-	if (c == QColor(white) && mPlot->hasOverlapingLayers())
+	if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
 		mPlot->updateTransparency();
 	}
 }

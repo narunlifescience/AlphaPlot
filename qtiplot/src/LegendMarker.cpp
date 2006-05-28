@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : LegendMarker.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Legend marker (extension to QwtPlotMarker)
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "LegendMarker.h"
 #include "LineMarker.h"
 #include "graph.h"
@@ -5,7 +33,7 @@
 #include "VectorCurve.h"
 
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -13,6 +41,8 @@
 #include <qwt_plot_layout.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_layout_metrics.h>
+//Added by qt3to4:
+#include <Q3PointArray>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -185,7 +215,7 @@ void LegendMarker::drawVector(QPainter *p, int x, int y, int l, int curveIndex)
 
 	p->save();
 
-	QPen pen(v->color(), v->width(), QPen::SolidLine);
+	QPen pen(v->color(), v->width(), Qt::SolidLine);
 	p->setPen(pen);
 	QwtPainter::drawLine(p, x, y, x + l, y);
 
@@ -195,13 +225,13 @@ void LegendMarker::drawVector(QPainter *p, int x, int y, int l, int curveIndex)
 	int headLength = v->headLength();	
 	int d=qRound(headLength*tan(pi*(double)v->headAngle()/180.0));	
 
-	const QPointArray endArray(3);	
+	const Q3PointArray endArray(3);	
 	endArray[0] = QPoint(0, 0);
 	endArray[1] = QPoint(-headLength, d);
 	endArray[2] = QPoint(-headLength, -d);
 
 	if (v->filledArrowHead())
-		p->setBrush(QBrush(pen.color(), QBrush::SolidPattern));
+		p->setBrush(QBrush(pen.color(), Qt::SolidPattern));
 
 	QwtPainter::drawPolygon(p,endArray);
 	p->restore();

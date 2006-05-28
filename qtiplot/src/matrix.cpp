@@ -1,19 +1,54 @@
+/***************************************************************************
+    File                 : matrix.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Matrix worksheet class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "matrix.h"
 #include "parser.h"
 #include "nrutil.h"
 
 #include <qdatetime.h>
 #include <qlayout.h>
-#include <qaccel.h>
+#include <q3accel.h>
 #include <qregexp.h>
 #include <qmessagebox.h>
 #include <qapplication.h>
 #include <qclipboard.h>
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qprinter.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
-#include <qsimplerichtext.h>
+#include <q3paintdevicemetrics.h>
+#include <q3simplerichtext.h>
+//Added by qt3to4:
+#include <QTextStream>
+#include <Q3MemArray>
+#include <QEvent>
+#include <QContextMenuEvent>
+#include <Q3VBoxLayout>
+#include <QMouseEvent>
 
 #include <stdlib.h>
 #include <math.h>
@@ -22,7 +57,7 @@
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
 
-Matrix::Matrix(int r, int c, const QString& label, QWidget* parent, const char* name, WFlags f)
+Matrix::Matrix(int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 				: myWidget(label, parent, name, f)
 {
 init(r, c);	
@@ -43,10 +78,10 @@ y_end = 10.0;
 QDateTime dt = QDateTime::currentDateTime ();
 setBirthDate(dt.toString(Qt::LocalDate));
 
-table = new QTable (rows, cols, this, "table");
-table->setFocusPolicy(QWidget::StrongFocus);
+table = new Q3Table (rows, cols, this, "table");
+table->setFocusPolicy(Qt::StrongFocus);
 table->setFocus();
-table->setSelectionMode (QTable::Single);
+table->setSelectionMode (Q3Table::Single);
 table->setRowMovingEnabled(true);
 
 /*
@@ -60,14 +95,14 @@ QColor background = QColor(255, 255, 128);
 table->setPaletteBackgroundColor(background);
 table->setBackgroundColor(background);
 
-QVBoxLayout* hlayout = new QVBoxLayout(this,0,0);
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,0,0);
 hlayout->addWidget(table);
 
-QHeader* hHeader=(QHeader*)table->horizontalHeader();
+Q3Header* hHeader=(Q3Header*)table->horizontalHeader();
 hHeader->installEventFilter(this);
 hHeader->setMouseTracking(TRUE);
 
-QHeader* vHeader=(QHeader*)table->verticalHeader();
+Q3Header* vHeader=(Q3Header*)table->verticalHeader();
 vHeader->setResizeEnabled (false);
 
 int w, h;
@@ -82,10 +117,10 @@ else
 	h=(rows+1)*vHeader->sectionSize(0);
 setGeometry(50,50,w+55,h);
 
-QAccel *accel = new QAccel(this);
-accel->connectItem( accel->insertItem( Key_Tab ),
+Q3Accel *accel = new Q3Accel(this);
+accel->connectItem( accel->insertItem( Qt::Key_Tab ),
                             this, SLOT(moveCurrentCell()));
-accel->connectItem( accel->insertItem( CTRL+Key_A ),
+accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_A ),
                             this, SLOT(selectAll()));
 
 connect(table, SIGNAL(valueChanged(int,int)), this, SLOT(cellEdited(int,int)));
@@ -94,7 +129,7 @@ connect(vHeader, SIGNAL(indexChange (int, int, int)), this, SLOT(notifyChanges()
 
 void Matrix::selectAll()
 {	
-table->addSelection (QTableSelection( 0, 0, table->numRows(), table->numCols() ));
+table->addSelection (Q3TableSelection( 0, 0, table->numRows(), table->numCols() ));
 }
 
 void Matrix::moveCurrentCell()
@@ -130,7 +165,7 @@ try
 catch (mu::ParserError &e)
 	{
 	QString errString = "Not a valid numerical input!\n";	
-	errString+= e.GetMsg();
+	errString+= QString::fromStdString(e.GetMsg());
 	QMessageBox::critical(0, tr("QtiPlot - Input error"), tr(errString));
 	numeric = false;
 	}
@@ -281,7 +316,7 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 if (txt_format == f && num_precision == prec)
 	return;
 
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 txt_format = f;
 num_precision = prec;
@@ -296,7 +331,7 @@ for (int i=0; i<rows; i++)
 		if (!t.isEmpty())
 			{
 			double val = dMatrix[i][j];
-			t = t.setNum(val, txt_format, num_precision);
+			t = t.setNum(val, txt_format.toAscii(), num_precision);
 			table->setText(i, j, t);
 			}
 		}		
@@ -346,7 +381,7 @@ if (rows < r || cols < c)
 	switch( QMessageBox::information(0,"QtiPlot", tr(text),tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
 		case 0:
-		QApplication::setOverrideCursor(waitCursor);
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		if (cols != c)
 			table->setNumCols(cols);
 		if (rows != r)
@@ -362,7 +397,7 @@ if (rows < r || cols < c)
 	}
 else
 	{
-	QApplication::setOverrideCursor(waitCursor);
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	if (cols != c)
 		table->setNumCols(cols);
 	if (rows != r)
@@ -394,7 +429,7 @@ if (rows != cols)
 	return GSL_POSINF;
 	}
 
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 gsl_matrix *A = gsl_matrix_alloc (rows, cols);
 int i, j;
@@ -432,7 +467,7 @@ if (rows != cols)
 	return;
 	}
 
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 gsl_matrix *A = gsl_matrix_alloc (rows, cols);
 int i, j;
@@ -474,7 +509,7 @@ int i, j;
 int rows = table->numRows();
 int cols = table->numCols();
 
-QTable* t = new QTable(rows, cols);
+Q3Table* t = new Q3Table(rows, cols);
 for (i = 0; i<rows; i++)
 	{
 	for (j = 0; j<cols; j++)
@@ -519,7 +554,7 @@ void Matrix::setValues (const QString& txt, const QString& formula,
 						const QStringList& rowIndexes, const QStringList& colIndexes,
 						int startRow, int endRow, int startCol, int endCol)
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		
 if (endCol > table->numCols())
 	table->setNumCols(endCol);	
@@ -627,7 +662,7 @@ for (i = startRow; i <= endRow; i++)
 				if (!table->text(row, col).isEmpty())
 					{
 					vars[k] = data_matrix[row][col];
-					parser.DefineVar("cell" + QString::number(k), &vars[k]);
+					parser.DefineVar(QString("cell" + QString::number(k)).toStdString(), &vars[k]);
 					}
 				else
 					{
@@ -642,7 +677,7 @@ for (i = startRow; i <= endRow; i++)
 			if (!indexError)
 				{
 				double val = parser.Eval();
-				table->setText(r, c, QString::number(val, txt_format, num_precision));
+				table->setText(r, c, QString::number(val, txt_format.toAscii(), num_precision));
 				}
 			}
 		catch (mu::ParserError &)
@@ -682,7 +717,7 @@ if (colSelection)
 	}
 else
 	{
-	QTableSelection sel=table->selection(table->currentSelection());	
+	Q3TableSelection sel=table->selection(table->currentSelection());	
 	for (int i= sel.topRow();i<=sel.bottomRow();i++)
 		{
 		for (int j= sel.leftCol();j<= sel.rightCol();j++)
@@ -699,7 +734,7 @@ int i,j;
 int rows=table->numRows();
 int cols=table->numCols();
 
-QMemArray<int> selection(1);
+Q3MemArray<int> selection(1);
 int c=0;	
 for (i=0;i<cols;i++)
 	{
@@ -721,7 +756,7 @@ if (c>0)
 	}
 else
 	{
-	QTableSelection sel=table->selection(table->currentSelection());
+	Q3TableSelection sel=table->selection(table->currentSelection());
 	int top=sel.topRow();
 	int bottom=sel.bottomRow();
 	int left=sel.leftCol();
@@ -735,7 +770,7 @@ else
 	}		
 	
 // Copy text into the clipboard
-QApplication::clipboard()->setData(new QTextDrag(text,table,0));
+QApplication::clipboard()->setData(new Q3TextDrag(text,table,0));
 }
 
 void Matrix::cutSelection()
@@ -746,7 +781,7 @@ clearSelection();
 
 bool Matrix::rowsSelected()
 {
-QTableSelection sel=table->selection(table->currentSelection());	
+Q3TableSelection sel=table->selection(table->currentSelection());	
 for (int i=sel.topRow(); i<=sel.bottomRow(); i++)
 	{
 	if (!table->isRowSelected (i, true))
@@ -757,11 +792,11 @@ return true;
 
 void Matrix::deleteSelectedRows()
 {
-QTableSelection sel=table->selection(table->currentSelection());
+Q3TableSelection sel=table->selection(table->currentSelection());
 int top=sel.topRow();
 int bottom=sel.bottomRow();
 
-QMemArray<int> rows(bottom-top+1);
+Q3MemArray<int> rows(bottom-top+1);
 for (int i=top; i<=bottom; i++)
 	rows[i-top]= i;
 
@@ -791,7 +826,7 @@ return false;
 
 void Matrix::deleteSelectedColumns()
 {
-QMemArray<int> cols;
+Q3MemArray<int> cols;
 int n=0;
 for (int i=0; i<table->numCols(); i++)
 	{
@@ -819,16 +854,16 @@ if (table->isRowSelected (cr, true))
 // Paste text from the clipboard
 void Matrix::pasteSelection()
 {
-QApplication::setOverrideCursor(waitCursor);
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	
 QString text;		
-if ( !QTextDrag::decode(QApplication::clipboard()->data(), text) || text.isNull())
+if ( !Q3TextDrag::decode(QApplication::clipboard()->data(), text) || text.isNull())
 	{
 	QApplication::restoreOverrideCursor();
 	return;
 	}
 	
-QTextStream ts( &text, IO_ReadOnly );
+QTextStream ts( &text, QIODevice::ReadOnly );
 QString s = ts.readLine(); 
 QStringList cellTexts = QStringList::split ("\t", s, TRUE);
 int cols=int(cellTexts.count());
@@ -841,7 +876,7 @@ while(!ts.atEnd())
 ts.reset();
 	
 int i, j, top, bottom, right, left, firstCol;
-QTableSelection sel=table->selection(table->currentSelection());
+Q3TableSelection sel=table->selection(table->currentSelection());
 if (!sel.isEmpty())
 	{// not columns but only cells are selected
 	top=sel.topRow();
@@ -878,7 +913,7 @@ else
 		}
 	}
 
-QTextStream ts2( &text, IO_ReadOnly );	
+QTextStream ts2( &text, QIODevice::ReadOnly );	
 int r = bottom-top+1;
 int c = right-left+1;
 
@@ -912,7 +947,7 @@ if (rows>r || cols>c)
 		}
 	}
 
-QApplication::setOverrideCursor(waitCursor);	
+QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));	
 bool numeric;
 double value;
 for (i=top; i<top+rows; i++)
@@ -923,7 +958,7 @@ for (i=top; i<top+rows; i++)
 		{
 		value = cellTexts[j-left].toDouble(&numeric);
 	  	if (numeric)
-			table->setText(i, j, QString::number(value, txt_format, num_precision));
+			table->setText(i, j, QString::number(value, txt_format.toAscii(), num_precision));
 		else
 			table->setText(i, j, cellTexts[j-left]);
 		}
@@ -941,7 +976,7 @@ e->accept();
 
 bool Matrix::eventFilter(QObject *object, QEvent *e)
 {
-QHeader *header = table->horizontalHeader();
+Q3Header *header = table->horizontalHeader();
 if ( object != (QObject *)header)
 	return FALSE;
 
@@ -958,22 +993,22 @@ switch(e->type())
 		case QEvent::MouseButtonPress:
 			{
 			const QMouseEvent *me = (const QMouseEvent *)e;
-			if (me->button() == QMouseEvent::RightButton)	
+			if (me->button() == Qt::RightButton)	
 				{
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				selectedCol=header->sectionAt (me->pos().x() + offset);
 				table->setCurrentCell (0, selectedCol);
 				}
 			
-			if (me->button() == QMouseEvent::LeftButton)	
+			if (me->button() == Qt::LeftButton)	
 				{
 				LeftButton=TRUE;
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				
-				if (((const QMouseEvent *)e)->state ()==Qt::ControlButton)
+				if (((const QMouseEvent *)e)->state ()==Qt::ControlModifier)
 					{
 					int current=table->currentSelection();
-					QTableSelection sel=table->selection(current);
+					Q3TableSelection sel=table->selection(current);
 					if (sel.topRow() != 0 || sel.bottomRow() != (table->numRows() - 1))
 						//select only full columns
 						table->removeSelection(sel);						
@@ -1000,7 +1035,7 @@ switch(e->type())
 					{// This means that we are in the next column
 					if(table->isColumnSelected(selectedCol,TRUE))
 						{//Since this column is selected, deselect it
-						table->removeSelection(QTableSelection (0,lastSelectedCol,table->numRows()-1,lastSelectedCol));
+						table->removeSelection(Q3TableSelection (0,lastSelectedCol,table->numRows()-1,lastSelectedCol));
 						}
 					else
 						table->selectColumn (selectedCol);
@@ -1033,12 +1068,12 @@ if (printer.setup())
         QPainter p;
         if ( !p.begin(&printer ) )
             return; // paint on printer
-        QPaintDeviceMetrics metrics( p.device() );
+        Q3PaintDeviceMetrics metrics( p.device() );
         int dpiy = metrics.logicalDpiY();
         const int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
 		
-		QHeader *hHeader = table->horizontalHeader();
-		QHeader *vHeader = table->verticalHeader();
+		Q3Header *hHeader = table->horizontalHeader();
+		Q3Header *vHeader = table->verticalHeader();
 
 		int rows=table->numRows();
 		int cols=table->numCols();
@@ -1048,7 +1083,7 @@ if (printer.setup())
 		
 		// print header
 		p.setFont(QFont());
-		QRect br=p.boundingRect(br,Qt::AlignCenter,	hHeader->label(0),-1,0);
+		QRect br=p.boundingRect(br,Qt::AlignCenter,	hHeader->label(0));
 		p.drawLine(right,height,right,height+br.height());
 		QRect tr(br);	
 		
@@ -1074,7 +1109,7 @@ if (printer.setup())
 			{
 			right=margin;
 			QString text=vHeader->label(i)+"\t";
-			tr=p.boundingRect(tr,Qt::AlignCenter,text,-1,0);
+			tr=p.boundingRect(tr,Qt::AlignCenter,text);
 			p.drawLine(right,height,right,height+tr.height());
 
 			br.setTopLeft(QPoint(right,height));	
@@ -1088,7 +1123,7 @@ if (printer.setup())
 				{
 				int w=table->columnWidth (j);
 				text=table->text(i,j)+"\t";
-				tr=p.boundingRect(tr,Qt::AlignCenter,text,-1,0);
+				tr=p.boundingRect(tr,Qt::AlignCenter,text);
 				br.setTopLeft(QPoint(right,height));	
 				br.setWidth(w);	
 				br.setHeight(tr.height());

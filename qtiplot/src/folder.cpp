@@ -1,21 +1,54 @@
+/***************************************************************************
+    File                 : folder.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Folder for the project explorer
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "folder.h"
 
-#include <qobjectlist.h>
+#include <qobject.h>
 #include <qdatetime.h>
 #include <qpixmap.h>
 
 #include <qevent.h>
 #include <qpoint.h>
 #include <qmessagebox.h>
-#include <qdragobject.h>
+#include <q3dragobject.h>
 #include <qmime.h>
-#include <qstrlist.h>
+#include <q3strlist.h>
 #include <qstringlist.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qapplication.h>
-#include <qdragobject.h>
-#include <qiconview.h>
+#include <q3dragobject.h>
+#include <q3iconview.h>
 #include <qcursor.h>
+//Added by qt3to4:
+#include <Q3PtrList>
+#include <QKeyEvent>
+#include <QDropEvent>
+#include <QMouseEvent>
 
 static const char* folder_closed_xpm[]={
     "16 16 9 1",
@@ -81,23 +114,21 @@ Folder::Folder( Folder *parent, const QString &name )
     QDateTime dt = QDateTime::currentDateTime ();
 	birthdate = dt.toString(Qt::LocalDate);
 
-	lstWindows.setAutoDelete( true );
+	// FIXME: This doesn't work anymore in Qt4, need alternative method
+	// lstWindows.setAutoDelete( true );
 }
 
 QStringList Folder::subfolders()
 {
-QStringList lst = QStringList();
-QObjectList* folderLst = (QObjectList*)children();
-if (!folderLst)
-	return lst;
-
-if (folderLst)
+	QStringList list = QStringList();
+	QObjectList folderList = children();
+	if (!folderList.isEmpty())
 	{
-	Folder *f;
-	for (f = (Folder*)folderLst->first(); f; f = (Folder*)folderLst->next())
-		lst << f->folderName();
+		QObject * f;
+		foreach(f,folderList)
+			list << static_cast<Folder *>(f)->folderName();
 	}
-return lst;
+	return list;
 }
 
 QString Folder::path()
@@ -114,33 +145,38 @@ return s;
 
 Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partialMatch)
 {
-QObjectList* folderLst = (QObjectList*)children();
-if (folderLst)
+	QObjectList folderList = children();
+	if (!folderList.isEmpty())
 	{
-	Folder *f;
-	for (f = (Folder*)folderLst->first(); f; f = (Folder*)folderLst->next())
+		QObject * f;
+
+		foreach(f,folderList)
 		{
-		QString name = f->folderName();
-		if (partialMatch && name.startsWith(s, caseSensitive))
-			return f;
-		else if (caseSensitive && name == s)
-			return f;
-		else 
+			QString name = static_cast<Folder *>(f)->folderName();
+			if (partialMatch) 
 			{
-			QString text = s;
-			if (name == text.lower())
-				return f;
+				if (caseSensitive && name.startsWith(s,Qt::CaseSensitive))
+					return static_cast<Folder *>(f);
+				else if (!caseSensitive && name.startsWith(s,Qt::CaseInsensitive))
+					return static_cast<Folder *>(f);
+			}
+			else // partialMatch == false
+			{
+				if (caseSensitive && name == s)
+					return static_cast<Folder *>(f);
+				else if ( !caseSensitive && (name.toLower() == s.toLower()) )
+					return static_cast<Folder *>(f);
 			}
 		}
 	}
-return 0;
+	return 0;
 }
 
 myWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels, 
 							 bool caseSensitive, bool partialMatch)
 {
 myWidget* w = 0;
-for (w = lstWindows.first(); w; w = lstWindows.next())
+foreach(w,lstWindows)
 	{
 	if (windowNames)
 		{
@@ -179,16 +215,17 @@ QString Folder::sizeToString()
 {
 int size = 0;
 
-QObjectList* folderLst = (QObjectList*)children();
-if (folderLst)
+QObjectList folderList = children();
+if (!folderList.isEmpty())
 	{
-	Folder *f;
-	for (f = (Folder*)folderLst->first(); f; f = (Folder*)folderLst->next())
-		size += sizeof(f);
+		QObject *f;
+		foreach(f,folderList)
+			size +=  sizeof(static_cast<Folder *>(f)); // FIXME: Doesn't this function add the size of pointers together? For what?
 	}
 
-myWidget *w;
-for (w = lstWindows.first(); w ; w = lstWindows.next())
+
+myWidget * w;
+foreach(w, lstWindows)
 	size += sizeof(w);
 
 return QString::number(8*size/1024.0,'f',1)+" "+tr("kB")+" ("+QString::number(8*size)+" "+tr("bytes")+")";
@@ -204,8 +241,8 @@ Folder::~Folder()
  *
  *****************************************************************************/
 
-FolderListItem::FolderListItem( QListView *parent, Folder *f )
-    : QListViewItem( parent )
+FolderListItem::FolderListItem( Q3ListView *parent, Folder *f )
+    : Q3ListViewItem( parent )
 {
     myFolder = f;
 
@@ -217,7 +254,7 @@ FolderListItem::FolderListItem( QListView *parent, Folder *f )
 }
 
 FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
-    : QListViewItem( parent )
+    : Q3ListViewItem( parent )
 {
     myFolder = f;
 
@@ -256,7 +293,7 @@ return false;
  *****************************************************************************/
 
 FolderListView::FolderListView( QWidget *parent, const char *name )
-    : QListView( parent, name ), mousePressed( FALSE )
+    : Q3ListView( parent, name ), mousePressed( FALSE )
 {
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -264,7 +301,7 @@ FolderListView::FolderListView( QWidget *parent, const char *name )
 
 void FolderListView::startDrag()
 {
-QListViewItem *item = currentItem();
+Q3ListViewItem *item = currentItem();
 if (!item)
 	return;
 
@@ -279,10 +316,10 @@ if (item->rtti() == FolderListItem::ListItemType)
 else
 	pix = *item->pixmap (0);
 
-QIconDrag *drag = new QIconDrag(viewport());
+Q3IconDrag *drag = new Q3IconDrag(viewport());
 drag->setPixmap(pix, QPoint(pix.width()/2, pix.height()/2 ) );
 
-QPtrList<QListViewItem> lst;
+QList<Q3ListViewItem *> lst;
 for (item = firstChild(); item; item = item->itemBelow())
 	{
 	if (item->isSelected())
@@ -295,7 +332,7 @@ drag->drag();
 
 void FolderListView::contentsDropEvent( QDropEvent *e )
 {
-QListViewItem *dest = itemAt( contentsToViewport(e->pos()) );
+Q3ListViewItem *dest = itemAt( contentsToViewport(e->pos()) );
 if ( dest && dest->rtti() == FolderListItem::ListItemType) 
 	{
 	emit dropItems(dest);
@@ -325,7 +362,7 @@ else if (e->key() == Qt::Key_F2)
 		emit renameItem(currentItem());
 	e->accept();
 	}
-else if(e->key() == Qt::Key_A && e->state() == Qt::ControlButton)
+else if(e->key() == Qt::Key_A && e->state() == Qt::ControlModifier)
 	{
 	selectAll(true);
 	e->accept();
@@ -341,7 +378,7 @@ else if(e->key() == Qt::Key_F8)
 	e->accept();
 	}
 else
-	QListView::keyPressEvent ( e );
+	Q3ListView::keyPressEvent ( e );
 }
 
 void FolderListView::contentsMouseDoubleClickEvent( QMouseEvent* e )
@@ -352,14 +389,14 @@ void FolderListView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 		return;
 		}
 	
-	QListView::contentsMouseDoubleClickEvent( e );
+	Q3ListView::contentsMouseDoubleClickEvent( e );
 }
 
 void FolderListView::contentsMousePressEvent( QMouseEvent* e )
 {	
-QListView::contentsMousePressEvent(e);
+Q3ListView::contentsMousePressEvent(e);
 QPoint p( contentsToViewport( e->pos() ) );
-QListViewItem *i = itemAt( p );
+Q3ListViewItem *i = itemAt( p );
 
 if ( i ) 
 		{// if the user clicked into the root decoration of the item, don't try to start a drag!
@@ -378,7 +415,7 @@ void FolderListView::contentsMouseMoveEvent( QMouseEvent* e )
 if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) 
 	{
 	mousePressed = FALSE;
-	QListViewItem *item = itemAt( contentsToViewport(presspos) );
+	Q3ListViewItem *item = itemAt( contentsToViewport(presspos) );
 	if ( item ) 
 		startDrag();
     }
@@ -396,8 +433,8 @@ for (int i=0; i < columns (); i++)
  *
  *****************************************************************************/
 
-WindowListItem::WindowListItem( QListView *parent, myWidget *w )
-    : QListViewItem( parent )
+WindowListItem::WindowListItem( Q3ListView *parent, myWidget *w )
+    : Q3ListViewItem( parent )
 {
     myWindow = w;
 

@@ -1,13 +1,43 @@
+/***************************************************************************
+    File                 : LineMarker.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Line marker (extension to QwtPlotMarker)
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "LineMarker.h"
 
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
+//Added by qt3to4:
+#include <Q3PointArray>
 
 #include <math.h>
 #include <stdlib.h>
@@ -66,7 +96,7 @@ void LineMarker::draw(QPainter *p, int, int, const QRect &rect)
 
 	p->save();
 	p->setPen(pen);
-	QBrush brush=QBrush(pen.color(), QBrush::SolidPattern);
+	QBrush brush=QBrush(pen.color(), Qt::SolidPattern);
 	QwtPainter::drawLine(p,x0,y0,x1,y1);
 	p->restore();
 
@@ -77,7 +107,7 @@ void LineMarker::draw(QPainter *p, int, int, const QRect &rect)
 		double t=teta();
 		p->rotate(-t);
 
-		const QPointArray endArray(3);	
+		const Q3PointArray endArray(3);	
 		endArray[0] = QPoint(0,0);
 
 		int d=(int)floor(d_headLength*tan(M_PI*d_headAngle/180.0)+0.5);				
@@ -99,7 +129,7 @@ void LineMarker::draw(QPainter *p, int, int, const QRect &rect)
 		double t=teta();
 		p->rotate(-t);
 
-		const QPointArray startArray(3);	
+		const Q3PointArray startArray(3);	
 		startArray[0] = QPoint(0,0);
 
 		int d=(int)floor(d_headLength*tan(M_PI*d_headAngle/180.0)+0.5);
@@ -325,8 +355,8 @@ QwtScaleMap LineMarker::mapCanvasToDevice(QPainter *p, QwtPlot *plot, int axis)
 #if false
 	QwtPlotLayout *pl=plot->plotLayout ();
 
-	QPaintDeviceMetrics pdmFrom(plot);
-	QPaintDeviceMetrics pdmTo(p->device());	
+	Q3PaintDeviceMetrics pdmFrom(plot);
+	Q3PaintDeviceMetrics pdmTo(p->device());	
 
 	QwtMetricsMap metricsMap;
 	metricsMap.setMetrics(pdmFrom, pdmTo);

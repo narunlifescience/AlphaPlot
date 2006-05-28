@@ -1,13 +1,47 @@
+/***************************************************************************
+    File                 : worksheet.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Table worksheet class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef WORKSHEET_H
 #define WORKSHEET_H
 
 #include <qwidget.h>
-#include <qtable.h>
-#include <qheader.h>
+#include <q3table.h>
+#include <q3header.h>
+//Added by qt3to4:
+#include <QContextMenuEvent>
+#include <Q3ValueList>
+#include <QEvent>
+#include <Q3MemArray>
 
 #include "graph.h"
 #include "widget.h"
 
+//! Table worksheet class
 class Table: public myWidget
 {
     Q_OBJECT
@@ -18,12 +52,12 @@ public:
 
    	Table(const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 		 bool stripSpaces, bool simplifySpaces, const QString &label, 
-		 QWidget* parent=0, const char* name=0, WFlags f=0);
-	Table(int r,int c, const QString &label, QWidget* parent=0, const char* name=0, WFlags f=0);
+		 QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Table(int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Table();
 	
 public slots:
-	QTable* table(){return worksheet;};
+	Q3Table* table(){return worksheet;};
 	void copy(Table *m);
 	int tableRows();
 	int tableCols();
@@ -42,7 +76,7 @@ public slots:
 	int colPlotDesignation(int col){return col_plot_type[col];};
 	void setColPlotDesignation(int col, PlotDesignation d){col_plot_type[col]=d;};
 	void setPlotDesignation(PlotDesignation pd);
-	QValueList<int> plotDesignations(){return col_plot_type;};
+	Q3ValueList<int> plotDesignations(){return col_plot_type;};
 
 	void setColName(int col,const QString& text);
 	void setHeader(QStringList header);
@@ -56,7 +90,7 @@ public slots:
 	void setRandomValues();
 	void setAscValues();
 
-	void setCommandes(const QString& com);
+	void setCommands(const QString& com);
 	void cellEdited(int,int col);
 	void moveCurrentCell();
 	void clearCell(int row, int col);
@@ -128,7 +162,7 @@ public slots:
 	void fft(double sampling, const QString& realColName, const QString& imagColName,
 			bool forward, bool normalize, bool order);
 
-	QMemArray<double> col(int ycol);
+	Q3MemArray<double> col(int ycol);
 	int firstXCol();
 	bool noXColumn();
 	bool noYColumn();
@@ -143,8 +177,8 @@ public slots:
 	void showColStatistics();
 	void showRowStatistics(); 
 
-	QStringList getCommandes(){return commandes;};
-	void setCommandes(const QStringList& com){commandes=com;};
+	QStringList getCommands(){return commands;};
+	void setCommands(const QStringList& com){commands=com;};
 	
 	// row operations 
 	void deleteSelectedRows();
@@ -185,8 +219,8 @@ public slots:
 	void columnNumericFormat(int col, int &f, int &precision);
 	int columnType(int col){return colTypes[col];};
 
-	QValueList<int> columnTypes(){return colTypes;};
-	void setColumnTypes(QValueList<int> ctl){colTypes = ctl;};
+	Q3ValueList<int> columnTypes(){return colTypes;};
+	void setColumnTypes(Q3ValueList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
 
 	void storeCellsToMatrix();
@@ -219,7 +253,7 @@ public slots:
 	QString saveToString(const QString& geometry);
 	QString saveHeader();
 	QString saveComments();
-	QString saveCommandes();
+	QString saveCommands();
 	QString saveColumnWidths();
 	QString saveColumnTypes();
 
@@ -257,7 +291,7 @@ public slots:
 	QString saveAsTemplate(const QString& geometryInfo);
 	void restore(const QStringList& lst);
 
-	//!Slot: notifies the main application that the table has been modified. Triggers the update of 2D plots.
+	//! This slot notifies the main application that the table has been modified. Triggers the update of 2D plots.
 	void notifyChanges();
 				
 signals:
@@ -276,10 +310,10 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 	
 private:
-	QTable *worksheet;
+	Q3Table *worksheet;
 	QString specifications, newSpecifications;
-	QStringList commandes, cells, col_format, comments, col_label;
-	QValueList<int> colTypes, col_plot_type;
+	QStringList commands, cells, col_format, comments, col_label;
+	QList<int> colTypes, col_plot_type;
 	int selectedCol, lastSelectedCol;
 	double **wMatrix; //global matrix used to store the values of the table cells
 	bool LeftButton;

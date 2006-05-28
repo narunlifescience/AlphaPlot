@@ -1,26 +1,58 @@
+/***************************************************************************
+    File                 : configDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Configuration dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "configDialog.h"
 
 #include <qvariant.h>
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qfont.h>
 #include <qfontdialog.h> 
 #include <qcolordialog.h>
-#include <qwidgetstack.h>
+#include <q3widgetstack.h>
 #include <qwidget.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qstylefactory.h>
-#include <qlistbox.h>
-#include <qvbox.h>
+#include <q3listbox.h>
+#include <q3vbox.h>
 #include <qregexp.h>
 #include <qmessagebox.h>
 #include <qtranslator.h>
 #include <qapplication.h>
 #include <qdir.h>
+//Added by qt3to4:
+#include <QPixmap>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 #include "application.h"
 #include "graph.h"
@@ -207,7 +239,7 @@ static const char * vertBars_xpm[] = {
 ".+++..+++..+++.",
 ".+++..+++..+++."};
 
-configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
@@ -229,12 +261,12 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
     setMouseTracking( TRUE );
     setSizeGripEnabled( FALSE );
 
-	QHBox *box = new QHBox (this, "box"); 
+	Q3HBox *box = new Q3HBox (this, "box"); 
 	box->setSpacing (5);
 	box->setMargin(5);
 
-	itemsList = new QListBox (box, "itemsList");
-	generalDialog = new QWidgetStack(box, "generalDialog" );
+	itemsList = new Q3ListBox (box, "itemsList");
+	generalDialog = new Q3WidgetStack(box, "generalDialog" );
 	
 	initPlots3DPage();
 	initPlotsPage();
@@ -244,7 +276,7 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
 
 	confirm = new QWidget( generalDialog, "confirm" );
 	
-	GroupBoxConfirm = new QButtonGroup( 1,QGroupBox::Horizontal,tr("Prompt on closing"),confirm,"GroupBoxConfirm" );
+	GroupBoxConfirm = new Q3ButtonGroup( 1,Qt::Horizontal,tr("Prompt on closing"),confirm,"GroupBoxConfirm" );
 	boxFolders = new QCheckBox(GroupBoxConfirm);
 	boxFolders->setChecked(app->confirmCloseFolder);
 	
@@ -263,7 +295,7 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
 	boxNotes = new QCheckBox(GroupBoxConfirm, "boxNotes" );
 	boxNotes->setChecked(app->confirmCloseNotes);
 
-	QHBoxLayout* hlayout3 = new QHBoxLayout(confirm,0,5, "hlayout3");
+	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(confirm,0,5, "hlayout3");
     hlayout3->addWidget(GroupBoxConfirm);
 	
 	generalDialog->addWidget(application, 0);
@@ -273,9 +305,8 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
 	generalDialog->addWidget(curves, 4);
 	generalDialog->addWidget(plots3D, 5);
 
-	GroupBox2 = new QButtonGroup( 3,QGroupBox::Horizontal, QString::null,this,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal, QString::null,this,"GroupBox2" );
 	GroupBox2->setFlat(TRUE);
-	GroupBox2->setLineWidth(0);
 	
 	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
 	
@@ -284,7 +315,7 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, WFlag
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this,5,5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(box);
 	hlayout->addWidget(GroupBox2);
 
@@ -308,32 +339,32 @@ void configDialog::initTablesPage()
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 tables = new QWidget( generalDialog, "tables" );
 
-QHBox  *hbox1=new QHBox (tables, "hbox1"); 
+Q3HBox  *hbox1=new Q3HBox (tables, "hbox1"); 
 hbox1->setSpacing(5);
 	
-lblSeparator = new QLabel(hbox1, "TextLabel1",0 );
+lblSeparator = new QLabel(hbox1);
 boxSeparator = new QComboBox(true, hbox1, "boxSeparator" );
 
-GroupBoxTableCol = new QButtonGroup(2,QGroupBox::Horizontal,tr("Colors"),tables,"GroupBoxTableCol" );
+GroupBoxTableCol = new Q3ButtonGroup(2,Qt::Horizontal,tr("Colors"),tables,"GroupBoxTableCol" );
 
-lblTableBackground = new QLabel(GroupBoxTableCol, "lblTableBackground",0 ); 
+lblTableBackground = new QLabel(GroupBoxTableCol); 
 buttonBackground= new ColorButton(GroupBoxTableCol);
 buttonBackground->setColor(app->tableBkgdColor);
 
-lblTextColor = new QLabel(GroupBoxTableCol, "TextLabel69111",0 ); 
+lblTextColor = new QLabel(GroupBoxTableCol); 
 buttonText= new ColorButton(GroupBoxTableCol);
 buttonText->setColor(app->tableTextColor);
 
-lblHeaderColor = new QLabel(GroupBoxTableCol, "lblHeaderColor",0 ); 
+lblHeaderColor = new QLabel(GroupBoxTableCol); 
 buttonHeader= new ColorButton(GroupBoxTableCol);
 buttonHeader->setColor(app->tableHeaderColor);
 	
-GroupBoxTableFonts = new QButtonGroup(2,QGroupBox::Horizontal,tr("Fonts"),tables,"GroupBoxTableFonts" );
+GroupBoxTableFonts = new Q3ButtonGroup(2,Qt::Horizontal,tr("Fonts"),tables,"GroupBoxTableFonts" );
 
 buttonTextFont= new QPushButton(GroupBoxTableFonts, "buttonTextFont" );
 buttonHeaderFont= new QPushButton(GroupBoxTableFonts, "buttonHeaderFont" );
 	
-QVBoxLayout* hlayout1 = new QVBoxLayout(tables, 10, 10, "hlayout1");
+Q3VBoxLayout* hlayout1 = new Q3VBoxLayout(tables, 10, 10, "hlayout1");
 hlayout1->addWidget(hbox1);
 hlayout1->addWidget(GroupBoxTableCol);
 hlayout1->addWidget(GroupBoxTableFonts);
@@ -345,10 +376,10 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
 	plots = new QWidget( generalDialog, "plots" );
 	
-	QHBox  *hbox1=new QHBox (plots, "hbox1"); 
+	Q3HBox  *hbox1=new Q3HBox (plots, "hbox1"); 
 	hbox1->setSpacing(5);
 
-	GroupBoxOptions = new QButtonGroup( 2,QGroupBox::Horizontal,tr("Options"),hbox1,"GroupBoxOptions" );	
+	GroupBoxOptions = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Options"),hbox1,"GroupBoxOptions" );	
 	boxAutoscaling = new QCheckBox(GroupBoxOptions,"boxAutoscaling");
 	boxAutoscaling->setChecked(app->autoscale2DPlots);
 
@@ -367,7 +398,7 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	boxBackbones= new QCheckBox(GroupBoxOptions,"boxBackbones");
 	boxBackbones->setChecked(app->drawBackbones);
 
-	labelFrameWidth = new QLabel(GroupBoxOptions, "TextLabel69111",0 ); 
+	labelFrameWidth = new QLabel(GroupBoxOptions); 
 	boxFrameWidth= new QSpinBox(1, 100, 1,GroupBoxOptions,"boxFrameWidth");	
 	boxFrameWidth->setValue(app->canvasFrameWidth);
 	if (!app->canvasFrameOn)
@@ -376,33 +407,33 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 		boxFrameWidth->hide();
 		}
 
-	lblLegend = new QLabel(GroupBoxOptions, "TextLabel689",0 ); 
+	lblLegend = new QLabel(GroupBoxOptions); 
 	boxLegend = new QComboBox(GroupBoxOptions,"legend");
 
-	lblMargin = new QLabel(GroupBoxOptions, "TextLabel691111",0 ); 
+	lblMargin = new QLabel(GroupBoxOptions); 
 	boxMargin= new QSpinBox(0, 1000, 5, GroupBoxOptions, "boxMargin");	
 	boxMargin->setValue(app->defaultPlotMargin);
 
-	GroupBox2DFonts = new QButtonGroup(1,QGroupBox::Horizontal,tr("Fonts"),hbox1,"GroupBox2DFonts" );
+	GroupBox2DFonts = new Q3ButtonGroup(1,Qt::Horizontal,tr("Fonts"),hbox1,"GroupBox2DFonts" );
 	buttonTitleFont= new QPushButton(GroupBox2DFonts, "buttonTitleFont" );  
 	buttonLegendFont= new QPushButton(GroupBox2DFonts, "buttonLegendFont" );	 
     buttonAxesFont= new QPushButton(GroupBox2DFonts, "buttonAxesFont" );   
 	buttonNumbersFont= new QPushButton(GroupBox2DFonts, "buttonNumbersFont" );
 
-	QButtonGroup *GroupBox6 = new QButtonGroup(4, QGroupBox::Horizontal,QString::null,plots,"GroupBox2DFonts" );
+	Q3ButtonGroup *GroupBox6 = new Q3ButtonGroup(4, Qt::Horizontal,QString::null,plots,"GroupBox2DFonts" );
 
-	lblTicks = new QLabel(GroupBox6, "TextLabel489",0 ); 
+	lblTicks = new QLabel(GroupBox6); 
 	boxTicks = new QComboBox(GroupBox6,"ticks");
 
-	lblMajTicks = new QLabel(GroupBox6, "TextLabel691",0 );  
+	lblMajTicks = new QLabel(GroupBox6);  
 	boxMajorTicks= new QSpinBox(0, 100, 1,GroupBox6,"boxMajorTicks");
 	boxMajorTicks->setValue (app->majTicksLength);
 
-	lblLinewidth = new QLabel(GroupBox6, "TextLabel69",0 );  
+	lblLinewidth = new QLabel(GroupBox6);  
 	boxLinewidth= new QSpinBox(0, 100, 1,GroupBox6,"boxLinewidth");
 	boxLinewidth->setValue(app->axesLineWidth);
 
-	lblMinTicks = new QLabel(GroupBox6, "TextLabel6911",0 );  
+	lblMinTicks = new QLabel(GroupBox6);  
 	boxMinorTicks= new QSpinBox(0, 100, 1,GroupBox6,"boxMinorTicks");
 	boxMinorTicks->setValue(app->minTicksLength);
 
@@ -411,7 +442,7 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	if(boxResize->isChecked())
 		boxScaleFonts->setEnabled(false);
 
-	QVBoxLayout* hlayout2 = new QVBoxLayout(plots,0,5, "hlayout1");
+	Q3VBoxLayout* hlayout2 = new Q3VBoxLayout(plots,0,5, "hlayout1");
     hlayout2->addWidget(hbox1);
 	hlayout2->addWidget(GroupBox6);
 	hlayout2->addWidget(boxResize);
@@ -451,11 +482,11 @@ void configDialog::initPlots3DPage()
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	plots3D = new QWidget( generalDialog, "plots3D" );
 
-	QVBox  *box=new QVBox (plots3D, "box"); 
+	Q3VBox  *box=new Q3VBox (plots3D, "box"); 
 	box->setSpacing (5);
 
-	QButtonGroup *GroupBox77 = new QButtonGroup(2,QGroupBox::Horizontal,QString::null, box, "GroupBox7" );
-	lblResolution = new QLabel(GroupBox77, "lblResolution",0 ); 
+	Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup(2,Qt::Horizontal,QString::null, box, "GroupBox7" );
+	lblResolution = new QLabel(GroupBox77); 
 	boxResolution = new QSpinBox(1, 100, 1, GroupBox77, "boxResolution" );
 	boxResolution->setValue(app->plot3DResolution);
 
@@ -468,7 +499,7 @@ void configDialog::initPlots3DPage()
 	boxSmoothMesh = new QCheckBox(GroupBox77, "boxSmoothMesh" );
 	boxSmoothMesh->setChecked(app->smooth3DMesh);
 
-	GroupBox3DCol = new QButtonGroup(4,QGroupBox::Horizontal,tr( "Colors" ),box, "GroupBox3DCol" );
+	GroupBox3DCol = new Q3ButtonGroup(4,Qt::Horizontal,tr( "Colors" ),box, "GroupBox3DCol" );
 	btnFromColor = new QPushButton( GroupBox3DCol, "btnFrom" );
 	btnLabels = new QPushButton( GroupBox3DCol, "btnLabels" );
 	btnMesh = new QPushButton( GroupBox3DCol, "btnMesh" );	
@@ -478,12 +509,12 @@ void configDialog::initPlots3DPage()
 	btnAxes = new QPushButton( GroupBox3DCol, "btnAxes" );
 	btnBackground3D = new QPushButton( GroupBox3DCol, "btnBackground" );
 
-	GroupBox3DFonts = new QButtonGroup(3,QGroupBox::Horizontal,tr( "Fonts" ),box, "GroupBox3DFonts" );
+	GroupBox3DFonts = new Q3ButtonGroup(3,Qt::Horizontal,tr( "Fonts" ),box, "GroupBox3DFonts" );
 	btnTitleFnt = new QPushButton( GroupBox3DFonts, "btnTitleFnt" );
 	btnLabelsFnt = new QPushButton( GroupBox3DFonts, "btnLabelsFnt" );
 	btnNumFnt = new QPushButton( GroupBox3DFonts, "btnNumFnt" );
    	
-	QVBoxLayout* hlayout2 = new QVBoxLayout(plots3D, 5, 5, "hlayout2");
+	Q3VBoxLayout* hlayout2 = new Q3VBoxLayout(plots3D, 5, 5, "hlayout2");
 	hlayout2->addWidget(box);
 	
 	connect( btnAxes, SIGNAL( clicked() ), this, SLOT(pick3DAxesColor() ) );
@@ -505,13 +536,13 @@ void configDialog::initAppPage()
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
 application = new QWidget( generalDialog, "application" );
-GroupBoxApp = new QButtonGroup( 2,QGroupBox::Horizontal,tr("General"),application,"GroupBoxApp" );
+GroupBoxApp = new Q3ButtonGroup( 2,Qt::Horizontal,tr("General"),application,"GroupBoxApp" );
     
-	lblLanguage = new QLabel(GroupBoxApp, "lblLanguage",0 ); 
+	lblLanguage = new QLabel(GroupBoxApp); 
 	boxLanguage = new QComboBox(GroupBoxApp, "boxLanguage" );
 	insertLanguagesList();
 
-	lblStyle = new QLabel(GroupBoxApp, "lblStyle",0 ); 
+	lblStyle = new QLabel(GroupBoxApp); 
 	boxStyle = new QComboBox(GroupBoxApp,"style");
 	QStringList styles = QStyleFactory::keys();
 	styles.sort();
@@ -519,14 +550,14 @@ GroupBoxApp = new QButtonGroup( 2,QGroupBox::Horizontal,tr("General"),applicatio
 	boxStyle->setCurrentText(app->appStyle);
 	
 	#ifdef Q_OS_MACX // Mac 
-	 if (QApplication::macVersion() == Qt::MV_10_DOT_3)
+	 if (QApplication::macVersion() == QSysInfo::MV_10_3)
 			{
 			lblStyle->hide();
 			boxStyle->hide();
 			}
 	#endif
    
-    lblFonts = new QLabel(GroupBoxApp, "lblFonts",0 ); 
+    lblFonts = new QLabel(GroupBoxApp); 
 	fontsBtn= new QPushButton(GroupBoxApp, "fontsBtn" );
 	
 	boxSave= new QCheckBox(GroupBoxApp, "boxSave" );
@@ -536,21 +567,21 @@ GroupBoxApp = new QButtonGroup( 2,QGroupBox::Horizontal,tr("General"),applicatio
 	boxMinutes->setValue(app->autoSaveTime);
 	boxMinutes->setEnabled(app->autoSave);
 
-	GroupBoxAppCol = new QButtonGroup(2,QGroupBox::Horizontal, tr("Colors"),application,"GroupBoxAppCol" );
+	GroupBoxAppCol = new Q3ButtonGroup(2,Qt::Horizontal, tr("Colors"),application,"GroupBoxAppCol" );
  	
-	lblWorkspace = new QLabel(GroupBoxAppCol, "lblWorkspace",0 ); 
+	lblWorkspace = new QLabel(GroupBoxAppCol); 
 	btnWorkspace = new ColorButton(GroupBoxAppCol);
 	btnWorkspace->setColor(app->workspaceColor);
 
-	lblPanels = new QLabel(GroupBoxAppCol, "lblPanels",0 ); 
+	lblPanels = new QLabel(GroupBoxAppCol); 
 	btnPanels = new ColorButton(GroupBoxAppCol);
 	btnPanels->setColor(app->panelsColor);
 
-	lblPanelsText = new QLabel(GroupBoxAppCol, "lblPanelsText",0 ); 
+	lblPanelsText = new QLabel(GroupBoxAppCol); 
 	btnPanelsText = new ColorButton(GroupBoxAppCol);
 	btnPanelsText->setColor(app->panelsTextColor);
 	
-	QVBoxLayout* hlayout4 = new QVBoxLayout(application,0,5, "hlayout4");
+	Q3VBoxLayout* hlayout4 = new Q3VBoxLayout(application,0,5, "hlayout4");
     hlayout4->addWidget(GroupBoxApp);
 	hlayout4->addWidget(GroupBoxAppCol);
 
@@ -565,18 +596,18 @@ GroupBoxApp = new QButtonGroup( 2,QGroupBox::Horizontal,tr("General"),applicatio
 void configDialog::initCurvesPage()
 {
 curves = new QWidget( generalDialog, "curves" );
-QButtonGroup *GroupBox77 = new QButtonGroup( 2,QGroupBox::Horizontal,QString::null,curves,"GroupBox77" );
+Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup( 2,Qt::Horizontal,QString::null,curves,"GroupBox77" );
     
-lblCurveStyle = new QLabel(GroupBox77, "lblCurveStyle",0 ); 	
+lblCurveStyle = new QLabel(GroupBox77); 	
 boxCurveStyle = new QComboBox(GroupBox77,"boxCurveStyle");
 
-lblLineWidth = new QLabel(GroupBox77, "lblLineWidth",0 ); 
+lblLineWidth = new QLabel(GroupBox77); 
 boxCurveLineWidth = new QSpinBox(1,100,1,GroupBox77, "boxCurveLineWidth");
 
-lblSymbSize = new QLabel(GroupBox77, "lblSymbSize",0 ); 
+lblSymbSize = new QLabel(GroupBox77); 
 boxSymbolSize = new QSpinBox(1,100,1,GroupBox77, "boxSymbolSize");
 	
-QHBoxLayout* hlayout5 = new QHBoxLayout(curves,0,5, "hlayout5");
+Q3HBoxLayout* hlayout5 = new Q3HBoxLayout(curves,0,5, "hlayout5");
 hlayout5->addWidget(GroupBox77);
 }
 
@@ -586,7 +617,7 @@ configDialog::~configDialog()
 
 void configDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Choose default settings" ) );
+    setWindowTitle( tr( "QtiPlot - Choose default settings" ) );
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
 	itemsList->clear();
@@ -1187,8 +1218,7 @@ for (int i=0; i < (int)locales.size(); i++)
 		QTranslator translator;
 		translator.load("qtiplot_"+locales[i], qmPath);
 
-		QTranslatorMessage message = translator.findMessage("ApplicationWindow", "English");
-		QString language = message.translation();
+		QString language = translator.translate("ApplicationWindow", "English");
 		if (!language.isEmpty())
 			languages.push_back(language);
 		else

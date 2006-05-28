@@ -1,277 +1,307 @@
+/***************************************************************************
+    File                 : PlotWizard.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : A wizard type dialog to create new plots
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "plotWizard.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlistbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <qbuttongroup.h>
-#include <qmessagebox.h>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QSizePolicy>
+#include <QLabel>
+#include <QMessageBox>
 
-plotWizard::plotWizard( QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+PlotWizard::PlotWizard( QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "plotWizard" );
-	setCaption( tr("QtiPlot - Select Columns to Plot") );
-    setSizeGripEnabled( TRUE );
-	
-	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
+	setWindowTitle( tr("QtiPlot - Select Columns to Plot") );
 
-    new QLabel( tr( "Worksheet" ), GroupBox1, "TextLabel3",0 );
-	
-    boxTables = new QComboBox( FALSE,GroupBox1, "boxTables" );
-	
-	columnsList = new QListBox(GroupBox1, "listBox" );
-	columnsList->setSizePolicy(QSizePolicy (QSizePolicy::Expanding, QSizePolicy::Fixed, 2, 0, FALSE ));
+	setSizeGripEnabled( true );
 
-	GroupBox3 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""),GroupBox1,"GroupBox3" );
-	GroupBox3->setFlat (TRUE);
-	GroupBox3->setLineWidth (0);
-	
-	buttonX = new QPushButton(GroupBox3, "buttonX" );
-    buttonX->setText("<->&X");
-	
-	buttonXErr = new QPushButton(GroupBox3, "buttonXErr" );
-    buttonXErr->setText("<->x&Err");
-	
-	buttonY = new QPushButton(GroupBox3, "buttonY" );
-    buttonY->setText("<->&Y");
-   
-    buttonYErr = new QPushButton(GroupBox3, "buttonYErr" );
-    buttonYErr->setText("<->yE&rr");
-	
-	buttonZ = new QPushButton(GroupBox3, "buttonZ" );
-    buttonZ->setText("<->&Z");
-	
-	columnsList->setMaximumHeight(3*buttonX->height() + 20);
+	// top part starts here
+	groupBox1 = new QGroupBox( QString() );
 
-	buttonNew = new QPushButton(GroupBox1, "buttonCurve" );
-    buttonNew->setText(tr("&New curve"));
+	QGridLayout * topLayout = new QGridLayout( groupBox1 );
+
+	topLayout->addWidget(new QLabel(tr( "Worksheet" )), 0, 0);
+
+	boxTables = new QComboBox();
+	topLayout->addWidget( boxTables, 0, 2, 1, 2 );
+
+	columnsList = new QListWidget();
+	topLayout->addWidget( columnsList, 1, 0, 3, 2 );
+
+	buttonX = new QPushButton();
+	buttonX->setText("<->&X");
+	topLayout->addWidget( buttonX, 1, 2 );
+
+	buttonXErr = new QPushButton();
+	buttonXErr->setText("<->x&Err");
+	topLayout->addWidget( buttonXErr, 1, 3 );
+
+	buttonY = new QPushButton();
+	buttonY->setText("<->&Y");
+	topLayout->addWidget( buttonY, 2, 2 );
+
+	buttonYErr = new QPushButton();
+	buttonYErr->setText("<->yE&rr");
+	topLayout->addWidget( buttonYErr, 2, 3 );
+
+	buttonZ = new QPushButton();
+	buttonZ->setText("<->&Z");
+	topLayout->addWidget( buttonZ, 3, 2 );
+
+	buttonNew = new QPushButton();
+	buttonNew->setText(tr("&New curve"));
+	topLayout->addWidget( buttonNew, 4, 0, 1, 2 );
+
+	buttonDelete = new QPushButton();
+	buttonDelete->setText(tr("&Delete curve"));
+	topLayout->addWidget( buttonDelete, 4, 2, 1, 2 );
+
+	topLayout->setColumnStretch(1, 1);
 	
-	buttonDelete = new QPushButton(GroupBox1, "buttonDelete" );
-    buttonDelete->setText(tr("&Delete curve"));
-	
-	plotAssociations = new QListBox(this, "listBox" );
-	
-	GroupBox2 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
-	GroupBox2->setLineWidth (0);
-	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setText(tr("&Plot"));
-    buttonOk->setDefault( TRUE );
-   
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setText(tr("&Cancel"));
-	
-	QVBoxLayout* vlayout = new QVBoxLayout(this,5,5, "hlayout");
-    vlayout->addWidget(GroupBox1);
-	vlayout->addWidget(plotAssociations);
-	vlayout->addWidget(GroupBox2);
-   
-    // signals and slots connections
+	// middle part is only one widget
+	plotAssociations = new QListWidget();
+
+	// bottom part starts here
+	QHBoxLayout * bottomLayout = new QHBoxLayout();
+
+	buttonOk = new QPushButton();
+	buttonOk->setText(tr("&Plot"));
+	buttonOk->setDefault( true );
+	bottomLayout->addWidget( buttonOk );
+
+	buttonCancel = new QPushButton();
+	buttonCancel->setText(tr("&Cancel"));
+	bottomLayout->addWidget( buttonCancel );
+
+	QVBoxLayout* vlayout = new QVBoxLayout( this );
+	vlayout->addWidget( groupBox1 );
+	vlayout->addWidget( plotAssociations );
+	vlayout->addLayout( bottomLayout );
+
+	// signals and slots connections
 	connect( boxTables, SIGNAL(activated(const QString &)),this, SLOT(changeColumnsList(const QString &)));
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonNew, SIGNAL( clicked() ), this, SLOT( addCurve() ) );
-    connect( buttonDelete, SIGNAL( clicked() ), this, SLOT( toggleCurve() ) );
+	connect( buttonDelete, SIGNAL( clicked() ), this, SLOT( removeCurve() ) );
 	connect( buttonX, SIGNAL( clicked() ), this, SLOT(addXCol()));
-    connect( buttonY, SIGNAL( clicked() ), this, SLOT(addYCol()));
+	connect( buttonY, SIGNAL( clicked() ), this, SLOT(addYCol()));
 	connect( buttonXErr, SIGNAL( clicked() ), this, SLOT(addXErrCol()));
 	connect( buttonYErr, SIGNAL( clicked() ), this, SLOT(addYErrCol()));
 	connect( buttonZ, SIGNAL( clicked() ), this, SLOT(addZCol()));
 }
 
-void plotWizard::accept()
+void PlotWizard::accept()
 {
-QStringList curves, curves3D, ribbons;
-bool multiple=FALSE;
-int i=0;
-for (i=0;i<(int)plotAssociations->count ();i++)
+	QStringList curves, curves3D, ribbons;
+	bool multiple = false;
+	int i=0;
+
+	for ( i=0 ; i < plotAssociations->count() ; i++)
 	{
-	QString text=plotAssociations->text (i);
-	if (text.contains("(Z)", TRUE)>0 )
+		QString text = plotAssociations->item(i)->text();
+
+		if ( text.contains("(Z)") )
 		{
-		if (text.contains("(Y)", TRUE)>0 && curves3D.contains(text) == 0)
-			curves3D<<text;
-		else if ( text.contains("(Y)", TRUE) ==0 && ribbons.contains(text) == 0)
-			ribbons<<text;
+			if ( text.contains("(Y)") && !curves3D.contains(text) )
+				curves3D << text;
+			else if ( !text.contains("(Y)") && ribbons.contains(text) )
+				ribbons << text;
 		}
-	else
-		{
-		if (curves.contains(text)>0)
-			multiple=TRUE;
 		else
-			curves<<text;
+		{
+			if ( curves.contains(text) )
+				multiple = true;
+			else
+				curves << text;
 		}
 	}
-	
-if (multiple)
-QMessageBox::warning(this,tr("QtiPlot - Warning"),
+
+	if ( multiple )
+		QMessageBox::warning(this,tr("QtiPlot - Warning"),
 				tr("Redefinitions of the same curve are ignored!"));
 
-if ((int)curves.count ()>0)	
-	emit plot(curves);
+	if ( curves.count()>0 )	
+		emit plot(curves);
 
-for (i=0;i<(int)curves3D.count ();i++)
-	emit plot3D(curves3D[i]);
+	for( i=0 ; i < curves3D.count() ; i++)
+		emit plot3D(curves3D[i]);
 
-for (i=0;i<(int)ribbons.count ();i++)
-	emit plot3DRibbon(ribbons[i]);
+	for ( i=0 ; i< ribbons.count() ; i++)
+		emit plot3DRibbon(ribbons[i]);
 
-if (!noCurves())
-	close();
+	if( !noCurves() )
+		close();
 }
 
-void plotWizard::changeColumnsList(const QString &table)
+void PlotWizard::changeColumnsList(const QString &table)
 {	
-QStringList newList;
-for (int i=0;i<(int)columns.count();i++)
+	QStringList newList;
+
+	for( int i=0 ; i<columns.count() ; i++)
 	{
-	QString s=columns[i];
-	if (s.contains(table))					
-		newList<< s.remove(table+"_",TRUE);
+		QString s = columns[i];
+		if ( s.contains(table) )					
+			newList << s.remove(table+"_");
 	}
-insertColumnsList(newList);
+	setColumnsListBoxContents(newList);
 }
 
-void plotWizard::addXCol()
+void PlotWizard::addXCol()
 {
-if (noCurves())
-	return;
+	if (noCurves())
+		return;
 
-QString text=plotAssociations->currentText();
-if (text.contains("(X)",TRUE)>0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a X column!"));
-else
+	QString text = plotAssociations->currentItem()->text();
+	if ( text.contains("(X)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a X column!"));
+	else
 	{
-	int item=plotAssociations->currentItem ();
-	plotAssociations->changeItem (text+columnsList->currentText()+"(X)",item);
-	}
-}
-
-void plotWizard::addYCol()
-{
-if (noCurves())
-	return;
-
-QString text=plotAssociations->currentText();
-if (text.contains("(X)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"),tr("You must define a X column first!"));
-else if (text.contains("(Y)",TRUE)>0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Y column!"));
-else
-	{
-	int item=plotAssociations->currentItem ();
-	plotAssociations->changeItem (text+", "+columnsList->currentText()+"(Y)",item);
+		plotAssociations->currentItem()->setText(text+columnsList->currentItem()->text()+"(X)");
 	}
 }
 
-void plotWizard::addZCol()
+void PlotWizard::addYCol()
 {
-if (noCurves())
-	return;
+	if (noCurves())
+		return;
 
-QString text=plotAssociations->currentText();
-if (text.contains("(xErr)",TRUE) > 0 || text.contains("(yErr)",TRUE) > 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
-else if (text.contains("(X)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
-else if (text.contains("(Z)",TRUE)>0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Z column!"));
-else
+	QString text = plotAssociations->currentItem()->text();
+	if ( !text.contains("(X)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"),tr("You must define a X column first!"));
+	else if ( text.contains("(Y)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Y column!"));
+	else
 	{
-	int item=plotAssociations->currentItem ();
-	plotAssociations->changeItem (text+", "+columnsList->currentText()+"(Z)",item);
+		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(Y)");
 	}
 }
 
-void plotWizard::addXErrCol()
+void PlotWizard::addZCol()
 {
-if (noCurves())
-	return;
+	if (noCurves())
+		return;
 
-QString text=plotAssociations->currentText();
-if (text.contains("(Z)",TRUE) > 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
-else if (text.contains("(X)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
-else if (text.contains("(Y)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
-else if (text.contains("(xErr)",TRUE)>0 || text.contains("(yErr)",TRUE)>0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
-else
+	QString text = plotAssociations->currentItem()->text();
+	if ( text.contains("(xErr)") || text.contains("(yErr)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
+	else if ( !text.contains("(X)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
+	else if ( text.contains("(Z)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Z column!"));
+	else
 	{
-	int item=plotAssociations->currentItem ();
-	plotAssociations->changeItem (text+", "+columnsList->currentText()+"(xErr)",item);
+		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(Z)");
 	}
 }
 
-void plotWizard::addYErrCol()
+void PlotWizard::addXErrCol()
 {
-if (noCurves())
-	return;
+	if (noCurves())
+		return;
 
-QString text=plotAssociations->currentText();
-if (text.contains("(Z)",TRUE) > 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
-else if (text.contains("(X)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
-else if (text.contains("(Y)",TRUE) == 0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
-else if (text.contains("(xErr)",TRUE)>0 || text.contains("(yErr)",TRUE)>0)
-	QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
-else
+	QString text = plotAssociations->currentItem()->text();
+	if ( text.contains("(Z)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
+	else if ( !text.contains("(X)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
+	else if ( !text.contains("(Y)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
+	else if ( text.contains("(xErr)") || text.contains("(yErr)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
+	else
 	{
-	int item=plotAssociations->currentItem ();
-	plotAssociations->changeItem (text+", "+columnsList->currentText()+"(yErr)",item);
+		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(xErr)");
 	}
 }
 
-void plotWizard::addCurve()
+void PlotWizard::addYErrCol()
 {
-plotAssociations->insertItem(boxTables->currentText()+": ",-1);
-plotAssociations->setCurrentItem((plotAssociations->count())-1);
-}
+	if (noCurves())
+		return;
 
-void plotWizard::toggleCurve()
-{
-plotAssociations->removeItem (plotAssociations->currentItem ());
-}
-
-void plotWizard::insertTablesList(const QStringList& tables)
-{
-boxTables->insertStringList (tables,-1);
-}
-
-void plotWizard::insertColumnsList(const QStringList& cols)
-{
-columnsList->clear();
-int i,n=cols.count();
-for (i=0;i<n;i++)
-	columnsList->insertItem(cols[i],i);
-
-columnsList->setCurrentItem(0);
-}
-
-void plotWizard::setColumnsList(const QStringList& cols)
-{
-columns=cols;
-}
-
-bool plotWizard::noCurves()
-{
-if (plotAssociations->count () == 0)
+	QString text = plotAssociations->currentItem()->text();
+	if ( text.contains("(Z)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("This kind of curve is not handled by QtiPlot!"));
+	else if ( !text.contains("(X)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
+	else if ( !text.contains("(Y)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
+	else if ( text.contains("(xErr)") || text.contains("(yErr)") )
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
+	else
 	{
-	QMessageBox::warning(0, tr("QtiPlot - Error"), tr("You must add a new curve first!"));
-	return true;
+		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(yErr)");
 	}
-else
-	return false;
 }
 
-plotWizard::~plotWizard()
+void PlotWizard::addCurve()
+{
+	plotAssociations->addItem( boxTables->currentText()+": " );
+	plotAssociations->setCurrentRow( plotAssociations->count()-1 );
+}
+
+void PlotWizard::removeCurve()
+{
+	plotAssociations->takeItem( plotAssociations->currentRow() );
+}
+
+void PlotWizard::insertTablesList(const QStringList& tables)
+{
+	boxTables->addItems(tables);
+}
+
+void PlotWizard::setColumnsListBoxContents(const QStringList& cols)
+{
+	columnsList->clear();
+	columnsList->insertItems(0, cols);
+	columnsList->setCurrentRow(0);
+}
+
+void PlotWizard::setColumnsList(const QStringList& cols)
+{
+	columns = cols;
+}
+
+bool PlotWizard::noCurves()
+{
+	if ( plotAssociations->count() == 0 )
+	{
+		QMessageBox::warning(0, tr("QtiPlot - Error"), tr("You must add a new curve first!"));
+		return true;
+	}
+	else
+		return false;
+}
+
+PlotWizard::~PlotWizard()
 {
 }
+

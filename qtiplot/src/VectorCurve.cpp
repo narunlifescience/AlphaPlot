@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : VectorCurve.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Vector curve class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "VectorCurve.h"
 
 #include <qwt_plot.h>
@@ -5,6 +33,8 @@
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>
 #include <qpainter.h>
+//Added by qt3to4:
+#include <Q3PointArray>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -129,13 +159,13 @@ void VectorCurve::drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye)
 	double pi=4*atan(-1.0);	
 	int d=qRound(d_headLength*tan(pi*(double)d_headAngle/180.0));	
 
-	const QPointArray endArray(3);	
+	const Q3PointArray endArray(3);	
 	endArray[0] = QPoint(0, 0);
 	endArray[1] = QPoint(-d_headLength, d);
 	endArray[2] = QPoint(-d_headLength, -d);
 
 	if (filledArrow)
-		p->setBrush(QBrush(pen.color(), QBrush::SolidPattern));
+		p->setBrush(QBrush(pen.color(), Qt::SolidPattern));
 
 	QwtPainter::drawPolygon(p,endArray);
 	p->restore();

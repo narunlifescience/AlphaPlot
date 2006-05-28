@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : interpolationDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Interpolation options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "interpolationDialog.h"
 #include "graph.h"
 #include "parser.h"
@@ -8,19 +36,21 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
 
-interpolationDialog::interpolationDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+interpolationDialog::interpolationDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "interpolationDialog" );
-	setCaption(tr("QtiPlot - Interpolation Options"));
+	setWindowTitle(tr("QtiPlot - Interpolation Options"));
 	
-	QButtonGroup *GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
 	new QLabel( tr("Make curve from"), GroupBox1, "TextLabel1",0 );
 	boxName = new QComboBox(GroupBox1, "boxShow" );
@@ -41,11 +71,10 @@ interpolationDialog::interpolationDialog( QWidget* parent, const char* name, boo
 
 	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
 	boxColor = new ColorBox( FALSE, GroupBox1);
-	boxColor->setColor(QColor(red));
+	boxColor->setColor(QColor(Qt::red));
 
-	QButtonGroup *GroupBox2 = new QButtonGroup(1,QGroupBox::Horizontal,tr(""),this,"GroupBox2" );
+	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
 	GroupBox2->setFlat (TRUE);
-	GroupBox2->setLineWidth (0);
 	
 	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
     buttonFit->setAutoDefault( TRUE );
@@ -54,7 +83,7 @@ interpolationDialog::interpolationDialog( QWidget* parent, const char* name, boo
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
     buttonCancel->setAutoDefault( TRUE );
 	
-	QHBoxLayout* hlayout = new QHBoxLayout(this,5,5, "hlayout");
+	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
 
@@ -103,7 +132,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Start limit error"), e.GetMsg());
+	QMessageBox::critical(this, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
 	}		
@@ -116,7 +145,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - End limit error"), e.GetMsg());
+	QMessageBox::critical(this, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
 	boxEnd->setFocus();
 	return;
 	}	

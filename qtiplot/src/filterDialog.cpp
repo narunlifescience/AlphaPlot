@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : filterDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Filter options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "filterDialog.h"
 #include "graph.h"
 #include "parser.h"
@@ -5,17 +33,19 @@
 
 #include <qvariant.h>
 #include <qpushbutton.h>
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qcheckbox.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
-filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool modal, WFlags fl )
+filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	filter_type = type;
@@ -23,7 +53,7 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
     if ( !name )
 		setName( "filterDialog" );
 
-	QButtonGroup *GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
 	new QLabel( tr("Filter curve: "), GroupBox1, "TextLabel1",0 );
 	boxName = new QComboBox(GroupBox1, "boxShow" );
@@ -52,9 +82,9 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
 
 	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
 	boxColor = new ColorBox( FALSE, GroupBox1);
-	boxColor->setColor(QColor(red));
+	boxColor->setColor(QColor(Qt::red));
 
-	QHBox *hbox1=new QHBox (this,"hbox1");	
+	Q3HBox *hbox1=new Q3HBox (this,"hbox1");	
 	hbox1->setMargin(5);
 	hbox1->setSpacing(5);
 
@@ -63,7 +93,7 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
    
     buttonCancel = new QPushButton(hbox1, "buttonCancel" );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this,5,5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(hbox1);
 
@@ -81,7 +111,7 @@ filterDialog::~filterDialog()
 
 void filterDialog::languageChange()
 {
-setCaption(tr("QtiPlot - Filter options"));
+setWindowTitle(tr("QtiPlot - Filter options"));
 buttonFilter->setText( tr( "&Filter" ) );
 buttonCancel->setText( tr( "&Close" ) );
 }
@@ -97,7 +127,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Frequency input error"), e.GetMsg());
+	QMessageBox::critical(this, tr("QtiPlot - Frequency input error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
 	}		
@@ -120,7 +150,7 @@ if (filter_type >= BandPass)
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(this, tr("QtiPlot - High Frequency input error"), e.GetMsg());
+		QMessageBox::critical(this, tr("QtiPlot - High Frequency input error"), QString::fromStdString(e.GetMsg()));
 		boxEnd->setFocus();
 		return;
 		}	

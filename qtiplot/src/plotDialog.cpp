@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : plotDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Custom curves dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "application.h"
 #include "plotDialog.h"
 #include "colorBox.h"
@@ -12,11 +40,11 @@
 #include "ErrorBar.h"
 #include "BoxCurve.h"
 
-#include <qaccel.h>
+#include <q3accel.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qspinbox.h>
 #include <qtabwidget.h>
@@ -24,33 +52,36 @@
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
+#include <q3whatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qgroupbox.h>
-#include <qbuttongroup.h>
-#include <qhbox.h>
-#include <qvbox.h>
+#include <q3groupbox.h>
+#include <q3buttongroup.h>
+#include <q3hbox.h>
+#include <q3vbox.h>
 #include <qmessagebox.h>
 #include <qlineedit.h>
 #include <qregexp.h>
 #include <qcolordialog.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 #include <qwt_counter.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
-plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 	setName( "plotDialog" );
-    setCaption( tr( "QtiPlot - Custom curves" ) );
+    setWindowTitle( tr( "QtiPlot - Custom curves" ) );
 
-	QVBox *box1 = new QVBox(this);
+	Q3VBox *box1 = new Q3VBox(this);
 	box1->setSpacing (5);
 
-    listBox = new QListBox( box1, "listBox" );
+    listBox = new Q3ListBox( box1, "listBox" );
    	
-	QHBox *hbox1 = new QHBox ( box1);
+	Q3HBox *hbox1 = new Q3HBox ( box1);
 	hbox1->setSpacing (5);
 
     new QLabel(tr( "Plot type" ), hbox1, "TextLabel111",0 );
@@ -64,7 +95,7 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, WFlags f
     btnEditFunction->setText( tr( "&Edit Function..." ) );
 	btnEditFunction->hide();
 
-	QVBox  *box2=new QVBox (this); 
+	Q3VBox  *box2=new Q3VBox (this); 
 	box2->setSpacing (5);
     privateTabWidget = new QTabWidget(box2, "privateTabWidget" );
 
@@ -80,7 +111,7 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 	clearTabWidget();
 	graph = 0;
 
-	QHBox *hbox2 = new QHBox ( box2);
+	Q3HBox *hbox2 = new Q3HBox ( box2);
 	hbox2->setSpacing (5);
 	
 	btnWorksheet = new QPushButton(hbox2, "btnWorksheet" );
@@ -100,7 +131,7 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, WFlags f
     buttonCancel->setText( tr( "&Cancel" ) );
     buttonCancel->setAutoDefault( TRUE );
 	
-	QHBoxLayout* hlayout3 = new QHBoxLayout(this,5,5, "hlayout3");
+	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(this,5,5, "hlayout3");
     hlayout3->addWidget(box1);
 	hlayout3->addWidget(box2);
 
@@ -112,17 +143,17 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 	connect( btnAssociations, SIGNAL(clicked()), this, SLOT(showPlotAssociations()));
 	connect( btnEditFunction, SIGNAL(clicked()), this, SLOT(editFunctionCurve()));
 
-	connect(listBox, SIGNAL(doubleClicked (QListBoxItem *)),
-			this, SLOT(showPlotAssociations(QListBoxItem *)));
+	connect(listBox, SIGNAL(doubleClicked (Q3ListBoxItem *)),
+			this, SLOT(showPlotAssociations(Q3ListBoxItem *)));
 	connect(listBox, SIGNAL(highlighted(int)), this, SLOT(updateTabWindow(int)));
-	connect(listBox, SIGNAL(rightButtonClicked(QListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(QListBoxItem *, const QPoint &)));
+	connect(listBox, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(Q3ListBoxItem *, const QPoint &)));
 	connect(boxPlotType, SIGNAL(activated(int)), this, SLOT(changePlotType(int)));
 
-	QAccel *accel = new QAccel(this);
-	accel->connectItem( accel->insertItem( Key_Delete ), this, SLOT(removeSelectedCurve()) );
+	Q3Accel *accel = new Q3Accel(this);
+	accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(removeSelectedCurve()) );
 }
 
-void plotDialog::showPlotAssociations(QListBoxItem *item)
+void plotDialog::showPlotAssociations(Q3ListBoxItem *item)
 {
 if (!item)
 	return;
@@ -213,7 +244,7 @@ void plotDialog::initLinePage()
 {
     linePage = new QWidget( privateTabWidget, "linePage" );
 
-	GroupBox3 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),linePage, "GroupBox3" );
+	GroupBox3 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),linePage, "GroupBox3" );
 
 	new QLabel( tr( "Connect" ),GroupBox3, "TextLabel1",0 );  
 
@@ -243,7 +274,7 @@ void plotDialog::initLinePage()
     new QLabel( tr( "Color" ), GroupBox3, "TextLabel4",0 );
     boxLineColor = new ColorBox( FALSE, GroupBox3);
 	
-	fillGroupBox = new QButtonGroup(2,QGroupBox::Horizontal, QString::null, linePage, "fillGroupBox" );
+	fillGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString::null, linePage, "fillGroupBox" );
 
 	boxFill = new QCheckBox(fillGroupBox, 0);
 	new QLabel(  tr( "Fill area under curve" ),fillGroupBox, "TextLabel4_3",0 );  
@@ -254,7 +285,7 @@ void plotDialog::initLinePage()
 	TextLabel4_4=new QLabel(tr( "Pattern" ), fillGroupBox, "TextLabel4_4",0);
 	boxPattern = new PatternBox( FALSE, fillGroupBox);
 	
-	QHBoxLayout* hlayout2 = new QHBoxLayout(linePage,5,5, "hlayout2");
+	Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(linePage,5,5, "hlayout2");
     hlayout2->addWidget(GroupBox3);
 	hlayout2->addWidget(fillGroupBox);
 
@@ -274,7 +305,7 @@ void plotDialog::initSymbolsPage()
 {	
     symbolPage = new QWidget( privateTabWidget, "symbolPage" );
 
-	GroupBox0 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),symbolPage, "GroupBox0" );
+	GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),symbolPage, "GroupBox0" );
 	
 	new QLabel(tr( "Style" ), GroupBox0, "TextLabel2_2",0 );
     boxSymbolStyle = new SymbolBox( FALSE, GroupBox0);
@@ -292,7 +323,7 @@ void plotDialog::initSymbolsPage()
 	new QLabel(tr( "Edge Width" ), GroupBox0, "TextLabel4_2",0 ); 
     boxPenWidth = new QSpinBox(1, 100, 1, GroupBox0, "boxPenWidth" );
 
-	QHBoxLayout* hlayout0 = new QHBoxLayout(symbolPage,5,25, "hlayout");
+	Q3HBoxLayout* hlayout0 = new Q3HBoxLayout(symbolPage,5,25, "hlayout");
     hlayout0->addWidget(GroupBox0);
 
 	privateTabWidget->insertTab(symbolPage, tr( "Symbol" ) );
@@ -308,7 +339,7 @@ void plotDialog::initBoxPage()
 {	
     boxPage = new QWidget( privateTabWidget, "boxPage" );
 
-	GroupBox0 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "Box" ),boxPage, "GroupBox0" );
+	GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Box" ),boxPage, "GroupBox0" );
 	
 	new QLabel(tr( "Type" ), GroupBox0, "TextLabel2_2",0 );
     boxType = new QComboBox( FALSE, GroupBox0, "boxType" );
@@ -343,7 +374,7 @@ void plotDialog::initBoxPage()
 	new QLabel(tr( "Box Width" ), GroupBox0, "TextLabel3_2",0 );
 	boxWidth = new QSpinBox(0, 100, 5, GroupBox0, "boxWidth" );
 
-	GroupBox1 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "Whiskers" ),boxPage, "GroupBox0" );
+	GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Whiskers" ),boxPage, "GroupBox0" );
 	
 	whiskerRangeLabel = new QLabel(tr( "Range" ), GroupBox1, "TextLabel2_2",0 );
 	boxWhiskersRange = new QComboBox( FALSE, GroupBox1, "boxWhiskersRange" );
@@ -368,7 +399,7 @@ void plotDialog::initBoxPage()
 	whiskerCnt->setIncSteps(QwtCounter::Button1, 1);   // Button 1 increments 1 step
 	whiskerCnt->setIncSteps(QwtCounter::Button2, 50);  // Button 2 increments 5 steps
 
-	QHBoxLayout* hlayout0 = new QHBoxLayout(boxPage,5,25, "hlayout");
+	Q3HBoxLayout* hlayout0 = new Q3HBoxLayout(boxPage,5,25, "hlayout");
     hlayout0->addWidget(GroupBox0);
 	hlayout0->addWidget(GroupBox1);
 
@@ -383,7 +414,7 @@ void plotDialog::initPercentilePage()
 {	
     percentilePage = new QWidget( privateTabWidget, "percentilePage" );
 
-	QButtonGroup *gb0 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "Type" ),percentilePage, "gb0" );
+	Q3ButtonGroup *gb0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Type" ),percentilePage, "gb0" );
 	
 	new QLabel(tr( "Max" ), gb0, "TextLabel2_2",0 );
     boxMaxStyle = new SymbolBox( FALSE, gb0);
@@ -400,7 +431,7 @@ void plotDialog::initPercentilePage()
 	new QLabel(tr( "Min" ), gb0, "TextLabel2_2",0 );
     boxMinStyle = new SymbolBox( FALSE, gb0);
 
-	QButtonGroup *gb1 = new QButtonGroup(2,QGroupBox::Horizontal, tr( "Symbol" ),percentilePage, "GroupBox0" );
+	Q3ButtonGroup *gb1 = new Q3ButtonGroup(2,Qt::Horizontal, tr( "Symbol" ),percentilePage, "GroupBox0" );
 
 	new QLabel(tr( "Size" ), gb1, "TextLabel3_2",0 );
 	boxPercSize = new QSpinBox( gb1, "boxPercSize" );
@@ -415,7 +446,7 @@ void plotDialog::initPercentilePage()
 	new QLabel(tr( "Edge Width" ), gb1, "TextLabel4_2",0 ); 
     boxEdgeWidth = new QSpinBox(0, 100, 1, gb1, "boxPenWidth" );
 
-	QHBoxLayout* hlayout0 = new QHBoxLayout(percentilePage,5,25, "hlayout");
+	Q3HBoxLayout* hlayout0 = new Q3HBoxLayout(percentilePage,5,25, "hlayout");
     hlayout0->addWidget(gb0);
 	hlayout0->addWidget(gb1);
 
@@ -448,7 +479,7 @@ void plotDialog::initErrorsPage()
 {
 errorsPage = new QWidget(privateTabWidget, "errorsPage" );
 	
-GroupBox2 = new QButtonGroup(1,QGroupBox::Horizontal,tr( "Direction" ),errorsPage, "GroupBox2" );
+GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "Direction" ),errorsPage, "GroupBox2" );
 
 plusBox = new QCheckBox( GroupBox2, "plusBox" );
 plusBox->setText( tr( "Plus" ) );
@@ -461,7 +492,7 @@ plusBox->setChecked( TRUE );
     xBox = new QCheckBox( GroupBox2, "xBox" ); 
     xBox->setText( tr( "&X Error Bar" ) );
 
-    GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr( "Style" ),errorsPage, "GroupBox1" );
+    GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "Style" ),errorsPage, "GroupBox1" );
    
     new QLabel(tr( "Color" ), GroupBox1, "TextLabel3_3",0 );
     colorBox = new ColorButton(GroupBox1);
@@ -490,7 +521,7 @@ plusBox->setChecked( TRUE );
     throughBox = new QCheckBox( GroupBox1, "throughBox" );
     throughBox->setText( tr( "Through Symbol" ) );
 	
-	QHBoxLayout* hlayout = new QHBoxLayout(errorsPage,5,5, "hlayout");
+	Q3HBoxLayout* hlayout = new Q3HBoxLayout(errorsPage,5,5, "hlayout");
     hlayout->addWidget(GroupBox2);
 	hlayout->addWidget(GroupBox1);
 
@@ -507,7 +538,7 @@ void plotDialog::initHistogramPage()
 {
 histogramPage = new QWidget(privateTabWidget, "histogramPage" );
 	
-QHBox *GroupBoxH1 = new QHBox ( histogramPage);
+Q3HBox *GroupBoxH1 = new Q3HBox ( histogramPage);
 GroupBoxH1->setSpacing (5);
 	
 automaticBox = new QCheckBox( GroupBoxH1, "automaticBox" );
@@ -516,7 +547,7 @@ automaticBox->setText( tr( "Automatic Binning" ) );
 buttonStatistics = new QPushButton(GroupBoxH1, "buttonStatistics" );
 buttonStatistics->setText( tr( "&Show statistics" ) );
 
-GroupBoxH = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),histogramPage, "GroupBoxH" );
+GroupBoxH = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),histogramPage, "GroupBoxH" );
    
 new QLabel(tr( "Bin Size" ), GroupBoxH, "TextLabel3_3",0 );
 binSizeBox = new QLineEdit(GroupBoxH);	
@@ -527,7 +558,7 @@ histogramBeginBox = new QLineEdit(GroupBoxH);
 new QLabel(tr( "End" ) , GroupBoxH, "TextLabel3_3_2_2",0 );
 histogramEndBox = new QLineEdit(GroupBoxH);
 	
-QVBoxLayout* hlayout = new QVBoxLayout(histogramPage,5,5, "hlayout");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(histogramPage,5,5, "hlayout");
 hlayout->addWidget(GroupBoxH1);
 hlayout->addWidget(GroupBoxH);
 
@@ -541,19 +572,19 @@ void plotDialog::initSpacingPage()
 {
 spacingPage = new QWidget(privateTabWidget, "histogramPage" );
 
-QHBox *hb1 = new QHBox ( spacingPage);
+Q3HBox *hb1 = new Q3HBox ( spacingPage);
 hb1->setSpacing (5);
 
 new QLabel(tr( "Gap Between Bars (in %)" ) , hb1, "TextLabel_gap",0 );
 gapBox=new QSpinBox(0,100,10,hb1, "gapBox");
 
-QHBox *hb2 = new QHBox ( spacingPage);
+Q3HBox *hb2 = new Q3HBox ( spacingPage);
 hb2->setSpacing (5);
 
 new QLabel(tr( "Offset (in %)" ) , hb2, "TextLabel_gap",0 );
 offsetBox=new QSpinBox(-1000,1000,50,hb2, "gapBox");
 
-QVBoxLayout* hlayout = new QVBoxLayout(spacingPage, 35, 5, "hlayout");
+Q3VBoxLayout* hlayout = new Q3VBoxLayout(spacingPage, 35, 5, "hlayout");
 hlayout->addWidget(hb1);
 hlayout->addWidget(hb2);
 
@@ -563,9 +594,9 @@ privateTabWidget->insertTab( spacingPage, tr( "Spacing" ) );
 void plotDialog::initVectPage()
 {
 vectPage = new QWidget(privateTabWidget, "vectPage" );
-QVBox *box1 = new QVBox(vectPage);
+Q3VBox *box1 = new Q3VBox(vectPage);
 
-QButtonGroup *GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr( "" ),box1, "GroupBox1" );
+Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "" ),box1, "GroupBox1" );
 	
 new QLabel(tr( "Color" ), GroupBox1, "TextLabel3_3",0 );
 vectColorBox = new ColorBox( FALSE, GroupBox1);
@@ -573,7 +604,7 @@ vectColorBox = new ColorBox( FALSE, GroupBox1);
 new QLabel(tr( "Line Width" ), GroupBox1, "TextLabel3_3_2",0 );
 vectWidthBox = new QSpinBox( 1,100,1, GroupBox1, "vectWidthBox" );
 
-GroupBox2 = new QButtonGroup( 2,QGroupBox::Horizontal,tr( "Arrowheads" ),box1, "GroupBox2" );
+GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "Arrowheads" ),box1, "GroupBox2" );
 
 new QLabel(tr( "Length" ), GroupBox2, "TextLabel3_3",0 );
 headLengthBox = new QSpinBox( 0,100,1, GroupBox2, "headLengthBox" );
@@ -584,8 +615,8 @@ headAngleBox = new QSpinBox( 0,85,5, GroupBox2, "headAngleBox" );
 filledHeadBox = new QCheckBox(GroupBox2, "filledBox" ); 
 filledHeadBox->setText( tr( "&Filled" ) );
 
-QVBox *box2 = new QVBox(vectPage);
-GroupBoxVectEnd = new QButtonGroup( 2,QGroupBox::Horizontal,tr( "End Point" ),box2, "GroupBox2" );
+Q3VBox *box2 = new Q3VBox(vectPage);
+GroupBoxVectEnd = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "End Point" ),box2, "GroupBox2" );
 
 labelXEnd = new QLabel(tr( "X End" ), GroupBoxVectEnd, "TextLabel3_3",0 );
 xEndBox = new QComboBox( FALSE, GroupBoxVectEnd, "headLengthBox" );
@@ -599,7 +630,7 @@ vectPosBox->insertItem(tr("Tail"));
 vectPosBox->insertItem(tr("Middle"));
 vectPosBox->insertItem(tr("Head"));
 
-QHBoxLayout* hlayout = new QHBoxLayout(vectPage,5,5, "hlayout");
+Q3HBoxLayout* hlayout = new Q3HBoxLayout(vectPage,5,5, "hlayout");
 hlayout->addWidget(box1);
 hlayout->addWidget(box2);
 
@@ -646,14 +677,14 @@ if (app)
 close();
 }
 
-void plotDialog::showPopupMenu(QListBoxItem *it, const QPoint &point)
+void plotDialog::showPopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 if (!it)
 	return;
 
 lastSelectedCurve=listBox->index (it);
 
-QPopupMenu contextMenu(this);
+Q3PopupMenu contextMenu(this);
 if (listBox->count() > 1)
 	contextMenu.insertItem(tr("&Delete"), this, SLOT(removeCurve()));
 if (it->text().contains("="))
@@ -1273,7 +1304,7 @@ if (from.contains(nonDigit))
 			}
 		catch(mu::ParserError &e)
 			{
-			QMessageBox::critical(0,"QtiPlot - Start limit error",e.GetMsg());
+			QMessageBox::critical(0,"QtiPlot - Start limit error",QString::fromStdString(e.GetMsg()));
 			histogramBeginBox->setFocus();
 			error=TRUE;
 			return FALSE;
@@ -1292,7 +1323,7 @@ if (from.contains(nonDigit))
 				}
 			catch(mu::ParserError &e)
 				{
-				QMessageBox::critical(0,"QtiPlot - End limit error",e.GetMsg());
+				QMessageBox::critical(0,"QtiPlot - End limit error",QString::fromStdString(e.GetMsg()));
 				histogramEndBox->setFocus();
 				error=TRUE;
 				return FALSE;
@@ -1319,7 +1350,7 @@ if (from.contains(nonDigit))
 			}
 		catch(mu::ParserError &e)
 			{
-			QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),e.GetMsg());
+			QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),QString::fromStdString(e.GetMsg()));
 			binSizeBox->setFocus();
 			error=TRUE;
 			return FALSE;

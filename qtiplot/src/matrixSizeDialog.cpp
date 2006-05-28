@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : matrixSizeDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Matrix dimensions dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "matrixSizeDialog.h"
 #include "parser.h"
 
@@ -5,40 +33,42 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qspinbox.h>
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qlineedit.h>
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
-matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 	setName( "matrixSizeDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
 		
-	QButtonGroup *GroupBox1 = new QButtonGroup(4, QGroupBox::Horizontal,tr("Dimensions"),this,"GroupBox1" );
-	new QLabel( tr( "Rows" ), GroupBox1, "TextLabel2",0 );
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4, Qt::Horizontal,tr("Dimensions"),this,"GroupBox1" );
+	new QLabel( tr( "Rows" ));
     boxRows = new QSpinBox(0,1000000,1, GroupBox1, "boxRows" );
 
-	new QLabel( tr( "Columns" ), GroupBox1, "TextLabel2",0 );
+	new QLabel( tr( "Columns" ));
     boxCols = new QSpinBox(0,1000000,1, GroupBox1, "boxCols" );
 
-	QButtonGroup *GroupBox2 = new QButtonGroup(3,QGroupBox::Horizontal,tr("Coordinates"),this,"GroupBox2" );
-	new QLabel(GroupBox2, "TextLabel2",0 );
-	new QLabel( tr( "X (Columns)" ), GroupBox2, "TextLabel2",0 );
-	new QLabel( tr( "Y (Rows)" ), GroupBox2, "TextLabel2",0 );
+	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr("Coordinates"),this,"GroupBox2" );
+	new QLabel(GroupBox2);
+	new QLabel( tr( "X (Columns)" ));
+	new QLabel( tr( "Y (Rows)" ));
 
-	new QLabel( tr( "First" ), GroupBox2, "TextLabel2",0 );
+	new QLabel( tr( "First" ));
     boxXStart = new QLineEdit(GroupBox2, "boxXStart" );
     boxYStart = new QLineEdit(GroupBox2, "boxYStart" );
 
-	new QLabel( tr( "Last" ), GroupBox2, "TextLabel2",0 );
+	new QLabel( tr( "Last" ));
     boxXEnd = new QLineEdit(GroupBox2, "boxXStart" );
     boxYEnd = new QLineEdit(GroupBox2, "boxYStart" );
 
-	QHBox  *hbox1=new QHBox (this, "hbox1"); 
+	Q3HBox  *hbox1=new Q3HBox (this, "hbox1"); 
 	hbox1->setMargin (5);
 	hbox1->setSpacing (5);
 	
@@ -47,7 +77,7 @@ matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool moda
    
     buttonCancel = new QPushButton(hbox1, "buttonCancel" );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this,5,5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
 	hlayout->addWidget(hbox1);
@@ -83,7 +113,7 @@ boxYEnd->setText(QString::number(ye, 'g', 6));
 
 void matrixSizeDialog::languageChange()
 {
-    setCaption(tr("QtiPlot - Matrix Dimensions"));
+    setWindowTitle(tr("QtiPlot - Matrix Dimensions"));
     buttonOk->setText(tr("&OK"));
 	buttonCancel->setText(tr("&Cancel"));
 }
@@ -99,7 +129,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
 	boxXStart->setFocus();
 	return;
 	}
@@ -110,7 +140,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
 	boxXEnd->setFocus();
 	return;
 	}
@@ -121,7 +151,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
 	boxYStart->setFocus();
 	return;
 	}
@@ -132,7 +162,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
 	boxYEnd->setFocus();
 	return;
 	}

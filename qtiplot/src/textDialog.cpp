@@ -1,18 +1,38 @@
+/***************************************************************************
+    File                 : textDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Text label/axis label options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
+
 #include "textDialog.h"
-#include "colorButton.h"
 #include "txt_icons.h"
 #include "symbolDialog.h"
-
-#include <qcombobox.h>
-#include <qlabel.h>
-#include <qmultilineedit.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qbuttongroup.h>
-#include <qfont.h>
-#include <qfontdialog.h>
-#include <qcolordialog.h>
+#include <QFontDialog>
+#include <QColorDialog>
+#include <QFont>
 
 static const char * lineSymbol_xpm[] = {
 "16 16 4 1",
@@ -37,408 +57,486 @@ static const char * lineSymbol_xpm[] = {
 "                ",
 "                "};
 
-TextDialog::TextDialog(TextType type, QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+
+TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
+	: QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "TextDialog" );
+	setWindowTitle( tr( "QtiPlot - Text options" ) );
+	setSizeGripEnabled( true );
 
-    setCaption( tr( "QtiPlot - Text options" ) );
-    setSizeGripEnabled( true );
+	textType = type;
+
+	// initialize selectedFont with something useful to
+	// prevent error if setFont is not called before show()
+	selectedFont = this->font();
 	
-	text_type = type;
-	GroupBox1 = new QButtonGroup(3,QGroupBox::Horizontal, QString::null,this, "GroupBox1" );
+	// top groupbox
+	groupBox1 = new QGroupBox(QString());
 
-	new QLabel(tr( "Color" ), GroupBox1, "TextLabel2",0 );
+	// grid layout for top groupbox
+	QGridLayout * layoutTop = new QGridLayout();
+	// add text color label
+	layoutTop->addWidget(new QLabel(tr("Text Color")), 0, 0);
+
+	colorBtn = new ColorButton();
+	// add color button
+	layoutTop->addWidget(colorBtn, 0, 1);
+
+	buttonOk = new QPushButton(tr("&OK"));
+	buttonOk->setAutoDefault( true );
+	buttonOk->setDefault( true );
+
+	// add ok button
+	layoutTop->addWidget(buttonOk, 0, 3);
+
+	// add font label
+	layoutTop->addWidget(new QLabel(tr("Font")), 1, 0);
+
+	buttonFont = new QPushButton(tr( "&Font" ));
+	buttonFont->setAutoDefault( true );
+
+	// add font button
+	layoutTop->addWidget(buttonFont, 1, 1);
+
+	buttonApply = new QPushButton(tr( "&Apply" ));
+	buttonApply->setAutoDefault( true );
+	buttonApply->setDefault( true );
 	
-    colorBox = new ColorButton(GroupBox1);
+	// add apply button
+	layoutTop->addWidget( buttonApply, 1, 3 );
 
-	buttonOk = new QPushButton( GroupBox1, "buttonOk" );
-    buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
-
-	new QLabel(tr( "Font" ),GroupBox1, "TextLabel1_21",0);
-	buttonFont = new QPushButton( GroupBox1, "buttonFont" );
-    buttonFont->setText( tr( "&Font" ) );
-    buttonFont->setAutoDefault( TRUE );
-
-	buttonApply = new QPushButton( GroupBox1, "buttonApply" );
-    buttonApply->setText( tr( "&Apply" ) );
-    buttonApply->setAutoDefault( TRUE );
-    buttonApply->setDefault( TRUE );
-	
-	if (text_type)
-		{
-		new QLabel(tr( "Alignement" ),GroupBox1, "TextLabel1_22",0);
-		alignementBox = new QComboBox( FALSE, GroupBox1, "alignementBox" );
-		alignementBox->insertItem( tr( "Center" ) );
-		alignementBox->insertItem( tr( "Left" ) );
-		alignementBox->insertItem( tr( "Right" ) );
-		}
+	if (textType == TextDialog::AxisTitle)
+	{
+		// add label "alignment"
+		layoutTop->addWidget(new QLabel(tr("Alignment")), 2, 0);
+		alignmentBox = new QComboBox();
+		alignmentBox->addItem( tr( "Center" ) );
+		alignmentBox->addItem( tr( "Left" ) );
+		alignmentBox->addItem( tr( "Right" ) );
+		// add alignment combo box
+		layoutTop->addWidget(alignmentBox, 2, 1);
+	}
 	else
-		{
-		new QLabel(tr( "Frame" ), GroupBox1, "TextLabel1",0 );
-		backgroundBox = new QComboBox( FALSE, GroupBox1, "backgroundBox" );
-		backgroundBox->insertItem( tr( "None" ) );
-		backgroundBox->insertItem( tr( "Rectangle" ) );
-		backgroundBox->insertItem( tr( "Shadow" ) );
-		}
+	{
+		// add label "frame"
+		layoutTop->addWidget(new QLabel(tr("Frame")), 2, 0);
+		frameBox = new QComboBox();
+		frameBox->addItem( tr( "None" ) );
+		frameBox->addItem( tr( "Rectangle" ) );
+		frameBox->addItem( tr( "Shadow" ) );
+		layoutTop->addWidget(frameBox, 2, 1);
+	}
 
-	buttonCancel = new QPushButton( GroupBox1, "buttonCancel" );
-    buttonCancel->setText( tr( "&Cancel" ) );
-    buttonCancel->setAutoDefault( TRUE );	
+	buttonCancel = new QPushButton( tr( "&Cancel" ) );
+	buttonCancel->setAutoDefault( true );	
+	// add cancel button
+	layoutTop->addWidget( buttonCancel, 2, 3 );
 
-	if (!text_type)
-		{
-		new QLabel(tr("Background"), GroupBox1, "TextLabel2",0 );
-		backgroundBtn = new ColorButton(GroupBox1);
+	if (textType == TextDialog::TextMarker)
+	{ //TODO: Sometime background features for axes lables should be implemented
+		// add label "background color"	
+		layoutTop->addWidget(new QLabel(tr("Background color")), 3, 0);
+		backgroundBtn = new ColorButton(groupBox1);
+		// add background button
+		layoutTop->addWidget( backgroundBtn );	
 
 		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
-		}
+	}
 
-	QLabel* rotate=new QLabel(tr( "Rotate (deg.)" ),GroupBox1, "TextLabel1_2",0);
-	rotate->hide();
+	// align the OK, Apply, and Cancel buttons to the right
+	layoutTop->setColumnStretch(2, 1);
 	
-    rotateBox = new QComboBox( FALSE, GroupBox1, "rotateBox" );
-    rotateBox->insertItem( tr( "0" ) );
-    rotateBox->insertItem( tr( "45" ) );
-    rotateBox->insertItem( tr( "90" ) );
-    rotateBox->insertItem( tr( "135" ) );
-    rotateBox->insertItem( tr( "180" ) );
-    rotateBox->insertItem( tr( "225" ) );
-    rotateBox->insertItem( tr( "270" ) );
-    rotateBox->insertItem( tr( "315" ) );
-	rotateBox->setEditable (TRUE);
-	rotateBox->setCurrentItem(0);
-	rotateBox->hide();
-	
-	GroupBox2= new QButtonGroup(8, QGroupBox::Horizontal, QString::null,this, "GroupBox2" );
+	groupBox1->setLayout( layoutTop );
 
-	if (!text_type)
-		{
-		buttonCurve = new QPushButton( GroupBox2, "buttonCurve" ); 
-		buttonCurve->setPixmap (QPixmap(lineSymbol_xpm));
+	/* TODO: Angle feature not implemented, yet
+	 * caution: This code is still the old Qt3 code
+	   QLabel* rotate=new QLabel(tr( "Rotate (deg.)" ),GroupBox1, "TextLabel1_2",0);
+	   rotate->hide();
+
+	   rotateBox = new QComboBox( FALSE, GroupBox1, "rotateBox" );
+	   rotateBox->insertItem( tr( "0" ) );
+	   rotateBox->insertItem( tr( "45" ) );
+	   rotateBox->insertItem( tr( "90" ) );
+	   rotateBox->insertItem( tr( "135" ) );
+	   rotateBox->insertItem( tr( "180" ) );
+	   rotateBox->insertItem( tr( "225" ) );
+	   rotateBox->insertItem( tr( "270" ) );
+	   rotateBox->insertItem( tr( "315" ) );
+	   rotateBox->setEditable (TRUE);
+	   rotateBox->setCurrentItem(0);
+	   rotateBox->hide();
+	   */
+
+	// middle group box
+	groupBox2 = new QGroupBox(QString());
+
+	// layout for middle group box
+	QHBoxLayout * layoutMiddle = new QHBoxLayout();
+
+	// add the buttons
+	if (textType == TextDialog::AxisTitle)
+	{
+		buttonCurve = new QPushButton( QPixmap(lineSymbol_xpm), QString());
+		buttonCurve->setMaximumWidth(40);
+		buttonCurve->setMinimumHeight(35);
 		connect( buttonCurve, SIGNAL( clicked() ), this, SLOT(addCurve() ) );
-		}
-
-    buttonIndice = new QPushButton( GroupBox2, "buttonIndice" ); 
-    buttonIndice->setPixmap (QPixmap(index_xpm));
-
-    buttonExp = new QPushButton( GroupBox2, "buttonExp" );
-    buttonExp->setPixmap (QPixmap(exp_xpm));
-
-    buttonMinGreek = new QPushButton(QChar(0x3B1), GroupBox2, "buttonMinGreek" ); 
-	buttonMinGreek->setMaximumWidth(40);
-
-	buttonMajGreek = new QPushButton(QChar(0x393), GroupBox2, "buttonMajGreek" ); 
-	buttonMajGreek->setMaximumWidth(40);
+		layoutMiddle->addWidget(buttonCurve);
+	}
 
 	QFont font = this->font();
-	font.setBold(true);
+	font.setPointSize(14);
+		
+	buttonIndex = new QPushButton(QPixmap(index_xpm),QString());
+	buttonIndex->setMaximumWidth(40);
+	buttonIndex->setMinimumHeight(35);
+	buttonIndex->setFont(font);
+	layoutMiddle->addWidget(buttonIndex);
 
-    buttonB = new QPushButton(tr("B"), GroupBox2, "buttonB" ); 
-    buttonB->setFont(font);
+	buttonExp = new QPushButton(QPixmap(exp_xpm),QString());
+	buttonExp->setMaximumWidth(40);
+	buttonExp->setMinimumHeight(35);
+	buttonExp->setFont(font);
+	layoutMiddle->addWidget(buttonExp);
+
+	buttonLowerGreek = new QPushButton(QString(QChar(0x3B1))); 
+	buttonLowerGreek->setFont(font);
+	buttonLowerGreek->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonLowerGreek);
+
+	buttonUpperGreek = new QPushButton(QString(QChar(0x393))); 
+	buttonUpperGreek->setFont(font);
+	buttonUpperGreek->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonUpperGreek);
+
+	buttonMathSymbols = new QPushButton(QString(QChar(0x222B))); 
+	buttonMathSymbols->setFont(font);
+	buttonMathSymbols->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonMathSymbols);
+
+	buttonArrowSymbols = new QPushButton(QString(QChar(0x2192))); 
+	buttonArrowSymbols->setFont(font);
+	buttonArrowSymbols->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonArrowSymbols);
+
+	font = this->font();
+	font.setBold(true);
+	font.setPointSize(14);
+
+	buttonB = new QPushButton(tr("B")); 
+	buttonB->setFont(font);
 	buttonB->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonB);
 
 	font = this->font();
 	font.setItalic(true);
-    buttonI = new QPushButton(tr("It"), GroupBox2, "buttonI" );
+	font.setPointSize(14);
+	
+	buttonI = new QPushButton(tr("It"));
 	buttonI->setFont(font);
 	buttonI->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonI);
 
 	font = this->font();
 	font.setUnderline(true);
+	font.setPointSize(14);
 
-    buttonU = new QPushButton(tr("U"), GroupBox2, "buttonU" );
+	buttonU = new QPushButton(tr("U"));
 	buttonU->setFont(font);
 	buttonU->setMaximumWidth(40);
+	layoutMiddle->addWidget(buttonU);
 
-    LineEdit = new QMultiLineEdit( this, "LineEdit" );
+	lineEdit = new QTextEdit();
 
-	setFocusPolicy(QWidget::StrongFocus);
-	setFocusProxy(LineEdit);
+	setFocusPolicy(Qt::StrongFocus);
+	setFocusProxy(lineEdit);
+
+	// set middle layout
+	groupBox2->setLayout( layoutMiddle );
 	
-	QVBoxLayout* vlayout = new QVBoxLayout(this,5,5, "vlayout");
-    vlayout->addWidget(GroupBox1);
-	vlayout->addWidget(GroupBox2);
-	vlayout->addWidget(LineEdit);
+	// put everything together
+	QVBoxLayout* mainLayout = new QVBoxLayout();
+	mainLayout->addWidget(groupBox1);
+	mainLayout->addWidget(groupBox2);
+	mainLayout->addWidget(lineEdit);
+	setLayout( mainLayout );
 
-    // signals and slots connections
-	connect( colorBox, SIGNAL( clicked() ), this, SLOT( pickTextColor() ) );
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+
+	// signals and slots connections
+	connect( colorBtn, SIGNAL( clicked() ), this, SLOT( pickTextColor() ) );
+	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonFont, SIGNAL( clicked() ), this, SLOT(customFont() ) );
 	connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
-	connect( buttonIndice, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
+	connect( buttonIndex, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
 	connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
 	connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
 	connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
-	connect(buttonMinGreek, SIGNAL(clicked()), this, SLOT(showMinGreek()));
-	connect(buttonMajGreek, SIGNAL(clicked()), this, SLOT(showMajGreek()));
+	connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
+	connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
+	connect(buttonMathSymbols, SIGNAL(clicked()), this, SLOT(showMathSymbols()));
+	connect(buttonArrowSymbols, SIGNAL(clicked()), this, SLOT(showArrowSymbols()));
 }
 
-void TextDialog::showMinGreek()
+void TextDialog::showLowerGreek()
 {
-symbolDialog *greekLetters = new symbolDialog(symbolDialog::minGreek, this,"greekLetters",
-											  false, WStyle_Tool|WDestructiveClose);
-connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-
-QFont fnt = f;
-fnt.setPointSize(14);
-greekLetters->setFont(fnt);
-greekLetters->show();
-greekLetters->setActiveWindow();
+	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
+	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
+	QFont f = selectedFont;
+	if(f.pointSize()<14)
+		f.setPointSize(14);
+	greekLetters->setFont(f);
+	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	greekLetters->show();
+	greekLetters->setFocus();
 }
 
-void TextDialog::showMajGreek()
+void TextDialog::showUpperGreek()
 {
-symbolDialog *greekLetters = new symbolDialog(symbolDialog::majGreek, this, "greekLetters",
-											  false, WStyle_Tool|WDestructiveClose);
-connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-
-QFont fnt = f;
-fnt.setPointSize(14);
-greekLetters->setFont(fnt);
-greekLetters->show();
-greekLetters->setActiveWindow();
+	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
+	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
+	QFont f = selectedFont;
+	if(f.pointSize()<14)
+		f.setPointSize(14);
+	greekLetters->setFont(f);
+	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	greekLetters->show();
+	greekLetters->setFocus();
 }
 
-void TextDialog::addSymbol(const QString& letter)
+void TextDialog::showMathSymbols()
 {
-LineEdit->insert(letter);
+	SymbolDialog *mathSymbols = new SymbolDialog(SymbolDialog::mathSymbols, this, Qt::Tool);
+	mathSymbols->setAttribute(Qt::WA_DeleteOnClose);
+	QFont f = selectedFont;
+	if(f.pointSize()<14)
+		f.setPointSize(14);
+	mathSymbols->setFont(f);
+	connect(mathSymbols, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	mathSymbols->show();
+	mathSymbols->setFocus();
+}
+
+void TextDialog::showArrowSymbols()
+{
+	SymbolDialog *arrowSymbols = new SymbolDialog(SymbolDialog::arrowSymbols, this, Qt::Tool);
+	arrowSymbols->setAttribute(Qt::WA_DeleteOnClose);
+	arrowSymbols->setFont(selectedFont);
+	QFont f = selectedFont;
+	if(f.pointSize()<14)
+		f.setPointSize(14);
+	arrowSymbols->setFont(f);
+	connect(arrowSymbols, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	arrowSymbols->show();
+	arrowSymbols->setFocus();
+}
+
+void TextDialog::addSymbol(const QString & letter)
+{
+	lineEdit->textCursor().insertText(letter);
 }
 
 void TextDialog::addCurve()
 {
-int line=0, col=0;
-LineEdit->getCursorPosition (&line,&col);
-LineEdit->insert("\\c{}");
-LineEdit->setCursorPosition (line,col+3,FALSE);
+	formatText("\\c{","}");
 }
 
 void TextDialog::addUnderline()
 {
-int line=0, col=0;
-if (LineEdit->hasMarkedText())
-	{	
-	QString markedText=LineEdit->markedText ();
-	LineEdit->insert("<u>"+markedText);
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insertAt ("</u>",line,col,FALSE);
-	LineEdit->setCursorPosition (line,col,FALSE);
-	}
-else
-	{	
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insert("<u></u>");
-	LineEdit->setCursorPosition (line,col+3,FALSE);
-	}
+	formatText("<u>","</u>");
 }
 
 void TextDialog::addItalic()
 {
-int line=0, col=0;
-
-if (LineEdit->hasMarkedText())
-	{	
-	QString markedText=LineEdit->markedText ();
-	LineEdit->insert("<i>"+markedText);
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insertAt ("</i>",line,col,FALSE);
-	LineEdit->setCursorPosition (line,col,FALSE);
-	}
-else
-	{	
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insert("<i></i>");
-	LineEdit->setCursorPosition (line,col+3,FALSE);
-	}
+	formatText("<i>","</i>");
 }
 
 void TextDialog::addBold()
 {
-int line=0, col=0;
-	
-if (LineEdit->hasMarkedText())
-	{	
-	QString markedText=LineEdit->markedText ();
-	LineEdit->insert("<b>"+markedText);
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insertAt ("</b>",line,col,FALSE);
-	LineEdit->setCursorPosition (line,col,FALSE);
-	}
-else
-	{	
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insert("<b></b>");
-	LineEdit->setCursorPosition (line,col+3,FALSE);
-	}
+	formatText("<b>","</b>");
 }
 
 void TextDialog::addIndex()
 {
-int line=0, col=0;
-LineEdit->getCursorPosition (&line,&col);
-	
-if (LineEdit->hasMarkedText())
-	{	
-	QString markedText=LineEdit->markedText ();
-	LineEdit->insert("<sub>"+markedText);
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insertAt ("</sub>",line,col,FALSE);
-	LineEdit->setCursorPosition (line,col,FALSE);
-	}
-else
-	{	
-	LineEdit->insert("<sub></sub>");
-	LineEdit->setCursorPosition (line,col+5,FALSE);
-	}
+	formatText("<sub>","</sub>");
 }
 
 void TextDialog::addExp()
 {
-int line, col;
-LineEdit->getCursorPosition (&line,&col);
+	formatText("<sup>","</sup>");
+}
 
-if (LineEdit->hasMarkedText())
-	{	
-	QString markedText=LineEdit->markedText ();
-	LineEdit->insert("<sup>"+markedText);
-	LineEdit->getCursorPosition (&line,&col);
-	LineEdit->insertAt ("</sup>",line,col,FALSE);
-	LineEdit->setCursorPosition (line,col,FALSE);
+void TextDialog::formatText(const QString & prefix, const QString & postfix)
+{
+	QTextCursor cursor = lineEdit->textCursor();
+	QString markedText = lineEdit->textCursor().selectedText();
+	cursor.insertText(prefix+markedText+postfix);
+	if(markedText.isEmpty())
+	{
+		// if no text is marked, place cursor inside the <..></..> statement
+		// instead of after it
+		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,postfix.size());
+		// the next line makes the selection visible to the user 
+		// (the line above only changes the selection in the
+		// underlying QTextDocument)
+		lineEdit->setTextCursor(cursor);
 	}
-else
-	{	
-	LineEdit->insert("<sup></sup>");
-	LineEdit->setCursorPosition (line,col+5,FALSE);
-	}
+	// give focus back to text edit
+	lineEdit->setFocus();
 }
 
 int TextDialog::backgroundType()
 {
-return backgroundBox->currentItem();
+	return frameBox->currentIndex();
 }
 
 void TextDialog::apply()
 {
-if (text_type)
+	if (textType == TextDialog::AxisTitle)
 	{
-	emit changeAlignment(alignment());
-	emit changeText(LineEdit->text());
-	emit changeColor(colorBox->color());
+		emit changeAlignment(alignment());
+		emit changeText(lineEdit->toPlainText());
+		emit changeColor(colorBtn->color());
 	}
-else
-	emit values(LineEdit->text(),0,backgroundType(),f, colorBox->color(), backgroundBtn->color());
+	else
+		emit values(lineEdit->text(),angle(),backgroundType(),selectedFont, colorBtn->color(), backgroundBtn->color());
 }
 
 void TextDialog::accept()
 {
-apply();
-close();
+	apply();
+	close();
 }
 
 void TextDialog::setBackgroundType(int bkg)
 {
-backgroundBox->setCurrentItem(bkg);
+	frameBox->setCurrentIndex(bkg);
 }
 
 int TextDialog::alignment()
 {
-int align=-1;
-switch (alignementBox->currentItem())
+	int align=-1;
+	switch (alignmentBox->currentIndex())
 	{
-	case 0:
-		align=Qt::AlignHCenter;
-	break;
+		case 0:
+			align = Qt::AlignHCenter;
+			break;
 
-	case 1:
-		align=Qt::AlignLeft;
-	break;
-	
-	case 2:
-		align=Qt::AlignRight;
-	break;
+		case 1:
+			align = Qt::AlignLeft;
+			break;
+
+		case 2:
+			align = Qt::AlignRight;
+			break;
 	}
-return align;
+	return align;
 }
 
 void TextDialog::setAlignment(int align)
 {	
-if (align==Qt::AlignHCenter)
-	alignementBox->setCurrentItem(0);
-else if (align==Qt::AlignLeft)
-	alignementBox->setCurrentItem(1);
-else if (align==Qt::AlignRight)
-	alignementBox->setCurrentItem(2);
-else
-	return;
+	switch(align)
+	{
+		case Qt::AlignHCenter:
+			alignmentBox->setCurrentIndex(0);
+			break;
+		case Qt::AlignLeft:
+			alignmentBox->setCurrentIndex(1);
+			break;
+		case Qt::AlignRight:
+			alignmentBox->setCurrentIndex(2);
+			break;
+	}
 }
 
 void TextDialog::customFont()
 {
-bool okF;
-QFont fnt = QFontDialog::getFont( &okF,f,this);
-if (okF)
+	bool okF;
+	QFont fnt = QFontDialog::getFont( &okF,selectedFont,this);
+	if (okF)
 	{
-	f=fnt;
-	
-	fnt.setPointSize(12);
-	LineEdit->setFont(fnt);
-
-	emit changeFont (f);
+		selectedFont = fnt;
+		buttonFont->setFont(fnt);
+		fnt.setPointSize(12);
+		lineEdit->setFont(fnt);
 	}
+	emit changeFont (fnt);
 }
 
-void TextDialog::setAngle(int angle)
+void TextDialog::setAngle(int /*angle*/)
 {
-rotateBox->setEditText(QString::number(angle));
+	//TODO: Implement angle feature 
+//X	rotateBox-> ...
+}
+
+int TextDialog::angle()
+{
+	//TODO: Implement angle feature
+//X	return rotateBox-> ...
+	return 0;
 }
 
 void TextDialog::setText(const QString & t)
 {
-LineEdit->insertAt (t, 0, 0, TRUE );
+	QTextCursor cursor = lineEdit->textCursor();
+	// select the whole (old) text 
+	cursor.movePosition(QTextCursor::Start);
+	cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
+	// replace old text
+	cursor.insertText(t);
+	// select the whole (new) text
+	cursor.movePosition(QTextCursor::Start);
+	cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
+	// this line makes the selection visible to the user 
+	// (the 2 lines above only change the selection in the
+	// underlying QTextDocument)
+	lineEdit->setTextCursor(cursor);
+	// give focus back to text edit
+	lineEdit->setFocus();
 }
 
 void TextDialog::setTextColor(QColor c)
 {
-  colorBox->setColor(c);
+	colorBtn->setColor(c);
 }
 
 void TextDialog::pickTextColor()
 {
-QColor c = QColorDialog::getColor( colorBox->color(), this);
-if ( !c.isValid() || c ==  colorBox->color() )
-	return;
+	QColor c = QColorDialog::getColor( colorBtn->color(), this);
+	if ( !c.isValid() || c ==  colorBtn->color() )
+		return;
 
-colorBox->setColor ( c ) ;
+	colorBtn->setColor ( c ) ;
 }
 
 void TextDialog::setBackgroundColor(QColor c)
 {
-  backgroundBtn->setColor(c);
+	backgroundBtn->setColor(c);
 }
 
 void TextDialog::pickBackgroundColor()
 {
-QColor c = QColorDialog::getColor( backgroundBtn->color(), this);
-if ( !c.isValid() || c ==  backgroundBtn->color() )
-	return;
+	QColor c = QColorDialog::getColor( backgroundBtn->color(), this);
+	if ( !c.isValid() || c ==  backgroundBtn->color() )
+		return;
 
-backgroundBtn->setColor ( c ) ;
+	backgroundBtn->setColor ( c ) ;
 }
 
-void TextDialog::setFont(const QFont& fnt)
+QFont TextDialog::font()
 {
-f=fnt; 
-
-QFont auxf = f;
-auxf.setPointSize(12);
-LineEdit->setFont(auxf);
+	return selectedFont;
 }
 
+void TextDialog::setFont(const QFont & fnt)
+{
+	selectedFont = fnt;
+	buttonFont->setFont(fnt);
+	QFont ftemp = fnt;
+	ftemp.setPointSize(12);
+	lineEdit->setFont(ftemp);
+}
+	
 TextDialog::~TextDialog()
 {
 }

@@ -1,39 +1,70 @@
+/***************************************************************************
+    File                 : associationsDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Plot associations dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "associationsDialog.h"
 #include "worksheet.h"
 
 #include <qlabel.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvariant.h>
-#include <qvbox.h>
-#include <qtable.h>
-#include <qheader.h>
-#include <qwidgetlist.h>
+#include <q3vbox.h>
+#include <q3table.h>
+#include <q3header.h>
+#include <qwidget.h>
 #include <qcheckbox.h>
 
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <QEvent>
+#include <Q3VBoxLayout>
 
-associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "associationsDialog" );
 
-    setCaption( tr( "QtiPlot - Plot Associations" ) );
+    setWindowTitle( tr( "QtiPlot - Plot Associations" ) );
 	setFocus();
 	
-	QVBox *box1 = new QVBox (this, "box1"); 
+	Q3VBox *box1 = new Q3VBox (this, "box1"); 
 	box1->setSpacing (5);
 	box1->setMargin(5);
 
-	QHBox *hbox1 = new QHBox (box1, "hbox1"); 
+	Q3HBox *hbox1 = new Q3HBox (box1, "hbox1"); 
 	box1->setSpacing (5);
 
 	new QLabel(tr("Spreadsheet: "), hbox1, "table");
 	tableCaptionLabel = new QLabel(hbox1, "table");
 
-	table = new QTable(3, 5, box1, "table");
+	table = new Q3Table(3, 5, box1, "table");
 	table->setLeftMargin ( 0 );
 	table->setColumnReadOnly (0, true);
 	table->setCurrentCell ( -1, -1 );
@@ -41,10 +72,10 @@ associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool
 	for (int i=0; i < table->numCols(); i++ )
 		table->setColumnStretchable (0, true);
 
-	associations = new QListBox( box1, "available" );
-	associations->setSelectionMode ( QListBox::Single );
+	associations = new Q3ListBox( box1, "available" );
+	associations->setSelectionMode ( Q3ListBox::Single );
 
-	QHeader *header = table->horizontalHeader ();
+	Q3Header *header = table->horizontalHeader ();
 	header->setLabel(0, tr("Column"));
 	header->setLabel(1, tr("X"));
 	header->setLabel(2, tr("Y"));
@@ -52,7 +83,7 @@ associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool
 	header->setLabel(4, tr("yErr"));
 	header->setClickEnabled ( false );
 
-	QHBox  *box2=new QHBox (this, "box2"); 
+	Q3HBox  *box2=new Q3HBox (this, "box2"); 
 	box2->setMargin(5);
 	box2->setSpacing (5);
 
@@ -66,7 +97,7 @@ associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool
     btnCancel = new QPushButton(box2, "btnCancel" );
     btnCancel->setText( tr( "&Cancel" ) );
 
-	QVBoxLayout* layout = new QVBoxLayout(this,5,5, "hlayout3");
+	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
     layout->addWidget(box1);
 	layout->addWidget(box2);
 
@@ -167,7 +198,7 @@ QStringList cols = QStringList::split(",", lst[1], false);
 QString xColName = cols[0].remove("(X)");
 QString yColName = cols[1].remove("(Y)");
 
-QHeader *header = table->horizontalHeader();
+Q3Header *header = table->horizontalHeader();
 int i, n = (int)cols.count();
 
 if (n == 2)
@@ -351,7 +382,7 @@ associations->setCurrentItem (index);
 
 bool associationsDialog::eventFilter(QObject *object, QEvent *e)
 {
-QTableItem* it = (QTableItem*)object;
+Q3TableItem* it = (Q3TableItem*)object;
 if (!it)
 	return false;
 

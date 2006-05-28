@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : matrixDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Matrix properties dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "matrixDialog.h"
 
 #include <qvariant.h>
@@ -5,10 +33,12 @@
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qspinbox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
-matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
@@ -16,9 +46,8 @@ matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, WFlag
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setMouseTracking( false );
 
-	QButtonGroup *GroupBox1 = new QButtonGroup(3, QGroupBox::Horizontal,QString::null,this,"GroupBox1" );
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(3, Qt::Horizontal,QString::null,this,"GroupBox1" );
 	GroupBox1->setFlat(TRUE);
-	GroupBox1->setLineWidth(0);
 
 	new QLabel( tr( "Cell Width" ), GroupBox1, "TextLabel2",0 );
     boxColWidth = new QSpinBox(0,1000,10, GroupBox1, "boxColWidth" );
@@ -33,9 +62,8 @@ matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, WFlag
 	boxPrecision = new QSpinBox(0,100,1, GroupBox1, "boxPrecision");
 	boxPrecision->hide();
 
-	QButtonGroup *GroupBox2 = new QButtonGroup( 3,QGroupBox::Horizontal,QString::null,this,"GroupBox2" );
+	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal,QString::null,this,"GroupBox2" );
 	GroupBox2->setFlat(TRUE);
-	GroupBox2->setLineWidth(0);
 	
 	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
     buttonApply->setAutoDefault( TRUE );
@@ -47,7 +75,7 @@ matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, WFlag
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
     buttonCancel->setAutoDefault( TRUE );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this, 5, 5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
 
@@ -107,7 +135,7 @@ boxColWidth->setValue(width);
 
 void matrixDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Matrix Properties" ) );
+    setWindowTitle( tr( "QtiPlot - Matrix Properties" ) );
     buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );
 	buttonApply->setText( tr( "&Apply" ) );

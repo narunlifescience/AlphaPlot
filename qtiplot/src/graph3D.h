@@ -1,8 +1,41 @@
+/***************************************************************************
+    File                 : graph3D.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : 3D graph widget
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef GRAPH3D_H
 #define GRAPH3D_H
 
 #include <qwt3d_surfaceplot.h>
 #include <qwt3d_function.h> 
+//Added by qt3to4:
+#include <QContextMenuEvent>
+#include <QResizeEvent>
+#include <QEvent>
+#include <Q3MemArray>
 
 #include "worksheet.h"
 #include "matrix.h"
@@ -11,12 +44,13 @@ using namespace Qwt3D;
 
 class UserFunction;
 
+//! 3D graph widget
 class Graph3D: public myWidget
 {
 	Q_OBJECT
 
 public:
-	Graph3D (const QString& label, QWidget* parent, const char* name, WFlags f);
+	Graph3D (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Graph3D();
 
 	enum PlotType{Scatter=0, Trajectory = 1, Bars = 2};
@@ -282,7 +316,7 @@ private:
 	QStringList labels;
 	QFont titleFnt;
 	bool legendOn, smoothMesh;
-	QMemArray<int> scaleType;
+	Q3MemArray<int> scaleType;
 	QColor axesCol,labelsCol,titleCol,meshCol,bgCol,numCol,gridCol;
 	QColor fromColor, toColor;//custom data colors
 	int labelsDist, legendMajorTicks;

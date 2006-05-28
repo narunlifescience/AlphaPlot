@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : tableDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Column options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "tableDialog.h"
 #include "worksheet.h"
 
@@ -6,28 +34,31 @@
 #include <qlineedit.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qcombobox.h>
 #include <qlayout.h>
 #include <qregexp.h>
 #include <qdatetime.h> 
-#include <qhbox.h>
+#include <q3hbox.h>
 #include <qspinbox.h>
-#include <qvbox.h>
-#include <qtextedit.h>
+#include <q3vbox.h>
+#include <q3textedit.h>
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <QCloseEvent>
+#include <Q3VBoxLayout>
 
-tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "tableDialog" );
 
-	QHBox  *hbox1=new QHBox (this, "hbox1");
+	Q3HBox  *hbox1=new Q3HBox (this, "hbox1");
 	hbox1->setSpacing(5);
 
-	QVBox  *vbox0 = new QVBox (hbox1, "vbox0");
-	QHBox  *hboxa=new QHBox (vbox0, "hboxa");
+	Q3VBox  *vbox0 = new Q3VBox (hbox1, "vbox0");
+	Q3HBox  *hboxa=new Q3HBox (vbox0, "hboxa");
 	hboxa->setSpacing(5);
 
 	new QLabel(tr( "Column Name:" ),hboxa, "TextLabel1",0 );
@@ -36,7 +67,7 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	enumerateAllBox = new QCheckBox( vbox0, "enumerateAllBox" );
 	enumerateAllBox->setText(tr("Enumerate all to the right" ));
 
-	QHBox  *hboxb=new QHBox (vbox0, "hboxb");
+	Q3HBox  *hboxb=new Q3HBox (vbox0, "hboxb");
 	hboxb->setMaximumWidth(100);
 
 	buttonPrev = new QPushButton( hboxb, "buttonPrev" );
@@ -47,7 +78,7 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	buttonNext->setText("&>>");
 	buttonNext->setMaximumWidth(40);
 
-	QVBox  *vbox01 = new QVBox (hbox1, "vbox01");
+	Q3VBox  *vbox01 = new Q3VBox (hbox1, "vbox01");
 	vbox01->setSpacing(5);
 	vbox01->setMargin(5);
 
@@ -61,18 +92,18 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	buttonCancel = new QPushButton( vbox01, "buttonCancel" );
     buttonCancel->setAutoDefault( TRUE );
 
-	GroupBox2 = new QButtonGroup(1,QGroupBox::Horizontal, tr("Options"),this,"GroupBox4" );
+	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal, tr("Options"),this,"GroupBox4" );
 	
-	QHBox  *hbox2 = new QHBox (GroupBox2, "hbox4");
+	Q3HBox  *hbox2 = new Q3HBox (GroupBox2, "hbox4");
 	hbox2->setSpacing(5);
 
-	QVBox  *vbox1 = new QVBox (hbox2, "vbox1");
+	Q3VBox  *vbox1 = new Q3VBox (hbox2, "vbox1");
 	new QLabel( tr( "Plot Designation:" ), vbox1, "TextLabel2_2",0 );
 	new QLabel( tr( "Display" ), vbox1, "TextLabel2_3",0 );
 	labelFormat = new QLabel(tr( "Format:" ), vbox1, "TextLabel2",0 );
 	labelNumeric = new QLabel(tr( "Precision:" ),vbox1, "TextLabel3",0);
 
-	QVBox *vbox2 = new QVBox (hbox2, "vbox2");
+	Q3VBox *vbox2 = new Q3VBox (hbox2, "vbox2");
 	columnsBox = new QComboBox(vbox2, "columnsBox" );
 	columnsBox->insertItem(tr("None"));
 	columnsBox->insertItem(tr("X (abscissae)"));
@@ -93,7 +124,7 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
 	applyToRightCols = new QCheckBox( GroupBox2, "applyToRightCols" );
 	applyToRightCols->setText(tr( "Apply to all columns to the right" ));
 	
-	QHBox *GroupBox3 = new QHBox(this,"GroupBox3" );
+	Q3HBox *GroupBox3 = new Q3HBox(this,"GroupBox3" );
 	GroupBox3->setSpacing(5);
 
 	new QLabel(tr( "Column Width:" ),GroupBox3, "TextLabel1_2",0 );
@@ -101,10 +132,10 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, WFlags 
     applyToAllBox = new QCheckBox(GroupBox3, "applyToAllBox" );
 	
 	QLabel *label1 = new QLabel(tr( "Comment:" ), this, "TextLabel1_22",0);
-	comments = new QTextEdit(this,"comments");
+	comments = new Q3TextEdit(this,"comments");
 	comments->setMaximumHeight(100);
 
-	QVBoxLayout* hlayout = new QVBoxLayout(this, 5, 5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
     hlayout->addWidget(hbox1);
 	hlayout->addWidget(GroupBox2);
 	hlayout->addWidget(GroupBox3);
@@ -398,7 +429,7 @@ else
 
 void tableDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Column options" ) );
+    setWindowTitle( tr( "QtiPlot - Column options" ) );
     buttonCancel->setText( tr( "&Cancel" ) );  
     buttonOk->setText( tr( "&OK" ) );
     		

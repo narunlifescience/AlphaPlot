@@ -1,99 +1,394 @@
+/***************************************************************************
+    File                 : SymbolDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Dialog to select special text characters
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "symbolDialog.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qbuttongroup.h>
-#include <qaccel.h>
-
-symbolDialog::symbolDialog(CharSet charsSet, QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+SymbolDialog::SymbolDialog(CharSet charSet, QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "symbolDialog" );
-    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    setSizeGripEnabled( FALSE );
+	setSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed );
+	setSizeGripEnabled( false );
 
-	GroupBox1 = new QButtonGroup(5, QGroupBox::Horizontal,tr(""), this,"GroupBox1" );
-	GroupBox1->setFlat ( true );
-	GroupBox1->setLineWidth ( 0 );
-	GroupBox1->moveFocus (0);
+	buttons = new QButtonGroup(this);
+	mainLayout = new QVBoxLayout(this);
+	gridLayout = new QGridLayout();
 
-	if (!charsSet)
+	if (charSet == SymbolDialog::lowerGreek)
 		initLowerGreekChars();
-	else
+	else if (charSet == SymbolDialog::upperGreek)
 		initUpperGreekChars();
+	else if (charSet == SymbolDialog::mathSymbols)
+		initMathSymbols();
+	else if (charSet == SymbolDialog::arrowSymbols)
+		initArrowSymbols();
+	else
+		initNumberSymbols();
 
-	QHBoxLayout* hlayout = new QHBoxLayout(this, 0, 0, "hlayout2");
-    hlayout->addWidget(GroupBox1);
+	closeButton = new QPushButton(tr("&Close"), this);
+	
+	mainLayout->addLayout( gridLayout );
+	mainLayout->addWidget( closeButton );
 
-    languageChange();
+	languageChange();
 
-	connect (GroupBox1, SIGNAL(clicked(int)), this, SLOT(getChar(int)));
+	connect(buttons, SIGNAL(buttonClicked(int)), this, SLOT(getChar(int)));
+	connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
+	QShortcut *shortcut = new QShortcut(Qt::Key_Return, this);
+	connect( shortcut , SIGNAL(activated()),
+			this, SLOT(addCurrentChar()) );
 
-	QAccel *accel = new QAccel(this);
-	accel->connectItem( accel->insertItem( Key_Return ), this, SLOT(addCurrentChar()) );
 }
 
-void symbolDialog::initLowerGreekChars()
+void SymbolDialog::initLowerGreekChars()
 {
-for (int i=0;i<25;i++)
+	int i, counter = 0;
+	for ( i=0 ; i <= (0x3C9-0x3B1) ; i++,counter++ )
 	{
-	QPushButton *btn = new QPushButton(QChar(i+0x3B1), GroupBox1, 0);
-	btn->setMaximumWidth(40);
-	btn->setFlat ( true );
-	btn->setAutoDefault (false);
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x3B1)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	for ( i=0 ; i <= (0x3D1-0x3D1) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x3D1)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	for ( i=0 ; i <= (0x3D5-0x3D5) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x3D5)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	for ( i=0 ; i <= (0x3F1-0x3F0) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x3F0)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	numButtons = counter;
+}
+
+void SymbolDialog::initUpperGreekChars()
+{
+	int i, counter = 0;
+	for ( i=0 ; i <= (0x3A1-0x391) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x391)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	for ( i=0 ; i <= (0x3A9-0x3A3) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x3A3)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/5,counter%5);
+	}
+	numButtons = counter;
+}
+
+void SymbolDialog::initNumberSymbols()
+{
+	int i, counter = 0;
+	for ( i=0 ; i <= (0x216B-0x2153) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2153)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x217B-0x2170) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2170)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	numButtons = counter;
+}
+
+void SymbolDialog::initMathSymbols()
+{
+	int i, counter = 0;
+	for ( i=0 ; i <= (0x220D-0x2200) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2200)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2211-0x220F) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x220F)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x00B1-0x00B1) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x00B1)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2213-0x2213) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2213)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x221E - 0x2217) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2217)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2222-0x2222) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2222)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2230-0x2227) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2227)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x223F-0x223F) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x223F)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2245-0x2245) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2245)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2248-0x2248) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2248)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2255-0x2254) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2254)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2259-0x2259) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2259)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2267-0x225F) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x225F)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x226B-0x226A) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x226A)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	for ( i=0 ; i <= (0x2289-0x2282) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2282)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	// h bar
+	for ( i=0 ; i <= (0x210F-0x210F) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x210F)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	// angstrom
+	for ( i=0 ; i <= (0x212B-0x212B) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x212B)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/8,counter%8);
+	}
+	numButtons = counter;
+}
+
+void SymbolDialog::initArrowSymbols()
+{
+	int i, counter = 0;
+	for ( i=0 ; i <= (0x219B-0x2190) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x2190)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/6,counter%6);
+	}
+	for ( i=0 ; i <= (0x21A7-0x21A4) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x21A4)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/6,counter%6);
+	}
+	for ( i=0 ; i <= (0x21D5-0x21CD) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x21CD)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/6,counter%6);
+	}
+	for ( i=0 ; i <= (0x21E9-0x21E6) ; i++,counter++ )
+	{
+		QPushButton *btn = new QPushButton(QString(QChar(i+0x21E6)));
+		btn->setMaximumWidth(40);
+		btn->setFlat ( true );
+		btn->setAutoDefault (false);
+		buttons->addButton(btn,counter+1);
+		gridLayout->addWidget(btn,counter/6,counter%6);
+	}
+	numButtons = counter;
+}
+
+void SymbolDialog::addCurrentChar()
+{
+	for (int i=1; i < numButtons; i++)
+	{
+		QPushButton *btn = (QPushButton *) buttons->button(i);
+		if (btn && btn->hasFocus())
+			emit addLetter(btn->text());
 	}
 }
 
-void symbolDialog::initUpperGreekChars()
+void SymbolDialog::getChar(int btnIndex)
 {
-new QPushButton(QChar(0x393), GroupBox1, 0);
-new QPushButton(QChar(0x394), GroupBox1, 0);
-new QPushButton(QChar(0x398), GroupBox1, 0);
-new QPushButton(QChar(0x39B), GroupBox1, 0);
-new QPushButton(QChar(0x39E), GroupBox1, 0);
-new QPushButton(QChar(0x3A0), GroupBox1, 0);
-new QPushButton(QChar(0x3A3), GroupBox1, 0);
-new QPushButton(QChar(0x3A6), GroupBox1, 0);
-new QPushButton(QChar(0x3A8), GroupBox1, 0);
-new QPushButton(QChar(0x3A9), GroupBox1, 0);
-
-for (int i=0;i<GroupBox1->count();i++)
-	{
-	QPushButton *btn = (QPushButton *) GroupBox1->find (i);
-	btn->setMaximumWidth(40);
-	btn->setFlat ( true );
-	btn->setAutoDefault (false);
-	}
-}
-
-void symbolDialog::addCurrentChar()
-{
-for (int i=0; i<GroupBox1->count(); i++)
-	{
-	QPushButton *btn = (QPushButton *) GroupBox1->find (i);
-	if (btn && btn->hasFocus())
-		{
+	QPushButton * btn = (QPushButton *)buttons->button( btnIndex );
+	if(btn)
 		emit addLetter(btn->text());
-		return;
-		}
-	}
-}
-
-void symbolDialog::getChar(int btnIndex)
-{
-QPushButton *btn = (QPushButton *) GroupBox1->find ( btnIndex );
-emit addLetter(btn->text());
 }
 
 
-void symbolDialog::languageChange()
+void SymbolDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Choose Symbol" ) );
+	setWindowTitle( tr( "QtiPlot - Choose Symbol" ) );
 }
 
 
-symbolDialog::~symbolDialog()
+SymbolDialog::~SymbolDialog()
 {
+}
+
+
+void SymbolDialog::focusInEvent( QFocusEvent * event )
+{
+	Q_UNUSED(event)
+	// select the first button as default (in case [return] is pressed)
+	((QPushButton *)buttons->button(1))->setFocus(Qt::TabFocusReason);
 }

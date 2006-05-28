@@ -1,48 +1,79 @@
+/***************************************************************************
+    File                 : valuesDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Set column values dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "valuesDialog.h"
 #include "worksheet.h"
 #include "parser.h"
 
 #include <qcombobox.h>
 #include <qspinbox.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
+#include <q3whatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qmessagebox.h>
 #include <qlabel.h>
-#include <qvbox.h>
-#include <qhbox.h>
-#include <qbuttongroup.h>
+#include <q3vbox.h>
+#include <q3hbox.h>
+#include <q3buttongroup.h>
+//Added by qt3to4:
+#include <Q3Frame>
+#include <Q3VBoxLayout>
 
-setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 	setName( "setColValuesDialog" );
-    setCaption( tr( "QtiPlot - Set column values" ) );
-    setFocusPolicy( QDialog::StrongFocus );
+    setWindowTitle( tr( "QtiPlot - Set column values" ) );
+    setFocusPolicy( Qt::StrongFocus );
 	
-	QHBox *hbox1=new QHBox (this, "hbox1"); 
+	Q3HBox *hbox1=new Q3HBox (this, "hbox1"); 
 	hbox1->setSpacing (5);
 	
-	QVBox *box1=new QVBox (hbox1, "box2"); 
+	Q3VBox *box1=new Q3VBox (hbox1, "box2"); 
 	box1->setSpacing (5);
 
-	explain = new QTextEdit(box1, "explain" );
+	explain = new Q3TextEdit(box1, "explain" );
 	explain->setReadOnly (true);
 	explain->setPaletteBackgroundColor(QColor(197, 197, 197));
 	
 	colNameLabel = new QLabel(box1, "colNameLabel" );
 
-	QVBox *box2=new QVBox (hbox1, "box2"); 
+	Q3VBox *box2=new Q3VBox (hbox1, "box2"); 
 	box2->setMargin(5);
-	box2->setFrameStyle (QFrame::Box);
+	box2->setFrameStyle (Q3Frame::Box);
 
-	QHBox *hbox2=new QHBox (box2, "hbox2"); 
+	Q3HBox *hbox2=new Q3HBox (box2, "hbox2"); 
 	hbox2->setMargin(5);
 	hbox2->setSpacing (5);
 	
@@ -69,8 +100,7 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
 	 end->setMaxValue(0x7fffffff);
 	 }
   
-	QButtonGroup *GroupBox0 = new QButtonGroup(2,QGroupBox::Horizontal,tr( "" ),box2, "GroupBox0" );
-	GroupBox0->setLineWidth(0);
+	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),box2, "GroupBox0" );
 	GroupBox0->setFlat(true);
 
     functions = new QComboBox( FALSE, GroupBox0, "functions" );
@@ -83,7 +113,7 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
     PushButton4 = new QPushButton(GroupBox0, "PushButton4" );
     PushButton4->setText( tr( "Add column" ) );
 
-	QHBox *hbox6=new QHBox (GroupBox0, "hbox6"); 
+	Q3HBox *hbox6=new Q3HBox (GroupBox0, "hbox6"); 
 	hbox6->setSpacing (5);
 
 	buttonPrev = new QPushButton( hbox6, "buttonPrev" );
@@ -95,15 +125,15 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
 	addCellButton = new QPushButton(GroupBox0, "addCellButton" );
     addCellButton->setText( tr( "Add cell" ) );
 
-	QHBox *hbox3=new QHBox (this, "hbox3"); 
+	Q3HBox *hbox3=new Q3HBox (this, "hbox3"); 
 	hbox3->setSpacing (5);
 	
-	commandes = new QTextEdit( hbox3, "commandes" );
-	commandes->setTextFormat(Qt::PlainText);
-    commandes->setGeometry( QRect(10, 100, 260, 70) );
-	commandes->setFocus();
+	commands = new Q3TextEdit( hbox3, "commands" );
+	commands->setTextFormat(Qt::PlainText);
+    commands->setGeometry( QRect(10, 100, 260, 70) );
+	commands->setFocus();
 	
-	QVBox *box3=new QVBox (hbox3,"box3"); 
+	Q3VBox *box3=new Q3VBox (hbox3,"box3"); 
 	box3->setSpacing (5);
 	
     btnOk = new QPushButton(box3, "btnOk" );
@@ -115,7 +145,7 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
     btnCancel = new QPushButton( box3, "btnCancel" );
     btnCancel->setText( tr( "Cancel" ) );
 	
-	QVBoxLayout* layout = new QVBoxLayout(this,5,5, "hlayout3");
+	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
     layout->addWidget(hbox1);
 	layout->addWidget(hbox3);
 
@@ -160,9 +190,9 @@ else
 table->setSelectedCol(sc);
 colNameLabel->setText("col("+table->colLabel(sc)+")= ");
 
-QStringList com = table->getCommandes();
-commandes->setText(com[sc]);
-commandes->moveCursor ( QTextEdit::MoveEnd, true );
+QStringList com = table->getCommands();
+commands->setText(com[sc]);
+commands->moveCursor ( Q3TextEdit::MoveEnd, true );
 }
 
 QSize setColValuesDialog::sizeHint() const 
@@ -178,7 +208,7 @@ if (apply())
 
 bool setColValuesDialog::apply()
 {
-QString aux=commandes->text();	
+QString aux=commands->text();	
 aux.remove("\n");
 
 myParser parser;
@@ -202,7 +232,7 @@ if (numeric)
 
 int pos1,pos2,pos3,i;
 QStringList variables, rowIndexes, columns, colNames=table->colNames();
-int n=aux.contains("col(");
+int n = aux.count("col(");
 for (i=0;i<n;i++)
 	{
 	pos1=aux.find("col(",0,TRUE);
@@ -252,7 +282,7 @@ try
 				}
 			catch(mu::ParserError &e)
 				{
-				QMessageBox::critical(0,"QtiPlot - Input function error", e.GetMsg());
+				QMessageBox::critical(0,"QtiPlot - Input function error", QString::fromStdString(e.GetMsg()));
 				return false;
    				}
 			}			
@@ -266,7 +296,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QString errString=e.GetMsg();
+	QString errString=QString::fromStdString(e.GetMsg());
 	for (i=0;i<m;i++)
 		errString.replace(variables[i], columns[i], TRUE);
 
@@ -275,7 +305,7 @@ catch(mu::ParserError &e)
     }
 
 delete[] vars;
-table->setColValues(commandes->text(), aux, variables, rowIndexes, 
+table->setColValues(commands->text(), aux, variables, rowIndexes, 
 				   start->value(),end->value());
 return true;
 }
@@ -293,30 +323,30 @@ explain->setText(myParser::explainFunction(index));
 void setColValuesDialog::insertFunction()
 {
 QString f=functions->currentText();
-if (commandes->hasSelectedText())
+if (commands->hasSelectedText())
 	{	
 	f=f.remove(")");
-	QString markedText=commandes->selectedText();
-	commandes->insert(f+markedText+")");
+	QString markedText=commands->selectedText();
+	commands->insert(f+markedText+")");
 	}
 else
 	{
-	commandes->insert( f );
+	commands->insert( f );
 	int index, para;
-	commandes->getCursorPosition (&para,&index);
-	commandes->setCursorPosition (para,index-1);
+	commands->getCursorPosition (&para,&index);
+	commands->setCursorPosition (para,index-1);
 	}
 }
 
 void setColValuesDialog::insertCol()
 {
-commandes->insert(boxColumn->currentText());
+commands->insert(boxColumn->currentText());
 }
 
 void setColValuesDialog::insertCell()
 {
 QString f=boxColumn->currentText().remove(")")+", i)";
-commandes->insert(f);
+commands->insert(f);
 }
 
 void setColValuesDialog::setTable(Table* w)

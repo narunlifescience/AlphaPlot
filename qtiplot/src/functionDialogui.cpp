@@ -1,21 +1,52 @@
+/***************************************************************************
+    File                 : functionDialogui.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Function dialog user interface
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "functionDialogui.h"
 
 #include <qvariant.h>
-#include <qgroupbox.h>
+#include <q3groupbox.h>
 #include <qlabel.h>
-#include <qwidgetstack.h>
+#include <q3widgetstack.h>
 #include <qwidget.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qpushbutton.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlayout.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
-#include <qhbox.h>
+#include <q3whatsthis.h>
+#include <q3hbox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
+#include <Q3HBoxLayout>
 
-functionDialogui::functionDialogui( QWidget* parent, const char* name, bool modal, WFlags fl )
+functionDialogui::functionDialogui( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
@@ -24,20 +55,19 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	setMaximumSize( QSize( 610, 440 ) );
     setMouseTracking( TRUE );
 
-	QHBox *hbox1=new QHBox(this, "hbox1");
+	Q3HBox *hbox1=new Q3HBox(this, "hbox1");
 	hbox1->setSpacing(5);
 	
 	textFunction_2 = new QLabel( hbox1, "textFunction_2" );
 	boxType = new QComboBox( FALSE, hbox1, "boxType" );
 
-    optionStack = new QWidgetStack( this, "optionStack" );
-    optionStack->setFrameShape( QWidgetStack::GroupBoxPanel );
-    optionStack->setFrameShadow( QWidgetStack::Plain );
+    optionStack = new Q3WidgetStack( this, "optionStack" );
+    optionStack->setFrameShape( QFrame::StyledPanel );
+    optionStack->setFrameShadow( Q3WidgetStack::Plain );
 
     functionPage = new QWidget( optionStack, "functionPage" );
 	
-	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),functionPage,"GroupBox1" );
-	GroupBox1->setLineWidth(0);
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),functionPage,"GroupBox1" );
 	GroupBox1->setFlat(TRUE);
 
     textFunction = new QLabel( GroupBox1, "textFunction" );
@@ -56,15 +86,14 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	boxPoints = new QSpinBox(2,1000000,100, GroupBox1, "boxPoints" );
 	boxPoints->setValue(100);
 
-	QHBoxLayout* hlayout = new QHBoxLayout(functionPage,5,5, "hlayout");
+	Q3HBoxLayout* hlayout = new Q3HBoxLayout(functionPage,5,5, "hlayout");
 	hlayout->addWidget(GroupBox1);
     
     optionStack->addWidget( functionPage, 0 );
 
     parametricPage = new QWidget( optionStack, "parametricPage" );
 
-	GroupBox2 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""), parametricPage,"GroupBox2" );
-	GroupBox2->setLineWidth(0);
+	GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), parametricPage,"GroupBox2" );
 	GroupBox2->setFlat(TRUE);
 	
     textParameter = new QLabel( GroupBox2, "textParameter" );
@@ -89,15 +118,14 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	boxParPoints = new QSpinBox(2,1000000,100, GroupBox2, "boxParPoints" );
 	boxParPoints->setValue(100);
 	
-	QHBoxLayout* hlayout2 = new QHBoxLayout(parametricPage, 5, 5, "hlayout");
+	Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(parametricPage, 5, 5, "hlayout");
 	hlayout2->addWidget(GroupBox2);
 	
     optionStack->addWidget( parametricPage, 1 );
 
     polarPage = new QWidget( optionStack, "polarPage" );
 
-	GroupBox3 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""), polarPage,"GroupBox3" );
-	GroupBox3->setLineWidth(0);
+	GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), polarPage,"GroupBox3" );
 	GroupBox3->setFlat(TRUE);
 	
     textPolarParameter = new QLabel( GroupBox3, "textPolarParameter" );
@@ -122,13 +150,12 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	boxPolarPoints = new QSpinBox(2,1000000,100,GroupBox3, "boxPolarPoints" );
 	boxPolarPoints->setValue(100);
 	
-	QHBoxLayout* hlayout3 = new QHBoxLayout(polarPage, 5, 5, "hlayout");
+	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(polarPage, 5, 5, "hlayout");
 	hlayout3->addWidget(GroupBox3);
 	
     optionStack->addWidget( polarPage, 2 );
 
-    GroupBox4 = new QButtonGroup( 3, QGroupBox::Horizontal,tr(""), this, "buttonGroup3" );
-	GroupBox4->setLineWidth(0);
+    GroupBox4 = new Q3ButtonGroup( 3, Qt::Horizontal,tr(""), this, "buttonGroup3" );
 	GroupBox4->setFlat(TRUE);
 	
 	buttonClear = new QPushButton( GroupBox4, "buttonClear" );
@@ -137,7 +164,7 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	
 	buttonCancel = new QPushButton( GroupBox4, "buttonCancel" );
 	
-	QVBoxLayout* hlayout1 = new QVBoxLayout(this, 5, 5, "hlayout1");
+	Q3VBoxLayout* hlayout1 = new Q3VBoxLayout(this, 5, 5, "hlayout1");
 	hlayout1->addWidget(hbox1);
     hlayout1->addWidget(optionStack);
 	hlayout1->addWidget(GroupBox4);
@@ -153,7 +180,7 @@ functionDialogui::~functionDialogui()
 
 void functionDialogui::languageChange()
 {
-    setCaption( tr( "QtiPlot - Add function curve" ) );
+    setWindowTitle( tr( "QtiPlot - Add function curve" ) );
     textFunction_2->setText( tr( "Curve type " ) );
     textFunction->setText( tr( "f(x)= " ) );
     textFrom->setText( tr( "From x= " ) );

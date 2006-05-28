@@ -1,70 +1,104 @@
+/***************************************************************************
+    File                 : exportDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Export ASCII dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "exportDialog.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <qregexp.h>
-#include <qvbox.h>
-#include <qhbox.h>
-#include <qmessagebox.h>
-#include <qwhatsthis.h>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
 
-exportDialog::exportDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+ExportDialog::ExportDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "exportDialog" );
 	setSizeGripEnabled( true );
 
-	QVBox *GroupBox1 = new QVBox(this, "GroupBox1" );
-	GroupBox1->setSpacing (5);
-	GroupBox1->setMargin (5);
+	QVBoxLayout * groupBox1 = new QVBoxLayout();
+	groupBox1->setSpacing(5);
+	groupBox1->setMargin(5);
 
-	QHBox *hbox1 = new QHBox(GroupBox1, "hbox1");
+	QHBoxLayout * hbox1 = new QHBoxLayout();
 	hbox1->setSpacing (5);
+	groupBox1->addLayout( hbox1 );
 
-	new QLabel( tr( "Table" ), hbox1, "TextLabel1", 0 );
-	boxTable = new QComboBox( FALSE, hbox1, "boxTable" );
+	hbox1->addWidget( new QLabel(tr("Table")) );
+	boxTable = new QComboBox();
 	boxTable->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	hbox1->addWidget( boxTable );
 
-	boxAllTables = new QCheckBox(hbox1, "boxAllTables" );
+	boxAllTables = new QCheckBox();
     boxAllTables->setChecked(false);
+	hbox1->addWidget( boxAllTables );
 
-    boxNames = new QCheckBox(GroupBox1, "boxNames" );
-    boxNames->setChecked( TRUE );
+    boxNames = new QCheckBox();
+    boxNames->setChecked( true );
+	groupBox1->addWidget( boxNames );
 	
-    boxSelection = new QCheckBox(GroupBox1, "boxSelection" );
-    boxSelection->setChecked( FALSE );
+    boxSelection = new QCheckBox();
+    boxSelection->setChecked( false );
+	groupBox1->addWidget( boxSelection );
 	
-	QHBox *hbox2 = new QHBox(GroupBox1, "hbox2");
+	QHBoxLayout * hbox2 = new QHBoxLayout();
 	hbox2->setSpacing (5);
+	groupBox1->addLayout( hbox2 );
 
-    QLabel *sepText = new QLabel( tr( "Separator" ), hbox2, "TextLabel3",0 );
-    boxSeparator = new QComboBox( true, hbox2, "boxSeparator" );
+    QLabel * sepText = new QLabel( tr( "Separator" ) );
+	hbox2->addWidget( sepText );
+
+    boxSeparator = new QComboBox();
 	boxSeparator->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	boxSeparator->setEditable( true );
+	hbox2->addWidget( boxSeparator );
 	
 	QString help = tr("The column separator can be customized. The following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
 	help += "\n"+tr("The separator must not contain the following characters: 0-9eE.+-");
-	QWhatsThis::add(boxSeparator, help);
-	QWhatsThis::add(sepText, help);
 
-	QHBox *hbox3 = new QHBox(GroupBox1, "hbox3" );
-	hbox3->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
+	boxSeparator->setWhatsThis(help);
+	sepText->setWhatsThis(help);
+	boxSeparator->setToolTip(help);
+	sepText->setToolTip(help);
+
+	QHBoxLayout * hbox3 = new QHBoxLayout();
 	hbox3->setSpacing(10);
-	hbox3->setMargin (10);
+	hbox3->setMargin(10);
 	
-	buttonOk = new QPushButton(hbox3, "buttonOk" );
-    buttonOk->setDefault( TRUE );
+	buttonOk = new QPushButton();
+    buttonOk->setDefault( true );
+	hbox3->addWidget( buttonOk );
    
-    buttonCancel = new QPushButton(hbox3, "buttonCancel" );
-	buttonHelp = new QPushButton(hbox3, "buttonHelp" );
+    buttonCancel = new QPushButton();
+	hbox3->addWidget( buttonCancel );
+	buttonHelp = new QPushButton();
+	hbox3->addWidget( buttonHelp );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this, 5, 5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(hbox3);
+	QVBoxLayout * hlayout = new QVBoxLayout( this );
+    hlayout->addLayout(groupBox1);
+	hlayout->addLayout(hbox3);
 
     languageChange();
    
@@ -75,16 +109,16 @@ exportDialog::exportDialog( QWidget* parent, const char* name, bool modal, WFlag
 	connect( boxAllTables, SIGNAL( toggled(bool) ), this, SLOT( enableTableName(bool) ) );
 }
 
-void exportDialog::help()
+void ExportDialog::help()
 {
-QString s = tr("The column separator can be customized. The following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
-s += "\n"+tr("The separator must not contain the following characters: 0-9eE.+-");
-QMessageBox::about(0, tr("QtiPlot - Help"),s);
+	QString s = tr("The column separator can be customized. The following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
+	s += "\n"+tr("The separator must not contain the following characters: 0-9eE.+-");
+	QMessageBox::about(0, tr("QtiPlot - Help"),s);
 }
 
-void exportDialog::languageChange()
+void ExportDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Export ASCII" ) );
+    setWindowTitle( tr( "QtiPlot - Export ASCII" ) );
     buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );
 	buttonHelp->setText( tr( "&Help" ) );
@@ -93,80 +127,81 @@ void exportDialog::languageChange()
 	boxAllTables->setText( tr( "&All" ) );
     
 	boxSeparator->clear();
-	boxSeparator->insertItem(tr("TAB"));
-    boxSeparator->insertItem(tr("SPACE"));
-	boxSeparator->insertItem(";" + tr("TAB"));
-	boxSeparator->insertItem("," + tr("TAB"));
-	boxSeparator->insertItem(";" + tr("SPACE"));
-	boxSeparator->insertItem("," + tr("SPACE"));
-    boxSeparator->insertItem(";");
-    boxSeparator->insertItem(",");
+	boxSeparator->addItem(tr("TAB"));
+    boxSeparator->addItem(tr("SPACE"));
+	boxSeparator->addItem(";" + tr("TAB"));
+	boxSeparator->addItem("," + tr("TAB"));
+	boxSeparator->addItem(";" + tr("SPACE"));
+	boxSeparator->addItem("," + tr("SPACE"));
+    boxSeparator->addItem(";");
+    boxSeparator->addItem(",");
 }
 
-void exportDialog::setTableNames(const QStringList& names)
+void ExportDialog::setTableNames(const QStringList& names)
 {
-boxTable->insertStringList (names,-1);
+	boxTable->addItems(names);
 }
 
-void exportDialog::setActiveTableName(const QString& name)
+void ExportDialog::setActiveTableName(const QString& name)
 {
-boxTable->setCurrentText(name);
+	boxTable->setCurrentIndex(boxTable->findText(name));
 }
 
-void exportDialog::enableTableName(bool ok)
+void ExportDialog::enableTableName(bool ok)
 {
-boxTable->setEnabled(!ok);
+	boxTable->setEnabled(!ok);
 }
 
-void exportDialog::accept()
+void ExportDialog::accept()
 {
-QString sep = boxSeparator->currentText();
-sep.replace(tr("TAB"), "\t", false);
-sep.replace(tr("SPACE"), " ");
-sep.replace("\\s", " ");
-sep.replace("\\t", "\t");
+	QString sep = boxSeparator->currentText();
+	sep.replace(tr("TAB"), "\t", Qt::CaseInsensitive);
+	sep.replace(tr("SPACE"), " ");
+	sep.replace("\\s", " ");
+	sep.replace("\\t", "\t");
 
-if (sep.contains(QRegExp("[0-9.eE+-]"))!=0)
+	if (sep.contains(QRegExp("[0-9.eE+-]")))
 	{
-	QMessageBox::warning(0, tr("QtiPlot - Import options error"),
+		QMessageBox::warning(0, tr("QtiPlot - Import options error"),
 				tr("The separator must not contain the following characters: 0-9eE.+-"));
-	return;
+		return;
 	}
 
-hide();
-if (boxAllTables->isChecked())
-	emit exportAllTables(sep, boxNames->isChecked(), boxSelection->isChecked());
-else
-	emit exportTable(boxTable->currentText(), sep, 
-					 boxNames->isChecked(), boxSelection->isChecked());
-close();
+	hide();
+	if (boxAllTables->isChecked())
+		emit exportAllTables(sep, boxNames->isChecked(), boxSelection->isChecked());
+	else
+		emit exportTable(boxTable->currentText(), sep, 
+				boxNames->isChecked(), boxSelection->isChecked());
+	close();
 }
 
-void exportDialog::setColumnSeparator(const QString& sep)
+void ExportDialog::setColumnSeparator(const QString& sep)
 {
-if (sep=="\t")
-	boxSeparator->setCurrentItem(0);
-else if (sep==" ")
-	boxSeparator->setCurrentItem(1);
-else if (sep==";\t")
-	boxSeparator->setCurrentItem(2);
-else if (sep==",\t")
-	boxSeparator->setCurrentItem(3);
-else if (sep=="; ")
-	boxSeparator->setCurrentItem(4);
-else if (sep==", ")
-	boxSeparator->setCurrentItem(5);
-else if (sep==";")
-	boxSeparator->setCurrentItem(6);
-else if (sep==",")
-	boxSeparator->setCurrentItem(7);
-else
+	if (sep=="\t")
+		boxSeparator->setCurrentIndex(0);
+	else if (sep==" ")
+		boxSeparator->setCurrentIndex(1);
+	else if (sep==";\t")
+		boxSeparator->setCurrentIndex(2);
+	else if (sep==",\t")
+		boxSeparator->setCurrentIndex(3);
+	else if (sep=="; ")
+		boxSeparator->setCurrentIndex(4);
+	else if (sep==", ")
+		boxSeparator->setCurrentIndex(5);
+	else if (sep==";")
+		boxSeparator->setCurrentIndex(6);
+	else if (sep==",")
+		boxSeparator->setCurrentIndex(7);
+	else
 	{
-	QString separator = sep;
-	boxSeparator->setCurrentText(separator.replace(" ","\\s").replace("\t","\\t"));
+		QString separator = sep;
+		boxSeparator->setItemText(boxSeparator->currentIndex(),separator.replace(" ","\\s").replace("\t","\\t"));
 	}
 }
 
-exportDialog::~exportDialog()
+ExportDialog::~ExportDialog()
 {
 }
+

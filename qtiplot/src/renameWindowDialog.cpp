@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : renameWindowDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Rename window dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "renameWindowDialog.h"
 #include "application.h"
 #include "worksheet.h"
@@ -5,37 +33,38 @@
 #include <qvariant.h>
 #include <qpushbutton.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlineedit.h>
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qradiobutton.h>
 #include <qmessagebox.h>
 #include <qaction.h>
 #include <qregexp.h>
+//Added by qt3to4:
+#include <Q3HBoxLayout>
 
-renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool modal, WFlags fl )
+renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "renameWindowDialog" );
 		
-	setCaption(tr("QtiPlot - Rename Window"));
+	setWindowTitle(tr("QtiPlot - Rename Window"));
 	
-	GroupBox1 = new QButtonGroup( 2, QGroupBox::Horizontal,tr("Window Title"),this,"GroupBox1" );
+	GroupBox1 = new Q3ButtonGroup( 2, Qt::Horizontal,tr("Window Title"),this,"GroupBox1" );
 
 	boxName = new QRadioButton(tr("&Name (single word)"), GroupBox1, "boxName" );
 	boxNameLine = new QLineEdit(GroupBox1, "boxNameLine");
 	setFocusProxy(boxNameLine);
 
 	boxLabel = new QRadioButton(tr("&Label"), GroupBox1, "boxLabel" );
-	boxLabelEdit = new QTextEdit(GroupBox1, "boxLabelEdit");
+	boxLabelEdit = new Q3TextEdit(GroupBox1, "boxLabelEdit");
 	boxLabelEdit->setMaximumHeight(100);
 
 	boxBoth = new QRadioButton(tr("&Both Name and Label"), GroupBox1, "boxBoth" );
 	
-	GroupBox2 = new QButtonGroup(1,QGroupBox::Horizontal,tr(""),this,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
 	GroupBox2->setFlat (TRUE);
-	GroupBox2->setLineWidth (0);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
     buttonOk->setAutoDefault( TRUE );
@@ -44,7 +73,7 @@ renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool m
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
     buttonCancel->setAutoDefault( TRUE );
 	
-	QHBoxLayout* hlayout = new QHBoxLayout(this,5,5, "hlayout");
+	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
 

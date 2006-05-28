@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : ErrorBar.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Error bars curve
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "ErrorBar.h"
 
 #include <qwt_painter.h>
@@ -26,7 +54,7 @@ QwtErrorPlotCurve::QwtErrorPlotCurve(QwtPlot *parent, const char *name):
 #if false
 pen=QPen(Qt::black,2,Qt::SolidLine);
 cap=10;
-type = Vertical;
+type = Qt::Vertical;
 size=QSize(1,1);
 plus=TRUE;
 minus=TRUE;
@@ -82,7 +110,7 @@ int sw=size.width();
 	const int xi = xMap.transform(x(i));
 	const int yi = yMap.transform(y(i));
 	
-	if (type == Vertical)
+	if (type == Qt::Vertical)
 			{
 			const int yh = yMap.transform(y(i)+err[i]);
 			const int yl = yMap.transform(y(i)-err[i]);
@@ -105,7 +133,7 @@ int sw=size.width();
 					QwtPainter::drawLine(painter, xi, yhl, xi, ylh);
 				}
 			}
-		else if (type == Horizontal)
+		else if (type == Qt::Horizontal)
 			{
 			const int xp = xMap.transform(x(i)+err[i]);
 			const int xm = xMap.transform(x(i)-err[i]);
@@ -201,7 +229,7 @@ bool QwtErrorPlotCurve::xErrors()
 {
 #if false
 bool x = false;
-if (type == Horizontal)
+if (type == Qt::Horizontal)
 	x = true;
 
 return x;
@@ -212,9 +240,9 @@ void QwtErrorPlotCurve::setXErrors(bool yes)
 {
 #if false
 if (yes) 
-	type = Horizontal;
+	type = Qt::Horizontal;
 else 
-	type = Vertical;
+	type = Qt::Vertical;
 #endif
 }
 
@@ -272,7 +300,7 @@ for (int i=0; i<size; i++)
 	{
 	X[i]=x(i);
 	Y[i]=y(i);
-	if (type == Vertical)
+	if (type == Qt::Vertical)
 		{
 		min[i] = y(i) - err[i];
 		max[i] = y(i) + err[i];
@@ -285,7 +313,7 @@ for (int i=0; i<size; i++)
 	}
 
 QwtArrayData *erMin, *erMax;
-if (type == Vertical)
+if (type == Qt::Vertical)
 	{
 	erMin=new QwtArrayData(X, min);
 	erMax=new QwtArrayData(X, max);

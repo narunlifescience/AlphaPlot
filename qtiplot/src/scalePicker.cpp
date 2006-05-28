@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : scalePicker.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Scale picker
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "scalePicker.h"
 #include <qpainter.h>
 #include <qwt_plot.h>
@@ -5,6 +33,11 @@
 #include <qwt_scale_widget.h>
 
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <QMouseEvent>
+#include <QLabel>
+#include <QKeyEvent>
+#include <QEvent>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -35,7 +68,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 	if ( object->inherits("QwtScale") && e->type() == QEvent::MouseButtonPress)
     	{
 		const QMouseEvent *me = (const QMouseEvent *)e;	
-		if (me->button()==QEvent::LeftButton)
+		if (me->button()==Qt::LeftButton)
 			{
 			emit clicked();	
 
@@ -48,7 +81,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 				}
 			return TRUE;
 			}
-		else if (me->button() == QEvent::RightButton)
+		else if (me->button() == Qt::RightButton)
 			{
 			mouseRightClicked((const QwtScale *)object, me->pos());
 			return TRUE;
@@ -269,7 +302,7 @@ TitlePicker::TitlePicker(QwtPlot *plot):
 movedGraph=FALSE;
 
 title = (QLabel *)plot->titleLabel();
-title->setFocusPolicy(QWidget::StrongFocus);
+title->setFocusPolicy(Qt::StrongFocus);
 if (title)
 	title->installEventFilter(this);
 #endif
@@ -292,7 +325,7 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 		emit clicked();
 
 		const QMouseEvent *me = (const QMouseEvent *)e;	
-		if (me->button()==QEvent::RightButton)
+		if (me->button()==Qt::RightButton)
 			emit showTitleMenu();
 
 		QwtPlot *plot = (QwtPlot *)title->parent();
@@ -319,7 +352,7 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 	if ( object->inherits("QLabel") && e->type() == QEvent::MouseButtonRelease)
 		{
 		const QMouseEvent *me = (const QMouseEvent *)e;
-		if (me->button()== QEvent::LeftButton)
+		if (me->button()== Qt::LeftButton)
 			{
 			emit clicked();
 			if (movedGraph)

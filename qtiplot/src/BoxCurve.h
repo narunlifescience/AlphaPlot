@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : BoxCurve.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Box curve
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef BOXCURVE_H
 #define BOXCURVE_H
 
@@ -5,6 +33,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 
+//! Box curve
 class BoxCurve: public QwtPlotCurve
 {
 public:
@@ -62,12 +91,21 @@ class QwtSingleArrayData: public QwtData
 public:
     QwtSingleArrayData(const double x, const double *y, size_t size)
 	{
+	// FIXME: port this to Qwt5
+	#if false
 		d_y.detach();
 		d_y.duplicate(y, size);
 		d_x = x;
+	#endif
 	};
 
-    virtual QwtData *copy() const{return new QwtSingleArrayData(d_x, d_y, size());};
+    virtual QwtData *copy() const
+	{
+	// FIXME: port this to Qwt5
+	#if false
+		return new QwtSingleArrayData(d_x, d_y, size());
+	#endif
+	};
  
     virtual size_t size() const{return d_y.size();};
     virtual double x(size_t) const{return d_x;};

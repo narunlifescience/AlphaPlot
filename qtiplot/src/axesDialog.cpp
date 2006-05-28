@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : axesDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : General plot options dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "axesDialog.h"
 #include "textDialog.h"
 #include "colorBox.h"
@@ -9,13 +37,13 @@
 #include "txt_icons.h"
 #include "symbolDialog.h"
 
-#include <qtextedit.h>
+#include <q3textedit.h>
 #include <qcolordialog.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qlineedit.h>
-#include <qlistbox.h>
+#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qspinbox.h>
@@ -24,20 +52,25 @@
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qtooltip.h>
-#include <qwhatsthis.h>
+#include <q3whatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qmessagebox.h>
 #include <qinputdialog.h>
 #include <qfont.h>
 #include <qfontdialog.h> 
 #include <qregexp.h> 
-#include <qvbox.h>
-#include <qwidgetlist.h>
+#include <q3vbox.h>
+#include <qwidget.h>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
+//Added by qt3to4:
+#include <Q3MemArray>
+#include <Q3ValueList>
+#include <Q3HBoxLayout>
+#include <Q3VBoxLayout>
 
 /* XPM */
 static char * vert_scl_xpm[] = {
@@ -981,7 +1014,7 @@ static const char* const image7_data[] = {
 #define M_PI	3.141592653589793238462643 
 #endif
 
-axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags fl )
+axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     QPixmap image4( ( const char** ) image4_data );
@@ -990,7 +1023,7 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags f
     QPixmap image7( ( const char** ) image7_data );
     if ( !name )
 		setName( "axesDialog" );
-    setCaption( tr( "QtiPlot - General Plot Options" ) );
+    setWindowTitle( tr( "QtiPlot - General Plot Options" ) );
 
     generalDialog = new QTabWidget( this, "generalDialog" );
 
@@ -999,9 +1032,8 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags f
 	initAxesPage();
 	initFramePage();
 	
-	GroupBox6 = new QButtonGroup(3,QGroupBox::Horizontal,tr(""),this, "GroupBox6" );
+	GroupBox6 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this, "GroupBox6" );
 	GroupBox6->setFlat (TRUE);
-	GroupBox6->setLineWidth (0);
 	
 	buttonApply = new QPushButton(GroupBox6, "buttonApply" );
     buttonApply->setText( tr( "&Apply" ) );
@@ -1013,7 +1045,7 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, WFlags f
     buttonCancel = new QPushButton(GroupBox6, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
 	
-    QVBoxLayout* vlayout = new QVBoxLayout(this,5,5, "vlayout");
+    Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
 	vlayout->addWidget(generalDialog);
     vlayout->addWidget(GroupBox6);
 
@@ -1031,7 +1063,7 @@ connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
 void axesDialog::initScalesPage()
 {
  	scalesPage = new QWidget( generalDialog, "scalesPage" );
-	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr( "" ),scalesPage, "GroupBox1" );
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "" ),scalesPage, "GroupBox1" );
 
 	new QLabel(tr( "From" ), GroupBox1, "TextLabel1_3_3",0 );
     boxStart = new QLineEdit( GroupBox1, "boxStart" );
@@ -1049,13 +1081,13 @@ void axesDialog::initScalesPage()
     btnInvert->setText( tr( "Inverted" ) );
 	btnInvert->setChecked(FALSE);
 		
-	GroupBox2 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),scalesPage, "GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),scalesPage, "GroupBox2" );
 
     btnStep = new QCheckBox( GroupBox2, "btnStep" );
     btnStep->setText( tr( "Step" ) );
 	btnStep->setChecked(TRUE);
 	
-	QHBox  *hbox=new QHBox (GroupBox2, "hboxb");
+	Q3HBox  *hbox=new Q3HBox (GroupBox2, "hboxb");
 	hbox->setSpacing (5);
 	
 	boxStep = new QLineEdit( hbox, "boxStep" );
@@ -1076,12 +1108,12 @@ void axesDialog::initScalesPage()
 	QPixmap image0( ( const char** ) horizont_scl_xpm );
     QPixmap image1( ( const char** ) vert_scl_xpm );
 	
-    axesList = new QListBox( scalesPage, "axesList" );
+    axesList = new Q3ListBox( scalesPage, "axesList" );
     axesList->insertItem( image0, tr( "Horizontal" ) );
     axesList->insertItem( image1, tr( "Vertical" ) );
 	axesList->setCurrentItem (0);
 	
-	QHBoxLayout* hlayout = new QHBoxLayout(scalesPage,5,5, "hlayout");
+	Q3HBoxLayout* hlayout = new Q3HBoxLayout(scalesPage,5,5, "hlayout");
 	hlayout->addWidget(axesList);
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
@@ -1101,7 +1133,7 @@ void axesDialog::initGridPage()
 {
 gridPage = new QWidget( generalDialog, "gridPage" );
 	
-	GroupBox3 = new QButtonGroup(3,QGroupBox::Horizontal,tr(""),gridPage, "GroupBox3" );
+	GroupBox3 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),gridPage, "GroupBox3" );
 
 	new QLabel(tr( "" ), GroupBox3, "TextLabel1_400",0 );
 	
@@ -1158,12 +1190,12 @@ gridPage = new QWidget( generalDialog, "gridPage" );
     QPixmap image2( ( const char** ) image2_data );
     QPixmap image3( ( const char** ) image3_data );
 
-    axesGridList = new QListBox( gridPage, "axesGridList" );
+    axesGridList = new Q3ListBox( gridPage, "axesGridList" );
     axesGridList->insertItem( image3, tr( "" ) );
     axesGridList->insertItem( image2, tr( "" ) );
 	axesGridList->setCurrentItem(0);
 	
-	QHBoxLayout* hlayout2 = new QHBoxLayout(gridPage,5,5, "hlayout2");
+	Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(gridPage,5,5, "hlayout2");
 	hlayout2->addWidget(axesGridList);
     hlayout2->addWidget(GroupBox3);
 	
@@ -1194,7 +1226,7 @@ void axesDialog::initAxesPage()
 
     axesPage = new QWidget( generalDialog);
 	
-    axesTitlesList = new QListBox(axesPage);
+    axesTitlesList = new Q3ListBox(axesPage);
     axesTitlesList->insertItem( image4, QString::null );
     axesTitlesList->insertItem( image5, QString::null );
     axesTitlesList->insertItem( image6, QString::null );
@@ -1202,28 +1234,28 @@ void axesDialog::initAxesPage()
 	axesTitlesList->setCurrentItem(0);
 	axesTitlesList->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 		
-	QVBox *box = new QVBox (axesPage); 
+	Q3VBox *box = new Q3VBox (axesPage); 
 	box->setSpacing(5);
 	box->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-	QHBox *hbox0 = new QHBox (box); 
+	Q3HBox *hbox0 = new Q3HBox (box); 
 	hbox0->setSpacing(5);
 	hbox0->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
 	boxShowAxis = new QCheckBox(tr("Show"), hbox0);
 	boxShowAxis->setChecked(TRUE);
 
-	labelBox = new QGroupBox (2, Qt::Horizontal, hbox0);
+	labelBox = new Q3GroupBox (2, Qt::Horizontal, hbox0);
 	labelBox->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 	
 	QLabel *l = new QLabel(tr( "Title" ), labelBox);
-    boxTitle = new QTextEdit(labelBox);
+    boxTitle = new Q3TextEdit(labelBox);
 	boxTitle->setTextFormat(Qt::PlainText);
 	boxTitle->setMaximumHeight(int(1.5*l->height()));
 
 	btnLabelFont = new QPushButton(tr("&Font"), labelBox);
 
-	QHBox *editBox = new QHBox (labelBox); 
+	Q3HBox *editBox = new Q3HBox (labelBox); 
 	editBox->setMaximumWidth(280);
 
 	buttonIndice = new QPushButton( editBox); 
@@ -1234,11 +1266,11 @@ void axesDialog::initAxesPage()
     buttonExp->setPixmap (QPixmap(exp_xpm));
 	buttonExp->setMaximumWidth(40);
 
-    buttonMinGreek = new QPushButton(QChar(0x3B1), editBox); 
-	buttonMinGreek->setMaximumWidth(40);
+    buttonLowerGreek = new QPushButton(QChar(0x3B1), editBox); 
+	buttonLowerGreek->setMaximumWidth(40);
 
-	buttonMajGreek = new QPushButton(QChar(0x393), editBox); 
-	buttonMajGreek->setMaximumWidth(40);
+	buttonUpperGreek = new QPushButton(QChar(0x393), editBox); 
+	buttonUpperGreek->setMaximumWidth(40);
 
 	QFont font = this->font();
 	font.setBold(true);
@@ -1260,10 +1292,10 @@ void axesDialog::initAxesPage()
 	buttonU->setFont(font);
 	buttonU->setMaximumWidth(40);
 	
-	QHBox  *hbox2=new QHBox (box); 
+	Q3HBox  *hbox2=new Q3HBox (box); 
 	hbox2->setSpacing(5);
 	
-	QButtonGroup *GroupBox7 = new QButtonGroup(2,QGroupBox::Horizontal, QString::null, hbox2);
+	Q3ButtonGroup *GroupBox7 = new Q3ButtonGroup(2,Qt::Horizontal, QString::null, hbox2);
 
 	new QLabel(tr( "Type" ),GroupBox7);	
 	boxAxisType= new QComboBox(GroupBox7, "boxAxisType");
@@ -1292,7 +1324,7 @@ void axesDialog::initAxesPage()
 	new QLabel(tr("Stand-off"), GroupBox7);
 	boxBaseline = new QSpinBox(0,1000,1,GroupBox7, "boxBaseline");
 	
-	QButtonGroup *GroupBox8= new QButtonGroup(2,QGroupBox::Horizontal,tr(""), hbox2, "GroupBox8" );
+	Q3ButtonGroup *GroupBox8= new Q3ButtonGroup(2,Qt::Horizontal,tr(""), hbox2, "GroupBox8" );
 	
 	new QLabel(QString::null, GroupBox8);	
 	boxShowLabels = new QCheckBox(GroupBox8, "boxShowLabels");
@@ -1316,12 +1348,12 @@ void axesDialog::initAxesPage()
 	boxAngle = new QSpinBox(-90,90,5,GroupBox8);
 
 	boxShowFormula = new QCheckBox(tr( "For&mula" ),GroupBox8);		
-	boxFormula = new QTextEdit(GroupBox8);
+	boxFormula = new Q3TextEdit(GroupBox8);
 	boxFormula->setTextFormat(Qt::PlainText);
 	boxFormula->setMaximumHeight(int(1.5*l->height()));
 	boxFormula->hide();
 
-	QHBoxLayout* hlayout3 = new QHBoxLayout(axesPage, 5, 5);
+	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(axesPage, 5, 5);
 	hlayout3->addWidget(axesTitlesList);
     hlayout3->addWidget(box);
 
@@ -1357,15 +1389,15 @@ connect( buttonIndice, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
 connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
 connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
 connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
-connect(buttonMinGreek, SIGNAL(clicked()), this, SLOT(showMinGreek()));
-connect(buttonMajGreek, SIGNAL(clicked()), this, SLOT(showMajGreek()));
+connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
+connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
 }
 
 void axesDialog::initFramePage()
 {
 frame = new QWidget( generalDialog, "frame" );
-QVBox *vbox = new QVBox(frame, "vbox");
-boxFramed = new QButtonGroup(2,QGroupBox::Horizontal,tr("Canvas frame"), vbox, "GroupBox5" );
+Q3VBox *vbox = new Q3VBox(frame, "vbox");
+boxFramed = new Q3ButtonGroup(2,Qt::Horizontal,tr("Canvas frame"), vbox, "GroupBox5" );
 boxFramed->setCheckable (true);
 	
 new QLabel(tr( "Color" ), boxFramed, "TextLabel1_53",0 );
@@ -1375,7 +1407,7 @@ new QLabel(tr( "Width" ), boxFramed, "TextLabel1_54",0 );
 boxFrameWidth= new QSpinBox(boxFramed);
 boxFrameWidth->setMinValue(1);
 
-QButtonGroup *GroupBox55 = new QButtonGroup(2,QGroupBox::Horizontal,tr("Background"), vbox, "GroupBox5" );
+Q3ButtonGroup *GroupBox55 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Background"), vbox, "GroupBox5" );
 	
 new QLabel(tr( "Color" ),GroupBox55, "TextLabel1_53",0 );
 boxBackgroundColor= new ColorButton(GroupBox55);
@@ -1386,10 +1418,10 @@ boxBorderWidth= new QSpinBox(GroupBox55);
 new QLabel(tr("Border Color" ),GroupBox55, "TextLabel1_53",0 );
 boxBorderColor= new ColorButton(GroupBox55);
 
-QVBox *vbox2 = new QVBox(frame, "vbox2");
+Q3VBox *vbox2 = new Q3VBox(frame, "vbox2");
 vbox2->setSpacing(5);
 
-QButtonGroup *GroupBox6 = new QButtonGroup(2,QGroupBox::Horizontal,tr("Axes"),vbox2, "GroupBox6" );
+Q3ButtonGroup *GroupBox6 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Axes"),vbox2, "GroupBox6" );
 
 boxBackbones = new QCheckBox(GroupBox6, "boxBackbones" );
 boxBackbones->setText( tr( "Draw backbones" ) );
@@ -1405,13 +1437,13 @@ boxMajorTicksLength = new QSpinBox(0, 1000, 1, GroupBox6, "boxMajorTicksLength")
 new QLabel(tr( "Minor ticks length" ),GroupBox6, "TextLabel1_521",0 );
 boxMinorTicksLength = new QSpinBox(0, 1000, 1, GroupBox6, "boxMajorTicksLength");
 
-QButtonGroup *GroupBox66 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""),vbox2, "GroupBox6" );
+Q3ButtonGroup *GroupBox66 = new Q3ButtonGroup(2,Qt::Horizontal,tr(""),vbox2, "GroupBox6" );
 new QLabel(tr( "Margin" ),GroupBox66, "TextLabel1_541",0 );
 boxMargin= new QSpinBox(0, 1000, 5, GroupBox66);
 
 boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox66);
 
-QHBoxLayout* hlayout4 = new QHBoxLayout(frame,5,5, "hlayout4");
+Q3HBoxLayout* hlayout4 = new Q3HBoxLayout(frame,5,5, "hlayout4");
 hlayout4->addWidget(vbox);
 hlayout4->addWidget(vbox2);
 
@@ -1645,7 +1677,7 @@ else
 		g->setBackgroundColor(c);
 	}
 
-if (c == QColor(white) && mPlot->hasOverlapingLayers())
+if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
 	mPlot->updateTransparency();
 }
 
@@ -1828,7 +1860,7 @@ int a=mapToQwtAxisId();
 boxAxisType->setCurrentItem(a);
 }
 
-void axesDialog::setEnabledAxes(QMemArray<bool> ok)
+void axesDialog::setEnabledAxes(Q3MemArray<bool> ok)
 {
 xAxisOn=ok[2];
 yAxisOn=ok[0];
@@ -2284,7 +2316,7 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),e.GetMsg());
+		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxStart->setFocus();
 		error=TRUE;
 		return FALSE;
@@ -2297,7 +2329,7 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - End limit error"),e.GetMsg());
+		QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
 		boxEnd->setFocus();
 		error=TRUE;
 		return FALSE;
@@ -2310,7 +2342,7 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - Step input error"),e.GetMsg());
+		QMessageBox::critical(0, tr("QtiPlot - Step input error"),QString::fromStdString(e.GetMsg()));
 		boxStep->setFocus();
 		error=TRUE;
 		return FALSE;
@@ -2362,7 +2394,7 @@ else if (generalDialog->currentPage()==(QWidget*)axesPage)
 				}
 			catch(mu::ParserError &e)
 				{
-				QMessageBox::critical(0, tr("QtiPlot - Formula input error"), e.GetMsg()+"\n"+
+				QMessageBox::critical(0, tr("QtiPlot - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
 					tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
 				boxFormula->setFocus();
 				return FALSE;
@@ -2421,7 +2453,7 @@ else if (generalDialog->currentPage()==(QWidget*)frame)
 			g->setBackgroundColor(c);
 			}
 		}
-	if (c == QColor(white) && mPlot->hasOverlapingLayers())
+	if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
 		mPlot->updateTransparency();
 	}
 
@@ -2595,17 +2627,17 @@ void axesDialog::setAxesLabelsFormatInfo(const QStringList& lst)
 formatInfo = lst;
 }
 
-void axesDialog::setAxesType(const QValueList<int>& list)
+void axesDialog::setAxesType(const Q3ValueList<int>& list)
 {
 axesType=list;
 }
 
-void axesDialog::setAxesBaseline(const QValueList<int>& lst)
+void axesDialog::setAxesBaseline(const Q3ValueList<int>& lst)
 {
 axesBaseline = lst;
 }
 
-void axesDialog::setTicksType(const QValueList<int>& list)
+void axesDialog::setTicksType(const Q3ValueList<int>& list)
 {
 ticks=list;
 }
@@ -2690,8 +2722,10 @@ emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), ticksType(
 			  boxAngle->value(), boxBaseline->value(), formula);			
 }
 
+// FIXME: This needs to be ported to Qwt5
 void axesDialog::setCurrentScale(int axisPos)
 {
+#if false
 int axis = -1;
 if (generalDialog->currentPage()==(QWidget*)scalesPage)
 	{
@@ -2723,6 +2757,7 @@ else if (generalDialog->currentPage()==(QWidget*)axesPage)
 		}
 	axesTitlesList->setCurrentItem (axis);
 	}
+#endif
 }
 
 void axesDialog::showAxesPage()
@@ -2880,19 +2915,19 @@ else
 	boxFormula->hide();
 }
 
-void axesDialog::showMinGreek()
+void axesDialog::showLowerGreek()
 {
-symbolDialog *greekLetters = new symbolDialog(symbolDialog::minGreek, this,"greekLetters",
-											  false, WStyle_Tool|WDestructiveClose);
+SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
+greekLetters->setAttribute(Qt::WA_DeleteOnClose);
 connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
 greekLetters->show();
 greekLetters->setActiveWindow();
 }
 
-void axesDialog::showMajGreek()
+void axesDialog::showUpperGreek()
 {
-symbolDialog *greekLetters = new symbolDialog(symbolDialog::majGreek, this, "greekLetters",
-											  false, WStyle_Tool|WDestructiveClose);
+SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
+greekLetters->setAttribute(Qt::WA_DeleteOnClose);
 connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
 greekLetters->show();
 greekLetters->setActiveWindow();

@@ -1,50 +1,81 @@
+/***************************************************************************
+    File                 : fitDialog.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Nonlinear curve fitting dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef FITDIALOG_H
 #define FITDIALOG_H
 
 #include <qvariant.h>
 #include <qdialog.h>
+//Added by qt3to4:
+#include <QLabel>
 
 class QPushButton;
 class QLineEdit;
 class QComboBox;
-class QWidgetStack;
+class Q3WidgetStack;
 class QWidget;
-class QTextEdit;
-class QListBox;
+class Q3TextEdit;
+class Q3ListBox;
 class QCheckBox;
-class QTable;
+class Q3Table;
 class QSpinBox;
 class QLabel;
 class Graph;
 class ColorBox;
 
+//! Nonlinear curve fitting dialog
 class fitDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    fitDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    fitDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
     ~fitDialog();
 
 	void initFitPage();
 	void initEditPage();
 
 	QCheckBox* boxUseBuiltIn;
-	QWidgetStack* tw;
+	Q3WidgetStack* tw;
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonClear;
 	QPushButton* buttonPlugins;
 	QComboBox* boxCurve;
 	QComboBox* boxSolver;
-	QTable* boxParams;
+	Q3Table* boxParams;
 	QLineEdit* boxFrom;
 	QLineEdit* boxTo;
 	QLineEdit* boxTolerance;
 	QSpinBox* boxPoints;
 	QWidget *fitPage, *editPage;
-	QTextEdit *editBox, *explainBox, *boxFunction;
-	QListBox *categoryBox, *funcBox;
+	Q3TextEdit *editBox, *explainBox, *boxFunction;
+	Q3ListBox *categoryBox, *funcBox;
 	QLineEdit *boxName, *boxParam;
 	QLabel *lblFunction;
 	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue;

@@ -1,9 +1,37 @@
+/***************************************************************************
+    File                 : pie.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Pie plot class
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "pie.h"
 #include "colorBox.h"
 
 #include <qwt_painter.h>
 #include <qpainter.h>
-#include <qpaintdevicemetrics.h>
+#include <q3paintdevicemetrics.h>
 
 //FIXME: All functionality disabled for now (needs port to Qwt5)
 
@@ -45,8 +73,8 @@ void QwtPieCurve::drawPie(QPainter *painter,
 
 	if (painter->device()->isExtDev()) 
 	{//draw on printer
-		QPaintDeviceMetrics pdmFrom(plot);
-		QPaintDeviceMetrics pdmTo(painter->device());
+		Q3PaintDeviceMetrics pdmFrom(plot);
+		Q3PaintDeviceMetrics pdmTo(painter->device());
 
 		double dx = (double)pdmTo.width()/(double)pdmFrom.width();
 		double dy = (double)pdmTo.height()/(double)pdmFrom.height();

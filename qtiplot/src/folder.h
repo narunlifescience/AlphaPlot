@@ -1,9 +1,46 @@
+/***************************************************************************
+    File                 : folder.h
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Folder for the project explorer
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #ifndef FOLDER_H
 #define FOLDER_H
 
 #include <qobject.h>
-#include <qlistview.h>
-#include <qiconview.h>
+#include <q3listview.h>
+#include <q3iconview.h>
+//Added by qt3to4:
+#include <QDragEnterEvent>
+#include <QMouseEvent>
+#include <QDragLeaveEvent>
+#include <QDragMoveEvent>
+#include <QKeyEvent>
+#include <QEvent>
+#include <QDropEvent>
+#include <Q3PtrList>
 
 #include "widget.h"
 
@@ -13,8 +50,9 @@ class QDragEnterEvent;
 class QDragMoveEvent;
 class QDragLeaveEvent;
 class QDropEvent;
-class QDragObject;
+class Q3DragObject;
 
+//! Folder for the project explorer
 class Folder : public QObject
 {
     Q_OBJECT
@@ -23,10 +61,10 @@ public:
     Folder( Folder *parent, const QString &name );
     ~Folder();
 
-	QPtrList<myWidget> windowsList(){return lstWindows;};
+	QList<myWidget *> windowsList(){return lstWindows;};
 
     void addWindow( myWidget *w ){ lstWindows.append( w );};
-	void removeWindow( myWidget *w ){ lstWindows.take( lstWindows.find(w) );};
+	void removeWindow( myWidget *w ){ lstWindows.takeAt( lstWindows.indexOf(w) );};
 
 	void setFolderName(const QString& s){fName = s;};
     QString folderName() { return fName;};
@@ -59,7 +97,7 @@ public:
 
 protected:
     QString fName, birthdate, modifDate;
-    QPtrList<myWidget> lstWindows;
+    QList<myWidget *> lstWindows;
 	FolderListItem *myFolderListItem;
 };
 
@@ -69,10 +107,10 @@ protected:
  *
  *****************************************************************************/
 
-class WindowListItem : public QListViewItem
+class WindowListItem : public Q3ListViewItem
 {
 public:
-    WindowListItem( QListView *parent, myWidget *w );
+    WindowListItem( Q3ListView *parent, myWidget *w );
 
     myWidget *window() { return myWindow; };
 	void cancelRename(int){return;};
@@ -87,10 +125,10 @@ protected:
  *
  *****************************************************************************/
 
-class FolderListItem : public QListViewItem
+class FolderListItem : public Q3ListViewItem
 {
 public:
-    FolderListItem( QListView *parent, Folder *f );
+    FolderListItem( Q3ListView *parent, Folder *f );
     FolderListItem( FolderListItem *parent, Folder *f );
 
 	enum {ListItemType = 1001};
@@ -102,7 +140,7 @@ public:
 
     Folder *folder() { return myFolder; };
 
-	//! Slot: Checks weather the folder item is a grandchild of the source folder 
+	//! This slot checks weather the folder item is a grandchild of the source folder 
 	/**
 	 * \param src source folder item
 	 */
@@ -118,7 +156,7 @@ protected:
  *
  *****************************************************************************/
 
-class FolderListView : public QListView
+class FolderListView : public Q3ListView
 {
     Q_OBJECT
 
@@ -140,9 +178,9 @@ protected:
 	void enterEvent(QEvent *){mousePressed = FALSE;};
 
 signals:
-	void dragItems(QPtrList<QListViewItem> items);
-	void dropItems(QListViewItem *dest);
-	void renameItem(QListViewItem *item);
+	void dragItems(QList<Q3ListViewItem *> items);
+	void dropItems(Q3ListViewItem *dest);
+	void renameItem(Q3ListViewItem *item);
 	void addFolderItem();
 	void deleteSelection();
 

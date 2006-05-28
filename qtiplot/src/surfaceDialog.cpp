@@ -1,3 +1,31 @@
+/***************************************************************************
+    File                 : surfaceDialog.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Define surface plot dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "surfaceDialog.h"
 #include "parser.h"
 #include "application.h"
@@ -6,36 +34,36 @@
 #include <qpushbutton.h>
 #include <qlabel.h>
 #include <qlayout.h>
-#include <qbuttongroup.h>
+#include <q3buttongroup.h>
 #include <qlineedit.h>
 #include <qcombobox.h>
 #include <qmessagebox.h>
+//Added by qt3to4:
+#include <Q3VBoxLayout>
 
-sDialog::sDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
+sDialog::sDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 	setName( "sDialog" );
-	setCaption(tr("QtiPlot - Define surface plot"));
+	setWindowTitle(tr("QtiPlot - Define surface plot"));
     setMinimumSize( QSize( 310, 140 ) );
 	setMaximumSize( QSize( 310, 140 ) );
     setMouseTracking( TRUE );
     setSizeGripEnabled( FALSE );
 	
-	GroupBox1 = new QButtonGroup( 2,QGroupBox::Horizontal,tr(""),this,"GroupBox1" );
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 	GroupBox1->setFlat (TRUE);
-	GroupBox1->setLineWidth (0);
 
 	new QLabel( tr("f(x,y)="), GroupBox1, "TextLabel2",0 );
 	boxFunction = new QComboBox(GroupBox1, "boxFunction" );
 	boxFunction->setFixedWidth(250);
 	boxFunction->setEditable(TRUE);
 
-	GroupBox5 = new QButtonGroup(3,QGroupBox::Horizontal,tr(""),this,"GroupBox5" );
+	GroupBox5 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox5" );
 	GroupBox5->setFlat (TRUE);
-	GroupBox5->setLineWidth (0);
 
-	GroupBox3 = new QButtonGroup(1,QGroupBox::Horizontal,tr("X - axis"),GroupBox5,"GroupBox3" );
+	GroupBox3 = new Q3ButtonGroup(1,Qt::Horizontal,tr("X - axis"),GroupBox5,"GroupBox3" );
 	
 	new QLabel( tr("From"), GroupBox3, "TextLabel3",0 );
 	boxXFrom = new QLineEdit(GroupBox3, "boxPoints" );
@@ -45,7 +73,7 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
 	boxXTo = new QLineEdit(GroupBox3, "boxOrder" );
 	boxXTo->setText(tr("1"));
 
-	GroupBox4 = new QButtonGroup(1,QGroupBox::Horizontal,tr("Y - axis"),GroupBox5,"GroupBox4" );
+	GroupBox4 = new Q3ButtonGroup(1,Qt::Horizontal,tr("Y - axis"),GroupBox5,"GroupBox4" );
 	
 	new QLabel( tr("From"), GroupBox4, "TextLabel33",0 );
 	boxYFrom = new QLineEdit(GroupBox4, "boxPoints" );
@@ -55,7 +83,7 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
 	boxYTo = new QLineEdit(GroupBox4, "boxYto" );
 	boxYTo->setText(tr("1"));
 
-	GroupBox6 = new QButtonGroup(1,QGroupBox::Horizontal,tr("Z - axis"),GroupBox5,"GroupBox4" );
+	GroupBox6 = new Q3ButtonGroup(1,Qt::Horizontal,tr("Z - axis"),GroupBox5,"GroupBox4" );
 	
 	new QLabel( tr("From"), GroupBox6, "TextLabel35",0 );
 	boxZFrom = new QLineEdit(GroupBox6, "boxZFrom" );
@@ -65,9 +93,8 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
 	boxZTo = new QLineEdit(GroupBox6, "boxZto" );
 	boxZTo->setText(tr("1"));
 
-	GroupBox2 = new QButtonGroup(3,QGroupBox::Horizontal,tr(""),this,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox2" );
 	GroupBox2->setFlat (TRUE);
-	GroupBox2->setLineWidth (0);
 
 	buttonClear = new QPushButton(GroupBox2, "buttonClear" );
     buttonClear->setText( tr( "Clear &list" ) );
@@ -79,7 +106,7 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
 	
-	QVBoxLayout* hlayout = new QVBoxLayout(this,5,5, "hlayout");
+	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox5);
 	hlayout->addWidget(GroupBox2);
@@ -131,7 +158,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - X Start limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - X Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxXFrom->setFocus();
 	return;
 	}
@@ -143,7 +170,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - X End limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - X End limit error"), QString::fromStdString(e.GetMsg()));
 	boxXTo->setFocus();
 	return;
 	}	
@@ -156,7 +183,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Y Start limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Y Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxYFrom->setFocus();
 	return;
 	}	
@@ -168,7 +195,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Y End limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Y End limit error"), QString::fromStdString(e.GetMsg()));
 	boxYTo->setFocus();
 	return;
 	}	
@@ -180,7 +207,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Z Start limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Z Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxZFrom->setFocus();
 	return;
 	}	
@@ -192,7 +219,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Z End limit error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Z End limit error"), QString::fromStdString(e.GetMsg()));
 	boxZTo->setFocus();
 	return;
 	}
@@ -222,7 +249,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input function error"), e.GetMsg());
+	QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 	boxFunction->setFocus();
 	error=TRUE;	
 	}

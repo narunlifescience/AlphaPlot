@@ -1,76 +1,121 @@
+/***************************************************************************
+    File                 : errDlg.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Description          : Add error bars dialog
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 #include "errDlg.h"
+
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QList>
 #include "worksheet.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qgroupbox.h>
-#include <qradiobutton.h>
-#include <qlineedit.h>
-#include <qlayout.h>
-#include <qtooltip.h>
-#include <qwhatsthis.h>
-#include <qhbox.h>
-#include <qvbox.h>
-#include <qbuttongroup.h>
-#include <qwidgetlist.h>
 
-errDialog::errDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
-    : QDialog( parent, name, modal, fl )
+ErrDialog::ErrDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "errDialog" );
-
-    setFocusPolicy( QDialog::StrongFocus );
+    setFocusPolicy( Qt::StrongFocus );
     setSizeGripEnabled( true );
 
-	QVBox *vbox1=new QVBox (this,"vbox1");
+	QVBoxLayout *vbox1 = new QVBoxLayout();
 	vbox1->setSpacing (5);
 	
-	QHBox *hbox1=new QHBox (vbox1,"hbox1");
-    TextLabel1 = new QLabel(hbox1, "TextLabel1" );
-    nameLabel = new QComboBox( FALSE,hbox1, "nameLabel" );
+	QHBoxLayout *hbox1 = new QHBoxLayout();
+	vbox1->addLayout(hbox1);
 
-    GroupBox1 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""), vbox1 , "GroupBox1" );
-	GroupBox1->setRadioButtonExclusive ( TRUE );
-	
-	columnBox = new QRadioButton( GroupBox1, "columnBox" );
-    columnBox->setChecked( TRUE );
-	
-    QHBox *hbox2 = new QHBox(GroupBox1, "hbox2");
-    tableNamesBox = new QComboBox(false, hbox2, "tableNamesBox");
-    colNamesBox = new QComboBox(false, hbox2, "colNamesBox" );
-		
-    percentBox = new QRadioButton( GroupBox1, "percentBox" );
-    percentBox->setChecked( FALSE );
+    textLabel1 = new QLabel();
+	hbox1->addWidget(textLabel1);
 
-    valueBox = new QLineEdit( GroupBox1, "valueBox" );
-    valueBox->setAlignment( int( QLineEdit::AlignHCenter ) );
+    nameLabel = new QComboBox();
+	hbox1->addWidget(nameLabel);
+
+    groupBox1 = new QGroupBox(QString(tr("Source of errors")));
+	QGridLayout * gridLayout = new QGridLayout(groupBox1);
+	vbox1->addWidget(groupBox1);
+
+	buttonGroup1 = new QButtonGroup();
+	buttonGroup1->setExclusive( true );
+	
+	columnBox = new QRadioButton();
+    columnBox->setChecked( true );
+	buttonGroup1->addButton(columnBox);
+	gridLayout->addWidget(columnBox, 0, 0 );
+	
+	colNamesBox = new QComboBox();
+    tableNamesBox = new QComboBox();
+	
+    QHBoxLayout * comboBoxes = new QHBoxLayout();
+	comboBoxes->addWidget(tableNamesBox);
+	comboBoxes->addWidget(colNamesBox);
+
+	gridLayout->addLayout(comboBoxes, 0, 1);
+
+    percentBox = new QRadioButton();
+	buttonGroup1->addButton(percentBox);
+	gridLayout->addWidget(percentBox, 1, 0 );
+
+    valueBox = new QLineEdit();
+    valueBox->setAlignment( Qt::AlignHCenter );
 	valueBox->setEnabled(false);
-
-	standardBox = new QRadioButton( GroupBox1, "standardBox" );
-
-	GroupBox3 = new QButtonGroup(2,QGroupBox::Horizontal,tr(""), vbox1 , "GroupBox3" );
-	GroupBox3->setRadioButtonExclusive ( TRUE );
+	gridLayout->addWidget(valueBox, 1, 1);
 	
-    xErrBox = new QRadioButton(GroupBox3, "xErrBox" );
+	standardBox = new QRadioButton();
+	buttonGroup1->addButton(standardBox);
+	gridLayout->addWidget(standardBox, 2, 0 );
 
-    yErrBox = new QRadioButton(GroupBox3, "yErrBox" );
-    yErrBox->setChecked( TRUE );
+	groupBox3 = new QGroupBox(QString());
+	vbox1->addWidget(groupBox3);
+	QHBoxLayout * hbox2 = new QHBoxLayout(groupBox3);
 
-    GroupBox2 = new QGroupBox(3, QGroupBox::Vertical,tr(""), this , "GroupBox2" );
-	GroupBox2->setLineWidth(0);
-	GroupBox2->setFlat(TRUE);
+	buttonGroup2 = new QButtonGroup();
+	buttonGroup2->setExclusive( true );
 	
-	buttonAdd = new QPushButton(GroupBox2 , "buttonAdd" );
-    buttonAdd->setDefault( TRUE );
+    xErrBox = new QRadioButton();
+	buttonGroup2->addButton(xErrBox);
+	hbox2->addWidget(xErrBox );
 
-    buttonCancel = new QPushButton( GroupBox2, "buttonCancel" );
+    yErrBox = new QRadioButton();
+	buttonGroup2->addButton(yErrBox);
+	hbox2->addWidget(yErrBox );
+    yErrBox->setChecked( true );
 	
-	QHBoxLayout* hlayout1 = new QHBoxLayout(this,5,5, "hlayout1");
-	hlayout1->addWidget(vbox1);
-    hlayout1->addWidget(GroupBox2);
+	QVBoxLayout * vbox2 = new QVBoxLayout();
+	buttonAdd = new QPushButton();
+    buttonAdd->setDefault( true );
+	vbox2->addWidget(buttonAdd);
+
+    buttonCancel = new QPushButton();
+	vbox2->addWidget(buttonCancel);
+
+	vbox2->addStretch(1);
+	
+	QHBoxLayout * hlayout1 = new QHBoxLayout(this);
+	hlayout1->addLayout(vbox1);
+    hlayout1->addLayout(vbox2);
 	
     languageChange();
 
@@ -79,60 +124,67 @@ errDialog::errDialog( QWidget* parent, const char* name, bool modal, WFlags fl )
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( percentBox, SIGNAL( toggled(bool) ), valueBox, SLOT( setEnabled(bool) ) );
 	connect( columnBox, SIGNAL( toggled(bool) ), tableNamesBox, SLOT( setEnabled(bool) ) );
-	connect( columnBox, SIGNAL( toggled(bool) ), colNamesBox, SLOT( setEnabled(bool) ) );
+ 	connect( columnBox, SIGNAL( toggled(bool) ), colNamesBox, SLOT( setEnabled(bool) ) );
 	connect( tableNamesBox, SIGNAL( activated(int) ), this, SLOT( selectSrcTable(int) ));
 }
 
-void errDialog::setCurveNames(const QStringList& names)
+void ErrDialog::setCurveNames(const QStringList& names)
 {
-nameLabel->insertStringList (names,-1);
+	nameLabel->addItems(names);
 }
 
-void errDialog::setSrcTables(QWidgetList* tables)
+void ErrDialog::setSrcTables(QWidgetList* tables)
 {
-srcTables = tables;
-tableNamesBox->clear();
-for (QWidget *i=srcTables->first(); i; i=srcTables->next())
-	tableNamesBox->insertItem(i->name());
-tableNamesBox->setCurrentText(QStringList::split("_",nameLabel->currentText())[0]);
-selectSrcTable(tableNamesBox->currentItem());
+	srcTables = tables;
+	tableNamesBox->clear();
+
+	QList<QWidget *>::const_iterator i;
+    for (i = srcTables->begin(); i != srcTables->end(); i++)
+		tableNamesBox->insertItem((*i)->name());
+
+	tableNamesBox->setCurrentIndex(tableNamesBox->findText(QStringList::split("_",nameLabel->currentText())[0]));
+	selectSrcTable(tableNamesBox->currentIndex());
 }
 
-void errDialog::selectSrcTable(int tabnr)
+void ErrDialog::selectSrcTable(int tabnr)
 {
-colNamesBox->clear();
-colNamesBox->insertStringList(((Table*)srcTables->at(tabnr))->colNames());
+	colNamesBox->clear();
+	colNamesBox->addItems(((Table*)srcTables->at(tabnr))->colNames());
 }
 
-void errDialog::add()
+void ErrDialog::add()
 {
-int direction=-1;
-if (xErrBox->isChecked()) direction=0; 
-else direction=1;
-	
-if (columnBox->isChecked())
-	emit options(nameLabel->currentText(), tableNamesBox->currentText()+"_"+colNamesBox->currentText(), direction);	
-else
+	int direction=-1;
+	if (xErrBox->isChecked()) 
+		direction = 0; 
+	else 
+		direction = 1;
+
+	if (columnBox->isChecked())
+		emit options(nameLabel->currentText(), tableNamesBox->currentText()+"_"+colNamesBox->currentText(), direction);	
+	else
 	{
-	int type;
-	if (percentBox->isChecked()) type=0; 
-		else type=1;
+		int type;
+		if (percentBox->isChecked()) 
+			type = 0; 
+		else 
+			type = 1;
 
-	emit options(nameLabel->currentText(),type, valueBox->text(), direction);
+		emit options(nameLabel->currentText(),type, valueBox->text(), direction);
 	}
 }
 
-errDialog::~errDialog()
+ErrDialog::~ErrDialog()
 {
 }
 
-void errDialog::languageChange()
+void ErrDialog::languageChange()
 {
-    setCaption( tr( "QtiPlot - Error Bars" ) );
+    setWindowTitle( tr( "QtiPlot - Error Bars" ) );
     xErrBox->setText( tr( "&X Error Bars" ) );
 	buttonAdd->setText( tr( "&Add" ) );
-    TextLabel1->setText( tr( "Add Error Bars to" ) );
-    GroupBox1->setTitle( tr( "Source of errors" ) );
+    textLabel1->setText( tr( "Add Error Bars to" ) );
+    groupBox1->setTitle( tr( "Source of errors" ) );
     percentBox->setText( tr( "Percent of data (%)" ) );
     valueBox->setText( tr( "5" ) );
     standardBox->setText( tr( "Standard Deviation of Data" ) );
