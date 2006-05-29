@@ -6,20 +6,22 @@ OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES += QT_PLUGIN
 win32:DEFINES  += QT_DLL QT_THREAD_SUPPORT GSL_DLL QWTPLOT3D_DLL 
+QT +=  opengl qt3support network
 
 TRANSLATIONS = translations/qtiplot_de.ts \
 			   translations/qtiplot_es.ts \
 			   translations/qtiplot_fr.ts 
 
 INCLUDEPATH       += ../3rdparty/qwt/include
-unix:INCLUDEPATH  += -I /usr/include/qwtplot3d
+unix:INCLUDEPATH  += ../../qwtplot3d_qt4/include
 
 win32:INCLUDEPATH += ../3rdparty/qwtplot3d/include
 win32:INCLUDEPATH += C:/WinGsl
 win32:INCLUDEPATH += ../3rdparty/zlib123/include
 
 unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
-unix:LIBS         += -L /usr/lib -lgsl -lgslcblas -lqwtplot3d -lz
+unix:LIBS         += ../../qwtplot3d_qt4/lib/libqwtplot3d.a
+unix:LIBS         += -L /usr/lib -lgsl -lgslcblas -lz
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/qwtplot3d.lib
 win32:LIBS        += ../3rdparty/qwt/lib/qwt.lib  
@@ -208,5 +210,3 @@ SOURCES+=../3rdparty/liborigin/OPJFile.cpp
 #Compression (zlib123)
 SOURCES+=../3rdparty/zlib123/minigzip.c
 
-#The following line was inserted by qt3to4
-QT +=  opengl qt3support 
