@@ -129,6 +129,7 @@
 #include <QImageWriter>
 #include <QList>
 #include <QDateTime>
+#include <QProcess>
 
 #include <zlib.h>
 
@@ -806,6 +807,8 @@ void ApplicationWindow::initMainMenu()
 	help->insertSeparator();
 	actionTechnicalSupport->addTo(help);
 	actionDonate->addTo(help);
+	help->addAction(actionHelpForums);
+	help->addAction(actionHelpBugReports);
 	help->insertSeparator();
 	actionAbout->addTo(help);
 
@@ -11173,6 +11176,12 @@ void ApplicationWindow::createActions()
 	actionHomePage = new Q3Action(tr("&QtiPlot Homepage"), QKeySequence(), this);
 	connect(actionHomePage, SIGNAL(activated()), this, SLOT(showHomePage()));
 
+	actionHelpForums = new QAction(tr("QtiPlot &forums"), this);
+	connect(actionHelpForums, SIGNAL(triggered()), this, SLOT(showForums()));
+
+	actionHelpBugReports = new QAction(tr("Report a &bug"), this);
+	connect(actionHelpBugReports, SIGNAL(triggered()), this, SLOT(showBugTracker()));
+
 	actionDownloadManual = new Q3Action(tr("Download &manual"), QKeySequence(), this);
 	connect(actionDownloadManual, SIGNAL(activated()), this, SLOT(downloadManual()));
 
@@ -11495,6 +11504,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
 	actionHomePage->setMenuText(tr("&QtiPlot Homepage"));
 	actionCheckUpdates->setMenuText(tr("Search for &Updates"));
+	actionHelpForums->setText(tr("Visit QtiPlot &forums"));
+	actionHelpBugReports->setText(tr("Report a &bug"));
 	actionDownloadManual->setMenuText(tr("Download &manual"));
 	actionTranslations->setMenuText(tr("&Translations"));
 	actionDonate->setMenuText(tr("Make a &donation"));
@@ -11967,6 +11978,16 @@ void ApplicationWindow::showHomePage()
 	open_browser(this, "http://soft.proindependent.com/qtiplot.html");
 }
 
+void ApplicationWindow::showForums()
+{
+	open_browser(this, "https://developer.berlios.de/forum/?group_id=6626");
+}
+
+void ApplicationWindow::showBugTracker()
+{
+	open_browser(this, "https://developer.berlios.de/bugs/?group_id=6626");
+}
+
 bool ApplicationWindow::open_browser(QWidget* parent, const QString& rUrl)
 {
 	bool result = false;
@@ -11984,25 +12005,25 @@ bool ApplicationWindow::open_browser(QWidget* parent, const QString& rUrl)
 	Q_UNUSED(parent);
 	//Try a range of browsers available on UNIX, until we (hopefully) find one that works.  
 	//Start with the most popular first.
-	Q3Process process;
+	QProcess process;
 	bool process_started = false;
-	process.setArguments(QStringList() << "firefox" << rUrl);
-	process_started = process.start();
+	// without the "-new-window" option firefox will open a new tab but not get the focus if it's already running
+	process_started = process.startDetached("firefox",QStringList() << "-new-window" << rUrl);
 	if (!process_started)
-	{
-		process.setArguments(QStringList() << "mozilla" << rUrl);
-		process_started = process.start();
-	}
+		process_started = process.startDetached("mozilla",QStringList() << rUrl);
 	if (!process_started)
-	{
-		process.setArguments(QStringList() << "netscape" << rUrl);
-		process_started = process.start();
-	}
+		process_started = process.startDetached("netscape",QStringList() << rUrl);
 	if (!process_started)
-	{
-		process.setArguments(QStringList() << "konqueror" << rUrl);
-		process_started = process.start();
-	}
+		process_started = process.startDetached("opera",QStringList() << rUrl);
+	if (!process_started)
+		process_started = process.startDetached("konqueror",QStringList() << rUrl);
+	if (!process_started)
+		process_started = process.startDetached("epiphany",QStringList() << rUrl);
+	if (!process_started)
+		process_started = process.startDetached("galeon",QStringList() << rUrl);
+	// this hopefully works on MAC OS X; not tested so far
+	if (!process_started)
+		process_started = process.startDetached("safari",QStringList() << rUrl);
 	result = process_started;
 #endif
 

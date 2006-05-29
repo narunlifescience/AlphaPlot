@@ -49,6 +49,7 @@
 
 #include <qhttp.h> 
 #include <qfile.h> 
+#include <QAction>
 
 class Q3Action;
 class Q3ActionGroup;
@@ -615,10 +616,19 @@ public slots:
 	void getVersionFile();
 
 	void showDonationDialog();
+	//! Open support page in external browser
 	void showSupportPage();
+	//! Open donation page in external browser
 	void showDonationsPage();
+	//! Open QtiPlot homepage in external browser
 	void showHomePage();
+	//! Open forums page at berliOS in external browser
+	void showForums();
+	//! Open bug tracking system at berliOS in external browser
+	void showBugTracker();
+	//! Show download page in external browser
 	void downloadManual();
+	//! Show translations page in external browser
 	void downloadTranslation();
 
 	//! Opens an internet browser
@@ -831,6 +841,7 @@ public:
 	Q3Action *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol;
 	Q3Action *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;
 	Q3Action *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
+	QAction *actionHelpForums, *actionHelpBugReports;
 	Q3Action *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 
 private:
