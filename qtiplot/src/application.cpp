@@ -2598,7 +2598,6 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 	return w;
 }
 
-
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const QString& text)
 {
 	QStringList lst = QStringList::split("\t", caption, false);
@@ -3186,6 +3185,7 @@ void ApplicationWindow::showPreferencesDialog()
 	cd->initCurvesOptions(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);	
 	cd->showNormal();
 	cd->setActiveWindow();
+	saveSettings();
 }
 
 void ApplicationWindow::setSaveSettings(bool autoSaving, int min)
@@ -4094,84 +4094,82 @@ void ApplicationWindow::readSettings()
 #endif
 
 #ifdef Q_OS_MAC // Mac 
-	QSettings settings(QSettings::Ini);
-	settings.setPath("Ion Vasilief", "QtiPlot", QSettings::UserScope);
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "Ion Vasilief", "QtiPlot");
 #else
-	QSettings settings;
-	settings.setPath("Ion Vasilief", "QtiPlot");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "Ion Vasilief", "QtiPlot");
 #endif
 
 	settings.beginGroup("/QtiPlot");
-	askForSupport = settings.readBoolEntry ("/askForSupport", true, 0);
-	appLanguage = settings.readEntry("/appLanguage", "en");
-	workingDir=settings.readEntry("/workingDir", qApp->applicationDirPath());
-	helpFilePath=settings.readEntry("/helpFilePath", helpFilePath);
-	show_windows_policy = (ShowWindowsPolicy)settings.readNumEntry("/ShowWindowsPolicy", ActiveFolder);
+	askForSupport = settings.value("/askForSupport", QVariant(true)).toBool();
+	appLanguage = settings.value("/appLanguage", "en").toString();
+	workingDir=settings.value("/workingDir", qApp->applicationDirPath()).toString();
+	helpFilePath=settings.value("/helpFilePath", helpFilePath).toString();
+	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
 
-	recentProjects=settings.readListEntry("/recentProjects");
+	recentProjects=variantListToStringList(settings.value("/recentProjects").toList());
 	updateRecentProjectsList();
 
-	functions=settings.readListEntry("/functions");
-	fitFunctions=settings.readListEntry("/fitFunctions");
-	surfaceFunc=settings.readListEntry("/surfaceFunctions");
-	xFunctions=settings.readListEntry("/xFunctions");
-	yFunctions=settings.readListEntry("/yFunctions");
-	rFunctions=settings.readListEntry("/rFunctions");
-	tetaFunctions=settings.readListEntry("/tetaFunctions");
+	functions=variantListToStringList(settings.value("/functions").toList());
+	fitFunctions=variantListToStringList(settings.value("/fitFunctions").toList());
+	surfaceFunc=variantListToStringList(settings.value("/surfaceFunctions").toList());
+	xFunctions=variantListToStringList(settings.value("/xFunctions").toList());
+	yFunctions=variantListToStringList(settings.value("/yFunctions").toList());
+	rFunctions=variantListToStringList(settings.value("/rFunctions").toList());
+	tetaFunctions=variantListToStringList(settings.value("/tetaFunctions").toList());
 
-	separator=settings.readEntry("/defaultColumnSeparator", "\t");
-	QStringList tableColors=settings.readListEntry("/tableColors");
-	QStringList tableFonts=settings.readListEntry("/tableFonts");
+	separator=settings.value("/defaultColumnSeparator", "\t").toString();
+	QStringList tableColors=variantListToStringList(settings.value("/tableColors").toList());
+	QStringList tableFonts=variantListToStringList(settings.value("/tableFonts").toList());
 
 	//2D plots settings
-	titleOn=settings.readBoolEntry ("/titleOn", true, 0);
-	allAxesOn=settings.readBoolEntry ("/allAxesOn", false, 0);
-	canvasFrameOn=settings.readBoolEntry ("/canvasFrameOn", false, 0);
-	canvasFrameWidth=settings.readNumEntry ("/canvasFrameWidth", 0, 0);
-	defaultPlotMargin=settings.readNumEntry ("/defaultPlotMargin", 0, 0);
-	drawBackbones=settings.readBoolEntry ("/drawBackbones", true, 0);
-	axesLineWidth=settings.readNumEntry ("/axesLineWidth", 1, 0);
-	autoscale2DPlots = settings.readBoolEntry ("/autoscale2DPlots", true, 0);
-	autoScaleFonts = settings.readBoolEntry ("/autoScaleFonts", true, 0);
-	autoResizeLayers = settings.readBoolEntry ("/autoResizeLayers", true, 0);
+	titleOn=settings.value("/titleOn", true).toBool();
+	allAxesOn=settings.value("/allAxesOn", false).toBool();
+	canvasFrameOn=settings.value("/canvasFrameOn", false).toBool();
+	canvasFrameWidth=settings.value("/canvasFrameWidth").toInt();
+	defaultPlotMargin=settings.value("/defaultPlotMargin").toInt();
+	drawBackbones=settings.value("/drawBackbones", true).toBool();
+	axesLineWidth=settings.value("/axesLineWidth", 1).toInt();
+	autoscale2DPlots = settings.value("/autoscale2DPlots", true).toBool();
+	autoScaleFonts = settings.value("/autoScaleFonts", true).toBool();
+	autoResizeLayers = settings.value("/autoResizeLayers", true).toBool();
 
 	//2D curves settings
-	defaultCurveStyle = settings.readNumEntry ("/defaultCurveStyle", Graph::LineSymbols, 0);
-	defaultCurveLineWidth = settings.readNumEntry("/defaultCurveLineWidth", 1, 0);
-	defaultSymbolSize = settings.readNumEntry("/defaultSymbolSize", 7, 0);
+	defaultCurveStyle = settings.value("/defaultCurveStyle", Graph::LineSymbols).toInt();
+	defaultCurveLineWidth = settings.value("/defaultCurveLineWidth", 1).toInt();
+	defaultSymbolSize = settings.value("/defaultSymbolSize", 7).toInt();
 
-	ticksStyle=settings.readNumEntry ("/ticksStyle", Plot::Out, 0);
-	minTicksLength=settings.readNumEntry ("/minTicksLength", 5, 0);
-	majTicksLength=settings.readNumEntry ("/majTicksLength", 9, 0);
+	ticksStyle=settings.value("/ticksStyle", Plot::Out).toInt();
+	minTicksLength=settings.value("/minTicksLength", 5).toInt();
+	majTicksLength=settings.value("/majTicksLength", 9).toInt();
 
-	legendFrameStyle=settings.readNumEntry ("/legendFrameStyle", LegendMarker::Line, 0);
-	QStringList graphFonts=settings.readListEntry("/graphFonts");
-	confirmCloseFolder=settings.readBoolEntry ("/confirmCloseFolder", true, 0);
-	confirmCloseTable=settings.readBoolEntry ("/confirmCloseTable", true, 0);
-	confirmCloseMatrix=settings.readBoolEntry ("/confirmCloseMatrix", true, 0);
-	confirmClosePlot2D=settings.readBoolEntry ("/confirmClosePlot2D", true, 0);
-	confirmClosePlot3D=settings.readBoolEntry ("/confirmClosePlot3D", true, 0);
-	confirmCloseNotes=settings.readBoolEntry ("/confirmCloseNotes", true, 0);
+	legendFrameStyle=settings.value("/legendFrameStyle", LegendMarker::Line).toInt();
+	QStringList graphFonts=variantListToStringList(settings.value("/graphFonts").toList());
+	confirmCloseFolder=settings.value("/confirmCloseFolder", true).toBool();
+	confirmCloseTable=settings.value("/confirmCloseTable", true).toBool();
+	confirmCloseMatrix=settings.value("/confirmCloseMatrix", true).toBool();
+	confirmClosePlot2D=settings.value("/confirmClosePlot2D", true).toBool();
+	confirmClosePlot3D=settings.value("/confirmClosePlot3D", true).toBool();
+	confirmCloseNotes=settings.value("/confirmCloseNotes", true).toBool();
 
-	QStringList applicationFont=settings.readListEntry("/appFont");
+	QStringList applicationFont=variantListToStringList(settings.value("/appFont").toList());
 
 	//set user style
-	changeAppStyle(settings.readEntry("/appStyle", appStyle));
+	changeAppStyle(settings.value("/appStyle", appStyle).toString());
 
-	autoSave=settings.readBoolEntry("/autoSave",true);
-	autoSaveTime=settings.readNumEntry ("/autoSaveTime",15);
-	QStringList appColors=settings.readListEntry("/appColors");
+	autoSave=settings.value("/autoSave",true).toBool();
+	autoSaveTime=settings.value("/autoSaveTime",15).toInt();
+	QStringList appColors=variantListToStringList(settings.value("/appColors").toList());
 
 	//3D plots settings
-	showPlot3DLegend=settings.readBoolEntry("/showPlot3DLegend",true);
-	showPlot3DProjection=settings.readBoolEntry("/showPlot3DProjection", false);
-	smooth3DMesh = settings.readBoolEntry("/smooth3DMesh", true);
-	plot3DResolution=settings.readNumEntry ("/plot3DResolution", 1);
+	showPlot3DLegend=settings.value("/showPlot3DLegend",true).toBool();
+	showPlot3DProjection=settings.value("/showPlot3DProjection", false).toBool();
+	smooth3DMesh = settings.value("/smooth3DMesh", true).toBool();
+	plot3DResolution=settings.value("/plot3DResolution", 1).toInt();
 
-	QStringList aux = settings.readListEntry("/plot3DColors");
-	QStringList plot3DFonts = settings.readListEntry("/plot3DFonts");
+	QStringList aux =variantListToStringList( settings.value("/plot3DColors").toList());
+	QStringList plot3DFonts =variantListToStringList( settings.value("/plot3DFonts").toList());
 
-	fitPluginsPath = settings.readEntry("/fitPluginsPath", "fitPlugins");
+	fitPluginsPath = settings.value("/fitPluginsPath", "fitPlugins").toString();
 	settings.endGroup();
 
 	if (aux.size() == 8)
@@ -4234,69 +4232,75 @@ void ApplicationWindow::readSettings()
 	if (applicationFont.size() == 4)	
 		appFont=QFont (applicationFont[0],applicationFont[1].toInt(),applicationFont[2].toInt(),applicationFont[3].toInt());
 
-	bool ok = true;
 	settings.beginGroup("/ProjectExplorer");
-	int edock = settings.readNumEntry("/dock", (int)Qt::DockBottom, &ok);
-	int index = settings.readNumEntry("/index", 0, &ok);
-	bool newLine = settings.readBoolEntry("/newLine", true, &ok);
-	int offset = settings.readNumEntry("/offset", 0, &ok);
-	int x = settings.readNumEntry("/x", 0, &ok);
-	int y = settings.readNumEntry("/y", 0, &ok);
-	int ewidth = settings.readNumEntry("/width", 0, &ok);
-	int eheight = settings.readNumEntry("/height", 0, &ok);
-	bool visible = settings.readBoolEntry("/visible", false, &ok);
+	int edock = settings.value("/dock", (int)Qt::DockBottom).toInt();
+	int index = settings.value("/index", 0).toInt();
+	bool newLine = settings.value("/newLine", true).toBool();
+	int offset = settings.value("/offset", 0).toInt();
+	int x = settings.value("/x", 0).toInt();
+	int y = settings.value("/y", 0).toInt();
+	int ewidth = settings.value("/width", 0).toInt();
+	int eheight = settings.value("/height", 0).toInt();
+	bool visible = settings.value("/visible", false).toBool();
 	settings.endGroup();
 
-	if (ok)
+	if (edock == Qt::DockTornOff)
 	{
-		if (edock == Qt::DockTornOff)
-		{
-			moveDockWindow(explorerWindow, (Qt::ToolBarDock)edock);
-			explorerWindow->setGeometry(QRect(x, y, ewidth, eheight));
-		}
-		else
-			moveDockWindow(explorerWindow, (Qt::ToolBarDock)edock, newLine, index, offset);
+		// TODO: This to be replaced by QMainWindow::restoreState/saveState
+		moveDockWindow(explorerWindow, (Qt::ToolBarDock)edock);
+		explorerWindow->setGeometry(QRect(x, y, ewidth, eheight));
+	}
+	else
+		moveDockWindow(explorerWindow, (Qt::ToolBarDock)edock, newLine, index, offset);
 
-		if (visible)
-		{
-			actionShowExplorer->setOn(true);
-			explorerWindow->show();
-		}
+	if (visible)
+	{
+		actionShowExplorer->setOn(true);
+		explorerWindow->show();
 	}
 
 	settings.beginGroup("/ResultsLog");
-	int rdock = settings.readNumEntry("/dock", (int)Qt::DockBottom, &ok);
-	index = settings.readNumEntry("/index", 0, &ok);
-	newLine = settings.readBoolEntry("/newLine", true, &ok);
-	offset = settings.readNumEntry("/offset", 0, &ok);
-	x = settings.readNumEntry("/x", 0, &ok);
-	y = settings.readNumEntry("/y", 0, &ok);
-	int rwidth = settings.readNumEntry("/width", 0, &ok);
-	int rheight = settings.readNumEntry("/height", 0, &ok);
-	visible = settings.readBoolEntry("/visible", false, &ok);
+	int rdock = settings.value("/dock", (int)Qt::DockBottom).toInt();
+	index = settings.value("/index", 0).toInt();
+	newLine = settings.value("/newLine", true).toBool();
+	offset = settings.value("/offset", 0).toInt();
+	x = settings.value("/x", 0).toInt();
+	y = settings.value("/y", 0).toInt();
+	int rwidth = settings.value("/width", 0).toInt();
+	int rheight = settings.value("/height", 0).toInt();
+	visible = settings.value("/visible", false).toBool();
 	settings.endGroup();
 
-	if (ok)
+	if (rdock == Qt::DockTornOff)
 	{
-		if (rdock == Qt::DockTornOff)
-		{
-			moveDockWindow(logWindow, (Qt::ToolBarDock)rdock);
-			logWindow->setGeometry(QRect(x, y, rwidth, rheight));
-		}
-		else
-		{
-			moveDockWindow(logWindow, (Qt::ToolBarDock)rdock, newLine, index, offset);
-			logWindow->setFixedExtentWidth(rwidth);
-			logWindow->setFixedExtentHeight(rheight);
-		}
-
-		explorerWindow->setFixedExtentWidth(ewidth);
-		explorerWindow->setFixedExtentHeight(eheight);
-
-		showResults(visible);
-		actionShowLog->setOn(visible);
+		// TODO: This to be replaced by QMainWindow::restoreState/saveState
+		moveDockWindow(logWindow, (Qt::ToolBarDock)rdock);
+		logWindow->setGeometry(QRect(x, y, rwidth, rheight));
 	}
+	else
+	{
+		moveDockWindow(logWindow, (Qt::ToolBarDock)rdock, newLine, index, offset);
+		logWindow->setFixedExtentWidth(rwidth);
+		logWindow->setFixedExtentHeight(rheight);
+	}
+
+	explorerWindow->setFixedExtentWidth(ewidth);
+	explorerWindow->setFixedExtentHeight(eheight);
+
+	showResults(visible);
+	actionShowLog->setOn(visible);
 }
+
+
+QStringList ApplicationWindow::variantListToStringList(const QList<QVariant> src)
+{
+	QStringList dest;
+	for(int i=0; i<src.size(); i++)
+		dest.append(src[i].toString());
+ 	// remark: copying a QList is fast because of implicit sharing, no need for pointers here
+	return dest;
+}
+
 
 void ApplicationWindow::saveSettings()
 {
@@ -4353,70 +4357,68 @@ void ApplicationWindow::saveSettings()
 	plot3DFonts<<QString::number(plot3DAxesFont.italic());
 
 #ifdef Q_OS_MAC // Mac 
-	QSettings settings(QSettings::Ini);
-	settings.setPath("Ion Vasilief", "QtiPlot", QSettings::UserScope);
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "Ion Vasilief", "QtiPlot");
 #else
-	QSettings settings;
-	settings.setPath("Ion Vasilief", "QtiPlot");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "Ion Vasilief", "QtiPlot");
 #endif
 
 	settings.beginGroup("/QtiPlot");
-	settings.writeEntry("/askForSupport", askForSupport);
-	settings.writeEntry("/appLanguage", appLanguage);
-	settings.writeEntry("/workingDir", workingDir);
-	settings.writeEntry("/helpFilePath", helpFilePath);
-	settings.writeEntry("/ShowWindowsPolicy", show_windows_policy);
-	settings.writeEntry("/recentProjects", recentProjects);
-	settings.writeEntry("/functions", functions);
-	settings.writeEntry("/fitFunctions", fitFunctions);
-	settings.writeEntry("/surfaceFunctions", surfaceFunc);
-	settings.writeEntry("/xFunctions", xFunctions);
-	settings.writeEntry("/yFunctions", yFunctions);
-	settings.writeEntry("/rFunctions", rFunctions);
-	settings.writeEntry("/tetaFunctions", tetaFunctions);
-	settings.writeEntry("/defaultColumnSeparator", separator);
-	settings.writeEntry("/tableColors", tableColors);
-	settings.writeEntry("/tableFonts", tableFonts);
-	settings.writeEntry("/titleOn", titleOn);
-	settings.writeEntry("/allAxesOn", allAxesOn);
-	settings.writeEntry("/canvasFrameOn", canvasFrameOn);
-	settings.writeEntry("/canvasFrameWidth", canvasFrameWidth);
-	settings.writeEntry("/defaultPlotMargin", defaultPlotMargin);
-	settings.writeEntry("/drawBackbones", drawBackbones);
-	settings.writeEntry("/axesLineWidth", axesLineWidth);
-	settings.writeEntry("/autoscale2DPlots", autoscale2DPlots);
-	settings.writeEntry("/autoScaleFonts", autoScaleFonts);
-	settings.writeEntry("/autoResizeLayers", autoResizeLayers);
+	settings.setValue("/askForSupport", askForSupport);
+	settings.setValue("/appLanguage", appLanguage);
+	settings.setValue("/workingDir", workingDir);
+	settings.setValue("/helpFilePath", helpFilePath);
+	settings.setValue("/ShowWindowsPolicy", show_windows_policy);
+	settings.setValue("/recentProjects", recentProjects);
+	settings.setValue("/functions", functions);
+	settings.setValue("/fitFunctions", fitFunctions);
+	settings.setValue("/surfaceFunctions", surfaceFunc);
+	settings.setValue("/xFunctions", xFunctions);
+	settings.setValue("/yFunctions", yFunctions);
+	settings.setValue("/rFunctions", rFunctions);
+	settings.setValue("/tetaFunctions", tetaFunctions);
+	settings.setValue("/defaultColumnSeparator", separator);
+	settings.setValue("/tableColors", tableColors);
+	settings.setValue("/tableFonts", tableFonts);
+	settings.setValue("/titleOn", titleOn);
+	settings.setValue("/allAxesOn", allAxesOn);
+	settings.setValue("/canvasFrameOn", canvasFrameOn);
+	settings.setValue("/canvasFrameWidth", canvasFrameWidth);
+	settings.setValue("/defaultPlotMargin", defaultPlotMargin);
+	settings.setValue("/drawBackbones", drawBackbones);
+	settings.setValue("/axesLineWidth", axesLineWidth);
+	settings.setValue("/autoscale2DPlots", autoscale2DPlots);
+	settings.setValue("/autoScaleFonts", autoScaleFonts);
+	settings.setValue("/autoResizeLayers", autoResizeLayers);
 
-	settings.writeEntry("/defaultCurveStyle", defaultCurveStyle);
-	settings.writeEntry("/defaultCurveLineWidth", defaultCurveLineWidth);
-	settings.writeEntry("/defaultSymbolSize", defaultSymbolSize);
+	settings.setValue("/defaultCurveStyle", defaultCurveStyle);
+	settings.setValue("/defaultCurveLineWidth", defaultCurveLineWidth);
+	settings.setValue("/defaultSymbolSize", defaultSymbolSize);
 
-	settings.writeEntry("/ticksStyle", ticksStyle);
-	settings.writeEntry("/minTicksLength", minTicksLength);
-	settings.writeEntry("/majTicksLength", majTicksLength);
+	settings.setValue("/ticksStyle", ticksStyle);
+	settings.setValue("/minTicksLength", minTicksLength);
+	settings.setValue("/majTicksLength", majTicksLength);
 
-	settings.writeEntry("/legendFrameStyle", legendFrameStyle);
-	settings.writeEntry("/graphFonts", graphFonts);
-	settings.writeEntry("/confirmCloseFolder", confirmCloseFolder);
-	settings.writeEntry("/confirmCloseTable", confirmCloseTable);
-	settings.writeEntry("/confirmCloseMatrix", confirmCloseMatrix);
-	settings.writeEntry("/confirmClosePlot2D", confirmClosePlot2D);
-	settings.writeEntry("/confirmClosePlot3D", confirmClosePlot3D);
-	settings.writeEntry("/confirmCloseNotes", confirmCloseNotes);
-	settings.writeEntry("/appFont", applicationFont);
-	settings.writeEntry("/appStyle", appStyle);
-	settings.writeEntry("/autoSave", autoSave);
-	settings.writeEntry("/autoSaveTime", autoSaveTime);
-	settings.writeEntry("/appColors", appColors);
+	settings.setValue("/legendFrameStyle", legendFrameStyle);
+	settings.setValue("/graphFonts", graphFonts);
+	settings.setValue("/confirmCloseFolder", confirmCloseFolder);
+	settings.setValue("/confirmCloseTable", confirmCloseTable);
+	settings.setValue("/confirmCloseMatrix", confirmCloseMatrix);
+	settings.setValue("/confirmClosePlot2D", confirmClosePlot2D);
+	settings.setValue("/confirmClosePlot3D", confirmClosePlot3D);
+	settings.setValue("/confirmCloseNotes", confirmCloseNotes);
+	settings.setValue("/appFont", applicationFont);
+	settings.setValue("/appStyle", appStyle);
+	settings.setValue("/autoSave", autoSave);
+	settings.setValue("/autoSaveTime", autoSaveTime);
+	settings.setValue("/appColors", appColors);
 
-	settings.writeEntry("/showPlot3DLegend", showPlot3DLegend);
-	settings.writeEntry("/showPlot3DProjection", showPlot3DProjection);
-	settings.writeEntry("/smooth3DMesh", smooth3DMesh);
-	settings.writeEntry("/plot3DResolution", plot3DResolution);
-	settings.writeEntry("/plot3DColors", plot3DColors);
-	settings.writeEntry("/plot3DFonts", plot3DFonts);
-	settings.writeEntry("/fitPluginsPath", fitPluginsPath);
+	settings.setValue("/showPlot3DLegend", showPlot3DLegend);
+	settings.setValue("/showPlot3DProjection", showPlot3DProjection);
+	settings.setValue("/smooth3DMesh", smooth3DMesh);
+	settings.setValue("/plot3DResolution", plot3DResolution);
+	settings.setValue("/plot3DColors", plot3DColors);
+	settings.setValue("/plot3DFonts", plot3DFonts);
+	settings.setValue("/fitPluginsPath", fitPluginsPath);
 	settings.endGroup();
 
 	Qt::ToolBarDock dock;
@@ -4424,29 +4426,33 @@ void ApplicationWindow::saveSettings()
 	bool nl;
 
 	settings.beginGroup("/ProjectExplorer");
+	// TODO: getLocation needs to be replaced by QMainWindow::restoreState/saveState
+	// when the mainwindow is ported from Q3MainWindow to QMainWindow
 	getLocation(explorerWindow, dock, index, nl, offset);
-	settings.writeEntry("/dock", (int)dock);
-	settings.writeEntry("/index", index);
-	settings.writeEntry("/newLine", nl);
-	settings.writeEntry("/offset", offset);
-	settings.writeEntry("/x", explorerWindow->x());
-	settings.writeEntry("/y", explorerWindow->y());
-	settings.writeEntry("/width", explorerWindow->width());
-	settings.writeEntry("/height", explorerWindow->height());
-	settings.writeEntry("/visible", explorerWindow->isVisible());
+	settings.setValue("/dock", (int)dock);
+	settings.setValue("/index", index);
+	settings.setValue("/newLine", nl);
+	settings.setValue("/offset", offset);
+	settings.setValue("/x", explorerWindow->x());
+	settings.setValue("/y", explorerWindow->y());
+	settings.setValue("/width", explorerWindow->width());
+	settings.setValue("/height", explorerWindow->height());
+	settings.setValue("/visible", explorerWindow->isVisible());
 	settings.endGroup();
 
 	settings.beginGroup("/ResultsLog");
+	// TODO: getLocation needs to be replaced by QMainWindow::restoreState/saveState
+	// when the mainwindow is ported from Q3MainWindow to QMainWindow
 	getLocation(logWindow, dock, index, nl, offset);
-	settings.writeEntry("/dock", (int)dock);
-	settings.writeEntry("/index", index);
-	settings.writeEntry("/newLine", nl);
-	settings.writeEntry("/offset", offset);
-	settings.writeEntry("/x", logWindow->x());
-	settings.writeEntry("/y", logWindow->y());
-	settings.writeEntry("/width", logWindow->width());
-	settings.writeEntry("/height", logWindow->height());
-	settings.writeEntry("/visible", logWindow->isVisible());
+	settings.setValue("/dock", (int)dock);
+	settings.setValue("/index", index);
+	settings.setValue("/newLine", nl);
+	settings.setValue("/offset", offset);
+	settings.setValue("/x", logWindow->x());
+	settings.setValue("/y", logWindow->y());
+	settings.setValue("/width", logWindow->width());
+	settings.setValue("/height", logWindow->height());
+	settings.setValue("/visible", logWindow->isVisible());
 	settings.endGroup();
 }
 

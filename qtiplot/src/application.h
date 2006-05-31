@@ -853,6 +853,10 @@ private:
 
 	//! Used when checking for new versions
 	QFile versionFile;
+
+	//! Internal function to convert QList<QVariant> to QStringList
+	QStringList variantListToStringList(const QList<QVariant> src);
+
 };
 
 #endif
