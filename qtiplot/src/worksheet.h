@@ -42,7 +42,7 @@
 #include "widget.h"
 
 //! Table worksheet class
-class Table: public myWidget
+class Table: public MyWidget
 {
     Q_OBJECT
 

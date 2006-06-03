@@ -84,34 +84,34 @@ renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool m
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-void renameWindowDialog::setWidget(myWidget *w)
+void renameWindowDialog::setWidget(MyWidget *w)
 {
 window = w;
 boxNameLine->setText(w->name());
 boxLabelEdit->setText(w->windowLabel());
 switch (w->captionPolicy())
 	{
-	case myWidget::Name:
+	case MyWidget::Name:
 		boxName->setChecked(true);
 	break;
 
-	case myWidget::Label:
+	case MyWidget::Label:
 		boxLabel->setChecked(true);
 	break;
 
-	case myWidget::Both:
+	case MyWidget::Both:
 		boxBoth->setChecked(true);
 	break;
 	}
 }
 
-myWidget::CaptionPolicy renameWindowDialog::getCaptionPolicy()
+MyWidget::CaptionPolicy renameWindowDialog::getCaptionPolicy()
 {
-myWidget::CaptionPolicy policy = myWidget::Name;
+MyWidget::CaptionPolicy policy = MyWidget::Name;
 if (boxLabel->isChecked())
-	policy = myWidget::Label;
+	policy = MyWidget::Label;
 else if (boxBoth->isChecked())
-	policy = myWidget::Both;
+	policy = MyWidget::Both;
 		
 return policy;
 }
@@ -132,7 +132,7 @@ QString name = window->name();
 QString text = boxNameLine->text().remove("_").remove("=").remove(QRegExp("\\s"));
 QString label = boxLabelEdit->text();
 
-myWidget::CaptionPolicy policy = getCaptionPolicy();
+MyWidget::CaptionPolicy policy = getCaptionPolicy();
 if (text == name && label == window->windowLabel() && window->captionPolicy() == policy)
 	close();
 

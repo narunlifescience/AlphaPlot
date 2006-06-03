@@ -61,10 +61,10 @@ public:
     Folder( Folder *parent, const QString &name );
     ~Folder();
 
-	QList<myWidget *> windowsList(){return lstWindows;};
+	QList<MyWidget *> windowsList(){return lstWindows;};
 
-    void addWindow( myWidget *w ){ lstWindows.append( w );};
-	void removeWindow( myWidget *w ){ lstWindows.takeAt( lstWindows.indexOf(w) );};
+    void addWindow( MyWidget *w ){ lstWindows.append( w );};
+	void removeWindow( MyWidget *w ){ lstWindows.takeAt( lstWindows.indexOf(w) );};
 
 	void setFolderName(const QString& s){fName = s;};
     QString folderName() { return fName;};
@@ -76,7 +76,7 @@ public:
 	Folder* findSubfolder(const QString& s, bool caseSensitive = TRUE, bool partialMatch = FALSE);
 
 	//! Pointer to the first window matching the search criteria
-	myWidget* findWindow(const QString& s, bool windowNames, bool labels, 
+	MyWidget* findWindow(const QString& s, bool windowNames, bool labels, 
 							 bool caseSensitive, bool partialMatch);
 
 	//! The complete path of the folder in the project tree
@@ -97,7 +97,7 @@ public:
 
 protected:
     QString fName, birthdate, modifDate;
-    QList<myWidget *> lstWindows;
+    QList<MyWidget *> lstWindows;
 	FolderListItem *myFolderListItem;
 };
 
@@ -110,13 +110,13 @@ protected:
 class WindowListItem : public Q3ListViewItem
 {
 public:
-    WindowListItem( Q3ListView *parent, myWidget *w );
+    WindowListItem( Q3ListView *parent, MyWidget *w );
 
-    myWidget *window() { return myWindow; };
+    MyWidget *window() { return myWindow; };
 	void cancelRename(int){return;};
 
 protected:
-    myWidget *myWindow;
+    MyWidget *myWindow;
 };
 
 /*****************************************************************************

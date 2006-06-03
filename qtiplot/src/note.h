@@ -33,7 +33,7 @@
 #include <q3textedit.h>
 
 //! Notes window class
-class Note: public myWidget
+class Note: public MyWidget
 {
     Q_OBJECT
 

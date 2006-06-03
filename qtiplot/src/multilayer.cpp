@@ -187,7 +187,7 @@ LayerButton::~LayerButton()
 }
 
 	MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-: myWidget(label,parent,name,f)
+: MyWidget(label,parent,name,f)
 {
 #if false
 	if ( !name )

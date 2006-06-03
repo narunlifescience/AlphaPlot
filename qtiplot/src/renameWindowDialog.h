@@ -39,7 +39,7 @@ class QPushButton;
 class QLineEdit;
 class QRadioButton;
 class Q3TextEdit;
-class myWidget;
+class MyWidget;
 
 //! Rename window dialog
 class renameWindowDialog : public QDialog
@@ -60,15 +60,15 @@ public:
 	Q3TextEdit* boxLabelEdit;
 
 public slots:
-	void setWidget(myWidget *w);
-	myWidget::CaptionPolicy getCaptionPolicy();
+	void setWidget(MyWidget *w);
+	MyWidget::CaptionPolicy getCaptionPolicy();
     virtual void languageChange();
 	void accept();
 
 signals:
 
 private:
-	myWidget *window;
+	MyWidget *window;
 };
 
 #endif // EXPORTDIALOG_H

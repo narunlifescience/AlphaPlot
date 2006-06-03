@@ -65,13 +65,13 @@
 Table::Table(const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
 			 QWidget* parent, const char* name, Qt::WFlags f)
-        : myWidget(label, parent,name,f)
+        : MyWidget(label, parent,name,f)
 {
 importASCII(fname, sep, ignoredLines, renameCols, stripSpaces, simplifySpaces, true);
 }
 
 Table::Table(int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-        : myWidget(label,parent,name,f)
+        : MyWidget(label,parent,name,f)
 {
 init(r,c);	
 }
@@ -3293,7 +3293,7 @@ list = QStringList::split ("\t", s,TRUE);
 if (s.contains ("WindowLabel",TRUE))
 	{
 	setWindowLabel(list[1]);
-	setCaptionPolicy((myWidget::CaptionPolicy)list[2].toInt());
+	setCaptionPolicy((MyWidget::CaptionPolicy)list[2].toInt());
 	}
 
 s= t.readLine();	

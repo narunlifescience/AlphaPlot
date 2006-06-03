@@ -338,7 +338,7 @@ public slots:
 	void undo();
 	void redo();
 	
-	myWidget* copyWindow();
+	MyWidget* copyWindow();
 	void rename();
 	void renameWindow();
 
@@ -346,13 +346,13 @@ public slots:
 	void renameWindow(Q3ListViewItem *item, int, const QString &s);
 
 	//! This slot checks whether the new window name is valid and modifies the name. 
-	bool renameWindow(myWidget *w, const QString &text);
+	bool renameWindow(MyWidget *w, const QString &text);
 
 	void maximizeWindow(Q3ListViewItem * lbi);
 	void maximizeWindow();
 	void minimizeWindow();
 
-	void updateWindowStatus(myWidget* );
+	void updateWindowStatus(MyWidget* );
 
 	bool hidden(QWidget* window);
 	void closeActiveWindow();
@@ -361,7 +361,7 @@ public slots:
 	//! This slot does all the cleaning work before actually deleting a window!
 	void removeWindowFromLists(QWidget* w);
 
-	void hideWindow(myWidget* window);
+	void hideWindow(MyWidget* window);
 	void hideWindow();
 	void hideActiveWindow();
 	void activateWindow();
@@ -715,7 +715,7 @@ public slots:
 	void addFolderListViewItem(Folder *f);
 
 	//! Slot: adds a widget list item to the list view "lv"
-	void addListViewItem(myWidget *w);
+	void addListViewItem(MyWidget *w);
 
 	//! Slot: hides or shows windows in the current folder and changes the view windows policy
 	void setShowWindowsPolicy(int p);

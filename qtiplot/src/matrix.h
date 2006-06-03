@@ -36,7 +36,7 @@
 #include "widget.h"
 	
 //! Matrix worksheet class
-class Matrix: public myWidget
+class Matrix: public MyWidget
 {
     Q_OBJECT
 

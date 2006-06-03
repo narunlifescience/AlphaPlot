@@ -172,10 +172,10 @@ Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partial
 	return 0;
 }
 
-myWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels, 
+MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels, 
 							 bool caseSensitive, bool partialMatch)
 {
-myWidget* w = 0;
+MyWidget* w = 0;
 foreach(w,lstWindows)
 	{
 	if (windowNames)
@@ -224,7 +224,7 @@ if (!folderList.isEmpty())
 	}
 
 
-myWidget * w;
+MyWidget * w;
 foreach(w, lstWindows)
 	size += sizeof(w);
 
@@ -433,7 +433,7 @@ for (int i=0; i < columns (); i++)
  *
  *****************************************************************************/
 
-WindowListItem::WindowListItem( Q3ListView *parent, myWidget *w )
+WindowListItem::WindowListItem( Q3ListView *parent, MyWidget *w )
     : Q3ListViewItem( parent )
 {
     myWindow = w;

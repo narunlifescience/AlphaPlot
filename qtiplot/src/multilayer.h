@@ -59,7 +59,7 @@ class Table;
 class LayerButton;
 	
 //! Multi layer widget
-class MultiLayer: public myWidget
+class MultiLayer: public MyWidget
 {
 	Q_OBJECT
 

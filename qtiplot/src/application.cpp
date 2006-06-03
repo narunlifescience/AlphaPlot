@@ -311,7 +311,7 @@ void ApplicationWindow::initGlobalConstants()
 	appStyle = qApp->style()->objectName();
 
 	askForSupport = true;
-	majVersion = 0; minVersion = 8; patchVersion = 6;
+	majVersion = 0; minVersion = 8; patchVersion = 7;
 	versionSuffix = "alpha1";
 	graphs=0; tables=0; matrixes = 0; notes = 0; fitNumber=0;
 	projectname="untitled";
@@ -2164,7 +2164,7 @@ void ApplicationWindow::importImage()
 
 		Matrix* m = createIntensityMatrix(photo);
 		m->setWindowLabel(fn);
-		m->setCaptionPolicy(myWidget::Both);
+		m->setCaptionPolicy(MyWidget::Both);
 		setListViewLabel(m->name(), fn);
 
 		QFileInfo fi(fn);
@@ -2225,7 +2225,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 
 	MultiLayer *plot = multilayerPlot("graph" + QString::number(++graphs));
 	plot->setWindowLabel(fn);
-	plot->setCaptionPolicy(myWidget::Both);
+	plot->setCaptionPolicy(MyWidget::Both);
 	setListViewLabel(plot->name(), fn);
 
 	if (plot->height()-20>photo.height())
@@ -2618,7 +2618,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
 	}
 
 	initTable(w, lst[0]);
-	w->setCaptionPolicy(myWidget::Both);
+	w->setCaptionPolicy(MyWidget::Both);
 	w->showNormal();
 	return w;
 }
@@ -2646,7 +2646,7 @@ Table* ApplicationWindow::newHiddenTable(const QString& caption, int r, int c, c
 	}
 
 	initTable(w, lst[0]);
-	w->setCaptionPolicy(myWidget::Both);
+	w->setCaptionPolicy(MyWidget::Both);
 	outWindows->append(w);
 	w->setHidden();
 	return w;
@@ -2717,8 +2717,8 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 	connect(m->textWidget(), SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
 	connect(m, SIGNAL(closedWindow(QWidget*)), this, SLOT(closeWindow(QWidget*)));
-	connect(m, SIGNAL(hiddenWindow(myWidget*)), this, SLOT(hideWindow(myWidget*)));
-	connect(m,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
+	connect(m, SIGNAL(hiddenWindow(MyWidget*)), this, SLOT(hideWindow(MyWidget*)));
+	connect(m,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 
 	emit modified();
 }
@@ -2849,8 +2849,8 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject()));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(update3DMatrixPlots(QWidget *)));
 	connect(m, SIGNAL(closedWindow(QWidget*)), this, SLOT(closeWindow(QWidget*)));
-	connect(m, SIGNAL(hiddenWindow(myWidget*)), this, SLOT(hideWindow(myWidget*)));
-	connect(m, SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
+	connect(m, SIGNAL(hiddenWindow(MyWidget*)), this, SLOT(hideWindow(MyWidget*)));
+	connect(m, SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect(m, SIGNAL(showContextMenu()), this, SLOT(showWindowContextMenu()));
 
 	emit modified();
@@ -3276,7 +3276,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrixes, b
 		for (int i = 0; i < int(windows->count());i++ )
 		{
 			if (windows->at(i)->isA("Table"))
-				((myWidget*)windows->at(i))->askOnCloseEvent(confirmCloseTable);
+				((MyWidget*)windows->at(i))->askOnCloseEvent(confirmCloseTable);
 		}
 	}
 
@@ -3286,7 +3286,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrixes, b
 		for (int i = 0; i < int(windows->count());i++ )
 		{
 			if (windows->at(i)->isA("Matrix"))
-				((myWidget*)windows->at(i))->askOnCloseEvent(confirmCloseMatrix);
+				((MyWidget*)windows->at(i))->askOnCloseEvent(confirmCloseMatrix);
 		}
 	}
 
@@ -3296,7 +3296,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrixes, b
 		for (int i = 0; i < int(windows->count());i++ )
 		{
 			if (windows->at(i)->isA("MultiLayer"))
-				((myWidget*)windows->at(i))->askOnCloseEvent(confirmClosePlot2D);
+				((MyWidget*)windows->at(i))->askOnCloseEvent(confirmClosePlot2D);
 		}
 	}
 
@@ -3306,7 +3306,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrixes, b
 		for (int i = 0; i < int(windows->count());i++ )
 		{
 			if (windows->at(i)->isA("Graph3D"))
-				((myWidget*)windows->at(i))->askOnCloseEvent(confirmClosePlot3D);
+				((MyWidget*)windows->at(i))->askOnCloseEvent(confirmClosePlot3D);
 		}
 	}
 
@@ -3316,7 +3316,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrixes, b
 		for (int i = 0; i < int(windows->count());i++ )
 		{
 			if (windows->at(i)->isA("Note"))
-				((myWidget*)windows->at(i))->askOnCloseEvent(confirmCloseNotes);
+				((MyWidget*)windows->at(i))->askOnCloseEvent(confirmCloseNotes);
 		}
 	}
 
@@ -3364,7 +3364,7 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 	app->showMaximized();
 
 	Table* t = app->newTable(fn, app->separator, 0, true, app->strip_spaces, app->simplify_spaces);
-	t->setCaptionPolicy(myWidget::Both);	
+	t->setCaptionPolicy(MyWidget::Both);	
 	app->multilayerPlot(t, t->YColumns(),Graph::LineSymbols);
 	QApplication::restoreOverrideCursor();
 	return 0;
@@ -3413,7 +3413,7 @@ void ApplicationWindow::loadASCII()
 			t = newTable(fn, separator, ignoredLines, renameColumns, 
 					strip_spaces, simplify_spaces);
 
-		t->setCaptionPolicy(myWidget::Both);
+		t->setCaptionPolicy(MyWidget::Both);
 		setListViewLabel(t->name(), fn);
 		QFileInfo fi(fn);
 		workingDir = fi.dirPath(true);
@@ -3459,7 +3459,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 		if (!firstTable)
 			return;
 
-		firstTable->setCaptionPolicy(myWidget::Both);
+		firstTable->setCaptionPolicy(MyWidget::Both);
 		setListViewLabel(firstTable->name(), fn);
 
 		int dx=firstTable->verticalHeaderWidth();
@@ -3473,7 +3473,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 					strip_spaces, simplify_spaces);
 			if (w)
 			{
-				w->setCaptionPolicy(myWidget::Both);
+				w->setCaptionPolicy(MyWidget::Both);
 				setListViewLabel(w->name(), fn);
 				w->parentWidget()->move(QPoint(i*dx,i*dy));
 			}
@@ -3490,7 +3490,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 				t->importMultipleASCIIFiles(fileNames[i], separator, ignoredLines, renameColumns, 
 						strip_spaces, simplify_spaces, importFileAs);
 			t->setWindowLabel(fileNames.join("; "));
-			t->setCaptionPolicy(myWidget::Name);
+			t->setCaptionPolicy(MyWidget::Name);
 			emit modifiedProject(t);
 		}
 	}
@@ -3732,7 +3732,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 				QStringList lst=QStringList::split ("\t", t.readLine(), true);
 				plot->setWindowLabel(lst[1]);
 				app->setListViewLabel(plot->name(),lst[1]);
-				plot->setCaptionPolicy((myWidget::CaptionPolicy)lst[2].toInt());
+				plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 			}
 
 			if (caption.contains ("graph",TRUE))
@@ -3882,7 +3882,7 @@ void ApplicationWindow::openTemplate()
 			fileVersion = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			myWidget *w = 0;
+			MyWidget *w = 0;
 			QString templateType;
 			t>>templateType;
 
@@ -4779,9 +4779,9 @@ QString ApplicationWindow::windowGeometryInfo(QWidget *w)
 {
 	QString s = "geometry\t";
 
-	if (((myWidget *)w)->status() == myWidget::Minimized)
+	if (((MyWidget *)w)->status() == MyWidget::Minimized)
 		s+="minimized\n";
-	else if (((myWidget *)w)->status() == myWidget::Maximized)
+	else if (((MyWidget *)w)->status() == MyWidget::Maximized)
 		s+="maximized\n";
 	else
 	{
@@ -4886,7 +4886,7 @@ void ApplicationWindow::saveProjectAs()
 
 void ApplicationWindow::saveAsTemplate()
 {
-	myWidget* w = (myWidget*)ws->activeWindow();
+	MyWidget* w = (MyWidget*)ws->activeWindow();
 	if (!w)
 		return;
 
@@ -4944,7 +4944,7 @@ void ApplicationWindow::saveAsTemplate()
 
 void ApplicationWindow::rename()
 {
-	myWidget* m = (myWidget*)ws->activeWindow();
+	MyWidget* m = (MyWidget*)ws->activeWindow();
 	if (!m)
 		return;
 
@@ -4958,7 +4958,7 @@ void ApplicationWindow::rename()
 void ApplicationWindow::renameWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w= it->window();
+	MyWidget *w= it->window();
 	if (!w)
 		return;
 
@@ -4974,7 +4974,7 @@ void ApplicationWindow::renameWindow(Q3ListViewItem *item, int, const QString &t
 	if (!item)
 		return;
 
-	myWidget *w = ((WindowListItem *)item)->window();
+	MyWidget *w = ((WindowListItem *)item)->window();
 	if (!w || text == w->name())
 		return;
 
@@ -4986,7 +4986,7 @@ void ApplicationWindow::renameWindow(Q3ListViewItem *item, int, const QString &t
 	}
 }
 
-bool ApplicationWindow::renameWindow(myWidget *w, const QString &text)
+bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 {
 	if (!w)
 		return false;
@@ -6297,7 +6297,7 @@ void ApplicationWindow::print(QWidget* w)
 		return;
 	}	
 
-	((myWidget*)w)->print();
+	((MyWidget*)w)->print();
 }
 
 //print active window
@@ -6314,7 +6314,7 @@ void ApplicationWindow::print()
 void ApplicationWindow::printWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w= it->window();
+	MyWidget *w= it->window();
 	if (!w)
 		return;
 
@@ -7557,10 +7557,10 @@ MultiLayer* ApplicationWindow::copyGraph()
 	return plot2;
 }
 
-myWidget* ApplicationWindow::copyWindow()
+MyWidget* ApplicationWindow::copyWindow()
 {
-	myWidget* w=0;
-	myWidget* g = (myWidget*)ws->activeWindow();
+	MyWidget* w=0;
+	MyWidget* g = (MyWidget*)ws->activeWindow();
 	if (!g)
 	{
 		QMessageBox::critical(this,tr("QtiPlot - Duplicate window error"),
@@ -7590,13 +7590,13 @@ myWidget* ApplicationWindow::copyWindow()
 		if (g->isA("MultiLayer"))
 		{
 			((MultiLayer*)w)->updateTransparency();
-			if (g->status() == myWidget::Maximized)
+			if (g->status() == MyWidget::Maximized)
 				w->showMaximized();
 		}
 		else if (g->isA("Graph3D"))
 		{
 			((Graph3D*)w)->setIgnoreFonts(true);
-			if (g->status() == myWidget::Maximized)
+			if (g->status() == MyWidget::Maximized)
 			{
 				g->showNormal();
 				g->resize(500,400);
@@ -7693,20 +7693,20 @@ bool ApplicationWindow::hidden(QWidget* window)
 	return FALSE;
 }
 
-void ApplicationWindow::updateWindowStatus(myWidget* w)
+void ApplicationWindow::updateWindowStatus(MyWidget* w)
 {
 	setListView(w->name(), w->aspect());
 
-	if (w->status() == myWidget::Maximized)
+	if (w->status() == MyWidget::Maximized)
 	{//set any other window having status = Maximized to status = Normal
-		QList<myWidget *> lst = current_folder->windowsList();
+		QList<MyWidget *> lst = current_folder->windowsList();
 		if (!lst.contains(w))
 			return;
 
-		myWidget * aw;
+		MyWidget * aw;
 		foreach(aw, lst)
 		{
-			if (aw != w && aw->status() == myWidget::Maximized)
+			if (aw != w && aw->status() == MyWidget::Maximized)
 			{
 				aw->setNormal();
 				return;
@@ -7734,14 +7734,14 @@ void ApplicationWindow::resizeActiveWindow()
 
 void ApplicationWindow::hideActiveWindow()
 {
-	myWidget *w=(myWidget *)ws->activeWindow();
+	MyWidget *w=(MyWidget *)ws->activeWindow();
 	if (!w)
 		return;
 
 	hideWindow(w);
 }
 
-void ApplicationWindow::hideWindow(myWidget* w)
+void ApplicationWindow::hideWindow(MyWidget* w)
 {
 	hiddenWindows->append(w);
 	w->setHidden();
@@ -7751,7 +7751,7 @@ void ApplicationWindow::hideWindow(myWidget* w)
 void ApplicationWindow::hideWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w= it->window();
+	MyWidget *w= it->window();
 	if (!w)
 		return;
 
@@ -7761,7 +7761,7 @@ void ApplicationWindow::hideWindow()
 void ApplicationWindow::resizeWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w= it->window();
+	MyWidget *w= it->window();
 	if (!w)
 		return;
 
@@ -7816,7 +7816,7 @@ void ApplicationWindow::maximizeWindow()
 void ApplicationWindow::minimizeWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w= it->window();
+	MyWidget *w= it->window();
 	if (!w)
 		return;
 
@@ -7900,7 +7900,7 @@ void ApplicationWindow::closeWindow(QWidget* window)
 		return;
 
 	removeWindowFromLists(window);
-	current_folder->removeWindow((myWidget*)window);
+	current_folder->removeWindow((MyWidget*)window);
 
 	emit modified();
 	emit windowClosed(window->name());
@@ -8229,7 +8229,7 @@ void ApplicationWindow::showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p,
 		return;
 	}
 
-	myWidget *w= ((WindowListItem *)it)->window();
+	MyWidget *w= ((WindowListItem *)it)->window();
 	if (w)
 	{
 		Q3PopupMenu cm(this);
@@ -9648,7 +9648,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	{
 		w->setGeometry(0, 0, 500, 400);
 		w->showMinimized();
-		((myWidget *)w)->setStatus(myWidget::Minimized);
+		((MyWidget *)w)->setStatus(MyWidget::Minimized);
 		app->setListView(caption, tr("Minimized"));
 	}
 	else if (s.contains ("maximized"))
@@ -9663,7 +9663,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 		if (w->isA("Graph3D"))
 			((Graph3D*)w)->setIgnoreFonts(false);
 
-		((myWidget *)w)->setStatus(myWidget::Maximized);
+		((MyWidget *)w)->setStatus(MyWidget::Maximized);
 		app->setListView(caption, tr("Maximized"));
 	}
 	else
@@ -9671,7 +9671,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 		QStringList lst=QStringList::split ("\t",s,TRUE);
 		w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 		w->showNormal();
-		((myWidget *)w)->setStatus(myWidget::Normal);
+		((MyWidget *)w)->setStatus(MyWidget::Normal);
 
 		if (lst[5] == "active")
 			app->aw=(QWidget*)w;
@@ -9704,7 +9704,7 @@ Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &fli
 
 	lst=QStringList::split ("\t", flist[2], true);
 	w->setWindowLabel(lst[1]);
-	w->setCaptionPolicy((myWidget::CaptionPolicy)lst[2].toInt());
+	w->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 	app->setListViewLabel(w->name(), lst[1]);
 	return w;
 }
@@ -9746,7 +9746,7 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 	{
 		lst=QStringList::split ("\t", flist[5], true);
 		w->setWindowLabel(lst[1]);
-		w->setCaptionPolicy((myWidget::CaptionPolicy)lst[2].toInt());
+		w->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 		app->setListViewLabel(w->name(), lst[1]);
 	}
 
@@ -9815,7 +9815,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 
 		list=QStringList::split ("\t", flist[7], true);
 		w->setWindowLabel(list[1]);
-		w->setCaptionPolicy((myWidget::CaptionPolicy)list[2].toInt());
+		w->setCaptionPolicy((MyWidget::CaptionPolicy)list[2].toInt());
 		app->setListViewLabel(w->name(), list[1]);
 	}
 
@@ -10390,7 +10390,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	{
 		fList=QStringList::split ("\t",lst[20],FALSE );
 		plot->setWindowLabel(fList[1]);
-		plot->setCaptionPolicy((myWidget::CaptionPolicy)fList[2].toInt());
+		plot->setCaptionPolicy((MyWidget::CaptionPolicy)fList[2].toInt());
 		app->setListViewLabel(plot->name(),fList[1]);
 	}
 
@@ -10579,8 +10579,8 @@ void ApplicationWindow::connectSurfacePlot(Graph3D *plot)
 	connect (plot,SIGNAL(showContextMenu()),this,SLOT(showWindowContextMenu()));
 	connect (plot,SIGNAL(showOptionsDialog()),this,SLOT(showPlot3dDialog()));
 	connect (plot,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
-	connect (plot,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
-	connect (plot,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
+	connect (plot,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
+	connect (plot,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect (plot,SIGNAL(modified()),this, SIGNAL(modified()));
 	connect (plot,SIGNAL(custom3DActions(QWidget*)),this, SLOT(custom3DActions(QWidget*)));
 
@@ -10604,8 +10604,8 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(showTopAxisTitleDialog()),this,SLOT(showTopAxisTitleDialog()));
 	connect (g,SIGNAL(showMarkerPopupMenu()),this,SLOT(showMarkerPopupMenu()));
 	connect (g,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
-	connect (g,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
-	connect (g,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
+	connect (g,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
+	connect (g,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect (g,SIGNAL(cursorInfo(const QString&)),info,SLOT(setText(const QString&)));
 	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
 	connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
@@ -10638,8 +10638,8 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 
 void ApplicationWindow::connectTable(Table* w)
 {
-	connect (w,SIGNAL(statusChanged(myWidget*)),this, SLOT(updateWindowStatus(myWidget*)));
-	connect (w,SIGNAL(hiddenWindow(myWidget*)),this, SLOT(hideWindow(myWidget*)));
+	connect (w,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
+	connect (w,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
 	connect (w,SIGNAL(closedWindow(QWidget*)),this, SLOT(closeWindow(QWidget*)));
 	connect (w,SIGNAL(removedCol(const QString&)),this,SLOT(removeCurves(const QString&)));
 	connect (w,SIGNAL(modifiedData(const QString&)),this,SLOT(updateCurves(const QString&)));
@@ -12386,7 +12386,7 @@ void ApplicationWindow::appendProject()
 					QStringList lst=QStringList::split ("\t", t.readLine(), true);
 					plot->setWindowLabel(lst[1]);
 					setListViewLabel(plot->name(),lst[1]);
-					plot->setCaptionPolicy((myWidget::CaptionPolicy)lst[2].toInt());
+					plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 				}
 
 				if (caption.contains ("graph",TRUE))
@@ -12493,8 +12493,8 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	}
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	QList<myWidget *> lst = folder->windowsList();
-	myWidget *w;
+	QList<MyWidget *> lst = folder->windowsList();
+	MyWidget *w;
 	int windows = 0;
 	QString text;
 	foreach(w, lst)
@@ -12760,8 +12760,8 @@ void ApplicationWindow::renameFolder(Q3ListViewItem *it, int col, const QString 
 
 void ApplicationWindow::showAllFolderWindows()
 {
-	QList<myWidget *> lst = current_folder->windowsList();
-	myWidget *w;
+	QList<MyWidget *> lst = current_folder->windowsList();
+	MyWidget *w;
 	foreach(w, lst)
 	{//force show all windows in current folder
 		if (w)
@@ -12769,19 +12769,19 @@ void ApplicationWindow::showAllFolderWindows()
 			updateWindowLists(w);
 			switch (w->status())
 			{
-				case myWidget::Hidden:
+				case MyWidget::Hidden:
 					w->showNormal();
 					break;
 
-				case myWidget::Normal:
+				case MyWidget::Normal:
 					w->showNormal();
 					break;
 
-				case myWidget::Minimized:
+				case MyWidget::Minimized:
 					w->showMinimized();
 					break;
 
-				case myWidget::Maximized:
+				case MyWidget::Maximized:
 					w->showMaximized();
 					break;
 			}
@@ -12804,19 +12804,19 @@ void ApplicationWindow::showAllFolderWindows()
 				updateWindowLists(w);
 				switch (w->status())
 				{
-					case myWidget::Hidden:
+					case MyWidget::Hidden:
 						w->showNormal();
 						break;
 
-					case myWidget::Normal:
+					case MyWidget::Normal:
 						w->showNormal();
 						break;
 
-					case myWidget::Minimized:
+					case MyWidget::Minimized:
 						w->showMinimized();
 						break;
 
-					case myWidget::Maximized:
+					case MyWidget::Maximized:
 						w->showMaximized();
 						break;
 				}
@@ -12831,8 +12831,8 @@ void ApplicationWindow::showAllFolderWindows()
 
 void ApplicationWindow::hideAllFolderWindows()
 {
-	QList<myWidget *> lst = current_folder->windowsList();
-	myWidget *w;
+	QList<MyWidget *> lst = current_folder->windowsList();
+	MyWidget *w;
 	foreach(w, lst)
 		hideWindow(w);
 
@@ -12946,8 +12946,8 @@ bool ApplicationWindow::deleteFolder(Folder *f)
 	else
 	{
 		FolderListItem *fi = f->folderListItem();
-		QList<myWidget *> lst = f->windowsList();
-		myWidget *w;
+		QList<MyWidget *> lst = f->windowsList();
+		MyWidget *w;
 		foreach(w, lst)
 			removeWindowFromLists(w);
 
@@ -13011,8 +13011,8 @@ void ApplicationWindow::folderItemChanged(Q3ListViewItem *it)
 
 void ApplicationWindow::hideFolderWindows(Folder *f)
 {
-	QList<myWidget *> lst = f->windowsList();
-	myWidget *w;
+	QList<MyWidget *> lst = f->windowsList();
+	MyWidget *w;
 	foreach(w, lst)
 	{
 		if (w && !w->isHidden())
@@ -13058,8 +13058,8 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 			addFolderListViewItem(static_cast<Folder *>(f));
 	}
 
-	QList<myWidget *> lst = newFolder->windowsList();
-	myWidget *w;
+	QList<MyWidget *> lst = newFolder->windowsList();
+	MyWidget *w;
 	foreach(w, lst)
 	{//show only windows in the current folder which are not hidden by the user
 		if (w)
@@ -13069,13 +13069,13 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 			{
 				switch (w->status())
 				{
-					case myWidget::Normal:
+					case MyWidget::Normal:
 						w->showNormal();
 						break;
-					case myWidget::Minimized:
+					case MyWidget::Minimized:
 						w->showMinimized();
 						break;
-					case myWidget::Maximized:
+					case MyWidget::Maximized:
 						{
 							if (w->isA("Graph3D"))
 								((Graph3D *)w)->setIgnoreFonts(true);
@@ -13086,12 +13086,12 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 								((Graph3D *)w)->setIgnoreFonts(false);
 						}
 						break;
-					case myWidget::Hidden: // this case is only here to suppress compiler warnings
+					case MyWidget::Hidden: // this case is only here to suppress compiler warnings
 						break;
 				}
 			}
 			else
-				w->setStatus(myWidget::Hidden);
+				w->setStatus(MyWidget::Hidden);
 
 			addListViewItem(w);
 		}
@@ -13114,13 +13114,13 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 				{
 					switch (w->status())
 					{
-						case myWidget::Normal:
+						case MyWidget::Normal:
 							w->showNormal();
 							break;
-						case myWidget::Minimized:
+						case MyWidget::Minimized:
 							w->showMinimized();
 							break;
-						case myWidget::Maximized:
+						case MyWidget::Maximized:
 							if (w->isA("Graph3D"))
 								((Graph3D*)w)->setIgnoreFonts(true);
 
@@ -13129,7 +13129,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 							if (w->isA("Graph3D"))
 								((Graph3D*)w)->setIgnoreFonts(false);
 							break;
-						case myWidget::Hidden: // this case is only here to suppress compiler warnings
+						case MyWidget::Hidden: // this case is only here to suppress compiler warnings
 							break;
 					}
 				}
@@ -13152,7 +13152,7 @@ void ApplicationWindow::desactivateFolders()
 	}
 }
 
-void ApplicationWindow::addListViewItem(myWidget *w)
+void ApplicationWindow::addListViewItem(MyWidget *w)
 {
 	if (!w)
 		return;
@@ -13199,7 +13199,7 @@ void ApplicationWindow::addListViewItem(myWidget *w)
 void ApplicationWindow::windowProperties()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	myWidget *w = it->window();
+	MyWidget *w = it->window();
 	if (!w)
 		return;
 
@@ -13209,7 +13209,7 @@ void ApplicationWindow::windowProperties()
 	QString s = QString(w->name()) + "\n\n";
 	s += "\n\n\n";
 
-	s += tr("Label") + ": " + ((myWidget *)w)->windowLabel() + "\n\n";
+	s += tr("Label") + ": " + ((MyWidget *)w)->windowLabel() + "\n\n";
 
 	if (w->isA("Matrix"))
 	{
@@ -13263,7 +13263,7 @@ void ApplicationWindow::find(const QString& s, bool windowNames, bool labels,
 {
 	if (windowNames || labels)
 	{
-		myWidget *w = current_folder->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
+		MyWidget *w = current_folder->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
 		if (w)
 		{
 			activateWindow(w);
@@ -13276,7 +13276,7 @@ void ApplicationWindow::find(const QString& s, bool windowNames, bool labels,
 			while (item)
 			{
 				Folder *f = item->folder();
-				myWidget *w = f->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
+				MyWidget *w = f->findWindow(s,windowNames,labels,caseSensitive,partialMatch);
 				if (w)
 				{
 					folders->setCurrentItem(f->folderListItem());
@@ -13367,7 +13367,7 @@ void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest)
 			if (dest_f == current_folder)
 				return;
 
-			myWidget *w = ((WindowListItem *)it)->window();
+			MyWidget *w = ((WindowListItem *)it)->window();
 			if (w)
 			{
 				current_folder->removeWindow(w);
@@ -13400,8 +13400,8 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 	copy_item->setText(0, src_f->folderName());
 	dest_f->setFolderListItem(copy_item);
 
-	QList<myWidget *> lst = QList<myWidget *>(src_f->windowsList());
-	myWidget *w;
+	QList<MyWidget *> lst = QList<MyWidget *>(src_f->windowsList());
+	MyWidget *w;
 	foreach(w, lst)
 	{
 		src_f->removeWindow(w);
@@ -13425,7 +13425,7 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 			copy_item->setText(0, src_f->folderName());
 			dest_f->setFolderListItem(copy_item);
 
-			lst = QList<myWidget *>(src_f->windowsList());
+			lst = QList<MyWidget *>(src_f->windowsList());
 			foreach(w, lst)
 			{
 				src_f->removeWindow(w);

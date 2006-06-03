@@ -58,7 +58,7 @@
 #include <gsl/gsl_math.h>
 
 Matrix::Matrix(int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-				: myWidget(label, parent, name, f)
+				: MyWidget(label, parent, name, f)
 {
 init(r, c);	
 }

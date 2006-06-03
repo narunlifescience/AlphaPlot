@@ -45,7 +45,7 @@ using namespace Qwt3D;
 class UserFunction;
 
 //! 3D graph widget
-class Graph3D: public myWidget
+class Graph3D: public MyWidget
 {
 	Q_OBJECT
 

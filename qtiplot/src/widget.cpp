@@ -27,99 +27,99 @@
  *                                                                         *
  ***************************************************************************/
 #include "widget.h"
-#include <qmessagebox.h>
-//Added by qt3to4:
+#include <QMessageBox>
 #include <QEvent>
 #include <QCloseEvent>
 
-myWidget::myWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
-		QWidget (parent, name, f)
+MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
+		QWidget (parent, f)
 {
-w_label = label;
-caption_policy = Both;
-askOnClose = true;
-w_status = Normal;
+	w_label = label;
+	caption_policy = Both;
+	askOnClose = true;
+	w_status = Normal;
+	setObjectName(QString(name));
 }
 
-void myWidget::setCaptionPolicy(CaptionPolicy policy)
+void MyWidget::setCaptionPolicy(CaptionPolicy policy)
 {
-caption_policy = policy;
-switch (caption_policy)
+	caption_policy = policy;
+	switch (caption_policy)
 	{
-	case Name:
-		setWindowTitle(name());
-	break;
+		case Name:
+			setWindowTitle(objectName());
+			break;
 
-	case Label:
-		if (!w_label.isEmpty())
-			setWindowTitle(w_label);
-		else
-			setWindowTitle(name());
-	break;
+		case Label:
+			if (!w_label.isEmpty())
+				setWindowTitle(w_label);
+			else
+				setWindowTitle(objectName());
+			break;
 
-	case Both:
-		if (!w_label.isEmpty())
-			setWindowTitle(QString(name()) + " - " + w_label);
-		else
-			setWindowTitle(name());
-	break;
+		case Both:
+			if (!w_label.isEmpty())
+				setWindowTitle(objectName() + " - " + w_label);
+			else
+				setWindowTitle(objectName());
+			break;
 	}
 };
 
-void myWidget::closeEvent( QCloseEvent *e )
+void MyWidget::closeEvent( QCloseEvent *e )
 {
-if (askOnClose)
-    {
-    switch( QMessageBox::information(0,tr("QtiPlot"),
-			tr("Do you want to hide or delete") + "<p><b>'" + QString(name()) + "'</b> ?",
-				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
+	if (askOnClose)
+	{
+		switch( QMessageBox::information(0,tr("QtiPlot"),
+					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
+					tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
 		{
-		case 0:	
-			e->accept();
-			emit closedWindow(this);
-		break;
+			case 0:	
+				e->accept();
+				emit closedWindow(this);
+				break;
 
-		case 1:
-			e->ignore();
-			emit hiddenWindow(this);
-		break;
+			case 1:
+				e->ignore();
+				emit hiddenWindow(this);
+				break;
 
-		case 2:
-			e->ignore();
-		break;
+			case 2:
+				e->ignore();
+				break;
 		} 
-    }
-else 
-    {
-    e->accept();
-    emit closedWindow(this);
-    }
+	}
+	else 
+	{
+		e->accept();
+		emit closedWindow(this);
+	}
 }
 
-QString myWidget::aspect()
+QString MyWidget::aspect()
 {
-QString s = tr("Normal");
-switch (w_status)
+	QString s = tr("Normal");
+	switch (w_status)
 	{
-	case Hidden:
-		return tr("Hidden");
-	break;
+		case Hidden:
+			return tr("Hidden");
+			break;
 
-	case Normal:
-	break;
+		case Normal:
+			break;
 
-	case Minimized:
-		return tr("Minimized");
-	break;
+		case Minimized:
+			return tr("Minimized");
+			break;
 
-	case Maximized:
-		return tr("Maximized");
-	break;
+		case Maximized:
+			return tr("Maximized");
+			break;
 	}
-return s;
+	return s;
 };
 
-bool myWidget::event( QEvent *e )
+bool MyWidget::event( QEvent *e )
 {
 	bool result = QWidget::event( e );
 	if( e->type() == QEvent::WindowStateChange)
@@ -139,28 +139,28 @@ bool myWidget::event( QEvent *e )
 	return result;
 }
 
-void myWidget::setHidden()
+void MyWidget::setHidden()
 {
-w_status = Hidden; 
-emit statusChanged (this);
-hide();
+	w_status = Hidden; 
+	emit statusChanged(this);
+	hide();
 }
 
-void myWidget::setNormal()
+void MyWidget::setNormal()
 {
-w_status = Normal; 
-emit statusChanged (this);
+	w_status = Normal; 
+	emit statusChanged(this);
 }
 
-void myWidget::showMaximized()
+void MyWidget::showMaximized()
 {
-user_request = this->isVisible();
-QWidget::showMaximized();
+	user_request = this->isVisible();
+	QWidget::showMaximized();
 }
 
-QString myWidget::sizeToString()
+QString MyWidget::sizeToString()
 {
-return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
+	return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
 }
 
 
