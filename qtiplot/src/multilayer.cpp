@@ -120,7 +120,7 @@
 #endif
 
 	btn=new QPushButton(text,this,"button");
-	btn->setToggleButton (TRUE);
+	btn->setToggleButton (true);
 	btn->setMaximumWidth(btn_size);
 	btn->setMaximumHeight(btn_size);
 	btn->installEventFilter(this);
@@ -151,7 +151,7 @@ bool LayerButton::eventFilter(QObject *object, QEvent *e)
 {
 #if false
 	if ( object != (QObject *)btn)
-		return FALSE;
+		return false;
 
 	switch(e->type())
 	{
@@ -159,7 +159,7 @@ bool LayerButton::eventFilter(QObject *object, QEvent *e)
 			{
 				if (btn->isOn())
 					emit showCurvesDialog();
-				return TRUE; 
+				return true; 
 			}
 		case QEvent::MouseButtonPress:
 			{
@@ -171,7 +171,7 @@ bool LayerButton::eventFilter(QObject *object, QEvent *e)
 					if (!btn->isOn())
 						emit clicked(this);
 				}
-				return TRUE; 
+				return true; 
 			}
 		default:
 			;
@@ -206,18 +206,18 @@ LayerButton::~LayerButton()
 	l_canvas_width = 400; l_canvas_height = 300;
 	hor_align = HCenter;  vert_align = VCenter; 
 	active_graph=0;
-	addTextOn=FALSE;
-	movedGraph=FALSE;
+	addTextOn=false;
+	movedGraph=false;
 	highlightedLayer = false;
 	ignore_resize = false;
 	aux_rect = QRect();
 	cache_pix = QPixmap();
 
 	buttonsList=new QWidgetList();
-	buttonsList->setAutoDelete( TRUE );
+	buttonsList->setAutoDelete( true );
 
 	graphsList=new QWidgetList();
-	graphsList->setAutoDelete( TRUE );
+	graphsList->setAutoDelete( true );
 
 	hbox1=new Q3HBox(this, "hbox1"); 
 	int h = layerButtonHeight();
@@ -253,14 +253,14 @@ LayerButton* MultiLayer::addLayerButton()
 	for (int i=0;i<(int)buttonsList->count();i++)
 	{
 		LayerButton *btn=(LayerButton*) buttonsList->at(i);
-		btn->setOn(FALSE);
+		btn->setOn(false);
 	}
 
 	LayerButton *button=new LayerButton(QString::number(++graphs),hbox1,0);
 	connect (button,SIGNAL(clicked(LayerButton*)),this, SLOT(activateGraph(LayerButton*)));
 	connect (button,SIGNAL(showLayerMenu()),this, SIGNAL(showWindowContextMenu()));
 	connect (button,SIGNAL(showCurvesDialog()),this, SIGNAL(showCurvesDialog()));
-	button->setOn(TRUE);
+	button->setOn(true);
 	buttonsList->append(button);
 	hbox1->setMaximumWidth(graphs*button->width());
 
@@ -357,13 +357,13 @@ void MultiLayer::activateGraph(LayerButton* button)
 	{
 		LayerButton *btn=(LayerButton*)buttonsList->at(i);
 		if (btn->isOn())
-			btn->setOn(FALSE);
+			btn->setOn(false);
 
 		if (btn == button)	
 		{
 			active_graph=(Graph*) graphsList->at(i);
 			active_graph->setFocus();
-			button->setOn(TRUE);	
+			button->setOn(true);	
 
 			/*if (!allLayersTransparent())
 			  {
@@ -400,7 +400,7 @@ void MultiLayer::setActiveGraph(Graph* g)
 		for (i=0;i<(int)buttonsList->count();i++)
 		{
 			btn=(LayerButton*)buttonsList->at(i);
-			btn->setOn(FALSE);
+			btn->setOn(false);
 		}
 
 		for (i=0;i<(int)graphsList->count();i++)
@@ -409,7 +409,7 @@ void MultiLayer::setActiveGraph(Graph* g)
 			if (gr ==g)	
 			{
 				btn=(LayerButton *)buttonsList->at(i);
-				btn->setOn(TRUE);
+				btn->setOn(true);
 				return;
 			}
 		}
@@ -510,7 +510,7 @@ void MultiLayer::removeLayer()
 		if (btn->isOn())	
 		{
 			buttonsList->take(buttonsList->find(btn));
-			btn->close(TRUE);			
+			btn->close(true);			
 			break;
 		}
 	}
@@ -547,7 +547,7 @@ void MultiLayer::removeLayer()
 		if (gr == active_graph)	
 		{
 			LayerButton *button=(LayerButton *)buttonsList->at(i);	
-			button->setOn(TRUE);
+			button->setOn(true);
 			break;
 		}
 	}	
@@ -595,7 +595,7 @@ void MultiLayer::moveGraph(Graph* g, const QPoint& pos)
 
 	if (!movedGraph)
 	{
-		movedGraph=TRUE;
+		movedGraph=true;
 		showLayers(false);
 
 		xMouse=pos.x();
@@ -641,7 +641,7 @@ void MultiLayer::releaseGraph(Graph* g)
 			makeTransparentLayer(gr);
 		gr->show();
 	}
-	movedGraph=FALSE;
+	movedGraph=false;
 #endif
 }
 
@@ -1017,8 +1017,8 @@ void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientatio
 	printer.setColorMode(col);
 	printer.setOrientation(o);
 
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile (TRUE);
+	printer.setFullPage(true);
+	printer.setOutputToFile (true);
 	printer.setOutputFileName(fname);
 
 	QPainter paint(&printer);
@@ -1096,7 +1096,7 @@ void MultiLayer::print()
 	printer.setResolution(84);
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
+	printer.setFullPage(true);
 
 	if (printer.setup())
 	{
@@ -1353,7 +1353,7 @@ void MultiLayer::connectLayer(Graph *g)
 void MultiLayer::addTextLayer()
 {
 #if false
-	addTextOn=TRUE;
+	addTextOn=true;
 	QApplication::setOverrideCursor(Qt::IBeamCursor);
 	canvas->grabMouse();
 #endif
@@ -1366,7 +1366,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	g->setTitle("");
 	Q3MemArray<bool> axesOn(4);
 	for (int j=0;j<4;j++)
-		axesOn[j]=FALSE;
+		axesOn[j]=false;
 	g->enableAxes(axesOn);
 	g->plotWidget()->setLineWidth(1);
 	g->setIgnoreResizeEvents(true);
@@ -1377,7 +1377,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	connectLayer(g);
 	QApplication::restoreOverrideCursor();
 	canvas->releaseMouse();
-	addTextOn=FALSE;
+	addTextOn=false;
 	emit drawTextOff();
 	emit modifiedPlot();
 #endif
@@ -1387,7 +1387,7 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 {
 #if false
 	if ( object != (QObject *)canvas)
-		return FALSE;
+		return false;
 
 	switch(e->type())
 	{ 
@@ -1474,7 +1474,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 #if false
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	bool resize=FALSE;
+	bool resize=false;
 	QPoint aux;
 	QSize intSize;
 	Graph *resize_graph;
@@ -1491,7 +1491,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 			if(yMouse>aux.y() && yMouse<(aux.y()+intSize.height()))
 			{
 				resize_graph=gr;
-				resize=TRUE;
+				resize=true;
 			}
 		}
 	}
@@ -1884,7 +1884,7 @@ void MultiLayer::setLayersNumber(int n)
 			if (gr == active_graph)	
 			{
 				LayerButton *button=(LayerButton *)buttonsList->at(j);	
-				button->setOn(TRUE);
+				button->setOn(true);
 				break;
 			}
 		}	

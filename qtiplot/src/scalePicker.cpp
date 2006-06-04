@@ -45,7 +45,7 @@ ScalePicker::ScalePicker(QwtPlot *plot):
     QObject(plot)
 {
 #if false
-	movedGraph=FALSE;
+	movedGraph=false;
 	
     for ( uint i = 0; i < QwtPlot::axisCnt; i++ )
 		{
@@ -62,7 +62,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 	if ( object->inherits("QwtScale") && e->type() == QEvent::MouseButtonDblClick)
     	{
 		mouseDblClicked((const QwtScale *)object, ((QMouseEvent *)e)->pos());
-        return TRUE;
+        return true;
     	}
 
 	if ( object->inherits("QwtScale") && e->type() == QEvent::MouseButtonPress)
@@ -79,12 +79,12 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 				if (!r.contains(me->pos()))
 					emit highlightGraph();
 				}
-			return TRUE;
+			return true;
 			}
 		else if (me->button() == Qt::RightButton)
 			{
 			mouseRightClicked((const QwtScale *)object, me->pos());
-			return TRUE;
+			return true;
 			}
     	}
 	
@@ -92,10 +92,10 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
     	{	
 		const QMouseEvent *me = (const QMouseEvent *)e;			
 
-		movedGraph=TRUE;
+		movedGraph=true;
 		emit moveGraph(me->pos());
 
-        return TRUE;
+        return true;
    	 }
 	
 	if ( object->inherits("QwtScale") && e->type() == QEvent::MouseButtonRelease)
@@ -103,10 +103,10 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 		if (movedGraph)
 			{
 			emit releasedGraph();
-			movedGraph=FALSE;
+			movedGraph=false;
 			}
 				
-        return TRUE;
+        return true;
     	}
 		
 return QObject::eventFilter(object, e);
@@ -299,7 +299,7 @@ TitlePicker::TitlePicker(QwtPlot *plot):
     QObject(plot)
 {
 #if false
-movedGraph=FALSE;
+movedGraph=false;
 
 title = (QLabel *)plot->titleLabel();
 title->setFocusPolicy(Qt::StrongFocus);
@@ -312,12 +312,12 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 {
 #if false
 	if (object != (QObject *)title)
-		return FALSE;
+		return false;
 	
     if ( object->inherits("QLabel") && e->type() == QEvent::MouseButtonDblClick)
 		{
 		emit doubleClicked();
-        return TRUE;
+        return true;
 		}
 
 	if ( object->inherits("QLabel") &&  e->type() == QEvent::MouseButtonPress )
@@ -337,16 +337,16 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 				emit highlightGraph();
 			}
 
-		return TRUE;
+		return true;
 		}
 
 	if ( object->inherits("QLabel") &&  e->type() == QEvent::MouseMove)
 		{	
 		const QMouseEvent *me = (const QMouseEvent *)e;			
-		movedGraph=TRUE;
+		movedGraph=true;
 		emit moveGraph(me->pos());
 
-        return TRUE;
+        return true;
 		}
 	
 	if ( object->inherits("QLabel") && e->type() == QEvent::MouseButtonRelease)
@@ -358,9 +358,9 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 			if (movedGraph)
 				{
 				emit releasedGraph();
-				movedGraph=FALSE;
+				movedGraph=false;
 				}
-        	return TRUE;
+        	return true;
 			}
 		}
 
@@ -371,7 +371,7 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 			{
 			case Qt::Key_Delete: 
 			emit removeTitle();	
-            return TRUE;
+            return true;
 			}
 		}
 

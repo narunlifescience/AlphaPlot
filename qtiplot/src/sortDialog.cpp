@@ -46,10 +46,10 @@ sortDialog::sortDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	setWindowTitle(tr("QtiPlot - Sorting Options"));
     setMinimumSize( QSize( 310, 140 ) );
 	setMaximumSize( QSize( 310, 140 ) );
-    setMouseTracking( TRUE );
-    setSizeGripEnabled( FALSE );
+    setMouseTracking( true );
+    setSizeGripEnabled( false );
 	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString::null,this,"GroupBox1" );
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString(),this,"GroupBox1" );
 
 	new QLabel( tr("Sort columns"), GroupBox1, "TextLabel1",0 );
 	boxType = new QComboBox(GroupBox1, "boxShow" );
@@ -59,13 +59,13 @@ sortDialog::sortDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	
 	new QLabel(tr("Leading column"),GroupBox1, "TextLabel3",0);
 	columnsList = new QComboBox(GroupBox1, "listBox" );
-	columnsList->setEnabled(FALSE);	
+	columnsList->setEnabled(false);	
 	
 	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );    
     
@@ -117,7 +117,7 @@ void sortDialog::changeType(int Type)
 {
 boxType->setCurrentItem(Type);
 if(Type==1)
-	columnsList->setEnabled(TRUE);
+	columnsList->setEnabled(true);
 else
-	columnsList->setEnabled(FALSE);	
+	columnsList->setEnabled(false);	
 }

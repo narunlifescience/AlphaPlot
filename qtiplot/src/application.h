@@ -31,16 +31,18 @@
 
 #include <q3mainwindow.h>
 #include <q3listview.h> 
-//Added by qt3to4:
-#include <Q3ActionGroup>
+
+#include <QActionGroup>
 #include <QPixmap>
 #include <QCloseEvent>
 #include <QDropEvent>
-#include <Q3ValueList>
 #include <QTimerEvent>
-#include <Q3PopupMenu>
+#include <QMenu>
 #include <QDragEnterEvent>
 #include <QTranslator>
+#include <QToolBar>
+#include <QDockWidget>
+#include <QTextBrowser>
 
 #include <QMainWindow>
 
@@ -51,14 +53,13 @@
 #include <qfile.h> 
 #include <QAction>
 
-class Q3Action;
-class Q3ActionGroup;
+class QAction;
+class QActionGroup;
 class Q3TextEdit;
-class Q3ToolBar;
 class QToolButton;
-class Q3PopupMenu;
+class QMenu;
 class QWorkspace;
-class Q3PopupMenu;
+class QMenu;
 class QToolButton;
 class Q3ListBoxItem;
 class Q3TextBrowser;
@@ -79,7 +80,7 @@ class FolderListItem;
 class FolderListView;
 
 //! QtiPlot's main window
-class ApplicationWindow: public Q3MainWindow
+class ApplicationWindow: public QMainWindow
 {
     Q_OBJECT
 public:
@@ -90,51 +91,51 @@ public:
 	enum ShowWindowsPolicy{HideAll, ActiveFolder, SubFolders};
 
 	QTranslator *appTranslator, *qtTranslator;
-	Q3DockWindow *logWindow, *explorerWindow;
+	QDockWidget *logWindow, *explorerWindow;
 	Q3TextEdit *results;
 	QWorkspace* ws;
-    Q3ToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools;
-    Q3PopupMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
-	Q3PopupMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
-	Q3PopupMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend; 
-	Q3PopupMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
+    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools;
+    QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
+	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
+	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend; 
+	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
-	Q3TextBrowser *browser;
+	QTextBrowser *browser;
 	QLineEdit *info;
 	QWidget *lastModified;
 
-	Q3ActionGroup* dataTools;
-	Q3Action *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
-	Q3Action  *btnZoom, *btnPointer, *btnLine;
+	QActionGroup* dataTools;
+	QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
+	QAction  *btnZoom, *btnPointer, *btnLine;
 	
-	Q3ActionGroup* coord;
-	Q3Action* Box;
-    Q3Action* Frame;
-    Q3Action* None;
+	QActionGroup* coord;
+	QAction* Box;
+    QAction* Frame;
+    QAction* None;
 
-	Q3ActionGroup* grids;
-    Q3Action* front;
-    Q3Action* back;
-    Q3Action* right;
-    Q3Action* left;
-    Q3Action* ceil;
-    Q3Action* floor;
+	QActionGroup* grids;
+    QAction* front;
+    QAction* back;
+    QAction* right;
+    QAction* left;
+    QAction* ceil;
+    QAction* floor;
 
-	Q3ActionGroup* floorstyle;
-    Q3Action* floordata;
-    Q3Action* flooriso;
-    Q3Action* floornone;
+	QActionGroup* floorstyle;
+    QAction* floordata;
+    QAction* flooriso;
+    QAction* floornone;
 
-	Q3ActionGroup* plotstyle;
-    Q3Action* wireframe;
-    Q3Action* hiddenline;
-    Q3Action* polygon;
-    Q3Action* filledmesh;
-    Q3Action* pointstyle;
-	Q3Action* barstyle;
-	Q3Action *conestyle, *crossHairStyle;
+	QActionGroup* plotstyle;
+    QAction* wireframe;
+    QAction* hiddenline;
+    QAction* polygon;
+    QAction* filledmesh;
+    QAction* pointstyle;
+	QAction* barstyle;
+	QAction *conestyle, *crossHairStyle;
 	Graph *activeGraph,  *lastCopiedLayer;
 
 public slots:
@@ -462,7 +463,7 @@ public slots:
 	void showScreenReader();
 	void pickPointerCursor();
 	void disableTools();
-	void pickDataTool( Q3Action* action );
+	void pickDataTool( QAction* action );
 	
 	void updateLog(const QString& result);
 
@@ -601,9 +602,9 @@ public slots:
 	void setLeftGrid3DPlot(bool on);
 	void setFrontGrid3DPlot(bool on);
 	void setBackGrid3DPlot(bool on);
-	void pickPlotStyle( Q3Action* action );
-	void pickCoordSystem( Q3Action* action);
-	void pickFloorStyle( Q3Action* action);
+	void pickPlotStyle( QAction* action );
+	void pickCoordSystem( QAction* action);
+	void pickFloorStyle( QAction* action);
 	void custom3DActions(QWidget *w);
 	void custom3DGrids(int grids);
 
@@ -641,7 +642,7 @@ public slots:
 
 	bool alreadyUsedName(const QString& label);
 
-	Note* newNote(const QString& caption = QString::null);
+	Note* newNote(const QString& caption = QString());
 	Note* openNote(ApplicationWindow* app, const QStringList &flist);
 	void initNote(Note* m, const QString& caption);
 	
@@ -660,7 +661,7 @@ public slots:
 	void desactivateFolders();
 
 	//! Changes the current folder
-	void changeFolder(Folder *newFolder, bool force = FALSE);
+	void changeFolder(Folder *newFolder, bool force = false);
 
 	//! Changes the current folder when the user changes the current item in the QListView "folders"
 	void folderItemChanged(Q3ListViewItem *it);
@@ -671,8 +672,8 @@ public slots:
 	/**
 	 * \param it list view item
 	 * \param p mouse global position
-	 * \param fromFolders: TRUE means that the user clicked right mouse buttom on an item from QListView "folders"
-	 *					   FALSE means that the user clicked right mouse buttom on an item from QListView "lv"
+	 * \param fromFolders: true means that the user clicked right mouse buttom on an item from QListView "folders"
+	 *					   false means that the user clicked right mouse buttom on an item from QListView "lv"
 	 */
 	void showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p, bool fromFolders);
 
@@ -800,49 +801,49 @@ public:
 	int plotMenuID, importMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;
 	int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID, multiPeakMenuID; 
 
-    Q3Action *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
-    Q3Action *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
-    Q3Action *actionLoad, *actionLoadMultiple, *actionUndo, *actionRedo;
-    Q3Action *actionCopyWindow;
-    Q3Action *actionCutSelection, *actionCopySelection, *actionPasteSelection, *actionClearSelection;
-    Q3Action *actionShowExplorer, *actionShowLog, *actionAddLayer, *actionShowLayerDialog;
+    QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
+    QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
+    QAction *actionLoad, *actionLoadMultiple, *actionUndo, *actionRedo;
+    QAction *actionCopyWindow;
+    QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection, *actionClearSelection;
+    QAction *actionShowExplorer, *actionShowLog, *actionAddLayer, *actionShowLayerDialog;
 
-    Q3Action *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
-    Q3Action *actionShowImportDialog;
-    Q3Action *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard, *actionShowConfigureDialog;
-    Q3Action *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve, *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
-    Q3Action *actionPlotL, *actionPlotP, *actionPlotLP, *actionPlotVerticalDropLines, *actionPlotSpline, *actionPlotSteps, *actionPlotVerticalBars;
-	Q3Action *actionPlotHorizontalBars, *actionPlotArea, *actionPlotPie, *actionPlotVectXYAM, *actionPlotVectXYXY;
-    Q3Action *actionPlotHistogram, *actionPlotStackedHistograms, *actionPlot2VerticalLayers, *actionPlot2HorizontalLayers, *actionPlot4Layers, *actionPlotStackedLayers;
-    Q3Action *actionPlot3DRibbon, *actionPlot3DBars, *actionPlot3DScatter, *actionPlot3DTrajectory;
-    Q3Action *actionShowColStatistics, *actionShowRowStatistics, *actionShowIntDialog;
-    Q3Action *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
-    Q3Action *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog, *actionShowExpDecay3Dialog;
-    Q3Action *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
-    Q3Action *actionShowLayoutDialog, *actionShowAxisDialog, *actionShowTitleDialog;
-    Q3Action *actionShowColumnOptionsDialog, *actionShowColumnValuesDialog, *actionShowColsDialog, *actionShowRowsDialog;
-    Q3Action *actionAbout, *actionShowHelp, *actionChooseHelpFolder;
-    Q3Action *actionRename, *actionCloseWindow, *actionConvertTable;
-    Q3Action *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
-    Q3Action *actionPrintHelp, *actionResizeActiveWindow, *actionHideActiveWindow;
-    Q3Action *actionShowMoreWindows, *actionPixelLineProfile, *actionIntensityTable;
-    Q3Action *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
-    Q3Action *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionHideWindow, *actionResizeWindow, *actionPrintWindow;
-    Q3Action *actionShowPlotGeometryDialog, *actionEditSurfacePlot, *actionAdd3DData;
-	Q3Action *actionMatrixDeterminant, *actionSetMatrixProperties;
-	Q3Action *actionSetMatrixDimensions, *actionConvertMatrix, *actionSetMatrixValues, *actionTransposeMatrix, *actionInvertMatrix;
-	Q3Action *actionPlot3DWireFrame, *actionPlot3DHiddenLine, *actionPlot3DPolygons, *actionPlot3DWireSurface;
-	Q3Action *actionDeleteFitTables, *actionShowGridDialog, *actionTimeStamp;
-	Q3Action *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage, *actionFFT;
-	Q3Action *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter, *actionBandBlockFilter;
-	Q3Action *actionSortTable, *actionSortSelection, *actionNormalizeSelection;
-	Q3Action *actionNormalizeTable, *actionConvolute, *actionDeconvolute, *actionCorrelate;
-	Q3Action *actionTranslateHor, *actionTranslateVert, *actionSetAscValues, *actionSetRandomValues;
-	Q3Action *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol;
-	Q3Action *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;
-	Q3Action *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
+    QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
+    QAction *actionShowImportDialog;
+    QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard, *actionShowConfigureDialog;
+    QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve, *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
+    QAction *actionPlotL, *actionPlotP, *actionPlotLP, *actionPlotVerticalDropLines, *actionPlotSpline, *actionPlotSteps, *actionPlotVerticalBars;
+	QAction *actionPlotHorizontalBars, *actionPlotArea, *actionPlotPie, *actionPlotVectXYAM, *actionPlotVectXYXY;
+    QAction *actionPlotHistogram, *actionPlotStackedHistograms, *actionPlot2VerticalLayers, *actionPlot2HorizontalLayers, *actionPlot4Layers, *actionPlotStackedLayers;
+    QAction *actionPlot3DRibbon, *actionPlot3DBars, *actionPlot3DScatter, *actionPlot3DTrajectory;
+    QAction *actionShowColStatistics, *actionShowRowStatistics, *actionShowIntDialog;
+    QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
+    QAction *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog, *actionShowExpDecay3Dialog;
+    QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
+    QAction *actionShowLayoutDialog, *actionShowAxisDialog, *actionShowTitleDialog;
+    QAction *actionShowColumnOptionsDialog, *actionShowColumnValuesDialog, *actionShowColsDialog, *actionShowRowsDialog;
+    QAction *actionAbout, *actionShowHelp, *actionChooseHelpFolder;
+    QAction *actionRename, *actionCloseWindow, *actionConvertTable;
+    QAction *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
+    QAction *actionPrintHelp, *actionResizeActiveWindow, *actionHideActiveWindow;
+    QAction *actionShowMoreWindows, *actionPixelLineProfile, *actionIntensityTable;
+    QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
+    QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionHideWindow, *actionResizeWindow, *actionPrintWindow;
+    QAction *actionShowPlotGeometryDialog, *actionEditSurfacePlot, *actionAdd3DData;
+	QAction *actionMatrixDeterminant, *actionSetMatrixProperties;
+	QAction *actionSetMatrixDimensions, *actionConvertMatrix, *actionSetMatrixValues, *actionTransposeMatrix, *actionInvertMatrix;
+	QAction *actionPlot3DWireFrame, *actionPlot3DHiddenLine, *actionPlot3DPolygons, *actionPlot3DWireSurface;
+	QAction *actionDeleteFitTables, *actionShowGridDialog, *actionTimeStamp;
+	QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage, *actionFFT;
+	QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter, *actionBandBlockFilter;
+	QAction *actionSortTable, *actionSortSelection, *actionNormalizeSelection;
+	QAction *actionNormalizeTable, *actionConvolute, *actionDeconvolute, *actionCorrelate;
+	QAction *actionTranslateHor, *actionTranslateVert, *actionSetAscValues, *actionSetRandomValues;
+	QAction *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol;
+	QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;
+	QAction *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
 	QAction *actionHelpForums, *actionHelpBugReports;
-	Q3Action *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
+	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 
 private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects

@@ -398,7 +398,7 @@ curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	
     btnOK = new QPushButton(box4, "btnOK" );
     btnOK->setText( tr( "OK" ) );
-	btnOK->setDefault( TRUE );
+	btnOK->setDefault( true );
 	
     btnCancel = new QPushButton(box4, "btnCancel" );
     btnCancel->setText( tr( "Close" ) );
@@ -645,15 +645,15 @@ for (i=0;i<int(texts.count());i++)
 void curvesDialog::clear()
 {
 contents->clear();
-btnRemove->setDisabled (TRUE);
+btnRemove->setDisabled (true);
 }
 
 void curvesDialog::enableRemoveBtn()
 {
 if (contents->count()>0)
-	btnRemove->setEnabled (TRUE);
+	btnRemove->setEnabled (true);
 else
-	btnRemove->setDisabled (TRUE);
+	btnRemove->setDisabled (true);
 }
 
 int curvesDialog::curveStyle()

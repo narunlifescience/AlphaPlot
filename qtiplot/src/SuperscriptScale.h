@@ -50,7 +50,7 @@ public:
 	QString txt;
 	txt.setNum ( value, 'e', prec);
 		
-	QStringList list = QStringList::split ( "e", txt, FALSE );
+	QStringList list = QStringList::split ( "e", txt, false );
 	if (list[0].toDouble() == 0.0)
 		return "0";
 	
@@ -90,7 +90,7 @@ void drawLabel(QPainter *p, double val) const
 			
             p->save();
 #ifndef QT_NO_TRANSFORMATIONS
-            p->setWorldMatrix(m, TRUE);
+            p->setWorldMatrix(m, true);
 #else
             p->translate(m.dx(), m.dy());
 #endif

@@ -69,7 +69,7 @@ setWindowTitle(tr("QtiPlot - Non-linear curve fit"));
 setSizeGripEnabled( true );
 	
 tw = new Q3WidgetStack( this, "tw" );
-tw->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred, 2, 0, FALSE ));
+tw->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred, 2, 0, false ));
 initEditPage();
 initFitPage();
 
@@ -99,7 +99,7 @@ boxCurve = new QComboBox(GroupBox1, "boxCurve" );
 new QLabel( tr("Function"), GroupBox1, "TextLabel2",0 );
 lblFunction = new QLabel(GroupBox1, "boxOrder" );
 
-new QLabel(QString::null, GroupBox1, "TextLabel2",0 );
+new QLabel(QString(), GroupBox1, "TextLabel2",0 );
 boxFunction = new Q3TextEdit(GroupBox1, "boxOrder" );
 boxFunction->setReadOnly(true);
 boxFunction->setMaximumHeight(60);
@@ -120,7 +120,7 @@ boxSolver->insertItem(tr("Unscaled Levenberg-Marquardt"));
 boxSolver->insertItem(tr("Nelder-Mead Simplex"));
 
 new QLabel( tr("Color"), GroupBox1, "boxColorLabel",0 );
-boxColor = new ColorBox( FALSE, GroupBox1);
+boxColor = new ColorBox( false, GroupBox1);
 boxColor->setColor(QColor(Qt::red));
 	
 Q3HBox *hbox=new Q3HBox(fitPage,"hbox");
@@ -145,7 +145,7 @@ boxTolerance = new QLineEdit(GroupBox3, "boxTolerance" );
 boxTolerance->setText("1e-4");
 
 Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),fitPage,"GroupBox2" );
-GroupBox2->setFlat (TRUE);
+GroupBox2->setFlat (true);
 
 buttonEdit = new QPushButton(GroupBox2, "buttonOk" );
 buttonEdit->setText( tr( "<< &Edit function" ) );
@@ -155,8 +155,8 @@ btnDeleteTables->setText( tr( "&Delete Fit Curves" ) );
 	
 buttonOk = new QPushButton(GroupBox2, "buttonOk" );
 buttonOk->setText( tr( "&Fit" ) );
-buttonOk->setAutoDefault( TRUE );
-buttonOk->setDefault( TRUE );
+buttonOk->setAutoDefault( true );
+buttonOk->setDefault( true );
   
 buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
 buttonCancel->setText( tr( "&Cancel" ) );
@@ -191,7 +191,7 @@ categoryBox->insertItem(tr("User defined"));
 categoryBox->insertItem(tr("Built-in"));
 categoryBox->insertItem(tr("Basic"));
 categoryBox->insertItem(tr("Plugins"));
-categoryBox->setSizePolicy(QSizePolicy (QSizePolicy::Fixed, QSizePolicy::Expanding, 2, 0, FALSE ));
+categoryBox->setSizePolicy(QSizePolicy (QSizePolicy::Fixed, QSizePolicy::Expanding, 2, 0, false ));
 
 Q3VBox *vbox2=new Q3VBox(hbox1,"vbox2");
 vbox2->setSpacing(5);
@@ -387,7 +387,7 @@ void fitDialog::removeUserFunction()
 QString name = funcBox->currentText();
 if (userFunctionNames.contains(name))
 	{
-	explainBox->setText(QString::null);
+	explainBox->setText(QString());
 
 	int index = userFunctionNames.findIndex(name);
 	userFunctionNames.remove(name);
@@ -421,7 +421,7 @@ if (!boxUseBuiltIn->isChecked() ||
 	boxParams->horizontalHeader()->setLabel(2, tr("Constant"));
 	for (int j=0; j<boxParams->numRows(); j++ )
 		{
-		Q3CheckTableItem *cb = new Q3CheckTableItem(boxParams, QString::null );
+		Q3CheckTableItem *cb = new Q3CheckTableItem(boxParams, QString() );
 		boxParams->setItem(j, 2, cb);
 		}
 	boxParams->showColumn(2);
@@ -809,7 +809,7 @@ else
 	
 QStringList parameters, initialValues;
 myParser parser;
-bool error=FALSE;
+bool error=false;
 QString formula = boxFunction->text();
 try
 	{

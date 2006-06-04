@@ -55,7 +55,7 @@ class curvesDialog : public QDialog
     Q_OBJECT
 
 public:
-    curvesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    curvesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~curvesDialog();
 
 	QSize sizeHint() const;

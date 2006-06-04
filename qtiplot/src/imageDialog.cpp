@@ -138,10 +138,10 @@ imageDialog::imageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
     if ( !name )
 	setName( "imageDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    setSizeGripEnabled( FALSE );
+    setSizeGripEnabled( false );
 	
 	GroupBox4 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox4" );
-	GroupBox4->setFlat (TRUE);
+	GroupBox4->setFlat (true);
 	
 	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Origin"),GroupBox4,"GroupBox1" );
 
@@ -176,16 +176,16 @@ imageDialog::imageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	down->setPixmap(QPixmap(down_xpm));
 
 	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox4);

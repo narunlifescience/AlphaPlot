@@ -293,10 +293,10 @@ return false;
  *****************************************************************************/
 
 FolderListView::FolderListView( QWidget *parent, const char *name )
-    : Q3ListView( parent, name ), mousePressed( FALSE )
+    : Q3ListView( parent, name ), mousePressed( false )
 {
-    setAcceptDrops( TRUE );
-    viewport()->setAcceptDrops( TRUE );
+    setAcceptDrops( true );
+    viewport()->setAcceptDrops( true );
 }
 
 void FolderListView::startDrag()
@@ -405,7 +405,7 @@ if ( i )
 			p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) 
 			{
 			presspos = e->pos();
-	    	mousePressed = TRUE;
+	    	mousePressed = true;
 			}
     	}
 }
@@ -414,7 +414,7 @@ void FolderListView::contentsMouseMoveEvent( QMouseEvent* e )
 {
 if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) 
 	{
-	mousePressed = FALSE;
+	mousePressed = false;
 	Q3ListViewItem *item = itemAt( contentsToViewport(presspos) );
 	if ( item ) 
 		startDrag();

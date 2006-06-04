@@ -73,7 +73,7 @@ matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool moda
 	hbox1->setSpacing (5);
 	
 	buttonOk = new QPushButton(hbox1, "buttonOk" );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(hbox1, "buttonCancel" );
 	

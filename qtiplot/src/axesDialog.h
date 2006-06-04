@@ -77,7 +77,7 @@ class axesDialog : public QDialog
     Q_OBJECT
 
 public:
-    axesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    axesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~axesDialog();
 
 	void initAxesPage();

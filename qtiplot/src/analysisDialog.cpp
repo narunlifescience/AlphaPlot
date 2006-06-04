@@ -47,7 +47,7 @@ analysisDialog::analysisDialog( QWidget* parent, const QString& text, const char
 		setName( "analysisDialog" );
 	setWindowTitle(tr("QtiPlot - Analysis Options"));
 	
-	operation = QString::null;
+	operation = QString();
 
 	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
@@ -55,14 +55,14 @@ analysisDialog::analysisDialog( QWidget* parent, const QString& text, const char
 	boxName = new QComboBox(GroupBox1, "boxShow" );
 	
 	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
     
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
     Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
 	vlayout->addWidget(GroupBox1);

@@ -153,7 +153,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   QLabel* rotate=new QLabel(tr( "Rotate (deg.)" ),GroupBox1, "TextLabel1_2",0);
 	   rotate->hide();
 
-	   rotateBox = new QComboBox( FALSE, GroupBox1, "rotateBox" );
+	   rotateBox = new QComboBox( false, GroupBox1, "rotateBox" );
 	   rotateBox->insertItem( tr( "0" ) );
 	   rotateBox->insertItem( tr( "45" ) );
 	   rotateBox->insertItem( tr( "90" ) );
@@ -162,7 +162,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   rotateBox->insertItem( tr( "225" ) );
 	   rotateBox->insertItem( tr( "270" ) );
 	   rotateBox->insertItem( tr( "315" ) );
-	   rotateBox->setEditable (TRUE);
+	   rotateBox->setEditable (true);
 	   rotateBox->setCurrentItem(0);
 	   rotateBox->hide();
 	   */

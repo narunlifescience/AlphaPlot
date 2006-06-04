@@ -44,7 +44,7 @@ class smoothCurveDialog : public QDialog
     Q_OBJECT
 
 public:
-    smoothCurveDialog(int method, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    smoothCurveDialog(int method, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~smoothCurveDialog();
 
 	enum SmoothType{SavitzkyGolay = 1, FFT = 2, Average = 3};

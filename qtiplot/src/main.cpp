@@ -74,7 +74,7 @@ int main( int argc, char ** argv )
 		mw->applyUserSettings();
 		mw->newTable();
 		mw->showMaximized();
-		mw->saved=TRUE;
+		mw->saved=true;
 		mw->actionSaveProject->setEnabled(false);
 		mw->showDonationDialog();
 		}

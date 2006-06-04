@@ -83,14 +83,14 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	vbox01->setMargin(5);
 
 	buttonOk = new QPushButton( vbox01, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
 
 	buttonApply = new QPushButton( vbox01, "buttonApply" );
 	buttonApply->setText(tr("&Apply"));
 
 	buttonCancel = new QPushButton( vbox01, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 
 	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal, tr("Options"),this,"GroupBox4" );
 	
@@ -118,7 +118,7 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	displayBox->insertItem(tr("Month"));
 	displayBox->insertItem(tr("Day of Week"));
 
-	formatBox = new QComboBox( FALSE, vbox2, "formatBox" );
+	formatBox = new QComboBox( false, vbox2, "formatBox" );
 	precisionBox = new QSpinBox(0, 100, 1, vbox2, "precisionBox" );
 
 	applyToRightCols = new QCheckBox( GroupBox2, "applyToRightCols" );

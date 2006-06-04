@@ -58,7 +58,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 
 	layout = new QWidget( generalDialog, "layout" );
 
-	Q3ButtonGroup *box = new Q3ButtonGroup(2,Qt::Horizontal,QString::null,layout);
+	Q3ButtonGroup *box = new Q3ButtonGroup(2,Qt::Horizontal,QString(),layout);
 	box->setFlat (true);
 	box->setInsideMargin (0);
 
@@ -73,18 +73,18 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	layersBox = new QSpinBox(0,100,1,hbox1);
 
 	fitBox=new QCheckBox(vbox);
-	fitBox->setChecked(FALSE);
+	fitBox->setChecked(false);
 
 	Q3ButtonGroup *groupAlign = new Q3ButtonGroup(2,Qt::Horizontal,tr("Alignement"),box);
 
     new QLabel( tr("Horizontal" ), groupAlign, 0,0 );
-	alignHorBox = new QComboBox( FALSE, groupAlign, 0 );
+	alignHorBox = new QComboBox( false, groupAlign, 0 );
 	alignHorBox->insertItem( tr( "Center" ) );
 	alignHorBox->insertItem( tr( "Left" ) );
 	alignHorBox->insertItem( tr( "Right" ) );
 
     new QLabel( tr( "Vertical" ), groupAlign, 0,0 );
-	alignVertBox = new QComboBox( FALSE, groupAlign, 0 );
+	alignVertBox = new QComboBox( false, groupAlign, 0 );
 	alignVertBox->insertItem( tr( "Center" ) );
 	alignVertBox->insertItem( tr( "Top" ) );
 	alignVertBox->insertItem( tr( "Bottom" ) );
@@ -144,7 +144,7 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	generalDialog->insertTab(layout, tr( "Layout" ) );
 
 	fonts = new QWidget( generalDialog, "fonts" );
-	GroupBox2 = new Q3ButtonGroup( 1,Qt::Horizontal, QString::null,fonts,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup( 1,Qt::Horizontal, QString(),fonts,"GroupBox2" );
 
     btnTitle = new QPushButton(GroupBox2, "btnTitle" );
 	btnAxisLegend = new QPushButton(GroupBox2, "btnAxisLegend" );
@@ -162,11 +162,11 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	buttonApply = new QPushButton(hbox2, "buttonApply" );
 
 	buttonOk = new QPushButton(hbox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
 
     buttonCancel = new QPushButton(hbox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 
 	Q3VBoxLayout* vl = new Q3VBoxLayout(this,10, 5, "vl");
 	vl->addWidget(generalDialog);
@@ -235,7 +235,7 @@ if (generalDialog->currentPage()==(QWidget *)layout )
 	if (dn > 0 && QMessageBox::question(0, tr("QtiPlot - Delete Layers?"),
 				tr("You are about to delete %1 existing layers.").arg(dn)+"\n"+
                 tr("Are you sure you want to continue this operation?"),
-				tr("&Continue"), tr("&Cancel"), QString::null, 0, 1 )) return; 
+				tr("&Continue"), tr("&Cancel"), QString(), 0, 1 )) return; 
 
 	int graphs = layersBox->value();
 	multi_layer->setLayersNumber(graphs);

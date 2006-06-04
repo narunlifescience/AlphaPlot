@@ -46,8 +46,8 @@ matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, Qt::W
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setMouseTracking( false );
 
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(3, Qt::Horizontal,QString::null,this,"GroupBox1" );
-	GroupBox1->setFlat(TRUE);
+	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(3, Qt::Horizontal,QString(),this,"GroupBox1" );
+	GroupBox1->setFlat(true);
 
 	new QLabel( tr( "Cell Width" ), GroupBox1, "TextLabel2",0 );
     boxColWidth = new QSpinBox(0,1000,10, GroupBox1, "boxColWidth" );
@@ -62,18 +62,18 @@ matrixDialog::matrixDialog( QWidget* parent, const char* name, bool modal, Qt::W
 	boxPrecision = new QSpinBox(0,100,1, GroupBox1, "boxPrecision");
 	boxPrecision->hide();
 
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal,QString::null,this,"GroupBox2" );
-	GroupBox2->setFlat(TRUE);
+	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal,QString(),this,"GroupBox2" );
+	GroupBox2->setFlat(true);
 	
 	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
-    buttonApply->setAutoDefault( TRUE );
+    buttonApply->setAutoDefault( true );
 
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
     hlayout->addWidget(GroupBox1);

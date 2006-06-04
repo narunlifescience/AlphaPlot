@@ -54,7 +54,7 @@ class configDialog : public QDialog
     Q_OBJECT
 
 public:
-    configDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    configDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~configDialog();
 
 	void initPlotsPage();

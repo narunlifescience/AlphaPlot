@@ -50,8 +50,8 @@ LegendMarker::LegendMarker(QwtPlot *plot):
 	QwtPlotMarker()
 {
 #if false
-	d_text= QwtText::makeText(QString::null,Qt::RichText,Qt::AlignTop|Qt::AlignLeft, 
-			QFont("Arial",12, QFont::Normal, FALSE),Qt::black,QPen(Qt::NoPen),QBrush(Qt::NoBrush));
+	d_text= QwtText::makeText(QString(),Qt::RichText,Qt::AlignTop|Qt::AlignLeft, 
+			QFont("Arial",12, QFont::Normal, false),Qt::black,QPen(Qt::NoPen),QBrush(Qt::NoBrush));
 
 	bkgType=0;
 	angle=0;
@@ -248,7 +248,7 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect, QwtArray<long> he
 	int l=symbolLineLength+20;
 
 	QString text=d_text->text();	
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=QStringList::split ("\n",text,false);
 
 	for (int i=0;i<(int)titles.count();i++)
 	{
@@ -328,21 +328,21 @@ void LegendMarker::drawLegends(QPainter *p, const QRect& rect, QwtArray<long> he
 	int w=rect.x()+10;
 	int textL=w,textH=0;
 	QString text=d_text->text();
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=QStringList::split ("\n",text,false);
 	QwtText *text_copy= d_text->clone();
 
 	for (int i=0;i<(int)titles.count();i++)
 	{
 		QString str=titles[i];
 		textL=w;
-		if (str.contains("\\c{",TRUE)>0)
+		if (str.contains("\\c{",true)>0)
 		{
 			textL+=symbolLineLength+hspace;
 			int pos=str.find("}",0);
 			str=str.right(str.length()-pos-1);
 		}
 
-		if (str.contains("\\p{",TRUE)>0)
+		if (str.contains("\\p{",true)>0)
 		{
 			textL+=symbolLineLength+hspace;
 			int pos=str.find("}",0);
@@ -387,7 +387,7 @@ QRect LegendMarker::scaledLegendRect(QPainter *p, const QPoint& canvas_origin, c
 
 	QwtText *text_copy= d_text->clone();
 	QString text=d_text->text();
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=QStringList::split ("\n",text,false);
 	int n=(int)titles.count();
 	heights.resize(n);
 	int h=copy.y()+5;	
@@ -395,14 +395,14 @@ QRect LegendMarker::scaledLegendRect(QPainter *p, const QPoint& canvas_origin, c
 	{
 		QString str=titles[i];		 
 		textL=0;	 
-		if (str.contains("\\c{",TRUE)>0)
+		if (str.contains("\\c{",true)>0)
 		{
 			textL=symbolLineLength+hspace; 
 			int pos=str.find("}",0);
 			str=str.right(str.length()-pos-1);
 		}
 
-		if (str.contains("\\p{",TRUE)>0)
+		if (str.contains("\\p{",true)>0)
 		{
 			textL=symbolLineLength+hspace; 
 			int pos=str.find("}",0);
@@ -440,7 +440,7 @@ int LegendMarker::symbolsMaxLineLength()
 
 	int maxL=0;
 	QString text=d_text->text();	
-	QStringList titles=QStringList::split ("\n",text,FALSE);	
+	QStringList titles=QStringList::split ("\n",text,false);	
 	for (int i=0;i<(int)titles.count();i++)
 	{
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0)

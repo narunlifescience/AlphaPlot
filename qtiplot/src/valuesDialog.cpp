@@ -103,12 +103,12 @@ setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool
 	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),box2, "GroupBox0" );
 	GroupBox0->setFlat(true);
 
-    functions = new QComboBox( FALSE, GroupBox0, "functions" );
+    functions = new QComboBox( false, GroupBox0, "functions" );
 	
 	PushButton3 = new QPushButton(GroupBox0, "PushButton3" );
     PushButton3->setText( tr( "Add function" ) );
     
-    boxColumn = new QComboBox( FALSE, GroupBox0, "boxColumn" );
+    boxColumn = new QComboBox( false, GroupBox0, "boxColumn" );
    
     PushButton4 = new QPushButton(GroupBox0, "PushButton4" );
     PushButton4->setText( tr( "Add column" ) );
@@ -235,7 +235,7 @@ QStringList variables, rowIndexes, columns, colNames=table->colNames();
 int n = aux.count("col(");
 for (i=0;i<n;i++)
 	{
-	pos1=aux.find("col(",0,TRUE);
+	pos1=aux.find("col(",0,true);
 	pos2=aux.find("(",pos1+1);
 	pos3=aux.find(")",pos2+1);
 	
@@ -246,7 +246,7 @@ for (i=0;i<n;i++)
 		return false;
    		}
 
-	QStringList items=QStringList::split(",", aux2, FALSE);
+	QStringList items=QStringList::split(",", aux2, false);
 	int index=colNames.findIndex (items[0]);	
 	if (items.count() == 2)
 		rowIndexes<<items[1];
@@ -298,7 +298,7 @@ catch(mu::ParserError &e)
 	{
 	QString errString=QString::fromStdString(e.GetMsg());
 	for (i=0;i<m;i++)
-		errString.replace(variables[i], columns[i], TRUE);
+		errString.replace(variables[i], columns[i], true);
 
 	QMessageBox::critical(0,"QtiPlot - Input function error", errString);
 	return false;

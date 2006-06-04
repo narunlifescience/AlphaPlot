@@ -68,14 +68,14 @@ epsExportDialog::epsExportDialog(const QString& fileName, QWidget* parent, const
 	boxColor->setChecked(true);
 
 	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);

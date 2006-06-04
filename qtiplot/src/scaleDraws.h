@@ -49,14 +49,14 @@ class ScaleDraw: public QwtScaleDraw
 		{
 		#if false
 			d_lineWidth = width;
-			formula_string = QString::null;
+			formula_string = QString();
 		#endif
 		};
 		ScaleDraw()
 		{
 		#if false
 			d_lineWidth = 1;
-			formula_string = QString::null;
+			formula_string = QString();
 		#endif
 		};
 		virtual ~ScaleDraw(){};
@@ -83,7 +83,7 @@ class ScaleDraw: public QwtScaleDraw
 				}
 				catch(mu::ParserError &)
 				{
-					return QString::null;
+					return QString();
 				}
 				return QwtScaleDraw::label(lbl);
 			}
@@ -395,7 +395,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 			QString txt;
 			txt.setNum (lval, 'e', prec);
 
-			QStringList list = QStringList::split ( "e", txt, FALSE );
+			QStringList list = QStringList::split ( "e", txt, false );
 			if (list[0].toDouble() == 0.0)
 				return "0";
 
@@ -439,7 +439,7 @@ class QwtSupersciptsScaleDraw: public ScaleDraw
 
 					p->save();
 #ifndef QT_NO_TRANSFORMATIONS
-					p->setWorldMatrix(m, TRUE);
+					p->setWorldMatrix(m, true);
 #else
 					p->translate(m.dx(), m.dy());
 #endif

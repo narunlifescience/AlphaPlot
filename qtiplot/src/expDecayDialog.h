@@ -48,7 +48,7 @@ class expDecayDialog : public QDialog
     Q_OBJECT
 
 public:
-    expDecayDialog( int type, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    expDecayDialog( int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~expDecayDialog();
 
 	QPushButton* buttonFit;

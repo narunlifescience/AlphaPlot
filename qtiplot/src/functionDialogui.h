@@ -49,7 +49,7 @@ class functionDialogui : public QDialog
     Q_OBJECT
 
 public:
-    functionDialogui( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    functionDialogui( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~functionDialogui();
 
     QLabel* textFunction_2;

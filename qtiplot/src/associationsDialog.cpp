@@ -92,7 +92,7 @@ associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool
 
     btnOK = new QPushButton(box2, "btnOK" );
     btnOK->setText( tr( "&OK" ) );
-	btnOK->setDefault( TRUE );
+	btnOK->setDefault( true );
 	
     btnCancel = new QPushButton(box2, "btnCancel" );
     btnCancel->setText( tr( "&Cancel" ) );
@@ -306,7 +306,7 @@ for (int i=0;i<(int)names.count();i++)
 		{
 		QString table=s.left(pos);	
 		QString cols=s.right(s.length()-pos-1);			
-		newNames<<table+": "+cols.remove(table+"_",TRUE);
+		newNames<<table+": "+cols.remove(table+"_",true);
 		}
 	else
 		newNames<<s;

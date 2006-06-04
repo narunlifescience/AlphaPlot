@@ -70,18 +70,18 @@ interpolationDialog::interpolationDialog( QWidget* parent, const char* name, boo
 	boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
 
 	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( FALSE, GroupBox1);
+	boxColor = new ColorBox( false, GroupBox1);
 	boxColor->setColor(QColor(Qt::red));
 
 	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
-    buttonFit->setAutoDefault( TRUE );
-    buttonFit->setDefault( TRUE );
+    buttonFit->setAutoDefault( true );
+    buttonFit->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);

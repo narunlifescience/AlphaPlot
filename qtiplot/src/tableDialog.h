@@ -51,7 +51,7 @@ class tableDialog : public QDialog
     Q_OBJECT
 
 public:
-    tableDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    tableDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~tableDialog();
 
     QPushButton* buttonCancel;

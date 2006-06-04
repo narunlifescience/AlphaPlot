@@ -52,13 +52,13 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 
 	tw = new QTabWidget( this, "tw" );
 	options = new QWidget( tw, "options" );
-    GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString::null,options,"GroupBox1" );
+    GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString(),options,"GroupBox1" );
 
 	new QLabel(tr( "Color" ), GroupBox1, "TextLabel1",0);
 	colorBox = new ColorButton(GroupBox1);
 
 	new QLabel(tr( "Line type" ),GroupBox1, "TextLabel1_2_2",0 );
-    styleBox = new QComboBox( FALSE, GroupBox1, "styleBox" );
+    styleBox = new QComboBox( false, GroupBox1, "styleBox" );
 	styleBox->insertItem("_____");
 	styleBox->insertItem("- - -");
 	styleBox->insertItem(".....");
@@ -66,13 +66,13 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	styleBox->insertItem("_.._..");
 	
 	new QLabel(tr( "Line width" ),GroupBox1, "TextLabel1_2",0 );
-    widthBox = new QComboBox( FALSE, GroupBox1, "widthBox" );
+    widthBox = new QComboBox( false, GroupBox1, "widthBox" );
 	widthBox->insertItem( tr( "1" ) );
     widthBox->insertItem( tr( "2" ) );
     widthBox->insertItem( tr( "3" ) );
     widthBox->insertItem( tr( "4" ) );
     widthBox->insertItem( tr( "5" ) );
-	widthBox->setEditable (TRUE);
+	widthBox->setEditable (true);
 	widthBox->setCurrentItem(0);
 	
 	startBox = new QCheckBox(GroupBox1, "startBox" ); 
@@ -80,7 +80,7 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	
 	endBox = new QCheckBox(GroupBox1, "endBox" );
     endBox->setText( tr( "Arrow at &end" ) );
-	endBox->setChecked(TRUE);
+	endBox->setChecked(true);
 
 	Q3HBoxLayout* hl1 = new Q3HBoxLayout(options,5,5, "hl1");
     hl1->addWidget(GroupBox1);
@@ -127,7 +127,7 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 
 	tw->insertTab(geometry, tr( "&Geometry" ) );
 
-	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal, QString::null,this,"GroupBox2" );
+	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal, QString(),this,"GroupBox2" );
 	
     btnOk = new QPushButton(GroupBox2, "btnOk" );
     btnOk->setText( tr( "&Ok" ) );

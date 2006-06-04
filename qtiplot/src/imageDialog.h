@@ -45,7 +45,7 @@ class imageDialog : public QDialog
     Q_OBJECT
 
 public:
-    imageDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    imageDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~imageDialog();
 	void setOrigin(const QPoint& o);
 	void setSize(const QSize& size);

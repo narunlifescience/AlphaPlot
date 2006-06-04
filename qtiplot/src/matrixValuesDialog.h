@@ -43,7 +43,7 @@ class matrixValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    matrixValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    matrixValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~matrixValuesDialog();
 	
 	QSize sizeHint() const ;

@@ -42,9 +42,9 @@ pen=QPen(Qt::black,2,Qt::SolidLine);
 cap=10;
 type = orientation;
 size=QSize(1,1);
-plus=TRUE;
-minus=TRUE;
-through=FALSE;
+plus=true;
+minus=true;
+through=false;
 #endif
 }
 
@@ -56,9 +56,9 @@ pen=QPen(Qt::black,2,Qt::SolidLine);
 cap=10;
 type = Qt::Vertical;
 size=QSize(1,1);
-plus=TRUE;
-minus=TRUE;
-through=FALSE;
+plus=true;
+minus=true;
+through=false;
 #endif
 }
 

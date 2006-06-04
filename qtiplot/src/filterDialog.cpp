@@ -81,7 +81,7 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
 		}
 
 	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( FALSE, GroupBox1);
+	boxColor = new ColorBox( false, GroupBox1);
 	boxColor->setColor(QColor(Qt::red));
 
 	Q3HBox *hbox1=new Q3HBox (this,"hbox1");	
@@ -89,7 +89,7 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
 	hbox1->setSpacing(5);
 
 	buttonFilter = new QPushButton(hbox1, "buttonFit" );
-    buttonFilter->setDefault( TRUE );
+    buttonFilter->setDefault( true );
    
     buttonCancel = new QPushButton(hbox1, "buttonCancel" );
 	

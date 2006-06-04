@@ -63,7 +63,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 	setFixedWidth(521);
 	setFixedHeight(260);
     setWindowTitle( tr( "QtiPlot - Pie Options" ) );
-    setSizeGripEnabled( FALSE );
+    setSizeGripEnabled( false );
 
     generalDialog = new QTabWidget( this, "generalDialog" );
 	
@@ -71,7 +71,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 	initBorderPage();
 	
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),this, "GroupBox1" );
-	GroupBox1->setFlat (TRUE);
+	GroupBox1->setFlat (true);
 	
 	buttonWrk = new QPushButton( GroupBox1, "buttonWrk" );
     buttonWrk->setText( tr( "&Worksheet" ) );
@@ -81,7 +81,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 	
     buttonOk = new QPushButton(GroupBox1, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
 	
     buttonCancel = new QPushButton(GroupBox1, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
@@ -106,10 +106,10 @@ void pieDialog::initPiePage()
 
     new QLabel( tr( "Color" ), GroupBox3, "TextLabel4",0 );
 
-    boxLineColor = new ColorBox( FALSE, GroupBox3);
+    boxLineColor = new ColorBox( false, GroupBox3);
 	
 	new QLabel(tr( "Style" ), GroupBox3, "TextLabel31",0 );  
-    boxLineStyle = new QComboBox( FALSE, GroupBox3, "boxLineStyle" );
+    boxLineStyle = new QComboBox( false, GroupBox3, "boxLineStyle" );
     boxLineStyle->insertItem("_____");
 	boxLineStyle->insertItem("- - -");
 	boxLineStyle->insertItem(".....");
@@ -122,10 +122,10 @@ void pieDialog::initPiePage()
 	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Fill" ),pieOptions, "GroupBox2" );
 
     new QLabel( tr( "First color" ), GroupBox2, "TextLabel4",0 ); 
-    boxFirstColor = new ColorBox( FALSE, GroupBox2);
+    boxFirstColor = new ColorBox( false, GroupBox2);
 	
 	new QLabel( tr( "Pattern" ), GroupBox2, "TextLabel41",0 );
-	boxPattern = new PatternBox( FALSE, GroupBox2);
+	boxPattern = new PatternBox( false, GroupBox2);
 	
 	new QLabel(tr( "Pie ray" ), GroupBox2, "rayLabel",0 );  
     boxRay= new QSpinBox(0,2000,10,GroupBox2, "boxRay");

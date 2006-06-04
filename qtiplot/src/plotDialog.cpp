@@ -85,7 +85,7 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	hbox1->setSpacing (5);
 
     new QLabel(tr( "Plot type" ), hbox1, "TextLabel111",0 );
-	boxPlotType = new QComboBox( FALSE, hbox1, "boxPlotType" );
+	boxPlotType = new QComboBox( false, hbox1, "boxPlotType" );
 	
 	btnAssociations = new QPushButton(box1, "btnAssociations" );
     btnAssociations->setText( tr( "&Plot Associations..." ) );
@@ -116,20 +116,20 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	
 	btnWorksheet = new QPushButton(hbox2, "btnWorksheet" );
     btnWorksheet->setText( tr( "&Worksheet" ) );
-    btnWorksheet->setAutoDefault( TRUE );
+    btnWorksheet->setAutoDefault( true );
 
 	buttonApply = new QPushButton(hbox2, "buttonApply" );
     buttonApply->setText( tr( "&Apply" ) );
-    buttonApply->setAutoDefault( TRUE );
+    buttonApply->setAutoDefault( true );
 
     buttonOk = new QPushButton(hbox2, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
 
     buttonCancel = new QPushButton(hbox2, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(this,5,5, "hlayout3");
     hlayout3->addWidget(box1);
@@ -248,7 +248,7 @@ void plotDialog::initLinePage()
 
 	new QLabel( tr( "Connect" ),GroupBox3, "TextLabel1",0 );  
 
-    boxConnect = new QComboBox( FALSE, GroupBox3, "boxConnect" );
+    boxConnect = new QComboBox( false, GroupBox3, "boxConnect" );
 	boxConnect->insertItem(tr("No line"));
     boxConnect->insertItem(tr("Lines"));
     boxConnect->insertItem(tr("Sticks"));
@@ -258,7 +258,7 @@ void plotDialog::initLinePage()
 	
 	new QLabel(tr( "Style" ) , GroupBox3, "TextLabel2",0 );
 
-    boxLineStyle = new QComboBox( FALSE, GroupBox3, "boxLineStyle" );
+    boxLineStyle = new QComboBox( false, GroupBox3, "boxLineStyle" );
     boxLineStyle->insertItem("_____");
 	boxLineStyle->insertItem("_ _ _");
 	boxLineStyle->insertItem(".....");
@@ -272,18 +272,18 @@ void plotDialog::initLinePage()
 	boxLineWidth->setValue( 1 );
 
     new QLabel( tr( "Color" ), GroupBox3, "TextLabel4",0 );
-    boxLineColor = new ColorBox( FALSE, GroupBox3);
+    boxLineColor = new ColorBox( false, GroupBox3);
 	
-	fillGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString::null, linePage, "fillGroupBox" );
+	fillGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString(), linePage, "fillGroupBox" );
 
 	boxFill = new QCheckBox(fillGroupBox, 0);
 	new QLabel(  tr( "Fill area under curve" ),fillGroupBox, "TextLabel4_3",0 );  
 
 	TextLabel4_3=new QLabel(  tr( "Fill color" ),fillGroupBox, "TextLabel4_3",0 );  
-    boxAreaColor = new ColorBox( FALSE,fillGroupBox);
+    boxAreaColor = new ColorBox( false,fillGroupBox);
 
 	TextLabel4_4=new QLabel(tr( "Pattern" ), fillGroupBox, "TextLabel4_4",0);
-	boxPattern = new PatternBox( FALSE, fillGroupBox);
+	boxPattern = new PatternBox( false, fillGroupBox);
 	
 	Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(linePage,5,5, "hlayout2");
     hlayout2->addWidget(GroupBox3);
@@ -308,17 +308,17 @@ void plotDialog::initSymbolsPage()
 	GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),symbolPage, "GroupBox0" );
 	
 	new QLabel(tr( "Style" ), GroupBox0, "TextLabel2_2",0 );
-    boxSymbolStyle = new SymbolBox( FALSE, GroupBox0);
+    boxSymbolStyle = new SymbolBox( false, GroupBox0);
 
     new QLabel(tr( "Size" ), GroupBox0, "TextLabel3_2",0 );
 	boxSymbolSize = new QSpinBox(1, 100, 1, GroupBox0, "boxSymbolSize" );
 	boxSymbolSize->setValue(5);
 
 	boxFillSymbol = new QCheckBox( tr( "Fill Color" ), GroupBox0,0 );
-	boxFillColor = new ColorBox( FALSE, GroupBox0);
+	boxFillColor = new ColorBox( false, GroupBox0);
 
 	new QLabel(tr( "Edge Color" ), GroupBox0, "TextLabel4_2",0 ); 
-    boxSymbolColor = new ColorBox( FALSE, GroupBox0);
+    boxSymbolColor = new ColorBox( false, GroupBox0);
 	
 	new QLabel(tr( "Edge Width" ), GroupBox0, "TextLabel4_2",0 ); 
     boxPenWidth = new QSpinBox(1, 100, 1, GroupBox0, "boxPenWidth" );
@@ -342,7 +342,7 @@ void plotDialog::initBoxPage()
 	GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Box" ),boxPage, "GroupBox0" );
 	
 	new QLabel(tr( "Type" ), GroupBox0, "TextLabel2_2",0 );
-    boxType = new QComboBox( FALSE, GroupBox0, "boxType" );
+    boxType = new QComboBox( false, GroupBox0, "boxType" );
 	boxType->insertItem(tr("No Box"));
     boxType->insertItem(tr("Rectangle"));
     boxType->insertItem(tr("Diamond"));
@@ -350,7 +350,7 @@ void plotDialog::initBoxPage()
 	boxType->insertItem(tr("Notch"));
 
 	boxRangeLabel = new QLabel(tr( "Range" ), GroupBox0, "TextLabel2_2",0 );
-	boxRange = new QComboBox( FALSE, GroupBox0, "boxRange" );
+	boxRange = new QComboBox( false, GroupBox0, "boxRange" );
     boxRange->insertItem(tr("Standard Deviation"));
 	boxRange->insertItem(tr("Standard Error"));
 	boxRange->insertItem(tr("Perc 25, 75"));
@@ -377,7 +377,7 @@ void plotDialog::initBoxPage()
 	GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Whiskers" ),boxPage, "GroupBox0" );
 	
 	whiskerRangeLabel = new QLabel(tr( "Range" ), GroupBox1, "TextLabel2_2",0 );
-	boxWhiskersRange = new QComboBox( FALSE, GroupBox1, "boxWhiskersRange" );
+	boxWhiskersRange = new QComboBox( false, GroupBox1, "boxWhiskersRange" );
 	boxWhiskersRange->insertItem(tr("No Whiskers"));
     boxWhiskersRange->insertItem(tr("Standard Deviation"));
 	boxWhiskersRange->insertItem(tr("Standard Error"));
@@ -417,19 +417,19 @@ void plotDialog::initPercentilePage()
 	Q3ButtonGroup *gb0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Type" ),percentilePage, "gb0" );
 	
 	new QLabel(tr( "Max" ), gb0, "TextLabel2_2",0 );
-    boxMaxStyle = new SymbolBox( FALSE, gb0);
+    boxMaxStyle = new SymbolBox( false, gb0);
 
 	new QLabel(tr( "99%" ), gb0, "TextLabel2_2",0 );
-    box99Style = new SymbolBox( FALSE, gb0);
+    box99Style = new SymbolBox( false, gb0);
 
 	new QLabel(tr( "Mean" ), gb0, "TextLabel2_2",0 );
-    boxMeanStyle = new SymbolBox( FALSE, gb0);
+    boxMeanStyle = new SymbolBox( false, gb0);
 
 	new QLabel(tr( "1%" ), gb0, "TextLabel2_2",0 );
-    box1Style = new SymbolBox( FALSE, gb0);
+    box1Style = new SymbolBox( false, gb0);
 
 	new QLabel(tr( "Min" ), gb0, "TextLabel2_2",0 );
-    boxMinStyle = new SymbolBox( FALSE, gb0);
+    boxMinStyle = new SymbolBox( false, gb0);
 
 	Q3ButtonGroup *gb1 = new Q3ButtonGroup(2,Qt::Horizontal, tr( "Symbol" ),percentilePage, "GroupBox0" );
 
@@ -438,10 +438,10 @@ void plotDialog::initPercentilePage()
     boxPercSize->setMinValue( 1 );
 
 	boxFillSymbols = new QCheckBox( tr( "Fill Color" ), gb1, 0);
-	boxPercFillColor = new ColorBox( FALSE, gb1);
+	boxPercFillColor = new ColorBox( false, gb1);
 
 	new QLabel(tr( "Edge Color" ), gb1, "TextLabel4_2",0 ); 
-    boxEdgeColor = new ColorBox( FALSE, gb1);
+    boxEdgeColor = new ColorBox( false, gb1);
 	
 	new QLabel(tr( "Edge Width" ), gb1, "TextLabel4_2",0 ); 
     boxEdgeWidth = new QSpinBox(0, 100, 1, gb1, "boxPenWidth" );
@@ -483,11 +483,11 @@ GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "Direction" ),errorsPage, "Gr
 
 plusBox = new QCheckBox( GroupBox2, "plusBox" );
 plusBox->setText( tr( "Plus" ) );
-plusBox->setChecked( TRUE );
+plusBox->setChecked( true );
 
     minusBox = new QCheckBox( GroupBox2, "minusBox" );
     minusBox->setText( tr( "Minus" ) );
-    minusBox->setChecked( TRUE );
+    minusBox->setChecked( true );
 
     xBox = new QCheckBox( GroupBox2, "xBox" ); 
     xBox->setText( tr( "&X Error Bar" ) );
@@ -498,24 +498,24 @@ plusBox->setChecked( TRUE );
     colorBox = new ColorButton(GroupBox1);
 
 	new QLabel(tr( "Line Width" ), GroupBox1, "TextLabel3_3_2",0 );
-    widthBox = new QComboBox( FALSE, GroupBox1, "widthBox" );
+    widthBox = new QComboBox( false, GroupBox1, "widthBox" );
 	widthBox->insertItem( tr( "1" ) );
     widthBox->insertItem( tr( "2" ) );
     widthBox->insertItem( tr( "3" ) );
     widthBox->insertItem( tr( "4" ) );
     widthBox->insertItem( tr( "5" ) );
-	widthBox->setEditable (TRUE);
+	widthBox->setEditable (true);
 	widthBox->setCurrentItem(1);
 	
 	new QLabel(tr( "Cap Width" ) , GroupBox1, "TextLabel3_3_2_2",0 );
 
-    capBox = new QComboBox( FALSE, GroupBox1, "capBox" );
+    capBox = new QComboBox( false, GroupBox1, "capBox" );
 	capBox->insertItem( tr( "8" ) );
     capBox->insertItem( tr( "10" ) );
     capBox->insertItem( tr( "12" ) );
     capBox->insertItem( tr( "16" ) );
     capBox->insertItem( tr( "20" ) );
-	capBox->setEditable (TRUE);
+	capBox->setEditable (true);
 	capBox->setCurrentItem(0);
 
     throughBox = new QCheckBox( GroupBox1, "throughBox" );
@@ -599,7 +599,7 @@ Q3VBox *box1 = new Q3VBox(vectPage);
 Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "" ),box1, "GroupBox1" );
 	
 new QLabel(tr( "Color" ), GroupBox1, "TextLabel3_3",0 );
-vectColorBox = new ColorBox( FALSE, GroupBox1);
+vectColorBox = new ColorBox( false, GroupBox1);
 
 new QLabel(tr( "Line Width" ), GroupBox1, "TextLabel3_3_2",0 );
 vectWidthBox = new QSpinBox( 1,100,1, GroupBox1, "vectWidthBox" );
@@ -619,13 +619,13 @@ Q3VBox *box2 = new Q3VBox(vectPage);
 GroupBoxVectEnd = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "End Point" ),box2, "GroupBox2" );
 
 labelXEnd = new QLabel(tr( "X End" ), GroupBoxVectEnd, "TextLabel3_3",0 );
-xEndBox = new QComboBox( FALSE, GroupBoxVectEnd, "headLengthBox" );
+xEndBox = new QComboBox( false, GroupBoxVectEnd, "headLengthBox" );
 	
 labelYEnd = new QLabel(tr( "Y End" ), GroupBoxVectEnd, "TextLabel3_3_2",0 );
-yEndBox = new  QComboBox( FALSE, GroupBoxVectEnd, "headAngleBox" );
+yEndBox = new  QComboBox( false, GroupBoxVectEnd, "headAngleBox" );
 
 labelPosition = new QLabel(tr( "Position" ), GroupBoxVectEnd, "TextLabel3_3_2",0 );
-vectPosBox = new  QComboBox( FALSE, GroupBoxVectEnd, "headAngleBox" );
+vectPosBox = new  QComboBox( false, GroupBoxVectEnd, "headAngleBox" );
 vectPosBox->insertItem(tr("Tail"));
 vectPosBox->insertItem(tr("Middle"));
 vectPosBox->insertItem(tr("Head"));
@@ -650,7 +650,7 @@ void plotDialog::selectCurve(int index)
 {
 insertTabs(graph->curveType(index));
 lastSelectedCurve = index;
-listBox->setSelected (index,TRUE);
+listBox->setSelected (index,true);
 setActiveCurve(index);
 }
 
@@ -658,7 +658,7 @@ void plotDialog::showStatistics()
 {
 QString text=listBox->currentText();
 QStringList t=QStringList::split(": ", text, false);
-QStringList list=QStringList::split (",", t[1], FALSE );
+QStringList list=QStringList::split (",", t[1], false );
 text=t[0] + "_" + list[1].remove("(Y)");
 	
 ApplicationWindow *app = (ApplicationWindow *)this->parent();
@@ -1115,7 +1115,7 @@ else if (privateTabWidget->currentPage()==histogramPage)
 	{
 	QString text=listBox->currentText();
 	QStringList t=QStringList::split(": ", text, false);
-	QStringList list=QStringList::split (",", t[1], FALSE );
+	QStringList list=QStringList::split (",", t[1], false );
 	text=t[0] + "_" + list[1].remove("(Y)");
 	bool accept=validInput();
 	if (accept)
@@ -1236,7 +1236,7 @@ for (i=0;i<(int)names.count();i++)
 		{
 		QString table=s.left(pos);	
 		QString cols=s.right(s.length()-pos-1);			
-		newNames<<table+": "+cols.remove(table+"_",TRUE);
+		newNames<<table+": "+cols.remove(table+"_",true);
 		}
 	else
 		newNames<<s;
@@ -1261,7 +1261,7 @@ if (histogramBeginBox->text().isEmpty())
 	QMessageBox::critical(0,tr("QtiPlot - Input error"),
 				tr("Please enter a valid start limit!"));
 	histogramBeginBox->setFocus();
-	return FALSE;
+	return false;
 	}
 		
 if (histogramEndBox->text().isEmpty())
@@ -1269,7 +1269,7 @@ if (histogramEndBox->text().isEmpty())
 		QMessageBox::critical(0,tr("QtiPlot - Input error"),
 				tr("Please enter a valid end limit!"));
 		histogramEndBox->setFocus();
-		return FALSE;
+		return false;
 		}
 		
 if (binSizeBox->text().isEmpty())
@@ -1277,7 +1277,7 @@ if (binSizeBox->text().isEmpty())
 		QMessageBox::critical(0,tr("QtiPlot - Input error"),
 				tr("Please enter a valid bin size value!"));
 		binSizeBox->setFocus();
-		return FALSE;
+		return false;
 		}	
 		
 from=from.remove(".");
@@ -1293,7 +1293,7 @@ if(pos==0)
 	to=to.replace(pos,1,"");
 	
 double start,end, stp;
-bool error=FALSE;	
+bool error=false;	
 if (from.contains(nonDigit))
 		{
 		try
@@ -1306,8 +1306,8 @@ if (from.contains(nonDigit))
 			{
 			QMessageBox::critical(0,"QtiPlot - Start limit error",QString::fromStdString(e.GetMsg()));
 			histogramBeginBox->setFocus();
-			error=TRUE;
-			return FALSE;
+			error=true;
+			return false;
 			}	
 		}
 		else
@@ -1325,8 +1325,8 @@ if (from.contains(nonDigit))
 				{
 				QMessageBox::critical(0,"QtiPlot - End limit error",QString::fromStdString(e.GetMsg()));
 				histogramEndBox->setFocus();
-				error=TRUE;
-				return FALSE;
+				error=true;
+				return false;
 				}	
 			}
 		else
@@ -1337,7 +1337,7 @@ if (from.contains(nonDigit))
 			QMessageBox::critical(0,tr("QtiPlot - Input error"),
 					tr("Please enter limits that satisfy: begin < end!"));
 			histogramEndBox->setFocus();
-			return FALSE;
+			return false;
 			}
 			
 		if (step.contains(nonDigit))
@@ -1352,8 +1352,8 @@ if (from.contains(nonDigit))
 			{
 			QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),QString::fromStdString(e.GetMsg()));
 			binSizeBox->setFocus();
-			error=TRUE;
-			return FALSE;
+			error=true;
+			return false;
 			}	
 		}
 		else
@@ -1363,10 +1363,10 @@ if (from.contains(nonDigit))
 			{
 			QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),tr("Please enter a positive bin size value!"));
 			binSizeBox->setFocus();
-			return FALSE;	
+			return false;	
 			}
 
-return TRUE;
+return true;
 }
 
 void plotDialog::setPenStyle(Qt::PenStyle style)

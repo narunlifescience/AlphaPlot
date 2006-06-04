@@ -677,7 +677,7 @@ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
   double *Y = ((struct fitParserData *)params)->Y;
   const char *function = ((struct fitParserData *) params)->function;
   QString names = (QString)((struct fitParserData *) params)->names;
-  QStringList parNames= QStringList::split(",",names,FALSE);
+  QStringList parNames= QStringList::split(",",names,false);
 
   myParser parser;
   try
@@ -713,7 +713,7 @@ double user_d(const gsl_vector * x, void *params)
   double *Y = ((struct fitParserData *)params)->Y;
   const char *function = ((struct fitParserData *) params)->function;
   QString names = (QString)((struct fitParserData *) params)->names;
-  QStringList parNames= QStringList::split(",",names,FALSE);
+  QStringList parNames= QStringList::split(",",names,false);
 
   double val=0;
   myParser parser;

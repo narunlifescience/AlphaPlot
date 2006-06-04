@@ -67,7 +67,7 @@ void Matrix::init(int rows, int cols)
 {
 formula_str = "";
 selectedCol=0;
-LeftButton=FALSE;
+LeftButton=false;
 txt_format = 'f';
 num_precision = 6;
 x_start = 1.0;
@@ -100,7 +100,7 @@ hlayout->addWidget(table);
 
 Q3Header* hHeader=(Q3Header*)table->horizontalHeader();
 hHeader->installEventFilter(this);
-hHeader->setMouseTracking(TRUE);
+hHeader->setMouseTracking(true);
 
 Q3Header* vHeader=(Q3Header*)table->verticalHeader();
 vHeader->setResizeEnabled (false);
@@ -137,7 +137,7 @@ void Matrix::moveCurrentCell()
 int cols=table->numCols();
 int row=table->currentRow();
 int col=table->currentColumn();
-table->clearSelection (TRUE);
+table->clearSelection (true);
 	
 if (col+1 < cols)
 	{
@@ -190,7 +190,7 @@ table->setText(row, col, text);
 
 void Matrix::addDataRow(const QString& s, int cols)
 {
-QStringList	list=QStringList::split("\t", s, TRUE);
+QStringList	list=QStringList::split("\t", s, true);
 int row = list[0].toInt();
 for (int i=0;i<cols;i++)
 	{
@@ -202,14 +202,14 @@ for (int i=0;i<cols;i++)
 
 bool Matrix::isEmptyRow(int row)
 {
-bool empty=TRUE;
+bool empty=true;
 int cols=table->numCols();
 for (int i=0;i<cols;i++)
 	{
 	QString text=table->text(row,i);
 	if (!text.isEmpty())
 		{
-		empty=FALSE;
+		empty=false;
 		break;
 		}
 	}	
@@ -264,13 +264,13 @@ return s;
 
 void Matrix::restore(const QStringList &l)
 {
-QStringList lst=QStringList::split ("\t",l[0],TRUE);
+QStringList lst=QStringList::split ("\t",l[0],true);
 setColumnsWidth((lst[1]).toInt());
 
-lst=QStringList::split ("\t",l[1],TRUE);
+lst=QStringList::split ("\t",l[1],true);
 formula_str = lst[1];
 
-lst=QStringList::split ("\t",l[2],TRUE);
+lst=QStringList::split ("\t",l[2],true);
 if (lst[1] == "f")
 	setTextFormat('f', lst[2].toInt());
 else
@@ -702,7 +702,7 @@ void Matrix::clearSelection()
 bool colSelection = false;
 for (int i=0; i<table->numCols(); i++)
 	{
-	if(table->isColumnSelected (i,TRUE))
+	if(table->isColumnSelected (i,true))
 		{
 		colSelection = true;
 		for (int j=0; j<table->numRows(); j++)
@@ -738,7 +738,7 @@ Q3MemArray<int> selection(1);
 int c=0;	
 for (i=0;i<cols;i++)
 	{
-	if (table->isColumnSelected(i,TRUE))
+	if (table->isColumnSelected(i,true))
 		{
 		c++;
 		selection.resize(c);
@@ -865,7 +865,7 @@ if ( !Q3TextDrag::decode(QApplication::clipboard()->data(), text) || text.isNull
 	
 QTextStream ts( &text, QIODevice::ReadOnly );
 QString s = ts.readLine(); 
-QStringList cellTexts = QStringList::split ("\t", s, TRUE);
+QStringList cellTexts = QStringList::split ("\t", s, true);
 int cols=int(cellTexts.count());
 int rows= 1;
 while(!ts.atEnd()) 
@@ -894,7 +894,7 @@ else
 	firstCol = -1;
 	for (i=0; i<table->numCols(); i++)
 		{
-		if (table->isColumnSelected(i, TRUE))
+		if (table->isColumnSelected(i, true))
 			{
 			firstCol = i;
 			break;
@@ -906,7 +906,7 @@ else
 		int selectedColsNumber = 0;
 		for (i=0; i<table->numCols(); i++)
 			{
-			if (table->isColumnSelected(i, TRUE))
+			if (table->isColumnSelected(i, true))
 				selectedColsNumber++;
 			}
 		right=firstCol + selectedColsNumber - 1;
@@ -953,7 +953,7 @@ double value;
 for (i=top; i<top+rows; i++)
 	{
 	s = ts2.readLine();
-	cellTexts=QStringList::split ("\t", s, TRUE);
+	cellTexts=QStringList::split ("\t", s, true);
 	for (j=left; j<left+cols; j++)					
 		{
 		value = cellTexts[j-left].toDouble(&numeric);
@@ -978,7 +978,7 @@ bool Matrix::eventFilter(QObject *object, QEvent *e)
 {
 Q3Header *header = table->horizontalHeader();
 if ( object != (QObject *)header)
-	return FALSE;
+	return false;
 
 int offset = header->offset();
 switch(e->type())
@@ -987,7 +987,7 @@ switch(e->type())
 			{
             const QMouseEvent *me = (const QMouseEvent *)e;
 			selectedCol = header->sectionAt (me->pos().x()+offset);
-			return TRUE; 
+			return true; 
 			}
 
 		case QEvent::MouseButtonPress:
@@ -1002,7 +1002,7 @@ switch(e->type())
 			
 			if (me->button() == Qt::LeftButton)	
 				{
-				LeftButton=TRUE;
+				LeftButton=true;
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				
 				if (((const QMouseEvent *)e)->state ()==Qt::ControlModifier)
@@ -1014,14 +1014,14 @@ switch(e->type())
 						table->removeSelection(sel);						
 					}
 				else
-					table->clearSelection (TRUE);
+					table->clearSelection (true);
 				
 				selectedCol=header->sectionAt (me->pos().x()+offset);
 				lastSelectedCol=selectedCol;
 				table->selectColumn (selectedCol);
 				table->setCurrentCell (0, selectedCol);
 				}		
-			return TRUE; 
+			return true; 
 			}
 		
 		case QEvent::MouseMove:
@@ -1033,7 +1033,7 @@ switch(e->type())
 
 				if(selectedCol != lastSelectedCol)
 					{// This means that we are in the next column
-					if(table->isColumnSelected(selectedCol,TRUE))
+					if(table->isColumnSelected(selectedCol,true))
 						{//Since this column is selected, deselect it
 						table->removeSelection(Q3TableSelection (0,lastSelectedCol,table->numRows()-1,lastSelectedCol));
 						}
@@ -1043,13 +1043,13 @@ switch(e->type())
 				lastSelectedCol=selectedCol;
 				table->setCurrentCell (0, selectedCol);
 				}
-			return TRUE;
+			return true;
 			}
 			
 		case QEvent::MouseButtonRelease:
 			{
-			LeftButton=FALSE;
-			return TRUE;
+			LeftButton=false;
+			return true;
 			}
 			
 			default:
@@ -1064,7 +1064,7 @@ QPrinter printer;
 printer.setColorMode (QPrinter::GrayScale);
 if (printer.setup()) 
 	{
-        printer.setFullPage( TRUE );
+        printer.setFullPage( true );
         QPainter p;
         if ( !p.begin(&printer ) )
             return; // paint on printer

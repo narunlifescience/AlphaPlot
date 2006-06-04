@@ -61,7 +61,7 @@ class plot3DDialog : public QDialog
     Q_OBJECT
 
 public:
-    plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~plot3DDialog();
 
 	void initScalesPage();

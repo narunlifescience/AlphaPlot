@@ -53,7 +53,7 @@ findDialog::findDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	setWindowTitle (tr("QtiPlot") + " - " + tr("Find"));
 	setSizeGripEnabled( true );
 
-	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2, Qt::Horizontal, QString::null, this);
+	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2, Qt::Horizontal, QString(), this);
 	GroupBox0->setFlat(true);
 
 	new QLabel( tr( "Start From" ), GroupBox0 );
@@ -62,8 +62,8 @@ findDialog::findDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	labelStart->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
 	new QLabel( tr( "Find" ), GroupBox0 );
-	boxFind = new QComboBox( TRUE, GroupBox0);
-	boxFind->setDuplicatesEnabled(FALSE);
+	boxFind = new QComboBox( true, GroupBox0);
+	boxFind->setDuplicatesEnabled(false);
 	boxFind->setInsertionPolicy ( QComboBox::InsertAtTop );
 	boxFind->setAutoCompletion(true);
 	boxFind->setMaxCount ( 10 );
@@ -102,7 +102,7 @@ findDialog::findDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	vbox2->setSpacing (5);
 	
 	buttonFind = new QPushButton(tr("&Find"), vbox2);
-    buttonFind->setDefault( TRUE );
+    buttonFind->setDefault( true );
    
 	buttonReset = new QPushButton(tr("&Reset Start From"), vbox2);
     buttonCancel = new QPushButton(tr("&Close"), vbox2);

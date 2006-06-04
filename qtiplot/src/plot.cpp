@@ -45,16 +45,16 @@
 : QwtPlot(parent)
 {
 #if false
-	movedGraph=FALSE;
-	graphToResize=FALSE;
-	Qt::ShiftModifier=FALSE;
+	movedGraph=false;
+	graphToResize=false;
+	Qt::ShiftModifier=false;
 
 	d_lineWidth = 1;		
 	minTickLength = 5;
 	majTickLength = 9;	
 
 	setGeometry(QRect(0,0,500,400));
-	setAutoLegend(FALSE); // We don't want a Qwt legend
+	setAutoLegend(false); // We don't want a Qwt legend
 	setAxisTitle(0, tr("Y Axis Title"));
 	setAxisTitle(2, tr("X Axis Title"));	
 
@@ -139,7 +139,7 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
 		painter->restore();
 	}
 
-	painter->setClipping(TRUE);
+	painter->setClipping(true);
 	rect = QRect(canvasRect.x()+1, canvasRect.y()+1, canvasRect.width(), canvasRect.height()-1);
 	QwtPainter::setClipRect(painter, rect);
 
@@ -379,7 +379,7 @@ void Plot::mousePressEvent ( QMouseEvent * e )
 {
 #if false
 	if(e->state()==Qt::ShiftModifier)
-		Qt::ShiftModifier=TRUE;
+		Qt::ShiftModifier=true;
 
 	emit selectPlot();
 #endif
@@ -390,12 +390,12 @@ void Plot::mouseMoveEvent ( QMouseEvent * e )
 #if false
 	if(Qt::ShiftModifier)
 	{
-		graphToResize=TRUE;
+		graphToResize=true;
 		emit resizeGraph(e->pos());	
 	}				
 	else
 	{
-		movedGraph=TRUE;
+		movedGraph=true;
 		emit moveGraph(e->pos());
 	}
 #endif
@@ -407,14 +407,14 @@ void Plot::mouseReleaseEvent ( QMouseEvent *)
 	if (movedGraph)
 	{
 		emit releasedGraph();
-		movedGraph=FALSE;
+		movedGraph=false;
 	}
 
 	if (graphToResize)
 	{
 		emit resizedGraph();
-		graphToResize=FALSE;
-		Qt::ShiftModifier=FALSE;
+		graphToResize=false;
+		Qt::ShiftModifier=false;
 	}
 #endif
 }

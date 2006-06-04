@@ -45,7 +45,7 @@ class analysisDialog : public QDialog
     Q_OBJECT
 
 public:
-    analysisDialog( QWidget* parent = 0, const QString& text="Curve", const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    analysisDialog( QWidget* parent = 0, const QString& text="Curve", const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~analysisDialog();
 
     QPushButton* buttonOk;

@@ -73,7 +73,7 @@ public:
 	QStringList subfolders();
 
 	//! Pointer to the subfolder called s
-	Folder* findSubfolder(const QString& s, bool caseSensitive = TRUE, bool partialMatch = FALSE);
+	Folder* findSubfolder(const QString& s, bool caseSensitive = true, bool partialMatch = false);
 
 	//! Pointer to the first window matching the search criteria
 	MyWidget* findWindow(const QString& s, bool windowNames, bool labels, 
@@ -174,8 +174,8 @@ protected:
     void contentsMousePressEvent( QMouseEvent *e );
 	void contentsMouseDoubleClickEvent( QMouseEvent* e );
 	void keyPressEvent ( QKeyEvent * e );
-    void contentsMouseReleaseEvent( QMouseEvent *){mousePressed = FALSE;};
-	void enterEvent(QEvent *){mousePressed = FALSE;};
+    void contentsMouseReleaseEvent( QMouseEvent *){mousePressed = false;};
+	void enterEvent(QEvent *){mousePressed = false;};
 
 signals:
 	void dragItems(QList<Q3ListViewItem *> items);

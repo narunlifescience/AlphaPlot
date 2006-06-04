@@ -65,10 +65,10 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 	box->setMargin(5);
 
 	Q3ButtonGroup *GroupFFT = new Q3ButtonGroup(2,Qt::Horizontal,tr(""), box, "GroupBox3" );
-	GroupFFT->setRadioButtonExclusive ( TRUE );
+	GroupFFT->setRadioButtonExclusive ( true );
 	
     forwardBtn = new QRadioButton(GroupFFT, "forwardBtn" );
-	forwardBtn->setChecked( TRUE );
+	forwardBtn->setChecked( true );
 
     backwardBtn = new QRadioButton(GroupFFT, "backwardBtn" );
 
@@ -100,10 +100,10 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 	boxOrder->setChecked(true);
 
 	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 
 	buttonOK = new QPushButton(GroupBox2, "buttonFit" );
-    buttonOK->setDefault( TRUE );
+    buttonOK->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
 	
@@ -195,7 +195,7 @@ if ( g )
 	g->removeLegend();
 
 	Plot* plot = g->plotWidget();
-	plot->setTitle(QString::null);
+	plot->setTitle(QString());
 	if (forwardBtn->isChecked())
 		plot->setAxisTitle(QwtPlot::xBottom, tr("Frequency")+" (Hz)");
 	else
@@ -256,13 +256,13 @@ l = t->selectedColumns();
 int selected = (int)l.size();
 if (!selected)
 	{
-	boxReal->setCurrentText(QString::null);
-	boxImaginary->setCurrentText(QString::null);
+	boxReal->setCurrentText(QString());
+	boxImaginary->setCurrentText(QString());
 	}
 else if (selected == 1)
 	{
 	boxReal->setCurrentItem(t->colIndex(l[0]));
-	boxImaginary->setCurrentText(QString::null);
+	boxImaginary->setCurrentText(QString());
 	}
 else
 	{

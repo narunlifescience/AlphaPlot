@@ -52,8 +52,8 @@ CanvasPicker::CanvasPicker(Graph *plot):
     QObject(plot)
 {
 #if false
-	moved=FALSE;
-	movedGraph=FALSE;
+	moved=false;
+	movedGraph=false;
 	pointSelected = false;
 	plotWidget=plot->plotWidget();
 
@@ -70,7 +70,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 	Q3MemArray<long> lines=plot()->lineMarkerKeys();	
 	
 	if (object != (QObject *)plot()->plotWidget()->canvas())
-        return FALSE;
+        return false;
 
 	bool moveRangeSelector=plot()->selectorsEnabled();
 	bool pickerActivated=plot()->pickerActivated();
@@ -83,19 +83,19 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		case QEvent::FocusIn:
 			{
 			if (plot()->enabledCursor()) 
-				plot()->showCursor(TRUE);
-			return TRUE;
+				plot()->showCursor(true);
+			return true;
 			}
 		break;
 			
 		case QEvent::FocusOut:
 			{
 			if (plot()->enabledCursor()) 
-				plot()->showCursor(TRUE);
+				plot()->showCursor(true);
 				{
 				plotWidget->titleLabel()->repaint();
 				plotWidget->replot();
-				return TRUE;
+				return true;
 				}
 			}
 		break;
@@ -103,16 +103,16 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		case QEvent::Paint:
         {   
             // The inPaint guard protecs from producing endless paint events.
-            static bool inPaint = FALSE;
+            static bool inPaint = false;
             if (plotWidget->canvas()->hasFocus() && !inPaint )
             {
             const QPaintEvent *pe = (const QPaintEvent *)e;
-            inPaint = TRUE;
+            inPaint = true;
 
             plotWidget->canvas()->repaint(pe->rect().x(), pe->rect().y(),
                     pe->rect().width(), pe->rect().height(), pe->erased());
-            inPaint = FALSE;
-            return TRUE; 
+            inPaint = false;
+            return true; 
             }
         break;
         }
@@ -126,7 +126,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				{
 				if (plotWidget->axisEnabled(i))
 					{
-					allAxisDisabled = FALSE;
+					allAxisDisabled = false;
 					break;
 					}
 				}
@@ -170,15 +170,15 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				if (plot()->selectPeaksOn())
 					{
 					pointSelected = plot()->selectPoint(me->pos());	
-					return TRUE;
+					return true;
 					}
-				return TRUE;
+				return true;
 				}
 
 			if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
 				{ 	
 				startLinePoint= me->pos();
-				plot()->copyCanvas(TRUE);
+				plot()->copyCanvas(true);
 				}
 			
 			if (me->button()==Qt::LeftButton && drawText)
@@ -192,7 +192,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				
 			if (me->button()==Qt::RightButton && select)
 				emit showMarkerPopupMenu();				
-			return TRUE;	
+			return true;	
 			}		
 		break;
 			
@@ -211,7 +211,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			if (plot()->selectPeaksOn() && pointSelected && pickerActivated)
 				{
 				plot()->selectPeak(me->pos());
-				return TRUE;
+				return true;
 				}
 
 			if (movePoint || moveRangeSelector || pickerActivated || dataCursorEnabled)
@@ -220,7 +220,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			if (removePoint) 
 				{
 				plot()->removePoint();
-				return TRUE;
+				return true;
 				}
 
 			long selectedMarker=plot()->selectedMarkerKey();				
@@ -238,24 +238,24 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					else if (plot()->curves() > 0)
 						emit showPlotDialog(plot()->curveKey(0));
 					}
-				return TRUE;
+				return true;
 				}
 			else
 				{
 				if (texts.contains(selectedMarker)>0)
 					{
 					emit viewTextDialog();
-					return TRUE;
+					return true;
 					}			
 				if (lines.contains(selectedMarker)>0)
 					{
 					emit viewLineDialog();
-					return TRUE;
+					return true;
 					}
 				if (images.contains(selectedMarker)>0)
 					{
 					emit viewImageDialog();
-					return TRUE;
+					return true;
 					}
 				}	
 			}
@@ -271,9 +271,9 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		long selectedMarker=plot()->selectedMarkerKey();
 		
 		if (plot()->drawLineActive())
-			drawLineMarker(pos,TRUE);
+			drawLineMarker(pos,true);
 		else if (plot()->lineProfile())
-			drawLineMarker(pos,FALSE);		
+			drawLineMarker(pos,false);		
 		else if (plot()->movePointsActivated())
 			plot()->move(pos); 	
 		else if (plot()->pickerActivated())
@@ -283,10 +283,10 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		else if (!plot()->zoomOn() )
 			{
 			plotWidget->canvas()->setCursor(Qt::PointingHandCursor);
-			movedGraph=TRUE;
+			movedGraph=true;
 			emit moveGraph(pos);
 			}
-		return TRUE;
+		return true;
 		}
        break;
 		
@@ -306,8 +306,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				mrk->setWidth(1);
 				Qt::PenStyle style=Qt::SolidLine;
 				mrk->setStyle(style);
-				mrk->setEndArrow(TRUE);
-				mrk->setStartArrow(FALSE);
+				mrk->setEndArrow(true);
+				mrk->setStartArrow(false);
 				plot()->insertLineMarker(mrk);
 				plotWidget->replot();
 				}
@@ -315,7 +315,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				{ 	
 				QPoint endLinePoint=QPoint(me->x(),me->y());	
 				if (endLinePoint == startLinePoint)
-					return FALSE;
+					return false;
 				else
 					{					
 					LineMarker* mrk = new LineMarker(plotWidget);	
@@ -325,8 +325,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					mrk->setWidth(1);
 					Qt::PenStyle style=Qt::SolidLine;
 					mrk->setStyle(style);
-					mrk->setEndArrow(FALSE);
-					mrk->setStartArrow(FALSE);
+					mrk->setEndArrow(false);
+					mrk->setStartArrow(false);
 				
 					plot()->insertLineMarker(mrk);
 					plotWidget->replot();
@@ -337,10 +337,10 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				{	
 				plotWidget->canvas()->setCursor(Qt::arrowCursor);
 				emit releasedGraph();
-				movedGraph=FALSE;
+				movedGraph=false;
 				}
 		
-		return TRUE;			
+		return true;			
 		}
 		break;
 		
@@ -363,7 +363,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				plot()->selectPeaksOn() && pointSelected && pickerActivated)
 				{
 				plot()->selectPeak(plotWidget->canvas()->mapFromGlobal(QCursor::pos()));
-				return TRUE;
+				return true;
 				}
 
 			if (key == Qt::Key_Tab)
@@ -377,29 +377,29 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
             switch(key)
 				{
                 case Qt::Key_Up:
-						plot()->shiftCurveCursor(TRUE);
-                    return TRUE;
+						plot()->shiftCurveCursor(true);
+                    return true;
                     
                 case Qt::Key_Down:
-                    	plot()->shiftCurveCursor(FALSE);
-                    return TRUE;
+                    	plot()->shiftCurveCursor(false);
+                    return true;
 
                 case Qt::Key_Right:
                 case Qt::Key_Plus:
                     if ( plot()->selectedCurveID() < 0 )
-                        plot()->shiftCurveCursor(TRUE);
+                        plot()->shiftCurveCursor(true);
                     else
-                        plot()->shiftPointCursor(TRUE);
-                    return TRUE;
+                        plot()->shiftPointCursor(true);
+                    return true;
 
                 case Qt::Key_Left:
                 case Qt::Key_Minus:
                     if ( plot()->selectedCurveID() < 0 )
-                        plot()->shiftCurveCursor(TRUE);
+                        plot()->shiftCurveCursor(true);
                     else
-                        plot()->shiftPointCursor(FALSE);
+                        plot()->shiftPointCursor(false);
 					
-                    return TRUE;
+                    return true;
 					}
 				} 
 			
@@ -409,29 +409,29 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
             switch(key)
 				{
                 case Qt::Key_Up:
-						plot()->shiftCurveSelector(TRUE);
-                    return TRUE;
+						plot()->shiftCurveSelector(true);
+                    return true;
                     
                 case Qt::Key_Down:
-                    	plot()->shiftCurveSelector(TRUE);
-                    return TRUE;
+                    	plot()->shiftCurveSelector(true);
+                    return true;
 
                 case Qt::Key_Right:
                 case Qt::Key_Plus:
 						if (((const QKeyEvent *)e)->state ()==Qt::ControlModifier)
-                        	plot()->moveRangeSelector(TRUE);
+                        	plot()->moveRangeSelector(true);
 						else
-							plot()->shiftRangeSelector(TRUE);
-                    return TRUE;
+							plot()->shiftRangeSelector(true);
+                    return true;
 
                 case Qt::Key_Left:
                 case Qt::Key_Minus:
                         if (((const QKeyEvent *)e)->state ()==Qt::ControlModifier)
-                        	plot()->moveRangeSelector(FALSE);
+                        	plot()->moveRangeSelector(false);
 						else
-							plot()->shiftRangeSelector(TRUE);
+							plot()->shiftRangeSelector(true);
 					
-                    return TRUE;
+                    return true;
 					}
 				} 
 				
@@ -494,19 +494,19 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 				emit viewTextDialog();
-				return TRUE;
+				return true;
 				}			
 			if (lines.contains(selectedMarker)>0 &&
 				(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 				emit viewLineDialog();
-				return TRUE;
+				return true;
 				}
 			if (images.contains(selectedMarker)>0 &&
 				(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 				emit viewImageDialog();
-				return TRUE;
+				return true;
 				}	
 			}
 			break;
@@ -559,7 +559,7 @@ else if (image)
 else
 	plot()->highlightTextMarker(selectedMarker);
 			
-moved=FALSE;
+moved=false;
 emit modified();	
 
 QApplication::restoreOverrideCursor();	
@@ -629,7 +629,7 @@ else if (texts.contains(selectedMarker))
 	}
 xMouse=point.x();
 yMouse=point.y();
-moved=TRUE;
+moved=true;
 emit modified();	
 #endif
 }
@@ -643,7 +643,7 @@ mrkT.setBackground(plot()->textMarkerDefaultFrame());
 mrkT.setFont(plot()->defaultTextMarkerFont());
 mrkT.setText(tr("enter your text here"));
 plot()->insertTextMarker(&mrkT);		
-plot()->drawText(FALSE);
+plot()->drawText(false);
 emit drawTextOff();
 #endif
 }
@@ -662,7 +662,7 @@ mrk.setWidth(1);
 Qt::PenStyle style=Qt::SolidLine;
 mrk.setStyle(style);
 mrk.setEndArrow(endArrow);
-mrk.setStartArrow(FALSE);
+mrk.setStartArrow(false);
 
 if (endArrow)
 	mrk.setColor(Qt::black);
@@ -699,7 +699,7 @@ for (i=0;i<m;i++)
 		if (dist <= d)
 			{
 			plot()->highlightLineMarker(lines[i]);
-			return TRUE;
+			return true;
 			}
 		}
 	}
@@ -713,7 +713,7 @@ for (i=0;i<n;i++)
 		plot()->highlightTextMarker(texts[i]);	
 		QPoint origin=mRect.topLeft();	
 		xMrk=origin.x(); yMrk=origin.y();			
-		return TRUE;
+		return true;
 		}
 	}
 
@@ -725,10 +725,10 @@ for (i=0;i<p;i++)
 		plot()->highlightImageMarker(images[i]);	
 		QPoint origin=mrkI->getOrigin();
 		xMrk=origin.x(); yMrk=origin.y();
-		return TRUE;
+		return true;
 		}
 	}
-return FALSE;
+return false;
 #endif
 }
 

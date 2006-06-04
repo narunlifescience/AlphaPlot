@@ -165,7 +165,7 @@ bool QWMF::setFont(const QFont *font) {
     write_word(0x012d);
     write_word(ObjectCounter);
     ObjectCounter++;
-    return TRUE;
+    return true;
 }
 
 bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
@@ -175,29 +175,29 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
   QRect rect;
   QPoint pt;
   int i;
-  if(myFile->name().isEmpty()) return FALSE;
+  if(myFile->name().isEmpty()) return false;
   switch(c) {
   case PdcBegin:      // begin; write header
-    if (!myFile->open(IO_Truncate|IO_WriteOnly)) return FALSE;
+    if (!myFile->open(IO_Truncate|IO_WriteOnly)) return false;
     ObjectCounter = 0;
     myRecSize  = 5;
     writeHeader();
-    return TRUE;
+    return true;
   case PdcEnd: // end write header
     // Write empty record
     write_dword(3);
     write_word(0x0);
     writeHeader();
     myFile->close();
-    return TRUE;
+    return true;
   case PdcSave:
     write_dword(3);
     write_word(0x001E);
-    return TRUE;
+    return true;
   case PdcRestore:
     write_dword(3);
     write_word(0x0127);
-    return TRUE;
+    return true;
   case PdcSetROP: // Raster operations
     write_dword(4);
     write_word(0x104);
@@ -212,7 +212,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
                          break; // R2_COPYPEN
     }
     write_word(w); 
-    return TRUE;
+    return true;
 
 /*  case PdcSetVXform:
   case PdcSetWindow:
@@ -221,12 +221,12 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
   case PdcSetWXform:
     usingWMat = p[0].ival;
     qWarning( "QWMF::cmd: PdcSetWXform: %s", usingWMat?"enabled":"disabled");
-    return TRUE;
+    return true;
   case PdcSetWMatrix:
     myWMatrix = *p[0].matrix;
     qWarning( "QWMF::cmd: PdcSetWMatrix called");
-    usingWMat = TRUE;
-    return TRUE;
+    usingWMat = true;
+    return true;
   case PdcSetFont:
     myFont = p[0].font;
     return setFont(myFont);
@@ -234,7 +234,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_dword(4);
     write_word(0x102);
     write_word(Qt::TransparentMode == p[0].ival ? 1 : 2); // TRANSPARENT = 1; OPARQUE = 2
-    return TRUE;
+    return true;
   case PdcDrawText2:
   case PdcDrawText:
     qWarning("PdcDrawText: Writing %s", p[1].str->ascii());
@@ -259,7 +259,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     transform_xy(pt);
     write_word(pt.y());
     write_word(pt.x());
-    return TRUE;
+    return true;
   case PdcDrawText2Formatted:
   case PdcDrawTextFormatted:
     if(myWMatrix != myFontWMat) {
@@ -311,7 +311,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
       b2 = p[2].str->at(dw+1).latin1();
       write_word(wmf_2int_word(b1,b2));
     }
-    return TRUE;
+    return true;
   case PdcDrawPie:
     rect = *p[0].rect;
     double rad,height,width;
@@ -330,7 +330,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(rect.right());
     write_word(rect.top());
     write_word(rect.left());
-    return TRUE;
+    return true;
   case PdcDrawRect:
     rect = *p[0].rect;
     qWarning("PdcDrawRect: before (%d,%d)-(%d,%d)",rect.left(),rect.top(),rect.right(),rect.bottom());
@@ -343,7 +343,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(rect.right());
     write_word(rect.top());
     write_word(rect.left());
-    return TRUE;
+    return true;
   case PdcDrawPolygon:
     if ( p[0].ptarr->size() > 0 ) {
       QPointArray a = *p[0].ptarr;
@@ -363,7 +363,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
         write_word(pt.y());
       }
     }
-    return TRUE;
+    return true;
   case PdcDrawEllipse:
     myRecSize  = max(myRecSize, 7);
     write_dword(7);
@@ -372,7 +372,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(p[0].rect->right());
     write_word(p[0].rect->top());
     write_word(p[0].rect->left());
-    return TRUE;
+    return true;
   case PdcMoveTo:
     pt = *p[0].point;
     transform_xy(pt); 
@@ -381,7 +381,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(0x0214);
     write_word(pt.y());
     write_word(pt.x());
-    return TRUE;
+    return true;
   case PdcLineTo:
     pt = *p[0].point;
     transform_xy(pt); 
@@ -390,7 +390,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(0x0213);
     write_word(pt.y()); // FIXME: Check wether this point is included or not
     write_word(pt.x()); // In Windows/WMF it is _NOT_
-    return TRUE;
+    return true;
   case PdcDrawPoint:
     pt = *p[0].point;
     transform_xy(pt); 
@@ -404,7 +404,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(0x0213);
     write_word(pt.y()+1);
     write_word(pt.x());
-    return TRUE;
+    return true;
   case PdcDrawLine:
     pt = *p[0].point;
     transform_xy(pt); 
@@ -426,7 +426,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(pt.y()+1);
     write_word(pt.x());
 
-    return TRUE;
+    return true;
   case PdcDrawPolyline: {
         QPointArray a = *p[0].ptarr;
         myRecSize  = max(myRecSize, 4+2*a.size());
@@ -440,7 +440,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
             write_word(pt.y());
         }
     }
-    return TRUE;
+    return true;
   case PdcDrawLineSegments:
     if ( p[0].ptarr->size() > 0 ) {
         QPointArray a = *p[0].ptarr;
@@ -467,13 +467,13 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
             write_word(pt.x());
         }
     }
-    return TRUE;
+    return true;
   case PdcSetBkColor:
     myRecSize  = max(myRecSize, 5);
     write_dword(5);
     write_word(0x0201);
     write_dword(winrgb(*p[0].color));
-    return TRUE;
+    return true;
 /*  case PdcDrawImage) { // FIXME: Should work along these lines
      PdcDrawPixmap should be analogous ; need to test
      
@@ -508,7 +508,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_word(0x012d);
     write_word(ObjectCounter);
     ObjectCounter++;
-    return TRUE; 
+    return true; 
   case PdcSetPen:
     myRecSize  = max(myRecSize, 8);
     write_dword(8);
@@ -539,7 +539,7 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
     write_dword(5);
     write_word(0x0209);
     write_dword(winrgb(p[0].pen->color()));
-    return TRUE; 
+    return true; 
   case PdcDrawRoundRect:
       qWarning( "QWMF::cmd: unsupported command: PdcDrawRoundRect - %d", c ); break;
   case PdcDrawArc:
@@ -579,11 +579,11 @@ bool QWMF::cmd (int c, QPainter *, QPDevCmdParam *p) {
       qWarning( "QWMF::cmd: unsupported command: PdcSetClip - %d", c ); break;
   case PdcSetClipRegion:
       qWarning( "QWMF::cmd: unsupported command: PdcSetClipRegion - %d", c );
-      return FALSE; // use META_CREATEREGION, META_SELECTCLIPREGION
+      return false; // use META_CREATEREGION, META_SELECTCLIPREGION
   default:
       qWarning( "QWMF::cmd: unsupported command: %d", c ); break;
   }
-  return FALSE;
+  return false;
 }
 
 inline Q_UINT32 QWMF::max(Q_UINT32 a, Q_UINT32 b) {

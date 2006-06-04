@@ -189,7 +189,7 @@ if (start>=end)
 
 	double x;
 	QString formula=boxFunction->currentText();
-	bool error=FALSE;
+	bool error=false;
 
 	try
 		{
@@ -206,7 +206,7 @@ if (start>=end)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxFunction->setFocus();
-		error=TRUE;	
+		error=true;	
 		}	
 
 	// Collecting all the information
@@ -282,7 +282,7 @@ if (start>=end)
 	double parameter;
 	QString xformula=boxXFunction->currentText();
 	QString yformula=boxYFunction->currentText();	
-	bool error=FALSE;
+	bool error=false;
 
 	try
 		{
@@ -299,7 +299,7 @@ if (start>=end)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxXFunction->setFocus();
-		error=TRUE;	
+		error=true;	
 		}	
 	try
 		{
@@ -316,7 +316,7 @@ if (start>=end)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxYFunction->setFocus();
-		error=TRUE;	
+		error=true;	
 		}
 	// Collecting all the information
 	QString type=QString("Parametric plot");
@@ -392,7 +392,7 @@ if (start>=end)
 	double parameter;
 	QString rformula=boxPolarRadius->currentText();
 	QString tformula=boxPolarTheta->currentText();	
-	bool error=FALSE;
+	bool error=false;
 
 	try
 		{
@@ -409,7 +409,7 @@ if (start>=end)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarRadius->setFocus();
-		error=TRUE;	
+		error=true;	
 		}	
 	try
 		{
@@ -426,7 +426,7 @@ if (start>=end)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarTheta->setFocus();
-		error=TRUE;	
+		error=true;	
 		}
 	// Collecting all the information
 	QString type=QString("Polar plot");

@@ -52,7 +52,7 @@ class setColValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    setColValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    setColValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~setColValuesDialog();
 	
 	QSize sizeHint() const ;

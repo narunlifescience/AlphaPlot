@@ -225,7 +225,7 @@ class LayerButton: public QWidget
 	Q_OBJECT
 
 public:
-    LayerButton (const QString& text = QString::null, QWidget* parent = 0, const char* name = 0);
+    LayerButton (const QString& text = QString(), QWidget* parent = 0, const char* name = 0);
 	~LayerButton();
 
 	QPushButton  *btn;

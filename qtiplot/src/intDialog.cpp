@@ -77,17 +77,17 @@ intDialog::intDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 	boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
 
 	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
    
 	buttonHelp = new QPushButton(GroupBox2, "buttonHelp" );
-    buttonHelp->setAutoDefault( TRUE );
+    buttonHelp->setAutoDefault( true );
 
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
         
 	Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
     vlayout->addWidget(GroupBox1);

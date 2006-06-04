@@ -95,7 +95,7 @@ matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool
 	hbox5->setSpacing (5);
 	hbox5->setMargin(5);
 
-    functions = new QComboBox( FALSE, hbox5, "functions" );
+    functions = new QComboBox( false, hbox5, "functions" );
 	
 	PushButton3 = new QPushButton(hbox5, "PushButton3" );
     PushButton3->setText( tr( "Add function" ) ); 
@@ -163,7 +163,7 @@ QStringList variables, rowIndexes, colIndexes;
 int n = aux.count("cell(");
 for (i=0; i<n; i++)
 	{
-	pos1=aux.find("cell(",0,TRUE);
+	pos1=aux.find("cell(",0,true);
 	pos2=aux.find("(",pos1+1);
 	pos3=aux.find(")",pos2+1);
 	
@@ -175,7 +175,7 @@ for (i=0; i<n; i++)
 		return false;
    		}
 
-	QStringList items=QStringList::split(",", aux2, FALSE);
+	QStringList items=QStringList::split(",", aux2, false);
 	QString ir = items[0].stripWhiteSpace();
 	QString ic = items[1].stripWhiteSpace();
 	if (ir == "0" || ic == "0")
@@ -240,7 +240,7 @@ catch(mu::ParserError &e)
 	{
 	QString errString = QString::fromStdString(e.GetMsg());
 	for (i=0;i<m;i++)
-		errString.replace(variables[i], "cell(" + rowIndexes[i] + "," + colIndexes[i] + ")", TRUE);
+		errString.replace(variables[i], "cell(" + rowIndexes[i] + "," + colIndexes[i] + ")", true);
 
 	QMessageBox::critical(0, tr("QtiPlot - Input function error"), tr(errString));
 	return false;

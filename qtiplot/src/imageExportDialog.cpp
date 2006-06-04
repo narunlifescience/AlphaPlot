@@ -51,8 +51,8 @@ imageExportDialog::imageExportDialog( bool exportAllPlots, QWidget* parent,
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setMinimumSize( QSize( 310, 140 ) );
 	setMaximumSize( QSize( 310, 140 ) );
-    setMouseTracking( TRUE );
-    setSizeGripEnabled( FALSE );
+    setMouseTracking( true );
+    setSizeGripEnabled( false );
 	
 	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
@@ -88,14 +88,14 @@ imageExportDialog::imageExportDialog( bool exportAllPlots, QWidget* parent,
 	boxTransparency->setEnabled(false);
 	
 	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( TRUE );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setAutoDefault( true );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( TRUE );
+    buttonCancel->setAutoDefault( true );
 	
 	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
     hlayout->addWidget(GroupBox1);

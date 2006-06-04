@@ -1033,14 +1033,14 @@ axesDialog::axesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	initFramePage();
 	
 	GroupBox6 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this, "GroupBox6" );
-	GroupBox6->setFlat (TRUE);
+	GroupBox6->setFlat (true);
 	
 	buttonApply = new QPushButton(GroupBox6, "buttonApply" );
     buttonApply->setText( tr( "&Apply" ) );
 	
     buttonOk = new QPushButton(GroupBox6, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
 
     buttonCancel = new QPushButton(GroupBox6, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
@@ -1072,20 +1072,20 @@ void axesDialog::initScalesPage()
 	boxEnd = new QLineEdit( GroupBox1, "boxEnd" );
 	
     boxScaleTypeLabel = new QLabel(tr( "Type" ),GroupBox1, "TextLabel2_3_2",0 );
-    boxScaleType = new QComboBox( FALSE, GroupBox1, "boxScaleType" );
+    boxScaleType = new QComboBox( false, GroupBox1, "boxScaleType" );
 	boxScaleType->insertItem(tr( "linear" ) );
     boxScaleType->insertItem(tr( "logarithmic" ) );
 	
-	new QLabel(QString::null, GroupBox1, "TextLabel1_3_2_2",0 );
+	new QLabel(QString(), GroupBox1, "TextLabel1_3_2_2",0 );
 	btnInvert = new QCheckBox( GroupBox1, "btnInvert" );
     btnInvert->setText( tr( "Inverted" ) );
-	btnInvert->setChecked(FALSE);
+	btnInvert->setChecked(false);
 		
 	GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),scalesPage, "GroupBox2" );
 
     btnStep = new QCheckBox( GroupBox2, "btnStep" );
     btnStep->setText( tr( "Step" ) );
-	btnStep->setChecked(TRUE);
+	btnStep->setChecked(true);
 	
 	Q3HBox  *hbox=new Q3HBox (GroupBox2, "hboxb");
 	hbox->setSpacing (5);
@@ -1098,12 +1098,12 @@ void axesDialog::initScalesPage()
     btnMinor->setText( tr( "Major Ticks" ) );
 	
 	boxMajorValue = new QSpinBox( GroupBox2, "boxMajorValue" );
-	boxMajorValue->setDisabled(TRUE);
+	boxMajorValue->setDisabled(true);
 	
 	minorBoxLabel = new QLabel( tr( "Minor Ticks" ),GroupBox2,"TextLabel3_3_2",0 );
 	
 	boxMinorValue = new QSpinBox( GroupBox2, "boxMinorValue" );
-	boxMinorValue->setDisabled(TRUE);
+	boxMinorValue->setDisabled(true);
 
 	QPixmap image0( ( const char** ) horizont_scl_xpm );
     QPixmap image1( ( const char** ) vert_scl_xpm );
@@ -1139,35 +1139,35 @@ gridPage = new QWidget( generalDialog, "gridPage" );
 	
     boxMajorGrid = new QCheckBox( GroupBox3, "boxMajorGrid" );
     boxMajorGrid->setText( tr( "Major Grids" ) );
-	boxMajorGrid->setChecked(TRUE);
+	boxMajorGrid->setChecked(true);
 
     boxMinorGrid = new QCheckBox( GroupBox3, "boxMinorGrid" );
     boxMinorGrid->setText( tr( "Minor Grids" ) );
-	boxMinorGrid->setChecked(FALSE);
+	boxMinorGrid->setChecked(false);
 
 	new QLabel(tr( "Line Color" ), GroupBox3, "TextLabel1",0 );
 	
-	boxColorMajor = new ColorBox( FALSE, GroupBox3);
+	boxColorMajor = new ColorBox( false, GroupBox3);
 
-    boxColorMinor = new ColorBox( FALSE, GroupBox3);
-	boxColorMinor->setDisabled(TRUE);
+    boxColorMinor = new ColorBox( false, GroupBox3);
+	boxColorMinor->setDisabled(true);
 	
 	new QLabel(tr( "Line Type" ),GroupBox3, "TextLabel1_3",0 ); 
 	
-	boxTypeMajor = new QComboBox( FALSE, GroupBox3, "boxTypeMajor" );
+	boxTypeMajor = new QComboBox( false, GroupBox3, "boxTypeMajor" );
 	boxTypeMajor->insertItem("_____");
 	boxTypeMajor->insertItem("- - -");
 	boxTypeMajor->insertItem(".....");
 	boxTypeMajor->insertItem("_._._");
 	boxTypeMajor->insertItem("_.._..");
 
-    boxTypeMinor = new QComboBox( FALSE, GroupBox3, "boxTypeMinor" );
+    boxTypeMinor = new QComboBox( false, GroupBox3, "boxTypeMinor" );
 	boxTypeMinor->insertItem("_____");
 	boxTypeMinor->insertItem("- - -");
 	boxTypeMinor->insertItem(".....");
 	boxTypeMinor->insertItem("_._._");
 	boxTypeMinor->insertItem("_.._..");
-	boxTypeMinor->setDisabled(TRUE);
+	boxTypeMinor->setDisabled(true);
 	
 	new QLabel(tr( "Thickness" ), GroupBox3, "TextLabel1_3_2",0 );
 	
@@ -1176,13 +1176,13 @@ gridPage = new QWidget( generalDialog, "gridPage" );
 
     boxWidthMinor = new QSpinBox(1,20,1, GroupBox3, "boxWidthMinor" );
 	boxWidthMinor->setValue(1);
-	boxWidthMinor->setDisabled(TRUE);
+	boxWidthMinor->setDisabled(true);
 
 	new QLabel(tr( "Additional lines" ), GroupBox3, "TextLabel1_4",0 );
 
     boxXLine = new QCheckBox( GroupBox3, "boxXLine" );
     boxXLine->setText( tr( "X=0" ) );
-	boxXLine->setDisabled(TRUE);
+	boxXLine->setDisabled(true);
 
     boxYLine = new QCheckBox( GroupBox3, "boxYLine" );
     boxYLine->setText( tr( "Y=0" ) );
@@ -1227,10 +1227,10 @@ void axesDialog::initAxesPage()
     axesPage = new QWidget( generalDialog);
 	
     axesTitlesList = new Q3ListBox(axesPage);
-    axesTitlesList->insertItem( image4, QString::null );
-    axesTitlesList->insertItem( image5, QString::null );
-    axesTitlesList->insertItem( image6, QString::null );
-    axesTitlesList->insertItem( image7, QString::null );
+    axesTitlesList->insertItem( image4, QString() );
+    axesTitlesList->insertItem( image5, QString() );
+    axesTitlesList->insertItem( image6, QString() );
+    axesTitlesList->insertItem( image7, QString() );
 	axesTitlesList->setCurrentItem(0);
 	axesTitlesList->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 		
@@ -1243,7 +1243,7 @@ void axesDialog::initAxesPage()
 	hbox0->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
 	boxShowAxis = new QCheckBox(tr("Show"), hbox0);
-	boxShowAxis->setChecked(TRUE);
+	boxShowAxis->setChecked(true);
 
 	labelBox = new Q3GroupBox (2, Qt::Horizontal, hbox0);
 	labelBox->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
@@ -1295,7 +1295,7 @@ void axesDialog::initAxesPage()
 	Q3HBox  *hbox2=new Q3HBox (box); 
 	hbox2->setSpacing(5);
 	
-	Q3ButtonGroup *GroupBox7 = new Q3ButtonGroup(2,Qt::Horizontal, QString::null, hbox2);
+	Q3ButtonGroup *GroupBox7 = new Q3ButtonGroup(2,Qt::Horizontal, QString(), hbox2);
 
 	new QLabel(tr( "Type" ),GroupBox7);	
 	boxAxisType= new QComboBox(GroupBox7, "boxAxisType");
@@ -1326,10 +1326,10 @@ void axesDialog::initAxesPage()
 	
 	Q3ButtonGroup *GroupBox8= new Q3ButtonGroup(2,Qt::Horizontal,tr(""), hbox2, "GroupBox8" );
 	
-	new QLabel(QString::null, GroupBox8);	
+	new QLabel(QString(), GroupBox8);	
 	boxShowLabels = new QCheckBox(GroupBox8, "boxShowLabels");
 	boxShowLabels->setText(tr("Show Labels"));
-	boxShowLabels->setChecked(TRUE);
+	boxShowLabels->setChecked(true);
 	
 	label1 = new QLabel(tr("Table"),GroupBox8);	
 	boxColName = new QComboBox(GroupBox8, "Datasheet");
@@ -1910,9 +1910,9 @@ switch(a)
             }
 		}
 
-bool labels=FALSE;
+bool labels=false;
 if (tickLabelsOn[axis] == "1")
-	labels=TRUE;
+	labels=true;
 
 boxFormat->setEnabled(labels && ok);
 boxColName->setEnabled(labels && ok);
@@ -1924,14 +1924,14 @@ if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
 else 
 	boxAngle->setDisabled(true);
 
-bool userFormat=TRUE;
+bool userFormat=true;
 if (boxFormat->currentItem() == 0)
-	userFormat=FALSE;
+	userFormat=false;
 boxPrecision->setEnabled(labels && ok && userFormat);
 	
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis,boxAxisType->currentItem(), boxColName->currentText(),ok,ticksType(),
 			  boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(), 
 			  boxPrecision->value(), boxAngle->value(), boxBaseline->value(), formula);
@@ -2060,24 +2060,24 @@ axesList->clearSelection();
 axesGridList->clearSelection();
 
 if (w==(QWidget*)axesPage)
-	axesTitlesList->setSelected (0,TRUE);
+	axesTitlesList->setSelected (0,true);
 else if (w==(QWidget*)scalesPage)
-	axesList->setSelected (0,TRUE);
+	axesList->setSelected (0,true);
 else
-	axesGridList->setSelected (0,TRUE);
+	axesGridList->setSelected (0,true);
 }
 
 void axesDialog::updateLineBoxes(int axis)
 {
 if (axis) 
 	{
-	boxXLine->setEnabled(TRUE);
-	boxYLine->setDisabled(TRUE);
+	boxXLine->setEnabled(true);
+	boxYLine->setDisabled(true);
 	}
 else
 	{
-	boxXLine->setDisabled(TRUE);
-	boxYLine->setEnabled(TRUE);
+	boxXLine->setDisabled(true);
+	boxYLine->setEnabled(true);
 	}
 }
 
@@ -2292,7 +2292,7 @@ void axesDialog::changeBaselineDist(int baseline)
 
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(),ticksType(), 
 				  boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), boxPrecision->value(), 
 				  boxAngle->value(), baseline, formula);	
@@ -2307,7 +2307,7 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
     QString to=boxEnd->text().lower();
 	QString step=boxStep->text().lower();			
 	double start, end, stp;
-    bool error=FALSE;	
+    bool error=false;	
 	try
 		{
 		myParser parser;
@@ -2318,8 +2318,8 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxStart->setFocus();
-		error=TRUE;
-		return FALSE;
+		error=true;
+		return false;
 		}			
 	try
 		{
@@ -2331,8 +2331,8 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
 		boxEnd->setFocus();
-		error=TRUE;
-		return FALSE;
+		error=true;
+		return false;
 		}	
 	try
 		{
@@ -2344,8 +2344,8 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		{
 		QMessageBox::critical(0, tr("QtiPlot - Step input error"),QString::fromStdString(e.GetMsg()));
 		boxStep->setFocus();
-		error=TRUE;
-		return FALSE;
+		error=true;
+		return false;
 		}
 		
 	if (stp <=0)
@@ -2353,7 +2353,7 @@ if (generalDialog->currentPage()==(QWidget*)scalesPage)
 		QMessageBox::critical(0,tr("QtiPlot - Step input error"),
 			tr("Please enter a positive step value!"));
 		boxStep->setFocus();
-		return FALSE;	
+		return false;	
 		}
 			
 	if (!error)
@@ -2397,7 +2397,7 @@ else if (generalDialog->currentPage()==(QWidget*)axesPage)
 				QMessageBox::critical(0, tr("QtiPlot - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
 					tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
 				boxFormula->setFocus();
-				return FALSE;
+				return false;
 				}
 			}
 		}
@@ -2427,7 +2427,7 @@ else if (generalDialog->currentPage()==(QWidget*)axesPage)
 	
 	QString formula =  boxFormula->text().remove("\n");
 	if (!boxShowFormula->isChecked())
-		formula = QString::null;
+		formula = QString();
 	emit showAxis(axis, format, formatInfo[axis], boxShowAxis->isChecked(), ticksType(), 
 				  boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), 
 				  boxPrecision->value(), boxAngle->value(), baseline, formula);	
@@ -2457,7 +2457,7 @@ else if (generalDialog->currentPage()==(QWidget*)frame)
 		mPlot->updateTransparency();
 	}
 
-return TRUE;
+return true;
 }
 
 void axesDialog::setMultiLayerPlot(MultiLayer *m)
@@ -2548,22 +2548,22 @@ boxMinorValue->setValue(scales[8*axis+4].toInt());
 int stepOn=scales[8*axis+5].toInt();
 if (stepOn)
 	{
-	btnStep->setChecked(TRUE);
-	boxStep->setEnabled(TRUE);
-	boxUnit->setEnabled(TRUE);
+	btnStep->setChecked(true);
+	boxStep->setEnabled(true);
+	boxUnit->setEnabled(true);
 		
-	btnMinor->setChecked(FALSE);
-	boxMajorValue->setEnabled(FALSE);
-	boxMinorValue->setEnabled(FALSE);
+	btnMinor->setChecked(false);
+	boxMajorValue->setEnabled(false);
+	boxMinorValue->setEnabled(false);
 	}
 else
 	{
-	btnStep->setChecked(FALSE);
-	boxStep->setEnabled(FALSE);
-	boxUnit->setEnabled(FALSE);
-	btnMinor->setChecked(TRUE);
-	boxMajorValue->setEnabled(TRUE);
-	boxMinorValue->setEnabled(TRUE);
+	btnStep->setChecked(false);
+	boxStep->setEnabled(false);
+	boxUnit->setEnabled(false);
+	btnMinor->setChecked(true);
+	boxMajorValue->setEnabled(true);
+	boxMinorValue->setEnabled(true);
 	}
 
 int scaleType=scales[8*axis+6].toInt();
@@ -2598,7 +2598,7 @@ int axis=mapToQwtAxisId();
 axesColors[axis]= c.name();
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(), ticksType(), 
 			  boxShowLabels->isChecked(), c, boxFormat->currentItem(), boxPrecision->value(), 
 			  boxAngle->value(), boxBaseline->value(), formula);		
@@ -2672,7 +2672,7 @@ if ( ticks[axis] == type)
 ticks[axis]=type;
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis,boxAxisType->currentItem(),formatInfo[axis], boxShowAxis->isChecked(), type,
 			  boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(),boxPrecision->value(), 
 			  boxAngle->value(), boxBaseline->value(), formula);		
@@ -2695,9 +2695,9 @@ int axis=mapToQwtAxisId();
 if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
 	boxAngle->setEnabled(on);
 	
-bool userFormat=TRUE;
+bool userFormat=true;
 if (boxFormat->currentItem() == 0)
-	userFormat=FALSE;
+	userFormat=false;
 boxPrecision->setEnabled(on && userFormat);
 
 if ( tickLabelsOn[axis] == QString::number(on))
@@ -2716,7 +2716,7 @@ else
 
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), ticksType(), 
 			  boxShowLabels->isChecked(),QColor(axesColors[axis]), boxFormat->currentItem(), boxPrecision->value(),
 			  boxAngle->value(), boxBaseline->value(), formula);			
@@ -2821,9 +2821,9 @@ if (type == Graph::Numeric)
 		return;
 
 	if (format == 0)
-		boxPrecision->setEnabled(FALSE);
+		boxPrecision->setEnabled(false);
 	else
-		boxPrecision->setEnabled(TRUE);
+		boxPrecision->setEnabled(true);
 
 	labelsNumericFormat[2*axis] = QString::number(format);
 	labelsNumericFormat[2*axis+1] = QString::number(prec);
@@ -2839,7 +2839,7 @@ else
 
 QString formula =  boxFormula->text().remove("\n");
 if (!boxShowFormula->isChecked())
-	formula = QString::null;
+	formula = QString();
 emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), ticksType(),
 			  boxShowLabels->isChecked(),QColor(axesColors[axis]), format, prec, 
 			  boxAngle->value(), boxBaseline->value(), formula);		
@@ -2876,9 +2876,9 @@ int prec=labelsNumericFormat[2*a+1].toInt();
 boxPrecision->setValue(prec);
 	
 if (format == 0)
-	boxPrecision->setEnabled(FALSE);
+	boxPrecision->setEnabled(false);
 else
-	boxPrecision->setEnabled(TRUE);
+	boxPrecision->setEnabled(true);
 
 QStringList l = d_graph->getAxesFormulas();
 QString formula = l[a];

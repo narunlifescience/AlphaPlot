@@ -45,7 +45,7 @@ class filterDialog : public QDialog
     Q_OBJECT
 
 public:
-    filterDialog(int type, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    filterDialog(int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~filterDialog();
 
 	enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};

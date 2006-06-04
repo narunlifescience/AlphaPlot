@@ -81,7 +81,7 @@ QPrinter printer;
 printer.setColorMode (QPrinter::GrayScale);
 if (printer.setup()) 
 	{
-    printer.setFullPage( TRUE );
+    printer.setFullPage( true );
     QPainter painter;
     if ( !painter.begin(&printer ) )
          return;
@@ -106,7 +106,7 @@ if (printer.setup())
 	    printer.newPage();
 	    page++;
 		} 
-	while (TRUE);
+	while (true);
 	}
 }
 

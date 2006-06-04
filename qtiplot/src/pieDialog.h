@@ -59,7 +59,7 @@ class pieDialog : public QDialog
     Q_OBJECT
 
 public:
-    pieDialog( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    pieDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~pieDialog();
 
 	void initPiePage();

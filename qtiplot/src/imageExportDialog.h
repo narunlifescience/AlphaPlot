@@ -48,7 +48,7 @@ class imageExportDialog : public QDialog
 
 public:
     imageExportDialog( bool exportAllPlots, QWidget* parent = 0, 
-									const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+									const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~imageExportDialog();
 
     QPushButton* buttonOk;

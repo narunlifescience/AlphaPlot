@@ -73,7 +73,7 @@ plot3DDialog::plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	setFixedWidth(521);
 	setFixedHeight(260);
 	setWindowTitle( tr( "QtiPlot - Surface Plot Options" ) );
-	setSizeGripEnabled( FALSE );
+	setSizeGripEnabled( false );
 
 	bars=0; points=0;
 
@@ -84,7 +84,7 @@ plot3DDialog::plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	initGeneralPage();
 
 	GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),this, "GroupBox1" );
-	GroupBox1->setFlat (TRUE);
+	GroupBox1->setFlat (true);
 
 	btnTable = new QPushButton( GroupBox1, "btnTable" );
 	btnTable->hide();
@@ -94,7 +94,7 @@ plot3DDialog::plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
 	buttonOk = new QPushButton(GroupBox1, "buttonOk" );
 	buttonOk->setText( tr( "&OK" ) );
-	buttonOk->setDefault( TRUE );
+	buttonOk->setDefault( true );
 
 	buttonCancel = new QPushButton(GroupBox1, "buttonCancel" );
 	buttonCancel->setText( tr( "&Cancel" ) );
@@ -144,7 +144,7 @@ void plot3DDialog::initScalesPage()
 	boxType->insertItem(tr("logarithmic"));
 	boxType->setMaximumWidth(150);
 
-	TicksGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString::null,hbox, "GroupBox9" );
+	TicksGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString(),hbox, "GroupBox9" );
 
 	new QLabel( tr( "Major Ticks" ), TicksGroupBox , "TextLabel488",0 );
 	boxMajors=new QSpinBox(TicksGroupBox , "major");
@@ -214,7 +214,7 @@ void plot3DDialog::initTitlePage()
 	boxTitle=new QLineEdit(GroupBox2,"title");
 
 	GroupBox4 = new Q3ButtonGroup(4,Qt::Horizontal,tr( "" ),GroupBox2, "GroupBox4" );
-	GroupBox4->setFlat (TRUE);
+	GroupBox4->setFlat (true);
 
 	buttonLowerGreek = new QPushButton(QChar(0x3B1), GroupBox4, "buttonLowerGreek" ); 
 	buttonLowerGreek->setMaximumWidth(40);
@@ -364,7 +364,7 @@ void plot3DDialog::initPointsOptionsStack()
 	points = new QWidget( generalDialog, "points" );
 
 	Q3ButtonGroup* GroupBox14 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),points,"GroupBox1" );
-	GroupBox14->setFlat(TRUE);	
+	GroupBox14->setFlat(true);	
 
 	new QLabel( tr( "Style" ), GroupBox14 , "TextLabel4080",0 );
 	boxPointStyle = new QComboBox( GroupBox14, "btnPointStyle" );
@@ -379,7 +379,7 @@ void plot3DDialog::initPointsOptionsStack()
 	dotsPage = new QWidget( optionStack, "DotsPage" );
 
 	Q3ButtonGroup *GroupBox11 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),dotsPage, "GroupBox11" );
-	GroupBox11->setFlat(TRUE);
+	GroupBox11->setFlat(true);
 
 	new QLabel( tr( "Width" ), GroupBox11 , "TextLabel408",0 );
 	boxSize = new QLineEdit( GroupBox11, "btnBarsRad" );
@@ -395,7 +395,7 @@ void plot3DDialog::initPointsOptionsStack()
 
 	crossPage = new QWidget( optionStack, "CrossPage" );
 	Q3ButtonGroup *GroupBox13 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),crossPage, "GroupBox11" );
-	GroupBox13->setFlat(TRUE);
+	GroupBox13->setFlat(true);
 
 	new QLabel( tr( "Radius" ), GroupBox13 , "TextLabel4080",0 );
 	boxCrossRad = new QLineEdit( GroupBox13, "btnBarsRad" );
@@ -419,7 +419,7 @@ void plot3DDialog::initPointsOptionsStack()
 	conesPage = new QWidget( optionStack, "ConesPage" );
 
 	Q3ButtonGroup *GroupBox12 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),conesPage, "GroupBox11" );
-	GroupBox12->setFlat(TRUE);
+	GroupBox12->setFlat(true);
 
 	new QLabel( tr( "Width" ), GroupBox12 , "TextLabel408",0 );
 	boxConesRad= new QLineEdit( GroupBox12, "btnBarsRad" );
@@ -484,23 +484,23 @@ void plot3DDialog::customWorksheetBtn(const QString& text)
 
 void plot3DDialog::disableGridOptions()
 {
-	btnGrid->setDisabled(TRUE);
+	btnGrid->setDisabled(true);
 }
 
 void plot3DDialog::disableAxesOptions()
 {
-	TicksGroupBox->setDisabled(TRUE);
-	generalDialog->setTabEnabled(axes,FALSE);
-	GroupBox10->setDisabled(TRUE);
-	boxDistance->setDisabled(TRUE);
-	btnNumbersFont->setDisabled(TRUE);
+	TicksGroupBox->setDisabled(true);
+	generalDialog->setTabEnabled(axes,false);
+	GroupBox10->setDisabled(true);
+	boxDistance->setDisabled(true);
+	btnNumbersFont->setDisabled(true);
 }
 
 void plot3DDialog::showBarsTab(double rad)
 {
 	bars = new QWidget( generalDialog, "bars" );
 
-	Q3ButtonGroup *GroupBox11 = new Q3ButtonGroup(2,Qt::Horizontal,QString::null,bars, "GroupBox11" );
+	Q3ButtonGroup *GroupBox11 = new Q3ButtonGroup(2,Qt::Horizontal,QString(),bars, "GroupBox11" );
 
 	new QLabel( tr( "Width" ), GroupBox11 , "TextLabel408",0 );
 	boxBarsRad = new QLineEdit( GroupBox11, "btnBarsRad" );
@@ -540,13 +540,13 @@ void plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, b
 
 void plot3DDialog::disableMeshOptions()
 {
-	btnMesh->setDisabled(TRUE);
-	boxMeshLineWidth->setDisabled(TRUE);
+	btnMesh->setDisabled(true);
+	boxMeshLineWidth->setDisabled(true);
 }
 
 void plot3DDialog::disableLegend()
 {
-	boxLegend->setDisabled(TRUE);
+	boxLegend->setDisabled(true);
 }
 
 void plot3DDialog::setLabelsDistance(int dist)
@@ -815,7 +815,7 @@ bool plot3DDialog::updatePlot()
 		QString from=boxFrom->text().lower();
 		QString to=boxTo->text().lower();
 		double start,end;
-		bool error=FALSE;	
+		bool error=false;	
 		try
 		{
 			myParser parser;
@@ -826,8 +826,8 @@ bool plot3DDialog::updatePlot()
 		{
 			QMessageBox::critical(0,tr("QtiPlot - Start limit error"),  QString::fromStdString(e.GetMsg()));
 			boxFrom->setFocus();
-			error=TRUE;
-			return FALSE;
+			error=true;
+			return false;
 		}	
 		try
 		{
@@ -839,8 +839,8 @@ bool plot3DDialog::updatePlot()
 		{
 			QMessageBox::critical(0,tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
 			boxTo->setFocus();
-			error=TRUE;
-			return FALSE;
+			error=true;
+			return false;
 		}
 
 		if (start>=end)
@@ -848,7 +848,7 @@ bool plot3DDialog::updatePlot()
 			QMessageBox::critical(0,tr("QtiPlot - Input error"),
 					tr("Please enter scale limits that satisfy: from < to!"));
 			boxTo->setFocus();
-			return FALSE;
+			return false;
 		}
 
 		if (! error)
@@ -865,7 +865,7 @@ bool plot3DDialog::updatePlot()
 				boxMinorLength->text().toDouble());
 	}
 
-	return TRUE;
+	return true;
 }
 
 QStringList plot3DDialog::scaleOptions(int axis, double start, double end, 

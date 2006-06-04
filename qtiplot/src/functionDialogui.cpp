@@ -53,13 +53,13 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	setName( "functionDialogui" );
 	 setMinimumSize( QSize( 610, 440 ) );
 	setMaximumSize( QSize( 610, 440 ) );
-    setMouseTracking( TRUE );
+    setMouseTracking( true );
 
 	Q3HBox *hbox1=new Q3HBox(this, "hbox1");
 	hbox1->setSpacing(5);
 	
 	textFunction_2 = new QLabel( hbox1, "textFunction_2" );
-	boxType = new QComboBox( FALSE, hbox1, "boxType" );
+	boxType = new QComboBox( false, hbox1, "boxType" );
 
     optionStack = new Q3WidgetStack( this, "optionStack" );
     optionStack->setFrameShape( QFrame::StyledPanel );
@@ -68,11 +68,11 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
     functionPage = new QWidget( optionStack, "functionPage" );
 	
 	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),functionPage,"GroupBox1" );
-	GroupBox1->setFlat(TRUE);
+	GroupBox1->setFlat(true);
 
     textFunction = new QLabel( GroupBox1, "textFunction" );
-	boxFunction = new QComboBox( FALSE, GroupBox1, "boxFunction" );
-    boxFunction->setEditable( TRUE );
+	boxFunction = new QComboBox( false, GroupBox1, "boxFunction" );
+    boxFunction->setEditable( true );
 
 	textFrom = new QLabel( GroupBox1, "textFrom" );
     boxFrom = new QLineEdit( GroupBox1, "boxFrom" );
@@ -94,7 +94,7 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
     parametricPage = new QWidget( optionStack, "parametricPage" );
 
 	GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), parametricPage,"GroupBox2" );
-	GroupBox2->setFlat(TRUE);
+	GroupBox2->setFlat(true);
 	
     textParameter = new QLabel( GroupBox2, "textParameter" );
     boxParameter = new QLineEdit( GroupBox2, "boxParameter" );
@@ -109,10 +109,10 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	boxParTo->setText("1");
 
     textXPar = new QLabel( GroupBox2, "textXPar" );
-    boxXFunction = new QComboBox(TRUE, GroupBox2, "boxXFunction" );
+    boxXFunction = new QComboBox(true, GroupBox2, "boxXFunction" );
 	
 	textYPar = new QLabel( GroupBox2, "textYPar" );
-    boxYFunction = new QComboBox(TRUE, GroupBox2, "boxYFunction" );
+    boxYFunction = new QComboBox(true, GroupBox2, "boxYFunction" );
 	
 	textParPoints = new QLabel( GroupBox2, "textParPoints" );
 	boxParPoints = new QSpinBox(2,1000000,100, GroupBox2, "boxParPoints" );
@@ -126,7 +126,7 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
     polarPage = new QWidget( optionStack, "polarPage" );
 
 	GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), polarPage,"GroupBox3" );
-	GroupBox3->setFlat(TRUE);
+	GroupBox3->setFlat(true);
 	
     textPolarParameter = new QLabel( GroupBox3, "textPolarParameter" );
 	boxPolarParameter = new QLineEdit( GroupBox3, "boxPolarParameter" );
@@ -141,10 +141,10 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
 	boxPolarTo->setText("pi");
 
 	textPolarRadius = new QLabel( GroupBox3, "textPolarRadius" );
-    boxPolarRadius = new QComboBox(TRUE, GroupBox3, "boxPolarRadius" );
+    boxPolarRadius = new QComboBox(true, GroupBox3, "boxPolarRadius" );
 	
     textPolarTheta = new QLabel( GroupBox3, "textPolarTheta" );
-    boxPolarTheta = new QComboBox(TRUE, GroupBox3, "boxPolarTheta" );
+    boxPolarTheta = new QComboBox(true, GroupBox3, "boxPolarTheta" );
 	
 	textPolarPoints = new QLabel( GroupBox3, "textPolarPoints" );
 	boxPolarPoints = new QSpinBox(2,1000000,100,GroupBox3, "boxPolarPoints" );
@@ -156,11 +156,11 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
     optionStack->addWidget( polarPage, 2 );
 
     GroupBox4 = new Q3ButtonGroup( 3, Qt::Horizontal,tr(""), this, "buttonGroup3" );
-	GroupBox4->setFlat(TRUE);
+	GroupBox4->setFlat(true);
 	
 	buttonClear = new QPushButton( GroupBox4, "buttonClear" );
     buttonOk = new QPushButton( GroupBox4, "buttonOk" );
-	buttonOk->setDefault(TRUE);
+	buttonOk->setDefault(true);
 	
 	buttonCancel = new QPushButton( GroupBox4, "buttonCancel" );
 	

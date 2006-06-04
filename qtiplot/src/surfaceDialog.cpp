@@ -49,19 +49,19 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 	setWindowTitle(tr("QtiPlot - Define surface plot"));
     setMinimumSize( QSize( 310, 140 ) );
 	setMaximumSize( QSize( 310, 140 ) );
-    setMouseTracking( TRUE );
-    setSizeGripEnabled( FALSE );
+    setMouseTracking( true );
+    setSizeGripEnabled( false );
 	
 	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-	GroupBox1->setFlat (TRUE);
+	GroupBox1->setFlat (true);
 
 	new QLabel( tr("f(x,y)="), GroupBox1, "TextLabel2",0 );
 	boxFunction = new QComboBox(GroupBox1, "boxFunction" );
 	boxFunction->setFixedWidth(250);
-	boxFunction->setEditable(TRUE);
+	boxFunction->setEditable(true);
 
 	GroupBox5 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox5" );
-	GroupBox5->setFlat (TRUE);
+	GroupBox5->setFlat (true);
 
 	GroupBox3 = new Q3ButtonGroup(1,Qt::Horizontal,tr("X - axis"),GroupBox5,"GroupBox3" );
 	
@@ -94,14 +94,14 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 	boxZTo->setText(tr("1"));
 
 	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (TRUE);
+	GroupBox2->setFlat (true);
 
 	buttonClear = new QPushButton(GroupBox2, "buttonClear" );
     buttonClear->setText( tr( "Clear &list" ) );
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
     buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
     buttonCancel->setText( tr( "&Cancel" ) );
@@ -234,7 +234,7 @@ if (fromX >= toX || fromY >= toY || fromZ >= toZ)
 
 double x,y;
 QString formula=boxFunction->currentText();
-bool error=FALSE;
+bool error=false;
 try
 	{
 	myParser parser;
@@ -251,7 +251,7 @@ catch(mu::ParserError &e)
 	{
 	QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 	boxFunction->setFocus();
-	error=TRUE;	
+	error=true;	
 	}
 	
 if (!error)

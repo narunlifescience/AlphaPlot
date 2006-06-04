@@ -120,14 +120,14 @@ void Graph3D::initPlot()
 	smoothMesh = true;
 	sp->setSmoothMesh(smoothMesh);
 
-	title=QString::null;
+	title=QString();
 	sp->setTitle(title);
 
 	titleCol=QColor(Qt::black);
 	sp->setTitleColor(Qt2GL(titleCol));
 
 	titleFnt= QFont("Times New Roman",14);
-	titleFnt.setBold(TRUE);
+	titleFnt.setBold(true);
 
 	sp->setTitleFont(titleFnt.family(),titleFnt.pointSize(),
 			titleFnt.weight(),titleFnt.italic());
@@ -143,10 +143,10 @@ void Graph3D::initPlot()
 
 	col_ = 0;
 
-	legendOn=TRUE;
+	legendOn=true;
 	legendMajorTicks = 5;
 	sp->showColorLegend(legendOn);
-	sp->legend()->setAutoScale(TRUE);
+	sp->legend()->setAutoScale(true);
 	sp->legend()->setMajors (legendMajorTicks) ;
 
 	labelsDist=0;
@@ -600,7 +600,7 @@ void Graph3D::updateData(Table* table)
 	int xCol=table->colIndex(xColName);
 	int yCol=table->colIndex(yColName);
 
-	if (name.contains("(Z)",TRUE))
+	if (name.contains("(Z)",true))
 	{
 		pos=name.find(",",posX);
 		posX=name.find("(",pos);
@@ -1428,7 +1428,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 		QString yColName=name.mid(pos+1,posX-pos-1);		
 		int yCol=worksheet->colIndex(yColName);
 
-		if (name.endsWith("(Z)",TRUE))
+		if (name.endsWith("(Z)",true))
 		{
 			pos=name.find(",",posX);
 			posX=name.find("(",pos);
@@ -1437,7 +1437,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 
 			updateScales(xl, xr, yl, yr, zl, zr, xCol, yCol, zCol);
 		}
-		else if (name.endsWith("(Y)",TRUE))
+		else if (name.endsWith("(Y)",true))
 			updateScales(xl, xr, yl, yr, zl, zr, xCol, yCol);
 	}
 
@@ -1878,13 +1878,13 @@ void Graph3D::setHiddenLineGrid()
 
 	sp->makeCurrent();
 	sp->setPlotStyle(HIDDENLINE);
-	sp->showColorLegend(FALSE);
+	sp->showColorLegend(false);
 	sp->updateData();
 	sp->updateGL();
 
 	style_=HIDDENLINE;
 	pointStyle = None;
-	legendOn=FALSE;
+	legendOn=false;
 }
 
 void Graph3D::setLineGrid()
@@ -1894,13 +1894,13 @@ void Graph3D::setLineGrid()
 
 	sp->makeCurrent();
 	sp->setPlotStyle(WIREFRAME);
-	sp->showColorLegend(FALSE);
+	sp->showColorLegend(false);
 	sp->updateData();
 	sp->updateGL();
 
 	pointStyle = None;
 	style_=WIREFRAME;
-	legendOn=FALSE;
+	legendOn=false;
 }
 
 void Graph3D::setPointsMesh()
@@ -1960,7 +1960,7 @@ void Graph3D::clearData()
 		delete func;
 		func = 0;
 	}
-	plotAssociation = QString::null;
+	plotAssociation = QString();
 
 	sp->makeCurrent();
 	sp->loadFromData (0, 0, 0, false,false);
@@ -2046,7 +2046,7 @@ void Graph3D::setGrid(Qwt3D::SIDE s, bool b)
 	else
 		sum &= ~s;
 
-	sp->coordinates()->setGridLines(sum!=Qwt3D::NOSIDEGRID, FALSE, sum);
+	sp->coordinates()->setGridLines(sum!=Qwt3D::NOSIDEGRID, false, sum);
 	sp->updateGL();
 	emit modified();
 }
@@ -2056,7 +2056,7 @@ void Graph3D::setGrid(int grids)
 	if (!sp)
 		return;
 
-	sp->coordinates()->setGridLines(TRUE, FALSE,grids);
+	sp->coordinates()->setGridLines(true, false,grids);
 }
 
 void Graph3D::setLeftGrid(bool b)
@@ -2089,7 +2089,7 @@ void Graph3D::print()
 	QPrinter printer;
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(FALSE);
+	printer.setFullPage(false);
 
 	if (printer.setup())
 	{	
@@ -2144,8 +2144,8 @@ void Graph3D::saveImage()
 		filter+=aux;
 	}
 
-	QString fname = Q3FileDialog::getSaveFileName( QString::null,filter,0,"file dialog",
-			tr("Choose a filename to save under"),&selectedFilter,TRUE);
+	QString fname = Q3FileDialog::getSaveFileName( QString(),filter,0,"file dialog",
+			tr("Choose a filename to save under"),&selectedFilter,true);
 	if ( !fname.isEmpty() ) 
 	{ 	
 		QFileInfo fi(fname);
@@ -2163,7 +2163,7 @@ void Graph3D::saveImage()
 						"Do you want to overwrite it?")
 					.arg(fname),
 					tr("&Yes"), tr("&No"),
-					QString::null, 0, 1 ) )
+					QString(), 0, 1 ) )
 			return ;
 		else
 		{
@@ -2186,14 +2186,14 @@ void Graph3D::saveImageToFile(const QString& fname, const QString& format)
 bool Graph3D::eventFilter(QObject *object, QEvent *e)
 {
 	if ( object != (QObject *)this->sp)
-		return FALSE;
+		return false;
 
 	switch(e->type())
 	{
 		case QEvent::MouseButtonDblClick:
 			{
 				emit showOptionsDialog();			
-				return TRUE; 
+				return true; 
 			}
 
 		default:
@@ -2966,7 +2966,7 @@ QString Graph3D::saveAsTemplate(const QString& geometryInfo)
 	QString s = saveToString(geometryInfo);
 	QStringList lst = QStringList::split("\n", s, false);
 	QStringList l = QStringList::split("\t", lst[3], true);
-	l[1] = QString::null;
+	l[1] = QString();
 	lst[3] = l.join("\t");
 	return lst.join("\n");
 }

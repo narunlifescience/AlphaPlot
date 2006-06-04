@@ -847,7 +847,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	S=vector(0,iter);
 	h=vector(0,iter);
 	int j,it,l;
-	bool success=FALSE;
+	bool success=false;
 	h[1]=1.0;
 	for(j=1;j<=iter;j++)
 	{//Trapezoid Rule
@@ -881,7 +881,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 		h[j+1]=0.25*h[j];
 		S[j+1]=S[j];
 		error=fabs(S[j]-S[j-1]);
-		if(error<=tol) success=TRUE;
+		if(error<=tol) success=true;
 		if(success) break;
 	}
 
@@ -925,7 +925,7 @@ QString Graph::fitLinear(const QString& curveTitle)
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 3, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	double *x=vector(0,n-1);
 	double *y=vector(0,n-1);
@@ -1138,7 +1138,7 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 	emit createHiddenTable(tableName+"\t"+legend+" "+tr("fit of")+" "+curveTitle, n1, 2+n_peaks, text);
 	updatePlot();
 	emit showFitResults(outputFitString(n1, 1e-4, X0, XN, iter, 0, status, par, s, params,
-				curveTitle, QString::null, legend));
+				curveTitle, QString(), legend));
 #endif
 }
 
@@ -1152,7 +1152,7 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(curve, from, to, p, start, end);
 	if (!c)
-		return QString::null;	
+		return QString();	
 
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
@@ -1165,7 +1165,7 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 		aux++;
 	}
 
-	QStringList equation=QStringList::split("=",formula,FALSE);
+	QStringList equation=QStringList::split("=",formula,false);
 	const char *function=equation[1].ascii();
 	QString names=params.join (",");
 	const char *parNames=names.ascii();
@@ -1266,7 +1266,7 @@ QString Graph::fitExpDecay(const QString& name, double damping, double amplitude
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	return fitExpDecay(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
 #endif
@@ -1607,7 +1607,7 @@ QString Graph::fitExpGrowth(const QString& name, double damping, double amplitud
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	return fitExpGrowth(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
 #endif
@@ -1714,7 +1714,7 @@ QString Graph::fitGauss(const QString& curveTitle)
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);
@@ -1835,7 +1835,7 @@ QString Graph::fitLorentz(const QString& curveTitle)
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);
@@ -2245,7 +2245,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 	QPoint o=mrk->getOrigin();
 	QPixmap pic=mrk->image();
 	QImage image=pic.convertToImage();
-	lineProfileOn=FALSE;
+	lineProfileOn=false;
 
 	int x1=start.x()-o.x();
 	int x2=end.x()-o.x();
@@ -2297,7 +2297,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 			text+=QString::number(i)+"\t";
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, averagePixels, TRUE))+"\n"; 
+			text+=QString::number(averageImagePixel(image, px, py, averagePixels, true))+"\n"; 
 		}
 	}
 	else // the line is more vertical than horizontal 
@@ -2316,7 +2316,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 			text+=QString::number(i)+"\t";	  
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, averagePixels, FALSE))+"\n"; 
+			text+=QString::number(averageImagePixel(image, px, py, averagePixels, false))+"\n"; 
 		}
 	}
 	QString caption="table1";
@@ -3081,7 +3081,7 @@ QString Graph::fitBoltzmann(const QString& curveTitle)
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString::null;
+		return QString();
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);

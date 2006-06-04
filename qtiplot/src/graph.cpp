@@ -171,16 +171,16 @@ static const char *unzoom_xpm[]={
 	startID=-1; endID=-1;
 	pieRay=100;
 	axesLineWidth = 1;	
-	lineProfileOn=FALSE;
-	drawTextOn=FALSE;
-	drawLineOn=FALSE;
-	cursorEnabled=FALSE;
-	movePointsEnabled=FALSE;
-	removePointsEnabled=FALSE;
-	pickerEnabled=FALSE;
-	rangeSelectorsEnabled=FALSE;
-	piePlot=FALSE;
-	isTitleSelected=FALSE;
+	lineProfileOn=false;
+	drawTextOn=false;
+	drawLineOn=false;
+	cursorEnabled=false;
+	movePointsEnabled=false;
+	removePointsEnabled=false;
+	pickerEnabled=false;
+	rangeSelectorsEnabled=false;
+	piePlot=false;
+	isTitleSelected=false;
 	functions=0;
 	ignoreResize= false;
 	drawAxesBackbone = true;
@@ -192,9 +192,9 @@ static const char *unzoom_xpm[]={
 	{
 		tickLabelsOn<<"1";
 		axisType << Numeric;
-		axesFormatInfo<<QString::null;
+		axesFormatInfo<<QString();
 		lblFormat<<Automatic;
-		axesFormulas<<QString::null;
+		axesFormulas<<QString();
 	}
 
 	d_plot = new Plot(this,"QwtPlot");		
@@ -210,12 +210,12 @@ static const char *unzoom_xpm[]={
 	d_zoomer= new QwtPlotZoomer(QwtPlot::xBottom, QwtPlot::yLeft,
 			QwtPicker::DragSelection, QwtPicker::AlwaysOff, d_plot->canvas());
 	d_zoomer->setRubberBandPen(Qt::black);
-	zoom(FALSE);
+	zoom(false);
 
 	setGeometry( QRect(0, 0, 520, 420 ) );
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(d_plot);
-	setMouseTracking(TRUE );
+	setMouseTracking(true );
 
 	grid.majorOnX=0;
 	grid.majorOnY=0;
@@ -326,7 +326,7 @@ void Graph::deselectMarker()
 void Graph::deselectTitle()
 {
 #if false
-	isTitleSelected=FALSE;
+	isTitleSelected=false;
 	d_plot->titleLabel()->repaint();
 #endif
 }
@@ -499,7 +499,7 @@ void Graph::movedPicker(const QPoint &pos, bool mark)
 					QBrush(Qt::NoBrush), QPen(Qt::red,1), QSize(15,15)));
 
 		QPainter painter(d_plot->canvas());
-		painter.setClipping(TRUE);
+		painter.setClipping(true);
 		painter.setClipRect(d_plot->canvas()->contentsRect());
 		painter.setRasterOp(Qt::NotXorROP);
 
@@ -1637,17 +1637,17 @@ void Graph::setGridOptions(const gridOptions& options)
 	QPen minPen=QPen (minColor,grid.minorWidth,minStyle);
 	d_plot->setGridMinPen(minPen);
 
-	if (grid.majorOnX) d_plot->enableGridX (TRUE);
-	else if (grid.majorOnX==0) d_plot->enableGridX (FALSE);
+	if (grid.majorOnX) d_plot->enableGridX (true);
+	else if (grid.majorOnX==0) d_plot->enableGridX (false);
 
-	if (grid.minorOnX) d_plot->enableGridXMin (TRUE);
-	else if (grid.minorOnX==0) d_plot->enableGridXMin (FALSE);
+	if (grid.minorOnX) d_plot->enableGridXMin (true);
+	else if (grid.minorOnX==0) d_plot->enableGridXMin (false);
 
-	if (grid.majorOnY) d_plot->enableGridY (TRUE);
-	else if (grid.majorOnY==0) d_plot->enableGridY (FALSE);
+	if (grid.majorOnY) d_plot->enableGridY (true);
+	else if (grid.majorOnY==0) d_plot->enableGridY (false);
 
-	if (grid.minorOnY) d_plot->enableGridYMin (TRUE);
-	else d_plot->enableGridYMin (FALSE);
+	if (grid.minorOnY) d_plot->enableGridYMin (true);
+	else d_plot->enableGridYMin (false);
 
 	if (mrkX<0 && grid.xZeroOn)
 	{
@@ -1886,7 +1886,7 @@ void Graph::shiftCurveSelector(bool up)
 	emit dataRangeChanged();
 
 	QPainter painter(d_plot->canvas());
-	painter.setClipping(TRUE);
+	painter.setClipping(true);
 	painter.setClipRect(d_plot->canvas()->contentsRect());
 	painter.setRasterOp(Qt::NotROP);
 
@@ -1950,7 +1950,7 @@ void Graph::shiftRangeSelector(bool shift)
 		emit cursorInfo(info);
 
 		QPainter painter(d_plot->canvas());
-		painter.setClipping(TRUE);
+		painter.setClipping(true);
 		painter.setClipRect(d_plot->canvas()->contentsRect());
 		painter.setRasterOp(Qt::NotROP);
 
@@ -2010,7 +2010,7 @@ void Graph::moveRangeSelector(bool up)
 	emit dataRangeChanged();
 
 	QPainter painter(d_plot->canvas());
-	painter.setClipping(TRUE);
+	painter.setClipping(true);
 	painter.setClipRect(d_plot->canvas()->contentsRect());
 	painter.setRasterOp(Qt::NotROP);
 
@@ -2070,7 +2070,7 @@ void Graph::moveRangeSelector()
 	emit dataRangeChanged();
 
 	QPainter painter(d_plot->canvas());
-	painter.setClipping(TRUE);
+	painter.setClipping(true);
 	painter.setClipRect(d_plot->canvas()->contentsRect());
 	painter.setRasterOp(Qt::NotROP);
 
@@ -2087,14 +2087,14 @@ bool Graph::enableRangeSelectors(bool on)
 
 	long curveID;
 	QwtPlotCurve *curve=0;
-	bool success=FALSE;	
+	bool success=false;	
 	for (int i=n_curves-1;i>=0;i--)
 	{
 		curveID= c_keys[i]; 
 		curve=d_plot->curve(curveID);
 		if (curve && curve->dataSize()>0)
 		{
-			success=TRUE;
+			success=true;
 			break;
 		}			
 	}
@@ -2105,7 +2105,7 @@ bool Graph::enableRangeSelectors(bool on)
 				"All the curves on this plot are empty!");
 
 		disableRangeSelectors();
-		return FALSE;
+		return false;
 	}
 
 	startPoint=0;
@@ -2128,7 +2128,7 @@ bool Graph::enableRangeSelectors(bool on)
 			d+=QMAX(sz.width(),sz.height());
 		}
 
-		startID=d_plot->insertLineMarker (QString::null,QwtPlot::xBottom);
+		startID=d_plot->insertLineMarker (QString(),QwtPlot::xBottom);
 		d_plot->setMarkerSymbol(startID,QwtSymbol(QwtSymbol::Cross,
 					QBrush(Qt::NoBrush), QPen(Qt::red,2), QSize(d,d)));
 		d_plot->setMarkerLineStyle(startID, QwtMarker::VLine);
@@ -2136,7 +2136,7 @@ bool Graph::enableRangeSelectors(bool on)
 		d_plot->setMarkerPos (startID,curve->x(0),curve->y(0));
 		selectedCursor=startID;
 
-		endID=d_plot->insertLineMarker (QString::null,QwtPlot::xBottom);
+		endID=d_plot->insertLineMarker (QString(),QwtPlot::xBottom);
 		d_plot->setMarkerLineStyle(endID, QwtMarker::VLine);
 		d_plot->setMarkerLinePen(endID, QPen(Qt::black,1,Qt::DashLine));
 		d_plot->setMarkerSymbol(endID,QwtSymbol(QwtSymbol::Cross,
@@ -2146,7 +2146,7 @@ bool Graph::enableRangeSelectors(bool on)
 
 		QPainter painter(d_plot->canvas());
 
-		painter.setClipping(TRUE);
+		painter.setClipping(true);
 		painter.setClipRect(d_plot->canvas()->contentsRect());
 		painter.setRasterOp(Qt::NotROP);
 
@@ -2158,7 +2158,7 @@ bool Graph::enableRangeSelectors(bool on)
 	else
 		disableRangeSelectors();	
 
-	return TRUE;
+	return true;
 #endif
 }
 
@@ -2175,7 +2175,7 @@ void  Graph::disableRangeSelectors()
 	selectedCurve=-1;
 	selectedPoint=-1;
 	selectedCursor=-1;	
-	rangeSelectorsEnabled=FALSE;	
+	rangeSelectorsEnabled=false;	
 	d_plot->canvas()->setCursor(Qt::arrowCursor);
 #endif
 }
@@ -2323,8 +2323,8 @@ void Graph::exportToEPS(const QString& fname)
 	printer.setResolution(84);
 	printer.setPageSize (QPrinter::A4);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile(TRUE);
+	printer.setFullPage(true);
+	printer.setOutputToFile(true);
 	printer.setOutputFileName(fname);
 
 	PrintFilter  filter(d_plot); 
@@ -2377,8 +2377,8 @@ void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o,
 	printer.setPageSize (size);
 	printer.setColorMode (col);
 	printer.setOrientation(o);
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile(TRUE);
+	printer.setFullPage(true);
+	printer.setOutputToFile(true);
 	printer.setOutputFileName(fname);
 
 	PrintFilter  filter(d_plot); 
@@ -2453,7 +2453,7 @@ void Graph::print()
 	QPrinter printer;
 	printer.setResolution(84); //empirical value, it works...
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
+	printer.setFullPage(true);
 
 	//printing should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->width())/double(d_plot->height());
@@ -2626,7 +2626,7 @@ QString Graph::selectedCurveTitle()
 	if (c)
 		return c->title();
 	else
-		return QString::null;
+		return QString();
 #endif
 }
 
@@ -2703,7 +2703,7 @@ bool Graph::selectPoint(const QPoint &pos)
 
 		selectedCurve = curve;
 		selectedPoint = point;
-		highlightPoint(TRUE);
+		highlightPoint(true);
 
 		QString info;
 		info=c->title();
@@ -2721,7 +2721,7 @@ bool Graph::selectPoint(const QPoint &pos)
 	{// deselect
 		selectedCurve = -1;
 		selectedPoint = -1;
-		highlightPoint(FALSE);
+		highlightPoint(false);
 		return false;
 	}
 	return false;
@@ -2738,7 +2738,7 @@ void Graph::selectCurve(const QPoint &pos)
 	{
 		selectedCurve = curve;
 		selectedPoint = point;
-		showCursor(TRUE);
+		showCursor(true);
 
 		const QwtPlotCurve *c = d_plot->curve(selectedCurve);
 		QString info;
@@ -2754,7 +2754,7 @@ void Graph::selectCurve(const QPoint &pos)
 	}
 	else // deselect
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedCurve = -1;
 		selectedPoint = -1;
 	}
@@ -2764,9 +2764,9 @@ void Graph::selectCurve(const QPoint &pos)
 bool Graph::markerSelected()
 {
 #if false
-	bool selected=FALSE;
+	bool selected=false;
 	if (selectedMarker>=0)
-		selected=TRUE;
+		selected=true;
 	return  selected;
 #endif
 }
@@ -2819,9 +2819,9 @@ void Graph::cutMarker()
 bool Graph::arrowMarkerSelected()
 {
 #if false
-	bool arrow=FALSE;
+	bool arrow=false;
 	if (lines.contains(selectedMarker)>0)
-		arrow=TRUE;
+		arrow=true;
 	return arrow;
 #endif
 }
@@ -2829,9 +2829,9 @@ bool Graph::arrowMarkerSelected()
 bool Graph::imageMarkerSelected()
 {
 #if false
-	bool image=FALSE;
+	bool image=false;
 	if (images.contains(selectedMarker)>0)
-		image=TRUE;
+		image=true;
 	return image;
 #endif
 }
@@ -3005,7 +3005,7 @@ void Graph::selectTitle()
 		emit selectedGraph(this);
 
 	d_plot->replot();
-	isTitleSelected=TRUE;
+	isTitleSelected=true;
 	selectedMarker = -1;
 
 	QLabel *title=d_plot->titleLabel();
@@ -3349,7 +3349,7 @@ void Graph::highlightPoint(bool showIt)
 
 	QPainter painter(d_plot->canvas());
 
-	painter.setClipping(TRUE);
+	painter.setClipping(true);
 	painter.setClipRect(d_plot->canvas()->contentsRect());
 
 	if ( showIt )
@@ -3411,9 +3411,9 @@ void Graph::shiftPointCursor(bool up)
 
 	if ( index != selectedPoint )
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedPoint = index;
-		showCursor(TRUE);
+		showCursor(true);
 	}
 #endif
 }
@@ -3439,9 +3439,9 @@ void Graph::shiftCurveCursor(bool up)
 
 	if ( selectedCurve != keys[index] )
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedCurve = keys[index];
-		showCursor(TRUE);
+		showCursor(true);
 	}
 
 	const QwtPlotCurve *curve = d_plot->curve(selectedCurve);
@@ -3503,7 +3503,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 	else if ((text.contains("(X)") == 2 && text.contains("(Y)") == 2) || 
 			(text.contains("(A)") && text.contains("(M)")))
 	{//vectors curve
-		QStringList ls = QStringList::split (",", text, FALSE );
+		QStringList ls = QStringList::split (",", text, false );
 		d_plot->setCurveTitle(c_keys[curve], ls[1].remove("(Y)"));//update curve name
 		associations[curve] = text;
 		updateVectorsData(t, curve);	
@@ -3523,7 +3523,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 		}
 
 		//update curve name
-		QStringList ls = QStringList::split (",", text, FALSE );
+		QStringList ls = QStringList::split (",", text, false );
 		d_plot->setCurveTitle(c_keys[curve], ls[1].remove("(Y)"));
 
 		associations[curve] = text;
@@ -3741,7 +3741,7 @@ void Graph::updateErrorBarsData(Table* w, int curve)
 	if (!er)
 		return;
 
-	QStringList asl = QStringList::split(",",associations[curve], FALSE);
+	QStringList asl = QStringList::split(",",associations[curve], false);
 	QString errColName = asl[2].remove("(yErr)").remove("(xErr)");
 	int errcol = w->colIndex(errColName);
 	if (errcol < 0)
@@ -3845,11 +3845,11 @@ QString Graph::saveEnabledAxes()
 bool Graph::framed()
 {
 #if false
-	bool frameOn=FALSE;
+	bool frameOn=false;
 
 	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();  
 	if (canvas->lineWidth()>0)
-		frameOn=TRUE;
+		frameOn=true;
 
 	return frameOn;
 #endif
@@ -4116,7 +4116,7 @@ QString Graph::saveErrorBars()
 			{
 				s+="ErrorBars\t";
 				s+=QString::number(er->direction())+"\t";
-				QStringList cvs=QStringList::split(",",associations[i],FALSE);
+				QStringList cvs=QStringList::split(",",associations[i],false);
 
 				s+=cvs[0].remove("(X)",true)+"\t";
 				s+=cvs[1].remove("(Y)",true)+"\t";
@@ -4351,7 +4351,7 @@ QString Graph::savePieCurveLayout()
 QString Graph::saveCurveLayout(int index)
 {
 #if false
-	QString s = QString::null;
+	QString s = QString();
 	int style = c_type[index];
 	QwtPlotCurve *c = (QwtPlotCurve*)curve(index);
 	if (c)
@@ -4458,7 +4458,7 @@ QString Graph::saveCurves()
 					s+="curve\t" + QString::number(c->x(0)) + "\t" + c->title() + "\t";
 				else
 				{
-					QStringList as=QStringList::split(",", associations[j],FALSE);
+					QStringList as=QStringList::split(",", associations[j],false);
 					s+= "curve\t" + as[0].remove("(X)",true) + "\t";
 					s+= as[1].remove("(Y)",true) + "\t";
 				}			
@@ -4494,9 +4494,9 @@ QString Graph::saveGridOptions()
 bool Graph::legendOn()
 {
 #if false
-	bool on=FALSE;
+	bool on=false;
 	if (legendMarkerID>=0)	
-		on=TRUE;
+		on=true;
 	return on;
 #endif
 }
@@ -4848,7 +4848,7 @@ QString Graph::saveMarkers()
 			s+=QString::number(mrk->getAngle())+"\t";
 			s+=mrk->backgroundColor().name()+"\t";
 
-			QStringList textList=QStringList::split ("\n",mrk->getText(),FALSE);
+			QStringList textList=QStringList::split ("\n",mrk->getText(),false);
 			s+=textList.join ("\t");
 			s+="\n";
 		}
@@ -4881,7 +4881,7 @@ QString Graph::saveLegend()
 		s+=QString::number(mrk->getAngle())+"\t";
 		s+=mrk->backgroundColor().name()+"\t";
 
-		QStringList textList=QStringList::split ("\n",mrk->getText(),FALSE);
+		QStringList textList=QStringList::split ("\n",mrk->getText(),false);
 		s+=textList.join ("\t");
 		s+="\n";
 	}
@@ -5102,9 +5102,9 @@ void Graph::updateErrorBars(int curve,bool xErr,int width,int cap,const QColor& 
 	er->drawMinusSide(minus);
 
 	if (xErr) 
-		associations[curve]=associations[curve].replace("(yErr)","(xErr)",TRUE); 
+		associations[curve]=associations[curve].replace("(yErr)","(xErr)",true); 
 	else
-		associations[curve]=associations[curve].replace("(xErr)","(yErr)",TRUE); 	
+		associations[curve]=associations[curve].replace("(xErr)","(yErr)",true); 	
 #endif
 }
 
@@ -5316,7 +5316,7 @@ void Graph::plotPie(QwtPieCurve* curve)
 	pieCurve->setRay(pieRay);
 	pieCurve->setBrushStyle(curve->pattern());
 	pieCurve->setFirstColor(curve->first());
-	piePlot=TRUE;
+	piePlot=true;
 
 	associations<<curve->title();
 #endif
@@ -5355,7 +5355,7 @@ void Graph::plotPie(Table* w, const QString& name,const QPen& pen, int brush, in
 	pieCurve->setRay(size);
 	pieCurve->setFirstColor(firstColor);	
 	pieCurve->setBrushStyle(getBrushStyle(brush));
-	piePlot=TRUE;
+	piePlot=true;
 	pieRay=size;
 #endif
 }
@@ -5422,7 +5422,7 @@ void Graph::plotPie(Table* w, const QString& name)
 		angle -= value;
 	}
 
-	piePlot=TRUE;
+	piePlot=true;
 
 	if (legendMarkerID>=0)
 	{
@@ -5443,9 +5443,9 @@ void Graph::plotPie(Table* w, const QString& name)
 	}
 
 	for (i=0;i<QwtPlot::axisCnt;i++)
-		d_plot->enableAxis(i,FALSE);
+		d_plot->enableAxis(i,false);
 
-	d_plot->setTitle(QString::null);
+	d_plot->setTitle(QString());
 
 	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();  
 	canvas->setLineWidth(1);
@@ -5931,7 +5931,7 @@ void Graph::removePie()
 	{
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
 		if (mrk)
-			mrk->setText(QString::null);
+			mrk->setText(QString());
 	}
 
 	d_plot->removeCurve(c_keys[0]);
@@ -5941,7 +5941,7 @@ void Graph::removePie()
 	c_type.resize(0);
 	n_curves=0;
 	associations.clear();
-	piePlot=FALSE;		
+	piePlot=false;		
 	emit modifiedGraph();
 #endif
 }
@@ -5968,7 +5968,7 @@ void Graph::removeCurve(int index)
 
 	if (piePlot)
 	{
-		piePlot=FALSE;	
+		piePlot=false;	
 		c_keys.resize(--n_curves);
 	}
 	else
@@ -5985,7 +5985,7 @@ void Graph::removeCurve(int index)
 		if (rangeSelectorsEnabled)
 		{
 			if (n_curves>0)
-				shiftCurveSelector(TRUE);
+				shiftCurveSelector(true);
 			else
 			{
 				d_plot->removeMarker(startID);
@@ -6016,12 +6016,12 @@ void Graph::removeLegendItem(int index)
 
 	if (piePlot)
 	{
-		mrk->setText(QString::null);
+		mrk->setText(QString());
 		return;
 	}
 
 	QString text=mrk->getText();
-	QStringList items=QStringList::split( "\n", text, FALSE);
+	QStringList items=QStringList::split( "\n", text, false);
 
 	if (index >= (int) items.count())
 		return;
@@ -6307,7 +6307,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 {
 #if false
 	int i,ndata;
-	bool error=FALSE;
+	bool error=false;
 	Q3MemArray<double> X(1),Y(1);
 	QString label,swap;
 	double step;
@@ -6329,7 +6329,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);
 		myParser parser;
 		double x;
-		bool error=FALSE;
+		bool error=false;
 
 		try
 		{	
@@ -6347,7 +6347,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 		catch(mu::ParserError &e)
 		{
 			QMessageBox::critical(0,"QtiPlot - Input function error", QString::fromStdString(e.GetMsg()));
-			error=TRUE;	
+			error=true;	
 		}
 	}	
 
@@ -6396,7 +6396,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 		catch(mu::ParserError &e)
 		{
 			QMessageBox::critical(0,"QtiPlot - Input function error",QString::fromStdString(e.GetMsg()));
-			error=TRUE;	
+			error=true;	
 		}
 	}		
 
@@ -6429,7 +6429,7 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 {
 #if false
 	int i,ndata;
-	bool error=FALSE;
+	bool error=false;
 	Q3MemArray<double> X(1),Y(1);
 	QString label,swap;
 	double step;
@@ -6442,7 +6442,7 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);
 		myParser parser;
 		double x;
-		bool error=FALSE;
+		bool error=false;
 
 		try
 		{	
@@ -6460,7 +6460,7 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 		catch(mu::ParserError &e)
 		{
 			QMessageBox::critical(0,"QtiPlot - Input function error", QString::fromStdString(e.GetMsg()));
-			error=TRUE;	
+			error=true;	
 		}
 		label="f"+QString::number(functions)+"(x)="+formulas[0]+",x,"+QString::number(ranges[0],'e',6)+","+QString::number(ranges[1],'e',6);
 	}	
@@ -6503,7 +6503,7 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 		catch(mu::ParserError &e)
 		{
 			QMessageBox::critical(0,"QtiPlot - Input function error",QString::fromStdString(e.GetMsg()));
-			error=TRUE;	
+			error=true;	
 		}
 	}		
 
@@ -6544,7 +6544,7 @@ void Graph::insertFunctionCurve(const QString& formula, double from, double step
 		insertOldFunctionCurve(formula,from, step, points);
 	else
 	{//version >= 0.4.3
-		curve=QStringList::split (",",formula,TRUE);
+		curve=QStringList::split (",",formula,true);
 		if (curve[0][0]=='f')
 		{
 			type="Function";
@@ -7125,7 +7125,7 @@ void Graph::copyTitle()
 void Graph::removeAxisTitle()
 {
 #if false
-	d_plot->setAxisTitle(selectedAxis, QString::null);
+	d_plot->setAxisTitle(selectedAxis, QString());
 	d_plot->replot();
 	emit modifiedGraph();
 #endif
@@ -7251,23 +7251,23 @@ void Graph::showGrids()
 		if (grid.majorOnY) 
 		{
 			grid.majorOnY = 0;
-			d_plot->enableGridY (FALSE);
+			d_plot->enableGridY (false);
 		}
 		else
 		{
 			grid.majorOnY = 1;
-			d_plot->enableGridY (TRUE);
+			d_plot->enableGridY (true);
 		}
 
 		if (grid.minorOnY) 
 		{
 			grid.minorOnY = 0;
-			d_plot->enableGridYMin (FALSE);
+			d_plot->enableGridYMin (false);
 		}
 		else 
 		{
 			grid.minorOnY = 1;
-			d_plot->enableGridYMin (TRUE);
+			d_plot->enableGridYMin (true);
 		}
 	}
 	else if (selectedAxis == QwtScale::Bottom || selectedAxis == QwtScale::Top)
@@ -7275,23 +7275,23 @@ void Graph::showGrids()
 		if (grid.majorOnX) 
 		{
 			grid.majorOnX = 0;
-			d_plot->enableGridX (FALSE);
+			d_plot->enableGridX (false);
 		}
 		else 
 		{
 			grid.majorOnX = 1;
-			d_plot->enableGridX (TRUE);
+			d_plot->enableGridX (true);
 		}
 
 		if (grid.minorOnX) 
 		{
 			grid.minorOnX = 0;
-			d_plot->enableGridXMin (FALSE);
+			d_plot->enableGridXMin (false);
 		}
 		else 
 		{
 			grid.minorOnX = 1;
-			d_plot->enableGridXMin (TRUE);
+			d_plot->enableGridXMin (true);
 		}
 	}
 	d_plot->replot();
@@ -7686,9 +7686,9 @@ QString Graph::curveXColName(const QString& curveTitle)
 	QStringList cl = curvesList();
 	int index=cl.findIndex(curveTitle);
 	if (index < 0)
-		return QString::null;
+		return QString();
 
-	cl=QStringList::split(",", associations[index],FALSE);
+	cl=QStringList::split(",", associations[index],false);
 	return cl[0].remove("(X)",true);
 #endif
 }

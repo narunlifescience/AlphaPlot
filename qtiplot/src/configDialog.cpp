@@ -258,8 +258,8 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::W
     if ( !name )
 		setName( "configDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    setMouseTracking( TRUE );
-    setSizeGripEnabled( FALSE );
+    setMouseTracking( true );
+    setSizeGripEnabled( false );
 
 	Q3HBox *box = new Q3HBox (this, "box"); 
 	box->setSpacing (5);
@@ -305,13 +305,13 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::W
 	generalDialog->addWidget(curves, 4);
 	generalDialog->addWidget(plots3D, 5);
 
-	GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal, QString::null,this,"GroupBox2" );
-	GroupBox2->setFlat(TRUE);
+	GroupBox2 = new Q3ButtonGroup( 3,Qt::Horizontal, QString(),this,"GroupBox2" );
+	GroupBox2->setFlat(true);
 	
 	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
 	
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setDefault( TRUE );
+    buttonOk->setDefault( true );
    
     buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
 	
@@ -420,7 +420,7 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
     buttonAxesFont= new QPushButton(GroupBox2DFonts, "buttonAxesFont" );   
 	buttonNumbersFont= new QPushButton(GroupBox2DFonts, "buttonNumbersFont" );
 
-	Q3ButtonGroup *GroupBox6 = new Q3ButtonGroup(4, Qt::Horizontal,QString::null,plots,"GroupBox2DFonts" );
+	Q3ButtonGroup *GroupBox6 = new Q3ButtonGroup(4, Qt::Horizontal,QString(),plots,"GroupBox2DFonts" );
 
 	lblTicks = new QLabel(GroupBox6); 
 	boxTicks = new QComboBox(GroupBox6,"ticks");
@@ -485,7 +485,7 @@ void configDialog::initPlots3DPage()
 	Q3VBox  *box=new Q3VBox (plots3D, "box"); 
 	box->setSpacing (5);
 
-	Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup(2,Qt::Horizontal,QString::null, box, "GroupBox7" );
+	Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup(2,Qt::Horizontal,QString(), box, "GroupBox7" );
 	lblResolution = new QLabel(GroupBox77); 
 	boxResolution = new QSpinBox(1, 100, 1, GroupBox77, "boxResolution" );
 	boxResolution->setValue(app->plot3DResolution);
@@ -598,7 +598,7 @@ GroupBoxApp = new Q3ButtonGroup( 2,Qt::Horizontal,tr("General"),application,"Gro
 void configDialog::initCurvesPage()
 {
 curves = new QWidget( generalDialog, "curves" );
-Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup( 2,Qt::Horizontal,QString::null,curves,"GroupBox77" );
+Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup( 2,Qt::Horizontal,QString(),curves,"GroupBox77" );
     
 lblCurveStyle = new QLabel(GroupBox77); 	
 boxCurveStyle = new QComboBox(GroupBox77,"boxCurveStyle");
