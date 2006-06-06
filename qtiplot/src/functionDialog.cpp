@@ -213,8 +213,8 @@ if (start>=end)
 	QString type=QString("Function");
 	QStringList formulas;
 	QStringList variables;	
-	Q3ValueList<double> ranges;
-	Q3ValueList<int> varpoints;
+	QList<double> ranges;
+	QList<int> varpoints;
 	formulas+=formula;
 	variables+="x";
 	ranges+=start;
@@ -322,8 +322,8 @@ if (start>=end)
 	QString type=QString("Parametric plot");
 	QStringList formulas;
 	QStringList variables;	
-	Q3ValueList<double> ranges;
-	Q3ValueList<int> varpoints;
+	QList<double> ranges;
+	QList<int> varpoints;
 	formulas+=xformula;
 	formulas+=yformula;
 	variables+=boxParameter->text();
@@ -432,8 +432,8 @@ if (start>=end)
 	QString type=QString("Polar plot");
 	QStringList formulas;
 	QStringList variables;	
-	Q3ValueList<double> ranges;
-	Q3ValueList<int> varpoints;
+	QList<double> ranges;
+	QList<int> varpoints;
 	formulas+=rformula;
 	formulas+=tformula;
 	variables+=boxPolarParameter->text();

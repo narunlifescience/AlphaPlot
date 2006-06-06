@@ -55,7 +55,7 @@
 #include "imageDialog.h"
 #include "multilayer.h"
 #include "layerDialog.h"
-#include "analysisDialog.h"
+#include "dataSetDialog.h"
 #include "intDialog.h"
 #include "configDialog.h"
 #include "imageExportDialog.h"
@@ -117,9 +117,7 @@
 #include <QAction>
 #include <QDragEnterEvent>
 #include <QDropEvent>
-#include <Q3MemArray>
-#include <Q3ValueList>
-#include <Q3Frame>
+#include <QList>
 #include <QTimerEvent>
 #include <QCloseEvent>
 
@@ -247,7 +245,7 @@ void ApplicationWindow::init()
 	logWindow = new QDockWidget( this );
 	addDockWidget( Qt::TopDockWidgetArea, logWindow );
 
-	results=new Q3TextEdit(logWindow,"results");
+	results=new QTextEdit( logWindow );
 	results->setReadOnly (true);
 
 	logWindow->setWidget(results);
@@ -345,14 +343,16 @@ void ApplicationWindow::applyUserSettings()
 	lv->setPaletteForegroundColor (panelsTextColor);
 	lv->setPaletteBackgroundColor (panelsColor);
 
-	results->setPaper (QBrush(panelsColor, Qt::SolidPattern));
-	results->setPaletteForegroundColor (panelsTextColor);
+	QPalette pal = results->palette();
+	pal.setBrush(QPalette::Active, QPalette::Window, QBrush(panelsColor, Qt::SolidPattern));
+	pal.setColor(QPalette::Active, QPalette::WindowText, panelsTextColor);
+	results->setPalette(pal);
 
 	ws->setPaletteBackgroundColor (workspaceColor);
 
-	QPalette pal = qApp->palette();
-	pal.setColor (QPalette::Active, QColorGroup::Base, QColor(panelsColor));
-	qApp->setPalette(pal, true, 0);
+	pal = qApp->palette();
+	pal.setColor(QPalette::Active, QPalette::Base, QColor(panelsColor));
+	qApp->setPalette(pal);
 
 	updateAppFonts();
 
@@ -1670,37 +1670,34 @@ void ApplicationWindow::add3DData()
 		return;
 	}
 
-	analysisDialog *ad=new analysisDialog(0,"Column :", "analysisDialog",true);
+	DataSetDialog *ad=new DataSetDialog(tr("Column :"));
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insertNew3DData(const QString&)));
 	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
 	ad->setCurveNames(zColumns);
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 }
 
 void ApplicationWindow::change3DData()
 {
-	analysisDialog *ad=new analysisDialog(0,"Column :", "analysisDialog",true);
+	DataSetDialog *ad=new DataSetDialog(tr("Column :"));
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DData(const QString&)));
 
 	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
 	ad->setCurveNames(columnsList(Table::Z));
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 }
 
 void ApplicationWindow::change3DMatrix()
 {
-	analysisDialog *ad=new analysisDialog(0,"Matrix :", "analysisDialog",true);
+	DataSetDialog *ad=new DataSetDialog(tr("Matrix :"));
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DMatrix(const QString&)));
 
 	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
 	ad->setCurveNames(matrixWindows);
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 }
 
 void ApplicationWindow::change3DMatrix(const QString& matrix_name)
@@ -1724,14 +1721,13 @@ void ApplicationWindow::add3DMatrixPlot()
 		return;
 	}
 
-	analysisDialog *ad=new analysisDialog(0,"Matrix :", "analysisDialog",true);
+	DataSetDialog *ad=new DataSetDialog(tr("Matrix :"));
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insert3DMatrixPlot(const QString&)));
 
 	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
 	ad->setCurveNames(matrixWindows);
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 }
 
 void ApplicationWindow::insert3DMatrixPlot(const QString& matrix_name)
@@ -2261,7 +2257,7 @@ void ApplicationWindow::polishGraph(Graph *g, int style)
 {
 	if (style == Graph::VerticalBars || style == Graph::HorizontalBars ||style == Graph::Histogram)
 	{
-		Q3ValueList<int> ticksList;
+		QList<int> ticksList;
 		int ticksStyle = Plot::Out;
 		ticksList<<ticksStyle<<ticksStyle<<ticksStyle<<ticksStyle;
 		g->setTicksType(ticksList);
@@ -2526,7 +2522,7 @@ void ApplicationWindow::customGraph(Graph* g)
 			g->updateSecondaryAxis(QwtPlot::yRight);
 		}
 
-		Q3ValueList<int> ticksList;
+		QList<int> ticksList;
 		ticksList<<ticksStyle<<ticksStyle<<ticksStyle<<ticksStyle;
 		g->setTicksType(ticksList);
 		g->setTicksLength (minTicksLength, majTicksLength);
@@ -3226,7 +3222,7 @@ void ApplicationWindow::changeAppStyle(const QString& s)
 	appStyle = qApp->style()->objectName();
 
 	QPalette pal = qApp->palette();
-	pal.setColor (QPalette::Active, QColorGroup::Base, QColor(panelsColor));
+	pal.setColor (QPalette::Active, QPalette::Base, QColor(panelsColor));
 	qApp->setPalette(pal);
 
 }
@@ -6730,7 +6726,9 @@ void ApplicationWindow::showResults(bool ok)
 			results->setText(tr("Sorry, there are no results to display!"));
 
 		logWindow->show();
-		results->scrollToBottom ();
+		QTextCursor cur = results->textCursor();
+		cur.movePosition(QTextCursor::End);
+		results->setTextCursor(cur);
 	}
 	else
 		logWindow->hide();
@@ -8887,12 +8885,12 @@ void ApplicationWindow::newFunctionPlot()
 {
 	fDialog* fd = functionDialog();
 	if (fd)
-		connect (fd,SIGNAL(newFunctionPlot(QString&,QStringList &,QStringList &,Q3ValueList<double> &,Q3ValueList<int> &)),
-				this,SLOT(newFunctionPlot(QString&,QStringList &,QStringList &,Q3ValueList<double> &,Q3ValueList<int> &)));
+		connect (fd,SIGNAL(newFunctionPlot(QString&,QStringList &,QStringList &,QList<double> &,QList<int> &)),
+				this,SLOT(newFunctionPlot(QString&,QStringList &,QStringList &,QList<double> &,QList<int> &)));
 
 }
 
-void ApplicationWindow::newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points)
+void ApplicationWindow::newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points)
 {
 	QString label="graph"+QString::number(++graphs);
 	while(alreadyUsedName(label)){
@@ -10277,7 +10275,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (fileVersion < 69 && s.contains ("AxesTickLabelsCol"))
 		{
 			fList=QStringList::split ("\t",s,true);
-			Q3ValueList<int> axesTypes = ag->axesType();
+			QList<int> axesTypes = ag->axesType();
 			for (i=0; i<4; i++)
 			{
 				QString colName = fList[i+1];
@@ -10420,14 +10418,13 @@ void ApplicationWindow::copyActiveLayer()
 	g->copyImage();
 }
 
-void ApplicationWindow::showAnalysisDialog(const QString& whichFit)
+void ApplicationWindow::showDataSetDialog(const QString& whichFit)
 {
-	analysisDialog *ad=new analysisDialog(0, tr("Curve:"), "analysisDialog",true);
+	DataSetDialog *ad=new DataSetDialog(tr("Curve:"));
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setCurveNames(activeGraph->curvesList());
 	ad->setOperationType(whichFit);
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 
 	connect (ad,SIGNAL(analyse(const QString&, const QString&)),this,SLOT(analyzeCurve(const QString&, const QString& )));
 }
@@ -10486,7 +10483,7 @@ void ApplicationWindow::analysis(const QString& whichFit)
 			analyzeCurve(whichFit,c->title().text());
 	}
 	else
-		showAnalysisDialog(whichFit);
+		showDataSetDialog(whichFit);
 }
 
 void ApplicationWindow::pickPointerCursor()
@@ -10675,10 +10672,12 @@ void ApplicationWindow::setAppColors(const QColor& wc,const QColor& pc,const QCo
 	{
 		panelsColor = pc;
 		lv->setPaletteBackgroundColor (pc);
-		results->setPaper ( QBrush (pc, Qt::SolidPattern ) );
+		QPalette pal = results->palette();
+		pal.setBrush(QPalette::Active, QPalette::Window, QBrush(pc, Qt::SolidPattern ) );
+		results->setPalette(pal);
 
-		QPalette pal = qApp->palette();
-		pal.setColor (QPalette::Active, QColorGroup::Base, QColor(panelsColor) );
+		pal = qApp->palette();
+		pal.setColor(QPalette::Active, QPalette::Base, QColor(panelsColor) );
 		qApp->setPalette(pal, true, 0);
 	}
 

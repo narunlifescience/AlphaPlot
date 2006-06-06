@@ -59,7 +59,7 @@ public slots:
 	void setGraph(Graph *g){graph = g;};
 
 signals:
-	void newFunctionPlot(QString& ,QStringList &,QStringList &,Q3ValueList<double> &,Q3ValueList<int> &);
+	void newFunctionPlot(QString& ,QStringList &,QStringList &,QList<double> &,QList<int> &);
 	void clearFunctionsList();
 	void clearParamFunctionsList();
 	void clearPolarFunctionsList();

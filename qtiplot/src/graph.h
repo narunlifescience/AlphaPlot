@@ -39,7 +39,7 @@
 #include <QPixmap>
 #include <Q3MemArray>
 #include <QCloseEvent>
-#include <Q3ValueList>
+#include <QList>
 #include <QContextMenuEvent>
 #include <QResizeEvent>
 #include <gsl/gsl_multifit_nlin.h>
@@ -303,8 +303,8 @@ public slots:
 	 void deselectMarker();
 
 	 // axes 
-	 Q3ValueList<int> axesType();
-	 void setAxesType(const Q3ValueList<int> tl); 
+	 QList<int> axesType();
+	 void setAxesType(const QList<int> tl); 
 	 	
 	 QStringList scalesTitles();
 	 void setXAxisTitle(const QString& text);
@@ -362,12 +362,12 @@ public slots:
 	bool axesBackbones(){return drawAxesBackbone;};
 	void loadAxesOptions(const QString& s);//used when opening a project file
 
-	Q3ValueList<int> axesBaseline();
-	void setAxesBaseline(const Q3ValueList<int> &lst);
+	QList<int> axesBaseline();
+	void setAxesBaseline(const QList<int> &lst);
 	void setAxesBaseline(QStringList &lst);
 
-	Q3ValueList<int> ticksType();
-	void setTicksType(const Q3ValueList<int>& list);
+	QList<int> ticksType();
+	void setTicksType(const QList<int>& list);
 	void setTicksType(const QStringList& list); 
 	
 	int minorTickLength();
@@ -573,8 +573,8 @@ public slots:
 	 void showIntensityTable();
 	 
 	 //user defined functions
-	 void modifyFunctionCurve(int curve, QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points);
-	 void addFunctionCurve(QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points);	 
+	 void modifyFunctionCurve(int curve, QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);
+	 void addFunctionCurve(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);	 
 	 //when reading from file
 	 void insertFunctionCurve(const QString& formula, double from, double to, int points);
 	 //for versions <0.4.3
@@ -695,8 +695,8 @@ private:
 	int selectedAxis;
 	QStringList axesFormulas;
 	QStringList axesFormatInfo;//stores columns used for axes with text labels or  time/date format info
-	Q3ValueList <int> axisType;
-	Q3ValueList <int> lblFormat; //stores label format used for the axes
+	QList <int> axisType;
+	QList <int> lblFormat; //stores label format used for the axes
 	QwtScaleMap xCanvasMap, yCanvasMap;
 	gridOptions grid;
 	MarkerType selectedMarkerType;

@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : analysisDialog.h
+    File                 : dataSetDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Analysis options dialog
+    Description          : Multi purpose dialog for choosing a data set
                            
  ***************************************************************************/
 
@@ -26,32 +26,29 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ANALYSISDIALOG_H
-#define ANALYSISDIALOG_H
+#ifndef DATASETDIALOG_H
+#define DATASETDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
 class QCheckBox;
 class QLineEdit;
 class QComboBox;
-class Q3HButtonGroup;
 	
-//! Analysis options dialog
-class analysisDialog : public QDialog
+//! Multi purpose dialog for choosing a data set
+class DataSetDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    analysisDialog( QWidget* parent = 0, const QString& text="Curve", const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~analysisDialog();
+    DataSetDialog( const QString& text, QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ~DataSetDialog();
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1;
-    Q3HButtonGroup* GroupBox2;
+    QGroupBox* groupBox1;
     QCheckBox* boxShowFormula;
 	QComboBox* boxName;
 
@@ -67,6 +64,7 @@ signals:
 
 private:
 	QString operation;
+	QString windowTitle;
 };
 
 #endif 

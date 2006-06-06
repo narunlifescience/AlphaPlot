@@ -29,7 +29,6 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <q3mainwindow.h>
 #include <q3listview.h> 
 
 #include <QActionGroup>
@@ -49,23 +48,17 @@
 #include "graph3D.h"
 #include "plot3DDialog.h"
 
-#include <qhttp.h> 
-#include <qfile.h> 
+#include <QHttp> 
+#include <QFile> 
 #include <QAction>
 
 class QAction;
 class QActionGroup;
-class Q3TextEdit;
-class QToolButton;
 class QMenu;
 class QWorkspace;
-class QMenu;
-class QToolButton;
-class Q3ListBoxItem;
-class Q3TextBrowser;
 class QLineEdit;
-class Q3DockWindow;
 class QTranslator;
+class QToolButton;
 
 class Matrix;
 class Table;
@@ -92,7 +85,7 @@ public:
 
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow, *explorerWindow;
-	Q3TextEdit *results;
+	QTextEdit *results;
 	QWorkspace* ws;
     QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools;
     QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
@@ -218,7 +211,7 @@ public slots:
 
 	//user-defined functions
 	void newFunctionPlot();
-	void newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points);
+	void newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);
 
 	fDialog* functionDialog();
 	void showFunctionDialog(const QString& function, int curve);
@@ -480,7 +473,7 @@ public slots:
 	void differentiate();
 	void analysis(const QString& whichFit);
 	void analyzeCurve(const QString& whichFit, const QString& curveTitle);
-	void showAnalysisDialog(const QString& whichFit);
+	void showDataSetDialog(const QString& whichFit);
 
 	void addErrorBars();
 	void defineErrorBars(const QString& name,int type,const QString& percent,int direction);

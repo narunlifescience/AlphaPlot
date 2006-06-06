@@ -34,45 +34,45 @@
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 	mw(app)
 {	
-OPJFile opj((char *)filename.latin1());
-parse_error = opj.Parse();
+	OPJFile opj((char *)filename.latin1());
+	parse_error = opj.Parse();
 
-importTables(opj);
+	importTables(opj);
 }
 
 bool ImportOPJ::importTables(OPJFile opj) 
 {
-for (int s=0; s<opj.numSpreads(); s++) 
+	for (int s=0; s<opj.numSpreads(); s++) 
 	{	
-	int nr_cols = opj.numCols(s);
-	int maxrows = opj.maxRows(s);
+		int nr_cols = opj.numCols(s);
+		int maxrows = opj.maxRows(s);
 
-	Table *table = mw->newTable(opj.spreadName(s), maxrows, nr_cols);
-	if (!table)
-		return false;
-	
-	for (int j=0; j<nr_cols; j++) 
+		Table *table = mw->newTable(opj.spreadName(s), maxrows, nr_cols);
+		if (!table)
+			return false;
+
+		for (int j=0; j<nr_cols; j++) 
 		{
-		QString name(opj.colName(s,j));
-		table->setColName(j, name.replace(QRegExp(".*_"),""));
+			QString name(opj.colName(s,j));
+			table->setColName(j, name.replace(QRegExp(".*_"),""));
 
-		if (QString(opj.colType(s,j)) == "X")
-			table->setColPlotDesignation(j, Table::X);
-		else if (QString(opj.colType(s,j)) == "Y")
-			table->setColPlotDesignation(j, Table::Y);
-		else if (QString(opj.colType(s,j)) == "Z")
-			table->setColPlotDesignation(j, Table::Z);
-		else
-			table->setColPlotDesignation(j, Table::None);
+			if (QString(opj.colType(s,j)) == "X")
+				table->setColPlotDesignation(j, Table::X);
+			else if (QString(opj.colType(s,j)) == "Y")
+				table->setColPlotDesignation(j, Table::Y);
+			else if (QString(opj.colType(s,j)) == "Z")
+				table->setColPlotDesignation(j, Table::Z);
+			else
+				table->setColPlotDesignation(j, Table::None);
 
-		for (int i=0; i<opj.numRows(s,j); i++) 
+			for (int i=0; i<opj.numRows(s,j); i++) 
 			{
-			double val = opj.Data(s,j)[i];
-			if(fabs(val) > 2e-300 || val == 0) 
-				table->setText(i, j, QString::number(val));
+				double val = opj.Data(s,j)[i];
+				if(fabs(val) > 2e-300 || val == 0) 
+					table->setText(i, j, QString::number(val));
 			}		
 		}
-	table->showNormal();
+		table->showNormal();
 	}
-return true;
+	return true;
 }

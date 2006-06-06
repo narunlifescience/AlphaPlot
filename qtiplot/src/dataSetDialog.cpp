@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : analysisDialog.cpp
+    File                 : dataSetDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Analysis options dialog
+    Description          : Multi purpose dialog for choosing a data set
                            
  ***************************************************************************/
 
@@ -26,75 +26,73 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "analysisDialog.h"
+#include "dataSetDialog.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HButtonGroup>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QLabel>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
-analysisDialog::analysisDialog( QWidget* parent, const QString& text, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "analysisDialog" );
-	setWindowTitle(tr("QtiPlot - Analysis Options"));
-	
+	setWindowTitle(tr("QtiPlot - Select data set"));
+
 	operation = QString();
 
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
+	QVBoxLayout * mainLayout = new QVBoxLayout( this );
+	QHBoxLayout * layoutBottom = new QHBoxLayout();
 
-	new QLabel( tr(text), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
-	
-	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (true);
-	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( true );
-    buttonOk->setDefault( true );
-    
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
-	
-    Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
-	vlayout->addWidget(GroupBox1);
-	vlayout->addWidget(GroupBox2);
-	
-    languageChange();
-   
-    // signals and slots connections
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+	groupBox1 = new QGroupBox();
+	QHBoxLayout * layoutTop = new QHBoxLayout( groupBox1 );
+
+	layoutTop->addWidget( new QLabel(text) );
+	boxName = new QComboBox();
+	layoutTop->addWidget(boxName);
+
+	buttonOk = new QPushButton();
+	buttonOk->setAutoDefault( true );
+	buttonOk->setDefault( true );
+	layoutBottom->addWidget( buttonOk );
+
+	buttonCancel = new QPushButton();
+	buttonCancel->setAutoDefault( true );
+	layoutBottom->addWidget( buttonCancel );
+
+	mainLayout->addWidget( groupBox1 );
+	mainLayout->addLayout( layoutBottom );
+
+	languageChange();
+
+	// signals and slots connections
+	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-analysisDialog::~analysisDialog()
+DataSetDialog::~DataSetDialog()
 {
 }
 
-void analysisDialog::languageChange()
+void DataSetDialog::languageChange()
 {
-    buttonOk->setText( tr( "&OK" ) );
+	buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
-void analysisDialog::accept()
+void DataSetDialog::accept()
 {
-if (operation.isEmpty())
-	emit options(boxName->currentText());
-else
-	emit analyse(operation, boxName->currentText());
-close();
+	if (operation.isEmpty())
+		emit options(boxName->currentText());
+	else
+		emit analyse(operation, boxName->currentText());
+	close();
 }
 
-void analysisDialog::setCurveNames(const QStringList& names)
+void DataSetDialog::setCurveNames(const QStringList& names)
 {
-boxName->insertStringList (names,-1);
+	boxName->insertStringList (names,-1);
 }

@@ -242,7 +242,7 @@ for (i=0;i<n;i++)
 	QString aux2=aux.mid(pos2+1,pos3-pos2-1);
 	if (aux2.contains("col("))
 		{
-		QMessageBox::critical(0,tr("QtiPlot - Input function error"), tr("You can not use imbricated columns!"));
+		QMessageBox::critical(0,tr("QtiPlot - Input function error"), tr("Overlapping column references! Missing bracket?"));
 		return false;
    		}
 

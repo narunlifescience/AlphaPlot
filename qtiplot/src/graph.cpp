@@ -31,7 +31,7 @@
 #include <Q3MemArray>
 #include <QTextStream>
 #include <QContextMenuEvent>
-#include <Q3ValueList>
+#include <QList>
 #include <QCloseEvent>
 #include <QLabel>
 static const char *cut_xpm[]={
@@ -612,10 +612,10 @@ Q3MemArray<bool> Graph::enabledAxes()
 #endif
 }
 
-Q3ValueList<int> Graph::axesBaseline()
+QList<int> Graph::axesBaseline()
 {
 #if false
-	Q3ValueList<int> baselineDist;
+	QList<int> baselineDist;
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
 		QwtScale *scale = (QwtScale *)d_plot->axis(i);
@@ -628,7 +628,7 @@ Q3ValueList<int> Graph::axesBaseline()
 #endif
 }
 
-void Graph::setAxesBaseline(const Q3ValueList<int> &lst)
+void Graph::setAxesBaseline(const QList<int> &lst)
 {
 #if false
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
@@ -653,14 +653,14 @@ void Graph::setAxesBaseline(QStringList &lst)
 #endif
 }
 
-Q3ValueList<int> Graph::axesType()
+QList<int> Graph::axesType()
 {
 #if false
 	return axisType;
 #endif
 }
 
-Q3ValueList<int> Graph::ticksType()
+QList<int> Graph::ticksType()
 {
 #if false
 	return d_plot->getTicksType();
@@ -761,7 +761,7 @@ void Graph::setLabelsNumericFormat(const QStringList& l)
 #endif
 }
 
-void Graph::setAxesType(const Q3ValueList<int> tl)
+void Graph::setAxesType(const QList<int> tl)
 {
 #if false
 	axisType = tl;	
@@ -788,7 +788,7 @@ QString Graph::saveAxesLabelsType()
 QString Graph::saveTicksType()
 {
 #if false
-	Q3ValueList<int> ticksTypeList=d_plot->getTicksType();
+	QList<int> ticksTypeList=d_plot->getTicksType();
 	QString s="EnabledTicks\t";
 	for (int i=0;i<4;i++)
 		s+=QString::number(ticksTypeList[i])+"\t";
@@ -864,7 +864,7 @@ void Graph::setEnabledTickLabels(const QStringList& labelsOn)
 #endif
 }
 
-void Graph::setTicksType(const Q3ValueList<int>& list)
+void Graph::setTicksType(const QList<int>& list)
 {
 #if false
 	if (d_plot->getTicksType() == list)
@@ -930,7 +930,7 @@ void Graph::setAxisTicksLength(int axis, int ticksType, int minLength, int majLe
 void Graph::setTicksLength(int minLength, int majLength)
 {
 #if false
-	Q3ValueList<int> ticksType = d_plot->getTicksType();
+	QList<int> ticksType = d_plot->getTicksType();
 	for (int i=0; i<4; i++)
 	{
 		int type = ticksType[i];
@@ -972,7 +972,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 		const QString& formula)
 {		
 #if false
-	Q3ValueList<int> ticksTypeList = d_plot->getTicksType();
+	QList<int> ticksTypeList = d_plot->getTicksType();
 
 	char f;
 	int pr,fw;
@@ -6303,7 +6303,7 @@ void Graph::insertOldFunctionCurve(const QString& formula, double from, double s
 #endif
 }
 
-void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points)
+void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points)
 {
 #if false
 	int i,ndata;
@@ -6425,7 +6425,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 #endif
 }
 
-void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &vars,Q3ValueList<double> &ranges,Q3ValueList<int> &points)
+void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points)
 {
 #if false
 	int i,ndata;
@@ -6537,8 +6537,8 @@ void Graph::insertFunctionCurve(const QString& formula, double from, double step
 	QString type;
 	QStringList formulas;
 	QStringList variables;	
-	Q3ValueList<double> ranges;
-	Q3ValueList<int> varpoints;
+	QList<double> ranges;
+	QList<int> varpoints;
 
 	if (!formula.contains(","))	//version < 0.4.3
 		insertOldFunctionCurve(formula,from, step, points);

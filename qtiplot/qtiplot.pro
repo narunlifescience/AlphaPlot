@@ -87,7 +87,7 @@ HEADERS  = src/application.h \
 	 src/matrixDialog.h \
 	 src/matrixSizeDialog.h \
 	 src/matrixValuesDialog.h \
-     src/analysisDialog.h \
+     src/dataSetDialog.h \
 	 src/parser.h \
 	 src/colorBox.h \
 	 src/symbolBox.h \
@@ -147,7 +147,7 @@ SOURCES  = src/application.cpp \
      src/sortDialog.cpp\
 	 src/bars.cpp \
 	 src/cones.cpp \
-     src/analysisDialog.cpp \
+     src/dataSetDialog.cpp \
 	 src/configDialog.cpp \
 	 src/BarCurve.cpp \
 	 src/BoxCurve.cpp \
