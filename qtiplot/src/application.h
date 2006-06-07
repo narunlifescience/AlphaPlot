@@ -31,15 +31,12 @@
 
 #include <q3listview.h> 
 
-#include <QActionGroup>
 #include <QPixmap>
 #include <QCloseEvent>
 #include <QDropEvent>
 #include <QTimerEvent>
-#include <QMenu>
 #include <QDragEnterEvent>
 #include <QTranslator>
-#include <QToolBar>
 #include <QDockWidget>
 #include <QTextBrowser>
 
@@ -50,7 +47,6 @@
 
 #include <QHttp> 
 #include <QFile> 
-#include <QAction>
 
 class QAction;
 class QActionGroup;
@@ -59,6 +55,11 @@ class QWorkspace;
 class QLineEdit;
 class QTranslator;
 class QToolButton;
+class QAction;
+class QShortcut;
+class QMenu;
+class QActionGroup;
+class QToolBar;
 
 class Matrix;
 class Table;
@@ -318,7 +319,11 @@ public slots:
 	void readSettings();
 	void saveSettings();
 	void applyUserSettings();
+	//! Set the project status to modifed
 	void modifiedProject();
+	//! Set the project status to saved (not modified)
+	void savedProject();
+	//! Set the project status to modified and save 'w' as the last modified widget
 	void modifiedProject(QWidget *w);
     void print();
 	void print(QWidget* w);
@@ -635,6 +640,7 @@ public slots:
 
 	bool alreadyUsedName(const QString& label);
 
+ 	//! Creates a new empty note window
 	Note* newNote(const QString& caption = QString());
 	Note* openNote(ApplicationWindow* app, const QStringList &flist);
 	void initNote(Note* m, const QString& caption);
@@ -738,6 +744,7 @@ signals:
 	void windowClosed(const QString&);
 	void modified();
 	
+// TODO: a lot of this stuff should be private
 public:
 	//! pointer to the current folder in the project
 	Folder *current_folder;
@@ -794,6 +801,7 @@ public:
 	int plotMenuID, importMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;
 	int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID, multiPeakMenuID; 
 
+private:
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
     QAction *actionLoad, *actionLoadMultiple, *actionUndo, *actionRedo;
@@ -837,8 +845,9 @@ public:
 	QAction *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
+	QAction *actionNextWindow, *actionPrevWindow;
+	QShortcut *shortcutClearSelection;
 
-private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
 

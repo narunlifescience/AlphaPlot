@@ -113,6 +113,7 @@
 #include <qsplitter.h>
 #include <qobject.h>
 #include <q3simplerichtext.h>
+
 #include <QActionGroup>
 #include <QAction>
 #include <QDragEnterEvent>
@@ -120,13 +121,15 @@
 #include <QList>
 #include <QTimerEvent>
 #include <QCloseEvent>
-
+#include <QToolBar>
 #include <QKeySequence>
 #include <QImageReader>
 #include <QImageWriter>
 #include <QList>
 #include <QDateTime>
 #include <QProcess>
+#include <QAction>
+#include <QShortcut>
 
 #include <zlib.h>
 
@@ -263,15 +266,21 @@ void ApplicationWindow::init()
 	createLanguagesList();
 	insertTranslatedStrings();
 
-	Q3Accel *accel = new Q3Accel(this);
-	accel->connectItem( accel->insertItem( Qt::Key_F5 ), ws, SLOT(activateNextWindow()) );
-	accel->connectItem( accel->insertItem( Qt::Key_F6 ), ws, SLOT(activatePrevWindow()) );
-	accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(clearSelection()) );
+	actionNextWindow = new QAction(QIcon(QPixmap(next_xpm)), tr("&Next","next window"), this);
+	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
+	connect(actionNextWindow, SIGNAL(activated()), ws, SLOT(activateNextWindow()));
 
+	actionPrevWindow = new QAction(QIcon(QPixmap(prev_xpm)), tr("&Previous","previous window"), this);
+	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
+	connect(actionPrevWindow, SIGNAL(activated()), ws, SLOT(activatePreviousWindow()));
+
+    shortcutClearSelection = new QShortcut(QKeySequence(tr("Del", "clear selection shortcut")), this);
+	connect( shortcutClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()) );
 
 	connect(actionShowLog, SIGNAL(toggled(bool)), this, SLOT(showResults(bool)));
-	connect(logWindow,SIGNAL(visibilityChanged(bool)),actionShowLog,SLOT(setChecked(bool)));
-	connect(explorerWindow,SIGNAL(visibilityChanged(bool)),actionShowExplorer,SLOT(setChecked(bool)));
+	//TODO: Find a way to implement this in Qt4
+//	connect(logWindow,SIGNAL(visibilityChanged(bool)),actionShowLog,SLOT(setChecked(bool)));
+//	connect(explorerWindow,SIGNAL(visibilityChanged(bool)),actionShowExplorer,SLOT(setChecked(bool)));
 	connect(tablesDepend, SIGNAL(activated(int)), this, SLOT(showTable(int)));
 
 	connect(this, SIGNAL(modified()),this, SLOT(modifiedProject()));
@@ -2694,8 +2703,7 @@ void ApplicationWindow::showHistogramTable(const QString& caption, int r, int c,
  */
 Note* ApplicationWindow::newNote(const QString& caption)
 {
-	Note* m = new Note("", ws, 0);
-	m->setAttribute(Qt::WA_DeleteOnClose);
+	Note* m = new Note("", ws);
 	if (caption.isEmpty())
 		initNote(m,"Note" + QString::number(++notes));
 	else
@@ -3487,7 +3495,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 			}
 		}
 
-		emit modifiedProject();
+		modifiedProject();
 	}
 	else
 	{
@@ -3499,7 +3507,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 						strip_spaces, simplify_spaces, importFileAs);
 			t->setWindowLabel(fileNames.join("; "));
 			t->setCaptionPolicy(MyWidget::Name);
-			emit modifiedProject(t);
+			modifiedProject(t);
 		}
 	}
 }
@@ -3837,8 +3845,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		app->customToolBars(app->aw);
 	}
 
-	app->saved=true;
-	app->actionSaveProject->setEnabled(false);
+	app->savedProject();
 
 	if (app->show_windows_policy == HideAll)
 		app->hideFolderWindows(app->projectFolder());
@@ -4808,8 +4815,7 @@ bool ApplicationWindow::saveProject()
 	saveFolder(projectFolder(), projectname);
 
 	setWindowTitle("QtiPlot - "+projectname);
-	saved=true;
-	actionSaveProject->setEnabled(false);
+	savedProject();
 	actionUndo->setEnabled(false);
 	actionRedo->setEnabled(false);
 
@@ -7905,7 +7911,7 @@ void ApplicationWindow::closeWindow(QWidget* window)
 
 	emit modified();
 	emit windowClosed(window->name());
-	delete window;
+//	delete window;
 }
 
 void ApplicationWindow::about()
@@ -7930,10 +7936,8 @@ void ApplicationWindow::windowsMenuAboutToShow()
 	windowsMenu->insertItem(tr("&Cascade"), ws, SLOT(cascade() ) );
 	windowsMenu->insertItem(tr("&Tile"), ws, SLOT(tile() ) );
 	windowsMenu->insertSeparator();
-	windowsMenu->insertItem(QPixmap(next_xpm),tr("&Next"),
-			ws, SLOT(activateNextWindow()), Qt::Key_F5);
-	windowsMenu->insertItem(QPixmap(prev_xpm),tr("&Previous"),
-			ws, SLOT(activatePrevWindow()), Qt::Key_F6);
+	windowsMenu->addAction(actionNextWindow);
+	windowsMenu->addAction(actionPrevWindow);
 	windowsMenu->insertSeparator();
 	windowsMenu->addAction(actionRename);
 	windowsMenu->addAction(actionCopyWindow);
@@ -8038,22 +8042,26 @@ void ApplicationWindow::newProject()
 	else
 		ed->show();
 
-	ed->saved=true;
-	ed->actionSaveProject->setEnabled(false);
+	ed->savedProject();
 
 	this->close();
+}
+
+void ApplicationWindow::savedProject()
+{
+	actionSaveProject->setEnabled(false);
+	saved = true;
 }
 
 void ApplicationWindow::modifiedProject()
 {
 	actionSaveProject->setEnabled(true);
-	saved=false;
+	saved = false;
 }
 
 void ApplicationWindow::modifiedProject(QWidget *w)
 {
-	actionSaveProject->setEnabled(true);
-	saved=false;
+	modifiedProject();
 
 	actionUndo->setEnabled(true);
 	lastModified=w;
@@ -10750,8 +10758,7 @@ void ApplicationWindow::createActions()
 	actionSaveProject = new QAction(QIcon(QPixmap(filesave_xpm)), tr("&Save Project"), this);
 	actionSaveProject->setShortcut( tr("Ctrl+S") );
 	connect(actionSaveProject, SIGNAL(activated()), this, SLOT(saveProject()));
-	actionSaveProject->setEnabled(false);
-	saved=true;
+	savedProject();
 
 	actionSaveProjectAs = new QAction(tr("Save Project &as..."), this);
 	actionSaveProjectAs->setShortcut( QKeySequence() );
@@ -12259,8 +12266,7 @@ void ApplicationWindow::parseCommandLineArgument(const QString& s, int args)
 			newTable();
 			setWindowTitle(tr("QtiPlot - untitled"));
 			showMaximized();
-			saved=true;
-			actionSaveProject->setEnabled(false);
+			savedProject();
 		}
 
 		if (!locales.contains(locale))

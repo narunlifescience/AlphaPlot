@@ -28,85 +28,63 @@
  ***************************************************************************/
 #include "note.h"
 
-#include <qdatetime.h>
-#include <qlayout.h>
-#include <qapplication.h>
-#include <qprinter.h>
-#include <qpainter.h>
-#include <q3paintdevicemetrics.h>
-#include <q3simplerichtext.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QDateTime>
+#include <QLayout>
+#include <QApplication>
+#include <QPrinter>
+#include <QPainter>
+#include <QPaintDevice>
+#include <QVBoxLayout>
+#include <QPrintDialog>
 
 #include <math.h>
 
-Note::Note(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+Note::Note(const QString& label, QWidget* parent, const char *name, Qt::WFlags f)
 				: MyWidget(label, parent, name, f)
 {
-init();	
+	init();	
 }
 
 void Note::init()
 {
-QDateTime dt = QDateTime::currentDateTime ();
-setBirthDate(dt.toString(Qt::LocalDate));
+	QDateTime dt = QDateTime::currentDateTime();
+	setBirthDate(dt.toString(Qt::LocalDate));
 
-te = new Q3TextEdit(this);
-Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,0,0, "hlayout1");
-hlayout->addWidget(te);
+	te = new QTextEdit();
+	QVBoxLayout * layout = new QVBoxLayout( this );
+	layout->addWidget(te);
+	layout->setMargin(0);
 
-setGeometry(0, 0, 500, 200);
-connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+	setGeometry(0, 0, 500, 200);
+	connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 }
 
 void Note::modifiedNote()
 {
-emit modifiedWindow(this);
+	emit modifiedWindow(this);
 }
 
 QString Note::saveToString(const QString &info)
 {
-QString s= "<note>\n";
-s+= QString(name()) + "\t" + birthDate() + "\n";
-s+= info;
-s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-s+= te->text().stripWhiteSpace()+"\n";
-s+="</note>\n";
-return s;
+	QString s= "<note>\n";
+	s+= QString(name()) + "\t" + birthDate() + "\n";
+	s+= info;
+	s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
+	s+= te->text().stripWhiteSpace()+"\n";
+	s+="</note>\n";
+	return s;
 }
 
 void Note::print()
 {
-QPrinter printer;
-printer.setColorMode (QPrinter::GrayScale);
-if (printer.setup()) 
+    QTextDocument *document = te->document();
+	QPrinter printer;
+	printer.setColorMode(QPrinter::GrayScale);
+	QPrintDialog printDialog(&printer);
+	// TODO: Write a dialog to use more features of Qt4's QPrinter class
+    if (printDialog.exec() == QDialog::Accepted) 
 	{
-    printer.setFullPage( true );
-    QPainter painter;
-    if ( !painter.begin(&printer ) )
-         return;
-
-	Q3PaintDeviceMetrics metrics( painter.device() );
-	int dpiy = metrics.logicalDpiY();
-	int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
-	QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-	Q3SimpleRichText richText(Q3StyleSheet::convertFromPlainText(te->text()), QFont(), 
-							te->context(), te->styleSheet(), te->mimeSourceFactory(), body.height());
-	richText.setWidth( &painter, body.width() );
-  	QRect view( body );
-	int page = 1;
-	do {
-	    richText.draw( &painter, body.left(), body.top(), view, colorGroup() );
-	    view.moveBy( 0, body.height() );
-	    painter.translate( 0 , -body.height() );
-	    painter.drawText( view.right() - painter.fontMetrics().width( QString::number( page ) ),
-			view.bottom() + painter.fontMetrics().ascent() + 5, QString::number( page ) );
-	    if ( view.top()  >= richText.height() )
-			break;
-	    printer.newPage();
-	    page++;
-		} 
-	while (true);
+        document->print(&printer);
 	}
 }
 
