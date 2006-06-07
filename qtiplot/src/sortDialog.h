@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : sortDialog.h
+    File                 : SortDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -29,28 +29,27 @@
 #ifndef SORTDIALOG_H
 #define SORTDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-#include <q3valuelist.h> 
+#include <QDialog>
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
 class QCheckBox;
 class QLineEdit;
 class QComboBox;
-	
-class sortDialog : public QDialog
+
+//! Sorting options dialog
+class SortDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    sortDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~sortDialog();
+    SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ~SortDialog();
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonHelp;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
+    QGroupBox* groupBox1;
 	QComboBox* boxType;
 	QComboBox* boxOrder;
 	QComboBox *columnsList;

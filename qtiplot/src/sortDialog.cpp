@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : sortDialog.cpp
+    File                 : SortDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -28,50 +28,46 @@
  ***************************************************************************/
 #include "sortDialog.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HButtonGroup>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QGridLayout>
 
-sortDialog::sortDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "sortDialog" );
 	setWindowTitle(tr("QtiPlot - Sorting Options"));
-    setMinimumSize( QSize( 310, 140 ) );
-	setMaximumSize( QSize( 310, 140 ) );
-    setMouseTracking( true );
-    setSizeGripEnabled( false );
 	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString(),this,"GroupBox1" );
+	groupBox1 = new QGroupBox();
+	QGridLayout * layoutTop = new QGridLayout();
+	QHBoxLayout * layoutBottom = new QHBoxLayout();
 
-	new QLabel( tr("Sort columns"), GroupBox1, "TextLabel1",0 );
-	boxType = new QComboBox(GroupBox1, "boxShow" );
+	layoutTop->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
+	boxType = new QComboBox();
+	layoutTop->addWidget(boxType, 0, 1 );
 	
-	new QLabel( tr("Order"), GroupBox1, "TextLabel2",0 );
-	boxOrder = new QComboBox(GroupBox1, "boxOrder" );
+	layoutTop->addWidget( new QLabel( tr("Order")), 1, 0 );
+	boxOrder = new QComboBox();
+	layoutTop->addWidget(boxOrder, 1, 1 );
 	
-	new QLabel(tr("Leading column"),GroupBox1, "TextLabel3",0);
-	columnsList = new QComboBox(GroupBox1, "listBox" );
-	columnsList->setEnabled(false);	
+	layoutTop->addWidget( new QLabel(tr("Leading column")), 2, 0 );
+	columnsList = new QComboBox();
+	columnsList->setEnabled(false);
+	layoutTop->addWidget(columnsList, 2, 1);
 	
-	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (true);
-	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
+	buttonOk = new QPushButton();
     buttonOk->setDefault( true );
+	layoutBottom->addWidget(buttonOk);
    
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );    
+    buttonCancel = new QPushButton();    
+	layoutBottom->addWidget(buttonCancel);
     
-	Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
-    vlayout->addWidget(GroupBox1);
-	vlayout->addWidget(GroupBox2);
+	QVBoxLayout * mainlayout = new QVBoxLayout(this);
+    mainlayout->addLayout(layoutTop);
+	mainlayout->addLayout(layoutBottom);
 
     languageChange();
    
@@ -81,43 +77,42 @@ sortDialog::sortDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
     connect( boxType, SIGNAL( activated(int) ), this, SLOT(changeType(int)));
 }
 
-sortDialog::~sortDialog()
+SortDialog::~SortDialog()
 {
 }
 
 
-void sortDialog::languageChange()
+void SortDialog::languageChange()
 {
     buttonOk->setText( tr("&OK") );
 	buttonCancel->setText( tr("&Cancel") );
 	
-	boxType->insertItem(tr("Separately"));
-	boxType->insertItem(tr("Together"));
+	boxType->clear();
+	boxType->addItem(tr("Separately"));
+	boxType->addItem(tr("Together"));
 
-	boxOrder->insertItem(tr("Ascending"));
-	boxOrder->insertItem(tr("Descending"));
+	boxOrder->clear();
+	boxOrder->addItem(tr("Ascending"));
+	boxOrder->addItem(tr("Descending"));
 }
 
-void sortDialog::accept()
+void SortDialog::accept()
 {
-emit sort(boxType->currentItem(),boxOrder->currentItem(),columnsList->currentText());
-close();
+	emit sort(boxType->currentIndex(),boxOrder->currentIndex(),columnsList->currentText());
+	close();
 }
 
-void sortDialog::insertColumnsList(const QStringList& cols)
+void SortDialog::insertColumnsList(const QStringList& cols)
 {
-int i,n=cols.count();
-for (i=0;i<n;i++)
-	columnsList->insertItem(cols[i],i);
-
-columnsList->setCurrentItem(0);
+	columnsList->addItems(cols);
+	columnsList->setCurrentIndex(0);
 }
 
-void sortDialog::changeType(int Type)
+void SortDialog::changeType(int Type)
 {
-boxType->setCurrentItem(Type);
-if(Type==1)
-	columnsList->setEnabled(true);
-else
-	columnsList->setEnabled(false);	
+	boxType->setCurrentIndex(Type);
+	if(Type==1)
+		columnsList->setEnabled(true);
+	else
+		columnsList->setEnabled(false);	
 }
