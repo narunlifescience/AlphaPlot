@@ -846,7 +846,6 @@ private:
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 	QAction *actionNextWindow, *actionPrevWindow;
-	QShortcut *shortcutClearSelection;
 
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
