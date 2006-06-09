@@ -30,9 +30,19 @@
 #include "textDialog.h"
 #include "txt_icons.h"
 #include "symbolDialog.h"
+
 #include <QFontDialog>
 #include <QColorDialog>
 #include <QFont>
+#include <QGroupBox>
+#include <QTextEdit>
+#include <QTextCursor>
+#include <QComboBox>
+#include <QLabel>
+#include <QGridLayout>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
 
 static const char * lineSymbol_xpm[] = {
 "16 16 4 1",

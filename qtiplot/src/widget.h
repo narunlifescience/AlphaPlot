@@ -30,9 +30,9 @@
 #define WIDGET_H
 
 #include <QWidget>
-#include <QEvent>
-#include <QCloseEvent>
-#include <QString>
+class QEvent;
+class QCloseEvent;
+class QString;
 
 //! Extension to QWidget
 class MyWidget: public QWidget

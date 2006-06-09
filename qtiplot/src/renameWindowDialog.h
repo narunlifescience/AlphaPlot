@@ -34,30 +34,33 @@
 
 #include "widget.h"
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
 class QLineEdit;
 class QRadioButton;
-class Q3TextEdit;
+class QTextEdit;
 class MyWidget;
+class QButtonGroup;
 
 //! Rename window dialog
-class renameWindowDialog : public QDialog
+class RenameWindowDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    renameWindowDialog(QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~renameWindowDialog();
+    RenameWindowDialog(QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ~RenameWindowDialog();
 
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
-	QRadioButton* boxName;
-	QRadioButton* boxLabel;
-	QRadioButton* boxBoth;
-	QLineEdit* boxNameLine;
-	Q3TextEdit* boxLabelEdit;
+private:
+    QPushButton * buttonOk;
+	QPushButton * buttonCancel;
+    QGroupBox * groupBox1;
+	QButtonGroup * buttons;
+	QRadioButton * boxName;
+	QRadioButton * boxLabel;
+	QRadioButton * boxBoth;
+	QLineEdit * boxNameLine;
+	QTextEdit * boxLabelEdit;
 
 public slots:
 	void setWidget(MyWidget *w);

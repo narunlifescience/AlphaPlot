@@ -34,6 +34,10 @@
 #include <QSizePolicy>
 #include <QLabel>
 #include <QMessageBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QListWidget>
+#include <QComboBox>
 
 PlotWizard::PlotWizard( QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl )

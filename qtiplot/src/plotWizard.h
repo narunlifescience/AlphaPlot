@@ -32,10 +32,10 @@
 #define PLOTWIZARD_H
 
 #include <QDialog>
-#include <QGroupBox>
-#include <QPushButton>
-#include <QListWidget>
-#include <QComboBox>
+class QGroupBox;
+class QPushButton;
+class QListWidget;
+class QComboBox;
 
 //! A wizard type dialog class to create new plots
 class PlotWizard : public QDialog

@@ -30,11 +30,11 @@
 #define IMPORTDIALOG_H
 
 #include <QDialog>
-#include <QLabel>
-#include <QPushButton>
-#include <QComboBox>
-#include <QSpinBox>
-#include <QCheckBox>
+class QLabel;
+class QPushButton;
+class QComboBox;
+class QSpinBox;
+class QCheckBox;
 
 
 //! ASCII import options dialog

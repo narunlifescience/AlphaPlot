@@ -33,6 +33,11 @@
 #include <QGridLayout>
 #include <QHBoxLayout>
 #include <QSizePolicy>
+#include <QLabel>
+#include <QPushButton>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QCheckBox>
 
 
 ImportDialog::ImportDialog( QWidget* parent, Qt::WFlags fl )

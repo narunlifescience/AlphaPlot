@@ -30,12 +30,14 @@
 #define SYMBOLDIALOG_H
 
 #include <QDialog>
-#include <QPushButton>
-#include <QSizePolicy>
-#include <QGroupBox>
-#include <QShortcut>
-#include <QHBoxLayout>
-#include <QButtonGroup>
+class QPushButton;
+class QSizePolicy;
+class QGroupBox;
+class QShortcut;
+class QHBoxLayout;
+class QVBoxLayout;
+class QGridLayout;
+class QButtonGroup;
 
 class SymbolDialog : public QDialog
 {

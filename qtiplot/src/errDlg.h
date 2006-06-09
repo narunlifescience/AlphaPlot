@@ -30,15 +30,15 @@
 #define ERRDIALOG_H
 
 #include <QDialog>
-#include <QLabel>
-#include <QComboBox>
-#include <QRadioButton>
-#include <QLineEdit>
-#include <QPushButton>
-#include <QGroupBox>
-#include <QButtonGroup>
 #include <QList>
-#include <QWidget>
+class QLabel;
+class QComboBox;
+class QRadioButton;
+class QLineEdit;
+class QPushButton;
+class QGroupBox;
+class QButtonGroup;
+class QWidget;
 	
 //! Add error bars dialog
 class ErrDialog : public QDialog

@@ -32,6 +32,9 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QComboBox>
 
 ExportDialog::ExportDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )

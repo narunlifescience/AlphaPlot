@@ -30,11 +30,10 @@
 #ifndef COLORBUTTON_H
 #define COLORBUTTON_H
 
-#include <qwidget.h>
 #include <QWidget>
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QFrame>
+class QPushButton;
+class QHBoxLayout;
+class QFrame;
 
 //! A button used for color selection
 /**

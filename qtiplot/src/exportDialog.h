@@ -30,9 +30,9 @@
 #define EXPORTDIALOG_H
 
 #include <QDialog>
-#include <QPushButton>
-#include <QCheckBox>
-#include <QComboBox>
+class QPushButton;
+class QCheckBox;
+class QComboBox;
 
 //! Export ASCII dialog
 class ExportDialog : public QDialog

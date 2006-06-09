@@ -30,52 +30,59 @@
 #include "application.h"
 #include "worksheet.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <q3textedit.h>
-#include <qradiobutton.h>
-#include <qmessagebox.h>
-#include <qaction.h>
-#include <qregexp.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QRadioButton>
+#include <QMessageBox>
+#include <QButtonGroup>
+#include <QRegExp>
+#include <QHBoxLayout>
+#include <QGridLayout>
 
-renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "renameWindowDialog" );
-		
-	setWindowTitle(tr("QtiPlot - Rename Window"));
-	
-	GroupBox1 = new Q3ButtonGroup( 2, Qt::Horizontal,tr("Window Title"),this,"GroupBox1" );
+	QGridLayout * leftLayout = new QGridLayout();
+	QVBoxLayout * rightLayout = new QVBoxLayout();
 
-	boxName = new QRadioButton(tr("&Name (single word)"), GroupBox1, "boxName" );
-	boxNameLine = new QLineEdit(GroupBox1, "boxNameLine");
+	groupBox1 = new QGroupBox(tr("Window Title"));
+	groupBox1->setLayout(leftLayout);
+
+	boxName = new QRadioButton(tr("&Name (single word)"));
+	leftLayout->addWidget(boxName, 0, 0);
+	boxNameLine = new QLineEdit();
+	leftLayout->addWidget(boxNameLine, 0, 1);
 	setFocusProxy(boxNameLine);
 
-	boxLabel = new QRadioButton(tr("&Label"), GroupBox1, "boxLabel" );
-	boxLabelEdit = new Q3TextEdit(GroupBox1, "boxLabelEdit");
+	boxLabel = new QRadioButton(tr("&Label"));
+	leftLayout->addWidget(boxLabel, 2, 0);
+	boxLabelEdit = new QTextEdit();
+	leftLayout->addWidget(boxLabelEdit, 1, 1, 3, 1);
 	boxLabelEdit->setMaximumHeight(100);
+	boxLabelEdit->setMinimumHeight(100);
 
-	boxBoth = new QRadioButton(tr("&Both Name and Label"), GroupBox1, "boxBoth" );
+	boxBoth = new QRadioButton(tr("&Both Name and Label"));
+	leftLayout->addWidget(boxBoth, 4, 0);
 	
-	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
+	buttons = new QButtonGroup(this);
+	buttons->addButton(boxName);
+	buttons->addButton(boxLabel);
+	buttons->addButton(boxBoth);
 	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
+	buttonOk = new QPushButton();
     buttonOk->setAutoDefault( true );
     buttonOk->setDefault( true );
+	rightLayout->addWidget(buttonOk);
    
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
+    buttonCancel = new QPushButton();
     buttonCancel->setAutoDefault( true );
+	rightLayout->addWidget(buttonCancel);
 	
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
+	QHBoxLayout * mainLayout = new QHBoxLayout(this);
+    mainLayout->addWidget(groupBox1);
+	mainLayout->addLayout(rightLayout);
 
     languageChange();
 
@@ -84,74 +91,75 @@ renameWindowDialog::renameWindowDialog(QWidget* parent, const char* name, bool m
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-void renameWindowDialog::setWidget(MyWidget *w)
+void RenameWindowDialog::setWidget(MyWidget *w)
 {
-window = w;
-boxNameLine->setText(w->name());
-boxLabelEdit->setText(w->windowLabel());
-switch (w->captionPolicy())
+	window = w;
+	boxNameLine->setText(w->name());
+	boxLabelEdit->setText(w->windowLabel());
+	switch (w->captionPolicy())
 	{
-	case MyWidget::Name:
-		boxName->setChecked(true);
-	break;
+		case MyWidget::Name:
+			boxName->setChecked(true);
+			break;
 
-	case MyWidget::Label:
-		boxLabel->setChecked(true);
-	break;
+		case MyWidget::Label:
+			boxLabel->setChecked(true);
+			break;
 
-	case MyWidget::Both:
-		boxBoth->setChecked(true);
-	break;
+		case MyWidget::Both:
+			boxBoth->setChecked(true);
+			break;
 	}
 }
 
-MyWidget::CaptionPolicy renameWindowDialog::getCaptionPolicy()
+MyWidget::CaptionPolicy RenameWindowDialog::getCaptionPolicy()
 {
-MyWidget::CaptionPolicy policy = MyWidget::Name;
-if (boxLabel->isChecked())
-	policy = MyWidget::Label;
-else if (boxBoth->isChecked())
-	policy = MyWidget::Both;
-		
-return policy;
+	MyWidget::CaptionPolicy policy = MyWidget::Name;
+	if (boxLabel->isChecked())
+		policy = MyWidget::Label;
+	else if (boxBoth->isChecked())
+		policy = MyWidget::Both;
+
+	return policy;
 }
 
-renameWindowDialog::~renameWindowDialog()
+RenameWindowDialog::~RenameWindowDialog()
 {
 }
 
-void renameWindowDialog::languageChange()
+void RenameWindowDialog::languageChange()
 {
-buttonOk->setText( tr( "&OK" ) );
-buttonCancel->setText( tr( "&Cancel" ) );
+	setWindowTitle(tr("QtiPlot - Rename Window"));
+	buttonOk->setText( tr( "&OK" ) );
+	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
-void renameWindowDialog::accept()
+void RenameWindowDialog::accept()
 {
-QString name = window->name();
-QString text = boxNameLine->text().remove("_").remove("=").remove(QRegExp("\\s"));
-QString label = boxLabelEdit->text();
+	QString name = window->name();
+	QString text = boxNameLine->text().remove("_").remove("=").remove(QRegExp("\\s"));
+	QString label = boxLabelEdit->text();
 
-MyWidget::CaptionPolicy policy = getCaptionPolicy();
-if (text == name && label == window->windowLabel() && window->captionPolicy() == policy)
-	close();
+	MyWidget::CaptionPolicy policy = getCaptionPolicy();
+	if (text == name && label == window->windowLabel() && window->captionPolicy() == policy)
+		close();
 
-ApplicationWindow *app = (ApplicationWindow *)parentWidget();
-if (!app)
-	return;
-
-if (text != name)
-	{
-	if(!app->renameWindow(window, text))
+	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
+	if (!app)
 		return;
 
-	app->renameListViewItem(name,text);
+	if (text != name)
+	{
+		if(!app->renameWindow(window, text))
+			return;
+
+		app->renameListViewItem(name,text);
 	}
 
-label.replace("\n"," ").replace("\t"," ");
-window->setWindowLabel(label);
-window->setCaptionPolicy(policy);
-app->setListViewLabel(window->name(), label);
-app->modifiedProject(window);
-close();
+	label.replace("\n"," ").replace("\t"," ");
+	window->setWindowLabel(label);
+	window->setCaptionPolicy(policy);
+	app->setListViewLabel(window->name(), label);
+	app->modifiedProject(window);
+	close();
 }

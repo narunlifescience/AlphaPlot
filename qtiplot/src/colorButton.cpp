@@ -29,6 +29,9 @@
 #include "colorButton.h"
 
 #include <QPalette>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QFrame>
 
 /* XPM */
 static const char * palette_xpm[] = {

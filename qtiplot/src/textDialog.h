@@ -31,11 +31,11 @@
 #define TEXTDLG_H
 
 #include <QDialog>
-#include <QGroupBox>
-#include <QTextEdit>
-#include <QTextCursor>
-#include <QComboBox>
-#include <QLabel>
+class QGroupBox;
+class QTextEdit;
+class QTextCursor;
+class QComboBox;
+class QLabel;
 
 #include "colorButton.h"
 

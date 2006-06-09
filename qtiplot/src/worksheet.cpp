@@ -1319,7 +1319,7 @@ emit modifiedData(name);
 void Table::sortColumnsDialog()
 {
 QStringList s=selectedColumns();
-SortDialog *sortd=new SortDialog(this,Qt::Tool);
+SortDialog *sortd=new SortDialog(this);
 sortd->setAttribute(Qt::WA_DeleteOnClose);
 connect (sortd,SIGNAL(sort(int, int, const QString&)),
 		 this,SLOT(sortColumns(int, int, const QString&)));
@@ -1329,7 +1329,7 @@ sortd->exec();
 
 void Table::sortTableDialog()
 {
-SortDialog *sortd=new SortDialog(this,Qt::Tool);
+SortDialog *sortd=new SortDialog(this);
 sortd->setAttribute(Qt::WA_DeleteOnClose);
 connect (sortd,SIGNAL(sort(int, int, const QString&)),
 		 this,SLOT(sortTable(int, int, const QString&)));

@@ -30,6 +30,7 @@
 #include <QMessageBox>
 #include <QEvent>
 #include <QCloseEvent>
+#include <QString>
 
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)

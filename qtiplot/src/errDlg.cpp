@@ -27,12 +27,21 @@
  *                                                                         *
  ***************************************************************************/
 #include "errDlg.h"
+#include "worksheet.h"
 
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QList>
-#include "worksheet.h"
+#include <QLabel>
+#include <QComboBox>
+#include <QRadioButton>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QGroupBox>
+#include <QButtonGroup>
+#include <QList>
+#include <QWidget>
 
 
 ErrDialog::ErrDialog( QWidget* parent, Qt::WFlags fl )
