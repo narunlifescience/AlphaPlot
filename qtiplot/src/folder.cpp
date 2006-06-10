@@ -175,40 +175,40 @@ Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partial
 MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels, 
 							 bool caseSensitive, bool partialMatch)
 {
-MyWidget* w = 0;
-foreach(w,lstWindows)
+	MyWidget* w;
+	foreach(w,lstWindows)
 	{
-	if (windowNames)
+		if (windowNames)
 		{
-		QString name = w->name();
-		if (partialMatch && name.startsWith(s, caseSensitive))
-			return w;
-		else if (caseSensitive && name == s)
-			return w;
-		else 
-			{
-			QString text = s;
-			if (name == text.lower())
+			QString name = w->name();
+			if (partialMatch && name.startsWith(s, caseSensitive))
 				return w;
+			else if (caseSensitive && name == s)
+				return w;
+			else 
+			{
+				QString text = s;
+				if (name == text.lower())
+					return w;
 			}
 		}
-	
-	if (labels)
+
+		if (labels)
 		{
-		QString label = w->windowLabel();
-		if (partialMatch && label.startsWith(s, caseSensitive))
-			return w;
-		else if (caseSensitive && label == s)
-			return w;
-		else 
-			{
-			QString text = s;
-			if (label == text.lower())
+			QString label = w->windowLabel();
+			if (partialMatch && label.startsWith(s, caseSensitive))
 				return w;
+			else if (caseSensitive && label == s)
+				return w;
+			else 
+			{
+				QString text = s;
+				if (label == text.lower())
+					return w;
 			}
 		}
 	}
-return w;
+	return 0;
 }
 
 QString Folder::sizeToString()

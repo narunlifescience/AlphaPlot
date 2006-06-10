@@ -45,26 +45,26 @@ DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags 
 	operation = QString();
 
 	QVBoxLayout * mainLayout = new QVBoxLayout( this );
-	QHBoxLayout * layoutBottom = new QHBoxLayout();
+	QHBoxLayout * bottomLayout = new QHBoxLayout();
 
 	groupBox1 = new QGroupBox();
-	QHBoxLayout * layoutTop = new QHBoxLayout( groupBox1 );
+	QHBoxLayout * topLayout = new QHBoxLayout( groupBox1 );
 
-	layoutTop->addWidget( new QLabel(text) );
+	topLayout->addWidget( new QLabel(text) );
 	boxName = new QComboBox();
-	layoutTop->addWidget(boxName);
+	topLayout->addWidget(boxName);
 
 	buttonOk = new QPushButton();
 	buttonOk->setAutoDefault( true );
 	buttonOk->setDefault( true );
-	layoutBottom->addWidget( buttonOk );
+	bottomLayout->addWidget( buttonOk );
 
 	buttonCancel = new QPushButton();
 	buttonCancel->setAutoDefault( true );
-	layoutBottom->addWidget( buttonCancel );
+	bottomLayout->addWidget( buttonCancel );
 
 	mainLayout->addWidget( groupBox1 );
-	mainLayout->addLayout( layoutBottom );
+	mainLayout->addLayout( bottomLayout );
 
 	languageChange();
 

@@ -29,9 +29,7 @@
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-//Added by qt3to4:
+#include <QDialog>
 #include <QLabel>
 
 class QPushButton;
@@ -40,15 +38,16 @@ class QComboBox;
 class QLabel;
 
 //! Find dialog
-class findDialog : public QDialog
+class FindDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    findDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~findDialog();
+    FindDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ~FindDialog();
 
-    QPushButton* buttonFind;
+private:
+	QPushButton* buttonFind;
 	QPushButton* buttonCancel;
 	QPushButton* buttonReset;
 

@@ -84,79 +84,79 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	groupBox1 = new QGroupBox(QString());
 
 	// grid layout for top groupbox
-	QGridLayout * layoutTop = new QGridLayout();
+	QGridLayout * topLayout = new QGridLayout();
 	// add text color label
-	layoutTop->addWidget(new QLabel(tr("Text Color")), 0, 0);
+	topLayout->addWidget(new QLabel(tr("Text Color")), 0, 0);
 
 	colorBtn = new ColorButton();
 	// add color button
-	layoutTop->addWidget(colorBtn, 0, 1);
+	topLayout->addWidget(colorBtn, 0, 1);
 
 	buttonOk = new QPushButton(tr("&OK"));
 	buttonOk->setAutoDefault( true );
 	buttonOk->setDefault( true );
 
 	// add ok button
-	layoutTop->addWidget(buttonOk, 0, 3);
+	topLayout->addWidget(buttonOk, 0, 3);
 
 	// add font label
-	layoutTop->addWidget(new QLabel(tr("Font")), 1, 0);
+	topLayout->addWidget(new QLabel(tr("Font")), 1, 0);
 
 	buttonFont = new QPushButton(tr( "&Font" ));
 	buttonFont->setAutoDefault( true );
 
 	// add font button
-	layoutTop->addWidget(buttonFont, 1, 1);
+	topLayout->addWidget(buttonFont, 1, 1);
 
 	buttonApply = new QPushButton(tr( "&Apply" ));
 	buttonApply->setAutoDefault( true );
 	buttonApply->setDefault( true );
 	
 	// add apply button
-	layoutTop->addWidget( buttonApply, 1, 3 );
+	topLayout->addWidget( buttonApply, 1, 3 );
 
 	if (textType == TextDialog::AxisTitle)
 	{
 		// add label "alignment"
-		layoutTop->addWidget(new QLabel(tr("Alignment")), 2, 0);
+		topLayout->addWidget(new QLabel(tr("Alignment")), 2, 0);
 		alignmentBox = new QComboBox();
 		alignmentBox->addItem( tr( "Center" ) );
 		alignmentBox->addItem( tr( "Left" ) );
 		alignmentBox->addItem( tr( "Right" ) );
 		// add alignment combo box
-		layoutTop->addWidget(alignmentBox, 2, 1);
+		topLayout->addWidget(alignmentBox, 2, 1);
 	}
 	else
 	{
 		// add label "frame"
-		layoutTop->addWidget(new QLabel(tr("Frame")), 2, 0);
+		topLayout->addWidget(new QLabel(tr("Frame")), 2, 0);
 		frameBox = new QComboBox();
 		frameBox->addItem( tr( "None" ) );
 		frameBox->addItem( tr( "Rectangle" ) );
 		frameBox->addItem( tr( "Shadow" ) );
-		layoutTop->addWidget(frameBox, 2, 1);
+		topLayout->addWidget(frameBox, 2, 1);
 	}
 
 	buttonCancel = new QPushButton( tr( "&Cancel" ) );
 	buttonCancel->setAutoDefault( true );	
 	// add cancel button
-	layoutTop->addWidget( buttonCancel, 2, 3 );
+	topLayout->addWidget( buttonCancel, 2, 3 );
 
 	if (textType == TextDialog::TextMarker)
 	{ //TODO: Sometime background features for axes lables should be implemented
 		// add label "background color"	
-		layoutTop->addWidget(new QLabel(tr("Background color")), 3, 0);
+		topLayout->addWidget(new QLabel(tr("Background color")), 3, 0);
 		backgroundBtn = new ColorButton(groupBox1);
 		// add background button
-		layoutTop->addWidget( backgroundBtn );	
+		topLayout->addWidget( backgroundBtn );	
 
 		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
 	}
 
 	// align the OK, Apply, and Cancel buttons to the right
-	layoutTop->setColumnStretch(2, 1);
+	topLayout->setColumnStretch(2, 1);
 	
-	groupBox1->setLayout( layoutTop );
+	groupBox1->setLayout( topLayout );
 
 	/* TODO: Angle feature not implemented, yet
 	 * caution: This code is still the old Qt3 code

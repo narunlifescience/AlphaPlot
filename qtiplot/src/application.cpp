@@ -133,6 +133,8 @@
 
 #include <zlib.h>
 
+#include <QtDebug>
+
 using namespace Qwt3D;
 
 extern "C" 
@@ -12719,10 +12721,9 @@ void ApplicationWindow::setShowWindowsPolicy(int p)
 
 void ApplicationWindow::showFindDialogue()
 {
-	findDialog *fd = new findDialog(this, 0, true, 0);
+	FindDialog *fd = new FindDialog(this);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
-	fd->showNormal();
-	fd->setActiveWindow();
+	fd->exec();
 }
 
 void ApplicationWindow::startRenameFolder()

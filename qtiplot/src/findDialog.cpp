@@ -30,86 +30,84 @@
 #include "application.h"
 #include "folder.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <qregexp.h>
-#include <q3vbox.h>
-#include <q3hbox.h>
-#include <q3buttongroup.h>
-#include <qlabel.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3Frame>
+#include <QPushButton>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QGridLayout>
+#include <QRegExp>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QFrame>
+#include <QGroupBox>
 
-findDialog::findDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+FindDialog::FindDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "findDialog" );
-
 	setWindowTitle (tr("QtiPlot") + " - " + tr("Find"));
 	setSizeGripEnabled( true );
 
-	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2, Qt::Horizontal, QString(), this);
-	GroupBox0->setFlat(true);
-
-	new QLabel( tr( "Start From" ), GroupBox0 );
-	labelStart = new QLabel( GroupBox0 );
-	labelStart->setFrameStyle(Q3Frame::Panel | Q3Frame::Sunken);
+	QGridLayout * topLayout = new QGridLayout();
+	QGridLayout * bottomLayout = new QGridLayout();
+	
+	topLayout->addWidget( new QLabel(tr( "Start From" )), 0, 0 );
+	labelStart = new QLabel();
+	labelStart->setFrameStyle(QFrame::Panel | QFrame::Sunken);
 	labelStart->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	topLayout->addWidget( labelStart, 0, 1, 1, 4 );
 
-	new QLabel( tr( "Find" ), GroupBox0 );
-	boxFind = new QComboBox( true, GroupBox0);
+	topLayout->addWidget( new QLabel(tr( "Find" )), 1, 0 );
+	boxFind = new QComboBox();
+	boxFind->setEditable(true);
 	boxFind->setDuplicatesEnabled(false);
-	boxFind->setInsertionPolicy ( QComboBox::InsertAtTop );
+	boxFind->setInsertPolicy( QComboBox::InsertAtTop );
 	boxFind->setAutoCompletion(true);
 	boxFind->setMaxCount ( 10 );
 	boxFind->setMaxVisibleItems ( 10 );
 	boxFind->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	topLayout->addWidget( boxFind, 1, 1, 1, 4 );
 
-	Q3HBox *hbox = new Q3HBox(this);
-	hbox->setSpacing (5);
-	hbox->setMargin (5);
 
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(1, Qt::Horizontal, tr("Search In"), hbox);
+	QGroupBox * groupBox = new QGroupBox(tr("Search in"));
+	QVBoxLayout * groupBoxLayout = new QVBoxLayout( groupBox );
 
-	boxWindowNames = new QCheckBox(tr("&Window Names"), GroupBox1);
+	boxWindowNames = new QCheckBox(tr("&Window Names"));
     boxWindowNames->setChecked(true);
-
-    boxWindowLabels = new QCheckBox(tr("Window &Labels"), GroupBox1);
+	groupBoxLayout->addWidget(boxWindowNames);
+	
+    boxWindowLabels = new QCheckBox(tr("Window &Labels"));
     boxWindowLabels->setChecked( false );
+	groupBoxLayout->addWidget(boxWindowLabels);
 	
-    boxFolderNames = new QCheckBox(tr("Folder &Names"), GroupBox1);
+    boxFolderNames = new QCheckBox(tr("Folder &Names"));
     boxFolderNames->setChecked( false );
+	groupBoxLayout->addWidget(boxFolderNames);
+	
+	bottomLayout->addWidget( groupBox, 0, 0, 3, 1 );
 
-	Q3VBox *vbox = new Q3VBox(hbox);
-	vbox->setSpacing (5);
-	vbox->setMargin (5);
-
-	boxCaseSensitive = new QCheckBox(tr("Case &Sensitive"), vbox);
+	boxCaseSensitive = new QCheckBox(tr("Case &Sensitive"));
     boxCaseSensitive->setChecked(false);
+	bottomLayout->addWidget( boxCaseSensitive, 0, 1 );
 
-    boxPartialMatch = new QCheckBox(tr("&Partial Match Allowed"), vbox);
+    boxPartialMatch = new QCheckBox(tr("&Partial Match Allowed"));
     boxPartialMatch->setChecked(true);
+	bottomLayout->addWidget( boxPartialMatch, 1, 1 );
 	
-	boxSubfolders = new QCheckBox(tr("&Include Subfolders"), vbox);
+	boxSubfolders = new QCheckBox(tr("&Include Subfolders"));
     boxSubfolders->setChecked(true);
+	bottomLayout->addWidget( boxSubfolders, 2, 1 );
 	
-	Q3VBox *vbox2 = new Q3VBox(hbox);
-	vbox2->setSpacing (5);
-	
-	buttonFind = new QPushButton(tr("&Find"), vbox2);
+	buttonFind = new QPushButton(tr("&Find"));
     buttonFind->setDefault( true );
+	bottomLayout->addWidget( buttonFind, 0, 2 );
    
-	buttonReset = new QPushButton(tr("&Reset Start From"), vbox2);
-    buttonCancel = new QPushButton(tr("&Close"), vbox2);
-	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5);
-	hlayout->addWidget(GroupBox0);
-	hlayout->addWidget(hbox);
+	buttonReset = new QPushButton(tr("&Update Start Path"));
+	bottomLayout->addWidget( buttonReset, 1, 2 );
+    buttonCancel = new QPushButton(tr("&Close"));
+	bottomLayout->addWidget( buttonCancel, 2, 2 );
+
+	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	mainLayout->addLayout(topLayout);
+	mainLayout->addLayout(bottomLayout);
 
 	setStartPath();
    
@@ -119,20 +117,30 @@ findDialog::findDialog( QWidget* parent, const char* name, bool modal, Qt::WFlag
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-void findDialog::setStartPath()
+void FindDialog::setStartPath()
 {
-ApplicationWindow *app = (ApplicationWindow *)this->parent();
-labelStart->setText(app->current_folder->path());
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	labelStart->setText(app->current_folder->path());
 }
 
-void findDialog::accept()
+void FindDialog::accept()
 {
-ApplicationWindow *app = (ApplicationWindow *)this->parent();
-app->find(boxFind->currentText(), boxWindowNames->isChecked(), boxWindowLabels->isChecked(),
-		  boxFolderNames->isChecked(), boxCaseSensitive->isChecked(), boxPartialMatch->isChecked(),
-		  boxSubfolders->isChecked());
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	app->find(boxFind->currentText(), boxWindowNames->isChecked(), boxWindowLabels->isChecked(),
+			boxFolderNames->isChecked(), boxCaseSensitive->isChecked(), boxPartialMatch->isChecked(),
+			boxSubfolders->isChecked());
+	// add the combo box's current text to the list when the find button is pressed
+	QString text = boxFind->currentText();
+	if(!text.isEmpty()) 
+	{
+		if(boxFind->findText(text) == -1) // no duplicates
+		{
+			boxFind->insertItem(0, text);
+			boxFind->setCurrentIndex(0);
+		}
+	}
 }
 
-findDialog::~findDialog()
+FindDialog::~FindDialog()
 {
 }

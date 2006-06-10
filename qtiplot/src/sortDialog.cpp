@@ -42,32 +42,32 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
 	setWindowTitle(tr("QtiPlot - Sorting Options"));
 	
 	groupBox1 = new QGroupBox();
-	QGridLayout * layoutTop = new QGridLayout();
-	QHBoxLayout * layoutBottom = new QHBoxLayout();
+	QGridLayout * topLayout = new QGridLayout();
+	QHBoxLayout * bottomLayout = new QHBoxLayout();
 
-	layoutTop->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
+	topLayout->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
 	boxType = new QComboBox();
-	layoutTop->addWidget(boxType, 0, 1 );
+	topLayout->addWidget(boxType, 0, 1 );
 	
-	layoutTop->addWidget( new QLabel( tr("Order")), 1, 0 );
+	topLayout->addWidget( new QLabel( tr("Order")), 1, 0 );
 	boxOrder = new QComboBox();
-	layoutTop->addWidget(boxOrder, 1, 1 );
+	topLayout->addWidget(boxOrder, 1, 1 );
 	
-	layoutTop->addWidget( new QLabel(tr("Leading column")), 2, 0 );
+	topLayout->addWidget( new QLabel(tr("Leading column")), 2, 0 );
 	columnsList = new QComboBox();
 	columnsList->setEnabled(false);
-	layoutTop->addWidget(columnsList, 2, 1);
+	topLayout->addWidget(columnsList, 2, 1);
 	
 	buttonOk = new QPushButton();
     buttonOk->setDefault( true );
-	layoutBottom->addWidget(buttonOk);
+	bottomLayout->addWidget(buttonOk);
    
     buttonCancel = new QPushButton();    
-	layoutBottom->addWidget(buttonCancel);
+	bottomLayout->addWidget(buttonCancel);
     
 	QVBoxLayout * mainlayout = new QVBoxLayout(this);
-    mainlayout->addLayout(layoutTop);
-	mainlayout->addLayout(layoutBottom);
+    mainlayout->addLayout(topLayout);
+	mainlayout->addLayout(bottomLayout);
 
     languageChange();
    
