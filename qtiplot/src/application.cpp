@@ -58,7 +58,7 @@
 #include "dataSetDialog.h"
 #include "intDialog.h"
 #include "configDialog.h"
-#include "imageExportDialog.h"
+#include "imageExportOptionsDialog.h"
 #include "matrixDialog.h"
 #include "matrixSizeDialog.h"
 #include "matrixValuesDialog.h"
@@ -132,8 +132,6 @@
 #include <QShortcut>
 
 #include <zlib.h>
-
-#include <QtDebug>
 
 using namespace Qwt3D;
 
@@ -1787,8 +1785,7 @@ void ApplicationWindow::editSurfacePlot()
 			sd->setLimits(g->xStart(), g->xStop(), g->yStart(), 
 					g->yStop(), g->zStart(), g->zStop());
 		}
-		sd->show();
-		sd->setActiveWindow();
+		sd->exec();
 	}
 }
 
@@ -1801,8 +1798,7 @@ void ApplicationWindow::newSurfacePlot()
 	connect (sd,SIGNAL(clearFunctionsList()),this,SLOT(clearSurfaceFunctionsList()));
 
 	sd->insertFunctionsList(surfaceFunc);
-	sd->show();
-	sd->setActiveWindow();
+	sd->exec();
 }
 
 Graph3D* ApplicationWindow::newPlot3D(const QString& formula, double xl, double xr,
@@ -3016,8 +3012,7 @@ void ApplicationWindow::addErrorBars()
 
 			ed->setCurveNames(curvesOnPlot);
 			ed->setSrcTables(tableList());
-			ed->showNormal();
-			ed->setActiveWindow();
+			ed->exec();
 		}
 	}
 }
@@ -3196,8 +3191,7 @@ void ApplicationWindow::showPreferencesDialog()
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(separator);
 	cd->initCurvesOptions(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);	
-	cd->showNormal();
-	cd->setActiveWindow();
+	cd->exec();
 	saveSettings();
 }
 
@@ -4501,8 +4495,7 @@ void ApplicationWindow::exportGraph()
 						connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								plot, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-						ed->showNormal();
-						ed->setActiveWindow();		
+						ed->exec();
 					}
 					else
 						plot->exportToEPS(fname);
@@ -4516,15 +4509,14 @@ void ApplicationWindow::exportGraph()
 					{
 						if (ied->showExportOptions())
 						{
-							imageExportDialog* ed= new imageExportDialog(false, this,"ExportDialog",true,0);
+							ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
 							ed->setAttribute(Qt::WA_DeleteOnClose);
 							connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)), 
 									plot, SLOT(exportImage(const QString&, const QString&, int, bool)));
 
 							ed->setExportPath(fname, list[i]);
 							ed->enableTransparency();
-							ed->showNormal();
-							ed->setActiveWindow();		
+							ed->exec();
 						}
 						else
 							plot->exportImage(fname, list[i], 100, true);
@@ -4591,8 +4583,7 @@ void ApplicationWindow::exportLayer()
 					connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 							g, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-					ed->showNormal();
-					ed->setActiveWindow();		
+					ed->exec();
 				}
 				else
 					g->exportToEPS(fname);
@@ -4613,15 +4604,14 @@ void ApplicationWindow::exportLayer()
 				{
 					if (ied->showExportOptions())
 					{
-						imageExportDialog* ed= new imageExportDialog(false, this,"ExportDialog",true,0);
+						ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
 						ed->setAttribute(Qt::WA_DeleteOnClose);
 						connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)), 
 								g, SLOT(exportImage(const QString&, const QString&, int, bool)));
 
 						ed->setExportPath(fname, list[i]);
 						ed->enableTransparency();
-						ed->showNormal();
-						ed->setActiveWindow();
+						ed->exec();
 					}
 					else
 						g->exportImage(fname, list[i], 100, true);
@@ -4641,7 +4631,7 @@ void ApplicationWindow::exportAllGraphs()
 			"Choose a directory to export the graphs to", true, true);
 	if (!dir.isEmpty())
 	{
-		imageExportDialog* ed= new imageExportDialog(true, this,"ExportDialog",true,0);
+		ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(true, this);
 		ed->setAttribute(Qt::WA_DeleteOnClose);
 		connect (ed, SIGNAL(exportAll(const QString&, const QString&, int, bool)),
 				this, SLOT(exportAllGraphs(const QString&, const QString&, int, bool)));
@@ -4649,8 +4639,7 @@ void ApplicationWindow::exportAllGraphs()
 		workingDir = dir;
 		ed->setExportDirPath(dir);
 		ed->enableTransparency();
-		ed->showNormal();
-		ed->setActiveWindow();
+		ed->exec();
 	}
 }
 
@@ -5091,8 +5080,7 @@ void ApplicationWindow::showCurvesDialog()
 		crvDialog->setCurveDefaultSettings(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);
 		crvDialog->setGraph(g);
 		crvDialog->initTablesList(tableList());
-		crvDialog->showNormal();
-		crvDialog->setActiveWindow();
+		crvDialog->exec();
 
 		activeGraph = g;
 	}
@@ -5120,8 +5108,7 @@ void ApplicationWindow::showPlotAssociations(int curve)
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setGraph(activeGraph);
 	ad->initTablesList(tableList(), curve);
-	ad->showNormal();
-	ad->setActiveWindow();
+	ad->exec();
 }
 
 void ApplicationWindow::showTitleDialog()
@@ -5281,8 +5268,7 @@ void ApplicationWindow::showExportASCIIDialog()
 		ed->setTableNames(tableWindows);
 		ed->setActiveTableName(w->name());
 		ed->setColumnSeparator(separator);
-		ed->showNormal();
-		ed->setActiveWindow();
+		ed->exec();
 	}
 }
 
@@ -5417,8 +5403,7 @@ void ApplicationWindow::showColumnValuesDialog()
 			setColValuesDialog* vd= new setColValuesDialog(this,"valuesDialog",true);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
 			vd->setTable(w);
-			vd->showNormal();
-			vd->setActiveWindow();
+			vd->exec();
 		}
 		else
 			QMessageBox::warning(this, tr("QtiPlot - Column selection error"),
@@ -5890,8 +5875,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->setTicksType(g->ticksType());
 			ad->setEnabledTickLabels(g->enabledTickLabels());
 			ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
-			ad->showNormal();
-			ad->setActiveWindow();
+			ad->exec();
 			return ad;
 		}
 		else if (g->isPiePlot())
@@ -6044,8 +6028,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		else if (g->getMatrix())
 			pd->customWorksheetBtn(tr("&Matrix"));
 
-		pd->showNormal();
-		pd->setActiveWindow();
+		pd->exec();
 		return pd;
 	}
 	else return 0;
@@ -6081,8 +6064,7 @@ QDialog* ApplicationWindow::showPieDialog()
 		pd->setPieSize(g->pieSize());
 
 		pd->setMultiLayerPlot(plot);
-		pd->showNormal();
-		pd->setActiveWindow();
+		pd->exec();
 		return pd;
 	}
 	return 0;
@@ -6111,8 +6093,7 @@ void ApplicationWindow::showPlotDialog()
 				pd->insertColumnsList(columnsList(Table::All));
 				pd->setGraph(g);
 				pd->selectCurve(0);
-				pd->showNormal();
-				pd->setActiveWindow();
+				pd->exec();
 
 				activeGraph = g;
 			}
@@ -6148,8 +6129,7 @@ void ApplicationWindow::showPlotDialog(long curveKey)
 			pd->insertColumnsList(columnsList(Table::All));
 			pd->setGraph(g);
 			pd->selectCurve(g->curveIndex(curveKey));
-			pd->showNormal();
-			pd->setActiveWindow();
+			pd->exec();
 
 			activeGraph = g;
 		}
@@ -6375,8 +6355,7 @@ void ApplicationWindow::showExpDecayDialog(int type)
 	connect (plot, SIGNAL(closedWindow(QWidget*)), edd, SLOT(close()));
 
 	edd->setGraph(g);
-	edd->showNormal();
-	edd->setActiveWindow();
+	edd->exec();
 }
 
 void ApplicationWindow::showTwoExpDecayDialog()
@@ -6423,8 +6402,7 @@ void ApplicationWindow::showFitDialog()
 
 	fd->insertFunctionsList(fitFunctions);
 	fd->setGraph(g);
-	fd->showNormal();
-	fd->setActiveWindow();
+	fd->exec();
 }
 
 void ApplicationWindow::lowPassFilterDialog()
@@ -6447,8 +6425,7 @@ void ApplicationWindow::lowPassFilterDialog()
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
-		fd->show();
-		fd->setActiveWindow();
+		fd->exec();
 	}
 }
 
@@ -6472,8 +6449,7 @@ void ApplicationWindow::highPassFilterDialog()
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
-		fd->show();
-		fd->setActiveWindow();
+		fd->exec();
 	}
 }
 
@@ -6497,8 +6473,7 @@ void ApplicationWindow::bandPassFilterDialog()
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
-		fd->show();
-		fd->setActiveWindow();
+		fd->exec();
 	}
 }
 
@@ -6522,8 +6497,7 @@ void ApplicationWindow::bandBlockFilterDialog()
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
-		fd->show();
-		fd->setActiveWindow();
+		fd->exec();
 	}
 }
 
@@ -6562,8 +6536,7 @@ void ApplicationWindow::showFFTDialog()
 
 	if (sd)
 	{
-		sd->show();
-		sd->setActiveWindow();
+		sd->exec();
 	}
 }
 
@@ -6581,8 +6554,7 @@ void ApplicationWindow::showSmoothSavGolDialog()
 			this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
-	sd->show();
-	sd->setActiveWindow();
+	sd->exec();
 }
 
 void ApplicationWindow::showSmoothFFTDialog()
@@ -6598,8 +6570,7 @@ void ApplicationWindow::showSmoothFFTDialog()
 	smoothCurveDialog *sd=new smoothCurveDialog(smoothCurveDialog::FFT, this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
-	sd->show();
-	sd->setActiveWindow();
+	sd->exec();
 }
 
 void ApplicationWindow::showSmoothAverageDialog()
@@ -6615,8 +6586,7 @@ void ApplicationWindow::showSmoothAverageDialog()
 	smoothCurveDialog *sd=new smoothCurveDialog(smoothCurveDialog::Average, this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
-	sd->show();
-	sd->setActiveWindow();
+	sd->exec();
 }
 
 void ApplicationWindow::showInterpolationDialog()
@@ -6632,8 +6602,7 @@ void ApplicationWindow::showInterpolationDialog()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 	id->setGraph(g);
-	id->show();
-	id->setActiveWindow();
+	id->exec();
 }
 
 void ApplicationWindow::showFitPolynomDialog()
@@ -6652,8 +6621,7 @@ void ApplicationWindow::showFitPolynomDialog()
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), pfd, SLOT(close()));
 	pfd->setGraph(g);
-	pfd->showNormal();
-	pfd->setActiveWindow();
+	pfd->exec();
 }
 
 void ApplicationWindow::fitLinear()
@@ -6690,8 +6658,7 @@ void ApplicationWindow::showIntDialog()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 	id->setGraph(g);
-	id->showNormal();
-	id->setActiveWindow();
+	id->exec();
 	activeGraph=g;
 }
 
@@ -7086,8 +7053,7 @@ void ApplicationWindow::showLayerDialog()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	id->setMultiLayer(plot);
 	id->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
-	id->showNormal();
-	id->setActiveWindow();
+	id->exec();
 }
 
 void ApplicationWindow::showPlotGeometryDialog()
@@ -7106,8 +7072,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 		id->setWindowTitle(tr("QtiPlot - Layer Geometry"));
 		id->setOrigin(g->pos());
 		id->setSize(g->plotWidget()->size());
-		id->showNormal();
-		id->setActiveWindow();
+		id->exec();
 	}
 }
 
@@ -7729,8 +7694,7 @@ void ApplicationWindow::resizeActiveWindow()
 	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
 	id->setSize(w->parentWidget()->size());
-	id->showNormal();
-	id->setActiveWindow();
+	id->exec();
 }
 
 void ApplicationWindow::hideActiveWindow()
@@ -7773,8 +7737,7 @@ void ApplicationWindow::resizeWindow()
 	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
 	id->setSize(w->parentWidget()->size());
-	id->showNormal();
-	id->setActiveWindow();
+	id->exec();
 }
 
 void ApplicationWindow::activateWindow()
@@ -8783,8 +8746,7 @@ void ApplicationWindow::showPlotWizard()
 		pw->insertTablesList(tableWindows);
 		pw->setColumnsList(columnsList(Table::All));
 		pw->changeColumnsList(tableWindows[0]);
-		pw->show();
-		pw->setActiveWindow();
+		pw->exec();
 	}
 	else
 		QMessageBox::warning(this,tr("QtiPlot - Warning"),
@@ -8814,8 +8776,7 @@ fDialog* ApplicationWindow::functionDialog()
 	fd->insertFunctionsList(functions);
 	fd->insertParamFunctionsList(xFunctions, yFunctions);
 	fd->insertPolarFunctionsList(rFunctions, tetaFunctions);
-	fd->show();
-	fd->setActiveWindow();
+	fd->exec();
 
 	return fd;
 }
@@ -10815,7 +10776,7 @@ void ApplicationWindow::createActions()
 	connect(actionShowLayerDialog, SIGNAL(activated()), this, SLOT(showLayerDialog()));
 
 	actionExportGraph = new QAction(tr("&Current"), this);
-	actionExportGraph->setShortcut( tr("Ctrl+G") );
+	actionExportGraph->setShortcut( tr("Alt+G") );
 	connect(actionExportGraph, SIGNAL(activated()), this, SLOT(exportGraph()));
 
 	actionExportAllGraphs = new QAction(tr("&All"), this);
@@ -10865,7 +10826,7 @@ void ApplicationWindow::createActions()
 	connect(actionAddFunctionCurve, SIGNAL(activated()), this, SLOT(addFunctionCurve()));
 
 	actionUnzoom = new QAction(QIcon(QPixmap(unzoom_xpm)), tr("&Rescale to Show All"), this);
-	actionUnzoom->setShortcut( tr("Ctrl+R") );
+	actionUnzoom->setShortcut( tr("Ctrl+Shift+R") );
 	connect(actionUnzoom, SIGNAL(activated()), this, SLOT(unzoom()));
 
 	actionNewLegend = new QAction(QIcon(QPixmap(legend_xpm)), tr("New &Legend"), this);
@@ -11337,7 +11298,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowLayerDialog->setShortcut(tr("ALT+A"));
 
 	actionExportGraph->setMenuText(tr("&Current"));
-	actionExportGraph->setShortcut(tr("Ctrl+G"));
+	actionExportGraph->setShortcut(tr("Alt+G"));
 	actionExportGraph->setToolTip(tr("Export current graph"));
 
 	actionExportAllGraphs->setMenuText(tr("&All")); 
@@ -11374,7 +11335,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionAddFunctionCurve->setShortcut(tr("Ctrl+Alt+F"));
 
 	actionUnzoom->setMenuText(tr("&Rescale to Show All")); 
-	actionUnzoom->setShortcut(tr("Ctrl+R"));
+	actionUnzoom->setShortcut(tr("Ctrl+Shift+R"));
 	actionUnzoom->setToolTip(tr("Best fit"));
 
 	actionNewLegend->setMenuText( tr("New &Legend")); 

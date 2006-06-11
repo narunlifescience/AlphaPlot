@@ -13,15 +13,14 @@ TRANSLATIONS = translations/qtiplot_de.ts \
 			   translations/qtiplot_fr.ts 
 
 INCLUDEPATH       += ../3rdparty/qwt/include
-unix:INCLUDEPATH  += ../../qwtplot3d_qt4/include
+unix:INCLUDEPATH += -I /usr/include/qwtplot3d
 
 win32:INCLUDEPATH += ../3rdparty/qwtplot3d/include
 win32:INCLUDEPATH += C:/WinGsl
 win32:INCLUDEPATH += ../3rdparty/zlib123/include
 
 unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
-unix:LIBS         += ../../qwtplot3d_qt4/lib/libqwtplot3d.a
-unix:LIBS         += -L /usr/lib -lgsl -lgslcblas -lz
+unix:LIBS += -L /usr/lib -lgsl -lgslcblas -lqwtplot3d -lz
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/qwtplot3d.lib
 win32:LIBS        += ../3rdparty/qwt/lib/qwt.lib  
@@ -82,7 +81,7 @@ HEADERS  = src/application.h \
 	 src/Histogram.h \
 	 src/VectorCurve.h \
      src/scaleDraws.h \
-	 src/imageExportDialog.h \
+	 src/imageExportOptionsDialog.h \
 	 src/matrix.h \
 	 src/matrixDialog.h \
 	 src/matrixSizeDialog.h \
@@ -153,7 +152,7 @@ SOURCES  = src/application.cpp \
 	 src/BoxCurve.cpp \
 	 src/Histogram.cpp \
 	 src/VectorCurve.cpp \
-	 src/imageExportDialog.cpp \
+	 src/imageExportOptionsDialog.cpp \
 	 src/matrix.cpp \
 	 src/matrixDialog.cpp \
 	 src/matrixSizeDialog.cpp \

@@ -7187,7 +7187,7 @@ void Graph::showAxisContextMenu(int axis)
 
 	Q3PopupMenu menu(this);
 	menu.setCheckable(true);
-	menu.insertItem(QPixmap(unzoom_xpm), tr("&Rescale to show all"), this, SLOT(setAutoScale()), tr("Ctrl+R"));
+	menu.insertItem(QPixmap(unzoom_xpm), tr("&Rescale to show all"), this, SLOT(setAutoScale()), tr("Ctrl+Shift+R"));
 	menu.insertSeparator();
 	menu.insertItem(tr("&Hide axis"), this, SLOT(hideSelectedAxis()));
 

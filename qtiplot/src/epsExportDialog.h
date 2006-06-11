@@ -69,4 +69,4 @@ private:
 	QString f_name;
 };
 
-#endif // imageExportDialog_H
+#endif // EPSEXPORTDIALOG_H
