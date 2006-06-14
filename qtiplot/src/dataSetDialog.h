@@ -60,7 +60,7 @@ public slots:
 
 signals:
 	void options(const QString&);
-	void analyse(const QString&, const QString&);
+	void analyze(const QString&, const QString&);
 
 private:
 	QString operation;

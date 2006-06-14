@@ -565,7 +565,7 @@ public slots:
 	void setBarsGap(int curve, int gapPercent, int offset);
 	QString showHistogramStats(Table* w, const QString& curveName, int curve);
 
-	//image analyse tools
+	//image analyze tools
 	 bool lineProfile();
 	 void calculateProfile(int average, bool ok);
 	 void calculateLineProfile(const QPoint& start, const QPoint& end);

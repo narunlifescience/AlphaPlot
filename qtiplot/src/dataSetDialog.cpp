@@ -88,7 +88,7 @@ void DataSetDialog::accept()
 	if (operation.isEmpty())
 		emit options(boxName->currentText());
 	else
-		emit analyse(operation, boxName->currentText());
+		emit analyze(operation, boxName->currentText());
 	close();
 }
 

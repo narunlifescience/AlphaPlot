@@ -587,7 +587,7 @@ void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end,
 	double *x=vector(0, n-1);
 	double *y=vector(0, n-1);
 	for (i = 0; i < n; i++)
-	{// This is the data to be analysed 
+	{// This is the data to be analyzed 
 		x[i]=curve->x(i+start);
 		y[i]=curve->y(i+start);
 	}

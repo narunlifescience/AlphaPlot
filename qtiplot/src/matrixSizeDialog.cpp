@@ -29,58 +29,60 @@
 #include "matrixSizeDialog.h"
 #include "parser.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qspinbox.h>
-#include <q3hbox.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QGridLayout>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QLineEdit>
+#include <QMessageBox>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
-matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+MatrixSizeDialog::MatrixSizeDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "matrixSizeDialog" );
-    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
-		
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4, Qt::Horizontal,tr("Dimensions"),this,"GroupBox1" );
-	new QLabel( tr( "Rows" ));
-    boxRows = new QSpinBox(0,1000000,1, GroupBox1, "boxRows" );
+	groupBox1 = new QGroupBox(tr("Dimensions"));
+	groupBox2 = new QGroupBox(tr("Coordinates"));
+	QHBoxLayout *topLayout = new QHBoxLayout(groupBox1);
+	QGridLayout *centerLayout = new QGridLayout(groupBox2);
+	QHBoxLayout *bottomLayout = new QHBoxLayout();
 
-	new QLabel( tr( "Columns" ));
-    boxCols = new QSpinBox(0,1000000,1, GroupBox1, "boxCols" );
+	topLayout->addWidget( new QLabel(tr( "Rows" )) );
+    boxRows = new QSpinBox();
+	boxRows->setRange(0,1000000);
+	topLayout->addWidget(boxRows);
 
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr("Coordinates"),this,"GroupBox2" );
-	new QLabel(GroupBox2);
-	new QLabel( tr( "X (Columns)" ));
-	new QLabel( tr( "Y (Rows)" ));
+	topLayout->addWidget( new QLabel(tr( "Columns" )) );
+    boxCols = new QSpinBox();
+	boxCols->setRange(0,1000000);
+	topLayout->addWidget(boxCols);
 
-	new QLabel( tr( "First" ));
-    boxXStart = new QLineEdit(GroupBox2, "boxXStart" );
-    boxYStart = new QLineEdit(GroupBox2, "boxYStart" );
+	centerLayout->addWidget( new QLabel(tr( "X (Columns)" )), 0, 1 );
+	centerLayout->addWidget( new QLabel(tr( "Y (Rows)" )), 0, 2 );
 
-	new QLabel( tr( "Last" ));
-    boxXEnd = new QLineEdit(GroupBox2, "boxXStart" );
-    boxYEnd = new QLineEdit(GroupBox2, "boxYStart" );
+	centerLayout->addWidget( new QLabel(tr( "First" )), 1, 0 );
+    boxXStart = new QLineEdit();
+    boxYStart = new QLineEdit();
+	centerLayout->addWidget( boxXStart, 1, 1 );
+	centerLayout->addWidget( boxYStart, 1, 2 );
 
-	Q3HBox  *hbox1=new Q3HBox (this, "hbox1"); 
-	hbox1->setMargin (5);
-	hbox1->setSpacing (5);
-	
-	buttonOk = new QPushButton(hbox1, "buttonOk" );
+	centerLayout->addWidget( new QLabel(tr( "Last" )), 2, 0 );
+    boxXEnd = new QLineEdit();
+    boxYEnd = new QLineEdit();
+	centerLayout->addWidget( boxXEnd, 2, 1 );
+	centerLayout->addWidget( boxYEnd, 2, 2 );
+
+	buttonOk = new QPushButton();
     buttonOk->setDefault( true );
-   
-    buttonCancel = new QPushButton(hbox1, "buttonCancel" );
+	bottomLayout->addWidget( buttonOk );
+    buttonCancel = new QPushButton();
+	bottomLayout->addWidget( buttonCancel );
 	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
-	hlayout->addWidget(hbox1);
+	QVBoxLayout * mainLayout = new QVBoxLayout( this );
+    mainLayout->addWidget(groupBox1);
+	mainLayout->addWidget(groupBox2);
+	mainLayout->addLayout(bottomLayout);
 
     languageChange();
    
@@ -89,85 +91,85 @@ matrixSizeDialog::matrixSizeDialog( QWidget* parent, const char* name, bool moda
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-matrixSizeDialog::~matrixSizeDialog()
+MatrixSizeDialog::~MatrixSizeDialog()
 {
 }
 
-void matrixSizeDialog::setColumns(int c)
+void MatrixSizeDialog::setColumns(int c)
 {
-boxCols->setValue(c);
+	boxCols->setValue(c);
 }
 
-void matrixSizeDialog::setRows(int r)
+void MatrixSizeDialog::setRows(int r)
 {
-boxRows->setValue(r);
+	boxRows->setValue(r);
 }
 
-void matrixSizeDialog::setCoordinates(double xs, double xe, double ys, double ye)
+void MatrixSizeDialog::setCoordinates(double xs, double xe, double ys, double ye)
 {
-boxXStart->setText(QString::number(xs, 'g', 6));
-boxYStart->setText(QString::number(ys, 'g', 6));
-boxXEnd->setText(QString::number(xe, 'g', 6));
-boxYEnd->setText(QString::number(ye, 'g', 6));
+	boxXStart->setText(QString::number(xs, 'g', 6));
+	boxYStart->setText(QString::number(ys, 'g', 6));
+	boxXEnd->setText(QString::number(xe, 'g', 6));
+	boxYEnd->setText(QString::number(ye, 'g', 6));
 }
 
-void matrixSizeDialog::languageChange()
+void MatrixSizeDialog::languageChange()
 {
-    setWindowTitle(tr("QtiPlot - Matrix Dimensions"));
-    buttonOk->setText(tr("&OK"));
+	setWindowTitle(tr("QtiPlot - Matrix Dimensions"));
+	buttonOk->setText(tr("&OK"));
 	buttonCancel->setText(tr("&Cancel"));
 }
 
-void matrixSizeDialog::accept()
+void MatrixSizeDialog::accept()
 {
-double fromX, toX, fromY, toY;
-myParser parser;	
-try
+	double fromX, toX, fromY, toY;
+	myParser parser;	
+	try
 	{
-	parser.SetExpr(boxXStart->text().lower().ascii());
-	fromX=parser.Eval();
+		parser.SetExpr(boxXStart->text().lower().ascii());
+		fromX=parser.Eval();
 	}
-catch(mu::ParserError &e)
+	catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
-	boxXStart->setFocus();
-	return;
+		QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
+		boxXStart->setFocus();
+		return;
 	}
-try
+	try
 	{
-	parser.SetExpr(boxXEnd->text().lower().ascii());
-	toX=parser.Eval();
+		parser.SetExpr(boxXEnd->text().lower().ascii());
+		toX=parser.Eval();
 	}
-catch(mu::ParserError &e)
+	catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
-	boxXEnd->setFocus();
-	return;
+		QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
+		boxXEnd->setFocus();
+		return;
 	}
-try
+	try
 	{
-	parser.SetExpr(boxYStart->text().lower().ascii());
-	fromY=parser.Eval();
+		parser.SetExpr(boxYStart->text().lower().ascii());
+		fromY=parser.Eval();
 	}
-catch(mu::ParserError &e)
+	catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
-	boxYStart->setFocus();
-	return;
+		QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
+		boxYStart->setFocus();
+		return;
 	}
-try
+	try
 	{
-	parser.SetExpr(boxYEnd->text().lower().ascii());
-	toY=parser.Eval();
+		parser.SetExpr(boxYEnd->text().lower().ascii());
+		toY=parser.Eval();
 	}
-catch(mu::ParserError &e)
+	catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
-	boxYEnd->setFocus();
-	return;
+		QMessageBox::critical(0, tr("QtiPlot - Input error"), QString::fromStdString(e.GetMsg()));
+		boxYEnd->setFocus();
+		return;
 	}
 
-emit changeDimensions(boxRows->value(), boxCols->value());
-emit changeCoordinates(fromX, toX, fromY, toY);
-close();
+	emit changeDimensions(boxRows->value(), boxCols->value());
+	emit changeCoordinates(fromX, toX, fromY, toY);
+	close();
 }

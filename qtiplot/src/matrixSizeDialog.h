@@ -26,42 +26,70 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef matrixSizeDialog_H
-#define matrixSizeDialog_H
+#ifndef MATRIXSIZEDIALOG_H
+#define MATRIXSIZEDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
 class QSpinBox;
 class QLineEdit;
 	
 //! Matrix dimensions dialog
-class matrixSizeDialog : public QDialog
+class MatrixSizeDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    matrixSizeDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~matrixSizeDialog();
+	//! Constructor
+	/**
+	 * \param parent parent widget
+	 * \param fl window flags
+	 */
+    MatrixSizeDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+	//! Destructor
+    ~MatrixSizeDialog();
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1;
+    QGroupBox* groupBox1, *groupBox2;
 	QSpinBox *boxCols, *boxRows;
 	QLineEdit *boxXStart, *boxYStart, *boxXEnd, *boxYEnd;
 
 public slots:
+	//! Set all strings in the current language
     virtual void languageChange();
+	//! Accept changes and quit
 	void accept();
+	//! Set the number of columns
 	void setColumns(int c);
+	//! Set the number of rows
 	void setRows(int r);
+	//! Set the start and end coordinates
+	/**
+	 * \param xs start x value
+	 * \param xe end x value
+	 * \param ys start y value
+	 * \param ye end y value
+	 */
 	void setCoordinates(double xs, double xe, double ys, double ye);
 
 signals:
-	void changeDimensions(int, int);
-	void changeCoordinates(double, double, double, double);
+	//! Emit the new matrix dimensions
+	/**
+	 * \param rows number of rows
+	 * \param cols number of columns
+	 */
+	void changeDimensions(int rows, int cols);
+	//! Emit the new coordinates
+	/**
+	 * \param fromX start x value
+	 * \param toX end x value
+	 * \param fromY start y value
+	 * \param toY end y value
+	 */
+	void changeCoordinates(double fromX, double toX, double fromY, double toY);
 };
 
-#endif // 
+#endif // MATRIXSIZEDIALOG_H

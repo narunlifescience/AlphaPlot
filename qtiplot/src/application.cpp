@@ -5725,7 +5725,7 @@ void ApplicationWindow::showMatrixDialog()
 		w->storeCellsToMemory();
 		md->setTextFormat(w->textFormat(), w->precision());
 		md->setColumnsWidth(w->columnsWidth());
-		md->showNormal();
+		md->exec();
 	}
 }
 
@@ -5734,7 +5734,7 @@ void ApplicationWindow::showMatrixSizeDialog()
 	Matrix* w = (Matrix*)ws->activeWindow();
 	if ( w && matrixWindows.contains(w->name()))
 	{
-		matrixSizeDialog* md= new matrixSizeDialog(this,"matrixDialog", false);
+		MatrixSizeDialog* md= new MatrixSizeDialog(this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		connect (md, SIGNAL(changeDimensions(int, int)), w, SLOT(setMatrixDimensions(int, int)));
 		connect (md, SIGNAL(changeCoordinates(double, double, double, double)), 
@@ -5743,7 +5743,7 @@ void ApplicationWindow::showMatrixSizeDialog()
 		md->setCoordinates(w->xStart(), w->xEnd(), w->yStart(), w->yEnd());
 		md->setColumns(w->numCols());
 		md->setRows(w->numRows());
-		md->showNormal();
+		md->exec();
 	}
 }
 
@@ -5762,7 +5762,7 @@ void ApplicationWindow::showMatrixValuesDialog()
 		md->setFormula(w->formula());
 		md->setColumns(w->numCols());
 		md->setRows(w->numRows());
-		md->showNormal();
+		md->exec();
 	}
 }
 
@@ -5776,7 +5776,8 @@ void ApplicationWindow::showColumnOptionsDialog()
 			tableDialog* td= new tableDialog(this,"optionsDialog", false);
 			td->setAttribute(Qt::WA_DeleteOnClose);
 			td->setWorksheet(w);
-			td->showNormal();
+			td->exec();
+
 		}
 		else
 			QMessageBox::warning(this, "QtiPlot","Please select a column first!");
@@ -7031,8 +7032,7 @@ void ApplicationWindow::showImageDialog()
 		id->setIcon(QPixmap(logo_xpm));
 		id->setOrigin(im->getOrigin());
 		id->setSize(im->size());
-		id->showNormal();
-		id->setFocus();
+		id->exec();
 	}
 }
 
@@ -7139,8 +7139,7 @@ void ApplicationWindow::showLineDialog()
 		ld->setStartArrow(lm->getStartArrow());
 		ld->initHeadGeometry(lm->headLength(), lm->headAngle(), lm->filledArrowHead());
 		ld->enableHeadTab();
-		ld->showNormal();
-		ld->setFocus();
+		ld->exec();
 	}
 }
 
@@ -8454,7 +8453,7 @@ void ApplicationWindow::showGraphContextMenu()
 			calcul.insertItem(tr("Fit &Multi-Peak"), &multiPeakMenu);
 			calcul.insertSeparator();
 			calcul.addAction(actionShowFitDialog);
-			cm.insertItem(tr("Anal&yse"), &calcul);
+			cm.insertItem(tr("Anal&yze"), &calcul);
 		}
 
 		if (copiedLayer)
@@ -10389,7 +10388,7 @@ void ApplicationWindow::showDataSetDialog(const QString& whichFit)
 	ad->setOperationType(whichFit);
 	ad->exec();
 
-	connect (ad,SIGNAL(analyse(const QString&, const QString&)),this,SLOT(analyzeCurve(const QString&, const QString& )));
+	connect (ad,SIGNAL(analyze(const QString&, const QString&)),this,SLOT(analyzeCurve(const QString&, const QString& )));
 }
 
 void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& curveTitle)
@@ -11289,7 +11288,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowExplorer->setToolTip(tr("Show project explorer"));
 
 	actionShowLog->setMenuText(tr("Results &Log"));
-	actionShowLog->setToolTip(tr("Show calculus results"));
+	actionShowLog->setToolTip(tr("Show analysis results"));
 
 	actionAddLayer->setMenuText(tr("Add La&yer"));
 	actionAddLayer->setShortcut(tr("ALT+L"));
@@ -11344,7 +11343,7 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionTimeStamp->setMenuText(tr("Add Time Stamp")); 
 	actionTimeStamp->setShortcut(tr("Ctrl+ALT+T"));
-	actionTimeStamp->setToolTip(tr("Date & time "));
+	actionTimeStamp->setToolTip(tr("Date && time "));
 
 	actionAddImage->setMenuText(tr("Add &Image")); 
 	actionAddImage->setShortcut(tr("ALT+I"));
