@@ -950,7 +950,7 @@ QString Graph::fitLinear(const QString& curveTitle)
 	QDateTime dt = QDateTime::currentDateTime ();
 	QString date=dt.toString(Qt::LocalDate);
 	QString info=date+"\t"+this->caption()+" LinearFit"+ QString::number(fitID)+ ":\n";
-	info+="Linear regresion of " + c->title() + ": y=Ax+B\n";
+	info+="Linear regression of " + c->title() + ": y=Ax+B\n";
 	info+="From x="+QString::number(x[0]) +" to x="+QString::number(x[n-1])+"\n";
 	info+="A = "+QString::number(c1)+" +/- " + QString::number(sqrt(cov11))+"\n";
 	info+="B = "+QString::number(c0)+" +/- " + QString::number(sqrt(cov00));
@@ -959,7 +959,7 @@ QString Graph::fitLinear(const QString& curveTitle)
 	info+="\nRsquare = "+QString::number(Rsquare);
 	info+="\n-------------------------------------------------------------\n";
 
-	addResultCurve(n, x, y, 1, "LinearFit"+QString::number(++fitID), tr("Linear regresion of ")+c->title());
+	addResultCurve(n, x, y, 1, "LinearFit"+QString::number(++fitID), tr("Linear regression of ")+c->title());
 	return info;
 #endif
 }
