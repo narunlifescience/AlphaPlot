@@ -127,8 +127,8 @@ void pieDialog::initPiePage()
 	new QLabel( tr( "Pattern" ), GroupBox2, "TextLabel41",0 );
 	boxPattern = new PatternBox( false, GroupBox2);
 	
-	new QLabel(tr( "Pie ray" ), GroupBox2, "rayLabel",0 );  
-    boxRay= new QSpinBox(0,2000,10,GroupBox2, "boxRay");
+	new QLabel(tr( "Pie radius" ), GroupBox2, "radiusLabel",0 );  
+    boxRadius= new QSpinBox(0,2000,10,GroupBox2, "boxRadius");
 	
 	Q3HBoxLayout* hlayout1 = new Q3HBoxLayout(pieOptions,5,5, "hlayout1");
 	hlayout1->addWidget(curvesList);
@@ -306,7 +306,7 @@ curvesList->removeItem (0);
 
 void pieDialog::setPieSize(int size)
 {
-boxRay->setValue(size);
+boxRadius->setValue(size);
 }
 
 void pieDialog::setFramed(bool ok)
@@ -350,7 +350,7 @@ void pieDialog::updatePlot()
 if (generalDialog->currentPage()==(QWidget *)pieOptions)
 	{
 	QPen pen=QPen(boxLineColor->color(),boxLineWidth->value(), style());
-	emit updatePie(pen, pattern(), boxRay->value(), boxFirstColor->currentItem());	
+	emit updatePie(pen, pattern(), boxRadius->value(), boxFirstColor->currentItem());	
 	}
 	
 if (generalDialog->currentPage()==(QWidget*)frame)

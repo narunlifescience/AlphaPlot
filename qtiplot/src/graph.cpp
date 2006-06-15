@@ -169,7 +169,7 @@ static const char *unzoom_xpm[]={
 	selectedCurve =-1;selectedMarker=-1;selectedCursor=-1;
 	startPoint=0;endPoint=-1;
 	startID=-1; endID=-1;
-	pieRay=100;
+	pieRadius=100;
 	axesLineWidth = 1;	
 	lineProfileOn=false;
 	drawTextOn=false;
@@ -4341,7 +4341,7 @@ QString Graph::savePieCurveLayout()
 		index=13;
 
 	s+=QString::number(index)+"\t";
-	s+=QString::number(pieRay)+"\t";
+	s+=QString::number(pieRadius)+"\t";
 	s+=QString::number(pieCurve->first())+"\n";
 
 	return s;
@@ -5223,7 +5223,7 @@ void Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 int Graph::pieSize()
 {
 #if false
-	return pieRay;
+	return pieRadius;
 #endif
 }
 
@@ -5278,12 +5278,12 @@ void Graph::updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int siz
 		if (pieCurve)
 		{
 			pieCurve->setPen(pen);
-			pieCurve->setRay(size);
+			pieCurve->setRadius(size);
 			pieCurve->setBrushStyle(brushStyle);
 			pieCurve->setFirstColor(firstColor);
 			d_plot->replot();
 
-			pieRay=size;
+			pieRadius=size;
 			emit modifiedGraph();
 		}
 	}
@@ -5312,8 +5312,8 @@ void Graph::plotPie(QwtPieCurve* curve)
 
 	pieCurve->setPen(curve->pen());
 	pieCurve->setTitle(curve->title());
-	pieRay=curve->ray();
-	pieCurve->setRay(pieRay);
+	pieRadius=curve->radius();
+	pieCurve->setRadius(pieRadius);
 	pieCurve->setBrushStyle(curve->pattern());
 	pieCurve->setFirstColor(curve->first());
 	piePlot=true;
@@ -5352,11 +5352,11 @@ void Graph::plotPie(Table* w, const QString& name,const QPen& pen, int brush, in
 
 	pieCurve->setTitle(name);
 	pieCurve->setPen(pen);
-	pieCurve->setRay(size);
+	pieCurve->setRadius(size);
 	pieCurve->setFirstColor(firstColor);	
 	pieCurve->setBrushStyle(getBrushStyle(brush));
 	piePlot=true;
-	pieRay=size;
+	pieRadius=size;
 #endif
 }
 
@@ -5398,7 +5398,7 @@ void Graph::plotPie(Table* w, const QString& name)
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Pie;
 
-	const int ray = 125;
+	const int radius = 125;
 	int xc=int(rect.width()*0.5+10);
 	int yc=int(rect.y()+rect.height()*0.5);
 
@@ -5410,8 +5410,8 @@ void Graph::plotPie(Table* w, const QString& name)
 		const double value = Y[i]/sum*360;
 		double alabel= (angle-value*0.5)*PI/180.0;	
 
-		const int x=int(xc+ray*cos(alabel));
-		const int y=int(yc-ray*sin(alabel));
+		const int x=int(xc+radius*cos(alabel));
+		const int y=int(yc-radius*sin(alabel));
 
 		LegendMarker* aux= new LegendMarker(d_plot);
 		aux->setOrigin(QPoint(x,y));

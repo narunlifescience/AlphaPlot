@@ -39,7 +39,7 @@ QwtPieCurve::QwtPieCurve(QwtPlot *parent, const char *name):
 	QwtPlotCurve()
 {
 #if false
-	pieRay=100;
+	pieRadius=100;
 	firstColor=0;
 	setPen(QPen(QColor(Qt::black),1,Qt::SolidLine));
 	setBrush(QBrush(Qt::black,Qt::SolidPattern));
@@ -65,7 +65,7 @@ void QwtPieCurve::drawPie(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to)
 {   	
 #if false
-	int i, d = pieRay*2;
+	int i, d = pieRadius*2;
 	QwtPlot *plot = (QwtPlot *)parentPlot();
 	QRect rect = plot->rect();
 	int x_center = rect.x() + rect.width()/2;

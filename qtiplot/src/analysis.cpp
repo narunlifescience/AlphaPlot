@@ -1213,10 +1213,10 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 			xvar=X[i];
 			Y[i]=parser.Eval();
 		}
-		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
+		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
 
 		result = outputFitString(n, tolerance, X0, XN, points, J, status, par, s, params,
-				curve,   formula, tr("Non-linear"));
+				curve,   formula, tr("Nonlinear"));
 	}
 	else
 	{
@@ -1251,10 +1251,10 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 			xvar=X[i];
 			Y[i]=parser.Eval();
 		}
-		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
+		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
 
 		result =outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
-				curve, formula, tr("Non-linear"));
+				curve, formula, tr("Nonlinear"));
 	}
 	return  result;
 #endif
@@ -2540,7 +2540,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		fit_df(s->x,(void*)f.params,J);
 
 		result = outputFitString(n, tolerance, X0, XN, points, J, status, par, s, params,
-				curve, fname+" = "+formula, "Non-linear");
+				curve, fname+" = "+formula, "Nonlinear");
 
 	}
 	else
@@ -2610,7 +2610,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 			fname = QString(fitFunction());
 
 		result= outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
-				curve, fname+" = "+formula, "Non-linear");
+				curve, fname+" = "+formula, "Nonlinear");
 
 	}
 
@@ -2628,7 +2628,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		Y[i]= f_eval(X[i], par);
 	}
 
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
 
 	return result;
 #endif

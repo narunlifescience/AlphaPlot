@@ -92,7 +92,7 @@ public slots:
 	void showParseFunctions();
 	void showUserFunctions();
 	void loadPlugins();
-	void showExpresion(int function);
+	void showExpression(int function);
 	void addFunction();
 	void addFunctionName();
 	void setFunction(bool ok);

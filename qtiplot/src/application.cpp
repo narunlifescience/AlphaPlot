@@ -5715,17 +5715,17 @@ void ApplicationWindow::showMatrixDialog()
 	Matrix* w = (Matrix*)ws->activeWindow();
 	if ( w && matrixWindows.contains(w->name()))
 	{
-		matrixDialog* md= new matrixDialog(this,"matrixDialog", false);
+		MatrixDialog* md= new MatrixDialog(this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		connect (md, SIGNAL(changeColumnsWidth(int)), w, SLOT(setColumnsWidth(int)));
 		connect (md, SIGNAL(changeTextFormat(const QChar&, int)), 
 				w, SLOT(setNumericFormat(const QChar&, int)));
-		connect (md, SLOT(close()), w, SLOT(freeMemory()));
 
 		w->storeCellsToMemory();
 		md->setTextFormat(w->textFormat(), w->precision());
 		md->setColumnsWidth(w->columnsWidth());
 		md->exec();
+		w->freeMemory();
 	}
 }
 

@@ -714,7 +714,7 @@ private:
 	Qt::PenStyle auxMrkStyle;
 	QString auxMrkFileName, auxMrkText;
 
-	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
+	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRadius;
 	int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
 	int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 	int auxArrowHeadLength, auxArrowHeadAngle;

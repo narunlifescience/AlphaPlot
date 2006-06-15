@@ -74,7 +74,7 @@ public:
 
     Q3ListBox *curvesList;
     QSpinBox *boxFrameWidth;
-	QSpinBox *boxRay, *boxMargin;
+	QSpinBox *boxRadius, *boxMargin;
 	QCheckBox *boxFramed, *boxAll;
     ColorBox *boxFrameColor, *boxLineColor, *boxFirstColor;
 	QComboBox *boxLineStyle;

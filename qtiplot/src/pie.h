@@ -44,8 +44,8 @@ public:
 public slots:
 	QColor color(int i);
 
-	int ray(){return pieRay;};
-	void setRay(int size){pieRay=size;};
+	int radius(){return pieRadius;};
+	void setRadius(int size){pieRadius=size;};
 
 	Qt::BrushStyle pattern(){return QwtPlotCurve::brush().style();};
 	void setBrushStyle(const Qt::BrushStyle& style);
@@ -54,5 +54,5 @@ public slots:
 	int first(){return firstColor;};
 	
 private:
-	int pieRay,firstColor;
+	int pieRadius,firstColor;
 };

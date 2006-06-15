@@ -29,21 +29,26 @@
 #ifndef MATRIXDIALOG_H
 #define MATRIXDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QSpinBox;
 class QComboBox;
 	
 //! Matrix properties dialog
-class matrixDialog : public QDialog
+class MatrixDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    matrixDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~matrixDialog();
+	//! Constructor
+	/**
+	 * \param parent parent widget
+	 * \param fl window flags
+	 */
+    MatrixDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+	//! Destructor
+    ~MatrixDialog();
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel, *buttonApply;
@@ -51,17 +56,36 @@ public:
 	QComboBox *boxFormat, *boxNumericDisplay;
 
 public slots:
-    virtual void languageChange();
-	void accept();
-	void apply();
-	void setColumnsWidth(int width);
-	void showPrecisionBox(int item);
+	//! Set all strings in the current language
+	virtual void languageChange();
+	//! Set the text format
+	/**
+	 * \param format format code ("e" or "f")
+	 * \param precision number of decimal places
+	 */
 	void setTextFormat(const QString& format, int precision);
+	//! Set the column width
+	void setColumnsWidth(int width);
+
+private slots:
+	//! Accept changes and quit
+	void accept();
+	//! Apply changes
+	void apply();
+	//! Activate the numeric precision choice box
+	void showPrecisionBox(int item);
+	//! Change the numeric precision (emits changeTextFormat)
 	void changePrecision(int precision);
 
 signals:
-	void changeColumnsWidth(int);
-	void changeTextFormat(const QChar&, int);
+	//! Emit new column width
+	void changeColumnsWidth(int width);
+	//! Emit new text format
+	/**
+	 * \param format format code ('e' or 'f')
+	 * \param precision number of decimal places
+	 */
+	void changeTextFormat(const QChar& format, int precision);
 };
 
-#endif // IMPORTDIALOG_H
+#endif // MATRIXDIALOG_H
