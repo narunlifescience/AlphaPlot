@@ -29,11 +29,10 @@
 #ifndef EPSEXPORTDIALOG_H
 #define EPSEXPORTDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-#include <qprinter.h>
+#include <QDialog>
+#include <QPrinter>
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
 class QCheckBox;
 class QSpinBox;
@@ -45,14 +44,14 @@ class EpsExportDialog : public QDialog
     Q_OBJECT
 
 public:
-    EpsExportDialog(const QString& fileName, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    EpsExportDialog(const QString& fileName, QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~EpsExportDialog();
 
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
-    QCheckBox* boxColor;
-	QSpinBox * boxResolution;
+    QPushButton *buttonOk;
+	QPushButton *buttonCancel;
+    QGroupBox *groupBox1;
+    QCheckBox *boxColor;
+	QSpinBox *boxResolution;
 	QComboBox *boxPageSize, *boxOrientation;
 	
 public slots:

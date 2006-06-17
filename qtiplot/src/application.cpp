@@ -4490,7 +4490,7 @@ void ApplicationWindow::exportGraph()
 				{
 					if (ied->showExportOptions())
 					{
-						EpsExportDialog *ed= new EpsExportDialog (fname, this, "ExportDialog", true, 0);
+						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
 						ed->setAttribute(Qt::WA_DeleteOnClose);
 						connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								plot, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
@@ -4578,7 +4578,7 @@ void ApplicationWindow::exportLayer()
 			{
 				if (ied->showExportOptions())
 				{
-					EpsExportDialog *ed= new EpsExportDialog (fname, this, "ExportDialog", true, 0);
+					EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
 					ed->setAttribute(Qt::WA_DeleteOnClose);
 					connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 							g, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
