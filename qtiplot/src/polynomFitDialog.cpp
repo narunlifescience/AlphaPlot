@@ -44,11 +44,11 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "polynomFitDialog" );
+	setName( "PolynomFitDialog" );
 	setWindowTitle(tr("QtiPlot - Polynomial Fit Options"));
     setSizeGripEnabled(true);
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
@@ -104,18 +104,18 @@ polynomFitDialog::polynomFitDialog( QWidget* parent, const char* name, bool moda
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT(activateCurve(int)));
 }
 
-polynomFitDialog::~polynomFitDialog()
+PolynomFitDialog::~PolynomFitDialog()
 {
 }
 
-void polynomFitDialog::languageChange()
+void PolynomFitDialog::languageChange()
 {
 buttonFit->setText( tr( "&Fit" ) );
 buttonCancel->setText( tr( "&Close" ) );
 boxPoints->setSpecialValueText(tr("Not enough points"));
 }
 
-void polynomFitDialog::fit()
+void PolynomFitDialog::fit()
 {
 QString curve = boxName->currentText();
 QStringList curvesList = graph->curvesList();
@@ -132,7 +132,7 @@ int index = boxName->currentItem();
 QwtPlotCurve *c = graph->curve(index);
 if (!c || c->dataSize()<2)
 	{
-	QString s= tr("You can not fit curve:");
+	QString s= tr("You cannot fit curve:");
 	s+="<p><b>'"+boxName->text(index)+"'</b><p>";
 	s+=tr("because it has less than 2 points!");
 	QMessageBox::warning(0,tr("QtiPlot - Warning"),s);
@@ -154,7 +154,7 @@ else
 	}
 }
 
-void polynomFitDialog::setGraph(Graph *g)
+void PolynomFitDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->curvesList(),-1);
@@ -169,7 +169,7 @@ connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void polynomFitDialog::activateCurve(int index)
+void PolynomFitDialog::activateCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 if (!c)
@@ -191,7 +191,7 @@ else
 boxPoints->setValue(QMAX(c->dataSize(), 100));
 };
 
-void polynomFitDialog::changeCurve(int index)
+void PolynomFitDialog::changeCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 while(c->dataSize()<2)
@@ -205,7 +205,7 @@ boxName->setCurrentItem(index);
 activateCurve(index);
 }
 
-void polynomFitDialog::changeDataRange()
+void PolynomFitDialog::changeDataRange()
 {
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();

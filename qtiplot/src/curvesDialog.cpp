@@ -322,11 +322,11 @@ static const char * vertBars_xpm[] = {
 ".+++..+++..+++.",
 ".+++..+++..+++."};
 
-curvesDialog::curvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "curvesDialog" );
+	setName( "CurvesDialog" );
 	setMinimumSize(QSize(400,200));
     setWindowTitle( tr( "QtiPlot - Add/Remove curves" ) );
 	setFocus();
@@ -425,7 +425,7 @@ Q3Accel *accel = new Q3Accel(this);
 accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(removeCurve()) );
 }
 
-void curvesDialog::showCurveBtn(int) 
+void CurvesDialog::showCurveBtn(int) 
 {
 QString txt= contents->currentText();
 if (txt.contains("="))
@@ -440,7 +440,7 @@ else
 	}
 }
 
-void curvesDialog::showPlotAssociations() 
+void CurvesDialog::showPlotAssociations() 
 {
 int curve = contents->currentItem();
 if (curve < 0)
@@ -449,18 +449,18 @@ emit showPlotAssociations(curve);
 close();
 }
 
-void curvesDialog::showFunctionDialog() 
+void CurvesDialog::showFunctionDialog() 
 {
 emit showFunctionDialog(contents->currentText(), contents->currentItem());
 close();
 }
 
-QSize curvesDialog::sizeHint() const 
+QSize CurvesDialog::sizeHint() const 
 {
 return QSize(400, 200 );
 }
 
-void curvesDialog::deletePopupMenu(Q3ListBoxItem *it, const QPoint &point)
+void CurvesDialog::deletePopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 selectedCurve=contents->index (it);
 	
@@ -469,7 +469,7 @@ contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
 contextMenu.exec(point);
 }
 
-void curvesDialog::addPopupMenu(Q3ListBoxItem *it, const QPoint &point)
+void CurvesDialog::addPopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 selectedCurve=available->index (it);
 	
@@ -478,7 +478,7 @@ contextMenu.insertItem(tr("&Plot"), this, SLOT(addSelectedCurve()));
 contextMenu.exec(point);
 }
 
-void curvesDialog::insertCurvesToDialog(const QStringList& names)
+void CurvesDialog::insertCurvesToDialog(const QStringList& names)
 {
 available->clear();
 int i,n=names.count();	
@@ -489,14 +489,14 @@ if (n==0)
 	btnAdd->setDisabled(true);
 }
 
-void curvesDialog::setGraph(Graph *graph)
+void CurvesDialog::setGraph(Graph *graph)
 {
 g = graph;
 contents->insertStringList(g->curvesList(), -1);
 enableRemoveBtn();
 }
 
-void curvesDialog::addSelectedCurve()
+void CurvesDialog::addSelectedCurve()
 {
 QStringList emptyColumns;
 QString text=available->text(selectedCurve);
@@ -510,7 +510,7 @@ if (!contents->findItem(text, Q3ListView::ExactMatch))
 Graph::showPlotErrorMessage(this, emptyColumns);
 }
 
-void curvesDialog::addCurve()
+void CurvesDialog::addCurve()
 {
 QStringList emptyColumns;
 for (int i=0;i<int(available->count());i++)
@@ -529,13 +529,13 @@ g->updatePlot();
 Graph::showPlotErrorMessage(this, emptyColumns);
 }
 
-bool curvesDialog::addCurve(const QString& name)
+bool CurvesDialog::addCurve(const QString& name)
 {
 int style = curveStyle();
 Table* t = findTable(name);
 if (t && g->insertCurve(t, name, style))
 	{
-	curveLayout cl = Graph::initCurveLayout();
+	CurveLayout cl = Graph::initCurveLayout();
 
 	int curve = g->curves() - 1;
 	long key = g->curveKey(curve);	
@@ -580,7 +580,7 @@ return false;
 }
 
 
-void curvesDialog::setCurveDefaultSettings(int style, int width, int size)
+void CurvesDialog::setCurveDefaultSettings(int style, int width, int size)
 {
 defaultCurveLineWidth = width;
 defaultSymbolSize = size;
@@ -605,7 +605,7 @@ else if (style == Graph::HorizontalBars)
 	boxStyle->setCurrentItem(8);	
 }
 
-Table * curvesDialog::findTable(const QString& text)
+Table * CurvesDialog::findTable(const QString& text)
 {
 int pos = text.find("_", 0);
 for (int i=0; i < (int)tables->count(); i++ )
@@ -616,13 +616,13 @@ for (int i=0; i < (int)tables->count(); i++ )
 return 0;
 }
 
-void curvesDialog::removeSelectedCurve()
+void CurvesDialog::removeSelectedCurve()
 {
 g->removeCurve(selectedCurve);
 contents->removeItem (selectedCurve);
 }
 
-void curvesDialog::removeCurve()
+void CurvesDialog::removeCurve()
 {
 int i;
 QStringList texts;	
@@ -642,13 +642,13 @@ for (i=0;i<int(texts.count());i++)
 	}	
 }
 
-void curvesDialog::clear()
+void CurvesDialog::clear()
 {
 contents->clear();
 btnRemove->setDisabled (true);
 }
 
-void curvesDialog::enableRemoveBtn()
+void CurvesDialog::enableRemoveBtn()
 {
 if (contents->count()>0)
 	btnRemove->setEnabled (true);
@@ -656,7 +656,7 @@ else
 	btnRemove->setDisabled (true);
 }
 
-int curvesDialog::curveStyle()
+int CurvesDialog::curveStyle()
 {
 int style = 0;
 switch (boxStyle->currentItem())
@@ -692,7 +692,7 @@ switch (boxStyle->currentItem())
 return style;
 }
 
-curvesDialog::~curvesDialog()
+CurvesDialog::~CurvesDialog()
 {
 delete tables;
 }

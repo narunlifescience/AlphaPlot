@@ -332,6 +332,7 @@ private:
 	Qwt3D::PLOTSTYLE style_;
 };
 
+//! Class for user defined functions
 class UserFunction : public Function
 {
 public:

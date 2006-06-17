@@ -45,11 +45,11 @@
 #include <Q3VBoxLayout>
 #include <Q3HButtonGroup>
 
-intDialog::intDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "polynomFitDialog" );
+	setName( "PolynomFitDialog" );
 	setWindowTitle(tr("QtiPlot - Integration Options"));
     setSizeGripEnabled( true );
 	setFixedHeight(sizeHint().height());
@@ -102,18 +102,18 @@ intDialog::intDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
     connect( boxName, SIGNAL( activated(int) ), this, SLOT(activateCurve(int)));
 }
 
-intDialog::~intDialog()
+IntDialog::~IntDialog()
 {
 }
 
-void intDialog::languageChange()
+void IntDialog::languageChange()
 {
 buttonOk->setText( tr( "&Integrate" ) );
 buttonCancel->setText( tr("&Close" ) );
 buttonHelp->setText(tr("&Help"));
 }
 
-void intDialog::accept()
+void IntDialog::accept()
 {
 QString curve = boxName->currentText();
 QStringList curvesList = graph->curvesList();
@@ -130,7 +130,7 @@ int index=boxName->currentItem();
 QwtPlotCurve *c = graph->curve(index);
 if (!c || c->dataSize()<2)
 	{
-	QString s= tr("You can not fit index:");
+	QString s= tr("You cannot fit index:");
 	s+="<p><b>'"+boxName->currentText()+"'</b><p>";
 	s+=tr("because it has less than 2 points!");
 	QMessageBox::warning(0,tr("QtiPlot - Warning"),s);
@@ -172,7 +172,7 @@ else
 	{
 	try
 		{
-		myParser parser;			
+		MyParser parser;			
 		parser.SetExpr((boxStart->text()).ascii());
 		start=parser.Eval();
 			
@@ -218,7 +218,7 @@ else
 	{
 	try
 		{
-		myParser parser;
+		MyParser parser;
 		parser.SetExpr((boxEnd->text()).ascii());
 		stop=parser.Eval();	
 		if(stop>maxx)
@@ -260,7 +260,7 @@ if ( !res.isEmpty() )
 	}
 }
 
-void intDialog::setGraph(Graph *g)
+void IntDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->curvesList(),-1);
@@ -275,7 +275,7 @@ connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void intDialog::activateCurve(int index)
+void IntDialog::activateCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 if (!c)
@@ -295,7 +295,7 @@ else
 	}
 };
 
-void intDialog::changeCurve(int index)
+void IntDialog::changeCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 while(c->dataSize()<2)
@@ -309,7 +309,7 @@ activateCurve(index);
 boxName->setCurrentItem(index);
 }
 
-void intDialog::changeDataRange()
+void IntDialog::changeDataRange()
 {
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();
@@ -317,8 +317,8 @@ boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 }
 
-void intDialog::help()
+void IntDialog::help()
 {
 QMessageBox::about(0, tr("QtiPlot - Help for Integration"),
-				   tr("The integration of a curve consists of the following five steps:\n 1) Choose which curve you want to integrate\n 2) Set the order of the integration. The higher it is the more accurate the calculation is\n 3) Choose the number of iterations \n 4) Choose the tollerance \n 5) Choose the lower and the upper limit.\n The code integrates the curve with an iterative algorithm. The tolerance determines the termination criteria for the solver.\n Because, sometimes we ask for too much accuracy, the number of iterations makes sure that the solver will not work for ever.\n IMPORTANT \nThe limits must be within the range of x; If you do not know the maximum (minimum) value of x, type max (min) in the boxes."));
+				   tr("The integration of a curve consists of the following five steps:\n 1) Choose which curve you want to integrate\n 2) Set the order of the integration. The higher it is the more accurate the calculation is\n 3) Choose the number of iterations \n 4) Choose the tolerance \n 5) Choose the lower and the upper limit.\n The code integrates the curve with an iterative algorithm. The tolerance determines the termination criteria for the solver.\n Because, sometimes we ask for too much accuracy, the number of iterations makes sure that the solver will not work for ever.\n IMPORTANT \nThe limits must be within the range of x; If you do not know the maximum (minimum) value of x, type max (min) in the boxes."));
 }

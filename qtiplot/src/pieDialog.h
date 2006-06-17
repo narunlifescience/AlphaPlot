@@ -54,13 +54,13 @@ class ColorButton;
 class MultiLayer;
 
 //! Pie plot dialog
-class pieDialog : public QDialog
+class PieDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    pieDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~pieDialog();
+    PieDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~PieDialog();
 
 	void initPiePage();
 	void initBorderPage();

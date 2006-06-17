@@ -72,7 +72,7 @@ double UserFunction::operator()(double x, double y)
 	if (formula.isEmpty())
 		return 0.0;
 
-	myParser parser;
+	MyParser parser;
 	double result=0.0;
 	try
 	{

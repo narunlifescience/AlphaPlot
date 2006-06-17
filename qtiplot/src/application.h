@@ -68,7 +68,7 @@ class ScalePicker;
 class Graph3D;
 class Note;
 class MultiLayer;
-class fDialog;
+class FunctionDialog;
 class Folder;
 class FolderListItem;
 class FolderListView;
@@ -214,7 +214,7 @@ public slots:
 	void newFunctionPlot();
 	void newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);
 
-	fDialog* functionDialog();
+	FunctionDialog* functionDialog();
 	void showFunctionDialog(const QString& function, int curve);
 	void addFunctionCurve();
 	void clearFunctionsList();
@@ -499,8 +499,8 @@ public slots:
 	QDialog* showScaleDialog();
 	QDialog* showPieDialog();
 	QDialog* showPlot3dDialog();
-	axesDialog* showScalePageFromAxisDialog(int axisPos);
-	axesDialog* showAxisPageFromAxisDialog(int axisPos);
+	AxesDialog* showScalePageFromAxisDialog(int axisPos);
+	AxesDialog* showAxisPageFromAxisDialog(int axisPos);
 	void showAxisDialog();
 	void showGridDialog();
 	void showGeneralPlotDialog();

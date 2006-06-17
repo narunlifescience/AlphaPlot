@@ -133,6 +133,7 @@ void ImportDialog::help()
 	s += tr("By checking this option all white spaces will be removed from the beginning and the end of the lines in the ASCII file.") + "\n\n";
 	s += tr( "Simplify white spaces" )+ ":\n";
 	s += tr("By checking this option each sequence of internal whitespaces (including the TAB character) will be replaced with a single space.");
+	s += tr("By checking this option all white spaces will be removed from the beginning and the end of the lines and each sequence of internal whitespaces (including the TAB character) will be replaced with a single space.");
 
 	s +="\n\n"+tr("Warning: using these two last options leads to column overlaping if the columns in the ASCII file don't have the same number of rows.");
 	s +="\n"+tr("To avoid this problem you should precisely define the column separator using TAB and SPACE characters.");

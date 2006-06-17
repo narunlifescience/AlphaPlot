@@ -3,13 +3,15 @@
 
 #include <gsl/gsl_vector.h>
 
-struct fitData {
+//! Structure for fitting data
+struct FitData {
   size_t n;
   double * X;
   double * Y;
 };
 
-struct fitParserData{
+//! Structure for parser data for fitting
+struct FitParserData{
   size_t n;
   size_t p;
   double * X;
@@ -18,7 +20,8 @@ struct fitParserData{
   const char *names;
 };
 
-struct fitMultiPeakData{
+//! Structure for multi-peak fitting data
+struct FitMultiPeakData{
   size_t n;
   size_t p;
   double * X;

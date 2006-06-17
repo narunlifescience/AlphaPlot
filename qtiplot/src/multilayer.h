@@ -219,7 +219,7 @@ private:
 	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
 };
 
-	
+//! Layer button (showing layer number) for plot windows	
 class LayerButton: public QWidget
 {
 	Q_OBJECT

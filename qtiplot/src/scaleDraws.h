@@ -72,7 +72,7 @@ class ScaleDraw: public QwtScaleDraw
 				double lbl=0.0;
 				try
 				{
-					myParser parser;
+					MyParser parser;
 					if (formula_string.contains("x"))
 						parser.DefineVar("x", &value);
 					else if (formula_string.contains("y"))
@@ -264,6 +264,7 @@ class ScaleDraw: public QwtScaleDraw
 		QString formula_string;
 };
 
+//! Extension to QwtScaleDraw
 class QwtNoLabelsScaleDraw: public ScaleDraw
 {
 	public:
@@ -276,6 +277,7 @@ class QwtNoLabelsScaleDraw: public ScaleDraw
 		};
 };
 
+//! Extension to QwtScaleDraw
 class QwtTextScaleDraw: public ScaleDraw
 {
 	public:
@@ -306,6 +308,7 @@ class QwtTextScaleDraw: public ScaleDraw
 		QStringList labels;
 };
 
+//! Extension to QwtScaleDraw
 class TimeScaleDraw: public ScaleDraw
 {
 	public:
@@ -342,6 +345,7 @@ class TimeScaleDraw: public ScaleDraw
 		QString t_format;
 };
 
+//! Extension to QwtScaleDraw
 class DateScaleDraw: public ScaleDraw
 {
 	public:
@@ -378,6 +382,7 @@ class DateScaleDraw: public ScaleDraw
 		QString t_format;
 };
 
+//! Extension to QwtScaleDraw
 class QwtSupersciptsScaleDraw: public ScaleDraw
 {
 	public:

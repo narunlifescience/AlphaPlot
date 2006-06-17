@@ -1582,7 +1582,7 @@ void Graph::setAxisTitle(int axis, const QString& text)
 #endif
 }
 
-void Graph::setGridOptions(const gridOptions& options)
+void Graph::setGridOptions(const GridOptions& options)
 {
 #if false
 	grid=options;
@@ -1679,7 +1679,7 @@ void Graph::setGridOptions(const gridOptions& options)
 #endif
 }
 
-gridOptions Graph::getGridOptions()
+GridOptions Graph::getGridOptions()
 {
 #if false
 	return grid;
@@ -4948,10 +4948,10 @@ int Graph::selectedPoints(long curveKey)
 #endif
 }
 
-curveLayout Graph::initCurveLayout()
+CurveLayout Graph::initCurveLayout()
 {
 #if false
-	curveLayout cl;
+	CurveLayout cl;
 	cl.connectType=1;
 	cl.lStyle=0;
 	cl.lWidth=1;
@@ -4968,10 +4968,10 @@ curveLayout Graph::initCurveLayout()
 #endif
 }
 
-curveLayout Graph::initCurveLayout(int i, int curves, int style)
+CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 {
 #if false
-	curveLayout cl = initCurveLayout();
+	CurveLayout cl = initCurveLayout();
 	cl.symCol=i%16;//16 is the number of predefined colors in Qt
 	cl.fillCol=i%16;
 	cl.sType=(i+1)%9; //9 is the number of predefined symbols in Qwt
@@ -5026,7 +5026,7 @@ void Graph::setCurveType(int curve, int style)
 #endif
 }
 
-void Graph::updateCurveLayout(int index, const curveLayout *cL)
+void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 {
 #if false
 	QwtPlotCurve *c = this->curve(index);
@@ -5472,7 +5472,7 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 		{
 			if (insertCurve(w, names[i],style))
 			{
-				curveLayout cl = initCurveLayout(i, curves, style);
+				CurveLayout cl = initCurveLayout(i, curves, style);
 				cl.sSize = sSize;
 				cl.lWidth = lWidth;
 				updateCurveLayout(i, &cl);
@@ -6274,7 +6274,7 @@ void Graph::insertOldFunctionCurve(const QString& formula, double from, double s
 	QString function=formula;
 	function=function.mid(pos+1,function.length()-pos-1);
 
-	myParser parser;
+	MyParser parser;
 	double x;
 	parser.DefineVar("x", &x);		
 	parser.SetExpr(function.ascii());
@@ -6327,7 +6327,7 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 		X.resize(points[0]);
 		Y.resize(points[0]);
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);
-		myParser parser;
+		MyParser parser;
 		double x;
 		bool error=false;
 
@@ -6374,8 +6374,8 @@ void Graph::modifyFunctionCurve(int curve, QString& type,QStringList &formulas,Q
 		X.resize(points[0]);
 		Y.resize(points[0]);
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);	
-		myParser xparser;
-		myParser yparser;
+		MyParser xparser;
+		MyParser yparser;
 		double par;
 		ndata=points[0];
 
@@ -6440,7 +6440,7 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 		X.resize(points[0]);
 		Y.resize(points[0]);
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);
-		myParser parser;
+		MyParser parser;
 		double x;
 		bool error=false;
 
@@ -6473,8 +6473,8 @@ void Graph::addFunctionCurve(QString& type,QStringList &formulas,QStringList &va
 		X.resize(points[0]);
 		Y.resize(points[0]);
 		step=(ranges[1]-ranges[0])/(double) (points[0]-1);	
-		myParser xparser;
-		myParser yparser;
+		MyParser xparser;
+		MyParser yparser;
 		double par;
 		ndata=points[0];
 		if (type=="Parametric plot")

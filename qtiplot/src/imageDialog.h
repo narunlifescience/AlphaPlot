@@ -40,13 +40,13 @@ class QSpinBox;
 class ChainButton;
 
 //! Image geometry dialog
-class imageDialog : public QDialog
+class ImageDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    imageDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~imageDialog();
+    ImageDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~ImageDialog();
 	void setOrigin(const QPoint& o);
 	void setSize(const QSize& size);
 
@@ -71,6 +71,7 @@ protected:
 	double aspect_ratio;
 };
 
+//! A special button to connect two values
 class ChainButton : public QPushButton
 {
   Q_OBJECT
@@ -90,4 +91,4 @@ private:
 	bool locked;
 };
 
-#endif // imageDialog_H
+#endif // IMAGEDIALOG_H

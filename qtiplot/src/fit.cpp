@@ -14,9 +14,9 @@
 int expd3_f (const gsl_vector * x, void *params,
         gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   
   double A1=gsl_vector_get(x,0);
   double t1=gsl_vector_get(x,1);
@@ -38,9 +38,9 @@ int expd3_f (const gsl_vector * x, void *params,
 
 double expd3_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   
   double A1=gsl_vector_get(x,0);
   double t1=gsl_vector_get(x,1);
@@ -64,8 +64,8 @@ double expd3_d (const gsl_vector * x, void *params)
 int expd3_df (const gsl_vector * x, void *params,
          gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
 
   double A1=gsl_vector_get(x,0);
   double l1=gsl_vector_get(x,1);
@@ -109,9 +109,9 @@ int expd3_fdf (const gsl_vector * x, void *params,
 int expd2_f (const gsl_vector * x, void *params,
         gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   
   double A1=gsl_vector_get(x,0);
   double t1=gsl_vector_get(x,1);
@@ -131,9 +131,9 @@ int expd2_f (const gsl_vector * x, void *params,
 
 double expd2_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   
   double A1=gsl_vector_get(x,0);
   double t1=gsl_vector_get(x,1);
@@ -155,8 +155,8 @@ double expd2_d (const gsl_vector * x, void *params)
 int expd2_df (const gsl_vector * x, void *params,
          gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
 
   double A1=gsl_vector_get(x,0);
   double l1=gsl_vector_get(x,1);
@@ -195,9 +195,9 @@ int expd2_fdf (const gsl_vector * x, void *params,
 int exp_f (const gsl_vector * x, void *params,
         gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   double b = gsl_vector_get (x, 2);
@@ -212,9 +212,9 @@ int exp_f (const gsl_vector * x, void *params,
 
 double exp_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   double b = gsl_vector_get (x, 2);
@@ -231,8 +231,8 @@ double exp_d (const gsl_vector * x, void *params)
 int exp_df (const gsl_vector * x, void *params,
          gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   size_t i;
@@ -262,9 +262,9 @@ int exp_fdf (const gsl_vector * x, void *params,
 int gauss_f (const gsl_vector * x, void *params,
         gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
 
   double Y0 = gsl_vector_get (x, 0);
   double A = gsl_vector_get (x, 1);
@@ -284,9 +284,9 @@ int gauss_f (const gsl_vector * x, void *params,
 
 double gauss_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
 
   double Y0 = gsl_vector_get (x, 0);
   double A = gsl_vector_get (x, 1);
@@ -308,8 +308,8 @@ double gauss_d (const gsl_vector * x, void *params)
 int gauss_df (const gsl_vector * x, void *params,
          gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
 
   double A = gsl_vector_get (x, 1);
   double C = gsl_vector_get (x, 2);
@@ -346,9 +346,9 @@ int gauss_fdf (const gsl_vector * x, void *params,
 int lorentz_f (const gsl_vector * x, void *params,
         gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
 
   double offset = gsl_vector_get (x, 0);
   double xc = gsl_vector_get (x, 2);
@@ -369,9 +369,9 @@ int lorentz_f (const gsl_vector * x, void *params,
 
 double lorentz_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
 
   double offset = gsl_vector_get (x, 0);
   double xc = gsl_vector_get (x, 2);
@@ -394,8 +394,8 @@ double lorentz_d (const gsl_vector * x, void *params)
 int lorentz_df (const gsl_vector * x, void *params,
          gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
 
   double A = gsl_vector_get (x, 1);
   double C = gsl_vector_get (x, 2);
@@ -431,10 +431,10 @@ int lorentz_fdf (const gsl_vector * x, void *params,
 
 int gauss_multi_peak_f (const gsl_vector * x, void *params, gsl_vector * f)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
-  double *Y = ((struct fitMultiPeakData *)params)->Y;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
+  double *Y = ((struct FitMultiPeakData *)params)->Y;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -467,10 +467,10 @@ int gauss_multi_peak_f (const gsl_vector * x, void *params, gsl_vector * f)
 
 double gauss_multi_peak_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
-  double *Y = ((struct fitMultiPeakData *)params)->Y;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
+  double *Y = ((struct FitMultiPeakData *)params)->Y;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -506,9 +506,9 @@ double gauss_multi_peak_d (const gsl_vector * x, void *params)
 
 int gauss_multi_peak_df (const gsl_vector * x, void *params, gsl_matrix * J)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -551,10 +551,10 @@ int gauss_multi_peak_fdf (const gsl_vector * x, void *params, gsl_vector * f, gs
 
 int lorentz_multi_peak_f (const gsl_vector * x, void *params, gsl_vector * f)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
-  double *Y = ((struct fitMultiPeakData *)params)->Y;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
+  double *Y = ((struct FitMultiPeakData *)params)->Y;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -587,10 +587,10 @@ int lorentz_multi_peak_f (const gsl_vector * x, void *params, gsl_vector * f)
 
 double lorentz_multi_peak_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
-  double *Y = ((struct fitMultiPeakData *)params)->Y;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
+  double *Y = ((struct FitMultiPeakData *)params)->Y;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -625,9 +625,9 @@ double lorentz_multi_peak_d (const gsl_vector * x, void *params)
 
 int lorentz_multi_peak_df (const gsl_vector * x, void *params, gsl_matrix * J)
 {
-  size_t n = ((struct fitMultiPeakData *)params)->n;
-  size_t p = ((struct fitMultiPeakData *)params)->p;
-  double *X = ((struct fitMultiPeakData *)params)->X;
+  size_t n = ((struct FitMultiPeakData *)params)->n;
+  size_t p = ((struct FitMultiPeakData *)params)->p;
+  double *X = ((struct FitMultiPeakData *)params)->X;
 
   size_t peaks = (p-1)/3;
   double *a = vector (0, peaks-1);
@@ -671,15 +671,15 @@ int lorentz_multi_peak_fdf (const gsl_vector * x, void *params, gsl_vector * f, 
 
 int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 {
-  size_t n = ((struct fitParserData *)params)->n;
-  size_t p = ((struct fitParserData *)params)->p;
-  double *X = ((struct fitParserData *)params)->X;
-  double *Y = ((struct fitParserData *)params)->Y;
-  const char *function = ((struct fitParserData *) params)->function;
-  QString names = (QString)((struct fitParserData *) params)->names;
+  size_t n = ((struct FitParserData *)params)->n;
+  size_t p = ((struct FitParserData *)params)->p;
+  double *X = ((struct FitParserData *)params)->X;
+  double *Y = ((struct FitParserData *)params)->Y;
+  const char *function = ((struct FitParserData *) params)->function;
+  QString names = (QString)((struct FitParserData *) params)->names;
   QStringList parNames= QStringList::split(",",names,false);
 
-  myParser parser;
+  MyParser parser;
   try
 	{
 	double *parameters = new double[p];
@@ -707,16 +707,16 @@ return GSL_SUCCESS;
 
 double user_d(const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitParserData *)params)->n;
-  size_t p = ((struct fitParserData *)params)->p;
-  double *X = ((struct fitParserData *)params)->X;
-  double *Y = ((struct fitParserData *)params)->Y;
-  const char *function = ((struct fitParserData *) params)->function;
-  QString names = (QString)((struct fitParserData *) params)->names;
+  size_t n = ((struct FitParserData *)params)->n;
+  size_t p = ((struct FitParserData *)params)->p;
+  double *X = ((struct FitParserData *)params)->X;
+  double *Y = ((struct FitParserData *)params)->Y;
+  const char *function = ((struct FitParserData *) params)->function;
+  QString names = (QString)((struct FitParserData *) params)->names;
   QStringList parNames= QStringList::split(",",names,false);
 
   double val=0;
-  myParser parser;
+  MyParser parser;
   try
 	{
 	double *parameters = new double[p];
@@ -744,17 +744,17 @@ return val;
 }
 int user_df(const gsl_vector *x, void *params, gsl_matrix *J)
 {
-  size_t n = ((struct fitParserData *)params)->n;
-  size_t p = ((struct fitParserData *)params)->p;
-  double *X = ((struct fitParserData *)params)->X;
-  const char *function = ((struct fitParserData *) params)->function;
-  QString names = (QString)((struct fitParserData *) params)->names;
+  size_t n = ((struct FitParserData *)params)->n;
+  size_t p = ((struct FitParserData *)params)->p;
+  double *X = ((struct FitParserData *)params)->X;
+  const char *function = ((struct FitParserData *) params)->function;
+  QString names = (QString)((struct FitParserData *) params)->names;
   QStringList parNames= QStringList::split(",",names,false);
 
   try
 	{
 	double *param = new double[p];
-	myParser parser;
+	MyParser parser;
 	double xvar; 
 	parser.DefineVar("x", &xvar);
 
@@ -790,9 +790,9 @@ return GSL_SUCCESS;
 
 int boltzmann_f (const gsl_vector * x, void *params, gsl_vector * f)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   double A1 = gsl_vector_get (x, 0);
   double A2 = gsl_vector_get (x, 1);
   double x0 = gsl_vector_get (x, 2);
@@ -809,9 +809,9 @@ int boltzmann_f (const gsl_vector * x, void *params, gsl_vector * f)
 
 double boltzmann_d (const gsl_vector * x, void *params)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
-  double *Y = ((struct fitData *)params)->Y;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
+  double *Y = ((struct FitData *)params)->Y;
   double A1 = gsl_vector_get (x, 0);
   double A2 = gsl_vector_get (x, 1);
   double x0 = gsl_vector_get (x, 2);
@@ -828,8 +828,8 @@ double boltzmann_d (const gsl_vector * x, void *params)
 
 int boltzmann_df (const gsl_vector * x, void *params, gsl_matrix * J)
 {
-  size_t n = ((struct fitData *)params)->n;
-  double *X = ((struct fitData *)params)->X;
+  size_t n = ((struct FitData *)params)->n;
+  double *X = ((struct FitData *)params)->X;
   double A1 = gsl_vector_get (x, 0);
   double A2 = gsl_vector_get (x, 1);
   double x0 = gsl_vector_get (x, 2);

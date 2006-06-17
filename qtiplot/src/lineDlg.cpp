@@ -43,11 +43,11 @@
 #include <Q3VBoxLayout>
 #include <Q3HBoxLayout>
 
-lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+LineDialog::LineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "lineDialog" );
+		setName( "LineDialog" );
     setWindowTitle( tr( "QtiPlot - Line options" ) );
 
 	tw = new QTabWidget( this, "tw" );
@@ -148,7 +148,7 @@ lineDialog::lineDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     connect( btnCancel, SIGNAL( clicked() ), this, SLOT(close() ) );
 }
 
-void lineDialog::apply()
+void LineDialog::apply()
 {
 if (tw->currentPage()==(QWidget *)options)
 	{
@@ -188,23 +188,23 @@ else if (tw->currentPage()==(QWidget *)geometry)
 enableHeadTab();
 }
 
-void lineDialog::accept()
+void LineDialog::accept()
 {
 apply();
 close();
 }
 
-void lineDialog::setEndArrow(bool on)
+void LineDialog::setEndArrow(bool on)
 {
 endBox->setChecked(on);
 }
 
-void lineDialog::setStartArrow(bool on)
+void LineDialog::setStartArrow(bool on)
 {
 startBox->setChecked(on);
 }
 
-void lineDialog::setStyle(Qt::PenStyle style)
+void LineDialog::setStyle(Qt::PenStyle style)
 {
 if (style==Qt::SolidLine)
 	styleBox->setCurrentItem(0);
@@ -218,36 +218,36 @@ else if (style==Qt::DashDotDotLine)
 	styleBox->setCurrentItem(4);
 }
 
-void lineDialog::setWidth(int w)
+void LineDialog::setWidth(int w)
 {
 widthBox->setEditText(QString::number(w));
 }
 
-void lineDialog::setColor(QColor c)
+void LineDialog::setColor(QColor c)
 {
   colorBox->setColor(c);
 }
 
-void lineDialog::setStartPoint(const QPoint& p)
+void LineDialog::setStartPoint(const QPoint& p)
 {
 xStartBox->setValue(p.x());
 yStartBox->setValue(p.y());
 }
 
-void lineDialog::setEndPoint(const QPoint& p)
+void LineDialog::setEndPoint(const QPoint& p)
 {
 xEndBox->setValue(p.x());
 yEndBox->setValue(p.y());
 }
 
-void lineDialog::initHeadGeometry(int length, int angle, bool filled)
+void LineDialog::initHeadGeometry(int length, int angle, bool filled)
 {
 boxHeadLength->setValue(length);
 boxHeadAngle->setValue(angle);
 filledBox->setChecked(filled);	
 }
 	
-void lineDialog::enableHeadTab()
+void LineDialog::enableHeadTab()
 {
 if (startBox->isChecked() || endBox->isChecked())
 	tw->setTabEnabled (head, true);
@@ -255,7 +255,7 @@ else
 	tw->setTabEnabled (head, false);
 }
 
-void lineDialog::pickColor()
+void LineDialog::pickColor()
 {
 QColor c = QColorDialog::getColor(colorBox->color(), this);
 if ( !c.isValid() || c == colorBox->color() )
@@ -264,6 +264,6 @@ if ( !c.isValid() || c == colorBox->color() )
 colorBox->setColor ( c ) ;
 }
 	
-lineDialog::~lineDialog()
+LineDialog::~LineDialog()
 {
 }

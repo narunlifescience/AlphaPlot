@@ -50,13 +50,13 @@ class Graph;
 class Table;
 
 //! Add/remove curves dialog
-class curvesDialog : public QDialog
+class CurvesDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    curvesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~curvesDialog();
+    CurvesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~CurvesDialog();
 
 	QSize sizeHint() const;
 
@@ -104,4 +104,4 @@ private:
 	Graph *g;
 };
 
-#endif // curvesDialog_H
+#endif // CurvesDialog_H

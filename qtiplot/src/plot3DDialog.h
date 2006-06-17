@@ -56,13 +56,13 @@ class Q3WidgetStack;
 using namespace Qwt3D;
 
 //! Surface plot options dialog
-class plot3DDialog : public QDialog
+class Plot3DDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~plot3DDialog();
+    Plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~Plot3DDialog();
 
 	void initScalesPage();
 	void initAxesPage();

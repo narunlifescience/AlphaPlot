@@ -69,11 +69,11 @@
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
 
-plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "plotDialog" );
+	setName( "PlotDialog" );
     setWindowTitle( tr( "QtiPlot - Custom curves" ) );
 
 	Q3VBox *box1 = new Q3VBox(this);
@@ -153,7 +153,7 @@ plotDialog::plotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(removeSelectedCurve()) );
 }
 
-void plotDialog::showPlotAssociations(Q3ListBoxItem *item)
+void PlotDialog::showPlotAssociations(Q3ListBoxItem *item)
 {
 if (!item)
 	return;
@@ -170,14 +170,14 @@ else
 close();
 }
 
-void plotDialog::showPlotAssociations()
+void PlotDialog::showPlotAssociations()
 {
 ApplicationWindow *app = (ApplicationWindow *)this->parent();
 if (app)
 	app->showPlotAssociations(listBox->currentItem());
 }
 
-void plotDialog::changePlotType(int plotType)
+void PlotDialog::changePlotType(int plotType)
 {
 int curve = listBox->currentItem();
 int curveType = graph->curveType(curve);
@@ -240,7 +240,7 @@ else
 acceptParams();
 }
 
-void plotDialog::initLinePage()
+void PlotDialog::initLinePage()
 {
     linePage = new QWidget( privateTabWidget, "linePage" );
 
@@ -301,7 +301,7 @@ void plotDialog::initLinePage()
 	connect(boxFill, SIGNAL(clicked()), this, SLOT(acceptParams()));
 }
 
-void plotDialog::initSymbolsPage()
+void PlotDialog::initSymbolsPage()
 {	
     symbolPage = new QWidget( privateTabWidget, "symbolPage" );
 
@@ -335,7 +335,7 @@ void plotDialog::initSymbolsPage()
 	connect(boxFillSymbol, SIGNAL(clicked()), this, SLOT(fillSymbols()));
 }
 
-void plotDialog::initBoxPage()
+void PlotDialog::initBoxPage()
 {	
     boxPage = new QWidget( privateTabWidget, "boxPage" );
 
@@ -363,7 +363,7 @@ void plotDialog::initBoxPage()
     boxCoeffLabel = new QLabel(tr( "Percentile (%)" ), GroupBox0, "TextLabel3_2",0 );
 	boxCoef = new QSpinBox(50, 100, 5, GroupBox0, "boxCoef" );
 
-	boxCntLabel = new QLabel(tr( "Coef" ), GroupBox0, "TextLabel3_2",0 );
+	boxCntLabel = new QLabel(tr( "Coefficient" ), GroupBox0, "TextLabel3_2",0 );
 	boxCnt = new QwtCounter(GroupBox0);
 	boxCnt->setRange(0.0, 100.0, 0.01);             // From 0.0 to 100, step 0.1
 	boxCnt->setValue(1.0);
@@ -410,7 +410,7 @@ void plotDialog::initBoxPage()
 	connect(boxWhiskersRange, SIGNAL(activated(int)), this, SLOT(setWhiskersRange(int)));
 }
 
-void plotDialog::initPercentilePage()
+void PlotDialog::initPercentilePage()
 {	
     percentilePage = new QWidget( privateTabWidget, "percentilePage" );
 
@@ -463,19 +463,19 @@ void plotDialog::initPercentilePage()
 	connect(boxFillSymbols, SIGNAL(clicked()), this, SLOT(fillBoxSymbols()));
 }
 
-void plotDialog::fillBoxSymbols()
+void PlotDialog::fillBoxSymbols()
 {
 boxPercFillColor->setEnabled(boxFillSymbols->isChecked());
 acceptParams();
 }
 
-void plotDialog::fillSymbols()
+void PlotDialog::fillSymbols()
 {
 boxFillColor->setEnabled(boxFillSymbol->isChecked());
 acceptParams();
 }
 
-void plotDialog::initErrorsPage()
+void PlotDialog::initErrorsPage()
 {
 errorsPage = new QWidget(privateTabWidget, "errorsPage" );
 	
@@ -534,7 +534,7 @@ plusBox->setChecked( true );
 	connect(throughBox, SIGNAL(clicked()), this, SLOT(changeErrorBarsThrough()));
 }
 
-void plotDialog::initHistogramPage()
+void PlotDialog::initHistogramPage()
 {
 histogramPage = new QWidget(privateTabWidget, "histogramPage" );
 	
@@ -568,7 +568,7 @@ connect(buttonStatistics, SIGNAL(clicked()), this, SLOT(showStatistics() ) );
 privateTabWidget->insertTab( histogramPage, tr( "Histogram Data" ) );
 }
 
-void plotDialog::initSpacingPage()
+void PlotDialog::initSpacingPage()
 {
 spacingPage = new QWidget(privateTabWidget, "histogramPage" );
 
@@ -591,7 +591,7 @@ hlayout->addWidget(hb2);
 privateTabWidget->insertTab( spacingPage, tr( "Spacing" ) );
 }
 
-void plotDialog::initVectPage()
+void PlotDialog::initVectPage()
 {
 vectPage = new QWidget(privateTabWidget, "vectPage" );
 Q3VBox *box1 = new Q3VBox(vectPage);
@@ -637,7 +637,7 @@ hlayout->addWidget(box2);
 privateTabWidget->insertTab( vectPage, tr( "Vector" ) );
 }
 
-void plotDialog::setGraph(Graph *g)
+void PlotDialog::setGraph(Graph *g)
 {
 graph = g;
 insertCurvesList();
@@ -646,7 +646,7 @@ connect( graph, SIGNAL(modifiedFunction()), this, SLOT(insertCurvesList() ) );
 connect( graph, SIGNAL( modifiedPlotAssociation() ), this, SLOT( insertCurvesList() ) );
 }
 
-void plotDialog::selectCurve(int index)
+void PlotDialog::selectCurve(int index)
 {
 insertTabs(graph->curveType(index));
 lastSelectedCurve = index;
@@ -654,7 +654,7 @@ listBox->setSelected (index,true);
 setActiveCurve(index);
 }
 
-void plotDialog::showStatistics()
+void PlotDialog::showStatistics()
 {
 QString text=listBox->currentText();
 QStringList t=QStringList::split(": ", text, false);
@@ -677,7 +677,7 @@ if (app)
 close();
 }
 
-void plotDialog::showPopupMenu(Q3ListBoxItem *it, const QPoint &point)
+void PlotDialog::showPopupMenu(Q3ListBoxItem *it, const QPoint &point)
 {
 if (!it)
 	return;
@@ -695,7 +695,7 @@ else
 contextMenu.exec(point);
 }
 
-void plotDialog::editFunctionCurve()
+void PlotDialog::editFunctionCurve()
 {
 int curve = listBox->currentItem();
 ApplicationWindow *app = (ApplicationWindow *)this->parent();
@@ -703,48 +703,48 @@ if (app)
 	app->showFunctionDialog(listBox->text(curve), curve);
 }
 
-void plotDialog::removeCurve()
+void PlotDialog::removeCurve()
 {
 graph->removeCurve(lastSelectedCurve);
 listBox->removeItem (lastSelectedCurve);
 }
 
-void plotDialog::removeSelectedCurve()
+void PlotDialog::removeSelectedCurve()
 {
 int curve=listBox->currentItem ();
 graph->removeCurve(curve);
 listBox->removeItem (curve);
 }
 
-void plotDialog::changeErrorBarsPlus()
+void PlotDialog::changeErrorBarsPlus()
 {
 graph->updateErrorBars(listBox->currentItem(),xBox->isChecked(),widthBox->currentText().toInt(),
 					 capBox->currentText().toInt(),colorBox->color(), plusBox->isChecked(),minusBox->isChecked(),
 					 throughBox->isChecked());
 }
 
-void plotDialog::changeErrorBarsMinus()
+void PlotDialog::changeErrorBarsMinus()
 {
 graph->updateErrorBars(listBox->currentItem(),xBox->isChecked(),widthBox->currentText().toInt(),
 					 capBox->currentText().toInt(), colorBox->color(),plusBox->isChecked(),minusBox->isChecked(),
 					 throughBox->isChecked());
 }
 
-void plotDialog::changeErrorBarsThrough()
+void PlotDialog::changeErrorBarsThrough()
 {
 graph->updateErrorBars(listBox->currentItem(),xBox->isChecked(),widthBox->currentText().toInt(),
 					 capBox->currentText().toInt(), colorBox->color(),plusBox->isChecked(),minusBox->isChecked(),
 					 throughBox->isChecked());
 }
 
-void plotDialog::changeErrorBarsType()
+void PlotDialog::changeErrorBarsType()
 {
 graph->updateErrorBars(listBox->currentItem(), xBox->isChecked(), widthBox->currentText().toInt(),
 					 capBox->currentText().toInt(), colorBox->color(), plusBox->isChecked(), minusBox->isChecked(),
 					 throughBox->isChecked());
 }
 
-void plotDialog::pickErrorBarsColor()
+void PlotDialog::pickErrorBarsColor()
 {
 QColor color = QColorDialog::getColor(colorBox->color(), this);
 if ( !color.isValid() || color == colorBox->color() )
@@ -757,7 +757,7 @@ graph->updateErrorBars(listBox->currentItem(),xBox->isChecked(),widthBox->curren
 					 throughBox->isChecked());
 }
 
-void plotDialog::showAreaColor(bool show)
+void PlotDialog::showAreaColor(bool show)
 {
 boxAreaColor->setEnabled(show);
 TextLabel4_3->setEnabled(show);
@@ -765,7 +765,7 @@ TextLabel4_4->setEnabled(show);
 boxPattern->setEnabled(show);
 }
 
-void plotDialog::updateTabWindow(int curveIndex)
+void PlotDialog::updateTabWindow(int curveIndex)
 {
 int plot_type = setPlotType(curveIndex);
 if (plot_type < 0)
@@ -795,7 +795,7 @@ setActiveCurve(curveIndex);
 lastSelectedCurve = curveIndex;
 }
 
-void plotDialog::insertTabs(int plot_type)
+void PlotDialog::insertTabs(int plot_type)
 {
 if (plot_type == Graph::Line)
 	{
@@ -855,7 +855,7 @@ else if (plot_type == Graph::Box)
 	}
 }
 
-void plotDialog::clearTabWidget()
+void PlotDialog::clearTabWidget()
 {
 privateTabWidget->removePage(linePage);
 privateTabWidget->removePage(symbolPage);
@@ -867,13 +867,13 @@ privateTabWidget->removePage(boxPage);
 privateTabWidget->removePage(percentilePage);
 }
 
-void plotDialog::quit()
+void PlotDialog::quit()
 {
 if (acceptParams())
 	close();
 }
 
-void plotDialog::showWorksheet()
+void PlotDialog::showWorksheet()
 {
 int index=listBox->currentItem();
 QString text=listBox->text(index);
@@ -891,7 +891,7 @@ else
 close();
 }
 
-int plotDialog::setPlotType(int index)
+int PlotDialog::setPlotType(int index)
 {
 int size=listBox->count();
 int curveType = graph->curveType(index);
@@ -943,7 +943,7 @@ if (size>0 && curveType >= 0)
 return curveType;
 }
 
-void plotDialog::setActiveCurve(int index)
+void PlotDialog::setActiveCurve(int index)
 {//connected to the listBox highlighted signal, displays the current curve parameters
 int size=listBox->count();
 if (size>0)
@@ -1066,7 +1066,7 @@ if (size>0)
 	}
 }
 
-void plotDialog::updateEndPointColumns(const QString& text)
+void PlotDialog::updateEndPointColumns(const QString& text)
 {
 QStringList cols=QStringList::split(",", text, false);
 QStringList aux=QStringList::split(":", cols[0], false);
@@ -1088,7 +1088,7 @@ yEndBox->insertStringList(list);
 yEndBox->setCurrentText(table + "_" + cols[3].remove("(Y)").remove("(M)"));
 }
 
-bool plotDialog::acceptParams()
+bool PlotDialog::acceptParams()
 {
 if (privateTabWidget->currentPage()==linePage)
 	{
@@ -1222,7 +1222,7 @@ graph->emitModified();
 return true;
 }
 
-void plotDialog::insertCurvesList()
+void PlotDialog::insertCurvesList()
 {
 QStringList names = graph->plotAssociations();
 listBox->clear();
@@ -1244,12 +1244,12 @@ for (i=0;i<(int)names.count();i++)
 listBox->insertStringList(newNames,0);
 }
 
-void plotDialog::setAutomaticBinning()
+void PlotDialog::setAutomaticBinning()
 {
 GroupBoxH->setEnabled(!automaticBox->isChecked());
 }
 
-bool plotDialog::validInput()
+bool PlotDialog::validInput()
 {
 QString from=histogramBeginBox->text();
 QString to=histogramEndBox->text();
@@ -1298,7 +1298,7 @@ if (from.contains(nonDigit))
 		{
 		try
 			{
-			myParser parser;
+			MyParser parser;
 			parser.SetExpr((histogramBeginBox->text()).ascii());
 			start=parser.Eval();
 			}
@@ -1317,7 +1317,7 @@ if (from.contains(nonDigit))
 			{
 			try
 				{
-				myParser parser;
+				MyParser parser;
 				parser.SetExpr((histogramEndBox->text()).ascii());
 				end=parser.Eval();
 				}
@@ -1344,7 +1344,7 @@ if (from.contains(nonDigit))
 		{
 		try
 			{
-			myParser parser;
+			MyParser parser;
 			parser.SetExpr((binSizeBox->text()).ascii());
 			stp=parser.Eval();
 			}
@@ -1369,7 +1369,7 @@ if (from.contains(nonDigit))
 return true;
 }
 
-void plotDialog::setPenStyle(Qt::PenStyle style)
+void PlotDialog::setPenStyle(Qt::PenStyle style)
 {
 switch (style)
 	{
@@ -1391,7 +1391,7 @@ switch (style)
 	}
 }
 
-void plotDialog::setBoxType(int index)
+void PlotDialog::setBoxType(int index)
 {
 boxCoeffLabel->hide();
 boxRangeLabel->hide();
@@ -1418,7 +1418,7 @@ if (index != BoxCurve::NoBox && index != BoxCurve::WindBox)
 	}
 }
 
-void plotDialog::setBoxRangeType(int index)
+void PlotDialog::setBoxRangeType(int index)
 {
 boxCoeffLabel->hide();
 boxCoef->hide();
@@ -1438,7 +1438,7 @@ else if (index == BoxCurve::SD || index == BoxCurve::SE)
 	}
 }
 
-void plotDialog::setWhiskersRange(int index)
+void PlotDialog::setWhiskersRange(int index)
 {
 whiskerCoeffLabel->hide();
 boxWhiskersCoef->hide();
@@ -1457,7 +1457,7 @@ else if (index == BoxCurve::SD || index == BoxCurve::SE)
 	}
 }
 
-void plotDialog::customVectorsPage(bool angleMag)
+void PlotDialog::customVectorsPage(bool angleMag)
 {
 if (angleMag)
 	{
@@ -1477,6 +1477,6 @@ else
 	}
 }
 
-plotDialog::~plotDialog()
+PlotDialog::~PlotDialog()
 {
 }

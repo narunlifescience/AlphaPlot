@@ -175,12 +175,12 @@ public slots:
 	 void setScales(const QStringList& s);
 
 	 //curves layout
-	 curveLayout initCurveLayout(int i, int curves, int style);
-	 static curveLayout initCurveLayout();
-	 void updateCurveLayout(int index,const curveLayout *cL);
+	 CurveLayout initCurveLayout(int i, int curves, int style);
+	 static CurveLayout initCurveLayout();
+	 void updateCurveLayout(int index,const CurveLayout *cL);
 
-	 gridOptions getGridOptions();
-	 void setGridOptions(const gridOptions& options);
+	 GridOptions getGridOptions();
+	 void setGridOptions(const GridOptions& options);
 
 	// zoom
 	 void zoomed (const QwtDoubleRect &rect);
@@ -698,7 +698,7 @@ private:
 	QList <int> axisType;
 	QList <int> lblFormat; //stores label format used for the axes
 	QwtScaleMap xCanvasMap, yCanvasMap;
-	gridOptions grid;
+	GridOptions grid;
 	MarkerType selectedMarkerType;
 	QwtPlotMarker::LineStyle mrklStyle;
 	QStringList scales,associations;
@@ -736,6 +736,7 @@ private:
 	int n_peaks, selected_peaks, fit_type;
 };
 
+//! Printing filter (extension to QwtPlotPrintFilter)
 class PrintFilter: public QwtPlotPrintFilter
 {
 public:

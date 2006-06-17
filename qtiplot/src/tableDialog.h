@@ -46,13 +46,13 @@ class Q3TextEdit;
 class QSpinBox;
 
 //! Column options dialog
-class tableDialog : public QDialog
+class TableDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    tableDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~tableDialog();
+    TableDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~TableDialog();
 
     QPushButton* buttonCancel;
 	QPushButton* buttonApply;

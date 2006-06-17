@@ -41,11 +41,11 @@
 //Added by qt3to4:
 #include <Q3VBoxLayout>
 
-sDialog::sDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "sDialog" );
+	setName( "SurfaceDialog" );
 	setWindowTitle(tr("QtiPlot - Define surface plot"));
     setMinimumSize( QSize( 310, 140 ) );
 	setMaximumSize( QSize( 310, 140 ) );
@@ -119,18 +119,18 @@ sDialog::sDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 	setFocusProxy(boxFunction);
 }
 
-void sDialog::clearList()
+void SurfaceDialog::clearList()
 {
 boxFunction->clear();
 emit clearFunctionsList();
 }
 
-void sDialog::setFunction(const QString& s)
+void SurfaceDialog::setFunction(const QString& s)
 {
 boxFunction->setCurrentText(s);
 }
 
-void sDialog::setLimits(double xs, double xe, double ys, double ye, double zs, double ze)
+void SurfaceDialog::setLimits(double xs, double xe, double ys, double ye, double zs, double ze)
 {
 	boxXFrom->setText(QString::number(xs));
 	boxXTo->setText(QString::number(xe));
@@ -140,7 +140,7 @@ void sDialog::setLimits(double xs, double xe, double ys, double ye, double zs, d
 	boxZTo->setText(QString::number(ze));
 }
 
-void sDialog::accept()
+void SurfaceDialog::accept()
 {
 QString Xfrom=boxXFrom->text().lower();
 QString Xto=boxXTo->text().lower();
@@ -152,7 +152,7 @@ QString Zto=boxZTo->text().lower();
 double fromX, toX, fromY,toY, fromZ,toZ;
 try
 	{
-	myParser parser;	
+	MyParser parser;	
 	parser.SetExpr(Xfrom.ascii());
 	fromX=parser.Eval();
 	}
@@ -164,7 +164,7 @@ catch(mu::ParserError &e)
 	}
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(Xto.ascii());
 	toX=parser.Eval();
 	}
@@ -177,7 +177,7 @@ catch(mu::ParserError &e)
 
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(Yfrom.ascii());
 	fromY=parser.Eval();
 	}
@@ -189,7 +189,7 @@ catch(mu::ParserError &e)
 	}	
 try
 	{
-	myParser parser;	
+	MyParser parser;	
 	parser.SetExpr(Yto.ascii());
 	toY=parser.Eval();
 	}
@@ -201,7 +201,7 @@ catch(mu::ParserError &e)
 	}	
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(Zfrom.ascii());
 	fromZ=parser.Eval();
 	}
@@ -213,7 +213,7 @@ catch(mu::ParserError &e)
 	}	
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(Zto.ascii());
 	toZ=parser.Eval();
 	}
@@ -237,7 +237,7 @@ QString formula=boxFunction->currentText();
 bool error=false;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.DefineVar("x", &x);	
 	parser.DefineVar("y", &y);		
 	parser.SetExpr(formula.ascii());
@@ -265,11 +265,11 @@ if (!error)
 	}
 }
 
-void sDialog::insertFunctionsList(const QStringList& list)
+void SurfaceDialog::insertFunctionsList(const QStringList& list)
 {
 boxFunction->insertStringList (list, 1);
 }
 
-sDialog::~sDialog()
+SurfaceDialog::~SurfaceDialog()
 {
 }

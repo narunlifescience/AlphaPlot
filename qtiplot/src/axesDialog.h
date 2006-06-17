@@ -56,6 +56,7 @@ class ColorButton;
 class MultiLayer;
 class Graph;
 
+//! Structure containing grid properties
 typedef struct{ 
   int majorOnX;
   int minorOnX;
@@ -69,16 +70,16 @@ typedef struct{
   int minorWidth;
   int xZeroOn;
   int yZeroOn;
-}  gridOptions;
+}  GridOptions;
 
 //! General plot options dialog
-class axesDialog : public QDialog
+class AxesDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    axesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~axesDialog();
+    AxesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~AxesDialog();
 
 	void initAxesPage();
 	void initScalesPage();
@@ -152,8 +153,8 @@ public slots:
 	void stepDisabled();
 	void majorGridEnabled(bool on);
 	void minorGridEnabled(bool on);
-	gridOptions getGridOptions();
-	void putGridOptions(gridOptions gr);
+	GridOptions getGridOptions();
+	void putGridOptions(GridOptions gr);
 	void setGridOptions();
 	void tabPageChanged(QWidget *w);
 	void accept();
@@ -227,7 +228,7 @@ protected:
 	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo, labelsNumericFormat, tablesList;
 	Q3ValueList<int> ticks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;
-	gridOptions grid;
+	GridOptions grid;
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;
 	int xBottomLabelsRotation, xTopLabelsRotation;
 	MultiLayer *mPlot;

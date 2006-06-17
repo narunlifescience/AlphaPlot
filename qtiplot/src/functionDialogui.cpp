@@ -46,11 +46,11 @@
 #include <Q3VBoxLayout>
 #include <Q3HBoxLayout>
 
-functionDialogui::functionDialogui( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "functionDialogui" );
+	setName( "FunctionDialogUi" );
 	 setMinimumSize( QSize( 610, 440 ) );
 	setMaximumSize( QSize( 610, 440 ) );
     setMouseTracking( true );
@@ -174,11 +174,11 @@ functionDialogui::functionDialogui( QWidget* parent, const char* name, bool moda
     connect( boxType, SIGNAL( activated(int) ), optionStack, SLOT( raiseWidget(int) ) );
 }
 
-functionDialogui::~functionDialogui()
+FunctionDialogUi::~FunctionDialogUi()
 {
 }
 
-void functionDialogui::languageChange()
+void FunctionDialogUi::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - Add function curve" ) );
     textFunction_2->setText( tr( "Curve type " ) );

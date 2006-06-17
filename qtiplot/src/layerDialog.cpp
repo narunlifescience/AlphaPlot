@@ -47,11 +47,11 @@
 //Added by qt3to4:
 #include <Q3VBoxLayout>
 
-layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+LayerDialog::LayerDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "layerDialog" );
+	setName( "LayerDialog" );
     setSizeGripEnabled( true );
 
 	generalDialog = new QTabWidget( this, "generalDialog" );
@@ -147,8 +147,8 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	GroupBox2 = new Q3ButtonGroup( 1,Qt::Horizontal, QString(),fonts,"GroupBox2" );
 
     btnTitle = new QPushButton(GroupBox2, "btnTitle" );
-	btnAxisLegend = new QPushButton(GroupBox2, "btnAxisLegend" );
-	btnAxisNumbers = new QPushButton(GroupBox2, "btnAxisNumbers" );
+	btnAxesLabels = new QPushButton(GroupBox2, "btnAxesLabels" );
+	btnAxesNumbers = new QPushButton(GroupBox2, "btnAxesNumbers" );
 	btnLegend = new QPushButton(GroupBox2, "btnLegend" );
 
 	Q3VBoxLayout* vl2 = new Q3VBoxLayout(fonts,5,5, "vl2");
@@ -178,23 +178,23 @@ layerDialog::layerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT(update() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( btnTitle, SIGNAL( clicked() ), this, SLOT( setTitlesFont() ) );
-	connect( btnAxisLegend, SIGNAL( clicked() ), this, SLOT( setAxisLegendFont() ) );
-	connect( btnAxisNumbers, SIGNAL( clicked() ), this, SLOT( setAxisNumbersFont() ) );
+	connect( btnAxesLabels, SIGNAL( clicked() ), this, SLOT( setAxesLabelsFont() ) );
+	connect( btnAxesNumbers, SIGNAL( clicked() ), this, SLOT( setAxesNumbersFont() ) );
     connect( btnLegend, SIGNAL( clicked() ), this, SLOT( setLegendsFont() ) );
 	connect( fitBox, SIGNAL( toggled(bool) ), this, SLOT(enableLayoutOptions(bool) ) );
 }
 
-void layerDialog::enableLayoutOptions(bool ok)
+void LayerDialog::enableLayoutOptions(bool ok)
 {
 GroupBox1->setEnabled(!ok);
 GroupCanvasSize->setEnabled(!ok);
 }
 
-layerDialog::~layerDialog()
+LayerDialog::~LayerDialog()
 {
 }
 
-void layerDialog::languageChange()
+void LayerDialog::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - Arrange Layers" ) );
 	buttonApply->setText( tr( "&Apply" ) );
@@ -203,12 +203,12 @@ void layerDialog::languageChange()
 	fitBox->setText(tr("Automatic &layout"));
 
 	btnTitle->setText(tr("Titles"));
-	btnAxisLegend->setText(tr("Axis Legends"));
-	btnAxisNumbers->setText(tr("Axis Numbers"));
+	btnAxesLabels->setText(tr("Axes Labels"));
+	btnAxesNumbers->setText(tr("Axes Numbers"));
 	btnLegend->setText(tr("Legends"));
 }
 
-void layerDialog::setMultiLayer(MultiLayer *g)
+void LayerDialog::setMultiLayer(MultiLayer *g)
 {
 multi_layer = g;
 
@@ -227,7 +227,7 @@ alignHorBox->setCurrentItem(g->horizontalAlignement());
 alignVertBox->setCurrentItem(g->verticalAlignement());
 }
 
-void layerDialog::update()
+void LayerDialog::update()
 {
 if (generalDialog->currentPage()==(QWidget *)layout )
 	{
@@ -296,13 +296,13 @@ if (generalDialog->currentPage()==(QWidget *)fonts)
 	multi_layer->setFonts(titleFont, axesFont, numbersFont, legendFont);
 }
 
-void layerDialog::accept()
+void LayerDialog::accept()
 {
 update();
 close();
 }
 
-void layerDialog::initFonts(const QFont& titlefont, const QFont& axesfont, const QFont& numbersfont, const QFont& legendfont)
+void LayerDialog::initFonts(const QFont& titlefont, const QFont& axesfont, const QFont& numbersfont, const QFont& legendfont)
 {
     axesFont = axesfont;
     titleFont = titlefont;
@@ -310,7 +310,7 @@ void layerDialog::initFonts(const QFont& titlefont, const QFont& axesfont, const
     legendFont = legendfont;
 }
 
-void layerDialog::setTitlesFont()
+void LayerDialog::setTitlesFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,titleFont,this);
@@ -321,7 +321,7 @@ QFont font = QFontDialog::getFont(&ok,titleFont,this);
     }
 }
 
-void layerDialog::setAxisLegendFont()
+void LayerDialog::setAxesLabelsFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,axesFont,this);
@@ -332,7 +332,7 @@ QFont font = QFontDialog::getFont(&ok,axesFont,this);
     }
 }
 
-void layerDialog::setAxisNumbersFont()
+void LayerDialog::setAxesNumbersFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,numbersFont,this);
@@ -343,7 +343,7 @@ QFont font = QFontDialog::getFont(&ok,numbersFont,this);
     }
 }
 
-void layerDialog::setLegendsFont()
+void LayerDialog::setLegendsFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok, legendFont,this);

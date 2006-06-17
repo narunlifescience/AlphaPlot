@@ -2054,7 +2054,7 @@ int m=(int)colLabels.count();
 Q3MemArray<double> vars(m); 
 
 bool error=false;
-myParser parser, rparser;
+MyParser parser, rparser;
 try
     {
 	for (int i=0; i<m; i++)

@@ -1368,7 +1368,7 @@ void ApplicationWindow::updateTable(const QString& caption,int row,const QString
 	}
 	else
 		QMessageBox::warning(this, tr("QtiPlot - Warning"),
-				tr("This operation can not be performed on curves plotted from columns having a non-numerical format."));
+				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 }
 
 void ApplicationWindow::updateTableColumn(const QString& colName, double *dat, int rows)
@@ -1400,7 +1400,7 @@ void ApplicationWindow::updateTableColumn(const QString& colName, double *dat, i
 	}
 	else
 		QMessageBox::warning(this, tr("QtiPlot - Warning"),
-				tr("This operation can not be performed on curves plotted from columns having a non-numerical format."));
+				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 }
 
 void ApplicationWindow::clearCellFromTable(const QString& name, double value)
@@ -1416,7 +1416,7 @@ void ApplicationWindow::clearCellFromTable(const QString& name, double value)
 		}
 		else
 			QMessageBox::warning(this, tr("QtiPlot - Warning"),
-					tr("This operation can not be performed on curves plotted from columns having a non-numerical format."));
+					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
 }
 
@@ -1772,7 +1772,7 @@ void ApplicationWindow::editSurfacePlot()
 	Graph3D* g = (Graph3D*)ws->activeWindow();
 	if ( g && plot3DWindows.contains(g->name()))
 	{
-		sDialog* sd= new sDialog(this,"fDialog",true,0);
+		SurfaceDialog* sd= new SurfaceDialog(this,"FunctionDialog",true,0);
 		sd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (sd,SIGNAL(options(const QString&,double,double,double,double,double,double)),
 				g,SLOT(insertFunction(const QString&,double,double,double,double,double,double)));
@@ -1791,7 +1791,7 @@ void ApplicationWindow::editSurfacePlot()
 
 void ApplicationWindow::newSurfacePlot()
 {
-	sDialog* sd= new sDialog(this,"fDialog",true,0);
+	SurfaceDialog* sd= new SurfaceDialog(this,"FunctionDialog",true,0);
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (sd,SIGNAL(options(const QString&,double,double,double,double,double,double)),
 			this,SLOT(newPlot3D(const QString&,double,double,double,double,double,double)));
@@ -2434,7 +2434,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 		{
 			if (ag->insertCurve(w, xCol, yColName, defaultCurveStyle))
 			{
-				curveLayout cl = ag->initCurveLayout(i, curves, defaultCurveStyle);
+				CurveLayout cl = ag->initCurveLayout(i, curves, defaultCurveStyle);
 				cl.lWidth = defaultCurveLineWidth;
 				cl.sSize = defaultSymbolSize;
 
@@ -3187,7 +3187,7 @@ void ApplicationWindow::updateCurves(const QString& name)
 
 void ApplicationWindow::showPreferencesDialog()
 {
-	configDialog* cd= new configDialog(this,"configDialog",true,0);
+	ConfigDialog* cd= new ConfigDialog(this,"ConfigDialog",true,0);
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(separator);
 	cd->initCurvesOptions(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);	
@@ -4490,7 +4490,7 @@ void ApplicationWindow::exportGraph()
 				{
 					if (ied->showExportOptions())
 					{
-						epsExportDialog *ed= new epsExportDialog (fname, this, "ExportDialog", true, 0);
+						EpsExportDialog *ed= new EpsExportDialog (fname, this, "ExportDialog", true, 0);
 						ed->setAttribute(Qt::WA_DeleteOnClose);
 						connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								plot, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
@@ -4578,7 +4578,7 @@ void ApplicationWindow::exportLayer()
 			{
 				if (ied->showExportOptions())
 				{
-					epsExportDialog *ed= new epsExportDialog (fname, this, "ExportDialog", true, 0);
+					EpsExportDialog *ed= new EpsExportDialog (fname, this, "ExportDialog", true, 0);
 					ed->setAttribute(Qt::WA_DeleteOnClose);
 					connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 							g, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
@@ -5070,7 +5070,7 @@ void ApplicationWindow::showCurvesDialog()
 	}
 	else
 	{
-		curvesDialog* crvDialog=new curvesDialog(this,"curves",true,Qt::WindowStaysOnTopHint);
+		CurvesDialog* crvDialog=new CurvesDialog(this,"curves",true,Qt::WindowStaysOnTopHint);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
 		connect (crvDialog,SIGNAL(showPlotAssociations(int)), this, SLOT(showPlotAssociations(int)));
 		connect (crvDialog,SIGNAL(showFunctionDialog(const QString&, int)), 
@@ -5104,7 +5104,7 @@ void ApplicationWindow::showPlotAssociations(int curve)
 	if (!activeGraph)
 		return;
 
-	associationsDialog* ad=new associationsDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
+	AssociationsDialog* ad=new AssociationsDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setGraph(activeGraph);
 	ad->initTablesList(tableList(), curve);
@@ -5143,7 +5143,7 @@ void ApplicationWindow::showTitleDialog()
 	}
 	else if (plot3DWindows.contains(caption)>0)
 	{
-		plot3DDialog* pd = (plot3DDialog*)showPlot3dDialog();
+		Plot3DDialog* pd = (Plot3DDialog*)showPlot3dDialog();
 		if (pd)
 			pd->showTitleTab();
 	}
@@ -5400,7 +5400,7 @@ void ApplicationWindow::showColumnValuesDialog()
 	{
 		if (int(w->selectedColumns().count())>0)
 		{
-			setColValuesDialog* vd= new setColValuesDialog(this,"valuesDialog",true);
+			SetColValuesDialog* vd= new SetColValuesDialog(this,"valuesDialog",true);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
 			vd->setTable(w);
 			vd->exec();
@@ -5752,7 +5752,7 @@ void ApplicationWindow::showMatrixValuesDialog()
 	Matrix* w = (Matrix*)ws->activeWindow();
 	if ( w && matrixWindows.contains(w->name()))
 	{
-		matrixValuesDialog* md= new matrixValuesDialog(this,"matrixValuesDialog", false);
+		MatrixValuesDialog* md= new MatrixValuesDialog(this,"MatrixValuesDialog", false);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		connect (md, SIGNAL(setValues (const QString&, const QString&, const QStringList&, 
 						const QStringList&, int, int, int, int)), 
@@ -5773,7 +5773,7 @@ void ApplicationWindow::showColumnOptionsDialog()
 	{
 		if(	int(w->selectedColumns().count())>0)
 		{
-			tableDialog* td= new tableDialog(this,"optionsDialog", false);
+			TableDialog* td= new TableDialog(this,"optionsDialog", false);
 			td->setAttribute(Qt::WA_DeleteOnClose);
 			td->setWorksheet(w);
 			td->exec();
@@ -5807,12 +5807,12 @@ void ApplicationWindow::showGeneralPlotDialog()
 	{
 		Graph* g = ((MultiLayer*)plot)->activeGraph();
 		if (!g->isPiePlot())
-			((axesDialog*)gd)->showGeneralPage();
+			((AxesDialog*)gd)->showGeneralPage();
 		else
-			((pieDialog*)gd)->showGeneralPage();
+			((PieDialog*)gd)->showGeneralPage();
 	}
 	else if (gd && plot3DWindows.contains(plot->name()))
-		((plot3DDialog*)gd)->showGeneralTab();
+		((Plot3DDialog*)gd)->showGeneralTab();
 }
 
 void ApplicationWindow::showAxisDialog()
@@ -5823,14 +5823,14 @@ void ApplicationWindow::showAxisDialog()
 
 	QDialog* gd = showScaleDialog();
 	if (gd && plotWindows.contains(plot->name()) && ((MultiLayer*)plot)->graphsNumber())
-		((axesDialog*)gd)->showAxesPage();
+		((AxesDialog*)gd)->showAxesPage();
 	else if (gd && plot3DWindows.contains(plot->name()))
-		((plot3DDialog*)gd)->showAxisTab();
+		((Plot3DDialog*)gd)->showAxisTab();
 }
 
 void ApplicationWindow::showGridDialog()
 {
-	axesDialog* gd = (axesDialog*)showScaleDialog();
+	AxesDialog* gd = (AxesDialog*)showScaleDialog();
 	if (gd)
 		gd->showGridPage();
 }
@@ -5852,7 +5852,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 		{
 			activeGraph = g;
 
-			axesDialog* ad= new axesDialog(this,"ad",true,0);
+			AxesDialog* ad= new AxesDialog(this,"ad",true,0);
 			ad->setAttribute(Qt::WA_DeleteOnClose);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
@@ -5888,18 +5888,18 @@ QDialog* ApplicationWindow::showScaleDialog()
 	return 0;
 }
 
-axesDialog* ApplicationWindow::showScalePageFromAxisDialog(int axisPos)
+AxesDialog* ApplicationWindow::showScalePageFromAxisDialog(int axisPos)
 {
-	axesDialog* gd = (axesDialog*)showScaleDialog();
+	AxesDialog* gd = (AxesDialog*)showScaleDialog();
 	if (gd)
 		gd->setCurrentScale(axisPos);
 
 	return gd;
 }
 
-axesDialog* ApplicationWindow::showAxisPageFromAxisDialog(int axisPos)
+AxesDialog* ApplicationWindow::showAxisPageFromAxisDialog(int axisPos)
 {
-	axesDialog* gd = (axesDialog*)showScaleDialog();
+	AxesDialog* gd = (AxesDialog*)showScaleDialog();
 	if (gd)
 	{
 		gd->showAxesPage();
@@ -5922,7 +5922,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 			return 0;
 		}
 
-		plot3DDialog* pd= new plot3DDialog(this,"plot3DDialog",true,0);
+		Plot3DDialog* pd= new Plot3DDialog(this,"Plot3DDialog",true,0);
 		pd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (pd,SIGNAL(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)),
 				g,SLOT(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)));
@@ -6046,7 +6046,7 @@ QDialog* ApplicationWindow::showPieDialog()
 	{
 		activeGraph = g;
 
-		pieDialog* pd= new pieDialog(this,"plotDialog",true,0);
+		PieDialog* pd= new PieDialog(this,"PlotDialog",true,0);
 		pd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (pd,SIGNAL(drawFrame(bool,int,const QColor&)),g,SLOT(drawCanvasFrame(bool,int,const QColor& )));
 		connect (pd,SIGNAL(toggleCurve()),g,SLOT(removePie()));
@@ -6089,7 +6089,7 @@ void ApplicationWindow::showPlotDialog()
 		{
 			if (!g->isPiePlot())
 			{
-				plotDialog* pd= new plotDialog(this,"plotDialog",false,0);
+				PlotDialog* pd= new PlotDialog(this,"PlotDialog",false,0);
 				pd->setAttribute(Qt::WA_DeleteOnClose);
 				pd->insertColumnsList(columnsList(Table::All));
 				pd->setGraph(g);
@@ -6125,7 +6125,7 @@ void ApplicationWindow::showPlotDialog(long curveKey)
 
 		if (!g->isPiePlot())
 		{
-			plotDialog* pd= new plotDialog(this,"plotDialog",false,0);
+			PlotDialog* pd= new PlotDialog(this,"PlotDialog",false,0);
 			pd->setAttribute(Qt::WA_DeleteOnClose);
 			pd->insertColumnsList(columnsList(Table::All));
 			pd->setGraph(g);
@@ -6351,7 +6351,7 @@ void ApplicationWindow::showExpDecayDialog(int type)
 	activeGraph=g;
 	aw= (QWidget *)plot;
 
-	expDecayDialog *edd = new expDecayDialog(type, this,"polyDialog", false, 0);
+	ExpDecayDialog *edd = new ExpDecayDialog(type, this,"polyDialog", false, 0);
 	edd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), edd, SLOT(close()));
 
@@ -6394,7 +6394,7 @@ void ApplicationWindow::showFitDialog()
 	activeGraph=g;
 	aw=(QWidget*) plot;
 
-	fitDialog *fd=new fitDialog(this,"fitDialog", false);
+	FitDialog *fd=new FitDialog(this,"FitDialog", false);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (fd, SIGNAL(clearFunctionsList()), this, SLOT(clearFitFunctionsList()));
 	connect (fd, SIGNAL(saveFunctionsList(const QStringList&)), 
@@ -6422,7 +6422,7 @@ void ApplicationWindow::lowPassFilterDialog()
 			return;
 		}
 
-		filterDialog *fd=new filterDialog(filterDialog::LowPass, this,"filterDialog",
+		FilterDialog *fd=new FilterDialog(FilterDialog::LowPass, this,"FilterDialog",
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
@@ -6446,7 +6446,7 @@ void ApplicationWindow::highPassFilterDialog()
 			return;
 		}
 
-		filterDialog *fd=new filterDialog(filterDialog::HighPass, this,"filterDialog",
+		FilterDialog *fd=new FilterDialog(FilterDialog::HighPass, this,"FilterDialog",
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
@@ -6470,7 +6470,7 @@ void ApplicationWindow::bandPassFilterDialog()
 			return;
 		}
 
-		filterDialog *fd=new filterDialog(filterDialog::BandPass, this,"filterDialog",
+		FilterDialog *fd=new FilterDialog(FilterDialog::BandPass, this,"FilterDialog",
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
@@ -6494,7 +6494,7 @@ void ApplicationWindow::bandBlockFilterDialog()
 			return;
 		}
 
-		filterDialog *fd=new filterDialog(filterDialog::BandBlock, this,"filterDialog",
+		FilterDialog *fd=new FilterDialog(FilterDialog::BandBlock, this,"FilterDialog",
 				true,0);	
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
@@ -6551,7 +6551,7 @@ void ApplicationWindow::showSmoothSavGolDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	smoothCurveDialog *sd=new smoothCurveDialog(smoothCurveDialog::SavitzkyGolay, 
+	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::SavitzkyGolay, 
 			this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
@@ -6568,7 +6568,7 @@ void ApplicationWindow::showSmoothFFTDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	smoothCurveDialog *sd=new smoothCurveDialog(smoothCurveDialog::FFT, this,"smoothDialog",true,0);	
+	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::FFT, this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
 	sd->exec();
@@ -6584,7 +6584,7 @@ void ApplicationWindow::showSmoothAverageDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	smoothCurveDialog *sd=new smoothCurveDialog(smoothCurveDialog::Average, this,"smoothDialog",true,0);	
+	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::Average, this,"smoothDialog",true,0);	
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	sd->setGraph(g);
 	sd->exec();
@@ -6599,7 +6599,7 @@ void ApplicationWindow::showInterpolationDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	interpolationDialog *id=new interpolationDialog(this,"interpolationDialog",false,0);	
+	InterpolationDialog *id=new InterpolationDialog(this,"InterpolationDialog",false,0);	
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 	id->setGraph(g);
@@ -6618,7 +6618,7 @@ void ApplicationWindow::showFitPolynomDialog()
 	activeGraph=g;
 	aw=(QWidget*)plot;
 
-	polynomFitDialog *pfd=new polynomFitDialog(this,"polyDialog",false,0);	
+	PolynomFitDialog *pfd=new PolynomFitDialog(this,"polyDialog",false,0);	
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), pfd, SLOT(close()));
 	pfd->setGraph(g);
@@ -6655,7 +6655,7 @@ void ApplicationWindow::showIntDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	intDialog *id=new intDialog(this,"intDialog",false,0);
+	IntDialog *id=new IntDialog(this,"IntDialog",false,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (plot, SIGNAL(closedWindow(QWidget*)), id, SLOT(close()));
 	id->setGraph(g);
@@ -7026,7 +7026,7 @@ void ApplicationWindow::showImageDialog()
 		if (!im)
 			return;
 
-		imageDialog *id=new imageDialog(0,"imageDialog",true,0);
+		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id,SIGNAL(options(int,int,int,int)),g,SLOT(updateImageMarker(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
@@ -7049,7 +7049,7 @@ void ApplicationWindow::showLayerDialog()
 		return;
 	}
 
-	layerDialog *id=new layerDialog(this,"layerDialog",true,0);
+	LayerDialog *id=new LayerDialog(this,"LayerDialog",true,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	id->setMultiLayer(plot);
 	id->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
@@ -7065,7 +7065,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 	Graph* g = (Graph*)plot->activeGraph();
 	if (g)
 	{
-		imageDialog *id=new imageDialog(0,"imageDialog",true,0);
+		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id,SIGNAL(options(int,int,int,int)),plot,SLOT(setGraphGeometry(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
@@ -7118,7 +7118,7 @@ void ApplicationWindow::showLineDialog()
 		if (!lm)
 			return;
 
-		lineDialog *ld=new lineDialog(0,"lineDialog",true,0);
+		LineDialog *ld=new LineDialog(0,"LineDialog",true,0);
 		ld->setAttribute(Qt::WA_DeleteOnClose);
 		connect (ld,SIGNAL(values(const QColor&,int,Qt::PenStyle,bool,bool)),
 				g,SLOT(updateLineMarker(const QColor&,int,Qt::PenStyle,bool, bool)));
@@ -7400,7 +7400,7 @@ Graph3D* ApplicationWindow::copySurfacePlot()
 		{
 			QApplication::restoreOverrideCursor();
 			QMessageBox::warning(this, tr("QtiPlot - Duplicate error"),
-					tr("Empty 3D surface plots can not be duplicated!"));
+					tr("Empty 3D surface plots cannot be duplicated!"));
 			return 0;
 		}
 
@@ -7686,7 +7686,7 @@ void ApplicationWindow::resizeActiveWindow()
 	if (!w)
 		return;
 
-	imageDialog *id=new imageDialog(this,"imageDialog",true,0);
+	ImageDialog *id=new ImageDialog(this,"ImageDialog",true,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id,SIGNAL(options(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
 
@@ -7729,7 +7729,7 @@ void ApplicationWindow::resizeWindow()
 	if (!w)
 		return;
 
-	imageDialog *id=new imageDialog(this,"imageDialog",true,0);
+	ImageDialog *id=new ImageDialog(this,"ImageDialog",true,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id,SIGNAL(options(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
 
@@ -8758,15 +8758,15 @@ void ApplicationWindow::showFunctionDialog(const QString& function, int curve)
 	if ( !activeGraph )
 		return;
 
-	fDialog* fd= functionDialog();
+	FunctionDialog* fd= functionDialog();
 	fd->setWindowTitle(tr("QtiPlot - Edit function"));
 	fd->setGraph(activeGraph);
 	fd->setCurveToModify(function, curve);
 }
 
-fDialog* ApplicationWindow::functionDialog()
+FunctionDialog* ApplicationWindow::functionDialog()
 {
-	fDialog* fd= new fDialog(this,"fDialog",true,0);
+	FunctionDialog* fd= new FunctionDialog(this,"FunctionDialog",true,0);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (fd,SIGNAL(clearFunctionsList()),this,SLOT(clearFunctionsList()));
 	connect (fd,SIGNAL(clearParamFunctionsList()),this,SLOT(clearParamFunctionsList()));
@@ -8798,7 +8798,7 @@ void ApplicationWindow::addFunctionCurve()
 	if ( g )
 	{
 		activeGraph=g;
-		fDialog* fd = functionDialog();
+		FunctionDialog* fd = functionDialog();
 		if (fd)
 			fd->setGraph(g);
 	}
@@ -8845,7 +8845,7 @@ void ApplicationWindow::updateFunctionLists(QString& type,QStringList &formulas)
 
 void ApplicationWindow::newFunctionPlot()
 {
-	fDialog* fd = functionDialog();
+	FunctionDialog* fd = functionDialog();
 	if (fd)
 		connect (fd,SIGNAL(newFunctionPlot(QString&,QStringList &,QStringList &,QList<double> &,QList<int> &)),
 				this,SLOT(newFunctionPlot(QString&,QStringList &,QStringList &,QList<double> &,QList<int> &)));
@@ -9808,7 +9808,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 	Table* w=0;
 	QStringList fList,curve;
 	QString caption;
-	curveLayout cl;
+	CurveLayout cl;
 
 	for (int j=0;j<(int)list.count()-1;j++)
 	{
@@ -9877,7 +9877,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.left(5)=="grid\t")
 		{
 			QStringList grid=QStringList::split ("\t",s,true);
-			gridOptions gr;
+			GridOptions gr;
 			gr.majorOnX=grid[1].toInt();
 			gr.minorOnX=grid[2].toInt();
 			gr.majorOnY=grid[3].toInt();

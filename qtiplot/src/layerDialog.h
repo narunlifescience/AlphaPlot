@@ -42,19 +42,19 @@ class QComboBox;
 class MultiLayer;
 
 //! Arrange layers dialog
-class layerDialog : public QDialog
+class LayerDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    layerDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~layerDialog();
+    LayerDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~LayerDialog();
 
 	void setMultiLayer(MultiLayer *g);
 	void initFonts(const QFont& titlefont, const QFont& axesfont, 
 				   const QFont& numbersfont, const QFont& legendfont);
 
-    QPushButton* buttonOk, *btnTitle, *btnAxisLegend, *btnAxisNumbers, *btnLegend;
+    QPushButton* buttonOk, *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;
 	QPushButton* buttonCancel;
 	QPushButton* buttonApply;
     Q3ButtonGroup* GroupBox1, *GroupBox2, *GroupBox4, *GroupCanvasSize;
@@ -71,8 +71,8 @@ protected slots:
 	void accept();
 	void update();
 	void setTitlesFont();
-	void setAxisLegendFont();
-	void setAxisNumbersFont();
+	void setAxesLabelsFont();
+	void setAxesNumbersFont();
 	void setLegendsFont();
 	void enableLayoutOptions(bool ok);
 

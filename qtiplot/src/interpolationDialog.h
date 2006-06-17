@@ -40,13 +40,13 @@ class Graph;
 class ColorBox;
 	
 //! Interpolation options dialog
-class interpolationDialog : public QDialog
+class InterpolationDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    interpolationDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~interpolationDialog();
+    InterpolationDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~InterpolationDialog();
 
 	QPushButton* buttonFit;
 	QPushButton* buttonCancel;

@@ -38,13 +38,13 @@ class QSpinBox;
 class QPushButton;
 	
 //! Set matrix values dialog
-class matrixValuesDialog : public QDialog
+class MatrixValuesDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    matrixValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~matrixValuesDialog();
+    MatrixValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~MatrixValuesDialog();
 	
 	QSize sizeHint() const ;
 

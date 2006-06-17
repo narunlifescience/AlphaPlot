@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Scale picker
+    Description          : Scale and title picker classes
                            
  ***************************************************************************/
 
@@ -76,6 +76,7 @@ private:
 	bool movedGraph;
 };
 
+//! Title picker
 class TitlePicker: public QObject
 {
     Q_OBJECT

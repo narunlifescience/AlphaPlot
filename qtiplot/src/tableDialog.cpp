@@ -48,11 +48,11 @@
 #include <QCloseEvent>
 #include <Q3VBoxLayout>
 
-tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "tableDialog" );
+		setName( "TableDialog" );
 
 	Q3HBox  *hbox1=new Q3HBox (this, "hbox1");
 	hbox1->setSpacing(5);
@@ -161,7 +161,7 @@ tableDialog::tableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	connect(precisionBox, SIGNAL(valueChanged(int)), this, SLOT(updatePrecision(int)));
 }
 
-void tableDialog::enablePrecision(int f)
+void TableDialog::enablePrecision(int f)
 {
 if (!f)
 	{
@@ -172,27 +172,27 @@ else
 	precisionBox->setEnabled(true);
 }
 
-void tableDialog::accept()
+void TableDialog::accept()
 {
 apply();
 close();
 }
 
-void tableDialog::prevColumn()
+void TableDialog::prevColumn()
 {
 int sc = w->selectedColumn();
 apply();
 updateColumn(--sc);
 }
 
-void tableDialog::nextColumn()
+void TableDialog::nextColumn()
 {
 int sc = w->selectedColumn();
 apply();
 updateColumn(++sc);
 }
 
-void tableDialog::updateColumn(int sc)
+void TableDialog::updateColumn(int sc)
 {
 int colType = w->columnType(sc);
 
@@ -233,19 +233,19 @@ else if (colType == Table::Time)
 	formatBox->setCurrentText(w->columnFormat(sc));
 }
 
-void tableDialog::setWorksheet(Table * table)
+void TableDialog::setWorksheet(Table * table)
 {
 w=table;
 w->storeCellsToMemory();
 updateColumn(w->selectedColumn());
 }
 
-void tableDialog::changeColWidth(int width)
+void TableDialog::changeColWidth(int width)
 {
 w->changeColWidth(width, applyToAllBox->isChecked());
 }
 
-void tableDialog::apply()
+void TableDialog::apply()
 {
 QString name=colName->text();
 if (name.contains(QRegExp("\\W")))
@@ -298,13 +298,13 @@ switch(colType)
 	}
 }
 
-void tableDialog::closeEvent( QCloseEvent* ce )
+void TableDialog::closeEvent( QCloseEvent* ce )
 {
 w->freeMemory();
 ce->accept();
 }
 
-void tableDialog::setPlotDesignation(int i)
+void TableDialog::setPlotDesignation(int i)
 {
 switch(i)
 	{
@@ -326,7 +326,7 @@ switch(i)
 	}
 }
 
-void tableDialog::showPrecisionBox(int item)
+void TableDialog::showPrecisionBox(int item)
 {
 switch(item)   
         {
@@ -348,21 +348,21 @@ switch(item)
 		}
 }
 
-void tableDialog::updatePrecision(int prec)
+void TableDialog::updatePrecision(int prec)
 {
 w->setNumericFormat(formatBox->currentItem(),prec,applyToRightCols->isChecked());
 }
 
-void tableDialog::updateFormat()
+void TableDialog::updateFormat()
 {
 w->setNumericFormat(formatBox->currentItem(),precisionBox->value(),applyToRightCols->isChecked());
 }
 
-tableDialog::~tableDialog()
+TableDialog::~TableDialog()
 {
 }
 
-void tableDialog::updateDisplay(int item)
+void TableDialog::updateDisplay(int item)
 {
 labelFormat->show();
 formatBox->show();
@@ -427,7 +427,7 @@ else
 	}
 }
 
-void tableDialog::languageChange()
+void TableDialog::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - Column options" ) );
     buttonCancel->setText( tr( "&Cancel" ) );  

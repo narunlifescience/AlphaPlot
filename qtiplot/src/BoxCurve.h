@@ -86,6 +86,7 @@ private:
 	int b_style, b_width, b_range, w_range;
 };
 
+//! Single array data (extension to QwtData)
 class QwtSingleArrayData: public QwtData
 {
 public:

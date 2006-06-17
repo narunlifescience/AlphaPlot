@@ -43,11 +43,11 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-interpolationDialog::interpolationDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "interpolationDialog" );
+		setName( "InterpolationDialog" );
 	setWindowTitle(tr("QtiPlot - Interpolation Options"));
 	
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
@@ -95,12 +95,12 @@ interpolationDialog::interpolationDialog( QWidget* parent, const char* name, boo
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-interpolationDialog::~interpolationDialog()
+InterpolationDialog::~InterpolationDialog()
 {
 }
 
 
-void interpolationDialog::languageChange()
+void InterpolationDialog::languageChange()
 {
 buttonFit->setText( tr( "&Make" ) );
 buttonCancel->setText( tr( "&Close" ) );
@@ -110,7 +110,7 @@ boxMethod->insertItem(tr("Cubic"));
 boxMethod->insertItem(tr("Non-rounded Akima"));
 }
 
-void interpolationDialog::interpolate()
+void InterpolationDialog::interpolate()
 {
 QString curve = boxName->currentText();
 QStringList curvesList = graph->curvesList();
@@ -126,7 +126,7 @@ if (curvesList.contains(curve) <= 0)
 double from, to;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(boxStart->text().ascii());
 	from=parser.Eval();
 	}
@@ -139,7 +139,7 @@ catch(mu::ParserError &e)
 	
 try
 	{
-	myParser parser;	
+	MyParser parser;	
 	parser.SetExpr(boxEnd->text().ascii());
 	to=parser.Eval();
 	}
@@ -167,7 +167,7 @@ if (!c)
 graph->interpolate(c, spline, start, end, boxPoints->value(), boxColor->currentItem());
 }
 
-void interpolationDialog::setGraph(Graph *g)
+void InterpolationDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->curvesList(),-1);
@@ -185,7 +185,7 @@ connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void interpolationDialog::activateCurve(int index)
+void InterpolationDialog::activateCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 if (!c)
@@ -205,7 +205,7 @@ else
 	}
 };
 
-void interpolationDialog::changeDataRange()
+void InterpolationDialog::changeDataRange()
 {
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();

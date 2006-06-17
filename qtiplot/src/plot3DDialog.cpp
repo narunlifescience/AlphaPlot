@@ -65,11 +65,11 @@
 
 using namespace Qwt3D;
 
-plot3DDialog::plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	if ( !name )
-		setName( "plot3DDialog" );
+		setName( "Plot3DDialog" );
 	setFixedWidth(521);
 	setFixedHeight(260);
 	setWindowTitle( tr( "QtiPlot - Surface Plot Options" ) );
@@ -110,7 +110,7 @@ plot3DDialog::plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	connect( btnTable, SIGNAL( clicked() ), this, SLOT(worksheet() ) );
 }
 
-void plot3DDialog::initScalesPage()
+void Plot3DDialog::initScalesPage()
 {
 	generalDialog = new QTabWidget( this, "generalDialog" );
 
@@ -159,7 +159,7 @@ void plot3DDialog::initScalesPage()
 	generalDialog->insertTab(scale, tr( "&Scale" ) );
 }
 
-void plot3DDialog::initAxesPage()
+void Plot3DDialog::initAxesPage()
 {
 	axes = new QWidget( generalDialog, "axes" );
 
@@ -205,7 +205,7 @@ void plot3DDialog::initAxesPage()
 	connect( btnLabelFont, SIGNAL(clicked()), this, SLOT(pickAxisLabelFont() ) );
 }
 
-void plot3DDialog::initTitlePage()
+void Plot3DDialog::initTitlePage()
 {
 	title = new QWidget( generalDialog, "title" );
 
@@ -241,7 +241,7 @@ void plot3DDialog::initTitlePage()
 	connect( buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
 }
 
-void plot3DDialog::initColorsPage()
+void Plot3DDialog::initColorsPage()
 {
 	colors = new QWidget( generalDialog, "colors" );
 
@@ -304,7 +304,7 @@ void plot3DDialog::initColorsPage()
 			this, SLOT(changeTransparency(int) ) );
 }
 
-void plot3DDialog::initGeneralPage()
+void Plot3DDialog::initGeneralPage()
 {
 	general = new QWidget( generalDialog, "general" );
 
@@ -359,7 +359,7 @@ void plot3DDialog::initGeneralPage()
 	connect( btnNumbersFont, SIGNAL(clicked()), this, SLOT(pickNumbersFont() ) );
 }
 
-void plot3DDialog::initPointsOptionsStack()
+void Plot3DDialog::initPointsOptionsStack()
 {
 	points = new QWidget( generalDialog, "points" );
 
@@ -441,7 +441,7 @@ void plot3DDialog::initPointsOptionsStack()
 	connect( boxPointStyle, SIGNAL( activated(int) ), optionStack, SLOT( raiseWidget(int) ) );
 }
 
-void plot3DDialog::showLowerGreek()
+void Plot3DDialog::showLowerGreek()
 {
 	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
 	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
@@ -450,7 +450,7 @@ void plot3DDialog::showLowerGreek()
 	greekLetters->setActiveWindow();
 }
 
-void plot3DDialog::showUpperGreek()
+void Plot3DDialog::showUpperGreek()
 {
 	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
 	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
@@ -459,7 +459,7 @@ void plot3DDialog::showUpperGreek()
 	greekLetters->setActiveWindow();
 }
 
-void plot3DDialog::addSymbol(const QString& letter)
+void Plot3DDialog::addSymbol(const QString& letter)
 {
 	if (generalDialog->currentPage()==(QWidget*)title)
 		boxTitle->insert(letter);
@@ -467,13 +467,13 @@ void plot3DDialog::addSymbol(const QString& letter)
 		boxLabel->insert(letter);
 }
 
-void plot3DDialog::worksheet()
+void Plot3DDialog::worksheet()
 {
 	emit showWorksheet();
 	close();
 }
 
-void plot3DDialog::customWorksheetBtn(const QString& text)
+void Plot3DDialog::customWorksheetBtn(const QString& text)
 {
 	if (!text.isEmpty())
 	{
@@ -482,12 +482,12 @@ void plot3DDialog::customWorksheetBtn(const QString& text)
 	}
 }
 
-void plot3DDialog::disableGridOptions()
+void Plot3DDialog::disableGridOptions()
 {
 	btnGrid->setDisabled(true);
 }
 
-void plot3DDialog::disableAxesOptions()
+void Plot3DDialog::disableAxesOptions()
 {
 	TicksGroupBox->setDisabled(true);
 	generalDialog->setTabEnabled(axes,false);
@@ -496,7 +496,7 @@ void plot3DDialog::disableAxesOptions()
 	btnNumbersFont->setDisabled(true);
 }
 
-void plot3DDialog::showBarsTab(double rad)
+void Plot3DDialog::showBarsTab(double rad)
 {
 	bars = new QWidget( generalDialog, "bars" );
 
@@ -512,7 +512,7 @@ void plot3DDialog::showBarsTab(double rad)
 	generalDialog->insertTab(bars, tr( "Bars" ),4 );
 }
 
-void plot3DDialog::showPointsTab(double rad, bool smooth)
+void Plot3DDialog::showPointsTab(double rad, bool smooth)
 {
 	boxPointStyle->setCurrentItem(0);
 	boxSize->setText(QString::number(rad));
@@ -520,7 +520,7 @@ void plot3DDialog::showPointsTab(double rad, bool smooth)
 	optionStack->raiseWidget(0);
 }
 
-void plot3DDialog::showConesTab(double rad, int quality)
+void Plot3DDialog::showConesTab(double rad, int quality)
 {
 	boxPointStyle->setCurrentItem(2);
 	boxConesRad->setText(QString::number(rad));
@@ -528,7 +528,7 @@ void plot3DDialog::showConesTab(double rad, int quality)
 	optionStack->raiseWidget(2);
 }
 
-void plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, bool boxed)
+void Plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, bool boxed)
 {
 	boxPointStyle->setCurrentItem(1);
 	boxCrossRad->setText(QString::number(rad));
@@ -538,23 +538,23 @@ void plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, b
 	optionStack->raiseWidget(1);
 }
 
-void plot3DDialog::disableMeshOptions()
+void Plot3DDialog::disableMeshOptions()
 {
 	btnMesh->setDisabled(true);
 	boxMeshLineWidth->setDisabled(true);
 }
 
-void plot3DDialog::disableLegend()
+void Plot3DDialog::disableLegend()
 {
 	boxLegend->setDisabled(true);
 }
 
-void plot3DDialog::setLabelsDistance(int dist)
+void Plot3DDialog::setLabelsDistance(int dist)
 {
 	boxDistance->setValue(dist);
 }
 
-QColor plot3DDialog::pickFromColor()
+QColor Plot3DDialog::pickFromColor()
 {
 	QColor c = QColorDialog::getColor(fromColor, this );
 	if ( !c.isValid() )
@@ -564,7 +564,7 @@ QColor plot3DDialog::pickFromColor()
 	return fromColor;
 }
 
-QColor plot3DDialog::pickToColor()
+QColor Plot3DDialog::pickToColor()
 {
 	QColor c = QColorDialog::getColor(toColor, this );
 	if ( !c.isValid() )
@@ -574,7 +574,7 @@ QColor plot3DDialog::pickToColor()
 	return toColor;
 }
 
-QColor plot3DDialog::pickGridColor()
+QColor Plot3DDialog::pickGridColor()
 {
 	QColor c = QColorDialog::getColor(gridColor, this );
 	if ( !c.isValid() )
@@ -584,7 +584,7 @@ QColor plot3DDialog::pickGridColor()
 	return gridColor;
 }
 
-QColor plot3DDialog::pickAxesColor()
+QColor Plot3DDialog::pickAxesColor()
 {
 	QColor c = QColorDialog::getColor(axesColor, this );
 	if ( !c.isValid() )
@@ -594,7 +594,7 @@ QColor plot3DDialog::pickAxesColor()
 	return axesColor;
 }
 
-QColor plot3DDialog::pickBgColor()
+QColor Plot3DDialog::pickBgColor()
 {
 	QColor c = QColorDialog::getColor(bgColor, this );
 	if ( !c.isValid() )
@@ -604,7 +604,7 @@ QColor plot3DDialog::pickBgColor()
 	return bgColor;
 }
 
-QColor plot3DDialog::pickNumberColor()
+QColor Plot3DDialog::pickNumberColor()
 {
 	QColor c = QColorDialog::getColor(numColor, this );
 	if ( !c.isValid() )
@@ -614,7 +614,7 @@ QColor plot3DDialog::pickNumberColor()
 	return numColor;
 }
 
-QColor plot3DDialog::pickLabelColor()
+QColor Plot3DDialog::pickLabelColor()
 {
 	QColor c = QColorDialog::getColor(labelColor, this );
 	if ( !c.isValid() )
@@ -624,7 +624,7 @@ QColor plot3DDialog::pickLabelColor()
 	return labelColor;
 }
 
-QColor plot3DDialog::pickTitleColor()
+QColor Plot3DDialog::pickTitleColor()
 {
 	QColor c = QColorDialog::getColor(titleColor, this );
 	if ( !c.isValid() )
@@ -634,7 +634,7 @@ QColor plot3DDialog::pickTitleColor()
 	return titleColor;
 }
 
-void plot3DDialog::pickTitleFont()
+void Plot3DDialog::pickTitleFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,titleFont,this);
@@ -645,7 +645,7 @@ void plot3DDialog::pickTitleFont()
 	}
 }
 
-void plot3DDialog::pickNumbersFont()
+void Plot3DDialog::pickNumbersFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,numbersFont,this);
@@ -656,7 +656,7 @@ void plot3DDialog::pickNumbersFont()
 	}
 }
 
-void plot3DDialog::viewAxisOptions(int axis)
+void Plot3DDialog::viewAxisOptions(int axis)
 {
 	boxLabel->setText(labels[axis]);
 
@@ -664,13 +664,13 @@ void plot3DDialog::viewAxisOptions(int axis)
 	boxMinorLength->setText(tickLengths[2*axis+1]);
 }
 
-void plot3DDialog::setAxesLabels(const QStringList& list)
+void Plot3DDialog::setAxesLabels(const QStringList& list)
 {
 	labels=list;
 	boxLabel->setText(labels[0]);
 }
 
-void plot3DDialog::setScales(const QStringList& list)
+void Plot3DDialog::setScales(const QStringList& list)
 {
 	scales=list;
 	boxFrom->setText(scales[0]);
@@ -680,14 +680,14 @@ void plot3DDialog::setScales(const QStringList& list)
 	boxType->setCurrentItem(scales[4].toInt());
 }
 
-void plot3DDialog::setAxesTickLengths(const QStringList& list)
+void Plot3DDialog::setAxesTickLengths(const QStringList& list)
 {
 	tickLengths=list;
 	boxMajorLength->setText(list[0]);
 	boxMinorLength->setText(list[1]);
 }
 
-void plot3DDialog::viewScaleLimits(int axis)
+void Plot3DDialog::viewScaleLimits(int axis)
 {
 	boxFrom->setText(scales[5*axis+0]);
 	boxTo->setText(scales[5*axis+1]);
@@ -696,17 +696,17 @@ void plot3DDialog::viewScaleLimits(int axis)
 	boxType->setCurrentItem(scales[5*axis+4].toInt());
 }
 
-void plot3DDialog::setTitle(const QString& title)
+void Plot3DDialog::setTitle(const QString& title)
 {
 	boxTitle->setText(title);
 }
 
-void plot3DDialog::setTitleFont(const QFont& font)
+void Plot3DDialog::setTitleFont(const QFont& font)
 {
 	titleFont=font;
 }
 
-QColor plot3DDialog::pickMeshColor()
+QColor Plot3DDialog::pickMeshColor()
 {
 
 	QColor c = QColorDialog::getColor(meshColor, this );
@@ -717,19 +717,19 @@ QColor plot3DDialog::pickMeshColor()
 	return meshColor;
 }
 
-void plot3DDialog::accept()
+void Plot3DDialog::accept()
 {
 	if (updatePlot())
 		close();
 }
 
-void plot3DDialog::setDataColors(const QColor& minColor, const QColor& maxColor)
+void Plot3DDialog::setDataColors(const QColor& minColor, const QColor& maxColor)
 {
 	fromColor=minColor;
 	toColor=maxColor;
 }
 
-void plot3DDialog::setColors(const QColor& title, const QColor& mesh,const QColor& axes,const QColor& num,
+void Plot3DDialog::setColors(const QColor& title, const QColor& mesh,const QColor& axes,const QColor& num,
 		const QColor& label,const QColor& bg,const QColor& grid)
 {
 	titleColor=title;
@@ -741,12 +741,12 @@ void plot3DDialog::setColors(const QColor& title, const QColor& mesh,const QColo
 	gridColor=grid;
 }
 
-void plot3DDialog::showLegend(bool show)
+void Plot3DDialog::showLegend(bool show)
 {
 	boxLegend->setChecked(show);
 }
 
-void plot3DDialog::changeZoom(int)
+void Plot3DDialog::changeZoom(int)
 {
 	if (generalDialog->currentPage() != (QWidget*)general)
 		return;
@@ -756,7 +756,7 @@ void plot3DDialog::changeZoom(int)
 			boxZScale->value()*0.01);
 }
 
-void plot3DDialog::changeTransparency(int val)
+void Plot3DDialog::changeTransparency(int val)
 {
 	if (generalDialog->currentPage() != (QWidget*)colors)
 		return;
@@ -764,7 +764,7 @@ void plot3DDialog::changeTransparency(int val)
 	emit updateTransparency(val*0.01);
 }
 
-bool plot3DDialog::updatePlot()
+bool Plot3DDialog::updatePlot()
 {
 	int axis=-1;
 
@@ -818,7 +818,7 @@ bool plot3DDialog::updatePlot()
 		bool error=false;	
 		try
 		{
-			myParser parser;
+			MyParser parser;
 			parser.SetExpr(from.ascii());
 			start=parser.Eval();
 		}
@@ -831,7 +831,7 @@ bool plot3DDialog::updatePlot()
 		}	
 		try
 		{
-			myParser parser;
+			MyParser parser;
 			parser.SetExpr(to.ascii());
 			end=parser.Eval();
 		}
@@ -868,7 +868,7 @@ bool plot3DDialog::updatePlot()
 	return true;
 }
 
-QStringList plot3DDialog::scaleOptions(int axis, double start, double end, 
+QStringList Plot3DDialog::scaleOptions(int axis, double start, double end, 
 		const QString& majors, const QString& minors)
 {
 	QStringList l;
@@ -883,19 +883,19 @@ QStringList plot3DDialog::scaleOptions(int axis, double start, double end,
 	return l;
 }
 
-void plot3DDialog::setMeshLineWidth(double lw)
+void Plot3DDialog::setMeshLineWidth(double lw)
 {
 	boxMeshLineWidth->setValue(int(lw));
 }
 
-void plot3DDialog::setAxesFonts(const QFont& xf, const QFont& yf, const QFont& zf)
+void Plot3DDialog::setAxesFonts(const QFont& xf, const QFont& yf, const QFont& zf)
 {
 	xAxisFont=xf;
 	yAxisFont=yf;
 	zAxisFont=zf;
 }
 
-void plot3DDialog::pickAxisLabelFont()
+void Plot3DDialog::pickAxisLabelFont()
 {
 	bool ok;
 	QFont font;
@@ -927,7 +927,7 @@ void plot3DDialog::pickAxisLabelFont()
 	}
 }
 
-QFont plot3DDialog::axisFont(int axis)
+QFont Plot3DDialog::axisFont(int axis)
 {
 	QFont f;
 	switch(axis)
@@ -947,43 +947,43 @@ QFont plot3DDialog::axisFont(int axis)
 	return f;
 }
 
-void plot3DDialog::setTransparency(double t)
+void Plot3DDialog::setTransparency(double t)
 {
 	boxTransparency->setValue(int(100*t));
 }
 
-void plot3DDialog::setResolution(int r)
+void Plot3DDialog::setResolution(int r)
 {
 	boxResolution->setValue( r );
 }
 
-void plot3DDialog::setZoom(double zoom)
+void Plot3DDialog::setZoom(double zoom)
 {
 	boxZoom->setValue(int(zoom*100));
 }
 
-void plot3DDialog::setScaling(double xVal, double yVal, double zVal)
+void Plot3DDialog::setScaling(double xVal, double yVal, double zVal)
 {
 	boxXScale->setValue(int(xVal*100));
 	boxYScale->setValue(int(yVal*100));
 	boxZScale->setValue(int(zVal*100));
 }
 
-void plot3DDialog::showGeneralTab()
+void Plot3DDialog::showGeneralTab()
 {
 	generalDialog->showPage(general);
 }
 
-void plot3DDialog::showTitleTab()
+void Plot3DDialog::showTitleTab()
 {
 	generalDialog->setCurrentPage(2);
 }
 
-void plot3DDialog::showAxisTab()
+void Plot3DDialog::showAxisTab()
 {
 	generalDialog->setCurrentPage(1);
 }
 
-plot3DDialog::~plot3DDialog()
+Plot3DDialog::~Plot3DDialog()
 {
 }

@@ -44,13 +44,13 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-smoothCurveDialog::smoothCurveDialog(int method, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	smooth_type = method;
 
     if ( !name )
-		setName( "smoothCurveDialog" );
+		setName( "SmoothCurveDialog" );
 	setWindowTitle(tr("QtiPlot - Smoothing Options"));
 	
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
@@ -105,18 +105,18 @@ smoothCurveDialog::smoothCurveDialog(int method, QWidget* parent, const char* na
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
 }
 
-smoothCurveDialog::~smoothCurveDialog()
+SmoothCurveDialog::~SmoothCurveDialog()
 {
 }
 
 
-void smoothCurveDialog::languageChange()
+void SmoothCurveDialog::languageChange()
 {
 btnSmooth->setText( tr( "&Smooth" ) );
 buttonCancel->setText( tr( "&Close" ) );
 }
 
-void smoothCurveDialog::smooth()
+void SmoothCurveDialog::smooth()
 {
 long key = graph->curveKey(boxName->currentItem());
 if (key < 0)
@@ -131,14 +131,14 @@ else if (smooth_type == Average)
 	graph->smoothAverage(key, boxPointsLeft->value(), boxColor->currentItem());
 }
 
-void smoothCurveDialog::setGraph(Graph *g)
+void SmoothCurveDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->curvesList(),-1);
 activateCurve(0);
 }
 
-void smoothCurveDialog::activateCurve(int index)
+void SmoothCurveDialog::activateCurve(int index)
 {
 if (smooth_type == Average)
 	{

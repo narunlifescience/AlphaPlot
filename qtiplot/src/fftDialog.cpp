@@ -140,7 +140,7 @@ void FFTDialog::accept()
 double sampling;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(boxSampling->text().ascii());
 	sampling=parser.Eval();
 	}

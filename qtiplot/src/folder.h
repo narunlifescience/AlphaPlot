@@ -106,7 +106,7 @@ protected:
  * Class WindowListItem
  *
  *****************************************************************************/
-
+//! Windows list item class
 class WindowListItem : public Q3ListViewItem
 {
 public:
@@ -124,7 +124,7 @@ protected:
  * Class FolderListItem
  *
  *****************************************************************************/
-
+//! Folders list item class
 class FolderListItem : public Q3ListViewItem
 {
 public:
@@ -155,7 +155,7 @@ protected:
  * Class FolderListView
  *
  *****************************************************************************/
-
+//! Folder list view class
 class FolderListView : public Q3ListView
 {
     Q_OBJECT

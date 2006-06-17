@@ -55,11 +55,11 @@
 #include <Q3VBoxLayout>
 
 
-pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "pieDialog" );
+		setName( "PieDialog" );
 	setFixedWidth(521);
 	setFixedHeight(260);
     setWindowTitle( tr( "QtiPlot - Pie Options" ) );
@@ -97,7 +97,7 @@ pieDialog::pieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
 }
 
-void pieDialog::initPiePage()
+void PieDialog::initPiePage()
 {
 	pieOptions = new QWidget( generalDialog, "pieOptions" );
 	curvesList = new Q3ListBox(pieOptions, "listBox" );
@@ -140,7 +140,7 @@ void pieDialog::initPiePage()
 connect(curvesList, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(Q3ListBoxItem *, const QPoint &)));
 }
 
-void pieDialog::initBorderPage()
+void PieDialog::initBorderPage()
 {
 frame = new QWidget( generalDialog, "frame" );	
 
@@ -172,7 +172,7 @@ connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor())
 connect(boxBorderWidth,SIGNAL(valueChanged (int)), this, SLOT(updateBorder(int)));
 }
 
-void pieDialog::setMultiLayerPlot(MultiLayer *m)
+void PieDialog::setMultiLayerPlot(MultiLayer *m)
 {
 mPlot = m;
 Graph* g = (Graph*)mPlot->activeGraph();
@@ -184,7 +184,7 @@ boxBorderColor->setColor(p->frameColor());
 boxBackgroundColor->setColor(p->paletteBackgroundColor());
 }
 
-void pieDialog::pickBackgroundColor()
+void PieDialog::pickBackgroundColor()
 {
 QColor c = QColorDialog::getColor(boxBackgroundColor->color(), this);
 if ( !c.isValid() || c == boxBackgroundColor->color() )
@@ -213,7 +213,7 @@ if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
 	mPlot->updateTransparency();
 }
 
-void pieDialog::pickBorderColor()
+void PieDialog::pickBorderColor()
 {
 QColor c = QColorDialog::getColor(boxBorderColor->color(), this);
 if ( !c.isValid() || c == boxBorderColor->color() )
@@ -239,7 +239,7 @@ else
 	}
 }
 
-void pieDialog::updateBorder(int width)
+void PieDialog::updateBorder(int width)
 {
 if (generalDialog->currentPage() != frame)
 	return;
@@ -262,7 +262,7 @@ else
 	}
 }
 
-void pieDialog::changeMargin(int width)
+void PieDialog::changeMargin(int width)
 {
 if (generalDialog->currentPage() != frame)
 	return;
@@ -285,36 +285,36 @@ else
 	}
 }
 
-void pieDialog::showWorksheet()
+void PieDialog::showWorksheet()
 {
 emit worksheet(curvesList->currentText ());
 close();
 }
 
-void pieDialog::showPopupMenu(Q3ListBoxItem *, const QPoint &point)
+void PieDialog::showPopupMenu(Q3ListBoxItem *, const QPoint &point)
 {
 Q3PopupMenu contextMenu(this);
 contextMenu.insertItem("&Delete", this, SLOT(removeCurve()));
 contextMenu.exec(point);
 }
 
-void pieDialog::removeCurve()
+void PieDialog::removeCurve()
 {
 emit toggleCurve();
 curvesList->removeItem (0);
 }
 
-void pieDialog::setPieSize(int size)
+void PieDialog::setPieSize(int size)
 {
 boxRadius->setValue(size);
 }
 
-void pieDialog::setFramed(bool ok)
+void PieDialog::setFramed(bool ok)
 {
 boxFramed->setChecked(ok);
 }
 
-void pieDialog::drawFrame(bool framed)
+void PieDialog::drawFrame(bool framed)
 {
 boxFrameWidth->setEnabled(framed);
 boxFrameColor->setEnabled(framed);
@@ -322,30 +322,30 @@ boxFrameColor->setEnabled(framed);
 emit drawFrame(framed,boxFrameWidth->text().toInt(),boxFrameColor->color());
 }
 
-void pieDialog::setFrameWidth(int w)
+void PieDialog::setFrameWidth(int w)
 {
 boxFrameWidth->setValue(w);
 }
 
-void pieDialog::setFrameColor(const QColor& c)
+void PieDialog::setFrameColor(const QColor& c)
 {
   boxFrameColor->setColor(c);
 }
 
-void pieDialog::insertCurveName(const QString& name)
+void PieDialog::insertCurveName(const QString& name)
 {
 curvesList->clear();
 curvesList->insertItem(name,-1);
 curvesList->setCurrentItem (0);
 }
 
-void pieDialog::accept()
+void PieDialog::accept()
 {
 updatePlot();
 close();
 }
 
-void pieDialog::updatePlot()
+void PieDialog::updatePlot()
 {
 if (generalDialog->currentPage()==(QWidget *)pieOptions)
 	{
@@ -375,22 +375,22 @@ if (generalDialog->currentPage()==(QWidget*)frame)
 	}
 }
 
-void pieDialog::setBorderWidth(int width)
+void PieDialog::setBorderWidth(int width)
 {
 boxLineWidth->setValue(width);
 }
 
-void pieDialog::setFirstColor(int c)
+void PieDialog::setFirstColor(int c)
 {
 boxFirstColor->setCurrentItem(c);	
 }
 
-void pieDialog::setBorderColor(const QColor& c)
+void PieDialog::setBorderColor(const QColor& c)
 {
   boxLineColor->setColor(c);
 }
 
-Qt::PenStyle pieDialog::style()
+Qt::PenStyle PieDialog::style()
 {
 Qt::PenStyle style;
 switch (boxLineStyle->currentItem())
@@ -414,7 +414,7 @@ switch (boxLineStyle->currentItem())
 return style;
 }
 
-void pieDialog::setBorderStyle(const Qt::PenStyle& style)
+void PieDialog::setBorderStyle(const Qt::PenStyle& style)
 {
 if(style == Qt::SolidLine)
 	boxLineStyle->setCurrentItem(0);
@@ -428,22 +428,22 @@ if(style == Qt::DashDotDotLine)
 	boxLineStyle->setCurrentItem(4);
 }
 
-void pieDialog::setPattern(const Qt::BrushStyle& style)
+void PieDialog::setPattern(const Qt::BrushStyle& style)
 {
   boxPattern->setPattern(style);
 }
 
 
-Qt::BrushStyle pieDialog::pattern()
+Qt::BrushStyle PieDialog::pattern()
 {
   return boxPattern->getSelectedPattern();
 }
 
-void pieDialog::showGeneralPage()
+void PieDialog::showGeneralPage()
 {
 generalDialog->showPage (frame);
 }
 
-pieDialog::~pieDialog()
+PieDialog::~PieDialog()
 {
 }

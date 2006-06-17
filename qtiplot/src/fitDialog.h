@@ -49,13 +49,13 @@ class Graph;
 class ColorBox;
 
 //! Nonlinear curve fitting dialog
-class fitDialog : public QDialog
+class FitDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    fitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~fitDialog();
+    FitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~FitDialog();
 
 	void initFitPage();
 	void initEditPage();

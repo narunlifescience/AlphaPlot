@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Dialog to select special text characters
+    Description          : Tool window to select special text characters
                            
  ***************************************************************************/
 

@@ -49,11 +49,11 @@
 #include <Q3Frame>
 #include <Q3VBoxLayout>
 
-setColValuesDialog::setColValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+SetColValuesDialog::SetColValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "setColValuesDialog" );
+	setName( "SetColValuesDialog" );
     setWindowTitle( tr( "QtiPlot - Set column values" ) );
     setFocusPolicy( Qt::StrongFocus );
 	
@@ -163,19 +163,19 @@ connect(buttonPrev, SIGNAL(clicked()), this, SLOT(prevColumn()));
 connect(buttonNext, SIGNAL(clicked()), this, SLOT(nextColumn()));
 }
 
-void setColValuesDialog::prevColumn()
+void SetColValuesDialog::prevColumn()
 {
 int sc = table->selectedColumn();
 updateColumn(--sc);
 }
 
-void setColValuesDialog::nextColumn()
+void SetColValuesDialog::nextColumn()
 {
 int sc = table->selectedColumn();
 updateColumn(++sc);
 }
 
-void setColValuesDialog::updateColumn(int sc)
+void SetColValuesDialog::updateColumn(int sc)
 {
 if (!sc)
 	buttonPrev->setEnabled(false);
@@ -195,23 +195,23 @@ commands->setText(com[sc]);
 commands->moveCursor ( Q3TextEdit::MoveEnd, true );
 }
 
-QSize setColValuesDialog::sizeHint() const 
+QSize SetColValuesDialog::sizeHint() const 
 {
 return QSize( 400, 190 );
 }
 
-void setColValuesDialog::accept()
+void SetColValuesDialog::accept()
 {
 if (apply())
 	close();
 }
 
-bool setColValuesDialog::apply()
+bool SetColValuesDialog::apply()
 {
 QString aux=commands->text();	
 aux.remove("\n");
 
-myParser parser;
+MyParser parser;
 parser.SetExpr(aux.ascii());
 bool numeric = true;
 double val;
@@ -272,7 +272,7 @@ try
 		parser.DefineVar(variables[i].ascii(), &vars[i]);
 		if (rowIndexes[i] != "i")	
 			{
-			myParser rparser;
+			MyParser rparser;
 			double l=0;
 			try
     			{	
@@ -310,17 +310,17 @@ table->setColValues(commands->text(), aux, variables, rowIndexes,
 return true;
 }
 
-void setColValuesDialog::setFunctions()
+void SetColValuesDialog::setFunctions()
 {
-functions->insertStringList(myParser::functionsList(), -1);
+functions->insertStringList(MyParser::functionsList(), -1);
 }
 
-void setColValuesDialog::insertExplain(int index)
+void SetColValuesDialog::insertExplain(int index)
 {
-explain->setText(myParser::explainFunction(index));
+explain->setText(MyParser::explainFunction(index));
 }
 
-void setColValuesDialog::insertFunction()
+void SetColValuesDialog::insertFunction()
 {
 QString f=functions->currentText();
 if (commands->hasSelectedText())
@@ -338,18 +338,18 @@ else
 	}
 }
 
-void setColValuesDialog::insertCol()
+void SetColValuesDialog::insertCol()
 {
 commands->insert(boxColumn->currentText());
 }
 
-void setColValuesDialog::insertCell()
+void SetColValuesDialog::insertCell()
 {
 QString f=boxColumn->currentText().remove(")")+", i)";
 commands->insert(f);
 }
 
-void setColValuesDialog::setTable(Table* w)
+void SetColValuesDialog::setTable(Table* w)
 {
 table=w;
 QStringList colNames=w->colNames();
@@ -362,6 +362,6 @@ end->setValue(w->tableRows());
 updateColumn(w->selectedColumn());
 }
 
-setColValuesDialog::~setColValuesDialog()
+SetColValuesDialog::~SetColValuesDialog()
 {
 }

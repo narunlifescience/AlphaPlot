@@ -41,13 +41,13 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-epsExportDialog::epsExportDialog(const QString& fileName, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+EpsExportDialog::EpsExportDialog(const QString& fileName, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	f_name = fileName;
 	
     if ( !name )
-	setName( "epsExportDialog" );
+	setName( "EpsExportDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setSizeGripEnabled( true );
 	
@@ -88,7 +88,7 @@ epsExportDialog::epsExportDialog(const QString& fileName, QWidget* parent, const
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-void epsExportDialog::languageChange()
+void EpsExportDialog::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - EPS Export options" ) );
     buttonOk->setText( tr( "&OK" ) );
@@ -121,7 +121,7 @@ void epsExportDialog::languageChange()
 	boxPageSize->setCurrentItem(5);
 }
 
-void epsExportDialog::accept()
+void EpsExportDialog::accept()
 {
 QPrinter::Orientation o;
 if (boxOrientation->currentItem() == 1)
@@ -139,7 +139,7 @@ emit exportToEPS(f_name, boxResolution->value(), o, size, col);
 close();
 }
 
-QPrinter::PageSize epsExportDialog::pageSize()
+QPrinter::PageSize EpsExportDialog::pageSize()
 {
 QPrinter::PageSize size;
 switch (boxPageSize->currentItem())
@@ -227,6 +227,6 @@ switch (boxPageSize->currentItem())
 return size;
 }
 
-epsExportDialog::~epsExportDialog()
+EpsExportDialog::~EpsExportDialog()
 {
 }

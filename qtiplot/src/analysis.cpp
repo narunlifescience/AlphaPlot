@@ -991,7 +991,7 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 			min = y[aux];
 		aux++;
 	}
-	struct fitMultiPeakData d = {n, p, x, y};
+	struct FitMultiPeakData d = {n, p, x, y};
 	gsl_multifit_function_fdf f;
 	if (fitType)
 	{
@@ -1169,14 +1169,14 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 	const char *function=equation[1].ascii();
 	QString names=params.join (",");
 	const char *parNames=names.ascii();
-	struct fitParserData d = {n, p, X, Y, function, parNames};
+	struct FitParserData d = {n, p, X, Y, function, parNames};
 	int status;
 	double *par=vector(0,p-1);
 	double X0 =	X[0];
 	double XN =	X[n-1];
 	int n1 = (n<100)?100:n;
 	double step=(XN-X0)/(n1-1);
-	myParser parser;
+	MyParser parser;
 	QString result;
 	double xvar;
 
@@ -1299,7 +1299,7 @@ QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude
 		aux++;
 	}
 	const size_t p = 3;	
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	double x_init[3] = {amplitude, 1/damping, yOffset};
 	int status;
 	double *par=vector(0,p-1);
@@ -1403,7 +1403,7 @@ QString Graph::fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double 
 		Y[aux]=curve->y(i);
 		aux++;
 	}
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	const size_t p = 5;		  
 	double x_init[5] = {amp1, 1.0/t1, amp2, 1.0/t2, yOffset};
 	int status;
@@ -1523,7 +1523,7 @@ QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double 
 		Y[aux]=curve->y(i);
 		aux++;
 	}
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	const size_t p = 7;		
 	double x_init[7] = { amp1, 1.0/t1, amp2, 1.0/t2, amp3, 1.0/t3, yOffset};
 	int status;
@@ -1641,7 +1641,7 @@ QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitud
 		aux++;
 	}
 	const size_t p = 3;	
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	double x_init[3] = {amplitude, -1/damping, yOffset};
 	int status;
 	double *par=vector(0,p-1);
@@ -1763,7 +1763,7 @@ QString Graph::fitGauss(QwtPlotCurve *curve, double amplitude, double center, do
 		aux++;
 	}
 	const size_t p = 4;
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	double x_init[4] = {offset, amplitude, center, width};
 	QString result;
 	int status;
@@ -1883,7 +1883,7 @@ QString Graph::fitLorentz(QwtPlotCurve *curve, double amplitude, double center, 
 		aux++;
 	}
 	const size_t p = 4;
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	double x_init[4] = {offset, amplitude, center, width};
 	int status;
 	double *par=vector(0,p-1);
@@ -2501,7 +2501,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		for (i=0;i<(int)p;i++)
 			x_init[i]=paramsInit[i].toDouble();
 
-		struct fitData d = {n, X, Y};
+		struct FitData d = {n, X, Y};
 		gsl_multimin_function f;
 		typedef double (*fitD)(const gsl_vector *, void *);
 		fitD fit_d = (fitD) lib.resolve( "function_d" );
@@ -2556,7 +2556,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		for (i=0;i<(int)p;i++)
 			x_init[i]=paramsInit[i].toDouble();
 
-		struct fitData d = {n, X, Y};
+		struct FitData d = {n, X, Y};
 		gsl_multifit_function_fdf f;
 
 		typedef int (*fitF)(const gsl_vector *, void *, gsl_vector *);
@@ -3130,7 +3130,7 @@ QString Graph::fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0
 		aux++;
 	}
 	const size_t p = 4;
-	struct fitData d = {n, X, Y};
+	struct FitData d = {n, X, Y};
 	double x_init[4] = {A1, A2, x0, dx};
 	QString result;
 	int status;

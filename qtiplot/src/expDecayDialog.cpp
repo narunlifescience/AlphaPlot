@@ -42,11 +42,11 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 
-expDecayDialog::expDecayDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "expDecayDialog" );
+		setName( "ExpDecayDialog" );
 	
 	slopes = type;
 	
@@ -129,18 +129,18 @@ expDecayDialog::expDecayDialog(int type, QWidget* parent, const char* name, bool
 }
 
 
-expDecayDialog::~expDecayDialog()
+ExpDecayDialog::~ExpDecayDialog()
 {
 }
 
 
-void expDecayDialog::languageChange()
+void ExpDecayDialog::languageChange()
 {
 	buttonFit->setText( tr( "&Fit" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
-void expDecayDialog::setGraph(Graph *g)
+void ExpDecayDialog::setGraph(Graph *g)
 {
 if (!g)
 	return;
@@ -151,7 +151,7 @@ boxName->insertStringList (graph->curvesList(),-1);
 connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 };
 
-void expDecayDialog::fit()
+void ExpDecayDialog::fit()
 {
 QString curve = boxName->currentText();
 QStringList curvesList = graph->curvesList();

@@ -123,7 +123,7 @@ void MatrixSizeDialog::languageChange()
 void MatrixSizeDialog::accept()
 {
 	double fromX, toX, fromY, toY;
-	myParser parser;	
+	MyParser parser;	
 	try
 	{
 		parser.SetExpr(boxXStart->text().lower().ascii());

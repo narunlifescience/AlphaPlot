@@ -45,13 +45,13 @@
 //Added by qt3to4:
 #include <Q3VBoxLayout>
 
-filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	filter_type = type;
 
     if ( !name )
-		setName( "filterDialog" );
+		setName( "FilterDialog" );
 
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
@@ -104,24 +104,24 @@ filterDialog::filterDialog(int type, QWidget* parent, const char* name, bool mod
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-filterDialog::~filterDialog()
+FilterDialog::~FilterDialog()
 {
 }
 
 
-void filterDialog::languageChange()
+void FilterDialog::languageChange()
 {
 setWindowTitle(tr("QtiPlot - Filter options"));
 buttonFilter->setText( tr( "&Filter" ) );
 buttonCancel->setText( tr( "&Close" ) );
 }
 
-void filterDialog::filter()
+void FilterDialog::filter()
 {
 double from = 0.0, to = 0.0;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(boxStart->text().ascii());
 	from=parser.Eval();
 	}
@@ -144,7 +144,7 @@ if (filter_type >= BandPass)
 	{	
 	try
 		{
-		myParser parser;	
+		MyParser parser;	
 		parser.SetExpr(boxEnd->text().ascii());
 		to=parser.Eval();
 		}
@@ -183,7 +183,7 @@ else
 
 }
 
-void filterDialog::setGraph(Graph *g)
+void FilterDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->curvesList(),-1);

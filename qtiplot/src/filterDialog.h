@@ -40,13 +40,13 @@ class Graph;
 class ColorBox;
 	
 //! Filter options dialog
-class filterDialog : public QDialog
+class FilterDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    filterDialog(int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~filterDialog();
+    FilterDialog(int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~FilterDialog();
 
 	enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
 

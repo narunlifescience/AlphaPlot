@@ -155,7 +155,7 @@ void Matrix::cellEdited(int row,int col)
 {
 QString s = table->text(row,col);
 
-myParser parser;
+MyParser parser;
 parser.SetExpr(s.ascii());
 bool numeric = true;
 try
@@ -564,7 +564,7 @@ if (endRow > table->numRows())
 int rows=table->numRows();
 int cols=table->numCols();
 
-myParser parser;
+MyParser parser;
 parser.SetExpr(txt.ascii());
 bool numeric = true;
 try
@@ -613,7 +613,7 @@ parser.SetExpr(formula.ascii());
 parser.DefineVar("i", &ival);
 parser.DefineVar("j", &jval);
 
-myParser rparser;
+MyParser rparser;
 rparser.DefineVar("i", &rval);
 rparser.DefineVar("j", &cval);
 

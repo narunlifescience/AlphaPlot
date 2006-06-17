@@ -44,11 +44,11 @@
 #include <Q3Frame>
 #include <Q3VBoxLayout>
 
-matrixValuesDialog::matrixValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+MatrixValuesDialog::MatrixValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "matrixValuesDialog" );
+		setName( "MatrixValuesDialog" );
 
     setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
     setFocusPolicy( Qt::StrongFocus );
@@ -142,18 +142,18 @@ connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
 connect(functions, SIGNAL(activated(int)),this, SLOT(insertExplain(int)));
 }
 
-QSize matrixValuesDialog::sizeHint() const 
+QSize MatrixValuesDialog::sizeHint() const 
 {
 return QSize( 400, 190 );
 }
 
-void matrixValuesDialog::accept()
+void MatrixValuesDialog::accept()
 {
 if (apply())
 	close();
 }
 
-bool matrixValuesDialog::apply()
+bool MatrixValuesDialog::apply()
 {
 QString aux=commands->text().lower();	
 aux.remove("\n");
@@ -171,7 +171,7 @@ for (i=0; i<n; i++)
 	if (aux2.contains("cell(") > 0)
 		{
 		QMessageBox::critical(0,tr("QtiPlot - Input function error"), 
-			tr("You can not use cells recursevely!"));
+			tr("You cannot use cells recursevely!"));
 		return false;
    		}
 
@@ -195,13 +195,13 @@ for (i=0; i<n; i++)
 	
 int m=(int)variables.count();
 double *vars = new double[m]; 
-myParser parser;
+MyParser parser;
 try
     {
 	for (i=0; i<m; i++)
 		{
 		parser.DefineVar(variables[i].ascii(), &vars[i]);
-		myParser rparser;
+		MyParser rparser;
 		double l = 1;
 		rparser.DefineVar("i", &l);
 		rparser.DefineVar("j", &l);
@@ -251,32 +251,32 @@ emit setValues(commands->text(), aux, rowIndexes, colIndexes,
 return true;
 }
 
-void matrixValuesDialog::setFormula(const QString& s)
+void MatrixValuesDialog::setFormula(const QString& s)
 {
 	commands->setText(s);
 }
 
-void matrixValuesDialog::setColumns(int c)
+void MatrixValuesDialog::setColumns(int c)
 {
 	endCol->setValue(c);
 }
 
-void matrixValuesDialog::setRows(int r)
+void MatrixValuesDialog::setRows(int r)
 {
 	endRow->setValue(r);
 }
 
-void matrixValuesDialog::setFunctions()
+void MatrixValuesDialog::setFunctions()
 {
-functions->insertStringList(myParser::functionsList(), -1);
+functions->insertStringList(MyParser::functionsList(), -1);
 }
 
-void matrixValuesDialog::insertExplain(int index)
+void MatrixValuesDialog::insertExplain(int index)
 {
-explain->setText(myParser::explainFunction(index));
+explain->setText(MyParser::explainFunction(index));
 }
 
-void matrixValuesDialog::insertFunction()
+void MatrixValuesDialog::insertFunction()
 {
 QString f=functions->currentText();
 if (commands->hasSelectedText())
@@ -294,11 +294,11 @@ else
 	}
 }
 
-void matrixValuesDialog::addCell()
+void MatrixValuesDialog::addCell()
 {
 commands->insert("cell(i, j)");
 }
 
-matrixValuesDialog::~matrixValuesDialog()
+MatrixValuesDialog::~MatrixValuesDialog()
 {
 }

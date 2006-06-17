@@ -38,10 +38,10 @@
 using namespace mu;
 
 //! Parser class based on muParser
-class myParser : public Parser
+class MyParser : public Parser
 {
 public:
-	myParser();
+	MyParser();
 
 	static QStringList functionsList();
 	static QString explainFunction(int index);

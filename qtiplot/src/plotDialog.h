@@ -62,6 +62,7 @@ class Graph;
 class SymbolBox;
 class QwtCounter;
 
+//! Structure containing curve layout parameters 
 typedef struct{ 
   int lCol;
   int lWidth;
@@ -75,15 +76,16 @@ typedef struct{
   int sSize; 
   int sType;  
   int connectType;
-}  curveLayout;
+}  CurveLayout;
 
-class plotDialog : public QDialog
+//! Custom curves dialog
+class PlotDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    plotDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~plotDialog();
+    PlotDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~PlotDialog();
 
     Q3ListBox* listBox;
     QPushButton* buttonApply, *btnWorksheet, *btnAssociations;

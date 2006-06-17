@@ -44,13 +44,13 @@ class Q3ButtonGroup;
 class QSpinBox;
 
 //! Function dialog user interface
-class functionDialogui : public QDialog
+class FunctionDialogUi : public QDialog
 {
     Q_OBJECT
 
 public:
-    functionDialogui( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~functionDialogui();
+    FunctionDialogUi( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~FunctionDialogUi();
 
     QLabel* textFunction_2;
     Q3WidgetStack* optionStack;

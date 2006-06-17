@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "parser.h"
 
-myParser::myParser()
+MyParser::MyParser()
 :Parser()
 {
 DefineConst("pi", M_PI);
@@ -51,7 +51,7 @@ DefineFun("gammaln", gammaln);
 DefineFun("hazard", hazard);
 }
 
-QStringList myParser::functionsList()
+QStringList MyParser::functionsList()
 {
 QStringList l;
 l << "abs()" << "acos()" << "acosh()" << "asin()" << "asinh()" << "atan()";
@@ -64,7 +64,7 @@ l << "rint()" << "sign()" << "sin()" << "sinh()" << "sqrt()" << "tan()" << "tanh
 return l;
 }
 
-QString myParser::explainFunction(int index)
+QString MyParser::explainFunction(int index)
 {
 QString blabla;
 switch (index)

@@ -239,7 +239,7 @@ static const char * vertBars_xpm[] = {
 ".+++..+++..+++.",
 ".+++..+++..+++."};
 
-configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+ConfigDialog::ConfigDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
@@ -256,7 +256,7 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::W
 	titleFont = app->plotTitleFont;
 
     if ( !name )
-		setName( "configDialog" );
+		setName( "ConfigDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setMouseTracking( true );
     setSizeGripEnabled( false );
@@ -334,7 +334,7 @@ configDialog::configDialog( QWidget* parent, const char* name, bool modal, Qt::W
 	connect( buttonHeaderFont, SIGNAL( clicked() ), this, SLOT( pickHeaderFont() ) );
 	}
 
-void configDialog::initTablesPage()
+void ConfigDialog::initTablesPage()
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 tables = new QWidget( generalDialog, "tables" );
@@ -370,7 +370,7 @@ hlayout1->addWidget(GroupBoxTableCol);
 hlayout1->addWidget(GroupBoxTableFonts);
 }
 
-void configDialog::initPlotsPage()
+void ConfigDialog::initPlotsPage()
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
@@ -455,7 +455,7 @@ ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	connect( buttonTitleFont, SIGNAL( clicked() ), this, SLOT( pickTitleFont() ) );
 }
 
-void configDialog::enableScaleFonts()
+void ConfigDialog::enableScaleFonts()
 {
 if(boxResize->isChecked())
 	boxScaleFonts->setEnabled(false);
@@ -463,7 +463,7 @@ else
 	boxScaleFonts->setEnabled(true);
 }
 
-void configDialog::showFrameWidth(bool ok)
+void ConfigDialog::showFrameWidth(bool ok)
 {
 if (!ok)
 	{
@@ -477,7 +477,7 @@ else
 	}	
 }
 
-void configDialog::initPlots3DPage()
+void ConfigDialog::initPlots3DPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	plots3D = new QWidget( generalDialog, "plots3D" );
@@ -531,7 +531,7 @@ void configDialog::initPlots3DPage()
 	connect( btnLabelsFnt, SIGNAL( clicked() ), this, SLOT(pick3DAxesFont() ) );
 }
 
-void configDialog::initAppPage()
+void ConfigDialog::initAppPage()
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
@@ -595,7 +595,7 @@ GroupBoxApp = new Q3ButtonGroup( 2,Qt::Horizontal,tr("General"),application,"Gro
 	connect( btnPanelsText, SIGNAL( clicked() ), this, SLOT( pickPanelsTextColor() ) );
 }
 
-void configDialog::initCurvesPage()
+void ConfigDialog::initCurvesPage()
 {
 curves = new QWidget( generalDialog, "curves" );
 Q3ButtonGroup *GroupBox77 = new Q3ButtonGroup( 2,Qt::Horizontal,QString(),curves,"GroupBox77" );
@@ -613,11 +613,11 @@ Q3HBoxLayout* hlayout5 = new Q3HBoxLayout(curves,0,5, "hlayout5");
 hlayout5->addWidget(GroupBox77);
 }
 
-configDialog::~configDialog()
+ConfigDialog::~ConfigDialog()
 {
 }
 
-void configDialog::languageChange()
+void ConfigDialog::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - Choose default settings" ) );
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
@@ -693,7 +693,7 @@ void configDialog::languageChange()
 	buttonApply->setText( tr( "&Apply" ) );
 	buttonTextFont->setText( tr( "&Text Font" ) );
 	buttonHeaderFont->setText( tr( "&Labels Font" ) );
-	buttonAxesFont->setText( tr( "A&xes Legend" ) );
+	buttonAxesFont->setText( tr( "A&xes Labels" ) );
 	buttonNumbersFont->setText( tr( "Axes &Numbers" ) );
 	buttonLegendFont->setText( tr( "&Legend" ) );
 	buttonTitleFont->setText( tr( "T&itle" ) );
@@ -703,7 +703,7 @@ void configDialog::languageChange()
 	GroupBoxAppCol->setTitle(tr("Colors"));
 	lblLanguage->setText(tr("Language"));
 	lblStyle->setText(tr("Style")); 
-	lblFonts->setText(tr("Fonts")); 
+	lblFonts->setText(tr("Main Font")); 
 	fontsBtn->setText(tr("Choose &font"));
 	lblWorkspace->setText(tr("Workspace")); 
 	lblPanelsText->setText(tr("Panels text")); 
@@ -767,13 +767,13 @@ void configDialog::languageChange()
 	btnNumFnt->setText( tr( "&Numbers" ) );
 }
 
-void configDialog::accept()
+void ConfigDialog::accept()
 {
 update();
 close();
 }
 
-void configDialog::update()
+void ConfigDialog::update()
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 if (!app)
@@ -856,7 +856,7 @@ else if (generalDialog->visibleWidget()==(QWidget*)curves)
 	}
 }
 
-int configDialog::curveStyle()
+int ConfigDialog::curveStyle()
 {
 int style = 0;
 switch (boxCurveStyle->currentItem())
@@ -892,7 +892,7 @@ switch (boxCurveStyle->currentItem())
 return style;
 }
 
-void configDialog::pickBgColor()
+void ConfigDialog::pickBgColor()
 {
 QColor c = QColorDialog::getColor(buttonBackground->color(), this);
 if ( !c.isValid() || c == buttonBackground->color())
@@ -901,7 +901,7 @@ if ( !c.isValid() || c == buttonBackground->color())
 buttonBackground->setColor(c);
 }
 
-void configDialog::pickTextColor()
+void ConfigDialog::pickTextColor()
 {
 QColor c = QColorDialog::getColor(buttonText->color(), this);
 if ( !c.isValid() || c == buttonText->color())
@@ -910,7 +910,7 @@ if ( !c.isValid() || c == buttonText->color())
 buttonText->setColor(c);
 }
 
-void configDialog::pickHeaderColor()
+void ConfigDialog::pickHeaderColor()
 {
 QColor c = QColorDialog::getColor(buttonHeader->color(), this);
 if ( !c.isValid() || c == buttonHeader->color())
@@ -919,7 +919,7 @@ if ( !c.isValid() || c == buttonHeader->color())
 buttonHeader->setColor(c);
 }
 
-void configDialog::pickTextFont()
+void ConfigDialog::pickTextFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,textFont,this);
@@ -930,7 +930,7 @@ QFont font = QFontDialog::getFont(&ok,textFont,this);
     }
 }
 
-void configDialog::pickHeaderFont()
+void ConfigDialog::pickHeaderFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,headerFont,this);
@@ -941,7 +941,7 @@ QFont font = QFontDialog::getFont(&ok,headerFont,this);
     }
 }
 
-int configDialog::ticksType()
+int ConfigDialog::ticksType()
 {
 int ticks=-1;
 switch (boxTicks->currentItem())
@@ -964,7 +964,7 @@ switch (boxTicks->currentItem())
 return ticks;
 }
 
-void configDialog::pickLegendFont()
+void ConfigDialog::pickLegendFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,legendFont,this);
@@ -975,7 +975,7 @@ QFont font = QFontDialog::getFont(&ok,legendFont,this);
     }
 }
 
-void configDialog::pickAxesFont()
+void ConfigDialog::pickAxesFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,axesFont,this);
@@ -986,7 +986,7 @@ QFont font = QFontDialog::getFont(&ok,axesFont,this);
     }
 }
 
-void configDialog::pickNumbersFont()
+void ConfigDialog::pickNumbersFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,numbersFont,this);
@@ -997,7 +997,7 @@ QFont font = QFontDialog::getFont(&ok,numbersFont,this);
     }
 }
 
-void configDialog::pickTitleFont()
+void ConfigDialog::pickTitleFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,titleFont,this);
@@ -1007,7 +1007,7 @@ QFont font = QFontDialog::getFont(&ok,titleFont,this);
      	return;
 }
 
-void configDialog::pickApplicationFont()
+void ConfigDialog::pickApplicationFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok,appFont,this);
@@ -1017,7 +1017,7 @@ else
     return;
 }
 
-void configDialog::initCurvesOptions(int style, int width, int symbolSize)
+void ConfigDialog::initCurvesOptions(int style, int width, int symbolSize)
 {
 if (style == Graph::Line)
 	boxCurveStyle->setCurrentItem(0);
@@ -1042,7 +1042,7 @@ boxCurveLineWidth->setValue(width);
 boxSymbolSize->setValue(symbolSize);
 }
 
-void configDialog::pickPanelsTextColor()
+void ConfigDialog::pickPanelsTextColor()
 {
 QColor c = QColorDialog::getColor(btnPanelsText->color(), this);
 if ( !c.isValid() || c == btnPanelsText->color())
@@ -1051,7 +1051,7 @@ if ( !c.isValid() || c == btnPanelsText->color())
 btnPanelsText->setColor(c);
 }
 
-void configDialog::pickPanelsColor()
+void ConfigDialog::pickPanelsColor()
 {
 QColor c = QColorDialog::getColor(btnPanels->color(), this);
 if ( !c.isValid() || c == btnPanels->color())
@@ -1060,7 +1060,7 @@ if ( !c.isValid() || c == btnPanels->color())
 btnPanels->setColor(c);
 }
 
-void configDialog::pickWorkspaceColor()
+void ConfigDialog::pickWorkspaceColor()
 {
 QColor c = QColorDialog::getColor(btnWorkspace->color(), this);
 if ( !c.isValid() || c == btnWorkspace->color())
@@ -1069,7 +1069,7 @@ if ( !c.isValid() || c == btnWorkspace->color())
 btnWorkspace->setColor(c);
 }
 
-void configDialog::pickDataMaxColor()
+void ConfigDialog::pickDataMaxColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[0]), this );
 if ( !c.isValid() )
@@ -1078,7 +1078,7 @@ if ( !c.isValid() )
 plot3DColors[0] = c.name();
 }
 
-void configDialog::pickDataMinColor()
+void ConfigDialog::pickDataMinColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[4]), this );
 if ( !c.isValid() )
@@ -1087,7 +1087,7 @@ if ( !c.isValid() )
 plot3DColors[4] = c.name();
 }
 
-void configDialog::pick3DBackgroundColor()
+void ConfigDialog::pick3DBackgroundColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[7]), this );
 if ( !c.isValid() )
@@ -1096,7 +1096,7 @@ if ( !c.isValid() )
 plot3DColors[7] = c.name();
 }
 
-void configDialog::pickMeshColor()
+void ConfigDialog::pickMeshColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[2]), this );
 if ( !c.isValid() )
@@ -1105,7 +1105,7 @@ if ( !c.isValid() )
 plot3DColors[2] = c.name();
 }
 
-void configDialog::pickGridColor()
+void ConfigDialog::pickGridColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[3]), this );
 if ( !c.isValid() )
@@ -1114,7 +1114,7 @@ if ( !c.isValid() )
 plot3DColors[3] = c.name();
 }
 
-void configDialog::pick3DAxesColor()
+void ConfigDialog::pick3DAxesColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[6]), this );
 if ( !c.isValid() )
@@ -1123,7 +1123,7 @@ if ( !c.isValid() )
 plot3DColors[6] = c.name();
 }
 
-void configDialog::pick3DNumbersColor()
+void ConfigDialog::pick3DNumbersColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[5]), this );
 if ( !c.isValid() )
@@ -1132,7 +1132,7 @@ if ( !c.isValid() )
 plot3DColors[5] = c.name();
 }
 
-void configDialog::pick3DLabelsColor()
+void ConfigDialog::pick3DLabelsColor()
 {
 QColor c = QColorDialog::getColor(QColor(plot3DColors[1]), this );
 if ( !c.isValid() )
@@ -1141,7 +1141,7 @@ if ( !c.isValid() )
 plot3DColors[1] = c.name();
 }
 
-void configDialog::pick3DTitleFont()
+void ConfigDialog::pick3DTitleFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok, plot3DTitleFont,this);
@@ -1151,7 +1151,7 @@ else
 	return;
 }
 
-void configDialog::pick3DNumbersFont()
+void ConfigDialog::pick3DNumbersFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok, plot3DNumbersFont,this);
@@ -1161,7 +1161,7 @@ else
 	return;
 }
 
-void configDialog::pick3DAxesFont()
+void ConfigDialog::pick3DAxesFont()
 {
 bool ok;
 QFont font = QFontDialog::getFont(&ok, plot3DAxesFont,this);
@@ -1171,7 +1171,7 @@ else
 	return;
 }
 
-void configDialog::setColumnSeparator(const QString& sep)
+void ConfigDialog::setColumnSeparator(const QString& sep)
 {
 if (sep=="\t")
 	boxSeparator->setCurrentItem(0);
@@ -1196,14 +1196,14 @@ else
 	}
 }
 
-void configDialog::switchToLanguage(int param)
+void ConfigDialog::switchToLanguage(int param)
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 app->switchToLanguage(param);
 languageChange();
 }
 
-void configDialog::insertLanguagesList()
+void ConfigDialog::insertLanguagesList()
 {
 ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 QString qmPath = qApp->applicationDirPath() + "/translations";

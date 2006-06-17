@@ -38,13 +38,13 @@
 class Graph;
 	
 //! Function dialog
-class fDialog : public functionDialogui
+class FunctionDialog : public FunctionDialogUi
 {
     Q_OBJECT
 
 public:
-    fDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~fDialog();
+    FunctionDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~FunctionDialog();
 
 public slots:
 	void accept();

@@ -132,11 +132,11 @@ static const char * unchain_xpm[] = {
 ".+&@&#.",
 " ..... "};
 
-imageDialog::imageDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "imageDialog" );
+	setName( "ImageDialog" );
     setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
     setSizeGripEnabled( false );
 	
@@ -199,11 +199,11 @@ imageDialog::imageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-imageDialog::~imageDialog()
+ImageDialog::~ImageDialog()
 {
 }
 
-void imageDialog::languageChange()
+void ImageDialog::languageChange()
 {
     setWindowTitle( tr( "QtiPlot - Image Geometry" ) );
 	buttonApply->setText( tr( "&Apply" ) );
@@ -211,13 +211,13 @@ void imageDialog::languageChange()
 	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
-void imageDialog::setOrigin(const QPoint& o)
+void ImageDialog::setOrigin(const QPoint& o)
 {
 boxX->setValue(o.x());
 boxY->setValue(o.y());
 }
 
-void imageDialog::setSize(const QSize& size)
+void ImageDialog::setSize(const QSize& size)
 {
 boxWidth->setValue(size.width());
 boxHeight->setValue(size.height());
@@ -227,7 +227,7 @@ connect( boxWidth, SIGNAL( valueChanged ( int ) ), this, SLOT( adjustHeight(int)
 connect( boxHeight, SIGNAL( valueChanged ( int ) ), this, SLOT( adjustWidth(int) ) );
 }
 
-void imageDialog::adjustHeight(int width)
+void ImageDialog::adjustHeight(int width)
 {
 if (linkButton->isLocked())
 	{
@@ -239,7 +239,7 @@ else
 	aspect_ratio = (double)width/double(boxHeight->value());
 }
 
-void imageDialog::adjustWidth(int height)
+void ImageDialog::adjustWidth(int height)
 {
 if (linkButton->isLocked())
 	{
@@ -251,12 +251,12 @@ else
 	aspect_ratio = double(boxWidth->value())/(double)height;
 }
 
-void imageDialog::update()
+void ImageDialog::update()
 {
 emit options(boxX->value(),boxY->value(),boxWidth->value(),boxHeight->value());
 }
 
-void imageDialog::accept()
+void ImageDialog::accept()
 {
 emit options(boxX->value(),boxY->value(),boxWidth->value(),boxHeight->value());
 close();

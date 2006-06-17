@@ -42,13 +42,13 @@ class Graph;
 class ColorBox;
 
 //! Fit polynomial dialog
-class polynomFitDialog : public QDialog
+class PolynomFitDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    polynomFitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~polynomFitDialog();
+    PolynomFitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~PolynomFitDialog();
 
 	QPushButton* buttonFit;
 	QPushButton* buttonCancel;

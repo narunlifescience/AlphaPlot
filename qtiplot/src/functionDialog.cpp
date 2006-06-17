@@ -43,11 +43,11 @@
 //Added by qt3to4:
 #include <Q3ValueList>
 
-fDialog::fDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : functionDialogui( parent, name, modal, fl )
+FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+    : FunctionDialogUi( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "fDialog" );
+	setName( "FunctionDialog" );
 
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
@@ -58,7 +58,7 @@ fDialog::fDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 	graph = 0;
 }
 
-void fDialog::setCurveToModify(const QString& s, int curve)
+void FunctionDialog::setCurveToModify(const QString& s, int curve)
 {
 curveID = curve;
 
@@ -123,7 +123,7 @@ else if (equations == 2 && !s.contains("Theta"))
 	}
 }
 
-void fDialog::clearList()
+void FunctionDialog::clearList()
 {
 int type=boxType->currentItem();
 switch (type)
@@ -147,7 +147,7 @@ switch (type)
 	}
 }
 
-void fDialog::acceptFunction()
+void FunctionDialog::acceptFunction()
 {
 QString from=boxFrom->text().lower();
 QString to=boxTo->text().lower();
@@ -156,7 +156,7 @@ QString points=boxPoints->text().lower();
 double start, end;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(from.ascii());
 	start=parser.Eval();
 	}
@@ -168,7 +168,7 @@ catch(mu::ParserError &e)
 	}	
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(to.ascii());
 	end=parser.Eval();
 	}
@@ -193,7 +193,7 @@ if (start>=end)
 
 	try
 		{
-		myParser parser;	
+		MyParser parser;	
 		parser.DefineVar("x", &x);	
 		parser.SetExpr(formula.ascii());
 		
@@ -238,7 +238,7 @@ if (start>=end)
 		}		
 
 }
-void fDialog::acceptParametric()
+void FunctionDialog::acceptParametric()
 {
 QString from=boxParFrom->text().lower();
 QString to=boxParTo->text().lower();
@@ -247,7 +247,7 @@ QString points=boxParPoints->text().lower();
 double start, end;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(from.ascii());
 	start=parser.Eval();
 	}
@@ -260,7 +260,7 @@ catch(mu::ParserError &e)
 
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(to.ascii());
 	end=parser.Eval();
 	}
@@ -286,7 +286,7 @@ if (start>=end)
 
 	try
 		{
-		myParser parser;				
+		MyParser parser;				
 		parser.DefineVar((boxParameter->text()).ascii(), &parameter);	
 		parser.SetExpr(xformula.ascii());
 		
@@ -303,7 +303,7 @@ if (start>=end)
 		}	
 	try
 		{
-		myParser parser;				
+		MyParser parser;				
 		parser.DefineVar((boxParameter->text()).ascii(), &parameter);	
 		parser.SetExpr(yformula.ascii());
 		
@@ -348,7 +348,7 @@ if (start>=end)
 		}
 }
 
-void fDialog::acceptPolar()
+void FunctionDialog::acceptPolar()
 {
 QString from=boxPolarFrom->text().lower();
 QString to=boxPolarTo->text().lower();
@@ -357,7 +357,7 @@ QString points=boxPolarPoints->text().lower();
 double start, end;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(from.ascii());
 	start=parser.Eval();
 	}
@@ -370,7 +370,7 @@ catch(mu::ParserError &e)
 
 try
 	{
-	myParser parser;	
+	MyParser parser;	
 	parser.SetExpr(to.ascii());
 	end=parser.Eval();
 	}
@@ -396,7 +396,7 @@ if (start>=end)
 
 	try
 		{
-		myParser parser;				
+		MyParser parser;				
 		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);	
 		parser.SetExpr(rformula.ascii());
 		
@@ -413,7 +413,7 @@ if (start>=end)
 		}	
 	try
 		{
-		myParser parser;				
+		MyParser parser;				
 		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);	
 		parser.SetExpr(tformula.ascii());
 		
@@ -458,7 +458,7 @@ if (start>=end)
 		}
 }
 
-void fDialog::accept()
+void FunctionDialog::accept()
 {
 int type=boxType->currentItem();
 switch (type)
@@ -477,23 +477,23 @@ switch (type)
 	}
 }
 
-void fDialog::insertFunctionsList(const QStringList& list)
+void FunctionDialog::insertFunctionsList(const QStringList& list)
 {
 boxFunction->insertStringList (list, 1);
 }
 
-void fDialog::insertParamFunctionsList(const QStringList& xList, const QStringList& yList)
+void FunctionDialog::insertParamFunctionsList(const QStringList& xList, const QStringList& yList)
 {
 boxXFunction->insertStringList (xList, 1);
 boxYFunction->insertStringList (yList, 1);
 }
 
-void fDialog::insertPolarFunctionsList(const QStringList& rList, const QStringList& tetaList)
+void FunctionDialog::insertPolarFunctionsList(const QStringList& rList, const QStringList& tetaList)
 {
 boxPolarRadius->insertStringList (rList, 1);
 boxPolarTheta->insertStringList (tetaList, 1);	
 }
 
-fDialog::~fDialog()
+FunctionDialog::~FunctionDialog()
 {
 }

@@ -47,13 +47,13 @@ class QLabel;
 class Table;
 	
 //! Set column values dialog
-class setColValuesDialog : public QDialog
+class SetColValuesDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    setColValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~setColValuesDialog();
+    SetColValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~SetColValuesDialog();
 	
 	QSize sizeHint() const ;
 

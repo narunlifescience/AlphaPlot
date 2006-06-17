@@ -60,11 +60,11 @@
 
 #include <stdio.h> 
 
-fitDialog::fitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 if ( !name )
-	setName( "fitDialog" );
+	setName( "FitDialog" );
 setWindowTitle(tr("QtiPlot - Nonlinear curve fit"));
 setSizeGripEnabled( true );
 	
@@ -88,7 +88,7 @@ funcBox->setCurrentItem(0);
 loadPlugins();
 }
 
-void fitDialog::initFitPage()
+void FitDialog::initFitPage()
 {
 fitPage = new QWidget( tw, "fitPage" );
 Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), fitPage,"GroupBox1" );
@@ -176,7 +176,7 @@ connect( btnDeleteTables, SIGNAL( clicked() ), (ApplicationWindow *)this->parent
 setFocusProxy(boxFunction);
 }
 
-void fitDialog::initEditPage()
+void FitDialog::initEditPage()
 {
 editPage = new QWidget( tw, "editPage" );
 
@@ -271,7 +271,7 @@ connect( btnAddFunc, SIGNAL(clicked()), this, SLOT(saveUserFunction()));
 connect( btnDelFunc, SIGNAL(clicked()), this, SLOT(removeUserFunction()));
 }
 
-void fitDialog::setGraph(Graph *g)
+void FitDialog::setGraph(Graph *g)
 {
 if (!g)
 	return;
@@ -293,7 +293,7 @@ connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void fitDialog::activateCurve(int index)
+void FitDialog::activateCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
 if (!c)
@@ -313,7 +313,7 @@ else
 	}
 };
 
-void fitDialog::saveUserFunction()
+void FitDialog::saveUserFunction()
 {
 if (editBox->text().isEmpty())
 	{
@@ -382,7 +382,7 @@ else
 emit saveFunctionsList(userFunctions);
 }
 
-void fitDialog::removeUserFunction()
+void FitDialog::removeUserFunction()
 {
 QString name = funcBox->currentText();
 if (userFunctionNames.contains(name))
@@ -409,7 +409,7 @@ if (userFunctionNames.contains(name))
 	}
 }
 
-void fitDialog::showFitPage()
+void FitDialog::showFitPage()
 {
 QString par = boxParam->text().simplifyWhiteSpace();
 QStringList paramList = QStringList::split(QRegExp("[,;]+[\\s]*"), par, false);
@@ -443,12 +443,12 @@ lblFunction->setText(boxName->text() +"(x, " + par + ")");
 tw->raiseWidget(fitPage);
 }
 
-void fitDialog::showEditPage()
+void FitDialog::showEditPage()
 {
 tw->raiseWidget(editPage);
 }
 
-void fitDialog::setFunction(bool ok)
+void FitDialog::setFunction(bool ok)
 {
 editBox->setEnabled(!ok);
 boxParam->setEnabled(!ok);
@@ -497,7 +497,7 @@ if (ok)
 	}
 }
 
-void fitDialog::clearList()
+void FitDialog::clearList()
 {
 userFunctions.clear();
 userFunctionNames.clear();
@@ -509,7 +509,7 @@ if (categoryBox->currentItem() == 0)
 emit clearFunctionsList();
 }
 
-void fitDialog::insertFunctionsList(const QStringList& list)
+void FitDialog::insertFunctionsList(const QStringList& list)
 {
 if (!list.count())
 	{
@@ -530,7 +530,7 @@ for (int i = 0; i<(int)list.count(); i++)
 	}
 }
 
-void fitDialog::showFunctionsList(int category)
+void FitDialog::showFunctionsList(int category)
 {
 boxUseBuiltIn->setChecked(false);
 boxUseBuiltIn->setEnabled(false);
@@ -580,7 +580,7 @@ funcBox->setCurrentItem(0);
 showExpression(0);
 }
 
-void fitDialog::choosePluginsFolder()
+void FitDialog::choosePluginsFolder()
 {
 ApplicationWindow *app = (ApplicationWindow *)this->parent();
 QString dir = Q3FileDialog::getExistingDirectory(QDir::currentDirPath(), this, "get directory",
@@ -609,7 +609,7 @@ if (!dir.isEmpty())
 	}
 }
 
-void fitDialog::loadPlugins()
+void FitDialog::loadPlugins()
 {
 typedef char* (*fitFunc)();
 
@@ -637,18 +637,18 @@ for (int i=0; i<(int)lst.count(); i++)
 	}
 }
 
-void fitDialog::showUserFunctions()
+void FitDialog::showUserFunctions()
 {
 funcBox->insertStringList (userFunctionNames, 1);
 }
 
-void fitDialog::setBuiltInFunctionNames()
+void FitDialog::setBuiltInFunctionNames()
 {
 builtInFunctionNames << "Boltzmann" << "ExpGrowth" << "ExpDecay1" << "ExpDecay2" << "ExpDecay3" 
 << "Gauss" << "Lorentz";
 }
 
-void fitDialog::setBuiltInFunctions()
+void FitDialog::setBuiltInFunctions()
 {
 builtInFunctions << "(A1-A2)/(1+exp((x-x0)/dx))+A2";
 builtInFunctions << "y0+a*exp(x/t)";
@@ -659,16 +659,16 @@ builtInFunctions << "y0+a*exp(-(x-xc)*(x-xc)/(2*w*w))";
 builtInFunctions << "y0+2*a/pi*w/(4*(x-xc)*(x-xc)+w*w)";
 }
 
-void fitDialog::showParseFunctions()
+void FitDialog::showParseFunctions()
 {
-funcBox->insertStringList(myParser::functionsList(), -1);
+funcBox->insertStringList(MyParser::functionsList(), -1);
 }
 
-void fitDialog::showExpression(int function)
+void FitDialog::showExpression(int function)
 {
 if (categoryBox->currentItem() == 2)
 	{
-	explainBox->setText(myParser::explainFunction(function));
+	explainBox->setText(MyParser::explainFunction(function));
 	}
 else if (categoryBox->currentItem() == 1)
 	{
@@ -693,7 +693,7 @@ else if (categoryBox->currentItem() == 3)
 	}
 }
 
-void fitDialog::addFunction()
+void FitDialog::addFunction()
 {
 QString f = explainBox->text();
 if (categoryBox->currentItem() == 2)
@@ -713,13 +713,13 @@ else
 editBox->setFocus();
 }
 
-void fitDialog::addFunctionName()
+void FitDialog::addFunctionName()
 {
 editBox->insert(funcBox->currentText());
 editBox->setFocus();
 }
 
-void fitDialog::accept()
+void FitDialog::accept()
 {
 QString curve = boxCurve->currentText();
 QStringList curvesList = graph->curvesList();
@@ -741,7 +741,7 @@ QString tolerance=boxTolerance->text().lower();
 double start,end,eps;
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(from.ascii());
 	start=parser.Eval();
 	}
@@ -754,7 +754,7 @@ catch(mu::ParserError &e)
 
 try
 	{
-	myParser parser;	
+	MyParser parser;	
 	parser.SetExpr(to.ascii());
 	end=parser.Eval();
 	}
@@ -775,7 +775,7 @@ if (start>=end)
 	
 try
 	{
-	myParser parser;
+	MyParser parser;
 	parser.SetExpr(tolerance.ascii());
 	eps=parser.Eval();
 	}
@@ -808,7 +808,7 @@ else
 	n=rows;
 	
 QStringList parameters, initialValues;
-myParser parser;
+MyParser parser;
 bool error=false;
 QString formula = boxFunction->text();
 try
@@ -918,7 +918,7 @@ if (!error)
 	}
 }
 
-QString fitDialog::fitBuiltInFunction(const QString& curve, const QString& function, 
+QString FitDialog::fitBuiltInFunction(const QString& curve, const QString& function, 
 								   const QStringList& initialValues, double from,
 								   double to, int iterations, int solver,
 								   double tolerance, int colorIndex)
@@ -992,7 +992,7 @@ else if (function == "Lorentz")
 return result;
 }
 
-bool fitDialog::containsUserFunctionName(const QString& s)
+bool FitDialog::containsUserFunctionName(const QString& s)
 {
 bool contains = false;
 for (int i=0; i<(int)userFunctionNames.count(); i++)
@@ -1006,7 +1006,7 @@ for (int i=0; i<(int)userFunctionNames.count(); i++)
 return contains;
 }
 
-bool fitDialog::validInitialValues()
+bool FitDialog::validInitialValues()
 {
 for (int i=0; i<boxParams->numRows(); i++)
 	{
@@ -1020,7 +1020,7 @@ for (int i=0; i<boxParams->numRows(); i++)
 
 	try 
 		{
-		myParser parser;
+		MyParser parser;
 		parser.SetExpr(boxParams->text(i,1).ascii());
 		parser.Eval();
 		}
@@ -1034,7 +1034,7 @@ for (int i=0; i<boxParams->numRows(); i++)
 return true;
 }
 
-void fitDialog::changeDataRange()
+void FitDialog::changeDataRange()
 {
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();
@@ -1042,6 +1042,6 @@ boxFrom->setText(QString::number(QMIN(start, end), 'g', 15));
 boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
 }
 
-fitDialog::~fitDialog()
+FitDialog::~FitDialog()
 {
 }

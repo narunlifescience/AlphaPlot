@@ -45,11 +45,11 @@
 #include <QEvent>
 #include <Q3VBoxLayout>
 
-associationsDialog::associationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-		setName( "associationsDialog" );
+		setName( "AssociationsDialog" );
 
     setWindowTitle( tr( "QtiPlot - Plot Associations" ) );
 	setFocus();
@@ -107,13 +107,13 @@ connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
 connect(btnApply, SIGNAL(clicked()),this, SLOT(updateCurve()));
 }
 
-void associationsDialog::accept()
+void AssociationsDialog::accept()
 {
 updateCurve();
 close();
 }
 
-void associationsDialog::updateCurve()
+void AssociationsDialog::updateCurve()
 {
 int index = associations->currentItem();
 Table *t = findTable(index);
@@ -125,7 +125,7 @@ if (t && graph)
 }
 
 
-QString associationsDialog::plotAssociation(const QString& text)
+QString AssociationsDialog::plotAssociation(const QString& text)
 {
 QString s = text;
 QStringList lst= QStringList::split(": ", s, false);
@@ -138,14 +138,14 @@ for (int i=1; i < (int)cols.count(); i++ )
 return s;
 }
 
-void associationsDialog::initTablesList(QWidgetList* lst, int curve)
+void AssociationsDialog::initTablesList(QWidgetList* lst, int curve)
 {
 tables = lst;
 active_table = 0;
 associations->setCurrentItem(curve);
 }
 
-Table * associationsDialog::findTable(int index)
+Table * AssociationsDialog::findTable(int index)
 {
 QString text = associations->text(index);
 QStringList lst= QStringList::split(":", text, false);
@@ -157,7 +157,7 @@ for (int i=0; i < (int)tables->count(); i++ )
 return 0;
 }
 
-void associationsDialog::updateTable(int index)
+void AssociationsDialog::updateTable(int index)
 {
 Table *t = findTable(index);
 if (!t)
@@ -188,7 +188,7 @@ if (active_table != t)
 updateColumnTypes();
 }
 
-void associationsDialog::updateColumnTypes()
+void AssociationsDialog::updateColumnTypes()
 {
 QString text = associations->currentText();
 
@@ -282,7 +282,7 @@ for (i=0; i < table->numRows(); i++ )
 	}
 }
 
-void associationsDialog::uncheckCol(int col)
+void AssociationsDialog::uncheckCol(int col)
 {
 for (int i=0; i < table->numRows(); i++ )
 	{
@@ -292,7 +292,7 @@ for (int i=0; i < table->numRows(); i++ )
 	}
 }
 
-void associationsDialog::setGraph(Graph *g)
+void AssociationsDialog::setGraph(Graph *g)
 {
 graph = g;
 
@@ -315,7 +315,7 @@ associations->insertStringList(newNames, -1);
 plotAssociationsList = newNames;
 }
 
-void associationsDialog::updatePlotAssociation(int row, int col)
+void AssociationsDialog::updatePlotAssociation(int row, int col)
 {
 int index = associations->currentItem();
 QString text = associations->currentText();
@@ -380,7 +380,7 @@ associations->insertStringList(plotAssociationsList, -1);
 associations->setCurrentItem (index);
 }
 
-bool associationsDialog::eventFilter(QObject *object, QEvent *e)
+bool AssociationsDialog::eventFilter(QObject *object, QEvent *e)
 {
 Q3TableItem* it = (Q3TableItem*)object;
 if (!it)
@@ -418,7 +418,7 @@ else
 	return false;
 }
 
-associationsDialog::~associationsDialog()
+AssociationsDialog::~AssociationsDialog()
 {
 delete tables;
 }

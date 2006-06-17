@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef configDialog_H
-#define configDialog_H
+#ifndef ConfigDialog_H
+#define ConfigDialog_H
 
 #include <qvariant.h>
 #include <qdialog.h>
@@ -49,13 +49,13 @@ class ColorButton;
 class Q3GroupBox;
 	
 //! Configuration dialog
-class configDialog : public QDialog
+class ConfigDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    configDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~configDialog();
+    ConfigDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~ConfigDialog();
 
 	void initPlotsPage();
 	void initAppPage();
@@ -148,4 +148,4 @@ private:
 	QStringList plot3DColors;
 };
 
-#endif // configDialog_H
+#endif // ConfigDialog_H

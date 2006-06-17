@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef associationsDialog_H
-#define associationsDialog_H
+#ifndef ASSOCIATIONSDIALOG_H
+#define ASSOCIATIONSDIALOG_H
 
 #include <qvariant.h>
 #include <qdialog.h>
@@ -46,13 +46,13 @@ class Table;
 class Graph;
 
 //! Plot associations dialog
-class associationsDialog : public QDialog
+class AssociationsDialog : public QDialog
 { 
     Q_OBJECT
 
 public:
-    associationsDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~associationsDialog();
+    AssociationsDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~AssociationsDialog();
 
 
 	QLabel* tableCaptionLabel;
@@ -81,4 +81,4 @@ private:
 	QStringList plotAssociationsList;
 };
 
-#endif // associationsDialog_H
+#endif // ASSOCIATIONSDIALOG_H

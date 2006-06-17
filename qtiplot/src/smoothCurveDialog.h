@@ -39,13 +39,13 @@ class Graph;
 class ColorBox;
 	
 //! Smoothing options dialog
-class smoothCurveDialog : public QDialog
+class SmoothCurveDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    smoothCurveDialog(int method, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~smoothCurveDialog();
+    SmoothCurveDialog(int method, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    ~SmoothCurveDialog();
 
 	enum SmoothType{SavitzkyGolay = 1, FFT = 2, Average = 3};
 
