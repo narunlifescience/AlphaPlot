@@ -42,8 +42,7 @@
 
 #include <QMainWindow>
 
-#include "graph3D.h"
-#include "plot3DDialog.h"
+#include "worksheet.h"
 
 #include <QHttp> 
 #include <QFile> 
@@ -72,6 +71,8 @@ class FunctionDialog;
 class Folder;
 class FolderListItem;
 class FolderListView;
+class Plot3DDialog;
+class MyWidget;
 
 //! QtiPlot's main window
 class ApplicationWindow: public QMainWindow

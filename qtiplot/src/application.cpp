@@ -75,6 +75,7 @@
 #include "note.h"
 #include "folder.h"
 #include "findDialog.h"
+#include "widget.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -3187,11 +3188,12 @@ void ApplicationWindow::updateCurves(const QString& name)
 
 void ApplicationWindow::showPreferencesDialog()
 {
-	ConfigDialog* cd= new ConfigDialog(this,"ConfigDialog",true,0);
+	ConfigDialog* cd= new ConfigDialog(this);
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(separator);
 	cd->initCurvesOptions(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);	
 	cd->exec();
+	// TODO: this probably won't be necessary anymore when the Qt4 port is stable
 	saveSettings();
 }
 

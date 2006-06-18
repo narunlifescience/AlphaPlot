@@ -29,24 +29,22 @@
 #ifndef ConfigDialog_H
 #define ConfigDialog_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-#include <q3hbox.h> 
-#include <qlayout.h>
-//Added by qt3to4:
-#include <QLabel>
+#include <QDialog>
 
-class Q3ButtonGroup;
+class QGroupBox;
 class QPushButton;
-class Q3WidgetStack;
+class QTabWidget;
+class QStackedWidget;
 class QWidget;
 class QCheckBox;
 class QComboBox;
 class QSpinBox;
-class Q3ListBox;
 class QLabel;
 class ColorButton;
-class Q3GroupBox;
+class QListWidget;
+
+// uncomment this to make this a tab dialog
+//#define TABBED_CONFIG_DIALOG
 	
 //! Configuration dialog
 class ConfigDialog : public QDialog
@@ -54,14 +52,14 @@ class ConfigDialog : public QDialog
     Q_OBJECT
 
 public:
-    ConfigDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+	//! Constructor
+	/**
+	 * \param parent parent widget (must be the application window!=
+	 * \param fl window flags
+	 */
+    ConfigDialog( QWidget* parent, Qt::WFlags fl = 0 );
+	//! Destructor
     ~ConfigDialog();
-
-	void initPlotsPage();
-	void initAppPage();
-	void initCurvesPage();
-	void initPlots3DPage();
-	void initTablesPage();
 
 	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
 	QPushButton *btnFromColor, *btnToColor, *btnGrid;
@@ -70,26 +68,33 @@ public:
 	ColorButton *buttonBackground, *buttonText, *buttonHeader;
     QPushButton *buttonOk, *buttonCancel, *buttonApply;
 	QPushButton* buttonTextFont, *buttonHeaderFont;
-    Q3ButtonGroup* GroupBox1, *GroupBox2, *GroupBox3;
-    Q3WidgetStack* generalDialog;
+#ifdef TABBED_CONFIG_DIALOG
+    QTabWidget * generalDialog;
+#else
+	QStackedWidget * generalDialog;
+#endif
 	QWidget *tables, *plots, *confirm, *application, *curves, *plots3D;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
 	QCheckBox* boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
-	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrixes, *boxScaleFonts, *boxResize;
+	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
 	QComboBox *boxLegend, *boxTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
-	QSpinBox *boxMinutes, *boxLinewidth, *boxFrameWidth, *boxResolution, *boxMargin;
+	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin;
 	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinorTicks, *boxMajorTicks;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
-	Q3ListBox *itemsList;
+#ifndef TABBED_CONFIG_DIALOG
+	QListWidget * itemsList;
+#else
+	QWidget * lastTab;
+#endif
 	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels;
 	QLabel *lblPanelsText, *lblFonts, *lblStyle;
-	Q3GroupBox *GroupBoxConfirm, *GroupBoxAppCol, *GroupBoxApp;
-	Q3GroupBox *GroupBoxTableFonts, *GroupBoxTableCol;
+	QGroupBox *groupBoxConfirm, *groupBoxAppCol, *groupBoxApp;
+	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
-	QLabel *lblSymbSize, *lblLineWidth, *lblCurveStyle, *lblResolution;
-	Q3GroupBox *GroupBox3DFonts, *GroupBox3DCol, *GroupBoxOptions, *GroupBox2DFonts;
-	QLabel *lblLegend, *lblMargin, *lblTicks, *lblMajTicks, *lblLinewidth, *lblMinTicks;
+	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution;
+	QGroupBox *groupBox3DFonts, *groupBox3DCol, *groupBoxOptions, *groupBox2DFonts;
+	QLabel *lblLegend, *lblMargin, *lblTicks, *lblMajTicks, *lblLineWidth, *lblMinTicks;
 
 public slots:
     virtual void languageChange();
@@ -143,6 +148,13 @@ public slots:
 	void switchToLanguage(int param);
 
 private:
+	void initPlotsPage();
+	void initAppPage();
+	void initCurvesPage();
+	void initPlots3DPage();
+	void initTablesPage();
+	void initConfirmationsPage();
+
 	QFont textFont, headerFont, axesFont, numbersFont, legendFont, titleFont, appFont;
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QStringList plot3DColors;
