@@ -2263,7 +2263,11 @@ void ApplicationWindow::polishGraph(Graph *g, int style)
 		QList<int> ticksList;
 		int ticksStyle = Plot::Out;
 		ticksList<<ticksStyle<<ticksStyle<<ticksStyle<<ticksStyle;
+		// TODO: replace this line ...
 		g->setTicksType(ticksList);
+		// ... with these
+		//g->setMajorTicksType(ticksList);
+		//g->setMinorTicksType(ticksList);
 	}
 	if (style == Graph::HorizontalBars)
 	{
@@ -2525,9 +2529,19 @@ void ApplicationWindow::customGraph(Graph* g)
 			g->updateSecondaryAxis(QwtPlot::yRight);
 		}
 
+		// TODO: replace these lines ...
 		QList<int> ticksList;
-		ticksList<<ticksStyle<<ticksStyle<<ticksStyle<<ticksStyle;
+		ticksList<<majTicksStyle<<majTicksStyle<<majTicksStyle<<majTicksStyle;
 		g->setTicksType(ticksList);
+
+		// ... with these
+		//QList<int> ticksList;
+		//ticksList<<majTicksStyle<<majTicksStyle<<majTicksStyle<<majTicksStyle;
+		//g->setMajorTicksType(ticksList);
+		//ticksList.clear();
+		//ticksList<<minTicksStyle<<minTicksStyle<<minTicksStyle<<minTicksStyle;
+		//g->setMinorTicksType(ticksList);
+
 		g->setTicksLength (minTicksLength, majTicksLength);
 		g->setAxesLinewidth(axesLineWidth);
 		g->drawAxesBackbones(drawBackbones);
@@ -3191,10 +3205,7 @@ void ApplicationWindow::showPreferencesDialog()
 	ConfigDialog* cd= new ConfigDialog(this);
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(separator);
-	cd->initCurvesOptions(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);	
 	cd->exec();
-	// TODO: this probably won't be necessary anymore when the Qt4 port is stable
-	saveSettings();
 }
 
 void ApplicationWindow::setSaveSettings(bool autoSaving, int min)
@@ -4107,6 +4118,7 @@ void ApplicationWindow::readSettings()
 #endif
 
 	settings.beginGroup("/QtiPlot");
+	autoSearchUpdates = settings.value("/autoSearchUpdates", QVariant(true)).toBool();
 	askForSupport = settings.value("/askForSupport", QVariant(true)).toBool();
 	appLanguage = settings.value("/appLanguage", "en").toString();
 	workingDir=settings.value("/workingDir", qApp->applicationDirPath()).toString();
@@ -4145,7 +4157,8 @@ void ApplicationWindow::readSettings()
 	defaultCurveLineWidth = settings.value("/defaultCurveLineWidth", 1).toInt();
 	defaultSymbolSize = settings.value("/defaultSymbolSize", 7).toInt();
 
-	ticksStyle=settings.value("/ticksStyle", Plot::Out).toInt();
+	majTicksStyle=settings.value("/majTicksStyle", Plot::Out).toInt();
+	minTicksStyle=settings.value("/minTicksStyle", Plot::Out).toInt();
 	minTicksLength=settings.value("/minTicksLength", 5).toInt();
 	majTicksLength=settings.value("/majTicksLength", 9).toInt();
 
@@ -4357,6 +4370,7 @@ void ApplicationWindow::saveSettings()
 #endif
 
 	settings.beginGroup("/QtiPlot");
+	settings.setValue("/autoSearchUpdates", autoSearchUpdates);
 	settings.setValue("/askForSupport", askForSupport);
 	settings.setValue("/appLanguage", appLanguage);
 	settings.setValue("/workingDir", workingDir);
@@ -4388,7 +4402,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/defaultCurveLineWidth", defaultCurveLineWidth);
 	settings.setValue("/defaultSymbolSize", defaultSymbolSize);
 
-	settings.setValue("/ticksStyle", ticksStyle);
+	settings.setValue("/majTicksStyle", majTicksStyle);
+	settings.setValue("/minTicksStyle", minTicksStyle);
 	settings.setValue("/minTicksLength", minTicksLength);
 	settings.setValue("/majTicksLength", majTicksLength);
 

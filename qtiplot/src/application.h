@@ -758,11 +758,11 @@ public:
 	QString versionSuffix;
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
-	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport;
+	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport, autoSearchUpdates;
 	bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D, confirmClosePlot3D;
 	bool confirmCloseFolder, confirmCloseNotes;
 	bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn, autoscale2DPlots;
-	int ticksStyle, legendFrameStyle, autoSaveTime, axesLineWidth, canvasFrameWidth;
+	int majTicksStyle, minTicksStyle, legendFrameStyle, autoSaveTime, axesLineWidth, canvasFrameWidth;
 	int majTicksLength, minTicksLength, defaultPlotMargin;
 	int defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize;
 	QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;

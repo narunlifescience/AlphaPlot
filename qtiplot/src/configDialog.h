@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Configuration dialog
+    Description          : Preferences dialog
                            
  ***************************************************************************/
 
@@ -43,10 +43,7 @@ class QLabel;
 class ColorButton;
 class QListWidget;
 
-// uncomment this to make this a tab dialog
-//#define TABBED_CONFIG_DIALOG
-	
-//! Configuration dialog
+//! Preferences dialog
 class ConfigDialog : public QDialog
 {
     Q_OBJECT
@@ -61,6 +58,8 @@ public:
 	//! Destructor
     ~ConfigDialog();
 
+	QTabWidget *plotsTabWidget, *appTabWidget;
+
 	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
 	QPushButton *btnFromColor, *btnToColor, *btnGrid;
 	QPushButton	*btnTitleFnt, *btnLabelsFnt, *btnNumFnt;
@@ -68,33 +67,26 @@ public:
 	ColorButton *buttonBackground, *buttonText, *buttonHeader;
     QPushButton *buttonOk, *buttonCancel, *buttonApply;
 	QPushButton* buttonTextFont, *buttonHeaderFont;
-#ifdef TABBED_CONFIG_DIALOG
-    QTabWidget * generalDialog;
-#else
 	QStackedWidget * generalDialog;
-#endif
-	QWidget *tables, *plots, *confirm, *application, *curves, *plots3D;
+	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm, *application, *curves, *plots3D;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
-	QCheckBox* boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
+	QCheckBox *boxSearchUpdates;
+	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
-	QComboBox *boxLegend, *boxTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
+	QComboBox *boxLegend, *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
 	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin;
-	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinorTicks, *boxMajorTicks;
+	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
-#ifndef TABBED_CONFIG_DIALOG
 	QListWidget * itemsList;
-#else
-	QWidget * lastTab;
-#endif
-	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels;
+	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
 	QLabel *lblPanelsText, *lblFonts, *lblStyle;
-	QGroupBox *groupBoxConfirm, *groupBoxAppCol, *groupBoxApp;
+	QGroupBox *groupBoxConfirm;
 	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
 	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution;
-	QGroupBox *groupBox3DFonts, *groupBox3DCol, *groupBoxOptions, *groupBox2DFonts;
-	QLabel *lblLegend, *lblMargin, *lblTicks, *lblMajTicks, *lblLineWidth, *lblMinTicks;
+	QGroupBox *groupBox3DFonts, *groupBox3DCol;
+	QLabel *lblLegend, *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength;
 
 public slots:
     virtual void languageChange();
@@ -103,6 +95,7 @@ public slots:
 	void accept();
 	void update();
 
+	void setCurrentPage(int index);
 	void setColumnSeparator(const QString& sep);
 	//table colors
 	void pickBgColor();
@@ -120,7 +113,6 @@ public slots:
 	void pickTitleFont();
 
 	void enableScaleFonts();
-	int ticksType();
 	void showFrameWidth(bool ok);
 
 	//application
@@ -131,7 +123,6 @@ public slots:
 	
 	//2D curves
 	int curveStyle();
-	void initCurvesOptions(int style, int width, int symbolSize);
 
 	void pickDataMaxColor();
 	void pickDataMinColor();
@@ -160,4 +151,4 @@ private:
 	QStringList plot3DColors;
 };
 
-#endif // ConfigDialog_H
+#endif // CONFIGDIALOG_H

@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Configuration dialog
+    Description          : Preferences dialog
                            
  ***************************************************************************/
 
@@ -30,6 +30,7 @@
 #include "application.h"
 #include "graph.h"
 #include "colorButton.h"
+#include "pixmaps.h"
 
 
 #include <QPushButton>
@@ -57,187 +58,6 @@
 #include <QListWidget>
 #include <QFontMetrics>
 
-static const char * dropLines_xpm[] = {
-"16 16 3 1",
-" 	c None",
-".	c #000000",
-"+	c #CC3737",
-"                ",
-"  .     +++     ",
-"  .     +++     ",
-" ..     +++     ",
-"  .      .      ",
-"  . +++  .      ",
-" .. +++  .  +++ ",
-"  . +++  .  +++ ",
-"  .  .   .  +++ ",
-" ..  .   .   .  ",
-"  .  .   .   .  ",
-"  .  .   .   .  ",
-" ..  .   .   .  ",
-"  .  .   .   .  ",
-"  ..............",
-"    .  .  .  .  "};
-
-static const char * spline_xpm[] = {
-"17 13 2 1",
-" 	c None",
-".	c #000000",
-"                 ",
-"           ..    ",
-"            ..   ",
-"          .   .  ",
-"  ..      .   .  ",
-"   .     .    .  ",
-"  .      ..    . ",
-"  .      .    .. ",
-"  .     .        ",
-"   .    .        ",
-"   ..  ..        ",
-"     ..          ",
-"                 "};
-
-static const char * steps_xpm[] = {
-"16 16 2 1",
-" 	c None",
-".	c #050404",
-"                ",
-"                ",
-"     ....       ",
-"     .  .     ..",
-" ..  .  .     . ",
-"  .  .  . ... . ",
-"  .  .  . . . . ",
-"  .  .  . . . . ",
-"  ....  . . ... ",
-"        . .     ",
-"        . .     ",
-"        . .     ",
-"        . .     ",
-"        ...     ",
-"                ",
-"                "};
-
-static const char *pPlot_xpm[]={
-"13 13 2 1",
-". c None",
-"# c #000000",
-"..........###",
-"..........###",
-"..........###",
-".............",
-".............",
-".....###.....",
-".....###.....",
-".....###.....",
-".............",
-".............",
-"###..........",
-"###..........",
-"###.........."};
-
-
-static const char *lpPlot_xpm[]={
-"13 13 2 1",
-". c None",
-"# c #000000",
-"..........###",
-"..........###",
-"..........###",
-".........#...",
-"........#....",
-".....###.....",
-".....###.....",
-".....###.....",
-"....#........",
-"...#.........",
-"###..........",
-"###..........",
-"###.........."};
-
-static const char *lPlot_xpm[]={
-"14 14 2 1",
-". c None",
-"# c #000000",
-".............#",
-"............#.",
-"...........#..",
-"..........#...",
-".........#....",
-"........#.....",
-".......#......",
-"......#.......",
-".....#........",
-"....#.........",
-"...#..........",
-"..#...........",
-".#............",
-"#............."};
-
-static const char * area_xpm[] = {
-"16 15 4 1",
-" 	c None",
-".	c #00FF00",
-"+	c #FF0000",
-"@	c #000000",
-"   .        .   ",
-"  ...      ...  ",
-" .....    ..... ",
-" ......  .......",
-"................",
-"++.....++++....+",
-"+++...++++++..++",
-"+++++++++@@+++++",
-"+++@@+++@@@@++++",
-"++@@@@+@@@@@@+++",
-"+@@@@@@@@@@@@+++",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@"};
-
-static const char * hBars_xpm[] = {
-"15 15 3 1",
-" 	c None",
-".	c #000000",
-"+	c #FF0000",
-"...........    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"...........    ",
-"...............",
-"++++++++++++++.",
-"++++++++++++++.",
-"++++++++++++++.",
-"...............",
-"...........    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"...........    "};
-
-static const char * vertBars_xpm[] = {
-"15 15 3 1",
-" 	c None",
-".	c #000000",
-"+	c #FF0000",
-"     .....     ",
-"     .+++.     ",
-"     .+++.     ",
-"     .+++.     ",
-"......+++......",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++."};
-
 ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
@@ -256,41 +76,45 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	titleFont = app->plotTitleFont;
 
 	// create the GUI
-#ifdef TABBED_CONFIG_DIALOG
-	generalDialog = new QTabWidget();
-#else
 	generalDialog = new QStackedWidget();
 	itemsList = new QListWidget();
-#endif
+	itemsList->setSpacing(3);
+	itemsList->setAlternatingRowColors( true );
+
 	initAppPage();
-	initConfirmationsPage();
 	initTablesPage();
 	initPlotsPage();
-	initCurvesPage();
 	initPlots3DPage();
-#ifdef TABBED_CONFIG_DIALOG
-	generalDialog->addTab(application,QString()); // the titles will be set in languageChange()
-	generalDialog->addTab(confirm,QString());
-	generalDialog->addTab(tables,QString());
-	generalDialog->addTab(plots,QString());
-	generalDialog->addTab(curves,QString());
-	generalDialog->addTab(plots3D,QString());
-	lastTab = application;
-#else
-	generalDialog->addWidget(application);
-	generalDialog->addWidget(confirm);
+
+	generalDialog->addWidget(appTabWidget);
 	generalDialog->addWidget(tables);
-	generalDialog->addWidget(plots);
-	generalDialog->addWidget(curves);
+	generalDialog->addWidget(plotsTabWidget);
 	generalDialog->addWidget(plots3D);
+
+	QVBoxLayout * rightLayout = new QVBoxLayout();
+	lblPageHeader = new QLabel();
+	QFont fnt = this->font();
+	fnt.setPointSize(fnt.pointSize() + 3);
+	fnt.setBold(true);
+	lblPageHeader->setFont(fnt);
+	lblPageHeader->setFont(fnt);
+    lblPageHeader->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+
+	QPalette pal = lblPageHeader->palette();
+	pal.setColor( QPalette::Window, app->panelsColor );
+	lblPageHeader->setPalette(pal);
+	lblPageHeader->setAutoFillBackground( true );
+
+	rightLayout->setSpacing(10);
+	rightLayout->addWidget( lblPageHeader );
+	rightLayout->addWidget( generalDialog );
 
 	QHBoxLayout * topLayout = new QHBoxLayout();
 	topLayout->setSpacing(5);
 	topLayout->setMargin(5);
 	topLayout->addWidget( itemsList );
-	topLayout->addWidget( generalDialog );
-#endif
-
+	topLayout->addLayout( rightLayout );
+	
 	QHBoxLayout * bottomButtons = new QHBoxLayout();
 
 	buttonApply = new QPushButton();
@@ -301,28 +125,21 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
     buttonOk->setAutoDefault( true );
     buttonOk->setDefault( true );
 	bottomButtons->addWidget( buttonOk );
-   
+  
+  	// TODO: make this a real cancel button
     buttonCancel = new QPushButton();
     buttonCancel->setAutoDefault( true );
 	bottomButtons->addWidget( buttonCancel );
 
 	QVBoxLayout * mainLayout = new QVBoxLayout( this ); 
-#ifdef TABBED_CONFIG_DIALOG
-    mainLayout->addWidget(generalDialog);
-#else
     mainLayout->addLayout(topLayout);
-#endif
 	mainLayout->addLayout(bottomButtons);
 
     languageChange();
    
     // signals and slots connections
-#ifdef TABBED_CONFIG_DIALOG
-	connect( generalDialog, SIGNAL(currentChanged(int)), this, SLOT(update()));
-#else
 	connect( itemsList, SIGNAL(currentRowChanged(int)), this, SLOT(update()));
-	connect( itemsList, SIGNAL(currentRowChanged(int)), generalDialog, SLOT(setCurrentIndex(int)));
-#endif
+	connect( itemsList, SIGNAL(currentRowChanged(int)), this, SLOT(setCurrentPage(int)));
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( update() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
@@ -331,6 +148,15 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	connect( buttonHeader, SIGNAL( clicked() ), this, SLOT( pickHeaderColor() ) );
 	connect( buttonTextFont, SIGNAL( clicked() ), this, SLOT( pickTextFont() ) );
 	connect( buttonHeaderFont, SIGNAL( clicked() ), this, SLOT( pickHeaderFont() ) );
+
+	setCurrentPage(0);
+}
+
+void ConfigDialog::setCurrentPage(int index)
+{
+	generalDialog->setCurrentIndex(index);
+	if(itemsList->currentItem())
+		lblPageHeader->setText(itemsList->currentItem()->text());
 }
 
 void ConfigDialog::initTablesPage()
@@ -379,18 +205,21 @@ void ConfigDialog::initTablesPage()
 	tablesPageLayout->addLayout(topLayout,1);
 	tablesPageLayout->addWidget(groupBoxTableCol);
 	tablesPageLayout->addWidget(groupBoxTableFonts);
+	tablesPageLayout->addStretch();
 }
 
 void ConfigDialog::initPlotsPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
-	plots = new QWidget();
+	
+	plotsTabWidget = new QTabWidget();
+	plotOptions = new QWidget();
 
-	QHBoxLayout * topLayout = new QHBoxLayout(); 
-	topLayout->setSpacing(5);
+	QVBoxLayout * optionsTabLayout = new QVBoxLayout( plotOptions ); 
+	optionsTabLayout->setSpacing(5);
 
-	groupBoxOptions = new QGroupBox();	
-	topLayout->addWidget( groupBoxOptions );
+	QGroupBox * groupBoxOptions = new QGroupBox();	
+	optionsTabLayout->addWidget( groupBoxOptions );
 
 	QGridLayout * optionsLayout = new QGridLayout( groupBoxOptions );
 
@@ -430,23 +259,81 @@ void ConfigDialog::initPlotsPage()
 		boxFrameWidth->hide();
 	}
 
+	lblAxesLineWidth = new QLabel();  
+	optionsLayout->addWidget( lblAxesLineWidth, 4, 0 );
+	boxLineWidth= new QSpinBox();
+	boxLineWidth->setRange(0, 100);
+	boxLineWidth->setValue(app->axesLineWidth);
+	optionsLayout->addWidget( boxLineWidth, 4, 1 );
+	
 	lblLegend = new QLabel(); 
-	optionsLayout->addWidget( lblLegend, 4, 0 );
+	optionsLayout->addWidget( lblLegend, 5, 0 );
 	boxLegend = new QComboBox();
-	optionsLayout->addWidget( boxLegend, 4, 1 );
+	optionsLayout->addWidget( boxLegend, 5, 1 );
 
 	lblMargin = new QLabel(); 
-	optionsLayout->addWidget( lblMargin, 5, 0 );
+	optionsLayout->addWidget( lblMargin, 6, 0 );
 	boxMargin= new QSpinBox();
 	boxMargin->setRange(0, 1000);
 	boxMargin->setSingleStep(5);
 	boxMargin->setValue(app->defaultPlotMargin);
-	optionsLayout->addWidget( boxMargin, 5, 1 );
+	optionsLayout->addWidget( boxMargin, 6, 1 );
 
-	optionsLayout->setRowStretch( 6, 1 );
+	optionsLayout->setRowStretch( 7, 1 );
 
-	groupBox2DFonts = new QGroupBox();
-	topLayout->addWidget( groupBox2DFonts );
+	boxResize = new QCheckBox();
+	boxResize->setChecked(!app->autoResizeLayers);
+	if(boxResize->isChecked())
+		boxScaleFonts->setEnabled(false);
+
+	optionsTabLayout->addWidget( boxResize );
+
+	plotsTabWidget->addTab( plotOptions, QString() );
+
+	initCurvesPage();
+
+	plotsTabWidget->addTab( curves, QString() );
+
+	plotTicks = new QWidget();
+	QVBoxLayout * plotTicksLayout = new QVBoxLayout( plotTicks );
+	
+	QGroupBox * ticksGroupBox = new QGroupBox();
+	QGridLayout * ticksLayout = new QGridLayout( ticksGroupBox );
+	plotTicksLayout->addWidget( ticksGroupBox );
+
+	lblMajTicks = new QLabel(); 
+	ticksLayout->addWidget( lblMajTicks, 0, 0 );
+	boxMajTicks = new QComboBox();
+	ticksLayout->addWidget( boxMajTicks, 0, 1 );
+
+	lblMajTicksLength = new QLabel();  
+	ticksLayout->addWidget( lblMajTicksLength, 0, 2 );
+	boxMajTicksLength = new QSpinBox();
+	boxMajTicksLength->setRange(0, 100);
+	boxMajTicksLength->setValue(app->majTicksLength);
+	ticksLayout->addWidget( boxMajTicksLength, 0, 3 );
+
+    lblMinTicks = new QLabel();
+	ticksLayout->addWidget( lblMinTicks, 1, 0 );
+    boxMinTicks = new QComboBox();
+	ticksLayout->addWidget( boxMinTicks, 1, 1 );
+
+	lblMinTicksLength = new QLabel();  
+	ticksLayout->addWidget( lblMinTicksLength, 1, 2 );
+	boxMinTicksLength = new QSpinBox();
+	boxMinTicksLength->setRange(0, 100);
+	boxMinTicksLength->setValue(app->minTicksLength);
+	ticksLayout->addWidget( boxMinTicksLength, 1, 3 );
+
+	ticksLayout->setRowStretch( 4, 1 );
+
+	plotsTabWidget->addTab( plotTicks, QString() );
+
+	plotFonts = new QWidget();
+	QVBoxLayout * plotFontsLayout = new QVBoxLayout( plotFonts );
+
+	QGroupBox * groupBox2DFonts = new QGroupBox();
+	plotFontsLayout->addWidget( groupBox2DFonts );
 	QVBoxLayout * fontsLayout = new QVBoxLayout( groupBox2DFonts );
 	buttonTitleFont= new QPushButton();  
 	fontsLayout->addWidget( buttonTitleFont );
@@ -458,44 +345,7 @@ void ConfigDialog::initPlotsPage()
 	fontsLayout->addWidget( buttonNumbersFont );
 	fontsLayout->addStretch();
 
-	QGroupBox * ticksGroupBox = new QGroupBox();
-	QGridLayout * ticksLayout = new QGridLayout( ticksGroupBox );
-
-	lblTicks = new QLabel(); 
-	ticksLayout->addWidget( lblTicks, 0, 0 );
-	boxTicks = new QComboBox();
-	ticksLayout->addWidget( boxTicks, 0, 1 );
-
-	lblMajTicks = new QLabel();  
-	ticksLayout->addWidget( lblMajTicks, 0, 2 );
-	boxMajorTicks= new QSpinBox();
-	boxMajorTicks->setRange(0, 100);
-	boxMajorTicks->setValue(app->majTicksLength);
-	ticksLayout->addWidget( boxMajorTicks, 0, 3 );
-
-	lblAxesLineWidth = new QLabel();  
-	ticksLayout->addWidget( lblAxesLineWidth, 1, 0 );
-	boxLineWidth= new QSpinBox();
-	boxLineWidth->setRange(0, 100);
-	boxLineWidth->setValue(app->axesLineWidth);
-	ticksLayout->addWidget( boxLineWidth, 1, 1 );
-
-	lblMinTicks = new QLabel();  
-	ticksLayout->addWidget( lblMinTicks, 1, 2 );
-	boxMinorTicks= new QSpinBox();
-	boxMinorTicks->setRange(0, 100);
-	boxMinorTicks->setValue(app->minTicksLength);
-	ticksLayout->addWidget( boxMinorTicks, 1, 4 );
-
-	boxResize = new QCheckBox();
-	boxResize->setChecked(!app->autoResizeLayers);
-	if(boxResize->isChecked())
-		boxScaleFonts->setEnabled(false);
-
-	QVBoxLayout * plotsPageLayout = new QVBoxLayout( plots );
-	plotsPageLayout->addLayout(topLayout);
-	plotsPageLayout->addWidget(ticksGroupBox);
-	plotsPageLayout->addWidget(boxResize);
+	plotsTabWidget->addTab( plotFonts, QString() );
 
 	connect( boxResize, SIGNAL( clicked() ), this, SLOT( enableScaleFonts() ) );
 	connect( boxFrame, SIGNAL( toggled(bool) ), this, SLOT( showFrameWidth(bool) ) );
@@ -609,8 +459,12 @@ void ConfigDialog::initAppPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
+	appTabWidget = new QTabWidget(generalDialog);
+
 	application = new QWidget();
-	groupBoxApp = new QGroupBox();
+	QVBoxLayout * applicationLayout = new QVBoxLayout( application );
+	QGroupBox * groupBoxApp = new QGroupBox();
+	applicationLayout->addWidget(groupBoxApp);
 	QGridLayout * topBoxLayout = new QGridLayout( groupBoxApp );
 
 	lblLanguage = new QLabel(); 
@@ -651,34 +505,45 @@ void ConfigDialog::initAppPage()
 	boxMinutes->setEnabled(app->autoSave);
 	topBoxLayout->addWidget( boxMinutes, 3, 1 );
 
-	topBoxLayout->setRowStretch( 4, 1 );
+	boxSearchUpdates = new QCheckBox();
+	boxSearchUpdates->setChecked(app->autoSearchUpdates);
+	topBoxLayout->addWidget( boxSearchUpdates, 4, 0, 1, 2 );
 
-	groupBoxAppCol = new QGroupBox();
-	QGridLayout * bottomBoxLayout = new QGridLayout( groupBoxAppCol );
+	topBoxLayout->setRowStretch( 5, 1 );
+
+	appTabWidget->addTab( application, QString() );
+
+	initConfirmationsPage();
+
+	appTabWidget->addTab( confirm, QString() );
+
+	appColors = new QWidget();
+	QVBoxLayout * appColorsLayout = new QVBoxLayout( appColors );
+	QGroupBox * groupBoxAppCol = new QGroupBox();
+	appColorsLayout->addWidget( groupBoxAppCol );
+	QGridLayout * colorsBoxLayout = new QGridLayout( groupBoxAppCol );
 
 	lblWorkspace = new QLabel(); 
-	bottomBoxLayout->addWidget( lblWorkspace, 0, 0 );
+	colorsBoxLayout->addWidget( lblWorkspace, 0, 0 );
 	btnWorkspace = new ColorButton();
 	btnWorkspace->setColor(app->workspaceColor);
-	bottomBoxLayout->addWidget( btnWorkspace, 0, 1 );
+	colorsBoxLayout->addWidget( btnWorkspace, 0, 1 );
 
 	lblPanels = new QLabel(); 
-	bottomBoxLayout->addWidget( lblPanels, 1, 0 );
+	colorsBoxLayout->addWidget( lblPanels, 1, 0 );
 	btnPanels = new ColorButton();
-	bottomBoxLayout->addWidget( btnPanels, 1, 1 );
+	colorsBoxLayout->addWidget( btnPanels, 1, 1 );
 	btnPanels->setColor(app->panelsColor);
 
 	lblPanelsText = new QLabel(); 
-	bottomBoxLayout->addWidget( lblPanelsText, 2, 0 );
+	colorsBoxLayout->addWidget( lblPanelsText, 2, 0 );
 	btnPanelsText = new ColorButton();
-	bottomBoxLayout->addWidget( btnPanelsText, 2, 1 );
+	colorsBoxLayout->addWidget( btnPanelsText, 2, 1 );
 	btnPanelsText->setColor(app->panelsTextColor);
 
-	topBoxLayout->setRowStretch( 3, 1 );
+	colorsBoxLayout->setRowStretch( 3, 1 );
 
-	QVBoxLayout* appPageLayout = new QVBoxLayout( application );
-	appPageLayout->addWidget(groupBoxApp);
-	appPageLayout->addWidget(groupBoxAppCol);
+	appTabWidget->addTab( appColors, QString() );
 
 	connect( boxLanguage, SIGNAL( activated(int) ), this, SLOT( switchToLanguage(int) ) );
 	connect( fontsBtn, SIGNAL( clicked() ), this, SLOT( pickApplicationFont() ) );
@@ -690,6 +555,8 @@ void ConfigDialog::initAppPage()
 
 void ConfigDialog::initCurvesPage()
 {
+	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
+	
 	curves = new QWidget();
 
 	QGroupBox * curvesGroupBox = new QGroupBox();
@@ -704,12 +571,14 @@ void ConfigDialog::initCurvesPage()
 	curvesBoxLayout->addWidget( lblLineWidth, 1, 0 );
 	boxCurveLineWidth = new QSpinBox();
 	boxCurveLineWidth->setRange(1,100);
+	boxCurveLineWidth->setValue(app->defaultCurveLineWidth);
 	curvesBoxLayout->addWidget( boxCurveLineWidth, 1, 1 );
 
 	lblSymbSize = new QLabel(); 
 	curvesBoxLayout->addWidget( lblSymbSize, 2, 0 );
 	boxSymbolSize = new QSpinBox();
 	boxSymbolSize->setRange(1,100);
+	boxSymbolSize->setValue(app->defaultSymbolSize);
 	curvesBoxLayout->addWidget( boxSymbolSize, 2, 1 );
 
 	curvesBoxLayout->setRowStretch( 3, 1 );
@@ -765,31 +634,34 @@ void ConfigDialog::languageChange()
 	setWindowTitle( tr( "QtiPlot - Choose default settings" ) );
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
-#ifdef TABBED_CONFIG_DIALOG
-	generalDialog->setTabText( 0, tr( "Application" ) );
-	generalDialog->setTabText( 1, tr( "Confirmations" ) );
-	generalDialog->setTabText( 2, tr( "Tables" ) );
-	generalDialog->setTabText( 3, tr( "2D Plots" ) );
-	generalDialog->setTabText( 4, tr( "2D Curves" ) );
-	generalDialog->setTabText( 5, tr( "3D Plots" ) );
-#else
+	// pages list
 	itemsList->clear();
-	itemsList->addItem( tr( "Application" ) );
-	itemsList->addItem( tr( "Confirmations" ) );
+	itemsList->addItem( tr( "General" ) );
 	itemsList->addItem( tr( "Tables" ) );
 	itemsList->addItem( tr( "2D Plots" ) );
-	itemsList->addItem( tr( "2D Curves" ) );
 	itemsList->addItem( tr( "3D Plots" ) );
-#endif
+	itemsList->setCurrentRow(0);
+	itemsList->item(0)->setIcon(QIcon(QPixmap(general_xpm)));
+	itemsList->item(1)->setIcon(QIcon(QPixmap(configTable_xpm)));
+	itemsList->item(2)->setIcon(QIcon(QPixmap(config_curves_xpm)));
+	itemsList->item(3)->setIcon(QIcon(QPixmap(logo_xpm)));
+	itemsList->setIconSize(QSize(32,32));
+	// TODO: calculate item width correctly
+	itemsList->setMaximumWidth( 150 );
 
 	//plots 2D page
-	groupBoxOptions->setTitle(tr("Options"));	
-	groupBox2DFonts->setTitle(tr("Fonts"));
+	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotOptions), tr("Options"));
+	plotsTabWidget->setTabText(plotsTabWidget->indexOf(curves), tr("Curves"));
+	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotTicks), tr("Ticks"));
+	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotFonts), tr("Fonts"));
+
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
-	lblMinTicks->setText(tr("Minor ticks length"));  
+	lblMinTicksLength->setText(tr("Length"));  
 	lblAxesLineWidth->setText(tr("Axes linewidth" ));  
-	lblMajTicks->setText(tr("Major ticks length" ));  
-	lblTicks->setText(tr("Ticks" )); 
+	lblMajTicksLength->setText(tr("Length" ));  
+	lblMajTicks->setText(tr("Major Ticks" )); 
+	lblMinTicks->setText(tr("Minor Ticks" ));
+
 	lblMargin->setText(tr("Margin" )); 
 	lblLegend->setText(tr("Legend frame" )); 
 	labelFrameWidth->setText(tr("Frame width" )); 
@@ -807,29 +679,20 @@ void ConfigDialog::languageChange()
 	boxLegend->addItem( tr( "Black out" ) );
 	boxLegend->setCurrentItem(app->legendFrameStyle);
 
-	boxTicks->clear();
-	boxTicks->addItem(tr("In"));
-	boxTicks->addItem(tr("Out"));
-	boxTicks->addItem(tr("Both"));
-	boxTicks->addItem(tr("None"));
-	switch (app->ticksStyle)
-	{
-		case -1:
-			boxTicks->setCurrentItem(0);
-			break;
+	boxMajTicks->clear();
+	boxMajTicks->addItem(tr("None"));
+	boxMajTicks->addItem(tr("Out"));
+	boxMajTicks->addItem(tr("In & Out"));
+	boxMajTicks->addItem(tr("In"));
 
-		case 1:
-			boxTicks->setCurrentItem(1);
-			break;
+	boxMinTicks->clear();
+	boxMinTicks->addItem(tr("None"));
+	boxMinTicks->addItem(tr("Out"));
+	boxMinTicks->addItem(tr("In & Out"));
+	boxMinTicks->addItem(tr("In"));
 
-		case 2:
-			boxTicks->setCurrentItem(2);
-			break;
-
-		case 0:
-			boxTicks->setCurrentItem(3);
-			break;	
-	}
+	boxMajTicks->setCurrentIndex(app->majTicksStyle);
+	boxMinTicks->setCurrentIndex(app->minTicksStyle);
 
 	//confirmations page
 	groupBoxConfirm->setTitle(tr("Prompt on closing"));
@@ -841,7 +704,7 @@ void ConfigDialog::languageChange()
 	boxNotes->setText(tr("&Notes"));
 
 	buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Close" ) );
+	buttonCancel->setText( tr( "&Cancel" ) );
 	buttonApply->setText( tr( "&Apply" ) );
 	buttonTextFont->setText( tr( "&Text Font" ) );
 	buttonHeaderFont->setText( tr( "&Labels Font" ) );
@@ -851,8 +714,10 @@ void ConfigDialog::languageChange()
 	buttonTitleFont->setText( tr( "T&itle" ) );
 
 	//application page
-	groupBoxApp->setTitle(tr("General"));
-	groupBoxAppCol->setTitle(tr("Colors"));
+	appTabWidget->setTabText(appTabWidget->indexOf(application), tr("Application"));
+	appTabWidget->setTabText(appTabWidget->indexOf(confirm), tr("Confirmations"));
+	appTabWidget->setTabText(appTabWidget->indexOf(appColors), tr("Colors"));
+
 	lblLanguage->setText(tr("Language"));
 	lblStyle->setText(tr("Style")); 
 	lblFonts->setText(tr("Main Font")); 
@@ -861,6 +726,7 @@ void ConfigDialog::languageChange()
 	lblPanelsText->setText(tr("Panels text")); 
 	lblPanels->setText(tr("Panels"));
 	boxSave->setText(tr("Save every"));
+	boxSearchUpdates->setText(tr("Check for new versions at startup"));
 	boxMinutes->setSuffix(tr(" minutes"));
 
 	//tables page
@@ -898,6 +764,26 @@ void ConfigDialog::languageChange()
 	boxCurveStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxCurveStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
 
+	int style = app->defaultCurveStyle;
+	if (style == Graph::Line)
+		boxCurveStyle->setCurrentItem(0);
+	else if (style == Graph::Scatter)
+		boxCurveStyle->setCurrentItem(1);
+	else if (style == Graph::LineSymbols)
+		boxCurveStyle->setCurrentItem(2);
+	else if (style == Graph::VerticalDropLines)
+		boxCurveStyle->setCurrentItem(3);
+	else if (style == Graph::Spline)
+		boxCurveStyle->setCurrentItem(4);
+	else if (style == Graph::Steps)
+		boxCurveStyle->setCurrentItem(5);
+	else if (style == Graph::Area)
+		boxCurveStyle->setCurrentItem(6);
+	else if (style == Graph::VerticalBars)
+		boxCurveStyle->setCurrentItem(7);
+	else if (style == Graph::HorizontalBars)
+		boxCurveStyle->setCurrentItem(8);
+
 	//plots 3D
 	lblResolution->setText(tr("Resolution")); 
 	boxResolution->setSpecialValueText( "1 " + tr("(all data shown)") );
@@ -930,14 +816,8 @@ void ConfigDialog::update()
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	if (!app)
 		return;
-#ifdef TABBED_CONFIG_DIALOG
-	QWidget * curWidget = lastTab;
-	lastTab = generalDialog->currentWidget();
-#else
-	QWidget * curWidget = generalDialog->currentWidget();
-#endif
 
-	if (curWidget==tables)
+	if (generalDialog->currentWidget()==tables)
 	{
 		QString sep = boxSeparator->currentText();
 		sep.replace(tr("TAB"), "\t", false);
@@ -956,41 +836,62 @@ void ConfigDialog::update()
 		app->customizeTables(buttonBackground->color(), buttonText->color(), 
 				buttonHeader->color(), textFont, headerFont);
 	}
-	else if (curWidget==plots)
+	else if (generalDialog->currentWidget() == plotsTabWidget)
 	{
-		app->ticksStyle=ticksType();
-		app->legendFrameStyle=boxLegend->currentItem();
-		app->titleOn=boxTitle->isChecked();
-		app->allAxesOn = boxAllAxes->isChecked();
-		app->canvasFrameOn=boxFrame->isChecked();
-		app->canvasFrameWidth = boxFrameWidth->value();
-		app->drawBackbones = boxBackbones->isChecked();
-		app->axesLineWidth = boxLineWidth->value();
-		app->majTicksLength = boxMajorTicks->value();
-		app->minTicksLength = boxMinorTicks->value();
-		app->defaultPlotMargin = boxMargin->value();
-		app->plotAxesFont=axesFont;
-		app->plotNumbersFont=numbersFont;
-		app->plotLegendFont=legendFont;
-		app->plotTitleFont=titleFont;
-		app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),boxResize->isChecked());
+		if (plotsTabWidget->currentWidget() == plotOptions)
+		{		
+			app->legendFrameStyle=boxLegend->currentItem();
+			app->titleOn=boxTitle->isChecked();
+			app->allAxesOn = boxAllAxes->isChecked();
+			app->canvasFrameOn=boxFrame->isChecked();
+			app->canvasFrameWidth = boxFrameWidth->value();
+			app->drawBackbones = boxBackbones->isChecked();
+			app->axesLineWidth = boxLineWidth->value();
+			app->defaultPlotMargin = boxMargin->value();
+			app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),boxResize->isChecked());
+		}
+		else if (plotsTabWidget->currentWidget() == curves)
+		{
+			app->defaultCurveStyle = curveStyle();
+			app->defaultCurveLineWidth = boxCurveLineWidth->value();
+			app->defaultSymbolSize = boxSymbolSize->value();
+		}
+		else if (plotsTabWidget->currentWidget() == plotTicks)
+		{
+			app->majTicksLength = boxMajTicksLength->value();
+			app->minTicksLength = boxMinTicksLength->value();
+			app->majTicksStyle = boxMajTicks->currentItem();
+			app->minTicksStyle = boxMinTicks->currentItem();
+		}
+		else if (plotsTabWidget->currentWidget() == plotFonts)
+		{
+			app->plotAxesFont=axesFont;
+			app->plotNumbersFont=numbersFont;
+			app->plotLegendFont=legendFont;
+			app->plotTitleFont=titleFont;
+		}
 	}
-	else if (curWidget==application)
+	else if (generalDialog->currentWidget()==(QWidget*)appTabWidget)
 	{
-		app->changeAppFont(appFont);
-		setFont(appFont);
-		app->changeAppStyle(boxStyle->currentText());
-		app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
-		app->setAppColors(btnWorkspace->color(), btnPanels->color(), btnPanelsText->color());
+		if (appTabWidget->currentWidget() == application)
+		{
+			app->changeAppFont(appFont);
+			setFont(appFont);
+			app->changeAppStyle(boxStyle->currentText());
+			app->autoSearchUpdates = boxSearchUpdates->isChecked();
+			app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
+		}
+		else if (appTabWidget->currentWidget() == confirm)
+		{
+			app->confirmCloseFolder = boxFolders->isChecked();
+			app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
+					boxPlots2D->isChecked(), boxPlots3D->isChecked(),
+					boxNotes->isChecked());
+		}
+		else if (appTabWidget->currentWidget() == appColors)
+			app->setAppColors(btnWorkspace->color(), btnPanels->color(), btnPanelsText->color());
 	}
-	else if (curWidget==confirm)
-	{
-		app->confirmCloseFolder = boxFolders->isChecked();
-		app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
-				boxPlots2D->isChecked(), boxPlots3D->isChecked(),
-				boxNotes->isChecked());
-	}
-	else if (curWidget==plots3D)
+	else if (generalDialog->currentWidget()==(QWidget*)plots3D)
 	{
 		app->plot3DColors = plot3DColors;
 		app->showPlot3DLegend = boxShowLegend->isChecked();
@@ -1006,12 +907,7 @@ void ConfigDialog::update()
 			app->setPlot3DOptions();
 		}
 	}
-	else if (curWidget==curves)
-	{
-		app->defaultCurveStyle = curveStyle();
-		app->defaultCurveLineWidth = boxCurveLineWidth->value();
-		app->defaultSymbolSize = boxSymbolSize->value();
-	}
+	app->saveSettings();
 }
 
 int ConfigDialog::curveStyle()
@@ -1099,29 +995,6 @@ void ConfigDialog::pickHeaderFont()
 	}
 }
 
-int ConfigDialog::ticksType()
-{
-	int ticks=-1;
-	switch (boxTicks->currentItem())
-	{
-		case 0:
-			break;
-
-		case 1:
-			ticks=1;
-			break;
-
-		case 2:
-			ticks=2;
-			break;
-
-		case 3:
-			ticks=0;
-			break;	
-	}
-	return ticks;
-}
-
 void ConfigDialog::pickLegendFont()
 {
 	bool ok;
@@ -1173,31 +1046,6 @@ void ConfigDialog::pickApplicationFont()
 		appFont = font;
 	else 
 		return;
-}
-
-void ConfigDialog::initCurvesOptions(int style, int width, int symbolSize)
-{
-	if (style == Graph::Line)
-		boxCurveStyle->setCurrentIndex(0);
-	else if (style == Graph::Scatter)
-		boxCurveStyle->setCurrentIndex(1);
-	else if (style == Graph::LineSymbols)
-		boxCurveStyle->setCurrentIndex(2);
-	else if (style == Graph::VerticalDropLines)
-		boxCurveStyle->setCurrentIndex(3);
-	else if (style == Graph::Spline)
-		boxCurveStyle->setCurrentIndex(4);
-	else if (style == Graph::Steps)
-		boxCurveStyle->setCurrentIndex(5);
-	else if (style == Graph::Area)
-		boxCurveStyle->setCurrentIndex(6);
-	else if (style == Graph::VerticalBars)
-		boxCurveStyle->setCurrentIndex(7);
-	else if (style == Graph::HorizontalBars)
-		boxCurveStyle->setCurrentIndex(8);
-
-	boxCurveLineWidth->setValue(width);
-	boxSymbolSize->setValue(symbolSize);
 }
 
 void ConfigDialog::pickPanelsTextColor()
