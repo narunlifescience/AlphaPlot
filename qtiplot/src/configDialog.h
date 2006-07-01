@@ -93,7 +93,7 @@ public slots:
 	void insertLanguagesList();
 
 	void accept();
-	void update();
+	void apply();
 
 	void setCurrentPage(int index);
 	void setColumnSeparator(const QString& sep);

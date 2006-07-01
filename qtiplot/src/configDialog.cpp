@@ -97,7 +97,6 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	fnt.setPointSize(fnt.pointSize() + 3);
 	fnt.setBold(true);
 	lblPageHeader->setFont(fnt);
-	lblPageHeader->setFont(fnt);
     lblPageHeader->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
 	QPalette pal = lblPageHeader->palette();
@@ -126,7 +125,6 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
     buttonOk->setDefault( true );
 	bottomButtons->addWidget( buttonOk );
   
-  	// TODO: make this a real cancel button
     buttonCancel = new QPushButton();
     buttonCancel->setAutoDefault( true );
 	bottomButtons->addWidget( buttonCancel );
@@ -138,10 +136,9 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
     languageChange();
    
     // signals and slots connections
-	connect( itemsList, SIGNAL(currentRowChanged(int)), this, SLOT(update()));
 	connect( itemsList, SIGNAL(currentRowChanged(int)), this, SLOT(setCurrentPage(int)));
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( update() ) );
+	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonBackground, SIGNAL( clicked() ), this, SLOT( pickBgColor() ) );
 	connect( buttonText, SIGNAL( clicked() ), this, SLOT( pickTextColor() ) );
@@ -646,8 +643,16 @@ void ConfigDialog::languageChange()
 	itemsList->item(2)->setIcon(QIcon(QPixmap(config_curves_xpm)));
 	itemsList->item(3)->setIcon(QIcon(QPixmap(logo_xpm)));
 	itemsList->setIconSize(QSize(32,32));
-	// TODO: calculate item width correctly
-	itemsList->setMaximumWidth( 150 );
+	// calculate a sensible width for the items list 
+	// (default QListWidget size is 256 which looks too big)
+	QFontMetrics fm(itemsList->font());
+	int width = 32,i;
+	for(i=0 ; i<itemsList->count() ; i++)
+		if( fm.width(itemsList->item(i)->text()) > width)
+			width = fm.width(itemsList->item(i)->text());
+	itemsList->setMaximumWidth( itemsList->iconSize().width() + width + 50 );
+	// resize the list to the maximum width
+	itemsList->resize(itemsList->maximumWidth(),itemsList->height());
 
 	//plots 2D page
 	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotOptions), tr("Options"));
@@ -807,107 +812,97 @@ void ConfigDialog::languageChange()
 
 void ConfigDialog::accept()
 {
-	update();
+	apply();
 	close();
 }
 
-void ConfigDialog::update()
+void ConfigDialog::apply()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	if (!app)
 		return;
 
-	if (generalDialog->currentWidget()==tables)
-	{
-		QString sep = boxSeparator->currentText();
-		sep.replace(tr("TAB"), "\t", false);
-		sep.replace("\\t", "\t");
-		sep.replace(tr("SPACE"), " ");
-		sep.replace("\\s", " ");
+	// tables page
+	QString sep = boxSeparator->currentText();
+	sep.replace(tr("TAB"), "\t", false);
+	sep.replace("\\t", "\t");
+	sep.replace(tr("SPACE"), " ");
+	sep.replace("\\s", " ");
 
-		if (sep.contains(QRegExp("[0-9.eE+-]"))!=0)
-		{
-			QMessageBox::warning(0, tr("QtiPlot - Import options error"),
-					tr("The separator must not contain the following characters: 0-9eE.+-"));
-			return;
-		}
+	if (sep.contains(QRegExp("[0-9.eE+-]"))!=0)
+	{
+		QMessageBox::warning(0, tr("QtiPlot - Import options error"),
+				tr("The separator must not contain the following characters: 0-9eE.+-"));
+		return;
+	}
 
-		app->separator = sep;
-		app->customizeTables(buttonBackground->color(), buttonText->color(), 
-				buttonHeader->color(), textFont, headerFont);
-	}
-	else if (generalDialog->currentWidget() == plotsTabWidget)
-	{
-		if (plotsTabWidget->currentWidget() == plotOptions)
-		{		
-			app->legendFrameStyle=boxLegend->currentItem();
-			app->titleOn=boxTitle->isChecked();
-			app->allAxesOn = boxAllAxes->isChecked();
-			app->canvasFrameOn=boxFrame->isChecked();
-			app->canvasFrameWidth = boxFrameWidth->value();
-			app->drawBackbones = boxBackbones->isChecked();
-			app->axesLineWidth = boxLineWidth->value();
-			app->defaultPlotMargin = boxMargin->value();
-			app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),boxResize->isChecked());
-		}
-		else if (plotsTabWidget->currentWidget() == curves)
-		{
-			app->defaultCurveStyle = curveStyle();
-			app->defaultCurveLineWidth = boxCurveLineWidth->value();
-			app->defaultSymbolSize = boxSymbolSize->value();
-		}
-		else if (plotsTabWidget->currentWidget() == plotTicks)
-		{
-			app->majTicksLength = boxMajTicksLength->value();
-			app->minTicksLength = boxMinTicksLength->value();
-			app->majTicksStyle = boxMajTicks->currentItem();
-			app->minTicksStyle = boxMinTicks->currentItem();
-		}
-		else if (plotsTabWidget->currentWidget() == plotFonts)
-		{
-			app->plotAxesFont=axesFont;
-			app->plotNumbersFont=numbersFont;
-			app->plotLegendFont=legendFont;
-			app->plotTitleFont=titleFont;
-		}
-	}
-	else if (generalDialog->currentWidget()==(QWidget*)appTabWidget)
-	{
-		if (appTabWidget->currentWidget() == application)
-		{
-			app->changeAppFont(appFont);
-			setFont(appFont);
-			app->changeAppStyle(boxStyle->currentText());
-			app->autoSearchUpdates = boxSearchUpdates->isChecked();
-			app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
-		}
-		else if (appTabWidget->currentWidget() == confirm)
-		{
-			app->confirmCloseFolder = boxFolders->isChecked();
-			app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
-					boxPlots2D->isChecked(), boxPlots3D->isChecked(),
-					boxNotes->isChecked());
-		}
-		else if (appTabWidget->currentWidget() == appColors)
-			app->setAppColors(btnWorkspace->color(), btnPanels->color(), btnPanelsText->color());
-	}
-	else if (generalDialog->currentWidget()==(QWidget*)plots3D)
-	{
-		app->plot3DColors = plot3DColors;
-		app->showPlot3DLegend = boxShowLegend->isChecked();
-		app->showPlot3DProjection = boxShowProjection->isChecked();
-		app->plot3DResolution = boxResolution->value();
-		app->plot3DTitleFont = plot3DTitleFont;
-		app->plot3DNumbersFont = plot3DNumbersFont;
-		app->plot3DAxesFont = plot3DAxesFont;
+	app->separator = sep;
+	app->customizeTables(buttonBackground->color(), buttonText->color(), 
+			buttonHeader->color(), textFont, headerFont);
+	// 2D plots page: options tab
+	app->legendFrameStyle=boxLegend->currentItem();
+	app->titleOn=boxTitle->isChecked();
+	app->allAxesOn = boxAllAxes->isChecked();
+	app->canvasFrameOn=boxFrame->isChecked();
+	app->canvasFrameWidth = boxFrameWidth->value();
+	app->drawBackbones = boxBackbones->isChecked();
+	app->axesLineWidth = boxLineWidth->value();
+	app->defaultPlotMargin = boxMargin->value();
+	app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),boxResize->isChecked());
+	// 2D plots page: curves tab
+	app->defaultCurveStyle = curveStyle();
+	app->defaultCurveLineWidth = boxCurveLineWidth->value();
+	app->defaultSymbolSize = boxSymbolSize->value();
+	// 2D plots page: ticks tab
+	app->majTicksLength = boxMajTicksLength->value();
+	app->minTicksLength = boxMinTicksLength->value();
+	app->majTicksStyle = boxMajTicks->currentItem();
+	app->minTicksStyle = boxMinTicks->currentItem();
+	// 2D plots page: fonts tab
+	app->plotAxesFont=axesFont;
+	app->plotNumbersFont=numbersFont;
+	app->plotLegendFont=legendFont;
+	app->plotTitleFont=titleFont;
+	// general page: application tab
+	app->changeAppFont(appFont);
+	setFont(appFont);
+	app->changeAppStyle(boxStyle->currentText());
+	app->autoSearchUpdates = boxSearchUpdates->isChecked();
+	app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
+	// general page: confirmations tab
+	app->confirmCloseFolder = boxFolders->isChecked();
+	app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),
+			boxPlots2D->isChecked(), boxPlots3D->isChecked(),
+			boxNotes->isChecked());
+	// general page: colors tab
+	app->setAppColors(btnWorkspace->color(), btnPanels->color(), btnPanelsText->color());
+	// 3D plots page
+	app->plot3DColors = plot3DColors;
+	app->showPlot3DLegend = boxShowLegend->isChecked();
+	app->showPlot3DProjection = boxShowProjection->isChecked();
+	app->plot3DResolution = boxResolution->value();
+	app->plot3DTitleFont = plot3DTitleFont;
+	app->plot3DNumbersFont = plot3DNumbersFont;
+	app->plot3DAxesFont = plot3DAxesFont;
 
-		if (app->smooth3DMesh != boxSmoothMesh->isChecked())
-		{
-			app->smooth3DMesh = boxSmoothMesh->isChecked();
-			app->setPlot3DOptions();
-		}
+	if (app->smooth3DMesh != boxSmoothMesh->isChecked())
+	{
+		app->smooth3DMesh = boxSmoothMesh->isChecked();
+		app->setPlot3DOptions();
 	}
+
 	app->saveSettings();
+
+	// calculate a sensible width for the items list 
+	// (default QListWidget size is 256 which looks too big)
+	QFontMetrics fm(itemsList->font());
+	int width = 32,i;
+	for(i=0 ; i<itemsList->count() ; i++)
+		if( fm.width(itemsList->item(i)->text()) > width)
+			width = fm.width(itemsList->item(i)->text());
+	itemsList->setMaximumWidth( itemsList->iconSize().width() + width + 50 );
+	// resize the list to the maximum width
+	itemsList->resize(itemsList->maximumWidth(),itemsList->height());
 }
 
 int ConfigDialog::curveStyle()
@@ -1046,6 +1041,7 @@ void ConfigDialog::pickApplicationFont()
 		appFont = font;
 	else 
 		return;
+	fontsBtn->setFont(appFont);
 }
 
 void ConfigDialog::pickPanelsTextColor()
