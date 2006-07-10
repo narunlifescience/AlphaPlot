@@ -33,12 +33,24 @@ public:
   Constructs an empty label.
   \param parent Parent widget
 */
-
 QwtTextLabel::QwtTextLabel(QWidget *parent):
     QFrame(parent)
 {
     init();
 }
+
+#if QT_VERSION < 0x040000
+/*! 
+  Constructs an empty label.
+  \param parent Parent widget
+  \param name Object name
+*/
+QwtTextLabel::QwtTextLabel(QWidget *parent, const char *name):
+    QFrame(parent, name)
+{
+    init();
+}
+#endif
 
 /*!
   Constructs a label that displays the text, text

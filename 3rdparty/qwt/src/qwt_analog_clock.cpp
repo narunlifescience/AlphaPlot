@@ -16,6 +16,24 @@
 QwtAnalogClock::QwtAnalogClock(QWidget *parent):
     QwtDial(parent)
 {
+    initClock();
+}
+
+#if QT_VERSION < 0x040000
+/*!
+  Constructor
+  \param parent Parent widget
+  \param name Object name
+*/
+QwtAnalogClock::QwtAnalogClock(QWidget* parent, const char *name):
+    QwtDial(parent, name)
+{
+    initClock();
+}
+#endif
+
+void QwtAnalogClock::initClock()
+{
     setWrapping(true);
     setReadOnly(true);
 
@@ -25,6 +43,7 @@ QwtAnalogClock::QwtAnalogClock(QWidget *parent):
 
     setScaleOptions(ScaleTicks | ScaleLabel);
     setScaleTicks(1, 0, 8);
+    scaleDraw()->setSpacing(8);
 
     QColor knobColor =
 #if QT_VERSION < 0x040000

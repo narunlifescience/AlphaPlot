@@ -42,24 +42,36 @@ public:
   \brief Constructor
   \param parent Parent widget
  */
-
 QwtPlot::QwtPlot(QWidget *parent):
     QFrame(parent)
 {
     initPlot(QwtText());
 }
 
-
 /*!
   \brief Constructor
   \param title Title text
   \param parent Parent widget
  */
-QwtPlot::QwtPlot(const QwtText &title, QWidget *parent) :
+QwtPlot::QwtPlot(const QwtText &title, QWidget *parent):
     QFrame(parent)
 {
     initPlot(title);
 }
+
+#if QT_VERSION < 0x040000
+/*!
+  \brief Constructor
+  \param parent Parent widget
+  \param name Object name
+ */
+QwtPlot::QwtPlot(QWidget *parent, const char *name):
+    QFrame(parent, name)
+{   
+    initPlot(QwtText());
+}   
+#endif
+
 
 //! Destructor
 QwtPlot::~QwtPlot()

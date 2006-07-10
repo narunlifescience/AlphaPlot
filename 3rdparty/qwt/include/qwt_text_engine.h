@@ -56,7 +56,7 @@ public:
       these margins might improve the layout calculations.
      */
     virtual void textMargins(const QFont &, const QString &,
-        int &left, int &right, int &top, int &bottom);
+        int &left, int &right, int &top, int &bottom) const = 0;
 
 protected:
     QwtTextEngine();
@@ -84,7 +84,7 @@ public:
     virtual bool mightRender(const QString &) const;
 
     virtual void textMargins(const QFont &, const QString &,
-        int &left, int &right, int &top, int &bottom);
+        int &left, int &right, int &top, int &bottom) const;
 
 private:
     class PrivateData; 
@@ -112,6 +112,9 @@ public:
         int flags, const QString &text) const;
 
     virtual bool mightRender(const QString &) const;
+
+    virtual void textMargins(const QFont &, const QString &,
+        int &left, int &right, int &top, int &bottom) const;
 private:
     QString taggedText(const QString &, int flags) const;
 };

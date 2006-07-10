@@ -53,11 +53,30 @@ public:
 };
 
 /*!
-  \brief Constructor
+  Constructor
   \param parent Parent widget
 */
 QwtKnob::QwtKnob(QWidget* parent): 
     QwtAbstractSlider(Qt::Horizontal, parent)
+{
+    initKnob();
+}
+
+#if QT_VERSION < 0x040000
+/*!
+  Constructor
+  \param parent Parent widget
+  \param name Object name
+*/
+QwtKnob::QwtKnob(QWidget* parent, const char *name): 
+    QwtAbstractSlider(Qt::Horizontal, parent)
+{
+    setName(name);
+    initKnob();
+}
+#endif
+
+void QwtKnob::initKnob()
 {
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);

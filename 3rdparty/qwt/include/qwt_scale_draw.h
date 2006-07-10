@@ -41,7 +41,7 @@ public:
 
     virtual ~QwtScaleDraw();
 
-    QwtScaleDraw &QwtScaleDraw::operator=(const QwtScaleDraw &other);
+    QwtScaleDraw &operator=(const QwtScaleDraw &other);
 
     void getBorderDistHint(const QFont &, int &start, int &end) const;
     int minLabelDist(const QFont &) const;

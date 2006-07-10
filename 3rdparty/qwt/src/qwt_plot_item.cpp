@@ -7,6 +7,7 @@
  * modify it under the terms of the Qwt License, Version 1.0
  *****************************************************************************/
 
+#include "qwt_text.h"
 #include "qwt_plot.h"
 #include "qwt_legend.h"
 #include "qwt_legend_item.h"
@@ -39,12 +40,15 @@ public:
 
     int xAxis;
     int yAxis;
+
+    QwtText title;
 };
 
 //! Constructor
-QwtPlotItem::QwtPlotItem()
+QwtPlotItem::QwtPlotItem(const QwtText &title)
 {
     d_data = new PrivateData;
+    d_data->title = title;
 }
 
 //! Destroy the QwtPlotItem
@@ -111,8 +115,49 @@ void QwtPlotItem::setZ(double z)
     if ( d_data->z != z )
     {
         d_data->z = z; 
+        if ( d_data->plot )
+        {
+            // update the z order
+            d_data->plot->attachItem(this, false);
+            d_data->plot->attachItem(this, true);
+        }
         itemChanged();
     }
+}
+
+/*! 
+   Set a new title
+
+   \param title Title
+   \sa title() 
+*/  
+void QwtPlotItem::setTitle(const QString &title)
+{
+    setTitle(QwtText(title));
+}
+
+/*! 
+   Set a new title
+
+   \param title Title
+   \sa title() 
+*/  
+void QwtPlotItem::setTitle(const QwtText &title)
+{
+    if ( d_data->title != title )
+    {
+        d_data->title = title; 
+        itemChanged();
+    }
+}
+
+/*!
+   \return Title of the item
+   \sa setTitle()
+*/
+const QwtText &QwtPlotItem::title() const
+{
+    return d_data->title;
 }
 
 void QwtPlotItem::setItemAttribute(ItemAttribute attribute, bool on)
@@ -281,6 +326,12 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
                 legend->insert(this, lgdItem);
             }
         }
+        if ( lgdItem && lgdItem->inherits("QwtLegendItem") )
+        {
+            QwtLegendItem* label = (QwtLegendItem*)lgdItem;
+            if ( label )
+                label->setText(d_data->title);
+        }
     }
     else
     {
@@ -291,5 +342,54 @@ void QwtPlotItem::updateLegend(QwtLegend *legend) const
 void QwtPlotItem::updateScaleDiv(const QwtScaleDiv &,
     const QwtScaleDiv &) 
 { 
+}
+
+QwtDoubleRect QwtPlotItem::scaleRect(const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap) const
+{
+    return QwtDoubleRect(xMap.s1(), yMap.s1(), 
+        xMap.sDist(), yMap.sDist() );
+}
+
+QRect QwtPlotItem::paintRect(const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap) const
+{
+    const QRect rect( qRound(xMap.p1()), qRound(yMap.p1()),
+        qRound(xMap.pDist()), qRound(yMap.pDist()) );
+
+    return rect;
+}
+
+QRect QwtPlotItem::transform(const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap, const QwtDoubleRect& rect) const
+{
+    int x1 = qRound(xMap.transform(rect.left()));
+    int x2 = qRound(xMap.transform(rect.right()));
+    int y1 = qRound(yMap.transform(rect.top()));
+    int y2 = qRound(yMap.transform(rect.bottom()));
+
+    if ( x2 < x1 )
+        qSwap(x1, x2);
+    if ( y2 < y1 )
+        qSwap(y1, y2);
+
+#ifdef __GNUC__
+#warning QRect: weird normalize/bottom/right comaptibility semantics need to be checked
+#endif
+
+    return QRect(x1, y1, x2 - x1 - 1, y2 - y1 - 1);
+}
+
+QwtDoubleRect QwtPlotItem::invTransform(const QwtScaleMap &xMap, 
+    const QwtScaleMap &yMap, const QRect& rect) const
+{
+    const double x1 = xMap.invTransform(rect.x());
+    const double x2 = xMap.invTransform(rect.x() + rect.width() + 1);
+    const double y1 = yMap.invTransform(rect.y());
+    const double y2 = yMap.invTransform(rect.y() + rect.height() + 1);
+
+    const QwtDoubleRect r(x1, y1, x2 - x1, y2 - y1);
+
+    return r.normalized();
 }
 

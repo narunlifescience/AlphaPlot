@@ -10,12 +10,6 @@
 #include "qwt_math.h"
 #include "qwt_rect.h"
 
-#if QT_VERSION < 0x040000
-#define QwtPointArray QPointArray
-#else
-#define QwtPointArray QPolygon
-#endif
-
 //! Constructor
 
 QwtRect::QwtRect(): 
@@ -29,7 +23,7 @@ QwtRect::QwtRect(const QRect &r):
 {
 }
 
-inline static void addPoint(QwtPointArray &pa, uint pos, const QPoint &point)
+inline static void addPoint(QwtPolygon &pa, uint pos, const QPoint &point)
 {
     if ( uint(pa.size()) <= pos ) 
         pa.resize(pos + 5);
@@ -39,18 +33,18 @@ inline static void addPoint(QwtPointArray &pa, uint pos, const QPoint &point)
 
 //! Sutherland-Hodgman polygon clipping
 
-QwtPointArray QwtRect::clip(const QwtPointArray &pa) const
+QwtPolygon QwtRect::clip(const QwtPolygon &pa) const
 {
     if ( contains( pa.boundingRect() ) )
         return pa;
 
-    QwtPointArray cpa(pa.size());
+    QwtPolygon cpa(pa.size());
 
     clipEdge((Edge)0, pa, cpa);
 
     for ( uint edge = 1; edge < NEdges; edge++ ) 
     {
-        const QwtPointArray rpa = cpa;
+        const QwtPolygon rpa = cpa;
 #if QT_VERSION < 0x040000
         cpa.detach();
 #endif
@@ -118,7 +112,7 @@ QPoint QwtRect::intersectEdge(const QPoint &p1,
 }
 
 void QwtRect::clipEdge(Edge edge, 
-    const QwtPointArray &pa, QwtPointArray &cpa) const
+    const QwtPolygon &pa, QwtPolygon &cpa) const
 {
     if ( pa.count() == 0 )
     {

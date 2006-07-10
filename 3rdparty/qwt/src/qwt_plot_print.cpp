@@ -108,8 +108,8 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(axisId);
             if ( scaleWidget )
             {
-                baseLineDists[axisId] = scaleWidget->baseLineDist();
-                scaleWidget->setBaselineDist(0);
+                baseLineDists[axisId] = scaleWidget->margin();
+                scaleWidget->setMargin(0);
             }
         }
     }
@@ -143,7 +143,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(axisId);
         if (scaleWidget)
         {
-            int baseDist = scaleWidget->baseLineDist();
+            int baseDist = scaleWidget->margin();
 
             int startDist, endDist;
             scaleWidget->getBorderDistHint(startDist, endDist);
@@ -224,7 +224,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
         {
             QwtScaleWidget *scaleWidget = (QwtScaleWidget *)axisWidget(axisId);
             if ( scaleWidget  )
-                scaleWidget->setBaselineDist(baseLineDists[axisId]);
+                scaleWidget->setMargin(baseLineDists[axisId]);
         }
     }
 
@@ -350,6 +350,22 @@ void QwtPlot::printScale(QPainter *painter,
     if (!axisEnabled(axisId))
         return;
 
+    const QwtScaleWidget *scaleWidget = axisWidget(axisId);
+    if ( scaleWidget->isColorBarEnabled() 
+        && scaleWidget->colorBarWidth() > 0)
+    {
+        const QwtMetricsMap map = QwtPainter::metricsMap();
+
+        const QRect r = map.layoutToScreen(rect);
+        scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
+
+        const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
+        if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
+            baseDist += map.screenToLayoutY(off);
+        else
+            baseDist += map.screenToLayoutX(off);
+    }
+
     QwtScaleDraw::Alignment align;
     int x, y, w;
 
@@ -391,11 +407,14 @@ void QwtPlot::printScale(QPainter *painter,
             return;
     }
 
-    const QwtScaleWidget *scaleWidget = axisWidget(axisId);
     scaleWidget->drawTitle(painter, align, rect);
 
     painter->save();
     painter->setFont(scaleWidget->font());
+
+    QPen pen = painter->pen();
+    pen.setWidth(scaleWidget->penWidth());
+    painter->setPen(pen);
 
     QwtScaleDraw *sd = (QwtScaleDraw *)scaleWidget->scaleDraw();
     const QPoint sdPos = sd->pos();

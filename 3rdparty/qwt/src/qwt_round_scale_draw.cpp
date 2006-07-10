@@ -172,11 +172,26 @@ void QwtRoundScaleDraw::drawLabel(QPainter *painter, double value) const
        return; 
     }
 
+    double radius = d_data->radius;
+    if ( hasComponent(QwtAbstractScaleDraw::Ticks) ||
+        hasComponent(QwtAbstractScaleDraw::Backbone) )
+    {
+        radius += spacing();
+    }
+
+    if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
+        radius += majTickLength();
+
+    const QSize sz = label.textSize(painter->font());
     const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
 
-    QRect r( QPoint(0, 0), label.textSize(painter->font()) );
-    r.moveCenter(labelCenter(painter->font(), arc, label));
+    const int x = d_data->center.x() +
+        qRound((radius + sz.width() / 2.0) * sin(arc));
+    const int y = d_data->center.y() -
+        qRound( (radius + sz.height() / 2.0) * cos(arc));
 
+    const QRect r(x - sz.width() / 2, y - sz.height() / 2,
+        sz.width(), sz.height() );
     label.draw(painter, r);
 }
 
@@ -258,135 +273,55 @@ int QwtRoundScaleDraw::extent(const QPen &pen, const QFont &font) const
     if ( hasComponent(QwtAbstractScaleDraw::Labels) )
     {
         const QwtScaleDiv &sd = scaleDiv();
-        const QwtTickList &ticks = sd.ticks(QwtScaleDiv::MajorTick);
+        const QwtValueList &ticks = sd.ticks(QwtScaleDiv::MajorTick);
         for (uint i = 0; i < (uint)ticks.count(); i++)
         {
-            const double v = ticks[i];
-            if ( sd.contains(v) )
+            const double value = ticks[i];
+            if ( !sd.contains(value) )
+                continue;
+
+            const QwtText label = tickLabel(font, value);
+            if ( label.isEmpty() )
+                continue;
+                
+            const int tval = map().transform(value);
+            if ((tval < d_data->minAngle + 360 * 16)
+                && (tval > d_data->minAngle - 360 * 16))
             {
-                const QRect r = labelRect(font, v);
-                if ( !r.isEmpty() )
-                {
-                    int dx = r.center().x() - d_data->center.x();
-                    int dy = r.center().y() - d_data->center.y();
+                const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
 
-                    const int dist1 = 
-                        qRound(sqrt((double)(dx * dx + dy * dy)));
+                const QSize sz = label.textSize(font);
+                const double off = qwtMax(sz.width(), sz.height());
 
-                    dx = r.width() / 2 + r.width() % 2;
-                    dy = r.height() / 2 + r.height() % 2;
+                double x = off * sin(arc);
+                double y = off * cos(arc);
 
-                    const int dist2 = 
-                        qRound(sqrt((double)(dx * dx + dy * dy)));
-
-                    int dist = dist1 + dist2;
-                    if ( dist > d )
-                        d = dist;
-                }
+                const int dist = (int)ceil(sqrt(x * x + y * y) + 1 );
+                if ( dist > d )
+                    d = dist;
             }
         }
-        d -= d_data->radius;
     }
 
-    if ( d == 0 )
+    if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
     {
-        if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
-        {
-            d += majTickLength();
-        }
-
-        if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
-        {
-            const int pw = qwtMax( 1, pen.width() );  // penwidth can be zero
-            d += pw;
-        }
-
+        d += majTickLength();
     }
+
+    if ( hasComponent(QwtAbstractScaleDraw::Backbone) )
+    {
+        const int pw = qwtMax( 1, pen.width() );  // penwidth can be zero
+        d += pw;
+    }
+
+    if ( hasComponent(QwtAbstractScaleDraw::Labels) &&
+        ( hasComponent(QwtAbstractScaleDraw::Ticks) || 
+            hasComponent(QwtAbstractScaleDraw::Backbone) ) )
+    {
+        d += spacing();
+    }
+
     d = qwtMax(d, minimumExtent());
 
     return d;
-}
-
-/*!
-  Find the size of the label. 
-
-  \param font Font
-  \param value Value
-*/
-QSize QwtRoundScaleDraw::labelSize(
-    const QFont &font, double value) const
-{   
-    return tickLabel(font, value).textSize(font);
-}
-
-/*!
-  Calculate the bounding rect for a tick label
-
-  \param font Font, that will be used to paint the scale draw 
-  \param value Value of the tick label
-
-  \sa labelSize(), labelCenter()
-*/
-QRect QwtRoundScaleDraw::labelRect(const QFont &font, double value) const
-{
-    const QwtText label = tickLabel(font, value);
-    if ( label.isEmpty() )
-        return QRect(); 
-
-    const int tval = map().transform(value);
-    if ((tval > d_data->minAngle + 359 * 16)
-        || (tval < d_data->minAngle - 359 * 16))
-    {
-       return QRect();
-    }
-
-    const double arc = tval / 16.0 / 360.0 * 2 * M_PI;
-
-    QRect r( QPoint(0, 0), label.textSize(font) );
-    r.moveCenter(labelCenter(font, arc, label));
-
-    return r;
-}
-
-/*!
-  Find the position, where to move the center of a label 
-*/
-QPoint QwtRoundScaleDraw::labelCenter( 
-    const QFont &font, double arc, const QwtText& label) const
-{   
-    const QFont fnt = label.usedFont(font);
-
-    QFontMetrics fm(fnt);
-    const int fmh = fm.ascent() - 2;
-
-    double radius = d_data->radius + spacing();
-    if ( hasComponent(QwtAbstractScaleDraw::Ticks) )
-        radius += majTickLength();
-
-    // First we find the point on a circle enlarged
-    // by half of the font height.
-
-    double xOffset = ( radius + fmh / 2 ) * sin(arc);
-    double yOffset = ( radius + fmh / 2 ) * cos(arc);
-
-    if ( qRound(xOffset) != 0 )
-    {
-        // The centered label might cut the circle
-        // with distance: d_data->radius + d_data->majLen + d_data->vpad
-        // We align the label to the circle by moving
-        // the x-coordinate, because we have only
-        // horizontal labels here.
-
-        const int brw = label.textSize(font).width();
-
-        const double circleX = radius * sin(arc);
-        if ( xOffset < 0 )
-            xOffset = circleX - brw / 2; // left
-        else
-            xOffset = circleX + brw / 2; // right
-    }
-    const int x = d_data->center.x() + qRound(xOffset);
-    const int y = d_data->center.y() - qRound(yOffset);
-
-    return QPoint(x, y);
 }

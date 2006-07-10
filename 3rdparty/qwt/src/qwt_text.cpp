@@ -9,6 +9,7 @@
 
 // vim: expandtab
 
+#include <qmap.h>
 #include <qfont.h>
 #include <qcolor.h>
 #include <qpen.h>
@@ -18,9 +19,112 @@
 #include "qwt_text_engine.h"
 #include "qwt_text.h"
 #if QT_VERSION >= 0x040000
+#include <QPluginLoader>
 #include <qapplication.h>
 #include <qdesktopwidget.h>
+#include <qdir.h>
+#include "qwt_text_plugin.h"
 #endif
+
+class QwtText::EngineDict
+{
+public:
+    EngineDict();
+    ~EngineDict();
+
+    const QwtTextEngine *textEngine(const QString &, 
+        QwtText::TextFormat) const;
+
+private:
+    typedef QMap<int, QwtTextEngine *> EngineMap;
+
+    inline const QwtTextEngine *engine(EngineMap::const_iterator &it) const 
+    {
+#if QT_VERSION < 0x040000
+        return it.data();
+#else
+        return it.value();
+#endif
+    }
+
+    EngineMap d_map;
+};
+
+QwtText::EngineDict::EngineDict()
+{
+    d_map.insert(QwtText::PlainText, new QwtPlainTextEngine());
+#ifndef QT_NO_RICHTEXT
+    d_map.insert(QwtText::RichText, new QwtRichTextEngine());
+#endif
+
+#if QT_VERSION >= 0x040000
+
+    // Plugins are not implemented for Qt 3
+
+    const QStringList libPaths = QApplication::libraryPaths();
+    foreach (QString path, QApplication::libraryPaths())
+    {
+        QDir pluginsDir(path);
+        if ( !pluginsDir.cd("textengines") )
+            continue;
+
+        foreach (QString fileName, pluginsDir.entryList(QDir::Files))
+        {
+            QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
+
+            QwtTextPlugin *plugin = 
+                qobject_cast<QwtTextPlugin *>(loader.instance());
+            if (plugin)
+            {
+                EngineMap::iterator it = d_map.find(plugin->format());
+                if ( it == d_map.end() )
+                    d_map.insert(plugin->format(), plugin->engine());
+            }
+        }
+    }
+#endif // QT_VERSION >= 0x040000
+}
+
+QwtText::EngineDict::~EngineDict()
+{
+    for ( EngineMap::const_iterator it = d_map.begin(); 
+        it != d_map.end(); ++it )
+    {
+        QwtTextEngine *textEngine = (QwtTextEngine *)engine(it);
+        delete textEngine;
+    }
+}
+
+const QwtTextEngine *QwtText::EngineDict::textEngine(const QString& text,
+    QwtText::TextFormat format) const
+{
+    if ( format == QwtText::AutoText )
+    {
+        for ( EngineMap::const_iterator it = d_map.begin(); 
+            it != d_map.end(); ++it )
+        {
+            if ( it.key() != QwtText::PlainText )
+            {
+                const QwtTextEngine *e = engine(it);
+                if ( e && e->mightRender(text) )
+                    return (QwtTextEngine *)e;
+            }
+        }
+    }
+
+    EngineMap::const_iterator it = d_map.find(format);
+    if ( it != d_map.end() )
+    {
+        const QwtTextEngine *e = engine(it);
+        if ( e )
+            return e;
+    }
+
+    it =d_map.find(QwtText::PlainText);
+    return engine(it);
+}
+
+
 class QwtText::PrivateData
 {
 public:
@@ -44,7 +148,7 @@ public:
     int paintAttributes;
     int layoutAttributes;
 
-    QwtTextEngine *textEngine;
+    const QwtTextEngine *textEngine;
 };
 
 class QwtText::LayoutCache
@@ -355,35 +459,13 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
     painter->restore();
 }
 
-QwtTextEngine *QwtText::textEngine(const QString &text,
+const QwtTextEngine *QwtText::textEngine(const QString &text,
     QwtText::TextFormat format) const
 {
-#ifndef QT_NO_RICHTEXT
-    static QwtRichTextEngine richTextEngine;
-#endif
-    static QwtPlainTextEngine plainTextEngine;
+    static EngineDict *engineDict = NULL;
+    if ( engineDict == NULL )
+        engineDict = new EngineDict();
 
-    switch(format)
-    {
-        case QwtText::AutoText:
-        {
-#ifndef QT_NO_RICHTEXT
-            if ( richTextEngine.mightRender(text) )
-                return &richTextEngine;
-#endif
-            break;
-        }
-        case QwtText::RichText:
-        {
-#ifndef QT_NO_RICHTEXT
-            return &richTextEngine;
-#endif
-            break;
-        }
-        case QwtText::PlainText:
-        default:
-            return &plainTextEngine;
-    }
-
-    return &plainTextEngine;
+    return engineDict->textEngine(text, format);
 }
+

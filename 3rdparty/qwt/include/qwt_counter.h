@@ -85,6 +85,9 @@ public:
     };
 
     explicit QwtCounter(QWidget *parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtCounter(QWidget *parent, const char *name);
+#endif
     virtual ~QwtCounter();
 
     bool editable() const;
@@ -142,6 +145,7 @@ private slots:
     void textChanged();
 
 private:
+    void initCounter();
     void updateButtons();
     void showNum(double);
     virtual void valueChange();

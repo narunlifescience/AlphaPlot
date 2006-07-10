@@ -61,6 +61,9 @@ public:
     explicit QwtSlider(QWidget *parent,
           Qt::Orientation = Qt::Horizontal,
           ScalePos = None, BGSTYLE bgStyle = BgTrough);
+#if QT_VERSION < 0x040000
+    explicit QwtSlider(QWidget *parent, const char *name);
+#endif
     
     virtual ~QwtSlider();
 
@@ -110,6 +113,8 @@ protected:
     QwtScaleDraw *scaleDraw();
 
 private:
+    void initSlider(Qt::Orientation, ScalePos scalePos, BGSTYLE bgStyle);
+
     class PrivateData;
     PrivateData *d_data;
 };

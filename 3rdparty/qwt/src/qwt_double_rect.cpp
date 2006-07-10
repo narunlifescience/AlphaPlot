@@ -434,10 +434,10 @@ bool QwtDoubleRect::operator!=(const QwtDoubleRect &other) const
 */
 QwtDoubleRect QwtDoubleRect::operator|(const QwtDoubleRect &other) const
 {
-    if ( !isEmpty() ) 
+    if ( isEmpty() ) 
         return other;
 
-    if ( !other.isEmpty() ) 
+    if ( other.isEmpty() ) 
         return *this;
         
     const double minX = qwtMin(d_left, other.d_left);

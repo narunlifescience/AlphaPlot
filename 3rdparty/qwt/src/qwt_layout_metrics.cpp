@@ -12,18 +12,15 @@
 #if QT_VERSION < 0x040000
 #include <qpaintdevicemetrics.h> 
 #include <qwmatrix.h> 
-#include <qpointarray.h> 
-#define QwtPointArray QPointArray
 #define QwtMatrix QWMatrix
 #else
 #include <qmatrix.h> 
-#include <qpolygon.h> 
-#define QwtPointArray QPolygon
 #define QwtMatrix QMatrix
 #endif
 #include <qpaintdevice.h> 
 #include <qdesktopwidget.h> 
 #include "qwt_math.h"
+#include "qwt_polygon.h"
 #include "qwt_layout_metrics.h"
 
 static QSize deviceDpi(const QPaintDevice *device)
@@ -155,6 +152,14 @@ QPoint QwtMetricsMap::screenToLayout(const QPoint &point) const
     return QPoint(screenToLayoutX(point.x()), screenToLayoutY(point.y()));
 }
 
+QPoint QwtMetricsMap::layoutToScreen(const QPoint &point) const
+{
+    if ( d_screenToLayoutX == 1.0 && d_screenToLayoutY == 1.0 )
+        return point;
+
+    return QPoint(layoutToScreenX(point.x()), layoutToScreenY(point.y()));
+}
+
 #ifndef QT_NO_TRANSFORMATIONS
 QRect QwtMetricsMap::layoutToDevice(const QRect &rect, 
     const QPainter *painter) const
@@ -228,18 +233,27 @@ QRect QwtMetricsMap::screenToLayout(const QRect &rect) const
         screenToLayoutX(rect.width()), screenToLayoutY(rect.height()));
 }
 
+QRect QwtMetricsMap::layoutToScreen(const QRect &rect) const
+{
+    if ( d_screenToLayoutX == 1.0 && d_screenToLayoutY == 1.0 )
+        return rect;
+
+    return QRect(layoutToScreenX(rect.x()), layoutToScreenY(rect.y()),
+        layoutToScreenX(rect.width()), layoutToScreenY(rect.height()));
+}
+
 #ifndef QT_NO_TRANSFORMATIONS
-QwtPointArray QwtMetricsMap::layoutToDevice(const QwtPointArray &pa, 
+QwtPolygon QwtMetricsMap::layoutToDevice(const QwtPolygon &pa, 
     const QPainter *painter) const
 #else
-QwtPointArray QwtMetricsMap::layoutToDevice(const QwtPointArray &pa, 
+QwtPolygon QwtMetricsMap::layoutToDevice(const QwtPolygon &pa, 
     const QPainter *) const
 #endif
 {
     if ( isIdentity() )
         return pa;
     
-    QwtPointArray mappedPa(pa);
+    QwtPolygon mappedPa(pa);
 
 #ifndef QT_NO_TRANSFORMATIONS
     if ( painter )
@@ -259,17 +273,17 @@ QwtPointArray QwtMetricsMap::layoutToDevice(const QwtPointArray &pa,
 }
 
 #ifndef QT_NO_TRANSFORMATIONS
-QwtPointArray QwtMetricsMap::deviceToLayout(const QwtPointArray &pa, 
+QwtPolygon QwtMetricsMap::deviceToLayout(const QwtPolygon &pa, 
     const QPainter *painter) const
 #else
-QwtPointArray QwtMetricsMap::deviceToLayout(const QwtPointArray &pa, 
+QwtPolygon QwtMetricsMap::deviceToLayout(const QwtPolygon &pa, 
     const QPainter *) const
 #endif
 {
     if ( isIdentity() )
         return pa;
     
-    QwtPointArray mappedPa(pa);
+    QwtPolygon mappedPa(pa);
 
 #ifndef QT_NO_TRANSFORMATIONS
     if ( painter )
@@ -299,11 +313,11 @@ QRect QwtMetricsMap::translate(
 }
 
 /*!
-  QwtPointArray QwtMatrix::operator*(const QwtPointArray &) const.
+  QwtPolygon QwtMatrix::operator*(const QwtPolygon &) const.
 */
 
-QwtPointArray QwtMetricsMap::translate(
-    const QwtMatrix &m, const QwtPointArray &pa) 
+QwtPolygon QwtMetricsMap::translate(
+    const QwtMatrix &m, const QwtPolygon &pa) 
 {
     return m.map(pa);
 }

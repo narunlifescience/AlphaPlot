@@ -39,6 +39,12 @@ public:
         double p1, double p2, void *);
     double (*invXForm)(double y, double p1, double p2, 
         double s1, double s2, void *);
+
+    inline void setData(void *);
+    inline void *data() const;
+
+private:
+    void *d_data;  // data, passed to xForm/invXForm
 };
 
 /*!
@@ -62,9 +68,6 @@ public:
     void setPaintXInterval(double p1, double p2);
     void setScaleInterval(double s1, double s2);
 
-    void setTransformationData(void *);
-    void *transformationData() const;
-
     int transform(double x) const;
     double invTransform(double i) const;
 
@@ -76,6 +79,9 @@ public:
     inline double s1() const;
     inline double s2() const;
 
+    inline double pDist() const;
+    inline double sDist() const;
+
     QT_STATIC_CONST double LogMin;
     QT_STATIC_CONST double LogMax;
 
@@ -86,10 +92,24 @@ private:
     double d_p1, d_p2;     // paint device interval boundaries
 
     double d_cnv;       // conversion factor
-    void *d_transformationData;  // data, passed to the transformations
 
     QwtScaleTransformation d_transformation;
 };
+
+/*!
+   Add data, that will passed to xForm/invXForm
+   \warning The data has to be deleted by the application
+*/
+inline void QwtScaleTransformation::setData(void *data)
+{
+    d_data = data;
+}
+
+//! Get the data, that is passed to xForm/invXForm
+inline void *QwtScaleTransformation::data() const
+{
+    return d_data;
+}
 
 /*!
     \return First border of the scale interval
@@ -123,6 +143,16 @@ inline double QwtScaleMap::p2() const
     return d_p2;
 }
 
+inline double QwtScaleMap::pDist() const
+{
+    return qwtAbs(d_p2 - d_p1);
+}
+
+inline double QwtScaleMap::sDist() const
+{
+    return qwtAbs(d_s2 - d_s1);
+}
+
 /*!
   Transform a point related to the scale interval into an point 
   related to the interval of the paint device
@@ -139,7 +169,7 @@ inline double QwtScaleMap::xTransform(double x) const
         return d_p1 + log(x / d_s1) * d_cnv;
 
     return (*d_transformation.xForm)(x, d_s1, d_s2, 
-        d_p1, d_p2, d_transformationData );
+        d_p1, d_p2, d_transformation.data() );
 }
 
 /*!
@@ -149,7 +179,7 @@ inline double QwtScaleMap::xTransform(double x) const
 inline double QwtScaleMap::invTransform(double y) const
 {
     return (*d_transformation.invXForm)(y, d_p1, d_p2, 
-        d_s1, d_s2, d_transformationData);
+        d_s1, d_s2, d_transformation.data() );
 }
 
 /*!

@@ -42,20 +42,17 @@ public:
   tracker mode to QwtPicker::ActiveOnly.
 
   \param canvas Plot canvas to observe, also the parent object
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotZoomer().
-           This quirk will be removed in a future release.
+  \param doReplot Call replot for the attached plot before initializing
+                  the zoomer with its scales. This might be necessary, 
+                  when the plot is in a state with pending scale changes.
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::setZoomBase()
 */
-QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas):
+QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas, bool doReplot):
     QwtPlotPicker(canvas)
 {
     if ( canvas )
-        init();
+        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
 }
 
 /*!
@@ -68,24 +65,19 @@ QwtPlotZoomer::QwtPlotZoomer(QwtPlotCanvas *canvas):
   \param xAxis X axis of the zoomer
   \param yAxis Y axis of the zoomer
   \param canvas Plot canvas to observe, also the parent object
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotZoomer().
-           This quirk will be removed in a future release.
+  \param doReplot Call replot for the attached plot before initializing
+                  the zoomer with its scales. This might be necessary, 
+                  when the plot is in a state with pending scale changes.
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::setZoomBase()
 */
 
 QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
-        QwtPlotCanvas *canvas):
+        QwtPlotCanvas *canvas, bool doReplot):
     QwtPlotPicker(xAxis, yAxis, canvas)
 {
     if ( canvas )
-    {
-        init();
-    }
+        init(RectSelection & ClickSelection, ActiveOnly, doReplot);
 }
 
 /*!
@@ -98,31 +90,27 @@ QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis,
                         QwtPicker::RectSelection will be auto added.
   \param trackerMode Tracker mode
   \param canvas Plot canvas to observe, also the parent object
+  \param doReplot Call replot for the attached plot before initializing
+                  the zoomer with its scales. This might be necessary, 
+                  when the plot is in a state with pending scale changes.
 
   \sa QwtPicker, QwtPicker::setSelectionFlags(), QwtPicker::setRubberBand(),
       QwtPicker::setTrackerMode
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotZoomer().
-           This quirk will be removed in a future release.
-
-  \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::setZoomBase()
+  \sa QwtPlot::autoReplot(), QwtPlot::replot(), setZoomBase()
 */
 
 QwtPlotZoomer::QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
-        DisplayMode trackerMode, QwtPlotCanvas *canvas):
-    QwtPlotPicker(xAxis, yAxis,canvas)
+        DisplayMode trackerMode, QwtPlotCanvas *canvas, bool doReplot):
+    QwtPlotPicker(xAxis, yAxis, canvas)
 {
     if ( canvas )
-    {
-        init(selectionFlags, trackerMode);
-    }
+        init(selectionFlags, trackerMode, doReplot);
 }
 
 //! Init the zoomer, used by the constructors
-void QwtPlotZoomer::init(int selectionFlags, DisplayMode trackerMode)
+void QwtPlotZoomer::init(int selectionFlags, 
+    DisplayMode trackerMode, bool doReplot)
 {
     d_data = new PrivateData;
 
@@ -131,6 +119,9 @@ void QwtPlotZoomer::init(int selectionFlags, DisplayMode trackerMode)
     setSelectionFlags(selectionFlags);
     setTrackerMode(trackerMode);
     setRubberBand(RectRubberBand);
+
+    if ( doReplot && plot() )
+        plot()->replot();
 
     setZoomBase(scaleRect());
 }
@@ -285,6 +276,7 @@ uint QwtPlotZoomer::zoomRectIndex() const
   the normalized rect on it.
 
   \note If the maximal stack depth is reached, zoom is ignored.
+  \note The zoomed signal is emitted.
 */
 
 void QwtPlotZoomer::zoom(const QwtDoubleRect &rect)
@@ -308,6 +300,8 @@ void QwtPlotZoomer::zoom(const QwtDoubleRect &rect)
         d_data->zoomRectIndex++;
 
         rescale();
+
+        emit zoomed(zoomRect);
     }
 }
 
@@ -319,6 +313,7 @@ void QwtPlotZoomer::zoom(const QwtDoubleRect &rect)
   positive zoom in. A value of 0 zooms out to the zoom base.
 
   \param offset Offset relative to the current position of the zoom stack.
+  \note The zoomed signal is emitted.
   \sa zoomRectIndex()
 */
 void QwtPlotZoomer::zoom(int offset)
@@ -335,6 +330,8 @@ void QwtPlotZoomer::zoom(int offset)
     }
 
     rescale();
+
+    emit zoomed(zoomRect());
 }
 
 /*! 
@@ -493,7 +490,7 @@ void QwtPlotZoomer::move(double x, double y)
           to a accepted rectangle. 
 */
 
-bool QwtPlotZoomer::accept(SelectedPoints &pa) const
+bool QwtPlotZoomer::accept(QwtPolygon &pa) const
 {
     if ( pa.count() < 2 )
         return false;
@@ -569,7 +566,6 @@ void QwtPlotZoomer::begin()
   Expand the selected rectangle to minZoomSize() and zoom in
   if accepted.
 
-  \note The zoomed signal is emitted.
   \sa QwtPlotZoomer::accept()a, QwtPlotZoomer::minZoomSize()
 */
 bool QwtPlotZoomer::end(bool ok)
@@ -582,7 +578,7 @@ bool QwtPlotZoomer::end(bool ok)
     if ( !plot )
         return false;
 
-    const SelectedPoints &pa = selection();
+    const QwtPolygon &pa = selection();
     if ( pa.count() < 2 )
         return false;
 
@@ -601,7 +597,6 @@ bool QwtPlotZoomer::end(bool ok)
     zoomRect.moveCenter(center);
 
     zoom(zoomRect);
-    emit zoomed(zoomRect);
 
     return true;
 }

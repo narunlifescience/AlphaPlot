@@ -51,10 +51,6 @@ public:
     virtual int extent(const QPen &, const QFont &) const;
 
 protected:
-    QPoint labelCenter( const QFont &, double arc, const QwtText &) const;
-    QSize labelSize(const QFont &, double val) const;
-    QRect labelRect(const QFont &, double val) const;
-
     virtual void drawTick(QPainter *p, double val, int len) const;
     virtual void drawBackbone(QPainter *p) const;
     virtual void drawLabel(QPainter *p, double val) const;

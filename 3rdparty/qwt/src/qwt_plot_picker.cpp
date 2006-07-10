@@ -26,12 +26,6 @@
 
   \param canvas Plot canvas to observe, also the parent object
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotPicker().
-           This quirk will be removed in a future release.
-
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
 */
   
@@ -71,12 +65,6 @@ QwtPlotPicker::QwtPlotPicker(QwtPlotCanvas *canvas):
   \param yAxis Set the y axis of the picker
   \param canvas Plot canvas to observe, also the parent object
 
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotPicker().
-           This quirk will be removed in a future release.
-
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
 */
 QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
@@ -99,12 +87,6 @@ QwtPlotPicker::QwtPlotPicker(int xAxis, int yAxis, QwtPlotCanvas *canvas):
 
   \sa QwtPicker, QwtPicker::setSelectionFlags(), QwtPicker::setRubberBand(),
       QwtPicker::setTrackerMode
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotPicker().
-           This quirk will be removed in a future release.
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot(), QwtPlotPicker::scaleRect()
 */
@@ -155,12 +137,6 @@ const QwtPlot *QwtPlotPicker::plot() const
 
 /*!
   Return normalized bounding rect of the axes
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, you must call
-           QwtPlot::replot() before calling QwtPlotPicker::scaleRect().
-           This quirk will be removed in a future release.
 
   \sa QwtPlot::autoReplot(), QwtPlot::replot().
 */
@@ -291,7 +267,7 @@ bool QwtPlotPicker::end(bool ok)
     if ( !plot )
         return false;
 
-    const SelectedPoints &pa = selection();
+    const QwtPolygon &pa = selection();
     if ( pa.count() == 0 )
         return false;
 

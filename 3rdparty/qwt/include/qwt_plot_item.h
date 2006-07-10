@@ -11,8 +11,10 @@
 #define QWT_PLOT_ITEM_H
 
 #include "qwt_global.h"
+#include "qwt_text.h"
 #include "qwt_double_rect.h"
 
+class QString;
 class QRect;
 class QPainter;
 class QWidget;
@@ -36,6 +38,8 @@ public:
         Rtti_PlotMarker,
         Rtti_PlotCurve,
         Rtti_PlotHistogram,
+        Rtti_PlotSpectrogram,
+        Rtti_PlotSVG,
 
         Rtti_PlotUserItem = 1000
     };
@@ -53,7 +57,7 @@ public:
     };
 #endif
 
-    explicit QwtPlotItem();
+    explicit QwtPlotItem(const QwtText &title = QwtText());
     virtual ~QwtPlotItem();
 
     void attach(QwtPlot *plot);
@@ -61,6 +65,10 @@ public:
 
     QwtPlot *plot() const;
     
+    void setTitle(const QString &title);
+    void setTitle(const QwtText &title);
+    const QwtText &title() const;
+
     virtual int rtti() const;
 
     void setItemAttribute(ItemAttribute, bool on = true);
@@ -101,7 +109,19 @@ public:
 
     virtual QWidget *legendItem() const;
 
+    QwtDoubleRect scaleRect(const QwtScaleMap &, const QwtScaleMap &) const;
+    QRect paintRect(const QwtScaleMap &, const QwtScaleMap &) const;
+    
+    QRect transform(const QwtScaleMap &, const QwtScaleMap &, 
+        const QwtDoubleRect&) const; 
+    QwtDoubleRect invTransform(const QwtScaleMap &, const QwtScaleMap &,
+        const QRect&) const; 
+
 private:
+    // Disabled copy constructor and operator=
+    QwtPlotItem( const QwtPlotItem & );
+    QwtPlotItem &operator=( const QwtPlotItem & );
+
     class PrivateData;
     PrivateData *d_data;
 };

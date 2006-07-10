@@ -66,6 +66,30 @@ QwtSlider::QwtSlider(QWidget *parent,
         Qt::Orientation orientation, ScalePos scalePos, BGSTYLE bgStyle): 
     QwtAbstractSlider(orientation, parent)
 {
+    initSlider(orientation, scalePos, bgStyle);
+}
+
+#if QT_VERSION < 0x040000
+/*!
+  \brief Constructor
+
+  Build a horizontal slider with no scale and BgTrough as 
+  background style
+
+  \param parent parent widget
+  \param name Object name
+*/
+QwtSlider::QwtSlider(QWidget *parent, const char* name):
+    QwtAbstractSlider(Qt::Horizontal, parent)
+{
+    setName(name);
+    initSlider(Qt::Horizontal, None, BgTrough);
+}
+#endif
+
+void QwtSlider::initSlider(Qt::Orientation orientation, 
+    ScalePos scalePos, BGSTYLE bgStyle)
+{
     if (orientation == Qt::Vertical) 
         setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
     else

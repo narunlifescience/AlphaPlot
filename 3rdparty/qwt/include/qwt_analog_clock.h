@@ -57,6 +57,9 @@ public:
     };
 
     explicit QwtAnalogClock(QWidget* parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtAnalogClock(QWidget* parent, const char *name);
+#endif
     virtual ~QwtAnalogClock();
 
     virtual void setHand(Hand, QwtDialNeedle *);
@@ -78,6 +81,7 @@ protected:
 
 private:
     virtual void setNeedle(QwtDialNeedle *);
+    void initClock();
 
     QwtDialNeedle *d_hand[NHands];
 };

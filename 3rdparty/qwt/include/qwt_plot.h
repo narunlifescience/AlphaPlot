@@ -77,24 +77,8 @@ class QWT_EXPORT QwtPlot: public QFrame, public QwtPlotDict
     friend class QwtPlotCanvas;
 
     Q_OBJECT
-
-    Q_ENUMS( Axis Position )
-        
-    // plot
-    Q_PROPERTY( bool autoReplot READ autoReplot WRITE setAutoReplot )
-
-    // canvas
-    Q_PROPERTY( QColor canvasBackground READ canvasBackground 
-        WRITE setCanvasBackground )
-    Q_PROPERTY( int canvasLineWidth READ canvasLineWidth 
-        WRITE setCanvasLineWidth )
-
-    // axes  
-    Q_PROPERTY( bool xBottomAxis READ xBottomAxisEnabled 
-        WRITE enableXBottomAxis )
-    Q_PROPERTY( bool xTopAxis READ xTopAxisEnabled WRITE enableXTopAxis )
-    Q_PROPERTY( bool yLeftAxis READ yLeftAxisEnabled WRITE enableYLeftAxis )
-    Q_PROPERTY( bool yRightAxis READ yRightAxisEnabled WRITE enableYRightAxis )
+    Q_PROPERTY( QString propertiesDocument 
+        READ grabProperties WRITE applyProperties )
 
 public:
     //! Axis index
@@ -116,26 +100,16 @@ public:
         TopLegend
     };
 
-    explicit QwtPlot(QWidget *p = 0);
+    explicit QwtPlot(QWidget * = NULL);
     explicit QwtPlot(const QwtText &title, QWidget *p = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtPlot(QWidget *, const char* name);
+#endif
+
     virtual ~QwtPlot();
 
-    //! Designer API for enableAxis
-    void enableXBottomAxis(bool b) {enableAxis(xBottom,b);}     
-    //! Designer API for axisEnabled
-    bool xBottomAxisEnabled() const {return axisEnabled(xBottom);};
-    //! Designer API for enableAxis
-    void enableXTopAxis(bool b) {enableAxis(xTop,b);}       
-    //! Designer API for axisEnabled
-    bool xTopAxisEnabled() const {return axisEnabled(xTop);};
-    //! Designer API for enableAxis
-    void enableYRightAxis(bool b) {enableAxis(yRight,b);}       
-    //! Designer API for axisEnabled
-    bool yRightAxisEnabled() const {return axisEnabled(yRight);};
-    //! Designer API for enableAxis
-    void enableYLeftAxis(bool b) {enableAxis(yLeft,b);}     
-    //! Designer API for axisEnabled
-    bool yLeftAxisEnabled() const {return axisEnabled(yLeft);};
+    void applyProperties(const QString &);
+    QString grabProperties() const;
 
     void setAutoReplot(bool tf = true);
     bool autoReplot() const;
@@ -236,7 +210,7 @@ public:
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
-    void updateLayout();
+    virtual void updateLayout();
 
     virtual bool event(QEvent *);
 

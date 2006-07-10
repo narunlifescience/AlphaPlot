@@ -57,7 +57,11 @@ QwtDoubleRect QwtData::boundingRect() const
     return QwtDoubleRect(minX, minY, maxX - minX, maxY - minY);
 }
 
+#if QT_VERSION >= 0x040000
+QwtDoublePointData::QwtDoublePointData(const QPolygonF &data):
+#else
 QwtDoublePointData::QwtDoublePointData(const QwtArray<QwtDoublePoint> &data):
+#endif
     d_data(data)
 {
 }
@@ -88,7 +92,11 @@ double QwtDoublePointData::y(size_t i) const
     return d_data[int(i)].y(); 
 }
 
-const QwtArray<QwtDoublePoint> QwtDoublePointData::data() const
+#if QT_VERSION >= 0x040000
+const QPolygonF &QwtDoublePointData::data() const
+#else
+const QwtArray<QwtDoublePoint> &QwtDoublePointData::data() const
+#endif
 {
     return d_data;
 }

@@ -87,7 +87,7 @@ public:
 
 protected:
     bool contains(const QwtDoubleInterval &, double val) const;
-    QwtTickList strip(const QwtTickList&, const QwtDoubleInterval &) const;
+    QwtValueList strip(const QwtValueList&, const QwtDoubleInterval &) const;
     double divideInterval(double interval, int numSteps) const;
 
     QwtDoubleInterval buildInterval(double v) const;
@@ -123,14 +123,14 @@ protected:
 private:
     void buildTicks(
         const QwtDoubleInterval &, double stepSize, int maxMinSteps,
-        QwtTickList ticks[QwtScaleDiv::NTickTypes]) const;
+        QwtValueList ticks[QwtScaleDiv::NTickTypes]) const;
 
     void buildMinorTicks(
-        const QwtTickList& majorTicks,
+        const QwtValueList& majorTicks,
         int maxMinMark, double step,
-        QwtTickList &, QwtTickList &) const;
+        QwtValueList &, QwtValueList &) const;
 
-    QwtTickList buildMajorTicks(
+    QwtValueList buildMajorTicks(
         const QwtDoubleInterval &interval, double stepSize) const;
 };
 
@@ -167,13 +167,13 @@ private:
 
     void buildTicks(
         const QwtDoubleInterval &, double stepSize, int maxMinSteps,
-        QwtTickList ticks[QwtScaleDiv::NTickTypes]) const;
+        QwtValueList ticks[QwtScaleDiv::NTickTypes]) const;
 
-    QwtTickList buildMinorTicks(
-        const QwtTickList& majorTicks,
+    QwtValueList buildMinorTicks(
+        const QwtValueList& majorTicks,
         int maxMinMark, double step) const;
 
-    QwtTickList buildMajorTicks(
+    QwtValueList buildMajorTicks(
         const QwtDoubleInterval &interval, double stepSize) const;
 };
 

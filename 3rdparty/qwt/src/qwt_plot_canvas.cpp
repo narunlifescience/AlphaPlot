@@ -29,7 +29,7 @@ class QwtPlotCanvas::PrivateData
 {
 public:
     PrivateData():
-        focusIndicator(CanvasFocusIndicator),
+        focusIndicator(NoFocusIndicator),
         paintAttributes(0),
         cache(NULL)
     {

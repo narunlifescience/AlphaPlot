@@ -69,7 +69,7 @@ protected:
     virtual void rangeChange();
 
 private:
-    void setNewValue(double x,int align = 0);
+    void setNewValue(double x, bool align = false);
 
     double d_minValue;
     double d_maxValue;

@@ -65,6 +65,8 @@ public:
     const QRect &scaleRect(int axis) const;
     const QRect &canvasRect() const;
 
+    class LayoutData;
+
 protected:
 
     QRect layoutLegend(int options, const QRect &) const;
@@ -78,7 +80,6 @@ protected:
         QRect scaleRect[QwtPlot::axisCnt]) const;
 
 private:
-    class LayoutData;
     class PrivateData;
 
     PrivateData *d_data;

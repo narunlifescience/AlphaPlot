@@ -126,12 +126,6 @@ QwtTextEngine::~QwtTextEngine()
 {
 }
 
-void QwtTextEngine::textMargins(const QFont &, const QString &,
-    int &left, int &right, int &top, int &bottom)
-{
-    left = right = top = bottom = 0;
-}
-
 QwtPlainTextEngine::QwtPlainTextEngine()
 {
     d_data = new PrivateData;
@@ -163,7 +157,7 @@ QSize QwtPlainTextEngine::textSize(const QFont &font,
 }
 
 void QwtPlainTextEngine::textMargins(const QFont &font, const QString &,
-    int &left, int &right, int &top, int &bottom)
+    int &left, int &right, int &top, int &bottom) const
 {
     left = right = top = 0;
 
@@ -309,6 +303,12 @@ bool QwtRichTextEngine::mightRender(const QString &text) const
 #else
     return Qt::mightBeRichText(text);
 #endif
+}
+
+void QwtRichTextEngine::textMargins(const QFont &, const QString &,
+    int &left, int &right, int &top, int &bottom) const
+{
+    left = right = top = bottom = 0;
 }
 
 #endif // !QT_NO_RICHTEXT

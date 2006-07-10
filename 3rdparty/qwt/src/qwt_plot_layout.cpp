@@ -115,8 +115,8 @@ void QwtPlotLayout::LayoutData::init(const QwtPlot *plot, const QRect &rect)
             scale[axis].start = scaleWidget->startBorderDist();
             scale[axis].end = scaleWidget->endBorderDist();
 
-            scale[axis].baseLineOffset = scaleWidget->baseLineDist();
-            scale[axis].tickOffset = scaleWidget->baseLineDist();
+            scale[axis].baseLineOffset = scaleWidget->margin();
+            scale[axis].tickOffset = scaleWidget->margin();
             if ( scaleWidget->scaleDraw()->hasComponent(
                 QwtAbstractScaleDraw::Ticks) )
             {
@@ -231,7 +231,7 @@ int QwtPlotLayout::margin() const
               -1 means margin at all borders.
   \sa QwtPlotLayout::canvasMargin() 
 
-  \warning The canvas will have no effect when alignCanvasToScales is true
+  \warning The margin will have no effect when alignCanvasToScales is true
 */
 
 void QwtPlotLayout::setCanvasMargin(int margin, int axis)
@@ -269,7 +269,7 @@ int QwtPlotLayout::canvasMargin(int axis) const
 
   \param alignCanvasToScales New align-canvas-to-axis-scales setting
 
-  \sa QwtPlotLayout::alignCanvasToTicks, QwtPlotLayout::setCanvasMargin() 
+  \sa QwtPlotLayout::setCanvasMargin() 
   \note In this context the term 'scale' means the backbone of a scale.
   \warning In case of alignCanvasToScales == true canvasMargin will have 
            no effect
@@ -500,7 +500,7 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
             sd.w = hint.width(); 
             sd.h = hint.height(); 
             scl->getBorderDistHint(sd.minLeft, sd.minRight);
-            sd.tickOffset = scl->baseLineDist();
+            sd.tickOffset = scl->margin();
             if ( scl->scaleDraw()->hasComponent(QwtAbstractScaleDraw::Ticks) )
                 sd.tickOffset += scl->scaleDraw()->majTickLength();
         }
@@ -560,13 +560,17 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
     }
 
     const QwtPlotCanvas *canvas = plot->canvas();
+    const QSize minCanvasSize = canvas->minimumSize();
 
-    int w = scaleData[QwtPlot::yLeft].w + scaleData[QwtPlot::yRight].w
-        + qwtMax(scaleData[QwtPlot::xBottom].w, scaleData[QwtPlot::xTop].w)
+    int w = scaleData[QwtPlot::yLeft].w + scaleData[QwtPlot::yRight].w;
+    int cw = qwtMax(scaleData[QwtPlot::xBottom].w, scaleData[QwtPlot::xTop].w)
         + 2 * (canvas->frameWidth() + 1);
-    int h = scaleData[QwtPlot::xBottom].h + scaleData[QwtPlot::xTop].h 
-        + qwtMax(scaleData[QwtPlot::yLeft].h, scaleData[QwtPlot::yRight].h)
+    w += qwtMax(cw, minCanvasSize.width());
+
+    int h = scaleData[QwtPlot::xBottom].h + scaleData[QwtPlot::xTop].h;
+    int ch = qwtMax(scaleData[QwtPlot::yLeft].h, scaleData[QwtPlot::yRight].h)
         + 2 * (canvas->frameWidth() + 1);
+    h += qwtMax(ch, minCanvasSize.height());
 
     const QwtTextLabel *title = plot->titleLabel();
     if (title && !title->text().isEmpty())
@@ -968,6 +972,38 @@ void QwtPlotLayout::alignScales(int options,
                     if ( topOffset > 0 )
                         axisRect.setTop(axisRect.top() + topOffset);
                 }
+            }
+        }
+    }
+
+    if ( d_data->alignCanvasToScales )
+    {
+        /*
+          The canvas has been aligned to the scale with largest
+          border distances. Now we have to realign the other scale.
+         */
+
+        if ( scaleRect[QwtPlot::xBottom].isValid() && 
+            scaleRect[QwtPlot::xTop].isValid() )
+        {
+            for ( int axis = QwtPlot::xBottom; axis <= QwtPlot::xTop; axis++ )
+            {
+                scaleRect[axis].setLeft(canvasRect.left() + 1 
+                    - d_data->layoutData.scale[axis].start);
+                scaleRect[axis].setRight(canvasRect.right() - 1 
+                    + d_data->layoutData.scale[axis].end);
+            }
+        }
+
+        if ( scaleRect[QwtPlot::yLeft].isValid() && 
+            scaleRect[QwtPlot::yRight].isValid() )
+        {
+            for ( int axis = QwtPlot::yLeft; axis <= QwtPlot::yRight; axis++ )
+            {
+                scaleRect[axis].setTop(canvasRect.top() + 1 
+                    - d_data->layoutData.scale[axis].start);
+                scaleRect[axis].setBottom(canvasRect.bottom() - 1 
+                    + d_data->layoutData.scale[axis].end);
             }
         }
     }

@@ -31,6 +31,9 @@ class QWT_EXPORT QwtTextLabel : public QFrame
 
 public:
     explicit QwtTextLabel(QWidget *parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtTextLabel(QWidget *parent, const char *name);
+#endif
     explicit QwtTextLabel(const QwtText &, QWidget *parent = NULL);
     virtual ~QwtTextLabel();
 

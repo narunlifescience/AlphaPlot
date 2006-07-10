@@ -120,7 +120,7 @@ signals:
     void sliderMoved(double value);
     
 protected:
-    void setPosition(const QPoint &p);
+    virtual void setPosition(const QPoint &);
     virtual void valueChange();
 
     virtual void timerEvent(QTimerEvent *e);

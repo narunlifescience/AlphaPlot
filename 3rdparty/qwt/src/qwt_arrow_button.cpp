@@ -11,15 +11,8 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include "qwt_math.h"
+#include "qwt_polygon.h"
 #include "qwt_arrow_button.h"
-
-#if QT_VERSION < 0x040000
-#include <qpointarray.h>
-#define QwtPointArray QPointArray
-#else
-#include <qpolygon.h>
-#define QwtPointArray QPolygon
-#endif
 
 static const int MaxNum = 3;
 static const int Margin = 2;
@@ -240,7 +233,7 @@ void QwtArrowButton::drawButtonLabel(QPainter *p)
 void QwtArrowButton::drawArrow(QPainter *p, 
     const QRect &r, Qt::ArrowType arrowType) const 
 {
-    QwtPointArray pa(3);
+    QwtPolygon pa(3);
 
     switch(arrowType)
     {

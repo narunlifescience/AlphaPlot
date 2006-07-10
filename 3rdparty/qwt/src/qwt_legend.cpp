@@ -411,6 +411,22 @@ void QwtLegend::insert(const QwtPlotItem *plotItem, QWidget *legendItem)
             }
         }
     }
+    if (!parentWidget()->layout() )
+    {
+       /*
+          updateGeometry() doesn't post LayoutRequest in certain
+          situations, like when we are hidden. But we want the
+          parent widget notified, so it can show/hide the legend
+          depending on its items.
+        */
+#if QT_VERSION < 0x040000
+        QApplication::postEvent(parentWidget(),
+            new QEvent(QEvent::LayoutHint));
+#else
+        QApplication::postEvent(parentWidget(),
+            new QEvent(QEvent::LayoutRequest));
+#endif
+    }
 }
 
 QWidget *QwtLegend::find(const QwtPlotItem *plotItem) const

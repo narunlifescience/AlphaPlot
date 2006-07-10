@@ -10,6 +10,7 @@
 #include <qpainter.h>
 #include <qpen.h>
 #include "qwt_painter.h"
+#include "qwt_text.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_div.h"
 #include "qwt_plot_grid.h"
@@ -38,7 +39,8 @@ public:
 };
 
 //! Enables major grid, disables minor grid
-QwtPlotGrid::QwtPlotGrid()
+QwtPlotGrid::QwtPlotGrid():
+    QwtPlotItem(QwtText("Grid"))
 {
     d_data = new PrivateData;
     setZ(10.0);
@@ -238,7 +240,7 @@ void QwtPlotGrid::draw(QPainter *painter,
 
 void QwtPlotGrid::drawLines(QPainter *painter, const QRect &rect,
     Qt::Orientation orientation, const QwtScaleMap &map, 
-    const QwtTickList &values) const
+    const QwtValueList &values) const
 {
     const int x1 = rect.left();
     const int x2 = rect.right();

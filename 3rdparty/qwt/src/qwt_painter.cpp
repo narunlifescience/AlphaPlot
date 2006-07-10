@@ -19,19 +19,17 @@
 #include <qstyle.h>
 #if QT_VERSION < 0x040000
 #include <qsimplerichtext.h>
-#include <qpointarray.h>
-#define QwtPointArray QPointArray
 #else
 #include <qtextdocument.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qstyleoption.h>
-#include <qpolygon.h>
-#define QwtPointArray QPolygon
 #endif
 
-#include "qwt_painter.h"
 #include "qwt_rect.h"
 #include "qwt_math.h"
+#include "qwt_color_map.h"
+#include "qwt_scale_map.h"
+#include "qwt_painter.h"
 
 QwtMetricsMap QwtPainter::d_metricsMap;
 
@@ -40,6 +38,14 @@ bool QwtPainter::d_deviceClipping = true;
 #else
 bool QwtPainter::d_deviceClipping = false;
 #endif
+
+static inline bool needDeviceClipping(
+    const QPainter *painter, bool deviceClipping)
+{
+    return deviceClipping && 
+        (painter->device()->devType() == QInternal::Widget ||
+          painter->device()->devType() == QInternal::Pixmap );
+}
 
 /*!
   En/Disable device clipping. On X11 the default
@@ -79,7 +85,7 @@ const QRect &QwtPainter::deviceClipRect()
 }
 
 //! Clip a point array
-QwtPointArray QwtPainter::clip(const QwtPointArray &pa)
+QwtPolygon QwtPainter::clip(const QwtPolygon &pa)
 {
     const QwtRect rect(deviceClipRect());
     return rect.clip(pa);
@@ -150,6 +156,8 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
 
     QRect clipRect;
 
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
 #if QT_VERSION == 0x040000 
     /*
       Performance of Qt4.0.0 is horrible for non trivial brushs. Without
@@ -159,10 +167,10 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
     clipRect = painter->window();
     if ( painter->hasClipping() )
         clipRect &= painter->clipRegion().boundingRect();
-    if ( d_deviceClipping )
+    if ( deviceClipping )
         clipRect &= deviceClipRect();
 #else
-    if ( d_deviceClipping )
+    if ( deviceClipping )
         clipRect = deviceClipRect();
 #endif
     if ( clipRect.isValid() )
@@ -180,7 +188,7 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
             int pw = painter->pen().width();
             pw = pw % 2 + pw / 2;
 
-            QwtPointArray pa(5);
+            QwtPolygon pa(5);
             pa.setPoint(0, r.left(), r.top());
             pa.setPoint(1, r.right() - pw, r.top());
             pa.setPoint(2, r.right() - pw, r.bottom() - pw);
@@ -208,6 +216,8 @@ void QwtPainter::fillRect(QPainter *painter,
     if ( !rect.isValid() )
         return;
 
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
     QRect clipRect;
 #if QT_VERSION >= 0x040000
 
@@ -220,10 +230,10 @@ void QwtPainter::fillRect(QPainter *painter,
     clipRect = painter->window();
     if ( painter->hasClipping() )
         clipRect &= painter->clipRegion().boundingRect();
-    if ( d_deviceClipping )
+    if ( deviceClipping )
         clipRect &= deviceClipRect();
 #else
-    if ( d_deviceClipping )
+    if ( deviceClipping )
         clipRect = deviceClipRect();
 #endif
 
@@ -242,7 +252,9 @@ void QwtPainter::drawEllipse(QPainter *painter, const QRect &rect)
 {
     const QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
-    if ( d_deviceClipping && !deviceClipRect().contains(rect) )
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
+    if ( deviceClipping && !deviceClipRect().contains(rect) )
         return;
 
     painter->drawEllipse(r);
@@ -265,7 +277,9 @@ void QwtPainter::drawText(QPainter *painter, const QPoint &pos,
 {
     const QPoint p = d_metricsMap.layoutToDevice(pos, painter);
 
-    if ( d_deviceClipping && !deviceClipRect().contains(p) )
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
+    if ( deviceClipping && !deviceClipRect().contains(p) )
         return;
 
     painter->drawText(p, text);
@@ -353,10 +367,12 @@ void QwtPainter::drawSimpleRichText(QPainter *painter, const QRect &rect,
 */
 void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 {
-    if ( d_deviceClipping && 
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
+    if ( deviceClipping && 
         !(deviceClipRect().contains(x1, y1) && deviceClipRect().contains(x2, y2)) )
     {
-        QwtPointArray pa(2);
+        QwtPolygon pa(2);
         pa.setPoint(0, x1, y1);
         pa.setPoint(1, x2, y2);
         drawPolyline(painter, pa);
@@ -384,7 +400,7 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
         // of 0.5 to the start/endpoint when using drawLine, but not
         // for lines painted with drawLineSegments.
 
-        QwtPointArray pa(2);
+        QwtPolygon pa(2);
         pa.setPoint(0, p1);
         pa.setPoint(1, p2);
         painter->drawLineSegments(pa);
@@ -399,10 +415,12 @@ void QwtPainter::drawLine(QPainter *painter, int x1, int y1, int x2, int y2)
 /*!
   Wrapper for QPainter::drawPolygon()
 */
-void QwtPainter::drawPolygon(QPainter *painter, const QwtPointArray &pa)
+void QwtPainter::drawPolygon(QPainter *painter, const QwtPolygon &pa)
 {
-    QwtPointArray cpa = d_metricsMap.layoutToDevice(pa);
-    if ( d_deviceClipping )
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
+    QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
+    if ( deviceClipping )
     {
 #ifdef __GNUC__
 #warning clipping ignores painter transformations
@@ -415,10 +433,12 @@ void QwtPainter::drawPolygon(QPainter *painter, const QwtPointArray &pa)
 /*!
     Wrapper for QPainter::drawPolyline()
 */
-void QwtPainter::drawPolyline(QPainter *painter, const QwtPointArray &pa)
+void QwtPainter::drawPolyline(QPainter *painter, const QwtPolygon &pa)
 {
-    QwtPointArray cpa = d_metricsMap.layoutToDevice(pa);
-    if ( d_deviceClipping )
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
+    QwtPolygon cpa = d_metricsMap.layoutToDevice(pa);
+    if ( deviceClipping )
         cpa = clip(cpa);
     painter->drawPolyline(cpa);
 }
@@ -429,9 +449,11 @@ void QwtPainter::drawPolyline(QPainter *painter, const QwtPointArray &pa)
 
 void QwtPainter::drawPoint(QPainter *painter, int x, int y)
 {
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+
     const QPoint pos = d_metricsMap.layoutToDevice(QPoint(x, y));
 
-    if ( d_deviceClipping && !deviceClipRect().contains(pos) )
+    if ( deviceClipping && !deviceClipRect().contains(pos) )
         return;
 
     painter->drawPoint(pos);
@@ -542,4 +564,68 @@ void QwtPainter::drawRoundFrame(QPainter *painter, const QRect &rect,
         drawColoredArc(painter, rect, peak, 160, interval, c0, c1);
     if ( c0 != c2 )
         drawColoredArc(painter, rect, peak + 180, 120, interval, c0, c2);
+}
+
+void QwtPainter::drawColorBar(QPainter *painter,
+        const QwtColorMap &colorMap, const QwtDoubleInterval &interval,
+        const QwtScaleMap &scaleMap, Qt::Orientation orientation,
+        const QRect &rect)
+{
+    painter->save();
+
+    QwtPainter::setClipRect(painter, rect);
+
+#if QT_VERSION < 0x040000
+    QValueVector<QRgb> colorTable;
+#else
+    QVector<QRgb> colorTable;
+#endif
+    if ( colorMap.format() == QwtColorMap::Indexed )
+        colorTable = colorMap.colorTable(interval);
+
+    QColor c;
+
+    const QRect devRect = d_metricsMap.layoutToDevice(rect);
+
+    if ( orientation == Qt::Horizontal )
+    {
+        QwtScaleMap sMap = scaleMap;
+        sMap.setPaintInterval(devRect.left(), devRect.right());
+
+        for ( int x = devRect.left(); x <= devRect.right(); x++ )
+        {
+            const double value = sMap.invTransform(x);
+
+            if ( colorMap.format() == QwtColorMap::RGB )
+                c.setRgb(colorMap.rgb(interval, value));
+            else
+                c = colorTable[colorMap.colorIndex(interval, value)];
+
+            painter->setBrush(QBrush(c));
+
+            const QRect r(x, devRect.top(), 1, devRect.height());
+            QwtPainter::drawRect(painter, r);
+            painter->setPen(c);
+            painter->drawLine(x, devRect.top(), x, devRect.bottom() - 1);
+        }
+    }
+    else // Vertical
+    {
+        QwtScaleMap sMap = scaleMap;
+        sMap.setPaintInterval(devRect.bottom(), devRect.top());
+
+        for ( int y = devRect.top(); y <= devRect.bottom(); y++ )
+        {
+            const double value = sMap.invTransform(y);
+
+            if ( colorMap.format() == QwtColorMap::RGB )
+                c.setRgb(colorMap.rgb(interval, value));
+            else
+                c = colorTable[colorMap.colorIndex(interval, value)];
+
+            painter->setPen(c);
+            painter->drawLine(devRect.left(), y, devRect.right() - 1, y);
+        }
+    }
+    painter->restore();
 }

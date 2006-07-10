@@ -62,14 +62,14 @@ to control or display values, arrays, or ranges of type double.
   <a href="http://packages.qa.debian.org/libq/libqwt.html">Debian</a>,
   <a href="http://packman.links2linux.de/?action=618">S.u.S.E</a>,
   <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. Please
+  <a href="http://samotyjak.pwsz.elblag.pl/rpmy/RPMS">Fedora</a>. Please
   report links that are not listed here.
 
   Sourceforge builds <a href="http://cvs.sourceforge.net/cvstarballs/qwt-cvsroot.tar.bz2">tarballs</a> of the CVS every night.
 
-  For anonymous CVS (a couple of hours old) try:
+  For anonymous CVS try:
   \code
-cvs -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt login
-cvs -z3 -d:pserver:anonymous@cvs.sourceforge.net:/cvsroot/qwt co qwt
+cvs -d:pserver:anonymous@qwt.cvs.sourceforge.net:/cvsroot/qwt co qwt
   \endcode
 
   \section installonmainpage Installation

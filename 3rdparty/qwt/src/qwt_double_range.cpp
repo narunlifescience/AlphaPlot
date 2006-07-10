@@ -61,7 +61,7 @@ bool QwtDoubleRange::isValid() const
   \param align
   \todo Documentation
 */
-void QwtDoubleRange::setNewValue(double x, int align)
+void QwtDoubleRange::setNewValue(double x, bool align)
 {
     double vmin,vmax;
     
@@ -131,7 +131,7 @@ void QwtDoubleRange::setNewValue(double x, int align)
 */
 void QwtDoubleRange::fitValue(double x)
 {
-    setNewValue(x,1);
+    setNewValue(x, true);
 }
 
 
@@ -146,7 +146,7 @@ void QwtDoubleRange::fitValue(double x)
 */
 void QwtDoubleRange::setValue(double x)
 {
-    setNewValue(x,0);
+    setNewValue(x, false);
 }
 
 /*!
@@ -192,7 +192,7 @@ void QwtDoubleRange::setRange(double vmin, double vmax, double vstep, int pageSi
     // If the value lies out of the range, it 
     // will be changed. Note that it will not be adjusted to 
     // the new step width.
-    setNewValue(d_value,0);
+    setNewValue(d_value, false);
     
     // call notifier after the step width has been 
     // adjusted.
@@ -259,7 +259,7 @@ void QwtDoubleRange::setPeriodic(bool tf)
 void QwtDoubleRange::incValue(int nSteps)
 {
     if ( isValid() )
-        setNewValue(d_value + double(nSteps) * d_step,1);
+        setNewValue(d_value + double(nSteps) * d_step, true);
 }
 
 /*!
@@ -271,7 +271,7 @@ void QwtDoubleRange::incValue(int nSteps)
 void QwtDoubleRange::incPages(int nPages)
 {
     if ( isValid() )
-        setNewValue(d_value + double(nPages) * double(d_pageSize) * d_step,1);
+        setNewValue(d_value + double(nPages) * double(d_pageSize) * d_step, true);
 }
 
 /*!

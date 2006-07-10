@@ -43,28 +43,28 @@ public:
 
     size_t size() const;
     const QwtDoubleInterval &interval(size_t i) const;
-    double y(size_t i) const;
+    double value(size_t i) const;
 
     QwtDoubleRect boundingRect() const;
 
 private:
-    QwtArray<QwtDoubleInterval> d_interval;
-    QwtArray<double> d_y;
+    QwtArray<QwtDoubleInterval> d_intervals;
+    QwtArray<double> d_values;
 };
 
 inline size_t QwtIntervalData::size() const
 {
-    return qwtMin(d_interval.size(), d_y.size());
+    return qwtMin(d_intervals.size(), d_values.size());
 }
 
 inline const QwtDoubleInterval &QwtIntervalData::interval(size_t i) const
 {
-    return d_interval[int(i)];
+    return d_intervals[int(i)];
 }
 
-inline double QwtIntervalData::y(size_t i) const
+inline double QwtIntervalData::value(size_t i) const
 {
-    return d_y[int(i)];
+    return d_values[int(i)];
 }
 
 #endif 

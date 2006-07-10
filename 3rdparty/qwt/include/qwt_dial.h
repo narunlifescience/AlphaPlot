@@ -116,7 +116,11 @@ public:
         RotateScale
     };
 
-    QwtDial( QWidget* parent = NULL);
+    explicit QwtDial( QWidget *parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtDial( QWidget *parent, const char *name);
+#endif
+
     virtual ~QwtDial();
 
     void setFrameShadow(Shadow);
@@ -202,6 +206,8 @@ protected:
         int &scrollMode, int &direction);
 
 private:
+    void initDial();
+
     class PrivateData;
     PrivateData *d_data;
 };

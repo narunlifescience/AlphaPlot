@@ -11,43 +11,9 @@
 #define QWT_SCALE_DIV_H
 
 #include "qwt_global.h"
+#include "qwt_valuelist.h"
 
 class QwtDoubleInterval;
-
-#if QT_VERSION < 0x040000
-
-#include <qvaluelist.h>
-
-#if defined(QWT_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class QWT_EXPORT QValueList<double>;
-// MOC_SKIP_END
-#endif
-
-typedef QValueList<double> QwtTickList;
-
-#else
-
-#include <qlist.h>
-
-#if defined(QWT_TEMPLATEDLL)
-
-#if defined Q_CC_MSVC  // Q_CC_MSVC_NET
-// Some definitions, needed to avoid a MSVC crash
-#include <qset.h>
-#include <qvector.h>
-inline uint qHash(double key) { return uint(key); }
-#endif
-
-// MOC_SKIP_BEGIN
-template class QWT_EXPORT QList<double>;
-// MOC_SKIP_END
-#endif
-
-typedef QList<double> QwtTickList;
-
-#endif
-
 
 /*!
   \brief A class representing a scale division
@@ -76,9 +42,9 @@ public:
 
     explicit QwtScaleDiv();
     explicit QwtScaleDiv(const QwtDoubleInterval &,
-        QwtTickList[NTickTypes]);
+        QwtValueList[NTickTypes]);
     explicit QwtScaleDiv(double lBound, double rBound,
-        QwtTickList[NTickTypes]);
+        QwtValueList[NTickTypes]);
 
     int operator==(const QwtScaleDiv &s) const;
     int operator!=(const QwtScaleDiv &s) const;
@@ -89,7 +55,7 @@ public:
 
     bool contains(double v) const;
 
-    const QwtTickList &ticks(int type) const;
+    const QwtValueList &ticks(int type) const;
 
     void invalidate();
     bool isValid() const;
@@ -99,7 +65,7 @@ public:
 private:
     double d_lBound;
     double d_hBound;
-    QwtTickList d_ticks[NTickTypes];
+    QwtValueList d_ticks[NTickTypes];
 
     bool d_isValid;
 };

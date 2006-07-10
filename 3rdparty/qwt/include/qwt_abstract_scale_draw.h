@@ -85,7 +85,7 @@ public:
       Calculate the extent 
 
       The extent is the distcance from the baseline to the outermost
-      pixel of the scale draw in opposite to its orienatation.
+      pixel of the scale draw in opposite to its orientation.
       It is at least minimumExtent() pixels.
  
       \sa setMinimumExtent(), minimumExtent()

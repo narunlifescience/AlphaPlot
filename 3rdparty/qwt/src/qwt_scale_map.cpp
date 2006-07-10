@@ -14,7 +14,8 @@ QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
 QwtScaleTransformation::QwtScaleTransformation():
     xForm(linearXForm),
-    invXForm(linearXForm)
+    invXForm(linearXForm),
+    d_data(NULL)
 {
 }
 
@@ -24,7 +25,8 @@ QwtScaleTransformation::QwtScaleTransformation(
         double (*invxf)(double y, double p1, double p2, 
             double s1, double s2, void *) ):
     xForm(xf),
-    invXForm(invxf)
+    invXForm(invxf),
+    d_data(NULL)
 {
 }
 
@@ -100,8 +102,7 @@ QwtScaleMap::QwtScaleMap():
     d_s2(1.0),
     d_p1(0.0),
     d_p2(1.0),
-    d_cnv(1.0),
-    d_transformationData(NULL)
+    d_cnv(1.0)
 {
 }
 
@@ -119,8 +120,7 @@ QwtScaleMap::QwtScaleMap():
 */ 
 QwtScaleMap::QwtScaleMap(int p1, int p2, double s1, double s2):
     d_p1(p1),
-    d_p2(p2),
-    d_transformationData(NULL)
+    d_p2(p2)
 {
     setScaleInterval(s1, s2);
 }
@@ -164,22 +164,6 @@ void QwtScaleMap::setTransformation(
 const QwtScaleTransformation &QwtScaleMap::transformation() const
 {
     return d_transformation;
-}
-
-/*!
-   Add data, that will passed to the transformations
-
-   \warning The transformationData has to be deleted by the application
-*/
-void QwtScaleMap::setTransformationData(void *transformationData)
-{
-    d_transformationData = transformationData;
-}
-
-//! Get the data, that is passed to the transformations
-void *QwtScaleMap::transformationData() const
-{
-    return d_transformationData;
 }
 
 /*!

@@ -49,6 +49,9 @@ public:
     enum Symbol { Line, Dot };
 
     explicit QwtKnob(QWidget* parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtKnob(QWidget* parent, const char *name);
+#endif
     virtual ~QwtKnob();
 
     void setKnobWidth(int w);
@@ -79,6 +82,7 @@ protected:
     void drawMarker(QPainter *p, double arc, const QColor &c);
 
 private:
+    void initKnob();
     void layoutKnob( bool update = true );
     double getValue(const QPoint &p);
     void getScrollMode( const QPoint &p, int &scrollMode, int &direction );

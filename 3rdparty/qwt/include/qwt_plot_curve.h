@@ -15,17 +15,12 @@
 #include "qwt_global.h"
 #include "qwt_plot_item.h"
 #include "qwt_text.h"
+#include "qwt_polygon.h"
 #include "qwt_data.h"
 
 class QPainter;
 class QwtScaleMap;
 class QwtSymbol;
-
-#if QT_VERSION < 0x040000
-class QPointArray;
-#else
-class QPolygon;
-#endif
 
 /*!
   \brief A class which draws curves
@@ -102,11 +97,8 @@ public:
     explicit QwtPlotCurve();
     explicit QwtPlotCurve(const QwtText &title);
     explicit QwtPlotCurve(const QString &title);
-    explicit QwtPlotCurve(const QwtPlotCurve &c);
 
     virtual ~QwtPlotCurve();
-
-    const QwtPlotCurve& operator= (const QwtPlotCurve &c);
 
     virtual int rtti() const;
 
@@ -142,10 +134,6 @@ public:
     void setCurveAttribute(CurveAttribute, bool on = true);
     bool testCurveAttribute(CurveAttribute) const;
 
-    void setTitle(const QString &title);
-    void setTitle(const QwtText &title);
-    const QwtText &title() const;
-
     void setPen(const QPen &);
     const QPen &pen() const;
 
@@ -178,8 +166,7 @@ public:
 
 protected:
 
-    void init(const QwtText &title);
-    void copy(const QwtPlotCurve &c);
+    void init();
 
     virtual void drawCurve(QPainter *p, int style,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -204,19 +191,11 @@ protected:
     void drawSpline(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
 
-#if QT_VERSION < 0x040000
     void fillCurve(QPainter *,
         const QwtScaleMap &, const QwtScaleMap &,
-        QPointArray &) const;
+        QwtPolygon &) const;
     void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
-        QPointArray &) const;
-#else
-    void fillCurve(QPainter *,
-        const QwtScaleMap &, const QwtScaleMap &,
-        QPolygon &) const;
-    void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
-        QPolygon &) const;
-#endif
+        QwtPolygon &) const;
 
     int verifyRange(int &i1, int &i2) const;
 

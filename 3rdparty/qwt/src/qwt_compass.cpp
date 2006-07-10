@@ -50,6 +50,37 @@ public:
 QwtCompass::QwtCompass(QWidget* parent):
     QwtDial(parent)
 {
+    initCompass();
+}
+
+#if QT_VERSION < 0x040000
+
+/*!
+  \brief Constructor
+  \param parent Parent widget
+  \param name Object name
+
+  Create a compass widget with a scale, no needle and no rose. 
+  The default origin is 270.0 with no valid value. It accepts
+  mouse and keyboard inputs and has no step size. The default mode
+  is QwtDial::RotateNeedle.
+*/  
+QwtCompass::QwtCompass(QWidget* parent, const char *name):
+    QwtDial(parent, name)
+{
+    initCompass();
+}
+
+#endif
+
+//!  Destructor
+QwtCompass::~QwtCompass() 
+{
+    delete d_data;
+}
+
+void QwtCompass::initCompass()
+{
     d_data = new PrivateData;
 
     setScaleOptions(ScaleLabel); // Only labels, no backbone, no ticks
@@ -77,12 +108,6 @@ QwtCompass::QwtCompass(QWidget* parent):
     d_data->labelMap.insert(292.5, QString::fromLatin1("NWW"));
     d_data->labelMap.insert(337.5, QString::fromLatin1("NNW"));
 #endif
-}
-
-//!  Destructor
-QwtCompass::~QwtCompass() 
-{
-    delete d_data;
 }
 
 //! Draw the contents of the scale

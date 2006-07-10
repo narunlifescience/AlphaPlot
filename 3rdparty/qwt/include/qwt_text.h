@@ -32,7 +32,10 @@ public:
         AutoText = 0,
         
         PlainText,
-        RichText
+        RichText,
+
+        MathMLText,
+        TeXText
     };
 
     enum PaintAttributes
@@ -99,7 +102,7 @@ public:
     void draw(QPainter *painter, const QRect &rect) const;
 
 private:
-    QwtTextEngine *textEngine(const QString &text,
+    const QwtTextEngine *textEngine(const QString &text,
         QwtText::TextFormat textFormat = AutoText) const;
 
     class PrivateData;
@@ -107,6 +110,8 @@ private:
 
     class LayoutCache;
     LayoutCache *d_layoutCache;
+
+    class EngineDict;
 };
 
 #endif

@@ -27,7 +27,7 @@ QwtScaleDiv::QwtScaleDiv():
 */
 QwtScaleDiv::QwtScaleDiv(
         const QwtDoubleInterval &interval, 
-        QwtTickList ticks[NTickTypes]):
+        QwtValueList ticks[NTickTypes]):
     d_lBound(interval.minValue()),
     d_hBound(interval.maxValue()),
     d_isValid(true)
@@ -45,7 +45,7 @@ QwtScaleDiv::QwtScaleDiv(
 */
 QwtScaleDiv::QwtScaleDiv(
         double lBound, double hBound,
-        QwtTickList ticks[NTickTypes]):
+        QwtValueList ticks[NTickTypes]):
     d_lBound(lBound),
     d_hBound(hBound),
     d_isValid(true)
@@ -121,7 +121,7 @@ void QwtScaleDiv::invert()
 
     for ( int i = 0; i < NTickTypes; i++ )
     {
-        QwtTickList& ticks = d_ticks[i];
+        QwtValueList& ticks = d_ticks[i];
 
         const int size = ticks.count();
         const int size2 = size / 2;
@@ -136,11 +136,11 @@ void QwtScaleDiv::invert()
 
    \param type MinorTick, MediumTick or MajorTick
 */
-const QwtTickList &QwtScaleDiv::ticks(int type) const
+const QwtValueList &QwtScaleDiv::ticks(int type) const
 {
     if ( type >= 0 || type < NTickTypes )
         return d_ticks[type];
 
-    static QwtTickList noTicks;
+    static QwtValueList noTicks;
     return noTicks;
 }

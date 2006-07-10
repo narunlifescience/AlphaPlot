@@ -19,7 +19,13 @@
 #
 # 1) Set QTDIR to point to the Qt release you want to build Qwt for.
 #
-# 2) The spec file tries to autodetect if a threaded Qt-library is installed.
+# 2) If qmake is not installed, the spec file will fallback on tmake.
+#    In this case you have to set TMAKEPATH.
+#
+# 3) If qmake is installed, the spec file assumes Qt > 3.X and tries to build
+#    and install the qwtplugin for the designer.
+#
+# 4) The spec file tries to autodetect if a threaded Qt-library is installed.
 #    If a threaded version is not available, it tries to build against the
 #    non-threaded Qt-library.
 #    If you need C++-exceptions, %define use_exceptions 1
@@ -27,11 +33,11 @@
 #    If you need to change any other option in the pro-files un-tar the Qwt
 #    package, edit the pro files and tar it again.
 #
-# 3) The spec file builds a qwt and a qwt-devel package. The qwt-devel
+# 5) The spec file builds a qwt and a qwt-devel package. The qwt-devel
 #    package includes qwt-examples. If you don't like to install the
 #    examples remove the line '%doc examples' in the %files section. 
 #
-# 4) Each distribution has a default RPM-BUILD-TREE. 
+# 6) Each distribution has a default RPM-BUILD-TREE. 
 #
 #       - On Mandrake, it is /usr/src/RPM
 #       - On SuSE, it is /usr/src/packages
@@ -81,7 +87,7 @@
 %define use_man		0
 
 %define name    qwt
-%define version 20060130
+%define version 4.2.0
 %define release 1
 %define qtdir   %(echo $QTDIR)
 
@@ -135,9 +141,15 @@ find . -name "*.pro" | perl -e "s|-fno-exceptions||g" -pi
 perl -e "s|-fno-exceptions||g" -pi `find . -name "*.pro"`
 %endif
 
-$QTDIR/bin/qmake qwt.pro -o Makefile
-(cd examples; $QTDIR/bin/qmake examples.pro -o Makefile)
-(cd designer; $QTDIR/bin/qmake qwtplugin.pro -o Makefile)
+# try to run qmake, or fall back on tmake 
+if [ -e $QTDIR/bin/qmake ]; then
+    $QTDIR/bin/qmake qwt.pro -o Makefile
+    (cd examples; $QTDIR/bin/qmake examples.pro -o Makefile)
+    (cd designer; $QTDIR/bin/qmake qwtplugin.pro -o Makefile)
+else
+    tmake qwt.pro -o Makefile
+    (cd examples; tmake examples.pro -o Makefile)
+fi
 
 %build
 
@@ -226,7 +238,7 @@ rm -rf %{buildroot}
 
 
 %changelog
-* Mon Jun 13 2004 Gerard Vermeulen <gerard.vermeul@grenoble.cnrs.fr> 20060130-1
+* Mon Jun 13 2004 Gerard Vermeulen <gerard.vermeul@grenoble.cnrs.fr> 4.2.0-1
 - make qwt.spec from qwt.spec.in
 - replaced %{version} by * in libqwt.so.%{version}
 - added ccache

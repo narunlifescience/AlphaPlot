@@ -45,7 +45,8 @@ public:
 };
 
 //! Sets alignment to Qt::AlignCenter, and style to NoLine
-QwtPlotMarker::QwtPlotMarker()
+QwtPlotMarker::QwtPlotMarker():
+    QwtPlotItem(QwtText("Marker"))
 {
     d_data = new PrivateData;
     setZ(30.0);
@@ -55,40 +56,6 @@ QwtPlotMarker::QwtPlotMarker()
 QwtPlotMarker::~QwtPlotMarker()
 {
     delete d_data;
-}
-
-/*!
-  \brief Copy constructor
-  \param m Marker
-*/
-QwtPlotMarker::QwtPlotMarker(const QwtPlotMarker &m):
-    QwtPlotItem(m)
-{
-    *this = m;
-}
-
-/*!
-  \brief Assignment operator
-  \param m Marker
-*/
-QwtPlotMarker& QwtPlotMarker::operator=(const QwtPlotMarker &m)
-{
-    if (this != &m)
-    {
-        QwtPlotItem::operator=((const QwtPlotItem &)m);
-
-        d_data->label = m.d_data->label;
-        d_data->align = m.d_data->align;
-        d_data->pen = m.d_data->pen;
-        d_data->sym = m.d_data->sym;
-        d_data->style = m.d_data->style;
-        d_data->xValue = m.d_data->xValue;
-        d_data->yValue = m.d_data->yValue;
-
-        itemChanged(); 
-    }
-
-    return *this;
 }
 
 int QwtPlotMarker::rtti() const

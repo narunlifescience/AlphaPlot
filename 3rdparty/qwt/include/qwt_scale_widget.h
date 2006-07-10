@@ -22,6 +22,7 @@
 class QPainter;
 class QwtScaleTransformation;
 class QwtScaleDiv;
+class QwtColorMap;
 
 /*!
   \brief A Widget which contains a scale
@@ -36,9 +37,16 @@ class QWT_EXPORT QwtScaleWidget : public QWidget
 
 public:
     explicit QwtScaleWidget(QWidget *parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtScaleWidget(QWidget *parent, const char *name);
+#endif
     explicit QwtScaleWidget(QwtScaleDraw::Alignment, QWidget *parent = NULL);
     virtual ~QwtScaleWidget();
 
+signals:
+    void scaleDivChanged();
+
+public:
     void setTitle(const QString &title);
     void setTitle(const QwtText &title);
     QwtText title() const;
@@ -52,13 +60,17 @@ public:
     void getMinBorderDist(int &start, int &end) const;
     void setMinBorderDist(int start, int end);
 
-    void setBaselineDist(int bd);
-    int baseLineDist() const;
+    void setMargin(int);
+    int margin() const;
 
-    void setTitleDist(int td);
-    int titleDist() const;
+    void setSpacing(int td);
+    int spacing() const;
+
+    void setPenWidth(int);
+    int penWidth() const;
 
     void setScaleDiv(const QwtScaleTransformation&, const QwtScaleDiv &sd);
+
     void setScaleDraw(QwtScaleDraw *);
     const QwtScaleDraw *scaleDraw() const;
     QwtScaleDraw *scaleDraw();
@@ -70,17 +82,31 @@ public:
 #endif
     void setLabelRotation(double rotation);
 
+    void setColorBarEnabled(bool);
+    bool isColorBarEnabled() const;
+
+    void setColorBarWidth(int);
+    int colorBarWidth() const;
+
+    void setColorMap(const QwtDoubleInterval &, const QwtColorMap &);
+
+    QwtDoubleInterval colorBarInterval() const;
+    const QwtColorMap &colorMap() const;
+
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
 
     int titleHeightForWidth(int width) const;
     int dimForLength(int length, const QFont &scaleFont) const;
 
+    void drawColorBar(QPainter *painter, const QRect &rect) const;
     void drawTitle(QPainter *painter, QwtScaleDraw::Alignment,
         const QRect &rect) const;
         
     void setAlignment(QwtScaleDraw::Alignment);
     QwtScaleDraw::Alignment alignment() const;
+
+    QRect colorBarRect(const QRect&) const;
 
 protected:
     virtual void paintEvent(QPaintEvent *e);

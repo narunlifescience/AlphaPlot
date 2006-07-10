@@ -51,6 +51,9 @@ class QWT_EXPORT QwtCompass: public QwtDial
 
 public:
     explicit QwtCompass( QWidget* parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtCompass(QWidget* parent, const char *name);
+#endif
     virtual ~QwtCompass();
 
     void setRose(QwtCompassRose *rose);
@@ -73,6 +76,8 @@ protected:
     virtual void keyPressEvent(QKeyEvent *);
 
 private:
+    void initCompass();
+
     class PrivateData;
     PrivateData *d_data;
 };

@@ -24,14 +24,6 @@ class QwtPlot;
   QwtPlotPicker is a QwtPicker tailored for selections on
   a plot canvas. It is set to a x-Axis and y-Axis and
   translates all pixel coordinates into this coodinate system.
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, your must call
-       QwtPlot::replot() before calling QwtPlotPicker::scaleRect(),
-       QwtPlotZoomer::scaleRect(), QwtPlotPicker::QwtPlotPicker() or
-       QwtPlotZoomer::QwtPlotZoomer().
-           This quirk will be removed in a future release.
 */
 
 class QWT_EXPORT QwtPlotPicker: public QwtPicker

@@ -95,6 +95,9 @@ public:
     enum ScalePos {None, Left, Right, Top, Bottom};
 
     explicit QwtThermo(QWidget *parent = NULL);
+#if QT_VERSION < 0x040000
+    explicit QwtThermo(QWidget *parent, const char *name);
+#endif
     virtual ~QwtThermo();
 
     void setOrientation(Qt::Orientation o, ScalePos s);
@@ -159,6 +162,7 @@ protected:
     QwtScaleDraw *scaleDraw();
 
 private:
+    void initThermo();
     int transform(double v) const;
     
     class PrivateData;

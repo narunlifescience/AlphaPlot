@@ -13,14 +13,6 @@
 #include "qwt_painter.h"
 #include "qwt_compass_rose.h"
 
-#if QT_VERSION < 0x040000
-#include <qpointarray.h>
-#define QwtPointArray QPointArray
-#else
-#include <qpolygon.h>
-#define QwtPointArray QPolygon
-#endif
-
 static QPoint cutPoint(QPoint p11, QPoint p12, QPoint p21, QPoint p22)
 {
     double dx1 = p12.x() - p11.x();
@@ -167,7 +159,7 @@ void QwtSimpleCompassRose::drawRose(
             QPoint p1 = qwtPolar2Pos(center, leafWidth, angle + M_PI_2);
             QPoint p2 = qwtPolar2Pos(center, leafWidth, angle - M_PI_2);
 
-            QwtPointArray pa(3);
+            QwtPolygon pa(3);
             pa.setPoint(0, center);
             pa.setPoint(1, p);
 

@@ -12,11 +12,7 @@
 
 #include <qsize.h>
 #include <qrect.h>
-#if QT_VERSION < 0x040000
-#include <qpointarray.h>
-#else
-#include <qpolygon.h>
-#endif
+#include "qwt_polygon.h"
 #include "qwt_global.h"
 
 class QPainter;
@@ -52,30 +48,29 @@ public:
     QPoint layoutToDevice(const QPoint &, const QPainter * = NULL) const;
     QPoint deviceToLayout(const QPoint &, const QPainter * = NULL) const;
     QPoint screenToLayout(const QPoint &) const;
+    QPoint layoutToScreen(const QPoint &point) const;
+
 
     QSize layoutToDevice(const QSize &) const;
     QSize deviceToLayout(const QSize &) const;
     QSize screenToLayout(const QSize &) const;
+    QSize layoutToScreen(const QSize &) const;
 
     QRect layoutToDevice(const QRect &, const QPainter * = NULL) const;
     QRect deviceToLayout(const QRect &, const QPainter * = NULL) const;
     QRect screenToLayout(const QRect &) const;
+    QRect layoutToScreen(const QRect &) const;
+
+    QwtPolygon layoutToDevice(const QwtPolygon &, 
+        const QPainter * = NULL) const;
+    QwtPolygon deviceToLayout(const QwtPolygon &, 
+        const QPainter * = NULL) const;
 
 #if QT_VERSION < 0x040000
-    QPointArray layoutToDevice(const QPointArray &, 
-        const QPainter * = NULL) const;
-    QPointArray deviceToLayout(const QPointArray &, 
-        const QPainter * = NULL) const;
-
-    static QPointArray translate(const QWMatrix &, const QPointArray &);
+    static QwtPolygon translate(const QWMatrix &, const QwtPolygon &);
     static QRect translate(const QWMatrix &, const QRect &);
 #else
-    QPolygon layoutToDevice(const QPolygon &, 
-        const QPainter * = NULL) const;
-    QPolygon deviceToLayout(const QPolygon &, 
-        const QPainter * = NULL) const;
-
-    static QPolygon translate(const QMatrix &, const QPolygon &);
+    static QwtPolygon translate(const QMatrix &, const QwtPolygon &);
     static QRect translate(const QMatrix &, const QRect &);
 #endif
 
@@ -148,6 +143,12 @@ inline QSize QwtMetricsMap::screenToLayout(const QSize &size) const
 {
     return QSize(screenToLayoutX(size.width()), 
         screenToLayoutY(size.height()));
+}
+
+inline QSize QwtMetricsMap::layoutToScreen(const QSize &size) const
+{
+    return QSize(layoutToScreenX(size.width()), 
+        layoutToScreenY(size.height()));
 }
 
 #endif

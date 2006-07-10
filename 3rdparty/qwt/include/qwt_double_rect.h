@@ -23,19 +23,6 @@ typedef QPointF QwtDoublePoint;
 typedef QSizeF QwtDoubleSize;
 typedef QRectF QwtDoubleRect;
 
-// MOC_SKIP_BEGIN
-#if defined(QWT_TEMPLATEDLL)
-
-#if defined(Q_CC_MSVC_NET)
-// == QVector<QPointF> 
-extern template class __declspec(dllimport) QwtArray<QPointF>;
-#else
-template class QWT_EXPORT QwtArray<QPointF>;
-#endif
-
-#endif 
-// MOC_SKIP_END
-
 #else
 
 #include <qpoint.h>
@@ -144,10 +131,16 @@ public:
 
     QwtDoubleRect normalized() const;
 
+    double x()  const;
+    double y()  const;
+
     double left()  const;
     double right()  const;
     double top()  const;
     double bottom()  const;
+
+    void setX(double);
+    void setY(double);
 
     void setLeft(double);
     void setRight(double);
@@ -342,6 +335,18 @@ inline bool QwtDoubleRect::isValid() const
     return d_left < d_right && d_top < d_bottom; 
 }
 
+//! Returns x
+inline double QwtDoubleRect::x() const
+{ 
+    return d_left; 
+}
+
+//! Returns y
+inline double QwtDoubleRect::y() const
+{ 
+    return d_top; 
+}
+
 //! Returns left
 inline double QwtDoubleRect::left() const
 { 
@@ -364,6 +369,18 @@ inline double QwtDoubleRect::top() const
 inline double QwtDoubleRect::bottom() const
 { 
     return d_bottom; 
+}
+
+//! Set left  
+inline void QwtDoubleRect::setX(double x)
+{ 
+    d_left = x;
+}
+
+//! Set left  
+inline void QwtDoubleRect::setY(double y)
+{ 
+    d_top = y;
 }
 
 //! Set left  
@@ -428,12 +445,6 @@ inline void QwtDoubleRect::moveTo(const QwtDoublePoint &p)
 {
     moveTo(p.x(), p.y());
 }
-
-// MOC_SKIP_BEGIN
-#if defined(QWT_TEMPLATEDLL)
-template class QWT_EXPORT QwtArray<QwtDoublePoint>;
-#endif
-// MOC_SKIP_END
 
 #endif // QT_VERSION < 0x040000
 

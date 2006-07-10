@@ -56,12 +56,6 @@ private:
 
 #endif // QT_VERSION >= 0x040000
 
-#if QT_VERSION < 0x040000
-#define QwtPointArray QPointArray
-#else
-#define QwtPointArray QPolygon
-#endif
-
 class QwtPlotCurve::PrivateData
 {
 public:
@@ -111,7 +105,6 @@ public:
 
     QPen pen;
     QBrush brush;
-    QwtText title;
 
     int attributes;
     int splineSize;
@@ -151,37 +144,30 @@ static void qwtTwistArray(double *array, int size)
 /*!
   \brief Ctor
 */
-QwtPlotCurve::QwtPlotCurve()
+QwtPlotCurve::QwtPlotCurve():
+    QwtPlotItem(QwtText())
 {
-    init(QwtText());
+    init();
 }
 
 /*!
   \brief Ctor
   \param title title of the curve   
 */
-QwtPlotCurve::QwtPlotCurve(const QwtText &title)
+QwtPlotCurve::QwtPlotCurve(const QwtText &title):
+    QwtPlotItem(title)
 {
-    init(title);
+    init();
 }
 
 /*!
   \brief Ctor
   \param title title of the curve   
 */
-QwtPlotCurve::QwtPlotCurve(const QString &title)
+QwtPlotCurve::QwtPlotCurve(const QString &title):
+    QwtPlotItem(QwtText(title))
 {
-    init(title);
-}
-
-/*!
-  \brief Copy Constructor
-*/
-QwtPlotCurve::QwtPlotCurve(const QwtPlotCurve &c):
-    QwtPlotItem(c)
-{
-    init(c.d_data->title);
-    copy(c);
+    init();
 }
 
 //! Dtor
@@ -194,43 +180,15 @@ QwtPlotCurve::~QwtPlotCurve()
 /*!
   \brief Initialize data members
 */
-void QwtPlotCurve::init(const QwtText &title)
+void QwtPlotCurve::init()
 {
     setItemAttribute(QwtPlotItem::Legend);
     setItemAttribute(QwtPlotItem::AutoScale);
 
     d_data = new PrivateData;
-    d_data->title = title;
-
     d_xy = new QwtDoublePointData(QwtArray<QwtDoublePoint>());
 
     setZ(20.0);
-}
-
-/*!
-  \brief Copy the contents of a curve into another curve
-*/
-void QwtPlotCurve::copy(const QwtPlotCurve &c)
-{
-    if (this != &c)
-    {
-        *d_data = *c.d_data;
-
-        delete d_xy;
-        d_xy = c.d_xy->copy();
-
-        itemChanged();
-    }
-}
-
-
-/*!
-  \brief Copy Assignment
-*/
-const QwtPlotCurve& QwtPlotCurve::operator=(const QwtPlotCurve &c)
-{
-    copy(c);
-    return *this;
 }
 
 int QwtPlotCurve::rtti() const
@@ -482,34 +440,6 @@ void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size
 }
 
 /*!
-  \brief Assign a title to a curve
-  \param title new title
-*/
-void QwtPlotCurve::setTitle(const QString &title)
-{
-    setTitle(QwtText(title));
-}
-
-/*!
-  \brief Assign a title to a curve
-  \param title new title
-*/
-void QwtPlotCurve::setTitle(const QwtText &title)
-{
-    d_data->title = title;
-    itemChanged();
-}
-
-/*!
-    \brief Return the title.
-    \sa QwtPlotCurve::setTitle
-*/
-const QwtText &QwtPlotCurve::title() const 
-{ 
-    return d_data->title; 
-}
-
-/*!
   Returns the bounding rectangle of the curve data. If there is
   no bounding rect, like for empty data the rectangle is invalid:
   QwtDoubleRect.isValid() == false
@@ -754,7 +684,7 @@ void QwtPlotCurve::drawLines(QPainter *painter,
     if ( size <= 0 )
         return;
 
-    QwtPointArray polyline(size);
+    QwtPolygon polyline(size);
 
     if ( d_data->paintAttributes & PaintFiltered )
     {
@@ -849,7 +779,7 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     const bool doFill = d_data->brush.style() != Qt::NoBrush;
 
-    QwtPointArray polyline;
+    QwtPolygon polyline;
     if ( doFill )
         polyline.resize(to - from + 1);
 
@@ -934,7 +864,7 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-    QwtPointArray polyline(2 * (to - from) + 1);
+    QwtPolygon polyline(2 * (to - from) + 1);
 
     bool inverted = d_data->attributes & Yfx;
     if ( d_data->attributes & Inverted )
@@ -1025,7 +955,7 @@ void QwtPlotCurve::drawSpline(QPainter *painter,
     }
 
     bool ok = false;
-    QwtPointArray polyline(d_data->splineSize);
+    QwtPolygon polyline(d_data->splineSize);
 
     if (stype & Parametric)
     {
@@ -1221,7 +1151,7 @@ int QwtPlotCurve::splineSize() const
 
 void QwtPlotCurve::fillCurve(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtPointArray &pa) const
+    QwtPolygon &pa) const
 {
     if ( d_data->brush.style() == Qt::NoBrush )
         return;
@@ -1255,7 +1185,7 @@ void QwtPlotCurve::fillCurve(QPainter *painter,
 
 void QwtPlotCurve::closePolyline(
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    QwtPointArray &pa) const
+    QwtPolygon &pa) const
 {
     const int sz = pa.size();
     if ( sz < 2 )

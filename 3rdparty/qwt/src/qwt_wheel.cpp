@@ -51,6 +51,20 @@ public:
 QwtWheel::QwtWheel(QWidget *parent): 
     QwtAbstractSlider(Qt::Horizontal, parent)
 {
+    initWheel();
+}
+
+#if QT_VERSION < 0x040000
+QwtWheel::QwtWheel(QWidget *parent, const char *name): 
+    QwtAbstractSlider(Qt::Horizontal, parent)
+{
+    setName(name);
+    initWheel();
+}
+#endif
+
+void QwtWheel::initWheel()
+{
     d_data = new PrivateData;
 
 #if QT_VERSION < 0x040000
@@ -289,7 +303,10 @@ void QwtWheel::drawWheelBackground( QPainter *p, const QRect &r )
 */
 void QwtWheel::setTotalAngle(double angle)
 {
-    d_data->totalAngle = qwtLim( angle, 10.0, 3600.0 );
+    if ( angle < 0.0 )
+        angle = 0.0;
+
+    d_data->totalAngle = angle;
     update();
 }
 
@@ -357,6 +374,14 @@ double QwtWheel::viewAngle() const
 */
 void QwtWheel::drawWheel( QPainter *p, const QRect &r )
 {
+    //
+    // draw background gradient
+    //
+    drawWheelBackground( p, r );
+
+    if ( maxValue() == minValue() || d_data->totalAngle == 0.0 )
+        return;
+
 #if QT_VERSION < 0x040000
     const QColor light = colorGroup().light();
     const QColor dark = colorGroup().dark();
@@ -374,10 +399,6 @@ void QwtWheel::drawWheel( QPainter *p, const QRect &r )
     const double sinArc = sin(d_data->viewAngle * M_PI / 360.0);
     cnvFactor *= M_PI / 180.0;
 
-    //
-    // draw background gradient
-    //
-    drawWheelBackground( p, r );
 
     //
     // draw grooves

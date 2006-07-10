@@ -50,6 +50,27 @@ public:
 QwtCounter::QwtCounter(QWidget *parent):
     QWidget(parent) 
 {
+    initCounter();
+}
+
+#if QT_VERSION < 0x040000
+/*!
+  The default number of buttons is set to 2. The default increments are:
+  \li Button 1: 1 step
+  \li Button 2: 10 steps
+  \li Button 3: 100 steps
+
+  \param parent
+ */
+QwtCounter::QwtCounter(QWidget *parent, const char *name):
+    QWidget(parent, name) 
+{
+    initCounter();
+}
+#endif
+
+void QwtCounter::initCounter()
+{
     d_data = new PrivateData;
 
 #if QT_VERSION >= 0x040000

@@ -143,6 +143,30 @@ QwtText QwtDialScaleDraw::label(double value) const
 QwtDial::QwtDial(QWidget* parent):
     QwtAbstractSlider(Qt::Horizontal, parent)
 {
+    initDial();
+}
+
+#if QT_VERSION < 0x040000
+/*!
+  \brief Constructor
+  \param parent Parent widget
+  \param name Object name
+
+  Create a dial widget with no scale and no needle. 
+  The default origin is 90.0 with no valid value. It accepts
+  mouse and keyboard inputs and has no step size. The default mode
+  is QwtDial::RotateNeedle.
+*/  
+QwtDial::QwtDial(QWidget* parent, const char *name):
+    QwtAbstractSlider(Qt::Horizontal, parent)
+{
+    setName(name);
+    initDial();
+}
+#endif
+
+void QwtDial::initDial()
+{
     d_data = new PrivateData;
 
 #if QT_VERSION < 0x040000

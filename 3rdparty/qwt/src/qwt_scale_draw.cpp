@@ -13,6 +13,7 @@
 #include <qpainter.h>
 #include "qwt_math.h"
 #include "qwt_painter.h"
+#include "qwt_polygon.h"
 #include "qwt_scale_div.h"
 #include "qwt_scale_map.h"
 #include "qwt_scale_draw.h"
@@ -20,11 +21,9 @@
 #if QT_VERSION < 0x040000
 #include <qwmatrix.h>
 #define QwtMatrix QWMatrix
-#define QwtPointArray QPointArray
 #else
 #include <qmatrix.h>
 #define QwtMatrix QMatrix
-#define QwtPointArray QPolygon
 #endif
 
 class QwtScaleDraw::PrivateData
@@ -146,7 +145,7 @@ void QwtScaleDraw::getBorderDistHint(const QFont &font,
     if ( !hasComponent(QwtAbstractScaleDraw::Labels) )
         return;
 
-    const QwtTickList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
+    const QwtValueList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
     if ( ticks.count() == 0 ) 
         return;
 
@@ -195,7 +194,7 @@ int QwtScaleDraw::minLabelDist(const QFont &font) const
     if ( !hasComponent(QwtAbstractScaleDraw::Labels) )
         return 0;
 
-    const QwtTickList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
+    const QwtValueList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
     if (ticks.count() == 0)
         return 0;
 
@@ -408,29 +407,51 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, int len) const
 {
     if ( len <= 0 )
         return;
+
+    int pw2 = qwtMin((int)painter->pen().width(), len) / 2;
     
     const int tval = map().transform(value);
 
     switch(alignment())
     {
         case LeftScale:
-            QwtPainter::drawLine(painter, d_data->pos.x(), tval,
+#if QT_VERSION < 0x040000
+            QwtPainter::drawLine(painter, d_data->pos.x() + pw2, tval,
+                d_data->pos.x() - len - 2 * pw2, tval);
+#else
+            QwtPainter::drawLine(painter, d_data->pos.x() - pw2, tval,
                 d_data->pos.x() - len, tval);
+#endif
             break;
 
         case RightScale:
+#if QT_VERSION < 0x040000
             QwtPainter::drawLine(painter, d_data->pos.x(), tval,
+                d_data->pos.x() + len + pw2, tval);
+#else
+            QwtPainter::drawLine(painter, d_data->pos.x() + pw2, tval,
                 d_data->pos.x() + len, tval);
+#endif
             break;
     
         case BottomScale:
+#if QT_VERSION < 0x040000
             QwtPainter::drawLine(painter, tval, d_data->pos.y(),
+                tval, d_data->pos.y() + len + 2 * pw2);
+#else
+            QwtPainter::drawLine(painter, tval, d_data->pos.y() + pw2,
                 tval, d_data->pos.y() + len);
+#endif
             break;
 
         case TopScale:
-            QwtPainter::drawLine(painter, tval, d_data->pos.y(),
+#if QT_VERSION < 0x040000
+            QwtPainter::drawLine(painter, tval, d_data->pos.y() + pw2,
+                tval, d_data->pos.y() - len - 2 * pw2);
+#else
+            QwtPainter::drawLine(painter, tval, d_data->pos.y() - pw2,
                 tval, d_data->pos.y() - len);
+#endif
             break;
     }
 }
@@ -452,7 +473,7 @@ void QwtScaleDraw::drawBackbone(QPainter *painter) const
     {
         case LeftScale:
             QwtPainter::drawLine(painter, pos.x() - bw2,
-                pos.y(), pos.x() - bw2, pos.y() + len);
+                pos.y(), pos.x() - bw2, pos.y() + len );
             break;
         case RightScale:
             QwtPainter::drawLine(painter, pos.x() + bw2,
@@ -673,7 +694,7 @@ QRect QwtScaleDraw::labelRect(const QFont &font, double value) const
 #if 0
     QRect br = QwtMetricsMap::translate(m, QRect(QPoint(0, 0), labelSize));
 #else
-    QwtPointArray pol(4);
+    QwtPolygon pol(4);
     pol.setPoint(0, 0, 0); 
     pol.setPoint(1, 0, labelSize.height() - 1 );
     pol.setPoint(2, labelSize.width() - 1, 0);
@@ -785,7 +806,7 @@ int QwtScaleDraw::maxLabelWidth(const QFont &font) const
 {
     int maxWidth = 0;
 
-    const QwtTickList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
+    const QwtValueList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
     for (uint i = 0; i < (uint)ticks.count(); i++)
     {
         const double v = ticks[i];
@@ -808,7 +829,7 @@ int QwtScaleDraw::maxLabelHeight(const QFont &font) const
 {
     int maxHeight = 0;
     
-    const QwtTickList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
+    const QwtValueList &ticks = scaleDiv().ticks(QwtScaleDiv::MajorTick);
     for (uint i = 0; i < (uint)ticks.count(); i++)
     {
         const double v = ticks[i];

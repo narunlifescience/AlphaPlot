@@ -57,7 +57,7 @@ void QwtPlot::initAxesData()
         AxisData &d = *d_axisData[axisId];
 
         d.scaleWidget->setFont(fscl);
-        d.scaleWidget->setBaselineDist(2);
+        d.scaleWidget->setMargin(2);
 
         QwtText text;
         text.setFont(fttl);

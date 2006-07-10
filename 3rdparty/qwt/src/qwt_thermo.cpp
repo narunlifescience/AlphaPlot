@@ -57,9 +57,30 @@ public:
     bool alarmEnabled;
 };
 
-//! Constructor
+/*! 
+  Constructor
+  \param parent Parent widget
+*/
 QwtThermo::QwtThermo(QWidget *parent): 
     QWidget(parent)
+{
+    initThermo();
+}
+
+#if QT_VERSION < 0x040000
+/*! 
+  Constructor
+  \param parent Parent widget
+  \param name Object name
+*/
+QwtThermo::QwtThermo(QWidget *parent, const char *name): 
+    QWidget(parent, name)
+{
+    initThermo();
+}
+#endif
+
+void QwtThermo::initThermo()
 {
 #if QT_VERSION < 0x040000
     setWFlags(Qt::WNoAutoErase);

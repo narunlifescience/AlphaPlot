@@ -58,7 +58,7 @@ public:
     QPen trackerPen;
     QFont trackerFont;
 
-    QwtPicker::SelectedPoints selection;
+    QwtPolygon selection;
     bool isActive;
     QPoint labelPosition;
 
@@ -161,8 +161,12 @@ void QwtPicker::PrivateData::PickerWidget::paintEvent(QPaintEvent *e)
     if ( d_type == Text )
     {
         painter.setClipRegion(e->region());
+#if 0
         painter.setPen(d_picker->trackerPen());
         d_picker->drawTracker(&painter);
+#else
+        painter.fillRect(e->rect(), QBrush(d_picker->trackerPen().color()));
+#endif
     }
 }
 
@@ -590,7 +594,7 @@ void QwtPicker::drawRubberBand(QPainter *painter) const
     }
 
     const QRect &pRect = pickRect();
-    const SelectedPoints &pa = d_data->selection;
+    const QwtPolygon &pa = d_data->selection;
 
     if ( selectionFlags() & PointSelection )
     {
@@ -1137,7 +1141,7 @@ void QwtPicker::move(const QPoint &pos)
     }
 }
 
-bool QwtPicker::accept(SelectedPoints &) const
+bool QwtPicker::accept(QwtPolygon &) const
 {
     return true;
 }
@@ -1152,7 +1156,7 @@ bool QwtPicker::isActive() const
 }
 
 //!  Return Selected points
-const QwtPicker::SelectedPoints &QwtPicker::selection() const
+const QwtPolygon &QwtPicker::selection() const
 {
     return d_data->selection;
 }

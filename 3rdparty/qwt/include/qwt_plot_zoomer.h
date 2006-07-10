@@ -44,24 +44,18 @@
 
   \note The realtime example includes an derived zoomer class that adds 
         scrollbars to the plot canvas.
-
-  \warning Calling QwtPlot::setAxisScale() while QwtPlot::autoReplot() is false
-           leaves the axis in an 'intermediate' state.
-           In this case, to prevent buggy behaviour, your must call
-       QwtPlot::replot() before calling QwtPlotPicker::scaleRect(),
-       QwtPlotZoomer::scaleRect(), QwtPlotPicker::QwtPlotPicker() or
-       QwtPlotZoomer::QwtPlotZoomer().
-           This quirk will be removed in a future release.
 */
 
 class QWT_EXPORT QwtPlotZoomer: public QwtPlotPicker
 {
     Q_OBJECT
 public:
-    explicit QwtPlotZoomer(QwtPlotCanvas *);
-    explicit QwtPlotZoomer(int xAxis, int yAxis, QwtPlotCanvas *);
+    explicit QwtPlotZoomer(QwtPlotCanvas *, bool doReplot = true);
+    explicit QwtPlotZoomer(int xAxis, int yAxis, 
+        QwtPlotCanvas *, bool doReplot = true);
     explicit QwtPlotZoomer(int xAxis, int yAxis, int selectionFlags,
-        DisplayMode trackerMode, QwtPlotCanvas *);
+        DisplayMode trackerMode, QwtPlotCanvas *,
+        bool doReplot = true);
 
     virtual ~QwtPlotZoomer();
 
@@ -114,11 +108,10 @@ protected:
 
     virtual void begin();
     virtual bool end(bool ok = true);
-    virtual bool accept(SelectedPoints &) const;
+    virtual bool accept(QwtPolygon &) const;
 
 private:
-    void init(int selectionFlags = RectSelection & ClickSelection, 
-        DisplayMode trackerMode = ActiveOnly);
+    void init(int selectionFlags, DisplayMode trackerMode, bool doReplot);
 
     class PrivateData;
     PrivateData *d_data;

@@ -14,11 +14,15 @@
 #include <qrect.h>
 #include "qwt_global.h"
 #include "qwt_layout_metrics.h"
+#include "qwt_polygon.h"
 
 class QPainter;
 class QBrush;
 class QColor;
 class QWidget;
+class QwtScaleMap;
+class QwtColorMap;
+class QwtDoubleInterval;
 
 #if QT_VERSION < 0x040000
 class QColorGroup;
@@ -96,13 +100,8 @@ public:
 
     static void drawLine(QPainter *, int x1, int y1, int x2, int y2);
     static void drawLine(QPainter *, const QPoint &p1, const QPoint &p2);
-#if QT_VERSION < 0x040000
-    static void drawPolygon(QPainter *, const QPointArray &pa);
-    static void drawPolyline(QPainter *, const QPointArray &pa);
-#else
-    static void drawPolygon(QPainter *, const QPolygon &pa);
-    static void drawPolyline(QPainter *, const QPolygon &pa);
-#endif
+    static void drawPolygon(QPainter *, const QwtPolygon &pa);
+    static void drawPolyline(QPainter *, const QwtPolygon &pa);
     static void drawPoint(QPainter *, int x, int y);
 
 #if QT_VERSION < 0x040000
@@ -115,11 +114,11 @@ public:
     static void drawFocusRect(QPainter *, QWidget *);
     static void drawFocusRect(QPainter *, QWidget *, const QRect &);
 
-#if QT_VERSION < 0x040000
-    static QPointArray clip(const QPointArray &);
-#else
-    static QPolygon clip(const QPolygon &);
-#endif
+    static QwtPolygon clip(const QwtPolygon &);
+
+    static void drawColorBar(QPainter *painter, 
+        const QwtColorMap &, const QwtDoubleInterval &,
+        const QwtScaleMap &, Qt::Orientation, const QRect &);
 
 private:
     static void drawColoredArc(QPainter *, const QRect &,

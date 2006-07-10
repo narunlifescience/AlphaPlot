@@ -15,19 +15,19 @@ QwtIntervalData::QwtIntervalData()
 }
 
 QwtIntervalData::QwtIntervalData(
-        const QwtArray<QwtDoubleInterval> &interval, 
-        const QwtArray<double> &y):
-    d_interval(interval),
-    d_y(y)
+        const QwtArray<QwtDoubleInterval> &intervals, 
+        const QwtArray<double> &values):
+    d_intervals(intervals),
+    d_values(values)
 {
 }
     
 void QwtIntervalData::setData(
-    const QwtArray<QwtDoubleInterval> &interval,
-    const QwtArray<double> &y)
+    const QwtArray<QwtDoubleInterval> &intervals,
+    const QwtArray<double> &values)
 {
-    d_interval = interval;
-    d_y = y;
+    d_intervals = intervals;
+    d_values = values;
 }
 
 QwtDoubleRect QwtIntervalData::boundingRect() const
@@ -44,13 +44,13 @@ QwtDoubleRect QwtIntervalData::boundingRect() const
         if ( !intv.isValid() )
             continue;
 
-        const double yv = y(i);
+        const double v = value(i);
 
         if ( !isValid )
         {
             minX = intv.minValue();
             maxX = intv.maxValue();
-            minY = maxY = yv;
+            minY = maxY = v;
 
             isValid = true;
         }
@@ -61,10 +61,10 @@ QwtDoubleRect QwtIntervalData::boundingRect() const
             if ( intv.maxValue() > maxX )
                 maxX = intv.maxValue();
 
-            if ( yv < minY )
-                minY = yv;
-            if ( yv > maxY )
-                maxY = yv;
+            if ( v < minY )
+                minY = v;
+            if ( v > maxY )
+                maxY = v;
         }
     }
     if ( !isValid )

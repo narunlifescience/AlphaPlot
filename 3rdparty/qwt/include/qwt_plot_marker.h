@@ -55,9 +55,6 @@ public:
     explicit QwtPlotMarker();
     virtual ~QwtPlotMarker();
 
-    QwtPlotMarker(const QwtPlotMarker&);
-    QwtPlotMarker &operator=(const QwtPlotMarker&);
-    
     virtual int rtti() const;
 
     double xValue() const;
