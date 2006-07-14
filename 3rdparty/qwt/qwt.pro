@@ -162,33 +162,33 @@ SOURCES += src/qwt_plot_svgitem.cpp
 # HEADERS/SOURCES lists.
 ##############################################
 
-#HEADERS += \
+HEADERS += \
 #    include/qwt_abstract_slider.h \
 #    include/qwt_abstract_scale.h \
-#    include/qwt_arrow_button.h \
+    include/qwt_arrow_button.h \
 #    include/qwt_analog_clock.h \
 #    include/qwt_compass.h \
 #    include/qwt_compass_rose.h \
-#    include/qwt_counter.h \
+    include/qwt_counter.h \
 #    include/qwt_dial.h \
 #    include/qwt_dial_needle.h \
-#    include/qwt_double_range.h \
+    include/qwt_double_range.h \
 #    include/qwt_knob.h \
 #    include/qwt_slider.h \
 #    include/qwt_thermo.h \
 #    include/qwt_wheel.h
 
-#SOURCES += \
+SOURCES += \
 #    src/qwt_abstract_slider.cpp \
 #    src/qwt_abstract_scale.cpp \
-#    src/qwt_arrow_button.cpp \
+    src/qwt_arrow_button.cpp \
 #    src/qwt_analog_clock.cpp \
 #    src/qwt_compass.cpp \
 #    src/qwt_compass_rose.cpp \
-#    src/qwt_counter.cpp \
+    src/qwt_counter.cpp \
 #    src/qwt_dial.cpp \
 #    src/qwt_dial_needle.cpp \
-#    src/qwt_double_range.cpp \
+    src/qwt_double_range.cpp \
 #    src/qwt_knob.cpp \
 #    src/qwt_slider.cpp \
 #    src/qwt_thermo.cpp \

@@ -36,17 +36,9 @@
 #include <qpushbutton.h>
 #include <qobject.h>
 #include <q3hbox.h>
-#include <q3ptrlist.h>
+#include <QList>
 #include <qprinter.h>
-//Added by qt3to4:
-#include <QWheelEvent>
-#include <QPixmap>
-#include <QKeyEvent>
-#include <QEvent>
-#include <QLabel>
-#include <QContextMenuEvent>
-#include <QResizeEvent>
-#include <QMouseEvent>
+#include <q3ptrlist.h>
 
 #include <gsl/gsl_vector.h>
 
@@ -54,6 +46,7 @@ class QWidget;
 class QLabel;
 class QPushButton;
 class QWidget;
+
 class Graph;
 class Table;
 class LayerButton;
@@ -65,7 +58,7 @@ class MultiLayer: public MyWidget
 
 public:
     MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	QWidgetList* graphPtrs(){return graphsList;};
+	Q3PtrList<QWidget> *graphPtrs(){return graphsList;};
 	LayerButton* addLayerButton();	
 
 	enum HorAlignement{HCenter, Left, Right};
@@ -81,7 +74,7 @@ public:
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
 	
-	QWidgetList *buttonsList, *graphsList;
+	Q3PtrList<QWidget> *buttonsList, *graphsList;
 	Q3HBox  *hbox1;
 	QWidget *canvas;
 
@@ -147,9 +140,11 @@ public slots:
 	QPixmap canvasPixmap();
 
 	void exportImage(const QString& fileName,const QString& fileType, int quality, bool transparent);
+	void exportToSVG(const QString& fname);
 	void exportToEPS(const QString& fname);
 	void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 					QPrinter::PageSize pageSize, QPrinter::ColorMode col);
+
 	void copyAllLayers();
 	void print();
 	void printAllLayers(QPainter *painter);
@@ -184,6 +179,7 @@ signals:
 	void showWindowContextMenu();
 	void showCurvesDialog();
 	void drawTextOff();
+	void drawLineEnded(bool);
 	void showXAxisTitleDialog();
 	void showYAxisTitleDialog();
 	void showTopAxisTitleDialog();
@@ -219,13 +215,14 @@ private:
 	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
 };
 
-//! Layer button (showing layer number) for plot windows	
+	
+//! Button with layer number
 class LayerButton: public QWidget
 {
 	Q_OBJECT
 
 public:
-    LayerButton (const QString& text = QString(), QWidget* parent = 0, const char* name = 0);
+    LayerButton (const QString& text = QString::null, QWidget* parent = 0, const char* name = 0);
 	~LayerButton();
 
 	QPushButton  *btn;

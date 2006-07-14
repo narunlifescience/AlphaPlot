@@ -577,8 +577,9 @@ public slots:
 	void disregardCol();
 
 	void updateConfirmOptions(bool askTables, bool askMatrixes, bool askPlots2D, bool askPlots3D, bool askNotes);
-	void showAxis(int axis, int type, const QString& labelsColName, bool axisOn, int ticksType,
-		bool labelsOn, const QColor& c, int format, int prec, int rotation, int baselineDist, const QString& formula);
+	void showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
+								 int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format, 
+								 int prec, int rotation, int baselineDist, const QString& formula);
 	
 	//plot3D tools	
 	void setFramed3DPlot();

@@ -29,25 +29,28 @@
 #ifndef LINEMARKER_H
 #define LINEMARKER_H
 
-#include <qwt_plot_curve.h>
-#include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>
-#include <qwt_scale_map.h>
-	
+		
 //! Line marker (extension to QwtPlotMarker)
 class LineMarker: public QwtPlotMarker
 {
 public:
     LineMarker(QwtPlot *);
-    virtual void draw(QPainter *p, int x, int y, const QRect &);
+    virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	void setStartPoint(const QPoint& p);
 	void setEndPoint(const QPoint& p);
 	QPoint startPoint();
 	QPoint endPoint();
 	double dist(int x, int y);
-	double teta();
+	double teta(int xs, int ys, int xe, int ye) const;
 	double length();
+
+	QwtDoublePoint coordStartPoint();
+	void setCoordStartPoint(const QwtDoublePoint& p);
+
+	QwtDoublePoint coordEndPoint();
+	void setCoordEndPoint(const QwtDoublePoint& p);
 
 	void setColor(const QColor& c);
 	QColor color();
@@ -72,14 +75,14 @@ public:
 	bool filledArrowHead(){return filledArrow;};
 	void fillArrowHead(bool fill);
 	
-	static QwtScaleMap mapCanvasToDevice(QPainter *p, QwtPlot *plot, int axis) ;
-		
+	void updateBoundingRect();
+	
 private:
-	QPoint start,end;
+	QPoint d_start, d_end; 
 	QPen pen;
 	bool startArrow,endArrow, filledArrow;
 	int d_headAngle, d_headLength;
+	QwtDoubleRect d_rect;
+	QwtPlot *d_plot;
 };
-
 #endif
-

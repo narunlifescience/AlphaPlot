@@ -32,24 +32,28 @@
 #include <qprinter.h>
 #include <qpainter.h>
 #include <q3pointarray.h>
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_plot_marker.h>
 //Added by qt3to4:
-#include <QPixmap>
-#include <Q3MemArray>
-#include <QCloseEvent>
-#include <QList>
-#include <QContextMenuEvent>
 #include <QResizeEvent>
+#include <QContextMenuEvent>
+#include <QPixmap>
+#include <QCloseEvent>
+#include <Q3ValueList>
+#include <Q3MemArray>
+
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>
+
+#include <qwt_plot.h>
+#include <qwt_plot_marker.h>
+#include <qwt_plot_curve.h>
 
 #include "plotDialog.h"
 #include "worksheet.h"
 #include "axesDialog.h"
 
+class QwtPlotCurve;
 class QwtPlotZoomer;
+
 class QwtPieCurve;	
 class Table;
 class LegendMarker;
@@ -135,6 +139,7 @@ public slots:
 	
 	 void print();
 	 void copyImage();
+	 void exportToSVG(const QString& fname);
 	 void exportToEPS(const QString& fname);
 	 void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 					 QPrinter::PageSize size, QPrinter::ColorMode col);
@@ -207,7 +212,7 @@ public slots:
 	 QString saveAxesColors();
 	 QString saveEnabledAxes();
 	 QString saveErrorBars();
-	 QString saveCanvasFrame();
+	 QString saveCanvas();
 	 QString saveTitle();
 	 QString saveAxesTitleAlignement();
 	 QString saveEnabledTickLabels();
@@ -221,7 +226,7 @@ public slots:
 
 	 // text markers 
 	 void drawText(bool on);
-	 bool drawTextActive();
+	 bool drawTextActive(){return drawTextOn;};
 	 
 	 void insertTextMarker(LegendMarker* mrk);
 	 long insertTextMarker(const QStringList& list);
@@ -254,13 +259,13 @@ public slots:
 	 QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 	 
 	 //legendMarker
-	 QwtArray<long> textMarkerKeys();
+	 Q3ValueList<int> textMarkerKeys();
 	 LegendMarker* textMarker(long id);
 
 	 void addTimeStamp(const QFont& fnt, int frameStyle);
 	 
 	  // legend  
-	 LegendMarker* legend();
+	 void customLegend(int frame, const QFont& font);
 	 void removeLegend();
 	 void removeLegendItem(int index);
 	 void addLegendItem(const QString& colName);
@@ -278,12 +283,12 @@ public slots:
 	 LineMarker* lineMarker(long id);
 	 void insertLineMarker(LineMarker* mrk);
 	 void insertLineMarker(QStringList list);
-	 void updateLineMarker(const QColor& c,int w,Qt::PenStyle style,bool endArrow, bool startArrow);
 	 QwtArray<long> lineMarkerKeys();
-	 void drawLine(bool on);
-	 bool drawLineActive();
-	 void setArrowHeadGeometry(int length, int angle, bool filled);
-	 void updateLineMarkerGeometry(const QPoint& sp,const QPoint& ep);
+
+	 //!Draws a line/arrow depending on the value of "arrow"
+	 void drawLine(bool on, bool arrow = FALSE);
+	 bool drawArrow(){return drawArrowOn;};
+	 bool drawLineActive(){return drawLineOn;};
 
 	 //image markers
 	 ImageMarker* imageMarker(long id);
@@ -294,7 +299,9 @@ public slots:
 	 bool imageMarkerSelected();
 	 void updateImageMarker(int x, int y, int width, int height);
 	 
-	 void resizeMarkers (double w_ratio, double h_ratio);
+	 //! Keep the markers on screen each time the scales are modified by adding/removing curves
+	 void updateMarkersBoundingRect();
+
 	 long selectedMarkerKey();
 	 void setSelectedMarker(long mrk);
 	  QwtPlotMarker* selectedMarkerPtr();
@@ -303,8 +310,8 @@ public slots:
 	 void deselectMarker();
 
 	 // axes 
-	 QList<int> axesType();
-	 void setAxesType(const QList<int> tl); 
+	 Q3ValueList<int> axesType();
+	 void setAxesType(const Q3ValueList<int> tl); 
 	 	
 	 QStringList scalesTitles();
 	 void setXAxisTitle(const QString& text);
@@ -341,8 +348,8 @@ public slots:
 	 QStringList axesColors();
 	 void setAxesColors(const QStringList& colors);
 	 void showAxis(int axis, int type, const QString& formatInfo, Table *table, bool axisOn, 
-				   int ticksType, bool labelsOn, const QColor& c, int format, int prec, 
-				   int rotation, int baselineDist, const QString& formula);
+				   int majTicksType, int minTicksType, bool labelsOn, const QColor& c, 
+				   int format, int prec, int rotation, int baselineDist, const QString& formula);
 
 	 Q3MemArray<bool> enabledAxes();
 	 void enableAxes(Q3MemArray<bool> axesOn);
@@ -354,7 +361,6 @@ public slots:
 	QStringList enabledTickLabels();
 	void setEnabledTickLabels(const QStringList& list);
 	
-	int axesLinewidth();
 	void setAxesLinewidth(int width);
 	void loadAxesLinewidth(int width);//used when opening a project file
 
@@ -362,17 +368,20 @@ public slots:
 	bool axesBackbones(){return drawAxesBackbone;};
 	void loadAxesOptions(const QString& s);//used when opening a project file
 
-	QList<int> axesBaseline();
-	void setAxesBaseline(const QList<int> &lst);
+	Q3ValueList<int> axesBaseline();
+	void setAxesBaseline(const Q3ValueList<int> &lst);
 	void setAxesBaseline(QStringList &lst);
 
-	QList<int> ticksType();
-	void setTicksType(const QList<int>& list);
-	void setTicksType(const QStringList& list); 
+	void setMajorTicksType(const Q3ValueList<int>& lst);
+	void setMajorTicksType(const QStringList& lst);
+
+	void setMinorTicksType(const Q3ValueList<int>& lst);
+	void setMinorTicksType(const QStringList& lst);
 	
 	int minorTickLength();
 	int majorTickLength();
-	void setAxisTicksLength(int axis, int ticksType, int minLength, int majLength);
+	void setAxisTicksLength(int axis, int majTicksType, int minTicksType,
+							int minLength, int majLength);
 	void setTicksLength(int minLength, int majLength);
 	void changeTicksLength(int minLength, int majLength);
 
@@ -381,12 +390,15 @@ public slots:
 	void setLabelsNumericFormat(int axis, const QStringList& l);	
 	void setLabelsNumericFormat(int axis, int format, int prec, const QString& formula);
 	void setLabelsDateTimeFormat(int axis, int type, const QString& formatInfo);
+	void setLabelsDayFormat(int axis, int format);
+	void setLabelsMonthFormat(int axis, int format);
 	
 	QStringList axesLabelsFormatInfo(){return axesFormatInfo;};
 	void setLabelsTextFormat(int axis, int type, const QString& labelsColName, Table *table);
 
 	QStringList getAxesFormulas(){return axesFormulas;};
 	void setAxesFormulas(const QStringList& l){axesFormulas = l;};
+	void setAxisFormula(int pos, const QString &f){axesFormulas[pos] = f;};
 
 	 // canvas frame 
 	 void drawCanvasFrame(bool frameOn, int width);
@@ -396,23 +408,17 @@ public slots:
 	 int canvasFrameWidth();
 	 bool framed();
 
-	  // insertCurve title 
-	 QString title();
+	 // plot title
 	 void setTitle(const QString& t);
 	 void setTitleFont(const QFont &fnt);
-	 QFont titleFont();
-	 QColor titleColor();
 	 void setTitleColor(const QColor &c);
-	 void removeTitle();
-	 bool titleSelected();
-
-	 void deselectTitle();
-	 void selectTitle();
-	 void setTitleSelected(bool on);
-	 int titleAlignment();
 	 void setTitleAlignment(int align);
-	 void initTitle( bool on);
-	 void initTitleFont( const QFont& fnt);
+
+	 bool titleSelected();
+	 void selectTitle();
+
+	 void removeTitle();
+	 void initTitle( bool on, const QFont& fnt);
 	
 	 // tools for modifing insertCurve data 
 	 bool selectPoint(const QPoint &pos);
@@ -438,19 +444,28 @@ public slots:
 	 void showPlotPicker(bool on);
 	 bool pickerActivated();
 
+	 void disableTools();
+
 	 //translating curves
 	 void translateCurve(int direction);
 	 void translateCurveTo(const QPoint& p);
 	 bool translationInProgress(){return translateOn;};
 	 void startCurveTranslation();
 
-	// data range selectors
+	//! Returns TRUE if the data range selectors are enables, FALSE otherwise.
    	 bool selectorsEnabled(){return rangeSelectorsEnabled;};
+
+	 //! Enables the data range selectors depending on the value of ON (ON = false will call disableRangeSelectors()).
 	 bool enableRangeSelectors(bool on);
+
+	//! Disables the data range selectors tool.
 	 void disableRangeSelectors();
+
 	 void moveRangeSelector(bool up);
 	 void moveRangeSelector();
 	 void shiftRangeSelector(bool shift);
+
+	 //! Select the next/previous curve 
 	 void shiftCurveSelector(bool up);
 	 int selectedPoints(long curveKey);
 
@@ -459,6 +474,7 @@ public slots:
 	 void drawBorder (int width, const QColor& color);
 	 void setBorder (int width, const QColor& color);
 	 void setBackgroundColor(const QColor& color);
+	 void setCanvasBackground(const QColor& color);
 
 	 //functions in analysis.cpp file
 	 void smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex);
@@ -565,7 +581,7 @@ public slots:
 	void setBarsGap(int curve, int gapPercent, int offset);
 	QString showHistogramStats(Table* w, const QString& curveName, int curve);
 
-	//image analyze tools
+	//image analyse tools
 	 bool lineProfile();
 	 void calculateProfile(int average, bool ok);
 	 void calculateLineProfile(const QPoint& start, const QPoint& end);
@@ -653,7 +669,7 @@ signals:
     void selectedGraph (Graph*);
 	void closedGraph();
 	void drawTextOff();
-	void drawLineOff();
+	void drawLineEnded(bool);
 	void cursorInfo(const QString&);
 	void showPlotDialog(long);
 	void showPieDialog();
@@ -695,9 +711,8 @@ private:
 	int selectedAxis;
 	QStringList axesFormulas;
 	QStringList axesFormatInfo;//stores columns used for axes with text labels or  time/date format info
-	QList <int> axisType;
-	QList <int> lblFormat; //stores label format used for the axes
-	QwtScaleMap xCanvasMap, yCanvasMap;
+	Q3ValueList <int> axisType;
+	Q3ValueList <int> lblFormat; //stores label format used for the axes
 	GridOptions grid;
 	MarkerType selectedMarkerType;
 	QwtPlotMarker::LineStyle mrklStyle;
@@ -706,7 +721,6 @@ private:
 	Q3MemArray<long> c_keys; // arrows on plot keys
 	Q3MemArray<long> lines; // arrows on plot keys
 	Q3MemArray<long> images; // images on plot keys
-	QStringList tickLabelsOn;// tells wich axes have tick labels enabled
 	QPen mrkLinePen;
 	QFont auxMrkFont, defaultMarkerFont;
 	QColor auxMrkColor, auxMrkBkgColor;
@@ -714,62 +728,25 @@ private:
 	Qt::PenStyle auxMrkStyle;
 	QString auxMrkFileName, auxMrkText;
 
-	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRadius;
+	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
 	int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
 	int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 	int auxArrowHeadLength, auxArrowHeadAngle;
-	int axesLineWidth, translationDirection;
+	int translationDirection;
 	long selectedMarker,legendMarkerID, startID, endID, functions;
 	long mrkX,mrkY;//x=0 et y=0 line markers keys
-	bool startArrowOn, endArrowOn, drawTextOn, drawLineOn;
+	bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 	
-	//the following bools tell iwhich data tool is activated by the user
+	//the following bool values tell which data tool is activated by the user
 	bool removePointsEnabled,movePointsEnabled, translateOn;
 	bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;	
 	bool piePlot;//tells if the plot is a pie plot
 	bool lineProfileOn; // tells if pixel line profile is asked
-	bool isTitleSelected, auxFilledArrowHead, ignoreResize;
+	bool auxFilledArrowHead, ignoreResize;
 	bool drawAxesBackbone, autoscale;
 
 	QStringList fit_results;
 	double *peaks_array;
 	int n_peaks, selected_peaks, fit_type;
 };
-
-//! Printing filter (extension to QwtPlotPrintFilter)
-class PrintFilter: public QwtPlotPrintFilter
-{
-public:
-    PrintFilter(QwtPlot *insertCurve) 
-	{
-	// FIXME: This is a workaround, proper grid handling must be implemented
-	gridMajorColor = QColor(Qt::black);
-	gridMinorColor = QColor(Qt::black);
-	// orig. code:
-	//X gridMajorColor=insertCurve->gridMajPen().color();
-	//X gridMinorColor=insertCurve->gridMinPen().color();		
-	};
-
-	virtual QColor color(const QColor &c, Item item, int) const
-    {
-        if ( !(options() & PrintCanvasBackground))
-        {
-            switch(item)
-            {
-            case MajorGrid:
-                return gridMajorColor;
-            case MinorGrid:
-                return gridMinorColor;
-            default:	
-                ;
-            }
-        }
-        return c;
-    }
-
-private:
-	QColor gridMajorColor,gridMinorColor;
-};
-
 #endif // GRAPH_H
-

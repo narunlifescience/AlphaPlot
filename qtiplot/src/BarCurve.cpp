@@ -29,49 +29,40 @@
 #include "BarCurve.h"
 #include <qpainter.h>
 
-//FIXME: All functionality disabled for now (needs port to Qwt5)
-
 QwtBarCurve::QwtBarCurve(QwtPlot *parent, const char *name):
-	QwtPlotCurve()
+	QwtPlotCurve(name)
 {
-#if false
 	bar_offset=0;
 	bar_gap=0;
-	bar_style=Qt::Vertical;
+	bar_style=Vertical;
 
 	setPen(QPen(Qt::black,1,Qt::SolidLine));
 	setBrush(QBrush(Qt::red));
-#endif
 }
 
 QwtBarCurve::QwtBarCurve(BarStyle style, QwtPlot *parent, const char *name):
-	QwtPlotCurve()
+	QwtPlotCurve(name)
 {
-#if false
 	bar_offset=0;
 	bar_gap=0;
 	bar_style=style;
 
 	setPen(QPen(Qt::black,1,Qt::SolidLine));
 	setBrush(QBrush(Qt::red));
-#endif
 }
 
 void QwtBarCurve::copy(const QwtBarCurve *b)
 {
-#if false
 	bar_gap = b->bar_gap;
 	bar_offset = b->bar_offset;
 	bar_style = b->bar_style;
 
 	setTitle(b->title());
-#endif
 }
 
 void QwtBarCurve::draw(QPainter *painter,
-		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to)
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-#if false
 	if ( !painter || dataSize() <= 0 )
 		return;
 
@@ -86,13 +77,13 @@ void QwtBarCurve::draw(QPainter *painter,
 
 		int dx,dy,ref,bar_width;
 
-		if (bar_style == Qt::Vertical)
+		if (bar_style == Vertical)
 			ref= yMap.transform(1e-100); //smalest positive value for log scales
 		else
 			ref= xMap.transform(1e-100);	
 
 		int i;
-		if (bar_style == Qt::Vertical)
+		if (bar_style == Vertical)
 		{
 			dx = abs(xMap.transform(x(from+1))-xMap.transform(x(from)));
 			for (i=from+2; i<to; i++)
@@ -122,7 +113,7 @@ void QwtBarCurve::draw(QPainter *painter,
 			const int px = xMap.transform(x(i));
 			const int py = yMap.transform(y(i));
 
-			if (bar_style == Qt::Vertical)
+			if (bar_style == Vertical)
 			{
 				if (y(i) < 0)
 					painter->drawRect(px-half_width, ref, bw1, (py-ref));
@@ -139,48 +130,42 @@ void QwtBarCurve::draw(QPainter *painter,
 		}
 		painter->restore();
 	}
-#endif
 }
 
 QwtDoubleRect QwtBarCurve::boundingRect() const
 {
-#if false
-	QwtDoubleRect rect = QwtCurve::boundingRect();
+	QwtDoubleRect rect = QwtPlotCurve::boundingRect();
 	double n= (double)dataSize();
 
-	if (bar_style == Qt::Vertical)
+	if (bar_style == Vertical)
 	{	
-		double dx=(rect.x2()-rect.x1())/n;
-		rect.setX1(rect.x1()-dx);
-		rect.setX2(rect.x2()+dx);
+		double dx=(rect.right()-rect.left())/n;
+		rect.setLeft(rect.left()-dx);
+		rect.setRight(rect.right()+dx);
 	}
 	else
 	{	
-		double dy=(rect.y2()-rect.y1())/n;
-		rect.setY1(rect.y1()-dy);
-		rect.setY2(rect.y2()+dy);
+		double dy=(rect.bottom()-rect.top())/n;
+		rect.setTop(rect.top()-dy);
+		rect.setBottom(rect.bottom()+dy);
 	}
 
 	return rect;
-#endif
 }
 
 void QwtBarCurve::setGap (int gap)   
 {
-#if false
 	if (bar_gap == gap)
 		return;
 
 	bar_gap =gap;
-#endif
 }
 
 void QwtBarCurve::setOffset(int offset)   
 {
-#if false
 	if (bar_offset == offset)
 		return;
 
 	bar_offset = offset;
-#endif
 }
+

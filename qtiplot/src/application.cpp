@@ -114,6 +114,7 @@
 #include <qsplitter.h>
 #include <qobject.h>
 #include <q3simplerichtext.h>
+#include <q3ptrlist.h>
 
 #include <QActionGroup>
 #include <QAction>
@@ -1486,7 +1487,7 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 			if (!plot)
 				return;
 
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int j=0;j<(int)graphsList->count();j++)
 			{
 				Graph *g=(Graph*)graphsList->at(j);
@@ -1551,7 +1552,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 			if (!plot)
 				return;
 
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int j=0;j<(int)graphsList->count();j++)
 			{
 				Graph *g=(Graph*)graphsList->at(j);
@@ -2263,11 +2264,8 @@ void ApplicationWindow::polishGraph(Graph *g, int style)
 		QList<int> ticksList;
 		int ticksStyle = Plot::Out;
 		ticksList<<ticksStyle<<ticksStyle<<ticksStyle<<ticksStyle;
-		// TODO: replace this line ...
-		g->setTicksType(ticksList);
-		// ... with these
-		//g->setMajorTicksType(ticksList);
-		//g->setMinorTicksType(ticksList);
+		g->setMajorTicksType(ticksList);
+		g->setMinorTicksType(ticksList);
 	}
 	if (style == Graph::HorizontalBars)
 	{
@@ -2382,7 +2380,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	g->setCols(c);
 	g->arrangeLayers(false, false);
 
-	QList<QWidget*> *lst = g->graphPtrs();
+	Q3PtrList<QWidget> *lst = g->graphPtrs();
 	for (int i=0; i<g->graphsNumber();i++)
 	{
 		Graph *ag = (Graph *)lst->at(i);
@@ -2529,34 +2527,23 @@ void ApplicationWindow::customGraph(Graph* g)
 			g->updateSecondaryAxis(QwtPlot::yRight);
 		}
 
-		// TODO: replace these lines ...
 		QList<int> ticksList;
 		ticksList<<majTicksStyle<<majTicksStyle<<majTicksStyle<<majTicksStyle;
-		g->setTicksType(ticksList);
-
-		// ... with these
-		//QList<int> ticksList;
-		//ticksList<<majTicksStyle<<majTicksStyle<<majTicksStyle<<majTicksStyle;
-		//g->setMajorTicksType(ticksList);
-		//ticksList.clear();
-		//ticksList<<minTicksStyle<<minTicksStyle<<minTicksStyle<<minTicksStyle;
-		//g->setMinorTicksType(ticksList);
+		g->setMajorTicksType(ticksList);
+		ticksList.clear();
+		ticksList<<minTicksStyle<<minTicksStyle<<minTicksStyle<<minTicksStyle;
+		g->setMinorTicksType(ticksList);
 
 		g->setTicksLength (minTicksLength, majTicksLength);
 		g->setAxesLinewidth(axesLineWidth);
 		g->drawAxesBackbones(drawBackbones);
 	}
 
-	LegendMarker* legend = g->legend();
-	if (legend)
-	{
-		legend->setBackground(legendFrameStyle);
-		legend->setFont(plotLegendFont);
-	}
 	g->initFonts(plotAxesFont, plotNumbersFont, plotLegendFont);
+	g->customLegend(legendFrameStyle, plotLegendFont);
+
 	g->setTextMarkerDefaultFrame(legendFrameStyle);
-	g->initTitleFont(plotTitleFont);
-	g->initTitle(titleOn);
+	g->initTitle(titleOn, plotTitleFont);
 	g->drawCanvasFrame(canvasFrameOn, canvasFrameWidth);
 	g->plotWidget()->setMargin(defaultPlotMargin);
 	g->enableAutoscaling(autoscale2DPlots);
@@ -3135,7 +3122,7 @@ void ApplicationWindow::removeCurves(const QString& name)
 		if (plotWindows.count(windows.at(i)->name())>=1)
 		{
 			MultiLayer* plot = (MultiLayer*)windows.at(i);
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int j=0; j<(int)graphsList->count(); j++)
 			{
 				Graph* g=(Graph*)graphsList->at(j);				
@@ -3174,7 +3161,7 @@ void ApplicationWindow::updateCurves(const QString& name)
 		if (plotWindows.contains(caption))
 		{
 			MultiLayer* plot = (MultiLayer*)windows.at(i);
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int k=0; k<(int)graphsList->count(); k++)
 			{
 				Graph* g=(Graph*)graphsList->at(k);
@@ -3360,7 +3347,7 @@ void ApplicationWindow::setGraphDefaultSettings(bool autoscale,bool scaleFonts,b
 		if (plotWindows.contains(windows.at(i)->name()))
 		{
 			MultiLayer* plot = (MultiLayer*)windows.at(i);
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int k=0; k<(int)graphsList->count(); k++)
 			{
 				Graph* g=(Graph*)graphsList->at(k);
@@ -5150,12 +5137,12 @@ void ApplicationWindow::showTitleDialog()
 			connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setTitleColor(const QColor &)));
 			connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setTitleAlignment(int)));
 
-			td->setText(g->title());
-			td->setFont(g->titleFont());
-			td->setTextColor(g->titleColor());
-			td->setAlignment(g->titleAlignment());
+			QwtText t = g->plotWidget()->title();
+			td->setText(t.text());
+			td->setFont(t.font());
+			td->setTextColor(t.color());
+			td->setAlignment(t.flags());
 			td->exec();
-			g->setTitleSelected(false);
 		}
 	}
 	else if (plot3DWindows.contains(caption)>0)
@@ -5800,16 +5787,15 @@ void ApplicationWindow::showColumnOptionsDialog()
 			QMessageBox::warning(this, "QtiPlot","Please select a column first!");
 	}
 }
-
 void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
-		int ticksType, bool labelsOn, const QColor& c, int format, 
-		int prec, int rotation, int baselineDist, const QString& formula)
+								 int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format, 
+								 int prec, int rotation, int baselineDist, const QString& formula)
 {
 	Table *w = table(labelsColName);
 	if ((type == Graph::Txt || type == Graph::ColHeader) && !w)
 		return;
 
-	activeGraph->showAxis(axis, type, labelsColName, w, axisOn, ticksType, labelsOn, 
+	activeGraph->showAxis(axis, type, labelsColName, w, axisOn, majTicksType, minTicksType, labelsOn, 
 			c, format, prec, rotation, baselineDist, formula);
 }
 
@@ -5890,9 +5876,9 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->updateTitleBox(0);
 			ad->putGridOptions(g->getGridOptions());
 			ad->setAxesColors(g->axesColors());
-			ad->setTicksType(g->ticksType());
+			ad->setTicksType(g->plotWidget()->getMajorTicksType(), g->plotWidget()->getMinorTicksType());
 			ad->setEnabledTickLabels(g->enabledTickLabels());
-			ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
+			ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));	
 			ad->exec();
 			return ad;
 		}
@@ -7520,7 +7506,7 @@ MultiLayer* ApplicationWindow::copyGraph()
 		plot2->setMargins(plot->leftMargin(), plot->rightMargin(), 
 				plot->topMargin(), plot->bottomMargin());
 
-		QList<QWidget*> *graphsList=plot->graphPtrs();
+		Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 		for (int j=0;j<(int)graphsList->count();j++)
 		{
 			Graph* g=(Graph*)graphsList->at(j);
@@ -8364,7 +8350,7 @@ QStringList ApplicationWindow::dependingPlots(const QString& name)
 		if (windows.at(i)->isA("MultiLayer"))
 		{
 			MultiLayer *g=(MultiLayer*)windows.at(i);
-			QList<QWidget*> *graphsList=g->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=g->graphPtrs();
 			for (int j=0;j<(int)graphsList->count();j++)
 			{
 				Graph* ag=(Graph*)graphsList->at(j);
@@ -8388,7 +8374,7 @@ QStringList ApplicationWindow::multilayerDependencies(QWidget *w)
 {
 	QStringList tables;
 	MultiLayer *g=(MultiLayer*)w;
-	QList<QWidget*> *graphsList=g->graphPtrs();
+	Q3PtrList<QWidget> *graphsList=g->graphPtrs();
 	for (int i=0; i<(int)graphsList->count(); i++)
 	{
 		Graph* ag=(Graph*)graphsList->at(i);
@@ -9868,20 +9854,34 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			ag->setAxesBaseline(fList);
 		}
 		else if (s.contains ("EnabledTicks"))
-		{
-			fList=QStringList::split ("\t",s,true);
-			ag->setTicksType(fList);
+		{//version < 0.8.6
+			fList=QStringList::split ("\t",s,TRUE);
+			fList.pop_front();
+			fList.gres("-1", "3");
+			ag->setMajorTicksType(fList);
+			ag->setMinorTicksType(fList);
+		}
+		else if (s.contains ("MajorTicks"))
+		{//version >= 0.8.6
+			fList=QStringList::split ("\t",s,TRUE);
+			fList.pop_front();
+			ag->setMajorTicksType(fList);
+		}
+		else if (s.contains ("MinorTicks"))
+		{//version >= 0.8.6
+			fList=QStringList::split ("\t",s,TRUE);
+			fList.pop_front();
+			ag->setMinorTicksType(fList);
 		}
 		else if (s.contains ("TicksLength"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=QStringList::split ("\t",s,TRUE);
 			ag->setTicksLength(fList[1].toInt(), fList[2].toInt());
 		}
 		else if (s.contains ("EnabledTickLabels"))
 		{
-			fList=QStringList::split ("\t",s,true);
-			for (i=0;i<(int)fList.count();i++)
-				fList[i]=fList[i+1];
+			fList=QStringList::split ("\t",s,TRUE);
+			fList.pop_front();
 			ag->setEnabledTickLabels(fList);
 		}
 		else if (s.contains ("AxesColors"))
@@ -10483,7 +10483,7 @@ void ApplicationWindow::disableTools()
 		if (plotWindows.contains(caption))
 		{
 			MultiLayer* plot = (MultiLayer*)windows.at(i);
-			QList<QWidget*> *graphsList=plot->graphPtrs();
+			Q3PtrList<QWidget> *graphsList=plot->graphPtrs();
 			for (int k=0; k<(int)graphsList->count(); k++)
 			{
 				Graph* g=(Graph*)graphsList->at(k);

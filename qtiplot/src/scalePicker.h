@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include <qobject.h>
-//Added by qt3to4:
-#include <QLabel>
-#include <QEvent>
 
 class QwtPlot;
-class QwtScale;
+class QwtScaleWidget;
+class QwtTextLabel;
 class QLabel;
+#include <QPoint>
+class QRect;
 	
 //! Scale picker
 class ScalePicker: public QObject
@@ -42,13 +42,13 @@ class ScalePicker: public QObject
 public:
     ScalePicker(QwtPlot *plot);
     virtual bool eventFilter(QObject *, QEvent *);
-	QRect scaleRect(const QwtScale *) const;
-	int maxLabelWidth(const QwtScale *scale) const;
-	int maxLabelHeight(const QwtScale *scale) const;
+	QRect scaleRect(const QwtScaleWidget *) const;
+	int maxLabelWidth(const QwtScaleWidget *scale) const;
+	int maxLabelHeight(const QwtScaleWidget *scale) const;
 
-	void mouseDblClicked(const QwtScale *, const QPoint &);
-	void mouseClicked(const QwtScale *scale, const QPoint &pos) ;
-	void mouseRightClicked(const QwtScale *scale, const QPoint &pos);
+	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
+	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
+	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
 
 	void refresh();
 	
@@ -74,9 +74,9 @@ signals:
 
 private:
 	bool movedGraph;
+	QPoint presspos;
 };
 
-//! Title picker
 class TitlePicker: public QObject
 {
     Q_OBJECT
@@ -96,6 +96,7 @@ signals:
 	void highlightGraph();
 
 protected:
-	QLabel *title;
+	QwtTextLabel *title;
 	bool movedGraph;
+	QPoint presspos;
 };

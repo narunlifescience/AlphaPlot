@@ -43,17 +43,17 @@ public:
 	void copy(const QwtBarCurve *b);
 
 	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to);
+		const QwtScaleMap &yMap, int from, int to) const;
 
 	virtual QwtDoubleRect boundingRect() const;
 
 	BarStyle orientation(){return bar_style;};
 
 	void setGap (int gap);  
-	int gap(){return bar_gap;};
+	int gap() const {return bar_gap;};
 
 	void setOffset(int offset);
-	int offset(){return bar_offset;};
+	int offset() const {return bar_offset;};
 	
 private:
 	int bar_gap, bar_offset;

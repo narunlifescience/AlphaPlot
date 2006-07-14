@@ -44,10 +44,12 @@ public:
 	void copy(const BoxCurve *b);
 
 	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to);
+		const QwtScaleMap &yMap, int from, int to) const;
 
-	void drawBox(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, double *dat, int size);
-	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, const QwtScaleMap &yMap, double *dat, int size);
+	void drawBox(QPainter *painter, const QwtScaleMap &xMap, 
+				const QwtScaleMap &yMap, double *dat, int size) const;
+	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, 
+				const QwtScaleMap &yMap, double *dat, int size) const;
 
 	virtual QwtDoubleRect boundingRect() const;
 
@@ -86,27 +88,18 @@ private:
 	int b_style, b_width, b_range, w_range;
 };
 
+
 //! Single array data (extension to QwtData)
 class QwtSingleArrayData: public QwtData
 {
 public:
-    QwtSingleArrayData(const double x, const double *y, size_t size)
+    QwtSingleArrayData(const double x, QwtArray<double> y, size_t size)
 	{
-	// FIXME: port this to Qwt5
-	#if false
-		d_y.detach();
-		d_y.duplicate(y, size);
+		d_y = y;
 		d_x = x;
-	#endif
 	};
 
-    virtual QwtData *copy() const
-	{
-	// FIXME: port this to Qwt5
-	#if false
-		return new QwtSingleArrayData(d_x, d_y, size());
-	#endif
-	};
+    virtual QwtData *copy() const{return new QwtSingleArrayData(d_x, d_y, size());};
  
     virtual size_t size() const{return d_y.size();};
     virtual double x(size_t) const{return d_x;};

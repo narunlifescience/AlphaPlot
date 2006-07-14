@@ -37,7 +37,7 @@ public:
 	void copy(const QwtHistogram *h);
 
 	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to);
+		const QwtScaleMap &yMap, int from, int to) const;
 
 	QwtDoubleRect boundingRect() const;
 

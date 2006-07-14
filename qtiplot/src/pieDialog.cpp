@@ -53,6 +53,7 @@
 //Added by qt3to4:
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
+#include <Q3PtrList>
 
 
 PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
@@ -194,7 +195,7 @@ boxBackgroundColor->setColor ( c ) ;
 
 if (boxAll->isChecked())
 	{
-	QWidgetList* allPlots = mPlot->graphPtrs();
+	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
 	for (int i=0; i<(int)allPlots->count();i++)
 		{
 		Graph* g=(Graph*)allPlots->at(i);
@@ -223,7 +224,7 @@ boxBorderColor->setColor ( c ) ;
 
 if (boxAll->isChecked())
 	{
-	QWidgetList* allPlots = mPlot->graphPtrs();
+	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
 	for (int i=0; i<(int)allPlots->count();i++)
 		{
 		Graph* g=(Graph*)allPlots->at(i);
@@ -246,7 +247,7 @@ if (generalDialog->currentPage() != frame)
 
 if (boxAll->isChecked())
 	{
-	QWidgetList* allPlots = mPlot->graphPtrs();
+	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
 	for (int i=0; i<(int)allPlots->count();i++)
 		{
 		Graph* g=(Graph*)allPlots->at(i);
@@ -269,7 +270,7 @@ if (generalDialog->currentPage() != frame)
 
 if (boxAll->isChecked())
 	{
-	QWidgetList* allPlots = mPlot->graphPtrs();
+	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
 	for (int i=0; i<(int)allPlots->count();i++)
 		{
 		Graph* g=(Graph*)allPlots->at(i);
@@ -359,7 +360,7 @@ if (generalDialog->currentPage()==(QWidget*)frame)
 		return;
 	
 	QColor c = boxBackgroundColor->color();
-	QWidgetList* allPlots = mPlot->graphPtrs();
+	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
 	for (int i=0; i<(int)allPlots->count();i++)
 		{
 		Graph* g=(Graph*)allPlots->at(i);

@@ -51,13 +51,13 @@ public:
 	QwtDoubleRect boundingRect() const;
 
 	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to);
+		const QwtScaleMap &yMap, int from, int to) const;
 
 	virtual void drawVector(QPainter *painter, const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to);
+		const QwtScaleMap &yMap, int from, int to) const;
 	
-	void drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye);
-	double teta(int x0, int y0, int x1, int y1);
+	void drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye) const;
+	double teta(int x0, int y0, int x1, int y1) const;
 
 	void setVectorEnd(const QwtArray<double>&x, const QwtArray<double>&y);
 

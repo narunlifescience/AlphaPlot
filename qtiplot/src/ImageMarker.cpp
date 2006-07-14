@@ -27,61 +27,88 @@
  *                                                                         *
  ***************************************************************************/
 #include "ImageMarker.h"
-#include "LineMarker.h"
 
-#include <qpainter.h>
-#include <q3paintdevicemetrics.h>
+#include <QPainter>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
-//Added by qt3to4:
-#include <QPixmap>
 
-/*#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h>*/
-
-//FIXME: All functionality disabled for now (needs port to Qwt5)
-
-ImageMarker::ImageMarker(const QPixmap& p, QwtPlot *plot):
-    QwtPlotMarker()
+ImageMarker::ImageMarker(const QPixmap& p):
+    pic(p),
+	origin(QPoint(0,0)),
+	picSize(p.size())
 {
-#if false
-pic=p;
-#endif
 }
 
-void ImageMarker::draw(QPainter *p, int, int, const QRect& rect)
+void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const
 {
-#if false
-	if (p->device()->isExtDev())
-		{
-		QwtPlot *plot = (QwtPlot *)parentPlot();				
-		const QwtScaleMap xMap = plot->canvasMap(QwtPlot::xBottom);
-		const QwtScaleMap yMap = plot->canvasMap(QwtPlot::yLeft);
-	
-		double r0_x=xMap.invTransform(origin.x());
-		double r0_y=yMap.invTransform(origin.y());	
-		double r1_x=xMap.invTransform(origin.x()+picSize.width());
-		double r1_y=yMap.invTransform(origin.y()+picSize.height());
-			
-		QwtScaleMap map=LineMarker::mapCanvasToDevice(p, plot, QwtPlot::xBottom);
-		int x0=map.transform(r0_x);
-		int x1=map.transform(r1_x);
-	
-	    map=LineMarker::mapCanvasToDevice(p, plot, QwtPlot::yLeft);		
-		int y0=map.transform(r0_y);
-		int y1=map.transform(r1_y);
+	const int x0 = xMap.transform(d_rect.left());
+	const int y0 = yMap.transform(d_rect.top());
+	const int x1 = xMap.transform(d_rect.right());
+	const int y1 = yMap.transform(d_rect.bottom());
 
-		p->drawPixmap(QRect(QPoint(x0,y0),QPoint(x1,y1)),pic);			
-		}		
-	else	
-		{
-		QRect ir=QRect(origin,picSize);
-		int clw = parentPlot()->canvas()->lineWidth();
-		ir.moveBy(rect.x() - clw, rect.y() - clw);
-		p->drawPixmap(ir,pic);
-		}
-#endif
+	p->drawPixmap(QRect(QPoint(x0, y0), QPoint(x1, y1)), pic);
 }
 
+QSize ImageMarker::size()
+{
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	QPoint topLeft = QPoint(xMap.transform(d_rect.left()), yMap.transform(d_rect.top()));
+	QPoint bottomRight = QPoint(xMap.transform(d_rect.right()), yMap.transform(d_rect.bottom()));
+
+	return QRect(topLeft, bottomRight).size();
+}
+
+void ImageMarker::setSize(const QSize& size)
+{
+	picSize = size;
+
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	int x = xMap.transform(d_rect.left());
+	int y = yMap.transform(d_rect.top());
+
+	d_rect.setRight(xMap.invTransform(x + size.width()));
+	d_rect.setBottom(yMap.invTransform(y + size.height()));
+}
+
+void ImageMarker::setOrigin(const QPoint& p)
+{
+	origin = p;
+
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	d_rect.moveTo(xMap.invTransform(p.x()), yMap.invTransform(p.y()));
+}
+
+QPoint ImageMarker::getOrigin()
+{
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	return QPoint(xMap.transform(d_rect.left()), yMap.transform(d_rect.top()));
+};
+
+QRect ImageMarker::rect()
+{
+	return QRect(getOrigin(), size());
+}
+
+QwtDoubleRect ImageMarker::boundingRect() const
+{
+	return d_rect;
+}
+
+void ImageMarker::updateOrigin()
+{
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	d_rect.moveTo(xMap.invTransform(origin.x()), yMap.invTransform(origin.y()));
+
+	d_rect.setRight(xMap.invTransform(origin.x() + picSize.width()));
+	d_rect.setBottom(yMap.invTransform(origin.y() + picSize.height()));
+}

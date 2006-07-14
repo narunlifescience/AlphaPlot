@@ -41,9 +41,6 @@
 #include <qmessagebox.h>
 #include <qfile.h>
 #include <qlibrary.h>
-//Added by qt3to4:
-#include <QPixmap>
-#include <Q3MemArray>
 
 #include <math.h>
 #include <stdlib.h>
@@ -69,11 +66,8 @@
 #include <gsl/gsl_diff.h>
 #include <gsl/gsl_multimin.h>
 
-//FIXME: All functionality disabled for now (needs port to Qwt5)
-
 void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, double binSize, double begin, double end)
 {
-#if false
 	int i;
 	long curveID = curveKey(curve);
 	QwtHistogram *cv = (QwtHistogram *)d_plot->curve (curveID);
@@ -107,7 +101,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 			Y[i] = 0;
 			X[i] = 0;
 		}
-		d_plot->setCurveData(curveID, X, Y, 2);
+		cv->setData(X, Y, 2);
 		d_plot->replot(); 
 		updateScale();
 		return;
@@ -167,17 +161,15 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 		gsl_histogram_get_range (h, i, &lower, &upper);
 		X[i] = lower;
 	}
-	d_plot->setCurveData(curveID, X, Y, n);
+	cv->setData(X, Y, n);
 	gsl_histogram_free (h);
 	d_plot->replot(); 
 	updateScale();
 	emit modifiedGraph();
-#endif
 }
 
 void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 {
-#if false
 	int i;
 	long curveID = curveKey(curve);
 	QwtHistogram *cv = (QwtHistogram *)d_plot->curve (curveID);
@@ -213,7 +205,7 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 			X[i] = 0;
 		}
 
-		d_plot->setCurveData(curveID, X, Y, 2);
+		cv->setData(X, Y, 2);
 		d_plot->replot(); 
 		updateScale();
 		return;
@@ -276,16 +268,15 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve)
 		gsl_histogram_get_range (h, i, &lower, &upper);
 		X[i] = lower;
 	}
-	d_plot->setCurveData(curveID, X, Y, n);
+
+	cv->setData(X, Y, n);
 	gsl_histogram_free (h);
 	d_plot->replot(); 
 	updateScale();
-#endif
 }
 
 QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 {
-#if false
 	int i;
 	long curveID = curveKey(curve);
 	QwtHistogram *cv= (QwtHistogram *)d_plot->curve (curveID);
@@ -374,7 +365,7 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 		h_sum+=Y[i];
 
 	double sum=0.0;
-	QString text="Bins[X]\tCounts[Y]\tSum\tPercent\n";
+	QString text=tr("Bins")+"\t"+tr("Quantity")+"\t"+tr("Sum")+"\t"+tr("Percent")+"\n";
 	for (i = 0;i<n;i++ )
 	{
 		sum+=Y[i];
@@ -397,12 +388,14 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 	QString caption="Bins-"+curveName;
 	emit createHistogramTable(caption, n, 4, text);
 	return info;
-#endif
 }
 
 void Graph::initHistogram(long curveID, const Q3MemArray<double>& Y, int it)
 {
-#if false
+	QwtHistogram *hc = (QwtHistogram *)d_plot->curve(curveID);
+	if (!hc)
+		return;
+
 	int i;
 	if(it<2 || (it==2 && Y[0] == Y[1]))
 	{//non valid histogram data
@@ -412,15 +405,11 @@ void Graph::initHistogram(long curveID, const Q3MemArray<double>& Y, int it)
 			y[i] = 0;
 			x[i] = 0;
 		}
-		d_plot->setCurveData(curveID, x, y, 2);
+		hc->setData(x, y, 2);
 		d_plot->replot(); 
 		updateScale();
 		return;
 	}
-
-	QwtHistogram *hc = (QwtHistogram *)d_plot->curve(curveID);
-	if (!hc)
-		return;
 
 	int n=10;//default value
 	Q3MemArray<double> x(n),y(n); //store ranges (x) and bins (y)
@@ -454,20 +443,18 @@ void Graph::initHistogram(long curveID, const Q3MemArray<double>& Y, int it)
 	}
 
 	hc->setBinning(true, (double)from, (double)to, (double)(to-from)/(double)n);
-	d_plot->setCurveData(curveID, x, y, n);
+	hc->setData(x, y, n);
 	gsl_histogram_free (h);
-#endif
 }
 
 void Graph::fft(long curveKey, bool forward, double sampling, 
 		bool normalizeAmp, bool order)
 {
-#if false
 	QwtPlotCurve *curve=d_plot->curve(curveKey);
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i, i2, n=curve->dataSize();
 	int n2 = n/2;
@@ -576,18 +563,16 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 
 	emit createHiddenTable(label, n, 5, text);	
 	QApplication::restoreOverrideCursor();
-#endif
 }
 
 void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end, 
 		int points, int colorIndex)
 {
-#if false
 	size_t i, n = end - start + 1;
 	double *x=vector(0, n-1);
 	double *y=vector(0, n-1);
 	for (i = 0; i < n; i++)
-	{// This is the data to be analyzed 
+	{// This is the data to be analysed 
 		x[i]=curve->x(i+start);
 		y[i]=curve->y(i+start);
 	}
@@ -622,17 +607,17 @@ void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end,
 		case 0:
 			method=gsl_interp_linear;
 			label="LinearInt";
-			wlabel = "Linear interpolation of "+curve->title();
+			wlabel = tr("Linear interpolation of ")+curve->title().text();
 			break;
 		case 1:
 			method=gsl_interp_cspline;
 			label="CubicInt";
-			wlabel = "Cubic interpolation of "+curve->title();
+			wlabel = tr("Cubic interpolation of ")+curve->title().text();
 			break;
 		case 2:
 			method=gsl_interp_akima;
 			label="AkimaInt";
-			wlabel = "Akima interpolation of "+curve->title();
+			wlabel = tr("Akima interpolation of ")+curve->title().text();
 			break;
 	}
 
@@ -656,12 +641,10 @@ void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end,
 
 	gsl_spline_free (interp);
 	gsl_interp_accel_free (acc);	
-#endif
 }
 
 bool Graph::diffCurve(const QString& curveTitle)
 {
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
@@ -691,15 +674,13 @@ bool Graph::diffCurve(const QString& curveTitle)
 		text+="\n";
 	}
 
-	emit createHiddenTable(c->title()+"\t"+ tr("Derivative of")+" "+c->title(),n-2,2,text);
+	emit createHiddenTable(c->title().text()+"\t"+ tr("Derivative of")+" "+c->title().text(),n-2,2,text);
 	free_vector(x,0,n-1);free_vector(y,0,n-1);free_vector(result,0,n-2);
 	return true;
-#endif
 }
 
 QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, double low, double up)
 {
-#if false
 	if (!c)
 		return "";
 
@@ -847,7 +828,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	S=vector(0,iter);
 	h=vector(0,iter);
 	int j,it,l;
-	bool success=false;
+	bool success=FALSE;
 	h[1]=1.0;
 	for(j=1;j<=iter;j++)
 	{//Trapezoid Rule
@@ -881,7 +862,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 		h[j+1]=0.25*h[j];
 		S[j+1]=S[j];
 		error=fabs(S[j]-S[j-1]);
-		if(error<=tol) success=true;
+		if(error<=tol) success=TRUE;
 		if(success) break;
 	}
 
@@ -892,7 +873,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	if(order==2) pref="nd";
 	if(order==3) pref="rd";
 	if(order>3) pref="th";
-	QString info=date+"\t"+this->caption()+"\nNumerical integration of: "+c->title()+" with a "+QString::number(order)+pref+" order method \n";
+	QString info=date+"\t"+this->caption()+"\nNumerical integration of: "+c->title().text()+" with a "+QString::number(order)+pref+" order method \n";
 	if(success)
 		info+="Number of iterations: "+QString::number(j)+"\n"; 
 	if(!success)
@@ -916,16 +897,14 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	gsl_interp_accel_free (acc);
 	free_vector(x,0,n-1);free_vector(y,0,n-1); free_vector(S,0,iter);free_vector(h,0,iter);
 	return info;
-#endif
 }
 
 QString Graph::fitLinear(const QString& curveTitle)
 {
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 3, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	double *x=vector(0,n-1);
 	double *y=vector(0,n-1);
@@ -950,7 +929,7 @@ QString Graph::fitLinear(const QString& curveTitle)
 	QDateTime dt = QDateTime::currentDateTime ();
 	QString date=dt.toString(Qt::LocalDate);
 	QString info=date+"\t"+this->caption()+" LinearFit"+ QString::number(fitID)+ ":\n";
-	info+="Linear regression of " + c->title() + ": y=Ax+B\n";
+	info+="Linear regression of " + c->title().text() + ": y=Ax+B\n";
 	info+="From x="+QString::number(x[0]) +" to x="+QString::number(x[n-1])+"\n";
 	info+="A = "+QString::number(c1)+" +/- " + QString::number(sqrt(cov11))+"\n";
 	info+="B = "+QString::number(c0)+" +/- " + QString::number(sqrt(cov00));
@@ -959,14 +938,12 @@ QString Graph::fitLinear(const QString& curveTitle)
 	info+="\nRsquare = "+QString::number(Rsquare);
 	info+="\n-------------------------------------------------------------\n";
 
-	addResultCurve(n, x, y, 1, "LinearFit"+QString::number(++fitID), tr("Linear regression of ")+c->title());
+	addResultCurve(n, x, y, 1, "LinearFit"+QString::number(++fitID), tr("Linear regression of ")+c->title().text());
 	return info;
-#endif
 }
 
 void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 {
-#if false
 	int n, start, end;
 	int p = 3*n_peaks+1;
 	QwtPlotCurve *c= getValidCurve(curveTitle, p, n, start, end);
@@ -977,7 +954,7 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 	double *y=vector(0,n-1);
 	if (!x || !y)
 	{
-		QMessageBox::warning(0,"QtiPlot", tr("Could not allocate memory, operation aborted!"));
+		QMessageBox::warning(0, tr("QtiPlot"), tr("Could not allocate memory, operation aborted!"));
 		return;
 	}
 
@@ -1088,9 +1065,11 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 
 	QString tableName = "Fit"+QString::number(++fitID);
 	QString label=tableName+"_2";
-	long curveID = d_plot->insertCurve(label);
-	d_plot->setCurvePen(curveID, QPen(Qt::red,2)); 
-	d_plot->setCurveData(curveID, x, y, n1);	
+
+	QwtPlotCurve *cv = new QwtPlotCurve(label);
+	long curveID = d_plot->insertCurve(cv);
+	cv->setPen(QPen(Qt::red,2)); 
+	cv->setData(x, y, n1);	
 
 	c_type.resize(++n_curves);
 	c_type[n_curves-1]=Line;
@@ -1108,9 +1087,10 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 			y[j] = gsl_matrix_get (m, j, i);
 
 		label=tableName+"_peak"+QString::number(i+1);
-		curveID = d_plot->insertCurve(label);
-		d_plot->setCurvePen(curveID, QPen(Qt::green,1)); 
-		d_plot->setCurveData(curveID, x, y, n1);	
+		cv = new QwtPlotCurve(label);
+		curveID = d_plot->insertCurve(cv);
+		cv->setPen(QPen(Qt::green,1)); 
+		cv->setData(x, y, n1);	
 
 		c_type.resize(++n_curves);
 		c_type[n_curves-1]=Line;
@@ -1138,8 +1118,7 @@ void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
 	emit createHiddenTable(tableName+"\t"+legend+" "+tr("fit of")+" "+curveTitle, n1, 2+n_peaks, text);
 	updatePlot();
 	emit showFitResults(outputFitString(n1, 1e-4, X0, XN, iter, 0, status, par, s, params,
-				curveTitle, QString(), legend));
-#endif
+				curveTitle, QString::null, legend));
 }
 
 QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
@@ -1147,12 +1126,11 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 		double from,double to,int points, int solver, double tolerance, 
 		int colorIndex)
 {
-#if false
 	const size_t p = params.count();
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(curve, from, to, p, start, end);
 	if (!c)
-		return QString();	
+		return QString::null;	
 
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
@@ -1165,7 +1143,7 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 		aux++;
 	}
 
-	QStringList equation=QStringList::split("=",formula,false);
+	QStringList equation=QStringList::split("=",formula,FALSE);
 	const char *function=equation[1].ascii();
 	QString names=params.join (",");
 	const char *parNames=names.ascii();
@@ -1213,10 +1191,10 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 			xvar=X[i];
 			Y[i]=parser.Eval();
 		}
-		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
+		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
 
 		result = outputFitString(n, tolerance, X0, XN, points, J, status, par, s, params,
-				curve,   formula, tr("Nonlinear"));
+				curve,   formula, tr("Non-linear"));
 	}
 	else
 	{
@@ -1251,43 +1229,37 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 			xvar=X[i];
 			Y[i]=parser.Eval();
 		}
-		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
+		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
 
 		result =outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
-				curve, formula, tr("Nonlinear"));
+				curve, formula, tr("Non-linear"));
 	}
 	return  result;
-#endif
 }	
 
 QString Graph::fitExpDecay(const QString& name, double damping, double amplitude, double yOffset, int colorIndex)
 {  
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	return fitExpDecay(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay(const QString& name, double damping, double amplitude, double yOffset,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {  
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 3, start, end);
 	if (!c)
 		return "";	
 	return fitExpDecay(c,damping,amplitude,yOffset,start,end,iterations,solver,tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {  
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -1329,7 +1301,7 @@ QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude
 			par[i]=gsl_vector_get(s->x,i); 
 		par[1]=1.0/par[1];
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(),  "y=Aexp(-x/t)+y0", "Exponential decay");
+				curve->title().text(),  "y=Aexp(-x/t)+y0", "Exponential decay");
 		par[1]=1.0/par[1];
 	}
 	else
@@ -1348,7 +1320,7 @@ QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude
 			par[i]=gsl_vector_get(s->x,i);
 		par[1]=1.0/par[1];
 		result=outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=Aexp(-x/t)+y0", "Exponential decay");
+				curve->title().text(), "y=Aexp(-x/t)+y0", "Exponential decay");
 		par[1]=1.0/par[1];
 	}
 
@@ -1359,40 +1331,34 @@ QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude
 		X[i]=X0+i*step;
 		Y[i]=par[0]*exp(-par[1]*X[i])+par[2];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential decay fit of ")+curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential decay fit of ")+curve->title().text());
 
 	return result;
-#endif
 }
 
 QString Graph::fitExpDecay2(const QString& name, double firstTime, double secondTime,
 		double from, double yOffset, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, from - 1, 5, start, end);
 	if (!c)
 		return "";	
 	return fitExpDecay2(c, 1.0, firstTime, 1.0, secondTime, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay2(const QString& name, double amp1, double t1, double amp2, double t2, double yOffset,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 5, start, end);
 	if (!c)
 		return "";	
 	return fitExpDecay2(c, amp1, t1, amp2, t2, yOffset, start, end, iterations, solver, tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double amp2, double t2, double yOffset,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -1435,7 +1401,7 @@ QString Graph::fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double 
 		par[3]=1.0/par[3];
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(),  "y=A1*exp(-x/t1)+A2*exp(-x/t2)+y0", "Exponential decay");
+				curve->title().text(),  "y=A1*exp(-x/t1)+A2*exp(-x/t2)+y0", "Exponential decay");
 		par[1]=1.0/par[1];
 		par[3]=1.0/par[3];
 
@@ -1459,7 +1425,7 @@ QString Graph::fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double 
 		par[3]=1.0/par[3];
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=A1*exp(-x/t1)+A2*exp(-x/t2)+y0", "Exponential decay");
+				curve->title().text(), "y=A1*exp(-x/t1)+A2*exp(-x/t2)+y0", "Exponential decay");
 		par[1]=1.0/par[1];
 		par[3]=1.0/par[3];
 
@@ -1474,44 +1440,38 @@ QString Graph::fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double 
 		Y[i]=par[0]*exp(-par[1]*X[i])+par[2]*exp(-par[3]*X[i])+par[4];
 	}
 
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("ExpDecay2 fit of ")+curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("ExpDecay2 fit of ")+curve->title().text());
 
 	return result;
-#endif
 }
 
 QString Graph::fitExpDecay3(const QString& name, double firstTime, double secondTime,
 		double thirdTime, double from, double yOffset, int colorIndex)
 { 
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, from - 1, 7, start, end);
 	if (!c)
 		return "";	
 	return fitExpDecay3(c, 1.0, firstTime, 1.0, secondTime, 1.0, thirdTime, yOffset,
 			start, end, 1000, 0, 1e-4, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay3(const QString& name, double amp1, double t1, double amp2, double t2, 
 		double amp3, double t3, double yOffset, double from, double to, 
 		int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 7, start, end);
 	if (!c)
 		return "";	
 	return fitExpDecay3(c, amp1, t1, amp2, t2, amp3, t3, yOffset, 
 			start, end, iterations, solver, tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double amp2, double t2, 
 		double amp3, double t3, double yOffset, int start, int end, 
 		int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -1555,7 +1515,7 @@ QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double 
 		par[5]=1.0/par[5];
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(),  "y=A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0",
+				curve->title().text(),  "y=A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0",
 				"Exponential decay");
 		par[1]=1.0/par[1];
 		par[3]=1.0/par[3];
@@ -1582,7 +1542,7 @@ QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double 
 		par[5]=1.0/par[5];
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0",
+				curve->title().text(), "y=A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0",
 				"Exponential decay");	
 		par[1]=1.0/par[1];
 		par[3]=1.0/par[3];
@@ -1596,40 +1556,34 @@ QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double 
 		X[i]=X0+i*step;
 		Y[i]=par[0]*exp(-X[i]*par[1])+par[2]*exp(-X[i]*par[3])+par[4]*exp(-X[i]*par[5])+par[6];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("ExpDecay3 fit of ")+ curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("ExpDecay3 fit of ")+ curve->title().text());
 	return result;
-#endif
 }
 
 QString Graph::fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset, int colorIndex)
 {   
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	return fitExpGrowth(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
-#endif
 }
 
 QString Graph::fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 4, start, end);
 	if (!c)
 		return "";
 
 	return fitExpGrowth(c,damping,amplitude,yOffset,start,end,iterations,solver,tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -1669,7 +1623,7 @@ QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitud
 			par[i]=gsl_vector_get(s->x,i); 
 		par[1]=-1.0/par[1];
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(),  "y=Aexp(-x/t)+y0", "Exponential decay");
+				curve->title().text(),  "y=Aexp(-x/t)+y0", "Exponential decay");
 		par[1]=-1.0/par[1];
 
 	}
@@ -1692,7 +1646,7 @@ QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitud
 
 		par[1]=-1.0/par[1];
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=Aexp(x/t)+y0", "Exponential growth");
+				curve->title().text(), "y=Aexp(x/t)+y0", "Exponential growth");
 		par[1]=-1.0/par[1];
 	}
 	free_vector(X,0,n-1); free_vector(Y,0,n-1);	
@@ -1702,19 +1656,17 @@ QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitud
 		X[i]=X0+i*step;
 		Y[i]=par[0]*exp(-par[1]*X[i])+par[2];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential growth fit of ")+ curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential growth fit of ")+ curve->title().text());
 
 	return result;
-#endif
 }
 
 QString Graph::fitGauss(const QString& curveTitle)
 { 
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);
@@ -1733,25 +1685,21 @@ QString Graph::fitGauss(const QString& curveTitle)
 	gsl_vector_free (Y);
 
 	return fitGauss(c, max_out - min_out, maxX, 1.0, min_out, start, end, 1000, 0, 1e-4, 1);
-#endif
 }
 
 QString Graph::fitGauss(const QString& name, double amplitude, double center, double width, double offset,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 4, start, end);
 	if (!c)
 		return "";
 	return fitGauss(c, amplitude, center, width, offset, start, end, iterations, solver, tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitGauss(QwtPlotCurve *curve, double amplitude, double center, double width, double offset,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -1789,7 +1737,7 @@ QString Graph::fitGauss(QwtPlotCurve *curve, double amplitude, double center, do
 			par[i]=gsl_vector_get(s->x,i); 
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(), "y=y0+A*exp[-(x-xc)^2/(2*w^2)]", "Gauss");
+				curve->title().text(), "y=y0+A*exp[-(x-xc)^2/(2*w^2)]", "Gauss");
 	}
 	else
 	{
@@ -1807,7 +1755,7 @@ QString Graph::fitGauss(QwtPlotCurve *curve, double amplitude, double center, do
 			par[i]=gsl_vector_get(s->x,i); 
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=y0+A*exp[-(x-xc)^2/(2*w^2)]", "Gauss");
+				curve->title().text(), "y=y0+A*exp[-(x-xc)^2/(2*w^2)]", "Gauss");
 
 	}
 
@@ -1823,19 +1771,17 @@ QString Graph::fitGauss(QwtPlotCurve *curve, double amplitude, double center, do
 		double diff=X[i]-par[2];
 		Y[i]=par[1]*exp(-0.5*diff*diff/w2)+par[0];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Gauss fit of ")+ curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Gauss fit of ")+ curve->title().text());
 
 	return result;
-#endif
 }
 
 QString Graph::fitLorentz(const QString& curveTitle)
 { 
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);
@@ -1853,25 +1799,21 @@ QString Graph::fitLorentz(const QString& curveTitle)
 	gsl_vector_free (X);
 	gsl_vector_free (Y);
 	return fitLorentz(c, 1.0, maxX, 1.0, minY, start, end, 1000, 0, 1e-4, 1);
-#endif
 }
 
 QString Graph::fitLorentz(const QString& name, double amplitude, double center, double width, double offset,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 4, start, end);
 	if (!c)
 		return "";
 	return fitLorentz(c,amplitude,center,width,offset,start,end,iterations,solver,tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitLorentz(QwtPlotCurve *curve, double amplitude, double center, double width, double offset,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X=vector(0, n-1);
 	double *Y=vector(0, n-1);
@@ -1911,7 +1853,7 @@ QString Graph::fitLorentz(QwtPlotCurve *curve, double amplitude, double center, 
 
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(),  "y=y0+2A/pi*w/[4*(x-xc)^2+w^2)]", "Lorentz");
+				curve->title().text(),  "y=y0+2A/pi*w/[4*(x-xc)^2+w^2)]", "Lorentz");
 		par[1]=par[1]/M_PI_2;
 	}
 	else
@@ -1931,7 +1873,7 @@ QString Graph::fitLorentz(QwtPlotCurve *curve, double amplitude, double center, 
 		par[1]= M_PI_2*par[1];
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=y0+2A/pi*w/[4*(x-xc)^2+w^2)]", "Lorentz");
+				curve->title().text(), "y=y0+2A/pi*w/[4*(x-xc)^2+w^2)]", "Lorentz");
 		par[1]=par[1]/M_PI_2;
 
 	}
@@ -1949,16 +1891,14 @@ QString Graph::fitLorentz(QwtPlotCurve *curve, double amplitude, double center, 
 		double diff=X[i]-par[2];
 		Y[i]=aw/(4*diff*diff+w2)+par[0];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Lorentz fit of ")+curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Lorentz fit of ")+curve->title().text());
 
 	return result;
-#endif
 }
 
 QwtPlotCurve* Graph::getValidCurve(const QString& name, int params, 
 		int &points, int &start, int &end)
 {
-#if false
 	QStringList cl = curvesList();
 	int index=cl.findIndex(name);
 	if (index < 0)
@@ -1987,13 +1927,11 @@ QwtPlotCurve* Graph::getValidCurve(const QString& name, int params,
 		return 0;
 	}
 	return c;
-#endif
 }
 
 QwtPlotCurve* Graph::getFitLimits(const QString& name, double from, double to,
 		int params, int &start, int &end)
 {
-#if false
 	QStringList cl = curvesList();
 	int index=cl.findIndex(name);
 	if (index < 0)
@@ -2042,13 +1980,11 @@ QwtPlotCurve* Graph::getFitLimits(const QString& name, double from, double to,
 		return 0;
 	}
 	return c;
-#endif
 }
 
 QString Graph::fitPolynomial(const QString& name,int order, int points,
 		double start, double end, bool showFormula, int colorIndex)
 {
-#if false
 	int m=order+1;
 	QStringList cl = curvesList();	
 	int index=cl.findIndex(name);
@@ -2132,7 +2068,7 @@ QString Graph::fitPolynomial(const QString& name,int order, int points,
 	QString table_name = "Fit"+ QString::number(fitID);	
 	QDateTime dt = QDateTime::currentDateTime();
 	QString info=dt.toString(Qt::LocalDate)+"\t"+this->caption()+" "+table_name+ ":\n";
-	QString label = tr("Order")+" "+QString::number(order)+" "+tr("Polynomial fit of ")+curve->title();
+	QString label = tr("Order")+" "+QString::number(order)+" "+tr("Polynomial fit of ")+curve->title().text();
 	info+=label+t;
 	info+="\nFrom x="+QString::number(x0) +" to x="+QString::number(xn)+"\n";
 	QString infoA;
@@ -2214,12 +2150,10 @@ QString Graph::fitPolynomial(const QString& name,int order, int points,
 
 	gsl_vector_free (c);
 	return info;
-#endif
 }
 
 void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 {	
-#if false
 	ImageMarker* mrk=(ImageMarker*) d_plot->marker(selectedMarker);
 	if (!mrk)
 	{
@@ -2245,7 +2179,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 	QPoint o=mrk->getOrigin();
 	QPixmap pic=mrk->image();
 	QImage image=pic.convertToImage();
-	lineProfileOn=false;
+	lineProfileOn=FALSE;
 
 	int x1=start.x()-o.x();
 	int x2=end.x()-o.x();
@@ -2297,7 +2231,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 			text+=QString::number(i)+"\t";
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, averagePixels, true))+"\n"; 
+			text+=QString::number(averageImagePixel(image, px, py, averagePixels, TRUE))+"\n"; 
 		}
 	}
 	else // the line is more vertical than horizontal 
@@ -2316,17 +2250,15 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 			text+=QString::number(i)+"\t";	  
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, averagePixels, false))+"\n"; 
+			text+=QString::number(averageImagePixel(image, px, py, averagePixels, FALSE))+"\n"; 
 		}
 	}
 	QString caption="table1";
 	emit createTablePlot(caption,n,4, text);
-#endif
 }
 
 int Graph::averageImagePixel(const QImage& image, int px, int py, int average, bool moreHorizontal)
 {
-#if false
 	QRgb pixel;
 	int sum=0,start,i;
 	int middle=int(0.5*(average-1));
@@ -2349,25 +2281,21 @@ int Graph::averageImagePixel(const QImage& image, int px, int py, int average, b
 		}
 	}
 	return sum/average;
-#endif
 }
 
 void Graph::calculateProfile(int average, bool ok)
 {
-#if false
 	lineProfileOn=ok;	
 	if (average % 2 == 0)
 		averagePixels=average+1;
 	else
 		averagePixels=average;
-#endif
 }
 
 gsl_multifit_fdfsolver* Graph::fitGSL(gsl_multifit_function_fdf f, int p, int n, 
 		double *x_init, int solver, double tolerance,
 		int &iterations, int &status)
 {
-#if false
 	const gsl_multifit_fdfsolver_type *T;
 	if (solver)
 		T = gsl_multifit_fdfsolver_lmder;
@@ -2392,14 +2320,12 @@ gsl_multifit_fdfsolver* Graph::fitGSL(gsl_multifit_function_fdf f, int p, int n,
 	while (status == GSL_CONTINUE && (int)iter < iterations);
 	iterations = iter;
 	return s;
-#endif
 }
 
 gsl_multimin_fminimizer* Graph::fitSimplex(gsl_multimin_function f, 
 		double *x_init, double tolerance,
 		int &iterations, int &status)
 {
-#if false
 	const gsl_multimin_fminimizer_type *T = gsl_multimin_fminimizer_nmsimplex;
 
 	//size of the simplex
@@ -2430,7 +2356,6 @@ gsl_multimin_fminimizer* Graph::fitSimplex(gsl_multimin_function f,
 	iterations = iter;
 	gsl_vector_free(ss);
 	return s;
-#endif
 }
 
 
@@ -2438,7 +2363,6 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		const QStringList& paramsInit, double from,
 		double to,int points, int solver, double tolerance, int colorIndex)
 {
-#if false
 	if (!QFile::exists (pluginName))
 	{
 		QMessageBox::critical(this,tr("QtiPlot - File not found"),
@@ -2540,7 +2464,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		fit_df(s->x,(void*)f.params,J);
 
 		result = outputFitString(n, tolerance, X0, XN, points, J, status, par, s, params,
-				curve, fname+" = "+formula, "Nonlinear");
+				curve, fname+" = "+formula, "Non-linear");
 
 	}
 	else
@@ -2610,7 +2534,7 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 			fname = QString(fitFunction());
 
 		result= outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
-				curve, fname+" = "+formula, "Nonlinear");
+				curve, fname+" = "+formula, "Non-linear");
 
 	}
 
@@ -2628,10 +2552,9 @@ QString Graph::fitPluginFunction(const QString& curve,const QString& pluginName,
 		Y[i]= f_eval(X[i], par);
 	}
 
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Nonlinear fit of ")+curve);
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
 
 	return result;
-#endif
 }
 
 QString Graph::outputFitString(int n, double tolerance, double from, double to, int iter,
@@ -2639,7 +2562,6 @@ QString Graph::outputFitString(int n, double tolerance, double from, double to, 
 		const QStringList& parNames,const QString& curve,
 		const QString& f, const QString& fitType)
 {
-#if false
 	int p = (int)parNames.count();
 	gsl_matrix *covar = gsl_matrix_alloc (p, p);
 	gsl_multifit_covar (s->J, 0.0, covar);
@@ -2698,7 +2620,6 @@ QString Graph::outputFitString(int n, double tolerance, double from, double to, 
 	gsl_multifit_fdfsolver_free (s);
 
 	return info;
-#endif
 }
 
 QString Graph::outputFitString(int n, double tolerance, double from, double to, int iter,
@@ -2706,7 +2627,6 @@ QString Graph::outputFitString(int n, double tolerance, double from, double to, 
 		const QStringList& parNames,const QString& curve,
 		const QString& f, const QString& fitType)
 {
-#if false
 	int p = (int)parNames.count();
 
 	//allocate memory for covariance and calculate based on residuals
@@ -2764,16 +2684,15 @@ QString Graph::outputFitString(int n, double tolerance, double from, double to, 
 	gsl_multimin_fminimizer_free (s);
 
 	return info;
-#endif
 }
 
 void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 		const QString& tableName, const QString& legend)
 {
-#if false
 	QString label=tableName+"_2";
-	long curveID = d_plot->insertCurve(label);
-	d_plot->setCurvePen(curveID, QPen(color(colorIndex),1)); 
+	QwtPlotCurve *c = new QwtPlotCurve(label);
+	long curveID = d_plot->insertCurve(c);
+	c->setPen(QPen(color(colorIndex),1)); 
 
 	c_type.resize(++n_curves);
 	c_type[n_curves-1]=Line;
@@ -2785,7 +2704,7 @@ void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 	label=tableName+"_1(X),"+label+"(Y)";
 	associations<<label;
 
-	d_plot->setCurveData(curveID, x, y, n);	
+	c->setData(x, y, n);	
 	QString text="1\t2\n";
 
 	for (int i=0; i<n; i++)
@@ -2800,17 +2719,15 @@ void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 
 	emit createHiddenTable(tableName+"\t"+legend, n, 2, text);
 	updatePlot();
-#endif
 }
 
 void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 {
-#if false
 	QwtPlotCurve *curve=d_plot->curve(curveKey);
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i,n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2860,20 +2777,18 @@ void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 	free_intvector(index,1,np);
 
 	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
-			tr("Savitzky-Golay smoothing of ")+curve->title());
+			tr("Savitzky-Golay smoothing of ")+curve->title().text());
 
 	QApplication::restoreOverrideCursor();
-#endif
 }
 
 void Graph::smoothFFT(long curveKey, int points, int colIndex)
 {
-#if false
 	QwtPlotCurve *curve=d_plot->curve(curveKey);
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i, n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2904,19 +2819,17 @@ void Graph::smoothFFT(long curveKey, int points, int colIndex)
 	gsl_fft_real_workspace_free (work);
 
 	addResultCurve(n, x, y, colIndex, "Smoothed"+QString::number(++fitID), 
-			QString::number(points) + " points FFT Smoothing of "+curve->title());
+			QString::number(points) + " points FFT Smoothing of "+curve->title().text());
 	QApplication::restoreOverrideCursor();
-#endif
 }
 
 void Graph::smoothAverage(long curveKey, int points, int colIndex)
 {
-#if false
 	QwtPlotCurve *curve=d_plot->curve(curveKey);
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i,j, n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -2961,19 +2874,17 @@ void Graph::smoothAverage(long curveKey, int points, int colIndex)
 	s[n-1]=y[n-1];
 	free_vector(y,0,n-1);	
 	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
-			QString::number(points)+" Points Average Smoothing of "+curve->title());
+			QString::number(points)+" Points Average Smoothing of "+curve->title().text());
 	QApplication::restoreOverrideCursor();
-#endif
 }
 
 void Graph::filterFFT(long curveKey, int filter_type, double lf, double hf, bool DCOffset, int colIndex)
 {
-#if false
 	QwtPlotCurve *curve=d_plot->curve(curveKey);
 	if (!curve)
 		return;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i, n=curve->dataSize();
 	double *x = vector(0,n-1);
@@ -3043,14 +2954,12 @@ void Graph::filterFFT(long curveKey, int filter_type, double lf, double hf, bool
 	gsl_fft_halfcomplex_wavetable_free (hc);
 	gsl_fft_real_workspace_free (work);
 
-	addResultCurve(n, x, y, colIndex, "FilteredFFT"+QString::number(++fitID), label+curve->title());
+	addResultCurve(n, x, y, colIndex, "FilteredFFT"+QString::number(++fitID), label+curve->title().text());
 	QApplication::restoreOverrideCursor();
-#endif
 }
 
 bool Graph::validCurvesDataSize()
 {
-#if false
 	if (!n_curves)
 	{
 		QMessageBox::warning(this,tr("QtiPlot - Warning"),
@@ -3072,16 +2981,14 @@ bool Graph::validCurvesDataSize()
 		}
 	}
 	return true;
-#endif
 }
 
 QString Graph::fitBoltzmann(const QString& curveTitle)
 { 
-#if false
 	int n, start, end;
 	QwtPlotCurve *c= getValidCurve(curveTitle, 4, n, start, end);
 	if (!c)
-		return QString();
+		return QString::null;
 
 	gsl_vector *X = gsl_vector_alloc (n);
 	gsl_vector *Y = gsl_vector_alloc (n);
@@ -3100,25 +3007,21 @@ QString Graph::fitBoltzmann(const QString& curveTitle)
 	gsl_vector_free (Y);
 
 	return fitBoltzmann(c, min_out, max_out, x0_init, 1.0, start, end, 1000, 0, 1e-4, 1);
-#endif
 }
 
 QString Graph::fitBoltzmann(const QString& name, double A1, double A2, double x0, double dx,
 		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int start, end;
 	QwtPlotCurve* c = getFitLimits(name, from, to, 4, start, end);
 	if (!c)
 		return "";
 	return fitBoltzmann(c, A1, A2, x0, dx, start, end, iterations, solver, tolerance, colorIndex);
-#endif
 }
 
 QString Graph::fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0, double dx,
 		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
 {
-#if false
 	int n = end - start + 1;
 	double *X = vector(0, n-1);
 	double *Y = vector(0, n-1);
@@ -3156,7 +3059,7 @@ QString Graph::fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0
 			par[i]=gsl_vector_get(s->x,i); 
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title(), "y=(A1-A2)/(1+exp((x-x0)/dx))+A2", tr("Boltzmann (Sigmoidal)"));
+				curve->title().text(), "y=(A1-A2)/(1+exp((x-x0)/dx))+A2", tr("Boltzmann (Sigmoidal)"));
 	}
 	else
 	{
@@ -3174,7 +3077,7 @@ QString Graph::fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0
 			par[i]=gsl_vector_get(s->x,i); 
 
 		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title(), "y=(A1-A2)/(1+exp((x-x0)/dx))+A2", tr("Boltzmann (Sigmoidal)"));
+				curve->title().text(), "y=(A1-A2)/(1+exp((x-x0)/dx))+A2", tr("Boltzmann (Sigmoidal)"));
 	}
 
 	int n1 = (n<100)?100:n;
@@ -3187,8 +3090,6 @@ QString Graph::fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0
 		X[i]=X0+i*step;
 		Y[i]=(par[0]-par[1])/(1+exp((X[i]-par[2])/par[3]))+par[1];
 	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Boltzmann (Sigmoidal) fit of ")+ curve->title());
+	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Boltzmann (Sigmoidal) fit of ")+ curve->title().text());
 	return result;
-#endif
 }
-

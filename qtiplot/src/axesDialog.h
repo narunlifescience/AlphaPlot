@@ -29,12 +29,10 @@
 #ifndef AXESDIALOG_H
 #define AXESDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-//Added by qt3to4:
+#include <QDialog>
 #include <Q3MemArray>
 #include <QLabel>
-#include <Q3ValueList>
+#include <QList>
 
 class Q3TextEdit;
 class QCheckBox;
@@ -108,6 +106,7 @@ public:
     QComboBox* boxTypeMajor;
     ColorBox* boxColorMinor;
     ColorBox* boxColorMajor;
+	ColorButton *boxCanvasColor;
     QSpinBox* boxWidthMajor;
     QComboBox* boxTypeMinor;
     QSpinBox* boxWidthMinor;
@@ -123,7 +122,7 @@ public:
     QPushButton* btnAxesFont;
 	QCheckBox *boxBackbones, *boxAll, *boxShowFormula;
 	ColorButton* boxAxisColor;
-	QComboBox* boxTicksType, *boxFormat, *boxAxisType, *boxColName;
+	QComboBox *boxMajorTicksType, *boxMinorTicksType, *boxFormat, *boxAxisType, *boxColName;
 	Q3ButtonGroup* GroupBox0;
 	Q3ButtonGroup* GroupBox1;
 	Q3ButtonGroup* GroupBox2;
@@ -140,7 +139,7 @@ public:
 public slots:
 	QStringList scaleLimits(int axis, double start, double end, double step, 
 							const QString& majors, const QString&minors);
-	void setAxesType(const Q3ValueList<int>& list);
+	void setAxesType(const QList<int>& list);
 	void setAxisType(int axis);
 	void updateAxisType(int axis);
 	void setAxisTitles(QStringList t);
@@ -171,12 +170,13 @@ public slots:
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
 	void updateTickLabelsList();
-	void setTicksType(const Q3ValueList<int>& list);
+	void setTicksType(const QList<int>& majLst, const QList<int>& minLst);
 	void setTicksType(int);
 	void setCurrentScale(int axisPos);
 	void initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR );
-	int ticksType();
-	void updateTicksType(int);
+
+	void updateMajTicksType(int);
+	void updateMinTicksType(int);
 	void updateGrid(int);
 	void updateFrame(int);
 	void setLabelsNumericFormat(const QStringList& list);
@@ -189,7 +189,7 @@ public slots:
 	void showAxisFormatOptions(int format);
 	void setBaselineDist(int);
 	void changeBaselineDist(int baseline);
-	void setAxesBaseline(const Q3ValueList<int>& lst);
+	void setAxesBaseline(const QList<int>& lst);
 	void changeMinorTicksLength (int minLength);
 	void changeMajorTicksLength (int majLength);
 	void updateBackbones (bool on);
@@ -200,6 +200,7 @@ public slots:
 	void changeAxesLinewidth (int);
 	void drawAxesBackbones (bool);
 	void pickBackgroundColor();
+	void pickCanvasColor();
 	void showGeneralPage();
 	void showAxesPage();
 	void showGridPage();
@@ -221,12 +222,13 @@ public slots:
 signals:
 	void updateAxisTitle(int,const QString&);
 	void changeAxisFont(int, const QFont &);
-	void showAxis(int, int, const QString&, bool, int, bool,
+	void showAxis(int, int, const QString&, bool, int, int, bool,
 				  const QColor&, int, int, int, int, const QString&);	
 
 protected:
-	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo, labelsNumericFormat, tablesList;
-	Q3ValueList<int> ticks, axesType, axesBaseline;
+	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo;
+	QStringList	labelsNumericFormat, tablesList;
+	QList<int> majTicks, minTicks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;
 	GridOptions grid;
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;

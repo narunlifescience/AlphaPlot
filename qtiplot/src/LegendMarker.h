@@ -33,15 +33,12 @@
 #include <qpen.h>
 
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
-#include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>
 #include <qwt_array.h>
 #include <qwt_text.h>
 
 #include "graph.h"
-
-class Graph;
+#include "plot.h"
 	
 //! Legend marker (extension to QwtPlotMarker)
 class LegendMarker: public QwtPlotMarker
@@ -52,13 +49,16 @@ public:
 
 	enum FrameStyle{None = 0, Line = 1, Shadow=2};
 	
-    virtual void draw(QPainter *p, int x, int y, const QRect &);
+    virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	QString getText();
 	void setText(const QString& s);
 
 	QRect rect();
 	void setOrigin(const QPoint & p);
+
+	//! Keep the markers on screen each time the scales are modified by adding/removing curves
+	void updateOrigin();
 
 	QColor getTextColor();
 	void setTextColor(const QColor& c);
@@ -72,26 +72,46 @@ public:
 	QFont getFont();
 	void setFont(const QFont& font);
 
-	void setAngle(int ang);	
-	int getAngle();
+	int getAngle(){return angle;};
+	void setAngle(int ang){angle=ang;};
 	
-	void drawFrame(QPainter *p, int type, const QRect& rect);
-	void drawSymbols(QPainter *p, const QRect& rect,QwtArray<long> height);
-	void drawLegends(QPainter *p, const QRect& rect, QwtArray<long> height);
-	void drawVector(QPainter *p, int x, int y, int l, int curveIndex);
-														
-	QRect scaledLegendRect(QPainter *p, const QPoint& canvas_origin, const QRect& rect);
-	int symbolsMaxLineLength();
+	void drawFrame(QPainter *p, int type, const QRect& rect) const;
 
-	Graph * parentGraph(QwtPlot *plot);
+	void drawSymbols(QPainter *p, const QRect& rect,
+					QwtArray<long> height, int symbolLineLength) const;
+
+	void drawLegends(QPainter *p, const QRect& rect, 
+					QwtArray<long> height, int symbolLineLength) const;
+
+	void drawVector(QPainter *p, int x, int y, int l, int curveIndex) const;
+														
+	QwtArray<long> itemsHeight(int y, int symbolLineLength, int &width, int &height) const;
+	int symbolsMaxLineLength() const;
 
 protected:
-	QwtArray<long> heights;
-	QRect lRect;
-	int bkgType,angle,symbolLineLength;
+	//! Parent plot
+	Plot *d_plot;
+
+	//! Frame type
+	int d_frame;
+	
+	//! Rotation angle: not implemented yet
+	int angle;
+	
+	//! Pointer to the QwtText object
 	QwtText* d_text;
+
+	//! Background color
 	QColor bkgColor;
+
+	//! TopLeft position in pixels
+	QPoint d_pos;
+
+	//!Distance between symbols and legend text
+	int hspace;
+
+	//!Distance between frame and content
+	int left_margin, top_margin;
 };
 
 #endif
-

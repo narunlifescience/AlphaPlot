@@ -27,8 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include <qobject.h>
-//Added by qt3to4:
-#include <QEvent>
 #include "plot.h"
 
 class Graph;
@@ -47,7 +45,18 @@ public:
 private:
 	void drawTextMarker(const QPoint&);
 	void drawLineMarker(const QPoint&, bool endArrow);
-	bool selectMarker(const QPoint& );
+
+	//! Called when the user releases the mouse button after a line marker resize action
+	/**
+	 * \param point the mouse position
+	*/
+	void resizeLineMarker(const QPoint& point);
+
+	//! Selects and highlights the marker 
+	/**
+	 * \param point the mouse position
+	*/
+	bool selectMarker(const QPoint& point);
 	void moveMarker(QPoint& );
 	void releaseMarker();
 
@@ -57,7 +66,13 @@ private:
 	QPoint startLinePoint, endLinePoint;
 	
 	int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
-	bool moved,	movedGraph, pointSelected, select_peaks;	
+	bool moved,	movedGraph, pointSelected, select_peaks;
+
+	//! Tells if the user resizes a line marker via the mouse using the start point
+	bool resizeLineFromStart;
+	
+	//! Tells if the user resizes a line marker via the mouse using the end point
+	bool resizeLineFromEnd;	
 	
 signals:
 	void showPieDialog();
@@ -73,4 +88,8 @@ signals:
 	void moveGraph(const QPoint&);
 	void releasedGraph();
 	void highlightGraph();
+	
+private:
+		QPoint presspos;
 };
+
