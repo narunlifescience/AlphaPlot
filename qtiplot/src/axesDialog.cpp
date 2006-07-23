@@ -73,6 +73,11 @@
 #include <Q3PtrList>
 
 #include <QDate>
+#include <QList>
+#include <QVector>
+#include <QListWidget>
+#include <QGroupBox>
+#include <QTextEdit>
 
 /* XPM */
 static char * vert_scl_xpm[] = {
@@ -1016,1340 +1021,1490 @@ static const char* const image7_data[] = {
 #define M_PI	3.141592653589793238462643 
 #endif
 
-AxesDialog::AxesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-    QPixmap image4( ( const char** ) image4_data );
-    QPixmap image5( ( const char** ) image5_data );
-    QPixmap image6( ( const char** ) image6_data );
-    QPixmap image7( ( const char** ) image7_data );
-    if ( !name )
-		setName( "AxesDialog" );
-    setWindowTitle( tr( "QtiPlot - General Plot Options" ) );
+	QPixmap image4( ( const char** ) image4_data );
+	QPixmap image5( ( const char** ) image5_data );
+	QPixmap image6( ( const char** ) image6_data );
+	QPixmap image7( ( const char** ) image7_data );
+	setWindowTitle( tr( "QtiPlot - General Plot Options" ) );
 
-    generalDialog = new QTabWidget( this, "generalDialog" );
+	generalDialog = new QTabWidget();
 
 	initScalesPage();
-    initGridPage();
+	initGridPage();
 	initAxesPage();
 	initFramePage();
-	
-	GroupBox6 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this, "GroupBox6" );
-	GroupBox6->setFlat (true);
-	
-	buttonApply = new QPushButton(GroupBox6, "buttonApply" );
-    buttonApply->setText( tr( "&Apply" ) );
-	
-    buttonOk = new QPushButton(GroupBox6, "buttonOk" );
-    buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setDefault( true );
 
-    buttonCancel = new QPushButton(GroupBox6, "buttonCancel" );
-    buttonCancel->setText( tr( "&Cancel" ) );
-	
-    Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
-	vlayout->addWidget(generalDialog);
-    vlayout->addWidget(GroupBox6);
+	QHBoxLayout * bottomButtons = new QHBoxLayout();
+
+	buttonApply = new QPushButton();
+	buttonApply->setText( tr( "&Apply" ) );
+	bottomButtons->addWidget( buttonApply );
+
+	buttonOk = new QPushButton();
+	buttonOk->setText( tr( "&OK" ) );
+	buttonOk->setDefault( true );
+	bottomButtons->addWidget( buttonOk );
+
+	buttonCancel = new QPushButton();
+	buttonCancel->setText( tr( "&Cancel" ) );
+	bottomButtons->addWidget( buttonCancel );
+
+	QVBoxLayout * mainLayout = new QVBoxLayout(this);
+	mainLayout->addWidget(generalDialog);
+	mainLayout->addLayout(bottomButtons);
 
 	for (int i=0;i<4;i++)
 		titles<<"";
 
 	setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
-// signals and slots connections
-connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
+	// signals and slots connections
+	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( updatePlot() ) );
 }
 
 void AxesDialog::initScalesPage()
 {
- 	scalesPage = new QWidget( generalDialog, "scalesPage" );
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr( "" ),scalesPage, "GroupBox1" );
+	scalesPage = new QWidget();
 
-	new QLabel(tr( "From" ), GroupBox1, "TextLabel1_3_3",0 );
-    boxStart = new QLineEdit( GroupBox1, "boxStart" );
-	
-    new QLabel(tr( "To" ), GroupBox1, "TextLabel1_3_2_2",0 );
-	boxEnd = new QLineEdit( GroupBox1, "boxEnd" );
-	
-    boxScaleTypeLabel = new QLabel(tr( "Type" ),GroupBox1, "TextLabel2_3_2",0 );
-    boxScaleType = new QComboBox( false, GroupBox1, "boxScaleType" );
-	boxScaleType->insertItem(tr( "linear" ) );
-    boxScaleType->insertItem(tr( "logarithmic" ) );
-	
-	new QLabel(QString(), GroupBox1, "TextLabel1_3_2_2",0 );
-	btnInvert = new QCheckBox( GroupBox1, "btnInvert" );
-    btnInvert->setText( tr( "Inverted" ) );
+	QGroupBox * middleBox = new QGroupBox(QString());
+	QGridLayout * middleLayout = new QGridLayout(middleBox);
+
+	middleLayout->addWidget(new QLabel(tr( "From" )), 0, 0);
+	boxStart = new QLineEdit();
+	middleLayout->addWidget( boxStart, 0, 1 );
+
+	middleLayout->addWidget(new QLabel(tr( "To" )), 1, 0);
+	boxEnd = new QLineEdit();
+	middleLayout->addWidget( boxEnd, 1, 1);
+
+	boxScaleTypeLabel = new QLabel(tr( "Type" ));
+	boxScaleType = new QComboBox();
+	boxScaleType->addItem(tr( "linear" ) );
+	boxScaleType->addItem(tr( "logarithmic" ) );
+	middleLayout->addWidget( boxScaleTypeLabel, 2, 0);
+	middleLayout->addWidget( boxScaleType, 2, 1);
+
+	btnInvert = new QCheckBox();
+	btnInvert->setText( tr( "Inverted" ) );
 	btnInvert->setChecked(false);
-		
-	GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),scalesPage, "GroupBox2" );
+	middleLayout->addWidget( btnInvert, 3, 1 );
 
-    btnStep = new QCheckBox( GroupBox2, "btnStep" );
-    btnStep->setText( tr( "Step" ) );
+	middleLayout->setRowStretch( 4, 1 );
+
+	QGroupBox * rightBox = new QGroupBox(QString());
+	QGridLayout * rightLayout = new QGridLayout(rightBox);
+	QWidget * stepWidget = new QWidget();
+	QVBoxLayout * stepWidgetLayout = new QVBoxLayout( stepWidget );
+
+	btnStep = new QCheckBox();
+	btnStep->setText( tr( "Step" ) );
 	btnStep->setChecked(true);
-	
-	Q3HBox  *hbox=new Q3HBox (GroupBox2, "hboxb");
-	hbox->setSpacing (5);
-	
-	boxStep = new QLineEdit( hbox, "boxStep" );
-	boxUnit = new QComboBox (hbox, "boxUnit" );
+	rightLayout->addWidget( btnStep, 0, 0 );
+
+	boxStep = new QLineEdit();	
+	stepWidgetLayout->addWidget( boxStep );
+	boxUnit = new QComboBox();
 	boxUnit->hide();
-	
-	btnMinor = new QCheckBox( GroupBox2, "btnMinor" );
-    btnMinor->setText( tr( "Major Ticks" ) );
-	
-	boxMajorValue = new QSpinBox( GroupBox2, "boxMajorValue" );
+	stepWidgetLayout->addWidget( boxUnit );
+
+	rightLayout->addWidget( stepWidget, 0, 1 );
+
+	btnMajor = new QCheckBox();
+	btnMajor->setText( tr( "Major Ticks" ) );
+	rightLayout->addWidget( btnMajor, 1, 0);
+
+	boxMajorValue = new QSpinBox();
 	boxMajorValue->setDisabled(true);
-	
-	minorBoxLabel = new QLabel( tr( "Minor Ticks" ),GroupBox2,"TextLabel3_3_2",0 );
-	
-	boxMinorValue = new QSpinBox( GroupBox2, "boxMinorValue" );
+	rightLayout->addWidget( boxMajorValue, 1, 1);
+
+	minorBoxLabel = new QLabel( tr( "Minor Ticks" ));
+	rightLayout->addWidget( minorBoxLabel, 2, 0);
+
+	boxMinorValue = new QSpinBox();
 	boxMinorValue->setDisabled(true);
+	rightLayout->addWidget( boxMinorValue, 2, 1);
+
+	rightLayout->setRowStretch( 3, 1 );
 
 	QPixmap image0( ( const char** ) horizont_scl_xpm );
-    QPixmap image1( ( const char** ) vert_scl_xpm );
-	
-    axesList = new Q3ListBox( scalesPage, "axesList" );
-    axesList->insertItem( image0, tr( "Horizontal" ) );
-    axesList->insertItem( image1, tr( "Vertical" ) );
-	axesList->setCurrentItem (0);
-	
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(scalesPage,5,5, "hlayout");
-	hlayout->addWidget(axesList);
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
+	QPixmap image1( ( const char** ) vert_scl_xpm );
 
-    generalDialog->insertTab( scalesPage, tr( "Scale" ) );
-	
-//slots connections
-connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
-connect(axesList,SIGNAL(highlighted(int) ), this, SLOT(updateScale(int) ) );
-connect(boxScaleType,SIGNAL(activated(int) ), this, SLOT(updatePlot() ) );
+	axesList = new QListWidget();
+	axesList->addItem( new QListWidgetItem(image0, tr( "Horizontal" )) );
+	axesList->addItem( new QListWidgetItem(image1, tr( "Vertical" )) );
+	axesList->setIconSize(image0.size());
+	axesList->setCurrentRow(0);
 
-connect(btnStep,SIGNAL(clicked() ), this, SLOT(stepEnabled() ) );
-connect(btnMinor,SIGNAL(clicked() ), this, SLOT(stepDisabled() ) );	
+	// calculate a sensible width for the items list 
+	// (default QListWidget size is 256 which looks too big)
+	QFontMetrics fm(axesList->font());
+	int width = 32,i;
+	for(i=0 ; i<axesList->count() ; i++)
+		if( fm.width(axesList->item(i)->text()) > width)
+			width = fm.width(axesList->item(i)->text());
+	axesList->setMaximumWidth( axesList->iconSize().width() + width + 50 );
+	// resize the list to the maximum width
+	axesList->resize(axesList->maximumWidth(),axesList->height());
+
+	QHBoxLayout* mainLayout = new QHBoxLayout(scalesPage);
+	mainLayout->addWidget(axesList);
+	mainLayout->addWidget(middleBox);
+	mainLayout->addWidget(rightBox);
+
+	generalDialog->addTab( scalesPage, tr( "Scale" ) );
+
+	//slots connections
+	connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
+	connect(axesList,SIGNAL(itemClicked(QListWidgetItem *) ), this, SLOT(updateScale(QListWidgetItem *) ) );
+	connect(boxScaleType,SIGNAL(activated(int) ), this, SLOT(updatePlot() ) );
+
+	connect(btnStep,SIGNAL(clicked() ), this, SLOT(stepEnabled() ) );
+	connect(btnMajor,SIGNAL(clicked() ), this, SLOT(stepDisabled() ) );	
 }
 
 void AxesDialog::initGridPage()
 {
-gridPage = new QWidget( generalDialog, "gridPage" );
-	
-	GroupBox3 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),gridPage, "GroupBox3" );
+	gridPage = new QWidget();
 
-	new QLabel(tr( "" ), GroupBox3, "TextLabel1_400",0 );
-	
-    boxMajorGrid = new QCheckBox( GroupBox3, "boxMajorGrid" );
-    boxMajorGrid->setText( tr( "Major Grids" ) );
+	QGroupBox * rightBox = new QGroupBox(QString());
+	QGridLayout * rightLayout = new QGridLayout(rightBox);
+
+	boxMajorGrid = new QCheckBox();
+	boxMajorGrid->setText( tr( "Major Grids" ) );
 	boxMajorGrid->setChecked(true);
+	rightLayout->addWidget( boxMajorGrid, 0, 1);
 
-    boxMinorGrid = new QCheckBox( GroupBox3, "boxMinorGrid" );
-    boxMinorGrid->setText( tr( "Minor Grids" ) );
+	boxMinorGrid = new QCheckBox();
+	boxMinorGrid->setText( tr( "Minor Grids" ) );
 	boxMinorGrid->setChecked(false);
+	rightLayout->addWidget( boxMinorGrid, 0, 2);
 
-	new QLabel(tr( "Line Color" ), GroupBox3, "TextLabel1",0 );
-	
-	boxColorMajor = new ColorBox( false, GroupBox3);
+	rightLayout->addWidget( new QLabel(tr( "Line Color" )), 1, 0 );
 
-    boxColorMinor = new ColorBox( false, GroupBox3);
+	boxColorMajor = new ColorBox(0);
+	rightLayout->addWidget( boxColorMajor, 1, 1);
+
+	boxColorMinor = new ColorBox(0);
 	boxColorMinor->setDisabled(true);
-	
-	new QLabel(tr( "Line Type" ),GroupBox3, "TextLabel1_3",0 ); 
-	
-	boxTypeMajor = new QComboBox( false, GroupBox3, "boxTypeMajor" );
-	boxTypeMajor->insertItem("_____");
-	boxTypeMajor->insertItem("- - -");
-	boxTypeMajor->insertItem(".....");
-	boxTypeMajor->insertItem("_._._");
-	boxTypeMajor->insertItem("_.._..");
+	rightLayout->addWidget( boxColorMinor, 1, 2);
 
-    boxTypeMinor = new QComboBox( false, GroupBox3, "boxTypeMinor" );
-	boxTypeMinor->insertItem("_____");
-	boxTypeMinor->insertItem("- - -");
-	boxTypeMinor->insertItem(".....");
-	boxTypeMinor->insertItem("_._._");
-	boxTypeMinor->insertItem("_.._..");
+	rightLayout->addWidget( new QLabel(tr( "Line Type" )), 2, 0 );
+
+	boxTypeMajor = new QComboBox();
+	boxTypeMajor->addItem("_____");
+	boxTypeMajor->addItem("- - -");
+	boxTypeMajor->addItem(".....");
+	boxTypeMajor->addItem("_._._");
+	boxTypeMajor->addItem("_.._..");
+	rightLayout->addWidget( boxTypeMajor, 2, 1);
+
+	boxTypeMinor = new QComboBox();
+	boxTypeMinor->addItem("_____");
+	boxTypeMinor->addItem("- - -");
+	boxTypeMinor->addItem(".....");
+	boxTypeMinor->addItem("_._._");
+	boxTypeMinor->addItem("_.._..");
 	boxTypeMinor->setDisabled(true);
-	
-	new QLabel(tr( "Thickness" ), GroupBox3, "TextLabel1_3_2",0 );
-	
-	boxWidthMajor = new QSpinBox(1,20,1, GroupBox3, "boxWidthMajor" );
-	boxWidthMajor->setValue(1);
+	rightLayout->addWidget( boxTypeMinor, 2, 2);
 
-    boxWidthMinor = new QSpinBox(1,20,1, GroupBox3, "boxWidthMinor" );
+	rightLayout->addWidget( new QLabel(tr( "Thickness" )), 3, 0 );
+
+	boxWidthMajor = new QSpinBox();
+	boxWidthMajor->setRange(1,20);
+	boxWidthMajor->setValue(1);
+	rightLayout->addWidget( boxWidthMajor, 3, 1);
+
+	boxWidthMinor = new QSpinBox();
+	boxWidthMinor->setRange(1,20);
 	boxWidthMinor->setValue(1);
 	boxWidthMinor->setDisabled(true);
+	rightLayout->addWidget( boxWidthMinor, 3, 2);
 
-	new QLabel(tr( "Additional lines" ), GroupBox3, "TextLabel1_4",0 );
+	rightLayout->addWidget( new QLabel(tr( "Additional lines" )), 4, 0);
 
-    boxXLine = new QCheckBox( GroupBox3, "boxXLine" );
-    boxXLine->setText( tr( "X=0" ) );
+	boxXLine = new QCheckBox();
+	boxXLine->setText( tr( "X=0" ) );
 	boxXLine->setDisabled(true);
+	rightLayout->addWidget( boxXLine, 4, 1);
 
-    boxYLine = new QCheckBox( GroupBox3, "boxYLine" );
-    boxYLine->setText( tr( "Y=0" ) );
+	boxYLine = new QCheckBox();
+	boxYLine->setText( tr( "Y=0" ) );
+	rightLayout->addWidget( boxYLine, 4, 2);
 
-    QPixmap image2( ( const char** ) image2_data );
-    QPixmap image3( ( const char** ) image3_data );
+	rightLayout->setRowStretch( 5, 1 );
+	rightLayout->setColumnStretch( 3, 1 );
 
-    axesGridList = new Q3ListBox( gridPage, "axesGridList" );
-    axesGridList->insertItem( image3, tr( "" ) );
-    axesGridList->insertItem( image2, tr( "" ) );
-	axesGridList->setCurrentItem(0);
-	
-	Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(gridPage,5,5, "hlayout2");
-	hlayout2->addWidget(axesGridList);
-    hlayout2->addWidget(GroupBox3);
-	
-    generalDialog->insertTab( gridPage, tr( "Grid" ) );
-	
+	QPixmap image2( ( const char** ) image2_data );
+	QPixmap image3( ( const char** ) image3_data );
+
+	axesGridList = new QListWidget();
+	axesGridList->addItem( new QListWidgetItem(image3, tr( "" )) );
+	axesGridList->addItem( new QListWidgetItem(image2, tr( "" )) );
+	axesGridList->setIconSize(image3.size());
+	axesGridList->setCurrentRow(0);
+
+	// calculate a sensible width for the items list 
+	// (default QListWidget size is 256 which looks too big)
+	QFontMetrics fm(axesGridList->font());
+	int width = 32,i;
+	for(i=0 ; i<axesGridList->count() ; i++)
+		if( fm.width(axesGridList->item(i)->text()) > width)
+			width = fm.width(axesGridList->item(i)->text());
+	axesGridList->setMaximumWidth( axesGridList->iconSize().width() + width + 50 );
+	// resize the list to the maximum width
+	axesGridList->resize(axesGridList->maximumWidth(),axesGridList->height());
+
+	QHBoxLayout* mainLayout2 = new QHBoxLayout(gridPage);
+	mainLayout2->addWidget(axesGridList);
+	mainLayout2->addWidget(rightBox);
+
+	generalDialog->addTab( gridPage, tr( "Grid" ) );
+
 	//grid page slot connections
-connect(axesGridList,SIGNAL(highlighted(int)),this, SLOT(updateLineBoxes(int)));
-connect(axesGridList,SIGNAL(selectionChanged()),this, SLOT(setGridOptions()));
-connect(boxMajorGrid,SIGNAL(toggled(bool)), this, SLOT(majorGridEnabled(bool)));
-connect(boxMinorGrid,SIGNAL(toggled(bool)), this, SLOT(minorGridEnabled(bool)));
-connect(boxColorMajor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
-connect(boxColorMinor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
-connect(boxTypeMajor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
-connect(boxTypeMinor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
-connect(boxWidthMajor,SIGNAL(valueChanged (int)),this, SLOT(updateGrid(int)));
-connect(boxWidthMinor,SIGNAL(valueChanged (int)),this, SLOT(updateGrid(int)));
-connect(boxXLine,SIGNAL(clicked()),this, SLOT(updatePlot()));
-connect(boxYLine,SIGNAL(clicked()),this, SLOT(updatePlot()));
+	connect(axesGridList,SIGNAL(highlighted(int)),this, SLOT(updateLineBoxes(int)));
+	connect(axesGridList,SIGNAL(selectionChanged()),this, SLOT(setGridOptions()));
+	connect(boxMajorGrid,SIGNAL(toggled(bool)), this, SLOT(majorGridEnabled(bool)));
+	connect(boxMinorGrid,SIGNAL(toggled(bool)), this, SLOT(minorGridEnabled(bool)));
+	connect(boxColorMajor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
+	connect(boxColorMinor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
+	connect(boxTypeMajor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
+	connect(boxTypeMinor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
+	connect(boxWidthMajor,SIGNAL(valueChanged (int)),this, SLOT(updateGrid(int)));
+	connect(boxWidthMinor,SIGNAL(valueChanged (int)),this, SLOT(updateGrid(int)));
+	connect(boxXLine,SIGNAL(clicked()),this, SLOT(updatePlot()));
+	connect(boxYLine,SIGNAL(clicked()),this, SLOT(updatePlot()));
 }
 
 void AxesDialog::initAxesPage()
 {
 	//axes page
 	QPixmap image4( ( const char** ) image4_data );
-    QPixmap image5( ( const char** ) image5_data );
-    QPixmap image6( ( const char** ) image6_data );
-    QPixmap image7( ( const char** ) image7_data );
+	QPixmap image5( ( const char** ) image5_data );
+	QPixmap image6( ( const char** ) image6_data );
+	QPixmap image7( ( const char** ) image7_data );
 
-    axesPage = new QWidget( generalDialog);
-	
-    axesTitlesList = new Q3ListBox(axesPage);
-    axesTitlesList->insertItem( image4, QString() );
-    axesTitlesList->insertItem( image5, QString() );
-    axesTitlesList->insertItem( image6, QString() );
-    axesTitlesList->insertItem( image7, QString() );
-	axesTitlesList->setCurrentItem(0);
+	axesPage = new QWidget();
+
+	axesTitlesList = new QListWidget();
+	axesTitlesList->addItem( new QListWidgetItem(image4, QString()) );
+	axesTitlesList->addItem( new QListWidgetItem(image5, QString()) );
+	axesTitlesList->addItem( new QListWidgetItem(image6, QString()) );
+	axesTitlesList->addItem( new QListWidgetItem(image7, QString()) );
+	axesTitlesList->setIconSize(image6.size());
+	axesTitlesList->setCurrentRow(0);
+	axesTitlesList->setMaximumWidth((int)(image6.width()*1.5));
 	axesTitlesList->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
-		
-	Q3VBox *box = new Q3VBox (axesPage); 
-	box->setSpacing(5);
-	box->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-	Q3HBox *hbox0 = new Q3HBox (box); 
-	hbox0->setSpacing(5);
-	hbox0->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	// calculate a sensible width for the items list 
+	// (default QListWidget size is 256 which looks too big)
+	QFontMetrics fm(axesTitlesList->font());
+	int width = 32,i;
+	for(i=0 ; i<axesTitlesList->count() ; i++)
+		if( fm.width(axesTitlesList->item(i)->text()) > width)
+			width = fm.width(axesTitlesList->item(i)->text());
+	axesTitlesList->setMaximumWidth( axesTitlesList->iconSize().width() + width + 50 );
+	// resize the list to the maximum width
+	axesTitlesList->resize(axesTitlesList->maximumWidth(),axesTitlesList->height());
 
-	boxShowAxis = new QCheckBox(tr("Show"), hbox0);
-	boxShowAxis->setChecked(true);
-
-	labelBox = new Q3GroupBox (2, Qt::Horizontal, hbox0);
-	labelBox->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	QHBoxLayout * topLayout = new QHBoxLayout();
 	
-	QLabel *l = new QLabel(tr( "Title" ), labelBox);
-    boxTitle = new Q3TextEdit(labelBox);
+	boxShowAxis = new QCheckBox(tr("Show"));
+	boxShowAxis->setChecked(true);
+	topLayout->addWidget( boxShowAxis );
+
+	labelBox = new QGroupBox(QString());
+	topLayout->addWidget( labelBox );
+
+	topLayout->addStretch(1);
+
+	QGridLayout * labelBoxLayout = new QGridLayout( labelBox );
+	labelBoxLayout->setSpacing(1);
+
+	QLabel *l = new QLabel(tr( "Title" ));
+	QFontMetrics metrics(l->font());
+	labelBoxLayout->addWidget( l, 0, 0);
+	boxTitle = new QTextEdit();
 	boxTitle->setTextFormat(Qt::PlainText);
-	boxTitle->setMaximumHeight(int(1.5*l->height()));
+	boxTitle->setMaximumHeight(3*metrics.width(l->text()));
+	labelBoxLayout->addWidget( boxTitle, 0, 1, 1, 7);
 
-	btnLabelFont = new QPushButton(tr("&Font"), labelBox);
+	btnLabelFont = new QPushButton(tr("&Font"));
+	labelBoxLayout->addWidget( btnLabelFont, 1, 0);
 
-	Q3HBox *editBox = new Q3HBox (labelBox); 
-	editBox->setMaximumWidth(280);
+	buttonIndex = new QPushButton(); 
+	buttonIndex->setPixmap(QPixmap(index_xpm));
+	buttonIndex->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonIndex, 1, 1);
 
-	buttonIndice = new QPushButton( editBox); 
-    buttonIndice->setPixmap (QPixmap(index_xpm));
-	buttonIndice->setMaximumWidth(40);
-
-    buttonExp = new QPushButton( editBox);
-    buttonExp->setPixmap (QPixmap(exp_xpm));
+	buttonExp = new QPushButton();
+	buttonExp->setPixmap (QPixmap(exp_xpm));
 	buttonExp->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonExp, 1, 2);
 
-    buttonLowerGreek = new QPushButton(QChar(0x3B1), editBox); 
+	buttonLowerGreek = new QPushButton(QChar(0x3B1)); 
 	buttonLowerGreek->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonLowerGreek, 1, 3);
 
-	buttonUpperGreek = new QPushButton(QChar(0x393), editBox); 
+	buttonUpperGreek = new QPushButton(QChar(0x393)); 
 	buttonUpperGreek->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonUpperGreek, 1, 4 );
 
 	QFont font = this->font();
 	font.setBold(true);
 
-    buttonB = new QPushButton(tr("B"), editBox); 
-    buttonB->setFont(font);
+	buttonB = new QPushButton(tr("B")); 
+	buttonB->setFont(font);
 	buttonB->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonB, 1, 5 );
 
 	font = this->font();
 	font.setItalic(true);
-    buttonI = new QPushButton(tr("It"), editBox);
+	buttonI = new QPushButton(tr("It"));
 	buttonI->setFont(font);
 	buttonI->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonI, 1, 6 );
 
 	font = this->font();
 	font.setUnderline(true);
 
-    buttonU = new QPushButton(tr("U"), editBox);
+	buttonU = new QPushButton(tr("U"));
 	buttonU->setFont(font);
 	buttonU->setMaximumWidth(40);
+	labelBoxLayout->addWidget( buttonU, 1, 7 );
+
+	QHBoxLayout * bottomLayout = new QHBoxLayout();
+
+	QGroupBox *leftBox = new QGroupBox(QString());
+	bottomLayout->addWidget( leftBox );
+	QGridLayout * leftBoxLayout = new QGridLayout( leftBox );
+
+	leftBoxLayout->addWidget( new QLabel(tr( "Type" )), 0, 0 );	
 	
-	Q3HBox  *hbox2=new Q3HBox (box); 
-	hbox2->setSpacing(5);
-	
-	Q3ButtonGroup *GroupBox7 = new Q3ButtonGroup(2,Qt::Horizontal, QString(), hbox2);
+	boxAxisType= new QComboBox();
+	boxAxisType->addItem(tr("Numeric"));
+	boxAxisType->addItem(tr("Text from table"));
+	boxAxisType->addItem(tr("Day of the week"));
+	boxAxisType->addItem(tr("Month"));
+	boxAxisType->addItem(tr("Time"));
+	boxAxisType->addItem(tr("Date"));
+	boxAxisType->addItem(tr("Column Headings"));
+	leftBoxLayout->addWidget( boxAxisType, 0, 1 );
 
-	new QLabel(tr( "Type" ),GroupBox7);	
-	boxAxisType= new QComboBox(GroupBox7, "boxAxisType");
-	boxAxisType->insertItem(tr("Numeric"));
-	boxAxisType->insertItem(tr("Text from table"));
-	boxAxisType->insertItem(tr("Day of the week"));
-	boxAxisType->insertItem(tr("Month"));
-	boxAxisType->insertItem(tr("Time"));
-	boxAxisType->insertItem(tr("Date"));
-	boxAxisType->insertItem(tr("Column Headings"));
+	leftBoxLayout->addWidget( new QLabel(tr( "Font" )), 1, 0 );
 
-	new QLabel(tr( "Font" ),GroupBox7);
-	btnAxesFont = new QPushButton(GroupBox7);
-    btnAxesFont->setText( tr( "Axis &Font" ) );	
+	btnAxesFont = new QPushButton();
+	btnAxesFont->setText( tr( "Axis &Font" ) );	
+	leftBoxLayout->addWidget( btnAxesFont, 1, 1 );
 
-	new QLabel(tr( "Color" ),GroupBox7);	
-	boxAxisColor= new ColorButton(GroupBox7);
+	leftBoxLayout->addWidget( new QLabel(tr( "Color" )), 2, 0 );	
+	boxAxisColor= new ColorButton();
+	leftBoxLayout->addWidget( boxAxisColor, 2, 1 );
 
-	new QLabel(tr( "Major Ticks" ), GroupBox7);	
-	boxMajorTicksType= new QComboBox(GroupBox7);
-	boxMajorTicksType->insertItem(tr( "None" ) );
-	boxMajorTicksType->insertItem(tr( "Out" ) );
-	boxMajorTicksType->insertItem(tr( "In & Out" ) );
-	boxMajorTicksType->insertItem(tr( "In" ) );
+	leftBoxLayout->addWidget( new QLabel(tr( "Major Ticks" )), 3, 0 );
 
-	new QLabel(tr( "Minor Ticks" ), GroupBox7);	
-	boxMinorTicksType= new QComboBox(GroupBox7);
-	boxMinorTicksType->insertItem(tr( "None" ) );
-	boxMinorTicksType->insertItem(tr( "Out" ) );
-	boxMinorTicksType->insertItem(tr( "In & Out" ) );
-	boxMinorTicksType->insertItem(tr( "In" ) );
+	boxMajorTicksType= new QComboBox();
+	boxMajorTicksType->addItem(tr( "None" ) );
+	boxMajorTicksType->addItem(tr( "Out" ) );
+	boxMajorTicksType->addItem(tr( "In & Out" ) );
+	boxMajorTicksType->addItem(tr( "In" ) );
+	leftBoxLayout->addWidget( boxMajorTicksType, 3, 1 );
 
-	new QLabel(tr("Stand-off"), GroupBox7);
-	boxBaseline = new QSpinBox(0,1000,1,GroupBox7, "boxBaseline");
-	
-	Q3ButtonGroup *GroupBox8= new Q3ButtonGroup(2,Qt::Horizontal,tr(""), hbox2, "GroupBox8" );
-	
-	new QLabel(QString(), GroupBox8);	
-	boxShowLabels = new QCheckBox(GroupBox8, "boxShowLabels");
+	leftBoxLayout->addWidget( new QLabel(tr( "Minor Ticks" )), 4, 0 );
+
+	boxMinorTicksType= new QComboBox();
+	boxMinorTicksType->addItem(tr( "None" ) );
+	boxMinorTicksType->addItem(tr( "Out" ) );
+	boxMinorTicksType->addItem(tr( "In & Out" ) );
+	boxMinorTicksType->addItem(tr( "In" ) );
+	leftBoxLayout->addWidget( boxMinorTicksType, 4, 1);
+
+	leftBoxLayout->addWidget( new QLabel(tr("Stand-off")), 5, 0);
+	boxBaseline = new QSpinBox();
+	boxBaseline->setRange( 0, 1000 );
+	leftBoxLayout->addWidget( boxBaseline );
+
+	QGroupBox *rightBox = new QGroupBox(QString());
+	bottomLayout->addWidget( rightBox );
+	QGridLayout * rightBoxLayout = new QGridLayout( rightBox );
+
+	boxShowLabels = new QCheckBox();
 	boxShowLabels->setText(tr("Show Labels"));
 	boxShowLabels->setChecked(true);
+	rightBoxLayout->addWidget( boxShowLabels, 0, 1 );
+
+	label1 = new QLabel(tr("Column"));	
+	rightBoxLayout->addWidget( label1, 1, 0 );
+
+	boxColName = new QComboBox();
+	rightBoxLayout->addWidget( boxColName, 1, 1 );
+
+	labelTable = new QLabel(tr("Table"));	
+	rightBoxLayout->addWidget( labelTable, 2, 0 );
 	
-	label1 = new QLabel(tr("Table"),GroupBox8);	
-	boxColName = new QComboBox(GroupBox8, "Datasheet");
+	boxTableName = new QComboBox();
+	rightBoxLayout->addWidget( boxTableName, 2, 1 );
 
-	labelTable = new QLabel(tr("Table"),GroupBox8);	
-	boxTableName = new QComboBox(GroupBox8, "boxTableName");
-
-	label2 = new QLabel(tr( "Format" ),GroupBox8);	
-	boxFormat = new QComboBox(GroupBox8, "boxFormat");
+	label2 = new QLabel(tr( "Format" ));	
+	rightBoxLayout->addWidget( label2, 3, 0 );
+	
+	boxFormat = new QComboBox();
 	boxFormat->setDuplicatesEnabled(false);
-	
-	label3 = new QLabel(tr( "Precision" ),GroupBox8);		
-	boxPrecision= new QSpinBox(0,10,1,GroupBox8);
-	
-	new QLabel(tr( "Angle" ),GroupBox8);		
-	boxAngle = new QSpinBox(-90,90,5,GroupBox8);
+	rightBoxLayout->addWidget( boxFormat, 3, 1 );
 
-	boxShowFormula = new QCheckBox(tr( "For&mula" ),GroupBox8);		
-	boxFormula = new Q3TextEdit(GroupBox8);
+	label3 = new QLabel(tr( "Precision" ));		
+	rightBoxLayout->addWidget( label3, 4, 0 );
+	boxPrecision = new QSpinBox();
+	boxPrecision->setRange( 0, 10 );
+	rightBoxLayout->addWidget( boxPrecision, 4, 1 );
+
+	rightBoxLayout->addWidget( new QLabel(tr( "Angle" )), 5, 0 );		
+
+	boxAngle = new QSpinBox();
+	boxAngle->setRange( -90, 90 );
+	boxAngle->setSingleStep(5);
+	rightBoxLayout->addWidget( boxAngle, 5, 1 );
+
+	boxShowFormula = new QCheckBox(tr( "For&mula" ));		
+	rightBoxLayout->addWidget( boxShowFormula, 6, 0 );
+
+	boxFormula = new QTextEdit();
 	boxFormula->setTextFormat(Qt::PlainText);
-	boxFormula->setMaximumHeight(int(1.5*l->height()));
+	boxFormula->setMaximumHeight(3*metrics.width(l->text()));
 	boxFormula->hide();
+	rightBoxLayout->addWidget( boxFormula, 6, 1 );
 
-	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(axesPage, 5, 5);
-	hlayout3->addWidget(axesTitlesList);
-    hlayout3->addWidget(box);
+	QVBoxLayout * rightLayout = new QVBoxLayout();
+	rightLayout->addLayout( topLayout );
+	rightLayout->addLayout( bottomLayout );
+	rightLayout->addStretch(1);
+
+	QHBoxLayout * mainLayout3 = new QHBoxLayout( axesPage );
+	mainLayout3->addWidget( axesTitlesList );
+	mainLayout3->addLayout( rightLayout );
 
 	generalDialog->insertTab( axesPage, tr( "Axis" ) );
 
-//signals and slots connections
-connect(btnLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
+	//signals and slots connections
+	connect(btnLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
 
-connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateShowBox(int) ) );	
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateAxisColor(int)));
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateTitleBox(int) ) );
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setTicksType(int) ) );
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setAxisType(int) ) );
-connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setBaselineDist(int) ) );
+	connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateShowBox(int) ) );	
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateAxisColor(int)));
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateTitleBox(int) ) );
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setTicksType(int) ) );
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setAxisType(int) ) );
+	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setBaselineDist(int) ) );
 
-connect(boxShowLabels,SIGNAL(clicked()), this, SLOT(updateTickLabelsList()));
-connect(boxAxisColor, SIGNAL(clicked()), this, SLOT(pickAxisColor()));
-connect(boxShowFormula, SIGNAL(clicked()), this, SLOT(showFormulaBox()));
+	connect(boxShowLabels,SIGNAL(clicked()), this, SLOT(updateTickLabelsList()));
+	connect(boxAxisColor, SIGNAL(clicked()), this, SLOT(pickAxisColor()));
+	connect(boxShowFormula, SIGNAL(clicked()), this, SLOT(showFormulaBox()));
 
-connect(boxMajorTicksType,SIGNAL(activated(int)), this, SLOT(updateMajTicksType(int)));
-connect(boxMinorTicksType,SIGNAL(activated(int)), this, SLOT(updateMinTicksType(int)));
+	connect(boxMajorTicksType,SIGNAL(activated(int)), this, SLOT(updateMajTicksType(int)));
+	connect(boxMinorTicksType,SIGNAL(activated(int)), this, SLOT(updateMinTicksType(int)));
 
-connect(boxShowAxis,SIGNAL(clicked()), this, SLOT(showAxis()));
-connect(boxFormat, SIGNAL(activated(int) ), this, SLOT(setLabelsNumericFormat(int) ) );
-connect(axesTitlesList,SIGNAL(activated(int)), this, SLOT(updateLabelsFormat(int) ) );
+	connect(boxShowAxis,SIGNAL(clicked()), this, SLOT(showAxis()));
+	connect(boxFormat, SIGNAL(activated(int) ), this, SLOT(setLabelsNumericFormat(int) ) );
+	connect(axesTitlesList,SIGNAL(activated(int)), this, SLOT(updateLabelsFormat(int) ) );
 
-connect(btnAxesFont, SIGNAL(clicked()), this, SLOT(customAxisFont()));	
-connect(boxBaseline, SIGNAL(valueChanged(int)), this, SLOT(changeBaselineDist(int)));
-connect(boxAxisType, SIGNAL(activated(int)), this, SLOT(showAxisFormatOptions(int)));
-connect(boxPrecision, SIGNAL(valueChanged(int)), this, SLOT(setLabelsNumericFormat(int)));
+	connect(btnAxesFont, SIGNAL(clicked()), this, SLOT(customAxisFont()));	
+	connect(boxBaseline, SIGNAL(valueChanged(int)), this, SLOT(changeBaselineDist(int)));
+	connect(boxAxisType, SIGNAL(activated(int)), this, SLOT(showAxisFormatOptions(int)));
+	connect(boxPrecision, SIGNAL(valueChanged(int)), this, SLOT(setLabelsNumericFormat(int)));
 
-connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
-connect( buttonIndice, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
-connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
-connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
-connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
-connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
-connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
+	connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
+	connect( buttonIndex, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
+	connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
+	connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
+	connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
+	connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
+	connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
 }
 
 void AxesDialog::initFramePage()
 {
-frame = new QWidget( generalDialog, "frame" );
-Q3VBox *vbox = new Q3VBox(frame, "vbox");
-boxFramed = new Q3ButtonGroup(2,Qt::Horizontal,tr("Canvas frame"), vbox, "GroupBox5" );
-boxFramed->setCheckable (true);
+	frame = new QWidget();
+
+	boxFramed = new QGroupBox(tr("Canvas frame"));
+	boxFramed->setCheckable (true);
+
+	QGridLayout * boxFramedLayout = new QGridLayout( boxFramed );
+
+	boxFramedLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
+	boxFrameColor = new ColorButton(boxFramed);
+	boxFramedLayout->addWidget( boxFrameColor, 0, 1 );
+
+	boxFramedLayout->addWidget( new QLabel(tr( "Width" )), 1, 0 );
+	boxFrameWidth= new QSpinBox();
+	boxFrameWidth->setMinimum(1);
+	boxFramedLayout->addWidget( boxFrameWidth, 1, 1 );
+
+	boxFramedLayout->setRowStretch( 2, 1 );
+
+	QGroupBox * boxBkg = new QGroupBox(tr("Background"));
+
+	QGridLayout * boxBkgLayout = new QGridLayout( boxBkg );
 	
-new QLabel(tr( "Color" ), boxFramed, "TextLabel1_53",0 );
-boxFrameColor= new ColorButton(boxFramed);
+	boxBkgLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
+	boxBackgroundColor = new ColorButton();
+	boxBkgLayout->addWidget( boxBackgroundColor, 0, 1 );
 
-new QLabel(tr( "Width" ), boxFramed, "TextLabel1_54",0 );
-boxFrameWidth= new QSpinBox(boxFramed);
-boxFrameWidth->setMinValue(1);
+	boxBkgLayout->addWidget( new QLabel(tr( "Border Width" )), 1, 0);
+	boxBorderWidth = new QSpinBox();
+	boxBkgLayout->addWidget( boxBorderWidth, 1, 1 );
 
-Q3ButtonGroup *GroupBox55 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Background"), vbox, "GroupBox5" );
+	boxBkgLayout->addWidget( new QLabel(tr("Border Color" )), 2, 0);
+	boxBorderColor = new ColorButton();
+	boxBkgLayout->addWidget( boxBorderColor, 2, 1);
+
+	boxBkgLayout->addWidget( new QLabel(tr("Canvas Color" )), 3, 0);
+	boxCanvasColor= new ColorButton();
+	boxBkgLayout->addWidget( boxCanvasColor, 3, 1 );
+
+	boxBkgLayout->setRowStretch( 4, 1 );
 	
-new QLabel(tr( "Color" ),GroupBox55);
-boxBackgroundColor= new ColorButton(GroupBox55);
+	QGroupBox * boxAxes = new QGroupBox(tr("Axes"));
+
+	QGridLayout * boxAxesLayout = new QGridLayout( boxAxes );
+
+	boxBackbones = new QCheckBox();
+	boxBackbones->setText( tr( "Draw backbones" ) );
+	boxAxesLayout->addWidget( boxBackbones, 0, 0 );
+
+	boxAxesLayout->addWidget( new QLabel(tr( "Line Width" )), 1, 0 );
+	boxAxesLinewidth = new QSpinBox();
+	boxAxesLinewidth->setRange( 1, 100 );
+	boxAxesLayout->addWidget( boxAxesLinewidth, 1, 1 );
+
+	boxAxesLayout->addWidget( new QLabel(tr( "Major ticks length" )), 2, 0 );
+	boxMajorTicksLength = new QSpinBox();
+	boxMajorTicksLength->setRange( 0, 1000 );
+	boxAxesLayout->addWidget( boxMajorTicksLength, 2, 1 );
+
+	boxAxesLayout->addWidget( new QLabel(tr( "Minor ticks length" )), 3, 0 );
+	boxMinorTicksLength = new QSpinBox();
+	boxMinorTicksLength->setRange( 0, 1000 );
+	boxAxesLayout->addWidget( boxMinorTicksLength, 3, 1 );
+
+	boxAxesLayout->setRowStretch( 4, 1 );
+
+	QGroupBox * box4 = new QGroupBox(QString());
 	
-new QLabel(tr( "Border Width" ),GroupBox55);
-boxBorderWidth= new QSpinBox(GroupBox55);
+	QGridLayout * box4Layout = new QGridLayout( box4 );
 
-new QLabel(tr("Border Color" ),GroupBox55);
-boxBorderColor= new ColorButton(GroupBox55);
+	box4Layout->addWidget( new QLabel(tr( "Margin" )), 0, 0 );
+	boxMargin = new QSpinBox();
+	boxMargin->setRange( 0, 1000 );
+	boxMargin->setSingleStep(5);
+	box4Layout->addWidget( boxMargin, 0, 1 );
 
-new QLabel(tr("Canvas Color" ),GroupBox55);
-boxCanvasColor= new ColorButton(GroupBox55);
+	boxAll = new QCheckBox(tr("Apply to all layers"));
+	box4Layout->addWidget( boxAll, 1, 1 );
 
-Q3VBox *vbox2 = new Q3VBox(frame, "vbox2");
-vbox2->setSpacing(5);
+	box4Layout->setRowStretch( 2, 1 );
 
-Q3ButtonGroup *GroupBox6 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Axes"),vbox2, "GroupBox6" );
+	QGridLayout * mainLayout = new QGridLayout( frame );
+	mainLayout->addWidget( boxFramed , 0, 0 );
+	mainLayout->addWidget( boxBkg, 0, 1 );
+	mainLayout->addWidget( boxAxes, 1, 0 );
+	mainLayout->addWidget( box4, 1, 1 );
 
-boxBackbones = new QCheckBox(GroupBox6, "boxBackbones" );
-boxBackbones->setText( tr( "Draw backbones" ) );
+	generalDialog->addTab(frame, tr( "General" ) );
 
-new QLabel(tr( "" ),GroupBox6, "TextLabel1_522",0 );
-
-new QLabel(tr( "Line Width" ),GroupBox6, "TextLabel1_52",0 );
-boxAxesLinewidth = new QSpinBox(1, 100, 1, GroupBox6);
-
-new QLabel(tr( "Major ticks length" ),GroupBox6, "TextLabel1_5211",0 );
-boxMajorTicksLength = new QSpinBox(0, 1000, 1, GroupBox6, "boxMajorTicksLength");
-
-new QLabel(tr( "Minor ticks length" ),GroupBox6, "TextLabel1_521",0 );
-boxMinorTicksLength = new QSpinBox(0, 1000, 1, GroupBox6, "boxMajorTicksLength");
-
-Q3ButtonGroup *GroupBox66 = new Q3ButtonGroup(2,Qt::Horizontal,tr(""),vbox2, "GroupBox6" );
-new QLabel(tr( "Margin" ),GroupBox66, "TextLabel1_541",0 );
-boxMargin= new QSpinBox(0, 1000, 5, GroupBox66);
-
-boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox66);
-
-Q3HBoxLayout* hlayout4 = new Q3HBoxLayout(frame,5,5, "hlayout4");
-hlayout4->addWidget(vbox);
-hlayout4->addWidget(vbox2);
-
-generalDialog->insertTab(frame, tr( "General" ) );
-	
-//frame page slot connections
-connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
-connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
-connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
-connect(boxCanvasColor, SIGNAL(clicked()), this, SLOT(pickCanvasColor()));
-connect(boxBorderWidth,SIGNAL(valueChanged (int)), this, SLOT(updateBorder(int)));
-connect(boxFrameColor, SIGNAL(clicked()), this, SLOT(pickCanvasFrameColor()));
-connect(boxFramed,SIGNAL(toggled(bool)), this, SLOT(drawFrame(bool)));
-connect(boxFramed,SIGNAL(toggled(bool)), this, SLOT(updateBackbones(bool)));
-connect(boxFrameWidth,SIGNAL(valueChanged (int)),this, SLOT(updateFrame(int)));
-connect(boxAxesLinewidth,SIGNAL(valueChanged (int)), this, SLOT(changeAxesLinewidth(int)));
-connect(boxBackbones,SIGNAL(toggled(bool)), this, SLOT(drawAxesBackbones(bool)));
-connect(boxMajorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMajorTicksLength(int)));
-connect(boxMinorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMinorTicksLength(int)));
+	//frame page slot connections
+	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
+	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
+	connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
+	connect(boxCanvasColor, SIGNAL(clicked()), this, SLOT(pickCanvasColor()));
+	connect(boxBorderWidth,SIGNAL(valueChanged (int)), this, SLOT(updateBorder(int)));
+	connect(boxFrameColor, SIGNAL(clicked()), this, SLOT(pickCanvasFrameColor()));
+	connect(boxFramed,SIGNAL(toggled(bool)), this, SLOT(drawFrame(bool)));
+	connect(boxFramed,SIGNAL(toggled(bool)), this, SLOT(updateBackbones(bool)));
+	connect(boxFrameWidth,SIGNAL(valueChanged (int)),this, SLOT(updateFrame(int)));
+	connect(boxAxesLinewidth,SIGNAL(valueChanged (int)), this, SLOT(changeAxesLinewidth(int)));
+	connect(boxBackbones,SIGNAL(toggled(bool)), this, SLOT(drawAxesBackbones(bool)));
+	connect(boxMajorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMajorTicksLength(int)));
+	connect(boxMinorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMinorTicksLength(int)));
 }
 
 void AxesDialog::changeMinorTicksLength (int minLength)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->changeTicksLength(minLength, boxMajorTicksLength->value());
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->changeTicksLength(minLength, boxMajorTicksLength->value());
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->changeTicksLength(minLength, boxMajorTicksLength->value());
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->changeTicksLength(minLength, boxMajorTicksLength->value());
 	}	
 
-boxMajorTicksLength->setMinValue(minLength);
+	boxMajorTicksLength->setMinValue(minLength);
 }
 
 void AxesDialog::changeMajorTicksLength (int majLength)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->changeTicksLength(boxMinorTicksLength->value(), majLength);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->changeTicksLength(boxMinorTicksLength->value(), majLength);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->changeTicksLength(boxMinorTicksLength->value(), majLength);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->changeTicksLength(boxMinorTicksLength->value(), majLength);
 	}	
 
-boxMinorTicksLength->setMaxValue(majLength);
+	boxMinorTicksLength->setMaxValue(majLength);
 }
 
 void AxesDialog::drawAxesBackbones(bool draw)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawAxesBackbones(draw);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawAxesBackbones(draw);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawAxesBackbones(draw);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawAxesBackbones(draw);
 	}
 }
 
 void AxesDialog::changeAxesLinewidth(int width)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->setAxesLinewidth(width);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->setAxesLinewidth(width);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->setAxesLinewidth(width);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->setAxesLinewidth(width);
 	}
 }
 
 void AxesDialog::changeMargin(int width)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->changeMargin(width);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->changeMargin(width);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->changeMargin(width);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->changeMargin(width);
 	}
 }
 
 void AxesDialog::drawFrame(bool framed)
 {	
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
 	}
 }
 
 void AxesDialog::updateFrame(int width)
 {	
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
 	}
 }
 
 void AxesDialog::updateBorder(int width)
 {
-if (generalDialog->currentPage() != frame)
-	return;
+	if (generalDialog->currentPage() != frame)
+		return;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawBorder(width, boxBorderColor->color());
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawBorder(width, boxBorderColor->color());
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawBorder(width, boxBorderColor->color());
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawBorder(width, boxBorderColor->color());
 	}
 }
 
 void AxesDialog::pickCanvasColor()
 {
-QColor c = QColorDialog::getColor(boxCanvasColor->color(), this);
-if ( !c.isValid() || c == boxCanvasColor->color() )
-	return;
+	QColor c = QColorDialog::getColor(boxCanvasColor->color(), this);
+	if ( !c.isValid() || c == boxCanvasColor->color() )
+		return;
 
-boxCanvasColor->setColor ( c ) ;
+	boxCanvasColor->setColor ( c ) ;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
 			{
-			g->setCanvasBackground(c);
-			g->replot();
+				g->setCanvasBackground(c);
+				g->replot();
 			}
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
 		{
-		g->setCanvasBackground(c);
-		g->replot();
+			g->setCanvasBackground(c);
+			g->replot();
 		}
 	}
 
-if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
-	mPlot->updateTransparency();
+	if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
+		mPlot->updateTransparency();
 }
 
 void AxesDialog::pickBackgroundColor()
 {
-QColor c = QColorDialog::getColor(boxBackgroundColor->color(), this);
-if ( !c.isValid() || c == boxBackgroundColor->color() )
-	return;
+	QColor c = QColorDialog::getColor(boxBackgroundColor->color(), this);
+	if ( !c.isValid() || c == boxBackgroundColor->color() )
+		return;
 
-boxBackgroundColor->setColor ( c ) ;
+	boxBackgroundColor->setColor ( c ) ;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
 			{
-			g->setBackgroundColor(c);
-			g->replot();
+				g->setBackgroundColor(c);
+				g->replot();
 			}
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
 		{
-		g->setBackgroundColor(c);
-		g->replot();
+			g->setBackgroundColor(c);
+			g->replot();
 		}
 	}
-mPlot->updateTransparency();
+	mPlot->updateTransparency();
 }
 
 void AxesDialog::pickBorderColor()
 {
-QColor c = QColorDialog::getColor(boxBorderColor->color(), this);
-if ( !c.isValid() || c == boxBorderColor->color() )
-	return;
+	QColor c = QColorDialog::getColor(boxBorderColor->color(), this);
+	if ( !c.isValid() || c == boxBorderColor->color() )
+		return;
 
-boxBorderColor->setColor ( c ) ;
+	boxBorderColor->setColor ( c ) ;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawBorder(boxBorderWidth->value(), c);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawBorder(boxBorderWidth->value(), c);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawBorder(boxBorderWidth->value(), c);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawBorder(boxBorderWidth->value(), c);
 	}
 }
 
 void AxesDialog::pickCanvasFrameColor()
 {
-QColor c = QColorDialog::getColor(boxFrameColor->color(), this);
-if ( !c.isValid() || c == boxFrameColor->color() )
-	return;
+	QColor c = QColorDialog::getColor(boxFrameColor->color(), this);
+	if ( !c.isValid() || c == boxFrameColor->color() )
+		return;
 
-boxFrameColor->setColor ( c ) ;
+	boxFrameColor->setColor ( c ) ;
 
-if (boxAll->isChecked())
+	if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
-			g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
+				g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
 		}
 	}
-else
+	else
 	{
-	Graph* g = (Graph*)mPlot->activeGraph();
-	if (g)
-		g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
 	}
 }
 
 void AxesDialog::updateBackbones (bool on)
 {
-boxBackbones->setChecked(!on);
+	boxBackbones->setChecked(!on);
 }
 
 void AxesDialog::showAxisFormatOptions(int format)
 {
-int axis=mapToQwtAxisId();
+	int axis=mapToQwtAxisId();
 
-boxFormat->clear();
-boxFormat->setEditable(false);
-boxFormat->hide();
-boxPrecision->hide();
-boxColName->hide();
-label1->hide();
-label2->hide();
-label3->hide();
-boxShowFormula->hide();
-boxFormula->hide();
-boxTableName->hide();
-labelTable->hide();
+	boxFormat->clear();
+	boxFormat->setEditable(false);
+	boxFormat->hide();
+	boxPrecision->hide();
+	boxColName->hide();
+	label1->hide();
+	label2->hide();
+	label3->hide();
+	boxShowFormula->hide();
+	boxFormula->hide();
+	boxTableName->hide();
+	labelTable->hide();
 
-switch (format)
+	switch (format)
 	{
-	case 0:
-		label2->show();
-		boxFormat->show();
-		boxFormat->insertItem(tr( "Automatic" ) );
-		boxFormat->insertItem(tr( "Decimal: 100.0" ) );
-		boxFormat->insertItem(tr( "Scientific: 1e2" ) );
-		boxFormat->insertItem(tr( "Scientific: 10^2" ) );
-	
-		boxFormat->setCurrentItem (labelsNumericFormat[2*axis].toInt());
-	
-		label3->show();
-		boxPrecision->show();
-		boxShowFormula->show();
+		case 0:
+			label2->show();
+			boxFormat->show();
+			boxFormat->insertItem(tr( "Automatic" ) );
+			boxFormat->insertItem(tr( "Decimal: 100.0" ) );
+			boxFormat->insertItem(tr( "Scientific: 1e2" ) );
+			boxFormat->insertItem(tr( "Scientific: 10^2" ) );
 
-		showAxisFormula(mapToQwtAxisId());
-	break;
+			boxFormat->setCurrentIndex (labelsNumericFormat[2*axis].toInt());
 
-	case 1:
-		label1->show();
-		boxColName->show();
-	break;
+			label3->show();
+			boxPrecision->show();
+			boxShowFormula->show();
 
-	case 2:
-		{
-		int day = (QDate::currentDate()).dayOfWeek();
-		label2->show();
-		boxFormat->show();
-		boxFormat->insertItem(QDate::shortDayName(day));
-		boxFormat->insertItem(QDate::longDayName(day));
-		boxFormat->insertItem((QDate::shortDayName(day)).left(1));
-		boxFormat->setCurrentItem (formatInfo[axis].toInt());
-		}
-	break;
+			showAxisFormula(mapToQwtAxisId());
+			break;
 
-	case 3:
-		{
-		int month = (QDate::currentDate()).month();
-		label2->show();
-		boxFormat->show();
-		boxFormat->insertItem(QDate::shortMonthName(month));
-		boxFormat->insertItem(QDate::longMonthName(month));
-		boxFormat->insertItem((QDate::shortMonthName(month)).left(1));
-		boxFormat->setCurrentItem (formatInfo[axis].toInt());
-		}
-	break;
-	
-	case 4:
-		{
-		label2->show();
-		boxFormat->show();
-		boxFormat->setEditable(true);
-	
-		QStringList lst = QStringList::split(";", formatInfo[axis], false);
-		if (!lst[1].isEmpty())
+		case 1:
+			label1->show();
+			boxColName->show();
+			break;
+
+		case 2:
 			{
-			boxFormat->insertItem(lst[1]);
-			boxFormat->setCurrentText(lst[1]);
+				int day = (QDate::currentDate()).dayOfWeek();
+				label2->show();
+				boxFormat->show();
+				boxFormat->insertItem(QDate::shortDayName(day));
+				boxFormat->insertItem(QDate::longDayName(day));
+				boxFormat->insertItem((QDate::shortDayName(day)).left(1));
+				boxFormat->setCurrentIndex (formatInfo[axis].toInt());
 			}
+			break;
 
-		boxFormat->insertItem("h");
-		boxFormat->insertItem("h ap");
-		boxFormat->insertItem("h AP");
-		boxFormat->insertItem("h:mm");
-		boxFormat->insertItem("h:mm ap");
-		boxFormat->insertItem("hh:mm");
-		boxFormat->insertItem("h:mm:ss");
-		boxFormat->insertItem("h:mm:ss.zzz");
-		boxFormat->insertItem("mm:ss");
-		boxFormat->insertItem("mm:ss.zzz");
-		boxFormat->insertItem("hmm");
-		boxFormat->insertItem("hmmss");
-		boxFormat->insertItem("hhmmss");		
-		}
-	break;
-
-	case 5:
-		{
-		label2->show();
-		boxFormat->show();
-		boxFormat->setEditable(true);
-
-		QStringList lst = QStringList::split(";", formatInfo[axis], false);
-		if (!lst[1].isEmpty())
+		case 3:
 			{
-			boxFormat->insertItem(lst[1]);
-			boxFormat->setCurrentText(lst[1]);
+				int month = (QDate::currentDate()).month();
+				label2->show();
+				boxFormat->show();
+				boxFormat->insertItem(QDate::shortMonthName(month));
+				boxFormat->insertItem(QDate::longMonthName(month));
+				boxFormat->insertItem((QDate::shortMonthName(month)).left(1));
+				boxFormat->setCurrentIndex (formatInfo[axis].toInt());
 			}
-		boxFormat->insertItem("yyyy-MM-dd");
-		boxFormat->insertItem("dd.MM.yyyy");
-		boxFormat->insertItem("ddd MMMM d yy");
-		boxFormat->insertItem("dd/MM/yyyy");
-		}
-	break;
+			break;
 
-	case 6:
-		{
-		labelTable->show();
-		if (tablesList.contains(formatInfo[axis]))
-			boxTableName->setCurrentText(formatInfo[axis]);
-		boxTableName->show();
-		}
-	break;
+		case 4:
+			{
+				label2->show();
+				boxFormat->show();
+				boxFormat->setEditable(true);
+
+				QStringList lst = QStringList::split(";", formatInfo[axis], false);
+				if (!lst[1].isEmpty())
+				{
+					boxFormat->insertItem(lst[1]);
+					boxFormat->setCurrentText(lst[1]);
+				}
+
+				boxFormat->insertItem("h");
+				boxFormat->insertItem("h ap");
+				boxFormat->insertItem("h AP");
+				boxFormat->insertItem("h:mm");
+				boxFormat->insertItem("h:mm ap");
+				boxFormat->insertItem("hh:mm");
+				boxFormat->insertItem("h:mm:ss");
+				boxFormat->insertItem("h:mm:ss.zzz");
+				boxFormat->insertItem("mm:ss");
+				boxFormat->insertItem("mm:ss.zzz");
+				boxFormat->insertItem("hmm");
+				boxFormat->insertItem("hmmss");
+				boxFormat->insertItem("hhmmss");		
+			}
+			break;
+
+		case 5:
+			{
+				label2->show();
+				boxFormat->show();
+				boxFormat->setEditable(true);
+
+				QStringList lst = QStringList::split(";", formatInfo[axis], false);
+				if (!lst[1].isEmpty())
+				{
+					boxFormat->insertItem(lst[1]);
+					boxFormat->setCurrentText(lst[1]);
+				}
+				boxFormat->insertItem("yyyy-MM-dd");
+				boxFormat->insertItem("dd.MM.yyyy");
+				boxFormat->insertItem("ddd MMMM d yy");
+				boxFormat->insertItem("dd/MM/yyyy");
+			}
+			break;
+
+		case 6:
+			{
+				labelTable->show();
+				if (tablesList.contains(formatInfo[axis]))
+					boxTableName->setCurrentText(formatInfo[axis]);
+				boxTableName->show();
+			}
+			break;
 	}
 }
 
 void AxesDialog::insertColList(const QStringList& cols)
 {
-boxColName-> insertStringList(cols);
+	boxColName-> insertStringList(cols);
 }
 
 void AxesDialog::insertTablesList(const QStringList& l)
 {
-tablesList = l;
-boxTableName->insertStringList(l);
+	tablesList = l;
+	boxTableName->insertStringList(l);
 }
 
 void AxesDialog::updateAxisType(int)
 {
-int a=mapToQwtAxisId();
-boxAxisType->setCurrentItem(a);
+	int a=mapToQwtAxisId();
+	boxAxisType->setCurrentIndex(a);
 }
 
-void AxesDialog::setEnabledAxes(Q3MemArray<bool> ok)
+void AxesDialog::setEnabledAxes(QVector<bool> ok)
 {
-xAxisOn=ok[2];
-yAxisOn=ok[0];
-topAxisOn=ok[3];
-rightAxisOn=ok[1];
+	xAxisOn=ok[2];
+	yAxisOn=ok[0];
+	topAxisOn=ok[3];
+	rightAxisOn=ok[1];
 }
 
 void AxesDialog::showAxis()
 {
-bool ok=boxShowAxis->isChecked();
-boxTitle->setEnabled(ok);
-boxAxisColor->setEnabled(ok);
-btnAxesFont->setEnabled(ok);
-boxShowLabels->setEnabled(ok);
-boxMajorTicksType->setEnabled(ok);
-boxMinorTicksType->setEnabled(ok);
-boxAxisType->setEnabled(ok);
-boxBaseline->setEnabled(ok);
-labelBox->setEnabled(ok);
+	bool ok=boxShowAxis->isChecked();
+	boxTitle->setEnabled(ok);
+	boxAxisColor->setEnabled(ok);
+	btnAxesFont->setEnabled(ok);
+	boxShowLabels->setEnabled(ok);
+	boxMajorTicksType->setEnabled(ok);
+	boxMinorTicksType->setEnabled(ok);
+	boxAxisType->setEnabled(ok);
+	boxBaseline->setEnabled(ok);
+	labelBox->setEnabled(ok);
 
-int axis=-1;
-int a=axesTitlesList->currentItem();	
-switch(a)   
-        {
-        case 0:
-            {
-            axis = QwtPlot::xBottom;
-			xAxisOn=ok;
-            break;
-            }
-        case 1:
-            {
-            axis = QwtPlot::yLeft;
-			yAxisOn=ok;
-            break;
-            }
-        case 2:
-            {
-            axis = QwtPlot::xTop;
-			topAxisOn=ok;
-			break;
-            }
-       case 3:
-            {
-            axis = QwtPlot::yRight;
-			rightAxisOn=ok;
-            break;
-            }
-		}
+	int axis=-1;
+	int a=axesTitlesList->currentRow();	
+	switch(a)   
+	{
+		case 0:
+			{
+				axis = QwtPlot::xBottom;
+				xAxisOn=ok;
+				break;
+			}
+		case 1:
+			{
+				axis = QwtPlot::yLeft;
+				yAxisOn=ok;
+				break;
+			}
+		case 2:
+			{
+				axis = QwtPlot::xTop;
+				topAxisOn=ok;
+				break;
+			}
+		case 3:
+			{
+				axis = QwtPlot::yRight;
+				rightAxisOn=ok;
+				break;
+			}
+	}
 
-bool labels=false;
-if (tickLabelsOn[axis] == "1")
-	labels=true;
+	bool labels=false;
+	if (tickLabelsOn[axis] == "1")
+		labels=true;
 
-boxFormat->setEnabled(labels && ok);
-boxColName->setEnabled(labels && ok);
-boxShowFormula->setEnabled(labels && ok);
-boxFormula->setEnabled(labels && ok);
+	boxFormat->setEnabled(labels && ok);
+	boxColName->setEnabled(labels && ok);
+	boxShowFormula->setEnabled(labels && ok);
+	boxFormula->setEnabled(labels && ok);
 
-if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
-	boxAngle->setEnabled(labels && ok);
-else 
-	boxAngle->setDisabled(true);
+	if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
+		boxAngle->setEnabled(labels && ok);
+	else 
+		boxAngle->setDisabled(true);
 
-bool userFormat=true;
-if (boxFormat->currentItem() == 0)
-	userFormat=false;
-boxPrecision->setEnabled(labels && ok && userFormat);
-	
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis,boxAxisType->currentItem(), boxColName->currentText(),ok, boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(),
-			  boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(), 
-			  boxPrecision->value(), boxAngle->value(), boxBaseline->value(), formula);
+	bool userFormat=true;
+	if (boxFormat->currentItem() == 0)
+		userFormat=false;
+	boxPrecision->setEnabled(labels && ok && userFormat);
+
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis,boxAxisType->currentItem(), boxColName->currentText(),ok, boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(),
+			boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(), 
+			boxPrecision->value(), boxAngle->value(), boxBaseline->value(), formula);
 }
 
 void AxesDialog::updateShowBox(int axis)
 {
-switch(axis)   
-        {
-        case 0:
-            {
-			boxShowAxis->setChecked(xAxisOn);
-			int labelsOn=tickLabelsOn[2].toInt();
-			boxShowLabels->setChecked(labelsOn);
-			boxAngle->setEnabled(labelsOn && xAxisOn);
-			boxFormat->setEnabled(labelsOn && xAxisOn);
-			boxAngle->setValue(xBottomLabelsRotation);	
-            break;
-            }
-         case 1:
-            {
-			boxShowAxis->setChecked(yAxisOn);
-			int labelsOn=tickLabelsOn[0].toInt();
-			boxShowLabels->setChecked(labelsOn);
-			boxFormat->setEnabled(labelsOn && yAxisOn);
-            boxAngle->setEnabled(false);
-			boxAngle->setValue(0);
-            break;
-            }
-         case 2:
-            {
-			boxShowAxis->setChecked(topAxisOn);
-				
-			int labelsOn=tickLabelsOn[3].toInt();
-			boxShowLabels->setChecked(labelsOn);
-			boxFormat->setEnabled(labelsOn && topAxisOn);
-			boxAngle->setEnabled(labelsOn && topAxisOn);
-			boxAngle->setValue(xTopLabelsRotation);
-            break;
-            }
-         case 3:
-            {
-			boxShowAxis->setChecked(rightAxisOn);
-			int labelsOn=tickLabelsOn[1].toInt();
-			boxShowLabels->setChecked(labelsOn );
-			boxFormat->setEnabled(labelsOn && rightAxisOn);
-            boxAngle->setEnabled(false);
-			boxAngle->setValue(0);
-            break;
-            }
+	switch(axis)   
+	{
+		case 0:
+			{
+				boxShowAxis->setChecked(xAxisOn);
+				int labelsOn=tickLabelsOn[2].toInt();
+				boxShowLabels->setChecked(labelsOn);
+				boxAngle->setEnabled(labelsOn && xAxisOn);
+				boxFormat->setEnabled(labelsOn && xAxisOn);
+				boxAngle->setValue(xBottomLabelsRotation);	
+				break;
+			}
+		case 1:
+			{
+				boxShowAxis->setChecked(yAxisOn);
+				int labelsOn=tickLabelsOn[0].toInt();
+				boxShowLabels->setChecked(labelsOn);
+				boxFormat->setEnabled(labelsOn && yAxisOn);
+				boxAngle->setEnabled(false);
+				boxAngle->setValue(0);
+				break;
+			}
+		case 2:
+			{
+				boxShowAxis->setChecked(topAxisOn);
+
+				int labelsOn=tickLabelsOn[3].toInt();
+				boxShowLabels->setChecked(labelsOn);
+				boxFormat->setEnabled(labelsOn && topAxisOn);
+				boxAngle->setEnabled(labelsOn && topAxisOn);
+				boxAngle->setValue(xTopLabelsRotation);
+				break;
+			}
+		case 3:
+			{
+				boxShowAxis->setChecked(rightAxisOn);
+				int labelsOn=tickLabelsOn[1].toInt();
+				boxShowLabels->setChecked(labelsOn );
+				boxFormat->setEnabled(labelsOn && rightAxisOn);
+				boxAngle->setEnabled(false);
+				boxAngle->setValue(0);
+				break;
+			}
 	}
 
-bool ok=boxShowAxis->isChecked();
-boxTitle->setEnabled(ok);
-boxAxisColor->setEnabled(ok);
-btnAxesFont->setEnabled(ok);
-boxShowLabels->setEnabled(ok);
-boxMajorTicksType->setEnabled(ok);
-boxMinorTicksType->setEnabled(ok);
-boxAxisType->setEnabled(ok);
-boxBaseline->setEnabled(ok);
-labelBox->setEnabled(ok);	
+	bool ok=boxShowAxis->isChecked();
+	boxTitle->setEnabled(ok);
+	boxAxisColor->setEnabled(ok);
+	btnAxesFont->setEnabled(ok);
+	boxShowLabels->setEnabled(ok);
+	boxMajorTicksType->setEnabled(ok);
+	boxMinorTicksType->setEnabled(ok);
+	boxAxisType->setEnabled(ok);
+	boxBaseline->setEnabled(ok);
+	labelBox->setEnabled(ok);	
 }
 
 void AxesDialog::initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR )
 {
-xBottomFont=xB;
-yLeftFont=yL;
-xTopFont=xT;
-yRightFont=yR;	
+	xBottomFont=xB;
+	yLeftFont=yL;
+	xTopFont=xT;
+	yRightFont=yR;	
 }
 
 void AxesDialog::customAxisFont()
 {
-bool okF;
-int axis=-1;
-QFont fnt;
-switch(axesTitlesList->currentItem())   
-        {
-            case 0:
-            {
-                axis = QwtPlot::xBottom;
+	bool okF;
+	int axis=-1;
+	QFont fnt;
+	switch(axesTitlesList->currentRow())   
+	{
+		case 0:
+			{
+				axis = QwtPlot::xBottom;
 				fnt = QFontDialog::getFont( &okF, xBottomFont,this);
 				if (okF)
-						xBottomFont=fnt;
-                break;
-            }
-            case 1:
-            {
-                axis = QwtPlot::yLeft;
+					xBottomFont=fnt;
+				break;
+			}
+		case 1:
+			{
+				axis = QwtPlot::yLeft;
 				fnt = QFontDialog::getFont( &okF, yLeftFont,this);
 				if (okF)
-						yLeftFont=fnt;
-                break;
-            }
-            case 2:
-            {
-                axis = QwtPlot::xTop;
+					yLeftFont=fnt;
+				break;
+			}
+		case 2:
+			{
+				axis = QwtPlot::xTop;
 				fnt = QFontDialog::getFont( &okF, xTopFont, this);
 				if (okF)
-						xTopFont=fnt;
-                break;
-            }
-            case 3:
-            {
-                axis = QwtPlot::yRight;
+					xTopFont=fnt;
+				break;
+			}
+		case 3:
+			{
+				axis = QwtPlot::yRight;
 				fnt = QFontDialog::getFont( &okF, yRightFont, this);
 				if (okF)
-						yRightFont=fnt;
-                break;
-            }
-		}
-		
-emit changeAxisFont(axis,fnt);
+					yRightFont=fnt;
+				break;
+			}
+	}
+
+	emit changeAxisFont(axis,fnt);
 }
 
 void AxesDialog::accept()
 {
-if (updatePlot())
-	close();
+	if (updatePlot())
+		close();
 }
 
 void AxesDialog::tabPageChanged(QWidget *w)
 {
-axesTitlesList->clearSelection();
-axesList->clearSelection();
-axesGridList->clearSelection();
+// FIXME: Why should the selection be reset on tab change?
+/*
+	axesTitlesList->clearSelection();
+	axesList->clearSelection();
+	axesGridList->clearSelection();
 
-if (w==(QWidget*)axesPage)
-	axesTitlesList->setSelected (0,true);
-else if (w==(QWidget*)scalesPage)
-	axesList->setSelected (0,true);
-else
-	axesGridList->setSelected (0,true);
+	if (w==(QWidget*)axesPage)
+		axesTitlesList->setItemSelected(axesTitlesList->item(0),true);
+	else if (w==(QWidget*)scalesPage)
+		axesList->setItemSelected(axesList->item(0),true);
+	else
+		axesGridList->setItemSelected(axesGridList->item(0),true);
+		*/
 }
 
 void AxesDialog::updateLineBoxes(int axis)
 {
-if (axis) 
+	if (axis) 
 	{
-	boxXLine->setEnabled(true);
-	boxYLine->setDisabled(true);
+		boxXLine->setEnabled(true);
+		boxYLine->setDisabled(true);
 	}
-else
+	else
 	{
-	boxXLine->setDisabled(true);
-	boxYLine->setEnabled(true);
+		boxXLine->setDisabled(true);
+		boxYLine->setEnabled(true);
 	}
 }
 
 void AxesDialog::majorGridEnabled(bool on)
 {
-boxMinorGrid->setEnabled(on);
+	boxMinorGrid->setEnabled(on);
 
-boxTypeMajor->setEnabled(on);
-boxColorMajor->setEnabled(on);
-boxWidthMajor->setEnabled(on);
+	boxTypeMajor->setEnabled(on);
+	boxColorMajor->setEnabled(on);
+	boxWidthMajor->setEnabled(on);
 
-if (generalDialog->currentPage()==gridPage)	
+	if (generalDialog->currentPage()==gridPage)	
 	{
-	d_graph->setGridOptions(getGridOptions());
-	d_graph->replot();
+		d_graph->setGridOptions(getGridOptions());
+		d_graph->replot();
 	}
 }
 
 void AxesDialog::minorGridEnabled(bool on)
 {
-boxTypeMinor->setEnabled(on);
-boxColorMinor->setEnabled(on);
-boxWidthMinor->setEnabled(on);
+	boxTypeMinor->setEnabled(on);
+	boxColorMinor->setEnabled(on);
+	boxWidthMinor->setEnabled(on);
 
-if (generalDialog->currentPage()==gridPage)		
+	if (generalDialog->currentPage()==gridPage)		
 	{
-	d_graph->setGridOptions(getGridOptions());
-	d_graph->replot();
+		d_graph->setGridOptions(getGridOptions());
+		d_graph->replot();
 	}
 }
 
 void AxesDialog::stepEnabled()
 {
-boxStep->setEnabled(btnStep->isChecked ());
-boxUnit->setEnabled(btnStep->isChecked ());
-boxMinorValue->setDisabled(btnStep->isChecked ());
-boxMajorValue->setDisabled(btnStep->isChecked ());
-btnMinor->setChecked(!btnStep->isChecked ());
+	boxStep->setEnabled(btnStep->isChecked ());
+	boxUnit->setEnabled(btnStep->isChecked ());
+	boxMinorValue->setDisabled(btnStep->isChecked ());
+	boxMajorValue->setDisabled(btnStep->isChecked ());
+	btnMajor->setChecked(!btnStep->isChecked ());
 }
 
 void AxesDialog::stepDisabled()
 {
-boxStep->setDisabled(btnMinor->isChecked ());
-boxUnit->setDisabled(btnMinor->isChecked ());
-boxMinorValue->setEnabled(btnMinor->isChecked ());
-boxMajorValue->setEnabled(btnMinor->isChecked ());
-btnStep->setChecked(!btnMinor->isChecked ());
+	boxStep->setDisabled(btnMajor->isChecked ());
+	boxUnit->setDisabled(btnMajor->isChecked ());
+	boxMinorValue->setEnabled(btnMajor->isChecked ());
+	boxMajorValue->setEnabled(btnMajor->isChecked ());
+	btnStep->setChecked(!btnMajor->isChecked ());
 }
 
 QStringList AxesDialog::scaleLimits(int axis, double start, double end, double step, 
-																const QString& majors, const QString&minors)
+		const QString& majors, const QString&minors)
 {
-scales[8*axis+0]=QString::number(start);
-scales[8*axis+1]=QString::number(end);
-	
-int qwt_axis = 2;
-if (axis == 1)
-	qwt_axis = 0;
-	
-if (axesType[qwt_axis] == Graph::Time)
-	{
-	int milliseconds;
-	switch (boxUnit->currentItem())
-		{
-		case 0:
-			milliseconds = (int)step;
-		break;
-		
-		case 1:
-			milliseconds = int(step*1e3);
-		break;
-		
-		case 2:
-			milliseconds = int(step*6e4);
-		break;
-		
-		case 3:
-			milliseconds = int(step*36e5);
-		break;
-		}
-	scales[8*axis+2]=QString::number(milliseconds);	
-	}
-else if (axesType[qwt_axis] == Graph::Date)
-	{
-	int days;
-	switch (boxUnit->currentItem())
-		{
-		case 0:
-			days = (int)step;
-		break;
-		
-		case 1:
-			days = int(step*7);
-		break;
-		}
-		
-	scales[8*axis+2]=QString::number(days);	
-	}
-else	
-	scales[8*axis+2]=QString::number(step);	
+	scales[8*axis+0]=QString::number(start);
+	scales[8*axis+1]=QString::number(end);
 
-scales[8*axis+3]=majors;
-scales[8*axis+4]=minors;
-scales[8*axis+5]=QString::number(btnStep->isChecked());
-scales[8*axis+6]=QString::number(boxScaleType->currentItem());
-scales[8*axis+7]=QString::number(btnInvert->isChecked());
-return scales;
+	int qwt_axis = 2;
+	if (axis == 1)
+		qwt_axis = 0;
+
+	if (axesType[qwt_axis] == Graph::Time)
+	{
+		int milliseconds;
+		switch (boxUnit->currentItem())
+		{
+			case 0:
+				milliseconds = (int)step;
+				break;
+
+			case 1:
+				milliseconds = int(step*1e3);
+				break;
+
+			case 2:
+				milliseconds = int(step*6e4);
+				break;
+
+			case 3:
+				milliseconds = int(step*36e5);
+				break;
+		}
+		scales[8*axis+2]=QString::number(milliseconds);	
+	}
+	else if (axesType[qwt_axis] == Graph::Date)
+	{
+		int days;
+		switch (boxUnit->currentItem())
+		{
+			case 0:
+				days = (int)step;
+				break;
+
+			case 1:
+				days = int(step*7);
+				break;
+		}
+
+		scales[8*axis+2]=QString::number(days);	
+	}
+	else	
+		scales[8*axis+2]=QString::number(step);	
+
+	scales[8*axis+3]=majors;
+	scales[8*axis+4]=minors;
+	scales[8*axis+5]=QString::number(btnStep->isChecked());
+	scales[8*axis+6]=QString::number(boxScaleType->currentItem());
+	scales[8*axis+7]=QString::number(btnInvert->isChecked());
+	return scales;
 }
 
 void AxesDialog::setGridOptions()
 {
-putGridOptions(grid);
+	putGridOptions(grid);
 }
 
 void AxesDialog::putGridOptions(GridOptions gr)
 {
-if (axesGridList->currentItem())
-{
-boxMajorGrid->setChecked(gr.majorOnX);
-boxMinorGrid->setChecked(gr.minorOnX);
-}
-else
-{
-boxMajorGrid->setChecked(gr.majorOnY);
-boxMinorGrid->setChecked(gr.minorOnY);
-}
+	if (axesGridList->currentItem())
+	{
+		boxMajorGrid->setChecked(gr.majorOnX);
+		boxMinorGrid->setChecked(gr.minorOnX);
+	}
+	else
+	{
+		boxMajorGrid->setChecked(gr.majorOnY);
+		boxMinorGrid->setChecked(gr.minorOnY);
+	}
 
-boxTypeMajor->setCurrentItem(gr.majorStyle);
-boxColorMajor->setCurrentItem(gr.majorCol);
-boxWidthMajor->setValue(gr.majorWidth);
-boxTypeMinor->setCurrentItem(gr.minorStyle);
-boxColorMinor->setCurrentItem(gr.minorCol);
-boxWidthMinor->setValue(gr.minorWidth);
-boxXLine->setChecked(gr.xZeroOn);
-boxYLine->setChecked(gr.yZeroOn);
+	boxTypeMajor->setCurrentIndex(gr.majorStyle);
+	boxColorMajor->setCurrentIndex(gr.majorCol);
+	boxWidthMajor->setValue(gr.majorWidth);
+	boxTypeMinor->setCurrentIndex(gr.minorStyle);
+	boxColorMinor->setCurrentIndex(gr.minorCol);
+	boxWidthMinor->setValue(gr.minorWidth);
+	boxXLine->setChecked(gr.xZeroOn);
+	boxYLine->setChecked(gr.yZeroOn);
 
-grid =gr;
+	grid =gr;
 }
 
 GridOptions AxesDialog::getGridOptions()
 {
-if (boxMajorGrid->isChecked() && axesGridList->currentItem())
-	grid.majorOnX=1;
-else if (!boxMajorGrid->isChecked() && axesGridList->currentItem())
-	grid.majorOnX=0;
-else if (boxMajorGrid->isChecked() && axesGridList->currentItem()==0)
-	grid.majorOnY=1;
-else 
-	grid.majorOnY=0;
+	if (boxMajorGrid->isChecked() && axesGridList->currentItem())
+		grid.majorOnX=1;
+	else if (!boxMajorGrid->isChecked() && axesGridList->currentItem())
+		grid.majorOnX=0;
+	else if (boxMajorGrid->isChecked() && axesGridList->currentItem()==0)
+		grid.majorOnY=1;
+	else 
+		grid.majorOnY=0;
 
-grid.majorStyle=boxTypeMajor->currentItem();
-grid.majorCol=boxColorMajor->currentItem();
-grid.majorWidth=boxWidthMajor->value();
+	grid.majorStyle=boxTypeMajor->currentItem();
+	grid.majorCol=boxColorMajor->currentItem();
+	grid.majorWidth=boxWidthMajor->value();
 
-if (boxMinorGrid->isChecked() && axesGridList->currentItem())
-	grid.minorOnX=1;
-else if (!boxMinorGrid->isChecked() && axesGridList->currentItem())
-	grid.minorOnX=0;
-else if (boxMinorGrid->isChecked() && axesGridList->currentItem()==0)
-	grid.minorOnY=1;
-else 
-	grid.minorOnY=0;
+	if (boxMinorGrid->isChecked() && axesGridList->currentItem())
+		grid.minorOnX=1;
+	else if (!boxMinorGrid->isChecked() && axesGridList->currentItem())
+		grid.minorOnX=0;
+	else if (boxMinorGrid->isChecked() && axesGridList->currentItem()==0)
+		grid.minorOnY=1;
+	else 
+		grid.minorOnY=0;
 
-grid.minorStyle=boxTypeMinor->currentItem();
-grid.minorCol=boxColorMinor->currentItem();
-grid.minorWidth=boxWidthMinor->value();
+	grid.minorStyle=boxTypeMinor->currentItem();
+	grid.minorCol=boxColorMinor->currentItem();
+	grid.minorWidth=boxWidthMinor->value();
 
-if (boxXLine->isChecked())
-	grid.xZeroOn=1;
-else grid.xZeroOn=0;
+	if (boxXLine->isChecked())
+		grid.xZeroOn=1;
+	else grid.xZeroOn=0;
 
-if (boxYLine->isChecked())
-	grid.yZeroOn=1;
-else grid.yZeroOn=0;
+	if (boxYLine->isChecked())
+		grid.yZeroOn=1;
+	else grid.yZeroOn=0;
 
-return grid;
+	return grid;
 }
 
 void AxesDialog::setAxesColors(const QStringList& colors)
 {
-axesColors=colors;
+	axesColors=colors;
 }
 
 void AxesDialog::updateAxisColor(int)
 {
-int a=mapToQwtAxisId();
-setAxisColor(QColor(axesColors[a]));
+	int a=mapToQwtAxisId();
+	setAxisColor(QColor(axesColors[a]));
 }
 
 void AxesDialog::setAxisColor(const QColor& c)
 {
-  boxAxisColor->setColor(c);
+	boxAxisColor->setColor(c);
 }
 
 void AxesDialog::setScaleLimits(const QStringList& limits)
 {
-scales=limits;
+	scales=limits;
 }
 
 void AxesDialog::changeBaselineDist(int baseline)
@@ -2357,184 +2512,184 @@ void AxesDialog::changeBaselineDist(int baseline)
 	int axis=mapToQwtAxisId();
 	axesBaseline[axis] = baseline;
 
-	int at=axesTitlesList->currentItem();
+	int at=axesTitlesList->currentRow();
 	QString title=boxTitle->text();
 	if (titles[at] != title)
-		{
+	{
 		emit updateAxisTitle(at,title);
 		titles[at] = title;
-		}
+	}
 
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
-				  boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), boxPrecision->value(), 
-				  boxAngle->value(), baseline, formula);	
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
+			boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), boxPrecision->value(), 
+			boxAngle->value(), baseline, formula);	
 }
 
 bool AxesDialog::updatePlot()
 {
-int axis=axesList->currentItem();
-if (generalDialog->currentPage()==(QWidget*)scalesPage)
+	int axis=axesList->currentRow();
+	if (generalDialog->currentPage()==(QWidget*)scalesPage)
 	{
-	QString from=boxStart->text().lower();
-    QString to=boxEnd->text().lower();
-	QString step=boxStep->text().lower();			
-	double start, end, stp;
-    bool error=false;	
-	try
+		QString from=boxStart->text().lower();
+		QString to=boxEnd->text().lower();
+		QString step=boxStep->text().lower();			
+		double start, end, stp;
+		bool error=false;	
+		try
 		{
-		MyParser parser;
-		parser.SetExpr(from.ascii());
-		start=parser.Eval();
+			MyParser parser;
+			parser.SetExpr(from.ascii());
+			start=parser.Eval();
 		}
-	catch(mu::ParserError &e)
+		catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
-		boxStart->setFocus();
-		error=true;
-		return false;
+			QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
+			boxStart->setFocus();
+			error=true;
+			return false;
 		}			
-	try
+		try
 		{
-		MyParser parser;	
-		parser.SetExpr(to.ascii());
-		end=parser.Eval();
+			MyParser parser;	
+			parser.SetExpr(to.ascii());
+			end=parser.Eval();
 		}
-	catch(mu::ParserError &e)
+		catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
-		boxEnd->setFocus();
-		error=true;
-		return false;
+			QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
+			boxEnd->setFocus();
+			error=true;
+			return false;
 		}	
-	try
+		try
 		{
-		MyParser parser;	
-		parser.SetExpr(step.ascii());
-		stp=parser.Eval();
+			MyParser parser;	
+			parser.SetExpr(step.ascii());
+			stp=parser.Eval();
 		}
-	catch(mu::ParserError &e)
+		catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0, tr("QtiPlot - Step input error"),QString::fromStdString(e.GetMsg()));
-		boxStep->setFocus();
-		error=true;
-		return false;
+			QMessageBox::critical(0, tr("QtiPlot - Step input error"),QString::fromStdString(e.GetMsg()));
+			boxStep->setFocus();
+			error=true;
+			return false;
 		}
-		
-	if (stp <=0)
+
+		if (stp <=0)
 		{
-		QMessageBox::critical(0,tr("QtiPlot - Step input error"),
-			tr("Please enter a positive step value!"));
-		boxStep->setFocus();
-		return false;	
+			QMessageBox::critical(0,tr("QtiPlot - Step input error"),
+					tr("Please enter a positive step value!"));
+			boxStep->setFocus();
+			return false;	
 		}
-			
-	if (!error)
+
+		if (!error)
 		{
-		d_graph->setScaleDiv(axis, scaleLimits(axis, start, end, stp, boxMajorValue->text(), boxMinorValue->text()));
+			d_graph->setScaleDiv(axis, scaleLimits(axis, start, end, stp, boxMajorValue->text(), boxMinorValue->text()));
+			d_graph->replot();
+		}
+	}
+	else if (generalDialog->currentPage()==gridPage)
+	{
+		d_graph->setGridOptions(getGridOptions());
 		d_graph->replot();
-		}
 	}
-else if (generalDialog->currentPage()==gridPage)
-	{
-	d_graph->setGridOptions(getGridOptions());
-	d_graph->replot();
-	}
-else if (generalDialog->currentPage()==(QWidget*)axesPage)
+	else if (generalDialog->currentPage()==(QWidget*)axesPage)
 	{	
-	axis=mapToQwtAxisId();
-	int format = boxAxisType->currentItem();
-	axesType[axis] = format;
+		axis=mapToQwtAxisId();
+		int format = boxAxisType->currentItem();
+		axesType[axis] = format;
 
-	int baseline = boxBaseline->value();
-	axesBaseline[axis] = baseline;
+		int baseline = boxBaseline->value();
+		axesBaseline[axis] = baseline;
 
-	if (format == Graph::Numeric)
+		if (format == Graph::Numeric)
 		{
-		if (boxShowFormula->isChecked())
+			if (boxShowFormula->isChecked())
 			{
-			QString formula = boxFormula->text().lower();
-			try
+				QString formula = boxFormula->text().lower();
+				try
 				{
-				double value = 1.0;
-				MyParser parser;
-				if (formula.contains("x"))
-					parser.DefineVar("x", &value);
-				else if (formula.contains("y"))
-					parser.DefineVar("y", &value);
-				parser.SetExpr(formula.ascii());
-				parser.Eval();
+					double value = 1.0;
+					MyParser parser;
+					if (formula.contains("x"))
+						parser.DefineVar("x", &value);
+					else if (formula.contains("y"))
+						parser.DefineVar("y", &value);
+					parser.SetExpr(formula.ascii());
+					parser.Eval();
 				}
-			catch(mu::ParserError &e)
+				catch(mu::ParserError &e)
 				{
-				QMessageBox::critical(0, tr("QtiPlot - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
-					tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
-				boxFormula->setFocus();
-				return false;
+					QMessageBox::critical(0, tr("QtiPlot - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
+							tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
+					boxFormula->setFocus();
+					return false;
 				}
 			}
 		}
-	else if (format == Graph::Time || format == Graph::Date)
+		else if (format == Graph::Time || format == Graph::Date)
 		{
-		QStringList lst = QStringList::split(";", formatInfo[axis], false);			
-		lst[1] = boxFormat->currentText();
-		formatInfo[axis]  = lst.join(";");
+			QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+			lst[1] = boxFormat->currentText();
+			formatInfo[axis]  = lst.join(";");
 		}
-	else if (format == Graph::Day || format == Graph::Month)
-		formatInfo[axis] = QString::number(boxFormat->currentItem());
-	else if (format == Graph::ColHeader)
-		formatInfo[axis] = boxTableName->currentText();
-	else
-		formatInfo[axis] = boxColName->currentText();
+		else if (format == Graph::Day || format == Graph::Month)
+			formatInfo[axis] = QString::number(boxFormat->currentItem());
+		else if (format == Graph::ColHeader)
+			formatInfo[axis] = boxTableName->currentText();
+		else
+			formatInfo[axis] = boxColName->currentText();
 
-	int at=axesTitlesList->currentItem();
-	QString title=boxTitle->text();
-	if (titles[at] != title)
+		int at=axesTitlesList->currentRow();
+		QString title=boxTitle->text();
+		if (titles[at] != title)
 		{
-		emit updateAxisTitle(at,title);
-		titles[at] = title;
+			emit updateAxisTitle(at,title);
+			titles[at] = title;
 		}
-		
-	if (axis == QwtPlot::xBottom)
-		xBottomLabelsRotation=boxAngle->value();
-	else if (axis == QwtPlot::xTop)
-		xTopLabelsRotation=boxAngle->value();
-	
-	QString formula =  boxFormula->text();
-	if (!boxShowFormula->isChecked())
-		formula = QString();
-	emit showAxis(axis, format, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
-				  boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), 
-				  boxPrecision->value(), boxAngle->value(), baseline, formula);	
+
+		if (axis == QwtPlot::xBottom)
+			xBottomLabelsRotation=boxAngle->value();
+		else if (axis == QwtPlot::xTop)
+			xTopLabelsRotation=boxAngle->value();
+
+		QString formula =  boxFormula->text();
+		if (!boxShowFormula->isChecked())
+			formula = QString();
+		emit showAxis(axis, format, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
+				boxShowLabels->isChecked(), boxAxisColor->color(), boxFormat->currentItem(), 
+				boxPrecision->value(), boxAngle->value(), baseline, formula);	
 	}
-else if (generalDialog->currentPage()==(QWidget*)frame)
+	else if (generalDialog->currentPage()==(QWidget*)frame)
 	{
-	if (!boxAll->isChecked())
-		return true;
-	
-	QColor c = boxBackgroundColor->color();
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+		if (!boxAll->isChecked())
+			return true;
+
+		QColor c = boxBackgroundColor->color();
+		Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
+		for (int i=0; i<(int)allPlots->count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
-		if (g)
+			Graph* g=(Graph*)allPlots->at(i);
+			if (g)
 			{
-			g->setAxesLinewidth(boxAxesLinewidth->value());
-			g->drawBorder(boxBorderWidth->value(), boxBorderColor->color());
-			g->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
-			g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
-			g->drawAxesBackbones(boxBackbones->isChecked());
-			g->changeMargin(boxMargin->value());
-			g->setBackgroundColor(c);
-			g->setCanvasBackground(boxCanvasColor->color());
+				g->setAxesLinewidth(boxAxesLinewidth->value());
+				g->drawBorder(boxBorderWidth->value(), boxBorderColor->color());
+				g->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
+				g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
+				g->drawAxesBackbones(boxBackbones->isChecked());
+				g->changeMargin(boxMargin->value());
+				g->setBackgroundColor(c);
+				g->setCanvasBackground(boxCanvasColor->color());
 			}
 		}
-	mPlot->updateTransparency();
+		mPlot->updateTransparency();
 	}
 
-return true;
+	return true;
 }
 
 void AxesDialog::setMultiLayerPlot(MultiLayer *m)
@@ -2562,157 +2717,159 @@ void AxesDialog::setMultiLayerPlot(MultiLayer *m)
 
 int AxesDialog::mapToQwtAxisId()
 {
-int at=axesTitlesList->currentItem();
-int axis=-1;
-	
-switch(at)   
-        {
-        case 0:
-           axis = QwtPlot::xBottom;
-        break;
+	int at=axesTitlesList->currentRow();
+	int axis=-1;
 
-        case 1:
-            axis = QwtPlot::yLeft;
-        break;
+	switch(at)   
+	{
+		case 0:
+			axis = QwtPlot::xBottom;
+			break;
 
-        case 2:
-             axis = QwtPlot::xTop;
-        break;
+		case 1:
+			axis = QwtPlot::yLeft;
+			break;
 
-        case 3:
-             axis = QwtPlot::yRight;
-        break;
-		}
-return axis;
+		case 2:
+			axis = QwtPlot::xTop;
+			break;
+
+		case 3:
+			axis = QwtPlot::yRight;
+			break;
+	}
+	return axis;
 }
 
-void AxesDialog::updateScale(int axis)
+void AxesDialog::updateScale(QListWidgetItem * item)
 {
-boxStart->clear();
-boxEnd->clear();
-boxStep->clear();
-boxUnit->hide();
-boxUnit->clear();
-		
-boxStart->setText(scales[8*axis+0]);
-boxEnd->setText(scales[8*axis+1]);
-boxStep->setText(scales[8*axis+2]);
-boxMajorValue->setValue(scales[8*axis+3].toInt());
-boxMinorValue->setValue(scales[8*axis+4].toInt());
+	int axis = axesList->row(item);
 	
+	boxStart->clear();
+	boxEnd->clear();
+	boxStep->clear();
+	boxUnit->hide();
+	boxUnit->clear();
+
+	boxStart->setText(scales[8*axis+0]);
+	boxEnd->setText(scales[8*axis+1]);
+	boxStep->setText(scales[8*axis+2]);
+	boxMajorValue->setValue(scales[8*axis+3].toInt());
+	boxMinorValue->setValue(scales[8*axis+4].toInt());
+
 	int qwt_axis = 2;
 	if (axis == 1)
 		qwt_axis = 0;
-	
+
 	if (axesType[qwt_axis] == Graph::Time)
-		{
+	{
 		boxUnit->show();
 		boxUnit->insertItem(tr("millisec."));
 		boxUnit->insertItem(tr("sec."));
 		boxUnit->insertItem(tr("min."));
 		boxUnit->insertItem(tr("hours"));
-			
+
 		/*boxUnit->setCurrentItem (1);
-		double millisec = (scales[8*axis+2]).toDouble();
-		boxStep->setText(QString::number(millisec/1e3));*/
-		}
+		  double millisec = (scales[8*axis+2]).toDouble();
+		  boxStep->setText(QString::number(millisec/1e3));*/
+	}
 	else if (axesType[qwt_axis] == Graph::Date)
-		{
+	{
 		boxUnit->show();
 		boxUnit->insertItem(tr("days"));
 		boxUnit->insertItem(tr("weeks"));			
-		}
-
-int stepOn=scales[8*axis+5].toInt();
-if (stepOn)
-	{
-	btnStep->setChecked(true);
-	boxStep->setEnabled(true);
-	boxUnit->setEnabled(true);
-		
-	btnMinor->setChecked(false);
-	boxMajorValue->setEnabled(false);
-	boxMinorValue->setEnabled(false);
-	}
-else
-	{
-	btnStep->setChecked(false);
-	boxStep->setEnabled(false);
-	boxUnit->setEnabled(false);
-	btnMinor->setChecked(true);
-	boxMajorValue->setEnabled(true);
-	boxMinorValue->setEnabled(true);
 	}
 
-int scaleType=scales[8*axis+6].toInt();
-boxScaleType->setCurrentItem(scaleType);
-	
-bool inverted = false;
-if (scales[8*axis+7] == "1")
-	inverted = true;
-btnInvert->setChecked(inverted);
+	int stepOn=scales[8*axis+5].toInt();
+	if (stepOn)
+	{
+		btnStep->setChecked(true);
+		boxStep->setEnabled(true);
+		boxUnit->setEnabled(true);
+
+		btnMajor->setChecked(false);
+		boxMajorValue->setEnabled(false);
+		boxMinorValue->setEnabled(false);
+	}
+	else
+	{
+		btnStep->setChecked(false);
+		boxStep->setEnabled(false);
+		boxUnit->setEnabled(false);
+		btnMajor->setChecked(true);
+		boxMajorValue->setEnabled(true);
+		boxMinorValue->setEnabled(true);
+	}
+
+	int scaleType=scales[8*axis+6].toInt();
+	boxScaleType->setCurrentIndex(scaleType);
+
+	bool inverted = false;
+	if (scales[8*axis+7] == "1")
+		inverted = true;
+	btnInvert->setChecked(inverted);
 }
 
 void AxesDialog::updateTitleBox(int axis)
 {
-QString s=titles[axis];
-boxTitle->setText(s);
+	QString s=titles[axis];
+	boxTitle->setText(s);
 }
 
 void AxesDialog::setAxisTitles(QStringList t)
 {
-titles=t;
+	titles=t;
 }
 
 void AxesDialog::pickAxisColor()
 {
-QColor c = QColorDialog::getColor( boxAxisColor->color(), this);
-if ( !c.isValid() || c ==  boxAxisColor->color() )
-	return;
+	QColor c = QColorDialog::getColor( boxAxisColor->color(), this);
+	if ( !c.isValid() || c ==  boxAxisColor->color() )
+		return;
 
-boxAxisColor->setColor ( c ) ;
+	boxAxisColor->setColor ( c ) ;
 
-int axis=mapToQwtAxisId();
-axesColors[axis]= c.name();
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
-			  boxShowLabels->isChecked(), c, boxFormat->currentItem(), boxPrecision->value(), 
-			  boxAngle->value(), boxBaseline->value(), formula);		
+	int axis=mapToQwtAxisId();
+	axesColors[axis]= c.name();
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis, boxAxisType->currentItem(), formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(), 
+			boxShowLabels->isChecked(), c, boxFormat->currentItem(), boxPrecision->value(), 
+			boxAngle->value(), boxBaseline->value(), formula);		
 }
 
 void AxesDialog::setAxisType(int)
 {
-int a = mapToQwtAxisId();
-int style = axesType[a];
+	int a = mapToQwtAxisId();
+	int style = axesType[a];
 
-boxAxisType->setCurrentItem(style);
-showAxisFormatOptions(style);
+	boxAxisType->setCurrentIndex(style);
+	showAxisFormatOptions(style);
 
-if (style == 1)
-	boxColName->setCurrentText(formatInfo[a]);
+	if (style == 1)
+		boxColName->setCurrentText(formatInfo[a]);
 }
 
 void AxesDialog::setBaselineDist(int)
 {
-int a=mapToQwtAxisId();
-boxBaseline->setValue(axesBaseline[a]);
+	int a=mapToQwtAxisId();
+	boxBaseline->setValue(axesBaseline[a]);
 }
 
 void AxesDialog::setAxesLabelsFormatInfo(const QStringList& lst)
 {
-formatInfo = lst;
+	formatInfo = lst;
 }
 
 void AxesDialog::setAxesType(const QList<int>& list)
 {
-axesType=list;
+	axesType=list;
 }
 
 void AxesDialog::setAxesBaseline(const QList<int>& lst)
 {
-axesBaseline = lst;
+	axesBaseline = lst;
 }
 
 void AxesDialog::setTicksType(const QList<int>& majLst, const QList<int>& minLst)
@@ -2723,382 +2880,344 @@ void AxesDialog::setTicksType(const QList<int>& majLst, const QList<int>& minLst
 
 void AxesDialog::setTicksType(int)
 {
-int a=mapToQwtAxisId();
-boxMajorTicksType->setCurrentItem(majTicks[a]);
-boxMinorTicksType->setCurrentItem(minTicks[a]);
+	int a=mapToQwtAxisId();
+	boxMajorTicksType->setCurrentIndex(majTicks[a]);
+	boxMinorTicksType->setCurrentIndex(minTicks[a]);
 }
 
 void AxesDialog::updateMajTicksType(int)
 {
-int axis=mapToQwtAxisId();
-int type=boxMajorTicksType->currentItem();
-if ( majTicks[axis] == type)
-	return;
+	int axis=mapToQwtAxisId();
+	int type=boxMajorTicksType->currentItem();
+	if ( majTicks[axis] == type)
+		return;
 
-majTicks[axis]=type;
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis,boxAxisType->currentItem(),formatInfo[axis], boxShowAxis->isChecked(), type, boxMinorTicksType->currentItem(),
-			  boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(),boxPrecision->value(), 
-			  boxAngle->value(), boxBaseline->value(), formula);		
+	majTicks[axis]=type;
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis,boxAxisType->currentItem(),formatInfo[axis], boxShowAxis->isChecked(), type, boxMinorTicksType->currentItem(),
+			boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(),boxPrecision->value(), 
+			boxAngle->value(), boxBaseline->value(), formula);		
 }
 
 void AxesDialog::updateMinTicksType(int)
 {
-int axis=mapToQwtAxisId();
-int type=boxMinorTicksType->currentItem();
-if ( minTicks[axis] == type)
-	return;
+	int axis=mapToQwtAxisId();
+	int type=boxMinorTicksType->currentItem();
+	if ( minTicks[axis] == type)
+		return;
 
-minTicks[axis]=type;
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis,boxAxisType->currentItem(),formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), type,
-			  boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(),boxPrecision->value(), 
-			  boxAngle->value(), boxBaseline->value(), formula);		
+	minTicks[axis]=type;
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis,boxAxisType->currentItem(),formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), type,
+			boxShowLabels->isChecked(), QColor(axesColors[axis]), boxFormat->currentItem(),boxPrecision->value(), 
+			boxAngle->value(), boxBaseline->value(), formula);		
 }
 
 void AxesDialog::setEnabledTickLabels(const QStringList& labelsOn)
 {
-tickLabelsOn=labelsOn;
+	tickLabelsOn=labelsOn;
 }
 
 void AxesDialog::updateTickLabelsList()
 {
-bool on= boxShowLabels->isChecked();
-boxColName->setEnabled(on);
-boxFormat->setEnabled(on);
-boxShowFormula->setEnabled(on);
-boxFormula->setEnabled(on);
+	bool on= boxShowLabels->isChecked();
+	boxColName->setEnabled(on);
+	boxFormat->setEnabled(on);
+	boxShowFormula->setEnabled(on);
+	boxFormula->setEnabled(on);
 
-int axis=mapToQwtAxisId();
-if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
-	boxAngle->setEnabled(on);
-	
-bool userFormat=true;
-if (boxFormat->currentItem() == 0)
-	userFormat=false;
-boxPrecision->setEnabled(on && userFormat);
+	int axis=mapToQwtAxisId();
+	if (axis == QwtPlot::xBottom || axis == QwtPlot::xTop)
+		boxAngle->setEnabled(on);
 
-if ( tickLabelsOn[axis] == QString::number(on))
-	return;
-tickLabelsOn[axis]=QString::number(on);
+	bool userFormat=true;
+	if (boxFormat->currentItem() == 0)
+		userFormat=false;
+	boxPrecision->setEnabled(on && userFormat);
 
-int type = boxAxisType->currentItem();
-if (type == Graph::Day || type == Graph::Month)
-	formatInfo[axis] = QString::number(boxFormat->currentItem());
-else if (type == Graph::Time || type == Graph::Date)
+	if ( tickLabelsOn[axis] == QString::number(on))
+		return;
+	tickLabelsOn[axis]=QString::number(on);
+
+	int type = boxAxisType->currentItem();
+	if (type == Graph::Day || type == Graph::Month)
+		formatInfo[axis] = QString::number(boxFormat->currentItem());
+	else if (type == Graph::Time || type == Graph::Date)
 	{
-	QStringList lst = QStringList::split(";", formatInfo[axis], false);			
-	lst[1] = boxFormat->currentText();
-	formatInfo[axis]  = lst.join(";");
+		QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+		lst[1] = boxFormat->currentText();
+		formatInfo[axis]  = lst.join(";");
 	}
-else
-	formatInfo[axis] = boxColName->currentText();
+	else
+		formatInfo[axis] = boxColName->currentText();
 
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(),
-			  boxShowLabels->isChecked(),QColor(axesColors[axis]), boxFormat->currentItem(), boxPrecision->value(),
-			  boxAngle->value(), boxBaseline->value(), formula);			
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), boxMinorTicksType->currentItem(),
+			boxShowLabels->isChecked(),QColor(axesColors[axis]), boxFormat->currentItem(), boxPrecision->value(),
+			boxAngle->value(), boxBaseline->value(), formula);			
 }
 
 void AxesDialog::setCurrentScale(int axisPos)
 {
-int axis = -1;
-if (generalDialog->currentPage()==(QWidget*)scalesPage)
+	int axis = -1;
+	if (generalDialog->currentPage()==(QWidget*)scalesPage)
 	{
-	if (axisPos == QwtScaleDraw::LeftScale || axisPos == QwtScaleDraw::RightScale)
-		axis = 1;
-	else
-		axis = 0;
-	axesList->setCurrentItem (axis);
-	}
-else if (generalDialog->currentPage()==(QWidget*)axesPage)
-	{
-	switch (axisPos)
-		{
-		case QwtScaleDraw::LeftScale:
+		if (axisPos == QwtScaleDraw::LeftScale || axisPos == QwtScaleDraw::RightScale)
 			axis = 1;
-		break;
-
-		case QwtScaleDraw::BottomScale:
+		else
 			axis = 0;
-		break;
+		axesList->setCurrentRow(axis);
+	}
+	else if (generalDialog->currentPage()==(QWidget*)axesPage)
+	{
+		switch (axisPos)
+		{
+			case QwtScaleDraw::LeftScale:
+				axis = 1;
+				break;
 
-		case QwtScaleDraw::RightScale:
-			axis = 3;
-		break;
+			case QwtScaleDraw::BottomScale:
+				axis = 0;
+				break;
 
-		case QwtScaleDraw::TopScale:
-			axis = 2;
-		break;
+			case QwtScaleDraw::RightScale:
+				axis = 3;
+				break;
+
+			case QwtScaleDraw::TopScale:
+				axis = 2;
+				break;
 		}
-	axesTitlesList->setCurrentItem (axis);
+		axesTitlesList->setCurrentRow(axis);
 	}
 }
 
 
 void AxesDialog::showAxesPage()
 {
-if (generalDialog->currentPage()!=(QWidget*)axesPage)
-	generalDialog->showPage(axesPage);
+	if (generalDialog->currentPage()!=(QWidget*)axesPage)
+		generalDialog->showPage(axesPage);
 }
 
 void AxesDialog::showGridPage()
 {
-if (generalDialog->currentPage()!=(QWidget*)gridPage)
-	generalDialog->showPage(gridPage);
+	if (generalDialog->currentPage()!=(QWidget*)gridPage)
+		generalDialog->showPage(gridPage);
 }
 
 void AxesDialog::updateGrid(int)
 {
-if (generalDialog->currentPage()==gridPage)	
+	if (generalDialog->currentPage()==gridPage)	
 	{
-	d_graph->setGridOptions(getGridOptions());
-	d_graph->replot();
+		d_graph->setGridOptions(getGridOptions());
+		d_graph->replot();
 	}	
 }
 
 void AxesDialog::setLabelsNumericFormat(const QStringList& list)
 {
-labelsNumericFormat=list;
+	labelsNumericFormat=list;
 }
 
 void AxesDialog::setLabelsNumericFormat(int)
 {
-int axis = mapToQwtAxisId();
-int type = boxAxisType->currentItem();
-int prec = boxPrecision->value();
-int format = boxFormat->currentItem();
+	int axis = mapToQwtAxisId();
+	int type = boxAxisType->currentItem();
+	int prec = boxPrecision->value();
+	int format = boxFormat->currentItem();
 
-if (type == Graph::Numeric)
+	if (type == Graph::Numeric)
 	{	
-	if ( labelsNumericFormat[2*axis] == QString::number(format)
-		&& labelsNumericFormat[2*axis+1] == QString::number(prec))
+		if ( labelsNumericFormat[2*axis] == QString::number(format)
+				&& labelsNumericFormat[2*axis+1] == QString::number(prec))
+			return;
+
+		if (format == 0)
+			boxPrecision->setEnabled(false);
+		else
+			boxPrecision->setEnabled(true);
+
+		labelsNumericFormat[2*axis] = QString::number(format);
+		labelsNumericFormat[2*axis+1] = QString::number(prec);
+	}
+	else if (type == Graph::Day || type == Graph::Month)
+		formatInfo[axis] = QString::number(format);
+	else if (type == Graph::Time || type == Graph::Date)
+	{
+		QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+		lst[1] = boxFormat->currentText();
+		formatInfo[axis]  = lst.join(";");
+	}
+	else
+		formatInfo[axis] = boxColName->currentText();
+
+	QString formula =  boxFormula->text();
+	if (!boxShowFormula->isChecked())
+		formula = QString();
+	emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), 
+			boxMinorTicksType->currentItem(), boxShowLabels->isChecked(),QColor(axesColors[axis]),
+			format, prec, boxAngle->value(), boxBaseline->value(), formula);		
+
+	axesType[axis] = type;
+}
+
+void AxesDialog::showAxisFormula(int axis)
+{
+	QStringList l = d_graph->getAxesFormulas();
+	QString formula = l[axis];
+	if (!formula.isEmpty())
+	{
+		boxShowFormula->setChecked(true);
+		boxFormula->show();
+		boxFormula->setText(formula);
+	}
+	else
+	{
+		boxShowFormula->setChecked(false);
+		boxFormula->clear();
+		boxFormula->hide();
+	}
+}
+
+void AxesDialog::updateLabelsFormat(int)
+{
+	int a=mapToQwtAxisId();
+	int format=labelsNumericFormat[2*a].toInt();
+	if (format != Graph::Numeric)
 		return;
+
+	boxFormat->setCurrentIndex(format);
+
+	int prec=labelsNumericFormat[2*a+1].toInt();
+	boxPrecision->setValue(prec);
 
 	if (format == 0)
 		boxPrecision->setEnabled(false);
 	else
 		boxPrecision->setEnabled(true);
 
-	labelsNumericFormat[2*axis] = QString::number(format);
-	labelsNumericFormat[2*axis+1] = QString::number(prec);
-	}
-else if (type == Graph::Day || type == Graph::Month)
-	formatInfo[axis] = QString::number(format);
-else if (type == Graph::Time || type == Graph::Date)
+	QStringList l = d_graph->getAxesFormulas();
+	QString formula = l[a];
+	if (!formula.isEmpty())
 	{
-	QStringList lst = QStringList::split(";", formatInfo[axis], false);			
-	lst[1] = boxFormat->currentText();
-	formatInfo[axis]  = lst.join(";");
+		boxShowFormula->setChecked(true);
+		boxFormula->show();
+		boxFormula->setText(formula);
 	}
-else
-	formatInfo[axis] = boxColName->currentText();
-
-QString formula =  boxFormula->text();
-if (!boxShowFormula->isChecked())
-	formula = QString();
-emit showAxis(axis, type, formatInfo[axis], boxShowAxis->isChecked(), boxMajorTicksType->currentItem(), 
-			  boxMinorTicksType->currentItem(), boxShowLabels->isChecked(),QColor(axesColors[axis]),
-			  format, prec, boxAngle->value(), boxBaseline->value(), formula);		
-
-axesType[axis] = type;
-}
-
-void AxesDialog::showAxisFormula(int axis)
-{
-QStringList l = d_graph->getAxesFormulas();
-QString formula = l[axis];
-if (!formula.isEmpty())
+	else
 	{
-	boxShowFormula->setChecked(true);
-	boxFormula->show();
-	boxFormula->setText(formula);
-	}
-else
-	{
-	boxShowFormula->setChecked(false);
-	boxFormula->clear();
-	boxFormula->hide();
-	}
-}
-
-void AxesDialog::updateLabelsFormat(int)
-{
-int a=mapToQwtAxisId();
-int format=labelsNumericFormat[2*a].toInt();
-if (format != Graph::Numeric)
-	return;
-
-boxFormat->setCurrentItem(format);
-
-int prec=labelsNumericFormat[2*a+1].toInt();
-boxPrecision->setValue(prec);
-	
-if (format == 0)
-	boxPrecision->setEnabled(false);
-else
-	boxPrecision->setEnabled(true);
-
-QStringList l = d_graph->getAxesFormulas();
-QString formula = l[a];
-if (!formula.isEmpty())
-	{
-	boxShowFormula->setChecked(true);
-	boxFormula->show();
-	boxFormula->setText(formula);
-	}
-else
-	{
-	boxShowFormula->setChecked(false);
-	boxFormula->clear();
-	boxFormula->hide();
+		boxShowFormula->setChecked(false);
+		boxFormula->clear();
+		boxFormula->hide();
 	}
 }
 
 void AxesDialog::initLabelsRotation(int xAngle, int yAngle)
 {
-xBottomLabelsRotation=xAngle;
-xTopLabelsRotation=yAngle;
+	xBottomLabelsRotation=xAngle;
+	xTopLabelsRotation=yAngle;
 }
 
 void AxesDialog::showGeneralPage()
 {
-generalDialog->showPage (frame);
+	generalDialog->showPage (frame);
 }
 
 void AxesDialog::showFormulaBox()
 {
-if (boxShowFormula->isChecked())
-	boxFormula->show();
-else
-	boxFormula->hide();
+	if (boxShowFormula->isChecked())
+		boxFormula->show();
+	else
+		boxFormula->hide();
 }
 
 void AxesDialog::showLowerGreek()
 {
-SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
-greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-greekLetters->show();
-greekLetters->setActiveWindow();
+	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
+	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
+	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	greekLetters->show();
+	greekLetters->setActiveWindow();
 }
 
 void AxesDialog::showUpperGreek()
 {
-SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
-greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-greekLetters->show();
-greekLetters->setActiveWindow();
+	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
+	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
+	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
+	greekLetters->show();
+	greekLetters->setActiveWindow();
 }
 
-void AxesDialog::addSymbol(const QString& letter)
+void AxesDialog::addSymbol(const QString & letter)
 {
-boxTitle->insert(letter);
+	boxTitle->textCursor().insertText(letter);
 }
 
 void AxesDialog::addCurve()
 {
-int line=0, col=0;
-boxTitle->getCursorPosition (&line,&col);
-boxTitle->insert("\\c{}");
-boxTitle->setCursorPosition (line,col+3);
+	formatText("\\c{","}");
 }
 
 void AxesDialog::addUnderline()
 {
-if (boxTitle->hasSelectedText())
-	{	
-	QString markedText=boxTitle->selectedText();
-	boxTitle->insert("<u>" + markedText + "</u>");
-	}
-else
-	{	
-	int line=0, col=0;
-	boxTitle->getCursorPosition (&line,&col);
-	boxTitle->insert("<u></u>");
-	boxTitle->setCursorPosition (line,col+3);
-	}
+	formatText("<u>","</u>");
 }
 
 void AxesDialog::addItalic()
 {
-if (boxTitle->hasSelectedText())
-	{	
-	QString markedText=boxTitle->selectedText ();
-	boxTitle->insert("<i>"+markedText+"</i>");
-	}
-else
-	{	
-	int line=0, col=0;
-	boxTitle->getCursorPosition (&line,&col);
-	boxTitle->insert("<i></i>");
-	boxTitle->setCursorPosition (line,col+3);
-	}
+	formatText("<i>","</i>");
 }
 
 void AxesDialog::addBold()
-{	
-if (boxTitle->hasSelectedText())
-	{	
-	QString markedText=boxTitle->selectedText ();
-	boxTitle->insert("<b>"+markedText+"</b>");
-	}
-else
-	{
-	int line=0, col=0;
-	boxTitle->getCursorPosition (&line,&col);
-	boxTitle->insert("<b></b>");
-	boxTitle->setCursorPosition (line,col+3);
-	}
+{
+	formatText("<b>","</b>");
 }
 
 void AxesDialog::addIndex()
-{	
-if (boxTitle->hasSelectedText())
-	{	
-	QString markedText=boxTitle->selectedText ();
-	boxTitle->insert("<sub>"+markedText+"</sub>");
-	}
-else
-	{	
-	int line=0, col=0;
-	boxTitle->getCursorPosition (&line,&col);
-	boxTitle->insert("<sub></sub>");
-	boxTitle->setCursorPosition (line,col+5);
-	}
+{
+	formatText("<sub>","</sub>");
 }
 
 void AxesDialog::addExp()
 {
-if (boxTitle->hasSelectedText())
-	{	
-	QString markedText=boxTitle->selectedText ();
-	boxTitle->insert("<sup>"+markedText+"</sup>");
-	}
-else
-	{
-	int line, col;
-	boxTitle->getCursorPosition (&line,&col);
-	boxTitle->insert("<sup></sup>");
-	boxTitle->setCursorPosition (line,col+5);
-	}
+	formatText("<sup>","</sup>");
 }
+
+void AxesDialog::formatText(const QString & prefix, const QString & postfix)
+{
+	QTextCursor cursor = boxTitle->textCursor();
+	QString markedText = boxTitle->textCursor().selectedText();
+	cursor.insertText(prefix+markedText+postfix);
+	if(markedText.isEmpty())
+	{
+		// if no text is marked, place cursor inside the <..></..> statement
+		// instead of after it
+		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,postfix.size());
+		// the next line makes the selection visible to the user 
+		// (the line above only changes the selection in the
+		// underlying QTextDocument)
+		boxTitle->setTextCursor(cursor);
+	}
+	// give focus back to text edit
+	boxTitle->setFocus();
+}
+
 
 void AxesDialog::customAxisLabelFont()
 {
-int axis = mapToQwtAxisId();
-bool okF;
-QFont oldFont = d_graph->axisTitleFont(axis);
-QFont fnt = QFontDialog::getFont( &okF, oldFont,this);
-if (okF && fnt != oldFont)
-	d_graph->setAxisTitleFont(axis, fnt);
+	int axis = mapToQwtAxisId();
+	bool okF;
+	QFont oldFont = d_graph->axisTitleFont(axis);
+	QFont fnt = QFontDialog::getFont( &okF, oldFont,this);
+	if (okF && fnt != oldFont)
+		d_graph->setAxisTitleFont(axis, fnt);
 }
 
 AxesDialog::~AxesDialog()

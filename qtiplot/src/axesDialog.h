@@ -30,29 +30,28 @@
 #define AXESDIALOG_H
 
 #include <QDialog>
-#include <Q3MemArray>
 #include <QLabel>
 #include <QList>
+#include <QVector>
 
-class Q3TextEdit;
+class QListWidget;
+class QListWidgetItem;
 class QCheckBox;
+class QGroupBox;
 class QComboBox;
 class QLabel;
 class QLineEdit;
-class Q3ListBox;
-class Q3ListBoxItem;
 class QPushButton;
 class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 class QWidget;
 class QStringList;
-class Q3ButtonGroup;
-class Q3GroupBox;
 class ColorBox;
 class ColorButton;
 class MultiLayer;
 class Graph;
+class QTextEdit;
 
 //! Structure containing grid properties
 typedef struct{ 
@@ -76,15 +75,28 @@ class AxesDialog : public QDialog
     Q_OBJECT
 
 public:
-    AxesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+	//! Constructor
+	/**
+	 * \param type text type (TextMarker | AxisTitle)
+	 * \param parent parent widget
+	 * \param fl window flags
+	 */
+    AxesDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+	//! Destructor
     ~AxesDialog();
 
+	void setMultiLayerPlot(MultiLayer *m);
+
+protected:
+	//! generate UI for the axes page
 	void initAxesPage();
+	//! generate UI for the scales page
 	void initScalesPage();
+	//! generate UI for the grid page
 	void initGridPage();
+	//! generate UI for the general page
 	void initFramePage();
 
-	void setMultiLayerPlot(MultiLayer *m);
 
     QPushButton* buttonApply;
     QPushButton* buttonOk;
@@ -98,8 +110,8 @@ public:
     QLineEdit* boxStep;
     QCheckBox* btnStep, *btnInvert;
     QSpinBox* boxMajorValue;
-    QCheckBox* btnMinor;
-    Q3ListBox* axesList;
+    QCheckBox* btnMajor;
+    QListWidget* axesList;
     QWidget* gridPage;
     QCheckBox* boxMajorGrid;
     QCheckBox* boxMinorGrid;
@@ -112,28 +124,24 @@ public:
     QSpinBox* boxWidthMinor;
     QCheckBox* boxXLine;
     QCheckBox* boxYLine;
-    Q3ListBox* axesGridList;
+    QListWidget* axesGridList;
     QWidget* axesPage, *frame;
-    Q3ListBox* axesTitlesList;
+    QListWidget* axesTitlesList;
     QCheckBox* boxShowAxis, *boxShowLabels;
 	
-	Q3TextEdit *boxFormula, *boxTitle;
+	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
     QPushButton* btnAxesFont;
 	QCheckBox *boxBackbones, *boxAll, *boxShowFormula;
 	ColorButton* boxAxisColor;
 	QComboBox *boxMajorTicksType, *boxMinorTicksType, *boxFormat, *boxAxisType, *boxColName;
-	Q3ButtonGroup* GroupBox0;
-	Q3ButtonGroup* GroupBox1;
-	Q3ButtonGroup* GroupBox2;
-	Q3ButtonGroup* GroupBox3;
-	Q3ButtonGroup *boxFramed, *GroupBox6;
+	QGroupBox *boxFramed;
 	QLabel *label1, *label2, *label3, *boxScaleTypeLabel, *minorBoxLabel, *labelTable;
 	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
 	QComboBox *boxUnit, *boxTableName;
 	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
-	Q3GroupBox  *labelBox;
-	QPushButton *buttonIndice, *buttonExp, *buttonSym, *buttonB, *buttonI;
+	QGroupBox  *labelBox;
+	QPushButton *buttonIndex, *buttonExp, *buttonSym, *buttonB, *buttonI;
     QPushButton *buttonU, *buttonLowerGreek, *buttonUpperGreek, *btnLabelFont;
 	
 public slots:
@@ -145,7 +153,7 @@ public slots:
 	void setAxisTitles(QStringList t);
 	void updateTitleBox(int axis);
 	bool updatePlot();
-	void updateScale(int axis);
+	void updateScale(QListWidgetItem * item);
 	void updateLineBoxes(int axis);
 	void setScaleLimits(const QStringList& limits);
 	void stepEnabled();
@@ -160,7 +168,7 @@ public slots:
 	void customAxisFont();
 	void showAxis();
 	void updateShowBox(int axis);
-	void setEnabledAxes(Q3MemArray<bool> ok);
+	void setEnabledAxes(QVector<bool> ok);
 	void drawFrame(bool framed);
 
 	void pickAxisColor();
@@ -207,16 +215,26 @@ public slots:
 	void showFormulaBox();
 	void showAxisFormula(int axis);
 
+	//! Format seleted text to subscript
 	void addIndex();
+	//! Format seleted text to superscript
 	void addExp();
+	//! Format seleted text to underlined
 	void addUnderline();
+	//! Format seleted text to italics
 	void addItalic();
+	//! Format seleted text to bold
 	void addBold();
+	//! Insert curve marker into the text
 	void addCurve();
 
+	//! Let the user insert lower case greek letters
 	void showLowerGreek();
+	//! Let the user insert capital greek letters
 	void showUpperGreek();
+	//! Insert 'letter' into the text
 	void addSymbol(const QString& letter);
+
 	void customAxisLabelFont();
 
 signals:
@@ -235,6 +253,10 @@ protected:
 	int xBottomLabelsRotation, xTopLabelsRotation;
 	MultiLayer *mPlot;
 	Graph* d_graph;
+
+	//! Internal function: format selected text with prefix and postfix
+	void formatText(const QString & prefix, const QString & postfix);
+	
 };
 
 #endif

@@ -5855,7 +5855,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 		{
 			activeGraph = g;
 
-			AxesDialog* ad= new AxesDialog(this,"ad",true,0);
+			AxesDialog* ad= new AxesDialog(this);
 			ad->setAttribute(Qt::WA_DeleteOnClose);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
