@@ -189,7 +189,7 @@ public slots:
 	void updateFrame(int);
 	void setLabelsNumericFormat(const QStringList& list);
 	void setLabelsNumericFormat(int);
-	void updateLabelsFormat(int);
+	void updateLabelsFormat(QListWidgetItem * item);
 	void initLabelsRotation(int xAngle, int yAngle);
 	void insertColList(const QStringList& cols);
 	void insertTablesList(const QStringList& l);

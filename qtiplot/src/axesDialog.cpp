@@ -1266,8 +1266,8 @@ void AxesDialog::initGridPage()
 	generalDialog->addTab( gridPage, tr( "Grid" ) );
 
 	//grid page slot connections
-	connect(axesGridList,SIGNAL(highlighted(int)),this, SLOT(updateLineBoxes(int)));
-	connect(axesGridList,SIGNAL(selectionChanged()),this, SLOT(setGridOptions()));
+	connect(axesGridList,SIGNAL(currentRowChanged(int)),this, SLOT(updateLineBoxes(int)));
+	connect(axesGridList,SIGNAL(itemSelectionChanged()),this, SLOT(setGridOptions()));
 	connect(boxMajorGrid,SIGNAL(toggled(bool)), this, SLOT(majorGridEnabled(bool)));
 	connect(boxMinorGrid,SIGNAL(toggled(bool)), this, SLOT(minorGridEnabled(bool)));
 	connect(boxColorMajor,SIGNAL(activated(int)),this, SLOT(updateGrid(int)));
@@ -1493,12 +1493,12 @@ void AxesDialog::initAxesPage()
 	connect(btnLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
 
 	connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateShowBox(int) ) );	
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateAxisColor(int)));
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(updateTitleBox(int) ) );
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setTicksType(int) ) );
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setAxisType(int) ) );
-	connect(axesTitlesList,SIGNAL(highlighted(int)), this, SLOT(setBaselineDist(int) ) );
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateShowBox(int) ) );	
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateAxisColor(int)));
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateTitleBox(int) ) );
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(setTicksType(int) ) );
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(setAxisType(int) ) );
+	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(setBaselineDist(int) ) );
 
 	connect(boxShowLabels,SIGNAL(clicked()), this, SLOT(updateTickLabelsList()));
 	connect(boxAxisColor, SIGNAL(clicked()), this, SLOT(pickAxisColor()));
@@ -1509,7 +1509,7 @@ void AxesDialog::initAxesPage()
 
 	connect(boxShowAxis,SIGNAL(clicked()), this, SLOT(showAxis()));
 	connect(boxFormat, SIGNAL(activated(int) ), this, SLOT(setLabelsNumericFormat(int) ) );
-	connect(axesTitlesList,SIGNAL(activated(int)), this, SLOT(updateLabelsFormat(int) ) );
+	connect(axesTitlesList,SIGNAL(itemActivated(QListWidgetItem *)), this, SLOT(updateLabelsFormat(QListWidgetItem *) ) );
 
 	connect(btnAxesFont, SIGNAL(clicked()), this, SLOT(customAxisFont()));	
 	connect(boxBaseline, SIGNAL(valueChanged(int)), this, SLOT(changeBaselineDist(int)));
@@ -3085,8 +3085,9 @@ void AxesDialog::showAxisFormula(int axis)
 	}
 }
 
-void AxesDialog::updateLabelsFormat(int)
+void AxesDialog::updateLabelsFormat(QListWidgetItem * item)
 {
+	Q_UNUSED(item)
 	int a=mapToQwtAxisId();
 	int format=labelsNumericFormat[2*a].toInt();
 	if (format != Graph::Numeric)

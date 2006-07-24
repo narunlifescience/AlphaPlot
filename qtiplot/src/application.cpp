@@ -5859,8 +5859,8 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->setAttribute(Qt::WA_DeleteOnClose);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
-			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, bool,const QColor&, int, int, int, int, const QString&)),
-					this, SLOT(showAxis(int,int, const QString&, bool, int,bool,const QColor&, int, int, int, int, const QString&)));
+			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&, int, int, int, int, const QString&)),
+					this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&)));
 
 			ad->setMultiLayerPlot(plot);
 			ad->setLabelsNumericFormat(g->labelsNumericFormat());
