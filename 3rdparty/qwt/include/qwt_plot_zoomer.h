@@ -92,8 +92,6 @@ signals:
       zoomed in or out.
 
       \param rect Current zoom rectangle.
-      \warning zoomed() is only emitted after selections in end(), but never
-               in zoom().
     */
 
     void zoomed(const QwtDoubleRect &rect);

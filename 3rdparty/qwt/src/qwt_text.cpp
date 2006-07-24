@@ -383,15 +383,30 @@ QSize QwtText::textSize(const QFont &font) const
 
     QSize sz = d_layoutCache->textSize;
 
+    const QwtMetricsMap map = QwtPainter::metricsMap();
+
     if ( d_data->layoutAttributes & MinimumLayout )
     {
         int left, right, top, bottom;
         d_data->textEngine->textMargins(fnt, d_data->text,
             left, right, top, bottom);
         sz -= QSize(left + right, top + bottom);
+#if QT_VERSION >= 0x040000
+        if ( !map.isIdentity() )
+        {
+#ifdef __GNUC__
+#warning Too small text size, when printing in high resolution
+#endif
+            /*
+                When printing in high resolution, the tick labels
+                of are cut of. We need to find out why, but for
+                the moment we add a couple of pixels instead.
+             */
+            sz += QSize(3, 0);
+        }
+#endif
     }
 
-    const QwtMetricsMap map = QwtPainter::metricsMap();
     sz = map.screenToLayout(sz);
     return sz;
 }

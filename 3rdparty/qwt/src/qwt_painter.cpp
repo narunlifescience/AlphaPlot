@@ -152,27 +152,14 @@ void QwtPainter::drawRect(QPainter *painter, int x, int y, int w, int h)
 */
 void QwtPainter::drawRect(QPainter *painter, const QRect &rect) 
 {
-    const QRect r = d_metricsMap.layoutToDevice(rect, painter);
+    QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
     QRect clipRect;
 
     const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
-
-#if QT_VERSION == 0x040000 
-    /*
-      Performance of Qt4.0.0 is horrible for non trivial brushs. Without
-      clipping expect minutes or hours for repainting large rects
-      (might result from zooming). Announced to be fixed in 4.0.1.
-     */
-    clipRect = painter->window();
-    if ( painter->hasClipping() )
-        clipRect &= painter->clipRegion().boundingRect();
-    if ( deviceClipping )
-        clipRect &= deviceClipRect();
-#else
     if ( deviceClipping )
         clipRect = deviceClipRect();
-#endif
+
     if ( clipRect.isValid() )
     {
         if ( !clipRect.intersects(r) )
@@ -182,9 +169,6 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
         {
             fillRect(painter, r & clipRect, painter->brush());
 
-#ifdef __GNUC__
-#warning alignment of rects needs to be checked
-#endif
             int pw = painter->pen().width();
             pw = pw % 2 + pw / 2;
 
@@ -204,6 +188,19 @@ void QwtPainter::drawRect(QPainter *painter, const QRect &rect)
         }
     }
 
+#if QT_VERSION >= 0x040000
+    if ( painter->pen().style() != Qt::NoPen && 
+        painter->pen().color().isValid() )
+    {
+        // Qt4 adds the pen to the rect, Qt3 not.
+        int pw = painter->pen().width();
+        if ( pw == 0 )
+            pw = 1;
+
+        r.setWidth(r.width() - pw);
+        r.setHeight(r.height() - pw);
+    }
+#endif
     painter->drawRect(r);
 }
 
@@ -250,12 +247,26 @@ void QwtPainter::fillRect(QPainter *painter,
 */
 void QwtPainter::drawEllipse(QPainter *painter, const QRect &rect)
 {
-    const QRect r = d_metricsMap.layoutToDevice(rect, painter);
+    QRect r = d_metricsMap.layoutToDevice(rect, painter);
 
     const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
 
     if ( deviceClipping && !deviceClipRect().contains(rect) )
         return;
+
+#if QT_VERSION >= 0x040000
+    if ( painter->pen().style() != Qt::NoPen &&
+        painter->pen().color().isValid() )
+    {
+        // Qt4 adds the pen to the rect, Qt3 not.
+        int pw = painter->pen().width();
+        if ( pw == 0 )
+            pw = 1;
+
+        r.setWidth(r.width() - pw);
+        r.setHeight(r.height() - pw);
+    }
+#endif
 
     painter->drawEllipse(r);
 }

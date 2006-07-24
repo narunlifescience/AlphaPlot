@@ -87,8 +87,9 @@ void QwtPlotLayout::LayoutData::init(const QwtPlot *plot, const QRect &rect)
     // title 
 
     title.frameWidth = 0;
+    title.text = QwtText();
 
-    if (plot->titleLabel() && !plot->titleLabel()->text().isEmpty())
+    if (plot->titleLabel() )
     {
         const QwtTextLabel *label = plot->titleLabel();
         title.text = label->text(); 

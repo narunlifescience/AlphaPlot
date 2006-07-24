@@ -410,50 +410,92 @@ void QwtScaleDraw::drawTick(QPainter *painter, double value, int len) const
 
     int pw2 = qwtMin((int)painter->pen().width(), len) / 2;
     
-    const int tval = map().transform(value);
+    QwtScaleMap scaleMap = map();
+    const QwtMetricsMap metricsMap = QwtPainter::metricsMap();
+    QPoint pos = d_data->pos;
+
+    if ( !metricsMap.isIdentity() )
+    {
+        /*
+           The perfect position of the ticks is important.
+           To avoid rounding errors we have to use 
+           device coordinates.
+         */
+        QwtPainter::resetMetricsMap();
+
+        pos = metricsMap.layoutToDevice(pos);
+    
+        if ( orientation() == Qt::Vertical )
+        {
+            scaleMap.setPaintInterval(
+                metricsMap.layoutToDeviceY((int)scaleMap.p1()),
+                metricsMap.layoutToDeviceY((int)scaleMap.p2())
+            );
+            len = metricsMap.layoutToDeviceX(len);
+        }
+        else
+        {
+            scaleMap.setPaintInterval(
+                metricsMap.layoutToDeviceX((int)scaleMap.p1()),
+                metricsMap.layoutToDeviceX((int)scaleMap.p2())
+            );
+            len = metricsMap.layoutToDeviceY(len);
+        }
+    }
+
+    const int tval = scaleMap.transform(value);
 
     switch(alignment())
     {
         case LeftScale:
+        {
 #if QT_VERSION < 0x040000
-            QwtPainter::drawLine(painter, d_data->pos.x() + pw2, tval,
-                d_data->pos.x() - len - 2 * pw2, tval);
+            QwtPainter::drawLine(painter, pos.x() + pw2, tval,
+                pos.x() - len - 2 * pw2, tval);
 #else
-            QwtPainter::drawLine(painter, d_data->pos.x() - pw2, tval,
-                d_data->pos.x() - len, tval);
+            QwtPainter::drawLine(painter, pos.x() - pw2, tval,
+                pos.x() - len, tval);
 #endif
             break;
+        }
 
         case RightScale:
+        {
 #if QT_VERSION < 0x040000
-            QwtPainter::drawLine(painter, d_data->pos.x(), tval,
-                d_data->pos.x() + len + pw2, tval);
+            QwtPainter::drawLine(painter, pos.x(), tval,
+                pos.x() + len + pw2, tval);
 #else
-            QwtPainter::drawLine(painter, d_data->pos.x() + pw2, tval,
-                d_data->pos.x() + len, tval);
+            QwtPainter::drawLine(painter, pos.x() + pw2, tval,
+                pos.x() + len, tval);
 #endif
             break;
+        }
     
         case BottomScale:
+        {
 #if QT_VERSION < 0x040000
-            QwtPainter::drawLine(painter, tval, d_data->pos.y(),
-                tval, d_data->pos.y() + len + 2 * pw2);
+            QwtPainter::drawLine(painter, tval, pos.y(),
+                tval, pos.y() + len + 2 * pw2);
 #else
-            QwtPainter::drawLine(painter, tval, d_data->pos.y() + pw2,
-                tval, d_data->pos.y() + len);
+            QwtPainter::drawLine(painter, tval, pos.y() + pw2,
+                tval, pos.y() + len);
 #endif
             break;
+        }
 
         case TopScale:
+        {
 #if QT_VERSION < 0x040000
-            QwtPainter::drawLine(painter, tval, d_data->pos.y() + pw2,
-                tval, d_data->pos.y() - len - 2 * pw2);
+            QwtPainter::drawLine(painter, tval, pos.y() + pw2,
+                tval, pos.y() - len - 2 * pw2);
 #else
-            QwtPainter::drawLine(painter, tval, d_data->pos.y() - pw2,
-                tval, d_data->pos.y() - len);
+            QwtPainter::drawLine(painter, tval, pos.y() - pw2,
+                tval, pos.y() - len);
 #endif
             break;
+        }
     }
+    QwtPainter::setMetricsMap(metricsMap); // restore metrics map
 }
 
 /*! 
@@ -683,9 +725,6 @@ QRect QwtScaleDraw::labelRect(const QFont &font, double value) const
     QSize labelSize = lbl.textSize(font);
     if ( labelSize.height() % 2 )
     {
-#ifdef __GNUC__
-#warning canvas content is one pixel wrong for fonts with odd pixels height
-#endif
         labelSize.setHeight(labelSize.height() + 1);
     }
 

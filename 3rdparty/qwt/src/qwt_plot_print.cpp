@@ -182,8 +182,8 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
             }
             else
             {
-                from = metricsMap.layoutToDeviceY(scaleRect.bottom() - sDist);
-                to = metricsMap.layoutToDeviceY(scaleRect.top() + eDist);
+                from = metricsMap.layoutToDeviceY(scaleRect.bottom() - eDist);
+                to = metricsMap.layoutToDeviceY(scaleRect.top() + sDist);
             }
         }
         else

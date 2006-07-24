@@ -785,11 +785,11 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 
     if ( to > from && d_data->paintAttributes & PaintFiltered )
     {
-        int count = 0;
-
         if ( doFill )   
         {
             QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
+
+            QwtPainter::drawPoint(painter, pp.x(), pp.y());
             polyline.setPoint(0, pp);
 
             int count = 1;
@@ -798,12 +798,16 @@ void QwtPlotCurve::drawDots(QPainter *painter,
                 const QPoint pi(xMap.transform(x(i)), yMap.transform(y(i)));
                 if ( pi != pp )
                 {
+                    QwtPainter::drawPoint(painter, pi.x(), pi.y());
+
                     polyline.setPoint(count, pi);
                     count++;
 
                     pp = pi;
                 }
             }
+            if ( int(polyline.size()) != count )
+                polyline.resize(count);
         }
         else
         {
@@ -818,14 +822,9 @@ void QwtPlotCurve::drawDots(QPainter *painter,
                     yMap.transform(y(i)) );
 
                 if ( pixelMatrix.testPixel(p) )
-                {
-                    polyline[count] = p;
-                    count++;
-                }
+                    QwtPainter::drawPoint(painter, p.x(), p.y());
             }
         }
-        if ( int(polyline.size()) != count )
-            polyline.resize(count);
     }
     else
     {
@@ -840,14 +839,16 @@ void QwtPlotCurve::drawDots(QPainter *painter,
         }
     }
 
-    if ( d_data->paintAttributes & ClipPolygons )
-    {
-        const QwtRect r = painter->window();
-        polyline = r.clip(polyline);
-    }
-
     if ( doFill )
+    {
+        if ( d_data->paintAttributes & ClipPolygons )
+        {
+            const QwtRect r = painter->window();
+            polyline = r.clip(polyline);
+        }
+
         fillCurve(painter, xMap, yMap, polyline);
+    }
 }
 
 /*!

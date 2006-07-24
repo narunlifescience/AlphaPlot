@@ -195,7 +195,11 @@ bool QwtPlot::autoReplot() const
 */
 void QwtPlot::setTitle(const QString &t)
 {
-    d_data->lblTitle->setText(t);
+    if ( t != d_data->lblTitle->text().text() )
+    {
+        d_data->lblTitle->setText(t);
+        updateLayout();
+    }
 }
 
 /*!
@@ -204,7 +208,11 @@ void QwtPlot::setTitle(const QString &t)
 */
 void QwtPlot::setTitle(const QwtText &t)
 {
-    d_data->lblTitle->setText(t);
+    if ( t != d_data->lblTitle->text() )
+    {
+        d_data->lblTitle->setText(t);
+        updateLayout();
+    }
 }
 
 /*!
@@ -724,6 +732,7 @@ const QColor & QwtPlot::canvasBackground() const
 void QwtPlot::setCanvasLineWidth(int w)
 {
     canvas()->setLineWidth(w);
+    updateLayout();
 }
  
 /*! 
