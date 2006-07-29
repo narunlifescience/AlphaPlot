@@ -153,7 +153,7 @@ public slots:
 	void setAxisTitles(QStringList t);
 	void updateTitleBox(int axis);
 	bool updatePlot();
-	void updateScale(QListWidgetItem * item);
+	void updateScale();
 	void updateLineBoxes(int axis);
 	void setScaleLimits(const QStringList& limits);
 	void stepEnabled();

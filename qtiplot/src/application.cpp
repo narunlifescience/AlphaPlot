@@ -4031,7 +4031,7 @@ void ApplicationWindow::open()
 				return;
 			}
 
-			saveSettings();
+			saveSettings();//the recent projects must be saved
 			ApplicationWindow *a = open (fn);
 			if (a)
 			{
@@ -5150,6 +5150,7 @@ void ApplicationWindow::showTitleDialog()
 		Plot3DDialog* pd = (Plot3DDialog*)showPlot3dDialog();
 		if (pd)
 			pd->showTitleTab();
+		delete pd;
 	}
 }
 
@@ -5816,6 +5817,7 @@ void ApplicationWindow::showGeneralPlotDialog()
 	}
 	else if (gd && plot3DWindows.contains(plot->name()))
 		((Plot3DDialog*)gd)->showGeneralTab();
+	delete gd;
 }
 
 void ApplicationWindow::showAxisDialog()
@@ -5829,6 +5831,7 @@ void ApplicationWindow::showAxisDialog()
 		((AxesDialog*)gd)->showAxesPage();
 	else if (gd && plot3DWindows.contains(plot->name()))
 		((Plot3DDialog*)gd)->showAxisTab();
+	delete gd;
 }
 
 void ApplicationWindow::showGridDialog()
@@ -5836,6 +5839,7 @@ void ApplicationWindow::showGridDialog()
 	AxesDialog* gd = (AxesDialog*)showScaleDialog();
 	if (gd)
 		gd->showGridPage();
+	delete gd;
 }
 
 QDialog* ApplicationWindow::showScaleDialog()
@@ -5856,7 +5860,6 @@ QDialog* ApplicationWindow::showScaleDialog()
 			activeGraph = g;
 
 			AxesDialog* ad= new AxesDialog(this);
-			ad->setAttribute(Qt::WA_DeleteOnClose);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
 			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&, int, int, int, int, const QString&)),
@@ -5926,7 +5929,6 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		}
 
 		Plot3DDialog* pd= new Plot3DDialog(this,"Plot3DDialog",true,0);
-		pd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (pd,SIGNAL(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)),
 				g,SLOT(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)));
 
@@ -6050,7 +6052,6 @@ QDialog* ApplicationWindow::showPieDialog()
 		activeGraph = g;
 
 		PieDialog* pd= new PieDialog(this,"PlotDialog",true,0);
-		pd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (pd,SIGNAL(drawFrame(bool,int,const QColor&)),g,SLOT(drawCanvasFrame(bool,int,const QColor& )));
 		connect (pd,SIGNAL(toggleCurve()),g,SLOT(removePie()));
 		connect (pd,SIGNAL(updatePie(const QPen&, const Qt::BrushStyle &,int,int)),g,SLOT(updatePie(const QPen&, const Qt::BrushStyle &,int,int)));
@@ -6102,14 +6103,14 @@ void ApplicationWindow::showPlotDialog()
 				activeGraph = g;
 			}
 			else
-				showPieDialog();
+				delete showPieDialog();
 		}
 		else if (g->curves() == 0)
 			QMessageBox::warning(this, tr("QtiPlot - Empty plot"),
 					tr("There are actually no curves on the active layer!"));
 	}
 	else if (plot3DWindows.contains(caption))
-		showPlot3dDialog();
+		delete showPlot3dDialog();
 }
 
 void ApplicationWindow::showPlotDialog(long curveKey)
@@ -6138,7 +6139,7 @@ void ApplicationWindow::showPlotDialog(long curveKey)
 			activeGraph = g;
 		}
 		else
-			showPieDialog();
+			delete showPieDialog();
 	}
 }
 
@@ -7990,7 +7991,7 @@ void ApplicationWindow::windowsMenuActivated( int id )
 
 void ApplicationWindow::newProject()
 {
-	saveSettings();
+	saveSettings();//the recent projects must be saved
 
 	ApplicationWindow *ed = new ApplicationWindow();
 	ed->applyUserSettings();
@@ -8086,13 +8087,13 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 		{
 			case 0:
 				saveProject();
-				saveSettings();
+				saveSettings();//the recent projects must be saved
 				ce->accept();
 				break;
 
 			case 1:
 			default:
-				saveSettings();
+				saveSettings();//the recent projects must be saved
 				ce->accept();
 				break;
 
@@ -8103,7 +8104,7 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 	}
 	else
 	{
-		saveSettings();
+		saveSettings();//the recent projects must be saved
 		ce->accept();
 	}
 }
