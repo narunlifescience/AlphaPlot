@@ -28,8 +28,6 @@
  ***************************************************************************/
 
 #include "textDialog.h"
-#include "txt_icons.h"
-#include "symbolDialog.h"
 
 #include <QFontDialog>
 #include <QColorDialog>
@@ -43,30 +41,6 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
-
-static const char * lineSymbol_xpm[] = {
-"16 16 4 1",
-" 	c None",
-".	c #8C2727",
-"+	c #272787",
-"@	c #FFFFFF",
-"                ",
-"                ",
-"                ",
-"      ...       ",
-"  ............  ",
-"      ...       ",
-"                ",
-"                ",
-"                ",
-"      +++       ",
-"  +++++@++++++  ",
-"      +++       ",
-"                ",
-"                ",
-"                ",
-"                "};
-
 
 TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	: QDialog( parent, fl )
@@ -177,96 +151,18 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   rotateBox->hide();
 	   */
 
-	// middle group box
-	groupBox2 = new QGroupBox(QString());
-
-	// layout for middle group box
-	QHBoxLayout * layoutMiddle = new QHBoxLayout();
-
-	// add the buttons
-	if (textType == TextDialog::AxisTitle)
-	{
-		buttonCurve = new QPushButton( QPixmap(lineSymbol_xpm), QString());
-		buttonCurve->setMaximumWidth(40);
-		buttonCurve->setMinimumHeight(35);
-		connect( buttonCurve, SIGNAL( clicked() ), this, SLOT(addCurve() ) );
-		layoutMiddle->addWidget(buttonCurve);
-	}
-
-	QFont font = this->font();
-	font.setPointSize(14);
-		
-	buttonIndex = new QPushButton(QPixmap(index_xpm),QString());
-	buttonIndex->setMaximumWidth(40);
-	buttonIndex->setMinimumHeight(35);
-	buttonIndex->setFont(font);
-	layoutMiddle->addWidget(buttonIndex);
-
-	buttonExp = new QPushButton(QPixmap(exp_xpm),QString());
-	buttonExp->setMaximumWidth(40);
-	buttonExp->setMinimumHeight(35);
-	buttonExp->setFont(font);
-	layoutMiddle->addWidget(buttonExp);
-
-	buttonLowerGreek = new QPushButton(QString(QChar(0x3B1))); 
-	buttonLowerGreek->setFont(font);
-	buttonLowerGreek->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonLowerGreek);
-
-	buttonUpperGreek = new QPushButton(QString(QChar(0x393))); 
-	buttonUpperGreek->setFont(font);
-	buttonUpperGreek->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonUpperGreek);
-
-	buttonMathSymbols = new QPushButton(QString(QChar(0x222B))); 
-	buttonMathSymbols->setFont(font);
-	buttonMathSymbols->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonMathSymbols);
-
-	buttonArrowSymbols = new QPushButton(QString(QChar(0x2192))); 
-	buttonArrowSymbols->setFont(font);
-	buttonArrowSymbols->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonArrowSymbols);
-
-	font = this->font();
-	font.setBold(true);
-	font.setPointSize(14);
-
-	buttonB = new QPushButton(tr("B")); 
-	buttonB->setFont(font);
-	buttonB->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonB);
-
-	font = this->font();
-	font.setItalic(true);
-	font.setPointSize(14);
-	
-	buttonI = new QPushButton(tr("It"));
-	buttonI->setFont(font);
-	buttonI->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonI);
-
-	font = this->font();
-	font.setUnderline(true);
-	font.setPointSize(14);
-
-	buttonU = new QPushButton(tr("U"));
-	buttonU->setFont(font);
-	buttonU->setMaximumWidth(40);
-	layoutMiddle->addWidget(buttonU);
-
 	lineEdit = new QTextEdit();
+
+	formatButtons =  new TextFormatButtons(lineEdit);
+	formatButtons->toggleCurveButton(textType == TextDialog::TextMarker);
 
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(lineEdit);
 
-	// set middle layout
-	groupBox2->setLayout( layoutMiddle );
-	
 	// put everything together
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(groupBox1);
-	mainLayout->addWidget(groupBox2);
+	mainLayout->addWidget(formatButtons);
 	mainLayout->addWidget(lineEdit);
 	setLayout( mainLayout );
 
@@ -277,122 +173,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonFont, SIGNAL( clicked() ), this, SLOT(customFont() ) );
-	connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
-	connect( buttonIndex, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
-	connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
-	connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
-	connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
-	connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
-	connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
-	connect(buttonMathSymbols, SIGNAL(clicked()), this, SLOT(showMathSymbols()));
-	connect(buttonArrowSymbols, SIGNAL(clicked()), this, SLOT(showArrowSymbols()));
-}
-
-void TextDialog::showLowerGreek()
-{
-	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
-	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-	QFont f = selectedFont;
-	if(f.pointSize()<14)
-		f.setPointSize(14);
-	greekLetters->setFont(f);
-	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	greekLetters->show();
-	greekLetters->setFocus();
-}
-
-void TextDialog::showUpperGreek()
-{
-	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
-	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-	QFont f = selectedFont;
-	if(f.pointSize()<14)
-		f.setPointSize(14);
-	greekLetters->setFont(f);
-	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	greekLetters->show();
-	greekLetters->setFocus();
-}
-
-void TextDialog::showMathSymbols()
-{
-	SymbolDialog *mathSymbols = new SymbolDialog(SymbolDialog::mathSymbols, this, Qt::Tool);
-	mathSymbols->setAttribute(Qt::WA_DeleteOnClose);
-	QFont f = selectedFont;
-	if(f.pointSize()<14)
-		f.setPointSize(14);
-	mathSymbols->setFont(f);
-	connect(mathSymbols, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	mathSymbols->show();
-	mathSymbols->setFocus();
-}
-
-void TextDialog::showArrowSymbols()
-{
-	SymbolDialog *arrowSymbols = new SymbolDialog(SymbolDialog::arrowSymbols, this, Qt::Tool);
-	arrowSymbols->setAttribute(Qt::WA_DeleteOnClose);
-	arrowSymbols->setFont(selectedFont);
-	QFont f = selectedFont;
-	if(f.pointSize()<14)
-		f.setPointSize(14);
-	arrowSymbols->setFont(f);
-	connect(arrowSymbols, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	arrowSymbols->show();
-	arrowSymbols->setFocus();
-}
-
-void TextDialog::addSymbol(const QString & letter)
-{
-	lineEdit->textCursor().insertText(letter);
-}
-
-void TextDialog::addCurve()
-{
-	formatText("\\c{","}");
-}
-
-void TextDialog::addUnderline()
-{
-	formatText("<u>","</u>");
-}
-
-void TextDialog::addItalic()
-{
-	formatText("<i>","</i>");
-}
-
-void TextDialog::addBold()
-{
-	formatText("<b>","</b>");
-}
-
-void TextDialog::addIndex()
-{
-	formatText("<sub>","</sub>");
-}
-
-void TextDialog::addExp()
-{
-	formatText("<sup>","</sup>");
-}
-
-void TextDialog::formatText(const QString & prefix, const QString & postfix)
-{
-	QTextCursor cursor = lineEdit->textCursor();
-	QString markedText = lineEdit->textCursor().selectedText();
-	cursor.insertText(prefix+markedText+postfix);
-	if(markedText.isEmpty())
-	{
-		// if no text is marked, place cursor inside the <..></..> statement
-		// instead of after it
-		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,postfix.size());
-		// the next line makes the selection visible to the user 
-		// (the line above only changes the selection in the
-		// underlying QTextDocument)
-		lineEdit->setTextCursor(cursor);
-	}
-	// give focus back to text edit
-	lineEdit->setFocus();
 }
 
 int TextDialog::backgroundType()

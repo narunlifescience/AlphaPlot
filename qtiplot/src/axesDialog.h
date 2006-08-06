@@ -52,6 +52,7 @@ class ColorButton;
 class MultiLayer;
 class Graph;
 class QTextEdit;
+class TextFormatButtons;
 
 //! Structure containing grid properties
 typedef struct{ 
@@ -70,6 +71,9 @@ typedef struct{
 }  GridOptions;
 
 //! General plot options dialog
+/**
+ * Remark: Don't use this dialog as a non modal dialog!
+ */
 class AxesDialog : public QDialog
 { 
     Q_OBJECT
@@ -141,8 +145,8 @@ protected:
 	QComboBox *boxUnit, *boxTableName;
 	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
 	QGroupBox  *labelBox;
-	QPushButton *buttonIndex, *buttonExp, *buttonSym, *buttonB, *buttonI;
-    QPushButton *buttonU, *buttonLowerGreek, *buttonUpperGreek, *btnLabelFont;
+	QPushButton * buttonLabelFont;
+	TextFormatButtons *formatButtons;
 	
 public slots:
 	QStringList scaleLimits(int axis, double start, double end, double step, 
@@ -215,27 +219,14 @@ public slots:
 	void showFormulaBox();
 	void showAxisFormula(int axis);
 
-	//! Format seleted text to subscript
-	void addIndex();
-	//! Format seleted text to superscript
-	void addExp();
-	//! Format seleted text to underlined
-	void addUnderline();
-	//! Format seleted text to italics
-	void addItalic();
-	//! Format seleted text to bold
-	void addBold();
-	//! Insert curve marker into the text
-	void addCurve();
-
-	//! Let the user insert lower case greek letters
-	void showLowerGreek();
-	//! Let the user insert capital greek letters
-	void showUpperGreek();
-	//! Insert 'letter' into the text
-	void addSymbol(const QString& letter);
-
 	void customAxisLabelFont();
+
+	//! Shows the dialog as a modal dialog
+	/**
+	 * Show the dialog as a modal dialog and do
+	 * some initialization.
+	 */
+	int exec();
 
 signals:
 	void updateAxisTitle(int,const QString&);
@@ -254,9 +245,6 @@ protected:
 	MultiLayer *mPlot;
 	Graph* d_graph;
 
-	//! Internal function: format selected text with prefix and postfix
-	void formatText(const QString & prefix, const QString & postfix);
-	
 };
 
 #endif

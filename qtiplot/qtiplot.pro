@@ -106,7 +106,8 @@ HEADERS  = src/application.h \
 	 src/fftDialog.h\
 	 src/note.h\
 	 src/folder.h\
-	 src/findDialog.h
+	 src/findDialog.h\
+	 src/textformatbuttons.h
      
 SOURCES  = src/application.cpp \
      src/graph.cpp \
@@ -178,7 +179,8 @@ SOURCES  = src/application.cpp \
 	 src/fftDialog.cpp\
 	 src/note.cpp\
 	 src/folder.cpp\
-	 src/findDialog.cpp
+	 src/findDialog.cpp\
+	 src/textformatbuttons.cpp
 
 #parser (muParser_v1.26)
 HEADERS+=../3rdparty/muParser/muParser.h \

@@ -38,6 +38,7 @@ class QComboBox;
 class QLabel;
 
 #include "colorButton.h"
+#include "textformatbuttons.h"
 
 //! Options dialog for text labels/axes labels
 class TextDialog : public QDialog
@@ -114,30 +115,6 @@ private slots:
 	void accept();
 	//! Apply changes
 	void apply();
-	
-	//! Format seleted text to subscript
-	void addIndex();
-	//! Format seleted text to superscript
-	void addExp();
-	//! Format seleted text to underlined
-	void addUnderline();
-	//! Format seleted text to italics
-	void addItalic();
-	//! Format seleted text to bold
-	void addBold();
-	//! Insert curve marker into the text
-	void addCurve();
-
-	//! Let the user insert lower case greek letters
-	void showLowerGreek();
-	//! Let the user insert capital greek letters
-	void showUpperGreek();
-	//! Let the user insert mathematical symbols
-	void showMathSymbols();
-	//! Let the user insert arrow symbols
-	void showArrowSymbols();
-	//! Insert 'letter' into the text
-	void addSymbol(const QString& letter);
 
 signals:
 	//! Emit all current values
@@ -165,28 +142,16 @@ protected:
 	TextType textType;
 
 	ColorButton *colorBtn, *backgroundBtn;
-	QPushButton* buttonFont;
-	QComboBox* frameBox;
-	QPushButton* buttonOk;
-	QPushButton* buttonApply;
-	QComboBox* rotateBox;
-	QPushButton* buttonCancel;
-	QPushButton* buttonIndex;
-	QPushButton* buttonExp;
-	QPushButton* buttonSym;
-	QPushButton* buttonB;
-	QPushButton* buttonI;
-	QPushButton* buttonU;
-	QPushButton* buttonCurve;
-	QTextEdit* lineEdit;
+	QPushButton *buttonFont;
+	QComboBox *frameBox;
+	QPushButton *buttonOk;
+	QPushButton *buttonCancel;
+	QPushButton *buttonApply;
+	QComboBox *rotateBox;
+	QTextEdit *lineEdit;
 	QGroupBox *groupBox1, *groupBox2;
-	QPushButton* buttonLowerGreek, *buttonUpperGreek;
-	QPushButton* buttonMathSymbols, *buttonArrowSymbols;
-	QComboBox* alignmentBox;
-
-private:
-	//! Internal function: format selected text with prefix and postfix
-	void formatText(const QString & prefix, const QString & postfix);
+	QComboBox *alignmentBox;
+	TextFormatButtons *formatButtons;
 
 };
 

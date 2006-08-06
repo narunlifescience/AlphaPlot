@@ -34,16 +34,13 @@
 #include "parser.h"
 #include "colorButton.h"
 #include "multilayer.h"
-#include "txt_icons.h"
-#include "symbolDialog.h"
+#include "textformatbuttons.h"
 
-#include <q3textedit.h>
 #include <qcolordialog.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qlabel.h>
 #include <qlineedit.h>
-#include <q3listbox.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qspinbox.h>
@@ -52,25 +49,17 @@
 #include <qlayout.h>
 #include <qvariant.h>
 #include <qtooltip.h>
-#include <q3whatsthis.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <q3buttongroup.h>
 #include <qmessagebox.h>
 #include <qinputdialog.h>
 #include <qfont.h>
 #include <qfontdialog.h> 
 #include <qregexp.h> 
-#include <q3vbox.h>
 #include <qwidget.h>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
-//Added by qt3to4:
-#include <Q3MemArray>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
-#include <Q3PtrList>
 
 #include <QDate>
 #include <QList>
@@ -1138,7 +1127,7 @@ void AxesDialog::initScalesPage()
 	axesList->addItem( new QListWidgetItem(image0, tr( "Horizontal" )) );
 	axesList->addItem( new QListWidgetItem(image1, tr( "Vertical" )) );
 	axesList->setIconSize(image0.size());
-	axesList->setCurrentRow(0);
+	axesList->setCurrentRow(-1);
 
 	// calculate a sensible width for the items list 
 	// (default QListWidget size is 256 which looks too big)
@@ -1245,7 +1234,7 @@ void AxesDialog::initGridPage()
 	axesGridList->addItem( new QListWidgetItem(image3, tr( "" )) );
 	axesGridList->addItem( new QListWidgetItem(image2, tr( "" )) );
 	axesGridList->setIconSize(image3.size());
-	axesGridList->setCurrentRow(0);
+	axesGridList->setCurrentRow(-1);
 
 	// calculate a sensible width for the items list 
 	// (default QListWidget size is 256 which looks too big)
@@ -1295,9 +1284,9 @@ void AxesDialog::initAxesPage()
 	axesTitlesList->addItem( new QListWidgetItem(image6, QString()) );
 	axesTitlesList->addItem( new QListWidgetItem(image7, QString()) );
 	axesTitlesList->setIconSize(image6.size());
-	axesTitlesList->setCurrentRow(0);
 	axesTitlesList->setMaximumWidth((int)(image6.width()*1.5));
 	axesTitlesList->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
+	axesTitlesList->setCurrentRow(-1);
 
 	// calculate a sensible width for the items list 
 	// (default QListWidget size is 256 which looks too big)
@@ -1322,7 +1311,7 @@ void AxesDialog::initAxesPage()
 	topLayout->addStretch(1);
 
 	QGridLayout * labelBoxLayout = new QGridLayout( labelBox );
-	labelBoxLayout->setSpacing(1);
+	labelBoxLayout->setSpacing(0);
 
 	QLabel *l = new QLabel(tr( "Title" ));
 	QFontMetrics metrics(l->font());
@@ -1332,49 +1321,13 @@ void AxesDialog::initAxesPage()
 	boxTitle->setMaximumHeight(3*metrics.width(l->text()));
 	labelBoxLayout->addWidget( boxTitle, 0, 1, 1, 7);
 
-	btnLabelFont = new QPushButton(tr("&Font"));
-	labelBoxLayout->addWidget( btnLabelFont, 1, 0);
+	buttonLabelFont = new QPushButton(tr("&Font"));
+	labelBoxLayout->addWidget( buttonLabelFont, 1, 0);
 
-	buttonIndex = new QPushButton(); 
-	buttonIndex->setPixmap(QPixmap(index_xpm));
-	buttonIndex->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonIndex, 1, 1);
-
-	buttonExp = new QPushButton();
-	buttonExp->setPixmap (QPixmap(exp_xpm));
-	buttonExp->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonExp, 1, 2);
-
-	buttonLowerGreek = new QPushButton(QChar(0x3B1)); 
-	buttonLowerGreek->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonLowerGreek, 1, 3);
-
-	buttonUpperGreek = new QPushButton(QChar(0x393)); 
-	buttonUpperGreek->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonUpperGreek, 1, 4 );
-
-	QFont font = this->font();
-	font.setBold(true);
-
-	buttonB = new QPushButton(tr("B")); 
-	buttonB->setFont(font);
-	buttonB->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonB, 1, 5 );
-
-	font = this->font();
-	font.setItalic(true);
-	buttonI = new QPushButton(tr("It"));
-	buttonI->setFont(font);
-	buttonI->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonI, 1, 6 );
-
-	font = this->font();
-	font.setUnderline(true);
-
-	buttonU = new QPushButton(tr("U"));
-	buttonU->setFont(font);
-	buttonU->setMaximumWidth(40);
-	labelBoxLayout->addWidget( buttonU, 1, 7 );
+	formatButtons = new TextFormatButtons(boxTitle);
+	formatButtons->setFlat(true); // this unfortunately leaves the frame's top line in Qt4
+	formatButtons->toggleCurveButton(false);
+	labelBoxLayout->addWidget( formatButtons, 1, 1, 1, 7);
 
 	QHBoxLayout * bottomLayout = new QHBoxLayout();
 
@@ -1489,7 +1442,7 @@ void AxesDialog::initAxesPage()
 	generalDialog->addTab( axesPage, tr( "Axis" ) );
 
 	//signals and slots connections
-	connect(btnLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
+	connect(buttonLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
 
 	connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
 	connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateShowBox(int) ) );	
@@ -1514,14 +1467,6 @@ void AxesDialog::initAxesPage()
 	connect(boxBaseline, SIGNAL(valueChanged(int)), this, SLOT(changeBaselineDist(int)));
 	connect(boxAxisType, SIGNAL(activated(int)), this, SLOT(showAxisFormatOptions(int)));
 	connect(boxPrecision, SIGNAL(valueChanged(int)), this, SLOT(setLabelsNumericFormat(int)));
-
-	connect( buttonExp, SIGNAL( clicked() ), this, SLOT(addExp() ) );
-	connect( buttonIndex, SIGNAL( clicked() ), this, SLOT(addIndex() ) );
-	connect( buttonU, SIGNAL( clicked() ), this, SLOT(addUnderline() ) );
-	connect( buttonI, SIGNAL( clicked() ), this, SLOT(addItalic() ) );
-	connect( buttonB, SIGNAL( clicked() ), this, SLOT(addBold() ) );
-	connect(buttonLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
-	connect(buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
 }
 
 void AxesDialog::initFramePage()
@@ -2298,7 +2243,7 @@ void AxesDialog::tabPageChanged(QWidget *w)
 
 void AxesDialog::updateLineBoxes(int axis)
 {
-	if (axis) 
+	if (axis == 1) 
 	{
 		boxXLine->setEnabled(true);
 		boxYLine->setDisabled(true);
@@ -2423,7 +2368,7 @@ void AxesDialog::setGridOptions()
 
 void AxesDialog::putGridOptions(GridOptions gr)
 {
-	if (axesGridList->currentItem())
+	if (axesGridList->currentRow() == 0)
 	{
 		boxMajorGrid->setChecked(gr.majorOnX);
 		boxMinorGrid->setChecked(gr.minorOnX);
@@ -2443,7 +2388,7 @@ void AxesDialog::putGridOptions(GridOptions gr)
 	boxXLine->setChecked(gr.xZeroOn);
 	boxYLine->setChecked(gr.yZeroOn);
 
-	grid =gr;
+	grid = gr;
 }
 
 GridOptions AxesDialog::getGridOptions()
@@ -2504,7 +2449,6 @@ void AxesDialog::setAxisColor(const QColor& c)
 void AxesDialog::setScaleLimits(const QStringList& limits)
 {
 	scales=limits;
-	updateScale();
 }
 
 void AxesDialog::changeBaselineDist(int baseline)
@@ -3138,79 +3082,6 @@ void AxesDialog::showFormulaBox()
 		boxFormula->hide();
 }
 
-void AxesDialog::showLowerGreek()
-{
-	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::lowerGreek, this, Qt::Tool);
-	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	greekLetters->show();
-	greekLetters->setActiveWindow();
-}
-
-void AxesDialog::showUpperGreek()
-{
-	SymbolDialog *greekLetters = new SymbolDialog(SymbolDialog::upperGreek, this, Qt::Tool);
-	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
-	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
-	greekLetters->show();
-	greekLetters->setActiveWindow();
-}
-
-void AxesDialog::addSymbol(const QString & letter)
-{
-	boxTitle->textCursor().insertText(letter);
-}
-
-void AxesDialog::addCurve()
-{
-	formatText("\\c{","}");
-}
-
-void AxesDialog::addUnderline()
-{
-	formatText("<u>","</u>");
-}
-
-void AxesDialog::addItalic()
-{
-	formatText("<i>","</i>");
-}
-
-void AxesDialog::addBold()
-{
-	formatText("<b>","</b>");
-}
-
-void AxesDialog::addIndex()
-{
-	formatText("<sub>","</sub>");
-}
-
-void AxesDialog::addExp()
-{
-	formatText("<sup>","</sup>");
-}
-
-void AxesDialog::formatText(const QString & prefix, const QString & postfix)
-{
-	QTextCursor cursor = boxTitle->textCursor();
-	QString markedText = boxTitle->textCursor().selectedText();
-	cursor.insertText(prefix+markedText+postfix);
-	if(markedText.isEmpty())
-	{
-		// if no text is marked, place cursor inside the <..></..> statement
-		// instead of after it
-		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,postfix.size());
-		// the next line makes the selection visible to the user 
-		// (the line above only changes the selection in the
-		// underlying QTextDocument)
-		boxTitle->setTextCursor(cursor);
-	}
-	// give focus back to text edit
-	boxTitle->setFocus();
-}
-
-
 void AxesDialog::customAxisLabelFont()
 {
 	int axis = mapToQwtAxisId();
@@ -3224,3 +3095,13 @@ void AxesDialog::customAxisLabelFont()
 AxesDialog::~AxesDialog()
 {
 }
+
+int AxesDialog::exec()
+{
+	axesList->setCurrentRow(0);
+	axesGridList->setCurrentRow(0);
+	axesTitlesList->setCurrentRow(0);
+
+	return QDialog::exec();
+}
+
