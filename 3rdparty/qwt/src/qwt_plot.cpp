@@ -109,7 +109,7 @@ void QwtPlot::initPlot(const QwtText &title)
 #else
     flags |= Qt::TextWordWrap;
 #endif
-    text.setFlags(flags);
+    text.setRenderFlags(flags);
     d_data->lblTitle->setText(text);
 
     d_data->legend = NULL;

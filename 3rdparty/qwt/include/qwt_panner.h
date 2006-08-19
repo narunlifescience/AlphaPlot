@@ -16,6 +16,22 @@
 
 class QCursor;
 
+/*!
+  \brief QwtPanner provides panning of a widget
+
+  QwtPanner grabs the contents of a widget, that can be dragged
+  in all directions. The offset between the start and the end position
+  is emitted by the panned signal.
+   
+  QwtPanner grabs the content of the widget into a pixmap and moves
+  the pixmap around, without initiating any repaint events for the widget.
+  Areas, that are not part of content are not painted  while panning
+  in in process. This makes panning fast enough for widgets, where 
+  repaints are too slow for mouse movements. 
+
+  For widgets, where repaints are very fast it might be better to
+  implement panning manually by mapping mouse events into paint events.
+*/
 class QWT_EXPORT QwtPanner: public QWidget
 {
     Q_OBJECT
@@ -31,12 +47,32 @@ public:
     void setCursor(const QCursor &);
     const QCursor cursor() const;
 
-protected:
     virtual bool eventFilter(QObject *, QEvent *);
-    virtual void paintEvent(QPaintEvent *);
 
 signals:
+    /*!
+      Signal emitted, when panning is done
+
+      \param dx Offset in horizontal direction
+      \param dx Offset in vertical direction
+    */
     void panned(int dx, int dy);
+
+    /*!
+      Signal emitted, while the widget moved, but panning
+      is not finished.
+
+      \param dx Offset in horizontal direction
+      \param dx Offset in vertical direction
+    */
+    void moved(int dx, int dy);
+
+protected:
+    virtual void widgetMousePressEvent(QMouseEvent *);
+    virtual void widgetMouseReleaseEvent(QMouseEvent *);
+    virtual void widgetMouseMoveEvent(QMouseEvent *);
+
+    virtual void paintEvent(QPaintEvent *);
 
 private:
     class PrivateData;

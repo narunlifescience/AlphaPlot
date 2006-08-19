@@ -117,25 +117,38 @@ private:
     mutable QMap<QString, int> d_ascentCache;
 };
 
-
+//! Constructor
 QwtTextEngine::QwtTextEngine()
 {
 }
 
+//! Destructor
 QwtTextEngine::~QwtTextEngine()
 {
 }
 
+//! Constructor
 QwtPlainTextEngine::QwtPlainTextEngine()
 {
     d_data = new PrivateData;
 }
 
+//! Destructor
 QwtPlainTextEngine::~QwtPlainTextEngine()
 {
     delete d_data;
 }
 
+/*!
+   Find the height for a given width
+
+   \param font Font of the text
+   \param flags Bitwise OR of the flags used like in QPainter::drawText
+   \param text Text to be rendered
+   \param width Width  
+
+   \return Calculated height
+*/
 int QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
         const QString& text, int width) const
 {
@@ -146,6 +159,15 @@ int QwtPlainTextEngine::heightForWidth(const QFont& font, int flags,
     return rect.height();
 }
 
+/*!
+  Returns the size, that is needed to render text
+
+  \param font Font of the text
+  \param flags Bitwise OR of the flags used like in QPainter::drawText
+  \param text Text to be rendered
+
+  \return Caluclated size
+*/
 QSize QwtPlainTextEngine::textSize(const QFont &font,
     int flags, const QString& text) const
 {
@@ -156,6 +178,15 @@ QSize QwtPlainTextEngine::textSize(const QFont &font,
     return rect.size();
 }
 
+/*!
+  Return margins around the texts
+
+  \param font Font of the text
+  \param left Return 0
+  \param right Return 0
+  \param top Return value for the top margin
+  \param bottom Return value for the bottom margin
+*/
 void QwtPlainTextEngine::textMargins(const QFont &font, const QString &,
     int &left, int &right, int &top, int &bottom) const
 {
@@ -166,24 +197,48 @@ void QwtPlainTextEngine::textMargins(const QFont &font, const QString &,
     bottom = fm.descent() + 1;
 }
 
+/*!
+  \brief Draw the text in a clipping rectangle
+      
+  A wrapper for QPainter::drawText.
+
+  \param painter Painter
+  \param rect Clipping rectangle
+  \param flags Bitwise OR of the flags used like in QPainter::drawText
+  \param text Text to be rendered
+*/
 void QwtPlainTextEngine::draw(QPainter *painter, const QRect &rect,
     int flags, const QString& text) const
 {
     QwtPainter::drawText(painter, rect, flags, text);
 }
 
+/*! 
+  Test if a string can be rendered by this text engine.
+  \return Always true. All texts can be rendered by QwtPlainTextEngine
+*/
 bool QwtPlainTextEngine::mightRender(const QString &) const
 {
     return true;
 }
 
-
 #ifndef QT_NO_RICHTEXT
 
+//! Constructor
 QwtRichTextEngine::QwtRichTextEngine()
 {
 }
 
+/*!
+   Find the height for a given width
+  
+   \param font Font of the text
+   \param flags Bitwise OR of the flags used like in QPainter::drawText
+   \param text Text to be rendered
+   \param width Width  
+
+   \return Calculated height
+*/
 int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
         const QString& text, int width) const
 {
@@ -198,6 +253,16 @@ int QwtRichTextEngine::heightForWidth(const QFont& font, int flags,
 #endif
     return h;
 }
+
+/*!
+  Returns the size, that is needed to render text
+  
+  \param font Font of the text
+  \param flags Bitwise OR of the flags used like in QPainter::drawText
+  \param text Text to be rendered
+
+  \return Caluclated size
+*/
 
 QSize QwtRichTextEngine::textSize(const QFont &font,
     int flags, const QString& text) const
@@ -264,6 +329,14 @@ QSize QwtRichTextEngine::textSize(const QFont &font,
     return QSize(w, h);
 }
 
+/*!
+  Draw the text in a clipping rectangle
+
+  \param painter Painter
+  \param rect Clipping rectangle
+  \param flags Bitwise OR of the flags like in for QPainter::drawText
+  \param text Text to be rendered
+*/
 void QwtRichTextEngine::draw(QPainter *painter, const QRect &rect,
     int flags, const QString& text) const
 {
@@ -271,7 +344,14 @@ void QwtRichTextEngine::draw(QPainter *painter, const QRect &rect,
     QwtPainter::drawSimpleRichText(painter, rect, flags, doc);
 }
 
-//! Wrap text into <div align=...> </div> tags according align
+/*! 
+   Wrap text into <div align=...> </div> tags according flags
+
+   \param text Text
+   \param flags Bitwise OR of the flags like in for QPainter::drawText
+
+   \return Tagged text
+*/
 QString QwtRichTextEngine::taggedText(const QString &text, int flags) const
 {
     QString richText = text;
@@ -296,6 +376,12 @@ QString QwtRichTextEngine::taggedText(const QString &text, int flags) const
     return richText;
 }
 
+/*!
+  Test if a string can be rendered by this text engine
+
+  \param text Text to be tested
+  \return QStyleSheet::mightBeRichText(text);
+*/
 bool QwtRichTextEngine::mightRender(const QString &text) const
 {
 #if QT_VERSION < 0x040000
@@ -305,6 +391,14 @@ bool QwtRichTextEngine::mightRender(const QString &text) const
 #endif
 }
 
+/*!
+  Return margins around the texts
+
+  \param left Return 0
+  \param right Return 0
+  \param top Return 0
+  \param bottom Return 0
+*/
 void QwtRichTextEngine::textMargins(const QFont &, const QString &,
     int &left, int &right, int &top, int &bottom) const
 {

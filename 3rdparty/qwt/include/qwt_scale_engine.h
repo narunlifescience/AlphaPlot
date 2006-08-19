@@ -76,13 +76,32 @@ public:
     double loMargin() const;
     double hiMargin() const;
 
-    virtual void autoScale(int maxSteps, 
+    /*!
+      Align and divide an interval 
+
+      \param maxNumSteps Max. number of steps
+      \param x1 First limit of the interval (In/Out)
+      \param x2 Second limit of the interval (In/Out)
+      \param stepSize Step size (Return value)
+    */  
+    virtual void autoScale(int maxNumSteps, 
         double &x1, double &x2, double &stepSize) const = 0;
 
+    /*!
+      \brief Calculate a scale division
+
+      \param x1 First interval limit
+      \param x2 Second interval limit
+      \param maxMajSteps Maximum for the number of major steps
+      \param maxMinSteps Maximum number of minor steps
+      \param stepSize Step size. If stepSize == 0.0, the scaleEngine
+                   calculates one.
+    */
     virtual QwtScaleDiv divideScale(double x1, double x2,
-        int numMajorSteps, int numMinorSteps, 
+        int maxMajSteps, int maxMinSteps, 
         double stepSize = 0.0) const = 0;
 
+    //! \return a transformation
     virtual QwtScaleTransformation transformation() const = 0;
 
 protected:

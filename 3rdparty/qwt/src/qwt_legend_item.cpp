@@ -115,7 +115,7 @@ void QwtLegendItem::setText(const QwtText &text)
 #endif
 
     QwtText txt = text;
-    txt.setFlags(flags);
+    txt.setRenderFlags(flags);
 
     QwtTextLabel::setText(txt);
 }

@@ -23,9 +23,18 @@ public:
     virtual void setPalette(const QPalette &p) { d_palette = p; }
     const QPalette &palette() const { return d_palette; }
 
-    virtual void draw(QPainter *, const QPoint &center, 
+    /*!
+        Draw the rose
+
+        \param painter Painter
+        \param center Center point
+        \param radius Radius of the rose
+        \param north Position
+        \param colorGroup Color group
+     */
+    virtual void draw(QPainter *painter, const QPoint &center, 
         int radius, double north, 
-        QPalette::ColorGroup = QPalette::Active) const = 0;
+        QPalette::ColorGroup colorGroup = QPalette::Active) const = 0;
 
 private:
     QPalette d_palette;

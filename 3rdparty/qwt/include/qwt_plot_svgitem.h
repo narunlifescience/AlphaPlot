@@ -20,6 +20,13 @@ class QSvgRenderer;
 class QByteArray;
 #endif
 
+/*!
+  \brief A plot item, which displays 
+         data in Scalable Vector Graphics (SVG) format.
+
+  SVG images are often used to display maps
+*/
+
 class QWT_EXPORT QwtPlotSvgItem: public QwtPlotItem
 {
 public:

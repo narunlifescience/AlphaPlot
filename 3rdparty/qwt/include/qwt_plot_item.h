@@ -97,9 +97,17 @@ public:
 
     virtual void itemChanged();
 
-    virtual void draw(QPainter *p, 
+    /*!
+      \brief Draw the item
+
+      \param painter Painter
+      \param xMap Maps x-values into pixel coordinates.
+      \param yMap Maps y-values into pixel coordinates.
+      \param canvasRect Contents rect of the canvas in painter coordinates
+    */
+    virtual void draw(QPainter *painter, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-        const QRect &rect) const = 0;
+        const QRect &canvasRect) const = 0;
 
     virtual QwtDoubleRect boundingRect() const;
 

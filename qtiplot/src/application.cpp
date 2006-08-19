@@ -5141,7 +5141,7 @@ void ApplicationWindow::showTitleDialog()
 			td->setText(t.text());
 			td->setFont(t.font());
 			td->setTextColor(t.color());
-			td->setAlignment(t.flags());
+			td->setAlignment(t.renderFlags());
 			td->exec();
 		}
 	}

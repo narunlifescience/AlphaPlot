@@ -39,12 +39,6 @@ template class QWT_EXPORT QwtArray<QwtDoublePoint>;
   Classes, derived from QwtData may:
   - store the data in almost any type of container
   - calculate the data on the fly instead of storing it
-  - implement data with error bars (this implies subclassing QwtPlot,
-    QwtCurve and QwtPlotCurve)
-
-  \warning In the future, "almost any type of container" may be limited to
-  containers supporting bi-directional iterators like the vector, array
-  and list classes in Qt or in the standard template library.
  */
 
 class QWT_EXPORT QwtData

@@ -12,6 +12,7 @@
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
+//!  Constructor for a linear transformation
 QwtScaleTransformation::QwtScaleTransformation():
     xForm(linearXForm),
     invXForm(linearXForm),
@@ -19,6 +20,12 @@ QwtScaleTransformation::QwtScaleTransformation():
 {
 }
 
+/*! 
+   Constructor
+
+   \param xf Transform function (scale to paint coordinates)
+   \param invxf Invert Transform function (paint to scale coordinates)
+*/
 QwtScaleTransformation::QwtScaleTransformation(
         double (*xf)(double x, double s1, double s2, 
             double p1, double p2, void *),

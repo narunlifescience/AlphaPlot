@@ -21,7 +21,7 @@ class QwtPanner::PrivateData
 public:
     PrivateData():
         isEnabled(false),
-        button(Qt::MidButton),
+        button(Qt::LeftButton),
         buttonState(Qt::NoButton)
     {
     }
@@ -37,6 +37,11 @@ public:
     QCursor cursor;
 };
 
+/*!
+  Creates an panner that is enabled for the left mouse button.
+
+  \param parent Parent widget to be panned
+*/
 QwtPanner::QwtPanner(QWidget *parent):
     QWidget(parent)
 {
@@ -59,27 +64,54 @@ QwtPanner::QwtPanner(QWidget *parent):
     setEnabled(true);
 }
 
+//! Destructor
 QwtPanner::~QwtPanner()
 {
     delete d_data;
 }
 
+/*!
+   Change the mouse button
+
+   The defaults are Qt::LeftButton and Qt::NoButton
+*/
 void QwtPanner::setMouseButton(int button, int buttonState)
 {
     d_data->button = button;
     d_data->buttonState = buttonState;
 }
 
+/*!
+   Change the cursor, that is active while panning
+   The default is the cursor of the parent widget.
+
+   \param cursor New cursor
+
+   \sa setCursor()
+*/
 void QwtPanner::setCursor(const QCursor &cursor)
 {
     d_data->cursor = cursor;
 }
 
+/*!
+   \return Cursor that is active while panning
+   \sa setCursor()
+*/
 const QCursor QwtPanner::cursor() const
 {
     return d_data->cursor;
 }
 
+/*! 
+  \brief En/disable the panner
+ 
+  When enabled is true an event filter is installed for
+  the observed widget, otherwise the event filter is removed.
+
+  \param enabled true or false
+  \sa isEnabled(), eventFilter()
+*/
 void QwtPanner::setEnabled(bool on)
 {
     if ( d_data->isEnabled != on )
@@ -102,11 +134,23 @@ void QwtPanner::setEnabled(bool on)
     }
 }
 
+/*!
+  \return true when enabled, false otherwise
+  \sa setEnabled, eventFilter()
+*/
 bool QwtPanner::isEnabled() const
 {
     return d_data->isEnabled;
 }
 
+/*!
+   \brief Paint event
+
+   Repaint the grabbed pixmap on its current position and
+   fill the empty spaces by the background of the parent widget.
+
+   \param pe Paint event
+*/
 void QwtPanner::paintEvent(QPaintEvent *pe)
 {
     QPixmap pm(size());
@@ -140,6 +184,14 @@ void QwtPanner::paintEvent(QPaintEvent *pe)
     painter.drawPixmap(0, 0, pm);
 }
 
+/*! 
+  \brief Event filter
+
+  When isEnabled() the mouse events of the observed widget are filtered.
+
+  \sa widgetMousePressEvent(), widgetMouseReleaseEvent(),
+      widgetMouseMoveEvent()
+*/
 bool QwtPanner::eventFilter(QObject *o, QEvent *e)
 {
     if ( o == NULL || o != parentWidget() )
@@ -149,65 +201,100 @@ bool QwtPanner::eventFilter(QObject *o, QEvent *e)
     {
         case QEvent::MouseButtonPress:
         {
-            const QMouseEvent *me = (QMouseEvent *)e;
-    
-            if ( me->button() == d_data->button )
-            {
-#if QT_VERSION < 0x040000
-                if ( (me->state() & Qt::KeyButtonMask) ==
-                    (d_data->buttonState & Qt::KeyButtonMask) )
-#else
-                if ( (me->modifiers() & Qt::KeyboardModifierMask) ==
-                    (int)(d_data->buttonState & Qt::KeyboardModifierMask) )
-#endif
-                {
-                    parentWidget()->setCursor(d_data->cursor);
-
-                    d_data->initialPos = d_data->pos = me->pos();
-
-                    QRect cr = parentWidget()->rect();
-                    if ( parentWidget()->inherits("QFrame") )
-                    {
-                        const QFrame* frame = (QFrame*)parentWidget();
-                        cr = frame->contentsRect();
-                    }
-                    setGeometry(cr);
-                    d_data->pixmap = QPixmap::grabWidget(parentWidget(),
-                        cr.x(), cr.y(), cr.width(), cr.height());
-                    show();
-                }
-            }
+            widgetMousePressEvent((QMouseEvent *)e);
             break;
         }
         case QEvent::MouseMove:
         {
-            const QMouseEvent *me = (QMouseEvent *)e;
-            if ( isVisible() && rect().contains(me->pos()) )
-            {
-                d_data->pos = me->pos();
-                update();
-            }
+            widgetMouseMoveEvent((QMouseEvent *)e);
             break;
         }
         case QEvent::MouseButtonRelease:
         {
-            const QMouseEvent *me = (QMouseEvent *)e;
-            if ( isVisible() )
-            {
-                hide();
-                parentWidget()->unsetCursor();
-
-                d_data->pixmap = QPixmap();
-                d_data->pos = me->pos();
-                if ( d_data->pos != d_data->initialPos )
-                {
-                    emit panned(d_data->pos.x() - d_data->initialPos.x(), 
-                        d_data->pos.y() - d_data->initialPos.y());
-                }
-            }
+            widgetMouseReleaseEvent((QMouseEvent *)e);
+            break;
         }
         default:;
     }
 
     return false;
+}
+
+/*!
+  Handle a mouse press event for the observed widget.
+
+  \sa eventFilter(), widgetMouseReleaseEvent(),
+      widgetMouseMoveEvent(),
+*/
+void QwtPanner::widgetMousePressEvent(QMouseEvent *me)
+{
+    if ( me->button() != d_data->button )
+        return;
+
+#if QT_VERSION < 0x040000
+    if ( (me->state() & Qt::KeyButtonMask) !=
+        (d_data->buttonState & Qt::KeyButtonMask) )
+#else
+    if ( (me->modifiers() & Qt::KeyboardModifierMask) !=
+        (int)(d_data->buttonState & Qt::KeyboardModifierMask) )
+#endif
+    {
+        return;
+    }
+
+    parentWidget()->setCursor(d_data->cursor);
+
+    d_data->initialPos = d_data->pos = me->pos();
+
+    QRect cr = parentWidget()->rect();
+    if ( parentWidget()->inherits("QFrame") )
+    {
+        const QFrame* frame = (QFrame*)parentWidget();
+        cr = frame->contentsRect();
+    }
+    setGeometry(cr);
+    d_data->pixmap = QPixmap::grabWidget(parentWidget(),
+        cr.x(), cr.y(), cr.width(), cr.height());
+    show();
+}
+
+/*!
+  Handle a mouse release event for the observed widget.
+
+  \sa eventFilter(), widgetMousePressEvent(),
+      widgetMouseMoveEvent(),
+*/
+void QwtPanner::widgetMouseMoveEvent(QMouseEvent *me)
+{
+    if ( isVisible() && rect().contains(me->pos()) )
+    {
+        d_data->pos = me->pos();
+        update();
+
+        emit moved(d_data->pos.x() - d_data->initialPos.x(), 
+            d_data->pos.y() - d_data->initialPos.y());
+    }
+}
+
+/*!
+  Handle a mouse move event for the observed widget.
+
+  \sa eventFilter(), widgetMousePressEvent(), widgetMouseReleaseEvent(),
+*/
+void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
+{
+    if ( isVisible() )
+    {
+        hide();
+        parentWidget()->unsetCursor();
+
+        d_data->pixmap = QPixmap();
+        d_data->pos = me->pos();
+
+        if ( d_data->pos != d_data->initialPos )
+        {
+            emit panned(d_data->pos.x() - d_data->initialPos.x(), 
+                d_data->pos.y() - d_data->initialPos.y());
+        }
+    }
 }

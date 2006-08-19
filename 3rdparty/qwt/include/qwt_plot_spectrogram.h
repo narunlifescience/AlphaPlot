@@ -19,17 +19,33 @@
 class QwtColorMap;
 
 /*!
-  \brief A class, which displays a spectrogram
+  \brief A plot item, which displays a spectrogram
 
   A spectrogram displays threedimenional data, where the 3rd dimension
-  ( the intensity ) is displayed using colors.
+  ( the intensity ) is displayed using colors. The colors are calculated
+  from the values using a color map.
 
-  \sa QwtRasterData
+  In ContourMode contour lines are painted for the contour levels.
+  
+  \sa QwtRasterData, QwtColorMap
 */
 
 class QWT_EXPORT QwtPlotSpectrogram: public QwtPlotRasterItem
 {
 public:
+    /*!
+      The display mode controls how the raster data will be represented.
+      - ImageMode\n
+        The values are mapped to colors using a color map.
+      - ContourMode\n
+        The data is displayed using contour lines
+
+      When both modes are enabled the contour lines are painted on
+      top of the spectrogram. The default setting enables ImageMode.
+
+      \sa setDisplayMode(), testDisplayMode()
+    */
+
     enum DisplayMode
     {
         ImageMode = 1,
@@ -51,8 +67,10 @@ public:
     virtual QwtDoubleRect boundingRect() const;
     virtual QSize rasterHint(const QwtDoubleRect &) const;
 
-    void setContourPen(const QPen &);
-    QPen contourPen() const;
+    void setDefaultContourPen(const QPen &);
+    QPen defaultContourPen() const;
+
+    virtual QPen contourPen(double level) const;
 
     void setConrecAttribute(QwtRasterData::ConrecAttribute, bool on);
     bool testConrecAttribute(QwtRasterData::ConrecAttribute) const;

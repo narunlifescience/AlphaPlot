@@ -658,7 +658,7 @@ void QwtLog10ScaleEngine::autoScale(int maxNumSteps,
     if (testAttribute(QwtScaleEngine::IncludeReference))
         interval = interval.extend(logRef);
 
-    interval = interval.limit(LOG_MIN, LOG_MAX);
+    interval = interval.limited(LOG_MIN, LOG_MAX);
 
     if (interval.width() == 0.0)
         interval = buildInterval(interval.minValue());
@@ -696,7 +696,7 @@ QwtScaleDiv QwtLog10ScaleEngine::divideScale(double x1, double x2,
     int maxMajSteps, int maxMinSteps, double stepSize) const
 {
     QwtDoubleInterval interval = QwtDoubleInterval(x1, x2).normalized();
-    interval = interval.limit(LOG_MIN, LOG_MAX);
+    interval = interval.limited(LOG_MIN, LOG_MAX);
 
     if (interval.width() <= 0 )
         return QwtScaleDiv();

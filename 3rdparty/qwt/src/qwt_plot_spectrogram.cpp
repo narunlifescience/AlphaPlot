@@ -24,6 +24,7 @@ typedef QVector<QRgb> QwtColorTable;
 
 class QwtPlotSpectrogramImage: public QImage
 {
+  // This class hides some Qt3/Qt4 API differences
 public:
     QwtPlotSpectrogramImage(const QSize &size, QwtColorMap::Format format):
 #if QT_VERSION < 0x040000
@@ -115,7 +116,7 @@ public:
     int displayMode;
 
     QwtValueList contourLevels;
-    QPen contourPen;
+    QPen defaultContourPen;
     int conrecAttributes;
 };
 
@@ -150,9 +151,19 @@ QwtPlotSpectrogram::~QwtPlotSpectrogram()
 //! \return QwtPlotItem::Rtti_PlotSpectrogram
 int QwtPlotSpectrogram::rtti() const
 {
-    return Rtti_PlotSpectrogram;
+    return QwtPlotItem::Rtti_PlotSpectrogram;
 }
 
+/*!
+   The display mode controls how the raster data will be represented.
+
+   \param mode Display mode
+   \param on On/Off
+
+   The default setting enables ImageMode.
+
+   \sa DisplayMode, displayMode()
+*/
 void QwtPlotSpectrogram::setDisplayMode(DisplayMode mode, bool on)
 {
     if ( on != bool(mode & d_data->displayMode) )
@@ -166,6 +177,12 @@ void QwtPlotSpectrogram::setDisplayMode(DisplayMode mode, bool on)
     itemChanged();
 }
 
+/*!
+   The display mode controls how the raster data will be represented.
+
+   \param mode Display mode
+   \return true if mode is enabled
+*/
 bool QwtPlotSpectrogram::testDisplayMode(DisplayMode mode) const
 {
     return (d_data->displayMode & mode);
@@ -200,20 +217,62 @@ const QwtColorMap &QwtPlotSpectrogram::colorMap() const
     return *d_data->colorMap;
 }
 
-void QwtPlotSpectrogram::setContourPen(const QPen &pen)
+/*!
+   \brief Set the default pen for the contour lines
+
+   If the spectrogram has a valid default contour pen 
+   a contour line is painted using the default contour pen.
+   Otherwise (pen.style() == Qt::NoPen) the pen is calculated
+   for each contour level using contourPen().
+
+   \sa defaultContourPen, contourPen
+*/
+void QwtPlotSpectrogram::setDefaultContourPen(const QPen &pen)
 {
-    if ( pen != d_data->contourPen )
+    if ( pen != d_data->defaultContourPen )
     {
-        d_data->contourPen = pen;
+        d_data->defaultContourPen = pen;
         itemChanged();
     }
 }
 
-QPen QwtPlotSpectrogram::contourPen() const
+/*!
+   \return Default contour pen
+   \sa setDefaultContourPen
+*/
+QPen QwtPlotSpectrogram::defaultContourPen() const
 {
-    return d_data->contourPen;
+    return d_data->defaultContourPen;
 }
 
+/*!
+   \brief Calculate the pen for a contour line
+ 
+   The color of the pen is the color for level calculated by the color map
+   
+   \param level Contour level
+   \return Pen for the contour line
+   \note contourPen is only used if defaultContourPen().style() == Qt::NoPen
+
+   \sa setDefaultContourPen, setColorMap, setContourLevels
+*/
+QPen QwtPlotSpectrogram::contourPen(double level) const
+{
+    const QwtDoubleInterval intensityRange = d_data->data->range();
+    const QColor c(d_data->colorMap->rgb(intensityRange, level));
+
+    return QPen(c);
+}
+
+/*!
+   Modify an attribute of the CONREC algorithm, used to calculate
+   the contour lines.
+
+   \param attribute CONREC attribute
+   \param on On/Off
+
+   \sa testConrecAttribute, renderContourLines, QwtRasterData::contourLines
+*/
 void QwtPlotSpectrogram::setConrecAttribute(
     QwtRasterData::ConrecAttribute attribute, bool on)
 {
@@ -228,12 +287,29 @@ void QwtPlotSpectrogram::setConrecAttribute(
     itemChanged();
 }
 
+/*!
+   Test an attribute of the CONREC algorithm, used to calculate
+   the contour lines.
+
+   \param attribute CONREC attribute
+   \return true, is enabled
+
+   \sa setConrecAttribute, renderContourLines, QwtRasterData::contourLines
+*/
 bool QwtPlotSpectrogram::testConrecAttribute(
     QwtRasterData::ConrecAttribute attribute) const
 {   
     return d_data->conrecAttributes & attribute;
 }
 
+/*!
+   Set the levels of the contour lines
+
+   \param levels Values of the contour levels
+   \sa contourLevels, renderContourLines, QwtRasterData::contourLines
+
+   \note contourLevels returns the same levels but sorted.
+*/
 void QwtPlotSpectrogram::setContourLevels(const QwtValueList &levels)
 {
     d_data->contourLevels = levels;
@@ -245,6 +321,13 @@ void QwtPlotSpectrogram::setContourLevels(const QwtValueList &levels)
     itemChanged();
 }
 
+/*!
+   \brief Return the levels of the contour lines. 
+
+   The levels are sorted in increasing order.
+
+   \sa contourLevels, renderContourLines, QwtRasterData::contourLines
+*/
 QwtValueList QwtPlotSpectrogram::contourLevels() const
 {
     return d_data->contourLevels;
@@ -283,6 +366,15 @@ QwtDoubleRect QwtPlotSpectrogram::boundingRect() const
     return d_data->data->boundingRect();
 }
 
+/*!
+   \brief Returns the recommended raster for a given rect.
+
+   F.e the raster hint is used to limit the resolution of
+   the image that is rendered.
+
+   \param rect Rect for the raster hint
+   \return data().rasterHint(rect)
+*/
 QSize QwtPlotSpectrogram::rasterHint(const QwtDoubleRect &rect) const
 {
     return d_data->data->rasterHint(rect);
@@ -418,6 +510,23 @@ QImage QwtPlotSpectrogram::renderImage(
     return image;
 }
 
+/*!
+   \brief Return the raster to be used by the CONREC contour algorithm.
+
+   A larger size will improve the precisision of the CONREC algorithm,
+   but will slow down the time that is needed to calculate the lines.
+
+   The default implementation returns rect.size() / 2 bounded to
+   data().rasterHint().
+
+   \param area Rect, where to calculate the contour lines
+   \param rect Rect in pixel coordinates, where to paint the contour lines
+   \return Raster to be used by the CONREC contour algorithm.
+
+   \note The size will be bounded to rect.size().
+   
+   \sa drawContourLines, QwtRasterData::contourLines
+*/
 QSize QwtPlotSpectrogram::contourRasterSize(const QwtDoubleRect &area,
     const QRect &rect) const
 {
@@ -430,6 +539,14 @@ QSize QwtPlotSpectrogram::contourRasterSize(const QwtDoubleRect &area,
     return raster;
 }
 
+/*!
+   Calculate contour lines
+
+   \param rect Rectangle, where to calculate the contour lines
+   \param raster Raster, used by the CONREC algorithm
+
+   \sa contourLevels, setConrecAttribute, QwtRasterData::contourLines
+*/
 QwtRasterData::ContourLines QwtPlotSpectrogram::renderContourLines(
     const QwtDoubleRect &rect, const QSize &raster) const
 {
@@ -437,13 +554,20 @@ QwtRasterData::ContourLines QwtPlotSpectrogram::renderContourLines(
         d_data->contourLevels, d_data->conrecAttributes );
 }
 
+/*!
+   Paint the contour lines
+
+   \param painter Painter
+   \param xMap Maps x-values into pixel coordinates.
+   \param yMap Maps y-values into pixel coordinates.
+   \param contourLines Contour lines
+
+   \sa renderContourLines, defaultContourPen, contourPen
+*/
 void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         const QwtRasterData::ContourLines &contourLines) const
 {
-    if ( d_data->contourPen.style() == Qt::NoPen )
-        return;
-
     const QwtDoubleInterval intensityRange = d_data->data->range();
 
     const int numLevels = (int)d_data->contourLevels.size();
@@ -451,14 +575,14 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
     {
         const double level = d_data->contourLevels[l];
 
-        QPen contourPen = d_data->contourPen;
-        if ( !contourPen.color().isValid() )
-        {
-            const QColor c(d_data->colorMap->rgb(intensityRange, level));
-            contourPen.setColor(c);
-        }
+        QPen pen = defaultContourPen();
+        if ( pen.style() == Qt::NoPen )
+            pen = contourPen(level);
 
-        painter->setPen(contourPen);
+        if ( pen.style() == Qt::NoPen )
+            continue;
+
+        painter->setPen(pen);
 
 #if QT_VERSION >= 0x040000
         const QPolygonF &lines = contourLines[level];
@@ -477,18 +601,31 @@ void QwtPlotSpectrogram::drawContourLines(QPainter *painter,
     }
 }
 
+/*!
+  \brief Draw the spectrogram
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+  \param canvasRect Contents rect of the canvas in painter coordinates 
+
+  \sa setDisplayMode, renderImage, 
+      QwtPlotRasterItem::draw, drawContourLines
+*/
+
 void QwtPlotSpectrogram::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
-    const QRect &rect) const
+    const QRect &canvasRect) const
 {
     if ( d_data->displayMode & ImageMode )
-        QwtPlotRasterItem::draw(painter, xMap, yMap, rect);
+        QwtPlotRasterItem::draw(painter, xMap, yMap, canvasRect);
 
     if ( d_data->displayMode & ContourMode )
     {
+        // Add some pixels at the borders, so that 
         const int margin = 2;
-        QRect rasterRect(rect.x() - margin, rect.y() - margin,
-            rect.width() + 2 * margin, rect.height() + 2 * margin);
+        QRect rasterRect(canvasRect.x() - margin, canvasRect.y() - margin,
+            canvasRect.width() + 2 * margin, canvasRect.height() + 2 * margin);
 
         QwtDoubleRect area = invTransform(xMap, yMap, rasterRect);
 
@@ -499,7 +636,8 @@ void QwtPlotSpectrogram::draw(QPainter *painter,
             rasterRect = transform(xMap, yMap, area);
         }
 
-        const QSize raster = contourRasterSize(area, rasterRect);
+        QSize raster = contourRasterSize(area, rasterRect);
+        raster = raster.boundedTo(rasterRect.size());
         if ( raster.isValid() )
         {
             const QwtRasterData::ContourLines lines =

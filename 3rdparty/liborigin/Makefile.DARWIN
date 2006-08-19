@@ -1,0 +1,10 @@
+all : opj2dat liborigin.dylib
+
+liborigin.dylib : OPJFile.cpp OPJFile.h
+	g++ -dynamiclib -fPIC OPJFile.cpp -o liborigin.dylib
+
+opj2dat: opj2dat.cpp OPJFile.cpp
+	g++ -o opj2dat opj2dat.cpp OPJFile.cpp
+
+clean :
+	rm -f *~ *.o opj2dat liborigin.so

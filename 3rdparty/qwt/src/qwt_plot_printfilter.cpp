@@ -232,14 +232,14 @@ void QwtPlotPrintFilter::apply(QwtPlot *plot) const
             cache.scaleTitle[axis] = scaleWidget->title();
 
             QwtText scaleTitle = scaleWidget->title();
-            if ( scaleTitle.paintAttributes() & QwtText::PaintUsingTextColor )
+            if ( scaleTitle.testPaintAttribute(QwtText::PaintUsingTextColor) )
             {
                 cache.scaleTitleColor[axis] = scaleTitle.color();
                 scaleTitle.setColor(
                     color(cache.scaleTitleColor[axis], AxisTitle));
             }
 
-            if ( scaleTitle.paintAttributes() & QwtText::PaintUsingTextFont )
+            if ( scaleTitle.testPaintAttribute(QwtText::PaintUsingTextFont) )
             {
                 cache.scaleTitleFont[axis] = scaleTitle.font();
                 scaleTitle.setFont(
@@ -380,7 +380,7 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
     if ( plot->titleLabel() )
     {
         QwtTextLabel* title = plot->titleLabel();
-        if ( title->text().paintAttributes() & QwtText::PaintUsingTextFont )
+        if ( title->text().testPaintAttribute(QwtText::PaintUsingTextFont) )
         {
             QwtText text = title->text();
             text.setColor(cache.titleColor);
@@ -394,7 +394,7 @@ void QwtPlotPrintFilter::reset(QwtPlot *plot) const
             title->setPalette(palette);
         }
 
-        if ( title->text().paintAttributes() & QwtText::PaintUsingTextFont )
+        if ( title->text().testPaintAttribute(QwtText::PaintUsingTextFont) )
         {
             QwtText text = title->text();
             text.setFont(cache.titleFont);

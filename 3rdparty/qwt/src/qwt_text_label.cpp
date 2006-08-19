@@ -167,7 +167,7 @@ QSize QwtTextLabel::minimumSizeHint() const
 
     if ( indent > 0 )
     {
-        const int align = d_data->text.flags();
+        const int align = d_data->text.renderFlags();
         if ( align & Qt::AlignLeft || align & Qt::AlignRight )
             mw += d_data->indent;
         else if ( align & Qt::AlignTop || align & Qt::AlignBottom )
@@ -185,18 +185,18 @@ QSize QwtTextLabel::minimumSizeHint() const
 */
 int QwtTextLabel::heightForWidth(int width) const
 {
-    const int align = d_data->text.flags();
+    const int renderFlags = d_data->text.renderFlags();
 
     int indent = d_data->indent;
     if ( indent <= 0 )
         indent = defaultIndent();
 
     width -= 2 * frameWidth();
-    if ( align & Qt::AlignLeft || align & Qt::AlignRight )
+    if ( renderFlags & Qt::AlignLeft || renderFlags & Qt::AlignRight )
         width -= indent;
 
     int height = d_data->text.heightForWidth(width, font());
-    if ( align & Qt::AlignTop || align & Qt::AlignBottom )
+    if ( renderFlags & Qt::AlignTop || renderFlags & Qt::AlignBottom )
         height += indent;
 
     height += 2 * frameWidth();
@@ -284,15 +284,15 @@ QRect QwtTextLabel::textRect() const
 
         if ( indent > 0 )
         {
-            const int align = d_data->text.flags();
+            const int renderFlags = d_data->text.renderFlags();
 
-            if ( align & Qt::AlignLeft )
+            if ( renderFlags & Qt::AlignLeft )
                 r.setX(r.x() + indent);
-            else if ( align & Qt::AlignRight )
+            else if ( renderFlags & Qt::AlignRight )
                 r.setWidth(r.width() - indent);
-            else if ( align & Qt::AlignTop )
+            else if ( renderFlags & Qt::AlignTop )
                 r.setY(r.y() + indent);
-            else if ( align & Qt::AlignBottom )
+            else if ( renderFlags & Qt::AlignBottom )
                 r.setHeight(r.height() - indent);
         }
     }
@@ -306,7 +306,7 @@ int QwtTextLabel::defaultIndent() const
         return 0;
 
     QFont fnt;
-    if ( d_data->text.paintAttributes() & QwtText::PaintUsingTextFont )
+    if ( d_data->text.testPaintAttribute(QwtText::PaintUsingTextFont) )
         fnt = d_data->text.font();
     else
         fnt = font();

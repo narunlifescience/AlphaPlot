@@ -130,7 +130,7 @@ void QwtScaleWidget::initScale(QwtScaleDraw::Alignment align)
 #else
         | Qt::TextExpandTabs | Qt::TextWordWrap;
 #endif
-    d_data->title.setFlags(flags); 
+    d_data->title.setRenderFlags(flags); 
     d_data->title.setFont(font()); 
 
     QSizePolicy policy(QSizePolicy::MinimumExpanding,
@@ -168,8 +168,8 @@ void QwtScaleWidget::setTitle(const QString &title)
 void QwtScaleWidget::setTitle(const QwtText &title)
 {
     QwtText t = title;
-    const int flags = title.flags() & ~(Qt::AlignTop | Qt::AlignBottom);
-    t.setFlags(flags);
+    const int flags = title.renderFlags() & ~(Qt::AlignTop | Qt::AlignBottom);
+    t.setRenderFlags(flags);
 
     if (t != d_data->title)
     {
@@ -261,12 +261,12 @@ void QwtScaleWidget::setMargin(int margin)
   \param spacing Spacing
   \sa QwtScaleWidget::spacing
 */
-void QwtScaleWidget::setSpacing(int td)
+void QwtScaleWidget::setSpacing(int spacing)
 {
-    td = qwtMax( 0, td );
-    if ( td != d_data->spacing )
+    spacing = qwtMax( 0, spacing );
+    if ( spacing != d_data->spacing )
     {
-        d_data->spacing = td;
+        d_data->spacing = spacing;
         layoutScale();
     }
 }
@@ -624,7 +624,7 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
 {
     QRect r;
     double angle;
-    int flags = d_data->title.flags() & 
+    int flags = d_data->title.renderFlags() & 
         ~(Qt::AlignTop | Qt::AlignBottom | Qt::AlignVCenter);
 
     switch(align)
@@ -664,9 +664,8 @@ void QwtScaleWidget::drawTitle(QPainter *painter,
     if (angle != 0.0)
         painter->rotate(angle);
 
-
     QwtText title = d_data->title;
-    title.setFlags(flags);
+    title.setRenderFlags(flags);
     title.draw(painter, QRect(0, 0, r.width(), r.height()));
 
     painter->restore();
@@ -842,10 +841,12 @@ void QwtScaleWidget::setScaleDiv(
     const QwtScaleTransformation& transformation,
     const QwtScaleDiv &scaleDiv)
 {
-    if (d_data->scaleDraw->scaleDiv() != scaleDiv)
+    QwtScaleDraw *sd = d_data->scaleDraw;
+    if (sd->scaleDiv() != scaleDiv ||
+        sd->map().transformation().xForm != transformation.xForm )
     {
-        d_data->scaleDraw->setTransformation(transformation);
-        d_data->scaleDraw->setScaleDiv(scaleDiv);
+        sd->setTransformation(transformation);
+        sd->setScaleDiv(scaleDiv);
         layoutScale();
 
         emit scaleDivChanged();

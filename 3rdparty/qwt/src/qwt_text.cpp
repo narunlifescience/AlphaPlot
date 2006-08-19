@@ -120,7 +120,7 @@ const QwtTextEngine *QwtText::EngineDict::textEngine(const QString& text,
             return e;
     }
 
-    it =d_map.find(QwtText::PlainText);
+    it = d_map.find(QwtText::PlainText);
     return engine(it);
 }
 
@@ -129,16 +129,16 @@ class QwtText::PrivateData
 {
 public:
     PrivateData():
-        flags(Qt::AlignCenter),
+        renderFlags(Qt::AlignCenter),
         backgroundPen(Qt::NoPen),
         backgroundBrush(Qt::NoBrush),
-        paintAttributes(QwtText::PaintUsingPainter),
-        layoutAttributes(QwtText::DefaultLayout),
+        paintAttributes(0),
+        layoutAttributes(0),
         textEngine(NULL)
     {
     }
 
-    int flags;
+    int renderFlags;
     QString text;
     QFont font;
     QColor color;
@@ -163,6 +163,12 @@ public:
     QSize textSize;
 };
 
+/*!
+   Constructor
+
+   \param text Text content
+   \param textFormat Text format
+*/
 QwtText::QwtText(const QString &text, QwtText::TextFormat textFormat)
 {
     d_data = new PrivateData;
@@ -172,6 +178,7 @@ QwtText::QwtText(const QString &text, QwtText::TextFormat textFormat)
     d_layoutCache = new LayoutCache;
 }
 
+//! Copy constructor
 QwtText::QwtText(const QwtText &other)
 {
     d_data = new PrivateData;
@@ -188,6 +195,7 @@ QwtText::~QwtText()
     delete d_layoutCache;
 }
 
+//! Assignement operator
 QwtText &QwtText::operator=(const QwtText &other)
 {
     *d_data = *other.d_data;
@@ -197,7 +205,7 @@ QwtText &QwtText::operator=(const QwtText &other)
     
 int QwtText::operator==(const QwtText &other) const
 {
-    return d_data->flags == other.d_data->flags &&
+    return d_data->renderFlags == other.d_data->renderFlags &&
         d_data->text == other.d_data->text &&
         d_data->font == other.d_data->font &&
         d_data->color == other.d_data->color &&
@@ -212,6 +220,12 @@ int QwtText::operator!=(const QwtText &other) const // invalidate
    return !(other == *this);
 }
 
+/*!
+   Assign a new text content
+
+   \param text Text content
+   \param textFormat Text format
+*/
 void QwtText::setText(const QString &text, 
     QwtText::TextFormat textFormat) 
 { 
@@ -220,33 +234,54 @@ void QwtText::setText(const QString &text,
     d_layoutCache->invalidate();
 }
 
-//! Return the text.
+/*! 
+   Return the text.
+   \sa setText
+*/
 QString QwtText::text() const 
 { 
     return d_data->text; 
 }
 
-void QwtText::setFlags(int flags) 
+/*!
+   \brief Change the render flags
+
+   The default setting is Qt::AlignCenter
+
+   \param renderFlags Bitwise OR of the flags used like in QPainter::drawText
+
+   \sa renderFlags, QwtTextEngine::draw
+   \note Some renderFlags might have no effect, depending on the text format.
+*/
+void QwtText::setRenderFlags(int renderFlags) 
 { 
-    if ( flags != d_data->flags )
+    if ( renderFlags != d_data->renderFlags )
     {
-        d_data->flags = flags; 
-#if 1
+        d_data->renderFlags = renderFlags; 
         d_layoutCache->invalidate();
-#endif
     }
 }
 
-int QwtText::flags() const 
+/*!
+   \return Render flags
+   \sa setRenderFlags
+*/
+int QwtText::renderFlags() const 
 { 
-    return d_data->flags; 
+    return d_data->renderFlags; 
 }
 
-//! Set the font.
+/*! 
+   Set the font.
+
+   \param font Font
+   \note Setting the font might have no effect, when
+         the text contains control sequences for setting fonts.
+*/
 void QwtText::setFont(const QFont &font) 
 {
     d_data->font = font; 
-    d_data->paintAttributes |= PaintUsingTextFont;
+    setPaintAttribute(PaintUsingTextFont);
 }
 
 //! Return the font.
@@ -255,87 +290,175 @@ QFont QwtText::font() const
     return d_data->font; 
 }
 
-QFont QwtText::usedFont(const QFont &font) const
+/*!
+  Return the font of the text, if it has one. 
+  Otherwise return defaultFont.
+
+  \param defaultFont Default font
+  \sa setFont, font, PaintAttributes
+*/
+QFont QwtText::usedFont(const QFont &defaultFont) const
 {
     if ( d_data->paintAttributes & PaintUsingTextFont )
         return d_data->font;
 
-    return font;
+    return defaultFont;
 }
 
+/*! 
+   Set the pen color used for painting the text.
+
+   \param color Color
+   \note Setting the color might have no effect, when
+         the text contains control sequences for setting colors.
+*/
 void QwtText::setColor(const QColor &color) 
 { 
-    d_data->paintAttributes |= PaintUsingTextColor;
     d_data->color = color; 
+    setPaintAttribute(PaintUsingTextColor);
 }
 
+//! Return the pen color, used for painting the text
 QColor QwtText::color() const 
 { 
     return d_data->color; 
 }
 
-QColor QwtText::usedColor(const QColor &color) const
+/*!
+  Return the color of the text, if it has one. 
+  Otherwise return defaultColor.
+
+  \param defaultColor Default color
+  \sa setColor, color, PaintAttributes
+*/
+QColor QwtText::usedColor(const QColor &defaultColor) const
 {
     if ( d_data->paintAttributes & PaintUsingTextColor )
         return d_data->color;
 
-    return color;
+    return defaultColor;
 }
 
+/*!
+   Set the background pen
+
+   \param pen Background pen
+   \sa backgroundPen, setBackgroundBrush
+*/
 void QwtText::setBackgroundPen(const QPen &pen) 
 { 
-    d_data->paintAttributes |= PaintBackground;
     d_data->backgroundPen = pen; 
+    setPaintAttribute(PaintBackground);
 }
 
+/*! 
+   \return Background pen
+   \sa setBackgroundPen, backgroundBrush
+*/
 QPen QwtText::backgroundPen() const 
 { 
     return d_data->backgroundPen; 
 }
 
+/*!
+   Set the background brush
+
+   \param brush Background brush
+   \sa backgroundBrush, setBackgroundPen
+*/
 void QwtText::setBackgroundBrush(const QBrush &brush) 
 { 
-    d_data->paintAttributes |= PaintBackground;
     d_data->backgroundBrush = brush; 
+    setPaintAttribute(PaintBackground);
 }
 
+/*! 
+   \return Background brush
+   \sa setBackgroundBrush, backgroundPen
+*/
 QBrush QwtText::backgroundBrush() const 
 { 
     return d_data->backgroundBrush; 
 }
 
-void QwtText::setPaintAttributes(int attributes)
+/*!
+   Change a paint attribute
+
+   \param attribute Paint attribute
+   \param on On/Off
+
+   \note Used by setFont, setColor, setBackgroundPen and setBackgroundBrush
+   \sa testPaintAttribute
+*/
+void QwtText::setPaintAttribute(PaintAttribute attribute, bool on)
 {
-    d_data->paintAttributes = attributes;
+    if ( on )
+        d_data->paintAttributes |= attribute;
+    else
+        d_data->paintAttributes &= ~attribute;
 }
 
-int QwtText::paintAttributes() const
+/*!
+   Test a paint attribute
+
+   \param attribute Paint attribute
+   \return true, if attribute is enabled
+
+   \sa setPaintAttribute
+*/
+bool QwtText::testPaintAttribute(PaintAttribute attribute) const
 {
-    return d_data->paintAttributes;
+    return d_data->paintAttributes & attribute;
 }
 
-void QwtText::setLayoutAttributes(int attributes)
+/*!
+   Change a layout attribute
+
+   \param attribute Layout attribute
+   \param on On/Off
+   \sa testLayoutAttribute
+*/ 
+void QwtText::setLayoutAttribute(LayoutAttribute attribute, bool on)
 {
-    d_data->layoutAttributes = attributes;
+    if ( on )
+        d_data->layoutAttributes |= attribute;
+    else
+        d_data->layoutAttributes &= ~attribute;
 }
 
-int QwtText::layoutAttributes() const
+/*!
+   Test a layout attribute
+
+   \param attribute Layout attribute
+   \return true, if attribute is enabled
+
+   \sa setLayoutAttribute
+*/
+bool QwtText::testLayoutAttribute(LayoutAttribute attribute) const
 {
-    return d_data->layoutAttributes;
+    return d_data->layoutAttributes | attribute;
 }
 
-int QwtText::heightForWidth(int width, const QFont &font) const
+/*!
+   Find the height for a given width
+
+   \param defaultFont Font, used for the calculation if the text has no font
+   \param width Width
+
+   \return Calculated height
+*/
+int QwtText::heightForWidth(int width, const QFont &defaultFont) const
 {
     const QwtMetricsMap map = QwtPainter::metricsMap();
     width = map.layoutToScreenX(width);
 
 #if QT_VERSION < 0x040000
-    const QFont fnt = usedFont(font);
+    const QFont font = usedFont(defaultFont);
 #else
     // We want to calculate in screen metrics. So
     // we need a font that uses screen metrics
 
-    const QFont fnt(usedFont(font), QApplication::desktop());
+    const QFont font(usedFont(defaultFont), QApplication::desktop());
 #endif
 
     int h = 0;
@@ -343,11 +466,11 @@ int QwtText::heightForWidth(int width, const QFont &font) const
     if ( d_data->layoutAttributes & MinimumLayout )
     {
         int left, right, top, bottom;
-        d_data->textEngine->textMargins(fnt, d_data->text,
+        d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
 
         h = d_data->textEngine->heightForWidth(
-            fnt, d_data->flags, d_data->text, 
+            font, d_data->renderFlags, d_data->text, 
             width + left + right);
 
         h -= top + bottom;
@@ -355,30 +478,44 @@ int QwtText::heightForWidth(int width, const QFont &font) const
     else
     {
         h = d_data->textEngine->heightForWidth(
-            fnt, d_data->flags, d_data->text, width);
+            font, d_data->renderFlags, d_data->text, width);
     }
 
     h = map.screenToLayoutY(h);
     return h;
 }
 
-QSize QwtText::textSize(const QFont &font) const
+/*!
+   Find the height for a given width
+
+   \param defaultFont Font, used for the calculation if the text has no font
+
+   \return Calculated height
+*/
+
+/*!
+   Returns the size, that is needed to render text
+
+   \param defaultFont Font of the text
+   \return Caluclated size
+*/
+QSize QwtText::textSize(const QFont &defaultFont) const
 {
 #if QT_VERSION < 0x040000
-    const QFont fnt(usedFont(font));
+    const QFont font(usedFont(defaultFont));
 #else
     // We want to calculate in screen metrics. So
     // we need a font that uses screen metrics
 
-    const QFont fnt(usedFont(font), QApplication::desktop());
+    const QFont font(usedFont(defaultFont), QApplication::desktop());
 #endif
 
     if ( !d_layoutCache->textSize.isValid() 
-        || d_layoutCache->font != fnt )
+        || d_layoutCache->font != font )
     {
         d_layoutCache->textSize = d_data->textEngine->textSize(
-            fnt, d_data->flags, d_data->text);
-        d_layoutCache->font = fnt;
+            font, d_data->renderFlags, d_data->text);
+        d_layoutCache->font = font;
     }
 
     QSize sz = d_layoutCache->textSize;
@@ -388,7 +525,7 @@ QSize QwtText::textSize(const QFont &font) const
     if ( d_data->layoutAttributes & MinimumLayout )
     {
         int left, right, top, bottom;
-        d_data->textEngine->textMargins(fnt, d_data->text,
+        d_data->textEngine->textMargins(font, d_data->text,
             left, right, top, bottom);
         sz -= QSize(left + right, top + bottom);
 #if QT_VERSION >= 0x040000
@@ -411,6 +548,12 @@ QSize QwtText::textSize(const QFont &font) const
     return sz;
 }
 
+/*!
+   Draw a text into a rectangle
+
+   \param painter Painter
+   \param rect Rectangle
+*/
 void QwtText::draw(QPainter *painter, const QRect &rect) const
 {
     if ( d_data->paintAttributes & PaintBackground )
@@ -443,17 +586,17 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
     if ( d_data->layoutAttributes & MinimumLayout )
     {
 #if QT_VERSION < 0x040000
-        const QFont fnt(painter->font());
+        const QFont font(painter->font());
 #else
         // We want to calculate in screen metrics. So
         // we need a font that uses screen metrics
 
-        const QFont fnt(painter->font(), QApplication::desktop());
+        const QFont font(painter->font(), QApplication::desktop());
 #endif
 
         int left, right, top, bottom;
         d_data->textEngine->textMargins(
-            fnt, d_data->text,
+            font, d_data->text,
             left, right, top, bottom);
 
         const QwtMetricsMap map = QwtPainter::metricsMap();
@@ -469,11 +612,17 @@ void QwtText::draw(QPainter *painter, const QRect &rect) const
     }
 
     d_data->textEngine->draw(painter, expandedRect, 
-        d_data->flags, d_data->text);
+        d_data->renderFlags, d_data->text);
 
     painter->restore();
 }
 
+/*!
+   Find the text engine for a text format
+
+   \param text Text, needed in case of AutoText
+   \param format Test format
+*/
 const QwtTextEngine *QwtText::textEngine(const QString &text,
     QwtText::TextFormat format) const
 {

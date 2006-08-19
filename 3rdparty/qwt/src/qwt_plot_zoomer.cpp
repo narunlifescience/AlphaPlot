@@ -466,11 +466,15 @@ void QwtPlotZoomer::moveBy(double dx, double dy)
 */
 void QwtPlotZoomer::move(double x, double y)
 {
-    x = qwtMax(x, zoomBase().left());
-    x = qwtMin(x, zoomBase().right() - zoomRect().width());
+    if ( x < zoomBase().left() )
+        x = zoomBase().left();
+    if ( x > zoomBase().right() - zoomRect().width() )
+        x = zoomBase().right() - zoomRect().width();
 
-    y = qwtMax(y, zoomBase().top());
-    y = qwtMin(y, zoomBase().bottom() - zoomRect().height());
+    if ( y < zoomBase().top() )
+        y = zoomBase().top();
+    if ( y > zoomBase().bottom() - zoomRect().height() )
+        y = zoomBase().bottom() - zoomRect().height();
 
     if ( x != zoomRect().left() || y != zoomRect().top() )
     {

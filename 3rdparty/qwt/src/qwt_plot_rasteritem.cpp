@@ -205,6 +205,15 @@ void QwtPlotRasterItem::invalidateCache()
     d_data->cache.size = QSize();
 }
 
+/*!
+   \brief Returns the recommended raster for a given rect.
+
+   F.e the raster hint can be used to limit the resolution of
+   the image that is rendered.
+
+   The default implementation returns an invalid size (QSize()),
+   what means: no hint.
+*/
 QSize QwtPlotRasterItem::rasterHint(const QwtDoubleRect &) const
 {
     return QSize();
@@ -217,7 +226,6 @@ QSize QwtPlotRasterItem::rasterHint(const QwtDoubleRect &) const
   \param yMap Y-Scale Map
   \param canvasRect Contents rect of the plot canvas
 */
-
 void QwtPlotRasterItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &canvasRect) const
@@ -296,4 +304,3 @@ void QwtPlotRasterItem::draw(QPainter *painter,
 
     painter->drawImage(paintRect, image);
 }
-

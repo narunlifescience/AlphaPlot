@@ -474,6 +474,14 @@ int QwtPlotCurve::verifyRange(int &i1, int &i2) const
     return (i2 - i1 + 1);
 }
 
+/*!
+  \brief Draw the complete curve
+
+  \param painter Painter
+  \param xMap Maps x-values into pixel coordinates.
+  \param yMap Maps y-values into pixel coordinates.
+*/
+
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &) const

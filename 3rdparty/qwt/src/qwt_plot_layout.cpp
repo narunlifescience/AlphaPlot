@@ -93,7 +93,7 @@ void QwtPlotLayout::LayoutData::init(const QwtPlot *plot, const QRect &rect)
     {
         const QwtTextLabel *label = plot->titleLabel();
         title.text = label->text(); 
-        if ( !(title.text.paintAttributes() & QwtText::PaintUsingTextFont))
+        if ( !(title.text.testPaintAttribute(QwtText::PaintUsingTextFont)) )
             title.text.setFont(label->font());
         
         title.frameWidth = plot->titleLabel()->frameWidth();

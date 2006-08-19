@@ -105,7 +105,7 @@ static const char *unzoom_xpm[]={
 #include "BoxCurve.h"
 #include "Histogram.h"
 #include "VectorCurve.h"
-#include "scaleDraws.h"
+#include "scales.h"
 #include "plot.h"
 #include "parser.h"
 #include "fileDialogs.h"
@@ -642,7 +642,7 @@ const QwtScaleDiv div = sd_old->scaleDiv ();
 if (format == Superscripts)
 	{
 	QwtSupersciptsScaleDraw *sd = new QwtSupersciptsScaleDraw(formula.ascii());
-	sd->setLabelPrecision(prec);
+	sd->setLabelFormat('s', prec);
 	sd->setScaleDiv(div);
 	d_plot->setAxisScaleDraw (axis, sd);	
 	}
@@ -1240,7 +1240,7 @@ emit modifiedGraph();
 void Graph::setTitleAlignment(int align)
 {
 QwtText t = d_plot->title();
-t.setFlags(align);
+t.setRenderFlags(align);
 d_plot->setTitle (t);
 d_plot->replot();
 emit modifiedGraph(); 
@@ -1285,7 +1285,7 @@ emit modifiedGraph();
 
 int Graph::axisTitleAlignment (int axis)
 {
-return d_plot->axisTitle(axis).flags();
+return d_plot->axisTitle(axis).renderFlags();
 }
 
 void Graph::setAxesTitlesAlignment(const QStringList& align) 
@@ -1293,7 +1293,7 @@ void Graph::setAxesTitlesAlignment(const QStringList& align)
 for (int i=0;i<4;i++)	
 	{
 	QwtText t = d_plot->axisTitle(i);
-	t.setFlags(align[i+1].toInt());
+	t.setRenderFlags(align[i+1].toInt());
 	d_plot->setAxisTitle (i, t);
 	}
 }
@@ -1301,7 +1301,7 @@ for (int i=0;i<4;i++)
 void Graph::setXAxisTitleAlignment(int align) 
 {
 QwtText t = d_plot->axisTitle(QwtPlot::xBottom);
-t.setFlags(align);
+t.setRenderFlags(align);
 d_plot->setAxisTitle (QwtPlot::xBottom, t);
 
 d_plot->replot(); 
@@ -1311,7 +1311,7 @@ emit modifiedGraph();
 void Graph::setYAxisTitleAlignment(int align) 
 {
 QwtText t = d_plot->axisTitle(QwtPlot::yLeft);
-t.setFlags(align);
+t.setRenderFlags(align);
 d_plot->setAxisTitle (QwtPlot::yLeft, t);
 
 d_plot->replot(); 
@@ -1321,7 +1321,7 @@ emit modifiedGraph();
 void Graph::setTopAxisTitleAlignment(int align) 
 {
 QwtText t = d_plot->axisTitle(QwtPlot::xTop);
-t.setFlags(align);
+t.setRenderFlags(align);
 d_plot->setAxisTitle (QwtPlot::xTop, t);
 d_plot->replot(); 
 emit modifiedGraph();	
@@ -1330,7 +1330,7 @@ emit modifiedGraph();
 void Graph::setRightAxisTitleAlignment(int align) 
 {
 QwtText t = d_plot->axisTitle(QwtPlot::yRight);
-t.setFlags(align);
+t.setRenderFlags(align);
 d_plot->setAxisTitle (QwtPlot::yRight, t);
 
 d_plot->replot(); 
@@ -3797,7 +3797,7 @@ QString Graph::saveTitle()
 QString s="PlotTitle\t";
 s += d_plot->title().text().replace("\n", "<br>")+"\t";
 s += d_plot->title().color().name()+"\t";
-s += QString::number(d_plot->title().flags())+"\n";
+s += QString::number(d_plot->title().renderFlags())+"\n";
 return s;
 }
 
@@ -3842,7 +3842,7 @@ for (i=0;i<4;i++)
 	{
 
 	if (d_plot->axisEnabled(i))
-		axes[i]=QString::number(d_plot->axisTitle(i).flags());
+		axes[i]=QString::number(d_plot->axisTitle(i).renderFlags());
 	}
 	
 s+=axes.join("\t")+"\n";

@@ -16,6 +16,19 @@
 class QwtPlotCanvas;
 class QwtPlot;
 
+/*!
+  \brief QwtPlotPanner provides panning of a plot canvas 
+
+  QwtPlotPanner is a panner for a QwtPlotCanvas, that 
+  adjusts the scales of the axes after dropping
+  the canvas on its new position.
+
+  Together with QwtPlotZoomer and QwtPlotMagnifier powerful ways 
+  of navigating on a QwtPlot widget can be implemented easily.
+  
+  \note The axes are not updated, while dragging the canvas
+  \sa QwtPlotZoomer, QwtPlotMagnifier
+*/
 class QWT_EXPORT QwtPlotPanner: public QwtPanner
 {
     Q_OBJECT

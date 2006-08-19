@@ -31,8 +31,8 @@ CONFIG           += release
 CONFIG           += thread
 
 # Only one of the following flags is allowed !
-# CONFIG           += dll 
-CONFIG           += staticlib
+#CONFIG           += dll 
+ CONFIG           += staticlib
 
 # DEFINES          += QT_NO_CAST_ASCII
 # DEFINES          += QT_NO_CAST_TO_ASCII
@@ -44,6 +44,8 @@ INCLUDEPATH      += include
 DEPENDPATH       += include src
 
 win32:dll:DEFINES    += QT_DLL QWT_DLL QWT_MAKEDLL
+
+# debug:QMAKE_CXXFLAGS += -O0
 
 HEADERS = \
     include/qwt.h \
@@ -80,6 +82,7 @@ HEADERS = \
     include/qwt_plot_panner.h \
     include/qwt_plot_picker.h \
     include/qwt_plot_zoomer.h \
+    include/qwt_plot_magnifier.h \
     include/qwt_polygon.h \
     include/qwt_raster_data.h \
     include/qwt_rect.h \
@@ -132,6 +135,7 @@ SOURCES = \
     src/qwt_plot_rasteritem.cpp \
     src/qwt_plot_picker.cpp \
     src/qwt_plot_zoomer.cpp \
+    src/qwt_plot_magnifier.cpp \
     src/qwt_raster_data.cpp \
     src/qwt_rect.cpp \
     src/qwt_round_scale_draw.cpp \
@@ -152,9 +156,9 @@ SOURCES = \
 # lines
 ##############################################
 
-QT += svg
-HEADERS += include/qwt_plot_svgitem.h
-SOURCES += src/qwt_plot_svgitem.cpp 
+# QT += svg
+# HEADERS += include/qwt_plot_svgitem.h
+# SOURCES += src/qwt_plot_svgitem.cpp 
 
 ##############################################
 # If you are interested in the plot widget
@@ -163,33 +167,33 @@ SOURCES += src/qwt_plot_svgitem.cpp
 ##############################################
 
 HEADERS += \
-#    include/qwt_abstract_slider.h \
-#    include/qwt_abstract_scale.h \
+    include/qwt_abstract_slider.h \
+    include/qwt_abstract_scale.h \
     include/qwt_arrow_button.h \
-#    include/qwt_analog_clock.h \
-#    include/qwt_compass.h \
-#    include/qwt_compass_rose.h \
+    include/qwt_analog_clock.h \
+    include/qwt_compass.h \
+    include/qwt_compass_rose.h \
     include/qwt_counter.h \
-#    include/qwt_dial.h \
-#    include/qwt_dial_needle.h \
+    include/qwt_dial.h \
+    include/qwt_dial_needle.h \
     include/qwt_double_range.h \
-#    include/qwt_knob.h \
-#    include/qwt_slider.h \
-#    include/qwt_thermo.h \
-#    include/qwt_wheel.h
+    include/qwt_knob.h \
+    include/qwt_slider.h \
+    include/qwt_thermo.h \
+    include/qwt_wheel.h
 
 SOURCES += \
-#    src/qwt_abstract_slider.cpp \
-#    src/qwt_abstract_scale.cpp \
+    src/qwt_abstract_slider.cpp \
+    src/qwt_abstract_scale.cpp \
     src/qwt_arrow_button.cpp \
-#    src/qwt_analog_clock.cpp \
-#    src/qwt_compass.cpp \
-#    src/qwt_compass_rose.cpp \
+    src/qwt_analog_clock.cpp \
+    src/qwt_compass.cpp \
+    src/qwt_compass_rose.cpp \
     src/qwt_counter.cpp \
-#    src/qwt_dial.cpp \
-#    src/qwt_dial_needle.cpp \
+    src/qwt_dial.cpp \
+    src/qwt_dial_needle.cpp \
     src/qwt_double_range.cpp \
-#    src/qwt_knob.cpp \
-#    src/qwt_slider.cpp \
-#    src/qwt_thermo.cpp \
-#    src/qwt_wheel.cpp
+    src/qwt_knob.cpp \
+    src/qwt_slider.cpp \
+    src/qwt_thermo.cpp \
+    src/qwt_wheel.cpp

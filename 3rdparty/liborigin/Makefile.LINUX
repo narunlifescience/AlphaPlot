@@ -1,0 +1,10 @@
+all : opj2dat liborigin.so
+
+liborigin.so : OPJFile.cpp OPJFile.h
+	g++ -shared -fPIC OPJFile.cpp -o liborigin.so
+
+opj2dat: opj2dat.cpp OPJFile.cpp
+	g++ -o opj2dat opj2dat.cpp OPJFile.cpp
+
+clean :
+	rm -f *~ *.o opj2dat liborigin.so

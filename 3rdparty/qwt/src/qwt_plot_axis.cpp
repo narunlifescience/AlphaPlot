@@ -210,9 +210,15 @@ int QwtPlot::axisMaxMinor(int axisId) const
 }
 
 /*!
-  \returns the scale division of a specified axis
+  \brief Return the scale division of a specified axis
+
+  axisScaleDiv(axisId).lBound(), axisScaleDiv(axisId).hBound()
+  are the current limits of the axis scale.
+
   \param axisId axis index
-  \sa QwtScaleDiv
+  \return Scale division 
+
+  \sa QwtScaleDiv, setAxisScaleDiv
 */
 const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 {
@@ -223,9 +229,15 @@ const QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) const
 }
 
 /*!
-  \returns the scale division of a specified axis
+  \brief Return the scale division of a specified axis
+
+  axisScaleDiv(axisId).lBound(), axisScaleDiv(axisId).hBound()
+  are the current limits of the axis scale.
+
   \param axisId axis index
-  \sa QwtScaleDiv
+  \return Scale division 
+
+  \sa QwtScaleDiv, setAxisScaleDiv
 */
 QwtScaleDiv *QwtPlot::axisScaleDiv(int axisId) 
 {

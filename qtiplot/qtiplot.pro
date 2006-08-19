@@ -80,7 +80,7 @@ HEADERS  = src/application.h \
 	 src/BoxCurve.h \
 	 src/Histogram.h \
 	 src/VectorCurve.h \
-     src/scaleDraws.h \
+     src/scales.h \
 	 src/imageExportOptionsDialog.h \
 	 src/matrix.h \
 	 src/matrixDialog.h \
@@ -180,7 +180,8 @@ SOURCES  = src/application.cpp \
 	 src/note.cpp\
 	 src/folder.cpp\
 	 src/findDialog.cpp\
-	 src/textformatbuttons.cpp
+	 src/textformatbuttons.cpp\
+	 src/scales.cpp
 
 #parser (muParser_v1.26)
 HEADERS+=../3rdparty/muParser/muParser.h \

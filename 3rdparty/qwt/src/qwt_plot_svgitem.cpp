@@ -39,18 +39,37 @@ public:
 #endif
 };
 
+/*!
+   \brief Constructor
+ 
+   Sets the following item attributes:
+   - QwtPlotItem::AutoScale: true
+   - QwtPlotItem::Legend:    false
+
+   \param title Title
+*/
 QwtPlotSvgItem::QwtPlotSvgItem(const QString& title):
     QwtPlotItem(QwtText(title))
 {
     init();
 }
 
+/*!
+   \brief Constructor
+ 
+   Sets the following item attributes:
+   - QwtPlotItem::AutoScale: true
+   - QwtPlotItem::Legend:    false
+
+   \param title Title
+*/
 QwtPlotSvgItem::QwtPlotSvgItem(const QwtText& title):
     QwtPlotItem(title)
 {
     init();
 }
 
+//! Destructor
 QwtPlotSvgItem::~QwtPlotSvgItem()
 {
     delete d_data;
@@ -66,11 +85,20 @@ void QwtPlotSvgItem::init()
     setZ(8.0);
 }
 
+//! \return QwtPlotItem::Rtti_PlotSVG
 int QwtPlotSvgItem::rtti() const
 {
     return QwtPlotItem::Rtti_PlotSVG;
 }
 
+/*!
+   Load a SVG file
+
+   \param rect Bounding rectangle
+   \param fileName SVG file name
+
+   \return true, if the SVG file could be loaded
+*/
 bool QwtPlotSvgItem::loadFile(const QwtDoubleRect &rect, 
     const QString &fileName)
 {
@@ -84,6 +112,14 @@ bool QwtPlotSvgItem::loadFile(const QwtDoubleRect &rect,
     return ok;
 }
 
+/*!
+   Load SVG data 
+
+   \param rect Bounding rectangle
+   \param data in SVG format
+
+   \return true, if the SVG data could be loaded
+*/
 bool QwtPlotSvgItem::loadData(const QwtDoubleRect &rect, 
     const QByteArray &data)
 {
@@ -102,23 +138,35 @@ bool QwtPlotSvgItem::loadData(const QwtDoubleRect &rect,
     return ok;
 }
 
+//! Bounding rect of the item
 QwtDoubleRect QwtPlotSvgItem::boundingRect() const
 {
     return d_data->boundingRect;
 }
 
 #if QT_VERSION >= 0x040100
+
+//! \return Renderer used to render the SVG data
 const QSvgRenderer &QwtPlotSvgItem::renderer() const
 {
     return d_data->renderer;
 }
 
+//! \return Renderer used to render the SVG data
 QSvgRenderer &QwtPlotSvgItem::renderer()
 {
     return d_data->renderer;
 }
 #endif
 
+/*!
+  Draw the SVG item
+
+  \param painter Painter
+  \param xMap X-Scale Map
+  \param yMap Y-Scale Map
+  \param canvasRect Contents rect of the plot canvas
+*/
 void QwtPlotSvgItem::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &canvasRect) const
@@ -127,15 +175,22 @@ void QwtPlotSvgItem::draw(QPainter *painter,
     const QwtDoubleRect bRect = boundingRect();
     if ( bRect.isValid() && cRect.isValid() )
     {
-        QwtDoubleRect area = bRect;
+        QwtDoubleRect rect = bRect;
         if ( bRect.contains(cRect) )
-            area = cRect;
+            rect = cRect;
 
-        render(painter, viewBox(area),
-            transform(xMap, yMap, area) );
+        render(painter, viewBox(rect),
+            transform(xMap, yMap, rect) );
     }
 }
 
+/*!
+  Render the SVG data
+
+  \param painter Painter
+  \param viewBox View Box, see QSvgRenderer::viewBox
+  \param rect Traget rectangle on the paint device
+*/
 void QwtPlotSvgItem::render(QPainter *painter,
         const QRect &viewBox, const QRect &rect) const
 {
@@ -185,7 +240,13 @@ void QwtPlotSvgItem::render(QPainter *painter,
 #endif
 }
 
-QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &area) const
+/*!
+  Calculate the viewBox from an rect and boundingRect().
+
+  \param rect Rectangle in scale coordinates
+  \return viewBox View Box, see QSvgRenderer::viewBox
+*/
+QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
 {
 #if QT_VERSION >= 0x040100
     const QSize sz = d_data->renderer.defaultSize();
@@ -200,7 +261,7 @@ QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &area) const
 #endif
     const QwtDoubleRect br = boundingRect();
 
-    if ( !area.isValid() || !br.isValid() || sz.isNull() )
+    if ( !rect.isValid() || !br.isValid() || sz.isNull() )
         return QRect();
 
     QwtScaleMap xMap;
@@ -211,5 +272,5 @@ QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &area) const
     yMap.setScaleInterval(br.top(), br.bottom());
     yMap.setPaintInterval(sz.height(), 0);
 
-    return transform(xMap, yMap, area);
+    return transform(xMap, yMap, rect);
 }

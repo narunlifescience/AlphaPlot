@@ -373,8 +373,8 @@ const QwtText &QwtAbstractScaleDraw::tickLabel(
     if ( it == d_data->labelCache.end() )
     {
         QwtText lbl = label(value);
-        lbl.setFlags(0);
-        lbl.setLayoutAttributes(QwtText::MinimumLayout);
+        lbl.setRenderFlags(0);
+        lbl.setLayoutAttribute(QwtText::MinimumLayout);
 
         (void)lbl.textSize(font); // initialize the internal cache
 

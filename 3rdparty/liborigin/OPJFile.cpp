@@ -1,13 +1,26 @@
-// OPJFile.cc
+// OPJFile.cpp
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
+#include <algorithm> //required for std::swap
 #include "OPJFile.h"
 
 #define MAX_LEVEL 20
+#define ERROR_MSG "Please send the OPJ file and the opjfile.log to the author of liborigin!\n"
+
+#define SwapBytes(x) ByteSwap((unsigned char *) &x,sizeof(x))
+
+void OPJFile::ByteSwap(unsigned char * b, int n) {
+	register int i = 0;
+	register int j = n-1;
+	while (i<j) {       
+		std::swap(b[i], b[j]);
+		i++, j--;
+	}       
+}
 
 OPJFile::OPJFile(char *filename) 
 	: filename(filename) 
@@ -15,23 +28,22 @@ OPJFile::OPJFile(char *filename)
 	version=0;
 	nr_spreads=0;
 	entry=0;
-	for(int i=0;i<MAX_SPREADS;i++) {
-		spreadname[i] = new char[25];
-		spreadname[i][0] = 0;
-		nr_cols[i] = 0;
-		maxrows[i] = 0;
-		for(int j=0;j<MAX_COLUMNS;j++) {
-			nr_rows[i][j] = 0;
-			colname[i][j] = new char[25];
-			colname[i][j][0] = 0x41+j;
-			colname[i][j][1] = 0;
-			coltype[i][j] = new char[25];
-			if(j==0)
-				coltype[i][j][0]='X';
-			else
-				coltype[i][j][0]='Y';
-			coltype[i][j][1]=0;
-		}
+}
+
+int OPJFile::compareSpreadnames(char *sname) {
+	for(int i=0;i<nr_spreads;i++)
+		if (spreadname[i] == sname)
+			return i;
+	return -1;
+}
+
+// set default name for columns starting from spreadsheet spread
+void OPJFile::setColName(int spread) {
+	for(int j=spread;j<nr_spreads;j++) {
+		coltype[j].resize(nr_cols[j]);
+		coltype[j][0]="X";	
+		for (int k=1;k<nr_cols[j];k++)
+			coltype[j][k]="Y";	
 	}
 }
 
@@ -41,7 +53,7 @@ filepre +
 	+ pre + head + data	col B
 */
 
-/* parse file filename complete and save values */
+/* parse file "filename" completely and save values */
 int OPJFile::Parse() {
 	int i,j;
 	FILE *f, *debug;
@@ -66,7 +78,7 @@ int OPJFile::Parse() {
 	fprintf(debug,"	[version = %d]\n",version);
 	
 	// translate version
-	if(version == 130) 		// 4.1
+	if(version >= 130 && version <= 140) 		// 4.1
 		version=410;
 	else if(version == 210) 	// 5.0
 		version=500;
@@ -104,11 +116,14 @@ int OPJFile::Parse() {
 	fprintf(debug,"	[file header @ 0x%X]\n", (unsigned int) ftell(f));
 	
 /////////////////// find column ///////////////////////////////////////////////////////////7
-	for(i=0;i<5;i++)	// skip "0"
-		fread(&c,1,1,f);
+	if(version>410)
+		for(i=0;i<5;i++)	// skip "0"
+			fread(&c,1,1,f);
 	
 	int col_found;
 	fread(&col_found,4,1,f);
+	if(IsBigEndian()) SwapBytes(col_found);
+
 	fread(&c,1,1,f);	// skip '\n'
 	fprintf(debug,"	[column found = %d/0x%X @ 0x%X]\n",col_found,col_found,(unsigned int) ftell(f));
 
@@ -154,70 +169,144 @@ int OPJFile::Parse() {
 			strcat(sname,cname);
 			strcpy(cname,tmpstr);
 		}
-		if(nr_spreads == 0 || strcmp(sname,spreadname[nr_spreads-1])) {
+		if(nr_spreads == 0 || compareSpreadnames(sname) == -1) {
 			fprintf(debug,"NEW SPREADSHEET\n");
-			sprintf(spreadname[nr_spreads++],"%s",sname);
+			spreadname.resize(nr_spreads+1);
+			spreadname[nr_spreads++] = sname;
 			current_col=1;
+			maxrows.resize(nr_spreads+1);
 			maxrows[nr_spreads]=0;
 		}
 		else {
 			current_col++;
+			nr_cols.resize(nr_spreads);
 			nr_cols[nr_spreads-1]=current_col;
 		}
 		fprintf(debug,"SPREADSHEET = %s COLUMN NAME = %s (%d) (@0x%X)\n",
 			sname, cname,current_col,(unsigned int) ftell(f));
 		fflush(debug);
 
-		if(cname==0) {
-			fprintf(debug,"NO COLUMN FOUND! GIVING UP.\n");
-			fprintf(debug,"MAY BE MATRIX OR FUNCTION.\n");
-			nr_spreads-=1;
-			break;
-		}
-				
-		sprintf(colname[nr_spreads-1][current_col-1],"%s",cname);
-		// NEW ? colname[nr_spreads-1][current_col-1]=cname;
-		
-////////////////////////////// SIZE of column /////////////////////////////////////////////
-		do{	// skip until '\n'
-			fread(&c,1,1,f);
-		} while (c != '\n');
+		if(cname == 0) {
+			fprintf(debug,"NO COLUMN NAME FOUND! Must be a matrix or function.\n");
+////////////////////////////// READ MATRIX or FUNCTION ////////////////////////////////////
+			fprintf(debug,"Reading MATRIX.\n");
+			fflush(debug);
 
-		fread(&nbytes,4,1,f);
-		if(fmod(nbytes,(double)valuesize)>0)
-			fprintf(debug,"WARNING: data section could not be read correct\n");
-		nr = nbytes / valuesize;
-		fprintf(debug,"	[number of rows = %d (%d Bytes) @ 0x%X]\n",nr,nbytes,(unsigned int) ftell(f));
-		fflush(debug);
-		nr_rows[nr_spreads-1][current_col-1]=nr;
-		maxrows[nr_spreads-1]<nr?maxrows[nr_spreads-1]=nr:0;
+			fprintf(debug,"	[position @ 0x%X]\n",(unsigned int) ftell(f));
+			// TODO
+			fprintf(debug,"	SIGNATURE : ");
+			for(i=0;i<2;i++) {	// skip header
+				fread(&c,1,1,f);
+				fprintf(debug,"%.2X ",c);
+			}
+			fflush(debug);
+	
+			do{	// skip until '\n'
+				fread(&c,1,1,f);
+				// fprintf(debug,"%.2X ",c);
+			} while (c != '\n');
+			fprintf(debug,"\n");
+			fflush(debug);
+			
+			// read size
+			int size;
+			fread(&size,4,1,f);
+			fread(&c,1,1,f);	// skip '\n'
+			// TODO : use entry size : double, float, ...
+			size /= 8;
+			fprintf(debug,"	SIZE = %d\n",size);
+			fflush(debug);
+	
+			fprintf(debug,"VALUES :\n");
+			nr_cols.resize(nr_spreads);
+			nr_cols[nr_spreads-1]=size;
+			data.resize(nr_spreads);
+			data[nr_spreads-1].resize(size);
+			nr_rows.resize(nr_spreads);
+			nr_rows[nr_spreads-1].resize(size);
+			maxrows[nr_spreads-1]=1;
+			for(i=0;i<size;i++) {
+				data[nr_spreads-1][i] = (double *) malloc(sizeof(double));
+				nr_rows[nr_spreads-1][i] = 1;
+			}
+
+			double value=0;
+			colname.resize(nr_spreads);
+			colname[nr_spreads-1].resize(size);
+			for(i=0;i<size;i++) {	// read data
+				if(i<26)
+					colname[nr_spreads-1][i] = i+0x41;
+				else if(i<26*26) {
+					colname[nr_spreads-1][i] = 0x40+i/26;
+					colname[nr_spreads-1][i][1] = i%26+0x41;
+				}
+				else {
+					colname[nr_spreads-1][i] = 0x40+i/26/26;
+					colname[nr_spreads-1][i][1] = i/26%26+0x41;
+					colname[nr_spreads-1][i][2] = i%26+0x41;
+				}
+				fread(&value,8,1,f);
+				data[nr_spreads-1][i][0] = value;
+				fprintf(debug,"%g ",value);
+			}
+			fprintf(debug,"\n");
+			fflush(debug);
+			
+		}
+		else {	// worksheet		
+			colname.resize(nr_spreads);
+			colname[nr_spreads-1].resize(current_col);
+			colname[nr_spreads-1][current_col-1]=cname;
+
+////////////////////////////// SIZE of column /////////////////////////////////////////////
+			do{	// skip until '\n'
+				fread(&c,1,1,f);
+			} while (c != '\n');
+
+			fread(&nbytes,4,1,f);
+			if(IsBigEndian()) SwapBytes(nbytes);
+			if(fmod(nbytes,(double)valuesize)>0)
+				fprintf(debug,"WARNING: data section could not be read correct\n");
+			nr = nbytes / valuesize;
+			fprintf(debug,"	[number of rows = %d (%d Bytes) @ 0x%X]\n",nr,nbytes,(unsigned int) ftell(f));
+			fflush(debug);
+
+			nr_rows.resize(nr_spreads);
+			nr_rows[nr_spreads-1].resize(current_col);
+			nr_rows[nr_spreads-1][current_col-1]=nr;
+			maxrows[nr_spreads-1]<nr?maxrows[nr_spreads-1]=nr:0;
 
 ////////////////////////////////////// DATA ////////////////////////////////////////////////
-		fread(&c,1,1,f);	// skip '\n'
-		if(valuesize != 8 && valuesize <= 16) {	// skip 0 0
-			fread(&c,1,1,f);
-			fread(&c,1,1,f);
-		}
-		fprintf(debug,"	[data @ 0x%X]\n",(unsigned int) ftell(f));
-		fflush(debug);
-		data[nr_spreads-1][current_col-1] = (double *) malloc(nr*sizeof(double));
-		for (i=0;i<nr;i++) {
-			if(valuesize <= 16) {	// value
-				fread(&a,valuesize,1,f);
-				fprintf(debug,"%g ",a);
-				data[nr_spreads-1][(current_col-1)][i]=a;
+			fread(&c,1,1,f);	// skip '\n'
+			if(valuesize != 8 && valuesize <= 16) {	// skip 0 0
+				fread(&c,1,1,f);
+				fread(&c,1,1,f);
 			}
-			else {			// label
-				char *stmp = new char[valuesize+1];
-				fread(stmp,valuesize,1,f);
-				fprintf(debug,"%s ",stmp);
-				sdata[entry].spread = nr_spreads-1;
-				sdata[entry].column = current_col-1;
-				sdata[entry].row = i;
-				sdata[entry].name = stmp;
-				entry++;
+			fprintf(debug,"	[data @ 0x%X]\n",(unsigned int) ftell(f));
+			fflush(debug);
+			data.resize(nr_spreads);
+			data[nr_spreads-1].resize(current_col);
+			data[nr_spreads-1][current_col-1] = (double *) malloc(nr*sizeof(double));
+			for (i=0;i<nr;i++) {
+				if(valuesize <= 16) {	// value
+					fread(&a,valuesize,1,f);
+					if(IsBigEndian()) SwapBytes(a);
+					fprintf(debug,"%g ",a);
+					data[nr_spreads-1][(current_col-1)][i]=a;
+				}
+				else {			// label
+					char *stmp = new char[valuesize+1];
+					fread(stmp,valuesize,1,f);
+					fprintf(debug,"%s ",stmp);
+					sdata.resize(entry+1);
+					sdata[entry].spread = nr_spreads-1;
+					sdata[entry].column = current_col-1;
+					sdata[entry].row = i;
+					sdata[entry].name = stmp;
+					entry++;
+				}
 			}
-		}
+		}	// else
 //		fprintf(debug,"	[now @ 0x%X]\n",ftell(f));
 		fprintf(debug,"\n");
 		fflush(debug);
@@ -229,22 +318,26 @@ int OPJFile::Parse() {
 			fread(&c,1,1,f);
 		}
 		fread(&col_found,4,1,f);
+		if(IsBigEndian()) SwapBytes(col_found);
 		fread(&c,1,1,f);	// skip '\n'
 		fprintf(debug,"	[column found = %d/0x%X (@ 0x%X)]\n",col_found,col_found,(unsigned int) ftell(f)-5);
 		fflush(debug);
 	}
 
-////////////////////////////////////// SPREADSHEETS ////////////////////////////////////////////////
+////////////////////// HEADER SECTION //////////////////////////////////////
 	// TODO : use new method ('\n')
 
 	int POS = ftell(f)-11;
-	fprintf(debug,"\n[position @ 0x%X]\n",POS);
-	fprintf(debug,"		nr_spreads = %d\n",nr_spreads);
+	fprintf(debug,"\nHEADER SECTION\n");
+	fprintf(debug,"	nr_spreads = %d\n",nr_spreads);
+	fprintf(debug,"	[position @ 0x%X]\n",POS);
 	fflush(debug);
 
 ///////////////////// SPREADSHEET INFOS ////////////////////////////////////
 	int LAYER;
 	int COL_JUMP = 0x1ED;
+	
+	coltype.resize(nr_spreads);
 	for(i=0; i < nr_spreads; i++) {
 		if(i > 0) {
 			if(version == 750)
@@ -284,50 +377,58 @@ int OPJFile::Parse() {
 			jump++;
 		}
 		
+		int spread=i;
 		if(jump == MAX_LEVEL){
 			fprintf(debug,"	Spreadsheet SECTION not found ! 	(@ 0x%X)\n",POS-10*0x1F2+0x55);
+			setColName(spread);
 			return -5;
 		}
 		
-		fprintf(debug,"	OK. Spreadsheet SECTION found	(@ 0x%X)\n",POS);
+		fprintf(debug,"	[Spreadsheet SECTION (@ 0x%X)]\n",POS);
 		fflush(debug);
 	
 		// check spreadsheet name
 		fseek(f,POS + 0x12,SEEK_SET);
 		fread(&name,25,1,f);
 
-		int spread=i;
 		for(j=0;j<nr_spreads;j++) {	// get index of spreadsheet
-			if(strncmp(name,spreadname[j],strlen(spreadname[j])) == 0)
+			if(spreadname[j] == name)
 				spread=j;
 		}
 		
 		fprintf(debug,"		SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
 			spread+1,name,POS + 0x12,nr_cols[spread]);
+		fflush(debug);
 	
-		int ATYPE;
+		int ATYPE=0;
 		LAYER = POS;
 		if(version == 750) {
 			// LAYER section
 			LAYER += 0x4AB;
 		 	ATYPE = 0xCF;
 			COL_JUMP = 0x1F2;
-			// seek for "L"ayerInfoStorage to find layer section
+
+			// skip until '\n'
+			fseek(f,LAYER, SEEK_SET);
+			do{
+				fread(&c,1,1,f);
+				LAYER++;
+			} while (c != '\n');
+			LAYER--;
+			fprintf(debug,"		[LAYER HEADER @ 0x%X]\n", (unsigned int) ftell(f)-1);
+			fflush(debug);
+
+			// check for "L"ayerInfoStorage in header section
 			fseek(f,LAYER+0x53, SEEK_SET);
 			fread(&c,1,1,f);
-			while( c != 'L' && jump < MAX_LEVEL) {	// no inf loop; number of "set column value"
-				LAYER += 0x99;
-				fseek(f,LAYER+0x53, SEEK_SET);
-				fread(&c,1,1,f);
-				jump++;
+			if( c == 'L') {
+				fprintf(debug,"		TEST : OK (LayerInfoStorage found @ 0x%X)\n",LAYER+0x53);
 			} 
-	
-			if(jump == MAX_LEVEL) {
-				fprintf(debug,"		LAYER %d SECTION not found !\nGiving up.",i+1);
+			else{
+				fprintf(debug,"ERROR : LAYER %d SECTION not found @ 0x%X\n"ERROR_MSG,i+1,LAYER+0x53);
+				setColName(spread);
 				return -3;
 			}
-	
-			fprintf(debug,"		[LAYER %d @ 0x%X]\n",i+1,LAYER);
 		}
 		else if (version == 700)
 			ATYPE = 0x2E4;
@@ -351,29 +452,46 @@ int OPJFile::Parse() {
 
 		/////////////// COLUMN Types ///////////////////////////////////////////
 		for (j=0;j<nr_cols[spread];j++) {
+			fprintf(debug,"		reading	COLUMN %d type\n",j);
+			fflush(debug);
 			fseek(f,LAYER+ATYPE+j*COL_JUMP, SEEK_SET);
 			fread(&name,25,1,f);
-			if(strncmp(name,colname[spread][j],strlen(colname[spread][j])) == 0) {
-				fseek(f,LAYER+ATYPE+j*COL_JUMP-1, SEEK_SET);
-				fread(&c,1,1,f);
-				char type[5];
-				switch(c) {
-				case 3: sprintf(type,"X");break;
-				case 0: sprintf(type,"Y");break;
-				case 5: sprintf(type,"Z");break;
-				case 6: sprintf(type,"DX");break;
-				case 2: sprintf(type,"DY");break;
-				case 4: sprintf(type,"LABEL");break;
-				default: sprintf(type,"NONE");break;
-				}
-				sprintf(coltype[spread][j],"%s",type);
-				fprintf(debug,"		COLUMN %s type = %s (@ 0x%X)\n",colname[spread][j],type,LAYER+ATYPE+j*COL_JUMP);
+
+			fseek(f,LAYER+ATYPE+j*COL_JUMP-1, SEEK_SET);
+			fread(&c,1,1,f);
+			char type[5];
+			switch(c) {
+			case 3: sprintf(type,"X");break;
+			case 0: sprintf(type,"Y");break;
+			case 5: sprintf(type,"Z");break;
+			case 6: sprintf(type,"DX");break;
+			case 2: sprintf(type,"DY");break;
+			case 4: sprintf(type,"LABEL");break;
+			default: sprintf(type,"NONE");break;
+			}
+			coltype[spread].resize(j+1);
+			coltype[spread][j]=type;
+			
+			fprintf(debug,"		COLUMN \"%s\" type = %s (@ 0x%X)\n",
+				colname[spread][j].c_str(),type,LAYER+ATYPE+j*COL_JUMP);
+			fflush(debug);
+
+			// check column name
+			int max_length=11;	// only first 11 chars are saved here !
+			int name_length = colname[spread][j].length();
+                        int length = (name_length < max_length) ? name_length : max_length;
+
+			if(colname[spread][j].substr(0,length) == name) {
+				fprintf(debug,"		TEST : column name = \"%s\". OK!\n",
+					colname[spread][j].c_str());
 			}
 			else {
-				fprintf(debug,"		COLUMN %d (%c) ? (@ 0x%X)\n",j+1,c,LAYER+ATYPE+j*COL_JUMP);
+				fprintf(debug,"		TEST : COLUMN %d name mismatch (\"%s\" != \"%s\")\n",
+					j+1,name,colname[spread][j].c_str());
+				//fprintf(debug,"ERROR : column name mismatch! Continue anyway.\n"ERROR_MSG);
 			}
+			fflush(debug);
 		}
-		fflush(debug);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////

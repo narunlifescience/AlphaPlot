@@ -82,9 +82,16 @@ public slots:
     void setChecked(bool on);
 
 signals:
+    //! Signal, when the legend item has been clicked
     void clicked();
+
+    //! Signal, when the legend item has been pressed
     void pressed();
+
+    //! Signal, when the legend item has been relased
     void released();
+
+    //! Signal, when the legend item has been toggled
     void checked(bool);
 
 protected:

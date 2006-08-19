@@ -200,6 +200,87 @@ void QwtSymbol::draw(QPainter *painter, const QRect& r) const
             QwtPainter::drawPolygon(painter, pa);
             break;
         }
+        case QwtSymbol::HLine:
+        {
+            const int h2 = r.height() / 2;
+            QwtPainter::drawLine(painter, r.left(), r.top() + h2,
+                    r.right(), r.top() + h2);
+            break;
+        }
+        case QwtSymbol::VLine:
+        {
+            const int w2 = r.width() / 2;
+            QwtPainter::drawLine(painter, r.left() + w2, r.top(),
+                    r.left() + w2, r.bottom());
+            break;
+        }
+        case QwtSymbol::Star1:
+        {
+            const double sqrt1_2 = 0.70710678118654752440; /* 1/sqrt(2) */
+
+            const int w2 = r.width() / 2;
+            const int h2 = r.height() / 2;
+            const int d1  = (int)( (double)w2 * (1.0 - sqrt1_2) );
+
+            QwtPainter::drawLine(painter, r.left() + d1, r.top() + d1,
+                    r.right() - d1, r.bottom() - d1);
+            QwtPainter::drawLine(painter, r.left() + d1, r.bottom() - d1,
+                    r.right() - d1, r.top() + d1);
+            QwtPainter::drawLine(painter, r.left() + w2, r.top(),
+                    r.left() + w2, r.bottom());
+            QwtPainter::drawLine(painter, r.left(), r.top() + h2,
+                    r.right(), r.top() + h2);
+            break;
+        }
+        case QwtSymbol::Star2:
+        {
+            const int w = r.width();
+            const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
+                2.0);  // 0.866025 = cos(30°)
+            const int h4 = r.height() / 4;
+            const int h2 = r.height() / 2;
+            const int h34 = (r.height() * 3) / 4;
+
+            QwtPolygon pa(12);
+            pa.setPoint(0, r.left() + (w / 2), r.top());
+            pa.setPoint(1, r.right() - (side + (w - 2 * side) / 3),
+                r.top() + h4 );
+            pa.setPoint(2, r.right() - side, r.top() + h4);
+            pa.setPoint(3, r.right() - (side + (w / 2 - side) / 3),
+                r.top() + h2 );
+            pa.setPoint(4, r.right() - side, r.top() + h34);
+            pa.setPoint(5, r.right() - (side + (w - 2 * side) / 3),
+                r.top() + h34 );
+            pa.setPoint(6, r.left() + (w / 2), r.bottom());
+            pa.setPoint(7, r.left() + (side + (w - 2 * side) / 3),
+                r.top() + h34 );
+            pa.setPoint(8, r.left() + side, r.top() + h34);
+            pa.setPoint(9, r.left() + (side + (w / 2 - side) / 3),
+                r.top() + h2 );
+            pa.setPoint(10, r.left() + side, r.top() + h4);
+            pa.setPoint(11, r.left() + (side + (w - 2 * side) / 3),
+                r.top() + h4 );
+            QwtPainter::drawPolygon(painter, pa);
+            break;
+        }
+        case QwtSymbol::Hexagon:
+        {
+            const int w2 = r.width() / 2;
+            const int side = (int)(((double)r.width() * (1.0 - 0.866025)) /
+                2.0);  // 0.866025 = cos(30°)
+            const int h4 = r.height() / 4;
+            const int h34 = (r.height() * 3) / 4;
+
+            QwtPolygon pa(6);
+            pa.setPoint(0, r.left() + w2, r.top());
+            pa.setPoint(1, r.right() - side, r.top() + h4);
+            pa.setPoint(2, r.right() - side, r.top() + h34);
+            pa.setPoint(3, r.left() + w2, r.bottom());
+            pa.setPoint(4, r.left() + side, r.top() + h34);
+            pa.setPoint(5, r.left() + side, r.top() + h4);
+            QwtPainter::drawPolygon(painter, pa);
+            break;
+        }
         default:;
     }
 }
@@ -235,8 +316,13 @@ void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
   <dt>QwtSymbol::UTriangle<dd>Triangle pointing upwards
   <dt>QwtSymbol::LTriangle<dd>Triangle pointing left
   <dt>QwtSymbol::RTriangle<dd>Triangle pointing right
-  <dt>QwtSymbol::Cross<dd>Cross
-  <dt>QwtSymbol::XCross<dd>Diagonal cross</dl>
+  <dt>QwtSymbol::Cross<dd>Cross (+)
+  <dt>QwtSymbol::XCross<dd>Diagonal cross (X)
+  <dt>QwtSymbol::HLine<dd>Horizontal line
+  <dt>QwtSymbol::VLine<dd>Vertical line
+  <dt>QwtSymbol::Star1<dd>X combined with +
+  <dt>QwtSymbol::Star2<dd>Six-pointed star
+  <dt>QwtSymbol::Hexagon<dd>Hexagon</dl>
   \param s style
 */
 void QwtSymbol::setStyle(QwtSymbol::Style s)

@@ -884,7 +884,8 @@ PREDEFINED             = QwtArray=QwtArray \
                          Q_ENUMS(x)= \
                          Q_EXPORT= \
                          Q_OBJECT= \
-                         Q_PROPERTY(x)=
+                         Q_PROPERTY(x)= \
+                         QT_VERSION=0x040000
 
 # If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then 
 # this tag can be used to specify a list of macro names that should be expanded. 

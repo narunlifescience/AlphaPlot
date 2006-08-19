@@ -80,7 +80,7 @@ public:
 
 protected:
 
-     /*
+     /*!
       Renders an image for an area
 
       The format of the image must be QImage::Format_Indexed8,

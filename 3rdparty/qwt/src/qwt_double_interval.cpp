@@ -17,6 +17,14 @@
 #include "qwt_math.h"
 #include "qwt_double_interval.h"
 
+/*!
+   \brief Normalize the limits of the interval
+
+   If maxValue() > minValue() the limits will be inverted.
+   \return Normalized interval
+
+   \sa isValid, inverted
+*/
 QwtDoubleInterval QwtDoubleInterval::normalized() const
 {
     if ( !isValid() )
@@ -27,11 +35,22 @@ QwtDoubleInterval QwtDoubleInterval::normalized() const
         return *this;
 }
 
-QwtDoubleInterval QwtDoubleInterval::invert() const
+/*!
+   Invert the limits of the interval
+   \return Inverted interval
+   \sa normalized
+*/
+QwtDoubleInterval QwtDoubleInterval::inverted() const
 {
     return QwtDoubleInterval(d_maxValue, d_minValue);
 }
 
+/*!
+  Test if a value is inside an interval
+
+  \param value Value
+  \return true, if value >= minValue() && value <= maxValue()
+*/
 bool QwtDoubleInterval::contains(double value) const
 {
     if ( !isValid() )
@@ -40,6 +59,7 @@ bool QwtDoubleInterval::contains(double value) const
     return (value >= d_minValue) && (value <= d_maxValue);
 }
 
+//! Unite 2 intervals
 QwtDoubleInterval QwtDoubleInterval::unite(
     const QwtDoubleInterval &interval) const
 {
@@ -59,6 +79,7 @@ QwtDoubleInterval QwtDoubleInterval::unite(
     return QwtDoubleInterval(minValue, maxValue);
 }
 
+//! Intersect 2 intervals
 QwtDoubleInterval QwtDoubleInterval::intersect(
     const QwtDoubleInterval &interval) const
 {
@@ -92,6 +113,9 @@ QwtDoubleInterval& QwtDoubleInterval::operator&=(
     return *this;
 }
 
+/*!
+   Test if two intervals overlap
+*/
 bool QwtDoubleInterval::intersects(const QwtDoubleInterval &interval) const
 {
     if ( !isValid() || !interval.isValid() )
@@ -106,18 +130,33 @@ bool QwtDoubleInterval::intersects(const QwtDoubleInterval &interval) const
     return i1.maxValue() >= i2.minValue();
 }
 
-QwtDoubleInterval QwtDoubleInterval::symmetrize(double center) const
+/*!
+   Adjust the limit that is closer to value, so that value becomes
+   the center of the interval.
+
+   \param value Center
+   \return Interval with value as center
+*/
+QwtDoubleInterval QwtDoubleInterval::symmetrize(double value) const
 {
     if ( !isValid() )
         return *this;
 
     const double delta =
-        qwtMax(qwtAbs(center - d_maxValue), qwtAbs(center - d_minValue));
+        qwtMax(qwtAbs(value - d_maxValue), qwtAbs(value - d_minValue));
 
-    return QwtDoubleInterval(center - delta, center + delta);
+    return QwtDoubleInterval(value - delta, value + delta);
 }
 
-QwtDoubleInterval QwtDoubleInterval::limit(
+/*!
+   Limit the interval
+
+   \param lBound Lower limit
+   \param hBound Upper limit
+
+   \return Limited interval
+*/
+QwtDoubleInterval QwtDoubleInterval::limited(
     double lBound, double hBound) const
 {
     if ( !isValid() || lBound > hBound )
@@ -132,13 +171,24 @@ QwtDoubleInterval QwtDoubleInterval::limit(
     return QwtDoubleInterval(minValue, maxValue);
 }
 
-QwtDoubleInterval QwtDoubleInterval::extend(double v) const
+/*!
+   Extend the interval
+
+   If value is below minValue, value becomes the lower limit.
+   If value is above maxValue, value becomes the upper limit.
+
+   extend has no effect for invalid intervals
+
+   \param value Value
+   \sa isValid
+*/
+QwtDoubleInterval QwtDoubleInterval::extend(double value) const
 {
     if ( !isValid() )
         return *this;
 
     return QwtDoubleInterval(
-        qwtMin(v, d_minValue), qwtMax(v, d_maxValue) );
+        qwtMin(value, d_minValue), qwtMax(value, d_maxValue) );
 }
 
 QwtDoubleInterval& QwtDoubleInterval::operator|=(double value)
@@ -146,4 +196,3 @@ QwtDoubleInterval& QwtDoubleInterval::operator|=(double value)
     *this = *this | value;
     return *this;
 }
-

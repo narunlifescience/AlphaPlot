@@ -3,33 +3,56 @@ liborigin and opj2dat
 
 Author : Stefan Gerlach
 
+Thanks to :
+Ion Vasilief	for Windows patches and testing
+
 compiling :
 	$ make -f Makefile.LINUX
 	or for Darwin :
 	$ make -f Makefile.DARWIN
+	or for Windows :
+	$ make -f Makefile.WINDOWS
+	or with Solaris Compiler :
+	$ make -f Makefile.Solaris
 Usage :
 	$ ./opj2dat <project.opj>
 
-Note :
-If it crashes : reduce maximum numbers in OPJFile.h.
-
 ---------------------------------------------------------------------------
 FEATURES :
-	* reads any worksheets with any columns
+	* reads any worksheets with all columns
 	* supports 4.1, 5.0, 6.0, 6.1, 7.0, 7.5 projects
 
 ---------------------------------------------------------------------------
 TODO :
-	* support FUNCTION : drf_spin
-	* support MATRIX tables
-	* support extra graph (no link to data) : power_cdw
+	V CRASH on 4.1 projects companatomy(_new)
+	V crash on backup.opj
+		-> cname==0 but no matrix !
 	* read spreadsheet infos (LAYER section) with better method
-	* fix various problems (check ORIGIN/README)
+		-> check out examples
+	* support MATRIX tables
+		* check older project versions (6.0,5.0,etc.)
+			-> size always 0
+		* get column/row numbers -> resize matrix
+			* check ws+matrix.opj
+			5x2 & 2x5	: 0x215 / 0x23D
+		* check all matrix examples (also mixed)
+	* fix reading of mixed columns in file
+		-> SiGe example
+	* support FUNCTION : drf_spin
 	* read graphs
+	* support extra graph (no link to data) : power_cdw
+	* fix various problems (check ORIGIN/README)
 
 ---------------------------------------------------------------------------
 Changelog :
 
+06-07-06	* read size of matrix	
+06-02-06	* replaced arrays with vectors and char* with strings
+06-01-06	* fixed convertion of 4.1 projects
+05-30-06	* read matrix tables (testing)
+05-29-06	* read column type if names are not matching (seems to be ok)
+05-26-06	* compare only 11 chars of col label in header section
+05-24-06	* fixed byteorder on big endian systems
 05-16-06	* better method for storing label data (Entry)
 11-15-05	* read empty entries
 		* read label columns

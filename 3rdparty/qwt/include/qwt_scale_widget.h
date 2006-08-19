@@ -44,6 +44,7 @@ public:
     virtual ~QwtScaleWidget();
 
 signals:
+    //! Signal emitted, whenever the scale divison changes
     void scaleDivChanged();
 
 public:

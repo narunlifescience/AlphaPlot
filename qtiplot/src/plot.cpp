@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "plot.h"
-#include "scaleDraws.h"
+#include "scales.h"
 
 #include <qwt_plot.h>
 #include <qwt_painter.h>

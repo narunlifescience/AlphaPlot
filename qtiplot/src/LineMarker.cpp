@@ -29,6 +29,8 @@
 #include "LineMarker.h"
 
 #include <qpainter.h>
+#include <qpaintdevice.h>
+#include <QPolygon>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -341,6 +343,3 @@ d_rect.setTop(yMap.invTransform(d_start.y()));
 d_rect.setRight(xMap.invTransform(d_end.x()));
 d_rect.setBottom(yMap.invTransform(d_end.y()));
 }
-
-
-

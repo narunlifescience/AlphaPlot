@@ -120,13 +120,22 @@ public:
         const QwtColorMap &, const QwtDoubleInterval &,
         const QwtScaleMap &, Qt::Orientation, const QRect &);
 
+#if QT_VERSION < 0x040000
+    static void setSVGMode(bool on);
+    static bool isSVGMode();
+#endif
+
 private:
     static void drawColoredArc(QPainter *, const QRect &,
         int peak, int arc, int intervall, const QColor &c1, const QColor &c2);
 
     static const QRect &deviceClipRect();
+
     static bool d_deviceClipping;
     static QwtMetricsMap d_metricsMap;
+#if QT_VERSION < 0x040000
+    static bool d_SVGMode;
+#endif
 };
 
 //!  Wrapper for QPainter::drawLine()

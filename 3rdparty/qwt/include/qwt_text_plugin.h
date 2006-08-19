@@ -20,12 +20,24 @@
 
 class QwtTextEngine;
 
+/*!
+   Interface to import text engines as plugins
+
+   \sa QwtTextEngine, QwtText
+*/
 class QWT_EXPORT QwtTextPlugin
 {
 public:
+    //! Destructor
     virtual ~QwtTextPlugin() {}
 
+    /*!
+       Return the format, that can be handled by the text engine.
+       \sa QwtText::TextFormat
+     */
     virtual int format() const = 0;
+
+    //! \return Engine loaded from the plugin
     virtual QwtTextEngine *engine() const = 0;
 };
 

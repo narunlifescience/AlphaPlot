@@ -80,6 +80,15 @@ QwtSimpleCompassRose::QwtSimpleCompassRose(int numThorns, int numThornLevels):
     setPalette(palette);
 }
 
+/*!
+   Draw the rose
+
+   \param painter Painter
+   \param center Center point
+   \param radius Radius of the rose
+   \param north Position
+   \param cg Color group
+*/
 void QwtSimpleCompassRose::draw(QPainter *painter, const QPoint &center, 
     int radius, double north, QPalette::ColorGroup cg) const
 {

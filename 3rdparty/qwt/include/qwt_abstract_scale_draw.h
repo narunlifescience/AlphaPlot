@@ -38,14 +38,19 @@ class QWT_EXPORT QwtAbstractScaleDraw
 {
 public:
 
+     /*!
+        Components of a scale
+
+        - Backbone
+        - Ticks
+        - Label
+
+        \sa QwtAbstractScaleDraw::enableComponent, 
+            QwtAbstractScaleDraw::hasComponent
+    */
+
     enum ScaleComponent
     { 
-        /*!
-            Components of a scale
-            \sa QwtAbstractScaleDraw::enableComponent, 
-                QwtAbstractScaleDraw::hasComponent
-        */
-
         Backbone = 1,
         Ticks = 2,
         Labels = 4

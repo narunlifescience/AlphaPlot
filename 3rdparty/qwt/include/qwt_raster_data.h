@@ -50,6 +50,7 @@ public:
     QwtRasterData(const QwtDoubleRect &);
     virtual ~QwtRasterData();
 
+    //! Clone the data
     virtual QwtRasterData *copy() const = 0;
 
     virtual void setBoundingRect(const QwtDoubleRect &);
@@ -60,7 +61,10 @@ public:
     virtual void initRaster(const QwtDoubleRect &, const QSize& raster);
     virtual void discardRaster();
 
+    //! \return the value at a raster position
     virtual double value(double x, double y) const = 0;
+
+    //! \return the range of the values
     virtual QwtDoubleInterval range() const = 0;
 
 #if QT_VERSION >= 0x040000

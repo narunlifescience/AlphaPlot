@@ -26,8 +26,28 @@ public:
         Style
         \sa QwtSymbol::setStyle, QwtSymbol::style
      */
-    enum Style { None, Ellipse, Rect, Diamond, Triangle, DTriangle,
-        UTriangle, LTriangle, RTriangle, Cross, XCross, StyleCnt }; 
+    enum Style 
+    { 
+        None = -1, 
+
+        Ellipse, 
+        Rect, 
+        Diamond, 
+        Triangle, 
+        DTriangle,
+        UTriangle, 
+        LTriangle, 
+        RTriangle, 
+        Cross, 
+        XCross, 
+        HLine, 
+        VLine, 
+        Star1, 
+        Star2, 
+        Hexagon, 
+
+        StyleCnt 
+    };
    
 public:
     QwtSymbol();

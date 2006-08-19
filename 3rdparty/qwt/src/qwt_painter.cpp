@@ -39,6 +39,10 @@ bool QwtPainter::d_deviceClipping = true;
 bool QwtPainter::d_deviceClipping = false;
 #endif
 
+#if QT_VERSION < 0x040000
+bool QwtPainter::d_SVGMode = false;
+#endif
+
 static inline bool needDeviceClipping(
     const QPainter *painter, bool deviceClipping)
 {
@@ -48,8 +52,10 @@ static inline bool needDeviceClipping(
 }
 
 /*!
-  En/Disable device clipping. On X11 the default
-  for device clipping is enabled, otherwise it is disabled.
+  \brief En/Disable device clipping. 
+
+  On X11 the default for device clipping is enabled, 
+  otherwise it is disabled.
   \sa QwtPainter::deviceClipping()
 */
 void QwtPainter::setDeviceClipping(bool enable)
@@ -90,6 +96,31 @@ QwtPolygon QwtPainter::clip(const QwtPolygon &pa)
     const QwtRect rect(deviceClipRect());
     return rect.clip(pa);
 }
+
+#if QT_VERSION < 0x040000 
+
+/*!
+  \brief En/Disable SVG mode. 
+
+  When saving a QPicture to a SVG some texts are misaligned.
+  In SVGMode QwtPainter tries to fix them. 
+
+  \sa QwtPainter::isSVGMode()
+  \note A QPicture that is created in SVG mode and saved to the
+        native format, will be misaligned. Also it is not possible to
+        reload and play a SVG document, that was created in SVG mode.
+*/
+void QwtPainter::setSVGMode(bool on)
+{
+    d_SVGMode = on;
+}
+
+bool QwtPainter::isSVGMode()
+{
+    return d_SVGMode;
+}
+
+#endif // QT_VERSION < 0x040000
 
 /*!
   Scale all QwtPainter drawing operations using the ratio
@@ -311,8 +342,20 @@ void QwtPainter::drawText(QPainter *painter, int x, int y, int w, int h,
 void QwtPainter::drawText(QPainter *painter, const QRect &rect, 
         int flags, const QString &text)
 {
-    painter->drawText(
-        d_metricsMap.layoutToDevice(rect, painter), flags, text);
+    QRect textRect = d_metricsMap.layoutToDevice(rect, painter);
+#if QT_VERSION < 0x040000
+    if ( d_SVGMode &&
+        ( flags == 0 || flags & Qt::AlignVCenter ) 
+        && painter->device()->devType() & QInternal::Picture )
+    {
+        /*
+            Qt3 misalignes texts, when saving a text
+            to a SVG image. 
+         */
+        textRect.setY(textRect.y() - painter->fontMetrics().height() / 4);
+    }
+#endif
+    painter->drawText(textRect, flags, text);
 }
 
 #ifndef QT_NO_RICHTEXT
