@@ -353,3 +353,8 @@ QColor ColorButton::color() const
 {
 	return display->palette().color(QPalette::Window);
 }
+
+QSize ColorButton::sizeHint () const
+{
+	return QSize(4*btn_size, btn_size);
+}

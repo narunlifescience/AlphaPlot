@@ -263,20 +263,15 @@ void ConfigDialog::initPlotsPage()
 	boxLineWidth->setValue(app->axesLineWidth);
 	optionsLayout->addWidget( boxLineWidth, 4, 1 );
 	
-	lblLegend = new QLabel(); 
-	optionsLayout->addWidget( lblLegend, 5, 0 );
-	boxLegend = new QComboBox();
-	optionsLayout->addWidget( boxLegend, 5, 1 );
-
 	lblMargin = new QLabel(); 
-	optionsLayout->addWidget( lblMargin, 6, 0 );
+	optionsLayout->addWidget( lblMargin, 5, 0 );
 	boxMargin= new QSpinBox();
 	boxMargin->setRange(0, 1000);
 	boxMargin->setSingleStep(5);
 	boxMargin->setValue(app->defaultPlotMargin);
-	optionsLayout->addWidget( boxMargin, 6, 1 );
+	optionsLayout->addWidget( boxMargin, 5, 1 );
 
-	optionsLayout->setRowStretch( 7, 1 );
+	optionsLayout->setRowStretch( 6, 1 );
 
 	boxResize = new QCheckBox();
 	boxResize->setChecked(!app->autoResizeLayers);
@@ -668,7 +663,6 @@ void ConfigDialog::languageChange()
 	lblMinTicks->setText(tr("Minor Ticks" ));
 
 	lblMargin->setText(tr("Margin" )); 
-	lblLegend->setText(tr("Legend frame" )); 
 	labelFrameWidth->setText(tr("Frame width" )); 
 	boxBackbones->setText(tr("Axes &backbones"));
 	boxFrame->setText(tr("Canvas Fra&me"));

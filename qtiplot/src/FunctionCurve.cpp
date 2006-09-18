@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : scalePicker.h
+    File                 : FunctionCurve.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Scale and title picker classes
+    Description          : Function curve class
                            
  ***************************************************************************/
 
@@ -26,77 +26,31 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qobject.h>
+#include "FunctionCurve.h"
+#include <qpainter.h>
 
-class QwtPlot;
-class QwtScaleWidget;
-class QwtTextLabel;
-class QLabel;
-#include <QPoint>
-class QRect;
-	
-//! Scale picker
-class ScalePicker: public QObject
+FunctionCurve::FunctionCurve(const char *name):
+    QwtPlotCurve(name)
 {
-    Q_OBJECT
-public:
-    ScalePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
+}
 
-	//! The rect of a scale without the title
-	QRect scaleRect(const QwtScaleWidget *) const;
-
-	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
-	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
-	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
-
-	void refresh();
-	
-	QwtPlot *plot() { return (QwtPlot *)parent(); }
-
-signals:
-	void clicked();
-
-	void axisRightClicked(int);
-	void axisTitleRightClicked(int);
-
-	void axisDblClicked(int);
-	void axisTitleDblClicked(int);
-
-	void xAxisTitleDblClicked();
-	void yAxisTitleDblClicked();
-	void rightAxisTitleDblClicked();
-	void topAxisTitleDblClicked();
-	
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
-private:
-	bool movedGraph;
-	QPoint presspos;
-};
-
-class TitlePicker: public QObject
+FunctionCurve::FunctionCurve(const FunctionType& t, const char *name):
+    QwtPlotCurve(name),
+	d_type(t)
 {
-    Q_OBJECT
-public:
-    TitlePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
+}
 
-signals:
-	void clicked();
-    void doubleClicked();
-	void removeTitle();
-	void showTitleMenu();
+void FunctionCurve::setRange(double from, double to)
+{
+	range_from = from;
+	range_to = to;
+}
 
-	// moving and highlighting the plot parent
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
-protected:
-	QwtTextLabel *title;
-	bool movedGraph;
-	QPoint presspos;
-};
+void FunctionCurve::copy(FunctionCurve* f)
+{
+	d_type = f->functionType();
+	d_variable = f->variable();
+	d_formulas = f->formulas();
+	range_from = f->startRange();
+	range_to = f->endRange();
+}

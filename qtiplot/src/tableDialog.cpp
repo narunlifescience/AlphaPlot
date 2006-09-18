@@ -109,6 +109,8 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	columnsBox->insertItem(tr("X (abscissae)"));
 	columnsBox->insertItem(tr("Y (ordinates)"));
 	columnsBox->insertItem(tr("Z (height)"));
+	columnsBox->insertItem(tr("X Error"));
+	columnsBox->insertItem(tr("Y Error"));
 
 	displayBox = new QComboBox(vbox2, "displayBox" );
 	displayBox->insertItem(tr("Numeric"));
@@ -163,6 +165,9 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 
 void TableDialog::enablePrecision(int f)
 {
+if(displayBox->currentItem())
+	return;//the col type != "Numeric"
+
 if (!f)
 	{
 	precisionBox->setValue(6);
@@ -236,7 +241,6 @@ else if (colType == Table::Time)
 void TableDialog::setWorksheet(Table * table)
 {
 w=table;
-w->storeCellsToMemory();
 updateColumn(w->selectedColumn());
 }
 
@@ -273,13 +277,11 @@ switch(colType)
 	break;
 
 	case 2:
-		 w->setDateTimeFormat(colType, formatBox->currentText(), 
-								applyToRightCols->isChecked()); 
+		 w->setDateTimeFormat(colType, "yyyy-MM-dd", applyToRightCols->isChecked()); 
 	break;
 
 	case 3:
-		w->setDateTimeFormat(colType, formatBox->currentText(), 
-							applyToRightCols->isChecked()); 
+		w->setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked()); 
 	break;
 
 	case 4:
@@ -300,7 +302,6 @@ switch(colType)
 
 void TableDialog::closeEvent( QCloseEvent* ce )
 {
-w->freeMemory();
 ce->accept();
 }
 
@@ -309,19 +310,27 @@ void TableDialog::setPlotDesignation(int i)
 switch(i)
 	{
 	case 0:
-		w->disregardCol();
+		w->setPlotDesignation(Table::None);
 	break;
 
 	case 1:
-		w->setXCol();
+		w->setPlotDesignation(Table::X);
 	break;
 
 	case 2:
-		w->setYCol();
+		w->setPlotDesignation(Table::Y);
 	break;
 
 	case 3:
-		w->setZCol();
+		w->setPlotDesignation(Table::Z);
+	break;
+
+	case 4:
+		w->setPlotDesignation(Table::xErr);
+	break;
+
+	case 5:
+		w->setPlotDesignation(Table::yErr);
 	break;
 	}
 }

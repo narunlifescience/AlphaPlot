@@ -125,7 +125,7 @@ FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool moda
 
     polarPage = new QWidget( optionStack, "polarPage" );
 
-	GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), polarPage,"GroupBox3" );
+	GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,QString(), polarPage,"GroupBox3" );
 	GroupBox3->setFlat(true);
 	
     textPolarParameter = new QLabel( GroupBox3, "textPolarParameter" );

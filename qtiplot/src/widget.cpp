@@ -35,89 +35,89 @@
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)
 {
-	w_label = label;
-	caption_policy = Both;
-	askOnClose = true;
-	w_status = Normal;
+w_label = label;
+caption_policy = Both;
+askOnClose = true;
+w_status = Normal;
 	setObjectName(QString(name));
 }
 
 void MyWidget::setCaptionPolicy(CaptionPolicy policy)
 {
-	caption_policy = policy;
-	switch (caption_policy)
+caption_policy = policy;
+switch (caption_policy)
 	{
-		case Name:
+	case Name:
 			setWindowTitle(objectName());
-			break;
+	break;
 
-		case Label:
-			if (!w_label.isEmpty())
+	case Label:
+		if (!w_label.isEmpty())
 				setWindowTitle(w_label);
-			else
+		else
 				setWindowTitle(objectName());
-			break;
+	break;
 
-		case Both:
-			if (!w_label.isEmpty())
+	case Both:
+		if (!w_label.isEmpty())
 				setWindowTitle(objectName() + " - " + w_label);
-			else
+		else
 				setWindowTitle(objectName());
-			break;
+	break;
 	}
 };
 
 void MyWidget::closeEvent( QCloseEvent *e )
 {
-	if (askOnClose)
-	{
-		switch( QMessageBox::information(0,tr("QtiPlot"),
+if (askOnClose)
+    {
+    switch( QMessageBox::information(0,tr("QtiPlot"),
 					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
-					tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
+				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
 		{
-			case 0:	
-				e->accept();
-				emit closedWindow(this);
-				break;
+		case 0:
+			emit closedWindow(this);
+			e->accept();
+		break;
 
-			case 1:
-				e->ignore();
-				emit hiddenWindow(this);
-				break;
+		case 1:
+			e->ignore();
+			emit hiddenWindow(this);
+		break;
 
-			case 2:
-				e->ignore();
-				break;
+		case 2:
+			e->ignore();
+		break;
 		} 
-	}
-	else 
-	{
-		e->accept();
-		emit closedWindow(this);
-	}
+    }
+else 
+    {
+	emit closedWindow(this);
+    e->accept();
+    }
 }
 
 QString MyWidget::aspect()
 {
-	QString s = tr("Normal");
-	switch (w_status)
+QString s = tr("Normal");
+switch (w_status)
 	{
-		case Hidden:
-			return tr("Hidden");
-			break;
+	case Hidden:
+		return tr("Hidden");
+	break;
 
-		case Normal:
-			break;
+	case Normal:
+	break;
 
-		case Minimized:
-			return tr("Minimized");
-			break;
+	case Minimized:
+		return tr("Minimized");
+	break;
 
-		case Maximized:
-			return tr("Maximized");
-			break;
+	case Maximized:
+		return tr("Maximized");
+	break;
 	}
-	return s;
+return s;
 };
 
 bool MyWidget::event( QEvent *e )
@@ -126,42 +126,42 @@ bool MyWidget::event( QEvent *e )
 	if( e->type() == QEvent::WindowStateChange)
 	{
 		if( windowState() & Qt::WindowMinimized ) 
-			w_status = Minimized;
+	w_status = Minimized;
 		else if ( windowState() & Qt::WindowMaximized ) 
-			w_status = Maximized;
+	w_status = Maximized;
 		else
-		{
-			user_request = true; 
-			w_status = Normal; 
-		}
+	{
+	user_request = true; 
+	w_status = Normal; 
+	}
 
-		emit statusChanged(this);
+emit statusChanged (this);
 	}
 	return result;
 }
 
 void MyWidget::setHidden()
 {
-	w_status = Hidden; 
-	emit statusChanged(this);
-	hide();
+w_status = Hidden; 
+emit statusChanged (this);
+hide();
 }
 
 void MyWidget::setNormal()
 {
-	w_status = Normal; 
-	emit statusChanged(this);
+w_status = Normal; 
+emit statusChanged (this);
 }
 
 void MyWidget::showMaximized()
 {
-	user_request = this->isVisible();
-	QWidget::showMaximized();
+user_request = this->isVisible();
+QWidget::showMaximized();
 }
 
 QString MyWidget::sizeToString()
 {
-	return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
+return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
 }
 
 

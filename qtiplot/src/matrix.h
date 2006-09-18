@@ -34,7 +34,9 @@
 #include <QContextMenuEvent>
 #include <QEvent>
 #include "widget.h"
-	
+
+class ScriptingEnv;
+
 //! Matrix worksheet class
 class Matrix: public MyWidget
 {
@@ -42,7 +44,7 @@ class Matrix: public MyWidget
 
 public:
 
-	Matrix(int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Matrix(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Matrix(){};
 	
 	int numRows();
@@ -51,7 +53,6 @@ public:
 	void init(int rows, int cols);
 
 	bool isEmptyRow(int row);
-	void addDataRow(const QString& s, int cols);
 
 	//event handlers
 	bool eventFilter(QObject *object, QEvent *e);
@@ -71,9 +72,7 @@ public slots:
 	void invert();
 	double determinant();
 
-	void setValues (const QString& txt, const QString& formula,
-					const QStringList& rowIndexes, const QStringList& colIndexes,
-					int startRow, int endRow, int startCol, int endCol);
+	bool calculate(int startRow, int endRow, int startCol, int endCol);
 
 	QString text (int row, int col);
 	void setText (int row, int col, const QString & text );
@@ -107,8 +106,8 @@ public slots:
 	bool columnsSelected();
 	void deleteSelectedColumns();
 
-	void storeCellsToMemory();
-	void freeMemory();
+	void saveCellsToMemory();
+	void forgetSavedCells();
 
 	double xStart(){return x_start;};
 	double xEnd(){return x_end;};
@@ -131,6 +130,7 @@ private:
 	//!Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, x_end, y_start, y_end;
+	ScriptingEnv *scriptEnv;
 };
    
 #endif

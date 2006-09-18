@@ -58,7 +58,7 @@ class MultiLayer: public MyWidget
 
 public:
     MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	Q3PtrList<QWidget> *graphPtrs(){return graphsList;};
+	QWidgetList graphPtrs(){return graphsList;};
 	LayerButton* addLayerButton();	
 
 	enum HorAlignement{HCenter, Left, Right};
@@ -74,7 +74,7 @@ public:
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
 	
-	Q3PtrList<QWidget> *buttonsList, *graphsList;
+	QWidgetList buttonsList, graphsList;
 	Q3HBox  *hbox1;
 	QWidget *canvas;
 
@@ -91,7 +91,7 @@ public slots:
     void removeLayer();
 	void confirmRemoveLayer();
 
-	void addTextLayer();
+	void addTextLayer(int f, const QFont& font, const QColor& textCol, const QColor& backgroundCol);
 	void addTextLayer(const QPoint& pos);
 
 	Graph* activeGraph(){return active_graph;};
@@ -213,6 +213,12 @@ private:
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	int xMouse, yMouse, xActiveGraph, yActiveGraph;//used for moving layers
 	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
+
+	//! Used when adding text markers on new layers
+	int defaultTextMarkerFrame;
+	QFont defaultTextMarkerFont;
+	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
+
 };
 
 	

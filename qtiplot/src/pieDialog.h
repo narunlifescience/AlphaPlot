@@ -122,4 +122,4 @@ private:
 	MultiLayer *mPlot;
 };
 
-#endif // GENDIALOG_H
+#endif // PIEDIALOG_H

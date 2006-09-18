@@ -43,8 +43,10 @@
 //! Import multiple ASCII files dialog
 class ImportFilesDialog: public QFileDialog
 {
+	Q_OBJECT
+
 private:
-	QComboBox * importType;
+	QComboBox* importType;
 
 public:
 	//! Constructor
@@ -53,51 +55,24 @@ public:
 	 * \param parent parent widget
 	 * \param fl window flags
 	 */
-	ImportFilesDialog(bool importTypeEnabled, QWidget * parent = 0, Qt::WFlags flags = 0 ) 
-	  : QFileDialog( parent, flags )
-	{
-		setWindowTitle(tr("QtiPlot - Import Multiple ASCII Files"));
-
-		QStringList filters;
-		filters << "All files (*)" << "Text (*.TXT *.txt)" << "Data (*.DAT *.dat)";
-		setFilters( filters );
-
-		setFileMode( QFileDialog::ExistingFiles );
-
-		if (importTypeEnabled)
-		{
-			QLabel* label = new QLabel( "Import each file as: " );
-
-			importType = new QComboBox();
-			importType->addItem(tr("New Table"));
-			importType->addItem(tr("New Columns"));
-			importType->addItem(tr("New Rows"));
-
-			// FIXME: The following code may not work anymore
-			// if the internal layout of QFileDialog changes
-			layout()->addWidget( label );
-			layout()->addWidget( importType );
-		}
-	};
+	ImportFilesDialog(bool importTypeEnabled, QWidget * parent = 0, Qt::WFlags flags = 0 );
 
 	//! Return the selected import option
 	/**
 	 * Do not call this when the dialog was
 	 * created with importTypeEnabled == false
 	 */
-	int importFileAs()
-	{
-		return importType->currentIndex();
-	};
-
+	int importFileAs();
 };
 
 
 //! Export as image dialog
 class ImageExportDialog: public QFileDialog
 {
+	Q_OBJECT
+
 private:
-	QCheckBox * boxOptions;
+	QCheckBox* boxOptions;
 
 public:
 	//! Constructor
@@ -105,45 +80,11 @@ public:
 	 * \param parent parent widget
 	 * \param fl window flags
 	 */
-	ImageExportDialog( QWidget * parent = 0, Qt::WFlags flags = 0 )
-	  : QFileDialog( parent, flags )
-	{
-		setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
+	ImageExportDialog( QWidget * parent = 0, Qt::WFlags flags = 0 );
+	bool showExportOptions(){return boxOptions->isChecked();};
 
-		QList<QByteArray> list = QImageWriter::supportedImageFormats();
-
-		list << "EPS";
-		qSort(list);
-
-		QStringList filters, selectedFilter;			
-		for(int i=0 ; i<list.count() ; i++)
-		{
-			filters << "*."+list[i].toLower();
-		}
-		setFilters( filters );
-		setFileMode( QFileDialog::AnyFile );
-
-		boxOptions = new QCheckBox();
-		boxOptions->setText( "Show export &options" );
-#ifdef Q_OS_WIN // Windows systems
-		boxOptions->setChecked( true );			
-#else
-		boxOptions->setChecked( false );
-#endif
-		// FIXME: The following code may not work anymore
-		// if the internal layout of QFileDialog changes
-		QSpacerItem * si1 = new QSpacerItem( 20, 20 );
-		QSpacerItem * si2 = new QSpacerItem( 20, 20 );
-		layout()->addItem( si1 );
-		layout()->addItem( si2 );
-		layout()->addWidget( boxOptions );
-	};
-
-	//! Return whether the export options check box is checked
-	bool showExportOptions()
-	{
-		return boxOptions->isChecked();
-	};
+public slots:
+	void showOptionsBox ( const QString & filter);
 };
 
 #endif

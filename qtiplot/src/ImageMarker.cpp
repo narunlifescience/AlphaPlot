@@ -33,9 +33,9 @@
 #include <qwt_plot_canvas.h>
 
 ImageMarker::ImageMarker(const QPixmap& p):
-    pic(p),
-	origin(QPoint(0,0)),
-	picSize(p.size())
+    d_pic(p),
+	d_pos(QPoint(0,0)),
+	d_picSize(p.size())
 {
 }
 
@@ -46,7 +46,7 @@ void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap 
 	const int x1 = xMap.transform(d_rect.right());
 	const int y1 = yMap.transform(d_rect.bottom());
 
-	p->drawPixmap(QRect(QPoint(x0, y0), QPoint(x1, y1)), pic);
+	p->drawPixmap(QRect(QPoint(x0, y0), QPoint(x1, y1)), d_pic);
 }
 
 QSize ImageMarker::size()
@@ -62,7 +62,7 @@ QSize ImageMarker::size()
 
 void ImageMarker::setSize(const QSize& size)
 {
-	picSize = size;
+	d_picSize = size;
 
 	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
 	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
@@ -74,9 +74,22 @@ void ImageMarker::setSize(const QSize& size)
 	d_rect.setBottom(yMap.invTransform(y + size.height()));
 }
 
+void ImageMarker::setBoundingRect(const QwtDoubleRect& rect)
+{
+	if (d_rect == rect)
+		return;
+
+	d_rect = rect;
+
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	d_pos = QPoint(xMap.transform(rect.left()), yMap.transform(rect.top()));
+}
+
 void ImageMarker::setOrigin(const QPoint& p)
 {
-	origin = p;
+	d_pos = p;
 
 	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
 	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
@@ -107,8 +120,8 @@ void ImageMarker::updateOrigin()
 	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
 	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
-	d_rect.moveTo(xMap.invTransform(origin.x()), yMap.invTransform(origin.y()));
+	d_rect.moveTo(xMap.invTransform(d_pos.x()), yMap.invTransform(d_pos.y()));
 
-	d_rect.setRight(xMap.invTransform(origin.x() + picSize.width()));
-	d_rect.setBottom(yMap.invTransform(origin.y() + picSize.height()));
+	d_rect.setRight(xMap.invTransform(d_pos.x() + d_picSize.width()));
+	d_rect.setBottom(yMap.invTransform(d_pos.y() + d_picSize.height()));
 }

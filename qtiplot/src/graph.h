@@ -75,7 +75,6 @@ public:
 
 	enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 	enum MarkerType{None=-1, Text = 0, Arrow=1, Image=2};
-	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
 	enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines, 
 				  Spline, Steps, Histogram, HorizontalBars, VectXYXY, ErrorBars, Box, VectXYAM};
 
@@ -117,7 +116,6 @@ public slots:
 	void updateBoxData(Table* w, const QString& yColName, int curve);
 	 
 	 int curves(){return n_curves;};
-	 int curveDataSize(int curve);
 	 bool validCurvesDataSize();
 	 double selectedXStartValue();
 	 double selectedXEndValue();
@@ -143,7 +141,6 @@ public slots:
 	 void exportToEPS(const QString& fname);
 	 void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 					 QPrinter::PageSize size, QPrinter::ColorMode col);
-	 static void addBoundingBox(const QString& fname, const QRect& rect);
 
 	 void exportToWmf(const QString& fname);
 	 
@@ -158,7 +155,7 @@ public slots:
 	 void addErrorBars(Table *w, const QString& xColName, const QString& yColName, 
 					   Table *errTable, const QString& errColName,
 					   int type, int width, int cap, const QColor& color,
-					   bool through, bool minus,bool plus);
+					   bool through, bool minus,bool plus, double xOffset = 0, double yOffset = 0);
 	
 	 void addErrorBars(Table *w, const QString& yColName, 
 						 Table *errTable, const QString& errColName,
@@ -168,6 +165,9 @@ public slots:
 	 void updateErrorBarsData(Table* w, int curve);
 	 void updateErrorBars(int curve,bool xErr,int width,int cap,
 		          const QColor& c,bool plus,bool minus,bool through);
+
+	 //! Called when a bar curve associated to an error bars curve curve is deleted
+	 void resetErrorBarsOffset(int index);
 				  
 	 // event handlers 
 	 void contextMenuEvent(QContextMenuEvent *);
@@ -175,7 +175,6 @@ public slots:
 
 	 // plot scales
 	 void setAxisScale(int axis,const QStringList& s);
-	 void setScaleDiv(int axis,const QStringList& s);
 	 QStringList plotLimits();
 	 void setScales(const QStringList& s);
 
@@ -190,6 +189,7 @@ public slots:
 	// zoom
 	 void zoomed (const QwtDoubleRect &rect);
 	 void zoom(bool on);
+	 void zoomOut();
 	 bool zoomOn();
 	 
 	 void movedPicker(const QPoint &pos, bool mark);
@@ -205,7 +205,6 @@ public slots:
 	 QString saveScale();
 	 QString saveScaleTitles();
 	 QString saveFonts();
-	 QString saveLegend();
 	 QString saveMarkers();
 	 QString saveCurveLayout(int index);
 	 QString saveAxesTitleColors();
@@ -228,9 +227,10 @@ public slots:
 	 void drawText(bool on);
 	 bool drawTextActive(){return drawTextOn;};
 	 
-	 void insertTextMarker(LegendMarker* mrk);
-	 long insertTextMarker(const QStringList& list);
-	 long insertTextMarker_obsolete(const QStringList& list);
+	 long insertTextMarker(LegendMarker* mrk);
+
+	 //! Used when opening a project file
+	 long insertTextMarker(const QStringList& list, int fileVersion);
 	 void updateTextMarker(const QString& text,int angle, int bkg,const QFont& fnt,
 						   const QColor& textColor, const QColor& backgroundColor);
 	
@@ -243,18 +243,30 @@ public slots:
 	 void highlightTextMarker(long markerID);
 	 void highlightImageMarker(long markerID);
 	 void moveMarkerBy(int dx, int dy);
-	 QFont defaultTextMarkerFont(){return defaultMarkerFont;};
 
+	 QFont defaultTextMarkerFont(){return defaultMarkerFont;};
+	 QColor textMarkerDefaultColor(){return defaultTextMarkerColor;};
+	 QColor textMarkerDefaultBackground(){return defaultTextMarkerBackground;};
 	 int textMarkerDefaultFrame(){return defaultMarkerFrame;};
-	 void setTextMarkerDefaultFrame(int f){defaultMarkerFrame = f;};
+	 void setTextMarkerDefaults(int f, const QFont &font, const QColor& textCol, const QColor& backgroundCol);
 	 
+	 Qt::PenStyle arrowLineDefaultStyle(){return defaultArrowLineStyle;};
+	 bool arrowHeadDefaultFill(){return defaultArrowHeadFill;};
+	 int arrowDefaultWidth(){return defaultArrowLineWidth;};
+	 int arrowHeadDefaultLength(){return defaultArrowHeadLength;};
+	 int arrowHeadDefaultAngle(){return defaultArrowHeadAngle;};
+	 QColor arrowDefaultColor(){return defaultArrowColor;};
+
+	 void setArrowDefaults(int lineWidth,  const QColor& c, Qt::PenStyle style,
+						   int headLength, int headAngle, bool fillHead);
+
 	 MarkerType copiedMarkerType(){return selectedMarkerType;};
 	 void setCopiedMarkerType(Graph::MarkerType type){selectedMarkerType=type;};
 	 void setCopiedMarkerEnds(const QPoint& start, const QPoint& end);
  	 void setCopiedTextOptions(int bkg, const QString& text, const QFont& font, 
 								const QColor& color, const QColor& bkgColor);
 	 void setCopiedArrowOptions(int width, Qt::PenStyle style, const QColor& color,
-													bool start, bool end, int headLength, int headAngle, bool filledHead);	
+								bool start, bool end, int headLength, int headAngle, bool filledHead);	
 	 void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};	
 	 QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 	 
@@ -262,16 +274,15 @@ public slots:
 	 Q3ValueList<int> textMarkerKeys();
 	 LegendMarker* textMarker(long id);
 
-	 void addTimeStamp(const QFont& fnt, int frameStyle);
+	 void addTimeStamp();
 	 
 	  // legend  
-	 void customLegend(int frame, const QFont& font);
+	 void customLegend();
 	 void removeLegend();
 	 void removeLegendItem(int index);
 	 void addLegendItem(const QString& colName);
-	 void insertLegend(const QStringList& lst);
-	 void insertLegend_obsolete(const QStringList& lst);
-	 void newLegend(const QFont& fnt, int frameStyle);
+	 void insertLegend(const QStringList& lst, int fileVersion);
+	 void newLegend();
 	 QSize newLegend(const QString& text);
 	 bool legendOn();
 	 
@@ -282,7 +293,9 @@ public slots:
 	 // line markers 
 	 LineMarker* lineMarker(long id);
 	 void insertLineMarker(LineMarker* mrk);
-	 void insertLineMarker(QStringList list);
+
+	 //! Used when opening a project file
+	 void insertLineMarker(QStringList list, int fileVersion);
 	 QwtArray<long> lineMarkerKeys();
 
 	 //!Draws a line/arrow depending on the value of "arrow"
@@ -295,7 +308,8 @@ public slots:
 	 QwtArray<long> imageMarkerKeys();
 	 void insertImageMarker(ImageMarker* mrk);
 	 void insertImageMarker(const QPixmap& photo, const QString& fileName);
-	 void insertImageMarker(const QStringList& options);
+
+	 void insertImageMarker(const QStringList& lst, int fileVersion);
 	 bool imageMarkerSelected();
 	 void updateImageMarker(int x, int y, int width, int height);
 	 
@@ -329,7 +343,7 @@ public slots:
 
 	 void setAxisFont(int axis,const QFont &fnt);
 	 QFont axisFont(int axis);
-	 void initFonts(const QFont &scaleTitleFnt,const QFont &numbersFnt,const QFont &textMarkerFnt);
+	 void initFonts(const QFont &scaleTitleFnt,const QFont &numbersFnt);
 	
 	 QColor axisTitleColor(int axis);
 	 void setXAxisTitleColor(const QColor& c);
@@ -385,7 +399,6 @@ public slots:
 	void setTicksLength(int minLength, int majLength);
 	void changeTicksLength(int minLength, int majLength);
 
-	QStringList labelsNumericFormat();
 	void setLabelsNumericFormat(const QStringList& l);
 	void setLabelsNumericFormat(int axis, const QStringList& l);	
 	void setLabelsNumericFormat(int axis, int format, int prec, const QString& formula);
@@ -589,18 +602,16 @@ public slots:
 	 void showIntensityTable();
 	 
 	 //user defined functions
-	 void modifyFunctionCurve(int curve, QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);
-	 void addFunctionCurve(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);	 
+	 void modifyFunctionCurve(int curve, int type, const QStringList &formulas, const QString &var,QList<double> &ranges, int points);
+	 void addFunctionCurve(int type, const QStringList &formulas, const QString& var,QList<double> &ranges, int points);	 
 	 //when reading from file
 	 void insertFunctionCurve(const QString& formula, double from, double to, int points);
-	 //for versions <0.4.3
-	 void insertOldFunctionCurve(const QString& formula, double from, double step, int points);
 
 	 void createWorksheet(const QString& name);
 	 void activateGraph();
 	 void moveGraph(const QPoint& pos);
 	 void releaseGraph();
-	 void highlightGraph(){emit highlightGraph(this);};
+	 void drawFocusRect();
 
 	//vector curves
 	void plotVectorCurve(Table* w, const QStringList& colList, int style);
@@ -636,6 +647,7 @@ public slots:
 	void setAutoscaleFonts(bool yes){autoScaleFonts = yes;};
 
 	static int obsoleteSymbolStyle(int type);
+	static QString penStyleName(Qt::PenStyle style);
 	static Qt::PenStyle getPenStyle(const QString& s);
 	static Qt::PenStyle getPenStyle(int style);
 	static Qt::BrushStyle getBrushStyle(int style);
@@ -712,7 +724,6 @@ private:
 	QStringList axesFormulas;
 	QStringList axesFormatInfo;//stores columns used for axes with text labels or  time/date format info
 	Q3ValueList <int> axisType;
-	Q3ValueList <int> lblFormat; //stores label format used for the axes
 	GridOptions grid;
 	MarkerType selectedMarkerType;
 	QwtPlotMarker::LineStyle mrklStyle;
@@ -730,10 +741,11 @@ private:
 
 	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
 	int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
+	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 	int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 	int auxArrowHeadLength, auxArrowHeadAngle;
 	int translationDirection;
-	long selectedMarker,legendMarkerID, startID, endID, functions;
+	long selectedMarker,legendMarkerID, startID, endID;
 	long mrkX,mrkY;//x=0 et y=0 line markers keys
 	bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 	
@@ -748,5 +760,10 @@ private:
 	QStringList fit_results;
 	double *peaks_array;
 	int n_peaks, selected_peaks, fit_type;
+
+	QColor defaultArrowColor;
+	int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
+	bool defaultArrowHeadFill;
+	Qt::PenStyle defaultArrowLineStyle;
 };
 #endif // GRAPH_H

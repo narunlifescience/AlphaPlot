@@ -33,6 +33,7 @@
 class QEvent;
 class QCloseEvent;
 class QString;
+class Folder;
 
 //! Extension to QWidget
 class MyWidget: public QWidget
@@ -93,7 +94,7 @@ public:
 	// TODO:
 	//! Not implemented yet
 	virtual void restore(const QStringList& ){};
-	
+
 	// TODO:
 	//! Not implemented, yet
 	virtual void print(){};
@@ -105,13 +106,13 @@ public:
 	//! Size of the widget as a string
 	virtual QString sizeToString();
 
-	//! Notifies a change in the status of a former maximized window after it was shown as normal as a result of an indirect user action (e.g.: another window was maximized)
+	//!Notifies a change in the status of a former maximized window after it was shown as normal as a result of an indirect user action (e.g.: another window was maximized)
 	void setNormal();
 
-	//! Notifies that a window was hidden by a direct user action
+	//!Notifies that a window was hidden by a direct user action
 	void setHidden();
 
-	// event handlers
+	//event handlers
 	//! Close event handler 
 	/**
 	 * Ask the user "delete, hide, or cancel?" if the 
@@ -128,9 +129,15 @@ public:
 	//! Tells if a resize event was requested by the user or generated programatically
 	bool userRequested(){return user_request;};
 
+	//! Returns the pointer to the parent folder of the window
+	Folder* folder(){return parentFolder;};
+
+	//! Initializes the pointer to the parent folder of the window
+	void setFolder(Folder* f){parentFolder = f;};
+
 signals:  
 	//! Emitted when the window was closed
-	void closedWindow(QWidget *);
+	void closedWindow(MyWidget *);
 	//! Emitted when the window was hidden
 	void hiddenWindow(MyWidget *);
 	void modifiedWindow(QWidget *);
@@ -139,6 +146,8 @@ signals:
 	void statusChanged(MyWidget *);
 
 private:
+	//!Pointer to the parent folder of the window
+	Folder *parentFolder;
 	//! The window label
 	/**
 	 * \sa setWindowLabel(), windowLabel(), setCaptionPolicy()

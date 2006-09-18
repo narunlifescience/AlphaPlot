@@ -30,7 +30,10 @@
 #define NOTE_H
 
 #include "widget.h"	
-#include <QTextEdit>
+#include "scriptedit.h"
+#include <qtextedit.h>
+
+class ScriptingEnv;
 
 //! Notes window class
 class Note: public MyWidget
@@ -39,21 +42,28 @@ class Note: public MyWidget
 
 public:
 
-	Note(const QString& label, QWidget* parent=0, const char *name=0, Qt::WFlags f=0);
+	Note(ScriptingEnv *env, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Note(){};
 
-	QTextEdit *te;
 		
-	void init();
+	void init(ScriptingEnv *env);
 
 public slots:
 	QString saveToString(const QString &info);
+	void restore(const QStringList&);
 
-	QTextEdit* textWidget(){return te;};
+	QTextEdit* textWidget(){return (QTextEdit*)te;};
 	QString text(){return te->text();};
 	void setText(const QString &s){te->setText(s);};
+	bool autoexec() const { return autoExec; }
+	void setAutoexec(bool);
+	void execute();
 	void modifiedNote();
-	void print();	
+	void print() { te->print(); }
+
+private:
+	ScriptEdit *te;
+	bool autoExec;
 };
    
 #endif

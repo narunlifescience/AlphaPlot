@@ -54,6 +54,8 @@ public:
 
 	void setOffset(int offset);
 	int offset() const {return bar_offset;};
+
+	double dataOffset();
 	
 private:
 	int bar_gap, bar_offset;

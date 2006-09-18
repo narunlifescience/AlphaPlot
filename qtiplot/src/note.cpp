@@ -27,6 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "note.h"
+#include "Scripting.h"
+#include "scriptedit.h"
 
 #include <QDateTime>
 #include <QLayout>
@@ -37,56 +39,72 @@
 #include <QVBoxLayout>
 #include <QPrintDialog>
 
-#include <math.h>
-
-Note::Note(const QString& label, QWidget* parent, const char *name, Qt::WFlags f)
+Note::Note(ScriptingEnv *env, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 				: MyWidget(label, parent, name, f)
 {
-	init();	
+init(env);	
 }
 
-void Note::init()
+void Note::init(ScriptingEnv *env)
 {
-	QDateTime dt = QDateTime::currentDateTime();
-	setBirthDate(dt.toString(Qt::LocalDate));
+autoExec = false;
+QDateTime dt = QDateTime::currentDateTime ();
+setBirthDate(dt.toString(Qt::LocalDate));
 
-	te = new QTextEdit();
-	QVBoxLayout * layout = new QVBoxLayout( this );
-	layout->addWidget(te);
-	layout->setMargin(0);
+te = new ScriptEdit(env, this, name());
+te->setContext(this);
+QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
+hlayout->addWidget(te);
 
-	setGeometry(0, 0, 500, 200);
-	connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+setGeometry(0, 0, 500, 200);
+connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
 }
 
 void Note::modifiedNote()
 {
-	emit modifiedWindow(this);
+emit modifiedWindow(this);
 }
 
 QString Note::saveToString(const QString &info)
 {
-	QString s= "<note>\n";
-	s+= QString(name()) + "\t" + birthDate() + "\n";
-	s+= info;
-	s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-	s+= te->text().stripWhiteSpace()+"\n";
-	s+="</note>\n";
-	return s;
+QString s= "<note>\n";
+s+= QString(name()) + "\t" + birthDate() + "\n";
+s+= info;
+s+= "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
+s+= "AutoExec\t" + QString(autoExec ? "1" : "0") + "\n";
+s+= "<content>\n"+te->text().stripWhiteSpace()+"\n</content>";
+s+="\n</note>\n";
+return s;
 }
 
-void Note::print()
+void Note::restore(const QStringList& data)
 {
-    QTextDocument *document = te->document();
-	QPrinter printer;
-	printer.setColorMode(QPrinter::GrayScale);
-	QPrintDialog printDialog(&printer);
-	// TODO: Write a dialog to use more features of Qt4's QPrinter class
-    if (printDialog.exec() == QDialog::Accepted) 
-	{
-        document->print(&printer);
-	}
+  QStringList::ConstIterator line = data.begin();
+  QStringList fields;
+
+  fields = QStringList::split("\t", *line, true);
+  if (fields[0] == "AutoExec")
+  {
+    setAutoexec(fields[1] == "1");
+    line++;
+  }
+
+  if (*line == "<content>") line++;
+  while (line != data.end() && *line != "</content>")
+    te->append((*line++)+"\n");
 }
 
+void Note::setAutoexec(bool exec)
+{
+  autoExec = exec;
+  if (autoExec)
+    te->setPaletteBackgroundColor(QColor(255,239,185));
+  else
+    te->unsetPalette();
+}
 
+void Note::execute()
+{
+  te->executeAll();
+}
 

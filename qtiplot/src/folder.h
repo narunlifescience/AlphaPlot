@@ -131,16 +131,16 @@ public:
     FolderListItem( Q3ListView *parent, Folder *f );
     FolderListItem( FolderListItem *parent, Folder *f );
 
-	enum {ListItemType = 1001};
+	enum {RTTI = 1001};
 
 	void setActive( bool o );
 	void cancelRename(int){return;};
 
-	virtual int rtti() const {return (int)ListItemType;};
+	virtual int rtti() const {return (int)RTTI;};
 
     Folder *folder() { return myFolder; };
 
-	//! This slot checks weather the folder item is a grandchild of the source folder 
+	//! Checks weather the folder item is a grandchild of the source folder 
 	/**
 	 * \param src source folder item
 	 */

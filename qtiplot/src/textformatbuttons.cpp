@@ -238,7 +238,7 @@ void TextFormatButtons::addSuperscript()
 void TextFormatButtons::formatText(const QString & prefix, const QString & postfix)
 {
 	QTextCursor cursor = connectedTextEdit->textCursor();
-	QString markedText = connectedTextEdit->textCursor().selectedText();
+	QString markedText = cursor.selectedText();
 	cursor.insertText(prefix+markedText+postfix);
 	if(markedText.isEmpty())
 	{

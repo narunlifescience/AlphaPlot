@@ -52,6 +52,7 @@ public:
 	void setColor(const QColor& c);
 	//! Get the color of the display part
 	QColor color() const;
+	QSize sizeHint() const;
 
 private:
 	QPushButton *selectButton;
@@ -64,6 +65,9 @@ signals:
 protected:
 	//! Initialize the widget (called from constructor)
 	void init();
+
+private:
+	int btn_size;
 };
 
 #endif

@@ -96,7 +96,7 @@ public slots:
 
 signals:
 	void showPlotAssociations(int);
-	void showFunctionDialog(const QString&, int);
+	void showFunctionDialog(Graph *, int);
 
 private:
 	int selectedCurve, defaultCurveLineWidth, defaultSymbolSize;

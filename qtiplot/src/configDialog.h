@@ -86,7 +86,7 @@ public:
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
 	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution;
 	QGroupBox *groupBox3DFonts, *groupBox3DCol;
-	QLabel *lblLegend, *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength;
+	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength;
 
 public slots:
     virtual void languageChange();

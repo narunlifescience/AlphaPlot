@@ -2,7 +2,9 @@
     File                 : matrixValuesDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, 
+                           Tilman Hoener zu Siederdissen,
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Set matrix values dialog
                            
@@ -34,8 +36,11 @@
 
 class QComboBox;
 class Q3TextEdit;
+class ScriptEdit;
 class QSpinBox;
 class QPushButton;
+class Matrix;
+class ScriptingEnv;
 	
 //! Set matrix values dialog
 class MatrixValuesDialog : public QDialog
@@ -43,7 +48,7 @@ class MatrixValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    MatrixValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    MatrixValuesDialog( ScriptingEnv *env, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
     ~MatrixValuesDialog();
 	
 	QSize sizeHint() const ;
@@ -52,7 +57,7 @@ public:
     QPushButton* PushButton3; 
     QPushButton* btnOk, *btnAddCell;
     QPushButton* btnCancel;
-    Q3TextEdit* commands;
+    ScriptEdit* commands;
     Q3TextEdit* explain;
 	QSpinBox *startRow, *endRow, *startCol, *endCol;
 	QPushButton *btnApply;
@@ -64,13 +69,11 @@ public slots:
 	void addCell();
 	void insertFunction();
 	void insertExplain(int index);
-	void setColumns(int c);
-	void setRows(int r);
-	void setFormula(const QString& s);
+	void setMatrix(Matrix *m);
 
-signals:
-	void setValues (const QString&, const QString&, const QStringList&, 
-			   const QStringList&, int, int, int, int);
+private:
+	Matrix *matrix;
+	ScriptingEnv *scriptEnv;
 };
 
 #endif //

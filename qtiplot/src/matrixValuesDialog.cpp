@@ -1,8 +1,10 @@
 /***************************************************************************
-    File                 : matrixValuesDialog.cpp
+    File                 : MatrixValuesDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, 
+                           Tilman Hoener zu Siederdissen,
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Set matrix values dialog
                            
@@ -27,7 +29,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "matrixValuesDialog.h"
-#include "parser.h"
+#include "Scripting.h"
+#include "scriptedit.h"
+#include "matrix.h"
 
 #include <qcombobox.h>
 #include <qspinbox.h>
@@ -44,259 +48,154 @@
 #include <Q3Frame>
 #include <Q3VBoxLayout>
 
-MatrixValuesDialog::MatrixValuesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+: QDialog( parent, name, modal, fl )
 {
-    if ( !name )
+	scriptEnv = env;
+	if ( !name )
 		setName( "MatrixValuesDialog" );
 
-    setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
-    setFocusPolicy( Qt::StrongFocus );
-	
+	setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
+	setFocusPolicy( Qt::StrongFocus );
+
 	Q3HBox *hbox1=new Q3HBox (this, "hbox1"); 
 	hbox1->setSpacing (5);
-	
+
 	Q3VBox *box1=new Q3VBox (hbox1, "box2"); 
 	box1->setSpacing (5);
 
 	explain = new Q3TextEdit(box1, "explain" );
 	explain->setReadOnly (true);
-	
+
 	Q3VBox *box2=new Q3VBox (hbox1, "box2"); 
 	box2->setMargin(5);
 	box2->setFrameStyle (Q3Frame::Box);
 
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal, "",box2, "GroupBox0" );
 	GroupBox1->setFlat(true);
-	
+
 	QLabel *TextLabel1 = new QLabel(GroupBox1, "TextLabel1" );
-    TextLabel1->setText( tr( "For row (i)" ) );
-	
+	TextLabel1->setText( tr( "For row (i)" ) );
+
 	startRow = new QSpinBox(1, 1000000, 1, GroupBox1, "startRow" );
 	startRow->setValue(1);
 
-    QLabel *TextLabel2 = new QLabel(GroupBox1, "TextLabel2" );
-    TextLabel2->setText( tr( "to" ) );
+	QLabel *TextLabel2 = new QLabel(GroupBox1, "TextLabel2" );
+	TextLabel2->setText( tr( "to" ) );
 
-    endRow =  new QSpinBox(1, 1000000, 1, GroupBox1, "endRow" );
-	
+	endRow =  new QSpinBox(1, 1000000, 1, GroupBox1, "endRow" );
+
 	QLabel *TextLabel3 = new QLabel(GroupBox1, "TextLabel3" );
-    TextLabel3->setText( tr( "For col (j)" ) );
-	
+	TextLabel3->setText( tr( "For col (j)" ) );
+
 	startCol = new QSpinBox(1, 1000000, 1, GroupBox1, "startCol" );
 	startCol->setValue(1);
 
-    QLabel *TextLabel4 = new QLabel(GroupBox1, "TextLabel2" );
-    TextLabel4->setText( tr( "to" ) );
+	QLabel *TextLabel4 = new QLabel(GroupBox1, "TextLabel2" );
+	TextLabel4->setText( tr( "to" ) );
 
-    endCol = new QSpinBox(1, 1000000, 1, GroupBox1, "endCol" );
+	endCol = new QSpinBox(1, 1000000, 1, GroupBox1, "endCol" );
 
 	Q3HBox *hbox5=new Q3HBox (box2, "hbox5"); 
 	hbox5->setSpacing (5);
 	hbox5->setMargin(5);
 
-    functions = new QComboBox( false, hbox5, "functions" );
-	
+	functions = new QComboBox( false, hbox5, "functions" );
+
 	PushButton3 = new QPushButton(hbox5, "PushButton3" );
-    PushButton3->setText( tr( "Add function" ) ); 
+	PushButton3->setText( tr( "Add function" ) ); 
 
 	btnAddCell = new QPushButton(hbox5, "btnAddCell" );
-    btnAddCell->setText( tr( "Add Cell" ) );
+	btnAddCell->setText( tr( "Add Cell" ) );
 
 	Q3HBox *hbox4=new Q3HBox (this, "hbox4"); 
 	hbox4->setSpacing (5);
-	
-	QLabel *TextLabel5 = new QLabel(hbox4, "TextLabel2" );
-    TextLabel5->setText( tr( "Cell(i,j)=" ) );
 
-	commands = new Q3TextEdit( hbox4, "commands" );
-	commands->setTextFormat(Qt::PlainText);
-    commands->setGeometry( QRect(10, 100, 260, 70) );
+	QLabel *TextLabel5 = new QLabel(hbox4, "TextLabel2" );
+	TextLabel5->setText( tr( "Cell(i,j)=" ) );
+
+	commands = new ScriptEdit( scriptEnv, hbox4, "commands" );
+	commands->setGeometry( QRect(10, 100, 260, 70) );
 	commands->setFocus();
-	
+
 	Q3VBox *box3=new Q3VBox (hbox4,"box3"); 
 	box3->setSpacing (5);
-	
+
 	btnOk = new QPushButton(box3, "btnOk" );
-    btnOk->setText( tr( "OK" ) );
+	btnOk->setText( tr( "OK" ) );
 
 	btnApply = new QPushButton(box3, "btnApply" );
-    btnApply->setText( tr( "Apply" ) );
+	btnApply->setText( tr( "Apply" ) );
 
-    btnCancel = new QPushButton( box3, "btnCancel" );
-    btnCancel->setText( tr( "Cancel" ) );
-	
+	btnCancel = new QPushButton( box3, "btnCancel" );
+	btnCancel->setText( tr( "Cancel" ) );
+
 	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
-    layout->addWidget(hbox1);
+	layout->addWidget(hbox1);
 	layout->addWidget(hbox5);
 	layout->addWidget(hbox4);
 
-setFunctions();
-insertExplain(0);
+	setFunctions();
+	insertExplain(0);
 
-connect(btnAddCell, SIGNAL(clicked()),this, SLOT(addCell()));
-connect(PushButton3, SIGNAL(clicked()),this, SLOT(insertFunction()));
-connect(btnOk, SIGNAL(clicked()),this, SLOT(accept()));
-connect(btnApply, SIGNAL(clicked()),this, SLOT(apply()));
-connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
-connect(functions, SIGNAL(activated(int)),this, SLOT(insertExplain(int)));
+	connect(btnAddCell, SIGNAL(clicked()),this, SLOT(addCell()));
+	connect(PushButton3, SIGNAL(clicked()),this, SLOT(insertFunction()));
+	connect(btnOk, SIGNAL(clicked()),this, SLOT(accept()));
+	connect(btnApply, SIGNAL(clicked()),this, SLOT(apply()));
+	connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
+	connect(functions, SIGNAL(activated(int)),this, SLOT(insertExplain(int)));
 }
 
 QSize MatrixValuesDialog::sizeHint() const 
 {
-return QSize( 400, 190 );
+	return QSize( 400, 190 );
 }
 
 void MatrixValuesDialog::accept()
 {
-if (apply())
-	close();
+	if (apply())
+		close();
 }
 
 bool MatrixValuesDialog::apply()
 {
-QString aux=commands->text().lower();	
-aux.remove("\n");
-	
-int pos1,pos2,pos3,i;
-QStringList variables, rowIndexes, colIndexes;
-int n = aux.count("cell(");
-for (i=0; i<n; i++)
-	{
-	pos1=aux.find("cell(",0,true);
-	pos2=aux.find("(",pos1+1);
-	pos3=aux.find(")",pos2+1);
-	
-	QString aux2=aux.mid(pos2+1,pos3-pos2-1);
-	if (aux2.contains("cell(") > 0)
-		{
-		QMessageBox::critical(0,tr("QtiPlot - Input function error"), 
-			tr("You cannot use cells recursevely!"));
-		return false;
-   		}
+	QString formula = commands->text();
+	QString oldFormula = matrix->formula();
 
-	QStringList items=QStringList::split(",", aux2, false);
-	QString ir = items[0].stripWhiteSpace();
-	QString ic = items[1].stripWhiteSpace();
-	if (ir == "0" || ic == "0")
-		{
-		QMessageBox::critical(0,tr("QtiPlot - Input function error"), 
-			tr("Column and row indexes must be greater than zero!"));
-		return false;
-   		}
-
-	rowIndexes << ir;
-	colIndexes << ic;
-	
-	QString s = "cell"+ QString::number(i);
-	variables << s;
-	aux.replace(pos1,5 + pos3 - pos2, s);
-	}
-	
-int m=(int)variables.count();
-double *vars = new double[m]; 
-MyParser parser;
-try
-    {
-	for (i=0; i<m; i++)
-		{
-		parser.DefineVar(variables[i].ascii(), &vars[i]);
-		MyParser rparser;
-		double l = 1;
-		rparser.DefineVar("i", &l);
-		rparser.DefineVar("j", &l);
-		try
-    		{	
-			rparser.SetExpr(rowIndexes[i].ascii());
-	        rparser.Eval();
-			}
-		catch(mu::ParserError &e)
-			{
-			QMessageBox::critical(0,"QtiPlot - Row index input error", QString::fromStdString(e.GetMsg()));
-			return false;
-   			}	
-		
-		try
-    		{	
-			rparser.SetExpr(colIndexes[i].ascii());
-	        rparser.Eval();
-			}
-		catch(mu::ParserError &e)
-			{
-			QMessageBox::critical(0,"QtiPlot - Column index input error", QString::fromStdString(e.GetMsg()));
-			return false;
-			}
-
-		vars[i]=1.0;//dumy value
-		}
-
-	double index = 1;
-	parser.DefineVar("i", &index);
-	parser.DefineVar("j", &index);
-	parser.SetExpr(aux.ascii());
-	parser.Eval();
-	}
-catch(mu::ParserError &e)
-	{
-	QString errString = QString::fromStdString(e.GetMsg());
-	for (i=0;i<m;i++)
-		errString.replace(variables[i], "cell(" + rowIndexes[i] + "," + colIndexes[i] + ")", true);
-
-	QMessageBox::critical(0, tr("QtiPlot - Input function error"), tr(errString));
+	matrix->setFormula(formula);
+	if (matrix->calculate(startRow->value()-1, endRow->value()-1, startCol->value()-1, endCol->value()-1))
+		return true;
+	matrix->setFormula(oldFormula);
 	return false;
-    }
-delete[] vars;
-emit setValues(commands->text(), aux, rowIndexes, colIndexes,
-			   startRow->value(), endRow->value(), startCol->value(), endCol->value());
-return true;
 }
 
-void MatrixValuesDialog::setFormula(const QString& s)
+void MatrixValuesDialog::setMatrix(Matrix* m)
 {
-	commands->setText(s);
-}
-
-void MatrixValuesDialog::setColumns(int c)
-{
-	endCol->setValue(c);
-}
-
-void MatrixValuesDialog::setRows(int r)
-{
-	endRow->setValue(r);
+	matrix = m;
+	commands->setText(m->formula());
+	endCol->setValue(m->numCols());
+	endRow->setValue(m->numRows());
+	commands->setContext(m);
 }
 
 void MatrixValuesDialog::setFunctions()
 {
-functions->insertStringList(MyParser::functionsList(), -1);
+	functions->insertStringList(scriptEnv->mathFunctions(), -1);
 }
 
 void MatrixValuesDialog::insertExplain(int index)
 {
-explain->setText(MyParser::explainFunction(index));
+	explain->setText(scriptEnv->mathFunctionDoc(functions->text(index)));
 }
 
 void MatrixValuesDialog::insertFunction()
 {
-QString f=functions->currentText();
-if (commands->hasSelectedText())
-	{	
-	f=f.remove(")");
-	QString markedText=commands->selectedText();
-	commands->insert(f+markedText+")");
-	}
-else
-	{
-	commands->insert( f );
-	int index, para;
-	commands->getCursorPosition (&para,&index);
-	commands->setCursorPosition (para,index-1);
-	}
+	commands->insertFunction(functions->currentText());
 }
 
 void MatrixValuesDialog::addCell()
 {
-commands->insert("cell(i, j)");
+	commands->insert("cell(i, j)");
 }
 
 MatrixValuesDialog::~MatrixValuesDialog()

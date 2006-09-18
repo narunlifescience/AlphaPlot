@@ -37,6 +37,8 @@
 #include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>
 
+class Grid;
+
 //! Plot window class
 class Plot: public QwtPlot
 {	
@@ -45,9 +47,9 @@ class Plot: public QwtPlot
 public:	
 	Plot(QWidget *parent = 0, const char *name = 0);
 	
-	enum TicksType{None = 0, Out = 1, Both = 2, In = 3};
+	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
 	
-	QwtPlotGrid *grid(){return d_grid;};
+	QwtPlotGrid *grid(){return (QwtPlotGrid *)d_grid;};
 	QList<int> curveKeys(){return d_curves.keys();};
 
 	int insertCurve(QwtPlotCurve *c);
@@ -64,11 +66,11 @@ public:
 	int insertMarker(QwtPlotMarker *m);
 	void removeMarker(int index);
 
-	QList<int> getMajorTicksType(){return majorTicksType;};
-	void setMajorTicksType(int axis, int type){majorTicksType[axis]=type;}
+	QList<int> getMajorTicksType();
+	void setMajorTicksType(int axis, int type);
 
-	QList<int> getMinorTicksType(){return minorTicksType;};
-	void setMinorTicksType(int axis, int type){minorTicksType[axis]=type;}
+	QList<int> getMinorTicksType();
+	void setMinorTicksType(int axis, int type);
 
 	int minorTickLength() const;
 	int majorTickLength() const;
@@ -80,6 +82,9 @@ public:
 	void setAxisLabelFormat(int axis, char f, int prec);
     void axisLabelFormat(int axis, char &f, int &prec) const;
 
+	int axisLabelFormat(int axis);
+	int axisLabelPrecision(int axis);
+
 	void printFrame(QPainter *painter, const QRect &rect) const;
 
 	QColor frameColor();
@@ -88,25 +93,21 @@ public:
 	void mouseReleaseEvent ( QMouseEvent * e );
 	void mouseMoveEvent ( QMouseEvent * e );
 
-	void drawPixmap(QPainter *painter, const QRect &rect);
 	virtual void print(QPainter *, const QRect &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 	
 protected:
-	/*void printCanvas(QPainter *painter, const QRect &canvasRect,
-   			 const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const;*/
+	void printScale(QPainter *painter, int axisId, int startDist, int endDist, 
+						  int baseDist, const QRect &rect) const;
+	void printCanvas(QPainter *painter, const QRect &canvasRect,
+   			 const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const;
 
 	virtual void drawItems (QPainter *painter, const QRect &rect,
 			const QwtArray< QwtScaleMap > &map, const QwtPlotPrintFilter &pfilter) const;
 
 	void drawInwardTicks(QPainter *painter, const QRect &rect, 
-							const QwtScaleMap&map, int axis) const;
+							const QwtScaleMap&map, int axis, bool min, bool maj) const;
 
-	void drawInwardMinorTicks(QPainter *painter, const QRect &rect, 
-							const QwtScaleMap &map, int axis) const;
-
-	void drawInwardMajorTicks(QPainter *painter, const QRect &rect, 
-							const QwtScaleMap &map, int axis) const;
 signals:
 	void selectPlot();
 	void moveGraph(const QPoint&);
@@ -115,18 +116,25 @@ signals:
 	void resizedGraph();
 
 protected:
-	QwtPlotGrid *d_grid;
+	Grid *d_grid;
 	QMap<int, QwtPlotCurve*> d_curves;
 	QMap<int, QwtPlotMarker*> d_markers;
-
-	QList<int> minorTicksType;
-	QList<int> majorTicksType;
 
 	int minTickLength, majTickLength;
 	bool movedGraph, ShiftButton, graphToResize;
 	QPoint presspos;
 	int marker_key;
 	int curve_key;
+};
+
+class Grid : public QwtPlotGrid
+{
+public:
+    Grid(){};
+
+void draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &rect) const;
+void drawLines(QPainter *painter, const QRect &rect, Qt::Orientation orientation, const QwtScaleMap &map, 
+    const QwtValueList &values) const;
 };
 
 #endif

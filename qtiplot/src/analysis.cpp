@@ -1231,7 +1231,7 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 		}
 		addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Non-linear fit of ")+curve);
 
-		result =outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
+		result = outputFitString(n, tolerance, X0, XN, points, solver, status, par, s, params,
 				curve, formula, tr("Non-linear"));
 	}
 	return  result;
@@ -2969,7 +2969,8 @@ bool Graph::validCurvesDataSize()
 	else 
 	{
 		int check=0;
-		while(curveDataSize(check)<2)
+		QwtPlotCurve *c = curve(check);
+		while(c && c->dataSize() < 2)
 		{
 			if(check==n_curves)
 			{
@@ -2978,6 +2979,7 @@ bool Graph::validCurvesDataSize()
 				return false;
 			}
 			check++;
+			c = curve(check);
 		}
 	}
 	return true;

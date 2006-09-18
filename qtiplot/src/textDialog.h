@@ -69,11 +69,6 @@ public:
 	int alignment();
 	//! Return the current font
 	QFont font();
-	//! Get label background type
-	/**
-	 * \sa setBackgroundType()
-	 */
-	int backgroundType();
 	//! Return rotation angle (not yet implemented)
 	int angle();
 
@@ -115,6 +110,7 @@ private slots:
 	void accept();
 	//! Apply changes
 	void apply();
+	void setDefaultValues();
 
 signals:
 	//! Emit all current values
@@ -143,12 +139,13 @@ protected:
 
 	ColorButton *colorBtn, *backgroundBtn;
 	QPushButton *buttonFont;
-	QComboBox *frameBox;
+	QComboBox *backgroundBox;
 	QPushButton *buttonOk;
 	QPushButton *buttonCancel;
 	QPushButton *buttonApply;
+	QPushButton *buttonDefault;
 	QComboBox *rotateBox;
-	QTextEdit *lineEdit;
+	QTextEdit *textEditBox;
 	QGroupBox *groupBox1, *groupBox2;
 	QComboBox *alignmentBox;
 	TextFormatButtons *formatButtons;

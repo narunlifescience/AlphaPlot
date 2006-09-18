@@ -1,10 +1,12 @@
 /***************************************************************************
-    File                 : scalePicker.h
+    File                 : scriptedit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, 
+                           Tilman Hoener zu Siederdissen,
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Scale and title picker classes
+    Description          : Scripting classes
                            
  ***************************************************************************/
 
@@ -26,77 +28,46 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qobject.h>
+#ifndef SCRIPTEDIT_H
+#define SCRIPTEDIT_H
 
-class QwtPlot;
-class QwtScaleWidget;
-class QwtTextLabel;
-class QLabel;
-#include <QPoint>
-class QRect;
-	
-//! Scale picker
-class ScalePicker: public QObject
+#include <q3textedit.h>
+//Added by qt3to4:
+#include <QMenu>
+#include "Scripting.h"
+#include <QTextEdit>
+
+class QAction;
+class QMenu;
+
+class ScriptEdit: public QTextEdit
 {
-    Q_OBJECT
-public:
-    ScalePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
+  Q_OBJECT
+    
+  public:
+    ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
+    ~ScriptEdit();
+    
+  public slots:
+    void execute();
+    void executeAll();
+    void evaluate();
+    void print();
+    void insertFunction(const QString &);
+    void insertFunction(QAction * action);
+    void setContext(QObject *context) { myScript->setContext(context); }
 
-	//! The rect of a scale without the title
-	QRect scaleRect(const QwtScaleWidget *) const;
+  protected:
+    QMenu * createStandardContextMenu();
 
-	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
-	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
-	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
+  private:
+    ScriptingEnv *scriptEnv;
+    Script *myScript;
+    QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint;
+    QMenu *functionsMenu;
 
-	void refresh();
-	
-	QwtPlot *plot() { return (QwtPlot *)parent(); }
-
-signals:
-	void clicked();
-
-	void axisRightClicked(int);
-	void axisTitleRightClicked(int);
-
-	void axisDblClicked(int);
-	void axisTitleDblClicked(int);
-
-	void xAxisTitleDblClicked();
-	void yAxisTitleDblClicked();
-	void rightAxisTitleDblClicked();
-	void topAxisTitleDblClicked();
-	
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
-private:
-	bool movedGraph;
-	QPoint presspos;
+  private slots:
+    void insertErrorMsg(const QString &message);
 };
 
-class TitlePicker: public QObject
-{
-    Q_OBJECT
-public:
-    TitlePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
-
-signals:
-	void clicked();
-    void doubleClicked();
-	void removeTitle();
-	void showTitleMenu();
-
-	// moving and highlighting the plot parent
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
-protected:
-	QwtTextLabel *title;
-	bool movedGraph;
-	QPoint presspos;
-};
+#endif

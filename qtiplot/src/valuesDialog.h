@@ -2,7 +2,9 @@
     File                 : valuesDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, 
+                           Tilman Hoener zu Siederdissen
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Set column values dialog
                            
@@ -45,6 +47,8 @@ class QSpinBox;
 class QPushButton;
 class QLabel;
 class Table;
+class ScriptingEnv;
+class ScriptEdit;
 	
 //! Set column values dialog
 class SetColValuesDialog : public QDialog
@@ -52,7 +56,7 @@ class SetColValuesDialog : public QDialog
     Q_OBJECT
 
 public:
-    SetColValuesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    SetColValuesDialog( ScriptingEnv *env, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
     ~SetColValuesDialog();
 	
 	QSize sizeHint() const ;
@@ -63,7 +67,7 @@ public:
     QPushButton* PushButton4;
     QPushButton* btnOk;
     QPushButton* btnCancel;
-    Q3TextEdit* commands;
+    ScriptEdit* commands;
     Q3TextEdit* explain;
 	QSpinBox* start, *end;
 	QPushButton *buttonPrev, *buttonNext, *addCellButton, *btnApply;
@@ -84,6 +88,7 @@ public slots:
 
 private:
 	Table* table;
+	ScriptingEnv *scriptEnv;
 };
 
 #endif //

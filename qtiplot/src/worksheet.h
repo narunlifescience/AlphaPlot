@@ -2,7 +2,9 @@
     File                 : worksheet.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, 
+                           Tilman Hoener zu Siederdissen,
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Table worksheet class
                            
@@ -37,9 +39,12 @@
 #include <Q3ValueList>
 #include <QEvent>
 #include <Q3MemArray>
+#include <Q3TableSelection>
 
 #include "graph.h"
 #include "widget.h"
+
+class ScriptingEnv;
 
 //! Table worksheet class
 class Table: public MyWidget
@@ -47,14 +52,16 @@ class Table: public MyWidget
     Q_OBJECT
 
 public:
-	enum PlotDesignation{All = -1, None = 0, X = 1, Y = 2, Z = 3};
+	enum PlotDesignation{All = -1, None = 0, X = 1, Y = 2, Z = 3, xErr = 4, yErr = 5};
 	enum ColType{Numeric = 0, Text = 1, Date = 2, Time = 3, Month = 4, Day = 5};
 
-   	Table(const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
+   	Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 		 bool stripSpaces, bool simplifySpaces, const QString &label, 
 		 QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	Table(int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Table(ScriptingEnv *env, int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Table();
+
+	Q3TableSelection getSelection();
 	
 public slots:
 	Q3Table* table(){return worksheet;};
@@ -83,14 +90,9 @@ public slots:
 	void loadHeader(QStringList header);
 	void setHeaderColType();
 	void setText(int row,int col,const QString & text);
-	void setColValues(double val, int startRow, int endRow);
-	void setColValues(const QString& text, const QString& com, 
-					const QStringList& colLabels, const QStringList& rowIndexes,
-					int startRow, int endRow);
 	void setRandomValues();
 	void setAscValues();
 
-	void setCommands(const QString& com);
 	void cellEdited(int,int col);
 	void moveCurrentCell();
 	void clearCell(int row, int col);
@@ -128,10 +130,8 @@ public slots:
 	// event handlers 
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
-	
-	// set col values
-	const QString parseComand(int line, const QString& comand, 
-								const QStringList& colLabels, const QStringList& rowIndexes);
+	void mouseMoveEvent( QMouseEvent * e);
+	void mousePressEvent( QMouseEvent * e);
 	
 	// column operations 
 	void removeCol();
@@ -139,7 +139,7 @@ public slots:
 	void clearCol();
 	void insertCol();
 	void insertCols(int start, int count);
-	void addCol();
+	void addCol(PlotDesignation pd = Y);
 	void addColumns(int c);
 	
 	//sorting
@@ -167,23 +167,27 @@ public slots:
 	bool noXColumn();
 	bool noYColumn();
 	int colX(int col);
-	void setXCol();	
 	int colY(int col);
-	void setYCol();
-	void setZCol();
-	void disregardCol();
 
 	int atRow(int col, double value);
 	void showColStatistics();
 	void showRowStatistics(); 
 
 	QStringList getCommands(){return commands;};
-	void setCommands(const QStringList& com){commands=com;};
+	//!Slot: Set all column formulae.
+	void setCommands(const QStringList& com);
+	//!Slot: Set all column formulae.
+	void setCommands(const QString& com);
+	//!Slot: Set formula for column col.
+	void setCommand(int col, const QString com);
+	//!Slot: Compute specified cells from column formula.
+	bool calculate(int col, int startRow, int endRow);
+	//!Slot: Compute selected cells from column formulae; use current cell if there's no selection.
+	bool calculate();
 	
 	// row operations 
 	void deleteSelectedRows();
 	void insertRow();
-	void addDataRow(const QString& s, int cols);
 
 	// selection operations 
 	void cutSelection();
@@ -192,7 +196,6 @@ public slots:
 	void pasteSelection();
 	void selectAllTable();
 	void deselect();
-	bool singleCellSelected();
 	bool singleRowSelected();
 	bool multipleRowsSelected();
 
@@ -223,10 +226,10 @@ public slots:
 	void setColumnTypes(Q3ValueList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
 
-	void storeCellsToMatrix();
-	void freeMatrix();
-	void storeCellsToMemory();
-	void freeMemory();
+	//!Slot: Use a copy of column col when accessing it via text() until forgetSavedCol() is called.
+	void saveColToMemory(int col);
+	//!Slot: Use spreadsheat data again for all columns after saveColToMemory(int) was called.
+	void forgetSavedCol();
 
 	QString columnFormat(int col){return col_format[col];};
 	QStringList getColumnsFormat(){return col_format;};
@@ -293,30 +296,33 @@ public slots:
 
 	//! This slot notifies the main application that the table has been modified. Triggers the update of 2D plots.
 	void notifyChanges();
+
+	//!Slot: notifies the main application that the width of a table column has been modified by the user
+	void colWidthModified(int, int, int);
 				
 signals:
 	void plot3DRibbon(Table *,const QString&);
 	void plotXYZ(Table *,const QString&, int);
-
 	void plotCol(Table *,const QStringList&, int);
 	void changedColHeader(const QString&, const QString&);
 	void removedCol(const QString&);
-	void modifiedData(const QString&);
+	void modifiedData(Table *, const QString&);
 	void optionsDialog();
 	void colValuesDialog();
 	void resizedTable(QWidget*);
-	void colMenu(int);
-	void showContextMenu();
+	void showContextMenu(bool selection);
 	void createTable(const QString&,int,int,const QString&);
 	
 private:
 	Q3Table *worksheet;
 	QString specifications, newSpecifications;
-	QStringList commands, cells, col_format, comments, col_label;
+	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
 	int selectedCol, lastSelectedCol;
-	double **wMatrix; //global matrix used to store the values of the table cells
+	QStringList savedCells;
+	int savedCol;
 	bool LeftButton;
+	ScriptingEnv *scriptEnv;
 };
 
 #endif

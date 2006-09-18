@@ -184,14 +184,6 @@ ignore_resize = false;
 aux_rect = QRect();
 cache_pix = QPixmap();
 	
-buttonsList=new Q3PtrList<QWidget>();
-// FIXME: auto delete does not work in Qt4
-// buttonsList->setAutoDelete( true );
-	
-graphsList=new Q3PtrList<QWidget>();
-// FIXME: auto delete does not work in Qt4
-// graphsList->setAutoDelete( true );
-	
 hbox1=new Q3HBox(this, "hbox1"); 
 int h = layerButtonHeight();
 hbox1->setFixedHeight(h);
@@ -219,9 +211,9 @@ return h;
 
 LayerButton* MultiLayer::addLayerButton()
 {
-for (int i=0;i<(int)buttonsList->count();i++)
+for (int i=0;i<buttonsList.count();i++)
 	{
-	LayerButton *btn=(LayerButton*) buttonsList->at(i);
+	LayerButton *btn=(LayerButton*) buttonsList.at(i);
 	btn->setOn(FALSE);
 	}
 
@@ -230,7 +222,7 @@ connect (button,SIGNAL(clicked(LayerButton*)),this, SLOT(activateGraph(LayerButt
 connect (button,SIGNAL(showLayerMenu()),this, SIGNAL(showWindowContextMenu()));
 connect (button,SIGNAL(showCurvesDialog()),this, SIGNAL(showCurvesDialog()));
 button->setOn(TRUE);
-buttonsList->append(button);
+buttonsList.append(button);
 hbox1->setMaximumWidth(graphs*button->width());
 
 button->show();
@@ -249,7 +241,7 @@ setGeometry(QRect(0, 0,graphs*graph_width,rows*graph_height+btn->height()));
 g->setIgnoreResizeEvents(true);
 
 active_graph=g;
-graphsList->append(g);
+graphsList.append(g);
 return g;
 }
 
@@ -262,7 +254,7 @@ g->setAttribute(Qt::WA_DeleteOnClose);
 
 g->setGeometry(QRect(0,0,graph_width, graph_height));
 g->plotWidget()->resize(QSize(graph_width, graph_height));	
-graphsList->append(g);
+graphsList.append(g);
 
 active_graph=g;
 g->show();
@@ -280,7 +272,7 @@ QSize size=QSize(width,height);
 g->plotWidget()->resize(size);
 g->setGeometry(x,y,width,height);
 g->removeLegend();
-graphsList->append(g);
+graphsList.append(g);
 
 active_graph=g;
 g->show();
@@ -296,7 +288,7 @@ int w = canvas->width();
 int h = canvas->height();
 g->setGeometry(QRect(0, 0, w, h));
 g->plotWidget()->resize(QSize(w,h));
-graphsList->append(g);
+graphsList.append(g);
 	
 connectLayer(g);
 active_graph=g;
@@ -309,15 +301,15 @@ return g;
 
 void MultiLayer::activateGraph(LayerButton* button)
 {
-for (int i=0;i<(int)buttonsList->count();i++)
+for (int i=0;i<buttonsList.count();i++)
 	{
-	LayerButton *btn=(LayerButton*)buttonsList->at(i);
+	LayerButton *btn=(LayerButton*)buttonsList.at(i);
 	if (btn->isOn())
 		btn->setOn(FALSE);
 
 	if (btn == button)	
 		{
-		active_graph=(Graph*) graphsList->at(i);
+		active_graph=(Graph*) graphsList.at(i);
 		active_graph->setFocus();
 		button->setOn(TRUE);
 		}
@@ -331,15 +323,15 @@ if (g && active_graph != g)
 	active_graph = g;
 	active_graph->setFocus();
 
-	foreach(QWidget *btn, *buttonsList)
+	foreach(QWidget *btn, buttonsList)
 		 ((LayerButton *)btn)->setOn(FALSE);
 	
-	for (int i=0;i<(int)graphsList->count();i++)
+	for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr = (Graph *)graphsList->at(i);
+		Graph *gr = (Graph *)graphsList.at(i);
 		if (gr == g)	
 			{
-			 LayerButton *btn = (LayerButton *)buttonsList->at(i);
+			 LayerButton *btn = (LayerButton *)buttonsList.at(i);
 			 btn->setOn(TRUE);
 			 return;
 			}
@@ -369,9 +361,9 @@ QApplication::setOverrideCursor(Qt::waitCursor);
 double w_ratio=(double)size.width()/(double)oldSize.width();
 double h_ratio=(double)(size.height())/(double)(oldSize.height());
 
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	if (gr && gr->isVisible() && !gr->ignoresResizeEvents())
 		{
 		QwtPlot *plot=gr->plotWidget();
@@ -475,21 +467,21 @@ void MultiLayer::removeLayer()
 //remove corresponding button
 LayerButton *btn=0;
 int i;
-for (i=0;i<(int)buttonsList->count();i++)
+for (i=0;i<buttonsList.count();i++)
 	{
-	btn=(LayerButton*)buttonsList->at(i);	
+	btn=(LayerButton*)buttonsList.at(i);	
 	if (btn->isOn())	
 		{
-		buttonsList->take(buttonsList->find(btn));
+		buttonsList.removeAt(buttonsList.indexOf(btn));
 		btn->close(true);			
 		break;
 		}
 	}
 	
 //update the texts of the buttons	
-for (i=0;i<(int)buttonsList->count();i++)
+for (i=0;i<buttonsList.count();i++)
 	{
-	 btn=(LayerButton*)buttonsList->at(i);	
+	 btn=(LayerButton*)buttonsList.at(i);	
 	 btn->setText(QString::number(i+1));
 	}
 	
@@ -499,10 +491,13 @@ if (active_graph->selectorsEnabled() || active_graph->zoomOn() ||
 		{
 		setPointerCursor();
 		}		
-		
-graphsList->take (graphsList->find(active_graph));
+
+int index = graphsList.indexOf(active_graph);
+graphsList.removeAt(index);
 active_graph->close();
 graphs--;
+if(index >= graphsList.count())
+	index--;
 		
 if (graphs == 0)
 	{
@@ -510,21 +505,21 @@ if (graphs == 0)
 	return;
 	}
 
-active_graph=(Graph*) graphsList->current();	
+active_graph=(Graph*) graphsList.at(index);	
 
-for (i=0;i<(int)graphsList->count();i++)
+for (i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	if (gr == active_graph)	
 		{
-		LayerButton *button=(LayerButton *)buttonsList->at(i);	
+		LayerButton *button=(LayerButton *)buttonsList.at(i);	
 		button->setOn(TRUE);
 		break;
 		}
 	}	
 	
 if (graphs)
-	hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList->at(0))->width());
+	hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList.at(0))->width());
 
 if (hasOverlapingLayers())
 	updateTransparency();
@@ -598,9 +593,9 @@ canvas->erase();
 g->setGeometry(QRect(QPoint(xActiveGraph,yActiveGraph),g->size()));
 	
 g->plotWidget()->resize(g->size());
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
 		makeTransparentLayer(gr);
 	gr->show();
@@ -626,7 +621,7 @@ gsl_vector *X = gsl_vector_calloc (cols);
 int i;
 for (i=0; i<graphs; i++)
 	{//calculate scales/canvas dimensions reports for each layer and stores them in the above vectors
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	QwtPlot *plot=gr->plotWidget();
 	QwtPlotLayout *plotLayout=plot->plotLayout();
 	QRect cRect=plotLayout->canvasRect();			
@@ -745,7 +740,7 @@ for (i=0; i<graphs; i++)
 				 + gsl_vector_get(maxXBottomHeight, row) - gsl_vector_get(xBottomR, i)));
 					
 	//resizes and moves layers
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	bool autoscaleFonts = false;
 	if (!userSize)
 		{//When the user specifies the layer canvas size, the window is resized
@@ -830,9 +825,9 @@ while (canvas_size != size && iterations < 10)
 if (userSize)
 	{//resize window
 	int i;
-	for (i=0;i<(int)graphsList->count();i++)
+	for (i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		gr->setIgnoreResizeEvents(true);
 		}
 
@@ -841,9 +836,9 @@ if (userSize)
 	this->resize(QSize(size.width() + right_margin,
 				  size.height() + bottom_margin + layerButtonHeight()));
 
-	for (i=0;i<(int)graphsList->count();i++)
+	for (i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		gr->setIgnoreResizeEvents(false);
 		}
 	}
@@ -856,9 +851,9 @@ QApplication::restoreOverrideCursor();
 QSize MultiLayer::maxSize()
 {
 int w=0, h=0, maxw=0, maxh=0;	
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	w = gr->pos().x() + gr->frameGeometry().width();
 
 	if (maxw <= w)
@@ -896,21 +891,15 @@ QwtPlotPrintFilter filter;
 filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
 				   QwtPlotPrintFilter::PrintCanvasBackground);
 
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		Plot *myPlot= gr->plotWidget();
 
 		int lw = myPlot->lineWidth();
 		QRect rect = QRect(gr->x() + lw, gr->y() + lw, myPlot->width() - 2*lw, 
 						  myPlot->height() - 2*lw);
-
-		if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
-			paint.fillRect(rect, myPlot->paletteBackgroundColor());
-
-		myPlot->drawPixmap(&paint, rect);
-		myPlot->printFrame(&paint, QRect(gr->x()+lw/2,gr->y()+lw/2, myPlot->width()-lw, 
-						  myPlot->height()-lw));//draw plot frame
+		myPlot->print(&paint, rect, filter);
 		}		
 paint.end();
 return pic;
@@ -984,14 +973,14 @@ if(scaleFactorX > scaleFactorY)
 else
 	scaleFactorY = scaleFactorX;
 
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	Plot *myPlot= (Plot *)gr->plotWidget();
 			
 	QwtPlotPrintFilter  filter; 
 	filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle 
-					  | QwtPlotPrintFilter::PrintCanvasBackground);
+					  |~QwtPlotPrintFilter::PrintCanvasBackground);
 
 	QPoint pos=gr->pos();
 	pos=QPoint(int(margin + pos.x()*scaleFactorX),int(margin + pos.y()*scaleFactorY));
@@ -999,24 +988,7 @@ for (int i=0;i<(int)graphsList->count();i++)
 	int width=int(myPlot->frameGeometry().width()*scaleFactorX);
 	int height=int(myPlot->frameGeometry().height()*scaleFactorY);
 
-	QRect rect = QRect(pos,QSize(width,height));
-
-	if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
-		paint.fillRect(rect, myPlot->paletteBackgroundColor());
-
-	int lw = myPlot->lineWidth();
-	if ( lw > 0)
-		{			
-		myPlot->printFrame(&paint, rect);
-				
-		rect.moveBy ( lw, lw);
-		rect.setWidth(rect.width() - 2*lw);
-		rect.setHeight(rect.height() - 2*lw);
-		}
-	
-	//paint.translate(canvas->width(), 0);
-	//paint.rotate(90);
-	myPlot->print(&paint, rect, filter);
+	myPlot->print(&paint, QRect(pos,QSize(width,height)), filter);
 	}
 
 if (hasOverlapingLayers())		
@@ -1027,9 +999,9 @@ void MultiLayer::exportToSVG(const QString& fname)
 {	
 QPicture picture;
 QPainter p(&picture);
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	Plot *myPlot= (Plot *)gr->plotWidget();
 
 	QPoint pos=gr->pos();
@@ -1037,13 +1009,7 @@ for (int i=0;i<(int)graphsList->count();i++)
 	int width=int(myPlot->frameGeometry().width());
 	int height=int(myPlot->frameGeometry().height());
 
-	QRect rect = QRect(pos,QSize(width,height));
-
-	myPlot->print(&p, rect);
-
-	int lw = myPlot->lineWidth();
-	if ( lw > 0)
-		myPlot->printFrame(&p, rect);
+	myPlot->print(&p, QRect(pos,QSize(width,height)));
 	}
 
 p.end();
@@ -1095,36 +1061,22 @@ QSize size=maxSize();
 double scaleFactorX=(double)(paintDevice->width()-2*margin)/(double)size.width();
 double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
 		
-for (int i=0; i<(int)graphsList->count(); i++)
+for (int i=0; i<(int)graphsList.count(); i++)
 	{			
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	Plot *myPlot= gr->plotWidget();
 			
 	QwtPlotPrintFilter  filter; 
     filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-				      QwtPlotPrintFilter::PrintCanvasBackground);
+				      ~ QwtPlotPrintFilter::PrintCanvasBackground);
 
 	QPoint pos=gr->pos();
 	pos=QPoint(margin + int(pos.x()*scaleFactorX), margin + int(pos.y()*scaleFactorY));
 			
 	int width=int(myPlot->frameGeometry().width()*scaleFactorX);
 	int height=int(myPlot->frameGeometry().height()*scaleFactorY);
-
-	QRect rect = QRect(pos,QSize(width,height));
-	if (myPlot->paletteBackgroundColor() != QColor(Qt::white))
-		painter->fillRect(rect, myPlot->paletteBackgroundColor());
-
-    int lw = myPlot->lineWidth();
-	if ( lw > 0)
-		{			
-		myPlot->printFrame(painter, rect);
-				
-		rect.moveBy (lw, lw);
-		rect.setWidth(rect.width() - 2*lw);
-		rect.setHeight(rect.height() - 2*lw);
-		}
 	
-	myPlot->print(painter, rect, filter);
+	myPlot->print(painter, QRect(pos,QSize(width,height)), filter);
 	}
 
 if (hasOverlapingLayers())
@@ -1134,9 +1086,9 @@ if (hasOverlapingLayers())
 void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 												const QFont& numbersFnt, const QFont& legendFnt)
 {
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		QwtPlot *plot=gr->plotWidget();
 			
 		plot->title().setFont(titleFnt);
@@ -1212,9 +1164,9 @@ QApplication::setOverrideCursor(Qt::waitCursor);
 
 showLayers(false);
 
-for (int i=0; i<(int)graphsList->count(); i++)
+for (int i=0; i<(int)graphsList.count(); i++)
 	{	
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
 		makeTransparentLayer(gr);
 	gr->show();
@@ -1225,9 +1177,9 @@ QApplication::restoreOverrideCursor();
 
 bool MultiLayer::hasOverlapingLayers()
 {
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	if (overlapsLayers(gr))
 		return true;
 	}
@@ -1239,9 +1191,9 @@ bool MultiLayer::overlapsLayers(Graph *g)
 {
 int  s=0;
 QRect r= g->frameGeometry();
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		QRect ar = gr->frameGeometry();
 		if  ( ar.intersects(r) )
 			s++;
@@ -1293,8 +1245,14 @@ connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
 connect (g,SIGNAL(highlightGraph(Graph*)),this,SLOT(highlightLayer(Graph*)));
 }
 
-void MultiLayer::addTextLayer()
+void MultiLayer::addTextLayer(int f, const QFont& font, 
+						const QColor& textCol, const QColor& backgroundCol)
 {
+defaultTextMarkerFont = font;
+defaultTextMarkerFrame = f; 
+defaultTextMarkerColor = textCol;
+defaultTextMarkerBackground = backgroundCol;
+
 addTextOn=TRUE;
 QApplication::setOverrideCursor(Qt::IBeamCursor);
 canvas->grabMouse();
@@ -1306,15 +1264,15 @@ Graph* g=addLayer();
 g->setTitle("");
 Q3MemArray<bool> axesOn(4);
 for (int j=0;j<4;j++)
-		axesOn[j]=FALSE;
+	axesOn[j]=FALSE;
 g->enableAxes(axesOn);
-g->plotWidget()->setLineWidth(1);
 g->setIgnoreResizeEvents(true);
+g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont, 
+						 defaultTextMarkerColor, defaultTextMarkerBackground);
 QSize size=g->newLegend(tr("enter your text here"));
 setGraphGeometry(pos.x(), pos.y(), size.width()+10, size.height()+10);
 g->setIgnoreResizeEvents(false);
 g->show();
-connectLayer(g);
 QApplication::restoreOverrideCursor();
 canvas->releaseMouse();
 addTextOn=FALSE;
@@ -1354,8 +1312,8 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 {
 if (e->key() == Qt::Key_F12)	
 	{
-	int index=graphsList->findRef ((QWidget *)active_graph);
-	Graph *g=(Graph *)graphsList->at(index+1);
+	int index = graphsList.indexOf((QWidget *)active_graph);
+	Graph *g=(Graph *)graphsList.at(index+1);
 	if (g)
 		{
 		setActiveGraph(g);
@@ -1366,8 +1324,8 @@ if (e->key() == Qt::Key_F12)
 	
 if (e->key() == Qt::Key_F10)	
 	{
-	int index=graphsList->findRef ((QWidget *)active_graph);
-	Graph *g=(Graph *)graphsList->at(index-1);
+	int index=graphsList.indexOf((QWidget *)active_graph);
+	Graph *g=(Graph *)graphsList.at(index-1);
 	if (g)
 		{
 		setActiveGraph(g);
@@ -1415,9 +1373,9 @@ Graph *resize_graph = 0;
 // Get the position of the mouse
 xMouse=e->x();
 yMouse=e->y();
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	intSize=gr->plotWidget()->size();
 	aux=gr->pos();	
 	if(xMouse>aux.x() && xMouse<(aux.x()+intSize.width()))
@@ -1504,9 +1462,9 @@ s+="Spacing\t"+QString::number(rowsSpace)+"\t"+QString::number(colsSpace)+"\n";
 s+="LayerCanvasSize\t"+QString::number(l_canvas_width)+"\t"+QString::number(l_canvas_height)+"\n";
 s+="Alignement\t"+QString::number(hor_align)+"\t"+QString::number(vert_align)+"\n";
 
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph* ag=(Graph*)graphsList->at(i);
+	Graph* ag=(Graph*)graphsList.at(i);
 	s+=ag->saveToString();
 	}
 return s+"</multiLayer>\n";
@@ -1524,9 +1482,9 @@ s+="Spacing\t"+QString::number(rowsSpace)+"\t"+QString::number(colsSpace)+"\n";
 s+="LayerCanvasSize\t"+QString::number(l_canvas_width)+"\t"+QString::number(l_canvas_height)+"\n";
 s+="Alignement\t"+QString::number(hor_align)+"\t"+QString::number(vert_align)+"\n";
 
-for (int i=0;i<(int)graphsList->count();i++)
+for (int i=0;i<(int)graphsList.count();i++)
 	{
-	Graph* ag=(Graph*)graphsList->at(i);
+	Graph* ag=(Graph*)graphsList.at(i);
 	s+=ag->saveAsTemplate();
 	}
 return s;
@@ -1534,11 +1492,11 @@ return s;
 
 bool MultiLayer::allLayersTransparent()
 {
-int graphs=(int)graphsList->count();
+int graphs=(int)graphsList.count();
 bool allTransparent = true;
 for (int i=0;i<graphs;i++)
 	{
-	Graph *gr=(Graph *)graphsList->at(i);
+	Graph *gr=(Graph *)graphsList.at(i);
 	QColor c = gr->plotWidget()->paletteBackgroundColor();
 	if (c != QColor(Qt::white))
 		return  false;
@@ -1669,18 +1627,18 @@ void MultiLayer::showLayers(bool ok)
 {
 if (ok)
 	{
-	for (int i=0;i<(int)graphsList->count();i++)
+	for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		if (!gr->isVisible())
 			gr->show();
 		}
 	}
 else
 	{
-	for (int i=0;i<(int)graphsList->count();i++)
+	for (int i=0;i<(int)graphsList.count();i++)
 		{
-		Graph *gr=(Graph *)graphsList->at(i);
+		Graph *gr=(Graph *)graphsList.at(i);
 		if (gr->isVisible())
 			gr->hide();
 		}
@@ -1754,14 +1712,14 @@ if (dn > 0)
 	{
 	for (int i = 0; i < dn; i++)
 		{//remove layer buttons
-		LayerButton *btn=(LayerButton*)buttonsList->getLast();	
+		LayerButton *btn=(LayerButton*)buttonsList.last();	
 		if (btn)
 			{
 			btn->close();
-			buttonsList->removeLast();
+			buttonsList.removeLast();
 			}
 		
-		Graph *g = (Graph *)graphsList->getLast();
+		Graph *g = (Graph *)graphsList.last();
 		if (g)
 			{//remove layers
 			if (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() || 
@@ -1769,7 +1727,7 @@ if (dn > 0)
 				setPointerCursor();
 
 			g->close();
-			graphsList->removeLast();
+			graphsList.removeLast();
 			}
 		}
 	graphs = n;
@@ -1779,18 +1737,20 @@ if (dn > 0)
 		return;
 		}
 
-	active_graph=(Graph*) graphsList->current();	
-	for (int j=0;j<(int)graphsList->count();j++)
+	// check whether the active graph has been deleted
+	if(graphsList.indexOf(active_graph) == -1)
+		active_graph=(Graph*) graphsList.last();	
+	for (int j=0;j<(int)graphsList.count();j++)
 		{
-		Graph *gr=(Graph *)graphsList->at(j);
+		Graph *gr=(Graph *)graphsList.at(j);
 		if (gr == active_graph)	
 			{
-			LayerButton *button=(LayerButton *)buttonsList->at(j);	
+			LayerButton *button=(LayerButton *)buttonsList.at(j);	
 			button->setOn(TRUE);
 			break;
 			}
 		}	
-	hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList->at(0))->width());
+	hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList.at(0))->width());
 	}	
 else
 	{

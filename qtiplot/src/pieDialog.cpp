@@ -195,10 +195,10 @@ boxBackgroundColor->setColor ( c ) ;
 
 if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+	QWidgetList allPlots = mPlot->graphPtrs();
+	for (int i=0; i<allPlots.count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
+		Graph* g=(Graph*)allPlots.at(i);
 		if (g)
 			g->setBackgroundColor(c);
 		}
@@ -224,10 +224,10 @@ boxBorderColor->setColor ( c ) ;
 
 if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+	QWidgetList allPlots = mPlot->graphPtrs();
+	for (int i=0; i<allPlots.count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
+		Graph* g=(Graph*)allPlots.at(i);
 		if (g)
 			g->drawBorder(boxBorderWidth->value(), c);
 		}
@@ -247,10 +247,10 @@ if (generalDialog->currentPage() != frame)
 
 if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+	QWidgetList allPlots = mPlot->graphPtrs();
+	for (int i=0; i<allPlots.count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
+		Graph* g=(Graph*)allPlots.at(i);
 		if (g)
 			g->drawBorder(width, boxBorderColor->color());
 		}
@@ -270,10 +270,10 @@ if (generalDialog->currentPage() != frame)
 
 if (boxAll->isChecked())
 	{
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+	QWidgetList allPlots = mPlot->graphPtrs();
+	for (int i=0; i<allPlots.count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
+		Graph* g=(Graph*)allPlots.at(i);
 		if (g)
 			g->changeMargin(width);
 		}
@@ -360,10 +360,10 @@ if (generalDialog->currentPage()==(QWidget*)frame)
 		return;
 	
 	QColor c = boxBackgroundColor->color();
-	Q3PtrList<QWidget> * allPlots = mPlot->graphPtrs();
-	for (int i=0; i<(int)allPlots->count();i++)
+	QWidgetList allPlots = mPlot->graphPtrs();
+	for (int i=0; i<allPlots.count();i++)
 		{
-		Graph* g=(Graph*)allPlots->at(i);
+		Graph* g=(Graph*)allPlots.at(i);
 		if (g)
 			{
 			g->drawBorder(boxBorderWidth->value(), boxBorderColor->color());

@@ -28,6 +28,7 @@
  ***************************************************************************/
 
 #include "textDialog.h"
+#include "application.h"
 
 #include <QFontDialog>
 #include <QColorDialog>
@@ -104,11 +105,11 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	{
 		// add label "frame"
 		topLayout->addWidget(new QLabel(tr("Frame")), 2, 0);
-		frameBox = new QComboBox();
-		frameBox->addItem( tr( "None" ) );
-		frameBox->addItem( tr( "Rectangle" ) );
-		frameBox->addItem( tr( "Shadow" ) );
-		topLayout->addWidget(frameBox, 2, 1);
+		backgroundBox = new QComboBox();
+		backgroundBox->addItem( tr( "None" ) );
+		backgroundBox->addItem( tr( "Rectangle" ) );
+		backgroundBox->addItem( tr( "Shadow" ) );
+		topLayout->addWidget(backgroundBox, 2, 1);
 	}
 
 	buttonCancel = new QPushButton( tr( "&Cancel" ) );
@@ -122,9 +123,13 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 		topLayout->addWidget(new QLabel(tr("Background color")), 3, 0);
 		backgroundBtn = new ColorButton(groupBox1);
 		// add background button
-		topLayout->addWidget( backgroundBtn );	
+		topLayout->addWidget( backgroundBtn, 3, 1 );	
 
 		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
+
+		buttonDefault = new QPushButton( tr( "Set As &Default" ) );
+		topLayout->addWidget( buttonDefault, 3, 3 );
+		connect(buttonDefault, SIGNAL(clicked()), this, SLOT(setDefaultValues()));
 	}
 
 	// align the OK, Apply, and Cancel buttons to the right
@@ -151,19 +156,19 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   rotateBox->hide();
 	   */
 
-	lineEdit = new QTextEdit();
+	textEditBox = new QTextEdit();
 
-	formatButtons =  new TextFormatButtons(lineEdit);
+	formatButtons =  new TextFormatButtons(textEditBox);
 	formatButtons->toggleCurveButton(textType == TextDialog::TextMarker);
 
 	setFocusPolicy(Qt::StrongFocus);
-	setFocusProxy(lineEdit);
+	setFocusProxy(textEditBox);
 
 	// put everything together
 	QVBoxLayout* mainLayout = new QVBoxLayout();
 	mainLayout->addWidget(groupBox1);
 	mainLayout->addWidget(formatButtons);
-	mainLayout->addWidget(lineEdit);
+	mainLayout->addWidget(textEditBox);
 	setLayout( mainLayout );
 
 
@@ -175,21 +180,26 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	connect( buttonFont, SIGNAL( clicked() ), this, SLOT(customFont() ) );
 }
 
-int TextDialog::backgroundType()
-{
-	return frameBox->currentIndex();
-}
-
 void TextDialog::apply()
 {
 	if (textType == TextDialog::AxisTitle)
 	{
 		emit changeAlignment(alignment());
-		emit changeText(lineEdit->toPlainText());
+		emit changeText(textEditBox->toPlainText());
 		emit changeColor(colorBtn->color());
 	}
 	else
-		emit values(lineEdit->text(),angle(),backgroundType(),selectedFont, colorBtn->color(), backgroundBtn->color());
+		emit values(textEditBox->text(),angle(),backgroundBox->currentIndex(),selectedFont, colorBtn->color(), backgroundBtn->color());
+}
+
+void TextDialog::setDefaultValues()
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (!app)
+		return;
+
+	app->setLegendDefaultSettings(backgroundBox->currentIndex(), selectedFont, 
+			colorBtn->color(), backgroundBtn->color());
 }
 
 void TextDialog::accept()
@@ -200,7 +210,7 @@ void TextDialog::accept()
 
 void TextDialog::setBackgroundType(int bkg)
 {
-	frameBox->setCurrentIndex(bkg);
+	backgroundBox->setCurrentIndex(bkg);
 }
 
 int TextDialog::alignment()
@@ -243,12 +253,12 @@ void TextDialog::customFont()
 {
 	bool okF;
 	QFont fnt = QFontDialog::getFont( &okF,selectedFont,this);
-	if (okF)
+	if (okF && fnt != selectedFont)
 	{
 		selectedFont = fnt;
 		buttonFont->setFont(fnt);
 		fnt.setPointSize(12);
-		lineEdit->setFont(fnt);
+		textEditBox->setFont(fnt);
 	}
 	emit changeFont (fnt);
 }
@@ -268,7 +278,7 @@ int TextDialog::angle()
 
 void TextDialog::setText(const QString & t)
 {
-	QTextCursor cursor = lineEdit->textCursor();
+	QTextCursor cursor = textEditBox->textCursor();
 	// select the whole (old) text 
 	cursor.movePosition(QTextCursor::Start);
 	cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
@@ -280,9 +290,9 @@ void TextDialog::setText(const QString & t)
 	// this line makes the selection visible to the user 
 	// (the 2 lines above only change the selection in the
 	// underlying QTextDocument)
-	lineEdit->setTextCursor(cursor);
+	textEditBox->setTextCursor(cursor);
 	// give focus back to text edit
-	lineEdit->setFocus();
+	textEditBox->setFocus();
 }
 
 void TextDialog::setTextColor(QColor c)
@@ -324,7 +334,7 @@ void TextDialog::setFont(const QFont & fnt)
 	buttonFont->setFont(fnt);
 	QFont ftemp = fnt;
 	ftemp.setPointSize(12);
-	lineEdit->setFont(ftemp);
+	textEditBox->setFont(ftemp);
 }
 	
 TextDialog::~TextDialog()

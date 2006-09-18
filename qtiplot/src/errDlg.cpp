@@ -151,7 +151,8 @@ void ErrDialog::setSrcTables(QWidgetList* tables)
     for (i = srcTables->begin(); i != srcTables->end(); i++)
 		tableNamesBox->insertItem((*i)->name());
 
-	tableNamesBox->setCurrentIndex(tableNamesBox->findText(QStringList::split("_",nameLabel->currentText())[0]));
+	if (!nameLabel->currentText().contains("="))
+		tableNamesBox->setCurrentIndex(tableNamesBox->findText(QStringList::split("_",nameLabel->currentText())[0]));
 	selectSrcTable(tableNamesBox->currentIndex());
 }
 

@@ -29,23 +29,22 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-#include <q3listview.h> 
-
-#include <QPixmap>
-#include <QCloseEvent>
-#include <QDropEvent>
-#include <QTimerEvent>
-#include <QDragEnterEvent>
-#include <QTranslator>
-#include <QDockWidget>
-#include <QTextBrowser>
-
 #include <QMainWindow>
+#include <q3listview.h> 
+#include <QHttp> 
+#include <QFile> 
+#include <QTextBrowser>
+#include <QSplitter>
 
 #include "worksheet.h"
 
-#include <QHttp> 
-#include <QFile> 
+class QPixmap;
+class QCloseEvent;
+class QDropEvent;
+class QTimerEvent;
+class QDragEnterEvent;
+class QTranslator;
+class QDockWidget;
 
 class QAction;
 class QActionGroup;
@@ -54,10 +53,8 @@ class QWorkspace;
 class QLineEdit;
 class QTranslator;
 class QToolButton;
-class QAction;
 class QShortcut;
 class QMenu;
-class QActionGroup;
 class QToolBar;
 
 class Matrix;
@@ -73,6 +70,7 @@ class FolderListItem;
 class FolderListView;
 class Plot3DDialog;
 class MyWidget;
+class ScriptingEnv;
 
 //! QtiPlot's main window
 class ApplicationWindow: public QMainWindow
@@ -88,6 +86,10 @@ public:
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow, *explorerWindow;
 	QTextEdit *results;
+#ifdef SCRIPTING_CONSOLE
+	QDockWidget *consoleWindow;
+	QTextEdit *console;
+#endif
 	QWorkspace* ws;
     QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools;
     QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
@@ -97,13 +99,13 @@ public:
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
-	QTextBrowser *browser;
 	QLineEdit *info;
 	QWidget *lastModified;
 
+private:
 	QActionGroup* dataTools;
 	QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
-	QAction  *btnZoom, *btnPointer, *btnLine;
+	QAction  *btnZoomIn, *btnZoomOut, *btnPointer, *btnLine, *btnArrow;
 	
 	QActionGroup* coord;
 	QAction* Box;
@@ -142,7 +144,7 @@ public slots:
 	ApplicationWindow * plotFile(const QString& fn);
 	void updatePlotsTransparency();
 
-	QList<QWidget *> * windowsList();
+	QWidgetList * windowsList();
 	void updateWindowLists(QWidget *w);
 
 	void setSaveSettings(bool autoSaving, int min);
@@ -152,7 +154,6 @@ public slots:
 	void setAppColors(const QColor& wc,const QColor& pc,const QColor& tpc);
 
 	//multilayer plots
-	MultiLayer* plot(const QString& name);
 	MultiLayer* copyGraph();
 	MultiLayer* multilayerPlot(int c, int r, int style);
 	MultiLayer* multilayerPlot(Table* w,const QStringList& colList, int style);
@@ -193,7 +194,6 @@ public slots:
 	Graph3D* newPlot3D(const QString& caption,const QString& formula, 
 					   double xl, double xr,double yl, double yr, double zl, double zr);
 	Graph3D* copySurfacePlot();
-	Graph3D* surfacePlot(const QString& name);
 	void connectSurfacePlot(Graph3D *plot);
 	void newSurfacePlot();
 	void editSurfacePlot();
@@ -213,10 +213,10 @@ public slots:
 
 	//user-defined functions
 	void newFunctionPlot();
-	void newFunctionPlot(QString& type,QStringList &formulas,QStringList &vars,QList<double> &ranges,QList<int> &points);
+	void newFunctionPlot(int type,QStringList &formulas, const QString& var,QList<double> &ranges, int points);
 
 	FunctionDialog* functionDialog();
-	void showFunctionDialog(const QString& function, int curve);
+	void showFunctionDialog(Graph * g, int curve);
 	void addFunctionCurve();
 	void clearFunctionsList();
 	void clearFitFunctionsList();
@@ -225,7 +225,7 @@ public slots:
 	void clearLogInfo();
 	void clearParamFunctionsList();
 	void clearPolarFunctionsList();
-	void updateFunctionLists(QString& type,QStringList &formulas);
+	void updateFunctionLists(int type, QStringList &formulas);
 	void updateSurfaceFuncList(const QString& s);
 
 	Matrix* cloneMatrix();
@@ -263,6 +263,10 @@ public slots:
 	
 	void customGraph(Graph* g);
 	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers);
+	void setLegendDefaultSettings(int frame, const QFont& font, 
+							 const QColor& textCol, const QColor& backgroundCol);
+	void setArrowDefaultSettings(int lineWidth,  const QColor& c, Qt::PenStyle style,
+								int headLength, int headAngle, bool fillHead);
 
 	void plot3DWireframe();
 	void plot3DHiddenLine();
@@ -329,7 +333,6 @@ public slots:
     void print();
 	void print(QWidget* w);
 	void printAllPlots();
-	void printHelp();
 	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
     
 	void showExplorer();
@@ -342,10 +345,10 @@ public slots:
 	void rename();
 	void renameWindow();
 
-	//! This slot is called when the user presses F2 and an item is selected in lv.
+	//!  Called when the user presses F2 and an item is selected in lv.
 	void renameWindow(Q3ListViewItem *item, int, const QString &s);
 
-	//! This slot checks whether the new window name is valid and modifies the name. 
+	//!  Checks weather the new window name is valid and modifies the name. 
 	bool renameWindow(MyWidget *w, const QString &text);
 
 	void maximizeWindow(Q3ListViewItem * lbi);
@@ -356,9 +359,9 @@ public slots:
 
 	bool hidden(QWidget* window);
 	void closeActiveWindow();
-	void closeWindow(QWidget* window);
+	void closeWindow(MyWidget* window);
 
-	//! This slot does all the cleaning work before actually deleting a window!
+	//!  Does all the cleaning work before actually deleting a window!
 	void removeWindowFromLists(QWidget* w);
 
 	void hideWindow(MyWidget* window);
@@ -387,7 +390,6 @@ public slots:
 	void resizeWindow();
 	
 	// list view in project explorer
-	void updateListView(const QString& caption);
 	void setListView(const QString& caption,const QString& view);
 	void renameListViewItem(const QString& oldName,const QString& newName);
 	void setListViewDate(const QString& caption,const QString& date);
@@ -398,7 +400,7 @@ public slots:
 	void updateColNames(const QString& oldName, const QString& newName);
 	void updateTableNames(const QString& oldName, const QString& newName);
 	void changeMatrixName(const QString& oldName, const QString& newName);
-	void updateCurves(const QString& name);
+	void updateCurves(Table *t, const QString& name);
 	
 	void showTable(const QString& curve);
 	void showTable(int i);
@@ -452,18 +454,20 @@ public slots:
 	void newLegend();
 	void addTimeStamp();
 	void drawLine();
+	void drawArrow();
 	void addText();
 	void disableAddText();
 	void addImage();
-	void zoom();
-	void unzoom();
+	void zoomIn();
+	void zoomOut();
+	void setAutoScale();
 	void showRangeSelectors();	
 	void showCursor();
 	void showScreenReader();
 	void pickPointerCursor();
 	void disableTools();
 	void pickDataTool( QAction* action );
-	
+
 	void updateLog(const QString& result);
 
 	//fitting
@@ -524,13 +528,14 @@ public slots:
 	void showColMenu(int c);
 	void showColumnValuesDialog();	
 	void showGraphContextMenu();
+	void showTableContextMenu(bool selection);
 	void showWindowContextMenu();
 	void showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p, int);
 
-	//! This slot is connected to the context menu signal from lv; it's called when there are several items selected in the list
+	//! Connected to the context menu signal from lv; it's called when there are several items selected in the list
 	void showListViewSelectionMenu(const QPoint &p);
 
-	//! This slot is connected to the context menu signal from lv; it's called when there are no items selected in the list
+	//! Connected to the context menu signal from lv; it's called when there are no items selected in the list
 	void showListViewPopupMenu(const QPoint &p);
 
 	void showMoreWindows();
@@ -574,12 +579,14 @@ public slots:
 	void setXCol();
 	void setYCol();
 	void setZCol();
+	void setXErrCol();
+	void setYErrCol();
 	void disregardCol();
 
 	void updateConfirmOptions(bool askTables, bool askMatrixes, bool askPlots2D, bool askPlots3D, bool askNotes);
 	void showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
-								 int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format, 
-								 int prec, int rotation, int baselineDist, const QString& formula);
+				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, 
+				int format, int prec, int rotation, int baselineDist, const QString& formula);
 	
 	//plot3D tools	
 	void setFramed3DPlot();
@@ -610,11 +617,10 @@ public slots:
 
 	void updateRecentProjectsList();
 	
-	//! Slot: connected to the done(bool) signal of the http object
-	void getVersionDone(bool error);
-
-	//! Slot: called when the user presses the actionCheckUpdates
-	void getVersionFile();
+	//!  connected to the done(bool) signal of the http object
+	void receivedVersionFile(bool error);
+	//!  called when the user presses the actionCheckUpdates
+	void searchForUpdates();
 
 	void showDonationDialog();
 	//! Open support page in external browser
@@ -641,6 +647,14 @@ public slots:
 	void switchToLanguage(const QString& locale);
 
 	bool alreadyUsedName(const QString& label);
+	bool projectHas2DPlots();
+	bool projectHas3DPlots();
+
+	//! Returns a pointer to the window named "name"
+	QWidget* window(const QString& name);
+
+	//! Returns a list with the names of all the matrices in the project
+	QStringList matrixNames();
 
  	//! Creates a new empty note window
 	Note* newNote(const QString& caption = QString());
@@ -669,7 +683,7 @@ public slots:
 	//! Changes the current folder when the user double-clicks on a folder item in the QListView "lv"
 	void folderItemDoubleClicked(Q3ListViewItem *it);
 
-	//! Slot: creates and opens the context menu of a folder list view item
+	//!  creates and opens the context menu of a folder list view item
 	/**
 	 * \param it list view item
 	 * \param p mouse global position
@@ -678,34 +692,34 @@ public slots:
 	 */
 	void showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p, bool fromFolders);
 
-	//! Slot: connected to the SIGNAL contextMenuRequested from the list views
+	//!  connected to the SIGNAL contextMenuRequested from the list views
 	void showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p, int);
 	
-	//! Slot: starts renaming the selected folder by creating a built-in text editor
+	//!  starts renaming the selected folder by creating a built-in text editor
 	void startRenameFolder();
 
-	//! Slot: starts renaming the selected folder by creating a built-in text editor
+	//!  starts renaming the selected folder by creating a built-in text editor
 	void startRenameFolder(Q3ListViewItem *item);
 
-	//! Slot: checks weather the new folder name is valid and modifies the name
+	//!  checks weather the new folder name is valid and modifies the name
 	void renameFolder(Q3ListViewItem *it, int col, const QString &text);
 
-	//! Slot: forces showing all windows in the current folder and subfolders, depending on the user's viewing policy
+	//!  forces showing all windows in the current folder and subfolders, depending on the user's viewing policy
 	void showAllFolderWindows();
 
-	//! Slot: forces hidding all windows in the current folder and subfolders, depending on the user's viewing policy
+	//!  forces hidding all windows in the current folder and subfolders, depending on the user's viewing policy
 	void hideAllFolderWindows();
 
-	//! Slot: hides all windows in folder f
+	//!  hides all windows in folder f
 	void hideFolderWindows(Folder *f);
 
-	//! Slot: pops up folder information
+	//!  pops up folder information
 	void folderProperties();
 
-	//! Slot: pops up information about the selected window item
+	//!  pops up information about the selected window item
 	void windowProperties();
 
-	//! Slot: pops up information about the current project
+	//!  pops up information about the current project
 	void projectProperties();
 
 	void appendProject();
@@ -713,37 +727,42 @@ public slots:
 	void saveFolderAsProject(Folder *f);
 	void saveFolder(Folder *folder, const QString& fn);
 
-	//! Slot: adds a folder list item to the list view "lv"
+	//!  adds a folder list item to the list view "lv"
 	void addFolderListViewItem(Folder *f);
 
-	//! Slot: adds a widget list item to the list view "lv"
+	//!  adds a widget list item to the list view "lv"
 	void addListViewItem(MyWidget *w);
 
-	//! Slot: hides or shows windows in the current folder and changes the view windows policy
+	//!  hides or shows windows in the current folder and changes the view windows policy
 	void setShowWindowsPolicy(int p);
 
-	//! Slot: returns a pointer to the root project folder
+	//!  returns a pointer to the root project folder
 	Folder* projectFolder();
 
-	//! Slot: used by the findDialog
+	//!  used by the findDialog
 	void find(const QString& s, bool windowNames, bool labels, bool folderNames, 
 			  bool caseSensitive, bool partialMatch, bool subfolders);
 
-	//! Slot: initializes the list of items dragged by the user
+	//!  initializes the list of items dragged by the user
 	void dragFolderItems(QList<Q3ListViewItem *> items){draggedItems = items;};
 
-	//! Slot: Drop the objects in the list draggedItems to the folder of the destination item 
+	//!  Drop the objects in the list draggedItems to the folder of the destination item 
 	void dropFolderItems(Q3ListViewItem *dest);
 
-	//! Slot: moves a folder item to another
+	//!  moves a folder item to another
 	/**
 	 * \param src source folder item
 	 * \param dest destination folder item
 	 */
 	void moveFolder(FolderListItem *src, FolderListItem *dest);
 
+	// scripting
+	//!  notify the user that an error occured in the scripting system
+	void scriptError(const QString &message, const QString &scriptName, int lineNumber);
+	//!  execute all notes marked auto-exec
+	void executeNotes();
+
 signals:
-	void windowClosed(const QString&);
 	void modified();
 	
 // TODO: a lot of this stuff should be private
@@ -764,6 +783,10 @@ public:
 	bool confirmCloseFolder, confirmCloseNotes;
 	bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn, autoscale2DPlots;
 	int majTicksStyle, minTicksStyle, legendFrameStyle, autoSaveTime, axesLineWidth, canvasFrameWidth;
+	QColor legendBackground, legendTextColor, defaultArrowColor;
+	int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
+	bool defaultArrowHeadFill;
+	Qt::PenStyle defaultArrowLineStyle;
 	int majTicksLength, minTicksLength, defaultPlotMargin;
 	int defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize;
 	QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
@@ -775,7 +798,7 @@ public:
 	int exportID, printAllID;
 	int notes, graphs,tables, matrixes, fitNumber, ignoredLines, savingTimerId;
 	bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
-	QStringList plotWindows,tableWindows, recentProjects, plot3DWindows, matrixWindows, noteWindows;
+	QStringList recentProjects, tableWindows;
 	bool saved, showPlot3DProjection, showPlot3DLegend;
 	int plot3DResolution;
 	QStringList plot3DColors, locales;
@@ -786,8 +809,8 @@ public:
 
 	//! List of tables and matrixes renamed in order to avoid conflicts when appending a project to a folder
 	QStringList renamedTables;
-	//! active window
-	QWidget *aw; 
+	//!active window
+	MyWidget *aw; 
 	Graph::MarkerType copiedMarkerType;
 	
 //variables used when user copy/paste markers
@@ -803,6 +826,9 @@ public:
 	int plotMenuID, importMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;
 	int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID, multiPeakMenuID; 
 
+	//! Equals true if an automatical search for updates was performed on start-up otherwise is set to false;
+	bool autoSearchUpdatesRequest;
+
 private:
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
@@ -810,6 +836,9 @@ private:
     QAction *actionCopyWindow;
     QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection, *actionClearSelection;
     QAction *actionShowExplorer, *actionShowLog, *actionAddLayer, *actionShowLayerDialog;
+#ifdef SCRIPTING_CONSOLE
+    QAction *actionShowConsole;
+#endif
 
     QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
     QAction *actionShowImportDialog;
@@ -823,12 +852,12 @@ private:
     QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
     QAction *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog, *actionShowExpDecay3Dialog;
     QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
-    QAction *actionShowLayoutDialog, *actionShowAxisDialog, *actionShowTitleDialog;
+    QAction *actionShowCurveFormatDialog, *actionShowAxisDialog, *actionShowTitleDialog;
     QAction *actionShowColumnOptionsDialog, *actionShowColumnValuesDialog, *actionShowColsDialog, *actionShowRowsDialog;
     QAction *actionAbout, *actionShowHelp, *actionChooseHelpFolder;
     QAction *actionRename, *actionCloseWindow, *actionConvertTable;
     QAction *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
-    QAction *actionPrintHelp, *actionResizeActiveWindow, *actionHideActiveWindow;
+    QAction *actionResizeActiveWindow, *actionHideActiveWindow;
     QAction *actionShowMoreWindows, *actionPixelLineProfile, *actionIntensityTable;
     QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
     QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionHideWindow, *actionResizeWindow, *actionPrintWindow;
@@ -842,25 +871,41 @@ private:
 	QAction *actionSortTable, *actionSortSelection, *actionNormalizeSelection;
 	QAction *actionNormalizeTable, *actionConvolute, *actionDeconvolute, *actionCorrelate;
 	QAction *actionTranslateHor, *actionTranslateVert, *actionSetAscValues, *actionSetRandomValues;
-	QAction *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol;
+	QAction *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol, *actionSetXErrCol, *actionSetYErrCol;
 	QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;
 	QAction *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 	QAction *actionNextWindow, *actionPrevWindow;
 
+private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
 
+	//!Scripting environment currently in use
+	ScriptingEnv *scriptEnv;
+
 	//! Used when checking for new versions
 	QHttp http;
-
 	//! Used when checking for new versions
 	QFile versionFile;
 
 	//! Internal function to convert QList<QVariant> to QStringList
 	QStringList variantListToStringList(const QList<QVariant> src);
 
+	QSplitter *explorerSplitter;
+};
+
+//! QtiPlot's help browser
+class HelpBrowser: public QTextBrowser
+{
+    Q_OBJECT
+
+public:
+    HelpBrowser(QWidget * parent = 0, const char * name = 0);
+
+public slots:
+	void print();
 };
 
 #endif

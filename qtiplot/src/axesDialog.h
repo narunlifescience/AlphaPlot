@@ -191,7 +191,6 @@ public slots:
 	void updateMinTicksType(int);
 	void updateGrid(int);
 	void updateFrame(int);
-	void setLabelsNumericFormat(const QStringList& list);
 	void setLabelsNumericFormat(int);
 	void updateLabelsFormat(QListWidgetItem * item);
 	void initLabelsRotation(int xAngle, int yAngle);
@@ -204,7 +203,6 @@ public slots:
 	void setAxesBaseline(const QList<int>& lst);
 	void changeMinorTicksLength (int minLength);
 	void changeMajorTicksLength (int majLength);
-	void updateBackbones (bool on);
 	void pickBorderColor();
 	void pickCanvasFrameColor();
 	void updateBorder(int width);
@@ -236,7 +234,7 @@ signals:
 
 protected:
 	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo;
-	QStringList	labelsNumericFormat, tablesList;
+	QStringList	tablesList;
 	QList<int> majTicks, minTicks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;
 	GridOptions grid;
