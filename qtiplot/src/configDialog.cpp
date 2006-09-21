@@ -670,13 +670,6 @@ void ConfigDialog::languageChange()
 	boxTitle->setText(tr("Show &Title"));
 	boxScaleFonts->setText(tr("Scale &Fonts"));
 	boxAutoscaling->setText(tr("Auto&scaling"));
-	boxLegend->clear();
-	boxLegend->addItem( tr( "None" ) );
-	boxLegend->addItem( tr( "Rectangle" ) );
-	boxLegend->addItem( tr( "Shadow" ) );
-	boxLegend->addItem( tr( "White out" ) );
-	boxLegend->addItem( tr( "Black out" ) );
-	boxLegend->setCurrentItem(app->legendFrameStyle);
 
 	boxMajTicks->clear();
 	boxMajTicks->addItem(tr("None"));
@@ -834,7 +827,6 @@ void ConfigDialog::apply()
 	app->customizeTables(buttonBackground->color(), buttonText->color(), 
 			buttonHeader->color(), textFont, headerFont);
 	// 2D plots page: options tab
-	app->legendFrameStyle=boxLegend->currentItem();
 	app->titleOn=boxTitle->isChecked();
 	app->allAxesOn = boxAllAxes->isChecked();
 	app->canvasFrameOn=boxFrame->isChecked();
