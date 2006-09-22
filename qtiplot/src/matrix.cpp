@@ -6,6 +6,7 @@
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+                           knut.franke@gmx.de
     Description          : Matrix worksheet class
                            
  ***************************************************************************/
@@ -29,7 +30,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "matrix.h"
-#include "Scripting.h"
 #include "nrutil.h"
 
 #include <qdatetime.h>
@@ -60,7 +60,7 @@
 #include <gsl/gsl_math.h>
 
 Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-				: MyWidget(label, parent, name, f), scriptEnv(env)
+				: MyWidget(label, parent, name, f), scripted(env)
 {
 	init(r, c);	
 }
@@ -160,9 +160,14 @@ void Matrix::cellEdited(int row,int col)
 	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
 
 	script->setInt(row+1, "row");
+	script->setInt(row+1, "i");
 	script->setInt(col+1, "col");
+	script->setInt(col+1, "j");
 	QVariant ret = script->eval();
-	if(ret.type()==QVariant::Double || ret.type()==QVariant::Int)
+	if(ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
+			|| ret.type()==QVariant::ULongLong)
+		table->setText(row, col, ret.toString());
+	else if(ret.canCast(QVariant::Double))
 		table->setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
 	else
 		table->setText(row, col, "");
@@ -551,6 +556,7 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 
 	Script *script = scriptEnv->newScript(formula_str, this, QString("<%1>").arg(name()));
 	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int))); 
+	connect(script, SIGNAL(print(const QString&)), scriptEnv, SIGNAL(print(const QString&)));
 	if (!script->compile())
 	{
 		QApplication::restoreOverrideCursor();
@@ -574,8 +580,11 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 			script->setInt(col+1, "j");
 			script->setInt(col+1, "col");
 			ret = script->eval();
-			if (ret.type()==QVariant::Double || ret.type()==QVariant::Int)
-				table->setText(row,col,QString::number(ret.toDouble(),txt_format.toAscii(), num_precision));
+			if (ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
+					|| ret.type()==QVariant::ULongLong)
+				table->setText(row, col, ret.toString());
+			else if (ret.canCast(QVariant::Double))
+				table->setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
 			else {
 				table->setText(row,col,"");
 				QApplication::restoreOverrideCursor();
@@ -864,6 +873,12 @@ void Matrix::contextMenuEvent(QContextMenuEvent *e)
 {
 	emit showContextMenu();
 	e->accept();
+}
+
+void Matrix::customEvent(QEvent *e)
+{
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 bool Matrix::eventFilter(QObject *object, QEvent *e)

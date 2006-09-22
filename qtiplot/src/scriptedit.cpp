@@ -5,8 +5,9 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : TODO
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
+    Description          : Editor widget for scripting code
                            
  ***************************************************************************/
 
@@ -40,15 +41,21 @@
 
 #include <QPrintDialog>
 #include <QPrinter>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QTextStream>
 
 ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
-  : QTextEdit(parent, name), scriptEnv(env)
+  : QTextEdit(parent, name), scripted(env)
 {
-	myScript = env->newScript("", this, name);
+	myScript = scriptEnv->newScript("", this, name);
 	connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+	connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	setWordWrapMode(QTextOption::NoWrap);
 	setTextFormat(Qt::PlainText);
+	setFamily("Monospace");
+	connect(this, SIGNAL(returnPressed()), this, SLOT(updateIndentation()));
 
 	actionExecute = new QAction(tr("E&xecute"), this);
 	actionExecute->setShortcut( tr("Ctrl+J") );
@@ -65,18 +72,36 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
 	actionPrint = new QAction(tr("&Print"), this);
 	connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
-	//TODO: CTRL+Key_I -> inspect (currently "Open image file". other shortcut?)
+	actionImport = new QAction(tr("&Import"), this);
+	connect(actionImport, SIGNAL(activated()), this, SLOT(importASCII()));
+
+	actionExport = new QAction(tr("&Export"), this);
+	connect(actionExport, SIGNAL(activated()), this, SLOT(exportASCII()));
 
 	functionsMenu = new QMenu(this);
 	Q_CHECK_PTR(functionsMenu);
 }
 
-QMenu *ScriptEdit::createStandardContextMenu ()
+void ScriptEdit::customEvent(QEvent *e)
 {
-	QMenu *menu = QTextEdit::createStandardContextMenu();
+  if (e->type() == SCRIPTING_CHANGE_EVENT)
+  {
+    scriptingChangeEvent((ScriptingChangeEvent*)e);
+    delete myScript;
+    myScript = scriptEnv->newScript("", this, name());
+    connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+    connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+  }
+}
+
+void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
+{
+	QMenu *menu = createStandardContextMenu();
 	Q_CHECK_PTR(menu);
 
 	menu->addAction(actionPrint);
+	menu->addAction(actionImport);
+	menu->addAction(actionExport);
 	menu->insertSeparator();
 
 	menu->addAction(actionExecute);
@@ -106,15 +131,28 @@ QMenu *ScriptEdit::createStandardContextMenu ()
 	functionsMenu->setTitle(tr("&Functions"));
 	menu->addMenu(functionsMenu);
 
-	return menu;
+	menu->exec(e->globalPos());
+	delete menu;
 }
 
 void ScriptEdit::insertErrorMsg(const QString &message)
 {
 	QString err = message;
 	err.prepend("\n").replace("\n","\n#> ");
-	textCursor().movePosition(QTextCursor::End);
+	int pos = textCursor().position();
+	textCursor().setPosition(pos);
 	textCursor().insertText(err);
+}
+
+void ScriptEdit::scriptPrint(const QString &text)
+{
+	if(firstOutput) {
+		int pos = QMIN(textCursor().position(), textCursor().anchor());
+		textCursor().setPosition(pos);
+		textCursor().insertText("\n");
+		firstOutput = false;
+	}
+	textCursor().insertText(text);
 }
 
 void ScriptEdit::insertFunction(const QString &fname)
@@ -139,10 +177,16 @@ void ScriptEdit::insertFunction(QAction *action)
 	insertFunction(scriptEnv->mathFunctions()[action->data().toInt()]);
 }
 
+int ScriptEdit::lineNumber(int pos) const
+{
+	int n=1;
+	for(QTextBlock i=document()->begin(); !i.contains(pos) && i!=document()->end(); i=i.next())
+		n++;
+	return n;
+}
+
 void ScriptEdit::execute()
 {
-	// FIXME: see FIXME below
-	// int paraFrom, indexFrom, paraTo, indexTo;
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
 	QTextCursor cursor = textCursor();
@@ -151,18 +195,13 @@ void ScriptEdit::execute()
 		cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
-	setTextCursor(cursor);
-	// FIXME: thzs: Don't know the meaning of paraFrom+1
-	// therefore cannot port the next two lines to Qt4
-	// getSelection(&paraFrom, &indexFrom, &paraTo, &indexTo);
-	// fname = fname.arg(paraFrom+1);
+	fname = fname.arg(lineNumber(QMIN(cursor.position(),cursor.anchor())));
 	
-	// dummy line
-	fname = fname.arg(cursor.position()+1);
-
 	myScript->setName(fname);
 	myScript->setCode(cursor.selectedText());
+	firstOutput=true;
 	myScript->exec();
+	firstOutput=false;
 }
 
 void ScriptEdit::executeAll()
@@ -171,13 +210,14 @@ void ScriptEdit::executeAll()
 	fname = fname.arg(name());
 	myScript->setName(fname);
 	myScript->setCode(text());
+	textCursor().movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+	firstOutput=true;
 	myScript->exec();
+	firstOutput=false;
 }
 
 void ScriptEdit::evaluate()
 {
-	// FIXME: see FIXME below
-	// int paraFrom, indexFrom, paraTo, indexTo;
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
 	QTextCursor cursor = textCursor();
@@ -186,17 +226,11 @@ void ScriptEdit::evaluate()
 		cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
-	setTextCursor(cursor);
-	// FIXME: thzs: Don't know the meaning of paraFrom+1
-	// therefore cannot port the next two lines to Qt4
-	// getSelection(&paraFrom, &indexFrom, &paraTo, &indexTo);
-	// fname = fname.arg(paraFrom+1);
-	
-	// dummy line
-	fname = fname.arg(cursor.position()+1);
+	fname = fname.arg(lineNumber(QMIN(cursor.position(),cursor.anchor())));
 
 	myScript->setName(fname);
 	myScript->setCode(selectedText());
+	firstOutput=true;
 	myScript->setEmitErrors(false);
 	QVariant res = myScript->eval();
 	myScript->setEmitErrors(true);
@@ -212,6 +246,7 @@ void ScriptEdit::evaluate()
 			cursor.clearSelection();
 		}
 	}
+	firstOutput=false;
 }
 
 ScriptEdit::~ScriptEdit()
@@ -264,5 +299,98 @@ void ScriptEdit::print()
 	   while (TRUE);
 	   }
 	   */
+}
+
+QString ScriptEdit::importASCII(const QString &filename)
+{
+	QString filter = tr("Text") +" (*.txt *.TXT);;";
+#ifdef SCRIPTING_PYTHON
+	filter += tr("Python Source")+" (*.py);;";
+#endif
+	filter += tr("All Files")+" (*)";
+
+	QString f;
+	if (filename.isEmpty())
+		f = QFileDialog::getOpenFileName(QString::null,  filter, this, 0, tr("QtiPlot - Import Text From File"));
+	else
+		f = filename;
+	if (f.isEmpty()) return QString::null;
+	QFile file(f);
+	if (!file.open(IO_ReadOnly))
+	{
+		QMessageBox::critical(this, tr("QtiPlot - Error Opening File"), tr("Could not open file \"%1\" for reading.").arg(f));
+		return QString::null;
+	}
+	QTextStream s(&file);
+	s.setEncoding(QTextStream::UnicodeUTF8);
+	while (!s.atEnd())
+		insert(s.readLine()+"\n");
+	file.close();
+	return f;
+}
+
+QString ScriptEdit::exportASCII(const QString &filename)
+{
+	QString filter = " *.txt;;";
+#ifdef SCRIPTING_PYTHON
+	filter += tr("Python Source")+" (*.py);;";
+#endif
+	filter += tr("All Files")+" (*)";
+
+	QString selectedFilter;
+	QString fn;
+	if (filename.isEmpty())
+		fn = QFileDialog::getSaveFileName(parent()->name(), filter, this, 0,
+				tr("Save Text to File"), &selectedFilter, false);
+	else
+		fn = filename;
+	if ( !fn.isEmpty() )
+	{
+		QFileInfo fi(fn);
+		QString baseName = fi.fileName();	
+		if (!baseName.contains("."))
+		{
+			if (selectedFilter.contains(".txt"))
+				fn.append(".txt");
+			else if (selectedFilter.contains(".py"))
+				fn.append(".py");
+		}
+
+		if ( QFile::exists(fn) &&
+				QMessageBox::question(this, tr("QtiPlot -- Overwrite File? "),
+					tr("A file called: <p><b>%1</b><p>already exists.\n"
+						"Do you want to overwrite it?")
+					.arg(fn), tr("&Yes"), tr("&No"),QString::null, 0, 1 ) )
+			return QString::null;
+		else
+		{
+			QFile f(fn);
+			if ( !f.open( IO_WriteOnly ) )
+			{
+				QMessageBox::critical(0, tr("QtiPlot - File Save Error"),
+						tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
+				return QString::null;
+			}
+			QTextStream t( &f );
+			t.setEncoding(QTextStream::UnicodeUTF8);
+			t << text();
+			f.close();
+		}
+	}
+	return fn;
+}
+
+void ScriptEdit::updateIndentation()
+{
+	QTextCursor cursor = textCursor();
+	QTextBlock para = cursor.block();
+	QString prev = para.previous().text();
+	int i;
+	for (i=0; prev[i].isSpace(); i++);
+	QString indent = prev.mid(0, i);
+	int pos = cursor.position() + indent.length();
+	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+	cursor.insertText(indent);
+	cursor.setPosition(pos);
 }
 

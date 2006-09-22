@@ -6,6 +6,7 @@
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+                           knut.franke@gmx.de
     Description          : Table worksheet class
                            
  ***************************************************************************/
@@ -30,7 +31,6 @@
  ***************************************************************************/
 #include "worksheet.h"
 #include "sortDialog.h"
-#include "Scripting.h"
 #include "nrutil.h"
 
 #include <q3popupmenu.h>
@@ -60,7 +60,6 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_sort_vector.h>
-#include <gsl/gsl_statistics.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 #include <gsl/gsl_fft_real.h>
 #include <gsl/gsl_fft_complex.h>
@@ -68,13 +67,13 @@
 Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
 			 QWidget* parent, const char* name, Qt::WFlags f)
-        : MyWidget(label, parent,name,f), scriptEnv(env)
+        : MyWidget(label, parent,name,f), scripted(env)
 {
 	importASCII(fname, sep, ignoredLines, renameCols, stripSpaces, simplifySpaces, true);
 }
 
 Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-        : MyWidget(label,parent,name,f), scriptEnv(env)
+        : MyWidget(label,parent,name,f), scripted(env)
 {
 	init(r,c);	
 }
@@ -136,7 +135,6 @@ void Table::init(int rows, int cols)
 	Q3Accel *accel = new Q3Accel(this);
 	accel->connectItem( accel->insertItem( Qt::Key_Tab ), this, SLOT(moveCurrentCell()));
 	accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_A ), this, SLOT(selectAllTable()) );
-	accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_Return ), this, SLOT(calculate()));
 
 	connect(worksheet, SIGNAL(valueChanged(int,int)),this, SLOT(cellEdited(int,int)));
 	specifications = saveToString("geometry\n");
@@ -420,6 +418,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 
 	Script *colscript = scriptEnv->newScript(commands[col], this,  QString("<%1>").arg(colName(col)));
 	connect(colscript, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
+	connect(colscript, SIGNAL(print(const QString&)), scriptEnv, SIGNAL(print(const QString&)));
 
 	if (!colscript->compile())
 	{
@@ -438,7 +437,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 	{
 		colscript->setInt(i+1,"i");
 		ret = colscript->eval();
-		if(ret.type()==QVariant::Double || ret.type()==QVariant::Int) {
+		if(ret.type()==QVariant::Double) {
 			int prec;
 			char f;
 			columnNumericFormat(col, f, prec);
@@ -1333,15 +1332,16 @@ void Table::normalizeTable()
 	emit modifiedWindow(this);	
 }
 
-void Table::normalizeCol()
+void Table::normalizeCol(int col)
 {
-	double max=worksheet->text(0,selectedCol).toDouble();
+	if (col<0) col = selectedCol;
+	double max=worksheet->text(0,col).toDouble();
 	double aux=0.0;
 	int i;
 	int rows=worksheet->numRows();
 	for (i=0; i<rows; i++)
 	{
-		QString text=this->text(i,selectedCol);
+		QString text=this->text(i,col);
 		aux=text.toDouble();
 		if (!text.isEmpty() && fabs(aux)>fabs(max)) 
 			max=aux;
@@ -1352,13 +1352,13 @@ void Table::normalizeCol()
 
 	for (i=0;i<rows;i++)
 	{
-		QString text=this->text(i,selectedCol);
+		QString text=this->text(i,col);
 		aux=text.toDouble();
 		if ( !text.isEmpty() )
-			worksheet->setText(i,selectedCol,QString::number(aux/max));
+			worksheet->setText(i,col,QString::number(aux/max));
 	}
 
-	QString name=colName(selectedCol);
+	QString name=colName(col);
 	emit modifiedData(this, name);
 }
 
@@ -2877,170 +2877,10 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 	return QObject::eventFilter(object, e);
 }
 
-void Table::showColStatistics()
+void Table::customEvent(QCustomEvent *e)
 {
-	QString caption=QString(name())+"_stat\tStatistics of "+QString(name());
-
-	int rows=worksheet->numRows();
-	QStringList columns=selectedColumns();	
-	int n=(int)columns.count();
-	int colsNonEmpty = 0;
-
-	QString text="Col Name\t";
-	text+="Rows\t";
-	text+="Mean\t";
-	text+="Standard Dev\t";
-	text+="Variance\t";	
-	text+="Sum\t";
-	text+="iMax\t";	
-	text+="Max\t";
-	text+="iMin\t";	
-	text+="Min\t";
-	text+="N\n";
-
-	for (int i=0; i<n; i++)
-	{
-		int index=colIndex(columns[i]);
-		text+=colLabel(index)+"\t";
-		text+="[1:"+QString::number(rows)+"]\t";
-
-		int j, start = 0, m = 0;
-		for (j=0; j<rows; j++)
-		{
-			if (!worksheet->text(j,index).isEmpty())
-			{
-				start = j;
-				m++;
-				break;
-			}
-		}
-		for (j = start + 1; j<rows; j++)
-		{
-			if (!worksheet->text(j,index).isEmpty())
-				m++;
-		}
-
-		if (m > 0 && colTypes[index] == Numeric)
-		{
-			double *dat = new double[m];
-			gsl_vector *y = gsl_vector_alloc (m);
-
-			int aux = 0, min_index = start, max_index = start;
-			double val = worksheet->text(start, index).toDouble();
-			gsl_vector_set (y, 0, val);
-			dat[0] = val;
-			double min = val, max = val;
-			for (j = start + 1; j<rows; j++)
-			{
-				if (!worksheet->text(j,index).isEmpty())
-				{
-					aux++;
-					val = worksheet->text(j, index).toDouble();
-					gsl_vector_set (y, aux, val);
-					dat[aux] = val;
-					if (val < min)
-					{
-						min = val;
-						min_index = j;
-					}
-					if (val > max)
-					{
-						max = val;
-						max_index = j;
-					}
-				}
-			}
-			double mean=gsl_stats_mean (dat,1,m);	
-			text+=QString::number(mean)+"\t";
-			text+=QString::number(gsl_stats_sd (dat,1,m))+"\t";
-			text+=QString::number(gsl_stats_variance (dat,1,m))+"\t";
-			text+=QString::number(mean*m)+"\t";
-
-			text+=QString::number(max_index + 1)+"\t";
-			text+=QString::number(max)+"\t";
-
-			text+=QString::number(min_index + 1)+"\t";
-			text+=QString::number(min)+"\t";	
-			text+=QString::number(m)+"\n";	
-
-			gsl_vector_free (y);
-			delete[] dat;
-		}
-		else
-			text+="\t\t\t\t\t\t\t\t\n";
-
-		if (m > 0)
-			colsNonEmpty++;
-	}
-	emit createTable(caption,colsNonEmpty,11,text);
-}
-
-void Table::showRowStatistics()
-{
-	QString caption=QString(name())+"\tstatistics";
-	int rows=nonEmptyRows();
-	int cols=worksheet->numCols();
-	int r=0;
-
-	QString text="Row\t";
-	text+="Cols\t";
-	text+="Mean\t";
-	text+="Standard Dev\t";
-	text+="Variance\t";	
-	text+="Sum\t";
-	text+="Max\t";
-	text+="Min\t";
-	text+="N\n";
-
-	for (int i=0;i<rows;i++)
-	{
-		if (worksheet->isRowSelected(i,true))
-		{
-			r++;
-			text+=QString::number(i+1)+"\t";
-			text+=QString::number(cols)+"\t";
-
-			int j, m = 0;		
-			for (j = 0; j<cols; j++)
-			{
-				if (!worksheet->text(i,j).isEmpty() && colTypes[j] == Numeric)
-					m++;	
-			}
-
-			if (m > 0)
-			{
-				double *dat = new double[m];
-				gsl_vector *y = gsl_vector_alloc (m);
-				int aux = 0;
-				for (j = 0; j<cols; j++)
-				{
-					QString text = worksheet->text(i,j);
-					if (!text.isEmpty() && colTypes[j] == Numeric)
-					{					
-						double val = text.toDouble();
-						gsl_vector_set (y, aux, val);
-						dat[aux] = val;
-						aux++;
-					}
-				}
-				double mean=gsl_stats_mean (dat,1,m);	
-				text+=QString::number(mean)+"\t";
-				text+=QString::number(gsl_stats_sd (dat,1,m))+"\t";
-				text+=QString::number(gsl_stats_variance (dat,1,m))+"\t";
-				text+=QString::number(mean*m)+"\t";
-
-				double min, max;
-				gsl_vector_minmax (y, &min, &max);
-				text+=QString::number(max)+"\t";		
-				text+=QString::number(min)+"\t";		
-				text+=QString::number(m)+"\n";	
-
-				gsl_vector_free (y);
-				delete[] dat;
-			}
-		}
-	}
-	emit createTable(caption, r, 9, text);
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 QString& Table::getSpecifications()

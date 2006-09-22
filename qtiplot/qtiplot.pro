@@ -8,8 +8,11 @@ MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES += QT_PLUGIN
-#DEFINES += SCRIPTING_CONSOLE
+#DEFINES	   += SCRIPTING_CONSOLE
+#DEFINES	   += SCRIPTING_DIALOG
 QT +=  opengl qt3support network
+
+SCRIPTING_LANGS = muParser Python
 
 TRANSLATIONS = translations/qtiplot_de.ts \
 			   translations/qtiplot_es.ts \
@@ -22,7 +25,8 @@ INCLUDEPATH		  += ../3rdparty/liborigin
 
 unix:INCLUDEPATH  += -I /usr/include/qwtplot3d
 unix:LIBS         += ../3rdparty/qwt/lib$${libsuff}/libqwt.a
-unix:LIBS         += -L /usr/lib$${libsuff} -lgsl -lgslcblas -lqwtplot3d -lz -lorigin
+unix:LIBS         += -L /usr/lib$${libsuff} -lgsl -lgslcblas -lz -lorigin
+unix:LIBS += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
 unix:target.path=/usr/bin
 unix:INSTALLS += target
@@ -124,9 +128,11 @@ HEADERS  = src/application.h \
 	 src/findDialog.h\
 	 src/Scripting.h\
 	 src/scriptedit.h\
-	 src/muParserScripting.h\
 	 src/FunctionCurve.h\
-	 src/textformatbuttons.h
+	 src/customEvents.h\
+	 src/ScriptingLangDialog.h\
+	 src/textformatbuttons.h\
+	 src/TableStatistics.h
      
 SOURCES  = src/application.cpp \
      src/graph.cpp \
@@ -201,30 +207,106 @@ SOURCES  = src/application.cpp \
 	 src/findDialog.cpp\
 	 src/textformatbuttons.cpp\
 	 src/scriptedit.cpp\
-	 src/muParserScripting.cpp\
 	 src/fileDialogs.cpp\
      src/scales.cpp\
-	 src/FunctionCurve.cpp
-
-#parser (muParser_v1.26)
-HEADERS+=../3rdparty/muParser/muParser.h \
-         ../3rdparty/muParser/muParserBase.h \ 
-	     ../3rdparty/muParser/muParserInt.h \
-	     ../3rdparty/muParser/muParserError.h \ 
-         ../3rdparty/muParser/muParserStack.h \ 
-         ../3rdparty/muParser/muParserToken.h \
-		 ../3rdparty/muParser/muParserBytecode.h \
-		 ../3rdparty/muParser/muParserCallback.h \
-		 ../3rdparty/muParser/muParserTokenReader.h \ 
-		 ../3rdparty/muParser/muParserFixes.h \
-		 ../3rdparty/muParser/muParserDef.h  	   
-SOURCES+=../3rdparty/muParser/muParser.cpp \
-         ../3rdparty/muParser/muParserBase.cpp \ 
-         ../3rdparty/muParser/muParserInt.cpp \
-		 ../3rdparty/muParser/muParserBytecode.cpp \
-		 ../3rdparty/muParser/muParserCallback.cpp \
-		 ../3rdparty/muParser/muParserTokenReader.cpp \
-		 ../3rdparty/muParser/muParserError.cpp
+	 src/FunctionCurve.cpp\
+	 src/Scripting.cpp\
+	 src/ScriptingLangDialog.cpp\
+	 src/TableStatistics.cpp
 
 #Compression (zlib123)
 SOURCES+=../3rdparty/zlib123/minigzip.c
+
+##################### Scripting Languages #####################
+
+# muParser v1.26
+contains(SCRIPTING_LANGS, muParser) {
+  DEFINES +=	SCRIPTING_MUPARSER
+  HEADERS +=	src/muParserScripting.h \
+		../3rdparty/muParser/muParser.h \
+		../3rdparty/muParser/muParserBase.h \
+		../3rdparty/muParser/muParserInt.h \
+		../3rdparty/muParser/muParserError.h \
+		../3rdparty/muParser/muParserStack.h \
+		../3rdparty/muParser/muParserToken.h \
+		../3rdparty/muParser/muParserBytecode.h \
+		../3rdparty/muParser/muParserCallback.h \
+		../3rdparty/muParser/muParserTokenReader.h \ 
+		../3rdparty/muParser/muParserFixes.h \
+		../3rdparty/muParser/muParserDef.h  	   
+  SOURCES +=	src/muParserScripting.cpp \
+		../3rdparty/muParser/muParser.cpp \
+		../3rdparty/muParser/muParserBase.cpp \
+		../3rdparty/muParser/muParserInt.cpp \
+		../3rdparty/muParser/muParserBytecode.cpp \
+		../3rdparty/muParser/muParserCallback.cpp \
+		../3rdparty/muParser/muParserTokenReader.cpp \
+		../3rdparty/muParser/muParserError.cpp
+}
+
+contains(SCRIPTING_LANGS, Python) {
+  DEFINES +=	SCRIPTING_PYTHON
+  HEADERS +=	src/PythonScripting.h
+  SOURCES +=	src/PythonScripting.cpp
+  unix:INCLUDEPATH += /usr/include/python2.4
+  LIBS +=	-lpython2.4 -lm
+  
+  # TODO: is there a way to do this in the Makefile?
+  unix:system(mkdir -p $${MOC_DIR})
+  unix:system(sip -I /usr/share/sip -t Qt_4_1_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+
+  HEADERS +=\
+	 ../tmp/qtiplot/sipqtiApplicationWindow.h\
+	 ../tmp/qtiplot/sipqtiGraph.h\
+	 ../tmp/qtiplot/sipqtiLineMarker.h\
+	 ../tmp/qtiplot/sipqtiMultiLayer.h\
+	 ../tmp/qtiplot/sipqtiTable.h\
+	 ../tmp/qtiplot/sipqtiMyWidget.h\
+	 ../tmp/qtiplot/sipqtiScriptEdit.h\
+	 ../tmp/qtiplot/sipqtiNote.h\
+	 ../tmp/qtiplot/sipqtiPythonScript.h\
+	 ../tmp/qtiplot/sipqtiFolder.h\
+	 ../tmp/qtiplot/sipqtiQList.h
+#	 ../tmp/qtiplot/sipqtiFit.h\
+#	 ../tmp/qtiplot/sipqtiExponentialFit.h\
+#	 ../tmp/qtiplot/sipqtiTwoExpFit.h\
+#	 ../tmp/qtiplot/sipqtiThreeExpFit.h\
+#	 ../tmp/qtiplot/sipqtiSigmoidalFit.h\
+#	 ../tmp/qtiplot/sipqtiGaussAmpFit.h\
+#	 ../tmp/qtiplot/sipqtiLorentzFit.h\
+#	 ../tmp/qtiplot/sipqtiNonLinearFit.h\
+#	 ../tmp/qtiplot/sipqtiPluginFit.h\
+#	 ../tmp/qtiplot/sipqtiMultiPeakFit.h\
+#	 ../tmp/qtiplot/sipqtiPolynomialFit.h\
+#	 ../tmp/qtiplot/sipqtiLinearFit.h\
+#	 ../tmp/qtiplot/sipqtiMatrix.h\
+#	 ../tmp/qtiplot/sipqtiGaussFit.h
+  SOURCES +=\
+	 ../tmp/qtiplot/sipqticmodule.cpp\
+	 ../tmp/qtiplot/sipqtiApplicationWindow.cpp\
+	 ../tmp/qtiplot/sipqtiGraph.cpp\
+	 ../tmp/qtiplot/sipqtiLineMarker.cpp\
+	 ../tmp/qtiplot/sipqtiMultiLayer.cpp\
+	 ../tmp/qtiplot/sipqtiTable.cpp\
+	 ../tmp/qtiplot/sipqtiMyWidget.cpp\
+	 ../tmp/qtiplot/sipqtiScriptEdit.cpp\
+	 ../tmp/qtiplot/sipqtiNote.cpp\
+	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
+	 ../tmp/qtiplot/sipqtiFolder.cpp\
+	 ../tmp/qtiplot/sipqtiQList.cpp
+#	 ../tmp/qtiplot/sipqtiFit.cpp\
+#	 ../tmp/qtiplot/sipqtiExponentialFit.cpp\
+#	 ../tmp/qtiplot/sipqtiTwoExpFit.cpp\
+#	 ../tmp/qtiplot/sipqtiThreeExpFit.cpp\
+#	 ../tmp/qtiplot/sipqtiSigmoidalFit.cpp\
+#	 ../tmp/qtiplot/sipqtiGaussAmpFit.cpp\
+#	 ../tmp/qtiplot/sipqtiLorentzFit.cpp\
+#	 ../tmp/qtiplot/sipqtiNonLinearFit.cpp\
+#	 ../tmp/qtiplot/sipqtiPluginFit.cpp\
+#	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp\
+#	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp\
+#	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
+#	 ../tmp/qtiplot/sipqtiMatrix.cpp\
+#	 ../tmp/qtiplot/sipqtiGaussFit.cpp
+}
+

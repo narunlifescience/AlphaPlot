@@ -2,8 +2,11 @@
     File                 : application.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+			   Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : QtiPlot's main window
                            
  ***************************************************************************/
@@ -37,6 +40,7 @@
 #include <QSplitter>
 
 #include "worksheet.h"
+#include "Scripting.h"
 
 class QPixmap;
 class QCloseEvent;
@@ -70,10 +74,10 @@ class FolderListItem;
 class FolderListView;
 class Plot3DDialog;
 class MyWidget;
-class ScriptingEnv;
+class TableStatistics;
 
 //! QtiPlot's main window
-class ApplicationWindow: public QMainWindow
+class ApplicationWindow: public QMainWindow, public scripted
 {
     Q_OBJECT
 public:
@@ -96,6 +100,7 @@ public:
 	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend; 
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
+	QMenu *scriptingMenu;
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
@@ -260,7 +265,10 @@ public slots:
 	void customTable(Table* w);
 	void customizeTables(const QColor& bgColor,const QColor& textColor,
 						const QColor& headerColor,const QFont& textFont, const QFont& headerFont);
-	
+
+	TableStatistics *newTableStatistics(Table *base, int type, QList<int>,
+	    const QString &caption=QString::null);
+
 	void customGraph(Graph* g);
 	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers);
 	void setLegendDefaultSettings(int frame, const QFont& font, 
@@ -419,6 +427,7 @@ public slots:
 
 	Matrix* openMatrix(ApplicationWindow* app, const QStringList &flist);
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);
+	TableStatistics* openTableStatistics(const QStringList &flist);
 	Graph3D* openSurfacePlot(ApplicationWindow* app, const QStringList &lst);
 	void openGraph(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
 
@@ -496,6 +505,7 @@ public slots:
 	void timerEvent ( QTimerEvent *e);
 	void dragEnterEvent( QDragEnterEvent* e );
 	void dropEvent( QDropEvent* e );
+	void customEvent( QEvent* e);
 
 	//dialogs
 	void showFindDialogue();	
@@ -527,6 +537,8 @@ public slots:
 	void showColsDialog();
 	void showColMenu(int c);
 	void showColumnValuesDialog();	
+	//! recalculate selected cells of current table
+	void recalculateTable();
 	void showGraphContextMenu();
 	void showTableContextMenu(bool selection);
 	void showWindowContextMenu();
@@ -660,6 +672,7 @@ public slots:
 	Note* newNote(const QString& caption = QString());
 	Note* openNote(ApplicationWindow* app, const QStringList &flist);
 	void initNote(Note* m, const QString& caption);
+	void saveNoteAs();
 	
 	//! Adds a new folder to the project
 	void addFolder();
@@ -757,10 +770,18 @@ public slots:
 	void moveFolder(FolderListItem *src, FolderListItem *dest);
 
 	// scripting
-	//!  notify the user that an error occured in the scripting system
+	//! notify the user that an error occured in the scripting system
 	void scriptError(const QString &message, const QString &scriptName, int lineNumber);
-	//!  execute all notes marked auto-exec
+	//! execute all notes marked auto-exec
 	void executeNotes();
+	//! show scripting language selection dialog
+	void showScriptingLangDialog();
+	//! create a new environment for the current scripting language
+	void restartScriptingEnv();
+	//! print to scripting console (if available) or to stdout
+	void scriptPrint(const QString &text);
+	//! switches to the given scripting language (if different from the current)
+	bool setScriptingLang(const QString &lang);
 
 signals:
 	void modified();
@@ -829,6 +850,9 @@ public:
 	//! Equals true if an automatical search for updates was performed on start-up otherwise is set to false;
 	bool autoSearchUpdatesRequest;
 
+	//! The scripting language to use for new projects.
+	QString defaultScriptingLang;
+
 private:
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
@@ -854,6 +878,7 @@ private:
     QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
     QAction *actionShowCurveFormatDialog, *actionShowAxisDialog, *actionShowTitleDialog;
     QAction *actionShowColumnOptionsDialog, *actionShowColumnValuesDialog, *actionShowColsDialog, *actionShowRowsDialog;
+    QAction *actionTableRecalculate;
     QAction *actionAbout, *actionShowHelp, *actionChooseHelpFolder;
     QAction *actionRename, *actionCloseWindow, *actionConvertTable;
     QAction *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
@@ -877,13 +902,12 @@ private:
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 	QAction *actionNextWindow, *actionPrevWindow;
+	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToRow;
+	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 
 private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
-
-	//!Scripting environment currently in use
-	ScriptingEnv *scriptEnv;
 
 	//! Used when checking for new versions
 	QHttp http;

@@ -2,8 +2,11 @@
     File                 : folder.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : Folder for the project explorer
                            
  ***************************************************************************/
@@ -118,6 +121,14 @@ Folder::Folder( Folder *parent, const QString &name )
 	// lstWindows.setAutoDelete( true );
 }
 
+QList<Folder*> Folder::folders()
+{
+	QList<Folder*> lst;
+	foreach(QObject *f, children())
+		lst.append((Folder*) f);
+	return lst;
+}
+
 QStringList Folder::subfolders()
 {
 	QStringList list = QStringList();
@@ -209,6 +220,20 @@ MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 		}
 	}
 	return 0;
+}
+
+MyWidget *Folder::window(const QString &name, const char *cls, bool recursive)
+{
+	foreach (MyWidget *w, lstWindows)
+		if (w->inherits(cls) && name == w->name())
+			return w;
+	if (!recursive) return NULL;
+	foreach (QObject *f, children())
+	{
+		MyWidget *w = ((Folder*)f)->window(name, cls, true);
+		if (w) return w;
+	}
+	return NULL;
 }
 
 QString Folder::sizeToString()

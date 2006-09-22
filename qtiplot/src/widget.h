@@ -2,9 +2,12 @@
     File                 : widget.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Extension to QWidget
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
+    Description          : MDI window widget
                            
  ***************************************************************************/
 
@@ -58,7 +61,7 @@ public:
 	//! Return the window label
 	QString windowLabel(){return QString(w_label);};
 	//! Set the window label
-	void setWindowLabel(const QString& s){w_label = s;};
+	void setWindowLabel(const QString& s) { w_label = s; updateCaption(); };
 
 	//! Return the window name
 	QString name(){return objectName();};
@@ -74,7 +77,10 @@ public:
 	 * Label -> caption detemined by the window label
 	 * Both -> caption = "name - label"
 	 */
-	void setCaptionPolicy(CaptionPolicy policy);
+	void setCaptionPolicy(CaptionPolicy policy) { caption_policy = policy; updateCaption(); }
+
+	//! Set the widget's name
+	void setName(const char *newname) { QWidget::setName(newname); updateCaption(); }
 
 	//! Return the creation date
 	QString birthDate(){return birthdate;};
@@ -123,6 +129,8 @@ public:
 	void askOnCloseEvent(bool ask){askOnClose = ask;};
 	//! General event handler (updates the window status if it changed)
 	bool event( QEvent *e );
+	//! Filters other object's events (customizes title bar's context menu)
+	bool eventFilter(QObject *object, QEvent *e);
 
 	//! Show the window maximized
 	void showMaximized();
@@ -135,6 +143,9 @@ public:
 	//! Initializes the pointer to the parent folder of the window
 	void setFolder(Folder* f){parentFolder = f;};
 
+	//! Catches parent changes (in order to gain access to the title bar)
+	void reparent(QWidget * parent, Qt::WFlags f, const QPoint & p, bool showIt = false);
+
 signals:  
 	//! Emitted when the window was closed
 	void closedWindow(MyWidget *);
@@ -144,8 +155,16 @@ signals:
 	void resizedWindow(QWidget *);
 	//! Emitted when the window status changed
 	void statusChanged(MyWidget *);
+	//! Emitted when the title bar recieves a QContextMenuEvent
+	void showTitleBarMenu();
+
+protected:
+	QWidget *titleBar;
 
 private:
+	//! set caption according to current CaptionPolicy, name and label
+	void updateCaption();
+
 	//!Pointer to the parent folder of the window
 	Folder *parentFolder;
 	//! The window label

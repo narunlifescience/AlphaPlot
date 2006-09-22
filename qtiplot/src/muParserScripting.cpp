@@ -6,8 +6,9 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : TODO
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
+    Description          : Evaluate mathematical expression using muParser
                            
  ***************************************************************************/
 
@@ -35,9 +36,10 @@
 
 #include <qstringlist.h>
 #include <q3asciidict.h>
-#include <qmap.h>
 
 using namespace mu;
+
+const char* muParserScripting::langName = "muParser";
 
 const muParserScripting::mathFunction muParserScripting::math_functions[] = {
   { "abs", 1, NULL,NULL,NULL, "abs(x):\n Absolute value of x." },
@@ -107,7 +109,87 @@ muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *
     else if (i->numargs == 3 && i->fun3 != NULL)
       parser.DefineFun(i->name, i->fun3);
 
+  parser.SetVarFactory(mu_addVariable);
+  if (Context->isA("Table"))
+	  parser.DefineFun("col", mu_col, false);
+  else if (Context->isA("Matrix"))
+	  parser.DefineFun("cell", mu_cell);
+
   rparser = parser;
+}
+
+double muParserScript::col(const QString &arg)
+{
+	if (!Context->isA("Table"))
+		throw Parser::exception_type(tr("col() works only on tables!").ascii());
+	QStringList items;
+	QString item = "";
+	for (int i=0; arg[i] != QChar::null; i++) 
+		if (arg[i] == '"') {
+			item += "\"";
+			for (i++; arg[i] != QChar::null && arg[i] != '"'; i++)
+				if (arg[i] == '\\') {
+					item += "\\";
+					item += arg[++i];
+				} else
+					item += arg[i];
+			item += "\"";
+		} else if (arg[i] == ',') {
+			items << item;
+			item = "";
+		} else
+			item += arg[i];
+			items << item;
+			Table *table = (Table*) Context;
+			int col, row;
+			Parser local_parser(rparser);
+			if (items[0].startsWith("\"") && items[0].endsWith("\""))
+				col = table->colNames().findIndex(items[0].mid(1,items[0].length()-2));
+			else
+			{
+				// for backwards compatibility
+				col = table->colNames().findIndex(items[0]);
+				if (col<0) {
+					local_parser.SetExpr(items[0].ascii());
+					col = qRound(local_parser.Eval()) - 1;
+				}
+			}
+			if (items.count() == 2)
+			{
+				local_parser.SetExpr(items[1].ascii());
+				row = qRound(local_parser.Eval()) - 1;
+			} else if (variables["i"])
+				row = (int) *(variables["i"]) - 1;
+			else
+				return 0;
+			if (row < 0 || row >= table->tableRows() || col < 0 || col >= table->tableCols())
+				return 0;
+			if (table->text(row,col).isEmpty())
+				throw new EmptySourceError();
+			else
+				return (table->text(row,col)).toDouble();
+}
+
+double muParserScript::cell(int row, int col)
+{
+	if (!Context->isA("Matrix"))
+		throw Parser::exception_type(tr("cell() works only on matrices!").ascii());
+	Matrix *matrix = (Matrix*) Context;
+	if (row < 1 || row > matrix->numRows() || col < 1 || col > matrix->numCols())
+		return 0;
+	if (matrix->text(row-1,col-1).isEmpty())
+		throw new EmptySourceError();
+	else
+		return (matrix->text(row-1,col-1)).toDouble();
+}
+
+double *muParserScript::addVariable(const char *name)
+{
+	double *valptr = new double;
+		if (!valptr)
+			throw Parser::exception_type(tr("Out of memory").ascii());
+				variables.insert(name, valptr);
+				return valptr;
 }
 
 bool muParserScript::setDouble(double val, const char *name)
@@ -127,10 +209,7 @@ bool muParserScript::setDouble(double val, const char *name)
       variables.insert(name, valptr);
     } catch (mu::ParserError &e) {
       delete valptr;
-      QString errString = QString::fromStdString(e.GetMsg());
-      for (strDict::iterator i=substitute.begin(); i!=substitute.end(); i++)
-	errString.replace(i.key(), i.data(), true);
-      emit_error(errString, 0);
+      emit_error(QString(e.GetMsg().c_str()), 0);
       return false;
     }
   }
@@ -148,210 +227,132 @@ bool muParserScript::setQObject(QObject*, const char*)
   return false;
 }
 
-bool muParserScript::compile()
+QString muParserScript::compileColArg(const QString &in)
 {
-  QString aux(Code);
-  int i;
-
-  if (Context->isA("Table"))
-  {
-    // col() hack
-    int pos1, pos2, pos3;
-    QStringList colNames=((Table*)Context)->colNames();
-    int n = aux.count("col(");
-    for (i=0; i<n; i++)
-    {
-      pos1=aux.find("col(",0,TRUE);
-      pos2=pos1+3;
-      pos3=aux.find(")",pos2+1);
-
-      QString aux2=aux.mid(pos2+1,pos3-pos2-1);
-      if (aux2.contains("col("))
-      {
-	emit_error(tr("You cannot use imbricated columns!"), 0);
-	compiled = Script::compileErr;
-	return false;
-      }
-
-      QStringList items=QStringList::split(",", aux2, FALSE);
-      // allow both name and "name" for compatibility
-      if (items[0].startsWith("\"") && items[0].endsWith("\""))
-	items[0] = items[0].mid(1,items[0].length()-2);
-      QString s = "__c" + QString::number(i);
-      if (items.count() == 2)
-	rowIndexes[s] = items[1];
-      else
-	rowIndexes[s] = "i";
-      colIndexes[s] = QString::number(colNames.findIndex (items[0]));
-      aux.replace(pos1,4+pos3-pos2,s);
-      substitute[s] = "col("+aux2+")";
-    }
-  } else if (Context->isA("Matrix")) {
-    // cell() hack
-    int pos1, pos2, pos3;
-    int n = aux.count("cell(");
-    for (i=0; i<n; i++)
-    {
-      pos1=aux.find("cell(",0,TRUE);
-      pos2=pos1+4;
-      pos3=aux.find(")",pos2+1);
-
-      QString aux2=aux.mid(pos2+1,pos3-pos2-1);
-      if (aux2.count("cell("))
-      {
-	emit_error(tr("You cannot use cells recursively!"), 0);
-	compiled = Script::compileErr;
-	return false;
-      }
-
-      QStringList items=QStringList::split(",", aux2, FALSE);
-      QString s = "__c" + QString::number(i);
-      rowIndexes[s] = items[0].stripWhiteSpace();
-      colIndexes[s] = items[1].stripWhiteSpace();
-      aux.replace(pos1,5+pos3-pos2,s);
-      substitute[s] = "cell("+aux2+")";
-    }
-  }
-
-  userVariables.clear();
-  returns = false;
-  QStringList lines = QStringList::split("\n", aux);
-  for (i=0; i<(int)lines.size(); i++)
-  {
-    if (lines[i].startsWith("#"))
-      continue;
-    QStringList kv = QStringList::split("=", lines[i], true);
-    if (kv.size() == 1) {
-      returns = true;
-      break;
-    }
-    if (kv.size() != 2)
-    {
-      emit_error(tr("Too many '=' in one line."),i+1);
-      return false;
-    }
-    if (kv[0].isEmpty())
-    {
-      emit_error(tr("Syntax error: '=' without variable name."),i+1);
-      return false;
-    }
-    userVariables[kv[0]]=kv[1];
-    setDouble(0,kv[0]);
-  }
-  if (returns)
-    parser.SetExpr(lines[i].ascii());
-  
-  compiled = Script::isCompiled;
-  return true;
+	QString out = "\"";
+	for (int i=0; in[i] != QChar::null; i++) 
+		if (in[i] == 'c' && in.mid(i,4)=="col(") {
+			out += "col(";
+			QString arg = "";
+			int paren = 1;
+			for (i+=4; in[i] != QChar::null && paren > 0; i++)
+				if (in[i] == '"') {
+					arg += "\"";
+					for (i++; in[i] != QChar::null && in[i] != '"'; i++)
+						if (in[i] == '\\') {
+							arg += "\\";
+							arg += in[++i];
+						} else
+							arg += in[i];
+					arg += "\"";
+				} else if (in[i] == '(') {
+					paren++;
+					arg += "(";
+				} else if (in[i] == ')') {
+					paren--;
+					if(paren>0) arg += ")";
+				}
+				else
+					arg += in[i];
+			out += compileColArg(arg).replace('"',"\\\"");
+			out += ")";
+			i--;
+		}
+		else if (in[i] == '\\')
+			out += "\\\\";
+		else if (in[i] == '"')
+			out += "\\\"";
+		else
+			out += in[i];
+	return out + "\"";
 }
 
-int muParserScript::setDynamicVars()
+bool muParserScript::compile(bool)
 {
-  bool allSourcesEmpty = !rowIndexes.isEmpty();
-  if (Context->isA("Table"))
-  {
-    Table *table = (Table*) Context;
-    strDict::iterator i=rowIndexes.begin(),j=colIndexes.begin();
-    while((i!=rowIndexes.end())&&(j!=colIndexes.end())) {
-      int col, row;
-      if (i.data() == "i" && variables["i"])
-	row = (int) *(variables["i"]) - 1;
-      else {
-	rparser.SetExpr(i.data().toStdString());
-	row = qRound(rparser.Eval()) - 1;
-      }
-      col=j.data().toInt();
-      if (row < 0 || row >= table->tableRows() || col < 0 || col >= table->tableCols())
-	return 0;
-      if (table->text(row,col).isEmpty())
-	setDouble(0, i.key().ascii());
-      else
-      {
-	setDouble((table->text(row,col)).toDouble(), i.key().ascii());
-	allSourcesEmpty = false;
-      }
-      i++; j++;
-    }
-  } else if (Context->isA("Matrix")) {
-    Matrix *matrix = (Matrix*) Context;
-    strDict::iterator i=rowIndexes.begin(),j=colIndexes.begin();
-    while((i!=rowIndexes.end())&&(j!=colIndexes.end())) {
-      int col, row;
-      if (i.data() == "i" && variables["i"])
-	row = (int) *(variables["i"]) - 1;
-      else {
-	rparser.SetExpr(i.data().toStdString());
-	row = qRound(rparser.Eval()) - 1;
-      }
-      if (j.data() == "j" && variables["j"])
-	col = (int) *(variables["j"]) - 1;
-      else {
-	rparser.SetExpr(j.data().toStdString());
-	col = qRound(rparser.Eval()) - 1;
-      }
-      if (row < 0 || row >= matrix->numRows() || col < 0 || col >= matrix->numCols())
-	return 0;
-      if (matrix->text(row,col).isEmpty())
-	setDouble(0, i.key().ascii());
-      else
-      {
-	setDouble((matrix->text(row,col)).toDouble(), i.key().ascii());
-	allSourcesEmpty=false;
-      }
-      i++; j++;
-    }
-  }
-  for (strDict::iterator i=userVariables.begin(); i!=userVariables.end(); i++)
-  {
-    rparser.SetExpr(i.data().toStdString());
-    if (!setDouble(rparser.Eval(), i.key().ascii()))
-      return 0;
-  }
-  if (allSourcesEmpty) return 2;
-  return 1;
+	muCode.clear();
+	QString muCodeLine = "";
+	for (int i=0; Code[i] != QChar::null; i++) 
+		if (Code[i] == 'c' && Code.mid(i,4)=="col(") {
+			muCodeLine += "col(";
+			QString arg = "";
+			int paren = 1;
+			for (i+=4; Code[i] != QChar::null && paren > 0; i++)
+				if (Code[i] == '"') {
+					arg += "\"";
+					for (i++; Code[i] != '"' && Code[i] != QChar::null; i++)
+						if (Code[i] == '\\') {
+							arg += "\\";
+							arg += Code[++i];
+						} else
+							arg += Code[i];
+					arg += "\"";
+				} else if (Code[i] == '(') {
+					paren++;
+					arg += "(";
+				} else if (Code[i] == ')') {
+					paren--;
+					if(paren>0) arg += ")";
+				}
+				else
+					arg += Code[i];
+			muCodeLine += compileColArg(arg);
+			muCodeLine += ")";
+			i--;
+		} else if (Code[i] == '#')
+			for (i++; Code[i] != '\n' && Code[i] != QChar::null; i++);
+		else if (Code[i] == '\n') {
+			muCodeLine = muCodeLine.stripWhiteSpace();
+			if (!muCodeLine.isEmpty())
+				muCode += muCodeLine;
+			muCodeLine = "";
+		} else
+			muCodeLine += Code[i];
+	muCodeLine = muCodeLine.stripWhiteSpace();
+	if (!muCodeLine.isEmpty())
+		muCode += muCodeLine;
+	compiled = Script::isCompiled;
+	return true;
 }
+
+muParserScript *muParserScript::current = NULL;
 
 QVariant muParserScript::eval()
 {
-  if ((compiled != Script::isCompiled && !compile()) || !returns)
-    return QVariant();
-  double val;
-  try {
-    switch (setDynamicVars())
-    {
-      case 0: return QVariant();
-      case 1: break;
-      case 2: return QVariant("");
-    }
-    val = parser.Eval();
-  } catch (mu::ParserError &e) {
-    QString errString = QString::fromStdString(e.GetMsg());
-    for (strDict::iterator i=substitute.begin(); i!=substitute.end(); i++)
-      errString.replace(i.key(), i.data(), true);
-    emit_error(errString, 0);
-    return QVariant();
-  }
-  return QVariant(val);
+	if (compiled != Script::isCompiled && !compile())
+		return QVariant();
+	double val;
+	try {
+		current = this;
+		for (QStringList::iterator i=muCode.begin(); i != muCode.end(); i++) {
+			parser.SetExpr(i->ascii());
+			val = parser.Eval();
+		}
+	} catch (EmptySourceError *e) {
+		return QVariant("");
+	} catch (ParserError &e) {
+		emit_error(e.GetMsg().c_str(), 0);
+		return QVariant();
+	}
+	return QVariant(val);
 }
 
 bool muParserScript::exec()
 {
-  if (compiled != Script::isCompiled && !compile())
-    return false;
-  try {
-    // for error reporting
-    if (returns)
-      parser.Eval();
-    return (setDynamicVars() != 0);
-  } catch (mu::ParserError &e) {
-    QString errString = QString::fromStdString(e.GetMsg());
-    for (strDict::iterator i=substitute.begin(); i!=substitute.end(); i++)
-      errString.replace(i.key(), i.data(), true);
-    emit_error(errString, 0);
-    return false;
-  }
+	if (compiled != Script::isCompiled && !compile())
+		return false;
+	try {
+		current = this;
+		for (QStringList::iterator i=muCode.begin(); i != muCode.end(); i++) {
+			parser.SetExpr(i->ascii());
+			parser.Eval();
+		}
+	} catch (EmptySourceError *e) {
+		return true;
+	} catch (mu::ParserError &e) {
+		emit_error(e.GetMsg().c_str(), 0);
+		return false;
+	}
 }
- 
 
 const QStringList muParserScripting::mathFunctions() const
 {

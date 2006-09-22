@@ -2,8 +2,11 @@
     File                 : note.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : Notes window class
                            
  ***************************************************************************/
@@ -27,7 +30,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "note.h"
-#include "Scripting.h"
 #include "scriptedit.h"
 
 #include <QDateTime>
@@ -58,6 +60,12 @@ hlayout->addWidget(te);
 
 setGeometry(0, 0, 500, 200);
 connect(te, SIGNAL(textChanged()), this, SLOT(modifiedNote()));
+}
+
+void Note::setName(const char *name)
+{
+	te->setName(name);
+	QObject::setName(name);
 }
 
 void Note::modifiedNote()
@@ -101,10 +109,5 @@ void Note::setAutoexec(bool exec)
     te->setPaletteBackgroundColor(QColor(255,239,185));
   else
     te->unsetPalette();
-}
-
-void Note::execute()
-{
-  te->executeAll();
 }
 

@@ -6,6 +6,7 @@
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+                           knut.franke@gmx.de
     Description          : Set column values dialog
                            
  ***************************************************************************/
@@ -54,9 +55,8 @@
 #include <QTextCursor>
 
 SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+    : QDialog( parent, name, modal, fl ), scripted(env)
 {
-	scriptEnv = env;
 	if ( !name )
 		setName( "SetColValuesDialog" );
 	setWindowTitle( tr( "QtiPlot - Set column values" ) );
@@ -133,7 +133,7 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	Q3HBox *hbox3=new Q3HBox (this, "hbox3"); 
 	hbox3->setSpacing (5);
 
-	commands = new ScriptEdit( env, hbox3, "commands" );
+	commands = new ScriptEdit( scriptEnv, hbox3, "commands" );
 	commands->setGeometry( QRect(10, 100, 260, 70) );
 	commands->setFocus();
 
@@ -192,6 +192,8 @@ void SetColValuesDialog::updateColumn(int sc)
 		buttonNext->setEnabled(true);
 
 	table->setSelectedCol(sc);
+	table->table()->clearSelection();
+	table->table()->selectColumn(sc);
 	colNameLabel->setText("col(\""+table->colLabel(sc)+"\")= ");
 
 	QStringList com = table->getCommands();
@@ -203,6 +205,12 @@ void SetColValuesDialog::updateColumn(int sc)
 QSize SetColValuesDialog::sizeHint() const 
 {
 	return QSize( 400, 190 );
+}
+
+void SetColValuesDialog::customEvent(QEvent *e)
+{
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 void SetColValuesDialog::accept()

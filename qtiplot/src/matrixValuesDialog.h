@@ -6,6 +6,7 @@
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+                           knut.franke@gmx.de
     Description          : Set matrix values dialog
                            
  ***************************************************************************/
@@ -31,6 +32,8 @@
 #ifndef MVALUESDIALOG_H
 #define MVALUESDIALOG_H
 
+#include "Scripting.h"
+
 #include <qvariant.h>
 #include <qdialog.h>
 
@@ -40,10 +43,9 @@ class ScriptEdit;
 class QSpinBox;
 class QPushButton;
 class Matrix;
-class ScriptingEnv;
 	
 //! Set matrix values dialog
-class MatrixValuesDialog : public QDialog
+class MatrixValuesDialog : public QDialog, public scripted
 { 
     Q_OBJECT
 
@@ -52,6 +54,8 @@ public:
     ~MatrixValuesDialog();
 	
 	QSize sizeHint() const ;
+
+	void customEvent( QEvent *e);
 
     QComboBox* functions;
     QPushButton* PushButton3; 
@@ -73,7 +77,6 @@ public slots:
 
 private:
 	Matrix *matrix;
-	ScriptingEnv *scriptEnv;
 };
 
 #endif //

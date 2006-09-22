@@ -1,11 +1,12 @@
 /***************************************************************************
-    File                 : note.h
-    Project              : QtiPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Notes window class
-                           
+	File                 : TableStatistics.h
+	Project              : QtiPlot
+--------------------------------------------------------------------
+	Copyright            : (C) 2006 by Knut Franke
+	Email                : knut.franke@gmx.de
+	Description          : Table subclass that displays statistics on
+	                       columns or rows of another table
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,51 +27,40 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef NOTE_H
-#define NOTE_H
+#ifndef TABLE_STATISTICS_H
+#define TABLE_STATISTICS_H
 
-#include "widget.h"	
-#include "scriptedit.h"
-#include <qtextedit.h>
+#include "worksheet.h"
 
-class ScriptingEnv;
-
-//! Notes window class
-class Note: public MyWidget
+//! Table that computes and displays statistics on another Table
+class TableStatistics : public Table
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
+	public:
+		//! supported statistics types
+		enum Type { row, column };
+		TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base, Type, QList<int> targets);
+		//! return the type of statistics
+		Type type() const { return d_type; }
+		//! return the base table of which statistics are displayed
+		Table *base() const { return d_base; }
+		// saving
+		virtual QString saveToString(const QString &geometry);
 
-	Note(ScriptingEnv *env, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	~Note(){};
+		public slots:
+			//! update statistics after a column has changed (to be connected with Table::modifiedData)
+			void update(Table*, const QString& colName);
+		//! handle renaming of columns (to be connected with Table::changedColHeader)
+		void renameCol(const QString&, const QString&);
+		//! remove statistics of removed columns (to be connected with Table::removedCol)
+		void removeCol(const QString&);
 
-		
-	void init(ScriptingEnv *env);
-	void setName(const char *name);
-
-public slots:
-	QString saveToString(const QString &info);
-	void restore(const QStringList&);
-
-	QTextEdit* textWidget(){return (QTextEdit*)te;};
-	bool autoexec() const { return autoExec; }
-	void setAutoexec(bool);
-	void modifiedNote();
-
-	// ScriptEdit methods
-	QString text() { return te->text(); };
-	void setText(const QString &s) { te->setText(s); };
-	void print() { te->print(); };
-	QString exportASCII(const QString &file=QString::null) { return te->exportASCII(file); };
-	QString importASCII(const QString &file=QString::null) { return te->importASCII(file); };
-	void execute() { te->execute(); };
-	void executeAll() { te->executeAll(); };
-	void evaluate() { te->evaluate(); };
-
-private:
-	ScriptEdit *te;
-	bool autoExec;
+	private:
+		Table *d_base;
+		Type d_type;
+		QList<int> d_targets;
 };
-   
+
 #endif
+

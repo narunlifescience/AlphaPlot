@@ -209,6 +209,11 @@ delete button;
 return h;
 }
 
+Graph *MultiLayer::layer(int num)
+{
+	return (Graph*) graphsList.at(num-1);
+}
+
 LayerButton* MultiLayer::addLayerButton()
 {
 for (int i=0;i<buttonsList.count();i++)

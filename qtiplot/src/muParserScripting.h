@@ -6,8 +6,9 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : TODO
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
+    Description          : Evaluate mathematical expressions using muParser
                            
  ***************************************************************************/
 
@@ -39,9 +40,6 @@
 #include <gsl/gsl_sf.h>
 #include <q3asciidict.h>
 
-template <class T1, class T2> class QMap;
-typedef QMap<QString,QString> strDict;
-
 //! TODO
 class muParserScript: public Script
 {
@@ -51,7 +49,7 @@ class muParserScript: public Script
     muParserScript(ScriptingEnv *env, const QString &code, QObject *context=0, const QString &name="<input>");
 	
   public slots:
-    bool compile();
+    bool compile(bool asFunction=true);
     QVariant eval();
     bool exec();
     bool setQObject(QObject *val, const char *name);
@@ -59,12 +57,20 @@ class muParserScript: public Script
     bool setDouble(double val, const char* name);
 
   private:
-    int setDynamicVars();
+    double col(const QString &arg);
+    double cell(int row, int col);
+    double *addVariable(const char *name);
+    static double mu_col(const char *arg) { return current->col(arg); }
+    static double mu_cell(double row, double col) { return current->cell(qRound(row), qRound(col)); }
+    static double *mu_addVariable(const char *name) { return current->addVariable(name); }
+    static QString compileColArg(const QString& in);
 
     mu::Parser parser, rparser;
     Q3AsciiDict<double> variables;
-    strDict substitute, rowIndexes, colIndexes, userVariables;
-    bool returns;
+    QStringList muCode;
+
+  public:
+    static muParserScript *current;
 };
 
 class muParserScripting: public ScriptingEnv
@@ -72,7 +78,9 @@ class muParserScripting: public ScriptingEnv
   Q_OBJECT
 
   public:
-    muParserScripting(ApplicationWindow *parent) : ScriptingEnv(parent) { initialized=true; }
+    static const char *langName;
+    muParserScripting(ApplicationWindow *parent) : ScriptingEnv(parent, langName) { initialized=true; }
+    static ScriptingEnv *constructor(ApplicationWindow *parent) { return new muParserScripting(parent); }
 
     bool isRunning() const { return true; }
     Script *newScript(const QString &code, QObject *context, const QString &name="<input>")
@@ -138,6 +146,12 @@ class muParserScripting: public ScriptingEnv
       { return gsl_sf_lngamma (x); }
     static double hazard(double x)
       { return gsl_sf_hazard (x); }
+};
+
+class EmptySourceError : public mu::ParserError
+{
+	public:
+		EmptySourceError() {}
 };
 
 #endif

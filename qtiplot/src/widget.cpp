@@ -2,9 +2,12 @@
     File                 : widget.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Extension to QWidget
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
+    Description          : MDI window widget
                            
  ***************************************************************************/
 
@@ -35,16 +38,16 @@
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)
 {
-w_label = label;
-caption_policy = Both;
-askOnClose = true;
-w_status = Normal;
+	w_label = label;
+	caption_policy = Both;
+	askOnClose = true;
+	w_status = Normal;
+	titleBar = NULL;
 	setObjectName(QString(name));
 }
 
-void MyWidget::setCaptionPolicy(CaptionPolicy policy)
+void MyWidget::updateCaption()
 {
-caption_policy = policy;
 switch (caption_policy)
 	{
 	case Name:
@@ -164,6 +167,21 @@ QString MyWidget::sizeToString()
 return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
 }
 
+void MyWidget::reparent(QWidget * parent, Qt::WFlags f, const QPoint & p, bool showIt)
+{
+	titleBar = (QWidget*) parent->child("qt_ws_titlebar","QWidget",false);
+	if(titleBar) titleBar->installEventFilter(this);
+	QWidget::reparent(parent, f, p, showIt);
+}
 
-
+bool MyWidget::eventFilter(QObject *object, QEvent *e)
+{
+	if (e->type()==QEvent::ContextMenu && object == titleBar)
+	{
+		emit showTitleBarMenu();
+		((QContextMenuEvent*)e)->accept();
+		return true;
+	}
+	return QObject::eventFilter(object, e);
+}
 

@@ -2,8 +2,11 @@
     File                 : matrix.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : Matrix worksheet class
                            
  ***************************************************************************/
@@ -34,11 +37,10 @@
 #include <QContextMenuEvent>
 #include <QEvent>
 #include "widget.h"
-
-class ScriptingEnv;
+#include "Scripting.h"
 
 //! Matrix worksheet class
-class Matrix: public MyWidget
+class Matrix: public MyWidget, public scripted
 {
     Q_OBJECT
 
@@ -57,6 +59,7 @@ public:
 	//event handlers
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
+	void customEvent(QEvent *e);
 
 public slots:
 
@@ -130,7 +133,6 @@ private:
 	//!Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, x_end, y_start, y_end;
-	ScriptingEnv *scriptEnv;
 };
    
 #endif

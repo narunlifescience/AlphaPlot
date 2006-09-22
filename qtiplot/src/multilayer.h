@@ -2,8 +2,11 @@
     File                 : multilayer.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen,
+					  Knut Franke
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : Multi layer widget
                            
  ***************************************************************************/
@@ -59,6 +62,7 @@ class MultiLayer: public MyWidget
 public:
     MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	QWidgetList graphPtrs(){return graphsList;};
+	Graph *layer(int num);
 	LayerButton* addLayerButton();	
 
 	enum HorAlignement{HCenter, Left, Right};

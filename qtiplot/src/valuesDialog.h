@@ -5,7 +5,8 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
+                           knut.franke@gmx.de
     Description          : Set column values dialog
                            
  ***************************************************************************/
@@ -31,6 +32,8 @@
 #ifndef VALUESDIALOG_H
 #define VALUESDIALOG_H
 
+#include "Scripting.h"
+
 #include <qvariant.h>
 #include <qdialog.h>
 //Added by qt3to4:
@@ -51,7 +54,7 @@ class ScriptingEnv;
 class ScriptEdit;
 	
 //! Set column values dialog
-class SetColValuesDialog : public QDialog
+class SetColValuesDialog : public QDialog, public scripted
 { 
     Q_OBJECT
 
@@ -60,6 +63,7 @@ public:
     ~SetColValuesDialog();
 	
 	QSize sizeHint() const ;
+	void customEvent( QEvent *e );
 
     QComboBox* functions;
     QComboBox* boxColumn;
@@ -88,7 +92,6 @@ public slots:
 
 private:
 	Table* table;
-	ScriptingEnv *scriptEnv;
 };
 
 #endif //

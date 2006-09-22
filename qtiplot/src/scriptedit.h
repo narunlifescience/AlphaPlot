@@ -40,31 +40,38 @@
 class QAction;
 class QMenu;
 
-class ScriptEdit: public QTextEdit
+class ScriptEdit: public QTextEdit, public scripted
 {
   Q_OBJECT
     
   public:
     ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
     ~ScriptEdit();
+
+    void customEvent(QEvent*);
+    int lineNumber(int pos) const;
     
   public slots:
     void execute();
     void executeAll();
     void evaluate();
     void print();
+    QString exportASCII(const QString &file=QString::null);
+    QString importASCII(const QString &file=QString::null);
     void insertFunction(const QString &);
     void insertFunction(QAction * action);
     void setContext(QObject *context) { myScript->setContext(context); }
+    void scriptPrint(const QString&);
+    void updateIndentation();
 
   protected:
-    QMenu * createStandardContextMenu();
+    virtual void contextMenuEvent(QContextMenuEvent *e);
 
   private:
-    ScriptingEnv *scriptEnv;
     Script *myScript;
-    QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint;
+    QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint, *actionImport, *actionExport;
     QMenu *functionsMenu;
+    bool firstOutput;
 
   private slots:
     void insertErrorMsg(const QString &message);

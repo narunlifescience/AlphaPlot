@@ -6,6 +6,7 @@
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+                           knut.franke@gmx.de
     Description          : Set matrix values dialog
                            
  ***************************************************************************/
@@ -49,9 +50,8 @@
 #include <Q3VBoxLayout>
 
 MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+: QDialog( parent, name, modal, fl ), scripted(env)
 {
-	scriptEnv = env;
 	if ( !name )
 		setName( "MatrixValuesDialog" );
 
@@ -149,6 +149,12 @@ MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 QSize MatrixValuesDialog::sizeHint() const 
 {
 	return QSize( 400, 190 );
+}
+
+void MatrixValuesDialog::customEvent(QEvent *e)
+{
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 void MatrixValuesDialog::accept()

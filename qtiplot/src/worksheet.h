@@ -43,11 +43,12 @@
 
 #include "graph.h"
 #include "widget.h"
+#include "Scripting.h"
 
 class ScriptingEnv;
 
 //! Table worksheet class
-class Table: public MyWidget
+class Table: public MyWidget, public scripted
 {
     Q_OBJECT
 
@@ -132,6 +133,7 @@ public slots:
 	void contextMenuEvent(QContextMenuEvent *e);
 	void mouseMoveEvent( QMouseEvent * e);
 	void mousePressEvent( QMouseEvent * e);
+	void customEvent( QCustomEvent* e);
 	
 	// column operations 
 	void removeCol();
@@ -152,7 +154,7 @@ public slots:
 	void sortColumnsDialog();
 	
 	//normalization
-	void normalizeCol();
+	void normalizeCol(int col=-1);
 	void normalizeSelection();
 	void normalizeTable();
 
@@ -170,8 +172,6 @@ public slots:
 	int colY(int col);
 
 	int atRow(int col, double value);
-	void showColStatistics();
-	void showRowStatistics(); 
 
 	QStringList getCommands(){return commands;};
 	//!Slot: Set all column formulae.
@@ -217,6 +217,8 @@ public slots:
 	int selectedColumn(){return selectedCol;};
 	int firstSelectedColumn();
 	int selectedRows();
+	bool isRowSelected(int row, bool full=false) { return worksheet->isRowSelected(row, full); }
+	bool isColumnSelected(int col, bool full=false) { return worksheet->isColumnSelected(col, full); }
 	
 	void columnNumericFormat(int col, char &f, int &precision);
 	void columnNumericFormat(int col, int &f, int &precision);
@@ -253,7 +255,7 @@ public slots:
 					bool renameCols, bool stripSpaces, bool simplifySpaces, int importFileAs);
 
 	//saving
-	QString saveToString(const QString& geometry);
+	virtual QString saveToString(const QString& geometry);
 	QString saveHeader();
 	QString saveComments();
 	QString saveCommands();
@@ -313,8 +315,10 @@ signals:
 	void showContextMenu(bool selection);
 	void createTable(const QString&,int,int,const QString&);
 	
-private:
+protected:
 	Q3Table *worksheet;
+
+private:
 	QString specifications, newSpecifications;
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
@@ -322,7 +326,6 @@ private:
 	QStringList savedCells;
 	int savedCol;
 	bool LeftButton;
-	ScriptingEnv *scriptEnv;
 };
 
 #endif
