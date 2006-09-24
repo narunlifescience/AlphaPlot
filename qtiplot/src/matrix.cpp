@@ -167,7 +167,7 @@ void Matrix::cellEdited(int row,int col)
 	if(ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
 			|| ret.type()==QVariant::ULongLong)
 		table->setText(row, col, ret.toString());
-	else if(ret.canCast(QVariant::Double))
+	else if(ret.canConvert(QVariant::Double))
 		table->setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
 	else
 		table->setText(row, col, "");
@@ -583,7 +583,7 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 			if (ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
 					|| ret.type()==QVariant::ULongLong)
 				table->setText(row, col, ret.toString());
-			else if (ret.canCast(QVariant::Double))
+			else if (ret.canConvert(QVariant::Double))
 				table->setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
 			else {
 				table->setText(row,col,"");

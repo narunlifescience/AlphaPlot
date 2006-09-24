@@ -87,6 +87,8 @@ public:
 	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution;
 	QGroupBox *groupBox3DFonts, *groupBox3DCol;
 	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength;
+	QLabel *lblScriptingLanguage;
+	QComboBox *boxScriptingLanguage;
 
 public slots:
     virtual void languageChange();

@@ -55,7 +55,8 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
 	setWordWrapMode(QTextOption::NoWrap);
 	setTextFormat(Qt::PlainText);
 	setFamily("Monospace");
-	connect(this, SIGNAL(returnPressed()), this, SLOT(updateIndentation()));
+
+	printCursor = textCursor();
 
 	actionExecute = new QAction(tr("E&xecute"), this);
 	actionExecute->setShortcut( tr("Ctrl+J") );
@@ -80,18 +81,26 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
 
 	functionsMenu = new QMenu(this);
 	Q_CHECK_PTR(functionsMenu);
+	connect(functionsMenu, SIGNAL(triggered(QAction *)), this, SLOT(insertFunction(QAction *)));
 }
 
 void ScriptEdit::customEvent(QEvent *e)
 {
-  if (e->type() == SCRIPTING_CHANGE_EVENT)
-  {
-    scriptingChangeEvent((ScriptingChangeEvent*)e);
-    delete myScript;
-    myScript = scriptEnv->newScript("", this, name());
-    connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
-    connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
-  }
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
+	{
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
+		delete myScript;
+		myScript = scriptEnv->newScript("", this, name());
+		connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+		connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	}
+}
+
+void ScriptEdit::keyPressEvent(QKeyEvent *e)
+{
+	QTextEdit::keyPressEvent(e);
+	if (e->key() == Qt::Key_Return)
+		updateIndentation();
 }
 
 void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
@@ -126,7 +135,6 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 		QAction * newAction = functionsMenu->addAction(flist[i]);
 		newAction->setData(i);
 		newAction->setWhatsThis(scriptEnv->mathFunctionDoc(flist[i]));
-		connect(functionsMenu, SIGNAL(triggered(QAction *)), this, SLOT(insertFunction(QAction *)));
 	}
 	functionsMenu->setTitle(tr("&Functions"));
 	menu->addMenu(functionsMenu);
@@ -139,20 +147,17 @@ void ScriptEdit::insertErrorMsg(const QString &message)
 {
 	QString err = message;
 	err.prepend("\n").replace("\n","\n#> ");
-	int pos = textCursor().position();
-	textCursor().setPosition(pos);
-	textCursor().insertText(err);
+	int start = printCursor.position();
+	printCursor.insertText(err);
+	printCursor.setPosition(start, QTextCursor::KeepAnchor);
+	setTextCursor(printCursor);
 }
 
 void ScriptEdit::scriptPrint(const QString &text)
 {
-	if(firstOutput) {
-		int pos = QMIN(textCursor().position(), textCursor().anchor());
-		textCursor().setPosition(pos);
-		textCursor().insertText("\n");
-		firstOutput = false;
-	}
-	textCursor().insertText(text);
+	if(lineNumber(printCursor.position()) == lineNumber(textCursor().selectionEnd()))
+		printCursor.insertText("\n");
+	printCursor.insertText(text);
 }
 
 void ScriptEdit::insertFunction(const QString &fname)
@@ -189,19 +194,18 @@ void ScriptEdit::execute()
 {
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
-	QTextCursor cursor = textCursor();
-	if (cursor.selectedText().isEmpty())
+	QTextCursor codeCursor = textCursor();
+	if (codeCursor.selectedText().isEmpty())
 	{
-		cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
-		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+		codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+		codeCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
-	fname = fname.arg(lineNumber(QMIN(cursor.position(),cursor.anchor())));
+	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 	
 	myScript->setName(fname);
-	myScript->setCode(cursor.selectedText());
-	firstOutput=true;
+	myScript->setCode(codeCursor.selectedText());
+	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	myScript->exec();
-	firstOutput=false;
 }
 
 void ScriptEdit::executeAll()
@@ -210,43 +214,38 @@ void ScriptEdit::executeAll()
 	fname = fname.arg(name());
 	myScript->setName(fname);
 	myScript->setCode(text());
-	textCursor().movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-	firstOutput=true;
+	printCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
 	myScript->exec();
-	firstOutput=false;
 }
 
 void ScriptEdit::evaluate()
 {
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
-	QTextCursor cursor = textCursor();
-	if (cursor.selectedText().isEmpty())
+	QTextCursor codeCursor = textCursor();
+	if (codeCursor.selectedText().isEmpty())
 	{
-		cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
-		cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+		codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
+		codeCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
-	fname = fname.arg(lineNumber(QMIN(cursor.position(),cursor.anchor())));
+	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 
 	myScript->setName(fname);
-	myScript->setCode(selectedText());
-	firstOutput=true;
+	myScript->setCode(codeCursor.selectedText());
+	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	myScript->setEmitErrors(false);
 	QVariant res = myScript->eval();
 	myScript->setEmitErrors(true);
-	if (res.isValid() && res.canCast(QVariant::String))
+	if (res.isValid() && res.canConvert(QVariant::String))
 	{
-		cursor.insertText("\n#> "+res.toString()+"\n");
-		cursor.clearSelection();
-	} else { // statement or invalid
-		if (myScript->exec())
-		{
-			cursor.clearSelection();
-			cursor.insertText("\n");
-			cursor.clearSelection();
-		}
+		QString strVal = res.toString();
+		if (!strVal.isEmpty())
+			printCursor.insertText("\n#> "+res.toString()+"\n");
 	}
-	firstOutput=false;
+	else // statement or invalid
+		if (myScript->exec())
+			printCursor.insertText("\n");
+	setTextCursor(printCursor);
 }
 
 ScriptEdit::~ScriptEdit()
@@ -388,9 +387,7 @@ void ScriptEdit::updateIndentation()
 	int i;
 	for (i=0; prev[i].isSpace(); i++);
 	QString indent = prev.mid(0, i);
-	int pos = cursor.position() + indent.length();
 	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 	cursor.insertText(indent);
-	cursor.setPosition(pos);
 }
 

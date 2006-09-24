@@ -109,7 +109,7 @@ from qti import *
 appImports = (
     "table", "newTable",
     "matrix", "newMatrix",
-    "graph", "newGraph",
+    "graph", #"newGraph",
     "note", "newNote",
     "plot",
     "activeFolder", "rootFolder"

@@ -4617,6 +4617,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/appStyle", appStyle);
 	settings.setValue("/autoSave", autoSave);
 	settings.setValue("/autoSaveTime", autoSaveTime);
+	settings.setValue("/ScriptingLang",defaultScriptingLang);
 	settings.setValue("/appColors", appColors);
 
 	settings.setValue("/showPlot3DLegend", showPlot3DLegend);

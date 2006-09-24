@@ -56,6 +56,7 @@ extern "C" void initqti();
 #include <qvariant.h>
 #include <qdir.h>
 #include <QDateTime>
+#include <QCoreApplication>
 
 const char* PythonScripting::langName = "Python";
 
@@ -233,7 +234,7 @@ QString PythonScripting::errorMsg()
 
 #ifdef Q_WS_WIN
 	loadInitFile(QDir::homeDirPath()+"qtiplotrc") ||
-		loadInitFile(qApp->applicationDirPath()+"qtiplotrc") ||
+		loadInitFile(QCoreApplication::instance()->applicationDirPath()+"qtiplotrc") ||
 #else
 		loadInitFile(QDir::homeDirPath()+"/.qtiplotrc") ||
 		loadInitFile(QDir::rootDirPath()+"etc/qtiplotrc") ||
@@ -495,9 +496,9 @@ QVariant PythonScript::eval()
 	else if (PyFloat_Check(pyret))
 		qret = QVariant(PyFloat_AS_DOUBLE(pyret));
 	else if (PyInt_Check(pyret))
-		qret = QVariant((Q_LLONG)PyInt_AS_LONG(pyret));
+		qret = QVariant((qlonglong)PyInt_AS_LONG(pyret));
 	else if (PyLong_Check(pyret))
-		qret = QVariant((Q_LLONG)PyLong_AsLongLong(pyret));
+		qret = QVariant((qlonglong)PyLong_AsLongLong(pyret));
 	else if (PyNumber_Check(pyret))
 	{
 		PyObject *number = PyNumber_Float(pyret);

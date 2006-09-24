@@ -66,12 +66,13 @@ class ScriptEdit: public QTextEdit, public scripted
 
   protected:
     virtual void contextMenuEvent(QContextMenuEvent *e);
+    virtual void keyPressEvent(QKeyEvent *e);
 
   private:
     Script *myScript;
     QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint, *actionImport, *actionExport;
     QMenu *functionsMenu;
-    bool firstOutput;
+    QTextCursor printCursor;
 
   private slots:
     void insertErrorMsg(const QString &message);

@@ -501,7 +501,15 @@ void ConfigDialog::initAppPage()
 	boxSearchUpdates->setChecked(app->autoSearchUpdates);
 	topBoxLayout->addWidget( boxSearchUpdates, 4, 0, 1, 2 );
 
-	topBoxLayout->setRowStretch( 5, 1 );
+	lblScriptingLanguage = new QLabel();
+	topBoxLayout->addWidget( lblScriptingLanguage, 5, 0 );
+	boxScriptingLanguage = new QComboBox();
+	QStringList llist = ScriptingLangManager::languages();
+	boxScriptingLanguage->insertStringList(llist);
+	boxScriptingLanguage->setCurrentItem(llist.findIndex(app->defaultScriptingLang));
+	topBoxLayout->addWidget( boxScriptingLanguage, 5, 1 );
+
+	topBoxLayout->setRowStretch( 6, 1 );
 
 	appTabWidget->addTab( application, QString() );
 
@@ -720,6 +728,7 @@ void ConfigDialog::languageChange()
 	boxSave->setText(tr("Save every"));
 	boxSearchUpdates->setText(tr("Check for new versions at startup"));
 	boxMinutes->setSuffix(tr(" minutes"));
+	lblScriptingLanguage->setText(tr("Default scripting language"));
 
 	//tables page
 	groupBoxTableCol->setTitle(tr("Colors"));
@@ -855,6 +864,7 @@ void ConfigDialog::apply()
 	app->changeAppStyle(boxStyle->currentText());
 	app->autoSearchUpdates = boxSearchUpdates->isChecked();
 	app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
+	app->defaultScriptingLang = boxScriptingLanguage->currentText();
 	// general page: confirmations tab
 	app->confirmCloseFolder = boxFolders->isChecked();
 	app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),

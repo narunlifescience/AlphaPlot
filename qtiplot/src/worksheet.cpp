@@ -442,7 +442,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 			char f;
 			columnNumericFormat(col, f, prec);
 			worksheet->setText(i,col,QString::number(ret.toDouble(), f, prec));
-		} else if(ret.canCast(QVariant::String))
+		} else if(ret.canConvert(QVariant::String))
 			worksheet->setText(i, col, ret.toString());
 		else {
 			QApplication::restoreOverrideCursor();

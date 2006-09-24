@@ -248,12 +248,20 @@ contains(SCRIPTING_LANGS, Python) {
   DEFINES +=	SCRIPTING_PYTHON
   HEADERS +=	src/PythonScripting.h
   SOURCES +=	src/PythonScripting.cpp
-  unix:INCLUDEPATH += /usr/include/python2.4
-  LIBS +=	-lpython2.4 -lm
-  
-  # TODO: is there a way to do this in the Makefile?
-  unix:system(mkdir -p $${MOC_DIR})
-  unix:system(sip -I /usr/share/sip -t Qt_4_1_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+
+  unix {
+    INCLUDEPATH += /usr/include/python2.4
+    LIBS +=	-lpython2.4 -lm
+    system(mkdir -p $${MOC_DIR})
+    system(sip -I /usr/share/sip -t Qt_4_1_4 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+  }
+
+  win32 {
+    INCLUDEPATH += C:/Python24/include
+    LIBS += C:/Python24/libs/python24.lib
+    system(md $${MOC_DIR})
+    system(C:\Python24\sip.exe -I C:\Python24\sip\PyQt4 -t Qt_4_1_4 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
+  }
 
   HEADERS +=\
 	 ../tmp/qtiplot/sipqtiApplicationWindow.h\
@@ -261,6 +269,7 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiLineMarker.h\
 	 ../tmp/qtiplot/sipqtiMultiLayer.h\
 	 ../tmp/qtiplot/sipqtiTable.h\
+	 ../tmp/qtiplot/sipqtiMatrix.h\
 	 ../tmp/qtiplot/sipqtiMyWidget.h\
 	 ../tmp/qtiplot/sipqtiScriptEdit.h\
 	 ../tmp/qtiplot/sipqtiNote.h\
@@ -279,7 +288,6 @@ contains(SCRIPTING_LANGS, Python) {
 #	 ../tmp/qtiplot/sipqtiMultiPeakFit.h\
 #	 ../tmp/qtiplot/sipqtiPolynomialFit.h\
 #	 ../tmp/qtiplot/sipqtiLinearFit.h\
-#	 ../tmp/qtiplot/sipqtiMatrix.h\
 #	 ../tmp/qtiplot/sipqtiGaussFit.h
   SOURCES +=\
 	 ../tmp/qtiplot/sipqticmodule.cpp\
@@ -288,6 +296,7 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiLineMarker.cpp\
 	 ../tmp/qtiplot/sipqtiMultiLayer.cpp\
 	 ../tmp/qtiplot/sipqtiTable.cpp\
+	 ../tmp/qtiplot/sipqtiMatrix.cpp\
 	 ../tmp/qtiplot/sipqtiMyWidget.cpp\
 	 ../tmp/qtiplot/sipqtiScriptEdit.cpp\
 	 ../tmp/qtiplot/sipqtiNote.cpp\
@@ -306,7 +315,6 @@ contains(SCRIPTING_LANGS, Python) {
 #	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp\
 #	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp\
 #	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
-#	 ../tmp/qtiplot/sipqtiMatrix.cpp\
 #	 ../tmp/qtiplot/sipqtiGaussFit.cpp
 }
 
