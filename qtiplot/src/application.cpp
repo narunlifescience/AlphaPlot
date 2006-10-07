@@ -5741,7 +5741,7 @@ void ApplicationWindow::showColMenu(int c)
 
 		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
 		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
+		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
@@ -5845,7 +5845,7 @@ void ApplicationWindow::showColMenu(int c)
 
 		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
 		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
+		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
@@ -6096,7 +6096,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->insertColList(columnsList(Table::All));
 			ad->insertTablesList(tableWindows);
 			ad->setAxesLabelsFormatInfo(g->axesLabelsFormatInfo());
-			ad->setEnabledAxes(g->enabledAxes());
+			//ad->setEnabledAxes(g->enabledAxes());
 			ad->setAxesType(g->axesType());
 			ad->setAxesBaseline(g->axesBaseline());
 			ad->setScaleLimits(g->plotLimits());
@@ -8096,7 +8096,7 @@ void ApplicationWindow::about()
 	QMessageBox::about(this,tr("About QtiPlot"),
 			tr("<h2>"+ version + "</h2>"
 				"<p><h3>Copyright(C): Ion Vasilief</h3>"
-				"<p><h3>Released: not yet</h3>"));
+				"<p><h3>Released: </h3>"));
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()
@@ -8884,52 +8884,51 @@ void ApplicationWindow::chooseHelpFolder()
 }
 
 void ApplicationWindow::showHelp()
-{
-	QMainWindow *helpWindow= new QMainWindow();
+{	
+	QMainWindow *helpWindow = new QMainWindow();
 	helpWindow->setAttribute(Qt::WA_DeleteOnClose);
-	HelpBrowser *browser = new HelpBrowser (helpWindow,"helpBrowse");
-
+	helpWindow->setWindowTitle(tr("QtiPlot - Help Browser"));
+	helpWindow->resize(QSize(800, 600));
+	helpWindow->setIcon(QPixmap(logo_xpm));
+	
+    HelpBrowser *browser = new HelpBrowser (helpWindow);
 	helpWindow->setFocus();
 	helpWindow->setCentralWidget(browser);
-
+	
 	QToolBar* toolbar = new QToolBar( helpWindow );
 	helpWindow->addToolBar( toolbar );
-	QAction * button;
+	QAction *button = toolbar->addAction(QIcon(QPixmap(folder_open_xpm)), tr("Open File"), browser, SLOT(open()));
+	button->setAccel(tr("Ctrl+O"));
+	button = toolbar->addAction(QIcon(QPixmap(fileprint_modern_xpm)), tr("Print"), browser, SLOT(print()));
+	button->setAccel(tr("Ctrl+P"));
+	button = toolbar->addAction(QIcon(QPixmap(export_pdf_xpm)), tr("Export PDF"), browser, SLOT(exportPdf()));
+	button->setAccel(tr("Ctrl+E"));
+	toolbar->addSeparator();
+	button = toolbar->addAction(QIcon(QPixmap(prev_xpm)), tr("Backward"), browser, SLOT(backward()));
+    connect( browser, SIGNAL( backwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
+    button->setEnabled( FALSE );
+	button = toolbar->addAction(QIcon(QPixmap(next_xpm)), tr("Forward"), browser, SLOT(forward()));
+    connect( browser, SIGNAL( forwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
+    button->setEnabled( FALSE );
+   	toolbar->addAction(QIcon(QPixmap(home_xpm)), tr("Home"), browser, SLOT(home()));
 
-	toolbar->addAction(QIcon(QPixmap(fileprint_xpm)), tr("Print"), this, SLOT(print()) );
-	button = toolbar->addAction(QIcon(QPixmap(back_xpm)), tr("Back"), browser, SLOT(backward()) );
-	connect( browser, SIGNAL( backwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
-	button->setEnabled( false );
-	button = toolbar->addAction(QIcon(QPixmap(forward_xpm)), tr("Forward"), browser, SLOT(forward()) );
-	connect( browser, SIGNAL( forwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
-	button->setEnabled( false );
-	toolbar->addAction(QIcon(QPixmap(home_xpm)), tr("Home"), browser, SLOT(home()) );
-
-	QString s = QDir::currentPath();
-	browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-
-	QFile helpFile(helpFilePath);
+    QFile helpFile(helpFilePath);
 	if (!helpFile.exists())
-	{
-		QMessageBox::critical(this,tr("QtiPlot - Help files not found!"),
-				tr("Please indicate the location of the help file!<br><br>"
-					"<p>The manual can be downloaded from the following internet address:</p>"
-					"<p><font color=blue>'http://soft.proindependent.com/manuals.html'</font></p>"));
-		QString fn = QFileDialog::getOpenFileName(this, QString(), QDir::currentPath() );
-		if (!fn.isEmpty())
 		{
+		QMessageBox::critical(this,tr("QtiPlot - Help Files Not Found!"),
+			   tr("Please indicate the location of the help file!<br>"
+			   "The manual can be downloaded from the following internet address:")+
+			   "<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+		QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this );
+		if (!fn.isEmpty())
+			{
 			QFileInfo fi(fn);
 			helpFilePath=fi.absFilePath();
-		}
-		else
-		{
-			delete helpWindow;
-			exit (0);
-		}
-	}		
-	browser->setSource (helpFilePath);
-	helpWindow->setWindowTitle(tr("QtiPlot - Help browser"));
-	helpWindow->showMaximized();
+			saveSettings();
+			}
+		}		
+	browser->setSource(QUrl::fromLocalFile(helpFilePath));
+	helpWindow->show();
 }
 
 void ApplicationWindow::showPlotWizard()
@@ -11051,7 +11050,7 @@ void ApplicationWindow::createActions()
 	actionPlotSpline = new QAction(QIcon(QPixmap(spline_xpm)), tr("&Spline"), this);
 	connect(actionPlotSpline, SIGNAL(activated()), this, SLOT(plotSpline()));
 
-	actionPlotSteps = new QAction(QIcon(QPixmap(steps_xpm)), tr("&Vertical Steps"), this);
+	actionPlotSteps = new QAction(QIcon(QPixmap(vert_steps_xpm)), tr("&Vertical Steps"), this);
 	connect(actionPlotSteps, SIGNAL(activated()), this, SLOT(plotSteps()));
 
 	actionPlotVerticalBars = new QAction(QIcon(QPixmap(vertBars_xpm)), tr("&Columns"), this);
@@ -12219,82 +12218,39 @@ void ApplicationWindow::fitMultiPeakLorentz()
 
 void ApplicationWindow::showSupportPage()
 {
-	open_browser(this, "http://soft.proindependent.com/contracts.html");
+	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/contracts.html"));
 }
 
 
 void ApplicationWindow::showDonationsPage()
 {
-	open_browser(this, "http://soft.proindependent.com/why_donate.html");
+	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/why_donate.html"));
 }
 
 void ApplicationWindow::downloadManual()
 {
-	open_browser(this, "http://soft.proindependent.com/manuals.html");
+	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/manuals.html"));
 }
 
 void ApplicationWindow::downloadTranslation()
 {
-	open_browser(this, "http://soft.proindependent.com/translations.html");
+	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/translations.html"));
 }
 
 void ApplicationWindow::showHomePage()
 {
-	open_browser(this, "http://soft.proindependent.com/qtiplot.html");
+	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/qtiplot.html"));
 }
 
 void ApplicationWindow::showForums()
 {
-	open_browser(this, "https://developer.berlios.de/forum/?group_id=6626");
+	QDesktopServices::openUrl(QUrl("https://developer.berlios.de/forum/?group_id=6626"));
 }
 
 void ApplicationWindow::showBugTracker()
 {
-	open_browser(this, "https://developer.berlios.de/bugs/?group_id=6626");
+	QDesktopServices::openUrl(QUrl("https://developer.berlios.de/bugs/?group_id=6626"));
 }
-
-bool ApplicationWindow::open_browser(QWidget* parent, const QString& rUrl)
-{
-	bool result = false;
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-#ifdef Q_WS_WIN
-#if defined(_MSC_VER) //MSVC compiler
-	result = int(ShellExecuteW(parent->winId(), 0, rUrl.ucs2(), 0, 0, SW_SHOWNORMAL)) > 32;
-#else //MinGW compiler
-	QApplication::restoreOverrideCursor();
-
-	QMessageBox::information(this, "QtiPlot - Error", 
-			tr("Sorry, QtiPlot couldn't start the default browser! Please start a browser manually and visit the following link")+":\n"+rUrl);
-#endif
-#else
-	Q_UNUSED(parent);
-	//Try a range of browsers available on UNIX, until we (hopefully) find one that works.  
-	//Start with the most popular first.
-	QProcess process;
-	bool process_started = false;
-	// without the "-new-window" option firefox will open a new tab but not get the focus if it's already running
-	process_started = process.startDetached("firefox",QStringList() << "-new-window" << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("mozilla",QStringList() << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("netscape",QStringList() << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("opera",QStringList() << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("konqueror",QStringList() << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("epiphany",QStringList() << rUrl);
-	if (!process_started)
-		process_started = process.startDetached("galeon",QStringList() << rUrl);
-	// this hopefully works on MAC OS X; not tested so far
-	if (!process_started)
-		process_started = process.startDetached("safari",QStringList() << rUrl);
-	result = process_started;
-#endif
-
-	QApplication::restoreOverrideCursor();
-	return result;
-} 
 
 void ApplicationWindow::showDonationDialog()
 {
@@ -13763,7 +13719,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 			if(QMessageBox::question(this, tr("QtiPlot - Updates Available"),
 						tr("There is a newer version of QtiPlot (%1) available for download. Would you like to download it?").arg(version),
 						QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
-				open_browser(this, "http://soft.proindependent.com/download.html");
+				QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/download.html"));
 		}
 		else if (!autoSearchUpdatesRequest)
 		{
@@ -13791,9 +13747,21 @@ ApplicationWindow::~ApplicationWindow()
  *
  *****************************************************************************/
 
-	HelpBrowser::HelpBrowser(QWidget * parent, const char * name)
-:QTextBrowser (parent, name)
-{}
+HelpBrowser::HelpBrowser(QWidget * parent, const char * name)
+		:QTextBrowser (parent, name)
+{
+setFrameStyle(QFrame::Panel | QFrame::Sunken);
+setOpenExternalLinks(true);
+// TODO: be able to set a .css file
+//document()->setDefaultStyleSheet("qtiplot.css"); //doesn't work
+}
+
+void HelpBrowser::open()
+{
+QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this);
+if (!fn.isEmpty() && QFile(fn).exists())
+   setSource(QUrl::fromLocalFile(fn));
+}
 
 void HelpBrowser::print()
 {
@@ -13805,36 +13773,19 @@ void HelpBrowser::print()
 	{
 		doc->print(&printer);
 	}
+}
 
-// old code (Qt3):
-/*
+void HelpBrowser::exportPdf()
+{
 #ifndef QT_NO_PRINTER
-	QPrinter printer( QPrinter::HighResolution );
-	printer.setFullPage(TRUE);
-	if ( printer.setup( this ) ) {
-		QPainter p( &printer );
-		if( !p.isActive() ) // starting printing failed
-			return;
-		QPaintDeviceMetrics metrics(p.device());
-		int dpiy = metrics.logicalDpiY();
-		int margin = (int) ( (2/2.54)*dpiy ); // 2 cm margins
-		QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-		QSimpleRichText richText(text(), QFont(), context(), styleSheet(), mimeSourceFactory(), body.height());
-		richText.setWidth( &p, body.width() );
-		QRect view( body );
-		int page = 1;
-		do {
-			richText.draw( &p, body.left(), body.top(), view, colorGroup() );
-			view.moveBy( 0, body.height() );
-			p.translate( 0 , -body.height() );
-			p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
-					view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
-			if ( view.top()  >= richText.height() )
-				break;
-			printer.newPage();
-			page++;
-		} while (TRUE);
-	}
+    QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
+    if (!fileName.isEmpty()) {
+        if (QFileInfo(fileName).suffix().isEmpty())
+            fileName.append(".pdf");
+        QPrinter printer(QPrinter::HighResolution);
+        printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(fileName);
+        document()->print(&printer);
+    }
 #endif
-*/
 }

@@ -38,6 +38,7 @@
 #include <QFile> 
 #include <QTextBrowser>
 #include <QSplitter>
+#include <QDesktopServices>
 
 #include "worksheet.h"
 #include "Scripting.h"
@@ -538,7 +539,8 @@ public slots:
 	void showColMenu(int c);
 	void showColumnValuesDialog();	
 	//! recalculate selected cells of current table
-	void recalculateTable();
+	void recalculateTable();
+
 	void showGraphContextMenu();
 	void showTableContextMenu(bool selection);
 	void showWindowContextMenu();
@@ -649,9 +651,6 @@ public slots:
 	void downloadManual();
 	//! Show translations page in external browser
 	void downloadTranslation();
-
-	//! Opens an internet browser
-	bool open_browser(QWidget* parent, const QString& rUrl);
 
 	void parseCommandLineArgument(const QString& s, int args);
 	void createLanguagesList();
@@ -930,6 +929,8 @@ public:
 
 public slots:
 	void print();
+	void open();
+	void exportPdf();
 };
 
 #endif

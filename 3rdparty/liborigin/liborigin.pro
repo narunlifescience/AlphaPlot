@@ -1,4 +1,4 @@
-TARGET  	 = liborigin
+TARGET  	 = origin
 TEMPLATE     = lib
 CONFIG      += warn_on release thread
 CONFIG      += staticlib 

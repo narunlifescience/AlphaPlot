@@ -760,7 +760,7 @@ void ConfigDialog::languageChange()
 	boxCurveStyle->addItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
 	boxCurveStyle->addItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
 	boxCurveStyle->addItem( QPixmap(spline_xpm), tr( " Spline" ) );
-	boxCurveStyle->addItem( QPixmap(steps_xpm), tr( " Vertical steps" ) );
+	boxCurveStyle->addItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
 	boxCurveStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
 	boxCurveStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxCurveStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );

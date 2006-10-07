@@ -9,7 +9,7 @@ OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES += QT_PLUGIN
 #DEFINES	   += SCRIPTING_CONSOLE
-#DEFINES	   += SCRIPTING_DIALOG
+DEFINES	   += SCRIPTING_DIALOG
 QT +=  opengl qt3support network
 
 SCRIPTING_LANGS = muParser Python
@@ -43,12 +43,12 @@ win32:INCLUDEPATH += ../3rdparty/qwtplot3d/include
 win32:INCLUDEPATH += C:/GSL/include
 win32:INCLUDEPATH += ../3rdparty/zlib123/include
 
-win32:LIBS        += ../3rdparty/qwtplot3d/lib/qwtplot3d.lib
-win32:LIBS        += ../3rdparty/qwt/lib/qwt500.lib  
+win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a  
 win32:LIBS        += C:/GSL/lib/libgsl.lib
 win32:LIBS        += C:/GSL/lib/libgslcblas.lib
 win32:LIBS		  += ../3rdparty/zlib123/lib/zdll.lib
-win32:LIBS		  += ../3rdparty/liborigin/liborigin.lib
+win32:LIBS		  += ../3rdparty/liborigin/liborigin.a
  
 win32:RC_FILE     = src/iPlot.rc
 
@@ -258,7 +258,7 @@ contains(SCRIPTING_LANGS, Python) {
 
   win32 {
     INCLUDEPATH += C:/Python24/include
-    LIBS += C:/Python24/libs/python24.lib
+    LIBS += C:/Python24/libs/libpython24.a
     system(md $${MOC_DIR})
     system(C:\Python24\sip.exe -I C:\Python24\sip\PyQt4 -t Qt_4_1_4 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
   }
