@@ -2,8 +2,8 @@
     File                 : surfaceDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Define surface plot dialog
                            
  ***************************************************************************/
@@ -30,16 +30,15 @@
 #include "parser.h"
 #include "application.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qcombobox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QMessageBox>
+#include <QGridLayout>
+#include <QBoxLayout>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QPushButton.h>
+#include <QLabel.h>
+#include <QLineEdit.h>
+#include <QComboBox.h>
 
 SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -47,69 +46,91 @@ SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt:
     if ( !name )
 	setName( "SurfaceDialog" );
 	setWindowTitle(tr("QtiPlot - Define surface plot"));
-    setMinimumSize( QSize( 310, 140 ) );
-	setMaximumSize( QSize( 310, 140 ) );
-    setMouseTracking( true );
-    setSizeGripEnabled( false );
-	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-	GroupBox1->setFlat (true);
+    setSizeGripEnabled( true );
 
-	new QLabel( tr("f(x,y)="), GroupBox1, "TextLabel2",0 );
-	boxFunction = new QComboBox(GroupBox1, "boxFunction" );
-	boxFunction->setFixedWidth(250);
+	QLabel *l1 = new QLabel( tr("f(x,y)="));
+	boxFunction = new QComboBox();
 	boxFunction->setEditable(true);
-
-	GroupBox5 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox5" );
-	GroupBox5->setFlat (true);
-
-	GroupBox3 = new Q3ButtonGroup(1,Qt::Horizontal,tr("X - axis"),GroupBox5,"GroupBox3" );
 	
-	new QLabel( tr("From"), GroupBox3, "TextLabel3",0 );
-	boxXFrom = new QLineEdit(GroupBox3, "boxPoints" );
+	QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl1->addWidget(l1, 1);
+	bl1->addWidget(boxFunction, 10);
+
+    QGroupBox *gb1 = new QGroupBox(tr("X - axis"));
+    QLabel *l2 = new QLabel( tr("From"));
+	boxXFrom = new QLineEdit();
 	boxXFrom->setText(tr("-1"));
-
-	new QLabel( tr("To"), GroupBox3, "TextLabel5",0 );
-	boxXTo = new QLineEdit(GroupBox3, "boxOrder" );
+	
+	QLabel *l3 = new QLabel(tr("To"));
+	boxXTo = new QLineEdit();
 	boxXTo->setText(tr("1"));
-
-	GroupBox4 = new Q3ButtonGroup(1,Qt::Horizontal,tr("Y - axis"),GroupBox5,"GroupBox4" );
 	
-	new QLabel( tr("From"), GroupBox4, "TextLabel33",0 );
-	boxYFrom = new QLineEdit(GroupBox4, "boxPoints" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(l2, 0, 0);
+    gl1->addWidget(boxXFrom, 0, 1);
+    gl1->addWidget(l3, 1, 0);
+    gl1->addWidget(boxXTo, 1, 1);
+    gb1->setLayout(gl1);
+
+    QGroupBox *gb2 = new QGroupBox(tr("Y - axis"));
+    QLabel *l4 = new QLabel( tr("From"));
+	boxYFrom = new QLineEdit();
 	boxYFrom->setText(tr("-1"));
-
-	new QLabel( tr("To"), GroupBox4, "TextLabel5",0 );
-	boxYTo = new QLineEdit(GroupBox4, "boxYto" );
-	boxYTo->setText(tr("1"));
-
-	GroupBox6 = new Q3ButtonGroup(1,Qt::Horizontal,tr("Z - axis"),GroupBox5,"GroupBox4" );
 	
-	new QLabel( tr("From"), GroupBox6, "TextLabel35",0 );
-	boxZFrom = new QLineEdit(GroupBox6, "boxZFrom" );
+	QLabel *l5 = new QLabel(tr("To"));
+	boxYTo = new QLineEdit();
+	boxYTo->setText(tr("1"));
+	
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(l4, 0, 0);
+    gl2->addWidget(boxYFrom, 0, 1);
+    gl2->addWidget(l5, 1, 0);
+    gl2->addWidget(boxYTo, 1, 1);
+    gb2->setLayout(gl2);
+    
+    QGroupBox *gb3 = new QGroupBox(tr("Z - axis"));
+    QLabel *l6 = new QLabel( tr("From"));
+	boxZFrom = new QLineEdit();
 	boxZFrom->setText(tr("-1"));
-
-	new QLabel( tr("To"), GroupBox6, "TextLabel5",0 );
-	boxZTo = new QLineEdit(GroupBox6, "boxZto" );
+	
+	QLabel *l7 = new QLabel(tr("To"));
+	boxZTo = new QLineEdit();
 	boxZTo->setText(tr("1"));
+	
+    QGridLayout *gl3 = new QGridLayout();
+    gl3->addWidget(l6, 0, 0);
+    gl3->addWidget(boxZFrom, 0, 1);
+    gl3->addWidget(l7, 1, 0);
+    gl3->addWidget(boxZTo, 1, 1);
+    gb3->setLayout(gl3);
+    
+    QBoxLayout *bl3 = new QBoxLayout ( QBoxLayout::LeftToRight);
+	bl3->addWidget(gb1);
+	bl3->addWidget(gb2);
+	bl3->addWidget(gb3);
 
-	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
-
-	buttonClear = new QPushButton(GroupBox2, "buttonClear" );
+	buttonClear = new QPushButton();
     buttonClear->setText( tr( "Clear &list" ) );
 	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
+	buttonOk = new QPushButton();
     buttonOk->setText( tr( "&OK" ) );
     buttonOk->setDefault( true );
    
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
+    buttonCancel = new QPushButton();
     buttonCancel->setText( tr( "&Cancel" ) );
 	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox5);
-	hlayout->addWidget(GroupBox2);
+    QBoxLayout *bl2 = new QBoxLayout ( QBoxLayout::LeftToRight);
+    bl2->addStretch();
+	bl2->addWidget(buttonClear);
+	bl2->addWidget(buttonOk);
+	bl2->addWidget(buttonCancel);
+	bl2->addStretch();
+	
+	QVBoxLayout* vl = new QVBoxLayout();
+    vl->addLayout(bl1);
+	vl->addLayout(bl3);
+	vl->addLayout(bl2);
+	setLayout(vl);
    
     // signals and slots connections
 	connect( buttonClear, SIGNAL( clicked() ), this, SLOT(clearList() ) );

@@ -2,8 +2,8 @@
     File                 : surfaceDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Define surface plot dialog
                            
  ***************************************************************************/
@@ -32,7 +32,6 @@
 #include <qvariant.h>
 #include <qdialog.h>
 
-class Q3ButtonGroup;
 class QPushButton;
 class QLineEdit;
 class QComboBox;
@@ -46,18 +45,6 @@ public:
     SurfaceDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~SurfaceDialog();
 
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-	QPushButton* buttonClear;
-    Q3ButtonGroup* GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4, *GroupBox5, *GroupBox6;
-	QComboBox* boxFunction;
-	QLineEdit* boxXFrom;
-	QLineEdit* boxXTo;
-	QLineEdit* boxYFrom;
-	QLineEdit* boxYTo;
-	QLineEdit* boxZFrom;
-	QLineEdit* boxZTo;
-
 public slots:
 	void accept();
 	void insertFunctionsList(const QStringList& list);
@@ -69,6 +56,20 @@ signals:
 	void options(const QString&,double,double,double,double,double,double);
 	void clearFunctionsList();
 	void custom3DToolBar();
+	
+private:
+    QPushButton* buttonOk;
+	QPushButton* buttonCancel;
+	QPushButton* buttonClear;
+	QComboBox* boxFunction;
+	QLineEdit* boxXFrom;
+	QLineEdit* boxXTo;
+	QLineEdit* boxYFrom;
+	QLineEdit* boxYTo;
+	QLineEdit* boxZFrom;
+	QLineEdit* boxZTo;
 };
 
-#endif // EXPORTDIALOG_H
+#endif 
+
+
