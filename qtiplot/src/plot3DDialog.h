@@ -29,16 +29,17 @@
 #ifndef PLOT3DDIALOG_H
 #define PLOT3DDIALOG_H
 
+#include "graph3D.h"
+
 #include <qvariant.h>
 #include <qdialog.h>
 #include <q3memarray.h>
 #include <qstring.h>
 
 #include <qwt3d_color.h> 
-//Added by qt3to4:
 #include <QLabel>
- 
-class QCheckBox;
+#include <QCheckBox>
+
 class QComboBox;
 class QLabel;
 class QLineEdit;
@@ -76,7 +77,7 @@ public:
     QPushButton* buttonCancel, *buttonLowerGreek, *buttonUpperGreek;
 	QPushButton* btnTitleColor, *btnTitleFont, *btnLabelFont, *btnGrid;
 	QPushButton *btnBackground, *btnMesh, *btnAxes, *btnTitle, *btnLabels, *btnNumbers;
-	QPushButton *btnNumbersFont, *btnFromColor, *btnToColor, *btnTable;
+	QPushButton *btnNumbersFont, *btnFromColor, *btnToColor, *btnTable, *btnColorMap;
 	QPushButton *buttonAxisLowerGreek, *buttonAxisUpperGreek;
     QTabWidget* generalDialog;
 	QWidget *scale, *colors, *general, *axes, *title, *bars, *points;
@@ -86,7 +87,7 @@ public:
 	Q3ButtonGroup *GroupBox5, *GroupBox6, *GroupBox8, *TicksGroupBox;
 	Q3ButtonGroup *GroupBox10, *GroupBox7;
 	QSpinBox *boxResolution, *boxDistance, *boxTransparency;
-	QCheckBox *boxLegend, *boxSmooth, *boxBoxed, *boxCrossSmooth;
+	QCheckBox *boxLegend, *boxSmooth, *boxBoxed, *boxCrossSmooth, *boxOrthogonal;
 	Q3ListBox *axesList, *axesList2;
 	QComboBox *boxType, *boxPointStyle;
 	QLineEdit *boxMajorLength, *boxMinorLength, *boxConesRad;
@@ -119,6 +120,7 @@ public slots:
 
 	void setResolution(int r);
 	void showLegend(bool show);
+	void setOrthogonal(bool on){boxOrthogonal->setChecked(on);};
 	
 	void setAxesLabels(const QStringList& list);
 	void viewAxisOptions(int axis);
@@ -164,6 +166,9 @@ public slots:
 	void addSymbol(const QString& letter);
 	void showGeneralTab();
 
+    void pickDataColorMap();
+    void setPlot(Graph3D *plot){d_plot = plot;};
+    
 signals:
 	void showWorksheet();
 	void updatePoints(double, bool);
@@ -174,6 +179,7 @@ signals:
 	void updateTitle(const QString&,const QColor&,const QFont&);
 	void updateResolution(int);
 	void showColorLegend(bool);
+	void setOrtho(bool);
 	void updateLabel(int,const QString&, const QFont&);
 	void updateScale(int,const QStringList&);
 	void updateTickLength(int,double, double);
@@ -184,8 +190,10 @@ signals:
 	void updateScaling(double, double, double);
 	void updateCones(double, int);
 	void updateCross(double, double, bool, bool);
+	void setDataColorMap(const QString&);
 	
 private:
+    Graph3D *d_plot;
 	QFont titleFont, xAxisFont,yAxisFont,zAxisFont, numbersFont;
 	QStringList labels, scales, tickLengths;
 	QColor titleColor,meshColor,bgColor, axesColor, numColor,labelColor, gridColor;

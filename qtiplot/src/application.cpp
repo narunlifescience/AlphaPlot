@@ -2173,6 +2173,7 @@ void ApplicationWindow::customPlot3D(Graph3D *plot)
 	plot->setResolution(plot3DResolution);
 	plot->showColorLegend(showPlot3DLegend);
 	plot->setSmoothMesh(smooth3DMesh);
+	plot->setOrtho(orthogonal3DPlots);
 	if (showPlot3DProjection)
 		plot->setFloorData();
 
@@ -3827,7 +3828,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		}
 
 		s = t.readLine();
-		list=QStringList::split("\t",s,FALSE);
+		list=QStringList::split("\t",s,false);
 	}
 	int aux=0,widgets=list[1].toInt();
 
@@ -4411,7 +4412,8 @@ void ApplicationWindow::readSettings()
 	showPlot3DProjection=settings.value("/showPlot3DProjection", false).toBool();
 	smooth3DMesh = settings.value("/smooth3DMesh", true).toBool();
 	plot3DResolution=settings.value("/plot3DResolution", 1).toInt();
-
+    orthogonal3DPlots =settings.value("/Orthogonal", false).toBool();
+    
 	QStringList aux =variantListToStringList( settings.value("/plot3DColors").toList());
 	QStringList plot3DFonts =variantListToStringList( settings.value("/plot3DFonts").toList());
 
@@ -4624,6 +4626,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/showPlot3DProjection", showPlot3DProjection);
 	settings.setValue("/smooth3DMesh", smooth3DMesh);
 	settings.setValue("/plot3DResolution", plot3DResolution);
+	settings.setValue("/Orthogonal", orthogonal3DPlots);
+	
 	settings.setValue("/plot3DColors", plot3DColors);
 	settings.setValue("/plot3DFonts", plot3DFonts);
 	settings.setValue("/fitPluginsPath", fitPluginsPath);
@@ -6154,9 +6158,10 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		}
 
 		Plot3DDialog* pd= new Plot3DDialog(this,"Plot3DDialog",true,0);
+		pd->setPlot(g);
 		connect (pd,SIGNAL(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)),
 				g,SLOT(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)));
-
+        connect(pd, SIGNAL(setDataColorMap(const QString&)), g, SLOT(setDataColorMap(const QString&)));
 		connect (pd,SIGNAL(updateDataColors(const QColor&,const QColor&)),
 				g,SLOT(setDataColors(const QColor&,const QColor&)));
 
@@ -6164,12 +6169,12 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 				g,SLOT(updateTitle(const QString&,const QColor&,const QFont&)));
 		connect (pd,SIGNAL(updateResolution(int)),g,SLOT(setResolution(int)));
 		connect (pd,SIGNAL(showColorLegend(bool)),g,SLOT(showColorLegend(bool)));
+	    connect (pd,SIGNAL(setOrtho(bool)), g, SLOT(setOrtho(bool)));
 		connect (pd,SIGNAL(updateLabel(int,const QString&, const QFont&)),
 				g,SLOT(updateLabel(int,const QString&, const QFont&)));
 		connect (pd,SIGNAL(updateScale(int,const QStringList&)),
 				g,SLOT(updateScale(int,const QStringList&)));
-		connect (pd,SIGNAL(adjustLabels(int)),
-				g,SLOT(adjustLabels(int)));
+		connect (pd,SIGNAL(adjustLabels(int)), g,SLOT(adjustLabels(int)));
 		connect (pd,SIGNAL(updateTickLength(int, double, double)),
 				g,SLOT(updateTickLength(int, double, double)));
 		connect (pd,SIGNAL(setNumbersFont(const QFont&)),
@@ -6200,6 +6205,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		pd->setScaling(g->xScale(),g->yScale(),g->zScale());
 		pd->setResolution(g->resolution());
 		pd->showLegend(g->isLegendOn());
+	    pd->setOrthogonal(g->isOrthogonal());
 		pd->setAxesLabels(g->axesLabels());
 		pd->setAxesTickLengths(g->axisTickLengths());
 		pd->setAxesFonts(g->xAxisLabelFont(),g->yAxisLabelFont(),g->zAxisLabelFont());
@@ -7679,7 +7685,10 @@ Graph3D* ApplicationWindow::copySurfacePlot()
 		g2->setGrid(g->grids());
 		g2->setTitle(g->plotTitle(),g->titleColor(),g->titleFont());
 		g2->setTransparency(g->transparency());
-		g2->setDataColors(g->minDataColor(),g->maxDataColor());
+		if (!g->colorMap().isEmpty())
+           g2->setDataColorMap(g->colorMap());
+        else
+		    g2->setDataColors(g->minDataColor(),g->maxDataColor());
 		g2->setColors(g->meshColor(),g->axesColor(),g->numColor(),
 				g->labelColor(), g->bgColor(),g->gridColor());
 		g2->setAxesLabels(g->axesLabels());
@@ -7695,7 +7704,9 @@ Graph3D* ApplicationWindow::copySurfacePlot()
 		g2->setScale(g->xScale(),g->yScale(),g->zScale());
 		g2->setShift(g->xShift(),g->yShift(),g->zShift());
 		g2->setMeshLineWidth((int)g->meshLineWidth());
+		g2->setOrtho(g->isOrthogonal());
 		g2->update();
+		g2->animate(g->isAnimated());
 		customToolBars((QWidget*)g2);
 
 		setListViewSize(caption, g->sizeToString());
@@ -8906,24 +8917,24 @@ void ApplicationWindow::showHelp()
 	toolbar->addSeparator();
 	button = toolbar->addAction(QIcon(QPixmap(prev_xpm)), tr("Backward"), browser, SLOT(backward()));
     connect( browser, SIGNAL( backwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
-    button->setEnabled( FALSE );
+    button->setEnabled( false );
 	button = toolbar->addAction(QIcon(QPixmap(next_xpm)), tr("Forward"), browser, SLOT(forward()));
     connect( browser, SIGNAL( forwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
-    button->setEnabled( FALSE );
+    button->setEnabled( false );
    	toolbar->addAction(QIcon(QPixmap(home_xpm)), tr("Home"), browser, SLOT(home()));
 
     QFile helpFile(helpFilePath);
 	if (!helpFile.exists())
 		{
 		QMessageBox::critical(this,tr("QtiPlot - Help Files Not Found!"),
-			   tr("Please indicate the location of the help file!<br>"
-			   "The manual can be downloaded from the following internet address:")+
+			   tr("Please indicate the location of the help file!")+"<br>"+
+			   tr("The manual can be downloaded from the following internet address:")+
 			   "<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this );
 		if (!fn.isEmpty())
 			{
 			QFileInfo fi(fn);
-			helpFilePath=fi.absFilePath();
+			helpFilePath = fi.absFilePath();
 			saveSettings();
 			}
 		}		
@@ -9132,7 +9143,7 @@ void ApplicationWindow::removeAxes3DPlot()
 	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
 	{
 		((Graph3D*)ws->activeWindow())->setNoAxes();
-		actionShowAxisDialog->setEnabled(FALSE);
+		actionShowAxisDialog->setEnabled(false);
 	}
 }
 
@@ -9327,6 +9338,7 @@ void ApplicationWindow::custom3DActions(QWidget *w)
 	if (w && w->isA("Graph3D"))
 	{
 		Graph3D* plot= (Graph3D*)w;
+		actionAnimate->setOn(plot->isAnimated());
 		switch(plot->plotStyle())
 		{
 			case FILLEDMESH:
@@ -9617,8 +9629,16 @@ void ApplicationWindow::initPlot3DToolBar()
 	plot3DTools->addAction(floornone);
 	floornone->setChecked( true );
 
+    plot3DTools->addSeparator();
+    
+    actionAnimate = new QAction( this );
+    actionAnimate->setToggleAction( true );
+    actionAnimate->setIconSet(QPixmap(movie_xpm));
+    plot3DTools->addAction(actionAnimate);
+  	        
 	plot3DTools->hide();
 
+    connect(actionAnimate, SIGNAL(toggled(bool)), this, SLOT(toggle3DAnimation(bool)));
 	connect( coord, SIGNAL( triggered( QAction* ) ), this, SLOT( pickCoordSystem( QAction* ) ) );
 	connect( floorstyle, SIGNAL( triggered( QAction* ) ), this, SLOT( pickFloorStyle( QAction* ) ) );
 	connect( plotstyle, SIGNAL( triggered( QAction* ) ), this, SLOT( pickPlotStyle( QAction* ) ) );
@@ -10229,7 +10249,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("ErrorBars"))
 		{
-			curve=QStringList::split ("\t",s,FALSE);
+			curve=QStringList::split ("\t",s,false);
 			w=app->table(curve[3]);
 			Table *errTable=app->table(curve[4]);
 			if (w && errTable)
@@ -10529,7 +10549,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	fList=QStringList::split ("\t",lst[6],false );
 	plot->setColors(fList);
 
-	fList=QStringList::split ("\t",lst[7],FALSE );
+	fList=QStringList::split ("\t",lst[7],false );
 	fList.pop_front();
 	plot->setAxesLabels(fList);
 
@@ -10566,11 +10586,8 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	fList=QStringList::split ("\t",lst[18],false );
 	plot->setShift(fList[1].toDouble(),fList[2].toDouble(),fList[3].toDouble());
 
-	if (fileVersion > 50)
-	{
-		fList=QStringList::split ("\t",lst[19],false );
-		plot->setMeshLineWidth(fList[1].toInt());
-	}
+    fList=QStringList::split ("\t",lst[19],false );
+    plot->setMeshLineWidth(fList[1].toInt());
 
 	if (fileVersion > 71)
 	{
@@ -10580,6 +10597,12 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 		app->setListViewLabel(plot->name(),fList[1]);
 	}
 
+    if (fileVersion >= 88)
+       {
+       fList=QStringList::split ("\t",lst[21],false);
+       plot->setOrtho(fList[1].toInt());
+       }
+  	        
 	plot->update();
 	plot->setIgnoreFonts(true);
 	return plot;
@@ -10849,8 +10872,13 @@ void ApplicationWindow::setPlot3DOptions()
 	for (int i = 0; i<int(windows->count());i++ )
 	{
 		if (windows->at(i)->isA("Graph3D"))
-			((Graph3D*)windows->at(i))->setSmoothMesh(smooth3DMesh);
-	}
+			{
+            Graph3D *g = (Graph3D*)windows->at(i);
+            g->setSmoothMesh(smooth3DMesh);
+            g->setOrtho(orthogonal3DPlots);
+            }
+        } 	        
+  	delete windows;
 }
 
 void ApplicationWindow::createActions()
@@ -11875,6 +11903,11 @@ void ApplicationWindow::translateActionsStrings()
 	floornone->setMenuText( tr( "Empty Floor" ) );
 	floornone->setToolTip( tr( "Empty floor" ) );
 	floornone->setStatusTip( tr( "Empty floor" ) );
+	
+	actionAnimate->setText( tr( "Animation" ) );
+    actionAnimate->setMenuText( tr( "Animation" ) );
+    actionAnimate->setToolTip( tr( "Animation" ) );
+    actionAnimate->setStatusTip( tr( "Animation" ) );
 }
 
 Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QString& matrix_name,
@@ -13730,6 +13763,15 @@ void ApplicationWindow::receivedVersionFile(bool error)
 	}
 }
 
+/*!
+Turns 3D animation on or off
+*/
+void ApplicationWindow::toggle3DAnimation(bool on)
+{
+if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
+   ((Graph3D*)ws->activeWindow())->animate(on);
+}
+  	
 ApplicationWindow::~ApplicationWindow()
 {
 	if (lastCopiedLayer)

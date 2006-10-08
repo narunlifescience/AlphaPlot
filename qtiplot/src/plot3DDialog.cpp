@@ -58,22 +58,19 @@
 #include <qmessagebox.h> 
 #include <q3widgetstack.h>
 
-#include <qwt3d_color.h> 
-//Added by qt3to4:
+#include <QFileDialog>
 #include <Q3HBoxLayout>
 #include <Q3VBoxLayout>
 
-using namespace Qwt3D;
+#include <qwt3d_color.h> 
 
 Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
 	if ( !name )
 		setName( "Plot3DDialog" );
-	setFixedWidth(521);
-	setFixedHeight(260);
 	setWindowTitle( tr( "QtiPlot - Surface Plot Options" ) );
-	setSizeGripEnabled( false );
+	setSizeGripEnabled( true );
 
 	bars=0; points=0;
 
@@ -256,6 +253,9 @@ void Plot3DDialog::initColorsPage()
 
 	btnToColor = new QPushButton( GroupBox7, "btnTo" );
 	btnToColor->setText( tr( "&Min" ) );
+	
+	btnColorMap = new QPushButton( GroupBox7);
+    btnColorMap->setText( tr( "Color Ma&p" ) );
 
 	GroupBox3 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "General" ),box, "GroupBox3" );
 
@@ -298,6 +298,7 @@ void Plot3DDialog::initColorsPage()
 	connect( btnBackground, SIGNAL( clicked() ), this, SLOT(pickBgColor() ) );
 	connect( btnFromColor, SIGNAL( clicked() ), this, SLOT(pickFromColor() ) );
 	connect( btnToColor, SIGNAL( clicked() ), this, SLOT(pickToColor() ) );
+	connect( btnColorMap, SIGNAL( clicked() ), this, SLOT(pickDataColorMap() ) );
 	connect( btnGrid, SIGNAL( clicked() ), this, SLOT(pickGridColor() ) );
 	connect( btnMesh, SIGNAL( clicked() ), this, SLOT(pickMeshColor() ) );
 	connect( boxTransparency, SIGNAL( valueChanged(int) ), 
@@ -306,12 +307,12 @@ void Plot3DDialog::initColorsPage()
 
 void Plot3DDialog::initGeneralPage()
 {
-	general = new QWidget( generalDialog, "general" );
+	general = new QWidget( generalDialog);
 
-	GroupBox5 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),general, "GroupBox5" );
+	GroupBox5 = new Q3ButtonGroup(2, Qt::Horizontal, QString::null, general);
 
-	boxLegend= new QCheckBox("Show Legend",GroupBox5,"legend");
-	new QLabel( "", GroupBox5, "TextLabel466",0 );
+	boxLegend= new QCheckBox(tr("Show Legend"), GroupBox5);
+	boxOrthogonal = new QCheckBox(tr("Orthogonal"), GroupBox5);
 
 	new QLabel(tr( "Line Width" ), GroupBox5, "TextLabel4887",0);
 	boxMeshLineWidth = new QSpinBox(1, 100, 1, GroupBox5,"boxWidth");
@@ -327,7 +328,7 @@ void Plot3DDialog::initGeneralPage()
 	new QLabel( tr( "Distance labels - axis" ), GroupBox5, "TextLabel468",0 );
 	boxDistance=new QSpinBox(0, 1000, 5, GroupBox5, "numbersDistance");
 
-	Q3ButtonGroup *GroupBox55 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),general, "GroupBox5" );
+	Q3ButtonGroup *GroupBox55 = new Q3ButtonGroup(2, Qt::Horizontal, QString::null, general);
 
 	new QLabel(tr( "Zoom (%)" ), GroupBox55, "TextLabel4887",0);
 	boxZoom=new QSpinBox(1,10000,10,GroupBox55,"Zoom");
@@ -351,6 +352,7 @@ void Plot3DDialog::initGeneralPage()
 	connect( boxDistance, SIGNAL(valueChanged(int)), this, SIGNAL(adjustLabels(int)));
 	connect( boxMeshLineWidth, SIGNAL(valueChanged(int)), 
 			this, SIGNAL(updateMeshLineWidth(int)));
+	connect( boxOrthogonal, SIGNAL(toggled(bool)), this, SIGNAL(setOrtho(bool)));
 	connect( boxLegend, SIGNAL(toggled(bool)), this, SIGNAL(showColorLegend(bool)));
 	connect( boxZoom, SIGNAL(valueChanged(int)), this, SLOT(changeZoom(int)));
 	connect( boxXScale, SIGNAL(valueChanged(int)), this, SLOT(changeZoom(int)));
@@ -554,6 +556,13 @@ void Plot3DDialog::setLabelsDistance(int dist)
 	boxDistance->setValue(dist);
 }
 
+void Plot3DDialog::pickDataColorMap()
+{
+QString fn = QFileDialog::getOpenFileName(d_plot->colorMap(), tr("Colormap files") + " (*.map *.MAP)", this);
+if (!fn.isEmpty())
+   emit setDataColorMap(fn);
+}
+  	
 QColor Plot3DDialog::pickFromColor()
 {
 	QColor c = QColorDialog::getColor(fromColor, this );

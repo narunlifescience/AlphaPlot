@@ -43,7 +43,6 @@
 #include <QTabWidget>
 #include <QStackedWidget>
 #include <QWidget>
-#include <QCheckBox>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QStyleFactory>
@@ -397,6 +396,10 @@ void ConfigDialog::initPlots3DPage()
 	boxSmoothMesh->setChecked(app->smooth3DMesh);
 	topLayout->addWidget( boxSmoothMesh, 2, 0 );
 
+    boxOrthogonal = new QCheckBox();
+    boxOrthogonal->setChecked(app->orthogonal3DPlots);
+    topLayout->addWidget( boxOrthogonal, 2, 1 );
+     	        
 	groupBox3DCol = new QGroupBox();
 	QGridLayout * middleLayout = new QGridLayout( groupBox3DCol );
 
@@ -792,6 +795,7 @@ void ConfigDialog::languageChange()
 	boxShowProjection->setText(tr( "Show &Projection" ));
 	btnFromColor->setText( tr( "&Data Max" ) );
 	boxSmoothMesh->setText(tr( "Smoot&h Line" ));
+	boxOrthogonal->setText(tr( "O&rthogonal" ));
 	btnLabels->setText( tr( "Lab&els" ) );
 	btnMesh->setText( tr( "Mesh &Line" ) );
 	btnGrid->setText( tr( "&Grid" ) );
@@ -880,13 +884,10 @@ void ConfigDialog::apply()
 	app->plot3DTitleFont = plot3DTitleFont;
 	app->plot3DNumbersFont = plot3DNumbersFont;
 	app->plot3DAxesFont = plot3DAxesFont;
-
-	if (app->smooth3DMesh != boxSmoothMesh->isChecked())
-	{
-		app->smooth3DMesh = boxSmoothMesh->isChecked();
-		app->setPlot3DOptions();
-	}
-
+	app->orthogonal3DPlots = boxOrthogonal->isChecked();
+    app->smooth3DMesh = boxSmoothMesh->isChecked();
+    
+	app->setPlot3DOptions();
 	app->saveSettings();
 
 	// calculate a sensible width for the items list 

@@ -30,13 +30,13 @@
 #define ConfigDialog_H
 
 #include <QDialog>
+#include <QCheckBox>
 
 class QGroupBox;
 class QPushButton;
 class QTabWidget;
 class QStackedWidget;
 class QWidget;
-class QCheckBox;
 class QComboBox;
 class QSpinBox;
 class QLabel;
@@ -70,7 +70,7 @@ public:
 	QStackedWidget * generalDialog;
 	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm, *application, *curves, *plots3D;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
-	QCheckBox *boxSearchUpdates;
+	QCheckBox *boxSearchUpdates, *boxOrthogonal;
 	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;

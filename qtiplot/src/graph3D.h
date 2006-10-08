@@ -35,6 +35,7 @@
 #include <QContextMenuEvent>
 #include <QResizeEvent>
 #include <QEvent>
+#include <QTimer>
 #include <Q3MemArray>
 
 #include "worksheet.h"
@@ -110,7 +111,9 @@ public slots:
 	void setFramed();
 	void setBoxed();
 	void setNoAxes();
-
+    bool isOrthogonal(){return sp->ortho();};
+    void setOrtho(bool on = true){sp->setOrtho(on);};
+    
 	//mesh
 	void setNoGrid();
 	void setHiddenLineGrid();
@@ -198,6 +201,11 @@ public slots:
 	QColor numColor(){return numCol;};
 	QColor bgColor(){return bgCol;};
 	QColor gridColor(){return gridCol;};
+	
+	QString colorMap(){return color_map;};
+    void setDataColorMap(const QString& fileName);
+    bool openColorMap(ColorVector& cv, QString fname);
+  	 
 	void setColors(const QStringList& colors);
 	void setColors(const QColor& meshColor,const QColor& axesColor,const QColor& numColor,
 						   const QColor& labelColor,const QColor& bgColor,const QColor& gridColor);
@@ -208,7 +216,7 @@ public slots:
 	void setTitleFont(const QFont& font);
 	QString plotTitle(){return title;};
 	QColor titleColor(){return titleCol;};
-	void setTitle(const QStringList& list);
+	void setTitle(const QStringList& lst);
 	void setTitle(const QString& s,const QColor& color,const QFont& font);
 
 	//resolution
@@ -222,7 +230,7 @@ public slots:
 	//axes
 	QStringList axesLabels(){return labels;};
 	void updateLabel(int axis,const QString& label, const QFont& f);
-	void setAxesLabels(const QStringList& list);
+	void setAxesLabels(const QStringList& lst);
 	void resetAxesLabels();
 
 	QFont xAxisLabelFont();
@@ -233,13 +241,13 @@ public slots:
 	void setYAxisLabelFont(const QFont& fnt);
 	void setZAxisLabelFont(const QFont& fnt);
 	
-	void setXAxisLabelFont(const QStringList& list);
-	void setYAxisLabelFont(const QStringList& list);
-	void setZAxisLabelFont(const QStringList& list);
+	void setXAxisLabelFont(const QStringList& lst);
+	void setYAxisLabelFont(const QStringList& lst);
+	void setZAxisLabelFont(const QStringList& lst);
 
 	QFont numbersFont();
 	void setNumbersFont(const QFont& font);
-	void setNumbersFont(const QStringList& list);
+	void setNumbersFont(const QStringList& lst);
 
 	double xStart();
 	double xStop();
@@ -264,10 +272,10 @@ public slots:
 	int labelsDistance(){return labelsDist;};
 
 	QStringList axisTickLengths();
-	void setTickLengths(const QStringList& list);
+	void setTickLengths(const QStringList& lst);
 
 	void setOptions(bool legend, int r, int dist);
-	void setOptions(const QStringList& list);
+	void setOptions(const QStringList& lst);
 	void update();
 
 	Qwt3D::Triple** allocateData(int columns, int rows);
@@ -305,6 +313,11 @@ public slots:
 	void setPlotAssociation(const QString& s){plotAssociation = s;};
 	void setSmoothMesh(bool smooth);
 
+    //! Used for the animation: rotates the scene with 1/360 degrees
+  	void rotate();
+    void animate(bool on = true);
+    bool isAnimated(){return d_timer->isActive();};
+    
 signals:   
 	void showContextMenu();
 	void showOptionsDialog();
@@ -312,6 +325,12 @@ signals:
 	void custom3DActions(QWidget*);
 	
 private:
+    // Wait this many msecs before redraw 3D plot (used for animations)
+  	int animation_redraw_wait;
+  	 //! File name of the color map used for the data (if any)
+  	QString color_map;
+  	 
+    QTimer *d_timer;
 	QString title, plotAssociation;
 	QStringList labels;
 	QFont titleFnt;

@@ -58,8 +58,7 @@
 
 #include <gsl/gsl_vector.h>
 #include <math.h>
-
-using namespace Qwt3D;
+#include <fstream>
 
 UserFunction::UserFunction(const QString& s, SurfacePlot& pw)
 : Function(pw)
@@ -107,6 +106,10 @@ void Graph3D::initPlot()
 	QDateTime dt = QDateTime::currentDateTime ();
 	setBirthDate(dt.toString(Qt::LocalDate));
 
+    color_map = QString::null;
+    animation_redraw_wait = 50;
+    d_timer = new QTimer(this);
+    connect(d_timer, SIGNAL(timeout()), this, SLOT(rotate()) );
 	ignoreFonts = false;
 
 	sp = new SurfacePlot(this);
@@ -116,6 +119,7 @@ void Graph3D::initPlot()
 	sp->setScale(1,1,1);
 	sp->setShift(0.15,0,0);
 	sp->setZoom(0.9);
+	sp->setOrtho(false);
 
 	smoothMesh = true;
 	sp->setSmoothMesh(smoothMesh);
@@ -830,9 +834,9 @@ void Graph3D::setNumbersFont(const QFont& font)
 	sp->updateGL();
 }
 
-void Graph3D::setNumbersFont(const QStringList& list)
+void Graph3D::setNumbersFont(const QStringList& lst)
 {
-	QFont fnt=QFont(list[1],list[2].toInt(),list[3].toInt(),list[4].toInt());
+	QFont fnt=QFont(lst[1],lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 	sp->coordinates()->setNumberFont(fnt);
 }
 
@@ -860,27 +864,27 @@ void Graph3D::setZAxisLabelFont(const QFont& fnt)
 	sp->coordinates()->axes[Z4].setLabelFont(fnt);
 }
 
-void Graph3D::setXAxisLabelFont(const QStringList& list)
+void Graph3D::setXAxisLabelFont(const QStringList& lst)
 {
-	QFont fnt=QFont(list[1],list[2].toInt(),list[3].toInt(),list[4].toInt());
+	QFont fnt=QFont(lst[1],lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 	sp->coordinates()->axes[X1].setLabelFont(fnt);
 	sp->coordinates()->axes[X2].setLabelFont(fnt);
 	sp->coordinates()->axes[X3].setLabelFont(fnt);
 	sp->coordinates()->axes[X4].setLabelFont(fnt);
 }
 
-void Graph3D::setYAxisLabelFont(const QStringList& list)
+void Graph3D::setYAxisLabelFont(const QStringList& lst)
 {
-	QFont fnt=QFont(list[1],list[2].toInt(),list[3].toInt(),list[4].toInt());
+	QFont fnt=QFont(lst[1],lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 	sp->coordinates()->axes[Y1].setLabelFont(fnt);
 	sp->coordinates()->axes[Y2].setLabelFont(fnt);
 	sp->coordinates()->axes[Y3].setLabelFont(fnt);
 	sp->coordinates()->axes[Y4].setLabelFont(fnt);
 }
 
-void Graph3D::setZAxisLabelFont(const QStringList& list)
+void Graph3D::setZAxisLabelFont(const QStringList& lst)
 {
-	QFont fnt=QFont(list[1],list[2].toInt(),list[3].toInt(),list[4].toInt());
+	QFont fnt=QFont(lst[1],lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 	sp->coordinates()->axes[Z1].setLabelFont(fnt);
 	sp->coordinates()->axes[Z2].setLabelFont(fnt);
 	sp->coordinates()->axes[Z3].setLabelFont(fnt);
@@ -889,29 +893,29 @@ void Graph3D::setZAxisLabelFont(const QStringList& list)
 
 QStringList Graph3D::axisTickLengths()
 {
-	QStringList list;
+	QStringList lst;
 	double majorl,minorl;
 
 	sp->coordinates()->axes[X1].ticLength (majorl,minorl);
-	list<<QString::number(majorl);
-	list<<QString::number(minorl);
+	lst<<QString::number(majorl);
+	lst<<QString::number(minorl);
 
 	sp->coordinates()->axes[Y1].ticLength (majorl,minorl);
-	list<<QString::number(majorl);
-	list<<QString::number(minorl);
+	lst<<QString::number(majorl);
+	lst<<QString::number(minorl);
 
 	sp->coordinates()->axes[Z1].ticLength (majorl,minorl);
-	list<<QString::number(majorl);
-	list<<QString::number(minorl);
+	lst<<QString::number(majorl);
+	lst<<QString::number(minorl);
 
-	return list;
+	return lst;
 }
 
-void Graph3D::setTickLengths(const QStringList& list)
+void Graph3D::setTickLengths(const QStringList& lst)
 {
 	double majorl,minorl;
-	QStringList tick_length = list;
-	if (int(list.count()) > 6)
+	QStringList tick_length = lst;
+	if (int(lst.count()) > 6)
 		tick_length.remove(tick_length.first());
 
 	majorl=tick_length[0].toDouble();
@@ -1721,7 +1725,10 @@ void Graph3D::setColors(const QStringList& colors)
 		QColor min=QColor(colors[7]);
 		QColor max=QColor(colors[8]);
 		alpha = colors[9].toDouble();
-		setDataColors(min,max);
+		if ((int)colors.count() == 11)
+            setDataColorMap(colors[10]);
+        else
+		    setDataColors(min,max);
 	}
 }
 
@@ -2132,15 +2139,15 @@ void Graph3D::saveImage()
 {
 	sp->makeCurrent();
 	int i;	
-	QStringList list= IO::outputFormatList();
-	list.sort();
+	QStringList lst= IO::outputFormatList();
+	lst.sort();
 	//QString filter="*.eps;;",selectedFilter,aux;
 
 	QString filter="",selectedFilter,aux;
 
-	for (i=0;i<(int)list.count();i++)
+	for (i=0;i<(int)lst.count();i++)
 	{
-		aux="*."+(list[i]).lower()+";;";
+		aux="*."+(lst[i]).lower()+";;";
 		filter+=aux;
 	}
 
@@ -2652,7 +2659,7 @@ QString Graph3D::saveToString(const QString& geometry)
 	s+=gridCol.name()+"\t";
 	s+=fromColor.name()+"\t";
 	s+=toColor.name()+"\t";
-	s+=QString::number(alpha)+"\n";
+	s+=QString::number(alpha) + "\t" + color_map + "\n";
 
 	s+="axesLabels\t";
 	s+=labels.join("\t")+"\n";
@@ -2719,6 +2726,7 @@ QString Graph3D::saveToString(const QString& geometry)
 	s+="LineWidth\t";
 	s+=QString::number(sp->meshLineWidth())+"\n";
 	s+="WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
+	s+="Orthogonal\t" + QString::number(sp->ortho())+"\n";
 	s+="</SurfacePlot>\n";
 	return s;
 }
@@ -2748,15 +2756,15 @@ void Graph3D::setResolution(int r)
 	emit modified();
 }
 
-void Graph3D::setTitle(const QStringList& list)
+void Graph3D::setTitle(const QStringList& lst)
 {
-	title=list[1];
+	title=lst[1];
 	sp->setTitle(title);
 
-	titleCol=QColor(list[2]);
+	titleCol=QColor(lst[2]);
 	sp->setTitleColor(Qt2GL(titleCol));
 
-	titleFnt=QFont(list[3],list[4].toInt(),list[5].toInt(),list[6].toInt());
+	titleFnt=QFont(lst[3],lst[4].toInt(),lst[5].toInt(),lst[6].toInt());
 	sp->setTitleFont(titleFnt.family(),titleFnt.pointSize(),titleFnt.weight(),titleFnt.italic());
 }
 
@@ -2809,14 +2817,14 @@ void Graph3D::setTitleFont(const QFont& font)
 	}
 }
 
-void Graph3D::setOptions(const QStringList& list)
+void Graph3D::setOptions(const QStringList& lst)
 {
 	legendOn=false;
-	if (list[1].toInt() == 1)
+	if (lst[1].toInt() == 1)
 		legendOn=true;
 	sp->showColorLegend(legendOn);
-	sp->setResolution(list[2].toInt());
-	adjustLabels(list[3].toInt());
+	sp->setResolution(lst[2].toInt());
+	adjustLabels(lst[3].toInt());
 }
 
 
@@ -2971,6 +2979,73 @@ QString Graph3D::saveAsTemplate(const QString& geometryInfo)
 	return lst.join("\n");
 }
 
+/*!
+Turns 3D animation on or off
+*/
+void Graph3D::animate(bool on)
+{
+if ( on )
+   d_timer->start( animation_redraw_wait ); // Wait this many msecs before redraw
+else
+    d_timer->stop();
+}
+  	 
+void Graph3D::rotate()
+{
+if (!sp)
+   return;
+  	 
+sp->setRotation(int(sp->xRotation() + 1) % 360, int(sp->yRotation() + 1) % 360, int(sp->zRotation() + 1) % 360);
+}
+  	
+void Graph3D::setDataColorMap(const QString& fileName)
+{
+ColorVector cv;
+if (!openColorMap(cv, fileName))
+   return;
+  	 
+color_map = fileName;
+  	 
+col_ = new StandardColor(sp);
+col_->setColorVector(cv);
+  	 
+sp->setDataColor(col_);
+sp->updateData();
+sp->showColorLegend(legendOn);
+sp->updateGL();
+}
+  	 
+bool Graph3D::openColorMap(ColorVector& cv, QString fname)
+{
+if (fname.isEmpty())
+   return false;
+  	 
+using std::ifstream;	 
+ifstream file(QWT3DLOCAL8BIT(fname));
+if (!file)
+   return false;
+  	 
+RGBA rgb;
+cv.clear();
+  	 
+while ( file )
+      {
+      file >> rgb.r >> rgb.g >> rgb.b;
+      file.ignore(10000,'\n');
+      if (!file.good())
+         break;
+      else
+          {
+          rgb.a = 1;
+          rgb.r /= 255;
+          rgb.g /= 255;
+          rgb.b /= 255;
+          cv.push_back(rgb);
+          }
+      }
+return true;
+}
+  	
 Graph3D::~Graph3D()      
 {
 	if (func)

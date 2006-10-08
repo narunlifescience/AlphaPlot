@@ -603,6 +603,7 @@ public slots:
 				int format, int prec, int rotation, int baselineDist, const QString& formula);
 	
 	//plot3D tools	
+	void toggle3DAnimation(bool on = true);
 	void setFramed3DPlot();
 	void setBoxed3DPlot();
 	void removeAxes3DPlot();
@@ -819,7 +820,7 @@ public:
 	int notes, graphs,tables, matrixes, fitNumber, ignoredLines, savingTimerId;
 	bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
 	QStringList recentProjects, tableWindows;
-	bool saved, showPlot3DProjection, showPlot3DLegend;
+	bool saved, showPlot3DProjection, showPlot3DLegend, orthogonal3DPlots;
 	int plot3DResolution;
 	QStringList plot3DColors, locales;
 	QStringList functions; //user-defined functions;
@@ -903,6 +904,7 @@ private:
 	QAction *actionNextWindow, *actionPrevWindow;
 	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToRow;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
+	QAction *actionAnimate;
 
 private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
