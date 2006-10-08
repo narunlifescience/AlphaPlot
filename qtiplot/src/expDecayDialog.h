@@ -31,10 +31,7 @@
 
 #include <qvariant.h>
 #include <qdialog.h>
-//Added by qt3to4:
-#include <QLabel>
 
-class Q3ButtonGroup;
 class QPushButton;
 class QLineEdit;
 class QComboBox;
@@ -51,20 +48,7 @@ public:
     ExpDecayDialog( int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~ExpDecayDialog();
 
-	QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
-	QComboBox* boxName;
-	QLineEdit* boxFirst;
-	QLineEdit* boxSecond;
-	QLineEdit* boxThird;
-	QLineEdit* boxStart;
-	QLineEdit* boxYOffset;
-	QLabel* thirdLabel, *dampingLabel;
-	ColorBox* boxColor;
-
 public slots:
-    virtual void languageChange();
 	void fit();
 	void setGraph(Graph *g);
 
@@ -76,6 +60,19 @@ signals:
 private:
 	Graph *graph;
 	int slopes;
+	
+	QPushButton* buttonFit;
+	QPushButton* buttonCancel;
+	QComboBox* boxName;
+	QLineEdit* boxFirst;
+	QLineEdit* boxSecond;
+	QLineEdit* boxThird;
+	QLineEdit* boxStart;
+	QLineEdit* boxYOffset;
+	QLabel* thirdLabel, *dampingLabel;
+	ColorBox* boxColor;
 };
 
-#endif // EXPORTDIALOG_H
+#endif
+
+

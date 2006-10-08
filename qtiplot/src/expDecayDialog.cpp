@@ -31,16 +31,15 @@
 #include "colorBox.h"
 #include "application.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QMessageBox>
+#include <QGridLayout>
+#include <QBoxLayout>
+#include <QHBoxLayout>
+#include <QGroupBox>
+#include <QPushButton.h>
+#include <QLabel.h>
+#include <QLineEdit.h>
+#include <QComboBox.h>
 
 ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -51,34 +50,40 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool
 	slopes = type;
 	
 	setWindowTitle(tr("QtiPlot - Verify initial guesses"));
-    setMinimumSize( QSize( 310, 140 ) );
-	setMaximumSize( QSize( 310, 140 ) );
 	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-
-	new QLabel( tr("Exponential Fit of"), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxName" );
+	QGroupBox *gb1 = new QGroupBox();
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("Exponential Fit of")), 0, 0);
+    
+	boxName = new QComboBox();
+    gl1->addWidget(boxName, 0, 1);
 	
 	if (type < 0)
-		dampingLabel = new QLabel( tr("Growth time"), GroupBox1, "TextLabel2",0 );
+		dampingLabel = new QLabel( tr("Growth time"));
 	else if (type == 1)
-		dampingLabel = new QLabel( tr("Damping"), GroupBox1, "TextLabel2",0 );
+		dampingLabel = new QLabel( tr("Damping"));
 	else
-		dampingLabel = new QLabel( tr("First decay time (t1)"), GroupBox1, "TextLabel2",0 );
+		dampingLabel = new QLabel( tr("First decay time (t1)"));
+	gl1->addWidget(dampingLabel, 1, 0);
 	
-	boxFirst = new QLineEdit(GroupBox1, "boxOrder" );
+	boxFirst = new QLineEdit();
 	boxFirst->setText(tr("1"));
+    gl1->addWidget(boxFirst, 1, 1);
 	
 	if (type > 1)
 	{
-	new QLabel( tr("Second decay time (t2)"), GroupBox1, "TextLabel3",0 );
-	boxSecond = new QLineEdit(GroupBox1, "boxPoints" );
+	gl1->addWidget(new QLabel( tr("Second decay time (t2)")), 2, 0);
+	
+	boxSecond = new QLineEdit();
 	boxSecond->setText(tr("1"));
+    gl1->addWidget(boxSecond, 2, 1);
 	
-	thirdLabel=new QLabel( tr("Third decay time (t3)"), GroupBox1, "TextLabel5",0 );
+	thirdLabel = new QLabel( tr("Third decay time (t3)"));
+	gl1->addWidget(thirdLabel, 3, 0);
 	
-	boxThird = new QLineEdit(GroupBox1, "boxOrder" );
+	boxThird = new QLineEdit();
 	boxThird->setText(tr("1"));
+	gl1->addWidget(boxThird, 3, 1);
 
 	if (type < 3)
 		{
@@ -88,40 +93,44 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool
 	}
 	
 	if (type <= 1)
-		new QLabel( tr("Amplitude"), GroupBox1, "TextLabel4",0 );
+		gl1->addWidget(new QLabel(tr("Amplitude")), 4, 0);
 	else
-		new QLabel( tr("Initial time"), GroupBox1, "TextLabel4",0 );
+		gl1->addWidget(new QLabel(tr("Initial time")), 4, 0);
 	
-	boxStart = new QLineEdit(GroupBox1, "boxStart" );
+	boxStart = new QLineEdit();
+	gl1->addWidget(boxStart, 4, 1);
 	
 	if (type == 1)
 		boxStart->setText(tr("1"));
 	else
 		boxStart->setText(tr("0"));
 	
-	new QLabel( tr("Y Offset"), GroupBox1, "TextLabel5",0 );
-	boxYOffset = new QLineEdit(GroupBox1, "boxEnd" );
+	gl1->addWidget(new QLabel(tr("Y Offset")), 5, 0 );
+	boxYOffset = new QLineEdit();
 	boxYOffset->setText(tr("0"));
+	gl1->addWidget(boxYOffset, 5, 1);
 
-	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( false, GroupBox1);
+	gl1->addWidget(new QLabel(tr("Color")), 6, 0 );
+	boxColor = new ColorBox(false);
 	boxColor->setColor(QColor(Qt::red));
+	gl1->addWidget(boxColor, 6, 1);
 	
-	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
+	gb1->setLayout(gl1);
 	
-	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
-    buttonFit->setAutoDefault( true );
-	buttonFit->setDefault( true );
+	buttonFit = new QPushButton(tr("&Fit"));
+	buttonFit->setDefault(true);
    
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
+    buttonCancel = new QPushButton(tr("&Cancel"));
+    
+    QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::TopToBottom);
+	bl1->addWidget(buttonFit);
+	bl1->addWidget(buttonCancel);
+	bl1->addStretch();
 	
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
-
-    languageChange();
+	QHBoxLayout* hlayout = new QHBoxLayout();
+    hlayout->addWidget(gb1);
+	hlayout->addLayout(bl1);
+	setLayout(hlayout);
    
     // signals and slots connections
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT(fit()));
@@ -131,13 +140,6 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool
 
 ExpDecayDialog::~ExpDecayDialog()
 {
-}
-
-
-void ExpDecayDialog::languageChange()
-{
-	buttonFit->setText( tr( "&Fit" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
 void ExpDecayDialog::setGraph(Graph *g)

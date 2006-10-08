@@ -47,60 +47,54 @@ SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt:
 	setName( "SurfaceDialog" );
 	setWindowTitle(tr("QtiPlot - Define surface plot"));
     setSizeGripEnabled( true );
-
-	QLabel *l1 = new QLabel( tr("f(x,y)="));
+	
 	boxFunction = new QComboBox();
 	boxFunction->setEditable(true);
 	
 	QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
-	bl1->addWidget(l1, 1);
+	bl1->addWidget(new QLabel( tr("f(x,y)=")), 1);
 	bl1->addWidget(boxFunction, 10);
 
     QGroupBox *gb1 = new QGroupBox(tr("X - axis"));
-    QLabel *l2 = new QLabel( tr("From"));
+
 	boxXFrom = new QLineEdit();
 	boxXFrom->setText(tr("-1"));
 	
-	QLabel *l3 = new QLabel(tr("To"));
 	boxXTo = new QLineEdit();
 	boxXTo->setText(tr("1"));
 	
     QGridLayout *gl1 = new QGridLayout();
-    gl1->addWidget(l2, 0, 0);
+    gl1->addWidget(new QLabel( tr("From")), 0, 0);
     gl1->addWidget(boxXFrom, 0, 1);
-    gl1->addWidget(l3, 1, 0);
+    gl1->addWidget(new QLabel(tr("To")), 1, 0);
     gl1->addWidget(boxXTo, 1, 1);
     gb1->setLayout(gl1);
 
     QGroupBox *gb2 = new QGroupBox(tr("Y - axis"));
-    QLabel *l4 = new QLabel( tr("From"));
 	boxYFrom = new QLineEdit();
 	boxYFrom->setText(tr("-1"));
 	
-	QLabel *l5 = new QLabel(tr("To"));
 	boxYTo = new QLineEdit();
 	boxYTo->setText(tr("1"));
 	
     QGridLayout *gl2 = new QGridLayout();
-    gl2->addWidget(l4, 0, 0);
+    gl2->addWidget(new QLabel( tr("From")), 0, 0);
     gl2->addWidget(boxYFrom, 0, 1);
-    gl2->addWidget(l5, 1, 0);
+    gl2->addWidget(new QLabel(tr("To")), 1, 0);
     gl2->addWidget(boxYTo, 1, 1);
     gb2->setLayout(gl2);
     
     QGroupBox *gb3 = new QGroupBox(tr("Z - axis"));
-    QLabel *l6 = new QLabel( tr("From"));
 	boxZFrom = new QLineEdit();
 	boxZFrom->setText(tr("-1"));
 	
-	QLabel *l7 = new QLabel(tr("To"));
 	boxZTo = new QLineEdit();
 	boxZTo->setText(tr("1"));
 	
     QGridLayout *gl3 = new QGridLayout();
-    gl3->addWidget(l6, 0, 0);
+    gl3->addWidget(new QLabel( tr("From")), 0, 0);
     gl3->addWidget(boxZFrom, 0, 1);
-    gl3->addWidget(l7, 1, 0);
+    gl3->addWidget(new QLabel(tr("To")), 1, 0);
     gl3->addWidget(boxZTo, 1, 1);
     gb3->setLayout(gl3);
     
