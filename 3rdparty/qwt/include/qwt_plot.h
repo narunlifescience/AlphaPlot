@@ -41,13 +41,15 @@ class QwtPlotPrintFilter;
   are calculated from the plot items, using algorithms (QwtScaleEngine) which 
   can be configured separately for each axis. 
 
+  \image html plot.png
+
   \par Example
   The following example shows (schematically) the most simple
   way to use QwtPlot. By default, only the left and bottom axes are
   visible and their scales are computed automatically.
   \verbatim
-#include "../include/qwt_plot.h>
-#include "../include/qwt_plot_curve.h>
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 
 QwtPlot *myPlot;
 double x[100], y1[100], y2[100];        // x and y values
@@ -88,16 +90,26 @@ public:
         yRight, 
         xBottom, 
         xTop, 
+
         axisCnt 
     };
 
-    //! Position
+    /*! 
+        \brief Position of the legend, relative to the canvas.
+
+        ExternalLegend means that only the content of the legend 
+        will be handled by QwtPlot, but not it´s geometry. 
+        This might be interesting if an application wants to
+        have a legend in an external window.
+     */
     enum LegendPosition 
     {
         LeftLegend,
         RightLegend,
         BottomLegend,
-        TopLegend
+        TopLegend,
+        
+        ExternalLegend
     };
 
     explicit QwtPlot(QWidget * = NULL);
@@ -256,7 +268,7 @@ protected:
 
     virtual void drawCanvas(QPainter *);
     virtual void drawItems(QPainter *, const QRect &,
-        const QwtArray<QwtScaleMap> &,
+        const QwtScaleMap maps[axisCnt],
         const QwtPlotPrintFilter &) const;
 
     virtual void updateTabOrder();
@@ -272,7 +284,7 @@ protected:
     virtual void printScale(QPainter *, int axisId, int startDist, int endDist,
         int baseDist, const QRect &) const;
     virtual void printCanvas(QPainter *, const QRect &,
-        const QwtArray<QwtScaleMap> &, const QwtPlotPrintFilter &) const;
+        const QwtScaleMap maps[axisCnt], const QwtPlotPrintFilter &) const;
     virtual void printLegend(QPainter *, const QRect &) const;
 
 private:

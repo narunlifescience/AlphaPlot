@@ -59,7 +59,7 @@ private:
 };
 
 /*!
-  A needle for dial widgets
+  \brief A needle for dial widgets
 
   The following colors are used:
   - QColorGroup::Mid\n

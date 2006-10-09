@@ -134,7 +134,7 @@ void Plot::printFrame(QPainter *painter, const QRect &rect) const
 }
 
 void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
-		const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const
+   			 const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
 	const QwtPlotCanvas* plotCanvas=canvas();	
 	QRect rect=canvasRect;
@@ -165,8 +165,8 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
 	drawItems(painter, canvasRect, map, pfilter);
 }
 
-void Plot::drawItems (QPainter *painter, const QRect &rect, 
-		const QwtArray< QwtScaleMap > &map, const QwtPlotPrintFilter &pfilter) const
+void Plot::drawItems (QPainter *painter, const QRect &rect,
+			const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
 	QwtPlot::drawItems(painter, rect, map, pfilter);
 
@@ -645,122 +645,6 @@ QwtDoubleRect Plot::boundingRect ()
 	r.setTop(minY);
 	r.setBottom(maxY);
 	return r;
-}
-
-/*!
-  \brief Paint a scale into a given rectangle.
-  Paint the scale into a given rectangle. Reimplemented from Qwt5
-
-  \param painter Painter
-  \param axisId Axis
-  \param startDist Start border distance
-  \param endDist End border distance
-  \param baseDist Base distance
-  \param rect Bounding rectangle
-  */
-
-void Plot::printScale(QPainter *painter, int axisId, int startDist, int endDist, 
-		int baseDist, const QRect &rect) const
-{
-	if (!axisEnabled(axisId))
-		return;
-
-	const QwtScaleWidget *scaleWidget = axisWidget(axisId);
-	if ( scaleWidget->isColorBarEnabled() 
-			&& scaleWidget->colorBarWidth() > 0)
-	{
-		const QwtMetricsMap map = QwtPainter::metricsMap();
-
-		const QRect r = map.layoutToScreen(rect);
-		scaleWidget->drawColorBar(painter, scaleWidget->colorBarRect(r));
-
-		const int off = scaleWidget->colorBarWidth() + scaleWidget->spacing();
-		if ( scaleWidget->scaleDraw()->orientation() == Qt::Horizontal )
-			baseDist += map.screenToLayoutY(off);
-		else
-			baseDist += map.screenToLayoutX(off);
-	}
-
-	QwtScaleDraw::Alignment align;
-	int x, y, w;
-
-	const int bw2 = scaleWidget->penWidth() / 2;
-
-	switch(axisId)
-	{
-		case yLeft:
-			{
-				x = rect.right() - baseDist + 1 - bw2;
-				y = rect.y() + startDist;
-				w = rect.height() - startDist - endDist;
-				align = QwtScaleDraw::LeftScale;
-				break;
-			}
-		case yRight:
-			{
-				x = rect.left() + baseDist;
-				if (scaleWidget->penWidth() % 2 == 0)
-					x += 1;
-
-				y = rect.y() + startDist;
-				w = rect.height() - startDist - endDist + bw2;
-				align = QwtScaleDraw::RightScale;
-				break;
-			}
-		case xTop:
-			{
-				x = rect.left() + startDist;
-				y = rect.bottom() - baseDist + 1;
-				if (scaleWidget->penWidth() % 2 == 0)
-					y -= bw2;
-				w = rect.width() - startDist - endDist;
-				align = QwtScaleDraw::TopScale;
-				break;
-			}
-		case xBottom:
-			{
-				x = rect.left() + startDist;
-				y = rect.top() + baseDist;
-
-				if (scaleWidget->penWidth() % 2 == 1)
-					y += bw2;
-
-				w = rect.width() - startDist - endDist + bw2;
-				align = QwtScaleDraw::BottomScale;
-				break;
-			}
-		default:
-			return;
-	}
-
-	scaleWidget->drawTitle(painter, align, rect);
-
-	painter->save();
-	painter->setFont(scaleWidget->font());
-
-	QPen pen = painter->pen();
-	pen.setWidth(scaleWidget->penWidth());
-	painter->setPen(pen);
-
-	QwtScaleDraw *sd = (QwtScaleDraw *)scaleWidget->scaleDraw();
-	const QPoint sdPos = sd->pos();
-	const int sdLength = sd->length();
-
-	sd->move(x, y);
-	sd->setLength(w);
-
-#if QT_VERSION < 0x040000
-	sd->draw(painter, scaleWidget->palette().active());
-#else
-	QPalette palette = scaleWidget->palette();
-	palette.setCurrentColorGroup(QPalette::Active);
-	sd->draw(painter, palette);
-#endif
-	// reset previous values
-	sd->move(sdPos); 
-	sd->setLength(sdLength); 
-
-	painter->restore();
 }
 
 /*!

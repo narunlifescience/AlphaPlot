@@ -27,6 +27,8 @@ class QwtColorMap;
 
   In ContourMode contour lines are painted for the contour levels.
   
+  \image html spectrogram3.png
+
   \sa QwtRasterData, QwtColorMap
 */
 

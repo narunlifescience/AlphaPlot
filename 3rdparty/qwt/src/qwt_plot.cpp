@@ -9,8 +9,10 @@
 
 #include <qpainter.h>
 #if QT_VERSION < 0x040000
+#include <qguardedptr.h>
 #include <qfocusdata.h>
 #else
+#include <qpointer.h>
 #include <qpaintengine.h>
 #endif
 #include <qapplication.h>
@@ -30,9 +32,15 @@
 class QwtPlot::PrivateData
 {
 public:
-    QwtTextLabel *lblTitle;
-    QwtPlotCanvas *canvas;
-    QwtLegend *legend;
+#if QT_VERSION < 0x040000
+    QGuardedPtr<QwtTextLabel> lblTitle;
+    QGuardedPtr<QwtPlotCanvas> canvas;
+    QGuardedPtr<QwtLegend> legend;
+#else
+    QPointer<QwtTextLabel> lblTitle;
+    QPointer<QwtPlotCanvas> canvas;
+    QPointer<QwtLegend> legend;
+#endif
     QwtPlotLayout *layout;
 
     bool autoReplot;
@@ -456,7 +464,8 @@ void QwtPlot::updateLayout()
             axisWidget(axisId)->hide();
     }
 
-    if ( d_data->legend )
+    if ( d_data->legend && 
+        d_data->layout->legendPosition() != ExternalLegend )
     {
         if (d_data->legend->itemCount() > 0)
         {
@@ -477,7 +486,9 @@ void QwtPlot::updateTabOrder()
 #if QT_VERSION >= 0x040000
     using namespace Qt; // QWidget::NoFocus/Qt::NoFocus
 #endif
-    if ( !legend() || legend()->legendItems().count() == 0
+    if ( d_data->legend.isNull()  
+        || d_data->layout->legendPosition() == ExternalLegend
+        || d_data->legend->legendItems().count() == 0
         || d_data->canvas->focusPolicy() == NoFocus )
     {
         return;
@@ -548,7 +559,7 @@ void QwtPlot::updateTabOrder()
 
 void QwtPlot::drawCanvas(QPainter *painter)
 {
-    QwtArray<QwtScaleMap> maps(axisCnt);
+    QwtScaleMap maps[axisCnt];
     for ( int axisId = 0; axisId < axisCnt; axisId++ )
         maps[axisId] = canvasMap(axisId);
 
@@ -565,7 +576,7 @@ void QwtPlot::drawCanvas(QPainter *painter)
 */
 
 void QwtPlot::drawItems(QPainter *painter, const QRect &rect, 
-        const QwtArray<QwtScaleMap> &map, 
+        const QwtScaleMap map[axisCnt], 
         const QwtPlotPrintFilter &pfilter) const
 {
     painter->save();
@@ -794,14 +805,14 @@ void QwtPlot::clear()
   Otherwise the legend items will be placed be placed in a table 
   with a best fit number of columns from left to right.
 
-  The plot widget will become parent of the legend. It
-  will be deleted when the plot is deleted, or another
-  legend is set with insertLegend().
+  If pos != QwtPlot::ExternalLegend the plot widget will become 
+  parent of the legend. It will be deleted when the plot is deleted, 
+  or another legend is set with insertLegend().
        
   \param legend Legend
-  \param pos The legend's position. Valid values are \c QwtPlot::LeftLegend,
-           \c QwtPlot::RightLegend, \c QwtPlot::TopLegend, 
-           \c QwtPlot::BottomLegend.
+  \param pos The legend's position. For top/left position the number
+             of colums will be limited to 1, otherwise it will be set to
+             unlimited. 
 
   \param ratio Ratio between legend and the bounding rect
                of title, canvas and axes. The legend will be shrinked
@@ -819,18 +830,23 @@ void QwtPlot::insertLegend(QwtLegend *legend,
 
     if ( legend != d_data->legend )
     {
-        delete d_data->legend;
+        if ( d_data->legend && d_data->legend->parent() == this )
+            delete d_data->legend;
+
         d_data->legend = legend;
 
         if ( d_data->legend )
         {
-            if ( d_data->legend->parent() != this )
+            if ( pos != ExternalLegend )
             {
+                if ( d_data->legend->parent() != this )
+                {
 #if QT_VERSION < 0x040000
-                d_data->legend->reparent(this, QPoint(0, 0));
+                    d_data->legend->reparent(this, QPoint(0, 0));
 #else
-                d_data->legend->setParent(this);
+                    d_data->legend->setParent(this);
 #endif
+                }
             }
 
             const QwtPlotItemList& itmList = itemList();
@@ -844,13 +860,19 @@ void QwtPlot::insertLegend(QwtLegend *legend,
             if ( l && l->inherits("QwtDynGridLayout") )
             {
                 QwtDynGridLayout *tl = (QwtDynGridLayout *)l;
-                if ( d_data->layout->legendPosition() == QwtPlot::TopLegend ||
-                    d_data->layout->legendPosition() == QwtPlot::BottomLegend )
+                switch(d_data->layout->legendPosition())
                 {
-                    tl->setMaxCols(0); // unlimited
+                    case LeftLegend:
+                    case RightLegend:
+                        tl->setMaxCols(1); // 1 column: align vertical
+                        break;
+                    case TopLegend:
+                    case BottomLegend:
+                        tl->setMaxCols(0); // unlimited
+                        break;
+                    case ExternalLegend:
+                        break;
                 }
-                else
-                    tl->setMaxCols(1); // 1 column: align vertical
             }
         }
         updateTabOrder();

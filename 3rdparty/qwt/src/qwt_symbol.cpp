@@ -307,22 +307,23 @@ void QwtSymbol::draw(QPainter *painter, const QPoint &pos) const
   \brief Specify the symbol style
 
   The following styles are defined:<dl>
-  <dt>QwtSymbol::None<dd>No Style. The symbol cannot be drawn.
-  <dt>QwtSymbol::Ellipse<dd>Ellipse or circle
-  <dt>QwtSymbol::Rect<dd>Rectangle
-  <dt>QwtSymbol::Diamond<dd>Diamond
-  <dt>QwtSymbol::Triangle<dd>Triangle pointing upwards
-  <dt>QwtSymbol::DTriangle<dd>Triangle pointing downwards
-  <dt>QwtSymbol::UTriangle<dd>Triangle pointing upwards
-  <dt>QwtSymbol::LTriangle<dd>Triangle pointing left
-  <dt>QwtSymbol::RTriangle<dd>Triangle pointing right
-  <dt>QwtSymbol::Cross<dd>Cross (+)
-  <dt>QwtSymbol::XCross<dd>Diagonal cross (X)
-  <dt>QwtSymbol::HLine<dd>Horizontal line
-  <dt>QwtSymbol::VLine<dd>Vertical line
-  <dt>QwtSymbol::Star1<dd>X combined with +
-  <dt>QwtSymbol::Star2<dd>Six-pointed star
-  <dt>QwtSymbol::Hexagon<dd>Hexagon</dl>
+  <dt>None<dd>No Style. The symbol cannot be drawn.
+  <dt>Ellipse<dd>Ellipse or circle
+  <dt>Rect<dd>Rectangle
+  <dt>Diamond<dd>Diamond
+  <dt>Triangle<dd>Triangle pointing upwards
+  <dt>DTriangle<dd>Triangle pointing downwards
+  <dt>UTriangle<dd>Triangle pointing upwards
+  <dt>LTriangle<dd>Triangle pointing left
+  <dt>RTriangle<dd>Triangle pointing right
+  <dt>Cross<dd>Cross (+)
+  <dt>XCross<dd>Diagonal cross (X)
+  <dt>HLine<dd>Horizontal line
+  <dt>VLine<dd>Vertical line
+  <dt>Star1<dd>X combined with +
+  <dt>Star2<dd>Six-pointed star
+  <dt>Hexagon<dd>Hexagon</dl>
+
   \param s style
 */
 void QwtSymbol::setStyle(QwtSymbol::Style s)

@@ -7496,8 +7496,8 @@ void ApplicationWindow::copyMarker()
 			auxMrkWidth=m->width();
 			auxMrkColor=m->color();
 			auxMrkStyle=m->style();
-			startArrowOn=m->getStartArrow();
-			endArrowOn=m->getEndArrow();
+			startArrowOn=m->hasStartArrow();
+			endArrowOn=m->hasEndArrow();
 			arrowHeadLength=m->headLength();
 			arrowHeadAngle=m->headAngle();
 			fillArrowHead=m->filledArrowHead();
@@ -8107,7 +8107,7 @@ void ApplicationWindow::about()
 	QMessageBox::about(this,tr("About QtiPlot"),
 			tr("<h2>"+ version + "</h2>"
 				"<p><h3>Copyright(C): Ion Vasilief</h3>"
-				"<p><h3>Released: </h3>"));
+				"<p><h3>Released: not yet</h3>"));
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()

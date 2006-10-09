@@ -21,7 +21,7 @@
 class QwtTextEngine;
 
 /*!
-   Interface to import text engines as plugins
+   \brief Interface to import text engines as plugins
 
    \sa QwtTextEngine, QwtText
 */

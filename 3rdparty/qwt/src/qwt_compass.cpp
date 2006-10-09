@@ -152,7 +152,7 @@ void QwtCompass::drawRose(QPainter *painter, const QPoint &center,
   \param rose Compass rose
   \warning The rose will be deleted, when a different rose is
     set or in ~QwtCompass
-  \sa QwtCompass::rose
+  \sa rose()
 */
 void QwtCompass::setRose(QwtCompassRose *rose)
 {
@@ -168,7 +168,7 @@ void QwtCompass::setRose(QwtCompassRose *rose)
 
 /*! 
   \return rose
-  \sa QwtCompass::setRose
+  \sa setRose()
 */
 const QwtCompassRose *QwtCompass::rose() const 
 { 
@@ -177,7 +177,7 @@ const QwtCompassRose *QwtCompass::rose() const
 
 /*! 
   \return rose
-  \sa QwtCompass::setRose
+  \sa setRose()
 */
 QwtCompassRose *QwtCompass::rose() 
 { 
@@ -251,7 +251,7 @@ void QwtCompass::keyPressEvent(QKeyEvent *kev)
 
 /*!
   \return map, mapping values to labels
-  \sa QwtCompass::setLabelMap
+  \sa setLabelMap()
 */
 const QMap<double, QString> &QwtCompass::labelMap() const 
 { 
@@ -260,7 +260,7 @@ const QMap<double, QString> &QwtCompass::labelMap() const
 
 /*!
   \return map, mapping values to labels
-  \sa QwtCompass::setLabelMap
+  \sa setLabelMap()
 */
 QMap<double, QString> &QwtCompass::labelMap() 
 { 
@@ -277,7 +277,7 @@ QMap<double, QString> &QwtCompass::labelMap()
   \warning The map will have no effect for values that are no major
            tick values. Major ticks can be changed by QwtScaleDraw::setScale
 
-  \sa QwtCompass::labelMap, QwtCompass::scaleDraw, QwtScaleDraw::setScale
+  \sa labelMap(), scaleDraw(), setScale()
 */
 void QwtCompass::setLabelMap(const QMap<double, QString> &map) 
 { 
@@ -291,7 +291,7 @@ void QwtCompass::setLabelMap(const QMap<double, QString> &map)
 
   label() looks in a map for a corresponding label for value
   or return an null text.
-  \sa QwtCompass::labelMap, QwtCompass::setLabelMap
+  \sa labelMap(), setLabelMap()
 */
 
 QwtText QwtCompass::scaleLabel(double value) const

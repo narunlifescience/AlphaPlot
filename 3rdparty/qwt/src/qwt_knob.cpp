@@ -103,7 +103,7 @@ QwtKnob::~QwtKnob()
 
 /*!
   \brief Set the symbol of the knob
-  \sa QwtKnob::symbol()
+  \sa symbol()
 */
 void QwtKnob::setSymbol(QwtKnob::Symbol s)
 {
@@ -116,7 +116,7 @@ void QwtKnob::setSymbol(QwtKnob::Symbol s)
 
 /*! 
     \return symbol of the knob
-    \sa QwtKnob::setSymbol()
+    \sa setSymbol()
 */
 QwtKnob::Symbol QwtKnob::symbol() const
 {
@@ -503,7 +503,7 @@ void QwtKnob::recalcAngle()
 
 /*!
     Recalculates the layout
-    \sa QwtKnob::layoutKnob()
+    \sa layoutKnob()
 */
 void QwtKnob::scaleChange()
 {
@@ -512,7 +512,7 @@ void QwtKnob::scaleChange()
 
 /*!
     Recalculates the layout
-    \sa QwtKnob::layoutKnob()
+    \sa layoutKnob()
 */
 void QwtKnob::fontChange(const QFont &f)
 {
@@ -521,7 +521,7 @@ void QwtKnob::fontChange(const QFont &f)
 }
 
 /*!
-  \return QwtKnob::minimumSizeHint()
+  \return minimumSizeHint()
 */
 QSize QwtKnob::sizeHint() const
 {

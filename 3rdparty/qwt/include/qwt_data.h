@@ -34,7 +34,7 @@ template class QWT_EXPORT QwtArray<QwtDoublePoint>;
 // MOC_SKIP_END
 
 /*!
-  \brief QwtData defines an interface to any type of data.
+  \brief QwtData defines an interface to any type of curve data.
 
   Classes, derived from QwtData may:
   - store the data in almost any type of container
@@ -81,7 +81,7 @@ protected:
 /*!
   \brief Data class containing a single QwtArray<QwtDoublePoint> object. 
  */
-class QWT_EXPORT QwtDoublePointData: public QwtData
+class QWT_EXPORT QwtPolygonFData: public QwtData
 {
 public:
     /*!
@@ -90,12 +90,12 @@ public:
       \sa QwtCurve::setData and QwtPlot::setCurveData.
      */
 #if QT_VERSION < 0x040000
-    QwtDoublePointData(const QwtArray<QwtDoublePoint> &);
+    QwtPolygonFData(const QwtArray<QwtDoublePoint> &);
 #else
-    QwtDoublePointData(const QPolygonF &);
+    QwtPolygonFData(const QPolygonF &);
 #endif
 
-    QwtDoublePointData &operator=(const QwtDoublePointData &);
+    QwtPolygonFData &operator=(const QwtPolygonFData &);
     virtual QwtData *copy() const;
 
     virtual size_t size() const;

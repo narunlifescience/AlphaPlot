@@ -192,7 +192,7 @@ void QwtPlotSvgItem::draw(QPainter *painter,
   \param rect Traget rectangle on the paint device
 */
 void QwtPlotSvgItem::render(QPainter *painter,
-        const QRect &viewBox, const QRect &rect) const
+        const QwtDoubleRect &viewBox, const QRect &rect) const
 {
     if ( !viewBox.isValid() )
         return;
@@ -203,10 +203,8 @@ void QwtPlotSvgItem::render(QPainter *painter,
     if ( !paintSize.isValid() )
         return;
 
-    const double xRatio =
-        double(paintSize.width()) / viewBox.width();
-    const double yRatio =
-        double(paintSize.height()) / viewBox.height();
+    const double xRatio = paintSize.width() / viewBox.width();
+    const double yRatio = paintSize.height() / viewBox.height();
 
     const double dx = rect.left() / xRatio + 1.0;
     const double dy = rect.top() / yRatio + 1.0;
@@ -219,13 +217,17 @@ void QwtPlotSvgItem::render(QPainter *painter,
     painter->translate(dx, dy);
     painter->scale(mx, my);
 
+#if QT_VERSION >= 0x040200
     d_data->renderer.setViewBox(viewBox);
+#else
+    d_data->renderer.setViewBox(viewBox.toRect());
+#endif
     d_data->renderer.render(painter);
 
     painter->restore();
 #else
-    const double mx = double(rect.width()) / viewBox.width();
-    const double my = double(rect.height()) / viewBox.height();
+    const double mx = rect.width() / viewBox.width();
+    const double my = rect.height() / viewBox.height();
     const double dx = rect.x() - mx * viewBox.x();
     const double dy = rect.y() - my * viewBox.y();
 
@@ -246,7 +248,7 @@ void QwtPlotSvgItem::render(QPainter *painter,
   \param rect Rectangle in scale coordinates
   \return viewBox View Box, see QSvgRenderer::viewBox
 */
-QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
+QwtDoubleRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
 {
 #if QT_VERSION >= 0x040100
     const QSize sz = d_data->renderer.defaultSize();
@@ -262,7 +264,7 @@ QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
     const QwtDoubleRect br = boundingRect();
 
     if ( !rect.isValid() || !br.isValid() || sz.isNull() )
-        return QRect();
+        return QwtDoubleRect();
 
     QwtScaleMap xMap;
     xMap.setScaleInterval(br.left(), br.right());
@@ -272,5 +274,10 @@ QRect QwtPlotSvgItem::viewBox(const QwtDoubleRect &rect) const
     yMap.setScaleInterval(br.top(), br.bottom());
     yMap.setPaintInterval(sz.height(), 0);
 
-    return transform(xMap, yMap, rect);
+    const double x1 = xMap.xTransform(rect.left());
+    const double x2 = xMap.xTransform(rect.right());
+    const double y1 = yMap.xTransform(rect.bottom());
+    const double y2 = yMap.xTransform(rect.top());
+
+    return QwtDoubleRect(x1, y1, x2 - x1, y2 - y1);
 }

@@ -85,13 +85,10 @@ void QwtErrorPlotCurve::draw(QPainter *painter,
 	if (to < 0)
 		to = dataSize() - 1;
 
-	if ( verifyRange(from, to) > 0 )
-	{
-		painter->save();
-		painter->setPen(pen);
-		drawErrorBars(painter, xMap, yMap, from, to);
-		painter->restore();
-	}
+  painter->save();
+  painter->setPen(pen);
+  drawErrorBars(painter, xMap, yMap, from, to);
+  painter->restore();
 }
 
 void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,

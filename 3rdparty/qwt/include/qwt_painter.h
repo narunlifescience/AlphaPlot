@@ -97,6 +97,7 @@ public:
     static void fillRect(QPainter *, const QRect &, const QBrush &); 
 
     static void drawEllipse(QPainter *, const QRect &);
+    static void drawPie(QPainter *, const QRect & r, int a, int alen);
 
     static void drawLine(QPainter *, int x1, int y1, int x2, int y2);
     static void drawLine(QPainter *, const QPoint &p1, const QPoint &p2);

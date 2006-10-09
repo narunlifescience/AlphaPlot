@@ -18,7 +18,7 @@
 /*!
   \brief An analog clock
 
-  \image html analogclock.gif
+  \image html analogclock.png
 
   \par Example
   \verbatim #include <qwt_analog_clock.h>

@@ -50,8 +50,7 @@ void QwtPieCurve::draw(QPainter *painter,
     if (to < 0)
         to = dataSize() - 1;
 
-    if ( verifyRange(from, to) > 0 )
-		drawPie(painter, xMap, yMap, from, to);
+    drawPie(painter, xMap, yMap, from, to);
 }
 
 void QwtPieCurve::drawPie(QPainter *painter,

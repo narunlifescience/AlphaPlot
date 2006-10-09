@@ -405,10 +405,9 @@ double QwtScaleEngine::reference() const
 /*!
   Return a transformation, for linear scales
 */
-QwtScaleTransformation QwtLinearScaleEngine::transformation() const
+QwtScaleTransformation *QwtLinearScaleEngine::transformation() const
 {
-    return QwtScaleTransformation(QwtScaleTransformation::linearXForm, 
-        QwtScaleTransformation::linearXForm);
+    return new QwtScaleTransformation(QwtScaleTransformation::Linear);
 }
 
 /*!
@@ -619,10 +618,9 @@ QwtDoubleInterval QwtLinearScaleEngine::align(
 /*!
   Return a transformation, for logarithmic (base 10) scales
 */
-QwtScaleTransformation QwtLog10ScaleEngine::transformation() const
+QwtScaleTransformation *QwtLog10ScaleEngine::transformation() const
 {
-    return QwtScaleTransformation(QwtScaleTransformation::log10XForm, 
-        QwtScaleTransformation::log10InvXForm);
+    return new QwtScaleTransformation(QwtScaleTransformation::Log10);
 }
 
 /*!

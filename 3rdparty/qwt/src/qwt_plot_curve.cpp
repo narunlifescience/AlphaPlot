@@ -21,7 +21,7 @@
 #include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_canvas.h"
-#include "qwt_spline.h"
+#include "qwt_curve_fitter.h"
 #include "qwt_symbol.h"
 #include "qwt_plot_curve.h"
 
@@ -56,6 +56,20 @@ private:
 
 #endif // QT_VERSION >= 0x040000
 
+static int verifyRange(int size, int &i1, int &i2)
+{
+    if (size < 1) 
+        return 0;
+
+    i1 = qwtLim(i1, 0, size-1);
+    i2 = qwtLim(i2, 0, size-1);
+
+    if ( i1 > i2 )
+        qSwap(i1, i2);
+
+    return (i2 - i1 + 1);
+}
+
 class QwtPlotCurve::PrivateData
 {
 public:
@@ -88,58 +102,35 @@ public:
         QRect _rect;
     };
 
-    PrivateData()
+    PrivateData():
+        curveType(Yfx),
+        style(QwtPlotCurve::Lines),
+        reference(0.0),
+        attributes(0),
+        paintAttributes(0)
     {
         pen = QPen(Qt::black, 0);
-        reference = 0.0;
-        splineSize = 250;
-        attributes = Auto;
-        paintAttributes = 0;
-        style = QwtPlotCurve::Lines;
+        curveFitter = new QwtSplineCurveFitter;
     }
 
+    ~PrivateData()
+    {
+        delete curveFitter;
+    }
+
+    QwtPlotCurve::CurveType curveType;
     QwtPlotCurve::CurveStyle style;
     double reference;
 
     QwtSymbol sym;
+    QwtCurveFitter *curveFitter;
 
     QPen pen;
     QBrush brush;
 
     int attributes;
-    int splineSize;
     int paintAttributes;
 };
-
-static int qwtChkMono(const double *array, int size)
-{
-    if (size < 2)
-        return 0;
-
-    int rv = qwtSign(array[1] - array[0]);
-    for (int i = 1; i < size - 1; i++)
-    {
-        if ( qwtSign(array[i+1] - array[i]) != rv )
-        {
-            rv = 0;
-            break;
-        }
-    }
-    return rv;
-}
-
-static void qwtTwistArray(double *array, int size)
-{
-    const int s2 = size / 2;
-
-    for (int i=0; i < s2; i++)
-    {
-        const int itmp = size - 1 - i;
-        const double dtmp = array[i];
-        array[i] = array[itmp];
-        array[itmp] = dtmp;
-    }
-}
 
 /*!
   \brief Ctor
@@ -186,7 +177,7 @@ void QwtPlotCurve::init()
     setItemAttribute(QwtPlotItem::AutoScale);
 
     d_data = new PrivateData;
-    d_xy = new QwtDoublePointData(QwtArray<QwtDoublePoint>());
+    d_xy = new QwtPolygonFData(QwtArray<QwtDoublePoint>());
 
     setZ(20.0);
 }
@@ -202,12 +193,12 @@ int QwtPlotCurve::rtti() const
   The attributes can be used to modify the drawing algorithm.
 
   The following attributes are defined:<dl>
-  <dt>QwtPlotCurve::PaintFiltered</dt>
+  <dt>PaintFiltered</dt>
   <dd>Tries to reduce the data that has to be painted, by sorting out
       duplicates, or paintings outside the visible area. Might have a
       notable impact on curves with many close points. 
       Only a couple of very basic filtering algos are implemented.</dd>
-  <dt>QwtPlotCurve::ClipPolygons</dt>
+  <dt>ClipPolygons</dt>
   <dd>Clip polygons before painting them.
   </dl>
 
@@ -215,7 +206,7 @@ int QwtPlotCurve::rtti() const
 
   \param attribute Paint attribute
   \param on On/Off
-  /sa QwtPlotCurve::testPaintAttribute()
+  /sa testPaintAttribute()
 */
 void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 {
@@ -227,7 +218,7 @@ void QwtPlotCurve::setPaintAttribute(PaintAttribute attribute, bool on)
 
 /*!
     \brief Return the current paint attributes
-    \sa QwtPlotCurve::setPaintAttribute
+    \sa setPaintAttribute
 */
 bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 {
@@ -239,30 +230,27 @@ bool QwtPlotCurve::testPaintAttribute(PaintAttribute attribute) const
 
   Valid styles are:
   <dl>
-  <dt>QwtPlotCurve::NoCurve</dt>
+  <dt>NoCurve</dt>
   <dd>Don't draw a curve. Note: This doesn't affect the symbol. </dd>
-  <dt>QwtPlotCurve::Lines</dt>
-  <dd>Connect the points with straight lines.</dd>
-  <dt>QwtPlotCurve::Sticks</dt>
+  <dt>Lines</dt>
+  <dd>Connect the points with straight lines. The lines might
+      be interpolated depending on the 'Fitted' option. Curve
+      fitting can be configured using setCurveFitter.</dd>
+  <dt>Sticks</dt>
   <dd>Draw vertical sticks from a baseline which is defined by setBaseline().</dd>
-  <dt>QwtPlotCurve::Steps</dt>
+  <dt>Steps</dt>
   <dd>Connect the points with a step function. The step function
       is drawn from the left to the right or vice versa,
       depending on the 'Inverted' option.</dd>
-  <dt>QwtPlotCurves::Dots</dt>
+  <dt>Dots</dt>
   <dd>Draw dots at the locations of the data points. Note:
       This is different from a dotted line (see setPen()).</dd>
-  <dt>QwtPlotCurve::Spline</dt>
-  <dd>Interpolate the points with a spline. The spline
-      type can be specified with setCurveAttribute(),
-      the size of the spline (= number of interpolated points)
-      can be specified with setSplineSize().</dd>
-  <dt>QwtPlotCurve::UserCurve ...</dt>
-  <dd>Styles >= QwtPlotCurve::UserCurve are reserved for derived
-      classes of QwtPlotCurve that overload QwtPlotCurve::draw() with
+  <dt>UserCurve ...</dt>
+  <dd>Styles >= UserCurve are reserved for derived
+      classes of QwtPlotCurve that overload drawCurve() with
       additional application specific curve types.</dd>
   </dl>
-  \sa QwtPlotCurve::style()
+  \sa style()
 */
 void QwtPlotCurve::setStyle(CurveStyle style)
 {
@@ -274,9 +262,8 @@ void QwtPlotCurve::setStyle(CurveStyle style)
 }
 
 /*!
-    \fn CurveStyle QwtPlotCurve::style() const
     \brief Return the current style
-    \sa QwtPlotCurve::setStyle
+    \sa setStyle
 */
 QwtPlotCurve::CurveStyle QwtPlotCurve::style() const 
 { 
@@ -286,7 +273,7 @@ QwtPlotCurve::CurveStyle QwtPlotCurve::style() const
 /*!
   \brief Assign a symbol
   \param s symbol
-  \sa QwtSymbol
+  \sa symbol()
 */
 void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 {
@@ -296,7 +283,7 @@ void QwtPlotCurve::setSymbol(const QwtSymbol &s )
 
 /*!
     \brief Return the current symbol
-    \sa QwtPlotCurve::setSymbol
+    \sa setSymbol
 */
 const QwtSymbol &QwtPlotCurve::symbol() const 
 { 
@@ -306,6 +293,7 @@ const QwtSymbol &QwtPlotCurve::symbol() const
 /*!
   \brief Assign a pen
   \param p New pen
+  \sa pen(), brush()
 */
 void QwtPlotCurve::setPen(const QPen &p)
 {
@@ -318,7 +306,7 @@ void QwtPlotCurve::setPen(const QPen &p)
 
 /*!
     \brief Return the pen used to draw the lines
-    \sa QwtPlotCurve::setPen
+    \sa setPen(), brush()
 */
 const QPen& QwtPlotCurve::pen() const 
 { 
@@ -335,7 +323,7 @@ const QPen& QwtPlotCurve::pen() const
          last curve point to the baseline. So the curve data has to be sorted 
          (ascending or descending). 
   \param brush New brush
-    \sa QwtPlotCurve::brush, QwtPlotCurve::setBaseline, QwtPlotCurve::baseline
+  \sa brush(), setBaseline(), baseline()
 */
 void QwtPlotCurve::setBrush(const QBrush &brush)
 {
@@ -348,8 +336,7 @@ void QwtPlotCurve::setBrush(const QBrush &brush)
 
 /*!
   \brief Return the brush used to fill the area between lines and the baseline
-
-  \sa QwtPlotCurve::setBrush, QwtPlotCurve::setBaseline, QwtPlotCurve::baseline
+  \sa setBrush(), setBaseline(), baseline()
 */
 const QBrush& QwtPlotCurve::brush() const 
 {
@@ -358,15 +345,15 @@ const QBrush& QwtPlotCurve::brush() const
 
 
 /*!
-  \brief Set data by copying x- and y-values from specified memory blocks
-  Contrary to \b QwtPlot::setCurveRawData, this function makes a 'deep copy' of
+  Set data by copying x- and y-values from specified memory blocks.
+  Contrary to setCurveRawData(), this function makes a 'deep copy' of
   the data.
 
   \param xData pointer to x values
   \param yData pointer to y values
   \param size size of xData and yData
 
-  \sa QwData::setData.
+  \sa QwtCPointerData
 */
 void QwtPlotCurve::setData(const double *xData, const double *yData, int size)
 {
@@ -381,7 +368,7 @@ void QwtPlotCurve::setData(const double *xData, const double *yData, int size)
   \param xData x data
   \param yData y data
 
-  \sa QwtData::setData.
+  \sa QwtArrayData
 */
 void QwtPlotCurve::setData(const QwtArray<double> &xData, 
     const QwtArray<double> &yData)
@@ -395,13 +382,16 @@ void QwtPlotCurve::setData(const QwtArray<double> &xData,
   Initialize data with an array of points (explicitly shared).
 
   \param data Data
-
-  \sa QwtDoublePointData::setData.
+  \sa QwtPolygonFData
 */
+#if QT_VERSION < 0x040000
 void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
+#else
+void QwtPlotCurve::setData(const QPolygonF &data)
+#endif
 {
     delete d_xy;
-    d_xy = new QwtDoublePointData(data);
+    d_xy = new QwtPolygonFData(data);
     itemChanged();
 }
 
@@ -409,8 +399,7 @@ void QwtPlotCurve::setData(const QwtArray<QwtDoublePoint> &data)
   Initialize data with a pointer to QwtData.
 
   \param data Data
-
-  \sa QwtData::copy.
+  \sa QwtData::copy()
 */
 void QwtPlotCurve::setData(const QwtData &data)
 {
@@ -441,8 +430,8 @@ void QwtPlotCurve::setRawData(const double *xData, const double *yData, int size
 
 /*!
   Returns the bounding rectangle of the curve data. If there is
-  no bounding rect, like for empty data the rectangle is invalid:
-  QwtDoubleRect.isValid() == false
+  no bounding rect, like for empty data the rectangle is invalid.
+  \sa QwtData::boundingRect(), QwtDoubleRect::isValid()
 */
 
 QwtDoubleRect QwtPlotCurve::boundingRect() const
@@ -453,35 +442,15 @@ QwtDoubleRect QwtPlotCurve::boundingRect() const
     return d_xy->boundingRect();
 }
 
-
-/*!
-  \brief Checks if a range of indices is valid and corrects it if necessary
-  \param i1 Index 1
-  \param i2 Index 2
-*/
-int QwtPlotCurve::verifyRange(int &i1, int &i2) const
-{
-    int size = dataSize();
-
-    if (size < 1) return 0;
-
-    i1 = qwtLim(i1, 0, size-1);
-    i2 = qwtLim(i2, 0, size-1);
-
-    if ( i1 > i2 )
-        qSwap(i1, i2);
-
-    return (i2 - i1 + 1);
-}
-
 /*!
   \brief Draw the complete curve
 
   \param painter Painter
   \param xMap Maps x-values into pixel coordinates.
   \param yMap Maps y-values into pixel coordinates.
-*/
 
+  \sa drawCurve(), drawSymbols()
+*/
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap,
     const QRect &) const
@@ -504,7 +473,7 @@ void QwtPlotCurve::draw(QPainter *painter,
   \param to Index of the last point to be painted. If to < 0 the
          curve will be painted to its last point.
 
-  \sa QwtCurve::draw
+  \sa drawCurve(), drawSymbols()
 */
 void QwtPlotCurve::draw(int from, int to) const
 {
@@ -595,9 +564,7 @@ void QwtPlotCurve::draw(int from, int to) const
   \param to index of the last point to be painted. If to < 0 the 
          curve will be painted to its last point.
 
-  \sa QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots,
-      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline,
-      QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+  \sa drawCurve(), draSymbols(),
 */
 void QwtPlotCurve::draw(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -609,7 +576,7 @@ void QwtPlotCurve::draw(QPainter *painter,
     if (to < 0)
         to = dataSize() - 1;
 
-    if ( verifyRange(from, to) > 0 )
+    if ( verifyRange(dataSize(), from, to) > 0 )
     {
         painter->save();
         painter->setPen(d_data->pen);
@@ -617,7 +584,7 @@ void QwtPlotCurve::draw(QPainter *painter,
         /*
           Qt 4.0.0 is slow when drawing lines, but it´s even 
           slower when the painter has a brush. So we don't
-          set the brush before we need it.
+          set the brush before we really need it.
          */
 
         drawCurve(painter, d_data->style, xMap, yMap, from, to);
@@ -640,8 +607,7 @@ void QwtPlotCurve::draw(QPainter *painter,
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
-  \sa QwtPlotCurve::draw, QwtPlotCurve::drawDots, QwtPlotCurve::drawLines,
-      QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+  \sa draw(), drawDots(), drawLines(), drawSteps(), drawSticks()
 */
 
 void QwtPlotCurve::drawCurve(QPainter *painter, int style,
@@ -651,6 +617,13 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
     switch (style)
     {
         case Lines:
+            if ( testCurveAttribute(Fitted) )
+            {
+                // we always need the complete 
+                // curve for fitting
+                from = 0;
+                to = dataSize() - 1;
+            }
             drawLines(painter, xMap, yMap, from, to);
             break;
         case Sticks:
@@ -658,12 +631,6 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
             break;
         case Steps:
             drawSteps(painter, xMap, yMap, from, to);
-            break;
-        case Spline:
-            if ( from > 0 || to < dataSize() - 1 )
-                drawLines(painter, xMap, yMap, from, to);
-            else
-                drawSpline(painter, xMap, yMap);
             break;
         case Dots:
             drawDots(painter, xMap, yMap, from, to);
@@ -676,52 +643,122 @@ void QwtPlotCurve::drawCurve(QPainter *painter, int style,
 
 /*!
   \brief Draw lines
+
+  If the CurveAttribute Fitted is enabled a QwtCurveFitter tries
+  to interpolate/smooth the curve, before it is painted.
+
   \param painter Painter
   \param xMap x map
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
-  \sa QwtPlotCurve::draw, QwtPlotCurve::drawLines, QwtPlotCurve::drawDots, 
-      QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
+
+  \sa setCurveAttribute(), setCurveFitter(), draw(), 
+      drawLines(), drawDots(), drawSteps(), drawSticks()
 */
 void QwtPlotCurve::drawLines(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
     int from, int to) const
 {
-    const int size = to - from + 1;
+    int size = to - from + 1;
     if ( size <= 0 )
         return;
 
-    QwtPolygon polyline(size);
-
-    if ( d_data->paintAttributes & PaintFiltered )
+    QwtPolygon polyline;
+    if ( ( d_data->attributes & Fitted ) && d_data->curveFitter )
     {
-        QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
-        polyline.setPoint(0, pp);
+        // Transform x and y values to window coordinates
+        // to avoid a distinction between linear and
+        // logarithmic scales.
 
-        int count = 1;
-        for (int i = from + 1; i <= to; i++)
+#if QT_VERSION < 0x040000
+        QwtArray<QwtDoublePoint> points(size);
+#else
+        QPolygonF points(size);
+#endif
+        for (int i = from; i <= to; i++)
         {
-            const QPoint pi(xMap.transform(x(i)), yMap.transform(y(i)));
-            if ( pi != pp )
-            {
-                polyline.setPoint(count, pi);
-                count++;
+            QwtDoublePoint &p = points[i];
+            p.setX( xMap.xTransform(x(i)) );
+            p.setY( yMap.xTransform(y(i)) );
+        }
 
-                pp = pi;
+        points = d_data->curveFitter->fitCurve(points);
+        size = points.size();
+
+        if ( size == 0 )
+            return;
+
+        // Round QwtDoublePoints to QPoints
+        // When Qwt support for Qt3 has been dropped (Qwt 6.x)
+        // we will use a doubles for painting and the following
+        // step will be obsolete.
+
+        polyline.resize(size);
+
+        const QwtDoublePoint *p = points.data();
+        QPoint *pl = polyline.data();
+        if ( d_data->paintAttributes & PaintFiltered )
+        {
+
+            QPoint pp(qRound(p[0].x()), qRound(p[0].y()));
+            pl[0] = pp;
+
+            int count = 1;
+            for (int i = 1; i < size; i++)
+            {
+                const QPoint pi(qRound(p[i].x()), qRound(p[i].y()));
+                if ( pi != pp )
+                {
+                    pl[count++] = pi;
+                    pp = pi;
+                }
+            }
+            if ( count != size )
+                polyline.resize(count);
+        }
+        else
+        {
+            for ( int i = 0; i < size; i++ )
+            {
+                pl[i].setX( qRound(p[i].x()) );
+                pl[i].setY( qRound(p[i].y()) );
             }
         }
-        if ( count != size )
-            polyline.resize(count);
     }
     else
     {
-        for (int i = from; i <= to; i++)
-        {
-            int xi = xMap.transform(x(i));
-            int yi = yMap.transform(y(i));
+        polyline.resize(size);
 
-            polyline.setPoint(i - from, xi, yi);
+        if ( d_data->paintAttributes & PaintFiltered )
+        {
+            QPoint pp( xMap.transform(x(from)), yMap.transform(y(from)) );
+            polyline.setPoint(0, pp);
+
+            int count = 1;
+            for (int i = from + 1; i <= to; i++)
+            {
+                const QPoint pi(xMap.transform(x(i)), yMap.transform(y(i)));
+                if ( pi != pp )
+                {
+                    polyline.setPoint(count, pi);
+                    count++;
+
+                    pp = pi;
+                }
+            }
+            if ( count != size )
+                polyline.resize(count);
+        }
+        else
+        {
+            for (int i = from; i <= to; i++)
+            {
+                int xi = xMap.transform(x(i));
+                int yi = yMap.transform(y(i));
+
+                polyline.setPoint(i - from, xi, yi);
+            }
         }
     }
 
@@ -738,14 +775,15 @@ void QwtPlotCurve::drawLines(QPainter *painter,
 }
 
 /*!
-  \brief Draw sticks
+  Draw sticks
+
   \param painter Painter
   \param xMap x map
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
-  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots, 
-      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps
+
+  \sa draw(), drawCurve(), drawDots(), drawLines(), drawSteps()
 */
 void QwtPlotCurve::drawSticks(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -767,15 +805,15 @@ void QwtPlotCurve::drawSticks(QPainter *painter,
 }
 
 /*!
-  \brief Draw dots
+  Draw dots
+
   \param painter Painter
   \param xMap x map
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
-  \sa QwtPlotCurve::drawPolyline, QwtPlotCurve::drawLine, 
-      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSteps
-      QwtPlotCurve::drawPolyline, QwtPlotCurve::drawPolygon
+
+  \sa draw(), drawCurve(), drawSticks(), drawLines(), drawSteps()
 */
 void QwtPlotCurve::drawDots(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -860,14 +898,18 @@ void QwtPlotCurve::drawDots(QPainter *painter,
 }
 
 /*!
-  \brief Draw step function
+  Draw step function
+
+  The direction of the steps depends on Inverted attribute. 
+
   \param painter Painter
   \param xMap x map
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
-  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots, 
-      QwtPlotCurve::drawLines, QwtPlotCurve::drawSpline, QwtPlotCurve::drawSticks
+
+  \sa CurveAttribute, setCurveAttribute(),
+      draw(), drawCurve(), drawDots(), drawLines(), drawSticks()
 */
 void QwtPlotCurve::drawSteps(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -908,199 +950,28 @@ void QwtPlotCurve::drawSteps(QPainter *painter,
         fillCurve(painter, xMap, yMap, polyline);
 }
 
-/*!
-  \brief Draw a spline
-  \param painter Painter
-  \param xMap x map
-  \param yMap y map
-  \sa QwtPlotCurve::draw, QwtPlotCurve::drawCurve, QwtPlotCurve::drawDots,
-      QwtPlotCurve::drawLines, QwtPlotCurve::drawSteps, QwtPlotCurve::drawSticks
-*/
-void QwtPlotCurve::drawSpline(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap) const
-{
-    int i;
-
-    const int size = dataSize();
-    double *txval = new double[size];
-    double *tyval = new double[size];
-
-    //
-    // Transform x and y values to window coordinates
-    // to avoid a distinction between linear and
-    // logarithmic scales.
-    //
-    for (i=0;i<size;i++)
-    {
-        txval[i] = xMap.xTransform(x(i));
-        tyval[i] = yMap.xTransform(y(i));
-    }
-
-    int stype;
-    if (! (d_data->attributes & (Yfx|Xfy|Parametric)))
-    {
-        if (qwtChkMono(txval, size))
-        {
-            stype = Yfx;
-        }
-        else if(qwtChkMono(tyval, size))
-        {
-            stype = Xfy;
-        }
-        else
-        {
-            stype = Parametric;
-            if ( (d_data->attributes & Periodic) ||
-                ( (x(0) == x(size-1))
-                && (y(0) == y(size-1))))
-            {
-                stype |= Periodic;
-            }
-        }
-    }
-    else
-    {
-        stype = d_data->attributes;
-    }
-
-    bool ok = false;
-    QwtPolygon polyline(d_data->splineSize);
-
-    if (stype & Parametric)
-    {
-        //
-        // setup parameter vector
-        //
-        double *param = new double[size];
-        param[0] = 0.0;
-        for (i=1; i<size; i++)
-        {
-            const double delta = sqrt( qwtSqr(txval[i] - txval[i-1])
-                          + qwtSqr( tyval[i] - tyval[i-1]));
-            param[i] = param[i-1] + qwtMax(delta, 1.0);
-        }
-
-        //
-        // setup splines
-        QwtSpline spx, spy;
-        ok = spx.recalc(param, txval, size, stype & Periodic);
-        if (ok)
-            ok = spy.recalc(param, tyval, size, stype & Periodic);
-
-        if ( ok )
-        {
-            // fill point array
-            const double delta = 
-                param[size - 1] / double(d_data->splineSize-1);
-            for (i = 0; i < d_data->splineSize; i++)
-            {
-                const double dtmp = delta * double(i);
-                polyline.setPoint(i, qRound(spx.value(dtmp)), 
-                    qRound(spy.value(dtmp)) );
-            }
-        }
-        delete[] param;
-    }
-    else if (stype & Xfy)
-    {
-        if (tyval[size-1] < tyval[0])
-        {
-            qwtTwistArray(txval, size);
-            qwtTwistArray(tyval, size);
-        }
-
-        // 1. Calculate spline coefficients
-        QwtSpline spx;
-        ok = spx.recalc(tyval, txval, size, stype & Periodic);
-        if ( ok )
-        {
-            const double ymin = qwtGetMin(tyval, size);
-            const double ymax = qwtGetMax(tyval, size);
-            const double delta = (ymax - ymin) / double(d_data->splineSize - 1);
-
-            for (i = 0; i < d_data->splineSize; i++)
-            {
-                const double dtmp = ymin + delta * double(i);
-                polyline.setPoint(i, 
-                    qRound(spx.value(dtmp)), qRound(dtmp + 0.5));
-            }
-        }
-    }
-    else
-    {
-        if (txval[size-1] < txval[0])
-        {
-            qwtTwistArray(tyval, size);
-            qwtTwistArray(txval, size);
-        }
-
-        // 1. Calculate spline coefficients
-        QwtSpline spy;
-        ok = spy.recalc(txval, tyval, size, stype & Periodic);
-        if ( ok )
-        {
-            const double xmin = qwtGetMin(txval, size);
-            const double xmax = qwtGetMax(txval, size);
-            const double delta = (xmax - xmin) / double(d_data->splineSize - 1);
-
-            for (i = 0; i < d_data->splineSize; i++)
-            {
-                double dtmp = xmin + delta * double(i);
-                polyline.setPoint(i, 
-                    qRound(dtmp), qRound(spy.value(dtmp)));
-            }
-        }
-    }
-
-    delete[] txval;
-    delete[] tyval;
-
-    if ( ok )
-    {
-        if ( d_data->paintAttributes & ClipPolygons )
-        {
-            const QwtRect r = painter->window();
-            polyline = r.clip(polyline);
-        }
-
-        QwtPainter::drawPolyline(painter, polyline);
-
-        if ( d_data->brush.style() != Qt::NoBrush )
-            fillCurve(painter, xMap, yMap, polyline);
-    }
-    else
-        drawLines(painter, xMap, yMap, 0, size - 1);
-}
 
 /*!
-  \brief Specify an attribute for the drawing style  
+  \brief Specify an attribute for drawing the curve
 
   The attributes can be used to modify the drawing style.
   The following attributes are defined:<dl>
-  <dt>QwtPlotCurve::Auto</dt>
-  <dd>The default setting. For QwtPlotCurve::spline,
-      this means that the type of the spline is
-      determined automatically, depending on the data.
-      For all other styles, this means that y is
-      regarded as a function of x.</dd>
-  <dt>QwtPlotCurve::Yfx</dt>
-  <dd>Draws y as a function of x (the default). The
-      baseline is interpreted as a horizontal line
-      with y = baseline().</dd>
-  <dt>QwtPlotCurve::Xfy</dt>
-  <dd>Draws x as a function of y. The baseline is
-      interpreted as a vertical line with x = baseline().</dd>
-  <dt>QwtPlotCurve::Parametric</dt>
-  <dd>For QwtPlotCurve::Spline only. Draws a parametric spline.</dd>
-  <dt>QwtPlotCurve::Periodic</dt>
-  <dd>For QwtPlotCurve::Spline only. Draws a periodic spline.</dd>
-  <dt>QwtPlotCurve::Inverted</dt>
-  <dd>For QwtPlotCurve::Steps only. Draws a step function
+  <dt>Fitted</dt>
+  <dd>For Lines only. A QwtCurveFitter tries to
+      interpolate/smooth the curve, before it is painted.
+      Note that curve fitting requires temorary memory
+      for calculating coefficients and additional points. 
+      If painting in Fitted mode is slow it might be better
+      to fit the points, before they are passed to QwtPlotCurve.
+  </dd>
+  <dt>Inverted</dt>
+  <dd>For Steps only. Draws a step function
       from the right to the left.</dd></dl>
 
   \param attribute Curve attribute
   \param on On/Off
-  /sa QwtPlotCurve::testCurveAttribute()
+
+  /sa testCurveAttribute(), setCurveFitter()
 */
 void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 {
@@ -1116,8 +987,8 @@ void QwtPlotCurve::setCurveAttribute(CurveAttribute attribute, bool on)
 }
 
 /*!
-    \brief Return the current curve attributes
-    \sa QwtPlotCurve::setCurveAttribute
+    Return the current curve attributes
+    \sa setCurveAttribute()
 */
 bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const 
 { 
@@ -1125,29 +996,54 @@ bool QwtPlotCurve::testCurveAttribute(CurveAttribute attribute) const
 }
 
 /*!
-  \brief Change the number of interpolated points
-  \param s new size
-  \warning The default is 250 points.
+  Assign the curve type
+
+  <dt>QwtPlotCurve::Yfx</dt>
+  <dd>Draws y as a function of x (the default). The
+      baseline is interpreted as a horizontal line
+      with y = baseline().</dd>
+  <dt>QwtPlotCurve::Xfy</dt>
+  <dd>Draws x as a function of y. The baseline is
+      interpreted as a vertical line with x = baseline().</dd>
+
+  The baseline is used for aligning the sticks, or
+  filling the curve with a brush.
+
+  \sa curveType()
 */
-void QwtPlotCurve::setSplineSize(int s)
+void QwtPlotCurve::setCurveType(CurveType curveType)
 {
-    d_data->splineSize = qwtMax(s, 10);
-    itemChanged();
+    if ( d_data->curveType != curveType )
+    {
+        d_data->curveType = curveType;
+        itemChanged();
+    }
 }
 
 /*!
-    \fn int QwtPlotCurve::splineSize() const
-    \brief Return the spline size
-    \sa QwtPlotCurve::setSplineSize
+   Return the curve type
+   \sa setCurveType()
 */
+QwtPlotCurve::CurveType QwtPlotCurve::curveType() const
+{
+    return d_data->curveType;
+}
 
-int QwtPlotCurve::splineSize() const 
-{ 
-    return d_data->splineSize; 
+void QwtPlotCurve::setCurveFitter(QwtCurveFitter *curveFitter)
+{
+    delete d_data->curveFitter;
+    d_data->curveFitter = curveFitter;
+
+    itemChanged();
+}
+
+QwtCurveFitter *QwtPlotCurve::curveFitter() const
+{
+    return d_data->curveFitter;
 }
 
 /*! 
-  Fill the area between the polygon and the baseline with 
+  Fill the area between the curve and the baseline with 
   the curve brush
 
   \param painter Painter
@@ -1155,7 +1051,7 @@ int QwtPlotCurve::splineSize() const
   \param yMap y map
   \param pa Polygon
 
-  \sa QwtPlotCurve::setBrush()
+  \sa setBrush(), setBaseline(), setCurveType()
 */
 
 void QwtPlotCurve::fillCurve(QPainter *painter,
@@ -1226,6 +1122,8 @@ void QwtPlotCurve::closePolyline(
   \param yMap y map
   \param from index of the first point to be painted
   \param to index of the last point to be painted
+
+  \sa setSymbol(), draw(), drawCurve()
 */
 void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, 
@@ -1274,14 +1172,14 @@ void QwtPlotCurve::drawSymbols(QPainter *painter, const QwtSymbol &symbol,
   \brief Set the value of the baseline
 
   The baseline is needed for filling the curve with a brush or
-  the QwtPlotCurve::Sticks drawing style. 
+  the Sticks drawing style. 
   The default value is 0.0. The interpretation
-  of the baseline depends on the style options. With QwtPlotCurve::Yfx,
+  of the baseline depends on the CurveType. With QwtPlotCurve::Yfx,
   the baseline is interpreted as a horizontal line at y = baseline(),
   with QwtPlotCurve::Yfy, it is interpreted as a vertical line at
   x = baseline().
   \param reference baseline
-  \sa QwtPlotCurve::setBrush(), QwtPlotCurve::setStyle(), QwtPlotCurve::setCurveAttribute()
+  \sa baseline(), setBrush(), setStyle(), setCurveType()
 */
 void QwtPlotCurve::setBaseline(double reference)
 {
@@ -1293,8 +1191,8 @@ void QwtPlotCurve::setBaseline(double reference)
 }
 
 /*!
-    \brief Return the value of the baseline
-    \sa QwtPlotCurve::setBaseline
+    Return the value of the baseline
+    \sa setBaseline
 */
 double QwtPlotCurve::baseline() const 
 { 
@@ -1303,6 +1201,7 @@ double QwtPlotCurve::baseline() const
 
 /*!
   Return the size of the data arrays
+  \sa setData()
 */
 int QwtPlotCurve::dataSize() const
 {

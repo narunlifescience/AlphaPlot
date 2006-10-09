@@ -269,7 +269,7 @@ QwtLegend::~QwtLegend()
   \param policy Legend display policy
   \param mode Identifier mode (or'd ShowLine, ShowSymbol, ShowText)
 
-  \sa QwtLegend::displayPolicy, QwtLegend::LegendDisplayPolicy
+  \sa displayPolicy, LegendDisplayPolicy
 */
 void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 {
@@ -296,7 +296,7 @@ void QwtLegend::setDisplayPolicy(LegendDisplayPolicy policy, int mode)
 /*! 
   \return the legend display policy.
   Default is LegendDisplayPolicy::Auto.
-  \sa QwtLegend::setDisplayPolicy, QwtLegend::LegendDisplayPolicy
+  \sa setDisplayPolicy, LegendDisplayPolicy
 */ 
 
 QwtLegend::LegendDisplayPolicy QwtLegend::displayPolicy() const 
@@ -411,7 +411,7 @@ void QwtLegend::insert(const QwtPlotItem *plotItem, QWidget *legendItem)
             }
         }
     }
-    if (!parentWidget()->layout() )
+    if ( parentWidget() && parentWidget()->layout() == NULL )
     {
        /*
           updateGeometry() doesn't post LayoutRequest in certain

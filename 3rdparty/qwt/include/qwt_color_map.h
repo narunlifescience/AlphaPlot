@@ -17,14 +17,24 @@
 #else
 #include <qvector.h>
 #endif
+#include "qwt_array.h"
 #include "qwt_double_interval.h"
 
+#if defined(QWT_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class QWT_EXPORT QwtArray<double>;
+// MOC_SKIP_END
+#endif
+
 /*!
-  QwtColorMap is can be used to map values into colors. 
-  It is useful for displaying spectrograms.
+  \brief QwtColorMap is used to map values into colors. 
+
+  For displaying 3D data on a 2D plane the 3rd dimension is often
+  displayed using colors, like f.e in a spectrogram. 
 
   Each color map is optimized to return colors for only one of the
   following image formats:
+
   - QImage::Format_Indexed8\n
   - QImage::Format_ARGB32\n
 
@@ -78,11 +88,22 @@ private:
 
 
 /*!
-  QwtLinearColorMap builds a color map from 2 colors
+  \brief QwtLinearColorMap builds a color map from color stops.
+  
+  A color stop is a color at a specific position. The valid
+  range for the positions is [0.0, 1.0]. When mapping a value
+  into a color it is translated into this interval. If 
+  mode() == FixedColors the color is calculated from the next lower
+  color stop. If mode() == ScaledColors the color is calculated
+  by interpolating the colors of the adjacent stops. 
 */
 class QWT_EXPORT QwtLinearColorMap: public QwtColorMap
 {
 public:
+    /*!
+       Mode of color map
+       \sa setMode(), mode()
+    */
     enum Mode
     {
         FixedColors,
@@ -106,6 +127,7 @@ public:
 
     void setColorInterval(const QColor &color1, const QColor &color2);
     void addColorStop(double value, const QColor&);
+    QwtArray<double> colorStops() const;
 
     QColor color1() const;
     QColor color2() const;
@@ -120,6 +142,35 @@ private:
     class PrivateData;
     PrivateData *d_data;
 };
+
+/*!
+  \brief QwtAlphaColorMap variies the alpha value of a color
+*/
+class QWT_EXPORT QwtAlphaColorMap: public QwtColorMap
+{
+public:
+    QwtAlphaColorMap(const QColor & = QColor(Qt::gray));
+    QwtAlphaColorMap(const QwtAlphaColorMap &);
+
+    virtual ~QwtAlphaColorMap();
+
+    QwtAlphaColorMap &operator=(const QwtAlphaColorMap &);
+
+    virtual QwtColorMap *copy() const;
+
+    void setColor(const QColor &);
+    QColor color() const;
+
+    virtual QRgb rgb(const QwtDoubleInterval &, double value) const;
+
+private:
+    virtual unsigned char colorIndex(
+        const QwtDoubleInterval &, double value) const;
+
+    class PrivateData;
+    PrivateData *d_data;
+};
+
 
 /*!
    Map a value into a color

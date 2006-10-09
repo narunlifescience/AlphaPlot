@@ -19,7 +19,7 @@ class QPaintEvent;
 class QPainter;
 
 /*!
-  A Widget which displays a QwtText
+   \brief A Widget which displays a QwtText
 */
 
 class QWT_EXPORT QwtTextLabel : public QFrame

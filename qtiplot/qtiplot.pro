@@ -12,7 +12,8 @@ DEFINES += QT_PLUGIN
 DEFINES	   += SCRIPTING_DIALOG
 QT +=  opengl qt3support network
 
-SCRIPTING_LANGS = muParser Python
+SCRIPTING_LANGS = muParser 
+#Python
 
 TRANSLATIONS = translations/qtiplot_de.ts \
 			   translations/qtiplot_es.ts \

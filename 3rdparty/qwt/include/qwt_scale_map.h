@@ -14,37 +14,33 @@
 #include "qwt_math.h"
 
 /*!
-   Operations for linear or logarithmic (base 10) transformations
+   \brief Operations for linear or logarithmic (base 10) transformations
 */
 class QWT_EXPORT QwtScaleTransformation
 {
 public:
-    QwtScaleTransformation();
-    QwtScaleTransformation(
-        double (*xForm)(double x, double s1, double s2, 
-            double p1, double p2, void *),
-        double (*invXForm)(double x, double p1, double p2, 
-            double s1, double s2, void *)
-    );
+    enum Type
+    {
+        Linear,
+        Log10,
 
-    static double linearXForm(double x, double s1, double s2,
-        double p1, double p2, void *);
+        Other
+    };
 
-    static double log10XForm(double x, double s1, double s2,
-        double p1, double p2, void *);
-    static double log10InvXForm(double x, double p1, double p2,
-        double s1, double s2, void *);
+    QwtScaleTransformation(Type type);
+    virtual ~QwtScaleTransformation();
 
-    double (*xForm)(double x, double s1, double s2, 
-        double p1, double p2, void *);
-    double (*invXForm)(double y, double p1, double p2, 
-        double s1, double s2, void *);
+    virtual double xForm(double x, double s1, double s2,
+        double p1, double p2) const;
+    virtual double invXForm(double x, double s1, double s2,
+        double p1, double p2) const;
 
-    inline void setData(void *);
-    inline void *data() const;
+    inline Type type() const { return d_type; }
+    
+    virtual QwtScaleTransformation *copy() const;
 
 private:
-    void *d_data;  // data, passed to xForm/invXForm
+    const Type d_type;
 };
 
 /*!
@@ -57,12 +53,14 @@ class QWT_EXPORT QwtScaleMap
 {
 public:
     QwtScaleMap();
-    QwtScaleMap(int i1, int i2, double d1, double d2);
+    QwtScaleMap(const QwtScaleMap&);
+
     ~QwtScaleMap();
 
-    void setTransformation(bool logarithmic);
-    void setTransformation(const QwtScaleTransformation& );
-    const QwtScaleTransformation &transformation() const;
+    QwtScaleMap &operator=(const QwtScaleMap &);
+
+    void setTransformation(QwtScaleTransformation * );
+    const QwtScaleTransformation *transformation() const;
 
     void setPaintInterval(int p1, int p2);
     void setPaintXInterval(double p1, double p2);
@@ -93,23 +91,8 @@ private:
 
     double d_cnv;       // conversion factor
 
-    QwtScaleTransformation d_transformation;
+    QwtScaleTransformation *d_transformation;
 };
-
-/*!
-   Add data, that will passed to xForm/invXForm
-   \warning The data has to be deleted by the application
-*/
-inline void QwtScaleTransformation::setData(void *data)
-{
-    d_data = data;
-}
-
-//! Get the data, that is passed to xForm/invXForm
-inline void *QwtScaleTransformation::data() const
-{
-    return d_data;
-}
 
 /*!
     \return First border of the scale interval
@@ -157,29 +140,26 @@ inline double QwtScaleMap::sDist() const
   Transform a point related to the scale interval into an point 
   related to the interval of the paint device
 */
-inline double QwtScaleMap::xTransform(double x) const
+inline double QwtScaleMap::xTransform(double s) const
 {
-    // try to inline code from QwtScaleTransformation::linearXForm,
-    // QwtScaleTransformation::logXForm. 
+    // try to inline code from QwtScaleTransformation
 
-    if ( d_transformation.xForm == QwtScaleTransformation::linearXForm )
-        return d_p1 + (x - d_s1) * d_cnv;
+    if ( d_transformation->type() == QwtScaleTransformation::Linear )
+        return d_p1 + (s - d_s1) * d_cnv;
 
-    if ( d_transformation.xForm == QwtScaleTransformation::log10XForm )
-        return d_p1 + log(x / d_s1) * d_cnv;
+    if ( d_transformation->type() == QwtScaleTransformation::Log10 )
+        return d_p1 + log(s / d_s1) * d_cnv;
 
-    return (*d_transformation.xForm)(x, d_s1, d_s2, 
-        d_p1, d_p2, d_transformation.data() );
+    return d_transformation->xForm(s, d_s1, d_s2, d_p1, d_p2 );
 }
 
 /*!
   \brief Transform an paint device value into a value in the
          interval of the scale.
 */
-inline double QwtScaleMap::invTransform(double y) const
+inline double QwtScaleMap::invTransform(double p) const
 {
-    return (*d_transformation.invXForm)(y, d_p1, d_p2, 
-        d_s1, d_s2, d_transformation.data() );
+    return d_transformation->invXForm(p, d_p1, d_p2, d_s1, d_s2 );
 }
 
 /*!
@@ -189,9 +169,9 @@ inline double QwtScaleMap::invTransform(double y) const
 
   \sa QwtScaleMap::xTransform
 */
-inline int QwtScaleMap::transform(double x) const
+inline int QwtScaleMap::transform(double s) const
 {
-    return qRound(xTransform(x));
+    return qRound(xTransform(s));
 }
 
 #endif

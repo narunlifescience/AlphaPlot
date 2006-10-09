@@ -223,8 +223,8 @@ void QwtPlotMarker::draw(QPainter *p,
 /*!
   \brief Set the line style
   \param st Line style. Can be one of QwtPlotMarker::NoLine,
-    QwtPlotMarker::HLine, QwtPlotMarker::VLine or QwtPlotMarker::Cross
-  \sa QwtPlotMarker::lineStyle()
+    HLine, VLine or Cross
+  \sa lineStyle()
 */
 void QwtPlotMarker::setLineStyle(QwtPlotMarker::LineStyle st)
 {
@@ -247,7 +247,7 @@ QwtPlotMarker::LineStyle QwtPlotMarker::lineStyle() const
 /*!
   \brief Assign a symbol
   \param s New symbol 
-  \sa QwtSymbol, QwtPlotMarker::symbol()
+  \sa symbol()
 */
 void QwtPlotMarker::setSymbol(const QwtSymbol &s)
 {
@@ -257,7 +257,7 @@ void QwtPlotMarker::setSymbol(const QwtSymbol &s)
 
 /*!
   \return the symbol
-  \sa QwtPlotMarker::setSymbol(), QwtSymbol
+  \sa setSymbol(), QwtSymbol
 */
 const QwtSymbol &QwtPlotMarker::symbol() const 
 { 
@@ -267,7 +267,7 @@ const QwtSymbol &QwtPlotMarker::symbol() const
 /*!
   \brief Set the label
   \param label label text
-  \sa QwtPlotMarker::label()
+  \sa label()
 */
 void QwtPlotMarker::setLabel(const QwtText& label)
 {
@@ -280,7 +280,7 @@ void QwtPlotMarker::setLabel(const QwtText& label)
 
 /*!
   \return the label
-  \sa QwtPlotMarker::setLabel()
+  \sa setLabel()
 */
 QwtText QwtPlotMarker::label() const 
 { 
@@ -296,7 +296,7 @@ QwtText QwtPlotMarker::label() const
   \param align Alignment. A combination of AlignTop, AlignBottom,
     AlignLeft, AlignRight, AlignCenter, AlgnHCenter,
     AlignVCenter.  
-  \sa QwtPlotMarker::labelAlignment()
+  \sa labelAlignment()
 */
 #if QT_VERSION < 0x040000
 void QwtPlotMarker::setLabelAlignment(int align)
@@ -313,7 +313,7 @@ void QwtPlotMarker::setLabelAlignment(Qt::Alignment align)
 
 /*!
   \return the label alignment
-  \sa QwtPlotMarker::setLabelAlignment()
+  \sa setLabelAlignment()
 */
 #if QT_VERSION < 0x040000
 int QwtPlotMarker::labelAlignment() const 
@@ -327,7 +327,7 @@ Qt::Alignment QwtPlotMarker::labelAlignment() const
 /*!
   \brief Specify a pen for the line.
   \param p New pen
-  \sa QwtPlotMarker::linePen()
+  \sa linePen()
 */
 void QwtPlotMarker::setLinePen(const QPen &p)
 {
@@ -340,7 +340,7 @@ void QwtPlotMarker::setLinePen(const QPen &p)
 
 /*!
   \return the line pen
-  \sa QwtPlotMarker::setLinePen()
+  \sa setLinePen()
 */
 const QPen &QwtPlotMarker::linePen() const 
 { 

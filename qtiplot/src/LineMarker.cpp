@@ -2,8 +2,8 @@
     File                 : LineMarker.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Line marker (extension to QwtPlotMarker)
                            
  ***************************************************************************/
@@ -29,30 +29,21 @@
 #include "LineMarker.h"
 
 #include <qpainter.h>
-#include <qpaintdevice.h>
-#include <QPolygon>
 
 #include <qwt_plot.h>
-#include <qwt_scale_widget.h>
 #include <qwt_painter.h>
-#include <qwt_plot_canvas.h>
-#include <qwt_plot_layout.h>
-
 #include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h>
 
 #ifndef M_PI
-#define M_PI	3.141592653589793238462643 
+#define M_PI 3.141592653589793238462643;
 #endif
 
-LineMarker::LineMarker(QwtPlot *plot):
-		endArrow(true),
-		filledArrow(true),
-		d_headAngle(45),
-		d_headLength(4),
-		d_plot(plot)
+LineMarker::LineMarker():
+		d_end_arrow(true),
+		d_fill_head(true),
+		d_head_angle(45),
+		d_head_length(4),
+		d_rect(0, 0, 1, 1)
 {
 }
 
@@ -64,12 +55,14 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 	const int y1 = yMap.transform(d_rect.bottom());
 	
 	p->save();
+	QPen pen = linePen();
 	p->setPen(pen);
-	QBrush brush=QBrush(pen.color(), Qt::SolidPattern);
+
+	QBrush brush = QBrush(pen.color(), Qt::SolidPattern);
 	QwtPainter::drawLine(p,x0,y0,x1,y1);
 	p->restore();
 		
-	if (endArrow)
+	if (d_end_arrow)
 		{
 		p->save();
 		p->translate(x1,y1);
@@ -79,19 +72,19 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		QPolygon endArray(3);	
 		endArray[0] = QPoint(0,0);
 			
-		int d=(int)floor(d_headLength*tan(M_PI*d_headAngle/180.0)+0.5);				
-		endArray[1] = QPoint(-d_headLength,d);
-		endArray[2] = QPoint(-d_headLength,-d);
+		int d=(int)floor(d_head_length*tan(M_PI*d_head_angle/180.0)+0.5);				
+		endArray[1] = QPoint(-d_head_length,d);
+		endArray[2] = QPoint(-d_head_length,-d);
 
-		p->setPen(QPen(pen.color(),pen.width(),Qt::SolidLine));
-		if (filledArrow)
+		p->setPen(QPen(pen.color(), pen.width(), Qt::SolidLine));
+		if (d_fill_head)
 			p->setBrush(brush);
 
 		QwtPainter::drawPolygon(p,endArray);
 		p->restore();
 		}
 
-	if (startArrow)
+	if (d_start_arrow)
 		{
 		p->save();
 		p->translate(x0,y0);
@@ -101,12 +94,12 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		QPolygon startArray(3);	
 		startArray[0] = QPoint(0,0);
 			
-		int d=(int)floor(d_headLength*tan(M_PI*d_headAngle/180.0)+0.5);
-		startArray[1] = QPoint(d_headLength,d);
-		startArray[2] = QPoint(d_headLength,-d);
+		int d=(int)floor(d_head_length*tan(M_PI*d_head_angle/180.0)+0.5);
+		startArray[1] = QPoint(d_head_length,d);
+		startArray[2] = QPoint(d_head_length,-d);
 
 		p->setPen(QPen(pen.color(), pen.width(), Qt::SolidLine));
-		if (filledArrow)
+		if (d_fill_head)
 			p->setBrush(brush);
 		QwtPainter::drawPolygon(p,startArray);
 		p->restore();
@@ -114,29 +107,31 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 }
 
 double LineMarker::teta(int xs, int ys, int xe, int ye) const
-{			
-double t,pi=4*atan(-1.0);
-
+{
+double t, pi = 4.0*atan(-1.0);
 if (xe == xs)
 	{
-	if (ys>ye)
-		t=90;
+	if (ys > ye)
+		t = 90;
 	else
-		t=270;
+		t = 270;
 	}
 else
 	{
-	t=atan2((ye-ys)*1.0,(xe-xs)*1.0)*180/pi;
+	t = atan2((ye-ys)*1.0,(xe-xs)*1.0)*45/atan(-1.0);
 	if (t<0)
-		t=360+t;
+		t = 360+t;
 	}
 return t;
 }
 
 double LineMarker::length()
 {
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return -1.0;
+
+const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
 const int x0 = xMap.transform(d_rect.left());
 const int y0 = yMap.transform(d_rect.top());
@@ -149,8 +144,11 @@ return fabs(l);
 
 double LineMarker::dist(int x, int y)
 {
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return -1.0;
+
+const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
 const int x0 = xMap.transform(d_rect.left());
 const int y0 = yMap.transform(d_rect.top());
@@ -179,75 +177,58 @@ else
 return fabs(d);
 }
 
-QColor LineMarker::color()
+void LineMarker::setColor(const QColor& c)
 {
-return pen.color();
-}
+if (linePen().color() == c)
+	return;
 
-int LineMarker::width()
-{
-return pen.width ();
-}
-
-bool LineMarker::getStartArrow()
-{
-return startArrow;
-}
-
-void LineMarker::setStartArrow(bool on)
-{
-startArrow=on;
-}
-
-bool LineMarker::getEndArrow()
-{
-return endArrow;
-}
-
-void LineMarker::setEndArrow(bool on)
-{
-endArrow=on;
+QPen pen = linePen();
+pen.setColor(c);
+setLinePen(pen);
 }
 
 void LineMarker::setWidth(int w)
 {
-pen.setWidth (w);
-}
+if (linePen().width() == w)
+	return;
 
-Qt::PenStyle LineMarker::style()
-{
-return pen.style ();
+QPen pen = linePen();
+pen.setWidth (w);
+setLinePen(pen);
 }
 
 void LineMarker::setStyle(Qt::PenStyle style)
 {
-pen.setStyle(style);
-}
+if (linePen().style() == style)
+	return;
 
-void LineMarker::setColor(const QColor& c)
-{
-pen.setColor(c);
+QPen pen = linePen();
+pen.setStyle(style);
+setLinePen(pen);
 }
 
 void LineMarker::setHeadLength(int l)
 {
-if (d_headLength == l)
+if (d_head_length == l)
 	return;
-d_headLength=l;
+
+d_head_length=l;
 }
 
 void LineMarker::setHeadAngle(int a)
 {
-if (d_headAngle == a)
+if (d_head_angle == a)
 	return;
-d_headAngle=a;
+
+d_head_angle=a;
 }
 
 void LineMarker::fillArrowHead(bool fill)
 {
-if (filledArrow == fill)
+if (d_fill_head == fill)
 	return;
-filledArrow=fill;
+
+d_fill_head=fill;
 }
 
 void LineMarker::setStartPoint(const QPoint& p)
@@ -257,11 +238,11 @@ if (d_start == p)
 
 d_start = p;
 
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return;
 
-d_rect.setLeft(xMap.invTransform(p.x()));
-d_rect.setTop(yMap.invTransform(p.y()));
+d_rect.setLeft(plot()->invTransform(xAxis(), p.x()));
+d_rect.setTop(plot()->invTransform(yAxis(), p.y()));
 }
 
 void LineMarker::setEndPoint(const QPoint& p)
@@ -271,75 +252,82 @@ if (d_end == p)
 
 d_end = p;
 
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return;
 
-d_rect.setRight(xMap.invTransform(p.x()));
-d_rect.setBottom(yMap.invTransform(p.y()));
+d_rect.setRight(plot()->invTransform(xAxis(), p.x()));
+d_rect.setBottom(plot()->invTransform(yAxis(), p.y()));
 }
 
 QPoint LineMarker::startPoint()
 {
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return QPoint();
 
-return QPoint(xMap.transform(d_rect.left()), yMap.transform(d_rect.top()));
+return QPoint(plot()->transform(xAxis(), d_rect.left()), 
+			  plot()->transform(yAxis(), d_rect.top()));
 }
 
-QwtDoublePoint LineMarker::coordStartPoint()
+QwtDoublePoint LineMarker::startPointCoord()
 {
 return QwtDoublePoint(d_rect.left(), d_rect.top());
 }
 
-void LineMarker::setCoordStartPoint(const QwtDoublePoint& p)
+void LineMarker::setStartPoint(double x, double y)
 {
-if (QwtDoublePoint(d_rect.left(), d_rect.top()) == p)
+if (d_rect.left() == x && d_rect.top() == y)
 	return;
 
-d_rect.setLeft(p.x());
-d_rect.setTop(p.y());
+d_rect.setLeft(x);
+d_rect.setTop(y);
 
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return;
 
-d_start = QPoint(xMap.transform(p.x()), yMap.transform(p.y()));
+d_start = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
 QPoint LineMarker::endPoint()
 {
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return QPoint();
 
-return QPoint(xMap.transform(d_rect.right()), yMap.transform(d_rect.bottom()));
+return QPoint(plot()->transform(xAxis(), d_rect.right()), 
+			  plot()->transform(yAxis(), d_rect.bottom()));
 }
 
-void LineMarker::setCoordEndPoint(const QwtDoublePoint& p)
+void LineMarker::setEndPoint(double x, double y)
 {
-if (QwtDoublePoint(d_rect.right(), d_rect.bottom()) == p)
+if (d_rect.right() == x && d_rect.bottom() == y)
 	return;
 
-d_rect.setRight(p.x());
-d_rect.setBottom(p.y());
+d_rect.setRight(x);
+d_rect.setBottom(y);
 
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+if (!plot())
+	return;
 
-d_end = QPoint(xMap.transform(p.x()), yMap.transform(p.y()));
+d_end = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
-QwtDoublePoint LineMarker::coordEndPoint()
+QwtDoublePoint LineMarker::endPointCoord()
 {
 return QwtDoublePoint(d_rect.right(), d_rect.bottom());
 }
 
+QwtDoubleRect LineMarker::boundingRect() const
+{
+return d_rect;
+}
+
 void LineMarker::updateBoundingRect()
 {
-const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
 d_rect.setLeft(xMap.invTransform(d_start.x()));
 d_rect.setTop(yMap.invTransform(d_start.y()));
-
 d_rect.setRight(xMap.invTransform(d_end.x()));
 d_rect.setBottom(yMap.invTransform(d_end.y()));
 }
+

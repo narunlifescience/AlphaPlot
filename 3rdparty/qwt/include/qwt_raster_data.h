@@ -20,17 +20,29 @@
 #if QT_VERSION >= 0x040000
 #include <qlist.h>
 #include <QPolygonF>
+
+#if defined(QWT_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
 template class QWT_EXPORT QMap<double, QPolygonF>;
+// MOC_SKIP_END
+#endif
+
 #else
 #include <qvaluelist.h>
 #include "qwt_array.h"
 #include "qwt_double_rect.h"
+#if defined(QWT_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
 template class QWT_EXPORT QwtArray<QwtDoublePoint>;
 template class QWT_EXPORT QMap<double, QwtArray<QwtDoublePoint> >;
+#endif
 #endif
 
 class QwtScaleMap;
 
+/*!
+  \brief QwtRasterData defines an interface to any type of raster data.
+*/
 class QWT_EXPORT QwtRasterData
 {
 public:

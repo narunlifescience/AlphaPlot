@@ -430,7 +430,7 @@ void Graph::selectNextMarker()
 				highlightTextMarker(key);
 				break;
 			}
-			else if (lines.contains(key))
+			else if (d_lines.contains(key))
 			{
 				highlightLineMarker(key);
 				break;
@@ -451,7 +451,7 @@ void Graph::selectNextMarker()
 		{
 			if (texts.contains(key))
 				highlightTextMarker(key);
-			else if (lines.contains(key))
+			else if (d_lines.contains(key))
 				highlightLineMarker(key);
 			else  if (images.contains(key))
 				highlightImageMarker(key);
@@ -2397,13 +2397,13 @@ void Graph::removeMarker()
 		if (selectedMarker==legendMarkerID)
 			legendMarkerID=-1;
 
-		if (lines.contains(selectedMarker)>0)
+		if (d_lines.contains(selectedMarker)>0)
 		{
-			int i,index=lines.find(selectedMarker,0);
+			int i,index=d_lines.find(selectedMarker,0);
 			for (i=index;i<linesOnPlot;i++)
-				lines[i]=lines[i+1];
+				d_lines[i]=d_lines[i+1];
 			linesOnPlot--;
-			lines.resize(linesOnPlot);
+			d_lines.resize(linesOnPlot);
 		}
 
 		else if (images.contains(selectedMarker)>0)
@@ -2430,7 +2430,7 @@ void Graph::cutMarker()
 bool Graph::arrowMarkerSelected()
 {
 	bool arrow=FALSE;
-	if (lines.contains(selectedMarker)>0)
+	if (d_lines.contains(selectedMarker)>0)
 		arrow=TRUE;
 	return arrow;
 }
@@ -2451,7 +2451,7 @@ void Graph::copyMarker()
 		return ;
 	}
 
-	if (lines.contains(selectedMarker))
+	if (d_lines.contains(selectedMarker))
 	{
 		LineMarker* mrkL=(LineMarker*) d_plot->marker(selectedMarker);
 		auxMrkStart=mrkL->startPoint();
@@ -2475,21 +2475,21 @@ void Graph::pasteMarker()
 {
 	if (selectedMarkerType==Arrow)
 	{
-		LineMarker* mrkL=new LineMarker(d_plot);
+		LineMarker* mrkL=new LineMarker();
 		mrkL->setColor(auxMrkColor);
 		mrkL->setWidth(auxMrkWidth);
 		mrkL->setStyle(auxMrkStyle);
 		mrkL->setStartPoint(QPoint(auxMrkStart.x()+10,auxMrkStart.y()+10));
 		mrkL->setEndPoint(QPoint(auxMrkEnd.x()+10,auxMrkEnd.y()+10));
-		mrkL->setStartArrow(startArrowOn);
-		mrkL->setEndArrow(endArrowOn);
+		mrkL->drawStartArrow(startArrowOn);
+		mrkL->drawEndArrow(endArrowOn);
 		mrkL->setHeadLength(auxArrowHeadLength);
 		mrkL->setHeadAngle(auxArrowHeadAngle);
 		mrkL->fillArrowHead(auxFilledArrowHead);
 		long mrkID=d_plot->insertMarker(mrkL);
 		linesOnPlot++;
-		lines.resize(linesOnPlot);
-		lines[linesOnPlot-1]=mrkID;
+		d_lines.resize(linesOnPlot);
+		d_lines[linesOnPlot-1]=mrkID;
 		d_plot->replot();
 
 		selectedMarker=-1;
@@ -4026,10 +4026,10 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 
 void Graph::insertLineMarker(QStringList list, int fileVersion)
 {
-	LineMarker* mrk= new LineMarker(d_plot);
+	LineMarker* mrk= new LineMarker();
 	long mrkID=d_plot->insertMarker(mrk);
-	lines.resize(++linesOnPlot);
-	lines[linesOnPlot-1]=mrkID;
+	d_lines.resize(++linesOnPlot);
+	d_lines[linesOnPlot-1]=mrkID;
 
 	if (fileVersion < 86)
 	{
@@ -4038,15 +4038,15 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 	}
 	else
 	{
-		mrk->setCoordStartPoint(QwtDoublePoint(list[1].toDouble(), list[2].toDouble()));
-		mrk->setCoordEndPoint(QwtDoublePoint(list[3].toDouble(), list[4].toDouble()));
+		mrk->setStartPoint(list[1].toDouble(), list[2].toDouble());
+		mrk->setEndPoint(list[3].toDouble(), list[4].toDouble());
 	}
 
 	mrk->setWidth(list[5].toInt());
 	mrk->setColor(QColor(list[6]));
 	mrk->setStyle(getPenStyle(list[7]));
-	mrk->setEndArrow(list[8]=="1");
-	mrk->setStartArrow(list[9]=="1");
+	mrk->drawEndArrow(list[8]=="1");
+	mrk->drawStartArrow(list[9]=="1");
 	if (list.count()>10)
 	{
 		mrk->setHeadLength(list[10].toInt());		
@@ -4057,21 +4057,21 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 
 void Graph::insertLineMarker(LineMarker* mrk)
 {
-	LineMarker* aux= new LineMarker(d_plot);
-	aux->setStartPoint(mrk->startPoint());	
+	LineMarker* aux= new LineMarker();
+    d_lines.resize(++linesOnPlot);
+	d_lines[linesOnPlot-1] = d_plot->insertMarker(aux);	
+	
+	aux->setStartPoint(mrk->startPointCoord().x(), mrk->startPointCoord().y());	
+	aux->setEndPoint(mrk->endPointCoord().x(), mrk->endPointCoord().y());
 	aux->setEndPoint(mrk->endPoint());
 	aux->setWidth(mrk->width());
 	aux->setColor(mrk->color());
 	aux->setStyle(mrk->style());
-	aux->setEndArrow(mrk->getEndArrow());
-	aux->setStartArrow(mrk->getStartArrow());
+	aux->drawEndArrow(mrk->hasEndArrow());
+	aux->drawStartArrow(mrk->hasStartArrow());
 	aux->setHeadLength(mrk->headLength());
 	aux->setHeadAngle(mrk->headAngle());
-	aux->fillArrowHead(mrk->filledArrowHead());
-
-	long mrkID=d_plot->insertMarker(aux);
-	lines.resize(++linesOnPlot);
-	lines[linesOnPlot-1]=mrkID;	
+	aux->fillArrowHead(mrk->filledArrowHead());	
 }
 
 LineMarker* Graph::lineMarker(long id)
@@ -4091,7 +4091,7 @@ QwtArray<long> Graph::imageMarkerKeys()
 
 QwtArray<long> Graph::lineMarkerKeys()
 {
-	return lines;
+	return d_lines;
 }
 
 LegendMarker* Graph::textMarker(long id)
@@ -4122,7 +4122,7 @@ Q3ValueList<int> Graph::textMarkerKeys()
 	for (int i=0;i<(int)mrkKeys.size();i++)
 	{
 		if (mrkKeys[i]!=mrkX && mrkKeys[i]!=mrkY &&
-				mrkKeys[i]!=startID && mrkKeys[i]!=endID && lines.contains(mrkKeys[i])<=0
+				mrkKeys[i]!=startID && mrkKeys[i]!=endID && d_lines.contains(mrkKeys[i])<=0
 				&& images.contains(mrkKeys[i])<=0)
 		{
 			txtMrkKeys.append(mrkKeys[i]);
@@ -4133,11 +4133,9 @@ Q3ValueList<int> Graph::textMarkerKeys()
 
 QString Graph::saveMarkers()
 {
-	int prec;
-	char f;
 	QString s;
 	Q3ValueList<int> texts=textMarkerKeys();
-	int i,t=texts.size(),l=lines.size(),im=images.size();
+	int i,t=texts.size(),l=d_lines.size(),im=images.size();
 	for (i=0;i<im;i++)
 	{	
 		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(images[i]);
@@ -4153,24 +4151,22 @@ QString Graph::saveMarkers()
 
 	for (i=0;i<l;i++)
 	{	
-		LineMarker* mrkL=(LineMarker*) d_plot->marker(lines[i]);
+		LineMarker* mrkL=(LineMarker*) d_plot->marker(d_lines[i]);
 		s+="lineMarker\t";
 
-		d_plot->axisLabelFormat(mrkL->xAxis(), f, prec);
-		QwtDoublePoint sp = mrkL->coordStartPoint();
-		s+=(QString::number(sp.x(), f, prec))+"\t";
-		s+=(QString::number(sp.y(), f, prec))+"\t";
+		QwtDoublePoint sp = mrkL->startPointCoord();
+		s+=(QString::number(sp.x(), 'g', 15))+"\t";
+		s+=(QString::number(sp.y(), 'g', 15))+"\t";
 
-		d_plot->axisLabelFormat(mrkL->yAxis(), f, prec);
-		QwtDoublePoint ep = mrkL->coordEndPoint();
-		s+=(QString::number(ep.x(), f, prec))+"\t";
-		s+=(QString::number(ep.y(), f, prec))+"\t";
+		QwtDoublePoint ep = mrkL->endPointCoord();
+		s+=(QString::number(ep.x(), 'g', 15))+"\t";
+		s+=(QString::number(ep.y(), 'g', 15))+"\t";
 
 		s+=QString::number(mrkL->width())+"\t";
 		s+=mrkL->color().name()+"\t";
 		s+=penStyleName(mrkL->style())+"\t";
-		s+=QString::number(mrkL->getEndArrow())+"\t";
-		s+=QString::number(mrkL->getStartArrow())+"\t";
+		s+=QString::number(mrkL->hasEndArrow())+"\t";
+		s+=QString::number(mrkL->hasStartArrow())+"\t";
 		s+=QString::number(mrkL->headLength())+"\t";
 		s+=QString::number(mrkL->headAngle())+"\t";
 		s+=QString::number(mrkL->filledArrowHead())+"\n";
@@ -4184,11 +4180,8 @@ QString Graph::saveMarkers()
 		else
 			s+="Legend\t";
 
-		d_plot->axisLabelFormat(mrk->xAxis(), f, prec);
-		s+=QString::number(mrk->xValue(), f, prec)+"\t";
-
-		d_plot->axisLabelFormat(mrk->yAxis(), f, prec);
-		s+=QString::number(mrk->yValue(), f, prec)+"\t";
+		s+=QString::number(mrk->xValue(), 'g', 15)+"\t";
+		s+=QString::number(mrk->yValue(), 'g', 15)+"\t";
 
 		QFont f=mrk->getFont();
 		s+=f.family()+"\t";
@@ -5935,9 +5928,9 @@ void Graph::updateMarkersBoundingRect()
 	Q3ValueList<int> texts=textMarkerKeys();
 
 	int i=0;
-	for (i=0;i<(int)lines.size();i++)
+	for (i=0;i<(int)d_lines.size();i++)
 	{			
-		LineMarker* mrkL=(LineMarker*)d_plot->marker(lines[i]);
+		LineMarker* mrkL=(LineMarker*)d_plot->marker(d_lines[i]);
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
@@ -6223,7 +6216,7 @@ void Graph::moveMarkerBy(int dx, int dy)
 {
 	Q3ValueList<int> texts = textMarkerKeys();		
 	bool line = false, image = false;
-	if (lines.contains(selectedMarker))
+	if (d_lines.contains(selectedMarker))
 	{
 		LineMarker* mrk=(LineMarker*)d_plot->marker(selectedMarker);
 

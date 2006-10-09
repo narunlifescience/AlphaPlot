@@ -84,12 +84,12 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
-
 	list<<"EPS";
+	list<<"SVG";
 	qSort(list);
 
-	QStringList filters, selectedFilter;			
-	for(int i=0 ; i<list.count() ; i++)
+	QStringList filters, selectedFilter;
+    for(int i=0 ; i<list.count() ; i++)
 	{
 		filters << "*."+list[i].toLower();
 	}

@@ -28,9 +28,12 @@ class QwtScaleDraw;
   - a scale;
   - an alarm level.
 
+  \image html sysinfo.png
+
   By default, the scale and range run over the same interval of values.
   QwtAbstractScale::setScale() changes the interval of the scale and allows
   easy conversion between physical units.
+
   The example shows how to make the scale indicate in degrees Fahrenheit and
   to set the value in degrees Kelvin:
 \code

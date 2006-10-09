@@ -2,8 +2,8 @@
     File                 : lineDlg.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Line options dialog
                            
  ***************************************************************************/
@@ -35,48 +35,48 @@
 
 #include <qwt_plot.h>
 
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <q3buttongroup.h>
-#include <qlabel.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qcolordialog.h>
-#include <qtabwidget.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HBoxLayout>
-#include <Q3HBox>
-
-#include <QLineEdit>
+#include <QMessageBox>
+#include <QGridLayout>
+#include <QBoxLayout>
+#include <QHBoxLayout>
+#include <QGroupBox>
+#include <QSpinBox.h>
+#include <QCheckBox.h>
+#include <QPushButton.h>
+#include <QLabel.h>
+#include <QLineEdit.h>
+#include <QComboBox.h>
+#include <QColorDialog.h>
+#include <QTabWidget.h>
 
 LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     setWindowTitle( tr( "QtiPlot - Line options" ) );
-
-	tw = new QTabWidget( this );
-	options = new QWidget( tw );
-    GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal, QString(),options,"GroupBox1" );
-
-	new QLabel(tr( "Color" ), GroupBox1);
-	colorBox = new ColorButton(GroupBox1);
+	
+	lm = line;
+	
+	QGroupBox *gb1 = new QGroupBox();
+    QGridLayout *gl1 = new QGridLayout();
+    
+    gl1->addWidget(new QLabel(tr("Color")), 0, 0);
+	colorBox = new ColorButton();
 	colorBox->setColor(lm->color());
-
-	new QLabel(tr( "Line type" ),GroupBox1);
-    styleBox = new QComboBox( FALSE, GroupBox1);
+	gl1->addWidget(colorBox, 0, 1);
+	
+	gl1->addWidget(new QLabel(tr("Line type")), 1, 0);
+    styleBox = new QComboBox( FALSE);
 	styleBox->insertItem("_____");
 	styleBox->insertItem("- - -");
 	styleBox->insertItem(".....");
 	styleBox->insertItem("_._._");
 	styleBox->insertItem("_.._..");
-	
+	gl1->addWidget(styleBox, 1, 1);
+
 	setLineStyle(lm->style());
 
-	new QLabel(tr( "Line width" ),GroupBox1);
-    widthBox = new QComboBox( FALSE, GroupBox1, "widthBox" );
+	gl1->addWidget(new QLabel(tr("Line width")), 2, 0);
+    widthBox = new QComboBox( FALSE );
 	widthBox->insertItem( tr( "1" ) );
     widthBox->insertItem( tr( "2" ) );
     widthBox->insertItem( tr( "3" ) );
@@ -85,56 +85,74 @@ LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bo
 	widthBox->setEditable (true);
 	widthBox->setCurrentItem(0);
 	widthBox->setEditText(QString::number(lm->width()));
+	gl1->addWidget(widthBox, 2, 1);
 
-	startBox = new QCheckBox(GroupBox1); 
+	startBox = new QCheckBox(); 
     startBox->setText( tr( "Arrow at &start" ) );
-	startBox->setChecked(lm->getStartArrow());
+	startBox->setChecked(lm->hasStartArrow());
+	gl1->addWidget(startBox, 3, 0);
 
-	endBox = new QCheckBox(GroupBox1, "endBox" );
+	endBox = new QCheckBox();
     endBox->setText( tr( "Arrow at &end" ) );
-	endBox->setChecked(lm->getEndArrow());
-
-	Q3HBoxLayout* hl1 = new Q3HBoxLayout(options,5,5, "hl1");
-    hl1->addWidget(GroupBox1);
+	endBox->setChecked(lm->hasEndArrow());
+	gl1->addWidget(endBox, 3, 1);
 	
-	tw->insertTab(options, tr( "Opti&ons" ) );
-	
-	head = new QWidget( tw, "head" );
-    Q3ButtonGroup *GroupBox4 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),head,"GroupBox4" );
+	gb1->setLayout(gl1);
 
-	new QLabel(tr( "Length" ), GroupBox4, "TextLabel111",0);
-	boxHeadLength = new QSpinBox( 0,100,1,GroupBox4, "boxHeadLength" );
+	QHBoxLayout* hl1 = new QHBoxLayout();
+    hl1->addWidget(gb1);
+    
+	options = new QWidget();
+    options->setLayout(hl1);
+	
+	tw = new QTabWidget();
+	tw->addTab(options, tr( "Opti&ons" ) );
+    
+    QGroupBox *gb2 = new QGroupBox();
+    QGridLayout *gl2 = new QGridLayout();
+    
+    gl2->addWidget(new QLabel(tr("Length")), 0, 0);
+	boxHeadLength = new QSpinBox();
 	boxHeadLength->setValue(lm->headLength());
+	gl2->addWidget(boxHeadLength, 0, 1);
 
-	new QLabel(tr( "Angle" ),GroupBox4, "TextLabel1112",0 );
-	boxHeadAngle = new QSpinBox(0,85,5,GroupBox4, "boxHeadAngle" );
+	gl2->addWidget(new QLabel(tr( "Angle" )), 1, 0 );
+	boxHeadAngle = new QSpinBox();
+	boxHeadAngle->setRange(0, 85);
+	boxHeadAngle->setSingleStep(5);
 	boxHeadAngle->setValue(lm->headAngle());
+	gl2->addWidget(boxHeadAngle, 1, 1);
 
-	filledBox = new QCheckBox(GroupBox4, "filledBox" ); 
+	filledBox = new QCheckBox(); 
     filledBox->setText( tr( "&Filled" ) );
 	filledBox->setChecked(lm->filledArrowHead());
+	gl2->addWidget(filledBox, 2, 1);
+	
+	gb2->setLayout(gl2);
 
-	Q3HBoxLayout* hl3 = new Q3HBoxLayout(head,5,5, "hl3");
-    hl3->addWidget(GroupBox4);
-
-	tw->insertTab(head, tr( "Arrow &Head" ) );
+	QHBoxLayout* hl2 = new QHBoxLayout();
+    hl2->addWidget(gb2);
+    
+    head = new QWidget();
+    head->setLayout(hl2);
+	tw->addTab(head, tr("Arrow &Head"));
 
 	initGeometryTab();
-
-	GroupBox2 = new Q3ButtonGroup(4,Qt::Horizontal, QString::null,this,"GroupBox2" );
 	
-	buttonDefault = new QPushButton( GroupBox2);
-	buttonDefault->setText( tr( "Set &Default" ) );
+	buttonDefault = new QPushButton( tr( "Set &Default" ) );
+	btnApply = new QPushButton( tr( "&Apply" ) );
+	btnOk = new QPushButton(tr( "&Ok" ) );
+    btnOk->setDefault(true);
+    
+    QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl1->addWidget(buttonDefault);
+	bl1->addWidget(btnApply);
+	bl1->addWidget(btnOk);
 	
-	btnApply = new QPushButton(GroupBox2, "btnApply" );
-    btnApply->setText( tr( "&Apply" ) );
-
-	btnOk = new QPushButton(GroupBox2, "btnOk" );
-    btnOk->setText( tr( "&Ok" ) );
-	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(tw);
-	hlayout->addWidget(GroupBox2);
+	QVBoxLayout* vl = new QVBoxLayout();
+    vl->addWidget(tw);
+	vl->addLayout(bl1);
+	setLayout(vl);
 
 	enableHeadTab();
 
@@ -147,41 +165,47 @@ LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bo
 
 void LineDialog::initGeometryTab()
 {
-	geometry = new QWidget( tw );
-
-	Q3HBox *box1 = new Q3HBox (geometry);
-	box1->setSpacing(5);
-	box1->setMargin(5);
-	
-	new QLabel(tr( "Unit" ), box1);
-	unitBox = new QComboBox(box1);
-	unitBox->insertItem(tr("Pixels"));
+	unitBox = new QComboBox();
 	unitBox->insertItem(tr("Scale Coordinates"));
-
-	Q3HBox *box2 = new Q3HBox (geometry);
-	box2->setSpacing(5);
-
-    Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Start Point"),box2);
-
-	new QLabel(tr( "X" ), GroupBox2, "TextLabel11",0);
-	xStartBox = new QLineEdit(GroupBox2);
+	unitBox->insertItem(tr("Pixels"));
 	
-	new QLabel(tr( "Y" ),GroupBox2, "TextLabel111",0 );
-	yStartBox = new QLineEdit(GroupBox2);
+	QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl1->addWidget(new QLabel(tr( "Unit" )));
+	bl1->addWidget(unitBox);
 
-	Q3ButtonGroup *GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("End Point"),box2);
+    QGroupBox *gb1 = new QGroupBox(tr("Start Point"));
+	xStartBox = new QLineEdit();
+	yStartBox = new QLineEdit();
+	
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel( tr("X")), 0, 0);
+    gl1->addWidget(xStartBox, 0, 1);
+    gl1->addWidget(new QLabel(tr("To")), 1, 0);
+    gl1->addWidget(yStartBox, 1, 1);
+    gb1->setLayout(gl1);
+    
+    QGroupBox *gb2 = new QGroupBox(tr("End Point"));
+    xEndBox = new QLineEdit();
+	yEndBox = new QLineEdit();
+	
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel( tr("X")), 0, 0);
+    gl2->addWidget(xEndBox, 0, 1);
+    gl2->addWidget(new QLabel(tr("To")), 1, 0);
+    gl2->addWidget(yEndBox, 1, 1);
+    gb2->setLayout(gl2);
 
-	new QLabel(tr( "X" ), GroupBox3, "TextLabel11",0);
-	xEndBox = new QLineEdit(GroupBox3);
+    QBoxLayout *bl2 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl2->addWidget(gb1);
+	bl2->addWidget(gb2);
+	
+	QVBoxLayout* vl = new QVBoxLayout();
+    vl->addLayout(bl1);
+    vl->addLayout(bl2);
 
-	new QLabel(tr( "Y" ),GroupBox3, "TextLabel111",0 );
-	yEndBox = new QLineEdit(GroupBox3);
-
-	Q3VBoxLayout* hl2 = new Q3VBoxLayout(geometry, 5, 5);
-    hl2->addWidget(box1);
-	hl2->addWidget(box2);
-
-	tw->insertTab(geometry, tr( "&Geometry" ) );
+    geometry = new QWidget();
+    geometry->setLayout(vl);
+	tw->addTab(geometry, tr( "&Geometry" ) );
 
 	connect( unitBox, SIGNAL( activated(int) ), this, SLOT(displayCoordinates(int) ) );
 	displayCoordinates(0);
@@ -189,22 +213,15 @@ void LineDialog::initGeometryTab()
 
 void LineDialog::displayCoordinates(int unit)
 {
-if (unit)
+if (unit == ScaleCoordinates)
 	{
-	int prec;
-	char f;
+	QwtDoublePoint sp = lm->startPointCoord();
+	xStartBox->setText(QString::number(sp.x()));
+	yStartBox->setText(QString::number(sp.y()));
 
-	Plot *plot = (Plot *)lm->plot();
-	plot->axisLabelFormat(lm->xAxis(), f, prec);
-
-	QwtDoublePoint sp = lm->coordStartPoint();
-	xStartBox->setText(QString::number(sp.x(), f, prec));
-	yStartBox->setText(QString::number(sp.y(), f, prec));
-
-	plot->axisLabelFormat(lm->yAxis(), f, prec);
-	QwtDoublePoint ep = lm->coordEndPoint();
-	xEndBox->setText(QString::number(ep.x(), f, prec));
-	yEndBox->setText(QString::number(ep.y(), f, prec));
+	QwtDoublePoint ep = lm->endPointCoord();
+	xEndBox->setText(QString::number(ep.x()));
+	yEndBox->setText(QString::number(ep.y()));
 	}
 else
 	{
@@ -221,12 +238,12 @@ else
 
 void LineDialog::setCoordinates(int unit)
 {
-if (unit)
+if (unit == ScaleCoordinates)
 	{
-	lm->setCoordStartPoint(QwtDoublePoint(xStartBox->text().replace(",", ".").toDouble(), 
-							yStartBox->text().replace(",", ".").toDouble()));
-	lm->setCoordEndPoint(QwtDoublePoint(xEndBox->text().replace(",", ".").toDouble(), 
-						yEndBox->text().replace(",", ".").toDouble()));
+	lm->setStartPoint(xStartBox->text().replace(",", ".").toDouble(),
+							yStartBox->text().replace(",", ".").toDouble());
+	lm->setEndPoint(xEndBox->text().replace(",", ".").toDouble(),
+						yEndBox->text().replace(",", ".").toDouble());
 	}
 else
 	{
@@ -242,8 +259,8 @@ if (tw->currentPage()==(QWidget *)options)
 	lm->setStyle(Graph::getPenStyle(styleBox->currentItem()));
 	lm->setColor(colorBox->color());
 	lm->setWidth(widthBox->currentText().toInt());
-	lm->setEndArrow(endBox->isChecked());
-	lm->setStartArrow(startBox->isChecked());
+	lm->drawEndArrow(endBox->isChecked());
+	lm->drawStartArrow(startBox->isChecked());
 	}
 else if (tw->currentPage()==(QWidget *)head)
 	{

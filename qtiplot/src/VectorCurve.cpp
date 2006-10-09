@@ -69,13 +69,10 @@ void VectorCurve::draw(QPainter *painter,
 	
 	QwtPlotCurve::draw(painter, xMap, yMap, from, to);
 
-    if ( verifyRange(from, to) > 0 )
-		{
-        painter->save();
-        painter->setPen(pen);
-		drawVector(painter, xMap, yMap, from, to);
-        painter->restore();
-		}
+    painter->save();
+    painter->setPen(pen);
+    drawVector(painter, xMap, yMap, from, to);
+    painter->restore();
 }
 
 void VectorCurve::drawVector(QPainter *painter,

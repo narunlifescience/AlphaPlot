@@ -15,6 +15,7 @@
 class QwtScaleEngine;
 class QwtAbstractScaleDraw;
 class QwtScaleDiv;
+class QwtScaleMap;
 class QwtDoubleInterval;
 
 /*!
@@ -48,6 +49,8 @@ public:
     const QwtScaleEngine *scaleEngine() const;
     QwtScaleEngine *scaleEngine();
 
+    const QwtScaleMap &scaleMap() const;
+    
 protected:
     void rescale(double vmin, double vmax, double step = 0.0);
 

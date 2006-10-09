@@ -352,14 +352,14 @@ protected:
 
     virtual QwtPickerMachine *stateMachine(int) const;
 
+    virtual void updateDisplay();
+
 private:
     void init(QWidget *, int selectionFlags, RubberBand rubberBand,
         DisplayMode trackerMode);
 
     void setStateMachine(QwtPickerMachine *);
     void setMouseTracking(bool);
-
-    void updateDisplay();
 
     class PrivateData;
     PrivateData *d_data;

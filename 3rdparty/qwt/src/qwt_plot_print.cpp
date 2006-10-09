@@ -160,7 +160,7 @@ void QwtPlot::print(QPainter *painter, const QRect &plotRect,
     // the precision to screen resolution. A much better solution
     // is to scale the maps and print in unlimited resolution.
 
-    QwtArray<QwtScaleMap> map(axisCnt);
+    QwtScaleMap map[axisCnt];
     for (axisId = 0; axisId < axisCnt; axisId++)
     {
         map[axisId].setTransformation(axisScaleEngine(axisId)->transformation());
@@ -448,7 +448,7 @@ void QwtPlot::printScale(QPainter *painter,
 */
 
 void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
-    const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const
+    const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
     if ( pfilter.options() & QwtPlotPrintFilter::PrintCanvasBackground )
     {

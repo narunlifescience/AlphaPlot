@@ -163,8 +163,12 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 {
 if ( !name )
 	setName( "multilayer plot" );
-
-setPaletteBackgroundColor( QColor(Qt::white) );
+	
+QPalette pal = palette();
+pal.setColor(QPalette::Active, QPalette::Window, QColor(Qt::white));
+pal.setColor(QPalette::Inactive, QPalette::Window, QColor(Qt::white));
+pal.setColor(QPalette::Disabled, QPalette::Window, QColor(Qt::white));
+setPalette(pal);
 
 QDateTime dt = QDateTime::currentDateTime ();
 setBirthDate(dt.toString(Qt::LocalDate));
@@ -374,9 +378,7 @@ for (int i=0;i<graphsList.count();i++)
 		QwtPlot *plot=gr->plotWidget();
 		QwtPlotLayout *plotLayout=plot->plotLayout();
 		QRect cRect=plotLayout->canvasRect();			
-		double ch = (double) cRect.height();
-		double cw = (double) cRect.width();
-
+ 
 		int gx = qRound(gr->x()*w_ratio);
 		int gy = qRound(gr->y()*h_ratio);
 		int gw = qRound(gr->width()*w_ratio);

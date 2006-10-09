@@ -65,6 +65,12 @@ public:
     void setIdentifierMode(int);
     int identifierMode() const;
 
+    void setIdentfierWidth(int width);
+    int identifierWidth() const;
+
+    void setSpacing(int spacing);
+    int spacing() const;
+
     void setSymbol(const QwtSymbol &);
     const QwtSymbol& symbol() const;
 

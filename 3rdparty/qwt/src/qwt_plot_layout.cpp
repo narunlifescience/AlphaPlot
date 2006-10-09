@@ -63,7 +63,8 @@ void QwtPlotLayout::LayoutData::init(const QwtPlot *plot, const QRect &rect)
 {
     // legend
 
-    if ( plot->legend() )
+    if ( plot->plotLayout()->legendPosition() != QwtPlot::ExternalLegend 
+        && plot->legend() )
     {
         legend.frameWidth = plot->legend()->frameWidth();
         legend.vScrollBarWidth = 
@@ -200,10 +201,9 @@ QwtPlotLayout::~QwtPlotLayout()
   around all components.
  
   \param margin new margin
-  \sa QwtPlotLayout::margin(), QwtPlotLayout::setSpacing(),
+  \sa margin(), setSpacing(),
       QwtPlot::setMargin()
 */
-
 void QwtPlotLayout::setMargin(int margin)
 {
     if ( margin < 0 )
@@ -213,10 +213,8 @@ void QwtPlotLayout::setMargin(int margin)
 
 /*!
     \return margin
-    \sa QwtPlotLayout::setMargin(), QwtPlotLayout::spacing(), 
-        QwtPlot::margin()
+    \sa setMargin(), spacing(), QwtPlot::margin()
 */
-
 int QwtPlotLayout::margin() const
 {
     return d_data->margin;
@@ -230,7 +228,7 @@ int QwtPlotLayout::margin() const
   \param margin New margin
   \param axis One of QwtPlot::Axis. Specifies where the position of the margin. 
               -1 means margin at all borders.
-  \sa QwtPlotLayout::canvasMargin() 
+  \sa canvasMargin() 
 
   \warning The margin will have no effect when alignCanvasToScales is true
 */
@@ -251,9 +249,8 @@ void QwtPlotLayout::setCanvasMargin(int margin, int axis)
 
 /*!
     \return Margin around the scale tick borders
-    \sa QwtPlotLayout::setCanvasMargin()
+    \sa setCanvasMargin()
 */
-
 int QwtPlotLayout::canvasMargin(int axis) const
 {
     if ( axis < 0 || axis >= QwtPlot::axisCnt )
@@ -262,7 +259,6 @@ int QwtPlotLayout::canvasMargin(int axis) const
     return d_data->canvasMargin[axis];
 }
 
-
 /*!
   Change the align-canvas-to-axis-scales setting. The canvas may:
   - extend beyond the axis scale ends to maximize its size,
@@ -270,12 +266,11 @@ int QwtPlotLayout::canvasMargin(int axis) const
 
   \param alignCanvasToScales New align-canvas-to-axis-scales setting
 
-  \sa QwtPlotLayout::setCanvasMargin() 
+  \sa setCanvasMargin() 
   \note In this context the term 'scale' means the backbone of a scale.
   \warning In case of alignCanvasToScales == true canvasMargin will have 
            no effect
 */
-
 void QwtPlotLayout::setAlignCanvasToScales(bool alignCanvasToScales)
 {
     d_data->alignCanvasToScales = alignCanvasToScales;
@@ -287,10 +282,9 @@ void QwtPlotLayout::setAlignCanvasToScales(bool alignCanvasToScales)
   - align with the axis scale ends to control its size.
 
   \return align-canvas-to-axis-scales setting
-  \sa QwtPlotLayout::setAlignCanvasToScales, QwtPlotLayout::setCanvasMargin() 
+  \sa setAlignCanvasToScales, setCanvasMargin() 
   \note In this context the term 'scale' means the backbone of a scale.
 */
-
 bool QwtPlotLayout::alignCanvasToScales() const
 {
     return d_data->alignCanvasToScales;
@@ -301,9 +295,8 @@ bool QwtPlotLayout::alignCanvasToScales() const
   between the plot components.
  
   \param spacing new spacing
-  \sa QwtPlotLayout::setMargin(), QwtPlotLayout::spacing() 
+  \sa setMargin(), spacing() 
 */
-
 void QwtPlotLayout::setSpacing(int spacing)
 {
     d_data->spacing = qwtMax(0, spacing);
@@ -311,7 +304,7 @@ void QwtPlotLayout::setSpacing(int spacing)
 
 /*!
   \return spacing
-  \sa QwtPlotLayout::margin(), QwtPlotLayout::setSpacing() 
+  \sa margin(), setSpacing() 
 */
 int QwtPlotLayout::spacing() const
 {
@@ -320,8 +313,7 @@ int QwtPlotLayout::spacing() const
 
 /*!
   \brief Specify the position of the legend
-  \param pos The legend's position. Valid values are \c QwtPlot::LeftLegend,
-           \c QwtPlot::RightLegend, \c QwtPlot::TopLegend, \c QwtPlotLegend::Bottom.
+  \param pos The legend's position. 
   \param ratio Ratio between legend and the bounding rect 
                of title, canvas and axes. The legend will be shrinked
                if it would need more space than the given ratio.
@@ -353,6 +345,9 @@ void QwtPlotLayout::setLegendPosition(QwtPlot::LegendPosition pos, double ratio)
             d_data->legendRatio = ratio;
             d_data->legendPos = pos;
             break;
+        case QwtPlot::ExternalLegend:
+            d_data->legendRatio = ratio; // meaningless
+            d_data->legendPos = pos;
         default:
             break;
     }
@@ -360,12 +355,12 @@ void QwtPlotLayout::setLegendPosition(QwtPlot::LegendPosition pos, double ratio)
 
 /*!
   \brief Specify the position of the legend
-  \param pos The legend's position. Valid values are \c QwtPlot::LeftLegend,
-           \c QwtPlot::RightLegend, \c QwtPlot::TopLegend, \c QwtPlot::BottomLegend.
+  \param pos The legend's position. Valid values are 
+      \c QwtPlot::LeftLegend, \c QwtPlot::RightLegend, 
+      \c QwtPlot::TopLegend, \c QwtPlot::BottomLegend.
                
   \sa QwtPlot::setLegendPosition()
 */
-
 void QwtPlotLayout::setLegendPosition(QwtPlot::LegendPosition pos)
 {
     setLegendPosition(pos, 0.0);
@@ -373,10 +368,9 @@ void QwtPlotLayout::setLegendPosition(QwtPlot::LegendPosition pos)
 
 /*!
   \return Position of the legend
-  \sa QwtPlotLayout::setLegendPosition(), QwtPlot::setLegendPosition(),
+  \sa setLegendPosition(), QwtPlot::setLegendPosition(),
       QwtPlot::legendPosition()
 */
-
 QwtPlot::LegendPosition QwtPlotLayout::legendPosition() const
 {
     return d_data->legendPos;
@@ -390,8 +384,6 @@ QwtPlot::LegendPosition QwtPlotLayout::legendPosition() const
                The ratio is limited to ]0.0 .. 1.0]. In case of <= 0.0
                it will be reset to the default ratio.
                The default vertical/horizontal ratio is 0.33/0.5. 
-               
-  \sa QwtPlot::setLegendPosition()
 */
 void QwtPlotLayout::setLegendRatio(double ratio)
 {
@@ -400,9 +392,8 @@ void QwtPlotLayout::setLegendRatio(double ratio)
 
 /*!
   \return The relative size of the legend in the plot.
-  \sa QwtPlotLayout::setLegendPos(), QwtPlot::setLegendPos()
+  \sa setLegendPosition()
 */
-
 double QwtPlotLayout::legendRatio() const
 {
     return d_data->legendRatio;
@@ -410,7 +401,7 @@ double QwtPlotLayout::legendRatio() const
 
 /*!
   \return Geometry for the title
-  \sa QwtPlotLayout::activate(), QwtPlotLayout::invalidate()
+  \sa activate(), invalidate()
 */
 
 const QRect &QwtPlotLayout::titleRect() const
@@ -420,7 +411,7 @@ const QRect &QwtPlotLayout::titleRect() const
 
 /*!
   \return Geometry for the legend
-  \sa QwtPlotLayout::activate(), QwtPlotLayout::invalidate()
+  \sa activate(), invalidate()
 */
 
 const QRect &QwtPlotLayout::legendRect() const
@@ -431,7 +422,7 @@ const QRect &QwtPlotLayout::legendRect() const
 /*!
   \param axis Axis index
   \return Geometry for the scale
-  \sa QwtPlotLayout::activate(), QwtPlotLayout::invalidate()
+  \sa activate(), invalidate()
 */
 
 const QRect &QwtPlotLayout::scaleRect(int axis) const
@@ -446,7 +437,7 @@ const QRect &QwtPlotLayout::scaleRect(int axis) const
 
 /*!
   \return Geometry for the canvas
-  \sa QwtPlotLayout::activate(), QwtPlotLayout::invalidate()
+  \sa activate(), invalidate()
 */
 
 const QRect &QwtPlotLayout::canvasRect() const
@@ -456,7 +447,7 @@ const QRect &QwtPlotLayout::canvasRect() const
 
 /*!
   Invalidate the geometry of all components. 
-  \sa QwtPlotLayout::activate()
+  \sa activate()
 */
 void QwtPlotLayout::invalidate()
 {
@@ -606,7 +597,8 @@ QSize QwtPlotLayout::minimumSizeHint(const QwtPlot *plot) const
     // Compute the legend contribution
 
     const QwtLegend *legend = plot->legend();
-    if ( legend && !legend->isEmpty() )
+    if ( d_data->legendPos != QwtPlot::ExternalLegend
+        && legend && !legend->isEmpty() )
     {
         if ( d_data->legendPos == QwtPlot::LeftLegend 
             || d_data->legendPos == QwtPlot::RightLegend )
@@ -700,6 +692,8 @@ QRect QwtPlotLayout::layoutLegend(int options,
         case QwtPlot::BottomLegend:
             legendRect.setY(rect.bottom() - dim + 1);
             legendRect.setHeight(dim);
+            break;
+        case QwtPlot::ExternalLegend:
             break;
     }
 
@@ -1017,11 +1011,9 @@ void QwtPlotLayout::alignScales(int options,
   \param plotRect Rect where to place the components
   \param options Options
 
-  \sa QwtPlotLayout::invalidate(), QwtPlotLayout::titleRect(),
-      QwtPlotLayout::legendRect(), QwtPlotLayout::scaleRect(), 
-      QwtPlotLayout::canvasRect()
+  \sa invalidate(), titleRect(),
+      legendRect(), scaleRect(), canvasRect()
 */
-
 void QwtPlotLayout::activate(const QwtPlot *plot,
     const QRect &plotRect, int options) 
 {
@@ -1046,7 +1038,8 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
 
     d_data->layoutData.init(plot, rect);
 
-    if (!(options & IgnoreLegend)
+    if (!(options & IgnoreLegend) 
+        && d_data->legendPos != QwtPlot::ExternalLegend
         && plot->legend() && !plot->legend()->isEmpty() )
     {
         d_data->legendRect = layoutLegend(options, rect);
@@ -1077,6 +1070,8 @@ void QwtPlotLayout::activate(const QwtPlot *plot,
                 case QwtPlot::BottomLegend:
                     rect.setBottom(rect.bottom() - d_data->spacing);
                     break;
+                case QwtPlot::ExternalLegend:
+                    break; // suppress compiler warning
             }
         }
     }

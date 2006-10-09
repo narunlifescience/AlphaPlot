@@ -343,14 +343,13 @@ void QwtThermo::layoutThermo( bool update_geometry )
 */
 void QwtThermo::setOrientation(Qt::Orientation o, ScalePos s)
 {
-    if ( o == d_data->orientation )
+    if ( o == d_data->orientation && s == d_data->scalePos )
         return;
 
     switch(o)
     {
         case Qt::Horizontal:
         {
-            d_data->orientation = Qt::Horizontal;
             if ((s == None) || (s == Bottom) || (s == Top))
                 d_data->scalePos = s;
             else
@@ -359,7 +358,6 @@ void QwtThermo::setOrientation(Qt::Orientation o, ScalePos s)
         }
         case Qt::Vertical:
         {
-            d_data->orientation = Qt::Vertical;
             if ((s == None) || (s == Left) || (s == Right))
                 d_data->scalePos = s;
             else
@@ -368,23 +366,27 @@ void QwtThermo::setOrientation(Qt::Orientation o, ScalePos s)
         }
     }
 
-#if QT_VERSION >= 0x040000
-    if ( !testAttribute(Qt::WA_WState_OwnSizePolicy) )
-#else
-    if ( !testWState( WState_OwnSizePolicy ) )
-#endif
+    if ( o != d_data->orientation )
     {
-        QSizePolicy sp = sizePolicy();
-        sp.transpose();
-        setSizePolicy(sp);
+#if QT_VERSION >= 0x040000
+        if ( !testAttribute(Qt::WA_WState_OwnSizePolicy) )
+#else
+        if ( !testWState( WState_OwnSizePolicy ) )
+#endif
+        {
+            QSizePolicy sp = sizePolicy();
+            sp.transpose();
+            setSizePolicy(sp);
 
 #if QT_VERSION >= 0x040000
-        setAttribute(Qt::WA_WState_OwnSizePolicy, false);
+            setAttribute(Qt::WA_WState_OwnSizePolicy, false);
 #else
-        clearWState( WState_OwnSizePolicy );
+            clearWState( WState_OwnSizePolicy );
 #endif
+        }
     }
 
+    d_data->orientation = o;
     layoutThermo();
 }
 

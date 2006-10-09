@@ -22,13 +22,17 @@ public:
     PrivateData():
         isEnabled(false),
         button(Qt::LeftButton),
-        buttonState(Qt::NoButton)
+        buttonState(Qt::NoButton),
+        abortKey(Qt::Key_Escape),
+        abortKeyState(Qt::NoButton)
     {
     }
         
     bool isEnabled;
     int button;
     int buttonState;
+    int abortKey;
+    int abortKeyState;
 
     QPoint initialPos;
     QPoint pos;
@@ -72,13 +76,36 @@ QwtPanner::~QwtPanner()
 
 /*!
    Change the mouse button
-
    The defaults are Qt::LeftButton and Qt::NoButton
 */
 void QwtPanner::setMouseButton(int button, int buttonState)
 {
     d_data->button = button;
     d_data->buttonState = buttonState;
+}
+
+//! Get the mouse button
+void QwtPanner::getMouseButton(int &button, int &buttonState) const
+{
+    button = d_data->button;
+    buttonState = d_data->buttonState;
+}
+
+/*!
+   Change the abort key
+   The defaults are Qt::Key_Escape and Qt::NoButton
+*/
+void QwtPanner::setAbortKey(int key, int state)
+{
+    d_data->abortKey = key;
+    d_data->abortKeyState = state;
+}
+
+//! Get the abort key
+void QwtPanner::getAbortKey(int &key, int &state) const
+{
+    key = d_data->abortKey;
+    state = d_data->abortKeyState;
 }
 
 /*!
@@ -214,6 +241,16 @@ bool QwtPanner::eventFilter(QObject *o, QEvent *e)
             widgetMouseReleaseEvent((QMouseEvent *)e);
             break;
         }
+        case QEvent::KeyPress:
+        {
+            widgetKeyPressEvent((QKeyEvent *)e);
+            break;
+        }
+        case QEvent::KeyRelease:
+        {
+            widgetKeyReleaseEvent((QKeyEvent *)e);
+            break;
+        }
         default:;
     }
 
@@ -297,4 +334,29 @@ void QwtPanner::widgetMouseReleaseEvent(QMouseEvent *me)
                 d_data->pos.y() - d_data->initialPos.y());
         }
     }
+}
+
+void QwtPanner::widgetKeyPressEvent(QKeyEvent *ke)
+{
+    if ( ke->key() == d_data->abortKey )
+    {
+        const bool matched =
+#if QT_VERSION < 0x040000
+            (ke->state() & Qt::KeyButtonMask) ==
+                (d_data->abortKeyState & Qt::KeyButtonMask);
+#else
+            (ke->modifiers() & Qt::KeyboardModifierMask) ==
+                (int)(d_data->abortKeyState & Qt::KeyboardModifierMask);
+#endif
+        if ( matched )
+        {
+            hide();
+            parentWidget()->unsetCursor();
+            d_data->pixmap = QPixmap();
+        }
+    }
+}
+
+void QwtPanner::widgetKeyReleaseEvent(QKeyEvent *)
+{
 }

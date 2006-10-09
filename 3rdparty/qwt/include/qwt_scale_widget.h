@@ -70,7 +70,7 @@ public:
     void setPenWidth(int);
     int penWidth() const;
 
-    void setScaleDiv(const QwtScaleTransformation&, const QwtScaleDiv &sd);
+    void setScaleDiv(QwtScaleTransformation *, const QwtScaleDiv &sd);
 
     void setScaleDraw(QwtScaleDraw *);
     const QwtScaleDraw *scaleDraw() const;

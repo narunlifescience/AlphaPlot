@@ -20,7 +20,7 @@ useful for programs with a technical background. Beside a 2D plot widget
 it provides scales, sliders, dials, compasses, thermometers, wheels and knobs 
 to control or display values, arrays, or ranges of type double.
 
-  \image html plot.gif
+  \image html plot.png
 
   \section homepage Project page
   The official project page is hosted at 
@@ -35,22 +35,17 @@ to control or display values, arrays, or ranges of type double.
 
   \section supportedplatforms Supported platforms
 
-  Qwt might be usable in all environments where you find a
-  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a> >= Qt 3.x. 
-  Unfortunately the resources of the Qwt team are limited. Our development 
-  platform is: Qt/X11 with gcc on Linux\n
+  Qwt 5.x might be usable in all environments where you find a
+  <a href="http://www.trolltech.com/products/qt">Qt</a>.
+  It is compatible with Qt 3.x and Qt 4.x, but the documentation
+  is generated for Qt 4.x.\n
 
   \section screenshotsonmainpage Screenshots
-  - \ref plotscreenshots\n
   - \ref curvescreenshots\n
-  - \ref scalescreenshots\n
-  - \ref knobscreenshots\n
-  - \ref sliderscreenshots\n
-  - \ref dialscreenshots\n
-  - \ref compassscreenshots\n
-  - \ref thermoscreenshots\n
-  - \ref wheelscreenshots\n
-  - \ref counterscreenshots\n
+  - \ref scatterscreenshots\n
+  - \ref spectrogramscreenshots\n
+  - \ref histogramscreenshots\n
+  - \ref controlscreenshots\n
 
   \latexonly Screenshots are only available in the HTML docs.\endlatexonly
 
@@ -61,11 +56,9 @@ to control or display values, arrays, or ranges of type double.
   for the following Linux distributions: 
   <a href="http://packages.qa.debian.org/libq/libqwt.html">Debian</a>,
   <a href="http://packman.links2linux.de/?action=618">S.u.S.E</a>,
-  <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. Please
+  <a href="http://packages.gentoo.org/packages/?category=x11-libs;name=qwt">Gentoo</a>. 
   <a href="http://samotyjak.pwsz.elblag.pl/rpmy/RPMS">Fedora</a>. Please
   report links that are not listed here.
-
-  Sourceforge builds <a href="http://cvs.sourceforge.net/cvstarballs/qwt-cvsroot.tar.bz2">tarballs</a> of the CVS every night.
 
   For anonymous CVS try:
   \code
@@ -89,8 +82,6 @@ cvs -d:pserver:anonymous@qwt.cvs.sourceforge.net:/cvsroot/qwt co qwt
 
   <a href="http://pyqwt.sourceforge.net">PyQwt</a>, a set of Qwt Python bindings.\n
   <a href="http://qwtplot3d.sourceforge.net">QwtPlot3D</a>, an OpenGL 3D plot widget.\n
-  <a href="http://pvbrowser.org">ProcessViewBrowser</a>, including a RPC 
-  interface to the Qwt widget set.\n
   <a href="http://soft.proindependent.com/qtiplot.html">QtiPlot</a>, 
   data analysis and scientific plotting tool, using QwtPlot.
 
@@ -119,55 +110,45 @@ cvs -d:pserver:anonymous@qwt.cvs.sourceforge.net:/cvsroot/qwt co qwt
 */
 
 /*!
-  \page plotscreenshots QwtPlot
+  \page curvescreenshots Curve Plots
+  \image html plot.png 
 
-  \image html plot.gif 
+  \image html sinus.png 
 
-  \image html cpuplot1.gif 
+  \image html cpuplot.png 
+
+  \image html graph.png 
+
+  \image html curves.png 
 */
 
 /*!
-  \page curvescreenshots QwtCurve
-  \image html curves.gif 
+  \page scatterscreenshots Scatter Plot
+  \image html scatterplot.png 
 */
 
 /*!
-  \page scalescreenshots QwtScaleDraw
-  \image html scldraw.gif 
+  \page spectrogramscreenshots Spectrogram, Contour Plot
+  \image html spectrogram1.png 
+
+  \image html spectrogram2.png 
+
+  \image html spectrogram3.png 
+
+/*!
+  \page histogramscreenshots Histogram
+  \image html histogram.png 
 */
 
 /*!
-  \page knobscreenshots QwtKnob
-  \image html knob.gif 
-*/
+  \page controlscreenshots Dials, Compasses, Knobs, Wheels, Sliders, Thermos
+  \image html radio.png
 
-/*!
-  \page sliderscreenshots QwtSlider
-  \image html sliders.gif 
-*/
+  \image html sliders.png
 
-/*!
-  \page dialscreenshots QwtDial
-  \image html dial.gif 
-*/
+  \image html dials1.png
 
-/*!
-  \page compassscreenshots QwtCompass
-  \image html compass1.gif 
-  \image html compass2.gif 
-*/
+  \image html dials2.png
 
-/*!
-  \page thermoscreenshots QwtThermo
-  \image html thermo.gif 
-*/
-
-/*!
-  \page wheelscreenshots QwtWheel
-  \image html wheel.gif 
-*/
-
-/*!
-  \page counterscreenshots QwtCounter
-  \image html counter.gif 
+  \image html sysinfo.png
 */

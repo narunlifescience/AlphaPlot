@@ -65,7 +65,7 @@ public:
     void setScaleDiv(const QwtScaleDiv &s);
     const QwtScaleDiv& scaleDiv() const;
 
-    void setTransformation(const QwtScaleTransformation&);
+    void setTransformation(QwtScaleTransformation *);
     const QwtScaleMap &map() const;
 
     void enableComponent(ScaleComponent, bool enable = true);
@@ -100,6 +100,8 @@ public:
     void setMinimumExtent(int);
     int minimumExtent() const;
 
+    QwtScaleMap &scaleMap();
+
 protected:
     /*!
        Draw a tick
@@ -129,8 +131,6 @@ protected:
         \sa drawTick, drawBackbone
     */ 
     virtual void drawLabel(QPainter *painter, double value) const = 0;
-
-    QwtScaleMap &scaleMap();
 
     void invalidateCache();
     const QwtText &tickLabel(const QFont &, double value) const;

@@ -76,21 +76,18 @@ void BoxCurve::draw(QPainter *painter,
     if (to < 0)
         to = size - 1;
 
-    if (verifyRange(from, to) > 0)
-		{
-        painter->save();
-        painter->setPen(QwtPlotCurve::pen());
+    painter->save();
+    painter->setPen(QwtPlotCurve::pen());
 			
-		double *dat = new double[size];
-		for (int i = from; i<= to; i++)
-			dat[i] = y(i);
+    double *dat = new double[size];
+    for (int i = from; i<= to; i++)
+        dat[i] = y(i);
 
-		drawBox(painter, xMap, yMap, dat, size);
-		drawSymbols(painter, xMap, yMap, dat, size);
+    drawBox(painter, xMap, yMap, dat, size);
+    drawSymbols(painter, xMap, yMap, dat, size);
 
-		painter->restore();
-		delete[] dat;
-		}
+    painter->restore();
+    delete[] dat;
 }
 
 void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap, 

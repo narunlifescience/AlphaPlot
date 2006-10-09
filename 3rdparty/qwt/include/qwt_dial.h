@@ -22,11 +22,10 @@ class QwtDialNeedle;
 class QwtDial;
 
 /*!
-  A special scale draw made for QwtDial
+  \brief A special scale draw made for QwtDial
   
   \sa QwtDial, QwtCompass
 */
-
 class QWT_EXPORT QwtDialScaleDraw: public QwtRoundScaleDraw
 {
 public:
@@ -47,7 +46,7 @@ private:
   QwtDial is intended as base class for dial widgets like
   speedometers, compass widgets, clocks ... 
 
-  \image html dial.gif
+  \image html dials2.png
 
   A dial contains a scale and a needle indicating the current value
   of the dial. Depending on Mode one of them is fixed and the 

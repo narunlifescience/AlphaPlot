@@ -31,8 +31,8 @@ CONFIG           += release
 CONFIG           += thread
 
 # Only one of the following flags is allowed !
-#CONFIG           += dll 
- CONFIG           += staticlib
+# CONFIG           += dll 
+CONFIG           += staticlib
 
 # DEFINES          += QT_NO_CAST_ASCII
 # DEFINES          += QT_NO_CAST_TO_ASCII
@@ -52,6 +52,7 @@ HEADERS = \
     include/qwt_abstract_scale_draw.h \
     include/qwt_array.h \
     include/qwt_color_map.h \
+    include/qwt_curve_fitter.h \
     include/qwt_data.h \
     include/qwt_double_interval.h \
     include/qwt_double_rect.h \
@@ -104,6 +105,7 @@ SOURCES = \
     src/qwt_abstract_scale_draw.cpp \
     src/qwt_data.cpp \
     src/qwt_color_map.cpp \
+    src/qwt_curve_fitter.cpp \
     src/qwt_double_interval.cpp \
     src/qwt_double_rect.cpp \
     src/qwt_dyngrid_layout.cpp \
@@ -197,3 +199,13 @@ SOURCES += \
     src/qwt_slider.cpp \
     src/qwt_thermo.cpp \
     src/qwt_wheel.cpp
+
+unix {
+    INSTALLBASE    = /usr/local/qwt
+    target.path    = $$INSTALLBASE/lib
+    headers.path   = $$INSTALLBASE/include
+    headers.files  = $$HEADERS
+    doc.path       = $$INSTALLBASE/doc
+    doc.files      = doc/html doc/man
+    INSTALLS       = target headers doc
+}

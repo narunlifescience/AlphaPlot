@@ -25,6 +25,9 @@ class QMatrix;
 #endif
 class QPaintDevice;
 
+/*!
+  \brief A Map to translate between layout, screen and paint device metrics
+*/
 class QWT_EXPORT QwtMetricsMap
 {
 public:

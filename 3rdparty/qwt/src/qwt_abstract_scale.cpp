@@ -70,7 +70,7 @@ QwtAbstractScale::~QwtAbstractScale()
   \param vmin lower limit of the scale interval
   \param vmax upper limit of the scale interval
   \param stepSize major step size
-  \sa QwtAbstractScale::setAutoScale()
+  \sa setAutoScale()
 */
 void QwtAbstractScale::setScale(double vmin, double vmax, double stepSize)
 {
@@ -87,7 +87,7 @@ void QwtAbstractScale::setScale(double vmin, double vmax, double stepSize)
 
   \param interval Interval
   \param stepSize major step size
-  \sa QwtAbstractScale::setAutoScale()
+  \sa setAutoScale()
 */
 void QwtAbstractScale::setScale(const QwtDoubleInterval &interval, 
     double stepSize)
@@ -102,7 +102,7 @@ void QwtAbstractScale::setScale(const QwtDoubleInterval &interval,
   Disable autoscaling and define a scale by a scale division
 
   \param scaleDiv Scale division
-  \sa QwtAbstractScale::setAutoScale()
+  \sa setAutoScale()
 */
 void QwtAbstractScale::setScale(const QwtScaleDiv &scaleDiv)
 {
@@ -122,7 +122,7 @@ void QwtAbstractScale::setScale(const QwtScaleDiv &scaleDiv)
   \param vmax Upper limit of the scale interval
   \param stepSize Major step size
 
-  \sa QwtAbstractScale::scaleChange
+  \sa scaleChange()
 */
 void QwtAbstractScale::rescale(double vmin, double vmax, double stepSize) 
 {
@@ -142,7 +142,7 @@ void QwtAbstractScale::rescale(double vmin, double vmax, double stepSize)
   \brief Advise the widget to control the scale range internally.
 
   Autoscaling is on by default. 
-  \sa QwtAbstractScale::setScale(), QwtAbstractScale::autoScale
+  \sa setScale(), autoScale()
 */
 void QwtAbstractScale::setAutoScale()
 {
@@ -219,7 +219,7 @@ int QwtAbstractScale::scaleMaxMajor() const
   \brief Set a scale draw
 
   scaleDraw has to be created with new and will be deleted in
-  ~QwtAbstractScale or the next call of setScaleDraw.
+  ~QwtAbstractScale or the next call of setAbstractScaleDraw.
 */
 void QwtAbstractScale::setAbstractScaleDraw(QwtAbstractScaleDraw *scaleDraw)
 {
@@ -232,7 +232,7 @@ void QwtAbstractScale::setAbstractScaleDraw(QwtAbstractScaleDraw *scaleDraw)
 
 /*!
     \return Scale draw
-    \sa QwtAbstractScale::setScaleDraw
+    \sa setAbstractScaleDraw()
 */
 QwtAbstractScaleDraw *QwtAbstractScale::abstractScaleDraw() 
 {
@@ -241,7 +241,7 @@ QwtAbstractScaleDraw *QwtAbstractScale::abstractScaleDraw()
 
 /*!
     \return Scale draw
-    \sa QwtAbstractScale::setScaleDraw
+    \sa setAbstractScaleDraw()
 */
 const QwtAbstractScaleDraw *QwtAbstractScale::abstractScaleDraw() const
 {
@@ -274,7 +274,7 @@ void QwtAbstractScale::setScaleEngine(QwtScaleEngine *scaleEngine)
 
 /*!
     \return Scale engine
-    \sa QwtAbstractScale::setScaleEngine
+    \sa setScaleEngine()
 */
 const QwtScaleEngine *QwtAbstractScale::scaleEngine() const
 {
@@ -283,7 +283,7 @@ const QwtScaleEngine *QwtAbstractScale::scaleEngine() const
 
 /*!
     \return Scale engine
-    \sa QwtAbstractScale::setScaleEngine
+    \sa setScaleEngine()
 */
 QwtScaleEngine *QwtAbstractScale::scaleEngine()
 {
@@ -297,4 +297,9 @@ QwtScaleEngine *QwtAbstractScale::scaleEngine()
 */
 void QwtAbstractScale::scaleChange()
 {
+}
+
+const QwtScaleMap &QwtAbstractScale::scaleMap() const
+{
+    return d_data->scaleDraw->scaleMap();
 }

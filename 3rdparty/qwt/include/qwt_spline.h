@@ -11,6 +11,25 @@
 #define QWT_SPLINE_H
 
 #include "qwt_global.h"
+#include "qwt_double_rect.h"
+
+#if QT_VERSION >= 0x040000
+#include <QPolygonF>
+#else
+#include "qwt_array.h"
+#endif
+
+// MOC_SKIP_BEGIN
+
+#if defined(QWT_TEMPLATEDLL)
+
+#if QT_VERSION < 0x040000
+template class QWT_EXPORT QwtArray<QwtDoublePoint>;
+#endif
+
+#endif
+
+// MOC_SKIP_END
 
 /*!
   \brief A class for spline interpolation
@@ -20,60 +39,81 @@
   
   \par Usage:
   <ol>
-  <li>First call QwtSpline::recalc() to determine the spline coefficients 
+  <li>First call setPoints() to determine the spline coefficients 
       for a tabulated function y(x).
   <li>After the coefficients have been set up, the interpolated
       function value for an argument x can be determined by calling 
       QwtSpline::value().
   </ol>
-  In order to save storage space, QwtSpline can be advised
-  not to buffer the contents of x and y.
-  This means that the arrays have to remain valid and unchanged
-  for the interpolation to work properly. This can be achieved
-  by calling QwtSpline::copyValues().
 
   \par Example:
   \code
-#include<qwt_spline.h>
-#include<iostream.h>
+#include <qwt_spline.h>
 
-QwtSpline s;
-double x[30], y[30], xInter[300], yInter[300];
-int i;
-
-for(i=0;i<30;i++)               // fill up x[] and y[]
-cin >> x[i] >> y[i];
-
-if (s.recalc(x,y,30,0) == 0)    // build natural spline
+QPolygonF interpolate(const QPolygonF& points, int numValues)
 {
-   for(i=0;i<300;i++)          // interpolate
-   {
-     xInter[i] = x[0] + double(i) * (x[29] - x[0]) / 299.0;
-     yInter[i] = s.value( xInter[i] );
-   }
+    QwtSpline spline;
+    if ( !spline.setPoints(points) ) 
+        return points;
 
-   do_something(xInter, yInter, 300);
+    QPolygonF interpolatedPoints(numValues);
+
+    const double delta = 
+        (points[numPoints - 1].x() - points[0].x()) / (points.size() - 1);
+    for(i = 0; i < points.size(); i++)  / interpolate
+    {
+        const double x = points[0].x() + i * delta;
+        interpolatedPoints[i].setX(x);
+        interpolatedPoints[i].setY(spline.value(x));
+    }
+    return interpolatedPoints;
 }
-else
-  cerr << "Uhhh...\n";
   \endcode
 */
 
 class QWT_EXPORT QwtSpline
 {
 public:
+    enum SplineType
+    {
+        Natural,
+        Periodic
+    };
+
     QwtSpline();
+    QwtSpline( const QwtSpline & );
+
     ~QwtSpline();
 
-    double value(double x) const;
-    bool recalc(double *x, double *y, int n, bool periodic = false);
-    void copyValues(bool tf = true);
+    QwtSpline &operator=( const QwtSpline & );
 
-private:
-    bool buildPerSpline();
-    bool buildNatSpline();
-    int lookup(double x) const;
-    void cleanup();
+    void setSplineType(SplineType);
+    SplineType splineType() const;
+
+#if QT_VERSION < 0x040000
+    bool setPoints(const QwtArray<QwtDoublePoint>& points);
+    QwtArray<QwtDoublePoint> points() const;
+#else
+    bool setPoints(const QPolygonF& points);
+    QPolygonF points() const;
+#endif
+
+    void reset();
+
+    bool isValid() const;
+    double value(double x) const;
+
+protected:
+
+#if QT_VERSION < 0x040000
+    bool buildNaturalSpline(
+        const QwtArray<QwtDoublePoint> &);
+    bool buildPeriodicSpline(
+        const QwtArray<QwtDoublePoint> &);
+#else
+    bool buildNaturalSpline(const QPolygonF &);
+    bool buildPeriodicSpline(const QPolygonF &);
+#endif
 
     class PrivateData;
     PrivateData *d_data;

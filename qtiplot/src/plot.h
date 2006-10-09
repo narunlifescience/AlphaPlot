@@ -97,13 +97,11 @@ public:
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 	
 protected:
-	void printScale(QPainter *painter, int axisId, int startDist, int endDist, 
-						  int baseDist, const QRect &rect) const;
 	void printCanvas(QPainter *painter, const QRect &canvasRect,
-   			 const QwtArray<QwtScaleMap> &map, const QwtPlotPrintFilter &pfilter) const;
+   			 const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const;
 
 	virtual void drawItems (QPainter *painter, const QRect &rect,
-			const QwtArray< QwtScaleMap > &map, const QwtPlotPrintFilter &pfilter) const;
+			const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const;
 
 	void drawInwardTicks(QPainter *painter, const QRect &rect, 
 							const QwtScaleMap&map, int axis, bool min, bool maj) const;

@@ -44,6 +44,10 @@ public:
     bool isEnabled() const;
 
     void setMouseButton(int button, int buttonState = Qt::NoButton);
+    void getMouseButton(int &button, int &buttonState) const;
+    void setAbortKey(int key, int state = Qt::NoButton);
+    void getAbortKey(int &key, int &state) const;
+
     void setCursor(const QCursor &);
     const QCursor cursor() const;
 
@@ -71,6 +75,8 @@ protected:
     virtual void widgetMousePressEvent(QMouseEvent *);
     virtual void widgetMouseReleaseEvent(QMouseEvent *);
     virtual void widgetMouseMoveEvent(QMouseEvent *);
+    virtual void widgetKeyPressEvent(QKeyEvent *);
+    virtual void widgetKeyReleaseEvent(QKeyEvent *);
 
     virtual void paintEvent(QPaintEvent *);
 

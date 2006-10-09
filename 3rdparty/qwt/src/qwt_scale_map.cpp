@@ -13,28 +13,18 @@ QT_STATIC_CONST_IMPL double QwtScaleMap::LogMin = 1.0e-150;
 QT_STATIC_CONST_IMPL double QwtScaleMap::LogMax = 1.0e150;
 
 //!  Constructor for a linear transformation
-QwtScaleTransformation::QwtScaleTransformation():
-    xForm(linearXForm),
-    invXForm(linearXForm),
-    d_data(NULL)
+QwtScaleTransformation::QwtScaleTransformation(Type type):
+    d_type(type)
 {
 }
 
-/*! 
-   Constructor
-
-   \param xf Transform function (scale to paint coordinates)
-   \param invxf Invert Transform function (paint to scale coordinates)
-*/
-QwtScaleTransformation::QwtScaleTransformation(
-        double (*xf)(double x, double s1, double s2, 
-            double p1, double p2, void *),
-        double (*invxf)(double y, double p1, double p2, 
-            double s1, double s2, void *) ):
-    xForm(xf),
-    invXForm(invxf),
-    d_data(NULL)
+QwtScaleTransformation::~QwtScaleTransformation()
 {
+}
+
+QwtScaleTransformation *QwtScaleTransformation::copy() const
+{
+    return new QwtScaleTransformation(d_type);
 }
 
 /*!
@@ -47,36 +37,20 @@ QwtScaleTransformation::QwtScaleTransformation(
   \param y2 first border of target interval
   \return 
   <dl>
-  <dt>linear mapping:<dd>y1 + (y2 - y1) / (x2 - x1) * (x - x1)
+  <dt>linear mapping:<dd>y1 + (y2 - y1) / (x2 - x1) * (x - x1)</dd>
   </dl>
-*/
-
-double QwtScaleTransformation::linearXForm(    
-    double x, double x1, double x2, double y1, double y2, void *)
-{
-    const double ratio = (y2 - y1) / (x2 - x1);
-    return y1 + (x - x1) * ratio;
-}
-
-/*!
-  \brief Transform a value from a logarithmic to a linear interval
-
-  \param x value related to the logarithmic interval [s1, s2]
-  \param s1 first border of logarithmic interval
-  \param s2 first border of logarithmic interval
-  \param p1 first border of linear interval
-  \param p2 first border of linear interval
-  \return 
   <dl>
-  <dt>p1 + (p2 - p1) / log(s2 / s1) * log(x / s1)
+  <dt>log10 mapping: <dd>p1 + (p2 - p1) / log(s2 / s1) * log(x / s1)</dd>
   </dl>
 */
 
-
-double QwtScaleTransformation::log10XForm(double x, double s1, double s2, 
-    double p1, double p2, void *)
+double QwtScaleTransformation::xForm(
+    double s, double s1, double s2, double p1, double p2) const
 {
-    return p1 + (p2 - p1) / log(s2 / s1) * log(x / s1);
+    if ( d_type == Log10 )  
+        return p1 + (p2 - p1) / log(s2 / s1) * log(s / s1);
+    else 
+        return p1 + (p2 - p1) / (s2 - s1) * (s - s1);
 }
 
 /*!
@@ -93,10 +67,13 @@ double QwtScaleTransformation::log10XForm(double x, double s1, double s2,
   </dl>
 */
 
-double QwtScaleTransformation::log10InvXForm(double x, double p1, double p2, 
-    double s1, double s2, void *)
+double QwtScaleTransformation::invXForm(double p, double p1, double p2, 
+    double s1, double s2) const
 {
-    return exp((x - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+    if ( d_type == Log10 )  
+        return exp((p - p1) / (p2 - p1) * log(s2 / s1)) * s1;
+    else
+        return s1 + (s2 - s1) / (p2 - p1) * (p - p1);
 }
 
 /*!
@@ -111,25 +88,18 @@ QwtScaleMap::QwtScaleMap():
     d_p2(1.0),
     d_cnv(1.0)
 {
+    d_transformation = new QwtScaleTransformation(
+        QwtScaleTransformation::Linear);
 }
 
-
-/*!
-  \brief Constructor
-
-  Constructs a QwtScaleMap instance with initial paint device
-  and scale intervals
-
-  \param p1 first border of paint device interval
-  \param p2 second border of paint device interval
-  \param s1 first border of scale interval
-  \param s2 second border of scale interval
-*/ 
-QwtScaleMap::QwtScaleMap(int p1, int p2, double s1, double s2):
-    d_p1(p1),
-    d_p2(p2)
+QwtScaleMap::QwtScaleMap(const QwtScaleMap& other):
+    d_s1(other.d_s1),
+    d_s2(other.d_s2),
+    d_p1(other.d_p1),
+    d_p2(other.d_p2),
+    d_cnv(other.d_cnv)
 {
-    setScaleInterval(s1, s2);
+    d_transformation = other.d_transformation->copy();
 }
 
 /*!
@@ -137,38 +107,39 @@ QwtScaleMap::QwtScaleMap(int p1, int p2, double s1, double s2):
 */
 QwtScaleMap::~QwtScaleMap()
 {
+    delete d_transformation;
 }
 
-/*!
-   Initialize the map with a linear/logarithmic transformation
-*/
-void QwtScaleMap::setTransformation(bool logarithmic)
+QwtScaleMap &QwtScaleMap::operator=(const QwtScaleMap &other)
 {
-    QwtScaleTransformation transformation;
-    if ( logarithmic )
-    {
-        transformation.xForm = QwtScaleTransformation::log10XForm;
-        transformation.invXForm = QwtScaleTransformation::log10InvXForm;
-    }
-    else
-    {
-        transformation.xForm = QwtScaleTransformation::linearXForm;
-        transformation.invXForm = QwtScaleTransformation::linearXForm;
-    }
-    setTransformation(transformation);
+    d_s1 = other.d_s1;
+    d_s2 = other.d_s2;
+    d_p1 = other.d_p1;
+    d_p2 = other.d_p2;
+    d_cnv = other.d_cnv;
+
+    delete d_transformation;
+    d_transformation = other.d_transformation->copy();
+
+    return *this;
 }
 
 /*!
    Initialize the map with a transformation
 */
 void QwtScaleMap::setTransformation(
-    const QwtScaleTransformation &transformation)
+    QwtScaleTransformation *transformation)
 {
+    if ( transformation == NULL )
+        return;
+
+    delete d_transformation;
     d_transformation = transformation;
+    setScaleInterval(d_s1, d_s2);
 }
 
 //! Get the transformation
-const QwtScaleTransformation &QwtScaleMap::transformation() const
+const QwtScaleTransformation *QwtScaleMap::transformation() const
 {
     return d_transformation;
 }
@@ -181,7 +152,7 @@ const QwtScaleTransformation &QwtScaleMap::transformation() const
 */
 void QwtScaleMap::setScaleInterval(double s1, double s2)
 {
-    if (d_transformation.xForm == QwtScaleTransformation::log10XForm)
+    if (d_transformation->type() == QwtScaleTransformation::Log10 )
     {
         if (s1 < LogMin) 
            s1 = LogMin;
@@ -197,7 +168,8 @@ void QwtScaleMap::setScaleInterval(double s1, double s2)
     d_s1 = s1;
     d_s2 = s2;
 
-    newFactor();
+    if ( d_transformation->type() != QwtScaleTransformation::Other )
+        newFactor();
 }
 
 /*!
@@ -209,7 +181,9 @@ void QwtScaleMap::setPaintInterval(int p1, int p2)
 {
     d_p1 = p1;
     d_p2 = p2;
-    newFactor();
+
+    if ( d_transformation->type() != QwtScaleTransformation::Other )
+        newFactor();
 }
 
 /*!
@@ -221,7 +195,9 @@ void QwtScaleMap::setPaintXInterval(double p1, double p2)
 {
     d_p1 = p1;
     d_p2 = p2;
-    newFactor();
+
+    if ( d_transformation->type() != QwtScaleTransformation::Other )
+        newFactor();
 }
 
 /*!
@@ -235,8 +211,14 @@ void QwtScaleMap::newFactor()
         return;
 #endif
 
-    if (d_transformation.xForm == QwtScaleTransformation::linearXForm)
-        d_cnv = (d_p2 - d_p1) / (d_s2 - d_s1); 
-    else if (d_transformation.xForm == QwtScaleTransformation::log10XForm)
-        d_cnv = (d_p2 - d_p1) / log(d_s2 / d_s1);
+    switch( d_transformation->type() )
+    {
+        case QwtScaleTransformation::Linear:
+            d_cnv = (d_p2 - d_p1) / (d_s2 - d_s1); 
+            break;
+        case QwtScaleTransformation::Log10:
+            d_cnv = (d_p2 - d_p1) / log(d_s2 / d_s1);
+            break;
+        default:;
+    }
 }

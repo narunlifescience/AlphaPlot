@@ -2160,8 +2160,8 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 		QMessageBox::warning(0,tr("QtiPlot - Pixel selection warning"),  
 				"Please select the start line point inside the image rectangle!");
 		linesOnPlot--;
-		d_plot->removeMarker(lines[linesOnPlot]);
-		lines.resize(linesOnPlot);
+		d_plot->removeMarker(d_lines[linesOnPlot]);
+		d_lines.resize(linesOnPlot);
 		return;
 	}
 
@@ -2171,8 +2171,8 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 		QMessageBox::warning(0,tr("QtiPlot - Pixel selection warning"),  
 				"Please select the end line point inside the image rectangle!");
 		linesOnPlot--;
-		d_plot->removeMarker(lines[linesOnPlot]);
-		lines.resize(linesOnPlot);		
+		d_plot->removeMarker(d_lines[linesOnPlot]);
+		d_lines.resize(linesOnPlot);		
 		return;		
 	}
 

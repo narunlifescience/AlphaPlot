@@ -26,7 +26,7 @@ class QwtRoundScaleDraw;
   button on the scale. For a description of signals, slots and other
   members, see QwtAbstractSlider.
 
-  \image html knob.gif
+  \image html knob.png
   \sa   QwtAbstractSlider and QwtAbstractScale for the descriptions
     of the inherited members.
 */

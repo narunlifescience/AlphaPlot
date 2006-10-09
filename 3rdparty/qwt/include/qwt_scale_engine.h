@@ -17,7 +17,7 @@
 class QwtScaleTransformation;
 
 /*!
-  Arithmetic including a tolerance
+  \brief Arithmetic including a tolerance
 */
 class QWT_EXPORT QwtScaleArithmetic
 {
@@ -102,7 +102,7 @@ public:
         double stepSize = 0.0) const = 0;
 
     //! \return a transformation
-    virtual QwtScaleTransformation transformation() const = 0;
+    virtual QwtScaleTransformation *transformation() const = 0;
 
 protected:
     bool contains(const QwtDoubleInterval &, double val) const;
@@ -133,7 +133,7 @@ public:
         int numMajorSteps, int numMinorSteps,
         double stepSize = 0.0) const;
 
-    virtual QwtScaleTransformation transformation() const;
+    virtual QwtScaleTransformation *transformation() const;
 
 protected:
     QwtDoubleInterval align(const QwtDoubleInterval&,
@@ -174,7 +174,7 @@ public:
         int numMajorSteps, int numMinorSteps,
         double stepSize = 0.0) const;
 
-    virtual QwtScaleTransformation transformation() const;
+    virtual QwtScaleTransformation *transformation() const;
 
 protected:
     QwtDoubleInterval log10(const QwtDoubleInterval&) const;

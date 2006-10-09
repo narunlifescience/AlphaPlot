@@ -62,56 +62,56 @@ int QwtPlotGrid::rtti() const
   \param tf Enable (true) or disable
 
   \sa Minor gridlines can be enabled or disabled with
-      QwtPlotGrid::enableXMin()
+      enableXMin()
 */
 void QwtPlotGrid::enableX(bool tf)
 {
     if ( d_data->xEnabled != tf )
     {
         d_data->xEnabled = tf;
-        gridChanged();
+        itemChanged();
     }
 }
 
 /*!
   \brief Enable or disable horizontal gridlines
   \param tf Enable (true) or disable
-  \sa Minor gridlines can be enabled or disabled with QwtPlotGrid::enableYMin()
+  \sa Minor gridlines can be enabled or disabled with enableYMin()
 */
 void QwtPlotGrid::enableY(bool tf)
 {
     if ( d_data->yEnabled != tf )
     {
         d_data->yEnabled = tf;  
-        gridChanged();
+        itemChanged();
     }
 }
 
 /*!
   \brief Enable or disable  minor vertical gridlines.
   \param tf Enable (true) or disable
-  \sa QwtPlotGrid::enableX()
+  \sa enableX()
 */
 void QwtPlotGrid::enableXMin(bool tf)
 {
     if ( d_data->xMinEnabled != tf )
     {
         d_data->xMinEnabled = tf;
-        gridChanged();
+        itemChanged();
     }
 }
 
 /*!
   \brief Enable or disable minor horizontal gridlines
   \param tf Enable (true) or disable
-  \sa QwtPlotGrid::enableY()
+  \sa enableY()
 */
 void QwtPlotGrid::enableYMin(bool tf)
 {
     if ( d_data->yMinEnabled != tf )
     {
         d_data->yMinEnabled = tf;
-        gridChanged();
+        itemChanged();
     }
 }
 
@@ -120,14 +120,13 @@ void QwtPlotGrid::enableYMin(bool tf)
   \param sx Scale division
   \warning QwtPlotGrid uses implicit sharing (see Qt Manual) for
   the scale divisions.
-  \sa QwtScaleDiv
 */
 void QwtPlotGrid::setXDiv(const QwtScaleDiv &sx)
 {
     if ( d_data->sdx != sx )
     {
         d_data->sdx = sx;
-        gridChanged();
+        itemChanged();
     }
 }
 
@@ -136,20 +135,20 @@ void QwtPlotGrid::setXDiv(const QwtScaleDiv &sx)
   \param sy Scale division
   \warning QwtPlotGrid uses implicit sharing (see Qt Manual) for
   the scale divisions.
-  \sa QwtScaleDiv
 */
 void QwtPlotGrid::setYDiv(const QwtScaleDiv &sy)
 {
     if ( d_data->sdy != sy )
     {
         d_data->sdy = sy;    
-        gridChanged();
+        itemChanged();
     }
 }
 
 /*!
   \brief Assign a pen for both major and minor gridlines
   \param p Pen
+  \sa setMajPen(), setMinPen()
 */
 void QwtPlotGrid::setPen(const QPen &p)
 {
@@ -157,20 +156,21 @@ void QwtPlotGrid::setPen(const QPen &p)
     {
         d_data->majPen = p;
         d_data->minPen = p;
-        gridChanged();
+        itemChanged();
     }
 }
 
 /*!
   \brief Assign a pen for the major gridlines
   \param p Pen
+  \sa majPen(), setMinPen(), setPen()
 */
 void QwtPlotGrid::setMajPen(const QPen &p)
 {
     if ( d_data->majPen != p )
     {
         d_data->majPen = p;
-        gridChanged();
+        itemChanged();
     }
 }
 
@@ -183,7 +183,7 @@ void QwtPlotGrid::setMinPen(const QPen &p)
     if ( d_data->minPen != p )
     {
         d_data->minPen = p;  
-        gridChanged();
+        itemChanged();
     }
 }
 
@@ -265,7 +265,7 @@ void QwtPlotGrid::drawLines(QPainter *painter, const QRect &rect,
 
 /*!
   \return the pen for the major gridlines
-  \sa QwtPlotGrid::setMinPen, QwtPlotGrid::setPen
+  \sa setMajPen(), setMinPen(), setPen()
 */
 const QPen &QwtPlotGrid::majPen() const 
 { 
@@ -274,7 +274,7 @@ const QPen &QwtPlotGrid::majPen() const
 
 /*!
   \return the pen for the minor gridlines
-  \sa QwtPlotGrid::setMinPen, QwtPlotGrid::setPen
+  \sa setMinPen(), setMajPen(), setPen()
 */
 const QPen &QwtPlotGrid::minPen() const 
 { 
@@ -283,7 +283,7 @@ const QPen &QwtPlotGrid::minPen() const
   
 /*!
   \return true if vertical gridlines are enabled
-  \sa QwtPlotGrid::enableX
+  \sa enableX()
 */
 bool QwtPlotGrid::xEnabled() const
 { 
@@ -292,7 +292,7 @@ bool QwtPlotGrid::xEnabled() const
 
 /*!
   \return true if minor vertical gridlines are enabled
-  \sa QwtPlotGrid::enableXMin
+  \sa enableXMin()
 */
 bool QwtPlotGrid::xMinEnabled() const 
 { 
@@ -301,7 +301,7 @@ bool QwtPlotGrid::xMinEnabled() const
 
 /*!
   \return true if horizontal gridlines are enabled
-  \sa QwtPlotGrid::enableY
+  \sa enableY()
 */
 bool QwtPlotGrid::yEnabled() const 
 { 
@@ -310,7 +310,7 @@ bool QwtPlotGrid::yEnabled() const
 
 /*!
   \return true if minor horizontal gridlines are enabled
-  \sa QwtPlotGrid::enableYMin
+  \sa enableYMin()
 */
 bool QwtPlotGrid::yMinEnabled() const 
 {
@@ -336,16 +336,3 @@ void QwtPlotGrid::updateScaleDiv(const QwtScaleDiv& xDiv,
     setXDiv(xDiv);
     setYDiv(yDiv);
 }
-
-/*!
-  \brief Notify a change of attributes
-
-  This virtual function is called when an attribute of the grid
-  has changed. It can be redefined by derived classes. The
-  default implementation does nothing.
-*/
-void QwtPlotGrid::gridChanged() 
-{
-    itemChanged();
-}
-

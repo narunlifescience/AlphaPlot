@@ -76,7 +76,7 @@ public:
 
 
 /*!
-  Sets filter options to QwtPlotPrintFilter::PrintAll
+  Sets filter options to PrintAll
 */  
 
 QwtPlotPrintFilter::QwtPlotPrintFilter()
@@ -94,7 +94,7 @@ QwtPlotPrintFilter::~QwtPlotPrintFilter()
   \brief Set plot print options
   \param options Or'd QwtPlotPrintFilter::Options values
 
-  \sa QwtPlotPrintFilter::options()
+  \sa options()
 */
 void QwtPlotPrintFilter::setOptions(int options) 
 { 
@@ -103,7 +103,7 @@ void QwtPlotPrintFilter::setOptions(int options)
 
 /*! 
   \brief Get plot print options
-  \sa QwtPlotPrintFilter::setOptions()
+  \sa setOptions()
 */
 int QwtPlotPrintFilter::options() const 
 { 
@@ -152,7 +152,7 @@ QFont QwtPlotPrintFilter::font(const QFont &f, Item) const
 
 /*! 
   Change color and fonts of a plot
-  \sa QwtPlotPrintFilter::apply
+  \sa apply
 */
 void QwtPlotPrintFilter::apply(QwtPlot *plot) const
 {
@@ -326,10 +326,6 @@ void QwtPlotPrintFilter::apply(QwtPlotItem *item) const
         {
             QwtPlotMarker *m = (QwtPlotMarker *)item;
 
-#ifdef __GNUC__
-#warning filtering of rectPen/rectBrush missing
-#endif
-
             QwtText label = m->label();
             cache.markerFonts.insert(m, label.font());
             label.setFont(font(label.font(), Marker));
@@ -365,7 +361,7 @@ void QwtPlotPrintFilter::apply(QwtPlotItem *item) const
 
 /*! 
    Reset color and fonts of a plot
-   \sa QwtPlotPrintFilter::apply
+   \sa apply
 */
 void QwtPlotPrintFilter::reset(QwtPlot *plot) const
 {

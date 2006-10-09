@@ -17,13 +17,13 @@
 #include <qevent.h>
 #include <qstyleoption.h>
 #endif
+#include "qwt_math.h"
 #include "qwt_painter.h"
 #include "qwt_symbol.h"
 #include "qwt_legend_item.h"
 
-static const int IdentifierWidth = 8;
-static const int Margin = 2;
 static const int ButtonFrame = 2;
+static const int Margin = 2;
 
 static QSize buttonShift(const QwtLegendItem *w)
 {
@@ -50,17 +50,22 @@ public:
     PrivateData():
         itemMode(QwtLegend::ReadOnlyItem),
         isDown(false),
+        identifierWidth(8),
         identifierMode(QwtLegendItem::ShowLine | QwtLegendItem::ShowText),
-        curvePen(Qt::NoPen)
+        curvePen(Qt::NoPen),
+        spacing(Margin)
     {
     }
 
     QwtLegend::LegendItemMode itemMode;
     bool isDown;
 
+    int identifierWidth;
     int identifierMode;
     QwtSymbol symbol;
     QPen curvePen;
+
+    int spacing;
 };
 
 /*!
@@ -94,17 +99,24 @@ QwtLegendItem::QwtLegendItem(const QwtSymbol &symbol,
 
 void QwtLegendItem::init(const QwtText &text)
 {
-    setIndent(Margin + IdentifierWidth + 2 * Margin);
     setMargin(Margin);
+    setIndent(margin() + d_data->identifierWidth + 2 * d_data->spacing);
     setText(text);
 }
 
+//! Destructor
 QwtLegendItem::~QwtLegendItem()
 {
     delete d_data;
     d_data = NULL;
 }
 
+/*!
+   Set the text to the legend item
+
+   \param text Text label
+    \sa QwtTextLabel::text()
+*/
 void QwtLegendItem::setText(const QwtText &text)
 {
     const int flags = Qt::AlignLeft | Qt::AlignVCenter
@@ -120,6 +132,13 @@ void QwtLegendItem::setText(const QwtText &text)
     QwtTextLabel::setText(txt);
 }
 
+/*!
+   Set the item mode
+   The default is QwtLegend::ReadOnlyItem
+
+   \param mode Item mode
+   \sa itemMode()
+*/
 void QwtLegendItem::setItemMode(QwtLegend::LegendItemMode mode) 
 { 
     d_data->itemMode = mode; 
@@ -129,11 +148,16 @@ void QwtLegendItem::setItemMode(QwtLegend::LegendItemMode mode)
     using namespace Qt;
 #endif
     setFocusPolicy(mode != QwtLegend::ReadOnlyItem ? TabFocus : NoFocus);
-    setMargin(Margin + ButtonFrame);
+    setMargin(ButtonFrame + Margin);
 
     updateGeometry();
 }
 
+/*! 
+   Return the item mode
+
+   \sa setItemMode()
+*/
 QwtLegend::LegendItemMode QwtLegendItem::itemMode() const 
 { 
     return d_data->itemMode; 
@@ -144,7 +168,7 @@ QwtLegend::LegendItemMode QwtLegendItem::itemMode() const
   Default is ShowLine | ShowText.
   \param mode Or'd values of IdentifierMode
 
-  \sa QwtLegendItem::identifierMode()
+  \sa identifierMode()
 */
 void QwtLegendItem::setIdentifierMode(int mode)
 {
@@ -157,18 +181,71 @@ void QwtLegendItem::setIdentifierMode(int mode)
 
 /*!
   Or'd values of IdentifierMode.
-  \sa QwtLegendItem::setIdentifierMode(), QwtLegendItem::IdentifierMode
+  \sa setIdentifierMode(), IdentifierMode
 */
 int QwtLegendItem::identifierMode() const 
 { 
     return d_data->identifierMode; 
 }
 
+/*!
+  Set the width for the identifier
+  Default is 8 pixels
+
+  \param Width New width
+
+  \sa identifierMode(), identifierWidth
+*/
+void QwtLegendItem::setIdentfierWidth(int width)
+{
+    width = qwtMax(width, 0);
+    if ( width != d_data->identifierWidth )
+    {
+        d_data->identifierWidth = width;
+        setIndent(margin() + d_data->identifierWidth 
+            + 2 * d_data->spacing);
+    }
+}
+/*!
+   Return the width of the identifier
+
+   \sa setIdentfierWidth
+*/
+int QwtLegendItem::identifierWidth() const
+{
+    return d_data->identifierWidth;
+}
+
+/*!
+   Change the spacing
+   \param spacing Spacing
+   \sa spacing(), identifierWidth(), QwtTextLabel::margin()
+*/
+void QwtLegendItem::setSpacing(int spacing)
+{
+    spacing = qwtMax(spacing, 0);
+    if ( spacing != d_data->spacing )
+    {
+        d_data->spacing = spacing;
+        setIndent(margin() + d_data->identifierWidth 
+            + 2 * d_data->spacing);
+    }
+}
+
+/*!
+   Return the spacing
+   \sa setSpacing(), identifierWidth(), QwtTextLabel::margin()
+*/
+int QwtLegendItem::spacing() const
+{
+    return d_data->spacing;
+}
+
 /*! 
   Set curve symbol.
   \param symbol Symbol
 
-  \sa QwtLegendItem::symbol()
+  \sa symbol()
 */
 void QwtLegendItem::setSymbol(const QwtSymbol &symbol) 
 {
@@ -181,7 +258,7 @@ void QwtLegendItem::setSymbol(const QwtSymbol &symbol)
     
 /*!
   \return The curve symbol.
-  \sa QwtLegendItem::setSymbol()
+  \sa setSymbol()
 */
 const QwtSymbol& QwtLegendItem::symbol() const 
 { 
@@ -193,7 +270,7 @@ const QwtSymbol& QwtLegendItem::symbol() const
   Set curve pen.
   \param pen Curve pen
 
-  \sa QwtLegendItem::curvePen()
+  \sa curvePen()
 */
 void QwtLegendItem::setCurvePen(const QPen &pen) 
 {
@@ -206,7 +283,7 @@ void QwtLegendItem::setCurvePen(const QPen &pen)
 
 /*!
   \return The curve pen.
-  \sa QwtLegendItem::setCurvePen()
+  \sa setCurvePen()
 */
 const QPen& QwtLegendItem::curvePen() const 
 { 
@@ -280,16 +357,18 @@ void QwtLegendItem::drawItem(QPainter *painter, const QRect &rect) const
 
     const QwtMetricsMap &map = QwtPainter::metricsMap();
 
-    const int margin = map.screenToLayoutX(Margin);
+    const int m = map.screenToLayoutX(margin());
+    const int spacing = map.screenToLayoutX(d_data->spacing);
+    const int identifierWidth = map.screenToLayoutX(d_data->identifierWidth);
 
-    const QRect identifierRect(rect.x() + margin, rect.y(), 
-        map.screenToLayoutX(IdentifierWidth), rect.height());
+    const QRect identifierRect(rect.x() + m, rect.y(), 
+        identifierWidth, rect.height());
     drawIdentifier(painter, identifierRect);
 
     // Label
 
     QRect titleRect = rect;
-    titleRect.setX(identifierRect.right() + 2 * margin);
+    titleRect.setX(identifierRect.right() + 2 * spacing);
      
     text().draw(painter, titleRect);
 
@@ -327,11 +406,11 @@ void QwtLegendItem::paintEvent(QPaintEvent *e)
     drawContents(&painter);
 
     QRect rect = cr;
-    rect.setX(rect.x() + Margin);
+    rect.setX(rect.x() + margin());
     if ( d_data->itemMode != QwtLegend::ReadOnlyItem )
         rect.setX(rect.x() + ButtonFrame);
 
-    rect.setWidth(IdentifierWidth);
+    rect.setWidth(d_data->identifierWidth);
 
     drawIdentifier(&painter, rect);
 

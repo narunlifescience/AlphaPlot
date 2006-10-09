@@ -373,10 +373,6 @@ QRect QwtPlotItem::transform(const QwtScaleMap &xMap,
     if ( y2 < y1 )
         qSwap(y1, y2);
 
-#ifdef __GNUC__
-#warning QRect: weird normalize/bottom/right comaptibility semantics need to be checked
-#endif
-
     return QRect(x1, y1, x2 - x1 - 1, y2 - y1 - 1);
 }
 
@@ -392,4 +388,3 @@ QwtDoubleRect QwtPlotItem::invTransform(const QwtScaleMap &xMap,
 
     return r.normalized();
 }
-

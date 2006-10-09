@@ -730,7 +730,7 @@ private:
 	QStringList scales,associations;
 	Q3MemArray<int> c_type; //curve types
 	Q3MemArray<long> c_keys; // arrows on plot keys
-	Q3MemArray<long> lines; // arrows on plot keys
+	Q3MemArray<long> d_lines; // arrows on plot keys
 	Q3MemArray<long> images; // images on plot keys
 	QPen mrkLinePen;
 	QFont auxMrkFont, defaultMarkerFont;

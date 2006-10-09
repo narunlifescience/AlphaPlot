@@ -2,8 +2,8 @@
     File                 : lineDlg.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Line options dialog
                            
  ***************************************************************************/
@@ -29,12 +29,10 @@
 #ifndef LINEDIALOG_H
 #define LINEDIALOG_H
 
-#include <qvariant.h>
 #include <qdialog.h>
 
 class QCheckBox;
 class QComboBox;
-class Q3ButtonGroup;
 class QPushButton;
 class QTabWidget;
 class QWidget;
@@ -52,25 +50,11 @@ public:
     LineDialog(LineMarker *line, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0);
     ~LineDialog();
 
+    enum Unit{ScaleCoordinates, Pixels};
+    
 	void initGeometryTab();
 	void enableHeadTab();
 	void setCoordinates(int unit);
-
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
-    ColorButton* colorBox;
-    QComboBox* styleBox;
-    QComboBox* widthBox;
-	QComboBox* unitBox;
-    QPushButton* btnOk;
-    QPushButton* btnApply;
-	QPushButton* buttonDefault;
-
-    QCheckBox* endBox;
-    QCheckBox* startBox,  *filledBox;
-	QTabWidget* tw;
-	QWidget *options, *geometry, *head;
-	QLineEdit *xStartBox, *yStartBox, *xEndBox, *yEndBox;
-	QSpinBox *boxHeadAngle, *boxHeadLength;
 
 public slots:
 	void enableButtonDefault(QWidget *w);
@@ -83,6 +67,20 @@ public slots:
 
 private:
 	LineMarker *lm;
+	
+    ColorButton* colorBox;
+    QComboBox* styleBox;
+    QComboBox* widthBox;
+	QComboBox* unitBox;
+    QPushButton* btnOk;
+    QPushButton* btnApply;
+	QPushButton* buttonDefault;
+    QCheckBox* endBox;
+    QCheckBox* startBox,  *filledBox;
+	QTabWidget* tw;
+	QWidget *options, *geometry, *head;
+	QLineEdit *xStartBox, *yStartBox, *xEndBox, *yEndBox;
+	QSpinBox *boxHeadAngle, *boxHeadLength;
 };
 
 #endif // LINEDIALOG_H

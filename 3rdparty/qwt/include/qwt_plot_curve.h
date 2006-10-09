@@ -21,6 +21,7 @@
 class QPainter;
 class QwtScaleMap;
 class QwtSymbol;
+class QwtCurveFitter;
 
 /*!
   \brief A class which draws curves
@@ -32,19 +33,19 @@ class QwtSymbol;
   <dl><dt>A. Assign curve properties</dt>
   <dd>When a curve is created, it is configured to draw black solid lines
   with QwtPlotCurve::Lines and no symbols. You can change this by calling 
-  QwtPlotCurve::setPen(), QwtPlotCurve::setStyle() and QwtPlotCurve::setSymbol().</dd>
+  setPen(), setStyle() and setSymbol().</dd>
   <dt>B. Assign or change data.</dt>
   <dd>Data can be set in two ways:<ul>
-  <li>QwtPlotCurve::setData() is overloaded to initialize the x and y data by
+  <li>setData() is overloaded to initialize the x and y data by
   copying from different data structures with different kind of copy semantics.
-  <li>QwtPlotCurve::setRawData() only stores the pointers and size information
+  <li>setRawData() only stores the pointers and size information
   and is provided for backwards compatibility.  This function is less safe (you
   must not delete the data while they are attached), but has been more
   efficient, and has been more convenient for dynamically changing data.
-  Use of QwtPlotCurve::setData() in combination with a problem-specific subclass
+  Use of setData() in combination with a problem-specific subclass
   of QwtData is always preferrable.</ul></dd>
   <dt>C. Draw</dt>
-  <dd>QwtPlotCurve::draw() maps the data into pixel coordinates and paints them.
+  <dd>draw() maps the data into pixel coordinates and paints them.
   </dd></dl>
 
   \par Example:
@@ -55,38 +56,41 @@ class QwtSymbol;
 class QWT_EXPORT QwtPlotCurve: public QwtPlotItem
 {
 public:
+    enum CurveType
+    {
+        Yfx,
+        Xfy
+    };
+
     /*! 
         Curve styles. 
-        \sa QwtPlotCurve::setStyle
+        \sa setStyle
     */
     enum CurveStyle
     {
         NoCurve,
+
         Lines,
         Sticks,
         Steps,
         Dots,
-        Spline,
+
         UserCurve = 100
     };
 
     /*! 
         Curve attributes. 
-        \sa QwtPlotCurve::setCurveAttribute, QwtPlotCurve::testCurveAttribute
+        \sa setCurveAttribute, testCurveAttribute
     */
     enum CurveAttribute
     {
-        Auto = 0,
-        Yfx = 1,
-        Xfy = 2,
-        Parametric = 4,
-        Periodic = 8,
-        Inverted = 16
+        Inverted = 1,
+        Fitted = 2
     };
 
     /*! 
         Paint attributes 
-        \sa QwtPlotCurve::setPaintAttribute, testPaintAttribute
+        \sa setPaintAttribute, testPaintAttribute
     */
     enum PaintAttribute
     {
@@ -102,13 +106,20 @@ public:
 
     virtual int rtti() const;
 
+    void setCurveType(CurveType);
+    CurveType curveType() const;
+
     void setPaintAttribute(PaintAttribute, bool on = true);
     bool testPaintAttribute(PaintAttribute) const;
 
     void setRawData(const double *x, const double *y, int size);
     void setData(const double *xData, const double *yData, int size);
     void setData(const QwtArray<double> &xData, const QwtArray<double> &yData);
+#if QT_VERSION < 0x040000
     void setData(const QwtArray<QwtDoublePoint> &data);
+#else
+    void setData(const QPolygonF &data);
+#endif
     void setData(const QwtData &data);
     
     int closestPoint(const QPoint &pos, double *dist = NULL) const;
@@ -149,8 +160,8 @@ public:
     void setSymbol(const QwtSymbol &s);
     const QwtSymbol& symbol() const;
 
-    void setSplineSize(int s);
-    int splineSize() const;
+    void setCurveFitter(QwtCurveFitter *);
+    QwtCurveFitter *curveFitter() const;
 
     virtual void draw(QPainter *p, 
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
@@ -188,16 +199,12 @@ protected:
     void drawSteps(QPainter *p,
         const QwtScaleMap &xMap, const QwtScaleMap &yMap,
         int from, int to) const;
-    void drawSpline(QPainter *p,
-        const QwtScaleMap &xMap, const QwtScaleMap &yMap) const;
 
     void fillCurve(QPainter *,
         const QwtScaleMap &, const QwtScaleMap &,
         QwtPolygon &) const;
     void closePolyline(const QwtScaleMap &, const QwtScaleMap &,
         QwtPolygon &) const;
-
-    int verifyRange(int &i1, int &i2) const;
 
 private:
     QwtData *d_xy;

@@ -274,6 +274,21 @@ void QwtPainter::fillRect(QPainter *painter,
 }
 
 /*!
+    Wrapper for QPainter::drawPie()
+*/
+void QwtPainter::drawPie(QPainter *painter, const QRect &rect, 
+    int a, int alen)
+{
+    QRect r = d_metricsMap.layoutToDevice(rect, painter);
+
+    const bool deviceClipping = needDeviceClipping(painter, d_deviceClipping);
+    if ( deviceClipping && !deviceClipRect().contains(rect) )
+        return;
+
+    painter->drawPie(r, a, alen);
+}
+
+/*!
     Wrapper for QPainter::drawEllipse()
 */
 void QwtPainter::drawEllipse(QPainter *painter, const QRect &rect)

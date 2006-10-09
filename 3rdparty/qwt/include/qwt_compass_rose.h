@@ -15,6 +15,9 @@
 
 class QPainter;
 
+/*!
+  \brief Abstract base class for a compass rose
+*/
 class QWT_EXPORT QwtCompassRose
 {
 public:
@@ -40,6 +43,9 @@ private:
     QPalette d_palette;
 };
 
+/*!
+  \brief A simple rose for QwtCompass
+*/
 class QWT_EXPORT QwtSimpleCompassRose: public QwtCompassRose
 {
 public:

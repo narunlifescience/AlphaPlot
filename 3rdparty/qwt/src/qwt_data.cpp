@@ -58,17 +58,17 @@ QwtDoubleRect QwtData::boundingRect() const
 }
 
 #if QT_VERSION >= 0x040000
-QwtDoublePointData::QwtDoublePointData(const QPolygonF &data):
+QwtPolygonFData::QwtPolygonFData(const QPolygonF &data):
 #else
-QwtDoublePointData::QwtDoublePointData(const QwtArray<QwtDoublePoint> &data):
+QwtPolygonFData::QwtPolygonFData(const QwtArray<QwtDoublePoint> &data):
 #endif
     d_data(data)
 {
 }
 
 //! Assignment 
-QwtDoublePointData& QwtDoublePointData::operator=(
-    const QwtDoublePointData &data)
+QwtPolygonFData& QwtPolygonFData::operator=(
+    const QwtPolygonFData &data)
 {
     if (this != &data)
     {
@@ -77,33 +77,33 @@ QwtDoublePointData& QwtDoublePointData::operator=(
     return *this;
 }
 
-size_t QwtDoublePointData::size() const 
+size_t QwtPolygonFData::size() const 
 { 
     return d_data.size(); 
 }
 
-double QwtDoublePointData::x(size_t i) const 
+double QwtPolygonFData::x(size_t i) const 
 { 
     return d_data[int(i)].x(); 
 }
 
-double QwtDoublePointData::y(size_t i) const 
+double QwtPolygonFData::y(size_t i) const 
 { 
     return d_data[int(i)].y(); 
 }
 
 #if QT_VERSION >= 0x040000
-const QPolygonF &QwtDoublePointData::data() const
+const QPolygonF &QwtPolygonFData::data() const
 #else
-const QwtArray<QwtDoublePoint> &QwtDoublePointData::data() const
+const QwtArray<QwtDoublePoint> &QwtPolygonFData::data() const
 #endif
 {
     return d_data;
 }
 
-QwtData *QwtDoublePointData::copy() const 
+QwtData *QwtPolygonFData::copy() const 
 { 
-    return new QwtDoublePointData(d_data); 
+    return new QwtPolygonFData(d_data); 
 }
 
 /*!

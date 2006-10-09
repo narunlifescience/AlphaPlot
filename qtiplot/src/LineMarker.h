@@ -2,8 +2,8 @@
     File                 : LineMarker.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Line marker (extension to QwtPlotMarker)
                            
  ***************************************************************************/
@@ -30,59 +30,105 @@
 #define LINEMARKER_H
 
 #include <qwt_plot_marker.h>
-		
-//! Line marker (extension to QwtPlotMarker)
+	
 class LineMarker: public QwtPlotMarker
 {
 public:
-    LineMarker(QwtPlot *);
+    LineMarker();
     virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
-	void setStartPoint(const QPoint& p);
-	void setEndPoint(const QPoint& p);
+	//! Pixel coordinates of the start point
 	QPoint startPoint();
+	//! Sets the start point in pixel coordinates
+	void setStartPoint(const QPoint& p);
+
+	//! Pixel coordinates of the end point
 	QPoint endPoint();
-	double dist(int x, int y);
-	double teta(int xs, int ys, int xe, int ye) const;
-	double length();
+	//! Sets the end point in pixel coordinates
+	void setEndPoint(const QPoint& p);
 
-	QwtDoublePoint coordStartPoint();
-	void setCoordStartPoint(const QwtDoublePoint& p);
+	//! Axes values coordinates of the start point
+	QwtDoublePoint startPointCoord();
+	//! Sets the start point in axes values coordinates
+	void setStartPoint(double x, double y);
 
-	QwtDoublePoint coordEndPoint();
-	void setCoordEndPoint(const QwtDoublePoint& p);
+	//! Axes values coordinates of the end point
+	QwtDoublePoint endPointCoord();
+	//! Sets the end point in axes values coordinates
+	void setEndPoint(double x, double y);
 
 	void setColor(const QColor& c);
-	QColor color();
+	QColor color(){return linePen().color();};
 
+	//! Sets the width of the arrow line
 	void setWidth(int w);
-	int width();
+	//! The width of the arrow line
+	int width(){return linePen().width();};
 
+	//! Sets the pen style for the arrow line
 	void setStyle(Qt::PenStyle s);
-	Qt::PenStyle style();
+	//! The pen style of the arrow line
+	Qt::PenStyle style(){return linePen().style ();};
 
-	void setStartArrow(bool on);
-	bool getStartArrow();
-	void setEndArrow(bool on);
-	bool getEndArrow();
+	//! Specifies weather the start arrow should be drawn
+	void drawStartArrow(bool on = true){d_start_arrow = on;};
+	bool hasStartArrow(){return d_start_arrow;};
+
+	//! Specifies weather the end arrow should be drawn
+	void drawEndArrow(bool on = true){d_end_arrow = on;};
+	bool hasEndArrow(){return d_end_arrow;};
 	
-	int headLength(){return d_headLength;};
+	//! Length of the arrow head
+	int headLength(){return d_head_length;};
+	//! Sets the length of the arrow head
 	void setHeadLength(int l);
 	
-	int headAngle(){return d_headAngle;};
+	//! The angle of the arrow head
+	int headAngle(){return d_head_angle;};
+	//! Sets the angle of the arrow head
 	void setHeadAngle(int a);
 	
-	bool filledArrowHead(){return filledArrow;};
-	void fillArrowHead(bool fill);
+	bool filledArrowHead(){return d_fill_head;};
+	//! Specifies weather the arrow head should be filled with a brush
+	void fillArrowHead(bool fill = true);
 	
+	//! Returns the shortest distance to the arrow line or to one of the arrow heads
+	double dist(int x, int y);
+
+	//! Returns the length of the arrow line
+	double length();
+
+	QwtDoubleRect boundingRect() const;
+
+	//! Recalculates the bounding rectangle in values coordinates using 
+	// the pixel coordinats when the scales change
 	void updateBoundingRect();
 	
 private:
-	QPoint d_start, d_end; 
-	QPen pen;
-	bool startArrow,endArrow, filledArrow;
-	int d_headAngle, d_headLength;
+	double teta(int xs, int ys, int xe, int ye) const;
+
+	//! Flag specifying if the start arrow is visible
+	bool d_start_arrow;
+
+	//! Flag specifying if the end arrow is visible
+	bool d_end_arrow;
+
+	//! Flag specifying if the arrow head is filled with a brush
+	bool d_fill_head;
+
+	//! Angle of the arrow head
+	int d_head_angle;
+
+	//! Length of the arrow head
+	int d_head_length;
+
+	//! Pixel coordinates of the start point
+	QPoint d_start;
+
+	//! Pixel coordinates of the end point
+	QPoint d_end; 
+
+	//! Bounding rectangle of the arrow in axes values coordinates
 	QwtDoubleRect d_rect;
-	QwtPlot *d_plot;
 };
 #endif

@@ -53,11 +53,11 @@ public:
         const QwtEventPattern &, const QEvent *) = 0;
     void reset(); 
 
-protected:
-    QwtPickerMachine();
-
     int state() const;
     void setState(int);
+
+protected:
+    QwtPickerMachine();
 
 private:
     int d_state;

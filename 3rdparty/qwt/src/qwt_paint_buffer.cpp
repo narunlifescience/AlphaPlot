@@ -32,7 +32,7 @@ QwtPaintBuffer::QwtPaintBuffer():
     \param painter Painter to paint on device. In case of 0
                    QwtPaintBuffer uses an internal painter
 
-    \sa QwtPaintBuffer::open()
+    \sa open()
 */
 
 QwtPaintBuffer::QwtPaintBuffer(QPaintDevice *device, 
@@ -46,7 +46,7 @@ QwtPaintBuffer::QwtPaintBuffer(QPaintDevice *device,
 
 /*! 
     Closes the buffer
-    \sa QwtPaintBuffer::close()
+    \sa close()
 */
 QwtPaintBuffer::~QwtPaintBuffer()
 {

@@ -838,12 +838,12 @@ void QwtScaleWidget::fontChange(const QFont &oldFont)
   \sa For more information about scale divisions, see QwtScaleDiv.
 */
 void QwtScaleWidget::setScaleDiv(
-    const QwtScaleTransformation& transformation,
+    QwtScaleTransformation *transformation,
     const QwtScaleDiv &scaleDiv)
 {
     QwtScaleDraw *sd = d_data->scaleDraw;
     if (sd->scaleDiv() != scaleDiv ||
-        sd->map().transformation().xForm != transformation.xForm )
+        sd->map().transformation()->type() != transformation->type() )
     {
         sd->setTransformation(transformation);
         sd->setScaleDiv(scaleDiv);

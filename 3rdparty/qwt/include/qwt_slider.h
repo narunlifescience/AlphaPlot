@@ -24,6 +24,9 @@ class QwtScaleDraw;
   QwtSlider is a slider widget which operates on an interval
   of type double. QwtSlider supports different layouts as
   well as a scale.
+
+  \image html sliders.png
+
   \sa QwtAbstractSlider and QwtAbstractScale for the descriptions
       of the inherited members.
 */

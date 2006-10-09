@@ -13,6 +13,7 @@
 #include <qglobal.h>
 
 #include <qstring.h>
+#include "qwt_double_rect.h" 
 #include "qwt_plot_item.h" 
 
 #if QT_VERSION >= 0x040100
@@ -52,8 +53,8 @@ protected:
 #endif
 
     void render(QPainter *painter,
-        const QRect &viewBox, const QRect &rect) const;
-    QRect viewBox(const QwtDoubleRect &area) const;
+        const QwtDoubleRect &viewBox, const QRect &rect) const;
+    QwtDoubleRect viewBox(const QwtDoubleRect &area) const;
 
 private:
     void init();

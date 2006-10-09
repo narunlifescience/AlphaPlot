@@ -69,18 +69,16 @@ void QwtBarCurve::draw(QPainter *painter,
     if (to < 0)
         to = dataSize() - 1;
 
-    if ( verifyRange(from, to) > 0 )
-		{
-        painter->save();
-        painter->setPen(QwtPlotCurve::pen());
-        painter->setBrush(QwtPlotCurve::brush());
+    painter->save();
+    painter->setPen(QwtPlotCurve::pen());
+    painter->setBrush(QwtPlotCurve::brush());
+
+    int dx,dy,ref,bar_width;
 			
-		int dx,dy,ref,bar_width;
-			
-		if (bar_style == Vertical)
-			ref= yMap.transform(1e-100); //smalest positive value for log scales
-		else
-			ref= xMap.transform(1e-100);	
+    if (bar_style == Vertical)
+       ref= yMap.transform(1e-100); //smalest positive value for log scales
+    else
+        ref= xMap.transform(1e-100);	
 				
 		int i;
 		if (bar_style == Vertical)
@@ -129,7 +127,6 @@ void QwtBarCurve::draw(QPainter *painter,
 				}	
 			}
 		painter->restore();
-		}
 }
 
 QwtDoubleRect QwtBarCurve::boundingRect() const

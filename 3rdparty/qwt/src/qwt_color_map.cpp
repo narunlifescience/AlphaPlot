@@ -32,6 +32,8 @@ public:
     void insert(double pos, const QColor &color);
     QRgb rgb(QwtLinearColorMap::Mode, double pos) const;
 
+    QwtArray<double> stops() const;
+
 private:
 
     class ColorStop
@@ -96,6 +98,14 @@ void QwtLinearColorMap::ColorStops::insert(double pos, const QColor &color)
     }
 
     _stops[index] = ColorStop(pos, color);
+}
+
+inline QwtArray<double> QwtLinearColorMap::ColorStops::stops() const
+{
+    QwtArray<double> positions(_stops.size());
+    for ( int i = 0; i < (int)_stops.size(); i++ )
+        positions[i] = _stops[i].pos;
+    return positions;
 }
 
 inline int QwtLinearColorMap::ColorStops::findUpper(double pos) const
@@ -193,8 +203,10 @@ public:
 };
 
 /*! 
-   Constructor
-   \param format Preferred format of the coor map
+   Build a color map with two stops at 0.0 and 1.0. The color
+   at 0.0 is Qt::blue, at 1.0 it is Qt::yellow.
+
+   \param format Preferred format of the color map
 */
 QwtLinearColorMap::QwtLinearColorMap(QwtColorMap::Format format):
     QwtColorMap(format)
@@ -214,7 +226,7 @@ QwtLinearColorMap::QwtLinearColorMap(const QwtLinearColorMap &other):
 }
 
 /*!
-   Build a color map from 2 colors
+   Build a color map with two stops at 0.0 and 1.0. 
 
    \param color1 Color used for the minimum value of the value interval
    \param color2 Color used for the maximum value of the value interval
@@ -253,11 +265,24 @@ QwtColorMap *QwtLinearColorMap::copy() const
     return map;
 }
 
+/*!
+   \brief Set the mode of the color map
+
+   FixedColors means the color is calculated from the next lower
+   color stop. ScaledColors means the color is calculated
+   by interpolating the colors of the adjacent stops. 
+
+   \sa mode()
+*/
 void QwtLinearColorMap::setMode(Mode mode)
 {
     d_data->mode = mode;
 }
 
+/*!
+   \return Mode of the color map
+   \sa setMode()
+*/
 QwtLinearColorMap::Mode QwtLinearColorMap::mode() const
 {
     return d_data->mode;
@@ -265,6 +290,8 @@ QwtLinearColorMap::Mode QwtLinearColorMap::mode() const
 
 /*!
    Set the color range 
+
+   Add stops at 0.0 and 1.0. 
 
    \param color1 Color used for the minimum value of the value interval
    \param color2 Color used for the maximum value of the value interval
@@ -279,10 +306,28 @@ void QwtLinearColorMap::setColorInterval(
     d_data->colorStops.insert(1.0, color2);
 }
 
+/*!
+   Add a color stop
+
+   The value has to be in the range [0.0, 1.0]. 
+   F.e. a stop at position 17.0 for a range [10.0,20.0] must be
+   passed as: (17.0 - 10.0) / (20.0 - 10.0)
+
+   \param value Value between [0.0, 1.0]
+   \param color Color stop
+*/
 void QwtLinearColorMap::addColorStop(double value, const QColor& color)
 {
     if ( value >= 0.0 && value <= 1.0 )
         d_data->colorStops.insert(value, color);
+}
+
+/*!
+   Return all positions of color stops in increasing order
+*/
+QwtArray<double> QwtLinearColorMap::colorStops() const
+{
+    return d_data->colorStops.stops();
 }
 
 /*! 
@@ -312,11 +357,6 @@ QColor QwtLinearColorMap::color2() const
 QRgb QwtLinearColorMap::rgb(const QwtDoubleInterval &interval,
     double value) const
 {
-#if 0
-    if ( !interval.isValid() )
-        return QColor().rgb();
-#endif
-
     const double ratio = (value - interval.minValue()) / interval.width();
     return d_data->colorStops.rgb(d_data->mode, ratio);
 }
@@ -345,4 +385,113 @@ unsigned char QwtLinearColorMap::colorIndex(
         index = (unsigned char)qRound(ratio * 255);
 
     return index;
+}
+
+class QwtAlphaColorMap::PrivateData
+{
+public:
+    QColor color;
+    QRgb rgb;
+};
+
+
+/*! 
+   Constructor
+   \param format Preferred format of the coor map
+*/
+QwtAlphaColorMap::QwtAlphaColorMap(const QColor &color):
+    QwtColorMap(QwtColorMap::RGB)
+{
+    d_data = new PrivateData;
+    d_data->color = color;
+    d_data->rgb = color.rgb() & qRgba(255, 255, 255, 0);
+}
+
+//! Copy constructor
+QwtAlphaColorMap::QwtAlphaColorMap(const QwtAlphaColorMap &other):
+    QwtColorMap(other)
+{
+    d_data = new PrivateData;
+    *this = other;
+}
+
+//! Destructor
+QwtAlphaColorMap::~QwtAlphaColorMap()
+{
+    delete d_data;
+}
+
+//! Assignment operator
+QwtAlphaColorMap &QwtAlphaColorMap::operator=(
+    const QwtAlphaColorMap &other)
+{
+    QwtColorMap::operator=(other);
+    *d_data = *other.d_data;
+    return *this;
+}
+
+//! Clone the color map
+QwtColorMap *QwtAlphaColorMap::copy() const
+{
+    QwtAlphaColorMap* map = new QwtAlphaColorMap();
+    *map = *this;
+
+    return map;
+}
+
+/*!
+   Set the color 
+   \sa color()
+*/
+void QwtAlphaColorMap::setColor(const QColor &color)
+{
+    d_data->color = color;
+    d_data->rgb = color.rgb();
+}
+
+/*! 
+  \return the color 
+  \sa setColor()
+*/
+QColor QwtAlphaColorMap::color() const
+{
+    return d_data->color;
+}
+
+/*!
+  \brief Map a value of a given interval into a alpha value
+
+  alpha := (value - interval.minValue()) / interval.width();
+
+  \param interval Range for all values
+  \param value Value to map into a rgb value
+*/
+QRgb QwtAlphaColorMap::rgb(const QwtDoubleInterval &interval,
+    double value) const
+{
+    if ( interval.isValid() )
+    {
+        const double ratio = (value - interval.minValue()) / interval.width();
+        int alpha = qRound(255 * ratio);
+        if ( alpha < 0 )
+            alpha = 0;
+        if ( alpha > 255 )
+            alpha = 255;
+
+        return d_data->rgb | (alpha << 24);
+    }
+    return d_data->rgb;
+}
+
+/*!
+  Dummy function, needed to be implemented as it is pure virtual
+  in QwtColorMap. Color indices make no sense in combination with 
+  an alpha channel.
+
+  \return Always 0
+*/
+unsigned char QwtAlphaColorMap::colorIndex(
+    const QwtDoubleInterval &, double) const
+{
+    return 0;
 }

@@ -40,7 +40,7 @@ class QwtCompassRose;
   QwtCompass is a widget to display and enter directions. It consists
   of a scale, an optional needle and rose. 
 
-  \image html compass.gif 
+  \image html dials1.png 
 
   \note The examples/dials example shows how to use QwtCompass.
 */
