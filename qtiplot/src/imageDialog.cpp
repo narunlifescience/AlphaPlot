@@ -2,8 +2,8 @@
     File                 : imageDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Image geometry dialog
                            
  ***************************************************************************/
@@ -28,15 +28,10 @@
  ***************************************************************************/
 #include "imageDialog.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qspinbox.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <q3vbox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QBoxLayout>
+#include <QVBoxLayout>
+#include <QGroupBox>
+#include <QLabel.h>
 #include <QPixmap>
 
 /* XPM */
@@ -137,61 +132,73 @@ ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 {
     if ( !name )
 	setName( "ImageDialog" );
-    setSizePolicy( QSizePolicy( (QSizePolicy::SizeType)0, (QSizePolicy::SizeType)0, 0, 0, sizePolicy().hasHeightForWidth() ) );
-    setSizeGripEnabled( false );
+	setWindowTitle( tr( "QtiPlot - Image Geometry" ) );
 	
-	GroupBox4 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox4" );
-	GroupBox4->setFlat (true);
-	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Origin"),GroupBox4,"GroupBox1" );
-
-    new QLabel( tr( "X= " ), GroupBox1, "TextLabel1",0 );
-	boxX = new QSpinBox(0,2000,1,GroupBox1, "boxX" );
+	QGroupBox *gb1 = new QGroupBox(tr("Origin"));
+	boxX = new QSpinBox();
+	boxX->setRange(0, 2000);
 	boxX->setSuffix(tr(" pixels"));
-
-    new QLabel( tr( "Y= " ), GroupBox1, "TextLabel2",0 );
-	boxY = new QSpinBox(0,2000,1,GroupBox1, "boxY" );
+	
+	boxY = new QSpinBox();
+	boxY->setRange(0, 2000);
 	boxY->setSuffix(tr(" pixels"));
-
-	GroupBox3 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Size"),GroupBox4,"GroupBox3" );
-	Q3GroupBox *box1 = new Q3GroupBox ( 2, Qt::Horizontal, GroupBox3);
-	box1->setFlat (true);
-	box1->setInsideMargin (0);
-
-    new QLabel( tr( "width= " ), box1, "TextLabel3",0 );
-	boxWidth = new QSpinBox(0,2000,1,box1, "boxX" );
+	
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel( tr("X= ")), 0, 0);
+    gl1->addWidget(boxX, 0, 1);
+    gl1->addWidget(new QLabel(tr("Y= ")), 1, 0);
+    gl1->addWidget(boxY, 1, 1);
+    gb1->setLayout(gl1);
+    
+    QGroupBox *gb2 = new QGroupBox(tr("Size"));
+    boxWidth = new QSpinBox();
+	boxWidth->setRange(0, 2000);
 	boxWidth->setSuffix(tr(" pixels"));
-
-	new QLabel( tr( "height= " ), box1, "TextLabel4",0 );
-	boxHeight = new QSpinBox(0,2000,1,box1, "boxY" );
+	
+	boxHeight = new QSpinBox();
+	boxHeight->setRange(0, 2000);
 	boxHeight->setSuffix(tr(" pixels"));
+	
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel( tr("width= ")), 0, 0);
+    gl2->addWidget(boxWidth, 0, 1);
+    gl2->addWidget(new QLabel(tr("height= ")), 1, 0);
+    gl2->addWidget(boxHeight, 1, 1);
+    gb2->setLayout(gl2);
 
-	Q3VBox *box2 = new Q3VBox (GroupBox3);
-	QLabel *up = new QLabel(box2);
+	QLabel *up = new QLabel();
 	up->setPixmap(QPixmap(up_xpm));
 
-	linkButton = new ChainButton(box2);
+	linkButton = new ChainButton();
 
-	QLabel *down = new QLabel(box2);
+	QLabel *down = new QLabel();
 	down->setPixmap(QPixmap(down_xpm));
+	
+	QBoxLayout *bl = new QBoxLayout (QBoxLayout::TopToBottom);
+	bl->addWidget(up);
+	bl->addWidget(linkButton);
+	bl->addWidget(down);
+	
+    QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl1->addWidget(gb1);
+	bl1->addWidget(gb2);
+	bl1->addLayout(bl);
 
-	GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
+	buttonApply = new QPushButton( tr( "&Apply" ) );
+	buttonOk = new QPushButton(tr( "&Ok" ) );
+    buttonCancel = new QPushButton(tr( "&Cancel" ) );
+    
+    QBoxLayout *bl2 = new QBoxLayout (QBoxLayout::LeftToRight);
+	bl2->addWidget(buttonApply);
+	bl2->addWidget(buttonOk);
+	bl2->addWidget(buttonCancel);
+	bl2->addStretch();
 	
-	buttonApply = new QPushButton(GroupBox2, "buttonApply" );
-	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( true );
-    buttonOk->setDefault( true );
-   
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
-	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox4);
-	hlayout->addWidget(GroupBox2);
-
-    languageChange();
+	QVBoxLayout* vl = new QVBoxLayout();
+    vl->addLayout(bl1);
+	vl->addLayout(bl2);
+	vl->addStretch();
+	setLayout(vl);
    
     // signals and slots connections
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -201,14 +208,6 @@ ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 
 ImageDialog::~ImageDialog()
 {
-}
-
-void ImageDialog::languageChange()
-{
-    setWindowTitle( tr( "QtiPlot - Image Geometry" ) );
-	buttonApply->setText( tr( "&Apply" ) );
-    buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
 void ImageDialog::setOrigin(const QPoint& o)
@@ -253,12 +252,12 @@ else
 
 void ImageDialog::update()
 {
-emit options(boxX->value(),boxY->value(),boxWidth->value(),boxHeight->value());
+emit setGeometry(boxX->value(),boxY->value(),boxWidth->value(),boxHeight->value());
 }
 
 void ImageDialog::accept()
 {
-emit options(boxX->value(),boxY->value(),boxWidth->value(),boxHeight->value());
+update();
 close();
 }
 

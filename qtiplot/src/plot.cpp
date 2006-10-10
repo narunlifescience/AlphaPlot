@@ -54,8 +54,6 @@ Plot::Plot(QWidget *parent, const char *name)
 	majTickLength = 9;
 
 	movedGraph=FALSE;
-	graphToResize=FALSE;
-	ShiftButton=FALSE;
 
 	setGeometry(QRect(0,0,500,400));
 	setAxisTitle(QwtPlot::yLeft, tr("Y Axis Title"));
@@ -101,6 +99,7 @@ Plot::Plot(QWidget *parent, const char *name)
 	plCanvas->setFrameShadow(QwtPlot::Plain);
 	plCanvas->setCursor(Qt::arrowCursor);
 	plCanvas->setLineWidth(0);
+	//plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
 
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
@@ -390,28 +389,8 @@ void Plot::setTickLength (int minLength, int majLength)
 
 void Plot::mousePressEvent ( QMouseEvent * e )
 {
-	if(e->state()==Qt::ShiftButton)
-		ShiftButton=TRUE;
-
 	presspos = e->pos();
 	emit selectPlot();
-}
-
-void Plot::mouseMoveEvent ( QMouseEvent * e )
-{
-	if(ShiftButton)
-	{
-		graphToResize=TRUE;
-		emit resizeGraph(e->pos());	
-	}				
-	/*else if ((presspos - e->pos()).manhattanLength() > QApplication::startDragDistance())
-	  {
-	  if (!((Graph *)parent())->zoomOn())
-	  {
-	  movedGraph=TRUE;
-	  emit moveGraph(e->pos());
-	  }
-	  }*/
 }
 
 void Plot::mouseReleaseEvent ( QMouseEvent *)
@@ -420,13 +399,6 @@ void Plot::mouseReleaseEvent ( QMouseEvent *)
 	{
 		emit releasedGraph();
 		movedGraph=FALSE;
-	}
-
-	if (graphToResize)
-	{
-		emit resizedGraph();
-		graphToResize=FALSE;
-		ShiftButton=FALSE;
 	}
 }
 

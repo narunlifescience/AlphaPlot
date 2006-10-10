@@ -764,6 +764,7 @@ void ConfigDialog::languageChange()
 	boxCurveStyle->addItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
 	boxCurveStyle->addItem( QPixmap(spline_xpm), tr( " Spline" ) );
 	boxCurveStyle->addItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
+	boxCurveStyle->addItem( QPixmap(hor_steps_xpm), tr( " Horizontal steps" ) );
 	boxCurveStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
 	boxCurveStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxCurveStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
@@ -779,14 +780,16 @@ void ConfigDialog::languageChange()
 		boxCurveStyle->setCurrentItem(3);
 	else if (style == Graph::Spline)
 		boxCurveStyle->setCurrentItem(4);
-	else if (style == Graph::Steps)
+	else if (style == Graph::VerticalSteps)
 		boxCurveStyle->setCurrentItem(5);
-	else if (style == Graph::Area)
+	else if (style == Graph::HorizontalSteps)
 		boxCurveStyle->setCurrentItem(6);
-	else if (style == Graph::VerticalBars)
+	else if (style == Graph::Area)
 		boxCurveStyle->setCurrentItem(7);
-	else if (style == Graph::HorizontalBars)
+	else if (style == Graph::VerticalBars)
 		boxCurveStyle->setCurrentItem(8);
+	else if (style == Graph::HorizontalBars)
+		boxCurveStyle->setCurrentItem(9);
 
 	//plots 3D
 	lblResolution->setText(tr("Resolution")); 
@@ -923,15 +926,18 @@ int ConfigDialog::curveStyle()
 			style = Graph::Spline;
 			break;
 		case 5:
-			style = Graph::Steps;
+			style = Graph::VerticalSteps;
 			break;
 		case 6:
-			style = Graph::Area;
+			style = Graph::HorizontalSteps;
 			break;
 		case 7:
-			style = Graph::VerticalBars;
+			style = Graph::Area;
 			break;
 		case 8:
+			style = Graph::VerticalBars;
+			break;
+		case 9:
 			style = Graph::HorizontalBars;
 			break;
 	}

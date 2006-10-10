@@ -665,13 +665,14 @@ QStringList Table::YColumns()
 
 QStringList Table::selectedYColumns()
 {
-	QStringList names;
-	for (int i=0;i<worksheet->numCols();i++)
+QStringList names;
+for (int i=0;i<worksheet->numCols();i++)
 	{
-		if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
-			names<<QString(name())+"_"+col_label[i];
+	if(worksheet->isColumnSelected (i, true) && 
+      (col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
+	   names<<QString(name())+"_"+col_label[i];
 	}
-	return names;
+return names;
 }
 
 QStringList Table::selectedYLabels()
@@ -2199,16 +2200,28 @@ void Table::plotSpline()
 		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
 }
 
-void Table::plotSteps()
+void Table::plotVertSteps()
 {
-	if (!valid2DPlot())
-		return;
+if (!valid2DPlot())
+   return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this,s,Graph::Steps);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+QStringList s=selectedYColumns();
+if (int(s.count())>0)
+   emit plotCol(this, s, Graph::VerticalSteps);
+else
+    QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+}
+  	 
+void Table::plotHorSteps()
+{
+if (!valid2DPlot())
+   return;
+  	 
+QStringList s=selectedYColumns();
+if (int(s.count())>0)
+   emit plotCol(this, s, Graph::HorizontalSteps);	
+else
+    QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
 }
 
 void Table::plotHistogram()

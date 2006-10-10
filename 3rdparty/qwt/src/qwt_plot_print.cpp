@@ -498,9 +498,8 @@ void QwtPlot::printCanvas(QPainter *painter, const QRect &canvasRect,
         QwtPainter::drawRect(painter, canvasRect); 
     }
 
-
-    painter->setClipping(true);
-    QwtPainter::setClipRect(painter, canvasRect);
+    //painter->setClipping(true);
+    //QwtPainter::setClipRect(painter, canvasRect);
 
     drawItems(painter, canvasRect, map, pfilter);
 }

@@ -64,9 +64,6 @@ private:
 	
 	Plot* plotWidget;	
 	QPoint startLinePoint, endLinePoint;
-	
-	int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
-	bool moved,	movedGraph, pointSelected, select_peaks;
 
 	//! Tells if the user resizes a line marker via the mouse using the start point
 	bool resizeLineFromStart;
@@ -90,6 +87,8 @@ signals:
 	void highlightGraph();
 	
 private:
-		QPoint presspos;
+    QPoint presspos;
+    int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
+	bool moved,	movedGraph, mousePressed, pointSelected, select_peaks;
 };
 

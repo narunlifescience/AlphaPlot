@@ -233,7 +233,6 @@ public:
 							
   void exportToSVG(const QString& fname);
   void exportToEPS(const QString& fname);
-  //void exportToWmf(const QString& fname) /PyName=exportToWMF/;
 private:
   Graph(const Graph&);
 };

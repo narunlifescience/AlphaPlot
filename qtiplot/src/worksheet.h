@@ -111,7 +111,8 @@ public slots:
 	void plotPie();	
 	void plotVerticalDropLines();
 	void plotSpline();
-	void plotSteps();
+	void plotVertSteps();
+    void plotHorSteps();
 	void plotHistogram();
 	void plotVectXYXY();
 	void plotVectXYAM();

@@ -29,6 +29,7 @@
 #include "curvesDialog.h"
 #include "graph.h"
 #include "worksheet.h"
+#include "pixmaps.h"
 
 #include <qlabel.h>
 #include <q3listbox.h>
@@ -47,280 +48,6 @@
 #include <QPixmap>
 #include <Q3VBoxLayout>
 #include <Q3ListView>
-
-static const char * remove_xpm[] = {
-"16 17 27 1",
-" 	c None",
-".	c #000000",
-"+	c #BDD3BD",
-"@	c #B5CBB5",
-"#	c #B5C7B5",
-"$	c #B5CFB5",
-"%	c #BDCFB5",
-"&	c #BDCFBD",
-"*	c #7BAA7B",
-"=	c #ADC7AD",
-"-	c #B5CBAD",
-";	c #ADC7A5",
-">	c #6B8263",
-",	c #292C29",
-"'	c #ADCBAD",
-")	c #B5C7AD",
-"!	c #638E63",
-"~	c #9CAE9C",
-"{	c #84AE84",
-"]	c #84B284",
-"^	c #8CAE84",
-"/	c #8CB284",
-"(	c #527152",
-"_	c #395131",
-":	c #5A7952",
-"<	c #4A6142",
-"[	c #425539",
-"        .       ",
-"       ..       ",
-"      .+.       ",
-"     .@#.       ",
-"    .@@#........",
-"   .@@$$%+%&+@*.",
-"  .@=@@-=====;>.",
-" ,@')=='===)='!.",
-".~{{{{{{]^{]/{(.",
-" ._:::::::::::<.",
-"  ._::::::::::<.",
-"   ._::<______[.",
-"    ._:<........",
-"     ._<.       ",
-"      .<.       ",
-"       ..       ",
-"        .       "};
-
-static const char * add_xpm[] = {
-"16 17 26 1",
-" 	c None",
-".	c #000000",
-"+	c #8CA684",
-"@	c #BAD4B8",
-"#	c #73A26B",
-"$	c #BAD4BA",
-"%	c #ADCBAD",
-"&	c #739A63",
-"*	c #BDD7BD",
-"=	c #BAD3B8",
-"-	c #BAD3BA",
-";	c #ADC7AD",
-">	c #081008",
-",	c #ADC7A5",
-"'	c #A5C7A5",
-")	c #7B9E73",
-"!	c #A5BEA5",
-"~	c #A5C3A5",
-"{	c #6B9263",
-"]	c #738E6B",
-"^	c #6B8E63",
-"/	c #425929",
-"(	c #6B8663",
-"_	c #5A7952",
-":	c #63825A",
-"<	c #526942",
-"       .        ",
-"       ..       ",
-"       .+.      ",
-"       .@#.     ",
-"........$%&.    ",
-".*******=-;&>   ",
-".;%;;;,,;%;').  ",
-".!;,',,;%;;%~{. ",
-".]^{{{{{{{{{{^/.",
-".(___________/. ",
-".(__________/.  ",
-".:<<<<<<___/.   ",
-"........<_/.    ",
-"       .</.     ",
-"       ./.      ",
-"       ..       ",
-"       .        "};
-
-static const char * dropLines_xpm[] = {
-"16 16 3 1",
-" 	c None",
-".	c #000000",
-"+	c #CC3737",
-"                ",
-"  .     +++     ",
-"  .     +++     ",
-" ..     +++     ",
-"  .      .      ",
-"  . +++  .      ",
-" .. +++  .  +++ ",
-"  . +++  .  +++ ",
-"  .  .   .  +++ ",
-" ..  .   .   .  ",
-"  .  .   .   .  ",
-"  .  .   .   .  ",
-" ..  .   .   .  ",
-"  .  .   .   .  ",
-"  ..............",
-"    .  .  .  .  "};
-
-static const char * spline_xpm[] = {
-"17 13 2 1",
-" 	c None",
-".	c #000000",
-"                 ",
-"           ..    ",
-"            ..   ",
-"          .   .  ",
-"  ..      .   .  ",
-"   .     .    .  ",
-"  .      ..    . ",
-"  .      .    .. ",
-"  .     .        ",
-"   .    .        ",
-"   ..  ..        ",
-"     ..          ",
-"                 "};
-
-static const char * steps_xpm[] = {
-"16 16 2 1",
-" 	c None",
-".	c #050404",
-"                ",
-"                ",
-"     ....       ",
-"     .  .     ..",
-" ..  .  .     . ",
-"  .  .  . ... . ",
-"  .  .  . . . . ",
-"  .  .  . . . . ",
-"  ....  . . ... ",
-"        . .     ",
-"        . .     ",
-"        . .     ",
-"        . .     ",
-"        ...     ",
-"                ",
-"                "};
-
-static const char *pPlot_xpm[]={
-"13 13 2 1",
-". c None",
-"# c #000000",
-"..........###",
-"..........###",
-"..........###",
-".............",
-".............",
-".....###.....",
-".....###.....",
-".....###.....",
-".............",
-".............",
-"###..........",
-"###..........",
-"###.........."};
-
-
-static const char *lpPlot_xpm[]={
-"13 13 2 1",
-". c None",
-"# c #000000",
-"..........###",
-"..........###",
-"..........###",
-".........#...",
-"........#....",
-".....###.....",
-".....###.....",
-".....###.....",
-"....#........",
-"...#.........",
-"###..........",
-"###..........",
-"###.........."};
-
-static const char *lPlot_xpm[]={
-"14 14 2 1",
-". c None",
-"# c #000000",
-".............#",
-"............#.",
-"...........#..",
-"..........#...",
-".........#....",
-"........#.....",
-".......#......",
-"......#.......",
-".....#........",
-"....#.........",
-"...#..........",
-"..#...........",
-".#............",
-"#............."};
-
-static const char * area_xpm[] = {
-"16 15 4 1",
-" 	c None",
-".	c #00FF00",
-"+	c #FF0000",
-"@	c #000000",
-"   .        .   ",
-"  ...      ...  ",
-" .....    ..... ",
-" ......  .......",
-"................",
-"++.....++++....+",
-"+++...++++++..++",
-"+++++++++@@+++++",
-"+++@@+++@@@@++++",
-"++@@@@+@@@@@@+++",
-"+@@@@@@@@@@@@+++",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@",
-"@@@@@@@@@@@@@@@@"};
-
-static const char * hBars_xpm[] = {
-"15 15 3 1",
-" 	c None",
-".	c #000000",
-"+	c #FF0000",
-"...........    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"...........    ",
-"...............",
-"++++++++++++++.",
-"++++++++++++++.",
-"++++++++++++++.",
-"...............",
-"...........    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"++++++++++.    ",
-"...........    "};
-
-static const char * vertBars_xpm[] = {
-"15 15 3 1",
-" 	c None",
-".	c #000000",
-"+	c #FF0000",
-"     .....     ",
-"     .+++.     ",
-"     .+++.     ",
-"     .+++.     ",
-"......+++......",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++.",
-".+++..+++..+++."};
 
 CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -342,7 +69,8 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
     boxStyle->insertItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
     boxStyle->insertItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
 	boxStyle->insertItem( QPixmap(spline_xpm), tr( " Spline" ) );
-	boxStyle->insertItem( QPixmap(steps_xpm), tr( " Vertical steps" ) );
+	boxStyle->insertItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
+    boxStyle->insertItem( QPixmap(hor_steps_xpm), tr( " Horizontal steps" ) );
 	boxStyle->insertItem( QPixmap(area_xpm), tr( " Area" ) );
 	boxStyle->insertItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxStyle->insertItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
@@ -365,12 +93,12 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	box2->setSpacing (5);
 
     btnAdd = new QPushButton(box2, "btnAdd" );
-    btnAdd->setPixmap( QPixmap(add_xpm) );
+    btnAdd->setPixmap( QPixmap(next_xpm) );
 	btnAdd->setFixedWidth (35);
 	btnAdd->setFixedHeight (30);
 	
     btnRemove = new QPushButton(box2, "btnRemove" );
-    btnRemove->setPixmap( QPixmap(remove_xpm) );
+    btnRemove->setPixmap( QPixmap(prev_xpm) );
 	btnRemove->setFixedWidth (35);
 	btnRemove->setFixedHeight(30);
 		
@@ -553,21 +281,28 @@ if (t && g->insertCurve(t, name, style))
 	cl.sSize = defaultSymbolSize;
 	cl.sType=key%9;
 
-	if (style==Graph::VerticalBars || style==Graph::HorizontalBars )
+   if (style == Graph::Line)
+      cl.sType = 0;
+   else if (style==Graph::VerticalBars || style==Graph::HorizontalBars )
 		{
 		cl.filledArea=1;
 		cl.lCol=0;
 		cl.aCol=color;
+		cl.sType = 0;
 		}
 	else if (style==Graph::Area )
 		{
 		cl.filledArea=1;
 		cl.aCol=color;
+		cl.sType = 0;
 		}
 	else if (style == Graph::VerticalDropLines)
 		cl.connectType=2;
-	else if (style == Graph::Steps)
-		cl.connectType=3;
+	else if (style == Graph::VerticalSteps || style == Graph::HorizontalSteps)
+		{
+        cl.connectType=3; 	                
+        cl.sType = 0;
+        }
 	else if (style == Graph::Spline)
 		cl.connectType=5;
 
@@ -595,14 +330,16 @@ else if (style == Graph::VerticalDropLines)
 	boxStyle->setCurrentItem(3);
 else if (style == Graph::Spline)
 	boxStyle->setCurrentItem(4);
-else if (style == Graph::Steps)
+else if (style == Graph::VerticalSteps)
 	boxStyle->setCurrentItem(5);
+else if (style == Graph::HorizontalSteps)
+    boxStyle->setCurrentItem(6);
 else if (style == Graph::Area)
-	boxStyle->setCurrentItem(6);
-else if (style == Graph::VerticalBars)
 	boxStyle->setCurrentItem(7);
+else if (style == Graph::VerticalBars)
+	boxStyle->setCurrentItem(8);
 else if (style == Graph::HorizontalBars)
-	boxStyle->setCurrentItem(8);	
+	boxStyle->setCurrentItem(9);	
 }
 
 Table * CurvesDialog::findTable(const QString& text)
@@ -677,15 +414,18 @@ switch (boxStyle->currentItem())
 		style = Graph::Spline;
 	break;
 	case 5:
-		style = Graph::Steps;
+		style = Graph::VerticalSteps;
 	break;
 	case 6:
-		style = Graph::Area;
+		style = Graph::HorizontalSteps;
 	break;
 	case 7:
-		style = Graph::VerticalBars;
+		style = Graph::Area;
 	break;
 	case 8:
+		style = Graph::VerticalBars;
+	break;
+	case 9:
 		style = Graph::HorizontalBars;
 	break;
 	}

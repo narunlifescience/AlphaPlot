@@ -79,6 +79,7 @@ RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
     buttonCancel = new QPushButton();
     buttonCancel->setAutoDefault( true );
 	rightLayout->addWidget(buttonCancel);
+	rightLayout->addStretch();
 	
 	QHBoxLayout * mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(groupBox1);

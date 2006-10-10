@@ -124,6 +124,7 @@ static const char *unzoom_xpm[]={
 #include <qmessagebox.h>
 #include <qpixmap.h> 
 #include <q3picture.h> 
+#include <q3painter.h> 
 #include <qpixmapcache.h>
 #include <q3popupmenu.h>
 #include <q3ptrlist.h>
@@ -435,7 +436,7 @@ void Graph::selectNextMarker()
 				highlightLineMarker(key);
 				break;
 			}
-			else  if (images.contains(key))
+			else  if (d_images.contains(key))
 			{
 				highlightImageMarker(key);
 				break;
@@ -453,7 +454,7 @@ void Graph::selectNextMarker()
 				highlightTextMarker(key);
 			else if (d_lines.contains(key))
 				highlightLineMarker(key);
-			else  if (images.contains(key))
+			else  if (d_images.contains(key))
 				highlightImageMarker(key);
 			key++;
 		}
@@ -835,6 +836,11 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 	else
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks);
 
+    if (majTicksType == ScaleDraw::None || majTicksType == ScaleDraw::In)
+       majLength = 1;
+    if (minTicksType == ScaleDraw::None || minTicksType == ScaleDraw::In)
+        minLength = 0;
+        
 	sd->setTickLength (QwtScaleDiv::MinorTick, minLength); 
 	sd->setTickLength (QwtScaleDiv::MediumTick, minLength);
 	sd->setTickLength (QwtScaleDiv::MajorTick, majLength);
@@ -940,7 +946,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 		updateSecondaryAxis(axis);//synchronize scale divisions
 
 	scalePicker->refresh();
-	d_plot->updateLayout();	
+	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
 	scale->repaint();
 	d_plot->replot();	
 	emit modifiedGraph();
@@ -2148,6 +2154,8 @@ void Graph::exportToWmf(const QString& fname)
 
 void Graph::exportToSVG(const QString& fname) 
 {
+    //QwtPainter::setSVGMode(true);
+    
 	Q3Picture picture;
 	QPainter p(&picture);
 	d_plot->print(&p, d_plot->rect());
@@ -2406,15 +2414,15 @@ void Graph::removeMarker()
 			d_lines.resize(linesOnPlot);
 		}
 
-		else if (images.contains(selectedMarker)>0)
+		else if (d_images.contains(selectedMarker)>0)
 		{
-			int i,index=images.find(selectedMarker,0);
-			int imagesOnPlot=images.size();
+			int i,index=d_images.find(selectedMarker,0);
+			int imagesOnPlot=d_images.size();
 
 			for (i=index;i<imagesOnPlot;i++)
-				images[i]=images[i+1];
+				d_images[i]=d_images[i+1];
 			imagesOnPlot--;
-			images.resize(imagesOnPlot);
+			d_images.resize(imagesOnPlot);
 		}
 
 		selectedMarker=-1;
@@ -2438,7 +2446,7 @@ bool Graph::arrowMarkerSelected()
 bool Graph::imageMarkerSelected()
 {
 	bool image=FALSE;
-	if (images.contains(selectedMarker)>0)
+	if (d_images.contains(selectedMarker)>0)
 		image=TRUE;
 	return image;
 }
@@ -2458,7 +2466,7 @@ void Graph::copyMarker()
 		auxMrkEnd=mrkL->endPoint();
 		selectedMarkerType=Arrow;
 	}
-	else if (images.contains(selectedMarker))
+	else if (d_images.contains(selectedMarker))
 	{
 		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(selectedMarker);
 		auxMrkStart=mrkI->getOrigin();
@@ -2522,10 +2530,10 @@ void Graph::pasteMarker()
 		mrk->setSize(rect.size());
 		d_plot->replot();
 
-		int imagesOnPlot=images.size();
+		int imagesOnPlot=d_images.size();
 		imagesOnPlot++;
-		images.resize(imagesOnPlot);
-		images[imagesOnPlot-1]=mrkID;
+		d_images.resize(imagesOnPlot);
+		d_images[imagesOnPlot-1]=mrkID;
 
 		selectedMarker=-1;
 	}
@@ -2647,11 +2655,10 @@ void Graph::removeLegend()
 	}
 }
 
-void Graph::updateImageMarker(int x, int y, int width, int height)
+void Graph::updateImageMarker(int x, int y, int w, int h)
 {
 	ImageMarker* mrk=(ImageMarker*) d_plot->marker(selectedMarker);
-	mrk->setOrigin(QPoint(x,y));
-	mrk->setSize(QSize(width,height));
+	mrk->setRect(x, y, w, h);
 	d_plot->replot();
 	emit modifiedGraph();
 }
@@ -3768,7 +3775,12 @@ QString Graph::saveCurveLayout(int index)
 	if (c)
 	{
 		s+=QString::number(style)+"\t";
-		s+=QString::number(c->style())+"\t";
+		if (style == Spline)
+             s+="5\t";
+        else if (style == VerticalSteps)
+             s+="6\t";
+        else
+		    s+=QString::number(c->style())+"\t";
 		s+=QString::number(ColorBox::colorIndex(c->pen().color()))+"\t";
 		s+=QString::number(c->pen().style()-1)+"\t";
 		s+=QString::number(c->pen().width())+"\t";
@@ -4084,16 +4096,6 @@ ImageMarker* Graph::imageMarker(long id)
 	return (ImageMarker*)d_plot->marker(id);	
 }
 
-QwtArray<long> Graph::imageMarkerKeys()
-{
-	return images;
-}
-
-QwtArray<long> Graph::lineMarkerKeys()
-{
-	return d_lines;
-}
-
 LegendMarker* Graph::textMarker(long id)
 {
 	Q3ValueList<int> txtMrkKeys=textMarkerKeys();
@@ -4123,7 +4125,7 @@ Q3ValueList<int> Graph::textMarkerKeys()
 	{
 		if (mrkKeys[i]!=mrkX && mrkKeys[i]!=mrkY &&
 				mrkKeys[i]!=startID && mrkKeys[i]!=endID && d_lines.contains(mrkKeys[i])<=0
-				&& images.contains(mrkKeys[i])<=0)
+				&& d_images.contains(mrkKeys[i])<=0)
 		{
 			txtMrkKeys.append(mrkKeys[i]);
 		}
@@ -4135,18 +4137,18 @@ QString Graph::saveMarkers()
 {
 	QString s;
 	Q3ValueList<int> texts=textMarkerKeys();
-	int i,t=texts.size(),l=d_lines.size(),im=images.size();
+	int i,t=texts.size(),l=d_lines.size(),im=d_images.size();
 	for (i=0;i<im;i++)
 	{	
-		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(images[i]);
+		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(d_images[i]);
 		s+="ImageMarker\t";
 		s+=mrkI->getFileName()+"\t";
 
 		QwtDoubleRect rect = mrkI->boundingRect();
-		s += QString::number(rect.left())+"\t";
-		s += QString::number(rect.top())+"\t";	
-		s += QString::number(rect.width())+"\t";
-		s += QString::number(rect.height())+"\n";
+		s += QString::number(rect.left(), 'g', 15)+"\t";
+		s += QString::number(rect.top(), 'g', 15)+"\t";	
+		s += QString::number(rect.width(), 'g', 15)+"\t";
+		s += QString::number(rect.height(), 'g', 15)+"\n";
 	}
 
 	for (i=0;i<l;i++)
@@ -4269,10 +4271,15 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 	cl.fillCol=i%16;
 	cl.sType=(i+1)%9; //9 is the number of predefined symbols in Qwt
 
-	if (style == Graph::VerticalDropLines)
-		cl.connectType=2;
-	else if (style == Graph::Steps)
-		cl.connectType=3;
+    if (style == Graph::Line)
+       cl.sType = 0;
+  	else if (style == Graph::VerticalDropLines)
+        cl.connectType=2; 	        
+    else if (style == Graph::HorizontalSteps || style == Graph::VerticalSteps)
+        {
+        cl.connectType=3; 	      
+        cl.sType = 0;
+        }
 	else if (style == Graph::Spline)
 		cl.connectType=5;
 
@@ -4281,6 +4288,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 		cl.filledArea=1;
 		cl.lCol=0;//black color pen
 		cl.aCol=i+1;
+		cl.sType = 0;
 		QwtBarCurve *b = (QwtBarCurve*)curve(i);
 		if (b)
 		{
@@ -4294,6 +4302,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 		cl.lCol=i+1;//start with red color pen
 		cl.aCol=i+1; //start with red fill color
 		cl.aStyle=4;
+		cl.sType = 0;
 	}
 	else
 		cl.lCol=i%16;
@@ -4307,6 +4316,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 	{
 		cl.filledArea=1;
 		cl.aCol=i%16;
+		cl.sType = 0;
 	}
 	return cl;
 }
@@ -4322,28 +4332,27 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	if (!c || c_type.isEmpty() || (int)c_type.size() < index)
 		return;
 
-	int style = c_type[index];
-	if (style == Scatter || style == LineSymbols ||	style == Spline || 
-			style == VerticalDropLines || style == Box)
-	{
-		QPen pen = QPen(color(cL->symCol),cL->penWidth, Qt::SolidLine);
-		/*if (!cL->penWidth)
-		  pen.setStyle(Qt::NoPen);*/
-
-		if (cL->fillCol != -1)
-			c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType),
-						QBrush(color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
-		else
-			c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(), 
-						pen, QSize(cL->sSize,cL->sSize)));
-	}
+	QPen pen = QPen(color(cL->symCol),cL->penWidth, Qt::SolidLine);
+	if (cL->fillCol != -1)
+	   c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
 	else
-		c->setSymbol(QwtSymbol(QwtSymbol::None, QBrush(), QPen(), QSize(cL->sSize,cL->sSize)));
+	    c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(), pen, QSize(cL->sSize,cL->sSize)));
 
 	c->setPen(QPen(color(cL->lCol),cL->lWidth,getPenStyle(cL->lStyle)));
 
+    int style = c_type[index];
 	if (style == Scatter)
-		c->setStyle(QwtPlotCurve::NoCurve); 
+		c->setStyle(QwtPlotCurve::NoCurve);
+	else if (style == Spline)
+         {
+         c->setStyle(QwtPlotCurve::Lines);
+         c->setCurveAttribute(QwtPlotCurve::Fitted, true);
+         }
+  	else if (style == VerticalSteps)
+         {
+         c->setStyle(QwtPlotCurve::Steps);
+         c->setCurveAttribute(QwtPlotCurve::Inverted, true);
+         }
 	else
 		c->setStyle((QwtPlotCurve::CurveStyle)cL->connectType); 
 
@@ -4776,12 +4785,22 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	if (xcol < 0 || ycol < 0)
 		return false;
 
-	Q3MemArray<double> X(1),Y(1);
-	int i, it=0;
-
+    int colPlotDesignation = w->colPlotDesignation(ycol);
+    if (colPlotDesignation == Table::xErr || colPlotDesignation == Table::yErr)
+  	        {//add error bars
+  	        ycol = w->colY(ycol);
+  	        if (colPlotDesignation == Table::xErr)
+               addErrorBars(w, xColName, w->colName(ycol), w, yColName, (int)QwtErrorPlotCurve::Horizontal);
+  	        else
+                addErrorBars(w, xColName, w->colName(ycol), w, yColName);
+  	        return true;
+  	        }
+  	        
 	int xColType = w->columnType(xcol);
 	int yColType = w->columnType(ycol);
 
+    Q3MemArray<double> X(1),Y(1);
+	int i, it=0;
 	QStringList xLabels, yLabels;// store text labels
 	QTime time0;
 	QDate date;
@@ -5464,14 +5483,13 @@ void Graph::insertImageMarker(ImageMarker* mrk)
 {
 	QPixmap photo = mrk->image();
 	ImageMarker* mrk2= new ImageMarker(photo);
-	long mrk2ID=d_plot->insertMarker(mrk2);
+	
+	int imagesOnPlot=d_images.size();
+	d_images.resize(++imagesOnPlot);
+	d_images[imagesOnPlot-1]=d_plot->insertMarker(mrk2);
+	
 	mrk2->setFileName(mrk->getFileName());
-	mrk2->setOrigin(mrk->getOrigin());	
-	mrk2->setSize(mrk->size());	
-
-	int imagesOnPlot=images.size();
-	images.resize(++imagesOnPlot);
-	images[imagesOnPlot-1]=mrk2ID;
+	mrk2->setBoundingRect(mrk->boundingRect());
 }
 
 void Graph::insertImageMarker(const QPixmap& photo, const QString& fileName)
@@ -5479,9 +5497,9 @@ void Graph::insertImageMarker(const QPixmap& photo, const QString& fileName)
 	ImageMarker* mrk= new ImageMarker(photo);
 	long mrkID=d_plot->insertMarker(mrk);
 
-	int imagesOnPlot=images.size();
-	images.resize(++imagesOnPlot);
-	images[imagesOnPlot-1]=mrkID;
+	int imagesOnPlot=d_images.size();
+	d_images.resize(++imagesOnPlot);
+	d_images[imagesOnPlot-1]=mrkID;
 
 	mrk->setFileName(fileName);
 	mrk->setOrigin(QPoint(0,0));
@@ -5538,9 +5556,9 @@ void Graph::insertImageMarker(const QStringList& lst, int fileVersion)
 						lst[4].toDouble(),lst[5].toDouble()));
 		}
 
-		int imagesOnPlot=images.size();
-		images.resize(++imagesOnPlot);
-		images[imagesOnPlot-1]=mrkID;
+		int imagesOnPlot=d_images.size();
+		d_images.resize(++imagesOnPlot);
+		d_images[imagesOnPlot-1]=mrkID;
 	}
 }
 
@@ -5942,11 +5960,11 @@ void Graph::updateMarkersBoundingRect()
 			mrkT->updateOrigin();	
 	}
 
-	for (i=0;i<(int)images.size();i++)
+	for (i=0;i<(int)d_images.size();i++)
 	{
-		ImageMarker* mrk = (ImageMarker*) d_plot->marker(images[i]);
+		ImageMarker* mrk = (ImageMarker*) d_plot->marker(d_images[i]);
 		if (mrk)
-			mrk->updateOrigin();
+			 mrk->updateBoundingRect();
 	}
 }
 
@@ -6228,7 +6246,7 @@ void Graph::moveMarkerBy(int dx, int dy)
 
 		line = true;
 	}
-	else if (images.contains(selectedMarker))
+	else if (d_images.contains(selectedMarker))
 	{
 		ImageMarker* mrk=(ImageMarker*)d_plot->marker(selectedMarker);
 		QPoint point = mrk->getOrigin();
@@ -6520,6 +6538,11 @@ void Graph::copy(Graph* g)
 			c->setBrush(cv->brush());
 			c->setStyle(cv->style());
 			c->setSymbol(cv->symbol());
+			
+		    if (cv->testCurveAttribute (QwtPlotCurve::Fitted))
+               c->setCurveAttribute(QwtPlotCurve::Fitted, true);
+            else if (cv->testCurveAttribute (QwtPlotCurve::Inverted))
+               c->setCurveAttribute(QwtPlotCurve::Inverted, true);
 		}
 	}
 	axesFormulas = g->axesFormulas;
@@ -6693,6 +6716,26 @@ void Graph::setCurveStyle(int index, int s)
 	QwtPlotCurve *c = curve(index);
 	if (!c)
 		return;
+		
+	if (s == 5)//ancient spline style in Qwt 4.2.0
+  	   {
+       s = QwtPlotCurve::Lines;
+       c->setCurveAttribute(QwtPlotCurve::Fitted, true);
+       c_type[index] = Spline;
+       }
+  	else if (s == QwtPlotCurve::Lines)
+         c->setCurveAttribute(QwtPlotCurve::Fitted, false);
+  	else if (s == 6)// Vertical Steps
+  	     {
+         s = QwtPlotCurve::Steps;
+         c->setCurveAttribute(QwtPlotCurve::Inverted, true);
+         c_type[index] = VerticalSteps;
+         }
+  	else if (s == QwtPlotCurve::Steps)// Horizontal Steps
+  	     {
+         c->setCurveAttribute(QwtPlotCurve::Inverted, false);
+         c_type[index] = HorizontalSteps;
+         }
 	c->setStyle((QwtPlotCurve::CurveStyle)s); 
 }
 

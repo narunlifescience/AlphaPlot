@@ -76,7 +76,7 @@ public:
 	enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 	enum MarkerType{None=-1, Text = 0, Arrow=1, Image=2};
 	enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines, 
-				  Spline, Steps, Histogram, HorizontalBars, VectXYXY, ErrorBars, Box, VectXYAM};
+				  Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, Box, VectXYAM, VerticalSteps};
 
 	Plot *d_plot;
 	QwtPlotZoomer *d_zoomer;
@@ -152,19 +152,16 @@ public slots:
 	 void exportImage(const QString& fileName,const QString& fileType, int quality, bool transparent);
 
 	 // error bars
-	 void addErrorBars(Table *w, const QString& xColName, const QString& yColName, 
-					   Table *errTable, const QString& errColName,
-					   int type, int width, int cap, const QColor& color,
-					   bool through, bool minus,bool plus, double xOffset = 0, double yOffset = 0);
+	 void addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable, 
+                       const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
+					   bool through = true, bool minus = true, bool plus = true, double xOffset = 0, double yOffset = 0);
 	
-	 void addErrorBars(Table *w, const QString& yColName, 
-						 Table *errTable, const QString& errColName,
-						 int type, int width, int cap, const QColor& color,
-						 bool through, bool minus,bool plus);
+	 void addErrorBars(Table *w, const QString& yColName, Table *errTable, const QString& errColName,
+                       int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
+                       bool through = true, bool minus = true, bool plus = true);
 
 	 void updateErrorBarsData(Table* w, int curve);
-	 void updateErrorBars(int curve,bool xErr,int width,int cap,
-		          const QColor& c,bool plus,bool minus,bool through);
+	 void updateErrorBars(int curve, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
 
 	 //! Called when a bar curve associated to an error bars curve curve is deleted
 	 void resetErrorBarsOffset(int index);
@@ -296,7 +293,7 @@ public slots:
 
 	 //! Used when opening a project file
 	 void insertLineMarker(QStringList list, int fileVersion);
-	 QwtArray<long> lineMarkerKeys();
+	 QwtArray<long> lineMarkerKeys(){return d_lines;};
 
 	 //!Draws a line/arrow depending on the value of "arrow"
 	 void drawLine(bool on, bool arrow = FALSE);
@@ -305,7 +302,7 @@ public slots:
 
 	 //image markers
 	 ImageMarker* imageMarker(long id);
-	 QwtArray<long> imageMarkerKeys();
+	 QwtArray<long> imageMarkerKeys(){return d_images;};
 	 void insertImageMarker(ImageMarker* mrk);
 	 void insertImageMarker(const QPixmap& photo, const QString& fileName);
 
@@ -728,10 +725,15 @@ private:
 	MarkerType selectedMarkerType;
 	QwtPlotMarker::LineStyle mrklStyle;
 	QStringList scales,associations;
-	Q3MemArray<int> c_type; //curve types
-	Q3MemArray<long> c_keys; // arrows on plot keys
-	Q3MemArray<long> d_lines; // arrows on plot keys
-	Q3MemArray<long> images; // images on plot keys
+	
+	//! Curve types
+	Q3MemArray<int> c_type; 
+	//! Curves on plot keys
+	Q3MemArray<long> c_keys;
+	//! Arrows/lines on plot keys
+	Q3MemArray<long> d_lines; 
+	//! Images on plot keys
+    Q3MemArray<long> d_images; 
 	QPen mrkLinePen;
 	QFont auxMrkFont, defaultMarkerFont;
 	QColor auxMrkColor, auxMrkBkgColor;

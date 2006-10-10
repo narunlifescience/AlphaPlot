@@ -125,22 +125,22 @@ return s;
 
 bool MyWidget::event( QEvent *e )
 {
-	bool result = QWidget::event( e );
-	if( e->type() == QEvent::WindowStateChange)
+bool result = QWidget::event( e );
+if( e->type() == QEvent::WindowStateChange)
 	{
-		if( windowState() & Qt::WindowMinimized ) 
-	w_status = Minimized;
-		else if ( windowState() & Qt::WindowMaximized ) 
-	w_status = Maximized;
-		else
-	{
-	user_request = true; 
-	w_status = Normal; 
+	if( windowState() & Qt::WindowMinimized ) 
+	    w_status = Minimized;
+	else if ( windowState() & Qt::WindowMaximized ) 
+	     w_status = Maximized;
+	else
+	    {
+	    user_request = true; 
+	    w_status = Normal; 
+	    }
+    emit statusChanged (this);
+   	return result;
 	}
-
-emit statusChanged (this);
-	}
-	return result;
+return false;
 }
 
 void MyWidget::setHidden()
@@ -184,4 +184,6 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 	}
 	return QObject::eventFilter(object, e);
 }
+
+
 

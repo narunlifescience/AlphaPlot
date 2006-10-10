@@ -976,7 +976,8 @@ void ApplicationWindow::initPlotMenu()
 
 	specialPlot->addAction(actionPlotVerticalDropLines);
 	specialPlot->addAction(actionPlotSpline);
-	specialPlot->addAction(actionPlotSteps);
+	specialPlot->addAction(actionPlotVertSteps);
+	specialPlot->addAction(actionPlotHorSteps);
 	specialPlotMenuID = plot2D->insertItem(tr("Special Line/Symb&ol"), specialPlot);
 
 	plot2D->insertSeparator();
@@ -1425,12 +1426,20 @@ void ApplicationWindow::plotSpline()
 	((Table*)ws->activeWindow())->plotSpline();
 }
 
-void ApplicationWindow::plotSteps()
+void ApplicationWindow::plotVertSteps()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->plotSteps();
+	((Table*)ws->activeWindow())->plotVertSteps();
+}
+
+void ApplicationWindow::plotHorSteps()
+{
+if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
+   return;
+  	 
+((Table*)ws->activeWindow())->plotHorSteps();
 }
 
 void ApplicationWindow::plotVectXYXY()
@@ -2210,22 +2219,14 @@ void ApplicationWindow::initPlot3D(Graph3D *plot)
 void ApplicationWindow::importImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
-	QString filter="Images (*.jpg *.JPG ",aux;
-	int i;
-	for (i=0;i<(int)list.count();i++)
-	{
-		aux="*."+(list[i]).lower()+" *."+list[i]+" ";
-		filter+=aux;
-	}
-	filter+=");;";
-
-	aux = "*.jpg *.JPG;; ";
-	filter+=aux;
-	for (i=0;i<(int)list.count();i++)
-	{
-		aux="*."+(list[i]).lower()+" *."+list[i]+";;";
-		filter+=aux;
-	}
+	QString filter = tr("Images") + " (", aux1, aux2;
+	for (int i=0; i<(int)list.count(); i++)
+	    {
+		aux1 = " *."+list[i]+" ";
+		aux2 += " *."+list[i]+";;";
+		filter += aux1;
+	    }
+	filter+=");;" + aux2;
 
 	QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
 			tr("QtiPlot - Import image from file"), 0, true);
@@ -2233,20 +2234,14 @@ void ApplicationWindow::importImage()
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		QPixmap photo;
-		if ( fn.contains(".jpg", false))
-			photo.load(fn,"JPEG",QPixmap::Auto);
-		else
-		{
-			for (i=0;i<(int)list.count();i++)
+		for (int i=0; i<(int)list.count();i++)
 			{
-				if (fn.contains("." + list[i], false))
+			if (fn.contains("." + list[i], false))
 				{
-					photo.load(fn,list[i],QPixmap::Auto);
-					break;
+				photo.load(fn,list[i],QPixmap::Auto);
+				break;
 				}
 			}
-		}
-
 		Matrix* m = createIntensityMatrix(photo);
 		m->setWindowLabel(fn);
 		m->setCaptionPolicy(MyWidget::Both);
@@ -2262,22 +2257,14 @@ void ApplicationWindow::importImage()
 void ApplicationWindow::loadImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
-	QString filter="Images (*.jpg *.JPG ",aux;
-	int i;
-	for (i=0;i<(int)list.count();i++)
-	{
-		aux="*."+(list[i]).lower()+" *."+list[i]+" ";
-		filter+=aux;
-	}
-	filter+=");;";
-
-	aux = "*.jpg *.JPG;; ";
-	filter+=aux;
-	for (i=0;i<(int)list.count();i++)
-	{
-		aux="*."+(list[i]).lower()+" *."+list[i]+";;";
-		filter+=aux;
-	}
+	QString filter = tr("Images") + " (", aux1, aux2;
+	for (int i=0; i<(int)list.count(); i++)
+	    {
+		aux1 = " *."+list[i]+" ";
+		aux2 += " *."+list[i]+";;";
+		filter += aux1;
+	    }
+	filter+=");;" + aux2;
 
 	QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
 			tr("QtiPlot - Load image from file"), 0, true);
@@ -2293,32 +2280,19 @@ void ApplicationWindow::loadImage(const QString& fn)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	QPixmap photo;
-	if ( fn.contains(".jpg", false))
-		photo.load(fn,"JPEG",QPixmap::Auto);
-	/*else if ( fn.contains(".wmf", false))
-	  {// using kwmf, the drawText function is not implemented
-	  photo.resize( 1000, 1000 );
-	  photo.fill(white);
-	  KoWmfPaint wmf;
-	  if (wmf.load( fn )) 
-	  wmf.play( photo );
-	  }*/
-	  else
-	  {
-		QList<QByteArray> lst = QImageReader::supportedImageFormats();
-		  for (int i=0; i<(int)lst.count(); i++)
+	QList<QByteArray> lst = QImageReader::supportedImageFormats();
+    for (int i=0; i<(int)lst.count(); i++)
 		  {
-			  if (fn.contains("." + lst[i], false))
+		  if (fn.contains("." + lst[i], false))
 			  {
-				  photo.load(fn, lst[i], QPixmap::Auto);
-				  break;
+			  photo.load(fn, lst[i], QPixmap::Auto);
+			  break;
 			  }
 		  }
-	  }
 
 	  MultiLayer *plot = multilayerPlot("graph" + QString::number(++graphs));
 	  plot->setWindowLabel(fn);
-	plot->setCaptionPolicy(MyWidget::Both);
+	  plot->setCaptionPolicy(MyWidget::Both);
 	  setListViewLabel(plot->name(), fn);
 
 	  if (plot->height()-20>photo.height())
@@ -2328,7 +2302,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 	  Graph *g=plot->addLayer(0,0, plot->width(), plot->height()-20);
 
 	  g->setTitle("");
-	Q3MemArray<bool> axesOn(4);
+	  Q3MemArray<bool> axesOn(4);
 	  for (int j=0;j<4;j++)
 		axesOn[j]=false;
 	  g->enableAxes(axesOn);
@@ -2679,7 +2653,7 @@ Table* ApplicationWindow::newTable()
  */
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 {
-	Table* w = new Table(scriptEnv, r, c, "", ws,0);
+	Table* w = new Table(scriptEnv, r, c, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, caption);
 	if (w->name() != caption)//the table was renamed
@@ -3152,8 +3126,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 				w->setText(i,c,QString::number(dev,'g',15));
 		}
 	}		
-	activeGraph->addErrorBars(w, xColName, name, w, errColName, 
-			direction, 2, 5, QColor(Qt::black), false, true, true);
+	activeGraph->addErrorBars(w, xColName, name, w, errColName, direction);
 }
 
 void ApplicationWindow::defineErrorBars(const QString& curveName, const QString& errColumnName, int direction)
@@ -3184,10 +3157,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 		addErrorBars();
 		return;
 	}
-
-	activeGraph->addErrorBars(w, curveName, errTable, errColumnName,
-			direction, 2, 5, QColor(Qt::black), false, true, true);
-
+	activeGraph->addErrorBars(w, curveName, errTable, errColumnName, direction);
 	emit modified();
 }
 
@@ -5745,7 +5715,8 @@ void ApplicationWindow::showColMenu(int c)
 
 		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
 		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
+		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(hor_steps_xpm)),tr("&Horizontal Steps"),w,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
@@ -5849,7 +5820,8 @@ void ApplicationWindow::showColMenu(int c)
 
 		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
 		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotSteps()));
+		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(hor_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
@@ -7171,21 +7143,16 @@ void ApplicationWindow::addImage()
 
 	Graph* g = (Graph*)plot->activeGraph();
 	if (g)
-	{
-		QList<QByteArray> list = QImageReader::supportedImageFormats ();
-		QString filter=tr("Images") + " (*.jpg *JPG ",aux;
-		int i;
-		for (i=0;i<(int)list.count();i++)
-		{
-			aux="*."+(list[i]).lower()+" *. "+list[i] + " ";
-			filter+=aux;
-		}
-		filter+=");;";
-		for (i=0;i<(int)list.count();i++)
-		{
-			aux="*."+(list[i]).lower()+" *. "+list[i] +";;";
-			filter+=aux;
-		}
+	   {
+	   QList<QByteArray> list = QImageReader::supportedImageFormats();
+	   QString filter = tr("Images") + " (", aux1, aux2;
+	   for (int i=0; i<(int)list.count(); i++)
+	       {
+		   aux1 = " *."+list[i]+" ";
+		   aux2 += " *."+list[i]+";;";
+		   filter += aux1;
+	       }
+	    filter+=");;" + aux2;
 
 		QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
 				"QtiPlot - Insert image from file", 0, true);
@@ -7193,7 +7160,7 @@ void ApplicationWindow::addImage()
 		{
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			QPixmap photo;
-			for (i=0;i<(int)list.count();i++)
+			for (int i=0;i<(int)list.count();i++)
 			{
 				if (fn.contains("."+list[i], false))
 				{
@@ -7201,9 +7168,6 @@ void ApplicationWindow::addImage()
 					break;
 				}
 			}
-
-			if (fn.contains(".jpg", false))
-				photo.load(fn,"JPEG",QPixmap::Color);
 
 			g->insertImageMarker(photo,fn);
 
@@ -7276,7 +7240,7 @@ void ApplicationWindow::showImageDialog()
 
 		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
-		connect (id,SIGNAL(options(int,int,int,int)),g,SLOT(updateImageMarker(int,int,int,int)));
+		connect (id,SIGNAL(setGeometry(int,int,int,int)),g,SLOT(updateImageMarker(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
 		id->setOrigin(im->getOrigin());
 		id->setSize(im->size());
@@ -7315,7 +7279,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 	{
 		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
-		connect (id,SIGNAL(options(int,int,int,int)),plot,SLOT(setGraphGeometry(int,int,int,int)));
+		connect (id,SIGNAL(setGeometry(int,int,int,int)),plot,SLOT(setGraphGeometry(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
 		id->setWindowTitle(tr("QtiPlot - Layer Geometry"));
 		id->setOrigin(g->pos());
@@ -7913,13 +7877,13 @@ void ApplicationWindow::updateWindowStatus(MyWidget* w)
 
 void ApplicationWindow::resizeActiveWindow()
 {
-	QWidget *w=(QWidget *)ws->activeWindow();
+	QWidget *w =(QWidget *)ws->activeWindow();
 	if (!w)
 		return;
 
-	ImageDialog *id=new ImageDialog(this,"ImageDialog",true,0);
+	ImageDialog *id = new ImageDialog(this, "ImageDialog", true);
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect (id,SIGNAL(options(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
+	connect (id, SIGNAL(setGeometry(int,int,int,int)), w->parentWidget(), SLOT(setGeometry(int,int,int,int)));
 
 	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
@@ -7962,7 +7926,7 @@ void ApplicationWindow::resizeWindow()
 
 	ImageDialog *id=new ImageDialog(this,"ImageDialog",true,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect (id,SIGNAL(options(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
+	connect (id,SIGNAL(setGeometry(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
 
 	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
@@ -11078,8 +11042,11 @@ void ApplicationWindow::createActions()
 	actionPlotSpline = new QAction(QIcon(QPixmap(spline_xpm)), tr("&Spline"), this);
 	connect(actionPlotSpline, SIGNAL(activated()), this, SLOT(plotSpline()));
 
-	actionPlotSteps = new QAction(QIcon(QPixmap(vert_steps_xpm)), tr("&Vertical Steps"), this);
-	connect(actionPlotSteps, SIGNAL(activated()), this, SLOT(plotSteps()));
+    actionPlotHorSteps = new QAction(QPixmap(hor_steps_xpm), tr("&Horizontal Steps"), this);
+    connect(actionPlotHorSteps, SIGNAL(activated()), this, SLOT(plotHorSteps()));
+  
+	actionPlotVertSteps = new QAction(QIcon(QPixmap(vert_steps_xpm)), tr("&Vertical Steps"), this);
+	connect(actionPlotVertSteps, SIGNAL(activated()), this, SLOT(plotVertSteps()));
 
 	actionPlotVerticalBars = new QAction(QIcon(QPixmap(vertBars_xpm)), tr("&Columns"), this);
 	connect(actionPlotVerticalBars, SIGNAL(activated()), this, SLOT(plotVerticalBars()));
@@ -11612,7 +11579,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionPlotVerticalDropLines->setMenuText(tr("Vertical &Drop Lines"));
 
 	actionPlotSpline->setMenuText(tr("&Spline"));
-	actionPlotSteps->setMenuText(tr("&Vertical Steps"));
+	actionPlotVertSteps->setMenuText(tr("&Vertical Steps"));
+	actionPlotHorSteps->setMenuText(tr("&Horizontal Steps"));
 
 	actionPlotVerticalBars->setMenuText(tr("&Columns"));
 	actionPlotVerticalBars->setToolTip(tr("Plot with vertical bars"));
