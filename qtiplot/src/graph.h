@@ -79,7 +79,7 @@ public:
 				  Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, Box, VectXYAM, VerticalSteps};
 
 	Plot *d_plot;
-	QwtPlotZoomer *d_zoomer;
+	QwtPlotZoomer *d_zoomer[2];
 	TitlePicker *titlePicker;
 	ScalePicker *scalePicker;
 	CanvasPicker* cp;
@@ -170,10 +170,10 @@ public slots:
 	 void contextMenuEvent(QContextMenuEvent *);
 	 void closeEvent(QCloseEvent *e);
 
-	 // plot scales
-	 void setAxisScale(int axis,const QStringList& s);
-	 QStringList plotLimits();
-	 void setScales(const QStringList& s);
+	 //! Set axis scale
+	 void setScale(int axis, double start, double end, double step = 0.0, 
+				   int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
+     bool userDefinedStep(int axis){return d_user_step[axis];};
 
 	 //curves layout
 	 CurveLayout initCurveLayout(int i, int curves, int style);
@@ -192,7 +192,6 @@ public slots:
 	 void movedPicker(const QPoint &pos, bool mark);
 	 void setAutoScale();
 	 void updateScale();
-	 void initScales();
 	
 	 QString saveAsTemplate();
 
@@ -267,13 +266,13 @@ public slots:
 	 void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};	
 	 QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 	 
-	 //legendMarker
+	 // legendMarker
 	 Q3ValueList<int> textMarkerKeys();
 	 LegendMarker* textMarker(long id);
 
 	 void addTimeStamp();
 	 
-	  // legend  
+     // legend  
 	 void customLegend();
 	 void removeLegend();
 	 void removeLegendItem(int index);
@@ -719,13 +718,17 @@ private:
 	bool autoScaleFonts;
 	int selectedAxis;
 	QStringList axesFormulas;
-	QStringList axesFormatInfo;//stores columns used for axes with text labels or  time/date format info
+	//! Stores columns used for axes with text labels or  time/date format info
+	QStringList axesFormatInfo;
 	Q3ValueList <int> axisType;
+	 //! Structure used to define the grid
 	GridOptions grid;
 	MarkerType selectedMarkerType;
 	QwtPlotMarker::LineStyle mrklStyle;
-	QStringList scales,associations;
+	QStringList associations;
 	
+	//! Tells weather the user specified a step for a scale
+  	Q3MemArray<bool> d_user_step;
 	//! Curve types
 	Q3MemArray<int> c_type; 
 	//! Curves on plot keys
@@ -734,6 +737,7 @@ private:
 	Q3MemArray<long> d_lines; 
 	//! Images on plot keys
     Q3MemArray<long> d_images; 
+
 	QPen mrkLinePen;
 	QFont auxMrkFont, defaultMarkerFont;
 	QColor auxMrkColor, auxMrkBkgColor;

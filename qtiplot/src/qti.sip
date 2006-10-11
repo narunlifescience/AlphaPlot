@@ -227,6 +227,9 @@ public:
   void setXAxisTitle(const QString& text) /PyName=setXTitle/;
   void setYAxisTitle(const QString& text) /PyName=setYTitle/;
 
+  void setScale(int axis, double start, double end, double step = 0.0,
+                int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
+                
   void print();
   void exportImage(const QString& fileName, const QString& fileType = "PNG", 
   			int quality = 100, bool transparent = false);

@@ -465,6 +465,7 @@ void ApplicationWindow::initToolBars()
 
 	plotTools->addAction(actionAddLayer);
 	plotTools->addAction(actionShowLayerDialog);
+	plotTools->addAction(actionAutomaticLayout);
 
 	plotTools->addSeparator();
 
@@ -3942,14 +3943,9 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			plot=app->multilayerPlot(caption);
 			plot->setCols(graph[1].toInt());
 			plot->setRows(graph[2].toInt());
-			QString date=QString();
-			if (fileVersion < 63)
-				date = graph[5];
-			else
-				date = graph[3];
-
-			app->setListViewDate(caption,date);
-			plot->setBirthDate(date);
+			
+			app->setListViewDate(caption, graph[3]);
+			plot->setBirthDate(graph[3]);
 
 			restoreWindowGeometry(app, plot, t.readLine());
 
@@ -6072,10 +6068,10 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->insertColList(columnsList(Table::All));
 			ad->insertTablesList(tableWindows);
 			ad->setAxesLabelsFormatInfo(g->axesLabelsFormatInfo());
-			//ad->setEnabledAxes(g->enabledAxes());
+			ad->setEnabledAxes(g->enabledAxes());
 			ad->setAxesType(g->axesType());
 			ad->setAxesBaseline(g->axesBaseline());
-			ad->setScaleLimits(g->plotLimits());
+			
 			ad->initAxisFonts(g->axisFont(2), g->axisFont(0),g->axisFont(3),g->axisFont(1));
 			ad->setAxisTitles(g->scalesTitles());
 			ad->updateTitleBox(0);
@@ -9671,6 +9667,17 @@ Matrix* ApplicationWindow::createIntensityMatrix(const QPixmap& pic)
 	return w;
 }
 
+void ApplicationWindow::autoArrangeLayers()
+{
+if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+   return;
+  	 
+MultiLayer* plot = (MultiLayer *)ws->activeWindow();
+plot->setMargins(5, 5, 5, 5);
+plot->setSpacing(5, 5);
+plot->arrangeLayers(true, false);
+}
+  	
 void ApplicationWindow::addLayer()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
@@ -9714,15 +9721,16 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	QString caption = w->name();
 	if (s.contains ("minimized"))
 	{
-		w->setGeometry(0, 0, 500, 400);
+		w->parentWidget()->setGeometry(0, 0, 500, 400);
 		w->showMinimized();
 		((MyWidget *)w)->setStatus(MyWidget::Minimized);
 		app->setListView(caption, tr("Minimized"));
 	}
 	else if (s.contains ("maximized"))
 	{
-		w->setGeometry(0, 0, 500, 400);
-		w->hide();//trick used in order to avoid a resize event
+		w->parentWidget()->setGeometry(0, 0, 500, 400);
+		if (w->isA("MultiLayer"))
+		   w->hide();//trick used in order to avoid a resize event
 		w->showMaximized();
 		((MyWidget *)w)->setStatus(MyWidget::Maximized);
 		app->setListView(caption, tr("Maximized"));
@@ -9872,8 +9880,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 			else
 			{
 				w->setColPlotDesignation(list[4].toInt(), Table::X);
-				if (fileVersion > 50)
-					w->setColPlotDesignation(list[6].toInt(), Table::Y);
+				w->setColPlotDesignation(list[6].toInt(), Table::Y);
 				w->setHeader(fields);
 			}
 		} else if (fields[0] == "ColWidth") {
@@ -9949,8 +9956,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 			else
 			{
 				w->setColPlotDesignation(list[4].toInt(), Table::X);
-				if (fileVersion > 50)
-					w->setColPlotDesignation(list[6].toInt(), Table::Y);
+				w->setColPlotDesignation(list[6].toInt(), Table::Y);
 				w->setHeader(fields);
 			}
 		} else if (fields[0] == "ColWidth") {
@@ -10083,7 +10089,11 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			gr.minorWidth=grid[10].toInt();
 			gr.xZeroOn=grid[11].toInt();
 			gr.yZeroOn=grid[12].toInt();
-
+			if (grid.count() == 15)
+               {
+               gr.xAxis=grid[13].toInt();
+               gr.yAxis=grid[14].toInt();
+               }
 			ag->setGridOptions(gr);
 		}
 		else if (s.contains ("PieCurve"))
@@ -10095,7 +10105,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(6)=="curve\t")
 		{
-			curve = QStringList::split ("\t",s,true);
+			curve = QStringList::split ("\t", s, false);
 			if (!app->renamedTables.isEmpty())
 			{
 				QString caption = (curve[2]).left((curve[2]).find("_",0));
@@ -10107,10 +10117,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				}
 			}
 
-			if (fileVersion <= 60)
-				cl.connectType=curve[4].toInt()+1;
-			else
-				cl.connectType=curve[4].toInt();
+			cl.connectType=curve[4].toInt();
 			cl.lCol=curve[5].toInt();
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
@@ -10183,12 +10190,18 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 						ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
 				}
 				ag->updateCurveLayout(curveID,&cl);
+				if (fileVersion >= 88)
+                   {
+                   QwtPlotCurve *c = ag->curve(curveID);
+                   if (c)
+                      c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
+                   }
 			}
 			curveID++;
 		}
 		else if (s.contains ("FunctionCurve"))
 		{
-			curve=QStringList::split ("\t",s,true);
+			curve=QStringList::split ("\t", s, true);
 
 			cl.connectType=curve[6].toInt();
 			cl.lCol=curve[7].toInt();
@@ -10209,6 +10222,12 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			ag->insertFunctionCurve(curve[1], curve[3].toDouble(),curve[4].toDouble(),curve[2].toInt());
 			ag->setCurveType(curveID, curve[5].toInt());
 			ag->updateCurveLayout(curveID, &cl);
+			if (fileVersion >= 88)
+               {
+               QwtPlotCurve *c = ag->curve(curveID);
+               if (c)
+                  c->setAxis(curve[18].toInt(), curve[19].toInt());
+               }
 			curveID++;
 		}
 		else if (s.contains ("ErrorBars"))
@@ -10229,58 +10248,30 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(6)=="scale\t")
 		{
-			QStringList scale=QStringList::split ("\t",s,true);
+			QStringList scl = QStringList::split ("\t", s, true);		
+			scl.pop_front();
+			if (fileVersion < 88)
+				{
+				double step = scl[2].toDouble();
+				if (scl[5] == "0")
+					step = 0.0;
+				ag->setScale(QwtPlot::xBottom, scl[0].toDouble(), scl[1].toDouble(), step, 
+							 scl[3].toInt(), scl[4].toInt(), scl[6].toInt(), bool(scl[7].toInt()));
+				ag->setScale(QwtPlot::xTop, scl[0].toDouble(), scl[1].toDouble(), step, 
+							 scl[3].toInt(), scl[4].toInt(), scl[6].toInt(), bool(scl[7].toInt()));
 
-			if (fileVersion < 64)
-			{//ensure backwards compatibility	
-				QStringList newScale; 
-				for (i=1; i<7; i++)
-					newScale<<scale[i];
-
-				QString sclType = scale[7];	
-				if ( sclType == "2")
-				{
-					newScale<<"0";//linear scale
-					newScale<<"1";//inverted scale
+				step = scl[10].toDouble();
+				if (scl[13] == "0")
+					step = 0.0;
+				ag->setScale(QwtPlot::yLeft, scl[8].toDouble(), scl[9].toDouble(), step, scl[11].toInt(), 
+							 scl[12].toInt(), scl[14].toInt(), bool(scl[15].toInt()));
+				ag->setScale(QwtPlot::yRight, scl[8].toDouble(), scl[9].toDouble(), step, scl[11].toInt(), 
+							 scl[12].toInt(), scl[14].toInt(), bool(scl[15].toInt()));
 				}
-				else if ( sclType == "3")
-				{
-					newScale<<"1";//log scale
-					newScale<<"1";//inverted scale
-				}
-				else
-				{
-					newScale<<sclType;
-					newScale<<"0";//not inverted scale
-				}
-
-				for (i=8; i<14; i++)
-					newScale<<scale[i];	
-
-				sclType = scale[14];	
-				if ( sclType == "2")
-				{
-					newScale<<"0";//linear scale
-					newScale<<"1";//inverted scale
-				}
-				else if ( sclType == "3")
-				{
-					newScale<<"1";//log scale
-					newScale<<"1";//inverted scale
-				}
-				else
-				{
-					newScale<<sclType;
-					newScale<<"0";//not inverted scale
-				}
-				ag->setScales(newScale);
-			}
 			else
-			{
-				scale.pop_front();				
-				ag->setScales(scale);
-			}
-		}
+				ag->setScale(scl[0].toInt(), scl[1].toDouble(), scl[2].toDouble(), scl[3].toDouble(),
+							scl[4].toInt(), scl[5].toInt(),  scl[6].toInt(), bool(scl[7].toInt()));
+        }
 		else if (s.contains ("PlotTitle"))
 		{
 			fList=QStringList::split ("\t",s,true);
@@ -10349,20 +10340,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("LabelsFormat"))
 		{
-			fList=QStringList::split ("\t",s,true);
-			if (fileVersion < 64)
-			{//insure backwards compatibility
-				for (i=0; i<4; i++)
-				{			
-					QString fmt = fList[2*i + 1];	
-					if ( fmt == "0")
-						fList[2*i + 1] = "1";
-					else if ( fmt == "1")
-						fList[2*i  + 1] = "2";
-					else if ( fmt == "2")
-						fList[2*i + 1] = "0";
-				}					
-			}
+			fList=QStringList::split ("\t", s, true);
 			fList.pop_front();
 			ag->setLabelsNumericFormat(fList);
 		}
@@ -10961,6 +10939,9 @@ void ApplicationWindow::createActions()
 	actionShowLayerDialog->setShortcut( tr("ALT+A") );
 	connect(actionShowLayerDialog, SIGNAL(activated()), this, SLOT(showLayerDialog()));
 
+    actionAutomaticLayout = new QAction(QIcon(QPixmap(auto_layout_xpm)), tr("Automatic Layout"), this);
+    connect(actionAutomaticLayout, SIGNAL(activated()), this, SLOT(autoArrangeLayers()));
+  	  
 	actionExportGraph = new QAction(tr("&Current"), this);
 	actionExportGraph->setShortcut( tr("Alt+G") );
 	connect(actionExportGraph, SIGNAL(activated()), this, SLOT(exportGraph()));
@@ -11514,6 +11495,8 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionShowLayerDialog->setMenuText(tr("Arran&ge Layers"));
 	actionShowLayerDialog->setShortcut(tr("ALT+A"));
+	
+	actionAutomaticLayout->setMenuText(tr("Automatic Layout"));
 
 	actionExportGraph->setMenuText(tr("&Current"));
 	actionExportGraph->setShortcut(tr("Alt+G"));
@@ -12613,14 +12596,8 @@ void ApplicationWindow::appendProject()
 				plot=multilayerPlot(caption);
 				plot->setCols(graph[1].toInt());
 				plot->setRows(graph[2].toInt());
-				QString date=QString();
-				if (fileVersion < 63)
-					date = graph[5];
-				else
-					date = graph[3];
-
-				setListViewDate(caption,date);
-				plot->setBirthDate(date);
+				setListViewDate(caption, graph[3]);
+				plot->setBirthDate(graph[3]);
 				plot->blockSignals(true);	
 
 				restoreWindowGeometry(this, plot, t.readLine());

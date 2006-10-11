@@ -127,7 +127,7 @@ public:
 	QPushButton* buttonStatistics, *btnEditFunction;
 	QSpinBox* gapBox, *offsetBox, *boxWidth;
 
-	QWidget *vectPage, *boxPage, *percentilePage;
+	QWidget *vectPage, *boxPage, *percentilePage, *axesPage;
 	QComboBox *xEndBox, *yEndBox, *boxType, *boxWhiskersType, *boxWhiskersRange, *boxRange;
 	SymbolBox *boxMaxStyle, *boxMinStyle, *boxMeanStyle, *box99Style, *box1Style;
 	QSpinBox* headAngleBox, *headLengthBox, *vectWidthBox, *boxPercSize, *boxEdgeWidth;
@@ -139,11 +139,12 @@ public:
 	QLabel *boxRangeLabel, *whiskerCntLabel, *boxCntLabel;
 	QwtCounter *whiskerCnt, *boxCnt;
 	Q3ButtonGroup *GroupBoxVectEnd;
-	QComboBox *vectPosBox;
+	QComboBox *vectPosBox, *boxXAxis, *boxYAxis;
 
 public slots:
 	void showStatistics();
 	void clearTabWidget();
+	void initAxesPage();
 	void initLinePage();
 	void initSymbolsPage();
 	void initHistogramPage();

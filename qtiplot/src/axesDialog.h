@@ -68,6 +68,8 @@ typedef struct{
   int minorWidth;
   int xZeroOn;
   int yZeroOn;
+  int xAxis;
+  int yAxis;
 }  GridOptions;
 
 //! General plot options dialog
@@ -142,15 +144,13 @@ protected:
 	QGroupBox *boxFramed;
 	QLabel *label1, *label2, *label3, *boxScaleTypeLabel, *minorBoxLabel, *labelTable;
 	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
-	QComboBox *boxUnit, *boxTableName;
+	QComboBox *boxUnit, *boxTableName, *boxGridXAxis, *boxGridYAxis;
 	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
 	QGroupBox  *labelBox;
 	QPushButton * buttonLabelFont;
 	TextFormatButtons *formatButtons;
 	
 public slots:
-	QStringList scaleLimits(int axis, double start, double end, double step, 
-							const QString& majors, const QString&minors);
 	void setAxesType(const QList<int>& list);
 	void setAxisType(int axis);
 	void updateAxisType(int axis);
@@ -158,8 +158,6 @@ public slots:
 	void updateTitleBox(int axis);
 	bool updatePlot();
 	void updateScale();
-	void updateLineBoxes(int axis);
-	void setScaleLimits(const QStringList& limits);
 	void stepEnabled();
 	void stepDisabled();
 	void majorGridEnabled(bool on);
@@ -179,6 +177,7 @@ public slots:
 	void setAxisColor(const QColor& c);
 	void updateAxisColor(int);
 	void setAxesColors(const QStringList& colors);
+	int mapToQwtAxis(int axis);
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
 	void updateTickLabelsList();
@@ -233,7 +232,7 @@ signals:
 				  const QColor&, int, int, int, int, const QString&);	
 
 protected:
-	QStringList titles,scales,axesColors, tickLabelsOn, formatInfo;
+	QStringList titles, axesColors, tickLabelsOn, formatInfo;
 	QStringList	tablesList;
 	QList<int> majTicks, minTicks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;

@@ -9,7 +9,7 @@ OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES += QT_PLUGIN
 #DEFINES	   += SCRIPTING_CONSOLE
-DEFINES	   += SCRIPTING_DIALOG
+#DEFINES	   += SCRIPTING_DIALOG
 QT +=  opengl qt3support network
 
 SCRIPTING_LANGS = muParser 
@@ -41,13 +41,13 @@ unix:INSTALLS += documentation
 win32:DEFINES  += QT_DLL QT_THREAD_SUPPORT GSL_DLL 
 
 win32:INCLUDEPATH += ../3rdparty/qwtplot3d/include
-win32:INCLUDEPATH += C:/GSL/include
+win32:INCLUDEPATH += D:/ion_vasilief/GSL/include
 win32:INCLUDEPATH += ../3rdparty/zlib123/include
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a  
-win32:LIBS        += C:/GSL/lib/libgsl.lib
-win32:LIBS        += C:/GSL/lib/libgslcblas.lib
+win32:LIBS        += D:/ion_vasilief/GSL/bin/libgsl.dll
+win32:LIBS        += D:/ion_vasilief/GSL/bin/libgslcblas.dll
 win32:LIBS		  += ../3rdparty/zlib123/lib/zdll.lib
 win32:LIBS		  += ../3rdparty/liborigin/liborigin.a
  

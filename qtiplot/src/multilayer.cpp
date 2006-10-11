@@ -446,7 +446,7 @@ void MultiLayer::confirmRemoveLayer()
 if (graphs>1)
 	{
 	switch(QMessageBox::information(this,
-            tr("QtiPlot - Guess best origin for the new layer?"),
+            tr("QtiPlot - Guess best layout?"),
             tr("Do you want QtiPlot to rearrange the remaining layers?"),
             tr("&Yes"), tr("&No"), tr("&Cancel"),
             0, 2) )

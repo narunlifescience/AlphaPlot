@@ -99,6 +99,7 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	box2->setSpacing (5);
 	privateTabWidget = new QTabWidget(box2, "privateTabWidget" );
 
+    initAxesPage();
 	initLinePage();
 	initSymbolsPage();
 	initHistogramPage();
@@ -143,8 +144,7 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	connect( btnAssociations, SIGNAL(clicked()), this, SLOT(showPlotAssociations()));
 	connect( btnEditFunction, SIGNAL(clicked()), this, SLOT(editFunctionCurve()));
 
-	connect(listBox, SIGNAL(doubleClicked (Q3ListBoxItem *)),
-			this, SLOT(showPlotAssociations(Q3ListBoxItem *)));
+	connect(listBox, SIGNAL(doubleClicked (Q3ListBoxItem *)), this, SLOT(showPlotAssociations(Q3ListBoxItem *)));
 	connect(listBox, SIGNAL(highlighted(int)), this, SLOT(updateTabWindow(int)));
 	connect(listBox, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(Q3ListBoxItem *, const QPoint &)));
 	connect(boxPlotType, SIGNAL(activated(int)), this, SLOT(changePlotType(int)));
@@ -234,7 +234,30 @@ void PlotDialog::changePlotType(int plotType)
 
 	acceptParams();
 }
-
+void PlotDialog::initAxesPage()
+{
+axesPage = new QWidget( privateTabWidget);
+  	 
+Q3ButtonGroup *gr = new Q3ButtonGroup(2, Qt::Horizontal, tr( "Attach curve to: " ), axesPage);
+  	 
+new QLabel( tr( "x Axis" ), gr);
+  	 
+boxXAxis = new QComboBox( FALSE, gr, "boxXAxis" );
+boxXAxis->insertItem(tr("Bottom"));
+boxXAxis->insertItem(tr("Top"));
+  	 
+new QLabel(tr( "y Axis" ) , gr);
+  	 
+boxYAxis = new QComboBox( FALSE, gr, "boxLineStyle" );
+boxYAxis->insertItem(tr("Left"));
+boxYAxis->insertItem(tr("Right"));
+  	 
+Q3HBoxLayout* hlayout2 = new Q3HBoxLayout(axesPage, 5, 5);
+hlayout2->addWidget(gr);
+  	 
+privateTabWidget->insertTab(axesPage, tr( "Axes" ) );
+}
+  	
 void PlotDialog::initLinePage()
 {
 	linePage = new QWidget( privateTabWidget, "linePage" );
@@ -765,7 +788,6 @@ void PlotDialog::updateTabWindow(int curveIndex)
 		lastSelectedCurve = -1;
 		return;
 	}
-
 	else if (graph->curveType(lastSelectedCurve) == plot_type)
 	{
 		setActiveCurve(curveIndex);
@@ -773,18 +795,6 @@ void PlotDialog::updateTabWindow(int curveIndex)
 	}
 
 	clearTabWidget();
-
-	QString text=listBox->currentText();
-	if (text.contains("="))
-	{
-		btnAssociations->hide();
-		btnEditFunction->show();
-	}
-	else
-	{
-		btnAssociations->show();
-		btnEditFunction->hide();
-	}
 
 	insertTabs(plot_type);
 	setActiveCurve(curveIndex);
@@ -953,15 +963,19 @@ void PlotDialog::setActiveCurve(int index)
 			return;
 
 		int curveType = graph->curveType(index);
+		
+        //axes page
+        boxXAxis->setCurrentItem(c->xAxis()-2);
+        boxYAxis->setCurrentItem(c->yAxis());
 
-        QMessageBox::about(0, "", QString::number(curveType));
 		//line page
 		int style = c->style();
         if (curveType == Graph::Spline)
            style = 5;
         else if (curveType == Graph::VerticalSteps)
            style = 6;
-		boxConnect->setCurrentItem(c->style());
+		boxConnect->setCurrentItem(style);
+
 		setPenStyle(c->pen().style());
 		boxLineColor->setColor(c->pen().color());
 		boxLineWidth->setValue(c->pen().width());		
@@ -1096,7 +1110,17 @@ void PlotDialog::updateEndPointColumns(const QString& text)
 
 bool PlotDialog::acceptParams()
 {
-	if (privateTabWidget->currentPage()==linePage)
+	 if (privateTabWidget->currentPage() == axesPage)
+     {
+        QwtPlotCurve *c = graph->curve(listBox->currentItem());
+        if (!c)
+           return false;
+  	 
+        c->setAxis(boxXAxis->currentItem() + 2, boxYAxis->currentItem());
+        graph->setAutoScale();
+        return true;
+    }
+  	else if (privateTabWidget->currentPage()==linePage)
 	{
 		int index=listBox->currentItem();
 		graph->setCurveStyle(index, boxConnect->currentItem());

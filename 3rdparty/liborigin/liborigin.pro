@@ -1,7 +1,7 @@
 TARGET  	 = origin
 TEMPLATE     = lib
 CONFIG      += warn_on release thread
-CONFIG      += staticlib 
+CONFIG      += staticlib
 MOC_DIR      = ./tmp
 OBJECTS_DIR  = ./tmp
 

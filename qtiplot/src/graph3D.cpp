@@ -2922,17 +2922,11 @@ void Graph3D::changeTransparency(double t)
 		return;
 
 	alpha = t;
-	sp->makeCurrent();
 
 	Qwt3D::StandardColor* color=(StandardColor*) sp->dataColor ();
 	color->setAlpha(t);
 
-	if (legendOn)
-	{
-		sp->showColorLegend(false);
-		sp->showColorLegend(legendOn);
-	}
-
+    sp->showColorLegend(legendOn);
 	sp->updateData();
 	sp->updateGL();
 	emit modified();
@@ -3000,6 +2994,9 @@ sp->setRotation(int(sp->xRotation() + 1) % 360, int(sp->yRotation() + 1) % 360, 
   	
 void Graph3D::setDataColorMap(const QString& fileName)
 {
+if (color_map == fileName)
+   return;
+  	        
 ColorVector cv;
 if (!openColorMap(cv, fileName))
    return;

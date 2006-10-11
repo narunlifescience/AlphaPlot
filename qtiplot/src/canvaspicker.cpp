@@ -273,7 +273,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		const QMouseEvent *me = (const QMouseEvent *)e;
 		QPoint pos = me->pos();
 
-		if ( removePoint || moveRangeSelector || dataCursorEnabled ||
+		if ( plot()->zoomOn() || removePoint || moveRangeSelector || dataCursorEnabled ||
 			(presspos - pos).manhattanLength() <= QApplication::startDragDistance())
 				return false;
 		
