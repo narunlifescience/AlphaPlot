@@ -4,7 +4,7 @@
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Ion Vasilief,
 	                       Tilman Hoener zu Siederdissen,
-			       Knut Franke
+                          Knut Franke
 	Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
 	                       knut.franke@gmx.de
 	Description          : QtiPlot's main window
@@ -333,10 +333,15 @@ void ApplicationWindow::init()
 	connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 	connect(lv, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)), 
 			this, SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
-	connect(scriptEnv,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
+	connect(scriptEnv, SIGNAL(error(const QString&,const QString&,int)),
+			this, SLOT(scriptError(const QString&,const QString&,int)));
+	connect(scriptEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	connect(recent, SIGNAL(activated(int)), this, SLOT(openRecentProject(int)));
 	connect(&http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
+
+	// this has to be done after connecting scriptEnv
+	scriptEnv->initialize();
 }
 
 void ApplicationWindow::initGlobalConstants()
@@ -3783,20 +3788,12 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QStringList list=QStringList::split("\t",s,false);
 	if (list[0] == "<scripting-lang>")
 	{
-		ScriptingEnv *newEnv = ScriptingLangManager::newEnv(list[1], app);
-		if (newEnv && newEnv->isInitialized())
-		{
-			ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
-			QApplication::sendEvent(app, sce);
-			delete sce;
-		} else {
-			if (newEnv) delete newEnv;
+		if (!app->setScriptingLang(list[1], true))
 			QMessageBox::warning(app, tr("QtiPlot - File opening error"),
 					tr("The file \"%1\" was created using \"%2\" as scripting language.\n\n"\
 						"Initializing support for this language FAILED; I'm using \"%3\" instead.\n"\
 						"Various parts of this file may not be displayed as expected.")\
 					.arg(fn).arg(list[1]).arg(scriptEnv->name()));
-		}
 
 		s = t.readLine();
 		list=QStringList::split("\t",s,false);
@@ -4085,13 +4082,7 @@ void ApplicationWindow::executeNotes()
 
 void ApplicationWindow::scriptError(const QString &message, const QString &scriptName, int lineNumber)
 {
-	QString st = scriptEnv->stackTraceString();
-	QString errmsg = message;
-	if (st.isNull())
-		errmsg += "\nat " + scriptName + ":" + QString::number(lineNumber);
-	else
-		errmsg += "\n" + st;
-	QMessageBox::critical(this, "QtiPlot - Script Error", errmsg);
+	QMessageBox::critical(this, "QtiPlot - Script Error", message);
 }
 
 void ApplicationWindow::scriptPrint(const QString &text)
@@ -4103,14 +4094,22 @@ void ApplicationWindow::scriptPrint(const QString &text)
 #endif
 }
 
-bool ApplicationWindow::setScriptingLang(const QString &lang)
+bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 {
-	if (lang == scriptEnv->name()) return true;
+	if (!force && lang == scriptEnv->name()) return true;
 	if (lang.isEmpty()) return false;
 
 	ScriptingEnv *newEnv = ScriptingLangManager::newEnv(lang, this);
-	if (newEnv && newEnv->isInitialized())
+	if (newEnv)
 	{
+		connect(newEnv, SIGNAL(error(const QString&,const QString&,int)),
+				this, SLOT(scriptError(const QString&,const QString&,int)));
+		connect(newEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+		if (!newEnv->initialize())
+		{
+			delete newEnv;
+			return false;
+		}
 		ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
 		QApplication::sendEvent(this, sce);
 		delete sce;
@@ -4130,19 +4129,11 @@ void ApplicationWindow::showScriptingLangDialog()
 
 void ApplicationWindow::restartScriptingEnv()
 {
-	ScriptingEnv *newEnv = ScriptingLangManager::newEnv(scriptEnv->name(), this);
-	if (!newEnv || !newEnv->isInitialized())
-	{
-		if (newEnv) delete newEnv;
-		QMessageBox::critical(this, tr("QtiPlot - Scripting Error"), tr("Scripting language \"%1\" failed to initialize.").arg(scriptEnv->name()));
-		return;
-	}
-	ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
-	QApplication::sendEvent(this, sce);
-	foreach (QObject *i, queryList())
-		QApplication::sendEvent(i, sce);
-	delete sce;
-	executeNotes();
+	if (setScriptingLang(scriptEnv->name(), true))
+		executeNotes();
+	else
+		QMessageBox::critical(this, tr("QtiPlot - Scripting Error"),
+				tr("Scripting language \"%1\" failed to initialize.").arg(scriptEnv->name()));
 }
 
 void ApplicationWindow::openTemplate()
@@ -8298,12 +8289,8 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 
 void ApplicationWindow::customEvent(QEvent *e)
 {
-	if (e->type() == SCRIPTING_CHANGE_EVENT) {
+	if (e->type() == SCRIPTING_CHANGE_EVENT)
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
-		connect(scriptEnv, SIGNAL(error(const QString&,const QString&,int)),
-				this, SLOT(scriptError(const QString&,const QString&,int)));
-		connect(scriptEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
-	}
 }
 
 void ApplicationWindow::deleteSelectedItems()

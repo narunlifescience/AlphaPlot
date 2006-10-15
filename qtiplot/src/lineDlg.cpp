@@ -40,14 +40,14 @@
 #include <QBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
-#include <QSpinBox.h>
-#include <QCheckBox.h>
-#include <QPushButton.h>
-#include <QLabel.h>
-#include <QLineEdit.h>
-#include <QComboBox.h>
-#include <QColorDialog.h>
-#include <QTabWidget.h>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QColorDialog>
+#include <QTabWidget>
 
 LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )

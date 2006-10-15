@@ -12,8 +12,7 @@ DEFINES += QT_PLUGIN
 #DEFINES	   += SCRIPTING_DIALOG
 QT +=  opengl qt3support network
 
-SCRIPTING_LANGS = muParser 
-#Python
+SCRIPTING_LANGS = muParser Python
 
 TRANSLATIONS = translations/qtiplot_de.ts \
 			   translations/qtiplot_es.ts \
@@ -259,7 +258,8 @@ contains(SCRIPTING_LANGS, Python) {
 
   win32 {
     INCLUDEPATH += C:/Python24/include
-    LIBS += C:/Python24/libs/libpython24.a
+    #LIBS += C:/Python24/libs/libpython24.a
+	 LIBS += C:\Windows\System32\python24.dll
     system(md $${MOC_DIR})
     system(C:\Python24\sip.exe -I C:\Python24\sip\PyQt4 -t Qt_4_1_4 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
   }
@@ -275,6 +275,7 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiScriptEdit.h\
 	 ../tmp/qtiplot/sipqtiNote.h\
 	 ../tmp/qtiplot/sipqtiPythonScript.h\
+	 ../tmp/qtiplot/sipqtiPythonScripting.h\
 	 ../tmp/qtiplot/sipqtiFolder.h\
 	 ../tmp/qtiplot/sipqtiQList.h
 #	 ../tmp/qtiplot/sipqtiFit.h\
@@ -302,6 +303,7 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiScriptEdit.cpp\
 	 ../tmp/qtiplot/sipqtiNote.cpp\
 	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
+	 ../tmp/qtiplot/sipqtiPythonScripting.cpp\
 	 ../tmp/qtiplot/sipqtiFolder.cpp\
 	 ../tmp/qtiplot/sipqtiQList.cpp
 #	 ../tmp/qtiplot/sipqtiFit.cpp\

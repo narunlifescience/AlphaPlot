@@ -72,21 +72,30 @@ QStringList ScriptingLangManager::languages()
 }
 
 	ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *langName)
-: QObject(0, langName), Parent(parent)
+: QObject(0, langName), d_parent(parent)
 {
-	initialized=false;
-	refcount=0;
+	d_initialized=false;
+	d_refcount=0;
+}
+
+const QString ScriptingEnv::fileFilter() const
+{
+	QStringList extensions = fileExtensions();
+	if (extensions.isEmpty())
+		return "";
+	else
+		return tr("%1 Source (*.%2);;").arg(name()).arg(extensions.join(" *."));
 }
 
 void ScriptingEnv::incref()
 {
-	refcount++;
+	d_refcount++;
 }
 
 void ScriptingEnv::decref()
 {
-	refcount--;
-	if (refcount==0)
+	d_refcount--;
+	if (d_refcount==0)
 		delete this;
 }
 

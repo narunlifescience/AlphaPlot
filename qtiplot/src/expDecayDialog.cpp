@@ -36,10 +36,10 @@
 #include <QBoxLayout>
 #include <QHBoxLayout>
 #include <QGroupBox>
-#include <QPushButton.h>
-#include <QLabel.h>
-#include <QLineEdit.h>
-#include <QComboBox.h>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )

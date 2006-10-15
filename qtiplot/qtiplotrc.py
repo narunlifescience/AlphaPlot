@@ -1,19 +1,28 @@
 import __main__
 
-# import standard math functions and constants into global namespace
-math = __import__("math")
-for name in dir(math):
-  f = getattr(math,name)
-  setattr(__main__,name,f)
-  # make functions available in QtiPlot's math function list
-  if callable(f):
-    qti.mathFunctions[name] = f
+def import_to_global(modname, attrs=None, math=False):
+	"""
+		import_to_global(modname, (a,b,c,...), math): like "from modname import a,b,c,...",
+		but imports to global namespace (__main__).
+		If math==True, also registers functions with QtiPlot's math function list.
+	"""
+	mod = __import__(modname)
+	for submod in modname.split(".")[1:]:
+		mod = getattr(mod, submod)
+	if attrs==None: attrs=dir(mod)
+	for name in attrs:
+		f = getattr(mod, name)
+		setattr(__main__, name, f)
+		# make functions available in QtiPlot's math function list
+		if math and callable(f): qti.mathFunctions[name] = f
 
-# import selected parts of scipy.special (if available) into global namespace
+# Import standard math functions and constants into global namespace.
+import_to_global("math", None, True)
+
+# Import selected parts of scipy.special (if available) into global namespace.
 # See www.scipy.org for information on SciPy and how to get it.
+have_scipy = False
 try:
-  scipy = __import__("scipy.special")
-  special = getattr(scipy, "special")
   special_functions = [
     # Airy Functions
     "airy", "airye", "ai_zeros", "bi_zeros",
@@ -43,7 +52,7 @@ try:
     "struve", "modstruve", "itstruve0", "it2struve0", "itmodstruve0",
     # Gamma and Related Functions
     "gamma", "gammaln", "gammainc", "gammaincinv", "gammaincc", "gammainccinv",
-    "beta", "betaln", "betainc", "betaincinv", "betaincinva", "betaincinvb",
+    "beta", "betaln", "betainc", "betaincinv",
     "psi", "rgamma", "polygamma",
     # Error Function and Fresnel Integrals
     "erf", "erfc", "erfinv", "erfcinv", "erf_zeros",
@@ -63,13 +72,13 @@ try:
     "hyp2f0", "hyp1f2", "hyp3f0",
     # Parabolic Cylinder Functions
     "pbdv", "pbvv", "pbwa", "pbdv_seq", "pbvv_seq", "pbdn_seq",
-    # mathieu and Related Functions (and derivatives)
-    "mathieu_a", "mathieu_b", "mathieu_even_coeff", "mathieu_odd_coeff",
+    # Mathieu and related Functions (and derivatives)
+    "mathieu_a", "mathieu_b", "mathieu_even_coef", "mathieu_odd_coef",
     "mathieu_cem", "mathieu_sem", "mathieu_modcem1", "mathieu_modcem2", "mathieu_modsem1", "mathieu_modsem2",
     # Spheroidal Wave Functions
     "pro_ang1", "pro_rad1", "pro_rad2",
     "obl_ang1", "obl_rad1", "obl_rad2",
-    "pro_cv", "obl_cv", "pro_cv_seq", "obl_vc_seq",
+    "pro_cv", "obl_cv", "pro_cv_seq", "obl_cv_seq",
     "pro_ang1_cv", "pro_rad1_cv", "pro_rad2_cv",
     "obl_ang1_cv", "obl_rad1_cv", "obl_rad2_cv",
     # Kelvin Functions
@@ -78,7 +87,7 @@ try:
     "ber_zeros", "bei_zeros", "berp_zeros", "beip_zeros", "ker_zeros", "kei_zeros", "kerp_zeros", "keip_zeros",
     # Other Special Functions
     "expn", "exp1", "expi",
-    "wofz", "dawson",
+    "wofz", "dawsn",
     "shichi", "sici", "spence",
     "zeta", "zetac",
     # Convenience Functions
@@ -87,20 +96,59 @@ try:
 #    "log1p", "expm1", "cosm1",
     "round",
   ]
-  for name in special_functions:
-    try:
-      f = getattr(special, name)
-      setattr(__main__, name, f)
-      # make functions available in QtiPlot's math function list
-      if callable(f):
-        qti.mathFunctions[name] = f
-    except(AttributeError): pass
-except(ImportError):
-  print("Could not load scipy.special; special functions will not be available.")
+  import_to_global("scipy.special", special_functions, True)
+  have_scipy = True
+  print("Loaded %d special functions from scipy.special." % len(special_functions))
+except(ImportError): pass
+
+# Import selected parts of pygsl.sf (if available) into global namespace.
+# See pygsl.sourceforge.net for information on pygsl and how to get it.
+try:
+	# TODO: complete the next two lists
+	# special functions not defined in SciPy
+	special_functions = [
+			"fermi_dirac_0", "fermi_dirac_half", "fermi_dirac_1",
+			"fermi_dirac_3half", "fermi_dirac_2",
+			"fermi_dirac_inc_0", "fermi_dirac_int", "fermi_dirac_m1",
+			"fermi_dirac_mhalf",
+			"hydrogenicR", "hydrogenicR_1",
+			"lambert_W0", "lambert_Wm1",
+			"synchrotron_1", "synchrotron_2",
+			"transport_2", "transport_3", "transport_4", "transport_5",
+			]
+	# special functions also defined in SciPy
+	special_functions_doublets = [
+			# Airy functions
+			"airy_Ai", "airy_Ai_deriv", "airy_Ai_scaled", "airy_Ai_deriv_scaled",
+			"airy_Bi", "airy_Bi_deriv", "airy_Bi_scaled", "airy_Bi_deriv_scaled",
+			"airy_zero_Ai", "airy_zero_Ai_deriv", "airy_zero_Bi", "airy_zero_Bi_deriv",
+			# Bessel functions
+			"bessel_I0", "bessel_I1", "bessel_In", "bessel_Inu",
+			"bessel_I0_scaled", "bessel_I1_scaled", "bessel_In_scaled", "bessel_Inu_scaled",
+			"bessel_J0", "bessel_J1", "bessel_Jn", "bessel_Jnu",
+			"bessel_K0", "bessel_K1", "bessel_Kn", "bessel_Knu",
+			"bessel_K0_scaled", "bessel_K1_scaled", "bessel_Kn_scaled", "bessel_Knu_scaled",
+			"bessel_Y0", "bessel_Y1", "bessel_Yn", "bessel_Ynu",
+			"bessel_i0_scaled", "bessel_i1_scaled", "bessel_i2_scaled", "bessel_il_scaled",
+			"bessel_j0", "bessel_j1", "bessel_j2", "bessel_jl",
+			"bessel_k0_scaled", "bessel_k1_scaled", "bessel_k2_scaled", "bessel_kl_scaled",
+			"bessel_y0", "bessel_y1", "bessel_y2", "bessel_yl",
+			"bessel_lnKnu",
+			"bessel_zero_J0", "bessel_zero_J1", "bessel_zero_Jnu",
+			# Other special functions
+			"Shi", "Chi", "Si", "Ci",
+			]
+	import_to_global("pygsl.sf", special_functions, True)
+	if have_scipy:
+		print("Loaded %d special functions from pygsl.sf." % len(special_functions))
+	else:
+		import_to_global("pygsl.sf", special_functions_doublets, True)
+		print("Loaded %d special functions from pygsl.sf." % (len(special_functions) + len(special_functions_doublets)))
+except(ImportError): pass
 
 # make Qt API available (it gets imported in any case by the qti module)
-#global qt
-#import qt
+global QtGui
+from PyQt4 import QtGui
 
 # import QtiPlot's classes to the global namespace (particularly useful for fits)
 from qti import *
@@ -117,3 +165,7 @@ appImports = (
 for name in appImports:
   setattr(__main__,name,getattr(qti.app,name))
 
+# import utility module
+import sys
+sys.path.append(".")
+import_to_global("qtiUtil")

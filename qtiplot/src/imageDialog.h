@@ -32,8 +32,8 @@
 #include <qdialog.h>
 #include <QEvent>
 
-#include <QSpinBox.h>
-#include <QPushButton.h>
+#include <QSpinBox>
+#include <QPushButton>
 
 class ChainButton;
 

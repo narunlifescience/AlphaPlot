@@ -154,7 +154,8 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	layout->addWidget(hbox3);
 
 	setFunctions();
-	insertExplain(0);
+	if (functions->count() > 0)
+		insertExplain(0);
 
 	connect(PushButton3, SIGNAL(clicked()),this, SLOT(insertFunction()));
 	connect(PushButton4, SIGNAL(clicked()),this, SLOT(insertCol()));

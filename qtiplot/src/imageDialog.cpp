@@ -31,7 +31,7 @@
 #include <QBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QLabel.h>
+#include <QLabel>
 #include <QPixmap>
 
 /* XPM */

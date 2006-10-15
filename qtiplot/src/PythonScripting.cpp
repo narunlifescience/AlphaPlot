@@ -127,10 +127,14 @@ QString PythonScripting::errorMsg()
 	PyErr_NormalizeException(&exception, &value, &traceback);
 	if(PyErr_GivenExceptionMatches(exception, PyExc_SyntaxError))
 	{
-		msg.append(toString(PyObject_GetAttrString(value, "text"), true) + "\n");
+		QString text = toString(PyObject_GetAttrString(value, "text"), true);
+		msg.append(text + "\n");
 		PyObject *offset = PyObject_GetAttrString(value, "offset");
-		for (int i=1; i<PyInt_AsLong(offset); i++)
-			msg.append(" ");
+		for (int i=0; i<(PyInt_AsLong(offset)-1); i++)
+			if (text[i] == '\t')
+				msg.append("\t");
+			else
+				msg.append(" ");
 		msg.append("^\n");
 		Py_DECREF(offset);
 		msg.append("SyntaxError: ");
@@ -164,12 +168,13 @@ QString PythonScripting::errorMsg()
 	return msg;
 }
 
-	PythonScripting::PythonScripting(ApplicationWindow *parent)
-: ScriptingEnv(parent, langName)
+PythonScripting::PythonScripting(ApplicationWindow *parent)
+	: ScriptingEnv(parent, langName)
 {
 	PyObject *mainmod=NULL, *qtimod=NULL, *sysmod=NULL;
 	math = NULL;
 	sys = NULL;
+	d_initialized = false;
 	if (Py_IsInitialized())
 	{
 		PyEval_AcquireLock();
@@ -216,7 +221,7 @@ QString PythonScripting::errorMsg()
 	{
 		PyDict_SetItemString(globals, "qti", qtimod);
 		PyObject *qtiDict = PyModule_GetDict(qtimod);
-		setQObject(Parent, "app", qtiDict);
+		setQObject(d_parent, "app", qtiDict);
 		PyDict_SetItemString(qtiDict, "mathFunctions", math);
 		Py_DECREF(qtimod);
 	} else
@@ -231,17 +236,31 @@ QString PythonScripting::errorMsg()
 		PyErr_Print();
 
 	PyEval_ReleaseLock();
+	d_initialized = true;
+}
+
+bool PythonScripting::initialize()
+{
+	if (!d_initialized) return false;
+	PyEval_AcquireLock();
+
+	// Redirect output to the print(const QString&) signal.
+	// Also see method write(const QString&) and Python documentation on
+	// sys.stdout and sys.stderr.
+	setQObject(this, "stdout", sys);
+	setQObject(this, "stderr", sys);
 
 #ifdef Q_WS_WIN
-	loadInitFile(QDir::homeDirPath()+"qtiplotrc") ||
-		loadInitFile(QCoreApplication::instance()->applicationDirPath()+"qtiplotrc") ||
+	loadInitFile(QDir::homeDirPath()+"/qtiplotrc") ||
+		loadInitFile(QCoreApplication::instance()->applicationDirPath()+"/qtiplotrc") ||
 #else
-		loadInitFile(QDir::homeDirPath()+"/.qtiplotrc") ||
+	loadInitFile(QDir::homeDirPath()+"/.qtiplotrc") ||
 		loadInitFile(QDir::rootDirPath()+"etc/qtiplotrc") ||
 #endif
 		loadInitFile("qtiplotrc");
 
-	initialized=true;
+	PyEval_ReleaseLock();
+	return true;
 }
 
 PythonScripting::~PythonScripting()
@@ -254,15 +273,22 @@ PythonScripting::~PythonScripting()
 bool PythonScripting::loadInitFile(const QString &path)
 {
 	QFileInfo pyFile(path+".py"), pycFile(path+".pyc");
-	if (pycFile.isReadable() && (pycFile.lastModified() >= pyFile.lastModified()))
-		return PyRun_SimpleFileEx(fopen(pycFile.filePath(), "rb"), pycFile.filePath(), true) == 0;
-	else if (pyFile.isReadable() && pyFile.exists()) {
+	bool success = false;
+	if (pycFile.isReadable() && (pycFile.lastModified() >= pyFile.lastModified())) {
+		// if we have a recent pycFile, use it
+		FILE *f = fopen(pycFile.filePath(), "rb");
+		success = PyRun_SimpleFileEx(f, pycFile.filePath(), false) == 0;
+		fclose(f);
+	} else if (pyFile.isReadable() && pyFile.exists()) {
 		// try to compile pyFile to pycFile
 		PyObject *compileModule = PyImport_ImportModule("py_compile");
 		if (compileModule) {
-			PyObject *compile = PyDict_GetItemString(PyModule_GetDict(compileModule),"compile");
+			PyObject *compile = PyDict_GetItemString(PyModule_GetDict(compileModule), "compile");
 			if (compile) {
-				PyObject *tmp = PyObject_CallFunctionObjArgs(compile, PyString_FromString(pyFile.filePath()), PyString_FromString(pycFile.filePath()),NULL);
+				PyObject *tmp = PyObject_CallFunctionObjArgs(compile,
+						PyString_FromString(pyFile.filePath()),
+						PyString_FromString(pycFile.filePath()),
+						NULL);
 				if (tmp)
 					Py_DECREF(tmp);
 				else
@@ -272,15 +298,27 @@ bool PythonScripting::loadInitFile(const QString &path)
 			Py_DECREF(compileModule);
 		} else
 			PyErr_Print();
+		pycFile.refresh();
 		if (pycFile.isReadable() && (pycFile.lastModified() >= pyFile.lastModified())) {
 			// run the newly compiled pycFile
-			return PyRun_SimpleFileEx(fopen(pycFile.filePath(), "rb"), pycFile.filePath(), true) == 0;
+			FILE *f = fopen(pycFile.filePath(), "rb");
+			success = PyRun_SimpleFileEx(f, pycFile.filePath(), false) == 0;
+			fclose(f);
 		} else {
 			// fallback: just run pyFile
-			return PyRun_SimpleFileEx(fopen(pyFile.filePath(), "r"), pyFile.filePath(), true) == 0;
+			/*FILE *f = fopen(pyFile.filePath(), "r");
+			success = PyRun_SimpleFileEx(f, pyFile.filePath(), false) == 0;
+			fclose(f);*/
+			//TODO: code above crashes on Windows - bug in Python?
+			QFile f(pyFile.filePath());
+			if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+				QByteArray data = f.readAll();
+				success = PyRun_SimpleString(data.data());
+				f.close();
+			}
 		}
 	}
-	return false;
+	return success;
 }
 
 bool PythonScripting::isRunning() const
@@ -389,7 +427,14 @@ const QString PythonScripting::mathFunctionDoc(const QString &name) const
 	return qdocstr;
 }
 
-	PythonScript::PythonScript(PythonScripting *env, const QString &code, QObject *context, const QString &name)
+const QStringList PythonScripting::fileExtensions() const
+{
+	QStringList extensions;
+	extensions << "py" << "PY";
+	return extensions;
+}
+
+PythonScript::PythonScript(PythonScripting *env, const QString &code, QObject *context, const QString &name)
 : Script(env, code, context, name)
 {
 	PyCode = NULL;
@@ -411,16 +456,31 @@ void PythonScript::setContext(QObject *context)
 
 bool PythonScript::compile(bool for_eval)
 {
+	// Support for the convenient col() and cell() functions.
+	// This can't be done anywhere else, because we need access to the local
+	// variables self, i and j.
 	if(Context->isA("Table")) {
-		PyDict_SetItemString(localDict,"__builtins__",PyDict_GetItemString(env()->globalDict(),"__builtins__"));
-		PyObject *ret = PyRun_String("def col(c,*arg):\n\ttry: return self.cell(c,arg[0])\n\texcept(IndexError): return self.cell(c,i)\n",Py_file_input,localDict,localDict);
+		// A bit of a hack, but we need either IndexError or len() from __builtins__.
+		PyDict_SetItemString(localDict, "__builtins__",
+				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
+		PyObject *ret = PyRun_String(
+				"def col(c,*arg):\n"
+				"\ttry: return self.cell(c,arg[0])\n"
+				"\texcept(IndexError): return self.cell(c,i)\n",
+				Py_file_input, localDict, localDict);
 		if (ret)
 			Py_DECREF(ret);
 		else
 			PyErr_Print();
 	} else if(Context->isA("Matrix")) {
-		PyDict_SetItemString(localDict,"__builtins__",PyDict_GetItemString(env()->globalDict(),"__builtins__"));
-		PyObject *ret = PyRun_String("def cell(*arg):\n\ttry: return self.cell(arg[0],arg[1])\n\texcept(IndexError): return self.cell(i,j)\n",Py_file_input,localDict,localDict);
+		// A bit of a hack, but we need either IndexError or len() from __builtins__.
+		PyDict_SetItemString(localDict, "__builtins__",
+				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
+		PyObject *ret = PyRun_String(
+				"def cell(*arg):\n"
+				"\ttry: return self.cell(arg[0],arg[1])\n"
+				"\texcept(IndexError): return self.cell(i,j)\n",
+				Py_file_input, localDict, localDict);
 		if (ret)
 			Py_DECREF(ret);
 		else
@@ -428,11 +488,18 @@ bool PythonScript::compile(bool for_eval)
 	}
 	bool success=false;
 	Py_XDECREF(PyCode);
-	PyCode = Py_CompileString(Code.ascii(),Name,Py_eval_input);
-	if (PyCode) { // code is a single expression
+	// Simplest case: Code is a single expression
+	PyCode = Py_CompileString(Code.ascii(), Name, Py_eval_input);
+	if (PyCode) {
 		success = true;
-	} else if (for_eval) { // code contains statements
-		PyErr_Clear();
+	} else if (for_eval) {
+		// Code contains statements (or errors) and we want to get a return
+		// value from it.
+		// So we wrap the code into a function definition,
+		// execute that (as Py_file_input) and store the function object in PyCode.
+		// See http://mail.python.org/pipermail/python-list/2001-June/046940.html
+		// for why there isn't an easier way to do this in Python.
+		PyErr_Clear(); // silently ignore errors
 		PyObject *key, *value;
 		int i=0;
 		QString signature = "";
@@ -442,7 +509,7 @@ bool PythonScript::compile(bool for_eval)
 		QString fdef = "def __doit__("+signature+"):\n";
 		fdef.append(Code);
 		fdef.replace('\n',"\n\t");
-		PyCode = Py_CompileString(fdef,Name,Py_file_input);
+		PyCode = Py_CompileString(fdef, Name, Py_file_input);
 		if (PyCode)
 		{
 			PyObject *tmp = PyDict_New();
@@ -454,8 +521,10 @@ bool PythonScript::compile(bool for_eval)
 		}
 		success = PyCode != NULL;
 	} else {
-		PyErr_Clear();
-		PyCode = Py_CompileString(Code.ascii(),Name,Py_file_input);
+		// Code contains statements (or errors), but we do not need to get
+		// a return value.
+		PyErr_Clear(); // silently ignore errors
+		PyCode = Py_CompileString(Code.ascii(), Name, Py_file_input);
 		success = PyCode != NULL;
 	}
 	if (!success)
@@ -575,7 +644,9 @@ void PythonScript::beginStdoutRedirect()
 void PythonScript::endStdoutRedirect()
 {
 	PyDict_SetItemString(env()->sysDict(), "stdout", stdoutSave);
+	Py_XDECREF(stdoutSave);
 	PyDict_SetItemString(env()->sysDict(), "stderr", stderrSave);
+	Py_XDECREF(stderrSave);
 }
 
 bool PythonScript::setQObject(QObject *val, const char *name)

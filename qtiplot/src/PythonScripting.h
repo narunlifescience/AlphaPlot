@@ -74,6 +74,9 @@ class PythonScripting: public ScriptingEnv
 		PythonScripting(ApplicationWindow *parent);
 		~PythonScripting();
 		static ScriptingEnv *constructor(ApplicationWindow *parent) { return new PythonScripting(parent); }
+		bool initialize();
+
+		void write(const QString &text) { emit print(text); }
 
 		//! like str(object) in Python
 		/**
@@ -112,6 +115,7 @@ class PythonScripting: public ScriptingEnv
 
 		const QStringList mathFunctions() const;
 		const QString mathFunctionDoc (const QString &name) const;
+		const QStringList fileExtensions() const;
 
 		PyObject *globalDict() { return globals; }
 		PyObject *sysDict() { return sys; }

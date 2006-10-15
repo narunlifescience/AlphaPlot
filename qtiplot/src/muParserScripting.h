@@ -79,7 +79,7 @@ class muParserScripting: public ScriptingEnv
 
   public:
     static const char *langName;
-    muParserScripting(ApplicationWindow *parent) : ScriptingEnv(parent, langName) { initialized=true; }
+    muParserScripting(ApplicationWindow *parent) : ScriptingEnv(parent, langName) { d_initialized=true; }
     static ScriptingEnv *constructor(ApplicationWindow *parent) { return new muParserScripting(parent); }
 
     bool isRunning() const { return true; }
@@ -146,6 +146,10 @@ class muParserScripting: public ScriptingEnv
       { return gsl_sf_lngamma (x); }
     static double hazard(double x)
       { return gsl_sf_hazard (x); }
+	 static double lambert_W0(double x)
+	   { return gsl_sf_lambert_W0(x); }
+	 static double lambert_Wm1(double x)
+	   { return gsl_sf_lambert_Wm1(x); }
 };
 
 class EmptySourceError : public mu::ParserError

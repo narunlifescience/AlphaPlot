@@ -105,8 +105,14 @@ public:
 
   SIP_PYOBJECT text(SIP_PYOBJECT, int);
 %MethodCode
-//    sipRes = PyString_FromString(sipCpp->text(a1-1, sipqti_colArg(sipCpp, a0)));
-    sipRes = PyUnicode_FromEncodedObject(PyString_FromString(sipCpp->text(a1-1, sipqti_colArg(sipCpp, a0)).utf8()), "utf8", 0);
+	PyObject *encstr = PyString_FromString(sipCpp->text(a1-1, sipqti_colArg(sipCpp, a0)).utf8());
+	if (encstr) {
+		sipRes = PyUnicode_FromEncodedObject(encstr, "utf8", 0);
+		Py_DECREF(encstr);
+	} else {
+		sipRes = NULL;
+		sipIsErr = 1;
+	}
 %End
   double cell(SIP_PYOBJECT, int);
 %MethodCode
@@ -599,10 +605,7 @@ public:
   char *item;
   for (int i=0; i<PyTuple_GET_SIZE(a0); i++)
     if (item = PyString_AsString(PyTuple_GET_ITEM(a0, i)))
-    {
       l << item;
-      printf("debug: adding %s\n", item);
-    }
     else
       sipIsErr = 1;
   printf("debug: added %d items\n", l.count());
@@ -730,6 +733,16 @@ public:
 };
 */
 // used for output redirection
+class PythonScripting
+{
+%TypeHeaderCode
+#include "src/PythonScripting.h"
+%End
+public:
+  void write(const QString&);
+private:
+  PythonScripting(const PythonScripting&);
+};
 class PythonScript
 {
 %TypeHeaderCode

@@ -362,7 +362,8 @@ void Table::setColWidths(const QStringList& widths)
 
 void Table::setColumnTypes(const QStringList& ctl)
 {
-	for (int i=0; i<(int)ctl.count(); i++)
+	int n = qMin((int)ctl.count(), tableCols());
+	for (int i=0; i<n; i++)
 	{
 		QStringList l= QStringList::split(";", ctl[i], true);
 		colTypes[i] = l[0].toInt();
@@ -385,9 +386,9 @@ QString Table::saveColumnWidths()
 
 QString Table::saveColumnTypes()
 {
-	QString s="ColType\t";
+	QString s="ColType";
 	for (int i=0; i<worksheet->numCols(); i++)
-		s+=QString::number(colTypes[i])+";"+col_format[i]+"\t";
+		s += "\t"+QString::number(colTypes[i])+";"+col_format[i];
 
 	return s+"\n";
 }

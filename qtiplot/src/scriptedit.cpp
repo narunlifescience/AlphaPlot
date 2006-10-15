@@ -52,7 +52,7 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
 	connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
 	connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
-	setWordWrapMode(QTextOption::NoWrap);
+	setLineWrapMode(NoWrap);
 	setTextFormat(Qt::PlainText);
 	setFamily("Monospace");
 
@@ -205,6 +205,7 @@ void ScriptEdit::execute()
 	myScript->setName(fname);
 	myScript->setCode(codeCursor.selectedText());
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
+	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 	myScript->exec();
 }
 
@@ -233,18 +234,19 @@ void ScriptEdit::evaluate()
 	myScript->setName(fname);
 	myScript->setCode(codeCursor.selectedText());
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
-	myScript->setEmitErrors(false);
+	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 	QVariant res = myScript->eval();
-	myScript->setEmitErrors(true);
-	if (res.isValid() && res.canConvert(QVariant::String))
-	{
-		QString strVal = res.toString();
-		if (!strVal.isEmpty())
-			printCursor.insertText("\n#> "+res.toString()+"\n");
-	}
-	else // statement or invalid
-		if (myScript->exec())
-			printCursor.insertText("\n");
+	if (res.isValid())
+		if (!res.isNull() && res.canConvert(QVariant::String))
+		{
+			QString strVal = res.toString();
+			strVal.replace("\n", "\n#> ");
+			if (!strVal.isEmpty())
+				printCursor.insertText("\n#> "+strVal+"\n");
+			else
+				printCursor.insertText("\n");
+		}
+		 
 	setTextCursor(printCursor);
 }
 
@@ -302,15 +304,13 @@ void ScriptEdit::print()
 
 QString ScriptEdit::importASCII(const QString &filename)
 {
-	QString filter = tr("Text") +" (*.txt *.TXT);;";
-#ifdef SCRIPTING_PYTHON
-	filter += tr("Python Source")+" (*.py);;";
-#endif
+	QString filter = tr("Text") + " (*.txt *.TXT);;";
+	filter += scriptEnv->fileFilter();
 	filter += tr("All Files")+" (*)";
 
 	QString f;
 	if (filename.isEmpty())
-		f = QFileDialog::getOpenFileName(QString::null,  filter, this, 0, tr("QtiPlot - Import Text From File"));
+		f = QFileDialog::getOpenFileName(name(),  filter, this, 0, tr("QtiPlot - Import Text From File"));
 	else
 		f = filename;
 	if (f.isEmpty()) return QString::null;
@@ -330,16 +330,14 @@ QString ScriptEdit::importASCII(const QString &filename)
 
 QString ScriptEdit::exportASCII(const QString &filename)
 {
-	QString filter = " *.txt;;";
-#ifdef SCRIPTING_PYTHON
-	filter += tr("Python Source")+" (*.py);;";
-#endif
+	QString filter = tr("Text") + " (*.txt *.TXT);;";
+	filter += scriptEnv->fileFilter();
 	filter += tr("All Files")+" (*)";
 
 	QString selectedFilter;
 	QString fn;
 	if (filename.isEmpty())
-		fn = QFileDialog::getSaveFileName(parent()->name(), filter, this, 0,
+		fn = QFileDialog::getSaveFileName(name(), filter, this, 0,
 				tr("Save Text to File"), &selectedFilter, false);
 	else
 		fn = filename;

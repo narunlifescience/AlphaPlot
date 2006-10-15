@@ -35,10 +35,10 @@
 #include <QBoxLayout>
 #include <QVBoxLayout>
 #include <QGroupBox>
-#include <QPushButton.h>
-#include <QLabel.h>
-#include <QLineEdit.h>
-#include <QComboBox.h>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )

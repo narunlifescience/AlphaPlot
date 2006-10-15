@@ -783,8 +783,8 @@ public slots:
 	void restartScriptingEnv();
 	//! print to scripting console (if available) or to stdout
 	void scriptPrint(const QString &text);
-	//! switches to the given scripting language (if different from the current)
-	bool setScriptingLang(const QString &lang);
+	//! switches to the given scripting language; if this is the same as the current one and force is true, restart it
+	bool setScriptingLang(const QString &lang, bool force=false);
 
 signals:
 	void modified();
