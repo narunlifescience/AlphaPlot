@@ -37,7 +37,8 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 	: Table(env, 1, 1, "", parent, ""),
 	d_base(base), d_type(t), d_targets(targets)
 {
-	worksheet->setReadOnly(true);
+	// FIXME: Haven't found a set read-only method in Qt4 yet
+	// worksheet->setReadOnly(true);
 	setCaptionPolicy(MyWidget::Both);
 	if (d_type == row)
 	{
@@ -219,7 +220,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				delete[] dat;
 			}
 
-	for (int i=0; i<worksheet->numCols(); i++)
+	for (int i=0; i<worksheet->columnCount(); i++)
 		emit modifiedData(this, Table::colName(i));
 }
 

@@ -3102,9 +3102,9 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 	if (!direction)
 		ycol=w->colIndex(xColName);
 
-	Q3MemArray<double> Y(r);
-	Y=w->col(ycol);
-	QString errColName=w->colName(c);
+	QVarLengthArray<double> Y(r);
+	Y = w->col(ycol);
+	QString errColName = w->colName(c);
 
 	double prc=percent.toDouble();
 	double moyenne=0.0;
@@ -3112,7 +3112,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 	{
 		for (int i=0;i<r;i++)
 		{
-			if (!w->table()->text(i,ycol).isEmpty())
+			if (!w->text(i,ycol).isEmpty())
 				w->setText(i,c,QString::number(Y[i]*prc/100.0,'g',15));
 		}
 	}
@@ -3128,7 +3128,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 		dev=sqrt(dev/(r-1));
 		for (i=0;i<r;i++)
 		{
-			if (!w->table()->text(i,ycol).isEmpty())
+			if (!w->table()->item(i,ycol)->text().isEmpty())
 				w->setText(i,c,QString::number(dev,'g',15));
 		}
 	}		
@@ -3273,7 +3273,7 @@ void ApplicationWindow::changeAppStyle(const QString& s)
 	qApp->setStyle(s);
 	appStyle = qApp->style()->objectName();
 
-		QPalette pal = qApp->palette();
+	QPalette pal = qApp->palette();
 	pal.setColor (QPalette::Active, QPalette::Base, QColor(panelsColor));
 	qApp->setPalette(pal);
 
@@ -5551,7 +5551,7 @@ void ApplicationWindow::showColumnValuesDialog()
 	Table* w = (Table*)ws->activeWindow();
 	if ( w && w->isA("Table"))
 	{
-		if (int(w->selectedColumns().count())>0 || w->table()->currentSelection() >= 0)
+		if (int(w->selectedColumns().count())>0 || !(w->getSelection().isEmpty()) )
 		{
 			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this,"valuesDialog",true);
 			vd->setAttribute(Qt::WA_DeleteOnClose);

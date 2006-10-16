@@ -33,6 +33,10 @@
 #include "worksheet.h"
 #include "scriptedit.h"
 
+#include <QTableWidget>
+#include <QTableWidgetSelectionRange>
+#include <QList>
+
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <q3textedit.h>
@@ -267,14 +271,15 @@ void SetColValuesDialog::setTable(Table* w)
 	for (int i=0; i<cols; i++)
 		boxColumn->insertItem("col(\""+colNames[i]+"\")",i); 
 
-	int s = w->table()->currentSelection();
-	if (s >= 0)
+	QList<QTableWidgetSelectionRange> sel = w->table()->selectedRanges();	
+	QListIterator<QTableWidgetSelectionRange> it(sel);
+	if (sel.count() >= 0)
 	{
-		Q3TableSelection sel = w->table()->selection(s);
-		w->setSelectedCol(sel.leftCol());
+		QTableWidgetSelectionRange cur = it.next();
+		w->setSelectedCol(cur.leftColumn());
 
-		start->setValue(sel.topRow() + 1);
-		end->setValue(sel.bottomRow() + 1);
+		start->setValue(cur.topRow() + 1);
+		end->setValue(cur.bottomRow() + 1);
 	}
 	else
 	{

@@ -31,15 +31,16 @@
 #ifndef WORKSHEET_H
 #define WORKSHEET_H
 
-#include <qwidget.h>
-#include <q3table.h>
-#include <q3header.h>
-//Added by qt3to4:
+#include <QWidget>
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QHeaderView>
 #include <QContextMenuEvent>
-#include <Q3ValueList>
-#include <QEvent>
-#include <Q3MemArray>
-#include <Q3TableSelection>
+#include <QList>
+#include <QVarLengthArray>
+#include <QTableWidgetSelectionRange>
+class QEvent;
+
 
 #include "graph.h"
 #include "widget.h"
@@ -62,10 +63,10 @@ public:
 	Table(ScriptingEnv *env, int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Table();
 
-	Q3TableSelection getSelection();
+QList<QTableWidgetSelectionRange> getSelection();
 	
 public slots:
-	Q3Table* table(){return worksheet;};
+	QTableWidget* table(){return worksheet;};
 	void copy(Table *m);
 	int tableRows();
 	int tableCols();
@@ -84,17 +85,17 @@ public slots:
 	int colPlotDesignation(int col){return col_plot_type[col];};
 	void setColPlotDesignation(int col, PlotDesignation d){col_plot_type[col]=d;};
 	void setPlotDesignation(PlotDesignation pd);
-	Q3ValueList<int> plotDesignations(){return col_plot_type;};
+	QList<int> plotDesignations(){return col_plot_type;};
 
-	void setColName(int col,const QString& text);
+	void setColName(int col,const QString& newText);
 	void setHeader(QStringList header);
 	void loadHeader(QStringList header);
 	void setHeaderColType();
-	void setText(int row,int col,const QString & text);
+	void setText(int row,int col,const QString & newText);
 	void setRandomValues();
 	void setAscValues();
 
-	void cellEdited(int,int col);
+	void cellEdited(QTableWidgetItem * item);
 	void moveCurrentCell();
 	void clearCell(int row, int col);
 	QString saveText();
@@ -129,11 +130,16 @@ public slots:
 	
 	void print();
 	
+	
+	//! Handles the behavior when a header section is double clicked
+	bool headerDoubleClickedHandler(int logicalIndex);
+
 	// event handlers 
-	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
 	void customEvent( QCustomEvent* e);
-	
+ 	void mouseMoveEvent( QMouseEvent * e);
+	void mousePressEvent( QMouseEvent * e);
+
 	// column operations 
 	void removeCol();
 	void removeCol(const QStringList& list);
@@ -163,7 +169,7 @@ public slots:
 	void fft(double sampling, const QString& realColName, const QString& imagColName,
 			bool forward, bool normalize, bool order);
 
-	Q3MemArray<double> col(int ycol);
+	QVarLengthArray<double> col(int ycol);
 	int firstXCol();
 	bool noXColumn();
 	bool noYColumn();
@@ -204,7 +210,7 @@ public slots:
 	QStringList selectedYLabels();
 	QStringList YColumns();
 	int selectedColsNumber();
-	void changeColName(const QString& text);
+	void changeColName(const QString& newText);
 	void enumerateRightCols(bool checked);
 
 	void changeColWidth(int width, bool allCols);	
@@ -216,15 +222,25 @@ public slots:
 	int selectedColumn(){return selectedCol;};
 	int firstSelectedColumn();
 	int selectedRows();
-	bool isRowSelected(int row, bool full=false) { return worksheet->isRowSelected(row, full); }
-	bool isColumnSelected(int col, bool full=false) { return worksheet->isColumnSelected(col, full); }
+	//! Detemines if row is selected
+	/**
+	  \param row the row in question
+	  \param full false: return true for partial selection, true: return true only if the whole row is selected
+	 */
+	bool isRowSelected(int row, bool full=false);
+	//! Detemines if column is selected
+	/**
+	  \param col the column in question
+	  \param full false: return true for partial selection, true: return true only if the whole column is selected
+	 */
+	bool isColumnSelected(int col, bool full=false);
 	
 	void columnNumericFormat(int col, char &f, int &precision);
 	void columnNumericFormat(int col, int &f, int &precision);
 	int columnType(int col){return colTypes[col];};
 
-	Q3ValueList<int> columnTypes(){return colTypes;};
-	void setColumnTypes(Q3ValueList<int> ctl){colTypes = ctl;};
+	QList<int> columnTypes(){return colTypes;};
+	void setColumnTypes(QList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
 
 	//!Slot: Use a copy of column col when accessing it via text() until forgetSavedCol() is called.
@@ -280,6 +296,7 @@ public slots:
 
 	void setBackgroundColor(const QColor& col);
 	void setTextColor(const QColor& col);
+	//! Set the header text color
 	void setHeaderColor(const QColor& col);
 	void setTextFont(const QFont& fnt);
 	void setHeaderFont(const QFont& fnt);
@@ -315,7 +332,7 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 	
 protected:
-	Q3Table *worksheet;
+	QTableWidget *worksheet;
 
 private:
 	QString specifications, newSpecifications;
