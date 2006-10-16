@@ -69,7 +69,6 @@ void Matrix::init(int rows, int cols)
 {
 	formula_str = "";
 	selectedCol=0;
-	LeftButton=false;
 	txt_format = 'f';
 	num_precision = 6;
 	x_start = 1.0;
@@ -107,6 +106,7 @@ void Matrix::init(int rows, int cols)
 
 	Q3Header* vHeader=(Q3Header*)table->verticalHeader();
 	vHeader->setResizeEnabled (false);
+	vHeader->installEventFilter(this);
 
 	int w, h;
 	if (cols>3)
@@ -742,6 +742,24 @@ void Matrix::deleteSelectedColumns()
 	emit modifiedWindow(this);
 }
 
+int Matrix::numSelectedRows()
+{
+	int r=0;
+	for (int i=0; i<table->numRows(); i++)
+		if (table->isRowSelected(i, true))
+			r++;
+	return r;
+}
+
+int Matrix::numSelectedColumns()
+{
+	int c=0;
+	for (int i=0; i<table->numCols(); i++)
+		if (table->isColumnSelected(i, true))
+			c++;
+	return c;
+}
+
 void Matrix::insertRow()
 {
 	int cr = table->currentRow();
@@ -883,85 +901,40 @@ void Matrix::customEvent(QEvent *e)
 
 bool Matrix::eventFilter(QObject *object, QEvent *e)
 {
-	Q3Header *header = table->horizontalHeader();
-	if ( object != (QObject *)header)
-		return false;
+	Q3Header *hheader = table->horizontalHeader();
+	Q3Header *vheader = table->verticalHeader();
 
-	int offset = header->offset();
-	switch(e->type())
-	{
-		case QEvent::MouseButtonDblClick:
-			{
-				const QMouseEvent *me = (const QMouseEvent *)e;
-				selectedCol = header->sectionAt (me->pos().x()+offset);
-				return true; 
-			}
-
-		case QEvent::MouseButtonPress:
-			{
-				const QMouseEvent *me = (const QMouseEvent *)e;
-				if (me->button() == Qt::RightButton)	
-				{
-					const QMouseEvent *me = (const QMouseEvent *)e;
-					selectedCol=header->sectionAt (me->pos().x() + offset);
-					table->setCurrentCell (0, selectedCol);
-				}
-
-				if (me->button() == Qt::LeftButton)	
-				{
-					LeftButton=true;
-					const QMouseEvent *me = (const QMouseEvent *)e;
-
-					if (((const QMouseEvent *)e)->modifiers() & Qt::ControlModifier)
-					{
-						int current=table->currentSelection();
-						Q3TableSelection sel=table->selection(current);
-						if (sel.topRow() != 0 || sel.bottomRow() != (table->numRows() - 1))
-							//select only full columns
-							table->removeSelection(sel);						
-					}
-					else
-						table->clearSelection (true);
-
-					selectedCol=header->sectionAt (me->pos().x()+offset);
-					lastSelectedCol=selectedCol;
-					table->selectColumn (selectedCol);
-					table->setCurrentCell (0, selectedCol);
-				}		
-				return true; 
-			}
-
-		case QEvent::MouseMove:
-			{
-				if(LeftButton)
-				{
-					const QMouseEvent *me = (const QMouseEvent *)e;
-					selectedCol=header->sectionAt (me->pos().x() + offset);
-
-					if(selectedCol != lastSelectedCol)
-					{// This means that we are in the next column
-						if(table->isColumnSelected(selectedCol,true))
-						{//Since this column is selected, deselect it
-							table->removeSelection(Q3TableSelection (0,lastSelectedCol,table->numRows()-1,lastSelectedCol));
-						}
-						else
-							table->selectColumn (selectedCol);
-					}
-					lastSelectedCol=selectedCol;
-					table->setCurrentCell (0, selectedCol);
-				}
-				return true;
-			}
-
-		case QEvent::MouseButtonRelease:
-			{
-				LeftButton=false;
-				return true;
-			}
-
-		default:
-			;
+	if (e->type() == QEvent::MouseButtonDblClick && object == (QObject*)hheader) {
+		const QMouseEvent *me = (const QMouseEvent *)e;
+		selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
+		return true;
+	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)hheader) {
+		const QMouseEvent *me = (const QMouseEvent *)e;
+		if (me->button() == Qt::LeftButton && me->state() == Qt::ControlButton) {		
+			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
+			table->selectColumn (selectedCol);
+			table->setCurrentCell (0, selectedCol);
+			return true;
+		} else if (me->button() == Qt::RightButton && numSelectedColumns() <= 1) {
+			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
+			table->clearSelection();
+			table->selectColumn(selectedCol);
+			table->setCurrentCell (0, selectedCol);
+		}
+	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)vheader) {
+		const QMouseEvent *me = (const QMouseEvent *)e;
+		if (me->button() == Qt::RightButton && numSelectedRows() <= 1) {
+			table->clearSelection();
+			int row = vheader->sectionAt(me->pos().y() + vheader->offset());
+			table->selectRow (row);
+			table->setCurrentCell (row, 0);
+		}
+	} else if (e->type()==QEvent::ContextMenu && object == titleBar) {
+		emit showTitleBarMenu();
+		((QContextMenuEvent*)e)->accept();
+		return true;
 	}
+
 	return QObject::eventFilter(object, e);
 }
 

@@ -144,7 +144,7 @@ public:
 	void setFolder(Folder* f){parentFolder = f;};
 
 	//! Catches parent changes (in order to gain access to the title bar)
-	void reparent(QWidget * parent, Qt::WFlags f, const QPoint & p, bool showIt = false);
+	virtual void reparent(QWidget * parent, Qt::WFlags f, const QPoint & p, bool showIt = false);
 
 signals:  
 	//! Emitted when the window was closed

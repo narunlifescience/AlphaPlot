@@ -131,6 +131,7 @@ void Table::init(int rows, int cols)
 	setGeometry(50,50,w + 45, h);
 
 	worksheet->verticalHeader()->setResizeEnabled(false);
+	worksheet->verticalHeader()->installEventFilter(this);
 
 	Q3Accel *accel = new Q3Accel(this);
 	accel->connectItem( accel->insertItem( Qt::Key_Tab ), this, SLOT(moveCurrentCell()));
@@ -2819,75 +2820,52 @@ void Table::moveCurrentCell()
 	}
 }
 
-void Table::mouseMoveEvent ( QMouseEvent * e )
-{
-	Q3Header *header = worksheet->horizontalHeader();
-	int offset = header->offset();
-	selectedCol = header->sectionAt (e->pos().x() + offset);
-
-	if(selectedCol != lastSelectedCol)
-	{//This means that we are in the next column
-		if(worksheet->isColumnSelected(selectedCol,true))
-		{//Since this column is selected, deselect it
-			worksheet->removeSelection(Q3TableSelection (0,lastSelectedCol,
-						worksheet->numRows()-1,lastSelectedCol));
-		}
-		else
-			worksheet->selectColumn (selectedCol);
-	}
-	lastSelectedCol=selectedCol;
-	worksheet->setCurrentCell (0, selectedCol);
-}
-
-void Table::mousePressEvent ( QMouseEvent * e )
-{
-	if (e->button() == Qt::LeftButton)	
-	{				
-		if (e->state ()==Qt::ControlButton)
-		{
-			int current=worksheet->currentSelection();
-			Q3TableSelection sel=worksheet->selection(current);
-			if (sel.topRow() != 0 || sel.bottomRow() != (worksheet->numRows() - 1))
-				//select only full columns
-				worksheet->removeSelection(sel);						
-		}
-		else
-			worksheet->clearSelection();
-
-		Q3Header *header = worksheet->horizontalHeader();
-		int offset = header->offset();
-
-		selectedCol=header->sectionAt (e->pos().x()+offset);
-		lastSelectedCol=selectedCol;
-		worksheet->selectColumn (selectedCol);
-		worksheet->setCurrentCell (0, selectedCol);
-	}			
-}
-
 bool Table::eventFilter(QObject *object, QEvent *e)
 {
-	Q3Header *header = worksheet->horizontalHeader();
-	if (object != (QObject *)header)
-		return false;
+	Q3Header *hheader = worksheet->horizontalHeader();
+	Q3Header *vheader = worksheet->verticalHeader();
 
-	if (e->type() == QEvent::MouseButtonDblClick)
-	{
+	if (e->type() == QEvent::MouseButtonDblClick && object == (QObject*)hheader) {
 		const QMouseEvent *me = (const QMouseEvent *)e;
-		selectedCol = header->sectionAt (me->pos().x() + header->offset());
+		selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
 
-		QRect rect = header->sectionRect (selectedCol);
+		QRect rect = hheader->sectionRect (selectedCol);
 		rect.setLeft(rect.right() - 2);
 		rect.setWidth(4);
 
-		if (rect.contains (me->pos()))
-		{
+		if (rect.contains (me->pos())) {
 			worksheet->adjustColumn(selectedCol);
 			emit modifiedWindow(this);
-		}
-		else
+		} else
 			emit optionsDialog();
 		return true;
+	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)hheader) {
+		const QMouseEvent *me = (const QMouseEvent *)e;
+		if (me->button() == Qt::LeftButton && me->state() == Qt::ControlButton) {		
+			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
+			worksheet->selectColumn (selectedCol);
+			worksheet->setCurrentCell (0, selectedCol);
+			return true;
+		} else if (me->button() == Qt::RightButton && selectedColsNumber() <= 1) {
+			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
+			worksheet->clearSelection();
+			worksheet->selectColumn (selectedCol);
+			worksheet->setCurrentCell (0, selectedCol);
+		}
+	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)vheader) {
+		const QMouseEvent *me = (const QMouseEvent *)e;
+		if (me->button() == Qt::RightButton && selectedRows() <= 1) {
+			worksheet->clearSelection();
+			int row = vheader->sectionAt(me->pos().y() + vheader->offset());
+			worksheet->selectRow (row);
+			worksheet->setCurrentCell (row, 0);
+		}
+	} else if (e->type()==QEvent::ContextMenu && object == titleBar) {
+		emit showTitleBarMenu();
+		((QContextMenuEvent*)e)->accept();
+		return true;
 	}
+
 	return QObject::eventFilter(object, e);
 }
 
@@ -2912,6 +2890,7 @@ void Table::setSpecifications(const QString& s)
 
 void Table::setNewSpecifications()
 {
+
 	newSpecifications= saveToString("geometry\n");
 }
 

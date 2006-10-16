@@ -132,8 +132,6 @@ public slots:
 	// event handlers 
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
-	void mouseMoveEvent( QMouseEvent * e);
-	void mousePressEvent( QMouseEvent * e);
 	void customEvent( QCustomEvent* e);
 	
 	// column operations 

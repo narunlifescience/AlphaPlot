@@ -91,9 +91,9 @@ try:
     "shichi", "sici", "spence",
     "zeta", "zetac",
     # Convenience Functions
-#    "cbrt", "exp10", "exp2",
-#    "radian", "cosdg", "sindg", "tandg", "cotdg",
-#    "log1p", "expm1", "cosm1",
+    "cbrt", "exp10", "exp2",
+    "radian", "cosdg", "sindg", "tandg", "cotdg",
+    "log1p", "expm1", "cosm1",
     "round",
   ]
   import_to_global("scipy.special", special_functions, True)
@@ -104,17 +104,65 @@ except(ImportError): pass
 # Import selected parts of pygsl.sf (if available) into global namespace.
 # See pygsl.sourceforge.net for information on pygsl and how to get it.
 try:
-	# TODO: complete the next two lists
 	# special functions not defined in SciPy
 	special_functions = [
+			# Restriction functions
+			"angle_restrict_pos_err", "angle_restrict_symm_err",
+			# Gamma and Related Functions
+			"choose", "fact", "doublefact",
+			"gammastar", "gammainv",
+			"lnfact", "lndoublefact",
+			"poch", "pochrel", "lnpoch", "lnpoch_sgn",
+			"psi_1_int", "psi_1piy", "psi_int", "psi_n",
+			# Fermi-Dirac integrals
 			"fermi_dirac_0", "fermi_dirac_half", "fermi_dirac_1",
 			"fermi_dirac_3half", "fermi_dirac_2",
 			"fermi_dirac_inc_0", "fermi_dirac_int", "fermi_dirac_m1",
 			"fermi_dirac_mhalf",
+			# Elliptic Functions and Integrals
+			"ellint_D", "ellint_F",
+			"ellint_RC", "ellint_RD", "ellint_RF", "ellint_RJ",
+			"elljac",
+			# Error Function and Fresnel Integrals
+			"log_erfc",
+			# Other Integrals
+			"atanint",
+			"expint_3", "expint_E1", "expint_E2", "expint_Ei",
+			# Legendre Functions and Spherical Harmonics
+			"conicalP_0", "conicalP_1", "conicalP_half", "conicalP_mhalf",
+			"conicalP_sph_reg", "conicalP_cyl_reg",
+			"legendre_H3d", "legendre_H3d_0", "legendre_H3d_1",
+			"legendre_Q0", "legendre_Q1", "legendre_Ql",
+			"legendre_sphPlm",
+			# Coulomb Functions
 			"hydrogenicR", "hydrogenicR_1",
+			"coulomb_CL", "coulomb_wave_FG",
+			# Lambert's W function
 			"lambert_W0", "lambert_Wm1",
+			# Synchrotron functions
 			"synchrotron_1", "synchrotron_2",
+			# Transport functions
 			"transport_2", "transport_3", "transport_4", "transport_5",
+			# Clausen function
+			"clausen",
+			# Coupling coefficients
+			"coupling_3j", "coupling_6j", "coupling_9j",
+			# Debye functions
+			"debye_1", "debye_2", "debye_3", "debye_4",
+			# Dilogarithm
+			"dilog",
+			# Zeta Functions
+			"eta", "eta_int",
+			"hzeta", "zeta_int",
+			# HyperGeometric Functions
+			"hyperg_1F1_int",
+			"hyperg_2F1_conj", "hyperg_2F1_conj_renorm", "hyperg_2F1_renorm",
+			"hyperg_U_e10", "hyperg_U_int", "hyperg_U_int_e10",
+			# Trigonometric Functions
+			"hypot", "sinc",
+			"lnsinh", "lncosh",
+			# Other Special Functions
+			"log_abs", "taylorcoeff",
 			]
 	# special functions also defined in SciPy
 	special_functions_doublets = [
@@ -135,8 +183,30 @@ try:
 			"bessel_y0", "bessel_y1", "bessel_y2", "bessel_yl",
 			"bessel_lnKnu",
 			"bessel_zero_J0", "bessel_zero_J1", "bessel_zero_Jnu",
+			# Gamma and Related Functions
+			"beta", "beta_inc",
+			"gamma", "gamma_inc_P", "gamma_inc_Q",
+			"lnbeta", "lngamma",
+			"psi",
+			# Elliptic Functions and Integrals
+			"ellint_E", "ellint_Ecomp", "ellint_Kcomp", "ellint_P",
+			# Error Function and Fresnel Integrals
+			"erf", "erfc", "erf_Q", "erf_Z",
+			# Gegenbauer polynomials
+			"gegenpoly_1", "gegenpoly_2", "gegenpoly_3", "gegenpoly_n",
+			# HyperGeometric Functions
+			"hyperg_0F1", "hyperg_1F1", "hyperg_2F0", "hyperg_2F1",
+			"hyperg_U",
+			# Orthogonal Polynomials
+			"laguerre_1", "laguerre_2", "laguerre_3", "laguerre_n",
+			"legendre_P1", "legendre_P2", "legendre_P3",
+			"legendre_Pl", "legendre_Plm",
+			# Zeta Functions
+			"zeta",
 			# Other special functions
 			"Shi", "Chi", "Si", "Ci",
+			"dawson",
+			"log_1plusx", "log_1plusx_mx",
 			]
 	import_to_global("pygsl.sf", special_functions, True)
 	if have_scipy:

@@ -104,10 +104,12 @@ public slots:
 	void insertRow();
 	bool rowsSelected();
 	void deleteSelectedRows();
+	int numSelectedRows();
 
 	void insertColumn();
 	bool columnsSelected();
 	void deleteSelectedColumns();
+	int numSelectedColumns();
 
 	void saveCellsToMemory();
 	void forgetSavedCells();
@@ -128,8 +130,7 @@ private:
 	Q3Table *table;
 	QString formula_str;
 	QChar txt_format;
-	int selectedCol, lastSelectedCol, num_precision;
-	bool LeftButton;
+	int selectedCol, num_precision;
 	//!Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, x_end, y_start, y_end;

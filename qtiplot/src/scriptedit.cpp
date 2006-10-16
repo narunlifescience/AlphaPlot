@@ -130,9 +130,27 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 	functionsMenu->clear();
 	functionsMenu->setTearOffEnabled(true);
 	QStringList flist = scriptEnv->mathFunctions();
+	QMenu *submenu=NULL;
 	for (int i=0; i<flist.size(); i++)
 	{
-		QAction * newAction = functionsMenu->addAction(flist[i]);
+		QAction *newAction;
+		QString menupart;
+		// group by text before "_" (would make sense if we renamed several functions...)
+		/*if (flist[i].contains("_") || (i<flist.size()-1 && flist[i+1].split("_")[0]==flist[i]))
+			menupart = flist[i].split("_")[0];
+		else
+			menupart = "";*/
+		// group by first letter, avoiding submenus with only one entry
+		if ((i==0 || flist[i-1][0] != flist[i][0]) && (i==flist.size()-1 || flist[i+1][0] != flist[i][0]))
+			menupart = "";
+		else
+			menupart = flist[i].left(1);
+		if (!menupart.isEmpty()) {
+			if (!submenu || menupart != submenu->title())
+				submenu = functionsMenu->addMenu(menupart);
+			newAction = submenu->addAction(flist[i]);
+		} else
+			newAction = functionsMenu->addAction(flist[i]);
 		newAction->setData(i);
 		newAction->setWhatsThis(scriptEnv->mathFunctionDoc(flist[i]));
 	}
