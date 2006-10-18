@@ -265,31 +265,32 @@ void SetColValuesDialog::insertCell()
 
 void SetColValuesDialog::setTable(Table* w)
 {
-	table=w;
-	QStringList colNames=w->colNames();
-	int cols = w->tableCols();
-	for (int i=0; i<cols; i++)
-		boxColumn->insertItem("col(\""+colNames[i]+"\")",i); 
+        table=w;
+        QStringList colNames=w->colNames();
+        int cols = w->tableCols();
+        for (int i=0; i<cols; i++)
+                boxColumn->insertItem("col(\""+colNames[i]+"\")",i); 
 
-	QList<QTableWidgetSelectionRange> sel = w->table()->selectedRanges();	
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	if (sel.count() >= 0)
-	{
-		QTableWidgetSelectionRange cur = it.next();
-		w->setSelectedCol(cur.leftColumn());
+        int s = w->table()->currentSelection();
+        if (s >= 0)
+        {
+                Q3TableSelection sel = w->table()->selection(s);
+                w->setSelectedCol(sel.leftCol());
 
-		start->setValue(cur.topRow() + 1);
-		end->setValue(cur.bottomRow() + 1);
-	}
-	else
-	{
-		start->setValue(1);
-		end->setValue(w->tableRows());
-	}
+                start->setValue(sel.topRow() + 1);
+                end->setValue(sel.bottomRow() + 1);
+        }
+        else
+        {
+                start->setValue(1);
+                end->setValue(w->tableRows());
+        }
 
-	updateColumn(w->selectedColumn());
-	commands->setContext(w);
+        updateColumn(w->selectedColumn());
+        commands->setContext(w);
 }
+
+
 
 SetColValuesDialog::~SetColValuesDialog()
 {

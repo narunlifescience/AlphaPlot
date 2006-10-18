@@ -139,6 +139,7 @@
 #include <QShortcut>
 #include <QDockWidget>
 #include <QPrintDialog>
+#include <QVarLengthArray>
 
 #include <zlib.h>
 

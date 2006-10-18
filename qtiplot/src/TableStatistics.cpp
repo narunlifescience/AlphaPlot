@@ -220,7 +220,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				delete[] dat;
 			}
 
-	for (int i=0; i<worksheet->columnCount(); i++)
+	for (int i=0; i<worksheet->numCols(); i++)
 		emit modifiedData(this, Table::colName(i));
 }
 
