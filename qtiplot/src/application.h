@@ -791,6 +791,14 @@ signals:
 	
 // TODO: a lot of this stuff should be private
 public:
+	bool pasteFitResultsToPlot;
+
+	//! Write fit output information to Result Log
+	bool writeFitResultsToLog;
+
+	//! precision used for the output of the fit operations
+	int fit_output_precision;
+
 	//! pointer to the current folder in the project
 	Folder *current_folder;
 	//! Describes which windows are shown when the folder becomes the current folder

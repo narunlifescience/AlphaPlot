@@ -37,6 +37,7 @@
 class QPushButton;
 class QLineEdit;
 class QComboBox;
+class Q3ComboBox;
 class Q3WidgetStack;
 class QWidget;
 class Q3TextEdit;
@@ -45,8 +46,11 @@ class QCheckBox;
 class Q3Table;
 class QSpinBox;
 class QLabel;
+class QRadioButton;
+class QLineEdit;
 class Graph;
 class ColorBox;
+class Fitter;
 
 //! Nonlinear curve fitting dialog
 class FitDialog : public QDialog
@@ -59,28 +63,40 @@ public:
 
 	void initFitPage();
 	void initEditPage();
+	void initAdvancedPage();
 
 	QCheckBox* boxUseBuiltIn;
 	Q3WidgetStack* tw;
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
+	QPushButton* buttonAdvanced;
 	QPushButton* buttonClear;
 	QPushButton* buttonPlugins;
+	QPushButton* btnBack;
 	QComboBox* boxCurve;
 	QComboBox* boxSolver;
 	Q3Table* boxParams;
 	QLineEdit* boxFrom;
 	QLineEdit* boxTo;
 	QLineEdit* boxTolerance;
-	QSpinBox* boxPoints;
-	QWidget *fitPage, *editPage;
+	QSpinBox* boxPoints, *generatePointsBox, *boxPrecision;
+	QWidget *fitPage, *editPage, *advancedPage;
 	Q3TextEdit *editBox, *explainBox, *boxFunction;
 	Q3ListBox *categoryBox, *funcBox;
 	QLineEdit *boxName, *boxParam;
-	QLabel *lblFunction;
-	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue;
+	QLabel *lblFunction, *lblPoints;
+	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue, *btnApply;
 	QPushButton *buttonEdit, *btnAddTxt, *btnAddName, *btnDeleteTables;
 	ColorBox* boxColor;
+	Q3ComboBox *boxWeighting, *tableNamesBox, *colNamesBox;
+	QRadioButton *generatePointsBtn, *samePointsBtn;
+	QPushButton *btnParamTable, *btnCovMatrix;
+	QLineEdit *covMatrixName, *paramTableName;
+	QCheckBox *plotLabelBox, *logBox;
+	Fitter *fitter;
+ 
+protected:
+	void closeEvent (QCloseEvent * e );
 
 public slots:
 	void accept();
@@ -88,6 +104,7 @@ public slots:
 	void clearList();
 	void showFitPage();
 	void showEditPage();
+	void showAdvancedPage();
 	void showFunctionsList(int category);
 	void showParseFunctions();
 	void showUserFunctions();
@@ -109,6 +126,16 @@ public slots:
 	QString fitBuiltInFunction(const QString&,const QString&, const QStringList&, 
 							double, double, int, int, double, int);
 
+	void setSrcTables(QWidgetList* tables);
+	void selectSrcTable(int tabnr);
+	void enableWeightingParameters(int index);
+	void showPointsBox(bool);
+	void showParametersTable();
+	void showCovarianceMatrix();
+
+	//! Applies the user changes to the numerical format of the output results
+	void applyChanges();
+
 signals:
 	void clearFunctionsList();
 	void saveFunctionsList(const QStringList&);
@@ -118,6 +145,7 @@ private:
 	QStringList userFunctions, userFunctionNames, userFunctionParams;
 	QStringList builtInFunctionNames, builtInFunctions;
 	QStringList pluginFunctionNames, pluginFunctions, pluginFilesList, pluginParameters;
+	QWidgetList *srcTables;
 };
 
 #endif // FITDIALOG_H

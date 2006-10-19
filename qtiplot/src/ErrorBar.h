@@ -51,6 +51,7 @@ public:
 	virtual void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap, 
 		const QwtScaleMap &yMap, int from, int to) const;
 
+	double errorValue(int i);
 	QwtArray<double> errors();
 	void setErrors(const QwtArray<double>&data);
 	void setSymbolSize(const QSize& sz);

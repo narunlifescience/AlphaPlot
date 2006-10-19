@@ -222,7 +222,6 @@ public slots:
 	 // text markers 
 	 void drawText(bool on);
 	 bool drawTextActive(){return drawTextOn;};
-	 
 	 long insertTextMarker(LegendMarker* mrk);
 
 	 //! Used when opening a project file
@@ -279,8 +278,8 @@ public slots:
 	 void addLegendItem(const QString& colName);
 	 void insertLegend(const QStringList& lst, int fileVersion);
 	 void newLegend();
-	 QSize newLegend(const QString& text);
-	 bool legendOn();
+	 LegendMarker *newLegend(const QString& text);
+	 bool hasLegend(){return legendMarkerID >= 0;};
 	 
 	 QString getLegendText();
 	 void setLegendText(const QString& text);	 
@@ -503,11 +502,6 @@ public slots:
 
 	 QString fitLinear(const QString& curveTitle);
 
-	 QString fitExpDecay(const QString& name, double damping, double amplitude, double yOffset, int colorIndex);
-	 QString fitExpDecay(const QString& name, double damping, double amplitude, double yOffset,
-						   double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
-						   int start, int end, int iterations, int solver, double tolerance, int colorIndex);
 	 
 	 QString fitExpDecay2(const QString& name, double firstTime, double secondTime,
 						 double from, double yOffset, int colorIndex);
@@ -524,12 +518,6 @@ public slots:
 	 QString fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double amp2, double t2, 
 						  double amp3, double t3, double yOffset, int start, int end, 
 						  int iterations, int solver, double tolerance, int colorIndex);
-
-	 QString fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset, int colorIndex);
-	 QString fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset,
-						   double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
-						   int start, int end, int iterations, int solver, double tolerance, int colorIndex);
 
 	 QString fitBoltzmann(const QString& curveTitle);
 	 QString fitBoltzmann(const QString& name, double A1, double A2, double x0, double dx,

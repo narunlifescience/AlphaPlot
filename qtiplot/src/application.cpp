@@ -4445,6 +4445,12 @@ void ApplicationWindow::readSettings()
 	explorerSplitter->restoreState(ba);
 
 	settings.endGroup();
+
+	settings.beginGroup("/Fitting");
+	fit_output_precision = settings.value("/fit_output_precision", 15).toInt();
+	pasteFitResultsToPlot = settings.value("/pasteFitResultsToPlot", false).toBool();
+	writeFitResultsToLog = settings.value("/writeFitResultsToLog", true).toBool();
+	settings.endGroup();
 }
 
 QStringList ApplicationWindow::variantListToStringList(const QList<QVariant> src)
@@ -4597,6 +4603,12 @@ void ApplicationWindow::saveSettings()
 	ba = explorerSplitter->saveState();
 	settings.setValue("/ExplorerSplitter", ba);
 
+	settings.endGroup();
+
+	settings.beginGroup("/Fitting");
+	settings.setValue("/fit_output_precision", fit_output_precision);
+	settings.setValue("/pasteFitResultsToPlot", pasteFitResultsToPlot);
+	settings.setValue("/writeFitResultsToLog", writeFitResultsToLog);
 	settings.endGroup();
 }
 
@@ -6635,6 +6647,7 @@ void ApplicationWindow::showFitDialog()
 	connect (plot, SIGNAL(closedWindow(MyWidget*)), fd, SLOT(close()));
 
 	fd->insertFunctionsList(fitFunctions);
+	fd->setSrcTables(tableList());
 	fd->setGraph(g);
 	fd->exec();
 }
@@ -8058,7 +8071,7 @@ void ApplicationWindow::about()
 
 	QMessageBox::about(this,tr("About QtiPlot"),
 			tr("<h2>"+ version + "</h2>"
-				"<p><h3>Copyright(C): Ion Vasilief</h3>"
+				"<p><h3>Copyright(C): Ion Vasilief, Tilman Hoener zu Siederdissen, Knut Franke</h3>"
 				"<p><h3>Released: not yet</h3>"));
 }
 

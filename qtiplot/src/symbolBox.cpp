@@ -44,6 +44,11 @@ const QwtSymbol::Style SymbolBox::symbols[] = {
   QwtSymbol::RTriangle, 
   QwtSymbol::Cross, 
   QwtSymbol::XCross, 
+  QwtSymbol::HLine,
+  QwtSymbol::VLine,
+  QwtSymbol::Star1, 
+  QwtSymbol::Star2, 
+  QwtSymbol::Hexagon
 };
 
 SymbolBox::SymbolBox(bool rw, QWidget *parent) : QComboBox(rw, parent)
@@ -116,6 +121,31 @@ void SymbolBox::init()
 	p.eraseRect ( r );
 	symb.draw(&p, r);
     this->insertItem(icon,tr("Diagonal Cross"));
+
+	symb.setStyle (QwtSymbol::HLine);
+	p.eraseRect ( r );
+	symb.draw(&p, r);
+    this->insertItem(icon,tr("Horizontal Line"));
+
+	symb.setStyle (QwtSymbol::VLine);
+	p.eraseRect ( r );
+	symb.draw(&p, r);
+    this->insertItem(icon,tr("Vertical Line"));
+
+	symb.setStyle (QwtSymbol::Star1);
+	p.eraseRect ( r );
+	symb.draw(&p, r);
+    this->insertItem(icon,tr("Star 1"));
+
+	symb.setStyle (QwtSymbol::Star2);
+	p.eraseRect ( r );
+	symb.draw(&p, r);
+    this->insertItem(icon,tr("Star 2"));
+
+	symb.setStyle (QwtSymbol::Hexagon);
+	p.eraseRect ( r );
+	symb.draw(&p, r);
+    this->insertItem(icon,tr("Hexagon"));
 
 	p.end();
 }

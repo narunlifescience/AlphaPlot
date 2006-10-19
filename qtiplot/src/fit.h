@@ -8,6 +8,7 @@ struct FitData {
   size_t n;
   double * X;
   double * Y;
+  double * sigma; // weighting data
 };
 
 //! Structure for parser data for fitting

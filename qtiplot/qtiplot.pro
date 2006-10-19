@@ -129,6 +129,7 @@ HEADERS  = src/application.h \
 	 src/Scripting.h\
 	 src/scriptedit.h\
 	 src/FunctionCurve.h\
+	 src/Fitter.h\
 	 src/customEvents.h\
 	 src/ScriptingLangDialog.h\
 	 src/textformatbuttons.h\
@@ -210,6 +211,7 @@ SOURCES  = src/application.cpp \
 	 src/fileDialogs.cpp\
      src/scales.cpp\
 	 src/FunctionCurve.cpp\
+	 src/Fitter.cpp\
 	 src/Scripting.cpp\
 	 src/ScriptingLangDialog.cpp\
 	 src/TableStatistics.cpp

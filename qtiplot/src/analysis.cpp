@@ -1237,105 +1237,6 @@ QString Graph::fitNonlinearCurve(const QString& curve,const QString& formula,
 	return  result;
 }	
 
-QString Graph::fitExpDecay(const QString& name, double damping, double amplitude, double yOffset, int colorIndex)
-{  
-	int n, start, end;
-	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
-	if (!c)
-		return QString::null;
-
-	return fitExpDecay(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
-}
-
-QString Graph::fitExpDecay(const QString& name, double damping, double amplitude, double yOffset,
-		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
-{  
-	int start, end;
-	QwtPlotCurve* c = getFitLimits(name, from, to, 3, start, end);
-	if (!c)
-		return "";	
-	return fitExpDecay(c,damping,amplitude,yOffset,start,end,iterations,solver,tolerance, colorIndex);
-}
-
-QString Graph::fitExpDecay(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
-		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
-{  
-	int n = end - start + 1;
-	double *X = vector(0, n-1);
-	double *Y = vector(0, n-1);
-	int i, aux = 0;
-	for (i = start; i <= end; i++)
-	{// This is the data to be fitted 
-		X[aux]=curve->x(i);
-		Y[aux]=curve->y(i);
-		aux++;
-	}
-	const size_t p = 3;	
-	struct FitData d = {n, X, Y};
-	double x_init[3] = {amplitude, 1/damping, yOffset};
-	int status;
-	double *par=vector(0,p-1);
-	QString result;
-	int n1 = (n<100)?100:n;
-	double X0=X[0];
-	double XN=X[n-1];
-	double step=(XN-X0)/(n1-1);
-
-	QStringList params;
-	params << "A" << "t" << "y0";
-
-
-	if(solver==2)
-	{
-		gsl_multimin_function f;
-		f.f = &exp_d;
-		f.n = p;
-		f.params = &d;
-		gsl_multimin_fminimizer *s =  fitSimplex(f, x_init, tolerance, iterations, status);	
-
-		//allocate and evaluate jacobian of residual 
-		gsl_matrix *J = gsl_matrix_alloc(n,p);
-		exp_df(s->x,(void*)f.params,J);
-
-		for (i=0;i<(int)p;i++)
-			par[i]=gsl_vector_get(s->x,i); 
-		par[1]=1.0/par[1];
-		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title().text(),  "y=Aexp(-x/t)+y0", "Exponential decay");
-		par[1]=1.0/par[1];
-	}
-	else
-	{
-		gsl_multifit_function_fdf f;
-		f.f = &exp_f;
-		f.df = &exp_df;
-		f.fdf = &exp_fdf;
-		f.n = n;
-		f.p = p;
-		f.params = &d;
-
-		gsl_multifit_fdfsolver *s = fitGSL(f, p, n, x_init, solver, tolerance, iterations, status);	
-
-		for (i=0;i<(int)p;i++)
-			par[i]=gsl_vector_get(s->x,i);
-		par[1]=1.0/par[1];
-		result=outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title().text(), "y=Aexp(-x/t)+y0", "Exponential decay");
-		par[1]=1.0/par[1];
-	}
-
-	free_vector(X,0,n-1); free_vector(Y,0,n-1);	
-	X=vector(0,n1-1); Y=vector(0,n1-1);
-	for (i=0;i<n1;i++)
-	{
-		X[i]=X0+i*step;
-		Y[i]=par[0]*exp(-par[1]*X[i])+par[2];
-	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential decay fit of ")+curve->title().text());
-
-	return result;
-}
-
 QString Graph::fitExpDecay2(const QString& name, double firstTime, double secondTime,
 		double from, double yOffset, int colorIndex)
 {
@@ -1557,107 +1458,6 @@ QString Graph::fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double 
 		Y[i]=par[0]*exp(-X[i]*par[1])+par[2]*exp(-X[i]*par[3])+par[4]*exp(-X[i]*par[5])+par[6];
 	}
 	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("ExpDecay3 fit of ")+ curve->title().text());
-	return result;
-}
-
-QString Graph::fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset, int colorIndex)
-{   
-	int n, start, end;
-	QwtPlotCurve *c= getValidCurve(name, 4, n, start, end);
-	if (!c)
-		return QString::null;
-
-	return fitExpGrowth(c, damping, amplitude, yOffset, start, end, 1000, 0, 1e-4, colorIndex);
-}
-
-QString Graph::fitExpGrowth(const QString& name, double damping, double amplitude, double yOffset,
-		double from, double to, int iterations, int solver, double tolerance, int colorIndex)
-{
-	int start, end;
-	QwtPlotCurve* c = getFitLimits(name, from, to, 4, start, end);
-	if (!c)
-		return "";
-
-	return fitExpGrowth(c,damping,amplitude,yOffset,start,end,iterations,solver,tolerance, colorIndex);
-}
-
-QString Graph::fitExpGrowth(QwtPlotCurve *curve, double damping, double amplitude, double yOffset,
-		int start, int end, int iterations, int solver, double tolerance, int colorIndex)
-{
-	int n = end - start + 1;
-	double *X = vector(0, n-1);
-	double *Y = vector(0, n-1);
-	int i, aux = 0;
-	for (i = start; i <= end; i++)
-	{// This is the data to be fitted 
-		X[aux]=curve->x(i);
-		Y[aux]=curve->y(i);
-		aux++;
-	}
-	const size_t p = 3;	
-	struct FitData d = {n, X, Y};
-	double x_init[3] = {amplitude, -1/damping, yOffset};
-	int status;
-	double *par=vector(0,p-1);
-	QStringList params;
-	params << "A" << "t" << "y0";
-	QString result;
-	int n1 = (n<100)?100:n;
-	double X0=X[0];
-	double XN=X[n-1];
-	double step=(XN-X0)/(n1-1);
-
-	if(solver ==2)
-	{
-		gsl_multimin_function f;
-		f.f = &exp_d;
-		f.n = p;
-		f.params = &d;
-		gsl_multimin_fminimizer *s =  fitSimplex(f, x_init, tolerance, iterations, status);	
-
-		//allocate and evaluate jacobian of residual 
-		gsl_matrix *J = gsl_matrix_alloc(n,p);
-		exp_df(s->x,(void*)f.params,J);
-
-		for (i=0;i<(int)p;i++)
-			par[i]=gsl_vector_get(s->x,i); 
-		par[1]=-1.0/par[1];
-		result = outputFitString(n, tolerance, X0, XN, iterations, J, status, par, s, params,
-				curve->title().text(),  "y=Aexp(-x/t)+y0", "Exponential decay");
-		par[1]=-1.0/par[1];
-
-	}
-	else
-	{
-		gsl_multifit_function_fdf f;
-		f.f = &exp_f;
-		f.df = &exp_df;
-		f.fdf = &exp_fdf;
-		f.n = n;
-		f.p = p;
-		f.params = &d;
-
-
-		gsl_multifit_fdfsolver *s = fitGSL(f, p, n, x_init, solver, tolerance, iterations, status);	
-
-
-		for (i=0;i<(int)p;i++)
-			par[i]=gsl_vector_get(s->x,i);
-
-		par[1]=-1.0/par[1];
-		result = outputFitString(n, tolerance, X0, XN, iterations, solver, status, par, s, params,
-				curve->title().text(), "y=Aexp(x/t)+y0", "Exponential growth");
-		par[1]=-1.0/par[1];
-	}
-	free_vector(X,0,n-1); free_vector(Y,0,n-1);	
-	X=vector(0,n1-1); Y=vector(0,n1-1);
-	for (i=0;i<n1;i++)
-	{
-		X[i]=X0+i*step;
-		Y[i]=par[0]*exp(-par[1]*X[i])+par[2];
-	}
-	addResultCurve(n1, X, Y, colorIndex, "Fit"+QString::number(fitID), tr("Exponential growth fit of ")+ curve->title().text());
-
 	return result;
 }
 
@@ -2714,8 +2514,8 @@ void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 		text+=QString::number(y[i], 'g', 15);
 		text+="\n";
 	}
-	free_vector(x,0,n-1);
-	free_vector(y,0,n-1);
+	delete[] x;
+	delete[] y;
 
 	emit createHiddenTable(tableName+"\t"+legend, n, 2, text);
 	updatePlot();

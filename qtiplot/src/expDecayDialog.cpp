@@ -30,6 +30,7 @@
 #include "graph.h"
 #include "colorBox.h"
 #include "application.h"
+#include "Fitter.h"
 
 #include <QMessageBox>
 #include <QGridLayout>
@@ -120,7 +121,7 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool
 	buttonFit = new QPushButton(tr("&Fit"));
 	buttonFit->setDefault(true);
    
-    buttonCancel = new QPushButton(tr("&Cancel"));
+    buttonCancel = new QPushButton(tr("&Close"));
     
     QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::TopToBottom);
 	bl1->addWidget(buttonFit);
@@ -155,36 +156,40 @@ connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 
 void ExpDecayDialog::fit()
 {
-QString curve = boxName->currentText();
-QStringList curvesList = graph->curvesList();
-if (curvesList.contains(curve) <= 0)
+	QString curve = boxName->currentText();
+	QStringList curvesList = graph->curvesList();
+	if (curvesList.contains(curve) <= 0)
 	{
-	QMessageBox::critical(this,tr("QtiPlot - Warning"),
-		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
-	boxName->clear();
-	boxName->insertStringList(curvesList);
-	return;
+		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
+		boxName->clear();
+		boxName->insertStringList(curvesList);
+		return;
 	}
 
-ApplicationWindow *app = (ApplicationWindow *)this->parent();
-graph->setFitID(++app->fitNumber);
-QString result;
-if (slopes == 3)
-	result = graph->fitExpDecay3(boxName->currentText(),boxFirst->text().toDouble(),
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	graph->setFitID(++app->fitNumber);
+
+	Fitter *fitter;
+	QString result;
+	if (slopes == 3)
+		result = graph->fitExpDecay3(boxName->currentText(),boxFirst->text().toDouble(),
 				boxSecond->text().toDouble(), boxThird->text().toDouble(),
 				boxStart->text().toDouble(),boxYOffset->text().toDouble(), boxColor->currentItem());
-else if (slopes == 2)
-	result = graph->fitExpDecay2(boxName->currentText(),boxFirst->text().toDouble(),
+	else if (slopes == 2)
+		result = graph->fitExpDecay2(boxName->currentText(),boxFirst->text().toDouble(),
 				boxSecond->text().toDouble(), boxStart->text().toDouble(),
 				boxYOffset->text().toDouble(), boxColor->currentItem());
-else if (slopes == 1)
-	result = graph->fitExpDecay(boxName->currentText(),boxFirst->text().toDouble(),
-				 boxStart->text().toDouble(), boxYOffset->text().toDouble(), boxColor->currentItem());
-else if (slopes == -1)
-	result = graph->fitExpGrowth(boxName->currentText(),boxFirst->text().toDouble(),
-				 boxStart->text().toDouble(), boxYOffset->text().toDouble(), boxColor->currentItem());
+	else if (slopes == 1 || slopes == -1)
+	{
+		double x_init[3] = {boxStart->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
+		fitter = new ExponentialFitter(slopes == -1, app, graph);
+		fitter->setInitialGuesses(x_init);
+	}
 
-app->updateLog(result);
+	fitter->setDataFromCurve(boxName->currentText());
+	fitter->fit();
+	delete fitter;
 }
 
 

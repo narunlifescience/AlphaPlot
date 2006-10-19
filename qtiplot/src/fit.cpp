@@ -198,6 +198,8 @@ int exp_f (const gsl_vector * x, void *params,
   size_t n = ((struct FitData *)params)->n;
   double *X = ((struct FitData *)params)->X;
   double *Y = ((struct FitData *)params)->Y;
+  double *sigma = ((struct FitData *)params)->sigma;
+
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   double b = gsl_vector_get (x, 2);
@@ -205,7 +207,7 @@ int exp_f (const gsl_vector * x, void *params,
   for (i = 0; i < n; i++)
     {
       double Yi = A * exp (-lambda * X[i]) + b;
-	  gsl_vector_set (f, i, Yi - Y[i]);
+	  gsl_vector_set (f, i, (Yi - Y[i])/sigma[i]);
     }
   return GSL_SUCCESS;
 }
@@ -215,6 +217,8 @@ double exp_d (const gsl_vector * x, void *params)
   size_t n = ((struct FitData *)params)->n;
   double *X = ((struct FitData *)params)->X;
   double *Y = ((struct FitData *)params)->Y;
+  double *sigma = ((struct FitData *)params)->sigma;
+
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   double b = gsl_vector_get (x, 2);
@@ -222,7 +226,7 @@ double exp_d (const gsl_vector * x, void *params)
   double val=0;
   for (i = 0; i < n; i++)
     {
-      double dYi = (A * exp (-lambda * X[i]) + b)-Y[i];
+      double dYi = ((A * exp (-lambda * X[i]) + b)-Y[i])/sigma[i];
 	  val+=dYi * dYi;
     }
   return val;
@@ -233,20 +237,24 @@ int exp_df (const gsl_vector * x, void *params,
 {
   size_t n = ((struct FitData *)params)->n;
   double *X = ((struct FitData *)params)->X;
+  double *sigma = ((struct FitData *)params)->sigma;
+
   double A = gsl_vector_get (x, 0);
   double lambda = gsl_vector_get (x, 1);
   size_t i;
   for (i = 0; i < n; i++)
     {
-      /* Jacobian matrix J(i,j) = dfi / dxj,		*/
-      /* where fi = Yi - yi,						*/
-      /* Yi = A * exp(-lambda * x[i]) + b			*/
-      /* and the xj are the parameters (A,lambda,b) */
-      double t = X[i];
-      double e = exp(-lambda * t);
-	  gsl_matrix_set (J, i, 0, e);
-      gsl_matrix_set (J, i, 1, -t * A * e);
-      gsl_matrix_set (J, i, 2, 1);
+	/* Jacobian matrix J(i,j) = dfi / dxj, */
+    /* where fi = (Yi - yi)/sigma[i],      */
+    /*       Yi = A * exp(-lambda * i) + b  */
+    /* and the xj are the parameters (A,lambda,b) */
+
+	 double t = X[i];
+	 double s = sigma[i];
+     double e = exp(-lambda * t);
+     gsl_matrix_set (J, i, 0, e/s); 
+     gsl_matrix_set (J, i, 1, -t * A * e/s);
+     gsl_matrix_set (J, i, 2, 1/s);
     }
   return GSL_SUCCESS;
 }

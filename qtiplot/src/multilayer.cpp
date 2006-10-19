@@ -1268,6 +1268,7 @@ canvas->grabMouse();
 void MultiLayer::addTextLayer(const QPoint& pos)
 {
 Graph* g=addLayer();
+g->removeLegend();
 g->setTitle("");
 Q3MemArray<bool> axesOn(4);
 for (int j=0;j<4;j++)
@@ -1276,7 +1277,8 @@ g->enableAxes(axesOn);
 g->setIgnoreResizeEvents(true);
 g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont, 
 						 defaultTextMarkerColor, defaultTextMarkerBackground);
-QSize size=g->newLegend(tr("enter your text here"));
+LegendMarker *mrk = g->newLegend(tr("enter your text here"));
+QSize size = mrk->rect().size();
 setGraphGeometry(pos.x(), pos.y(), size.width()+10, size.height()+10);
 g->setIgnoreResizeEvents(false);
 g->show();

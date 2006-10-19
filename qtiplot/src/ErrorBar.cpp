@@ -188,6 +188,14 @@ QwtArray<double> QwtErrorPlotCurve::errors()
 	return err;
 }
 
+double QwtErrorPlotCurve::errorValue(int i)
+{
+	if (i >= 0 && i < dataSize())
+		return err[i];
+	else 
+		return 0.0;
+}
+
 void QwtErrorPlotCurve::setErrors(const QwtArray<double>&data)
 {
 	err=data;

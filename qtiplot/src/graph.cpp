@@ -291,7 +291,6 @@ void Graph::customLegend()
 	mrk->setTextColor(defaultTextMarkerColor);
 	mrk->setBackgroundColor(defaultTextMarkerBackground);
 
-
 	if (!n_curves)
 	{
 		mrk->setValue(50, 990);
@@ -2680,7 +2679,6 @@ void Graph::setLegendText(const QString& text)
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
 		if (mrk)
 			mrk->setText(text);	
-
 		d_plot->replot();
 	}
 }
@@ -3931,14 +3929,6 @@ QString Graph::saveGridOptions()
 	return s;
 }
 
-bool Graph::legendOn()
-{
-	bool on=FALSE;
-	if (legendMarkerID>=0)	
-		on=TRUE;
-	return on;
-}
-
 void Graph::newLegend()
 {
 	LegendMarker* mrk = new LegendMarker(d_plot);
@@ -3978,10 +3968,10 @@ void Graph::addTimeStamp()
 	d_plot->replot();	
 }
 
-QSize Graph::newLegend(const QString& text)
+LegendMarker* Graph::newLegend(const QString& text)
 {
 	LegendMarker* mrk= new LegendMarker(d_plot);
-	selectedMarker=d_plot->insertMarker(mrk);
+	selectedMarker = d_plot->insertMarker(mrk);
 
 	mrk->setOrigin(QPoint(5,5));
 	mrk->setText(text);
@@ -3991,8 +3981,7 @@ QSize Graph::newLegend(const QString& text)
 	mrk->setBackgroundColor(defaultTextMarkerBackground);
 
 	d_plot->replot();
-	QRect rect=mrk->rect();
-	return rect.size();
+	return mrk;
 }
 
 void Graph::insertLegend(const QStringList& lst, int fileVersion)
