@@ -15,8 +15,10 @@
 
 struct fitData {
   size_t n;
+  size_t p;
   double * X;
   double * Y;
+  double * sigma;//weighting data
 };
 
 extern "C" MY_EXPORT char *name()
@@ -46,6 +48,7 @@ extern "C" MY_EXPORT int function_f (const gsl_vector * x, void *params,
   size_t n = ((struct fitData *)params)->n;
   double *X = ((struct fitData *)params)->X;
   double *Y = ((struct fitData *)params)->Y;
+  double *sigma = ((struct fitData *)params)->sigma;
 
   double a = gsl_vector_get (x, 0);
   double tau = gsl_vector_get (x, 1);
@@ -56,7 +59,7 @@ extern "C" MY_EXPORT int function_f (const gsl_vector * x, void *params,
     {
 	  double t = X[i];
       double Yi = a*tau2*t/(1 + 4*M_SQRTPI*t*t*tau2);
-      gsl_vector_set (f, i, Yi - Y[i]);
+      gsl_vector_set (f, i, (Yi - Y[i])/sigma[i]);
     }
 
   return GSL_SUCCESS;
@@ -68,6 +71,7 @@ extern "C" MY_EXPORT double function_d (const gsl_vector * x, void *params,
   size_t n = ((struct fitData *)params)->n;
   double *X = ((struct fitData *)params)->X;
   double *Y = ((struct fitData *)params)->Y;
+  double *sigma = ((struct fitData *)params)->sigma;
 
   double a = gsl_vector_get (x, 0);
   double tau = gsl_vector_get (x, 1);
@@ -78,8 +82,8 @@ extern "C" MY_EXPORT double function_d (const gsl_vector * x, void *params,
   for (i = 0; i < n; i++)
     {
 	  double t = X[i];
-      double dYi = (a*tau2*t/(1 + 4*M_SQRTPI*t*t*tau2))-Y[i];
-      val+=dYi*dYi;
+      double dYi = ((a*tau2*t/(1 + 4*M_SQRTPI*t*t*tau2))-Y[i])/sigma[i];
+      val += dYi*dYi;
     }
 
   return val;
@@ -90,6 +94,7 @@ extern "C" MY_EXPORT int function_df (const gsl_vector * x, void *params,
 {
   size_t n = ((struct fitData *)params)->n;
   double *X = ((struct fitData *)params)->X;
+  double *sigma = ((struct fitData *)params)->sigma;
 
   double a = gsl_vector_get (x, 0);
   double tau = gsl_vector_get (x, 1);
@@ -99,12 +104,12 @@ extern "C" MY_EXPORT int function_df (const gsl_vector * x, void *params,
   for (i = 0; i < n; i++)
     {
       /* Jacobian matrix J(i,j) = dfi / dxj, 
-         where fi = Yi - Y[i],				    
+         where fi = (Yi - Y[i])/sigma[i],				    
          Yi = a*tau^2*t/(1 + 4*M_SQRTPI*t*t*tau^2)        
          and the xj are the parameters (a, b, c) */
 
       double t = X[i];
-      double r = tau*t/(1 + 4*M_SQRTPI*tau2*t*t);
+      double r = tau*t/(1 + 4*M_SQRTPI*tau2*t*t)/sigma[i];
       gsl_matrix_set (J, i, 0, tau*r);
       gsl_matrix_set (J, i, 1, 2*a*r*(1-4*M_SQRTPI*tau2*t*t));
     }

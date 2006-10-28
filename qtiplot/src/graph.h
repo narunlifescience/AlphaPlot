@@ -63,6 +63,8 @@ class TitlePicker;
 class ScalePicker;
 class CanvasPicker;
 class Plot;
+class MultiPeakFitter;
+class ApplicationWindow;
 
 //! Graph widget
 class Graph: public QWidget
@@ -494,97 +496,35 @@ public slots:
 	 bool diffCurve(const QString& curveTitle);
 	 void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);
 	 void filterFFT(long curveKey, int filter_type, double lf, double hf, 
-					bool DCOffset, int colIndex);
-	
+			 bool DCOffset, int colIndex);
+
 	 QwtPlotCurve* getValidCurve(const QString& name, int params, int &points, int &start, int &end);
 	 QwtPlotCurve* getFitLimits(const QString& name, double from, double to,
-								int params, int &start, int &end);
+			 int params, int &start, int &end);
 
 	 QString fitLinear(const QString& curveTitle);
 
-	 
-	 QString fitExpDecay2(const QString& name, double firstTime, double secondTime,
-						 double from, double yOffset, int colorIndex);
-	 QString fitExpDecay2(const QString& name, double amp1, double t1, double amp2, double t2, double yOffset,
-						  double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitExpDecay2(QwtPlotCurve *curve, double amp1, double t1, double amp2, double t2, double yOffset,
-						   int start, int end, int iterations, int solver, double tolerance, int colorIndex);
-
-	 QString fitExpDecay3(const QString& name, double firstTime, double secondTime,
-						double thirdTime, double from, double yOffset, int colorIndex);
-	 QString fitExpDecay3(const QString& name, double amp1, double t1, double amp2, double t2, 
-						  double amp3, double t3, double yOffset, double from, double to, 
-						  int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitExpDecay3(QwtPlotCurve *curve, double amp1, double t1, double amp2, double t2, 
-						  double amp3, double t3, double yOffset, int start, int end, 
-						  int iterations, int solver, double tolerance, int colorIndex);
-
-	 QString fitBoltzmann(const QString& curveTitle);
-	 QString fitBoltzmann(const QString& name, double A1, double A2, double x0, double dx,
-						  double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitBoltzmann(QwtPlotCurve *curve, double A1, double A2, double x0, double dx,
-						  int start, int end, int iterations, int solver, double tolerance, int colorIndex);
-
-	 QString fitGauss(const QString& curveTitle);
-	 QString fitGauss(const QString& name, double amplitude, double center, double width, double offset,
-						   double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitGauss(QwtPlotCurve *curve, double amplitude, double center, double width, double offset,
-						   int start, int end, int iterations, int solver, double tolerance, int colorIndex);
-
-	 QString fitLorentz(const QString& curveTitle);
-	 QString fitLorentz(const QString& name, double amplitude, double center, double width, double offset,
-						   double from, double to, int iterations, int solver, double tolerance, int colorIndex);
-	 QString fitLorentz(QwtPlotCurve *curve, double amplitude, double center, double width, double offset,
-						   int start, int end, int iterations, int solver, double tolerance, int colorIndex);
-
 	 QString fitPolynomial(const QString&,int order, int points,
-				double start, double end, bool showFormula, int colorIndex);
+			 double start, double end, bool showFormula, int colorIndex);
 	 void setFitID(int id);
 
-	 QString fitNonlinearCurve(const QString& curve,const QString& formula,
-							const QStringList& params,const QStringList& paramsInit,
-							double from,double to,int points, int solver, double tolerance, int colorIndex);
-	
-	QString fitPluginFunction(const QString& curve,const QString& pluginName,
-							  const QStringList& paramsInit, double from,
-							  double to,int points, int solver, double tolerance, int colorIndex);
+	 void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
 
-	static gsl_multifit_fdfsolver* fitGSL(gsl_multifit_function_fdf f, int p, int n, 
-										  double *x_init, int solver, double tolerance,
-										  int &iterations, int &status);
+	 //histograms
+	 void initHistogram(long curveID, const Q3MemArray<double>& Y, int it);
+	 void updateHistogram(Table* w, const QString& curveName, int curve);
+	 void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, 
+			 double binSize, double begin, double end);
+	 void setBarsGap(int curve, int gapPercent, int offset);
+	 QString showHistogramStats(Table* w, const QString& curveName, int curve);
 
-	static gsl_multimin_fminimizer* fitSimplex(gsl_multimin_function f, double *x_init,
-										  double tolerance,int &iterations, int &status);
-
-
-	void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
-	
-	QString outputFitString(int n, double tolerance, double from, double to, int iter,
-							int solver, int status, double *params, gsl_multifit_fdfsolver *s, 
-							const QStringList& parNames,const QString& curve,
-							const QString& f, const QString& fitType);
-
-   	QString outputFitString(int n, double tolerance, double from, double to, int iter,
-							gsl_matrix *J, int status, double *params, gsl_multimin_fminimizer *s, 
-							const QStringList& parNames,const QString& curve,
-							const QString& f, const QString& fitType);
-
-
-	//histograms
-	void initHistogram(long curveID, const Q3MemArray<double>& Y, int it);
-	void updateHistogram(Table* w, const QString& curveName, int curve);
-	void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, 
-							double binSize, double begin, double end);
-	void setBarsGap(int curve, int gapPercent, int offset);
-	QString showHistogramStats(Table* w, const QString& curveName, int curve);
-
-	//image analyse tools
+	 //image analyse tools
 	 bool lineProfile();
 	 void calculateProfile(int average, bool ok);
 	 void calculateLineProfile(const QPoint& start, const QPoint& end);
 	 int averageImagePixel(const QImage& image, int px, int py, int average, bool moreHorizontal);
 	 void showIntensityTable();
-	 
+
 	 //user defined functions
 	 void modifyFunctionCurve(int curve, int type, const QStringList &formulas, const QString &var,QList<double> &ranges, int points);
 	 void addFunctionCurve(int type, const QStringList &formulas, const QString& var,QList<double> &ranges, int points);	 
@@ -597,167 +537,166 @@ public slots:
 	 void releaseGraph();
 	 void drawFocusRect();
 
-	//vector curves
-	void plotVectorCurve(Table* w, const QStringList& colList, int style);
-	void setVectorsLook(int curve, const QColor& c, int width, int arrowLength,
-						int arrowAngle, bool filled, int position);
-	void updateVectorsLayout(Table *w, int curve, int colorIndex, int width, 
-								int arrowLength, int arrowAngle, bool filled, int position,
-								const QString& xEndColName, const QString& yEndColName);
-	void updateVectorsData(Table* w,  int curve);
-	
-	//box plots
-	void openBoxDiagram(Table *w, const QStringList& l);
-	void plotBoxDiagram(Table *w, const QStringList& names);
+	 //vector curves
+	 void plotVectorCurve(Table* w, const QStringList& colList, int style);
+	 void setVectorsLook(int curve, const QColor& c, int width, int arrowLength,
+			 int arrowAngle, bool filled, int position);
+	 void updateVectorsLayout(Table *w, int curve, int colorIndex, int width, 
+			 int arrowLength, int arrowAngle, bool filled, int position,
+			 const QString& xEndColName, const QString& yEndColName);
+	 void updateVectorsData(Table* w,  int curve);
 
-	void setCurveSymbol(int index, const QwtSymbol& s);
-	void setCurvePen(int index, const QPen& p);
-	void setCurveBrush(int index, const QBrush& b);
-	void setCurveStyle(int index, int s);
+	 //box plots
+	 void openBoxDiagram(Table *w, const QStringList& l);
+	 void plotBoxDiagram(Table *w, const QStringList& names);
 
-	//resizing	
-	bool ignoresResizeEvents(){return ignoreResize;};
-	void setIgnoreResizeEvents(bool ok){ignoreResize=ok;};
-	void resizeEvent(QResizeEvent *e);
-	void scaleFonts(double factor);
+	 void setCurveSymbol(int index, const QwtSymbol& s);
+	 void setCurvePen(int index, const QPen& p);
+	 void setCurveBrush(int index, const QBrush& b);
+	 void setCurveStyle(int index, int s);
 
-	void modified();
-	void emitModified();
+	 //resizing	
+	 bool ignoresResizeEvents(){return ignoreResize;};
+	 void setIgnoreResizeEvents(bool ok){ignoreResize=ok;};
+	 void resizeEvent(QResizeEvent *e);
+	 void scaleFonts(double factor);
 
-	void updateSecondaryAxis(int axis);
-	void enableAutoscaling(bool yes){autoscale = yes;};
+	 void modified();
+	 void emitModified();
 
-	bool autoscaleFonts(){return autoScaleFonts;};
-	void setAutoscaleFonts(bool yes){autoScaleFonts = yes;};
+	 void updateSecondaryAxis(int axis);
+	 void enableAutoscaling(bool yes){autoscale = yes;};
 
-	static int obsoleteSymbolStyle(int type);
-	static QString penStyleName(Qt::PenStyle style);
-	static Qt::PenStyle getPenStyle(const QString& s);
-	static Qt::PenStyle getPenStyle(int style);
-	static Qt::BrushStyle getBrushStyle(int style);
-	static QColor color(int item);
-	static void showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumns);
+	 bool autoscaleFonts(){return autoScaleFonts;};
+	 void setAutoscaleFonts(bool yes){autoScaleFonts = yes;};
 
-	void showTitleContextMenu();
-	void copyTitle();
-	void cutTitle();
+	 static int obsoleteSymbolStyle(int type);
+	 static QString penStyleName(Qt::PenStyle style);
+	 static Qt::PenStyle getPenStyle(const QString& s);
+	 static Qt::PenStyle getPenStyle(int style);
+	 static Qt::BrushStyle getBrushStyle(int style);
+	 static QColor color(int item);
+	 static void showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumns);
 
-	void removeAxisTitle();
-	void cutAxisTitle();
-	void copyAxisTitle();
-	void showAxisTitleMenu(int axis);
-	void showAxisContextMenu(int axis);
-	void hideSelectedAxis();
-	void showGrids();
-	void showAxisDialog();
-	void showScaleDialog();
+	 void showTitleContextMenu();
+	 void copyTitle();
+	 void cutTitle();
 
-	QStringList fitResults(){return fit_results;};
-	void multiPeakFit(int fitType, int peaks);
-	void selectPeak(const QPoint &pos);
-	void fitMultiPeak(int fitType, const QString& curveTitle);
-	bool selectPeaksOn();
+	 void removeAxisTitle();
+	 void cutAxisTitle();
+	 void copyAxisTitle();
+	 void showAxisTitleMenu(int axis);
+	 void showAxisContextMenu(int axis);
+	 void hideSelectedAxis();
+	 void showGrids();
+	 void showAxisDialog();
+	 void showScaleDialog();
+
+	 QStringList fitResults(){return fit_results;};
+	 void multiPeakFit(ApplicationWindow *app, int profile, int peaks);
+	 void selectPeak(const QPoint &pos);
+	 bool selectPeaksOn();
 
 signals:
-	void highlightGraph(Graph*);
-    void releaseGraph(Graph*);
-	void moveGraph(Graph*, const QPoint& pos);
-    void selectedGraph (Graph*);
-	void closedGraph();
-	void drawTextOff();
-	void drawLineEnded(bool);
-	void cursorInfo(const QString&);
-	void showPlotDialog(long);
-	void showPieDialog();
-	void createTable(const QString&,int,int,const QString&);
-	void createHiddenTable(const QString&,int,int,const QString&);
-	void updateTable(const QString&,int,const QString&);
-	void updateTableColumn(const QString&, double *, int);
-	void clearCell(const QString&,double);
+	 void highlightGraph(Graph*);
+	 void releaseGraph(Graph*);
+	 void moveGraph(Graph*, const QPoint& pos);
+	 void selectedGraph (Graph*);
+	 void closedGraph();
+	 void drawTextOff();
+	 void drawLineEnded(bool);
+	 void cursorInfo(const QString&);
+	 void showPlotDialog(long);
+	 void showPieDialog();
+	 void createTable(const QString&,int,int,const QString&);
+	 void createHiddenTable(const QString&,int,int,const QString&);
+	 void updateTable(const QString&,int,const QString&);
+	 void updateTableColumn(const QString&, double *, int);
+	 void clearCell(const QString&,double);
 
-	void viewImageDialog();
-	void viewTextDialog();
-	void viewLineDialog();
-	void viewTitleDialog();
-	void modifiedGraph();
-	void modifiedGraph(Graph *);
-	void hiddenPlot(QWidget*);
+	 void viewImageDialog();
+	 void viewTextDialog();
+	 void viewLineDialog();
+	 void viewTitleDialog();
+	 void modifiedGraph();
+	 void modifiedGraph(Graph *);
+	 void hiddenPlot(QWidget*);
 
-	void modifiedFunction();
-	void modifiedPlotAssociation();
+	 void modifiedFunction();
+	 void modifiedPlotAssociation();
 
-	void showContextMenu();
-	void showMarkerPopupMenu();
-	
-	void showAxisDialog(int);
-	void axisDblClicked(int);	
-	void xAxisTitleDblClicked();		
-	void yAxisTitleDblClicked();
-	void rightAxisTitleDblClicked();
-	void topAxisTitleDblClicked();
-	
-	void createTablePlot(const QString&,int,int,const QString&);
-	void createIntensityTable(const QPixmap&);
-	void createHistogramTable(const QString&,int,int,const QString&);
-	void dataRangeChanged();
-	void showFitResults(const QString&);
-	
+	 void showContextMenu();
+	 void showMarkerPopupMenu();
+
+	 void showAxisDialog(int);
+	 void axisDblClicked(int);	
+	 void xAxisTitleDblClicked();		
+	 void yAxisTitleDblClicked();
+	 void rightAxisTitleDblClicked();
+	 void topAxisTitleDblClicked();
+
+	 void createTablePlot(const QString&,int,int,const QString&);
+	 void createIntensityTable(const QPixmap&);
+	 void createHistogramTable(const QString&,int,int,const QString&);
+	 void dataRangeChanged();
+	 void showFitResults(const QString&);
+
 private:
-	bool autoScaleFonts;
-	int selectedAxis;
-	QStringList axesFormulas;
-	//! Stores columns used for axes with text labels or  time/date format info
-	QStringList axesFormatInfo;
-	Q3ValueList <int> axisType;
+	 bool autoScaleFonts;
+	 int selectedAxis;
+	 QStringList axesFormulas;
+	 //! Stores columns used for axes with text labels or  time/date format info
+	 QStringList axesFormatInfo;
+	 Q3ValueList <int> axisType;
 	 //! Structure used to define the grid
-	GridOptions grid;
-	MarkerType selectedMarkerType;
-	QwtPlotMarker::LineStyle mrklStyle;
-	QStringList associations;
-	
-	//! Tells weather the user specified a step for a scale
-  	Q3MemArray<bool> d_user_step;
-	//! Curve types
-	Q3MemArray<int> c_type; 
-	//! Curves on plot keys
-	Q3MemArray<long> c_keys;
-	//! Arrows/lines on plot keys
-	Q3MemArray<long> d_lines; 
-	//! Images on plot keys
-    Q3MemArray<long> d_images; 
+	 GridOptions grid;
+	 MarkerType selectedMarkerType;
+	 QwtPlotMarker::LineStyle mrklStyle;
+	 QStringList associations;
 
-	QPen mrkLinePen;
-	QFont auxMrkFont, defaultMarkerFont;
-	QColor auxMrkColor, auxMrkBkgColor;
-	QPoint auxMrkStart,auxMrkEnd;
-	Qt::PenStyle auxMrkStyle;
-	QString auxMrkFileName, auxMrkText;
+	 //! Tells weather the user specified a step for a scale
+	 Q3MemArray<bool> d_user_step;
+	 //! Curve types
+	 Q3MemArray<int> c_type; 
+	 //! Curves on plot keys
+	 Q3MemArray<long> c_keys;
+	 //! Arrows/lines on plot keys
+	 Q3MemArray<long> d_lines; 
+	 //! Images on plot keys
+	 Q3MemArray<long> d_images; 
 
-	int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
-	int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
-	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
-	int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
-	int auxArrowHeadLength, auxArrowHeadAngle;
-	int translationDirection;
-	long selectedMarker,legendMarkerID, startID, endID;
-	long mrkX,mrkY;//x=0 et y=0 line markers keys
-	bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
-	
-	//the following bool values tell which data tool is activated by the user
-	bool removePointsEnabled,movePointsEnabled, translateOn;
-	bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;	
-	bool piePlot;//tells if the plot is a pie plot
-	bool lineProfileOn; // tells if pixel line profile is asked
-	bool auxFilledArrowHead, ignoreResize;
-	bool drawAxesBackbone, autoscale;
+	 QPen mrkLinePen;
+	 QFont auxMrkFont, defaultMarkerFont;
+	 QColor auxMrkColor, auxMrkBkgColor;
+	 QPoint auxMrkStart,auxMrkEnd;
+	 Qt::PenStyle auxMrkStyle;
+	 QString auxMrkFileName, auxMrkText;
 
-	QStringList fit_results;
-	double *peaks_array;
-	int n_peaks, selected_peaks, fit_type;
+	 int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
+	 int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
+	 QColor defaultTextMarkerColor, defaultTextMarkerBackground;
+	 int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
+	 int auxArrowHeadLength, auxArrowHeadAngle;
+	 int translationDirection;
+	 long selectedMarker,legendMarkerID, startID, endID;
+	 long mrkX,mrkY;//x=0 et y=0 line markers keys
+	 bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 
-	QColor defaultArrowColor;
-	int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
-	bool defaultArrowHeadFill;
-	Qt::PenStyle defaultArrowLineStyle;
+	 //the following bool values tell which data tool is activated by the user
+	 bool removePointsEnabled,movePointsEnabled, translateOn;
+	 bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;	
+	 bool piePlot;//tells if the plot is a pie plot
+	 bool lineProfileOn; // tells if pixel line profile is asked
+	 bool auxFilledArrowHead, ignoreResize;
+	 bool drawAxesBackbone, autoscale;
+
+	 QStringList fit_results;
+	 int selected_peaks;
+	 MultiPeakFitter *fitter;
+
+	 QColor defaultArrowColor;
+	 int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
+	 bool defaultArrowHeadFill;
+	 Qt::PenStyle defaultArrowLineStyle;
 };
 #endif // GRAPH_H

@@ -443,6 +443,8 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 void Plot::removeMarker(int index)
 {
 	QwtPlotMarker *m = d_markers[index];
+	if(!m)
+		return;
 	m->detach();
 	d_markers.remove (index);
 }

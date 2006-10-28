@@ -65,9 +65,6 @@ public:
 	int minorTicksStyle(){return d_minTicks;};
 	void setMinorTicksStyle(TicksStyle type){d_minTicks = type;};
 
-	virtual void drawTick(QPainter *p, double value, int len) const;
-	virtual void drawBackbone(QPainter *p) const;
-	
 private:
 	QString formula_string;
 	char d_fmt;

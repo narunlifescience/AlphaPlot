@@ -113,6 +113,7 @@ static const char *unzoom_xpm[]={
 #include "patternBox.h"
 #include "symbolBox.h"
 #include "FunctionCurve.h"
+#include "Fitter.h"
 
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -2026,7 +2027,6 @@ void Graph::exportImage(const QString& fileName, const QString& fileType,
 void Graph::exportToEPS(const QString& fname)
 {	
 	QPrinter printer;
-	printer.setResolution(84);
 	printer.setPageSize (QPrinter::A4);
 	printer.setColorMode (QPrinter::Color);
 	printer.setFullPage(TRUE);
@@ -2063,7 +2063,6 @@ void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o,
 		QPrinter::PageSize size, QPrinter::ColorMode col)
 {	
 	QPrinter printer;
-	printer.setResolution(res);
 	printer.setPageSize (size);
 	printer.setColorMode (col);
 	printer.setOrientation(o);
@@ -2097,7 +2096,6 @@ void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o,
 void Graph::print()
 {
 	QPrinter printer;
-	printer.setResolution(84); //empirical value, it works...
 	printer.setColorMode (QPrinter::Color);
 	printer.setFullPage(TRUE);
 
@@ -2148,8 +2146,10 @@ void Graph::exportToWmf(const QString& fname)
 
 void Graph::exportToSVG(const QString& fname) 
 {
-    //QwtPainter::setSVGMode(true);
-    
+	// TODO: check if the next 2 lines can be removed
+	// enable workaround for Qt3 misalignments
+	// QwtPainter::setSVGMode(true); 
+
 	Q3Picture picture;
 	QPainter p(&picture);
 	d_plot->print(&p, d_plot->rect());
@@ -2188,19 +2188,19 @@ bool Graph::removePointActivated()
 	return removePointsEnabled;
 }
 
-void Graph::multiPeakFit(int fitType, int peaks)
+void Graph::multiPeakFit(ApplicationWindow *app, int profile, int peaks)
 {
 	showPlotPicker(true);
-	n_peaks = peaks;
+	
 	selected_peaks = 0;
-	peaks_array = new double[2*peaks];
-	fit_type = fitType;
+	fitter = new MultiPeakFitter (app, this, (MultiPeakFitter::PeakProfile)profile, peaks);
+
 	d_plot->canvas()->grabMouse();
 }
 
 bool Graph::selectPeaksOn()
 {
-	if (n_peaks && selected_peaks<n_peaks)
+	if (fitter)
 		return true;
 	else
 		return false;
@@ -2259,28 +2259,35 @@ void Graph::selectPeak(const QPoint &)
 	if (!c)
 		return;
 
-	peaks_array[2*selected_peaks]=c->y(selectedPoint);
-	peaks_array[2*selected_peaks+1]=c->x(selectedPoint);
+	fitter->initializeParameter(3*selected_peaks, c->y(selectedPoint));
+	fitter->initializeParameter(3*selected_peaks+1, c->x(selectedPoint));
 
-	QwtPlotMarker *mrk = new QwtPlotMarker();
-	mrk->setLineStyle(QwtPlotMarker::VLine);
-	mrk->setLinePen(QPen(Qt::green, 2, Qt::DashLine));
-	mrk->setXValue(c->x(selectedPoint));
-	mrk->attach(d_plot);
+	QwtPlotMarker *m = new QwtPlotMarker();
+	m->setLineStyle(QwtPlotMarker::VLine);
+	m->setLinePen(QPen(Qt::green, 2, Qt::DashLine));
+	m->setXValue(c->x(selectedPoint));
+	d_plot->insertMarker(m);
 	d_plot->replot();
+
 	selected_peaks++;
-	if (selected_peaks == n_peaks)
+	int peaks = fitter->peaks();
+	if (selected_peaks == peaks)
 	{
 		showPlotPicker(false);
 		QApplication::setOverrideCursor(Qt::waitCursor);
-		fitMultiPeak(fit_type, c->title().text());
+
+		fitter->setDataFromCurve(c->title().text());
+		fitter->fit();
+		delete fitter;
+		fitter = 0;
+		
 		QApplication::restoreOverrideCursor();
 		//remove peak line markers
 		Q3ValueList<int>mrks = d_plot->markerKeys();
 		int n=(int)mrks.count();
-		for (int i=0; i<n_peaks; i++)
+		for (int i=0; i<peaks; i++)
 			d_plot->removeMarker(mrks[n-i-1]);
-		n_peaks = 0;
+
 		d_plot->canvas()->releaseMouse();
 		return;
 	}
@@ -4132,8 +4139,9 @@ Q3ValueList<int> Graph::textMarkerKeys()
 	for (int i=0;i<(int)mrkKeys.size();i++)
 	{
 		if (mrkKeys[i]!=mrkX && mrkKeys[i]!=mrkY &&
-				mrkKeys[i]!=startID && mrkKeys[i]!=endID && d_lines.contains(mrkKeys[i])<=0
-				&& d_images.contains(mrkKeys[i])<=0)
+				mrkKeys[i]!=startID && mrkKeys[i]!=endID && 
+				d_lines.contains(mrkKeys[i])<=0 &&
+				d_images.contains(mrkKeys[i])<=0)
 		{
 			txtMrkKeys.append(mrkKeys[i]);
 		}

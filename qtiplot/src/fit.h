@@ -6,27 +6,12 @@
 //! Structure for fitting data
 struct FitData {
   size_t n;
+  size_t p;
   double * X;
   double * Y;
   double * sigma; // weighting data
-};
-
-//! Structure for parser data for fitting
-struct FitParserData{
-  size_t n;
-  size_t p;
-  double * X;
-  double * Y;
   const char *function;
   const char *names;
-};
-
-//! Structure for multi-peak fitting data
-struct FitMultiPeakData{
-  size_t n;
-  size_t p;
-  double * X;
-  double * Y;
 };
 
 int expd3_fdf (const gsl_vector * x, void *params, gsl_vector * f, gsl_matrix * J);
