@@ -942,186 +942,6 @@ QString Graph::fitLinear(const QString& curveTitle)
 	return info;
 }
 
-/*void Graph::fitMultiPeak(int fitType, const QString& curveTitle)
-{
-	int n, start, end;
-	int p = 3*n_peaks+1;
-	QwtPlotCurve *c= getValidCurve(curveTitle, p, n, start, end);
-	if (!c)
-		return;
-
-	double *x=vector(0,n-1);
-	double *y=vector(0,n-1);
-	if (!x || !y)
-	{
-		QMessageBox::warning(0, tr("QtiPlot"), tr("Could not allocate memory, operation aborted!"));
-		return;
-	}
-
-	int i, j, aux = 0;
-	double min = y[start];
-	for (i = start; i <= end; i++)
-	{//The data to be fitted 
-		x[aux]=c->x(i);
-		y[aux]=c->y(i);
-		if (y[aux]<=min)
-			min = y[aux];
-		aux++;
-	}
-	struct FitMultiPeakData d = {n, p, x, y};
-	gsl_multifit_function_fdf f;
-	if (fitType)
-	{
-		f.f = &lorentz_multi_peak_f;
-		f.df = &lorentz_multi_peak_df;
-		f.fdf = &lorentz_multi_peak_fdf;
-	}
-	else
-	{
-		f.f = &gauss_multi_peak_f;
-		f.df = &gauss_multi_peak_df;
-		f.fdf = &gauss_multi_peak_fdf;
-	}
-	f.n = n;
-	f.p = p;
-	f.params = &d;
-
-	double *x_init = new double[p];
-	for (i=0; i<n_peaks; i++)
-	{
-		x_init[3*i]=peaks_array[2*i];
-		x_init[3*i+1]=peaks_array[2*i+1];
-		x_init[3*i+2]=1.0;
-	}
-	x_init[p-1] = min;
-
-	int status, iter=1000;
-	gsl_multifit_fdfsolver *s = fitGSL(f, p, n, x_init, 0, 1e-4, iter, status);	
-	delete[] x_init;
-	delete[] peaks_array;
-
-	double *par=vector(0,p-1);
-	for (i=0;i<(int)p;i++)
-		par[i]=gsl_vector_get(s->x,i); //retrieve values for the parameters
-
-	double X0 =	x[0];
-	double XN =	x[n-1];
-	int n1 = (n<100)?100:n;
-	double step=(XN-X0)/(n1-1);
-	free_vector(x,0,n-1); free_vector(y,0,n-1);
-	x=vector(0,n1-1); y=vector(0,n1-1);
-
-	double *a = new double[n_peaks];
-	double *xc = new double[n_peaks];
-	double *w = new double[n_peaks];
-	QStringList params;
-	for (i = 0; i<n_peaks; i++)
-	{
-		a[i] = par[3*i];
-		xc[i] = par[3*i+1];
-		w[i] = par[3*i+2];
-		params << "a" + QString::number(i+1);
-		params << "xc" + QString::number(i+1);
-		params << "w" + QString::number(i+1);
-	}
-	params << tr("y0 (offset)");
-
-	QString text="1\t";
-	for (i=0; i<n_peaks; i++)
-		text+="peak"+QString::number(i+1)+"\t";
-	text+="2\n";
-
-	gsl_matrix * m = gsl_matrix_alloc (n1, n_peaks);
-	if (!m)
-	{
-		QMessageBox::warning(0,"QtiPlot", tr("Could not allocate memory, operation aborted!"));
-		return;
-	}
-
-	for (i = 0; i<n1; i++)
-	{
-		x[i]=X0+i*step;
-		text+=QString::number(x[i], 'g', 15)+"\t";
-		double yi=0;
-		for (j=0; j<n_peaks; j++)
-		{
-			double diff=x[i]-xc[j];
-			double y_aux;
-			if (fitType)
-				y_aux = a[j]*w[j]/(4*diff*diff+w[j]*w[j]);
-			else
-				y_aux = a[j]*exp(-0.5*diff*diff/(w[j]*w[j]));
-			yi+= y_aux;
-			y_aux+=par[p-1];//add offset
-			text+=QString::number(y_aux, 'g', 15)+"\t";
-			gsl_matrix_set(m, i, j, y_aux);
-		}
-		y[i] = yi + par[p-1];//add offset
-		text+=QString::number(y[i], 'g', 15)+"\n";
-	}
-	delete[] a;
-	delete[] xc;
-	delete[] w;
-
-	QString tableName = "Fit"+QString::number(++fitID);
-	QString label=tableName+"_2";
-
-	QwtPlotCurve *cv = new QwtPlotCurve(label);
-	long curveID = d_plot->insertCurve(cv);
-	cv->setPen(QPen(Qt::red,2)); 
-	cv->setData(x, y, n1);	
-
-	c_type.resize(++n_curves);
-	c_type[n_curves-1]=Line;
-
-	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = curveID;
-
-	addLegendItem(label);	
-	label=tableName+"_1(X),"+label+"(Y)";
-	associations<<label;
-
-	for (i=0; i<n_peaks; i++)
-	{
-		for (j=0; j<n1; j++)
-			y[j] = gsl_matrix_get (m, j, i);
-
-		label=tableName+"_peak"+QString::number(i+1);
-		cv = new QwtPlotCurve(label);
-		curveID = d_plot->insertCurve(cv);
-		cv->setPen(QPen(Qt::green,1)); 
-		cv->setData(x, y, n1);	
-
-		c_type.resize(++n_curves);
-		c_type[n_curves-1]=Line;
-		c_keys.resize(n_curves);
-		c_keys[n_curves-1] = curveID;
-
-		addLegendItem(label);	
-		label=tableName+"_1(X),"+label+"(Y)";
-		associations<<label;
-	}
-	gsl_matrix_free(m);
-	free_vector(x, 0, n1-1);
-	free_vector(y, 0, n1-1);
-
-	QString legend;
-	if (fitType)
-	{
-		legend = tr("Lorentz");
-		for (i=0; i<n_peaks; i++)
-			par[3*i]*= M_PI_2;
-	}
-	else
-		legend = tr("Gauss");
-	legend += "(" + QString::number(n_peaks) +") " + tr("multi-peak");
-	emit createHiddenTable(tableName+"\t"+legend+" "+tr("fit of")+" "+curveTitle, n1, 2+n_peaks, text);
-	d_plot->replot();
-	//updatePlot();
-	emit showFitResults(outputFitString(n1, 1e-4, X0, XN, iter, 0, status, par, s, params,
-				curveTitle, QString::null, legend));
-}*/
-
 QwtPlotCurve* Graph::getValidCurve(const QString& name, int params, 
 		int &points, int &start, int &end)
 {
@@ -1148,7 +968,7 @@ QwtPlotCurve* Graph::getValidCurve(const QString& name, int params,
 	points = abs(end - start) + 1;
 	if (points < params)
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+		QMessageBox::critical(this,tr("QtiPlot - Error"),
 				tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(params)));
 		return 0;
 	}
@@ -1170,7 +990,7 @@ QwtPlotCurve* Graph::getFitLimits(const QString& name, double from, double to,
 	int i,n = c->dataSize();
 	if (n < params)
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+		QMessageBox::critical(this,tr("QtiPlot - Error"),
 				tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(params)));
 		return 0;
 	}
@@ -1550,8 +1370,7 @@ void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 	delete[] y;
 
 	emit createHiddenTable(tableName+"\t"+legend, n, 2, text);
-	//updatePlot();
-	d_plot->replot();
+	updatePlot();
 }
 
 void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)

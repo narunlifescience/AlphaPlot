@@ -2730,6 +2730,18 @@ Table* ApplicationWindow::newHiddenTable(const QString& caption, int r, int c, c
 	return w;
 }
 
+Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& legend, int r, int c)
+{
+	Table* w = new Table(scriptEnv, r, c, legend, 0, 0);	
+	w->setAttribute(Qt::WA_DeleteOnClose);
+	initTable(w, name);
+	w->setCaptionPolicy(MyWidget::Both);
+	outWindows->append(w);
+	w->setHidden();
+	return w;
+}
+
+
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
 	ws->addWindow(w);
@@ -10585,29 +10597,22 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 
 	if (whichFit=="fitLinear")
 		result=activeGraph->fitLinear(curveTitle);
-	else if(whichFit=="fitSigmoidal")
+	else if(whichFit=="fitSigmoidal" || whichFit=="fitGauss" || whichFit=="fitLorentz")
 	{
-		SigmoidalFitter *fitter = new SigmoidalFitter (this, activeGraph);
-		fitter->setDataFromCurve(curveTitle);
-		fitter->guessInitialValues();
-		fitter->fit();
-		delete fitter;
-	}
-	else if(whichFit=="fitGauss")
-	{
-		GaussFitter *fitter = new GaussFitter(this, activeGraph);
-		fitter->setDataFromCurve(curveTitle);
-		fitter->guessInitialValues();
-		fitter->fit();
-		delete fitter;
-	}
-	else if(whichFit=="fitLorentz")
-	{
-		LorentzFitter *fitter = new LorentzFitter(this, activeGraph);
-		fitter->setDataFromCurve(curveTitle);
-		fitter->guessInitialValues();
-		fitter->fit();
-		delete fitter;
+		Fitter *fitter = 0;
+		if (whichFit=="fitSigmoidal")
+			fitter = new SigmoidalFitter (this, activeGraph);
+		else if(whichFit=="fitGauss")
+			fitter = new GaussFitter(this, activeGraph);
+		else if(whichFit=="fitLorentz")
+			fitter = new LorentzFitter(this, activeGraph);
+
+		if (fitter->setDataFromCurve(curveTitle))
+		{
+			fitter->guessInitialValues();
+			fitter->fit();
+			delete fitter;
+		}
 	}
 	else if(whichFit=="differentiate" && activeGraph->diffCurve(curveTitle))
 	{
@@ -10621,7 +10626,6 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 	{
 		logInfo+=result;
 		showResults(true);
-		activeGraph->setFitID(++fitNumber);
 		activeGraph->setFocus();
 		emit modified();
 		if (!aw)

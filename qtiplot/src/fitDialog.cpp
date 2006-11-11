@@ -1059,7 +1059,6 @@ void FitDialog::accept()
 	if (!error)
 	{
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
-		graph->setFitID(++app->fitNumber);
 
 		if (fitter)
 		{
@@ -1087,12 +1086,12 @@ void FitDialog::accept()
 		}
 
 		fitter->setTolerance (eps);
-		fitter->setDataFromCurve(curve, start, end);
 		fitter->setSolver((Fitter::Solver)boxSolver->currentItem());
 		fitter->setFitCurveColor(boxColor->currentItem());
 		fitter->setFitCurveParameters(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
-		if (!fitter->setWeightingData ((Fitter::WeightingMethod)boxWeighting->currentItem(), 
+		if (!fitter->setDataFromCurve(curve, start, end) ||
+				!fitter->setWeightingData ((Fitter::WeightingMethod)boxWeighting->currentItem(), 
 					tableNamesBox->currentText()+"_"+colNamesBox->currentText()))
 		{
 			delete fitter;

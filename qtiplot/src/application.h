@@ -256,6 +256,7 @@ public slots:
 	Table* newTable(const QString& caption,int r, int c);
 	Table* newTable(const QString& caption, int r, int c, const QString& text);
 	Table* newHiddenTable(const QString& caption, int r, int c, const QString& text);
+	Table* newHiddenTable(const QString& name, const QString& legend, int r, int c);
 	Table* table(const QString& name);
 	Table* copyTable();
 	Table* convertMatrixToTable();

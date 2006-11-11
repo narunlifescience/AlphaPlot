@@ -343,8 +343,8 @@ int gauss_df (const gsl_vector * x, void *params,
       /* and the xj are the parameters (B,A,C,w) */
 
 	  double s = sigma[i];
- 	  double diff=X[i]-C;
-      double e =exp(-0.5*diff*diff/(w*w))/s;
+ 	  double diff = X[i]-C;
+      double e = exp(-0.5*diff*diff/(w*w))/s;
  	 
       gsl_matrix_set (J, i, 0, 1/s);
       gsl_matrix_set (J, i, 1, e);
