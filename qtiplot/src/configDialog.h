@@ -41,6 +41,7 @@ class QComboBox;
 class QSpinBox;
 class QLabel;
 class ColorButton;
+class QRadioButton;
 class QListWidget;
 
 //! Preferences dialog
@@ -68,15 +69,16 @@ public:
     QPushButton *buttonOk, *buttonCancel, *buttonApply;
 	QPushButton* buttonTextFont, *buttonHeaderFont;
 	QStackedWidget * generalDialog;
-	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm, *application, *curves, *plots3D;
+	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm;
+	QWidget *application, *curves, *plots3D, *fitPage;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
-	QCheckBox *boxSearchUpdates, *boxOrthogonal;
+	QCheckBox *boxSearchUpdates, *boxOrthogonal, *logBox, *plotLabelBox;
 	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
 	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
-	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin;
-	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength;
+	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision;
+	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
 	QListWidget * itemsList;
 	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
@@ -84,9 +86,11 @@ public:
 	QGroupBox *groupBoxConfirm;
 	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
-	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution;
+	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution, *lblPrecision;
 	QGroupBox *groupBox3DFonts, *groupBox3DCol;
-	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength;
+	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints;
+	QGroupBox *groupBoxFittingCurve, *groupBoxFitParameters;
+	QRadioButton *samePointsBtn, *generatePointsBtn;
 	QLabel *lblScriptingLanguage;
 	QComboBox *boxScriptingLanguage;
 
@@ -137,6 +141,9 @@ public slots:
 	void pick3DTitleFont();
 	void pick3DNumbersFont();
 	void pick3DAxesFont();
+ 
+	//Fitting
+	void showPointsBox(bool);
 
 	void switchToLanguage(int param);
 
@@ -147,6 +154,7 @@ private:
 	void initPlots3DPage();
 	void initTablesPage();
 	void initConfirmationsPage();
+	void initFittingPage();
 
 	QFont textFont, headerFont, axesFont, numbersFont, legendFont, titleFont, appFont;
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;

@@ -240,6 +240,11 @@ void FitDialog::initEditPage()
 	boxUseBuiltIn->setText(tr("Fit with &built-in function"));
 	boxUseBuiltIn->hide();
 
+	/*polynomOrderLabel = new QLabel( tr("Polynomial Order"), hbox3);
+	  polynomOrderLabel->hide();
+	  polynomOrderBox = new QSpinBox(1, 100, 1, hbox3);
+	  polynomOrderBox->hide();*/
+
 	buttonPlugins = new QPushButton(hbox3, "buttonPlugins" );
 	buttonPlugins->setText( tr( "&Choose plugins folder..." ) );
 	buttonPlugins->hide();
@@ -310,19 +315,30 @@ void FitDialog::initAdvancedPage()
 
 	generatePointsBtn = new QRadioButton (GroupBox1);
 	generatePointsBtn ->setText(tr("Uniform X"));
-	generatePointsBtn->setChecked(true);
+	generatePointsBtn->setChecked(app->generateUniformFitPoints);
+	connect( generatePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	Q3HBox *hb=new Q3HBox(GroupBox1);
 	hb->setSpacing(5);
 
 	lblPoints = new QLabel( tr("Points"), hb);
 	generatePointsBox = new QSpinBox (0, 1000000, 10, hb);
-	generatePointsBox->setValue(100);
+	generatePointsBox->setValue(app->fitPoints);
+	connect( generatePointsBox, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	samePointsBtn = new QRadioButton(GroupBox1);
 	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
+	samePointsBtn->setChecked(!app->generateUniformFitPoints);
+	connect( samePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal, tr("Parameters Output"), advancedPage );
+
+	new QLabel( tr("Significant Digits"), GroupBox2);
+	boxPrecision = new QSpinBox (0, 15, 1, GroupBox2);
+	boxPrecision->setValue (app->fit_output_precision);
+	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+
+	new QLabel(QString::null, GroupBox2);
 
 	btnParamTable = new QPushButton(GroupBox2);
 	btnParamTable->setText( tr( "Parameters Table" ) );
@@ -339,11 +355,6 @@ void FitDialog::initAdvancedPage()
 
 	covMatrixName = new QLineEdit(GroupBox2);
 	covMatrixName->setText( tr( "CovMatrix" ) );
-
-	new QLabel( tr("Significant Digits"), GroupBox2);
-	boxPrecision = new QSpinBox (0, 15, 1, GroupBox2);
-	boxPrecision->setValue (app->fit_output_precision);
-	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	logBox = new QCheckBox (tr("Write Parameters to Result Log"), advancedPage);
 	logBox->setChecked(app->writeFitResultsToLog);
@@ -389,32 +400,53 @@ void FitDialog::applyChanges()
 	app->fit_output_precision = boxPrecision->value();
 	app->pasteFitResultsToPlot = plotLabelBox->isChecked();
 	app->writeFitResultsToLog = logBox->isChecked();
+	app->fitPoints = generatePointsBox->value();
+	app->generateUniformFitPoints = generatePointsBtn->isChecked();
 	app->saveSettings();
 	btnApply->setEnabled(false);
 }
 
 void FitDialog::showParametersTable()
 {
-	if (paramTableName->text().isEmpty())
+	QString tableName = paramTableName->text();
+	if (tableName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"), 
 				tr("Please enter a valid name for the parameters table."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"), 
 				tr("The fitter has not been initialized. Please perform a fit first and try again."));
 		return;
 	}
 
-	fitter->showParametersTable(paramTableName->text());
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (tableName.contains(tr( "Parameters" )))
+	{
+		int index = 0;
+		QWidgetList *windows = app->windowsList();
+		for (int i = 0; i < int(windows->count());i++ )
+		{
+			if (windows->at(i)->isA("Table") && QString(windows->at(i)->name()).contains(tr("Parameters")))
+				index++;
+		}
+		delete windows;
+
+		tableName = tr("Parameters");
+		if (index>0)
+			tableName += QString::number(index);
+	}
+
+	fitter->showParametersTable(tableName);
 }
 
 void FitDialog::showCovarianceMatrix()
 {
-	if (covMatrixName->text().isEmpty())
+	QString matrixName = covMatrixName->text();
+	if (matrixName.isEmpty())
 	{
 		QMessageBox::critical(this, tr("Error"), 
 				tr("Please enter a valid name for the covariance matrix."));
@@ -427,7 +459,24 @@ void FitDialog::showCovarianceMatrix()
 				tr("The fitter has not been initialized. Please perform a fit first and try again."));
 		return;
 	}
-	fitter->showCovarianceMatrix(covMatrixName->text());
+
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (matrixName.contains(tr( "CovMatrix" )))
+	{
+		int index = 0;
+		QWidgetList *windows = app->windowsList();
+		for (int i = 0; i < int(windows->count());i++ )
+		{
+			if (windows->at(i)->isA("Matrix") && QString(windows->at(i)->name()).contains(tr("CovMatrix")))
+				index++;
+		}
+		delete windows;
+
+		matrixName = tr("CovMatrix");
+		if (index>0)
+			matrixName += QString::number(index);
+	}
+	fitter->showCovarianceMatrix(matrixName);
 }
 
 void FitDialog::showPointsBox(bool)
@@ -716,6 +765,8 @@ void FitDialog::showFunctionsList(int category)
 	buttonPlugins->hide();
 	btnDelFunc->setEnabled(false);
 	funcBox->clear();
+	//polynomOrderLabel->hide();
+	//polynomOrderBox->hide();
 
 	switch (category)
 	{
@@ -822,7 +873,7 @@ void FitDialog::showUserFunctions()
 void FitDialog::setBuiltInFunctionNames()
 {
 	builtInFunctionNames << "Boltzmann" << "ExpGrowth" << "ExpDecay1" << "ExpDecay2" << "ExpDecay3" 
-		<< "Gauss" << "Lorentz";
+		<< "Gauss" << "Lorentz";// << "Polynomial";
 }
 
 void FitDialog::setBuiltInFunctions()
@@ -850,6 +901,16 @@ void FitDialog::showExpression(int function)
 	else if (categoryBox->currentItem() == 1)
 	{
 		explainBox->setText(builtInFunctions[function]);
+		/*if (funcBox->currentText() == tr("Polynomial"))
+		  {
+		  polynomOrderLabel->show();
+		  polynomOrderBox->show();
+		  }
+		  else
+		  {
+		  polynomOrderLabel->hide();
+		  polynomOrderBox->hide();
+		  }*/
 		setFunction(boxUseBuiltIn->isChecked());
 	}
 	else if (categoryBox->currentItem() == 0)
@@ -1192,6 +1253,10 @@ void FitDialog::fitBuiltInFunction(const QString& function, const QStringList& i
 		fitter = new LorentzFitter(app, graph);
 		fitter->setInitialGuesses(x_init);
 	}
+	/*else if (function == tr("Polynomial"))
+	  {
+	  fitter = new PolynomialFitter(app, graph);
+	  }*/
 }
 
 bool FitDialog::containsUserFunctionName(const QString& s)

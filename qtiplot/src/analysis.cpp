@@ -49,11 +49,9 @@
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_blas.h>
-#include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_fit.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_sort_vector.h>
-#include <gsl/gsl_multifit.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
@@ -899,49 +897,6 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	return info;
 }
 
-QString Graph::fitLinear(const QString& curveTitle)
-{
-	int n, start, end;
-	QwtPlotCurve *c= getValidCurve(curveTitle, 3, n, start, end);
-	if (!c)
-		return QString::null;
-
-	double *x=vector(0,n-1);
-	double *y=vector(0,n-1);
-
-	int i, aux = 0;
-	for (i = start; i <= end; i++)
-	{// The data to be fitted 
-		x[aux]=c->x(i);
-		y[aux]=c->y(i);
-		aux++;
-	}
-
-	double c0, c1, cov00, cov01, cov11, sumsq;	
-	gsl_fit_linear (x, 1, y, 1, n, &c0, &c1, &cov00, &cov01, &cov11, &sumsq);
-
-	double sst=(n-1)*gsl_stats_variance(y,1,n);
-	double Rsquare=1-sumsq/sst;
-
-	for (i=0;i<n;i++)
-		y[i]=c0+c1*x[i];
-
-	QDateTime dt = QDateTime::currentDateTime ();
-	QString date=dt.toString(Qt::LocalDate);
-	QString info=date+"\t"+this->caption()+" LinearFit"+ QString::number(fitID)+ ":\n";
-	info+="Linear regression of " + c->title().text() + ": y=Ax+B\n";
-	info+="From x="+QString::number(x[0]) +" to x="+QString::number(x[n-1])+"\n";
-	info+="A = "+QString::number(c1)+" +/- " + QString::number(sqrt(cov11))+"\n";
-	info+="B = "+QString::number(c0)+" +/- " + QString::number(sqrt(cov00));
-	info+="\n-------------------------------------------------------------\n";
-	info+="sumsq = "+QString::number(sumsq);
-	info+="\nRsquare = "+QString::number(Rsquare);
-	info+="\n-------------------------------------------------------------\n";
-
-	addResultCurve(n, x, y, 1, "LinearFit"+QString::number(++fitID), tr("Linear regression of ")+c->title().text());
-	return info;
-}
-
 QwtPlotCurve* Graph::getValidCurve(const QString& name, int params, 
 		int &points, int &start, int &end)
 {
@@ -1026,176 +981,6 @@ QwtPlotCurve* Graph::getFitLimits(const QString& name, double from, double to,
 		return 0;
 	}
 	return c;
-}
-
-QString Graph::fitPolynomial(const QString& name,int order, int points,
-		double start, double end, bool showFormula, int colorIndex)
-{
-	int m=order+1;
-	QStringList cl = curvesList();	
-	int index=cl.findIndex(name);
-	QwtPlotCurve *curve= this->curve(index);
-	if (!curve)
-		return "";
-
-	int i,j;
-	int size=curve->dataSize();
-	int iStart=0, iEnd=size-1;
-
-	for (i=0;i<size;i++)
-	{
-		if (curve->x(i)>=start)
-		{
-			iStart=i;
-			break;
-		}
-	}
-
-	for (i=iEnd;i>=0;i--)
-	{
-		if (curve->x(i)<=end)
-		{
-			iEnd=i;
-			break;
-		}
-	}
-
-	const size_t n=iEnd-iStart+1;	
-	if ((int)n<m)
-	{
-		QMessageBox::critical(this, tr("QtiPlot - Warning"),
-				tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(m)));
-		return "";
-	}
-
-	double xi, yi, chisq;
-	gsl_matrix *X, *cov;
-	gsl_vector *y, *c, *x;
-
-	X = gsl_matrix_alloc (n, m);
-	x = gsl_vector_alloc (n);
-	y = gsl_vector_alloc (n);
-
-	c = gsl_vector_alloc (m);
-	cov = gsl_matrix_alloc (m,m);
-
-	for (i = 0; i <(int)n; i++)
-	{// This is the data to be fitted 
-		xi = curve->x(i+iStart);
-		yi = curve->y(i+iStart);
-
-		for (j= 0; j < m; j++)
-			gsl_matrix_set (X, i, j, pow(xi,j));
-
-		gsl_vector_set (x, i, xi);	
-		gsl_vector_set (y, i, yi);
-	}
-
-	gsl_multifit_linear_workspace * work = gsl_multifit_linear_alloc (n, m);
-	gsl_multifit_linear (X, y, c, cov, &chisq, work);
-
-	QString t=": y=";	
-	for (j= 0; j < m; j++)
-	{
-		t+="a"+QString::number(j);
-		if (j>0)
-			t+="*X";
-		if (j>1)
-			t+="^"+QString::number(j);
-		t+="+";
-	}
-	t=t.left(t.length()-1);
-
-	double cj;
-	double x0=gsl_vector_get(x,0);
-	double xn=gsl_vector_get(x,n-1);		
-	double step=double (xn-x0) / double (points-1); 
-
-	QString table_name = "Fit"+ QString::number(fitID);	
-	QDateTime dt = QDateTime::currentDateTime();
-	QString info=dt.toString(Qt::LocalDate)+"\t"+this->caption()+" "+table_name+ ":\n";
-	QString label = tr("Order")+" "+QString::number(order)+" "+tr("Polynomial fit of ")+curve->title().text();
-	info+=label+t;
-	info+="\nFrom x="+QString::number(x0) +" to x="+QString::number(xn)+"\n";
-	QString infoA;
-	for (i = 0; i < m; i++)
-	{
-		double ci=gsl_vector_get(c,i);
-		infoA.sprintf("a%d = %.6G +/- %.6G\n", i, ci, sqrt(gsl_matrix_get(cov, i, i)));
-		info+=infoA;
-	}
-	info+="-------------------------------------------------------------\n";
-	info+="Chi^2 = "+QString::number(chisq, 'G', 6);
-	info+="\n-------------------------------------------------------------\n";
-
-	gsl_multifit_linear_free (work);
-	gsl_matrix_free (X);
-	gsl_matrix_free (cov);
-	gsl_vector_free (y);
-	gsl_vector_free (x);
-
-	double *a = vector(0,points-1); 
-	double *b = vector(0,points-1);
-	QString text="1\t2\n";
-	for (i=0;i<points;i++)
-	{
-		xi=x0+i*step;
-		yi=0.0;
-		for (j=0; j<m;j++)
-		{
-			cj=gsl_vector_get(c,j);
-			yi+=cj*pow(xi,j);
-		}
-		a[i]=xi;
-		text+=QString::number(xi)+"\t";
-		b[i]=yi;
-		text+=QString::number(yi)+"\n";
-	}
-
-	addResultCurve(points, a, b, colorIndex, table_name, label);	
-	updatePlot();
-
-	if (showFormula)
-	{
-		LegendMarker* aux= new LegendMarker(d_plot);
-		QRect rect=QRect(10,10,10,10);
-		if (legendMarkerID>=0)
-		{
-			LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
-			QPoint p=mrk->rect().bottomLeft();
-			rect.setTopLeft(QPoint(p.x(),p.y()+10));
-		}
-		aux->setOrigin(rect.topLeft());
-
-		cj=gsl_vector_get(c,0);
-		t= "Y=" + QString::number(cj, 'G', 6);
-
-		for (j= 1; j < m; j++)
-		{
-			cj=gsl_vector_get(c,j);
-			if (cj>0 && !t.isEmpty())
-				t+="+";
-
-			QString s;
-			s.sprintf("%.5f",cj);	
-			if (s != "1.00000")
-				t+=QString::number(cj, 'G', 6);
-
-			t+="X";
-			if (j>1)
-			{
-				t+="<sup>";
-				t+=QString::number(j);
-				t+="</sup>";
-			}
-		}
-		aux->setText(t);	
-		d_plot->insertMarker(aux);
-		d_plot->replot();		
-	}
-
-	gsl_vector_free (c);
-	return info;
 }
 
 void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)

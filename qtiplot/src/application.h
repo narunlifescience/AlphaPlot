@@ -793,6 +793,11 @@ signals:
 	
 // TODO: a lot of this stuff should be private
 public:
+	bool generateUniformFitPoints;
+
+	//! Number of points in a generated fit curve
+	int fitPoints;
+
 	bool pasteFitResultsToPlot;
 
 	//! Write fit output information to Result Log

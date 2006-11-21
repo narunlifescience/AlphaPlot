@@ -45,6 +45,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QSpinBox>
+#include <QRadioButton>
 #include <QStyleFactory>
 #include <QRegExp>
 #include <QMessageBox>
@@ -84,11 +85,13 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	initTablesPage();
 	initPlotsPage();
 	initPlots3DPage();
+	initFittingPage();
 
 	generalDialog->addWidget(appTabWidget);
 	generalDialog->addWidget(tables);
 	generalDialog->addWidget(plotsTabWidget);
 	generalDialog->addWidget(plots3D);
+	generalDialog->addWidget(fitPage);
 
 	QVBoxLayout * rightLayout = new QVBoxLayout();
 	lblPageHeader = new QLabel();
@@ -96,7 +99,7 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	fnt.setPointSize(fnt.pointSize() + 3);
 	fnt.setBold(true);
 	lblPageHeader->setFont(fnt);
-    lblPageHeader->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
+	lblPageHeader->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
 
 	QPalette pal = lblPageHeader->palette();
 	pal.setColor( QPalette::Window, app->panelsColor );
@@ -112,33 +115,33 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	topLayout->setMargin(5);
 	topLayout->addWidget( itemsList );
 	topLayout->addLayout( rightLayout );
-	
+
 	QHBoxLayout * bottomButtons = new QHBoxLayout();
 
 	buttonApply = new QPushButton();
-    buttonApply->setAutoDefault( true );
+	buttonApply->setAutoDefault( true );
 	bottomButtons->addWidget( buttonApply );
-	
+
 	buttonOk = new QPushButton();
-    buttonOk->setAutoDefault( true );
-    buttonOk->setDefault( true );
+	buttonOk->setAutoDefault( true );
+	buttonOk->setDefault( true );
 	bottomButtons->addWidget( buttonOk );
-  
-    buttonCancel = new QPushButton();
-    buttonCancel->setAutoDefault( true );
+
+	buttonCancel = new QPushButton();
+	buttonCancel->setAutoDefault( true );
 	bottomButtons->addWidget( buttonCancel );
 
 	QVBoxLayout * mainLayout = new QVBoxLayout( this ); 
-    mainLayout->addLayout(topLayout);
+	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(bottomButtons);
 
-    languageChange();
-   
-    // signals and slots connections
+	languageChange();
+
+	// signals and slots connections
 	connect( itemsList, SIGNAL(currentRowChanged(int)), this, SLOT(setCurrentPage(int)));
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonBackground, SIGNAL( clicked() ), this, SLOT( pickBgColor() ) );
 	connect( buttonText, SIGNAL( clicked() ), this, SLOT( pickTextColor() ) );
 	connect( buttonHeader, SIGNAL( clicked() ), this, SLOT( pickHeaderColor() ) );
@@ -207,7 +210,7 @@ void ConfigDialog::initTablesPage()
 void ConfigDialog::initPlotsPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
-	
+
 	plotsTabWidget = new QTabWidget();
 	plotOptions = new QWidget();
 
@@ -261,7 +264,7 @@ void ConfigDialog::initPlotsPage()
 	boxLineWidth->setRange(0, 100);
 	boxLineWidth->setValue(app->axesLineWidth);
 	optionsLayout->addWidget( boxLineWidth, 4, 1 );
-	
+
 	lblMargin = new QLabel(); 
 	optionsLayout->addWidget( lblMargin, 5, 0 );
 	boxMargin= new QSpinBox();
@@ -287,7 +290,7 @@ void ConfigDialog::initPlotsPage()
 
 	plotTicks = new QWidget();
 	QVBoxLayout * plotTicksLayout = new QVBoxLayout( plotTicks );
-	
+
 	QGroupBox * ticksGroupBox = new QGroupBox();
 	QGridLayout * ticksLayout = new QGridLayout( ticksGroupBox );
 	plotTicksLayout->addWidget( ticksGroupBox );
@@ -304,9 +307,9 @@ void ConfigDialog::initPlotsPage()
 	boxMajTicksLength->setValue(app->majTicksLength);
 	ticksLayout->addWidget( boxMajTicksLength, 0, 3 );
 
-    lblMinTicks = new QLabel();
+	lblMinTicks = new QLabel();
 	ticksLayout->addWidget( lblMinTicks, 1, 0 );
-    boxMinTicks = new QComboBox();
+	boxMinTicks = new QComboBox();
 	ticksLayout->addWidget( boxMinTicks, 1, 1 );
 
 	lblMinTicksLength = new QLabel();  
@@ -396,10 +399,10 @@ void ConfigDialog::initPlots3DPage()
 	boxSmoothMesh->setChecked(app->smooth3DMesh);
 	topLayout->addWidget( boxSmoothMesh, 2, 0 );
 
-    boxOrthogonal = new QCheckBox();
-    boxOrthogonal->setChecked(app->orthogonal3DPlots);
-    topLayout->addWidget( boxOrthogonal, 2, 1 );
-     	        
+	boxOrthogonal = new QCheckBox();
+	boxOrthogonal->setChecked(app->orthogonal3DPlots);
+	topLayout->addWidget( boxOrthogonal, 2, 1 );
+
 	groupBox3DCol = new QGroupBox();
 	QGridLayout * middleLayout = new QGridLayout( groupBox3DCol );
 
@@ -556,10 +559,65 @@ void ConfigDialog::initAppPage()
 	connect( btnPanelsText, SIGNAL( clicked() ), this, SLOT( pickPanelsTextColor() ) );
 }
 
+void ConfigDialog::initFittingPage()
+{
+	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
+	fitPage = new QWidget();
+
+	groupBoxFittingCurve = new QGroupBox();
+	QGridLayout * fittingCurveLayout = new QGridLayout(groupBoxFittingCurve);
+	fittingCurveLayout->setSpacing(5);
+
+	generatePointsBtn = new QRadioButton();
+	generatePointsBtn->setChecked(app->generateUniformFitPoints);
+	fittingCurveLayout->addWidget(generatePointsBtn, 0, 0);
+
+	lblPoints = new QLabel();
+	fittingCurveLayout->addWidget(lblPoints, 0, 1);
+	generatePointsBox = new QSpinBox();
+	generatePointsBox->setRange(0, 1000000);
+	generatePointsBox->setSingleStep(10);
+	generatePointsBox->setValue(app->fitPoints);
+	fittingCurveLayout->addWidget(generatePointsBox, 0, 2);
+
+	samePointsBtn = new QRadioButton();
+	samePointsBtn->setChecked(!app->generateUniformFitPoints);
+	fittingCurveLayout->addWidget(samePointsBtn, 1, 0);
+
+	groupBoxFitParameters = new QGroupBox();
+	QGridLayout * fitParamsLayout = new QGridLayout(groupBoxFitParameters);
+
+	lblPrecision = new QLabel();
+	fitParamsLayout->addWidget(lblPrecision, 0, 0);
+	boxPrecision = new QSpinBox();
+	fitParamsLayout->addWidget(boxPrecision, 0, 1);
+	boxPrecision->setValue(app->fit_output_precision);
+	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+
+	logBox = new QCheckBox();
+	logBox->setChecked(app->writeFitResultsToLog);
+	fitParamsLayout->addWidget(logBox, 1, 0);
+	connect( logBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+
+	plotLabelBox = new QCheckBox();
+	plotLabelBox->setChecked(app->pasteFitResultsToPlot);
+	fitParamsLayout->addWidget(plotLabelBox, 2, 0);
+	connect( plotLabelBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+
+	QVBoxLayout* fitPageLayout = new QVBoxLayout(fitPage);
+	fitPageLayout->addWidget(groupBoxFittingCurve);
+	fitPageLayout->addWidget(groupBoxFitParameters);
+	fitPageLayout->addStretch();
+
+	connect(samePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
+	connect(generatePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
+}
+
+
 void ConfigDialog::initCurvesPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
-	
+
 	curves = new QWidget();
 
 	QGroupBox * curvesGroupBox = new QGroupBox();
@@ -643,11 +701,13 @@ void ConfigDialog::languageChange()
 	itemsList->addItem( tr( "Tables" ) );
 	itemsList->addItem( tr( "2D Plots" ) );
 	itemsList->addItem( tr( "3D Plots" ) );
+	itemsList->addItem( tr( "Fitting" ) );
 	itemsList->setCurrentRow(0);
 	itemsList->item(0)->setIcon(QIcon(QPixmap(general_xpm)));
 	itemsList->item(1)->setIcon(QIcon(QPixmap(configTable_xpm)));
 	itemsList->item(2)->setIcon(QIcon(QPixmap(config_curves_xpm)));
 	itemsList->item(3)->setIcon(QIcon(QPixmap(logo_xpm)));
+	itemsList->item(4)->setIcon(QIcon(QPixmap(fit_xpm)));
 	itemsList->setIconSize(QSize(32,32));
 	// calculate a sensible width for the items list 
 	// (default QListWidget size is 256 which looks too big)
@@ -811,6 +871,18 @@ void ConfigDialog::languageChange()
 	btnTitleFnt->setText( tr( "&Title" ) );
 	btnLabelsFnt->setText( tr( "&Axes Labels" ) );
 	btnNumFnt->setText( tr( "&Numbers" ) );
+
+	//Fitting page
+	groupBoxFittingCurve->setTitle(tr("Generated Fit Curve"));
+	generatePointsBtn->setText(tr("Uniform X"));
+	lblPoints->setText( tr("Points") );
+	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
+
+	groupBoxFitParameters->setTitle(tr("Parameters Output"));
+	lblPrecision->setText(tr("Significant Digits"));
+	logBox->setText(tr("Write Parameters to Result Log"));
+	plotLabelBox->setText(tr("Paste Parameters to Plot"));
+
 }
 
 void ConfigDialog::accept()
@@ -888,8 +960,15 @@ void ConfigDialog::apply()
 	app->plot3DNumbersFont = plot3DNumbersFont;
 	app->plot3DAxesFont = plot3DAxesFont;
 	app->orthogonal3DPlots = boxOrthogonal->isChecked();
-    app->smooth3DMesh = boxSmoothMesh->isChecked();
-    
+	app->smooth3DMesh = boxSmoothMesh->isChecked();
+
+	// fitting page
+	app->fit_output_precision = boxPrecision->value();
+	app->pasteFitResultsToPlot = plotLabelBox->isChecked();
+	app->writeFitResultsToLog = logBox->isChecked();
+	app->fitPoints = generatePointsBox->value();
+	app->generateUniformFitPoints = generatePointsBtn->isChecked();
+
 	app->setPlot3DOptions();
 	app->saveSettings();
 
@@ -1238,3 +1317,20 @@ void ConfigDialog::insertLanguagesList()
 	boxLanguage->addItems(languages);
 	boxLanguage->setCurrentIndex(lang);
 }
+
+
+void ConfigDialog::showPointsBox(bool)
+{
+	if (generatePointsBtn->isChecked())
+	{
+		lblPoints->show();
+		generatePointsBox->show();
+	}
+	else
+	{
+		lblPoints->hide();
+		generatePointsBox->hide();
+	}
+}
+
+

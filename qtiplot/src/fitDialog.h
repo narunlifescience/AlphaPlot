@@ -79,12 +79,12 @@ public:
 	QLineEdit* boxFrom;
 	QLineEdit* boxTo;
 	QLineEdit* boxTolerance;
-	QSpinBox* boxPoints, *generatePointsBox, *boxPrecision;
+	QSpinBox* boxPoints, *generatePointsBox, *boxPrecision, *polynomOrderBox;
 	QWidget *fitPage, *editPage, *advancedPage;
 	Q3TextEdit *editBox, *explainBox, *boxFunction;
 	Q3ListBox *categoryBox, *funcBox;
 	QLineEdit *boxName, *boxParam;
-	QLabel *lblFunction, *lblPoints;
+	QLabel *lblFunction, *lblPoints, *polynomOrderLabel;
 	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue, *btnApply;
 	QPushButton *buttonEdit, *btnAddTxt, *btnAddName, *btnDeleteTables;
 	ColorBox* boxColor;

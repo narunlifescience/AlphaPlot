@@ -2680,27 +2680,13 @@ void Graph::updateTextMarker(const QString& text,int angle, int bkg,const QFont&
 	emit modifiedGraph();
 }
 
-void Graph::setLegendText(const QString& text)
+ 
+LegendMarker* Graph::legend()
 {
-	if (legendMarkerID>=0)
-	{
-		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
-		if (mrk)
-			mrk->setText(text);	
-		d_plot->replot();
-	}
-}
-
-QString Graph::getLegendText()
-{
-	QString legend;
-	if (legendMarkerID>=0)
-	{
-		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
-		if (mrk)
-			legend=mrk->getText();	
-	}
-	return legend;
+	if (legendMarkerID >=0 )
+		return (LegendMarker*) d_plot->marker(legendMarkerID);
+	else
+		return 0;
 }
 
 QString Graph::legendText()

@@ -123,6 +123,10 @@ class Fitter : public QObject
 		//! Tells weather the fitter has allocated memory for the fitting data sets. Used by the destructor.
 		bool has_allocated_data;
 
+		//! Tells weather the fitter uses non-linear/simplex fitting 
+		// with an initial parameters set, that must be freed in the destructor.
+		bool is_non_linear;
+
 		//! x data set to be fitted
 		double *d_x;
 
@@ -284,4 +288,27 @@ class MultiPeakFitter : public Fitter
 		int d_peaks;
 		PeakProfile d_profile;
 };
+
+class PolynomialFitter : public Fitter
+{
+	public:
+		PolynomialFitter(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
+
+		void showLegend(int prec);
+		void generateFitCurve(double *par, int fitId);
+		void fit();
+
+	private:
+		int d_order;
+		bool show_legend;
+};
+
+class LinearFitter : public Fitter
+{
+	public:
+		LinearFitter(ApplicationWindow *parent, Graph *g);
+		void fit();
+		void generateFitCurve(double *par, int fitId);
+};
+
 #endif

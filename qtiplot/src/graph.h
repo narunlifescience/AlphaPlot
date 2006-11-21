@@ -281,12 +281,13 @@ public slots:
 	 void addLegendItem(const QString& colName);
 	 void insertLegend(const QStringList& lst, int fileVersion);
 	 void newLegend();
+
+	 LegendMarker *legend();
 	 LegendMarker *newLegend(const QString& text);
 	 bool hasLegend(){return legendMarkerID >= 0;};
 	 
-	 QString getLegendText();
-	 void setLegendText(const QString& text);	 
-	 QString legendText();//recreates the text from curves titles
+	 //! Creates a new legend text using the curves titles
+	 QString legendText();
 	 
 	 // line markers 
 	 LineMarker* lineMarker(long id);
@@ -503,10 +504,6 @@ public slots:
 	 QwtPlotCurve* getFitLimits(const QString& name, double from, double to,
 			 int params, int &start, int &end);
 
-	 QString fitLinear(const QString& curveTitle);
-
-	 QString fitPolynomial(const QString&,int order, int points,
-			 double start, double end, bool showFormula, int colorIndex);
 	 void setFitID(int id);
 
 	 void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
