@@ -32,6 +32,7 @@
 #include "application.h"
 #include "colorBox.h"
 #include "Fitter.h"
+#include "matrix.h"
 
 #include <qvariant.h>
 #include <qpushbutton.h>
@@ -123,10 +124,10 @@ void FitDialog::initFitPage()
 	boxParams->setColumnStretchable(1, true);
 
 	new QLabel( tr("Algorithm"), GroupBox1, "TextLabel44",0 );
-	boxSolver = new QComboBox(GroupBox1, "boxSolver" );
-	boxSolver->insertItem(tr("Scaled Levenberg-Marquardt"));
-	boxSolver->insertItem(tr("Unscaled Levenberg-Marquardt"));
-	boxSolver->insertItem(tr("Nelder-Mead Simplex"));
+	boxAlgorithm = new QComboBox(GroupBox1, "boxAlgorithm" );
+	boxAlgorithm->insertItem(tr("Scaled Levenberg-Marquardt"));
+	boxAlgorithm->insertItem(tr("Unscaled Levenberg-Marquardt"));
+	boxAlgorithm->insertItem(tr("Nelder-Mead Simplex"));
 
 	new QLabel( tr("Color"), GroupBox1, "boxColorLabel",0 );
 	boxColor = new ColorBox( false, GroupBox1);
@@ -427,23 +428,13 @@ void FitDialog::showParametersTable()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (tableName.contains(tr( "Parameters" )))
+	tableName = app->generateUnusedName(tableName, false);
+	Table *t = fitter->parametersTable(tableName);
+	if (t)
 	{
-		int index = 0;
-		QWidgetList *windows = app->windowsList();
-		for (int i = 0; i < int(windows->count());i++ )
-		{
-			if (windows->at(i)->isA("Table") && QString(windows->at(i)->name()).contains(tr("Parameters")))
-				index++;
-		}
-		delete windows;
-
-		tableName = tr("Parameters");
-		if (index>0)
-			tableName += QString::number(index);
+		t->show();
+		QApplication::restoreOverrideCursor();
 	}
-
-	fitter->showParametersTable(tableName);
 }
 
 void FitDialog::showCovarianceMatrix()
@@ -464,22 +455,13 @@ void FitDialog::showCovarianceMatrix()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (matrixName.contains(tr( "CovMatrix" )))
+	matrixName = app->generateUnusedName(matrixName, false);
+	Matrix *m = fitter->covarianceMatrix(matrixName);
+	if (m)
 	{
-		int index = 0;
-		QWidgetList *windows = app->windowsList();
-		for (int i = 0; i < int(windows->count());i++ )
-		{
-			if (windows->at(i)->isA("Matrix") && QString(windows->at(i)->name()).contains(tr("CovMatrix")))
-				index++;
-		}
-		delete windows;
-
-		matrixName = tr("CovMatrix");
-		if (index>0)
-			matrixName += QString::number(index);
+		m->show();
+		QApplication::restoreOverrideCursor();
 	}
-	fitter->showCovarianceMatrix(matrixName);
 }
 
 void FitDialog::showPointsBox(bool)
@@ -702,34 +684,35 @@ void FitDialog::setFunction(bool ok)
 			boxParam->setText(userFunctionParams[funcBox->currentItem()]);
 		else if (categoryBox->currentItem() == 1)
 		{
+			QStringList lst;
 			switch(funcBox->currentItem())
 			{
 				case 0:
-					boxParam->setText("A1, A2, x0, dx");
+					lst << "A1" << "A2" << "x0" << "dx";
 					break;
 				case 1:
-					boxParam->setText("a, t, y0");
+					lst << "A" << "t" << "y0";
 					break;
 				case 2:
-					boxParam->setText("a, t, y0");
+					lst << "A" << "t" << "y0";
 					break;
 				case 3:
-					boxParam->setText("a1, t1, a2, t2, y0");
+					lst << "A1" << "t1" << "A2" << "t2" << "y0";
 					break;
 				case 4:
-					boxParam->setText("a1, t1, a2, t2, a3, t3, y0");
+					lst << "A1" << "t1" << "A2" << "t2" << "A3" << "t3" << "y0";
 					break;
 				case 5:
-					boxParam->setText("y0, a, xc, w");
+					lst = MultiPeakFitter::generateParameterList(polynomOrderBox->value());
 					break;
 				case 6:
-					boxParam->setText("y0, a, xc, w");
+					lst = MultiPeakFitter::generateParameterList(polynomOrderBox->value());
 					break;
 				case 7:
-					QStringList lst = PolynomialFitter::generateParameterList(polynomOrderBox->value());
-					boxParam->setText(lst.join(", "));
+					lst = PolynomialFitter::generateParameterList(polynomOrderBox->value());
 					break;
 			}
+			boxParam->setText(lst.join(", "));
 		}
 		else if (categoryBox->currentItem() == 3 && (int)pluginParameters.size() > 0 )
 			boxParam->setText(pluginParameters[funcBox->currentItem()]);
@@ -895,8 +878,8 @@ void FitDialog::setBuiltInFunctions()
 	builtInFunctions << "y0+a*exp(-x/t)";
 	builtInFunctions << "y0+a1*exp(-x/t1)+a2*exp(-x/t2)";
 	builtInFunctions << "y0+a1*exp(-x/t1)+a2*exp(-x/t2)+a3*exp(-x/t3)";
-	builtInFunctions << "y0+a*exp(-(x-xc)*(x-xc)/(2*w*w))";
-	builtInFunctions << "y0+2*a/pi*w/(4*(x-xc)*(x-xc)+w*w)";
+	//builtInFunctions << "y0+a*exp(-(x-xc)*(x-xc)/(2*w*w))";
+	//builtInFunctions << "y0+2*a/pi*w/(4*(x-xc)*(x-xc)+w*w)";
 }
 
 void FitDialog::showParseFunctions()
@@ -912,16 +895,29 @@ void FitDialog::showExpression(int function)
 	}
 	else if (categoryBox->currentItem() == 1)
 	{
-		if (funcBox->currentText() == tr("Polynomial"))
+		polynomOrderLabel->show();
+		polynomOrderBox->show();		
+
+		if (funcBox->currentText() == tr("Gauss"))
 		{
-			polynomOrderLabel->show();
-			polynomOrderBox->show();
+			polynomOrderLabel->setText(tr("Peaks"));
+			explainBox->setText(MultiPeakFitter::generateFormula(polynomOrderBox->value(), MultiPeakFitter::Gauss));
+		}
+		else if (funcBox->currentText() == tr("Lorentz"))
+		{
+			polynomOrderLabel->setText(tr("Peaks"));
+			explainBox->setText(MultiPeakFitter::generateFormula(polynomOrderBox->value(), MultiPeakFitter::Lorentz));
+		}
+		else if (funcBox->currentText() == tr("Polynomial"))
+		{
+			polynomOrderLabel->setText(tr("Polynomial Order"));
 			explainBox->setText(PolynomialFitter::generateFormula(polynomOrderBox->value()));
 		}
 		else
 		{
 			polynomOrderLabel->hide();
 			polynomOrderBox->hide();
+			polynomOrderBox->setValue(1);
 			explainBox->setText(builtInFunctions[function]);
 		}
 		setFunction(boxUseBuiltIn->isChecked());
@@ -1092,7 +1088,6 @@ void FitDialog::accept()
 			for (i=0;i<rows;i++)
 			{
 				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
-				int j = 0;
 				if (!it->isChecked())
 				{
 					paramsInit[j] = boxParams->text(i,1).toDouble();					
@@ -1141,21 +1136,20 @@ void FitDialog::accept()
 
 
 		if (boxUseBuiltIn->isChecked() && categoryBox->currentItem() == 1)
-			fitBuiltInFunction(funcBox->currentText(),paramsInit);
+			fitBuiltInFunction(funcBox->currentText(), paramsInit);
 		else if (boxUseBuiltIn->isChecked() && categoryBox->currentItem() == 3)
 		{
 			fitter = new PluginFitter(app, graph);
 			if (!((PluginFitter*)fitter)->load(pluginFilesList[funcBox->currentItem()])){
 				fitter  = 0;
 				return;}
-				((PluginFitter *)fitter)->setInitialGuesses(paramsInit);
+				fitter->setInitialGuesses(paramsInit);
 		}
 		else
 		{
-			fitter = new NonLinearFitter(app, graph);
+			fitter = new NonLinearFitter(app, graph, formula);
 			fitter->setParametersList(parameters);
-			((NonLinearFitter *)fitter)->setInitialGuesses(paramsInit);
-			fitter->setFormula(formula);
+			fitter->setInitialGuesses(paramsInit);
 		}
 		delete[] paramsInit;
 
@@ -1169,14 +1163,13 @@ void FitDialog::accept()
 		}
 
 		fitter->setTolerance (eps);
-		fitter->setSolver((Fitter::Solver)boxSolver->currentItem());
+		fitter->setAlgorithm((Fitter::Algorithm)boxAlgorithm->currentItem());
 		fitter->setFitCurveColor(boxColor->currentItem());
 		fitter->setFitCurveParameters(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
 
 		fitter->fit();
-
-		QStringList res = fitter->fitResultsList();
+		double *res = fitter->fitResults();
 		if (boxParams->numCols() == 3)
 		{
 			int j = 0;
@@ -1184,13 +1177,13 @@ void FitDialog::accept()
 			{
 				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 				if (!it->isChecked())
-					boxParams->setText(i, 1, res[j++]);
+					boxParams->setText(i, 1, QString::number(res[j++], 'g', app->fit_output_precision));
 			}
 		}
 		else
 		{
 			for (i=0;i<rows;i++)
-				boxParams->setText(i, 1, res[i]);
+				boxParams->setText(i, 1, QString::number(res[i], 'g', app->fit_output_precision));
 		}
 	}
 }
@@ -1200,75 +1193,38 @@ void FitDialog::fitBuiltInFunction(const QString& function, double* initVal)
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (function == "ExpDecay1")
 	{
-		double x_init[3] = {initVal[0], 1/initVal[1], initVal[2]};
+		initVal[1] = 1/initVal[1];
 		fitter = new ExponentialFitter(false, app, graph);
-		fitter->setInitialGuesses(x_init);
 	}
 	else if (function == "ExpGrowth")
 	{
-		double x_init[3] = {initVal[0], -1/initVal[1], initVal[2]};
+		initVal[1] = -1/initVal[1];
 		fitter = new ExponentialFitter(true, app, graph);
-		fitter->setInitialGuesses(x_init);
 	}
 	else if (function == "ExpDecay2")
 	{
-		double amp1 = initVal[0];
-		double t1 = initVal[1];
-		double amp2 = initVal[2];
-		double t2 = initVal[3];
-		double yOffset = initVal[4];
-		double x_init[5] = {amp1, 1/t1, amp2, 1/t2, yOffset};
+		initVal[1] = 1/initVal[1];
+		initVal[3] = 1/initVal[3];
 		fitter = new TwoExpFitter(app, graph);
-		fitter->setInitialGuesses(x_init);
 	}
 	else if (function == "ExpDecay3")
 	{
-		double amp1 = initVal[0];
-		double t1 = initVal[1];
-		double amp2 = initVal[2];
-		double t2 = initVal[3];
-		double amp3 = initVal[4];
-		double t3 = initVal[5];
-		double yOffset = initVal[6];
-		double x_init[7] = {amp1, 1.0/t1, amp2, 1.0/t2, amp3, 1.0/t3, yOffset};
+		initVal[1] = 1/initVal[1];
+		initVal[3] = 1/initVal[3];
+		initVal[5] = 1/initVal[5];
 		fitter = new ThreeExpFitter(app, graph);
-		fitter->setInitialGuesses(x_init);
 	}
-	else if (function == "Boltzmann")
-	{
-		double A1 = initVal[0];
-		double A2 = initVal[1];
-		double x0 = initVal[2];
-		double dx = initVal[3];
-		double x_init[4] = {A1, A2, x0, dx};
-
+	else if (function == "Boltzmann")		
 		fitter = new SigmoidalFitter(app, graph);
-		fitter->setInitialGuesses(x_init);
-	}
 	else if (function == "Gauss")
-	{
-		double offset = initVal[0];
-		double amplitude = initVal[1];
-		double center = initVal[2];
-		double width = initVal[3];
-		double x_init[4] = {offset, amplitude, center, width};
-
-		fitter = new GaussFitter(app, graph);
-		fitter->setInitialGuesses(x_init);
-	}
+		fitter = new MultiPeakFitter(app, graph, MultiPeakFitter::Gauss, polynomOrderBox->value());
 	else if (function == "Lorentz")
-	{
-		double offset = initVal[0];
-		double amplitude = initVal[1];
-		double center = initVal[2];
-		double width = initVal[3];
-		double x_init[4] = {offset, amplitude, center, width};
-
-		fitter = new LorentzFitter(app, graph);
-		fitter->setInitialGuesses(x_init);
-	}
+		fitter = new MultiPeakFitter(app, graph, MultiPeakFitter::Lorentz, polynomOrderBox->value());
 	else if (function == tr("Polynomial"))
 		fitter = new PolynomialFitter(app, graph, polynomOrderBox->value());
+
+	if (function != tr("Polynomial"))
+		fitter->setInitialGuesses(initVal);
 }
 
 bool FitDialog::containsUserFunctionName(const QString& s)
@@ -1357,7 +1313,7 @@ void FitDialog::enableWeightingParameters(int index)
 void FitDialog::closeEvent (QCloseEvent * e )
 {
 	if(fitter && plotLabelBox->isChecked())
-		graph->newLegend(fitter->legendFitInfo());
+		fitter->showLegend();
 
 	e->accept();
 }

@@ -74,7 +74,7 @@ public:
 	QPushButton* buttonPlugins;
 	QPushButton* btnBack;
 	QComboBox* boxCurve;
-	QComboBox* boxSolver;
+	QComboBox* boxAlgorithm;
 	Q3Table* boxParams;
 	QLineEdit* boxFrom;
 	QLineEdit* boxTo;

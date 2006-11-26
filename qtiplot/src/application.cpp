@@ -352,7 +352,7 @@ void ApplicationWindow::initGlobalConstants()
 
 	majVersion = 0; minVersion = 9; patchVersion = 0;
 	versionSuffix = "alpha1";
-	graphs=0; tables=0; matrixes = 0; notes = 0; fitNumber=0;
+	graphs=0; tables=0; matrixes = 0; notes = 0;
 	projectname="untitled";
 	ignoredLines=0;
 	lastModified=0;
@@ -9884,13 +9884,6 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		if (tb > app->tables && ok) 
 			app->tables = tb;	
 	}
-	else if (caption.contains ("Fit"))
-	{
-		bool ok;
-		int tb=caption.remove("Fit").toInt(&ok);
-		if (tb > app->fitNumber && ok) 
-			app->fitNumber = tb;
-	}
 
 	for (line++; line!=flist.end(); line++)
 	{
@@ -11961,7 +11954,7 @@ void ApplicationWindow::deleteFitTables()
 	foreach(QWidget *w, *windows)
 	{
 		QString caption = w->name();
-		if (w->isA("Table") && (caption.startsWith("Fit") || caption.startsWith("LinearFit")))
+		if (w->isA("Table") && (caption.startsWith(tr("Fit")) || caption.startsWith(tr("LinearFit"))))
 		{
 			((Table*)w)->askOnCloseEvent(false);
 			((Table*)w)->close();
@@ -13711,7 +13704,29 @@ void ApplicationWindow::toggle3DAnimation(bool on)
 if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
    ((Graph3D*)ws->activeWindow())->animate(on);
 }
-  	
+ 	
+QString ApplicationWindow::generateUnusedName(const QString& name, bool increment)
+{
+	int index = 0;
+	QWidgetList *windows = windowsList();
+	for (int i = 0; i < windows->count();i++ )
+	{
+		if (QString(windows->at(i)->name()).startsWith(name))
+			index++;
+	}
+	delete windows;
+
+	QString newName = name;
+	if (increment)//force return of a different name
+		newName += QString::number(++index);
+	else
+	{
+		if (index>0)
+			newName += QString::number(index);
+	}
+	return newName;
+}
+
 ApplicationWindow::~ApplicationWindow()
 {
 	if (lastCopiedLayer)
