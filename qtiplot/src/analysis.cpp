@@ -28,10 +28,7 @@
  ***************************************************************************/
 #include "graph.h"
 #include "plot.h"
-#include "fit.h"
 #include "ImageMarker.h"
-#include "LegendMarker.h"
-#include "parser.h"
 #include "Histogram.h"
 #include "nrutil.h"
 
@@ -39,30 +36,14 @@
 #include <qdatetime.h> 
 #include <qimage.h>
 #include <qmessagebox.h>
-#include <qfile.h>
-#include <qlibrary.h>
 
-#include <math.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <stddef.h>
 
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_blas.h>
-#include <gsl/gsl_fit.h>
 #include <gsl/gsl_sort.h>
-#include <gsl/gsl_sort_vector.h>
-#include <gsl/gsl_math.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
-#include <gsl/gsl_fft_real.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 #include <gsl/gsl_fft_complex.h>
-#include <gsl/gsl_vector.h>
 #include <gsl/gsl_histogram.h>
-#include <gsl/gsl_statistics.h>
-#include <gsl/gsl_diff.h>
-#include <gsl/gsl_multimin.h>
 
 void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, double binSize, double begin, double end)
 {

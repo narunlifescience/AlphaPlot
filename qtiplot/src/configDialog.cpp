@@ -578,6 +578,7 @@ void ConfigDialog::initFittingPage()
 	generatePointsBox->setRange(0, 1000000);
 	generatePointsBox->setSingleStep(10);
 	generatePointsBox->setValue(app->fitPoints);
+	showPointsBox(!app->generateUniformFitPoints);
 	fittingCurveLayout->addWidget(generatePointsBox, 0, 2);
 
 	samePointsBtn = new QRadioButton();
@@ -592,17 +593,14 @@ void ConfigDialog::initFittingPage()
 	boxPrecision = new QSpinBox();
 	fitParamsLayout->addWidget(boxPrecision, 0, 1);
 	boxPrecision->setValue(app->fit_output_precision);
-	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	logBox = new QCheckBox();
 	logBox->setChecked(app->writeFitResultsToLog);
 	fitParamsLayout->addWidget(logBox, 1, 0);
-	connect( logBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	plotLabelBox = new QCheckBox();
 	plotLabelBox->setChecked(app->pasteFitResultsToPlot);
 	fitParamsLayout->addWidget(plotLabelBox, 2, 0);
-	connect( plotLabelBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
 	QVBoxLayout* fitPageLayout = new QVBoxLayout(fitPage);
 	fitPageLayout->addWidget(groupBoxFittingCurve);

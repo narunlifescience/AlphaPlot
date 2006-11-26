@@ -123,7 +123,7 @@ public slots:
 	void choosePluginsFolder();
 	bool validInitialValues();
 	void changeDataRange();
-	void fitBuiltInFunction(const QString& function, const QStringList& initVal);
+	void fitBuiltInFunction(const QString& function, double* initVal);
 
 	void setSrcTables(QWidgetList* tables);
 	void selectSrcTable(int tabnr);
