@@ -168,25 +168,25 @@ void ExpDecayDialog::fit()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	Fitter *fitter;
+	Fit *fitter;
 	if (slopes == 3)
 	{		
 		double x_init[7] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(), 
 			1.0, boxThird->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ThreeExpFitter(app, graph);
+		fitter = new ThreeExpFit(app, graph);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 2)
 	{
 		double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(), 
 			boxYOffset->text().toDouble()};
-		fitter = new TwoExpFitter(app, graph);
+		fitter = new TwoExpFit(app, graph);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 1 || slopes == -1)
 	{
 		double x_init[3] = {boxStart->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ExponentialFitter(slopes == -1, app, graph);
+		fitter = new ExponentialFit(app, graph, slopes == -1);
 		fitter->setInitialGuesses(x_init);
 	}
 

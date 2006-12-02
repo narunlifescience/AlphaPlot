@@ -30,6 +30,7 @@
 #include "application.h"
 #include "graph.h"
 #include "colorButton.h"
+#include "colorBox.h"
 #include "pixmaps.h"
 
 
@@ -585,6 +586,18 @@ void ConfigDialog::initFittingPage()
 	samePointsBtn->setChecked(!app->generateUniformFitPoints);
 	fittingCurveLayout->addWidget(samePointsBtn, 1, 0);
 
+	groupBoxMultiPeak = new QGroupBox();
+	groupBoxMultiPeak->setCheckable(true);
+	groupBoxMultiPeak->setChecked(app->generatePeakCurves);
+
+	QHBoxLayout * multiPeakLayout = new QHBoxLayout(groupBoxMultiPeak);
+
+	lblPeaksColor = new QLabel();
+	multiPeakLayout->addWidget(lblPeaksColor);
+	boxPeaksColor = new ColorBox(0);
+	boxPeaksColor->setCurrentItem(app->peakCurvesColor);
+	multiPeakLayout->addWidget(boxPeaksColor);
+
 	groupBoxFitParameters = new QGroupBox();
 	QGridLayout * fitParamsLayout = new QGridLayout(groupBoxFitParameters);
 
@@ -604,6 +617,7 @@ void ConfigDialog::initFittingPage()
 
 	QVBoxLayout* fitPageLayout = new QVBoxLayout(fitPage);
 	fitPageLayout->addWidget(groupBoxFittingCurve);
+	fitPageLayout->addWidget(groupBoxMultiPeak);
 	fitPageLayout->addWidget(groupBoxFitParameters);
 	fitPageLayout->addStretch();
 
@@ -876,6 +890,9 @@ void ConfigDialog::languageChange()
 	lblPoints->setText( tr("Points") );
 	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
 
+	groupBoxMultiPeak->setTitle(tr("Display Peak Curves for Multi-peak Fits"));
+	lblPeaksColor->setText(tr("Peaks Color"));
+
 	groupBoxFitParameters->setTitle(tr("Parameters Output"));
 	lblPrecision->setText(tr("Significant Digits"));
 	logBox->setText(tr("Write Parameters to Result Log"));
@@ -966,6 +983,8 @@ void ConfigDialog::apply()
 	app->writeFitResultsToLog = logBox->isChecked();
 	app->fitPoints = generatePointsBox->value();
 	app->generateUniformFitPoints = generatePointsBtn->isChecked();
+	app->generatePeakCurves = groupBoxMultiPeak->isChecked();
+	app->peakCurvesColor = boxPeaksColor->currentIndex();
 
 	app->setPlot3DOptions();
 	app->saveSettings();

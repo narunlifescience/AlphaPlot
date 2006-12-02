@@ -26,7 +26,6 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#
 #ifndef FITTER_H
 #define FITTER_H
 
@@ -41,7 +40,7 @@ class Table;
 class Matrix;
 
 //! TODO
-class Fitter : public QObject
+class Fit : public QObject
 {
 	Q_OBJECT
 
@@ -54,8 +53,8 @@ class Fitter : public QObject
 		enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
 		enum WeightingMethod{NoWeighting, Instrumental, Statistical, ArbDataset};
 
-		Fitter(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
-		~Fitter();
+		Fit(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
+		~Fit();
 
 		virtual void fit();
 
@@ -190,12 +189,12 @@ class Fitter : public QObject
 		double chi_2;
 };
 
-class ExponentialFitter : public Fitter
+class ExponentialFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		ExponentialFitter( bool expGrowth, ApplicationWindow *parent, Graph *g);
+		ExponentialFit(ApplicationWindow *parent, Graph *g,  bool expGrowth = false);
 
 	private:
 		void storeCustomFitResults(double *par);
@@ -204,60 +203,59 @@ class ExponentialFitter : public Fitter
 		bool is_exp_growth;
 };
 
-class TwoExpFitter : public Fitter
+class TwoExpFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		TwoExpFitter(ApplicationWindow *parent, Graph *g);
+		TwoExpFit(ApplicationWindow *parent, Graph *g);
 
 	private:
 		void storeCustomFitResults(double *par);
 		void generateFitCurve(double *par);
 };
 
-class ThreeExpFitter : public Fitter
+class ThreeExpFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		ThreeExpFitter(ApplicationWindow *parent, Graph *g);
+		ThreeExpFit(ApplicationWindow *parent, Graph *g);
 
 	private:
 		void storeCustomFitResults(double *par);
 		void generateFitCurve(double *par);
 };
 
-class SigmoidalFitter : public Fitter
+class SigmoidalFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		SigmoidalFitter(ApplicationWindow *parent, Graph *g);
+		SigmoidalFit(ApplicationWindow *parent, Graph *g);
 		void guessInitialValues();
 
 	private:
 		void generateFitCurve(double *par);
 };
 
-class GaussFitter : public Fitter
+class GaussAmpFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		GaussFitter(ApplicationWindow *parent, Graph *g);
-		void guessInitialValues();
+		GaussAmpFit(ApplicationWindow *parent, Graph *g);
 
 	private:
 		void generateFitCurve(double *par);
 };
 
-class LorentzFitter : public Fitter
+class LorentzFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		LorentzFitter(ApplicationWindow *parent, Graph *g);
+		LorentzFit(ApplicationWindow *parent, Graph *g);
 		void guessInitialValues();
 
 	private:
@@ -265,12 +263,12 @@ class LorentzFitter : public Fitter
 		void generateFitCurve(double *par);
 };
 
-class NonLinearFitter : public Fitter
+class NonLinearFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		NonLinearFitter(ApplicationWindow *parent, Graph *g, const QString& formula = QString::null);
+		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& formula = QString::null);
 		void setParametersList(const QStringList& lst);
 		void setFormula(const QString& s){if (d_formula != s) d_formula = s;};
 
@@ -278,13 +276,13 @@ class NonLinearFitter : public Fitter
 		void generateFitCurve(double *par);
 };
 
-class PluginFitter : public Fitter
+class PluginFit : public Fit
 {
 	Q_OBJECT
 
 	public:
 		typedef double (*fitFunctionEval)(double, double *);
-		PluginFitter(ApplicationWindow *parent, Graph *g);
+		PluginFit(ApplicationWindow *parent, Graph *g);
 		bool load(const QString& pluginName);
 
 	private:
@@ -292,16 +290,20 @@ class PluginFitter : public Fitter
 		fitFunctionEval f_eval;
 };
 
-class MultiPeakFitter : public Fitter
+class MultiPeakFit : public Fit
 {
 	Q_OBJECT
 
 	public:
 
 		enum PeakProfile{Gauss, Lorentz};
-		MultiPeakFitter(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 0);
+		MultiPeakFit(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 1);
 
 		int peaks(){return d_peaks;};
+
+		void enablePeakCurves(bool on){generate_peak_curves = on;};
+		void setPeakCurvesColor(int colorIndex){d_peaks_color = colorIndex;};
+
 		static QString generateFormula(int order, PeakProfile profile);
 		static QStringList generateParameterList(int order);
 
@@ -309,17 +311,25 @@ class MultiPeakFitter : public Fitter
 		QString logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName);
 		void generateFitCurve(double *par);
 		void storeCustomFitResults(double *par);
+		void guessInitialValues();
 
+		//! Number of peaks
 		int d_peaks;
+
+		//! Tells weather the peak curves should be displayed together with the best line fit.
+		bool generate_peak_curves;
+
+		//! Color index for the peak curves
+		int d_peaks_color;
 		PeakProfile d_profile;
 };
 
-class PolynomialFitter : public Fitter
+class PolynomialFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		PolynomialFitter(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
 
 		virtual QString legendFitInfo(int prec);
 		void fit();
@@ -334,12 +344,12 @@ class PolynomialFitter : public Fitter
 		bool show_legend;
 };
 
-class LinearFitter : public Fitter
+class LinearFit : public Fit
 {
 	Q_OBJECT
 
 	public:
-		LinearFitter(ApplicationWindow *parent, Graph *g);
+		LinearFit(ApplicationWindow *parent, Graph *g);
 		void fit();
 		void generateFitCurve(double *par);
 };

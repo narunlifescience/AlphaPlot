@@ -40,9 +40,10 @@ class QWidget;
 class QComboBox;
 class QSpinBox;
 class QLabel;
-class ColorButton;
 class QRadioButton;
 class QListWidget;
+class ColorButton;
+class ColorBox;
 
 //! Preferences dialog
 class ConfigDialog : public QDialog
@@ -88,9 +89,11 @@ public:
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
 	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution, *lblPrecision;
 	QGroupBox *groupBox3DFonts, *groupBox3DCol;
-	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints;
+	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints, *lblPeaksColor;
 	QGroupBox *groupBoxFittingCurve, *groupBoxFitParameters;
 	QRadioButton *samePointsBtn, *generatePointsBtn;
+    QGroupBox *groupBoxMultiPeak;
+	ColorBox *boxPeaksColor;
 	QLabel *lblScriptingLanguage;
 	QComboBox *boxScriptingLanguage;
 

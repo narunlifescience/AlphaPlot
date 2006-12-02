@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
-			   Knut Franke
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
                            knut.franke@gmx.de
     Description          : QtiPlot's main window
@@ -801,6 +801,8 @@ signals:
 // TODO: a lot of this stuff should be private
 public:
 	bool generateUniformFitPoints;
+	bool generatePeakCurves;
+	int peakCurvesColor;
 
 	//! Number of points in a generated fit curve
 	int fitPoints;

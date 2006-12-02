@@ -50,7 +50,7 @@ class QRadioButton;
 class QLineEdit;
 class Graph;
 class ColorBox;
-class Fitter;
+class Fit;
 
 //! Nonlinear curve fitting dialog
 class FitDialog : public QDialog
@@ -93,7 +93,7 @@ public:
 	QPushButton *btnParamTable, *btnCovMatrix;
 	QLineEdit *covMatrixName, *paramTableName;
 	QCheckBox *plotLabelBox, *logBox;
-	Fitter *fitter;
+	Fit *fitter;
  
 protected:
 	void closeEvent (QCloseEvent * e );

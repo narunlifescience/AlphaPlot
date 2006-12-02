@@ -2240,7 +2240,9 @@ void Graph::multiPeakFit(ApplicationWindow *app, int profile, int peaks)
 {
 	showPlotPicker(true);
 	selected_peaks = 0;
-	fitter = new MultiPeakFitter (app, this, (MultiPeakFitter::PeakProfile)profile, peaks);
+	fitter = new MultiPeakFit(app, this, (MultiPeakFit::PeakProfile)profile, peaks);
+	fitter->enablePeakCurves(app->generatePeakCurves);
+	fitter->setPeakCurvesColor(app->peakCurvesColor);
 	d_plot->canvas()->grabMouse();
 }
 
