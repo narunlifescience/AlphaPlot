@@ -759,7 +759,7 @@ double user_d(const gsl_vector * x, void *params)
 	try
 	{
 		double *parameters = new double[p];
-		double xvar,t;
+		double xvar;
 		parser.DefineVar("x", &xvar);
 		for (int i=0;i<(int)p;i++)
 		{
@@ -770,7 +770,7 @@ double user_d(const gsl_vector * x, void *params)
 		for (int j = 0; j < (int)n; j++)
 		{
 			xvar=X[j];
-			t=(parser.Eval() - Y[j])/sigma[j];
+			double t=(parser.Eval() - Y[j])/sigma[j];
 			val+=t*t;
 		}
 		delete[] parameters;
@@ -810,7 +810,7 @@ int user_df(const gsl_vector *x, void *params, gsl_matrix *J)
 		for (int i = 0; i<(int)n; i++)
 		{
 			xvar = X[i];	 
-			for (int j=0;j<(int)p;j++)
+			for (int j=0; j<(int)p; j++)
 				gsl_matrix_set (J, i, j, 1/sigma[i]*parser.Diff(&param[j], param[j]));
 		}
 		delete[] param;

@@ -817,7 +817,7 @@ void ConfigDialog::languageChange()
 	boxSeparator->addItem("," + tr("SPACE"));
 	boxSeparator->addItem(";");
 	boxSeparator->addItem(",");
-	setColumnSeparator(app->separator);
+	setColumnSeparator(app->columnSeparator);
 
 	lblTableBackground->setText(tr( "Background" )); 
 	lblTextColor->setText(tr( "Text" )); 
@@ -926,7 +926,7 @@ void ConfigDialog::apply()
 		return;
 	}
 
-	app->separator = sep;
+	app->columnSeparator = sep;
 	app->customizeTables(buttonBackground->color(), buttonText->color(), 
 			buttonHeader->color(), textFont, headerFont);
 	// 2D plots page: options tab

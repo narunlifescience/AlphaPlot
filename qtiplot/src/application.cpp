@@ -354,7 +354,6 @@ void ApplicationWindow::initGlobalConstants()
 	versionSuffix = "alpha1";
 	graphs=0; tables=0; matrixes = 0; notes = 0;
 	projectname="untitled";
-	ignoredLines=0;
 	lastModified=0;
 	activeGraph=0;
 	lastCopiedLayer=0;
@@ -363,9 +362,6 @@ void ApplicationWindow::initGlobalConstants()
 	aw=0;
 	logInfo=QString();
 	savingTimerId=0;
-	renameColumns = true;
-	strip_spaces = false;
-	simplify_spaces = false;
 
 	autoSearchUpdatesRequest = false;
 
@@ -3264,7 +3260,7 @@ void ApplicationWindow::showPreferencesDialog()
 {
 	ConfigDialog* cd= new ConfigDialog(this);
 	cd->setAttribute(Qt::WA_DeleteOnClose);
-	cd->setColumnSeparator(separator);
+	cd->setColumnSeparator(columnSeparator);
 	cd->exec();
 }
 
@@ -3505,7 +3501,7 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 	app->applyUserSettings();
 	app->showMaximized();
 
-	Table* t = app->newTable(fn, app->separator, 0, true, app->strip_spaces, app->simplify_spaces);
+	Table* t = app->newTable(fn, app->columnSeparator, 0, true, app->strip_spaces, app->simplify_spaces);
 	t->setCaptionPolicy(MyWidget::Both);	
 	app->multilayerPlot(t, t->YColumns(),Graph::LineSymbols);
 	QApplication::restoreOverrideCursor();
@@ -3519,7 +3515,7 @@ void ApplicationWindow::showImportDialog()
 	connect (id, SIGNAL(options(const QString&, int, bool, bool, bool)),
 			this, SLOT(setImportOptions(const QString&, int, bool, bool, bool)));
 
-	id->setSeparator(separator);
+	id->setSeparator(columnSeparator);
 	id->setLines(ignoredLines);
 	id->renameCols(renameColumns);
 	id->setWhiteSpaceOptions(strip_spaces, simplify_spaces);
@@ -3529,7 +3525,7 @@ void ApplicationWindow::showImportDialog()
 void ApplicationWindow::setImportOptions(const QString& sep, int lines, bool rename,
 		bool strip, bool simplify)
 {
-	separator = sep;
+	columnSeparator = sep;
 	ignoredLines = lines;
 	renameColumns = rename;
 	strip_spaces = strip;
@@ -3547,12 +3543,12 @@ void ApplicationWindow::loadASCII()
 		Table* t = (Table*)ws->activeWindow();
 		if ( t && t->isA("Table"))
 		{
-			t->importASCII(fn, separator, ignoredLines, renameColumns, 
+			t->importASCII(fn, columnSeparator, ignoredLines, renameColumns, 
 					strip_spaces, simplify_spaces, false);
 			t->setWindowLabel(fn);
 		}
 		else
-			t = newTable(fn, separator, ignoredLines, renameColumns, 
+			t = newTable(fn, columnSeparator, ignoredLines, renameColumns, 
 					strip_spaces, simplify_spaces);
 
 		t->setCaptionPolicy(MyWidget::Both);
@@ -3596,7 +3592,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 	if (!importFileAs)
 	{
 		QString fn  = fileNames[0];
-		Table *firstTable=newTable(fn, separator, ignoredLines, renameColumns, 
+		Table *firstTable=newTable(fn, columnSeparator, ignoredLines, renameColumns, 
 				strip_spaces, simplify_spaces);
 		if (!firstTable)
 			return;
@@ -3611,7 +3607,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 		for (int i=1;i<files;i++)
 		{
 			fn  = fileNames[i];
-			Table *w = newTable(fn, separator, ignoredLines, renameColumns, 
+			Table *w = newTable(fn, columnSeparator, ignoredLines, renameColumns, 
 					strip_spaces, simplify_spaces);
 			if (w)
 			{
@@ -3630,7 +3626,7 @@ void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int
 			Table* t = (Table*)ws->activeWindow();
 
 			for (int i=0; i<files; i++)
-				t->importMultipleASCIIFiles(fileNames[i], separator, ignoredLines, renameColumns, 
+				t->importMultipleASCIIFiles(fileNames[i], columnSeparator, ignoredLines, renameColumns, 
 						strip_spaces, simplify_spaces, importFileAs);
 			t->setWindowLabel(fileNames.join("; "));
 			t->setCaptionPolicy(MyWidget::Name);
@@ -4329,7 +4325,6 @@ void ApplicationWindow::readSettings()
 	rFunctions=variantListToStringList(settings.value("/rFunctions").toList());
 	tetaFunctions=variantListToStringList(settings.value("/tetaFunctions").toList());
 
-	separator=settings.value("/defaultColumnSeparator", "\t").toString();
 	QStringList tableColors=variantListToStringList(settings.value("/tableColors").toList());
 	QStringList tableFonts=variantListToStringList(settings.value("/tableFonts").toList());
 
@@ -4474,6 +4469,15 @@ void ApplicationWindow::readSettings()
 	generatePeakCurves = settings.value("/generatePeakCurves", true).toBool();
 	peakCurvesColor = settings.value("/peakCurvesColor", 2).toInt();//green color
 	settings.endGroup();
+
+	settings.beginGroup("/ImportASCII");
+	columnSeparator = settings.value("/defaultColumnSeparator", "\t").toString();
+	ignoredLines = settings.value("/ignoredLines", 0).toInt();
+	renameColumns = settings.value("/renameColumns", true).toBool();
+	strip_spaces = settings.value("/stripSpaces", false).toBool();
+	simplify_spaces = settings.value("/simplifySpaces", false).toBool();
+	settings.endGroup();
+
 }
 
 QStringList ApplicationWindow::variantListToStringList(const QList<QVariant> src)
@@ -4560,7 +4564,6 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/yFunctions", yFunctions);
 	settings.setValue("/rFunctions", rFunctions);
 	settings.setValue("/tetaFunctions", tetaFunctions);
-	settings.setValue("/defaultColumnSeparator", separator);
 	settings.setValue("/tableColors", tableColors);
 	settings.setValue("/tableFonts", tableFonts);
 	settings.setValue("/titleOn", titleOn);
@@ -4633,8 +4636,19 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/pasteFitResultsToPlot", pasteFitResultsToPlot);
 	settings.setValue("/writeFitResultsToLog", writeFitResultsToLog);
 	settings.setValue("/generateUniformFitPoints", generateUniformFitPoints);
+	settings.setValue("/generatePeakCurves", generatePeakCurves);
+	settings.setValue("/peakCurvesColor", peakCurvesColor);
 	settings.setValue("/fitPoints", fitPoints);
 	settings.endGroup();
+
+	settings.beginGroup("/ImportASCII");
+	settings.setValue("/defaultColumnSeparator", columnSeparator);
+	settings.setValue("/ignoredLines", ignoredLines);
+	settings.setValue("/renameColumns", renameColumns);
+	settings.setValue("/stripSpaces", strip_spaces);
+	settings.setValue("/simplifySpaces", simplify_spaces);
+	settings.endGroup();
+
 }
 
 void ApplicationWindow::exportGraph()
@@ -5463,7 +5477,7 @@ void ApplicationWindow::showExportASCIIDialog()
 
 		ed->setTableNames(tableWindows);
 		ed->setActiveTableName(ws->activeWindow()->name());
-		ed->setColumnSeparator(separator);
+		ed->setColumnSeparator(columnSeparator);
 		ed->exec();
 	}
 }
@@ -10601,13 +10615,13 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 	if(whichFit=="fitLinear" || whichFit=="fitSigmoidal" || whichFit=="fitGauss" || whichFit=="fitLorentz")
 	{
 		Fit *fitter = 0;
-		if (whichFit=="fitLinear")
+		if (whichFit == "fitLinear")
 			fitter = new LinearFit (this, activeGraph);
-		else if (whichFit=="fitSigmoidal")
+		else if (whichFit == "fitSigmoidal")
 			fitter = new SigmoidalFit (this, activeGraph);
-		else if(whichFit=="fitGauss")
+		else if(whichFit == "fitGauss")
 			fitter = new MultiPeakFit(this, activeGraph, MultiPeakFit::Gauss);
-		else if(whichFit=="fitLorentz")
+		else if(whichFit == "fitLorentz")
 			fitter = new LorentzFit(this, activeGraph);
 
 		if (fitter->setDataFromCurve(curveTitle))
@@ -10619,7 +10633,7 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 			delete fitter;
 		}
 	}
-	else if(whichFit=="differentiate" && activeGraph->diffCurve(curveTitle))
+	else if(whichFit == "differentiate" && activeGraph->diffCurve(curveTitle))
 	{
 		Table* w = table(tableWindows.last());
 		QStringList list;

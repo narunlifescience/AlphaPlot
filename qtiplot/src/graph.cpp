@@ -954,7 +954,6 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 
 	scalePicker->refresh();
 	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
-	scale->repaint();
 	d_plot->replot();	
 	emit modifiedGraph();
 }
@@ -1923,8 +1922,8 @@ void Graph::startCurveTranslation()
 
 void Graph::insertPlottedList(const QStringList& names)
 {
-	Q3ValueList<int> keys= d_plot->curveKeys();
-	for (int i=0; i<n_curves; i++)
+	Q3ValueList<int> keys = d_plot->curveKeys();
+	for (int i=0; i<(int)keys.count(); i++)
 	{
 		QwtPlotCurve *c = d_plot->curve(keys[i]);
 		if (c)
@@ -1935,14 +1934,13 @@ void Graph::insertPlottedList(const QStringList& names)
 QStringList Graph::curvesList()
 {	
 	QStringList cList;
-	Q3ValueList<int> keys= d_plot->curveKeys();
-	for (int i=0; i<n_curves; i++)
+	Q3ValueList<int> keys = d_plot->curveKeys();
+	for (int i=0; i<(int)keys.count(); i++)
 	{
 		QwtPlotCurve *c = d_plot->curve(keys[i]);
 		if (c)
-			cList<<c->title().text();
-	}
-
+			cList << c->title().text();
+	}	
 	return cList;
 }
 
@@ -5236,24 +5234,16 @@ void Graph::removeCurve(int index)
 	removeLegendItem(index);
 
 	d_plot->removeCurve(c_keys[index]);
+	n_curves--;
 
 	if (piePlot)
 	{
 		piePlot=FALSE;	
-		c_keys.resize(--n_curves);
+		c_keys.resize(n_curves);
 	}
 	else
-	{			
-		for (int i=index; i<n_curves; i++)
-		{
-			c_type[i]=c_type[i+1];
-			c_keys[i] = c_keys[i+1];
-		}
-
-		c_type.resize(--n_curves);
-		c_keys.resize(n_curves);
-
-		if (rangeSelectorsEnabled)
+	{
+		if (rangeSelectorsEnabled && c_keys[index] == selectedCurve)
 		{
 			if (n_curves>0)
 				shiftCurveSelector(TRUE);
@@ -5269,6 +5259,15 @@ void Graph::removeCurve(int index)
 				selectedCursor=-1;	
 			}			
 		}
+
+		for (int i=index; i<n_curves; i++)
+		{
+			c_type[i] = c_type[i+1];
+			c_keys[i] = c_keys[i+1];
+		}
+
+		c_type.resize(n_curves);
+		c_keys.resize(n_curves);
 	}
 	updatePlot();
 	emit modifiedGraph();	
@@ -5788,8 +5787,7 @@ bool Graph::lineProfile()
 
 QString Graph::saveToString()
 {
-	QString s="<graph>\n";
-
+	QString s="<graph>\n";			
 	s+="ggeometry\t";
 	QPoint p=this->pos();
 	s+=QString::number(p.x())+"\t";
@@ -5806,8 +5804,6 @@ QString Graph::saveToString()
 	s+=saveAxesTitleColors();
 	s+=saveAxesTitleAlignement();
 	s+=saveFonts();
-	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+
-		QString::number(majorTickLength())+"\n";
 	s+=saveEnabledTickLabels();
 	s+=saveAxesColors();
 	s+=saveAxesBaseline();
@@ -5820,6 +5816,7 @@ QString Graph::saveToString()
 	s+=saveLabelsFormat();
 	s+=saveAxesLabelsType();
 	s+=saveTicksType();
+	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
 	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
 	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
 	s+=saveMarkers();
@@ -5846,8 +5843,6 @@ QString Graph::saveAsTemplate()
 	s+=saveAxesTitleColors();
 	s+=saveAxesTitleAlignement();
 	s+=saveFonts();
-	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+
-		QString::number(majorTickLength())+"\n";
 	s+=saveEnabledTickLabels();
 	s+=saveAxesColors();
 	s+=saveAxesBaseline();
@@ -5858,6 +5853,7 @@ QString Graph::saveAsTemplate()
 	s+=saveLabelsFormat();
 	s+=saveAxesLabelsType();
 	s+=saveTicksType();
+	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
 	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
 	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
 	s+=saveMarkers();
@@ -6394,8 +6390,7 @@ void Graph::copy(Graph* g)
 	setRightAxisTitleFont(g->axisTitleFont(1));
 	setRightAxisTitleAlignment(g->axisTitleAlignment(1));
 
-	setAxesLinewidth(g->plotWidget()->axesLinewidth());
-	setTicksLength(g->minorTickLength(), g->majorTickLength());
+	setAxesLinewidth(plot->axesLinewidth());
 	removeLegend();
 
 	associations = g->associations;
@@ -6558,6 +6553,7 @@ void Graph::copy(Graph* g)
 	drawAxesBackbones(g->drawAxesBackbone);
 	setMajorTicksType(g->plotWidget()->getMajorTicksType());
 	setMinorTicksType(g->plotWidget()->getMinorTicksType());
+	setTicksLength(g->minorTickLength(), g->majorTickLength());
 
 	QwtArray<long> imag = g->imageMarkerKeys();
 	for (i=0;i<(int)imag.size();i++)

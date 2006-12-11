@@ -61,6 +61,9 @@ private:
 	QLabel *ignoreLabel,*sepText;
 
 public slots:
+	void enableApplyButton(int);
+	void disableApplyButton();
+
 	//! Set the widget texts in the current language
     virtual void languageChange();
 	//! Set the column delimiter for ASCII import
@@ -73,6 +76,7 @@ public slots:
 	void renameCols(bool rename);
 
 private slots:
+	void quit();
 	//! Accept changes
 	void accept();
 	//! Display help

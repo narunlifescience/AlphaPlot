@@ -3,7 +3,9 @@ linux-g++-64: libsuff=64
 
 TARGET  = qtiplot
 TEMPLATE     = app
-CONFIG      += qt warn_on release exceptions opengl
+CONFIG      += qt warn_on exceptions opengl
+CONFIG		+= release
+#CONFIG		+= debug
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
@@ -54,7 +56,7 @@ win32:RC_FILE     = src/iPlot.rc
 
 ###################### Project files #############################
  
-HEADERS  = src/application.h \
+HEADERS  += src/application.h \
      src/graph.h \
      src/graph3D.h \
      src/worksheet.h \
@@ -135,7 +137,7 @@ HEADERS  = src/application.h \
 	 src/textformatbuttons.h\
 	 src/TableStatistics.h
      
-SOURCES  = src/application.cpp \
+SOURCES  += src/application.cpp \
      src/graph.cpp \
      src/analysis.cpp \
      src/graph3D.cpp \

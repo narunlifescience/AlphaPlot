@@ -840,7 +840,7 @@ public:
 	QFont appFont, plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QFont tableTextFont, tableHeaderFont, plotAxesFont, plotLegendFont, plotNumbersFont, plotTitleFont;
 	QColor tableBkgdColor, tableTextColor, tableHeaderColor;
-	QString projectname,separator, helpFilePath, appLanguage;
+	QString projectname,columnSeparator, helpFilePath, appLanguage;
 	QString configFilePath, logInfo, fitPluginsPath;
 	int logID,asciiID,closeID;
 	int exportID, printAllID;
