@@ -2,8 +2,8 @@
     File                 : filterDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Filter options dialog
                            
  ***************************************************************************/
@@ -31,73 +31,80 @@
 #include "parser.h"
 #include "colorBox.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <q3hbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qcheckbox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
-	filter_type = type;
+	setWindowTitle(tr("QtiPlot - Filter options"));
+    filter_type = type;
 
     if ( !name )
 		setName( "FilterDialog" );
-
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-
-	new QLabel( tr("Filter curve: "), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
+	
+    QGridLayout *gl1 = new QGridLayout();
+	gl1->addWidget(new QLabel(tr("Filter curve: ")), 0, 0);
+	
+	boxName = new QComboBox();
+	gl1->addWidget(boxName, 0, 1);
 	
 	if (type <= HighPass)
-		new QLabel( tr("Frequency cutoff (Hz)"), GroupBox1, "TextLabel4",0 );
+		gl1->addWidget(new QLabel(tr("Frequency cutoff (Hz)")), 1, 0);
 	else
-		new QLabel( tr("Low Frequency (Hz)"), GroupBox1, "TextLabel4",0 );
+		gl1->addWidget(new QLabel(tr("Low Frequency (Hz)")), 1, 0);
 
-	boxStart = new QLineEdit(GroupBox1, "boxStart" );
+	boxStart = new QLineEdit();
 	boxStart->setText(tr("0"));
+	gl1->addWidget(boxStart, 1, 1);
 	
+	boxColor = new ColorBox(false);
+	boxColor->setColor(QColor(Qt::red));
 	if (type >= BandPass)
 		{
-		new QLabel( tr("High Frequency (Hz)"), GroupBox1, "TextLabel5",0 );
-		boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
-		boxEnd->setText(tr("0"));
-
-		if (type == BandPass)
-			new QLabel(tr("Add DC Offset"), GroupBox1, "TextLabel52",0 );
-		else
-			new QLabel(tr("Substract DC Offset"), GroupBox1, "TextLabel52",0 );
-
-		boxOffset = new QCheckBox(GroupBox1, "boxOffset" );
-		}
-
-	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( false, GroupBox1);
-	boxColor->setColor(QColor(Qt::red));
-
-	Q3HBox *hbox1=new Q3HBox (this,"hbox1");	
-	hbox1->setMargin(5);
-	hbox1->setSpacing(5);
-
-	buttonFilter = new QPushButton(hbox1, "buttonFit" );
-    buttonFilter->setDefault( true );
-   
-    buttonCancel = new QPushButton(hbox1, "buttonCancel" );
+	    gl1->addWidget(new QLabel(tr("High Frequency (Hz)")), 2, 0);
 	
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(hbox1);
+		boxEnd = new QLineEdit();
+		boxEnd->setText(tr("0"));
+        gl1->addWidget(boxEnd, 2, 1);
+        
+		if (type == BandPass)
+		    gl1->addWidget(new QLabel(tr("Add DC Offset")), 3, 0);
+		else
+		    gl1->addWidget(new QLabel(tr("Substract DC Offset")), 3, 0);
 
-    languageChange();
+		boxOffset = new QCheckBox();
+		gl1->addWidget(boxOffset, 3, 1);
+		
+		gl1->addWidget(new QLabel(tr("Color")), 4, 0);
+		gl1->addWidget(boxColor, 4, 1);
+		}
+    else
+        {
+        gl1->addWidget(new QLabel(tr("Color")), 2, 0);
+		gl1->addWidget(boxColor, 2, 1);                       
+        }
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
+    
+	buttonFilter = new QPushButton(tr( "&Filter" ));
+    buttonFilter->setDefault( true );
+    buttonCancel = new QPushButton(tr( "&Close" ));
+    
+    QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(buttonFilter);
+    hbox1->addWidget(buttonCancel);
+    
+    QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(gb1);
+	vl->addLayout(hbox1);	
+	setLayout(vl);
    
     // signals and slots connections
 	connect( buttonFilter, SIGNAL( clicked() ), this, SLOT( filter() ) );
@@ -106,14 +113,6 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
 
 FilterDialog::~FilterDialog()
 {
-}
-
-
-void FilterDialog::languageChange()
-{
-setWindowTitle(tr("QtiPlot - Filter options"));
-buttonFilter->setText( tr( "&Filter" ) );
-buttonCancel->setText( tr( "&Close" ) );
 }
 
 void FilterDialog::filter()

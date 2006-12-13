@@ -29,8 +29,7 @@
 #ifndef FILTERDIALOG_H
 #define FILTERDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QLineEdit;
@@ -60,7 +59,6 @@ public:
 
 public slots:
 	void setGraph(Graph *g);
-    virtual void languageChange();
 	void filter();
 
 private:

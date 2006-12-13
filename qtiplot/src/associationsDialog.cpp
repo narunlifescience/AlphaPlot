@@ -3,7 +3,7 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Email                : ion_vasilief@yahoo.fr
     Description          : Plot associations dialog
                            
  ***************************************************************************/
@@ -36,7 +36,7 @@
 #include <QHeaderView>
 #include <QCheckBox>
 #include <QEvent>
-#include <QVBoxLayout>
+#include <QLayout>
 
 AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -80,7 +80,7 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
     hbox2->addWidget(btnCancel);
     
     vl->addLayout(hbox2);
-	this->setLayout(vl);
+	setLayout(vl);
 	
 	active_table = 0;
 

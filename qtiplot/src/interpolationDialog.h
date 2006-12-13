@@ -29,8 +29,7 @@
 #ifndef INTERPOLATIONDIALOG_H
 #define INTERPOLATIONDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QLineEdit;
@@ -60,7 +59,6 @@ public:
 public slots:
 	void activateCurve(int index);
 	void setGraph(Graph *g);
-    virtual void languageChange();
 	void interpolate();
 	void changeDataRange();
 

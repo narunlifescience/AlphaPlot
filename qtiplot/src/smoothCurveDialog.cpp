@@ -2,7 +2,7 @@
     File                 : smoothCurveDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Smoothing options dialog
                            
@@ -31,18 +31,16 @@
 #include "parser.h"
 #include "colorBox.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QVBoxLayout>
+#include <QGridLayout>
+#include <QHBoxLayout>
 
 SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -52,52 +50,67 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
     if ( !name )
 		setName( "SmoothCurveDialog" );
 	setWindowTitle(tr("QtiPlot - Smoothing Options"));
-	
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
 
-	new QLabel( tr("Curve"), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
+    QGridLayout *gl1 = new QGridLayout();
+	gl1->addWidget(new QLabel(tr("Curve")), 0, 0);
+
+    boxName = new QComboBox();
+	gl1->addWidget(boxName, 0, 1);
+	
+	boxColor = new ColorBox(false);
+	boxColor->setColor(QColor(Qt::red));
 	
 	if (method == SavitzkyGolay)
 		{
-		new QLabel( tr("Polynomial Order"), GroupBox1, "TextLabel2",0 );
-		boxOrder = new QSpinBox(0,9,1,GroupBox1, "boxOrder" );
+        gl1->addWidget(new QLabel(tr("Polynomial Order")), 1, 0);
+		boxOrder = new QSpinBox();
+		boxOrder->setRange(0, 9);
 		boxOrder->setValue(2);
+		gl1->addWidget(boxOrder, 1, 1);
 
-		new QLabel( tr("Points to the Left"), GroupBox1, "TextLabel3",0 );
-		boxPointsLeft = new QSpinBox(1,25,1,GroupBox1, "boxPointsLeft" );
+		gl1->addWidget(new QLabel(tr("Points to the Left")), 2, 0);
+		boxPointsLeft = new QSpinBox();
+		boxPointsLeft->setRange(1, 25);
 		boxPointsLeft->setValue(2);
+		gl1->addWidget(boxPointsLeft, 2, 1);
 
-		new QLabel( tr("Points to the Right"), GroupBox1, "TextLabel3",0 );
-		boxPointsRight = new QSpinBox(1,25,1,GroupBox1, "boxPointsRight" );
+		gl1->addWidget(new QLabel(tr("Points to the Right")), 3, 0);
+		boxPointsRight = new QSpinBox();
+		boxPointsRight->setRange(1, 25);
 		boxPointsRight->setValue(2);
+		gl1->addWidget(boxPointsRight, 3, 1);
+		
+		gl1->addWidget(new QLabel(tr("Color")), 4, 0);
+		gl1->addWidget(boxColor, 4, 1);
 		}
 	else 
 		{
-		new QLabel( tr("Points"), GroupBox1, "TextLabel3",0 );
-		boxPointsLeft = new QSpinBox(1,1000000,10,GroupBox1, "boxPointsLeft" );
+		gl1->addWidget(new QLabel(tr("Points")), 1, 0);
+		boxPointsLeft = new QSpinBox();
+		boxPointsLeft->setRange(1, 1000000);
+		boxPointsLeft->setSingleStep(10);
 		boxPointsLeft->setValue(5);
+		gl1->addWidget(boxPointsLeft, 1, 1);
+		
+		gl1->addWidget(new QLabel(tr("Color")), 2, 0);
+		gl1->addWidget(boxColor, 2, 1);
 		}
-
-	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( false, GroupBox1);
-	boxColor->setColor(QColor(Qt::red));
-
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
 	
-	btnSmooth = new QPushButton(GroupBox2, "btnSmooth" );
-    btnSmooth->setAutoDefault( true );
-    btnSmooth->setDefault( true );
-   
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
+	QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
+    
+	btnSmooth = new QPushButton(tr( "&Smooth" ));
+    btnSmooth->setDefault(true);
+    buttonCancel = new QPushButton(tr( "&Close" ));
 	
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
-
-    languageChange();
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(btnSmooth);
+    hbox1->addWidget(buttonCancel);
+    
+    QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(gb1);
+	vl->addLayout(hbox1);	
+	setLayout(vl);
    
     // signals and slots connections
 	connect( btnSmooth, SIGNAL( clicked() ), this, SLOT( smooth() ) );
@@ -107,13 +120,6 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 
 SmoothCurveDialog::~SmoothCurveDialog()
 {
-}
-
-
-void SmoothCurveDialog::languageChange()
-{
-btnSmooth->setText( tr( "&Smooth" ) );
-buttonCancel->setText( tr( "&Close" ) );
 }
 
 void SmoothCurveDialog::smooth()

@@ -29,8 +29,7 @@
 #ifndef SMOOTHDIALOG_H
 #define SMOOTHDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QComboBox;
@@ -57,7 +56,6 @@ public:
 
 public slots:
 	void setGraph(Graph *g);
-    virtual void languageChange();
 	void smooth();
 	void activateCurve(int index);
 

@@ -2,8 +2,8 @@
     File                 : interpolationDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
     Description          : Interpolation options dialog
                            
  ***************************************************************************/
@@ -31,17 +31,14 @@
 #include "parser.h"
 #include "colorBox.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLayout>
 
 InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -50,44 +47,56 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 		setName( "InterpolationDialog" );
 	setWindowTitle(tr("QtiPlot - Interpolation Options"));
 	
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
+	QGridLayout *gl1 = new QGridLayout();
+	gl1->addWidget(new QLabel(tr("Make curve from")), 0, 0);
 
-	new QLabel( tr("Make curve from"), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
+	boxName = new QComboBox();
+	gl1->addWidget(boxName, 0, 1);
 	
-	new QLabel( tr("Spline"), GroupBox1, "TextLabel2",0 );
-	boxMethod = new QComboBox(GroupBox1, "boxMethod" );
+	gl1->addWidget(new QLabel(tr("Spline")), 1, 0);
+	boxMethod = new QComboBox();
+	boxMethod->insertItem(tr("Linear"));
+    boxMethod->insertItem(tr("Cubic"));
+    boxMethod->insertItem(tr("Non-rounded Akima"));
+	gl1->addWidget(boxMethod, 1, 1);
 	
-	new QLabel( tr("Points"), GroupBox1, "TextLabel3",0 );
-	boxPoints = new QSpinBox(3,100000,10,GroupBox1, "boxPoints" );
+	gl1->addWidget(new QLabel(tr("Points")), 2, 0);
+	boxPoints = new QSpinBox();
+	boxPoints->setRange(3,100000);
+	boxPoints->setSingleStep(10);
 	boxPoints->setValue(1000);
+	gl1->addWidget(boxPoints, 2, 1);
 
-	new QLabel( tr("From Xmin"), GroupBox1, "TextLabel4",0 );
-	boxStart = new QLineEdit(GroupBox1, "boxStart" );
+	gl1->addWidget(new QLabel(tr("From Xmin")), 3, 0);
+	boxStart = new QLineEdit();
 	boxStart->setText(tr("0"));
+	gl1->addWidget(boxStart, 3, 1);
 	
-	new QLabel( tr("To Xmax"), GroupBox1, "TextLabel5",0 );
-	boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
+	gl1->addWidget(new QLabel(tr("To Xmax")), 4, 0);
+	boxEnd = new QLineEdit();
+	gl1->addWidget(boxEnd, 4, 1);
 
-	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( false, GroupBox1);
+	gl1->addWidget(new QLabel(tr("Color")), 5, 0);
+	
+	boxColor = new ColorBox(false);
 	boxColor->setColor(QColor(Qt::red));
-
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
+	gl1->addWidget(boxColor, 5, 1);
 	
-	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
-    buttonFit->setAutoDefault( true );
+	QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
+	
+	buttonFit = new QPushButton(tr( "&Make" ));
     buttonFit->setDefault( true );
-   
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
+    buttonCancel = new QPushButton(tr( "&Close" ));
 	
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-    hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
-
-    languageChange();
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(buttonFit);
+    hbox1->addWidget(buttonCancel);
+    
+    QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(gb1);
+	vl->addLayout(hbox1);	
+	setLayout(vl);
    
     // signals and slots connections
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
@@ -97,17 +106,6 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 
 InterpolationDialog::~InterpolationDialog()
 {
-}
-
-
-void InterpolationDialog::languageChange()
-{
-buttonFit->setText( tr( "&Make" ) );
-buttonCancel->setText( tr( "&Close" ) );
-
-boxMethod->insertItem(tr("Linear"));
-boxMethod->insertItem(tr("Cubic"));
-boxMethod->insertItem(tr("Non-rounded Akima"));
 }
 
 void InterpolationDialog::interpolate()

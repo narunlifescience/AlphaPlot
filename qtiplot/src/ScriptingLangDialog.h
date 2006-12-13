@@ -2,8 +2,8 @@
 	File                 : ScriptingLangDialog.h
 	Project              : QtiPlot
 --------------------------------------------------------------------
-	Copyright            : (C) 2006 by Knut Franke
-	Email                : knut.franke@gmx.de
+	Copyright            : (C) 2006 by Knut Franke, Ion Vasilief
+	Email                : knut.franke@gmx.de, ion_vasilief@yahoo.fr
 	Description          : Dialog for changing the current scripting
 	                       language
 
@@ -35,7 +35,7 @@
 #include <QDialog>
 
 class ApplicationWindow;
-class Q3ListBox;
+class QListWidget;
 class QPushButton;
 
 class ScriptingLangDialog: public QDialog, public scripted
@@ -50,7 +50,7 @@ class ScriptingLangDialog: public QDialog, public scripted
 		void accept();
 
 	private:
-		Q3ListBox *langList;
+		QListWidget *langList;
 		QPushButton *btnOK, *btnCancel;
 };
 
