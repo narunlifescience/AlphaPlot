@@ -34,20 +34,15 @@
 #include "worksheet.h"
 #include "plot.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <q3hbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <q3vbox.h>
-#include <qcheckbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QRadioButton>
+#include <QGroupBox>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLayout>
 
 FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -58,58 +53,74 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 	graph = 0;
 	d_type = type;
 
-	Q3VBox *box = new Q3VBox (this, "vbox");
-	box->setSpacing(5);
-	box->setMargin(5);
-
-	Q3ButtonGroup *GroupFFT = new Q3ButtonGroup(2,Qt::Horizontal,tr(""), box, "GroupBox3" );
-	GroupFFT->setRadioButtonExclusive ( true );
-
-	forwardBtn = new QRadioButton(GroupFFT, "forwardBtn" );
+	forwardBtn = new QRadioButton(tr("&Forward"));
 	forwardBtn->setChecked( true );
-
-	backwardBtn = new QRadioButton(GroupFFT, "backwardBtn" );
-
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), box,"GroupBox1" );
-
+	backwardBtn = new QRadioButton(tr("&Inverse"));
+	
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(forwardBtn);
+    hbox1->addWidget(backwardBtn);
+    
+	QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(hbox1);
+    
+	QGridLayout *gl1 = new QGridLayout();
 	if (d_type == onGraph)
-		new QLabel( tr("Curve"), GroupBox1, "TextLabel1",0 );
+	    gl1->addWidget(new QLabel(tr("Curve")), 0, 0);
 	else
-		new QLabel( tr("Sampling"), GroupBox1, "TextLabel1",0 );
+		gl1->addWidget(new QLabel(tr("Sampling")), 0, 0);
 
-	boxName = new QComboBox(GroupBox1, "boxShow" );
+	boxName = new QComboBox();
+	gl1->addWidget(boxName, 0, 1);
 
+    boxSampling = new QLineEdit();
 	if (d_type == onTable)
-	{
-		new QLabel( tr("Real"), GroupBox1, "TextLabel11",0 );
-		boxReal = new QComboBox(GroupBox1, "boxReal" );
+       {
+		gl1->addWidget(new QLabel(tr("Real")), 1, 0);
+		boxReal = new QComboBox();
+		gl1->addWidget(boxReal, 1, 1);
 
-		new QLabel( tr("Imaginary"), GroupBox1, "TextLabel111",0 );
-		boxImaginary = new QComboBox(GroupBox1, "Imaginary" );
-	}
+		gl1->addWidget(new QLabel(tr("Imaginary")), 2, 0);
+		boxImaginary = new QComboBox();
+		gl1->addWidget(boxImaginary, 2, 1);
+		
+		gl1->addWidget(new QLabel(tr("Sampling Interval")), 3, 0);
+		gl1->addWidget(boxSampling, 3, 1);
+	   }
+    else
+       {
+        gl1->addWidget(new QLabel(tr("Sampling Interval")), 1, 0);
+		gl1->addWidget(boxSampling, 1, 1);                             
+       }
+ 	QGroupBox *gb2 = new QGroupBox();
+    gb2->setLayout(gl1);	
 
-	new QLabel( tr("Sampling Interval"), GroupBox1, "TextLabel4",0 );
-	boxSampling = new QLineEdit(GroupBox1, "boxStart" );
-
-	boxNormalize = new QCheckBox(box, "boxNorm" );
+	boxNormalize = new QCheckBox(tr( "&Normalize Amplitude" ));
 	boxNormalize->setChecked(true);
 
-	boxOrder = new QCheckBox(box, "boxOrder" );
+    boxOrder = new QCheckBox(tr( "&Shift Results" ));
 	boxOrder->setChecked(true);
-
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
-
-	buttonOK = new QPushButton(GroupBox2, "buttonFit" );
+	
+    QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addWidget(gb1);
+    vbox1->addWidget(gb2);
+    vbox1->addWidget(boxNormalize);
+    vbox1->addWidget(boxOrder);
+    
+    buttonOK = new QPushButton(tr("&OK"));
 	buttonOK->setDefault( true );
-
-	buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-	hlayout->addWidget(box);
-	hlayout->addWidget(GroupBox2);
-
-	languageChange();
+	buttonCancel = new QPushButton(tr("&Close"));
+	
+	QVBoxLayout *vbox2 = new QVBoxLayout(); 
+    vbox2->addWidget(buttonOK);
+    vbox2->addWidget(buttonCancel); 
+    vbox2->addStretch();  
+    
+    QHBoxLayout *hbox2 = new QHBoxLayout(); 
+    hbox2->addLayout(vbox1);
+    hbox2->addLayout(vbox2);
+    setLayout(hbox2);
+    
 	setFocusProxy(boxName);
 
 	// signals and slots connections
@@ -120,17 +131,6 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 
 FFTDialog::~FFTDialog()
 {
-}
-
-
-void FFTDialog::languageChange()
-{
-	boxNormalize->setText( tr( "&Normalize Amplitude" ) );
-	boxOrder->setText( tr( "&Shift Results" ) );
-	backwardBtn->setText( tr( "&Inverse" ) );
-	forwardBtn->setText( tr( "&Forward" ) );
-	buttonOK->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Close" ) );
 }
 
 void FFTDialog::accept()
@@ -158,10 +158,6 @@ void FFTDialog::accept()
 
 		graph->fft(key, forwardBtn->isChecked(), sampling, 
 				boxNormalize->isChecked(), boxOrder->isChecked());
-
-	/*	int fitID = app->fitNumber;
-		graph->setFitID(++fitID);
-		app->fitNumber = fitID; */
 	}
 	else
 	{

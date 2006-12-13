@@ -29,8 +29,7 @@
 #ifndef FFTDIALOG_H
 #define FFTDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QRadioButton;
@@ -62,7 +61,6 @@ public slots:
 	void setGraph(Graph *g);
 	void setTable(Table *t);
 	void activateCurve(int index);
-    virtual void languageChange();
 	void accept();
 
 private:

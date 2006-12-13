@@ -2,8 +2,8 @@
     File                 : intDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis
+    Email                : ion_vasilief@yahoo.fr
     Description          : Integration options dialog
                            
  ***************************************************************************/
@@ -31,69 +31,69 @@
 #include "graph.h"
 #include "application.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HButtonGroup>
+#include <QGroupBox>
+#include <QSpinBox>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QLayout>
 
 IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "PolynomFitDialog" );
+	   setName( "IntegrationDialog" );
 	setWindowTitle(tr("QtiPlot - Integration Options"));
-    setSizeGripEnabled( true );
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-
-	new QLabel( tr("Integration of"), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
+    QGridLayout *gl1 = new QGridLayout();
+	gl1->addWidget(new QLabel(tr("Integration of")), 0, 0);
+	boxName = new QComboBox();
+	gl1->addWidget(boxName, 0, 1);
 	
-	new QLabel( tr("Order (1 - 5, 1 = Trapezoid Rule)"), GroupBox1, "TextLabel2",0 );
-	boxOrder = new QSpinBox(1,5,1,GroupBox1, "boxOrder" );
+	gl1->addWidget(new QLabel(tr("Order (1 - 5, 1 = Trapezoid Rule)")), 1, 0);
+	boxOrder = new QSpinBox();
+	boxOrder->setRange(1, 5);
+	gl1->addWidget(boxOrder, 1, 1);
 	
-	new QLabel( tr("Number of iterations (Max=40)"), GroupBox1, "TextLabel3",0 );
-	boxSteps = new QSpinBox(2,40,1,GroupBox1, "boxPoints" );
+	gl1->addWidget(new QLabel(tr("Number of iterations (Max=40)")), 2, 0);
+	boxSteps = new QSpinBox();
+	boxSteps->setRange(2, 40);
 	boxSteps->setValue(40);
+	gl1->addWidget(boxSteps, 2, 1);
 
-	new QLabel( tr("Tolerance"),GroupBox1, "TextLabel4",0);
-	boxTol = new QLineEdit(GroupBox1,"boxTol");
+	gl1->addWidget(new QLabel(tr("Tolerance")), 3, 0);
+	boxTol = new QLineEdit();
 	boxTol->setText("0.01");
+	gl1->addWidget(boxTol, 3, 1);
 	
-	new QLabel( tr("Lower limit"), GroupBox1, "TextLabel5",0 );
-	boxStart = new QLineEdit(GroupBox1, "boxStart" );
+	gl1->addWidget(new QLabel(tr("Lower limit")), 4, 0);
+	boxStart = new QLineEdit();
+	gl1->addWidget(boxStart, 4, 1);
 	
-	new QLabel( tr("Upper limit"), GroupBox1, "TextLabel6",0 );
-	boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
+	gl1->addWidget(new QLabel(tr("Upper limit")), 5, 0);
+	boxEnd = new QLineEdit();
+	gl1->addWidget(boxEnd, 5, 1);
 
-	GroupBox2 = new Q3HButtonGroup(this,"GroupBox2" );
-	GroupBox2->setFlat (true);
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
 	
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-    buttonOk->setAutoDefault( true );
+	buttonOk = new QPushButton(tr( "&Integrate" ));
     buttonOk->setDefault( true );
-   
-	buttonHelp = new QPushButton(GroupBox2, "buttonHelp" );
-    buttonHelp->setAutoDefault( true );
-
-    buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
-        
-	Q3VBoxLayout* vlayout = new Q3VBoxLayout(this,5,5, "vlayout");
-    vlayout->addWidget(GroupBox1);
-	vlayout->addWidget(GroupBox2);
-
-    languageChange();
+	buttonHelp = new QPushButton(tr("&Help"));
+    buttonCancel = new QPushButton(tr("&Close" ));
+	
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(buttonOk);
+    hbox1->addWidget(buttonHelp);
+    hbox1->addWidget(buttonCancel);
+    
+    QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(gb1);
+	vl->addLayout(hbox1);	
+	setLayout(vl);
    
     // signals and slots connections
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -104,13 +104,6 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 
 IntDialog::~IntDialog()
 {
-}
-
-void IntDialog::languageChange()
-{
-buttonOk->setText( tr( "&Integrate" ) );
-buttonCancel->setText( tr("&Close" ) );
-buttonHelp->setText(tr("&Help"));
 }
 
 void IntDialog::accept()

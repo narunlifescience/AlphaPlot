@@ -29,10 +29,8 @@
 #ifndef INTDIALOG_H
 #define INTDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
-class Q3ButtonGroup;
 class QPushButton;
 class QCheckBox;
 class QLineEdit;
@@ -52,7 +50,6 @@ public:
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonHelp;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
     QCheckBox* boxShowFormula;
 	QComboBox* boxName;
 	QSpinBox* boxOrder;
@@ -62,7 +59,6 @@ public:
 	QLineEdit* boxTol;	
 
 public slots:
-    virtual void languageChange();
 	void accept();
 	void setGraph(Graph *g);
 	void activateCurve(int index);
