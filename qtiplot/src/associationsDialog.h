@@ -29,18 +29,12 @@
 #ifndef ASSOCIATIONSDIALOG_H
 #define ASSOCIATIONSDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-#include <qwidget.h>
-//Added by qt3to4:
-#include <QLabel>
-#include <QEvent>
+#include <QDialog>
 
 class QLabel;
-class Q3ListBox;
+class QListWidget;
 class QPushButton;
-class Q3Table;
-class Q3TableItem;
+class QTableWidget;
 class QStringList;
 class Table;
 class Graph;
@@ -54,11 +48,10 @@ public:
     AssociationsDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~AssociationsDialog();
 
-
 	QLabel* tableCaptionLabel;
-	Q3Table *table;
+	QTableWidget *table;
 	QPushButton *btnOK, *btnCancel, *btnApply;
-    Q3ListBox* associations;
+    QListWidget* associations;
 
 public slots:
 	Table * findTable(int index);

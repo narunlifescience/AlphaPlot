@@ -12227,7 +12227,7 @@ void ApplicationWindow::downloadTranslation()
 
 void ApplicationWindow::showHomePage()
 {
-	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/qtiplot.html"));
+	QDesktopServices::openUrl(QUrl("http://www.qtiplot.ro"));
 }
 
 void ApplicationWindow::showForums()

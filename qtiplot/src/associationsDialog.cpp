@@ -2,7 +2,7 @@
     File                 : associationsDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Plot associations dialog
                            
@@ -29,21 +29,14 @@
 #include "associationsDialog.h"
 #include "worksheet.h"
 
-#include <qlabel.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <q3vbox.h>
-#include <q3table.h>
-#include <q3header.h>
-#include <qwidget.h>
-#include <qcheckbox.h>
-
-#include <qmessagebox.h>
-//Added by qt3to4:
+#include <QLabel>
+#include <QListWidget>
+#include <QPushButton>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QCheckBox>
 #include <QEvent>
-#include <Q3VBoxLayout>
+#include <QVBoxLayout>
 
 AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -54,54 +47,44 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
     setWindowTitle( tr( "QtiPlot - Plot Associations" ) );
 	setFocus();
 	
-	Q3VBox *box1 = new Q3VBox (this, "box1"); 
-	box1->setSpacing (5);
-	box1->setMargin(5);
+	QVBoxLayout *vl = new QVBoxLayout();
 
-	Q3HBox *hbox1 = new Q3HBox (box1, "hbox1"); 
-	box1->setSpacing (5);
+	QHBoxLayout *hbox1 = new QHBoxLayout (); 
+    hbox1->addWidget(new QLabel(tr( "Spreadsheet: " )));
 
-	new QLabel(tr("Spreadsheet: "), hbox1, "table");
-	tableCaptionLabel = new QLabel(hbox1, "table");
-
-	table = new Q3Table(3, 5, box1, "table");
-	table->setLeftMargin ( 0 );
-	table->setColumnReadOnly (0, true);
-	table->setCurrentCell ( -1, -1 );
-	table->setMaximumHeight(8*table->rowHeight(0));
-	for (int i=0; i < table->numCols(); i++ )
-		table->setColumnStretchable (0, true);
-
-	associations = new Q3ListBox( box1, "available" );
-	associations->setSelectionMode ( Q3ListBox::Single );
-
-	Q3Header *header = table->horizontalHeader ();
-	header->setLabel(0, tr("Column"));
-	header->setLabel(1, tr("X"));
-	header->setLabel(2, tr("Y"));
-	header->setLabel(3, tr("xErr"));
-	header->setLabel(4, tr("yErr"));
-	header->setClickEnabled ( false );
-
-	Q3HBox  *box2=new Q3HBox (this, "box2"); 
-	box2->setMargin(5);
-	box2->setSpacing (5);
-
-	btnApply = new QPushButton(box2, "btnApply" );
-    btnApply->setText( tr( "&Update curve" ) );
-
-    btnOK = new QPushButton(box2, "btnOK" );
-    btnOK->setText( tr( "&OK" ) );
-	btnOK->setDefault( true );
+	tableCaptionLabel = new QLabel();
+    hbox1->addWidget(tableCaptionLabel);
+    vl->addLayout(hbox1);
+    
+	table = new QTableWidget(3, 5);
+	table->horizontalHeader()->setClickable( false );
+	table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+	table->verticalHeader()->hide();
+	table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	table->setMaximumHeight(8*table->rowHeight(0));		
+	table->setHorizontalHeaderLabels(QStringList() << tr("Column") << tr("X") << tr("Y") << tr("xErr") << tr("yErr"));
+    vl->addWidget(table);
 	
-    btnCancel = new QPushButton(box2, "btnCancel" );
-    btnCancel->setText( tr( "&Cancel" ) );
+	associations = new QListWidget();
+	associations->setSelectionMode ( QListWidget::SingleSelection );
+    vl->addWidget(associations);
+    
+	btnApply = new QPushButton(tr( "&Update curve" ));
+    btnOK = new QPushButton( tr( "&OK" ) );
+	btnOK->setDefault( true );
+    btnCancel = new QPushButton( tr( "&Cancel" ) );
+    
+    QHBoxLayout *hbox2 = new QHBoxLayout (); 	
+    hbox2->addWidget(btnApply);
+    hbox2->addWidget(btnOK);
+    hbox2->addWidget(btnCancel);
+    
+    vl->addLayout(hbox2);
+	this->setLayout(vl);
+	
+	active_table = 0;
 
-	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
-    layout->addWidget(box1);
-	layout->addWidget(box2);
-
-connect(associations, SIGNAL(highlighted (int)), this, SLOT(updateTable(int)));
+connect(associations, SIGNAL(currentRowChanged(int)), this, SLOT(updateTable(int)));
 connect(btnOK, SIGNAL(clicked()),this, SLOT(accept()));
 connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
 connect(btnApply, SIGNAL(clicked()),this, SLOT(updateCurve()));
@@ -115,15 +98,14 @@ close();
 
 void AssociationsDialog::updateCurve()
 {
-int index = associations->currentItem();
+int index = associations->currentRow();
 Table *t = findTable(index);
 if (t && graph)
 	{
-	graph->changePlotAssociation(t, index, plotAssociation(associations->currentText()));
+	graph->changePlotAssociation(t, index, plotAssociation(associations->currentItem()->text()));
 	graph->updatePlot();
 	}
 }
-
 
 QString AssociationsDialog::plotAssociation(const QString& text)
 {
@@ -142,12 +124,12 @@ void AssociationsDialog::initTablesList(QWidgetList* lst, int curve)
 {
 tables = lst;
 active_table = 0;
-associations->setCurrentItem(curve);
+associations->setCurrentRow (curve);
 }
 
 Table * AssociationsDialog::findTable(int index)
 {
-QString text = associations->text(index);
+QString text = associations->item(index)->text();
 QStringList lst= QStringList::split(":", text, false);
 for (int i=0; i < (int)tables->count(); i++ )
 	{
@@ -164,43 +146,48 @@ if (!t)
 	return;
 
 if (active_table != t)
-	{
+	{             
 	active_table = t;
 	tableCaptionLabel->setText(t->name());
-	table->setNumRows(t->tableCols());
+	table->clearContents();
+	table->setRowCount(t->tableCols());
+	
 	QStringList colNames = t->colNames();
-	int i;
-	for (i=0; i < table->numRows(); i++ )
-		table->setText(i, 0, colNames[i]);
+	for (int i=0; i<table->rowCount(); i++ )
+	    {
+        QTableWidgetItem *cell = new QTableWidgetItem(colNames[i]);
+        cell->setBackground (QBrush(Qt::lightGray));
+        cell->setFlags (Qt::ItemIsEnabled);
+        table->setItem(i, 0, cell);
+        }
 
-	for (int j=1; j < table->numCols(); j++)
+	for (int j=1; j < table->columnCount(); j++)
 		{
-		for (i=0; i < table->numRows(); i++ )
+		for (int i=0; i < table->rowCount(); i++ )
 			{
-			QCheckBox* cb = new QCheckBox(table, 0);
+            QTableWidgetItem *cell = new QTableWidgetItem();
+            cell->setBackground (QBrush(Qt::lightGray));
+            table->setItem(i, j, cell);
+            
+			QCheckBox* cb = new QCheckBox(table);
 			cb->installEventFilter(this);
 			table->setCellWidget(i, j, cb);
 			}
-		table->adjustColumn (j);
 		}
-	table->adjustColumn (0);
 	}
 updateColumnTypes();
 }
 
 void AssociationsDialog::updateColumnTypes()
 {
-QString text = associations->currentText();
-
+QString text = associations->currentItem()->text();
 QStringList lst= QStringList::split(": ", text, false);
 QStringList cols = QStringList::split(",", lst[1], false);
 
 QString xColName = cols[0].remove("(X)");
 QString yColName = cols[1].remove("(Y)");
 
-Q3Header *header = table->horizontalHeader();
-int i, n = (int)cols.count();
-
+int n = (int)cols.count();
 if (n == 2)
 	{
 	table->hideColumn(3);
@@ -208,16 +195,16 @@ if (n == 2)
 	}
 
 QCheckBox *it = 0;
-for (i=0; i < table->numRows(); i++ )
+for (int i=0; i < table->rowCount(); i++ )
 	{
 	it = (QCheckBox *)table->cellWidget(i, 1);
-	if (table->text(i,0) == xColName)
+	if (table->item(i,0)->text() == xColName)
 		it->setChecked(true);
 	else
 		it->setChecked(false);
 
 	it = (QCheckBox *)table->cellWidget(i, 2);
-	if (table->text(i,0) == yColName)
+	if (table->item(i,0)->text() == yColName)
 		it->setChecked(true);
 	else
 		it->setChecked(false);
@@ -232,8 +219,8 @@ if (n > 2)
 
 	if (cols[2].contains("(xErr)") || cols[2].contains("(yErr)"))
 		{//if error bars
-		header->setLabel(3, tr("xErr"));
-		header->setLabel(4, tr("yErr"));
+		table->horizontalHeaderItem(3)->setText(tr("xErr"));
+		table->horizontalHeaderItem(4)->setText(tr("yErr"));
 		}
 
 	if (cols[2].contains("(xErr)"))
@@ -251,17 +238,17 @@ if (n > 2)
 		vectXYXY = true;
 		xEndColName = cols[2].remove("(X)");
 		yEndColName = cols[3].remove("(Y)");
-		header->setLabel(3, tr("xEnd"));
-		header->setLabel(4, tr("yEnd"));
+		table->horizontalHeaderItem(3)->setText(tr("xEnd"));
+		table->horizontalHeaderItem(4)->setText(tr("yEnd"));
 		}
 	}
 
-for (i=0; i < table->numRows(); i++ )
+for (int i=0; i < table->rowCount(); i++ )
 	{
 	it = (QCheckBox *)table->cellWidget(i, 3);
 	if (xerr || vectXYXY)
 		{
-		if (table->text(i,0) == errColName || table->text(i,0) == xEndColName)
+		if (table->item(i,0)->text() == errColName || table->item(i,0)->text() == xEndColName)
 			it->setChecked(true);
 		else
 			it->setChecked(false);
@@ -272,7 +259,7 @@ for (i=0; i < table->numRows(); i++ )
 	it = (QCheckBox *)table->cellWidget(i, 4);
 	if (yerr || vectXYXY)
 		{
-		if (table->text(i,0) == errColName || table->text(i,0) == yEndColName)
+		if (table->item(i,0)->text() == errColName || table->item(i,0)->text() == yEndColName)
 			it->setChecked(true);
 		else
 			it->setChecked(false);
@@ -284,7 +271,7 @@ for (i=0; i < table->numRows(); i++ )
 
 void AssociationsDialog::uncheckCol(int col)
 {
-for (int i=0; i < table->numRows(); i++ )
+for (int i=0; i < table->rowCount(); i++ )
 	{
 	QCheckBox *it = (QCheckBox *)table->cellWidget(i, col);
 	if (it)
@@ -311,38 +298,39 @@ for (int i=0;i<(int)names.count();i++)
 	else
 		newNames<<s;
 	}
-associations->insertStringList(newNames, -1);
+associations->insertItems(0, newNames);
+associations->setMaximumHeight((names.count()+1)*associations->visualItemRect(associations->item(0)).height());
 plotAssociationsList = newNames;
 }
 
 void AssociationsDialog::updatePlotAssociation(int row, int col)
 {
-int index = associations->currentItem();
-QString text = associations->currentText();
+int index = associations->currentRow();
+QString text = associations->currentItem()->text();
 QStringList lst= QStringList::split(": ", text, false);
 QStringList cols = QStringList::split(",", lst[1], false);
 
 if (col == 1)
 	{
-	cols[0] = table->text(row, 0) + "(X)";
+	cols[0] = table->item(row, 0)->text() + "(X)";
 	text = lst[0] + ": " + cols.join(",");
 	}
 else if (col == 2)
 	{
-	cols[1] = table->text(row, 0) + "(Y)";
+	cols[1] = table->item(row, 0)->text() + "(Y)";
 	text = lst[0] + ": " + cols.join(",");
 	}
 else if (col == 3)
 	{
 	if (text.contains("(X)", true) == 1)
 		{
-		cols[2] = table->text(row, 0) + "(xErr)";
+		cols[2] = table->item(row, 0)->text() + "(xErr)";
 		text = lst[0] + ": " + cols.join(",");
 		uncheckCol(4);
 		}
 	else if (text.contains("(X)", true) == 2)
 		{//vect XYXY curve
-		cols[2] = table->text(row, 0) + "(X)";
+		cols[2] = table->item(row, 0)->text() + "(X)";
 		text = lst[0] + ": " + cols.join(",");
 		}
 	}
@@ -350,13 +338,13 @@ else if (col == 4)
 	{
 	if (text.contains("(X)", true) == 1)
 		{
-		cols[2] = table->text(row, 0) + "(yErr)";
+		cols[2] = table->item(row, 0)->text() + "(yErr)";
 		text = lst[0] + ": " + cols.join(",");
 		uncheckCol(3);
 		}
 	else if (text.contains("(Y)", true) == 2)
 		{//vect XYXY curve
-		cols[3] = table->text(row, 0) + "(Y)";
+		cols[3] = table->item(row, 0)->text() + "(Y)";
 		text = lst[0] + ": " + cols.join(",");
 		}
 	}
@@ -375,14 +363,12 @@ for (int i=0; i<(int)plotAssociationsList.count(); i++)
 	}
 
 plotAssociationsList [index] = text;
-associations->clear();
-associations->insertStringList(plotAssociationsList, -1);
-associations->setCurrentItem (index);
+associations->item(index)->setText(text);
 }
 
 bool AssociationsDialog::eventFilter(QObject *object, QEvent *e)
 {
-Q3TableItem* it = (Q3TableItem*)object;
+QTableWidgetItem* it = (QTableWidgetItem*)object;
 if (!it)
 	return false;
 
@@ -392,9 +378,9 @@ if (e->type() == QEvent::MouseButtonPress)
 		return true;
 
 	int col = 0, row = 0;
-	for (int j=1; j<table->numCols(); j++)
+	for (int j=1; j<table->columnCount(); j++)
 		{
-		for (int i=0; i < table->numRows(); i++ )
+		for (int i=0; i < table->rowCount(); i++ )
 			{
 			QCheckBox* cb = (QCheckBox*)table->cellWidget(i, j);
 			if ( cb == (QCheckBox *)object)
