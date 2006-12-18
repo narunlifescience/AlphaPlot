@@ -1216,7 +1216,7 @@ void MultiLayer::connectLayer(Graph *g)
 {
 connect (g,SIGNAL(drawLineEnded(bool)), this, SIGNAL(drawLineEnded(bool)));
 connect (g,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
-connect (g,SIGNAL(showPlotDialog(long)),this,SIGNAL(showPlotDialog(long)));
+connect (g,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
 connect (g,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)),
 		 this,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)));
 connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
@@ -1230,6 +1230,7 @@ connect (g,SIGNAL(yAxisTitleDblClicked()),this,SIGNAL(showYAxisTitleDialog()));
 connect (g,SIGNAL(rightAxisTitleDblClicked()),this,SIGNAL(showRightAxisTitleDialog()));
 connect (g,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(showTopAxisTitleDialog()));
 connect (g,SIGNAL(showMarkerPopupMenu()),this,SIGNAL(showMarkerPopupMenu()));
+connect (g,SIGNAL(showCurveContextMenu(int)),this,SIGNAL(showCurveContextMenu(int)));
 connect (g,SIGNAL(cursorInfo(const QString&)),this,SIGNAL(cursorInfo(const QString&)));
 connect (g,SIGNAL(viewImageDialog()),this,SIGNAL(showImageDialog()));
 connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),this,SIGNAL(createTablePlot(const QString&,int,int,const QString&)));

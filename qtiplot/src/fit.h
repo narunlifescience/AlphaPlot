@@ -39,11 +39,6 @@ int gauss_df (const gsl_vector * x, void *params, gsl_matrix * J);
 int gauss_f (const gsl_vector * x, void *params,gsl_vector * f);
 double gauss_d (const gsl_vector * x, void *params);
 
-int lorentz_fdf (const gsl_vector * x, void *params, gsl_vector * f, gsl_matrix * J);
-int lorentz_df (const gsl_vector * x, void *params, gsl_matrix * J);
-int lorentz_f (const gsl_vector * x, void *params, gsl_vector * f);
-double lorentz_d (const gsl_vector * x, void *params);
-
 int gauss_multi_peak_f (const gsl_vector * x, void *params, gsl_vector * f);
 double gauss_multi_peak_d (const gsl_vector * x, void *params);
 int gauss_multi_peak_df (const gsl_vector * x, void *params, gsl_matrix * J);

@@ -241,7 +241,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
 	connect (cp,SIGNAL(viewTextDialog()),this,SIGNAL(viewTextDialog()));
 	connect (cp,SIGNAL(viewLineDialog()),this,SIGNAL(viewLineDialog()));
-	connect (cp,SIGNAL(showPlotDialog(long)),this,SIGNAL(showPlotDialog(long)));
+	connect (cp,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
 	connect (cp,SIGNAL(showPieDialog()),this,SIGNAL(showPieDialog()));
 	connect (cp,SIGNAL(showMarkerPopupMenu()),this,SIGNAL(showMarkerPopupMenu()));
 	connect (cp,SIGNAL(modified()), this, SLOT(modified()));
@@ -782,7 +782,7 @@ void Graph::setMajorTicksType(const Q3ValueList<int>& lst)
 
 	for (int i=0;i<(int)lst.count();i++)
 	{
-		ScaleDraw *sd= (ScaleDraw *)d_plot->axisScaleDraw (i);
+		ScaleDraw *sd = (ScaleDraw *)d_plot->axisScaleDraw (i);
 		if (lst[i]==ScaleDraw::None || lst[i]==ScaleDraw::In)
 			sd->enableComponent (QwtAbstractScaleDraw::Ticks, false);
 		else
@@ -792,8 +792,7 @@ void Graph::setMajorTicksType(const Q3ValueList<int>& lst)
 			sd->setTickLength  	(QwtScaleDiv::MediumTick, d_plot->minorTickLength());
 			sd->setTickLength  	(QwtScaleDiv::MajorTick, d_plot->majorTickLength());
 		}
-
-		d_plot->setMajorTicksType(i,lst[i]);
+		sd->setMajorTicksStyle((ScaleDraw::TicksStyle)lst[i]);
 	}
 }
 
@@ -838,15 +837,13 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 	d_plot->setTickLength(minLength, majLength);	
 
 	ScaleDraw *sd= (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	sd->setMajorTicksStyle((ScaleDraw::TicksStyle)majTicksType);	
+	sd->setMinorTicksStyle((ScaleDraw::TicksStyle)minTicksType);
+
 	if (majTicksType == ScaleDraw::None && minTicksType == ScaleDraw::None)
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks, false);
 	else
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks);
-
-	if (majTicksType == ScaleDraw::None || majTicksType == ScaleDraw::In)
-		majLength = 1;
-	if (minTicksType == ScaleDraw::None || minTicksType == ScaleDraw::In)
-		minLength = 0;
 
 	sd->setTickLength (QwtScaleDiv::MinorTick, minLength); 
 	sd->setTickLength (QwtScaleDiv::MediumTick, minLength);
@@ -944,8 +941,6 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 	sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (axis);	
 	sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
 
-	d_plot->setMajorTicksType(axis, majTicksType);	
-	d_plot->setMinorTicksType(axis, minTicksType);
 	setAxisTicksLength(axis, majTicksType, minTicksType, 
 			d_plot->minorTickLength(), d_plot->majorTickLength());
 
@@ -954,6 +949,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 
 	scalePicker->refresh();
 	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
+	scale->repaint();
 	d_plot->replot();	
 	emit modifiedGraph();
 }
@@ -5362,7 +5358,16 @@ void Graph::contextMenuEvent(QContextMenuEvent *e)
 	if (selectedMarker>=0)
 		return;
 
-	emit showContextMenu();
+	QPoint pos = d_plot->canvas()->mapFrom(d_plot, e->pos());
+	int dist, point;
+	const long curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
+	const QwtPlotCurve *c = d_plot->curve(curve);
+
+	if (c && dist < 10)//10 pixels tolerance
+		emit showCurveContextMenu(curve);
+	else
+		emit showContextMenu();
+
 	e->accept();
 }
 

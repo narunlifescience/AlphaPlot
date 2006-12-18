@@ -607,7 +607,7 @@ signals:
 	 void drawTextOff();
 	 void drawLineEnded(bool);
 	 void cursorInfo(const QString&);
-	 void showPlotDialog(long);
+	 void showPlotDialog(int);
 	 void showPieDialog();
 	 void createTable(const QString&,int,int,const QString&);
 	 void createHiddenTable(const QString&,int,int,const QString&);
@@ -627,6 +627,7 @@ signals:
 	 void modifiedPlotAssociation();
 
 	 void showContextMenu();
+	 void showCurveContextMenu(int);
 	 void showMarkerPopupMenu();
 
 	 void showAxisDialog(int);

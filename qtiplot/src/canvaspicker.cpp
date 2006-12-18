@@ -239,7 +239,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					{
 					const QMouseEvent *me = (const QMouseEvent *)e;	
 					int dist, point;
-					long curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
+					int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
 					if (dist < 10)
 						emit showPlotDialog(curveKey);
 					else if (plot()->curves() > 0)

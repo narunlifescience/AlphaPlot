@@ -6352,7 +6352,7 @@ void ApplicationWindow::showPlotDialog()
 		delete showPlot3dDialog();
 }
 
-void ApplicationWindow::showPlotDialog(long curveKey)
+void ApplicationWindow::showPlotDialog(int curveKey)
 {
 	QWidget *w = ws->activeWindow();
 	if (!w)
@@ -6378,6 +6378,45 @@ void ApplicationWindow::showPlotDialog(long curveKey)
 		else
 			delete showPieDialog();
 	}
+}
+
+void ApplicationWindow::showCurveContextMenu(int curveKey)
+{
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	activeGraph = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	QwtPlotCurve *c = activeGraph->curve(activeGraph->curveIndex(curveKey));
+	if (!c)
+		return;
+
+	QMenu curveMenu(this);
+
+	if (c->title().text().contains("="))
+	{
+		 QAction *act = curveMenu.addAction(tr("&Edit Function..."), this, SLOT(showFunctionDialog(int)));
+		act->setData(curveKey);
+		curveMenu.insertSeparator();
+	}
+
+	QAction *act = curveMenu.addAction(tr("&Worksheet"), this, SLOT(showCurveWorksheet(int)));
+	act->setData(curveKey);
+	act = curveMenu.addAction(tr("&Plot details..."), this, SLOT(showPlotDialog(int)));
+	act->setData(curveKey);
+	curveMenu.exec(QCursor::pos());
+}
+
+void ApplicationWindow::showCurveWorksheet(int curveKey)
+{
+	const QwtPlotCurve *c = activeGraph->curve(activeGraph->curveIndex(curveKey));
+	if (!c)
+		return;
+
+	QString curveTitle = c->title().text();
+	if (curveTitle.contains("="))
+		activeGraph->createWorksheet(curveTitle);
+	else
+		showTable(curveTitle);
 }
 
 void ApplicationWindow::zoomIn()
@@ -8546,6 +8585,10 @@ void ApplicationWindow::showTable(const QString& curve)
 		return;
 
 	updateWindowLists(w);
+	int colIndex = w->colIndex(curve);
+	w->setSelectedCol(colIndex);
+	w->table()->clearSelection();
+	w->table()->selectColumn(colIndex);
 	w->showMaximized();
 	Q3ListViewItem *it=lv->findItem (w->name(), 0, Q3ListView::ExactMatch | Qt::CaseSensitive );
 	if (it)
@@ -8963,12 +9006,19 @@ void ApplicationWindow::showPlotWizard()
 					"<p><h4>Please create a table and try again!</h4>"));
 }
 
+void ApplicationWindow::showFunctionDialog(int curveKey)
+{	
+	if ( !activeGraph )
+		return;
+	showFunctionDialog(activeGraph, activeGraph->curveIndex(curveKey));
+}
+
 void ApplicationWindow::showFunctionDialog(Graph *g, int curve)
 {	
 	if ( !g )
 		return;
 
-	FunctionDialog* fd= functionDialog();
+	FunctionDialog* fd = functionDialog();
 	fd->setWindowTitle(tr("QtiPlot - Edit function"));
 	fd->setCurveToModify(g, curve);
 }
@@ -10620,7 +10670,7 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 		else if (whichFit == "fitSigmoidal")
 			fitter = new SigmoidalFit (this, activeGraph);
 		else if(whichFit == "fitGauss")
-			fitter = new MultiPeakFit(this, activeGraph, MultiPeakFit::Gauss);
+			fitter = new GaussFit(this, activeGraph);
 		else if(whichFit == "fitLorentz")
 			fitter = new LorentzFit(this, activeGraph);
 
@@ -10737,9 +10787,10 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	//connect (g,SIGNAL(changeActiveLayer(Graph *)),this,SLOT(changeActiveGraph(Graph *)));
 
 	connect (g,SIGNAL(showTextDialog()),this,SLOT(showTextDialog()));
-	connect (g,SIGNAL(showPlotDialog(long)),this,SLOT(showPlotDialog(long)));
+	connect (g,SIGNAL(showPlotDialog(int)),this,SLOT(showPlotDialog(int)));
 	connect (g,SIGNAL(showScaleDialog(int)), this, SLOT(showScalePageFromAxisDialog(int)));
 	connect (g,SIGNAL(showAxisDialog(int)), this, SLOT(showAxisPageFromAxisDialog(int)));
+	connect (g,SIGNAL(showCurveContextMenu(int)),this,SLOT(showCurveContextMenu(int)));
 
 	connect (g,SIGNAL(showWindowContextMenu()),this,SLOT(showWindowContextMenu()));
 	connect (g,SIGNAL(showCurvesDialog()),this,SLOT(showCurvesDialog()));

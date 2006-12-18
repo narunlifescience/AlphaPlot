@@ -2,8 +2,8 @@
     File                 : intDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis
-    Email                : ion_vasilief@yahoo.fr
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Integration options dialog
                            
  ***************************************************************************/

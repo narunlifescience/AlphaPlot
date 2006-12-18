@@ -68,6 +68,7 @@ class Fit : public QObject
 
 		QString formula(){return d_formula;};
 		virtual void setParametersList(const QStringList& lst){};
+		int numParameters() { return d_p; }
 
 		void setInitialGuess(int parIndex, double val){gsl_vector_set(d_param_init, parIndex, val);};
 		void setInitialGuesses(double *x_init);
@@ -250,19 +251,6 @@ class GaussAmpFit : public Fit
 		void generateFitCurve(double *par);
 };
 
-class LorentzFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		LorentzFit(ApplicationWindow *parent, Graph *g);
-		void guessInitialValues();
-
-	private:
-		void storeCustomFitResults(double *par);
-		void generateFitCurve(double *par);
-};
-
 class NonLinearFit : public Fit
 {
 	Q_OBJECT
@@ -321,7 +309,25 @@ class MultiPeakFit : public Fit
 
 		//! Color index for the peak curves
 		int d_peaks_color;
+
+		//! The peak profile
 		PeakProfile d_profile;
+};
+
+class LorentzFit : public MultiPeakFit
+{
+	Q_OBJECT
+
+	public:
+		LorentzFit(ApplicationWindow *parent, Graph *g);
+};
+
+class GaussFit : public MultiPeakFit
+{
+	Q_OBJECT
+
+	public:
+		GaussFit(ApplicationWindow *parent, Graph *g);
 };
 
 class PolynomialFit : public Fit

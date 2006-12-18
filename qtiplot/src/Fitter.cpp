@@ -458,7 +458,6 @@ void Fit::fit()
 			par[i]=gsl_vector_get(s->x, i);
 
 		chi_2 = pow(gsl_blas_dnrm2(s->f), 2.0);
-
 		gsl_multifit_fdfsolver_free(s);
 	}
 
@@ -772,7 +771,7 @@ void SigmoidalFit::guessInitialValues()
 	d_results = new double[d_p];
 	d_param_names << "y0 (offset)" << "A (height)" << "xc (center)" << "w (width)";
 	d_fit_type = tr("GaussAmp");
-	d_formula = "y = y0+A*exp[-(x-xc)^2/(2*w^2)]";
+	d_formula = "y = y0 + A*exp(-(x-xc)^2/(2*w^2))";
 }
 
 void GaussAmpFit::generateFitCurve(double *par)
@@ -805,85 +804,6 @@ void GaussAmpFit::generateFitCurve(double *par)
 	d_graph->addResultCurve(d_result_points, X, Y, d_curveColorIndex, 
 			((ApplicationWindow *)parent())->generateUnusedName(tr("Fit")),
 			d_fit_type + tr(" fit of ") +  d_curve->title().text());
-}
-
-/*****************************************************************************
- *
- * Class LorentzFit
- *
- *****************************************************************************/
-
-	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g)
-: Fit(parent, g)
-{
-	setName("Lorentz");
-	d_f = lorentz_f;
-	d_df = lorentz_df;
-	d_fdf = lorentz_fdf;
-	d_fsimplex = lorentz_d;
-	d_p = 4;
-	d_param_init = gsl_vector_alloc(d_p);
-	covar = gsl_matrix_alloc (d_p, d_p);
-	d_results = new double[d_p];
-	d_param_names << "y0 (offset)" << "A (area)" << "xc (center)" << "w (width)";
-	d_fit_type = tr("Lorentz");
-	d_formula = "y = y0+2A/pi*w/[4*(x-xc)^2+w^2]";
-}
-
-void LorentzFit::storeCustomFitResults(double *par)
-{
-	for (int i=0; i<d_p; i++)
-		d_results[i] = fabs(par[i]);
-
-	d_results[1] = M_PI_2*d_results[1];
-}
-
-void LorentzFit::generateFitCurve(double *par)
-{
-	double *X = new double[d_result_points]; 
-	double *Y = new double[d_result_points]; 
-
-	double aw = par[1]*par[3];
-	double w2 = par[3]*par[3];
-
-	if (gen_x_data)
-	{
-		double X0 = d_x[0];
-		double step = (d_x[d_n-1]-X0)/(d_result_points-1);
-		for (int i=0; i<d_result_points; i++)
-		{
-			X[i] = X0+i*step;
-			double diff = X[i]-par[2];
-			Y[i] = aw/(4*diff*diff+w2)+par[0];
-		}
-	}
-	else
-	{
-		for (int i=0; i<d_result_points; i++)
-		{
-			X[i] = d_x[i];		
-			double diff = X[i]-par[2];
-			Y[i] = aw/(4*diff*diff+w2)+par[0];
-		}
-	}
-	delete[] par;
-	d_graph->addResultCurve(d_result_points, X, Y, d_curveColorIndex, 
-			((ApplicationWindow *)parent())->generateUnusedName(tr("Fit")),
-			d_fit_type + tr(" fit of ") +  d_curve->title().text());
-}
-
-void LorentzFit::guessInitialValues()
-{
-	gsl_vector_view x = gsl_vector_view_array (d_x, d_n);
-	gsl_vector_view y = gsl_vector_view_array (d_y, d_n);
-
-	double min_out, max_out;
-	gsl_vector_minmax (&y.vector, &min_out, &max_out);
-
-	gsl_vector_set(d_param_init, 0, gsl_vector_min(&y.vector));
-	gsl_vector_set(d_param_init, 1, 1.0);
-	gsl_vector_set(d_param_init, 2, gsl_vector_get(&x.vector, gsl_vector_max_index (&y.vector)));
-	gsl_vector_set(d_param_init, 3, 1.0);
 }
 
 /*****************************************************************************
@@ -1149,11 +1069,11 @@ QString MultiPeakFit::generateFormula(int peaks, PeakProfile profile)
 		switch (profile)
 		{
 			case Gauss:
-				return "y0 + A*sqrt(2/pi)/w*exp(-2*(x-xc)^2/w^2)";
+				return "y0 + A*sqrt(2/PI)/w*exp(-2*((x-xc)/w)^2)";
 				break;
 
 			case Lorentz:
-				return "y0 + 2*A/pi*w/(4*(x-xc)^2+w^2)";
+				return "y0 + 2*A/PI*w/(4*(x-xc)^2+w^2)";
 				break;
 		}
 
@@ -1164,11 +1084,11 @@ QString MultiPeakFit::generateFormula(int peaks, PeakProfile profile)
 		switch (profile)
 		{
 			case Gauss:
-				formula += "sqrt(2/pi)*A" + index + "/w" + index;
-				formula += "*exp(-(x-xc" + index + ")^2/(2*w" + index + "^2))";
+				formula += "sqrt(2/PI)*A" + index + "/w" + index;
+				formula += "*exp(-2*((x-xc" + index + "/w" + index + ")^2))";
 				break;
 			case Lorentz:
-				formula += "2*A"+index+"/pi*w"+index+"/(4*(x-xc"+index+")^2+w"+index+"^2)";
+				formula += "2*A"+index+"/PI*w"+index+"/(4*(x-xc"+index+")^2+w"+index+"^2)";
 				break;
 		}
 		if (i < peaks - 1)
@@ -1200,8 +1120,10 @@ void MultiPeakFit::guessInitialValues()
 
 void MultiPeakFit::storeCustomFitResults(double *par)
 {
-	for (int i=0; i<d_p; i++)
+	for (int i=0; i<d_p-1; i++)
 		d_results[i] = fabs(par[i]);
+
+	d_results[d_p-1] = par[d_p-1];//the offset may be negatif
 
 	if (d_profile == Lorentz)
 	{
@@ -1322,6 +1244,34 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, int pr
 	}
 	info += "---------------------------------------------------------------------------------------\n";
 	return info;
+}
+
+/*****************************************************************************
+ *
+ * Class LorentzFit
+ *
+ *****************************************************************************/
+
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g)
+: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+{
+	setName("Lorentz");
+	d_fit_type = tr("Lorentz");
+	d_param_names = QStringList() << "A (area)" << "xc (center)" << "w (width)"  << "y0 (offset)";
+}
+
+/*****************************************************************************
+ *
+ * Class GaussFit
+ *
+ *****************************************************************************/
+
+	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g)
+: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+{
+	setName("Gauss");
+	d_fit_type = tr("Gauss");
+	d_param_names = QStringList() << "A (height)" << "xc (center)" << "w (width)"  << "y0 (offset)";
 }
 
 /*****************************************************************************

@@ -176,10 +176,11 @@ public slots:
 
 signals:   
 	void showTextDialog();
-	void showPlotDialog(long);
+	void showPlotDialog(int);
 	void showAxisDialog(int);
 	void showScaleDialog(int);
 	void showGraphContextMenu();
+	void showCurveContextMenu(int);
 	void showWindowContextMenu();
 	void showCurvesDialog();
 	void drawTextOff();
