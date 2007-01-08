@@ -51,9 +51,6 @@ FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool moda
 {
     if ( !name )
 	setName( "FunctionDialogUi" );
-	 setMinimumSize( QSize( 610, 440 ) );
-	setMaximumSize( QSize( 610, 440 ) );
-    setMouseTracking( true );
 
 	Q3HBox *hbox1=new Q3HBox(this, "hbox1");
 	hbox1->setSpacing(5);

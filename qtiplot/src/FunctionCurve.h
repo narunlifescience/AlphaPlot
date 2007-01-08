@@ -36,6 +36,7 @@
 class FunctionCurve: public QwtPlotCurve
 {
 public:
+	enum {RTTI = 1001};
 	enum FunctionType{Normal = 0, Parametric = 1, Polar = 2};
 	FunctionCurve(const FunctionType& t, const char *name=0);
 	FunctionCurve(const char *name=0);
@@ -47,6 +48,9 @@ public:
 	QStringList formulas(){return d_formulas;};
 	void setFormulas(const QStringList& lst){d_formulas = lst;};
 
+	//! Provided for convenience when dealing with normal functions
+	void setFormula(const QString& s){d_formulas = QStringList() << s;};
+
 	QString variable(){return d_variable;};
 	void setVariable(const QString& s){d_variable = s;};
 
@@ -54,6 +58,13 @@ public:
 	void setFunctionType(const FunctionType& t){d_type = t;};
 
 	void copy(FunctionCurve *f);
+	virtual int rtti () const;
+
+	//! Returns a string used when saving to a project file
+	QString saveToString();
+
+	//! Returns a string that can be displayed in a plot legend
+	QString legend();
 	
 private:
 	FunctionType d_type;

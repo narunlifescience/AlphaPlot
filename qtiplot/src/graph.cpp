@@ -26,6 +26,9 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
+
+#include <QVarLengthArray>
+
 static const char *cut_xpm[]={
 "18 18 3 1",
 ". c None",
@@ -155,6 +158,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	if ( !name )
 		setName( "graph" );
 
+	d_functions = 0;
 	fitter = 0;
 	n_curves=0;
 	linesOnPlot=0;
@@ -3872,19 +3876,10 @@ QString Graph::saveCurves()
 			if (c_type[j] != ErrorBars)
 			{
 				QwtPlotCurve *c = this->curve(j);
-				QString name = c->title().text();				
-				if (!name.contains("_") && name.contains("="))
-				{
-					s+="FunctionCurve\t"+name;
-					s+=","+((FunctionCurve *)c)->variable()+",";
-					s+=QString::number(((FunctionCurve *)c)->startRange(),'g',15)+",";
-					s+=QString::number(((FunctionCurve *)c)->endRange(),'g',15)+"\t";
-					s+=QString::number(c->dataSize())+"\t";
-					s+=QString::number(c->minXValue())+"\t";
-					s+=QString::number(c->x(1)-c->x(0))+"\t";					
-				}
+				if (c->rtti() == FunctionCurve::RTTI)
+					s += ((FunctionCurve *)c)->saveToString();					
 				else if (c_type[j] == Box)
-					s+="curve\t" + QString::number(c->x(0)) + "\t" + c->title().text() + "\t";
+					s += "curve\t" + QString::number(c->x(0)) + "\t" + c->title().text() + "\t";
 				else
 				{
 					QStringList as=QStringList::split(",", associations[j],FALSE);
@@ -5508,11 +5503,6 @@ void Graph::drawLine(bool on, bool arrow)
 		emit drawLineEnded(true);
 }
 
-void Graph::setFitID(int id)
-{
-	fitID=id;
-}
-
 void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas,
 		const QString& var,QList<double> &ranges, int points)
 {
@@ -5531,15 +5521,7 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 	bool error=FALSE;
 	Q3MemArray<double> X(points),Y(points);
 	double step=(ranges[1]-ranges[0])/(double) (points-1);
-
-	int functions = 0;
-	for (int i=0; i<n_curves; i++)
-	{//count the number of function curves
-		if (!(associations[i]).contains("_") && (associations[i]).contains("="))
-			functions++;
-	}
-
-	QString label, oldLabel = c->title().text();
+	QString oldLegend = c->legend();
 	if (type == FunctionCurve::Normal)
 	{
 		MyParser parser;
@@ -5548,7 +5530,6 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 		{	
 			parser.DefineVar(var.ascii(), &x);	
 			parser.SetExpr(formulas[0].ascii());
-
 			X[0]=ranges[0];x=ranges[0];Y[0]=parser.Eval();
 			for (int i = 1; i<points; i++ )
 			{
@@ -5562,16 +5543,12 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 			QMessageBox::critical(this,tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 			error=TRUE;	
 		}
-		label="f"+QString::number(functions)+"(x)="+formulas[0];
 	}	
 	else if (type == FunctionCurve::Parametric || type == FunctionCurve::Polar)
 	{
 		QStringList aux = formulas;
-		if (type == FunctionCurve::Parametric)
-			label="X"+QString::number(functions)+"("+var+")="+aux[0]+",Y"+QString::number(functions)+"("+var+")="+aux[1];
-		else if (type == FunctionCurve::Polar)
+		if (type == FunctionCurve::Polar)
 		{
-			label="R"+QString::number(functions)+"("+var+")="+aux[0]+",Theta"+QString::number(functions)+"("+var+")="+aux[1];
 			QString swap=aux[0];
 			aux[0]="("+swap+")*cos("+aux[1]+")";
 			aux[1]="("+swap+")*sin("+aux[1]+")";
@@ -5604,9 +5581,7 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 	if (error)
 		return;
 
-	associations[curve] = label;
 	c->setData(X, Y, points);
-	c->setTitle(label);	
 	c->setFunctionType((FunctionCurve::FunctionType)type);
 	c->setRange(ranges[0], ranges[1]);
 	c->setFormulas(formulas);
@@ -5617,30 +5592,28 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
 		if (mrk)
 		{
-			QString text = (mrk->getText()).replace(oldLabel, label);
+			QString text = (mrk->getText()).replace(oldLegend, c->legend());
 			mrk->setText(text);
 		}
 	}
-
 	updatePlot();
 	emit modifiedGraph();
 	emit modifiedFunction();
 }
 
 void Graph::addFunctionCurve(int type, const QStringList &formulas, const QString &var,
-		QList<double> &ranges, int points)
+		QList<double> &ranges, int points, const QString& title)
 {
 	bool error=FALSE;
-	Q3MemArray<double> X(points), Y(points);
-	QString label;
-	double step=(ranges[1]-ranges[0])/(double) (points-1);
+	QVarLengthArray<double> X(points), Y(points);
+	QString name;
+	++d_functions;
+	if (!title.isEmpty())
+		name = title;
+	else
+		name = "F" + QString::number(d_functions);
 
-	int functions = 1;
-	for (int i=0; i<n_curves; i++)
-	{//count the number of function curves
-		if (!(associations[i]).contains("_") && (associations[i]).contains("="))
-			functions++;
-	}
+	double step=(ranges[1]-ranges[0])/(double) (points-1);
 
 	if (type == FunctionCurve::Normal)
 	{
@@ -5664,7 +5637,6 @@ void Graph::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 			QMessageBox::critical(this, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 			error=TRUE;	
 		}
-		label="f"+QString::number(functions)+"(x)="+formulas[0];
 	}	
 	else if (type == FunctionCurve::Parametric || type == FunctionCurve::Polar)
 	{
@@ -5672,11 +5644,8 @@ void Graph::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 		MyParser xparser;
 		MyParser yparser;
 		double par;
-		if (type == FunctionCurve::Parametric)
-			label="X"+QString::number(functions)+"("+var+")="+aux[0]+",Y"+QString::number(functions)+"("+var+")="+aux[1];
-		else if (type == FunctionCurve::Polar)
+		if (type == FunctionCurve::Polar)
 		{
-			label="R"+QString::number(functions)+"("+var+")="+aux[0]+",Theta"+QString::number(functions)+"("+var+")="+aux[1];
 			QString swap=aux[0];
 			aux[0]="("+swap+")*cos("+aux[1]+")";
 			aux[1]="("+swap+")*sin("+aux[1]+")";
@@ -5705,11 +5674,11 @@ void Graph::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 	if (error)
 		return;
 
-	associations << label;
+	associations << name;
 
-	FunctionCurve *c = new FunctionCurve((const FunctionCurve::FunctionType)type, label);
+	FunctionCurve *c = new FunctionCurve((const FunctionCurve::FunctionType)type, name);
 	c->setPen(QPen(QColor(Qt::black), widthLine)); 
-	c->setData(X, Y, points);
+	c->setData(X.data(), Y.data(), points);
 	c->setRange(ranges[0], ranges[1]);
 	c->setFormulas(formulas);
 	c->setVariable(var);
@@ -5722,46 +5691,72 @@ void Graph::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 	c_keys.resize(n_curves);
 	c_keys[n_curves-1] = curveID;
 
-	addLegendItem(label);
+	addLegendItem(c->legend());
 	updatePlot();
 	emit modifiedGraph();
 }
 
-void Graph::insertFunctionCurve(const QString& formula, double from, double step, int points)
+void Graph::insertFunctionCurve(const QString& formula, double from, double step, int points, int fileVersion)
 {
 	int type;
 	QStringList formulas;
-	QString var;	
+	QString var, name = QString::null;	
 	QList<double> ranges;
 
-	QStringList curve=QStringList::split (",",formula,TRUE);
-	if (curve[0][0]=='f')
+	QStringList curve = QStringList::split (",",formula,TRUE);
+	if (fileVersion < 87)
 	{
-		type = FunctionCurve::Normal;
-		formulas+=curve[0].section('=',1,1);
-		var = curve[1];
-		ranges+=curve[2].toDouble();
-		ranges+=curve[3].toDouble();
+		if (curve[0][0]=='f')
+		{
+			type = FunctionCurve::Normal;
+			formulas += curve[0].section('=',1,1);
+			var = curve[1];
+			ranges += curve[2].toDouble();
+			ranges += curve[3].toDouble();
+		}
+		else if (curve[0][0]=='X')
+		{
+			type = FunctionCurve::Parametric;
+			formulas += curve[0].section('=',1,1);
+			formulas += curve[1].section('=',1,1);	
+			var = curve[2];
+			ranges += curve[3].toDouble();
+			ranges += curve[4].toDouble();
+		}
+		else if (curve[0][0]=='R')
+		{
+			type = FunctionCurve::Polar;
+			formulas += curve[0].section('=',1,1);
+			formulas += curve[1].section('=',1,1);	
+			var = curve[2];
+			ranges += curve[3].toDouble();
+			ranges += curve[4].toDouble();
+		}
 	}
-	else if (curve[0][0]=='X')
+	else
 	{
-		type = FunctionCurve::Parametric;
-		formulas+=curve[0].section('=',1,1);
-		formulas+=curve[1].section('=',1,1);	
-		var = curve[2];
-		ranges+=curve[3].toDouble();
-		ranges+=curve[4].toDouble();
+		type = curve[0].toInt();
+		name = curve[1];
+		if (name.contains(tr("Fit")))
+			fitID++;
+
+		if (type == FunctionCurve::Normal)
+		{
+			formulas << curve[2];
+			var = curve[3];
+			ranges += curve[4].toDouble();
+			ranges += curve[5].toDouble();
+		}
+		else if (type == FunctionCurve::Polar || type == FunctionCurve::Parametric)
+		{
+			formulas << curve[2];
+			formulas << curve[3];
+			var = curve[4];
+			ranges += curve[5].toDouble();
+			ranges += curve[6].toDouble();
+		}	
 	}
-	else if (curve[0][0]=='R')
-	{
-		type = FunctionCurve::Polar;
-		formulas+=curve[0].section('=',1,1);
-		formulas+=curve[1].section('=',1,1);	
-		var = curve[2];
-		ranges+=curve[3].toDouble();
-		ranges+=curve[4].toDouble();
-	}
-	addFunctionCurve(type, formulas, var, ranges, points);	 
+	addFunctionCurve(type, formulas, var, ranges, points, name);	 
 }
 
 void Graph::createWorksheet(const QString& name)
@@ -6417,11 +6412,9 @@ void Graph::copy(Graph* g)
 			}
 
 			QwtPlotCurve *c = 0;
-			QString name = cv->title().text();	
-
-			if (!name.contains("_") && name.contains("="))
-			{//function curve
-				c = new FunctionCurve(name);
+			if (cv->rtti() == FunctionCurve::RTTI)
+			{
+				c = new FunctionCurve(cv->title().text());
 				((FunctionCurve*)c)->copy((FunctionCurve*)cv);
 			}
 			else if (style == VerticalBars || style == HorizontalBars)

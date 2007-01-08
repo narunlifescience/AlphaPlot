@@ -39,6 +39,7 @@
 #include "VectorCurve.h"
 #include "ErrorBar.h"
 #include "BoxCurve.h"
+#include "FunctionCurve.h"
 
 #include <q3accel.h>
 #include <qcheckbox.h>
@@ -706,7 +707,11 @@ void PlotDialog::showPopupMenu(Q3ListBoxItem *it, const QPoint &point)
 	Q3PopupMenu contextMenu(this);
 	if (listBox->count() > 1)
 		contextMenu.insertItem(tr("&Delete"), this, SLOT(removeCurve()));
-	if (it->text().contains("="))
+	QwtPlotCurve *c = graph->curve(lastSelectedCurve);
+	if (!c)
+		return;
+	
+	if (c->rtti() == FunctionCurve::RTTI)
 		contextMenu.insertItem(tr("&Edit..."), this, SLOT(editFunctionCurve()));
 	else
 		contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(showPlotAssociations()));
@@ -954,7 +959,7 @@ void PlotDialog::setActiveCurve(int index)
 		if (!c)
 			return;
 
-		if (listBox->currentText().contains("="))
+		if (c->rtti() == FunctionCurve::RTTI)
 		{
 			btnAssociations->hide();
 			btnEditFunction->show();

@@ -603,6 +603,9 @@ public slots:
 	void translateCurveHor();
 	void translateCurveVert();
 
+	//! Removes the curve identified by key 'curveKey' from a 2D plot
+	void removeCurve(int curveKey);
+
 	void setAscValues();
 	void setRandomValues();
 	void setXCol();

@@ -82,6 +82,7 @@
 #include "ScriptingLangDialog.h"
 #include "TableStatistics.h"
 #include "Fitter.h"
+#include "FunctionCurve.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -6392,18 +6393,30 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 
 	QMenu curveMenu(this);
 
-	if (c->title().text().contains("="))
+	QAction *act = curveMenu.addAction(c->title().text(), this, SLOT(showPlotDialog(int)));
+	act->setData(curveKey);
+	curveMenu.insertSeparator();
+ 
+	if (c->rtti() == FunctionCurve::RTTI)
 	{
-		 QAction *act = curveMenu.addAction(tr("&Edit Function..."), this, SLOT(showFunctionDialog(int)));
+		 act = curveMenu.addAction(tr("&Edit Function..."), this, SLOT(showFunctionDialog(int)));
 		act->setData(curveKey);
-		curveMenu.insertSeparator();
 	}
 
-	QAction *act = curveMenu.addAction(tr("&Worksheet"), this, SLOT(showCurveWorksheet(int)));
+	act = curveMenu.addAction(tr("&Worksheet"), this, SLOT(showCurveWorksheet(int)));
 	act->setData(curveKey);
 	act = curveMenu.addAction(tr("&Plot details..."), this, SLOT(showPlotDialog(int)));
 	act->setData(curveKey);
+	curveMenu.insertSeparator();
+	act = curveMenu.addAction(QPixmap(close_xpm), tr("&Delete"), this, SLOT(removeCurve(int)));
+	act->setData(curveKey);
+ 
 	curveMenu.exec(QCursor::pos());
+}
+
+void ApplicationWindow::removeCurve(int curveKey)
+{
+	activeGraph->removeCurve(activeGraph->curveIndex(curveKey));
 }
 
 void ApplicationWindow::showCurveWorksheet(int curveKey)
@@ -6413,7 +6426,7 @@ void ApplicationWindow::showCurveWorksheet(int curveKey)
 		return;
 
 	QString curveTitle = c->title().text();
-	if (curveTitle.contains("="))
+	if (c->rtti() == FunctionCurve::RTTI)
 		activeGraph->createWorksheet(curveTitle);
 	else
 		showTable(curveTitle);
@@ -10302,7 +10315,8 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			else
 				cl.penWidth = curve[17].toInt();
 
-			ag->insertFunctionCurve(curve[1], curve[3].toDouble(),curve[4].toDouble(),curve[2].toInt());
+			ag->insertFunctionCurve(curve[1], curve[3].toDouble(),
+					curve[4].toDouble(),curve[2].toInt(), fileVersion);
 			ag->setCurveType(curveID, curve[5].toInt());
 			ag->updateCurveLayout(curveID, &cl);
 			if (fileVersion >= 88)
@@ -10679,6 +10693,7 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 			if (whichFit != "fitLinear")
 				fitter->guessInitialValues();
 
+			fitter->setFitCurveParameters(generateUniformFitPoints, fitPoints);
 			fitter->fit();
 			delete fitter;
 		}

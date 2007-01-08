@@ -80,7 +80,6 @@ class Fit : public QObject
 		void setTolerance(double eps){d_tolerance = eps;};
 		void setFitCurveColor(int colorId){d_curveColorIndex = colorId;};
 
-		virtual void generateFitCurve(double *par){};
 		void setFitCurveParameters(bool generate, int points = 0);
 
 		void setMaximumIterations(int iter){d_max_iterations = iter;};
@@ -92,7 +91,7 @@ class Fit : public QObject
 		virtual QString legendFitInfo(int prec);
 
 		//! Returns a vector with the fit results
-		double* fitResults(){return d_results;};
+		double* results(){return d_results;};
 
 		//! Returns the sum of squares of the residuals from the best-fit line
 		double chiSquare() {return chi_2;};
@@ -111,6 +110,12 @@ class Fit : public QObject
 		virtual void storeCustomFitResults(double *par);
 
 	protected:
+		//! Adds the result curve as a FunctionCurve to the plot, if gen_x_data = true
+		void insertFitFunctionCurve(const QString& name, double *x, double *y, int prec);
+
+		//! Adds the result curve to the plot
+		virtual void generateFitCurve(double *par){};
+
 		//! Output string added to the result log
 		virtual QString logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName);
 
