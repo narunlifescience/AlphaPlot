@@ -886,7 +886,7 @@ void ConfigDialog::languageChange()
 
 	//Fitting page
 	groupBoxFittingCurve->setTitle(tr("Generated Fit Curve"));
-	generatePointsBtn->setText(tr("Uniform X"));
+	generatePointsBtn->setText(tr("Uniform X Function"));
 	lblPoints->setText( tr("Points") );
 	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
 

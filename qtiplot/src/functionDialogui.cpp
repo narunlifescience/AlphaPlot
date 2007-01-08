@@ -46,6 +46,8 @@
 #include <Q3VBoxLayout>
 #include <Q3HBoxLayout>
 
+#include <Q3TextEdit>
+
 FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
@@ -64,19 +66,20 @@ FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool moda
 
     functionPage = new QWidget( optionStack, "functionPage" );
 	
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),functionPage,"GroupBox1" );
+	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,QString(),functionPage,"GroupBox1" );
 	GroupBox1->setFlat(true);
 
-    textFunction = new QLabel( GroupBox1, "textFunction" );
-	boxFunction = new QComboBox( false, GroupBox1, "boxFunction" );
-    boxFunction->setEditable( true );
+    textFunction = new QLabel( GroupBox1 );
+	boxFunction = new Q3TextEdit( GroupBox1 );
+    boxFunction->setMinimumHeight(50);
+	boxFunction->setMinimumWidth(350);
 
-	textFrom = new QLabel( GroupBox1, "textFrom" );
-    boxFrom = new QLineEdit( GroupBox1, "boxFrom" );
+	textFrom = new QLabel( GroupBox1 );
+    boxFrom = new QLineEdit( GroupBox1 );
 	boxFrom->setText("0");
 	
-    textTo = new QLabel( GroupBox1, "textTo" );
-	boxTo = new QLineEdit( GroupBox1, "boxTo" );
+    textTo = new QLabel( GroupBox1 );
+	boxTo = new QLineEdit( GroupBox1 );
 	boxTo->setText("1");
 
     textPoints = new QLabel( GroupBox1, "textPoints" );
@@ -168,11 +171,17 @@ FunctionDialogUi::FunctionDialogUi( QWidget* parent, const char* name, bool moda
 	
     languageChange();
 
-    connect( boxType, SIGNAL( activated(int) ), optionStack, SLOT( raiseWidget(int) ) );
+    connect( boxType, SIGNAL( activated(int) ), this, SLOT( raiseWidget(int) ) );
 }
 
-FunctionDialogUi::~FunctionDialogUi()
+void FunctionDialogUi::raiseWidget(int index)
 {
+	if (index)
+		buttonClear->setText( tr( "Clear list" ) );
+	else
+		buttonClear->setText( tr( "Clear Function" ) );
+
+	optionStack->raiseWidget(index);
 }
 
 void FunctionDialogUi::languageChange()
@@ -183,7 +192,7 @@ void FunctionDialogUi::languageChange()
     textFrom->setText( tr( "From x= " ) );
     textTo->setText( tr( "To x= " ) );
     textPoints->setText( tr( "Points" ) );
-    buttonClear->setText( tr( "Clear list" ) );
+    buttonClear->setText( tr( "Clear Function" ) );
     textParameter->setText( tr( "Parameter" ) );
     textParPoints->setText( tr( "Points" ) );
     textParameterTo->setText( tr( "To" ) );
@@ -199,6 +208,6 @@ void FunctionDialogUi::languageChange()
     boxType->insertItem( tr( "Function" ) );
     boxType->insertItem( tr( "Parametric plot" ) );
     boxType->insertItem( tr( "Polar plot" ) );
-    buttonCancel->setText( tr( "Cancel" ) );
-    buttonOk->setText( tr( "Ok" ) );
+    buttonCancel->setText( tr( "Close" ) );
+    buttonOk->setText( tr( "Apply" ) );
 }

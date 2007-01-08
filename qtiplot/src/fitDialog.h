@@ -86,7 +86,7 @@ public:
 	QLineEdit *boxName, *boxParam;
 	QLabel *lblFunction, *lblPoints, *polynomOrderLabel;
 	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue, *btnApply;
-	QPushButton *buttonEdit, *btnAddTxt, *btnAddName, *btnDeleteTables;
+	QPushButton *buttonEdit, *btnAddTxt, *btnAddName, *btnDeleteFitCurves;
 	ColorBox* boxColor;
 	Q3ComboBox *boxWeighting, *tableNamesBox, *colNamesBox;
 	QRadioButton *generatePointsBtn, *samePointsBtn;
@@ -135,6 +135,9 @@ public slots:
 	//! Applies the user changes to the numerical format of the output results
 	void applyChanges();
 	void enableApplyChanges(int);
+
+	//! Deletes the result fit curves from the plot
+	void deleteFitCurves();
 
 signals:
 	void clearFunctionsList();

@@ -4318,7 +4318,6 @@ void ApplicationWindow::readSettings()
 	recentProjects=variantListToStringList(settings.value("/recentProjects").toList());
 	updateRecentProjectsList();
 
-	functions=variantListToStringList(settings.value("/functions").toList());
 	fitFunctions=variantListToStringList(settings.value("/fitFunctions").toList());
 	surfaceFunc=variantListToStringList(settings.value("/surfaceFunctions").toList());
 	xFunctions=variantListToStringList(settings.value("/xFunctions").toList());
@@ -4558,7 +4557,6 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/helpFilePath", helpFilePath);
 	settings.setValue("/ShowWindowsPolicy", show_windows_policy);
 	settings.setValue("/recentProjects", recentProjects);
-	settings.setValue("/functions", functions);
 	settings.setValue("/fitFunctions", fitFunctions);
 	settings.setValue("/surfaceFunctions", surfaceFunc);
 	settings.setValue("/xFunctions", xFunctions);
@@ -9040,11 +9038,9 @@ FunctionDialog* ApplicationWindow::functionDialog()
 {
 	FunctionDialog* fd= new FunctionDialog(this,"FunctionDialog",true,0);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
-	connect (fd,SIGNAL(clearFunctionsList()),this,SLOT(clearFunctionsList()));
 	connect (fd,SIGNAL(clearParamFunctionsList()),this,SLOT(clearParamFunctionsList()));
 	connect (fd,SIGNAL(clearPolarFunctionsList()),this,SLOT(clearPolarFunctionsList()));
 
-	fd->insertFunctionsList(functions);
 	fd->insertParamFunctionsList(xFunctions, yFunctions);
 	fd->insertPolarFunctionsList(rFunctions, tetaFunctions);
 	fd->exec();
@@ -9105,14 +9101,6 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas)
 		while ((int)yFunctions.size() > maxListSize)
 			yFunctions.pop_back();
 	}
-	else 
-	{
-		functions.remove(formulas[0]);
-		functions.push_front(formulas[0]);
-
-		while ((int)functions.size() > maxListSize)
-			functions.pop_back();
-	}
 }
 
 void ApplicationWindow::newFunctionPlot()
@@ -9161,11 +9149,6 @@ void ApplicationWindow::clearPolarFunctionsList()
 {
 	rFunctions.clear();
 	tetaFunctions.clear();
-}
-
-void ApplicationWindow::clearFunctionsList()
-{
-	functions.clear();
 }
 
 void ApplicationWindow::clearFitFunctionsList()

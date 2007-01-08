@@ -2241,6 +2241,7 @@ void Graph::multiPeakFit(ApplicationWindow *app, int profile, int peaks)
 	fitter = new MultiPeakFit(app, this, (MultiPeakFit::PeakProfile)profile, peaks);
 	fitter->enablePeakCurves(app->generatePeakCurves);
 	fitter->setPeakCurvesColor(app->peakCurvesColor);
+	fitter->setFitCurveParameters(app->generateUniformFitPoints, app->fitPoints);
 	d_plot->canvas()->grabMouse();
 }
 
@@ -2299,7 +2300,7 @@ bool Graph::selectPoint(const QPoint &pos)
 {
 	int dist, point;
 	const int curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
-	if (curve >= 0 && dist < 10)//10 pixels tolerance
+	if (curve >= 0 && dist < 5)//5 pixels tolerance
 	{
 		const QwtPlotCurve *c = d_plot->curve(curve);
 		if (!c)
@@ -5737,8 +5738,6 @@ void Graph::insertFunctionCurve(const QString& formula, double from, double step
 	{
 		type = curve[0].toInt();
 		name = curve[1];
-		if (name.contains(tr("Fit")))
-			fitID++;
 
 		if (type == FunctionCurve::Normal)
 		{

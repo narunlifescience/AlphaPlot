@@ -34,6 +34,8 @@
 //Added by qt3to4:
 #include <QLabel>
 
+#include <Q3TextEdit>
+
 class QLabel;
 class Q3WidgetStack;
 class QWidget;
@@ -50,7 +52,6 @@ class FunctionDialogUi : public QDialog
 
 public:
     FunctionDialogUi( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~FunctionDialogUi();
 
     QLabel* textFunction_2;
     Q3WidgetStack* optionStack;
@@ -61,7 +62,7 @@ public:
     QLabel* textTo;
     QLabel* textPoints;
     QLineEdit* boxTo;
-    QComboBox* boxFunction;
+    Q3TextEdit* boxFunction;
     QPushButton* buttonClear;
     QWidget* parametricPage;
     QLabel* textParameter;
@@ -91,10 +92,11 @@ public:
     Q3ButtonGroup  *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
     QPushButton* buttonCancel;
     QPushButton* buttonOk;
-	QSpinBox    *boxPoints, *boxParPoints, *boxPolarPoints;
+	QSpinBox *boxPoints, *boxParPoints, *boxPolarPoints;
 
 protected slots:
-    virtual void languageChange();
+    void languageChange();
+	void raiseWidget(int index);
 
 };
 

@@ -174,8 +174,8 @@ void FitDialog::initFitPage()
 	buttonEdit = new QPushButton(GroupBox2, "buttonOk" );
 	buttonEdit->setText( tr( "<< &Edit function" ) );
 
-	btnDeleteTables = new QPushButton(GroupBox2, "btnDeleteTables" );
-	btnDeleteTables->setText( tr( "&Delete Fit Curves" ) );
+	btnDeleteFitCurves = new QPushButton(GroupBox2, "btnDeleteFitCurves" );
+	btnDeleteFitCurves->setText( tr( "&Delete Fit Curves" ) );
 
 	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
 	buttonOk->setText( tr( "&Fit" ) );
@@ -199,7 +199,7 @@ void FitDialog::initFitPage()
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT(accept()));
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT(close()));
 	connect( buttonEdit, SIGNAL( clicked() ), this, SLOT(showEditPage()));
-	connect( btnDeleteTables, SIGNAL( clicked() ), (ApplicationWindow *)this->parent(), SLOT(deleteFitTables()));
+	connect( btnDeleteFitCurves, SIGNAL( clicked() ), this, SLOT(deleteFitCurves()));
 	connect( boxWeighting, SIGNAL( activated(int) ), this, SLOT( enableWeightingParameters(int) ) );
 	connect( buttonAdvanced, SIGNAL(clicked()), this, SLOT(showAdvancedPage() ) );
 
@@ -317,7 +317,7 @@ void FitDialog::initAdvancedPage()
 	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Generated Fit Curve"), advancedPage );
 
 	generatePointsBtn = new QRadioButton (GroupBox1);
-	generatePointsBtn ->setText(tr("Uniform X"));
+	generatePointsBtn ->setText(tr("Uniform X Function"));
 	generatePointsBtn->setChecked(app->generateUniformFitPoints);
 	connect( generatePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
@@ -1170,7 +1170,7 @@ void FitDialog::accept()
 		fitter->setFitCurveParameters(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
 
-		if (fitter->name() == QString("MultiPeak") && ((MultiPeakFit *)fitter)->peaks() > 1)
+		if (fitter->name() == tr("MultiPeak") && ((MultiPeakFit *)fitter)->peaks() > 1)
 		{
 			((MultiPeakFit *)fitter)->enablePeakCurves(app->generatePeakCurves);
 			((MultiPeakFit *)fitter)->setPeakCurvesColor(app->peakCurvesColor);
@@ -1331,6 +1331,16 @@ void FitDialog::closeEvent (QCloseEvent * e )
 void FitDialog::enableApplyChanges(int)
 {
 	btnApply->setEnabled(true);
+}
+
+void FitDialog::deleteFitCurves()
+{
+	QStringList lst = graph->curvesList();
+	for (int i = 0; i<lst.count(); i++)
+	{
+		if (lst[i].contains(tr("Fit")))
+			graph->removeCurve(lst[i]);
+	}
 }
 
 FitDialog::~FitDialog()

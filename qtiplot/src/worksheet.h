@@ -322,10 +322,9 @@ private:
 	QString specifications, newSpecifications;
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
-	int selectedCol, lastSelectedCol;
+	int selectedCol;
 	QStringList savedCells;
 	int savedCol;
-	bool LeftButton;
 };
 
 #endif

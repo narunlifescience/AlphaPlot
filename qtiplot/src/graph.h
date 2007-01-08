@@ -509,8 +509,6 @@ public slots:
 
 	//! Set the number of fit curves
 	void setFitID(int id){fitID=id;};
-	//! Get the number of existing fit curves
-	int fitCurves(){return fitID;};
 
 	 void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
 
