@@ -128,6 +128,17 @@ gsl_multimin_fminimizer * Fit::fitSimplex(gsl_multimin_function f, int &iteratio
 	return s_min;
 }
 
+void Fit::setRange(double from, double to)
+{ 
+	if (!d_curve)
+	{
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+				tr("No curve assigned to the fitter! Please assign a curve first!"));
+		return;
+	}
+	setDataFromCurve (d_curve->title().text(), from, to);
+}
+
 void Fit::setDataFromCurve(QwtPlotCurve *curve, int start, int end)
 { 
 	if (d_n > 0)
@@ -154,8 +165,18 @@ void Fit::setDataFromCurve(QwtPlotCurve *curve, int start, int end)
 	}
 }
 
-bool Fit::setDataFromCurve(const QString& curveTitle)
-{  
+bool Fit::setDataFromCurve(const QString& curveTitle, Graph *g)
+{ 
+	if (curveTitle.isEmpty())
+	{
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+				tr("Please enter a valid curve name!"));
+		return false;
+	}
+
+	if (g)
+		d_graph = g;
+
 	if (!d_graph)
 		return false;
 
@@ -168,8 +189,18 @@ bool Fit::setDataFromCurve(const QString& curveTitle)
 	return true;
 }
 
-bool Fit::setDataFromCurve(const QString& curveTitle, double from, double to)
+bool Fit::setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g)
 {  
+	if (curveTitle.isEmpty())
+	{
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+				tr("Please enter a valid curve name!"));
+		return false;
+	}
+
+	if (g)
+		d_graph = g;
+
 	if (!d_graph)
 		return false;
 
@@ -409,6 +440,13 @@ void Fit::fit()
 	if (!d_graph)
 		return;
 
+	if (!d_n)
+	{
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+				tr("No data assigned to the fitter. Operation aborted!"));
+		return;
+	}
+
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
 	const char *function = d_formula.ascii();
@@ -546,6 +584,29 @@ Fit::~Fit()
 : Fit(parent, g),
 	is_exp_growth(expGrowth)
 {
+	init();
+}
+
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, 
+		const QString& curveTitle, bool expGrowth)
+: Fit(parent, g),
+	is_exp_growth(expGrowth)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
+		const QString& curveTitle, int start, int end, bool expGrowth)
+: Fit(parent, g),
+	is_exp_growth(expGrowth)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void ExponentialFit::init()
+{
 	d_f = exp_f;
 	d_df = exp_df;
 	d_fdf = exp_fdf;
@@ -613,6 +674,25 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)
 {
+	init();
+}
+
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void TwoExpFit::init()
+{
 	setName("ExpDecay");
 	d_f = expd2_f;
 	d_df = expd2_df;
@@ -667,6 +747,25 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)
+{
+	init();
+}
+
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void ThreeExpFit::init()
 {
 	setName("ExpDecay");
 	d_f = expd3_f;
@@ -723,6 +822,25 @@ void ThreeExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)
+{
+	init();
+}
+
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void SigmoidalFit::init()
 {
 	setName("Boltzmann");
 	d_f = boltzmann_f;
@@ -784,6 +902,25 @@ void SigmoidalFit::guessInitialValues()
 
 	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)
+{
+	init();
+}
+
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void GaussAmpFit::init()
 {
 	setName("GaussAmp");
 	d_f = gauss_f;
@@ -1338,6 +1475,25 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, int pr
 	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g)
 : MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
 {
+	init();
+}
+
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void LorentzFit::init()
+{
 	setName("Lorentz");
 	d_fit_type = tr("Lorentz");
 	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
@@ -1351,6 +1507,27 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, int pr
 
 	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g)
 : MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+{
+	setName("Gauss");
+	d_fit_type = tr("Gauss");
+	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
+}
+
+	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void GaussFit::init()
 {
 	setName("Gauss");
 	d_fit_type = tr("Gauss");
@@ -1500,6 +1677,25 @@ QString PolynomialFit::legendFitInfo(int prec)
 
 	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)
+{
+	init();
+}
+
+	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle);
+}
+
+	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+: Fit(parent, g)
+{
+	init();
+	setDataFromCurve(curveTitle, start, end);
+}
+
+void LinearFit::init()
 {
 	d_p = 2;
 	covar = gsl_matrix_alloc (d_p, d_p);

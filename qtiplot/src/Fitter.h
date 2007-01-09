@@ -45,6 +45,7 @@ class Fit : public QObject
 	Q_OBJECT
 
 	public:
+
 		typedef double (*fit_function_simplex)(const gsl_vector *, void *);
 		typedef int (*fit_function)(const gsl_vector *, void *, gsl_vector *);
 		typedef int (*fit_function_df)(const gsl_vector *, void *, gsl_matrix *);
@@ -56,15 +57,17 @@ class Fit : public QObject
 		Fit(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
 		~Fit();
 
+		//! Actually does the fit. Should be reimplemented in derived classes.
 		virtual void fit();
 
 		bool setWeightingData(WeightingMethod w, const QString& colName = QString::null);
 
-		bool setDataFromCurve(const QString& curveTitle);
-		bool setDataFromCurve(const QString& curveTitle, double from, double to);
+		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
+		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
 		void setDataFromCurve(QwtPlotCurve *curve, int start, int end);
 
-		void setGraph(Graph *g){d_graph = g;};
+		//! Changes the data range if the source curve was already assigned. Provided for convenience.
+		void setRange(double from, double to);
 
 		QString formula(){return d_formula;};
 		virtual void setParametersList(const QStringList& lst){};
@@ -207,8 +210,12 @@ class ExponentialFit : public Fit
 
 	public:
 		ExponentialFit(ApplicationWindow *parent, Graph *g,  bool expGrowth = false);
+		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth = false);
+		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, 
+				int start, int end, bool expGrowth = false);
 
 	private:
+		void init();
 		void storeCustomFitResults(double *par);
 		void calculateFitCurveData(double *par, double *X, double *Y);
 
@@ -221,8 +228,11 @@ class TwoExpFit : public Fit
 
 	public:
 		TwoExpFit(ApplicationWindow *parent, Graph *g);
+		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
 
 	private:
+		void init();
 		void storeCustomFitResults(double *par);
 		void calculateFitCurveData(double *par, double *X, double *Y);
 };
@@ -233,8 +243,11 @@ class ThreeExpFit : public Fit
 
 	public:
 		ThreeExpFit(ApplicationWindow *parent, Graph *g);
+		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
 
 	private:
+		void init();
 		void storeCustomFitResults(double *par);
 		void calculateFitCurveData(double *par, double *X, double *Y);
 };
@@ -245,9 +258,12 @@ class SigmoidalFit : public Fit
 
 	public:
 		SigmoidalFit(ApplicationWindow *parent, Graph *g);
+		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
 		void guessInitialValues();
 
 	private:
+		void init();
 		void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
@@ -257,8 +273,11 @@ class GaussAmpFit : public Fit
 
 	public:
 		GaussAmpFit(ApplicationWindow *parent, Graph *g);
+		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
 
 	private:
+		void init();
 		void calculateFitCurveData(double *par, double *X, double *Y);
 };
 
@@ -335,6 +354,11 @@ class LorentzFit : public MultiPeakFit
 
 	public:
 		LorentzFit(ApplicationWindow *parent, Graph *g);
+		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+
+	private:
+		void init();
 };
 
 class GaussFit : public MultiPeakFit
@@ -343,6 +367,11 @@ class GaussFit : public MultiPeakFit
 
 	public:
 		GaussFit(ApplicationWindow *parent, Graph *g);
+		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+
+	private:
+		void init();
 };
 
 class PolynomialFit : public Fit
@@ -371,9 +400,13 @@ class LinearFit : public Fit
 
 	public:
 		LinearFit(ApplicationWindow *parent, Graph *g);
+		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+
 		void fit();
 
 	private:
+		void init();
 		void calculateFitCurveData(double *par, double *X, double *Y);
 };
 #endif

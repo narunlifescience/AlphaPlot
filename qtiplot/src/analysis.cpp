@@ -884,7 +884,11 @@ QwtPlotCurve* Graph::getValidCurve(const QString& name, int params,
 	QStringList cl = curvesList();
 	int index=cl.findIndex(name);
 	if (index < 0)
+	{
+		QMessageBox::critical(this,tr("QtiPlot - Error"),
+				tr("The curve %1 doesn't exist! Operation aborted!").arg(name));
 		return 0;
+	}
 
 	QwtPlotCurve *c = curve(index);
 	if (!c)
@@ -917,7 +921,11 @@ QwtPlotCurve* Graph::getFitLimits(const QString& name, double from, double to,
 	QStringList cl = curvesList();
 	int index=cl.findIndex(name);
 	if (index < 0)
+	{
+		QMessageBox::critical(this,tr("QtiPlot - Error"),
+				tr("The curve %1 doesn't exist! Operation aborted!").arg(name));
 		return 0;
+	}
 
 	QwtPlotCurve *c = curve(index);
 	if (!c)
@@ -1402,4 +1410,5 @@ bool Graph::validCurvesDataSize()
 	}
 	return true;
 }
+
 
