@@ -234,7 +234,6 @@ public slots:
 	void showFunctionDialog(int curveKey);
 	void showFunctionDialog(Graph * g, int curve);
 	void addFunctionCurve();
-	void clearFunctionsList();
 	void clearFitFunctionsList();
 	void saveFitFunctionsList(const QStringList& l);
 	void clearSurfaceFunctionsList();
