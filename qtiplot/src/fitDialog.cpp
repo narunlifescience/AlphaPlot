@@ -79,6 +79,7 @@ FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 
 	tw = new Q3WidgetStack( this, "tw" );
 	tw->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred, 2, 0, false ));
+
 	initEditPage();
 	initFitPage();
 	initAdvancedPage();
@@ -182,8 +183,8 @@ void FitDialog::initFitPage()
 	buttonOk->setAutoDefault( true );
 	buttonOk->setDefault( true );
 
-	buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-	buttonCancel->setText( tr( "&Close" ) );
+	buttonCancel1 = new QPushButton(GroupBox2, "buttonCancel1" );
+	buttonCancel1->setText( tr( "&Close" ) );
 
 	buttonAdvanced = new QPushButton(GroupBox2, "buttonAdvanced" );
 	buttonAdvanced->setText( tr( "Custom &Output >>" ) );
@@ -197,7 +198,7 @@ void FitDialog::initFitPage()
 	// signals and slots connections
 	connect( boxCurve, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT(accept()));
-	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT(close()));
+	connect( buttonCancel1, SIGNAL( clicked() ), this, SLOT(close()));
 	connect( buttonEdit, SIGNAL( clicked() ), this, SLOT(showEditPage()));
 	connect( btnDeleteFitCurves, SIGNAL( clicked() ), this, SLOT(deleteFitCurves()));
 	connect( boxWeighting, SIGNAL( activated(int) ), this, SLOT( enableWeightingParameters(int) ) );
@@ -281,7 +282,7 @@ void FitDialog::initEditPage()
 	btnAddTxt = new QPushButton(vbox4, "btnAddTxt" );
 	btnAddTxt->setText( tr( "Add &expression" ) );
 
-	btnAddName = new QPushButton(vbox4, "btnClose" );
+	btnAddName = new QPushButton(vbox4, "btnAddName" );
 	btnAddName->setText( tr( "Add &name" ) );
 
 	buttonClear = new QPushButton(vbox4, "buttonClear" );
@@ -289,6 +290,9 @@ void FitDialog::initEditPage()
 
 	btnContinue = new QPushButton(vbox4, "btnContinue" );
 	btnContinue->setText( tr( "&Fit >>" ) );
+
+	buttonCancel2 = new QPushButton(vbox4, "buttonCancel2" );
+	buttonCancel2->setText( tr( "&Close" ) );
 
 	Q3VBoxLayout* hlayout = new Q3VBoxLayout(editPage, 5, 5, "hlayout");
 	hlayout->addWidget(hbox1);
@@ -306,6 +310,7 @@ void FitDialog::initEditPage()
 	connect( btnContinue, SIGNAL(clicked()), this, SLOT(showFitPage() ) );
 	connect( btnAddFunc, SIGNAL(clicked()), this, SLOT(saveUserFunction()));
 	connect( btnDelFunc, SIGNAL(clicked()), this, SLOT(removeUserFunction()));
+	connect( buttonCancel2, SIGNAL(clicked()), this, SLOT(close()) );
 }
 
 
@@ -370,7 +375,6 @@ void FitDialog::initAdvancedPage()
 
 	Q3HBox *hbox1=new Q3HBox(advancedPage);
 	hbox1->setSpacing(5);
-	hbox1->setMaximumWidth(200);
 
 	btnBack = new QPushButton(hbox1);
 	btnBack->setText( tr( "<< &Fit" ) );
@@ -384,6 +388,12 @@ void FitDialog::initAdvancedPage()
 	btnApply->setEnabled(false);
 	connect( btnApply, SIGNAL(clicked()), this, SLOT(applyChanges()));
 
+	buttonCancel3 = new QPushButton(hbox1, "buttonCancel3" );
+	buttonCancel3->setText( tr( "&Close" ) );
+
+	QWidget * spacer = new QWidget(hbox1);
+	hbox1->setStretchFactor(spacer, 1);
+
 	Q3VBoxLayout* hlayout = new Q3VBoxLayout(advancedPage, 5, 5);
 	hlayout->addWidget(GroupBox1);
 	hlayout->addWidget(GroupBox2);
@@ -396,6 +406,7 @@ void FitDialog::initAdvancedPage()
 
 	connect(samePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
 	connect(generatePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
+	connect( buttonCancel3, SIGNAL(clicked()), this, SLOT(close()) );
 }
 
 void FitDialog::applyChanges()

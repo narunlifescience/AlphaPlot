@@ -29,22 +29,75 @@
 #ifndef FUNCTIONDIALOG_H
 #define FUNCTIONDIALOG_H
 
-#include "functionDialogui.h"
 #include <qvariant.h>
 #include <qdialog.h>
-//Added by qt3to4:
 #include <Q3ValueList>
+#include <Q3TextEdit>
 
 class Graph;
-	
+class Q3WidgetStack;
+class QWidget;
+class QLineEdit;
+class QComboBox;
+class QPushButton;
+class Q3ButtonGroup;
+class QSpinBox;
+class QLabel;
+
 //! Function dialog
-class FunctionDialog : public FunctionDialogUi
+class FunctionDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     FunctionDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~FunctionDialog();
+
+protected:
+    QLabel* textFunction_2;
+    Q3WidgetStack* optionStack;
+    QWidget* functionPage;
+    QLabel* textFunction;
+    QLineEdit* boxFrom;
+    QLabel* textFrom;
+    QLabel* textTo;
+    QLabel* textPoints;
+    QLineEdit* boxTo;
+    Q3TextEdit* boxFunction;
+    QPushButton* buttonClear;
+    QWidget* parametricPage;
+    QLabel* textParameter;
+    QLineEdit* boxParameter;
+    QLabel* textParPoints;
+    QLineEdit* boxParFrom;
+    QLineEdit* boxParTo;
+    QLabel* textParameterTo;
+    QLabel* textYPar;
+    QLabel* textXPar;
+    QComboBox* boxXFunction;
+    QComboBox* boxYFunction;
+    QLabel* textParameterFrom;
+    QWidget* polarPage;
+    QLabel* textPolarPoints;
+    QLabel* textPolarParameter;
+    QLabel* textPolarFrom;
+    QLabel* textPolarTo;
+    QLabel* textPolarRadius;
+    QLineEdit* boxPolarParameter;
+    QLineEdit* boxPolarFrom;
+    QLineEdit* boxPolarTo;
+    QComboBox* boxPolarRadius;
+    QLabel* textPolarTheta;
+    QComboBox* boxPolarTheta;
+    QComboBox* boxType;
+    Q3ButtonGroup  *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
+    QPushButton* buttonCancel;
+    QPushButton* buttonOk;
+	QSpinBox *boxPoints, *boxParPoints, *boxPolarPoints;
+
+protected slots:
+    void languageChange();
+	void raiseWidget(int index);
 
 public slots:
 	void accept();

@@ -68,7 +68,9 @@ public:
 	QCheckBox* boxUseBuiltIn;
 	Q3WidgetStack* tw;
     QPushButton* buttonOk;
-	QPushButton* buttonCancel;
+	QPushButton* buttonCancel1;
+	QPushButton* buttonCancel2;
+	QPushButton* buttonCancel3;
 	QPushButton* buttonAdvanced;
 	QPushButton* buttonClear;
 	QPushButton* buttonPlugins;

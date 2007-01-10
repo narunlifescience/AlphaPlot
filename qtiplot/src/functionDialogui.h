@@ -34,16 +34,8 @@
 //Added by qt3to4:
 #include <QLabel>
 
-#include <Q3TextEdit>
 
 class QLabel;
-class Q3WidgetStack;
-class QWidget;
-class QLineEdit;
-class QComboBox;
-class QPushButton;
-class Q3ButtonGroup;
-class QSpinBox;
 
 //! Function dialog user interface
 class FunctionDialogUi : public QDialog
