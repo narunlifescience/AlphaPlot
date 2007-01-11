@@ -8393,7 +8393,10 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 void ApplicationWindow::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
+	{
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
+		connect(scriptEnv,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
+	}
 }
 
 void ApplicationWindow::deleteSelectedItems()
