@@ -435,7 +435,9 @@ public slots:
 	void copyActiveLayer();
 	
 	void newProject();
-	void newGraph();
+
+	//! Creates a new empty multilayer plot
+	MultiLayer* newGraph();
 
 	Matrix* openMatrix(ApplicationWindow* app, const QStringList &flist);
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);

@@ -219,7 +219,7 @@ void FunctionDialog::languageChange()
 	boxType->insertItem( tr( "Parametric plot" ) );
 	boxType->insertItem( tr( "Polar plot" ) );
 	buttonCancel->setText( tr( "Close" ) );
-	buttonOk->setText( tr( "Apply" ) );
+	buttonOk->setText( tr( "Ok" ) );
 }
 
 void FunctionDialog::setCurveToModify(Graph *g, int curve)

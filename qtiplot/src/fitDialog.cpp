@@ -440,12 +440,7 @@ void FitDialog::showParametersTable()
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	tableName = app->generateUnusedName(tableName, false);
-	Table *t = fitter->parametersTable(tableName);
-	if (t)
-	{
-		t->show();
-		QApplication::restoreOverrideCursor();
-	}
+	fitter->parametersTable(tableName);
 }
 
 void FitDialog::showCovarianceMatrix()
@@ -467,12 +462,7 @@ void FitDialog::showCovarianceMatrix()
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	matrixName = app->generateUnusedName(matrixName, false);
-	Matrix *m = fitter->covarianceMatrix(matrixName);
-	if (m)
-	{
-		m->show();
-		QApplication::restoreOverrideCursor();
-	}
+	fitter->covarianceMatrix(matrixName);
 }
 
 void FitDialog::showPointsBox(bool)
@@ -1161,8 +1151,8 @@ void FitDialog::accept()
 		else
 		{
 			fitter = new NonLinearFit(app, graph);
-			((NonLinearFit*)fitter)->setFormula(formula);
 			fitter->setParametersList(parameters);
+			((NonLinearFit*)fitter)->setFormula(formula);
 			fitter->setInitialGuesses(paramsInit);
 		}
 		delete[] paramsInit;

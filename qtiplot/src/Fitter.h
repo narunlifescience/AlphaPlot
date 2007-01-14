@@ -327,7 +327,7 @@ class NonLinearFit : public Fit
 		NonLinearFit(Graph *, const QString&, int, int) : Fit(NULL, NULL, NULL) {};
 
 		void setParametersList(const QStringList& lst);
-		void setFormula(const QString& s){if (d_formula != s) d_formula = s;};
+		void setFormula(const QString& s);
 
 	private:
 		void calculateFitCurveData(double *par, double *X, double *Y);
