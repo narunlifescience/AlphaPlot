@@ -64,6 +64,8 @@ Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
 	d_weihting = NoWeighting;
 	weighting_dataset = QString::null;
 	is_non_linear = true;
+	d_results = 0;
+	d_errors = 0;
 }
 
 gsl_multifit_fdfsolver * Fit::fitGSL(gsl_multifit_function_fdf f, int &iterations, int &status)
@@ -429,6 +431,16 @@ Matrix* Fit::covarianceMatrix(const QString& matrixName)
 	return m;
 }
 
+double *Fit::errors()
+{
+	if (!d_errors) {
+		d_errors = new double[d_p];
+		for (int i=0; i<d_p; i++)
+			d_errors[i] = sqrt(gsl_matrix_get(covar,i,i));
+	}
+	return d_errors;
+}
+
 void Fit::storeCustomFitResults(double *par)
 {
 	for (int i=0; i<d_p; i++)
@@ -570,7 +582,8 @@ Fit::~Fit()
 	if (is_non_linear)
 		gsl_vector_free(d_param_init);
 
-	delete[] d_results;
+	if (d_results) delete[] d_results;
+	if (d_errors) delete[] d_errors;
 	gsl_matrix_free (covar);
 }
 

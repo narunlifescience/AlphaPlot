@@ -10301,8 +10301,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			else
 				cl.penWidth = curve[17].toInt();
 
-			ag->insertFunctionCurve(curve[1], curve[3].toDouble(),
-					curve[4].toDouble(),curve[2].toInt(), fileVersion);
+			ag->insertFunctionCurve(curve[1], curve[2].toInt(), fileVersion);
 			ag->setCurveType(curveID, curve[5].toInt());
 			ag->updateCurveLayout(curveID, &cl);
 			if (fileVersion >= 88)
@@ -12022,7 +12021,7 @@ void ApplicationWindow::deleteFitTables()
 	foreach(QWidget *w, *windows)
 	{
 		QString caption = w->name();
-		if (w->isA("Table") && (caption.startsWith(tr("Fit")) || caption.startsWith(tr("LinearFit"))))
+		if (w->isA("Table") && caption.contains(tr("Fit")))
 		{
 			((Table*)w)->askOnCloseEvent(false);
 			((Table*)w)->close();

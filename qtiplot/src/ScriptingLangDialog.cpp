@@ -46,12 +46,12 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *p
 	btnOK = new QPushButton(tr("OK"));
 	btnCancel = new QPushButton(tr("Cancel"));
 
-    QHBoxLayout *hbox1 = new QHBoxLayout(); 
-    hbox1->addWidget(btnOK);
-    hbox1->addWidget(btnCancel);
-	
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+	hbox1->addWidget(btnOK);
+	hbox1->addWidget(btnCancel);
+
 	QVBoxLayout *vl = new QVBoxLayout();
- 	vl->addWidget(langList);
+	vl->addWidget(langList);
 	vl->addLayout(hbox1);	
 	setLayout(vl);
 

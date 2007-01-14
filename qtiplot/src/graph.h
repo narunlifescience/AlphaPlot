@@ -532,7 +532,7 @@ public slots:
 	 void addFunctionCurve(int type, const QStringList &formulas, const QString& var,
 		 QList<double> &ranges, int points, const QString& title = QString::null);	 
 	 //when reading from file
-	 void insertFunctionCurve(const QString& formula, double from, double to, int points, int fileVersion);
+	 void insertFunctionCurve(const QString& formula, int points, int fileVersion);
 
 	 void createWorksheet(const QString& name);
 	 void activateGraph();
