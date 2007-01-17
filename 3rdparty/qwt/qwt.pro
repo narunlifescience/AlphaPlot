@@ -1,3 +1,5 @@
+QMAKE_PROJECT_DEPTH = 0
++linux-g++-64: libsuff=64
 # -*- mode: sh -*- ###########################
 # Qwt Widget Library
 # Copyright (C) 1997   Josef Wilgen
@@ -39,7 +41,7 @@ CONFIG           += staticlib
 
 MOC_DIR           = src/moc
 OBJECTS_DIR       = src/obj
-DESTDIR           = lib
+DESTDIR           = lib$${libsuff}
 INCLUDEPATH      += include
 DEPENDPATH       += include src
 
@@ -201,8 +203,8 @@ SOURCES += \
     src/qwt_wheel.cpp
 
 unix {
-    INSTALLBASE    = /usr/local/qwt
-    target.path    = $$INSTALLBASE/lib
+    INSTALLBASE    = /usr
+    target.path    = $$INSTALLBASE/lib$${libsuff}
     headers.path   = $$INSTALLBASE/include
     headers.files  = $$HEADERS
     doc.path       = $$INSTALLBASE/doc

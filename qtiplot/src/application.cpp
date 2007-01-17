@@ -801,6 +801,8 @@ void ApplicationWindow::initMainMenu()
 	matrixMenu->addAction(actionMatrixDeterminant);
 
 	matrixMenu->insertSeparator();
+	matrixMenu->addAction(actionGoToRow);
+	matrixMenu->insertSeparator();
 	matrixMenu->addAction(actionConvertMatrix);
 
 	initPlotMenu();
@@ -933,11 +935,13 @@ void ApplicationWindow::initTableMenu()
 	fillMenu->addAction(actionSetRandomValues);
 	fillMenuID = tableMenu->insertItem(tr("&Fill Columns With"),fillMenu);
 
+	tableMenu->addAction(actionClearTable);
 	tableMenu->insertSeparator();
 	tableMenu->addAction(actionAddColToTable);
 	tableMenu->addAction(actionShowColsDialog);
+	tableMenu->insertSeparator();
 	tableMenu->addAction(actionShowRowsDialog);
-
+	tableMenu->addAction(actionGoToRow);
 	tableMenu->insertSeparator();
 	tableMenu->addAction(actionConvertTable);
 }
@@ -2824,7 +2828,8 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
 	connect(m, SIGNAL(closedWindow(MyWidget*)), this, SLOT(closeWindow(MyWidget*)));
 	connect(m, SIGNAL(hiddenWindow(MyWidget*)), this, SLOT(hideWindow(MyWidget*)));
-	connect(m,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
+	connect(m, SIGNAL(statusChanged(MyWidget*)), this, SLOT(updateWindowStatus(MyWidget*)));
+	connect(m, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
 
 	emit modified();
 }
@@ -2948,6 +2953,7 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	current_folder->addWindow(m);
 	m->setFolder(current_folder);
 
+	connect(m, SIGNAL(showTitleBarMenu()), this, SLOT(showWindowTitleBarMenu()));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject()));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(update3DMatrixPlots(QWidget *)));
 	connect(m, SIGNAL(closedWindow(MyWidget*)), this, SLOT(closeWindow(MyWidget*)));
@@ -8864,6 +8870,34 @@ void ApplicationWindow::showWindowContextMenu()
 	cm.exec(QCursor::pos());
 }
 
+void ApplicationWindow::showWindowTitleBarMenu()
+{
+	if (!ws->activeWindow())
+		return;
+
+	QMenu cm(this);
+
+	if (ws->activeWindow()->isA("Table"))
+	{
+		cm.addAction(actionShowExportASCIIDialog);
+		cm.insertSeparator();
+	}
+
+	cm.addAction(actionPrint);
+	if (!ws->activeWindow()->isA("Note"))
+		cm.addAction(actionSaveTemplate);
+	cm.insertSeparator();
+	cm.addAction(actionMinimizeWindow);
+	cm.addAction(actionMaximizeWindow);
+	cm.insertSeparator();
+	cm.addAction(actionRename);
+	cm.addAction(actionCopyWindow);
+	cm.insertSeparator();
+	cm.addAction(actionHideWindow);
+	cm.addAction(actionCloseWindow);
+	cm.exec(QCursor::pos());
+}
+
 void ApplicationWindow::showTableContextMenu(bool selection)
 {
 	Table *t = (Table*)ws->activeWindow();
@@ -8878,7 +8912,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 			showColMenu(t->firstSelectedColumn());
 			return;
 		}
-		else if (t->singleRowSelected())
+		else if (t->selectedRows() == 1)
 		{
 			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
 			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
@@ -8891,7 +8925,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 			cm.insertSeparator();
 			cm.addAction(actionShowRowStatistics);
 		}
-		else if (t->multipleRowsSelected())
+		else if (t->selectedRows() > 1)
 		{
 			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
 			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
@@ -8915,13 +8949,12 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 	}
 	else
 	{
-		cm.addAction(actionRename);
-		cm.addAction(actionCopyWindow);
-		cm.insertSeparator();
 		cm.addAction(actionShowExportASCIIDialog);
-		cm.addAction(actionPrint);
 		cm.insertSeparator();
-		cm.addAction(actionCloseWindow);
+		cm.addAction(actionAddColToTable);
+		cm.addAction(actionClearTable);
+		cm.insertSeparator();
+		cm.addAction(actionGoToRow);
 	}
 	cm.exec(QCursor::pos());
 }
@@ -8930,7 +8963,7 @@ void ApplicationWindow::chooseHelpFolder()
 {
 	QString dir = Q3FileDialog::getExistingDirectory(
 			qApp->applicationDirPath(), this,
-			"get help directory",
+			QString(),
 			"Choose the location of the QtiPlot help folder!",
 			true, true );
 
@@ -8958,15 +8991,17 @@ void ApplicationWindow::showHelp()
     HelpBrowser *browser = new HelpBrowser (helpWindow);
 	helpWindow->setFocus();
 	helpWindow->setCentralWidget(browser);
+	helpWindow->setCaption(tr("QtiPlot - Help Browser"));
+	helpWindow->resize(QSize(800, 600));
 	
 	QToolBar* toolbar = new QToolBar( helpWindow );
 	helpWindow->addToolBar( toolbar );
 	QAction *button = toolbar->addAction(QIcon(QPixmap(folder_open_xpm)), tr("Open File"), browser, SLOT(open()));
-	button->setAccel(tr("Ctrl+O"));
+	button->setShortcut(tr("Ctrl+O"));
 	button = toolbar->addAction(QIcon(QPixmap(fileprint_modern_xpm)), tr("Print"), browser, SLOT(print()));
-	button->setAccel(tr("Ctrl+P"));
+	button->setShortcut(tr("Ctrl+P"));
 	button = toolbar->addAction(QIcon(QPixmap(export_pdf_xpm)), tr("Export PDF"), browser, SLOT(exportPdf()));
-	button->setAccel(tr("Ctrl+E"));
+	button->setShortcut(tr("Ctrl+E"));
 	toolbar->addSeparator();
 	button = toolbar->addAction(QIcon(QPixmap(prev_xpm)), tr("Backward"), browser, SLOT(backward()));
     connect( browser, SIGNAL( backwardAvailable(bool) ), button, SLOT( setEnabled(bool) ) );
@@ -10765,6 +10800,7 @@ void ApplicationWindow::pickDataTool( QAction* action )
 
 void ApplicationWindow::connectSurfacePlot(Graph3D *plot)
 {
+	connect (plot,SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect (plot,SIGNAL(showContextMenu()),this,SLOT(showWindowContextMenu()));
 	connect (plot,SIGNAL(showOptionsDialog()),this,SLOT(showPlot3dDialog()));
 	connect (plot,SIGNAL(closedWindow(MyWidget*)),this, SLOT(closeWindow(MyWidget*)));
@@ -10780,7 +10816,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 {
 	// FIXME: the signal changeActiveLayer does not exist
 	//connect (g,SIGNAL(changeActiveLayer(Graph *)),this,SLOT(changeActiveGraph(Graph *)));
-
+	connect (g,SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect (g,SIGNAL(showTextDialog()),this,SLOT(showTextDialog()));
 	connect (g,SIGNAL(showPlotDialog(int)),this,SLOT(showPlotDialog(int)));
 	connect (g,SIGNAL(showScaleDialog(int)), this, SLOT(showScalePageFromAxisDialog(int)));
@@ -10831,6 +10867,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 
 void ApplicationWindow::connectTable(Table* w)
 {
+	connect (w,SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect (w,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect (w,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
 	connect (w,SIGNAL(closedWindow(MyWidget*)),this, SLOT(closeWindow(MyWidget*)));
@@ -11282,6 +11319,13 @@ void ApplicationWindow::createActions()
 
 	actionAddColToTable = new QAction(QIcon(QPixmap(addCol_xpm)), tr("Add Column"), this);
 	connect(actionAddColToTable, SIGNAL(activated()), this, SLOT(addColToTable()));
+
+	actionGoToRow = new QAction(tr("&Go to Row..."), this);
+	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));
+	connect(actionGoToRow, SIGNAL(activated()), this, SLOT(goToRow()));
+
+	actionClearTable = new QAction(QPixmap(erase_xpm), tr("Clear"), this);
+	connect(actionClearTable, SIGNAL(activated()), this, SLOT(clearTable()));
 
 	actionDeleteLayer = new QAction(QIcon(QPixmap(erase_xpm)), tr("&Remove Layer"), this);
 	actionDeleteLayer->setShortcut( tr("Alt+R") );
@@ -11739,6 +11783,9 @@ void ApplicationWindow::translateActionsStrings()
 	actionCloseWindow->setShortcut(tr("Ctrl+W"));
 
 	actionAddColToTable->setMenuText(tr("Add Column"));
+	actionClearTable->setMenuText(tr("Clear"));
+	actionGoToRow->setMenuText(tr("&Go to Row..."));
+	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));
 
 	actionDeleteLayer->setMenuText(tr("&Remove Layer"));
 	actionDeleteLayer->setShortcut(tr("Alt+R"));
@@ -13789,6 +13836,41 @@ QString ApplicationWindow::generateUnusedName(const QString& name, bool incremen
 	return newName;
 }
 
+void ApplicationWindow::clearTable()
+{
+	Table *t = (Table*)ws->activeWindow();
+	if (!t || !t->isA("Table"))
+		return;
+
+	if (QMessageBox::question(this, tr("QtiPlot - Warning"),
+				tr("This will clear the contents of all the data associated with the table. Are you sure?"),
+				tr("&Yes"), tr("&No"), QString(), 0, 1 ) )
+		return;
+	else
+		t->clear();
+}
+
+void ApplicationWindow::goToRow()
+{
+	if (!ws->activeWindow())
+		return;
+
+	if (ws->activeWindow()->isA("Table") || ws->activeWindow()->isA("Matrix"))
+	{
+		bool ok;
+		int row = QInputDialog::getInteger(tr("QtiPlot - Enter row number"), tr("Row"), 
+				1, 0, 1000000, 1, &ok, this );
+		if ( !ok ) 
+			return;
+
+		if (ws->activeWindow()->isA("Table"))
+			((Table*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
+		else if (ws->activeWindow()->isA("Matrix"))
+			((Matrix*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
+	}
+}
+
+
 ApplicationWindow::~ApplicationWindow()
 {
 	if (lastCopiedLayer)
@@ -13809,17 +13891,17 @@ ApplicationWindow::~ApplicationWindow()
 HelpBrowser::HelpBrowser(QWidget * parent, const char * name)
 		:QTextBrowser (parent, name)
 {
-setFrameStyle(QFrame::Panel | QFrame::Sunken);
-setOpenExternalLinks(true);
-// TODO: be able to set a .css file
-//document()->setDefaultStyleSheet("qtiplot.css"); //doesn't work
+	setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	setOpenExternalLinks(true);
+	// TODO: be able to set a .css file
+	//document()->setDefaultStyleSheet("qtiplot.css"); //doesn't work
 }
 
 void HelpBrowser::open()
 {
-QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this);
-if (!fn.isEmpty() && QFile(fn).exists())
-   setSource(QUrl::fromLocalFile(fn));
+	QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this);
+	if (!fn.isEmpty() && QFile(fn).exists())
+		setSource(QUrl::fromLocalFile(fn));
 }
 
 void HelpBrowser::print()
@@ -13837,14 +13919,14 @@ void HelpBrowser::print()
 void HelpBrowser::exportPdf()
 {
 #ifndef QT_NO_PRINTER
-    QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
-    if (!fileName.isEmpty()) {
-        if (QFileInfo(fileName).suffix().isEmpty())
-            fileName.append(".pdf");
-        QPrinter printer(QPrinter::HighResolution);
-        printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(fileName);
-        document()->print(&printer);
-    }
+	QString fileName = QFileDialog::getSaveFileName(this, "Export PDF", QString(), "*.pdf");
+	if (!fileName.isEmpty()) {
+		if (QFileInfo(fileName).suffix().isEmpty())
+			fileName.append(".pdf");
+		QPrinter printer(QPrinter::HighResolution);
+		printer.setOutputFormat(QPrinter::PdfFormat);
+		printer.setOutputFileName(fileName);
+		document()->print(&printer);
+	}
 #endif
 }

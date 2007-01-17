@@ -111,6 +111,7 @@ public slots:
 	void deleteSelectedColumns();
 	int numSelectedColumns();
 
+	//! This slot notifies the main application that the matrix has been modified
 	void saveCellsToMemory();
 	void forgetSavedCells();
 
@@ -120,14 +121,16 @@ public slots:
 	double yEnd(){return y_end;};
 	void setCoordinates(double xs, double xe, double ys, double ye);
 
-	//! This slot notifies the main application that the matrix has been modified
+	Q3Table* table(){return d_table;};
+
+	//! Notifies the main application that the matrix has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
 
 signals:
 	void showContextMenu();
 
 private:
-	Q3Table *table;
+	Q3Table *d_table;
 	QString formula_str;
 	QChar txt_format;
 	int selectedCol, num_precision;

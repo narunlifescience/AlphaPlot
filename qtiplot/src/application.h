@@ -472,6 +472,8 @@ public slots:
 	void correlate();
 	void convolute();
 	void deconvolute();
+	void clearTable();
+	void goToRow();
 
 	// plot tools 
 	void newLegend();
@@ -558,6 +560,7 @@ public slots:
 	void showGraphContextMenu();
 	void showTableContextMenu(bool selection);
 	void showWindowContextMenu();
+	void showWindowTitleBarMenu();
 	void showCurveContextMenu(int curveKey);
 	void showCurveWorksheet(int curveKey);
 	void showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p, int);

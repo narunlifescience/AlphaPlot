@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
-					  Knut Franke
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
                            knut.franke@gmx.de
     Description          : MDI window widget

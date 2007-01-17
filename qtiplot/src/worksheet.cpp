@@ -898,7 +898,7 @@ int Table::atRow(int col, double value)
 
 void Table::deleteSelectedRows()
 {
-	Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
+	Q3TableSelection sel=worksheet->selection(0);
 	int top=sel.topRow();
 	int bottom=sel.bottomRow();
 	int numberOfRows=bottom-top+1;
@@ -913,34 +913,6 @@ void Table::cutSelection()
 {
 	copySelection();
 	clearSelection();
-}
-
-bool Table::multipleRowsSelected()
-{
-	bool selected = true;
-	Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
-	int top=sel.topRow();
-	int bottom=sel.bottomRow();
-
-	if (top == bottom)
-		return false;
-
-	for (int i=top; i<=bottom; i++)
-	{
-		if (!worksheet->isRowSelected (i, true))
-			return false;
-	}
-	return selected;
-}
-
-bool Table::singleRowSelected()
-{
-	Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
-	int top=sel.topRow();	
-	if (top == sel.bottomRow() && worksheet->isRowSelected (top, true))
-		return true;
-
-	return false;
 }
 
 void Table::selectAllTable()
@@ -970,7 +942,7 @@ void Table::clearSelection()
 	}
 	else
 	{
-		Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
+		Q3TableSelection sel=worksheet->selection(0);
 		int top=sel.topRow();
 		int bottom=sel.bottomRow();
 		int left=sel.leftCol();
@@ -1034,24 +1006,16 @@ void Table::copySelection()
 	}
 	else
 	{
-		int selnum = worksheet->currentSelection();
-		if (selnum==-1)
-			text=worksheet->text(worksheet->currentRow(),worksheet->currentColumn());
-		else
+		Q3TableSelection sel = worksheet->selection(0);
+		int right=sel.rightCol();
+		int bottom=sel.bottomRow();
+		for (i=sel.topRow(); i<=bottom; i++)
 		{
-			Q3TableSelection sel=worksheet->selection(selnum);
-			int top=sel.topRow();
-			int bottom=sel.bottomRow();
-			int left=sel.leftCol();
-			int right=sel.rightCol();
-			for (i=top; i<=bottom; i++)
-			{
-				for (j=left; j<right; j++)
-					text+=worksheet->text(i,j)+"\t";
-				text+=worksheet->text(i,right)+"\n";
-			}
+			for (j=sel.leftCol(); j<right; j++)
+				text+=worksheet->text(i,j)+"\t";
+			text+=worksheet->text(i,right)+"\n";
 		}
-	}		
+	}
 
 	// Copy text into the clipboard
 	QApplication::clipboard()->setData(new Q3TextDrag(text,worksheet,0));
@@ -1079,7 +1043,7 @@ void Table::pasteSelection()
 	ts.reset();
 
 	int i, j, top, bottom, right, left, firstCol=firstSelectedColumn();
-	Q3TableSelection sel=worksheet->selection(worksheet->currentSelection());
+	Q3TableSelection sel=worksheet->selection(0);
 	if (!sel.isEmpty())
 	{// not columns but only cells are selected
 		top=sel.topRow();
@@ -2789,11 +2753,8 @@ bool Table::exportToASCIIFile(const QString& fname, const QString& separator,
 
 void Table::contextMenuEvent(QContextMenuEvent *e)
 {
-	int w = 0;
-	for (int i = 0; i < worksheet->numCols(); i++)
-		w += worksheet->columnWidth (i);
-
-	if (e->pos().x() > w)
+	QRect r = worksheet->horizontalHeader()->sectionRect(worksheet->numCols()-1);
+	if (e->pos().x() > r.right() + worksheet->verticalHeader()->width())
 		emit showContextMenu(false);
 	else
 		emit showContextMenu(true);
@@ -3475,6 +3436,19 @@ void Table::notifyChanges()
 {
 	for (int i=0; i<worksheet->numCols(); i++)
 		emit modifiedData(this, colName(i));
+
+	emit modifiedWindow(this);
+}
+
+void Table::clear()
+{
+	for (int i=0; i<worksheet->numCols(); i++)
+	{
+		for (int j=0; j<worksheet->numRows(); j++)
+			worksheet->setText(j, i, QString::null);
+
+		emit modifiedData(this, colName(i));
+	}
 
 	emit modifiedWindow(this);
 }
