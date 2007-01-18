@@ -81,20 +81,36 @@ class Table: MyWidget
 %TypeHeaderCode
 #include "src/worksheet.h"
 
-  inline int sipqti_colArg(Table *t, PyObject *c)
-  {
-    int col;
-    PyObject *tmp;
-    if (PyInt_Check(c))
-      col = (int)PyInt_AsLong(c)-1;
-    else
-    {
-      tmp = PyObject_Str(c);
-      col = t->colNames().findIndex(PyString_AsString(tmp));
-      Py_XDECREF(tmp);
-    }
-    return col;
-  }
+#define CHECK_COL(arg)\
+    int col;\
+    if (PyInt_Check(arg)) {\
+      col = (int)PyInt_AsLong(arg) - 1;\
+		if (col < 0 || col >= sipCpp->tableCols()) {\
+			sipIsErr = 1;\
+			PyErr_Format(PyExc_ValueError, "There's no column %d in table %s!", col+1, sipCpp->name().ascii());\
+		}\
+	 } else {\
+      PyObject *tmp = PyObject_Str(arg);\
+		if (!tmp) {\
+			sipIsErr = 1;\
+			PyErr_Format(PyExc_TypeError, "Column argument must be either int or string.");\
+		} else {\
+			col = sipCpp->colNames().findIndex(PyString_AsString(tmp));\
+			if (col < 0) {\
+				sipIsErr = 1;\
+				PyErr_Format(PyExc_ValueError, "There's no column named %s in table %s!", PyString_AsString(tmp),\
+						sipCpp->name().ascii());\
+				Py_DECREF(tmp);\
+			}\
+		}\
+	 }
+#define CHECK_ROW(arg)\
+   int row = arg-1;\
+	if (row < 0 || row >= sipCpp->tableRows()) {\
+		sipIsErr = 1;\
+		PyErr_Format(PyExc_ValueError, "There's no row %d in table %s!", row+1, sipCpp->name().ascii());\
+	}
+
 %End
 
 public:
@@ -105,45 +121,72 @@ public:
 
   SIP_PYOBJECT text(SIP_PYOBJECT, int);
 %MethodCode
-	PyObject *encstr = PyString_FromString(sipCpp->text(a1-1, sipqti_colArg(sipCpp, a0)).utf8());
-	if (encstr) {
-		sipRes = PyUnicode_FromEncodedObject(encstr, "utf8", 0);
-		Py_DECREF(encstr);
-	} else {
-		sipRes = NULL;
-		sipIsErr = 1;
+  sipIsErr = 0;
+  CHECK_COL(a0);
+  CHECK_ROW(a1);
+  if (sipIsErr == 0) {
+		PyObject *encstr = PyString_FromString(sipCpp->text(row, col).utf8());
+		if (encstr) {
+			sipRes = PyUnicode_FromEncodedObject(encstr, "utf8", 0);
+			Py_DECREF(encstr);
+		} else {
+			sipRes = NULL;
+			sipIsErr = 1;
+		}
 	}
 %End
   double cell(SIP_PYOBJECT, int);
 %MethodCode
-    sipRes = sipCpp->text(a1-1, sipqti_colArg(sipCpp, a0)).toDouble();
+  sipIsErr = 0;
+  CHECK_COL(a0);
+  CHECK_ROW(a1);
+	if (sipIsErr == 0)
+		sipRes = sipCpp->text(row, col).toDouble();
 %End
   void setText(SIP_PYOBJECT, int, const QString&);
 %MethodCode
-    sipCpp->setText(a1-1, sipqti_colArg(sipCpp, a0), *a2);
+  sipIsErr = 0;
+  CHECK_COL(a0);
+  CHECK_ROW(a1);
+	if (sipIsErr == 0)
+		sipCpp->setText(row, col, *a2);
 %End
   void setCell(SIP_PYOBJECT, int, double);
 %MethodCode
-  int prec;
-  char f;
-  int col = sipqti_colArg(sipCpp, a0);
-  sipCpp->columnNumericFormat(col, f, prec);
-  sipCpp->setText(a1-1,col,QString::number(a2, f, prec));
+  sipIsErr = 0;
+  CHECK_COL(a0);
+  CHECK_ROW(a1);
+	if (sipIsErr == 0) {
+		int prec;
+		char f;
+		sipCpp->columnNumericFormat(col, f, prec);
+		sipCpp->setText(row,col,QString::number(a2, f, prec));
+	}
 %End
   SIP_PYOBJECT colName(int);
 %MethodCode
-    sipRes = PyString_FromString(sipCpp->colLabel(a0-1));
+   if (a0 < 1 || a0 > sipCpp->tableCols()) {\
+		sipIsErr = 1;\
+		PyErr_SetString(PyExc_ValueError, "Invalid column argument");\
+	} else
+		sipRes = PyString_FromString(sipCpp->colLabel(a0-1));
 %End
   void setColName(SIP_PYOBJECT, const QString&);
 %MethodCode
-    sipCpp->setColName(sipqti_colArg(sipCpp, a0), *a1);
+	sipIsErr = 0;
+   CHECK_COL(a0);
+	if (sipIsErr == 0)
+		sipCpp->setColName(col, *a1);
 %End
   void notifyChanges();
 
   void importASCII(const QString&, const QString&="\t", int=0, bool=false, bool=true, bool=false, bool=false);
   void normalizeCol(SIP_PYOBJECT) /PyName=normalize/;
 %MethodCode
-  sipCpp->normalizeCol(sipqti_colArg(sipCpp, a0));
+	sipIsErr = 0;
+	CHECK_COL(a0);
+	if (sipIsErr == 0)
+		sipCpp->normalizeCol(col);
 %End
   void normalizeTable() /PyName=normalize/;
   
@@ -155,27 +198,56 @@ class Matrix: MyWidget
 {
 %TypeHeaderCode
 #include "src/matrix.h"
+#define CHECK_COL(arg)\
+	int col = arg-1;\
+   if (col < 0 || col >= sipCpp->numCols()) {\
+		sipIsErr = 1;\
+		PyErr_Format(PyExc_ValueError, "There's no column %d in matrix %s!", col+1, sipCpp->name().ascii());\
+	}
+#define CHECK_ROW(arg)\
+   int row = arg-1;\
+	if (row < 0 || row >= sipCpp->numRows()) {\
+		sipIsErr = 1;\
+		PyErr_Format(PyExc_ValueError, "There's no row %d in matrix %s!", row+1, sipCpp->name().ascii());\
+	}
 %End
 public:
   int numRows();
   int numCols();
   SIP_PYOBJECT text(int, int);
 %MethodCode
-    sipRes = PyString_FromString(sipCpp->text(a0-1, a1-1));
+	sipIsErr = 0;
+	CHECK_ROW(a0);
+	CHECK_COL(a1);
+	if (sipIsErr == 0)
+		sipRes = PyString_FromString(sipCpp->text(row, col));
 %End
   double cell(int, int);
 %MethodCode
-    sipRes = sipCpp->text(a0-1, a1-1).toDouble();
+	sipIsErr = 0;
+	CHECK_ROW(a0);
+	CHECK_COL(a1);
+	if (sipIsErr == 0)
+		sipRes = sipCpp->text(row, col).toDouble();
 %End
   void setText(int, int, const QString&);
 %MethodCode
-    sipCpp->setText(a0-1, a1-1, *a2);
+	sipIsErr = 0;
+	CHECK_ROW(a0);
+	CHECK_COL(a1);
+	if (sipIsErr == 0)
+		sipCpp->setText(row, col, *a2);
 %End
   void setCell(int, int, double);
 %MethodCode
-  int prec = sipCpp->precision();
-  char f = sipCpp->textFormat().toAscii();
-  sipCpp->setText(a0-1,a1-1,QString::number(a2, f, prec));
+	sipIsErr = 0;
+	CHECK_ROW(a0);
+	CHECK_COL(a1);
+	if (sipIsErr == 0) {
+		int prec = sipCpp->precision();
+		char f = sipCpp->textFormat().toAscii();
+		sipCpp->setText(row, col, QString::number(a2, f, prec));
+	}
 %End
 private:
   Matrix(const Matrix&);
@@ -369,7 +441,7 @@ public:
 private:
   ApplicationWindow(const ApplicationWindow&);
 };
-/*
+
 class Fit : QObject
 {
 %TypeHeaderCode
@@ -377,7 +449,7 @@ class Fit : QObject
 %End
 public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
-  enum WeightingMethod{NoWeighting, Instrumental, Statistical, Dataset};
+  enum WeightingMethod{NoWeighting, Instrumental, Statistical, ArbDataset};
 
   Fit(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
   ~Fit();
@@ -389,7 +461,7 @@ public:
   bool setDataFromCurve(const QString&, Graph*=0);
   bool setDataFromCurve(const QString&, double, double, Graph*=0);
 
-  void setInterval(double from, double to);
+  void setRange(double from, double to);
 
   QString formula();
   int numParameters();
@@ -422,20 +494,20 @@ delete values;
 
   void setTolerance(double);
 
-  void setColor(int);
-  void setColor(const QColor&);
+  void setFitCurveColor(int);
+//  void setFitCurveColor(const QColor&);
 
-  void setOutputPrecision(int);
+//  void setOutputPrecision(int);
 
-  void generateFunction(bool, int=100);
+//  void generateFunction(bool, int=100);
 
   void setMaximumIterations(int);
 
   void showLegend();
 
-  virtual QString legendFitInfo();
+  virtual QString legendFitInfo(int);
 
-  void scaleErrors(bool yes = true);
+//  void scaleErrors(bool yes = true);
 
   SIP_PYTUPLE results();
 %MethodCode
@@ -644,7 +716,7 @@ public:
   MultiPeakFit(ApplicationWindow * /TransferThis/, Graph *, PeakProfile=Gauss, int=1);
 
   int peaks() /PyName=numPeaks/;
-  void setNumPeaks(int);
+//  void setNumPeaks(int);
 
   void enablePeakCurves(bool);
   void setPeakCurvesColor(int);
@@ -696,17 +768,17 @@ class PolynomialFit : Fit
 %End
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
-  PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, double, double, int=2, bool=false);
+  PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int, int, int=2, bool=false);
   PolynomialFit(Graph *, QString&, int=2, bool=false);
 %MethodCode
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3))
 %End
-  PolynomialFit(Graph *, QString&, double, double, int=2, bool=false);
+  PolynomialFit(Graph *, QString&, int, int, int=2, bool=false);
 %MethodCode
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
 
-  virtual QString legendFitInfo();
+  virtual QString legendFitInfo(int);
   void fit();
 
   static QString generateFormula(int);
@@ -731,7 +803,7 @@ public:
 %End
   void fit();
 };
-*/
+
 // used for output redirection
 class PythonScripting
 {

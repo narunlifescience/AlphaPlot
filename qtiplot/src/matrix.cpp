@@ -577,8 +577,10 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 		{
 			script->setInt(row+1, "i");
 			script->setInt(row+1, "row");
+			script->setInt(row+1, "y");
 			script->setInt(col+1, "j");
 			script->setInt(col+1, "col");
+			script->setInt(col+1, "x");
 			ret = script->eval();
 			if (ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
 					|| ret.type()==QVariant::ULongLong)

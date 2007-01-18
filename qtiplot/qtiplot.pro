@@ -267,18 +267,18 @@ contains(SCRIPTING_LANGS, Python) {
   SOURCES +=	src/PythonScripting.cpp
 
   unix {
-    INCLUDEPATH += /usr/include/python2.4
-    LIBS +=	-lpython2.4 -lm
+    INCLUDEPATH += $$system(python python-includepath.py)
+    LIBS +=	$$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
+    LIBS +=	-lm
     system(mkdir -p $${MOC_DIR})
-    system(sip -I /usr/share/sip -t Qt_4_2_1 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+    system(sip -I /usr/share/sip -t Qt_4_2_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
   }
 
   win32 {
-    INCLUDEPATH += C:/Python24/include
-    #LIBS += C:/Python24/libs/libpython24.a
-	 LIBS += C:\Windows\System32\python24.dll
+    INCLUDEPATH += $$system(call python-includepath.py)
+    LIBS += $$system(call python-libs-win.py)
     system(md $${MOC_DIR})
-    system(C:\Python24\sip.exe -I C:\Python24\sip\PyQt4 -t Qt_4_2_1 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
+    system($$system(call python-sipcmd.py) -t Qt_4_2_1 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
   }
 
   HEADERS +=\
@@ -294,20 +294,20 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiPythonScript.h\
 	 ../tmp/qtiplot/sipqtiPythonScripting.h\
 	 ../tmp/qtiplot/sipqtiFolder.h\
-	 ../tmp/qtiplot/sipqtiQList.h
-#	 ../tmp/qtiplot/sipqtiFit.h\
-#	 ../tmp/qtiplot/sipqtiExponentialFit.h\
-#	 ../tmp/qtiplot/sipqtiTwoExpFit.h\
-#	 ../tmp/qtiplot/sipqtiThreeExpFit.h\
-#	 ../tmp/qtiplot/sipqtiSigmoidalFit.h\
-#	 ../tmp/qtiplot/sipqtiGaussAmpFit.h\
-#	 ../tmp/qtiplot/sipqtiLorentzFit.h\
-#	 ../tmp/qtiplot/sipqtiNonLinearFit.h\
-#	 ../tmp/qtiplot/sipqtiPluginFit.h\
-#	 ../tmp/qtiplot/sipqtiMultiPeakFit.h\
-#	 ../tmp/qtiplot/sipqtiPolynomialFit.h\
-#	 ../tmp/qtiplot/sipqtiLinearFit.h\
-#	 ../tmp/qtiplot/sipqtiGaussFit.h
+	 ../tmp/qtiplot/sipqtiQList.h\
+	 ../tmp/qtiplot/sipqtiFit.h\
+	 ../tmp/qtiplot/sipqtiExponentialFit.h\
+	 ../tmp/qtiplot/sipqtiTwoExpFit.h\
+	 ../tmp/qtiplot/sipqtiThreeExpFit.h\
+	 ../tmp/qtiplot/sipqtiSigmoidalFit.h\
+	 ../tmp/qtiplot/sipqtiGaussAmpFit.h\
+	 ../tmp/qtiplot/sipqtiLorentzFit.h\
+	 ../tmp/qtiplot/sipqtiNonLinearFit.h\
+	 ../tmp/qtiplot/sipqtiPluginFit.h\
+	 ../tmp/qtiplot/sipqtiMultiPeakFit.h\
+	 ../tmp/qtiplot/sipqtiPolynomialFit.h\
+	 ../tmp/qtiplot/sipqtiLinearFit.h\
+	 ../tmp/qtiplot/sipqtiGaussFit.h
   SOURCES +=\
 	 ../tmp/qtiplot/sipqticmodule.cpp\
 	 ../tmp/qtiplot/sipqtiApplicationWindow.cpp\
@@ -322,19 +322,19 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
 	 ../tmp/qtiplot/sipqtiPythonScripting.cpp\
 	 ../tmp/qtiplot/sipqtiFolder.cpp\
-	 ../tmp/qtiplot/sipqtiQList.cpp
-#	 ../tmp/qtiplot/sipqtiFit.cpp\
-#	 ../tmp/qtiplot/sipqtiExponentialFit.cpp\
-#	 ../tmp/qtiplot/sipqtiTwoExpFit.cpp\
-#	 ../tmp/qtiplot/sipqtiThreeExpFit.cpp\
-#	 ../tmp/qtiplot/sipqtiSigmoidalFit.cpp\
-#	 ../tmp/qtiplot/sipqtiGaussAmpFit.cpp\
-#	 ../tmp/qtiplot/sipqtiLorentzFit.cpp\
-#	 ../tmp/qtiplot/sipqtiNonLinearFit.cpp\
-#	 ../tmp/qtiplot/sipqtiPluginFit.cpp\
-#	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp\
-#	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp\
-#	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
-#	 ../tmp/qtiplot/sipqtiGaussFit.cpp
+	 ../tmp/qtiplot/sipqtiQList.cpp\
+	 ../tmp/qtiplot/sipqtiFit.cpp\
+	 ../tmp/qtiplot/sipqtiExponentialFit.cpp\
+	 ../tmp/qtiplot/sipqtiTwoExpFit.cpp\
+	 ../tmp/qtiplot/sipqtiThreeExpFit.cpp\
+	 ../tmp/qtiplot/sipqtiSigmoidalFit.cpp\
+	 ../tmp/qtiplot/sipqtiGaussAmpFit.cpp\
+	 ../tmp/qtiplot/sipqtiLorentzFit.cpp\
+	 ../tmp/qtiplot/sipqtiNonLinearFit.cpp\
+	 ../tmp/qtiplot/sipqtiPluginFit.cpp\
+	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp\
+	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp\
+	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
+	 ../tmp/qtiplot/sipqtiGaussFit.cpp
 }
 ############################################################### 

@@ -97,8 +97,8 @@ except(ImportError):
   print("Could not load scipy.special; special functions will not be available.")
 
 # make Qt API available (it gets imported in any case by the qti module)
-global qt
-import qt
+#global QtGui
+#import QtGui
 
 # import QtiPlot's classes to the global namespace (particularly useful for fits)
 from qti import *
@@ -107,7 +107,7 @@ from qti import *
 appImports = (
     "table", "newTable",
     "matrix", "newMatrix",
-    "graph", "newGraph",
+    "graph",# "newGraph",
     "note", "newNote",
     "plot",
     "activeFolder", "rootFolder"

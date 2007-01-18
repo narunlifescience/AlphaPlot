@@ -2590,7 +2590,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 					addColumns(lc - cols);
 					cols = lc;
 				}
-				for (int j=0; j<cols; j++)
+				for (int j=0; j<cols && j<lc; j++)
 					worksheet->setText(start + k, j, line[j]);
 			}
 			progress.setProgress(i);

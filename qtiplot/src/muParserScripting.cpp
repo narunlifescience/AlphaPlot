@@ -96,6 +96,7 @@ muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *
   : Script(env, code, context, name)
 {
   variables.setAutoDelete(true);
+  rvariables.setAutoDelete(true);
 
   parser.DefineConst("pi", M_PI);
   parser.DefineConst("Pi", M_PI);

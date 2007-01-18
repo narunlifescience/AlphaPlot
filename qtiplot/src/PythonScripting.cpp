@@ -177,18 +177,18 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 	d_initialized = false;
 	if (Py_IsInitialized())
 	{
-		PyEval_AcquireLock();
+//		PyEval_AcquireLock();
 		mainmod = PyImport_ImportModule("__main__");
 		if (!mainmod)
 		{
 			PyErr_Print();
-			PyEval_ReleaseLock();
+//			PyEval_ReleaseLock();
 			return;
 		}
 		globals = PyModule_GetDict(mainmod);
 		Py_DECREF(mainmod);
 	} else {
-		PyEval_InitThreads ();
+//		PyEval_InitThreads ();
 		Py_Initialize ();
 		if (!Py_IsInitialized ())
 			return;
@@ -197,7 +197,7 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 		mainmod = PyImport_AddModule("__main__");
 		if (!mainmod)
 		{
-			PyEval_ReleaseLock();
+//			PyEval_ReleaseLock();
 			PyErr_Print();
 			return;
 		}
@@ -207,7 +207,7 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 	if (!globals)
 	{
 		PyErr_Print();
-		PyEval_ReleaseLock();
+//		PyEval_ReleaseLock();
 		return;
 	}
 	Py_INCREF(globals);
@@ -235,14 +235,14 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 	} else
 		PyErr_Print();
 
-	PyEval_ReleaseLock();
+//	PyEval_ReleaseLock();
 	d_initialized = true;
 }
 
 bool PythonScripting::initialize()
 {
 	if (!d_initialized) return false;
-	PyEval_AcquireLock();
+//	PyEval_AcquireLock();
 
 	// Redirect output to the print(const QString&) signal.
 	// Also see method write(const QString&) and Python documentation on
@@ -259,7 +259,7 @@ bool PythonScripting::initialize()
 #endif
 		loadInitFile("qtiplotrc");
 
-	PyEval_ReleaseLock();
+//	PyEval_ReleaseLock();
 	return true;
 }
 
