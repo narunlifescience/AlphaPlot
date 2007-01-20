@@ -34,6 +34,7 @@
 #include "parser.h"
 #include "matrix.h"
 #include "FunctionCurve.h"
+#include "colorBox.h"
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
@@ -66,6 +67,8 @@ Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
 	is_non_linear = true;
 	d_results = 0;
 	d_errors = 0;
+	d_prec = parent->fit_output_precision;
+	d_init_err = false;
 }
 
 gsl_multifit_fdfsolver * Fit::fitGSL(gsl_multifit_function_fdf f, int &iterations, int &status)
@@ -74,7 +77,7 @@ gsl_multifit_fdfsolver * Fit::fitGSL(gsl_multifit_function_fdf f, int &iteration
 	if (d_solver)
 		T = gsl_multifit_fdfsolver_lmder;
 	else
-		T = gsl_multifit_fdfsolver_lmsder;
+		T = gsl_multifit_fdfsolver_lmsder;  
 
 	gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc (T, d_n, d_p);
 	gsl_multifit_fdfsolver_set (s, &f, d_param_init);
@@ -130,11 +133,11 @@ gsl_multimin_fminimizer * Fit::fitSimplex(gsl_multimin_function f, int &iteratio
 	return s_min;
 }
 
-void Fit::setRange(double from, double to)
+void Fit::setInterval(double from, double to)
 { 
 	if (!d_curve)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"), 
 				tr("No curve assigned to the fitter! Please assign a curve first!"));
 		return;
 	}
@@ -150,6 +153,7 @@ void Fit::setDataFromCurve(QwtPlotCurve *curve, int start, int end)
 		delete[] d_w;
 	}
 
+	d_init_err = false;
 	d_curve = curve;
 	d_n = end - start + 1;
 
@@ -171,8 +175,9 @@ bool Fit::setDataFromCurve(const QString& curveTitle, Graph *g)
 { 
 	if (curveTitle.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"), 
 				tr("Please enter a valid curve name!"));
+		d_init_err = true;
 		return false;
 	}
 
@@ -180,12 +185,18 @@ bool Fit::setDataFromCurve(const QString& curveTitle, Graph *g)
 		d_graph = g;
 
 	if (!d_graph)
+	{
+		d_init_err = true;
 		return false;
+	}
 
 	int n, start, end;
 	QwtPlotCurve *c = d_graph->getValidCurve(curveTitle, d_p, n, start, end);
 	if (!c)
+	{
+		d_init_err = true;
 		return false;
+	}
 
 	setDataFromCurve(c, start, end);
 	return true;
@@ -195,8 +206,9 @@ bool Fit::setDataFromCurve(const QString& curveTitle, double from, double to, Gr
 {  
 	if (curveTitle.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"), 
 				tr("Please enter a valid curve name!"));
+		d_init_err = true;
 		return false;
 	}
 
@@ -204,12 +216,18 @@ bool Fit::setDataFromCurve(const QString& curveTitle, double from, double to, Gr
 		d_graph = g;
 
 	if (!d_graph)
+	{
+		d_init_err = true;
 		return false;
+	}
 
 	int start, end;
 	QwtPlotCurve *c = d_graph->getFitLimits(curveTitle, from, to, d_p, start, end);
 	if (!c)
+	{
+		d_init_err = true;
 		return false;
+	}
 
 	setDataFromCurve(c, start, end);
 	return true;
@@ -221,6 +239,11 @@ void Fit::setInitialGuesses(double *x_init)
 		gsl_vector_set(d_param_init, i, x_init[i]);
 }
 
+void Fit::setColor(const QColor& c)
+{
+	d_curveColorIndex = ColorBox::colorIndex(c);	
+}
+
 void Fit::setFitCurveParameters(bool generate, int points)
 {
 	gen_x_data = generate;
@@ -228,7 +251,7 @@ void Fit::setFitCurveParameters(bool generate, int points)
 		d_result_points = points;
 }
 
-QString Fit::logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName)
+QString Fit::logFitInfo(double *par, int iterations, int status, const QString& plotName)
 {
 	QDateTime dt = QDateTime::currentDateTime ();
 	QString info = "[" + dt.toString(Qt::LocalDate)+ "\t" + tr("Plot")+ ": ''" + plotName+ "'']\n";
@@ -272,8 +295,8 @@ QString Fit::logFitInfo(double *par, int iterations, int status, int prec, const
 
 	for (int i=0; i<d_p; i++)
 	{
-		info += d_param_names[i]+" "+d_param_explain[i]+" = "+QString::number(par[i], 'g', prec) + " +/- ";
-		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', prec) + "\n";
+		info += d_param_names[i]+" "+d_param_explain[i]+" = "+QString::number(par[i], 'g', d_prec) + " +/- ";
+		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	info += "--------------------------------------------------------------------------------------\n";
 
@@ -296,7 +319,7 @@ QString Fit::logFitInfo(double *par, int iterations, int status, int prec, const
 void Fit::showLegend()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parent();
-	LegendMarker* mrk = d_graph->newLegend(legendFitInfo(app->fit_output_precision));
+	LegendMarker* mrk = d_graph->newLegend(legendFitInfo());
 	if (d_graph->hasLegend())
 	{
 		LegendMarker* legend = d_graph->legend();
@@ -306,7 +329,7 @@ void Fit::showLegend()
 	d_graph->replot();
 }
 
-QString Fit::legendFitInfo(int prec)
+QString Fit::legendFitInfo()
 {
 	QString info = tr("Dataset") + ": " + d_curve->title().text() + "\n";
 	info += tr("Function") + ": " + d_formula + "\n<br>";
@@ -319,8 +342,8 @@ QString Fit::legendFitInfo(int prec)
 	info += info2 + "<br>";
 	for (int i=0; i<d_p; i++)
 	{
-		info += d_param_names[i] + " = " + QString::number(d_results[i], 'g', prec) + " +/- ";
-		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', prec) + "\n";
+		info += d_param_names[i] + " = " + QString::number(d_results[i], 'g', d_prec) + " +/- ";
+		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	return info;
 }
@@ -398,15 +421,13 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 Table* Fit::parametersTable(const QString& tableName)
 {
 	ApplicationWindow *app = (ApplicationWindow *)parent();
-	int prec = app->fit_output_precision;
-
 	Table *t = app->newTable(tableName, d_p, 3);
 	t->setHeader(QStringList() << tr("Parameter") << tr("Value") << tr ("Error"));
 	for (int i=0; i<d_p; i++)
 	{
 		t->setText(i, 0, d_param_names[i]);
-		t->setText(i, 1, QString::number(d_results[i], 'g', prec));
-		t->setText(i, 2, QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', prec));
+		t->setText(i, 1, QString::number(d_results[i], 'g', d_prec));
+		t->setText(i, 2, QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec));
 	}
 
 	t->setColPlotDesignation(2, Table::yErr);
@@ -421,13 +442,11 @@ Table* Fit::parametersTable(const QString& tableName)
 Matrix* Fit::covarianceMatrix(const QString& matrixName)
 {
 	ApplicationWindow *app = (ApplicationWindow *)parent();
-	int prec = app->fit_output_precision;
-
 	Matrix* m = app->newMatrix(matrixName, d_p, d_p);
 	for (int i = 0; i < d_p; i++)
 	{
 		for (int j = 0; j < d_p; j++)
-			m->setText(i, j, QString::number(gsl_matrix_get(covar, i, j), 'g', prec));
+			m->setText(i, j, QString::number(gsl_matrix_get(covar, i, j), 'g', d_prec));
 	}
 	m->showNormal();
 	return m;
@@ -451,24 +470,24 @@ void Fit::storeCustomFitResults(double *par)
 
 void Fit::fit()
 {  
-	if (!d_graph)
+	if (!d_graph || d_init_err)
 		return;
 
 	if (!d_n)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
 				tr("You didn't specify a data set for this fit operation. Operation aborted!"));
 		return;
 	}
 	if (!d_p)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
 				tr("There are no parameters specified for this fit operation. Operation aborted!"));
 		return;
 	}
 	if (d_formula.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
 				tr("You must specify a valid fit function first. Operation aborted!"));
 		return;
 	}
@@ -526,8 +545,7 @@ void Fit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, iterations, status, 
-					app->fit_output_precision, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, iterations, status, d_graph->parentPlotName()));
 
 	generateFitCurve(par);
 	QApplication::restoreOverrideCursor();
@@ -546,7 +564,7 @@ void Fit::generateFitCurve(double *par)
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (gen_x_data)
 	{
-		insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y, app->fit_output_precision);
+		insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);
 		d_graph->replot();
 		delete[] X;
 		delete[] Y;
@@ -558,7 +576,7 @@ void Fit::generateFitCurve(double *par)
 	}
 }
 
-void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int prec, int penWidth)
+void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth)
 {
 	QStringList curves = d_graph->curvesList();
 	int index = 0;
@@ -570,14 +588,14 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 	QString title = name + QString::number(++index);
 
 	FunctionCurve *c = new FunctionCurve(FunctionCurve::Normal, title);
-	c->setPen(QPen(Graph::color(d_curveColorIndex), penWidth)); 
+	c->setPen(QPen(ColorBox::color(d_curveColorIndex), penWidth)); 
 	c->setData(x, y, d_result_points);
 	c->setRange(d_x[0], d_x[d_n-1]);
 
 	QString formula = d_formula;
 	for (int j=0; j<d_p; j++)
 	{
-		QString parameter = QString::number(d_results[j], 'g', prec);
+		QString parameter = QString::number(d_results[j], 'g', d_prec);
 		formula.replace(d_param_names[j], parameter);
 	}
 	c->setFormula(formula);
@@ -592,6 +610,9 @@ Fit::~Fit()
 		delete[] d_y;
 		delete[] d_w;
 	}
+
+	if (!d_p)
+		return;
 
 	if (is_non_linear)
 		gsl_vector_free(d_param_init);
@@ -1039,6 +1060,15 @@ void NonLinearFit::setFormula(const QString& s)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"), 
 				tr("Please enter a valid non-empty expression! Operation aborted!"));
+		d_init_err = true;
+		return;
+	}
+
+	if (d_p < 2)
+	{
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+				tr("There are no parameters specified for this fit operation. Please define a list of parameters first!"));
+		d_init_err = true;
 		return;
 	}
 
@@ -1063,21 +1093,25 @@ void NonLinearFit::setFormula(const QString& s)
 	catch(mu::ParserError &e)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		d_init_err = true;
 		return;
 	}
 
+	d_init_err = false;	
 	d_formula = s;
 }
 
 void NonLinearFit::setParametersList(const QStringList& lst)
-{
+{	
 	if ((int)lst.count() < 2)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
 				tr("You must provide a list containing at least 2 parameters for this type of fit. Operation aborted!"));
+		d_init_err = true;
 		return;
 	}
 
+	d_init_err = false;	
 	d_param_names = lst;
 
 	if (d_p > 0)
@@ -1398,7 +1432,7 @@ void MultiPeakFit::storeCustomFitResults(double *par)
 	}
 }
 
-void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int prec, int peak)
+void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 {
 	QStringList curves = d_graph->curvesList();
 	int index = 0;
@@ -1410,17 +1444,17 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int prec, int p
 	QString title = tr("Peak") + QString::number(++index);
 
 	FunctionCurve *c = new FunctionCurve(FunctionCurve::Normal, title);
-	c->setPen(QPen(Graph::color(d_peaks_color), 1)); 
+	c->setPen(QPen(ColorBox::color(d_peaks_color), 1)); 
 	c->setData(x, y, d_result_points);
 	c->setRange(d_x[0], d_x[d_n-1]);
 
 	QString formula = "y0+"+peakFormula(peak + 1, d_profile);
-	QString parameter = QString::number(d_results[d_p-1], 'g', prec);
+	QString parameter = QString::number(d_results[d_p-1], 'g', d_prec);
 	formula.replace(d_param_names[d_p-1], parameter);
 	for (int j=0; j<3; j++)
 	{
 		int p = 3*peak + j;
-		parameter = QString::number(d_results[p], 'g', prec);
+		parameter = QString::number(d_results[p], 'g', d_prec);
 		formula.replace(d_param_names[p], parameter);
 	}
 	c->setFormula(formula);
@@ -1436,7 +1470,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 	gsl_matrix * m = gsl_matrix_alloc (d_result_points, d_peaks);
 	if (!m)
 	{
-		QMessageBox::warning(app, tr("QtiPlot - Error"), tr("Could not allocate enough memory for the fit curves!"));
+		QMessageBox::warning(app, tr("QtiPlot - Fit Error"), tr("Could not allocate enough memory for the fit curves!"));
 		return;
 	}
 
@@ -1472,9 +1506,9 @@ void MultiPeakFit::generateFitCurve(double *par)
 		}
 
 		if (d_peaks > 1)
-			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y, app->fit_output_precision, 2);
+			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y, 2);
 		else
-			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y, app->fit_output_precision);
+			insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);
 
 		if (generate_peak_curves)
 		{
@@ -1483,7 +1517,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 				for (j=0; j<d_result_points; j++)
 					Y[j] = gsl_matrix_get (m, j, i);
 
-				insertPeakFunctionCurve(X, Y, app->fit_output_precision, i);
+				insertPeakFunctionCurve(X, Y, i);
 			}
 		}
 	}
@@ -1502,7 +1536,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 		for (i = 0; i<d_result_points; i++)
 		{
 			X[i] = d_x[i];
-			t->setText(i, 0, QString::number(X[i], 'g', app->fit_output_precision));
+			t->setText(i, 0, QString::number(X[i], 'g', d_prec));
 
 			double yi=0;
 			for (j=0; j<d_peaks; j++)
@@ -1517,20 +1551,20 @@ void MultiPeakFit::generateFitCurve(double *par)
 
 				yi += y_aux;
 				y_aux += par[d_p - 1];
-				t->setText(i, j+1, QString::number(y_aux, 'g', app->fit_output_precision));
+				t->setText(i, j+1, QString::number(y_aux, 'g', d_prec));
 				gsl_matrix_set(m, i, j, y_aux);
 			}
 			Y[i] = yi + par[d_p - 1];//add offset
 			if (d_peaks > 1)
-				t->setText(i, d_peaks+1, QString::number(Y[i], 'g', app->fit_output_precision));
+				t->setText(i, d_peaks+1, QString::number(Y[i], 'g', d_prec));
 		}
 
 		label = tableName + "_" + "2";
 		QwtPlotCurve *c = new QwtPlotCurve(label);
 		if (d_peaks > 1)
-			c->setPen(QPen(Graph::color(d_curveColorIndex), 2)); 
+			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2)); 
 		else
-			c->setPen(QPen(Graph::color(d_curveColorIndex), 1)); 
+			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1)); 
 		c->setData(X, Y, d_result_points);	
 		d_graph->insertCurve(c, tableName+"_1(X),"+label+"(Y)");
 
@@ -1543,7 +1577,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 
 				label = tableName + "_" + tr("peak") + QString::number(i+1);
 				c = new QwtPlotCurve(label);
-				c->setPen(QPen(Graph::color(d_peaks_color), 1)); 
+				c->setPen(QPen(ColorBox::color(d_peaks_color), 1)); 
 				c->setData(X, Y, d_result_points);	
 				d_graph->insertCurve(c, tableName+"_1(X),"+label+"(Y)");
 			}
@@ -1557,9 +1591,9 @@ void MultiPeakFit::generateFitCurve(double *par)
 	gsl_matrix_free(m);
 }
 
-QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName)
+QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, const QString& plotName)
 {
-	QString info = Fit::logFitInfo(par, iterations, status, prec, plotName);
+	QString info = Fit::logFitInfo(par, iterations, status, plotName);
 	if (d_peaks == 1)
 		return info;
 
@@ -1569,14 +1603,14 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, int pr
 	for (int j=0; j<d_peaks; j++)
 	{
 		info += QString::number(j+1)+"\t";
-		info += QString::number(par[3*j],'g', prec)+"\t";
-		info += QString::number(par[3*j+1],'g', prec)+"\t";
-		info += QString::number(par[3*j+2],'g', prec)+"\t";
+		info += QString::number(par[3*j],'g', d_prec)+"\t";
+		info += QString::number(par[3*j+1],'g', d_prec)+"\t";
+		info += QString::number(par[3*j+2],'g', d_prec)+"\t";
 
 		if (d_profile == Lorentz)
-			info += QString::number(M_2_PI*par[3*j]/par[3*j+2],'g', prec)+"\n";
+			info += QString::number(M_2_PI*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
 		else
-			info += QString::number(sqrt(M_2_PI)*par[3*j]/par[3*j+2],'g', prec)+"\n";
+			info += QString::number(sqrt(M_2_PI)*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
 	}
 	info += "---------------------------------------------------------------------------------------\n";
 	return info;
@@ -1775,7 +1809,7 @@ void PolynomialFit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, 0, 0, app->fit_output_precision, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, 0, 0, d_graph->parentPlotName()));
 
 	if (show_legend)
 		showLegend();
@@ -1783,9 +1817,9 @@ void PolynomialFit::fit()
 	generateFitCurve(d_results);
 }
 
-QString PolynomialFit::legendFitInfo(int prec)
+QString PolynomialFit::legendFitInfo()
 {		
-	QString legend = "Y=" + QString::number(d_results[0], 'g', prec);		
+	QString legend = "Y=" + QString::number(d_results[0], 'g', d_prec);		
 	for (int j = 1; j < d_p; j++)
 	{
 		double cj = d_results[j];
@@ -1795,7 +1829,7 @@ QString PolynomialFit::legendFitInfo(int prec)
 		QString s;
 		s.sprintf("%.5f",cj);	
 		if (s != "1.00000")
-			legend += QString::number(cj, 'g', prec);
+			legend += QString::number(cj, 'g', d_prec);
 
 		legend += "X";
 		if (j>1)
@@ -1864,7 +1898,7 @@ void LinearFit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, 0, 0, app->fit_output_precision, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, 0, 0, d_graph->parentPlotName()));
 
 	generateFitCurve(d_results);
 }

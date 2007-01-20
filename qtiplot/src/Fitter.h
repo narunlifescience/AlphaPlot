@@ -67,7 +67,7 @@ class Fit : public QObject
 		void setDataFromCurve(QwtPlotCurve *curve, int start, int end);
 
 		//! Changes the data range if the source curve was already assigned. Provided for convenience.
-		void setRange(double from, double to);
+		void setInterval(double from, double to);
 
 		QString formula(){return d_formula;};
 		virtual void setParametersList(const QStringList& lst){ Q_UNUSED(lst) };
@@ -81,7 +81,11 @@ class Fit : public QObject
 		void setAlgorithm(Algorithm s){d_solver = s;};
 
 		void setTolerance(double eps){d_tolerance = eps;};
-		void setFitCurveColor(int colorId){d_curveColorIndex = colorId;};
+
+		//! Sets the color of the output fit curve. 
+		void setColor(int colorId){d_curveColorIndex = colorId;};
+		//! Sets the color of the output fit curve. Provided for convenience.
+		void setColor(const QColor& c);
 
 		void setFitCurveParameters(bool generate, int points = 0);
 
@@ -91,7 +95,7 @@ class Fit : public QObject
 		void showLegend();
 
 		//! Output string added to the plot as a new legend
-		virtual QString legendFitInfo(int prec);
+		virtual QString legendFitInfo();
 
 		//! Returns a vector with the fit results
 		double* results(){return d_results;};
@@ -101,6 +105,9 @@ class Fit : public QObject
 
 		//! Returns the sum of squares of the residuals from the best-fit line
 		double chiSquare() {return chi_2;};
+
+		//! Sets the precision used for the output
+		void setOutputPrecision(int digits){d_prec = digits;};
 
 		Table* parametersTable(const QString& tableName);
 		Matrix* covarianceMatrix(const QString& matrixName);
@@ -117,7 +124,7 @@ class Fit : public QObject
 
 	protected:
 		//! Adds the result curve as a FunctionCurve to the plot, if gen_x_data = true
-		void insertFitFunctionCurve(const QString& name, double *x, double *y, int prec, int penWidth = 1);
+		void insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth = 1);
 
 		//! Adds the result curve to the plot
 		virtual void generateFitCurve(double *par);
@@ -126,7 +133,7 @@ class Fit : public QObject
 		virtual void calculateFitCurveData(double *par, double *X, double *Y) { Q_UNUSED(par) Q_UNUSED(X) Q_UNUSED(Y)   };
 
 		//! Output string added to the result log
-		virtual QString logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName);
+		virtual QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
 
 		//! The graph where the result curve should be displayed
 		Graph *d_graph;
@@ -208,6 +215,12 @@ class Fit : public QObject
 
 		//! The sum of squares of the residuals from the best-fit line
 		double chi_2;
+
+		//! Precision (number of significant digits) used for the results output
+		int d_prec;
+
+		//! Error flag telling if something went wrong during the initialization phase. Used by the NonLinearFit class.
+		bool d_init_err;
 };
 
 class ExponentialFit : public Fit
@@ -374,11 +387,11 @@ class MultiPeakFit : public Fit
 		static QStringList generateParameterList(int order);
 
 	private:
-		QString logFitInfo(double *par, int iterations, int status, int prec, const QString& plotName);
+		QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
 		void generateFitCurve(double *par);
 		static QString peakFormula(int peakIndex, PeakProfile profile);
 		//! Inserts a peak function curve into the plot 
-		void insertPeakFunctionCurve(double *x, double *y, int prec, int peak);
+		void insertPeakFunctionCurve(double *x, double *y, int peak);
 		void storeCustomFitResults(double *par);
 
 		//! Used by the GaussFit and LorentzFit derived classes to calculate initial values for the parameters 
@@ -447,7 +460,7 @@ class PolynomialFit : public Fit
 		PolynomialFit(Graph *, QString&, int, bool) : Fit(NULL, NULL, NULL) {};
 		PolynomialFit(Graph *, QString&, int, int, int, bool) : Fit(NULL, NULL, NULL) {};
 
-		virtual QString legendFitInfo(int prec);
+		virtual QString legendFitInfo();
 		void fit();
 
 		static QString generateFormula(int order);

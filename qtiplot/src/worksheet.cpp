@@ -67,13 +67,13 @@
 Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
 			 QWidget* parent, const char* name, Qt::WFlags f)
-        : MyWidget(label, parent,name,f), scripted(env)
+: MyWidget(label, parent,name,f), scripted(env)
 {
 	importASCII(fname, sep, ignoredLines, renameCols, stripSpaces, simplifySpaces, true);
 }
 
-Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-        : MyWidget(label,parent,name,f), scripted(env)
+	Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+: MyWidget(label,parent,name,f), scripted(env)
 {
 	init(r,c);	
 }
@@ -666,14 +666,14 @@ QStringList Table::YColumns()
 
 QStringList Table::selectedYColumns()
 {
-QStringList names;
-for (int i=0;i<worksheet->numCols();i++)
+	QStringList names;
+	for (int i=0;i<worksheet->numCols();i++)
 	{
-	if(worksheet->isColumnSelected (i, true) && 
-      (col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
-	   names<<QString(name())+"_"+col_label[i];
+		if(worksheet->isColumnSelected (i, true) && 
+				(col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
+			names<<QString(name())+"_"+col_label[i];
 	}
-return names;
+	return names;
 }
 
 QStringList Table::selectedYLabels()
@@ -2167,26 +2167,26 @@ void Table::plotSpline()
 
 void Table::plotVertSteps()
 {
-if (!valid2DPlot())
-   return;
+	if (!valid2DPlot())
+		return;
 
-QStringList s=selectedYColumns();
-if (int(s.count())>0)
-   emit plotCol(this, s, Graph::VerticalSteps);
-else
-    QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	QStringList s=selectedYColumns();
+	if (int(s.count())>0)
+		emit plotCol(this, s, Graph::VerticalSteps);
+	else
+		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
 }
-  	 
+
 void Table::plotHorSteps()
 {
-if (!valid2DPlot())
-   return;
-  	 
-QStringList s=selectedYColumns();
-if (int(s.count())>0)
-   emit plotCol(this, s, Graph::HorizontalSteps);	
-else
-    QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	if (!valid2DPlot())
+		return;
+
+	QStringList s=selectedYColumns();
+	if (int(s.count())>0)
+		emit plotCol(this, s, Graph::HorizontalSteps);	
+	else
+		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
 }
 
 void Table::plotHistogram()

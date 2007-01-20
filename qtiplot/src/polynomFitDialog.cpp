@@ -147,7 +147,7 @@ void PolynomFitDialog::fit()
 		if (fitter->setDataFromCurve(boxName->currentText(), 
 					boxStart->text().toDouble(), boxEnd->text().toDouble()))
 		{
-			fitter->setFitCurveColor(boxColor->currentItem());
+			fitter->setColor(boxColor->currentItem());
 			fitter->fit();
 			delete fitter;
 		}

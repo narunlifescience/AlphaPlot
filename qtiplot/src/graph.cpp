@@ -1355,8 +1355,8 @@ void Graph::setGridOptions(const GridOptions& o)
 
 	grid=o;
 
-	QColor minColor = color(grid.minorCol);
-	QColor majColor = color(grid.majorCol);
+	QColor minColor = ColorBox::color(grid.minorCol);
+	QColor majColor = ColorBox::color(grid.majorCol);
 
 	Qt::PenStyle majStyle = getPenStyle(grid.majorStyle);
 	Qt::PenStyle minStyle = getPenStyle(grid.minorStyle);
@@ -4325,13 +4325,13 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	if (!c || c_type.isEmpty() || (int)c_type.size() < index)
 		return;
 
-	QPen pen = QPen(color(cL->symCol),cL->penWidth, Qt::SolidLine);
+	QPen pen = QPen(ColorBox::color(cL->symCol),cL->penWidth, Qt::SolidLine);
 	if (cL->fillCol != -1)
-		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
+		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(ColorBox::color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
 	else
 		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(), pen, QSize(cL->sSize,cL->sSize)));
 
-	c->setPen(QPen(color(cL->lCol),cL->lWidth,getPenStyle(cL->lStyle)));
+	c->setPen(QPen(ColorBox::color(cL->lCol),cL->lWidth,getPenStyle(cL->lStyle)));
 
 	int style = c_type[index];
 	if (style == Scatter)
@@ -4349,7 +4349,7 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	else
 		c->setStyle((QwtPlotCurve::CurveStyle)cL->connectType); 
 
-	QBrush brush = QBrush(color(cL->aCol), Qt::NoBrush);
+	QBrush brush = QBrush(ColorBox::color(cL->aCol), Qt::NoBrush);
 	if (cL->filledArea)
 		brush.setStyle(getBrushStyle(cL->aStyle));
 	c->setBrush(brush);
@@ -4774,7 +4774,7 @@ bool Graph::insertCurve(Table* w, const QString& name, int style)
 	int ycol = w->colIndex(name);
 	int xcol = w->colX(ycol);
 
-	bool succes = insertCurve(w, w->colName(xcol), name, style);
+	bool succes = insertCurve(w, w->colName(xcol), w->colName(ycol), style);
 	if (succes)
 		emit modifiedGraph();
 	return succes;
@@ -4782,7 +4782,7 @@ bool Graph::insertCurve(Table* w, const QString& name, int style)
 
 bool Graph::insertCurve(Table* w, int xcol, const QString& name, int style)
 {//provided for convenience
-	return insertCurve(w, w->colName(xcol), name, style);
+	return insertCurve(w, w->colName(xcol), w->colName(w->colIndex(name)), style);
 }
 
 bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColName, int style)
@@ -4884,7 +4884,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	if (!it)
 		return false;
 
-	associations << xColName+"(X),"+yColName+"(Y)";
+	associations << w->colName(xcol)+"(X),"+w->colName(ycol)+"(Y)";
 
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = style;
@@ -4896,25 +4896,25 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 		c = new QwtBarCurve(QwtBarCurve::Vertical, d_plot,0);
 		curveID = d_plot->insertCurve(c);
 		c->setStyle(QwtPlotCurve::UserCurve);
-		c->setTitle(yColName);
+		c->setTitle(w->colName(ycol));
 	}
 	else if (style == HorizontalBars)
 	{
 		c = new QwtBarCurve(QwtBarCurve::Horizontal, d_plot,0);
 		curveID = d_plot->insertCurve(c);
 		c->setStyle(QwtPlotCurve::UserCurve);
-		c->setTitle(yColName);
+		c->setTitle(w->colName(ycol));
 	}
 	else if (style == Histogram)
 	{
 		c = new QwtHistogram(d_plot,0);
 		curveID = d_plot->insertCurve(c);
 		c->setStyle(QwtPlotCurve::UserCurve);
-		c->setTitle(yColName);
+		c->setTitle(w->colName(ycol));
 	}
 	else
 	{
-		c = new QwtPlotCurve(yColName);
+		c = new QwtPlotCurve(w->colName(ycol));
 		curveID = d_plot->insertCurve(c);
 	}
 
@@ -4934,15 +4934,15 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	{
 		if (style == HorizontalBars)
 		{
-			axesFormatInfo[QwtPlot::yLeft] = xColName;
-			axesFormatInfo[QwtPlot::yRight] = xColName;
+			axesFormatInfo[QwtPlot::yLeft] = w->colName(xcol);
+			axesFormatInfo[QwtPlot::yRight] = w->colName(xcol);
 			axisType[QwtPlot::yLeft] = Txt;
 			d_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(xLabels));
 		}
 		else
 		{
-			axesFormatInfo[QwtPlot::xBottom] = xColName;
-			axesFormatInfo[QwtPlot::xTop] = xColName;
+			axesFormatInfo[QwtPlot::xBottom] = w->colName(xcol);
+			axesFormatInfo[QwtPlot::xTop] = w->colName(xcol);
 			axisType[QwtPlot::xBottom] = Txt;
 			d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
 		}
@@ -4966,13 +4966,13 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	if (yColType == Table::Text)
 	{
-		axesFormatInfo[QwtPlot::yLeft] = yColName;
-		axesFormatInfo[QwtPlot::yRight] = yColName;
+		axesFormatInfo[QwtPlot::yLeft] = w->colName(ycol);
+		axesFormatInfo[QwtPlot::yRight] = w->colName(ycol);
 		axisType[QwtPlot::yLeft] = Txt;
 		d_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(yLabels));
 	}
 
-	addLegendItem(yColName);
+	addLegendItem(w->colName(ycol));
 	updatePlot();
 	return true;
 }
@@ -5047,7 +5047,7 @@ void Graph::updateVectorsLayout(Table *w, int curve, int colorIndex, int width,
 	if (!vect)
 		return;
 
-	QColor c = color(colorIndex);
+	QColor c = ColorBox::color(colorIndex);
 	QStringList cols=QStringList::split(",", associations[curve], false);
 	if (vect->width() == width && vect->color() == c &&
 			vect->headLength() == arrowLength && vect->headAngle() == arrowAngle &&
@@ -5208,17 +5208,32 @@ void Graph::removePie()
 	emit modifiedGraph();
 }
 
-/*
- *provided for convenience
- */
 void Graph::removeCurve(const QString& s)
-{	
-	int index = associations.findIndex(s);
+{
+	int index = curvesList().findIndex(s);//First look into the titles list...
+	if (index < 0)
+		index = associations.findIndex(s);//...then look into the plot associations list
+
+	if (index < 0)
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"),
+				tr("There is no curve called '%1' on this layer.").arg(s));
+		return;
+	}
+
 	removeCurve(index);
 }
 
 void Graph::removeCurve(int index)
 {		
+	if (index < 0 || index >= n_curves)
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"),
+				tr("There is no curve with index %1 on this layer.").arg(index)+"\n"+
+				tr("Valid indexes must have values between 0 and %1").arg(n_curves-1));
+		return;
+	}
+
 	resetErrorBarsOffset(index);
 
 	associations.removeAt(index);
@@ -6135,11 +6150,6 @@ int Graph::curveType(int curveIndex)
 		return -1;
 }
 
-QColor Graph::color(int item)
-{
-	return ColorBox::color(item);
-}
-
 void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumns)
 {
 	QApplication::restoreOverrideCursor();
@@ -6619,8 +6629,8 @@ void Graph::plotBoxDiagram(Table *w, const QStringList& names)
 			c_type[n_curves-1] = Box;
 
 			c->setTitle(name);
-			c->setPen(QPen(color(j), 1));
-			c->setSymbol(QwtSymbol(QwtSymbol::None, QBrush(), QPen(color(j), 1), QSize(7,7)));
+			c->setPen(QPen(ColorBox::color(j), 1));
+			c->setSymbol(QwtSymbol(QwtSymbol::None, QBrush(), QPen(ColorBox::color(j), 1), QSize(7,7)));
 		}
 	}
 
