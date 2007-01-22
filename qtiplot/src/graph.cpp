@@ -1963,7 +1963,7 @@ void Graph::copyImage()
 
 QPixmap Graph::graphPixmap()
 {
-	int lw = d_plot->lineWidth();
+	/*int lw = d_plot->lineWidth();
 	int clw = 2*d_plot->canvas()->lineWidth();
 
 	QPixmap pic(d_plot->width() + 2*lw + clw, d_plot->height() + 2*lw + clw);
@@ -1986,7 +1986,8 @@ QPixmap Graph::graphPixmap()
 	//the initial layout is invalidated during the print operation and must be recalculated	
 	layout->activate(d_plot, d_plot->rect(), 0);
 
-	return pic;
+	return pic;*/
+	return QPixmap::grabWidget(this, 0, 0, this->width(), this->height());
 }
 
 void Graph::exportImage(const QString& fileName, const QString& fileType,

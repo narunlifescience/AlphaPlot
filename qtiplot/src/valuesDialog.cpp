@@ -36,26 +36,14 @@
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>
 #include <QList>
-
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <q3textedit.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qtooltip.h>
-#include <q3whatsthis.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <q3vbox.h>
-#include <q3hbox.h>
-#include <q3buttongroup.h>
-//Added by qt3to4:
-#include <Q3Frame>
-#include <Q3VBoxLayout>
-
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QTextEdit>
 #include <QTextCursor>
 
 SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
@@ -64,40 +52,20 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	if ( !name )
 		setName( "SetColValuesDialog" );
 	setWindowTitle( tr( "QtiPlot - Set column values" ) );
-	setFocusPolicy( Qt::StrongFocus );
+    setSizeGripEnabled(true);
 
-	Q3HBox *hbox1=new Q3HBox (this, "hbox1"); 
-	hbox1->setSpacing (5);
+    QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addWidget(new QLabel(tr("For row (i)")));
+	start = new QSpinBox();
+    start->setMinValue(1);
+    hbox1->addWidget(start);
 
-	Q3VBox *box1=new Q3VBox (hbox1, "box2"); 
-	box1->setSpacing (5);
+    hbox1->addWidget(new QLabel(tr("to")));
 
-	explain = new Q3TextEdit(box1, "explain" );
-	explain->setReadOnly (true);
-	explain->setPaletteBackgroundColor(QColor(197, 197, 197));
-
-	colNameLabel = new QLabel(box1, "colNameLabel" );
-
-	Q3VBox *box2=new Q3VBox (hbox1, "box2"); 
-	box2->setMargin(5);
-	box2->setFrameStyle (Q3Frame::Box);
-
-	Q3HBox *hbox2=new Q3HBox (box2, "hbox2"); 
-	hbox2->setMargin(5);
-	hbox2->setSpacing (5);
-
-	QLabel *TextLabel1 = new QLabel(hbox2, "TextLabel1" );
-	TextLabel1->setText( tr( "For row (i)" ) );
-
-	start = new QSpinBox(hbox2, "start" );
-
-	QLabel *TextLabel2 = new QLabel(hbox2, "TextLabel2" );
-	TextLabel2->setText( tr( "to" ) );
-
-	end = new QSpinBox(hbox2, "end" );
-
-	start->setMinValue(1);
-	end->setMinValue(1);
+	end = new QSpinBox();
+    end->setMinValue(1);
+    hbox1->addWidget(end);
+	
 	if (sizeof(int)==2)
 	{ // 16 bit signed integer
 		start->setMaxValue(0x7fff);
@@ -109,60 +77,75 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 		end->setMaxValue(0x7fffffff);
 	}
 
-	Q3ButtonGroup *GroupBox0 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),box2, "GroupBox0" );
-	GroupBox0->setFlat(true);
+    QGridLayout *gl1 = new QGridLayout();
+	functions = new QComboBox(false);
+    gl1->addWidget(functions, 0, 0);
+	btnAddFunction = new QPushButton(tr( "Add function" ));
+    gl1->addWidget(btnAddFunction, 0, 1);
+	boxColumn = new QComboBox(false);
+    gl1->addWidget(boxColumn, 1, 0);
+	btnAddCol = new QPushButton(tr( "Add column" ));
+    gl1->addWidget(btnAddCol, 1, 1);
 
-	functions = new QComboBox( false, GroupBox0, "functions" );
+	QHBoxLayout *hbox3 = new QHBoxLayout(); 
+	buttonPrev = new QPushButton("&<<");
+    hbox3->addWidget(buttonPrev);
+	buttonNext = new QPushButton("&>>");
+    hbox3->addWidget(buttonNext);
+    gl1->addLayout(hbox3, 2, 0);
+	addCellButton = new QPushButton(tr( "Add cell" ));
+    gl1->addWidget(addCellButton, 2, 1);
 
-	PushButton3 = new QPushButton(GroupBox0, "PushButton3" );
-	PushButton3->setText( tr( "Add function" ) );
+    QGroupBox *gb = new QGroupBox();
+    QVBoxLayout *vbox1 = new QVBoxLayout(); 
+    vbox1->addLayout(hbox1);
+    vbox1->addLayout(gl1);
+    gb->setLayout(vbox1);
+    gb->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred));
 
-	boxColumn = new QComboBox( false, GroupBox0, "boxColumn" );
+    explain = new QTextEdit();
+	explain->setReadOnly (true);
+    explain->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred));
+    QPalette palette = explain->palette();
+    palette.setColor(QPalette::Active, QPalette::Base, Qt::lightGray);
+    explain->setPalette(palette);
 
-	PushButton4 = new QPushButton(GroupBox0, "PushButton4" );
-	PushButton4->setText( tr( "Add column" ) );
+    QHBoxLayout *hbox2 = new QHBoxLayout(); 
+    hbox2->addWidget(explain);
+    hbox2->addWidget(gb);
 
-	Q3HBox *hbox6=new Q3HBox (GroupBox0, "hbox6"); 
-	hbox6->setSpacing (5);
+	commands = new ScriptEdit( scriptEnv);
 
-	buttonPrev = new QPushButton( hbox6, "buttonPrev" );
-	buttonPrev->setText("&<<");
+	QVBoxLayout *vbox2 = new QVBoxLayout(); 
+	btnOk = new QPushButton(tr( "OK" ));
+    vbox2->addWidget(btnOk);
+	btnApply = new QPushButton(tr( "Apply" ));
 
-	buttonNext = new QPushButton( hbox6, "buttonNext" );
-	buttonNext->setText("&>>");
+    vbox2->addWidget(btnApply);
+	btnCancel = new QPushButton(tr( "Cancel" ));
+    vbox2->addWidget(btnCancel);
+    vbox2->addStretch();
 
-	addCellButton = new QPushButton(GroupBox0, "addCellButton" );
-	addCellButton->setText( tr( "Add cell" ) );
+    QHBoxLayout *hbox4 = new QHBoxLayout(); 
+    hbox4->addWidget(commands);
+    hbox4->addLayout(vbox2);
 
-	Q3HBox *hbox3=new Q3HBox (this, "hbox3"); 
-	hbox3->setSpacing (5);
+	QVBoxLayout* vbox3 = new QVBoxLayout();
+	vbox3->addLayout(hbox2);
+    colNameLabel = new QLabel();
+    vbox3->addWidget(colNameLabel);
+	vbox3->addLayout(hbox4);
 
-	commands = new ScriptEdit( scriptEnv, hbox3, "commands" );
-	commands->setGeometry( QRect(10, 100, 260, 70) );
-	commands->setFocus();
-
-	Q3VBox *box3=new Q3VBox (hbox3,"box3"); 
-	box3->setSpacing (5);
-
-	btnOk = new QPushButton(box3, "btnOk" );
-	btnOk->setText( tr( "OK" ) );
-
-	btnApply = new QPushButton(box3, "btnApply" );
-	btnApply->setText( tr( "Apply" ) );
-
-	btnCancel = new QPushButton( box3, "btnCancel" );
-	btnCancel->setText( tr( "Cancel" ) );
-
-	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
-	layout->addWidget(hbox1);
-	layout->addWidget(hbox3);
+    setLayout(vbox3);
+    setFocusProxy (commands);
+    commands->setFocus();
 
 	setFunctions();
 	if (functions->count() > 0)
 		insertExplain(0);
 
-	connect(PushButton3, SIGNAL(clicked()),this, SLOT(insertFunction()));
-	connect(PushButton4, SIGNAL(clicked()),this, SLOT(insertCol()));
+	connect(btnAddFunction, SIGNAL(clicked()),this, SLOT(insertFunction()));
+	connect(btnAddCol, SIGNAL(clicked()),this, SLOT(insertCol()));
 	connect(addCellButton, SIGNAL(clicked()),this, SLOT(insertCell()));
 	connect(btnOk, SIGNAL(clicked()),this, SLOT(accept()));
 	connect(btnApply, SIGNAL(clicked()),this, SLOT(apply()));

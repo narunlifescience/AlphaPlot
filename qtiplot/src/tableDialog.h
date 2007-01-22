@@ -29,20 +29,14 @@
 #ifndef TABLEDIALOG_H
 #define TABLEDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-//Added by qt3to4:
-#include <QLabel>
-#include <QCloseEvent>
 #include "worksheet.h"
 
 class QPushButton;
 class QLineEdit;
 class QCheckBox;
-class Q3ButtonGroup;
 class QComboBox;
 class QLabel;
-class Q3TextEdit;
+class QTextEdit;
 class QSpinBox;
 
 //! Column options dialog
@@ -54,25 +48,21 @@ public:
     TableDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~TableDialog();
 
+    QPushButton* buttonOk;
     QPushButton* buttonCancel;
 	QPushButton* buttonApply;
 	QPushButton* buttonPrev;
 	QPushButton* buttonNext;
     QLineEdit* colName;
     QCheckBox* enumerateAllBox;
-    QPushButton* buttonOk;
- 	Q3ButtonGroup* GroupBox2;
     QCheckBox* applyToRightCols;
+    QCheckBox* applyToAllBox;
     QComboBox* formatBox;
 	QComboBox* displayBox;
     QComboBox* columnsBox;
     QSpinBox* colWidth, *precisionBox;
-    QCheckBox* applyToAllBox;
 	QLabel *labelNumeric, *labelFormat;
-	Q3TextEdit *comments;
-
-protected slots:
-    virtual void languageChange();
+	QTextEdit *comments;
 
 public slots:
 	void prevColumn();

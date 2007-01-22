@@ -4,21 +4,21 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
-CONFIG	+= release
-#CONFIG	+= debug
+CONFIG	    += release
+#CONFIG	    += debug
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES     += QT_PLUGIN
-DEFINES	+= SCRIPTING_CONSOLE
-DEFINES	+= SCRIPTING_DIALOG
+DEFINES	    += SCRIPTING_CONSOLE
+DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
 
 SCRIPTING_LANGS = muParser Python
 
-TRANSLATIONS       = translations/qtiplot_de.ts \
-		         translations/qtiplot_es.ts \
-			   translations/qtiplot_fr.ts 
+TRANSLATIONS    = translations/qtiplot_de.ts \
+		          translations/qtiplot_es.ts \
+			      translations/qtiplot_fr.ts 
 
 ############################################################################# 
 ##################### 3rd PARTY HEADER FILES SECTION ########################
@@ -27,7 +27,7 @@ TRANSLATIONS       = translations/qtiplot_de.ts \
 
 INCLUDEPATH       += ../3rdparty/qwt/include
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
-INCLUDEPATH		+= ../3rdparty/liborigin
+INCLUDEPATH		  += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
@@ -55,10 +55,10 @@ win32:DEFINES  += QT_DLL QT_THREAD_SUPPORT
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a  
-win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
-win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
-win32:LIBS		+= ../3rdparty/liborigin/liborigin.a
-win32:LIBS		+= ../3rdparty/zlib123/lib/zdll.lib
+win32:LIBS        += C:/GSL/bin/libgsl.dll
+win32:LIBS        += C:/GSL/bin/libgslcblas.dll
+win32:LIBS		  += ../3rdparty/zlib123/lib/zdll.lib
+win32:LIBS		  += ../3rdparty/liborigin/liborigin.a
  
 win32:RC_FILE     = src/iPlot.rc
 

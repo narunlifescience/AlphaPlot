@@ -29,125 +29,141 @@
 #include "tableDialog.h"
 #include "worksheet.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlineedit.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <q3buttongroup.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <qregexp.h>
-#include <qdatetime.h> 
-#include <q3hbox.h>
-#include <qspinbox.h>
-#include <q3vbox.h>
-#include <q3textedit.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <QCloseEvent>
-#include <Q3VBoxLayout>
+#include <QMessageBox>
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QTextEdit>
+#include <QRegExp>
+#include <QDate>
 
 TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "TableDialog" );
+    setWindowTitle( tr( "QtiPlot - Column options" ) );
+    setSizeGripEnabled(true);
+	
+	QHBoxLayout *hboxa = new QHBoxLayout();
+	hboxa->addWidget(new QLabel(tr( "Column Name:" )));
+    colName = new QLineEdit();
+    hboxa->addWidget(colName);
 
-	Q3HBox  *hbox1=new Q3HBox (this, "hbox1");
-	hbox1->setSpacing(5);
-
-	Q3VBox  *vbox0 = new Q3VBox (hbox1, "vbox0");
-	Q3HBox  *hboxa=new Q3HBox (vbox0, "hboxa");
-	hboxa->setSpacing(5);
-
-	new QLabel(tr( "Column Name:" ),hboxa, "TextLabel1",0 );
-    colName = new QLineEdit( hboxa, "colName" );
-
-	enumerateAllBox = new QCheckBox( vbox0, "enumerateAllBox" );
+	enumerateAllBox = new QCheckBox();
 	enumerateAllBox->setText(tr("Enumerate all to the right" ));
 
-	Q3HBox  *hboxb=new Q3HBox (vbox0, "hboxb");
-	hboxb->setMaximumWidth(100);
-
-	buttonPrev = new QPushButton( hboxb, "buttonPrev" );
+	buttonPrev = new QPushButton();
 	buttonPrev->setText("&<<");
 	buttonPrev->setMaximumWidth(40);
 
-	buttonNext = new QPushButton( hboxb, "buttonNext" );
+	buttonNext = new QPushButton();
 	buttonNext->setText("&>>");
 	buttonNext->setMaximumWidth(40);
+	
+	QHBoxLayout *hboxb = new QHBoxLayout();
+    hboxb->addWidget(buttonPrev);
+    hboxb->addWidget(buttonNext);
+    hboxb->addStretch();
+    
+    QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addLayout(hboxa);
+    vbox1->addWidget(enumerateAllBox);
+    vbox1->addLayout(hboxb);
 
-	Q3VBox  *vbox01 = new Q3VBox (hbox1, "vbox01");
-	vbox01->setSpacing(5);
-	vbox01->setMargin(5);
+	buttonOk = new QPushButton(tr( "&OK" ));
+    buttonOk->setDefault(true);
 
-	buttonOk = new QPushButton( vbox01, "buttonOk" );
-    buttonOk->setAutoDefault( true );
-    buttonOk->setDefault( true );
-
-	buttonApply = new QPushButton( vbox01, "buttonApply" );
+	buttonApply = new QPushButton();
 	buttonApply->setText(tr("&Apply"));
 
-	buttonCancel = new QPushButton( vbox01, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
-
-	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal, tr("Options"),this,"GroupBox4" );
+	buttonCancel = new QPushButton(tr( "&Cancel" ));
 	
-	Q3HBox  *hbox2 = new Q3HBox (GroupBox2, "hbox4");
-	hbox2->setSpacing(5);
+	QVBoxLayout  *vbox2 = new QVBoxLayout();
+	vbox2->setSpacing(5);
+	vbox2->setMargin(5);
+	vbox2->addWidget(buttonOk);
+	vbox2->addWidget(buttonApply);
+	vbox2->addWidget(buttonCancel);
 
-	Q3VBox  *vbox1 = new Q3VBox (hbox2, "vbox1");
-	new QLabel( tr( "Plot Designation:" ), vbox1, "TextLabel2_2",0 );
-	new QLabel( tr( "Display" ), vbox1, "TextLabel2_3",0 );
-	labelFormat = new QLabel(tr( "Format:" ), vbox1, "TextLabel2",0 );
-	labelNumeric = new QLabel(tr( "Precision:" ),vbox1, "TextLabel3",0);
-
-	Q3VBox *vbox2 = new Q3VBox (hbox2, "vbox2");
-	columnsBox = new QComboBox(vbox2, "columnsBox" );
+    QHBoxLayout  *hbox1 = new QHBoxLayout();
+	hbox1->setSpacing(5);
+	hbox1->addLayout(vbox1);
+	hbox1->addLayout(vbox2);
+	
+	QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel( tr("Plot Designation:")), 0, 0);
+    
+   	columnsBox = new QComboBox();
 	columnsBox->insertItem(tr("None"));
 	columnsBox->insertItem(tr("X (abscissae)"));
 	columnsBox->insertItem(tr("Y (ordinates)"));
 	columnsBox->insertItem(tr("Z (height)"));
 	columnsBox->insertItem(tr("X Error"));
 	columnsBox->insertItem(tr("Y Error"));
-
-	displayBox = new QComboBox(vbox2, "displayBox" );
+    gl1->addWidget(columnsBox, 0, 1);
+    
+    gl1->addWidget(new QLabel(tr("Display")), 1, 0);
+    
+   	displayBox = new QComboBox();
 	displayBox->insertItem(tr("Numeric"));
 	displayBox->insertItem(tr("Text"));
 	displayBox->insertItem(tr("Date"));
 	displayBox->insertItem(tr("Time"));
 	displayBox->insertItem(tr("Month"));
 	displayBox->insertItem(tr("Day of Week"));
+    gl1->addWidget(displayBox, 1, 1);
+    
+    labelFormat = new QLabel(tr( "Format:" ));
+ 	gl1->addWidget(labelFormat, 2, 0);
+	 
+    formatBox = new QComboBox(false);
+    gl1->addWidget(formatBox, 2, 1);
+    
+	labelNumeric = new QLabel(tr( "Precision:" ));
+	gl1->addWidget(labelNumeric, 3, 0);
 
-	formatBox = new QComboBox( false, vbox2, "formatBox" );
-	precisionBox = new QSpinBox(0, 100, 1, vbox2, "precisionBox" );
+    precisionBox = new QSpinBox();
+    gl1->addWidget(precisionBox, 3, 1);
 
-	applyToRightCols = new QCheckBox( GroupBox2, "applyToRightCols" );
-	applyToRightCols->setText(tr( "Apply to all columns to the right" ));
+	applyToRightCols = new QCheckBox(tr( "Apply to all columns to the right" ));
+		
+    QVBoxLayout *vbox3 = new QVBoxLayout();
+    vbox3->addLayout(gl1);
+    vbox3->addWidget(applyToRightCols);
+    
+    QGroupBox *gb = new QGroupBox(tr("Options"));
+    gb->setLayout(vbox3);
+
+    QHBoxLayout  *hbox2 = new QHBoxLayout();
+    hbox2->addWidget(new QLabel(tr( "Column Width:" )));
+    
+	colWidth = new QSpinBox();
+    colWidth->setRange(0, 1000);
+	colWidth->setSingleStep(10);
+
+	hbox2->addWidget(colWidth);
 	
-	Q3HBox *GroupBox3 = new Q3HBox(this,"GroupBox3" );
-	GroupBox3->setSpacing(5);
-
-	new QLabel(tr( "Column Width:" ),GroupBox3, "TextLabel1_2",0 );
-	colWidth = new QSpinBox(0, 1000, 10, GroupBox3, "colWidth" );
-    applyToAllBox = new QCheckBox(GroupBox3, "applyToAllBox" );
+    applyToAllBox = new QCheckBox(tr( "Apply to all" ));
+	hbox2->addWidget(applyToAllBox);
 	
-	QLabel *label1 = new QLabel(tr( "Comment:" ), this, "TextLabel1_22",0);
-	comments = new Q3TextEdit(this,"comments");
-	comments->setMaximumHeight(100);
+	comments = new QTextEdit();
 
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
-    hlayout->addWidget(hbox1);
-	hlayout->addWidget(GroupBox2);
-	hlayout->addWidget(GroupBox3);
-	hlayout->addWidget(label1);
-	hlayout->addWidget(comments);
-
-	setMaximumHeight(this->height());
-
-    languageChange();
+	QVBoxLayout* vbox4 = new QVBoxLayout();
+    vbox4->addLayout(hbox1);
+	vbox4->addWidget(gb);
+	vbox4->addLayout(hbox2);
+	vbox4->addWidget(new QLabel(tr( "Comment:" )));
+	vbox4->addWidget(comments);
+ 
+    setLayout(vbox4);
     setFocusProxy (colName);
+    resize(minimumSize());
 
    // signals and slots connections
 	connect(colWidth, SIGNAL(valueChanged(int)), this, SLOT(changeColWidth(int)));
@@ -436,11 +452,4 @@ else
 	}
 }
 
-void TableDialog::languageChange()
-{
-    setWindowTitle( tr( "QtiPlot - Column options" ) );
-    buttonCancel->setText( tr( "&Cancel" ) );  
-    buttonOk->setText( tr( "&OK" ) );
-    		
-    applyToAllBox->setText( tr( "Apply to all" ) );
-}
+

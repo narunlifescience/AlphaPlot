@@ -1,8 +1,5 @@
 FitDialog
 FunctionDialog
 LayerDialog
-PieDialog
 Plot3DDialog
 PlotDialog
-TableDialog
-SetColValuesDialog

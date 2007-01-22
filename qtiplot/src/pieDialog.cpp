@@ -35,62 +35,52 @@
 #include "multilayer.h"
 #include "plot.h"
 
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qspinbox.h>
-#include <qtabwidget.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <q3buttongroup.h>
-#include <qcolordialog.h>
-#include <qwidget.h>
-#include <q3popupmenu.h>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QTabWidget>
+#include <QLayout>
+#include <QListWidget>
+#include <QMenu>
+#include <QColorDialog>
 
 #include <qwt_plot.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
-#include <Q3PtrList>
-
 
 PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
 		setName( "PieDialog" );
-	setFixedWidth(521);
-	setFixedHeight(260);
     setWindowTitle( tr( "QtiPlot - Pie Options" ) );
-    setSizeGripEnabled( false );
-
-    generalDialog = new QTabWidget( this, "generalDialog" );
+ 
+    generalDialog = new QTabWidget();
 	
 	initPiePage();
 	initBorderPage();
 	
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),this, "GroupBox1" );
-	GroupBox1->setFlat (true);
-	
-	buttonWrk = new QPushButton( GroupBox1, "buttonWrk" );
-    buttonWrk->setText( tr( "&Worksheet" ) );
-	
-	buttonApply = new QPushButton( GroupBox1, "buttonApply" );
-    buttonApply->setText( tr( "&Apply" ) );
-	
-    buttonOk = new QPushButton(GroupBox1, "buttonOk" );
-    buttonOk->setText( tr( "&OK" ) );
+	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addStretch();	
+	buttonWrk = new QPushButton(tr( "&Worksheet" ));
+    hbox1->addWidget(buttonWrk);
+	buttonApply = new QPushButton(tr( "&Apply" ));
+    hbox1->addWidget(buttonApply);	
+    buttonOk = new QPushButton(tr( "&OK" ));
     buttonOk->setDefault( true );
-	
-    buttonCancel = new QPushButton(GroupBox1, "buttonCancel" );
-    buttonCancel->setText( tr( "&Cancel" ) );
-	
-	Q3VBoxLayout* vl = new Q3VBoxLayout(this,5,5, "vl");
+    hbox1->addWidget(buttonOk);
+    buttonCancel = new QPushButton(tr( "&Cancel" ));
+    hbox1->addWidget(buttonCancel);
+
+	QVBoxLayout* vl = new QVBoxLayout();
 	vl->addWidget(generalDialog);
-    vl->addWidget(GroupBox1);
-   
+    vl->addLayout(hbox1);
+    setLayout(vl);
+    
+    resize(minimumSize());
+    setMaximumHeight(minimumSize ().height());
+
     // signals and slots connections
 	connect( buttonWrk, SIGNAL(clicked()), this, SLOT(showWorksheet()));
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -100,73 +90,102 @@ PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 
 void PieDialog::initPiePage()
 {
-	pieOptions = new QWidget( generalDialog, "pieOptions" );
-	curvesList = new Q3ListBox(pieOptions, "listBox" );
+	pieOptions = new QWidget();
+	curvesList = new QListWidget();
 	
-	Q3ButtonGroup *GroupBox3 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Border" ),pieOptions, "GroupBox3" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel( tr( "Color" )), 0, 0);
 
-    new QLabel( tr( "Color" ), GroupBox3, "TextLabel4",0 );
+    boxLineColor = new ColorBox(false);
+    gl1->addWidget(boxLineColor, 0, 1);
 
-    boxLineColor = new ColorBox( false, GroupBox3);
-	
-	new QLabel(tr( "Style" ), GroupBox3, "TextLabel31",0 );  
-    boxLineStyle = new QComboBox( false, GroupBox3, "boxLineStyle" );
+    gl1->addWidget(new QLabel(tr( "Style" )), 1, 0);
+    boxLineStyle = new QComboBox( false );
     boxLineStyle->insertItem("_____");
 	boxLineStyle->insertItem("- - -");
 	boxLineStyle->insertItem(".....");
 	boxLineStyle->insertItem("_._._");
 	boxLineStyle->insertItem("_.._..");
+    gl1->addWidget(boxLineStyle);
 	
-	new QLabel(tr( "Width" ), GroupBox3, "TextLabel3",0 );  
-    boxLineWidth = new QSpinBox( GroupBox3, "boxLineWidth" );
-	
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "Fill" ),pieOptions, "GroupBox2" );
+	gl1->addWidget(new QLabel(tr( "Width")), 2, 0);  
+    boxLineWidth = new QSpinBox();
+    gl1->addWidget(boxLineWidth, 2, 1);
 
-    new QLabel( tr( "First color" ), GroupBox2, "TextLabel4",0 ); 
-    boxFirstColor = new ColorBox( false, GroupBox2);
+    QGroupBox *gb1 = new QGroupBox(tr( "Border" ));
+    gb1->setLayout(gl1);
+
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel( tr( "First color" )), 0, 0);
+
+    boxFirstColor = new ColorBox(false);
+    gl2->addWidget(boxFirstColor, 0, 1);
 	
-	new QLabel( tr( "Pattern" ), GroupBox2, "TextLabel41",0 );
-	boxPattern = new PatternBox( false, GroupBox2);
+    gl2->addWidget(new QLabel( tr( "Pattern" )), 1, 0);
+	boxPattern = new PatternBox(false);
+    gl2->addWidget(boxPattern, 1, 1);
+	gl2->addWidget(new QLabel( tr( "Pie radius" )), 2, 0);
+	 
+    boxRadius= new QSpinBox();
+    boxRadius->setRange(0, 10000);
+    boxRadius->setSingleStep(10);
+
+    gl2->addWidget(boxRadius, 2, 1);
+
+    QGroupBox *gb2 = new QGroupBox(tr( "Fill" ));
+    gb2->setLayout(gl2);
 	
-	new QLabel(tr( "Pie radius" ), GroupBox2, "radiusLabel",0 );  
-    boxRadius= new QSpinBox(0,2000,10,GroupBox2, "boxRadius");
-	
-	Q3HBoxLayout* hlayout1 = new Q3HBoxLayout(pieOptions,5,5, "hlayout1");
-	hlayout1->addWidget(curvesList);
-    hlayout1->addWidget(GroupBox3);
-	hlayout1->addWidget(GroupBox2);
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(curvesList);
+    hl->addWidget(gb1);
+	hl->addWidget(gb2);
+    pieOptions->setLayout(hl);
 	
 	generalDialog->insertTab(pieOptions, tr( "Pie" ) );
-
-connect(curvesList, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(showPopupMenu(Q3ListBoxItem *, const QPoint &)));
 }
 
 void PieDialog::initBorderPage()
 {
-frame = new QWidget( generalDialog, "frame" );	
+frame = new QWidget();	
 
-Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal, tr("Background"), frame, "GroupBox5" );
+QGridLayout *gl1 = new QGridLayout();
+gl1->addWidget(new QLabel( tr( "Color" )), 0, 0);
 	
-new QLabel(tr("Color"), GroupBox1, "TextLabel1_53",0 );
-boxBackgroundColor= new ColorButton(GroupBox1);
-	
-new QLabel(tr("Border Width"),GroupBox1, "TextLabel1_54",0 );
-boxBorderWidth= new QSpinBox(GroupBox1);
+boxBackgroundColor = new ColorButton();
+gl1->addWidget(boxBackgroundColor, 0, 1);
 
-new QLabel(tr("Border Color" ),GroupBox1, "TextLabel1_53",0 );
-boxBorderColor= new ColorButton(GroupBox1);
+gl1->addWidget(new QLabel( tr( "Border Width" )), 1, 0);
+boxBorderWidth = new QSpinBox();
+gl1->addWidget(boxBorderWidth, 1, 1);
 
-Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Options"), frame, "GroupBox2" );
-new QLabel(tr( "Margin" ),GroupBox2, "TextLabel1_541",0 );
-boxMargin= new QSpinBox(0, 1000, 5, GroupBox2);
+gl1->addWidget(new QLabel( tr( "Border Color" )), 2, 0);
+boxBorderColor= new ColorButton();
+gl1->addWidget(boxBorderColor, 2, 1);
 
-boxAll = new QCheckBox(tr("Apply to all layers"), GroupBox2, "boxShowAxis" );
+QGroupBox *gb1 = new QGroupBox(tr("Background"));
+gb1->setLayout(gl1);
 
-Q3HBoxLayout* hlayout = new Q3HBoxLayout(frame, 5, 5, "hlayout");
-hlayout->addWidget(GroupBox1);
-hlayout->addWidget(GroupBox2);
+QGroupBox *gb2 = new QGroupBox(tr("Options"));
+QGridLayout *gl2 = new QGridLayout();
+gl2->addWidget(new QLabel( tr( "Margin" )), 0, 0);
+
+boxMargin= new QSpinBox();
+boxMargin->setRange(0, 1000);
+boxMargin->setSingleStep(5);
+
+gl2->addWidget(boxMargin, 0, 1);
+
+boxAll = new QCheckBox(tr("Apply to all layers"));
+gl2->addWidget(boxAll, 1, 0);
+gb2->setLayout(gl2);
+
+QHBoxLayout* hl = new QHBoxLayout();
+hl->addWidget(gb1);
+hl->addWidget(gb2);
+frame->setLayout(hl);
 
 generalDialog->insertTab(frame, tr( "General" ) );
+
 connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
 connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
 connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
@@ -288,21 +307,33 @@ else
 
 void PieDialog::showWorksheet()
 {
-emit worksheet(curvesList->currentText ());
+emit worksheet(curvesList->currentItem()->text());
 close();
 }
 
-void PieDialog::showPopupMenu(Q3ListBoxItem *, const QPoint &point)
+void PieDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-Q3PopupMenu contextMenu(this);
-contextMenu.insertItem("&Delete", this, SLOT(removeCurve()));
-contextMenu.exec(point);
+QListWidgetItem *item = curvesList->item(0);
+if (!item)
+    return;
+
+QPoint pos = curvesList->viewport()->mapFromGlobal(QCursor::pos());
+QRect rect = curvesList->visualItemRect(item);
+if (rect.contains(pos))
+    {
+    QMenu contextMenu(this);
+    contextMenu.insertItem("&Delete", this, SLOT(removeCurve()));
+    contextMenu.exec(QCursor::pos());
+    }
+e->accept();
 }
 
 void PieDialog::removeCurve()
 {
 emit toggleCurve();
-curvesList->removeItem (0);
+QListWidgetItem *item = curvesList->takeItem (0);
+delete item;
+close();
 }
 
 void PieDialog::setPieSize(int size)
@@ -336,8 +367,8 @@ void PieDialog::setFrameColor(const QColor& c)
 void PieDialog::insertCurveName(const QString& name)
 {
 curvesList->clear();
-curvesList->insertItem(name,-1);
-curvesList->setCurrentItem (0);
+curvesList->addItem (name);
+curvesList->setCurrentRow(0);
 }
 
 void PieDialog::accept()

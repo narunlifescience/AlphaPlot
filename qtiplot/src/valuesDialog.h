@@ -33,25 +33,18 @@
 #define VALUESDIALOG_H
 
 #include "Scripting.h"
+#include <QDialog>
 
-#include <qvariant.h>
-#include <qdialog.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3HBoxLayout>
-#include <QLabel>
-#include <Q3GridLayout>
-class Q3VBoxLayout; 
-class Q3HBoxLayout; 
-class Q3GridLayout; 
 class QComboBox;
-class Q3TextEdit;
+class QTextEdit;
 class QSpinBox;
 class QPushButton;
 class QLabel;
+
 class Table;
 class ScriptingEnv;
 class ScriptEdit;
+
 	
 //! Set column values dialog
 class SetColValuesDialog : public QDialog, public scripted
@@ -67,14 +60,17 @@ public:
 
     QComboBox* functions;
     QComboBox* boxColumn;
-    QPushButton* PushButton3; 
-    QPushButton* PushButton4;
+    QPushButton* btnAddFunction; 
+    QPushButton* btnAddCol;
     QPushButton* btnOk;
     QPushButton* btnCancel;
+    QPushButton *buttonPrev;
+    QPushButton *buttonNext;
+    QPushButton *addCellButton;
+    QPushButton *btnApply;
     ScriptEdit* commands;
-    Q3TextEdit* explain;
+    QTextEdit* explain;
 	QSpinBox* start, *end;
-	QPushButton *buttonPrev, *buttonNext, *addCellButton, *btnApply;
 	QLabel *colNameLabel;
 
 public slots:
