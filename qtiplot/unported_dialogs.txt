@@ -1,5 +1,4 @@
 FitDialog
 FunctionDialog
-LayerDialog
 Plot3DDialog
 PlotDialog

@@ -27,152 +27,180 @@
  *                                                                         *
  ***************************************************************************/
 #include "layerDialog.h"
-#include "multilayer.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qspinbox.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qtabwidget.h>
-#include <qwidget.h>
-#include <qmessagebox.h>
-#include <q3hbox.h>
-#include <q3vbox.h>
-#include <qfont.h>
-#include <qfontdialog.h>
-#include <qcombobox.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QTabWidget>
+#include <QWidget>
+#include <QFontDialog>
+#include <QFont>
+#include <QMessageBox>
 
 LayerDialog::LayerDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     if ( !name )
-	setName( "LayerDialog" );
-    setSizeGripEnabled( true );
+	setName("LayerDialog");
+	setWindowTitle(tr( "QtiPlot - Arrange Layers" ));
+	
+	generalDialog = new QTabWidget();
+	layout = new QWidget(generalDialog);
 
-	generalDialog = new QTabWidget( this, "generalDialog" );
+	QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("Number of Layers")), 0, 0);
+	layersBox = new QSpinBox();
+	layersBox->setRange(0, 100);
+    gl1->addWidget(layersBox, 0, 1);
 
-	layout = new QWidget( generalDialog, "layout" );
-
-	Q3ButtonGroup *box = new Q3ButtonGroup(2,Qt::Horizontal,QString(),layout);
-	box->setFlat (true);
-	box->setInsideMargin (0);
-
-	Q3VBox *vbox = new Q3VBox(box);
-	vbox->setMargin(5);
-	vbox->setSpacing(5);
-
-	Q3HBox *hbox1 = new Q3HBox(vbox);
-	hbox1->setSpacing(5);
-
-	new QLabel( tr( "Number of Layers" ), hbox1);
-	layersBox = new QSpinBox(0,100,1,hbox1);
-
-	fitBox=new QCheckBox(vbox);
+	fitBox=new QCheckBox(tr("Automatic &layout"));
 	fitBox->setChecked(false);
-
-	Q3ButtonGroup *groupAlign = new Q3ButtonGroup(2,Qt::Horizontal,tr("Alignement"),box);
-
-    new QLabel( tr("Horizontal" ), groupAlign, 0,0 );
-	alignHorBox = new QComboBox( false, groupAlign, 0 );
+	gl1->addWidget(fitBox);
+	QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
+	
+	QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel(tr("Horizontal")), 0, 0);
+	
+	alignHorBox = new QComboBox( false );
 	alignHorBox->insertItem( tr( "Center" ) );
 	alignHorBox->insertItem( tr( "Left" ) );
 	alignHorBox->insertItem( tr( "Right" ) );
-
-    new QLabel( tr( "Vertical" ), groupAlign, 0,0 );
-	alignVertBox = new QComboBox( false, groupAlign, 0 );
+	gl2->addWidget(alignHorBox, 0, 1);
+	
+    gl2->addWidget(new QLabel( tr( "Vertical" )), 1, 0 );
+	alignVertBox = new QComboBox( false );
 	alignVertBox->insertItem( tr( "Center" ) );
 	alignVertBox->insertItem( tr( "Top" ) );
 	alignVertBox->insertItem( tr( "Bottom" ) );
-
-	Q3VBox *vbox2 = new Q3VBox(box);
-	vbox2->setSpacing(5);
-
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Grid"),vbox2);
-
-    new QLabel( tr( "Columns" ), GroupBox1, "TextLabel1",0 );
-	boxX = new QSpinBox(1,100,1,GroupBox1, "boxX" );
-
-    new QLabel( tr( "Rows" ), GroupBox1, "TextLabel2",0 );
-	boxY = new QSpinBox(1,100,1,GroupBox1, "boxY" );
-
-	GroupCanvasSize = new Q3ButtonGroup(2,Qt::Horizontal,tr("&Layer Canvas Size"),vbox2);
+	gl2->addWidget(alignVertBox, 1, 1);
+	
+	QGroupBox *gb2 = new QGroupBox(tr("Alignement"));
+	gb2->setLayout(gl2);
+	
+	QGridLayout *gl3 = new QGridLayout();
+    gl3->addWidget(new QLabel(tr("Columns")), 0, 0);
+	boxX = new QSpinBox();
+	boxX->setRange(1, 100);
+	gl3->addWidget(boxX, 0, 1);
+    gl3->addWidget(new QLabel( tr( "Rows" )), 1, 0);
+	boxY = new QSpinBox();
+	boxY->setRange(1, 100);
+	gl3->addWidget(boxY, 1, 1);
+	
+	GroupGrid = new QGroupBox(tr("Grid"));
+	GroupGrid->setLayout(gl3);
+	
+	GroupCanvasSize = new QGroupBox(tr("&Layer Canvas Size"));
 	GroupCanvasSize->setCheckable(true);
 	GroupCanvasSize->setChecked(false);
-
-    new QLabel( tr("Width" ), GroupCanvasSize, "TextLabel1",0 );
-	boxCanvasWidth = new QSpinBox(0,10000,50,GroupCanvasSize, "boxCanvasWidth" );
+	
+	QGridLayout *gl5 = new QGridLayout();
+    gl5->addWidget(new QLabel(tr("Width")), 0, 0);
+	boxCanvasWidth = new QSpinBox();
+	boxCanvasWidth->setRange(0, 10000);
+	boxCanvasWidth->setSingleStep(50);
 	boxCanvasWidth->setSuffix(tr(" pixels"));
-
-    new QLabel( tr( "Height" ), GroupCanvasSize, "TextLabel2",0 );
-	boxCanvasHeight = new QSpinBox(0,10000,50,GroupCanvasSize, "boxCanvasHeight" );
+	gl5->addWidget(boxCanvasWidth, 0, 1);	
+    gl5->addWidget(new QLabel( tr( "Height" )), 1, 0);
+	boxCanvasHeight = new QSpinBox();
+	boxCanvasHeight->setRange(0, 10000);
+	boxCanvasHeight->setSingleStep(50);
 	boxCanvasHeight->setSuffix(tr(" pixels"));
-
-	GroupBox4 = new Q3ButtonGroup( 2,Qt::Horizontal,tr("Spacing"),box);
-
-  	new QLabel( tr( "Columns gap" ), GroupBox4, "TextLabel4",0 );
-	boxColsGap = new QSpinBox(0,100,5,GroupBox4, "boxColsGap" );
+	gl5->addWidget(boxCanvasHeight, 1, 1);
+	GroupCanvasSize->setLayout(gl5);
+	
+	QGridLayout *gl4 = new QGridLayout();
+    gl4->addWidget(new QLabel(tr("Columns gap")), 0, 0);
+	boxColsGap = new QSpinBox();
+	boxColsGap->setRange(0, 1000);
+	boxColsGap->setSingleStep(5);
 	boxColsGap->setSuffix(tr(" pixels"));
-
-    new QLabel( tr( "Rows gap" ), GroupBox4, "TextLabel5",0 );
-	boxRowsGap = new QSpinBox(0,100,5,GroupBox4, "boxRowsGap" );
+	gl4->addWidget(boxColsGap, 0, 1);
+    gl4->addWidget(new QLabel( tr( "Rows gap" )), 1, 0);
+	boxRowsGap = new QSpinBox();
+	boxRowsGap->setRange(0, 1000);
+	boxRowsGap->setSingleStep(5);
 	boxRowsGap->setSuffix(tr(" pixels"));
-
-	new QLabel( tr( "Left margin" ), GroupBox4, "TextLabel7",0 );
-	boxLeftSpace = new QSpinBox(0,1000,5,GroupBox4, "boxLeftSpace" );
+	gl4->addWidget(boxRowsGap, 1, 1);
+	gl4->addWidget(new QLabel( tr( "Left margin" )), 2, 0);
+	boxLeftSpace = new QSpinBox();
+	boxLeftSpace->setRange(0, 1000);
+	boxLeftSpace->setSingleStep(5);
 	boxLeftSpace->setSuffix(tr(" pixels"));
-
-	new QLabel( tr( "Right margin" ), GroupBox4, "TextLabel6",0 );
-	boxRightSpace = new QSpinBox(0,1000,5,GroupBox4, "boxRightSpace" );
+	gl4->addWidget(boxLeftSpace, 2, 1);
+	gl4->addWidget(new QLabel( tr( "Right margin" )), 3, 0);
+	boxRightSpace = new QSpinBox();
+	boxRightSpace->setRange(0, 1000);
+	boxRightSpace->setSingleStep(5);
 	boxRightSpace->setSuffix(tr(" pixels"));
-
-	new QLabel( tr( "Top margin" ), GroupBox4, "TextLabel8",0 );
-	boxTopSpace = new QSpinBox(0,1000,5,GroupBox4, "boxTopSpace" );
+	gl4->addWidget(boxRightSpace, 3, 1);
+	gl4->addWidget(new QLabel( tr( "Top margin" )), 4, 0);
+	boxTopSpace = new QSpinBox();
+	boxTopSpace->setRange(0, 1000);
+	boxTopSpace->setSingleStep(5);
 	boxTopSpace->setSuffix(tr(" pixels"));
-
-    new QLabel( tr( "Bottom margin" ), GroupBox4, "TextLabel9",0 );
-	boxBottomSpace = new QSpinBox(0,1000,5,GroupBox4, "boxBottomSpace" );
+	gl4->addWidget(boxTopSpace, 4, 1);
+    gl4->addWidget(new QLabel( tr( "Bottom margin") ), 5, 0);
+	boxBottomSpace = new QSpinBox();
+	boxBottomSpace->setRange(0, 1000);
+	boxBottomSpace->setSingleStep(5);
 	boxBottomSpace->setSuffix(tr(" pixels"));
-
-	Q3VBoxLayout* hlayout1 = new Q3VBoxLayout(layout,5,5, "hlayout1");
-	hlayout1->addWidget(box);
-
+	gl4->addWidget(boxBottomSpace, 5, 1);
+	
+	QGroupBox *gb4 = new QGroupBox(tr("Spacing"));
+	gb4->setLayout(gl4);
+	
+	QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addWidget(gb1);
+	vbox1->addWidget(GroupGrid);
+	vbox1->addWidget(GroupCanvasSize);
+	
+	QVBoxLayout *vbox2 = new QVBoxLayout();
+    vbox2->addWidget(gb2);
+	vbox2->addWidget(gb4);
+	
+	QHBoxLayout *hbox1 = new QHBoxLayout();
+	hbox1->addLayout(vbox1);
+	hbox1->addLayout(vbox2);
+	layout->setLayout(hbox1);
+	
 	generalDialog->insertTab(layout, tr( "Layout" ) );
+	
+    btnTitle = new QPushButton(tr("Titles"));
+	btnAxesLabels = new QPushButton(tr("Axes Labels"));
+	btnAxesNumbers = new QPushButton(tr("Axes Numbers"));
+	btnLegend = new QPushButton(tr("Legends"));
 
-	fonts = new QWidget( generalDialog, "fonts" );
-	GroupBox2 = new Q3ButtonGroup( 1,Qt::Horizontal, QString(),fonts,"GroupBox2" );
-
-    btnTitle = new QPushButton(GroupBox2, "btnTitle" );
-	btnAxesLabels = new QPushButton(GroupBox2, "btnAxesLabels" );
-	btnAxesNumbers = new QPushButton(GroupBox2, "btnAxesNumbers" );
-	btnLegend = new QPushButton(GroupBox2, "btnLegend" );
-
-	Q3VBoxLayout* vl2 = new Q3VBoxLayout(fonts,5,5, "vl2");
-	vl2->addWidget(GroupBox2);
- 
+	QVBoxLayout *vbox3 = new QVBoxLayout();
+    vbox3->addWidget(btnTitle);
+	vbox3->addWidget(btnAxesLabels);
+	vbox3->addWidget(btnAxesNumbers);
+	vbox3->addWidget(btnLegend);
+	vbox3->addStretch();
+	
+	fonts = new QWidget(generalDialog);
+	fonts->setLayout(vbox3);
 	generalDialog->insertTab(fonts, tr( "Fonts" ) );
-
-	Q3HBox *hbox2=new Q3HBox(this, "hbox2");
-	hbox2->setSpacing(5);
-
-	buttonApply = new QPushButton(hbox2, "buttonApply" );
-
-	buttonOk = new QPushButton(hbox2, "buttonOk" );
-    buttonOk->setAutoDefault( true );
+	
+	buttonApply = new QPushButton(tr( "&Apply" ));
+	buttonOk = new QPushButton(tr( "&OK" ));
     buttonOk->setDefault( true );
+    buttonCancel = new QPushButton(tr( "&Cancel" ));
 
-    buttonCancel = new QPushButton(hbox2, "buttonCancel" );
-    buttonCancel->setAutoDefault( true );
-
-	Q3VBoxLayout* vl = new Q3VBoxLayout(this,10, 5, "vl");
-	vl->addWidget(generalDialog);
-    vl->addWidget(hbox2);
-
-    languageChange();
+	QHBoxLayout *hbox2 = new QHBoxLayout();
+	hbox2->addWidget(buttonApply);
+	hbox2->addWidget(buttonOk);
+	hbox2->addWidget(buttonCancel);
+	
+	QVBoxLayout *vbox4 = new QVBoxLayout();
+	vbox4->addWidget(generalDialog);
+    vbox4->addLayout(hbox2);
+	setLayout(vbox4);
 
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT(update() ) );
@@ -186,26 +214,12 @@ LayerDialog::LayerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 
 void LayerDialog::enableLayoutOptions(bool ok)
 {
-GroupBox1->setEnabled(!ok);
+GroupGrid->setEnabled(!ok);
 GroupCanvasSize->setEnabled(!ok);
 }
 
 LayerDialog::~LayerDialog()
 {
-}
-
-void LayerDialog::languageChange()
-{
-    setWindowTitle( tr( "QtiPlot - Arrange Layers" ) );
-	buttonApply->setText( tr( "&Apply" ) );
-    buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
-	fitBox->setText(tr("Automatic &layout"));
-
-	btnTitle->setText(tr("Titles"));
-	btnAxesLabels->setText(tr("Axes Labels"));
-	btnAxesNumbers->setText(tr("Axes Numbers"));
-	btnLegend->setText(tr("Legends"));
 }
 
 void LayerDialog::setMultiLayer(MultiLayer *g)
@@ -276,7 +290,7 @@ if (generalDialog->currentPage()==(QWidget *)layout )
 	multi_layer->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
 							boxTopSpace->value(), boxBottomSpace->value());
 	
-	multi_layer->setSpacing(boxColsGap->value(), boxRowsGap->value());
+	multi_layer->setSpacing(boxRowsGap->value(), boxColsGap->value());
 	multi_layer->arrangeLayers(fitBox->isChecked(), GroupCanvasSize->isChecked());
 	
 	if (!GroupCanvasSize->isChecked())

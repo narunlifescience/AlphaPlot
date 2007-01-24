@@ -4,17 +4,17 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
-CONFIG	    += release
-#CONFIG	    += debug
+#CONFIG	    += release
+CONFIG	    += debug
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES     += QT_PLUGIN
-DEFINES	    += SCRIPTING_CONSOLE
-DEFINES	    += SCRIPTING_DIALOG
+#DEFINES	    += SCRIPTING_CONSOLE
+#DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
 
-SCRIPTING_LANGS = muParser Python
+SCRIPTING_LANGS = muParser #Python
 
 TRANSLATIONS    = translations/qtiplot_de.ts \
 		          translations/qtiplot_es.ts \
@@ -38,9 +38,11 @@ INCLUDEPATH       += ../3rdparty/zlib123/include
 
 ##################### Linux (Mac OS X) ###################################### 
 
-unix:LIBS         += ../3rdparty/qwt/lib$${libsuff}/libqwt.a
-unix:LIBS         += -L /usr/lib$${libsuff} -lgsl -lgslcblas -lz -lorigin
 unix:LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
+unix:LIBS         += ../3rdparty/liborigin/liborigin.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 
 unix:target.path=/usr/bin
 unix:INSTALLS += target
@@ -269,9 +271,9 @@ contains(SCRIPTING_LANGS, Python) {
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
     LIBS +=	$$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
-    LIBS +=	-lm
+	LIBS +=	-lm
     system(mkdir -p $${MOC_DIR})
-    system(sip -I /usr/share/sip -t Qt_4_2_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+    system(sip -I /usr/local/share/sip/PyQt4 -t Qt_4_2_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
   }
 
   win32 {
@@ -337,4 +339,4 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
 	 ../tmp/qtiplot/sipqtiGaussFit.cpp
 }
-############################################################### 
+###############################################################

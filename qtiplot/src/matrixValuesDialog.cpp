@@ -30,24 +30,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "matrixValuesDialog.h"
-#include "Scripting.h"
-#include "scriptedit.h"
-#include "matrix.h"
 
-#include <qcombobox.h>
-#include <qspinbox.h>
-#include <q3textedit.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qmessagebox.h>
-#include <qlabel.h>
-#include <q3vbox.h>
-#include <q3hbox.h>
-#include <q3buttongroup.h>
-//Added by qt3to4:
-#include <Q3Frame>
-#include <Q3VBoxLayout>
+#include <QLayout>
+#include <QSpinBox>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QTextEdit>
 
 MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl ), scripted(env)
@@ -56,90 +46,81 @@ MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 		setName( "MatrixValuesDialog" );
 
 	setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
-	setFocusPolicy( Qt::StrongFocus );
+	setSizeGripEnabled(true);
+	
+	QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("For row (i)")), 0, 0);
+	startRow = new QSpinBox();
+	startRow->setRange(1, 1000000);
+    gl1->addWidget(startRow, 0, 1);
+	gl1->addWidget(new QLabel(tr("to")), 0, 2);
+	endRow =  new QSpinBox(); 
+	endRow->setRange(1, 1000000);
+	gl1->addWidget(endRow, 0, 3);
+	gl1->addWidget(new QLabel(tr("For col (j)")), 1, 0);
+	startCol = new QSpinBox();
+	startCol->setRange(1, 1000000);
+	gl1->addWidget(startCol, 1, 1);
+	gl1->addWidget(new QLabel(tr("to")), 1, 2);
+	endCol = new QSpinBox();
+	endCol->setRange(1, 1000000);
+	gl1->addWidget(endCol, 1, 3);
+	
+	functions = new QComboBox(false);
+	btnAddFunction = new QPushButton(tr( "Add function" ));
+	btnAddCell = new QPushButton(tr( "Add Cell" ));
+	
+	QHBoxLayout *hbox1 = new QHBoxLayout();
+	hbox1->addWidget(functions);
+	hbox1->addWidget(btnAddFunction);
+	hbox1->addWidget(btnAddCell);
+	
+	QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addLayout(gl1);
+	vbox1->addLayout(hbox1);
+	QGroupBox *gb = new QGroupBox();
+    gb->setLayout(vbox1);
+    gb->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred));
+	
+	explain = new QTextEdit();
+	explain->setReadOnly(true);
+	explain->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred));
+    QPalette palette = explain->palette();
+    palette.setColor(QPalette::Active, QPalette::Base, Qt::lightGray);
+    explain->setPalette(palette);
 
-	Q3HBox *hbox1=new Q3HBox (this, "hbox1"); 
-	hbox1->setSpacing (5);
+	QHBoxLayout *hbox2 = new QHBoxLayout();
+	hbox2->addWidget(explain);
+	hbox2->addWidget(gb);
 
-	Q3VBox *box1=new Q3VBox (hbox1, "box2"); 
-	box1->setSpacing (5);
+	QHBoxLayout *hbox3 = new QHBoxLayout();
+	hbox3->addWidget(new QLabel(tr( "Cell(i,j)=" )));
 
-	explain = new Q3TextEdit(box1, "explain" );
-	explain->setReadOnly (true);
-
-	Q3VBox *box2=new Q3VBox (hbox1, "box2"); 
-	box2->setMargin(5);
-	box2->setFrameStyle (Q3Frame::Box);
-
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal, "",box2, "GroupBox0" );
-	GroupBox1->setFlat(true);
-
-	QLabel *TextLabel1 = new QLabel(GroupBox1, "TextLabel1" );
-	TextLabel1->setText( tr( "For row (i)" ) );
-
-	startRow = new QSpinBox(1, 1000000, 1, GroupBox1, "startRow" );
-	startRow->setValue(1);
-
-	QLabel *TextLabel2 = new QLabel(GroupBox1, "TextLabel2" );
-	TextLabel2->setText( tr( "to" ) );
-
-	endRow =  new QSpinBox(1, 1000000, 1, GroupBox1, "endRow" );
-
-	QLabel *TextLabel3 = new QLabel(GroupBox1, "TextLabel3" );
-	TextLabel3->setText( tr( "For col (j)" ) );
-
-	startCol = new QSpinBox(1, 1000000, 1, GroupBox1, "startCol" );
-	startCol->setValue(1);
-
-	QLabel *TextLabel4 = new QLabel(GroupBox1, "TextLabel2" );
-	TextLabel4->setText( tr( "to" ) );
-
-	endCol = new QSpinBox(1, 1000000, 1, GroupBox1, "endCol" );
-
-	Q3HBox *hbox5=new Q3HBox (box2, "hbox5"); 
-	hbox5->setSpacing (5);
-	hbox5->setMargin(5);
-
-	functions = new QComboBox( false, hbox5, "functions" );
-
-	PushButton3 = new QPushButton(hbox5, "PushButton3" );
-	PushButton3->setText( tr( "Add function" ) ); 
-
-	btnAddCell = new QPushButton(hbox5, "btnAddCell" );
-	btnAddCell->setText( tr( "Add Cell" ) );
-
-	Q3HBox *hbox4=new Q3HBox (this, "hbox4"); 
-	hbox4->setSpacing (5);
-
-	QLabel *TextLabel5 = new QLabel(hbox4, "TextLabel2" );
-	TextLabel5->setText( tr( "Cell(i,j)=" ) );
-
-	commands = new ScriptEdit( scriptEnv, hbox4, "commands" );
-	commands->setGeometry( QRect(10, 100, 260, 70) );
+	commands = new ScriptEdit( scriptEnv);
 	commands->setFocus();
+	hbox3->addWidget(commands);
 
-	Q3VBox *box3=new Q3VBox (hbox4,"box3"); 
-	box3->setSpacing (5);
-
-	btnOk = new QPushButton(box3, "btnOk" );
-	btnOk->setText( tr( "OK" ) );
-
-	btnApply = new QPushButton(box3, "btnApply" );
-	btnApply->setText( tr( "Apply" ) );
-
-	btnCancel = new QPushButton( box3, "btnCancel" );
-	btnCancel->setText( tr( "Cancel" ) );
-
-	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
-	layout->addWidget(hbox1);
-	layout->addWidget(hbox5);
-	layout->addWidget(hbox4);
+	QVBoxLayout *vbox2 = new QVBoxLayout(); 
+	btnOk = new QPushButton(tr( "OK" ));
+    vbox2->addWidget(btnOk);
+	btnApply = new QPushButton(tr( "Apply" ));
+    vbox2->addWidget(btnApply);
+	btnCancel = new QPushButton(tr( "Cancel" ));
+    vbox2->addWidget(btnCancel);
+    vbox2->addStretch();
+	
+	hbox3->addLayout(vbox2);
+	
+	QVBoxLayout* vbox3 = new QVBoxLayout();
+	vbox3->addLayout(hbox2);
+	vbox3->addLayout(hbox3);
+    setLayout(vbox3);
 
 	setFunctions();
 	insertExplain(0);
 
 	connect(btnAddCell, SIGNAL(clicked()),this, SLOT(addCell()));
-	connect(PushButton3, SIGNAL(clicked()),this, SLOT(insertFunction()));
+	connect(btnAddFunction, SIGNAL(clicked()),this, SLOT(insertFunction()));
 	connect(btnOk, SIGNAL(clicked()),this, SLOT(accept()));
 	connect(btnApply, SIGNAL(clicked()),this, SLOT(apply()));
 	connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));

@@ -32,16 +32,16 @@
 #ifndef MVALUESDIALOG_H
 #define MVALUESDIALOG_H
 
+#include <QDialog>
 #include "Scripting.h"
-
-#include <qvariant.h>
-#include <qdialog.h>
+#include "scriptedit.h"
+#include "matrix.h"
 
 class QComboBox;
-class Q3TextEdit;
-class ScriptEdit;
+class QTextEdit;
 class QSpinBox;
 class QPushButton;
+class ScriptEdit;
 class Matrix;
 	
 //! Set matrix values dialog
@@ -57,12 +57,13 @@ public:
 
 	void customEvent( QEvent *e);
 
+	ScriptEdit* commands;
     QComboBox* functions;
-    QPushButton* PushButton3; 
-    QPushButton* btnOk, *btnAddCell;
+    QPushButton* btnAddFunction; 
+	QPushButton* btnAddCell;
+    QPushButton* btnOk;
     QPushButton* btnCancel;
-    ScriptEdit* commands;
-    Q3TextEdit* explain;
+    QTextEdit* explain;
 	QSpinBox *startRow, *endRow, *startCol, *endCol;
 	QPushButton *btnApply;
 
