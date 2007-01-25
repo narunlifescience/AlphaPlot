@@ -29,20 +29,17 @@
 #ifndef FUNCTIONDIALOG_H
 #define FUNCTIONDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-#include <Q3ValueList>
-#include <Q3TextEdit>
+#include "graph.h"
 
 class Graph;
-class Q3WidgetStack;
+class QStackedWidget;
 class QWidget;
 class QLineEdit;
 class QComboBox;
 class QPushButton;
-class Q3ButtonGroup;
 class QSpinBox;
 class QLabel;
+class QTextEdit;
 
 //! Function dialog
 class FunctionDialog : public QDialog
@@ -54,49 +51,33 @@ public:
     ~FunctionDialog();
 
 protected:
-    QLabel* textFunction_2;
-    Q3WidgetStack* optionStack;
-    QWidget* functionPage;
-    QLabel* textFunction;
-    QLineEdit* boxFrom;
-    QLabel* textFrom;
-    QLabel* textTo;
-    QLabel* textPoints;
-    QLineEdit* boxTo;
-    Q3TextEdit* boxFunction;
-    QPushButton* buttonClear;
-    QWidget* parametricPage;
-    QLabel* textParameter;
-    QLineEdit* boxParameter;
-    QLabel* textParPoints;
-    QLineEdit* boxParFrom;
-    QLineEdit* boxParTo;
-    QLabel* textParameterTo;
-    QLabel* textYPar;
-    QLabel* textXPar;
-    QComboBox* boxXFunction;
-    QComboBox* boxYFunction;
-    QLabel* textParameterFrom;
-    QWidget* polarPage;
-    QLabel* textPolarPoints;
-    QLabel* textPolarParameter;
-    QLabel* textPolarFrom;
-    QLabel* textPolarTo;
-    QLabel* textPolarRadius;
-    QLineEdit* boxPolarParameter;
-    QLineEdit* boxPolarFrom;
-    QLineEdit* boxPolarTo;
+	QComboBox* boxXFunction;
+    QComboBox* boxYFunction;  
     QComboBox* boxPolarRadius;
-    QLabel* textPolarTheta;
     QComboBox* boxPolarTheta;
     QComboBox* boxType;
-    Q3ButtonGroup  *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
+    QLabel* textFunction;
+    QLineEdit* boxFrom;
+    QLineEdit* boxTo;
+	QLineEdit* boxParameter;
+    QLineEdit* boxParFrom;
+    QLineEdit* boxParTo;
+	QLineEdit* boxPolarParameter;
+    QLineEdit* boxPolarFrom;
+    QLineEdit* boxPolarTo;
+    QPushButton* buttonClear;
     QPushButton* buttonCancel;
     QPushButton* buttonOk;
-	QSpinBox *boxPoints, *boxParPoints, *boxPolarPoints;
-
+	QSpinBox* boxPoints;
+	QSpinBox* boxParPoints;
+	QSpinBox* boxPolarPoints;
+	QStackedWidget* optionStack;
+    QTextEdit* boxFunction;
+	QWidget* functionPage;
+	QWidget* polarPage;
+	QWidget* parametricPage;
+	
 protected slots:
-    void languageChange();
 	void raiseWidget(int index);
 
 public slots:
@@ -111,7 +92,6 @@ public slots:
 	void setGraph(Graph *g){graph = g;};
 
 signals:
-	void newFunctionPlot(int, QStringList &, const QString &, QList<double> &, int);
 	void clearParamFunctionsList();
 	void clearPolarFunctionsList();
 

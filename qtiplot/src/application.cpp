@@ -9078,8 +9078,8 @@ FunctionDialog* ApplicationWindow::functionDialog()
 
 	fd->insertParamFunctionsList(xFunctions, yFunctions);
 	fd->insertPolarFunctionsList(rFunctions, tetaFunctions);
-	fd->exec();
-
+	fd->show();
+	fd->setActiveWindow();
 	return fd;
 }
 
@@ -9140,11 +9140,7 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas)
 
 void ApplicationWindow::newFunctionPlot()
 {
-	FunctionDialog* fd = functionDialog();
-	if (fd)
-		connect (fd,SIGNAL(newFunctionPlot(int, QStringList &, const QString&, QValueList<double> &, int )),
-				this,SLOT(newFunctionPlot(int, QStringList &, const QString&, QValueList<double> &, int)));
-
+functionDialog();
 }
 
 void ApplicationWindow::newFunctionPlot(int type,QStringList &formulas, const QString& var, QList<double> &ranges, int points)
