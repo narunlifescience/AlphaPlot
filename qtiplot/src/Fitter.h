@@ -60,6 +60,7 @@ class Fit : public QObject
 		//! Actually does the fit. Should be reimplemented in derived classes.
 		virtual void fit();
 
+		//! Sets the data set to be used for weighting
 		bool setWeightingData(WeightingMethod w, const QString& colName = QString::null);
 
 		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
@@ -80,15 +81,19 @@ class Fit : public QObject
 
 		void setAlgorithm(Algorithm s){d_solver = s;};
 
+		//! Sets the tolerance used by the GSL routines 
 		void setTolerance(double eps){d_tolerance = eps;};
 
 		//! Sets the color of the output fit curve. 
 		void setColor(int colorId){d_curveColorIndex = colorId;};
+
 		//! Sets the color of the output fit curve. Provided for convenience.
 		void setColor(const QColor& c);
 
-		void setFitCurveParameters(bool generate, int points = 0);
+		//! Specifies weather the result of the fit is a function curve
+		void generateFunction(bool yes, int points = 100);
 
+		//! Sets the maximum number of iterations to be performed during a fit ssession
 		void setMaximumIterations(int iter){d_max_iterations = iter;};
 
 		//! Added a new legend to the plot. Calls virtual legendFitInfo()
@@ -123,7 +128,7 @@ class Fit : public QObject
 		virtual void storeCustomFitResults(double *par);
 
 	protected:
-		//! Adds the result curve as a FunctionCurve to the plot, if gen_x_data = true
+		//! Adds the result curve as a FunctionCurve to the plot, if d_gen_function = true
 		void insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth = 1);
 
 		//! Adds the result curve to the plot
@@ -174,8 +179,8 @@ class Fit : public QObject
 		//! Stores a list of short explanations for the significance of the fit parameters
 		QStringList d_param_explain;
 
-		//! Tells weather the result curve has the same x values as the fit data or not
-		bool gen_x_data;
+		//! Specifies weather the result curve is a FunctionCurve or a normal curve with the same x values as the fit data
+		bool d_gen_function;
 
 		//! Number of result points to de calculated and displayed in the result curve
 		int d_result_points;

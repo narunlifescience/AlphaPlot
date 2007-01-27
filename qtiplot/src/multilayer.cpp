@@ -72,6 +72,8 @@
 #include <qbitmap.h>
 #include <qpicture.h>
 
+#include <Q3MemArray>
+
 #include <QShortcut>
 #include <QList>
 #include <QWidgetList>
@@ -1105,7 +1107,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 			plot->axisTitle(j).setFont(scaleFnt);
 		}
 
-		QList<int> keys=gr->textMarkerKeys();
+		QwtArray<long> keys=gr->textMarkerKeys();
 		for (int k=0;k<(int)keys.size();k++)
 		{
 			LegendMarker* mrk=(LegendMarker*)gr->textMarker(keys[k]);

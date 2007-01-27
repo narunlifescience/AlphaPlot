@@ -87,7 +87,7 @@ public slots:
 	void acceptPolar();
 	void setCurveToModify(Graph *g, int curve);
 	void insertParamFunctionsList(const QStringList& xList, const QStringList& yList);
-	void insertPolarFunctionsList(const QStringList& rList, const QStringList& tetaList);
+	void insertPolarFunctionsList(const QStringList& rList, const QStringList& thetaList);
 	void clearList();
 	void setGraph(Graph *g){graph = g;};
 

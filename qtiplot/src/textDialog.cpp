@@ -78,13 +78,11 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	topLayout->addWidget(new QLabel(tr("Font")), 1, 0);
 
 	buttonFont = new QPushButton(tr( "&Font" ));
-	buttonFont->setAutoDefault( true );
 
 	// add font button
 	topLayout->addWidget(buttonFont, 1, 1);
 
 	buttonApply = new QPushButton(tr( "&Apply" ));
-	buttonApply->setAutoDefault( true );
 	buttonApply->setDefault( true );
 	
 	// add apply button
@@ -113,7 +111,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	}
 
 	buttonCancel = new QPushButton( tr( "&Cancel" ) );
-	buttonCancel->setAutoDefault( true );	
 	// add cancel button
 	topLayout->addWidget( buttonCancel, 2, 3 );
 
@@ -125,11 +122,11 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 		// add background button
 		topLayout->addWidget( backgroundBtn, 3, 1 );	
 
-		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
+		connect( backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
 
 		buttonDefault = new QPushButton( tr( "Set As &Default" ) );
 		topLayout->addWidget( buttonDefault, 3, 3 );
-		connect(buttonDefault, SIGNAL(clicked()), this, SLOT(setDefaultValues()));
+		connect( buttonDefault, SIGNAL(clicked()), this, SLOT(setDefaultValues()));
 	}
 
 	// align the OK, Apply, and Cancel buttons to the right
@@ -157,6 +154,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   */
 
 	textEditBox = new QTextEdit();
+	textEditBox->setTextFormat(Qt::PlainText);
 
 	formatButtons =  new TextFormatButtons(textEditBox);
 	formatButtons->toggleCurveButton(textType == TextDialog::TextMarker);

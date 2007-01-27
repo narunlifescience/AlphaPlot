@@ -1169,7 +1169,7 @@ void FitDialog::accept()
 		fitter->setTolerance (eps);
 		fitter->setAlgorithm((Fit::Algorithm)boxAlgorithm->currentItem());
 		fitter->setColor(boxColor->currentItem());
-		fitter->setFitCurveParameters(generatePointsBtn->isChecked(), generatePointsBox->value());
+		fitter->generateFunction(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
 
 		if (fitter->name() == tr("MultiPeak") && ((MultiPeakFit *)fitter)->peaks() > 1)
@@ -1337,12 +1337,15 @@ void FitDialog::enableApplyChanges(int)
 
 void FitDialog::deleteFitCurves()
 {
+/*
 	QStringList lst = graph->curvesList();
 	for (int i = 0; i<lst.count(); i++)
 	{
 		if (lst[i].contains(tr("Fit")))
 			graph->removeCurve(lst[i]);
 	}
+*/
+	graph->deleteFitCurves();
 }
 
 FitDialog::~FitDialog()

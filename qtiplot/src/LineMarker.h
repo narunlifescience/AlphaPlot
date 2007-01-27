@@ -105,7 +105,7 @@ public:
 	void updateBoundingRect();
 	
 private:
-	double teta(int xs, int ys, int xe, int ye) const;
+	double theta(int xs, int ys, int xe, int ye) const;
 
 	//! Flag specifying if the start arrow is visible
 	bool d_start_arrow;

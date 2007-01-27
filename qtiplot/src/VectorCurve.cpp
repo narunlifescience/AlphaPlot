@@ -137,7 +137,7 @@ void VectorCurve::drawArrowHead(QPainter *p, int xs, int ys, int xe, int ye) con
 {
 p->save();
 p->translate(xe, ye);
-double t=teta(xs, ys, xe, ye);
+double t=theta(xs, ys, xe, ye);
 p->rotate(-t);
 	
 double pi=4*atan(-1.0);	
@@ -155,7 +155,7 @@ QwtPainter::drawPolygon(p,endArray);
 p->restore();
 }
 
-double VectorCurve::teta(int x0, int y0, int x1, int y1) const
+double VectorCurve::theta(int x0, int y0, int x1, int y1) const
 {		
 double t,pi=4*atan(-1.0);
 if (x1==x0)

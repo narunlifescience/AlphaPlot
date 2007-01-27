@@ -836,6 +836,9 @@ public:
 	QString versionSuffix;
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
+
+	//! Path to the folder where the last template file was opened/saved 
+	QString templatesDir;
 	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport, autoSearchUpdates;
 	bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D, confirmClosePlot3D;
 	bool confirmCloseFolder, confirmCloseNotes;
@@ -861,7 +864,7 @@ public:
 	int plot3DResolution;
 	QStringList plot3DColors, locales;
 	QStringList functions; //user-defined functions;
-	QStringList xFunctions, yFunctions, rFunctions,tetaFunctions; // user functions for parametric and polar plots
+	QStringList xFunctions, yFunctions, rFunctions,thetaFunctions; // user functions for parametric and polar plots
 	QStringList fitFunctions; //user-defined fit functions;
 	QStringList surfaceFunc; //user-defined surface functions;
 
@@ -952,9 +955,6 @@ private:
 	QHttp http;
 	//! Used when checking for new versions
 	QFile versionFile;
-
-	//! Internal function to convert QList<QVariant> to QStringList
-	QStringList variantListToStringList(const QList<QVariant> src);
 
 	QSplitter *explorerSplitter;
 };

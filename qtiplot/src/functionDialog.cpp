@@ -581,10 +581,10 @@ void FunctionDialog::insertParamFunctionsList(const QStringList& xList, const QS
 	boxYFunction->insertItems (0, yList);
 }
 
-void FunctionDialog::insertPolarFunctionsList(const QStringList& rList, const QStringList& tetaList)
+void FunctionDialog::insertPolarFunctionsList(const QStringList& rList, const QStringList& thetaList)
 {
 	boxPolarRadius->insertItems (0, rList);
-	boxPolarTheta->insertItems (0, tetaList);	
+	boxPolarTheta->insertItems (0, thetaList);	
 }
 
 FunctionDialog::~FunctionDialog()

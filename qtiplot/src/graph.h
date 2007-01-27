@@ -153,7 +153,6 @@ class Graph: public QWidget
 
 		void exportToWmf(const QString& fname);
 
-		void clearPlot();
 		void replot();
 		void updatePlot();
 
@@ -188,6 +187,8 @@ class Graph: public QWidget
 		CurveLayout initCurveLayout(int i, int curves, int style);
 		static CurveLayout initCurveLayout();
 		void updateCurveLayout(int index,const CurveLayout *cL);
+		//! Tries to guess not already used curve color and symbol style
+		void guessUniqueCurveLayout(int& colorIndex, int& symbolIndex);
 
 		GridOptions getGridOptions();
 		void setGridOptions(const GridOptions& options);
@@ -275,7 +276,7 @@ class Graph: public QWidget
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 
 		// legendMarker
-		Q3ValueList<int> textMarkerKeys();
+		QwtArray<long> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
 
 		void addTimeStamp();
@@ -506,6 +507,7 @@ class Graph: public QWidget
 		void filterFFT(long curveKey, int filter_type, double lf, double hf, 
 				bool DCOffset, int colIndex);
 
+		void deleteFitCurves();
 		QwtPlotCurve* getValidCurve(const QString& name, int params, int &points, int &start, int &end);
 		QwtPlotCurve* getFitLimits(const QString& name, double from, double to,
 				int params, int &start, int &end);
@@ -670,11 +672,13 @@ signals:
 		Q3MemArray<long> d_lines; 
 		//! Images on plot keys
 		Q3MemArray<long> d_images; 
+		//! Stores the identifiers (keys) of the text objects on the plot
+		Q3MemArray<long> d_texts;
 
 		QPen mrkLinePen;
 		QFont auxMrkFont, defaultMarkerFont;
 		QColor auxMrkColor, auxMrkBkgColor;
-		QPoint auxMrkStart,auxMrkEnd;
+		QPoint auxMrkStart, auxMrkEnd;
 		Qt::PenStyle auxMrkStyle;
 		QString auxMrkFileName, auxMrkText;
 

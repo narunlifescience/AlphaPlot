@@ -268,22 +268,15 @@ bool CurvesDialog::addCurve(const QString& name)
 	if (t && g->insertCurve(t, name, style))
 	{
 		CurveLayout cl = Graph::initCurveLayout();
+		int color, symbol;
+		g->guessUniqueCurveLayout(color, symbol);
 
-		int curve = g->curves() - 1;
-		long key = g->curveKey(curve);	
-		if (key == (long) curve)
-			key++;
-
-		int color = key%16;
-		if (color == 13) //avoid white invisible curves
-			color = 0;
-
-		cl.lCol=color;
-		cl.symCol=color;
-		cl.fillCol=color;	
+		cl.lCol = color;
+		cl.symCol = color;
+		cl.fillCol = color;	
 		cl.lWidth = defaultCurveLineWidth;
 		cl.sSize = defaultSymbolSize;
-		cl.sType=key%9;
+		cl.sType = symbol;
 
 		if (style == Graph::Line)
 			cl.sType = 0;
@@ -310,7 +303,7 @@ bool CurvesDialog::addCurve(const QString& name)
 		else if (style == Graph::Spline)
 			cl.connectType=5;
 
-		g->updateCurveLayout(curve, &cl);
+		g->updateCurveLayout(g->curves() - 1, &cl);
 
 		contents->insertItem(name,-1);
 		return true;

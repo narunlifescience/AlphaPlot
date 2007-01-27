@@ -549,8 +549,8 @@ void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end,
 		int points, int colorIndex)
 {
 	size_t i, n = end - start + 1;
-	double *x=vector(0, n-1);
-	double *y=vector(0, n-1);
+	double *x = new double[n];
+	double *y = new double[n];
 	for (i = 0; i < n; i++)
 	{// This is the data to be analysed 
 		x[i]=curve->x(i+start);
@@ -606,11 +606,11 @@ void Graph::interpolate(QwtPlotCurve *curve, int spline, int start, int end,
 
 	double origin = x[0];
 	double step=(x[n-1]-x[0])/(double)(points-1);
-	free_vector(x,0,n-1);	
-	free_vector(y,0,n-1);
+	delete[] x;
+	delete[] y;
 
-	x=vector(0, points-1);
-	y=vector(0, points-1);
+	x = new double[points];
+	y = new double[points];
 	for (int j=0; j<points; j++)
 	{
 		x[j]=origin + j*step;
@@ -630,9 +630,9 @@ bool Graph::diffCurve(const QString& curveTitle)
 	if (!c)
 		return false;
 
-	double *x=vector(0,n-1);
-	double *y=vector(0,n-1);
-	double *result=vector(0,n-2);
+	double *x = new double[n];
+	double *y = new double[n];
+	double *result = new double[n-1];
 
 	int i,aux = 0;
 	for (i = start; i <= end; i++)
@@ -641,7 +641,6 @@ bool Graph::diffCurve(const QString& curveTitle)
 		y[aux]=c->y(i);
 		aux++;
 	}
-
 	for (i = 1; i < n-1; i++)
 		result[i]=0.5*((y[i+1]-y[i])/(x[i+1]-x[i]) + (y[i]-y[i-1])/(x[i]-x[i-1]));
 
@@ -655,7 +654,9 @@ bool Graph::diffCurve(const QString& curveTitle)
 	}
 
 	emit createHiddenTable(c->title().text()+"\t"+ tr("Derivative of")+" "+c->title().text(),n-2,2,text);
-	free_vector(x,0,n-1);free_vector(y,0,n-1);free_vector(result,0,n-2);
+	delete[] x;
+	delete[] y;
+	delete[] result;
 	return true;
 }
 
@@ -1157,9 +1158,9 @@ void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	int i,n=curve->dataSize();
-	double *x = vector(0,n-1);
-	double *y = vector(0,n-1);
-	double *s = vector(0,n-1);
+	double *x = new double[n];
+	double *y = new double[n];
+	double *s = new double[n];
 	int np = nl+nr+1;
 	double *c = vector(1, np);
 
@@ -1199,8 +1200,9 @@ void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 		}
 	}
 
-	free_vector(y,0,n-1);
+	delete[] y;
 	free_vector(c,1,np);
+
 	free_intvector(index,1,np);
 
 	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
@@ -1217,9 +1219,9 @@ void Graph::smoothFFT(long curveKey, int points, int colIndex)
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
-	int i, n=curve->dataSize();
-	double *x = vector(0,n-1);
-	double *y = vector(0,n-1);
+	int i, n = curve->dataSize();
+	double *x = new double[n];
+	double *y = new double[n];
 	for (i = 0; i<n; i++)
 	{// The data to be filtered 
 		x[i]=curve->x(i);
@@ -1258,10 +1260,10 @@ void Graph::smoothAverage(long curveKey, int points, int colIndex)
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
-	int i,j, n=curve->dataSize();
-	double *x = vector(0,n-1);
-	double *y = vector(0,n-1);
-	double *s = vector(0,n-1);
+	int i,j, n = curve->dataSize();
+	double *x = new double[n];
+	double *y = new double[n]; 
+	double *s = new double[n];
 
 	for (i = 0; i < n; i++)
 	{// The data to be smoothed 
@@ -1299,7 +1301,6 @@ void Graph::smoothAverage(long curveKey, int points, int colIndex)
 		s[i]=aux/(double)(2*(n-i-1)+1);
 	}
 	s[n-1]=y[n-1];
-	free_vector(y,0,n-1);	
 	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
 			QString::number(points)+" Points Average Smoothing of "+curve->title().text());
 	QApplication::restoreOverrideCursor();
@@ -1313,9 +1314,9 @@ void Graph::filterFFT(long curveKey, int filter_type, double lf, double hf, bool
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
-	int i, n=curve->dataSize();
-	double *x = vector(0,n-1);
-	double *y = vector(0,n-1);
+	int i,j, n = curve->dataSize();
+	double *x = new double[n];
+	double *y = new double[n]; 
 
 	for (i = 0; i<n; i++)
 	{// The data to be filtered 

@@ -66,7 +66,7 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		{
 		p->save();
 		p->translate(x1,y1);
-		const double t = teta(x0, y0, x1, y1);
+		const double t = theta(x0, y0, x1, y1);
 		p->rotate(-t);
 
 		QPolygon endArray(3);	
@@ -88,7 +88,7 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		{
 		p->save();
 		p->translate(x0,y0);
-		const double t = teta(x0, y0, x1, y1);
+		const double t = theta(x0, y0, x1, y1);
 		p->rotate(-t);
 
 		QPolygon startArray(3);	
@@ -106,7 +106,7 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		}
 }
 
-double LineMarker::teta(int xs, int ys, int xe, int ye) const
+double LineMarker::theta(int xs, int ys, int xe, int ye) const
 {
 double t, pi = 4.0*atan(-1.0);
 if (xe == xs)

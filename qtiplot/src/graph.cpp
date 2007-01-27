@@ -231,6 +231,8 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	LegendMarker *mrk = new LegendMarker(d_plot);
 	mrk->setOrigin(QPoint(10, 20));
 	legendMarkerID = d_plot->insertMarker(mrk);
+	d_texts = QwtArray<long>(1);
+	d_texts[0] = legendMarkerID;
 
 	connect (d_plot,SIGNAL(selectPlot()), this, SLOT(activateGraph()));
 	connect (d_plot,SIGNAL(selectPlot()), this, SLOT(drawFocusRect()));
@@ -429,7 +431,6 @@ void Graph::selectNextMarker()
 	}
 
 	d_plot->replot();
-	Q3ValueList<int> texts=textMarkerKeys();
 	if (selectedMarker >= 0)
 	{
 		int key = selectedMarker+1;
@@ -437,7 +438,7 @@ void Graph::selectNextMarker()
 			key=min_key;
 		while(key <= max_key)
 		{
-			if (texts.contains(key))
+			if (d_texts.contains(key))
 			{
 				highlightTextMarker(key);
 				break;
@@ -447,7 +448,7 @@ void Graph::selectNextMarker()
 				highlightLineMarker(key);
 				break;
 			}
-			else  if (d_images.contains(key))
+			else if (d_images.contains(key))
 			{
 				highlightImageMarker(key);
 				break;
@@ -461,11 +462,11 @@ void Graph::selectNextMarker()
 		int key=min_key;
 		while(selectedMarker < 0)
 		{
-			if (texts.contains(key))
+			if (d_texts.contains(key))
 				highlightTextMarker(key);
 			else if (d_lines.contains(key))
 				highlightLineMarker(key);
-			else  if (d_images.contains(key))
+			else if (d_images.contains(key))
 				highlightImageMarker(key);
 			key++;
 		}
@@ -2242,7 +2243,7 @@ void Graph::multiPeakFit(ApplicationWindow *app, int profile, int peaks)
 	fitter = new MultiPeakFit(app, this, (MultiPeakFit::PeakProfile)profile, peaks);
 	fitter->enablePeakCurves(app->generatePeakCurves);
 	fitter->setPeakCurvesColor(app->peakCurvesColor);
-	fitter->setFitCurveParameters(app->generateUniformFitPoints, app->fitPoints);
+	fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
 	d_plot->canvas()->grabMouse();
 }
 
@@ -2411,24 +2412,27 @@ void Graph::removeMarker()
 
 		if (d_lines.contains(selectedMarker)>0)
 		{
-			int i,index=d_lines.find(selectedMarker,0);
-			for (i=index;i<linesOnPlot;i++)
+			int index=d_lines.find(selectedMarker,0);
+			for (int i=index; i<linesOnPlot; i++)
 				d_lines[i]=d_lines[i+1];
-			linesOnPlot--;
-			d_lines.resize(linesOnPlot);
+			d_lines.resize(--linesOnPlot);
 		}
-
-		else if (d_images.contains(selectedMarker)>0)
+		else if(d_texts.contains(selectedMarker)>0)
 		{
-			int i,index=d_images.find(selectedMarker,0);
-			int imagesOnPlot=d_images.size();
-
-			for (i=index;i<imagesOnPlot;i++)
-				d_images[i]=d_images[i+1];
-			imagesOnPlot--;
-			d_images.resize(imagesOnPlot);
+			int index=d_texts.find(selectedMarker,0);
+			int texts=d_texts.size();
+			for (int i=index; i<texts; i++)
+				d_texts[i]=d_texts[i+1];
+			d_texts.resize(--texts);
 		}
-
+		else if(d_images.contains(selectedMarker)>0)
+		{
+			int index=d_images.find(selectedMarker,0);
+			int imagesOnPlot=d_images.size();
+			for (int i=index; i<imagesOnPlot; i++)
+				d_images[i]=d_images[i+1];
+			d_images.resize(--imagesOnPlot);
+		}	
 		selectedMarker=-1;
 	}
 }
@@ -2535,8 +2539,7 @@ void Graph::pasteMarker()
 		d_plot->replot();
 
 		int imagesOnPlot=d_images.size();
-		imagesOnPlot++;
-		d_images.resize(imagesOnPlot);
+		d_images.resize(++imagesOnPlot);
 		d_images[imagesOnPlot-1]=mrkID;
 
 		selectedMarker=-1;
@@ -2556,9 +2559,13 @@ void Graph::pasteMarker()
 		mrk->setText(auxMrkText);
 		mrk->setTextColor(auxMrkColor);
 		mrk->setBackgroundColor(auxMrkBkgColor);
-		d_plot->insertMarker(mrk);
-		d_plot->replot();
+		long mrkID = d_plot->insertMarker(mrk);
 
+		int texts = d_texts.size();
+		d_texts.resize(++texts);
+		d_texts[texts-1] = mrkID;
+
+		d_plot->replot();
 		selectedMarker=-1;
 	}
 }
@@ -2652,8 +2659,14 @@ void Graph::initTitle(bool on, const QFont& fnt)
 
 void Graph::removeLegend()
 {
-	if (legendMarkerID>=0)
+	if (legendMarkerID >= 0)
 	{
+		int index = d_texts.find(legendMarkerID, 0);
+		int texts = d_texts.size();
+		for (int i=index; i<texts; i++)
+			d_texts[i]=d_texts[i+1];
+		d_texts.resize(--texts);
+
 		d_plot->removeMarker(legendMarkerID);
 		legendMarkerID=-1;
 	}
@@ -2681,7 +2694,6 @@ void Graph::updateTextMarker(const QString& text,int angle, int bkg,const QFont&
 	d_plot->replot();
 	emit modifiedGraph();
 }
-
 
 LegendMarker* Graph::legend()
 {
@@ -2940,12 +2952,6 @@ void Graph::shiftCurveCursor(bool up)
 	info+="; y=";
 	info+=QString::number(c->y(selectedPoint), 'G', 15);
 	emit cursorInfo(info);
-}
-
-void Graph::clearPlot()
-{
-	d_plot->clear();
-	d_plot->replot();
 }
 
 void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
@@ -3920,6 +3926,7 @@ void Graph::newLegend()
 {
 	LegendMarker* mrk = new LegendMarker(d_plot);
 	mrk->setOrigin(QPoint(10, 10));
+
 	if (piePlot)
 		mrk->setText(pieLegendText());
 	else
@@ -3930,35 +3937,31 @@ void Graph::newLegend()
 	mrk->setTextColor(defaultTextMarkerColor);
 	mrk->setBackgroundColor(defaultTextMarkerBackground);
 
-	legendMarkerID=d_plot->insertMarker(mrk);
+	legendMarkerID = d_plot->insertMarker(mrk);
+	int texts = d_texts.size();
+	d_texts.resize(++texts);
+	d_texts[texts-1] = legendMarkerID;
 
 	emit modifiedGraph();
-	d_plot->replot();	
+	d_plot->replot();
 }
 
 void Graph::addTimeStamp()
 {
-	LegendMarker* mrk= new LegendMarker(d_plot);
+	LegendMarker* mrk= newLegend(QDateTime::currentDateTime().toString(Qt::LocalDate));
 	mrk->setOrigin(QPoint(d_plot->canvas()->width()/2, 10));
-
-	QDateTime dt = QDateTime::currentDateTime ();
-	mrk->setText(dt.toString(Qt::LocalDate));
-
-	mrk->setBackground(defaultMarkerFrame);
-	mrk->setFont(defaultMarkerFont);
-	mrk->setTextColor(defaultTextMarkerColor);
-	mrk->setBackgroundColor(defaultTextMarkerBackground);
-
-	legendMarkerID=d_plot->insertMarker(mrk);
-
 	emit modifiedGraph();
-	d_plot->replot();	
+	d_plot->replot();
 }
 
 LegendMarker* Graph::newLegend(const QString& text)
 {
 	LegendMarker* mrk= new LegendMarker(d_plot);
 	selectedMarker = d_plot->insertMarker(mrk);
+
+	int texts = d_texts.size();
+	d_texts.resize(++texts);
+	d_texts[texts-1] = selectedMarker;
 
 	mrk->setOrigin(QPoint(5,5));
 	mrk->setText(text);
@@ -3979,6 +3982,10 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 	QStringList fList=list;
 	LegendMarker* mrk = new LegendMarker(d_plot);
 	long key = d_plot->insertMarker(mrk);
+
+	int texts = d_texts.size();
+	d_texts.resize(++texts);
+	d_texts[texts-1] = key;
 
 	if (fileVersion < 86)
 		mrk->setOrigin(QPoint(fList[1].toInt(),fList[2].toInt()));
@@ -4091,7 +4098,6 @@ ImageMarker* Graph::imageMarker(long id)
 
 LegendMarker* Graph::textMarker(long id)
 {
-	Q3ValueList<int> txtMrkKeys=textMarkerKeys();
 	return (LegendMarker*)d_plot->marker(id);	
 }
 
@@ -4099,6 +4105,10 @@ long Graph::insertTextMarker(LegendMarker* mrk)
 {
 	LegendMarker* aux = new LegendMarker(d_plot);
 	selectedMarker = d_plot->insertMarker(aux);
+
+	int texts = d_texts.size();
+	d_texts.resize(++texts);
+	d_texts[texts-1] = selectedMarker;
 
 	aux->setTextColor(mrk->getTextColor());
 	aux->setBackgroundColor(mrk->backgroundColor());
@@ -4110,27 +4120,10 @@ long Graph::insertTextMarker(LegendMarker* mrk)
 	return selectedMarker;
 }
 
-Q3ValueList<int> Graph::textMarkerKeys()
-{
-	Q3ValueList<int> mrkKeys=d_plot->markerKeys();
-	Q3ValueList<int> txtMrkKeys;
-	for (int i=0;i<(int)mrkKeys.size();i++)
-	{
-		if (mrkKeys[i]!=mrkX && mrkKeys[i]!=mrkY &&
-				mrkKeys[i]!=startID && mrkKeys[i]!=endID && 
-				d_lines.contains(mrkKeys[i])<=0 &&
-				d_images.contains(mrkKeys[i])<=0)
-		{
-			txtMrkKeys.append(mrkKeys[i]);
-		}
-	}
-	return txtMrkKeys;
-}
-
 QString Graph::saveMarkers()
 {
 	QString s;
-	Q3ValueList<int> texts=textMarkerKeys();
+	QwtArray<long> texts=textMarkerKeys();
 	int i,t=texts.size(),l=d_lines.size(),im=d_images.size();
 	for (i=0;i<im;i++)
 	{	
@@ -5154,9 +5147,7 @@ void Graph::updateScale()
 		d_plot->setAxisScale (QwtPlot::yLeft, scDiv->lBound(), scDiv->hBound(), step);
 
 	d_plot->replot();
-
 	updateMarkersBoundingRect();
-
 	updateSecondaryAxis(QwtPlot::xTop);
 	updateSecondaryAxis(QwtPlot::yRight);
 
@@ -5267,13 +5258,11 @@ void Graph::removeCurve(int index)
 				selectedCursor=-1;	
 			}			
 		}
-
 		for (int i=index; i<n_curves; i++)
 		{
 			c_type[i] = c_type[i+1];
 			c_keys[i] = c_keys[i+1];
-		}
-
+		}	
 		c_type.resize(n_curves);
 		c_keys.resize(n_curves);
 	}
@@ -5888,8 +5877,6 @@ void Graph::showIntensityTable()
 
 void Graph::updateMarkersBoundingRect()
 {
-	Q3ValueList<int> texts=textMarkerKeys();
-
 	int i=0;
 	for (i=0;i<(int)d_lines.size();i++)
 	{			
@@ -5897,10 +5884,9 @@ void Graph::updateMarkersBoundingRect()
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
-
-	for (i=0;i<(int)texts.size();i++)
+	for (i=0; i<(int)d_texts.size(); i++)
 	{
-		LegendMarker* mrkT = (LegendMarker*) d_plot->marker(texts[i]);
+		LegendMarker* mrkT = (LegendMarker*) d_plot->marker(d_texts[i]);
 		if (mrkT)
 			mrkT->updateOrigin();	
 	}
@@ -5931,16 +5917,14 @@ void Graph::resizeEvent ( QResizeEvent *e )
 void Graph::scaleFonts(double factor)
 {
 	QFont font;
-	Q3ValueList<int> texts=textMarkerKeys();
 	int i;
-	for (i=0;i<(int)texts.size();i++)
+	for (i=0;i<(int)d_texts.size();i++)
 	{
-		LegendMarker* mrk = (LegendMarker*) d_plot->marker(texts[i]);
+		LegendMarker* mrk = (LegendMarker*) d_plot->marker(d_texts[i]);
 		font = mrk->getFont();
 		font.setPointSizeFloat(factor*font.pointSizeFloat());
 		mrk->setFont(font);	
 	}
-
 	for (i = 0; i<QwtPlot::axisCnt; i++)
 	{
 		font = axisFont(i);
@@ -6017,10 +6001,10 @@ void Graph::setBackgroundColor(const QColor& color)
 
 void Graph::setCanvasBackground(const QColor& color)
 {
-	Q3ValueList<int> texts=textMarkerKeys();
+	QwtArray<long> texts=textMarkerKeys();
 	for (int i=0; i<(int)texts.size(); i++)
 	{
-		LegendMarker* mrk = (LegendMarker*) d_plot->marker(texts[i]);
+		LegendMarker* mrk = (LegendMarker*) d_plot->marker(d_texts[i]);
 		if (d_plot->canvasBackground() == mrk->backgroundColor())
 			mrk->setBackgroundColor(color);	
 	}
@@ -6172,7 +6156,6 @@ void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumn
 
 void Graph::moveMarkerBy(int dx, int dy)
 {
-	Q3ValueList<int> texts = textMarkerKeys();		
 	bool line = false, image = false;
 	if (d_lines.contains(selectedMarker))
 	{
@@ -6194,7 +6177,7 @@ void Graph::moveMarkerBy(int dx, int dy)
 
 		image = true;
 	}
-	else if (texts.contains(selectedMarker))
+	else if (d_texts.contains(selectedMarker))
 	{
 		LegendMarker* mrk=(LegendMarker*)d_plot->marker(selectedMarker);				
 		QPoint point = mrk->rect().topLeft();
@@ -6571,7 +6554,7 @@ void Graph::copy(Graph* g)
 			insertImageMarker(imrk);
 	}
 
-	Q3ValueList<int> txtMrkKeys=g->textMarkerKeys();
+	QwtArray<long> txtMrkKeys=g->textMarkerKeys();
 	for (i=0;i<(int)txtMrkKeys.size();i++)
 	{
 		LegendMarker* mrk=(LegendMarker*)g->textMarker(txtMrkKeys[i]);
@@ -6875,6 +6858,45 @@ QString Graph::parentPlotName()
 {
 	QWidget *w = (QWidget *)parent()->parent();
 	return QString(w->name());
+}
+
+void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
+{
+	colorIndex = 0; 
+	symbolIndex = 0;
+	for (int i=0; i<n_curves; i++)
+	{
+		const QwtPlotCurve *c = curve(i);
+		if (c)
+		{
+			int index = ColorBox::colorIndex(c->pen().color());
+			if (index > colorIndex)
+				colorIndex = index;
+			QwtSymbol symb = c->symbol();
+			index = SymbolBox::symbolIndex(symb.style());
+			if (index > symbolIndex)
+				symbolIndex = index;
+		}
+	}
+	if (n_curves > 1)
+		colorIndex = (++colorIndex)%16;
+	if (colorIndex == 13) //avoid white invisible curves
+		colorIndex = 0;
+
+	symbolIndex = (++symbolIndex)%15;
+	if (!symbolIndex)
+		symbolIndex = 1;
+}
+
+void Graph::deleteFitCurves()
+{
+	QList<int> keys = d_plot->curveKeys();
+	for (int i=0; i<(int)keys.count(); i++)
+	{
+		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		if (c && c->title().text().contains(tr("Fit")))
+			removeCurve(c->title().text());
+	}	
 }
 
 Graph::~Graph()
