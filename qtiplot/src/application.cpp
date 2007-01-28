@@ -5154,7 +5154,7 @@ void ApplicationWindow::saveAsTemplate()
 		filter = tr("QtiPlot 3D Surface Template")+" (*.qst)";
 
 	QString selectedFilter;
-	QString fn = Q3FileDialog::getSaveFileName(templatesDir, filter, this, "template",
+	QString fn = Q3FileDialog::getSaveFileName(templatesDir + "/" + w->name(), filter, this, 0,
 			tr("Save Window As Template"), &selectedFilter, false);
 	if ( !fn.isEmpty() )
 	{
@@ -8924,12 +8924,11 @@ void ApplicationWindow::showWindowTitleBarMenu()
 		cm.insertSeparator();
 	}
 
-	cm.addAction(actionPrint);
 	if (!ws->activeWindow()->isA("Note"))
+		cm.addAction(actionSaveNote);
+	else
 		cm.addAction(actionSaveTemplate);
-	cm.insertSeparator();
-	cm.addAction(actionMinimizeWindow);
-	cm.addAction(actionMaximizeWindow);
+	cm.addAction(actionPrint);
 	cm.insertSeparator();
 	cm.addAction(actionRename);
 	cm.addAction(actionCopyWindow);
