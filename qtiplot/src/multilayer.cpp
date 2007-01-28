@@ -1219,8 +1219,8 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(drawLineEnded(bool)), this, SIGNAL(drawLineEnded(bool)));
 	connect (g,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (g,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
-	connect (g,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)),
-			this,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)));
+	connect (g,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)),
+			this,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SIGNAL(createTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(viewLineDialog()),this,SIGNAL(showLineDialog()));
@@ -1312,7 +1312,7 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 		((QContextMenuEvent*)e)->accept();
 		return true;
 	}
-	return QObject::eventFilter(object, e);
+	return MyWidget::eventFilter(object, e);
 }
 
 void MultiLayer::keyPressEvent(QKeyEvent * e)

@@ -143,9 +143,6 @@ public:
 	//! Initializes the pointer to the parent folder of the window
 	void setFolder(Folder* f){parentFolder = f;};
 
-	//! Catches parent changes (in order to gain access to the title bar)
-	virtual void reparent(QWidget * parent, Qt::WFlags f, const QPoint & p, bool showIt = false);
-
 signals:  
 	//! Emitted when the window was closed
 	void closedWindow(MyWidget *);
@@ -159,6 +156,9 @@ signals:
 	void showTitleBarMenu();
 
 protected:
+	//! Catches parent changes (in order to gain access to the title bar)
+	virtual void changeEvent(QEvent *event);
+	//! Title bar of this MDI window if it currently belongs to a QWorkspace, NULL else
 	QWidget *titleBar;
 
 private:

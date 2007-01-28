@@ -947,7 +947,7 @@ bool Matrix::eventFilter(QObject *object, QEvent *e)
 		return true;
 	}
 
-	return QObject::eventFilter(object, e);
+	return MyWidget::eventFilter(object, e);
 }
 
 void Matrix::print()

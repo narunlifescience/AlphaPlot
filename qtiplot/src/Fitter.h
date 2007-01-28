@@ -390,6 +390,7 @@ class MultiPeakFit : public Fit
 
 		static QString generateFormula(int order, PeakProfile profile);
 		static QStringList generateParameterList(int order);
+		static QStringList generateExplanationList(int order);
 
 	private:
 		QString logFitInfo(double *par, int iterations, int status, const QString& plotName);

@@ -461,7 +461,7 @@ public:
   bool setDataFromCurve(const QString&, Graph*=0);
   bool setDataFromCurve(const QString&, double, double, Graph*=0);
 
-  void setRange(double from, double to);
+  void setInterval(double from, double to);
 
   QString formula();
   int numParameters();
@@ -494,8 +494,8 @@ delete values;
 
   void setTolerance(double);
 
-  void setFitCurveColor(int);
-//  void setFitCurveColor(const QColor&);
+  void setColor(int);
+//  void setColor(const QColor&);
 
 //  void setOutputPrecision(int);
 
@@ -505,7 +505,7 @@ delete values;
 
   void showLegend();
 
-  virtual QString legendFitInfo(int);
+  virtual QString legendFitInfo();
 
 //  void scaleErrors(bool yes = true);
 
@@ -778,7 +778,7 @@ public:
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
 
-  virtual QString legendFitInfo(int);
+  virtual QString legendFitInfo();
   void fit();
 
   static QString generateFormula(int);

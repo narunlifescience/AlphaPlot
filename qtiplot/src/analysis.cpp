@@ -454,10 +454,10 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 
 	double df = 1.0/(double)(n*sampling);//frequency sampling
 	double aMax = 0.0;//max amplitude
-	QString label, text;
+	QString name, text;
 	if(forward)
 	{
-		label="ForwardFFT"+QString::number(++fitID);
+		name="ForwardFFT"+QString::number(++fitID);
 		text= tr("Frequency");
 
 		gsl_fft_real_workspace *work=gsl_fft_real_workspace_alloc(n);
@@ -477,7 +477,7 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 	}
 	else
 	{
-		label="InverseFFT"+QString::number(++fitID);
+		name="InverseFFT"+QString::number(++fitID);
 		text= tr("Time");
 
 		gsl_fft_real_unpack (y, result, 1, n);
@@ -541,7 +541,7 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 	delete[] amp; 
 	delete[] result;
 
-	emit createHiddenTable(label, n, 5, text);	
+	emit createHiddenTable(name, "", n, 5, text);	
 	QApplication::restoreOverrideCursor();
 }
 
@@ -653,7 +653,7 @@ bool Graph::diffCurve(const QString& curveTitle)
 		text+="\n";
 	}
 
-	emit createHiddenTable(c->title().text()+"\t"+ tr("Derivative of")+" "+c->title().text(),n-2,2,text);
+	emit createHiddenTable(c->title().text(), tr("Derivative of")+" "+c->title().text(),n-2,2,text);
 	delete[] x;
 	delete[] y;
 	delete[] result;
@@ -1145,7 +1145,7 @@ void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
 	delete[] x;
 	delete[] y;
 
-	emit createHiddenTable(tableName+"\t"+legend, n, 2, text);
+	emit createHiddenTable(tableName, legend, n, 2, text);
 	updatePlot();
 }
 

@@ -1297,7 +1297,7 @@ void FitDialog::setSrcTables(QWidgetList* tables)
 		tableNamesBox->insertItem(i->name());
 
 	if (!boxCurve->currentText().contains("="))
-		tableNamesBox->setCurrentText(QStringList::split("_",boxCurve->currentText())[0]);
+		tableNamesBox->setCurrentText(boxCurve->currentText().split("_")[0]);
 
 	selectSrcTable(tableNamesBox->currentItem());
 }

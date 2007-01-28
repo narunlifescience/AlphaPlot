@@ -2826,7 +2826,7 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 		return true;
 	}
 
-	return QObject::eventFilter(object, e);
+	return MyWidget::eventFilter(object, e);
 }
 
 void Table::customEvent(QCustomEvent *e)

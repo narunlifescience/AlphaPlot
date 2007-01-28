@@ -14,13 +14,13 @@ DEFINES     += QT_PLUGIN
 #DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
 
-SCRIPTING_LANGS = muParser #Python
+SCRIPTING_LANGS = muParser Python
 
 TRANSLATIONS    = translations/qtiplot_de.ts \
 		          translations/qtiplot_es.ts \
 			      translations/qtiplot_fr.ts 
 
-############################################################################# 
+#############################################################################
 ##################### 3rd PARTY HEADER FILES SECTION ########################
 #!!! Warning: You must modify these paths according to your computer settings
 #############################################################################
@@ -31,18 +31,33 @@ INCLUDEPATH		  += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
-############################################################################# 
+#############################################################################
 ##################### 3rd PARTY LIBRARIES SECTION ###########################
 #!!! Warning: You must modify these paths according to your computer settings
-############################################################################# 
+#############################################################################
 
-##################### Linux (Mac OS X) ###################################### 
+##################### Linux (Mac OS X) ######################################
 
+#for dynamically linked libs
+unix:LIBS			+= -L /usr/lib$${libsuff}
+
+# statically link against Qwt(3D) in 3rdparty
 unix:LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
+# dynamically link against Qwt(3D) installed system-wide
+#unix:LIBS			+= -lqwtplot3d
+#unix:LIBS			+= -lqwt
+
+# statically link against liborigin in 3rdparty
 unix:LIBS         += ../3rdparty/liborigin/liborigin.a
-unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
-unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+# dynamically link against liborigin installed system-wide
+#unix:LIBS			+= -lorigin
+
+# statically link against GSL in 3rdparty
+#unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+#unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+# dynamically link against GSL installed system-wide
+unix:LIBS			+= -lgsl -lgslcblas
 
 unix:target.path=/usr/bin
 unix:INSTALLS += target
@@ -273,14 +288,14 @@ contains(SCRIPTING_LANGS, Python) {
     LIBS +=	$$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
 	LIBS +=	-lm
     system(mkdir -p $${MOC_DIR})
-    system(sip -I /usr/local/share/sip/PyQt4 -t Qt_4_2_2 -t WS_X11 -c $${MOC_DIR} src/qti.sip)
+    system($$system(python python-sipcmd.py) -c $${MOC_DIR} src/qti.sip)
   }
 
   win32 {
     INCLUDEPATH += $$system(call python-includepath.py)
     LIBS += $$system(call python-libs-win.py)
     system(md $${MOC_DIR})
-    system($$system(call python-sipcmd.py) -t Qt_4_2_1 -t WS_WIN -c $${MOC_DIR} src/qti.sip)
+    system($$system(call python-sipcmd.py) -c $${MOC_DIR} src/qti.sip)
   }
 
   HEADERS +=\

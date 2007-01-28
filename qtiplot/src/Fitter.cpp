@@ -672,12 +672,14 @@ void ExponentialFit::init()
 		setName("ExpGrowth");
 		d_fit_type = tr("Exponential growth");
 		d_formula = "y0 + Aexp(x/t)";
+		d_param_explain << "(amplitude)" << "(lifetime)" << "(offset)";
 	}
 	else
 	{
 		setName("ExpDecay");
 		d_fit_type = tr("Exponential decay");
 		d_formula = "y0 + A*exp(-x/t)";
+		d_param_explain << "(amplitude)" << "(e-folding time)" << "(offset)";
 	}
 }
 
@@ -756,6 +758,7 @@ void TwoExpFit::init()
 	d_param_names << "A1" << "t1" << "A2" << "t2" << "y0";
 	d_fit_type = tr("Exponential decay");
 	d_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+y0";
+	d_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(offset)";
 }
 
 void TwoExpFit::storeCustomFitResults(double *par)
@@ -831,6 +834,7 @@ void ThreeExpFit::init()
 	d_param_names << "A1" << "t1" << "A2" << "t2" << "A3" << "t3" << "y0";
 	d_fit_type = tr("Exponential decay");
 	d_formula = "A1*exp(-x/t1)+A2*exp(-x/t2)+A3*exp(-x/t3)+y0";
+	d_param_explain << "(first amplitude)" << "(first lifetime)" << "(second amplitude)" << "(second lifetime)" << "(third amplitude)" << "(third lifetime)" << "(offset)";
 }
 
 void ThreeExpFit::storeCustomFitResults(double *par)
@@ -1127,6 +1131,9 @@ void NonLinearFit::setParametersList(const QStringList& lst)
 
 	covar = gsl_matrix_alloc (d_p, d_p);
 	d_results = new double[d_p];
+
+	for (int i=0; i<d_p; i++)
+		d_param_explain << "";
 }
 
 void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y)
@@ -1255,6 +1262,14 @@ bool PluginFit::load(const QString& pluginName)
 	else
 		return false;
 
+	fitFunc fitExplain = (fitFunc) lib.resolve("explanations");
+	if (fitExplain)
+		d_param_explain = QStringList::split(",", QString(fitExplain()), false);
+	else
+		for (int i=0; i<d_p; i++)
+			d_param_explain << "";
+
+
 	fitFunction = (fitFunc) lib.resolve( "name" );
 	setName(QString(fitFunction()));
 
@@ -1334,6 +1349,7 @@ void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 	d_param_names = generateParameterList(d_peaks);
 	d_formula = generateFormula(d_peaks, d_profile);
+	d_param_explain = generateExplanationList(d_peaks);
 
 	generate_peak_curves = true;
 	d_peaks_color = 2;//green
@@ -1353,6 +1369,23 @@ QStringList MultiPeakFit::generateParameterList(int peaks)
 		lst << "w" + index;
 	}
 	lst << "y0";
+	return lst;
+}
+
+QStringList MultiPeakFit::generateExplanationList(int peaks)
+{
+	if (peaks == 1)
+		return QStringList() << "(amplitude)" << "(center)" << "(width)" << "(offset)";
+
+	QStringList lst;
+	for (int i = 0; i<peaks; i++)
+	{
+		QString index = QString::number(i+1);
+		lst << "(amplitude " + index + ")";
+		lst << "(center " + index + ")";
+		lst << "(width " + index + ")";
+	}
+	lst << "(offset)";
 	return lst;
 }
 
@@ -1722,6 +1755,9 @@ void PolynomialFit::init()
 
 	d_formula = generateFormula(d_order);
 	d_param_names = generateParameterList(d_order);
+
+	for (int i=0; i<d_p; i++)
+		d_param_explain << "";
 }
 
 QString PolynomialFit::generateFormula(int order)
@@ -1873,6 +1909,7 @@ void LinearFit::init()
 	is_non_linear = false;
 	d_formula = "A*x + B";
 	d_param_names << "B" << "A";
+	d_param_explain << "(y-intercept)" << "(slope)";
 	d_fit_type = tr("Linear Regression");
 	setName(tr("Linear"));
 }

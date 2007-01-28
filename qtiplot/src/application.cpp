@@ -2705,46 +2705,32 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
 	return w;
 }
 
-/*
- *used to return the result of an analysis operation
- */
-Table* ApplicationWindow::newHiddenTable(const QString& caption, int r, int c, const QString& text)
+Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& label, int r, int c, const QString& text)
 {
-	QStringList lst = QStringList::split("\t", caption, false);
-	Table* w = new Table(scriptEnv, r, c, lst[1], 0, 0);
+	Table* w = new Table(scriptEnv, r, c, label, 0, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
-	QStringList rows=QStringList::split ("\n",text,false);
-	QString rlist=rows[0];
-	QStringList list=QStringList::split ("\t",rlist,true);
-	w->setHeader(list);
+	if (!text.isEmpty()) {
+		QStringList rows = text.split("\n", QString::SkipEmptyParts);
+		QStringList list = rows[0].split("\t");
+		w->setHeader(list);
 
-	for (int i=0; i<r; i++)
-	{
-		rlist=rows[i+1];
-		list=QStringList::split ("\t",rlist,true);
-		for (int j=0; j<c; j++)
-			w->setText(i, j, list[j]);
+		QString rlist;
+		for (int i=0; i<r; i++)
+		{
+			rlist = rows[i+1];
+			list = rlist.split("\t");
+			for (int j=0; j<c; j++)
+				w->setText(i, j, list[j]);
+		}
 	}
 
-	initTable(w, lst[0]);
-	w->setCaptionPolicy(MyWidget::Both);
-	outWindows->append(w);
-	w->setHidden();
-	return w;
-}
-
-Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& legend, int r, int c)
-{
-	Table* w = new Table(scriptEnv, r, c, legend, 0, 0);	
-	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, name);
 	w->setCaptionPolicy(MyWidget::Both);
 	outWindows->append(w);
 	w->setHidden();
 	return w;
 }
-
 
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
@@ -8072,7 +8058,7 @@ void ApplicationWindow::activateWindow()
 	activateWindow(it->window());
 }
 
-void ApplicationWindow::activateWindow(QWidget *w)
+void ApplicationWindow::activateWindow(MyWidget *w)
 {
 	if (!w)
 		return;
@@ -8089,7 +8075,7 @@ void ApplicationWindow::maximizeWindow(Q3ListViewItem * lbi)
 	if (!lbi || lbi->rtti() == FolderListItem::RTTI)
 		return;
 
-	QWidget *w = ((WindowListItem*)lbi)->window();
+	MyWidget *w = ((WindowListItem*)lbi)->window();
 	if (!w)
 		return;
 
@@ -8115,7 +8101,7 @@ void ApplicationWindow::minimizeWindow()
 	emit modified();
 }
 
-void ApplicationWindow::updateWindowLists(QWidget *w)
+void ApplicationWindow::updateWindowLists(MyWidget *w)
 {
 	if (!w)
 		return;
@@ -8125,7 +8111,7 @@ void ApplicationWindow::updateWindowLists(QWidget *w)
 	else if (outWindows->contains(w))
 	{
 		outWindows->takeAt(outWindows->indexOf(w));		
-		w->setParent(ws);
+		ws->addWindow(w);
 		w->setAttribute(Qt::WA_DeleteOnClose);
 	}
 }
@@ -10875,8 +10861,8 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
 	connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
 			this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
-	connect (g,SIGNAL(createHiddenTable(const QString&,int,int,const QString&)),
-			this,SLOT(newHiddenTable(const QString&,int,int,const QString&)));
+	connect (g,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)),
+			this,SLOT(newHiddenTable(const QString&,const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(showPieDialog()),this,SLOT(showPieDialog()));
@@ -12950,7 +12936,6 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 	showFolderPopupMenu(it, p, true);
 }
 
-//! fromFolders = true means the user clicked right mouse buttom on a list iten from QListView "folders"
 void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p, bool fromFolders)
 {
 	if (!it || folders->isRenaming())

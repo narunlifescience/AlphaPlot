@@ -158,7 +158,7 @@ public slots:
 	void updatePlotsTransparency();
 
 	QWidgetList * windowsList();
-	void updateWindowLists(QWidget *w);
+	void updateWindowLists(MyWidget *w);
 
 	void setSaveSettings(bool autoSaving, int min);
 	void changeAppStyle(const QString& s);
@@ -262,8 +262,16 @@ public slots:
 	//! Used when loading a table from a project file 
 	Table* newTable(const QString& caption,int r, int c);
 	Table* newTable(const QString& caption, int r, int c, const QString& text);
-	Table* newHiddenTable(const QString& caption, int r, int c, const QString& text);
-	Table* newHiddenTable(const QString& name, const QString& legend, int r, int c);
+	/**
+	 * \brief Create a Table which is initially hidden; used to return the result of an analysis operation.
+	 *
+	 * \param name window name (compare MyWidget::MyWidget)
+	 * \param label window label (compare MyWidget::MyWidget)
+	 * \param r number of rows
+	 * \param c number of columns
+	 * \param text tab/newline - seperated initial content; may be empty
+	 */
+	Table* newHiddenTable(const QString& name, const QString& label, int r, int c, const QString& text=QString());
 	Table* table(const QString& name);
 	Table* copyTable();
 	Table* convertMatrixToTable();
@@ -388,7 +396,7 @@ public slots:
 	void hideWindow();
 	void hideActiveWindow();
 	void activateWindow();
-	void activateWindow(QWidget *);
+	void activateWindow(MyWidget *);
 	void printWindow();
 	void updateTable(const QString& caption,int row,const QString& text);
 	void updateTableColumn(const QString& colName, double *dat, int rows);

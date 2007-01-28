@@ -616,7 +616,8 @@ signals:
 		void showPlotDialog(int);
 		void showPieDialog();
 		void createTable(const QString&,int,int,const QString&);
-		void createHiddenTable(const QString&,int,int,const QString&);
+		//! To be connected to ApplicationWindow::newHiddenTable; see there for documentation.
+		void createHiddenTable(const QString&,const QString&,int,int,const QString&);
 		void updateTable(const QString&,int,const QString&);
 		void updateTableColumn(const QString&, double *, int);
 		void clearCell(const QString&,double);

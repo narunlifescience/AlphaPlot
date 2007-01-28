@@ -219,7 +219,7 @@ class ScriptingChangeEvent : public QEvent
 //! Interface for maintaining a reference to the current ScriptingEnv
   /**
    * Every class that wants to use a ScriptingEnv should subclass this one and
-   * implement slot customEvent(QEvent*) that forwards any
+   * implement slot customEvent(QEvent*) such that it forwards any
    * ScriptingChangeEvents to scripted::scriptingChangeEvent.
    */
 class scripted
