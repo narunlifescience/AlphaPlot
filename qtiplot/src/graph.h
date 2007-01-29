@@ -102,10 +102,6 @@ class Graph: public QWidget
 		void updatePieCurveData(Table* w, const QString& yColName, int curve);
 		void removePie();
 		QString pieLegendText();
-		QPen pieCurvePen();
-		Qt::BrushStyle pieBrushStyle();
-		int pieFirstColor();
-		int pieSize();
 		QString savePieCurveLayout();
 
 		bool insertCurvesList(Table* w, const QStringList& names, int style, int lWidth, int sSize);

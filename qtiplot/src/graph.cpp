@@ -1965,24 +1965,24 @@ void Graph::copyImage()
 QPixmap Graph::graphPixmap()
 {
 	/*int lw = d_plot->lineWidth();
-	int clw = 2*d_plot->canvas()->lineWidth();
+	  int clw = 2*d_plot->canvas()->lineWidth();
 
-	QPixmap pic(d_plot->width() + 2*lw + clw, d_plot->height() + 2*lw + clw);
-	pic.fill (QColor(255, 255, 255));
-	QPainter paint;
-	paint.begin(&pic);
+	  QPixmap pic(d_plot->width() + 2*lw + clw, d_plot->height() + 2*lw + clw);
+	  pic.fill (QColor(255, 255, 255));
+	  QPainter paint;
+	  paint.begin(&pic);
 
-	QRect rect = QRect(lw, lw, d_plot->width() - 2*lw, d_plot->height() - 2*lw);
+	  QRect rect = QRect(lw, lw, d_plot->width() - 2*lw, d_plot->height() - 2*lw);
 
-	QwtPlotLayout *layout= d_plot->plotLayout ();
-	layout->activate(d_plot, rect, 0);
+	  QwtPlotLayout *layout= d_plot->plotLayout ();
+	  layout->activate(d_plot, rect, 0);
 
-	QwtPlotPrintFilter  filter; 
-	filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-			QwtPlotPrintFilter::PrintCanvasBackground);
+	  QwtPlotPrintFilter  filter; 
+	  filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
+	  QwtPlotPrintFilter::PrintCanvasBackground);
 
-	d_plot->print(&paint, rect, filter);
-	paint.end();
+	  d_plot->print(&paint, rect, filter);
+	  paint.end();
 
 	//the initial layout is invalidated during the print operation and must be recalculated	
 	layout->activate(d_plot, d_plot->rect(), 0);
@@ -4501,47 +4501,6 @@ void Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 	updatePlot();
 }
 
-int Graph::pieSize()
-{
-	return pieRay;
-}
-
-Qt::BrushStyle Graph::pieBrushStyle()
-{
-	Qt::BrushStyle style=Qt::SolidPattern;
-	if (piePlot)
-	{
-		QwtPieCurve *pieCurve = (QwtPieCurve *)curve(0);
-		if (pieCurve->pattern() != style)
-			style=pieCurve->pattern();
-	}	
-	return 	style;
-}
-
-int Graph::pieFirstColor()
-{
-	int first=0;
-	if (piePlot)
-	{
-		QwtPieCurve *pieCurve = (QwtPieCurve *)curve(0);
-		if (pieCurve->first() != first)
-			first=pieCurve->first();
-	}	
-	return 	first;
-}
-
-QPen Graph::pieCurvePen()
-{
-	QPen pen=QPen(QColor(Qt::black),1,Qt::SolidLine);
-	if (piePlot)
-	{
-		QwtPieCurve *pieCurve = (QwtPieCurve *)curve(0);
-		if (pieCurve->pen() != pen)
-			pen=pieCurve->pen();
-	}	
-	return 	pen;
-}
-
 void Graph::updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int size, int firstColor)
 {
 	if (curves()>0)
@@ -4649,14 +4608,13 @@ void Graph::plotPie(Table* w, const QString& name)
 
 	associations<<name;
 
-	QwtPlotLayout *pLayout=d_plot->plotLayout();
+	QwtPlotLayout *pLayout = d_plot->plotLayout();
 	pLayout->activate(d_plot, d_plot->rect(), 0);
 	const QRect rect=pLayout->canvasRect();
 
-	QwtPieCurve *pieCurve = new QwtPieCurve(d_plot,0);
+	QwtPieCurve *pieCurve = new QwtPieCurve(d_plot,name);
 	pieCurve->setData(Y, Y, it);
 	long curveID = d_plot->insertCurve(pieCurve);
-	pieCurve->setTitle(name);
 
 	c_keys.resize(++n_curves);
 	c_keys[n_curves-1] = curveID;
@@ -4665,8 +4623,8 @@ void Graph::plotPie(Table* w, const QString& name)
 	c_type[n_curves-1] = Pie;
 
 	const int ray = 125;
-	int xc=int(rect.width()*0.5+10);
-	int yc=int(rect.y()+rect.height()*0.5);
+	int xc = int(rect.width()/2 + 10);
+	int yc = int(rect.y()+rect.height()/2 + pLayout->titleRect().height() + 15);
 
 	double PI=4*atan(1.0);
 	double angle = 90;	
@@ -4683,13 +4641,15 @@ void Graph::plotPie(Table* w, const QString& name)
 		aux->setOrigin(QPoint(x,y));
 		aux->setBackground(0);
 		aux->setText(QString::number(Y[i]/sum*100,'g',2)+"%");	
-		d_plot->insertMarker(aux);
+		long key = d_plot->insertMarker(aux);
+		int texts = d_texts.size();
+		d_texts.resize(++texts);
+		d_texts[texts-1] = key;
 
 		angle -= value;
 	}
 
 	piePlot=TRUE;
-
 	if (legendMarkerID>=0)
 	{
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);

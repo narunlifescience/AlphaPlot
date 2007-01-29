@@ -73,7 +73,7 @@ public:
     PatternBox *boxPattern;
 	QSpinBox *boxLineWidth, *boxBorderWidth;
 
-	ColorButton *boxBackgroundColor, *boxBorderColor;
+	ColorButton *boxBackgroundColor, *boxBorderColor, *boxCanvasColor;
 
 public slots:
 	void accept();
@@ -82,15 +82,11 @@ public slots:
 	void setFramed(bool ok);
 	void setFrameColor(const QColor& c);
 	void setFrameWidth(int w);
-	void insertCurveName(const QString& name);
 	void removeCurve();
-	void setBorderColor(const QColor& c);
-	void setBorderWidth(int width);
-	void setPieSize(int size);
-	void setFirstColor(int c);
 
 	void pickBorderColor();
 	void pickBackgroundColor();
+	void pickCanvasColor();
 	void changeMargin(int width);
 	void updateBorder(int width);
 
@@ -99,7 +95,6 @@ public slots:
 	Qt::PenStyle style();
 	void setBorderStyle(const Qt::PenStyle& style);
 	Qt::BrushStyle pattern();
-	void setPattern(const Qt::BrushStyle& style);
 	void showWorksheet();
 	void showGeneralPage();
 

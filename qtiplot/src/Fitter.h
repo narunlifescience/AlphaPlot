@@ -72,7 +72,7 @@ class Fit : public QObject
 
 		QString formula(){return d_formula;};
 		virtual void setParametersList(const QStringList& lst){ Q_UNUSED(lst) };
-		int numParameters() { return d_p; }
+		int numParameters() {return d_p;}
 
 		void setInitialGuess(int parIndex, double val){gsl_vector_set(d_param_init, parIndex, val);};
 		void setInitialGuesses(double *x_init);
@@ -110,6 +110,12 @@ class Fit : public QObject
 
 		//! Returns the sum of squares of the residuals from the best-fit line
 		double chiSquare() {return chi_2;};
+
+		//! Returns R^2
+		double rSquare();
+
+		//! Returns the size of the fitted data set
+		int dataSize(){return d_n;};
 
 		//! Sets the precision used for the output
 		void setOutputPrecision(int digits){d_prec = digits;};
