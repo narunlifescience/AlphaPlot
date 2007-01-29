@@ -28,42 +28,28 @@
  ***************************************************************************/
 #include "fitDialog.h"
 #include "parser.h"
-#include "graph.h"
 #include "application.h"
 #include "colorBox.h"
 #include "Fitter.h"
 #include "matrix.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-#include <qcombobox.h>
-#include <qregexp.h> 
-#include <q3hbox.h> 
-#include <q3widgetstack.h>
-#include <q3vbox.h>
-#include <q3listbox.h>
-#include <q3textedit.h>
-#include <qcheckbox.h>
-#include <qspinbox.h>
-#include <qregexp.h>
-#include <qlibrary.h>
-#include <qdir.h>
-#include <qapplication.h>
-#include <q3filedialog.h>
-#include <q3table.h>
-#include <q3header.h>
-//Added by qt3to4:
-#include <Q3VBoxLayout>
-#include <Q3ComboBox>
-
+#include <QListWidget>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QLineEdit>
+#include <QLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QStackedWidget>
+#include <QWidget>
+#include <QMessageBox>
+#include <QComboBox>
 #include <QWidgetList>
 #include <QRadioButton>
-#include <QLineEdit>
+#include <QFileDialog>
+#include <QGroupBox>
 
 #include <stdio.h> 
 
@@ -77,125 +63,137 @@ FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 
 	fitter = 0;
 
-	tw = new Q3WidgetStack( this, "tw" );
-	tw->setSizePolicy(QSizePolicy (QSizePolicy::Preferred, QSizePolicy::Preferred, 2, 0, false ));
+	tw = new QStackedWidget();
 
 	initEditPage();
 	initFitPage();
 	initAdvancedPage();
 
-	tw->addWidget(editPage, 0);
-	tw->addWidget(fitPage, 1);
-
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this, 5, 5, "hlayout");
-	hlayout->addWidget(tw);
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addWidget(tw);
+    setLayout(vl);
+    resize(minimumSize());
 
 	setBuiltInFunctionNames();
 	setBuiltInFunctions();
 
-	categoryBox->setCurrentItem(2);
-	funcBox->setCurrentItem(0);
+	categoryBox->setCurrentRow (2);
+	funcBox->setCurrentRow (0);
 
 	loadPlugins();
 }
 
 void FitDialog::initFitPage()
 {
-	fitPage = new QWidget( tw, "fitPage" );
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""), fitPage,"GroupBox1" );
-
-	new QLabel( tr("Curve"), GroupBox1, "TextLabel22",0 );
-	boxCurve = new QComboBox(GroupBox1, "boxCurve" );
-
-	new QLabel( tr("Function"), GroupBox1, "TextLabel2",0 );
-	lblFunction = new QLabel(GroupBox1, "boxOrder" );
-
-	new QLabel(QString(), GroupBox1, "TextLabel2",0 );
-	boxFunction = new Q3TextEdit(GroupBox1, "boxOrder" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("Curve")), 0, 0);
+	boxCurve = new QComboBox();
+    gl1->addWidget(boxCurve, 0, 1);
+    gl1->addWidget(new QLabel(tr("Function")), 1, 0);
+	lblFunction = new QLabel();
+    gl1->addWidget(lblFunction, 1, 1);
+	boxFunction = new QTextEdit();
 	boxFunction->setReadOnly(true);
 	boxFunction->setMaximumHeight(50);
+    gl1->addWidget(boxFunction, 2, 1);
+	gl1->addWidget(new QLabel( tr("Initial guesses")), 3, 0 );
 
-	new QLabel( tr("Initial guesses"), GroupBox1, "TextLabel23",0 );
-	boxParams = new Q3Table(GroupBox1, "boxParams");
-	boxParams->setNumCols(2);
-	QStringList header;
-	header << tr("Parameter") << tr("Value");
-	boxParams->setColumnLabels(header);
-	boxParams->setColumnReadOnly(0, true);
-	boxParams->setColumnStretchable(1, true);
+	boxParams = new QTableWidget();
+    boxParams->setColumnCount(3);
+    boxParams->horizontalHeader()->setClickable(false);
+    boxParams->horizontalHeader()->setResizeMode (0, QHeaderView::ResizeToContents);
+    boxParams->horizontalHeader()->setResizeMode (1, QHeaderView::Stretch);
+    boxParams->horizontalHeader()->setResizeMode (2, QHeaderView::ResizeToContents);
+    QStringList header = QStringList() << tr("Parameter") << tr("Value") << tr("Constant");
+    boxParams->setHorizontalHeaderLabels(header);
+    boxParams->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+    boxParams->verticalHeader()->hide();
+    gl1->addWidget(boxParams, 3, 1);
 
-	new QLabel( tr("Algorithm"), GroupBox1, "TextLabel44",0 );
-	boxAlgorithm = new QComboBox(GroupBox1, "boxAlgorithm" );
-	boxAlgorithm->insertItem(tr("Scaled Levenberg-Marquardt"));
-	boxAlgorithm->insertItem(tr("Unscaled Levenberg-Marquardt"));
-	boxAlgorithm->insertItem(tr("Nelder-Mead Simplex"));
+	gl1->addWidget(new QLabel( tr("Algorithm")), 4, 0 );
+	boxAlgorithm = new QComboBox();
+	boxAlgorithm->addItem(tr("Scaled Levenberg-Marquardt"));
+	boxAlgorithm->addItem(tr("Unscaled Levenberg-Marquardt"));
+	boxAlgorithm->addItem(tr("Nelder-Mead Simplex"));
+    gl1->addWidget(boxAlgorithm, 4, 1);
 
-	new QLabel( tr("Color"), GroupBox1, "boxColorLabel",0 );
-	boxColor = new ColorBox( false, GroupBox1);
+	gl1->addWidget(new QLabel( tr("Color")), 5, 0);
+	boxColor = new ColorBox( false );
 	boxColor->setColor(QColor(Qt::red));
+    gl1->addWidget(boxColor, 5, 1);
 
-	Q3ButtonGroup* weightBox = new Q3ButtonGroup(4, Qt::Horizontal,tr( "" ), fitPage);
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
 
-	new QLabel( tr("Weighting Method"), weightBox);
-	boxWeighting = new Q3ComboBox(weightBox);
-	boxWeighting->insertItem(tr("No weighting"));
-	boxWeighting->insertItem(tr("Instrumental"));
-	boxWeighting->insertItem(tr("Statistical"));
-	boxWeighting->insertItem(tr("Arbitrary Dataset"));
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel(tr("From x=")), 0, 0);
+	boxFrom = new QLineEdit();
+    gl2->addWidget(boxFrom, 0, 1);
+	gl2->addWidget(new QLabel( tr("To x=")), 1, 0);
+	boxTo = new QLineEdit();
+    gl2->addWidget(boxTo, 1, 1);
+    QGroupBox *gb2 = new QGroupBox();
+    gb2->setLayout(gl2);
 
-	tableNamesBox = new Q3ComboBox(weightBox);
-	tableNamesBox->setEnabled(false);
-	colNamesBox = new Q3ComboBox(weightBox);
-	colNamesBox->setEnabled(false);
-
-	Q3HBox *hbox=new Q3HBox(fitPage,"hbox");
-	hbox->setSpacing(5);
-
-	Q3ButtonGroup* GroupBox4 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),hbox, "GroupBox4" );
-
-	new QLabel( tr("From x="), GroupBox4, "TextLabel3",0 );
-	boxFrom = new QLineEdit(GroupBox4, "boxFrom" );
-
-	new QLabel( tr("To x="), GroupBox4, "TextLabel5",0 );
-	boxTo = new QLineEdit(GroupBox4, "boxOrder" );
-
-	Q3ButtonGroup *GroupBox3 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),hbox,"GroupBox3" );
-
-	new QLabel( tr("Iterations"), GroupBox3, "TextLabel4",0 );
-	boxPoints = new QSpinBox(10, 10000, 50, GroupBox3, "boxStart" );
+    QGridLayout *gl3 = new QGridLayout();
+    gl3->addWidget(new QLabel(tr("Iterations")), 0, 0);
+	boxPoints = new QSpinBox();
+    boxPoints->setRange(10, 10000);
+	boxPoints->setSingleStep(50);
 	boxPoints->setValue(1000);
+    gl3->addWidget(boxPoints, 0, 1);
+	gl3->addWidget(new QLabel( tr("Tolerance")), 1, 0);
+	boxTolerance = new QLineEdit("1e-4");
+	gl3->addWidget(boxTolerance, 1, 1);
+    QGroupBox *gb3 = new QGroupBox();
+    gb3->setLayout(gl3);
 
-	new QLabel( tr("Tolerance"), GroupBox3, "TextLabel41",0 );
-	boxTolerance = new QLineEdit(GroupBox3, "boxTolerance" );
-	boxTolerance->setText("1e-4");
+    QHBoxLayout *hbox1 = new QHBoxLayout();
+    hbox1->addWidget(gb2);
+    hbox1->addWidget(gb3);
 
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(5,Qt::Horizontal,tr(""),fitPage,"GroupBox2" );
-	GroupBox2->setFlat (true);
+    QHBoxLayout *hbox2 = new QHBoxLayout();
+	hbox2->addWidget(new QLabel(tr( "Weighting Method" )));
+	boxWeighting = new QComboBox();
+	boxWeighting->addItem(tr("No weighting"));
+	boxWeighting->addItem(tr("Instrumental"));
+	boxWeighting->addItem(tr("Statistical"));
+	boxWeighting->addItem(tr("Arbitrary Dataset"));
+    hbox2->addWidget(boxWeighting);
+    QGroupBox *gb4 = new QGroupBox();
+    gb4->setLayout(hbox2);
 
-	buttonEdit = new QPushButton(GroupBox2, "buttonOk" );
-	buttonEdit->setText( tr( "<< &Edit function" ) );
+	tableNamesBox = new QComboBox();
+	tableNamesBox->setEnabled(false);
+    hbox2->addWidget(tableNamesBox);
+	colNamesBox = new QComboBox();
+	colNamesBox->setEnabled(false);
+    hbox2->addWidget(colNamesBox);
 
-	btnDeleteFitCurves = new QPushButton(GroupBox2, "btnDeleteFitCurves" );
-	btnDeleteFitCurves->setText( tr( "&Delete Fit Curves" ) );
-
-	buttonOk = new QPushButton(GroupBox2, "buttonOk" );
-	buttonOk->setText( tr( "&Fit" ) );
-	buttonOk->setAutoDefault( true );
+    QHBoxLayout *hbox3 = new QHBoxLayout();
+	buttonEdit = new QPushButton(tr( "<< &Edit function" ) );
+    hbox3->addWidget(buttonEdit);
+	btnDeleteFitCurves = new QPushButton(tr( "&Delete Fit Curves" ));
+    hbox3->addWidget(btnDeleteFitCurves);
+	buttonOk = new QPushButton(tr( "&Fit" ) );
 	buttonOk->setDefault( true );
+    hbox3->addWidget(buttonOk);
+	buttonCancel1 = new QPushButton(tr( "&Close" ));
+    hbox3->addWidget(buttonCancel1);
+	buttonAdvanced = new QPushButton(tr( "Custom &Output >>" ));
+    hbox3->addWidget(buttonAdvanced);
+    hbox3->addStretch();
 
-	buttonCancel1 = new QPushButton(GroupBox2, "buttonCancel1" );
-	buttonCancel1->setText( tr( "&Close" ) );
+    QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addWidget(gb1);
+    vbox1->addLayout(hbox1);
+    vbox1->addWidget(gb4);
+    vbox1->addLayout(hbox3);
 
-	buttonAdvanced = new QPushButton(GroupBox2, "buttonAdvanced" );
-	buttonAdvanced->setText( tr( "Custom &Output >>" ) );
+    fitPage = new QWidget();
+    fitPage->setLayout(vbox1);
+    tw->addWidget(fitPage);
 
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(fitPage, 5, 5, "hlayout");
-	hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(hbox);
-	hlayout->addWidget(weightBox);
-	hlayout->addWidget(GroupBox2);
-
-	// signals and slots connections
 	connect( boxCurve, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT(accept()));
 	connect( buttonCancel1, SIGNAL( clicked() ), this, SLOT(close()));
@@ -203,107 +201,109 @@ void FitDialog::initFitPage()
 	connect( btnDeleteFitCurves, SIGNAL( clicked() ), this, SLOT(deleteFitCurves()));
 	connect( boxWeighting, SIGNAL( activated(int) ), this, SLOT( enableWeightingParameters(int) ) );
 	connect( buttonAdvanced, SIGNAL(clicked()), this, SLOT(showAdvancedPage() ) );
+    connect( tableNamesBox, SIGNAL( activated(int) ), this, SLOT( selectSrcTable(int) ) );
 
 	setFocusProxy(boxFunction);
 }
 
 void FitDialog::initEditPage()
 {
-	editPage = new QWidget( tw, "editPage" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("Category")), 0, 0);
+    gl1->addWidget(new QLabel(tr("Function")), 0, 1);
+    gl1->addWidget(new QLabel(tr("Expression")), 0, 2);
 
-	Q3HBox *hbox1=new Q3HBox(editPage,"hbox1");
-	hbox1->setSpacing(5);
-
-	Q3VBox *vbox1=new Q3VBox(hbox1,"vbox1");
-	vbox1->setSpacing(5);
-	new QLabel( tr("Category"), vbox1, "TextLabel41",0 );
-	categoryBox = new Q3ListBox( vbox1, "categoryBox" );
-	categoryBox->insertItem(tr("User defined"));
-	categoryBox->insertItem(tr("Built-in"));
-	categoryBox->insertItem(tr("Basic"));
-	categoryBox->insertItem(tr("Plugins"));
-	categoryBox->setSizePolicy(QSizePolicy (QSizePolicy::Fixed, QSizePolicy::Expanding, 2, 0, false ));
-
-	Q3VBox *vbox2=new Q3VBox(hbox1,"vbox2");
-	vbox2->setSpacing(5);
-	new QLabel( tr("Function"), vbox2, "TextLabel41",0 );
-	funcBox = new Q3ListBox( vbox2, "funcBox" );
-
-	Q3VBox *vbox3=new Q3VBox(hbox1,"vbox3");
-	vbox3->setSpacing(5);
-	new QLabel( tr("Expression"), vbox3, "TextLabel41",0 );
-	explainBox = new Q3TextEdit( vbox3, "explainBox" );
+	categoryBox = new QListWidget();
+	categoryBox->addItem(tr("User defined"));
+	categoryBox->addItem(tr("Built-in"));
+	categoryBox->addItem(tr("Basic"));
+	categoryBox->addItem(tr("Plugins"));
+	
+    gl1->addWidget(categoryBox, 1, 0);
+	funcBox = new QListWidget();
+    gl1->addWidget(funcBox, 1, 1);
+	explainBox = new QTextEdit();
 	explainBox->setReadOnly(true);
+    gl1->addWidget(explainBox, 1, 2);
 
-	Q3HBox *hbox3=new Q3HBox(editPage,"hbox3");
-	hbox3->setSpacing(5);
-
-	boxUseBuiltIn = new QCheckBox(hbox3,"boxUseBuiltIn");
+	boxUseBuiltIn = new QCheckBox();
 	boxUseBuiltIn->setText(tr("Fit with &built-in function"));
 	boxUseBuiltIn->hide();
 
-	polynomOrderLabel = new QLabel( tr("Polynomial Order"), hbox3);
+    QHBoxLayout *hbox1 = new QHBoxLayout();
+	hbox1->addWidget(boxUseBuiltIn);
+    hbox1->addStretch();
+
+	polynomOrderLabel = new QLabel( tr("Polynomial Order"));
 	polynomOrderLabel->hide();
-	polynomOrderBox = new QSpinBox(1, 100, 1, hbox3);
+    hbox1->addWidget(polynomOrderLabel);
+
+	polynomOrderBox = new QSpinBox();
+    polynomOrderBox->setMinValue(1);
 	polynomOrderBox->setValue(2);
 	polynomOrderBox->hide();
 	connect(polynomOrderBox, SIGNAL(valueChanged(int)), this, SLOT(showExpression(int)));
+    hbox1->addWidget(polynomOrderBox);
 
-	buttonPlugins = new QPushButton(hbox3, "buttonPlugins" );
-	buttonPlugins->setText( tr( "&Choose plugins folder..." ) );
+	buttonPlugins = new QPushButton(tr( "&Choose plugins folder..." ) );
+    hbox1->addWidget(buttonPlugins);
 	buttonPlugins->hide();
 
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup( 3,Qt::Horizontal,tr(""),editPage,"GroupBox3" );
+    buttonClearUsrList = new QPushButton(tr( "Clear user &list" ) );
+    hbox1->addWidget(buttonClearUsrList);
+	buttonClearUsrList->hide();
 
-	new QLabel( tr("Name"), GroupBox1, "TextLabel41",0 );
-	boxName = new QLineEdit(GroupBox1, "boxName" );
-	boxName->setText("user1");
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel(tr("Name")), 0, 0);
+	boxName = new QLineEdit(tr("user1"));
+    gl2->addWidget(boxName, 0, 1);
+	btnAddFunc = new QPushButton(tr( "&Save" ));
+    gl2->addWidget(btnAddFunc, 0, 2);
+    gl2->addWidget(new QLabel(tr("Parameters")), 1, 0);  
+	boxParam = new QLineEdit("a, b");
+    gl2->addWidget(boxParam, 1, 1);
+	btnDelFunc = new QPushButton( tr( "&Remove" ));
+    gl2->addWidget(btnDelFunc, 1, 2);
+        
+    QGroupBox *gb = new QGroupBox();
+    gb->setLayout(gl2);
 
-	btnAddFunc = new QPushButton(GroupBox1, "btnAddFunc" );
-	btnAddFunc->setText( tr( "&Save" ) );
-
-	new QLabel( tr("Parameters"), GroupBox1, "TextLabel41",0 );
-	boxParam = new QLineEdit(GroupBox1, "boxParam" );
-	boxParam->setText("a, b");
-
-	btnDelFunc = new QPushButton(GroupBox1, "btnDelFunc" );
-	btnDelFunc->setText( tr( "&Remove" ) );
-
-	Q3HBox *hbox2=new Q3HBox(editPage,"hbox2");
-	hbox2->setSpacing(5);
-
-	editBox = new Q3TextEdit( hbox2, "editBox" );
+	editBox = new QTextEdit();
 	editBox->setTextFormat(Qt::PlainText);
 	editBox->setFocus();
 
-	Q3VBox *vbox4=new Q3VBox(hbox2,"vbox4");
-	vbox4->setSpacing(5);
+    QVBoxLayout *vbox1 = new QVBoxLayout();
+	btnAddTxt = new QPushButton(tr( "Add &expression" ) );
+    vbox1->addWidget(btnAddTxt);
+	btnAddName = new QPushButton(tr( "Add &name" ));
+    vbox1->addWidget(btnAddName);
+	buttonClear = new QPushButton(tr( "Rese&t" ));
+    vbox1->addWidget(buttonClear);
+	buttonCancel2 = new QPushButton(tr( "&Close" ));
+    vbox1->addWidget(buttonCancel2);
+    btnContinue = new QPushButton(tr( "&Fit >>" ));
+    vbox1->addWidget(btnContinue);
+    vbox1->addStretch();
 
-	btnAddTxt = new QPushButton(vbox4, "btnAddTxt" );
-	btnAddTxt->setText( tr( "Add &expression" ) );
+    QHBoxLayout *hbox2 = new QHBoxLayout();
+	hbox2->addWidget(editBox);
+    hbox2->addLayout(vbox1);
 
-	btnAddName = new QPushButton(vbox4, "btnAddName" );
-	btnAddName->setText( tr( "Add &name" ) );
+    QVBoxLayout *vbox2 = new QVBoxLayout();
+    vbox2->addLayout(gl1);
+    vbox2->addLayout(hbox1);
+    vbox2->addWidget(gb);
+    vbox2->addLayout(hbox2);
 
-	buttonClear = new QPushButton(vbox4, "buttonClear" );
-	buttonClear->setText( tr( "Clear user &list" ) );
-
-	btnContinue = new QPushButton(vbox4, "btnContinue" );
-	btnContinue->setText( tr( "&Fit >>" ) );
-
-	buttonCancel2 = new QPushButton(vbox4, "buttonCancel2" );
-	buttonCancel2->setText( tr( "&Close" ) );
-
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(editPage, 5, 5, "hlayout");
-	hlayout->addWidget(hbox1);
-	hlayout->addWidget(hbox3);
-	hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(hbox2);
+    editPage = new QWidget();
+    editPage->setLayout(vbox2);
+    tw->addWidget(editPage);
 
 	connect( buttonPlugins, SIGNAL( clicked() ), this, SLOT(choosePluginsFolder()));
-	connect( buttonClear, SIGNAL( clicked() ), this, SLOT(clearList()));
-	connect( categoryBox, SIGNAL(highlighted(int)), this, SLOT(showFunctionsList(int) ) );
-	connect( funcBox, SIGNAL(highlighted(int)), this, SLOT(showExpression(int)));
+    connect( buttonClear, SIGNAL( clicked() ), this, SLOT(resetFunction()));
+	connect( buttonClearUsrList, SIGNAL( clicked() ), this, SLOT(clearUserList()));
+	connect( categoryBox, SIGNAL(currentRowChanged (int)), this, SLOT(showFunctionsList(int) ) );
+	connect( funcBox, SIGNAL(currentRowChanged(int)), this, SLOT(showExpression(int)));
 	connect( boxUseBuiltIn, SIGNAL(toggled(bool)), this, SLOT(setFunction(bool) ) );
 	connect( btnAddName, SIGNAL(clicked()), this, SLOT(addFunctionName() ) );
 	connect( btnAddTxt, SIGNAL(clicked()), this, SLOT(addFunction() ) );
@@ -317,96 +317,95 @@ void FitDialog::initEditPage()
 void FitDialog::initAdvancedPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	advancedPage = new QWidget( tw);
 
-	Q3ButtonGroup *GroupBox1 = new Q3ButtonGroup(2,Qt::Horizontal,tr("Generated Fit Curve"), advancedPage );
-
-	generatePointsBtn = new QRadioButton (GroupBox1);
-	generatePointsBtn ->setText(tr("Uniform X Function"));
+	generatePointsBtn = new QRadioButton (tr("&Uniform X Function"));
 	generatePointsBtn->setChecked(app->generateUniformFitPoints);
 	connect( generatePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
-	Q3HBox *hb=new Q3HBox(GroupBox1);
-	hb->setSpacing(5);
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(generatePointsBtn, 0, 0);
 
-	lblPoints = new QLabel( tr("Points"), hb);
-	generatePointsBox = new QSpinBox (0, 1000000, 10, hb);
+	lblPoints = new QLabel( tr("Points"));
+    gl1->addWidget(lblPoints, 0, 1);
+
+	generatePointsBox = new QSpinBox ();
+    generatePointsBox->setRange(0, 1000000);
+	generatePointsBox->setSingleStep(10);
 	generatePointsBox->setValue(app->fitPoints);
 	connect( generatePointsBox, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+    gl1->addWidget(generatePointsBox, 0, 2);
 	showPointsBox(!app->generateUniformFitPoints);
 
-	samePointsBtn = new QRadioButton(GroupBox1);
-	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
+	samePointsBtn = new QRadioButton(tr( "Same X as Fitting &Data" ));
+    gl1->addWidget(samePointsBtn, 1, 0);
 	samePointsBtn->setChecked(!app->generateUniformFitPoints);
 	connect( samePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
-	Q3ButtonGroup *GroupBox2 = new Q3ButtonGroup(3,Qt::Horizontal, tr("Parameters Output"), advancedPage );
+    QGroupBox *gb1 = new QGroupBox(tr("Generated Fit Curve"));
+    gb1->setLayout(gl1);
 
-	new QLabel( tr("Significant Digits"), GroupBox2);
-	boxPrecision = new QSpinBox (0, 15, 1, GroupBox2);
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel( tr("Significant Digits")), 0, 1);
+	boxPrecision = new QSpinBox ();
+    boxPrecision->setRange(0, 15);
 	boxPrecision->setValue (app->fit_output_precision);
 	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+    gl2->addWidget(boxPrecision, 0, 2);
+	btnParamTable = new QPushButton(tr( "Parameters &Table" ));
+    gl2->addWidget(btnParamTable, 1, 0);
+	gl2->addWidget(new QLabel( tr("Name: ")), 1, 1);
+	paramTableName = new QLineEdit(tr( "Parameters" ));
+    gl2->addWidget(paramTableName, 1, 2);
+	btnCovMatrix = new QPushButton(tr( "Covariance &Matrix" ));
+    gl2->addWidget(btnCovMatrix, 2, 0);
+    gl2->addWidget(new QLabel( tr("Name: ")), 2, 1);
+	covMatrixName = new QLineEdit( tr( "CovMatrix" ) );
+    gl2->addWidget(covMatrixName, 2, 2);
 
-	new QLabel(QString::null, GroupBox2);
+    QGroupBox *gb2 = new QGroupBox(tr("Parameters Output"));
+    gb2->setLayout(gl2);
 
-	btnParamTable = new QPushButton(GroupBox2);
-	btnParamTable->setText( tr( "Parameters Table" ) );
-
-	new QLabel( tr("Name: "), GroupBox2);
-
-	paramTableName = new QLineEdit(GroupBox2);
-	paramTableName->setText( tr( "Parameters" ) );
-
-	btnCovMatrix = new QPushButton(GroupBox2);
-	btnCovMatrix->setText( tr( "Covariance Matrix" ) );
-
-	new QLabel( tr("Name: "), GroupBox2);
-
-	covMatrixName = new QLineEdit(GroupBox2);
-	covMatrixName->setText( tr( "CovMatrix" ) );
-
-	logBox = new QCheckBox (tr("Write Parameters to Result Log"), advancedPage);
+	logBox = new QCheckBox (tr("&Write Parameters to Result Log"));
 	logBox->setChecked(app->writeFitResultsToLog);
 	connect( logBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
-	plotLabelBox = new QCheckBox (tr("Paste Parameters to Plot"), advancedPage);
+	plotLabelBox = new QCheckBox (tr("&Paste Parameters to Plot"));
 	plotLabelBox->setChecked(app->pasteFitResultsToPlot);
 	connect( plotLabelBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
 
-	Q3HBox *hbox1=new Q3HBox(advancedPage);
-	hbox1->setSpacing(5);
+    QHBoxLayout *hbox1 = new QHBoxLayout();
 
-	btnBack = new QPushButton(hbox1);
-	btnBack->setText( tr( "<< &Fit" ) );
-	btnBack->setMaximumWidth(100);
+	btnBack = new QPushButton(tr( "<< &Fit" ));
 	connect( btnBack, SIGNAL(clicked()), this, SLOT(showFitPage()));
 	connect( btnBack, SIGNAL(clicked()), this, SLOT(applyChanges()));
+    hbox1->addWidget(btnBack);
 
-	btnApply = new QPushButton(hbox1);
-	btnApply->setText( tr( "&Apply" ) );
-	btnApply->setMaximumWidth(100);
+	btnApply = new QPushButton(tr( "&Apply" ));
 	btnApply->setEnabled(false);
 	connect( btnApply, SIGNAL(clicked()), this, SLOT(applyChanges()));
+    hbox1->addWidget(btnApply);
 
-	buttonCancel3 = new QPushButton(hbox1, "buttonCancel3" );
-	buttonCancel3->setText( tr( "&Close" ) );
+	buttonCancel3 = new QPushButton(tr( "&Close" ));
+    hbox1->addWidget(buttonCancel3);
+    hbox1->addStretch();
 
-	QWidget * spacer = new QWidget(hbox1);
-	hbox1->setStretchFactor(spacer, 1);
+    QVBoxLayout *vbox1 = new QVBoxLayout();
+    vbox1->addWidget(gb1);
+    vbox1->addWidget(gb2);
+    vbox1->addWidget(logBox);
+    vbox1->addWidget(plotLabelBox);
+    vbox1->addStretch();
+    vbox1->addLayout(hbox1);
 
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(advancedPage, 5, 5);
-	hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
-	hlayout->addWidget(logBox);
-	hlayout->addWidget(plotLabelBox);
-	hlayout->addWidget(hbox1);
+    advancedPage = new QWidget();
+	advancedPage->setLayout(vbox1);
+    tw->addWidget(advancedPage);
 
 	connect(btnParamTable, SIGNAL(clicked()), this, SLOT(showParametersTable()));
 	connect(btnCovMatrix, SIGNAL(clicked()), this, SLOT(showCovarianceMatrix()));
-
 	connect(samePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
 	connect(generatePointsBtn, SIGNAL(toggled(bool)), this, SLOT(showPointsBox(bool)));
-	connect( buttonCancel3, SIGNAL(clicked()), this, SLOT(close()) );
+	connect(buttonCancel3, SIGNAL(clicked()), this, SLOT(close()));
 }
 
 void FitDialog::applyChanges()
@@ -486,12 +485,12 @@ void FitDialog::setGraph(Graph *g)
 
 	graph = g;
 	boxCurve->clear();
-	boxCurve->insertStringList (graph->curvesList(), -1);
+	boxCurve->addItems(graph->curvesList());
 
 	if (g->selectorsEnabled())
 	{
 		int index = g->curveIndex(g->selectedCurveID());
-		boxCurve->setCurrentItem(index);
+		boxCurve->setCurrentIndex(index);
 		activateCurve(index);
 	}
 	else
@@ -568,7 +567,7 @@ void FitDialog::saveUserFunction()
 		userFunctions[index] = f;
 		userFunctionParams[index] = boxParam->text();
 
-		if (funcBox->currentText() == name)
+		if (funcBox->currentItem()->text() == name)
 			showExpression(index);
 	}
 	else
@@ -577,22 +576,22 @@ void FitDialog::saveUserFunction()
 		userFunctions << f;
 		userFunctionParams << boxParam->text();
 
-		if (categoryBox->currentItem() == 0)
+		if (categoryBox->currentRow() == 0)
 		{
-			funcBox->insertItem(name, -1);
-			funcBox->setCurrentItem(funcBox->numRows()-1);
+			funcBox->addItem(name);
+			funcBox->setCurrentRow (funcBox->count()-1);
 		}
 
-		if ((int)userFunctionNames.count()>0 && !boxUseBuiltIn->isEnabled() && categoryBox->currentItem() == 0)
+		if ((int)userFunctionNames.count()>0 && !boxUseBuiltIn->isEnabled() && categoryBox->currentRow() == 0)
 			boxUseBuiltIn->setEnabled(true);
 	}
-
+    buttonClearUsrList->setEnabled(true);
 	emit saveFunctionsList(userFunctions);
 }
 
 void FitDialog::removeUserFunction()
 {
-	QString name = funcBox->currentText();
+	QString name = funcBox->currentItem()->text();
 	if (userFunctionNames.contains(name))
 	{
 		explainBox->setText(QString());
@@ -607,11 +606,14 @@ void FitDialog::removeUserFunction()
 		userFunctionParams.remove(f);
 
 		funcBox->clear();
-		funcBox->insertStringList(userFunctionNames, -1);
-		funcBox->setCurrentItem(0);
+		funcBox->addItems (userFunctionNames);
+		funcBox->setCurrentRow (0);
 
 		if (!userFunctionNames.count())
+            {
 			boxUseBuiltIn->setEnabled(false);
+            buttonClearUsrList->setEnabled(false);
+            }
 
 		emit saveFunctionsList(userFunctions);
 	}
@@ -619,51 +621,56 @@ void FitDialog::removeUserFunction()
 
 void FitDialog::showFitPage()
 {
-	QString par = boxParam->text().simplifyWhiteSpace();
+	QString par = boxParam->text().simplified();
 	QStringList paramList = QStringList::split(QRegExp("[,;]+[\\s]*"), par, false);
 	int parameters = (int)paramList.count();
-	boxParams->setNumRows(parameters);
+	boxParams->setRowCount(parameters);
+    boxParams->hideColumn(2);
+
 	if (parameters > 7)
 		parameters = 7;
 	boxParams->setMinimumHeight(4+(parameters+1)*boxParams->horizontalHeader()->height());
 
+    for (int i=0; i<(int)paramList.count(); i++)
+	{
+        QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
+        it->setFlags(!Qt::ItemIsEditable);
+        boxParams->setItem(i, 0, it);
+
+        it = new QTableWidgetItem("1");
+        boxParams->setItem(i, 1, it);
+	}
+
 	if (!boxUseBuiltIn->isChecked() || 
-			(boxUseBuiltIn->isChecked()&& categoryBox->currentItem()!=3 && categoryBox->currentItem()!=1))
+		(boxUseBuiltIn->isChecked()&& categoryBox->currentRow()!=3 && categoryBox->currentRow()!=1))
 	{
-		boxParams->setNumCols(3);
-		boxParams->horizontalHeader()->setLabel(2, tr("Constant"));
-		for (int j=0; j<boxParams->numRows(); j++ )
+        boxParams->showColumn(2);
+        
+		for (int i=0; i<boxParams->rowCount(); i++ )
 		{
-			Q3CheckTableItem *cb = new Q3CheckTableItem(boxParams, QString() );
-			boxParams->setItem(j, 2, cb);
+            QTableWidgetItem *it = new QTableWidgetItem();
+            it->setFlags(!Qt::ItemIsEditable);
+            boxParams->setItem(i, 2, it);
+
+			QCheckBox* cb = new QCheckBox();
+            boxParams->setCellWidget(i, 2, cb);
 		}
-		boxParams->showColumn(2);
-		boxParams->adjustColumn(2);
 	}
-	else
-		boxParams->setNumCols(2);
 
-	for (int i=0; i<(int)paramList.count(); i++)
-	{
-		boxParams->setText(i, 0, paramList[i]);
-		if (boxParams->text(i, 1).isEmpty())
-			boxParams->setText(i, 1, "1");
-	}
-	boxParams->adjustColumn(0);
-	boxFunction->setText(editBox->text().remove("\n"));
-	lblFunction->setText(boxName->text() +"(x, " + par + ")");
+	boxFunction->setText(editBox->text().simplified());
+	lblFunction->setText(boxName->text() +" (x, " + par + ")");
 
-	tw->raiseWidget(fitPage);
+	tw->setCurrentWidget (fitPage);
 }
 
 void FitDialog::showEditPage()
 {
-	tw->raiseWidget(editPage);
+	tw->setCurrentWidget (editPage);
 }
 
 void FitDialog::showAdvancedPage()
 {
-	tw->raiseWidget(advancedPage);
+	tw->setCurrentWidget (advancedPage);
 }
 
 void FitDialog::setFunction(bool ok)
@@ -678,15 +685,15 @@ void FitDialog::setFunction(bool ok)
 
 	if (ok)
 	{
-		boxName->setText(funcBox->currentText());
+		boxName->setText(funcBox->currentItem()->text());
 		editBox->setText(explainBox->text());
 
-		if (categoryBox->currentItem() == 0 && (int)userFunctionParams.size() > 0)
-			boxParam->setText(userFunctionParams[funcBox->currentItem()]);
-		else if (categoryBox->currentItem() == 1)
+		if (categoryBox->currentRow() == 0 && (int)userFunctionParams.size() > 0)
+			boxParam->setText(userFunctionParams[funcBox->currentRow ()]);
+		else if (categoryBox->currentRow() == 1)
 		{
 			QStringList lst;
-			switch(funcBox->currentItem())
+			switch(funcBox->currentRow ())
 			{
 				case 0:
 					lst << "A1" << "A2" << "x0" << "dx";
@@ -718,19 +725,21 @@ void FitDialog::setFunction(bool ok)
 			}
 			boxParam->setText(lst.join(", "));
 		}
-		else if (categoryBox->currentItem() == 3 && (int)pluginParameters.size() > 0 )
-			boxParam->setText(pluginParameters[funcBox->currentItem()]);
+		else if (categoryBox->currentRow() == 3 && (int)pluginParameters.size() > 0 )
+			boxParam->setText(pluginParameters[funcBox->currentRow()]);
 	}
 }
 
-void FitDialog::clearList()
+void FitDialog::clearUserList()
 {
 	userFunctions.clear();
 	userFunctionNames.clear();
-	if (categoryBox->currentItem() == 0)
+	if (categoryBox->currentRow() == 0)
 	{
 		funcBox->clear();
 		explainBox->clear();
+        boxUseBuiltIn->setEnabled(false);
+        buttonClearUsrList->setEnabled(false);
 	}
 	emit clearFunctionsList();
 }
@@ -762,8 +771,12 @@ void FitDialog::showFunctionsList(int category)
 	boxUseBuiltIn->setEnabled(false);
 	boxUseBuiltIn->hide();
 	buttonPlugins->hide();
+    buttonClearUsrList->hide();
+    buttonClearUsrList->setEnabled(false);
 	btnDelFunc->setEnabled(false);
+    funcBox->blockSignals(true);
 	funcBox->clear();
+    explainBox->clear();
 	polynomOrderLabel->hide();
 	polynomOrderBox->hide();
 
@@ -773,11 +786,14 @@ void FitDialog::showFunctionsList(int category)
 			if ((int)userFunctionNames.size() > 0)
 			{
 				showUserFunctions();
+                buttonClearUsrList->show();
 				boxUseBuiltIn->setEnabled(true);
+                buttonClearUsrList->setEnabled(true);
 			}
 
 			boxUseBuiltIn->setText(tr("Fit with selected &user function"));
 			boxUseBuiltIn->show();
+            buttonClearUsrList->show();
 			btnDelFunc->setEnabled(true);
 			break;
 
@@ -785,7 +801,7 @@ void FitDialog::showFunctionsList(int category)
 			boxUseBuiltIn->setText(tr("Fit using &built-in function"));
 			boxUseBuiltIn->show();
 			boxUseBuiltIn->setEnabled(true);
-			funcBox->insertStringList(builtInFunctionNames, -1);
+			funcBox->addItems(builtInFunctionNames);
 			break;
 
 		case 2:
@@ -798,20 +814,19 @@ void FitDialog::showFunctionsList(int category)
 			boxUseBuiltIn->show();
 			if ((int)pluginFunctionNames.size() > 0)
 			{
-				funcBox->insertStringList(pluginFunctionNames, -1);
+				funcBox->addItems(pluginFunctionNames);
 				boxUseBuiltIn->setEnabled(true);
 			}
 			break;
 	}
-
-	funcBox->setCurrentItem(0);
-	showExpression(0);
+    funcBox->blockSignals(false);
+	funcBox->setCurrentRow (0);
 }
 
 void FitDialog::choosePluginsFolder()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	QString dir = Q3FileDialog::getExistingDirectory(QDir::currentDirPath(), this, "get directory",
+	QString dir = QFileDialog::getExistingDirectory(QDir::currentDirPath(), this, "get directory",
 			tr("Choose the plugins folder"), true, true);
 	if (!dir.isEmpty())
 	{
@@ -826,11 +841,11 @@ void FitDialog::choosePluginsFolder()
 		loadPlugins();
 		if ((int)pluginFunctionNames.size() > 0)
 		{
-			funcBox->insertStringList(pluginFunctionNames, -1);
+			funcBox->addItems(pluginFunctionNames);
 			if (!boxUseBuiltIn->isEnabled())
 				boxUseBuiltIn->setEnabled(true);
 
-			funcBox->setCurrentItem(0);
+			funcBox->setCurrentRow(0);
 		}
 		else
 			boxUseBuiltIn->setEnabled(false);
@@ -866,7 +881,7 @@ void FitDialog::loadPlugins()
 
 void FitDialog::showUserFunctions()
 {
-	funcBox->insertStringList (userFunctionNames, 1);
+	funcBox->addItems(userFunctionNames);
 }
 
 void FitDialog::setBuiltInFunctionNames()
@@ -887,31 +902,34 @@ void FitDialog::setBuiltInFunctions()
 
 void FitDialog::showParseFunctions()
 {
-	funcBox->insertStringList(MyParser::functionsList(), -1);
+	funcBox->addItems(MyParser::functionsList());
 }
 
 void FitDialog::showExpression(int function)
 {
-	if (categoryBox->currentItem() == 2)
+    if (function < 0)
+        return;
+
+	if (categoryBox->currentRow() == 2)
 	{
 		explainBox->setText(MyParser::explainFunction(function));
 	}
-	else if (categoryBox->currentItem() == 1)
+	else if (categoryBox->currentRow() == 1)
 	{
 		polynomOrderLabel->show();
 		polynomOrderBox->show();		
 
-		if (funcBox->currentText() == tr("Gauss"))
+		if (funcBox->currentItem()->text() == tr("Gauss"))
 		{
 			polynomOrderLabel->setText(tr("Peaks"));
 			explainBox->setText(MultiPeakFit::generateFormula(polynomOrderBox->value(), MultiPeakFit::Gauss));
 		}
-		else if (funcBox->currentText() == tr("Lorentz"))
+		else if (funcBox->currentItem()->text() == tr("Lorentz"))
 		{
 			polynomOrderLabel->setText(tr("Peaks"));
 			explainBox->setText(MultiPeakFit::generateFormula(polynomOrderBox->value(), MultiPeakFit::Lorentz));
 		}
-		else if (funcBox->currentText() == tr("Polynomial"))
+		else if (funcBox->currentItem()->text() == tr("Polynomial"))
 		{
 			polynomOrderLabel->setText(tr("Polynomial Order"));
 			explainBox->setText(PolynomialFit::generateFormula(polynomOrderBox->value()));
@@ -925,13 +943,13 @@ void FitDialog::showExpression(int function)
 		}
 		setFunction(boxUseBuiltIn->isChecked());
 	}
-	else if (categoryBox->currentItem() == 0)
+	else if (categoryBox->currentRow() == 0)
 	{
 		QStringList l = QStringList::split("=", userFunctions[function], true);
 		explainBox->setText(l[1]);
 		setFunction(boxUseBuiltIn->isChecked());
 	}
-	else if (categoryBox->currentItem() == 3)
+	else if (categoryBox->currentRow() == 3)
 	{
 		if ((int)pluginFunctions.size() > 0)
 		{
@@ -946,7 +964,7 @@ void FitDialog::showExpression(int function)
 void FitDialog::addFunction()
 {
 	QString f = explainBox->text();
-	if (categoryBox->currentItem() == 2)
+	if (categoryBox->currentRow() == 2)
 	{//basic parser function
 		f = f.left(f.find("(", 0)+1);
 		if (editBox->hasSelectedText())
@@ -965,7 +983,7 @@ void FitDialog::addFunction()
 
 void FitDialog::addFunctionName()
 {
-	editBox->insert(funcBox->currentText());
+	editBox->insert(funcBox->currentItem()->text());
 	editBox->setFocus();
 }
 
@@ -978,7 +996,7 @@ void FitDialog::accept()
 		QMessageBox::critical(this,tr("QtiPlot - Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 		boxCurve->clear();
-		boxCurve->insertStringList(curvesList);
+		boxCurve->addItems(curvesList);
 		return;
 	}
 
@@ -1044,8 +1062,8 @@ void FitDialog::accept()
 		return;
 	}
 
-	int i, n=0, rows=boxParams->numRows();
-	if (boxParams->numCols() == 3)
+	int i, n=0, rows=boxParams->rowCount();
+	if (boxParams->columnCount() == 3)
 	{
 		for (i=0;i<rows;i++)
 		{//count the non-constant parameters
@@ -1085,7 +1103,7 @@ void FitDialog::accept()
 				formula.replace(builtInFunctionNames[i], "(" + builtInFunctions[i] + ")");
 		}	
 
-		if (boxParams->numCols() == 3)
+		if (boxParams->columnCount() == 3)
 		{
 			int j = 0;
 			for (i=0;i<rows;i++)
@@ -1093,22 +1111,22 @@ void FitDialog::accept()
 				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 				if (!it->isChecked())
 				{
-					paramsInit[j] = boxParams->text(i,1).toDouble();					
-					parser.DefineVar(boxParams->text(i,0).ascii(), &paramsInit[j]);
-					parameters<<boxParams->text(i,0);
+					paramsInit[j] = boxParams->item(i,1)->text().toDouble();					
+					parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[j]);
+					parameters << boxParams->item(i,0)->text();
 					j++;
 				}
 				else
-					formula.replace(boxParams->text(i,0), boxParams->text(i,1));
+					formula.replace(boxParams->item(i,0)->text(), boxParams->item(i,1)->text());
 			}
 		}
 		else
 		{
 			for (i=0;i<n;i++)
 			{
-				paramsInit[i] = boxParams->text(i,1).toDouble();
-				parser.DefineVar(boxParams->text(i,0).ascii(), &paramsInit[i]);
-				parameters<<boxParams->text(i,0);
+				paramsInit[i] = boxParams->item(i,1)->text().toDouble();
+				parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[i]);
+				parameters << boxParams->item(i,0)->text();
 			}
 		}
 
@@ -1138,12 +1156,12 @@ void FitDialog::accept()
 		}
 
 
-		if (boxUseBuiltIn->isChecked() && categoryBox->currentItem() == 1)
-			fitBuiltInFunction(funcBox->currentText(), paramsInit);
-		else if (boxUseBuiltIn->isChecked() && categoryBox->currentItem() == 3)
+		if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 1)
+			fitBuiltInFunction(funcBox->currentItem()->text(), paramsInit);
+		else if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 3)
 		{
 			fitter = new PluginFit(app, graph);
-			if (!((PluginFit*)fitter)->load(pluginFilesList[funcBox->currentItem()])){
+			if (!((PluginFit*)fitter)->load(pluginFilesList[funcBox->currentRow()])){
 				fitter  = 0;
 				return;}
 				fitter->setInitialGuesses(paramsInit);
@@ -1180,20 +1198,20 @@ void FitDialog::accept()
 
 		fitter->fit();
 		double *res = fitter->results();
-		if (boxParams->numCols() == 3)
+		if (boxParams->columnCount() == 3)
 		{
 			int j = 0;
 			for (i=0;i<rows;i++)
 			{
 				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
 				if (!it->isChecked())
-					boxParams->setText(i, 1, QString::number(res[j++], 'g', app->fit_output_precision));
+					boxParams->item(i, 1)->setText(QString::number(res[j++], 'g', app->fit_output_precision));
 			}
 		}
 		else
 		{
 			for (i=0;i<rows;i++)
-				boxParams->setText(i, 1, QString::number(res[i], 'g', app->fit_output_precision));
+				boxParams->item(i, 1)->setText(QString::number(res[i], 'g', app->fit_output_precision));
 		}
 	}
 }
@@ -1255,9 +1273,9 @@ bool FitDialog::containsUserFunctionName(const QString& s)
 
 bool FitDialog::validInitialValues()
 {
-	for (int i=0; i<boxParams->numRows(); i++)
+	for (int i=0; i<boxParams->rowCount(); i++)
 	{
-		if(boxParams->text(i,1).isEmpty())
+		if(boxParams->item(i,1)->text().isEmpty())
 		{
 			QMessageBox::critical(0, tr("QtiPlot - Input error"),
 					tr("Please enter initial guesses for your parameters!"));
@@ -1268,7 +1286,7 @@ bool FitDialog::validInitialValues()
 		try 
 		{
 			MyParser parser;
-			parser.SetExpr(boxParams->text(i,1).ascii());
+			parser.SetExpr(boxParams->item(i,1)->text().ascii());
 			parser.Eval();
 		}
 		catch (mu::ParserError &e)
@@ -1294,12 +1312,10 @@ void FitDialog::setSrcTables(QWidgetList* tables)
 	srcTables = tables;
 	tableNamesBox->clear();
 	foreach(QWidget *i, *srcTables)
-		tableNamesBox->insertItem(i->name());
+		tableNamesBox->addItem(i->name());
 
-	if (!boxCurve->currentText().contains("="))
-		tableNamesBox->setCurrentText(boxCurve->currentText().split("_")[0]);
-
-	selectSrcTable(tableNamesBox->currentItem());
+	tableNamesBox->setCurrentIndex(tableNamesBox->findText(QStringList::split("_", boxCurve->currentText())[0]));
+	selectSrcTable(tableNamesBox->currentIndex());
 }
 
 void FitDialog::selectSrcTable(int tabnr)
@@ -1346,6 +1362,13 @@ void FitDialog::deleteFitCurves()
 	}
 */
 	graph->deleteFitCurves();
+}
+
+void FitDialog::resetFunction()
+{
+boxName->clear();
+boxParam->clear();
+editBox->clear();
 }
 
 FitDialog::~FitDialog()
