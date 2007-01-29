@@ -37,8 +37,8 @@ BoxCurve::BoxCurve(QwtPlot *parent, const char *name):
 mean_style = QwtSymbol::Rect;
 max_style = QwtSymbol::XCross;
 min_style = QwtSymbol::XCross;
-p99_style = QwtSymbol::None;
-p1_style = QwtSymbol::None;
+p99_style = QwtSymbol::NoSymbol;
+p1_style = QwtSymbol::NoSymbol;
 
 b_style = Rect;
 b_coeff = 75.0;
@@ -231,31 +231,31 @@ void BoxCurve::drawSymbols(QPainter *painter, const QwtScaleMap &xMap,
 const int px = xMap.transform(x(0));
 
 QwtSymbol s = this->symbol();
-if (min_style != QwtSymbol::None)
+if (min_style != QwtSymbol::NoSymbol)
 	{
 	const int py_min = yMap.transform(y(0));
 	s.setStyle(min_style);
 	s.draw(painter, px, py_min);
 	}
-if (max_style != QwtSymbol::None)
+if (max_style != QwtSymbol::NoSymbol)
 	{
 	const int py_max = yMap.transform(y(size - 1));
 	s.setStyle(max_style);
 	s.draw(painter, px, py_max);
 	}
-if (p1_style != QwtSymbol::None)
+if (p1_style != QwtSymbol::NoSymbol)
 	{
 	const int p1 = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.01));
 	s.setStyle(p1_style);
 	s.draw(painter, px, p1);
 	}
-if (p99_style != QwtSymbol::None)
+if (p99_style != QwtSymbol::NoSymbol)
 	{
 	const int p99 = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.99));
 	s.setStyle(p99_style);
 	s.draw(painter, px, p99);
 	}
-if (mean_style != QwtSymbol::None)
+if (mean_style != QwtSymbol::NoSymbol)
 	{
 	const int mean = yMap.transform(gsl_stats_mean(dat, 1, size));
 	s.setStyle(mean_style);

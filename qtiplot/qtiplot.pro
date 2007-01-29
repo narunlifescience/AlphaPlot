@@ -4,14 +4,14 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
-#CONFIG	    += release
-CONFIG	    += debug
+CONFIG	    += release
+#CONFIG	    += debug
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES     += QT_PLUGIN
-#DEFINES	    += SCRIPTING_CONSOLE
-#DEFINES	    += SCRIPTING_DIALOG
+DEFINES	    += SCRIPTING_CONSOLE
+DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
 
 SCRIPTING_LANGS = muParser Python
@@ -25,7 +25,8 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
 #!!! Warning: You must modify these paths according to your computer settings
 #############################################################################
 
-INCLUDEPATH       += ../3rdparty/qwt/include
+INCLUDEPATH       += ../3rdparty
+INCLUDEPATH       += ../3rdparty/qwt/src
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
 INCLUDEPATH		  += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include

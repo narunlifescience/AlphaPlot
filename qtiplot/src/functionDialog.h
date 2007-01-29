@@ -31,7 +31,6 @@
 
 #include "graph.h"
 
-class Graph;
 class QStackedWidget;
 class QWidget;
 class QLineEdit;

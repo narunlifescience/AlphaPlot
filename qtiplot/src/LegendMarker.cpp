@@ -418,7 +418,7 @@ int LegendMarker::symbolsMaxLineLength() const
 						if (c)
 						{
 							int l=c->symbol().size().width();
-								if (l>maxL && c->symbol().style() != QwtSymbol::None) 
+								if (l>maxL && c->symbol().style() != QwtSymbol::NoSymbol)
 									maxL=l;
 						}
 		}

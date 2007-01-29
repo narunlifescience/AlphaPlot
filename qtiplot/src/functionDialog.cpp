@@ -40,8 +40,6 @@
 #include <QComboBox>
 #include <QStackedWidget>
 #include <QWidget>
-#include <QFontDialog>
-#include <QFont>
 #include <QMessageBox>
 
 FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
@@ -303,7 +301,7 @@ void FunctionDialog::acceptFunction()
 	}
 
 	double x;
-	QString formula=boxFunction->text().remove("\n");
+	QString formula = boxFunction->text().simplified();
 	bool error=false;
 
 	try

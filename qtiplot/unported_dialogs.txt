@@ -1,4 +1,2 @@
-FitDialog
-FunctionDialog
 Plot3DDialog
 PlotDialog

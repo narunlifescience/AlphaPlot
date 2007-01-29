@@ -1847,7 +1847,7 @@ bool Graph::enableRangeSelectors(bool on)
 		int d=32;
 		QwtPlotCurve *c = d_plot->curve(selectedCurve);
 		QwtSymbol symbol = c->symbol();
-		if (symbol.style() != QwtSymbol::None)
+		if (symbol.style() != QwtSymbol::NoSymbol)
 		{
 			QSize sz=symbol.size();
 			d+=QMAX(sz.width(),sz.height());
@@ -6614,7 +6614,7 @@ void Graph::plotBoxDiagram(Table *w, const QStringList& names)
 
 			c->setTitle(name);
 			c->setPen(QPen(ColorBox::color(j), 1));
-			c->setSymbol(QwtSymbol(QwtSymbol::None, QBrush(), QPen(ColorBox::color(j), 1), QSize(7,7)));
+			c->setSymbol(QwtSymbol(QwtSymbol::NoSymbol, QBrush(), QPen(ColorBox::color(j), 1), QSize(7,7)));
 		}
 	}
 

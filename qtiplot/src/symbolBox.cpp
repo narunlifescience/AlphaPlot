@@ -33,7 +33,7 @@
 #include <qpainter.h>
 
 const QwtSymbol::Style SymbolBox::symbols[] = {
-  QwtSymbol::None,
+  QwtSymbol::NoSymbol,
   QwtSymbol::Ellipse,
   QwtSymbol::Rect,
   QwtSymbol::Diamond,
@@ -165,14 +165,14 @@ QwtSymbol::Style SymbolBox::selectedSymbol() const
   if (i < sizeof(symbols))
     return symbols[this->currentItem()];
   else
-    return QwtSymbol::None;
+    return QwtSymbol::NoSymbol;
 }
 
 int SymbolBox::symbolIndex(const QwtSymbol::Style& style)
 {
   const QwtSymbol::Style*ite = std::find(symbols, symbols + sizeof(symbols), style);
   if (ite == symbols + sizeof(symbols))
-    return 0; // default pattern is None.
+    return 0; 
   else
     return (ite - symbols);
 }
@@ -182,5 +182,5 @@ QwtSymbol::Style SymbolBox::style(int index)
   if (index < (int)sizeof(symbols))
     return symbols[index];
   else
-    return QwtSymbol::None;
+    return QwtSymbol::NoSymbol;
 }

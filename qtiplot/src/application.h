@@ -227,7 +227,6 @@ public slots:
 	void setPlot3DOptions();
 
 	//user-defined functions
-	void newFunctionPlot();
 	void newFunctionPlot(int type,QStringList &formulas, const QString& var,QList<double> &ranges, int points);
 
 	FunctionDialog* functionDialog();

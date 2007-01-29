@@ -29,26 +29,21 @@
 #ifndef FITDIALOG_H
 #define FITDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
-//Added by qt3to4:
-#include <QLabel>
+#include "graph.h"
 
 class QPushButton;
 class QLineEdit;
 class QComboBox;
-class Q3ComboBox;
-class Q3WidgetStack;
+class QStackedWidget;
 class QWidget;
-class Q3TextEdit;
-class Q3ListBox;
+class QTextEdit;
+class QListWidget;
 class QCheckBox;
-class Q3Table;
+class QTableWidget;
 class QSpinBox;
 class QLabel;
 class QRadioButton;
 class QLineEdit;
-class Graph;
 class ColorBox;
 class Fit;
 
@@ -66,31 +61,32 @@ public:
 	void initAdvancedPage();
 
 	QCheckBox* boxUseBuiltIn;
-	Q3WidgetStack* tw;
+	QStackedWidget* tw;
     QPushButton* buttonOk;
 	QPushButton* buttonCancel1;
 	QPushButton* buttonCancel2;
 	QPushButton* buttonCancel3;
 	QPushButton* buttonAdvanced;
 	QPushButton* buttonClear;
+    QPushButton* buttonClearUsrList;
 	QPushButton* buttonPlugins;
 	QPushButton* btnBack;
 	QComboBox* boxCurve;
 	QComboBox* boxAlgorithm;
-	Q3Table* boxParams;
+	QTableWidget* boxParams;
 	QLineEdit* boxFrom;
 	QLineEdit* boxTo;
 	QLineEdit* boxTolerance;
 	QSpinBox* boxPoints, *generatePointsBox, *boxPrecision, *polynomOrderBox;
 	QWidget *fitPage, *editPage, *advancedPage;
-	Q3TextEdit *editBox, *explainBox, *boxFunction;
-	Q3ListBox *categoryBox, *funcBox;
+	QTextEdit *editBox, *explainBox, *boxFunction;
+	QListWidget *categoryBox, *funcBox;
 	QLineEdit *boxName, *boxParam;
 	QLabel *lblFunction, *lblPoints, *polynomOrderLabel;
 	QPushButton *btnAddFunc, *btnDelFunc, *btnContinue, *btnApply;
 	QPushButton *buttonEdit, *btnAddTxt, *btnAddName, *btnDeleteFitCurves;
 	ColorBox* boxColor;
-	Q3ComboBox *boxWeighting, *tableNamesBox, *colNamesBox;
+	QComboBox *boxWeighting, *tableNamesBox, *colNamesBox;
 	QRadioButton *generatePointsBtn, *samePointsBtn;
 	QPushButton *btnParamTable, *btnCovMatrix;
 	QLineEdit *covMatrixName, *paramTableName;
@@ -103,7 +99,9 @@ protected:
 public slots:
 	void accept();
 	void insertFunctionsList(const QStringList& list);
-	void clearList();
+	void clearUserList();
+    //! Clears the function editor, the parameter names and the function name
+    void resetFunction();
 	void showFitPage();
 	void showEditPage();
 	void showAdvancedPage();

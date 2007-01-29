@@ -6764,8 +6764,8 @@ void ApplicationWindow::showFitDialog()
 	connect (plot, SIGNAL(closedWindow(MyWidget*)), fd, SLOT(close()));
 
 	fd->insertFunctionsList(fitFunctions);
-	fd->setSrcTables(tableList());
 	fd->setGraph(g);
+    fd->setSrcTables(tableList());
 	fd->exec();
 }
 
@@ -9163,11 +9163,6 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas)
 	}
 }
 
-void ApplicationWindow::newFunctionPlot()
-{
-functionDialog();
-}
-
 void ApplicationWindow::newFunctionPlot(int type,QStringList &formulas, const QString& var, QList<double> &ranges, int points)
 {
 	QString label="graph"+QString::number(++graphs);
@@ -10984,7 +10979,7 @@ void ApplicationWindow::createActions()
 
 	actionNewFunctionPlot = new QAction(QIcon(QPixmap(newF_xpm)), tr("New &Function Plot"), this);
 	actionNewFunctionPlot->setShortcut( tr("Ctrl+F") );
-	connect(actionNewFunctionPlot, SIGNAL(activated()), this, SLOT(newFunctionPlot()));
+	connect(actionNewFunctionPlot, SIGNAL(activated()), this, SLOT(functionDialog()));
 
 	actionNewSurfacePlot = new QAction(QIcon(QPixmap(newFxy_xpm)), tr("New 3D &Surface Plot"), this);
 	actionNewSurfacePlot->setShortcut( tr("Ctrl+ALT+Z") );
