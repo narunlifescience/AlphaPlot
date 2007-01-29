@@ -90,7 +90,7 @@ void Note::restore(const QStringList& data)
   QStringList::ConstIterator line = data.begin();
   QStringList fields;
 
-  fields = QStringList::split("\t", *line, true);
+  fields = (*line).split("\t");
   if (fields[0] == "AutoExec")
   {
     setAutoexec(fields[1] == "1");

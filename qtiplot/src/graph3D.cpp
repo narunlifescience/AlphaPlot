@@ -2962,8 +2962,8 @@ void Graph3D::setSmoothMesh(bool smooth)
 QString Graph3D::saveAsTemplate(const QString& geometryInfo) 
 {
 	QString s = saveToString(geometryInfo);
-	QStringList lst = QStringList::split("\n", s, false);
-	QStringList l = QStringList::split("\t", lst[3], true);
+	QStringList lst = s.split("\n", QString::SkipEmptyParts);
+	QStringList l = lst[3].split("\t");
 	l[1] = QString();
 	lst[3] = l.join("\t");
 	return lst.join("\n");

@@ -624,7 +624,7 @@ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 	const char *function = ((struct FitData *) params)->function;
 
 	QString names = (QString)((struct FitData *) params)->names;
-	QStringList parNames= QStringList::split(",",names,FALSE);
+	QStringList parNames= names.split(",", QString::SkipEmptyParts);
 
 	MyParser parser;
 	try
@@ -663,7 +663,7 @@ double user_d(const gsl_vector * x, void *params)
 
 	const char *function = ((struct FitData *) params)->function;
 	QString names = (QString)((struct FitData *) params)->names;
-	QStringList parNames= QStringList::split(",",names,FALSE);
+	QStringList parNames= names.split(",", QString::SkipEmptyParts);
 
 	double val=0;
 	MyParser parser;
@@ -703,7 +703,7 @@ int user_df(const gsl_vector *x, void *params, gsl_matrix *J)
 
 	const char *function = ((struct FitData *) params)->function;
 	QString names = (QString)((struct FitData *) params)->names;
-	QStringList parNames= QStringList::split(",",names,false);
+	QStringList parNames= names.split(",", QString::SkipEmptyParts);
 
 	try
 	{

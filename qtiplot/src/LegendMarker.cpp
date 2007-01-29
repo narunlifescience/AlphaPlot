@@ -250,7 +250,7 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 	int l = symbolLineLength + 20;
 
 	QString text=d_text->text();	
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=text.split("\n", QString::SkipEmptyParts);
 
 	for (int i=0;i<(int)titles.count();i++)
 	{
@@ -328,7 +328,7 @@ void LegendMarker::drawLegends(QPainter *p, const QRect& rect,
 	int w = rect.x() + left_margin;
 
 	QString text=d_text->text();
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=text.split("\n", QString::SkipEmptyParts);
 
 	for (int i=0;i<(int)titles.count();i++)
 	{
@@ -360,7 +360,7 @@ QwtArray<long> LegendMarker::itemsHeight(int y, int symbolLineLength, int &width
 	height = 0;
 
 	QString text=d_text->text();
-	QStringList titles=QStringList::split ("\n",text,FALSE);
+	QStringList titles=text.split("\n", QString::SkipEmptyParts);
 	int n=(int)titles.count();
 	QwtArray<long> heights(n);
 
@@ -402,7 +402,7 @@ int LegendMarker::symbolsMaxLineLength() const
 		
 		int maxL=0;
 		QString text=d_text->text();	
-		QStringList titles=QStringList::split ("\n",text,FALSE);	
+		QStringList titles=text.split("\n", QString::SkipEmptyParts);	
 	for (int i=0;i<(int)titles.count();i++)
 	{
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0)

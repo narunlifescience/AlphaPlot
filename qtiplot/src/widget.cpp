@@ -74,7 +74,7 @@ void MyWidget::closeEvent( QCloseEvent *e )
 {
 if (askOnClose)
     {
-    switch( QMessageBox::information(0,tr("QtiPlot"),
+    switch( QMessageBox::information(this,tr("QtiPlot"),
 					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
 				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
 		{

@@ -1253,7 +1253,7 @@ bool PluginFit::load(const QString& pluginName)
 	fitFunc fitFunction = (fitFunc) lib.resolve("parameters");
 	if (fitFunction)
 	{
-		d_param_names = QStringList::split(",", QString(fitFunction()), false);
+		d_param_names = QString(fitFunction()).split(",", QString::SkipEmptyParts);
 		d_p = (int)d_param_names.count();
 		d_param_init = gsl_vector_alloc(d_p);
 		covar = gsl_matrix_alloc (d_p, d_p);
@@ -1264,7 +1264,7 @@ bool PluginFit::load(const QString& pluginName)
 
 	fitFunc fitExplain = (fitFunc) lib.resolve("explanations");
 	if (fitExplain)
-		d_param_explain = QStringList::split(",", QString(fitExplain()), false);
+		d_param_explain = QString(fitExplain()).split(",", QString::SkipEmptyParts);
 	else
 		for (int i=0; i<d_p; i++)
 			d_param_explain << "";

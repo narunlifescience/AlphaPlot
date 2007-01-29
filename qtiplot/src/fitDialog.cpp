@@ -622,7 +622,7 @@ void FitDialog::removeUserFunction()
 void FitDialog::showFitPage()
 {
 	QString par = boxParam->text().simplified();
-	QStringList paramList = QStringList::split(QRegExp("[,;]+[\\s]*"), par, false);
+	QStringList paramList = par.split(QRegExp("[,;]+[\\s]*"), QString::SkipEmptyParts);
 	int parameters = (int)paramList.count();
 	boxParams->setRowCount(parameters);
     boxParams->hideColumn(2);
@@ -945,8 +945,11 @@ void FitDialog::showExpression(int function)
 	}
 	else if (categoryBox->currentRow() == 0)
 	{
-		QStringList l = QStringList::split("=", userFunctions[function], true);
-		explainBox->setText(l[1]);
+		if (userFunctions.size() > function) {
+			QStringList l = userFunctions[function].split("=");
+			explainBox->setText(l[1]);
+		} else
+			explainBox->clear();
 		setFunction(boxUseBuiltIn->isChecked());
 	}
 	else if (categoryBox->currentRow() == 3)
@@ -1090,7 +1093,7 @@ void FitDialog::accept()
 			{
 				if (formula.contains(userFunctionNames[i]))
 				{
-					QStringList l = QStringList::split("=", userFunctions[i], true);
+					QStringList l = userFunctions[i].split("=");
 					formula.replace(userFunctionNames[i], "(" + l[1] + ")");
 				}
 			}
@@ -1314,7 +1317,7 @@ void FitDialog::setSrcTables(QWidgetList* tables)
 	foreach(QWidget *i, *srcTables)
 		tableNamesBox->addItem(i->name());
 
-	tableNamesBox->setCurrentIndex(tableNamesBox->findText(QStringList::split("_", boxCurve->currentText())[0]));
+	tableNamesBox->setCurrentIndex(tableNamesBox->findText(boxCurve->currentText().split("_", QString::SkipEmptyParts)[0]));
 	selectSrcTable(tableNamesBox->currentIndex());
 }
 

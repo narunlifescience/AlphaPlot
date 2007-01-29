@@ -315,14 +315,14 @@ void Table::setPlotDesignation(PlotDesignation pd)
 
 void Table::columnNumericFormat(int col, int &f, int &precision)
 {
-	QStringList format = QStringList::split("/", col_format[col], false);
+	QStringList format = col_format[col].split("/", QString::SkipEmptyParts);
 	f = format[0].toInt();
 	precision = format[1].toInt();
 }
 
 void Table::columnNumericFormat(int col, char &f, int &precision)
 {
-	QStringList format = QStringList::split("/", col_format[col], false);
+	QStringList format = col_format[col].split("/", QString::SkipEmptyParts);
 	switch(format[0].toInt())
 	{
 		case 0:
@@ -365,7 +365,7 @@ void Table::setColumnTypes(const QStringList& ctl)
 	int n = qMin((int)ctl.count(), tableCols());
 	for (int i=0; i<n; i++)
 	{
-		QStringList l= QStringList::split(";", ctl[i], true);
+		QStringList l= ctl[i].split(";");
 		colTypes[i] = l[0].toInt();
 
 		if ((int)l.count() > 0 && !l[1].isEmpty())
@@ -408,7 +408,7 @@ void Table::setCommand(int col, const QString com)
 
 void Table::setCommands(const QString& com)
 {
-	QStringList lst = QStringList::split("\t",com,true);
+	QStringList lst = com.split("\t");
 	lst.pop_front();
 	setCommands(lst);
 }
@@ -1032,7 +1032,7 @@ void Table::pasteSelection()
 
 	QTextStream ts( &text, QIODevice::ReadOnly );
 	QString s = ts.readLine(); 
-	QStringList cellTexts=QStringList::split ("\t", s, true);
+	QStringList cellTexts=s.split("\t");
 	int cols=int(cellTexts.count());
 	int rows= 1;
 	while(!ts.atEnd()) 
@@ -1114,7 +1114,7 @@ void Table::pasteSelection()
 	for (i=top; i<top+rows; i++)
 	{
 		s = ts2.readLine();
-		cellTexts=QStringList::split ("\t", s, true);
+		cellTexts=s.split("\t");
 		for (j=left; j<left+cols; j++)					
 		{
 			value = cellTexts[j-left].toDouble(&numeric);
@@ -2338,7 +2338,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			s = s.simplifyWhiteSpace();
 		else if (stripSpaces)
 			s = s.stripWhiteSpace();
-		QStringList line = QStringList::split(sep, s, true);
+		QStringList line = s.split(sep);
 		cols = (int)line.count();
 
 		bool allNumbers = true;
@@ -2398,7 +2398,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			else if (stripSpaces)
 				s = s.stripWhiteSpace();
 
-			line = QStringList::split(sep, s, false);	
+			line = s.split(sep, QString::SkipEmptyParts);	
 			int end = startCol+(int)line.count();
 			for (i=startCol; i<end; i++)
 			{
@@ -2432,7 +2432,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 					s = s.simplifyWhiteSpace();
 				else if (stripSpaces)
 					s = s.stripWhiteSpace();
-				line = QStringList::split(sep, s, true);
+				line = s.split(sep);
 				for (int j=startCol; j<worksheet->numCols(); j++)
 					worksheet->setText(startRow + k, j, line[j-startCol]);
 			}
@@ -2448,7 +2448,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
 				s = s.stripWhiteSpace();
-			line = QStringList::split(sep, s, true);
+			line = s.split(sep);
 			for (int j=startCol; j<worksheet->numCols(); j++)
 				worksheet->setText(i, j, line[j-startCol]);
 		}
@@ -2489,7 +2489,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		else if (stripSpaces)
 			s = s.stripWhiteSpace();
 
-		QStringList line = QStringList::split(sep, s, true);
+		QStringList line = s.split(sep);
 		cols = (int)line.count();
 
 		bool allNumbers = true;
@@ -2549,7 +2549,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
 				s = s.stripWhiteSpace();
-			line = QStringList::split(sep, s, false);	
+			line = s.split(sep, QString::SkipEmptyParts);	
 			for (i=0; i<(int)line.count(); i++)
 			{
 				comments[i] = line[i];
@@ -2584,7 +2584,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 					s = s.simplifyWhiteSpace();
 				else if (stripSpaces)
 					s = s.stripWhiteSpace();
-				line = QStringList::split(sep, s, true);
+				line = s.split(sep);
 				int lc = (int)line.count();
 				if (lc > cols) {
 					addColumns(lc - cols);
@@ -2605,7 +2605,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
 				s = s.stripWhiteSpace();
-			line = QStringList::split(sep, s, true);
+			line = s.split(sep);
 			int lc = (int)line.count();
 			if (lc > cols) {
 				addColumns(lc - cols);
@@ -2914,7 +2914,7 @@ void Table::restore(QString& spec)
 	t.readLine();	//table geometry useless info when restoring
 	s = t.readLine();//header line
 
-	list = QStringList::split ("\t",s,true);
+	list = s.split("\t");
 	list.remove(list.first());
 
 	if (!col_label.isEmpty() && col_label != list)
@@ -2943,13 +2943,13 @@ void Table::restore(QString& spec)
 	}			
 
 	s= t.readLine();	//colWidth line
-	list = QStringList::split ("\t", s,true);
+	list = s.split("\t");
 	list.remove(list.first());
 	if (columnWidths() != list)
 		setColWidths(list);
 
 	s = t.readLine();
-	list = QStringList::split ("\t", s,true);
+	list = s.split("\t");
 	if (list[0] == "com") //commands line
 	{
 		list.remove(list.first());
@@ -2971,13 +2971,13 @@ void Table::restore(QString& spec)
 	}
 
 	s= t.readLine();	//colType line ?
-	list = QStringList::split ("\t", s,true);
+	list = s.split("\t");
 	if (s.contains ("ColType",true))
 	{
 		list.remove(list.first());	
 		for (i=0; i<int(list.count()); i++)
 		{
-			QStringList l= QStringList::split(";", list[i], true);
+			QStringList l= list[i].split(";");
 			colTypes[i] = l[0].toInt();
 
 			if ((int)l.count() > 0)
@@ -2992,7 +2992,7 @@ void Table::restore(QString& spec)
 	}
 
 	s= t.readLine();	//comments line ?
-	list = QStringList::split ("\t", s,true);
+	list = s.split("\t");
 	if (s.contains ("Comments",true))
 	{
 		list.remove(list.first());
@@ -3000,7 +3000,7 @@ void Table::restore(QString& spec)
 	}
 
 	s= t.readLine();
-	list = QStringList::split ("\t", s,true);
+	list = s.split("\t");
 	if (s.contains ("WindowLabel",true))
 	{
 		setWindowLabel(list[1]);
@@ -3013,7 +3013,7 @@ void Table::restore(QString& spec)
 
 	while (!t.atEnd () && s != "</data>")
 	{
-		list = QStringList::split ("\t", s,true);
+		list = s.split("\t");
 
 		row = list[0].toInt();
 		for (j=0; j<c; j++)
@@ -3395,14 +3395,14 @@ void Table::restore(const QStringList& lst)
 	QStringList l;
 	QStringList::const_iterator i=lst.begin();
 
-	l= QStringList::split ("\t", *i++, true);
+	l= (*i++).split("\t");
 	l.remove(l.first());
 	loadHeader(l);
 
-	setColWidths(QStringList::split ("\t",(*i).right((*i).length()-9), false ));
+	setColWidths((*i).right((*i).length()-9).split("\t", QString::SkipEmptyParts));
 	i++;
 
-	l = QStringList::split ("\t", *i++, true);
+	l = (*i++).split("\t");
 	if (l[0] == "com")
 	{
 		l.remove(l.first());
@@ -3423,11 +3423,11 @@ void Table::restore(const QStringList& lst)
 		i++;
 	}
 
-	l = QStringList::split ("\t", *i++, true);
+	l = (*i++).split("\t");
 	l.remove(l.first());
 	setColumnTypes(l);
 
-	l = QStringList::split ("\t", *i++, true);
+	l = (*i++).split("\t");
 	l.remove(l.first());
 	setColComments(l);
 }

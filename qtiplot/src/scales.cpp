@@ -286,7 +286,7 @@ double val = transformValue(value);
 QString txt;
 txt.setNum (val, 'e', prec);
 
-QStringList list = QStringList::split ( "e", txt, FALSE );
+QStringList list = txt.split( "e", QString::SkipEmptyParts);
 if (list[0].toDouble() == 0.0)
 	return QString("0");
 	

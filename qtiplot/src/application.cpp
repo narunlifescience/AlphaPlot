@@ -90,38 +90,29 @@
 #include <qworkspace.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <q3toolbar.h>
 #include <qtoolbutton.h>
-#include <q3popupmenu.h>
 #include <qmenubar.h>
 #include <qnamespace.h>
 #include <qfile.h>
 #include <q3filedialog.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
-#include <q3accel.h>
 #include <qtextstream.h>
 #include <qinputdialog.h>
 #include <qregexp.h>
-#include <q3textview.h>
 #include <q3listview.h>
 #include <qcursor.h>
-#include <q3textbrowser.h>
 #include <qevent.h>
 #include <qaction.h>
 #include <q3progressdialog.h>
 #include <qpixmapcache.h>
 #include <qsettings.h>
 #include <qstylefactory.h>
-#include <q3dragobject.h>
 #include <qclipboard.h>
 #include <qapplication.h>
-#include <q3process.h>
 #include <qtranslator.h>
 #include <qsplitter.h>
 #include <qobject.h>
-#include <q3simplerichtext.h>
-#include <q3ptrlist.h>
 
 #include <QActionGroup>
 #include <QAction>
@@ -602,7 +593,8 @@ void ApplicationWindow::initToolBars()
 
 	displayBar = new QToolBar( tr( "Data Display" ), this );
 	displayBar->setObjectName("displayBar"); // this is needed for QMainWindow::restoreState()
-	info=new QLineEdit( displayBar );
+	info=new QLineEdit( this );
+	displayBar->addWidget( info );
 	info->setReadOnly(true);
 
 	displayBar->setMaximumHeight(2*displayBar->sizeHint().height());
@@ -1473,7 +1465,7 @@ void ApplicationWindow::updateTable(const QString& caption,int row,const QString
 	if (!w)
 		return;
 
-	QStringList cvs=QStringList::split(",",caption,false);
+	QStringList cvs=caption.split(",", QString::SkipEmptyParts);
 	int pos=cvs[0].findRev("(");
 	QString colName=cvs[0].left(pos);
 	int xcol=w->colIndex(colName);
@@ -1483,7 +1475,7 @@ void ApplicationWindow::updateTable(const QString& caption,int row,const QString
 
 	if (w->columnType(xcol) == Table::Numeric && w->columnType(ycol) == Table::Numeric)
 	{
-		QStringList values=QStringList::split ("\t",text,false);
+		QStringList values=text.split("\t", QString::SkipEmptyParts);
 		w->setText(row,xcol,values[0]);
 		w->setText(row,ycol,values[1]);
 		updateCurves(w, colName);
@@ -1603,7 +1595,7 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 				QStringList onPlot=g->curvesList();
 				for (int i=0; i<(int)onPlot.count(); i++)
 				{
-					QStringList cols = QStringList::split("_", onPlot[i], false);
+					QStringList cols = onPlot[i].split("_", QString::SkipEmptyParts);
 					if (cols[0] == oldName)
 						onPlot[i] = newName + "_" + cols[1];
 				}
@@ -1613,10 +1605,10 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 				onPlot=g->plotAssociations();
 				for (int k=0; k<(int)onPlot.count(); k++)
 				{
-					QStringList cols = QStringList::split (",", onPlot[k], false);
+					QStringList cols = onPlot[k].split(",", QString::SkipEmptyParts);
 					for (int l=0; l<(int)cols.count(); l++)
 					{
-						QStringList lst = QStringList::split ("_", cols[l], false);
+						QStringList lst = cols[l].split("_", QString::SkipEmptyParts);
 						if (lst[0] == oldName)
 							cols[l] = newName + "_" + lst[1];
 					}
@@ -1628,7 +1620,7 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 				LegendMarker *legendMrk = g->legend();
 				if (legendMrk)
 				{
-					onPlot = QStringList::split ("\n", legendMrk->getText(), FALSE );
+					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
 					onPlot.gres (oldName,newName,TRUE);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
@@ -1673,7 +1665,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 				onPlot=g->plotAssociations();
 				for (int k=0; k<(int)onPlot.count(); k++)
 				{
-					QStringList cols = QStringList::split (",", onPlot[k], false);
+					QStringList cols = onPlot[k].split(",", QString::SkipEmptyParts);
 					for (int l=0; l<(int)cols.count(); l++)
 					{
 						QString s = cols[l];
@@ -1692,7 +1684,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 				LegendMarker *legendMrk = g->legend();
 				if (legendMrk)
 				{
-					onPlot = QStringList::split ("\n", legendMrk->getText(), FALSE );
+					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
 					onPlot.gres (oldName,newName,TRUE);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
@@ -2682,19 +2674,19 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const QString& text)
 {
-	QStringList lst = QStringList::split("\t", caption, false);
+	QStringList lst = caption.split("\t", QString::SkipEmptyParts);
 	Table* w = new Table(scriptEnv, r, c, lst[1], ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
-	QStringList rows=QStringList::split ("\n",text,false);
+	QStringList rows=text.split("\n", QString::SkipEmptyParts);
 	QString rlist=rows[0];
-	QStringList list=QStringList::split ("\t",rlist,true);
+	QStringList list=rlist.split("\t");
 	w->setHeader(list);
 
 	for (int i=0; i<r; i++)
 	{
 		rlist=rows[i+1];
-		list=QStringList::split ("\t",rlist,true);
+		list=rlist.split("\t");
 		for (int j=0; j<c; j++)
 			w->setText(i, j, list[j]);
 	}
@@ -3697,7 +3689,7 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	QTextStream t( &f );
 	f.open(QIODevice::ReadOnly);
 	QString s = t.readLine();
-	QStringList list=QStringList::split (QRegExp("\\s"),s,false);
+	QStringList list=s.split(QRegExp("\\s"), QString::SkipEmptyParts);
 
 	QString fileType=list[0], version=list[1];
 	if (fileType != "QtiPlot")
@@ -3716,7 +3708,7 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 		return 0;
 	}
 
-	QStringList vl = QStringList::split (".", version, false);
+	QStringList vl = version.split(".", QString::SkipEmptyParts);
 	fileVersion = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 	ApplicationWindow* app = openProject(fname);
@@ -3790,7 +3782,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		t.readLine();
 
 	QString s = t.readLine();
-	QStringList list=QStringList::split("\t",s,false);
+	QStringList list=s.split("\t", QString::SkipEmptyParts);
 	if (list[0] == "<scripting-lang>")
 	{
 		if (!app->setScriptingLang(list[1], true))
@@ -3801,7 +3793,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 					.arg(fn).arg(list[1]).arg(scriptEnv->name()));
 
 		s = t.readLine();
-		list=QStringList::split("\t",s,false);
+		list=s.split("\t", QString::SkipEmptyParts);
 	}
 	int aux=0,widgets=list[1].toInt();
 
@@ -3832,7 +3824,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		list.clear();
 		if  (s.left(8) == "<folder>")
 		{
-			list = QStringList::split ("\t",s,true);
+			list = s.split("\t");
 			Folder *f = new Folder(app->current_folder, list[1]);
 			f->setBirthDate(list[2]);
 			f->setModificationDate(list[3]);
@@ -3931,7 +3923,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		s=t.readLine();
 		if  (s.left(8) == "<folder>")
 		{
-			list = QStringList::split ("\t",s,true);
+			list = s.split("\t");
 			app->current_folder = app->current_folder->findSubfolder(list[1]);
 		}
 		else if  (s == "<multiLayer>")
@@ -3940,7 +3932,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			progress.setLabelText(title);
 
 			s=t.readLine();
-			QStringList graph=QStringList::split ("\t",s,true);
+			QStringList graph=s.split("\t");
 			QString caption=graph[0];
 			plot=app->multilayerPlot(caption);
 			plot->setCols(graph[1].toInt());
@@ -3955,7 +3947,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 			if (fileVersion > 71)
 			{
-				QStringList lst=QStringList::split ("\t", t.readLine(), true);
+				QStringList lst=t.readLine().split("\t");
 				plot->setWindowLabel(lst[1]);
 				app->setListViewLabel(plot->name(),lst[1]);
 				plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
@@ -3971,13 +3963,13 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 			if (fileVersion > 83)
 			{
-				QStringList lst=QStringList::split ("\t", t.readLine(), false);
+				QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
-				lst=QStringList::split ("\t", t.readLine(), false);
+				lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setSpacing(lst[1].toInt(),lst[2].toInt());
-				lst=QStringList::split ("\t", t.readLine(), false);
+				lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setLayerCanvasSize(lst[1].toInt(),lst[2].toInt());
-				lst=QStringList::split ("\t", t.readLine(), false);
+				lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setAlignement(lst[1].toInt(),lst[2].toInt());
 			}
 
@@ -4167,7 +4159,7 @@ void ApplicationWindow::openTemplate()
 			QTextStream t(&f);
 			t.setEncoding(QTextStream::UnicodeUTF8);
 			f.open(QIODevice::ReadOnly);
-			QStringList l=QStringList::split(QRegExp("\\s"), t.readLine(), false);
+			QStringList l=t.readLine().split(QRegExp("\\s"), QString::SkipEmptyParts);
 			QString fileType=l[0];
 			if (fileType != "QtiPlot")
 			{
@@ -4175,7 +4167,7 @@ void ApplicationWindow::openTemplate()
 						tr("The file: <b> %1 </b> was not created using QtiPlot!").arg(fn));
 				return;
 			}
-			QStringList vl = QStringList::split (".", l[1], false);
+			QStringList vl = l[1].split(".", QString::SkipEmptyParts);
 			fileVersion = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -4210,13 +4202,13 @@ void ApplicationWindow::openTemplate()
 						restoreWindowGeometry(this, (QWidget *)w, geometry);
 						if (fileVersion > 83)
 						{
-							QStringList lst=QStringList::split ("\t", t.readLine(), false);
+							QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((MultiLayer*)w)->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
-							lst=QStringList::split ("\t", t.readLine(), false);
+							lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((MultiLayer*)w)->setSpacing(lst[1].toInt(),lst[2].toInt());
-							lst=QStringList::split ("\t", t.readLine(), false);
+							lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((MultiLayer*)w)->setLayerCanvasSize(lst[1].toInt(),lst[2].toInt());
-							lst=QStringList::split ("\t", t.readLine(), false);
+							lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((MultiLayer*)w)->setAlignement(lst[1].toInt(),lst[2].toInt());
 						}
 						while (!t.atEnd())
@@ -8585,7 +8577,7 @@ void ApplicationWindow::showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p,
 				cm.insertSeparator();
 				if (formula.contains("_"))	
 				{
-					QStringList tl = QStringList::split("_", formula, false);
+					QStringList tl = formula.split("_", QString::SkipEmptyParts);
 					tablesDepend->clear();
 					tablesDepend->insertItem(tl[0], 0, -1);
 					cm.insertItem(tr("D&epends on"), tablesDepend);
@@ -8693,7 +8685,7 @@ QStringList ApplicationWindow::multilayerDependencies(QWidget *w)
 		QStringList onPlot = ag->curvesList();
 		for (int j=0; j<onPlot.count(); j++)
 		{
-			QStringList tl = QStringList::split("_", onPlot[j], false);
+			QStringList tl = onPlot[j].split("_", QString::SkipEmptyParts);
 			if (tables.contains(tl[0])<=0)
 				tables << tl[0];
 		}
@@ -9874,7 +9866,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	}
 	else
 	{
-		QStringList lst=QStringList::split ("\t",s,true);
+		QStringList lst=s.split("\t");
 		w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 		((MyWidget *)w)->setStatus(MyWidget::Normal);
 
@@ -9890,7 +9882,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 
 Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &flist)
 {
-	QStringList lst=QStringList::split ("\t",flist[0],false);
+	QStringList lst=flist[0].split("\t", QString::SkipEmptyParts);
 	QString caption=lst[0];
 	Note* w = app->newNote(caption);
 	app->setListViewDate(caption, lst[1]);
@@ -9904,7 +9896,7 @@ Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &fli
 	}
 	restoreWindowGeometry(app, (QWidget *)w, flist[1]);
 
-	lst=QStringList::split ("\t", flist[2], true);
+	lst=flist[2].split("\t");
 	w->setWindowLabel(lst[1]);
 	w->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 	app->setListViewLabel(w->name(), lst[1]);
@@ -9915,7 +9907,7 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 {
 	QStringList::const_iterator line = flist.begin();
 
-	QStringList list=QStringList::split ("\t",*line,TRUE);
+	QStringList list=(*line).split("\t");
 	QString caption=list[0];
 	int rows = list[1].toInt();
 	int cols = list[2].toInt();
@@ -9934,7 +9926,7 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 
 	for (line++; line!=flist.end(); line++)
 	{
-		QStringList fields = QStringList::split("\t",*line,true);
+		QStringList fields = (*line).split("\t");
 		if (fields[0] == "geometry") {
 			restoreWindowGeometry(app, (QWidget *)w, *line);
 		} else if (fields[0] == "ColWidth") {
@@ -9966,7 +9958,7 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 	//read and set table values
 	for (; line!=flist.end() && *line != "</data>"; line++)
 	{
-		QStringList fields = QStringList::split("\t",*line,true);
+		QStringList fields = (*line).split("\t");
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
 			w->setText(row,col,fields[col+1]);
@@ -9980,7 +9972,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 {
 	QStringList::const_iterator line = flist.begin();
 
-	QStringList list=QStringList::split ("\t",*line,TRUE);
+	QStringList list=(*line).split("\t");
 	QString caption=list[0];
 	int rows = list[1].toInt();
 	int cols = list[2].toInt();
@@ -9999,7 +9991,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 
 	for (line++; line!=flist.end(); line++)
 	{
-		QStringList fields = QStringList::split("\t",*line,true);
+		QStringList fields = (*line).split("\t");
 		if (fields[0] == "geometry") {
 			restoreWindowGeometry(app, (QWidget *)w, *line);
 		} else if (fields[0] == "header") {
@@ -10045,7 +10037,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 	//read and set table values
 	for (; line!=flist.end() && *line != "</data>"; line++)
 	{
-		QStringList fields = QStringList::split("\t",*line,true);
+		QStringList fields = (*line).split("\t");
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
 			w->setText(row,col,fields[col+1]);
@@ -10060,7 +10052,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 {
 	QStringList::const_iterator line = flist.begin();
 
-	QStringList list=QStringList::split ("\t",*line++,TRUE);
+	QStringList list=(*line++).split("\t");
 	QString caption=list[0];
 
 	QList<int> targets;
@@ -10075,7 +10067,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 
 	for (line++; line!=flist.end(); line++)
 	{
-		QStringList fields = QStringList::split("\t",*line,true);
+		QStringList fields = (*line).split("\t");
 		if (fields[0] == "geometry"){
 			restoreWindowGeometry(this, (QWidget *)w, *line);} 
 		else if (fields[0] == "header") {
@@ -10133,7 +10125,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		QString s=list[j];
 		if (s.contains ("ggeometry"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			ag=(Graph*)plot->addLayer(fList[1].toInt(), fList[2].toInt(), 
 					fList[3].toInt(), fList[4].toInt());
 			ag->setIgnoreResizeEvents(true);
@@ -10141,33 +10133,33 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(10) == "Background")
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			if (QColor(fList[1]) != QColor(255, 255, 255))
 				ag->setBackgroundColor(QColor(fList[1]));
 		}
 		else if (s.contains ("Margin"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->plotWidget()->setMargin(fList[1].toInt());
 		}
 		else if (s.contains ("Border"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->setBorder(fList[1].toInt(), QColor(fList[2]));
 		}
 		else if (s.contains ("EnabledAxes"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->enableAxes(fList);
 		}
 		else if (s.contains ("AxesBaseline"))
 		{
-			fList=QStringList::split ("\t",s,false);
+			fList=s.split("\t", QString::SkipEmptyParts);
 			ag->setAxesBaseline(fList);
 		}
 		else if (s.contains ("EnabledTicks"))
 		{//version < 0.8.6
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			fList.pop_front();
 			fList.gres("-1", "3");
 			ag->setMajorTicksType(fList);
@@ -10175,36 +10167,36 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("MajorTicks"))
 		{//version >= 0.8.6
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			fList.pop_front();
 			ag->setMajorTicksType(fList);
 		}
 		else if (s.contains ("MinorTicks"))
 		{//version >= 0.8.6
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			fList.pop_front();
 			ag->setMinorTicksType(fList);
 		}
 		else if (s.contains ("TicksLength"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->setTicksLength(fList[1].toInt(), fList[2].toInt());
 		}
 		else if (s.contains ("EnabledTickLabels"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			fList.pop_front();
 			ag->setEnabledTickLabels(fList);
 		}
 		else if (s.contains ("AxesColors"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			fList.pop_front();
 			ag->setAxesColors(fList);
 		}
 		else if (s.left(5)=="grid\t")
 		{
-			QStringList grid=QStringList::split ("\t",s,true);
+			QStringList grid=s.split("\t");
 			GridOptions gr;
 			gr.majorOnX=grid[1].toInt();
 			gr.minorOnX=grid[2].toInt();
@@ -10227,14 +10219,14 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("PieCurve"))
 		{
-			curve=QStringList::split ("\t",s,true);
+			curve=s.split("\t");
 			QPen pen=QPen(QColor(curve[3]),curve[2].toInt(),Graph::getPenStyle(curve[4]));
 			ag->plotPie(app->table(curve[1]),curve[1],pen,curve[5].toInt(),
 					curve[6].toInt(),curve[7].toInt());
 		}
 		else if (s.left(6)=="curve\t")
 		{
-			curve = QStringList::split ("\t", s, false);
+			curve = s.split("\t", QString::SkipEmptyParts);
 			if (!app->renamedTables.isEmpty())
 			{
 				QString caption = (curve[2]).left((curve[2]).find("_",0));
@@ -10330,7 +10322,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("FunctionCurve"))
 		{
-			curve=QStringList::split ("\t", s, true);
+			curve=s.split("\t");
 
 			cl.connectType=curve[6].toInt();
 			cl.lCol=curve[7].toInt();
@@ -10361,7 +10353,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("ErrorBars"))
 		{
-			curve=QStringList::split ("\t",s,false);
+			curve=s.split("\t", QString::SkipEmptyParts);
 			w=app->table(curve[3]);
 			Table *errTable=app->table(curve[4]);
 			if (w && errTable)
@@ -10377,7 +10369,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(6)=="scale\t")
 		{
-			QStringList scl = QStringList::split ("\t", s, true);		
+			QStringList scl = s.split("\t");		
 			scl.pop_front();
 			if (fileVersion < 88)
 			{
@@ -10403,14 +10395,14 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("PlotTitle"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->setTitle(fList[1]);
 			ag->setTitleColor(QColor(fList[2]));
 			ag->setTitleAlignment(fList[3].toInt());
 		}
 		else if (s.contains ("TitleFont"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10418,23 +10410,23 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("AxesTitles"))
 		{
-			QStringList legend=QStringList::split ("\t",s,true);
+			QStringList legend=s.split("\t");
 			for (i=0;i<4;i++)
 				ag->setAxisTitle(i,legend[i+1]);
 		}
 		else if (s.contains ("AxesTitleColors"))
 		{
-			QStringList colors=QStringList::split ("\t",s,false);
+			QStringList colors=s.split("\t", QString::SkipEmptyParts);
 			ag->setAxesTitleColor(colors);
 		}
 		else if (s.contains ("AxesTitleAlignment"))
 		{
-			QStringList align=QStringList::split ("\t",s,false);
+			QStringList align=s.split("\t", QString::SkipEmptyParts);
 			ag->setAxesTitlesAlignment(align);
 		}
 		else if (s.contains ("ScaleFont"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10444,7 +10436,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("AxisFont"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10454,7 +10446,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("AxesFormulas"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			fList.remove(fList.first());
 			ag->setAxesFormulas(fList);
 		}
@@ -10469,67 +10461,67 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("LabelsFormat"))
 		{
-			fList=QStringList::split ("\t", s, true);
+			fList=s.split("\t");
 			fList.pop_front();
 			ag->setLabelsNumericFormat(fList);
 		}
 		else if (s.contains ("LabelsRotation"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->setAxisLabelRotation(QwtPlot::xBottom, fList[1].toInt());
 			ag->setAxisLabelRotation(QwtPlot::xTop, fList[2].toInt());
 		}
 		else if (s.contains ("DrawAxesBackbone"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->loadAxesOptions(fList[1]);
 		}
 		else if (s.contains ("AxesLineWidth"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->loadAxesLinewidth(fList[1].toInt());
 		}
 		else if (s.contains ("CanvasFrame"))
 		{
-			QStringList list=QStringList::split ("\t",s,true);
+			QStringList list=s.split("\t");
 			ag->drawCanvasFrame(list);
 		}
 		else if (s.contains ("CanvasBackground"))
 		{
-			QStringList list=QStringList::split ("\t",s,TRUE);
+			QStringList list=s.split("\t");
 			ag->setCanvasBackground(QColor(list[1]));
 		}
 		else if (s.contains ("Legend"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			ag->insertLegend(fList, fileVersion);
 		}
 		else if (s.contains ("textMarker"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			ag->insertTextMarker(fList, fileVersion);
 		}
 		else if (s.contains ("lineMarker"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			ag->insertLineMarker(fList, fileVersion);
 		}
 		else if (s.contains ("ImageMarker"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			fList=s.split("\t");
 			ag->insertImageMarker(fList, fileVersion);
 		}
 		else if (s.contains ("FitID"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			ag->setFitID(fList[1].toInt());
 		}
 		else if (s.contains("AxisType"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			for (i=0; i<4; i++)
 			{
-				QStringList lst = QStringList::split(";", fList[i+1], false);
+				QStringList lst = fList[i+1].split(";", QString::SkipEmptyParts);
 				int format = lst[0].toInt();
 				if (format == Graph::Day)
 					ag->setLabelsDayFormat(i, lst[1].toInt());
@@ -10537,7 +10529,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					ag->setLabelsMonthFormat(i, lst[1].toInt());
 				else if (format == Graph::Time || format == Graph::Date)
 					ag->setLabelsDateTimeFormat(i, format, lst[1]+";"+lst[2]);
-				else
+				else if (lst.size() > 1)
 				{
 					Table *nw = app->table(lst[1]);
 					ag->setLabelsTextFormat(i, format, lst[1], nw);
@@ -10546,7 +10538,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (fileVersion < 69 && s.contains ("AxesTickLabelsCol"))
 		{
-			fList=QStringList::split ("\t",s,true);
+			fList=s.split("\t");
 			QList<int> axesTypes = ag->axesType();
 			for (i=0; i<4; i++)
 			{
@@ -10567,13 +10559,13 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 
 Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStringList &lst)
 {
-	QStringList fList=QStringList::split ("\t",lst[0],true);
+	QStringList fList=lst[0].split("\t");
 	QString caption=fList[0];
 	QString date=fList[1];
 	if (date.isEmpty())
 		date = QDateTime::currentDateTime().toString(Qt::LocalDate);
 
-	fList=QStringList::split ("\t",lst[2],false );
+	fList=lst[2].split("\t", QString::SkipEmptyParts);
 	Graph3D *plot=0;
 
 	if (fList[1].endsWith("(Y)",true))//Ribbon plot
@@ -10608,61 +10600,61 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	plot->setIgnoreFonts(true);
 	restoreWindowGeometry(app, (QWidget *)plot, lst[1]);
 
-	fList=QStringList::split ("\t",lst[3],false );
+	fList=lst[3].split("\t", QString::SkipEmptyParts);
 	plot->setStyle(fList);
 
-	fList=QStringList::split ("\t", lst[4],false );
+	fList=lst[4].split("\t", QString::SkipEmptyParts);
 	plot->setGrid(fList[1].toInt());
 
-	fList=QStringList::split ("\t",lst[5],true );
+	fList=lst[5].split("\t");
 	plot->setTitle(fList);
 
-	fList=QStringList::split ("\t",lst[6],false );
+	fList=lst[6].split("\t", QString::SkipEmptyParts);
 	plot->setColors(fList);
 
-	fList=QStringList::split ("\t",lst[7],false );
+	fList=lst[7].split("\t", QString::SkipEmptyParts);
 	fList.pop_front();
 	plot->setAxesLabels(fList);
 
-	fList=QStringList::split ("\t",lst[8],false );
+	fList=lst[8].split("\t", QString::SkipEmptyParts);
 	plot->setTicks(fList);
 
-	fList=QStringList::split ("\t",lst[9],false );
+	fList=lst[9].split("\t", QString::SkipEmptyParts);
 	plot->setTickLengths(fList);
 
-	fList=QStringList::split ("\t",lst[10],false );
+	fList=lst[10].split("\t", QString::SkipEmptyParts);
 	plot->setOptions(fList);
 
-	fList=QStringList::split ("\t",lst[11],false );
+	fList=lst[11].split("\t", QString::SkipEmptyParts);
 	plot->setNumbersFont(fList);
 
-	fList=QStringList::split ("\t",lst[12],false );
+	fList=lst[12].split("\t", QString::SkipEmptyParts);
 	plot->setXAxisLabelFont(fList);
 
-	fList=QStringList::split ("\t",lst[13],false );
+	fList=lst[13].split("\t", QString::SkipEmptyParts);
 	plot->setYAxisLabelFont(fList);
 
-	fList=QStringList::split ("\t",lst[14],false );
+	fList=lst[14].split("\t", QString::SkipEmptyParts);
 	plot->setZAxisLabelFont(fList);
 
-	fList=QStringList::split ("\t",lst[15],false );
+	fList=lst[15].split("\t", QString::SkipEmptyParts);
 	plot->setRotation(fList[1].toDouble(),fList[2].toDouble(),fList[3].toDouble());
 
-	fList=QStringList::split ("\t",lst[16],false );
+	fList=lst[16].split("\t", QString::SkipEmptyParts);
 	plot->setZoom(fList[1].toDouble());
 
-	fList=QStringList::split ("\t",lst[17],false );
+	fList=lst[17].split("\t", QString::SkipEmptyParts);
 	plot->setScale(fList[1].toDouble(),fList[2].toDouble(),fList[3].toDouble());
 
-	fList=QStringList::split ("\t",lst[18],false );
+	fList=lst[18].split("\t", QString::SkipEmptyParts);
 	plot->setShift(fList[1].toDouble(),fList[2].toDouble(),fList[3].toDouble());
 
-	fList=QStringList::split ("\t",lst[19],false );
+	fList=lst[19].split("\t", QString::SkipEmptyParts);
 	plot->setMeshLineWidth(fList[1].toInt());
 
 	if (fileVersion > 71)
 	{
-		fList=QStringList::split ("\t",lst[20],false );
+		fList=lst[20].split("\t", QString::SkipEmptyParts);
 		plot->setWindowLabel(fList[1]);
 		plot->setCaptionPolicy((MyWidget::CaptionPolicy)fList[2].toInt());
 		app->setListViewLabel(plot->name(),fList[1]);
@@ -10670,7 +10662,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 
 	if (fileVersion >= 88)
 	{
-		fList=QStringList::split ("\t",lst[21],false);
+		fList=lst[21].split("\t", QString::SkipEmptyParts);
 		plot->setOrtho(fList[1].toInt());
 	}
 
@@ -12613,9 +12605,9 @@ void ApplicationWindow::appendProject()
 		f.open(QIODevice::ReadOnly);
 
 		QString s = t.readLine();
-		lst = QStringList::split (QRegExp("\\s"),s,false);
+		lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
 		QString version = lst[1];
-		lst = QStringList::split (".", version, false);
+		lst = version.split(".", QString::SkipEmptyParts);
 		fileVersion =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
 
 		t.readLine(); 
@@ -12629,7 +12621,7 @@ void ApplicationWindow::appendProject()
 			lst.clear();
 			if  (s.left(8) == "<folder>")
 			{
-				lst = QStringList::split ("\t",s,true);
+				lst = s.split("\t");
 				Folder *f = new Folder(current_folder, lst[1]);
 				f->setBirthDate(lst[2]);
 				f->setModificationDate(lst[3]);
@@ -12699,13 +12691,13 @@ void ApplicationWindow::appendProject()
 			s=t.readLine();
 			if  (s.left(8) == "<folder>")
 			{
-				lst = QStringList::split ("\t",s,true);
+				lst = s.split("\t");
 				current_folder = current_folder->findSubfolder(lst[1]);
 			}
 			else if  (s == "<multiLayer>")
 			{//process multilayers information
 				s=t.readLine();
-				QStringList graph=QStringList::split ("\t",s,true);
+				QStringList graph=s.split("\t");
 				QString caption=graph[0];
 				plot=multilayerPlot(caption);
 				plot->setCols(graph[1].toInt());
@@ -12718,7 +12710,7 @@ void ApplicationWindow::appendProject()
 
 				if (fileVersion > 71)
 				{
-					QStringList lst=QStringList::split ("\t", t.readLine(), true);
+					QStringList lst=t.readLine().split("\t");
 					plot->setWindowLabel(lst[1]);
 					setListViewLabel(plot->name(),lst[1]);
 					plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
@@ -12734,13 +12726,13 @@ void ApplicationWindow::appendProject()
 
 				if (fileVersion > 83)
 				{
-					QStringList lst=QStringList::split ("\t", t.readLine(), false);
+					QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
-					lst=QStringList::split ("\t", t.readLine(), false);
+					lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setSpacing(lst[1].toInt(),lst[2].toInt());
-					lst=QStringList::split ("\t", t.readLine(), false);
+					lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setLayerCanvasSize(lst[1].toInt(),lst[2].toInt());
-					lst=QStringList::split ("\t", t.readLine(), false);
+					lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setAlignement(lst[1].toInt(),lst[2].toInt());
 				}
 

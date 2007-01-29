@@ -2145,7 +2145,7 @@ void AxesDialog::showAxisFormatOptions(int format)
 						boxFormat->show();
 						boxFormat->setEditable(true);
 
-						QStringList lst = QStringList::split(";", formatInfo[axis], false);
+						QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
 						if (!lst[1].isEmpty())
 						{
 							boxFormat->insertItem(lst[1]);
@@ -2174,7 +2174,7 @@ void AxesDialog::showAxisFormatOptions(int format)
 						boxFormat->show();
 						boxFormat->setEditable(true);
 
-						QStringList lst = QStringList::split(";", formatInfo[axis], false);
+						QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
 						if (!lst[1].isEmpty())
 						{
 							boxFormat->insertItem(lst[1]);
@@ -2727,7 +2727,7 @@ bool AxesDialog::updatePlot()
 		}
 		else if (format == Graph::Time || format == Graph::Date)
 		{
-			QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+			QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);			
 			lst[1] = boxFormat->currentText();
 			formatInfo[axis]  = lst.join(";");
 		}
@@ -3036,7 +3036,7 @@ void AxesDialog::updateTickLabelsList()
 		formatInfo[axis] = QString::number(boxFormat->currentItem());
 	else if (type == Graph::Time || type == Graph::Date)
 	{
-		QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+		QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);			
 		lst[1] = boxFormat->currentText();
 		formatInfo[axis]  = lst.join(";");
 	}
@@ -3120,7 +3120,7 @@ void AxesDialog::setLabelsNumericFormat(int)
 			formatInfo[axis] = QString::number(format);
 		else if (type == Graph::Time || type == Graph::Date)
 		{
-			QStringList lst = QStringList::split(";", formatInfo[axis], false);			
+			QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);			
 			lst[1] = boxFormat->currentText();
 			formatInfo[axis]  = lst.join(";");
 		}

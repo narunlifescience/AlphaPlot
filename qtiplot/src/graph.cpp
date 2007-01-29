@@ -1024,7 +1024,7 @@ void Graph::setLabelsDateTimeFormat(int axis, int type, const QString& formatInf
 	if (type < Time)
 		return;
 
-	QStringList list= QStringList::split(";", formatInfo, true);
+	QStringList list= formatInfo.split(";");
 	if ((int)list.count() < 2 || list[0].isEmpty() || list[1].isEmpty())
 		return;
 
@@ -2202,7 +2202,7 @@ void Graph::translateCurveTo(const QPoint& p)
 	if (!c)
 		return;
 
-	QStringList ass=QStringList::split(",",associations[curveIndex(selectedCurve)],false);
+	QStringList ass=associations[curveIndex(selectedCurve)].split(",", QString::SkipEmptyParts);
 
 	int n=c->dataSize();
 	double *dat= new double[n];
@@ -2988,7 +2988,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 	else if ((text.contains("(X)") == 2 && text.contains("(Y)") == 2) || 
 			(text.contains("(A)") && text.contains("(M)")))
 	{//vectors curve
-		QStringList ls = QStringList::split (",", text, FALSE );
+		QStringList ls = text.split(",", QString::SkipEmptyParts);
 		QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
 		if (c)
 			c->setTitle(ls[1].remove("(Y)"));//update curve name
@@ -3003,14 +3003,14 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 			QString as = associations[i];
 			if (as.contains(old_as) && (as.contains("(xErr)") || as.contains("(yErr)")))
 			{
-				QStringList ls = QStringList::split(",", as, false);
+				QStringList ls = as.split(",", QString::SkipEmptyParts);
 				as = text + "," + ls[2];
 				associations[i] = as;
 			}
 		}
 
 		//update curve name
-		QStringList ls = QStringList::split (",", text, FALSE );
+		QStringList ls = text.split(",", QString::SkipEmptyParts);
 		QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
 		if (c)
 			c->setTitle(ls[1].remove("(Y)"));
@@ -3046,7 +3046,7 @@ void Graph::updateCurveData(Table* w, const QString& yColName, int curve)
 void Graph::updateData(Table* w, int curve)
 {
 	long curveID = c_keys[curve];
-	QStringList cols = QStringList::split(",", associations[curve], false);
+	QStringList cols = associations[curve].split(",", QString::SkipEmptyParts);
 	QString xcName = cols[0].remove("(X)");
 	QString ycName = cols[1].remove("(Y)");
 
@@ -3167,13 +3167,13 @@ void Graph::updateData(Table* w, int curve)
 		{
 			if (c_type[curve] == HorizontalBars)
 			{
-				QStringList lst= QStringList::split(";", axesFormatInfo[QwtPlot::yLeft], true);
+				QStringList lst= axesFormatInfo[QwtPlot::yLeft].split(";");
 				QString fmtInfo = time0.toString(Qt::TextDate) + ";" + lst[1];
 				setLabelsDateTimeFormat(QwtPlot::yLeft, Time, fmtInfo);
 			}
 			else
 			{
-				QStringList lst= QStringList::split(";", axesFormatInfo[QwtPlot::xBottom], true);
+				QStringList lst= axesFormatInfo[QwtPlot::xBottom].split(";");
 				QString fmtInfo = time0.toString(Qt::TextDate) + ";" + lst[1];
 				setLabelsDateTimeFormat(QwtPlot::xBottom, Time, fmtInfo);
 			}
@@ -3182,13 +3182,13 @@ void Graph::updateData(Table* w, int curve)
 		{
 			if (c_type[curve] == HorizontalBars)
 			{
-				QStringList lst= QStringList::split(";", axesFormatInfo[QwtPlot::yLeft], true);
+				QStringList lst= axesFormatInfo[QwtPlot::yLeft].split(";");
 				QString fmtInfo = date.toString(Qt::ISODate) + ";" + lst[1];
 				setLabelsDateTimeFormat(QwtPlot::yLeft, Date, fmtInfo);
 			}
 			else
 			{
-				QStringList lst= QStringList::split(";", axesFormatInfo[QwtPlot::xBottom], true);
+				QStringList lst= axesFormatInfo[QwtPlot::xBottom].split(";");
 				QString fmtInfo = date.toString(Qt::ISODate) + ";" + lst[1];
 				setLabelsDateTimeFormat(QwtPlot::xBottom, Date, fmtInfo);
 			}
@@ -3207,7 +3207,7 @@ void Graph::updateData(Table* w, int curve)
 	{
 		if (c_type[i] == ErrorBars)
 		{
-			QStringList lst = QStringList::split(",", associations[i], false);
+			QStringList lst = associations[i].split(",", QString::SkipEmptyParts);
 			if (lst[0].remove("(X)") == cols[0] && lst[1].remove("(Y)") == cols[1])
 			{
 				if (!it)
@@ -3229,7 +3229,7 @@ void Graph::updateErrorBarsData(Table* w, int curve)
 	if (!er)
 		return;
 
-	QStringList asl = QStringList::split(",",associations[curve], FALSE);
+	QStringList asl = associations[curve].split(",", QString::SkipEmptyParts);
 	QString errColName = asl[2].remove("(yErr)").remove("(xErr)");
 	int errcol = w->colIndex(errColName);
 	if (errcol < 0)
@@ -3283,7 +3283,7 @@ void Graph::updateVectorsData(Table* w, int curve)
 	if (!vect)
 		return;
 
-	QStringList cols=QStringList::split(",", associations[curve], false);
+	QStringList cols=associations[curve].split(",", QString::SkipEmptyParts);
 	int xcol=w->colIndex(cols[0].remove("(X)"));
 	int ycol=w->colIndex(cols[1].remove("(Y)"));
 	int endXCol=w->colIndex(cols[2].remove("(X)").remove("(A)"));
@@ -3578,7 +3578,7 @@ QString Graph::saveErrorBars()
 			{
 				s+="ErrorBars\t";
 				s+=QString::number(er->direction())+"\t";
-				QStringList cvs=QStringList::split(",",associations[i],FALSE);
+				QStringList cvs=associations[i].split(",", QString::SkipEmptyParts);
 
 				s+=cvs[0].remove("(X)",true)+"\t";
 				s+=cvs[1].remove("(Y)",true)+"\t";
@@ -3844,7 +3844,7 @@ QString Graph::saveCurveLayout(int index)
 		s+=QString::number(v->headAngle())+"\t";
 		s+=QString::number(v->filledArrowHead())+"\t";
 
-		QStringList colsList=QStringList::split(",", associations[index], false);
+		QStringList colsList=associations[index].split(",", QString::SkipEmptyParts);
 		s+=colsList[2].remove("(X)").remove("(A)")+"\t";
 		s+=colsList[3].remove("(Y)").remove("(M)");
 		if (style == VectXYAM)
@@ -3890,7 +3890,7 @@ QString Graph::saveCurves()
 					s += "curve\t" + QString::number(c->x(0)) + "\t" + c->title().text() + "\t";
 				else
 				{
-					QStringList as=QStringList::split(",", associations[j],FALSE);
+					QStringList as=associations[j].split(",", QString::SkipEmptyParts);
 					s += "curve\t" + as[0].remove("(X)",true) + "\t";
 					s += as[1].remove("(Y)",true) + "\t";
 				}			
@@ -4184,7 +4184,7 @@ QString Graph::saveMarkers()
 		s+=QString::number(mrk->getAngle())+"\t";
 		s+=mrk->backgroundColor().name()+"\t";
 
-		QStringList textList=QStringList::split ("\n",mrk->getText(),FALSE);
+		QStringList textList=mrk->getText().split("\n", QString::SkipEmptyParts);
 		s+=textList.join ("\t");
 		s+="\n";
 	}
@@ -4401,7 +4401,7 @@ void Graph::addErrorBars(Table *w, const QString& yColName,
 		QwtPlotCurve *c = d_plot->curve(keys[i]);
 		if (c && c->title().text() == yColName && c_type[i] != ErrorBars)
 		{
-			QStringList lst = QStringList::split(",", associations[i], false);
+			QStringList lst = associations[i].split(",", QString::SkipEmptyParts);
 			addErrorBars(w, lst[0].remove("(X)"), yColName, errTable, errColName,
 					type, width, cap, color, through, minus, plus);
 
@@ -5042,7 +5042,7 @@ void Graph::updateVectorsLayout(Table *w, int curve, int colorIndex, int width,
 		return;
 
 	QColor c = ColorBox::color(colorIndex);
-	QStringList cols=QStringList::split(",", associations[curve], false);
+	QStringList cols=associations[curve].split(",", QString::SkipEmptyParts);
 	if (vect->width() == width && vect->color() == c &&
 			vect->headLength() == arrowLength && vect->headAngle() == arrowAngle &&
 			vect->position() == position &&
@@ -5313,7 +5313,7 @@ void Graph::removeLegendItem(int index)
 	}
 
 	QString text=mrk->getText();
-	QStringList items=QStringList::split( "\n", text, FALSE);
+	QStringList items=text.split( "\n", QString::SkipEmptyParts);
 
 	if (index >= (int) items.count())
 		return;
@@ -5709,7 +5709,7 @@ void Graph::insertFunctionCurve(const QString& formula, int points, int fileVers
 	QString var, name = QString::null;	
 	QList<double> ranges;
 
-	QStringList curve = QStringList::split (",",formula,TRUE);
+	QStringList curve = formula.split(",");
 	if (fileVersion < 87)
 	{
 		if (curve[0][0]=='f')
@@ -6790,7 +6790,7 @@ QString Graph::curveXColName(const QString& curveTitle)
 	if (index < 0)
 		return QString::null;
 
-	cl=QStringList::split(",", associations[index],FALSE);
+	cl=associations[index].split(",", QString::SkipEmptyParts);
 	return cl[0].remove("(X)",true);
 }
 

@@ -255,10 +255,10 @@ void Matrix::restore(const QStringList &lst)
 	QStringList l;
 	QStringList::const_iterator i=lst.begin();
 
-	l= QStringList::split ("\t", *i++, true);
+	l= (*i++).split("\t");
 	setColumnsWidth(l[1].toInt());
 
-	l= QStringList::split ("\t", *i++, true);
+	l= (*i++).split("\t");
 	if (l[0] == "Formula")
 		formula_str = l[1];
 	else if (l[0] == "<formula>")
@@ -269,13 +269,13 @@ void Matrix::restore(const QStringList &lst)
 		i++;
 	}
 
-	l= QStringList::split ("\t", *i++, true);
+	l= (*i++).split("\t");
 	if (l[1] == "f")
 		setTextFormat('f', l[2].toInt());
 	else
 		setTextFormat('e', l[2].toInt());
 
-	l= QStringList::split ("\t", *i++, true);
+	l= (*i++).split("\t");
 	x_start = l[1].toDouble();
 	x_end = l[2].toDouble();
 	y_start = l[3].toDouble();
@@ -575,6 +575,8 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 	for (int row=startRow; row<=endRow; row++)
 		for (int col=startCol; col<=endCol; col++)
 		{
+			// apparently, I completely missed the point here (feature #2969);
+			// I expect Tilman will port Ion's version from scripting -- knut
 			script->setInt(row+1, "i");
 			script->setInt(row+1, "row");
 			script->setInt(row+1, "y");
@@ -786,7 +788,7 @@ void Matrix::pasteSelection()
 
 	QTextStream ts( &text, QIODevice::ReadOnly );
 	QString s = ts.readLine(); 
-	QStringList cellTexts = QStringList::split ("\t", s, true);
+	QStringList cellTexts = s.split("\t");
 	int cols=int(cellTexts.count());
 	int rows= 1;
 	while(!ts.atEnd()) 
@@ -874,7 +876,7 @@ void Matrix::pasteSelection()
 	for (i=top; i<top+rows; i++)
 	{
 		s = ts2.readLine();
-		cellTexts=QStringList::split ("\t", s, true);
+		cellTexts=s.split("\t");
 		for (j=left; j<left+cols; j++)					
 		{
 			value = cellTexts[j-left].toDouble(&numeric);

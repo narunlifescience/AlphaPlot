@@ -677,8 +677,8 @@ void PlotDialog::selectCurve(int index)
 void PlotDialog::showStatistics()
 {
 	QString text=listBox->currentText();
-	QStringList t=QStringList::split(": ", text, false);
-	QStringList list=QStringList::split (",", t[1], false );
+	QStringList t=text.split(": ", QString::SkipEmptyParts);
+	QStringList list=t[1].split(",", QString::SkipEmptyParts);
 	text=t[0] + "_" + list[1].remove("(Y)");
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
@@ -1096,8 +1096,8 @@ void PlotDialog::setActiveCurve(int index)
 
 void PlotDialog::updateEndPointColumns(const QString& text)
 {
-	QStringList cols=QStringList::split(",", text, false);
-	QStringList aux=QStringList::split(":", cols[0], false);
+	QStringList cols=text.split(",", QString::SkipEmptyParts);
+	QStringList aux=cols[0].split(":", QString::SkipEmptyParts);
 	QString table=aux[0];	
 	QStringList list;
 	for (int i=0; i<(int)columnNames.count(); i++)	
@@ -1152,8 +1152,8 @@ bool PlotDialog::acceptParams()
 	else if (privateTabWidget->currentPage()==histogramPage)
 	{
 		QString text=listBox->currentText();
-		QStringList t=QStringList::split(": ", text, false);
-		QStringList list=QStringList::split (",", t[1], false );
+		QStringList t=text.split(": ", QString::SkipEmptyParts);
+		QStringList list=t[1].split(",", QString::SkipEmptyParts);
 		text=t[0] + "_" + list[1].remove("(Y)");
 		bool accept=validInput();
 		if (accept)
@@ -1188,10 +1188,10 @@ bool PlotDialog::acceptParams()
 				filledHeadBox->isChecked(),vectPosBox->currentItem(),xEndCol,yEndCol);
 
 		QString text=listBox->currentText();
-		QStringList t=QStringList::split(": ", text, false);
+		QStringList t=text.split(": ", QString::SkipEmptyParts);
 		QString table = t[0];
 
-		QStringList cols=QStringList::split(",", t[1], false);
+		QStringList cols=t[1].split(",", QString::SkipEmptyParts);
 		if (graph->curveType(index) == Graph::VectXYXY)
 		{
 			xEndCol = xEndCol.remove(table + "_") + "(X)";

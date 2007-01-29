@@ -50,7 +50,7 @@ public:
 	QString txt;
 	txt.setNum ( value, 'e', prec);
 		
-	QStringList list = QStringList::split ( "e", txt, false );
+	QStringList list = txt.split( "e", QString::SkipEmptyParts);
 	if (list[0].toDouble() == 0.0)
 		return "0";
 	
