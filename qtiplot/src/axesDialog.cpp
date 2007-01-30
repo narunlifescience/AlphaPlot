@@ -2682,7 +2682,7 @@ bool AxesDialog::updatePlot()
 	             }
           }
 
-		d_graph->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->value(), 
+		d_graph->setScale(a, start, stp, end, boxMajorValue->value(), boxMinorValue->value(), 
                              boxScaleType->currentIndex(), btnInvert->isChecked());
 		d_graph->emitModified();
 	}

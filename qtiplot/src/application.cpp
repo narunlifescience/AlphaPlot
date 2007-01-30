@@ -94,7 +94,7 @@
 #include <qmenubar.h>
 #include <qnamespace.h>
 #include <qfile.h>
-#include <q3filedialog.h>
+#include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <qprinter.h>
 #include <qtextstream.h>
@@ -2201,8 +2201,7 @@ void ApplicationWindow::importImage()
 	}
 	filter+=");;" + aux2;
 
-	QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
-			tr("QtiPlot - Import image from file"), 0, true);
+	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Import image from file"), workingDir, filter);
 	if ( !fn.isEmpty() )
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -2239,8 +2238,7 @@ void ApplicationWindow::loadImage()
 	}
 	filter+=");;" + aux2;
 
-	QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
-			tr("QtiPlot - Load image from file"), 0, true);
+	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Load image from file"), workingDir, filter);
 	if ( !fn.isEmpty() )
 	{
 		loadImage(fn);
@@ -4090,8 +4088,7 @@ void ApplicationWindow::openTemplate()
 	filter += "QtiPlot Table Template (*.qtt);;";
 	filter += "QtiPlot Matrix Template (*.qmt);;";
 
-	QString fn = Q3FileDialog::getOpenFileName(templatesDir, filter, this, 0,
-			tr("QtiPlot - Open Template File"), 0, true);
+	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open Template File"), templatesDir, filter);
 	if (!fn.isEmpty())
 	{
 		QFileInfo fi(fn);
@@ -4409,6 +4406,7 @@ void ApplicationWindow::readSettings()
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
+	settings.setValue("/ColumnSeparator", "\t");//???Added by Gudjon, to fix crashes when ascii is imported
 	columnSeparator = settings.value("/ColumnSeparator", "\t").toString();
 	ignoredLines = settings.value("/IgnoreLines", 0).toInt();
 	renameColumns = settings.value("/RenameColumns", true).toBool();
@@ -4818,8 +4816,7 @@ void ApplicationWindow::exportLayer()
 
 void ApplicationWindow::exportAllGraphs()
 {
-	QString dir = Q3FileDialog::getExistingDirectory(workingDir, this, tr("Get existing directory"), 
-			tr("Choose a directory to export the graphs to"), true, true);
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose a directory to export the graphs to"), workingDir, QFileDialog::ShowDirsOnly);
 	if (!dir.isEmpty())
 	{
 		ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(true, this);
@@ -5020,8 +5017,7 @@ void ApplicationWindow::saveProjectAs()
 	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
 
 	QString selectedFilter;
-	QString fn = Q3FileDialog::getSaveFileName(workingDir, filter, this, "project",
-			tr("Save Project As"), &selectedFilter, false);
+	QString fn = QFileDialog::getSaveFileName(this, tr("Save Project As"), workingDir, filter, &selectedFilter);
 	if ( !fn.isEmpty() )
 	{
 		QFileInfo fi(fn);
@@ -5082,8 +5078,7 @@ void ApplicationWindow::saveAsTemplate()
 		filter = tr("QtiPlot 3D Surface Template")+" (*.qst)";
 
 	QString selectedFilter;
-	QString fn = Q3FileDialog::getSaveFileName(templatesDir + "/" + w->name(), filter, this, 0,
-			tr("Save Window As Template"), &selectedFilter, false);
+	QString fn = QFileDialog::getSaveFileName(this, tr("Save Window As Template"), templatesDir + "/" + w->name(), filter, &selectedFilter);
 	if ( !fn.isEmpty() )
 	{
 		QFileInfo fi(fn);
@@ -5226,7 +5221,7 @@ QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
 		Table *t = (Table *)windows->at(i);
 		for (int j=0; j < t->tableCols(); j++)
 		{
-			if (t->colPlotDesignation(j) == plotType)
+			if (t->colPlotDesignation(j) == plotType || plotType == Table::All)
 				list << QString(t->name()) + "_" + t->colLabel(j);
 		}
 	}
@@ -5453,8 +5448,7 @@ void ApplicationWindow::showExportASCIIDialog()
 
 void ApplicationWindow::exportAllTables(const QString& sep, bool colNames, bool expSelection)
 {
-	QString dir = Q3FileDialog::getExistingDirectory(workingDir, this, "get existing directory",
-			tr("Choose a directory to export the tables to"), true, true);
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose a directory to export the tables to"), workingDir, QFileDialog::ShowDirsOnly);
 	if (!dir.isEmpty())
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -5512,8 +5506,7 @@ void ApplicationWindow::exportASCII(const QString& tableName, const QString& sep
 		return;
 
 	QString selectedFilter;
-	QString fname = Q3FileDialog::getSaveFileName(workingDir,"*.txt;;*.dat;;*.DAT", this,"file dialog",
-			tr("Choose a filename to save under"),&selectedFilter,true);
+	QString fname = QFileDialog::getSaveFileName(this, tr("Choose a filename to save under"), workingDir, "*.txt;;*.dat;;*.DAT", &selectedFilter);
 
 	if (!fname.isEmpty() ) 
 	{ // the user gave a file name	
@@ -7203,8 +7196,7 @@ void ApplicationWindow::addImage()
 		}
 		filter+=");;" + aux2;
 
-		QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
-				"QtiPlot - Insert image from file", 0, true);
+		QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Insert image from file"), workingDir, filter);
 		if ( !fn.isEmpty() )
 		{
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -8905,11 +8897,8 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 
 void ApplicationWindow::chooseHelpFolder()
 {
-	QString dir = Q3FileDialog::getExistingDirectory(
-			qApp->applicationDirPath(), this,
-			QString(),
-			"Choose the location of the QtiPlot help folder!",
-			true, true );
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose the location of the QtiPlot help folder!"),
+			qApp->applicationDirPath());
 
 	if (!dir.isEmpty())
 	{
@@ -12429,8 +12418,7 @@ void ApplicationWindow::appendProject()
 	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
 
-	QString fn = Q3FileDialog::getOpenFileName(workingDir, filter, this, 0,
-			tr("QtiPlot - Open project"), 0, true);
+	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open project"), workingDir, filter);
 
 	if (fn.isEmpty())
 		return;
@@ -12773,8 +12761,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
 
 	QString selectedFilter;
-	QString fn = Q3FileDialog::getSaveFileName(workingDir, filter, this, "project",
-			tr("Save project as"), &selectedFilter, false);
+	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), workingDir, filter, &selectedFilter);
 	if ( !fn.isEmpty() )
 	{
 		QFileInfo fi(fn);

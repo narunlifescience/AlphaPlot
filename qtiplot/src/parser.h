@@ -29,7 +29,7 @@
 #ifndef MYPARSER_H
 #define MYPARSER_H
 
-#include "../3rdparty/muParser/muParser.h"
+#include <muParser/muParser.h>
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_sf.h>
 

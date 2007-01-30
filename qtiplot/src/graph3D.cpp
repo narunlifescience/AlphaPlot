@@ -34,7 +34,7 @@
 
 #include <qapplication.h>
 #include <qmessagebox.h>
-#include <q3filedialog.h>
+#include <qfiledialog.h>
 #include <qprinter.h>
 #include <qimage.h>
 #include <qclipboard.h>
@@ -2151,8 +2151,7 @@ void Graph3D::saveImage()
 		filter+=aux;
 	}
 
-	QString fname = Q3FileDialog::getSaveFileName( QString(),filter,0,"file dialog",
-			tr("Choose a filename to save under"),&selectedFilter,true);
+	QString fname = QFileDialog::getSaveFileName(this, tr("Choose a filename to save under"), QString(), filter, &selectedFilter);
 	if ( !fname.isEmpty() ) 
 	{ 	
 		QFileInfo fi(fname);

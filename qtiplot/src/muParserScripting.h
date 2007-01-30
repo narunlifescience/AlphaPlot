@@ -35,7 +35,7 @@
 
 #include "Scripting.h"
 
-#include "../3rdparty/muParser/muParser.h"
+#include <muParser/muParser.h>
 #include "math.h"
 #include <gsl/gsl_sf.h>
 #include <q3asciidict.h>
