@@ -59,7 +59,7 @@ EpsExportDialog::EpsExportDialog(const QString& fileName, QWidget* parent, Qt::W
 	leftLayout->addWidget( new QLabel(tr("Resolution (DPI)")), 2, 0 );
 	boxResolution= new QSpinBox();
 	boxResolution->setRange(0, 1000);
-	boxResolution->setValue(84);
+	boxResolution->setValue(QPrinter().resolution());
 	leftLayout->addWidget( boxResolution, 2, 1 );
 
 	boxColor= new QCheckBox();

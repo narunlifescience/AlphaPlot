@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
-					  Knut Franke
+                           Knut Franke
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
                            knut.franke@gmx.de
     Description          : Multi layer widget
@@ -138,7 +138,7 @@ public slots:
 	int verticalAlignement(){return vert_align;};
 	void setAlignement (int ha, int va);
 
-	int graphsNumber(){return graphs;};
+	int layers(){return graphs;};
 	
 	// print and export
 	QPixmap canvasPixmap();

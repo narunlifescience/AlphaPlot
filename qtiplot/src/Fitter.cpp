@@ -579,7 +579,7 @@ void Fit::generateFitCurve(double *par)
 	else
 	{
 		d_graph->addResultCurve(d_result_points, X, Y, d_curveColorIndex, 
-				app->generateUnusedName(QString(name())+tr("Fit")), d_fit_type + tr(" of ") + d_curve->title().text());
+				app->generateUniqueName(QString(name())+tr("Fit")), d_fit_type + tr(" of ") + d_curve->title().text());
 	}
 }
 
@@ -1320,15 +1320,12 @@ void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 
 	MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, Graph *g, PeakProfile profile, int peaks)
 : Fit(parent, g),
-	d_profile(profile),
-	d_peaks(peaks)
+	d_profile(profile)
 {
 	setName(tr("MultiPeak"));
 
 	if (profile == Gauss)
 	{
-		d_fit_type = tr("Gauss");
-
 		d_f = gauss_multi_peak_f;
 		d_df = gauss_multi_peak_df;
 		d_fdf = gauss_multi_peak_fdf;
@@ -1336,30 +1333,44 @@ void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 	}
 	else
 	{
-		d_fit_type = tr("Lorentz");
-
 		d_f = lorentz_multi_peak_f;
 		d_df = lorentz_multi_peak_df;
 		d_fdf = lorentz_multi_peak_fdf;
 		d_fsimplex = lorentz_multi_peak_d;
 	}
 
+	d_param_init = NULL;
+	covar = NULL;
+	d_results = NULL;
+
+	setNumPeaks(peaks);
+
+	generate_peak_curves = true;
+	d_peaks_color = 2;//green
+}
+
+void MultiPeakFit::setNumPeaks(int n)
+{
+	d_peaks = n;
+	if (d_profile == Gauss)
+		d_fit_type = tr("Gauss");
+	else
+		d_fit_type = tr("Lorentz");
 	if (d_peaks > 1)
 		d_fit_type += "(" + QString::number(d_peaks) +") " + tr("multi-peak");
 
 	d_p = 3*d_peaks + 1;
+	if(d_param_init) gsl_vector_free(d_param_init);
 	d_param_init = gsl_vector_alloc(d_p);
 	gsl_vector_set_all (d_param_init, 1.0);
 
+	if (covar) gsl_matrix_free(covar);
 	covar = gsl_matrix_alloc (d_p, d_p);
+	if (d_results) delete[] d_results;
 	d_results = new double[d_p];
 
 	d_param_names = generateParameterList(d_peaks);
 	d_formula = generateFormula(d_peaks, d_profile);
-	d_param_explain = generateExplanationList(d_peaks);
-
-	generate_peak_curves = true;
-	d_peaks_color = 2;//green
 }
 
 QStringList MultiPeakFit::generateParameterList(int peaks)
@@ -1563,7 +1574,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 	}
 	else
 	{
-		QString tableName = app->generateUnusedName(tr("Fit"));
+		QString tableName = app->generateUniqueName(tr("Fit"));
 		QString label = d_fit_type + " " + tr("fit of") + " " + d_curve->title().text();
 
 		Table *t= app->newHiddenTable(tableName, label, d_result_points, peaks_aux + 2);

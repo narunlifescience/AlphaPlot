@@ -390,6 +390,7 @@ class MultiPeakFit : public Fit
 		MultiPeakFit(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 1);
 
 		int peaks(){return d_peaks;};
+		void setNumPeaks(int n);
 
 		void enablePeakCurves(bool on){generate_peak_curves = on;};
 		void setPeakCurvesColor(int colorIndex){d_peaks_color = colorIndex;};

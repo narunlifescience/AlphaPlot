@@ -73,6 +73,7 @@ class FunctionDialog;
 class Folder;
 class FolderListItem;
 class FolderListView;
+class ScriptWindow;
 class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
@@ -88,6 +89,7 @@ public:
 
 	enum ShowWindowsPolicy{HideAll, ActiveFolder, SubFolders};
 
+	ScriptWindow *scriptWindow;
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow, *explorerWindow;
 	QTextEdit *results;
@@ -146,7 +148,7 @@ public:
 	You can force the output to be a name different of /param name, 
 	even if 'name' is not used in the project, by setting /param increment = true (the default)
 	*/
-	QString generateUnusedName(const QString& name, bool increment = true);
+	QString generateUniqueName(const QString& name, bool increment = true);
 	
 public slots:
 	void open();
@@ -578,6 +580,7 @@ public slots:
 	//! Connected to the context menu signal from lv; it's called when there are no items selected in the list
 	void showListViewPopupMenu(const QPoint &p);
 
+	void showScriptWindow();
 	void showMoreWindows();
 	void showImportDialog();
 	void showMarkerPopupMenu();
@@ -949,6 +952,7 @@ private:
 	QAction *actionNextWindow, *actionPrevWindow;
 	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToRow;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
+	QAction *actionShowScriptWindow;
 	QAction *actionAnimate;
 
 private:

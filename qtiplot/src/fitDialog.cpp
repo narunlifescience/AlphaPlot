@@ -433,12 +433,12 @@ void FitDialog::showParametersTable()
 	if (!fitter)
 	{
 		QMessageBox::critical(this, tr("QtiPlot - Error"), 
-				tr("The fitter has not been initialized. Please perform a fit first and try again."));
+				tr("Please perform a fit first and try again."));
 		return;
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	tableName = app->generateUnusedName(tableName, false);
+	tableName = app->generateUniqueName(tableName, false);
 	fitter->parametersTable(tableName);
 }
 
@@ -447,20 +447,20 @@ void FitDialog::showCovarianceMatrix()
 	QString matrixName = covMatrixName->text();
 	if (matrixName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"), 
 				tr("Please enter a valid name for the covariance matrix."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("Error"), 
-				tr("The fitter has not been initialized. Please perform a fit first and try again."));
+		QMessageBox::critical(this, tr("QtiPlot - Error"), 
+				tr("Please perform a fit first and try again."));
 		return;
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	matrixName = app->generateUnusedName(matrixName, false);
+	matrixName = app->generateUniqueName(matrixName, false);
 	fitter->covarianceMatrix(matrixName);
 }
 

@@ -161,6 +161,7 @@ HEADERS  += src/application.h \
 	 src/Fitter.h\
 	 src/customEvents.h\
 	 src/ScriptingLangDialog.h\
+	 src/ScriptWindow.h\
 	 src/textformatbuttons.h\
 	 src/TableStatistics.h
      
@@ -242,6 +243,7 @@ SOURCES  += src/application.cpp \
 	 src/Fitter.cpp\
 	 src/Scripting.cpp\
 	 src/ScriptingLangDialog.cpp\
+	 src/ScriptWindow.cpp\
 	 src/TableStatistics.cpp
 
 ############################################################### 
