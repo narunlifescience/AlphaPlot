@@ -3458,13 +3458,6 @@ void ApplicationWindow::showImportDialog()
 {
 	ImportDialog* id= new ImportDialog(this, Qt::WindowContextHelpButtonHint);
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect (id, SIGNAL(options(const QString&, int, bool, bool, bool)),
-			this, SLOT(setImportOptions(const QString&, int, bool, bool, bool)));
-
-	id->setSeparator(columnSeparator);
-	id->setLines(ignoredLines);
-	id->renameCols(renameColumns);
-	id->setWhiteSpaceOptions(strip_spaces, simplify_spaces);
 	id->exec();
 }
 
@@ -3476,6 +3469,7 @@ void ApplicationWindow::setImportOptions(const QString& sep, int lines, bool ren
 	renameColumns = rename;
 	strip_spaces = strip;
 	simplify_spaces = simplify;
+	saveSettings();
 }
 
 void ApplicationWindow::loadASCII()
@@ -4413,8 +4407,9 @@ void ApplicationWindow::readSettings()
 	peakCurvesColor = settings.value("/PeaksColor", 2).toInt();//green color
 	settings.endGroup(); // Fitting
 
-	settings.beginGroup("/ImportASCII");
-	columnSeparator = settings.value("/ColumnSeparator", "\t").toString();
+	settings.beginGroup("/ImportASCII");	
+	columnSeparator = settings.value("/ColumnSeparator", "\\t").toString();	
+	columnSeparator.replace("\\t", "\t").replace("\\s", " ");
 	ignoredLines = settings.value("/IgnoreLines", 0).toInt();
 	renameColumns = settings.value("/RenameColumns", true).toBool();
 	strip_spaces = settings.value("/StripSpaces", false).toBool();
@@ -4617,7 +4612,8 @@ void ApplicationWindow::saveSettings()
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
-	settings.setValue("/ColumnSeparator", columnSeparator);
+	QString sep = columnSeparator;
+	settings.setValue("/ColumnSeparator", sep.replace("\t", "\\t").replace(" ", "\\s"));
 	settings.setValue("/IgnoreLines", ignoredLines);
 	settings.setValue("/RenameColumns", renameColumns);
 	settings.setValue("/StripSpaces", strip_spaces);
@@ -10889,10 +10885,10 @@ void ApplicationWindow::createActions()
 	actionSaveNote = new QAction(tr("Save Note As..."), this);
 	connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Single File..."), this);
+	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Single file..."), this);
 	connect(actionLoad, SIGNAL(activated()), this, SLOT(loadASCII()));
 
-	actionLoadMultiple = new QAction(QIcon(QPixmap(multiload_xpm)), tr("&Multiple Files..."), this);
+    actionLoadMultiple = new QAction(QIcon(QPixmap(multiload_xpm)), tr("&Multiple files..."), this);
 	connect(actionLoadMultiple, SIGNAL(activated()), this, SLOT(loadMultiple()));
 
 	actionUndo = new QAction(QIcon(QPixmap(undo_xpm)), tr("&Undo"), this);
@@ -10969,7 +10965,7 @@ void ApplicationWindow::createActions()
 	actionShowExportASCIIDialog = new QAction(tr("E&xport ASCII"), this);
 	connect(actionShowExportASCIIDialog, SIGNAL(activated()), this, SLOT(showExportASCIIDialog()));
 
-	actionShowImportDialog = new QAction(tr("Set Import &Options"), this);
+	actionShowImportDialog = new QAction(tr("Set import &options"), this);
 	connect(actionShowImportDialog, SIGNAL(activated()), this, SLOT(showImportDialog()));
 
 	actionCloseAllWindows = new QAction(QIcon(QPixmap(quit_xpm)), tr("&Quit"), this);
@@ -11473,9 +11469,11 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionLoad->setMenuText(tr("&Single File..."));
 	actionLoad->setToolTip(tr("Import data file"));
+	actionLoad->setShortcut(tr("Ctrl+K"));
 
 	actionLoadMultiple->setMenuText(tr("&Multiple Files..."));
 	actionLoadMultiple->setToolTip(tr("Import multiple data files"));
+	actionLoadMultiple->setShortcut(tr("Ctrl+Alt+K"));
 
 	actionUndo->setMenuText(tr("&Undo"));
 	actionUndo->setToolTip(tr("Undo changes"));
@@ -11544,7 +11542,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionPrintAllPlots->setMenuText(tr("Print All Plo&ts"));
 	actionShowExportASCIIDialog->setMenuText(tr("E&xport ASCII"));
 	actionShowImportDialog->setMenuText(tr("Set import &options"));
-
+	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+I"));
+	
 	actionCloseAllWindows->setMenuText(tr("&Quit")); 
 	actionCloseAllWindows->setShortcut(tr("Alt+F4"));
 

@@ -61,19 +61,8 @@ private:
 	QLabel *ignoreLabel,*sepText;
 
 public slots:
-	void enableApplyButton(int);
-	void disableApplyButton();
-
-	//! Set the widget texts in the current language
-    virtual void languageChange();
 	//! Set the column delimiter for ASCII import
 	void setSeparator(const QString& sep);
-	//! Toggle the white space handling options
-	void setWhiteSpaceOptions(bool strip, bool simplify);
-	//! Set the number of ignored lines
-	void setLines(int lines);
-	//! Toggle whether the first column is treated as column titles
-	void renameCols(bool rename);
 
 private slots:
 	void quit();
@@ -82,9 +71,8 @@ private slots:
 	//! Display help
 	void help();
 
-signals:
-	//! Emits the selected options
-	void options(const QString&, int, bool, bool, bool);
+	void enableApplyButton(int);
+	void enableApplyButton(const QString &);
 };
 
 #endif // IMPORTDIALOG_H

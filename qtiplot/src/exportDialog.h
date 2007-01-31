@@ -77,8 +77,6 @@ private slots:
 	void enableTableName(bool ok);
 
 protected slots:
-	//! Set all string in the current language
-    virtual void languageChange();
 	//! Accept changes
 	void accept();
 	//! Display help

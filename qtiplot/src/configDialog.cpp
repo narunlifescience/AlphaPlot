@@ -118,7 +118,7 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	topLayout->addLayout( rightLayout );
 
 	QHBoxLayout * bottomButtons = new QHBoxLayout();
-
+	bottomButtons->addStretch();
 	buttonApply = new QPushButton();
 	buttonApply->setAutoDefault( true );
 	bottomButtons->addWidget( buttonApply );
@@ -131,7 +131,7 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	buttonCancel = new QPushButton();
 	buttonCancel->setAutoDefault( true );
 	bottomButtons->addWidget( buttonCancel );
-
+	
 	QVBoxLayout * mainLayout = new QVBoxLayout( this ); 
 	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(bottomButtons);
@@ -170,8 +170,17 @@ void ConfigDialog::initTablesPage()
 	lblSeparator = new QLabel();
 	topLayout->addWidget( lblSeparator );
 	boxSeparator = new QComboBox();
+	boxSeparator->setEditable( true );
 	topLayout->addWidget( boxSeparator );
 
+	QString help = tr("The column separator can be customized. \nThe following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
+	help += "\n"+tr("The separator must not contain the following characters: \n0-9eE.+-");
+
+	boxSeparator->setWhatsThis(help);
+	boxSeparator->setToolTip(help);
+	lblSeparator->setWhatsThis(help);
+	lblSeparator->setToolTip(help);
+	
 	groupBoxTableCol = new QGroupBox();
 	QGridLayout * colorsLayout = new QGridLayout(groupBoxTableCol);
 
@@ -1293,7 +1302,7 @@ void ConfigDialog::setColumnSeparator(const QString& sep)
 	else
 	{
 		QString separator = sep;
-		boxSeparator->setCurrentText(separator.replace(" ","\\s").replace("\t","\\t"));
+		boxSeparator->setEditText(separator.replace(" ","\\s").replace("\t","\\t"));
 	}
 }
 
@@ -1349,5 +1358,3 @@ void ConfigDialog::showPointsBox(bool)
 		generatePointsBox->hide();
 	}
 }
-
-

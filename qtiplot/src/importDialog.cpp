@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "importDialog.h"
+#include "application.h"
 
 #include <QMessageBox>
 #include <QRegExp>
@@ -43,20 +44,29 @@
 ImportDialog::ImportDialog( QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl )
 {
+	setWindowTitle( tr( "QtiPlot - ASCII Import Options" ) );
 	setSizeGripEnabled( true );
-
+	
 	QGridLayout * mainLayout = new QGridLayout(this);
 	QHBoxLayout * l1 = new QHBoxLayout();
 	QHBoxLayout * l2 = new QHBoxLayout();
 
-	sepText = new QLabel();
+	sepText = new QLabel(tr( "Separator"));
 	l1->addWidget( sepText );
 
 	boxSeparator = new QComboBox();
+	boxSeparator->addItem(tr("TAB"));
+	boxSeparator->addItem(tr("SPACE"));
+	boxSeparator->addItem(";" + tr("TAB"));
+	boxSeparator->addItem("," + tr("TAB"));
+	boxSeparator->addItem(";" + tr("SPACE"));
+	boxSeparator->addItem("," + tr("SPACE"));
+	boxSeparator->addItem(";");
+	boxSeparator->addItem(",");
+	
 	boxSeparator->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	boxSeparator->setEditable( true );
 	l1->addWidget( boxSeparator );
-	connect(boxSeparator, SIGNAL(activated (int)), this, SLOT(enableApplyButton(int)));
 	mainLayout->addLayout( l1, 0, 0, 1, 4 );
 
 	QString help = tr("The column separator can be customized. \nThe following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
@@ -67,7 +77,7 @@ ImportDialog::ImportDialog( QWidget* parent, Qt::WFlags fl )
 	boxSeparator->setToolTip(help);
 	sepText->setToolTip(help);
 
-	ignoreLabel = new QLabel();
+	ignoreLabel = new QLabel(tr( "Ignore first" ));
 	l2->addWidget( ignoreLabel );
 
 	boxLines = new QSpinBox();
@@ -75,28 +85,22 @@ ImportDialog::ImportDialog( QWidget* parent, Qt::WFlags fl )
 	boxLines->setSuffix(" " + tr("lines"));
 	boxLines->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed );
 	l2->addWidget( boxLines );
-	connect(boxLines, SIGNAL(valueChanged (int)), this, SLOT(enableApplyButton(int)));
 	mainLayout->addLayout( l2, 1, 0, 1, 4 );
 
-	boxRenameCols = new QCheckBox();
+	boxRenameCols = new QCheckBox(tr("Use first row to &name columns"));
 	mainLayout->addWidget( boxRenameCols, 2, 0, 1, 4 );
-	connect(boxRenameCols, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
  
-	boxStripSpaces = new QCheckBox();
-	connect(boxStripSpaces, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
+	boxStripSpaces = new QCheckBox(tr("&Remove white spaces from line ends"));
 
 	help = tr("By checking this option all white spaces will be \nremoved from the beginning and the end of \nthe lines in the ASCII file.","when translating this check the what's this functions and tool tips to place the '\\n's correctly");
 	help +="\n\n"+tr("Warning: checking this option leads to column \noverlaping if the columns in the ASCII file don't \nhave the same number of rows.");
 	help +="\n"+tr("To avoid this problem you should precisely \ndefine the column separator using TAB and \nSPACE characters.","when translating this check the what's this functions and tool tips to place the '\\n's correctly");
 
-
 	boxStripSpaces->setWhatsThis(help);
 	boxStripSpaces->setToolTip(help);
 	mainLayout->addWidget( boxStripSpaces, 3, 0, 1, 4 );
 
-
-	boxSimplifySpaces = new QCheckBox();
-	connect(boxSimplifySpaces, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
+	boxSimplifySpaces = new QCheckBox(tr("&Simplify white spaces" ));
 
 	help = tr("By checking this option all white spaces will be \nremoved from the beginning and the end of the \nlines and each sequence of internal \nwhitespaces (including the TAB character) will \nbe replaced with a single space.","when translating this check the what's this functions and tool tips to place the '\\n's correctly");
 	help +="\n\n"+tr("Warning: checking this option leads to column \noverlaping if the columns in the ASCII file don't \nhave the same number of rows.","when translating this check the what's this functions and tool tips to place the '\\n's correctly");
@@ -106,25 +110,37 @@ ImportDialog::ImportDialog( QWidget* parent, Qt::WFlags fl )
 	boxSimplifySpaces->setToolTip(help);
 	mainLayout->addWidget( boxSimplifySpaces, 4, 0, 1, 4 );
 
-	buttonHelp = new QPushButton();
+	buttonHelp = new QPushButton(tr( "&Help" ));
 	mainLayout->addWidget( buttonHelp, 5, 0 );
 
-	buttonOk = new QPushButton();
+	buttonOk = new QPushButton(tr("&Apply"));
 	buttonOk->setDefault( true );
 	mainLayout->addWidget( buttonOk, 5, 1 );
 	buttonOk->setEnabled( false );
 
-	buttonCancel = new QPushButton();
-	mainLayout->addWidget( buttonCancel, 5, 1 );
+	buttonCancel = new QPushButton(tr("&Close"));
+	mainLayout->addWidget( buttonCancel, 5, 2 );
 
 	mainLayout->setColumnStretch( 3, 1 );
 
-	languageChange();
-
-	// signals and slots connections
+	ApplicationWindow *app = (ApplicationWindow *)parent;
+	boxStripSpaces->setChecked(app->strip_spaces);
+	boxSimplifySpaces->setChecked(app->simplify_spaces);
+	boxLines->setValue(app->ignoredLines);
+	boxRenameCols->setChecked(app->renameColumns);	
+	setSeparator(app->columnSeparator);
+	
+	resize(minimumSize());
+	
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( quit() ) );
 	connect( buttonHelp, SIGNAL( clicked() ), this, SLOT( help() ) );
+	connect(boxSimplifySpaces, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
+	connect(boxStripSpaces, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
+	connect(boxRenameCols, SIGNAL(stateChanged (int)), this, SLOT(enableApplyButton(int)));
+	connect(boxLines, SIGNAL(valueChanged (int)), this, SLOT(enableApplyButton(int)));
+	connect(boxSeparator, SIGNAL(activated (int)), this, SLOT(enableApplyButton(int)));	
+	connect(boxSeparator, SIGNAL(editTextChanged(const QString &)), this, SLOT(enableApplyButton(const QString &)));
 }
 
 ImportDialog::~ImportDialog()
@@ -145,40 +161,6 @@ void ImportDialog::help()
 	s +="\n"+tr("To avoid this problem you should precisely define the column separator using TAB and SPACE characters.");
 
 	QMessageBox::about(0, tr("QtiPlot - Help"),s);
-}
-
-void ImportDialog::languageChange()
-{
-	setWindowTitle( tr( "QtiPlot - ASCII Import Options" ) );
-	buttonOk->setText(tr("&Apply"));
-	buttonCancel->setText( tr("&Close") );	
-	buttonHelp->setText( tr( "&Help" ) );
-
-	sepText->setText( tr( "Separator" ));
-	boxSeparator->clear();
-	boxSeparator->addItem(tr("TAB"));
-	boxSeparator->addItem(tr("SPACE"));
-	boxSeparator->addItem(";" + tr("TAB"));
-	boxSeparator->addItem("," + tr("TAB"));
-	boxSeparator->addItem(";" + tr("SPACE"));
-	boxSeparator->addItem("," + tr("SPACE"));
-	boxSeparator->addItem(";");
-	boxSeparator->addItem(",");
-
-	boxRenameCols->setText(tr("Use first row to &name columns"));
-	boxStripSpaces->setText(tr("&Remove white spaces from line ends"));
-	boxSimplifySpaces->setText(tr("&Simplify white spaces" ));
-	ignoreLabel->setText( tr( "Ignore first" ));
-}
-
-void ImportDialog::renameCols(bool rename)
-{
-	boxRenameCols->setChecked(rename);	
-}
-
-void ImportDialog::setLines(int lines)
-{
-	boxLines->setValue(lines);
 }
 
 void ImportDialog::setSeparator(const QString& sep)
@@ -202,19 +184,14 @@ void ImportDialog::setSeparator(const QString& sep)
 	else
 	{
 		QString separator = sep;
-		boxSeparator->setItemText(boxSeparator->currentIndex(),separator.replace(" ","\\s").replace("\t","\\t"));
+		boxSeparator->setEditText(separator.replace(" ","\\s").replace("\t","\\t"));
 	}
-}
-
-void ImportDialog::setWhiteSpaceOptions(bool strip, bool simplify)
-{
-	boxStripSpaces->setChecked(strip);
-	boxSimplifySpaces->setChecked(simplify);
 }
 
 void ImportDialog::accept()
 {
 	QString sep = boxSeparator->currentText();
+	
 	if (boxSimplifySpaces->isChecked())
 		sep.replace(tr("TAB"), " ", Qt::CaseInsensitive);
 	else
@@ -223,7 +200,7 @@ void ImportDialog::accept()
 	sep.replace(tr("SPACE"), " ", Qt::CaseInsensitive);
 	sep.replace("\\s", " ");
 	sep.replace("\\t", "\t");
-
+		
 	if (sep.contains(QRegExp("[0-9.eE+-]")))
 	{
 		QMessageBox::warning(0, tr("QtiPlot - Import options error"),
@@ -231,8 +208,10 @@ void ImportDialog::accept()
 	}
 	else
 	{
-		emit options(sep, boxLines->value(), boxRenameCols->isChecked(),
+		ApplicationWindow *app = (ApplicationWindow *)this->parent();
+		app->setImportOptions(sep, boxLines->value(), boxRenameCols->isChecked(),
 				boxStripSpaces->isChecked(), boxSimplifySpaces->isChecked());
+
 		buttonOk->setEnabled( false );
 	}
 }
@@ -267,9 +246,7 @@ void ImportDialog::enableApplyButton(int)
 	buttonOk->setEnabled(true);
 }
 
-void ImportDialog::disableApplyButton()
+void ImportDialog::enableApplyButton(const QString &)
 {
-	buttonOk->setEnabled(false);
+	buttonOk->setEnabled(true);
 }
-
-
