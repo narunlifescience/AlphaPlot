@@ -31,36 +31,23 @@
 #include "parser.h"
 #include "symbolDialog.h"
 
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <qspinbox.h>
-#include <qtabwidget.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qtooltip.h>
-#include <q3whatsthis.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <q3buttongroup.h>
-#include <q3popupmenu.h>
-#include <q3memarray.h>
-#include <qinputdialog.h>
-#include <qfont.h>
-#include <qfontdialog.h> 
-#include <qcolordialog.h>
-#include <q3vbox.h> 
-#include <qmessagebox.h> 
-#include <q3widgetstack.h>
-
+#include <QListWidget>
+#include <QTableWidget>
+#include <QHeaderView>
+#include <QLineEdit>
+#include <QLayout>
+#include <QSpinBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QStackedWidget>
+#include <QWidget>
+#include <QMessageBox>
+#include <QComboBox>
+#include <QWidgetList>
 #include <QFileDialog>
-#include <Q3HBoxLayout>
-#include <Q3VBoxLayout>
+#include <QGroupBox>
+#include <QFontDialog>
+#include <QColorDialog>
 
 #include <qwt3d_color.h> 
 
@@ -70,37 +57,37 @@ Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	if ( !name )
 		setName( "Plot3DDialog" );
 	setWindowTitle( tr( "QtiPlot - Surface Plot Options" ) );
-	setSizeGripEnabled( true );
 
 	bars=0; points=0;
 
-	initScalesPage();
+    QHBoxLayout *hbox = new QHBoxLayout();
+    hbox->addStretch();
+	btnTable = new QPushButton();
+	btnTable->hide();
+    hbox->addWidget(btnTable);
+	buttonApply = new QPushButton(tr( "&Apply" ));
+    hbox->addWidget(buttonApply);
+	buttonOk = new QPushButton(tr( "&OK" ));
+	buttonOk->setDefault( true );
+    hbox->addWidget(buttonOk);
+	buttonCancel = new QPushButton(tr( "&Cancel" ));
+    hbox->addWidget(buttonCancel);
+
+    generalDialog = new QTabWidget();
+
+    initScalesPage();
 	initAxesPage();
 	initTitlePage();
 	initColorsPage();
 	initGeneralPage();
 
-	GroupBox1 = new Q3ButtonGroup(4,Qt::Horizontal,tr(""),this, "GroupBox1" );
-	GroupBox1->setFlat (true);
-
-	btnTable = new QPushButton( GroupBox1, "btnTable" );
-	btnTable->hide();
-
-	buttonApply = new QPushButton( GroupBox1, "buttonApply" );
-	buttonApply->setText( tr( "&Apply" ) );
-
-	buttonOk = new QPushButton(GroupBox1, "buttonOk" );
-	buttonOk->setText( tr( "&OK" ) );
-	buttonOk->setDefault( true );
-
-	buttonCancel = new QPushButton(GroupBox1, "buttonCancel" );
-	buttonCancel->setText( tr( "&Cancel" ) );
-
-	Q3VBoxLayout* vl = new Q3VBoxLayout(this,5,5, "vl");
+	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->addWidget(generalDialog);
-	vl->addWidget(GroupBox1);
+	vl->addLayout(hbox);
+ 
+    resize(minimumSize());
+    setMaximumHeight(height());
 
-	// signals and slots connections 
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
@@ -109,127 +96,125 @@ Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
 void Plot3DDialog::initScalesPage()
 {
-	generalDialog = new QTabWidget( this, "generalDialog" );
-
-	scale = new QWidget( generalDialog, "scale" );
-
-	axesList = new Q3ListBox( scale, "axesList" );
-	axesList->insertItem(tr( "X" ) );
-	axesList->insertItem(tr( "Y" ) );
-	axesList->insertItem(tr( "Z" ) );
+	axesList = new QListWidget();
+	axesList->addItem(tr( "X" ) );
+	axesList->addItem(tr( "Y" ) );
+	axesList->addItem(tr( "Z" ) );
 	axesList->setFixedWidth(50);
-	axesList->setCurrentItem (0);
+	axesList->setCurrentItem(0);
 
-	Q3VBox *vbox=new Q3VBox(scale,"vbox");
-	vbox->setSpacing(10);
-
-	Q3HBox *hbox=new Q3HBox(vbox,"hbox");
-	hbox->setSpacing(10);
-	GroupBox6 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),hbox, "GroupBox6" );
-
-	new QLabel( tr( "From" ), GroupBox6, "TextLabel48",0 );
-	boxFrom=new QLineEdit(GroupBox6, "from");
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("From")), 0, 0);
+	boxFrom = new QLineEdit();
 	boxFrom->setMaximumWidth(150);
-
-	new QLabel( tr( "To" ), GroupBox6, "TextLabel47",0 );
-	boxTo=new QLineEdit(GroupBox6, "to");
+    gl1->addWidget(boxFrom, 0, 1);
+    gl1->addWidget(new QLabel(tr("To")), 1, 0);
+	boxTo = new QLineEdit();
 	boxTo->setMaximumWidth(150);
-
-	new QLabel( tr( "Type" ), GroupBox6, "TextLabel49",0 );
-	boxType=new QComboBox(GroupBox6, "step");
-	boxType->insertItem(tr("linear"));
-	boxType->insertItem(tr("logarithmic"));
+    gl1->addWidget(boxTo, 1, 1);
+    gl1->addWidget(new QLabel(tr("Type")), 2, 0);
+	boxType=new QComboBox();
+	boxType->addItem(tr("linear"));
+	boxType->addItem(tr("logarithmic"));
 	boxType->setMaximumWidth(150);
+    gl1->addWidget(boxType, 2, 1);
 
-	TicksGroupBox = new Q3ButtonGroup(2,Qt::Horizontal, QString(),hbox, "GroupBox9" );
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
 
-	new QLabel( tr( "Major Ticks" ), TicksGroupBox , "TextLabel488",0 );
-	boxMajors=new QSpinBox(TicksGroupBox , "major");
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel(tr("Major Ticks")), 0, 0);
+	boxMajors = new QSpinBox();
+    gl2->addWidget(boxMajors, 0, 1);
+    gl2->addWidget(new QLabel(tr("Minor Ticks")), 1, 0);
+	boxMinors = new QSpinBox();
+    gl2->addWidget(boxMinors, 1, 1);
 
-	new QLabel( tr( "MinorTicks" ), TicksGroupBox , "TextLabel477",0 );
-	boxMinors=new QSpinBox(TicksGroupBox , "minors");
+    TicksGroupBox = new QGroupBox();
+    TicksGroupBox->setLayout(gl2);
 
-	Q3HBoxLayout* hlayout3 = new Q3HBoxLayout(scale,5,5, "hlayout3");
-	hlayout3->addWidget(axesList);
-	hlayout3->addWidget(vbox);
+	QHBoxLayout* hb = new QHBoxLayout();
+	hb->addWidget(axesList);
+	hb->addWidget(gb1);
+    hb->addWidget(TicksGroupBox);
 
+    scale = new QWidget();
+    scale->setLayout(hb);
 	generalDialog->insertTab(scale, tr( "&Scale" ) );
 }
 
 void Plot3DDialog::initAxesPage()
 {
-	axes = new QWidget( generalDialog, "axes" );
-
-	axesList2 = new Q3ListBox( axes, "axesList2" );
-	axesList2->insertItem(tr( "X" ) );
-	axesList2->insertItem(tr( "Y" ) );
-	axesList2->insertItem(tr( "Z" ) );
+	axesList2 = new QListWidget();
+	axesList2->addItem(tr( "X" ) );
+	axesList2->addItem(tr( "Y" ) );
+	axesList2->addItem(tr( "Z" ) );
 	axesList2->setFixedWidth(50);
 	axesList2->setCurrentItem (0);
 
-	GroupBox8 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),axes, "GroupBox8" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel(tr("Title")), 0, 0);
+	boxLabel = new QLineEdit();
+    gl1->addWidget(boxLabel, 0, 1);
+    gl1->addWidget(new QLabel(tr("Axis Font")), 1, 0);
 
-	new QLabel( tr( "Title" ), GroupBox8 , "TextLabel4880",0 );
-	boxLabel=new QLineEdit(GroupBox8, "label");
+    QHBoxLayout* hb1 = new QHBoxLayout();
+	btnLabelFont = new QPushButton(tr( "&Choose font" ));
+    hb1->addWidget(btnLabelFont);
+	buttonAxisLowerGreek = new QPushButton(QChar(0x3B1)); 
+    hb1->addWidget(buttonAxisLowerGreek);
+	buttonAxisUpperGreek = new QPushButton(QChar(0x393)); 
+    hb1->addWidget(buttonAxisUpperGreek);
+    hb1->addStretch();
+    gl1->addLayout(hb1, 1, 1);
 
-	new QLabel( tr( "Axis Font" ), GroupBox8 , "TextLabel4881",0 );
+    gl1->addWidget(new QLabel(tr("Major Ticks Length")), 2, 0);
+	boxMajorLength = new QLineEdit();
+    gl1->addWidget(boxMajorLength, 2, 1);
+    gl1->addWidget(new QLabel(tr("Minor Ticks Length")), 3, 0);
+	boxMinorLength = new QLineEdit();
+    gl1->addWidget(boxMinorLength, 3, 1);
 
-	Q3HBox *hbox = new Q3HBox (GroupBox8, "hbox");
-	hbox->setSpacing(5);
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
 
-	btnLabelFont=new QPushButton(hbox, "from");
-	btnLabelFont->setText( tr( "&Choose font" ) );
+	QHBoxLayout* hb2 = new QHBoxLayout();
+	hb2->addWidget(axesList2);
+	hb2->addWidget(gb1);
 
-	buttonAxisLowerGreek = new QPushButton(QChar(0x3B1), hbox, "buttonLowerGreek" ); 
-	buttonAxisUpperGreek = new QPushButton(QChar(0x393), hbox, "buttonUpperGreek" ); 
-
-	new QLabel( tr( "Major Ticks Length" ), GroupBox8 , "TextLabel4888",0 );
-	boxMajorLength=new QLineEdit(GroupBox8,"boxMajL");
-
-	new QLabel( tr( "Minor Ticks Length" ), GroupBox8 , "TextLabel4889",0 );
-	boxMinorLength=new QLineEdit(GroupBox8,"boxMinL");
-
-	Q3HBoxLayout* hlayout4 = new Q3HBoxLayout(axes,5,5, "hlayout4");
-	hlayout4->addWidget(axesList2);
-	hlayout4->addWidget(GroupBox8);
-
+    axes = new QWidget();
+    axes->setLayout(hb2);
 	generalDialog->insertTab(axes, tr( "&Axis" ) );
 
 	connect( buttonAxisLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
 	connect( buttonAxisUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
-	connect( axesList2, SIGNAL(highlighted (int) ), this, SLOT(viewAxisOptions(int) ) );
-	connect( axesList, SIGNAL(highlighted (int) ), this, SLOT(viewScaleLimits(int) ) );
-	connect( btnLabelFont, SIGNAL(clicked()), this, SLOT(pickAxisLabelFont() ) );
+	connect( axesList2, SIGNAL(highlighted(int)), this, SLOT(viewAxisOptions(int)));
+	connect( axesList, SIGNAL(highlighted(int)), this, SLOT(viewScaleLimits(int)));
+	connect( btnLabelFont, SIGNAL(clicked()), this, SLOT(pickAxisLabelFont()));
 }
 
 void Plot3DDialog::initTitlePage()
 {
-	title = new QWidget( generalDialog, "title" );
+    QHBoxLayout* hb1 = new QHBoxLayout();
+    hb1->addStretch();
+	buttonLowerGreek = new QPushButton(QChar(0x3B1)); 
+    hb1->addWidget(buttonLowerGreek);
+	buttonUpperGreek = new QPushButton(QChar(0x393)); 
+    hb1->addWidget(buttonUpperGreek);
+	btnTitleColor = new QPushButton(tr( "&Color" ));
+    hb1->addWidget(btnTitleColor);
+	btnTitleFont = new QPushButton(tr( "&Font" ));
+    hb1->addWidget(btnTitleFont);
+    hb1->addStretch();
 
-	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "" ),title, "GroupBox2" );
+	QVBoxLayout* vl = new QVBoxLayout();
+	boxTitle = new QLineEdit();
+	vl->addWidget(boxTitle);
+    vl->addLayout(hb1);
+    vl->addStretch();
 
-	boxTitle=new QLineEdit(GroupBox2,"title");
-
-	GroupBox4 = new Q3ButtonGroup(4,Qt::Horizontal,tr( "" ),GroupBox2, "GroupBox4" );
-	GroupBox4->setFlat (true);
-
-	buttonLowerGreek = new QPushButton(QChar(0x3B1), GroupBox4, "buttonLowerGreek" ); 
-	buttonLowerGreek->setMaximumWidth(40);
-
-	buttonUpperGreek = new QPushButton(QChar(0x393), GroupBox4, "buttonUpperGreek" ); 
-	buttonUpperGreek->setMaximumWidth(40);
-
-	btnTitleColor = new QPushButton( GroupBox4, "btnTitleColor" );
-	btnTitleColor->setText( tr( "&Color" ) );
-	btnTitleColor->setMaximumWidth(80);
-
-	btnTitleFont = new QPushButton( GroupBox4, "btnTitleFont" );
-	btnTitleFont->setText( tr( "&Font" ) );
-	btnTitleFont->setMaximumWidth(80);
-
-	Q3VBoxLayout* hlayout0 = new Q3VBoxLayout(title,5,5, "hlayout0");
-	hlayout0->addWidget(GroupBox2);
-
+    title = new QWidget();
+    title->setLayout(vl);
 	generalDialog->insertTab(title, tr( "&Title" ) );
 
 	connect( btnTitleColor, SIGNAL(clicked()), this, SLOT(pickTitleColor() ) );
@@ -240,56 +225,58 @@ void Plot3DDialog::initTitlePage()
 
 void Plot3DDialog::initColorsPage()
 {
-	colors = new QWidget( generalDialog, "colors" );
+    QVBoxLayout* vl1 = new QVBoxLayout();
+	btnFromColor = new QPushButton(tr( "Ma&x" ));
+    vl1->addWidget(btnFromColor);
+	btnToColor = new QPushButton(tr( "&Min" ));
+    vl1->addWidget(btnToColor);
+	btnColorMap = new QPushButton(tr( "Color Ma&p" ));
+    vl1->addWidget(btnColorMap);
 
-	Q3HBox  *box=new Q3HBox (colors, "box"); 
-	box->setMargin(5);
-	box->setSpacing (5);
+    QGroupBox *gb1 = new QGroupBox(tr( "Data" ));
+    gb1->setLayout(vl1);
 
-	GroupBox7 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "Data" ),box, "GroupBox7" );
+    QVBoxLayout* vl2 = new QVBoxLayout();
+	btnMesh = new QPushButton(tr( "&Line" ));
+    vl2->addWidget(btnMesh);
+	btnBackground = new QPushButton(tr( "&Background" ));
+    vl2->addWidget(btnBackground);
 
-	btnFromColor = new QPushButton( GroupBox7, "btnFrom" );
-	btnFromColor->setText( tr( "Ma&x" ) );
+    QGroupBox *gb2 = new QGroupBox(tr( "General" ));
+    gb2->setLayout(vl2);
 
-	btnToColor = new QPushButton( GroupBox7, "btnTo" );
-	btnToColor->setText( tr( "&Min" ) );
-	
-	btnColorMap = new QPushButton( GroupBox7);
-    btnColorMap->setText( tr( "Color Ma&p" ) );
+    QGridLayout *gl1 = new QGridLayout();
+	btnAxes = new QPushButton(tr( "&Axes" ));
+    gl1->addWidget(btnAxes, 0, 0);
+	btnLabels = new QPushButton(tr( "Lab&els" ));
+    gl1->addWidget(btnLabels, 0, 1);
+	btnNumbers = new QPushButton(tr( "&Numbers" ));
+    gl1->addWidget(btnNumbers, 1, 0);
+	btnGrid = new QPushButton(tr( "&Grid" ));
+    gl1->addWidget(btnGrid, 1, 1);
 
-	GroupBox3 = new Q3ButtonGroup(1,Qt::Horizontal,tr( "General" ),box, "GroupBox3" );
+    AxesColorGroupBox = new QGroupBox(tr( "Coordinate System" ));
+    AxesColorGroupBox->setLayout(gl1);
 
-	btnMesh = new QPushButton( GroupBox3, "btnMesh" );
-	btnMesh->setText( tr( "&Line" ) );
+    QHBoxLayout* hb1 = new QHBoxLayout();
+	hb1->addWidget(gb1);
+    hb1->addWidget(gb2);
+    hb1->addWidget(AxesColorGroupBox);
 
-	btnBackground = new QPushButton( GroupBox3, "btnBackground" );
-	btnBackground->setText( tr( "&Background" ) );
+    QHBoxLayout* hb2 = new QHBoxLayout();
+    hb2->addStretch();
+	hb2->addWidget(new QLabel( tr( "Opacity" )));
+	boxTransparency = new QSpinBox();
+    boxTransparency->setRange(0, 100);
+    boxTransparency->setSingleStep(5);
+    hb2->addWidget(boxTransparency);
 
-	GroupBox10= new Q3ButtonGroup(2,Qt::Horizontal,tr( "Coordinate System" ),box, "GroupBox11" );
+	QVBoxLayout* vl = new QVBoxLayout();
+	vl->addLayout(hb2);
+	vl->addLayout(hb1);
 
-	btnAxes = new QPushButton( GroupBox10, "btnAxes" );
-	btnAxes->setText( tr( "&Axes" ) );
-
-	btnLabels = new QPushButton( GroupBox10, "btnLabels" );
-	btnLabels->setText( tr( "Lab&els" ) );
-
-	btnNumbers = new QPushButton( GroupBox10, "btnNumbers" );
-	btnNumbers->setText( tr( "&Numbers" ) );
-
-	btnGrid = new QPushButton( GroupBox10, "btnGrid" );
-	btnGrid->setText( tr( "&Grid" ) );
-
-	Q3HBox  *box2=new Q3HBox (colors, "box2"); 
-	box2->setMargin(10);
-	box2->setSpacing (5);
-
-	new QLabel( tr( "Opacity" ), box2, "TextLabel466",0 );
-	boxTransparency = new QSpinBox(0,100,5,box2,"boxTransparency");
-
-	Q3VBoxLayout* hlayout2 = new Q3VBoxLayout(colors,5,5, "hlayout2");
-	hlayout2->addWidget(box);
-	hlayout2->addWidget(box2);
-
+    colors = new QWidget();
+    colors->setLayout(vl);
 	generalDialog->insertTab(colors, tr( "&Colors" ) );
 
 	connect( btnAxes, SIGNAL( clicked() ), this, SLOT(pickAxesColor() ) );
@@ -301,57 +288,80 @@ void Plot3DDialog::initColorsPage()
 	connect( btnColorMap, SIGNAL( clicked() ), this, SLOT(pickDataColorMap() ) );
 	connect( btnGrid, SIGNAL( clicked() ), this, SLOT(pickGridColor() ) );
 	connect( btnMesh, SIGNAL( clicked() ), this, SLOT(pickMeshColor() ) );
-	connect( boxTransparency, SIGNAL( valueChanged(int) ), 
-			this, SLOT(changeTransparency(int) ) );
+	connect( boxTransparency, SIGNAL( valueChanged(int) ), this, SLOT(changeTransparency(int) ) );
 }
 
 void Plot3DDialog::initGeneralPage()
 {
-	general = new QWidget( generalDialog);
+    QGridLayout *gl1 = new QGridLayout();
+	boxLegend = new QCheckBox(tr("Show Legend"));
+    gl1->addWidget(boxLegend, 0, 0);
+	boxOrthogonal = new QCheckBox(tr("Orthogonal"));
+    gl1->addWidget(boxOrthogonal, 0, 1);
 
-	GroupBox5 = new Q3ButtonGroup(2, Qt::Horizontal, QString::null, general);
+    gl1->addWidget(new QLabel(tr( "Line Width" )), 1, 0);
+	boxMeshLineWidth = new QSpinBox();
+    boxMeshLineWidth->setRange(1, 100);
+    gl1->addWidget(boxMeshLineWidth, 1, 1);
 
-	boxLegend= new QCheckBox(tr("Show Legend"), GroupBox5);
-	boxOrthogonal = new QCheckBox(tr("Orthogonal"), GroupBox5);
-
-	new QLabel(tr( "Line Width" ), GroupBox5, "TextLabel4887",0);
-	boxMeshLineWidth = new QSpinBox(1, 100, 1, GroupBox5,"boxWidth");
-
-	new QLabel( tr( "Resolution" ), GroupBox5, "TextLabel46",0 );
-	boxResolution= new QSpinBox(1, 100, 1, GroupBox5,"resolution");
+    gl1->addWidget(new QLabel( tr( "Resolution" )), 2, 0);
+	boxResolution = new QSpinBox();
+    boxResolution->setRange(1, 100);
 	boxResolution->setSpecialValueText( "1 (all data)" );
+    gl1->addWidget(boxResolution, 2, 1);
 
-	new QLabel( tr( "Numbers Font" ), GroupBox5, "TextLabel467",0 );
-	btnNumbersFont=new QPushButton(GroupBox5, "numbersFont");
-	btnNumbersFont->setText( tr( "&Choose Font" ) );
+    gl1->addWidget(new QLabel( tr( "Numbers Font" )), 3, 0);
+	btnNumbersFont=new QPushButton(tr( "&Choose Font" ));
+    gl1->addWidget(btnNumbersFont, 3, 1);
 
-	new QLabel( tr( "Distance labels - axis" ), GroupBox5, "TextLabel468",0 );
-	boxDistance=new QSpinBox(0, 1000, 5, GroupBox5, "numbersDistance");
+    gl1->addWidget(new QLabel( tr( "Distance labels - axis" )), 4, 0);
+	boxDistance = new QSpinBox();
+    boxDistance->setRange(0, 1000);
+    boxDistance->setSingleStep(5);
+    gl1->addWidget(boxDistance, 4, 1);
 
-	Q3ButtonGroup *GroupBox55 = new Q3ButtonGroup(2, Qt::Horizontal, QString::null, general);
+    QGroupBox *gb1 = new QGroupBox();
+    gb1->setLayout(gl1);
 
-	new QLabel(tr( "Zoom (%)" ), GroupBox55, "TextLabel4887",0);
-	boxZoom=new QSpinBox(1,10000,10,GroupBox55,"Zoom");
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel(tr( "Zoom (%)" )), 0, 0);
+	boxZoom = new QSpinBox();
+    boxZoom->setRange(1, 10000);
+    boxZoom->setSingleStep(10);
 
-	new QLabel( tr( "X Zoom (%)" ), GroupBox55, "TextLabel46",0 );
-	boxXScale= new QSpinBox(1,10000,10,GroupBox55,"X Zoom");
+    gl2->addWidget(boxZoom, 0, 1);
+    gl2->addWidget(new QLabel(tr( "X Zoom (%)" )), 1, 0);
+	boxXScale = new QSpinBox();
+    boxXScale->setRange(1, 10000);
+    boxXScale->setSingleStep(10);
+    gl2->addWidget(boxXScale, 1, 1);
 
-	new QLabel( tr( "Y Zoom (%)" ), GroupBox55, "TextLabel46",0 );
-	boxYScale= new QSpinBox(1,10000,10,GroupBox55,"Y Zoom");
+    gl2->addWidget(new QLabel(tr( "Y Zoom (%)" )), 2, 0);
+	boxYScale = new QSpinBox();
+    boxYScale->setRange(1, 10000);
+    boxYScale->setSingleStep(10);
+    gl2->addWidget(boxYScale, 2, 1);
 
-	new QLabel( tr( "Z Zoom (%)" ), GroupBox55, "TextLabel46",0 );
-	boxZScale= new QSpinBox(1,10000,10,GroupBox55,"Z Zoom");
+    gl2->addWidget(new QLabel(tr( "Z Zoom (%)" )), 3, 0);
+	boxZScale = new QSpinBox();
+    boxZScale->setRange(1, 10000);
+    boxZScale->setSingleStep(10);
+    gl2->addWidget(boxZScale, 3, 1);
 
-	Q3HBoxLayout* hlayout1 = new Q3HBoxLayout(general,5,5, "hlayout1");
-	hlayout1->addWidget(GroupBox5);
-	hlayout1->addWidget(GroupBox55);
+    QGroupBox *gb2 = new QGroupBox();
+    gb2->setLayout(gl2);
 
+	QHBoxLayout* hl = new QHBoxLayout();
+	hl->addWidget(gb1);
+	hl->addWidget(gb2);
+
+    general = new QWidget();
+    general->setLayout(hl);
 	generalDialog->insertTab(general, tr( "&General" ) );
 
 	connect( boxResolution, SIGNAL(valueChanged(int)), this, SIGNAL(updateResolution(int)));
 	connect( boxDistance, SIGNAL(valueChanged(int)), this, SIGNAL(adjustLabels(int)));
-	connect( boxMeshLineWidth, SIGNAL(valueChanged(int)), 
-			this, SIGNAL(updateMeshLineWidth(int)));
+	connect( boxMeshLineWidth, SIGNAL(valueChanged(int)), this, SIGNAL(updateMeshLineWidth(int)));
 	connect( boxOrthogonal, SIGNAL(toggled(bool)), this, SIGNAL(setOrtho(bool)));
 	connect( boxLegend, SIGNAL(toggled(bool)), this, SIGNAL(showColorLegend(bool)));
 	connect( boxZoom, SIGNAL(valueChanged(int)), this, SLOT(changeZoom(int)));
@@ -363,84 +373,76 @@ void Plot3DDialog::initGeneralPage()
 
 void Plot3DDialog::initPointsOptionsStack()
 {
-	points = new QWidget( generalDialog, "points" );
+    QHBoxLayout* hl1 = new QHBoxLayout();
+    hl1->addStretch();
+	hl1->addWidget(new QLabel( tr( "Style" )));
+	boxPointStyle = new QComboBox();
+	boxPointStyle->addItem(tr("Dot"));
+	boxPointStyle->addItem(tr("Cross Hair"));
+	boxPointStyle->addItem(tr("Cone"));
+    hl1->addWidget(boxPointStyle);
 
-	Q3ButtonGroup* GroupBox14 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),points,"GroupBox1" );
-	GroupBox14->setFlat(true);	
-
-	new QLabel( tr( "Style" ), GroupBox14 , "TextLabel4080",0 );
-	boxPointStyle = new QComboBox( GroupBox14, "btnPointStyle" );
-	boxPointStyle->insertItem(tr("Dot"));
-	boxPointStyle->insertItem(tr("Cross Hair"));
-	boxPointStyle->insertItem(tr("Cone"));
-
-	optionStack = new Q3WidgetStack( points, "optionStack" );
+	optionStack = new QStackedWidget();
 	optionStack->setFrameShape( QFrame::StyledPanel );
-	optionStack->setFrameShadow( Q3WidgetStack::Plain );
+	optionStack->setFrameShadow( QStackedWidget::Plain );
 
-	dotsPage = new QWidget( optionStack, "DotsPage" );
+    QGridLayout *gl1 = new QGridLayout();
+    gl1->addWidget(new QLabel( tr( "Width" )), 0, 0);
+	boxSize = new QLineEdit("5");
+    gl1->addWidget(boxSize, 0, 1);
 
-	Q3ButtonGroup *GroupBox11 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),dotsPage, "GroupBox11" );
-	GroupBox11->setFlat(true);
-
-	new QLabel( tr( "Width" ), GroupBox11 , "TextLabel408",0 );
-	boxSize = new QLineEdit( GroupBox11, "btnBarsRad" );
-	boxSize->setText("5");
-	new QLabel( tr( "Smooth angles" ), GroupBox11 , "TextLabel4018",0 );
-	boxSmooth= new QCheckBox("",GroupBox11,"smooth");
+	gl1->addWidget(new QLabel( tr( "Smooth angles" )), 1, 0);
+	boxSmooth = new QCheckBox();
 	boxSmooth->setChecked(false);
+    gl1->addWidget(boxSmooth, 1, 1);
 
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(dotsPage,5,5, "hlayout");
-	hlayout->addWidget(GroupBox11);
+    dotsPage = new QWidget();
+    dotsPage->setLayout(gl1);
+	optionStack->addWidget(dotsPage);
 
-	optionStack->addWidget( dotsPage, 0 );
-
-	crossPage = new QWidget( optionStack, "CrossPage" );
-	Q3ButtonGroup *GroupBox13 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),crossPage, "GroupBox11" );
-	GroupBox13->setFlat(true);
-
-	new QLabel( tr( "Radius" ), GroupBox13 , "TextLabel4080",0 );
-	boxCrossRad = new QLineEdit( GroupBox13, "btnBarsRad" );
-	boxCrossRad->setText("0.01");
-	new QLabel( tr( "Line Width" ), GroupBox13 , "TextLabel408",0 );
-	boxCrossLinewidth = new QLineEdit( GroupBox13, "btnLineWidth" );	
-	boxCrossLinewidth->setText("1");
-	new QLabel( tr( "Smooth line" ), GroupBox13 , "TextLabel4018",0 );
-	boxCrossSmooth= new QCheckBox("",GroupBox13,"smooth");
-	boxCrossSmooth->setChecked(true);
-	new QLabel( tr( "Boxed" ), GroupBox13 , "TextLabel40108",0 );
-	boxBoxed= new QCheckBox("",GroupBox13,"boxed");
+    QGridLayout *gl2 = new QGridLayout();
+    gl2->addWidget(new QLabel( tr( "Radius" )), 0, 0);
+	boxCrossRad = new QLineEdit("0.01");
+    gl2->addWidget(boxCrossRad, 0, 1);
+	gl2->addWidget(new QLabel(tr( "Line Width")), 1, 0);
+	boxCrossLinewidth = new QLineEdit("1");
+    gl2->addWidget(boxCrossLinewidth, 1, 1);
+	gl2->addWidget(new QLabel(tr( "Smooth line" )), 2, 0);
+	boxCrossSmooth = new QCheckBox();
+    boxCrossSmooth->setChecked(true);
+    gl2->addWidget(boxCrossSmooth, 2, 1);
+	gl2->addWidget(new QLabel(tr( "Boxed" )), 3, 0);
+	boxBoxed = new QCheckBox();
 	boxBoxed->setChecked(false);
+    gl2->addWidget(boxBoxed, 3, 1);
 
-	Q3VBoxLayout* hlayout01 = new Q3VBoxLayout(crossPage,5,5, "hlayout01");
+	crossPage = new QWidget();
+    crossPage->setLayout(gl2);
+	optionStack->addWidget(crossPage);
 
-	hlayout01->addWidget(GroupBox13);
-
-	optionStack->addWidget( crossPage, 1 );
-
-	conesPage = new QWidget( optionStack, "ConesPage" );
-
-	Q3ButtonGroup *GroupBox12 = new Q3ButtonGroup(2,Qt::Horizontal,tr( "" ),conesPage, "GroupBox11" );
-	GroupBox12->setFlat(true);
-
-	new QLabel( tr( "Width" ), GroupBox12 , "TextLabel408",0 );
-	boxConesRad= new QLineEdit( GroupBox12, "btnBarsRad" );
-	boxConesRad->setText("0.5");
-	new QLabel( tr( "Quality" ), GroupBox12 , "TextLabel4018",0 );
-	boxQuality= new QSpinBox(0,40,1,GroupBox12,"quality");
+    QGridLayout *gl3 = new QGridLayout();
+    gl3->addWidget(new QLabel( tr( "Width" )), 0, 0);
+	boxConesRad = new QLineEdit("0.5");
+    gl3->addWidget(boxConesRad, 0, 1);
+    gl3->addWidget(new QLabel( tr( "Quality" )), 1, 0);
+	boxQuality = new QSpinBox();
+    boxQuality->setRange(0, 40);
 	boxQuality->setValue(32);
+    gl3->addWidget(boxQuality, 1, 1);
 
-	Q3VBoxLayout* hlayout00 = new Q3VBoxLayout(conesPage,5,5, "hlayout00");
-	hlayout00->addWidget(GroupBox12);
+    conesPage = new QWidget();
+    conesPage->setLayout(gl3);
+	optionStack->addWidget(conesPage);
 
-	optionStack->addWidget( conesPage, 2 );
+	QVBoxLayout* vl = new QVBoxLayout();
+    vl->addLayout(hl1);
+    vl->addWidget(optionStack);
 
-	Q3VBoxLayout* hlayout02 = new Q3VBoxLayout(points,5,5, "hlayout02");
-	hlayout02->addWidget(GroupBox14);
-	hlayout02->addWidget(optionStack);
+    points = new QWidget();
+    points->setLayout(vl);
 
 	generalDialog->insertTab(points, tr( "Points" ),4 );
-	connect( boxPointStyle, SIGNAL( activated(int) ), optionStack, SLOT( raiseWidget(int) ) );
+	connect( boxPointStyle, SIGNAL( activated(int) ), optionStack, SLOT( setCurrentIndex(int) ) );
 }
 
 void Plot3DDialog::showLowerGreek()
@@ -493,23 +495,18 @@ void Plot3DDialog::disableAxesOptions()
 {
 	TicksGroupBox->setDisabled(true);
 	generalDialog->setTabEnabled(axes,false);
-	GroupBox10->setDisabled(true);
+	AxesColorGroupBox->setDisabled(true);
 	boxDistance->setDisabled(true);
 	btnNumbersFont->setDisabled(true);
 }
 
 void Plot3DDialog::showBarsTab(double rad)
 {
-	bars = new QWidget( generalDialog, "bars" );
+	bars = new QWidget( generalDialog );
 
-	Q3ButtonGroup *GroupBox11 = new Q3ButtonGroup(2,Qt::Horizontal,QString(),bars, "GroupBox11" );
-
-	new QLabel( tr( "Width" ), GroupBox11 , "TextLabel408",0 );
-	boxBarsRad = new QLineEdit( GroupBox11, "btnBarsRad" );
+	new QLabel( tr( "Width" ));
+	boxBarsRad = new QLineEdit();
 	boxBarsRad->setText(QString::number(rad));
-
-	Q3VBoxLayout* hlayout00 = new Q3VBoxLayout(bars,5,5, "hlayout00");
-	hlayout00->addWidget(GroupBox11);
 
 	generalDialog->insertTab(bars, tr( "Bars" ),4 );
 }
@@ -519,7 +516,7 @@ void Plot3DDialog::showPointsTab(double rad, bool smooth)
 	boxPointStyle->setCurrentItem(0);
 	boxSize->setText(QString::number(rad));
 	boxSmooth->setChecked(smooth);
-	optionStack->raiseWidget(0);
+	optionStack->setCurrentIndex (0);
 }
 
 void Plot3DDialog::showConesTab(double rad, int quality)
@@ -527,7 +524,7 @@ void Plot3DDialog::showConesTab(double rad, int quality)
 	boxPointStyle->setCurrentItem(2);
 	boxConesRad->setText(QString::number(rad));
 	boxQuality->setValue(quality);
-	optionStack->raiseWidget(2);
+	optionStack->setCurrentIndex (2);
 }
 
 void Plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, bool boxed)
@@ -537,7 +534,7 @@ void Plot3DDialog::showCrossHairTab(double rad, double linewidth, bool smooth, b
 	boxCrossLinewidth->setText(QString::number(linewidth));
 	boxCrossSmooth->setChecked(smooth);
 	boxBoxed->setChecked(boxed);
-	optionStack->raiseWidget(1);
+	optionStack->setCurrentIndex(1);
 }
 
 void Plot3DDialog::disableMeshOptions()
@@ -820,7 +817,7 @@ bool Plot3DDialog::updatePlot()
 
 	if (generalDialog->currentPage()==(QWidget*)scale)
 	{
-		axis=axesList->currentItem();
+		axis=axesList->currentRow();
 		QString from=boxFrom->text().lower();
 		QString to=boxTo->text().lower();
 		double start,end;
@@ -867,7 +864,7 @@ bool Plot3DDialog::updatePlot()
 
 	if (generalDialog->currentPage()==(QWidget*)axes)
 	{
-		axis=axesList2->currentItem();
+		axis=axesList2->currentRow();
 		labels[axis] = boxLabel->text();
 		emit updateLabel(axis, boxLabel->text(),axisFont(axis));
 		emit updateTickLength(axis,boxMajorLength->text().toDouble(),
@@ -908,7 +905,7 @@ void Plot3DDialog::pickAxisLabelFont()
 {
 	bool ok;
 	QFont font;
-	switch(axesList2->currentItem())
+	switch(axesList2->currentRow())
 	{
 		case 0:
 			font= QFontDialog::getFont(&ok,xAxisFont,this);

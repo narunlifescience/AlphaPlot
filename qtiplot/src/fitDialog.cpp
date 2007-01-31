@@ -94,6 +94,9 @@ void FitDialog::initFitPage()
     gl1->addWidget(lblFunction, 1, 1);
 	boxFunction = new QTextEdit();
 	boxFunction->setReadOnly(true);
+    QPalette palette = boxFunction->palette();
+    palette.setColor(QPalette::Active, QPalette::Base, Qt::lightGray);
+    boxFunction->setPalette(palette);
 	boxFunction->setMaximumHeight(50);
     gl1->addWidget(boxFunction, 2, 1);
 	gl1->addWidget(new QLabel( tr("Initial guesses")), 3, 0 );
@@ -326,15 +329,19 @@ void FitDialog::initAdvancedPage()
     gl1->addWidget(generatePointsBtn, 0, 0);
 
 	lblPoints = new QLabel( tr("Points"));
-    gl1->addWidget(lblPoints, 0, 1);
-
+   
 	generatePointsBox = new QSpinBox ();
     generatePointsBox->setRange(0, 1000000);
 	generatePointsBox->setSingleStep(10);
 	generatePointsBox->setValue(app->fitPoints);
 	connect( generatePointsBox, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
-    gl1->addWidget(generatePointsBox, 0, 2);
-	showPointsBox(!app->generateUniformFitPoints);
+    showPointsBox(!app->generateUniformFitPoints);
+
+    QHBoxLayout *hb = new QHBoxLayout();
+    hb->addStretch();
+    hb->addWidget(lblPoints);
+    hb->addWidget(generatePointsBox);
+	gl1->addLayout(hb, 0, 1);
 
 	samePointsBtn = new QRadioButton(tr( "Same X as Fitting &Data" ));
     gl1->addWidget(samePointsBtn, 1, 0);
@@ -635,9 +642,15 @@ void FitDialog::showFitPage()
 	{
         QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
         it->setFlags(!Qt::ItemIsEditable);
+        it->setBackground(QBrush(Qt::lightGray));
+        it->setForeground(QBrush(Qt::darkRed));
+        QFont font = it->font();
+        font.setBold(true);
+        it->setFont(font);
         boxParams->setItem(i, 0, it);
 
-        it = new QTableWidgetItem("1");
+        it = new QTableWidgetItem(QString::number(1, 'f', boxPrecision->value()));
+        it->setTextAlignment(Qt::AlignRight);
         boxParams->setItem(i, 1, it);
 	}
 
@@ -650,9 +663,10 @@ void FitDialog::showFitPage()
 		{
             QTableWidgetItem *it = new QTableWidgetItem();
             it->setFlags(!Qt::ItemIsEditable);
+            it->setBackground(QBrush(Qt::lightGray));
             boxParams->setItem(i, 2, it);
 
-			QCheckBox* cb = new QCheckBox();
+			QCheckBox *cb = new QCheckBox();
             boxParams->setCellWidget(i, 2, cb);
 		}
 	}
@@ -1070,8 +1084,8 @@ void FitDialog::accept()
 	{
 		for (i=0;i<rows;i++)
 		{//count the non-constant parameters
-			Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
-			if (!it->isChecked())
+            QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
+			if (!cb->isChecked())
 				n++;
 		}
 	}
@@ -1111,8 +1125,8 @@ void FitDialog::accept()
 			int j = 0;
 			for (i=0;i<rows;i++)
 			{
-				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
-				if (!it->isChecked())
+                QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
+				if (!cb->isChecked())
 				{
 					paramsInit[j] = boxParams->item(i,1)->text().toDouble();					
 					parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[j]);
@@ -1206,8 +1220,8 @@ void FitDialog::accept()
 			int j = 0;
 			for (i=0;i<rows;i++)
 			{
-				Q3CheckTableItem *it = (Q3CheckTableItem *)boxParams->item (i, 2);
-				if (!it->isChecked())
+                QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
+				if (!cb->isChecked())
 					boxParams->item(i, 1)->setText(QString::number(res[j++], 'g', app->fit_output_precision));
 			}
 		}

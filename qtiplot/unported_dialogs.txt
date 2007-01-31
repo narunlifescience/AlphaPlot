@@ -1,2 +1,1 @@
-Plot3DDialog
 PlotDialog

@@ -1205,7 +1205,8 @@ AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
 		initFramePage();
 		
 		QHBoxLayout * bottomButtons = new QHBoxLayout();
-		
+		bottomButtons->addStretch();
+
 		buttonApply = new QPushButton();
 		buttonApply->setText( tr( "&Apply" ) );
 		bottomButtons->addWidget( buttonApply );
@@ -1225,8 +1226,6 @@ AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
 		
 		for (int i=0;i<4;i++)
 			titles<<"";
-
-				setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed));
 
 	// signals and slots connections
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -2682,7 +2681,7 @@ bool AxesDialog::updatePlot()
 	             }
           }
 
-		d_graph->setScale(a, start, stp, end, boxMajorValue->value(), boxMinorValue->value(), 
+		d_graph->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->value(),
                              boxScaleType->currentIndex(), btnInvert->isChecked());
 		d_graph->emitModified();
 	}

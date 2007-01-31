@@ -4330,7 +4330,7 @@ void ApplicationWindow::readSettings()
 	drawBackbones = settings.value("/AxesBackbones", true).toBool();
 	axesLineWidth = settings.value("/AxesLineWidth", 1).toInt();
 	autoscale2DPlots = settings.value("/Autoscale", true).toBool();
-	autoScaleFonts = settings.value("/AutoscaleFonts", true).toBool();
+	autoScaleFonts = settings.value("/AutoScaleFonts", true).toBool();
 	autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
 
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
@@ -4414,7 +4414,6 @@ void ApplicationWindow::readSettings()
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
-	settings.setValue("/ColumnSeparator", "\t");//???Added by Gudjon, to fix crashes when ascii is imported
 	columnSeparator = settings.value("/ColumnSeparator", "\t").toString();
 	ignoredLines = settings.value("/IgnoreLines", 0).toInt();
 	renameColumns = settings.value("/RenameColumns", true).toBool();
@@ -6140,12 +6139,12 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 
 		Plot3DDialog* pd= new Plot3DDialog(this,"Plot3DDialog",true,0);
 		pd->setPlot(g);
+
 		connect (pd,SIGNAL(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)),
 				g,SLOT(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)));
 		connect(pd, SIGNAL(setDataColorMap(const QString&)), g, SLOT(setDataColorMap(const QString&)));
 		connect (pd,SIGNAL(updateDataColors(const QColor&,const QColor&)),
 				g,SLOT(setDataColors(const QColor&,const QColor&)));
-
 		connect (pd,SIGNAL(updateTitle(const QString&,const QColor&,const QFont&)),
 				g,SLOT(updateTitle(const QString&,const QColor&,const QFont&)));
 		connect (pd,SIGNAL(updateResolution(int)),g,SLOT(setResolution(int)));
@@ -6153,25 +6152,19 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		connect (pd,SIGNAL(setOrtho(bool)), g, SLOT(setOrtho(bool)));
 		connect (pd,SIGNAL(updateLabel(int,const QString&, const QFont&)),
 				g,SLOT(updateLabel(int,const QString&, const QFont&)));
-		connect (pd,SIGNAL(updateScale(int,const QStringList&)),
-				g,SLOT(updateScale(int,const QStringList&)));
+		connect (pd,SIGNAL(updateScale(int,const QStringList&)), g,SLOT(updateScale(int,const QStringList&)));
 		connect (pd,SIGNAL(adjustLabels(int)), g,SLOT(adjustLabels(int)));
-		connect (pd,SIGNAL(updateTickLength(int, double, double)),
-				g,SLOT(updateTickLength(int, double, double)));
-		connect (pd,SIGNAL(setNumbersFont(const QFont&)),
-				g,SLOT(setNumbersFont(const QFont&)));
-		connect (pd,SIGNAL(updateMeshLineWidth(int)),
-				g,SLOT(setMeshLineWidth(int)));
+		connect (pd,SIGNAL(updateTickLength(int, double, double)), g,SLOT(updateTickLength(int, double, double)));
+		connect (pd,SIGNAL(setNumbersFont(const QFont&)), g,SLOT(setNumbersFont(const QFont&)));
+		connect (pd,SIGNAL(updateMeshLineWidth(int)), g,SLOT(setMeshLineWidth(int)));
 		connect (pd,SIGNAL(updateBars(double)),g,SLOT(updateBars(double)));
 		connect (pd,SIGNAL(updatePoints(double, bool)),g, SLOT(updatePoints(double, bool)));
 		connect (pd,SIGNAL(updateTransparency(double)),g, SLOT(changeTransparency(double)));
 		connect (pd,SIGNAL(showWorksheet()),g,SLOT(showWorksheet()));
 		connect (pd,SIGNAL(updateZoom(double)),g,SLOT(updateZoom(double)));
-		connect (pd,SIGNAL(updateScaling(double,double,double)),
-				g,SLOT(updateScaling(double,double,double)));
+		connect (pd,SIGNAL(updateScaling(double,double,double)), g,SLOT(updateScaling(double,double,double)));
 		connect (pd,SIGNAL(updateCones(double, int)),g,SLOT(updateCones(double, int)));
-		connect (pd,SIGNAL(updateCross(double, double, bool, bool)),
-				g,SLOT(updateCross(double, double, bool, bool)));
+		connect (pd,SIGNAL(updateCross(double, double, bool, bool)), g,SLOT(updateCross(double, double, bool, bool)));
 
 		pd->setMeshLineWidth(g->meshLineWidth());
 		pd->setTransparency(g->transparency());

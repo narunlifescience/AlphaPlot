@@ -1521,7 +1521,7 @@ void Graph::setAutoScale()
 	emit modifiedGraph();
 }
 
-void Graph::setScale(int axis, double start, double step, double end, int majorTicks, int minorTicks, int type, bool inverted)
+void Graph::setScale(int axis, double start, double end, double step, int majorTicks, int minorTicks, int type, bool inverted)
 {
 	QwtScaleEngine *sc_engine = 0;
 	if (type)

@@ -30,29 +30,19 @@
 #define PLOT3DDIALOG_H
 
 #include "graph3D.h"
-
-#include <qvariant.h>
-#include <qdialog.h>
-#include <q3memarray.h>
-#include <qstring.h>
-
-#include <qwt3d_color.h> 
-#include <QLabel>
 #include <QCheckBox>
 
 class QComboBox;
 class QLabel;
 class QLineEdit;
-class Q3ListBox;
-class Q3ListBoxItem;
+class QListWidget;
 class QPushButton;
 class QRadioButton;
 class QSpinBox;
 class QTabWidget;
 class QWidget;
 class QStringList;
-class Q3ButtonGroup;
-class Q3WidgetStack;
+class QStackedWidget;
 	
 using namespace Qwt3D;
 
@@ -64,37 +54,6 @@ class Plot3DDialog : public QDialog
 public:
     Plot3DDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~Plot3DDialog();
-
-	void initScalesPage();
-	void initAxesPage();
-	void initTitlePage();
-	void initColorsPage();
-	void initGeneralPage();
-
-	QSpinBox *boxMeshLineWidth;
-    QPushButton* buttonApply;
-    QPushButton* buttonOk;
-    QPushButton* buttonCancel, *buttonLowerGreek, *buttonUpperGreek;
-	QPushButton* btnTitleColor, *btnTitleFont, *btnLabelFont, *btnGrid;
-	QPushButton *btnBackground, *btnMesh, *btnAxes, *btnTitle, *btnLabels, *btnNumbers;
-	QPushButton *btnNumbersFont, *btnFromColor, *btnToColor, *btnTable, *btnColorMap;
-	QPushButton *buttonAxisLowerGreek, *buttonAxisUpperGreek;
-    QTabWidget* generalDialog;
-	QWidget *scale, *colors, *general, *axes, *title, *bars, *points;
-	QLineEdit *boxTitle, *boxFrom, *boxTo, *boxLabel;
-	QSpinBox *boxMajors, *boxMinors;
-	Q3ButtonGroup *GroupBox1, *GroupBox2, *GroupBox3, *GroupBox4;
-	Q3ButtonGroup *GroupBox5, *GroupBox6, *GroupBox8, *TicksGroupBox;
-	Q3ButtonGroup *GroupBox10, *GroupBox7;
-	QSpinBox *boxResolution, *boxDistance, *boxTransparency;
-	QCheckBox *boxLegend, *boxSmooth, *boxBoxed, *boxCrossSmooth, *boxOrthogonal;
-	Q3ListBox *axesList, *axesList2;
-	QComboBox *boxType, *boxPointStyle;
-	QLineEdit *boxMajorLength, *boxMinorLength, *boxConesRad;
-	QSpinBox *boxZoom, *boxXScale, *boxYScale, *boxZScale, *boxQuality;
-	QLineEdit *boxSize, *boxBarsRad, *boxCrossRad, *boxCrossLinewidth;
-	Q3WidgetStack *	optionStack;
-	QWidget *dotsPage, *conesPage, *crossPage;
 	
 public slots:
 	void accept();
@@ -193,11 +152,40 @@ signals:
 	void setDataColorMap(const QString&);
 	
 private:
+    void initScalesPage();
+	void initAxesPage();
+	void initTitlePage();
+	void initColorsPage();
+	void initGeneralPage();
+
     Graph3D *d_plot;
 	QFont titleFont, xAxisFont,yAxisFont,zAxisFont, numbersFont;
 	QStringList labels, scales, tickLengths;
 	QColor titleColor,meshColor,bgColor, axesColor, numColor,labelColor, gridColor;
 	QColor fromColor, toColor; //custom data colors
+
+    QSpinBox *boxMeshLineWidth;
+    QPushButton* buttonApply;
+    QPushButton* buttonOk;
+    QPushButton* buttonCancel, *buttonLowerGreek, *buttonUpperGreek;
+	QPushButton* btnTitleColor, *btnTitleFont, *btnLabelFont, *btnGrid;
+	QPushButton *btnBackground, *btnMesh, *btnAxes, *btnTitle, *btnLabels, *btnNumbers;
+	QPushButton *btnNumbersFont, *btnFromColor, *btnToColor, *btnTable, *btnColorMap;
+	QPushButton *buttonAxisLowerGreek, *buttonAxisUpperGreek;
+    QTabWidget* generalDialog;
+	QWidget *scale, *colors, *general, *axes, *title, *bars, *points;
+	QLineEdit *boxTitle, *boxFrom, *boxTo, *boxLabel;
+	QSpinBox *boxMajors, *boxMinors;
+	QGroupBox *TicksGroupBox, *AxesColorGroupBox;
+	QSpinBox *boxResolution, *boxDistance, *boxTransparency;
+	QCheckBox *boxLegend, *boxSmooth, *boxBoxed, *boxCrossSmooth, *boxOrthogonal;
+	QListWidget *axesList, *axesList2;
+	QComboBox *boxType, *boxPointStyle;
+	QLineEdit *boxMajorLength, *boxMinorLength, *boxConesRad;
+	QSpinBox *boxZoom, *boxXScale, *boxYScale, *boxZScale, *boxQuality;
+	QLineEdit *boxSize, *boxBarsRad, *boxCrossRad, *boxCrossLinewidth;
+	QStackedWidget *optionStack;
+	QWidget *dotsPage, *conesPage, *crossPage;
 };
 
 #endif
