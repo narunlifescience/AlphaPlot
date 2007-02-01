@@ -54,7 +54,12 @@ class Graph;
 class Table;
 class LayerButton;
 	
-//! Multi layer widget
+/**
+ * \brief An MDI window (MyWidget) managing one or more Graph objects.
+ *
+ * %Note that several parts of the code, as well as the user interface, refer to MultiLayer as "graph" or "plot",
+ * practically guaranteeing confusion with the classes Graph and Plot.
+ */
 class MultiLayer: public MyWidget
 {
 	Q_OBJECT

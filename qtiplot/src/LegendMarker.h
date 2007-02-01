@@ -40,16 +40,23 @@
 #include "graph.h"
 #include "plot.h"
 	
-//! Legend marker (extension to QwtPlotMarker)
+/**
+ * \brief A piece of text to be drawn on a Plot.
+ *
+ * Contrary to its name, LegendMarker is not just used for the plot legend,
+ * but for any kind of text; particularly also for the "Add Text" tool.
+ * Accordingly, it is also referred to as "TextMarker" by other classes.
+ */
 class LegendMarker: public QwtPlotMarker
 {
 public:
     LegendMarker(Plot *);
 	~LegendMarker();
 
+	//! The kinds of frame a LegendMarker can draw around the Text.
 	enum FrameStyle{None = 0, Line = 1, Shadow=2};
-	
-    virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
+
+	virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	QString getText();
 	void setText(const QString& s);

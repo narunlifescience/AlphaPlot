@@ -38,7 +38,14 @@ class QCloseEvent;
 class QString;
 class Folder;
 
-//! Extension to QWidget
+/**
+ * \brief Base class of all MDI client windows.
+ *
+ * These are the main objects of every Qtiplot project.
+ * All content (apart from the directory structure) is managed by subclasses of MyWidget.
+ *
+ * \sa Folder, ApplicationWindow
+ */
 class MyWidget: public QWidget
 {
 	Q_OBJECT

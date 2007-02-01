@@ -78,7 +78,16 @@ class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
 
-//! QtiPlot's main window
+/**
+ * \brief QtiPlot's main window.
+ *
+ * This class contains the main part of the user interface as well as the central project management facilities.
+ *
+ * It manages all MyWidget MDI Windows in a project, knows about their organization in Folder objects
+ * and contains the parts of the project explorer not implemented in Folder, FolderListItem or FolderListView.
+ * 
+ * Furthermore, it is responsible for opening all sorts of dialogs.
+ */
 class ApplicationWindow: public QMainWindow, public scripted
 {
     Q_OBJECT
@@ -145,7 +154,7 @@ private:
 
 public:
 	/*! Generates a new unique name starting with string /param name.
-	You can force the output to be a name different of /param name, 
+	You can force the output to be a name different from /param name, 
 	even if 'name' is not used in the project, by setting /param increment = true (the default)
 	*/
 	QString generateUniqueName(const QString& name, bool increment = true);
@@ -714,7 +723,7 @@ public slots:
 	//! Ask confirmation from user, deletes the folder f if user confirms and returns true, otherwise returns false;
 	bool deleteFolder(Folder *f);
 
-	//! Deletes the currently selected items from the list view lv
+	//! Deletes the currently selected items from the list view #lv.
 	void deleteSelectedItems();
 
 	//! Sets all items in the folders list view to be desactivated (QPixmap = folder_closed_xpm)

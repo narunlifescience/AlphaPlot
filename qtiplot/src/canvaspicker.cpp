@@ -42,8 +42,8 @@
 
 #include <Q3MemArray>
 
-CanvasPicker::CanvasPicker(Graph *plot):
-	QObject(plot)
+CanvasPicker::CanvasPicker(Graph *graph):
+	QObject(graph)
 {
 	moved = FALSE;
 	movedGraph = FALSE;
@@ -52,7 +52,7 @@ CanvasPicker::CanvasPicker(Graph *plot):
 	resizeLineFromStart = false;
 	resizeLineFromEnd = false;
 
-	plotWidget=plot->plotWidget();
+	plotWidget=graph->plotWidget();
 
 	QwtPlotCanvas *canvas = plotWidget->canvas();
 	canvas->installEventFilter(this);
@@ -107,23 +107,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				}
 			}
 			break;
-
-		case QEvent::Paint:
-			{   
-				// The inPaint guard protecs from producing endless paint events.
-				static bool inPaint = FALSE;
-				if (plotWidget->canvas()->hasFocus() && !inPaint )
-				{
-					const QPaintEvent *pe = (const QPaintEvent *)e;
-					inPaint = TRUE;
-
-					plotWidget->canvas()->repaint(pe->rect().x(), pe->rect().y(),
-							pe->rect().width(), pe->rect().height(), pe->erased());
-					inPaint = FALSE;
-					return TRUE; 
-				}
-				break;
-			}
 
 		case QEvent::MouseButtonPress:
 			{
@@ -718,7 +701,6 @@ void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 	mrk.detach();	
 }
 
-// Selects and highlights the marker 
 bool CanvasPicker::selectMarker(const QPoint& point)
 {
 	if (plot()->zoomOn())

@@ -66,7 +66,22 @@ class Plot;
 class MultiPeakFit;
 class ApplicationWindow;
 
-//! Graph widget
+/**
+ * \brief A 2D-plotting widget.
+ *
+ * Graphs are managed by a MultiLayer, where they are sometimes referred to as "graphs" and sometimes as "layers".
+ * Other parts of the code also call them "plots", regardless of the fact that there's also a class Plot.
+ * Within the user interface, they are quite consistently called "layers".
+ *
+ * Each graph owns a Plot called #d_plot, which handles parts of the curve, axis and marker management (similarly to QwtPlot),
+ * as well as the pickers #d_zoomer (a QwtPlotZoomer), #titlePicker (a TitlePicker), #scalePicker (a ScalePicker) and #cp (a CanvasPicker),
+ * which handle various parts of the user interaction.
+ *
+ * Graph contains support for various curve types (see #CurveType),
+ * some of them relying on Qtiplot-specific QwtPlotCurve subclasses for parts of the functionality.
+ *
+ * %Note that some of Graph's methods are implemented in analysis.cpp.
+ */
 class Graph: public QWidget
 {
 	Q_OBJECT
@@ -86,14 +101,16 @@ class Graph: public QWidget
 		ScalePicker *scalePicker;
 		CanvasPicker* cp;
 
-		//! Returns the name of the parent multilayer plot
+		//! Returns the name of the parent MultiLayer object.
 		QString parentPlotName();
 
 		public slots:
+			//! Accessor method for #d_plot.
 			Plot* plotWidget(){return d_plot;};
 		void copy(Graph* g);
 
-		// pie curves	
+		// pie curves
+		//! Returns true if this Graph is a pie plot, false else.
 		bool isPiePlot(){return piePlot;};
 		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name);
@@ -113,7 +130,12 @@ class Graph: public QWidget
 		//! Removes a curve defined by its index.
 		void removeCurve(int index);
 
-		//! Removes a curve defined by the title/plot association string s.
+		/**
+		 * \brief Removes a curve defined by the title/plot association string s.
+		 *
+		 * See #associations for a documentation of the format of s.
+		 * \sa #associations, curvesList()
+		 */
 		void removeCurve(const QString& s);
 
 		void updateData(Table* w, int curve);
@@ -657,9 +679,29 @@ signals:
 		GridOptions grid;
 		MarkerType selectedMarkerType;
 		QwtPlotMarker::LineStyle mrklStyle;
+		/**
+		 * \brief A list of data sources for my curves.
+		 *
+		 * Elements must be in either of the following forms:
+		 *  - &lt;id of X column> "(X)," &lt;id of Y column> "(Y)" [ "," &lt;id of error column> ("(xErr)" | "(yErr)") ]
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column>"(Y)," &lt;id of Xend column> "(X)," &lt;id of Yend column> "(Y)"\n
+		 *    (denoting start and end coordinates for the #VectXYXY style)
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
+		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
+		 *  - A function.
+		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F<number>'.
+		 *    Formulas are stored in the associated FunctionCurve object.
+		 * .
+		 * Column ids are of the form '&gt;name of table> "_" &gt;name of column>'.
+		 *
+		 * [ TODO: what about pie charts, histograms, box plots and others? ]
+		 *
+		 * Access via plotAssociations() and setPlotAssociations().
+		 * \sa curvesList()
+		 */
 		QStringList associations;
 
-		//! Tells weather the user specified a step for a scale
+		//! Tells whether the user specified a step for a scale
 		Q3MemArray<bool> d_user_step;
 		//! Curve types
 		Q3MemArray<int> c_type; 

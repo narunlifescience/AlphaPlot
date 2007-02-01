@@ -31,7 +31,14 @@
 
 class Graph;
 	
-//! Canvas picker
+/**
+ * \brief Handles parts of the user interaction for a Plot by registering itself as an event filter for its QwtPlotCanvas.
+ *
+ * CanvasPicker relies heavily on its parent being the Graph that owns the Plot it operates on.
+ * Additionally, parts of the code use Graph::plotWidget instead of CanvasPicker::plotWidget.
+ * 
+ * \sa Plot::mousePressEvent, Plot::mouseReleaseEvent, Plot::presspos, Plot::movedGraph
+ */
 class CanvasPicker: public QObject
 {
     Q_OBJECT
@@ -49,26 +56,36 @@ private:
 	//! Called when the user releases the mouse button after a line marker resize action
 	/**
 	 * \param point the mouse position
-	*/
+	 */
 	void resizeLineMarker(const QPoint& point);
 
 	//! Selects and highlights the marker 
 	/**
 	 * \param point the mouse position
-	*/
+	 */
 	bool selectMarker(const QPoint& point);
-	void moveMarker(QPoint& );
+	void moveMarker(QPoint& position);
 	void releaseMarker();
 
+	/**
+	 * \brief Return my parent as a Graph.
+	 *
+	 * %Note that contrary to the method name, this does NOT return the Plot I operate on.
+	 */
 	Graph *plot() { return (Graph *)parent(); }
 	
+	/**
+	 * \brief The Plot I handle user interaction for.
+	 *
+	 * %Note that this has to be owned by my parent Graph.
+	 */
 	Plot* plotWidget;	
 	QPoint startLinePoint, endLinePoint;
 
-	//! Tells if the user resizes a line marker via the mouse using the start point
+	//! Tells whether the user resizes a line marker via the mouse using the start point
 	bool resizeLineFromStart;
 	
-	//! Tells if the user resizes a line marker via the mouse using the end point
+	//! Tells whether the user resizes a line marker via the mouse using the end point
 	bool resizeLineFromEnd;	
 	
 signals:

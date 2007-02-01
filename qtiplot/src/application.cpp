@@ -10573,9 +10573,9 @@ void ApplicationWindow::showDataSetDialog(const QString& whichFit)
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setCurveNames(activeGraph->curvesList());
 	ad->setOperationType(whichFit);
-	ad->exec();
 
 	connect (ad,SIGNAL(analyze(const QString&, const QString&)),this,SLOT(analyzeCurve(const QString&, const QString& )));
+	ad->exec();
 }
 
 void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& curveTitle)

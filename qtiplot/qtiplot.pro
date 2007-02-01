@@ -30,6 +30,7 @@ INCLUDEPATH       += ../3rdparty/qwt/src
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
 INCLUDEPATH		  += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
+win32:INCLUDEPATH       += C:\GSL\include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
 #############################################################################

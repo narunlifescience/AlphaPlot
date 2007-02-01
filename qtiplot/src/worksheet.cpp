@@ -2479,7 +2479,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		QString s = t.readLine();//read first line after the ignored ones
 		while ( !t.atEnd() ) 
 		{
-			t.readLine(); 
+			t.readLine();
 			rows++;
 			qApp->processEvents(QEventLoop::ExcludeUserInput);
 		}
@@ -2611,7 +2611,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				addColumns(lc - cols);
 				cols = lc;
 			}
-			for (int j=0; j<cols; j++)
+			for (int j=0; j<cols && j<lc; j++)
 				worksheet->setText(i, j, line[j]);
 		}
 		progress.setProgress(steps+1);
