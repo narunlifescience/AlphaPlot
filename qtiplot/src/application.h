@@ -374,7 +374,7 @@ public slots:
 	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
     
 	void showExplorer();
-	QStringList columnsList(Table::PlotDesignation plotType);
+	QStringList columnsList(Table::PlotDesignation plotType = Table::All);
 	
 	void undo();
 	void redo();

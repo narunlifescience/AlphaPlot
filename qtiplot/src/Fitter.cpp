@@ -274,7 +274,7 @@ QString Fit::logFitInfo(double *par, int iterations, int status, const QString& 
 		case Statistical:
 			info += tr("Statistical");
 			break;
-		case ArbDataset:
+		case Dataset:
 			info += tr("Arbitrary Dataset") + ": " + weighting_dataset;
 			break;
 	}
@@ -405,7 +405,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 					d_w[i] = sqrt(d_y[i]);
 			}
 			break;
-		case ArbDataset:
+		case Dataset:
 			{//d_w are equal to the values of the arbitrary dataset
 				if (colName.isEmpty())
 					return false;

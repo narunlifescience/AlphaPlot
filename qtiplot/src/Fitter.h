@@ -52,7 +52,7 @@ class Fit : public QObject
 		typedef int (*fit_function_fdf)(const gsl_vector *, void *, gsl_vector *, gsl_matrix *);
 
 		enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
-		enum WeightingMethod{NoWeighting, Instrumental, Statistical, ArbDataset};
+		enum WeightingMethod{NoWeighting, Instrumental, Statistical, Dataset};
 
 		Fit(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
 		~Fit();

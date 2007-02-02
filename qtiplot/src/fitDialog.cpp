@@ -1343,7 +1343,7 @@ void FitDialog::selectSrcTable(int tabnr)
 
 void FitDialog::enableWeightingParameters(int index)
 {
-	if (index == Fit::ArbDataset)
+	if (index == Fit::Dataset)
 	{
 		tableNamesBox->setEnabled(true);
 		colNamesBox->setEnabled(true);

@@ -449,7 +449,7 @@ class Fit : QObject
 %End
 public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
-  enum WeightingMethod{NoWeighting, Instrumental, Statistical, ArbDataset};
+  enum WeightingMethod{NoWeighting, Instrumental, Statistical, Dataset};
 
   Fit(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
   ~Fit();
