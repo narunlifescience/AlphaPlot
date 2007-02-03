@@ -100,7 +100,8 @@ public slots:
 
 	//! Applies the user changes to the numerical format of the output results
 	void applyChanges();
-	void enableApplyChanges(int);
+	//! Enable the "Apply" button
+	void enableApplyChanges();
 
 	//! Deletes the result fit curves from the plot
 	void deleteFitCurves();

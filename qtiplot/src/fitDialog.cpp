@@ -323,7 +323,7 @@ void FitDialog::initAdvancedPage()
 
 	generatePointsBtn = new QRadioButton (tr("&Uniform X Function"));
 	generatePointsBtn->setChecked(app->generateUniformFitPoints);
-	connect( generatePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( generatePointsBtn, SIGNAL(toggled(bool)), this, SLOT(enableApplyChanges()));
 
     QGridLayout *gl1 = new QGridLayout();
     gl1->addWidget(generatePointsBtn, 0, 0);
@@ -334,7 +334,7 @@ void FitDialog::initAdvancedPage()
     generatePointsBox->setRange(0, 1000000);
 	generatePointsBox->setSingleStep(10);
 	generatePointsBox->setValue(app->fitPoints);
-	connect( generatePointsBox, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( generatePointsBox, SIGNAL(valueChanged(int)), this, SLOT(enableApplyChanges()));
     showPointsBox(!app->generateUniformFitPoints);
 
     QHBoxLayout *hb = new QHBoxLayout();
@@ -346,7 +346,7 @@ void FitDialog::initAdvancedPage()
 	samePointsBtn = new QRadioButton(tr( "Same X as Fitting &Data" ));
     gl1->addWidget(samePointsBtn, 1, 0);
 	samePointsBtn->setChecked(!app->generateUniformFitPoints);
-	connect( samePointsBtn, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( samePointsBtn, SIGNAL(toggled(bool)), this, SLOT(enableApplyChanges()));
 
     QGroupBox *gb1 = new QGroupBox(tr("Generated Fit Curve"));
     gb1->setLayout(gl1);
@@ -356,7 +356,7 @@ void FitDialog::initAdvancedPage()
 	boxPrecision = new QSpinBox ();
     boxPrecision->setRange(0, 15);
 	boxPrecision->setValue (app->fit_output_precision);
-	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( boxPrecision, SIGNAL(valueChanged (int)), this, SLOT(enableApplyChanges()));
     gl2->addWidget(boxPrecision, 0, 2);
 	btnParamTable = new QPushButton(tr( "Parameters &Table" ));
     gl2->addWidget(btnParamTable, 1, 0);
@@ -371,18 +371,18 @@ void FitDialog::initAdvancedPage()
 
 	scaleErrorsBox = new QCheckBox(tr("Scale Errors with sqrt(Chi^2/doF)"));
 	scaleErrorsBox->setChecked(app->fit_scale_errors);
-	connect( scaleErrorsBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( scaleErrorsBox, SIGNAL(toggled(bool)), this, SLOT(enableApplyChanges()));
 
     QGroupBox *gb2 = new QGroupBox(tr("Parameters Output"));
     gb2->setLayout(gl2);
 
 	logBox = new QCheckBox (tr("&Write Parameters to Result Log"));
 	logBox->setChecked(app->writeFitResultsToLog);
-	connect( logBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( logBox, SIGNAL(toggled(bool)), this, SLOT(enableApplyChanges()));
 
 	plotLabelBox = new QCheckBox (tr("&Paste Parameters to Plot"));
 	plotLabelBox->setChecked(app->pasteFitResultsToPlot);
-	connect( plotLabelBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+	connect( plotLabelBox, SIGNAL(toggled(bool)), this, SLOT(enableApplyChanges()));
 
     QHBoxLayout *hbox1 = new QHBoxLayout();
 
@@ -660,6 +660,7 @@ void FitDialog::showFitPage()
         boxParams->setItem(i, 1, it);
 	}
 
+	// FIXME: this check is pretty ugly, should be changed to a more elegant way some time
 	if (!boxUseBuiltIn->isChecked() || 
 		(boxUseBuiltIn->isChecked()&& categoryBox->currentRow()!=3 && categoryBox->currentRow()!=1))
 	{
@@ -1086,7 +1087,7 @@ void FitDialog::accept()
 	}
 
 	int i, n=0, rows=boxParams->rowCount();
-	if (boxParams->columnCount() == 3)
+	if (!boxParams->isColumnHidden(2))
 	{
 		for (i=0;i<rows;i++)
 		{//count the non-constant parameters
@@ -1126,7 +1127,7 @@ void FitDialog::accept()
 				formula.replace(builtInFunctionNames[i], "(" + builtInFunctions[i] + ")");
 		}	
 
-		if (boxParams->columnCount() == 3)
+		if (!boxParams->isColumnHidden(2))
 		{
 			int j = 0;
 			for (i=0;i<rows;i++)
@@ -1222,7 +1223,7 @@ void FitDialog::accept()
 
 		fitter->fit();
 		double *res = fitter->results();
-		if (boxParams->columnCount() == 3)
+		if (!boxParams->isColumnHidden(2))
 		{
 			int j = 0;
 			for (i=0;i<rows;i++)
@@ -1370,7 +1371,7 @@ void FitDialog::closeEvent (QCloseEvent * e )
 	e->accept();
 }
 
-void FitDialog::enableApplyChanges(int)
+void FitDialog::enableApplyChanges()
 {
 	btnApply->setEnabled(true);
 }
