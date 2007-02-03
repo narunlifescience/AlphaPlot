@@ -202,11 +202,6 @@ void ApplicationWindow::init()
 
 	tablesDepend = new QMenu(this);
 
-	createActions();
-	initToolBars();
-	initPlot3DToolBar();
-	initMainMenu();
-
 	explorerWindow = new QDockWidget( this );
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
@@ -279,6 +274,13 @@ void ApplicationWindow::init()
 	consoleWindow->hide();
 #endif
 
+	// Needs to be done after initialization of dock windows,
+	// because we now use QDockWidget::toggleViewAction()
+	createActions();
+	initToolBars();
+	initPlot3DToolBar();
+	initMainMenu();
+
 	ws = new QWorkspace( this );
 	ws->setScrollBarsEnabled (true);
 	setCentralWidget( ws );
@@ -301,15 +303,6 @@ void ApplicationWindow::init()
 	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
 	connect(actionPrevWindow, SIGNAL(activated()), ws, SLOT(activatePreviousWindow()));
 
-	connect(actionShowLog, SIGNAL(toggled(bool)), this, SLOT(showResults(bool)));
-	//TODO: Find a way to implement this in Qt4
-	//	connect(logWindow,SIGNAL(visibilityChanged(bool)),actionShowLog,SLOT(setChecked(bool)));
-	//	connect(explorerWindow,SIGNAL(visibilityChanged(bool)),actionShowExplorer,SLOT(setChecked(bool)));
-#ifdef SCRIPTING_CONSOLE
-	connect(actionShowConsole, SIGNAL(toggled(bool)), consoleWindow, SLOT(setShown(bool)));
-	//TODO: Find a way to implement this in Qt4
-	// connect(consoleWindow, SIGNAL(visibilityChanged(bool)), actionShowConsole, SLOT(setOn(bool)));
-#endif
 	connect(tablesDepend, SIGNAL(activated(int)), this, SLOT(showTable(int)));
 
 	connect(this, SIGNAL(modified()),this, SLOT(modifiedProject()));
@@ -1261,14 +1254,6 @@ void ApplicationWindow::hideToolbars()
 	tableTools->setEnabled (false);
 	plot3DTools->setEnabled (false);
 
-}
-
-void ApplicationWindow::showExplorer()
-{
-	if (!explorerWindow->isVisible())
-		explorerWindow->show();
-	else
-		explorerWindow->hide();
 }
 
 void ApplicationWindow::plot3DRibbon()
@@ -8188,7 +8173,7 @@ void ApplicationWindow::showMoreWindows()
 	if (explorerWindow->isVisible())
 		QMessageBox::information(this, "QtiPlot",tr("Please use the project explorer to select a window!"));
 	else
-		showExplorer();
+		explorerWindow->show();
 }
 
 void ApplicationWindow::windowsMenuActivated( int id )
@@ -10922,20 +10907,15 @@ void ApplicationWindow::createActions()
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
 
-	actionShowExplorer = new QAction(QIcon(QPixmap(folder_xpm)), tr("Project &Explorer"), this);
+	actionShowExplorer = explorerWindow->toggleViewAction();
+	actionShowExplorer->setIcon(QPixmap(folder_xpm));
 	actionShowExplorer->setShortcut( tr("Ctrl+E") );
-	actionShowExplorer->setCheckable(true);
-	actionShowExplorer->setChecked(false);
-	connect(actionShowExplorer, SIGNAL(activated()), this, SLOT(showExplorer()));
 
-	actionShowLog = new QAction(QIcon(QPixmap(log_xpm)), tr("Results &Log"), this);
-	actionShowLog->setCheckable(true);
-	actionShowLog->setChecked(false);
+	actionShowLog = logWindow->toggleViewAction();
+	actionShowLog->setIcon(QPixmap(log_xpm));
 
 #ifdef SCRIPTING_CONSOLE
-	actionShowConsole = new QAction(tr("Scripting &Console"), this);
-	actionShowConsole->setCheckable(true);
-	actionShowConsole->setChecked(false);
+	actionShowConsole = consoleWindow->toggleViewAction();
 #endif
 
 	actionAddLayer = new QAction(QIcon(QPixmap(newLayer_xpm)), tr("Add La&yer"), this);

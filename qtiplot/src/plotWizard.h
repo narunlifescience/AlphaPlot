@@ -46,12 +46,10 @@ public:
 	//! Constructor
 	/**
 	 * \param parent parent widget
-	 * \param name widget name
-	 * \param modal flag: decides wheather the dialog is model or not
 	 * \param fl Qt window flags
 	 */
     PlotWizard( QWidget* parent = 0, Qt::WFlags fl = 0 );
-	//! Destructor
+	 //! Destructor
     ~PlotWizard();
 
 private:

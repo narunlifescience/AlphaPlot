@@ -46,6 +46,9 @@
  * Contrary to its name, LegendMarker is not just used for the plot legend,
  * but for any kind of text; particularly also for the "Add Text" tool.
  * Accordingly, it is also referred to as "TextMarker" by other classes.
+ *
+ * \section future Future Plans
+ * Rename to TextMarker.
  */
 class LegendMarker: public QwtPlotMarker
 {

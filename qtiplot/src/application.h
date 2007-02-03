@@ -160,24 +160,56 @@ public:
 	QString generateUniqueName(const QString& name, bool increment = true);
 	
 public slots:
+	//! \name Projects and Project Files
+	//@{
 	void open();
 	ApplicationWindow* open(const QString& fn);
 	ApplicationWindow* openProject(const QString& fn);
 	ApplicationWindow* importOPJ(const QString& filename);
 
+	/**
+	 * \brief Create a new project from a data file.
+	 *
+	 * \param fn is read as a data file with the default column separator (as set by the user)
+	 * and inserted as a table into a new, empty project.
+	 * This table is then plotted with the Graph::LineSymbols style.
+	 */
 	ApplicationWindow * plotFile(const QString& fn);
+	/**
+	 * \brief Make sure overlapping graphs are displayed correctly when opening a project file.
+	 *
+	 * \sa MultiLayer::updateTransparency()
+	 */
 	void updatePlotsTransparency();
 
 	QWidgetList * windowsList();
 	void updateWindowLists(MyWidget *w);
 
+	void saveProjectAs();
+	bool saveProject();
+
+	//! Set the project status to modifed
+	void modifiedProject();
+	//! Set the project status to saved (not modified)
+	void savedProject();
+	//! Set the project status to modified and save 'w' as the last modified widget
+	void modifiedProject(QWidget *w);
+	//@}
+
+	//! \name Settings
+	//@{
+	void readSettings();
+	void saveSettings();
+	void applyUserSettings();
 	void setSaveSettings(bool autoSaving, int min);
 	void changeAppStyle(const QString& s);
 	void changeAppFont(const QFont& f);
 	void updateAppFonts();
 	void setAppColors(const QColor& wc,const QColor& pc,const QColor& tpc);
+	//@}
 
-	//multilayer plots
+	//! \name Multilayer Plots
+	//@{
 	MultiLayer* copyGraph();
 	MultiLayer* multilayerPlot(int c, int r, int style);
 	MultiLayer* multilayerPlot(Table* w,const QStringList& colList, int style);
@@ -197,8 +229,10 @@ public slots:
 	void plot4Layers();
 	void plotStackedLayers();
 	void plotStackedHistograms();
+	//@}
 
-	//3D data plots
+	//! \name 3D Data Plots
+	//@{
 	Graph3D* openMatrixPlot3D(const QString& caption, const QString& matrix_name,
 							 double xl,double xr,double yl,double yr,double zl,double zr);
 	Graph3D* dataPlot3D(Table* table,const QString& colName);
@@ -209,12 +243,14 @@ public slots:
 	Graph3D* dataPlotXYZ(const QString& caption,const QString& formula,
  						double xl, double xr, double yl, double yr, double zl, double zr);
 	/*!
-	* used when plotting from the wizard
-	*/
+	 * used when plotting from the wizard
+	 */
 	Graph3D* dataPlotXYZ(const QString& formula);
 	Graph3D* dataPlot3D(const QString& formula);
+	//@}
 
-	//surface plots
+	//! \name Surface Plots
+	//@{
 	Graph3D* newPlot3D(const QString& formula, double xl, double xr,
 					   double yl, double yr, double zl, double zr);
 	Graph3D* newPlot3D(const QString& caption,const QString& formula, 
@@ -237,7 +273,21 @@ public slots:
 	void customPlot3D(Graph3D *plot);
 	void setPlot3DOptions();
 
-	//user-defined functions
+	void plot3DWireframe();
+	void plot3DHiddenLine();
+	void plot3DPolygons();
+	void plot3DWireSurface();
+
+	void plot3DMatrix(int style);
+
+	void plot3DRibbon();
+	void plot3DScatter();
+	void plot3DTrajectory();
+	void plot3DBars();
+	//@}
+
+	//! \name User-defined Functions
+	//@{
 	void newFunctionPlot(int type,QStringList &formulas, const QString& var,QList<double> &ranges, int points);
 
 	FunctionDialog* functionDialog();
@@ -252,7 +302,10 @@ public slots:
 	void clearPolarFunctionsList();
 	void updateFunctionLists(int type, QStringList &formulas);
 	void updateSurfaceFuncList(const QString& s);
+	//@}
 
+	//! \name Matrices
+	//@{
 	Matrix* cloneMatrix();
 	Matrix* newMatrix();
 	Matrix* newMatrix(const QString& caption, int r, int c);
@@ -263,7 +316,10 @@ public slots:
 	void transposeMatrix();
 	void invertMatrix();
 	void matrixDeterminant();
-	
+	//@}
+
+	//! \name Tables
+	//@{
 	//! Creates an empty table
 	Table* newTable();
 	//! Used when importing an ASCII file
@@ -294,28 +350,29 @@ public slots:
 	void customTable(Table* w);
 	void customizeTables(const QColor& bgColor,const QColor& textColor,
 						const QColor& headerColor,const QFont& textFont, const QFont& headerFont);
+	
+	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
+	void loadASCII();
+	void loadMultiple();
+	void loadMultipleASCIIFiles(const QStringList& fileNames, int importFileAs);
+	void exportAllTables(const QString& sep, bool colNames, bool expSelection);
+	void exportASCII(const QString& tableName, const QString& sep, bool colNames, bool expSelection);
+
+	//! recalculate selected cells of current table
+	void recalculateTable();
 
 	TableStatistics *newTableStatistics(Table *base, int type, QList<int>,
 	    const QString &caption=QString::null);
+	//@}
 
+	//! \name Graphs
+	//@{
 	void customGraph(Graph* g);
 	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers);
 	void setLegendDefaultSettings(int frame, const QFont& font, 
 							 const QColor& textCol, const QColor& backgroundCol);
 	void setArrowDefaultSettings(int lineWidth,  const QColor& c, Qt::PenStyle style,
 								int headLength, int headAngle, bool fillHead);
-
-	void plot3DWireframe();
-	void plot3DHiddenLine();
-	void plot3DPolygons();
-	void plot3DWireSurface();
-
-	void plot3DMatrix(int style);
-
-	void plot3DRibbon();
-	void plot3DScatter();
-	void plot3DTrajectory();
-	void plot3DBars();
 
 	void plotL();
 	void plotP();
@@ -332,22 +389,21 @@ public slots:
 	void plotVectXYXY();
 	void plotVectXYAM();
 	void plotBoxDiagram();
+	//@}
 	
-	//image analysis
+	//! \name Image Analysis
+	//@{
 	void intensityTable();
 	void pixelLineProfile();
 	void loadImage();
 	void loadImage(const QString& fn);
 	void importImage();
-	
-    void loadASCII();
-	void loadMultiple();
-	void loadMultipleASCIIFiles(const QStringList& fileNames, int importFileAs);
-	void exportAllTables(const QString& sep, bool colNames, bool expSelection);
-	void exportASCII(const QString& tableName, const QString& sep, bool colNames, bool expSelection);
+	//@}
 
+	//! \name Export and Print
+	//@{
 	void exportLayer();
-    void exportGraph();
+	void exportGraph();
 	void exportAllGraphs();
 	void exportAllGraphs(const QString& dir, const QString& format, 
 									int quality, bool transparency);
@@ -355,30 +411,19 @@ public slots:
 										int quality, bool transparency);
 	void export3DPlotToFile(Graph3D *plot, const QString& fileName, 
 										const QString& format);
-
-	void saveProjectAs();
-	bool saveProject();
-
-	void readSettings();
-	void saveSettings();
-	void applyUserSettings();
-	//! Set the project status to modifed
-	void modifiedProject();
-	//! Set the project status to saved (not modified)
-	void savedProject();
-	//! Set the project status to modified and save 'w' as the last modified widget
-	void modifiedProject(QWidget *w);
-    void print();
+	
+	void print();
 	void print(QWidget* w);
 	void printAllPlots();
-	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
+	//@}
     
-	void showExplorer();
 	QStringList columnsList(Table::PlotDesignation plotType = Table::All);
 	
 	void undo();
 	void redo();
 	
+	//! \name MDI Windows
+	//@{
 	MyWidget* copyWindow();
 	void rename();
 	void renameWindow();
@@ -408,11 +453,13 @@ public slots:
 	void activateWindow();
 	void activateWindow(MyWidget *);
 	void printWindow();
+	//@}
+
 	void updateTable(const QString& caption,int row,const QString& text);
 	void updateTableColumn(const QString& colName, double *dat, int rows);
-    void about();
-    void windowsMenuAboutToShow();
-    void windowsMenuActivated( int id );
+	void about();
+	void windowsMenuAboutToShow();
+	void windowsMenuActivated( int id );
 	void removeCurves(const QString& name);
 	QStringList dependingPlots(const QString& caption);
 	QStringList depending3DPlots(Matrix *m);
@@ -427,13 +474,15 @@ public slots:
 	void resizeActiveWindow();
 	void resizeWindow();
 	
-	// list view in project explorer
+	//! \name List View in Project Explorer
+	//@{
 	void setListView(const QString& caption,const QString& view);
 	void renameListViewItem(const QString& oldName,const QString& newName);
 	void setListViewDate(const QString& caption,const QString& date);
 	QString listViewDate(const QString& caption);
 	void setListViewSize(const QString& caption,const QString& size);
 	void setListViewLabel(const QString& caption,const QString& label);
+	//@}
 	
 	void updateColNames(const QString& oldName, const QString& newName);
 	void updateTableNames(const QString& oldName, const QString& newName);
@@ -457,6 +506,8 @@ public slots:
 	//! Creates a new empty multilayer plot
 	MultiLayer* newGraph();
 
+	//! \name Reading from a Project File
+	//@{
 	Matrix* openMatrix(ApplicationWindow* app, const QStringList &flist);
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);
 	TableStatistics* openTableStatistics(const QStringList &flist);
@@ -464,6 +515,10 @@ public slots:
 	void openGraph(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
 
 	void openRecentProject(int index);
+	//@}
+
+	//! \name Initialization
+	//@{
 	void insertTranslatedStrings();
 	void translateActionsStrings();
 	void init();
@@ -481,8 +536,10 @@ public slots:
 	void customToolBars(QWidget* w);
 	void customMenu(QWidget* w);
 	void windowActivated(QWidget *w);
+	//@}
 
-	//table tools
+	//! \name Table Tools
+	//@{
 	void sortSelection();
 	void sortActiveTable();
 	void normalizeSelection();
@@ -492,8 +549,10 @@ public slots:
 	void deconvolute();
 	void clearTable();
 	void goToRow();
+	//@}
 
-	// plot tools 
+	//! \name Plot Tools 
+	//@{
 	void newLegend();
 	void addTimeStamp();
 	void drawLine();
@@ -512,8 +571,10 @@ public slots:
 	void pickDataTool( QAction* action );
 
 	void updateLog(const QString& result);
+	//@}
 
-	//fitting
+	//! \name Fitting
+	//@{
 	void deleteFitTables();
 	void fitLinear();
 	void fitSigmoidal();
@@ -522,12 +583,15 @@ public slots:
 	void fitMultiPeak(int profile);
 	void fitMultiPeakGauss();
 	void fitMultiPeakLorentz();
+	//@}
 				 
-	//calculus
+	//! \name Calculus
+	//@{
 	void differentiate();
 	void analysis(const QString& whichFit);
 	void analyzeCurve(const QString& whichFit, const QString& curveTitle);
 	void showDataSetDialog(const QString& whichFit);
+	//@}
 
 	void addErrorBars();
 	void defineErrorBars(const QString& name,int type,const QString& percent,int direction);
@@ -535,14 +599,17 @@ public slots:
 	void movePoints();
 	void removePoints();
 
-	// event handlers 
+	//! \name Event Handlers 
+	//@{
 	void closeEvent( QCloseEvent*);
 	void timerEvent ( QTimerEvent *e);
 	void dragEnterEvent( QDragEnterEvent* e );
 	void dropEvent( QDropEvent* e );
 	void customEvent( QEvent* e);
+	//@}
 
-	//dialogs
+	//! \name Dialogs
+	//@{
 	void showFindDialogue();	
 	void showPlotDialog();
 	void showPlotDialog(int curveKey);
@@ -572,8 +639,6 @@ public slots:
 	void showColsDialog();
 	void showColMenu(int c);
 	void showColumnValuesDialog();	
-	//! recalculate selected cells of current table
-	void recalculateTable();
 
 	void showGraphContextMenu();
 	void showTableContextMenu(bool selection);
@@ -622,6 +687,7 @@ public slots:
 	void bandPassFilterDialog();
 	void bandBlockFilterDialog();
 	void showFFTDialog();
+	//@}
 
 	void translateCurveHor();
 	void translateCurveVert();
@@ -643,7 +709,8 @@ public slots:
 				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, 
 				int format, int prec, int rotation, int baselineDist, const QString& formula);
 	
-	//plot3D tools	
+	//! \name Plot3D Tools
+	//@{
 	void toggle3DAnimation(bool on = true);
 	void setFramed3DPlot();
 	void setBoxed3DPlot();
@@ -670,6 +737,7 @@ public slots:
 	void pickFloorStyle( QAction* action);
 	void custom3DActions(QWidget *w);
 	void custom3DGrids(int grids);
+	//@}
 
 	void updateRecentProjectsList();
 	
@@ -709,12 +777,17 @@ public slots:
 	//! Returns a list with the names of all the matrices in the project
 	QStringList matrixNames();
 
+	//! \name Notes
+	//@{
  	//! Creates a new empty note window
 	Note* newNote(const QString& caption = QString());
 	Note* openNote(ApplicationWindow* app, const QStringList &flist);
 	void initNote(Note* m, const QString& caption);
 	void saveNoteAs();
+	//@}
 	
+	//! \name Folders
+	//@{
 	//! Adds a new folder to the project
 	void addFolder();
 	//! Deletes the current folder
@@ -809,8 +882,10 @@ public slots:
 	 * \param dest destination folder item
 	 */
 	void moveFolder(FolderListItem *src, FolderListItem *dest);
+	//@}
 
-	// scripting
+	//! \name Scripting
+	//@{
 	//! notify the user that an error occured in the scripting system
 	void scriptError(const QString &message, const QString &scriptName, int lineNumber);
 	//! execute all notes marked auto-exec
@@ -823,6 +898,7 @@ public slots:
 	void scriptPrint(const QString &text);
 	//! switches to the given scripting language; if this is the same as the current one and force is true, restart it
 	bool setScriptingLang(const QString &lang, bool force=false);
+	//@}
 
 signals:
 	void modified();
@@ -894,7 +970,8 @@ public:
 	MyWidget *aw; 
 	Graph::MarkerType copiedMarkerType;
 	
-//variables used when user copy/paste markers
+	//! \name variables used when user copy/paste markers
+	//@{
 	QString auxMrkText;
 	QFont auxMrkFont;
 	QColor auxMrkColor, auxMrkBkgColor;
@@ -902,6 +979,8 @@ public:
 	Qt::PenStyle auxMrkStyle;
 	QString auxMrkFileName;
 	int auxMrkBkg,auxMrkWidth;
+	//@}
+
 	bool startArrowOn, endArrowOn, fillArrowHead;
 	int arrowHeadLength, arrowHeadAngle, specialPlotMenuID, statMenuID, panelMenuID, plot3dID;
 	int plotMenuID, importMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;

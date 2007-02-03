@@ -73,7 +73,8 @@ public:
 	enum HorAlignement{HCenter, Left, Right};
 	enum VertAlignement{VCenter, Top, Bottom};
 
-	//event handlers
+	//! \name Event Handlers
+	//@{
 	void mousePressEvent(QMouseEvent *);
 	void mouseMoveEvent(QMouseEvent *);
 	void mouseReleaseEvent(QMouseEvent *);
@@ -82,6 +83,7 @@ public:
 	void keyPressEvent(QKeyEvent *);
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
+	//@}
 	
 	QWidgetList buttonsList, graphsList;
 	Q3HBox  *hbox1;
@@ -145,7 +147,8 @@ public slots:
 
 	int layers(){return graphs;};
 	
-	// print and export
+	//! \name Print and Export
+	//@{
 	QPixmap canvasPixmap();
 
 	void exportImage(const QString& fileName,const QString& fileType, int quality, bool transparent);
@@ -158,6 +161,7 @@ public slots:
 	void print();
 	void printAllLayers(QPainter *painter);
 	void printActiveLayer();
+	//@}
 	
 	void setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 							const QFont& numbersFnt, const QFont& legendFnt);
@@ -217,12 +221,14 @@ signals:
 	
 private:
 	Graph* active_graph;
-	QRect aux_rect;//used for resizing of layers
+	//! Used for resizing of layers.
+	QRect aux_rect;
 	QPixmap cache_pix;
 	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
-	int xMouse, yMouse, xActiveGraph, yActiveGraph;//used for moving layers
+	//! Used for moving layers.
+	int xMouse, yMouse, xActiveGraph, yActiveGraph;
 	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
 
 	//! Used when adding text markers on new layers

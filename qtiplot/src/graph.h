@@ -104,12 +104,13 @@ class Graph: public QWidget
 		//! Returns the name of the parent MultiLayer object.
 		QString parentPlotName();
 
-		public slots:
-			//! Accessor method for #d_plot.
-			Plot* plotWidget(){return d_plot;};
+	public slots:
+		//! Accessor method for #d_plot.
+		Plot* plotWidget(){return d_plot;};
 		void copy(Graph* g);
 
-		// pie curves
+		//! \name Pie Curves
+		//@{
 		//! Returns true if this Graph is a pie plot, false else.
 		bool isPiePlot(){return piePlot;};
 		void plotPie(QwtPieCurve* curve);
@@ -120,6 +121,7 @@ class Graph: public QWidget
 		void removePie();
 		QString pieLegendText();
 		QString savePieCurveLayout();
+		//@}
 
 		bool insertCurvesList(Table* w, const QStringList& names, int style, int lWidth, int sSize);
 		bool insertCurve(Table* w, const QString& name, int style);
@@ -177,7 +179,8 @@ class Graph: public QWidget
 		QPixmap graphPixmap();
 		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 
-		// error bars
+		//! \name Error Bars
+		//@{
 		void addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable, 
 				const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true, double xOffset = 0, double yOffset = 0);
@@ -191,31 +194,38 @@ class Graph: public QWidget
 
 		//! Called when a bar curve associated to an error bars curve curve is deleted
 		void resetErrorBarsOffset(int index);
+		//@}
 
-		// event handlers 
+		//! \name Event Handlers 
+		//@{
 		void contextMenuEvent(QContextMenuEvent *);
 		void closeEvent(QCloseEvent *e);
+		//@}
 
 		//! Set axis scale
 		void setScale(int axis, double start, double end, double step = 0.0, 
 				int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 		bool userDefinedStep(int axis){return d_user_step[axis];};
 
-		//curves layout
+		//! \name Curves Layout
+		//@{
 		CurveLayout initCurveLayout(int i, int curves, int style);
 		static CurveLayout initCurveLayout();
 		void updateCurveLayout(int index,const CurveLayout *cL);
 		//! Tries to guess not already used curve color and symbol style
 		void guessUniqueCurveLayout(int& colorIndex, int& symbolIndex);
+		//@}
 
 		GridOptions getGridOptions();
 		void setGridOptions(const GridOptions& options);
 
-		// zoom
+		//! \name Zoom
+		//@{
 		void zoomed (const QwtDoubleRect &rect);
 		void zoom(bool on);
 		void zoomOut();
 		bool zoomOn();
+		//@}
 
 		void movedPicker(const QPoint &pos, bool mark);
 		void setAutoScale();
@@ -223,7 +233,8 @@ class Graph: public QWidget
 
 		QString saveAsTemplate();
 
-		// saving to file 
+		//! \name Saving to File 
+		//@{
 		QString saveToString();
 		QString saveGridOptions();
 		QString saveScale();
@@ -246,8 +257,10 @@ class Graph: public QWidget
 		QString saveAxesLabelsType();
 		QString saveAxesBaseline();
 		QString saveAxesFormulas();
+		//@}
 
-		// text markers 
+		//! \name Text Markers 
+		//@{
 		void drawText(bool on);
 		bool drawTextActive(){return drawTextOn;};
 		long insertTextMarker(LegendMarker* mrk);
@@ -257,15 +270,7 @@ class Graph: public QWidget
 		void updateTextMarker(const QString& text,int angle, int bkg,const QFont& fnt,
 				const QColor& textColor, const QColor& backgroundColor);
 
-		void removeMarker();
-		void cutMarker();
-		void copyMarker();
-		void pasteMarker();
-		void selectNextMarker();
-		void highlightLineMarker(long markerID);
 		void highlightTextMarker(long markerID);
-		void highlightImageMarker(long markerID);
-		void moveMarkerBy(int dx, int dy);
 
 		QFont defaultTextMarkerFont(){return defaultMarkerFont;};
 		QColor textMarkerDefaultColor(){return defaultTextMarkerColor;};
@@ -273,17 +278,6 @@ class Graph: public QWidget
 		int textMarkerDefaultFrame(){return defaultMarkerFrame;};
 		void setTextMarkerDefaults(int f, const QFont &font, const QColor& textCol, const QColor& backgroundCol);
 
-		Qt::PenStyle arrowLineDefaultStyle(){return defaultArrowLineStyle;};
-		bool arrowHeadDefaultFill(){return defaultArrowHeadFill;};
-		int arrowDefaultWidth(){return defaultArrowLineWidth;};
-		int arrowHeadDefaultLength(){return defaultArrowHeadLength;};
-		int arrowHeadDefaultAngle(){return defaultArrowHeadAngle;};
-		QColor arrowDefaultColor(){return defaultArrowColor;};
-
-		void setArrowDefaults(int lineWidth,  const QColor& c, Qt::PenStyle style,
-				int headLength, int headAngle, bool fillHead);
-
-		MarkerType copiedMarkerType(){return selectedMarkerType;};
 		void setCopiedMarkerType(Graph::MarkerType type){selectedMarkerType=type;};
 		void setCopiedMarkerEnds(const QPoint& start, const QPoint& end);
 		void setCopiedTextOptions(int bkg, const QString& text, const QFont& font, 
@@ -293,13 +287,11 @@ class Graph: public QWidget
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};	
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 
-		// legendMarker
 		QwtArray<long> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
 
 		void addTimeStamp();
 
-		// legend  
 		void customLegend();
 		void removeLegend();
 		void removeLegendItem(int index);
@@ -313,8 +305,10 @@ class Graph: public QWidget
 
 		//! Creates a new legend text using the curves titles
 		QString legendText();
+		//@}
 
-		// line markers 
+		//! \name Line Markers 
+		//@{
 		LineMarker* lineMarker(long id);
 		void insertLineMarker(LineMarker* mrk);
 
@@ -326,8 +320,21 @@ class Graph: public QWidget
 		void drawLine(bool on, bool arrow = FALSE);
 		bool drawArrow(){return drawArrowOn;};
 		bool drawLineActive(){return drawLineOn;};
+		void highlightLineMarker(long markerID);
 
-		//image markers
+		Qt::PenStyle arrowLineDefaultStyle(){return defaultArrowLineStyle;};
+		bool arrowHeadDefaultFill(){return defaultArrowHeadFill;};
+		int arrowDefaultWidth(){return defaultArrowLineWidth;};
+		int arrowHeadDefaultLength(){return defaultArrowHeadLength;};
+		int arrowHeadDefaultAngle(){return defaultArrowHeadAngle;};
+		QColor arrowDefaultColor(){return defaultArrowColor;};
+
+		void setArrowDefaults(int lineWidth,  const QColor& c, Qt::PenStyle style,
+				int headLength, int headAngle, bool fillHead);
+		//@}
+
+		//! \name Image Markers
+		//@{
 		ImageMarker* imageMarker(long id);
 		QwtArray<long> imageMarkerKeys(){return d_images;};
 		void insertImageMarker(ImageMarker* mrk);
@@ -337,6 +344,19 @@ class Graph: public QWidget
 		bool imageMarkerSelected();
 		void updateImageMarker(int x, int y, int width, int height);
 
+		void highlightImageMarker(long markerID);
+
+		bool arrowMarkerSelected();
+		//@}
+
+		//! \name Common to all Markers
+		//@{
+		void removeMarker();
+		void cutMarker();
+		void copyMarker();
+		void pasteMarker();
+		void selectNextMarker();
+		void moveMarkerBy(int dx, int dy);
 		//! Keep the markers on screen each time the scales are modified by adding/removing curves
 		void updateMarkersBoundingRect();
 
@@ -344,10 +364,12 @@ class Graph: public QWidget
 		void setSelectedMarker(long mrk);
 		QwtPlotMarker* selectedMarkerPtr();
 		bool markerSelected();
-		bool arrowMarkerSelected();
 		void deselectMarker();
+		MarkerType copiedMarkerType(){return selectedMarkerType;};
+		//@}
 
-		// axes 
+		//! \name Axes 
+		//@{
 		Q3ValueList<int> axesType();
 		void setAxesType(const Q3ValueList<int> tl); 
 
@@ -400,11 +422,13 @@ class Graph: public QWidget
 		void setEnabledTickLabels(const QStringList& list);
 
 		void setAxesLinewidth(int width);
-		void loadAxesLinewidth(int width);//used when opening a project file
+		//! used when opening a project file
+		void loadAxesLinewidth(int width);
 
 		void drawAxesBackbones(bool yes);
 		bool axesBackbones(){return drawAxesBackbone;};
-		void loadAxesOptions(const QString& s);//used when opening a project file
+		//! used when opening a project file
+		void loadAxesOptions(const QString& s);
 
 		Q3ValueList<int> axesBaseline();
 		void setAxesBaseline(const Q3ValueList<int> &lst);
@@ -436,16 +460,20 @@ class Graph: public QWidget
 		QStringList getAxesFormulas(){return axesFormulas;};
 		void setAxesFormulas(const QStringList& l){axesFormulas = l;};
 		void setAxisFormula(int pos, const QString &f){axesFormulas[pos] = f;};
+		//@}
 
-		// canvas frame 
+		//! \name Canvas Frame 
+		//@{
 		void drawCanvasFrame(bool frameOn, int width);
 		void drawCanvasFrame(const QStringList& frame);
 		void drawCanvasFrame(bool frameOn, int width, const QColor& color);
 		QColor canvasFrameColor();
 		int canvasFrameWidth();
 		bool framed();
+		//@}
 
-		// plot title
+		//! \name Plot Title
+		//@{
 		void setTitle(const QString& t);
 		void setTitleFont(const QFont &fnt);
 		void setTitleColor(const QColor &c);
@@ -456,13 +484,16 @@ class Graph: public QWidget
 
 		void removeTitle();
 		void initTitle( bool on, const QFont& fnt);
+		//@}
 
-		// tools for modifing insertCurve data 
+		//! \name Modifing insertCurve Data 
+		//@{
 		bool selectPoint(const QPoint &pos);
 		void highlightPoint(bool showIt);
 		void selectCurve(const QPoint &pos);
 		int selectedCurveID(){return selectedCurve;};
 		QString selectedCurveTitle();
+		//@}
 
 		void showCursor(bool showIt);
 		void shiftPointCursor(bool up);
@@ -483,11 +514,13 @@ class Graph: public QWidget
 
 		void disableTools();
 
-		//translating curves
+		//! \name Translating Curves
+		//@{
 		void translateCurve(int direction);
 		void translateCurveTo(const QPoint& p);
 		bool translationInProgress(){return translateOn;};
 		void startCurveTranslation();
+		//@}
 
 		//! Returns TRUE if the data range selectors are enables, FALSE otherwise.
 		bool selectorsEnabled(){return rangeSelectorsEnabled;};
@@ -506,14 +539,17 @@ class Graph: public QWidget
 		void shiftCurveSelector(bool up);
 		int selectedPoints(long curveKey);
 
-		//border and margin
+		//! \name Border and Margin
+		//@{
 		void changeMargin (int d);
 		void drawBorder (int width, const QColor& color);
 		void setBorder (int width, const QColor& color);
 		void setBackgroundColor(const QColor& color);
 		void setCanvasBackground(const QColor& color);
+		//@}
 
-		//functions in analysis.cpp file
+		//! \name Functions in analysis.cpp
+		//@{
 		void smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex);
 		void smoothFFT(long curveKey, int points, int colIndex);
 		void smoothAverage(long curveKey, int points, int colIndex);
@@ -529,33 +565,40 @@ class Graph: public QWidget
 		QwtPlotCurve* getValidCurve(const QString& name, int params, int &points, int &start, int &end);
 		QwtPlotCurve* getFitLimits(const QString& name, double from, double to,
 				int params, int &start, int &end);
+		//@}
 
 		//! Set the number of fit curves
 		void setFitID(int id){fitID=id;};
 
 		void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
 
-		//histograms
+		//! \name Histograms
+		//@{
 		void initHistogram(long curveID, const Q3MemArray<double>& Y, int it);
 		void updateHistogram(Table* w, const QString& curveName, int curve);
 		void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, 
 				double binSize, double begin, double end);
 		void setBarsGap(int curve, int gapPercent, int offset);
 		QString showHistogramStats(Table* w, const QString& curveName, int curve);
+		//@}
 
-		//image analyse tools
+		//! \name Image Analysis Tools
+		//@{
 		bool lineProfile();
 		void calculateProfile(int average, bool ok);
 		void calculateLineProfile(const QPoint& start, const QPoint& end);
 		int averageImagePixel(const QImage& image, int px, int py, int average, bool moreHorizontal);
 		void showIntensityTable();
+		//@}
 
-		//user defined functions
+		//! \name User-defined Functions
+		//@{
 		void modifyFunctionCurve(int curve, int type, const QStringList &formulas, const QString &var,QList<double> &ranges, int points);
 		void addFunctionCurve(int type, const QStringList &formulas, const QString& var,
 				QList<double> &ranges, int points, const QString& title = QString::null);	 
-		//when reading from file
+		//! Used when reading from a project file.
 		void insertFunctionCurve(const QString& formula, int points, int fileVersion);
+		//@}
 
 		void createWorksheet(const QString& name);
 		void activateGraph();
@@ -563,7 +606,8 @@ class Graph: public QWidget
 		void releaseGraph();
 		void drawFocusRect();
 
-		//vector curves
+		//! \name Vector Curves
+		//@{
 		void plotVectorCurve(Table* w, const QStringList& colList, int style);
 		void setVectorsLook(int curve, const QColor& c, int width, int arrowLength,
 				int arrowAngle, bool filled, int position);
@@ -571,21 +615,26 @@ class Graph: public QWidget
 				int arrowLength, int arrowAngle, bool filled, int position,
 				const QString& xEndColName, const QString& yEndColName);
 		void updateVectorsData(Table* w,  int curve);
+		//@}
 
-		//box plots
+		//! \name Box Plots
+		//@{
 		void openBoxDiagram(Table *w, const QStringList& l);
 		void plotBoxDiagram(Table *w, const QStringList& names);
+		//@}
 
 		void setCurveSymbol(int index, const QwtSymbol& s);
 		void setCurvePen(int index, const QPen& p);
 		void setCurveBrush(int index, const QBrush& b);
 		void setCurveStyle(int index, int s);
 
-		//resizing	
+		//! \name Resizing	
+		//@{
 		bool ignoresResizeEvents(){return ignoreResize;};
 		void setIgnoreResizeEvents(bool ok){ignoreResize=ok;};
 		void resizeEvent(QResizeEvent *e);
 		void scaleFonts(double factor);
+		//@}
 
 		void modified();
 		void emitModified();
@@ -689,7 +738,7 @@ signals:
 		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
 		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
 		 *  - A function.
-		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F<number>'.
+		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F&lt;number>'.
 		 *    Formulas are stored in the associated FunctionCurve object.
 		 * .
 		 * Column ids are of the form '&gt;name of table> "_" &gt;name of column>'.
@@ -735,11 +784,16 @@ signals:
 		long mrkX,mrkY;//x=0 et y=0 line markers keys
 		bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 
-		//the following bool values tell which data tool is activated by the user
+		//! \name Which data tool is activated by the user
+		//@{
 		bool removePointsEnabled,movePointsEnabled, translateOn;
 		bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;	
-		bool piePlot;//tells if the plot is a pie plot
-		bool lineProfileOn; // tells if pixel line profile is asked
+		//@}
+
+		//! Whether the plot is a pie plot.
+		bool piePlot;
+		//! Whether pixel line profile is asked.
+		bool lineProfileOn;
 		bool auxFilledArrowHead, ignoreResize;
 		bool drawAxesBackbone, autoscale;
 
