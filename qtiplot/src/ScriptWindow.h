@@ -52,6 +52,7 @@ public slots:
 		void open();
 		void save();
 		void saveAs();
+		void languageChange();
 
 signals:
 		void setVisible(bool);

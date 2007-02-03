@@ -624,6 +624,10 @@ void ConfigDialog::initFittingPage()
 	plotLabelBox->setChecked(app->pasteFitResultsToPlot);
 	fitParamsLayout->addWidget(plotLabelBox, 2, 0);
 
+	scaleErrorsBox = new QCheckBox();
+	fitParamsLayout->addWidget(scaleErrorsBox, 3, 0);
+	scaleErrorsBox->setChecked(app->fit_scale_errors);
+
 	QVBoxLayout* fitPageLayout = new QVBoxLayout(fitPage);
 	fitPageLayout->addWidget(groupBoxFittingCurve);
 	fitPageLayout->addWidget(groupBoxMultiPeak);
@@ -749,6 +753,10 @@ void ConfigDialog::languageChange()
 
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
 	lblMinTicksLength->setText(tr("Length"));  
+
+	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
+	scaleErrorsBox->setChecked(app->fit_scale_errors);
+
 	lblAxesLineWidth->setText(tr("Axes linewidth" ));  
 	lblMajTicksLength->setText(tr("Length" ));  
 	lblMajTicks->setText(tr("Major Ticks" )); 
@@ -900,13 +908,14 @@ void ConfigDialog::languageChange()
 	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
 
 	groupBoxMultiPeak->setTitle(tr("Display Peak Curves for Multi-peak Fits"));
-	lblPeaksColor->setText(tr("Peaks Color"));
 
 	groupBoxFitParameters->setTitle(tr("Parameters Output"));
 	lblPrecision->setText(tr("Significant Digits"));
 	logBox->setText(tr("Write Parameters to Result Log"));
 	plotLabelBox->setText(tr("Paste Parameters to Plot"));
-
+	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
+	groupBoxMultiPeak->setTitle(tr("Display Peak Curves for Multi-peak Fits"));
+	lblPeaksColor->setText(tr("Peaks Color"));
 }
 
 void ConfigDialog::accept()
@@ -994,7 +1003,7 @@ void ConfigDialog::apply()
 	app->generateUniformFitPoints = generatePointsBtn->isChecked();
 	app->generatePeakCurves = groupBoxMultiPeak->isChecked();
 	app->peakCurvesColor = boxPeaksColor->currentIndex();
-
+	app->fit_scale_errors = scaleErrorsBox->isChecked();
 	app->setPlot3DOptions();
 	app->saveSettings();
 

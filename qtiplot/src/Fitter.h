@@ -120,6 +120,9 @@ class Fit : public QObject
 		//! Sets the precision used for the output
 		void setOutputPrecision(int digits){d_prec = digits;};
 
+		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
+		void scaleErrors(bool yes = true){d_scale_errors = yes;};
+
 		Table* parametersTable(const QString& tableName);
 		Matrix* covarianceMatrix(const QString& matrixName);
 
@@ -232,6 +235,9 @@ class Fit : public QObject
 
 		//! Error flag telling if something went wrong during the initialization phase. Used by the NonLinearFit class.
 		bool d_init_err;
+
+		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
+		bool d_scale_errors;
 };
 
 class ExponentialFit : public Fit

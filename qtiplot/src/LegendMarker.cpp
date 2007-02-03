@@ -42,19 +42,19 @@
 #include <qwt_layout_metrics.h>
 
 LegendMarker::LegendMarker(Plot *plot):
-    d_plot(plot),
+	d_plot(plot),
 	d_frame (0),
 	angle(0),
 	bkgColor(plot->paletteBackgroundColor())
 {
 	d_text = new QwtText(QString::null, QwtText::RichText);
-		d_text->setFont(QFont("Arial",12, QFont::Normal, FALSE));
-		d_text->setRenderFlags(Qt::AlignTop|Qt::AlignLeft);
-		d_text->setBackgroundBrush(QBrush(Qt::NoBrush));
-		d_text->setColor(Qt::black);
-		d_text->setBackgroundPen (QPen(Qt::NoPen));
+	d_text->setFont(QFont("Arial",12, QFont::Normal, FALSE));
+	d_text->setRenderFlags(Qt::AlignTop|Qt::AlignLeft);
+	d_text->setBackgroundBrush(QBrush(Qt::NoBrush));
+	d_text->setColor(Qt::black);
+	d_text->setBackgroundPen (QPen(Qt::NoPen));
 
-		hspace = 30;
+	hspace = 30;
 	left_margin = 10;
 	top_margin = 5;
 }
@@ -149,11 +149,11 @@ void LegendMarker::updateOrigin()
 {
 	if (!d_plot)
 		return;
-			
-			const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-			const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
-			
-			setXValue (xMap.invTransform(d_pos.x()));
+
+	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+
+	setXValue (xMap.invTransform(d_pos.x()));
 	setYValue (yMap.invTransform(d_pos.y()));
 }
 
@@ -161,14 +161,14 @@ void LegendMarker::setOriginCoord(double x, double y)
 {
 	if (xValue() == x && yValue() == y)
 		return;
-			
-			setXValue(x);
-			setYValue(y);
-			
-			const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
-			const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
-			
-			d_pos = QPoint(xMap.transform(x), yMap.transform(y));
+
+	setXValue(x);
+	setYValue(y);
+
+	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
+	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
+
+	d_pos = QPoint(xMap.transform(x), yMap.transform(y));
 }
 
 QFont LegendMarker::getFont()
@@ -190,20 +190,20 @@ void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 	p->setPen(QPen(Qt::black,1,Qt::SolidLine));
 	if (type == None && bkgColor != d_plot->paletteBackgroundColor())
 		p->fillRect (rect,QBrush(bkgColor));
-			
-			if (type == Line)
-			{
-				p->setBrush(QBrush(bkgColor));
-					p->drawRect(rect);
-			}
-			else if (type == Shadow)
-			{
-				QRect shadow=QRect(rect.x()+5,rect.y()+5,rect.width(),rect.height());
-					p->setBrush(QBrush(Qt::black));
-				p->drawRect(shadow);
-				p->setBrush(QBrush(bkgColor));
-				p->drawRect(rect);
-			}
+
+	if (type == Line)
+	{
+		p->setBrush(QBrush(bkgColor));
+		QwtPainter::drawRect(p, rect);
+	}
+	else if (type == Shadow)
+	{
+		QRect shadow=QRect(rect.x()+5,rect.y()+5,rect.width(),rect.height());
+		p->setBrush(QBrush(Qt::black));
+		p->drawRect(shadow);
+		p->setBrush(QBrush(bkgColor));
+		QwtPainter::drawRect(p,rect);
+	}
 	p->restore();
 }
 
@@ -216,29 +216,29 @@ void LegendMarker::drawVector(QPainter *p, int x, int y, int l, int curveIndex) 
 	VectorCurve *v = (VectorCurve*)g->curve(curveIndex);
 	if (!v)
 		return;
-	
-		p->save();
-		
-		QPen pen(v->color(), v->width(), Qt::SolidLine);
-		p->setPen(pen);
-		QwtPainter::drawLine(p, x, y, x + l, y);
-		
-		p->translate(x+l, y);
+
+	p->save();
+
+	QPen pen(v->color(), v->width(), Qt::SolidLine);
+	p->setPen(pen);
+	QwtPainter::drawLine(p, x, y, x + l, y);
+
+	p->translate(x+l, y);
 
 	double pi=4*atan(-1.0);
 	int headLength = v->headLength();	
-		int d=qRound(headLength*tan(pi*(double)v->headAngle()/180.0));	
-		
-		QPolygon endArray(3);	
-		endArray[0] = QPoint(0, 0);
-		endArray[1] = QPoint(-headLength, d);
-		endArray[2] = QPoint(-headLength, -d);
-		
-		if (v->filledArrowHead())
-			p->setBrush(QBrush(pen.color(), Qt::SolidPattern));
-				
-				QwtPainter::drawPolygon(p,endArray);
-				p->restore();
+	int d=qRound(headLength*tan(pi*(double)v->headAngle()/180.0));	
+
+	QPolygon endArray(3);	
+	endArray[0] = QPoint(0, 0);
+	endArray[1] = QPoint(-headLength, d);
+	endArray[2] = QPoint(-headLength, -d);
+
+	if (v->filledArrowHead())
+		p->setBrush(QBrush(pen.color(), Qt::SolidPattern));
+
+	QwtPainter::drawPolygon(p,endArray);
+	p->restore();
 }
 
 void LegendMarker::drawSymbols(QPainter *p, const QRect& rect, 
@@ -257,41 +257,41 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 		if (titles[i].contains("\\c{"))
 		{
 			int pos=titles[i].find("{",0);
-				int pos2=titles[i].find("}",pos);
-				QString aux=titles[i].mid(pos+1,pos2-pos-1);
-				int cv = aux.toInt() - 1;	
-				if (cv < 0)
-					continue;
-						
-						if (g->curveType(cv) == Graph :: VectXYXY || g->curveType(cv) == Graph :: VectXYAM)
-							drawVector(p, w, height[i], l, cv);
-						else
+			int pos2=titles[i].find("}",pos);
+			QString aux=titles[i].mid(pos+1,pos2-pos-1);
+			int cv = aux.toInt() - 1;	
+			if (cv < 0)
+				continue;
+
+			if (g->curveType(cv) == Graph :: VectXYXY || g->curveType(cv) == Graph :: VectXYAM)
+				drawVector(p, w, height[i], l, cv);
+			else
+			{
+				const QwtPlotCurve *curve = g->curve(cv);
+				if (curve)
+				{
+					const QwtSymbol symb=curve->symbol(); 
+					const QBrush br=curve->brush();
+					QPen pen=curve->pen();
+
+					p->save();
+
+					if (curve->style()!=0)
+					{	
+						p->setPen (pen);					
+						if (br.style() != Qt::NoBrush || g->curveType(cv) == Graph::Box)
 						{
-							const QwtPlotCurve *curve = g->curve(cv);
-								if (curve)
-								{
-									const QwtSymbol symb=curve->symbol(); 
-										const QBrush br=curve->brush();
-										QPen pen=curve->pen();
-										
-										p->save();
-										
-										if (curve->style()!=0)
-										{	
-											p->setPen (pen);					
-												if (br.style() != Qt::NoBrush || g->curveType(cv) == Graph::Box)
-												{
-													QRect lr=QRect(w,height[i]-4,l,10);						
-														p->setBrush(br);
-														p->drawRect (lr);
-												}			
-												else 			
-													p->drawLine (w,height[i],w+l,height[i]);						
-										}
-									symb.draw(p,w+l/2,height[i]);
-										p->restore();
-								}
-						}
+							QRect lr=QRect(w,height[i]-4,l,10);						
+							p->setBrush(br);
+							QwtPainter::drawRect(p, lr);
+						}			
+						else 			
+							QwtPainter::drawLine(p, w,height[i],w+l,height[i]);						
+					}
+					symb.draw(p,w+l/2,height[i]);
+					p->restore();
+				}
+			}
 		}	
 		else if (titles[i].contains("\\p{"))
 		{
@@ -314,7 +314,7 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 					p->setPen (QPen(pen.color(),1,Qt::SolidLine));					
 					QRect lr=QRect(w,height[i]-4,l,10);						
 					p->setBrush(br);
-					p->drawRect(lr);
+					QwtPainter::drawRect(p, lr);
 					p->restore();
 				}
 			}
@@ -399,32 +399,32 @@ QwtArray<long> LegendMarker::itemsHeight(int y, int symbolLineLength, int &width
 int LegendMarker::symbolsMaxLineLength() const
 {
 	QList<int> cvs = d_plot->curveKeys();
-		
-		int maxL=0;
-		QString text=d_text->text();	
-		QStringList titles=text.split("\n", QString::SkipEmptyParts);	
+
+	int maxL=0;
+	QString text=d_text->text();	
+	QStringList titles=text.split("\n", QString::SkipEmptyParts);	
 	for (int i=0;i<(int)titles.count();i++)
 	{
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0)
 		{
 			int pos=titles[i].find("{",0);
-				int pos2=titles[i].find("}",pos);
-				QString aux=titles[i].mid(pos+1,pos2-pos-1);
-				int cv = aux.toInt()-1;
-				if (cv < 0)
-					continue;
-						
-						const QwtPlotCurve *c = d_plot->curve(cvs[cv]);
-						if (c)
-						{
-							int l=c->symbol().size().width();
-								if (l>maxL && c->symbol().style() != QwtSymbol::NoSymbol)
-									maxL=l;
-						}
+			int pos2=titles[i].find("}",pos);
+			QString aux=titles[i].mid(pos+1,pos2-pos-1);
+			int cv = aux.toInt()-1;
+			if (cv < 0)
+				continue;
+
+			const QwtPlotCurve *c = d_plot->curve(cvs[cv]);
+			if (c)
+			{
+				int l=c->symbol().size().width();
+				if (l>maxL && c->symbol().style() != QwtSymbol::NoSymbol)
+					maxL=l;
+			}
 		}
-		
-			if (titles[i].contains("\\p{"))
-				maxL=10;
+
+		if (titles[i].contains("\\p{"))
+			maxL=10;
 	}
 	return maxL;
 }

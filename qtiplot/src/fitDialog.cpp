@@ -369,6 +369,10 @@ void FitDialog::initAdvancedPage()
 	covMatrixName = new QLineEdit( tr( "CovMatrix" ) );
     gl2->addWidget(covMatrixName, 2, 2);
 
+	scaleErrorsBox = new QCheckBox(tr("Scale Errors with sqrt(Chi^2/doF)"));
+	scaleErrorsBox->setChecked(app->fit_scale_errors);
+	connect( scaleErrorsBox, SIGNAL(stateChanged (int)), this, SLOT(enableApplyChanges(int)));
+
     QGroupBox *gb2 = new QGroupBox(tr("Parameters Output"));
     gb2->setLayout(gl2);
 
@@ -399,6 +403,7 @@ void FitDialog::initAdvancedPage()
     QVBoxLayout *vbox1 = new QVBoxLayout();
     vbox1->addWidget(gb1);
     vbox1->addWidget(gb2);
+	vbox1->addWidget(scaleErrorsBox);
     vbox1->addWidget(logBox);
     vbox1->addWidget(plotLabelBox);
     vbox1->addStretch();
@@ -423,6 +428,7 @@ void FitDialog::applyChanges()
 	app->writeFitResultsToLog = logBox->isChecked();
 	app->fitPoints = generatePointsBox->value();
 	app->generateUniformFitPoints = generatePointsBtn->isChecked();
+	app->fit_scale_errors = scaleErrorsBox->isChecked();
 	app->saveSettings();
 	btnApply->setEnabled(false);
 }
@@ -1206,6 +1212,7 @@ void FitDialog::accept()
 		fitter->setColor(boxColor->currentItem());
 		fitter->generateFunction(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
+		fitter->scaleErrors(scaleErrorsBox->isChecked());
 
 		if (fitter->name() == tr("MultiPeak") && ((MultiPeakFit *)fitter)->peaks() > 1)
 		{

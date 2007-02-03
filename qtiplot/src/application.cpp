@@ -346,7 +346,7 @@ void ApplicationWindow::initGlobalConstants()
 	appStyle = qApp->style()->objectName();
 
 	majVersion = 0; minVersion = 9; patchVersion = 0;
-	versionSuffix = "alpha1";
+	d_extra_version = "alpha1";
 	projectname="untitled";
 	lastModified=0;
 	activeGraph=0;
@@ -1036,7 +1036,7 @@ void ApplicationWindow::initTableAnalysisMenu()
 
 	normMenu = new QMenu(this);
 	normMenu->setFont(appFont);
-	normMenu->insertItem(tr("&Columns"), this, SLOT(normalizeSelection()));
+	normMenu->addAction(actionNormalizeSelection);
 	normMenu->addAction(actionNormalizeTable);
 	normMenuID = dataMenu->insertItem(tr("&Normalize"), normMenu);
 
@@ -4405,6 +4405,7 @@ void ApplicationWindow::readSettings()
 	fitPoints = settings.value("/Points", 100).toInt();
 	generatePeakCurves = settings.value("/GeneratePeakCurves", true).toBool();
 	peakCurvesColor = settings.value("/PeaksColor", 2).toInt();//green color
+	fit_scale_errors = settings.value("/ScaleErrors", false).toBool();
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");	
@@ -4609,6 +4610,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Points", fitPoints);
 	settings.setValue("/GeneratePeakCurves", generatePeakCurves);
 	settings.setValue("/PeaksColor", peakCurvesColor);
+	settings.setValue("/ScaleErrors", fit_scale_errors);
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
@@ -8091,7 +8093,7 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 void ApplicationWindow::about()
 {
 	QString version = "QtiPlot " + QString::number(majVersion) + "." +
-		QString::number(minVersion) + "." + QString::number(patchVersion) + versionSuffix;
+		QString::number(minVersion) + "." + QString::number(patchVersion) + d_extra_version;
 
 	QMessageBox::about(this,tr("About QtiPlot"),
 			tr("<h2>"+ version + "</h2>"
@@ -11516,7 +11518,8 @@ void ApplicationWindow::translateActionsStrings()
 
 #ifdef SCRIPTING_PYTHON
 	actionShowScriptWindow->setMenuText(tr("&Python Script Window"));
-	actionShowScriptWindow->setAccel(tr("F3"));
+	actionShowScriptWindow->setToolTip(tr("Python Script Window"));
+	actionShowScriptWindow->setShortcut(tr("F3"));
 #endif
 
 	actionAddLayer->setMenuText(tr("Add La&yer"));
@@ -11688,6 +11691,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionCloseWindow->setShortcut(tr("Ctrl+W"));
 
 	actionAddColToTable->setMenuText(tr("Add Column"));
+	actionAddColToTable->setToolTip(tr("Add Column"));
+
 	actionClearTable->setMenuText(tr("Clear"));
 	actionGoToRow->setMenuText(tr("&Go to Row..."));
 	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));

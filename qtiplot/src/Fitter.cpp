@@ -70,6 +70,7 @@ Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
 	d_prec = parent->fit_output_precision;
 	d_init_err = false;
 	chi_2 = -1;
+	d_scale_errors = false;
 }
 
 gsl_multifit_fdfsolver * Fit::fitGSL(gsl_multifit_function_fdf f, int &iterations, int &status)
@@ -293,16 +294,19 @@ QString Fit::logFitInfo(double *par, int iterations, int status, const QString& 
 	}
 
 	info+=tr("From x")+" = "+QString::number(d_x[0], 'g', 15)+" "+tr("to x")+" = "+QString::number(d_x[d_n-1], 'g', 15)+"\n";
-
+	double chi_2_dof = chi_2/(d_n - d_p);
 	for (int i=0; i<d_p; i++)
 	{
 		info += d_param_names[i]+" "+d_param_explain[i]+" = "+QString::number(par[i], 'g', d_prec) + " +/- ";
-		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+		if (d_scale_errors)
+			info += QString::number(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+		else
+			info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	info += "--------------------------------------------------------------------------------------\n";
 
 	QString info2;
-	info2.sprintf("Chi^2/doF = %g\n",  chi_2/(d_n - d_p));
+	info2.sprintf("Chi^2/doF = %g\n",  chi_2_dof);
 	info+=info2;
 	double sst = (d_n-1)*gsl_stats_variance(d_y, 1, d_n);
 	info2.sprintf(tr("R^2") + " = %g\n",  1 - chi_2/sst);
@@ -341,16 +345,21 @@ QString Fit::legendFitInfo()
 	QString info = tr("Dataset") + ": " + d_curve->title().text() + "\n";
 	info += tr("Function") + ": " + d_formula + "\n<br>";
 
+	double chi_2_dof = chi_2/(d_n - d_p);
 	QString info2;
-	info2.sprintf("Chi^2/doF = %g\n",  chi_2/(d_n - d_p));
+	info2.sprintf("Chi^2/doF = %g\n",  chi_2_dof);
 	info+=info2;
 	double sst = (d_n-1)*gsl_stats_variance(d_y, 1, d_n);
 	info2.sprintf(" R^2 = %g\n",  1 - chi_2/sst);
 	info += info2 + "<br>";
+
 	for (int i=0; i<d_p; i++)
 	{
 		info += d_param_names[i] + " = " + QString::number(d_results[i], 'g', d_prec) + " +/- ";
-		info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+		if (d_scale_errors)
+			info += QString::number(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+		else
+			info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	return info;
 }
@@ -463,8 +472,14 @@ double *Fit::errors()
 {
 	if (!d_errors) {
 		d_errors = new double[d_p];
+		double chi_2_dof = chi_2/(d_n - d_p);
 		for (int i=0; i<d_p; i++)
-			d_errors[i] = sqrt(gsl_matrix_get(covar,i,i));
+		{
+			if (d_scale_errors)
+				d_errors[i] = sqrt(chi_2_dof*gsl_matrix_get(covar,i,i));
+			else
+				d_errors[i] = sqrt(gsl_matrix_get(covar,i,i));
+		}
 	}
 	return d_errors;
 }

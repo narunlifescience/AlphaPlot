@@ -81,9 +81,9 @@ Plot::Plot(QWidget *parent, const char *name)
 			scale->setTitle(title);
 
 			ScaleDraw *sd = new ScaleDraw();
-			sd->setTickLength  	(QwtScaleDiv::MinorTick, minTickLength); 
-			sd->setTickLength  	(QwtScaleDiv::MediumTick, minTickLength);
-			sd->setTickLength  	(QwtScaleDiv::MajorTick, majTickLength);
+			sd->setTickLength(QwtScaleDiv::MinorTick, minTickLength); 
+			sd->setTickLength(QwtScaleDiv::MediumTick, minTickLength);
+			sd->setTickLength(QwtScaleDiv::MajorTick, majTickLength);
 
 			setAxisScaleDraw (i, sd);
 		}
@@ -137,29 +137,23 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
 {
 	const QwtPlotCanvas* plotCanvas=canvas();	
 	QRect rect=canvasRect;
-	int w=plotCanvas->lineWidth();
-
-	if (w>0)
+	if(plotCanvas->lineWidth() > 0)
 	{
 		QPalette pal = plotCanvas->palette();
 		QColor color=pal.color(QPalette::Active, QColorGroup::Foreground);
 
 		painter->save();
-		painter->setPen (QPen(color,w,Qt::SolidLine));
+		painter->setPen (QPen(color, plotCanvas->lineWidth(),Qt::SolidLine));
 
 		if (canvasBackground() != Qt::white)
 			painter->setBrush(canvasBackground());
 
-		//if (w == 1 && majorTicksType[QwtPlot::xBottom] == Plot::Out)
-		rect.setHeight(canvasRect.height() + 1);	
-
-		QwtPainter::drawRect(painter, rect.x(), rect.y(), rect.width(), rect.height());
+		QwtPainter::drawRect(painter, canvasRect);
 		painter->restore();
 	}
 
 	painter->setClipping(TRUE);
-	rect = QRect(canvasRect.x()+1, canvasRect.y()+1, canvasRect.width(), canvasRect.height()-1);
-	QwtPainter::setClipRect(painter, rect);
+	QwtPainter::setClipRect(painter, canvasRect);
 
 	drawItems(painter, canvasRect, map, pfilter);
 }

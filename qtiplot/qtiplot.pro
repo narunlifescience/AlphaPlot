@@ -18,7 +18,14 @@ SCRIPTING_LANGS = muParser Python
 
 TRANSLATIONS    = translations/qtiplot_de.ts \
 		          translations/qtiplot_es.ts \
-			      translations/qtiplot_fr.ts 
+		          translations/qtiplot_fr.ts \
+		          translations/qtiplot_ru.ts \
+		          translations/qtiplot_sv.ts 
+
+#system(lupdate -verbose qtiplot.pro)
+#system(lrelease -verbose qtiplot.pro)
+
+
 
 #############################################################################
 ##################### 3rd PARTY HEADER FILES SECTION ########################

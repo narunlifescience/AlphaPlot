@@ -643,7 +643,7 @@ void Graph::setLabelsNumericFormat(int axis, int format, int prec, const QString
 	axisType[axis] = Numeric;
 	axesFormulas[axis] = formula;
 
-	ScaleDraw *sd_old= (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	if (format == Plot::Superscripts)
@@ -655,7 +655,7 @@ void Graph::setLabelsNumericFormat(int axis, int format, int prec, const QString
 	}
 	else
 	{			
-		ScaleDraw *sd= new ScaleDraw(formula.ascii());
+		ScaleDraw *sd = new ScaleDraw(formula.ascii());
 		sd->setScaleDiv(div);
 
 		if (format == Plot::Automatic)
@@ -853,7 +853,7 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 
 	d_plot->setTickLength(minLength, majLength);	
 
-	ScaleDraw *sd= (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd = (ScaleDraw *)d_plot->axisScaleDraw (axis);
 	sd->setMajorTicksStyle((ScaleDraw::TicksStyle)majTicksType);	
 	sd->setMinorTicksStyle((ScaleDraw::TicksStyle)minTicksType);
 
@@ -861,6 +861,11 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks, false);
 	else
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks);
+
+	if (majTicksType == ScaleDraw::None || majTicksType == ScaleDraw::In)
+		majLength = 0;
+	if (minTicksType == ScaleDraw::None || minTicksType == ScaleDraw::In)
+		minLength = 0;
 
 	sd->setTickLength (QwtScaleDiv::MinorTick, minLength); 
 	sd->setTickLength (QwtScaleDiv::MediumTick, minLength);
@@ -956,7 +961,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 	}
 
 	sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (axis);	
-	sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
+	sclDraw->enableComponent(QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
 
 	setAxisTicksLength(axis, majTicksType, minTicksType, 
 			d_plot->minorTickLength(), d_plot->majorTickLength());
@@ -966,7 +971,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 
 	scalePicker->refresh();
 	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
-	scale->repaint();
+//	scale->repaint();
 	d_plot->replot();	
 	emit modifiedGraph();
 }
@@ -976,7 +981,7 @@ void Graph::setLabelsDayFormat(int axis, int format)
 	axisType[axis] = Day;
 	axesFormatInfo[axis] = QString::number(format);
 
-	ScaleDraw *sd_old= (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	WeekDayScaleDraw *sd = new WeekDayScaleDraw((WeekDayScaleDraw::NameFormat)format);
@@ -989,7 +994,7 @@ void Graph::setLabelsMonthFormat(int axis, int format)
 	axisType[axis] = Month;
 	axesFormatInfo[axis] = QString::number(format);
 
-	ScaleDraw *sd_old= (ScaleDraw *)d_plot->axisScaleDraw (axis);
+	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
 	MonthScaleDraw *sd = new MonthScaleDraw((MonthScaleDraw::NameFormat)format);
@@ -3422,7 +3427,7 @@ void Graph::drawAxesBackbones(bool yes)
 		QwtScaleWidget *scale=(QwtScaleWidget*) d_plot->axisWidget(i);
 		if (scale)
 		{
-			ScaleDraw *sclDraw= (ScaleDraw *)d_plot->axisScaleDraw (i);
+			ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (i);
 			sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, yes);
 			scale->repaint();
 		}
@@ -3444,7 +3449,7 @@ void Graph::loadAxesOptions(const QString& s)
 		QwtScaleWidget *scale=(QwtScaleWidget*) d_plot->axisWidget(i);
 		if (scale)
 		{
-			ScaleDraw *sclDraw= (ScaleDraw *)d_plot->axisScaleDraw (i);
+			ScaleDraw *sclDraw = (ScaleDraw *)d_plot->axisScaleDraw (i);
 			sclDraw->enableComponent (QwtAbstractScaleDraw::Backbone, false);			
 			scale->repaint();
 		}

@@ -42,7 +42,7 @@
 #include <QTextStream>
 
 ScriptWindow::ScriptWindow(ScriptingEnv *env)
-		: QMainWindow()
+: QMainWindow()
 {
 	initMenu();
 
@@ -157,6 +157,64 @@ void ScriptWindow::initActions()
 	connect(te, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
 	connect(te, SIGNAL(redoAvailable(bool)), actionRedo, SLOT(setEnabled(bool)));
 }
+
+void ScriptWindow::languageChange()
+{
+	setWindowTitle(tr("QtiPlot - Python Script Window"));
+
+	menuBar()->clear();
+	menuBar()->addMenu(file);
+	menuBar()->addMenu(edit);
+	menuBar()->addMenu(run);
+
+	file->setTitle(tr("&File"));
+	edit->setTitle(tr("&Edit"));
+	run->setTitle(tr("E&xecute"));
+
+	menuBar()->addAction(tr("&Hide"), this, SLOT(close()));
+
+	actionNew->setText(tr("&New"));
+	actionNew->setShortcut(tr("Ctrl+N"));
+
+	actionOpen->setText(tr("&Open..."));
+	actionOpen->setShortcut(tr("Ctrl+O"));
+
+	actionSave->setText(tr("&Save"));
+	actionSave->setShortcut(tr("Ctrl+S"));
+
+	actionSaveAs->setText(tr("Save &As..."));
+
+	actionPrint->setText(tr("&Print"));
+	actionPrint->setShortcut(tr("Ctrl+P"));
+
+	actionUndo->setText(tr("&Undo"));
+	actionUndo->setShortcut(tr("Ctrl+Z"));
+
+	actionRedo->setText(tr("&Redo"));
+	actionRedo->setShortcut(tr("Ctrl+Y"));
+
+	actionCut->setText(tr("&Cut"));
+	actionCut->setShortcut(tr("Ctrl+x"));
+
+	actionCopy->setText(tr("&Copy"));
+	actionCopy->setShortcut(tr("Ctrl+C"));
+
+	actionPaste->setText(tr("&Paste"));
+	actionPaste->setShortcut(tr("Ctrl+V"));
+
+	actionDelete->setText(tr("&Delete")); 
+	actionDelete->setShortcut(tr("Del"));
+
+	actionExecute->setText(tr("E&xecute"));
+	actionExecute->setShortcut(tr("CTRL+J"));
+
+	actionExecuteAll->setText(tr("Execute &All"));
+	actionExecuteAll->setShortcut(tr("CTRL+SHIFT+J"));
+
+	actionEval->setText(tr("&Evaluate Expression"));
+	actionEval->setShortcut(tr("CTRL+Return"));
+}
+
 
 void ScriptWindow::newScript()
 {

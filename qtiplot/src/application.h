@@ -833,6 +833,9 @@ public:
 	bool generatePeakCurves;
 	int peakCurvesColor;
 
+	//! Scale the errors output in fit operations with reduced chi^2
+	bool fit_scale_errors;
+
 	//! Number of points in a generated fit curve
 	int fitPoints;
 
@@ -851,8 +854,9 @@ public:
 	enum {MaxRecentProjects = 5};
 	int fileVersion;
 	int majVersion, minVersion, patchVersion;
-	//! Extra suffix to the version string like "rc1", "beta7" or similar
-	QString versionSuffix;
+	//! Extra version information string (like "alpha", "-2", etc...)
+	QString d_extra_version;
+
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
 
