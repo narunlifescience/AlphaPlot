@@ -1,0 +1,92 @@
+<chapter id="faq">
+<title>Frequently asked questions</title>
+
+<qandaset defaultlabel='qanda'>
+
+<qandaentry>
+  <question>
+    <para>How can I visualise data from a text file?</para>
+  </question>
+  <answer>
+    <para>Go to the &file-menu-lnk; and select the &import-ascii-1-lnk; command.</para>
+    <para>If the file is not imported correctly, change the columns separator using the &set-import-options-lnk; options command from the &file-menu-lnk; .</para>
+    <para>The default columns separator is the TAB.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I plot data from a table (worksheet)?</para>
+  </question>
+  <answer>
+    <para>Click on the table header to choose the columns to plot and then right click. Chose the 'Plot' option from the pop-up menu and then the type of plot you want.</para>
+    <para>You can also use the plot assistant: press 'CTRL+ALT+W' keys to show it, or go to 'View' menu -> 'Plot wizard'.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I export a plot to an image format?</para>
+  </question>
+  <answer>
+    <para>Right click in the plot window and chose the 'Export' option.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>Can I export transparent images?</para>
+  </question>
+  <answer>
+    <para>Yes, ".png" images have transparent background. See the &export-graph-current-lnk; command.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I export a text file?</para>
+  </question>
+  <answer>
+    <para>Go to the &file-menu-lnk; and select the &export-ascii-lnk; command.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I choose a window using the project explorer?</para>
+  </question>
+  <answer>
+    <para>Double click on the window name will show the window maximized, even if it was hidden before.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I choose the data range from a plot curve, when doing a curve fit?</para>
+  </question>
+  <answer>
+    <para>Go to the &data-menu-lnk; and use the &select-data-range-lnk; command. Click in the plot window and use the 'Up' and 'Down' arrows keys to select the curve to analyse. Keeping 'CTRL' button and 'Left' or 'Right' arrow keys simultaneousely pressed permit to move the selected cursor and consequently to modify the data range.</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>Can I fit a plot curve using my own function?</para>
+  </question>
+  <answer>
+    <para>Go to the &analysis-menu-lnk; and select the &non-linear-curve-fit-lnk; command. Define the function (myFunction=...), enter the initial guesses for the parameters, separated by comas, choose the fitting range and the number of iterations and click 'OK'</para>
+  </answer>
+</qandaentry>
+
+<qandaentry>
+  <question>
+    <para>How can I visualize a pixel line profile from an image?</para>
+  </question>
+  <answer>
+    <para>Right click on the image you want to analyse and select the option 'View pixel line profile' from the popup menu. A dialog window opens and allows you to select the number of pixels used for the analysis. Choose a value and click "OK". Then click on the image to select the start point and move your mouse to select an end point while keeping the left button pressed. When you release the left button a plot window appears, representing the pixel intensity versus pixel index.</para>
+  </answer>
+</qandaentry>
+
+</qandaset>
+
+</chapter>

@@ -1,0 +1,365 @@
+<!--
+		tutorial
+		========
+
+	This chapter gives a small overview of the features an a howto to obtain
+	the first simple plots.
+-->
+<title>Drawing plots with &appname;</title>
+<!--
+======================================================================================
+
+		2D plots
+		========
+-->
+<sect1 id="sec-2d-plots">
+<title>2D plots</title>
+
+<para>A 2D plot is based on curves which are defined by Y values as functions of X values. There are two ways to obtain a 2D plot depending on the way the (X,Y) values are defined:</para>
+
+<itemizedlist>
+  <listitem>
+    <para>You can have your (X,Y) values in a <link linkend="sec-intro-table">table</link>. You need to select at least one column as X values and one column as Y values. This is specified with the &column-options-lnk;. Then you can select the columns and use one command of the &plot-menu-lnk; to plot the data.</para>
+  </listitem>
+  <listitem>
+    <para>If you want to plot a function, you don't need a table. You can use directly the &new-function-plot-lnk;. This will open the corresponding <link linkend="add-function-dialog">dialog box</link> and you will be able to define the mathematical expression of your function.</para>
+  </listitem>
+  <listitem>
+    <para>The combined way is to define a <link linkend="sec-intro-table">table</link>, and then to fill in the table with the results of functions. This can be done with the &set-column-values-lnk;. Then you can select the columns and use one command of the &plot-menu-lnk; to plot the data.</para>
+  </listitem>
+</itemizedlist>
+
+<para>&appname; will create a new plot window, and the plot will be inserted in a new layer</para>
+
+<para>Once the plot is created, you can customize all the graphic items of the plot with the commands of the <link linkend="sec-format-menu">Format Menu</link>. You can add new items (text labels, lines or arrows, new legend, images) on the plot with the commands of the <link linkend="sec-graph-menu">Graph Menu</link>.</para>
+<!--
+======================================================================================
+
+		small tutorial to obtain a 2D plot
+-->
+<sect2 id="sec-2d-plot-from-data">
+<title>2D plot from data.</title>
+
+<para>The data must be stored in a <link linkend="sec-intro-table">table</link>. There are several possibilities to insert your (X,Y) values in the table: you can write them directly from the keyboard, or read them from a file. Here we will use the first solution, refer to the &import-ascii-lnk; to use the second one.</para>
+
+<para>The first step is to create an empty project with the &new-project-lnk; from the &file-menu-lnk;, you can also use the key &new-project-key; or the &new-project-icon; icon from the &file-toolbar-lnk;. Then create a new table with the &new-table-lnk; from the &file-menu-lnk; or with the &new-table-key; or with the &new-table-icon; icon from the &file-toolbar-lnk;.</para>
+
+<para>At its creation, the table has two column (one for X and one for Y) and 32 rows. You can add rows and columns by selecting a row or a column and using the right button of the mouse, you can also modify the number of rows and columns with the &rows-lnk; and &columns-lnk; from the &table-menu-lnk;. You enter your values, and obtain this table:</para> 
+
+<figure id="fig-simple-2dplot-1">
+  <title>A simple 2D plot: the table.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="tutorial/simple-2dplot-1.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>The you have to select the two columns, and build your plot (here a simple 2D scatter) with the &scatter-lnk; from the context menu, or by clicking on the corresponding &scatter-icon; icon from the &plot-toolbar-lnk; or with the &scatter-lnk; from the &plot-menu-lnk;. A plot is created which uses the default options for all elements. You can customize these default options with the <link linkend="preferences-dialog">preferences dialog</link>. With the default options, you obtain the following plot:</para>
+
+<figure id="fig-simple-2dplot-2">
+  <title>A simple 2D plot: the default plot.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="tutorial/simple-2dplot-2.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>You can then customize your plot. By double clicking on the points, you open the <link linkend="custom-curves-dialog">Custom curves dialog</link> which is used to modify the symbols. Then a double-click on the axes opens the <link linkend="plot-options-dialog">general plot options dialog</link>, and you can change the scales, the fonts for the axes labels, etc. You can also add grid lines on X or Y axes, etc. Finally, a double click on each text item (X title, Y title, plot title) allows to change the text and the presentation of these elements. The final plot is:</para>
+
+<figure id="fig-simple-2dplot-3">
+  <title>A simple 2D plot: the plot finished.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="tutorial/simple-2dplot-3.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>Finally, you have to save your project in a '.qti' file with the &save-project-lnk; from the &file-menu-lnk; or with the &save-project-key; or with the &save-project-icon; icon from the &file-toolbar-lnk;. Depending on your application, you can export your plot to a standard image file with the command  &export-graph-current-lnk; from the &file-menu-lnk; (or with the &export-graph-current-key; keycode).
+</para>
+
+<para>There are several types of plots which can be built from a table. They are presented in the &plot-menu-lnk;</para>
+
+<para>It is possible to use up to four axes for the data:</para>
+
+<figure id="fig-two-axis-plot">
+  <title>A 2D plot with two Y axis.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/plot-two-axes.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>In addition to the customization which has been already described, the  axes which are used for each curve were defined with the <link linkend="custom-curves-dialog">Custom Curves</link> Dialog, and two arrows were added with the &draw-arrow-lnk;.</para>
+
+<informalfigure id="fig-two-axis-plot">
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/plot-two-axes-dialog.png"/>
+    </imageobject>
+  </mediaobject>
+</informalfigure>
+</sect2>
+
+<sect2 id="sec-2d-plot-from-function">
+<title>2D plot from function.</title>
+
+<para>There are two ways to obtain such a plot: you can plot directly a function or fill a table with the values calculated from this function before doing a plot in the classical way.</para>
+
+<sect3>
+<title>Direct plot of a function.</title>
+
+<para>If you just want to plot a function, you can use the &new-function-plot-lnk; from the &file-menu-lnk; or with the &new-function-plot-key; or with the &new-function-plot-icon; icon from the &file-toolbar-lnk;.</para>
+
+<para>This command will open the <link linkend="add-function-dialog">Add Function Curve dialog</link>. You can then enter the expression of your mathematical function, the X range used for the plot, and the number of points used in this X range. Beside classical Y=f(X) functions, parametric and polar functions can be defined.</para>
+
+<figure id="fig-direct-function-plot">
+  <title>Direct plot of a function.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/direct-function-plot.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+</sect3>
+
+<sect3>
+<title>Filling of a table with the values of a function.</title>
+
+<para>If you just want to work not only with the plot but also with the data, you can create a new table as explained in the <link linkend="sec-2d-plot-from-data">previous section</link>. Then you can fill this table with the values of a function with the &set-column-values-lnk;.</para>
+
+<para>To obtain the same plot as in the previous example, you need to create a new table (key &new-table-key;), then select the first column and use the command &set-column-values-lnk; from the context menu, or from the &table-menu-lnk;. The row number symbol is <emphasis>i</emphasis>, so you can enter the function expression <emphasis>i/10</emphasis> and use 300 rows.</para>
+
+<figure id="fig-table-function-plot-1">
+  <title>Function plot: filling of the X column.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="tutorial/table-function-plot1.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>The second step is to select the second column and use the same command. The expression is a function of the X values, that is the first column named <emphasis>col(1)</emphasis>.</para>
+
+<figure id="fig-table-function-plot-2">
+  <title>Function plot: filling of the Y column.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="tutorial/table-function-plot2.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>Once the table is ready, you just have to build the plot as explained in the previous section.</para>
+
+</sect3>
+
+</sect2>
+
+</sect1>
+<!--
+======================================================================================
+
+		3D plots
+		========
+-->
+<sect1 id="sec-3d-plots">
+<title>3D plots</title>
+
+<para>3D plot are generated from data defined as Z=f(X,Y). As for 2D plots, there are two ways to obtain a 3D plot depending on the way the (X,Y,Z) values are defined:</para>
+
+<itemizedlist>
+  <listitem>
+    <para>You can have your Z values in a <link linkend="sec-intro-matrix">matrix</link>. &appname; will consider that all the data present in the matrix are Z values, and the X and Y values can be defined as a function of the columns and rows numbers.</para>
+    <para>The data in the matrix can be entered in several ways:</para>
+    <itemizedlist>
+      <listitem>
+        <para>one by one from the keyboard,</para>
+      </listitem>
+      <listitem>
+        <para>by reading an ascii file in a table and converting the table into a matrix,</para>
+      </listitem>
+      <listitem>
+        <para>by setting the values with a function.</para>
+      </listitem>
+    </itemizedlist>
+  </listitem>
+<listitem>
+<para>If you want to plot a function, you don't need a matrix. You can use directly the &new-surface-3d-plot-lnk;. This will open the corresponding <link linkend="define-surface-plot-dialog">dialog box</link> and you will be able to define the mathematical expression of your function.</para>
+</listitem>
+</itemizedlist>
+
+<para>There are several kinds of 3D plots which can be selected, see the &plot3d-menu-lnk; section of the <link linkend="reference">reference chapter</link> for a list of the availables plots.</para>
+
+<figure id="fig-exemple-3dplot">
+  <title>Example of a 3D Plots.</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/exemple-plot3d.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>
+The 3D plots use OpenGL so you can easily rotate, scale and shift them with the mouse. Via the 3D plot settings dialog or via the Surface 3D Toolbar you can change all the predefined settings of a three dimensional plot: grids, scales, axes, title, legend and colors for the different elements.
+</para>
+
+<para>There are several types of plots which can be built from a matrix. They are presented in the &plot3d-menu-lnk;</para>
+
+<sect2 id="sec-3d-plot-function">
+<title>Direct 3D plot from a function</title>
+
+<para>This is the simplest way to obtain a 3d plot. It is done with the &new-surface-3d-plot-lnk; from the &file-menu-lnk; or directly with the &new-surface-3d-plot-key;. This will open the folowing <link linkend="define-surface-plot-dialog">dialog box</link>:</para>
+
+<figure id="fig-define-surface-plot">
+  <title>Definition of a new surface 3D plot</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/define-surface-plot.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>You can enter the function z=f(x,y) and the ranges for X, Y and Z. Then &appname; will create a default 3d plot:</para>
+
+<figure id="fig-default-surface-plot">
+  <title>The 3D surface plot created by default</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/3D-function-plot-default.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>You can then customize this plot by opening the <link linkend="surface-plot-options-dialog">Surface plot options dialog</link>. You can modify the axis ranges and parameters, add a title, change the colors of the different items, and modify the aspect ratio of the plot. In addition, you can use the different commands of the &plot3d-toolbar-lnk; to add grids on the walls or to modify the style of the plot. After some modifications, you can obtain the following plot:</para>
+
+<figure id="fig-modified-surface-plot">
+  <title>The 3D surface plot after customizations</title>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/3D-function-plot-modified.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>If you want to modify the function itself, you can use the <command>surface...</command> command which can be activated from the context menu with a right click on the 3D plot. This will re-open the <link linkend="define-surface-plot-dialog">define surface function dialog box</link>.</para>
+</sect2>
+
+<sect2 id="sec-3d-plot-matrix">
+<title>3D plot from a matrix</title>
+
+<para>The second way to obtain a 3D plot is to use a <link linkend="sec-intro-matrix">matrix</link>. Therefore, the first step is to fill the matrix.This can be done by defining a function.</para>
+<para>The &new-matrix-lnk; create a default empty matrix with 32x32 cells. Then use the &set-dimensions-lnk; to modify the number of rows and columns of the matrix. This <link linkend="set-dimensions-dialog">dialog box</link> is also used to define the X and Y ranges. </para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/matrix-set-dimensions.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>Then use the &set-values-lnk; to fill the cells with numbers. The ranges of X and Y defined in the previous step are not known by this dialog box, then the function is defined with the row and column numbers (i and j) as entry parameters (see the section <link linkend="set-values-dialog">set-values</link> for details).</para>
+
+<para>The other way to obtain a matrix is to import an ASCII file into a table with the &import-ascii-1-lnk; from the &file-menu-lnk;. The table can then be transformed in a matrix with the command &convert-to-matrix-lnk; from the &table-menu-lnk;.</para>
+
+<para>You can then use this matrix to build a 3D plot with one of the command of the &plot-menu-lnk;.</para>
+
+</sect2>
+
+</sect1>
+<!--
+======================================================================================
+
+		Multilayer plots
+		================
+-->
+<sect1 id="sec-multilayer-plots">
+<title>Multilayer Plots</title>
+
+<para>The multilayer windows can contain multiple plots (layers) with different characteristics. Each layer has a corresponding button, which displays a number and is pressed when the layer is the currently active layer. There is only one active layer at a time, and the plot tools (zoom, cursors, drawing tools, delete and move points) can only operate on this layer. Each plot can be made active by clicking on it or on its corresponding button.</para>
+<para>To arrange the layers use the <link linkend="arrange-layers-dialog">&arrange-layers-cmd; dialog</link>. You can add or remove layers with the &add-layer-lnk; and &remove-layer-lnk; or copy/paste layers from one multilayer window to another. All these functions can be reached via the &graph-menu-lnk;, by using the &plot-toolbar-lnk; or via the context menu (right click in the multilayer window anywhere outside a plot area).</para>
+<para>You can resize and move a layer using the Layer geometry dialog. You can also arrange and resize the plots by hand. A whole plot can be moved by drag and drop: click on the plot and keep the left mouse button pressed.</para>
+<para>By keeping the Shift key pressed and dragging the border of a plot you can scale a plot as needed. When moving the mouse over the borders of a plot, you will see the corresponding arrows.</para>
+<para>You can also use the mouse wheel in order to resize the layers: keeping the Ctrl key pressed and scrolling will resize the hight of the plot canvas, while keeping the Alt key pressed and scrolling will resize its width. By keeping the Shift key pressed and scrolling you can resize the plot in both dimensions.</para>
+
+<sect2 id="sec-building-multilayer-plots-1">
+<title>Building a multilayer plot panel</title>
+
+<para>This is the simplest way to obtain a multilayer plot. It can be used if you want to build a panel of plots with a simple arrangement: 2 plot in a row or in a column, or 4 plots in 2 rows and 2 columns.</para>
+<para>You can select two columns with Y-values in a table, and then use one of the &panel-cmd; commands in the &plot-menu-lnk;. &appname; will create a panel of plots in which the size of the different elements of each plot are synchronized.</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-panel.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>You can then customize the two plots, if you want to change the arrangement of the panel, you can use the &arrange-layers-lnk; from the &graph-menu-lnk;. It must be reminded in this case that each plot is in a layer with a surface which is the half or the quarter of the window surface area. So, if you want to share an element between the two plots (for example a text label), you need to add it in a new layer (see the &add-text-lnk; for more detaile).</para>
+
+</sect2>
+
+<sect2 id="sec-building-multilayer-plots-2">
+<title>Building a multilayer plot step by step</title>
+
+<para>If you need to build a more complex multilayer plot, you can define it step by step.</para>
+<para>The first step is to build your first plot, for example from two columns of a table. We obtain a standard plot window:</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-step-1.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>Then, select the plot window and use the &add-layer-lnk; from the &graph-menu-lnk;. This will activate the <link linkend="add-layer-dialog">&add-layer-cmd; dialog</link>. If you choose "Guess" you will obtain a panel with two columns, if you choose "corner" you will obtain two superposed layers, you can then modify these two layers.</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-step-2.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>If you want to build a panel with two rows, you can use the &arrange-layers-lnk; to convert this panel.</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-step-3.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>Then select the second void plot and use the &add-remove-curve-lnk; to select the Y-values from one of the tables of the project.</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-step-4.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+<para>After this, you can customize your plot. At the end, the modifications done on the axis or on the axis labels may have modified the geometry of the two plots. You can synchronize again the two plots by applying again the &arrange-layers-lnk;.</para>
+
+  <informalfigure>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/multilayer-step-5.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+</sect2>
+
+</sect1>
+

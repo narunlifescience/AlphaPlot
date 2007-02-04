@@ -1,0 +1,393 @@
+<!--
+
+		SMALL TUTORIAL ON THE ANALYSIS POSSIBILITIES
+		============================================
+
+		JANUARY 2006: BASED ON VERSION 0.7.7
+
+-->
+<title>Analysis of data and curves</title>
+
+<sect1 id="sec-fft">
+<title>Fast Fourier Transform</title>
+
+<para>This function can be accessed by the command <link linkend="fft-cmd">&fft-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table or a plot is selected. The Fourier transform decomposes a signal in its elementary components by assuming that the signal x(t) can be describe as a sum:</para>
+
+<equation> 
+  <title>Fourier equation</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata format="png" fileref="equations/equation_fourier.png"/>
+    </imageobject>
+  </mediaobject>
+</equation>
+
+<para>in which <inlinemediaobject><imageobject><imagedata format="png" fileref="equations/equation_omega-n.png"/></imageobject></inlinemediaobject> are the frequencies, a<subscript>n</subscript> are the amplitudes of each frequency and <inlinemediaobject><imageobject><imagedata format="png" fileref="equations/equation_psi-n.png"/></imageobject></inlinemediaobject> are the phase corresponding frequency. &appname; will compute these parameters and build a new plot of the amplitude as a function of the frequency.</para>
+
+<figure id="fig-exemple-fft">
+  <title>An example of a inverse FFT.</title>
+  <informalexample>
+    <para>FFT performed on a curve to extract the characteristic frequencies. The signal is on the bottom plot, while the amplitude-frequency plot is on the top layer. In this example, the amplitude curve has been normalized, and the frequencies have been shifted to obtain a centered x-scale.</para>
+  </informalexample>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/exemple-fft.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>Some parameters of the FFT can be modified in the <link linkend="fft-dialog">FFT dialog</link>.</para>
+
+</sect1>
+
+<sect1 id="sec-correlate">
+<title>Correlation</title>
+
+<para>This function can be accessed by the command <link linkend="correlate-cmd">&correlate-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table is selected. The correlation function, also known as the covariance function is used to test the similarity of two signals <emphasis>x(t)</emphasis> and <emphasis>y(t)</emphasis>. It is computed by:</para>
+
+<equation> 
+  <title>Covariance function of two signals <emphasis>x(t)</emphasis> and <emphasis>y(t)</emphasis></title>
+  <mediaobject>
+    <imageobject>
+      <imagedata format="png" fileref="equations/equation_covariance.png"/>
+    </imageobject>
+  </mediaobject>
+</equation>
+
+<para>in which <inlineequation><graphic fileref="equations/equation_x-m.png"/></inlineequation> and <inlineequation><graphic fileref="equations/equation_y-m.png"/></inlineequation> are the mean values of the signals <emphasis>x(t)</emphasis> and <emphasis>y(t)</emphasis> respectively.</para>
+<para>If the number of points is <emphasis>N</emphasis>, the function will be computed between <emphasis>-N/2</emphasis> and <emphasis>N/2</emphasis>. The abscissae are therefore point numbers and not<emphasis>t</emphasis> values.</para>
+
+<figure id="fig-exemple-correlation">
+  <title>An example of a correlation between two sinus functions.</title>
+  <informalexample>
+    <para>The first plot shows the two signals, the second one is the correlation function between the two signal which shows that there are correlations, and the third one is the Fourier transform which is done to extract the caracteristic frequencies of the correlation function.</para>
+  </informalexample>
+  <mediaobject> 
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/exemple-correlation.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>The correlation of a signal with itself can also be used in spectral analysis (it is then called autocorrelation or autocovariance function).</para>
+
+</sect1>
+
+<sect1 id="sec-convolute">
+<title>Convolution</title>
+<para>.</para>
+
+</sect1>
+
+<sect1 id="sec-deconvolute">
+<title>Deconvolution</title>
+<para>.</para>
+
+</sect1>
+
+<sect1 id="sec-non-linear-curve-fit">
+<title>Non Linear Curve Fit</title>
+
+<para>This function can be accessed by the command <link linkend="non-linear-curve-fit-cmd">&non-linear-curve-fit-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table is selected.</para>
+
+  <figure id="fig-non-linear-curve-fit-3">
+    <title>The results of the &non-linear-curve-fit-cmd;.</title>
+    <informalexample>
+      <para>The results are shown in the log window, the curve is plotted in the active window, and a table is created to store the fit.</para>
+    </informalexample>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG"  fileref="pics/fit-dialog3.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+</sect1>
+
+<sect1 id="sec-ajustements-specifiques">
+<title>Fitting to specific curves</title>
+
+<para>&appname; include quick access to the most usefull functions for fitting.</para>
+
+<sect2 id="sec-fit-linear">
+<title>Fitting to a line</title>
+
+<para>This command is used to fit a curve which has a linear shape.</para>
+
+  <figure id="fig-fit-linear">
+    <title>The results of a &fit-linear-cmd;.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-linear.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+<para>The results will be given in the <link linkend="sec-intro-log-window">Log panel</link>:</para>
+  <informalfigure id="fig-fit-linear-resultat">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-linear-resultat.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+</sect2>
+
+<sect2 id="sec-fit-polynomial">
+<title>Fitting to a polynome</title>
+
+<para>This command is used to fit a curve which has a linear shape. The results will be given in the <link linkend="sec-intro-log-window">Log panel</link></para>
+
+  <informalfigure id="fig-fit-polynomial-dialog">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-polynomial.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+
+  <figure id="fig-fit-polynomial-result">
+    <title>The results of a &fit-polynomial-cmd;, showing the initial data, the curve added to the plot, and the results in the log panel.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-polynomial-resultat.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+</sect2>
+
+
+<sect2 id="sec-fit-bolzmann">
+<title>Fitting to a Bolzmann function</title>
+
+<para>This command is used to fit a curve which has a sigmoidal shape. The function used is:</para>
+
+<equation> 
+  <title>Bolzmann equation</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="equations/equation_bolzmann.png"/>
+    </imageobject>
+  </mediaobject>
+</equation>
+
+<para>in which A<subscript>2</subscript> is the high Y limit, A<subscript>1</subscript> is the low Y limit, x<subscript>0</subscript> is the inflexion point and dx is the width.</para>
+
+  <figure id="fig-fit-bolzman">
+    <title>The results of a &fit-bolzmann-cmd;.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-bolzmann.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+</sect2>
+
+<sect2 id="sec-fit-gaussian">
+<title>Fitting to a Gauss function</title>
+
+<para>This command is used to fit a curve which has a bell shape. The function used is:</para>
+
+<equation> 
+  <title>Gauss equation</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="png" fileref="equations/equation_gauss.png"/>
+    </imageobject>
+  </mediaobject>
+</equation>
+
+<para>in which A is the height, w is the width, x<subscript>c</subscript> is the center and y<subscript>0</subscript> is the Y-values offset.</para>
+
+  <figure id="fig-fit-gauss">
+    <title>The results of a &fit-gaussian-cmd;.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-gauss.png"/>
+      </imageobject>
+   </mediaobject>
+  </figure>
+
+</sect2>
+
+<sect2 id="sec-fit-lorentzian">
+<title>Fitting to a Lorentz function</title>
+
+<para>This command is used to fit a curve which has a bell shape. The function used is:</para>
+
+<equation> 
+  <title>Lorentz equation</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="png" fileref="equations/equation_lorentz.png"/>
+    </imageobject>
+  </mediaobject>
+</equation>
+
+<para>in which A is the area, w is the width, x<subscript>c</subscript> is the center and y<subscript>0</subscript> is the Y-values offset.</para>
+
+  <figure id="fig-fit-lorentz">
+    <title>The results of a &fit-lorentzian-cmd;.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-lorentz.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+</sect2>
+
+</sect1>
+
+<sect1 id="sec-fit-multipeak">
+<title>Multi-Peaks fitting</title>
+
+<para>This kind of fitting allows to fit your data points to a sum of N gaussian or lorentzian functions.</para>
+<para>The first step is to specify the number of peaks. Then you must define the position of each peak on the curve. This is done by clicking on the plot, then validate your choice for each peak with the <emphasis>ENTER</emphasis> key.</para>
+  <figure id="fig-fit-multipeak">
+    <title>The results of a &fit-multipeak-gaussian-cmd;.</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/fit-multipeak-2.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+
+
+</sect1>
+
+<sect1 id="sec-filtering">
+<title>Filtering of data curves</title>
+
+<para>In this section, it will be assumed that you have the following data curve:</para>
+  <informalfigure id="fig-fft-filter-signal">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-signal.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+<para>This signal has a power spectrum with high and low frequencies. We can analyze this by doing a FFT on the data curve, this leads to the following figure:</para>
+  <informalfigure id="fig-fft-filter-signal-power">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-signal-power.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+<para>The newt sections will show the influence of the different filters on this data curve.</para>
+
+<sect2 id="sec-fft-filter-low">
+<title>FFT low pass filter</title>
+
+<para>This filter allows to cut the high frequencies of a signal. You just have to select the cut-off frequency of the filter. Let us assume that we want to keep the frequencies below 1 Hz, we will obtain:</para>
+  <figure id="fig-filter-fft-low-signal">
+  <title>Signal after a FFT low pass filter</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-low-signal.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+  <para>The power spectrum of this new signal shows that the frequencies below 1 Hz have been kept.</para>
+  <informalfigure id="fig-filter-fft-low-power">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-low-power.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+</sect2>
+
+<sect2 id="sec-fft-filter-high">
+<title>FFT high pass filter</title>
+
+<para>This filter allows to cut the low frequencies of a signal. You just have to select the cut-off frequency of the filter. Let us assume that we want to keep the frequencies above 1 Hz, we will obtain:</para>
+  <figure id="fig-filter-fft-high-signal">
+  <title>Signal after a FFT high pass filter</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-high-signal.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+  <para>The power spectrum of this new signal shows that the frequencies above 1 Hz have been kept.</para>
+  <informalfigure id="fig-filter-fft-high-power">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-high-power.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+</sect2>
+
+<sect2 id="sec-fft-filter-band">
+<title>FFT band pass filter</title>
+
+<para>This filter allows to cut the low and high frequencies of a signal. You just have to select the high and low cut-off frequencies of the filter. Let us assume that we want to keep the frequencies between 1.5 and 3.5 Hz, we will obtain:</para>
+  <figure id="fig-filter-fft-band-signal">
+  <title>Signal after a FFT band pass filter</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-band-signal.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+  <para>The power spectrum of this new signal shows that only the frequencies at 2 and 3 Hz have been kept.</para>
+  <informalfigure id="fig-filter-fft-band-power">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-band-power.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+</sect2>
+
+<sect2 id="sec-fft-filter-block">
+<title>FFT block band filter</title>
+
+<para>This filter allows to keep the low and high frequencies of a signal. You just have to select the high and low cut-off frequencies of the filter. Let us assume that we want to remove the frequencies between 1.5 and 3.5 Hz, we will obtain:</para>
+  <figure id="fig-filter-fft-block-signal">
+  <title>Signal after a FFT block band filter</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-block-signal.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+  <para>The power spectrum of this new signal shows that only the frequencies below 1.5 Hz and above 3.5 Hz have been kept.</para>
+  <informalfigure id="fig-filter-fft-block-power">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/filter-fft-block-power.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+</sect2>
+</sect1>
+
+<sect1 id="sec-interpolate">
+<title>Interpolation</title>
+
+<para>The interpolation command will create a new data curve with a high number of points by interpolation of your data. The dialog box allows to define this number of points (default value = 1000). Then the method used for interpolation, the interval of X-values and the color of the interpolated curve can be chosen. In addition to the new curve in the active plot, a new table will be created.</para>
+  <informalfigure id="fig-interpolate-dialog">
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/interpolate-dialog.png"/>
+      </imageobject>
+    </mediaobject>
+  </informalfigure>
+<para>The simplest interpolation method is the linear method. In this case, a linear variation is used to compute the data points between two values. The cubic method will use the Cubic Splines method (in this case at least 4 points are needed). The last method <emphasis>Akima</emphasis> is a polynomial interpolation. You can refer to the corresponding section of the <ulink url="http://www.gnu.org/software/gsl/manual/html_node/Interpolation.html#Interpolation">GNU Scientific Library</ulink> for more details.</para>
+  <figure id="fig-interpolate-methods">
+  <title>Comparison of the three methods of interpolation</title>
+    <mediaobject> 
+      <imageobject>
+        <imagedata  format="PNG" fileref="pics/interpolate-methods.png"/>
+      </imageobject>
+    </mediaobject>
+  </figure>
+</sect1>
+

@@ -1,0 +1,295 @@
+<chapter id="introduction">
+<title>Introduction</title>
+
+<!-- The introduction chapter contains a brief introduction for the
+application that explains what it does and where to report
+problems. Basically a long version of the abstract.  Don't include a
+revision history. (see installation appendix comment) -->
+
+<sect1 id="sec-qtiplot-intro">
+<title>What &appname; does</title>
+
+<para>&appname; is a program for two- and three-dimensional graphical presentation of data sets and for data analysis. The plots can be produced from data sets stored in <link linkend="sec-intro-table">tables</link> or from analytical functions.</para>
+<para>The projet has been created by &ion; in 2000, and he was the only programmer between 2000 and 2005. Since 2006, new contributors have joined Ion and the project is hosted by <ulink url="www.berlios.de/projects/qtiplot/">BerliOS Developper</ulink>. The software aims to be a tool for analysis and graphical representation of data in the way of commercial software like Origin.</para>
+
+<para>&appname; is a dynamic tool, the plots created from data sets and the spreadsheets owing the data are interconected. When the spreadsheets are modified, all the objects in the depending plots (curves, axes scales, legends) are automatically updated. For example, deleting a spreadsheet or only some columns will automatically remove all the corresponding curves from the depending plots.</para>
+
+<para>All settings of a complete set of tables, matrix and plots can be saved in project files, having the extention ".qti". These project files may be opened using the <link linkend="specify-a-file">command line</link>, or using the <link linkend="sec-file-menu">File menu</link>, or by using the <emphasis>Open project</emphasis> icon from the <link linkend="sec-file-toolbar">File toolbar</link>.</para>
+
+<para>The plots can be exported to several graphic formats such as JPEG or PNG and inserted as images in documents or presentations.</para>
+
+<para>Data analysis operations (integration, interpolation, FFT, curve fitting, etc...) can be performed on the curves in a 2D plot via the Analysis menu. The results of all these operations are also stored in the project files. They can be visualized at any moment using the &results-log-lnk; and can be deleted from the project file via the &clear-log-lnk;.</para>
+
+<para>When the application is launched, a new project file is created consisting of a grey main window (the workspace) which contains an empty table. In order to be operational, this workspace must be populated with tables storing data sets, either by creating empty tables first (&new-table-lnk;) and then filling them with data, or by importing ASCII files (&import-ascii-1-lnk;), which automatically creates new tables.</para>
+
+<para>The user can easily navigate through the objects of a project file using the project explorer or the Windows menu. The project explorer also allows the user to perform various operations on the windows (tables and plots) in the workspace: hiding, minimazing, closing, renaming, printing, etc...</para>
+
+</sect1>
+
+<sect1 id="command-line-options">
+<title>Command Line Options</title>
+<indexterm><primary>Command line parameters</primary><secondary>Specify a File</secondary></indexterm>
+<sect2 id="specify-a-file">
+<title>Specify a File</title>
+
+<para>When starting QtiPlot from the command prompt, you can supply the name of a project file:</para>
+
+<screen>
+qtiplot file_name.qti
+</screen>
+
+<para>or the name of an ASCII file:</para>
+
+<screen>
+qtiplot ASCII_file_name
+</screen>
+
+<para> In this latter case a new "untitled" project will be created, containing a spreadsheet with the ASCII data in the file and a 2D plot of all columns as a function of the first column in the file. You must take care of the format of the ASCII file because it will be read with the current values of the &set-import-options-lnk; dialog. These default values are:</para>
+<itemizedlist>
+  <listitem><para>the default field separator is ; but it can be changed in the &preferences-lnk; dialog,</para></listitem>
+  <listitem><para>all lines are read,</para></listitem>
+  <listitem><para>the first line is used to name the columns,</para></listitem>
+  <listitem><para>the spaces at the end of the lines are not removed,</para></listitem>
+  <listitem><para>the spaces are not simplified.</para></listitem>
+</itemizedlist>
+
+</sect2>
+</sect1>
+
+
+<sect1 id="general-concepts">
+<title>General Concepts and Terms</title>
+<para>Several plots and all the data related to these plots can be save in a <emphasis>project</emphasis> file, the project is therefore the main container of &appname;. The following screenshot gives an example of a typical session. This example shows the <link linkend="sec-intro-log-window">log panel</link> at the top of the workspace, the <link linkend="sec-intro-project-explorer">project explorer</link> at the bottom, a <link linkend="sec-intro-table">table</link> and a <link linkend="sec-intro-plot-window">plot window</link> are shown while other are docked or hidden.</para>
+
+<figure id="fig-qtiplot-session">
+  <title>A typical &appname; session</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/qtiplot-session.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>There are numerous commands available in &appname; depending on the element which is selected. Therefore, the main menu bar changes when you select a particular element of the project. Moreover, you can access to the set of commands relevant of an element by activating the context menu with the right button of the mouse.</para>
+<para>In a project, the containers which can be used are:</para>
+
+<variablelist>
+  <varlistentry>
+    <term><link linkend="sec-intro-table">A Table</link></term>
+    <listitem>
+      <indexterm><primary>table</primary></indexterm>
+      <para>A table is a spreadsheet which can be used to store the datas you are entering. It can also be used to do some calculations and statistical analysis of datas. In each table, columns can be labelled as X-values or Y-values for 2D-plotting, or Z-values if you plan to build a 3D-plot.</para>
+      <para>A table can be created by the &new-table-lnk;. Then there are several ways to fill the table with your data. If you want to read a table from an ASCII file, you can import the data from the file to a table with the &import-ascii-1-lnk;. You can also enter each value from the keyboard. The last way to enter your data is to fill the table with the results of a mathematical function (&set-column-values-lnk; from the &table-menu-lnk;)</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><link linkend="sec-intro-matrix">A Matrix</link></term>
+    <listitem>
+      <indexterm><primary>matrix</primary></indexterm>
+      <para>A matrix is a special table which is used to store the data points for surface 3D plots. It contains Z-values and doesn't include any column or row which could be designed as X-values or Y-values. Nevertheless, you can specify the X-values and the Y-values with the &set-dimensions-lnk; command from the &matrix-menu-lnk;.</para>
+      <para>A matrix can be created by the &new-matrix-lnk;. If you want to read a matrix from an ASCII file, you can import the data of the file to a table with the &import-ascii-1-lnk; and then convert this table to a matrix with the &convert-to-matrix-lnk;. In the same way as for tables, you can also fill matrix with the results of a function z=(i,j) in which i and j are row and column numbers (&set-values-lnk; from the &matrix-menu-lnk;)</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><link linkend="sec-intro-plot-window">A Graph</link></term>
+    <listitem>
+      <indexterm>
+        <primary>graph</primary>
+      </indexterm>
+      <para>A graph can contain one or several plots. Each of these plots is contained in a different <emphasis>layer</emphasis>, these layers can be arranged in many ways to build matrix of plots.</para>
+      <para>A new layer can be added to an existing graph with the &add-layer-lnk; from the &graph-menu-lnk;. you can also remove an existing layer with the &remove-layer-lnk;, but if you remove a layer, the plot will be deleted. You can also copy a layer from one graph to another. You can also copy an existing graph into another, the window will be added as a new layer (see the section on <link linkend="sec-multilayer-plots">Multilayer Plots</link> for more details).</para> 
+      <para>Plots can be created in several ways. You can select data in tables or matrix and build a plot, or create new plots from functions of one or two variables (see sections <link linkend="sec-2d-plots">2D plots</link> and <link linkend="sec-3d-plots">3D plots</link>).</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><link linkend="sec-intro-note">A Note</link></term>
+    <listitem>
+      <para>This window is a text container which can simply be used to insert comments into a project, but is really far more powerfull than that. It can be used as a calculator, for executing single commands and for writing scripts.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><link linkend="sec-intro-log-window">The Log Window</link></term>
+    <listitem>
+      <para>This window is used to store the results of all the calculations which have been done. If this window is not visible, you can find it with the <link linkend="sec-intro-project-explorer">Project Explorer</link> or with the &results-log-lnk;.</para>
+      <para>The text in the log window is also saved in the project file, so that when you load a previously saved project, the results-log panel is re-filled with the results of the calculations.</para>
+    </listitem>
+  </varlistentry>
+  <varlistentry>
+    <term><link linkend="sec-intro-project-explorer">The Project Explorer</link></term>
+    <listitem>
+      <para>This window is used to list all the windows contained in a projet. The <link linkend="project-explorer-dialog">Project Explorer</link> gives a quick access to all elements of a project, hidden or visibles. It can be used to do some operations on the windows related to these items such as hidding a window, renaming windows, etc.</para>
+      <para>Since the version 0.8.5, a project file can include several independant projects. In this case, the containers of each project are stored in different folders.</para>
+    </listitem>
+  </varlistentry>
+</variablelist>
+
+<!--
+		General description of a table
+		==============================
+-->
+<sect2 id="sec-intro-table">
+<title>Tables</title>
+
+      <indexterm><primary>table</primary></indexterm>
+<para>
+The table is the main part of QtiPlot when working with data. For controlling and converting data the spreadsheet contains a highly customizable table: all colors and font preferences can be set using the &preferences-lnk; of the &view-menu-lnk;. You can resize a table in terms of rows and columns using the &table-menu-lnk; with &rows-lnk; or &columns-lnk;. 
+</para>
+
+<figure id="fig-the-table">
+  <title>The &appname; table</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/table.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para> Every column of the table has a label and can be assigned a format: numeric, text, date or time. In a spreadsheet, columns can have the following flags: X, Y, Z, X-error, Y-error or can be simple columns without any special flag. The X columns are abscissae columns while the Y columns are ordinates columns used when creating a 2D plot from data. The X-error and Y-error columns can be used in order to add error bars to 2D plots. These flags can be changed using the <link linkend="column-options-dialog">Column options dialog</link>. To reach this dialog you simply have to double-click on the column label or to use the  &column-options-lnk; of the &table-menu-lnk;.</para>
+
+<para> You can select all the columns of the spreadsheet (<keycode>Ctrl+A</keycode>) or only some of them by clicking on the column label while keeping the <keycode>Ctrl</keycode> key pressed, or by moving the mouse over the column label. This also allows you to deselect columns.</para>
+
+<para> On the selected columns you can perform various operations: fill with data, normalize, sort, view statistics and finally make plots out of your data. All these functions can be reached by right clicking on the column label or by using the &table-menu-lnk;.</para>
+
+<para> Any other spreadsheet function: rename, duplicate, export, print, close can be reached via the context menu (right click anywhere in the table outside the column labels area). </para>
+
+<para> You can cut, copy and paste data between spreadsheets or between a spreadsheet and another application (Excel, Gnumeric, etc...).</para>
+
+<para> You can import single or multiple ASCII files using the &import-ascii-lnk; from the &file-menu-lnk;. The file import options can be changed via the &set-import-options-lnk;. Of course you can export the data from the spreadsheet to a text file using the &export-ascii-lnk;.</para>
+
+</sect2>
+
+<!--
+		General description of a matrix
+		===============================
+-->
+<sect2 id="sec-intro-matrix">
+<title>Matrix</title>
+
+      <indexterm><primary>matrix</primary></indexterm>
+<para>The matrix is a special table which is used for data which depends on two variables. This special table is used to store data for 3D-plots. The difference between a table and a matrix is that there is no special column nor special row for X or Y labels or values. Nevertheless, you can specify an X-scale and an Y-scale with the &set-dimensions-lnk;.</para>
+
+<figure id="fig-matrix">
+  <title>The &appname; matrix</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/matrix.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>The values which are stored in a matrix can be obtained from a function of the form z=(i,j) with the &set-values-lnk;, i and j beeing the column and row numbers. They can also be read from a file with the &import-ascii-lnk; which allows to read a file in a table, then the table can be converted to a matrix with the &convert-to-matrix-lnk; of the &matrix-menu-lnk;.</para>
+<para>The operations which can be done on a matrix are limited changes in number presentation and matrix size. The data of a matrix can be used to build a 3D plot with the commands present in the &plot3d-menu-lnk; and in &plot3d-toolbar-lnk;.</para>
+
+</sect2>
+
+<!--
+		General description of a plot window
+		====================================
+-->
+<sect2 id="sec-intro-plot-window">
+<title>Plot Window</title>
+
+<para>The plot window is the one in which the graphic is plotted. It contains at least one layer, which is the main container of the plot window. Each new plot can be inserted in a new layer of this plot window, it has its own geometry and graphic properties (background color, frame, etc). The example presented below shows a graph with two layers which have different geometries.</para>
+
+<figure id="fig-plot-window">
+  <title>An example of &appname; 2D graph</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/plot-window.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>Each layer can be activated by clicking on the corresponding gray button  <inlinemediaobject><imageobject><imagedata format="PNG" fileref="pics/layer-button.png"/></imageobject></inlinemediaobject> in the top-left corner of the window.</para>
+
+<para>The elements which can be accessed by a double click in a layer are:</para>
+
+<itemizedlist>
+<listitem>
+<para>the graph itself: this will open the <link linkend="custom-curves-dialog">Custom Curve Dialog</link>. You can then add new curves to the plot, or change the way the curves are plotted.</para>
+</listitem>
+<listitem>
+<para>The axes or the axes labels: this will open the <link linkend="plot-options-dialog">General Plot Options Dialog</link>. It is used to customize the axes, the numbers and labels of the axes, and the grid.</para>
+</listitem>
+<listitem>
+<para>Any other text item, including the legend of the plot: this will open the <link linkend="text-options-dialog">Text Options Dialog</link> which allows to customize the font of the label and the frame in which it is drawn.</para>
+</listitem>
+</itemizedlist>
+
+</sect2>
+
+<!--
+		General description of a note
+		===========================================
+-->
+<sect2 id="sec-intro-note">
+<title>Note</title>
+
+<para>A note can simply be used to insert text (comments, notes, etc) into a project,
+  but is really far more powerfull than that. It can be used as a calculator,
+  for executing single commands and for writing scripts.</para>
+<para>Evaluation of mathematical expressions and execution of code is done via a note's context menu,
+  the Scripting menu or the convenient keyboard shortcuts.</para>
+<para>For information on expression syntax, supported mathematical functions and how to write scripts,
+  see <link linkend="scripting">here</link>.</para>
+
+<figure id="fig-note-window">
+  <title>The &appname; Note Window</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/new-note1.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>You can also change the text input method. <emphasis>Simple Composing Input Method</emphasis> is the standard method to enter text in QT applications. <emphasis>Xim</emphasis> is the X input method, it is the legacy system of the X window environment to support localized text input. The default choice is the second one, it allows to enter special characters and accents from your localised environment.</para>
+
+</sect2>
+
+<!--
+		General description of the log window
+		=====================================
+-->
+<sect2 id="sec-intro-log-window">
+<title>Log Window</title>
+
+<para>This window keeps a history of all analysis which have been done in the project. This panel contains the results of all the correlations, fittings, etc.</para>
+
+<figure id="fig-log-window">
+  <title>The &appname; Log window</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/log-window.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+</sect2>
+
+<!--
+		General description of the project explorer
+		===========================================
+-->
+<sect2 id="sec-intro-project-explorer">
+<title>The Project Explorer</title>
+
+<para>The project explorer can be opened/closed using the &project-explorer-lnk; from the &view-menu-lnk; or by clicking on the &project-explorer-icon; in the <link linkend="sec-file-toolbar">file toolbar</link>.</para>
+
+<figure id="fig-project-explorer">
+  <title>The &appname; Project Explorer</title>
+  <mediaobject>
+    <imageobject>
+      <imagedata  format="PNG" fileref="pics/explorer1.png"/>
+    </imageobject>
+  </mediaobject>
+</figure>
+
+<para>It gives an overview of the structure of a project and allows the user to perform various operations on the windows (tables and plots) in the workspace: hiding, minimazing, closing, renaming, printing, etc... These functions can be reached via the context menu, by right-clicking on an item in the explorer.</para>
+<para>By double-clicking on an item, the corresponding window is shown maximized in the workspace, even if it was hidden before.</para>
+<para>You can organize the differents objects in folders. When selecting a folder, the default policy is that only the objects contained in it will be showed in the workspace window. You can also display all the objects in the subfolders if you change this policy with the "View Windows" command to "Windows in Active Folder and Subfolders".</para>
+
+</sect2>
+
+</sect1>
+
+</chapter>
+

@@ -1,0 +1,1137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<title>Mathematical Expressions and Scripting</title>
+
+  <para>Starting with version 0.8.7, QtiPlot supports different interpreters
+  for evaluating mathematical expressions and for executing scripts. On Windows currently only evaluation of mathematical expressions using muParser 
+  is supported. Support for scripts using the Python programming language is only available for Linux and Mac OS X. 
+  When the port of QtiPlot to Qt4 will be ready this feature will also be supported on Windows systems.</para>
+
+  <sect1 id="muParser">
+    <title>muParser</title>
+
+    <para>The constants _e=e=E and _pi=pi=PI=Pi are defined, as well as the
+    following operators and functions.</para>
+
+    <table frame="sides" pgwide="1" tocentry="1">
+      <title>Supported Mathematical Operators</title>
+
+      <tgroup cols="2">
+        <colspec align="left" colname="name" colwidth="1*" />
+
+        <colspec align="justify" colname="description" colwidth="10*" />
+
+        <thead>
+          <row>
+            <entry>Name</entry>
+
+            <entry>Description</entry>
+          </row>
+        </thead>
+
+        <tbody>
+          <row>
+            <entry>+</entry>
+
+            <entry>Addition</entry>
+          </row>
+
+          <row>
+            <entry>-</entry>
+
+            <entry>Substraction</entry>
+          </row>
+
+          <row>
+            <entry>*</entry>
+
+            <entry>Multiplication</entry>
+          </row>
+
+          <row>
+            <entry>/</entry>
+
+            <entry>Division</entry>
+          </row>
+
+          <row>
+            <entry>^</entry>
+
+            <entry>Exponentiation (raise a to the power of b)</entry>
+          </row>
+
+          <row>
+            <entry>and</entry>
+
+            <entry>logical and (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>or</entry>
+
+            <entry>logical or (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>xor</entry>
+
+            <entry>logical exclusive or (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>&lt;</entry>
+
+            <entry>less then (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>&lt;=</entry>
+
+            <entry>less then or equal (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>==</entry>
+
+            <entry>equal (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>&gt;=</entry>
+
+            <entry>greater then or equal (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>&gt;</entry>
+
+            <entry>greater then (returns 0 or 1)</entry>
+          </row>
+
+          <row>
+            <entry>!=</entry>
+
+            <entry>not equal (returns 0 or 1)</entry>
+          </row>
+        </tbody>
+      </tgroup>
+    </table>
+
+    <sect2 id="sec-intrinsic-functions">
+      <title>Supported Mathematical Functions</title>
+
+      <table frame="sides" pgwide="1" tocentry="1">
+        <title>Supported Mathematical Functions</title>
+
+        <tgroup cols="2">
+          <colspec align="left" colname="name" colwidth="1*" />
+
+          <colspec align="justify" colname="description" colwidth="10*" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>abs(x)</entry>
+
+              <entry>absolute value of x</entry>
+            </row>
+
+            <row>
+              <entry>acos(x)</entry>
+
+              <entry>inverse cosinus</entry>
+            </row>
+
+            <row>
+              <entry>acosh(x)</entry>
+
+              <entry>inverse hyperbolic cosinus</entry>
+            </row>
+
+            <row>
+              <entry>asin(x)</entry>
+
+              <entry>inverse sinus</entry>
+            </row>
+
+            <row>
+              <entry>asinh(x)</entry>
+
+              <entry>inverse hyperbolic sinus</entry>
+            </row>
+
+            <row>
+              <entry>atan(x)</entry>
+
+              <entry>inverse tangent</entry>
+            </row>
+
+            <row>
+              <entry>atanh(x)</entry>
+
+              <entry>inverse hyperbolic tangent</entry>
+            </row>
+
+            <row>
+              <entry>avg(x1,x2,x3,...)</entry>
+
+              <entry>average value, this command accept a list of arguments
+              separated by commas</entry>
+            </row>
+
+            <row>
+              <entry>bessel_j0(x)</entry>
+
+              <entry>Regular cylindrical Bessel function of zeroth order,
+              J<subscript>0</subscript>(x).</entry>
+            </row>
+
+            <row>
+              <entry>bessel_j1(x)</entry>
+
+              <entry>Regular cylindrical Bessel function of first order,
+              J<subscript>1</subscript>(x).</entry>
+            </row>
+
+            <row>
+              <entry>bessel_jn(x,n)</entry>
+
+              <entry>Regular cylindrical Bessel function of
+              n<superscript>th</superscript> order,
+              J<subscript>n</subscript>(x).</entry>
+            </row>
+
+            <row>
+              <entry>bessel_y0(x)</entry>
+
+              <entry>Irregular cylindrical Bessel function of zeroth order,
+              Y<subscript>0</subscript>(x) for x&gt;0.</entry>
+            </row>
+
+            <row>
+              <entry>bessel_y1(x)</entry>
+
+              <entry>Irregular cylindrical Bessel function of first order,
+              Y<subscript>1</subscript>(x) for x&gt;0.</entry>
+            </row>
+
+            <row>
+              <entry>bessel_yn(x,n)</entry>
+
+              <entry>Irregular cylindrical Bessel function of
+              n<superscript>th</superscript> order,
+              Y<subscript>n</subscript>(x) for x&gt;0.</entry>
+            </row>
+
+            <row>
+              <entry>beta (a,b)</entry>
+
+              <entry>Computes the Beta Function, B(a,b) =
+              Gamma(a)*Gamma(b)/Gamma(a+b) for a &gt; 0 and b &gt; 0.</entry>
+            </row>
+
+            <row>
+              <entry>cos(x)</entry>
+
+              <entry>cosinus of x</entry>
+            </row>
+
+            <row>
+              <entry>cosh(x)</entry>
+
+              <entry>hyperbolic cosinus of x</entry>
+            </row>
+
+            <row>
+              <entry>erf(x)</entry>
+
+              <entry>error function of x</entry>
+            </row>
+
+            <row>
+              <entry>erfc(x)</entry>
+
+              <entry>Complementary error function erfc(x) = 1 -
+              erf(x).</entry>
+            </row>
+
+            <row>
+              <entry>erfz(x)</entry>
+
+              <entry>The Gaussian probability density function Z(x).</entry>
+            </row>
+
+            <row>
+              <entry>erfq(x)</entry>
+
+              <entry>The upper tail of the Gaussian probability function
+              Q(x).</entry>
+            </row>
+
+            <row>
+              <entry>exp(x)</entry>
+
+              <entry>Exponential function: e raised to the power of x.</entry>
+            </row>
+
+            <row>
+              <entry>gamma(x)</entry>
+
+              <entry>Computes the Gamma function, subject to x not being a
+              negative integer</entry>
+            </row>
+
+            <row>
+              <entry>gammaln(x)</entry>
+
+              <entry>Computes the logarithm of the Gamma function, subject to
+              x not a being negative integer. For x&lt;0, log(|Gamma(x)|) is
+              returned.</entry>
+            </row>
+
+            <row>
+              <entry>hazard(x)</entry>
+
+              <entry>Computes the hazard function for the normal distribution
+              h(x) = erfz(x)/erfq(x).</entry>
+            </row>
+
+            <row>
+              <entry>if(e1,e2,e3)</entry>
+
+              <entry>if e1 is true, e2 is executed else e3 is
+              executed.</entry>
+            </row>
+
+            <row>
+              <entry>ln(x)</entry>
+
+              <entry>natural logarythm of x</entry>
+            </row>
+
+            <row>
+              <entry>log(x)</entry>
+
+              <entry>decimal logarythm of x</entry>
+            </row>
+
+            <row>
+              <entry>log2(x)</entry>
+
+              <entry>base 2 logarythm of x</entry>
+            </row>
+
+            <row>
+              <entry>min(x1,x2,x3,...)</entry>
+
+              <entry>Minimum of the list of arguments</entry>
+            </row>
+
+            <row>
+              <entry>max(x1,x2,x3,...)</entry>
+
+              <entry>Maximum of the list of arguments</entry>
+            </row>
+
+            <row>
+              <entry>rint(x)</entry>
+
+              <entry>Round to nearest integer.</entry>
+            </row>
+
+            <row>
+              <entry>sign(x)</entry>
+
+              <entry>Sign function: -1 if x&lt;0; 1 if x&gt;0.</entry>
+            </row>
+
+            <row>
+              <entry>sin(x)</entry>
+
+              <entry>sinus of x</entry>
+            </row>
+
+            <row>
+              <entry>sinh(x)</entry>
+
+              <entry>hyperblic sinus of x</entry>
+            </row>
+
+            <row>
+              <entry>sqrt(x)</entry>
+
+              <entry>square root of x</entry>
+            </row>
+
+            <row>
+              <entry>tan(x)</entry>
+
+              <entry>tangent of x</entry>
+            </row>
+
+            <row>
+              <entry>tanh(x)</entry>
+
+              <entry>hyperbolic tangent of x</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </sect2>
+  </sect1>
+
+  <sect1 id="Python">
+    <title>Python</title>
+
+    <para>This module provides bindings to the <ulink
+    url="http://www.python.org">Python</ulink> programming language. Basic
+    usage in the context of QtiPlot will be discussed below, but for more
+    in-depth information on the language itself, please refer to its excellent
+    <ulink url="http://www.python.org/doc">documentation</ulink>.</para>
+
+    <sect2 id="Python-init">
+      <title>The Initialization File</title>
+
+      <para>This file allows you to customize the Python environment, import
+      modules and define functions and classes that will be available in all
+      of your projects. The default initialization file shipped with QtiPlot
+      imports Python's <link linkend="Python-functions">standard math
+      functions</link> as well as special functions from <ulink
+      url="http://www.scipy.org">SciPy</ulink> (if available). Also, it
+      creates some handy shortcuts, like
+      <userinput>table("table1")</userinput> for
+      <userinput>qti.app.table("table1")</userinput>.</para>
+
+      <para>When activating Python support, QtiPlot searches the following
+      places, executing the first file it can find:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>~/.qtiplotrc.py[c]</para>
+        </listitem>
+
+        <listitem>
+          <para>/etc/qtiplotrc.py[c]</para>
+        </listitem>
+
+        <listitem>
+          <para>./qtiplotrc.py[c]</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Files ending in .pyc are compiled versions of the .py source files
+      and therefore load a bit faster. The compiled version will be used if
+      the source file is older or nonexistent. Otherwise, QtiPlot will try to
+      compile the source file (if you've got write permissions for the output
+      file).</para>
+    </sect2>
+
+    <sect2>
+      <title>Python Basics</title>
+
+      <para>Mathematical expressions work largely as expected. However,
+      there's one caveat, especially when switching from muParser (which has
+      been used exclusively in previous versions of QtiPlot):
+      <userinput>a^b</userinput> does not mean "raise a to the power of b" but
+      rather "bitwise exclusive or of a and b"; Python's power operator is **.
+      Thus: <screen width="40">
+<userinput>2^3 # read: 10 xor 11 = 01</userinput>
+<computeroutput>#&gt; 1</computeroutput>
+<userinput>2**3</userinput>
+<computeroutput>#&gt; 8</computeroutput>
+</screen></para>
+
+      <para>One thing you have to know when working with Python is that
+      indentation is very important. It is used for grouping (most other
+      languages use either braces or keywords like
+      <userinput>do...end</userinput> for this). For example, <programlisting
+      width="40">
+x=23
+for i in (1,4,5):
+	x=i**2
+	print(x)
+	</programlisting> will do what you would expect: it prints out the numbers 1, 16 and
+      25; each on a line of its own. Deleting just a bit of space will change
+      the functionality of your program: <programlisting width="40">
+x=23
+for i in (1,4,5):
+	x=i**2
+print(x)
+	</programlisting> will print out only one number - no, not 23, but rather 25. This
+      example was designed to also teach you something about variable scoping:
+      There are no block-local variables in Python.</para>
+
+      <para>There are two different variable scopes to be aware of: local and
+      global variables. Unless specified otherwise, variables are local to the
+      context in which they were defined. Thus, the variable
+      <varname>x</varname> can have three different values in, say, two
+      different Note windows and a column formula. Global variables on the
+      other hand can be accessed from everywhere within your project. A
+      variable <varname>x</varname> is declared global by executing the
+      statement <userinput>global x</userinput>. You have to do this before
+      assigning a value to <varname>x</varname>, but you have to do it only
+      once within the project (no need to "import" the variable before using
+      it). Note that there is a slight twist to these rules when you <link
+      linkend="Python-def">define your own functions</link>.</para>
+    </sect2>
+
+    <sect2 id="Python-def">
+      <title>Defining Functions and Control Flow</title>
+
+      <para>The basic syntax for defining a function (for use within one
+      particular note, for example) is <programlisting width="40">
+def answer():
+	return 42
+	</programlisting> If you want your function to be accessible from the rest of your
+      project, you have to declare it global before the definition: <programlisting
+      width="40">
+global answer
+def answer():
+	return 42
+	</programlisting> You can add your own function to QtiPlot's function list. We'll
+      also provide a documentation string that will show up, for example, in
+      the "set column values" dialog: <programlisting width="40">
+global answer
+def answer():
+	"Return the answer to the ultimate question about life, the universe and everything."
+	return 42
+qti.mathFunctions["answer"] = answer
+	</programlisting> If you want to remove a function from the list, do: <programlisting
+      width="40">
+del qti.mathFunctions["answer"]
+	</programlisting></para>
+
+      <para>Note that functions have their own local scope. That means that if
+      you enter a function definition in a Note, you will not be able to
+      access (neither reading nor writing) Note-local variables from within
+      the function. However, you can access global variables as usual.</para>
+
+      <para>If-then-else decisions are entered as follows: <programlisting width="40">
+if x&gt;23:
+	print(x)
+else:
+	print("The value is too small.")
+	</programlisting></para>
+
+      <para>You can do loops, too: <programlisting width="40">
+for i in range(1, 11):
+	print(i)
+	</programlisting> This will print out the numbers between 1 and 10 inclusively (the
+      upper limit does not belong to the range, while the lower limit
+      does).</para>
+    </sect2>
+
+    <sect2 id="Python-functions">
+      <title>Mathematical Functions</title>
+
+      <para>Python comes with some basic mathematical functions that are
+      automatically imported (if you use the <link
+      linkend="Python-init">initialization file</link> shipped with QtiPlot).
+      Along with them, the constants e (Euler's number) and pi (the one and
+      only) are defined.</para>
+
+      <table frame="sides" pgwide="1" tocentry="1">
+        <title>Supported Mathematical Functions</title>
+
+        <tgroup cols="2">
+          <colspec align="left" colname="name" colwidth="1*" />
+
+          <colspec align="justify" colname="description" colwidth="10*" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>acos(x)</entry>
+
+              <entry>inverse cosinus</entry>
+            </row>
+
+            <row>
+              <entry>asin(x)</entry>
+
+              <entry>inverse sinus</entry>
+            </row>
+
+            <row>
+              <entry>atan(x)</entry>
+
+              <entry>inverse tangent</entry>
+            </row>
+
+            <row>
+              <entry>atan2(y,x)</entry>
+
+              <entry>equivalent to atan(y/x), but more efficient</entry>
+            </row>
+
+            <row>
+              <entry>ceil(x)</entry>
+
+              <entry>ceiling; smallest integer greater or equal to x</entry>
+            </row>
+
+            <row>
+              <entry>cos(x)</entry>
+
+              <entry>cosinus of x</entry>
+            </row>
+
+            <row>
+              <entry>cosh(x)</entry>
+
+              <entry>hyperbolic cosinus of x</entry>
+            </row>
+
+            <row>
+              <entry>degrees(x)</entry>
+
+              <entry>convert angle from radians to degrees</entry>
+            </row>
+
+            <row>
+              <entry>exp(x)</entry>
+
+              <entry>Exponential function: e raised to the power of x.</entry>
+            </row>
+
+            <row>
+              <entry>fabs(x)</entry>
+
+              <entry>absolute value of x</entry>
+            </row>
+
+            <row>
+              <entry>floor(x)</entry>
+
+              <entry>largest integer smaller or equal to x</entry>
+            </row>
+
+            <row>
+              <entry>fmod(x,y)</entry>
+
+              <entry>remainder of integer division x/y</entry>
+            </row>
+
+            <row>
+              <entry>frexp(x)</entry>
+
+              <entry>Returns the tuple (mantissa,exponent) such that
+              x=mantissa*(2**exponent) where exponent is an integer and 0.5
+              &lt;=abs(m)&lt;1.0</entry>
+            </row>
+
+            <row>
+              <entry>hypot(x,y)</entry>
+
+              <entry>equivalent to sqrt(x*x+y*y)</entry>
+            </row>
+
+            <row>
+              <entry>ldexp(x,y)</entry>
+
+              <entry>equivalent to x*(2**y)</entry>
+            </row>
+
+            <row>
+              <entry>log(x)</entry>
+
+              <entry>natural (base e) logarythm of x</entry>
+            </row>
+
+            <row>
+              <entry>log10(x)</entry>
+
+              <entry>decimal (base 10) logarythm of x</entry>
+            </row>
+
+            <row>
+              <entry>modf(x)</entry>
+
+              <entry>return fractional and integer part of x as a
+              tuple</entry>
+            </row>
+
+            <row>
+              <entry>pow(x,y)</entry>
+
+              <entry>x to the power of y; equivalent to x**y</entry>
+            </row>
+
+            <row>
+              <entry>radians(x)</entry>
+
+              <entry>convert angle from degrees to radians</entry>
+            </row>
+
+            <row>
+              <entry>sin(x)</entry>
+
+              <entry>sinus of x</entry>
+            </row>
+
+            <row>
+              <entry>sinh(x)</entry>
+
+              <entry>hyperblic sinus of x</entry>
+            </row>
+
+            <row>
+              <entry>sqrt(x)</entry>
+
+              <entry>square root of x</entry>
+            </row>
+
+            <row>
+              <entry>tan(x)</entry>
+
+              <entry>tangent of x</entry>
+            </row>
+
+            <row>
+              <entry>tanh(x)</entry>
+
+              <entry>hyperbolic tangent of x</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </sect2>
+
+    <sect2 id="Python-API">
+      <title>Accessing QtiPlot's functions from Python</title>
+
+      <para>We will assume that you are using the <link
+      linkend="Python-init">initialization file</link> shipped with
+      QtiPlot.</para>
+
+      <sect3>
+        <title>Establishing contact</title>
+
+        <para>Accessing the objects in your project is straight-forward,
+        <programlisting width="40">
+t = table("Table1")
+m = matrix("Matrix1")
+g = graph("Graph1")
+n = note("Notes1")
+	  </programlisting> as is creating new objects: <programlisting width="40">
+# create an empty table named "tony" with 5 rows and 2 columns:
+t = newTable("tony", 5, 2)
+# use defaults
+t = newTable()
+# create an empty matrix named "gina" with 42 rows and 23 columns:
+m = newMatrix("gina", 42, 23)
+# use defaults
+m = newMatrix()
+# create an empty graph window
+g = newGraph()
+# create an empty note named "momo"
+n = note("momo")
+# use defaults
+n = note()
+	  </programlisting></para>
+	  <para>
+	    New objects will always be added to the active folder.
+	    The functions table, matrix, graph and note will start searching in the active folder and, failing this, continue with a depth-first recursive search of the project's root folder.
+	    In order to access other folders, there are the functions
+	    <programlisting width="40">
+f = activeFolder()
+# and
+f = rootFolder()
+</programlisting>
+	    which can be used to access subfolders and windows:
+	    <programlisting width="40">
+f2 = f.folders()[number]
+f2 = f.folder(name, caseSensitive=True, partialMatch=False)
+t = f.table(name, recursive=False)
+m = f.matrix(name, recursive=False)
+g = f.graph(name, recursive=False)
+n = f.note(name, recursive=False)
+</programlisting>
+            If you supply True for the recursive argument, a depth-first recursive search of all subfolders will be performed and the first match returned.</para>
+
+
+        <para>Also, every piece of code is executed in the context of an
+	  object which you can access via the <varname>self</varname> variable. For example,
+        entering <userinput>self.cell("t",i)</userinput> as a column formula
+        is equivalent to the convenience function
+        <userinput>col("t")</userinput>.</para>
+      </sect3>
+
+      <sect3>
+        <title>Working with Tables</title>
+
+        <para>We'll assume that you have assigned some table to the variable
+        <varname>t</varname>. You can access its numeric cell values with
+        <programlisting width="40">
+t.cell(col, row)
+# and
+t.setCell(col, row, value)
+	  </programlisting> Whenever you have to specify a column, you can use either the
+        column name (as a string) or the consecutive column number (starting
+        with 1). Row numbers also start with 1, just as they are displayed. If
+        you want to work with arbitrary texts or the textual representations
+        of numeric values, you can use <programlisting width="40">
+t.text(col, row)
+# and
+t.setText(col, row, string)
+	  </programlisting> The number of columns and rows is accessed via <programlisting
+        width="40">
+t.numRows()
+t.numCols()
+t.setNumRows(number)
+t.setNumCols(number)
+	  </programlisting> Column names can be read and written with <programlisting width="40">
+t.colName(number)
+t.setColName(col, newName)
+	  </programlisting> Normalize a single or all columns: <programlisting width="40">
+t.normalize(col)
+t.normalize()
+	  </programlisting> Import values from <varname>file</varname>, using
+        <varname>sep</varname> as separator char and ignoring
+        <varname>ignore</varname> lines at the head of the file. The flags
+        should be self-explanatory. <programlisting width="40">
+t.importASCII(file, sep="\t", ignore=0, renameCols=False, stripSpaces=True, simplifySpace=False, newTable=False)
+	  </programlisting> After having changed some table values from a script, you will
+        likely want to update dependent Graphs: <programlisting width="40">
+t.notifyChanges()
+	  </programlisting></para>
+
+        <para>As a simple example, let's set some column values without using
+        the dialog. <programlisting width="40">
+t = table("table1")
+for i in range(1, t.numRows()+1):
+	t.setCell(1, i, i**2)
+t.notifyChanges()
+	  </programlisting></para>
+      </sect3>
+
+      <sect3>
+        <title>Working with Matrices</title>
+
+        <para>We'll assume that you have assigned some matrix to the variable
+        <varname>m</varname>. Accessing cell values is very similar to Table,
+        but since Matrix doesn't use column logic, row arguments are specified
+        before columns and obviously you can't use column name. <programlisting
+        width="40">
+m.cell(row, col)
+m.setCell(row, col, value)
+m.text(row, col)
+m.setText(row, col, string)
+	  </programlisting> Also like with tables, there's <programlisting width="40">
+m.numRows()
+# and
+m.numCols()
+	  </programlisting></para>
+      </sect3>
+
+      <sect3>
+        <title>Plotting and Working with Graphs</title>
+
+        <para>If you want to create a new Graph window for some data in table
+        table1, you can use the plot command: <programlisting width="40">
+g = plot(table, column, type)
+	  </programlisting> <varname>type</varname> is a number between 0 and 10 and
+        specifies the desired plot type: <variablelist spacing="compact">
+            <varlistentry>
+              <term>0.</term>
+
+              <listitem>
+                <para>Line</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>1.</term>
+
+              <listitem>
+                <para>Symbols</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>2.</term>
+
+              <listitem>
+                <para>Line and Symbols</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>3.</term>
+
+              <listitem>
+                <para>Columns</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>4.</term>
+
+              <listitem>
+                <para>Area</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>5.</term>
+
+              <listitem>
+                <para>Pie</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>6.</term>
+
+              <listitem>
+                <para>Vertical drop lines</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>7.</term>
+
+              <listitem>
+                <para>Splines and Symbols</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>8.</term>
+
+              <listitem>
+                <para>Vertical steps</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>9.</term>
+
+              <listitem>
+                <para>Histogram</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>10.</term>
+
+              <listitem>
+                <para>Rows</para>
+              </listitem>
+            </varlistentry>
+          </variablelist> You can plot more than one column at once by giving
+        a Python tuple (see the <ulink url="http://docs.python.org/tut">Python
+        Tutorial</ulink>) as an argument: <programlisting width="40">
+g = plot(table("table1"), (2,4,7), 2)
+	  </programlisting></para>
+
+        <para>If you want to add a curve to an existing Graph window, you have
+        to choose the destination layer. Usually, <programlisting width="40">
+l = g.activeLayer()
+	  </programlisting> will do the trick, but you can also select a layer by its number:
+        <programlisting width="40">
+l = g.layer(num)
+	  </programlisting> You can then add or remove curves to or from this layer: <programlisting
+        width="40">
+l.insertCurve(table, column, type=1)
+l.insertCurve(table, Xcolumn, Ycolumn, type=1)
+l.removeCurve(curveName)
+l.removeCurve(curveNumber)
+l.deleteFitCurves()
+	  </programlisting> In case you need the number of curves on a layer, you can get it
+        with <programlisting width="40">
+l.numCurves()
+	  </programlisting></para>
+
+        <para>Layers and whole Graphs can be printed and exported from within
+        Python. Before you do this, you would probably want to change layer and axis
+        titles as well as legend texts: <programlisting width="40">
+l.setTitle(title)
+l.setXTitle(Xtitle)
+l.setYTitle(Ytitle)
+l.setLegend(text)
+	  </programlisting> You can also customize the scales of the different axes using: <programlisting width="40">
+l.setScale(int axis, double start, double end, double step=0.0, int majorTicks=5, int minorTicks=5, int type=0, bool inverted=False);
+</programlisting>
+	  where <varname>axis</varname> is a number between 0 and 3 with the following signification: <variablelist spacing="compact">
+            <varlistentry>
+              <term>0.</term>
+
+              <listitem>
+                <para>Left axis</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>1.</term>
+
+              <listitem>
+                <para>Right axis</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>2.</term>
+
+              <listitem>
+                <para>Bottom axis</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>3.</term>
+
+              <listitem>
+                <para>Top axis</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+<varname>type</varname> specifies the desired scale type: <variablelist spacing="compact">
+            <varlistentry>
+              <term>0.</term>
+
+              <listitem>
+                <para>Linear</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>1.</term>
+
+              <listitem>
+                <para>Log10</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+	  and <varname>step</varname> defines the size of the interval between the major scale ticks. If not specified (default value is 0.0), the step size is calculated automatically.
+	  The other flags should be self-explanatory.
+	  Now, here is how you can export a layer <programlisting width="40">
+l.print()
+l.exportToSVG(filename)
+l.exportToEPS(filename)
+l.exportImage(filename, filetype="PNG", quality=100, transparent=False)
+	  </programlisting> and a graph <programlisting width="40">
+g.print()
+g.exportToSVG(filename)
+g.exportToEPS(filename)
+	  </programlisting></para>
+      </sect3>
+
+      <sect3>
+        <title>Fitting</title>
+
+        <para>Assuming you have a Graph named "graph1" with a curve entitled
+        "table1_2" (on its active layer), a minimal Fit example would be:
+        <programlisting width="40">
+f = GaussFit(graph("graph1").activeLayer(), "table1_2")
+f.guessInitialValues()
+f.fit()
+	  </programlisting> This creates a new GaussFit object on the curve, lets it guess
+        the start parameters and does the fit. The following fit types are
+        supported: <itemizedlist>
+            <listitem>
+              <para>LinearFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>PolynomialFit(layer, curve, degree=2, legend=False)</para>
+            </listitem>
+
+            <listitem>
+              <para>ExponentialFit(layer, curve, growth=False)</para>
+            </listitem>
+
+            <listitem>
+              <para>TwoExpFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>ThreeExpFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>GaussFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>GaussAmpFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>LorentzFit(layer,curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>SigmoidalFit(layer, curve)</para>
+            </listitem>
+
+            <listitem>
+              <para>NonLinearFit(layer, curve)</para>
+		    <programlisting width="40">
+f = NonLinearFit(layer, curve)
+f.setParameters(name1, ...)
+f.setFormula(formula_string)
+		    </programlisting>
+            </listitem>
+
+            <listitem>
+		    <para>PluginFit(layer, curve)</para>
+		    <programlisting width="40">
+f = PluginFit(layer, curve)
+f.load(pluginName)
+		    </programlisting>
+            </listitem>
+          </itemizedlist> For each of these, you can optionally restrict the X
+        range that will be used for the fit, like in <programlisting width="40">
+f = LinearFit(graph("graph1").activeLayer(), "table1_2", 2, 7)
+f.fit()
+	  </programlisting></para>
+
+        <para>After creating the Fit object and before calling its fit()
+        method, you can set a number of parameters that influence the fit:
+        <programlisting width="80">
+f.setDataFromCurve(curve)			<lineannotation>change data source</lineannotation>
+f.setDataFromCurve(curve, graph)		<lineannotation>change data source</lineannotation>
+f.setDataFromCurve(curve, from, to)		<lineannotation>change data source</lineannotation>
+f.setDataFromCurve(curve, from, to, graph)	<lineannotation>change data source</lineannotation>
+f.setInterval(from, to)				<lineannotation>change data range</lineannotation>
+f.setInitialValue(number, value)
+f.setInitialValues(value1, ...)
+f.guessInitialValues()
+f.setAlgorithm(algo) # algo = Fit.ScaledLevenbergMarquardt, Fit.UnscaledLevenbergMarquardt, Fit.NelderMeadSimplex
+f.setWeightingData(method, colname) # method = Fit.NoWeighting, Fit.Instrumental, Fit.Statistical, Fit.Dataset
+f.setTolerance(tolerance)
+f.setOutputPrecision(precision)
+f.setMaximumIterations(number)
+f.scaleErrors(yes = True)
+f.setColor(qt.QColor("green"))			<lineannotation>change the color of the result fit curve to green (default color is red)</lineannotation>
+	  </programlisting></para>
+
+        <para>After you've called fit(), you have a number of possibilities
+        for extracting the results: <programlisting width="40">
+f.results()
+f.errors()
+f.chiSquare()
+f.rSquare()
+f.dataSize()
+f.numParameters()
+f.parametersTable("params")
+f.covarianceMatrix("cov")
+	  </programlisting></para>
+      </sect3>
+    </sect2>
+  </sect1>
