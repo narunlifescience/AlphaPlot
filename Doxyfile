@@ -44,7 +44,7 @@ HIDE_SCOPE_NAMES       = NO
 SHOW_INCLUDE_FILES     = YES
 INLINE_INFO            = YES
 SORT_MEMBER_DOCS       = YES
-SORT_BRIEF_DOCS        = NO
+SORT_BRIEF_DOCS        = YES
 SORT_BY_SCOPE_NAME     = NO
 GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
@@ -206,6 +206,7 @@ PERL_PATH              = /usr/bin/perl
 #---------------------------------------------------------------------------
 CLASS_DIAGRAMS         = YES
 HIDE_UNDOC_RELATIONS   = YES
+# recommendation: install graphviz and use HAVE_DOT = YES
 HAVE_DOT               = NO
 CLASS_GRAPH            = YES
 COLLABORATION_GRAPH    = YES
