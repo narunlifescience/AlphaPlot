@@ -32,8 +32,6 @@
 #include "symbolDialog.h"
 
 #include <QListWidget>
-#include <QTableWidget>
-#include <QHeaderView>
 #include <QLineEdit>
 #include <QLayout>
 #include <QSpinBox>

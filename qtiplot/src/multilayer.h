@@ -34,24 +34,12 @@
 
 #include "widget.h"
 #include "graph.h"
-
-#include <qwidget.h>
-#include <qpushbutton.h>
-#include <qobject.h>
-#include <q3hbox.h>
-#include <QList>
-#include <qprinter.h>
-#include <q3ptrlist.h>
-
-#include <gsl/gsl_vector.h>
+#include <QPushButton>
+#include <QLayout>
 
 class QWidget;
 class QLabel;
-class QPushButton;
 class QWidget;
-
-class Graph;
-class Table;
 class LayerButton;
 	
 /**
@@ -84,10 +72,6 @@ public:
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
 	//@}
-	
-	QWidgetList buttonsList, graphsList;
-	Q3HBox  *hbox1;
-	QWidget *canvas;
 
 public slots:
 	void resizeLayers (const QResizeEvent *re);
@@ -180,7 +164,6 @@ public slots:
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
 
-	int layerButtonHeight();
 	void ignoreResizeEvent(bool ignore){ignore_resize = ignore;};
 
 signals:   
@@ -236,31 +219,30 @@ private:
 	QFont defaultTextMarkerFont;
 	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 
+    QWidgetList buttonsList, graphsList;
+	QHBoxLayout *layerButtonsBox;
+    QWidget *canvas;
 };
 
 	
 //! Button with layer number
-class LayerButton: public QWidget
+class LayerButton: public QPushButton
 {
 	Q_OBJECT
 
 public:
-    LayerButton (const QString& text = QString::null, QWidget* parent = 0, const char* name = 0);
-	~LayerButton();
+    LayerButton (const QString& text = QString::null, QWidget* parent = 0);
+	~LayerButton(){};
+		
+	static int btnSize();
 
-	QPushButton  *btn;
-
-	bool eventFilter(QObject *object, QEvent *e);
-
-public slots:
-	 void setText(const QString& text);
-	 void setOn(bool on);
-	 bool isOn(){return btn->isOn();};
+protected:
+	void mousePressEvent( QMouseEvent * );
+	void mouseDoubleClickEvent ( QMouseEvent * );
 
 signals:
-	void showLayerMenu();
 	void showCurvesDialog();	
 	void clicked(LayerButton*);
 };
 
-#endif 
+#endif

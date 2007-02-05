@@ -86,14 +86,15 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
     buttonCancel = new QPushButton(tr("&Close" ));
 	
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+	hbox1->addStretch();
     hbox1->addWidget(buttonOk);
     hbox1->addWidget(buttonHelp);
     hbox1->addWidget(buttonCancel);
+	hbox1->addStretch();
     
-    QVBoxLayout *vl = new QVBoxLayout();
+    QVBoxLayout *vl = new QVBoxLayout(this);
  	vl->addWidget(gb1);
 	vl->addLayout(hbox1);	
-	setLayout(vl);
    
     // signals and slots connections
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );

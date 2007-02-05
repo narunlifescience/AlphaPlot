@@ -26,57 +26,15 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qspinbox.h>
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qfont.h>
-#include <qmenubar.h>
-#include <qdialog.h>
-#include <qfiledialog.h>
-#include <qinputdialog.h>
-#include <qtextstream.h>
-#include <qrect.h> 
-#include <qframe.h> 
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qgroupbox.h>
-#include <qfileinfo.h> 
-#include <qdir.h>
-#include <qpixmap.h> 
-#include <qlayout.h>
-#include <qpainter.h>
-#include <qtoolbar.h>
-#include <qtoolbutton.h> 
-#include <qprinter.h>
-#include <qcolordialog.h>
-#include <qfontdialog.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qiconset.h>
-#include <q3memarray.h>
-#include <qbuttongroup.h>
-#include <qregexp.h> 
-#include <qcombobox.h>
-#include <qpen.h>
-#include <qcolor.h>
-#include <qcursor.h>
-#include <qpixmap.h>
-#include <qpixmapcache.h> 
-#include <qdatetime.h> 
-#include <qwmatrix.h> 
-#include <qlabel.h> 
-#include <qimage.h>
-#include <qmessagebox.h>
-#include <qclipboard.h>
-#include <qbitmap.h>
-#include <qpicture.h>
-
-#include <Q3MemArray>
-
-#include <QShortcut>
-#include <QList>
+#include <QVector>
 #include <QWidgetList>
+#include <QPrinter>
+#include <QDateTime>
+#include <QApplication>
+#include <QMessageBox>
+#include <QBitmap>
+#include <QPicture>
+#include <QClipboard>
 
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -85,82 +43,45 @@
 #include <qwt_text_label.h>
 
 #include "multilayer.h"
-#include "graph.h"
 #include "plot.h"
-#include "worksheet.h"
 #include "LegendMarker.h"
-
-#include <math.h>
 
 #include <gsl/gsl_vector.h>
 
-	LayerButton::LayerButton(const QString& text, QWidget* parent, const char* name)
-: QWidget (parent,name)
+LayerButton::LayerButton(const QString& text, QWidget* parent)
+: QPushButton(text, parent)
 {
 	int btn_size = 20;
-#ifdef Q_OS_MAC // Mac 
+#ifdef Q_OS_MAC
 	btn_size = 40;
 #endif
 
-	btn=new QPushButton(text,this,"button");
-	btn->setToggleButton (TRUE);
-	btn->setMaximumWidth(btn_size);
-	btn->setMaximumHeight(btn_size);
-	btn->installEventFilter(this);
-
-	Q3VBoxLayout *l = new Q3VBoxLayout( this, 0,0,"buttonLayout" );
-	l->addWidget( btn );
-
+	setToggleButton(true);
+	setOn(true);
 	setMaximumWidth(btn_size);
 	setMaximumHeight(btn_size);
 }
 
-void LayerButton::setText(const QString& text)
+void LayerButton::mousePressEvent( QMouseEvent *event )
 {
-	btn->setText(text);	
+if (event->button() == Qt::LeftButton && !isOn())
+	emit clicked(this);
 }
 
-void LayerButton::setOn(bool on)
+void LayerButton::mouseDoubleClickEvent ( QMouseEvent * )
 {
-	btn->setOn(on);	
+emit showCurvesDialog();
 }
 
-bool LayerButton::eventFilter(QObject *object, QEvent *e)
+int LayerButton::btnSize()
 {
-	if ( object != (QObject *)btn)
-		return FALSE;
-
-	switch(e->type())
-	{
-		case QEvent::MouseButtonDblClick:
-			{
-				if (btn->isOn())
-					emit showCurvesDialog();
-				return TRUE; 
-			}
-		case QEvent::MouseButtonPress:
-			{
-				const QMouseEvent *me = (const QMouseEvent *)e;
-				if (me->button()==Qt::RightButton)	
-					emit showLayerMenu();
-				else if (me->button()==Qt::LeftButton)	
-				{
-					if (!btn->isOn())
-						emit clicked(this);
-				}
-				return TRUE; 
-			}
-		default:
-			;
-	}
-	return QObject::eventFilter(object, e);
+#ifdef Q_OS_MAC // Mac
+	return 40;
+#endif
+	return 20;
 }
 
-LayerButton::~LayerButton()
-{
-}
-
-	MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : MyWidget(label,parent,name,f)
 {
 	if ( !name )
@@ -190,29 +111,23 @@ LayerButton::~LayerButton()
 	aux_rect = QRect();
 	cache_pix = QPixmap();
 
-	hbox1=new Q3HBox(this, "hbox1"); 
-	int h = layerButtonHeight();
-	hbox1->setFixedHeight(h);
-	setGeometry(QRect( 0, 0, graph_width, graph_height + h));
+	layerButtonsBox = new QHBoxLayout();
+	QHBoxLayout *hbox = new QHBoxLayout();
+	hbox->addLayout(layerButtonsBox);
+	hbox->addStretch();
 
-	canvas=new QWidget (this, "canvas");
+	canvas = new QWidget();
 	canvas->installEventFilter(this);
 
-	Q3VBoxLayout* layout = new Q3VBoxLayout(this,0,0, "hlayout3");
-	layout->addWidget(hbox1);
+	QVBoxLayout* layout = new QVBoxLayout(this);
+	layout->addLayout(hbox);
 	layout->addWidget(canvas);
+	layout->setMargin(0);
+	layout->setSpacing(0);
+    setGeometry(QRect( 0, 0, graph_width, graph_height + LayerButton::btnSize()));
 
 	setFocusPolicy(Qt::StrongFocus);
-	connect (this, SIGNAL(resizeCanvas (const QResizeEvent *)),
-			this, SLOT(resizeLayers (const QResizeEvent *)));
-}
-
-int MultiLayer::layerButtonHeight()
-{
-	LayerButton *button = new LayerButton(QString::number(1),this);
-	int h = button->height();
-	delete button;
-	return h;
+	connect (this, SIGNAL(resizeCanvas (const QResizeEvent *)), this, SLOT(resizeLayers (const QResizeEvent *)));
 }
 
 Graph *MultiLayer::layer(int num)
@@ -225,18 +140,15 @@ LayerButton* MultiLayer::addLayerButton()
 	for (int i=0;i<buttonsList.count();i++)
 	{
 		LayerButton *btn=(LayerButton*) buttonsList.at(i);
-		btn->setOn(FALSE);
+		btn->setOn(false);
 	}
 
-	LayerButton *button=new LayerButton(QString::number(++graphs),hbox1,0);
-	connect (button,SIGNAL(clicked(LayerButton*)),this, SLOT(activateGraph(LayerButton*)));
-	connect (button,SIGNAL(showLayerMenu()),this, SIGNAL(showWindowContextMenu()));
-	connect (button,SIGNAL(showCurvesDialog()),this, SIGNAL(showCurvesDialog()));
-	button->setOn(TRUE);
+	LayerButton *button = new LayerButton(QString::number(++graphs));
+	connect (button, SIGNAL(clicked(LayerButton*)),this, SLOT(activateGraph(LayerButton*)));
+	connect (button, SIGNAL(showCurvesDialog()),this, SIGNAL(showCurvesDialog()));
+	
 	buttonsList.append(button);
-	hbox1->setMaximumWidth(graphs*button->width());
-
-	button->show();
+    layerButtonsBox->addWidget(button);
 	return button;
 }
 
@@ -316,13 +228,13 @@ void MultiLayer::activateGraph(LayerButton* button)
 	{
 		LayerButton *btn=(LayerButton*)buttonsList.at(i);
 		if (btn->isOn())
-			btn->setOn(FALSE);
+			btn->setOn(false);
 
 		if (btn == button)	
 		{
 			active_graph=(Graph*) graphsList.at(i);
 			active_graph->setFocus();
-			button->setOn(TRUE);
+			button->setOn(true);
 		}
 	}
 }
@@ -526,9 +438,6 @@ void MultiLayer::removeLayer()
 			break;
 		}
 	}	
-
-	if (graphs)
-		hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList.at(0))->width());
 
 	if (hasOverlapingLayers())
 		updateTransparency();
@@ -843,7 +752,7 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 		this->showNormal();
 		QSize size = maxSize();
 		this->resize(QSize(size.width() + right_margin,
-					size.height() + bottom_margin + layerButtonHeight()));
+					size.height() + bottom_margin + LayerButton::btnSize()));
 
 		for (i=0;i<(int)graphsList.count();i++)
 		{
@@ -1274,9 +1183,9 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	Graph* g=addLayer();
 	g->removeLegend();
 	g->setTitle("");
-	Q3MemArray<bool> axesOn(4);
+	QVector<bool> axesOn(4);
 	for (int j=0;j<4;j++)
-		axesOn[j]=FALSE;
+		axesOn[j] = false;
 	g->enableAxes(axesOn);
 	g->setIgnoreResizeEvents(true);
 	g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont, 
@@ -1758,7 +1667,6 @@ void MultiLayer::setLayersNumber(int n)
 				break;
 			}
 		}	
-		hbox1->setMaximumWidth(graphs*((LayerButton *)buttonsList.at(0))->width());
 	}	
 	else
 	{
@@ -1768,5 +1676,3 @@ void MultiLayer::setLayersNumber(int n)
 
 	emit modifiedPlot();
 }
-
-

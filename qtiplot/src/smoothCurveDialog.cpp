@@ -104,13 +104,14 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
     buttonCancel = new QPushButton(tr( "&Close" ));
 	
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+	hbox1->addStretch();
     hbox1->addWidget(btnSmooth);
     hbox1->addWidget(buttonCancel);
-    
-    QVBoxLayout *vl = new QVBoxLayout();
+    hbox1->addStretch();
+		
+    QVBoxLayout *vl = new QVBoxLayout(this);
  	vl->addWidget(gb1);
 	vl->addLayout(hbox1);	
-	setLayout(vl);
    
     // signals and slots connections
 	connect( btnSmooth, SIGNAL( clicked() ), this, SLOT( smooth() ) );
@@ -155,5 +156,3 @@ if (smooth_type == Average)
 	boxPointsLeft->setMaxValue(c->dataSize()/2);
 	}
 }
-
-

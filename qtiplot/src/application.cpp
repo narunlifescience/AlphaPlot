@@ -6267,7 +6267,7 @@ void ApplicationWindow::showPlotDialog()
 		{
 			if (!g->isPiePlot())
 			{
-				PlotDialog* pd= new PlotDialog(this,"PlotDialog",false,0);
+				PlotDialog* pd = new PlotDialog(this,"PlotDialog",false,0);
 				pd->setAttribute(Qt::WA_DeleteOnClose);
 				pd->insertColumnsList(columnsList(Table::All));
 				pd->setGraph(g);

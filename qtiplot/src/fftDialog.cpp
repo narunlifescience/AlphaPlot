@@ -106,6 +106,7 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
     vbox1->addWidget(gb2);
     vbox1->addWidget(boxNormalize);
     vbox1->addWidget(boxOrder);
+	vbox1->addStretch();  
     
     buttonOK = new QPushButton(tr("&OK"));
 	buttonOK->setDefault( true );
@@ -116,10 +117,9 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
     vbox2->addWidget(buttonCancel); 
     vbox2->addStretch();  
     
-    QHBoxLayout *hbox2 = new QHBoxLayout(); 
+    QHBoxLayout *hbox2 = new QHBoxLayout(this); 
     hbox2->addLayout(vbox1);
     hbox2->addLayout(vbox2);
-    setLayout(hbox2);
     
 	setFocusProxy(boxName);
 

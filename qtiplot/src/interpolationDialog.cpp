@@ -90,13 +90,14 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
     buttonCancel = new QPushButton(tr( "&Close" ));
 	
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+	hbox1->addStretch();
     hbox1->addWidget(buttonFit);
     hbox1->addWidget(buttonCancel);
+	hbox1->addStretch();
     
-    QVBoxLayout *vl = new QVBoxLayout();
+    QVBoxLayout *vl = new QVBoxLayout(this);
  	vl->addWidget(gb1);
 	vl->addLayout(hbox1);	
-	setLayout(vl);
    
     // signals and slots connections
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
@@ -210,4 +211,3 @@ double end = graph->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 }
-

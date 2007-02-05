@@ -47,13 +47,11 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 
-#include "plotDialog.h"
 #include "worksheet.h"
 #include "axesDialog.h"
 
 class QwtPlotCurve;
 class QwtPlotZoomer;
-
 class QwtPieCurve;	
 class Table;
 class LegendMarker;
@@ -65,6 +63,22 @@ class CanvasPicker;
 class Plot;
 class MultiPeakFit;
 class ApplicationWindow;
+
+//! Structure containing curve layout parameters
+typedef struct{
+  int lCol;
+  int lWidth;
+  int lStyle;
+  int filledArea;
+  int aCol;
+  int aStyle;
+  int symCol;
+  int fillCol;
+  int penWidth;
+  int sSize;
+  int sType;
+  int connectType;
+}  CurveLayout;
 
 /**
  * \brief A 2D-plotting widget.
@@ -82,6 +96,7 @@ class ApplicationWindow;
  *
  * %Note that some of Graph's methods are implemented in analysis.cpp.
  */
+
 class Graph: public QWidget
 {
 	Q_OBJECT
