@@ -81,7 +81,7 @@ class Table: MyWidget
 %TypeHeaderCode
 #include "src/worksheet.h"
 
-#define CHECK_COL(arg)\
+#define CHECK_TABLE_COL(arg)\
     int col;\
     if (PyInt_Check(arg)) {\
       col = (int)PyInt_AsLong(arg) - 1;\
@@ -104,7 +104,7 @@ class Table: MyWidget
 			}\
 		}\
 	 }
-#define CHECK_ROW(arg)\
+#define CHECK_TABLE_ROW(arg)\
    int row = arg-1;\
 	if (row < 0 || row >= sipCpp->tableRows()) {\
 		sipIsErr = 1;\
@@ -122,8 +122,8 @@ public:
   SIP_PYOBJECT text(SIP_PYOBJECT, int);
 %MethodCode
   sipIsErr = 0;
-  CHECK_COL(a0);
-  CHECK_ROW(a1);
+  CHECK_TABLE_COL(a0);
+  CHECK_TABLE_ROW(a1);
   if (sipIsErr == 0) {
 		PyObject *encstr = PyString_FromString(sipCpp->text(row, col).utf8());
 		if (encstr) {
@@ -138,24 +138,24 @@ public:
   double cell(SIP_PYOBJECT, int);
 %MethodCode
   sipIsErr = 0;
-  CHECK_COL(a0);
-  CHECK_ROW(a1);
+  CHECK_TABLE_COL(a0);
+  CHECK_TABLE_ROW(a1);
 	if (sipIsErr == 0)
 		sipRes = sipCpp->text(row, col).toDouble();
 %End
   void setText(SIP_PYOBJECT, int, const QString&);
 %MethodCode
   sipIsErr = 0;
-  CHECK_COL(a0);
-  CHECK_ROW(a1);
+  CHECK_TABLE_COL(a0);
+  CHECK_TABLE_ROW(a1);
 	if (sipIsErr == 0)
 		sipCpp->setText(row, col, *a2);
 %End
   void setCell(SIP_PYOBJECT, int, double);
 %MethodCode
   sipIsErr = 0;
-  CHECK_COL(a0);
-  CHECK_ROW(a1);
+  CHECK_TABLE_COL(a0);
+  CHECK_TABLE_ROW(a1);
 	if (sipIsErr == 0) {
 		int prec;
 		char f;
@@ -174,7 +174,7 @@ public:
   void setColName(SIP_PYOBJECT, const QString&);
 %MethodCode
 	sipIsErr = 0;
-   CHECK_COL(a0);
+   CHECK_TABLE_COL(a0);
 	if (sipIsErr == 0)
 		sipCpp->setColName(col, *a1);
 %End
@@ -184,7 +184,7 @@ public:
   void normalizeCol(SIP_PYOBJECT) /PyName=normalize/;
 %MethodCode
 	sipIsErr = 0;
-	CHECK_COL(a0);
+	CHECK_TABLE_COL(a0);
 	if (sipIsErr == 0)
 		sipCpp->normalizeCol(col);
 %End
@@ -198,13 +198,13 @@ class Matrix: MyWidget
 {
 %TypeHeaderCode
 #include "src/matrix.h"
-#define CHECK_COL(arg)\
+#define CHECK_MATRIX_COL(arg)\
 	int col = arg-1;\
    if (col < 0 || col >= sipCpp->numCols()) {\
 		sipIsErr = 1;\
 		PyErr_Format(PyExc_ValueError, "There's no column %d in matrix %s!", col+1, sipCpp->name().ascii());\
 	}
-#define CHECK_ROW(arg)\
+#define CHECK_MATRIX_ROW(arg)\
    int row = arg-1;\
 	if (row < 0 || row >= sipCpp->numRows()) {\
 		sipIsErr = 1;\
@@ -217,32 +217,32 @@ public:
   SIP_PYOBJECT text(int, int);
 %MethodCode
 	sipIsErr = 0;
-	CHECK_ROW(a0);
-	CHECK_COL(a1);
+	CHECK_MATRIX_ROW(a0);
+	CHECK_MATRIX_COL(a1);
 	if (sipIsErr == 0)
 		sipRes = PyString_FromString(sipCpp->text(row, col));
 %End
   double cell(int, int);
 %MethodCode
 	sipIsErr = 0;
-	CHECK_ROW(a0);
-	CHECK_COL(a1);
+	CHECK_MATRIX_ROW(a0);
+	CHECK_MATRIX_COL(a1);
 	if (sipIsErr == 0)
 		sipRes = sipCpp->text(row, col).toDouble();
 %End
   void setText(int, int, const QString&);
 %MethodCode
 	sipIsErr = 0;
-	CHECK_ROW(a0);
-	CHECK_COL(a1);
+	CHECK_MATRIX_ROW(a0);
+	CHECK_MATRIX_COL(a1);
 	if (sipIsErr == 0)
 		sipCpp->setText(row, col, *a2);
 %End
   void setCell(int, int, double);
 %MethodCode
 	sipIsErr = 0;
-	CHECK_ROW(a0);
-	CHECK_COL(a1);
+	CHECK_MATRIX_ROW(a0);
+	CHECK_MATRIX_COL(a1);
 	if (sipIsErr == 0) {
 		int prec = sipCpp->precision();
 		char f = sipCpp->textFormat().toAscii();
@@ -284,24 +284,23 @@ public:
   bool insertCurve(Table*, const QString&, const QString&, int=1);
   void removeCurve(int);
   void removeCurve(const QString&);
-//  void deleteFitCurves();
+  void deleteFitCurves();
   int curves() /PyName=numCurves/;
 
   void addErrorBars(Table *, const QString&, 
-      Table *, const QString&,
-      int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
-	  bool through = true, bool minus = true, bool plus = true);
+		  Table *, const QString&,
+		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
+		  bool through = true, bool minus = true, bool plus = true);
 
   void insertLineMarker(LineMarker*);
   LineMarker* lineMarker(long);
 
   void setTitle(const QString& t);
   void newLegend();
-/*  void setLegend(const QString&) /NoDerived/;
+  void setLegend(const QString&) /NoDerived/;
 %MethodCode
   sipCpp->legend()->setText(*a0);
 %End
-*/
   void setXAxisTitle(const QString& text) /PyName=setXTitle/;
   void setYAxisTitle(const QString& text) /PyName=setYTitle/;
 
@@ -395,7 +394,7 @@ public:
   if(!sipRes)
     sipRes = sipCpp->projectFolder()->graph(*a0, true);
 %End
-//  MultiLayer* newGraph();
+  MultiLayer* newGraph();
   Note *note(const QString&);
 %MethodCode
   sipRes = sipCpp->current_folder->note(*a0, false);
@@ -424,7 +423,14 @@ public:
   l << *a1;
   sipRes = sipCpp->multilayerPlot(a0, l, a2);
 %End
-  
+
+	// TODO: yet to be ported from scripting branch:
+	//Matrix* importImage();
+	//Matrix* importImage(const QString&);
+	//MultiLayer* plotContour(Matrix*);  
+	//MultiLayer* plotColorMap(Matrix*);
+	//MultiLayer* plotGrayScale(Matrix*);
+
   QWidgetList *windowsList() /PyName=windows/;
 
   QTextEdit *results;
@@ -495,11 +501,11 @@ delete values;
   void setTolerance(double);
 
   void setColor(int);
-//  void setColor(const QColor&);
+  void setColor(const QColor&);
 
-//  void setOutputPrecision(int);
+  void setOutputPrecision(int);
 
-//  void generateFunction(bool, int=100);
+  void generateFunction(bool, int=100);
 
   void setMaximumIterations(int);
 
@@ -507,7 +513,7 @@ delete values;
 
   virtual QString legendFitInfo();
 
-//  void scaleErrors(bool yes = true);
+  void scaleErrors(bool yes = true);
 
   SIP_PYTUPLE results();
 %MethodCode
@@ -680,7 +686,6 @@ public:
       l << item;
     else
       sipIsErr = 1;
-  printf("debug: added %d items\n", l.count());
   sipCpp->setParametersList(l);
 %End
   // TODO: make it accept Python callables
@@ -716,7 +721,7 @@ public:
   MultiPeakFit(ApplicationWindow * /TransferThis/, Graph *, PeakProfile=Gauss, int=1);
 
   int peaks() /PyName=numPeaks/;
-//  void setNumPeaks(int);
+  void setNumPeaks(int);
 
   void enablePeakCurves(bool);
   void setPeakCurvesColor(int);
