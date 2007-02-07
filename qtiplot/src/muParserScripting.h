@@ -65,6 +65,7 @@ class muParserScript: public Script
     static double mu_col(const char *arg) { return current->col(arg); }
     static double mu_cell(double row, double col) { return current->cell(qRound(row), qRound(col)); }
     static double *mu_addVariable(const char *name) { return current->addVariable(name); }
+	 static double *mu_addVariableR(const char *name, void *) { return current->addVariableR(name); }
     static QString compileColArg(const QString& in);
 
     mu::Parser parser, rparser;

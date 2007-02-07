@@ -3053,7 +3053,7 @@ void Table::resizeRows(int r)
 		QString text= tr("Rows will be deleted from the table!");
 		text+="<p>"+tr("Do you really want to continue?");
 		int i,cols = worksheet->numCols();
-		switch( QMessageBox::information(0,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
+		switch( QMessageBox::information(this,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
 			case 0:
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -3090,7 +3090,7 @@ void Table::resizeCols(int c)
 		QString text= tr("Columns will be deleted from the table!");
 		text+="<p>"+tr("Do you really want to continue?");
 		Q3MemArray<int> columns(cols-c);
-		switch( QMessageBox::information(0,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
+		switch( QMessageBox::information(this,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
 			case 0:
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

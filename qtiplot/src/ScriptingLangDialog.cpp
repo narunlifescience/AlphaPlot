@@ -57,6 +57,7 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *p
 
 	connect(btnOK, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));
+	connect(langList, SIGNAL(itemActivated(QListWidgetItem*)), this, SLOT(accept()));
 
 	updateLangList();
 }
