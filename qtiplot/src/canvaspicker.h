@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qobject.h>
+#include <QObject>
 #include "plot.h"
 
 class Graph;
@@ -108,4 +108,3 @@ private:
     int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
 	bool moved,	movedGraph, mousePressed, pointSelected, select_peaks;
 };
-

@@ -1,5 +1,5 @@
 #include "ImageMarker.h"
-#include <qpainter.h>
+#include <QPainter>
 
 ImageMarker::ImageMarker(const QPixmap& p):
     d_pic(p),

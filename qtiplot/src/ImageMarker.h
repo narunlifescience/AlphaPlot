@@ -1,10 +1,10 @@
 #ifndef IMAGEMARKER_H
 #define IMAGEMARKER_H
 
-#include <qpixmap.h>
-
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
+	
+#include <QPixmap>
 	
 class ImageMarker: public QwtPlotMarker
 {

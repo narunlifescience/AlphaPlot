@@ -65,13 +65,12 @@ class Fit : public QObject
 
 		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
 		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
-		void setDataFromCurve(QwtPlotCurve *curve, int start, int end);
+		void setDataFromCurve(int curve, double start, double end);
 
 		//! Changes the data range if the source curve was already assigned. Provided for convenience.
 		void setInterval(double from, double to);
 
 		QString formula(){return d_formula;};
-		virtual void setParametersList(const QStringList& lst){ Q_UNUSED(lst) };
 		int numParameters() {return d_p;}
 
 		void setInitialGuess(int parIndex, double val){gsl_vector_set(d_param_init, parIndex, val);};
@@ -249,7 +248,7 @@ class ExponentialFit : public Fit
 		ExponentialFit(ApplicationWindow *parent, Graph *g,  bool expGrowth = false);
 		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth = false);
 		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, 
-				int start, int end, bool expGrowth = false);
+				double start, double end, bool expGrowth = false);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -271,7 +270,7 @@ class TwoExpFit : public Fit
 	public:
 		TwoExpFit(ApplicationWindow *parent, Graph *g);
 		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -291,7 +290,7 @@ class ThreeExpFit : public Fit
 	public:
 		ThreeExpFit(ApplicationWindow *parent, Graph *g);
 		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -311,7 +310,7 @@ class SigmoidalFit : public Fit
 	public:
 		SigmoidalFit(ApplicationWindow *parent, Graph *g);
 		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 		void guessInitialValues();
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
@@ -331,7 +330,7 @@ class GaussAmpFit : public Fit
 	public:
 		GaussAmpFit(ApplicationWindow *parent, Graph *g);
 		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -350,7 +349,7 @@ class NonLinearFit : public Fit
 	public:
 		NonLinearFit(ApplicationWindow *parent, Graph *g);
 		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -372,7 +371,7 @@ class PluginFit : public Fit
 	public:
 		PluginFit(ApplicationWindow *parent, Graph *g);
 		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -437,7 +436,7 @@ class LorentzFit : public MultiPeakFit
 	public:
 		LorentzFit(ApplicationWindow *parent, Graph *g);
 		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -455,7 +454,7 @@ class GaussFit : public MultiPeakFit
 	public:
 		GaussFit(ApplicationWindow *parent, Graph *g);
 		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -473,7 +472,7 @@ class PolynomialFit : public Fit
 	public:
 		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
 		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int start, int end, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */
@@ -501,7 +500,7 @@ class LinearFit : public Fit
 	public:
 		LinearFit(ApplicationWindow *parent, Graph *g);
 		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end);
+		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
 		/* needed to support SIP versions before 4.4 (which introduced /NoDerived/) */
 		/* DON'T USE! */

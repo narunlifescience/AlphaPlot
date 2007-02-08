@@ -28,11 +28,10 @@
  ***************************************************************************/
 #include "LineMarker.h"
 
-#include <qpainter.h>
+#include <QPainter>
 
 #include <qwt_plot.h>
 #include <qwt_painter.h>
-#include <math.h>
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643;
@@ -330,4 +329,3 @@ d_rect.setTop(yMap.invTransform(d_start.y()));
 d_rect.setRight(xMap.invTransform(d_end.x()));
 d_rect.setBottom(yMap.invTransform(d_end.y()));
 }
-

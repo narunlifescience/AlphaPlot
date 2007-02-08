@@ -10,11 +10,11 @@ MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
 DEFINES     += QT_PLUGIN
-#DEFINES	    += SCRIPTING_CONSOLE
-#DEFINES	    += SCRIPTING_DIALOG
+DEFINES	    += SCRIPTING_CONSOLE
+DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
 
-SCRIPTING_LANGS = muParser #Python
+SCRIPTING_LANGS = muParser Python
 
 TRANSLATIONS    = translations/qtiplot_de.ts \
 		          translations/qtiplot_es.ts \
@@ -37,7 +37,6 @@ INCLUDEPATH       += ../3rdparty/qwt/src
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
 INCLUDEPATH		  += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
-win32:INCLUDEPATH       += C:\GSL\include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
 #############################################################################

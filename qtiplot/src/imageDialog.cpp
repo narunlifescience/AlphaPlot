@@ -28,8 +28,7 @@
  ***************************************************************************/
 #include "imageDialog.h"
 
-#include <QBoxLayout>
-#include <QVBoxLayout>
+#include <QLayout>
 #include <QGroupBox>
 #include <QLabel>
 #include <QPixmap>

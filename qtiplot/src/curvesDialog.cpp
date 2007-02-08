@@ -32,131 +32,111 @@
 #include "FunctionCurve.h"
 #include "pixmaps.h"
 
-#include <qlabel.h>
-#include <q3listbox.h>
-#include <qpushbutton.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qtooltip.h>
-#include <q3whatsthis.h>
-#include <qmessagebox.h>
-#include <qcombobox.h>
-#include <q3vbox.h>
-#include <q3popupmenu.h>
-#include <q3accel.h>
-#include <qwidget.h>
-//Added by qt3to4:
+#include <QPushButton>
+#include <QLabel>
+#include <QComboBox>
+#include <QLayout>
+#include <QListWidget>
+#include <QGroupBox>
 #include <QPixmap>
-#include <Q3VBoxLayout>
-#include <Q3ListView>
+#include <QShortcut>
+#include <QKeySequence>
+#include <QMenu>
 
 CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
 {
 	if ( !name )
 		setName( "CurvesDialog" );
-	setMinimumSize(QSize(400,200));
+
 	setWindowTitle( tr( "QtiPlot - Add/Remove curves" ) );
+    setSizeGripEnabled(true);
 	setFocus();
 
-	Q3HBox *box5 = new Q3HBox (this, "box5"); 
-	box5->setSpacing (5);
-	box5->setMargin(5);
+    QHBoxLayout* hl1 = new QHBoxLayout();
+	hl1->addWidget(new QLabel(tr("New curves style")));
+	boxStyle = new QComboBox ();
+	boxStyle->addItem( QPixmap(lPlot_xpm), tr( " Line" ) );
+	boxStyle->addItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
+	boxStyle->addItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
+	boxStyle->addItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
+	boxStyle->addItem( QPixmap(spline_xpm), tr( " Spline" ) );
+	boxStyle->addItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
+	boxStyle->addItem( QPixmap(hor_steps_xpm), tr( " Horizontal steps" ) );
+	boxStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
+	boxStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
+	boxStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
+    hl1->addWidget(boxStyle);
+    hl1->addStretch();
 
-	new QLabel("New curves style", box5, "label0");
-	boxStyle = new QComboBox (box5, "boxStyle");
-	boxStyle->insertItem( QPixmap(lPlot_xpm), tr( " Line" ) );
-	boxStyle->insertItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
-	boxStyle->insertItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
-	boxStyle->insertItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
-	boxStyle->insertItem( QPixmap(spline_xpm), tr( " Spline" ) );
-	boxStyle->insertItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
-	boxStyle->insertItem( QPixmap(hor_steps_xpm), tr( " Horizontal steps" ) );
-	boxStyle->insertItem( QPixmap(area_xpm), tr( " Area" ) );
-	boxStyle->insertItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
-	boxStyle->insertItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
+    QGridLayout *gl = new QGridLayout(this);
+    gl->addLayout(hl1, 0, 0);
 
-	Q3HBox  *box0 = new Q3HBox (this, "box0"); 
-	box0->setSpacing (5);
+    gl->addWidget(new QLabel( tr( "Available data" )), 1, 0);
+    gl->addWidget(new QLabel( tr( "Graph contents" )), 1, 2);
 
-	Q3VBox  *box1=new Q3VBox (box0, "box1"); 
-	box1->setMargin(5);
-	box1->setSpacing (5);
+	available = new QListWidget();
+	available->setSelectionMode (QAbstractItemView::ExtendedSelection);
+    gl->addWidget(available, 2, 0);
 
-	TextLabel1 = new QLabel(box1, "TextLabel1" );
-	TextLabel1->setText( tr( "Available data" ) );
-
-	available = new Q3ListBox( box1, "available" );
-	available->setSelectionMode (Q3ListBox::Multi);
-
-	Q3VBox  *box2=new Q3VBox (box0, "box2"); 
-	box2->setMargin(5);
-	box2->setSpacing (5);
-
-	btnAdd = new QPushButton(box2, "btnAdd" );
+    QVBoxLayout* vl1 = new QVBoxLayout();
+	btnAdd = new QPushButton();
 	btnAdd->setPixmap( QPixmap(next_xpm) );
 	btnAdd->setFixedWidth (35);
 	btnAdd->setFixedHeight (30);
+    vl1->addWidget(btnAdd);
 
-	btnRemove = new QPushButton(box2, "btnRemove" );
+	btnRemove = new QPushButton();
 	btnRemove->setPixmap( QPixmap(prev_xpm) );
 	btnRemove->setFixedWidth (35);
 	btnRemove->setFixedHeight(30);
+    vl1->addWidget(btnRemove);
+    vl1->addStretch();
 
-	Q3VBox  *box3=new Q3VBox (box0, "box3"); 
-	box3->setMargin(5);
-	box3->setSpacing (5);
+    gl->addLayout(vl1, 2, 1);
+	contents = new QListWidget();
+	contents->setSelectionMode (QAbstractItemView::ExtendedSelection);
+    gl->addWidget(contents, 2, 2);
 
-	TextLabel2 = new QLabel(box3, "TextLabel2" );
-	TextLabel2->setText( tr( "Graph contents" ) );
-
-	contents = new Q3ListBox( box3, "contents" );
-	contents->setSelectionMode (Q3ListBox::Multi);
-
-	Q3VBox  *box4=new Q3VBox (box0, "box4"); 
-	box4->setMargin(5);
-	box4->setSpacing (5);
-
-	btnAssociations = new QPushButton(box4, "btnAssociations" );
-	btnAssociations->setText( tr( "&Plot Associations..." ) );
+    QVBoxLayout* vl2 = new QVBoxLayout();
+	btnAssociations = new QPushButton(tr( "&Plot Associations..." ));
 	btnAssociations->setEnabled(false);
+    vl2->addWidget(btnAssociations);
 
-	btnEditFunction = new QPushButton(box4, "btnEditFunction" );
-	btnEditFunction->setText( tr( "&Edit Function..." ) );
+	btnEditFunction = new QPushButton(tr( "&Edit Function..." ));
 	btnEditFunction->setEnabled(false);
+    vl2->addWidget(btnEditFunction);
 
-	btnOK = new QPushButton(box4, "btnOK" );
-	btnOK->setText( tr( "OK" ) );
+	btnOK = new QPushButton(tr( "OK" ));
 	btnOK->setDefault( true );
+    vl2->addWidget(btnOK);
 
-	btnCancel = new QPushButton(box4, "btnCancel" );
-	btnCancel->setText( tr( "Close" ) );
-
-	Q3VBoxLayout* layout = new Q3VBoxLayout(this,5,5, "hlayout3");
-	layout->addWidget(box5);
-	layout->addWidget(box0);
+	btnCancel = new QPushButton(tr( "Close" ));
+    vl2->addWidget(btnCancel);
+    vl2->addStretch();
+    gl->addLayout(vl2, 2, 3);
 
 	connect(btnAssociations, SIGNAL(clicked()),this, SLOT(showPlotAssociations()));
 	connect(btnEditFunction, SIGNAL(clicked()),this, SLOT(showFunctionDialog()));
-
-	connect(btnAdd, SIGNAL(clicked()),this, SLOT(addCurve()));
-	connect(btnRemove, SIGNAL(clicked()),this, SLOT(removeCurve()));
+	connect(btnAdd, SIGNAL(clicked()),this, SLOT(addCurves()));
+	connect(btnRemove, SIGNAL(clicked()),this, SLOT(removeCurves()));
 	connect(btnOK, SIGNAL(clicked()),this, SLOT(close()));
 	connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
-	connect(btnAdd, SIGNAL(clicked()),this, SLOT(enableRemoveBtn()));
-	connect(btnRemove, SIGNAL(clicked()),this, SLOT(enableRemoveBtn()));
+	connect(contents, SIGNAL(currentRowChanged(int)), this, SLOT(showCurveBtn(int)));
+    connect(contents, SIGNAL(itemSelectionChanged()), this, SLOT(enableRemoveBtn()));
+    connect(available, SIGNAL(itemSelectionChanged()), this, SLOT(enableAddBtn()));
 
-	connect(contents, SIGNAL(highlighted (int)), this, SLOT(showCurveBtn(int)));
-	connect(contents, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(deletePopupMenu(Q3ListBoxItem *, const QPoint &)));
-	connect(available, SIGNAL(rightButtonClicked(Q3ListBoxItem *, const QPoint &)), this, SLOT(addPopupMenu(Q3ListBoxItem *, const QPoint &)));
-
-	Q3Accel *accel = new Q3Accel(this);
-	accel->connectItem( accel->insertItem( Qt::Key_Delete ), this, SLOT(removeCurve()) );
+    QShortcut *shortcut = new QShortcut(QKeySequence(Qt::Key_Delete), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(removeCurves()));
+    shortcut = new QShortcut(QKeySequence("-"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(removeCurves()));
+    shortcut = new QShortcut(QKeySequence("+"), this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(addCurves()));
 }
 
 void CurvesDialog::showCurveBtn(int) 
 {
-	QwtPlotCurve *c = g->curve(contents->currentItem());
+	QwtPlotCurve *c = g->curve(contents->currentRow());
 	if (!c)
 		return;
 
@@ -174,7 +154,7 @@ void CurvesDialog::showCurveBtn(int)
 
 void CurvesDialog::showPlotAssociations() 
 {
-	int curve = contents->currentItem();
+	int curve = contents->currentRow ();
 	if (curve < 0)
 		curve = 0;
 	emit showPlotAssociations(curve);
@@ -183,82 +163,78 @@ void CurvesDialog::showPlotAssociations()
 
 void CurvesDialog::showFunctionDialog() 
 {
-	emit showFunctionDialog(g, contents->currentItem());
+	emit showFunctionDialog(g, contents->currentRow());
 	close();
 }
 
 QSize CurvesDialog::sizeHint() const 
 {
-	return QSize(400, 200 );
+	return QSize(600, 300);
 }
 
-void CurvesDialog::deletePopupMenu(Q3ListBoxItem *it, const QPoint &point)
+void CurvesDialog::contextMenuEvent(QContextMenuEvent *e)
 {
-	selectedCurve=contents->index (it);
+	QPoint pos = available->viewport()->mapFromGlobal(QCursor::pos());
+	QRect rect = available->visualItemRect(available->currentItem());
+	if (rect.contains(pos))
+	{
+	   QMenu contextMenu(this);
+       QList<QListWidgetItem *> lst = available->selectedItems();
+       if (lst.size() > 1)
+	       contextMenu.insertItem(tr("&Plot Selection"), this, SLOT(addCurves()));
+       else if (lst.size() == 1)
+	       contextMenu.insertItem(tr("&Plot"), this, SLOT(addCurves()));
+	   contextMenu.exec(QCursor::pos());
+    }
 
-	Q3PopupMenu contextMenu(this);
-	contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
-	contextMenu.exec(point);
-}
+	pos = contents->viewport()->mapFromGlobal(QCursor::pos());
+	rect = contents->visualItemRect(contents->currentItem());
+	if (rect.contains(pos))
+	{
+	   QMenu contextMenu(this);
+       QList<QListWidgetItem *> lst = contents->selectedItems();
+       if (lst.size() > 1)
+	       contextMenu.insertItem(tr("&Delete Selection"), this, SLOT(removeCurves()));
+       else if (lst.size() == 1)
+	       contextMenu.insertItem(tr("&Delete Curve"), this, SLOT(removeCurves()));
+	   contextMenu.exec(QCursor::pos());
+    }
 
-void CurvesDialog::addPopupMenu(Q3ListBoxItem *it, const QPoint &point)
-{
-	selectedCurve=available->index (it);
-
-	Q3PopupMenu contextMenu(this);
-	contextMenu.insertItem(tr("&Plot"), this, SLOT(addSelectedCurve()));
-	contextMenu.exec(point);
+    e->accept();
 }
 
 void CurvesDialog::insertCurvesToDialog(const QStringList& names)
 {
 	available->clear();
-	int i,n=names.count();	
-	for (i=0;i<n;i++)
-		available->insertItem(names[i],i);
-
-	if (n==0)
+	available->addItems (names);
+	if (!names.count())
 		btnAdd->setDisabled(true);
 }
 
 void CurvesDialog::setGraph(Graph *graph)
 {
 	g = graph;
-	contents->insertStringList(g->curvesList());
+	contents->addItems(g->curvesList());
 	enableRemoveBtn();
+    enableAddBtn();
 }
 
-void CurvesDialog::addSelectedCurve()
+void CurvesDialog::addCurves()
 {
 	QStringList emptyColumns;
-	QString text=available->text(selectedCurve);
-	if (!contents->findItem(text, Q3ListView::ExactMatch))
-	{
-		if (!addCurve(text))
-			emptyColumns << text;
-		else
-			g->updatePlot();
-	}
-	Graph::showPlotErrorMessage(this, emptyColumns);
-}
-
-void CurvesDialog::addCurve()
-{
-	QStringList emptyColumns;
-	for (int i=0;i<int(available->count());i++)
-	{
-		if (available->isSelected(i))
-		{
-			QString text=available->text(i);
-			if (!contents->findItem(text, Q3ListView::ExactMatch))
+    QList<QListWidgetItem *> lst = available->selectedItems();
+    for (int i = 0; i < lst.size(); ++i)
+    {
+        QString text = lst.at(i)->text();
+        if (contents->findItems(text, Qt::MatchExactly ).isEmpty ())
 			{
-				if (!addCurve(text))
-					emptyColumns << text;
+			if (!addCurve(text))
+				emptyColumns << text;
 			}
-		}
-	}
+    }
 	g->updatePlot();
 	Graph::showPlotErrorMessage(this, emptyColumns);
+    enableRemoveBtn();
 }
 
 bool CurvesDialog::addCurve(const QString& name)
@@ -305,7 +281,7 @@ bool CurvesDialog::addCurve(const QString& name)
 
 		g->updateCurveLayout(g->curves() - 1, &cl);
 
-		contents->insertItem(name,-1);
+		contents->addItem(name);
 		return true;
 	}
 	return false;
@@ -350,44 +326,28 @@ Table * CurvesDialog::findTable(const QString& text)
 	return 0;
 }
 
-void CurvesDialog::removeSelectedCurve()
+void CurvesDialog::removeCurves()
 {
-	g->removeCurve(selectedCurve);
-	contents->removeItem (selectedCurve);
+QList<QListWidgetItem *> lst = contents->selectedItems();
+for (int i = 0; i < lst.size(); ++i)
+     {
+     QListWidgetItem *it = lst.at(i);
+     int index = contents->row(it);
+	 g->removeCurve(index);
+     contents->takeItem(index);
+     delete it;
+     }
+enableRemoveBtn();
 }
 
-void CurvesDialog::removeCurve()
+void CurvesDialog::enableAddBtn()
 {
-	int i;
-	QStringList texts;	
-	for (i=0;i<int(contents->count());i++)
-	{
-		if (contents->isSelected(i))
-			texts<<contents->text(i);	
-	}
-
-	for (i=0;i<int(texts.count());i++)
-	{
-		Q3ListBoxItem *it=contents->findItem (texts[i],Q3ListView::ExactMatch);
-
-		int index=contents->index(it);		
-		g->removeCurve(index);
-		contents->removeItem(index);	
-	}	
-}
-
-void CurvesDialog::clear()
-{
-	contents->clear();
-	btnRemove->setDisabled (true);
+    btnAdd->setEnabled (available->count()>0 && !available->selectedItems().isEmpty());
 }
 
 void CurvesDialog::enableRemoveBtn()
 {
-	if (contents->count()>0)
-		btnRemove->setEnabled (true);
-	else
-		btnRemove->setDisabled (true);
+    btnRemove->setEnabled (contents->count()>0 && !contents->selectedItems().isEmpty());
 }
 
 int CurvesDialog::curveStyle()

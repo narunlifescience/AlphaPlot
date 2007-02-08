@@ -31,11 +31,10 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
-#include <QGridLayout>
+#include <QLayout>
 #include <QGroupBox>
 #include <QSpinBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
+
 
 MatrixDialog::MatrixDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )

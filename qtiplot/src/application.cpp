@@ -3990,13 +3990,10 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 	app->savedProject();
 
-	if (app->show_windows_policy == HideAll)
-		app->hideFolderWindows(app->projectFolder());
-
 	app->folders->setCurrentItem(cf->folderListItem());
 	app->folders->blockSignals (false);
 	//change folder to user defined current folder
-	app->changeFolder(cf);
+	app->changeFolder(cf, true);
 	app->blockSignals (false);
 	app->renamedTables.clear();
 
@@ -13203,10 +13200,7 @@ void ApplicationWindow::hideFolderWindows(Folder *f)
 {
 	QList<MyWidget *> lst = f->windowsList();
 	foreach(MyWidget *w, lst)
-	{
-		if (w && !w->isHidden())
-			w->hide();
-	}
+		w->hide();
 
 	if ( (f->children()).isEmpty() )
 		return;
@@ -13218,10 +13212,7 @@ void ApplicationWindow::hideFolderWindows(Folder *f)
 	{
 		lst = item->folder()->windowsList();
 		foreach(MyWidget *w, lst)
-		{
-			if (w && w->isVisible())
-				w->hide();
-		}
+			w->hide();
 		item = (FolderListItem *)item->itemBelow();
 	}
 }

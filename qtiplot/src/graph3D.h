@@ -31,12 +31,10 @@
 
 #include <qwt3d_surfaceplot.h>
 #include <qwt3d_function.h> 
-//Added by qt3to4:
-#include <QContextMenuEvent>
-#include <QResizeEvent>
-#include <QEvent>
+
 #include <QTimer>
-#include <Q3MemArray>
+#include <QVector>
+#include <QEvent>
 
 #include "worksheet.h"
 #include "matrix.h"
@@ -355,7 +353,7 @@ private:
 	QStringList labels;
 	QFont titleFnt;
 	bool legendOn, smoothMesh;
-	Q3MemArray<int> scaleType;
+	QVector<int> scaleType;
 	QColor axesCol,labelsCol,titleCol,meshCol,bgCol,numCol,gridCol;
 	//! Custom data colors.
 	QColor fromColor, toColor;

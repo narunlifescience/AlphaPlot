@@ -117,6 +117,7 @@ static const char *unzoom_xpm[]={
 #include "symbolBox.h"
 #include "FunctionCurve.h"
 #include "Fitter.h"
+#include "nrutil.h"
 
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -4233,11 +4234,81 @@ long Graph::curveKey(int curve)
 
 QwtPlotCurve *Graph::curve(int index)
 {
-	if (!n_curves || index >= n_curves)
+	if (!n_curves || index >= n_curves || index < 0)
 		return 0;
 
 	return (QwtPlotCurve *)d_plot->curve(c_keys[index]);
 }
+
+void Graph::range(int index, double *start, double *end)
+  	{
+  	  if (rangeSelectorsEnabled && selectedCurve == c_keys[index])
+  	  {
+  	    *start = selectedXStartValue();
+  	    *end = selectedXEndValue();
+  	    return;
+  	  }
+  	  else
+  	  {
+  	    QwtPlotCurve *c = curve(index);
+  	    *start = c->minXValue();
+  	    *end = c->maxXValue();
+  	  }
+  	}
+
+  	int Graph::numPoints(int index, double start, double end)
+  	{
+  	  QwtPlotCurve *c = curve(index);
+  	  int points=0;
+  	  for (int i=0; i<c->dataSize(); i++)
+  	    if (c->x(i) >= start && c->x(i) <= end)
+  	      points++;
+  	  return points;
+  	}
+
+  	int Graph::curveData(int index, double start, double end, double **x, double **y)
+  	{
+  	  int n = numPoints(index, start, end);
+  	  (*x) = new double[n];
+  	  (*y) = new double[n];
+  	  QwtPlotCurve *c = curve(index);
+  	  int i, j=0;
+  	  for (i = 0; i < c->dataSize(); i++)
+  	    if (c->x(i) >= start && c->x(i) <= end && j<n)
+  	    {
+  	      (*x)[j] = c->x(i);
+  	      (*y)[j++] = c->y(i);
+  	    }
+  	  return n;
+  	}
+
+  	int Graph::sortedCurveData(int index, double start, double end, double **x, double **y)
+  	{
+  	  int n = numPoints(index, start, end);
+  	  (*x) = new double[n];
+  	  (*y) = new double[n];
+  	  double *xtemp = vector(0, n-1);
+  	  double *ytemp = vector(0, n-1);
+  	  QwtPlotCurve *c = curve(index);
+  	  int i, j=0;
+  	  for (i = 0; i < c->dataSize(); i++)
+  	    if (c->x(i) >= start && c->x(i) <= end && j<n)
+  	    {
+  	      xtemp[j] = c->x(i);
+  	      ytemp[j++] = c->y(i);
+  	    }
+  	  size_t *p = ivector(0, n-1);
+  	  gsl_sort_index(p, xtemp, 1, n);
+  	  for (i=0; i<n; i++)
+  	  {
+  	    (*x)[i] = xtemp[p[i]];
+  	    (*y)[i] = ytemp[p[i]];
+  	  }
+  	  free_vector(xtemp, 0, n-1);
+  	  free_vector(ytemp, 0, n-1);
+  	  free_ivector(p, 0, n-1);
+  	  return n;
+  	}
 
 int Graph::selectedPoints(long curveKey)
 {

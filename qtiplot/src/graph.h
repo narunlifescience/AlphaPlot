@@ -166,7 +166,12 @@ class Graph: public QWidget
 
 		long curveKey(int curve);
 		int curveIndex(long key);
-		QwtPlotCurve *curve(int index);
+		//! map curve title to index
+  	    int curveIndex(const QString &title) { return curvesList().findIndex(title); }
+  	    //! get curve by index
+  	    QwtPlotCurve* curve(int index);
+  	    //! get curve by name
+  	    QwtPlotCurve* curve(const QString &title) { return curve(curveIndex(title)); }
 
 		QString curveXColName(const QString& curveTitle);
 
@@ -569,7 +574,7 @@ class Graph: public QWidget
 		void smoothFFT(long curveKey, int points, int colIndex);
 		void smoothAverage(long curveKey, int points, int colIndex);
 
-		void interpolate(QwtPlotCurve *curve, int spline, int start, int end, int points, int colorIndex);
+		void interpolate(int curve, int spline, double start, double end, int points, int colorIndex);
 		QString integrateCurve(QwtPlotCurve *c,int order,int iter,double tol,double low,double up);
 		bool diffCurve(const QString& curveTitle);
 		void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);
@@ -577,9 +582,15 @@ class Graph: public QWidget
 				bool DCOffset, int colIndex);
 
 		void deleteFitCurves();
-		QwtPlotCurve* getValidCurve(const QString& name, int params, int &points, int &start, int &end);
-		QwtPlotCurve* getFitLimits(const QString& name, double from, double to,
-				int params, int &start, int &end);
+   		//! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
+        void range(int index, double *start, double *end);
+        //! Returns the number of points within the range.
+        int numPoints(int index, double start, double end);
+  	     //! Sets x and y to the curve points between start and end. Memory will be allocated with new double[].
+  	     //! Returns the number of points within range == size of x and y arrays.
+  	     int curveData(int index, double start, double end, double **x, double **y);
+  	     //! Same as curveData, but sorts the points by their x value.
+  	     int sortedCurveData(int index, double start, double end, double **x, double **y);
 		//@}
 
 		//! Set the number of fit curves

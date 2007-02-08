@@ -146,7 +146,7 @@ void Fit::setInterval(double from, double to)
 	setDataFromCurve (d_curve->title().text(), from, to);
 }
 
-void Fit::setDataFromCurve(QwtPlotCurve *curve, int start, int end)
+void Fit::setDataFromCurve(int curve, double start, double end)
 { 
 	if (d_n > 0)
 	{//delete previousely allocated memory
@@ -156,21 +156,13 @@ void Fit::setDataFromCurve(QwtPlotCurve *curve, int start, int end)
 	}
 
 	d_init_err = false;
-	d_curve = curve;
-	d_n = end - start + 1;
+	d_curve = d_graph->curve(curve);
+	d_n = d_graph->sortedCurveData(curve, start, end, &d_x, &d_y);
 
-	d_x = new double[d_n];
-	d_y = new double[d_n];
-	d_w = new double[d_n];
-
-	int aux = 0;
-	for (int i = start; i <= end; i++)
-	{// This is the data to be fitted 
-		d_x[aux]=curve->x(i);
-		d_y[aux]=curve->y(i);
-		d_w[aux] = 1.0; // initialize the weighting data
-		aux++;
-	}
+	// initialize the weighting data
+    d_w = new double[d_n];
+    for (int i=0; i<d_n; i++)
+  	  d_w[i] = 1.0;
 }
 
 bool Fit::setDataFromCurve(const QString& curveTitle, Graph *g)
@@ -192,15 +184,23 @@ bool Fit::setDataFromCurve(const QString& curveTitle, Graph *g)
 		return false;
 	}
 
-	int n, start, end;
-	QwtPlotCurve *c = d_graph->getValidCurve(curveTitle, d_p, n, start, end);
-	if (!c)
+	int index = d_graph->curveIndex(curveTitle);
+	if (index < 0)
 	{
 		d_init_err = true;
 		return false;
 	}
 
-	setDataFromCurve(c, start, end);
+    double start, end;
+  	d_graph->range(index, &start, &end);
+  	if (d_graph->numPoints(index, start, end) < d_p)
+  	    {
+  	    QMessageBox::critical(d_graph,tr("QtiPlot - Error"),
+  	    tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(d_p)));
+  	    d_init_err = true;
+  	    return false;
+  	    }
+    setDataFromCurve(index, start, end);
 	return true;
 }
 
@@ -223,15 +223,14 @@ bool Fit::setDataFromCurve(const QString& curveTitle, double from, double to, Gr
 		return false;
 	}
 
-	int start, end;
-	QwtPlotCurve *c = d_graph->getFitLimits(curveTitle, from, to, d_p, start, end);
-	if (!c)
+	int cindex = d_graph->curveIndex(curveTitle);
+	if (cindex < 0)
 	{
 		d_init_err = true;
 		return false;
 	}
 
-	setDataFromCurve(c, start, end);
+	setDataFromCurve(cindex, from, to);
 	return true;
 }
 
@@ -329,7 +328,6 @@ double Fit::rSquare()
 
 void Fit::showLegend()
 {
-	ApplicationWindow *app = (ApplicationWindow *)parent();
 	LegendMarker* mrk = d_graph->newLegend(legendFitInfo());
 	if (d_graph->hasLegend())
 	{
@@ -657,17 +655,16 @@ Fit::~Fit()
 	init();
 }
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, 
-		const QString& curveTitle, bool expGrowth)
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth)
 : Fit(parent, g),
-	is_exp_growth(expGrowth)
+  is_exp_growth(expGrowth)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
 ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
-		const QString& curveTitle, int start, int end, bool expGrowth)
+		const QString& curveTitle, double start, double end, bool expGrowth)
 : Fit(parent, g),
 	is_exp_growth(expGrowth)
 {
@@ -758,7 +755,7 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
 	setDataFromCurve(curveTitle);
 }
 
-	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -834,7 +831,7 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	setDataFromCurve(curveTitle);
 }
 
-	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -911,7 +908,7 @@ void ThreeExpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	setDataFromCurve(curveTitle);
 }
 
-	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -992,7 +989,7 @@ void SigmoidalFit::guessInitialValues()
 	setDataFromCurve(curveTitle);
 }
 
-	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -1062,7 +1059,7 @@ void GaussAmpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	setDataFromCurve(curveTitle);
 }
 
-	NonLinearFit::NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	NonLinearFit::NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -1210,7 +1207,7 @@ void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y)
 	setDataFromCurve(curveTitle);
 }
 
-	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -1701,7 +1698,7 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, const 
 	setDataFromCurve(curveTitle);
 }
 
-	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
 {
 	init();
@@ -1736,7 +1733,7 @@ void LorentzFit::init()
 	setDataFromCurve(curveTitle);
 }
 
-	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
 {
 	init();
@@ -1769,7 +1766,7 @@ void GaussFit::init()
 	setDataFromCurve(curveTitle);
 }
 
-	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int start, int end, int order, bool legend)
+	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order, bool legend)
 : Fit(parent, g), d_order(order), show_legend(legend)
 {
 	init();
@@ -1926,7 +1923,7 @@ QString PolynomialFit::legendFitInfo()
 	setDataFromCurve(curveTitle);
 }
 
-	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int start, int end)
+	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();

@@ -31,11 +31,10 @@
 #include "LegendMarker.h"
 #include "LineMarker.h"
 
-#include <qpainter.h>
-#include <qpixmapcache.h> 
-#include <qcursor.h> 
-#include <qapplication.h> 
-#include <qmessagebox.h> 
+#include <QPainter>
+#include <QPixmapCache> 
+#include <QApplication> 
+#include <QMessageBox> 
 
 #include <qwt_text_label.h>
 #include <qwt_plot_canvas.h>

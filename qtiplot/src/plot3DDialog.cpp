@@ -186,8 +186,8 @@ void Plot3DDialog::initAxesPage()
 
 	connect( buttonAxisLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
 	connect( buttonAxisUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
-	connect( axesList2, SIGNAL(highlighted(int)), this, SLOT(viewAxisOptions(int)));
-	connect( axesList, SIGNAL(highlighted(int)), this, SLOT(viewScaleLimits(int)));
+	connect( axesList2, SIGNAL(currentRowChanged(int)), this, SLOT(viewAxisOptions(int)));
+	connect( axesList, SIGNAL(currentRowChanged(int)), this, SLOT(viewScaleLimits(int)));
 	connect( btnLabelFont, SIGNAL(clicked()), this, SLOT(pickAxisLabelFont()));
 }
 

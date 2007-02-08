@@ -32,13 +32,14 @@
 #include "parser.h"
 #include "nrutil.h"
 
-#include <qapplication.h>
-#include <qmessagebox.h>
-#include <qfiledialog.h>
-#include <qprinter.h>
-#include <qimage.h>
-#include <qclipboard.h>
-#include <q3dragobject.h> 
+#include <QApplication>
+#include <QMessageBox>
+#include <QFileDialog>
+#include <QPrinter>
+#include <QClipboard>
+#include <QPixmap>
+#include <QDateTime>
+#include <QCursor>
 
 #include <qwt3d_surfaceplot.h>
 #include <qwt3d_function.h>
@@ -46,18 +47,8 @@
 #include <qwt3d_io_gl2ps.h>
 #include <qwt3d_io_reader.h>
 #include <qwt3d_coordsys.h>
-//Added by qt3to4:
-#include <QPixmap>
-#include <Q3MemArray>
-#include <QEvent>
-#include <QContextMenuEvent>
-#include <QResizeEvent>
-
-#include <QDateTime>
-#include <QCursor>
 
 #include <gsl/gsl_vector.h>
-#include <math.h>
 #include <fstream>
 
 UserFunction::UserFunction(const QString& s, SurfacePlot& pw)
@@ -155,7 +146,7 @@ void Graph3D::initPlot()
 
 	labelsDist=0;
 
-	scaleType=Q3MemArray<int>(3);
+	scaleType=QVector<int>(3);
 	for (int j=0;j<3;j++)
 		scaleType[j]=0;
 
@@ -2120,19 +2111,8 @@ void Graph3D::print()
 
 void Graph3D::copyImage()
 {
-	bool ok=IO::save (sp,"qtiplot.png","PNG");  
-	if (ok)
-	{
-		QPixmap p;
-		p.load ("qtiplot.png","PNG", QPixmap::Auto );		
-		QImage image= p.convertToImage();		
-		QApplication::clipboard()->setData( new Q3ImageDrag (image,sp,0) );
-		QFile f("qtiplot.png");
-		f.remove();
-	}
-	else
-		QMessageBox::about(0,tr("QtiPlot - IO Error"), 
-				tr("Could not copy: <h4>" + QString(name()) + "</h4>."));
+    QApplication::clipboard()->setPixmap(sp->renderPixmap(), QClipboard::Clipboard);
+    sp->updateData();
 }
 
 void Graph3D::saveImage()
@@ -3045,4 +3025,3 @@ Graph3D::~Graph3D()
 
 	delete sp;
 }
-
