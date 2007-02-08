@@ -79,9 +79,9 @@ unix:INSTALLS += documentation
 win32:DEFINES  += QT_DLL QT_THREAD_SUPPORT 
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a  
-win32:LIBS        += C:/GSL/bin/libgsl.dll
-win32:LIBS        += C:/GSL/bin/libgslcblas.dll
+win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a 
+win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
+win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
 win32:LIBS		  += ../3rdparty/zlib123/lib/zdll.lib
 win32:LIBS		  += ../3rdparty/liborigin/liborigin.a
  

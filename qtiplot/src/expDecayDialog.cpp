@@ -33,9 +33,7 @@
 #include "Fitter.h"
 
 #include <QMessageBox>
-#include <QGridLayout>
-#include <QBoxLayout>
-#include <QHBoxLayout>
+#include <QLayout>
 #include <QGroupBox>
 #include <QPushButton>
 #include <QLabel>

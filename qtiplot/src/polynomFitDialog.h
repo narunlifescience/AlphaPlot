@@ -29,15 +29,13 @@
 #ifndef POLINOMFITDIALOG_H
 #define POLINOMFITDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
-class Q3ButtonGroup;
-class QPushButton;
 class QCheckBox;
+class QSpinBox;
+class QPushButton;
 class QLineEdit;
 class QComboBox;
-class QSpinBox;
 class Graph;
 class ColorBox;
 
@@ -50,19 +48,7 @@ public:
     PolynomFitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~PolynomFitDialog();
 
-	QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-    Q3ButtonGroup* GroupBox1, *GroupBox2;
-    QCheckBox* boxShowFormula;
-	QComboBox* boxName;
-	QSpinBox* boxOrder;
-	QSpinBox* boxPoints;
-	QLineEdit* boxStart;
-	QLineEdit* boxEnd;
-	ColorBox* boxColor;
-
 public slots:
-    virtual void languageChange();
 	void fit();
 	void setGraph(Graph *g);
 	void activateCurve(int index);
@@ -71,6 +57,16 @@ public slots:
 
 private:
 	Graph *graph;
+
+    QPushButton* buttonFit;
+	QPushButton* buttonCancel;
+    QCheckBox* boxShowFormula;
+	QComboBox* boxName;
+	QSpinBox* boxOrder;
+	QSpinBox* boxPoints;
+	QLineEdit* boxStart;
+	QLineEdit* boxEnd;
+	ColorBox* boxColor;
 };
 
 #endif // EXPORTDIALOG_H

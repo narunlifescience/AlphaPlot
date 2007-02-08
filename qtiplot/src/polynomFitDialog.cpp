@@ -32,18 +32,15 @@
 #include "application.h"
 #include "Fitter.h"
 
-#include <qvariant.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qlabel.h>
-#include <qcombobox.h>
-#include <qlayout.h>
-#include <q3buttongroup.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qmessagebox.h>
-//Added by qt3to4:
-#include <Q3HBoxLayout>
+#include <QSpinBox>
+#include <QCheckBox>
+#include <QMessageBox>
+#include <QLayout>
+#include <QGroupBox>
+#include <QPushButton>
+#include <QLabel>
+#include <QLineEdit>
+#include <QComboBox>
 
 PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -51,53 +48,61 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 	if ( !name )
 		setName( "PolynomFitDialog" );
 	setWindowTitle(tr("QtiPlot - Polynomial Fit Options"));
-	setSizeGripEnabled(true);
-	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    setSizeGripEnabled( true );
 
-	GroupBox1 = new Q3ButtonGroup( 2,Qt::Horizontal,tr(""),this,"GroupBox1" );
-	GroupBox1->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    QGroupBox *gb1 = new QGroupBox();
+	QGridLayout *gl1 = new QGridLayout(gb1);
+	gl1->addWidget(new QLabel(tr("Polynomial Fit of")), 0, 0);
 
-	new QLabel( tr("Polynomial Fit of"), GroupBox1, "TextLabel1",0 );
-	boxName = new QComboBox(GroupBox1, "boxShow" );
-
-	new QLabel( tr("Order (1 - 9, 1 = linear)"), GroupBox1, "TextLabel2",0 );
-	boxOrder = new QSpinBox(1,9,1,GroupBox1, "boxOrder" );
+	boxName = new QComboBox();
+    gl1->addWidget(boxName, 0, 1);
+	
+    gl1->addWidget(new QLabel( tr("Order (1 - 9, 1 = linear)")), 1, 0);
+	boxOrder = new QSpinBox(); 
+    boxOrder->setRange(1, 9);
 	boxOrder->setValue(2);
+    gl1->addWidget(boxOrder, 1, 1);
+	
+    gl1->addWidget(new QLabel( tr("Fit curve # pts")), 2, 0);
+	boxPoints = new QSpinBox();
+    boxPoints->setRange(1, 1000);
+    boxPoints->setSingleStep(50);
+    boxPoints->setSpecialValueText(tr("Not enough points"));
+    gl1->addWidget(boxPoints, 2, 1);
 
-	new QLabel( tr("Fit curve # pts"), GroupBox1, "TextLabel3",0 );
-	boxPoints = new QSpinBox(1,1000,50,GroupBox1, "boxPoints" );
+    gl1->addWidget(new QLabel( tr("Fit curve Xmin")), 3, 0);
+	boxStart = new QLineEdit(tr("0"));
+    gl1->addWidget(boxStart, 3, 1);
 
-	new QLabel( tr("Fit curve Xmin"), GroupBox1, "TextLabel4",0 );
-	boxStart = new QLineEdit(GroupBox1, "boxStart" );
-	boxStart->setText(tr("0"));
+    gl1->addWidget(	new QLabel( tr("Fit curve Xmax")), 4, 0);
+	boxEnd = new QLineEdit();
+    gl1->addWidget(boxEnd, 4, 1);
 
-	new QLabel( tr("Fit curve Xmax"), GroupBox1, "TextLabel5",0 );
-	boxEnd = new QLineEdit(GroupBox1, "boxEnd" );
-
-	new QLabel( tr("Color"), GroupBox1, "TextLabel52",0 );
-	boxColor = new ColorBox( false, GroupBox1);
+    gl1->addWidget(new QLabel( tr("Color")), 5, 0);
+	boxColor = new ColorBox( false);
 	boxColor->setColor(QColor(Qt::red));
+    gl1->addWidget(boxColor, 5, 1);
 
-	new QLabel( tr( "Show Formula on Graph?" ), GroupBox1, "TextLabel6",0 );
-	boxShowFormula = new QCheckBox(GroupBox1, "boxShow" );
+	boxShowFormula = new QCheckBox(tr( "Show Formula on Graph?" ));
 	boxShowFormula->setChecked( false );
+    gl1->addWidget(boxShowFormula, 6, 1);
 
-	GroupBox2 = new Q3ButtonGroup(1,Qt::Horizontal,tr(""),this,"GroupBox2" );
-	GroupBox2->setFlat (true);
-
-	buttonFit = new QPushButton(GroupBox2, "buttonFit" );
-	buttonFit->setAutoDefault( true );
+	buttonFit = new QPushButton(tr( "&Fit" ));
 	buttonFit->setDefault( true );
 
-	buttonCancel = new QPushButton(GroupBox2, "buttonCancel" );
-	buttonCancel->setAutoDefault( true );
+	buttonCancel = new QPushButton(tr( "&Close" ));
 
-	Q3HBoxLayout* hlayout = new Q3HBoxLayout(this,5,5, "hlayout");
-	hlayout->addWidget(GroupBox1);
-	hlayout->addWidget(GroupBox2);
+    QVBoxLayout* vl = new QVBoxLayout();
+    vl->addWidget(buttonFit);
+    vl->addWidget(buttonCancel);
+    vl->addStretch();
+
+	QHBoxLayout* hlayout = new QHBoxLayout(this);
+	hlayout->addWidget(gb1);
+	hlayout->addLayout(vl);
 
 	languageChange();
-	setMaximumHeight(GroupBox1->height());
+	resize(minimumSize());
 
 	// signals and slots connections
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT( fit() ) );
@@ -107,13 +112,6 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 
 PolynomFitDialog::~PolynomFitDialog()
 {
-}
-
-void PolynomFitDialog::languageChange()
-{
-	buttonFit->setText( tr( "&Fit" ) );
-	buttonCancel->setText( tr( "&Close" ) );
-	boxPoints->setSpecialValueText(tr("Not enough points"));
 }
 
 void PolynomFitDialog::fit()

@@ -29,8 +29,7 @@
 #ifndef EXPDECAYDIALOG_H
 #define EXPDECAYDIALOG_H
 
-#include <qvariant.h>
-#include <qdialog.h>
+#include <QDialog>
 
 class QPushButton;
 class QLineEdit;
