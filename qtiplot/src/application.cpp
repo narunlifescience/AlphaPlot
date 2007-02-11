@@ -11555,7 +11555,7 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionTimeStamp->setMenuText(tr("Add Time Stamp")); 
 	actionTimeStamp->setShortcut(tr("Ctrl+ALT+T"));
-	actionTimeStamp->setToolTip(tr("Date && time "));
+	actionTimeStamp->setToolTip(tr("Date & time "));
 
 	actionAddImage->setMenuText(tr("Add &Image")); 
 	actionAddImage->setShortcut(tr("ALT+I"));
