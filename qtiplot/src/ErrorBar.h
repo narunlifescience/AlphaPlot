@@ -38,8 +38,8 @@ class QwtErrorPlotCurve: public QwtPlotCurve
 public:
 	enum Orientation{Horizontal = 0, Vertical = 1};
 
-	QwtErrorPlotCurve(int orientation, QwtPlot *parent, const char *name);
-	QwtErrorPlotCurve(QwtPlot *parent, const char *name=0);
+	QwtErrorPlotCurve(int orientation, const char *name);
+	QwtErrorPlotCurve(const char *name=0);
 			
 	void copy(const QwtErrorPlotCurve *e);
 
@@ -52,17 +52,17 @@ public:
 		const QwtScaleMap &yMap, int from, int to) const;
 
 	double errorValue(int i);
-	QwtArray<double> errors();
-	void setErrors(const QwtArray<double>&data);
-	void setSymbolSize(const QSize& sz);
+	QwtArray<double> errors(){return err;};
+	void setErrors(const QwtArray<double>&data){err=data;};
+	void setSymbolSize(const QSize& sz){size=sz;};
 
-	int capLength();
-	void setCapLength(int t);
+	int capLength(){return cap;};
+	void setCapLength(int t){cap=t;};
 
-	int width();
+	int width(){return pen().width ();};
 	void setWidth(int w);
 
-	QColor color();
+	QColor color(){return pen().color();};
 	void setColor(const QColor& c);
 
 	int direction(){return type;};
@@ -71,30 +71,36 @@ public:
 	bool xErrors();
 	void setXErrors(bool yes);
 
-	bool throughSymbol();
-	void drawThroughSymbol(bool yes);
+	bool throughSymbol(){return through;};
+	void drawThroughSymbol(bool yes){through=yes;};
 
-	bool plusSide();
-	void drawPlusSide(bool yes);
+	bool plusSide(){return plus;};
+	void drawPlusSide(bool yes){plus=yes;};
 
-	bool minusSide();
-	void drawMinusSide(bool yes);
+	bool minusSide(){return minus;};
+	void drawMinusSide(bool yes){minus=yes;};
 
-	double xDataOffset() const;
+	double xDataOffset() const {return d_xOffset;}
 	void setXDataOffset(double offset){d_xOffset = offset;};
 
-	double yDataOffset() const;
+	double yDataOffset() const {return d_yOffset;}
 	void setYDataOffset(double offset){d_yOffset = offset;};
 
 private:
+    //! Stores the error bar values
     QwtArray<double> err;
-	QPen pen;
+
+	//! Size of the symbol in the master curve
 	QSize size;
-	int type, cap;
+
+	//! Orientation of the bars: Horizontal or Vertical
+	int type;
+	
+	//! Length of the bar cap decoration
+	int cap;
+
 	bool plus, minus, through;
 	double d_xOffset, d_yOffset;
 };
 
 #endif
-
-

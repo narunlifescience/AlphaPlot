@@ -32,9 +32,9 @@
 #include <qwt_plot_curve.h>
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>
-#include <qpainter.h>
+#include <QPainter>
 
-VectorCurve::VectorCurve(VectorStyle style, QwtPlot *parent, const char *name):
+VectorCurve::VectorCurve(VectorStyle style, const char *name):
     QwtPlotCurve(name)
 {
 d_style = style;
@@ -54,8 +54,6 @@ d_headAngle = vc->d_headAngle;
 d_position = vc->d_position;
 pen = vc->pen;
 vectorEnd = (QwtArrayData *)vc->vectorEnd->copy();
-	
-setTitle(vc->title());
 }
 
 void VectorCurve::draw(QPainter *painter,

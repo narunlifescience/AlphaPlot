@@ -27,11 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "BoxCurve.h"
-#include <qpainter.h>
+#include <QPainter>
 #include <qwt_symbol.h>
 #include <gsl/gsl_statistics.h>
 
-BoxCurve::BoxCurve(QwtPlot *parent, const char *name):
+BoxCurve::BoxCurve(const char *name):
 	QwtPlotCurve(name)
 {
 	mean_style = QwtSymbol::Rect;
@@ -50,8 +50,6 @@ BoxCurve::BoxCurve(QwtPlot *parent, const char *name):
 
 void BoxCurve::copy(const BoxCurve *b)
 {	
-	setTitle(b->title());
-
 	mean_style = b->mean_style;
 	max_style = b->max_style;
 	min_style = b->min_style;

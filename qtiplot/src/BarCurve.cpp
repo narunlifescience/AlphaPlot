@@ -27,9 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "BarCurve.h"
-#include <qpainter.h>
+#include <QPainter>
 
-QwtBarCurve::QwtBarCurve(QwtPlot *parent, const char *name):
+QwtBarCurve::QwtBarCurve(const char *name):
     QwtPlotCurve(name)
 {
 bar_offset=0;
@@ -40,7 +40,7 @@ setPen(QPen(Qt::black,1,Qt::SolidLine));
 setBrush(QBrush(Qt::red));
 }
 
-QwtBarCurve::QwtBarCurve(BarStyle style, QwtPlot *parent, const char *name):
+QwtBarCurve::QwtBarCurve(BarStyle style, const char *name):
     QwtPlotCurve(name)
 {
 bar_offset=0;
@@ -56,8 +56,6 @@ void QwtBarCurve::copy(const QwtBarCurve *b)
 bar_gap = b->bar_gap;
 bar_offset = b->bar_offset;
 bar_style = b->bar_style;
-	
-setTitle(b->title());
 }
 
 void QwtBarCurve::draw(QPainter *painter,

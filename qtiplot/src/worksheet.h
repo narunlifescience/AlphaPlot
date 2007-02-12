@@ -215,7 +215,9 @@ public slots:
 	void init(int rows, int cols);
 	QStringList selectedColumns();
 	QStringList selectedYColumns();
+	QStringList selectedErrColumns();
 	QStringList selectedYLabels();
+	QStringList drawableColumnSelection();
 	QStringList YColumns();
 	int selectedColsNumber();
 	void changeColName(const QString& text);

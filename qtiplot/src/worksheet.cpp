@@ -669,8 +669,31 @@ QStringList Table::selectedYColumns()
 	QStringList names;
 	for (int i=0;i<worksheet->numCols();i++)
 	{
-		if(worksheet->isColumnSelected (i, true) && 
-				(col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
+	if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
+  		names<<QString(name())+"_"+col_label[i];
+  	}
+  	return names;
+}
+  	 
+QStringList Table::selectedErrColumns()
+{
+  	QStringList names;
+  	for (int i=0;i<worksheet->numCols();i++)
+  		{
+  	    if(worksheet->isColumnSelected (i,true) &&
+  	       (col_plot_type[i] == yErr || col_plot_type[i] == xErr))
+  	       	names<<QString(name())+"_"+col_label[i];
+  	    }
+  	return names;
+}
+  	 
+QStringList Table::drawableColumnSelection()
+{
+  	QStringList names;
+  	for (int i=0;i<worksheet->numCols();i++)
+  	{
+	if(worksheet->isColumnSelected (i, true) && 
+	   (col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
 			names<<QString(name())+"_"+col_label[i];
 	}
 	return names;
@@ -2042,11 +2065,7 @@ void Table::plotL()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s,Graph::Line);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::Line);
 }
 
 void Table::plotP()
@@ -2054,11 +2073,7 @@ void Table::plotP()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s,Graph::Scatter);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::Scatter);
 }
 
 void Table::plotLP()
@@ -2066,11 +2081,7 @@ void Table::plotLP()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s, Graph::LineSymbols);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"),tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::LineSymbols);
 }
 
 void Table::plotVB()
@@ -2078,11 +2089,7 @@ void Table::plotVB()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s,Graph::VerticalBars);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalBars);
 }
 
 void Table::plotHB()
@@ -2090,11 +2097,7 @@ void Table::plotHB()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s,Graph::HorizontalBars);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalBars);
 }
 
 void Table::plotArea()
@@ -2102,11 +2105,7 @@ void Table::plotArea()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s,Graph::Area);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::Area);
 }
 
 bool Table::noXColumn()
@@ -2151,11 +2150,7 @@ void Table::plotVerticalDropLines()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this,s,Graph::VerticalDropLines);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalDropLines);
 }
 
 void Table::plotSpline()
@@ -2163,11 +2158,7 @@ void Table::plotSpline()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this,s,Graph::Spline);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::Spline);
 }
 
 void Table::plotVertSteps()
@@ -2175,47 +2166,30 @@ void Table::plotVertSteps()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s, Graph::VerticalSteps);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalSteps);
 }
 
 void Table::plotHorSteps()
 {
 	if (!valid2DPlot())
 		return;
-
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s, Graph::HorizontalSteps);	
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	
+	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalSteps);
 }
 
 void Table::plotHistogram()
 {
 	if (!valid2DPlot())
 		return;
-
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this,s,Graph::Histogram);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	
+	 emit plotCol(this, drawableColumnSelection(), Graph::Histogram);
 }
 
 void Table::plotBoxDiagram()
 {
 	if (!valid2DPlot())
 		return;
-
-	QStringList s=selectedYColumns();
-	if (int(s.count())>0)
-		emit plotCol(this, s, Graph::Box);
-	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+	emit plotCol(this, drawableColumnSelection(), Graph::Box);
 }
 
 void Table::plotVectXYXY()
@@ -2244,13 +2218,17 @@ void Table::plotVectXYAM()
 
 bool Table::valid2DPlot()
 {
-	if (worksheet->numCols()<2)
+	if (!selectedYColumns().count())
+  	{
+  		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+  	    return false;
+  	}
+  	else if (worksheet->numCols()<2)
 	{
 		QMessageBox::critical(0,tr("QtiPlot - Error"),tr("You need at least two columns for this operation!"));
 		return false;
 	}
-
-	if (noXColumn())
+	else if (noXColumn())
 	{
 		QMessageBox::critical(0,tr("QtiPlot - Error"), tr("Please set a default X column for this table, first!"));
 		return false;
@@ -3462,5 +3440,3 @@ void Table::clear()
 Table::~Table()
 {
 }
-
-

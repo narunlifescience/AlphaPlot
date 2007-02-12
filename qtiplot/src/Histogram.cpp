@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "Histogram.h"
-#include <qpainter.h>
+#include <QPainter>
 
-QwtHistogram::QwtHistogram(QwtPlot *parent, const char *name):
-	QwtBarCurve(parent,name)
+QwtHistogram::QwtHistogram(const char *name):
+	QwtBarCurve(name)
 {}
 
 void QwtHistogram::copy(const QwtHistogram *h)
@@ -90,4 +90,3 @@ void QwtHistogram::setBinning(bool autoBin, double begin, double end, double siz
 	d_begin = begin;
 	d_end = end;
 }
-

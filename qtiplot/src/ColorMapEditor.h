@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : BarCurve.h
-    Project              : QtiPlot
-    --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Bar curve
-                           
+	File                 : ColorMapEditor.h
+	Project              : QtiPlot
+--------------------------------------------------------------------
+	Copyright            : (C) 2006 by Ion Vasilief
+	Email                : ion_vasilief@yahoo.fr
+	Description          : A QwtLinearColorMap Editor Widget
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,40 +25,49 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef BARCURVE_H
-#define BARCURVE_H
+#ifndef COLORMAPEDITOR_H
+#define COLORMAPEDITOR_H
 
-#include <qwt_plot.h>
-#include <qwt_plot_curve.h>
+#include <QWidget>
+#include <qwt_color_map.h>
 
-//! Bar curve
-class QwtBarCurve: public QwtPlotCurve
+class QPushButton;
+class QTableWidget;
+class QCheckBox;
+
+class ColorMapEditor: public QWidget
 {
+    Q_OBJECT
+
 public:
-	enum BarStyle{Vertical = 0, Horizontal=1};
-	QwtBarCurve(const char *name=0);
-	QwtBarCurve(BarStyle style, const char *name=0);
-
-	void copy(const QwtBarCurve *b);
-
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
-	virtual QwtDoubleRect boundingRect() const;
-
-	BarStyle orientation(){return bar_style;};
-
-	void setGap (int gap);  
-	int gap() const {return bar_gap;};
-
-	void setOffset(int offset);
-	int offset() const {return bar_offset;};
-
-	double dataOffset();
+	ColorMapEditor(QWidget* parent=0);
 	
-private:
-	int bar_gap, bar_offset;
-	BarStyle bar_style;
-};
+	QwtLinearColorMap colorMap(){return color_map;};
+	void setColorMap(const QwtLinearColorMap& map);
 
+	void setRange(double min, double max);
+
+protected slots:
+	void updateColorMap();
+	void validateLevel(int row, int col);
+	void enableButtons(int row, int col, int = 0, int = 0);
+	void showColorDialog(int row, int col);
+	void insertLevel();
+	void deleteLevel();
+	void setScaledColors(bool scale = true);
+
+	bool eventFilter(QObject *object, QEvent *e);
+
+private:
+	QTableWidget *table;	
+	QPushButton *insertBtn, *deleteBtn;
+	QCheckBox *scaleColorsBox;
+
+	//! Color map object
+	QwtLinearColorMap color_map;
+
+	//! Levels range
+	double min_val, max_val;
+};
+   
 #endif

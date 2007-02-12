@@ -51,7 +51,8 @@ class PatternBox;
 class ColorButton;
 class Graph;
 class SymbolBox;
-
+class ColorMapEditor;
+	
 //! Custom curves dialog
 class PlotDialog : public QDialog
 { 
@@ -109,6 +110,7 @@ public slots:
 	//spectrograms
   	void pickContourLinesColor();
   	void showDefaultContourLinesBox(bool show);
+	void showColorMapEditor(bool show);
 	
 protected:
     void clearTabWidget();
@@ -127,6 +129,8 @@ protected:
     Graph *graph;
 	QStringList columnNames;
 	int lastSelectedCurve;
+
+	ColorMapEditor *colorMapEditor;
 
     QListWidget* listBox;
     QPushButton* buttonApply, *btnWorksheet, *btnAssociations;

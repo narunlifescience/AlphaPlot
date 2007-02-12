@@ -41,6 +41,7 @@
 #include "BoxCurve.h"
 #include "FunctionCurve.h"
 #include "Spectrogram.h"
+#include "ColorMapEditor.h"
 
 #include <QListWidget>
 #include <QLineEdit>
@@ -151,8 +152,14 @@ void PlotDialog::showPlotAssociations( QListWidgetItem *item)
 	
 	if (c->rtti() == FunctionCurve::RTTI)
   	    app->showFunctionDialog(graph, curveIndex);
-	else
+	else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 		 app->showPlotAssociations(curveIndex);
+	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  		{
+  	    Spectrogram *sp = (Spectrogram *)c;
+  	    if (sp->matrix())
+  	    	sp->matrix()->showMaximized();
+  	    }
 	close();
 }
 
@@ -519,14 +526,20 @@ void PlotDialog::initSpectrogramPage()
   	imageGroupBox = new QGroupBox(tr( "Image" ));
   	imageGroupBox->setCheckable (true);
 
-    QVBoxLayout* vl1 = new QVBoxLayout(imageGroupBox);
+	QGridLayout *gl = new QGridLayout(imageGroupBox);
   	grayScaleBox = new QRadioButton(tr("&Gray Scale"));
-    vl1->addWidget(grayScaleBox);
+	connect(grayScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
+    gl->addWidget(grayScaleBox, 0, 0);
   	defaultScaleBox = new QRadioButton(tr("&Default Color Map"));
-    vl1->addWidget(defaultScaleBox);
+	connect(defaultScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
+    gl->addWidget(defaultScaleBox, 1, 0);
   	customScaleBox = new QRadioButton(tr("&Custom Color Map"));
-    vl1->addWidget(customScaleBox);
+	connect(customScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
+    gl->addWidget(customScaleBox, 2, 0);
   	 
+	colorMapEditor = new ColorMapEditor();
+	gl->addWidget(colorMapEditor, 2, 1);
+	
   	levelsGroupBox = new QGroupBox(tr( "Contour Lines" ));
   	levelsGroupBox->setCheckable(true);
   	 
@@ -834,7 +847,7 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
 	   contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
 	   if (c->rtti() == FunctionCurve::RTTI)
 		  contextMenu.insertItem(tr("&Edit..."), this, SLOT(editFunctionCurve()));
-	   else
+	   else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 		  contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(showPlotAssociations()));
 
 	   contextMenu.exec(QCursor::pos());
@@ -1101,7 +1114,11 @@ void PlotDialog::setActiveCurve(int index)
   	        imageGroupBox->setChecked(sp->testDisplayMode(QwtPlotSpectrogram::ImageMode));
   	        grayScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::GrayScale);
   	        defaultScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::Default);
+  	 		customScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::Custom);
   	 
+  	        colorMapEditor->setRange(sp->data().range().minValue(), sp->data().range().maxValue());
+  	        colorMapEditor->setColorMap((const QwtLinearColorMap &)sp->colorMap());
+			
   	        levelsGroupBox->setChecked(sp->testDisplayMode(QwtPlotSpectrogram::ContourMode));
   	        levelsBox->setValue(sp->levels());
   	 
@@ -1110,6 +1127,7 @@ void PlotDialog::setActiveCurve(int index)
   	 
   	        levelsColorBox->setColor(sp->defaultContourPen().color());
   	        contourWidthBox->setValue(sp->defaultContourPen().width());
+			boxContourStyle->setCurrentItem(sp->defaultContourPen().style() - 1);
   	 
   	        axisScaleBox->setChecked(sp->hasColorScale());
   	        colorScaleBox->setCurrentItem((int)sp->colorScaleAxis());
@@ -1300,9 +1318,17 @@ bool PlotDialog::acceptParams()
   	   sp->setDisplayMode(QwtPlotSpectrogram::ImageMode, imageGroupBox->isChecked());
   	 
   	   if (grayScaleBox->isChecked())
+	   {
 		   sp->setGrayScale();
-  	   else
+	   	   colorMapEditor->setColorMap(QwtLinearColorMap(Qt::black, Qt::white));
+  	   }
+  	   else if (defaultScaleBox->isChecked())
+  	   {
 	   	   sp->setDefaultColorMap();
+		   colorMapEditor->setColorMap(Spectrogram::defaultColorMap());
+	   }
+  	   else
+	   	   sp->setCustomColorMap(colorMapEditor->colorMap());
   	 
   	   sp->showColorScale((QwtPlot::Axis)colorScaleBox->currentItem(), axisScaleBox->isChecked());
   	   sp->setColorBarWidth(colorScaleWidthBox->value());
@@ -1698,6 +1724,17 @@ void PlotDialog::customVectorsPage(bool angleMag)
 	}
 }
 
+void PlotDialog::showColorMapEditor(bool show)
+{
+  	if (grayScaleBox->isChecked() || defaultScaleBox->isChecked())
+  		colorMapEditor->hide();
+  	else
+  	{
+  	 	colorMapEditor->show();
+  	    colorMapEditor->setFocus();
+  	}
+}
+	
 void PlotDialog::showDefaultContourLinesBox(bool show)
 {
   	if (autoContourBox->isChecked())

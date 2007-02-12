@@ -32,7 +32,7 @@
 class QwtHistogram: public QwtBarCurve
 {
 public:
-	QwtHistogram(QwtPlot *parent, const char *name=0);
+	QwtHistogram(const char *name=0);
 
 	void copy(const QwtHistogram *h);
 
@@ -51,4 +51,3 @@ private:
 	bool d_autoBin;
 	double d_binSize, d_begin, d_end;
 };
-

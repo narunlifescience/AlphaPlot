@@ -150,6 +150,11 @@ void CurvesDialog::showCurveBtn(int)
 		btnAssociations->setEnabled(true);
 		btnEditFunction->setEnabled(false);
 	}
+	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  	{
+  		btnAssociations->setEnabled(false);
+  	    btnEditFunction->setEnabled(false);
+  	}
 }
 
 void CurvesDialog::showPlotAssociations() 

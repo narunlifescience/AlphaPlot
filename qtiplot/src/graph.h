@@ -144,7 +144,7 @@ class Graph: public QWidget
 		bool insertCurve(Table* w, const QString& name, int style);
 		bool insertCurve(Table* w, int xcol, const QString& name, int style);
 		bool insertCurve(Table* w, const QString& xColName, const QString& yColName, int style);
-		void insertCurve(QwtPlotCurve *c, const QString& plotAssociation);
+		void insertPlotItem(QwtPlotItem *i, const QString& plotAssociation, int type);
 
 		//! Removes a curve defined by its index.
 		void removeCurve(int index);
@@ -205,11 +205,11 @@ class Graph: public QWidget
 
 		//! \name Error Bars
 		//@{
-		void addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable, 
+		bool addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable, 
 				const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true, double xOffset = 0, double yOffset = 0);
 
-		void addErrorBars(Table *w, const QString& yColName, Table *errTable, const QString& errColName,
+		bool addErrorBars(Table *w, const QString& yColName, Table *errTable, const QString& errColName,
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
@@ -233,7 +233,7 @@ class Graph: public QWidget
 
 		//! \name Curves Layout
 		//@{
-		CurveLayout initCurveLayout(int i, int curves, int style);
+		CurveLayout initCurveLayout(int i, int curves, int errCurves, int style);
 		static CurveLayout initCurveLayout();
 		void updateCurveLayout(int index,const CurveLayout *cL);
 		//! Tries to guess not already used curve color and symbol style
@@ -703,6 +703,8 @@ class Graph: public QWidget
 		
 		//! Add a spectrogram to the graph
   		void plotSpectrogram(Matrix *m, CurveType type);
+		//! Restores a spectrogram. Used when opening a project file.
+  		void restoreSpectrogram(ApplicationWindow *app, const QStringList& lst);
 
 signals:
 		void highlightGraph(Graph*);
