@@ -85,24 +85,21 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
 	list<<"EPS";
+    list<<"PDF";
 	list<<"SVG";
-	qSort(list);
 
 	QStringList filters, selectedFilter;
     for(int i=0 ; i<list.count() ; i++)
 	{
 		filters << "*."+list[i].toLower();
 	}
-	setFilters( filters );
+    filters.sort();
+	setFilters(filters);
 	setFileMode( QFileDialog::AnyFile );
 
-	boxOptions = new QCheckBox();
-	boxOptions->setText( "Show export &options" );
-#ifdef Q_OS_WIN // Windows systems
-	boxOptions->setChecked( true );			
-#else
+	boxOptions = new QCheckBox(tr("Show export &options"));
 	boxOptions->setChecked( false );
-#endif
+
 	// FIXME: The following code may not work anymore
 	// if the internal layout of QFileDialog changes
 	QSpacerItem * si1 = new QSpacerItem( 20, 20 );

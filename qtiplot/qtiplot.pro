@@ -4,6 +4,7 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
+CONFIG	    += assistant
 CONFIG	    += release
 #CONFIG	    += debug
 MOC_DIR      = ../tmp/qtiplot
@@ -24,7 +25,6 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
 
 #system(lupdate -verbose qtiplot.pro)
 #system(lrelease -verbose qtiplot.pro)
-
 
 
 #############################################################################
@@ -170,7 +170,8 @@ HEADERS  += src/application.h \
 	 src/ScriptingLangDialog.h\
 	 src/ScriptWindow.h\
 	 src/textformatbuttons.h\
-	 src/TableStatistics.h
+	 src/TableStatistics.h\
+	 src/Spectrogram.h
      
 SOURCES  += src/application.cpp \
      src/graph.cpp \
@@ -251,7 +252,8 @@ SOURCES  += src/application.cpp \
 	 src/Scripting.cpp\
 	 src/ScriptingLangDialog.cpp\
 	 src/ScriptWindow.cpp\
-	 src/TableStatistics.cpp
+	 src/TableStatistics.cpp\
+	 src/Spectrogram.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

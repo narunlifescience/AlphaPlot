@@ -89,17 +89,15 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
     buttonFit->setDefault( true );
     buttonCancel = new QPushButton(tr( "&Close" ));
 	
-	QHBoxLayout *hbox1 = new QHBoxLayout(); 
-	hbox1->addStretch();
-    hbox1->addWidget(buttonFit);
-    hbox1->addWidget(buttonCancel);
-	hbox1->addStretch();
-    
-    QVBoxLayout *vl = new QVBoxLayout(this);
- 	vl->addWidget(gb1);
-	vl->addLayout(hbox1);	
+	QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(buttonFit);
+	vl->addWidget(buttonCancel);
+    vl->addStretch();
+
+    QHBoxLayout *hb = new QHBoxLayout(this);
+    hb->addWidget(gb1);
+    hb->addLayout(vl);
    
-    // signals and slots connections
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT( interpolate() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );

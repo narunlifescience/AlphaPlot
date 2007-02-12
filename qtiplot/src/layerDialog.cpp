@@ -194,6 +194,7 @@ LayerDialog::LayerDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	buttonCancel = new QPushButton(tr( "&Cancel" ));
 
 	QHBoxLayout *hbox2 = new QHBoxLayout();
+    hbox2->addStretch();
 	hbox2->addWidget(buttonApply);
 	hbox2->addWidget(buttonOk);
 	hbox2->addWidget(buttonCancel);

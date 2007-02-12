@@ -135,11 +135,12 @@ public slots:
 	//@{
 	QPixmap canvasPixmap();
 
-	void exportImage(const QString& fileName,const QString& fileType, int quality, bool transparent);
+	void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 	void exportToSVG(const QString& fname);
-	void exportToEPS(const QString& fname);
-	void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
-					QPrinter::PageSize pageSize, QPrinter::ColorMode col);
+	void exportToEPS(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
+    void exportPDF(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
 
 	void copyAllLayers();
 	void print();
@@ -149,13 +150,10 @@ public slots:
 	
 	void setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 							const QFont& numbersFnt, const QFont& legendFnt);
-	void makeTransparentLayer(Graph *g);
-	void updateLayerTransparency(Graph *g);
-	void updateTransparency();
+
 	void connectLayer(Graph *g);
 	bool overlapsLayers(Graph *g);
 	bool hasOverlapingLayers();
-	bool allLayersTransparent();
 
 	void highlightLayer(Graph*g);
 	void drawLayerFocusRect(const QRect& fr);

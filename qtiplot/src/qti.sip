@@ -328,7 +328,6 @@ public:
   int layers() /PyName=numLayers/;
   Graph* layer(int num);
   Graph* addLayer();
-  void updateTransparency();
   void exportToSVG(const QString& fname);
   void exportToEPS(const QString& fname);
   void print();

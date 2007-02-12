@@ -256,9 +256,6 @@ void PieDialog::pickCanvasColor()
 			g->replot();
 		}
 	}
-
-	if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
-		mPlot->updateTransparency();
 }
 
 void PieDialog::pickBackgroundColor()
@@ -285,9 +282,6 @@ void PieDialog::pickBackgroundColor()
 		if (g)
 			g->setBackgroundColor(c);
 	}
-
-	if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
-		mPlot->updateTransparency();
 }
 
 void PieDialog::pickBorderColor()
@@ -448,8 +442,6 @@ void PieDialog::updatePlot()
 				g->setCanvasBackground(c);
 			}
 		}
-		if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
-			mPlot->updateTransparency();
 	}
 }
 

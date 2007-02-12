@@ -65,6 +65,7 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	connectedTextEdit = textEdit;
 
 	QHBoxLayout * layout = new QHBoxLayout(this);
+    layout->addStretch();
 
 	QFont font = this->font();
 	font.setPointSize(14);
@@ -133,6 +134,7 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	buttonUnderline->setFont(font);
 	buttonUnderline->setMaximumWidth(40);
 	layout->addWidget(buttonUnderline);
+    layout->addStretch();
 
 	connect( buttonCurve, SIGNAL(clicked()), this, SLOT(addCurve()) );
 	connect( buttonSuperscript, SIGNAL(clicked()), this, SLOT(addSuperscript()) );
@@ -144,7 +146,6 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	connect( buttonUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()) );
 	connect( buttonMathSymbols, SIGNAL(clicked()), this, SLOT(showMathSymbols()) );
 	connect( buttonArrowSymbols, SIGNAL(clicked()), this, SLOT(showArrowSymbols()) );
-
 }
 
 void TextFormatButtons::showLowerGreek()

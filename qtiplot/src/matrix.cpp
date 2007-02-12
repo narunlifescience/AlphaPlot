@@ -93,9 +93,9 @@ void Matrix::init(int rows, int cols)
 	connect(hHeader, SIGNAL(indexChange (int, int, int)), this, SLOT(notifyChanges()));
 	*/
 
-	QColor background = QColor(255, 255, 128);
-	d_table->setPaletteBackgroundColor(background);
-	d_table->setBackgroundColor(background);
+    QColorGroup cg;
+	cg.setColor(QColorGroup::Base, QColor(255, 255, 128));
+    d_table->setPalette(QPalette(cg, cg, cg));
 
 	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this,0,0);
 	hlayout->addWidget(d_table);
@@ -1041,3 +1041,23 @@ void Matrix::print()
 	}
 }
 
+void Matrix::range(double *min, double *max)
+  	{
+  	double d_min = d_table->text(0, 0).toDouble();
+  	double d_max = d_min;
+  	for (int i=0; i<d_table->numRows(); i++)
+  	        {
+  	        for (int j=0; j<d_table->numCols(); j++)
+  	                {
+  	                double aux = d_table->text(i, j).replace(",", ".").toDouble();
+  	                if (aux <= d_min)
+  	                        d_min = aux;
+  	 
+  	                if (aux >= d_max)
+  	                        d_max = aux;
+  	                }
+  	        }
+  	 
+  	*min = d_min;
+  	*max = d_max;
+  	}

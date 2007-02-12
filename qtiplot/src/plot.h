@@ -52,14 +52,12 @@ public:
 	QwtPlotGrid *grid(){return (QwtPlotGrid *)d_grid;};
 	QList<int> curveKeys(){return d_curves.keys();};
 
-	int insertCurve(QwtPlotCurve *c);
+	int insertCurve(QwtPlotItem *c);
 	void removeCurve(int index);
 
 	int closestCurve(int xpos, int ypos, int &dist, int &point);
-	QwtPlotCurve* curve(int index){return d_curves[index];};
-	QMap<int, QwtPlotCurve*> curves(){return d_curves;};
-
-	QwtDoubleRect boundingRect();
+	QwtPlotItem* curve(int index){return d_curves[index];};
+	QMap<int, QwtPlotItem*> curves(){return d_curves;};
 
 	QwtPlotMarker* marker(int index){return d_markers[index];};
 	QList<int> markerKeys(){return d_markers.keys();};
@@ -112,7 +110,7 @@ signals:
 
 protected:
 	Grid *d_grid;
-	QMap<int, QwtPlotCurve*> d_curves;
+	QMap<int, QwtPlotItem*> d_curves;
 	QMap<int, QwtPlotMarker*> d_markers;
 
 	int minTickLength, majTickLength;

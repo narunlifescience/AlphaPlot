@@ -216,7 +216,6 @@ Graph* MultiLayer::addLayerToOrigin()
 	connectLayer(g);
 	active_graph=g;
 
-	makeTransparentLayer(g);
 	g->show();
 	emit modifiedPlot();
 	return g;
@@ -439,9 +438,6 @@ void MultiLayer::removeLayer()
 		}
 	}	
 
-	if (hasOverlapingLayers())
-		updateTransparency();
-
 	emit modifiedPlot();
 }
 
@@ -453,9 +449,6 @@ void MultiLayer::setGraphGeometry(int x, int y, int w, int h)
 
 	active_graph->setGeometry(QRect(QPoint(x,y),QSize(w,h)));
 	active_graph->plotWidget()->resize(QSize(w, h));	
-
-	if (hasOverlapingLayers())
-		updateTransparency();
 
 	emit modifiedPlot();
 }
@@ -514,8 +507,6 @@ void MultiLayer::releaseGraph(Graph* g)
 	for (int i=0;i<(int)graphsList.count();i++)
 	{
 		Graph *gr=(Graph *)graphsList.at(i);
-		if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
-			makeTransparentLayer(gr);
 		gr->show();
 	}
 	movedGraph=FALSE;
@@ -761,7 +752,6 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 		}
 	}
 
-	updateTransparency();
 	emit modifiedPlot();
 	QApplication::restoreOverrideCursor();
 }
@@ -798,29 +788,7 @@ void MultiLayer::setRows(int r)
 
 QPixmap MultiLayer::canvasPixmap()
 {
-	QSize size=canvas->size();
-	QPixmap pic(size.width(), size.height());
-	pic.fill (Qt::white);
-
-	QPainter paint;
-	paint.begin(&pic);
-
-	QwtPlotPrintFilter filter;
-	filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-			QwtPlotPrintFilter::PrintCanvasBackground);
-
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		Plot *myPlot= gr->plotWidget();
-
-		int lw = myPlot->lineWidth();
-		QRect rect = QRect(gr->x() + lw, gr->y() + lw, myPlot->width() - 2*lw, 
-				myPlot->height() - 2*lw);
-		myPlot->print(&paint, rect, filter);
-	}		
-	paint.end();
-	return pic;
+    return QPixmap::grabWidget(canvas, 0, 0, canvas->width(), canvas->height());
 }
 
 void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
@@ -852,29 +820,68 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 		pic.setMask(mask);
 	}
 	pic.save(fileName, fileType, quality);	
-
-	if (hasOverlapingLayers())
-		updateTransparency();
 }
 
-void MultiLayer::exportToEPS(const QString& fname)
+void MultiLayer::exportPDF(const QString& fname, int res, QPrinter::Orientation o,
+		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
 {
-	exportToEPS(fname, 0, QPrinter::Landscape, QPrinter::A4, QPrinter::Color);
+	QPrinter printer;
+	if(res)
+		printer.setResolution(res);
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setDocName (this->name());
+    printer.setCreator("QtiPlot");
+    printer.setOutputFileName(fname);
+	printer.setPageSize(pageSize);
+	printer.setColorMode(col);
+	printer.setOrientation(o);
+	printer.setFullPage(true);
+
+	QPainter paint(&printer);
+
+	int dpiy = printer.logicalDpiY();
+	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
+
+	QSize size = canvas->size();
+
+	double scaleFactorX=(double)(printer.width() - 2*margin)/(double)size.width();
+	double scaleFactorY=(double)(printer.height() - 2*margin)/(double)size.height();
+
+	// fit graph to page maintaining the aspect ratio
+	if(scaleFactorX > scaleFactorY)
+		scaleFactorX = scaleFactorY;
+	else
+		scaleFactorY = scaleFactorX;
+
+	for (int i=0;i<(int)graphsList.count();i++)
+	{
+		Graph *gr=(Graph *)graphsList.at(i);
+		Plot *myPlot= (Plot *)gr->plotWidget();
+
+		QPoint pos=gr->pos();
+		pos=QPoint(int(margin + pos.x()*scaleFactorX),int(margin + pos.y()*scaleFactorY));
+
+		int width=int(myPlot->frameGeometry().width()*scaleFactorX);
+		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
+
+		myPlot->print(&paint, QRect(pos,QSize(width, height)));
+	}
 }
 
 void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
 {	
 	QPrinter printer;
+    printer.setDocName (this->name());
+    printer.setCreator("QtiPlot");
 	if(res)
 		printer.setResolution(res);
+    printer.setOutputFormat(QPrinter::PostScriptFormat);
+    printer.setOutputFileName(fname);
 	printer.setPageSize(pageSize);
 	printer.setColorMode(col);
 	printer.setOrientation(o);
-
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile (TRUE);
-	printer.setOutputFileName(fname);
+	printer.setFullPage(true);
 
 	QPainter paint(&printer);
 
@@ -897,21 +904,14 @@ void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientatio
 		Graph *gr=(Graph *)graphsList.at(i);
 		Plot *myPlot= (Plot *)gr->plotWidget();
 
-		QwtPlotPrintFilter  filter; 
-		filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle 
-				|~QwtPlotPrintFilter::PrintCanvasBackground);
-
 		QPoint pos=gr->pos();
 		pos=QPoint(int(margin + pos.x()*scaleFactorX),int(margin + pos.y()*scaleFactorY));
 
 		int width=int(myPlot->frameGeometry().width()*scaleFactorX);
 		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
 
-		myPlot->print(&paint, QRect(pos,QSize(width,height)), filter);
+		myPlot->print(&paint, QRect(pos,QSize(width, height)));
 	}
-
-	if (hasOverlapingLayers())		
-		updateTransparency();
 }
 
 void MultiLayer::exportToSVG(const QString& fname)
@@ -945,15 +945,11 @@ void MultiLayer::copyAllLayers()
 void MultiLayer::printActiveLayer()
 {
 	active_graph->print();
-
-	if (hasOverlapingLayers())
-		updateTransparency();
 }
 
 void MultiLayer::print()
 {
 	QPrinter printer;
-	//printer.setResolution(84);
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setColorMode (QPrinter::Color);
 	printer.setFullPage(TRUE);
@@ -997,9 +993,6 @@ void MultiLayer::printAllLayers(QPainter *painter)
 
 		myPlot->print(painter, QRect(pos,QSize(width,height)), filter);
 	}
-
-	if (hasOverlapingLayers())
-		updateTransparency();
 }
 
 void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
@@ -1029,70 +1022,6 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 	}
 	emit modifiedPlot();
 }
-
-void MultiLayer::makeTransparentLayer(Graph *g)
-{
-	Plot *plot = g->plotWidget();
-	int lw = plot->lineWidth();
-	int x = g->x();
-	int y = g->y();
-
-	QRect rect = QRect (plot->x() + lw, plot->y() + lw, plot->width() - 2* lw, plot->height() - 2*lw);
-	QwtPlotLayout *plotLayout=plot->plotLayout();
-	plotLayout->activate(plot, rect, 0);
-
-	QPixmap pix = QPixmap::grabWidget (canvas, x, y, g->width(), g->height());
-	plot->setPaletteBackgroundPixmap(pix);
-
-	QwtTextLabel *title=plot->titleLabel ();
-	QRect tRect=plotLayout->titleRect ();
-	if (!tRect.isNull())
-	{
-		pix = QPixmap::grabWidget (canvas, x + tRect.x(), y + tRect.y(), tRect.width(), tRect.height());		
-		title->setPaletteBackgroundPixmap(pix);
-	}
-
-	for (int i=0;i<QwtPlot::axisCnt;i++)
-	{
-		QwtScaleWidget *scale=(QwtScaleWidget *) plot->axisWidget (i);
-		if (scale)
-		{
-			QRect sRect=plotLayout->scaleRect (i);
-			pix = QPixmap::grabWidget (canvas,x+sRect.x(),y+sRect.y(),sRect.width(), sRect.height());		
-			scale->setPaletteBackgroundPixmap(pix);
-		}
-	}
-
-	QwtPlotCanvas *plotCanvas = plot->canvas();
-	QRect cRect=plotLayout->canvasRect ();
-	pix = QPixmap::grabWidget (canvas,x+cRect.x(),y+cRect.y(),cRect.width(), cRect.height());	
-	plotCanvas->setPaletteBackgroundPixmap(pix);
-
-	plot->replot();
-}	
-
-void MultiLayer::updateLayerTransparency(Graph *g)
-{
-	if (overlapsLayers(g))
-		updateTransparency();
-}
-
-void MultiLayer::updateTransparency()
-{
-	QApplication::setOverrideCursor(Qt::waitCursor);
-
-	showLayers(false);
-
-	for (int i=0; i<(int)graphsList.count(); i++)
-	{	
-		Graph *gr=(Graph *)graphsList.at(i);
-		if (gr->plotWidget()->paletteBackgroundColor() == QColor(Qt::white))
-			makeTransparentLayer(gr);
-		gr->show();
-	}
-
-	QApplication::restoreOverrideCursor();
-}		
 
 bool MultiLayer::hasOverlapingLayers()
 {
@@ -1157,7 +1086,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(clearCell(const QString&,double)),this,SIGNAL(clearCell(const QString&,double)));	
 	connect (g,SIGNAL(moveGraph(Graph*, const QPoint& )),this, SLOT(moveGraph(Graph*, const QPoint&)));
 	connect (g,SIGNAL(releaseGraph(Graph*)),this, SLOT(releaseGraph(Graph*)));
-	connect (g,SIGNAL(modifiedGraph(Graph*)), this, SLOT(updateLayerTransparency(Graph*)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
 	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
@@ -1349,7 +1277,6 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 		aux=resize_graph->pos();
 		resize_graph->setGeometry(QRect(QPoint(aux.x(),aux.y()),intSize));
 		resize_graph->plotWidget()->resize(intSize);
-		updateLayerTransparency(resize_graph);
 
 		emit modifiedPlot();
 	}
@@ -1405,20 +1332,6 @@ QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 		s+=ag->saveAsTemplate();
 	}
 	return s;
-}
-
-bool MultiLayer::allLayersTransparent()
-{
-	int graphs=(int)graphsList.count();
-	bool allTransparent = true;
-	for (int i=0;i<graphs;i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		QColor c = gr->plotWidget()->paletteBackgroundColor();
-		if (c != QColor(Qt::white))
-			return  false;
-	}
-	return allTransparent;
 }
 
 void MultiLayer::highlightLayer(Graph*g)
@@ -1599,7 +1512,6 @@ void MultiLayer::releaseLayer()
 	active_graph->plotWidget()->resize(active_graph->size());
 
 	canvas->erase();
-	updateTransparency();
 	showLayers(true);//must be called for coloured background layers
 
 	highlightedLayer = false;

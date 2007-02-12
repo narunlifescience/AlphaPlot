@@ -97,17 +97,15 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
     buttonFilter->setDefault( true );
     buttonCancel = new QPushButton(tr( "&Close" ));
     
-    QHBoxLayout *hbox1 = new QHBoxLayout(); 
-	hbox1->addStretch();
-    hbox1->addWidget(buttonFilter);
-    hbox1->addWidget(buttonCancel);
-	hbox1->addStretch();
-    
-    QVBoxLayout *vl = new QVBoxLayout(this);
- 	vl->addWidget(gb1);
-	vl->addLayout(hbox1);	
+    QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(buttonFilter);
+	vl->addWidget(buttonCancel);
+    vl->addStretch();
+
+    QHBoxLayout *hb = new QHBoxLayout(this);
+    hb->addWidget(gb1);
+    hb->addLayout(vl);
    
-    // signals and slots connections
 	connect( buttonFilter, SIGNAL( clicked() ), this, SLOT( filter() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }

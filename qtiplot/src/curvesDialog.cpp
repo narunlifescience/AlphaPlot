@@ -145,7 +145,7 @@ void CurvesDialog::showCurveBtn(int)
 		btnAssociations->setEnabled(false);
 		btnEditFunction->setEnabled(true);
 	}
-	else
+	else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 	{
 		btnAssociations->setEnabled(true);
 		btnEditFunction->setEnabled(false);
@@ -214,7 +214,7 @@ void CurvesDialog::insertCurvesToDialog(const QStringList& names)
 void CurvesDialog::setGraph(Graph *graph)
 {
 	g = graph;
-	contents->addItems(g->curvesList());
+	contents->addItems(g->plotItemsList());
 	enableRemoveBtn();
     enableAddBtn();
 }

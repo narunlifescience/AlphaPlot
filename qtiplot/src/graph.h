@@ -63,7 +63,8 @@ class CanvasPicker;
 class Plot;
 class MultiPeakFit;
 class ApplicationWindow;
-
+class Matrix;
+	
 //! Structure containing curve layout parameters
 typedef struct{
   int lCol;
@@ -108,7 +109,8 @@ class Graph: public QWidget
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 		enum MarkerType{None=-1, Text = 0, Arrow=1, Image=2};
 		enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines, 
-			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, Box, VectXYAM, VerticalSteps};
+			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, 
+			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap};
 
 		Plot *d_plot;
 		QwtPlotZoomer *d_zoomer[2];
@@ -176,7 +178,10 @@ class Graph: public QWidget
 		QString curveXColName(const QString& curveTitle);
 
 		void insertPlottedList(const QStringList& names);
-		QStringList curvesList();
+		//! Returns the names of all the QwtPlotCurve items on the plot, as a string list
+  		QStringList curvesList();
+  	    //! Returns the names of all plot items, including spectrograms, as a string list
+  		QStringList plotItemsList();
 		QStringList plotAssociations();
 		void setPlotAssociations(const QStringList& newList);
 		void changePlotAssociation(Table* t, int curve, const QString& text);
@@ -187,11 +192,10 @@ class Graph: public QWidget
 		void print();
 		void copyImage();
 		void exportToSVG(const QString& fname);
+        void exportPDF(const QString& fileName);
 		void exportToEPS(const QString& fname);
 		void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 				QPrinter::PageSize size, QPrinter::ColorMode col);
-
-		void exportToWmf(const QString& fname);
 
 		void replot();
 		void updatePlot();
@@ -696,6 +700,9 @@ class Graph: public QWidget
 		void multiPeakFit(ApplicationWindow *app, int profile, int peaks);
 		void selectPeak(const QPoint &pos);
 		bool selectPeaksOn();
+		
+		//! Add a spectrogram to the graph
+  		void plotSpectrogram(Matrix *m, CurveType type);
 
 signals:
 		void highlightGraph(Graph*);

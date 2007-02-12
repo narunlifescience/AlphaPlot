@@ -54,7 +54,7 @@ ScriptWindow::ScriptWindow(ScriptingEnv *env)
 
 	initActions();
 	setIcon(QPixmap(logo_xpm));
-	setWindowTitle(tr("QtiPlot - Python Script Window"));
+	setWindowTitle(tr("QtiPlot - Script Window"));
 	setFocusProxy(te);
 	setFocusPolicy(Qt::StrongFocus);
 	resize(QSize(500, 300));

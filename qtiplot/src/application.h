@@ -61,7 +61,8 @@ class QToolButton;
 class QShortcut;
 class QMenu;
 class QToolBar;
-
+class QAssistantClient;
+	
 class Matrix;
 class Table;
 class Graph;
@@ -98,6 +99,7 @@ public:
 
 	enum ShowWindowsPolicy{HideAll, ActiveFolder, SubFolders};
 
+	QAssistantClient *assistant;
 	ScriptWindow *scriptWindow;
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow, *explorerWindow;
@@ -175,12 +177,6 @@ public slots:
 	 * This table is then plotted with the Graph::LineSymbols style.
 	 */
 	ApplicationWindow * plotFile(const QString& fn);
-	/**
-	 * \brief Make sure overlapping graphs are displayed correctly when opening a project file.
-	 *
-	 * \sa MultiLayer::updateTransparency()
-	 */
-	void updatePlotsTransparency();
 
 	QWidgetList * windowsList();
 	void updateWindowLists(MyWidget *w);
@@ -220,6 +216,13 @@ public slots:
 	void connectMultilayerPlot(MultiLayer *g);
 	void addLayer();
 	void deleteLayer();
+	
+	//! Creates a new spectrogram graph
+  	MultiLayer* plotSpectrogram(Graph::CurveType type);
+  	MultiLayer* plotGrayMap();
+  	MultiLayer* plotContourMap();
+  	MultiLayer* plotColorMap();
+			
 	//! Rearrange the layersin order to fit to the size of the plot window
   	void autoArrangeLayers();
 	void initMultilayerPlot(MultiLayer* g, const QString& name);
@@ -260,7 +263,7 @@ public slots:
 	void newSurfacePlot();
 	void editSurfacePlot();
 	void remove3DMatrixPlots(Matrix *m);
-	void update3DMatrixPlots(QWidget *w);
+	void update3DMatrixPlots(QWidget *);
 	void add3DData();
 	void change3DData();
 	void change3DData(const QString& colName);
@@ -659,6 +662,7 @@ public slots:
 	void showImportDialog();
 	void showMarkerPopupMenu();
 	void showHelp();
+	static void showStandAloneHelp();
 	void chooseHelpFolder();
 	void showPlotWizard();
 	void showFitPolynomDialog();
@@ -682,6 +686,7 @@ public slots:
 	void showSmoothSavGolDialog();
 	void showSmoothFFTDialog();
 	void showSmoothAverageDialog();
+	void showFilterDialog(int filter);
 	void lowPassFilterDialog();
 	void highPassFilterDialog();
 	void bandPassFilterDialog();
@@ -1030,6 +1035,7 @@ private:
 	QAction *actionMatrixDeterminant, *actionSetMatrixProperties;
 	QAction *actionSetMatrixDimensions, *actionConvertMatrix, *actionSetMatrixValues, *actionTransposeMatrix, *actionInvertMatrix;
 	QAction *actionPlot3DWireFrame, *actionPlot3DHiddenLine, *actionPlot3DPolygons, *actionPlot3DWireSurface;
+	QAction *actionColorMap, *actionContourMap, *actionGrayMap;
 	QAction *actionDeleteFitTables, *actionShowGridDialog, *actionTimeStamp;
 	QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage, *actionFFT;
 	QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter, *actionBandBlockFilter;
@@ -1058,19 +1064,4 @@ private:
 
 	QSplitter *explorerSplitter;
 };
-
-//! QtiPlot's help browser
-class HelpBrowser: public QTextBrowser
-{
-    Q_OBJECT
-
-public:
-    HelpBrowser(QWidget * parent = 0, const char * name = 0);
-
-public slots:
-	void print();
-	void open();
-	void exportPdf();
-};
-
 #endif

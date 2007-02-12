@@ -28,7 +28,8 @@
  ***************************************************************************/
 #include "plot.h"
 #include "scales.h"
-
+#include "Spectrogram.h"
+	
 #include <qwt_plot.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -99,8 +100,10 @@ Plot::Plot(QWidget *parent, const char *name)
 	plCanvas->setFrameShadow(QwtPlot::Plain);
 	plCanvas->setCursor(Qt::arrowCursor);
 	plCanvas->setLineWidth(0);
-	//plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
+	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
+    plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
+    setCanvasBackground (QColor(255, 255, 255, 0));
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
 	setFrameShape (QFrame::Box);
@@ -411,22 +414,26 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 	double dmin = 1.0e10;
 	int key = -1;
-	for (QMap<int, QwtPlotCurve *>::iterator it = d_curves.begin(); it != d_curves.end(); ++it ) 
+	for (QMap<int, QwtPlotItem *>::iterator it = d_curves.begin(); it != d_curves.end(); ++it ) 
 	{
-		QwtPlotCurve *c = (QwtPlotCurve *)it.data();
+		QwtPlotItem *c = (QwtPlotItem *)it.data();
 		if (!c)
 			continue;
 
-		for (int i=0; i<c->dataSize(); i++)
+		if(c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 		{
-			double cx = map[c->xAxis()].xTransform(c->x(i)) - double(xpos);
-			double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);
-			double f = qwtSqr(cx) + qwtSqr(cy);
-			if (f < dmin)
+			QwtPlotCurve *cv = (QwtPlotCurve *)c;
+			for (int i=0; i<cv->dataSize(); i++)
 			{
-				dmin = f;
-				key = it.key();
-				point = i;
+				double cx = map[c->xAxis()].xTransform(cv->x(i)) - double(xpos);
+				double cy = map[c->yAxis()].xTransform(cv->y(i)) - double(ypos);
+				double f = qwtSqr(cx) + qwtSqr(cy);
+				if (f < dmin)
+				{
+					dmin = f;
+					key = it.key();
+					point = i;
+				}
 			}
 		}
 	}
@@ -451,7 +458,7 @@ int Plot::insertMarker(QwtPlotMarker *m)
 	return marker_key;
 }
 
-int Plot::insertCurve(QwtPlotCurve *c)
+int Plot::insertCurve(QwtPlotItem *c)
 {
 	curve_key++;
 	d_curves.insert (curve_key, c, false);
@@ -461,7 +468,18 @@ int Plot::insertCurve(QwtPlotCurve *c)
 
 void Plot::removeCurve(int index)
 {
-	QwtPlotCurve *c = d_curves[index];
+	QwtPlotItem *c = d_curves[index];
+  	if (!c)
+  		return;
+  	 
+  	if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  	{
+  		Spectrogram *sp = (Spectrogram *)c;
+  	    QwtScaleWidget *colorAxis = axisWidget(sp->colorScaleAxis());
+  	    if (colorAxis)
+  	    	colorAxis->setColorBarEnabled(false);
+  	}
+	
 	c->detach();
 	d_curves.remove (index);
 }
@@ -581,38 +599,6 @@ void Plot::setAxisLabelFormat(int axis, char f, int prec)
 		ScaleDraw *sd = (ScaleDraw *)axisScaleDraw (axis);
 		sd->setLabelFormat(f, prec);
 	}
-}
-
-QwtDoubleRect Plot::boundingRect ()
-{
-	QMap<int, QwtPlotCurve *>::iterator it = d_curves.begin();
-	QwtPlotCurve *c = (QwtPlotCurve *)it.data();
-
-	double minX = c->minXValue();
-	double minY = c->minYValue();
-	double maxX = c->maxXValue();
-	double maxY = c->maxYValue();
-
-	it++;
-
-	for (it; it != d_curves.end(); ++it) 
-	{
-		QwtPlotCurve *c = (QwtPlotCurve *)it.data();
-		if (!c)
-			continue;
-
-		minX = (c->minXValue() < minX) ? c->minXValue() : minX;
-		maxX = (c->maxXValue() > maxX) ? c->maxXValue() : maxX;
-		minY = (c->minYValue() < minY) ? c->minYValue() : minY;
-		maxY = (c->maxYValue() > maxY) ? c->maxYValue() : maxY;
-	}
-
-	QwtDoubleRect r;
-	r.setLeft(minX);
-	r.setRight(maxX);
-	r.setTop(minY);
-	r.setBottom(maxY);
-	return r;
 }
 
 /*!

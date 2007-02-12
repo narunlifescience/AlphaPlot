@@ -496,7 +496,7 @@ void Fit::fit()
 	if (!d_n)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
-				tr("You didn't specify a data set for this fit operation. Operation aborted!"));
+				tr("You didn't specify a valid data set for this fit operation. Operation aborted!"));
 		return;
 	}
 	if (!d_p)
@@ -618,7 +618,7 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 		QString parameter = QString::number(d_results[j], 'g', d_prec);
 		formula.replace(d_param_names[j], parameter);
 	}
-	c->setFormula(formula);
+	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
 	d_graph->insertCurve(c, title);
 }
 
@@ -1483,10 +1483,8 @@ void MultiPeakFit::guessInitialValues()
 
 void MultiPeakFit::storeCustomFitResults(double *par)
 {
-	for (int i=0; i<d_p-1; i++)
-		d_results[i] = fabs(par[i]);
-
-	d_results[d_p-1] = par[d_p-1];//the offset may be negatif
+	for (int i=0; i<d_p; i++)
+		d_results[i] = par[i];
 
 	if (d_profile == Lorentz)
 	{
@@ -1520,7 +1518,7 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 		parameter = QString::number(d_results[p], 'g', d_prec);
 		formula.replace(d_param_names[p], parameter);
 	}
-	c->setFormula(formula);
+	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
 	d_graph->insertCurve(c, title);
 }
 

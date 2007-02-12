@@ -38,9 +38,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QComboBox>
-#include <QVBoxLayout>
-#include <QGridLayout>
-#include <QHBoxLayout>
+#include <QLayout>
 
 SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -103,17 +101,15 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
     btnSmooth->setDefault(true);
     buttonCancel = new QPushButton(tr( "&Close" ));
 	
-	QHBoxLayout *hbox1 = new QHBoxLayout(); 
-	hbox1->addStretch();
-    hbox1->addWidget(btnSmooth);
-    hbox1->addWidget(buttonCancel);
-    hbox1->addStretch();
-		
-    QVBoxLayout *vl = new QVBoxLayout(this);
- 	vl->addWidget(gb1);
-	vl->addLayout(hbox1);	
+	QVBoxLayout *vl = new QVBoxLayout();
+ 	vl->addWidget(btnSmooth);
+	vl->addWidget(buttonCancel);
+    vl->addStretch();
+
+    QHBoxLayout *hb = new QHBoxLayout(this);
+    hb->addWidget(gb1);
+    hb->addLayout(vl);
    
-    // signals and slots connections
 	connect( btnSmooth, SIGNAL( clicked() ), this, SLOT( smooth() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
@@ -150,7 +146,7 @@ void SmoothCurveDialog::activateCurve(int index)
 if (smooth_type == Average)
 	{
 	QwtPlotCurve *c = graph->curve(index);
-	if (!c)
+	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 
 	boxPointsLeft->setMaxValue(c->dataSize()/2);

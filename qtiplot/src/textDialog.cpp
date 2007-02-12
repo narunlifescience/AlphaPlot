@@ -51,15 +51,11 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 
 	textType = type;
 
-	// initialize selectedFont with something useful to
-	// prevent error if setFont is not called before show()
-	selectedFont = this->font();
-	
 	// top groupbox
 	groupBox1 = new QGroupBox(QString());
 
 	// grid layout for top groupbox
-	QGridLayout * topLayout = new QGridLayout();
+	QGridLayout * topLayout = new QGridLayout(groupBox1);
 	// add text color label
 	topLayout->addWidget(new QLabel(tr("Text Color")), 0, 0);
 
@@ -131,8 +127,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 
 	// align the OK, Apply, and Cancel buttons to the right
 	topLayout->setColumnStretch(2, 1);
-	
-	groupBox1->setLayout( topLayout );
 
 	/* TODO: Angle feature not implemented, yet
 	 * caution: This code is still the old Qt3 code
@@ -155,6 +149,9 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 
 	textEditBox = new QTextEdit();
 	textEditBox->setTextFormat(Qt::PlainText);
+    QFont ftemp = QFont();
+	ftemp.setPointSize(12);
+	textEditBox->setFont(ftemp);
 
 	formatButtons =  new TextFormatButtons(textEditBox);
 	formatButtons->toggleCurveButton(textType == TextDialog::TextMarker);
@@ -254,9 +251,6 @@ void TextDialog::customFont()
 	if (okF && fnt != selectedFont)
 	{
 		selectedFont = fnt;
-		buttonFont->setFont(fnt);
-		fnt.setPointSize(12);
-		textEditBox->setFont(fnt);
 	}
 	emit changeFont (fnt);
 }
@@ -329,10 +323,6 @@ QFont TextDialog::font()
 void TextDialog::setFont(const QFont & fnt)
 {
 	selectedFont = fnt;
-	buttonFont->setFont(fnt);
-	QFont ftemp = fnt;
-	ftemp.setPointSize(12);
-	textEditBox->setFont(ftemp);
 }
 	
 TextDialog::~TextDialog()

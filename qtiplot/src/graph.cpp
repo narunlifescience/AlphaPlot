@@ -118,6 +118,7 @@ static const char *unzoom_xpm[]={
 #include "FunctionCurve.h"
 #include "Fitter.h"
 #include "nrutil.h"
+#include "Spectrogram.h"
 
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -133,7 +134,6 @@ static const char *unzoom_xpm[]={
 #include <qpixmapcache.h>
 #include <q3popupmenu.h>
 #include <q3ptrlist.h>
-#include <q3paintdevicemetrics.h>
 
 #include <QTextStream>
 
@@ -145,6 +145,7 @@ static const char *unzoom_xpm[]={
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>
+#include <qwt_color_map.h>
 
 #include <gsl/gsl_sort.h>
 
@@ -513,7 +514,7 @@ void Graph::movedPicker(const QPoint &pos, bool mark)
 
 		if (translateOn)
 		{
-			const QwtPlotCurve *c = d_plot->curve(selectedCurve);
+			const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 			if (!c)
 				return;
 
@@ -1477,6 +1478,14 @@ void Graph::updateSecondaryAxis(int axis)
 		QwtPlotCurve *c = this->curve(i);
 		if (!c)
 			continue;
+		
+		if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  	         {
+  	         Spectrogram *sp = (Spectrogram *)c;
+  	         if (sp->colorScaleAxis() == axis)
+  	              return;
+  	         }
+					
 		if ((axis == QwtPlot::yRight && c->yAxis () == QwtPlot::yRight) ||
 				(axis == QwtPlot::xTop && c->xAxis () == QwtPlot::xTop))
 			return;
@@ -1591,7 +1600,7 @@ void Graph::shiftCurveSelector(bool up)
 	if ( selectedCurve != keys[index] )
 		selectedCurve = keys[index];
 
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve || curve->dataSize()<=0)
 		return;
 
@@ -1641,7 +1650,7 @@ void Graph::shiftCurveSelector(bool up)
 
 void Graph::shiftRangeSelector(bool shift)
 {		
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve || curve->dataSize()<=0)
 		return;
 
@@ -1707,7 +1716,7 @@ void Graph::shiftRangeSelector(bool shift)
 
 void Graph::moveRangeSelector(bool up)
 {	
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -1766,7 +1775,7 @@ void Graph::moveRangeSelector(bool up)
 //places the active range selector at the selected point
 void Graph::moveRangeSelector()
 {	
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -1833,8 +1842,8 @@ bool Graph::enableRangeSelectors(bool on)
 	for (int i=n_curves-1;i>=0;i--)
 	{
 		curveID= c_keys[i]; 
-		curve=d_plot->curve(curveID);
-		if (curve && curve->dataSize()>0)
+		curve = (QwtPlotCurve *)d_plot->curve(curveID);
+		if (curve && curve->rtti() == QwtPlotItem::Rtti_PlotCurve && curve->dataSize()>0)
 		{
 			success=TRUE;
 			break;
@@ -1863,7 +1872,7 @@ bool Graph::enableRangeSelectors(bool on)
 		d_plot->canvas()->setFocus();
 
 		int d=32;
-		QwtPlotCurve *c = d_plot->curve(selectedCurve);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 		QwtSymbol symbol = c->symbol();
 		if (symbol.style() != QwtSymbol::NoSymbol)
 		{
@@ -1944,7 +1953,7 @@ void Graph::insertPlottedList(const QStringList& names)
 	Q3ValueList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotItem *c = d_plot->curve(keys[i]);
 		if (c)
 			c->setTitle(names[i]);
 	}
@@ -1956,7 +1965,20 @@ QStringList Graph::curvesList()
 	Q3ValueList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotItem *c = d_plot->curve(keys[i]);
+  	    if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
+  	        cList << c->title().text();
+  	 }
+return cList;
+}
+  	 
+QStringList Graph::plotItemsList()
+{
+  	QStringList cList;
+  	Q3ValueList<int> keys = d_plot->curveKeys();
+  	for (int i=0; i<(int)keys.count(); i++)
+  	{
+  		QwtPlotItem *c = d_plot->curve(keys[i]);
 		if (c)
 			cList << c->title().text();
 	}	
@@ -1982,30 +2004,6 @@ void Graph::copyImage()
 
 QPixmap Graph::graphPixmap()
 {
-	/*int lw = d_plot->lineWidth();
-	  int clw = 2*d_plot->canvas()->lineWidth();
-
-	  QPixmap pic(d_plot->width() + 2*lw + clw, d_plot->height() + 2*lw + clw);
-	  pic.fill (QColor(255, 255, 255));
-	  QPainter paint;
-	  paint.begin(&pic);
-
-	  QRect rect = QRect(lw, lw, d_plot->width() - 2*lw, d_plot->height() - 2*lw);
-
-	  QwtPlotLayout *layout= d_plot->plotLayout ();
-	  layout->activate(d_plot, rect, 0);
-
-	  QwtPlotPrintFilter  filter; 
-	  filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-	  QwtPlotPrintFilter::PrintCanvasBackground);
-
-	  d_plot->print(&paint, rect, filter);
-	  paint.end();
-
-	//the initial layout is invalidated during the print operation and must be recalculated	
-	layout->activate(d_plot, d_plot->rect(), 0);
-
-	return pic;*/
 	return QPixmap::grabWidget(this, 0, 0, this->width(), this->height());
 }
 
@@ -2043,18 +2041,50 @@ void Graph::exportImage(const QString& fileName, const QString& fileType,
 	pic.save(fileName, fileType, quality);	
 }
 
+void Graph::exportPDF(const QString& fileName)
+{
+    if ( fileName.isEmpty() )
+        return;
+
+	QPrinter printer;
+    printer.setCreator("QtiPlot");
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOrientation(QPrinter::Landscape);
+    printer.setOutputFileName(fileName);
+	printer.setPageSize (QPrinter::A5);
+	printer.setColorMode (QPrinter::Color);
+	printer.setFullPage(TRUE);
+
+	// export should preserve plot aspect ratio, if possible
+	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
+	if (aspect < 1)
+		printer.setOrientation(QPrinter::Portrait);
+	else
+		printer.setOrientation(QPrinter::Landscape);
+
+	int dpiy = printer.logicalDpiY();
+	int margin = (int)((0.5/2.54)*dpiy); // 5 mm margins
+	int width = int(aspect*printer.height());
+	int x=qRound(abs(printer.width()-width)*0.5);
+	QRect rect(x, margin, width, printer.height() - 2*margin);
+	if (width > printer.width())
+	{
+		rect.setLeft(margin);
+		rect.setWidth(printer.width() - 2*margin);
+	}
+	QPainter paint(&printer);
+	d_plot->print(&paint, rect);
+}
+
 void Graph::exportToEPS(const QString& fname)
 {	
 	QPrinter printer;
-	printer.setPageSize (QPrinter::A4);
+    printer.setCreator("QtiPlot");
+    printer.setOutputFormat(QPrinter::PostScriptFormat);
+	printer.setPageSize (QPrinter::A5);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile(TRUE);
+	printer.setFullPage(true);
 	printer.setOutputFileName(fname);
-
-	QwtPlotPrintFilter  filter; 
-	filter.setOptions(QwtPlotPrintFilter::PrintAll |QwtPlotPrintFilter::PrintTitle |
-			~QwtPlotPrintFilter::PrintCanvasBackground);
 
 	// export should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());	
@@ -2063,61 +2093,56 @@ void Graph::exportToEPS(const QString& fname)
 	else
 		printer.setOrientation(QPrinter::Landscape);
 
-	Q3PaintDeviceMetrics mpr(&printer);	
-	int dpiy = mpr.logicalDpiY();
+	int dpiy = printer.logicalDpiY();
 	int margin = (int)((0.5/2.54)*dpiy); // 5 mm margins
-	int width = int(aspect*mpr.height());	
-	int x=qRound(abs(mpr.width()-width)*0.5);
-	QRect rect(x, margin, width, mpr.height() - 2*margin);
-	if (width > mpr.width())
+	int width = int(aspect*printer.height());
+	int x=qRound(abs(printer.width()-width)*0.5);
+	QRect rect(x, margin, width, printer.height() - 2*margin);
+	if (width > printer.width())
 	{
 		rect.setLeft(margin);
-		rect.setWidth(mpr.width() - 2*margin);
+		rect.setWidth(printer.width() - 2*margin);
 	}
 	QPainter paint(&printer);	
-	d_plot->print(&paint, rect, filter);
+	d_plot->print(&paint, rect);
 }
 
 void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
 		QPrinter::PageSize size, QPrinter::ColorMode col)
 {	
 	QPrinter printer;
+    printer.setCreator("QtiPlot");
+    printer.setOutputFormat(QPrinter::PostScriptFormat);
 	printer.setResolution(res);
 	printer.setPageSize (size);
 	printer.setColorMode (col);
 	printer.setOrientation(o);
-	printer.setFullPage(TRUE);
-	printer.setOutputToFile(TRUE);
+	printer.setFullPage(true);
 	printer.setOutputFileName(fname);
-
-	QwtPlotPrintFilter  filter; 
-	filter.setOptions(QwtPlotPrintFilter::PrintAll |QwtPlotPrintFilter::PrintTitle |
-			~QwtPlotPrintFilter::PrintCanvasBackground);
 
 	// export should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
 
-	Q3PaintDeviceMetrics mpr(&printer);	
-	int dpiy = mpr.logicalDpiY();
+	int dpiy = printer.logicalDpiY();
 	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
-	int width = int(aspect*mpr.height());	
-	int x=qRound(abs(mpr.width()-width)*0.5);
-	QRect rect(x, margin, width, mpr.height() - 2*margin);
-	if (width > mpr.width())
+	int width = int(aspect*printer.height());
+	int x=qRound(abs(printer.width()-width)*0.5);
+	QRect rect(x, margin, width, printer.height() - 2*margin);
+	if (width > printer.width())
 	{
 		rect.setLeft(margin);
-		rect.setWidth(mpr.width() - 2*margin);
+		rect.setWidth(printer.width() - 2*margin);
 	}
 
 	QPainter paint(&printer);
-	d_plot->print(&paint, rect, filter);
+	d_plot->print(&paint, rect);
 }
 
 void Graph::print()
 {
 	QPrinter printer;
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
+	printer.setFullPage(true);
 
 	//printing should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->width())/double(d_plot->height());
@@ -2128,40 +2153,21 @@ void Graph::print()
 
 	if (printer.setup())
 	{
-		Q3PaintDeviceMetrics mpr(&printer);	
-		int dpiy = mpr.logicalDpiY();
+		int dpiy = printer.logicalDpiY();
 		int margin = (int) ((2/2.54)*dpiy ); // 2 cm margins
 
-		int width = qRound(aspect*mpr.height()) - 2*margin;	
-		int x=qRound(abs(mpr.width()- width)*0.5);
+		int width = qRound(aspect*printer.height()) - 2*margin;
+		int x=qRound(abs(printer.width()- width)*0.5);
 
-		QRect rect(x, margin, width, mpr.height() - 2*margin);
+		QRect rect(x, margin, width, printer.height() - 2*margin);
 		if (x < margin)
 		{
 			rect.setLeft(margin);
-			rect.setWidth(mpr.width() - 2*margin);
+			rect.setWidth(printer.width() - 2*margin);
 		}
 		QPainter paint(&printer);
-		QwtPlotPrintFilter filter;
-		filter.setOptions(QwtPlotPrintFilter::PrintAll | ~QwtPlotPrintFilter::PrintCanvasBackground);
-		d_plot->print(&paint, rect, filter);
+		d_plot->print(&paint, rect);
 	}
-}
-
-void Graph::exportToWmf(const QString& fname) 
-{// FIXME: not working properly
-	//using Tobias Burnus's qwmf
-
-	/*PrintFilter filter(d_plot); 	
-	  filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-	  QwtPlotPrintFilter::PrintCanvasBackground);
-
-	  QWMF m_wmf ;
-	  m_wmf.setOutputFileName(fname);
-
-	  QPainter painter( &m_wmf );	
-	  d_plot->print(&painter , d_plot->rect(), filter);
-	  painter.end();*/
 }
 
 void Graph::exportToSVG(const QString& fname) 
@@ -2217,7 +2223,7 @@ void Graph::translateCurve(int direction)
 
 void Graph::translateCurveTo(const QPoint& p)
 {
-	QwtPlotCurve *c = d_plot->curve(selectedCurve);
+	QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if (!c)
 		return;
 
@@ -2248,7 +2254,7 @@ void Graph::translateCurveTo(const QPoint& p)
 
 QString Graph::selectedCurveTitle()
 {
-	const QwtPlotCurve *c = d_plot->curve(selectedCurve);
+	const QwtPlotItem *c = d_plot->curve(selectedCurve);
 	if (c)
 		return c->title().text();
 	else
@@ -2276,7 +2282,7 @@ bool Graph::selectPeaksOn()
 
 void Graph::selectPeak(const QPoint &)
 {
-	const QwtPlotCurve *c = d_plot->curve(selectedCurve);
+	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if (!c)
 		return;
 
@@ -2323,7 +2329,7 @@ bool Graph::selectPoint(const QPoint &pos)
 	const int curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
 	if (curve >= 0 && dist < 5)//5 pixels tolerance
 	{
-		const QwtPlotCurve *c = d_plot->curve(curve);
+		const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curve);
 		if (!c)
 			return false;
 
@@ -2390,7 +2396,7 @@ void Graph::selectCurve(const QPoint &pos)
 		selectedPoint = point;
 		showCursor(TRUE);
 
-		const QwtPlotCurve *c = d_plot->curve(selectedCurve);
+		const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 		QString info;
 		info=c->title().text();
 		info+="[";
@@ -2744,7 +2750,7 @@ QString Graph::pieLegendText()
 {
 	QString text="";
 	Q3ValueList<int> keys= d_plot->curveKeys();	
-	const QwtPlotCurve *curve=d_plot->curve(keys[0]);
+	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(keys[0]);
 	if (curve)
 	{
 		for (int i=0;i<int(curve->dataSize());i++)
@@ -2764,7 +2770,7 @@ void Graph::moveBy(int dx, int dy)
 	if ( dx == 0 && dy == 0 )
 		return;
 
-	const QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -2778,7 +2784,7 @@ void Graph::moveBy(int dx, int dy)
 
 void Graph::removePoint()
 {
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -2818,7 +2824,7 @@ void Graph::removePoint()
 // Move the selected point
 void Graph::move(const QPoint &pos)
 {
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -2863,7 +2869,7 @@ void Graph::move(const QPoint &pos)
 // Hightlight the selected point
 void Graph::highlightPoint(bool showIt)
 {
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
 	if ( !curve )
 		return;
 
@@ -2883,8 +2889,8 @@ void Graph::highlightPoint(bool showIt)
 
 void Graph::showCursor(bool showIt)
 {
-	QwtPlotCurve *curve = d_plot->curve(selectedCurve);
-	if ( !curve )
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
+	if ( !curve || curve->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 
 	d_plot->replot();
@@ -2909,8 +2915,8 @@ void Graph::showCursor(bool showIt)
 // Select the next/previous neighbour of the selected point
 void Graph::shiftPointCursor(bool up)
 {
-	const QwtPlotCurve *curve = d_plot->curve(selectedCurve);
-	if ( !curve )
+	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
+	if ( !curve || curve->rtti() != QwtPlotItem::Rtti_PlotCurve )
 		return;
 
 	int index = selectedPoint + (up ? 1 : -1);
@@ -2958,8 +2964,8 @@ void Graph::shiftCurveCursor(bool up)
 		showCursor(TRUE);
 	}
 
-	const QwtPlotCurve *c = d_plot->curve(selectedCurve);
-	if ( !c )
+	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
+	if ( !c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 
 	QString info;
@@ -3008,7 +3014,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 			(text.contains("(A)") && text.contains("(M)")))
 	{//vectors curve
 		QStringList ls = text.split(",", QString::SkipEmptyParts);
-		QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[curve]);
 		if (c)
 			c->setTitle(ls[1].remove("(Y)"));//update curve name
 		associations[curve] = text;
@@ -3030,7 +3036,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 
 		//update curve name
 		QStringList ls = text.split(",", QString::SkipEmptyParts);
-		QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[curve]);
 		if (c)
 			c->setTitle(ls[1].remove("(Y)"));
 
@@ -3161,7 +3167,7 @@ void Graph::updateData(Table* w, int curve)
 	}
 	else
 	{//update curve data
-		QwtPlotCurve *c = d_plot->curve(curveID);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curveID);
 		if (c_type[curve] == HorizontalBars)
 			c->setData(Y, X, it);
 		else
@@ -3233,7 +3239,7 @@ void Graph::updateData(Table* w, int curve)
 					removeCurve(i);
 				else
 				{
-					QwtPlotCurve *c = d_plot->curve(c_keys[i]);
+					QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[i]);
 					if (c)
 						c->setData(X, Y, it);
 				}
@@ -3287,7 +3293,7 @@ void Graph::updatePieCurveData(Table* w, const QString& yColName, int curve)
 			X[it-1]=xval.toDouble();
 		}
 	}
-	QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
+	QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[curve]);
 	if (c)
 	{
 		c->setData(X, X, it);
@@ -3331,7 +3337,7 @@ void Graph::updateVectorsData(Table* w, int curve)
 	if (!it)
 		removeCurve(curve);
 
-	QwtPlotCurve *c = d_plot->curve(c_keys[curve]);
+	QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[curve]);
 	if (c)
 		c->setData(X, X, it);
 
@@ -4259,6 +4265,9 @@ void Graph::range(int index, double *start, double *end)
   	int Graph::numPoints(int index, double start, double end)
   	{
   	  QwtPlotCurve *c = curve(index);
+	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+  	          return 0;
+  	 
   	  int points=0;
   	  for (int i=0; i<c->dataSize(); i++)
   	    if (c->x(i) >= start && c->x(i) <= end)
@@ -4272,6 +4281,9 @@ void Graph::range(int index, double *start, double *end)
   	  (*x) = new double[n];
   	  (*y) = new double[n];
   	  QwtPlotCurve *c = curve(index);
+	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+  	          return 0;
+  	 
   	  int i, j=0;
   	  for (i = 0; i < c->dataSize(); i++)
   	    if (c->x(i) >= start && c->x(i) <= end && j<n)
@@ -4290,6 +4302,9 @@ void Graph::range(int index, double *start, double *end)
   	  double *xtemp = vector(0, n-1);
   	  double *ytemp = vector(0, n-1);
   	  QwtPlotCurve *c = curve(index);
+	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+  	          return 0;
+	  
   	  int i, j=0;
   	  for (i = 0; i < c->dataSize(); i++)
   	    if (c->x(i) >= start && c->x(i) <= end && j<n)
@@ -4487,7 +4502,7 @@ void Graph::addErrorBars(Table *w, const QString& yColName,
 	Q3ValueList<int> keys = d_plot->curveKeys();
 	for (int i = 0; i<n_curves; i++ )
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(keys[i]);
 		if (c && c->title().text() == yColName && c_type[i] != ErrorBars)
 		{
 			QStringList lst = associations[i].split(",", QString::SkipEmptyParts);
@@ -4553,7 +4568,7 @@ void Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 		if (associations[i].contains(yColName) && c_type[i] != ErrorBars)
 		{
 			long curveID = c_keys[i];
-			QwtPlotCurve *c = d_plot->curve(curveID);
+			QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curveID);
 			size=c->symbol().size();
 		}			
 	}
@@ -5411,7 +5426,7 @@ void Graph::contextMenuEvent(QContextMenuEvent *e)
 	QPoint pos = d_plot->canvas()->mapFrom(d_plot, e->pos());
 	int dist, point;
 	const long curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
-	const QwtPlotCurve *c = d_plot->curve(curve);
+	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curve);
 
 	if (c && dist < 10)//10 pixels tolerance
 		emit showCurveContextMenu(curve);
@@ -5442,7 +5457,18 @@ void Graph::zoom(bool on)
 {
 	d_zoomer[0]->setEnabled(on);
 	d_zoomer[1]->setEnabled(on);
-
+	for (int i=0; i<n_curves; i++)
+  	{
+  		Spectrogram *sp = (Spectrogram *)this->curve(i);
+  	    if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  	    {
+  	     	if (sp->colorScaleAxis() == QwtPlot::xBottom || sp->colorScaleAxis() == QwtPlot::yLeft)
+  	        	d_zoomer[0]->setEnabled(false);
+  	        else
+  	        	d_zoomer[1]->setEnabled(false);
+  	    }
+  	}
+  	 
 	QCursor cursor=QCursor (QPixmap(lens_xpm),-1,-1);
 	if (on)
 		d_plot->canvas()->setCursor(cursor);
@@ -6033,17 +6059,10 @@ void Graph::setBorder (int width, const QColor& color)
 
 void Graph::setBackgroundColor(const QColor& color)
 {
-	d_plot->setPaletteBackgroundColor(color);
-
-	QwtTextLabel *title=d_plot->titleLabel ();
-	title->setPaletteBackgroundColor(color);
-
-	for (int i=0;i<QwtPlot::axisCnt;i++)
-	{
-		QwtScaleWidget *scale=(QwtScaleWidget *) d_plot->axisWidget(i);
-		if (scale)
-			scale->setPaletteBackgroundColor(color);
-	}
+    QColorGroup cg;
+    cg.setColor(QColorGroup::Window, color );
+    d_plot->setPalette(QPalette(cg, cg, cg));
+    d_plot->setAutoFillBackground(true);
 
 	emit modifiedGraph();
 }
@@ -6442,7 +6461,10 @@ void Graph::copy(Graph* g)
 	{
 		for (i=0; i<g->curves(); i++)
 		{
-			QwtPlotCurve *cv = (QwtPlotCurve *)g->curve(i);
+			QwtPlotItem *it = (QwtPlotItem *)g->curve(i);
+			if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+  	        {
+  	        QwtPlotCurve *cv = (QwtPlotCurve *)it;
 			int n = cv->dataSize();
 			int style = g->c_type[i];
 			QVector<double> x(n);
@@ -6492,10 +6514,8 @@ void Graph::copy(Graph* g)
 			else
 				c = new QwtPlotCurve(cv->title());
 
-			int curveID = d_plot->insertCurve(c);
-
 			c_keys.resize(++n_curves);
-			c_keys[i] = curveID;
+			c_keys[i] = d_plot->insertCurve(c);
 
 			c_type.resize(n_curves);
 			c_type[i] = g->curveType(i);
@@ -6515,6 +6535,19 @@ void Graph::copy(Graph* g)
 
 			c->setAxis(cv->xAxis(), cv->yAxis());
 		}
+		else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+  	    	{
+  	     	Spectrogram *sp = ((Spectrogram *)it)->copy();
+  	        c_keys.resize(++n_curves);
+  	        c_keys[i] = d_plot->insertCurve(sp);
+  	 
+  	        sp->showColorScale(((Spectrogram *)it)->colorScaleAxis(), ((Spectrogram *)it)->hasColorScale());
+  	        sp->setColorBarWidth(((Spectrogram *)it)->colorBarWidth());
+  	 
+  	        c_type.resize(n_curves);
+  	        c_type[i] = g->curveType(i);
+  	        }
+  	    }
 	}
 	axesFormulas = g->axesFormulas;
 	axisType = g->axisType;
@@ -6916,7 +6949,7 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 	for (int i=0; i<n_curves; i++)
 	{
 		const QwtPlotCurve *c = curve(i);
-		if (c)
+		if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 		{
 			int index = ColorBox::colorIndex(c->pen().color());
 			if (index > colorIndex)
@@ -6942,12 +6975,54 @@ void Graph::deleteFitCurves()
 	QList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotCurve *c = d_plot->curve(keys[i]);
+		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(keys[i]);
 		if (c && c->title().text().contains(tr("Fit")))
 			removeCurve(c->title().text());
 	}	
 }
 
+void Graph::plotSpectrogram(Matrix *m, CurveType type)
+{
+	if (type != GrayMap && type != ColorMap && type != ContourMap)
+  		return;
+  	 
+  	Spectrogram *d_spectrogram = new Spectrogram(m);
+  	if (type == GrayMap)
+  		d_spectrogram->setGrayScale();
+  	else if (type == ContourMap)
+  		{
+  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ImageMode, false);
+  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
+  	    }
+  	else if (type == ColorMap)
+  	    {
+  	    d_spectrogram->setDefaultColorMap();
+  	    d_spectrogram->setDisplayMode(QwtPlotSpectrogram::ContourMode, true);
+  	    }
+  	 
+  	c_keys.resize(++n_curves);
+  	c_keys[n_curves-1] = d_plot->insertCurve(d_spectrogram);
+  	 
+  	c_type.resize(n_curves);
+  	c_type[n_curves-1] = type;
+  	 
+  	associations << QString(m->name());
+  	 
+  	QwtScaleWidget *rightAxis = d_plot->axisWidget(QwtPlot::yRight);
+  	rightAxis->setColorBarEnabled(type != ContourMap);
+  	rightAxis->setColorMap(d_spectrogram->data().range(), d_spectrogram->colorMap());
+  	 
+  	d_plot->setAxisScale(QwtPlot::xBottom, m->xStart(), m->xEnd());
+  	d_plot->setAxisScale(QwtPlot::yLeft, m->yStart(), m->yEnd());
+  	 
+  	d_plot->setAxisScale(QwtPlot::yRight,
+  	d_spectrogram->data().range().minValue(),
+  	d_spectrogram->data().range().maxValue());
+  	d_plot->enableAxis(QwtPlot::yRight, type != ContourMap);
+  	 
+  	d_plot->replot();
+}
+	
 Graph::~Graph()
 {
 	delete titlePicker;

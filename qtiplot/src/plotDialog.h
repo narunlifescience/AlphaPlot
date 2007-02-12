@@ -44,7 +44,8 @@ class QWidget;
 class QStringList;
 class QGroupBox;
 class QDoubleSpinBox;
-
+class QRadioButton;
+		
 class ColorBox;
 class PatternBox;
 class ColorButton;
@@ -105,6 +106,10 @@ public slots:
 	void setBoxRangeType(int index);
 	void setWhiskersRange(int index);
 	
+	//spectrograms
+  	void pickContourLinesColor();
+  	void showDefaultContourLinesBox(bool show);
+	
 protected:
     void clearTabWidget();
 	void initAxesPage();
@@ -116,6 +121,7 @@ protected:
 	void initVectPage();
 	void initBoxPage();
 	void initPercentilePage();
+	void initSpectrogramPage();
     void contextMenuEvent(QContextMenuEvent *e);
 
     Graph *graph;
@@ -138,12 +144,12 @@ protected:
     SymbolBox* boxSymbolStyle;
     PatternBox *boxPattern;
 	QTabWidget* privateTabWidget;
-	QWidget* errorsPage;
+	QWidget *errorsPage, *spectrogramPage;
 	QGroupBox* fillGroupBox;
     QCheckBox* plusBox;
     QCheckBox* minusBox;
     QCheckBox* xBox;
-    ColorButton* colorBox;
+    ColorButton *colorBox, *levelsColorBox;
 	ColorBox* vectColorBox;
     QComboBox* widthBox;
     QComboBox* capBox;
@@ -165,7 +171,12 @@ protected:
 	QLabel 	*whiskerCoeffLabel, *whiskerRangeLabel, *boxCoeffLabel;
 	QLabel *boxRangeLabel, *whiskerCntLabel, *boxCntLabel;
 	QGroupBox *GroupBoxVectEnd;
-	QComboBox *vectPosBox, *boxXAxis, *boxYAxis;
+	QComboBox *vectPosBox, *boxXAxis, *boxYAxis, *colorScaleBox, *boxContourStyle;
+  	QSpinBox *levelsBox, *contourWidthBox, *colorScaleWidthBox;
+  	QGroupBox *levelsGroupBox, *axisScaleBox, *imageGroupBox;
+  	QGroupBox *defaultPenBox;
+  	QRadioButton *defaultScaleBox, *grayScaleBox, *customScaleBox, *defaultContourBox, *autoContourBox;
+ 
     SymbolBox *boxMaxStyle, *boxMinStyle, *boxMeanStyle, *box99Style, *box1Style;
     QDoubleSpinBox *whiskerCnt, *boxCnt;
 };

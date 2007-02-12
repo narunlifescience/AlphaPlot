@@ -283,41 +283,6 @@ void ScriptEdit::print()
 	{
 		doc->print(&printer);
 	}
-
-	// old code (Qt3):
-	/*
-	   QPrinter printer;
-	   printer.setColorMode (QPrinter::GrayScale);
-	   if (printer.setup()) 
-	   {
-	   printer.setFullPage( TRUE );
-	   QPainter painter;
-	   if ( !painter.begin(&printer ) )
-	   return;
-
-	   QPaintDeviceMetrics metrics( painter.device() );
-	   int dpiy = metrics.logicalDpiY();
-	   int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
-	   QRect body( margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin );
-	   QSimpleRichText richText(QStyleSheet::convertFromPlainText(text()), QFont(), 
-	   context(), styleSheet(), mimeSourceFactory(), body.height());
-	   richText.setWidth( &painter, body.width() );
-	   QRect view( body );
-	   int page = 1;
-	   do {
-	   richText.draw( &painter, body.left(), body.top(), view, colorGroup() );
-	   view.moveBy( 0, body.height() );
-	   painter.translate( 0 , -body.height() );
-	   painter.drawText( view.right() - painter.fontMetrics().width( QString::number( page ) ),
-	   view.bottom() + painter.fontMetrics().ascent() + 5, QString::number( page ) );
-	   if ( view.top()  >= richText.height() )
-	   break;
-	   printer.newPage();
-	   page++;
-	   } 
-	   while (TRUE);
-	   }
-	   */
 }
 
 QString ScriptEdit::importASCII(const QString &filename)

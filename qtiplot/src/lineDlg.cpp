@@ -36,9 +36,7 @@
 #include <qwt_plot.h>
 
 #include <QMessageBox>
-#include <QGridLayout>
-#include <QBoxLayout>
-#include <QHBoxLayout>
+#include <QLayout>
 #include <QGroupBox>
 #include <QSpinBox>
 #include <QCheckBox>
@@ -145,10 +143,11 @@ LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bo
     btnOk->setDefault(true);
     
     QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
+    bl1->addStretch();
 	bl1->addWidget(buttonDefault);
 	bl1->addWidget(btnApply);
 	bl1->addWidget(btnOk);
-	
+
 	QVBoxLayout* vl = new QVBoxLayout();
     vl->addWidget(tw);
 	vl->addLayout(bl1);

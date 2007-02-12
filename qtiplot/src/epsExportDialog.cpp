@@ -92,7 +92,7 @@ EpsExportDialog::EpsExportDialog(const QString& fileName, QWidget* parent, Qt::W
 
 void EpsExportDialog::languageChange()
 {
-	setWindowTitle( tr( "QtiPlot - EPS Export options" ) );
+	setWindowTitle( tr( "QtiPlot - Export options" ) );
 	buttonOk->setText( tr( "&OK" ) );
 	buttonCancel->setText( tr( "&Cancel" ) );
 
@@ -145,6 +145,7 @@ void EpsExportDialog::accept()
 	QPrinter::PageSize size = pageSize();
 
 	emit exportToEPS(f_name, boxResolution->value(), o, size, col);
+    emit exportPDF(f_name, boxResolution->value(), o, size, col);
 	close();
 }
 

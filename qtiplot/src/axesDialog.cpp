@@ -1984,9 +1984,6 @@ void AxesDialog::pickCanvasColor()
 			g->replot();
 		}
 	}
-	
-		if (c == QColor(Qt::white) && mPlot->hasOverlapingLayers())
-			mPlot->updateTransparency();
 }
 
 void AxesDialog::pickBackgroundColor()
@@ -2019,7 +2016,6 @@ void AxesDialog::pickBackgroundColor()
 			g->replot();
 		}
 	}
-	mPlot->updateTransparency();
 }
 
 void AxesDialog::pickBorderColor()
@@ -2779,7 +2775,6 @@ bool AxesDialog::updatePlot()
 				g->setCanvasBackground(boxCanvasColor->color());
 			}
 		}
-		mPlot->updateTransparency();
 	}
 
 	return true;

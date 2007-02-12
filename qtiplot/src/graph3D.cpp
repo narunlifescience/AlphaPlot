@@ -2173,16 +2173,10 @@ bool Graph3D::eventFilter(QObject *object, QEvent *e)
 {
 	if (e->type() == QEvent::MouseButtonDblClick && object == (QObject *)this->sp)
 	{
-		emit showOptionsDialog();			
-		return TRUE; 
+		emit showOptionsDialog();
+		return TRUE;
 	}
-	else if (e->type()==QEvent::ContextMenu && object == titleBar)
-	{
-		emit showTitleBarMenu();
-		((QContextMenuEvent*)e)->accept();
-		return true;
-	}
-	return QObject::eventFilter(object, e);
+	return MyWidget::eventFilter(object, e);
 }
 
 void Graph3D::setPointOptions(double size, bool s)

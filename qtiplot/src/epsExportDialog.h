@@ -63,6 +63,7 @@ protected slots:
 
 signals:
 	void exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode);
+    void exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode);
 
 private:
 	QString f_name;
