@@ -233,7 +233,7 @@ class Graph: public QWidget
 
 		//! \name Curves Layout
 		//@{
-		CurveLayout initCurveLayout(int i, int curves, int errCurves, int style);
+		CurveLayout initCurveLayout(int i, int curves, int style);
 		static CurveLayout initCurveLayout();
 		void updateCurveLayout(int index,const CurveLayout *cL);
 		//! Tries to guess not already used curve color and symbol style
@@ -269,7 +269,6 @@ class Graph: public QWidget
 		QString saveAxesTitleColors();
 		QString saveAxesColors();
 		QString saveEnabledAxes();
-		QString saveErrorBars();
 		QString saveCanvas();
 		QString saveTitle();
 		QString saveAxesTitleAlignement();
@@ -628,6 +627,8 @@ class Graph: public QWidget
 				QList<double> &ranges, int points, const QString& title = QString::null);	 
 		//! Used when reading from a project file.
 		void insertFunctionCurve(const QString& formula, int points, int fileVersion);
+		//! Returns an unique function name
+  		QString generateFunctionName();
 		//@}
 
 		void createWorksheet(const QString& name);
@@ -804,10 +805,6 @@ signals:
 		QPoint auxMrkStart, auxMrkEnd;
 		Qt::PenStyle auxMrkStyle;
 		QString auxMrkFileName, auxMrkText;
-
-
-		//! The number of FunctionCurves inserted in the plot
-		int d_functions;
 
 		int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
 		int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;

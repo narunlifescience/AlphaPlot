@@ -154,8 +154,18 @@ void LegendMarker::updateOrigin()
 	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
 	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
 
-	setXValue (xMap.invTransform(d_pos.x()));
-	setYValue (yMap.invTransform(d_pos.y()));
+	const QwtScaleDiv *xScDiv = d_plot->axisScaleDiv (xAxis());
+	double xVal = xMap.invTransform(d_pos.x());
+  	if (!xScDiv->contains(xVal))
+  	        return;
+  	 
+  	const QwtScaleDiv *yScDiv = d_plot->axisScaleDiv (yAxis());
+  	double yVal = yMap.invTransform(d_pos.y());
+  	if (!yScDiv->contains(yVal))
+  	        return;
+  	 
+  	setXValue (xVal);
+  	setYValue (yVal);
 }
 
 void LegendMarker::setOriginCoord(double x, double y)
@@ -271,7 +281,7 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 				const QwtPlotCurve *curve = g->curve(cv);
 				if (curve && curve->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 				{
-					const QwtSymbol symb=curve->symbol(); 
+					QwtSymbol symb=curve->symbol();
 					const QBrush br=curve->brush();
 					QPen pen=curve->pen();
 
@@ -289,6 +299,12 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 						else 			
 							QwtPainter::drawLine(p, w,height[i],w+l,height[i]);						
 					}
+					int symb_size = symb.size().width();
+  	                if (symb_size > 15)
+  	                	symb_size = 15;
+  	                else if (symb_size < 3)
+  	                	symb_size = 3;
+  	                symb.setSize(symb_size);
 					symb.draw(p,w+l/2,height[i]);
 					p->restore();
 				}
@@ -416,10 +432,14 @@ int LegendMarker::symbolsMaxLineLength() const
 				continue;
 
 			const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(cvs[cv]);
-			if (c)
+			if (c && c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 			{
 				int l=c->symbol().size().width();
-				if (l>maxL && c->symbol().style() != QwtSymbol::NoSymbol)
+				if (l < 3)
+  	            	l = 3;
+  	            else if (l > 15)
+  	            	l = 15;
+  	            if (l>maxL && c->symbol().style() != QwtSymbol::NoSymbol)
 					maxL=l;
 			}
 		}

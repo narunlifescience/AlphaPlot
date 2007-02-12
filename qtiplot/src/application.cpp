@@ -2422,7 +2422,9 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 			activeGraph=g->addLayer();
 			if (activeGraph)
 			{
-				activeGraph->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
+				QStringList lst;
+  	            lst << list[i];
+				activeGraph->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
 				customGraph(activeGraph);
 				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
 				activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
@@ -2453,9 +2455,27 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
 	int curves = (int)colList.count();
-	for (int i=0;i<(int)colList.count();i++)
-	{
-		QString s=colList[i];
+	
+	//We rearrange the list so that the error bars are placed at the end
+  	QStringList lst = QStringList();
+  	for (int j=0; j<curves; j++)
+  		{
+  	    if (!colList[j].contains("(yErr)") && !colList[j].contains("(xErr)"))
+  	    	lst << colList[j];
+  	    }
+  	int errorBars = 0;
+  	for (int k=0; k<curves; k++)
+  	    {
+  	    if (colList[k].contains("(yErr)") || colList[k].contains("(xErr)"))
+  	    	{
+  	        errorBars++;
+  	        lst << colList[k];
+  	        }
+  	    }
+  	 
+  	for (int i=0; i<curves; i++)
+        {
+		QString s = lst[i];
 		int pos=s.find(":",0);
 		QString caption=s.left(pos)+"_";
 		Table *w=(Table *)table(caption);
@@ -2470,7 +2490,6 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 
 		if (s.contains("(yErr)") || s.contains("(xErr)"))
 		{
-			curves--;
 			posY=s.find(",",posY);
 			int posErr, errType;
 			if (s.contains("(yErr)"))
@@ -2487,16 +2506,13 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 			QString errColName=caption+s.mid(posY+2,posErr-posY-2);	
 			ag->addErrorBars(w, xColName, yColName, w, errColName, errType);
 		}
-		else
+		else if (ag->insertCurve(w, xCol, yColName, defaultCurveStyle))
 		{
-			if (ag->insertCurve(w, xCol, yColName, defaultCurveStyle))
-			{
-				CurveLayout cl = ag->initCurveLayout(i, curves, 1, defaultCurveStyle);
-				cl.lWidth = defaultCurveLineWidth;
-				cl.sSize = defaultSymbolSize;
+			CurveLayout cl = ag->initCurveLayout(i, curves - errorBars, defaultCurveStyle);
+			cl.lWidth = defaultCurveLineWidth;
+			cl.sSize = defaultSymbolSize;
 
-				ag->updateCurveLayout(i,&cl);
-			}
+			ag->updateCurveLayout(i,&cl);
 		}
 	}
 	ag->updatePlot();
@@ -2732,7 +2748,8 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	w->setWindowTitle(name);
 	w->setName(name);
 	w->setIcon( QPixmap(worksheet_xpm) );
-
+	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
+	
 	addListViewItem(w);
 	current_folder->addWindow(w);
 	w->setFolder(current_folder);
@@ -7770,7 +7787,6 @@ void ApplicationWindow::undo()
 			updateTableNames(name,newCaption);
 			renameListViewItem(name,newCaption);
 		}
-
 		t->restore(t->getSpecifications());
 		actionUndo->setEnabled(false);
 		actionRedo->setEnabled(true);
@@ -9667,9 +9683,10 @@ Matrix* ApplicationWindow::createIntensityMatrix(const QPixmap& pic)
 	Matrix* w = newMatrix("Matrix1", rows, cols);
 	for (int i=0; i<rows; i++ )
 	{
+		int l = rows - i -1;
 		for (int j=0; j<cols; j++)
 		{
-			QRgb pixel = image.pixel (j,i);
+			QRgb pixel = image.pixel (j, l);
 			w->setText (i, j, QString::number(qGray(pixel)));
 		}
 	}
@@ -10225,6 +10242,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 						curve[5].toInt(),curve[6].toInt(), QColor(curve[7]), 
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt(), xOffset, yOffset);
 			}
+			curveID++;
 		}
 		else if (s == "<spectrogram>")
   	    {
@@ -12426,16 +12444,17 @@ bool ApplicationWindow::alreadyUsedName(const QString& label)
 bool ApplicationWindow::projectHas2DPlots()
 {
 	QWidgetList *windows = windowsList();
+	bool hasPlots = false;
 	for (int i=0; i<(int)windows->count(); i++)
 	{
-		if (windows->at(i)->isA("Graph"))
+		if (windows->at(i)->isA("MultiLayer"))
 		{
-			delete windows;
-			return true;
+			hasPlots = true;
+			break;
 		}
 	}
 	delete windows;
-	return false;
+	return hasPlots;
 }
 
 bool ApplicationWindow::projectHas3DPlots()

@@ -1003,11 +1003,16 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 		Graph *gr=(Graph *)graphsList.at(i);
 		QwtPlot *plot=gr->plotWidget();
 
-		plot->title().setFont(titleFnt);
+		QwtText text = plot->title();
+  	    text.setFont(titleFnt);
+  	    plot->setTitle(text);
 		for (int j= 0;j<QwtPlot::axisCnt;j++)
 		{
 			plot->setAxisFont (j,numbersFnt);
-			plot->axisTitle(j).setFont(scaleFnt);
+			
+			text = plot->axisTitle(j );
+  	        text.setFont(scaleFnt);
+  	        plot->setAxisTitle(j, text);
 		}
 
 		QwtArray<long> keys=gr->textMarkerKeys();
@@ -1017,7 +1022,6 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 			if (mrk)
 				mrk->setFont(legendFnt);
 		}
-
 		plot->replot();
 	}
 	emit modifiedPlot();

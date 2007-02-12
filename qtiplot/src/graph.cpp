@@ -160,7 +160,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	if ( !name )
 		setName( "graph" );
 
-	d_functions = 0;
 	fitter = 0;
 	n_curves=0;
 	linesOnPlot=0;
@@ -1093,7 +1092,7 @@ void Graph::setAxisLabelRotation(int axis, int rotation)
 		else if (rotation == 0)
 			d_plot->setAxisLabelAlignment(axis, Qt::AlignHCenter|Qt::AlignTop);
 	}
-	d_plot->setAxisLabelRotation (axis, double(rotation));
+	d_plot->setAxisLabelRotation (axis, (double)rotation);
 }
 
 int Graph::labelsRotation(int axis)
@@ -1562,6 +1561,12 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 
 	d_user_step[axis] = (step != 0.0);
 
+	if (axis == QwtPlot::xBottom || axis == QwtPlot::yLeft)
+  	{
+  		updateSecondaryAxis(QwtPlot::xTop);
+  	    updateSecondaryAxis(QwtPlot::yRight);
+  	}
+			
 	d_plot->replot();
 	//keep markers on canvas area
 	updateMarkersBoundingRect();
@@ -2734,7 +2739,7 @@ QString Graph::legendText()
 	for (int i=0; i<n_curves; i++)
 	{
 		const QwtPlotCurve *c = curve(i);
-		if (c &&  c_type[i] != ErrorBars)
+		if (c && c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram && c_type[i] != ErrorBars )
 		{
 			text+="\\c{";
 			text+=QString::number(i+1);
@@ -3571,13 +3576,8 @@ QString Graph::saveScale()
 
 		s += QString::number(QMIN(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
 		s += QString::number(QMAX(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
-
-		double step = 0.0;
-		if (d_user_step[i])
-			step = fabs(lst[1]-lst[0]);
-
-		s += QString::number(step, 'g', 15)+"\t";
-		s += QString::number(lst.count())+"\t";
+		s += QString::number(fabs(lst[1]-lst[0]), 'g', 15)+"\t";
+		s += QString::number(d_plot->axisMaxMajor(i))+"\t";
 		s += QString::number(d_plot->axisMaxMinor(i))+"\t";
 
 		const QwtScaleEngine *sc_eng = d_plot->axisScaleEngine(i);
@@ -3586,45 +3586,6 @@ QString Graph::saveScale()
 		s += QString::number(sc_eng->testAttribute(QwtScaleEngine::Inverted))+"\n";
 	}
 	return s;
-}
-
-QString Graph::saveErrorBars()
-{
-	Q3ValueList<int> keys = d_plot->curveKeys();
-	QString all;
-	for (int i=0; i<n_curves; i++)
-	{
-		QString s="";
-		if (c_type[i] == ErrorBars)
-		{
-			long curveID = keys[i];
-			QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)d_plot->curve(curveID);
-			if (er)
-			{
-				s+="ErrorBars\t";
-				s+=QString::number(er->direction())+"\t";
-				QStringList cvs=associations[i].split(",", QString::SkipEmptyParts);
-
-				s+=cvs[0].remove("(X)",true)+"\t";
-				s+=cvs[1].remove("(Y)",true)+"\t";
-				if (!er->direction())
-					s+=cvs[2].remove("(xErr)",true)+"\t";
-				else
-					s+=cvs[2].remove("(yErr)",true)+"\t";
-
-				s+=QString::number(er->width())+"\t";
-				s+=QString::number(er->capLength())+"\t";
-				s+=er->color().name()+"\t";
-				s+=QString::number(er->throughSymbol())+"\t";
-				s+=QString::number(er->plusSide())+"\t";
-				s+=QString::number(er->minusSide())+"\t";
-				s+=QString::number(er->xDataOffset())+"\t";
-				s+=QString::number(er->yDataOffset())+"\n";
-				all+=s;
-			}				
-		}
-	}
-	return all;
 }
 
 void Graph::setXAxisTitleColor(const QColor& c)
@@ -3904,11 +3865,15 @@ QString Graph::saveCurves()
 		s+=savePieCurveLayout();
 	else
 	{	
-		for (int j=0;j<n_curves;j++)
+		for (int i=0; i<n_curves; i++)
 		{
-			if (c_type[j] != ErrorBars)
+			QwtPlotCurve *c = this->curve(i);
+			if (!c)
+  	        	continue;
+  	 	
+			if (c_type[i] != ErrorBars)
 			{
-				QwtPlotCurve *c = this->curve(j);
+				QwtPlotCurve *c = this->curve(i);
 				if (c->rtti() == FunctionCurve::RTTI)
 					s += ((FunctionCurve *)c)->saveToString();
 				else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
@@ -3916,17 +3881,40 @@ QString Graph::saveCurves()
   	            	s += ((Spectrogram *)c)->saveToString();
   	            	continue;
   	            }				
-				else if (c_type[j] == Box)
+				else if (c_type[i] == Box)
 					s += "curve\t" + QString::number(c->x(0)) + "\t" + c->title().text() + "\t";
 				else
 				{
-					QStringList as=associations[j].split(",", QString::SkipEmptyParts);
+					QStringList as=associations[i].split(",", QString::SkipEmptyParts);
 					s += "curve\t" + as[0].remove("(X)",true) + "\t";
 					s += as[1].remove("(Y)",true) + "\t";
 				}			
-				s += saveCurveLayout(j);
+				s += saveCurveLayout(i);
 				s += QString::number(c->xAxis())+"\t"+QString::number(c->yAxis())+"\n";
 			}
+		    else if (c_type[i] == ErrorBars)
+  	        {
+  	        	QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)c;
+  	            s+="ErrorBars\t";
+  	            s+=QString::number(er->direction())+"\t";
+  	            QStringList cvs=QStringList::split(",",associations[i],FALSE);
+  	 
+  	            s+=cvs[0].remove("(X)",true)+"\t";
+  	            s+=cvs[1].remove("(Y)",true)+"\t";
+  	            if (!er->direction())
+  	            	s+=cvs[2].remove("(xErr)",true)+"\t";
+  	            else
+  	            	s+=cvs[2].remove("(yErr)",true)+"\t";
+  	 
+  	            s+=QString::number(er->width())+"\t";
+  	            s+=QString::number(er->capLength())+"\t";
+  	            s+=er->color().name()+"\t";
+  	            s+=QString::number(er->throughSymbol())+"\t";
+  	            s+=QString::number(er->plusSide())+"\t";
+  	            s+=QString::number(er->minusSide())+"\t";
+  	            s+=QString::number(er->xDataOffset())+"\t";
+  	            s+=QString::number(er->yDataOffset())+"\n";
+  	       }
 		}
 	}
 	return s;
@@ -4360,7 +4348,7 @@ CurveLayout Graph::initCurveLayout()
 	return cl;
 }
 
-CurveLayout Graph::initCurveLayout(int i, int curves, int errCurves, int style)
+CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 {
 	CurveLayout cl = initCurveLayout();
 	int color;
@@ -4387,8 +4375,8 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int errCurves, int style)
 		cl.lCol=0;//black color pen
 		cl.aCol=i+1;
 		cl.sType = 0;
-		if (!errCurves && (c_type[i] == Graph::VerticalBars || style == Graph::HorizontalBars))
-		{//TODO: find a way to set the right spacing and offsets when there are error columns in the plot list.
+		if (c_type[i] == Graph::VerticalBars || style == Graph::HorizontalBars)
+		{
 			QwtBarCurve *b = (QwtBarCurve*)curve(i);
 			if (b)
 			{
@@ -4570,6 +4558,17 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 		{
 			QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[i]);
 			size=c->symbol().size();
+			
+			 if (c_type[i] == VerticalBars)
+  	         {
+  	         	QwtBarCurve *bc = (QwtBarCurve *)c;
+  	            xOffset = bc->dataOffset();
+  	         }
+  	         else if (c_type[i] == HorizontalBars)
+  	         {
+  	         	QwtBarCurve *bc = (QwtBarCurve *)c;
+  	            yOffset = bc->dataOffset();
+  	         }
 		}			
 	}
 
@@ -4804,12 +4803,19 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 	else
 	{		
 		int curves = (int)names.count();
-		int errCurves = (int)w->selectedErrColumns().count();
+		int errCurves = 0;
+		for (int j=0; j<curves; j++)
+  	    {
+  	    	int k = w->colIndex(names[j]);
+  	        if (w->colPlotDesignation(k) == Table::xErr || w->colPlotDesignation(k) == Table::yErr)
+  	        	errCurves++;
+  	    }
+		
 		for (int i=0; i<curves; i++)
 		{
 			if (insertCurve(w, names[i],style))
 			{
-				CurveLayout cl = initCurveLayout(i, curves, errCurves, style);
+				CurveLayout cl = initCurveLayout(i, curves - errCurves, style);
 				cl.sSize = sSize;
 				cl.lWidth = lWidth;
 				updateCurveLayout(i, &cl);
@@ -5467,6 +5473,9 @@ void Graph::zoomOut()
 {
 	d_zoomer[0]->zoom(-1);
 	d_zoomer[1]->zoom(-1);
+	
+	updateSecondaryAxis(QwtPlot::xTop);
+  	updateSecondaryAxis(QwtPlot::yRight);
 }
 
 void Graph::drawText(bool on)
@@ -5669,17 +5678,33 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 	emit modifiedFunction();
 }
 
+QString Graph::generateFunctionName()
+{
+  	QString newName = "F1";
+  	int index = 1;
+  	QStringList lst;
+  	for (int i=0; i<n_curves; i++)
+  	{
+  		QwtPlotCurve *c = this->curve(i);
+  	    if (c && c->rtti() == FunctionCurve::RTTI && c->title().text().startsWith("F"))
+  	    	lst << c->title().text();  
+	}
+  	 
+  	while(lst.contains(newName)){
+  	        newName = "F" + QString::number(++index);}
+  	return newName;
+}
+			
 void Graph::addFunctionCurve(int type, const QStringList &formulas, const QString &var,
 		QList<double> &ranges, int points, const QString& title)
 {
 	bool error=FALSE;
 	QVarLengthArray<double> X(points), Y(points);
 	QString name;
-	++d_functions;
 	if (!title.isEmpty())
 		name = title;
 	else
-		name = "F" + QString::number(d_functions);
+		name = generateFunctionName();
 
 	double step=(ranges[1]-ranges[0])/(double) (points-1);
 
@@ -5874,9 +5899,8 @@ QString Graph::saveToString()
 	s+=saveAxesColors();
 	s+=saveAxesBaseline();
 	s+=saveCanvas();
-	s+=saveLabelsRotation();
 	s+=saveCurves();			
-	s+=saveErrorBars();
+	//s+=saveErrorBars();
 	s+=saveScale();
 	s+=saveAxesFormulas();
 	s+=saveLabelsFormat();
@@ -5885,6 +5909,7 @@ QString Graph::saveToString()
 	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
 	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
 	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
+	s+=saveLabelsRotation();
 	s+=saveMarkers();
 	s+="</graph>\n";
 	return s;
@@ -5913,7 +5938,6 @@ QString Graph::saveAsTemplate()
 	s+=saveAxesColors();
 	s+=saveAxesBaseline();
 	s+=saveCanvas();
-	s+=saveLabelsRotation();
 	s+=saveScale();
 	s+=saveAxesFormulas();
 	s+=saveLabelsFormat();
@@ -5922,6 +5946,7 @@ QString Graph::saveAsTemplate()
 	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
 	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
 	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
+	s+=saveLabelsRotation();
 	s+=saveMarkers();
 	s+="</graph>\n";
 	return s;
@@ -6449,7 +6474,7 @@ void Graph::copy(Graph* g)
 		for (i=0; i<g->curves(); i++)
 		{
 			QwtPlotItem *it = (QwtPlotItem *)g->curve(i);
-			if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+			if (it->rtti() == QwtPlotItem::Rtti_PlotCurve || it->rtti() == FunctionCurve::RTTI)
   	        {
   	        QwtPlotCurve *cv = (QwtPlotCurve *)it;
 			int n = cv->dataSize();
@@ -6541,9 +6566,6 @@ void Graph::copy(Graph* g)
 	axesFormatInfo = g->axesFormatInfo;
 	axisType = g->axisType;
 
-	setAxisLabelRotation(QwtPlot::xBottom, g->labelsRotation(QwtPlot::xBottom));
-	setAxisLabelRotation(QwtPlot::xTop, g->labelsRotation(QwtPlot::xTop));
-
 	for (i=0; i<QwtPlot::axisCnt; i++)
 	{
 		QwtScaleWidget *sc = g->plotWidget()->axisWidget(i);
@@ -6585,7 +6607,7 @@ void Graph::copy(Graph* g)
 		else if (se->transformation()->type() == QwtScaleTransformation::Linear)
 			sc_engine = new QwtLinearScaleEngine();
 
-		int majorTicks = (int)lst.count();
+		int majorTicks = plot->axisMaxMajor(i);
   	    int minorTicks = plot->axisMaxMinor(i);
   	    d_plot->setAxisMaxMajor (i, majorTicks);
   	    d_plot->setAxisMaxMinor (i, minorTicks);
@@ -6615,6 +6637,9 @@ void Graph::copy(Graph* g)
 	setMinorTicksType(g->plotWidget()->getMinorTicksType());
 	setTicksLength(g->minorTickLength(), g->majorTickLength());
 
+	setAxisLabelRotation(QwtPlot::xBottom, g->labelsRotation(QwtPlot::xBottom));
+  	setAxisLabelRotation(QwtPlot::xTop, g->labelsRotation(QwtPlot::xTop));
+	
 	QwtArray<long> imag = g->imageMarkerKeys();
 	for (i=0;i<(int)imag.size();i++)
 	{

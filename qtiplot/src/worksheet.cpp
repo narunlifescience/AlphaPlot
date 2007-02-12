@@ -137,7 +137,6 @@ void Table::init(int rows, int cols)
 	accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_A ), this, SLOT(selectAllTable()) );
 
 	connect(worksheet, SIGNAL(valueChanged(int,int)),this, SLOT(cellEdited(int,int)));
-	specifications = saveToString("geometry\n");
 }
 
 void Table::colWidthModified(int, int, int)
@@ -692,10 +691,15 @@ QStringList Table::drawableColumnSelection()
   	QStringList names;
   	for (int i=0;i<worksheet->numCols();i++)
   	{
-	if(worksheet->isColumnSelected (i, true) && 
-	   (col_plot_type[i] == Y || col_plot_type[i] == yErr || col_plot_type[i] == xErr))
-			names<<QString(name())+"_"+col_label[i];
-	}
+	if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
+		names<<QString(name())+"_"+col_label[i];
+    } 	       
+  	 
+  	for (int j=0; j<worksheet->numCols(); j++)
+  	{
+  	 	if(worksheet->isColumnSelected (j,true) && (col_plot_type[j] == yErr || col_plot_type[j] == xErr))
+  	    	names<<QString(name())+"_"+col_label[j];
+  	}
 	return names;
 }
 
@@ -2385,6 +2389,8 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			line = s.split(sep, QString::SkipEmptyParts);	
 			int end = startCol+(int)line.count();
 			for (i=startCol; i<end; i++)
+  	        	col_label[i] = QString::null;
+			for (i=startCol; i<end; i++)
 			{
 				comments[i] = line[i-startCol];
 				s = line[i-startCol].remove(QRegExp("\\W")).replace("_","-");
@@ -2533,7 +2539,10 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
 				s = s.stripWhiteSpace();
-			line = s.split(sep, QString::SkipEmptyParts);	
+			line = s.split(sep, QString::SkipEmptyParts);
+			for (i=0; i<(int)line.count(); i++)
+  	        	col_label[i] = QString::null;
+			
 			for (i=0; i<(int)line.count(); i++)
 			{
 				comments[i] = line[i];

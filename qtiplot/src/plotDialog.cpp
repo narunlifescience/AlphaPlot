@@ -1159,8 +1159,10 @@ void PlotDialog::setActiveCurve(int index)
 
 		setPenStyle(c->pen().style());
 		boxLineColor->setColor(c->pen().color());
-		boxLineWidth->setValue(c->pen().width());		
+		boxLineWidth->setValue(c->pen().width());	
+		fillGroupBox->blockSignals(true);		
 		fillGroupBox->setChecked(c->brush().style() != Qt::NoBrush );
+		fillGroupBox->blockSignals(false);
 		boxAreaColor->setColor(c->brush().color());
 		boxPattern->setPattern(c->brush().style());
 
