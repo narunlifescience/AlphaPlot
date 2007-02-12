@@ -9770,7 +9770,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 		((MyWidget *)w)->setStatus(MyWidget::Normal);
 
 		if (lst[5] == "hidden")
-			hideWindow((MyWidget* )w);
+			app->hideWindow((MyWidget* )w);
 	}
 
 	if (s.contains ("active"))
