@@ -145,7 +145,7 @@ protected:
 	QLabel *label1, *label2, *label3, *boxScaleTypeLabel, *minorBoxLabel, *labelTable;
 	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
 	QComboBox *boxUnit, *boxTableName, *boxGridXAxis, *boxGridYAxis;
-	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor;
+	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor, *boxAxisNumColor;
 	QGroupBox  *labelBox;
 	QPushButton * buttonLabelFont;
 	TextFormatButtons *formatButtons;
@@ -174,9 +174,8 @@ public slots:
 	void drawFrame(bool framed);
 
 	void pickAxisColor();
-	void setAxisColor(const QColor& c);
+	void pickAxisNumColor();
 	void updateAxisColor(int);
-	void setAxesColors(const QStringList& colors);
 	int mapToQwtAxis(int axis);
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
@@ -229,10 +228,10 @@ signals:
 	void updateAxisTitle(int,const QString&);
 	void changeAxisFont(int, const QFont &);
 	void showAxis(int, int, const QString&, bool, int, int, bool,
-				  const QColor&, int, int, int, int, const QString&);	
+				  const QColor&, int, int, int, int, const QString&, const QColor&);
 
 protected:
-	QStringList titles, axesColors, tickLabelsOn, formatInfo;
+	QStringList titles, tickLabelsOn, formatInfo;
 	QStringList	tablesList;
 	QList<int> majTicks, minTicks, axesType, axesBaseline;
 	QFont xBottomFont, yLeftFont, xTopFont, yRightFont;

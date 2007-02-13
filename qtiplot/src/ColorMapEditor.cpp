@@ -51,7 +51,6 @@ table->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 table->verticalHeader()->hide();		
 table->horizontalHeader()->setClickable( false );
 table->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
-
 table->viewport()->setMouseTracking(true);
 table->viewport()->installEventFilter(this);
 table->setHorizontalHeaderLabels(QStringList() << tr("Level") << tr("Color"));

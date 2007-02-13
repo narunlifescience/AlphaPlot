@@ -121,6 +121,8 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     hb2->addWidget(buttonCancel);
     gl->addLayout(hb2, 1, 1);
 
+    resize(minimumSize());
+
 	connect( buttonOk, SIGNAL(clicked()), this, SLOT(quit() ) );
 	connect( buttonCancel, SIGNAL(clicked()), this, SLOT(close()));
 	connect( buttonApply, SIGNAL(clicked() ), this, SLOT(acceptParams() ) );
@@ -232,22 +234,20 @@ void PlotDialog::changePlotType(int plotType)
 void PlotDialog::initAxesPage()
 {
 	QGroupBox *gb = new QGroupBox(tr( "Attach curve to: " ));
-	QGridLayout *gl = new QGridLayout(gb);
+    QGridLayout *gl = new QGridLayout(gb);
     gl->addWidget(new QLabel( tr( "x Axis" )), 0, 0);
-	
 	boxXAxis = new QComboBox(); 
 	boxXAxis->setEditable(false);
 	boxXAxis->addItem(tr("Bottom"));
 	boxXAxis->addItem(tr("Top"));
 	gl->addWidget(boxXAxis, 0, 1);
-	
 	gl->addWidget(new QLabel( tr( "y Axis" )), 1, 0);
-	
 	boxYAxis = new QComboBox();
 	boxYAxis->setEditable(false);
 	boxYAxis->addItem(tr("Left"));
 	boxYAxis->addItem(tr("Right"));
 	gl->addWidget(boxYAxis, 1, 1);
+    gl->setRowStretch (2, 1);
 
 	axesPage = new QWidget();
 	QHBoxLayout* hlayout = new QHBoxLayout(axesPage);
@@ -291,6 +291,7 @@ void PlotDialog::initLinePage()
 	gl1->addWidget(new QLabel(tr( "Color" )), 3, 0);
 	boxLineColor = new ColorBox( false);
 	gl1->addWidget(boxLineColor, 3, 1);
+    gl1->setRowStretch (4, 1);
 
 	fillGroupBox = new QGroupBox(tr( "Fill area under curve" ));
 	fillGroupBox->setCheckable(true);
@@ -301,7 +302,8 @@ void PlotDialog::initLinePage()
 	gl2->addWidget(new QLabel(tr( "Pattern" )), 1, 0);
 	boxPattern = new PatternBox(false);
 	gl2->addWidget(boxPattern, 1, 1);
-	
+	gl2->setRowStretch (2, 1);
+
 	linePage = new QWidget();
 	QHBoxLayout* hlayout = new QHBoxLayout(linePage);
 	hlayout->addWidget(gb);
@@ -340,6 +342,7 @@ void PlotDialog::initSymbolsPage()
 	boxPenWidth = new QSpinBox();
     boxPenWidth->setRange(1, 100);
     gl->addWidget(boxPenWidth, 4, 1);
+    gl->setRowStretch (5, 1);
 
     symbolPage = new QWidget();
 	QHBoxLayout* hl = new QHBoxLayout(symbolPage);
@@ -479,6 +482,7 @@ void PlotDialog::initPercentilePage()
     gl1->addWidget(new QLabel(tr( "Min" )), 4, 0);
 	boxMinStyle = new SymbolBox(false);
     gl1->addWidget(boxMinStyle, 4, 1);
+    gl1->setRowStretch(5, 1);
 
 	QGroupBox *gb2 = new QGroupBox(tr( "Symbol" ));
     QGridLayout *gl2 = new QGridLayout(gb2);
@@ -501,6 +505,7 @@ void PlotDialog::initPercentilePage()
 	boxEdgeWidth = new QSpinBox();
     boxEdgeWidth->setRange(0, 100);
     gl2->addWidget(boxEdgeWidth, 3, 1);
+    gl2->setRowStretch(4, 1);
 
     percentilePage = new QWidget();
 	QHBoxLayout* hl = new QHBoxLayout(percentilePage);
@@ -526,37 +531,46 @@ void PlotDialog::initSpectrogramPage()
   	imageGroupBox = new QGroupBox(tr( "Image" ));
   	imageGroupBox->setCheckable (true);
 
-	QGridLayout *gl = new QGridLayout(imageGroupBox);
+	QVBoxLayout *vl = new QVBoxLayout();
   	grayScaleBox = new QRadioButton(tr("&Gray Scale"));
 	connect(grayScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
-    gl->addWidget(grayScaleBox, 0, 0);
+    vl->addWidget(grayScaleBox);
   	defaultScaleBox = new QRadioButton(tr("&Default Color Map"));
 	connect(defaultScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
-    gl->addWidget(defaultScaleBox, 1, 0);
+    vl->addWidget(defaultScaleBox);
   	customScaleBox = new QRadioButton(tr("&Custom Color Map"));
 	connect(customScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
-    gl->addWidget(customScaleBox, 2, 0);
+    vl->addWidget(customScaleBox);
   	 
+    QHBoxLayout *hl = new QHBoxLayout(imageGroupBox);
 	colorMapEditor = new ColorMapEditor();
-	gl->addWidget(colorMapEditor, 2, 1);
+    hl->addLayout(vl);
+	hl->addWidget(colorMapEditor);
 	
   	levelsGroupBox = new QGroupBox(tr( "Contour Lines" ));
   	levelsGroupBox->setCheckable(true);
   	 
-    QGridLayout *gl0 = new QGridLayout(levelsGroupBox);
-    gl0->addWidget(new QLabel(tr( "Levels" )), 0, 0);
+    QHBoxLayout *hl1 = new QHBoxLayout();
+    hl1->addWidget(new QLabel(tr( "Levels" )));
 
   	levelsBox = new QSpinBox();
   	levelsBox->setRange(2, 1000);
-	gl0->addWidget(levelsBox, 0, 1);
+	hl1->addWidget(levelsBox);
+    hl1->addStretch();
+
+    QVBoxLayout *vl1 = new QVBoxLayout();
+    vl1->addLayout(hl1);
 
   	autoContourBox = new QRadioButton(tr("Use &Color Map"));
   	connect(autoContourBox, SIGNAL(toggled(bool)), this, SLOT(showDefaultContourLinesBox(bool)));
-    gl0->addWidget(autoContourBox, 1, 0);
+    vl1->addWidget(autoContourBox);
 
   	defaultContourBox = new QRadioButton(tr("Use Default &Pen"));
   	connect(defaultContourBox, SIGNAL(toggled(bool)), this, SLOT(showDefaultContourLinesBox(bool)));
-    gl0->addWidget(defaultContourBox, 2, 0);
+    vl1->addWidget(defaultContourBox);
+
+    QHBoxLayout *hl2 = new QHBoxLayout(levelsGroupBox);
+    hl2->addLayout(vl1);
 
   	defaultPenBox = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(defaultPenBox);
@@ -578,7 +592,7 @@ void PlotDialog::initSpectrogramPage()
   	boxContourStyle->addItem("_._._");
   	boxContourStyle->addItem("_.._..");
     gl1->addWidget(boxContourStyle, 2, 1);
-    gl0->addWidget(defaultPenBox, 2, 1);
+    hl2->addWidget(defaultPenBox);
 
   	connect(levelsColorBox, SIGNAL(clicked()), this, SLOT(pickContourLinesColor()));
   	 
@@ -597,15 +611,16 @@ void PlotDialog::initSpectrogramPage()
 
     gl2->addWidget(new QLabel(tr( "Width" )), 1, 0);
   	colorScaleWidthBox = new QSpinBox();
-  	colorScaleWidthBox->setRange(2, 1000);
+  	colorScaleWidthBox->setRange(2, 10000);
     gl2->addWidget(colorScaleWidthBox, 1, 1);
 	
-  	QVBoxLayout* vl = new QVBoxLayout(spectrogramPage);
-  	vl->addWidget(imageGroupBox);
-  	vl->addWidget(levelsGroupBox);
-  	vl->addWidget(axisScaleBox);
-  	 
-  	privateTabWidget->insertTab(spectrogramPage, tr( "Spectrogram" ) );
+  	QVBoxLayout* vl2 = new QVBoxLayout(spectrogramPage);
+  	vl2->addWidget(imageGroupBox);
+  	vl2->addWidget(levelsGroupBox);
+  	vl2->addWidget(axisScaleBox);
+    vl2->addStretch();
+
+  	privateTabWidget->insertTab(spectrogramPage, tr("Contour") + " / " + tr("Image"));
 }
 	
 void PlotDialog::fillBoxSymbols()
@@ -623,16 +638,16 @@ void PlotDialog::fillSymbols()
 void PlotDialog::initErrorsPage()
 {
 	QGroupBox *gb1 = new QGroupBox(tr( "Direction" ));
-    QVBoxLayout* vl = new QVBoxLayout(gb1);
 
+    QVBoxLayout* vl = new QVBoxLayout(gb1);
 	plusBox = new QCheckBox(tr( "Plus" ));
     vl->addWidget(plusBox);
-
 	minusBox = new QCheckBox(tr( "Minus" ));
     vl->addWidget(minusBox);
-
 	xBox = new QCheckBox(tr( "&X Error Bar" ));
     vl->addWidget(xBox);
+    vl->addWidget(xBox);
+    vl->addStretch();
 
 	QGroupBox *gb2 = new QGroupBox(tr( "Style" ));
     QGridLayout *gl = new QGridLayout(gb2);
@@ -663,6 +678,7 @@ void PlotDialog::initErrorsPage()
 
 	throughBox = new QCheckBox(tr( "Through Symbol" ));
     gl->addWidget(throughBox, 3, 0);
+    gl->setRowStretch (4, 1);
 
     errorsPage = new QWidget();
 	QHBoxLayout* hl = new QHBoxLayout(errorsPage);
@@ -702,6 +718,8 @@ void PlotDialog::initHistogramPage()
 	QVBoxLayout* vl = new QVBoxLayout(histogramPage);
 	vl->addLayout(hl);
 	vl->addWidget(GroupBoxH);
+    vl->addStretch();
+
     privateTabWidget->insertTab( histogramPage, tr( "Histogram Data" ) );
 
 	connect(automaticBox, SIGNAL(clicked()), this, SLOT(setAutomaticBinning()));
@@ -723,6 +741,7 @@ void PlotDialog::initSpacingPage()
     offsetBox->setRange(-1000, 1000);
     offsetBox->setSingleStep(50);
     gl->addWidget(offsetBox, 1, 1);
+    gl->setRowStretch (2, 1);
 
 	privateTabWidget->insertTab( spacingPage, tr( "Spacing" ));
 }
@@ -752,6 +771,7 @@ void PlotDialog::initVectPage()
     gl2->addWidget(headAngleBox, 1, 1);
 	filledHeadBox = new QCheckBox(tr( "&Filled" ));
     gl2->addWidget(filledHeadBox, 2, 0);
+    gl2->setRowStretch(3, 1);
 
 	GroupBoxVectEnd = new QGroupBox(tr( "End Point" ));
     QGridLayout *gl3 = new QGridLayout(GroupBoxVectEnd);
@@ -772,21 +792,17 @@ void PlotDialog::initVectPage()
 	vectPosBox->addItem(tr("Middle"));
 	vectPosBox->addItem(tr("Head"));
     gl3->addWidget(vectPosBox, 2, 1);
+    gl3->setRowStretch(3, 1);
 
     vectPage = new QWidget();
 
     QVBoxLayout *vl1 = new QVBoxLayout();
     vl1->addWidget(gb1);
     vl1->addWidget(gb2);
-    vl1->addStretch();
-
-    QVBoxLayout *vl2 = new QVBoxLayout();
-    vl2->addWidget(GroupBoxVectEnd);
-    vl2->addStretch();
 
 	QHBoxLayout *hl = new QHBoxLayout(vectPage);
     hl->addLayout(vl1);
-    hl->addLayout(vl2);
+    hl->addWidget(GroupBoxVectEnd);
 
 	privateTabWidget->insertTab( vectPage, tr( "Vector" ) );
 }
@@ -1001,7 +1017,7 @@ void PlotDialog::insertTabs(int plot_type)
 	}
 	else if (plot_type == Graph::ColorMap || plot_type == Graph::GrayMap || plot_type == Graph::ContourMap)
   	{
-  		privateTabWidget->addTab(spectrogramPage, tr("Spectrogram"));
+  		privateTabWidget->addTab(spectrogramPage, tr("Colors") + " / " + tr("Contour"));
   	    privateTabWidget->showPage(spectrogramPage);
   	}
 }
@@ -1061,7 +1077,7 @@ int PlotDialog::setPlotType(int index)
 		else if (curveType == Graph::Box)
 			boxPlotType->addItem( tr( "Box" ) );
 		else if (curveType == Graph::ColorMap || curveType == Graph::GrayMap || curveType == Graph::ContourMap)
-  	    	boxPlotType->insertItem( tr( "Spectrogram" ) );
+  	    	boxPlotType->insertItem(tr("Contour") + " / " + tr("Image"));
 		else 
 		{
 			boxPlotType->addItem( tr( "Line" ) );

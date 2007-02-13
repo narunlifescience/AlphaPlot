@@ -712,7 +712,7 @@ public slots:
 	void updateConfirmOptions(bool askTables, bool askMatrixes, bool askPlots2D, bool askPlots3D, bool askNotes);
 	void showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
 				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, 
-				int format, int prec, int rotation, int baselineDist, const QString& formula);
+				int format, int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor);
 	
 	//! \name Plot3D Tools
 	//@{

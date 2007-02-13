@@ -908,7 +908,7 @@ void Graph::changeTicksLength(int minLength, int majLength)
 void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table,
 		bool axisOn, int majTicksType, int minTicksType, bool labelsOn, 
 		const QColor& c,  int format, int prec, int rotation, int baselineDist,
-		const QString& formula)
+		const QString& formula, const QColor& labelsColor)
 {
 	d_plot->enableAxis(axis, axisOn);
 	if (!axisOn)
@@ -924,6 +924,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 			majTicksTypeList[axis] == majTicksType &&
 			minTicksTypeList[axis] == minTicksType &&
 			axesColors()[axis] == c.name() &&
+            axesNumColors()[axis] == labelsColor.name() &&
 			prec == d_plot->axisLabelPrecision (axis) && 
 			format == d_plot->axisLabelFormat (axis) &&
 			labelsRotation(axis) == rotation &&
@@ -937,11 +938,10 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 	scale->setMargin(baselineDist);	
 	QPalette pal = scale->palette();
 	if (pal.color(QPalette::Active, QColorGroup::Foreground) != c)
-	{
-		pal.setColor(QColorGroup::Foreground,c);
-		pal.setColor(QColorGroup::Text,c);
-		scale->setPalette(pal);
-	}
+		pal.setColor(QColorGroup::Foreground, c);
+    if (pal.color(QPalette::Active, QColorGroup::Text) != labelsColor)
+		pal.setColor(QColorGroup::Text, labelsColor);
+    scale->setPalette(pal);
 
 	if (!labelsOn)
 		sclDraw->enableComponent (QwtAbstractScaleDraw::Labels, false);
@@ -1160,6 +1160,20 @@ QColor Graph::axisTitleColor(int axis)
 	return c; 
 }
 
+void Graph::setAxesNumColors(const QStringList& colors)
+{
+  	for (int i=0;i<4;i++)
+  	{
+  	     QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+  	     if (scale)
+  	     {
+  	         QPalette pal = scale->palette();
+  	         pal.setColor(QColorGroup::Text, QColor(colors[i]));
+  	         scale->setPalette(pal);
+  	     }
+  	}
+}
+
 void Graph::setAxesColors(const QStringList& colors)
 {
 	for (int i=0;i<4;i++)
@@ -1177,11 +1191,14 @@ void Graph::setAxesColors(const QStringList& colors)
 QString Graph::saveAxesColors()
 {
 	QString s="AxesColors\t";
-	QStringList colors;
+	QStringList colors, numColors;
 	QPalette pal;
 	int i;
 	for (i=0;i<4;i++)
+    {
 		colors<<QColor(Qt::black).name();
+        numColors<<QColor(Qt::black).name();
+    }
 
 	for (i=0;i<4;i++)
 	{
@@ -1190,9 +1207,11 @@ QString Graph::saveAxesColors()
 		{
 			pal=scale->palette();
 			colors[i]=pal.color(QPalette::Active, QColorGroup::Foreground).name();
+            numColors[i]=pal.color(QPalette::Active, QColorGroup::Text).name();
 		}
 	}
 	s+=colors.join ("\t")+"\n";
+    s+="AxesNumberColors\t"+numColors.join ("\t")+"\n";
 	return s;
 }
 
@@ -1216,15 +1235,43 @@ QStringList Graph::axesColors()
 	return colors;
 }
 
-/*QFont Graph::titleFont()
-  {
-  return d_plot->title().font();
-  }
+QColor Graph::axisColor(int axis)
+{
+    QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+    if (scale)
+  	     return scale->palette().color(QPalette::Active, QColorGroup::Foreground);
+  	else
+  	     return QColor(Qt::black);
+}
 
-  QColor Graph::titleColor()
-  {
-  return d_plot->title().color();
-  }*/
+QColor Graph::axisNumbersColor(int axis)
+{
+    QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+ 	if (scale)
+  	     return scale->palette().color(QPalette::Active, QColorGroup::Text);
+  	else
+  	     return QColor(Qt::black);
+}
+
+QStringList Graph::axesNumColors()
+{
+  	QStringList colors;
+  	QPalette pal;
+  	int i;
+  	for (i=0;i<4;i++)
+  	     colors << QColor(Qt::black).name();
+
+  	for (i=0;i<4;i++)
+  	{
+  	     QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
+  	     if (scale)
+  	     {
+  	         pal=scale->palette();
+  	         colors[i]=pal.color(QPalette::Active, QColorGroup::Text).name();
+  	     }
+  	}
+  	return colors;
+}
 
 void Graph::setTitleColor(const QColor & c)
 {
@@ -3642,7 +3689,11 @@ void Graph::setAxesTitleColor(QStringList l)
 	{
 		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
 		if (scale)
-			scale->title().setColor(QColor(l[i+1]));
+		{
+  	        QwtText title = scale->title();
+  	        title.setColor(QColor(l[i+1]));
+  	        scale->setTitle(title);
+  	   }
 	}
 }
 
@@ -4146,20 +4197,20 @@ QString Graph::saveMarkers()
 	for (i=0;i<im;i++)
 	{	
 		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(d_images[i]);
-		s+="ImageMarker\t";
+		s+="<image>\t";
 		s+=mrkI->getFileName()+"\t";
 
 		QwtDoubleRect rect = mrkI->boundingRect();
 		s += QString::number(rect.left(), 'g', 15)+"\t";
 		s += QString::number(rect.top(), 'g', 15)+"\t";	
 		s += QString::number(rect.width(), 'g', 15)+"\t";
-		s += QString::number(rect.height(), 'g', 15)+"\n";
+		s += QString::number(rect.height(), 'g', 15)+"</image>\n";
 	}
 
 	for (i=0;i<l;i++)
 	{	
 		LineMarker* mrkL=(LineMarker*) d_plot->marker(d_lines[i]);
-		s+="lineMarker\t";
+		s+="<line>\t";
 
 		QwtDoublePoint sp = mrkL->startPointCoord();
 		s+=(QString::number(sp.x(), 'g', 15))+"\t";
@@ -4176,16 +4227,16 @@ QString Graph::saveMarkers()
 		s+=QString::number(mrkL->hasStartArrow())+"\t";
 		s+=QString::number(mrkL->headLength())+"\t";
 		s+=QString::number(mrkL->headAngle())+"\t";
-		s+=QString::number(mrkL->filledArrowHead())+"\n";
+		s+=QString::number(mrkL->filledArrowHead())+"</line>\n";
 	}
 
 	for (i=0;i<t;i++)
 	{	
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(texts[i]);
 		if (texts[i]!=legendMarkerID)
-			s+="textMarker\t";
+			s+="<text>\t";
 		else
-			s+="Legend\t";
+			s+="<legend>\t";
 
 		s+=QString::number(mrk->xValue(), 'g', 15)+"\t";
 		s+=QString::number(mrk->yValue(), 'g', 15)+"\t";
@@ -4204,7 +4255,10 @@ QString Graph::saveMarkers()
 
 		QStringList textList=mrk->getText().split("\n", QString::SkipEmptyParts);
 		s+=textList.join ("\t");
-		s+="\n";
+		if (d_texts[i]!=legendMarkerID)
+  	        s+="</text>\n";
+  	    else
+  	        s+="</legend>\n";
 	}
 	return s;
 }
@@ -5876,7 +5930,7 @@ bool Graph::lineProfile()
 	return lineProfileOn;	
 }
 
-QString Graph::saveToString()
+QString Graph::saveToString(bool saveAsTemplate)
 {
 	QString s="<graph>\n";			
 	s+="ggeometry\t";
@@ -5899,45 +5953,10 @@ QString Graph::saveToString()
 	s+=saveAxesColors();
 	s+=saveAxesBaseline();
 	s+=saveCanvas();
-	s+=saveCurves();			
-	//s+=saveErrorBars();
-	s+=saveScale();
-	s+=saveAxesFormulas();
-	s+=saveLabelsFormat();
-	s+=saveAxesLabelsType();
-	s+=saveTicksType();
-	s+="TicksLength\t"+QString::number(minorTickLength())+"\t"+QString::number(majorTickLength())+"\n";
-	s+="DrawAxesBackbone\t"+QString::number(drawAxesBackbone)+"\n";
-	s+="AxesLineWidth\t"+QString::number(d_plot->axesLinewidth())+"\n";
-	s+=saveLabelsRotation();
-	s+=saveMarkers();
-	s+="</graph>\n";
-	return s;
-}
 
-QString Graph::saveAsTemplate() 
-{
-	QString s="<graph>\n";			
-	s+="ggeometry\t";
-	QPoint p=this->pos();
-	s+=QString::number(p.x())+"\t";
-	s+=QString::number(p.y())+"\t";
-	s+=QString::number(this->frameGeometry().width())+"\t";
-	s+=QString::number(this->frameGeometry().height())+"\n";
-	s+=saveTitle();
-	s+="Background\t"+ d_plot->paletteBackgroundColor().name()+"\n";
-	s+="Margin\t"+QString::number(d_plot->margin())+"\n";
-	s+="Border\t"+QString::number(d_plot->lineWidth())+"\t"+d_plot->frameColor().name()+"\n";
-	s+=saveGridOptions();
-	s+=saveEnabledAxes();
-	s+="AxesTitles\t"+saveScaleTitles();
-	s+=saveAxesTitleColors();
-	s+=saveAxesTitleAlignement();
-	s+=saveFonts();
-	s+=saveEnabledTickLabels();
-	s+=saveAxesColors();
-	s+=saveAxesBaseline();
-	s+=saveCanvas();
+    if (!saveAsTemplate)
+	   s+=saveCurves();
+	
 	s+=saveScale();
 	s+=saveAxesFormulas();
 	s+=saveLabelsFormat();
@@ -6432,6 +6451,7 @@ void Graph::copy(Graph* g)
 
 	enableAxes(g->enabledAxes());
 	setAxesColors(g->axesColors());
+    setAxesNumColors(g->axesNumColors());
 	setAxesBaseline(g->axesBaseline());
 
 	setGridOptions(g->grid);

@@ -6020,14 +6020,14 @@ void ApplicationWindow::showColumnOptionsDialog()
 
 void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
 		int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format, 
-		int prec, int rotation, int baselineDist, const QString& formula)
+		 int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor)
 {
 	Table *w = table(labelsColName);
 	if ((type == Graph::Txt || type == Graph::ColHeader) && !w)
 		return;
 
 	activeGraph->showAxis(axis, type, labelsColName, w, axisOn, majTicksType, minTicksType, labelsOn, 
-			c, format, prec, rotation, baselineDist, formula);
+			c, format, prec, rotation, baselineDist, formula, labelsColor);
 }
 
 void ApplicationWindow::showGeneralPlotDialog()
@@ -6090,8 +6090,8 @@ QDialog* ApplicationWindow::showScaleDialog()
 			AxesDialog* ad= new AxesDialog(this);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
-			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&, int, int, int, int, const QString&)),
-					this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&)));
+			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&,int, int, int, int, const QString&, const QColor&)),
+					 this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&, const QColor&)));
 
 			ad->setMultiLayerPlot((MultiLayer*)w);
 			ad->insertColList(columnsList(Table::All));
@@ -6105,7 +6105,6 @@ QDialog* ApplicationWindow::showScaleDialog()
 			ad->setAxisTitles(g->scalesTitles());
 			ad->updateTitleBox(0);
 			ad->putGridOptions(g->getGridOptions());
-			ad->setAxesColors(g->axesColors());
 			ad->setTicksType(g->plotWidget()->getMajorTicksType(), g->plotWidget()->getMinorTicksType());
 			ad->setEnabledTickLabels(g->enabledTickLabels());
 			ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
@@ -10070,6 +10069,12 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			fList.pop_front();
 			ag->setAxesColors(fList);
 		}
+        else if (s.contains ("AxesNumberColors"))
+  	    {
+  	         fList=QStringList::split ("\t",s,TRUE);
+  	         fList.pop_front();
+  	         ag->setAxesNumColors(fList);
+  	    }
 		else if (s.left(5)=="grid\t")
 		{
 			QStringList grid=s.split("\t");
@@ -10381,21 +10386,36 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			ag->setCanvasBackground(QColor(list[1]));
 		}
 		else if (s.contains ("Legend"))
+        {// version <= 0.8.9
+  	         fList=QStringList::split ("\t",s, true);
+  	         ag->insertLegend(fList, fileVersion);
+  	    }
+  	    else if (s.startsWith ("<legend>") && s.endsWith ("</legend>"))
 		{
-			fList=s.split("\t");
+			fList=QStringList::split ("\t", s.remove("</legend>"), true);
 			ag->insertLegend(fList, fileVersion);
 		}
 		else if (s.contains ("textMarker"))
+        {// version <= 0.8.9
+  	         fList=QStringList::split ("\t",s, true);
+  	         ag->insertTextMarker(fList, fileVersion);
+  	    }
+  	    else if (s.startsWith ("<text>") && s.endsWith ("</text>"))
 		{
-			fList=s.split("\t");
+			fList=QStringList::split ("\t", s.remove("</text>"), true);
 			ag->insertTextMarker(fList, fileVersion);
 		}
 		else if (s.contains ("lineMarker"))
+        {// version <= 0.8.9
+  	         fList=QStringList::split ("\t",s,TRUE);
+  	         ag->insertLineMarker(fList, fileVersion);
+  	    }
+  	    else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
-			fList=s.split("\t");
+			fList=QStringList::split ("\t", s.remove("</line>"), true);
 			ag->insertLineMarker(fList, fileVersion);
 		}
-		else if (s.contains ("ImageMarker"))
+		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
 			fList=s.split("\t");
 			ag->insertImageMarker(fList, fileVersion);

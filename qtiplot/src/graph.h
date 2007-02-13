@@ -255,11 +255,9 @@ class Graph: public QWidget
 		void setAutoScale();
 		void updateScale();
 
-		QString saveAsTemplate();
-
 		//! \name Saving to File 
 		//@{
-		QString saveToString();
+		QString saveToString(bool saveAsTemplate = false);
 		QString saveGridOptions();
 		QString saveScale();
 		QString saveScaleTitles();
@@ -428,11 +426,17 @@ class Graph: public QWidget
 		void setRightAxisTitleAlignment(int align);
 		void setAxesTitlesAlignment(const QStringList& align);
 
+        QColor axisColor(int axis);
 		QStringList axesColors();
 		void setAxesColors(const QStringList& colors);
+
+        QColor axisNumbersColor(int axis);
+  	    QStringList axesNumColors();
+  	    void setAxesNumColors(const QStringList& colors);
+
 		void showAxis(int axis, int type, const QString& formatInfo, Table *table, bool axisOn, 
-				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, 
-				int format, int prec, int rotation, int baselineDist, const QString& formula);
+				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format,
+                int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor);
 
 		Q3MemArray<bool> enabledAxes();
 		void enableAxes(Q3MemArray<bool> axesOn);
