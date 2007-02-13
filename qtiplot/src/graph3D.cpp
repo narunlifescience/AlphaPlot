@@ -223,6 +223,8 @@ void Graph3D::addFunction(const QString& s,double xl,double xr,double yl,
 		style_=FILLED;
 		pointStyle = None;
 	}
+	findBestLayout();
+  	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 }
 
 void Graph3D::insertFunction(const QString& s,double xl,double xr,double yl,
@@ -275,6 +277,8 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 	sp->legend()->setLimits(gsl_vector_min(y),maxy);
 	sp->loadFromData(data, xmesh, ymesh, gsl_vector_min(x),gsl_vector_max(x),0,maxz);
 
+	findBestLayout();
+	
 	gsl_vector_free (x);
 	gsl_vector_free (y);
 	free_matrix(data,0,xmesh-1,0,ymesh-1);
@@ -302,31 +306,7 @@ void Graph3D::changeMatrix(Matrix* m)
 	if (matrix_ == m)
 		return;
 
-	matrix_ = m;
-	plotAssociation = "matrix<" + QString(m->name()) + ">";
-
-	int cols=m->numCols();	
-	int rows=m->numRows();
-	double** data_matrix = matrix(0, rows-1, 0, cols-1);
-	for (int i = 0; i < rows; i++ ) 
-	{
-		for (int j = 0; j < cols; j++) 
-		{
-			double val = m->text(i,j).toDouble();
-			data_matrix[i][j] = val;
-		}
-	}   
-
-	sp->makeCurrent();
-	sp->loadFromData(data_matrix, rows, cols, 0, rows, 0, cols);
-
-	double start, end;
-	sp->coordinates()->axes[Z1].limits (start, end);
-	sp->legend()->setLimits(start, end);
-	sp->legend()->setMajors(legendMajorTicks);
-
-	free_matrix(data_matrix,0,rows-1,0,cols-1);
-	setAxesLabels(labels);
+	addMatrixData(m);
 }
 
 void Graph3D::addMatrixData(Matrix* m)
@@ -356,6 +336,8 @@ void Graph3D::addMatrixData(Matrix* m)
 	sp->legend()->setMajors(legendMajorTicks);
 
 	free_matrix(data_matrix,0,rows-1,0,cols-1);
+	
+	findBestLayout();
 	update();
 }
 
@@ -421,6 +403,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 	}   
 	sp->makeCurrent();
 	sp->loadFromData(data, xmesh, ymesh, xl, xr, yl, yr);
+	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	sp->legend()->setLimits(zl, zr);
 	sp->legend()->setMajors(legendMajorTicks);
 
@@ -446,9 +429,8 @@ void Graph3D::changeDataColumn(Table* table, const QString& colName)
 	plotAssociation = table->colName(xCol)+"(X)," + table->colName(yCol)+"(Y),";
 	plotAssociation += colName+"(Z)";
 
-	sp->setScale(1,1,1);	
 	updateDataXYZ(table, xCol, yCol, zCol);
-	update();
+	findBestLayout();
 }
 
 void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
@@ -516,6 +498,7 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 		style_ = Qwt3D::USER;
 	}
 
+	findBestLayout();
 	deleteData(data,columns);
 }
 
@@ -571,7 +554,8 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol,
 		}
 	}   
 	sp->makeCurrent();
-	sp->loadFromData (data, columns, columns, false,false);
+	sp->loadFromData (data, columns, columns, false, false);
+	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	sp->legend()->setLimits(zl, zr);
 	sp->legend()->setMajors(legendMajorTicks);
 
@@ -605,7 +589,8 @@ void Graph3D::updateData(Table* table)
 	}
 	else
 		updateDataXY(table, xCol, yCol);
-
+	
+	findBestLayout();
 	update();
 }
 
@@ -746,7 +731,7 @@ void Graph3D::updateMatrixData(Matrix* m)
 	sp->legend()->setMajors(legendMajorTicks);
 
 	free_matrix(data,0,rows-1,0,cols-1);
-
+	findBestLayout();
 	update();
 }
 
@@ -1228,24 +1213,24 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 	switch(axis)
 	{
 		case 0:
+			majors=sp->coordinates()->axes[X1].majors ();
+  	        minors=sp->coordinates()->axes[X1].minors ();
 			sp->coordinates()->axes[X1].limits(xl,xr);	
 			if (xl !=options[0].toDouble() || xr != options[1].toDouble())
 			{
 				xl=options[0].toDouble();
 				xr=options[1].toDouble();
 				sp->coordinates()->axes[Y1].limits(yl,yr);
-
+				sp->coordinates()->axes[Z1].limits(start,stop);
+				
 				if (func)
 				{
 					func->setDomain(xl,xr,yl,yr);
 					func->create ();
+					sp->createCoordinateSystem(Triple(xl, yl, start), Triple(xr, yr, stop));
 				}
 				else
-				{
-					sp->coordinates()->axes[Z1].limits(start,stop);
 					updateScales(xl, xr, yl, yr, start, stop);
-				}
-				sp->coordinates()->axes[X1].setLimits(xl,xr);
 			}
 
 			if(st != options[4])
@@ -1262,7 +1247,6 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 				}
 			}
 
-			majors=sp->coordinates()->axes[X1].majors ();
 			newMaj= options[2].toInt();
 			if (majors != newMaj)
 			{
@@ -1272,7 +1256,6 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 				sp->coordinates()->axes[X4].setMajors(newMaj);
 			}
 
-			minors=sp->coordinates()->axes[X1].minors ();
 			newMin= options[3].toInt();
 			if (minors != newMin)
 			{
@@ -1284,27 +1267,26 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 			break;
 
 		case 1:
+			majors=sp->coordinates()->axes[Y1].majors ();
+  	        minors=sp->coordinates()->axes[Y1].minors ();
 			sp->coordinates()->axes[Y1].limits(yl,yr);
 			if (yl != options[0].toDouble() || yr != options[1].toDouble())
 			{
 				yl=options[0].toDouble();
 				yr=options[1].toDouble();
 				sp->coordinates()->axes[X1].limits(xl,xr);
-
+				sp->coordinates()->axes[Z1].limits(start,stop);
+				
 				if (func)
 				{
 					func->setDomain(xl,xr,yl,yr);
 					func->create ();
+					sp->createCoordinateSystem(Triple(xl, yl, start), Triple(xr, yr, stop));
 				}
 				else
-				{
-					sp->coordinates()->axes[Z1].limits(start,stop);
 					updateScales(xl, xr, yl, yr,start,stop);
-				}
-				sp->coordinates()->axes[Y1].setLimits(yl,yr);
 			}
 
-			majors=sp->coordinates()->axes[Y1].majors ();
 			newMaj= options[2].toInt();
 			if (majors != newMaj )
 			{
@@ -1314,7 +1296,6 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 				sp->coordinates()->axes[Y4].setMajors(newMaj);
 			}
 
-			newMin = options[3].toInt();
 			minors=sp->coordinates()->axes[Y1].minors ();
 			if (minors != newMin)
 			{
@@ -1340,44 +1321,27 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 			break;
 
 		case 2:
-			if(st != options[4])
-			{
-				if (options[4]=="0")
-				{
-					sp->coordinates()->axes[Z1].setScale (LINEARSCALE);
-					scaleType[axis]=0;
-				}
-				else
-				{
-					sp->coordinates()->axes[Z1].setScale (LOG10SCALE);
-					scaleType[axis]=1;
-				}
-			}
-
+			majors=sp->coordinates()->axes[Z1].majors();
+			minors=sp->coordinates()->axes[Z1].minors();	
 			sp->coordinates()->axes[Z1].limits(start,stop);
-
 			if (start != options[0].toDouble() || stop != options[1].toDouble())
 			{
 				start=options[0].toDouble();
 				stop=options[1].toDouble();
-
+				sp->coordinates()->axes[X1].limits(xl,xr);
+  	            sp->coordinates()->axes[Y1].limits(yl,yr);
 				if (func)
 				{
 					func->setMinZ(start);
 					func->setMaxZ(stop);
 					func->create ();
+					sp->createCoordinateSystem(Triple(xl, yl, start), Triple(xr, yr, stop));
 				}
 				else
-				{
-					sp->coordinates()->axes[X1].limits(xl,xr);
-					sp->coordinates()->axes[Y1].limits(yl,yr);
 					updateScales(xl, xr, yl, yr, start, stop);
-				}
-				sp->coordinates()->axes[Z1].setLimits(start,stop);
 				sp->legend()->setLimits(start,stop);
 			}
-
-			majors=sp->coordinates()->axes[Z1].majors();
+			
 			newMaj= options[2].toInt();
 			if (majors != newMaj )
 			{
@@ -1387,7 +1351,6 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 				sp->coordinates()->axes[Z4].setMajors(newMaj);
 			}
 
-			minors=sp->coordinates()->axes[Z1].minors();
 			newMin = options[3].toInt();
 			if (minors != newMin)
 			{
@@ -1396,9 +1359,21 @@ void Graph3D::updateScale(int axis,const QStringList& options)
 				sp->coordinates()->axes[Z3].setMinors(newMin);
 				sp->coordinates()->axes[Z4].setMinors(newMin);
 			}
+			if(st != options[4])
+  	        {
+  	         	if (options[4]=="0")
+  	            {
+  	             	sp->coordinates()->axes[Z1].setScale (LINEARSCALE);
+  	            	scaleType[axis]=0;
+  	            }
+  	            else
+  	            {
+  	            	sp->coordinates()->axes[Z1].setScale (LOG10SCALE);
+  	                scaleType[axis]=1;
+  	            }
+  	        }
 			break;
 	}
-
 	update();
 	emit modified();
 }
@@ -1467,7 +1442,7 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 	} 
 	sp->loadFromData(data_matrix, nc, nr, xl, xr, yl, yr);
 	free_matrix(data_matrix, 0, nc-1, 0, nr-1);
-
+	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	sp->legend()->setLimits(zl, zr);
 	sp->legend()->setMajors(legendMajorTicks);
 	update();
@@ -1519,6 +1494,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 	}   
 
 	sp->loadFromData(data, xmesh, ymesh, xl, xr, yl, yr);
+	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	free_matrix(data,0,xmesh-1,0,ymesh-1);
 }
 
@@ -1567,6 +1543,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 		}
 	}   
 	sp->loadFromData (data, columns, columns, false,false);
+	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	deleteData(data,columns);
 }
 
@@ -3011,7 +2988,30 @@ while ( file )
       }
 return true;
 }
-  	
+ 
+void Graph3D::findBestLayout()
+{
+  	double start, end;
+  	sp->coordinates()->axes[X1].limits (start, end);
+  	double xScale = 1/fabs(end-start);
+  	 
+  	sp->coordinates()->axes[Y1].limits (start, end);
+  	double yScale = 1/fabs(end-start);
+  	 
+  	sp->coordinates()->axes[Z1].limits (start, end);
+  	double zScale = 1/fabs(end-start);
+  	 
+  	double d = (sp->hull().maxVertex-sp->hull().minVertex).length();
+  	sp->setScale(xScale, yScale, zScale);
+  	sp->setZoom(d/sqrt(3));
+  	 
+  	double majl = 0.1/yScale;
+  	updateTickLength(0, majl, 0.6*majl);
+  	majl = 0.1/xScale;
+  	updateTickLength(1, majl, 0.6*majl);
+  	updateTickLength(2, majl, 0.6*majl);
+}
+		
 Graph3D::~Graph3D()      
 {
 	if (func)

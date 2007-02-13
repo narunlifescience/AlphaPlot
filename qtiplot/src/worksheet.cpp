@@ -263,10 +263,34 @@ void Table::print()
 	}
 }
 
-void Table::cellEdited(int,int col)
+void Table::cellEdited(int row, int col)
 {
-	QString name=colName(col);
-	emit modifiedData(this, name);
+	char f;
+	int precision;
+  	columnNumericFormat(col, f, precision);
+  	 
+  	QString text = worksheet->text(row,col).replace(",", ".");
+  	bool ok = false;
+  	double res = text.toDouble(&ok);
+  	if (!text.isEmpty() && ok)
+  		worksheet->setText(row, col, QString::number(res, f, precision));
+  	else
+  	{
+  	Script *script = scriptEnv->newScript(worksheet->text(row,col),this,QString("<%1_%2_%3>").arg(name()).arg(row+1).arg(col+1));
+  	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
+  	 
+  	script->setInt(row+1, "i");
+  	script->setInt(col+1, "j");
+  	QVariant ret = script->eval();
+  	if(ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong || ret.type()==QVariant::ULongLong)
+  		worksheet->setText(row, col, ret.toString());
+  	else if(ret.canCast(QVariant::Double))
+  		worksheet->setText(row, col, QString::number(ret.toDouble(), f, precision));
+  	else
+  		worksheet->setText(row, col, "");
+  	}
+  	 
+  	emit modifiedData(this, colName(col));
 	emit modifiedWindow(this);
 }
 
@@ -2799,11 +2823,12 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 			worksheet->selectColumn (selectedCol);
 			worksheet->setCurrentCell (0, selectedCol);
 			return true;
-		} else if (me->button() == Qt::RightButton && selectedColsNumber() <= 1) {
+		} else if (selectedColsNumber() <= 1) {
 			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
 			worksheet->clearSelection();
 			worksheet->selectColumn (selectedCol);
 			worksheet->setCurrentCell (0, selectedCol);
+			return false;
 		}
 	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)vheader) {
 		const QMouseEvent *me = (const QMouseEvent *)e;

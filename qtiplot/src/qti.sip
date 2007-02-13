@@ -423,12 +423,11 @@ public:
   sipRes = sipCpp->multilayerPlot(a0, l, a2);
 %End
 
-	// TODO: yet to be ported from scripting branch:
-	//Matrix* importImage();
-	//Matrix* importImage(const QString&);
-	//MultiLayer* plotContour(Matrix*);  
-	//MultiLayer* plotColorMap(Matrix*);
-	//MultiLayer* plotGrayScale(Matrix*);
+	Matrix* importImage();
+	Matrix* importImage(const QString&);
+	MultiLayer* plotContour(Matrix*);  
+	MultiLayer* plotColorMap(Matrix*);
+	MultiLayer* plotGrayScale(Matrix*);
 
   QWidgetList *windowsList() /PyName=windows/;
 
@@ -855,4 +854,3 @@ public:
 private:
   Folder(const Folder&);
 };
-

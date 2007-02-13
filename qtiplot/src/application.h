@@ -39,6 +39,7 @@
 #include <QTextBrowser>
 #include <QSplitter>
 #include <QDesktopServices>
+#include <QBuffer>
 
 #include "worksheet.h"
 #include "Scripting.h"
@@ -50,7 +51,6 @@ class QTimerEvent;
 class QDragEnterEvent;
 class QTranslator;
 class QDockWidget;
-
 class QAction;
 class QActionGroup;
 class QMenu;
@@ -109,7 +109,7 @@ public:
 	QTextEdit *console;
 #endif
 	QWorkspace* ws;
-    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools;
+    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools, *plotMatrixBar;
     QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
 	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend; 
@@ -218,10 +218,13 @@ public slots:
 	void deleteLayer();
 	
 	//! Creates a new spectrogram graph
-  	MultiLayer* plotSpectrogram(Graph::CurveType type);
-  	MultiLayer* plotGrayMap();
-  	MultiLayer* plotContourMap();
-  	MultiLayer* plotColorMap();
+  	MultiLayer* plotSpectrogram(Matrix *m, Graph::CurveType type);
+  	void plotGrayScale();
+  	MultiLayer* plotGrayScale(Matrix *m);
+  	void plotContour();
+  	MultiLayer* plotContour(Matrix *m);
+  	void plotColorMap();
+  	MultiLayer* plotColorMap(Matrix *m);
 			
 	//! Rearrange the layersin order to fit to the size of the plot window
   	void autoArrangeLayers();
@@ -400,7 +403,8 @@ public slots:
 	void pixelLineProfile();
 	void loadImage();
 	void loadImage(const QString& fn);
-	void importImage();
+	Matrix* importImage();
+  	Matrix* importImage(const QString& fn);
 	//@}
 
 	//! \name Export and Print
@@ -717,6 +721,12 @@ public slots:
 	//! \name Plot3D Tools
 	//@{
 	void toggle3DAnimation(bool on = true);
+	 //! Turns perspective mode on or off
+  	void togglePerspective(bool on = true);
+  	//! Resets rotation of 3D plots to default values
+  	void resetRotation();
+  	//! Finds best layout for the 3D plot
+  	void fitFrameToLayer();
 	void setFramed3DPlot();
 	void setBoxed3DPlot();
 	void removeAxes3DPlot();
@@ -775,6 +785,7 @@ public slots:
 	bool alreadyUsedName(const QString& label);
 	bool projectHas2DPlots();
 	bool projectHas3DPlots();
+	bool projectHasMatrices();
 
 	//! Returns a pointer to the window named "name"
 	QWidget* window(const QString& name);
@@ -1051,7 +1062,7 @@ private:
 	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToRow;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 	QAction *actionShowScriptWindow;
-	QAction *actionAnimate;
+	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;
 
 private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
@@ -1060,7 +1071,7 @@ private:
 	//! Used when checking for new versions
 	QHttp http;
 	//! Used when checking for new versions
-	QFile versionFile;
+	QBuffer version_buffer;
 
 	QSplitter *explorerSplitter;
 };

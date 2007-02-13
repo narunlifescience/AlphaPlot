@@ -788,7 +788,7 @@ void MultiLayer::setRows(int r)
 
 QPixmap MultiLayer::canvasPixmap()
 {
-    return QPixmap::grabWidget(canvas, 0, 0, canvas->width(), canvas->height());
+    return QPixmap::grabWidget(canvas);
 }
 
 void MultiLayer::exportImage(const QString& fileName, const QString& fileType,

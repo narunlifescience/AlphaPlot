@@ -224,6 +224,9 @@ public slots:
 	 */
 	int exec();
 
+private slots:
+	void pageChanged ( QWidget *page);
+
 signals:
 	void updateAxisTitle(int,const QString&);
 	void changeAxisFont(int, const QFont &);
@@ -240,7 +243,8 @@ protected:
 	int xBottomLabelsRotation, xTopLabelsRotation;
 	MultiLayer *mPlot;
 	Graph* d_graph;
-
+	//! Last selected tab
+  	QWidget* lastPage;
 };
 
 #endif

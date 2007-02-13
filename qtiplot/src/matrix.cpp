@@ -156,6 +156,13 @@ void Matrix::moveCurrentCell()
 
 void Matrix::cellEdited(int row,int col)
 {
+	QString text = d_table->text(row,col).replace(",", ".");
+  	bool ok = false;
+  	double res = text.toDouble(&ok);
+  	if (!text.isEmpty() && ok)
+  		d_table->setText(row, col, QString::number(res, txt_format.toAscii(), num_precision));
+  	else
+  	{			
 	Script *script = scriptEnv->newScript(d_table->text(row,col),this,QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
 	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
 
@@ -171,7 +178,7 @@ void Matrix::cellEdited(int row,int col)
 		d_table->setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
 	else
 		d_table->setText(row, col, "");
-
+	}
 	emit modifiedWindow(this);
 }
 

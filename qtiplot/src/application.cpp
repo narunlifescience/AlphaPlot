@@ -600,6 +600,28 @@ void ApplicationWindow::initToolBars()
 	addToolBar( Qt::TopToolBarArea, displayBar );
 	displayBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 	displayBar->hide();
+	
+	plotMatrixBar = new QToolBar( tr( "Matrix Plot" ), this);
+	plotMatrixBar->setObjectName("plotMatrixBar"); 
+  	addToolBar(Qt::BottomToolBarArea, plotMatrixBar);
+	
+  	actionPlot3DWireFrame->addTo(plotMatrixBar);
+  	actionPlot3DHiddenLine->addTo(plotMatrixBar);
+  	 
+  	actionPlot3DPolygons->addTo(plotMatrixBar);
+  	actionPlot3DWireSurface->addTo(plotMatrixBar);
+  	 
+  	plotMatrixBar->addSeparator();
+  	 
+  	actionPlot3DBars->addTo(plotMatrixBar);
+  	actionPlot3DScatter->addTo(plotMatrixBar);
+  	 
+  	plotMatrixBar->addSeparator();
+  	actionColorMap->addTo(plotMatrixBar);
+  	actionContourMap->addTo(plotMatrixBar);
+  	actionGrayMap->addTo(plotMatrixBar);
+  	 
+  	plotMatrixBar->hide();
 }
 
 void ApplicationWindow::insertTranslatedStrings()
@@ -626,6 +648,7 @@ void ApplicationWindow::insertTranslatedStrings()
 	plotTools->setLabel(tr("Plot"));
 	fileTools->setLabel(tr("File"));
 	editTools->setLabel(tr("Edit"));
+	plotMatrixBar->setLabel(tr("Matrix Plot"));
 	plot3DTools->setLabel(tr("3D Surface"));
 
 	file->changeItem(newMenuID, tr("&New"));
@@ -1194,6 +1217,8 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			plot3DTools->hide();
 		if (!projectHas2DPlots())
 			plotTools->hide();
+		if (!projectHasMatrices())
+  	    	plotMatrixBar->hide();
 		if ((int)tableWindows.count()<=0)
 			tableTools->hide();
 
@@ -1205,6 +1230,7 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			plotTools->setEnabled (true);
 			plot3DTools->setEnabled (false);
 			tableTools->setEnabled(false);
+			plotMatrixBar->setEnabled (false);
 		}
 		else if (w->inherits("Table"))
 		{
@@ -1214,17 +1240,23 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			plotTools->setEnabled (false);
 			plot3DTools->setEnabled (false);
 			tableTools->setEnabled (true);
+			plotMatrixBar->setEnabled (false);
 		}
 		else if (w->isA("Matrix"))
 		{
+			if (plotMatrixBar->isHidden())
+  	        	plotMatrixBar->show();
+			
 			plotTools->setEnabled (false);
 			plot3DTools->setEnabled (false);
 			tableTools->setEnabled (false);
+			plotMatrixBar->setEnabled (true);
 		}
 		else if (w->isA("Graph3D"))
 		{
 			plotTools->setEnabled (false);
 			tableTools->setEnabled (false);
+			plotMatrixBar->setEnabled (false);
 
 			if (plot3DTools->isHidden())
 				plot3DTools->show();
@@ -1242,6 +1274,7 @@ void ApplicationWindow::customToolBars(QWidget* w)
 			plotTools->setEnabled (false);
 			plot3DTools->setEnabled (false);
 			tableTools->setEnabled (false);
+			plotMatrixBar->setEnabled (false);
 		}
 
 	}
@@ -1254,11 +1287,12 @@ void ApplicationWindow::hideToolbars()
 	plot3DTools->hide();
 	plotTools->hide();
 	tableTools->hide();
+	plotMatrixBar->hide();
 
 	plotTools->setEnabled (false);
 	tableTools->setEnabled (false);
 	plot3DTools->setEnabled (false);
-
+	plotMatrixBar->setEnabled (false);
 }
 
 void ApplicationWindow::plot3DRibbon()
@@ -2216,7 +2250,7 @@ void ApplicationWindow::initPlot3D(Graph3D *plot)
 	customToolBars((QWidget*)plot);
 }
 
-void ApplicationWindow::importImage()
+Matrix* ApplicationWindow::importImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
 	QString filter = tr("Images") + " (", aux1, aux2;
@@ -2231,13 +2265,23 @@ void ApplicationWindow::importImage()
 	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Import image from file"), imagesDirPath, filter);
 	if ( !fn.isEmpty() )
 	{
+		QFileInfo fi(fn);
+		imagesDirPath = fi.dirPath(true);
+  	    return importImage(fn);
+  	}
+  	else return 0;
+}
+  	 
+Matrix* ApplicationWindow::importImage(const QString& fn)
+{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		QPixmap photo;
-		for (int i=0; i<(int)list.count();i++)
+		QList<QByteArray> lst = QImageReader::supportedImageFormats();
+		for (int i=0; i<(int)lst.count();i++)
 		{
-			if (fn.contains("." + list[i], false))
+			if (fn.contains("." + lst[i], false))
 			{
-				photo.load(fn,list[i],QPixmap::Auto);
+				photo.load(fn, lst[i], QPixmap::Auto);
 				break;
 			}
 		}
@@ -2246,11 +2290,8 @@ void ApplicationWindow::importImage()
 		m->setCaptionPolicy(MyWidget::Both);
 		setListViewLabel(m->name(), fn);
 
-		QFileInfo fi(fn);
-		imagesDirPath = fi.dirPath(true);
-
 		QApplication::restoreOverrideCursor();
-	}
+		return m;
 }
 
 void ApplicationWindow::loadImage()
@@ -6688,11 +6729,8 @@ void ApplicationWindow::showFitDialog()
 	if(w->isA("MultiLayer"))
 		plot = (MultiLayer*)w;
 	else if(w->isA("Table"))
-	{
-		Table *t = (Table *)w;
-		plot = multilayerPlot(t, t->selectedColumns(), Graph::LineSymbols);
-	}
-
+		plot = multilayerPlot((Table *)w, ((Table *)w)->drawableColumnSelection(), Graph::LineSymbols);
+	
 	if (!plot)
 		return;
 
@@ -7592,8 +7630,7 @@ Graph3D* ApplicationWindow::copySurfacePlot()
 		if (g->userFunction())
 		{
 			g2 = newPlot3D(caption,g->formula(),g->xStart(),g->xStop(),
-					g->yStart(),g->yStop(),
-					g->zStart(),g->zStop());
+					g->yStart(),g->yStop(), g->zStart(),g->zStop());
 		}
 		else if (s.endsWith("(Z)",true))
 			g2 = dataPlotXYZ(caption,s,g->xStart(),g->xStop(),
@@ -8216,7 +8253,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 	QStringList fileNames;
 	if (Q3UriDrag::decodeLocalFiles(e, fileNames))
 	{
-		QList<QByteArray> lst = QImageReader::supportedImageFormats();
+		QList<QByteArray> lst = QImageReader::supportedImageFormats() << "JPG";
 		QStringList asciiFiles;
 
 		for(int i = 0; i<(int)fileNames.count(); i++)
@@ -9326,6 +9363,7 @@ void ApplicationWindow::custom3DActions(QWidget *w)
 	{
 		Graph3D* plot= (Graph3D*)w;
 		actionAnimate->setOn(plot->isAnimated());
+		actionPerspective->setOn(!plot->isOrthogonal());
 		switch(plot->plotStyle())
 		{
 			case FILLEDMESH:
@@ -9550,6 +9588,27 @@ void ApplicationWindow::initPlot3DToolBar()
 
 	plot3DTools->addSeparator();
 
+	actionPerspective = new QAction( this );
+  	actionPerspective->setToggleAction( TRUE );
+  	actionPerspective->setIconSet(QPixmap(perspective_xpm) );
+  	actionPerspective->addTo( plot3DTools );
+  	actionPerspective->setOn(!orthogonal3DPlots);
+  	connect(actionPerspective, SIGNAL(toggled(bool)), this, SLOT(togglePerspective(bool)));
+  	 
+  	actionResetRotation = new QAction( this );
+  	actionResetRotation->setToggleAction( false );
+  	actionResetRotation->setIconSet(QPixmap(reset_rotation_xpm));
+  	actionResetRotation->addTo( plot3DTools );
+  	connect(actionResetRotation, SIGNAL(activated()), this, SLOT(resetRotation()));
+  	 
+  	actionFitFrame = new QAction( this );
+  	actionFitFrame->setToggleAction( false );
+  	actionFitFrame->setIconSet(QPixmap(fit_frame_xpm));
+  	actionFitFrame->addTo( plot3DTools );
+  	connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
+  	 
+  	plot3DTools->addSeparator();
+			
 	//plot style actions
 	plotstyle = new QActionGroup( this );
 	wireframe = new QAction( plotstyle );
@@ -9584,7 +9643,6 @@ void ApplicationWindow::initPlot3DToolBar()
 	barstyle->setIcon(QIcon(QPixmap(plot_bars_xpm)) );
 
 	plot3DTools->addAction(barstyle);
-	plot3DTools->addSeparator();
 	plot3DTools->addAction(pointstyle);
 
 	plot3DTools->addAction(conestyle);
@@ -10973,7 +11031,7 @@ void ApplicationWindow::createActions()
 	connect(actionShowImportDialog, SIGNAL(activated()), this, SLOT(showImportDialog()));
 
 	actionCloseAllWindows = new QAction(QIcon(QPixmap(quit_xpm)), tr("&Quit"), this);
-	actionCloseAllWindows->setShortcut( tr("Alt+F4") );
+	actionCloseAllWindows->setShortcut( tr("Ctrl+Q") );
 	connect(actionCloseAllWindows, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
 
 	actionClearLogInfo = new QAction(tr("Clear &Log Information"), this);
@@ -11180,8 +11238,8 @@ void ApplicationWindow::createActions()
 
 	actionShowColumnValuesDialog = new QAction(tr("Set Column &Values ..."), this);
 	connect(actionShowColumnValuesDialog, SIGNAL(activated()), this, SLOT(showColumnValuesDialog()));
-
-	actionShowColumnValuesDialog->setShortcut(tr("Ctrl+Q"));
+	actionShowColumnValuesDialog->setShortcut(tr("Alt+Q"));
+	
 	actionTableRecalculate = new QAction(tr("Recalculate"), this);
 	actionTableRecalculate->setShortcut(tr("Ctrl+Return"));
 	connect(actionTableRecalculate, SIGNAL(activated()), this, SLOT(recalculateTable()));
@@ -11315,10 +11373,10 @@ void ApplicationWindow::createActions()
   	connect(actionColorMap, SIGNAL(activated()), this, SLOT(plotColorMap()));
   	 
   	actionContourMap = new QAction(QIcon(QPixmap(contour_map_xpm)), tr("Contour &Lines"), this);
-  	connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContourMap()));
+  	connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContour()));
   	 
   	actionGrayMap = new QAction(QIcon(QPixmap(gray_map_xpm)), tr("&Gray Scale Map"), this);
-  	connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayMap()));
+  	connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayScale()));
 	  
 	actionSortTable = new QAction(tr("Sort Ta&ble"), this);
 	connect(actionSortTable, SIGNAL(activated()), this, SLOT(sortActiveTable()));
@@ -11561,7 +11619,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+I"));
 	
 	actionCloseAllWindows->setMenuText(tr("&Quit")); 
-	actionCloseAllWindows->setShortcut(tr("Alt+F4"));
+	actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));
 
 	actionClearLogInfo->setMenuText(tr("Clear &Log Information"));
 	actionDeleteFitTables->setMenuText(tr("Delete &Fit Tables"));
@@ -11698,7 +11756,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowColumnOptionsDialog->setMenuText(tr("Column &Options ..."));
 	actionShowColumnOptionsDialog->setShortcut(tr("Ctrl+Alt+O"));
 	actionShowColumnValuesDialog->setMenuText(tr("Set Column &Values ..."));
-	actionShowColumnValuesDialog->setShortcut(tr("Ctrl+Q"));
+	actionShowColumnValuesDialog->setShortcut(tr("Alt+Q"));
 	actionTableRecalculate->setMenuText(tr("Recalculate"));
 	actionShowColsDialog->setMenuText(tr("&Columns..."));
 	actionShowRowsDialog->setMenuText(tr("&Rows..."));
@@ -11925,6 +11983,21 @@ void ApplicationWindow::translateActionsStrings()
 	actionAnimate->setMenuText( tr( "Animation" ) );
 	actionAnimate->setToolTip( tr( "Animation" ) );
 	actionAnimate->setStatusTip( tr( "Animation" ) );
+	
+	 actionPerspective->setText( tr( "Enable perspective" ) );
+  	 actionPerspective->setMenuText( tr( "Enable perspective" ) );
+  	 actionPerspective->setToolTip( tr( "Enable perspective" ) );
+  	 actionPerspective->setStatusTip( tr( "Enable perspective" ) );
+  	 
+  	 actionResetRotation->setText( tr( "Reset rotation" ) );
+  	 actionResetRotation->setMenuText( tr( "Reset rotation" ) );
+  	 actionResetRotation->setToolTip( tr( "Reset rotation" ) );
+  	 actionResetRotation->setStatusTip( tr( "Reset rotation" ) );
+  	 
+  	 actionFitFrame->setText( tr( "Fit frame to layer" ) );
+  	 actionFitFrame->setMenuText( tr( "Fit frame to layer" ) );
+  	 actionFitFrame->setToolTip( tr( "Fit frame to layer" ) );
+  	 actionFitFrame->setStatusTip( tr( "Fit frame to layer" ) );
 }
 
 Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QString& matrix_name,
@@ -11972,28 +12045,57 @@ void ApplicationWindow::plot3DMatrix(int style)
 	QApplication::restoreOverrideCursor();
 }
 
-MultiLayer* ApplicationWindow::plotGrayMap()
-  	{
-  	return plotSpectrogram(Graph::GrayMap);
-  	}
-  	 
-MultiLayer* ApplicationWindow::plotContourMap()
-  	{
-  	return plotSpectrogram(Graph::ContourMap);
-  	}
-  	 
-MultiLayer* ApplicationWindow::plotColorMap()
-  	{
-  	return plotSpectrogram(Graph::ColorMap);
-  	}
-  	 
-MultiLayer* ApplicationWindow::plotSpectrogram(Graph::CurveType type)
-  	{
+void ApplicationWindow::plotGrayScale()
+{
   	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
-  	        return 0;
+  		return;
   	 
+  	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::GrayMap);
+} 	
+  	
+MultiLayer* ApplicationWindow::plotGrayScale(Matrix *m)
+{
+if (!m)
+	return 0;
+  	 
+return plotSpectrogram(m, Graph::GrayMap);
+}
+  	 
+void ApplicationWindow::plotContour()
+{
+if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
+	return;
+  	 
+plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ContourMap);
+} 	
+
+MultiLayer* ApplicationWindow::plotContour(Matrix *m)
+{
+  	if (!m)
+    	return 0;
+  	 
+  	return plotSpectrogram(m, Graph::ContourMap);
+}
+  	 
+void ApplicationWindow::plotColorMap()
+{
+	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
+  		return;
+  	 
+  	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ColorMap);
+}
+ 
+MultiLayer* ApplicationWindow::plotColorMap(Matrix *m)
+{
+  	if (!m)
+        return 0; 	  
+  	 
+  	return plotSpectrogram(m, Graph::ColorMap);
+}
+	
+MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
+{	 
   	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  	Matrix *m = (Matrix*)ws->activeWindow();
   	 
   	MultiLayer* g = multilayerPlot(generateUniqueName(tr("Graph")));
   	Graph* plot = g->addLayer();
@@ -12005,7 +12107,7 @@ MultiLayer* ApplicationWindow::plotSpectrogram(Graph::CurveType type)
   	emit modified();
   	QApplication::restoreOverrideCursor();
   	return g;
-  	}
+}
 	
 ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 {
@@ -12461,6 +12563,22 @@ bool ApplicationWindow::alreadyUsedName(const QString& label)
 	return false;
 }
 
+bool ApplicationWindow::projectHasMatrices()
+{
+  	QWidgetList *windows = windowsList();
+  	bool has = false;
+  	for (int i=0; i<(int)windows->count(); i++)
+  	{
+  		if (windows->at(i)->isA("Matrix"))
+  	    {
+  	    	has = true;
+  	        break;
+  	    }
+  	}
+  	delete windows;
+  	return has;
+  	}
+						
 bool ApplicationWindow::projectHas2DPlots()
 {
 	QWidgetList *windows = windowsList();
@@ -13703,15 +13821,9 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 
 void ApplicationWindow::searchForUpdates()
 {
-	versionFile.setName("qtiplot_last_version.txt");
-	if (!versionFile.open(IO_WriteOnly))
-	{
-		QMessageBox::warning(this, tr("QtiPlot - HTTP Get Version File"),
-				tr("Cannot write file %1\n%2.").arg(versionFile.name()).arg(versionFile.errorString()));
-		return;
-	}
+	version_buffer.open(IO_WriteOnly);
 	http.setHost("soft.proindependent.com");
-	http.get("/version.txt", &versionFile);
+	http.get("/version.txt", &version_buffer);
 	http.closeConnection();
 }
 
@@ -13724,16 +13836,14 @@ void ApplicationWindow::receivedVersionFile(bool error)
 		return;
 	}
 
-	versionFile.close();
+	version_buffer.close();
 
-	if (versionFile.open(IO_ReadOnly))
+	if (version_buffer.open(IO_ReadOnly))
 	{
-		QTextStream t( &versionFile );
+		QTextStream t( &version_buffer );
 		t.setEncoding(QTextStream::UnicodeUTF8);
 		QString version = t.readLine();
-
-		versionFile.close();
-		versionFile.remove();
+		version_buffer.close();
 
 		QString currentVersion = QString::number(majVersion) + "." + QString::number(minVersion) +
 			"." + QString::number(patchVersion);
@@ -13842,6 +13952,39 @@ void ApplicationWindow::showScriptWindow()
 		scriptWindow->hide();
 }
 
+/*!
+Turns perspective mode on or off
+*/
+void ApplicationWindow::togglePerspective(bool on)
+{
+  	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
+  		{
+  	    ((Graph3D*)ws->activeWindow())->setOrtho(!on);
+  	    }
+}
+  	 
+/*!
+Resets rotation of 3D plots to default values
+*/
+void ApplicationWindow::resetRotation()
+{
+  	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
+  	{
+  	 	((Graph3D*)ws->activeWindow())->setRotation(30,0,15);
+  	}
+}
+  	 
+/*!
+Finds best layout for the 3D plot
+*/
+void ApplicationWindow::fitFrameToLayer()
+{
+  	if (!ws->activeWindow() || !ws->activeWindow()->isA("Graph3D"))
+  		return;
+  	 
+  	((Graph3D *)ws->activeWindow())->findBestLayout();
+}
+		
 ApplicationWindow::~ApplicationWindow()
 {
 	if (lastCopiedLayer)

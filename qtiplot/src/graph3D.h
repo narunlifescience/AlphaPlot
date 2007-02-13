@@ -335,7 +335,9 @@ public slots:
 	void rotate();
 	void animate(bool on = true);
 	bool isAnimated(){return d_timer->isActive();};
-    
+	
+    void findBestLayout();
+	
 signals:   
 	void showContextMenu();
 	void showOptionsDialog();

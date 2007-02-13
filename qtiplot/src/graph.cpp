@@ -2056,7 +2056,7 @@ void Graph::copyImage()
 
 QPixmap Graph::graphPixmap()
 {
-	return QPixmap::grabWidget(this, 0, 0, this->width(), this->height());
+	return QPixmap::grabWidget(this);
 }
 
 void Graph::exportImage(const QString& fileName, const QString& fileType,

@@ -4,9 +4,10 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
-CONFIG	    += assistant
+CONFIG      += assistant
 CONFIG	    += release
 #CONFIG	    += debug
+
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
 DESTDIR           = ./
@@ -14,18 +15,6 @@ DEFINES     += QT_PLUGIN
 DEFINES	    += SCRIPTING_CONSOLE
 DEFINES	    += SCRIPTING_DIALOG
 QT          +=  opengl qt3support network
-
-SCRIPTING_LANGS = muParser Python
-
-TRANSLATIONS    = translations/qtiplot_de.ts \
-		          translations/qtiplot_es.ts \
-		          translations/qtiplot_fr.ts \
-		          translations/qtiplot_ru.ts \
-		          translations/qtiplot_sv.ts 
-
-#system(lupdate -verbose qtiplot.pro)
-#system(lrelease -verbose qtiplot.pro)
-
 
 #############################################################################
 ##################### 3rd PARTY HEADER FILES SECTION ########################
@@ -62,10 +51,10 @@ unix:LIBS         += ../3rdparty/liborigin/liborigin.a
 #unix:LIBS			+= -lorigin
 
 # statically link against GSL in 3rdparty
-#unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
-#unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
-# dynamically link against GSL installed system-wide
-unix:LIBS			+= -lgsl -lgslcblas
+unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+#dynamically link against GSL installed system-wide
+#unix:LIBS			+= -lgsl -lgslcblas
 
 unix:target.path=/usr/bin
 unix:INSTALLS += target
@@ -84,13 +73,29 @@ win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
 win32:LIBS		  += ../3rdparty/zlib123/lib/zdll.lib
 win32:LIBS		  += ../3rdparty/liborigin/liborigin.a
- 
-win32:RC_FILE     = src/iPlot.rc
 
 ############################################################################# 
 ###################### PROJECT FILES SECTION ################################
 ############################################################################# 
  
+###################### ICONS ################################################
+  	 
+win32:RC_FILE = icons/qtiplot.rc
+mac:RC_FILE = icons/qtiplot.icns
+
+###################### TRANSLATIONS #########################################
+
+TRANSLATIONS    = translations/qtiplot_de.ts \
+		          translations/qtiplot_es.ts \
+		          translations/qtiplot_fr.ts \
+		          translations/qtiplot_ru.ts \
+		          translations/qtiplot_sv.ts 
+
+#system(lupdate -verbose qtiplot.pro)
+#system(lrelease -verbose qtiplot.pro)
+ 
+###################### HEADERS ##############################################
+
 HEADERS  += src/application.h \
      src/graph.h \
      src/graph3D.h \
@@ -172,8 +177,10 @@ HEADERS  += src/application.h \
 	 src/textformatbuttons.h\
 	 src/TableStatistics.h\
 	 src/Spectrogram.h\
-	 src/ColorMapEditor.h
-     
+     src/ColorMapEditor.h
+
+###################### SOURCES ##############################################
+	
 SOURCES  += src/application.cpp \
      src/graph.cpp \
      src/analysis.cpp \
@@ -254,8 +261,8 @@ SOURCES  += src/application.cpp \
 	 src/ScriptingLangDialog.cpp\
 	 src/ScriptWindow.cpp\
 	 src/TableStatistics.cpp\
-	 src/Spectrogram.cpp\
-	 src/ColorMapEditor.cpp
+  	 src/Spectrogram.cpp\
+     src/ColorMapEditor.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################
@@ -267,7 +274,10 @@ SOURCES+=../3rdparty/zlib123/minigzip.c
 ##################### SCRIPTING LANGUAGES SECTION #############
 ############################################################### 
 
-# muParser v1.26
+SCRIPTING_LANGS = muParser Python
+
+##################### Default: muParser v1.28 #################
+
 contains(SCRIPTING_LANGS, muParser) {
   DEFINES +=	SCRIPTING_MUPARSER
   HEADERS +=	src/muParserScripting.h \
@@ -292,6 +302,8 @@ contains(SCRIPTING_LANGS, muParser) {
 		../3rdparty/muParser/muParserError.cpp
 }
 
+##################### PYTHON + SIP + PyQT #####################
+	
 contains(SCRIPTING_LANGS, Python) {
   DEFINES +=	SCRIPTING_PYTHON
   HEADERS +=	src/PythonScripting.h
@@ -311,6 +323,8 @@ contains(SCRIPTING_LANGS, Python) {
     system(md $${MOC_DIR})
     system($$system(call python-sipcmd.py) -c $${MOC_DIR} src/qti.sip)
   }
+
+##################### SIP generated files #####################
 
   HEADERS +=\
 	 ../tmp/qtiplot/sipqtiApplicationWindow.h\

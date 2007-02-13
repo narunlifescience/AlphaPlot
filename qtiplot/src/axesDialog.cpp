@@ -1227,10 +1227,13 @@ AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
 		for (int i=0;i<4;i++)
 			titles<<"";
 
-	// signals and slots connections
-	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-	connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
+		 lastPage = scalesPage;
+		
+		connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
+		connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+		connect( buttonApply, SIGNAL( clicked() ), this, SLOT(updatePlot() ) );
+		connect( generalDialog, SIGNAL( currentChanged ( QWidget * ) ),
+  	             this, SLOT(pageChanged ( QWidget * ) ) );
 }
 
 void AxesDialog::initScalesPage()
@@ -3231,6 +3234,20 @@ void AxesDialog::customAxisLabelFont()
 		d_graph->setAxisTitleFont(axis, fnt);
 }
 
+void AxesDialog::pageChanged ( QWidget *page )
+{
+  	if (lastPage == scalesPage && page == axesPage)
+  	{
+  		axesTitlesList->setCurrentItem(axesList->currentItem());
+  	    lastPage = page;
+  	}
+  	else if (lastPage == axesPage && page == scalesPage)
+  	{
+  		axesList->setCurrentItem(axesTitlesList->currentItem());
+  	    lastPage = page;
+  	}
+}
+	
 AxesDialog::~AxesDialog()
 {
 }
@@ -3238,9 +3255,8 @@ AxesDialog::~AxesDialog()
 int AxesDialog::exec()
 {
 	axesList->setCurrentRow(0);
-		axesGridList->setCurrentRow(0);
-		axesTitlesList->setCurrentRow(0);
+	axesGridList->setCurrentRow(0);
+	axesTitlesList->setCurrentRow(0);
 		
-		return QDialog::exec();
+	return QDialog::exec();
 }
-
