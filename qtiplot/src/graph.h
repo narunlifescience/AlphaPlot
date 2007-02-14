@@ -245,7 +245,7 @@ class Graph: public QWidget
 
 		//! \name Zoom
 		//@{
-		void zoomed (const QwtDoubleRect &rect);
+		void zoomed (const QwtDoubleRect &);
 		void zoom(bool on);
 		void zoomOut();
 		bool zoomOn();
@@ -811,7 +811,7 @@ signals:
 		QString auxMrkFileName, auxMrkText;
 
 		int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
-		int selectedCol,xCol,widthLine,fitID,linesOnPlot, defaultMarkerFrame;
+		int selectedCol,xCol,widthLine,fitID, defaultMarkerFrame;
 		QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 		int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 		int auxArrowHeadLength, auxArrowHeadAngle;

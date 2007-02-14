@@ -135,6 +135,7 @@
 #include <QDockWidget>
 #include <QPrintDialog>
 #include <QVarLengthArray>
+#include <QUrl>
 #include <QAssistantClient>
 
 #include <zlib.h>
@@ -11616,7 +11617,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionPrintAllPlots->setMenuText(tr("Print All Plo&ts"));
 	actionShowExportASCIIDialog->setMenuText(tr("E&xport ASCII"));
 	actionShowImportDialog->setMenuText(tr("Set import &options"));
-	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+I"));
+	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+0"));
 	
 	actionCloseAllWindows->setMenuText(tr("&Quit")); 
 	actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));

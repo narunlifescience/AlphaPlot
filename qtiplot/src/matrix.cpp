@@ -579,17 +579,17 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 
 	QVariant ret;
 	saveCellsToMemory();
+    double dx = fabs(x_end-x_start)/(double)(d_table->numRows()-1);
+  	double dy = fabs(y_end-y_start)/(double)(d_table->numCols()-1);
 	for (int row=startRow; row<=endRow; row++)
 		for (int col=startCol; col<=endCol; col++)
 		{
-			// apparently, I completely missed the point here (feature #2969);
-			// I expect Tilman will port Ion's version from scripting -- knut
-			script->setInt(row+1, "i");
+		    script->setInt(row+1, "i");
 			script->setInt(row+1, "row");
-			script->setInt(row+1, "y");
+            script->setDouble(y_start+row*dy, "y");
 			script->setInt(col+1, "j");
 			script->setInt(col+1, "col");
-			script->setInt(col+1, "x");
+			script->setDouble(x_start+col*dx, "x");
 			ret = script->eval();
 			if (ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
 					|| ret.type()==QVariant::ULongLong)

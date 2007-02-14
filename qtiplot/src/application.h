@@ -36,7 +36,6 @@
 #include <q3listview.h> 
 #include <QHttp> 
 #include <QFile> 
-#include <QTextBrowser>
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QBuffer>

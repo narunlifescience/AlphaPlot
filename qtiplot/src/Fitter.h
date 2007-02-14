@@ -86,8 +86,8 @@ class Fit : public QObject
 		//! Sets the color of the output fit curve. 
 		void setColor(int colorId){d_curveColorIndex = colorId;};
 
-		//! Sets the color of the output fit curve. Provided for convenience.
-		void setColor(const QColor& c);
+        //! Sets the color of the output fit curve. Provided for convenience. To be used in scripts only!
+        void setColor(const QString& colorName);
 
 		//! Specifies weather the result of the fit is a function curve
 		void generateFunction(bool yes, int points = 100);

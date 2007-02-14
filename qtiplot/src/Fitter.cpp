@@ -240,9 +240,17 @@ void Fit::setInitialGuesses(double *x_init)
 		gsl_vector_set(d_param_init, i, x_init[i]);
 }
 
-void Fit::setColor(const QColor& c)
+void Fit::setColor(const QString& colorName)
 {
-	d_curveColorIndex = ColorBox::colorIndex(c);	
+    QColor c = QColor(colorName);
+    if (!c.isValid())
+    {
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Color Name Error"),
+				tr("The color name '%1' is not valid, a default color (red) will be used instead!").arg(colorName));
+        c = QColor(Qt::red);
+    }
+
+	d_curveColorIndex = ColorBox::colorIndex(c);
 }
 
 void Fit::generateFunction(bool yes, int points)

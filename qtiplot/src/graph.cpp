@@ -162,7 +162,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 
 	fitter = 0;
 	n_curves=0;
-	linesOnPlot=0;
 	widthLine=1;mrkX=-1;mrkY=-1;fitID=0;
 	selectedCol=0;selectedPoint=-1;
 	selectedCurve =-1;selectedMarker=-1;selectedCursor=-1;
@@ -2490,6 +2489,7 @@ void Graph::removeMarker()
 		if (d_lines.contains(selectedMarker)>0)
 		{
 			int index=d_lines.find(selectedMarker,0);
+            int linesOnPlot = (int)d_lines.size();
 			for (int i=index; i<linesOnPlot; i++)
 				d_lines[i]=d_lines[i+1];
 			d_lines.resize(--linesOnPlot);
@@ -2569,6 +2569,10 @@ void Graph::pasteMarker()
 	if (selectedMarkerType==Arrow)
 	{
 		LineMarker* mrkL=new LineMarker();
+        int linesOnPlot = (int)d_lines.size();
+  	    d_lines.resize(++linesOnPlot);
+  	    d_lines[linesOnPlot-1] = d_plot->insertMarker(mrkL);
+
 		mrkL->setColor(auxMrkColor);
 		mrkL->setWidth(auxMrkWidth);
 		mrkL->setStyle(auxMrkStyle);
@@ -2579,10 +2583,7 @@ void Graph::pasteMarker()
 		mrkL->setHeadLength(auxArrowHeadLength);
 		mrkL->setHeadAngle(auxArrowHeadAngle);
 		mrkL->fillArrowHead(auxFilledArrowHead);
-		long mrkID=d_plot->insertMarker(mrkL);
-		linesOnPlot++;
-		d_lines.resize(linesOnPlot);
-		d_lines[linesOnPlot-1]=mrkID;
+
 		d_plot->replot();
 
 		selectedMarker=-1;
@@ -2592,19 +2593,21 @@ void Graph::pasteMarker()
 		QString fn=auxMrkFileName;
 		QRect rect=QRect(auxMrkStart,auxMrkEnd);
 
-		QPixmap photo;
 		QFileInfo fi(fn);
 		QString baseName = fi.fileName();
 		int pos=baseName.find(".",0);
 		QString type=baseName.right(baseName.length()-pos-1);
 
+        QPixmap photo;
 		if (type.upper()=="JPG")
 			photo.load(fn,"JPEG",QPixmap::Auto);
 		else
 			photo.load(fn,type.upper(),QPixmap::Auto);	
 
 		ImageMarker* mrk= new ImageMarker(photo);
-		long mrkID=d_plot->insertMarker(mrk);
+		int imagesOnPlot=d_images.size();
+  	    d_images.resize(++imagesOnPlot);
+  	    d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
 		mrk->setFileName(fn);
 
 		QPoint o=d_plot->canvas()->mapFromGlobal(QCursor::pos());
@@ -2615,17 +2618,16 @@ void Graph::pasteMarker()
 		mrk->setSize(rect.size());
 		d_plot->replot();
 
-		int imagesOnPlot=d_images.size();
-		d_images.resize(++imagesOnPlot);
-		d_images[imagesOnPlot-1]=mrkID;
-
 		selectedMarker=-1;
 	}
 	else
 	{	
 		LegendMarker* mrk=new LegendMarker(d_plot);
-		QPoint o=d_plot->canvas()->mapFromGlobal(QCursor::pos());
+        int texts = d_texts.size();
+  	    d_texts.resize(++texts);
+  	    d_texts[texts-1] = d_plot->insertMarker(mrk);
 
+		QPoint o=d_plot->canvas()->mapFromGlobal(QCursor::pos());
 		if (!d_plot->canvas()->contentsRect().contains(o))
 			o=QPoint(auxMrkStart.x()+20,auxMrkStart.y()+20);
 
@@ -2636,11 +2638,6 @@ void Graph::pasteMarker()
 		mrk->setText(auxMrkText);
 		mrk->setTextColor(auxMrkColor);
 		mrk->setBackgroundColor(auxMrkBkgColor);
-		long mrkID = d_plot->insertMarker(mrk);
-
-		int texts = d_texts.size();
-		d_texts.resize(++texts);
-		d_texts[texts-1] = mrkID;
 
 		d_plot->replot();
 		selectedMarker=-1;
@@ -4109,6 +4106,7 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 {
 	LineMarker* mrk= new LineMarker();
 	long mrkID=d_plot->insertMarker(mrk);
+    int linesOnPlot = (int)d_lines.size();
 	d_lines.resize(++linesOnPlot);
 	d_lines[linesOnPlot-1]=mrkID;
 
@@ -4139,6 +4137,7 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 void Graph::insertLineMarker(LineMarker* mrk)
 {
 	LineMarker* aux= new LineMarker();
+    int linesOnPlot = (int)d_lines.size();
 	d_lines.resize(++linesOnPlot);
 	d_lines[linesOnPlot-1] = d_plot->insertMarker(aux);	
 
@@ -5495,7 +5494,7 @@ bool Graph::zoomOn()
 	return (d_zoomer[0]->isEnabled() || d_zoomer[1]->isEnabled());
 }
 
-void Graph::zoomed (const QwtDoubleRect &rect)
+void Graph::zoomed (const QwtDoubleRect &)
 {	
 	emit modifiedGraph();
 }

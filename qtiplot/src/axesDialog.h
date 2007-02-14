@@ -33,6 +33,7 @@
 #include <QLabel>
 #include <QList>
 #include <QVector>
+#include <QTextEdit>
 
 class QListWidget;
 class QListWidgetItem;
@@ -51,7 +52,6 @@ class ColorBox;
 class ColorButton;
 class MultiLayer;
 class Graph;
-class QTextEdit;
 class TextFormatButtons;
 
 //! Structure containing grid properties

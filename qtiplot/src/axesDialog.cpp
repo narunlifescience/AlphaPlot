@@ -36,38 +36,26 @@
 #include "multilayer.h"
 #include "textformatbuttons.h"
 
-#include <qcolordialog.h>
-#include <qcheckbox.h>
-#include <qcombobox.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <qpushbutton.h>
-#include <qradiobutton.h>
-#include <qspinbox.h>
-#include <qtabwidget.h>
-#include <qwidget.h>
-#include <qlayout.h>
-#include <qvariant.h>
-#include <qtooltip.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qmessagebox.h>
-#include <qinputdialog.h>
-#include <qfont.h>
-#include <qfontdialog.h> 
-#include <qregexp.h> 
-#include <qwidget.h>
+#include <QColorDialog>
+#include <QCheckBox>
+#include <QComboBox>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSpinBox>
+#include <QTabWidget>
+#include <QLayout>
+#include <QMessageBox>
+#include <QFontDialog>
+#include <QDate>
+#include <QList>
+#include <QListWidget>
+#include <QVector>
+#include <QGroupBox>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
-
-#include <QDate>
-#include <QList>
-#include <QVector>
-#include <QListWidget>
-#include <QGroupBox>
-#include <QTextEdit>
 
 /* XPM */
 static const char* const bottom_scl_xpm[] = {

@@ -499,7 +499,7 @@ delete values;
   void setTolerance(double);
 
   void setColor(int);
-  void setColor(const QColor&);
+  void setColor(const QString&);
 
   void setOutputPrecision(int);
 

@@ -1172,7 +1172,6 @@ void FitDialog::accept()
 			fitter  = 0;
 		}
 
-
 		if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 1)
 			fitBuiltInFunction(funcBox->currentItem()->text(), paramsInit);
 		else if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 3)
@@ -1193,8 +1192,8 @@ void FitDialog::accept()
 		delete[] paramsInit;
 
 		if (!fitter->setDataFromCurve(curve, start, end) ||
-				!fitter->setWeightingData ((Fit::WeightingMethod)boxWeighting->currentItem(), 
-					tableNamesBox->currentText()+"_"+colNamesBox->currentText()))
+			!fitter->setWeightingData ((Fit::WeightingMethod)boxWeighting->currentItem(),
+					       tableNamesBox->currentText()+"_"+colNamesBox->currentText()))
 		{
 			delete fitter;
 			fitter  = 0;
@@ -1280,7 +1279,8 @@ bool FitDialog::containsUserFunctionName(const QString& s)
 	bool contains = false;
 	for (int i=0; i<(int)userFunctionNames.count(); i++)
 	{
-		if (s.contains(userFunctionNames[i]))
+        QString fn = userFunctionNames[i];
+		if (!fn.isEmpty() && s.contains(fn))
 		{
 			contains = true;
 			break;

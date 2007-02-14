@@ -31,6 +31,7 @@
 #include "application.h"
 #include "FunctionCurve.h"
 
+#include <QTextEdit>
 #include <QLineEdit>
 #include <QLayout>
 #include <QSpinBox>

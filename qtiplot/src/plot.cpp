@@ -132,7 +132,7 @@ void Plot::printFrame(QPainter *painter, const QRect &rect) const
 	if (paletteBackgroundColor() != Qt::white)
 		painter->setBrush(paletteBackgroundColor());
 
-	QwtPainter::drawRect(painter, rect.x(), rect.y(), rect.width(), rect.height());
+	QwtPainter::drawRect(painter, rect.x()-lw/2, rect.y()-lw/2, rect.width()+3/2*lw, rect.height()+3/2*lw);
 	painter->restore();
 }
 
