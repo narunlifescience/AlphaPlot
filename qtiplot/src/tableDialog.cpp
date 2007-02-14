@@ -267,14 +267,18 @@ w->changeColWidth(width, applyToAllBox->isChecked());
 
 void TableDialog::apply()
 {
-QString name=colName->text();
+if (colName->text().contains("_")){
+	QMessageBox::warning(this, tr("QtiPlot - Warning"),
+  	tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
+  	 
+QString name=colName->text().replace("-", "_");
 if (name.contains(QRegExp("\\W")))
 	{
 	QMessageBox::warning(this,tr("QtiPlot - Error"), 
 						tr("The column names must only contain letters and digits!"));
 	name.remove(QRegExp("\\W"));
 	}
-w->changeColName(name.remove("_"));
+w->changeColName(name.replace("_", "-"));
 w->enumerateRightCols(enumerateAllBox->isChecked());
 w->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
 w->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
@@ -451,5 +455,3 @@ else
 		}
 	}
 }
-
-

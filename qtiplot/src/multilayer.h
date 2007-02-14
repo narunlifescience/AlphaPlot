@@ -210,7 +210,7 @@ private:
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	//! Used for moving layers.
 	int xMouse, yMouse, xActiveGraph, yActiveGraph;
-	bool movedGraph, addTextOn, highlightedLayer, ignore_resize;
+	bool movedGraph, addTextOn, highlightedLayer, ignore_resize, mousePressed;
 
 	//! Used when adding text markers on new layers
 	int defaultTextMarkerFrame;

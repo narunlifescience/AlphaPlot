@@ -403,8 +403,8 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 				}
 				if (error)
 				{
-					QMessageBox::critical((ApplicationWindow *)parent(), tr("Error"), 
-							tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(yColName));
+					QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+					tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(yColName));
 					return false;
 				}
 
@@ -429,6 +429,13 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 				if (!t)
 					return false;
 
+				if (t->tableRows() < d_n)
+  	            {
+  	            	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+  	                tr("The column %1 has less points than the fitted data set. Please choose another column!.").arg(colName));
+  	                return false;
+  	            }
+							
 				weighting_dataset = colName;
 
 				int col = t->colIndex(colName);

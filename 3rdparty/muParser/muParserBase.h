@@ -1,5 +1,11 @@
-/** 
-  Copyright (C) 2004-2006 Ingo Berg
+/*
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2007 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -37,7 +43,7 @@ namespace mu
 
 /** \brief Mathematical expressions parser (base parser engine).
   
-  Version 1.26 (20060226)
+  Version 1.28 (20070103)
 
   This is the implementation of a bytecode based mathematical expressions parser. 
   The formula will be parsed from string and converted into a bytecode. 
@@ -46,7 +52,7 @@ namespace mu
   Complementary to a set of internally implemented functions the parser is able to handle 
   user defined functions and variables. 
 
-  \author (C) 2004-2006 Ingo Berg
+  \author (C) 2004-2007 Ingo Berg
 */
 class ParserBase 
 {
@@ -100,8 +106,8 @@ private:
       return (this->*m_pParseFormula)(); 
     }
 
-    void SetExpr(const std::string &a_sExpr);
-    void SetVarFactory(facfun_type a_pFactory);
+    void SetExpr(const string_type &a_sExpr);
+    void SetVarFactory(facfun_type a_pFactory, void *pUserData = NULL);
 
     void EnableOptimizer(bool a_bIsOn=true);
     void EnableByteCode(bool a_bIsOn=true);
@@ -124,6 +130,8 @@ private:
     MUP_DEFINE_FUNC(fun_type5)
     MUP_DEFINE_FUNC(multfun_type)
     MUP_DEFINE_FUNC(strfun_type1)
+    MUP_DEFINE_FUNC(strfun_type2)
+    MUP_DEFINE_FUNC(strfun_type3)
 #undef MUP_DEFINE_FUNC
 
     void DefineOprt(const string_type &a_strName, fun_type2 a_pFun, unsigned a_iPri=0, bool a_bAllowOpt = false);
@@ -158,7 +166,7 @@ private:
     */
     const char_type ** GetOprtDef() const
     {
-      return (const char **)(&c_DefaultOprt[0]);
+      return (const char_type **)(&c_DefaultOprt[0]);
     }
 
     //---------------------------------------------------------------------------
@@ -264,7 +272,7 @@ private:
                             const std::vector<token_type> &a_vArg) const;
 
     token_type ApplyStrFunc(const token_type &a_FunTok,
-                            token_type &a_Arg) const;
+                            const std::vector<token_type> &a_vArg) const;
 
     int GetOprtPri(const token_type &a_Tok) const;
 
@@ -275,7 +283,7 @@ private:
     void  ClearFormula();
     void  CheckName(const string_type &a_strName, const string_type &a_CharSet) const;
 
-#if defined(MU_PARSER_DUMP_STACK) | defined(MU_PARSER_DUMP_CMDCODE)
+#if defined(MUP_DUMP_STACK) | defined(MUP_DUMP_CMDCODE)
     void StackDump(const ParserStack<token_type > &a_stVal, 
                    const ParserStack<token_type > &a_stOprt) const;
 #endif

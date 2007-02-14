@@ -2417,7 +2417,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			for (i=startCol; i<end; i++)
 			{
 				comments[i] = line[i-startCol];
-				s = line[i-startCol].remove(QRegExp("\\W")).replace("_","-");
+				s = line[i-startCol].replace("-","_").remove(QRegExp("\\W")).replace("_","-");
 				int n = col_label.count(s);
 				if(n)
 				{
@@ -2570,7 +2570,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			for (i=0; i<(int)line.count(); i++)
 			{
 				comments[i] = line[i];
-				s = line[i].remove(QRegExp("\\W")).replace("_","-");
+				s = line[i].replace("-","_").remove(QRegExp("\\W")).replace("_","-");
 				int n = col_label.count(s);
 				if(n)
 				{

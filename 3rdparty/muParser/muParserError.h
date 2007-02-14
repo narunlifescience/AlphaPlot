@@ -1,5 +1,11 @@
 /*
-  Copyright (C) 2004, 2005 Ingo Berg
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +22,7 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 #ifndef MU_PARSER_ERROR_H
 #define MU_PARSER_ERROR_H
 
@@ -60,16 +67,16 @@ enum EErrorCodes
   ecBUILTIN_OVERLOAD    = 19, ///< Trying to overload builtin operator
   ecINVALID_FUN_PTR     = 20, ///< Invalid callback function pointer 
   ecINVALID_VAR_PTR     = 21, ///< Invalid variable pointer 
-
-  ecNAME_CONFLICT       = 22, ///< Name conflict
-  ecOPT_PRI             = 23, ///< Invalid operator priority
+  ecEMPTY_EXPRESSION    = 22, ///< The Expression is empty
+  ecNAME_CONFLICT       = 23, ///< Name conflict
+  ecOPT_PRI             = 24, ///< Invalid operator priority
   // 
-  ecDOMAIN_ERROR        = 24, ///< catch division by zero, sqrt(-1), log(0) (currently unused)
-  ecDIV_BY_ZERO         = 25, ///< Division by zero (currently unused)
-  ecGENERIC             = 26, ///< Generic error
+  ecDOMAIN_ERROR        = 25, ///< catch division by zero, sqrt(-1), log(0) (currently unused)
+  ecDIV_BY_ZERO         = 26, ///< Division by zero (currently unused)
+  ecGENERIC             = 27, ///< Generic error
 
   // internal errors
-  ecINTERNAL_ERROR      = 27, ///< Internal error of any kind.
+  ecINTERNAL_ERROR      = 28, ///< Internal error of any kind.
 
   // The last two are special entries 
   ecCOUNT,                    ///< This is no error code, It just stores just the total number of error codes
@@ -119,7 +126,7 @@ public:
     explicit ParserError(const string_type &sMsg);
     ParserError( EErrorCodes a_iErrc,
                  const string_type &sTok,
-                 const string_type &sFormula = string_type("(formula is not available)"),
+                 const string_type &sFormula = string_type(_T("(formula is not available)")),
                  int a_iPos = -1);
     ParserError( EErrorCodes a_iErrc, 
                  int a_iPos, 

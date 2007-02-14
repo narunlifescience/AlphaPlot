@@ -30,7 +30,7 @@ typedef Entry Entry;
 class OPJFile
 {
 public:
-	OPJFile(char* filename);
+	OPJFile(const char* filename);
 	int Parse();
 	double Version() { return version/100.0; }		//!< get version of project file
 	int numSpreads() { return nr_spreads; }			//!< get number of spreadsheets
@@ -38,8 +38,8 @@ public:
 	int numCols(int s) { return nr_cols[s]; }		//!< get number of columns of spreadsheet s
 	int numRows(int s,int c) { return nr_rows[s][c]; }	//!< get number of rows of column c of spreadsheet s
 	int maxRows(int s) { return maxrows[s]; }		//!< get maximum number of rows of spreadsheet s
-	const char *colName(int s, int c) { return colname[s][c].c_str(); }	//!< get name of column c of spreadsheet s
-	const char *colType(int s, int c) { return coltype[s][c].c_str(); }	//!< get type of column c of spreadsheet s
+	const char *colName(int s, int c) { printf("N"); return colname[s][c].c_str(); }	//!< get name of column c of spreadsheet s
+	const char *colType(int s, int c) { printf("T"); return coltype[s][c].c_str(); }	//!< get type of column c of spreadsheet s
 	double* Data(int s, int c) { return data[s][c]; }	//!< get data of column c of spreadsheet s
 	char* SData(int s, int c, int r) { 
 		for (unsigned int i=0;i<sdata.size();i++) {
@@ -55,7 +55,7 @@ private:
 	void ByteSwap(unsigned char * b, int n);
 	int compareSpreadnames(char *sname);	//!< returns matching spread index
 	void setColName(int spread);		//!< set default column name starting from spreadsheet spread
-	char* filename;				//!< project file name
+	const char* filename;			//!< project file name
 	int version;				//!< project version
 	int nr_spreads;				//!< number of spreadsheets
 	vector <string> spreadname;		//!< spreadsheet names
@@ -66,7 +66,7 @@ private:
 	int entry;
 	vector <Entry> sdata;			//!< label entries
 	vector < vector <string> > colname;	//!< column names
-	vector < vector <string> > coltype;	//!< column names
+	vector < vector <string> > coltype;	//!< column types
 };
 
 #endif // OPJFILE_H

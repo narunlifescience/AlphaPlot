@@ -106,6 +106,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	active_graph=0;
 	addTextOn=FALSE;
 	movedGraph=FALSE;
+	mousePressed = false;
 	highlightedLayer = false;
 	ignore_resize = false;
 	aux_rect = QRect();
@@ -472,9 +473,8 @@ void MultiLayer::moveGraph(Graph* g, const QPoint& pos)
 		xMouse=pos.x();
 		yMouse=pos.y();
 
-		QPoint aux=g->pos();
-		xActiveGraph=aux.x();
-		yActiveGraph=aux.y();
+		xActiveGraph = g->pos().x();
+		yActiveGraph = g->pos().y();
 	}
 
 	QPixmap pix = canvasPixmap();//Faster then using cache_pix;
@@ -492,8 +492,6 @@ void MultiLayer::moveGraph(Graph* g, const QPoint& pos)
 
 	xMouse=pos.x();
 	yMouse=pos.y();
-
-	emit modifiedPlot();
 }
 
 void MultiLayer::releaseGraph(Graph* g)
@@ -510,6 +508,7 @@ void MultiLayer::releaseGraph(Graph* g)
 		gr->show();
 	}
 	movedGraph=FALSE;
+	emit modifiedPlot();
 }
 
 QSize MultiLayer::arrangeLayers(bool userSize)
@@ -1361,9 +1360,11 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 	{// Get the initial location of the mouse
 		xMouse=pos.x();
 		yMouse=pos.y();		
+		mousePressed = true;
 	}
 	else
 	{
+		mousePressed = false;
 		canvas->erase();
 		showLayers(true);
 		highlightedLayer = false;
@@ -1374,12 +1375,14 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 
 void MultiLayer::mouseMoveEvent ( QMouseEvent * e )
 {
-	if (!highlightedLayer)
+	if (!highlightedLayer || !mousePressed)
 		return;
 
 	// Get the position of the mouse
 	QPoint pos = canvas->mapFromParent(e->pos());
-
+	if((QPoint(xMouse, yMouse) - pos).manhattanLength() <= QApplication::startDragDistance())
+  		return;
+	
 	int dx = pos.x() - xMouse;
 	int dy = pos.y() - yMouse;
 
@@ -1406,6 +1409,7 @@ void MultiLayer::mouseMoveEvent ( QMouseEvent * e )
 	xMouse = pos.x();
 	yMouse = pos.y();
 
+	aux_rect.normalize();
 	drawLayerFocusRect(aux_rect);
 }
 
@@ -1517,7 +1521,7 @@ void MultiLayer::releaseLayer()
 
 	canvas->erase();
 	showLayers(true);//must be called for coloured background layers
-
+	mousePressed = false;
 	highlightedLayer = false;
 	aux_rect = QRect();
 	cache_pix = QPixmap();

@@ -1,5 +1,11 @@
 /*
-  Copyright (C) 2004, 2005 Ingo Berg
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -77,7 +83,7 @@ private:
     static value_type Min(const value_type*, int);  // minimum
     static value_type Max(const value_type*, int);  // maximum
 
-    static bool IsVal(const char_type *a_szExpr, int &a_iPos, value_type &a_fVal);
+    static int IsVal(const char_type* a_szExpr, int *a_iPos, value_type *a_fVal);
 
     value_type m_fEpsilon; ///< Epsilon used for numerical differentiation.
 

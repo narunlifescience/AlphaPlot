@@ -2884,8 +2884,7 @@ boxScaleType->setCurrentItem((int)tr->type());
 
 void AxesDialog::updateTitleBox(int axis)
 {
-	QString s=titles[axis];
-		boxTitle->setText(s);
+	boxTitle->setText(titles[axis]);
 }
 
 void AxesDialog::setAxisTitles(QStringList t)
@@ -3226,12 +3225,12 @@ void AxesDialog::pageChanged ( QWidget *page )
 {
   	if (lastPage == scalesPage && page == axesPage)
   	{
-  		axesTitlesList->setCurrentItem(axesList->currentItem());
+  		axesTitlesList->setCurrentRow(axesList->currentRow());
   	    lastPage = page;
   	}
   	else if (lastPage == axesPage && page == scalesPage)
   	{
-  		axesList->setCurrentItem(axesTitlesList->currentItem());
+  		axesList->setCurrentRow(axesTitlesList->currentRow());
   	    lastPage = page;
   	}
 }

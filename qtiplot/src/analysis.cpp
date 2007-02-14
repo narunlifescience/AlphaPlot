@@ -1086,8 +1086,8 @@ void Graph::smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex)
 
 	free_intvector(index,1,np);
 
-	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
-			tr("Savitzky-Golay smoothing of ")+curve->title().text());
+	addResultCurve(n, x, s, colIndex, tr("Smoothed")+QString::number(++fitID),
+			 tr("Savitzky-Golay smoothing of ")+curve->title().text());
 
 	QApplication::restoreOverrideCursor();
 }
@@ -1109,8 +1109,6 @@ void Graph::smoothFFT(long curveKey, int points, int colIndex)
 		y[i]=curve->y(i);
 	}
 
-	//smoothFT(y, n, points); //Numerical Receipes method	
-
 	gsl_fft_real_workspace *work = gsl_fft_real_workspace_alloc(n);
 	gsl_fft_real_wavetable *real = gsl_fft_real_wavetable_alloc(n);
 	gsl_fft_real_transform (y, 1, n, real, work);//FFT forward
@@ -1128,8 +1126,8 @@ void Graph::smoothFFT(long curveKey, int points, int colIndex)
 	gsl_fft_halfcomplex_wavetable_free (hc);
 	gsl_fft_real_workspace_free (work);
 
-	addResultCurve(n, x, y, colIndex, "Smoothed"+QString::number(++fitID), 
-			QString::number(points) + " points FFT Smoothing of "+curve->title().text());
+	addResultCurve(n, x, y, colIndex, tr("Smoothed")+QString::number(++fitID),
+					QString::number(points)+" "+tr("points")+" "+tr("FFT Smoothing of")+" "+curve->title().text());
 	QApplication::restoreOverrideCursor();
 }
 
@@ -1182,8 +1180,8 @@ void Graph::smoothAverage(long curveKey, int points, int colIndex)
 		s[i]=aux/(double)(2*(n-i-1)+1);
 	}
 	s[n-1]=y[n-1];
-	addResultCurve(n, x, s, colIndex, "Smoothed"+QString::number(++fitID), 
-			QString::number(points)+" Points Average Smoothing of "+curve->title().text());
+	addResultCurve(n, x, s, colIndex, tr("Smoothed") + QString::number(++fitID),
+		QString::number(points)+" "+tr("points")+" "+tr("average smoothing of")+" "+curve->title().text());
 	QApplication::restoreOverrideCursor();
 }
 

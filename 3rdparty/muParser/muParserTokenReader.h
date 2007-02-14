@@ -1,5 +1,11 @@
- /*
-  Copyright (C) 2005 Ingo Berg
+/*
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +22,7 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 #ifndef MU_PARSER_TOKEN_READER_H
 #define MU_PARSER_TOKEN_READER_H
 
@@ -44,7 +51,7 @@ namespace mu
   {
   private:
       typedef ParserToken<value_type, string_type> token_type;
-
+      
   private:
       ParserBase *m_pParser;
       string_type m_strFormula;
@@ -60,6 +67,7 @@ namespace mu
       const strmap_type *m_pStrVarDef;
       varmap_type *m_pVarDef;  ///< The only non const pointer to parser internals
       facfun_type m_pFactory;
+      void *m_pFactoryData;
       std::vector<identfun_type> m_vIdentFun; ///< Value token identification function
       varmap_type m_UsedVar;
       value_type m_fZero;      ///< Dummy value of zero, referenced by undefined variables
@@ -103,7 +111,7 @@ namespace mu
       ParserTokenReader* Clone(ParserBase *a_pParent) const;
 
       void AddValIdent(identfun_type a_pCallback);
-      void SetVarCreator(facfun_type a_pFactory);
+      void SetVarCreator(facfun_type a_pFactory, void *pUserData);
       int GetPos() const;
       const string_type& GetFormula() const;
       const varmap_type& GetUsedVar() const;

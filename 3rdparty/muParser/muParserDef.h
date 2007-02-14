@@ -1,5 +1,11 @@
 /*
-  Copyright (C) 2005-2006 Ingo Berg
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -19,7 +25,9 @@
 #ifndef MUP_DEF_H
 #define MUP_DEF_H
 
+#include <iostream>
 #include <string>
+#include <sstream>
 #include <map>
 
 #include "muParserFixes.h"
@@ -32,39 +40,55 @@
 */
 #define MUP_BASETYPE double
 
-/** \brief Definition of the basic parser string type. */
-#define MUP_STRING_TYPE std::string
 
 /** \brief Definition of the basic bytecode datatype. */
-#define MUP_BYTECODE_TYPE int
+#define MUP_BYTECODE_TYPE long
 
 /** \brief Maybe I use this for unicode support later. */
-#ifndef _T
-  #define _T(x) x
+#if defined(_UNICODE)
+  /** \brief Definition of the basic parser string type. */
+  #define MUP_STRING_TYPE std::wstring
+
+  #if !defined(_T)
+    #define _T(x) L##x
+  #endif // not defined _T
+#else
+  #ifndef _T
+  #define _T
+  #endif
+  
+  /** \brief Definition of the basic parser string type. */
+  #define MUP_STRING_TYPE std::string
 #endif
 
 #if defined(_DEBUG)
-   /** \brief Debug macro to force an abortion of the programm with a 
-certain message.
-   */
-   #define MUP_FAIL(MSG)    \
-           bool MSG=false;        \
-           assert(MSG);
+  /** \brief Debug macro to force an abortion of the programm with a certain message.
+  */
+  #define MUP_FAIL(MSG)    \
+          bool MSG=false;  \
+          assert(MSG);
 
-   /** \brief An assertion that does not kill the program.
-   */
-   #define MUP_ASSERT(COND)                              \
-           if (!(COND))                                  \
-           {                                             \
-             stringstream_type ss;                       \
-             ss << _T("Assertion \""#COND"\" failed: "); \
-             ss << __FILE__ << _T(" line ") << __LINE__; \
-             ss << ".";                                  \
-             throw ParserError( ss.str() );              \
-           }
-#else				
-   #define MUP_FAIL(MSG)			
-   #define MUP_ASSERT(COND)	
+  #ifndef _UNICODE
+    /** \brief An assertion that does not kill the program.
+
+        This macro is neutralised in UNICODE builds. It's
+        too difficult to translate.
+    */
+    #define MUP_ASSERT(COND)                         \
+            if (!(COND))                             \
+            {                                        \
+              stringstream_type ss;                  \
+              ss << "Assertion \""#COND"\" failed: " \
+                 << __FILE__ << " line "             \
+                 << __LINE__ << ".";                 \
+              throw ParserError( ss.str() );         \
+            }
+  #else
+    #define MUP_ASSERT(COND)
+  #endif // _UNICODE
+#else
+  #define MUP_FAIL(MSG)
+  #define MUP_ASSERT(COND)
 #endif
 
 //------------------------------------------------------------------------------
@@ -80,104 +104,135 @@ certain message.
 
 namespace mu
 {
+#if defined(_UNICODE)
 
-//------------------------------------------------------------------------------
-/** \brief Bytecode values.
+  //------------------------------------------------------------------------------
+  /** \brief Encapsulate wcout. */
+  inline std::wostream& console()
+  {
+    return std::wcout;
+  }
 
-    \attention The order of the operator entries must match the order in ParserBase::c_DefaultOprt!
-*/
-enum ECmdCode
-{
-  // The following are codes for built in binary operators
-  // apart from built in operators the user has the opportunity to
-  // add user defined operators.
-  cmLE            = 0,   ///< Operator item:  less or equal
-  cmGE            = 1,   ///< Operator item:  greater or equal
-  cmNEQ           = 2,   ///< Operator item:  not equal
-  cmEQ            = 3,   ///< Operator item:  equals
-  cmLT            = 4,   ///< Operator item:  less than
-  cmGT            = 5,   ///< Operator item:  greater than
-  cmADD           = 6,   ///< Operator item:  add
-  cmSUB           = 7,   ///< Operator item:  subtract
-  cmMUL           = 8,   ///< Operator item:  multiply
-  cmDIV           = 9,   ///< Operator item:  division
-  cmPOW           = 10,  ///< Operator item:  y to the power of ...
-  cmAND           = 11,  ///< Operator item:  logical and
-  cmOR            = 12,  ///< Operator item:  logical or
-  cmXOR           = 13,  ///< Operator item:  logical xor
-  cmASSIGN        = 14,  ///< Operator item:  Assignment operator
-  cmBO            = 15,  ///< Operator item:  opening bracket
-  cmBC            = 16,  ///< Operator item:  closing bracket
-  cmCOMMA         = 17,  ///< Operator item:  comma
-  cmVAR           = 18,  ///< variable item
-  cmSTRVAR        = 19,
-  cmVAL           = 20,  ///< value item
+  /** \brief Encapsulate cin. */
+  inline std::wistream& console_in()
+  {
+    return std::wcin;
+  }
 
-  cmFUNC          = 21,  ///< Code for a function item
-  cmFUNC_STR      = 22,  ///< Code for a function with a string parameter
+#else
 
-  cmSTRING        = 23,  ///< Code for a string token
-  cmOPRT_BIN      = 24,  ///< user defined binary operator
-  cmOPRT_POSTFIX  = 25,  ///< code for postfix operators
-  cmOPRT_INFIX    = 26,  ///< code for infix operators
-  cmEND           = 27,  ///< end of formula
-  cmUNKNOWN       = 28   ///< uninitialized item
-};
+  /** \brief Encapsulate cout. */
+  inline std::ostream& console()
+  {
+    return std::cout;
+  }
 
-//------------------------------------------------------------------------------
-/** \brief Types internally used by the parser.
-*/
-enum ETypeCode
-{
-  tpSTR  = 0,     ///> String type (Function arguments and constants only, no string variables)
-  tpDBL  = 1,     ///> Floating point variables
-  tpVOID = 2      ///> Undefined type.
-};
+  /** \brief Encapsulate cin. */
+  inline std::istream& console_in()
+  {
+    return std::cin;
+  }
 
-//------------------------------------------------------------------------------
-/** \brief Parser operator precedence values. */
-enum EPrec
-{
-  // binary operators
-  prLOGIC   = 1,  ///> logic operators
-  prCMP     = 2,  ///> comparsion operators
-  prADD_SUB = 3,  ///> addition
-  prMUL_DIV = 4,  ///> multiplication/division
-  prPOW     = 5,  ///> power operator priority (highest)
+#endif
 
-  // infix operators
-  prINFIX    = 4, ///> Signs have a higher priority than ADD_SUB, but lower than power operator
-  prPOSTFIX  = 4  ///> Postfix operator priority (currently unused)
-};
+  //------------------------------------------------------------------------------
+  /** \brief Bytecode values.
 
-//------------------------------------------------------------------------------
-// basic types
-typedef MUP_BASETYPE value_type;
-typedef MUP_STRING_TYPE string_type;
-typedef MUP_BYTECODE_TYPE bytecode_type;
-typedef string_type::value_type char_type;
-typedef std::basic_stringstream<char_type,
-                                std::char_traits<char_type>,
-                                std::allocator<char_type> > stringstream_type;
+      \attention The order of the operator entries must match the order in ParserBase::c_DefaultOprt!
+  */
+  enum ECmdCode
+  {
+    // The following are codes for built in binary operators
+    // apart from built in operators the user has the opportunity to
+    // add user defined operators.
+    cmLE            = 0,   ///< Operator item:  less or equal
+    cmGE            = 1,   ///< Operator item:  greater or equal
+    cmNEQ           = 2,   ///< Operator item:  not equal
+    cmEQ            = 3,   ///< Operator item:  equals
+    cmLT            = 4,   ///< Operator item:  less than
+    cmGT            = 5,   ///< Operator item:  greater than
+    cmADD           = 6,   ///< Operator item:  add
+    cmSUB           = 7,   ///< Operator item:  subtract
+    cmMUL           = 8,   ///< Operator item:  multiply
+    cmDIV           = 9,   ///< Operator item:  division
+    cmPOW           = 10,  ///< Operator item:  y to the power of ...
+    cmAND           = 11,  ///< Operator item:  logical and
+    cmOR            = 12,  ///< Operator item:  logical or
+    cmXOR           = 13,  ///< Operator item:  logical xor
+    cmASSIGN        = 14,  ///< Operator item:  Assignment operator
+    cmBO            = 15,  ///< Operator item:  opening bracket
+    cmBC            = 16,  ///< Operator item:  closing bracket
+    cmCOMMA         = 17,  ///< Operator item:  comma
+    cmVAR           = 18,  ///< variable item
+    cmSTRVAR        = 19,
+    cmVAL           = 20,  ///< value item
 
-// Data container types
-typedef std::map<string_type, value_type*> varmap_type;
-typedef std::map<string_type, value_type> valmap_type;
-typedef std::map<string_type, std::size_t> strmap_type;
+    cmFUNC          = 21,  ///< Code for a function item
+    cmFUNC_STR      = 22,  ///< Code for a function with a string parameter
 
-// Parser callbacks
-typedef value_type (*fun_type1)(value_type);
-typedef value_type (*fun_type2)(value_type, value_type);
-typedef value_type (*fun_type3)(value_type, value_type, value_type);
-typedef value_type (*fun_type4)(value_type, value_type, value_type, value_type);
-typedef value_type (*fun_type5)(value_type, value_type, value_type, value_type, value_type);
-typedef value_type (*multfun_type)(const value_type*, int);
-typedef value_type (*strfun_type1)(const char *);
+    cmSTRING        = 23,  ///< Code for a string token
+    cmOPRT_BIN      = 24,  ///< user defined binary operator
+    cmOPRT_POSTFIX  = 25,  ///< code for postfix operators
+    cmOPRT_INFIX    = 26,  ///< code for infix operators
+    cmEND           = 27,  ///< end of formula
+    cmUNKNOWN       = 28   ///< uninitialized item
+  };
 
-// Parser utility callback functions (unrelated to the math callbacks)
-typedef bool (*identfun_type)(const char_type*, int&, value_type&);
-typedef value_type* (*facfun_type)(const char_type*);
+  //------------------------------------------------------------------------------
+  /** \brief Types internally used by the parser.
+  */
+  enum ETypeCode
+  {
+    tpSTR  = 0,     ///> String type (Function arguments and constants only, no string variables)
+    tpDBL  = 1,     ///> Floating point variables
+    tpVOID = 2      ///> Undefined type.
+  };
 
+  //------------------------------------------------------------------------------
+  /** \brief Parser operator precedence values. */
+  enum EPrec
+  {
+    // binary operators
+    prLOGIC   = 1,  ///> logic operators
+    prCMP     = 2,  ///> comparsion operators
+    prADD_SUB = 3,  ///> addition
+    prMUL_DIV = 4,  ///> multiplication/division
+    prPOW     = 5,  ///> power operator priority (highest)
+
+    // infix operators
+    prINFIX    = 4, ///> Signs have a higher priority than ADD_SUB, but lower than power operator
+    prPOSTFIX  = 4  ///> Postfix operator priority (currently unused)
+  };
+
+  //------------------------------------------------------------------------------
+  // basic types
+  typedef MUP_BASETYPE value_type;
+  typedef MUP_STRING_TYPE string_type;
+  typedef MUP_BYTECODE_TYPE bytecode_type;
+  typedef string_type::value_type char_type;
+  typedef std::basic_stringstream<char_type,
+                                  std::char_traits<char_type>,
+                                  std::allocator<char_type> > stringstream_type;
+
+  // Data container types
+  typedef std::map<string_type, value_type*> varmap_type;
+  typedef std::map<string_type, value_type> valmap_type;
+  typedef std::map<string_type, std::size_t> strmap_type;
+
+  // Parser callbacks
+  typedef value_type (*fun_type1)(value_type);
+  typedef value_type (*fun_type2)(value_type, value_type);
+  typedef value_type (*fun_type3)(value_type, value_type, value_type);
+  typedef value_type (*fun_type4)(value_type, value_type, value_type, value_type);
+  typedef value_type (*fun_type5)(value_type, value_type, value_type, value_type, value_type);
+  typedef value_type (*multfun_type)(const value_type*, int);
+  typedef value_type (*strfun_type1)(const char_type*);
+  typedef value_type (*strfun_type2)(const char_type*, value_type);
+  typedef value_type (*strfun_type3)(const char_type*, value_type, value_type);
+
+  // Parser utility callback functions (unrelated to the math callbacks)
+  typedef int (*identfun_type)(const char_type *sExpr, int *nPos, value_type *fVal);
+  typedef value_type* (*facfun_type)(const char_type*, void*);
 } // end fo namespace
 
 #endif

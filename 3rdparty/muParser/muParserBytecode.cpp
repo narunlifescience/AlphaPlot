@@ -1,5 +1,11 @@
- /*
-  Copyright (C) 2005 Ingo Berg
+/*
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +22,7 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 #include "muParserBytecode.h"
 
 #include <cassert>
@@ -108,9 +115,7 @@ namespace mu
 //    fVal = **(double**)dbg;
 
     for (int i=0; i<mc_iSizePtr; ++i)
-    {
-        m_vBase.push_back( *( reinterpret_cast<map_type*>(&a_pAddr) + i ) );
-    }
+      m_vBase.push_back( *( reinterpret_cast<map_type*>(&a_pAddr) + i ) );
 
     #if defined(_MSC_VER)
       #pragma warning( default : 4311 )
@@ -235,7 +240,6 @@ namespace mu
 
   //---------------------------------------------------------------------------
   /** \brief Add Strung function entry to the parser bytecode. 
-
       \throw nothrow
 
       A string function entry consists of the stack position of the return value,
@@ -244,15 +248,13 @@ namespace mu
   */
   void ParserByteCode::AddStrFun(void *a_pFun, int a_iArgc, int a_iIdx)
   {
-    // String functions do not reduce the value stack position they increase it
-    // because they are not applied to values on the stack, they create them.
-    m_vBase.push_back(++m_iStackPos);
+    m_iStackPos = m_iStackPos - a_iArgc + 1;
+    m_vBase.push_back(m_iStackPos);
     m_vBase.push_back(cmFUNC_STR);
-    m_vBase.push_back(a_iArgc);
+	  m_vBase.push_back(a_iArgc);
+    m_vBase.push_back(a_iIdx);
 
     StorePtr(a_pFun);
-
-    m_vBase.push_back(a_iIdx);
   }
 
   //---------------------------------------------------------------------------
@@ -262,7 +264,7 @@ namespace mu
   */
   void ParserByteCode::Finalize()
   {
-    // yes we need the end code three times!!
+    // yes we need the end code three times!! (I forgot why)
     m_vBase.push_back(cmEND);	
     m_vBase.push_back(cmEND);	
     m_vBase.push_back(cmEND);	
@@ -321,9 +323,9 @@ namespace mu
 
     std::cout << "Entries:" << (int)m_vBase.size() 
               << " (ValSize:" << mc_iSizeVal 
-              <<  " entries, PtrSize:" << mc_iSizePtr 
-              <<  " entries, MapSize:" << sizeof(map_type) 
-              <<  " byte)\n";
+              << " entries, PtrSize:" << mc_iSizePtr 
+              << " entries, MapSize:" << sizeof(map_type) 
+              << " byte)\n";
     int i = 0;
 
     while ( m_vBase[i] != cmEND && i<(int)m_vBase.size())
@@ -347,17 +349,17 @@ namespace mu
       			
         case cmFUNC:
                     std::cout << "CALL\t"; ++i;
-                    std::cout << "[Arg:" << std::dec << m_vBase[i] << "]"; ++i;
+                    std::cout << "[ARG:" << std::dec << m_vBase[i] << "]"; ++i;
 	                  std::cout << "[ADDR: 0x" << std::hex << *(value_type**)&m_vBase[i] << "]\n"; 
                     i += mc_iSizePtr;
                     break;
 
         case cmFUNC_STR:
                     std::cout << "CALL STRFUNC\t"; ++i;
-                    std::cout << "[Arg:" << std::dec << m_vBase[i] << "]"; ++i;
-                    std::cout << "[ADDR: 0x" << *(value_type**)&m_vBase[i] << "]"; 
+                    std::cout << "[ARG:" << std::dec << m_vBase[i] << "]"; ++i;
+                    std::cout << "[IDX:" << std::dec << m_vBase[i] << "]"; ++i;
+                    std::cout << "[ADDR: 0x" << *(value_type**)&m_vBase[i] << "]\n"; 
                     i += mc_iSizePtr;
-                    std::cout << "[IDX:" << std::dec << m_vBase[i] << "]\n"; ++i;
                     break;
 
         case cmLT:  std::cout << "LT\n"; ++i; break;
@@ -390,5 +392,3 @@ namespace mu
     std::cout << "END" << std::endl;
   }
 } // namespace mu
-
-

@@ -3777,7 +3777,7 @@ void ApplicationWindow::openRecentProject(int index)
 		if (fn == pn)
 		{
 			QMessageBox::warning(this, tr("QtiPlot - File openning error"),
-					tr("The file: <b> %1 </b> is the current file!").arg(fn));
+					 tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
 			return;
 		}
 	}
@@ -5238,12 +5238,14 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 
 	QString name = w->name();
 
-	if (text.isEmpty())
+	QString newName = text;
+  	newName.replace("-", "_");
+  	if (newName.isEmpty())
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
 		return false;
 	}
-	else if (text.contains(QRegExp("\\W")))
+	else if (newName.contains(QRegExp("\\W")))
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Error"),
 				tr("The name you chose is not valid: only letters and digits are allowed!")+
@@ -5251,17 +5253,20 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 		return false;
 	}
 
-	while(alreadyUsedName(text))
+	newName.replace("_", "-");
+  	 
+  	while(alreadyUsedName(newName))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
-				tr("Name already exists!")+"\n"+tr("Please choose another name!"));
+		QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
+			"<p>"+tr("Please choose another name!")+
+  	     	"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
 		return false;
 	}
 
 	if (w->inherits("Table"))
 	{
 		QStringList labels=((Table *)w)->colNames();
-		if (labels.contains(text)>0)
+		if (labels.contains(newName)>0)
 		{
 			QMessageBox::critical(0,tr("QtiPlot - Error"),
 					tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
@@ -5269,13 +5274,13 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 		}
 
 		int id=tableWindows.findIndex(name);
-		tableWindows[id]=text;
-		updateTableNames(name,text);
+		tableWindows[id]=newName;
+		updateTableNames(name,newName);
 	}
 	else if (w->isA("Matrix"))
-		changeMatrixName(name, text);
+		changeMatrixName(name, newName);
 
-	w->setName(text);
+	w->setName(newName);
 	w->setCaptionPolicy(w->captionPolicy());
 	return true;
 }
@@ -10517,11 +10522,11 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 	}
 	ag->replot();
-	ag->setIgnoreResizeEvents(!autoResizeLayers);
-	ag->setAutoscaleFonts(autoScaleFonts);
-	ag->setTextMarkerDefaults(legendFrameStyle, plotLegendFont, legendTextColor, legendBackground);
-	ag->setArrowDefaults(defaultArrowLineWidth, defaultArrowColor, defaultArrowLineStyle,
-			defaultArrowHeadLength, defaultArrowHeadAngle, defaultArrowHeadFill);
+	ag->setIgnoreResizeEvents(!app->autoResizeLayers);
+	ag->setAutoscaleFonts(app->autoScaleFonts);
+	ag->setTextMarkerDefaults(app->legendFrameStyle, app->plotLegendFont, app->legendTextColor, app->legendBackground);
+	ag->setArrowDefaults(app->defaultArrowLineWidth, app->defaultArrowColor, app->defaultArrowLineStyle,
+						app->defaultArrowHeadLength, app->defaultArrowHeadAngle, app->defaultArrowHeadFill);
 	plot->connectLayer(ag);
 }
 
@@ -11995,10 +12000,10 @@ void ApplicationWindow::translateActionsStrings()
   	 actionResetRotation->setToolTip( tr( "Reset rotation" ) );
   	 actionResetRotation->setStatusTip( tr( "Reset rotation" ) );
   	 
-  	 actionFitFrame->setText( tr( "Fit frame to layer" ) );
-  	 actionFitFrame->setMenuText( tr( "Fit frame to layer" ) );
-  	 actionFitFrame->setToolTip( tr( "Fit frame to layer" ) );
-  	 actionFitFrame->setStatusTip( tr( "Fit frame to layer" ) );
+  	 actionFitFrame->setText( tr( "Fit frame to window" ) );
+  	 actionFitFrame->setMenuText( tr( "Fit frame to window" ) );
+  	 actionFitFrame->setToolTip( tr( "Fit frame to window" ) );
+  	 actionFitFrame->setStatusTip( tr( "Fit frame to window" ) );
 }
 
 Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QString& matrix_name,

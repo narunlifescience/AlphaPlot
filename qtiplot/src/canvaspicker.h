@@ -106,5 +106,5 @@ signals:
 private:
     QPoint presspos;
     int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
-	bool moved,	movedGraph, mousePressed, pointSelected, select_peaks;
+	bool moved,	movedGraph, pointSelected, select_peaks;
 };

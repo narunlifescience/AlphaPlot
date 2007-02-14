@@ -124,7 +124,6 @@ static const char *unzoom_xpm[]={
 #include <qbitmap.h>
 #include <qclipboard.h>
 #include <qcursor.h>
-#include <q3dragobject.h>
 #include <q3filedialog.h> 
 #include <qimage.h>
 #include <qmessagebox.h>
@@ -1616,6 +1615,7 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 	d_plot->replot();
 	//keep markers on canvas area
 	updateMarkersBoundingRect();
+	d_plot->replot();
 }
 
 void Graph::copyCanvas(bool on)
@@ -2047,10 +2047,8 @@ void Graph::setPlotAssociations(const QStringList& newList)
 }
 
 void Graph::copyImage()
-{
-	QPixmap pic = graphPixmap();
-	QImage image = pic.convertToImage(); 	
-	QApplication::clipboard()->setData( new Q3ImageDrag (image,d_plot,0) );	
+{	
+	QApplication::clipboard()->setPixmap(graphPixmap(), QClipboard::Clipboard);	
 }
 
 QPixmap Graph::graphPixmap()
@@ -6307,18 +6305,20 @@ void Graph::showTitleContextMenu()
 
 void Graph::cutTitle()
 {
-	QApplication::clipboard()->setData(new Q3TextDrag(d_plot->title().text(), d_plot->titleLabel(), 0));
+	QApplication::clipboard()->setText(d_plot->title().text(), QClipboard::Clipboard);
 	removeTitle();
 }
 
 void Graph::copyTitle()
 {
-	QApplication::clipboard()->setData(new Q3TextDrag(d_plot->title().text(), d_plot->titleLabel(), 0));
+	QApplication::clipboard()->setText(d_plot->title().text(), QClipboard::Clipboard);
 }
 
 void Graph::removeAxisTitle()
 {
-	d_plot->setAxisTitle(selectedAxis, QString::null);
+	int axis = (selectedAxis + 2)%4;//unconsistent notation in Qwt enumerations between
+  	//QwtScaleDraw::alignement and QwtPlot::Axis
+  	d_plot->setAxisTitle(axis, QString::null);
 	d_plot->replot();
 	emit modifiedGraph();
 }
@@ -6331,9 +6331,10 @@ void Graph::cutAxisTitle()
 
 void Graph::copyAxisTitle()
 {
-	QApplication::clipboard()->setData(new Q3TextDrag(d_plot->axisTitle(selectedAxis).text(), 
-				(QWidget *)d_plot->axisWidget(selectedAxis), 0));
-}
+	int axis = (selectedAxis + 2)%4;//unconsistent notation in Qwt enumerations between
+  	//QwtScaleDraw::alignement and QwtPlot::Axis
+  	QApplication::clipboard()->setText(d_plot->axisTitle(axis).text(), QClipboard::Clipboard);
+	}
 
 void Graph::showAxisTitleMenu(int axis)
 {

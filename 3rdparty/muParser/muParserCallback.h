@@ -1,5 +1,11 @@
 /*
-  Copyright (C) 2005 Ingo Berg
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +22,7 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 #ifndef MU_PARSER_CALLBACK_H
 #define MU_PARSER_CALLBACK_H
 
@@ -48,6 +55,8 @@ public:
     ParserCallback(fun_type5 a_pFun, bool a_bAllowOpti);
     ParserCallback(multfun_type a_pFun, bool a_bAllowOpti);
     ParserCallback(strfun_type1 a_pFun, bool a_bAllowOpti);
+    ParserCallback(strfun_type2 a_pFun, bool a_bAllowOpti);
+    ParserCallback(strfun_type3 a_pFun, bool a_bAllowOpti);
     ParserCallback();
     ParserCallback(const ParserCallback &a_Fun);
     
@@ -63,12 +72,12 @@ public:
 private:
     void *m_pFun;       ///< Pointer to the callback function, casted to void
     
-    /** \brief Number of function arguments
+    /** \brief Number of numeric function arguments
     
         This number is negative for functions with variable number of arguments. in this cases
         they represent the actual number of arguments found.
     */
-    int   m_iArgc;    
+    int   m_iArgc;      
     int   m_iPri;       ///< Valid only for binary and infix operators; Operator precedence.
     ECmdCode  m_iCode;
     ETypeCode m_iType;

@@ -1,5 +1,11 @@
 /*
-  Copyright (C) 2004, 2005 Ingo Berg
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -59,34 +65,35 @@ namespace mu
   {
     m_vErrMsg.resize(ecCOUNT);
 
-    m_vErrMsg[ecUNASSIGNABLE_TOKEN]  = "Undefined token \"$TOK$\" found at position $POS$.";
-    m_vErrMsg[ecINTERNAL_ERROR]      = "Internal error";
-    m_vErrMsg[ecINVALID_NAME]        = "Invalid function-, variable- or constant name.";
-    m_vErrMsg[ecINVALID_FUN_PTR]     = "Invalid pointer to callback function.";
-    m_vErrMsg[ecINVALID_VAR_PTR]     = "Invalid pointer to variable.";
-    m_vErrMsg[ecUNEXPECTED_OPERATOR] = "Unexpected operator \"$TOK$\" found at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_EOF]      = "Unexpected end of formula at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_COMMA]    = "Unexpected comma at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_PARENS]   = "Unexpected parenthesis \"$TOK$\" at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_FUN]      = "Unexpected function \"$TOK$\" at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_VAL]      = "Unexpected value \"$TOK$\" found at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_VAR]      = "Unexpected variable \"$TOK$\" found at position $POS$";
-    m_vErrMsg[ecUNEXPECTED_ARG]      = "Function arguments used without a function (position: $POS$)";
-    m_vErrMsg[ecMISSING_PARENS]      = "Missing parenthesis";
-    m_vErrMsg[ecTOO_MANY_PARAMS]     = "Too many parameters for function \"$TOK$\" at formula position $POS$";
-    m_vErrMsg[ecTOO_FEW_PARAMS]      = "Too few parameters for function \"$TOK$\" at formula position $POS$";
-    m_vErrMsg[ecDIV_BY_ZERO]         = "Divide by zero";
-    m_vErrMsg[ecDOMAIN_ERROR]        = "Domain error";
-    m_vErrMsg[ecNAME_CONFLICT]       = "Name conflict";
-    m_vErrMsg[ecOPT_PRI]             = "Invalid value for operator priority (must be greater or equal to zero).";
-    m_vErrMsg[ecBUILTIN_OVERLOAD]    = "Binary operator identifier conflicts with a built in operator.";
-    m_vErrMsg[ecUNEXPECTED_STR]      = "Unexpected string token found at position $POS$.";
-    m_vErrMsg[ecUNTERMINATED_STRING] = "Unterminated string starting at position $POS$.";
-    m_vErrMsg[ecSTRING_EXPECTED]     = "String function called with a non string type of argument.";
-    m_vErrMsg[ecVAL_EXPECTED]        = "Numerical function called with a non value type of argument.";
-    m_vErrMsg[ecOPRT_TYPE_CONFLICT]  = "No suitable overload for operator \"$TOK$\" at position $POS$.";
-    m_vErrMsg[ecGENERIC]             = "Parser error.";
-    m_vErrMsg[ecSTR_RESULT]          = "Function result is a string.";
+    m_vErrMsg[ecUNASSIGNABLE_TOKEN]  = _T("Undefined token \"$TOK$\" found at position $POS$.");
+    m_vErrMsg[ecINTERNAL_ERROR]      = _T("Internal error");
+    m_vErrMsg[ecINVALID_NAME]        = _T("Invalid function-, variable- or constant name.");
+    m_vErrMsg[ecINVALID_FUN_PTR]     = _T("Invalid pointer to callback function.");
+    m_vErrMsg[ecEMPTY_EXPRESSION]    = _T("Expression is empty.");
+    m_vErrMsg[ecINVALID_VAR_PTR]     = _T("Invalid pointer to variable.");
+    m_vErrMsg[ecUNEXPECTED_OPERATOR] = _T("Unexpected operator \"$TOK$\" found at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_EOF]      = _T("Unexpected end of formula at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_COMMA]    = _T("Unexpected comma at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_PARENS]   = _T("Unexpected parenthesis \"$TOK$\" at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_FUN]      = _T("Unexpected function \"$TOK$\" at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_VAL]      = _T("Unexpected value \"$TOK$\" found at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_VAR]      = _T("Unexpected variable \"$TOK$\" found at position $POS$");
+    m_vErrMsg[ecUNEXPECTED_ARG]      = _T("Function arguments used without a function (position: $POS$)");
+    m_vErrMsg[ecMISSING_PARENS]      = _T("Missing parenthesis");
+    m_vErrMsg[ecTOO_MANY_PARAMS]     = _T("Too many parameters for function \"$TOK$\" at formula position $POS$");
+    m_vErrMsg[ecTOO_FEW_PARAMS]      = _T("Too few parameters for function \"$TOK$\" at formula position $POS$");
+    m_vErrMsg[ecDIV_BY_ZERO]         = _T("Divide by zero");
+    m_vErrMsg[ecDOMAIN_ERROR]        = _T("Domain error");
+    m_vErrMsg[ecNAME_CONFLICT]       = _T("Name conflict");
+    m_vErrMsg[ecOPT_PRI]             = _T("Invalid value for operator priority (must be greater or equal to zero).");
+    m_vErrMsg[ecBUILTIN_OVERLOAD]    = _T("Binary operator identifier conflicts with a built in operator.");
+    m_vErrMsg[ecUNEXPECTED_STR]      = _T("Unexpected string token found at position $POS$.");
+    m_vErrMsg[ecUNTERMINATED_STRING] = _T("Unterminated string starting at position $POS$.");
+    m_vErrMsg[ecSTRING_EXPECTED]     = _T("String function called with a non string type of argument.");
+    m_vErrMsg[ecVAL_EXPECTED]        = _T("String value used where a numerical argument is expected.");
+    m_vErrMsg[ecOPRT_TYPE_CONFLICT]  = _T("No suitable overload for operator \"$TOK$\" at position $POS$.");
+    m_vErrMsg[ecGENERIC]             = _T("Parser error.");
+    m_vErrMsg[ecSTR_RESULT]          = _T("Function result is a string.");
 
     #if defined(_DEBUG)
       for (int i=0; i<ecCOUNT; ++i)
@@ -121,12 +128,11 @@ namespace mu
       
     It does not contain any information but the error code.
   */
-  ParserError::ParserError(EErrorCodes a_iErrc) 
+  ParserError::ParserError(EErrorCodes /*a_iErrc*/) 
     :m_ErrMsg(ParserErrorMsg::Instance())
   {
-    assert(a_iErrc==ecINTERNAL_ERROR);
     Reset();
-    m_strMsg = "internal error";
+    m_strMsg = _T("parser error");
   }
 
   //------------------------------------------------------------------------------
@@ -152,8 +158,8 @@ namespace mu
     m_strMsg = m_ErrMsg[m_iErrc];
     stringstream_type stream;
     stream << (int)m_iPos;
-    ReplaceSubString(m_strMsg, "$POS$", stream.str());
-    ReplaceSubString(m_strMsg, "$TOK$", m_strTok);
+    ReplaceSubString(m_strMsg, _T("$POS$"), stream.str());
+    ReplaceSubString(m_strMsg, _T("$TOK$"), m_strTok);
   }
 
   //------------------------------------------------------------------------------
@@ -168,8 +174,8 @@ namespace mu
     m_strMsg = m_ErrMsg[m_iErrc];
     stringstream_type stream;
     stream << (int)m_iPos;
-    ReplaceSubString(m_strMsg, "$POS$", stream.str());
-    ReplaceSubString(m_strMsg, "$TOK$", m_strTok);
+    ReplaceSubString(m_strMsg, _T("$POS$"), stream.str());
+    ReplaceSubString(m_strMsg, _T("$TOK$"), m_strTok);
   }
 
   //------------------------------------------------------------------------------
@@ -183,8 +189,8 @@ namespace mu
   {
     stringstream_type stream;
     stream << (int)m_iPos;
-    ReplaceSubString(m_strMsg, "$POS$", stream.str());
-    ReplaceSubString(m_strMsg, "$TOK$", m_strTok);
+    ReplaceSubString(m_strMsg, _T("$POS$"), stream.str());
+    ReplaceSubString(m_strMsg, _T("$TOK$"), m_strTok);
   }
 
   //------------------------------------------------------------------------------
@@ -243,9 +249,9 @@ namespace mu
   //------------------------------------------------------------------------------
   void ParserError::Reset()
   {
-    m_strMsg = "";
-    m_strFormula = "";
-    m_strTok = "";
+    m_strMsg = _T("");
+    m_strFormula = _T("");
+    m_strTok = _T("");
     m_iPos = -1;
     m_iErrc = ecUNDEFINED;
   }

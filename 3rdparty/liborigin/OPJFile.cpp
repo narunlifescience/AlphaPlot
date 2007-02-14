@@ -22,7 +22,7 @@ void OPJFile::ByteSwap(unsigned char * b, int n) {
 	}       
 }
 
-OPJFile::OPJFile(char *filename) 
+OPJFile::OPJFile(const char *filename) 
 	: filename(filename) 
 {
 	version=0;
@@ -92,6 +92,8 @@ int OPJFile::Parse() {
 		version=610;
 	else if(version == 2656) 	// 7.0
 		version=700;
+	else if(version == 2672) 	// 7.0 SR3
+		version=703;
 	else if(version >= 2766 && version <= 2769) 	// 7.5
 		version=750;
 	else {
@@ -115,7 +117,7 @@ int OPJFile::Parse() {
 	} while (c != '\n');
 	fprintf(debug,"	[file header @ 0x%X]\n", (unsigned int) ftell(f));
 	
-/////////////////// find column ///////////////////////////////////////////////////////////7
+/////////////////// find column ///////////////////////////////////////////////////////////
 	if(version>410)
 		for(i=0;i<5;i++)	// skip "0"
 			fread(&c,1,1,f);
@@ -216,6 +218,10 @@ int OPJFile::Parse() {
 			size /= 8;
 			fprintf(debug,"	SIZE = %d\n",size);
 			fflush(debug);
+
+			// catch exception
+			if(size>10000)
+				size=1000;
 	
 			fprintf(debug,"VALUES :\n");
 			nr_cols.resize(nr_spreads);
@@ -334,11 +340,17 @@ int OPJFile::Parse() {
 	fflush(debug);
 
 ///////////////////// SPREADSHEET INFOS ////////////////////////////////////
-	int LAYER;
+	int LAYER=0;
 	int COL_JUMP = 0x1ED;
 	
 	coltype.resize(nr_spreads);
+	// do this before any problems occur
+	for(i=0; i < nr_spreads; i++)
+		coltype[i].resize(nr_cols[i]);
+
 	for(i=0; i < nr_spreads; i++) {
+		fprintf(debug,"		reading	Spreadsheet %d/%d properties\n",i+1,nr_spreads);
+		fflush(debug);
 		if(i > 0) {
 			if(version == 750)
 				POS = LAYER+0x2759;
@@ -357,8 +369,9 @@ int OPJFile::Parse() {
 			else if (version == 410 ) 
 				POS += 0x7FB + nr_cols[i-1]*COL_JUMP;
 		}
-		fprintf(debug,"\n");
 		
+		fprintf(debug,"			reading	Header\n");
+		fflush(debug);
 		// HEADER
 		// check header
 		int ORIGIN = 0x55;
@@ -368,9 +381,12 @@ int OPJFile::Parse() {
 		char c;
 		fread(&c,1,1,f);
 		int jump=0;
+		if( c == 'O')
+			fprintf(debug,"			\"ORIGIN\" found ! (@ 0x%X)\n",POS+ORIGIN);
 		while( c != 'O' && jump < MAX_LEVEL) {	// no inf loop
-			fprintf(debug,"	TRY %d	\"O\"RIGIN not found ! : %c (@ 0x%X)",jump+1,c,POS+ORIGIN);
-			fprintf(debug,"		POS=0x%X | ORIGIN = 0x%X\n",POS,ORIGIN);
+			fprintf(debug,"		TRY %d	\"O\"RIGIN not found ! : %c (@ 0x%X)",jump+1,c,POS+ORIGIN);
+			fprintf(debug,"			POS=0x%X | ORIGIN = 0x%X\n",POS,ORIGIN);
+			fflush(debug);
 			POS+=0x1F2;
 			fseek(f,POS + ORIGIN,SEEK_SET);
 			fread(&c,1,1,f);
@@ -379,12 +395,12 @@ int OPJFile::Parse() {
 		
 		int spread=i;
 		if(jump == MAX_LEVEL){
-			fprintf(debug,"	Spreadsheet SECTION not found ! 	(@ 0x%X)\n",POS-10*0x1F2+0x55);
-			setColName(spread);
+			fprintf(debug,"		Spreadsheet SECTION not found ! 	(@ 0x%X)\n",POS-10*0x1F2+0x55);
+			// setColName(spread);
 			return -5;
 		}
 		
-		fprintf(debug,"	[Spreadsheet SECTION (@ 0x%X)]\n",POS);
+		fprintf(debug,"			[Spreadsheet SECTION (@ 0x%X)]\n",POS);
 		fflush(debug);
 	
 		// check spreadsheet name
@@ -396,7 +412,7 @@ int OPJFile::Parse() {
 				spread=j;
 		}
 		
-		fprintf(debug,"		SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
+		fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
 			spread+1,name,POS + 0x12,nr_cols[spread]);
 		fflush(debug);
 	
@@ -422,7 +438,7 @@ int OPJFile::Parse() {
 			fseek(f,LAYER+0x53, SEEK_SET);
 			fread(&c,1,1,f);
 			if( c == 'L') {
-				fprintf(debug,"		TEST : OK (LayerInfoStorage found @ 0x%X)\n",LAYER+0x53);
+				fprintf(debug,"			TEST : OK (LayerInfoStorage found @ 0x%X)\n",LAYER+0x53);
 			} 
 			else{
 				fprintf(debug,"ERROR : LAYER %d SECTION not found @ 0x%X\n"ERROR_MSG,i+1,LAYER+0x53);
@@ -451,8 +467,9 @@ int OPJFile::Parse() {
 		fflush(debug);
 
 		/////////////// COLUMN Types ///////////////////////////////////////////
+		fprintf(debug,"			Spreadsheet has %d columns\n",nr_cols[spread]);
 		for (j=0;j<nr_cols[spread];j++) {
-			fprintf(debug,"		reading	COLUMN %d type\n",j);
+			fprintf(debug,"			reading	COLUMN %d/%d type\n",j+1,nr_cols[spread]);
 			fflush(debug);
 			fseek(f,LAYER+ATYPE+j*COL_JUMP, SEEK_SET);
 			fread(&name,25,1,f);
@@ -469,10 +486,10 @@ int OPJFile::Parse() {
 			case 4: sprintf(type,"LABEL");break;
 			default: sprintf(type,"NONE");break;
 			}
-			coltype[spread].resize(j+1);
+			//coltype[spread].resize(j+1);
 			coltype[spread][j]=type;
 			
-			fprintf(debug,"		COLUMN \"%s\" type = %s (@ 0x%X)\n",
+			fprintf(debug,"				COLUMN \"%s\" type = %s (@ 0x%X)\n",
 				colname[spread][j].c_str(),type,LAYER+ATYPE+j*COL_JUMP);
 			fflush(debug);
 
@@ -482,16 +499,18 @@ int OPJFile::Parse() {
                         int length = (name_length < max_length) ? name_length : max_length;
 
 			if(colname[spread][j].substr(0,length) == name) {
-				fprintf(debug,"		TEST : column name = \"%s\". OK!\n",
+				fprintf(debug,"				TEST : column name = \"%s\". OK!\n",
 					colname[spread][j].c_str());
 			}
 			else {
-				fprintf(debug,"		TEST : COLUMN %d name mismatch (\"%s\" != \"%s\")\n",
+				fprintf(debug,"				TEST : COLUMN %d name mismatch (\"%s\" != \"%s\")\n",
 					j+1,name,colname[spread][j].c_str());
 				//fprintf(debug,"ERROR : column name mismatch! Continue anyway.\n"ERROR_MSG);
 			}
 			fflush(debug);
 		}
+		fprintf(debug,"		Done with spreadsheet %d\n",spread);
+		fflush(debug);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -518,6 +537,8 @@ int OPJFile::Parse() {
 	fread(&name,25,1,f);
 	printf("LEGEND : %s\n",name);
 */
+
+	fprintf(debug,"Done parsing\n");
 	fclose(debug);
 
 	return 0;

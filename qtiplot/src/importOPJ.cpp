@@ -34,7 +34,7 @@
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
 {	
-OPJFile opj((char *)filename.latin1());
+OPJFile opj((const char *)filename.latin1());
 parse_error = opj.Parse();
 importTables(opj);
 }

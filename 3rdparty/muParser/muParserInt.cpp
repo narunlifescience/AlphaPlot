@@ -1,5 +1,11 @@
-/*  
-  Copyright (C) 2004 Ingo Berg
+/*
+                 __________                                      
+    _____   __ __\______   \_____  _______  ______  ____ _______ 
+   /     \ |  |  \|     ___/\__  \ \_  __ \/  ___/_/ __ \\_  __ \
+  |  Y Y  \|  |  /|    |     / __ \_|  | \/\___ \ \  ___/ |  | \/
+  |__|_|  /|____/ |____|    (____  /|__|  /____  > \___  >|__|   
+        \/                       \/            \/      \/        
+  Copyright (C) 2004-2006 Ingo Berg
 
   Permission is hereby granted, free of charge, to any person obtaining a copy of this 
   software and associated documentation files (the "Software"), to deal in the Software
@@ -16,6 +22,7 @@
   DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. 
 */
+
 #include "muParserInt.h"
 
 #include <cmath>
@@ -65,10 +72,12 @@ value_type ParserInt::UnaryMinus(value_type v)
 value_type ParserInt::Sum(const value_type* a_afArg, int a_iArgc)
 { 
   if (!a_iArgc)	
-    throw ParserError("too few arguments for function sum.");
+    throw ParserError(_T("too few arguments for function sum."));
 
   value_type fRes=0;
-  for (int i=0; i<a_iArgc; ++i) fRes += a_afArg[i];
+  for (int i=0; i<a_iArgc; ++i) 
+    fRes += a_afArg[i];
+
   return fRes;
 }
 
@@ -76,10 +85,11 @@ value_type ParserInt::Sum(const value_type* a_afArg, int a_iArgc)
 value_type ParserInt::Min(const value_type* a_afArg, int a_iArgc)
 { 
     if (!a_iArgc)	
-        throw ParserError("too few arguments for function min.");
+        throw ParserError( _T("too few arguments for function min.") );
 
     value_type fRes=a_afArg[0];
-    for (int i=0; i<a_iArgc; ++i) fRes = std::min(fRes, a_afArg[i]);
+    for (int i=0; i<a_iArgc; ++i) 
+      fRes = std::min(fRes, a_afArg[i]);
 
     return fRes;
 }
@@ -88,17 +98,18 @@ value_type ParserInt::Min(const value_type* a_afArg, int a_iArgc)
 value_type ParserInt::Max(const value_type* a_afArg, int a_iArgc)
 { 
     if (!a_iArgc)	
-        throw ParserError("too few arguments for function min.");
+        throw ParserError(_T("too few arguments for function min."));
 
     value_type fRes=a_afArg[0];
-    for (int i=0; i<a_iArgc; ++i) fRes = std::max(fRes, a_afArg[i]);
+    for (int i=0; i<a_iArgc; ++i) 
+      fRes = std::max(fRes, a_afArg[i]);
 
     return fRes;
 }
 
 //---------------------------------------------------------------------------
 // Default value recognition callback
-bool ParserInt::IsVal(const char_type *a_szExpr, int &a_iPos, value_type &a_fVal)
+int ParserInt::IsVal(const char_type *a_szExpr, int *a_iPos, value_type *a_fVal)
 {
   stringstream_type stream(a_szExpr);
   int iVal(0);
@@ -107,49 +118,58 @@ bool ParserInt::IsVal(const char_type *a_szExpr, int &a_iPos, value_type &a_fVal
   int iEnd = stream.tellg();   // Position after reading
 
   if (iEnd==-1)
-    return false;
+    return 0;
 
-  a_iPos += iEnd;
-  a_fVal = (value_type)iVal;
-  return true;
+  *a_iPos += iEnd;
+  *a_fVal = (value_type)iVal;
+  return 1;
 }
 
 //---------------------------------------------------------------------------
-bool ParserInt::IsHexVal(const char_type *a_szExpr, int &a_iPos, value_type &a_fVal)
+int ParserInt::IsHexVal(const char_type *a_szExpr, int *a_iPos, value_type *a_fVal)
 {
   if (a_szExpr[0]!='$') 
-    return false;
+    return 0;
 
   unsigned iVal(0);
-  int iLen(0);
-  if (sscanf(a_szExpr+1, "%x%n", &iVal, &iLen)==0)
-    return false;
 
-  a_iPos += iLen+1;
-  a_fVal = iVal;
+// New code based on streams for UNICODE compliance:
+  stringstream_type::pos_type nPos(0);
+  stringstream_type ss(a_szExpr+1);
+  ss >> std::hex >> iVal;
+  nPos = ss.tellg();
+
+  if (nPos==(stringstream_type::pos_type)0)
+    return 1;
+
+  *a_iPos += 1 + nPos;
+  *a_fVal = iVal;
   return true;
 }
 
 //---------------------------------------------------------------------------
-bool ParserInt::IsBinVal(const char_type *a_szExpr, int &a_iPos, value_type &a_fVal)
+int ParserInt::IsBinVal(const char_type *a_szExpr, int *a_iPos, value_type *a_fVal)
 {
   if (a_szExpr[0]!='#') 
-    return false;
+    return 0;
 
-  unsigned iVal = 0, iBits = sizeof(iVal)*8, i;
+  unsigned iVal(0), 
+           iBits(sizeof(iVal)*8),
+           i(0);
+
   for (i=0; (a_szExpr[i+1]=='0' || a_szExpr[i+1]=='1') && i<iBits; ++i)
     iVal |= (int)(a_szExpr[i+1]=='1') << ((iBits-1)-i);
 
   if (i==0) 
-    return false;
+    return 0;
 
   if (i==iBits)
-    throw exception_type("Binary to integer conversion error (overflow).");
+    throw exception_type(_T("Binary to integer conversion error (overflow)."));
 
-  a_fVal = (unsigned)(iVal >> (iBits-i) );
-  a_iPos += i+1;
+  *a_fVal = (unsigned)(iVal >> (iBits-i) );
+  *a_iPos += i+1;
 
-  return true;
+  return 1;
 }
 
 //---------------------------------------------------------------------------
@@ -158,7 +178,7 @@ bool ParserInt::IsBinVal(const char_type *a_szExpr, int &a_iPos, value_type &a_f
   Call ParserBase class constructor and trigger Function, Operator and Constant initialization.
 */
 ParserInt::ParserInt()
-:ParserBase()
+  :ParserBase()
 {
   AddValIdent(IsVal);
   AddValIdent(IsHexVal);
@@ -177,21 +197,21 @@ void ParserInt::InitConst()
 //---------------------------------------------------------------------------
 void ParserInt::InitCharSets()
 {
-  DefineNameChars("0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ");
-  DefineOprtChars("+-*^/?<>=!%&|~'_");
-  DefineInfixOprtChars("/+-*^?<>=!%&|~'_");
+  DefineNameChars( _T("0123456789_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") );
+  DefineOprtChars( _T("+-*^/?<>=!%&|~'_") );
+  DefineInfixOprtChars( _T("/+-*^?<>=!%&|~'_") );
 }
 
 //---------------------------------------------------------------------------
 /** \brief Initialize the default functions. */
 void ParserInt::InitFun()
 {
-  DefineFun("sign", Sign);
-  DefineFun("abs", Abs);
-  DefineFun("if", Ite);
-  DefineFun("sum", Sum);
-  DefineFun("min", Min);
-  DefineFun("max", Max);
+  DefineFun( _T("sign"), Sign);
+  DefineFun( _T("abs"), Abs);
+  DefineFun( _T("if"), Ite);
+  DefineFun( _T("sum"), Sum);
+  DefineFun( _T("min"), Min);
+  DefineFun( _T("max"), Max);
 }
 
 //---------------------------------------------------------------------------
@@ -204,31 +224,31 @@ void ParserInt::InitOprt()
 
   // Disable all built in operators, they wont work with integer numbers
   // since they are designed for floating point numbers
-  DefineInfixOprt("-", UnaryMinus);
-  DefineInfixOprt("!", Not);
+  DefineInfixOprt( _T("-"), UnaryMinus);
+  DefineInfixOprt( _T("!"), Not);
 
-  DefineOprt("&", LogAnd, prLOGIC);
-  DefineOprt("|", LogOr, prLOGIC);
-  DefineOprt("^", LogXor, prLOGIC);
-  DefineOprt("&&", And, prLOGIC);
-  DefineOprt("||", Or, prLOGIC);
+  DefineOprt( _T("&"), LogAnd, prLOGIC);
+  DefineOprt( _T("|"), LogOr, prLOGIC);
+  DefineOprt( _T("^"), LogXor, prLOGIC);
+  DefineOprt( _T("&&"), And, prLOGIC);
+  DefineOprt( _T("||"), Or, prLOGIC);
 
-  DefineOprt("<", Less, prCMP);
-  DefineOprt(">", Greater, prCMP);
-  DefineOprt("<=", LessEq, prCMP);
-  DefineOprt(">=", GreaterEq, prCMP);
-  DefineOprt("==", Equal, prCMP);
-  DefineOprt("!=", NotEqual, prCMP);
+  DefineOprt( _T("<"), Less, prCMP);
+  DefineOprt( _T(">"), Greater, prCMP);
+  DefineOprt( _T("<="), LessEq, prCMP);
+  DefineOprt( _T(">="), GreaterEq, prCMP);
+  DefineOprt( _T("=="), Equal, prCMP);
+  DefineOprt( _T("!="), NotEqual, prCMP);
 
-  DefineOprt("+", Add, prADD_SUB);
-  DefineOprt("-", Sub, prADD_SUB);
+  DefineOprt( _T("+"), Add, prADD_SUB);
+  DefineOprt( _T("-"), Sub, prADD_SUB);
 
-  DefineOprt("*", Mul, prMUL_DIV);
-  DefineOprt("/", Div, prMUL_DIV);
-  DefineOprt("%", Mod, prMUL_DIV);
+  DefineOprt( _T("*"), Mul, prMUL_DIV);
+  DefineOprt( _T("/"), Div, prMUL_DIV);
+  DefineOprt( _T("%"), Mod, prMUL_DIV);
 
-  DefineOprt(">>", Shr, prMUL_DIV+1);
-  DefineOprt("<<", Shl, prMUL_DIV+1);
+  DefineOprt( _T(">>"), Shr, prMUL_DIV+1);
+  DefineOprt( _T("<<"), Shl, prMUL_DIV+1);
 }
 
 } // namespace mu
