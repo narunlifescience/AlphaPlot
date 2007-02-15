@@ -1,67 +1,87 @@
+/***************************************************************************
+    File                 : ImageMarker.cpp
+    Project              : QtiPlot
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007 by Ion Vasilief, Knut Franke
+    Email                : ion_vasilief@yahoo.fr, knut.franke@gmx.de
+    Description          : Draw images on a QwtPlot.
+                           
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
+
 #include "ImageMarker.h"
 #include <QPainter>
 
 ImageMarker::ImageMarker(const QPixmap& p):
-    d_pic(p),
-	d_pos(QPoint(0,0)),
+	d_pic(p),
 	d_size(p.size())
 {
 }
 
-void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const
+void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
 {
-p->drawPixmap(transform(xMap, yMap, d_rect), d_pic);
+	p->drawPixmap(QRect(QPoint(xMap.transform(xValue()),yMap.transform(yValue())), d_size), d_pic);
 }
 
-void ImageMarker::setSize(const QSize& size)
+QRect ImageMarker::rect() const
 {
-d_size = size;
-updateBoundingRect();
+	return QRect(QPoint(xAxisMap().transform(xValue()), yAxisMap().transform(yValue())), d_size);
 }
 
-void ImageMarker::setOrigin(const QPoint& p)
+QPoint ImageMarker::origin() const
 {
-d_pos = p;
+	return QPoint(xAxisMap().transform(xValue()), yAxisMap().transform(yValue()));
+}
 
-if (!plot())
-	return;
-
-d_rect.moveTo(plot()->invTransform(xAxis(), p.x()), plot()->invTransform(yAxis(), p.y()));
-d_size = size();
-updateBoundingRect();
+void ImageMarker::setOrigin(QPoint p)
+{
+	setXValue(xAxisMap().invTransform(p.x()));
+	setYValue(yAxisMap().invTransform(p.y()));
+	itemChanged();
 }
 
 void ImageMarker::setRect(int x, int y, int w, int h)
 {
-if (d_pos == QPoint(x, y) && d_size == QSize(w, h))
-	return;
-
-d_pos = QPoint(x, y);
-d_size = QSize(w, h);
-updateBoundingRect();
+	setXValue(xAxisMap().invTransform(x));
+	setYValue(yAxisMap().invTransform(y));
+	d_size = QSize(qAbs(w), qAbs(h));
+	itemChanged();
 }
 
-void ImageMarker::setBoundingRect(const QwtDoubleRect& rect)
+void ImageMarker::setBoundingRect(const QwtDoubleRect& r)
 {
-if (d_rect == rect)
-	return;
-
-d_rect = rect;
-
-if (!plot())
-	return;
-
-plot()->updateLayout();
-
-QRect r = this->rect();
-d_pos = r.topLeft();
-d_size = r.size();
+	setXValue(r.left());
+	setYValue(r.top());
+	int w = xAxisMap().transform(r.right()) - xAxisMap().transform(r.left());
+	int h = yAxisMap().transform(r.bottom()) - yAxisMap().transform(r.top());
+	d_size = QSize(qAbs(w), qAbs(h));
+	itemChanged();
 }
 
-void ImageMarker::updateBoundingRect()
+QwtDoubleRect ImageMarker::boundingRect() const
 {
-if (!plot())
-	return;
-
-d_rect = invTransform(plot()->canvasMap(xAxis()), plot()->canvasMap(yAxis()), QRect(d_pos, d_size));
+	QRect qr = rect();
+	double left = xAxisMap().invTransform(qr.left());
+	double right = xAxisMap().invTransform(qr.right());
+	double top = yAxisMap().invTransform(qr.top());
+	double bottom = yAxisMap().invTransform(qr.bottom());
+	return QwtDoubleRect(left, top, qAbs(right-left), qAbs(bottom-top));
 }

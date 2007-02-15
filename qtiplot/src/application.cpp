@@ -7286,7 +7286,7 @@ void ApplicationWindow::showImageDialog()
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id,SIGNAL(setGeometry(int,int,int,int)),g,SLOT(updateImageMarker(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
-		id->setOrigin(im->getOrigin());
+		id->setOrigin(im->origin());
 		id->setSize(im->size());
 		id->exec();
 	}
@@ -10471,17 +10471,17 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("lineMarker"))
         {// version <= 0.8.9
-  	         fList=QStringList::split ("\t",s,TRUE);
+				fList=s.split("\t");
   	         ag->insertLineMarker(fList, fileVersion);
   	    }
   	    else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
-			fList=QStringList::split ("\t", s.remove("</line>"), true);
+			fList=s.remove("</line>").split("\t");
 			ag->insertLineMarker(fList, fileVersion);
 		}
 		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
-			fList=s.split("\t");
+			fList=s.remove("</image>").split("\t");
 			ag->insertImageMarker(fList, fileVersion);
 		}
 		else if (s.contains ("FitID"))

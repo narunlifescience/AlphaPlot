@@ -2552,7 +2552,7 @@ void Graph::copyMarker()
 	else if (d_images.contains(selectedMarker))
 	{
 		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(selectedMarker);
-		auxMrkStart=mrkI->getOrigin();
+		auxMrkStart=mrkI->origin();
 		QRect rect=mrkI->rect();
 		auxMrkEnd=rect.bottomRight();
 		auxMrkFileName=mrkI->getFileName();
@@ -5993,13 +5993,6 @@ void Graph::updateMarkersBoundingRect()
 		if (mrkT)
 			mrkT->updateOrigin();	
 	}
-
-	for (i=0;i<(int)d_images.size();i++)
-	{
-		ImageMarker* mrk = (ImageMarker*) d_plot->marker(d_images[i]);
-		if (mrk)
-			mrk->updateBoundingRect();
-	}
 }
 
 void Graph::resizeEvent ( QResizeEvent *e )
@@ -6268,7 +6261,7 @@ void Graph::moveMarkerBy(int dx, int dy)
 	else if (d_images.contains(selectedMarker))
 	{
 		ImageMarker* mrk=(ImageMarker*)d_plot->marker(selectedMarker);
-		QPoint point = mrk->getOrigin();
+		QPoint point = mrk->origin();
 		mrk->setOrigin(QPoint(point.x() + dx, point.y() + dy));	
 
 		image = true;

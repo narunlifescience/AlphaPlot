@@ -86,7 +86,22 @@ class TableStatistics;
  * It manages all MyWidget MDI Windows in a project, knows about their organization in Folder objects
  * and contains the parts of the project explorer not implemented in Folder, FolderListItem or FolderListView.
  * 
- * Furthermore, it is responsible for opening all sorts of dialogs.
+ * Furthermore, it is responsible for displaying most MDI Windows' context menus and opening all sorts of dialogs.
+ *
+ * \section future Future Plans
+ * Split out the project management part into a new Project class.
+ * If MyWidget maintains a reference to its parent Project, it should be possible to have its subclasses
+ * display their own context menus and dialogs.
+ * This is necessary for implementing new plot types or even completely new MyWidget subclasses in plug-ins.
+ * It will also make ApplicationWindow more manageable by removing those parts not directly related to the main window.
+ *
+ * Project would also take care of basic project file reading/writing, but delegate most of the work to MyWidget and
+ * its subclasses. This is necessary for providing save/restore of classes implemented in plug-ins.
+ * Support for foreign formats on the other hand could go into import/export classes (which could also be implemented
+ * in plug-ins). Those would interface directly with Project and the MyWidgets it manages.
+ *
+ * Maybe split out the project explorer into a new ProjectExplorer class, depending on how much code is left
+ * in ApplicationWindow after the above reorganizations.
  */
 class ApplicationWindow: public QMainWindow, public scripted
 {

@@ -39,13 +39,7 @@ ScalePicker::ScalePicker(QwtPlot *plot):
     QObject(plot)
 {
 	movedGraph=FALSE;
-	
-    for ( uint i = 0; i < QwtPlot::axisCnt; i++ )
-		{
-        QwtScaleWidget *scale = (QwtScaleWidget *)plot->axisWidget(i);
-        if ( scale )
-            scale->installEventFilter(this);
-		}
+	refresh();
 }
 
 bool ScalePicker::eventFilter(QObject *object, QEvent *e)
@@ -107,8 +101,8 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 				
         return TRUE;
     	}
-		
-return QObject::eventFilter(object, e);
+
+	return QObject::eventFilter(object, e);
 }
 
 void ScalePicker::mouseDblClicked(const QwtScaleWidget *scale, const QPoint &pos) 
@@ -201,14 +195,13 @@ void ScalePicker::refresh()
 }
 
 TitlePicker::TitlePicker(QwtPlot *plot):
-    QObject(plot)
+	QObject(plot)
 {
 movedGraph=FALSE;
-
-title = (QwtTextLabel *)plot->titleLabel();
-title->setFocusPolicy(Qt::StrongFocus);
-if (title)
-	title->installEventFilter(this);
+	title = (QwtTextLabel *)plot->titleLabel();
+	title->setFocusPolicy(Qt::StrongFocus);
+	if (title)
+		title->installEventFilter(this);
 }
 
 bool TitlePicker::eventFilter(QObject *object, QEvent *e)
@@ -222,15 +215,16 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
         return TRUE;
 		}
 
-	if ( object->inherits("QwtTextLabel") &&  e->type() == QEvent::MouseButtonPress )
-		{
-		const QMouseEvent *me = (const QMouseEvent *)e;	
-		presspos = me->pos();
-		emit clicked();
+	 if ( object->inherits("QwtTextLabel") &&  e->type() == QEvent::MouseButtonPress )
+	 {
+		 const QMouseEvent *me = (const QMouseEvent *)e;	
+		 presspos = me->pos();
+		 emit clicked();
 
-		if (me->button()==Qt::RightButton)
-			emit showTitleMenu();
-
+		 if (me->button()==Qt::RightButton) {
+			 emit showTitleMenu();
+			 return TRUE;
+		 }
 		QwtPlot *plot = (QwtPlot *)title->parent();
 		if (plot->margin() < 2 && plot->lineWidth() < 2)
 			{
@@ -238,7 +232,7 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 			r.addCoords(2, 2, -2, -2);
 			if (!r.contains(me->pos()))
 				emit highlightGraph();
-			}
+	 }
 
 		return TRUE;
 		}

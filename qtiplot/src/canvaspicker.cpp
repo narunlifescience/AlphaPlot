@@ -755,7 +755,7 @@ bool CanvasPicker::selectMarker(const QPoint& point)
 		if (mrkI->rect().contains(point))
 		{
 			plot()->highlightImageMarker(images[i]);	
-			QPoint origin=mrkI->getOrigin();
+			QPoint origin=mrkI->origin();
 			xMrk=origin.x(); yMrk=origin.y();
 			return TRUE;
 		}

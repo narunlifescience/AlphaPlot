@@ -48,7 +48,9 @@
  * Accordingly, it is also referred to as "TextMarker" by other classes.
  *
  * \section future Future Plans
- * Rename to TextMarker.
+ * Rename to TextMarker (or maybe TextEnrichment; see documentation of ImageMarker for details).
+ *
+ * \sa ImageMarker, LineMarker
  */
 class LegendMarker: public QwtPlotMarker
 {
@@ -64,7 +66,10 @@ public:
 	QString getText();
 	void setText(const QString& s);
 
-	QRect rect();
+	//! Bounding rectangle in paint coordinates.
+	QRect rect() const;
+	//! Bounding rectangle in plot coordinates.
+	virtual QwtDoubleRect boundingRect() const;
 
 	void setOrigin(const QPoint & p);
 

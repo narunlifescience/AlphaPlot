@@ -96,6 +96,20 @@ typedef struct{
  * some of them relying on Qtiplot-specific QwtPlotCurve subclasses for parts of the functionality.
  *
  * %Note that some of Graph's methods are implemented in analysis.cpp.
+ *
+ * \section future Future Plans
+ * Merge with Plot and CanvasPicker.
+ * Think about merging in TitlePicker and ScalePicker.
+ * On the other hand, things like range selection, peak selection or (re)moving data points could be split out into tool classes
+ * like QwtPlotZoomer or SelectionMoveResizer.
+ *
+ * What definitely should be split out are plot types like histograms and pie charts (TODO: which others?).
+ * We need a generic framework for this in any case so that new plot types can be implemented in plugins,
+ * and Graph could do with a little diet. Especially after merging in Plot and CanvasPicker.
+ * [ Framework needs to support plug-ins; assigned to knut ]
+ *
+ * Add support for floating-point line widths of curves and axes (request 2300).
+ * [ assigned to thzs ]
  */
 
 class Graph: public QWidget

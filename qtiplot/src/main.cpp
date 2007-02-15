@@ -56,6 +56,57 @@ All suggestions and contributions are most welcome!
   <a href="http://www.zlib.net/">zlib (1.2.3)</a>,
   and <a href="http://sourceforge.net/projects/liborigin/">liborigin</a>.
   <br>
+
+  \page future Future Plans
+
+  - Make QtiPlot easier to extend and maintain by modularizing it. For
+    example, ideally it should be possible to implement new plot or marker
+    types without modifying existing classes (think of plug-ins here).
+  - Being at it, unify object names between file name, class name, other
+    classes' method and variable names and user interface.
+	 [ file renamings assigned to thzs ]
+  - Add generic plug-in support, support for implementing extensions in
+    Python, a full-featured multi-level undo/redo framework (-&gt; visitor pattern).
+	 [ undo/redo assigned to thzs; plug-in/Python extension support assigned to knut ]
+  - Revise some internal APIs that use undocumented protocols for the
+    strings that get passed around. Wherever possible, consistency should be
+    checked at compile-time. This would also probably eliminate the need to
+    place restrictions on object/column names.
+  - Switch file format to a completely XML-based one so we can write a
+    more robust parser based on Qt's XML support. Legacy support for the old
+    format could be a plug-in.
+	 See whether we can make use of the XML save/restore interface planned for Qwt.
+  - Document as much as possible using doxygen and write simple demo
+    plug-ins.
+  - Modularize the build process so that Python support could use SIP's
+    build system instead of the current hacks. Support for muParser,
+    liborigin and zlib could also be split out into plug-ins on the basis
+    that you shouldn't have to install libraries you don't use. Also reduces
+    compile times during bugfixing.
+	 [ assigned to knut ]
+  .
+
+  \section features Features
+  - Waterfall plots
+  - Polar charts
+  - Ternary plots
+  - Improved data analysis: base-line detection tool, more built-in fit functions...
+  - Improved import of Origin project files
+  - More import/export filters including Open Document spreasheets (plugin)
+
+  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, LegendMarker, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, ScriptEdit
+
+  \page style Coding Style
+  The following rules are not used everywhere (yet), but are intended as guidelines for new code and eventually
+  old code should be adapted as well.
+
+  - Files use DOS-style line endings (CR-LF).
+  - Class names start with a capital letter, object/variable names with a lower case letter.
+  - Methods and functions are named likeThis(), variables like_this and instance variables are prefixed with "d_".
+  - Property access methods use Qt style: property() and setProperty().
+  - Every file should be named exactly like the class inside and there should be only one class per file, with the exception of
+    really short classes like LayerButton.
+  - For indentations, tabs are preferred because they allow everyone to choose the indentation depth for him/herself.
 */
 
 int main( int argc, char ** argv ) 

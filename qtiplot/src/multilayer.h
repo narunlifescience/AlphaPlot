@@ -47,6 +47,17 @@ class LayerButton;
  *
  * %Note that several parts of the code, as well as the user interface, refer to MultiLayer as "graph" or "plot",
  * practically guaranteeing confusion with the classes Graph and Plot.
+ *
+ * \section future Future Plans
+ * Manage any QWidget instead of only Graph.
+ * This would allow 3D graphs to be added as well, so you could produce mixed 2D/3D arrangements.
+ * It would also allow text labels to be added directly instead of having to complicate things by wrapping them
+ * up in a Graph.
+ *
+ * The main problem to be figured out for this is how Graph would interface with the rest of the project.
+ * A possible solution is outlined in the documentation of ApplicationWindow:
+ * If MultiLayer exposes its parent Project to the widgets it manages, they could handle things like creating
+ * tables by calling methods of Project instead of sending signals.
  */
 class MultiLayer: public MyWidget
 {
@@ -86,7 +97,21 @@ public slots:
     void removeLayer();
 	void confirmRemoveLayer();
 
+	/*!\brief Start adding a text layer.
+	 *
+	 * This works by having #canvas grab the mouse, remembering that we are in the midst of adding
+	 * text in #addTextOn and dispatching the next mouse click to addTextLayer(const QPoint&) in eventFilter().
+	 *
+	 * \sa #defaultTexMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground
+	 */
 	void addTextLayer(int f, const QFont& font, const QColor& textCol, const QColor& backgroundCol);
+	/*!\brief Finish adding a text layer.
+	 *
+	 * An empty Graph is created and added to me.
+	 * Legend, title and axes are removed and a new LegendMarker is added with a placeholder text.
+	 *
+	 * \sa #defaultTexMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground, addTextLayer(int,const QFont&,const QColor&,const QColor&)
+	 */
 	void addTextLayer(const QPoint& pos);
 
 	Graph* activeGraph(){return active_graph;};

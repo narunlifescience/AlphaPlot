@@ -35,7 +35,11 @@
 
 class ScriptingEnv;
 
-//! Notes window class
+/*!\brief Notes window class.
+ *
+ * \section future Future Plans
+ * - Search and replace
+ */
 class Note: public MyWidget
 {
     Q_OBJECT

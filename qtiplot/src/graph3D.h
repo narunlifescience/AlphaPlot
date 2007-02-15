@@ -43,7 +43,14 @@ using namespace Qwt3D;
 
 class UserFunction;
 
-//! 3D graph widget
+/*!\brief 3D graph widget.
+ *
+ * This provides 3D plotting using Qwt3D.
+ *
+ * \section future Future Plans
+ * If MultiLayer is extended to accept any QWidget, Graph3D wouldn't have to inherit from MyWidget any more.
+ * It could also make sense to unify the interface with other plot types; see documentation of Graph.
+ */
 class Graph3D: public MyWidget
 {
 	Q_OBJECT

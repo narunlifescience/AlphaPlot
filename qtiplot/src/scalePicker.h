@@ -35,7 +35,11 @@ class QLabel;
 #include <QPoint>
 class QRect;
 	
-//! Scale picker
+/*!\brief Handles user interaction with a QwtScaleWidget.
+ *
+ * This class is used by Graph to catch events for the scales on its Plot.
+ * ScalePicker doesn't take any actions beyond emitting signals, which are then processed by Graph.
+ */
 class ScalePicker: public QObject
 {
     Q_OBJECT
@@ -43,29 +47,55 @@ public:
     ScalePicker(QwtPlot *plot);
     virtual bool eventFilter(QObject *, QEvent *);
 
-	//! The rect of a scale without the title
+	//! The bounding rectangle of a scale without the title.
 	QRect scaleRect(const QwtScaleWidget *) const;
 
 	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
 	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
 	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
 
+	/*! Install myself as event filter for all axes of my parent.
+	 * For every axis of plot(), add myself to the corresponding QwtScaleWidget.
+	 * \sa QwtPlot::axisWidget()
+	 */
 	void refresh();
 	
+	//! Return my parent casted to QwtPlot.
 	QwtPlot *plot() { return (QwtPlot *)parent(); }
 
 signals:
+	//! Emitted when the user clicks on one of the monitored axes.
 	void clicked();
 
+	/*! Emitted when the user right-clicks on an axis (but not its title).
+	 * The argument specifies the axis' QwtScaleDraw::Alignment.
+	 */
 	void axisRightClicked(int);
+	/*! Emitted when the user right-clicks on the title of an axis.
+	 * The argument specifies the axis' QwtScaleDraw::Alignment.
+	 */
 	void axisTitleRightClicked(int);
 
+	/*! Emitted when the user double-clicks on an axis (but not its title).
+	 * The argument specifies the axis' QwtScaleDraw::Alignment.
+	 */
 	void axisDblClicked(int);
-	void axisTitleDblClicked(int);
 
+	/*! Emitted when the user double-clicks on an the bottom-axis title.
+	 * \sa QwtScaleDraw::Alignment
+	 */
 	void xAxisTitleDblClicked();
+	/*! Emitted when the user double-clicks on an the left-axis title.
+	 * \sa QwtScaleDraw::Alignment
+	 */
 	void yAxisTitleDblClicked();
+	/*! Emitted when the user double-clicks on an the right-axis title.
+	 * \sa QwtScaleDraw::Alignment
+	 */
 	void rightAxisTitleDblClicked();
+	/*! Emitted when the user double-clicks on an the top-axis title.
+	 * \sa QwtScaleDraw::Alignment
+	 */
 	void topAxisTitleDblClicked();
 	
 	void moveGraph(const QPoint&);
@@ -86,7 +116,7 @@ public:
 
 signals:
 	void clicked();
-    void doubleClicked();
+	void doubleClicked();
 	void removeTitle();
 	void showTitleMenu();
 

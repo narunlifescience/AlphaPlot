@@ -33,7 +33,6 @@
 
 #include <QVariant>
 #include <QString>
-#include <q3valuelist.h>
 #include <QStringList>
 #include <QObject>
 #include <QStringList>

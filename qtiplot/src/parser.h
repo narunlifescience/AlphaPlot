@@ -37,7 +37,15 @@
 
 using namespace mu;
 
-//! Parser class based on muParser
+/*!\brief Mathematical parser class based on muParser.
+ *
+ * \section future Future Plans
+ * Eliminate in favour of Script/ScriptingEnv.
+ * This will allow you to use e.g. Python's global variables and functions everywhere.
+ * Before this happens, a cleaner and more generic solution for accessing the current ScriptingEnv
+ * should be implemented (maybe by making it a property of Project; see ApplicationWindow).
+ * [ assigned to knut ]
+ */
 class MyParser : public Parser
 {
 public:

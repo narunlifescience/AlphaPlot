@@ -879,7 +879,7 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 		return;		
 	}
 
-	QPoint o=mrk->getOrigin();
+	QPoint o=mrk->origin();
 	QPixmap pic=mrk->image();
 	QImage image=pic.convertToImage();
 	lineProfileOn=FALSE;

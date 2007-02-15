@@ -43,11 +43,10 @@ class CanvasPicker: public QObject
 {
     Q_OBJECT
 public:
-    CanvasPicker(Graph *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
-	void selectPoints(int n);
-	int selectedPoints(){return selected_points;};
-	void selectPeak(const QPoint& p);
+	 CanvasPicker(Graph *plot);
+	 virtual bool eventFilter(QObject *, QEvent *);
+	 void selectPoints(int n);
+	 void selectPeak(const QPoint& p);
 
 private:
 	void drawTextMarker(const QPoint&);
@@ -59,9 +58,9 @@ private:
 	 */
 	void resizeLineMarker(const QPoint& point);
 
-	//! Selects and highlights the marker 
+	//! Selects and highlights the marker at the given position.
 	/**
-	 * \param point the mouse position
+	 * \return whether a marker was found at \var point
 	 */
 	bool selectMarker(const QPoint& point);
 	void moveMarker(QPoint& position);

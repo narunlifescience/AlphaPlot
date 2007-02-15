@@ -30,7 +30,11 @@
 #define LINEMARKER_H
 
 #include <qwt_plot_marker.h>
-	
+
+/*!\brief Draws lines and arrows on a QwtPlot.
+ *
+ * \sa ImageMarker, LegendMarker
+ */
 class LineMarker: public QwtPlotMarker
 {
 public:

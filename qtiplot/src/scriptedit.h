@@ -40,6 +40,12 @@
 class QAction;
 class QMenu;
 
+/*!\brief Editor widget with support for evaluating expressions and executing code.
+ *
+ * \section future Future Plans
+ * - Display line numbers.
+ * - syntax highlighting, indentation, auto-completion etc. (maybe using QScintilla)
+ */
 class ScriptEdit: public QTextEdit, public scripted
 {
   Q_OBJECT

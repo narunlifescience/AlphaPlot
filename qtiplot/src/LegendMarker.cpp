@@ -108,7 +108,7 @@ void LegendMarker::setBackgroundColor(const QColor& c)
 	bkgColor = c;
 }
 
-QRect LegendMarker::rect()
+QRect LegendMarker::rect() const
 {
 	const QwtScaleMap &xMap = d_plot->canvasMap(xAxis());
 	const QwtScaleMap &yMap = d_plot->canvasMap(yAxis());
@@ -120,6 +120,20 @@ QRect LegendMarker::rect()
 	itemsHeight(y, symbolsMaxLineLength(), width, height);
 
 	return QRect(QPoint(x, y), QSize(width, height));
+}
+
+QwtDoubleRect LegendMarker::boundingRect() const
+{
+	QRect bounding_rect = rect();
+	const QwtScaleMap &x_map = d_plot->canvasMap(xAxis());
+	const QwtScaleMap &y_map = d_plot->canvasMap(yAxis());
+
+	double left = x_map.invTransform(bounding_rect.left());
+	double right = x_map.invTransform(bounding_rect.right());
+	double top = y_map.invTransform(bounding_rect.top());
+	double bottom = y_map.invTransform(bounding_rect.bottom());
+
+	return QwtDoubleRect(left, top, qAbs(right-left), qAbs(bottom-top));
 }
 
 QColor LegendMarker::getTextColor()
