@@ -31,7 +31,6 @@
 
 #include <QDialog>
 
-class QGroupBox;
 class QPushButton;
 class QCheckBox;
 class QLineEdit;
@@ -44,12 +43,11 @@ class SortDialog : public QDialog
 
 public:
     SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~SortDialog();
+    ~SortDialog(){};
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonHelp;
-    QGroupBox* groupBox1;
 	QComboBox* boxType;
 	QComboBox* boxOrder;
 	QComboBox *columnsList;
@@ -63,7 +61,6 @@ public slots:
 
 signals:
 	void sort(int, int, const QString&);
-
 };
 
 #endif // EXPORTDIALOG_H

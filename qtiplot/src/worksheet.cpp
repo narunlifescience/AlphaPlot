@@ -265,6 +265,13 @@ void Table::print()
 
 void Table::cellEdited(int row, int col)
 {
+	if (columnType(col) == Table::Text)
+	{
+	emit modifiedData(this, colName(col));
+	emit modifiedWindow(this);
+	return;		
+	}
+	
 	char f;
 	int precision;
   	columnNumericFormat(col, f, precision);
@@ -1421,44 +1428,63 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 	}
 	else
 	{
-		int i,j, leadcol=colIndex(leadCol);
-		int rows=worksheet->numRows();
-		QVarLengthArray<double> r(rows), rtemp(rows);
-		// Find the permutation index for the lead col
-		size_t *p= new size_t[rows];
-		for (j = 0; j <rows; j++)
-			r[j]=this->text(j,leadcol).toDouble();
-
-		gsl_sort_index(p,r.data(),1,rows);
-		// Since we have the permutation index, sort all the columns
-		for(i=0;i<cols;i++)
+		int leadcol=colIndex(leadCol);
+		if (columnType(leadcol) == Table::Text)
 		{
-			int scol=colIndex(s[i]);
-			if (!isEmptyColumn(scol))
+			QMessageBox::critical(this, tr("QtiPlot - Error"), 
+			tr("The leading column has the type set to 'Text'! Operation aborted!"));
+			return;
+		}
+		
+		int rows=worksheet->numRows();
+		int non_empty_cells = 0;
+		QVarLengthArray<int> valid_cell(rows);
+		QVarLengthArray<double> r(rows);
+		for (int j = 0; j <rows; j++)
+		{
+			if (!worksheet->text(j, leadcol).isEmpty())
 			{
-				for (j = 0; j <rows; j++)
-					r[j]=this->text(j,scol).toDouble();
+				r[non_empty_cells] = this->text(j,leadcol).toDouble();
+				valid_cell[non_empty_cells] = j;
+				non_empty_cells++;
+			}
+		}
+		
+		r.resize(non_empty_cells);
+		valid_cell.resize(non_empty_cells);
+		size_t *p= new size_t[non_empty_cells];
+		QVarLengthArray<double> rtemp(non_empty_cells);
+		// Find the permutation index for the lead col
+		gsl_sort_index(p, r.data(), 1, non_empty_cells);
+		
+		for(int i=0;i<cols;i++)
+		{// Since we have the permutation index, sort all the columns
+			int scol=colIndex(s[i]);
+			if (!isEmptyColumn(scol) && columnType(scol) != Table::Text)
+			{
+				for (int j = 0; j<non_empty_cells; j++)
+					r[j] = this->text(valid_cell[j], scol).toDouble();
 
-				for (j=0;j<rows;j++)
+				for (int j=0; j<non_empty_cells; j++)
 				{
-					int aux=p[j];
-					rtemp[j]=r[aux];
+					int aux = p[j];
+					rtemp[j] = r[aux];
 				}
-				for (j=0;j<rows;j++)
-					r[j]=rtemp[j];
+				for (int j=0; j<non_empty_cells; j++)
+					r[j] = rtemp[j];
 
 				int prec;
 				char f;
 				columnNumericFormat(scol, f, prec);
 				if(!order)
 				{
-					for (j=0;j<rows;j++)
-						worksheet->setText(j,scol,QString::number(r[j], f, prec)); 
+					for (int j=0; j<non_empty_cells; j++)
+						worksheet->setText(valid_cell[j], scol, QString::number(r[j], f, prec)); 
 				}
 				else
 				{
-					for (j=0;j<rows;j++)
-						worksheet->setText(j,scol,QString::number(r[rows-j-1], f, prec)); 
+					for (int j=0; j<non_empty_cells; j++)
+						worksheet->setText(valid_cell[j], scol, QString::number(r[non_empty_cells-j-1], f, prec)); 
 				}
 				emit modifiedData(this, colName(scol));
 			}
@@ -1470,7 +1496,9 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 
 void Table::sortColAsc()
 {
-	//changed from version 0.5.9
+	if (columnType(selectedCol) == Table::Text)
+		return;
+
 	int rows=worksheet->numRows();
 	QVarLengthArray<int> aux(rows);
 	QVarLengthArray<double> r(rows);
@@ -1529,7 +1557,10 @@ void Table::sortColAsc()
 }
 
 void Table::sortColDesc()
-{//changed from version 0.5.9
+{
+	if (columnType(selectedCol) == Table::Text)
+		return;
+		
 	int rows=worksheet->numRows();
 	QVarLengthArray<int> aux(rows);
 	QVarLengthArray<double> r(rows);

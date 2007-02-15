@@ -46,6 +46,7 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
 		setName( "AssociationsDialog" );
 
     setWindowTitle( tr( "QtiPlot - Plot Associations" ) );
+	setSizeGripEnabled(true);
 	setFocus();
 	
 	QVBoxLayout *vl = new QVBoxLayout();
@@ -75,11 +76,12 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
 	btnOK->setDefault( true );
     btnCancel = new QPushButton( tr( "&Cancel" ) );
     
-    QHBoxLayout *hbox2 = new QHBoxLayout (); 	
+    QHBoxLayout *hbox2 = new QHBoxLayout (); 
+	hbox2->addStretch();	
     hbox2->addWidget(btnApply);
     hbox2->addWidget(btnOK);
     hbox2->addWidget(btnCancel);
-    
+    vl->addStretch();
     vl->addLayout(hbox2);
 	setLayout(vl);
 	

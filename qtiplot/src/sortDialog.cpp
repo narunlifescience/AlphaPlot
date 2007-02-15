@@ -32,19 +32,19 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QGroupBox>
-#include <QVBoxLayout>
-#include <QHBoxLayout>
-#include <QGridLayout>
+#include <QLayout>
 
 SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
 	setWindowTitle(tr("QtiPlot - Sorting Options"));
+	setSizeGripEnabled(true);
 	
-	groupBox1 = new QGroupBox();
-	QGridLayout * topLayout = new QGridLayout();
-	QHBoxLayout * bottomLayout = new QHBoxLayout();
-
+	QGroupBox *groupBox1 = new QGroupBox();
+	QGridLayout * topLayout = new QGridLayout(groupBox1);
+	QHBoxLayout * hl = new QHBoxLayout();
+	hl->addStretch();
+	
 	topLayout->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
 	boxType = new QComboBox();
 	topLayout->addWidget(boxType, 0, 1 );
@@ -55,37 +55,31 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
 	
 	topLayout->addWidget( new QLabel(tr("Leading column")), 2, 0 );
 	columnsList = new QComboBox();
-	columnsList->setEnabled(false);
 	topLayout->addWidget(columnsList, 2, 1);
+	topLayout->setRowStretch(3, 1);
 	
 	buttonOk = new QPushButton();
     buttonOk->setDefault( true );
-	bottomLayout->addWidget(buttonOk);
+	hl->addWidget(buttonOk);
    
     buttonCancel = new QPushButton();    
-	bottomLayout->addWidget(buttonCancel);
+	hl->addWidget(buttonCancel);
     
 	QVBoxLayout * mainlayout = new QVBoxLayout(this);
-    mainlayout->addLayout(topLayout);
-	mainlayout->addLayout(bottomLayout);
-
+    mainlayout->addWidget(groupBox1);
+	mainlayout->addLayout(hl);
+	
     languageChange();
-   
-    // signals and slots connections
+
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( boxType, SIGNAL( activated(int) ), this, SLOT(changeType(int)));
 }
 
-SortDialog::~SortDialog()
-{
-}
-
-
 void SortDialog::languageChange()
 {
-    buttonOk->setText( tr("&OK") );
-	buttonCancel->setText( tr("&Cancel") );
+    buttonOk->setText( tr("&Sort") );
+	buttonCancel->setText( tr("&Close") );
 	
 	boxType->clear();
 	boxType->addItem(tr("Separately"));
@@ -99,13 +93,14 @@ void SortDialog::languageChange()
 void SortDialog::accept()
 {
 	emit sort(boxType->currentIndex(),boxOrder->currentIndex(),columnsList->currentText());
-	close();
 }
 
 void SortDialog::insertColumnsList(const QStringList& cols)
 {
 	columnsList->addItems(cols);
 	columnsList->setCurrentIndex(0);
+	
+	boxType->setCurrentIndex(1);
 }
 
 void SortDialog::changeType(int Type)
