@@ -5681,9 +5681,9 @@ void ApplicationWindow::normalizeActiveTable()
 	if ( w && tableWindows.contains(w->name()))
 	{
 		if (int(w->selectedColumns().count())>0)
-			w->normalizeTable();
+			w->normalize();
 		else
-			QMessageBox::warning(this, "QtiPlot - Column selection error","Please select a column first!");
+			QMessageBox::warning(this, tr("QtiPlot - Column selection error"), tr("Please select a column first!"));
 	}
 }
 
@@ -5695,7 +5695,7 @@ void ApplicationWindow::normalizeSelection()
 	if (int(((Table*)ws->activeWindow())->selectedColumns().count())>0)
 		((Table*)ws->activeWindow())->normalizeSelection();
 	else
-		QMessageBox::warning(this, "QtiPlot - Column selection error","Please select a column first!");
+		QMessageBox::warning(this, tr("QtiPlot - Column selection error"), tr("Please select a column first!"));
 }
 
 void ApplicationWindow::correlate()

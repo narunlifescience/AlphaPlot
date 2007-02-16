@@ -188,7 +188,10 @@ public:
 	if (sipIsErr == 0)
 		sipCpp->normalizeCol(col);
 %End
-  void normalizeTable() /PyName=normalize/;
+  void normalize();
+  
+  void sortColumn(int col = -1, int order = 0);
+  void sort(int type = 0, int order = 0, const QString& leadCol = QString());
   
 private:
   Table(const Table&);

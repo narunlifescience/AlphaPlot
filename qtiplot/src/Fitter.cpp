@@ -157,7 +157,7 @@ void Fit::setDataFromCurve(int curve, double start, double end)
 
 	d_init_err = false;
 	d_curve = d_graph->curve(curve);
-	d_n = d_graph->sortedCurveData(curve, start, end, &d_x, &d_y);
+	d_n = d_graph->curveData(curve, start, end, &d_x, &d_y);
 
 	// initialize the weighting data
     d_w = new double[d_n];

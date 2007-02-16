@@ -154,10 +154,11 @@ public slots:
 	//@{
 	void sortColAsc();
 	void sortColDesc();
+	void sortColumn(int col = -1, int order = 0);
 	void sortTableDialog();
-	void sortTable(int type, int order, const QString& leadCol);
-	void sortColumns(int type, int order, const QString& leadCol);
-	void sortColumns(const QStringList&s, int type, int order, const QString& leadCol);
+	void sort(int type = 0, int order  = 0, const QString& leadCol = QString());
+	void sortColumns(int type = 0, int order = 0, const QString& leadCol = QString());
+	void sortColumns(const QStringList&s, int type = 0, int order = 0, const QString& leadCol = QString());
 	void sortColumnsDialog();
 	//@}
 	
@@ -165,7 +166,7 @@ public slots:
 	//@{
 	void normalizeCol(int col=-1);
 	void normalizeSelection();
-	void normalizeTable();
+	void normalize();
 	//@}
 
 	void correlate();

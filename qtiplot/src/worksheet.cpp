@@ -1341,7 +1341,7 @@ void Table::normalizeSelection()
 	emit modifiedWindow(this);	
 }
 
-void Table::normalizeTable()
+void Table::normalize()
 {
 	for (int i=0; i<worksheet->numCols(); i++)
 	{
@@ -1397,17 +1397,17 @@ void Table::sortTableDialog()
 	SortDialog *sortd=new SortDialog(this);
 	sortd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (sortd,SIGNAL(sort(int, int, const QString&)),
-			this,SLOT(sortTable(int, int, const QString&)));
+			this,SLOT(sort(int, int, const QString&)));
 	sortd->insertColumnsList(colNames());
 	sortd->exec();
 }
 
-void Table::sortTable(int type, int order, const QString& leadCol)
+void Table::sort(int type, int order, const QString& leadCol)
 {
 	sortColumns(colNames(), type, order, leadCol);
 }
 
-void Table::sortColumns(int type, int order,const QString& leadCol)
+void Table::sortColumns(int type, int order, const QString& leadCol)
 {
 	sortColumns(selectedColumns(), type, order, leadCol);
 }
@@ -1418,17 +1418,17 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 	if(!type)
 	{
 		for(int i=0;i<cols;i++)
-		{
-			selectedCol=colIndex(s[i]);
-			if(!order)
-				sortColAsc();
-			else
-				sortColDesc();
-		}
+			sortColumn(colIndex(s[i]), order);
 	}
 	else
 	{
-		int leadcol=colIndex(leadCol);
+		int leadcol = colIndex(leadCol);
+		if (leadcol < 0)
+		{
+			QMessageBox::critical(this, tr("QtiPlot - Error"), 
+			tr("Please indicate the name of the leading column!"));
+			return;
+		}
 		if (columnType(leadcol) == Table::Text)
 		{
 			QMessageBox::critical(this, tr("QtiPlot - Error"), 
@@ -1448,6 +1448,13 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 				valid_cell[non_empty_cells] = j;
 				non_empty_cells++;
 			}
+		}
+		
+		if (!non_empty_cells)
+		{
+			QMessageBox::critical(this, tr("QtiPlot - Error"), 
+			tr("The leading column is empty! Operation aborted!"));
+			return;
 		}
 		
 		r.resize(non_empty_cells);
@@ -1494,127 +1501,58 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 	emit modifiedWindow(this);	
 }
 
-void Table::sortColAsc()
+void Table::sortColumn(int col, int order)
 {
-	if (columnType(selectedCol) == Table::Text)
+	if (columnType(col) == Table::Text)
 		return;
-
+	
+	if (col < 0)
+		col = worksheet->currentColumn();
+	
 	int rows=worksheet->numRows();
-	QVarLengthArray<int> aux(rows);
+	int non_empty_cells = 0;
+	QVarLengthArray<int> valid_cell(rows);
 	QVarLengthArray<double> r(rows);
-	int i,n=0;
-	for (i = 0; i <rows; i++)
+	for (int i = 0; i <rows; i++)
 	{
-		QString text=this->text(i,selectedCol);
-		if (!text.isEmpty())
+		if (!worksheet->text(i, col).isEmpty())
 		{
-			n++;
-			aux[i]=i;
-			r[i]=text.toDouble();
-		}
-		else
-		{
-			aux[i]=-1;
-			r[i]=0.0;
+			r[non_empty_cells] = this->text(i,col).toDouble();
+			valid_cell[non_empty_cells] = i;
+			non_empty_cells++;
 		}
 	}
-
-	if (!n)
+	
+	if (!non_empty_cells)
 		return;
+		
+	r.resize(non_empty_cells);
+	valid_cell.resize(non_empty_cells);
 
-	gsl_vector * v = gsl_vector_alloc (n);
-	int index;
-	n=0;
-	for (i = 0; i <rows; i++)
-	{
-		index=aux[i];
-		if (index>=0)
-		{
-			gsl_vector_set (v, n, r[index]);
-			n++;
-		}	
-	}
+	gsl_sort(r.data(), 1, non_empty_cells);
 
 	int prec;
 	char f;
-	columnNumericFormat(selectedCol, f, prec);
-
-	gsl_sort_vector (v);
-	n=0;
-	for (i=0;i<rows;i++)
+	columnNumericFormat(col, f, prec);
+	for (int i=0; i<non_empty_cells; i++)
 	{
-		index=aux[i];
-		if (index>=0)
-		{
-			worksheet->setText(i,selectedCol,QString::number(gsl_vector_get (v, n), f, prec)); 
-			n++;
-		}
+		if (!order)
+			worksheet->setText(valid_cell[i], col, QString::number(r[i], f, prec));
+		else
+			worksheet->setText(valid_cell[i], col, QString::number(r[non_empty_cells-i-1], f, prec)); 		
 	}
-	gsl_vector_free (v);
-	QString name=colName(selectedCol);
-	emit modifiedData(this, name);
+	emit modifiedData(this, colName(col));
 	emit modifiedWindow(this);
+}
+
+void Table::sortColAsc()
+{
+sortColumn(worksheet->currentColumn ());
 }
 
 void Table::sortColDesc()
 {
-	if (columnType(selectedCol) == Table::Text)
-		return;
-		
-	int rows=worksheet->numRows();
-	QVarLengthArray<int> aux(rows);
-	QVarLengthArray<double> r(rows);
-	int i,n=0;
-	for (i = 0; i <rows; i++)
-	{
-		QString text=this->text(i,selectedCol);
-		if (!text.isEmpty())
-		{
-			n++;
-			aux[i]=i;
-			r[i]=text.toDouble();
-		}
-		else
-		{
-			aux[i]=-1;
-			r[i]=0.0;
-		}
-	}
-
-	if (!n)
-		return;
-
-	gsl_vector * v = gsl_vector_alloc (n);
-	int index;
-	n=0;
-	for (i = 0; i <rows; i++)
-	{
-		index=aux[i];
-		if (index>=0)
-		{
-			gsl_vector_set (v, n, r[index]);
-			n++;
-		}	
-	}
-
-	gsl_sort_vector (v);
-
-	int prec;
-	char f;
-	columnNumericFormat(selectedCol, f, prec);
-	for (i=0;i<rows;i++)
-	{
-		index=aux[i];
-		if (index>=0)
-		{
-			n--;
-			worksheet->setText(i,selectedCol,QString::number(gsl_vector_get (v, n), f, prec)); 
-		}
-	}
-	gsl_vector_free (v);
-	QString name=colName(selectedCol);
-	emit modifiedData(this, name);
-	emit modifiedWindow(this);
+sortColumn(worksheet->currentColumn(), 1);
 }
 
 int Table::tableRows()

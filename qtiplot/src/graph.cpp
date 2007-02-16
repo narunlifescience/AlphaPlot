@@ -2907,9 +2907,7 @@ void Graph::move(const QPoint &pos)
 	emit updateTable(associations[id],selectedPoint,text);
 
 	QString info;
-	info.sprintf("x=%g; y=%g",
-			xData[selectedPoint],
-			yData[selectedPoint]);
+	info.sprintf("x=%g; y=%g", xData[selectedPoint], yData[selectedPoint]);
 	emit cursorInfo(info);
 }
 
