@@ -36,11 +36,13 @@
 #include "graph.h"
 #include <QPushButton>
 #include <QLayout>
+#include <QPointer>
 
 class QWidget;
 class QLabel;
 class QWidget;
 class LayerButton;
+class SelectionMoveResizer;
 	
 /**
  * \brief An MDI window (MyWidget) managing one or more Graph objects.
@@ -52,7 +54,7 @@ class LayerButton;
  * Manage any QWidget instead of only Graph.
  * This would allow 3D graphs to be added as well, so you could produce mixed 2D/3D arrangements.
  * It would also allow text labels to be added directly instead of having to complicate things by wrapping them
- * up in a Graph.
+ * up in a Graph (see documentation of ImageMarker for details) (see documentation of ImageMarker for details).
  *
  * The main problem to be figured out for this is how Graph would interface with the rest of the project.
  * A possible solution is outlined in the documentation of ApplicationWindow:
@@ -75,8 +77,6 @@ public:
 	//! \name Event Handlers
 	//@{
 	void mousePressEvent(QMouseEvent *);
-	void mouseMoveEvent(QMouseEvent *);
-	void mouseReleaseEvent(QMouseEvent *);
 	void contextMenuEvent(QContextMenuEvent *);
 	void wheelEvent(QWheelEvent *);
 	void keyPressEvent(QKeyEvent *);
@@ -118,10 +118,6 @@ public slots:
 	void setActiveGraph(Graph* g);
 	void activateGraph(LayerButton* button);
 	
-	void moveGraph(Graph* g, const QPoint& pos);
-	void releaseGraph(Graph* g);
-	
-	void setGraphOrigin(const QPoint& pos);
 	void setGraphGeometry(int x, int y, int w, int h);
 
 	void findBestLayout(int &rows, int &cols);
@@ -180,8 +176,6 @@ public slots:
 	bool overlapsLayers(Graph *g);
 	bool hasOverlapingLayers();
 
-	void highlightLayer(Graph*g);
-	void drawLayerFocusRect(const QRect& fr);
 	void showLayers(bool ok);
 
 	QString saveToString(const QString& geometry);
@@ -228,14 +222,10 @@ signals:
 private:
 	Graph* active_graph;
 	//! Used for resizing of layers.
-	QRect aux_rect;
-	QPixmap cache_pix;
 	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
-	//! Used for moving layers.
-	int xMouse, yMouse, xActiveGraph, yActiveGraph;
-	bool movedGraph, addTextOn, highlightedLayer, ignore_resize, mousePressed;
+	bool addTextOn, ignore_resize;
 
 	//! Used when adding text markers on new layers
 	int defaultTextMarkerFrame;
@@ -245,6 +235,8 @@ private:
     QWidgetList buttonsList, graphsList;
 	QHBoxLayout *layerButtonsBox;
     QWidget *canvas;
+
+	QPointer<SelectionMoveResizer> d_layers_selector;
 };
 
 	

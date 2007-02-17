@@ -97,14 +97,6 @@ signals:
 	 * \sa QwtScaleDraw::Alignment
 	 */
 	void topAxisTitleDblClicked();
-	
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
-private:
-	bool movedGraph;
-	QPoint presspos;
 };
 
 class TitlePicker: public QObject
@@ -120,13 +112,6 @@ signals:
 	void removeTitle();
 	void showTitleMenu();
 
-	// moving and highlighting the plot parent
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
-
 protected:
 	QwtTextLabel *title;
-	bool movedGraph;
-	QPoint presspos;
 };

@@ -76,6 +76,7 @@ All suggestions and contributions are most welcome!
     more robust parser based on Qt's XML support. Legacy support for the old
     format could be a plug-in.
 	 See whether we can make use of the XML save/restore interface planned for Qwt.
+	 Consider SAX instead of DOM in order to constrain memory requirements for large files.
   - Document as much as possible using doxygen and write simple demo
     plug-ins.
   - Modularize the build process so that Python support could use SIP's
@@ -94,13 +95,13 @@ All suggestions and contributions are most welcome!
   - Improved import of Origin project files
   - More import/export filters including Open Document spreasheets (plugin)
 
-  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, LegendMarker, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, ScriptEdit
+  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, LegendMarker, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit
 
   \page style Coding Style
   The following rules are not used everywhere (yet), but are intended as guidelines for new code and eventually
   old code should be adapted as well.
 
-  - Files use DOS-style line endings (CR-LF).
+  - Files use DOS-style line endings (CR-LF == "\r\n").
   - Class names start with a capital letter, object/variable names with a lower case letter.
   - Methods and functions are named likeThis(), variables like_this and instance variables are prefixed with "d_".
   - Property access methods use Qt style: property() and setProperty().

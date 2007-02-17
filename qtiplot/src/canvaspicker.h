@@ -30,6 +30,7 @@
 #include "plot.h"
 
 class Graph;
+class LineMarker;
 	
 /**
  * \brief Handles parts of the user interaction for a Plot by registering itself as an event filter for its QwtPlotCanvas.
@@ -49,22 +50,16 @@ public:
 	 void selectPeak(const QPoint& p);
 
 private:
+	//! Move selection to next marker.
+	void selectNextMarker();
 	void drawTextMarker(const QPoint&);
 	void drawLineMarker(const QPoint&, bool endArrow);
-
-	//! Called when the user releases the mouse button after a line marker resize action
-	/**
-	 * \param point the mouse position
-	 */
-	void resizeLineMarker(const QPoint& point);
 
 	//! Selects and highlights the marker at the given position.
 	/**
 	 * \return whether a marker was found at \var point
 	 */
-	bool selectMarker(const QPoint& point);
-	void moveMarker(QPoint& position);
-	void releaseMarker();
+	bool selectMarker(const QMouseEvent *e);
 
 	/**
 	 * \brief Return my parent as a Graph.
@@ -81,12 +76,6 @@ private:
 	Plot* plotWidget;	
 	QPoint startLinePoint, endLinePoint;
 
-	//! Tells whether the user resizes a line marker via the mouse using the start point
-	bool resizeLineFromStart;
-	
-	//! Tells whether the user resizes a line marker via the mouse using the end point
-	bool resizeLineFromEnd;	
-	
 signals:
 	void showPieDialog();
 	void showPlotDialog(int);
@@ -97,13 +86,14 @@ signals:
 	void showMarkerPopupMenu();
 	void modified();
 	void calculateProfile(const QPoint&, const QPoint&);
-	void selectPlot();
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-	void highlightGraph();
 	
 private:
-    QPoint presspos;
-    int xMouse, yMouse, xMrk, yMrk, n_peaks, selected_points;
-	bool moved,	movedGraph, pointSelected, select_peaks;
+	bool pointSelected;
+	/*!\brief The marker that is currently being edited, or NULL.
+	 * Editing does explicitly _not_ inlude moving and resizing, which are being
+	 * handled by SelectionMoveResizer (see Graph::d_markers_selector).
+	 * Currently, only LineMarker provides any other form of editing, but this really
+	 * should be generalized. See ImageMarker for details.
+	 */
+	LineMarker *d_editing_marker;
 };

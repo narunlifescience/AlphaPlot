@@ -29,8 +29,11 @@
 #include "LineMarker.h"
 
 #include <QPainter>
+#include <QMouseEvent>
+#include <QApplication>
 
 #include <qwt_plot.h>
+#include <qwt_plot_canvas.h>
 #include <qwt_painter.h>
 
 #ifndef M_PI
@@ -42,11 +45,13 @@ LineMarker::LineMarker():
 		d_fill_head(true),
 		d_head_angle(45),
 		d_head_length(4),
-		d_rect(0, 0, 1, 1)
+		d_rect(0, 0, 1, 1),
+		d_editable(false),
+		d_op(None)
 {
 }
 
-void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const
+void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
 {	
 	const int x0 = xMap.transform(d_rect.left());
 	const int y0 = yMap.transform(d_rect.top());
@@ -103,11 +108,22 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		QwtPainter::drawPolygon(p,startArray);
 		p->restore();
 		}
+
+	if (d_editable) {
+		p->save();
+		p->setPen(QPen(Qt::black,1,Qt::SolidLine));
+		QRect handler(QPoint(0,0), QSize(10,10));
+		handler.moveCenter(startPoint());
+		p->fillRect(handler, QBrush(Qt::black));
+		handler.moveCenter(endPoint());
+		p->fillRect(handler, QBrush(Qt::black));
+		p->restore();
+	}
 }
 
 double LineMarker::theta(int xs, int ys, int xe, int ye) const
 {
-double t, pi = 4.0*atan(-1.0);
+double t;
 if (xe == xs)
 	{
 	if (ys > ye)
@@ -126,54 +142,54 @@ return t;
 
 double LineMarker::length()
 {
-if (!plot())
-	return -1.0;
+	if (!plot())
+		return -1.0;
 
-const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
-const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
-const int x0 = xMap.transform(d_rect.left());
-const int y0 = yMap.transform(d_rect.top());
-const int x1 = xMap.transform(d_rect.right());
-const int y1 = yMap.transform(d_rect.bottom());
-		
-double l=sqrt(double((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0)));	
-return fabs(l);
+	const int x0 = xMap.transform(d_rect.left());
+	const int y0 = yMap.transform(d_rect.top());
+	const int x1 = xMap.transform(d_rect.right());
+	const int y1 = yMap.transform(d_rect.bottom());
+
+	double l=sqrt(double((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0)));	
+	return fabs(l);
 }
 
 double LineMarker::dist(int x, int y)
 {
-if (!plot())
-	return -1.0;
+	if (!plot())
+		return -1.0;
 
-const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
-const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
 
-const int x0 = xMap.transform(d_rect.left());
-const int y0 = yMap.transform(d_rect.top());
-const int x1 = xMap.transform(d_rect.right());
-const int y1 = yMap.transform(d_rect.bottom());
+	const int x0 = xMap.transform(d_rect.left());
+	const int y0 = yMap.transform(d_rect.top());
+	const int x1 = xMap.transform(d_rect.right());
+	const int y1 = yMap.transform(d_rect.bottom());
 
-int xmin=QMIN(x0,x1);
-int xmax=QMAX(x0,x1);
-int ymin=QMIN(y0,y1);
-int ymax=QMAX(y0,y1);
-	
-if ( (x>xmax || x<xmin || xmin==xmax) && (ymax<y || ymin>y || ymin==ymax))
-	//return the shortest distance to one of the ends
-	return QMIN(sqrt(double((x-x0)*(x-x0)+(y-y0)*(y-y0))),
+	int xmin=qMin(x0,x1);
+	int xmax=qMax(x0,x1);
+	int ymin=qMin(y0,y1);
+	int ymax=qMax(y0,y1);
+
+	if ( (x>xmax || x<xmin || xmin==xmax) && (ymax<y || ymin>y || ymin==ymax))
+		//return the shortest distance to one of the ends
+		return qMin(sqrt(double((x-x0)*(x-x0)+(y-y0)*(y-y0))),
 				sqrt(double((x-x1)*(x-x1)+(y-y1)*(y-y1))));
-	
-double d;
-if (x0==x1)
-	d=abs(x-x0);
-else
+
+	double d;
+	if (x0==x1)
+		d=abs(x-x0);
+	else
 	{
-	double a=(double)(y1-y0)/(double)(x1-x0);
-	double b=y0-a*x0;
-	d=(a*x-y+b)/sqrt(a*a+1);
+		double a=(double)(y1-y0)/(double)(x1-x0);
+		double b=y0-a*x0;
+		d=(a*x-y+b)/sqrt(a*a+1);
 	}	
-return fabs(d);
+	return fabs(d);
 }
 
 void LineMarker::setColor(const QColor& c)
@@ -258,10 +274,10 @@ d_rect.setRight(plot()->invTransform(xAxis(), p.x()));
 d_rect.setBottom(plot()->invTransform(yAxis(), p.y()));
 }
 
-QPoint LineMarker::startPoint()
+QPoint LineMarker::startPoint() const
 {
-if (!plot())
-	return QPoint();
+	if (!plot())
+		return QPoint();
 
 return QPoint(plot()->transform(xAxis(), d_rect.left()), 
 			  plot()->transform(yAxis(), d_rect.top()));
@@ -269,7 +285,7 @@ return QPoint(plot()->transform(xAxis(), d_rect.left()),
 
 QwtDoublePoint LineMarker::startPointCoord()
 {
-return QwtDoublePoint(d_rect.left(), d_rect.top());
+	return QwtDoublePoint(d_rect.left(), d_rect.top());
 }
 
 void LineMarker::setStartPoint(double x, double y)
@@ -286,13 +302,13 @@ if (!plot())
 d_start = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
-QPoint LineMarker::endPoint()
+QPoint LineMarker::endPoint() const
 {
-if (!plot())
-	return QPoint();
+	if (!plot())
+		return QPoint();
 
-return QPoint(plot()->transform(xAxis(), d_rect.right()), 
-			  plot()->transform(yAxis(), d_rect.bottom()));
+	return QPoint(plot()->transform(xAxis(), d_rect.right()), 
+			plot()->transform(yAxis(), d_rect.bottom()));
 }
 
 void LineMarker::setEndPoint(double x, double y)
@@ -316,7 +332,19 @@ return QwtDoublePoint(d_rect.right(), d_rect.bottom());
 
 QwtDoubleRect LineMarker::boundingRect() const
 {
-return d_rect;
+	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+	const int x0 = xMap.transform(d_rect.left());
+	const int y0 = yMap.transform(d_rect.top());
+	const int x1 = xMap.transform(d_rect.right());
+	const int y1 = yMap.transform(d_rect.bottom());
+
+	return QwtDoubleRect(
+			x0<x1 ? d_rect.left() : d_rect.right(),
+			y0<y1 ? d_rect.top() : d_rect.bottom(),
+			qAbs(d_rect.left() - d_rect.right()),
+			qAbs(d_rect.top() - d_rect.bottom()));
 }
 
 void LineMarker::updateBoundingRect()
@@ -328,4 +356,106 @@ d_rect.setLeft(xMap.invTransform(d_start.x()));
 d_rect.setTop(yMap.invTransform(d_start.y()));
 d_rect.setRight(xMap.invTransform(d_end.x()));
 d_rect.setBottom(yMap.invTransform(d_end.y()));
+}
+
+void LineMarker::setEditable(bool yes)
+{
+	if (yes == d_editable)
+		return;
+	if (yes) {
+		d_editable = true;
+		plot()->canvas()->installEventFilter(this);
+	} else {
+		d_editable = false;
+		plot()->canvas()->removeEventFilter(this);
+	}
+	plot()->replot();
+}
+
+bool LineMarker::eventFilter(QObject *, QEvent *e)
+{
+	switch(e->type()) {
+		case QEvent::MouseButtonPress:
+			{
+				const QMouseEvent *me = (const QMouseEvent *)e;	
+				if (me->button() != Qt::LeftButton)
+					return false;
+				QRect handler = QRect (QPoint(0,0), QSize(10, 10));
+				handler.moveCenter (startPoint());
+				if (handler.contains(me->pos()))
+				{
+					QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+					d_op = MoveStart;
+					return true;
+				}
+				handler.moveCenter (endPoint());
+				if (handler.contains(me->pos()))
+				{
+					QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+					d_op = MoveEnd;
+					return true;
+				}
+				int d = width()+(int)floor(headLength()*tan(M_PI*headAngle()/180.0)+0.5);
+				if (dist(me->pos().x(),me->pos().y()) <= d)
+				{
+					QApplication::setOverrideCursor(QCursor(Qt::SizeAllCursor), true);
+					d_op = MoveBoth;
+					d_op_startat = me->pos()-startPoint();
+					return true;
+				}
+				return false;
+			}
+		case QEvent::MouseMove:
+			{
+				const QMouseEvent *me = (const QMouseEvent *)e;	
+				switch(d_op) {
+					case MoveStart:
+						setStartPoint(me->pos());
+						plot()->replot();
+						return true;
+					case MoveEnd:
+						setEndPoint(me->pos());
+						plot()->replot();
+						return true;
+					case MoveBoth:
+						setEndPoint(endPoint()+me->pos()-d_op_startat-startPoint());
+						setStartPoint(me->pos()-d_op_startat);
+						plot()->replot();
+						return true;
+					default:
+						return false;
+				}
+			}
+		case QEvent::MouseButtonRelease:
+			{
+				const QMouseEvent *me = (const QMouseEvent *)e;	
+				switch(d_op) {
+					case MoveStart:
+						setStartPoint(me->pos());
+						plot()->replot();
+						d_op = None;
+						QApplication::restoreOverrideCursor();
+						return true;
+					case MoveEnd:
+						setEndPoint(me->pos());
+						plot()->replot();
+						d_op = None;
+						QApplication::restoreOverrideCursor();
+						return true;
+					case MoveBoth:
+						setXValue(plot()->invTransform(xAxis(), me->pos().x()-d_op_startat.x()));
+						setYValue(plot()->invTransform(yAxis(), me->pos().y()-d_op_startat.y()));
+						plot()->replot();
+						d_op = None;
+						QApplication::restoreOverrideCursor();
+						return true;
+					default:
+						d_op = None;
+						QApplication::restoreOverrideCursor();
+						return false;
+				}
+			}
+		default:
+			return false;
+	}
 }

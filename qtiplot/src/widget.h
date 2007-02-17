@@ -44,6 +44,9 @@ class Folder;
  * These are the main objects of every Qtiplot project.
  * All content (apart from the directory structure) is managed by subclasses of MyWidget.
  *
+ * \section future Future Plans
+ * Rename to MDIWindow (or some yet-to-find better name; ideas anyone?).
+ *
  * \sa Folder, ApplicationWindow
  */
 class MyWidget: public QWidget

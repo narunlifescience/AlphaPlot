@@ -39,6 +39,7 @@
 #include <QCloseEvent>
 #include <Q3ValueList>
 #include <Q3MemArray>
+#include <QPointer>
 
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>
@@ -64,6 +65,7 @@ class Plot;
 class MultiPeakFit;
 class ApplicationWindow;
 class Matrix;
+class SelectionMoveResizer;
 	
 //! Structure containing curve layout parameters
 typedef struct{
@@ -305,8 +307,6 @@ class Graph: public QWidget
 		void updateTextMarker(const QString& text,int angle, int bkg,const QFont& fnt,
 				const QColor& textColor, const QColor& backgroundColor);
 
-		void highlightTextMarker(long markerID);
-
 		QFont defaultTextMarkerFont(){return defaultMarkerFont;};
 		QColor textMarkerDefaultColor(){return defaultTextMarkerColor;};
 		QColor textMarkerDefaultBackground(){return defaultTextMarkerBackground;};
@@ -355,7 +355,6 @@ class Graph: public QWidget
 		void drawLine(bool on, bool arrow = FALSE);
 		bool drawArrow(){return drawArrowOn;};
 		bool drawLineActive(){return drawLineOn;};
-		void highlightLineMarker(long markerID);
 
 		Qt::PenStyle arrowLineDefaultStyle(){return defaultArrowLineStyle;};
 		bool arrowHeadDefaultFill(){return defaultArrowHeadFill;};
@@ -379,8 +378,6 @@ class Graph: public QWidget
 		bool imageMarkerSelected();
 		void updateImageMarker(int x, int y, int width, int height);
 
-		void highlightImageMarker(long markerID);
-
 		bool arrowMarkerSelected();
 		//@}
 
@@ -390,15 +387,20 @@ class Graph: public QWidget
 		void cutMarker();
 		void copyMarker();
 		void pasteMarker();
-		void selectNextMarker();
-		void moveMarkerBy(int dx, int dy);
 		//! Keep the markers on screen each time the scales are modified by adding/removing curves
 		void updateMarkersBoundingRect();
 
 		long selectedMarkerKey();
-		void setSelectedMarker(long mrk);
+		/*!\brief Set the selected marker.
+		 * \param mrk key of the marker to be selected.
+		 * \param add whether the marker is to be added to an existing selection.
+		 * If \var add is false (the default) or there is no existing selection, a new SelectionMoveResizer is
+		 * created and stored in #d_markers_selector.
+		 */
+		void setSelectedMarker(long mrk, bool add=false);
 		QwtPlotMarker* selectedMarkerPtr();
 		bool markerSelected();
+		//! Reset any selection states on markers.
 		void deselectMarker();
 		MarkerType copiedMarkerType(){return selectedMarkerType;};
 		//@}
@@ -631,6 +633,7 @@ class Graph: public QWidget
 
 		//! \name Image Analysis Tools
 		//@{
+		//! Return #lineProfileOn.
 		bool lineProfile();
 		void calculateProfile(int average, bool ok);
 		void calculateLineProfile(const QPoint& start, const QPoint& end);
@@ -651,9 +654,6 @@ class Graph: public QWidget
 
 		void createWorksheet(const QString& name);
 		void activateGraph();
-		void moveGraph(const QPoint& pos);
-		void releaseGraph();
-		void drawFocusRect();
 
 		//! \name Vector Curves
 		//@{
@@ -726,9 +726,6 @@ class Graph: public QWidget
   		void restoreSpectrogram(ApplicationWindow *app, const QStringList& lst);
 
 signals:
-		void highlightGraph(Graph*);
-		void releaseGraph(Graph*);
-		void moveGraph(Graph*, const QPoint& pos);
 		void selectedGraph (Graph*);
 		void closedGraph();
 		void drawTextOff();
@@ -795,7 +792,7 @@ signals:
 		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F&lt;number>'.
 		 *    Formulas are stored in the associated FunctionCurve object.
 		 * .
-		 * Column ids are of the form '&gt;name of table> "_" &gt;name of column>'.
+		 * Column ids are of the form '&lt;name of table> "_" &lt;name of column>'.
 		 *
 		 * [ TODO: what about pie charts, histograms, box plots and others? ]
 		 *
@@ -854,5 +851,8 @@ signals:
 		int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
 		bool defaultArrowHeadFill;
 		Qt::PenStyle defaultArrowLineStyle;
+
+	//! The markers selected for move/resize operations or 0 none are selected.
+	QPointer<SelectionMoveResizer> d_markers_selector;
 };
 #endif // GRAPH_H

@@ -4,7 +4,7 @@ linux-g++-64: libsuff=64
 TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
-CONFIG      += assistant
+CONFIG	    += assistant
 CONFIG	    += release
 #CONFIG	    += debug
 
@@ -177,7 +177,8 @@ HEADERS  += src/application.h \
 	 src/textformatbuttons.h\
 	 src/TableStatistics.h\
 	 src/Spectrogram.h\
-     src/ColorMapEditor.h
+	 src/ColorMapEditor.h\
+	 src/SelectionMoveResizer.h\
 
 ###################### SOURCES ##############################################
 	
@@ -261,8 +262,9 @@ SOURCES  += src/application.cpp \
 	 src/ScriptingLangDialog.cpp\
 	 src/ScriptWindow.cpp\
 	 src/TableStatistics.cpp\
-  	 src/Spectrogram.cpp\
-     src/ColorMapEditor.cpp
+	 src/Spectrogram.cpp\
+	 src/ColorMapEditor.cpp\
+	 src/SelectionMoveResizer.cpp\
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

@@ -29,25 +29,33 @@
 #ifndef LINEMARKER_H
 #define LINEMARKER_H
 
+#include <QObject>
 #include <qwt_plot_marker.h>
 
 /*!\brief Draws lines and arrows on a QwtPlot.
  *
+ * \section design Design Ideas
+ * Move all the code for editing the end points from CanvasPicker here, so that we have it all in one place.
+ * This approach will make adding new editable markers (e.g. polygons) much easier, and it will allow this
+ * to be done in plug-ins.
+ *
  * \sa ImageMarker, LegendMarker
  */
-class LineMarker: public QwtPlotMarker
+class LineMarker: public QObject, public QwtPlotMarker
 {
+	Q_OBJECT
 public:
+	enum Operation { None, MoveStart, MoveEnd, MoveBoth };
     LineMarker();
     virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	//! Pixel coordinates of the start point
-	QPoint startPoint();
+	QPoint startPoint() const;
 	//! Sets the start point in pixel coordinates
 	void setStartPoint(const QPoint& p);
 
 	//! Pixel coordinates of the end point
-	QPoint endPoint();
+	QPoint endPoint() const;
 	//! Sets the end point in pixel coordinates
 	void setEndPoint(const QPoint& p);
 
@@ -102,12 +110,20 @@ public:
 	//! Returns the length of the arrow line
 	double length();
 
+	//! Returns the bounding rectangle in plot coordinates.
 	QwtDoubleRect boundingRect() const;
 
-	//! Recalculates the bounding rectangle in values coordinates using 
-	// the pixel coordinats when the scales change
+	//! Recalculates the bounding rectangle in values coordinates using the pixel coordinats when the scales change
 	void updateBoundingRect();
 	
+	//! Returns the state of #d_editable.
+	bool editable() const { return d_editable; }
+	//! Starts/ends editing of end points by the user.
+	void setEditable(bool yes);
+
+	//! Filters events for the canvas while #d_editable is true.
+	bool eventFilter(QObject *o, QEvent *e);
+
 private:
 	double theta(int xs, int ys, int xe, int ye) const;
 
@@ -134,5 +150,17 @@ private:
 
 	//! Bounding rectangle of the arrow in axes values coordinates
 	QwtDoubleRect d_rect;
+	//! Whether start and end point can be moved by the user.
+	bool d_editable;
+
+	//! What editing operation is in progress.
+	Operation d_op;
+
+	/*!\brief Difference between mouse position where a MoveBoth operation started and startPoint().
+	 * When only one point is being moved, we can simply setStartPoint() or setEndPoint() to the
+	 * current mouse position, but when the editing starts in the middle of the line, we
+	 * need to remember this bit.
+	 */
+	QPoint d_op_startat;
 };
 #endif

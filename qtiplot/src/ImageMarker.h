@@ -36,7 +36,7 @@
 
 /*!\brief Draw images on a QwtPlot.
  *
- * ImageMarker draws #d_pic at the position specified by QwtPlotMarker::value(),
+ * ImageMarker draws #d_pic at the position specified by #d_pos,
  * scaled to #d_size. #d_file_name isn't used internally, but only provided to help
  * Graph manage save/restore.
  *
@@ -44,13 +44,20 @@
  * Add a QwtPlotItem subclass (PlotEnrichment ?) and make ImageMarker, LegendMarker and LineMarker
  * subclasses of that. These (usually) don't really mark a specific point in a plot and they don't
  * use the symbol/label functionality of QwtPlotMarker. Instead, it would make sense to provide a
- * unified move/resize interface and support for positioning them either at fixed plot coordinates
- * (like QwtPLotMarker) or at a fixed drawing position within a QwtPlot (like a QWidget child);
- * leaving the choice of positioning policy to the user.
+ * unified move/resize (or even general affine transformations via QMatrix) interface and support for
+ * positioning them either at fixed plot coordinates (like QwtPlotMarker) or at a fixed drawing
+ * position within a QwtPlot (like a QWidget child); leaving the choice of positioning policy to the
+ * user.
+ * If PlotEnrichment (ideas for a better name?) inherits from both QWidget and QwtPlotItem (which
+ * is luckily no QObject) and provides a unified drawing framework, its instances could be added
+ * directly to MultiLayer without the need for a dummy Graph in between.
+ * Could also help to avoid the hack in MultiLayer::updateMarkersBoundingRect().
  *
  * Following the above thoughts, it might help clarify the purpose of ImageMarker, LegendMarker
  * and LineMarker if they are renamed according to the new superclasse's name
  * (e.g. ImageEnrichment, TextEnrichment and LineEnrichment).
+ *
+ * See the documentation of SelectionMoveResizer for other advantages of this approach.
  *
  * \sa LegendMarker, LineMarker
  */
@@ -63,7 +70,7 @@ public:
 	virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 	
 	//! Return bounding rectangle in paint coordinates.
-	QRect rect() const;
+	QRect rect() const {return transform(plot()->canvasMap(xAxis()), plot()->canvasMap(yAxis()), d_rect);};
 	//! Set value (position) and #d_size, giving everything in paint coordinates.
 	void setRect(int x, int y, int w, int h);
 
@@ -73,14 +80,14 @@ public:
 	void setBoundingRect(const QwtDoubleRect& rect);
 
 	//! Return #d_size.
-	QSize size() { return d_size; };
+	QSize size() { return rect().size(); };
 	//! Set #d_size.
-	void setSize(const QSize& size) { d_size = size; itemChanged(); }
+	void setSize(const QSize& size);
 	
-	//! Return QwtPlotMarker::value() in paint coordinates.
-	QPoint origin() const;
+	//! Return position in paint coordinates.
+	QPoint origin() const { return rect().topLeft(); };
 	//! Set QwtPlotMarker::value() in paint coordinates.
-	void setOrigin(QPoint p);
+	void setOrigin(const QPoint &p);
 	
 	//! Set #d_file_name.
 	void setFileName(const QString& fn) { d_file_name = fn; };
@@ -90,19 +97,17 @@ public:
 	//! Return the image to be drawin, #d_pic.
 	QPixmap image() const { return d_pic; };
 
-protected:
-	//! Return the scale map associated to the x axis.
-	QwtScaleMap xAxisMap() const { return plot()->canvasMap(xAxis()); };
-	//! Return the scale map associated to the y axis.
-	QwtScaleMap yAxisMap() const { return plot()->canvasMap(yAxis()); };
+	void updateBoundingRect();
 
-private: 
+private:
+	QPoint d_pos;
 	//! The pixmap to be drawn.
 	QPixmap d_pic;
 	//! The size (in paint coordinates) to which #d_pic will be scaled in draw().
 	QSize d_size;
 	//! The file from which the image was loaded.
 	QString d_file_name;
+	QwtDoubleRect d_rect;
 };
 
 #endif

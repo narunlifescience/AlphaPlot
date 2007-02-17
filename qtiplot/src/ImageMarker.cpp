@@ -32,56 +32,75 @@
 
 ImageMarker::ImageMarker(const QPixmap& p):
 	d_pic(p),
+	d_pos(QPoint(0,0)),
 	d_size(p.size())
 {
 }
 
 void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
 {
-	p->drawPixmap(QRect(QPoint(xMap.transform(xValue()),yMap.transform(yValue())), d_size), d_pic);
+	p->drawPixmap(transform(xMap, yMap, d_rect), d_pic);
 }
 
-QRect ImageMarker::rect() const
+void ImageMarker::setSize(const QSize& size)
 {
-	return QRect(QPoint(xAxisMap().transform(xValue()), yAxisMap().transform(yValue())), d_size);
+d_size = size;
+updateBoundingRect();
 }
 
-QPoint ImageMarker::origin() const
+void ImageMarker::setOrigin(const QPoint& p)
 {
-	return QPoint(xAxisMap().transform(xValue()), yAxisMap().transform(yValue()));
-}
+d_pos = p;
 
-void ImageMarker::setOrigin(QPoint p)
-{
-	setXValue(xAxisMap().invTransform(p.x()));
-	setYValue(yAxisMap().invTransform(p.y()));
-	itemChanged();
+if (!plot())
+	return;
+
+d_rect.moveTo(plot()->invTransform(xAxis(), p.x()), plot()->invTransform(yAxis(), p.y()));
+d_size = size();
+updateBoundingRect();
 }
 
 void ImageMarker::setRect(int x, int y, int w, int h)
 {
-	setXValue(xAxisMap().invTransform(x));
-	setYValue(yAxisMap().invTransform(y));
-	d_size = QSize(qAbs(w), qAbs(h));
-	itemChanged();
+if (d_pos == QPoint(x, y) && d_size == QSize(w, h))
+	return;
+
+d_pos = QPoint(x, y);
+d_size = QSize(w, h);
+updateBoundingRect();
 }
 
-void ImageMarker::setBoundingRect(const QwtDoubleRect& r)
+void ImageMarker::setBoundingRect(const QwtDoubleRect& rect)
 {
-	setXValue(r.left());
-	setYValue(r.top());
-	int w = xAxisMap().transform(r.right()) - xAxisMap().transform(r.left());
-	int h = yAxisMap().transform(r.bottom()) - yAxisMap().transform(r.top());
-	d_size = QSize(qAbs(w), qAbs(h));
-	itemChanged();
+if (d_rect == rect)
+	return;
+
+d_rect = rect;
+
+if (!plot())
+	return;
+
+plot()->updateLayout();
+
+QRect r = this->rect();
+d_pos = r.topLeft();
+d_size = r.size();
+}
+
+void ImageMarker::updateBoundingRect()
+{
+if (!plot())
+	return;
+
+d_rect = invTransform(plot()->canvasMap(xAxis()), plot()->canvasMap(yAxis()), QRect(d_pos, d_size));
 }
 
 QwtDoubleRect ImageMarker::boundingRect() const
 {
 	QRect qr = rect();
-	double left = xAxisMap().invTransform(qr.left());
-	double right = xAxisMap().invTransform(qr.right());
-	double top = yAxisMap().invTransform(qr.top());
-	double bottom = yAxisMap().invTransform(qr.bottom());
+	double left = plot()->canvasMap(xAxis()).invTransform(qr.left());
+	double right = plot()->canvasMap(xAxis()).invTransform(qr.right());
+	double top = plot()->canvasMap(yAxis()).invTransform(qr.top());
+	double bottom = plot()->canvasMap(yAxis()).invTransform(qr.bottom());
 	return QwtDoubleRect(left, top, qAbs(right-left), qAbs(bottom-top));
 }

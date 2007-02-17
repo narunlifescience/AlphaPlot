@@ -119,6 +119,7 @@ static const char *unzoom_xpm[]={
 #include "Fitter.h"
 #include "nrutil.h"
 #include "Spectrogram.h"
+#include "SelectionMoveResizer.h"
 
 #include <qapplication.h>
 #include <qbitmap.h>
@@ -245,15 +246,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	d_texts = QwtArray<long>(1);
 	d_texts[0] = legendMarkerID;
 
-	connect (d_plot,SIGNAL(selectPlot()), this, SLOT(activateGraph()));
-	connect (d_plot,SIGNAL(selectPlot()), this, SLOT(drawFocusRect()));
-	connect (d_plot,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
-	connect (d_plot,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
-
-	connect (cp,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
-	connect (cp,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
-	connect (cp,SIGNAL(highlightGraph()),this, SLOT(drawFocusRect()));
-	connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
 	connect (cp,SIGNAL(viewTextDialog()),this,SIGNAL(viewTextDialog()));
@@ -266,15 +258,11 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (cp,SIGNAL(calculateProfile(const QPoint&, const QPoint&)),
 			this,SLOT(calculateLineProfile(const QPoint&, const QPoint&)));
 
-	connect (titlePicker,SIGNAL(highlightGraph()), this, SLOT(drawFocusRect()));
 	connect (titlePicker,SIGNAL(showTitleMenu()),this,SLOT(showTitleContextMenu()));
 	connect (titlePicker,SIGNAL(doubleClicked()),this,SIGNAL(viewTitleDialog()));
 	connect (titlePicker,SIGNAL(removeTitle()),this,SLOT(removeTitle()));
 	connect (titlePicker,SIGNAL(clicked()), this,SLOT(selectTitle()));
-	connect (titlePicker,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
-	connect (titlePicker,SIGNAL(releasedGraph()),this,SLOT(releaseGraph()));
 
-	connect (scalePicker,SIGNAL(highlightGraph()),this, SLOT(drawFocusRect()));
 	connect (scalePicker,SIGNAL(clicked()),this,SLOT(activateGraph()));
 	connect (scalePicker,SIGNAL(clicked()),this,SLOT(deselectMarker()));
 	connect (scalePicker,SIGNAL(axisDblClicked(int)),this,SIGNAL(axisDblClicked(int)));
@@ -284,19 +272,8 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (scalePicker,SIGNAL(yAxisTitleDblClicked()),this,SIGNAL(yAxisTitleDblClicked()));
 	connect (scalePicker,SIGNAL(rightAxisTitleDblClicked()),this,SIGNAL(rightAxisTitleDblClicked()));
 	connect (scalePicker,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(topAxisTitleDblClicked()));
-	connect (scalePicker,SIGNAL(moveGraph(const QPoint&)),this,SLOT(moveGraph(const QPoint&)));
-	connect (scalePicker,SIGNAL(releasedGraph()),this, SLOT(releaseGraph()));
 
 	connect (d_zoomer[0],SIGNAL(zoomed (const QwtDoubleRect &)),this,SLOT(zoomed (const QwtDoubleRect &)));
-}
-
-void Graph::drawFocusRect()
-{
-	if (translateOn || pickerEnabled)
-		return;
-
-	d_plot->grid()->setAxis(grid.xAxis, grid.yAxis);
-	emit modifiedGraph(); 
 }
 
 void Graph::customLegend()
@@ -327,16 +304,6 @@ void Graph::modified()
 	emit modifiedGraph(this);
 }
 
-void Graph::moveGraph(const QPoint& pos)
-{
-	emit moveGraph(this, pos);
-}
-
-void Graph::releaseGraph()
-{
-	emit releaseGraph(this);
-}
-
 void Graph::activateGraph()
 {
 	emit selectedGraph(this);
@@ -346,6 +313,8 @@ void Graph::activateGraph()
 void Graph::deselectMarker()
 {
 	selectedMarker = -1;
+	if (d_markers_selector)
+		delete d_markers_selector;
 	d_plot->replot();
 }
 
@@ -359,128 +328,40 @@ QwtPlotMarker* Graph::selectedMarkerPtr()
 	return d_plot->marker(selectedMarker);
 }
 
-void Graph::setSelectedMarker(long mrk)
+void Graph::setSelectedMarker(long mrk, bool add)
 {
 	selectedMarker=mrk;
-}
-
-void Graph::highlightLineMarker(long markerID)
-{
-	LineMarker* mrkL = (LineMarker*) d_plot->marker(markerID);	
-	if (!mrkL)
-		return;
-
-	selectedMarker=markerID;		
-	QwtPlotCanvas *canvas=d_plot->canvas ();
-
-	// draw highlight line + end resizing rectangles 
-	QPainter painter(canvas);
-	painter.save();
-
-	// FIXME: fix the next line
-	// painter.setRasterOp(Qt::NotXorROP);
-	painter.setPen(QPen(QColor(Qt::red), mrkL->width(), Qt::SolidLine));
-	painter.drawLine(mrkL->startPoint(), mrkL->endPoint());				
-
-	painter.setPen(QPen(QColor(Qt::black), mrkL->width(), Qt::SolidLine));
-	painter.setBrush(QBrush(QColor(Qt::black), Qt::SolidPattern));
-
-	QRect sr = QRect (QPoint(0,0), QSize(7, 7));
-	sr.moveCenter (mrkL->startPoint());
-	painter.drawRect(sr);
-
-	sr.moveCenter (mrkL->endPoint());
-	painter.drawRect(sr);
-	painter.restore();	
-}
-
-void Graph::highlightTextMarker(long markerID)
-{
-	LegendMarker* mrk = (LegendMarker*)d_plot->marker(markerID);
-	if (!mrk)
-		return;
-
-	selectedMarker=markerID;		
-
-	QwtPlotCanvas *canvas=d_plot->canvas ();
-	QPainter painter(canvas);
-	painter.setPen(QPen(Qt::red,2,Qt::SolidLine));
-	// FIXME: next line
-	//painter.setRasterOp(Qt::NotXorROP);
-	painter.drawRect (mrk->rect());	
-}
-
-void Graph::highlightImageMarker(long markerID)
-{
-	ImageMarker* mrkI = (ImageMarker*)d_plot->marker(markerID);
-	if (!mrkI)
-		return;	
-
-	selectedMarker=markerID;					
-	QwtPlotCanvas *canvas=d_plot->canvas ();
-	QPainter painter(canvas);
-	painter.setPen(QPen(Qt::red,2,Qt::SolidLine));
-	// FIXME: next line
-	//painter.setRasterOp(Qt::NotXorROP);
-	painter.drawRect (mrkI->rect());	
-}
-
-void Graph::selectNextMarker()
-{
-	Q3ValueList<int> mrkKeys=d_plot->markerKeys();
-	int n=mrkKeys.size();
-	if (n==0)
-		return;
-
-	int min_key=mrkKeys[0], max_key=mrkKeys[0];
-	for (int i = 0; i<n; i++ )
-	{
-		if (mrkKeys[i] >= max_key)
-			max_key=mrkKeys[i];
-		if (mrkKeys[i] <= min_key)
-			min_key=mrkKeys[i];
-	}
-
-	d_plot->replot();
-	if (selectedMarker >= 0)
-	{
-		int key = selectedMarker+1;
-		if ( key > max_key )
-			key=min_key;
-		while(key <= max_key)
-		{
-			if (d_texts.contains(key))
-			{
-				highlightTextMarker(key);
-				break;
-			}
-			else if (d_lines.contains(key))
-			{
-				highlightLineMarker(key);
-				break;
-			}
-			else if (d_images.contains(key))
-			{
-				highlightImageMarker(key);
-				break;
-			}
+	if (add) {
+		if (d_markers_selector) {
+			if (d_texts.contains(mrk))
+				d_markers_selector->add((LegendMarker*)d_plot->marker(mrk));
+			else if (d_lines.contains(mrk))
+				d_markers_selector->add((LineMarker*)d_plot->marker(mrk));
+			else if (d_images.contains(mrk))
+				d_markers_selector->add((ImageMarker*)d_plot->marker(mrk));
+		} else {
+			if (d_texts.contains(mrk))
+				d_markers_selector = new SelectionMoveResizer((LegendMarker*)d_plot->marker(mrk));
+			else if (d_lines.contains(mrk))
+				d_markers_selector = new SelectionMoveResizer((LineMarker*)d_plot->marker(mrk));
+			else if (d_images.contains(mrk))
+				d_markers_selector = new SelectionMoveResizer((ImageMarker*)d_plot->marker(mrk));
 			else
-				key++;
+				return;
+			connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
 		}
-	}
-	else
-	{
-		int key=min_key;
-		while(selectedMarker < 0)
-		{
-			if (d_texts.contains(key))
-				highlightTextMarker(key);
-			else if (d_lines.contains(key))
-				highlightLineMarker(key);
-			else if (d_images.contains(key))
-				highlightImageMarker(key);
-			key++;
-		}
+	} else {
+		if (d_markers_selector)
+			delete d_markers_selector;
+		if (d_texts.contains(mrk))
+			d_markers_selector = new SelectionMoveResizer((LegendMarker*)d_plot->marker(mrk));
+		else if (d_lines.contains(mrk))
+			d_markers_selector = new SelectionMoveResizer((LineMarker*)d_plot->marker(mrk));
+		else if (d_images.contains(mrk))
+			d_markers_selector = new SelectionMoveResizer((ImageMarker*)d_plot->marker(mrk));
+		else
+			return;
+		connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
 	}
 }
 
@@ -2467,16 +2348,21 @@ void Graph::selectCurve(const QPoint &pos)
 
 bool Graph::markerSelected()
 {
-	bool selected=FALSE;
-	if (selectedMarker>=0)
-		selected=TRUE;
-	return  selected;
+	return (selectedMarker>=0);
 }
 
 void Graph::removeMarker()
 {
 	if (selectedMarker>=0)
 	{
+		if (d_markers_selector) {
+			if (d_texts.contains(selectedMarker))
+				d_markers_selector->removeAll((LegendMarker*)d_plot->marker(selectedMarker));
+			else if (d_lines.contains(selectedMarker))
+				d_markers_selector->removeAll((LineMarker*)d_plot->marker(selectedMarker));
+			else if (d_images.contains(selectedMarker))
+				d_markers_selector->removeAll((ImageMarker*)d_plot->marker(selectedMarker));
+		}
 		d_plot->removeMarker(selectedMarker);
 		d_plot->replot();
 		emit modifiedGraph();
@@ -2520,18 +2406,12 @@ void Graph::cutMarker()
 
 bool Graph::arrowMarkerSelected()
 {
-	bool arrow=FALSE;
-	if (d_lines.contains(selectedMarker)>0)
-		arrow=TRUE;
-	return arrow;
+	return (d_lines.contains(selectedMarker)>0);
 }
 
 bool Graph::imageMarkerSelected()
 {
-	bool image=FALSE;
-	if (d_images.contains(selectedMarker)>0)
-		image=TRUE;
-	return image;
+	return (d_images.contains(selectedMarker)>0);
 }
 
 void Graph::copyMarker()
@@ -2584,7 +2464,7 @@ void Graph::pasteMarker()
 
 		d_plot->replot();
 
-		selectedMarker=-1;
+		deselectMarker();
 	}
 	else if (selectedMarkerType==Image)
 	{
@@ -2616,7 +2496,7 @@ void Graph::pasteMarker()
 		mrk->setSize(rect.size());
 		d_plot->replot();
 
-		selectedMarker=-1;
+		deselectMarker();
 	}
 	else
 	{	
@@ -2638,7 +2518,7 @@ void Graph::pasteMarker()
 		mrk->setBackgroundColor(auxMrkBkgColor);
 
 		d_plot->replot();
-		selectedMarker=-1;
+		deselectMarker();
 	}
 }
 
@@ -2686,7 +2566,7 @@ void Graph::selectTitle()
 		title->setFocus();
 	}
 
-	selectedMarker = -1;
+	deselectMarker();
 }
 
 void Graph::setTitle(const QString& t)
@@ -4020,6 +3900,8 @@ LegendMarker* Graph::newLegend(const QString& text)
 {
 	LegendMarker* mrk= new LegendMarker(d_plot);
 	selectedMarker = d_plot->insertMarker(mrk);
+	if(d_markers_selector)
+		delete d_markers_selector;
 
 	int texts = d_texts.size();
 	d_texts.resize(++texts);
@@ -4169,6 +4051,8 @@ long Graph::insertTextMarker(LegendMarker* mrk)
 {
 	LegendMarker* aux = new LegendMarker(d_plot);
 	selectedMarker = d_plot->insertMarker(aux);
+	if(d_markers_selector)
+		delete d_markers_selector;
 
 	int texts = d_texts.size();
 	d_texts.resize(++texts);
@@ -5462,8 +5346,10 @@ void Graph::addLegendItem(const QString& colName)
 
 void Graph::contextMenuEvent(QContextMenuEvent *e)
 {
-	if (selectedMarker>=0)
+	if (selectedMarker>=0) {
+		emit showMarkerPopupMenu();
 		return;
+	}
 
 	QPoint pos = d_plot->canvas()->mapFrom(d_plot, e->pos());
 	int dist, point;
@@ -5991,6 +5877,13 @@ void Graph::updateMarkersBoundingRect()
 		if (mrkT)
 			mrkT->updateOrigin();	
 	}
+
+	for (i=0;i<(int)d_images.size();i++)
+	{
+		ImageMarker* mrk = (ImageMarker*) d_plot->marker(d_images[i]);
+		if (mrk)
+			mrk->updateBoundingRect();
+	}
 }
 
 void Graph::resizeEvent ( QResizeEvent *e )
@@ -6006,6 +5899,8 @@ void Graph::resizeEvent ( QResizeEvent *e )
 		double ratio=(double)size.height()/(double)oldSize.height();
 		scaleFonts(ratio);
 	}
+
+	d_plot->resize(e->size());
 }
 
 void Graph::scaleFonts(double factor)
@@ -6239,48 +6134,6 @@ void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumn
 	else if (n == 1)
 		QMessageBox::warning(parent, tr("QtiPlot - Warning"), 
 				tr("The column")+": <p><b>" + emptyColumns[0] + "</b></p>" + tr("is empty and will not be added to the plot!"));
-}
-
-void Graph::moveMarkerBy(int dx, int dy)
-{
-	bool line = false, image = false;
-	if (d_lines.contains(selectedMarker))
-	{
-		LineMarker* mrk=(LineMarker*)d_plot->marker(selectedMarker);
-
-		QPoint point=mrk->startPoint();			
-		mrk->setStartPoint(QPoint(point.x() + dx, point.y() + dy));
-
-		point = mrk->endPoint();
-		mrk->setEndPoint(QPoint(point.x() + dx, point.y() + dy));	
-
-		line = true;
-	}
-	else if (d_images.contains(selectedMarker))
-	{
-		ImageMarker* mrk=(ImageMarker*)d_plot->marker(selectedMarker);
-		QPoint point = mrk->origin();
-		mrk->setOrigin(QPoint(point.x() + dx, point.y() + dy));	
-
-		image = true;
-	}
-	else if (d_texts.contains(selectedMarker))
-	{
-		LegendMarker* mrk=(LegendMarker*)d_plot->marker(selectedMarker);				
-		QPoint point = mrk->rect().topLeft();
-		mrk->setOrigin(QPoint(point.x() + dx, point.y() + dy));	
-	}
-
-	d_plot->replot();
-
-	if (line)
-		highlightLineMarker(selectedMarker);
-	else if (image)
-		highlightImageMarker(selectedMarker);
-	else
-		highlightTextMarker(selectedMarker);
-
-	emit modifiedGraph();	
 }
 
 void Graph::showTitleContextMenu()

@@ -87,9 +87,6 @@ public:
 
 	QColor frameColor();
 
-	void mousePressEvent ( QMouseEvent * e );
-	void mouseReleaseEvent ( QMouseEvent * e );
-
 	virtual void print(QPainter *, const QRect &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 	
@@ -103,19 +100,12 @@ protected:
 	void drawInwardTicks(QPainter *painter, const QRect &rect, 
 							const QwtScaleMap&map, int axis, bool min, bool maj) const;
 
-signals:
-	void selectPlot();
-	void moveGraph(const QPoint&);
-	void releasedGraph();
-
 protected:
 	Grid *d_grid;
 	QMap<int, QwtPlotItem*> d_curves;
 	QMap<int, QwtPlotMarker*> d_markers;
 
 	int minTickLength, majTickLength;
-	bool movedGraph;
-	QPoint presspos;
 	int marker_key;
 	int curve_key;
 };

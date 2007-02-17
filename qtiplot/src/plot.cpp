@@ -54,8 +54,6 @@ Plot::Plot(QWidget *parent, const char *name)
 	minTickLength = 5;
 	majTickLength = 9;
 
-	movedGraph=FALSE;
-
 	setGeometry(QRect(0,0,500,400));
 	setAxisTitle(QwtPlot::yLeft, tr("Y Axis Title"));
 	setAxisTitle(QwtPlot::xBottom, tr("X Axis Title"));	
@@ -102,9 +100,9 @@ Plot::Plot(QWidget *parent, const char *name)
 	plCanvas->setCursor(Qt::arrowCursor);
 	plCanvas->setLineWidth(0);
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
-    plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
+	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
-    setCanvasBackground (QColor(255, 255, 255, 0));
+	setCanvasBackground (QColor(255, 255, 255, 0));
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
 	setFrameShape (QFrame::Box);
@@ -391,21 +389,6 @@ void Plot::setTickLength (int minLength, int majLength)
 
 	majTickLength = majLength;
 	minTickLength = minLength;
-}
-
-void Plot::mousePressEvent ( QMouseEvent * e )
-{
-	presspos = e->pos();
-	emit selectPlot();
-}
-
-void Plot::mouseReleaseEvent ( QMouseEvent *)
-{
-	if (movedGraph)
-	{
-		emit releasedGraph();
-		movedGraph=FALSE;
-	}
 }
 
 void Plot::print(QPainter *painter, const QRect &plotRect,

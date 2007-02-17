@@ -95,13 +95,16 @@ class TableStatistics;
  * This is necessary for implementing new plot types or even completely new MyWidget subclasses in plug-ins.
  * It will also make ApplicationWindow more manageable by removing those parts not directly related to the main window.
  *
- * Project would also take care of basic project file reading/writing, but delegate most of the work to MyWidget and
- * its subclasses. This is necessary for providing save/restore of classes implemented in plug-ins.
- * Support for foreign formats on the other hand could go into import/export classes (which could also be implemented
- * in plug-ins). Those would interface directly with Project and the MyWidgets it manages.
+ * Project would also take care of basic project file reading/writing (using Qt's XML framework), but delegate most of
+ * the work to MyWidget and its subclasses. This is necessary for providing save/restore of classes implemented in
+ * plug-ins. Support for foreign formats on the other hand could go into import/export classes (which could also be
+ * implemented in plug-ins). Those would interface directly with Project and the MyWidgets it manages. Thus, in addition
+ * to supporting QtXML-based save/restore, Project, MyWidget and subclasses will also have to provide generalized
+ * save/restore methods/constructors.
  *
  * Maybe split out the project explorer into a new ProjectExplorer class, depending on how much code is left
- * in ApplicationWindow after the above reorganizations.
+ * in ApplicationWindow after the above reorganizations. Think about whether a Model/View approach can be
+ * used for Project/ProjectExplorer.
  */
 class ApplicationWindow: public QMainWindow, public scripted
 {

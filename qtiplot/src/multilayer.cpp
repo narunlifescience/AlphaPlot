@@ -45,6 +45,7 @@
 #include "multilayer.h"
 #include "plot.h"
 #include "LegendMarker.h"
+#include "SelectionMoveResizer.h"
 
 #include <gsl/gsl_vector.h>
 
@@ -64,13 +65,13 @@ LayerButton::LayerButton(const QString& text, QWidget* parent)
 
 void LayerButton::mousePressEvent( QMouseEvent *event )
 {
-if (event->button() == Qt::LeftButton && !isOn())
-	emit clicked(this);
+	if (event->button() == Qt::LeftButton && !isOn())
+		emit clicked(this);
 }
 
 void LayerButton::mouseDoubleClickEvent ( QMouseEvent * )
 {
-emit showCurvesDialog();
+	emit showCurvesDialog();
 }
 
 int LayerButton::btnSize()
@@ -105,12 +106,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	hor_align = HCenter;  vert_align = VCenter; 
 	active_graph=0;
 	addTextOn=FALSE;
-	movedGraph=FALSE;
-	mousePressed = false;
-	highlightedLayer = false;
 	ignore_resize = false;
-	aux_rect = QRect();
-	cache_pix = QPixmap();
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -193,7 +189,6 @@ Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 	Graph* g = new Graph(canvas);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	QSize size=QSize(width,height);
-	g->plotWidget()->resize(size);
 	g->setGeometry(x,y,width,height);
 	g->removeLegend();
 	graphsList.append(g);
@@ -241,32 +236,31 @@ void MultiLayer::activateGraph(LayerButton* button)
 
 void MultiLayer::setActiveGraph(Graph* g)
 {
-	if (g && active_graph != g)
+	if (!g || active_graph == g)
+		return;
+
+	active_graph = g;
+	active_graph->setFocus();
+
+	if (d_layers_selector) {
+		delete d_layers_selector;
+		d_layers_selector = new SelectionMoveResizer(active_graph);
+		connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
+	}
+
+	for (int i=0;i<(int)graphsList.count();i++)
 	{
-		active_graph = g;
-		active_graph->setFocus();
-
-		foreach(QWidget *btn, buttonsList)
-			((LayerButton *)btn)->setOn(FALSE);
-
-		for (int i=0;i<(int)graphsList.count();i++)
-		{
-			Graph *gr = (Graph *)graphsList.at(i);
-			if (gr == g)	
-			{
-				LayerButton *btn = (LayerButton *)buttonsList.at(i);
-				btn->setOn(TRUE);
-				return;
-			}
-		}
+		Graph *gr = (Graph *)graphsList.at(i);
+		LayerButton *btn = (LayerButton *)buttonsList.at(i);
+		if (gr == g)	
+			btn->setOn(true);
+		else
+			btn->setOn(false);
 	}
 }
 
 void MultiLayer::contextMenuEvent(QContextMenuEvent *e)
 {
-	if (highlightedLayer)
-		return;
-
 	emit showWindowContextMenu();
 	e->accept();
 }
@@ -393,7 +387,7 @@ void MultiLayer::removeLayer()
 		btn=(LayerButton*)buttonsList.at(i);	
 		if (btn->isOn())	
 		{
-			buttonsList.removeAt(buttonsList.indexOf(btn));
+			buttonsList.removeAll(btn);
 			btn->close(true);			
 			break;
 		}
@@ -410,7 +404,7 @@ void MultiLayer::removeLayer()
 			active_graph->removePointActivated() || active_graph->movePointsActivated() || 
 			active_graph->enabledCursor()|| active_graph->pickerActivated())
 	{
-		setPointerCursor();
+		emit setPointerCursor();
 	}		
 
 	int index = graphsList.indexOf(active_graph);
@@ -449,65 +443,7 @@ void MultiLayer::setGraphGeometry(int x, int y, int w, int h)
 		return;
 
 	active_graph->setGeometry(QRect(QPoint(x,y),QSize(w,h)));
-	active_graph->plotWidget()->resize(QSize(w, h));	
 
-	emit modifiedPlot();
-}
-
-void MultiLayer::setGraphOrigin(const QPoint& pos)
-{
-	QSize size = QSize(active_graph->width(),active_graph->height());
-	active_graph->setGeometry(QRect(pos, size));
-	active_graph->plotWidget()->resize(size);
-}
-
-void MultiLayer::moveGraph(Graph* g, const QPoint& pos)
-{
-	setCursor(Qt::PointingHandCursor);
-
-	if (!movedGraph)
-	{
-		movedGraph=TRUE;
-		showLayers(false);
-
-		xMouse=pos.x();
-		yMouse=pos.y();
-
-		xActiveGraph = g->pos().x();
-		yActiveGraph = g->pos().y();
-	}
-
-	QPixmap pix = canvasPixmap();//Faster then using cache_pix;
-	QPainter painter(&pix);
-	// FIXME: next line
-	// painter.setRasterOp(Qt::NotROP);
-
-	xActiveGraph+=pos.x()-xMouse;
-	yActiveGraph+=pos.y()-yMouse;
-
-	painter.drawRect(QRect(QPoint(xActiveGraph,yActiveGraph),g->size()));
-	painter.end();
-
-	bitBlt( canvas, 0, 0,&pix, 0, 0, -1, -1 );
-
-	xMouse=pos.x();
-	yMouse=pos.y();
-}
-
-void MultiLayer::releaseGraph(Graph* g)
-{
-	setCursor(Qt::ArrowCursor);
-
-	canvas->erase();
-	g->setGeometry(QRect(QPoint(xActiveGraph,yActiveGraph),g->size()));
-
-	g->plotWidget()->resize(g->size());
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		gr->show();
-	}
-	movedGraph=FALSE;
 	emit modifiedPlot();
 }
 
@@ -714,6 +650,9 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 		return;
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
+
+	if(d_layers_selector)
+		delete d_layers_selector;
 
 	if (fit)
 		findBestLayout(rows, cols);	
@@ -1087,13 +1026,10 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(updateTableColumn(const QString&, double *, int)),
 			this,SIGNAL(updateTableColumn(const QString&, double *, int)));
 	connect (g,SIGNAL(clearCell(const QString&,double)),this,SIGNAL(clearCell(const QString&,double)));	
-	connect (g,SIGNAL(moveGraph(Graph*, const QPoint& )),this, SLOT(moveGraph(Graph*, const QPoint&)));
-	connect (g,SIGNAL(releaseGraph(Graph*)),this, SLOT(releaseGraph(Graph*)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
 	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
 			this,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)));
-	connect (g,SIGNAL(highlightGraph(Graph*)),this,SLOT(highlightLayer(Graph*)));
 }
 
 void MultiLayer::addTextLayer(int f, const QFont& font, 
@@ -1160,52 +1096,33 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 {
 	if (e->key() == Qt::Key_F12)	
 	{
-		int index = graphsList.indexOf((QWidget *)active_graph);
-		Graph *g=(Graph *)graphsList.at(index+1);
+		if (d_layers_selector)
+			delete d_layers_selector;
+		int index = graphsList.indexOf((QWidget *)active_graph) + 1;
+		if (index >= graphsList.size())
+			index = 0;
+		Graph *g=(Graph *)graphsList.at(index);
 		if (g)
-		{
 			setActiveGraph(g);
-			highlightLayer(g);
-		}
 		return;
 	}
 
 	if (e->key() == Qt::Key_F10)	
 	{
-		int index=graphsList.indexOf((QWidget *)active_graph);
-		Graph *g=(Graph *)graphsList.at(index-1);
+		if (d_layers_selector)
+			delete d_layers_selector;
+		int index=graphsList.indexOf((QWidget *)active_graph) - 1;
+		if (index < 0)
+			index = graphsList.size() - 1;
+		Graph *g=(Graph *)graphsList.at(index);
 		if (g)
-		{
 			setActiveGraph(g);
-			highlightLayer(g);
-		}
 		return;
 	}
 
 	if (e->key() == Qt::Key_F11)
 	{
 		emit showWindowContextMenu();
-		return;
-	}
-
-	if (highlightedLayer && (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return))
-	{
-		releaseLayer();
-		return;
-	}
-
-	if (highlightedLayer && !aux_rect.isNull())
-	{
-		if (e->key() == Qt::Key_Left)
-			aux_rect.moveBy(-1, 0);
-		else if (e->key() == Qt::Key_Right)
-			aux_rect.moveBy(1, 0);
-		else if (e->key() == Qt::Key_Up)
-			aux_rect.moveBy(0, -1);
-		else if (e->key() == Qt::Key_Down)
-			aux_rect.moveBy(0, 1);
-
-		drawLayerFocusRect(aux_rect);
 		return;
 	}
 }
@@ -1219,8 +1136,8 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 	QSize intSize;
 	Graph *resize_graph = 0;
 	// Get the position of the mouse
-	xMouse=e->x();
-	yMouse=e->y();
+	int xMouse=e->x();
+	int yMouse=e->y();
 	for (int i=0;i<(int)graphsList.count();i++)
 	{
 		Graph *gr=(Graph *)graphsList.at(i);
@@ -1337,128 +1254,37 @@ QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 	return s;
 }
 
-void MultiLayer::highlightLayer(Graph*g)
-{
-	active_graph = g;
-	cache_pix = canvasPixmap();
-	showLayers(false);
-	aux_rect = active_graph->geometry();	
-	drawLayerFocusRect(aux_rect);
-	highlightedLayer = true;
-}
-
 void MultiLayer::mousePressEvent ( QMouseEvent * e )
 {	
-	if (!highlightedLayer || e->button() != Qt::LeftButton)
-		return;
-
 	int margin = 5;
-	QRect ar = active_graph->geometry();
-	ar.addCoords(-margin, -margin, margin, margin );
 	QPoint pos = canvas->mapFromParent(e->pos());
-	if (ar.contains(pos))
-	{// Get the initial location of the mouse
-		xMouse=pos.x();
-		yMouse=pos.y();		
-		mousePressed = true;
+	// iterate backwards, so layers on top are preferred for selection
+	QList<QWidget*>::iterator i = graphsList.end();
+	while (i!=graphsList.begin()) {
+		--i;
+		QRect igeo = (*i)->frameGeometry();
+		igeo.addCoords(-margin, -margin, margin, margin);
+		if (igeo.contains(pos)) {
+			active_graph = (Graph*) (*i);
+			if (e->modifiers() & Qt::ShiftModifier) {
+				if (d_layers_selector)
+					d_layers_selector->add(active_graph);
+				else {
+					d_layers_selector = new SelectionMoveResizer(active_graph);
+					connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
+				}
+			} else {
+				if (d_layers_selector)
+					delete d_layers_selector;
+				d_layers_selector = new SelectionMoveResizer(active_graph);
+				connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
+			}
+			return;
+		}
 	}
-	else
-	{
-		mousePressed = false;
-		canvas->erase();
-		showLayers(true);
-		highlightedLayer = false;
-		aux_rect = QRect();
-		cache_pix = QPixmap();//invalidate pix cache
-	}
-}
-
-void MultiLayer::mouseMoveEvent ( QMouseEvent * e )
-{
-	if (!highlightedLayer || !mousePressed)
-		return;
-
-	// Get the position of the mouse
-	QPoint pos = canvas->mapFromParent(e->pos());
-	if((QPoint(xMouse, yMouse) - pos).manhattanLength() <= QApplication::startDragDistance())
-  		return;
-	
-	int dx = pos.x() - xMouse;
-	int dy = pos.y() - yMouse;
-
-	if(dx!=0 && dy==0)
-		this->setCursor(Qt::SizeHorCursor);	
-	else if(dx==0 && dy!=0) 
-		this->setCursor(Qt::SizeVerCursor);
-	else if( (dx>0 && dy>0) || (dx<0 && dy<0))
-		this->setCursor(Qt::SizeFDiagCursor);
-	else if( (dx<0 && dy>0) || (dx>0 && dy<0))
-		this->setCursor(Qt::SizeBDiagCursor);
-
-	QPoint center = QPoint(aux_rect.x()+aux_rect.width()/2, aux_rect.y()+aux_rect.height()/2);	
-
-	if (pos.x() > center.x() && pos.y() > center.y())
-		aux_rect.addCoords(0, 0, dx, dy);
-	else if (pos.x() > center.x() && pos.y() < center.y())
-		aux_rect.addCoords(0, dy, dx, 0);
-	else if (pos.x() < center.x() && pos.y() < center.y())
-		aux_rect.addCoords(dx, dy, 0, 0);
-	else if (pos.x() < center.x() && pos.y() > center.y())
-		aux_rect.addCoords(dx, 0, 0, dy);
-
-	xMouse = pos.x();
-	yMouse = pos.y();
-
-	aux_rect.normalize();
-	drawLayerFocusRect(aux_rect);
-}
-
-void MultiLayer::mouseReleaseEvent ( QMouseEvent *)
-{
-	releaseLayer();
-}
-
-void MultiLayer::drawLayerFocusRect(const QRect& fr)
-{
-	int lw = active_graph->plotWidget()->lineWidth() + 3; 
-	QPixmap pix = cache_pix;
-	QPainter painter(&pix);
-	// FIXME: next line
-	// painter.setRasterOp(Qt::NotXorROP);
-	painter.setPen(QPen(QColor(Qt::red), lw, Qt::SolidLine));
-
-	painter.drawRect(fr);
-	painter.setBrush(QBrush(QColor(Qt::red), Qt::SolidPattern));
-
-	QRect sr = QRect (QPoint(0,0), QSize(lw, lw));
-	sr.moveCenter (fr.topLeft());
-	painter.drawRect(sr);
-
-	sr.moveBy(fr.width()/2, 0);
-	painter.drawRect(sr);
-
-	sr.moveCenter (fr.topRight());
-	painter.drawRect(sr);
-
-	sr.moveBy(0, fr.height()/2);
-	painter.drawRect(sr);
-
-	sr.moveCenter (fr.bottomRight());
-	painter.drawRect(sr);
-
-	sr.moveBy(-fr.width()/2, 0);
-	painter.drawRect(sr);
-
-	sr.moveCenter (fr.bottomLeft());
-	painter.drawRect(sr);
-
-	sr.moveBy(0, -fr.height()/2);
-	painter.drawRect(sr);
-
-	painter.setBrush(Qt::NoBrush);
-
-	painter.end();
-	bitBlt( canvas, 0, 0,&pix, 0, 0, -1, -1 );
+	if (d_layers_selector)
+		delete d_layers_selector;
+	showLayers(true);
 }
 
 void MultiLayer::showLayers(bool ok)
@@ -1509,25 +1335,6 @@ void MultiLayer::setLayerCanvasSize (int w, int h)
 		l_canvas_width = w;
 	if (l_canvas_height != h)
 		l_canvas_height = h;
-}
-
-void MultiLayer::releaseLayer()
-{
-	if (aux_rect.isNull())
-		return;
-
-	active_graph->setGeometry(aux_rect);
-	active_graph->plotWidget()->resize(active_graph->size());
-
-	canvas->erase();
-	showLayers(true);//must be called for coloured background layers
-	mousePressed = false;
-	highlightedLayer = false;
-	aux_rect = QRect();
-	cache_pix = QPixmap();
-
-	this->setCursor(Qt::arrowCursor);
-	emit modifiedPlot();
 }
 
 void MultiLayer::setAlignement (int ha, int va)

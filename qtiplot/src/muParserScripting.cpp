@@ -35,7 +35,6 @@
 #include "matrix.h"
 
 #include <qstringlist.h>
-#include <q3asciidict.h>
 
 using namespace mu;
 
