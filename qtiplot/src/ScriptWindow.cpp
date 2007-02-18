@@ -132,7 +132,8 @@ void ScriptWindow::initActions()
 
 	actionDelete = new QAction(tr("&Delete"), this);
 	actionDelete->setShortcut( tr("Del") );
-	connect(actionDelete, SIGNAL(activated()), te, SLOT(del()));	
+	// FIXME: there's no such slot in Qt4
+	//connect(actionDelete, SIGNAL(activated()), te, SLOT(del()));	
 	file->addAction(actionDelete);
 	actionDelete->setEnabled(false);
 
@@ -256,8 +257,10 @@ void ScriptWindow::save()
 		saveAs();
 }
 
-void ScriptWindow::closeEvent ( QCloseEvent * e )
+void ScriptWindow::setVisible(bool visible)
 {
-	emit setVisible(false);
-	hide();
+	if (visible == isVisible())
+		return;
+	QMainWindow::setVisible(visible);
+	emit visibilityChanged(visible);
 }

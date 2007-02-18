@@ -3082,13 +3082,13 @@ else if (generalDialog->currentPage()==(QWidget*)axesPage)
 void AxesDialog::showAxesPage()
 {
 	if (generalDialog->currentWidget()!=(QWidget*)axesPage)
-		generalDialog->showPage(axesPage);
+		generalDialog->setCurrentWidget(axesPage);
 }
 
 void AxesDialog::showGridPage()
 {
 	if (generalDialog->currentWidget()!=(QWidget*)gridPage)
-		generalDialog->showPage(gridPage);
+		generalDialog->setCurrentWidget(gridPage);
 }
 
 void AxesDialog::updateGrid(int)

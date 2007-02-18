@@ -192,6 +192,22 @@ public:
   
   void sortColumn(int col = -1, int order = 0);
   void sort(int type = 0, int order = 0, const QString& leadCol = QString());
+  void sortColumns(SIP_PYTUPLE, int=0, int=0, const QString&=QString());
+%MethodCode
+  QStringList l;
+  int n = PyTuple_Size(a0);
+  for (int i=0; i<n; i++) {
+    PyObject *str = PyObject_Str(PyTuple_GET_ITEM(a0,i));
+    if (str) {
+      l << PyString_AsString(str);
+		Py_DECREF(str);
+	 } else {
+      sipIsErr = 1;
+      break;
+    }
+  }
+  sipCpp->sortColumns(l, a1, a2, *a3);
+%End
   
 private:
   Table(const Table&);
@@ -360,11 +376,7 @@ class ApplicationWindow: QMainWindow
 sipClass=NULL;
 QString cN = sipCpp->className();
 sipTypeDef *t;
-#if SIP_VERSION >= 0x040400
   for (int i=0; i<sipModuleAPI_qti.em_nrtypes; i++)
-#else
-  for (int i=0; sipModuleAPI_qti.em_types[i] != 0; i++)
-#endif
   if (((t=sipModuleAPI_qti.em_types[i]->type)->td_cname && cN == t->td_cname) ||
       (!t->td_cname && cN == t->td_name+4))
     sipClass = sipModuleAPI_qti.em_types[i];
@@ -410,9 +422,10 @@ public:
   int n = PyTuple_Size(a1);
   for (int i=0; i<n; i++) {
     PyObject *str = PyObject_Str(PyTuple_GET_ITEM(a1,i));
-    if (str)
+    if (str) {
       l << PyString_AsString(str);
-    else {
+		Py_DECREF(str);
+	 } else {
       sipIsErr = 1;
       break;
     }
@@ -580,11 +593,11 @@ class ExponentialFit : Fit
 public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, bool=false);
-  ExponentialFit(Graph *, const QString&, bool=false);
+  ExponentialFit(Graph *, const QString&, bool=false) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipExponentialFit(app, a0, *a1, a2))
 %End
-  ExponentialFit(Graph *, const QString&, double, double, bool=false);
+  ExponentialFit(Graph *, const QString&, double, double, bool=false) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipExponentialFit(app, a0, *a1, a2, a3, a4))
 %End
@@ -598,11 +611,11 @@ class TwoExpFit : Fit
 public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  TwoExpFit(Graph *, const QString&);
+  TwoExpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipTwoExpFit(app, a0, *a1))
 %End
-  TwoExpFit(Graph *, const QString&, double, double);
+  TwoExpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipTwoExpFit(app, a0, *a1, a2, a3))
 %End
@@ -616,11 +629,11 @@ class ThreeExpFit : Fit
 public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  ThreeExpFit(Graph *, const QString&);
+  ThreeExpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipThreeExpFit(app, a0, *a1))
 %End
-  ThreeExpFit(Graph *, const QString&, double, double);
+  ThreeExpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipThreeExpFit(app, a0, *a1, a2, a3))
 %End
@@ -634,11 +647,11 @@ class SigmoidalFit : Fit
 public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  SigmoidalFit(Graph *, const QString&);
+  SigmoidalFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipSigmoidalFit(app, a0, *a1))
 %End
-  SigmoidalFit(Graph *, const QString&, double, double);
+  SigmoidalFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipSigmoidalFit(app, a0, *a1, a2, a3))
 %End
@@ -652,11 +665,11 @@ class GaussAmpFit : Fit
 public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  GaussAmpFit(Graph *, const QString&);
+  GaussAmpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipGaussAmpFit(app, a0, *a1))
 %End
-  GaussAmpFit(Graph *, const QString&, double, double);
+  GaussAmpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipGaussAmpFit(app, a0, *a1, a2, a3))
 %End
@@ -674,7 +687,7 @@ public:
 %MethodCode
   SIPQTI_APP(new sipNonLinearFit(app, a0, *a1))
 %End
-  NonLinearFit(Graph *, const QString&, double, double);
+  NonLinearFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipNonLinearFit(app, a0, *a1, a2, a3))
 %End
@@ -701,11 +714,11 @@ class PluginFit : Fit
 public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  PluginFit(Graph *, const QString&);
+  PluginFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipPluginFit(app, a0, *a1))
 %End
-  PluginFit(Graph *, const QString&, double, double);
+  PluginFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipPluginFit(app, a0, *a1, a2, a3))
 %End
@@ -739,11 +752,11 @@ class LorentzFit : MultiPeakFit
 public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  LorentzFit(Graph *, const QString&);
+  LorentzFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipLorentzFit(app, a0, *a1))
 %End
-  LorentzFit(Graph *, const QString&, int, int);
+  LorentzFit(Graph *, const QString&, int, int) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipLorentzFit(app, a0, *a1, a2, a3))
 %End
@@ -757,11 +770,11 @@ class GaussFit : MultiPeakFit
 public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  GaussFit(Graph *, const QString&);
+  GaussFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipGaussFit(app, a0, *a1))
 %End
-  GaussFit(Graph *, const QString&, double, double);
+  GaussFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipGaussFit(app, a0, *a1, a2, a3))
 %End
@@ -775,11 +788,11 @@ class PolynomialFit : Fit
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int, int, int=2, bool=false);
-  PolynomialFit(Graph *, QString&, int=2, bool=false);
+  PolynomialFit(Graph *, QString&, int=2, bool=false) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3))
 %End
-  PolynomialFit(Graph *, QString&, int, int, int=2, bool=false);
+  PolynomialFit(Graph *, QString&, int, int, int=2, bool=false) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
@@ -799,11 +812,11 @@ class LinearFit : Fit
 public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  LinearFit(Graph *, const QString&);
+  LinearFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipLinearFit(app, a0, *a1))
 %End
-  LinearFit(Graph *, const QString&, double, double);
+  LinearFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipLinearFit(app, a0, *a1, a2, a3))
 %End

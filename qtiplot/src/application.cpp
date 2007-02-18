@@ -13946,13 +13946,13 @@ void ApplicationWindow::showScriptWindow()
 	if (!scriptWindow)
 	{
 		scriptWindow = new ScriptWindow(scriptEnv);
-		//connect(scriptWindow, SIGNAL(setVisible(bool)), actionShowScriptWindow, SLOT(setOn(bool)));
+		connect(scriptWindow, SIGNAL(visibilityChanged(bool)), actionShowScriptWindow, SLOT(setOn(bool)));
 	}
 
 	if (!scriptWindow->isVisible())
 	{
 		scriptWindow->show();
-        scriptWindow->setFocus();
+		scriptWindow->setFocus();
 	}
 	else
 		scriptWindow->hide();

@@ -346,7 +346,12 @@ void SelectionMoveResizer::paintEvent(QPaintEvent *e)
 	QPainter p(this);
 	QRect drawn_rect = operateOn(d_bounding_rect);
 
-	// TODO: What if we are painting on black background?
+	QPen white_pen(Qt::white, 3, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin);
+	p.setPen(white_pen);
+	p.drawRect(QRect(QPoint(drawn_rect.left(), drawn_rect.top()), drawn_rect.size()));
+	white_pen.setWidth(2); p.setPen(white_pen);
+	for (int i=0; i<8; i++)
+		p.drawRect(handlerRect(drawn_rect, (Operation)i));
 	p.setPen(QPen(Qt::black,1,Qt::SolidLine));
 	p.drawRect(QRect(QPoint(drawn_rect.left(), drawn_rect.top()), drawn_rect.size()));
 	for (int i=0; i<8; i++)
@@ -426,6 +431,10 @@ void SelectionMoveResizer::keyPressEvent(QKeyEvent *ke)
 			d_op = None;
 			ke->accept();
 			break;
+		case Qt::Key_Escape:
+			delete this;
+			ke->accept();
+			return;
 		case Qt::Key_Left:
 			if (d_op == None) {
 				d_op = Move;

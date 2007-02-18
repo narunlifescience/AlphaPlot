@@ -635,7 +635,9 @@ public slots:
 	//! \name Dialogs
 	//@{
 	void showFindDialogue();	
+	//! Show plot style dialog for the active MultiLayer / active Graph / first curve.
 	void showPlotDialog();
+	//! Show plot style dialog for the active MultiLayer / active Graph / specified curve.
 	void showPlotDialog(int curveKey);
 	QDialog* showScaleDialog();
 	QDialog* showPieDialog();

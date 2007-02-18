@@ -48,7 +48,12 @@
 
 class ScriptingEnv;
 
-//! Table worksheet class
+/*!\brief MDI window providing a spreadsheet table with column logic.
+ *
+ * \section future Future Plans
+ * Port to the Model/View approach used in Qt4 and get rid of the Qt3Support dependancy.
+ * [ assigned to thzs ]
+ */
 class Table: public MyWidget, public scripted
 {
     Q_OBJECT
@@ -152,13 +157,39 @@ public slots:
 	
 	//! \name Sorting
 	//@{
+	/*!\brief Sort the current column in ascending order.
+	 * \sa sortColDesc(), sortColumn(), Q3Table::currentColumn()
+	 */
 	void sortColAsc();
+	/*!\brief Sort the current column in descending order.
+	 * \sa sortColAsc(), sortColumn(), Q3Table::currentColumn()
+	 */
 	void sortColDesc();
+	/*!\brief Sort the specified column.
+	 * \param col the column to be sorted
+	 * \param order 0 means ascending, anything else means descending
+	 */
 	void sortColumn(int col = -1, int order = 0);
+	/*!\brief Display a dialog with some options for sorting all columns.
+	 *
+	 * The sorting itself is done using sort(int,int,const QString&).
+	 */
 	void sortTableDialog();
+	//! Sort all columns as in sortColumns(const QStringList&,int,int,const QString&).
 	void sort(int type = 0, int order  = 0, const QString& leadCol = QString());
+	//! Sort selected columns as in sortColumns(const QStringList&,int,int,const QString&).
 	void sortColumns(int type = 0, int order = 0, const QString& leadCol = QString());
-	void sortColumns(const QStringList&s, int type = 0, int order = 0, const QString& leadCol = QString());
+	/*!\brief Sort the specified columns.
+	 * \param cols the columns to be sorted
+	 * \param type 0 means sort individually (as in sortColumn()), anything else means together
+	 * \param order 0 means ascending, anything else means descending
+	 * \param leadCol for sorting together, the column which determines the permutation
+	 */
+	void sortColumns(const QStringList& cols, int type = 0, int order = 0, const QString& leadCol = QString());
+	/*!\brief Display a dialog with some options for sorting the selected columns.
+	 *
+	 * The sorting itself is done using sortColumns(int,int,const QString&).
+	 */
 	void sortColumnsDialog();
 	//@}
 	

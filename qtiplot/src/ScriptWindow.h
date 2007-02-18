@@ -53,12 +53,12 @@ public slots:
 		void save();
 		void saveAs();
 		void languageChange();
+		virtual void setVisible(bool visible);
 
 signals:
-		void setVisible(bool);
+		void visibilityChanged(bool visible);
 
 private:
-		void closeEvent ( QCloseEvent * e );
 		void initMenu();
 		void initActions();
 		ScriptEdit *te;
