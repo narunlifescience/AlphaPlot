@@ -51,10 +51,10 @@ unix:LIBS         += ../3rdparty/liborigin/liborigin.a
 #unix:LIBS			+= -lorigin
 
 # statically link against GSL in 3rdparty
-#unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
-#unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 #dynamically link against GSL installed system-wide
-unix:LIBS			+= -lgsl -lgslcblas
+#unix:LIBS			+= -lgsl -lgslcblas
 
 unix:target.path=/usr/bin
 unix:INSTALLS += target

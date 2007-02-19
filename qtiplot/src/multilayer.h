@@ -173,10 +173,6 @@ public slots:
 							const QFont& numbersFnt, const QFont& legendFnt);
 
 	void connectLayer(Graph *g);
-	bool overlapsLayers(Graph *g);
-	bool hasOverlapingLayers();
-
-	void showLayers(bool ok);
 
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);

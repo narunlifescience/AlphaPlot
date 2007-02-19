@@ -30,11 +30,9 @@
 #define IMAGEDIALOG_H
 
 #include <QDialog>
-#include <QEvent>
 #include <QSpinBox>
+#include <QCheckBox>
 #include <QPushButton>
-
-class ChainButton;
 
 //! Image geometry dialog
 class ImageDialog : public QDialog
@@ -65,27 +63,8 @@ private:
 	QPushButton* buttonCancel;
 	QPushButton* buttonApply;
     QSpinBox* boxX, *boxY, *boxWidth, *boxHeight;
-	ChainButton *linkButton;
+	QCheckBox *keepRatioBox;
 };
 
-//! A special button to connect two values
-class ChainButton : public QPushButton
-{
-  Q_OBJECT
-
-public:
-  ChainButton(QWidget *parent = 0);
-  ~ChainButton(){};
-
-  void enterEvent ( QEvent * ){setFlat (false);};
-  void leaveEvent ( QEvent * ){setFlat (true);};
-
-public slots:
-  void changeLock();
-  bool isLocked(){return locked;};
-
-private:
-	bool locked;
-};
 
 #endif // IMAGEDIALOG_H

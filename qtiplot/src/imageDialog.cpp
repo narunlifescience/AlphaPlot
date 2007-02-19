@@ -31,101 +31,6 @@
 #include <QLayout>
 #include <QGroupBox>
 #include <QLabel>
-#include <QPixmap>
-#include <QApplication>
-
-/* XPM */
-static const char * up_xpm[] = {
-"6 4 3 1",
-" 	c None",
-".	c #8F8B6D",
-"+	c #EFEEE4",
-"..... ",
-"+++++.",
-"    +.",
-"    +."};
-
-/* XPM */
-static const char * down_xpm[] = {
-"6 5 3 1",
-" 	c None",
-".	c #EFEEE4",
-"+	c #8F8B6D",
-"    .+",
-"    .+",
-"    .+",
-".....+",
-"+++++ "};
-
-/* XPM */
-static const char * chain_xpm[] = {
-"7 20 9 1",
-" 	c None",
-".	c #020204",
-"+	c #6E6E6E",
-"@	c #D0D0D1",
-"#	c #B5B5B6",
-"$	c #5A5A5C",
-"%	c #9A9A98",
-"&	c #E8E8E9",
-"*	c #8F8F91",
-" ..... ",
-".+@@#$.",
-".%...&.",
-".@. .@.",
-".@. .@.",
-".#. .@.",
-".%...@.",
-".*.+.*.",
-" ..#.. ",
-"  .@.  ",
-"  .@.  ",
-" ..@.. ",
-".+.#.*.",
-".#...#.",
-".#. .&.",
-".#. .&.",
-".#. .&.",
-".@...&.",
-".+&@&#.",
-" ..... "};
-
-/* XPM */
-static const char * unchain_xpm[] = {
-"7 24 9 1",
-" 	c None",
-".	c #020204",
-"+	c #6E6E6E",
-"@	c #D0D0D1",
-"#	c #B5B5B6",
-"$	c #5A5A5C",
-"%	c #9A9A98",
-"&	c #E8E8E9",
-"*	c #8F8F91",
-" ..... ",
-".+@@#$.",
-".%...&.",
-".@. .@.",
-".@. .@.",
-".#. .@.",
-".%...@.",
-".*.+.*.",
-" ..#.. ",
-"  .@.  ",
-"       ",
-"       ",
-"       ",
-"       ",
-"  .@.  ",
-" ..@.. ",
-".+.#.*.",
-".#...#.",
-".#. .&.",
-".#. .&.",
-".#. .&.",
-".@...&.",
-".+&@&#.",
-" ..... "};
 
 ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -144,7 +49,6 @@ ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	boxY->setSuffix(tr(" pixels"));
 	
     QGridLayout *gl1 = new QGridLayout(gb1);
-    gl1->setSpacing(36);
     gl1->addWidget(new QLabel( tr("X= ")), 0, 0);
     gl1->addWidget(boxX, 0, 1);
     gl1->addWidget(new QLabel(tr("Y= ")), 1, 0);
@@ -164,21 +68,14 @@ ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
     gl2->addWidget(new QLabel( tr("width= ")), 0, 0);
     gl2->addWidget(boxWidth, 0, 1);
 
-    QLabel *up = new QLabel();
-	up->setPixmap(QPixmap(up_xpm));
-    gl2->addWidget(up, 0, 2);
-
-    linkButton = new ChainButton();
-    gl2->addWidget(linkButton, 1, 2);
-
     gl2->addWidget(new QLabel(tr("height= ")), 2, 0);
     gl2->addWidget(boxHeight, 2, 1);
 
-	QLabel *down = new QLabel();
-	down->setPixmap(QPixmap(down_xpm));
-    gl2->addWidget(down, 2, 2);
+	keepRatioBox = new QCheckBox(tr("Keep aspect ratio"));
+	keepRatioBox->setChecked(true);
+    gl2->addWidget(keepRatioBox, 3, 1);
 
-    gl2->setRowStretch(3, 1);
+    gl2->setRowStretch(4, 1);
 	
     QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
 	bl1->addWidget(gb1);
@@ -221,7 +118,7 @@ connect( boxHeight, SIGNAL( valueChanged ( int ) ), this, SLOT( adjustWidth(int)
 
 void ImageDialog::adjustHeight(int width)
 {
-if (linkButton->isLocked())
+if (keepRatioBox->isChecked())
 	{
 	disconnect( boxHeight, SIGNAL( valueChanged ( int ) ), this, SLOT( adjustWidth(int) ) );
 	boxHeight->setValue(int(width/aspect_ratio));
@@ -233,7 +130,7 @@ else
 
 void ImageDialog::adjustWidth(int height)
 {
-if (linkButton->isLocked())
+if (keepRatioBox->isChecked())
 	{
 	disconnect( boxWidth, SIGNAL( valueChanged ( int ) ), this, SLOT( adjustHeight(int) ) );
 	boxWidth->setValue(int(height*aspect_ratio));
@@ -252,24 +149,4 @@ void ImageDialog::accept()
 {
 update();
 close();
-}
-
-ChainButton::ChainButton(QWidget *parent) : QPushButton(parent)
-{
-locked = true;
-setFlat (true);
-setAutoDefault (false);
-setIconSet (QPixmap(chain_xpm));
-setMaximumWidth(20);
-
-connect (this, SIGNAL(clicked()), this, SLOT(changeLock()));
-}
-
-void ChainButton::changeLock() 
-{
-locked = !locked;
-if (locked)
-	setIconSet (QPixmap(chain_xpm));
-else
-	setIconSet (QPixmap(unchain_xpm));
 }

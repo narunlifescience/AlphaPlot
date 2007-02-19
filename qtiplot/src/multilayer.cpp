@@ -238,7 +238,7 @@ void MultiLayer::setActiveGraph(Graph* g)
 {
 	if (!g || active_graph == g)
 		return;
-
+	
 	active_graph = g;
 	active_graph->setFocus();
 
@@ -965,36 +965,6 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 	emit modifiedPlot();
 }
 
-bool MultiLayer::hasOverlapingLayers()
-{
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		if (overlapsLayers(gr))
-			return true;
-	}
-
-	return false;
-}
-
-bool MultiLayer::overlapsLayers(Graph *g)
-{
-	int  s=0;
-	QRect r= g->frameGeometry();
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		QRect ar = gr->frameGeometry();
-		if  ( ar.intersects(r) )
-			s++;
-	}
-
-	if (s > 1) 
-		return true;
-	else
-		return false;
-}
-
 void MultiLayer::connectLayer(Graph *g)
 {
 	connect (g,SIGNAL(drawLineEnded(bool)), this, SIGNAL(drawLineEnded(bool)));
@@ -1265,7 +1235,7 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 		QRect igeo = (*i)->frameGeometry();
 		igeo.addCoords(-margin, -margin, margin, margin);
 		if (igeo.contains(pos)) {
-			active_graph = (Graph*) (*i);
+			setActiveGraph((Graph*) (*i));
 			if (e->modifiers() & Qt::ShiftModifier) {
 				if (d_layers_selector)
 					d_layers_selector->add(active_graph);
@@ -1284,29 +1254,6 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 	}
 	if (d_layers_selector)
 		delete d_layers_selector;
-	showLayers(true);
-}
-
-void MultiLayer::showLayers(bool ok)
-{
-	if (ok)
-	{
-		for (int i=0;i<(int)graphsList.count();i++)
-		{
-			Graph *gr=(Graph *)graphsList.at(i);
-			if (!gr->isVisible())
-				gr->show();
-		}
-	}
-	else
-	{
-		for (int i=0;i<(int)graphsList.count();i++)
-		{
-			Graph *gr=(Graph *)graphsList.at(i);
-			if (gr->isVisible())
-				gr->hide();
-		}
-	}
 }
 
 void MultiLayer::setMargins (int lm, int rm, int tm, int bm)
