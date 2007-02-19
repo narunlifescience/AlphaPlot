@@ -103,56 +103,48 @@ void ScriptWindow::initActions()
 	actionUndo = new QAction(QPixmap(undo_xpm), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
 	connect(actionUndo, SIGNAL(activated()), te, SLOT(undo()));	
-	file->addAction(actionUndo);
+	edit->addAction(actionUndo);
 	actionUndo->setEnabled(false);
 
 	actionRedo = new QAction(QPixmap(redo_xpm), tr("&Redo"), this);
 	actionRedo->setShortcut( tr("Ctrl+Y") );
 	connect(actionRedo, SIGNAL(activated()), te, SLOT(redo()));	
-	file->addAction(actionRedo);
+	edit->addAction(actionRedo);
 	actionRedo->setEnabled(false);
 	edit->insertSeparator();
 
 	actionCut = new QAction(QPixmap(cut_xpm), tr("&Cut"), this);
 	actionCut->setShortcut( tr("Ctrl+x") );
 	connect(actionCut, SIGNAL(activated()), te, SLOT(cut()));	
-	file->addAction(actionCut);
+	edit->addAction(actionCut);
 	actionCut->setEnabled(false);
 
 	actionCopy = new QAction(QPixmap(copy_xpm), tr("&Copy"), this);
 	actionCopy->setShortcut( tr("Ctrl+C") );
 	connect(actionCopy, SIGNAL(activated()), te, SLOT(copy()));	
-	file->addAction(actionCopy);
+	edit->addAction(actionCopy);
 	actionCopy->setEnabled(false);
 
 	actionPaste = new QAction(QPixmap(paste_xpm), tr("&Paste"), this);
 	actionPaste->setShortcut( tr("Ctrl+V") );
 	connect(actionPaste, SIGNAL(activated()), te, SLOT(paste()));	
-	file->addAction(actionPaste);
-
-	actionDelete = new QAction(tr("&Delete"), this);
-	actionDelete->setShortcut( tr("Del") );
-	// FIXME: there's no such slot in Qt4
-	//connect(actionDelete, SIGNAL(activated()), te, SLOT(del()));	
-	file->addAction(actionDelete);
-	actionDelete->setEnabled(false);
+	edit->addAction(actionPaste);
 
 	actionExecute = new QAction(tr("E&xecute"), this);
 	actionExecute->setShortcut( tr("CTRL+J") );
 	connect(actionExecute, SIGNAL(activated()), te, SLOT(execute()));
-	file->addAction(actionExecute);
+	run->addAction(actionExecute);
 
 	actionExecuteAll = new QAction(tr("Execute &All"), this);
 	actionExecuteAll->setShortcut( tr("CTRL+SHIFT+J") );
 	connect(actionExecuteAll, SIGNAL(activated()), te, SLOT(executeAll()));
-	file->addAction(actionExecuteAll);
+	run->addAction(actionExecuteAll);
 
 	actionEval = new QAction(tr("&Evaluate Expression"), this);
 	actionEval->setShortcut( tr("CTRL+Return") );
 	connect(actionEval, SIGNAL(activated()), te, SLOT(evaluate()));
-	file->addAction(actionEval);
+	run->addAction(actionEval);
 
-	connect(te, SIGNAL(copyAvailable(bool)), actionDelete, SLOT(setEnabled(bool)));
 	connect(te, SIGNAL(copyAvailable(bool)), actionCut, SLOT(setEnabled(bool)));
 	connect(te, SIGNAL(copyAvailable(bool)), actionCopy, SLOT(setEnabled(bool)));
 	connect(te, SIGNAL(undoAvailable(bool)), actionUndo, SLOT(setEnabled(bool)));
@@ -202,9 +194,6 @@ void ScriptWindow::languageChange()
 
 	actionPaste->setText(tr("&Paste"));
 	actionPaste->setShortcut(tr("Ctrl+V"));
-
-	actionDelete->setText(tr("&Delete")); 
-	actionDelete->setShortcut(tr("Del"));
 
 	actionExecute->setText(tr("E&xecute"));
 	actionExecute->setShortcut(tr("CTRL+J"));

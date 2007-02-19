@@ -597,7 +597,7 @@ class Graph: public QWidget
 		void smoothFFT(long curveKey, int points, int colIndex);
 		void smoothAverage(long curveKey, int points, int colIndex);
 
-		void interpolate(int curve, int spline, double start, double end, int points, int colorIndex);
+		void interpolate(const QString& curveTitle, int spline, double start, double end, int points = 1000, int colorIndex = 1);
 		QString integrateCurve(QwtPlotCurve *c,int order,int iter,double tol,double low,double up);
 		bool diffCurve(const QString& curveTitle);
 		void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);

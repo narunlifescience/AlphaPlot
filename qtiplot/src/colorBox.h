@@ -57,6 +57,8 @@ public:
 	static int colorIndex(const QColor& c);
 	//! Return the color at index 'colorindex'
 	static QColor color(int colorIndex);
+    //! Returns TRUE if the color is included in the color box, otherwise returns FALSE.
+    static bool isValidColor(const QColor& color);
 
 protected:
 	//! Internal initialization function

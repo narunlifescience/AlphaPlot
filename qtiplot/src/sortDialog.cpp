@@ -33,10 +33,12 @@
 #include <QComboBox>
 #include <QGroupBox>
 #include <QLayout>
+#include <QApplication>
 
 SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
+    setWindowIcon(qApp->windowIcon());
 	setWindowTitle(tr("QtiPlot - Sorting Options"));
 	setSizeGripEnabled(true);
 	

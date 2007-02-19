@@ -31,10 +31,9 @@
 #ifndef SCRIPTEDIT_H
 #define SCRIPTEDIT_H
 
-#include <q3textedit.h>
-//Added by qt3to4:
-#include <QMenu>
 #include "Scripting.h"
+
+#include <QMenu>
 #include <QTextEdit>
 
 class QAction;

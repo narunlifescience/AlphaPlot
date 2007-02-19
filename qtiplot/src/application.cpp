@@ -4133,6 +4133,7 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 		delete sce;
 		foreach(QObject *i, queryList())
 			QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
+
 		return true;
 	}
 	return false;
@@ -7903,22 +7904,6 @@ void ApplicationWindow::updateWindowStatus(MyWidget* w)
 	}
 }
 
-void ApplicationWindow::resizeActiveWindow()
-{
-	QWidget *w=(QWidget *)ws->activeWindow();
-	if (!w)
-		return;
-
-	ImageDialog *id = new ImageDialog(this, "ImageDialog", true);
-	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect (id, SIGNAL(setGeometry(int,int,int,int)), w->parentWidget(), SLOT(setGeometry(int,int,int,int)));
-
-	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
-	id->setOrigin(w->parentWidget()->pos());
-	id->setSize(w->parentWidget()->size());
-	id->exec();
-}
-
 void ApplicationWindow::hideActiveWindow()
 {
 	MyWidget *w=(MyWidget *)ws->activeWindow();
@@ -7945,21 +7930,44 @@ void ApplicationWindow::hideWindow()
 	hideWindow(w);
 }
 
-void ApplicationWindow::resizeWindow()
+void ApplicationWindow::resizeActiveWindow()
 {
-	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w= it->window();
+	QWidget *w = (QWidget *)ws->activeWindow();
 	if (!w)
 		return;
 
-	ImageDialog *id=new ImageDialog(this,"ImageDialog",true,0);
+	ImageDialog *id = new ImageDialog(this, "ImageDialog", true);
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect (id,SIGNAL(setGeometry(int,int,int,int)),w->parentWidget(),SLOT(setGeometry(int,int,int,int)));
+	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
 
 	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
 	id->setSize(w->parentWidget()->size());
 	id->exec();
+}
+
+void ApplicationWindow::resizeWindow()
+{
+	WindowListItem *it = (WindowListItem *)lv->currentItem();
+	MyWidget *w = it->window();
+	if (!w)
+		return;
+
+    ws->setActiveWindow ( w );
+
+	ImageDialog *id = new ImageDialog(this, "ImageDialog", true, 0);
+	id->setAttribute(Qt::WA_DeleteOnClose);
+	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
+
+	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
+	id->setOrigin(w->parentWidget()->pos());
+	id->setSize(w->parentWidget()->size());
+	id->exec();
+}
+
+void ApplicationWindow::setWindowGeometry(int x, int y, int w, int h)
+{
+ws->activeWindow()->parentWidget()->setGeometry(x, y, w, h);
 }
 
 void ApplicationWindow::activateWindow()
@@ -12523,7 +12531,7 @@ void ApplicationWindow::switchToLanguage(const QString& locale)
 	appLanguage = locale;
 	if (locale == "en")
 	{
-		qApp->removeTranslator(appTranslator);
+        qApp->removeTranslator(appTranslator);
 		qApp->removeTranslator(qtTranslator);
 		delete appTranslator;
 		delete qtTranslator;

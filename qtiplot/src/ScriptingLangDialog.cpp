@@ -47,13 +47,13 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *p
 	btnCancel = new QPushButton(tr("Cancel"));
 
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+    hbox1->addStretch();
 	hbox1->addWidget(btnOK);
 	hbox1->addWidget(btnCancel);
 
-	QVBoxLayout *vl = new QVBoxLayout();
+	QVBoxLayout *vl = new QVBoxLayout(this);
 	vl->addWidget(langList);
 	vl->addLayout(hbox1);	
-	setLayout(vl);
 
 	connect(btnOK, SIGNAL(clicked()), this, SLOT(accept()));
 	connect(btnCancel, SIGNAL(clicked()), this, SLOT(close()));

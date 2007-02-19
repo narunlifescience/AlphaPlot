@@ -461,6 +461,8 @@ public slots:
 	void maximizeWindow(Q3ListViewItem * lbi);
 	void maximizeWindow();
 	void minimizeWindow();
+    //! Changes the geometry of the active MDI window
+    void setWindowGeometry(int x, int y, int w, int h);
 
 	void updateWindowStatus(MyWidget* );
 

@@ -4231,12 +4231,22 @@ void Graph::range(int index, double *start, double *end)
 	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
   	          return 0;
 	  
+	  double pr_x;
   	  int i, j=0;
   	  for (i = 0; i < c->dataSize(); i++)
   	    if (c->x(i) >= start && c->x(i) <= end && j<n)
   	    {
   	      xtemp[j] = c->x(i);
+          if (xtemp[j] == pr_x)
+          {
+            delete (*x);
+            delete (*y);
+            return -1;//this kind of data causes division by zero in GSL interpolation routines
+          }
+          pr_x = xtemp[j];
+
   	      ytemp[j++] = c->y(i);
+          
   	    }
   	  size_t *p = ivector(0, n-1);
   	  gsl_sort_index(p, xtemp, 1, n);

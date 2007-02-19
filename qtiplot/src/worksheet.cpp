@@ -1467,44 +1467,41 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 		
 		for(int i=0;i<cols;i++)
 		{// Since we have the permutation index, sort all the columns
-			int scol=colIndex(s[i]);
-			if (!isEmptyColumn(scol))
-			{
-				if (columnType(scol) == Text) {
-					for (int j=0; j<non_empty_cells; j++)
-						data_string[j] = text(valid_cell[j], scol);
-					if(!order)
-						for (int j=0; j<non_empty_cells; j++)
-							worksheet->setText(valid_cell[j], scol, data_string[p[j]]);
-					else
-						for (int j=0; j<non_empty_cells; j++)
-							worksheet->setText(valid_cell[j], scol, data_string[p[non_empty_cells-j-1]]);
-				} else {
-					for (int j = 0; j<non_empty_cells; j++)
-						data_double[j] = text(valid_cell[j], scol).toDouble();
-					int prec;
-					char f;
-					columnNumericFormat(scol, f, prec);
-					if(!order)
-						for (int j=0; j<non_empty_cells; j++)
-							worksheet->setText(valid_cell[j], scol, QString::number(data_double[p[j]], f, prec)); 
-					else
-						for (int j=0; j<non_empty_cells; j++)
-							worksheet->setText(valid_cell[j], scol, QString::number(data_double[p[non_empty_cells-j-1]], f, prec)); 
-				}
-				emit modifiedData(this, colName(scol));
-			}
-		}
-		delete[] p;
-	}
+            int col=colIndex(s[i]);
+            if (columnType(col) == Text)
+            {
+                for (int j=0; j<non_empty_cells; j++)
+                    data_string[j] = text(valid_cell[j], col);
+                if(!order)
+                    for (int j=0; j<non_empty_cells; j++)
+                        worksheet->setText(valid_cell[j], col, data_string[p[j]]);
+                else
+                    for (int j=0; j<non_empty_cells; j++)
+                        worksheet->setText(valid_cell[j], col, data_string[p[non_empty_cells-j-1]]);
+            }
+            else
+            {
+                for (int j = 0; j<non_empty_cells; j++)
+                    data_double[j] = text(valid_cell[j], col).toDouble();
+                int prec;
+                char f;
+                columnNumericFormat(col, f, prec);
+                if(!order)
+                    for (int j=0; j<non_empty_cells; j++)
+                        worksheet->setText(valid_cell[j], col, QString::number(data_double[p[j]], f, prec));
+                else
+                    for (int j=0; j<non_empty_cells; j++)
+                        worksheet->setText(valid_cell[j], col, QString::number(data_double[p[non_empty_cells-j-1]], f, prec));
+            }
+            emit modifiedData(this, colName(col));
+        }
+        delete[] p;
+    }
 	emit modifiedWindow(this);	
 }
 
 void Table::sortColumn(int col, int order)
 {
-	if (columnType(col) == Table::Text)
-		return;
-	
 	if (col < 0)
 		col = worksheet->currentColumn();
 	
@@ -1512,11 +1509,15 @@ void Table::sortColumn(int col, int order)
 	int non_empty_cells = 0;
 	QVarLengthArray<int> valid_cell(rows);
 	QVarLengthArray<double> r(rows);
+    QStringList text_cells;
 	for (int i = 0; i <rows; i++)
 	{
 		if (!worksheet->text(i, col).isEmpty())
 		{
-			r[non_empty_cells] = this->text(i,col).toDouble();
+            if (columnType(col) == Table::Text)
+                text_cells << worksheet->text(i, col);
+            else
+			    r[non_empty_cells] = this->text(i,col).toDouble();
 			valid_cell[non_empty_cells] = i;
 			non_empty_cells++;
 		}
@@ -1525,21 +1526,47 @@ void Table::sortColumn(int col, int order)
 	if (!non_empty_cells)
 		return;
 		
-	r.resize(non_empty_cells);
 	valid_cell.resize(non_empty_cells);
+    if (columnType(col) == Table::Text)
+    {
+        r.clear();
+        text_cells.sort();
+    }
+    else
+    {
+        r.resize(non_empty_cells);
+        gsl_sort(r.data(), 1, non_empty_cells);
+    }
 
-	gsl_sort(r.data(), 1, non_empty_cells);
-
-	int prec;
-	char f;
-	columnNumericFormat(col, f, prec);
-	for (int i=0; i<non_empty_cells; i++)
-	{
-		if (!order)
-			worksheet->setText(valid_cell[i], col, QString::number(r[i], f, prec));
+    if (columnType(col) == Table::Text)
+    {
+        if (!order)
+        {
+            for (int i=0; i<non_empty_cells; i++)
+                worksheet->setText(valid_cell[i], col, text_cells[i]);
+        }
 		else
-			worksheet->setText(valid_cell[i], col, QString::number(r[non_empty_cells-i-1], f, prec)); 		
-	}
+        {
+            for (int i=0; i<non_empty_cells; i++)
+                worksheet->setText(valid_cell[i], col, text_cells[non_empty_cells-i-1]);
+        }
+    }
+    else
+    {
+	   int prec;
+	   char f;
+	   columnNumericFormat(col, f, prec);
+        if (!order)
+        {
+	       for (int i=0; i<non_empty_cells; i++)
+                worksheet->setText(valid_cell[i], col, QString::number(r[i], f, prec));
+        }
+        else
+        {
+            for (int i=0; i<non_empty_cells; i++)
+                worksheet->setText(valid_cell[i], col, QString::number(r[non_empty_cells-i-1], f, prec));
+        }
+    }
 	emit modifiedData(this, colName(col));
 	emit modifiedWindow(this);
 }

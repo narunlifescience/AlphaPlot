@@ -545,13 +545,46 @@ void Graph::fft(long curveKey, bool forward, double sampling,
 	QApplication::restoreOverrideCursor();
 }
 
-void Graph::interpolate(int cindex, int spline, double start, double end,
+void Graph::interpolate(const QString& curveTitle, int spline, double start, double end,
 		int points, int colorIndex)
 {
-	double *x, *y;
+    if (curveTitle.isEmpty())
+    {
+        QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Please provide a non-empty curve name!"));
+        return;
+    }
+
+    if (spline < 0 || spline > 2)
+    {
+        QMessageBox::critical(this, tr("QtiPlot - Error"),
+        tr("Unknown interpolation method. Valid values are: 0 - Linear, 1 - Cubic, 2 - Akima!"));
+        return;
+    }
+
+    int cindex = curveIndex(curveTitle);
+    if (cindex < 0)
+    {
+        QMessageBox::critical(this,tr("QtiPlot - Error"),
+        tr("The curve '%1' doesn't exist! Operation aborted!").arg(curveTitle));
+        return;
+    }
+
+    double *x, *y;
 	size_t n = sortedCurveData(cindex, start, end, &x, &y);
-	
-	gsl_interp_accel *acc= gsl_interp_accel_alloc ();
+    if (n == -1)
+  	{
+        QMessageBox::critical(this,tr("QtiPlot - Error"),
+        tr("Several data points have the same x value causing divisions by zero, operation aborted!"));
+        return;
+  	}
+    else if ((int)n < spline + 3)
+  	{
+        QMessageBox::critical(this,tr("QtiPlot - Error"),
+        tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(spline+3)));
+        return;
+  	}
+
+	gsl_interp_accel *acc = gsl_interp_accel_alloc ();
 	const gsl_interp_type *method;
 	QString label, wlabel;
 	switch(spline)
@@ -576,17 +609,16 @@ void Graph::interpolate(int cindex, int spline, double start, double end,
 	gsl_spline *interp = gsl_spline_alloc (method, n);     
 	gsl_spline_init (interp, x, y, n);	
 
-	double origin = x[0];
-	double step=(x[n-1]-x[0])/(double)(points-1);
-	delete[] x;
-	delete[] y;
+    double step =(end - start)/(double)(points-1);
+    delete[] x;
+    delete[] y;
 
-	x = new double[points];
-	y = new double[points];
-	for (int j=0; j<points; j++)
+    x = new double[points];
+    y = new double[points];
+    for (int j=0; j<points; j++)
 	{
-		x[j]=origin + j*step;
-		y[j]=gsl_spline_eval (interp, x[j], acc);
+	   x[j] = start + j*step;
+	   y[j] = gsl_spline_eval (interp, x[j], acc);
 	}
 
 	addResultCurve(points, x, y, colorIndex, label+QString::number(++fitID), wlabel);
@@ -710,7 +742,7 @@ QString Graph::integrateCurve(QwtPlotCurve *c, int order, int iter, double tol, 
 	if (noBijection)
 	{
 		QMessageBox::critical(this, tr("QtiPlot - Integration error"),
-				tr("Several points have the same x value causing divisions by zero, integration aborted!"));
+				tr("Several data points have the same x value causing divisions by zero, operation aborted!"));
 		return "";
 	}
 

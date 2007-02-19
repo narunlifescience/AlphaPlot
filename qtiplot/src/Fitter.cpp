@@ -243,11 +243,16 @@ void Fit::setInitialGuesses(double *x_init)
 void Fit::setColor(const QString& colorName)
 {
     QColor c = QColor(colorName);
-    if (!c.isValid())
+    if (colorName == "green")
+        c = QColor(Qt::green);
+    else if (colorName == "darkYellow")
+        c = QColor(Qt::darkYellow);
+    if (!ColorBox::isValidColor(c))
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Color Name Error"),
 				tr("The color name '%1' is not valid, a default color (red) will be used instead!").arg(colorName));
-        c = QColor(Qt::red);
+        d_curveColorIndex = 1;
+        return;
     }
 
 	d_curveColorIndex = ColorBox::colorIndex(c);

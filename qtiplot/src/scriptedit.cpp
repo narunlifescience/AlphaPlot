@@ -32,13 +32,8 @@
 #include "scriptedit.h"
 #include "note.h"
 
-#include <qaction.h>
-#include <q3popupmenu.h>
-#include <qprinter.h>
-#include <qpainter.h>
-#include <q3paintdevicemetrics.h>
-#include <q3simplerichtext.h>
-
+#include <QAction>
+#include <QMenu>
 #include <QPrintDialog>
 #include <QPrinter>
 #include <QMessageBox>

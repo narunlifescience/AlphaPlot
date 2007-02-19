@@ -47,7 +47,8 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 		setName( "InterpolationDialog" );
 	setWindowTitle(tr("QtiPlot - Interpolation Options"));
 	
-	QGridLayout *gl1 = new QGridLayout();
+    QGroupBox *gb1 = new QGroupBox();
+	QGridLayout *gl1 = new QGridLayout(gb1);
 	gl1->addWidget(new QLabel(tr("Make curve from")), 0, 0);
 
 	boxName = new QComboBox();
@@ -81,10 +82,8 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 	boxColor = new ColorBox(false);
 	boxColor->setColor(QColor(Qt::red));
 	gl1->addWidget(boxColor, 5, 1);
-	
-	QGroupBox *gb1 = new QGroupBox();
-    gb1->setLayout(gl1);
-	
+	gl1->setRowStretch(6, 1);
+
 	buttonFit = new QPushButton(tr( "&Make" ));
     buttonFit->setDefault( true );
     buttonCancel = new QPushButton(tr( "&Close" ));
@@ -154,19 +153,8 @@ if (from>=to)
 	boxEnd->setFocus();
 	return;
 	}
-	
-double start, end;
-int spline = boxMethod->currentItem();
-int cindex = graph->curveIndex(boxName->currentText());
-if (cindex < 0) return;
-graph->range(cindex, &start, &end);
-if (graph->numPoints(cindex, start, end) < spline + 3)
-  	{
-  	QMessageBox::critical(this,tr("QtiPlot - Error"),
-  	tr("You need at least %1 points to perform this operation! Operation aborted!").arg(QString::number(spline+3)));
-    return;
-  	}
-graph->interpolate(cindex, spline, start, end, boxPoints->value(), boxColor->currentItem());
+
+graph->interpolate(boxName->currentText(), boxMethod->currentIndex(), from, to, boxPoints->value(), boxColor->currentIndex());
 }
 
 void InterpolationDialog::setGraph(Graph *g)

@@ -46,6 +46,7 @@ class ScriptWindow: public QMainWindow
 
 public:
 		ScriptWindow(ScriptingEnv *env);
+        ~ScriptWindow(){exit(0);};
 
 public slots:
 		void newScript();
@@ -66,7 +67,7 @@ private:
 		QString fileName;
 
 		QMenu *file, *edit, *run;
-		QAction *actionNew, *actionUndo, *actionRedo, *actionCut, *actionCopy, *actionPaste, *actionDelete;
+		QAction *actionNew, *actionUndo, *actionRedo, *actionCut, *actionCopy, *actionPaste;
 		QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint, *actionOpen;
 		QAction *actionSave, *actionSaveAs;
 };

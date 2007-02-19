@@ -332,6 +332,10 @@ public:
 							
   void exportToSVG(const QString& fname);
   void exportToEPS(const QString& fname);
+
+  void interpolate(const QString& curveTitle, int spline, double start, double end,
+		int points = 1000, int colorIndex = 1);
+
 private:
   Graph(const Graph&);
 };
