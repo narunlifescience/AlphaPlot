@@ -86,7 +86,7 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
 	list<<"EPS";
     list<<"PDF";
-	list<<"SVG";
+	//list<<"SVG";
 
 	QStringList filters, selectedFilter;
     for(int i=0 ; i<list.count() ; i++)
@@ -116,4 +116,3 @@ void ImageExportDialog::showOptionsBox ( const QString & filter)
 	else
 		boxOptions->show();
 }
-

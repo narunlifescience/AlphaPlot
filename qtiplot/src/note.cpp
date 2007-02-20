@@ -99,7 +99,7 @@ void Note::restore(const QStringList& data)
 
   if (*line == "<content>") line++;
   while (line != data.end() && *line != "</content>")
-    te->append((*line++)+"\n");
+    te->append((*line++));
 }
 
 void Note::setAutoexec(bool exec)
@@ -110,4 +110,3 @@ void Note::setAutoexec(bool exec)
   else
     te->unsetPalette();
 }
-

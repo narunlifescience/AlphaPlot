@@ -155,13 +155,16 @@ public slots:
 	//! \name Print and Export
 	//@{
 	QPixmap canvasPixmap();
-
-	void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
-	void exportToSVG(const QString& fname);
-	void exportToEPS(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+	void exportGraph(const QString& fileName);
+	void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
+	void exportSVG(const QString& fname);
+	void exportEPS(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
 					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
     void exportPDF(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
 					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
+	void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0, 
+					QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize pageSize = QPrinter::A5, 
+					QPrinter::ColorMode col = QPrinter::Color);
 
 	void copyAllLayers();
 	void print();

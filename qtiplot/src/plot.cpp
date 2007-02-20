@@ -454,6 +454,7 @@ int Plot::insertCurve(QwtPlotItem *c)
 {
 	curve_key++;
 	d_curves.insert (curve_key, c, false);
+	//c->setRenderHint(QwtPlotItem::RenderAntialiased);
 	c->attach(this);
 	return curve_key;
 }

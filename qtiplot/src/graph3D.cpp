@@ -40,12 +40,10 @@
 #include <QPixmap>
 #include <QDateTime>
 #include <QCursor>
+#include <QImageWriter>
 
-#include <qwt3d_surfaceplot.h>
-#include <qwt3d_function.h>
 #include <qwt3d_io.h>
 #include <qwt3d_io_gl2ps.h>
-#include <qwt3d_io_reader.h>
 #include <qwt3d_coordsys.h>
 
 #include <gsl/gsl_vector.h>
@@ -2098,13 +2096,12 @@ void Graph3D::saveImage()
 	int i;	
 	QStringList lst= IO::outputFormatList();
 	lst.sort();
-	//QString filter="*.eps;;",selectedFilter,aux;
 
 	QString filter="",selectedFilter,aux;
 
 	for (i=0;i<(int)lst.count();i++)
 	{
-		aux="*."+(lst[i]).lower()+";;";
+		aux="*."+(lst[i]).toLower()+";;";
 		filter+=aux;
 	}
 
@@ -2113,21 +2110,14 @@ void Graph3D::saveImage()
 	{ 	
 		QFileInfo fi(fname);
 		QString baseName = fi.fileName();
-		QString filetype=selectedFilter.remove("*");
+		QString filetype = selectedFilter.remove("*");
 
 		if (baseName.contains(".")==0)
 			fname.append(filetype);		
 
-		if ( QFile::exists(fname) &&
-				QMessageBox::question(
-					0,
-					tr("QtiPlot - Overwrite File?"),
-					tr("A file called: <p><b>%1</b><p>already exists. "
-						"Do you want to overwrite it?")
-					.arg(fname),
-					tr("&Yes"), tr("&No"),
-					QString(), 0, 1 ) )
-			return ;
+		if ( QFile::exists(fname) && QMessageBox::question(0, tr("QtiPlot - Overwrite File?"),
+			tr("A file called: <p><b>%1</b><p>already exists. Do you want to overwrite it?").arg(fname),
+			tr("&Yes"), tr("&No"), QString(), 0, 1 ) ) return;
 		else
 		{
 			QFile f(fname);
@@ -2136,7 +2126,18 @@ void Graph3D::saveImage()
 				QMessageBox::critical(0, tr("QtiPlot - Export Error"),tr("Could not write to file: <br><h4>"+fname+ "</h4><p>Please verify that you have the right to write to this location!").arg(fname));
 				return;
 			}
-			IO::save(sp, fname, filetype.upper().remove("."));
+			PixmapWriter* pmhandler = (PixmapWriter*)IO::outputHandler("PNG");
+  			if (pmhandler)
+    			pmhandler->setQuality(100);
+  
+			//IO::save(sp, fname, filetype.toUpper().remove("."));
+			
+			QImage im = sp->grabFrameBuffer(true);
+ 			QImageWriter iio;
+	  		iio.setFormat(QWT3DLOCAL8BIT(filetype.toUpper().remove(".")));
+  			iio.setQuality(100);
+  			iio.setFileName(fname);
+			iio.write(im);
 		}		
 	} 
 }

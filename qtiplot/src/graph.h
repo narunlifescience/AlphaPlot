@@ -205,19 +205,26 @@ class Graph: public QWidget
 		int curveType(int curveIndex);
 		void setCurveType(int curve, int style);
 
+		//! \name Output: Copy/Export/Print
+		//@{
 		void print();
 		void copyImage();
-		void exportToSVG(const QString& fname);
-        void exportPDF(const QString& fileName);
-		void exportToEPS(const QString& fname);
-		void exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
-				QPrinter::PageSize size, QPrinter::ColorMode col);
-
+		QPixmap graphPixmap();
+		//! Provided for convenience in scripts
+		void exportLayer(const QString& fileName);
+		void exportSVG(const QString& fname);
+		void exportPDF(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, 
+						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);		
+		void exportEPS(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, 
+						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);		
+		void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0, 
+						  QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5, 
+						  QPrinter::ColorMode col = QPrinter::Color);
+		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
+		//@}
+		
 		void replot();
 		void updatePlot();
-
-		QPixmap graphPixmap();
-		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 
 		//! \name Error Bars
 		//@{

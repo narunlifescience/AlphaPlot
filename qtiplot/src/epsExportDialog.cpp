@@ -144,8 +144,7 @@ void EpsExportDialog::accept()
 
 	QPrinter::PageSize size = pageSize();
 
-	emit exportToEPS(f_name, boxResolution->value(), o, size, col);
-    emit exportPDF(f_name, boxResolution->value(), o, size, col);
+	emit exportVector(f_name, boxResolution->value(), o, size, col);
 	close();
 }
 

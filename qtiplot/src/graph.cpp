@@ -1936,6 +1936,39 @@ QPixmap Graph::graphPixmap()
 	return QPixmap::grabWidget(this);
 }
 
+void Graph::exportLayer(const QString& fileName)
+{
+	if ( fileName.isEmpty() )
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
+        return;
+	}
+	
+	if (fileName.contains(".eps"))
+	{
+		exportVector(fileName, "eps");	
+		return;
+	}
+	else if (fileName.contains(".pdf"))
+	{
+		exportVector(fileName, "pdf");	
+		return;
+	}
+	else 
+	{
+		QList<QByteArray> list = QImageWriter::supportedImageFormats();
+    	for(int i=0 ; i<list.count() ; i++)
+		{
+			if (fileName.contains( "." + list[i].toLower()))
+			{
+				exportImage(fileName, list[i]);	
+				return;
+			}
+		}
+    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Unknown file format, operation aborted!"));
+	}
+}
+
 void Graph::exportImage(const QString& fileName, const QString& fileType,
 		int quality, bool transparent)
 {
@@ -1970,87 +2003,55 @@ void Graph::exportImage(const QString& fileName, const QString& fileType,
 	pic.save(fileName, fileType, quality);	
 }
 
-void Graph::exportPDF(const QString& fileName)
+void Graph::exportPDF(const QString& fileName, int res, QPrinter::Orientation o, 
+		QPrinter::PageSize size, QPrinter::ColorMode col)
 {
-    if ( fileName.isEmpty() )
-        return;
-
-	QPrinter printer;
-    printer.setCreator("QtiPlot");
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setOrientation(QPrinter::Landscape);
-    printer.setOutputFileName(fileName);
-	printer.setPageSize (QPrinter::A5);
-	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
-
-	// export should preserve plot aspect ratio, if possible
-	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
-	if (aspect < 1)
-		printer.setOrientation(QPrinter::Portrait);
-	else
-		printer.setOrientation(QPrinter::Landscape);
-
-	int dpiy = printer.logicalDpiY();
-	int margin = (int)((0.5/2.54)*dpiy); // 5 mm margins
-	int width = int(aspect*printer.height());
-	int x=qRound(abs(printer.width()-width)*0.5);
-	QRect rect(x, margin, width, printer.height() - 2*margin);
-	if (width > printer.width())
-	{
-		rect.setLeft(margin);
-		rect.setWidth(printer.width() - 2*margin);
-	}
-	QPainter paint(&printer);
-	d_plot->print(&paint, rect);
+	exportVector(fileName, "pdf", res, o, size, col);
 }
 
-void Graph::exportToEPS(const QString& fname)
-{	
-	QPrinter printer;
-    printer.setCreator("QtiPlot");
-    printer.setOutputFormat(QPrinter::PostScriptFormat);
-	printer.setPageSize (QPrinter::A5);
-	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(true);
-	printer.setOutputFileName(fname);
-
-	// export should preserve plot aspect ratio, if possible
-	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());	
-	if (aspect < 1)
-		printer.setOrientation(QPrinter::Portrait);
-	else
-		printer.setOrientation(QPrinter::Landscape);
-
-	int dpiy = printer.logicalDpiY();
-	int margin = (int)((0.5/2.54)*dpiy); // 5 mm margins
-	int width = int(aspect*printer.height());
-	int x=qRound(abs(printer.width()-width)*0.5);
-	QRect rect(x, margin, width, printer.height() - 2*margin);
-	if (width > printer.width())
-	{
-		rect.setLeft(margin);
-		rect.setWidth(printer.width() - 2*margin);
-	}
-	QPainter paint(&printer);	
-	d_plot->print(&paint, rect);
-}
-
-void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
+void Graph::exportEPS(const QString& fileName, int res, QPrinter::Orientation o, 
 		QPrinter::PageSize size, QPrinter::ColorMode col)
 {	
+	exportVector(fileName, "eps", res, o, size, col);
+}
+
+void Graph::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o, 
+		QPrinter::PageSize size, QPrinter::ColorMode col)
+{	
+	if ( fileName.isEmpty() )
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"),
+		tr("Please provide a valid file name!"));
+        return;
+	}
+	
 	QPrinter printer;
     printer.setCreator("QtiPlot");
-    printer.setOutputFormat(QPrinter::PostScriptFormat);
-	printer.setResolution(res);
-	printer.setPageSize (size);
-	printer.setColorMode (col);
-	printer.setOrientation(o);
-	printer.setFullPage(true);
-	printer.setOutputFileName(fname);
-
+	
+	if (fileType == "eps")
+    	printer.setOutputFormat(QPrinter::PostScriptFormat);
+	else if (fileType == "pdf")
+    	printer.setOutputFormat(QPrinter::PdfFormat);
+		
 	// export should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
+	if (res)
+	{
+		printer.setResolution(res);
+		printer.setOrientation(o);
+	}
+	else
+	{
+		if (aspect < 1)
+			printer.setOrientation(QPrinter::Portrait);
+		else
+			printer.setOrientation(QPrinter::Landscape);
+	}	
+	
+	printer.setPageSize (size);
+	printer.setColorMode (col);
+	printer.setFullPage(true);
+	printer.setOutputFileName(fileName);
 
 	int dpiy = printer.logicalDpiY();
 	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
@@ -2062,7 +2063,6 @@ void Graph::exportToEPS(const QString& fname, int res, QPrinter::Orientation o,
 		rect.setLeft(margin);
 		rect.setWidth(printer.width() - 2*margin);
 	}
-
 	QPainter paint(&printer);
 	d_plot->print(&paint, rect);
 }
@@ -2099,7 +2099,7 @@ void Graph::print()
 	}
 }
 
-void Graph::exportToSVG(const QString& fname) 
+void Graph::exportSVG(const QString& fname) 
 {
 	// TODO: check if the next 2 lines can be removed
 	// enable workaround for Qt3 misalignments

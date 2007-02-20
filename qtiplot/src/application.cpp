@@ -4730,39 +4730,29 @@ void ApplicationWindow::exportGraph()
 
 				if (selectedFilter.contains(".svg"))
 				{
-					plot->exportToSVG(fname);
+					plot->exportSVG(fname);
 					return;
 				}
-				else if (selectedFilter.contains(".eps"))
+				else if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
 				{
 					if (ied->showExportOptions())
 					{
 						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
 						ed->setAttribute(Qt::WA_DeleteOnClose);
-						connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
-								plot, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-
-						ed->exec();
-					}
-					else
-						plot->exportToEPS(fname);
-					return;
-				}
-                else if (selectedFilter.contains(".pdf"))
-				{
-					if (ied->showExportOptions())
-					{
-						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
-						ed->setAttribute(Qt::WA_DeleteOnClose);
-						connect (ed, SIGNAL(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+						if (selectedFilter.contains(".eps"))
+						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
+								plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+						else if (selectedFilter.contains(".pdf"))
+						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
 						ed->exec();
 					}
 					else
-						plot->exportPDF(fname);
+						plot->exportVector(fname, selectedFilter.remove("*."));
 					return;
 				}
+				
 				QList<QByteArray> list=QImageWriter::supportedImageFormats ();
 				for (int i=0; i<(int)list.count(); i++)
 				{
@@ -4817,13 +4807,9 @@ void ApplicationWindow::exportLayer()
 			fname.append(selectedFilter.remove("*"));		
 
 		if ( QFile::exists(fname) &&
-				QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
-					tr("A file called: <p><b>%1</b><p>already exists. "
-						"Do you want to overwrite it?")
-					.arg(fname),
-					tr("&Yes"), tr("&No"),
-					QString(), 0, 1 ) )
-			return ;
+			QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
+			tr("A file called: <p><b>%1</b><p>already exists. Do you want to overwrite it?").arg(fname),
+			tr("&Yes"), tr("&No"),QString(), 0, 1 ) ) return ;
 		else
 		{
 			QFile f(fname);
@@ -4834,30 +4820,28 @@ void ApplicationWindow::exportLayer()
 				return;
 			}
 
-			if (selectedFilter.contains(".eps"))
-			{
-				if (ied->showExportOptions())
+			if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
 				{
-					EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
-					ed->setAttribute(Qt::WA_DeleteOnClose);
-					connect (ed, SIGNAL(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
-							g, SLOT(exportToEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+					if (ied->showExportOptions())
+					{
+						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+						ed->setAttribute(Qt::WA_DeleteOnClose);
+						if (selectedFilter.contains(".eps"))
+						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
+								g, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+						else if (selectedFilter.contains(".pdf"))
+						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
+								g, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-					ed->exec();
+						ed->exec();
+					}
+					else
+						g->exportVector(fname, selectedFilter.remove("*."));
+					return;
 				}
-				else
-					g->exportToEPS(fname);
-
-				return;
-			}
-            if (selectedFilter.contains(".pdf"))
-			{
-				g->exportPDF(fname);
-				return;
-			}
 			else if (selectedFilter.contains(".svg"))
 			{
-				g->exportToSVG(fname);
+				g->exportSVG(fname);
 				return;
 			}
 			QList<QByteArray> list = QImageWriter::supportedImageFormats();
@@ -4992,8 +4976,8 @@ void ApplicationWindow::export2DPlotToFile(MultiLayer *plot, const QString& file
 		return;
 	}
 
-	if (format == "EPS")
-		plot->exportToEPS(fileName);
+	if (format == "EPS" || format == "PDF")
+		plot->exportVector(fileName, format);
 	else
 		plot->exportImage(fileName, format, quality, transparency);	
 }

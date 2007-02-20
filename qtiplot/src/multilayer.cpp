@@ -33,6 +33,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QBitmap>
+#include <QImageWriter>
 #include <QPicture>
 #include <QClipboard>
 
@@ -729,6 +730,39 @@ QPixmap MultiLayer::canvasPixmap()
     return QPixmap::grabWidget(canvas);
 }
 
+void MultiLayer::exportGraph(const QString& fileName)
+{
+	if ( fileName.isEmpty() )
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
+        return;
+	}
+	
+	if (fileName.contains(".eps"))
+	{
+		exportVector(fileName, "eps");	
+		return;
+	}
+	else if (fileName.contains(".pdf"))
+	{
+		exportVector(fileName, "pdf");	
+		return;
+	}
+	else 
+	{
+		QList<QByteArray> list = QImageWriter::supportedImageFormats();
+    	for(int i=0 ; i<list.count() ; i++)
+		{
+			if (fileName.contains( "." + list[i].toLower()))
+			{
+				exportImage(fileName, list[i]);	
+				return;
+			}
+		}
+    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Unknown file format, operation aborted!"));
+	}
+}
+
 void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 		int quality, bool transparent)
 {
@@ -763,64 +797,41 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 void MultiLayer::exportPDF(const QString& fname, int res, QPrinter::Orientation o,
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
 {
-	QPrinter printer;
-	if(res)
-		printer.setResolution(res);
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setDocName (this->name());
-    printer.setCreator("QtiPlot");
-    printer.setOutputFileName(fname);
-	printer.setPageSize(pageSize);
-	printer.setColorMode(col);
-	printer.setOrientation(o);
-	printer.setFullPage(true);
-
-	QPainter paint(&printer);
-
-	int dpiy = printer.logicalDpiY();
-	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
-
-	QSize size = canvas->size();
-
-	double scaleFactorX=(double)(printer.width() - 2*margin)/(double)size.width();
-	double scaleFactorY=(double)(printer.height() - 2*margin)/(double)size.height();
-
-	// fit graph to page maintaining the aspect ratio
-	if(scaleFactorX > scaleFactorY)
-		scaleFactorX = scaleFactorY;
-	else
-		scaleFactorY = scaleFactorX;
-
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		Plot *myPlot= (Plot *)gr->plotWidget();
-
-		QPoint pos=gr->pos();
-		pos=QPoint(int(margin + pos.x()*scaleFactorX),int(margin + pos.y()*scaleFactorY));
-
-		int width=int(myPlot->frameGeometry().width()*scaleFactorX);
-		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
-
-		myPlot->print(&paint, QRect(pos,QSize(width, height)));
-	}
+	exportVector(fname, "pdf", res, o, pageSize, col);
 }
 
-void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientation o, 
+void MultiLayer::exportEPS(const QString& fname, int res, QPrinter::Orientation o, 
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
 {	
+	exportVector(fname, "eps", res, o, pageSize, col);
+}
+
+void MultiLayer::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o, 
+		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
+{	
+	if ( fileName.isEmpty() )
+	{
+		QMessageBox::critical(0, tr("QtiPlot - Error"),
+		tr("Please provide a valid file name!"));
+        return;
+	}
+	
 	QPrinter printer;
     printer.setDocName (this->name());
     printer.setCreator("QtiPlot");
-	if(res)
+	if (res)
 		printer.setResolution(res);
-    printer.setOutputFormat(QPrinter::PostScriptFormat);
-    printer.setOutputFileName(fname);
+	printer.setOrientation(o);
 	printer.setPageSize(pageSize);
 	printer.setColorMode(col);
-	printer.setOrientation(o);
 	printer.setFullPage(true);
-
+	printer.setOutputFileName(fileName);
+	
+	if (fileType == "eps")
+    	printer.setOutputFormat(QPrinter::PostScriptFormat);
+	else if (fileType == "pdf")
+    	printer.setOutputFormat(QPrinter::PdfFormat);
+		
 	QPainter paint(&printer);
 
 	int dpiy = printer.logicalDpiY();
@@ -852,7 +863,7 @@ void MultiLayer::exportToEPS(const QString& fname, int res, QPrinter::Orientatio
 	}
 }
 
-void MultiLayer::exportToSVG(const QString& fname)
+void MultiLayer::exportSVG(const QString& fname)
 {	
 	QPicture picture;
 	QPainter p(&picture);

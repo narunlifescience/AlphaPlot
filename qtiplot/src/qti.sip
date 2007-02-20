@@ -330,8 +330,8 @@ public:
   void exportImage(const QString& fileName, const QString& fileType = "PNG", 
   			int quality = 100, bool transparent = false);
 							
-  void exportToSVG(const QString& fname);
-  void exportToEPS(const QString& fname);
+  //void exportSVG(const QString& fname);
+  void exportLayer(const QString& fileName);
 
   void interpolate(const QString& curveTitle, int spline, double start, double end,
 		int points = 1000, int colorIndex = 1);
@@ -351,8 +351,9 @@ public:
   int layers() /PyName=numLayers/;
   Graph* layer(int num);
   Graph* addLayer();
-  void exportToSVG(const QString& fname);
-  void exportToEPS(const QString& fname);
+  //void exportSVG(const QString& fname);
+  void exportGraph(const QString& fileName);
+  void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
   void print();
 private:
   MultiLayer(const MultiLayer&);
