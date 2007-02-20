@@ -43,21 +43,18 @@
 SelectionMoveResizer::SelectionMoveResizer(LegendMarker *target)
 	: QWidget(target->plot()->canvas())
 {
-	target->plot()->replot();
 	init();
 	add(target);
 }
 SelectionMoveResizer::SelectionMoveResizer(LineMarker *target)
 	: QWidget(target->plot()->canvas())
 {
-	target->plot()->replot();
 	init();
 	add(target);
 }
 SelectionMoveResizer::SelectionMoveResizer(ImageMarker *target)
 	: QWidget(target->plot()->canvas())
 {
-	target->plot()->replot();
 	init();
 	add(target);
 }
@@ -362,8 +359,10 @@ void SelectionMoveResizer::paintEvent(QPaintEvent *e)
 
 void SelectionMoveResizer::mousePressEvent(QMouseEvent *me)
 {
-	if (me->button() != Qt::LeftButton || !d_bounding_rect.contains(me->pos()))
-		return QWidget::mousePressEvent(me);
+	if (me->button() != Qt::LeftButton || !d_bounding_rect.contains(me->pos())) {
+		me->ignore();
+		return;
+	}
 	d_op_start = me->pos();
 	d_op = Move;
 	for (int i=0; i<8; i++)
@@ -373,14 +372,6 @@ void SelectionMoveResizer::mousePressEvent(QMouseEvent *me)
 		}
 
 	me->accept();
-}
-
-void SelectionMoveResizer::mouseDoubleClickEvent(QMouseEvent *me)
-{
-	if (me->button() == Qt::LeftButton && d_bounding_rect.contains(me->pos()))
-		delete this;
-	else
-		return QWidget::mouseDoubleClickEvent(me);
 }
 
 void SelectionMoveResizer::mouseMoveEvent(QMouseEvent *me)
@@ -425,8 +416,10 @@ void SelectionMoveResizer::keyPressEvent(QKeyEvent *ke)
 	switch(ke->key()) {
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
-			if (d_op == None)
-				return QWidget::keyPressEvent(ke);
+			if (d_op == None) {
+				ke->ignore();
+				break;
+			}
 			operateOnTargets();
 			d_op = None;
 			ke->accept();
@@ -472,7 +465,7 @@ void SelectionMoveResizer::keyPressEvent(QKeyEvent *ke)
 			ke->accept();
 			break;
 		default:
-			return QWidget::keyPressEvent(ke);
+			ke->ignore();
 	}
 }
 
@@ -482,13 +475,12 @@ bool SelectionMoveResizer::eventFilter(QObject *o, QEvent *e)
 		case QEvent::Resize:
 			if((QWidget*)o == parentWidget())
 				setGeometry(0, 0, parentWidget()->width(), parentWidget()->height());
-			// don't break or return here!
-		case QEvent::Move:
 			recalcBoundingRect();
 			return false;
-		case QEvent::KeyPress:
-			keyPressEvent((QKeyEvent*)e);
-			return e->isAccepted();
+		case QEvent::Move:
+			if((QWidget*)o != parentWidget())
+				recalcBoundingRect();
+			return false;
 		default:
 			return false;
 	}

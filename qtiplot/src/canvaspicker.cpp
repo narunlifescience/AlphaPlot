@@ -339,7 +339,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				if (key == Qt::Key_Tab)
 				{
 					selectNextMarker();
-					return true;					
+					return true;
 				}
 
 				if (plot()->enabledCursor())
@@ -482,8 +482,6 @@ void CanvasPicker::selectNextMarker()
 		if (mrkKeys[i] <= min_key)
 			min_key=mrkKeys[i];
 	}
-
-	plotWidget->replot();
 
 	int key;
 	if (plot()->selectedMarkerKey() >= 0)

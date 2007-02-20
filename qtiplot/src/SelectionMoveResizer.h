@@ -98,8 +98,6 @@ class SelectionMoveResizer : public QWidget
 	Q_OBJECT
 
 	public:
-		//! Available modes of operation.
-		enum Operation { None=-2, Move, Resize_N, Resize_NE, Resize_E, Resize_SE, Resize_S, Resize_SW, Resize_W, Resize_NW };
 		//! Construct a new MoveResizer with the given marker as the only target.
 		SelectionMoveResizer(LegendMarker *target);
 		//! Construct a new MoveResizer with the given marker as the only target.
@@ -139,34 +137,37 @@ class SelectionMoveResizer : public QWidget
 		void targetsChanged();
 
 	protected:
+		//! Available modes of operation.
+		enum Operation { None=-2, Move, Resize_N, Resize_NE, Resize_E, Resize_SE, Resize_S, Resize_SW, Resize_W, Resize_NW };
+
 		/*!\brief Draw frame and resize handlers.
+		 *
 		 * Besides managing resize operations, this also provides a visual feedback
 		 * on the selection state.
 		 */
 		virtual void paintEvent(QPaintEvent *e);
 		/*!\brief Mouse button presses start move/resize operations.
+		 *
 		 * Clicks outside of #d_bounding_rect or with anything else than the left button
 		 * are propagated to the parent as usual.
 		 */
 		virtual void mousePressEvent(QMouseEvent *e);
 		/*!\brief Mouse movements need to be monitored for updating the frame during operation.
+		 *
 		 * When no operation is in progress, the mouse cursor is updated based on its position
 		 * before the event is passed on to the parent.
 		 */
 		virtual void mouseMoveEvent(QMouseEvent *e);
 		/*!\brief Mouse releases end the current operation and apply it to the targets.
+		 *
 		 * When there is no operation in progress. the event is passed on to the parent.
 		 */
 		virtual void mouseReleaseEvent(QMouseEvent *e);
 		/*!\brief Allow keyboard-based moving of the selection.
+		 *
 		 * Unused keys are passed on the parent.
 		 */
 		virtual void keyPressEvent(QKeyEvent *e);
-		/*!\brief Provide a quick way for deleting the selection.
-		 * Double-clicks with anything but the left mouse button or outside of
-		 * #d_bounding_rect are passed on to the parent widget as usual.
-		 */
-		virtual void mouseDoubleClickEvent(QMouseEvent *me);
 
 	private:
 		//! Size of resize handelers in pixels.

@@ -315,7 +315,6 @@ void Graph::deselectMarker()
 	selectedMarker = -1;
 	if (d_markers_selector)
 		delete d_markers_selector;
-	d_plot->replot();
 }
 
 long Graph::selectedMarkerKey()
@@ -5151,7 +5150,7 @@ void Graph::updateScale()
 	updateSecondaryAxis(QwtPlot::xTop);
 	updateSecondaryAxis(QwtPlot::yRight);
 
-	d_plot->replot();//TO DO: avoid 2nd replot!
+	d_plot->replot();//TODO: avoid 2nd replot!
 }
 
 void Graph::setBarsGap(int curve, int gapPercent, int offset)
