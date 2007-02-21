@@ -40,6 +40,7 @@
 #include <Q3ValueList>
 #include <Q3MemArray>
 #include <QPointer>
+#include <QVector>
 
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>
@@ -252,7 +253,7 @@ class Graph: public QWidget
 		//! Set axis scale
 		void setScale(int axis, double start, double end, double step = 0.0, 
 				int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
-		bool userDefinedStep(int axis){return d_user_step[axis];};
+		double axisStep(int axis){return d_user_step[axis];};
 
 		//! \name Curves Layout
 		//@{
@@ -808,8 +809,8 @@ signals:
 		 */
 		QStringList associations;
 
-		//! Tells whether the user specified a step for a scale
-		Q3MemArray<bool> d_user_step;
+		//! Stores the step the user specified for the four scale. If step = 0.0, the step will be calculated automatically by the Qwt scale engine.
+		QVector<double> d_user_step;
 		//! Curve types
 		Q3MemArray<int> c_type; 
 		//! Curves on plot keys

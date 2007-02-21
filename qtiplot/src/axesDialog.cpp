@@ -1308,23 +1308,23 @@ void AxesDialog::initScalesPage()
 		for(i=0 ; i<axesList->count() ; i++)
 			if( fm.width(axesList->item(i)->text()) > width)
 				width = fm.width(axesList->item(i)->text());
-					axesList->setMaximumWidth( axesList->iconSize().width() + width + 50 );
-					// resize the list to the maximum width
-					axesList->resize(axesList->maximumWidth(),axesList->height());
 					
-					QHBoxLayout* mainLayout = new QHBoxLayout(scalesPage);
-					mainLayout->addWidget(axesList);
-					mainLayout->addWidget(middleBox);
-					mainLayout->addWidget(rightBox);
+		axesList->setMaximumWidth( axesList->iconSize().width() + width + 50 );
+		// resize the list to the maximum width
+		axesList->resize(axesList->maximumWidth(),axesList->height());
 					
-					generalDialog->addTab( scalesPage, tr( "Scale" ) );
+		QHBoxLayout* mainLayout = new QHBoxLayout(scalesPage);
+		mainLayout->addWidget(axesList);
+		mainLayout->addWidget(middleBox);
+		mainLayout->addWidget(rightBox);
 					
-					//slots connections
-					connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
-					connect(axesList,SIGNAL(currentRowChanged(int) ), this, SLOT(updateScale() ) );
-					connect(boxScaleType,SIGNAL(activated(int) ), this, SLOT(updatePlot() ) );
-					connect(btnStep,SIGNAL(clicked() ), this, SLOT(stepEnabled() ) );
-					connect(btnMajor,SIGNAL(clicked() ), this, SLOT(stepDisabled() ) );	
+		generalDialog->addTab(scalesPage, tr( "Scale" ));
+					
+		connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
+		connect(axesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateScale()));
+		connect(boxScaleType,SIGNAL(activated(int)), this, SLOT(updatePlot()));
+		connect(btnStep,SIGNAL(clicked()), this, SLOT(stepEnabled()));
+		connect(btnMajor,SIGNAL(clicked()), this, SLOT(stepDisabled()));	
 }
 
 void AxesDialog::initGridPage()
@@ -1628,10 +1628,8 @@ void AxesDialog::initAxesPage()
 		
 		generalDialog->addTab( axesPage, tr( "Axis" ) );
 		
-		//signals and slots connections
 		connect(buttonLabelFont, SIGNAL(clicked()), this, SLOT(customAxisLabelFont()));
 		
-		connect(generalDialog,SIGNAL(currentChanged ( QWidget * )), this, SLOT(tabPageChanged(QWidget *)));	
 		connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateShowBox(int) ) );	
 		connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateAxisColor(int)));
 		connect(axesTitlesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateTitleBox(int) ) );
@@ -2404,23 +2402,6 @@ void AxesDialog::accept()
 		close();
 }
 
-void AxesDialog::tabPageChanged(QWidget *w)
-{
-	// FIXME: Why should the selection be reset on tab change?
-	/*
-	  axesTitlesList->clearSelection();
-	  axesList->clearSelection();
-	  axesGridList->clearSelection();
-	  
-	  if (w==(QWidget*)axesPage)
-	  axesTitlesList->setItemSelected(axesTitlesList->item(0),true);
-	  else if (w==(QWidget*)scalesPage)
-	  axesList->setItemSelected(axesList->item(0),true);
-	  else
-	  axesGridList->setItemSelected(axesGridList->item(0),true);
-	  */
-}
-
 void AxesDialog::majorGridEnabled(bool on)
 {
 	boxMinorGrid->setEnabled(on);
@@ -2631,8 +2612,7 @@ bool AxesDialog::updatePlot()
 
 		      if (stp <=0)
 		      {
-			  QMessageBox::critical(0,tr("QtiPlot - Step input error"),
-					tr("Please enter a positive step value!"));
+			  QMessageBox::critical(0,tr("QtiPlot - Step input error"), tr("Please enter a positive step value!"));
 			  boxStep->setFocus();
 			  return false;	
 		      }
@@ -2836,7 +2816,7 @@ boxStart->setText(QString::number(QMIN(scDiv->lBound(), scDiv->hBound())));
 boxEnd->setText(QString::number(QMAX(scDiv->lBound(), scDiv->hBound())));
 
 QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
-boxStep->setText(QString::number(fabs(lst[1]-lst[0])));
+boxStep->setText(QString::number(d_graph->axisStep(a)));
 boxMajorValue->setValue(lst.count());
 boxMinorValue->setValue(d_plot->axisMaxMinor(a));
 	
@@ -2855,7 +2835,7 @@ else if (axesType[a] == Graph::Date)
 	boxUnit->insertItem(tr("weeks"));			
 	}
 
-if (d_graph->userDefinedStep(a))
+if (d_graph->axisStep(a) != 0.0)
 	{
 	btnStep->setChecked(true);
 	boxStep->setEnabled(true);
@@ -2877,7 +2857,7 @@ else
 
 const QwtScaleEngine *sc_eng = d_plot->axisScaleEngine(a);
 btnInvert->setChecked(sc_eng->testAttribute(QwtScaleEngine::Inverted));
-
+	
 QwtScaleTransformation *tr = sc_eng->transformation();
 boxScaleType->setCurrentItem((int)tr->type());
 }
@@ -3233,10 +3213,6 @@ void AxesDialog::pageChanged ( QWidget *page )
   		axesList->setCurrentRow(axesTitlesList->currentRow());
   	    lastPage = page;
   	}
-}
-	
-AxesDialog::~AxesDialog()
-{
 }
 
 int AxesDialog::exec()

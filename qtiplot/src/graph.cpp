@@ -196,13 +196,13 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	defaultTextMarkerColor = QColor(Qt::black);
 	defaultTextMarkerBackground = QColor(Qt::white);
 
-	d_user_step = Q3MemArray<bool>(QwtPlot::axisCnt);
+	d_user_step = QVector<double>(QwtPlot::axisCnt);
 	for (int i=0; i<QwtPlot::axisCnt; i++)
 	{
 		axisType << Numeric;
 		axesFormatInfo << QString::null;
 		axesFormulas << QString::null;
-		d_user_step[i] = false;
+		d_user_step[i] = 0.0;
 	}
 
 	d_plot = new Plot(this);		
@@ -1483,8 +1483,8 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 
 	d_zoomer[0]->setZoomBase();
 	d_zoomer[1]->setZoomBase();
-
-	d_user_step[axis] = (step != 0.0);
+	
+	d_user_step[axis] = step;
 
 	if (axis == QwtPlot::xBottom || axis == QwtPlot::yLeft)
   	{
@@ -3495,7 +3495,7 @@ QString Graph::saveScale()
 
 		s += QString::number(QMIN(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
 		s += QString::number(QMAX(scDiv->lBound(), scDiv->hBound()), 'g', 15)+"\t";
-		s += QString::number(fabs(lst[1]-lst[0]), 'g', 15)+"\t";
+		s += QString::number(d_user_step[i], 'g', 15)+"\t";
 		s += QString::number(d_plot->axisMaxMajor(i))+"\t";
 		s += QString::number(d_plot->axisMaxMinor(i))+"\t";
 
@@ -6487,13 +6487,11 @@ void Graph::copy(Graph* g)
 		
 		const QwtScaleDiv *sd = plot->axisScaleDiv(i);
 		QwtValueList lst = sd->ticks (QwtScaleDiv::MajorTick);
-		double step = 0.0;
-		d_user_step[i] = g->userDefinedStep(i);
-		if (d_user_step[i])
-			step = fabs(lst[1]-lst[0]);
+		
+		d_user_step[i] = g->axisStep(i);
 
 		QwtScaleDiv div = sc_engine->divideScale (QMIN(sd->lBound(), sd->hBound()),
-				QMAX(sd->lBound(), sd->hBound()), majorTicks, minorTicks, step);
+				QMAX(sd->lBound(), sd->hBound()), majorTicks, minorTicks, d_user_step[i]);
 
 		if (se->testAttribute(QwtScaleEngine::Inverted))
 		{

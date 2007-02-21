@@ -7586,6 +7586,7 @@ Matrix* ApplicationWindow::cloneMatrix()
 		int c=m->numCols();
 		int r=m->numRows();
 		w = newMatrix(caption,r,c);
+		w->setCoordinates(m->xStart(), m->xEnd(), m->yStart(), m->yEnd());
 		for (int i=0;i<r;i++)
 			for (int j=0;j<c;j++)
 			{

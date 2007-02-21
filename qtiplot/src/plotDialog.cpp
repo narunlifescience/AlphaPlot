@@ -219,6 +219,8 @@ void PlotDialog::changePlotType(int plotType)
 			s.setStyle(QwtSymbol::NoSymbol);
 		else if (plotType == Graph::Scatter)
 			graph->setCurveStyle(curve, QwtPlotCurve::NoCurve);
+		else if (plotType == Graph::LineSymbols)
+			graph->setCurveStyle(curve, QwtPlotCurve::Lines);
 
 		if (plotType)
 		{

@@ -89,7 +89,7 @@ public:
 	 */
     AxesDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
 	//! Destructor
-    ~AxesDialog();
+    ~AxesDialog(){};
 
 	void setMultiLayerPlot(MultiLayer *m);
 
@@ -102,7 +102,6 @@ protected:
 	void initGridPage();
 	//! generate UI for the general page
 	void initFramePage();
-
 
     QPushButton* buttonApply;
     QPushButton* buttonOk;
@@ -165,7 +164,6 @@ public slots:
 	GridOptions getGridOptions();
 	void putGridOptions(GridOptions gr);
 	void setGridOptions();
-	void tabPageChanged(QWidget *w);
 	void accept();
 	void customAxisFont();
 	void showAxis();
