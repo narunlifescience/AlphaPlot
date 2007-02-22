@@ -335,14 +335,12 @@ class Graph: public QWidget
 
 		void addTimeStamp();
 
-		void customLegend();
 		void removeLegend();
 		void removeLegendItem(int index);
 		void addLegendItem(const QString& colName);
 		void insertLegend(const QStringList& lst, int fileVersion);
-		void newLegend();
-
 		LegendMarker *legend();
+		void newLegend();
 		LegendMarker *newLegend(const QString& text);
 		bool hasLegend(){return legendMarkerID >= 0;};
 
@@ -462,8 +460,8 @@ class Graph: public QWidget
 				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format,
                 int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor);
 
-		Q3MemArray<bool> enabledAxes();
-		void enableAxes(Q3MemArray<bool> axesOn);
+		QVector<bool> enabledAxes();
+		void enableAxes(QVector<bool> axesOn);
 		void enableAxes(const QStringList& list);	
 
 		int labelsRotation(int axis);
@@ -606,8 +604,6 @@ class Graph: public QWidget
 		void smoothAverage(long curveKey, int points, int colIndex);
 
 		void interpolate(const QString& curveTitle, int spline, double start, double end, int points = 1000, int colorIndex = 1);
-		QString integrateCurve(QwtPlotCurve *c,int order,int iter,double tol,double low,double up);
-		bool diffCurve(const QString& curveTitle);
 		void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);
 		void filterFFT(long curveKey, int filter_type, double lf, double hf, 
 				bool DCOffset, int colIndex);

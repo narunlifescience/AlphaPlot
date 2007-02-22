@@ -29,8 +29,7 @@
 #ifndef FITTER_H
 #define FITTER_H
 
-#include <qobject.h>
-#include <qlibrary.h>
+#include <QObject>
 
 #include "application.h"
 

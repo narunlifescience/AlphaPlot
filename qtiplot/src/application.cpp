@@ -85,56 +85,39 @@
 #include "Fitter.h"
 #include "FunctionCurve.h"
 #include "Spectrogram.h"
-	
+#include "IntDiff.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
-#include <qworkspace.h>
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qtoolbutton.h>
-#include <qmenubar.h>
-#include <qnamespace.h>
-#include <qfile.h>
-#include <qfiledialog.h>
-#include <qmessagebox.h>
-#include <qprinter.h>
-#include <qtextstream.h>
-#include <qinputdialog.h>
-#include <qregexp.h>
 #include <q3listview.h>
-#include <qcursor.h>
-#include <qevent.h>
-#include <qaction.h>
-#include <q3progressdialog.h>
-#include <qpixmapcache.h>
-#include <qsettings.h>
-#include <qstylefactory.h>
-#include <qclipboard.h>
-#include <qapplication.h>
-#include <qtranslator.h>
-#include <qsplitter.h>
-#include <qobject.h>
 
+#include <QFileDialog>
+#include <QInputDialog>
+#include <QProgressDialog>
+#include <QPrintDialog>
+#include <QPixmapCache>
+#include <QMenuBar>
+#include <QClipboard>
+#include <QWorkspace>
+#include <QTranslator>
+#include <QSplitter>
+#include <QSettings>
+#include <QApplication>
+#include <QMessageBox>
+#include <QPrinter>
 #include <QActionGroup>
 #include <QAction>
-#include <QDragEnterEvent>
-#include <QDropEvent>
-#include <QList>
-#include <QTimerEvent>
-#include <QCloseEvent>
 #include <QToolBar>
 #include <QKeySequence>
 #include <QImageReader>
 #include <QImageWriter>
-#include <QList>
 #include <QDateTime>
-#include <QProcess>
-#include <QAction>
 #include <QShortcut>
 #include <QDockWidget>
-#include <QPrintDialog>
+#include <QTextStream>
 #include <QVarLengthArray>
+#include <QList>
 #include <QUrl>
 #include <QAssistantClient>
 
@@ -2342,7 +2325,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 	Graph *g=plot->addLayer(0,0, plot->width(), plot->height()-20);
 
 	g->setTitle("");
-	Q3MemArray<bool> axesOn(4);
+	QVector<bool> axesOn(4);
 	for (int j=0;j<4;j++)
 		axesOn[j]=false;
 	g->enableAxes(axesOn);
@@ -2399,7 +2382,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->askOnCloseEvent(confirmClosePlot2D);
 
-	activeGraph=g->insertFirstLayer();
+	activeGraph = g->insertFirstLayer();
 	if (!activeGraph)
 		return 0;
 
@@ -2408,7 +2391,8 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	customGraph(activeGraph);
 	polishGraph(activeGraph, style);
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
-
+	activeGraph->newLegend();
+	
 	//the following function must be called last in order to avoid resizing problems
 	activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
 	emit modified();
@@ -2451,6 +2435,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 			{
 				activeGraph->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
 				customGraph(activeGraph);
+				activeGraph->newLegend();
 				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
 				activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
 				polishGraph(activeGraph, style);
@@ -2468,6 +2453,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
   	            lst << list[i];
 				activeGraph->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
 				customGraph(activeGraph);
+				activeGraph->newLegend();
 				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
 				activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
 				polishGraph(activeGraph, style);
@@ -2557,6 +2543,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 			ag->updateCurveLayout(i,&cl);
 		}
 	}
+	ag->newLegend();
 	ag->updatePlot();
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	ag->setIgnoreResizeEvents(!autoResizeLayers);
@@ -2627,7 +2614,7 @@ void ApplicationWindow::customGraph(Graph* g)
 	{
 		if (allAxesOn)
 		{
-			Q3MemArray<bool> axesOn(QwtPlot::axisCnt);
+			QVector<bool> axesOn(QwtPlot::axisCnt);
 			axesOn.fill (true);
 			g->enableAxes(axesOn);
 			g->updateSecondaryAxis(QwtPlot::xTop);
@@ -2648,11 +2635,8 @@ void ApplicationWindow::customGraph(Graph* g)
 
 	g->initFonts(plotAxesFont, plotNumbersFont);
 	g->setTextMarkerDefaults(legendFrameStyle, plotLegendFont, legendTextColor, legendBackground);
-	g->customLegend();
-
 	g->setArrowDefaults(defaultArrowLineWidth, defaultArrowColor, defaultArrowLineStyle,
 			defaultArrowHeadLength, defaultArrowHeadAngle, defaultArrowHeadFill);
-
 	g->initTitle(titleOn, plotTitleFont);
 	g->drawCanvasFrame(canvasFrameOn, canvasFrameWidth);
 	g->plotWidget()->setMargin(defaultPlotMargin);
@@ -3834,11 +3818,11 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QString titleBase = tr("Window") + ": ";
 	QString title = titleBase + "1/"+QString::number(widgets)+"  ";
 
-	Q3ProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint);
+	QProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint);
 	progress.setMinimumWidth(app->width()/2);
 	progress.setWindowTitle(tr("QtiPlot - Opening file") + ": " + baseName);
 	progress.setLabelText(title);
-	progress.setTotalSteps(widgets);
+	progress.setMaximum(widgets);
 	progress.setActiveWindow();
 	//progress.move(0,0);
 
@@ -3882,7 +3866,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			}
 			lst.pop_back();
 			openTable(app,lst);
-			progress.setProgress(aux);
+			progress.setValue(aux);
 		}
 		else if (s.left(17)=="<TableStatistics>")
 		{
@@ -3907,7 +3891,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			}
 			lst.pop_back();
 			openMatrix(app, lst);
-			progress.setProgress(aux);
+			progress.setValue(aux);
 		}
 		else if  (s == "<note>")
 		{
@@ -3927,7 +3911,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			}
 			cont.pop_back();
 			m->restore(cont);
-			progress.setProgress(aux);
+			progress.setValue(aux);
 		}
 		else if  (s == "</folder>")
 		{
@@ -4012,7 +3996,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 				}
 			}
 			plot->blockSignals(false);
-			progress.setProgress(aux);
+			progress.setValue(aux);
 		}
 		else if  (s == "<SurfacePlot>")
 		{//process 3D plots information
@@ -4025,7 +4009,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 				list<<s;
 			}
 			openSurfacePlot(app,list);
-			progress.setProgress(aux);
+			progress.setValue(aux);
 		}
 		else if  (s == "</folder>")
 		{
@@ -9099,7 +9083,8 @@ void ApplicationWindow::newFunctionPlot(int type,QStringList &formulas, const QS
 	Graph* g=plot->addLayer();
 	customGraph(g);
 	g->addFunctionCurve(type,formulas, var,ranges,points);
-
+	g->newLegend();
+	
 	plot->showNormal();
 	setListViewSize(plot->name(), plot->sizeToString());
 
@@ -10678,13 +10663,11 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 			delete fitter;
 		}
 	}
-	else if(whichFit == "differentiate" && activeGraph->diffCurve(curveTitle))
+	else if(whichFit == "differentiate")
 	{
-		Table* w = table(tableWindows.last());
-		QStringList list;
-		list<<QString(w->name())+"_derivative";
-		MultiLayer* d=multilayerPlot(w,list,0);
-		d->setFocus();
+        Differentiation *diff = new Differentiation(this, activeGraph, curveTitle);
+        diff->run();
+        delete diff;
 	}
 }
 

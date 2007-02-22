@@ -50,6 +50,7 @@
 #include <QRadioButton>
 #include <QFileDialog>
 #include <QGroupBox>
+#include <QLibrary>
 
 #include <stdio.h> 
 

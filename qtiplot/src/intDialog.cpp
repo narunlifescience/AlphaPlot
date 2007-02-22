@@ -2,7 +2,7 @@
     File                 : intDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Hoener zu Siederdissen
     Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
     Description          : Integration options dialog
                            
@@ -30,6 +30,7 @@
 #include "parser.h"
 #include "graph.h"
 #include "application.h"
+#include "IntDiff.h"
 
 #include <QGroupBox>
 #include <QSpinBox>
@@ -48,7 +49,8 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 	setWindowTitle(tr("QtiPlot - Integration Options"));
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
-    QGridLayout *gl1 = new QGridLayout();
+    QGroupBox *gb1 = new QGroupBox();
+    QGridLayout *gl1 = new QGridLayout(gb1);
 	gl1->addWidget(new QLabel(tr("Integration of")), 0, 0);
 	boxName = new QComboBox();
 	gl1->addWidget(boxName, 0, 1);
@@ -76,9 +78,7 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 	gl1->addWidget(new QLabel(tr("Upper limit")), 5, 0);
 	boxEnd = new QLineEdit();
 	gl1->addWidget(boxEnd, 5, 1);
-
-    QGroupBox *gb1 = new QGroupBox();
-    gb1->setLayout(gl1);
+    gl1->setRowStretch(6, 1);
 	
 	buttonOk = new QPushButton(tr( "&Integrate" ));
     buttonOk->setDefault( true );
@@ -111,21 +111,21 @@ QString curve = boxName->currentText();
 QStringList curvesList = graph->curvesList();
 if (curvesList.contains(curve) <= 0)
 	{
-	QMessageBox::critical(this,tr("QtiPlot - Warning"),
+	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") +" - "+ tr("Warning"),
 		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 	boxName->clear();
 	boxName->insertStringList(curvesList);
 	return;
 	}
 
-int index=boxName->currentItem();
+int index = boxName->currentItem();
 QwtPlotCurve *c = graph->curve(index);
 if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve || c->dataSize()<2)
 	{
-	QString s= tr("You cannot fit index:");
-	s+="<p><b>'"+boxName->currentText()+"'</b><p>";
-	s+=tr("because it has less than 2 points!");
-	QMessageBox::warning(0,tr("QtiPlot - Warning"),s);
+	QString s = tr("You cannot integrate curve:");
+	s += "<p><b>'"+boxName->currentText()+"'</b><p>";
+	s += tr("because it has less than 2 points!");
+	QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") +" - "+ tr("Warning"), s);
 
 	changeCurve(index);
 	return;
@@ -139,7 +139,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0,tr("QtiPlot - Tolerance value error"),QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical((ApplicationWindow *)parent(),tr("QtiPlot - Tolerance value error"),QString::fromStdString(e.GetMsg()));
 	boxTol->clear();
 	boxTol->setFocus();
 	return;
@@ -170,7 +170,7 @@ else
 			
 		if(start<minx)
 			{
-			QMessageBox::warning(0, tr("QtiPlot - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number larger or equal to the minimum value of X, for the lower limit.\n If you do not know that value, type min in the box."));
 			boxStart->clear();
 			boxStart->setFocus();
@@ -178,7 +178,7 @@ else
 		}
 		if(start > maxx)
 			{
-			QMessageBox::warning(0, tr("QtiPlot - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number smaller or equal to the maximum value of X, for the lower limit.\n If you do not know that value, type max in the box."));
 			boxStart->clear();
 			boxStart->setFocus();
@@ -187,7 +187,7 @@ else
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0,tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(),tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxStart->clear();
 		boxStart->setFocus();
 		return;
@@ -215,7 +215,7 @@ else
 		stop=parser.Eval();	
 		if(stop>maxx)
 			{
-			QMessageBox::warning(0, tr("QtiPlot - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number smaller or equal to the maximum value of X, for the upper limit.\n If you do not know that value, type max in the box."));
 			boxEnd->clear();
 			boxEnd->setFocus();
@@ -223,7 +223,7 @@ else
 			}
 		if(stop<minx)
 			{
-			QMessageBox::warning(0, tr("QtiPlot - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number larger or equal to the minimum value of X, for the upper limit.\n If you do not know that value, type min in the box."));
 			boxEnd->clear();
 			boxEnd->setFocus();
@@ -232,24 +232,20 @@ else
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(0,tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
 		boxEnd->clear();
 		boxEnd->setFocus();
 		return;
 		}	
 	}
 
-start=boxStart->text().toDouble();
-stop=boxEnd->text().toDouble();
-
-QString res=graph->integrateCurve(c,boxOrder->value(),boxSteps->value(),boxTol->text().toDouble(),start,stop);
-if ( !res.isEmpty() )
-	{
-	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	app->logInfo+=res;
-	app->showResults(true);
-	app->modifiedProject();
-	}
+Integration *i = new Integration((ApplicationWindow *)this->parent(), graph, boxName->currentText(),
+                                 boxStart->text().toDouble(), boxEnd->text().toDouble());
+i->setTolerance(boxTol->text().toDouble());
+i->setMaximumIterations(boxSteps->value());
+i->setMethod(boxOrder->value());
+i->run();
+delete i;
 }
 
 void IntDialog::setGraph(Graph *g)

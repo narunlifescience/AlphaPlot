@@ -52,7 +52,6 @@ class QTranslator;
 class QDockWidget;
 class QAction;
 class QActionGroup;
-class QMenu;
 class QWorkspace;
 class QLineEdit;
 class QTranslator;

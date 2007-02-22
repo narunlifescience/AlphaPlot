@@ -29,22 +29,22 @@
 #include "Fitter.h"
 #include "fit.h"
 #include "worksheet.h"
+#include "matrix.h"
 #include "ErrorBar.h"
 #include "LegendMarker.h"
 #include "parser.h"
-#include "matrix.h"
 #include "FunctionCurve.h"
 #include "colorBox.h"
 
+#include <gsl/gsl_statistics.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_fit.h>
-#include <gsl/gsl_statistics.h>
 
-#include <qapplication.h>
-#include <qlibrary.h>
-#include <qmessagebox.h>
+#include <QApplication>
+#include <QLibrary>
+#include <QMessageBox>
 #include <QDateTime>
 
 Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)

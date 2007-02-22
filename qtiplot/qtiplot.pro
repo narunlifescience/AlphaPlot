@@ -179,6 +179,8 @@ HEADERS  += src/application.h \
 	 src/Spectrogram.h\
 	 src/ColorMapEditor.h\
 	 src/SelectionMoveResizer.h\
+	 src/Filter.h\
+	 src/IntDiff.h
 
 ###################### SOURCES ##############################################
 	
@@ -265,6 +267,8 @@ SOURCES  += src/application.cpp \
 	 src/Spectrogram.cpp\
 	 src/ColorMapEditor.cpp\
 	 src/SelectionMoveResizer.cpp\
+	 src/Filter.cpp\
+	 src/IntDiff.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

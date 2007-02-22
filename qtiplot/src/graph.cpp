@@ -239,12 +239,9 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	setGridOptions(grid);
 	grid.xAxis = QwtPlot::xBottom;
 	grid.yAxis = QwtPlot::yLeft;
-
-	LegendMarker *mrk = new LegendMarker(d_plot);
-	mrk->setOrigin(QPoint(10, 20));
-	legendMarkerID = d_plot->insertMarker(mrk);
-	d_texts = QwtArray<long>(1);
-	d_texts[0] = legendMarkerID;
+	
+	legendMarkerID = -1; // no legend for an empty graph
+	d_texts = QwtArray<long>(0);
 
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
@@ -274,24 +271,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (scalePicker,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(topAxisTitleDblClicked()));
 
 	connect (d_zoomer[0],SIGNAL(zoomed (const QwtDoubleRect &)),this,SLOT(zoomed (const QwtDoubleRect &)));
-}
-
-void Graph::customLegend()
-{
-	LegendMarker *mrk = (LegendMarker*) d_plot->marker(legendMarkerID);
-	if (!mrk)
-		return;
-
-	mrk->setBackground(defaultMarkerFrame);
-	mrk->setFont(defaultMarkerFont);
-	mrk->setTextColor(defaultTextMarkerColor);
-	mrk->setBackgroundColor(defaultTextMarkerBackground);
-
-	if (!n_curves)
-	{
-		mrk->setValue(50, 990);
-		mrk->updateOrigin();
-	}
 }
 
 void Graph::emitModified()
@@ -454,13 +433,12 @@ void Graph::enableAxes(const QStringList& list)
 	scalePicker->refresh();
 }
 
-void Graph::enableAxes(Q3MemArray<bool> axesOn)
+void Graph::enableAxes(QVector<bool> axesOn)
 {
-	int i;
-	for (i = 0; i<QwtPlot::axisCnt; i++)
-		d_plot->enableAxis(i,axesOn[i]);
+	for (int i = 0; i<QwtPlot::axisCnt; i++)
+		d_plot->enableAxis(i, axesOn[i]);
 
-	for (i = 0;i<QwtPlot::axisCnt;i++)
+	for (int i = 0;i<QwtPlot::axisCnt;i++)
 	{
 		QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(i);
 		if (scale)
@@ -469,9 +447,9 @@ void Graph::enableAxes(Q3MemArray<bool> axesOn)
 	scalePicker->refresh();
 }
 
-Q3MemArray<bool> Graph::enabledAxes()
+QVector<bool> Graph::enabledAxes()
 {
-	Q3MemArray<bool> axesOn(4);
+	QVector<bool> axesOn(4);
 	for (int i = 0; i<QwtPlot::axisCnt; i++)
 		axesOn[i]=d_plot->axisEnabled (i);
 	return axesOn;
@@ -4209,11 +4187,20 @@ void Graph::range(int index, double *start, double *end)
 	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
   	          return 0;
   	 
-  	  int i, j=0;
-  	  for (i = 0; i < c->dataSize(); i++)
+      double pr_x;
+  	  int j=0;
+  	  for (int i = 0; i < c->dataSize(); i++)
   	    if (c->x(i) >= start && c->x(i) <= end && j<n)
   	    {
   	      (*x)[j] = c->x(i);
+          if ((*x)[j] == pr_x)
+          {
+            delete (*x);
+            delete (*y);
+            return -1;//this kind of data causes division by zero in GSL interpolation routines
+          }
+          pr_x = (*x)[j];
+
   	      (*y)[j++] = c->y(i);
   	    }
   	  return n;
@@ -5123,6 +5110,8 @@ void Graph::updatePlot()
 	}
 
 	d_plot->replot();
+    updateMarkersBoundingRect();
+    d_plot->replot();
 	d_zoomer[0]->setZoomBase();
 	d_zoomer[1]->setZoomBase();	
 }
@@ -5337,7 +5326,7 @@ void Graph::removeLegendItem(int index)
 
 void Graph::addLegendItem(const QString& colName)
 {
-	if (legendMarkerID>=0)
+	if (legendMarkerID >= 0 )
 	{
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
 		if (mrk)
@@ -5873,21 +5862,20 @@ void Graph::showIntensityTable()
 
 void Graph::updateMarkersBoundingRect()
 {
-	int i=0;
-	for (i=0;i<(int)d_lines.size();i++)
+	for (int i=0;i<(int)d_lines.size();i++)
 	{			
 		LineMarker* mrkL=(LineMarker*)d_plot->marker(d_lines[i]);
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
-	for (i=0; i<(int)d_texts.size(); i++)
+	for (int i=0; i<(int)d_texts.size(); i++)
 	{
 		LegendMarker* mrkT = (LegendMarker*) d_plot->marker(d_texts[i]);
 		if (mrkT)
 			mrkT->updateOrigin();	
 	}
 
-	for (i=0;i<(int)d_images.size();i++)
+	for (int i=0;i<(int)d_images.size();i++)
 	{
 		ImageMarker* mrk = (ImageMarker*) d_plot->marker(d_images[i]);
 		if (mrk)
