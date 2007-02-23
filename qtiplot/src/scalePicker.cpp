@@ -59,6 +59,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 			{
 			((QwtScaleWidget *)object)->setFocus();
 			emit clicked();	
+			return !scaleRect((const QwtScaleWidget *)object).contains(me->pos());
 			}
 		else if (me->button() == Qt::RightButton)
 			{
@@ -72,12 +73,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 
 void ScalePicker::mouseDblClicked(const QwtScaleWidget *scale, const QPoint &pos) 
 {
-QRect rect = scaleRect(scale);
-
-int margin = 1; // pixels tolerance
-rect.setRect(rect.x() - margin, rect.y() - margin, rect.width() + 2 * margin, rect.height() +  2 * margin);
-
-if ( rect.contains(pos) ) 
+if (scaleRect(scale).contains(pos) ) 
 	emit axisDblClicked(scale->alignment());
 else
 	{// Click on the title
@@ -118,7 +114,10 @@ else
 // The rect of a scale without the title
 QRect ScalePicker::scaleRect(const QwtScaleWidget *scale) const
 {
+int margin = 1; // pixels tolerance
 QRect rect = scale->rect();
+rect.setRect(rect.x() - margin, rect.y() - margin, rect.width() + 2 * margin, rect.height() +  2 * margin);
+
 if (scale->title().text().isEmpty())
 	return rect;
 
@@ -184,10 +183,9 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 		 const QMouseEvent *me = (const QMouseEvent *)e;	
 		 emit clicked();
 
-		 if (me->button()==Qt::RightButton) {
+		 if (me->button()==Qt::RightButton)
 			 emit showTitleMenu();
-			 return TRUE;
-		 }
+		 return true;
     }
 
 	if ( object->inherits("QwtTextLabel") && 

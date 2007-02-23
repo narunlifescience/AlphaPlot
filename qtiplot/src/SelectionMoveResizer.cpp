@@ -77,6 +77,7 @@ void SelectionMoveResizer::init()
 	setMouseTracking(true);
 	parentWidget()->installEventFilter(this);
 	show();
+	setFocus();
 }
 
 SelectionMoveResizer::~SelectionMoveResizer()

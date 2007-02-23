@@ -101,14 +101,16 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				{
 					if (plotWidget->axisEnabled(i))
 					{
-						allAxisDisabled = FALSE;
+						allAxisDisabled = false;
 						break;
 					}
 				}
 
 				if (removePoint || movePoint || 
-						(plot()->translationInProgress() && !pickerActivated)) 
-					return (pointSelected = plot()->selectPoint(me->pos()));
+						(plot()->translationInProgress() && !pickerActivated)) {
+					pointSelected = plot()->selectPoint(me->pos());
+					return true;
+				}
 
 				if (dataCursorEnabled) {
 					plot()->selectCurve(me->pos());
@@ -151,22 +153,15 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					return true;
 				}
 
-				bool editing_ended = false;
 				if (d_editing_marker) {
 					d_editing_marker->setEditable(false);
 					d_editing_marker = 0;
-					editing_ended = true;
 				}
 				
-				if(plot()->markerSelected()) {
+				if(plot()->markerSelected())
 					plot()->deselectMarker();
-					return true;
-				}
 
-				if (editing_ended)
-					return true;
-
-				return false;
+				return true;
 			}		
 			break;
 
@@ -189,7 +184,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				}
 
 				if (movePoint || moveRangeSelector || pickerActivated || dataCursorEnabled)
-					return false;
+					return true;
 
 				if (removePoint) 
 				{
