@@ -30,6 +30,7 @@
 #include "graph.h"
 #include "parser.h"
 #include "colorBox.h"
+#include "Interpolation.h"
 
 #include <QGroupBox>
 #include <QSpinBox>
@@ -102,10 +103,6 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-InterpolationDialog::~InterpolationDialog()
-{
-}
-
 void InterpolationDialog::interpolate()
 {
 QString curve = boxName->currentText();
@@ -123,8 +120,8 @@ double from, to;
 try
 	{
 	MyParser parser;
-	parser.SetExpr(boxStart->text().ascii());
-	from=parser.Eval();
+	parser.SetExpr(boxStart->text().replace(",", ".").ascii());
+	from = parser.Eval();
 	}
 catch(mu::ParserError &e)
 	{
@@ -136,8 +133,8 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;	
-	parser.SetExpr(boxEnd->text().ascii());
-	to=parser.Eval();
+	parser.SetExpr(boxEnd->text().replace(",", ".").ascii());
+	to = parser.Eval();
 	}
 catch(mu::ParserError &e)
 	{
@@ -146,15 +143,20 @@ catch(mu::ParserError &e)
 	return;
 	}	
 
-if (from>=to)
+if (from >= to)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Input error"),
-				tr("Please enter x limits that satisfy: from < to!"));
+	QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter x limits that satisfy: from < to!"));
 	boxEnd->setFocus();
 	return;
 	}
 
-graph->interpolate(boxName->currentText(), boxMethod->currentIndex(), from, to, boxPoints->value(), boxColor->currentIndex());
+
+Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), graph, boxName->currentText(),
+                                      from, to, boxMethod->currentIndex());
+i->setOutputPoints(boxPoints->value());
+i->setColor(boxColor->currentIndex());
+i->run();
+delete i;
 }
 
 void InterpolationDialog::setGraph(Graph *g)

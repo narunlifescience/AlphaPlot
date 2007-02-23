@@ -1,11 +1,11 @@
 /***************************************************************************
-    File                 : interpolationDialog.h
+    File                 : Fitter.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
-    Description          : Interpolation options dialog
-                           
+    Copyright            : (C) 2006 by Ion Vasilief
+    Email                : ion_vasilief@yahoo.fr
+    Description          : Numerical integration/differetiation of data sets
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,47 +26,45 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef INTERPOLATIONDIALOG_H
-#define INTERPOLATIONDIALOG_H
+#ifndef INTEGRATION_H
+#define INTEGRATION_H
 
-#include <QDialog>
+#include "Filter.h"
 
-class QPushButton;
-class QLineEdit;
-class QComboBox;
-class QSpinBox;
-class Graph;
-class ColorBox;
-	
-//! Interpolation options dialog
-class InterpolationDialog : public QDialog
+class Integration : public Filter
 {
-    Q_OBJECT
+Q_OBJECT
 
 public:
-    InterpolationDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~InterpolationDialog(){};
+	Integration(ApplicationWindow *parent, Graph *g);
+	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
-	QPushButton* buttonFit;
-	QPushButton* buttonCancel;
-	QComboBox* boxName;
-	QComboBox* boxMethod;
-	QSpinBox* boxPoints;
-	QLineEdit* boxStart;
-	QLineEdit* boxEnd;
-	ColorBox* boxColor;
-
-public slots:
-	void activateCurve(int index);
-	void setGraph(Graph *g);
-	void interpolate();
-	void changeDataRange();
+    int method(){return d_method;};
+    void setMethod(int n);
 
 private:
-	Graph *graph;
+    void init();
+    //!Uses code originally written by Vasileios Gkanis. It needs some more checking.
+    QString logInfo();
+    void addResultCurve(){};
+
+    //! the integration method: 1 = trapezoidal, max = 5!
+    int d_method;
 };
 
+class Differentiation : public Filter
+{
+Q_OBJECT
+
+public:
+	Differentiation(ApplicationWindow *parent, Graph *g);
+	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+
+private:
+    void init();
+    void addResultCurve();
+
+};
 #endif
-
-
-

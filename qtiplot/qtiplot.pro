@@ -180,7 +180,8 @@ HEADERS  += src/application.h \
 	 src/ColorMapEditor.h\
 	 src/SelectionMoveResizer.h\
 	 src/Filter.h\
-	 src/IntDiff.h
+	 src/IntDiff.h\
+	 src/Interpolation.h
 
 ###################### SOURCES ##############################################
 	
@@ -268,7 +269,8 @@ SOURCES  += src/application.cpp \
 	 src/ColorMapEditor.cpp\
 	 src/SelectionMoveResizer.cpp\
 	 src/Filter.cpp\
-	 src/IntDiff.cpp
+	 src/IntDiff.cpp\
+	 src/Interpolation.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

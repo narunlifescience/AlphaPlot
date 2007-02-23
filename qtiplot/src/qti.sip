@@ -333,9 +333,6 @@ public:
   //void exportSVG(const QString& fname);
   void exportLayer(const QString& fileName);
 
-  void interpolate(const QString& curveTitle, int spline, double start, double end,
-		int points = 1000, int colorIndex = 1);
-
 private:
   Graph(const Graph&);
 };

@@ -602,8 +602,6 @@ class Graph: public QWidget
 		void smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex);
 		void smoothFFT(long curveKey, int points, int colIndex);
 		void smoothAverage(long curveKey, int points, int colIndex);
-
-		void interpolate(const QString& curveTitle, int spline, double start, double end, int points = 1000, int colorIndex = 1);
 		void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);
 		void filterFFT(long curveKey, int filter_type, double lf, double hf, 
 				bool DCOffset, int colIndex);
