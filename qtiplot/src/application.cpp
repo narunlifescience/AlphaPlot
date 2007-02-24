@@ -3845,8 +3845,9 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			Folder *f = new Folder(app->current_folder, list[1]);
 			f->setBirthDate(list[2]);
 			f->setModificationDate(list[3]);
-			if (list[4] == "current")
-				cf = f;
+			if(list.count() > 4)
+				if (list[4] == "current")
+					cf = f;
 
 			FolderListItem *fli = new FolderListItem(app->current_folder->folderListItem(), f);
 			fli->setText(0, list[1]);
@@ -12681,8 +12682,9 @@ void ApplicationWindow::appendProject()
 				Folder *f = new Folder(current_folder, lst[1]);
 				f->setBirthDate(lst[2]);
 				f->setModificationDate(lst[3]);
-				if (lst[4] == "current")
-					cf = f;
+				if(lst.count() > 4)
+					if (lst[4] == "current")
+						cf = f;
 
 				FolderListItem *fli = new FolderListItem(current_folder->folderListItem(), f);
 				fli->setText(0, lst[1]);
@@ -12888,7 +12890,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 		if (dir == current_folder)
 			text += "\tcurrent\n";
 		else
-			text += "\n";
+			text += "\n";  // FIXME: Having no 5th string here is not a good idea
 
 		lst = dir->windowsList();
 		foreach(MyWidget *w, lst)
