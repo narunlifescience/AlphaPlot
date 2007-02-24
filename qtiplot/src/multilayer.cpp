@@ -243,11 +243,8 @@ void MultiLayer::setActiveGraph(Graph* g)
 	active_graph = g;
 	active_graph->setFocus();
 
-	if (d_layers_selector) {
+	if (d_layers_selector)
 		delete d_layers_selector;
-		d_layers_selector = new SelectionMoveResizer(active_graph);
-		connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
-	}
 
 	for (int i=0;i<(int)graphsList.count();i++)
 	{
@@ -1246,19 +1243,20 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 		QRect igeo = (*i)->frameGeometry();
 		igeo.addCoords(-margin, -margin, margin, margin);
 		if (igeo.contains(pos)) {
-			setActiveGraph((Graph*) (*i));
 			if (e->modifiers() & Qt::ShiftModifier) {
 				if (d_layers_selector)
-					d_layers_selector->add(active_graph);
+					d_layers_selector->add(*i);
 				else {
-					d_layers_selector = new SelectionMoveResizer(active_graph);
+					d_layers_selector = new SelectionMoveResizer(*i);
 					connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
 				}
 			} else {
-				if (d_layers_selector)
-					delete d_layers_selector;
-				d_layers_selector = new SelectionMoveResizer(active_graph);
-				connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
+				setActiveGraph((Graph*) (*i));
+				active_graph->raise();
+				if (!d_layers_selector) {
+					d_layers_selector = new SelectionMoveResizer(*i);
+					connect(d_layers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedPlot()));
+				}
 			}
 			return;
 		}

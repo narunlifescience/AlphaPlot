@@ -360,6 +360,11 @@ void SelectionMoveResizer::paintEvent(QPaintEvent *e)
 
 void SelectionMoveResizer::mousePressEvent(QMouseEvent *me)
 {
+	if (me->button() == Qt::RightButton) {
+		// If one of the parents' event handlers deletes me, Qt crashes while trying to send the QContextMenuEvent.
+		me->accept();
+		return;
+	}
 	if (me->button() != Qt::LeftButton || !d_bounding_rect.contains(me->pos())) {
 		me->ignore();
 		return;

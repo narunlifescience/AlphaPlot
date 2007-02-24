@@ -111,6 +111,14 @@ class SelectionMoveResizer : public QWidget
 		/*!\brief React on geometry changes of parent and targets.
 		 */
 		virtual bool eventFilter(QObject *o, QEvent *e);
+		//! Returns true if w is one of targets, false else.
+		bool contains(QWidget *w) const { return d_widgets.contains(w); };
+		//! Returns true if m is one of targets, false else.
+		bool contains(LegendMarker *m) const { return d_legend_markers.contains(m); };
+		//! Returns true if m is one of targets, false else.
+		bool contains(LineMarker *m) const { return d_line_markers.contains(m); };
+		//! Returns true if m is one of targets, false else.
+		bool contains(ImageMarker *m) const { return d_image_markers.contains(m); };
 
 	public slots:
 		//! Add target to the list of items to be moved/resized together.
@@ -160,12 +168,12 @@ class SelectionMoveResizer : public QWidget
 		virtual void mouseMoveEvent(QMouseEvent *e);
 		/*!\brief Mouse releases end the current operation and apply it to the targets.
 		 *
-		 * When there is no operation in progress. the event is passed on to the parent.
+		 * When there is no operation in progress, the event is passed on to the parent.
 		 */
 		virtual void mouseReleaseEvent(QMouseEvent *e);
 		/*!\brief Allow keyboard-based moving of the selection.
 		 *
-		 * Unused keys are passed on the parent.
+		 * Unused keys are passed on to the parent.
 		 */
 		virtual void keyPressEvent(QKeyEvent *e);
 

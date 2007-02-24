@@ -329,15 +329,28 @@ void Graph::setSelectedMarker(long mrk, bool add)
 			connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
 		}
 	} else {
-		if (d_markers_selector)
-			delete d_markers_selector;
-		if (d_texts.contains(mrk))
+		if (d_texts.contains(mrk)) {
+			if (d_markers_selector) {
+				if (d_markers_selector->contains((LegendMarker*)d_plot->marker(mrk)))
+					return;
+				delete d_markers_selector;
+			}
 			d_markers_selector = new SelectionMoveResizer((LegendMarker*)d_plot->marker(mrk));
-		else if (d_lines.contains(mrk))
+		} else if (d_lines.contains(mrk)) {
+			if (d_markers_selector) {
+				if (d_markers_selector->contains((LineMarker*)d_plot->marker(mrk)))
+					return;
+				delete d_markers_selector;
+			}
 			d_markers_selector = new SelectionMoveResizer((LineMarker*)d_plot->marker(mrk));
-		else if (d_images.contains(mrk))
+		} else if (d_images.contains(mrk)) {
+			if (d_markers_selector) {
+				if (d_markers_selector->contains((ImageMarker*)d_plot->marker(mrk)))
+					return;
+				delete d_markers_selector;
+			}
 			d_markers_selector = new SelectionMoveResizer((ImageMarker*)d_plot->marker(mrk));
-		else
+		} else
 			return;
 		connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
 	}
