@@ -29,6 +29,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
+#include "globals.h"
 #include "application.h"
 #include "pixmaps.h"
 #include "curvesDialog.h"
@@ -123,6 +124,8 @@
 
 #include <zlib.h>
 
+#include <iostream>
+
 using namespace Qwt3D;
 
 extern "C" 
@@ -136,48 +139,6 @@ ApplicationWindow::ApplicationWindow()
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	init();
-}
-
-ApplicationWindow::ApplicationWindow(const QStringList& l)
-: QMainWindow(), scripted(ScriptingLangManager::newEnv(this))
-{
-	setAttribute(Qt::WA_DeleteOnClose);
-
-	int args = (int)l.size();
-	if (args > 2)
-	{
-		ApplicationWindow *aux = new ApplicationWindow();
-		aux->hideActiveWindow();
-
-		QMessageBox::critical(aux, tr("QtiPlot - Error"),
-				tr("Too many command line options (maximum accepted is 2)!"));
-		exit(1);
-	}
-	else if (args == 2)
-	{
-		if (QFile::exists(l[1]))
-		{
-			ApplicationWindow *app = open(l[1]);
-			if (app)
-				app->parseCommandLineArgument(l[0], 2);
-		}
-		else
-		{
-			ApplicationWindow *aux = new ApplicationWindow();
-			aux->hideActiveWindow();
-
-			QMessageBox::critical(aux, tr("QtiPlot - Error"),
-					tr("<b> %1 </b>: Unknown command line option or the file doesn't exist!").arg(l[1]));
-			exit(1);
-		}
-	}
-	else if (args == 1)
-	{
-		if (QFile::exists(l[0]))
-			open(l[0]);
-		else
-			parseCommandLineArgument(l[0], 1);
-	}
 }
 
 void ApplicationWindow::init()
@@ -275,13 +236,13 @@ void ApplicationWindow::init()
 	hiddenWindows = new QList<QWidget*>();
 	outWindows = new QList<QWidget*>();
 
-    scriptWindow = 0;
+	scriptWindow = 0;
 
 	readSettings();
 	createLanguagesList();
 	insertTranslatedStrings();
-	
-	assistant = new QAssistantClient( QDir( "./" ).absPath(), this );
+
+	assistant = new QAssistantClient( QString(), this );
 
 	actionNextWindow = new QAction(QIcon(QPixmap(next_xpm)), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
@@ -326,8 +287,9 @@ void ApplicationWindow::initGlobalConstants()
 {
 	appStyle = qApp->style()->objectName();
 
-	majVersion = 0; minVersion = 9; patchVersion = 0;
-	d_extra_version = "alpha1";
+	d_version_string = "QtiPlot " + QString::number(maj_version) + "." +
+		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
+
 	projectname="untitled";
 	lastModified=0;
 	activeGraph=0;
@@ -359,22 +321,22 @@ void ApplicationWindow::initGlobalConstants()
 
 void ApplicationWindow::applyUserSettings()
 {
-    updateAppFonts();
-    setScriptingLang(defaultScriptingLang);
+	updateAppFonts();
+	setScriptingLang(defaultScriptingLang);
 
-    ws->setPaletteBackgroundColor (workspaceColor);
+	ws->setPaletteBackgroundColor (workspaceColor);
 
-    QColorGroup cg;
-    cg.setColor(QColorGroup::Base, QColor(panelsColor) );
-    qApp->setPalette(QPalette(cg, cg, cg));
+	QColorGroup cg;
+	cg.setColor(QColorGroup::Base, QColor(panelsColor) );
+	qApp->setPalette(QPalette(cg, cg, cg));
 
-    cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
-    cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
+	cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
+	cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
 	cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
 	lv->setPalette(QPalette(cg, cg, cg));
-    results->setPalette(QPalette(cg, cg, cg));
+	results->setPalette(QPalette(cg, cg, cg));
 
-    cg.setColor(QColorGroup::Text, QColor(Qt::green) );
+	cg.setColor(QColorGroup::Text, QColor(Qt::green) );
 	cg.setColor(QColorGroup::HighlightedText, QColor(Qt::darkGreen) );
 	cg.setColor(QColorGroup::Base, QColor(Qt::black) );
 	info->setPalette(QPalette(cg, cg, cg));
@@ -584,28 +546,28 @@ void ApplicationWindow::initToolBars()
 	addToolBar( Qt::TopToolBarArea, displayBar );
 	displayBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 	displayBar->hide();
-	
+
 	plotMatrixBar = new QToolBar( tr( "Matrix Plot" ), this);
 	plotMatrixBar->setObjectName("plotMatrixBar"); 
-  	addToolBar(Qt::BottomToolBarArea, plotMatrixBar);
-	
-  	actionPlot3DWireFrame->addTo(plotMatrixBar);
-  	actionPlot3DHiddenLine->addTo(plotMatrixBar);
-  	 
-  	actionPlot3DPolygons->addTo(plotMatrixBar);
-  	actionPlot3DWireSurface->addTo(plotMatrixBar);
-  	 
-  	plotMatrixBar->addSeparator();
-  	 
-  	actionPlot3DBars->addTo(plotMatrixBar);
-  	actionPlot3DScatter->addTo(plotMatrixBar);
-  	 
-  	plotMatrixBar->addSeparator();
-  	actionColorMap->addTo(plotMatrixBar);
-  	actionContourMap->addTo(plotMatrixBar);
-  	actionGrayMap->addTo(plotMatrixBar);
-  	 
-  	plotMatrixBar->hide();
+	addToolBar(Qt::BottomToolBarArea, plotMatrixBar);
+
+	actionPlot3DWireFrame->addTo(plotMatrixBar);
+	actionPlot3DHiddenLine->addTo(plotMatrixBar);
+
+	actionPlot3DPolygons->addTo(plotMatrixBar);
+	actionPlot3DWireSurface->addTo(plotMatrixBar);
+
+	plotMatrixBar->addSeparator();
+
+	actionPlot3DBars->addTo(plotMatrixBar);
+	actionPlot3DScatter->addTo(plotMatrixBar);
+
+	plotMatrixBar->addSeparator();
+	actionColorMap->addTo(plotMatrixBar);
+	actionContourMap->addTo(plotMatrixBar);
+	actionGrayMap->addTo(plotMatrixBar);
+
+	plotMatrixBar->hide();
 }
 
 void ApplicationWindow::insertTranslatedStrings()
@@ -621,7 +583,7 @@ void ApplicationWindow::insertTranslatedStrings()
 	lv->setColumnText (5, tr("Label"));
 
 	if (scriptWindow)
-	scriptWindow->setCaption(tr("QtiPlot - Script Window"));
+		scriptWindow->setCaption(tr("QtiPlot - Script Window"));
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	logWindow->setWindowTitle(tr("Results Log"));
 #ifdef SCRIPTING_CONSOLE
@@ -787,10 +749,10 @@ void ApplicationWindow::initMainMenu()
 	plot3DMenu->addAction(actionPlot3DScatter);
 
 	plot3DMenu->insertSeparator();
-  	plot3DMenu->addAction(actionColorMap);
-  	plot3DMenu->addAction(actionContourMap);
-  	plot3DMenu->addAction(actionGrayMap);
-			
+	plot3DMenu->addAction(actionColorMap);
+	plot3DMenu->addAction(actionContourMap);
+	plot3DMenu->addAction(actionGrayMap);
+
 	matrixMenu = new QMenu(this);
 	matrixMenu->setFont(appFont);
 
@@ -1202,7 +1164,7 @@ void ApplicationWindow::customToolBars(QWidget* w)
 		if (!projectHas2DPlots())
 			plotTools->hide();
 		if (!projectHasMatrices())
-  	    	plotMatrixBar->hide();
+			plotMatrixBar->hide();
 		if ((int)tableWindows.count()<=0)
 			tableTools->hide();
 
@@ -1229,8 +1191,8 @@ void ApplicationWindow::customToolBars(QWidget* w)
 		else if (w->isA("Matrix"))
 		{
 			if (plotMatrixBar->isHidden())
-  	        	plotMatrixBar->show();
-			
+				plotMatrixBar->show();
+
 			plotTools->setEnabled (false);
 			plot3DTools->setEnabled (false);
 			tableTools->setEnabled (false);
@@ -1750,19 +1712,19 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 		if (w->isA("Graph3D") && ((Graph3D*)w)->getMatrix() == m)
 			((Graph3D*)w)->clearData();
 		else if (w->isA("MultiLayer"))
-  	          {
-  	          QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
-  	          for (int j=0; j<(int)graphsList.count(); j++)
-  	              {
-  	              Graph* g = (Graph*)graphsList.at(j);
-  	              for (int i=0; i<g->curves(); i++)
-  	                   {
-  	                    Spectrogram *sp = (Spectrogram *)g->curve(i);
-  	                    if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
-  	                        g->removeCurve(i);
-  	                   }
-  	               }
-  	          }
+		{
+			QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
+			for (int j=0; j<(int)graphsList.count(); j++)
+			{
+				Graph* g = (Graph*)graphsList.at(j);
+				for (int i=0; i<g->curves(); i++)
+				{
+					Spectrogram *sp = (Spectrogram *)g->curve(i);
+					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
+						g->removeCurve(i);
+				}
+			}
+		}
 	}
 	delete windows;
 	QApplication::restoreOverrideCursor();
@@ -1771,7 +1733,7 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 void ApplicationWindow::update3DMatrixPlots(QWidget *window)
 {
 	Matrix *m = (Matrix *)window;
-  	if (!m)
+	if (!m)
 		return;
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1782,19 +1744,19 @@ void ApplicationWindow::update3DMatrixPlots(QWidget *window)
 		if (w->isA("Graph3D") && ((Graph3D*)w)->getMatrix() == m)
 			((Graph3D*)w)->updateMatrixData(m);
 		else if (w->isA("MultiLayer"))
-  	        {
-  	        QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
-  	        for (int j=0; j<(int)graphsList.count(); j++)
-  	           {
-  	           Graph* g = (Graph*)graphsList.at(j);
-  	           for (int i=0; i<g->curves(); i++)
-  	               {
-  	               Spectrogram *sp = (Spectrogram *)g->curve(i);
-  	               if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
-  	                   sp->updateData(m);
-  	                   }
-  	               }
-  	         	}
+		{
+			QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
+			for (int j=0; j<(int)graphsList.count(); j++)
+			{
+				Graph* g = (Graph*)graphsList.at(j);
+				for (int i=0; i<g->curves(); i++)
+				{
+					Spectrogram *sp = (Spectrogram *)g->curve(i);
+					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
+						sp->updateData(m);
+				}
+			}
+		}
 	}
 
 	delete windows;
@@ -2251,31 +2213,31 @@ Matrix* ApplicationWindow::importImage()
 	{
 		QFileInfo fi(fn);
 		imagesDirPath = fi.dirPath(true);
-  	    return importImage(fn);
-  	}
-  	else return 0;
+		return importImage(fn);
+	}
+	else return 0;
 }
-  	 
+
 Matrix* ApplicationWindow::importImage(const QString& fn)
 {
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		QPixmap photo;
-		QList<QByteArray> lst = QImageReader::supportedImageFormats();
-		for (int i=0; i<(int)lst.count();i++)
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	QPixmap photo;
+	QList<QByteArray> lst = QImageReader::supportedImageFormats();
+	for (int i=0; i<(int)lst.count();i++)
+	{
+		if (fn.contains("." + lst[i], false))
 		{
-			if (fn.contains("." + lst[i], false))
-			{
-				photo.load(fn, lst[i], QPixmap::Auto);
-				break;
-			}
+			photo.load(fn, lst[i], QPixmap::Auto);
+			break;
 		}
-		Matrix* m = createIntensityMatrix(photo);
-		m->setWindowLabel(fn);
-		m->setCaptionPolicy(MyWidget::Both);
-		setListViewLabel(m->name(), fn);
+	}
+	Matrix* m = createIntensityMatrix(photo);
+	m->setWindowLabel(fn);
+	m->setCaptionPolicy(MyWidget::Both);
+	setListViewLabel(m->name(), fn);
 
-		QApplication::restoreOverrideCursor();
-		return m;
+	QApplication::restoreOverrideCursor();
+	return m;
 }
 
 void ApplicationWindow::loadImage()
@@ -2392,7 +2354,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	polishGraph(activeGraph, style);
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	activeGraph->newLegend();
-	
+
 	//the following function must be called last in order to avoid resizing problems
 	activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
 	emit modified();
@@ -2450,7 +2412,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 			if (activeGraph)
 			{
 				QStringList lst;
-  	            lst << list[i];
+				lst << list[i];
 				activeGraph->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
 				customGraph(activeGraph);
 				activeGraph->newLegend();
@@ -2483,26 +2445,26 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
 	int curves = (int)colList.count();
-	
+
 	//We rearrange the list so that the error bars are placed at the end
-  	QStringList lst = QStringList();
-  	for (int j=0; j<curves; j++)
-  		{
-  	    if (!colList[j].contains("(yErr)") && !colList[j].contains("(xErr)"))
-  	    	lst << colList[j];
-  	    }
-  	int errorBars = 0;
-  	for (int k=0; k<curves; k++)
-  	    {
-  	    if (colList[k].contains("(yErr)") || colList[k].contains("(xErr)"))
-  	    	{
-  	        errorBars++;
-  	        lst << colList[k];
-  	        }
-  	    }
-  	 
-  	for (int i=0; i<curves; i++)
-        {
+	QStringList lst = QStringList();
+	for (int j=0; j<curves; j++)
+	{
+		if (!colList[j].contains("(yErr)") && !colList[j].contains("(xErr)"))
+			lst << colList[j];
+	}
+	int errorBars = 0;
+	for (int k=0; k<curves; k++)
+	{
+		if (colList[k].contains("(yErr)") || colList[k].contains("(xErr)"))
+		{
+			errorBars++;
+			lst << colList[k];
+		}
+	}
+
+	for (int i=0; i<curves; i++)
+	{
 		QString s = lst[i];
 		int pos=s.find(":",0);
 		QString caption=s.left(pos)+"_";
@@ -2598,10 +2560,10 @@ void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& text
 
 void ApplicationWindow::customTable(Table* w)
 {
-    QColorGroup cg;
+	QColorGroup cg;
 	cg.setColor(QColorGroup::Base, QColor(tableBkgdColor));
-    cg.setColor(QColorGroup::Text, QColor(tableTextColor));
-    w->setPalette(QPalette(cg, cg, cg));
+	cg.setColor(QColorGroup::Text, QColor(tableTextColor));
+	w->setPalette(QPalette(cg, cg, cg));
 
 	w->setHeaderColor (tableHeaderColor);
 	w->setTextFont(tableTextFont);
@@ -2775,7 +2737,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	w->setName(name);
 	w->setIcon( QPixmap(worksheet_xpm) );
 	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
-	
+
 	addListViewItem(w);
 	current_folder->addWindow(w);
 	w->setFolder(current_folder);
@@ -2870,7 +2832,7 @@ Matrix* ApplicationWindow::newMatrix(const QString& caption, int r, int c)
 	initMatrix(w, caption);
 	if (w->name() != caption)//the matrix was renamed
 		renamedTables << caption << w->name();
-	
+
 	w->showNormal();	
 	return w;
 }
@@ -3662,10 +3624,9 @@ void ApplicationWindow::open()
 			}
 		}
 
-		if (fn.contains(".qti",true) || fn.contains(".opj",false))
+		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".opj",Qt::CaseInsensitive))
 		{
-			QFileInfo f(fn);
-			if (!f.exists ())
+			if (!fi.exists ())
 			{
 				QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 						tr("The file: <b>%1</b> doesn't exist!").arg(fn));
@@ -3692,16 +3653,16 @@ void ApplicationWindow::open()
 
 ApplicationWindow* ApplicationWindow::open(const QString& fn)
 {
-	if (fn.contains(".opj", false))
+	if (fn.endsWith(".opj", Qt::CaseInsensitive))
 		return importOPJ(fn);
-	else if (!fn.contains(".qti"))
+	else if ( !( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ) )
 		return plotFile(fn);
 
 	QString fname = fn;
-	if (fn.contains(".qti.gz"))
+	if (fn.endsWith(".qti.gz",Qt::CaseInsensitive))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
-		fname.remove(".gz");
+		fname = fname.left(fname.size() - 3);
 	}
 
 	QFile f(fname);
@@ -3728,7 +3689,7 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	}
 
 	QStringList vl = version.split(".", QString::SkipEmptyParts);
-	fileVersion = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+	d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 	ApplicationWindow* app = openProject(fname);
 
@@ -3761,7 +3722,7 @@ void ApplicationWindow::openRecentProject(int index)
 		if (fn == pn)
 		{
 			QMessageBox::warning(this, tr("QtiPlot - File openning error"),
-					 tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
+					tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
 			return;
 		}
 	}
@@ -3783,7 +3744,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	ApplicationWindow *app = new ApplicationWindow();
 	app->applyUserSettings();
 	app->projectname = fn;
-	app->fileVersion = fileVersion;
+	app->d_file_version = d_file_version;
 	app->setWindowTitle(tr("QtiPlot") + " - " + fn);
 	app->showMaximized();
 
@@ -3796,7 +3757,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QString baseName = fi.fileName();
 
 	t.readLine(); 
-	if (fileVersion < 73)
+	if (d_file_version < 73)
 		t.readLine();
 
 	QString s = t.readLine();
@@ -3818,13 +3779,13 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QString titleBase = tr("Window") + ": ";
 	QString title = titleBase + "1/"+QString::number(widgets)+"  ";
 
-	QProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint);
+	QProgressDialog progress;
+	progress.setWindowModality(Qt::WindowModal);
+	progress.setRange(0, widgets);
 	progress.setMinimumWidth(app->width()/2);
 	progress.setWindowTitle(tr("QtiPlot - Opening file") + ": " + baseName);
 	progress.setLabelText(title);
-	progress.setMaximum(widgets);
 	progress.setActiveWindow();
-	//progress.move(0,0);
 
 	Folder *cf = app->projectFolder();
 	app->folders->blockSignals (true);
@@ -3963,14 +3924,14 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 			plot->blockSignals(true);	
 
-			if (fileVersion > 71)
+			if (d_file_version > 71)
 			{
 				QStringList lst=t.readLine().split("\t");
 				plot->setWindowLabel(lst[1]);
 				app->setListViewLabel(plot->name(),lst[1]);
 				plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 			}
-			if (fileVersion > 83)
+			if (d_file_version > 83)
 			{
 				QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 				plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -4174,7 +4135,7 @@ void ApplicationWindow::openTemplate()
 				return;
 			}
 			QStringList vl = l[1].split(".", QString::SkipEmptyParts);
-			fileVersion = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+			d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			MyWidget *w = 0;
@@ -4206,7 +4167,7 @@ void ApplicationWindow::openTemplate()
 						((MultiLayer*)w)->setCols(cols);
 						((MultiLayer*)w)->setRows(rows);
 						restoreWindowGeometry(this, (QWidget *)w, geometry);
-						if (fileVersion > 83)
+						if (d_file_version > 83)
 						{
 							QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 							((MultiLayer*)w)->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -4310,7 +4271,7 @@ void ApplicationWindow::readSettings()
 	helpFilePath = settings.value("/HelpFile", qApp->applicationDirPath()+"/manual/index.html").toString();
 	fitPluginsPath = settings.value("/FitPlugins", "fitPlugins").toString();
 	asciiDirPath = settings.value("/ASCII", qApp->applicationDirPath()).toString();
-  	imagesDirPath = settings.value("/Images", qApp->applicationDirPath()).toString();
+	imagesDirPath = settings.value("/Images", qApp->applicationDirPath()).toString();
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ------------- end group General ------------------- */
@@ -4501,7 +4462,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/HelpFile", helpFilePath);
 	settings.setValue("/FitPlugins", fitPluginsPath);
 	settings.setValue("/ASCII", asciiDirPath);
-  	settings.setValue("/Images", imagesDirPath);
+	settings.setValue("/Images", imagesDirPath);
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ---------------- end group General --------------- */
@@ -4725,11 +4686,11 @@ void ApplicationWindow::exportGraph()
 						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
 						ed->setAttribute(Qt::WA_DeleteOnClose);
 						if (selectedFilter.contains(".eps"))
-						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
-								plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+							connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
+									plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 						else if (selectedFilter.contains(".pdf"))
-						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
-								plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+							connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
+									plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
 						ed->exec();
 					}
@@ -4737,7 +4698,7 @@ void ApplicationWindow::exportGraph()
 						plot->exportVector(fname, selectedFilter.remove("*."));
 					return;
 				}
-				
+
 				QList<QByteArray> list=QImageWriter::supportedImageFormats ();
 				for (int i=0; i<(int)list.count(); i++)
 				{
@@ -4792,9 +4753,9 @@ void ApplicationWindow::exportLayer()
 			fname.append(selectedFilter.remove("*"));		
 
 		if ( QFile::exists(fname) &&
-			QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
-			tr("A file called: <p><b>%1</b><p>already exists. Do you want to overwrite it?").arg(fname),
-			tr("&Yes"), tr("&No"),QString(), 0, 1 ) ) return ;
+				QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
+					tr("A file called: <p><b>%1</b><p>already exists. Do you want to overwrite it?").arg(fname),
+					tr("&Yes"), tr("&No"),QString(), 0, 1 ) ) return ;
 		else
 		{
 			QFile f(fname);
@@ -4806,24 +4767,24 @@ void ApplicationWindow::exportLayer()
 			}
 
 			if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
+			{
+				if (ied->showExportOptions())
 				{
-					if (ied->showExportOptions())
-					{
-						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
-						ed->setAttribute(Qt::WA_DeleteOnClose);
-						if (selectedFilter.contains(".eps"))
+					EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+					ed->setAttribute(Qt::WA_DeleteOnClose);
+					if (selectedFilter.contains(".eps"))
 						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								g, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-						else if (selectedFilter.contains(".pdf"))
+					else if (selectedFilter.contains(".pdf"))
 						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)), 
 								g, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-						ed->exec();
-					}
-					else
-						g->exportVector(fname, selectedFilter.remove("*."));
-					return;
+					ed->exec();
 				}
+				else
+					g->exportVector(fname, selectedFilter.remove("*."));
+				return;
+			}
 			else if (selectedFilter.contains(".svg"))
 			{
 				g->exportSVG(fname);
@@ -5026,7 +4987,7 @@ Folder* ApplicationWindow::projectFolder()
 
 bool ApplicationWindow::saveProject()
 {
-	if (projectname == "untitled" || projectname.contains(".opj", false))
+	if (projectname == "untitled" || projectname.contains(".opj", Qt::CaseInsensitive))
 	{
 		saveProjectAs();
 		return false;
@@ -5147,8 +5108,8 @@ void ApplicationWindow::saveAsTemplate()
 				return;
 			}
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			QString text="QtiPlot " + QString::number(majVersion)+"."+ QString::number(minVersion)+"."+
-				QString::number(patchVersion)+" template file\n";
+			QString text="QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
+				QString::number(patch_version)+" template file\n";
 			text += w->saveAsTemplate(windowGeometryInfo(w));
 			QTextStream t( &f );
 			t.setEncoding(QTextStream::UnicodeUTF8);
@@ -5209,8 +5170,8 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	QString name = w->name();
 
 	QString newName = text;
-  	newName.replace("-", "_");
-  	if (newName.isEmpty())
+	newName.replace("-", "_");
+	if (newName.isEmpty())
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
 		return false;
@@ -5224,12 +5185,12 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	}
 
 	newName.replace("_", "-");
-  	 
-  	while(alreadyUsedName(newName))
+
+	while(alreadyUsedName(newName))
 	{
 		QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
-			"<p>"+tr("Please choose another name!")+
-  	     	"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
+				"<p>"+tr("Please choose another name!")+
+				"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
 		return false;
 	}
 
@@ -5566,7 +5527,7 @@ void ApplicationWindow::exportASCII(const QString& tableName, const QString& sep
 		if ( QFile::exists(fname) &&
 				QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
 					tr("A file called: <p><b>%1</b><p>already exists. "
-					"Do you want to overwrite it?").arg(fname),tr("&Yes"), tr("&No"), QString(), 0, 1 ) )
+						"Do you want to overwrite it?").arg(fname),tr("&Yes"), tr("&No"), QString(), 0, 1 ) )
 			return ;
 		else
 		{	
@@ -6037,7 +5998,7 @@ void ApplicationWindow::showColumnOptionsDialog()
 
 void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColName, bool axisOn, 
 		int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format, 
-		 int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor)
+		int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor)
 {
 	Table *w = table(labelsColName);
 	if ((type == Graph::Txt || type == Graph::ColHeader) && !w)
@@ -6108,7 +6069,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
 			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&,int, int, int, int, const QString&, const QColor&)),
-					 this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&, const QColor&)));
+					this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&, const QColor&)));
 
 			ad->setMultiLayerPlot((MultiLayer*)w);
 			ad->insertColList(columnsList(Table::All));
@@ -6413,11 +6374,11 @@ void ApplicationWindow::showCurveWorksheet(int curveKey)
 	if (c->rtti() == FunctionCurve::RTTI)
 		activeGraph->createWorksheet(curveTitle);
 	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
-  	        {
-  	        Spectrogram *sp = (Spectrogram *)c;
-  	        if (sp->matrix())
-  	                sp->matrix()->showMaximized();
-  	        }
+	{
+		Spectrogram *sp = (Spectrogram *)c;
+		if (sp->matrix())
+			sp->matrix()->showMaximized();
+	}
 	else
 		showTable(curveTitle);
 }
@@ -6706,7 +6667,7 @@ void ApplicationWindow::showFitDialog()
 		plot = (MultiLayer*)w;
 	else if(w->isA("Table"))
 		plot = multilayerPlot((Table *)w, ((Table *)w)->drawableColumnSelection(), Graph::LineSymbols);
-	
+
 	if (!plot)
 		return;
 
@@ -6752,7 +6713,7 @@ void ApplicationWindow::lowPassFilterDialog()
 
 void ApplicationWindow::highPassFilterDialog()
 {
-	 showFilterDialog(FilterDialog::HighPass);
+	showFilterDialog(FilterDialog::HighPass);
 }
 
 void ApplicationWindow::bandPassFilterDialog()
@@ -7923,7 +7884,7 @@ void ApplicationWindow::resizeWindow()
 	if (!w)
 		return;
 
-    ws->setActiveWindow ( w );
+	ws->setActiveWindow ( w );
 
 	ImageDialog *id = new ImageDialog(this, "ImageDialog", true, 0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
@@ -7937,7 +7898,7 @@ void ApplicationWindow::resizeWindow()
 
 void ApplicationWindow::setWindowGeometry(int x, int y, int w, int h)
 {
-ws->activeWindow()->parentWidget()->setGeometry(x, y, w, h);
+	ws->activeWindow()->parentWidget()->setGeometry(x, y, w, h);
 }
 
 void ApplicationWindow::activateWindow()
@@ -8071,13 +8032,10 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 
 void ApplicationWindow::about()
 {
-	QString version = "QtiPlot " + QString::number(majVersion) + "." +
-		QString::number(minVersion) + "." + QString::number(patchVersion) + d_extra_version;
-
 	QMessageBox::about(this,tr("About QtiPlot"),
-			tr("<h2>"+ version + "</h2>"
-				"<p><h3>Copyright(C): Ion Vasilief, Tilman Hoener zu Siederdissen, Knut Franke</h3>"
-				"<p><h3>Released: not yet</h3>"));
+			"<h2>"+ d_version_string + "</h2>"
+			"<p><h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>"
+			"<p><h3>Released: " + release_date + "</h3>");
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()
@@ -8895,7 +8853,7 @@ void ApplicationWindow::chooseHelpFolder()
 	}
 }
 
-void ApplicationWindow::showStandAloneHelp()
+void ApplicationWindow::showStandAloneHelp()  // TODO: On my system this sometimes works, sometimes not. No idea why yet - thzs
 {
 #ifdef Q_OS_MAC // Mac
 	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
@@ -8903,68 +8861,68 @@ void ApplicationWindow::showStandAloneHelp()
 	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
 #endif
 
-settings.beginGroup("/General");
-settings.beginGroup("/Paths");
-QString helpPath = settings.value("/HelpFile", qApp->applicationDirPath()+"/manual/index.html").toString();
-settings.endGroup();
-settings.endGroup();
+	settings.beginGroup("/General");
+	settings.beginGroup("/Paths");
+	QString helpPath = settings.value("/HelpFile", qApp->applicationDirPath()+"/manual/index.html").toString();
+	settings.endGroup();
+	settings.endGroup();
 
-QFile helpFile(helpPath);
-if (!helpPath.isEmpty() && !helpFile.exists())
+	QFile helpFile(helpPath);
+	if (!helpPath.isEmpty() && !helpFile.exists())
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Help Files Not Found!"),
-	tr("The manual can be downloaded from the following internet address:")+
-	"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
-    exit(0);
+		QMessageBox::critical(0, tr("QtiPlot - Help Files Not Found!"),
+				tr("The manual can be downloaded from the following internet address:")+
+				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+		exit(0);
 	}
 
-QFileInfo fi(helpPath);
-QString profilePath = QString(fi.dirPath(true)+"/qtiplot.adp");
-if (!QFile(profilePath).exists())
+	QFileInfo fi(helpPath);
+	QString profilePath = QString(fi.dirPath(true)+"/qtiplot.adp");
+	if (!QFile(profilePath).exists())
 	{
-	QMessageBox::critical(0, tr("QtiPlot - Help Profile Not Found!"),
-	tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
-    tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
-	"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
-    exit(0);
+		QMessageBox::critical(0, tr("QtiPlot - Help Profile Not Found!"),
+				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
+				tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
+				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+		exit(0);
 	}
 
-QStringList cmdLst = QStringList() << "-profile" << profilePath;
-QAssistantClient *assist = new QAssistantClient(QDir( "./" ).absPath(), 0);
-assist->setArguments( cmdLst );
-assist->showPage(helpPath);
-exit(0);
+	QStringList cmdLst = QStringList() << "-profile" << profilePath;
+	QAssistantClient *assist = new QAssistantClient( QString(), 0);
+	assist->setArguments( cmdLst );
+	assist->showPage(helpPath);
+	exit(0);
 }
 
 void ApplicationWindow::showHelp()
 {
 	QFile helpFile(helpFilePath);
 	if (!helpFile.exists())
-		{
+	{
 		QMessageBox::critical(this,tr("QtiPlot - Help Files Not Found!"),
 				tr("Please indicate the location of the help file!")+"<br>"+
 				tr("The manual can be downloaded from the following internet address:")+
 				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this );
 		if (!fn.isEmpty())
-			{
+		{
 			QFileInfo fi(fn);
 			helpFilePath=fi.absFilePath();
 			saveSettings();
-			}
-		}	
-	
+		}
+	}	
+
 	QFileInfo fi(helpFilePath);	
 	QString profilePath = QString(fi.dirPath(true)+"/qtiplot.adp");
 	if (!QFile(profilePath).exists())
-		{
+	{
 		QMessageBox::critical(this,tr("QtiPlot - Help Profile Not Found!"),
-			   tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
-			   tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
-			   "<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
+				tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
+				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		return;
-		}	
-		
+	}	
+
 	QStringList cmdLst = QStringList() << "-profile" << profilePath;
 	assistant->setArguments( cmdLst );
 	assistant->showPage(helpFilePath);
@@ -9085,7 +9043,7 @@ void ApplicationWindow::newFunctionPlot(int type,QStringList &formulas, const QS
 	customGraph(g);
 	g->addFunctionCurve(type,formulas, var,ranges,points);
 	g->newLegend();
-	
+
 	plot->showNormal();
 	setListViewSize(plot->name(), plot->sizeToString());
 
@@ -9574,26 +9532,26 @@ void ApplicationWindow::initPlot3DToolBar()
 	plot3DTools->addSeparator();
 
 	actionPerspective = new QAction( this );
-  	actionPerspective->setToggleAction( TRUE );
-  	actionPerspective->setIconSet(QPixmap(perspective_xpm) );
-  	actionPerspective->addTo( plot3DTools );
-  	actionPerspective->setOn(!orthogonal3DPlots);
-  	connect(actionPerspective, SIGNAL(toggled(bool)), this, SLOT(togglePerspective(bool)));
-  	 
-  	actionResetRotation = new QAction( this );
-  	actionResetRotation->setToggleAction( false );
-  	actionResetRotation->setIconSet(QPixmap(reset_rotation_xpm));
-  	actionResetRotation->addTo( plot3DTools );
-  	connect(actionResetRotation, SIGNAL(activated()), this, SLOT(resetRotation()));
-  	 
-  	actionFitFrame = new QAction( this );
-  	actionFitFrame->setToggleAction( false );
-  	actionFitFrame->setIconSet(QPixmap(fit_frame_xpm));
-  	actionFitFrame->addTo( plot3DTools );
-  	connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
-  	 
-  	plot3DTools->addSeparator();
-			
+	actionPerspective->setToggleAction( TRUE );
+	actionPerspective->setIconSet(QPixmap(perspective_xpm) );
+	actionPerspective->addTo( plot3DTools );
+	actionPerspective->setOn(!orthogonal3DPlots);
+	connect(actionPerspective, SIGNAL(toggled(bool)), this, SLOT(togglePerspective(bool)));
+
+	actionResetRotation = new QAction( this );
+	actionResetRotation->setToggleAction( false );
+	actionResetRotation->setIconSet(QPixmap(reset_rotation_xpm));
+	actionResetRotation->addTo( plot3DTools );
+	connect(actionResetRotation, SIGNAL(activated()), this, SLOT(resetRotation()));
+
+	actionFitFrame = new QAction( this );
+	actionFitFrame->setToggleAction( false );
+	actionFitFrame->setIconSet(QPixmap(fit_frame_xpm));
+	actionFitFrame->addTo( plot3DTools );
+	connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
+
+	plot3DTools->addSeparator();
+
 	//plot style actions
 	plotstyle = new QActionGroup( this );
 	wireframe = new QAction( plotstyle );
@@ -9870,11 +9828,11 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 				w->setTextFormat('f', fields[2].toInt());
 			else
 				w->setTextFormat('e', fields[2].toInt());
-		} else if (fields[0] == "WindowLabel") { // fileVersion > 71
+		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			app->setListViewLabel(w->name(), fields[1]);
-		} else if (fields[0] == "Coordinates") { // fileVersion > 81
+		} else if (fields[0] == "Coordinates") { // d_file_version > 81
 			w->setCoordinates(fields[1].toDouble(), fields[2].toDouble(), fields[3].toDouble(), fields[4].toDouble());
 		} else // <data> or values
 			break;
@@ -9914,7 +9872,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 			restoreWindowGeometry(app, (QWidget *)w, *line);
 		} else if (fields[0] == "header") {
 			fields.pop_front();
-			if (fileVersion >= 78)
+			if (d_file_version >= 78)
 				w->loadHeader(fields);
 			else
 			{
@@ -9937,13 +9895,13 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 				formula.truncate(formula.length()-1);
 				w->setCommand(col,formula);
 			}
-		} else if (fields[0] == "ColType") { // fileVersion > 65
+		} else if (fields[0] == "ColType") { // d_file_version > 65
 			fields.pop_front();
 			w->setColumnTypes(fields);
-		} else if (fields[0] == "Comments") { // fileVersion > 71
+		} else if (fields[0] == "Comments") { // d_file_version > 71
 			fields.pop_front();
 			w->setColComments(fields);
-		} else if (fields[0] == "WindowLabel") { // fileVersion > 71
+		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			app->setListViewLabel(w->name(), fields[1]);
@@ -9990,7 +9948,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 			restoreWindowGeometry(this, (QWidget *)w, *line);} 
 		else if (fields[0] == "header") {
 			fields.pop_front();
-			if (fileVersion >= 78)
+			if (d_file_version >= 78)
 				w->loadHeader(fields);
 			else
 			{
@@ -10013,13 +9971,13 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 				formula.truncate(formula.length()-1);
 				w->setCommand(col,formula);
 			}
-		} else if (fields[0] == "ColType") { // fileVersion > 65
+		} else if (fields[0] == "ColType") { // d_file_version > 65
 			fields.pop_front();
 			w->setColumnTypes(fields);
-		} else if (fields[0] == "Comments") { // fileVersion > 71
+		} else if (fields[0] == "Comments") { // d_file_version > 71
 			fields.pop_front();
 			w->setColComments(fields);
-		} else if (fields[0] == "WindowLabel") { // fileVersion > 71
+		} else if (fields[0] == "WindowLabel") { // d_file_version > 71
 			w->setWindowLabel(fields[1]);
 			w->setCaptionPolicy((MyWidget::CaptionPolicy)fields[2].toInt());
 			setListViewLabel(w->name(), fields[1]);
@@ -10112,12 +10070,12 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			fList.pop_front();
 			ag->setAxesColors(fList);
 		}
-        else if (s.contains ("AxesNumberColors"))
-  	    {
-  	         fList=QStringList::split ("\t",s,TRUE);
-  	         fList.pop_front();
-  	         ag->setAxesNumColors(fList);
-  	    }
+		else if (s.contains ("AxesNumberColors"))
+		{
+			fList=QStringList::split ("\t",s,TRUE);
+			fList.pop_front();
+			ag->setAxesNumColors(fList);
+		}
 		else if (s.left(5)=="grid\t")
 		{
 			QStringList grid=s.split("\t");
@@ -10167,7 +10125,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
 			cl.sSize=curve[8].toInt();
-			if (fileVersion <= 78)
+			if (d_file_version <= 78)
 				cl.sType=Graph::obsoleteSymbolStyle(curve[9].toInt());
 			else
 				cl.sType=curve[9].toInt();
@@ -10177,7 +10135,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.filledArea=curve[12].toInt();
 			cl.aCol=curve[13].toInt();
 			cl.aStyle=curve[14].toInt();
-			if (fileVersion <= 77)
+			if (d_file_version <= 77)
 				cl.penWidth = cl.lWidth;
 			else
 				cl.penWidth = curve[15].toInt();
@@ -10190,12 +10148,12 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				{
 					QStringList colsList;
 					colsList<<curve[2]; colsList<<curve[20]; colsList<<curve[21];
-					if (fileVersion < 72)
+					if (d_file_version < 72)
 						colsList.prepend(w->colName(curve[1].toInt()));
 					else
 						colsList.prepend(curve[1]);
 					ag->plotVectorCurve(w, colsList, plotType);
-					if (fileVersion <= 77)
+					if (d_file_version <= 77)
 						ag->updateVectorsLayout(w, curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
 								curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
 					else
@@ -10212,7 +10170,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					ag->openBoxDiagram(w, curve);
 				else
 				{
-					if (fileVersion < 72)
+					if (d_file_version < 72)
 						ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
 					else
 						ag->insertCurve(w, curve[1], curve[2], plotType);
@@ -10220,7 +10178,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 
 				if(plotType == Graph::Histogram)
 				{
-					if (fileVersion <= 76)
+					if (d_file_version <= 76)
 						ag->updateHistogram(w,curve[2],curveID,curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
 					else
 						ag->updateHistogram(w,curve[2],curveID,curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
@@ -10229,13 +10187,13 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				if(plotType == Graph::VerticalBars || plotType == Graph::HorizontalBars || 
 						plotType == Graph::Histogram)
 				{
-					if (fileVersion <= 76)
+					if (d_file_version <= 76)
 						ag->setBarsGap(curveID, curve[15].toInt(), 0);
 					else
 						ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
 				}
 				ag->updateCurveLayout(curveID,&cl);
-				if (fileVersion >= 88)
+				if (d_file_version >= 88)
 				{
 					QwtPlotCurve *c = ag->curve(curveID);
 					if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
@@ -10259,15 +10217,15 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.filledArea=curve[14].toInt();
 			cl.aCol=curve[15].toInt();
 			cl.aStyle=curve[16].toInt();
-			if (fileVersion <= 77)
+			if (d_file_version <= 77)
 				cl.penWidth = cl.lWidth;
 			else
 				cl.penWidth = curve[17].toInt();
 
-			ag->insertFunctionCurve(curve[1], curve[2].toInt(), fileVersion);
+			ag->insertFunctionCurve(curve[1], curve[2].toInt(), d_file_version);
 			ag->setCurveType(curveID, curve[5].toInt());
 			ag->updateCurveLayout(curveID, &cl);
-			if (fileVersion >= 88)
+			if (d_file_version >= 88)
 			{
 				QwtPlotCurve *c = ag->curve(curveID);
 				if (c)
@@ -10283,7 +10241,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			if (w && errTable)
 			{
 				double xOffset = 0, yOffset = 0;
-				if (fileVersion > 85){
+				if (d_file_version > 85){
 					xOffset = curve[11].toDouble(); yOffset = curve[12].toDouble();}
 
 				ag->addErrorBars(w,curve[2],curve[3],errTable, curve[4], curve[1].toInt(),
@@ -10293,22 +10251,22 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			curveID++;
 		}
 		else if (s == "<spectrogram>")
-  	    {
-  	         curveID++;
-  	         QStringList lst;
-  	         while ( s!="</spectrogram>" )
-  	         {
-  	         	s = list[++j];
-  	            lst << s;
-  	         }
-  	         lst.pop_back();
-  	         ag->restoreSpectrogram(app, lst);
-  	    }
+		{
+			curveID++;
+			QStringList lst;
+			while ( s!="</spectrogram>" )
+			{
+				s = list[++j];
+				lst << s;
+			}
+			lst.pop_back();
+			ag->restoreSpectrogram(app, lst);
+		}
 		else if (s.left(6)=="scale\t")
 		{
 			QStringList scl = s.split("\t");		
 			scl.pop_front();
-			if (fileVersion < 88)
+			if (d_file_version < 88)
 			{
 				double step = scl[2].toDouble();
 				if (scl[5] == "0")
@@ -10429,39 +10387,39 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			ag->setCanvasBackground(QColor(list[1]));
 		}
 		else if (s.contains ("Legend"))
-        {// version <= 0.8.9
-  	         fList=QStringList::split ("\t",s, true);
-  	         ag->insertLegend(fList, fileVersion);
-  	    }
-  	    else if (s.startsWith ("<legend>") && s.endsWith ("</legend>"))
+		{// version <= 0.8.9
+			fList=QStringList::split ("\t",s, true);
+			ag->insertLegend(fList, d_file_version);
+		}
+		else if (s.startsWith ("<legend>") && s.endsWith ("</legend>"))
 		{
 			fList=QStringList::split ("\t", s.remove("</legend>"), true);
-			ag->insertLegend(fList, fileVersion);
+			ag->insertLegend(fList, d_file_version);
 		}
 		else if (s.contains ("textMarker"))
-        {// version <= 0.8.9
-  	         fList=QStringList::split ("\t",s, true);
-  	         ag->insertTextMarker(fList, fileVersion);
-  	    }
-  	    else if (s.startsWith ("<text>") && s.endsWith ("</text>"))
+		{// version <= 0.8.9
+			fList=QStringList::split ("\t",s, true);
+			ag->insertTextMarker(fList, d_file_version);
+		}
+		else if (s.startsWith ("<text>") && s.endsWith ("</text>"))
 		{
 			fList=QStringList::split ("\t", s.remove("</text>"), true);
-			ag->insertTextMarker(fList, fileVersion);
+			ag->insertTextMarker(fList, d_file_version);
 		}
 		else if (s.contains ("lineMarker"))
-        {// version <= 0.8.9
-				fList=s.split("\t");
-  	         ag->insertLineMarker(fList, fileVersion);
-  	    }
-  	    else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
+		{// version <= 0.8.9
+			fList=s.split("\t");
+			ag->insertLineMarker(fList, d_file_version);
+		}
+		else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
 			fList=s.remove("</line>").split("\t");
-			ag->insertLineMarker(fList, fileVersion);
+			ag->insertLineMarker(fList, d_file_version);
 		}
 		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
 			fList=s.remove("</image>").split("\t");
-			ag->insertImageMarker(fList, fileVersion);
+			ag->insertImageMarker(fList, d_file_version);
 		}
 		else if (s.contains ("FitID"))
 		{
@@ -10488,7 +10446,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				}
 			}
 		}
-		else if (fileVersion < 69 && s.contains ("AxesTickLabelsCol"))
+		else if (d_file_version < 69 && s.contains ("AxesTickLabelsCol"))
 		{
 			fList=s.split("\t");
 			QList<int> axesTypes = ag->axesType();
@@ -10505,7 +10463,7 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 	ag->setAutoscaleFonts(app->autoScaleFonts);
 	ag->setTextMarkerDefaults(app->legendFrameStyle, app->plotLegendFont, app->legendTextColor, app->legendBackground);
 	ag->setArrowDefaults(app->defaultArrowLineWidth, app->defaultArrowColor, app->defaultArrowLineStyle,
-						app->defaultArrowHeadLength, app->defaultArrowHeadAngle, app->defaultArrowHeadFill);
+			app->defaultArrowHeadLength, app->defaultArrowHeadAngle, app->defaultArrowHeadFill);
 	plot->connectLayer(ag);
 }
 
@@ -10594,7 +10552,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 	fList=lst[19].split("\t", QString::SkipEmptyParts);
 	plot->setMeshLineWidth(fList[1].toInt());
 
-	if (fileVersion > 71)
+	if (d_file_version > 71)
 	{
 		fList=lst[20].split("\t", QString::SkipEmptyParts);
 		plot->setWindowLabel(fList[1]);
@@ -10602,7 +10560,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 		app->setListViewLabel(plot->name(),fList[1]);
 	}
 
-	if (fileVersion >= 88)
+	if (d_file_version >= 88)
 	{
 		fList=lst[21].split("\t", QString::SkipEmptyParts);
 		plot->setOrtho(fList[1].toInt());
@@ -10666,9 +10624,9 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 	}
 	else if(whichFit == "differentiate")
 	{
-        Differentiation *diff = new Differentiation(this, activeGraph, curveTitle);
-        diff->run();
-        delete diff;
+		Differentiation *diff = new Differentiation(this, activeGraph, curveTitle);
+		diff->run();
+		delete diff;
 	}
 }
 
@@ -10847,20 +10805,20 @@ void ApplicationWindow::setAppColors(const QColor& wc,const QColor& pc,const QCo
 	}
 
 	if (panelsColor == pc && panelsTextColor == tpc)
-        return;
+		return;
 
-		panelsColor = pc;
-        panelsTextColor = tpc;
+	panelsColor = pc;
+	panelsTextColor = tpc;
 
-        QColorGroup cg;
-	    cg.setColor(QColorGroup::Base, QColor(panelsColor) );
-        qApp->setPalette(QPalette(cg, cg, cg));
+	QColorGroup cg;
+	cg.setColor(QColorGroup::Base, QColor(panelsColor) );
+	qApp->setPalette(QPalette(cg, cg, cg));
 
-        cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
-        cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
-	    cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
-	    lv->setPalette(QPalette(cg, cg, cg));
-        results->setPalette(QPalette(cg, cg, cg));
+	cg.setColor(QColorGroup::Text, QColor(panelsTextColor) );
+	cg.setColor(QColorGroup::WindowText, QColor(panelsTextColor) );
+	cg.setColor(QColorGroup::HighlightedText, QColor(panelsTextColor) );
+	lv->setPalette(QPalette(cg, cg, cg));
+	results->setPalette(QPalette(cg, cg, cg));
 }
 
 void ApplicationWindow::setPlot3DOptions()
@@ -10938,7 +10896,7 @@ void ApplicationWindow::createActions()
 	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Single file..."), this);
 	connect(actionLoad, SIGNAL(activated()), this, SLOT(loadASCII()));
 
-    actionLoadMultiple = new QAction(QIcon(QPixmap(multiload_xpm)), tr("&Multiple files..."), this);
+	actionLoadMultiple = new QAction(QIcon(QPixmap(multiload_xpm)), tr("&Multiple files..."), this);
 	connect(actionLoadMultiple, SIGNAL(activated()), this, SLOT(loadMultiple()));
 
 	actionUndo = new QAction(QIcon(QPixmap(undo_xpm)), tr("&Undo"), this);
@@ -11222,7 +11180,7 @@ void ApplicationWindow::createActions()
 	actionShowColumnValuesDialog = new QAction(tr("Set Column &Values ..."), this);
 	connect(actionShowColumnValuesDialog, SIGNAL(activated()), this, SLOT(showColumnValuesDialog()));
 	actionShowColumnValuesDialog->setShortcut(tr("Alt+Q"));
-	
+
 	actionTableRecalculate = new QAction(tr("Recalculate"), this);
 	actionTableRecalculate->setShortcut(tr("Ctrl+Return"));
 	connect(actionTableRecalculate, SIGNAL(activated()), this, SLOT(recalculateTable()));
@@ -11353,14 +11311,14 @@ void ApplicationWindow::createActions()
 	connect(actionPlot3DWireSurface, SIGNAL(activated()), this, SLOT(plot3DWireSurface()));
 
 	actionColorMap = new QAction(QIcon(QPixmap(color_map_xpm)), tr("Contour - &Color Fill"), this);
-  	connect(actionColorMap, SIGNAL(activated()), this, SLOT(plotColorMap()));
-  	 
-  	actionContourMap = new QAction(QIcon(QPixmap(contour_map_xpm)), tr("Contour &Lines"), this);
-  	connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContour()));
-  	 
-  	actionGrayMap = new QAction(QIcon(QPixmap(gray_map_xpm)), tr("&Gray Scale Map"), this);
-  	connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayScale()));
-	  
+	connect(actionColorMap, SIGNAL(activated()), this, SLOT(plotColorMap()));
+
+	actionContourMap = new QAction(QIcon(QPixmap(contour_map_xpm)), tr("Contour &Lines"), this);
+	connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContour()));
+
+	actionGrayMap = new QAction(QIcon(QPixmap(gray_map_xpm)), tr("&Gray Scale Map"), this);
+	connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayScale()));
+
 	actionSortTable = new QAction(tr("Sort Ta&ble"), this);
 	connect(actionSortTable, SIGNAL(activated()), this, SLOT(sortActiveTable()));
 
@@ -11600,7 +11558,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowExportASCIIDialog->setMenuText(tr("E&xport ASCII"));
 	actionShowImportDialog->setMenuText(tr("Set import &options"));
 	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+0"));
-	
+
 	actionCloseAllWindows->setMenuText(tr("&Quit")); 
 	actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));
 
@@ -11691,15 +11649,15 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionPlot3DTrajectory->setMenuText(tr("&Trajectory"));
 	actionPlot3DTrajectory->setToolTip(tr("Plot 3D trajectory"));
-	
+
 	actionColorMap->setMenuText(tr("Contour + &Color Fill"));
-  	actionColorMap->setToolTip(tr("Contour Lines + Color Fill"));
-  	 
-  	actionContourMap->setMenuText(tr("Contour &Lines"));
-  	actionContourMap->setToolTip(tr("Contour Lines"));
-  	 
-  	actionGrayMap->setMenuText(tr("&Gray Scale Map"));
-  	actionGrayMap->setToolTip(tr("Gray Scale Map"));
+	actionColorMap->setToolTip(tr("Contour Lines + Color Fill"));
+
+	actionContourMap->setMenuText(tr("Contour &Lines"));
+	actionContourMap->setToolTip(tr("Contour Lines"));
+
+	actionGrayMap->setMenuText(tr("&Gray Scale Map"));
+	actionGrayMap->setToolTip(tr("Gray Scale Map"));
 
 	actionShowColStatistics->setMenuText(tr("Statistics on &Columns"));
 	actionShowColStatistics->setToolTip(tr("Selected columns statistics"));
@@ -11966,21 +11924,21 @@ void ApplicationWindow::translateActionsStrings()
 	actionAnimate->setMenuText( tr( "Animation" ) );
 	actionAnimate->setToolTip( tr( "Animation" ) );
 	actionAnimate->setStatusTip( tr( "Animation" ) );
-	
-	 actionPerspective->setText( tr( "Enable perspective" ) );
-  	 actionPerspective->setMenuText( tr( "Enable perspective" ) );
-  	 actionPerspective->setToolTip( tr( "Enable perspective" ) );
-  	 actionPerspective->setStatusTip( tr( "Enable perspective" ) );
-  	 
-  	 actionResetRotation->setText( tr( "Reset rotation" ) );
-  	 actionResetRotation->setMenuText( tr( "Reset rotation" ) );
-  	 actionResetRotation->setToolTip( tr( "Reset rotation" ) );
-  	 actionResetRotation->setStatusTip( tr( "Reset rotation" ) );
-  	 
-  	 actionFitFrame->setText( tr( "Fit frame to window" ) );
-  	 actionFitFrame->setMenuText( tr( "Fit frame to window" ) );
-  	 actionFitFrame->setToolTip( tr( "Fit frame to window" ) );
-  	 actionFitFrame->setStatusTip( tr( "Fit frame to window" ) );
+
+	actionPerspective->setText( tr( "Enable perspective" ) );
+	actionPerspective->setMenuText( tr( "Enable perspective" ) );
+	actionPerspective->setToolTip( tr( "Enable perspective" ) );
+	actionPerspective->setStatusTip( tr( "Enable perspective" ) );
+
+	actionResetRotation->setText( tr( "Reset rotation" ) );
+	actionResetRotation->setMenuText( tr( "Reset rotation" ) );
+	actionResetRotation->setToolTip( tr( "Reset rotation" ) );
+	actionResetRotation->setStatusTip( tr( "Reset rotation" ) );
+
+	actionFitFrame->setText( tr( "Fit frame to window" ) );
+	actionFitFrame->setMenuText( tr( "Fit frame to window" ) );
+	actionFitFrame->setToolTip( tr( "Fit frame to window" ) );
+	actionFitFrame->setStatusTip( tr( "Fit frame to window" ) );
 }
 
 Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QString& matrix_name,
@@ -12030,68 +11988,68 @@ void ApplicationWindow::plot3DMatrix(int style)
 
 void ApplicationWindow::plotGrayScale()
 {
-  	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
-  		return;
-  	 
-  	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::GrayMap);
+	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
+		return;
+
+	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::GrayMap);
 } 	
-  	
+
 MultiLayer* ApplicationWindow::plotGrayScale(Matrix *m)
 {
-if (!m)
-	return 0;
-  	 
-return plotSpectrogram(m, Graph::GrayMap);
+	if (!m)
+		return 0;
+
+	return plotSpectrogram(m, Graph::GrayMap);
 }
-  	 
+
 void ApplicationWindow::plotContour()
 {
-if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
-	return;
-  	 
-plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ContourMap);
+	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
+		return;
+
+	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ContourMap);
 } 	
 
 MultiLayer* ApplicationWindow::plotContour(Matrix *m)
 {
-  	if (!m)
-    	return 0;
-  	 
-  	return plotSpectrogram(m, Graph::ContourMap);
+	if (!m)
+		return 0;
+
+	return plotSpectrogram(m, Graph::ContourMap);
 }
-  	 
+
 void ApplicationWindow::plotColorMap()
 {
 	if (!ws->activeWindow()|| !ws->activeWindow()->isA("Matrix"))
-  		return;
-  	 
-  	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ColorMap);
+		return;
+
+	plotSpectrogram((Matrix*)ws->activeWindow(), Graph::ColorMap);
 }
- 
+
 MultiLayer* ApplicationWindow::plotColorMap(Matrix *m)
 {
-  	if (!m)
-        return 0; 	  
-  	 
-  	return plotSpectrogram(m, Graph::ColorMap);
+	if (!m)
+		return 0; 	  
+
+	return plotSpectrogram(m, Graph::ColorMap);
 }
-	
+
 MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
 {	 
-  	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-  	 
-  	MultiLayer* g = multilayerPlot(generateUniqueName(tr("Graph")));
-  	Graph* plot = g->addLayer();
-  	customGraph(plot);
-  	 
-  	plot->plotSpectrogram(m, type);
-  	g->showNormal();
-  	 
-  	emit modified();
-  	QApplication::restoreOverrideCursor();
-  	return g;
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+	MultiLayer* g = multilayerPlot(generateUniqueName(tr("Graph")));
+	Graph* plot = g->addLayer();
+	customGraph(plot);
+
+	plot->plotSpectrogram(m, type);
+	g->showNormal();
+
+	emit modified();
+	QApplication::restoreOverrideCursor();
+	return g;
 }
-	
+
 ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -12412,51 +12370,81 @@ void ApplicationWindow::showDonationDialog()
 	}
 }
 
-void ApplicationWindow::parseCommandLineArgument(const QString& s, int args)
+void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 {
-	if (s == "-v" || s == "--version")
+	int num_args = args.count();
+	if(num_args == 0) return;
+
+	QString str;
+	foreach(str, args)
 	{
-		initGlobalConstants();
-		about();
-		exit(0);
-	}
-	else if (s == "-h" || s == "--help")
-	{	
-        showStandAloneHelp();
-	}
-	else if (s.contains("-lang=") || s.contains("-l="))
-	{
-		if (args == 1)
+		if (str == "-a" || str == "--about")
 		{
-			init();
-			applyUserSettings();
+			about();
+			exit(0);
+		}
+		if (str == "-v" || str == "--version")
+		{
+			std::cout << d_version_string.toStdString() << "\n" 
+				<< copyright_string << "\n"
+				<< "Released: " << release_date << "\n";
+
+			exit(0);
+		}
+		if (str == "-H" || str == "--standalone-help")
+		{
+			showStandAloneHelp();
+		}
+		if (str == "-h" || str == "--help")
+		{
+			std::cout << "Usage: ";
+			std::cout << "qtiplot [options] [file_name]\n\n";
+			std::cout << "Options can be:\n";
+			std::cout << "-a or --about: show about dialog and exit\n";
+			std::cout << "-v or --version: print application version and release date\n";
+			std::cout << "-H or --standalone-help: show QtiPlot manual in a standalone window\n";
+			std::cout << "-h or --help: show command line options help\n";
+			std::cout << "-l=XX or -lang=XX: start QtiPlot with lang XX ('en', 'fr', 'de', ...)\n\n";
+			std::cout << "'file_name' can be any .qti, qti.gz, .opj or ASCII file\n";
+			exit(0);
+		}
+		if (str.startsWith("-lang=") || str.startsWith("-l="))
+		{
+			QString locale = str.mid(str.find('=')+1);
+			if (locales.contains(locale))
+				switchToLanguage(locale);
+
+			if (!locales.contains(locale))
+				QMessageBox::critical(0, tr("QtiPlot - Error"),
+						tr("<b> %1 </b>: Wrong locale option or no translation available!").arg(locale));
+		}
+	}
+
+	QString file_name = args[num_args-1]; // last argument
+	if(file_name.startsWith("-")) return; // no file name given
+
+	if (!file_name.isEmpty())
+	{
+		QFileInfo fi(file_name);
+		workingDir = fi.dirPath(true);
+
+		if (!fi.exists ())
+		{
+			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+					tr("The file: <b>%1</b> doesn't exist!").arg(file_name));
+			return;
 		}
 
-		QString locale = s.mid(s.find('=')+1);
-		if (locales.contains(locale))
-			switchToLanguage(locale);
+		saveSettings();//the recent projects must be saved
 
-		if (args == 1)
+		ApplicationWindow *a = open(file_name);
+		if (a)
 		{
-			newTable();
-			setWindowTitle(tr("QtiPlot - untitled"));
-			showMaximized();
-			savedProject();
+			a->workingDir = workingDir;
+			close();
 		}
+	}
 
-		if (!locales.contains(locale))
-			QMessageBox::critical(0, tr("QtiPlot - Error"),
-					tr("<b> %1 </b>: Wrong locale option or no translation available!").arg(locale));
-	}
-	else
-	{
-		ApplicationWindow *aux = new ApplicationWindow();
-		aux->hideActiveWindow();
-		QMessageBox::critical(0, tr("QtiPlot - Error"),
-				tr("<b> %1 </b>: Unknown command line option or the file doesn't exist!").arg(s));
-		delete aux;
-		exit(1);
-	}
 }
 
 void ApplicationWindow::createLanguagesList()
@@ -12500,7 +12488,7 @@ void ApplicationWindow::switchToLanguage(const QString& locale)
 	appLanguage = locale;
 	if (locale == "en")
 	{
-        qApp->removeTranslator(appTranslator);
+		qApp->removeTranslator(appTranslator);
 		qApp->removeTranslator(qtTranslator);
 		delete appTranslator;
 		delete qtTranslator;
@@ -12548,20 +12536,20 @@ bool ApplicationWindow::alreadyUsedName(const QString& label)
 
 bool ApplicationWindow::projectHasMatrices()
 {
-  	QWidgetList *windows = windowsList();
-  	bool has = false;
-  	for (int i=0; i<(int)windows->count(); i++)
-  	{
-  		if (windows->at(i)->isA("Matrix"))
-  	    {
-  	    	has = true;
-  	        break;
-  	    }
-  	}
-  	delete windows;
-  	return has;
-  	}
-						
+	QWidgetList *windows = windowsList();
+	bool has = false;
+	for (int i=0; i<(int)windows->count(); i++)
+	{
+		if (windows->at(i)->isA("Matrix"))
+		{
+			has = true;
+			break;
+		}
+	}
+	delete windows;
+	return has;
+}
+
 bool ApplicationWindow::projectHas2DPlots()
 {
 	QWidgetList *windows = windowsList();
@@ -12665,10 +12653,10 @@ void ApplicationWindow::appendProject()
 		lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
 		QString version = lst[1];
 		lst = version.split(".", QString::SkipEmptyParts);
-		fileVersion =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+		d_file_version =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
 
 		t.readLine(); 
-		if (fileVersion < 73)
+		if (d_file_version < 73)
 			t.readLine();
 
 		//process tables and matrix information
@@ -12766,7 +12754,7 @@ void ApplicationWindow::appendProject()
 
 				restoreWindowGeometry(this, plot, t.readLine());
 
-				if (fileVersion > 71)
+				if (d_file_version > 71)
 				{
 					QStringList lst=t.readLine().split("\t");
 					plot->setWindowLabel(lst[1]);
@@ -12774,7 +12762,7 @@ void ApplicationWindow::appendProject()
 					plot->setCaptionPolicy((MyWidget::CaptionPolicy)lst[2].toInt());
 				}
 
-				if (fileVersion > 83)
+				if (d_file_version > 83)
 				{
 					QStringList lst=t.readLine().split("\t", QString::SkipEmptyParts);
 					plot->setMargins(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
@@ -12921,8 +12909,8 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	text += "<log>\n"+logInfo+"</log>";
 	text.prepend("<windows>\t"+QString::number(windows)+"\n");
 	text.prepend("<scripting-lang>\t"+QString(scriptEnv->name())+"\n");
-	text.prepend("QtiPlot " + QString::number(majVersion)+"."+ QString::number(minVersion)+"."+
-			QString::number(patchVersion)+" project file\n");
+	text.prepend("QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
+			QString::number(patch_version)+" project file\n");
 
 	QTextStream t( &f );
 	t.setEncoding(QTextStream::UnicodeUTF8);
@@ -13829,8 +13817,8 @@ void ApplicationWindow::receivedVersionFile(bool error)
 		QString version = t.readLine();
 		version_buffer.close();
 
-		QString currentVersion = QString::number(majVersion) + "." + QString::number(minVersion) +
-			"." + QString::number(patchVersion);
+		QString currentVersion = QString::number(maj_version) + "." + QString::number(min_version) +
+			"." + QString::number(patch_version);
 
 		if (currentVersion != version)
 		{
@@ -13937,38 +13925,38 @@ void ApplicationWindow::showScriptWindow()
 }
 
 /*!
-Turns perspective mode on or off
-*/
+  Turns perspective mode on or off
+  */
 void ApplicationWindow::togglePerspective(bool on)
 {
-  	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
-  		{
-  	    ((Graph3D*)ws->activeWindow())->setOrtho(!on);
-  	    }
+	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
+	{
+		((Graph3D*)ws->activeWindow())->setOrtho(!on);
+	}
 }
-  	 
+
 /*!
-Resets rotation of 3D plots to default values
-*/
+  Resets rotation of 3D plots to default values
+  */
 void ApplicationWindow::resetRotation()
 {
-  	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
-  	{
-  	 	((Graph3D*)ws->activeWindow())->setRotation(30,0,15);
-  	}
+	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
+	{
+		((Graph3D*)ws->activeWindow())->setRotation(30,0,15);
+	}
 }
-  	 
+
 /*!
-Finds best layout for the 3D plot
-*/
+  Finds best layout for the 3D plot
+  */
 void ApplicationWindow::fitFrameToLayer()
 {
-  	if (!ws->activeWindow() || !ws->activeWindow()->isA("Graph3D"))
-  		return;
-  	 
-  	((Graph3D *)ws->activeWindow())->findBestLayout();
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("Graph3D"))
+		return;
+
+	((Graph3D *)ws->activeWindow())->findBestLayout();
 }
-		
+
 ApplicationWindow::~ApplicationWindow()
 {
 	if (lastCopiedLayer)

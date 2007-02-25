@@ -123,33 +123,24 @@ If you want to contribute code, please read the notes on \ref style "coding styl
 
 int main( int argc, char ** argv ) 
 	{
-    QApplication a( argc, argv );
+    QApplication app( argc, argv );
 
-	ApplicationWindow * mw;
-	if (a.argc() > 1)
-		{
-		QStringList arg;
-		for (int i=1; i < a.argc(); i++)
-			arg << QString(a.argv()[i]);
+	QStringList args = app.arguments();
+	args.removeFirst(); // remove application name
 
-		mw = new ApplicationWindow(arg);
-		}
-	else
-		{
-		mw = new ApplicationWindow();
-		mw->applyUserSettings();
-		mw->newTable();
-		mw->showMaximized();
-		mw->savedProject();
-		mw->showDonationDialog();
-		if (mw->autoSearchUpdates)
-			{
-			mw->autoSearchUpdatesRequest = true;
-			mw->searchForUpdates();
-			}
-		}
+	ApplicationWindow * mw = new ApplicationWindow();
+	mw->applyUserSettings();
+	mw->newTable();
+	mw->showMaximized();
+	mw->savedProject();
+	mw->showDonationDialog();
+	if (mw->autoSearchUpdates)
+	{
+		mw->autoSearchUpdatesRequest = true;
+		mw->searchForUpdates();
+	}
+	mw->parseCommandLineArguments(args);
 
-    a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
-    int res = a.exec();
-    return res;	
+    app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
+    return app.exec();
 }

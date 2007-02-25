@@ -98,6 +98,7 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
 ###################### HEADERS ##############################################
 
 HEADERS  += src/application.h \
+     src/globals.h\
      src/graph.h \
      src/graph3D.h \
      src/worksheet.h \

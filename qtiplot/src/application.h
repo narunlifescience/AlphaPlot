@@ -797,7 +797,7 @@ public slots:
 	//! Show translations page in external browser
 	void downloadTranslation();
 
-	void parseCommandLineArgument(const QString& s, int args);
+	void parseCommandLineArguments(const QStringList& args);
 	void createLanguagesList();
 	void switchToLanguage(int param);
 	void switchToLanguage(const QString& locale);
@@ -964,10 +964,10 @@ public:
 	//! Describes which windows are shown when the folder becomes the current folder
 	ShowWindowsPolicy show_windows_policy;
 	enum {MaxRecentProjects = 5};
-	int fileVersion;
-	int majVersion, minVersion, patchVersion;
-	//! Extra version information string (like "alpha", "-2", etc...)
-	QString d_extra_version;
+	//! File version code used when opening project files (= maj * 100 + min * 10 + patch)
+	int d_file_version;
+	//! Version string ("QtiPlot x.y.z"). Initialized in initGlobalConstants().
+	QString d_version_string;
 
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
