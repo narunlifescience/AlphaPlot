@@ -122,25 +122,31 @@ If you want to contribute code, please read the notes on \ref style "coding styl
 */
 
 int main( int argc, char ** argv ) 
-	{
+{
     QApplication app( argc, argv );
 
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name
-
-	ApplicationWindow * mw = new ApplicationWindow();
-	mw->applyUserSettings();
-	mw->newTable();
-	mw->showMaximized();
-	mw->savedProject();
-	mw->showDonationDialog();
-	if (mw->autoSearchUpdates)
+		
+	if (args.count() == 1 && (args[0] == "-m" || args[0] == "--manual"))
 	{
-		mw->autoSearchUpdatesRequest = true;
-		mw->searchForUpdates();
+		ApplicationWindow::showStandAloneHelp();
 	}
-	mw->parseCommandLineArguments(args);
-
+	else
+	{
+		ApplicationWindow *mw = new ApplicationWindow();
+		mw->applyUserSettings();
+		mw->newTable();
+		mw->showMaximized();
+		mw->savedProject();
+		mw->showDonationDialog();
+		if (mw->autoSearchUpdates)
+		{
+			mw->autoSearchUpdatesRequest = true;
+			mw->searchForUpdates();
+		}
+		mw->parseCommandLineArguments(args);
+	}
     app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
     return app.exec();
 }

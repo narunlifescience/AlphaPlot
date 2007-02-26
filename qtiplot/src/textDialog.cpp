@@ -166,7 +166,6 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	mainLayout->addWidget(textEditBox);
 	setLayout( mainLayout );
 
-
 	// signals and slots connections
 	connect( colorBtn, SIGNAL( clicked() ), this, SLOT( pickTextColor() ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -247,10 +246,13 @@ void TextDialog::setAlignment(int align)
 void TextDialog::customFont()
 {
 	bool okF;
-	QFont fnt = QFontDialog::getFont( &okF,selectedFont,this);
+	QFont fnt = QFontDialog::getFont( &okF, selectedFont, this);
 	if (okF && fnt != selectedFont)
 	{
 		selectedFont = fnt;
+		QFont font = fnt;
+		font.setPointSize(12);
+		textEditBox->setFont(font);
 	}
 	emit changeFont (fnt);
 }
@@ -323,6 +325,9 @@ QFont TextDialog::font()
 void TextDialog::setFont(const QFont & fnt)
 {
 	selectedFont = fnt;
+	QFont font = fnt;
+	font.setPointSize(12);
+	textEditBox->setFont(font);
 }
 	
 TextDialog::~TextDialog()

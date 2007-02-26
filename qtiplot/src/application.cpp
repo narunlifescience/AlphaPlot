@@ -8016,7 +8016,7 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 
 void ApplicationWindow::about()
 {
-	QMessageBox::about(this,tr("About QtiPlot"),
+	QMessageBox::about(this, tr("About QtiPlot"),
 			"<h2>"+ d_version_string + "</h2>"
 			"<p><h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>"
 			"<p><h3>Released: " + release_date + "</h3>");
@@ -8837,7 +8837,7 @@ void ApplicationWindow::chooseHelpFolder()
 	}
 }
 
-void ApplicationWindow::showStandAloneHelp()  // TODO: On my system this sometimes works, sometimes not. No idea why yet - thzs
+void ApplicationWindow::showStandAloneHelp() 
 {
 #ifdef Q_OS_MAC // Mac
 	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
@@ -8875,7 +8875,7 @@ void ApplicationWindow::showStandAloneHelp()  // TODO: On my system this sometim
 	QAssistantClient *assist = new QAssistantClient( QString(), 0);
 	assist->setArguments( cmdLst );
 	assist->showPage(helpPath);
-	exit(0);
+	connect(assist, SIGNAL(assistantClosed()), qApp, SLOT(quit()) );
 }
 
 void ApplicationWindow::showHelp()
@@ -12359,43 +12359,61 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	{
 		if (str == "-a" || str == "--about")
 		{
+			hide();
 			about();
 			exit(0);
 		}
-		if (str == "-v" || str == "--version")
+        else if (str == "-m" || str == "--manual")
 		{
-			std::cout << d_version_string.toStdString() << "\n" 
-				<< copyright_string << "\n"
-				<< "Released: " << release_date << "\n";
-
+			QMessageBox::critical(this, tr("QtiPlot - Error"),
+			tr("<b> %1 </b>: This command line option must be used without other arguments!").arg(str));
+		}
+		else if (str == "-v" || str == "--version")
+		{
+			QString s = d_version_string + "\n";
+			s += QString(copyright_string) + "\n";
+			s += tr("Released") + ": " + release_date + "\n";
+			#ifdef Q_OS_WIN 
+                hide();
+				QMessageBox::information(this, tr("QtiPlot") + " - " + tr("Version"), s);
+			#else
+				std::cout << s.toStdString();
+			#endif
 			exit(0);
 		}
-		if (str == "-H" || str == "--standalone-help")
+		else if (str == "-h" || str == "--help")
 		{
-			showStandAloneHelp();
-		}
-		if (str == "-h" || str == "--help")
-		{
-			std::cout << "Usage: ";
-			std::cout << "qtiplot [options] [file_name]\n\n";
-			std::cout << "Options can be:\n";
-			std::cout << "-a or --about: show about dialog and exit\n";
-			std::cout << "-v or --version: print application version and release date\n";
-			std::cout << "-H or --standalone-help: show QtiPlot manual in a standalone window\n";
-			std::cout << "-h or --help: show command line options help\n";
-			std::cout << "-l=XX or -lang=XX: start QtiPlot with lang XX ('en', 'fr', 'de', ...)\n\n";
-			std::cout << "'file_name' can be any .qti, qti.gz, .opj or ASCII file\n";
+			QString s = "\n" + tr("Usage") + ": ";
+			s += "qtiplot [" + tr("options") + "] [" + tr("file") + "_" + tr("name") + "]\n\n";
+			s += tr("Valid options are") + ":\n";
+			s += "-a " + tr("or") + " --about: " + tr("show about dialog and exit") + "\n";
+			s += "-h " + tr("or") + " --help: " + tr("show command line options") + "\n";
+			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot int language") + " XX ('en', 'fr', 'de', ...)\n";
+			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
+			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj or ASCII file") + "\n";
+			#ifdef Q_OS_WIN 
+                hide();
+				QMessageBox::information(this, tr("QtiPlot - Help"), s);
+			#else
+				std::cout << s.toStdString();
+			#endif
 			exit(0);
 		}
-		if (str.startsWith("-lang=") || str.startsWith("-l="))
+		else if (str.startsWith("--lang=") || str.startsWith("-l="))
 		{
 			QString locale = str.mid(str.find('=')+1);
 			if (locales.contains(locale))
 				switchToLanguage(locale);
 
 			if (!locales.contains(locale))
-				QMessageBox::critical(0, tr("QtiPlot - Error"),
+				QMessageBox::critical(this, tr("QtiPlot - Error"),
 						tr("<b> %1 </b>: Wrong locale option or no translation available!").arg(locale));
+		}
+		else if (str.startsWith("-") || str.startsWith("--"))
+		{
+			QMessageBox::critical(this, tr("QtiPlot - Error"),
+			tr("<b> %1 </b> unknown command line option!").arg(str) + "\n" + tr("Type %1 to see the list of the valid options.").arg("'qtiplot -h'"));
 		}
 	}
 
