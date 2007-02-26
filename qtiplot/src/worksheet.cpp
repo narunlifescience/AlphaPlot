@@ -265,11 +265,11 @@ void Table::print()
 
 void Table::cellEdited(int row, int col)
 {
-	if (columnType(col) == Table::Text)
+	if (columnType(col) != Numeric)
 	{
-	emit modifiedData(this, colName(col));
-	emit modifiedWindow(this);
-	return;		
+		emit modifiedData(this, colName(col));
+		emit modifiedWindow(this);
+		return;		
 	}
 	
 	char f;

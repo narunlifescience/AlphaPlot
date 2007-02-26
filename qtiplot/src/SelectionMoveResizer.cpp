@@ -406,6 +406,11 @@ void SelectionMoveResizer::mouseMoveEvent(QMouseEvent *me)
 	me->accept();
 }
 
+void SelectionMoveResizer::mouseDoubleClickEvent(QMouseEvent *e)
+{
+	e->ignore();
+}
+
 void SelectionMoveResizer::mouseReleaseEvent(QMouseEvent *me)
 {
 	if (me->button() != Qt::LeftButton || d_op == None || d_op_start == QPoint(-1,-1))

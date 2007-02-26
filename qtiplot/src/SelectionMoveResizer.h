@@ -176,6 +176,8 @@ class SelectionMoveResizer : public QWidget
 		 * Unused keys are passed on to the parent.
 		 */
 		virtual void keyPressEvent(QKeyEvent *e);
+		//! Ignore double-clicks so that they can be used by my parent.
+		virtual void mouseDoubleClickEvent(QMouseEvent *e);
 
 	private:
 		//! Size of resize handelers in pixels.
