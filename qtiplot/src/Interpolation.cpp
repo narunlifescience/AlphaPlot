@@ -2,7 +2,7 @@
     File                 : Interpolation.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Numerical interpolation of data sets
 
@@ -30,7 +30,6 @@
 
 #include <QApplication>
 #include <QMessageBox>
-#include <QDateTime>
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_spline.h>
@@ -40,7 +39,7 @@ Interpolation::Interpolation(ApplicationWindow *parent, Graph *g, const QString&
 : Filter(parent, g)
 {
 	init(m);
-	Filter::setDataFromCurve(curveTitle);
+	setDataFromCurve(curveTitle);
 }
 
 Interpolation::Interpolation(ApplicationWindow *parent, Graph *g, const QString& curveTitle,
@@ -48,7 +47,7 @@ Interpolation::Interpolation(ApplicationWindow *parent, Graph *g, const QString&
 : Filter(parent, g)
 {
 	init(m);
-	Filter::setDataFromCurve(curveTitle, start, end);
+	setDataFromCurve(curveTitle, start, end);
 }
 
 void Interpolation::init(int m)
@@ -86,7 +85,7 @@ void Interpolation::setMethod(int m)
 if (m < 0 || m > 2)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
-        tr("Unknown interpolation method. Valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
+        tr("Unknown interpolation method, valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
         d_init_err = true;
         return;
     }
@@ -106,7 +105,6 @@ void Interpolation::calculateOutputData(double *X, double *Y)
 {
 	gsl_interp_accel *acc = gsl_interp_accel_alloc ();
 	const gsl_interp_type *method;
-	QString label, wlabel;
 	switch(d_method)
 	{
 		case 0:
@@ -132,36 +130,6 @@ void Interpolation::calculateOutputData(double *X, double *Y)
 
 	gsl_spline_free (interp);
 	gsl_interp_accel_free (acc);
-}
-
-void Interpolation::setDataFromCurve(int curve, double start, double end)
-{
-	if (d_n > 0)
-	{//delete previousely allocated memory
-		delete[] d_x;
-		delete[] d_y;
-	}
-
-	d_init_err = false;
-	d_curve = d_graph->curve(curve);
-    d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
-	if (d_n == -1)
-	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-				tr("Several data points have the same x value causing divisions by zero, operation aborted!"));
-		d_init_err = true;
-        return;
-	}
-    else if (d_n < d_min_points)
-	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-				tr("You need at least %1 points in order to perform this operation!").arg(d_min_points));
-		d_init_err = true;
-        return;
-	}
-
-    d_from = start;
-    d_to = end;
 }
 
 int Interpolation::sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y)

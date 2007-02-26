@@ -2,7 +2,7 @@
     File                 : Integration.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Numerical integration/differetiation of data sets
 
@@ -37,6 +37,7 @@
 
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
+#include <gsl/gsl_vector.h>
 
 Integration::Integration(ApplicationWindow *parent, Graph *g)
 : Filter(parent, g)
@@ -225,7 +226,7 @@ void Differentiation::init()
     d_min_points = 4;
 }
 
-void Differentiation::addResultCurve()
+void Differentiation::output()
 {
     double *result = new double[d_n-1];
 	for (int i = 1; i < d_n-1; i++)

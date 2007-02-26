@@ -183,7 +183,10 @@ HEADERS  += src/application.h \
 	 src/SelectionMoveResizer.h\
 	 src/Filter.h\
 	 src/IntDiff.h\
-	 src/Interpolation.h
+	 src/Interpolation.h\
+	 src/SmoothFilter.h\
+     src/FFTFilter.h\
+     src/FFT.h
 
 ###################### SOURCES ##############################################
 	
@@ -272,7 +275,10 @@ SOURCES  += src/application.cpp \
 	 src/SelectionMoveResizer.cpp\
 	 src/Filter.cpp\
 	 src/IntDiff.cpp\
-	 src/Interpolation.cpp
+	 src/Interpolation.cpp\
+	 src/SmoothFilter.cpp\
+     src/FFTFilter.cpp\
+     src/FFT.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

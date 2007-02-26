@@ -121,20 +121,16 @@ static const char *unzoom_xpm[]={
 #include "Spectrogram.h"
 #include "SelectionMoveResizer.h"
 
-#include <qapplication.h>
-#include <qbitmap.h>
-#include <qclipboard.h>
-#include <qcursor.h>
-#include <q3filedialog.h> 
-#include <qimage.h>
-#include <qmessagebox.h>
-#include <qpixmap.h> 
-#include <q3picture.h> 
-#include <q3painter.h> 
-#include <qpixmapcache.h>
-#include <q3popupmenu.h>
-#include <q3ptrlist.h>
-
+#include <QApplication>
+#include <QBitmap>
+#include <QClipboard>
+#include <QCursor>
+#include <QImage>
+#include <QMessageBox>
+#include <QPixmap>
+#include <QPixmapCache>
+#include <QPainter>
+#include <QMenu>
 #include <QTextStream>
 
 #include <qwt_painter.h>
@@ -162,7 +158,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 
 	fitter = 0;
 	n_curves=0;
-	widthLine=1;mrkX=-1;mrkY=-1;fitID=0;
+	widthLine=1;mrkX=-1;mrkY=-1;;
 	selectedCol=0;selectedPoint=-1;
 	selectedCurve =-1;selectedMarker=-1;selectedCursor=-1;
 	startPoint=0;endPoint=-1;
@@ -2096,12 +2092,12 @@ void Graph::exportSVG(const QString& fname)
 	// enable workaround for Qt3 misalignments
 	// QwtPainter::setSVGMode(true); 
 
-	Q3Picture picture;
+	/*Q3Picture picture;
 	QPainter p(&picture);
 	d_plot->print(&p, d_plot->rect());
 	p.end();
 
-	picture.save(fname, "svg");
+	picture.save(fname, "svg");*/
 }
 
 void Graph::movePoints(bool enabled)
@@ -6148,7 +6144,7 @@ void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumn
 
 void Graph::showTitleContextMenu()
 {
-	Q3PopupMenu titleMenu(this);
+	QMenu titleMenu(this);
 	titleMenu.insertItem(QPixmap(cut_xpm), tr("&Cut"),this, SLOT(cutTitle()));
 	titleMenu.insertItem(QPixmap(copy_xpm), tr("&Copy"),this, SLOT(copyTitle()));
 	titleMenu.insertItem(tr("&Delete"),this, SLOT(removeTitle()));
@@ -6194,7 +6190,7 @@ void Graph::showAxisTitleMenu(int axis)
 {
 	selectedAxis = axis;
 
-	Q3PopupMenu titleMenu(this);
+	QMenu titleMenu(this);
 	titleMenu.insertItem(QPixmap(cut_xpm), tr("&Cut"), this, SLOT(cutAxisTitle()));
 	titleMenu.insertItem(QPixmap(copy_xpm), tr("&Copy"), this, SLOT(copyAxisTitle()));
 	titleMenu.insertItem(tr("&Delete"),this, SLOT(removeAxisTitle()));
@@ -6225,7 +6221,7 @@ void Graph::showAxisContextMenu(int axis)
 {
 	selectedAxis = axis;
 
-	Q3PopupMenu menu(this);
+	QMenu menu(this);
 	menu.setCheckable(true);
 	menu.insertItem(QPixmap(unzoom_xpm), tr("&Rescale to show all"), this, SLOT(setAutoScale()), tr("Ctrl+Shift+R"));
 	menu.insertSeparator();

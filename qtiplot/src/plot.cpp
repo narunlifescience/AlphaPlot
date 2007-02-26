@@ -39,11 +39,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_scale_map.h>
 
-#include <qapplication.h>
-#include <qpixmap.h>
-#include <qmessagebox.h>
-
-#include <Q3ValueList>
+#include <QPainter>
 
 Plot::Plot(QWidget *parent, const char *name)
 : QwtPlot(parent)

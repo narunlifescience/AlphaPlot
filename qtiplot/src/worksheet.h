@@ -203,8 +203,6 @@ public slots:
 	void correlate();
 	void convolute(int sign);
 	void convlv(double *sig, int n, double *dres, int m, int sign);
-	void fft(double sampling, const QString& realColName, const QString& imagColName,
-			bool forward, bool normalize, bool order);
 
 	QVarLengthArray<double> col(int ycol);
 	int firstXCol();

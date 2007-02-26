@@ -87,6 +87,8 @@
 #include "FunctionCurve.h"
 #include "Spectrogram.h"
 #include "IntDiff.h"
+#include "SmoothFilter.h"
+#include "FFTFilter.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -536,17 +538,17 @@ void ApplicationWindow::initToolBars()
 	tableTools->hide();
 
 	displayBar = new QToolBar( tr( "Data Display" ), this );
+    displayBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 	displayBar->setObjectName("displayBar"); // this is needed for QMainWindow::restoreState()
-	info=new QLineEdit( this );
+	info = new QLineEdit( this );
 	displayBar->addWidget( info );
 	info->setReadOnly(true);
 
-	displayBar->setMaximumHeight(2*displayBar->sizeHint().height());
-
 	addToolBar( Qt::TopToolBarArea, displayBar );
-	displayBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
 	displayBar->hide();
 
+    insertToolBarBreak (displayBar);
+	
 	plotMatrixBar = new QToolBar( tr( "Matrix Plot" ), this);
 	plotMatrixBar->setObjectName("plotMatrixBar"); 
 	addToolBar(Qt::BottomToolBarArea, plotMatrixBar);
@@ -6699,7 +6701,7 @@ void ApplicationWindow::showFilterDialog(int filter)
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if ( g && g->validCurvesDataSize())
 	{
-		FilterDialog *fd=new FilterDialog(filter, this,"filterDialog", TRUE);	
+		FilterDialog *fd = new FilterDialog(filter, this, "filterDialog", true);
 		fd->setAttribute(Qt::WA_DeleteOnClose);
 		fd->setGraph(g);
 		fd->exec();
@@ -6708,22 +6710,22 @@ void ApplicationWindow::showFilterDialog(int filter)
 
 void ApplicationWindow::lowPassFilterDialog()
 {
-	showFilterDialog(FilterDialog::LowPass);
+	showFilterDialog(FFTFilter::LowPass);
 }
 
 void ApplicationWindow::highPassFilterDialog()
 {
-	showFilterDialog(FilterDialog::HighPass);
+	 showFilterDialog(FFTFilter::HighPass);
 }
 
 void ApplicationWindow::bandPassFilterDialog()
 {
-	showFilterDialog(FilterDialog::BandPass);
+	showFilterDialog(FFTFilter::BandPass);
 }
 
 void ApplicationWindow::bandBlockFilterDialog()
 {
-	showFilterDialog(FilterDialog::BandBlock);
+	showFilterDialog(FFTFilter::BandBlock);
 }
 
 void ApplicationWindow::showFFTDialog()
@@ -6738,68 +6740,50 @@ void ApplicationWindow::showFFTDialog()
 		Graph* g = ((MultiLayer*)w)->activeGraph();
 		if ( g && g->validCurvesDataSize() )
 		{
-			sd=new FFTDialog(FFTDialog::onGraph, this,"smoothDialog",true,0);	
+			sd = new FFTDialog(FFTDialog::onGraph, this,"smoothDialog", true);
 			sd->setAttribute(Qt::WA_DeleteOnClose);
 			sd->setGraph(g);
 		}
 	}
 	else if (w->isA("Table"))
 	{
-		sd=new FFTDialog(FFTDialog::onTable, this,"smoothDialog",true,0);	
+		sd = new FFTDialog(FFTDialog::onTable, this, "smoothDialog", true);
 		sd->setAttribute(Qt::WA_DeleteOnClose);
 		sd->setTable((Table*)w);
 	}
 
 	if (sd)
-	{
-		sd->exec();
-	}
+        sd->exec();
+}
+
+void ApplicationWindow::showSmoothDialog(int m)
+{
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g || !g->validCurvesDataSize())
+		return;
+
+	SmoothCurveDialog *sd = new SmoothCurveDialog(m, this,"smoothDialog", true);
+	sd->setAttribute(Qt::WA_DeleteOnClose);
+	sd->setGraph(g);
+	sd->exec();
 }
 
 void ApplicationWindow::showSmoothSavGolDialog()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
-		return;
-
-	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	if (!g || !g->validCurvesDataSize())
-		return;
-
-	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::SavitzkyGolay, 
-			this,"smoothDialog",true,0);	
-	sd->setAttribute(Qt::WA_DeleteOnClose);
-	sd->setGraph(g);
-	sd->exec();
+    showSmoothDialog(SmoothFilter::SavitzkyGolay);
 }
 
 void ApplicationWindow::showSmoothFFTDialog()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
-		return;
-
-	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	if (!g || !g->validCurvesDataSize())
-		return;
-
-	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::FFT, this,"smoothDialog",true,0);	
-	sd->setAttribute(Qt::WA_DeleteOnClose);
-	sd->setGraph(g);
-	sd->exec();
+	showSmoothDialog(SmoothFilter::FFT);
 }
 
 void ApplicationWindow::showSmoothAverageDialog()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
-		return;
-
-	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	if (!g || !g->validCurvesDataSize())
-		return;
-
-	SmoothCurveDialog *sd=new SmoothCurveDialog(SmoothCurveDialog::Average, this,"smoothDialog",true,0);	
-	sd->setAttribute(Qt::WA_DeleteOnClose);
-	sd->setGraph(g);
-	sd->exec();
+	showSmoothDialog(SmoothFilter::Average);
 }
 
 void ApplicationWindow::showInterpolationDialog()
@@ -6830,7 +6814,7 @@ void ApplicationWindow::showFitPolynomDialog()
 	activeGraph=g;
 	aw = (MyWidget *)ws->activeWindow();
 
-	PolynomFitDialog *pfd=new PolynomFitDialog(this,"polyDialog",false,0);	
+	PolynomFitDialog *pfd=new PolynomFitDialog(this, "polyDialog");
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
 	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), pfd, SLOT(close()));
 	pfd->setGraph(g);
@@ -6861,12 +6845,12 @@ void ApplicationWindow::showIntDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	IntDialog *id=new IntDialog(this,"IntDialog",false,0);
+	IntDialog *id = new IntDialog(this, "IntDialog");
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
 	id->setGraph(g);
 	id->exec();
-	activeGraph=g;
+	activeGraph = g;
 }
 
 void ApplicationWindow::fitSigmoidal()
@@ -10420,11 +10404,6 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		{
 			fList=s.remove("</image>").split("\t");
 			ag->insertImageMarker(fList, d_file_version);
-		}
-		else if (s.contains ("FitID"))
-		{
-			fList=s.split("\t");
-			ag->setFitID(fList[1].toInt());
 		}
 		else if (s.contains("AxisType"))
 		{

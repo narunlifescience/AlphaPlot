@@ -2,7 +2,7 @@
     File                 : Fitter.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Numerical integration/differetiation of data sets
 
@@ -47,7 +47,7 @@ private:
     void init();
     //!Uses code originally written by Vasileios Gkanis. It needs some more checking.
     QString logInfo();
-    void addResultCurve(){};
+    void output(){};
 
     //! the integration method: 1 = trapezoidal, max = 5!
     int d_method;
@@ -64,7 +64,7 @@ public:
 
 private:
     void init();
-    void addResultCurve();
+    void output();
 
 };
 #endif

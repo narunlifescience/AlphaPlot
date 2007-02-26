@@ -29,21 +29,16 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <qprinter.h>
-#include <qpainter.h>
-#include <q3pointarray.h>
-//Added by qt3to4:
-#include <QResizeEvent>
+/*#include <QResizeEvent>
 #include <QContextMenuEvent>
-#include <QPixmap>
-#include <QCloseEvent>
+#include <QCloseEvent>*/
+
 #include <Q3ValueList>
 #include <Q3MemArray>
 #include <QPointer>
+#include <QPrinter>
 #include <QVector>
-
-#include <gsl/gsl_multifit_nlin.h>
-#include <gsl/gsl_multimin.h>
+#include <QEvent>
 
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
@@ -329,7 +324,6 @@ class Graph: public QWidget
 				bool start, bool end, int headLength, int headAngle, bool filledHead);	
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};	
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
-
 		QwtArray<long> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
 
@@ -599,13 +593,6 @@ class Graph: public QWidget
 
 		//! \name Functions in analysis.cpp
 		//@{
-		void smoothSavGol(long curveKey, int order, int nl, int nr, int colIndex);
-		void smoothFFT(long curveKey, int points, int colIndex);
-		void smoothAverage(long curveKey, int points, int colIndex);
-		void fft(long curveKey, bool forward, double sampling, bool normalizeAmp, bool order);
-		void filterFFT(long curveKey, int filter_type, double lf, double hf, 
-				bool DCOffset, int colIndex);
-
 		void deleteFitCurves();
    		//! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
         void range(int index, double *start, double *end);
@@ -617,9 +604,6 @@ class Graph: public QWidget
   	     //! Same as curveData, but sorts the points by their x value.
   	     int sortedCurveData(int index, double start, double end, double **x, double **y);
 		//@}
-
-		//! Set the number of fit curves
-		void setFitID(int id){fitID=id;};
 
 		void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
 
@@ -824,7 +808,7 @@ signals:
 		QString auxMrkFileName, auxMrkText;
 
 		int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
-		int selectedCol,xCol,widthLine,fitID, defaultMarkerFrame;
+		int selectedCol,xCol,widthLine, defaultMarkerFrame;
 		QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 		int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 		int auxArrowHeadLength, auxArrowHeadAngle;

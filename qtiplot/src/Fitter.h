@@ -33,6 +33,9 @@
 
 #include "application.h"
 
+#include <gsl/gsl_multifit_nlin.h>
+#include <gsl/gsl_multimin.h>
+
 class QwtPlotCurve;
 class LegendMarker;
 class Table;

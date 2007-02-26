@@ -2,7 +2,7 @@
     File                 : Fitter.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Numerical interpolation of data sets
 
@@ -46,7 +46,6 @@ public:
 private:
     void init(int m);
     void calculateOutputData(double *X, double *Y);
-    void setDataFromCurve(int curve, double start, double end);
     int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
 
     //! the interpolation method

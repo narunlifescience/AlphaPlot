@@ -2,7 +2,7 @@
     File                 : Filter.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Abstract base class for data analysis operations
                            
@@ -35,6 +35,7 @@
 
 class QwtPlotCurve;
 class Graph;
+class Table;
 
 //! Abstract base class for data analysis operations
 class Filter : public QObject
@@ -42,16 +43,16 @@ class Filter : public QObject
 	Q_OBJECT
 
 	public:
-
+        Filter(ApplicationWindow *parent, Table *t = 0, const char * name = 0);
 		Filter(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
 		~Filter();
 
 		//! Actually does the job. Should be reimplemented in derived classes.
 		virtual bool run();
 
+        void setDataFromCurve(int curve, double start, double end);
 		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
 		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
-		virtual void setDataFromCurve(int curve, double start, double end);
 
 		//! Changes the data range if the source curve was already assigned. Provided for convenience.
 		void setInterval(double from, double to);
@@ -86,20 +87,31 @@ class Filter : public QObject
         bool error(){return d_init_err;};
 
 	protected:
+        void init();
+
+        //! Sets x and y to the curve points between start and end. Memory will be allocated with new double[].
+  	    //! Returns the number of points within range == size of x and y arrays.
+  	    virtual int curveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
+        //! Same as curveData, but sorts the points by their x value.
+        virtual int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
+
         //! Performs checks and returns the index of the source data curve if OK, -1 otherwise
         int curveIndex(const QString& curveTitle, Graph *g);
 
         //! Output string added to the log pannel of the application
         virtual QString logInfo(){return QString();};
 
-		//! Adds the result curve to the plot
-		virtual void addResultCurve();
+		//! Performs the data analysis and takes care of the output
+		virtual void output();
 
 		//! Calculates the data for the output curve and store it in the X an Y vectors
 		virtual void calculateOutputData(double *X, double *Y) { Q_UNUSED(X) Q_UNUSED(Y) };
 
 		//! The graph where the result curve should be displayed
 		Graph *d_graph;
+
+        //! A table source of data
+		Table *d_table;
 
 		//! Size of the data arrays
 		int d_n;

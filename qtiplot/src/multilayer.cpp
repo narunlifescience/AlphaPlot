@@ -34,6 +34,7 @@
 #include <QMessageBox>
 #include <QBitmap>
 #include <QImageWriter>
+#include <QPainter>
 #include <QPicture>
 #include <QClipboard>
 

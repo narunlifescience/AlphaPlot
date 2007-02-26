@@ -710,6 +710,7 @@ public slots:
 	void showSmoothSavGolDialog();
 	void showSmoothFFTDialog();
 	void showSmoothAverageDialog();
+    void showSmoothDialog(int m);
 	void showFilterDialog(int filter);
 	void lowPassFilterDialog();
 	void highPassFilterDialog();

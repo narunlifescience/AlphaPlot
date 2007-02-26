@@ -101,10 +101,6 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
     connect( boxName, SIGNAL( activated(int) ), this, SLOT(activateCurve(int)));
 }
 
-IntDialog::~IntDialog()
-{
-}
-
 void IntDialog::accept()
 {
 QString curve = boxName->currentText();

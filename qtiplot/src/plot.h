@@ -29,8 +29,8 @@
 #ifndef PLOT_H
 #define PLOT_H
 
-#include <qobject.h>
-#include <qmap.h>
+#include <QObject>
+#include <QMap>
 
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>

@@ -39,15 +39,9 @@ class ColorBox : public QComboBox
 public:
 	//! Constructor
 	/**
-	 * \param rw flag: box editable or not
 	 * \param parent parent widget
 	 */
-	ColorBox(bool rw, QWidget *parent);
-	//! Constructor
-	/**
-	 * \param parent parent widget
-	 */
-	ColorBox(QWidget *parent);
+	ColorBox(QWidget *parent = 0);
 	//! Set the current color
 	void setColor(const QColor& c);
 	//! Return the current color

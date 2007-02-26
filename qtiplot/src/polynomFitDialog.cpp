@@ -86,6 +86,7 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 	boxShowFormula = new QCheckBox(tr( "Show Formula on Graph?" ));
 	boxShowFormula->setChecked( false );
     gl1->addWidget(boxShowFormula, 6, 1);
+    gl1->setRowStretch(7, 1);
 
 	buttonFit = new QPushButton(tr( "&Fit" ));
 	buttonFit->setDefault( true );

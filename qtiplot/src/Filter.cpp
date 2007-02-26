@@ -2,7 +2,7 @@
     File                 : Fitter.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email                : ion_vasilief@yahoo.fr
     Description          : Abstract base class for data analysis operations
                            
@@ -33,9 +33,23 @@
 #include <QApplication>
 #include <QMessageBox>
 
+#include <gsl/gsl_sort.h>
+
 Filter::Filter( ApplicationWindow *parent, Graph *g, const char * name)
-: QObject( parent, name),
-	d_graph(g)
+: QObject( parent, name)
+{
+	init();
+	d_graph = g;
+}
+
+Filter::Filter( ApplicationWindow *parent, Table *t, const char * name)
+: QObject( parent, name)
+{
+	init();
+	d_table = t;
+}
+
+void Filter::init()
 {
 	d_n = 0;
 	d_curveColorIndex = 1;
@@ -43,11 +57,13 @@ Filter::Filter( ApplicationWindow *parent, Graph *g, const char * name)
 	d_points = 100;
 	d_max_iterations = 1000;
 	d_curve = 0;
-	d_prec = parent->fit_output_precision;
+	d_prec = ((ApplicationWindow *)parent())->fit_output_precision;
 	d_init_err = false;
     d_sort_data = false;
     d_min_points = 2;
-    d_explanation = QString(name);
+    d_explanation = QString(name());
+    d_graph = 0;
+    d_table = 0;
 }
 
 void Filter::setInterval(double from, double to)
@@ -72,9 +88,9 @@ void Filter::setDataFromCurve(int curve, double start, double end)
 	d_init_err = false;
 	d_curve = d_graph->curve(curve);
     if (d_sort_data)
-        d_n = d_graph->sortedCurveData(curve, start, end, &d_x, &d_y);
+        d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
     else
-    	d_n = d_graph->curveData(curve, start, end, &d_x, &d_y);
+    	d_n = curveData(d_curve, start, end, &d_x, &d_y);
 
 	if (d_n == -1)
 	{
@@ -176,7 +192,7 @@ void Filter::showLegend()
 
 bool Filter::run()
 {  
-	if (!d_graph || d_init_err)
+	if (d_init_err)
 		return false;
 
 	if (d_n < 0)
@@ -188,14 +204,14 @@ bool Filter::run()
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-    addResultCurve();//data analysis and output
+    output();//data analysis and output
     ((ApplicationWindow *)parent())->updateLog(logInfo());
 
 	QApplication::restoreOverrideCursor();
     return true;
 }
 
-void Filter::addResultCurve()
+void Filter::output()
 {
     double *X = new double[d_points];
     double *Y = new double[d_points];
@@ -206,6 +222,96 @@ void Filter::addResultCurve()
 	d_graph->addResultCurve(d_points, X, Y, d_curveColorIndex,
 			((ApplicationWindow *)parent())->generateUniqueName(QString(this->name())),
             d_explanation + " " + tr("of") + " " + d_curve->title().text());
+}
+
+int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y)
+{
+    if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+        return 0;
+
+    int i_start = 0, i_end = c->dataSize();
+    for (int i = 0; i < i_end; i++)
+  	    if (c->x(i) >= start)
+        {
+  	      i_start = i;
+          break;
+        }
+    for (int i = i_end-1; i >= 0; i--)
+  	    if (c->x(i) <= end)
+        {
+  	      i_end = i;
+          break;
+        }
+    int n = i_end - i_start + 1;
+    (*x) = new double[n];
+    (*y) = new double[n];
+    double *xtemp = new double[n];
+    double *ytemp = new double[n];
+
+	double pr_x;
+  	int j=0;
+    for (int i = i_start; i <= i_end; i++)
+    {
+        xtemp[j] = c->x(i);
+        if (xtemp[j] == pr_x)
+        {
+            delete (*x);
+            delete (*y);
+            return -1;//this kind of data causes division by zero in GSL interpolation routines
+        }
+        pr_x = xtemp[j];
+        ytemp[j++] = c->y(i);
+    }
+    size_t *p = new size_t[n];
+    gsl_sort_index(p, xtemp, 1, n);
+    for (int i=0; i<n; i++)
+    {
+        (*x)[i] = xtemp[p[i]];
+  	    (*y)[i] = ytemp[p[i]];
+    }
+    delete[] xtemp;
+    delete[] ytemp;
+    delete[] p;
+    return n;
+}
+
+int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, double **y)
+{
+    if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+        return 0;
+
+    int i_start = 0, i_end = c->dataSize();
+    for (int i = 0; i < i_end; i++)
+  	    if (c->x(i) >= start)
+        {
+  	      i_start = i;
+          break;
+        }
+    for (int i = i_end-1; i >= 0; i--)
+  	    if (c->x(i) <= end)
+        {
+  	      i_end = i;
+          break;
+        }
+    int n = i_end - i_start + 1;
+    (*x) = new double[n];
+    (*y) = new double[n];
+
+    double pr_x;
+    int j=0;
+    for (int i = i_start; i <= i_end; i++)
+    {
+        (*x)[j] = c->x(i);
+        if ((*x)[j] == pr_x)
+        {
+            delete (*x);
+            delete (*y);
+            return -1;//this kind of data causes division by zero in GSL interpolation routines
+        }
+        pr_x = (*x)[j];
+        (*y)[j++] = c->y(i);
+    }
+    return n;
 }
 
 Filter::~Filter()

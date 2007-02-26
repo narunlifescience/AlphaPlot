@@ -61,8 +61,8 @@
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_sort_vector.h>
 #include <gsl/gsl_fft_halfcomplex.h>
-#include <gsl/gsl_fft_real.h>
-#include <gsl/gsl_fft_complex.h>
+//#include <gsl/gsl_fft_real.h>
+//#include <gsl/gsl_fft_complex.h>
 
 Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
@@ -3263,112 +3263,6 @@ void Table::convlv(double *sig, int n, double *dres, int m, int sign)
 	}
 	delete[] res;
 	gsl_fft_halfcomplex_radix2_inverse(sig,1,n);// inverse fft
-}
-
-void Table::fft(double sampling, const QString& realColName, const QString& imagColName,
-		bool forward, bool normalize, bool order)
-{
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	int i, i2;
-	int rows = worksheet->numRows();
-	int n = 2*rows;
-	double *dat = new double[n];
-	double *amp = new double[rows];
-	double *x = new double[rows];
-
-	gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc (rows);
-	gsl_fft_complex_workspace *workspace = gsl_fft_complex_workspace_alloc (rows);
-
-	int realCol = colIndex(realColName);
-	int imCol = -1;
-	if (!imagColName.isEmpty())
-		imCol = colIndex(imagColName);
-
-	if(dat && amp && x && wavetable && workspace) 
-	{// zero-pad data array
-		memset( dat, 0, n* sizeof( double ) );
-		for(i=0;i<rows;i++) 
-		{
-			i2 = 2*i;
-			dat[i2]=worksheet->text(i, realCol).toDouble();
-			if (imCol >= 0)
-				dat[i2+1]=worksheet->text(i, imCol).toDouble();
-		}
-	}
-	else
-	{
-		QMessageBox::warning(0,"QtiPlot", tr("Could not allocate memory, operation aborted!"));
-		return;
-	}
-
-	double df = 1.0/(double)(rows*sampling);//frequency sampling
-	double aMax = 0.0;//max amplitude
-	QString label, text;
-	if(forward)
-	{
-		label="ForwardFFT-"+QString(this->name());
-		text= tr("Frequency");
-		gsl_fft_complex_forward (dat, 1, rows, wavetable, workspace);
-	}
-	else
-	{
-		label="InverseFFT-"+QString(this->name());
-		text= tr("Time");
-		gsl_fft_complex_inverse (dat, 1, rows, wavetable, workspace);
-	}
-
-	gsl_fft_complex_wavetable_free (wavetable);
-	gsl_fft_complex_workspace_free (workspace);
-
-	if (order)
-	{
-		int n2 = rows/2;
-		for(i=0;i<rows;i++)
-		{
-			x[i] = (i-n2)*df;
-			int j = i + rows;
-			double aux = dat[i];
-			dat[i] = dat[j];
-			dat[j] = aux;
-		}
-	}
-	else
-	{
-		for(i=0;i<rows;i++)
-			x[i] = i*df;
-	}
-
-	for(i=0;i<rows;i++)
-	{
-		i2 = 2*i;
-		double real_part = dat[i2];
-		double im_part = dat[i2+1];
-		double a = sqrt(real_part*real_part + im_part*im_part);
-		amp[i]= a;
-		if (a > aMax)
-			aMax = a;
-	}
-	text+="\t"+tr("Real")+"\t"+tr("Imaginary")+"\t"+tr("Amplitude")+"\t"+tr("Angle")+"\n";
-	for (i=0; i<rows; i++)
-	{
-		i2 = 2*i;
-		text+=QString::number(x[i])+"\t";
-		text+=QString::number(dat[i2])+"\t";
-		text+=QString::number(dat[i2+1])+"\t";
-		if (normalize)
-			text+=QString::number(amp[i]/aMax)+"\t";
-		else
-			text+=QString::number(amp[i])+"\t";
-		text+=QString::number(atan(dat[i2+1]/dat[i2]))+"\n";
-	}
-
-	delete[] x;
-	delete[] amp;
-	delete[] dat;
-
-	emit createTable(label, rows, 5, text);	
-	QApplication::restoreOverrideCursor();	
 }
 
 void Table::copy(Table *m)
