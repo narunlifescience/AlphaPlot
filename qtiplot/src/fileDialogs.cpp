@@ -3,7 +3,7 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : 2 File dialogs: Import multiple ASCII/Export image
                            
  ***************************************************************************/

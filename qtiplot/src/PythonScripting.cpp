@@ -3,7 +3,7 @@
 	Project              : QtiPlot
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
-	Email                : knut.franke@gmx.de
+	Email (use @ for *)  : knut.franke*gmx.de
 	Description          : Execute Python code from within QtiPlot
 
  ***************************************************************************/

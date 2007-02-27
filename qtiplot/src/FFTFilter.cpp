@@ -3,7 +3,7 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
-    Email                : ion_vasilief@yahoo.fr
+    Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Numerical FFT filtering of data sets
 
  ***************************************************************************/

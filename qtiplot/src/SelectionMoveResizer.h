@@ -3,7 +3,7 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke
-    Email                : knut.franke@gmx.de
+    Email (use @ for *)  : knut.franke*gmx.de
     Description          : Selection of Widgets and QwtPlotMarkers
                            
  ***************************************************************************/

@@ -3,7 +3,7 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief, Knut Franke
-    Email                : ion_vasilief@yahoo.fr, knut.franke@gmx.de
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, knut.franke*gmx.de
     Description          : Draw images on a QwtPlot.
                            
  ***************************************************************************/

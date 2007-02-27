@@ -5,8 +5,8 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
-                           knut.franke@gmx.de
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
+                           knut.franke*gmx.de
     Description          : registry of custom event types
 
     Please use only event types defined here in order to avoid clashes.

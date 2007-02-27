@@ -6,8 +6,8 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email                : ion_vasilief@yahoo.fr, thzs@gmx.net,
-                           knut.franke@gmx.de
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
+                           knut.franke*gmx.de
     Description          : Evaluate mathematical expression using muParser
                            
  ***************************************************************************/
