@@ -101,7 +101,7 @@ d_method = m;
 d_min_points = min_points;
 }
 
-void Interpolation::calculateOutputData(double *X, double *Y)
+void Interpolation::calculateOutputData(double *x, double *y)
 {
 	gsl_interp_accel *acc = gsl_interp_accel_alloc ();
 	const gsl_interp_type *method;
@@ -124,8 +124,8 @@ void Interpolation::calculateOutputData(double *X, double *Y)
     double step = (d_to - d_from)/(double)(d_points - 1);
     for (int j = 0; j < d_points; j++)
 	{
-	   X[j] = d_from + j*step;
-	   Y[j] = gsl_spline_eval (interp, X[j], acc);
+	   x[j] = d_from + j*step;
+	   y[j] = gsl_spline_eval (interp, x[j], acc);
 	}
 
 	gsl_spline_free (interp);

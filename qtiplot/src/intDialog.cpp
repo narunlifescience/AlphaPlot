@@ -303,6 +303,6 @@ boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 
 void IntDialog::help()
 {
-QMessageBox::about(0, tr("QtiPlot - Help for Integration"),
+QMessageBox::about(this, tr("QtiPlot - Help for Integration"),
 				   tr("The integration of a curve consists of the following five steps:\n 1) Choose which curve you want to integrate\n 2) Set the order of the integration. The higher it is the more accurate the calculation is\n 3) Choose the number of iterations \n 4) Choose the tolerance \n 5) Choose the lower and the upper limit.\n The code integrates the curve with an iterative algorithm. The tolerance determines the termination criteria for the solver.\n Because, sometimes we ask for too much accuracy, the number of iterations makes sure that the solver will not work for ever.\n IMPORTANT \nThe limits must be within the range of x; If you do not know the maximum (minimum) value of x, type max (min) in the boxes."));
 }

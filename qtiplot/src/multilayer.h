@@ -87,7 +87,6 @@ public:
 public slots:
 	void resizeLayers (const QResizeEvent *re);
 
-	Graph* insertFirstLayer();
 	Graph* addLayer();
 	Graph* addLayerToOrigin();
 	Graph* addLayer(int x, int y, int width, int height);

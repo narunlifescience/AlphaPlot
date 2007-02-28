@@ -529,7 +529,7 @@ public slots:
 	void newProject();
 
 	//! Creates a new empty multilayer plot
-	MultiLayer* newGraph();
+	MultiLayer* newGraph(const QString& caption = tr("Graph"));
 
 	//! \name Reading from a Project File
 	//@{

@@ -72,27 +72,27 @@ if (m < 1 || m > 3)
 d_method = (SmoothMethod)m;
 }
 
-void SmoothFilter::calculateOutputData(double *X, double *Y)
+void SmoothFilter::calculateOutputData(double *x, double *y)
 {
     for (int i = 0; i < d_points; i++)
 	{
-	   X[i] = d_x[i];
-	   Y[i] = d_y[i];//filtering frequencies
+	   x[i] = d_x[i];
+	   y[i] = d_y[i];//filtering frequencies
 	}
 
 	switch((int)d_method)
 	{
 		case 1:
             d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("Savitzky-Golay smoothing");
-            smoothSavGol(X, Y);
+            smoothSavGol(x, y);
 			break;
 		case 2:
             d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("FFT smoothing");
-    		smoothFFT(X, Y);
+    		smoothFFT(x, y);
 			break;
 		case 3:
             d_explanation = QString::number(d_smooth_points) + " " + tr("points") + " " + tr("average smoothing");
-    		smoothAverage(X, Y);
+    		smoothAverage(x, y);
 			break;
 	}
 }

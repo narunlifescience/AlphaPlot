@@ -31,7 +31,6 @@
 
 #include "Filter.h"
 
-class QwtPlotCurve;
 class SmoothFilter : public Filter
 {
 Q_OBJECT

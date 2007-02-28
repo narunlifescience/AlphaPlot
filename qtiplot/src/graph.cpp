@@ -164,16 +164,16 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	startPoint=0;endPoint=-1;
 	startID=-1; endID=-1;
 	pieRay=100;	
-	lineProfileOn=FALSE;
-	drawTextOn=FALSE;
-	drawLineOn=FALSE;
-	drawArrowOn=FALSE;
-	cursorEnabled=FALSE;
-	movePointsEnabled=FALSE;
-	removePointsEnabled=FALSE;
-	pickerEnabled=FALSE;
-	rangeSelectorsEnabled=FALSE;
-	piePlot=FALSE;
+	lineProfileOn=false;
+	drawTextOn=false;
+	drawLineOn=false;
+	drawArrowOn=false;
+	cursorEnabled=false;
+	movePointsEnabled=false;
+	removePointsEnabled=false;
+	pickerEnabled=false;
+	rangeSelectorsEnabled=false;
+	piePlot = false;
 	ignoreResize= false;
 	drawAxesBackbone = true;
 	autoscale = true;
@@ -213,7 +213,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	d_zoomer[1] = new QwtPlotZoomer(QwtPlot::xTop, QwtPlot::yRight,
 			QwtPicker::DragSelection | QwtPicker::CornerToCorner,
 			QwtPicker::AlwaysOff, d_plot->canvas());
-	zoom(FALSE);
+	zoom(false);
 
 	setGeometry( QRect(0, 0, 520, 420 ) );
 	setFocusPolicy(Qt::StrongFocus);
@@ -1299,16 +1299,16 @@ void Graph::setGridOptions(const GridOptions& o)
 	d_plot->grid()->setMinPen(minPen);
 
 	if (grid.majorOnX) d_plot->grid()->enableX (TRUE);
-	else if (grid.majorOnX==0) d_plot->grid()->enableX (FALSE);
+	else if (grid.majorOnX==0) d_plot->grid()->enableX (false);
 
 	if (grid.minorOnX) d_plot->grid()->enableXMin (TRUE);
-	else if (grid.minorOnX==0) d_plot->grid()->enableXMin (FALSE);
+	else if (grid.minorOnX==0) d_plot->grid()->enableXMin (false);
 
 	if (grid.majorOnY) d_plot->grid()->enableY (TRUE);
-	else if (grid.majorOnY==0) d_plot->grid()->enableY (FALSE);
+	else if (grid.majorOnY==0) d_plot->grid()->enableY (false);
 
 	if (grid.minorOnY) d_plot->grid()->enableYMin (TRUE);
-	else d_plot->grid()->enableYMin (FALSE);
+	else d_plot->grid()->enableYMin (false);
 
 	d_plot->grid()->setAxis(grid.xAxis, grid.yAxis);
 
@@ -1756,7 +1756,7 @@ bool Graph::enableRangeSelectors(bool on)
 
 	long curveID;
 	QwtPlotCurve *curve=0;
-	bool success=FALSE;	
+	bool success=false;
 	for (int i=n_curves-1;i>=0;i--)
 	{
 		curveID= c_keys[i]; 
@@ -1774,7 +1774,7 @@ bool Graph::enableRangeSelectors(bool on)
 				tr("All the curves on this plot are empty!"));
 
 		disableRangeSelectors();
-		return FALSE;
+		return false;
 	}
 
 	startPoint=0;
@@ -1846,7 +1846,7 @@ void  Graph::disableRangeSelectors()
 	selectedCurve=-1;
 	selectedPoint=-1;
 	selectedCursor=-1;	
-	rangeSelectorsEnabled=FALSE;	
+	rangeSelectorsEnabled=false;
 	d_plot->canvas()->setCursor(Qt::arrowCursor);
 }
 
@@ -2296,7 +2296,7 @@ bool Graph::selectPoint(const QPoint &pos)
 	{// deselect
 		selectedCurve = -1;
 		selectedPoint = -1;
-		highlightPoint(FALSE);
+		highlightPoint(false);
 		return false;
 	}
 	return false;
@@ -2326,7 +2326,7 @@ void Graph::selectCurve(const QPoint &pos)
 	}
 	else // deselect
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedCurve = -1;
 		selectedPoint = -1;
 	}
@@ -2846,7 +2846,7 @@ void Graph::shiftPointCursor(bool up)
 
 	if ( index != selectedPoint )
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedPoint = index;
 		showCursor(TRUE);
 	}
@@ -2870,7 +2870,7 @@ void Graph::shiftCurveCursor(bool up)
 
 	if ( selectedCurve != c_keys[index] )
 	{
-		showCursor(FALSE);
+		showCursor(false);
 		selectedCurve = c_keys[index];
 		showCursor(TRUE);
 	}
@@ -3268,7 +3268,7 @@ QString Graph::saveEnabledAxes()
 
 bool Graph::framed()
 {
-	bool frameOn=FALSE;
+	bool frameOn=false;
 
 	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();  
 	if (canvas->lineWidth()>0)
@@ -3807,7 +3807,7 @@ QString Graph::saveCurves()
   	        	QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)c;
   	            s+="ErrorBars\t";
   	            s+=QString::number(er->direction())+"\t";
-  	            QStringList cvs=QStringList::split(",",associations[i],FALSE);
+  	            QStringList cvs=QStringList::split(",",associations[i],false);
   	 
   	            s+=cvs[0].remove("(X)",true)+"\t";
   	            s+=cvs[1].remove("(Y)",true)+"\t";
@@ -4704,7 +4704,7 @@ void Graph::plotPie(Table* w, const QString& name)
 	}
 
 	for (i=0;i<QwtPlot::axisCnt;i++)
-		d_plot->enableAxis(i,FALSE);
+		d_plot->enableAxis(i,false);
 
 	d_plot->setTitle(QString::null);
 
@@ -5193,7 +5193,7 @@ void Graph::removePie()
 	c_type.resize(0);
 	n_curves=0;
 	associations.clear();
-	piePlot=FALSE;		
+	piePlot=false;
 	emit modifiedGraph();
 }
 
@@ -5234,7 +5234,7 @@ void Graph::removeCurve(int index)
 
 	if (piePlot)
 	{
-		piePlot=FALSE;	
+		piePlot=false;
 		c_keys.resize(n_curves);
 	}
 	else
@@ -5537,7 +5537,7 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 			c->dataSize() == points)
 		return;
 
-	bool error=FALSE;
+	bool error=false;
 	Q3MemArray<double> X(points),Y(points);
 	double step=(ranges[1]-ranges[0])/(double) (points-1);
 	QString oldLegend = c->legend();
@@ -5640,7 +5640,7 @@ QString Graph::generateFunctionName()
 void Graph::addFunctionCurve(int type, const QStringList &formulas, const QString &var,
 		QList<double> &ranges, int points, const QString& title)
 {
-	bool error=FALSE;
+	bool error=false;
 	QVarLengthArray<double> X(points), Y(points);
 	QString name;
 	if (!title.isEmpty())

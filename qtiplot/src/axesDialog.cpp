@@ -3221,5 +3221,7 @@ int AxesDialog::exec()
 	axesGridList->setCurrentRow(0);
 	axesTitlesList->setCurrentRow(0);
 		
-	return QDialog::exec();
+    setModal(true);
+    show();
+	return 0;
 }

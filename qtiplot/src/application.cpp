@@ -1062,6 +1062,7 @@ void ApplicationWindow::customMenu(QWidget* w)
 			format->clear();
 			format->addAction(actionShowPlotDialog);
 			format->addAction(actionShowCurveFormatDialog);
+
 			Graph *g = ((MultiLayer*)w)->activeGraph();
 			if (g && !g->isPiePlot())
 			{
@@ -2318,24 +2319,27 @@ void ApplicationWindow::polishGraph(Graph *g, int style)
 
 MultiLayer* ApplicationWindow::multilayerPlot(const QString& caption)
 {
-	MultiLayer* g = new MultiLayer("", ws,0);
-	g->setAttribute(Qt::WA_DeleteOnClose);
-	QString label=caption;
-	initMultilayerPlot(g, label.replace(QRegExp("_"),"-"));
-	return g;
+	MultiLayer* ml = new MultiLayer("", ws, 0);
+	ml->setAttribute(Qt::WA_DeleteOnClose);
+	QString label = caption;
+	initMultilayerPlot(ml, label.replace(QRegExp("_"),"-"));
+	return ml;
 }
 
-MultiLayer* ApplicationWindow::newGraph()
+MultiLayer* ApplicationWindow::newGraph(const QString& caption)
 {
-	MultiLayer* g = multilayerPlot(generateUniqueName(tr("Graph")));
-	if (g)
-	{
-		g->showNormal();
-		activeGraph = g->addLayer();
-		customGraph(activeGraph);
-		activeGraph->replot();
-	}
-	return g;
+	MultiLayer* ml = multilayerPlot(generateUniqueName(caption));
+	if (ml)
+    {
+        Graph *g = ml->addLayer();
+        g->newLegend();
+		customGraph(g);
+    }
+
+    //This must be done in order to build correctly the format menu, since "ml" is empty on creation
+    //and we can't check if it's a pie plot or not
+    customMenu(ml); 
+	return ml;
 }
 
 MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colList, int style)
@@ -2346,7 +2350,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	g->askOnCloseEvent(confirmClosePlot2D);
 
-	activeGraph = g->insertFirstLayer();
+	activeGraph = g->addLayer();
 	if (!activeGraph)
 		return 0;
 
@@ -2443,7 +2447,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	MultiLayer* g = new MultiLayer("", ws,0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	Graph *ag=g->insertFirstLayer();
+	Graph *ag = g->addLayer();
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
 	int curves = (int)colList.count();
@@ -5989,7 +5993,7 @@ void ApplicationWindow::showColumnOptionsDialog()
 
 	if(w->selectedColumns().count()>0)
 	{
-		TableDialog* td= new TableDialog(this,"optionsDialog", false);
+		TableDialog* td = new TableDialog(this,"optionsDialog", false);
 		td->setAttribute(Qt::WA_DeleteOnClose);
 		td->setWorksheet(w);
 		td->exec();
@@ -6027,7 +6031,6 @@ void ApplicationWindow::showGeneralPlotDialog()
 	}
 	else if (gd && plot->isA("Graph3D"))
 		((Plot3DDialog*)gd)->showGeneralTab();
-	delete gd;
 }
 
 void ApplicationWindow::showAxisDialog()
@@ -6048,7 +6051,6 @@ void ApplicationWindow::showGridDialog()
 	AxesDialog* gd = (AxesDialog*)showScaleDialog();
 	if (gd)
 		gd->showGridPage();
-	delete gd;
 }
 
 QDialog* ApplicationWindow::showScaleDialog()
@@ -6067,7 +6069,7 @@ QDialog* ApplicationWindow::showScaleDialog()
 		{
 			activeGraph = g;
 
-			AxesDialog* ad= new AxesDialog(this);
+			AxesDialog* ad = new AxesDialog(this);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
 			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&,int, int, int, int, const QString&, const QColor&)),
@@ -6290,14 +6292,14 @@ void ApplicationWindow::showPlotDialog()
 				activeGraph = g;
 			}
 			else
-				delete showPieDialog();
+				showPieDialog();
 		}
 		else if (g->curves() == 0)
 			QMessageBox::warning(this, tr("QtiPlot - Empty plot"),
 					tr("There are actually no curves on the active layer!"));
 	}
 	else if (w->isA("Graph3D"))
-		delete showPlot3dDialog();
+        showPlot3dDialog();
 }
 
 void ApplicationWindow::showPlotDialog(int curveKey)
@@ -6324,7 +6326,7 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 			activeGraph = g;
 		}
 		else
-			delete showPieDialog();
+            showPieDialog();
 	}
 }
 

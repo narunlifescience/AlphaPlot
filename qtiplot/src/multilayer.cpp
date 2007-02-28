@@ -151,22 +151,6 @@ LayerButton* MultiLayer::addLayerButton()
 	return button;
 }
 
-Graph* MultiLayer::insertFirstLayer()
-{
-	LayerButton *btn = addLayerButton();	
-	Graph* g = new Graph(canvas,0,0);	
-
-	g->setGeometry(QRect(0,0,graph_width,graph_height));
-	g->plotWidget()->resize(QSize(graph_width,graph_height));
-	connectLayer(g);
-	setGeometry(QRect(0, 0,graphs*graph_width,rows*graph_height+btn->height()));
-	g->setIgnoreResizeEvents(true);
-
-	active_graph=g;
-	graphsList.append(g);
-	return g;
-}
-
 Graph* MultiLayer::addLayer()
 {
 	addLayerButton();
@@ -178,7 +162,8 @@ Graph* MultiLayer::addLayer()
 	g->plotWidget()->resize(QSize(graph_width, graph_height));	
 	graphsList.append(g);
 
-	active_graph=g;
+    g->setIgnoreResizeEvents(true);
+	active_graph = g;
 	g->show();
 	connectLayer(g);
 	return g;
@@ -190,12 +175,11 @@ Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 
 	Graph* g = new Graph(canvas);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	QSize size=QSize(width,height);
-	g->setGeometry(x,y,width,height);
-	g->removeLegend();
+	QSize size=QSize(width, height);
+	g->setGeometry(x, y, width, height);
 	graphsList.append(g);
 
-	active_graph=g;
+	active_graph = g;
 	g->show();
 	return g;
 }
@@ -204,7 +188,7 @@ Graph* MultiLayer::addLayerToOrigin()
 {
 	addLayerButton();
 
-	Graph* g = new Graph(canvas,0,0);
+	Graph* g = new Graph(canvas, 0, 0);
 	int w = canvas->width();
 	int h = canvas->height();
 	g->setGeometry(QRect(0, 0, w, h));
@@ -212,7 +196,7 @@ Graph* MultiLayer::addLayerToOrigin()
 	graphsList.append(g);
 
 	connectLayer(g);
-	active_graph=g;
+	active_graph = g;
 
 	g->show();
 	emit modifiedPlot();

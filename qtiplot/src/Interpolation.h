@@ -45,7 +45,7 @@ public:
 
 private:
     void init(int m);
-    void calculateOutputData(double *X, double *Y);
+    void calculateOutputData(double *x, double *y);
     int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
 
     //! the interpolation method

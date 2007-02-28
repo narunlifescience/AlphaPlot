@@ -31,7 +31,6 @@
 
 #include "Filter.h"
 
-class QwtPlotCurve;
 class FFT : public Filter
 {
 Q_OBJECT

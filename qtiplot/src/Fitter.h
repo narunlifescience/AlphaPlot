@@ -32,6 +32,7 @@
 #include <QObject>
 
 #include "application.h"
+#include "Filter.h"
 
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>
@@ -61,6 +62,7 @@ class Fit : public QObject
 
 		//! Actually does the fit. Should be reimplemented in derived classes.
 		virtual void fit();
+        virtual bool run(){};
 
 		//! Sets the data set to be used for weighting
 		bool setWeightingData(WeightingMethod w, const QString& colName = QString::null);

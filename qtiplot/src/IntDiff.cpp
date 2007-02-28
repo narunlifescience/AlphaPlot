@@ -244,12 +244,13 @@ void Differentiation::output()
     QString curveTitle = d_curve->title().text();
     ApplicationWindow *app = (ApplicationWindow *)parent();
     QString tableName = app->generateUniqueName(QString(name()));
-    Table *t = app->newHiddenTable(tableName, tr("Derivative of") + " " + curveTitle, d_n-2, 2, text);
+    Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of")  + " " + curveTitle, d_n-2, 2, text);
 	delete[] result;
-   
-    MultiLayer *ml = app->multilayerPlot(t, QStringList() << tableName + "_2", 0);
+
+    MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
+    ml->activeGraph()->insertCurve(t, tableName + "_2", 0);
     LegendMarker *l = ml->activeGraph()->legend();
-    l->setText("\\c{1}" + tr("Derivative of") + " " + curveTitle);
+    l->setText("\\c{1}" + tr("Derivative") + " " + tr("of") + " " + curveTitle);
 }
 
 
