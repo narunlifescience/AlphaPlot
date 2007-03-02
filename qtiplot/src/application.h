@@ -797,6 +797,10 @@ public slots:
 	void downloadManual();
 	//! Show translations page in external browser
 	void downloadTranslation();
+#ifdef QTIPLOT_DEMO
+	//! Shown when the user tries to save the project.
+	void showDemoVersionMessage();
+#endif
 
 	void parseCommandLineArguments(const QStringList& args);
 	void createLanguagesList();

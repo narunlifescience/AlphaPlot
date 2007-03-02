@@ -4241,7 +4241,12 @@ void ApplicationWindow::readSettings()
 	/* ---------------- group General --------------- */
 	settings.beginGroup("/General");
 	autoSearchUpdates = settings.value("/AutoSearchUpdates", false).toBool();
+#ifdef QTIPLOT_DEMO
+	// don't overdo it.. ;)
+	askForSupport = settings.value("/Support", false).toBool();
+#else
 	askForSupport = settings.value("/Support", true).toBool();
+#endif
 	appLanguage = settings.value("/Language", "en").toString();
 	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
 	recentProjects = settings.value("/RecentProjects").toStringList();
@@ -4995,6 +5000,11 @@ bool ApplicationWindow::saveProject()
 		return false;
 	}
 
+#ifdef QTIPLOT_DEMO
+	showDemoVersionMessage();
+	return false;
+#endif
+
 	saveFolder(projectFolder(), projectname);
 
 	setWindowTitle("QtiPlot - "+projectname);
@@ -5017,6 +5027,11 @@ bool ApplicationWindow::saveProject()
 
 void ApplicationWindow::saveProjectAs()
 {
+#ifdef QTIPLOT_DEMO
+	showDemoVersionMessage();
+	return;
+#endif
+
 	QString filter = tr("QtiPlot project")+" (*.qti);;";
 	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
 
@@ -5030,30 +5045,21 @@ void ApplicationWindow::saveProjectAs()
 		if (!baseName.contains("."))
 			fn.append(".qti");
 
-		if ( QFile::exists(fn) && !selectedFilter.contains(".gz") &&
-				QMessageBox::question(this, tr("QtiPlot - Overwrite file? "),
-					tr("A file called: <p><b>%1</b><p>already exists.\n"
-						"Do you want to overwrite it?")
-					.arg(fn), tr("&Yes"), tr("&No"),QString(), 0, 1 ) )
-			return ;
-		else
+		projectname=fn;
+		if (saveProject())
 		{
-			projectname=fn;
-			if (saveProject())
-			{
-				recentProjects.remove(projectname);
-				recentProjects.push_front(projectname);
-				updateRecentProjectsList();
+			recentProjects.remove(projectname);
+			recentProjects.push_front(projectname);
+			updateRecentProjectsList();
 
-				QFileInfo fi(fn);
-				QString baseName = fi.baseName();
-				FolderListItem *item = (FolderListItem *)folders->firstChild();
-				item->setText(0, baseName);
-				item->folder()->setFolderName(baseName);
-			}
-			if (selectedFilter.contains(".gz"))
-				file_compress((char *)fn.ascii(), "wb9");
+			QFileInfo fi(fn);
+			QString baseName = fi.baseName();
+			FolderListItem *item = (FolderListItem *)folders->firstChild();
+			item->setText(0, baseName);
+			item->folder()->setFolderName(baseName);
 		}
+		if (selectedFilter.contains(".gz"))
+			file_compress((char *)fn.ascii(), "wb9");
 	}
 }
 
@@ -12813,6 +12819,26 @@ void ApplicationWindow::appendProject()
 	QApplication::restoreOverrideCursor();
 }
 
+#ifdef QTIPLOT_DEMO
+void ApplicationWindow::showDemoVersionMessage()
+{
+	QMessageBox::critical(this, tr("QtiPlot - Demo Version"),
+			tr("You are using the demonstration version of Qtiplot.\
+				It is identical with the full version, except that you can't save your projects.\
+				<br><br>\
+				If you want to have ready-to-use, fully functional binaries, please subscribe for a\
+				<a href=\"http://soft.proindependent.com/individual_contract.html\">single-user binaries maintenance contract</a>.\
+				<br><br>\
+				QtiPlot is free software in the sense of free speech.\
+				If you know how to Use it, you can get\
+				<a href=\"http://developer.berlios.de/project/showfiles.php?group_id=6626\">The Source</a>\
+				free of charge.\
+				Nevertheless, you are welcome to\
+				<a href=\"http://soft.proindependent.com/why_donate.html\">make a donation</a>\
+				in order to support the further development of QtiPlot."));
+}
+#endif
+
 void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 {
 	QFile f( fn );
@@ -12920,6 +12946,10 @@ void ApplicationWindow::saveAsProject()
 
 void ApplicationWindow::saveFolderAsProject(Folder *f)
 {
+#ifdef QTIPLOT_DEMO
+	showDemoVersionMessage();
+	return;
+#endif
 	QString filter = tr("QtiPlot project")+" (*.qti);;";
 	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
 

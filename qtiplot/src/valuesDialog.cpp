@@ -117,9 +117,9 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	commands = new ScriptEdit( scriptEnv);
 
 	QVBoxLayout *vbox2 = new QVBoxLayout(); 
-	btnOk = new QPushButton(tr( "OK" ));
+	btnOk = new QPushButton(tr( "&OK" ));
     vbox2->addWidget(btnOk);
-	btnApply = new QPushButton(tr( "Apply" ));
+	btnApply = new QPushButton(tr( "&Apply" ));
 
     vbox2->addWidget(btnApply);
 	btnCancel = new QPushButton(tr( "Cancel" ));
