@@ -569,41 +569,6 @@ void Graph::calculateProfile(int average, bool ok)
 		averagePixels=average;
 }
 
-void Graph::addResultCurve(int n, double *x, double *y, int colorIndex,
-		const QString& tableName, const QString& legend)
-{
-	QString label=tableName+"_2";
-	QwtPlotCurve *c = new QwtPlotCurve(label);
-	long curveID = d_plot->insertCurve(c);
-	c->setPen(QPen(ColorBox::color(colorIndex),1)); 
-
-	c_type.resize(++n_curves);
-	c_type[n_curves-1]=Line;
-
-	c_keys.resize(n_curves);
-	c_keys[n_curves-1] = curveID;
-
-	addLegendItem(label);	
-	label=tableName+"_1(X),"+label+"(Y)";
-	associations<<label;
-
-	c->setData(x, y, n);	
-	QString text="1\t2\n";
-
-	for (int i=0; i<n; i++)
-	{
-		text+=QString::number(x[i], 'g', 15);
-		text+="\t";
-		text+=QString::number(y[i], 'g', 15);
-		text+="\n";
-	}
-	delete[] x;
-	delete[] y;
-
-	emit createHiddenTable(tableName, legend, n, 2, text);
-	updatePlot();
-}
-
 bool Graph::validCurvesDataSize()
 {
 	if (!n_curves)

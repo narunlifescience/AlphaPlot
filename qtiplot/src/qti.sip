@@ -527,7 +527,7 @@ delete values;
 
   void showLegend();
 
-  virtual QString legendFitInfo();
+  virtual QString legendInfo();
 
   void scaleErrors(bool yes = true);
 
@@ -799,7 +799,7 @@ public:
   SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
 
-  virtual QString legendFitInfo();
+  virtual QString legendInfo();
   void fit();
 
   static QString generateFormula(int);

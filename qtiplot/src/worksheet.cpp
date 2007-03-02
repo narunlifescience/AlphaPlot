@@ -75,7 +75,7 @@ Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ign
 	Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : MyWidget(label,parent,name,f), scripted(env)
 {
-	init(r,c);	
+	init(r,c);
 }
 
 void Table::init(int rows, int cols)

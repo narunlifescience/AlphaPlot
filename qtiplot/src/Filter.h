@@ -50,7 +50,7 @@ class Filter : public QObject
 		//! Actually does the job. Should be reimplemented in derived classes.
 		virtual bool run();
 
-        void setDataFromCurve(int curve, double start, double end);
+        virtual void setDataCurve(int curve, double start, double end);
 		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
 		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
 
@@ -72,7 +72,7 @@ class Filter : public QObject
         //! Sets the precision used for the output
 		void setOutputPrecision(int digits){d_prec = digits;};
 
-		//! Sets the maximum number of iterations to be performed during a fit ssession
+		//! Sets the maximum number of iterations to be performed during an iterative session
 		void setMaximumIterations(int iter){d_max_iterations = iter;};
 
 		//! Adds a new legend to the plot. Calls virtual legendInfo()
@@ -94,6 +94,9 @@ class Filter : public QObject
   	    virtual int curveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
         //! Same as curveData, but sorts the points by their x value.
         virtual int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
+
+        //! Adds the result curve to the target output plot window. Creates a hidden table and frees the input data from memory.
+        void addResultCurve(double *x, double *y);
 
         //! Performs checks and returns the index of the source data curve if OK, -1 otherwise
         int curveIndex(const QString& curveTitle, Graph *g);
@@ -149,7 +152,7 @@ class Filter : public QObject
         //! Specifies if the filter needs sorted data as input
         bool d_sort_data;
 
-        //! Minimum number of points necessary to perform the operation
+        //! Minimum number of data points necessary to perform the operation
         int d_min_points;
 
         //! String explaining the operation in the comment of the result table and in the project explorer

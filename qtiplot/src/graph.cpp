@@ -4174,88 +4174,6 @@ void Graph::range(int index, double *start, double *end)
   	  }
   	}
 
-  	int Graph::numPoints(int index, double start, double end)
-  	{
-  	  QwtPlotCurve *c = curve(index);
-	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
-  	          return 0;
-  	 
-  	  int points=0;
-  	  for (int i=0; i<c->dataSize(); i++)
-  	    if (c->x(i) >= start && c->x(i) <= end)
-  	      points++;
-  	  return points;
-  	}
-
-  	int Graph::curveData(int index, double start, double end, double **x, double **y)
-  	{
-  	  int n = numPoints(index, start, end);
-  	  (*x) = new double[n];
-  	  (*y) = new double[n];
-  	  QwtPlotCurve *c = curve(index);
-	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
-  	          return 0;
-  	 
-      double pr_x;
-  	  int j=0;
-  	  for (int i = 0; i < c->dataSize(); i++)
-  	    if (c->x(i) >= start && c->x(i) <= end && j<n)
-  	    {
-  	      (*x)[j] = c->x(i);
-          if ((*x)[j] == pr_x)
-          {
-            delete (*x);
-            delete (*y);
-            return -1;//this kind of data causes division by zero in GSL interpolation routines
-          }
-          pr_x = (*x)[j];
-
-  	      (*y)[j++] = c->y(i);
-  	    }
-  	  return n;
-  	}
-
-  	int Graph::sortedCurveData(int index, double start, double end, double **x, double **y)
-  	{
-  	  int n = numPoints(index, start, end);
-  	  (*x) = new double[n];
-  	  (*y) = new double[n];
-  	  double *xtemp = vector(0, n-1);
-  	  double *ytemp = vector(0, n-1);
-  	  QwtPlotCurve *c = curve(index);
-	  if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
-  	          return 0;
-	  
-	  double pr_x;
-  	  int i, j=0;
-  	  for (i = 0; i < c->dataSize(); i++)
-  	    if (c->x(i) >= start && c->x(i) <= end && j<n)
-  	    {
-  	      xtemp[j] = c->x(i);
-          if (xtemp[j] == pr_x)
-          {
-            delete (*x);
-            delete (*y);
-            return -1;//this kind of data causes division by zero in GSL interpolation routines
-          }
-          pr_x = xtemp[j];
-
-  	      ytemp[j++] = c->y(i);
-          
-  	    }
-  	  size_t *p = ivector(0, n-1);
-  	  gsl_sort_index(p, xtemp, 1, n);
-  	  for (i=0; i<n; i++)
-  	  {
-  	    (*x)[i] = xtemp[p[i]];
-  	    (*y)[i] = ytemp[p[i]];
-  	  }
-  	  free_vector(xtemp, 0, n-1);
-  	  free_vector(ytemp, 0, n-1);
-  	  free_ivector(p, 0, n-1);
-  	  return n;
-  	}
-
 int Graph::selectedPoints(long curveKey)
 {
 	int points;
@@ -5620,23 +5538,24 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 	emit modifiedFunction();
 }
 
-QString Graph::generateFunctionName()
+QString Graph::generateFunctionName(const QString& name)
 {
-  	QString newName = "F1";
-  	int index = 1;
+    int index = 1;
+  	QString newName = name + QString::number(index);
+
   	QStringList lst;
   	for (int i=0; i<n_curves; i++)
   	{
   		QwtPlotCurve *c = this->curve(i);
-  	    if (c && c->rtti() == FunctionCurve::RTTI && c->title().text().startsWith("F"))
-  	    	lst << c->title().text();  
+  	    if (c && c->rtti() == FunctionCurve::RTTI)
+  	    	lst << c->title().text();
 	}
-  	 
+
   	while(lst.contains(newName)){
-  	        newName = "F" + QString::number(++index);}
+  	        newName = name + QString::number(++index);}
   	return newName;
 }
-			
+
 void Graph::addFunctionCurve(int type, const QStringList &formulas, const QString &var,
 		QList<double> &ranges, int points, const QString& title)
 {

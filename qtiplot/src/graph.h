@@ -596,16 +596,7 @@ class Graph: public QWidget
 		void deleteFitCurves();
    		//! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
         void range(int index, double *start, double *end);
-        //! Returns the number of points within the range.
-        int numPoints(int index, double start, double end);
-  	     //! Sets x and y to the curve points between start and end. Memory will be allocated with new double[].
-  	     //! Returns the number of points within range == size of x and y arrays.
-  	     int curveData(int index, double start, double end, double **x, double **y);
-  	     //! Same as curveData, but sorts the points by their x value.
-  	     int sortedCurveData(int index, double start, double end, double **x, double **y);
 		//@}
-
-		void addResultCurve(int n, double *x, double *y, int colorIndex,const QString& tableName, const QString& legend);
 
 		//! \name Histograms
 		//@{
@@ -635,7 +626,7 @@ class Graph: public QWidget
 		//! Used when reading from a project file.
 		void insertFunctionCurve(const QString& formula, int points, int fileVersion);
 		//! Returns an unique function name
-  		QString generateFunctionName();
+        QString generateFunctionName(const QString& name = tr("F"));
 		//@}
 
 		void createWorksheet(const QString& name);
@@ -720,8 +711,6 @@ signals:
 		void showPlotDialog(int);
 		void showPieDialog();
 		void createTable(const QString&,int,int,const QString&);
-		//! To be connected to ApplicationWindow::newHiddenTable; see there for documentation.
-		void createHiddenTable(const QString&,const QString&,int,int,const QString&);
 		void updateTable(const QString&,int,const QString&);
 		void updateTableColumn(const QString&, double *, int);
 		void clearCell(const QString&,double);

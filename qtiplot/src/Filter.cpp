@@ -29,6 +29,7 @@
 #include "Filter.h"
 #include "LegendMarker.h"
 #include "colorBox.h"
+#include "worksheet.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -77,7 +78,7 @@ void Filter::setInterval(double from, double to)
 	setDataFromCurve (d_curve->title().text(), from, to);
 }
 
-void Filter::setDataFromCurve(int curve, double start, double end)
+void Filter::setDataCurve(int curve, double start, double end)
 { 
 	if (d_n > 0)
 	{//delete previousely allocated memory
@@ -143,7 +144,7 @@ bool Filter::setDataFromCurve(const QString& curveTitle, Graph *g)
 	}
 
   	d_graph->range(index, &d_from, &d_to);
-    setDataFromCurve(index, d_from, d_to);
+    setDataCurve(index, d_from, d_to);
 	return true;
 }
 
@@ -156,7 +157,7 @@ bool Filter::setDataFromCurve(const QString& curveTitle, double from, double to,
 		return false;
 	}
 
-	setDataFromCurve(index, from, to);
+	setDataCurve(index, from, to);
 	return true;
 }
 
@@ -219,9 +220,7 @@ void Filter::output()
     //do the data analysis
     calculateOutputData(X, Y);
 
-	d_graph->addResultCurve(d_points, X, Y, d_curveColorIndex,
-			((ApplicationWindow *)parent())->generateUniqueName(QString(this->name())),
-            d_explanation + " " + tr("of") + " " + d_curve->title().text());
+	addResultCurve(X, Y);
 }
 
 int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y)
@@ -312,6 +311,28 @@ int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, dou
         (*y)[j++] = c->y(i);
     }
     return n;
+}
+
+void Filter::addResultCurve(double *x, double *y)
+{
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    const QString tableName = app->generateUniqueName(QString(this->name()));
+	const QString label = tableName + "_2";
+	QwtPlotCurve *c = new QwtPlotCurve(label);
+	c->setData(x, y, d_points);
+    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+	d_graph->insertPlotItem(c, label, Graph::Line);
+    d_graph->updatePlot();
+
+    Table *t = app->newHiddenTable(tableName, d_explanation + " " + tr("of") + " " + d_curve->title().text(), d_points, 2);
+	for (int i=0; i<d_points; i++)
+	{
+		t->setText(i, 0, QString::number(x[i], 'g', 15));
+		t->setText(i, 1, QString::number(y[i], 'g', 15));
+	}
+
+    delete[] x;
+	delete[] y;
 }
 
 Filter::~Filter()

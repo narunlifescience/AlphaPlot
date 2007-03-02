@@ -2614,7 +2614,7 @@ void ApplicationWindow::customGraph(Graph* g)
 
 void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, const QString& text)
 {
-	Table* w =newTable(caption, r, c, text);
+	Table* w = newTable(caption, r, c, text);
 	MultiLayer* plot=multilayerPlot(w, QStringList(QString(w->name())+"_intensity"), 0);
 	Graph *g=(Graph*)plot->activeGraph();
 	if (g)
@@ -2694,7 +2694,6 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
 	}
 
 	initTable(w, lst[0]);
-	w->setCaptionPolicy(MyWidget::Both);
 	w->showNormal();
 	return w;
 }
@@ -2720,9 +2719,7 @@ Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& lab
 	}
 
 	initTable(w, name);
-	w->setCaptionPolicy(MyWidget::Both);
-	outWindows->append(w);
-	w->setHidden();
+	hideWindow(w);
 	return w;
 }
 
@@ -2732,14 +2729,13 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	connectTable(w);
 	customTable(w);
 
-	QString name=caption;
-	name=name.replace ("_","-");
+	QString name = caption;
+	name = name.replace ("_","-");
 
 	while(alreadyUsedName(name))
 		name = generateUniqueName(tr("Table"));
 
-	tableWindows<<name;
-	w->setWindowTitle(name);
+	tableWindows << name;
 	w->setName(name);
 	w->setIcon( QPixmap(worksheet_xpm) );
 	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
@@ -7840,7 +7836,7 @@ void ApplicationWindow::hideWindow(MyWidget* w)
 void ApplicationWindow::hideWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w= it->window();
+	MyWidget *w = it->window();
 	if (!w)
 		return;
 
@@ -10727,8 +10723,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
 	connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
 			this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
-	connect (g,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)),
-			this,SLOT(newHiddenTable(const QString&,const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(showPieDialog()),this,SLOT(showPieDialog()));

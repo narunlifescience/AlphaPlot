@@ -357,7 +357,7 @@ public slots:
 	 * \param label window label (compare MyWidget::MyWidget)
 	 * \param r number of rows
 	 * \param c number of columns
-	 * \param text tab/newline - seperated initial content; may be empty
+     * \param text tab/newline - seperated initial content; may be empty
 	 */
 	Table* newHiddenTable(const QString& name, const QString& label, int r, int c, const QString& text=QString());
 	Table* table(const QString& name);

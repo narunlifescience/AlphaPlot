@@ -71,12 +71,12 @@ public:
 	//! Return the window label
 	QString windowLabel(){return QString(w_label);};
 	//! Set the window label
-	void setWindowLabel(const QString& s) { w_label = s; updateCaption(); };
+	void setWindowLabel(const QString& s) { w_label = s; updateCaption();};
 
 	//! Return the window name
 	QString name(){return objectName();};
 	//! Set the window name
-	void setName(const QString& s){setObjectName(s);};
+	void setName(const QString& s){setObjectName(s); updateCaption();};
 
 	//! Return the caption policy
 	CaptionPolicy captionPolicy(){return caption_policy;};
@@ -88,8 +88,7 @@ public:
 	 * Both -> caption = "name - label"
 	 */
 	void setCaptionPolicy(CaptionPolicy policy) { caption_policy = policy; updateCaption(); }
-
-	//! Set the widget's name
+ 	//! Set the widget's name
 	void setName(const char *newname) { QWidget::setName(newname); updateCaption(); }
 
 	//! Return the creation date
@@ -172,7 +171,7 @@ protected:
 	QWidget *titleBar;
 
 private:
-	//! set caption according to current CaptionPolicy, name and label
+    //! Set caption according to current CaptionPolicy, name and label
 	void updateCaption();
 
 	//!Pointer to the parent folder of the window

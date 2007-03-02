@@ -232,20 +232,16 @@ void Differentiation::output()
 	for (int i = 1; i < d_n-1; i++)
 		result[i]=0.5*((d_y[i+1]-d_y[i])/(d_x[i+1]-d_x[i]) + (d_y[i]-d_y[i-1])/(d_x[i]-d_x[i-1]));
 
-	QString text = "1\t2\n";
-	for (int i = 1; i < d_n-1; i++)
-	{
-		text+=QString::number(d_x[i]);
-		text+="\t";
-		text+=QString::number(result[i]);
-		text+="\n";
-	}
-
-    QString curveTitle = d_curve->title().text();
     ApplicationWindow *app = (ApplicationWindow *)parent();
     QString tableName = app->generateUniqueName(QString(name()));
-    Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of")  + " " + curveTitle, d_n-2, 2, text);
-	delete[] result;
+    QString curveTitle = d_curve->title().text();
+    Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of")  + " " + curveTitle, d_n-2, 2);
+	for (int i = 1; i < d_n-1; i++)
+	{
+		t->setText(i, 0, QString::number(d_x[i]));
+		t->setText(i, 1, QString::number(result[i]));
+	}
+    delete[] result;
 
     MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
     ml->activeGraph()->insertCurve(t, tableName + "_2", 0);

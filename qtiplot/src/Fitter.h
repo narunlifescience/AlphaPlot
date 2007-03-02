@@ -37,13 +37,11 @@
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>
 
-class QwtPlotCurve;
-class LegendMarker;
 class Table;
 class Matrix;
 
 //! TODO
-class Fit : public QObject
+class Fit : public Filter
 {
 	Q_OBJECT
 
@@ -62,17 +60,12 @@ class Fit : public QObject
 
 		//! Actually does the fit. Should be reimplemented in derived classes.
 		virtual void fit();
-        virtual bool run(){};
+        virtual bool run(){return false;};
 
 		//! Sets the data set to be used for weighting
 		bool setWeightingData(WeightingMethod w, const QString& colName = QString::null);
 
-		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
-		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
-		void setDataFromCurve(int curve, double start, double end);
-
-		//! Changes the data range if the source curve was already assigned. Provided for convenience.
-		void setInterval(double from, double to);
+		void setDataCurve(int curve, double start, double end);
 
 		QString formula(){return d_formula;};
 		int numParameters() {return d_p;}
@@ -84,26 +77,11 @@ class Fit : public QObject
 
 		void setAlgorithm(Algorithm s){d_solver = s;};
 
-		//! Sets the tolerance used by the GSL routines 
-		void setTolerance(double eps){d_tolerance = eps;};
-
-		//! Sets the color of the output fit curve. 
-		void setColor(int colorId){d_curveColorIndex = colorId;};
-
-        //! Sets the color of the output fit curve. Provided for convenience. To be used in scripts only!
-        void setColor(const QString& colorName);
-
 		//! Specifies weather the result of the fit is a function curve
 		void generateFunction(bool yes, int points = 100);
 
-		//! Sets the maximum number of iterations to be performed during a fit ssession
-		void setMaximumIterations(int iter){d_max_iterations = iter;};
-
-		//! Added a new legend to the plot. Calls virtual legendFitInfo()
-		void showLegend();
-
 		//! Output string added to the plot as a new legend
-		virtual QString legendFitInfo();
+		virtual QString legendInfo();
 
 		//! Returns a vector with the fit results
 		double* results(){return d_results;};
@@ -116,12 +94,6 @@ class Fit : public QObject
 
 		//! Returns R^2
 		double rSquare();
-
-		//! Returns the size of the fitted data set
-		int dataSize(){return d_n;};
-
-		//! Sets the precision used for the output
-		void setOutputPrecision(int digits){d_prec = digits;};
 
 		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
 		void scaleErrors(bool yes = true){d_scale_errors = yes;};
@@ -152,16 +124,10 @@ class Fit : public QObject
 		//! Output string added to the result log
 		virtual QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
 
-		//! The graph where the result curve should be displayed
-		Graph *d_graph;
-
 		fit_function d_f;
 		fit_function_df d_df;
 		fit_function_fdf d_fdf;
 		fit_function_simplex d_fsimplex;
-
-		//! Size of the data arrays
-		int d_n;
 
 		//! Number of fit parameters
 		int d_p;
@@ -174,17 +140,8 @@ class Fit : public QObject
 		 */
 		bool is_non_linear;
 
-		//! x data set to be fitted
-		double *d_x;
-
-		//! y data set to be fitted
-		double *d_y;
-
 		//! weighting data set used for the fit
 		double *d_w;
-
-		//! GSL Tolerance
-		double d_tolerance;
 
 		//! Names of the fit parameters
 		QStringList d_param_names;
@@ -195,26 +152,11 @@ class Fit : public QObject
 		//! Specifies weather the result curve is a FunctionCurve or a normal curve with the same x values as the fit data
 		bool d_gen_function;
 
-		//! Number of result points to de calculated and displayed in the result curve
-		int d_result_points;
-
-		//! Color index of the result curve
-		int d_curveColorIndex;
-
-		//! Maximum number of iterations per fit
-		int d_max_iterations;
-
 		//! Algorithm type
 		Algorithm d_solver;
 
-		//! The curve to be fitted
-		QwtPlotCurve *d_curve; 
-
 		//! The fit formula
 		QString d_formula;
-
-		//! The fit type: exponential decay, gauss etc...
-		QString d_fit_type;
 
 		//! Covariance matrix
 		gsl_matrix *covar;
@@ -233,12 +175,6 @@ class Fit : public QObject
 
 		//! The sum of squares of the residuals from the best-fit line
 		double chi_2;
-
-		//! Precision (number of significant digits) used for the results output
-		int d_prec;
-
-		//! Error flag telling if something went wrong during the initialization phase. Used by the NonLinearFit class.
-		bool d_init_err;
 
 		//! Specifies wheather the errors must be scaled with sqrt(chi_2/dof)
 		bool d_scale_errors;
@@ -433,7 +369,7 @@ class PolynomialFit : public Fit
 		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
 		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
 
-		virtual QString legendFitInfo();
+		virtual QString legendInfo();
 		void fit();
 
 		static QString generateFormula(int order);
