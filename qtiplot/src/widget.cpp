@@ -41,6 +41,7 @@ MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt
 	w_label = label;
 	caption_policy = Both;
 	askOnClose = true;
+	user_request = false;
 	w_status = Normal;
 	titleBar = NULL;
 	setObjectName(QString(name));
@@ -195,6 +196,3 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 	}
 	return QObject::eventFilter(object, e);
 }
-
-
-

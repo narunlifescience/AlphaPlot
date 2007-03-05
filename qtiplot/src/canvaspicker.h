@@ -86,6 +86,7 @@ signals:
 	void showMarkerPopupMenu();
 	void modified();
 	void calculateProfile(const QPoint&, const QPoint&);
+	void selectPlot();
 	
 private:
 	bool pointSelected;

@@ -108,7 +108,6 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	hor_align = HCenter;  vert_align = VCenter; 
 	active_graph = 0;
 	addTextOn = false;
-	ignore_resize = false;
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -150,25 +149,14 @@ LayerButton* MultiLayer::addLayerButton()
 	return button;
 }
 
-Graph* MultiLayer::addLayer()
-{
-	addLayerButton();
-
-	Graph* g = new Graph(canvas);
-	g->setAttribute(Qt::WA_DeleteOnClose);
-	g->setGeometry(0, 0, graph_width, graph_height);
-	g->plotWidget()->resize(QSize(graph_width, graph_height));
-	graphsList.append(g);
-
-	active_graph = g;
-	g->show();
-	connectLayer(g);
-	return g;
-}
-
 Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 {
 	addLayerButton();
+	if (!width && !height)
+	{
+		width =	graph_width;
+		height = graph_height;
+	}
 
 	Graph* g = new Graph(canvas);
 	g->setAttribute(Qt::WA_DeleteOnClose);
@@ -178,25 +166,7 @@ Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 
 	active_graph = g;
 	g->show();
-	return g;
-}
-
-Graph* MultiLayer::addLayerToOrigin()
-{
-	addLayerButton();
-
-	Graph* g = new Graph(canvas, 0, 0);
-	int w = canvas->width();
-	int h = canvas->height();
-	g->setGeometry(QRect(0, 0, w, h));
-	g->plotWidget()->resize(QSize(w, h));
-	graphsList.append(g);
-
 	connectLayer(g);
-	active_graph = g;
-
-	g->show();
-	emit modifiedPlot();
 	return g;
 }
 
@@ -215,8 +185,9 @@ void MultiLayer::activateGraph(LayerButton* button)
 
 		if (btn == button)	
 		{
-			active_graph=(Graph*) graphsList.at(i);
+			active_graph = (Graph*) graphsList.at(i);
 			active_graph->setFocus();
+			active_graph->raise();//raise layer on top of the layers stack
 			button->setOn(true);
 		}
 	}
@@ -233,6 +204,8 @@ void MultiLayer::setActiveGraph(Graph* g)
 	if (d_layers_selector)
 		delete d_layers_selector;
 
+	active_graph->raise();//raise layer on top of the layers stack
+	
 	for (int i=0;i<(int)graphsList.count();i++)
 	{
 		Graph *gr = (Graph *)graphsList.at(i);
@@ -254,9 +227,8 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 {
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
-
-	if (!this->isVisible() || size == oldSize ||
-        (canvas->childrenRect().size().width() > oldSize.width()) || !userRequested())
+		
+	if (size == oldSize || !userRequested())
 		return;
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
@@ -901,8 +873,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(drawLineEnded(bool)), this, SIGNAL(drawLineEnded(bool)));
 	connect (g,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (g,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
-	connect (g,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)),
-			this,SIGNAL(createHiddenTable(const QString&,const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SIGNAL(createTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(viewLineDialog()),this,SIGNAL(showLineDialog()));
@@ -1281,4 +1251,23 @@ void MultiLayer::setLayersNumber(int n)
 	}
 
 	emit modifiedPlot();
+}
+
+void MultiLayer::copy(MultiLayer* ml)
+{
+	setSpacing(ml->rowsSpacing(), ml->colsSpacing());
+	setAlignement(ml->horizontalAlignement(), ml->verticalAlignement());
+	setMargins(ml->leftMargin(), ml->rightMargin(), 
+				ml->topMargin(), ml->bottomMargin());
+
+	QWidgetList graphsList = ml->graphPtrs();
+	for (int j=0; j<graphsList.count(); j++)
+	{
+		Graph* g = (Graph*)graphsList.at(j);
+		Graph* g2 = addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
+		g2->copy(g);
+		g2->updateScale();
+		g2->setIgnoreResizeEvents(g->ignoresResizeEvents());
+		g2->setAutoscaleFonts(g->autoscaleFonts());
+	}
 }

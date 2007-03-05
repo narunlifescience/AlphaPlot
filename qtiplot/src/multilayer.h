@@ -70,6 +70,7 @@ public:
 	QWidgetList graphPtrs(){return graphsList;};
 	Graph *layer(int num);
 	LayerButton* addLayerButton();	
+	void copy(MultiLayer* ml);
 
 	enum HorAlignement{HCenter, Left, Right};
 	enum VertAlignement{VCenter, Top, Bottom};
@@ -87,9 +88,7 @@ public:
 public slots:
 	void resizeLayers (const QResizeEvent *re);
 
-	Graph* addLayer();
-	Graph* addLayerToOrigin();
-	Graph* addLayer(int x, int y, int width, int height);
+	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
 	void setLayersNumber(int n);
 
 	bool isEmpty();
@@ -178,8 +177,6 @@ public slots:
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
 
-	void ignoreResizeEvent(bool ignore){ignore_resize = ignore;};
-
 signals:   
 	void showTextDialog();
 	void showPlotDialog(int);
@@ -204,8 +201,6 @@ signals:
 	void viewTitleDialog();
 	void createTablePlot(const QString&,int,int,const QString&);
 	void createTable(const QString&,int,int,const QString&);
-	//! To be connected to ApplicationWindow::newHiddenTable; see there for documentation.
-	void createHiddenTable(const QString&,const QString&,int,int,const QString&);
 	void createHistogramTable(const QString&,int,int,const QString&);
 	void updateTable(const QString&,int,const QString&);
 	void updateTableColumn(const QString&, double *, int);
@@ -221,7 +216,7 @@ private:
 	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
-	bool addTextOn, ignore_resize;
+	bool addTextOn;
 
 	//! Used when adding text markers on new layers
 	int defaultTextMarkerFrame;

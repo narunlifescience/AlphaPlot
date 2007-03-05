@@ -2284,7 +2284,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 	setListViewLabel(plot->name(), fn);
 
 	if (plot->height()-20>photo.height())
-		plot->setGeometry(0,0, plot->width(), photo.height()+20);
+		plot->setGeometry(0, 0, plot->width(), photo.height()+20);
 
 	plot->showNormal();
 	Graph *g = plot->addLayer(0, 0, plot->width(), plot->height()-20);
@@ -2296,7 +2296,6 @@ void ApplicationWindow::loadImage(const QString& fn)
 	g->enableAxes(axesOn);
 	g->removeLegend();
 	g->insertImageMarker(photo,fn);
-	plot->connectLayer(g);
 	QApplication::restoreOverrideCursor();
 }
 
@@ -3746,8 +3745,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->projectname = fn;
 	app->d_file_version = d_file_version;
 	app->setWindowTitle(tr("QtiPlot") + " - " + fn);
-	app->showMaximized();
-
+	
 	QFile f(fn);
 	QTextStream t( &f );
 	t.setEncoding(QTextStream::UnicodeUTF8);
@@ -4032,7 +4030,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->blockSignals (false);
 	app->renamedTables.clear();
 
-    //app->setGraphDefaultSettings(autoscale2DPlots, autoScaleFonts, autoResizeLayers);
+   	app->showMaximized();
 	app->executeNotes();
 	return app;
 }
@@ -4984,6 +4982,38 @@ QString ApplicationWindow::windowGeometryInfo(QWidget *w)
 			s+="\n";
 	}
 	return s;
+}
+
+void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w, const QString s)
+{
+	w->blockSignals (true);
+	QString caption = w->name();
+	if (s.contains ("minimized"))
+	{
+		w->parentWidget()->showMinimized();
+		((MyWidget *)w)->setStatus(MyWidget::Minimized);
+		app->setListView(caption, tr("Minimized"));
+	}
+	else if (s.contains ("maximized"))
+	{
+		w->parentWidget()->showMaximized();
+		((MyWidget *)w)->setStatus(MyWidget::Maximized);
+		app->setListView(caption, tr("Maximized"));
+	}
+	else
+	{
+		QStringList lst=s.split("\t");
+		w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
+		((MyWidget *)w)->setStatus(MyWidget::Normal);
+
+		if (lst[5] == "hidden")
+			app->hideWindow((MyWidget* )w);
+	}
+
+	if (s.contains ("active"))
+		app->aw=(MyWidget*)w;
+
+	w->blockSignals (false);
 }
 
 Folder* ApplicationWindow::projectFolder()
@@ -7461,11 +7491,10 @@ void ApplicationWindow::pasteSelection()
 		{
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-			Graph* g=plot->addLayer();
+			Graph* g = plot->addLayer();
 			g->copy(lastCopiedLayer);
 			QPoint pos=plot->mapFromGlobal(QCursor::pos());
-			plot->setGraphGeometry(pos.x(),pos.y()-20,lastCopiedLayer->width(),lastCopiedLayer->height());
-			plot->connectLayer(g);
+			plot->setGraphGeometry(pos.x(), pos.y()-20, lastCopiedLayer->width(), lastCopiedLayer->height());
 
 			QApplication::restoreOverrideCursor();
 		}
@@ -7636,36 +7665,21 @@ Graph3D* ApplicationWindow::copySurfacePlot()
 
 MultiLayer* ApplicationWindow::copyGraph()
 {
-	MultiLayer* plot2=0;
+	MultiLayer* ml2 = 0;
 	if (ws->activeWindow() &&  ws->activeWindow()->isA("MultiLayer"))
 	{
-		MultiLayer* plot = (MultiLayer*)ws->activeWindow();
+		MultiLayer* ml = (MultiLayer*)ws->activeWindow();
 		QString caption = generateUniqueName(tr("Graph"));
 
-		plot2=multilayerPlot(caption);
-		plot2->showNormal();
-		plot2->resize(plot->size());
-		plot2->setSpacing(plot->rowsSpacing(), plot->colsSpacing());
-		plot2->setAlignement(plot->horizontalAlignement(), plot->verticalAlignement());
-		plot2->setMargins(plot->leftMargin(), plot->rightMargin(), 
-				plot->topMargin(), plot->bottomMargin());
-
-		QWidgetList graphsList = plot->graphPtrs();
-
-		for (int j=0;j<graphsList.count();j++)
-		{
-			Graph* g = (Graph*)graphsList.at(j);
-			Graph* g2 = plot2->addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
-			g2->copy(g);
-			g2->updateScale();
-			plot2->connectLayer(g2);
-			g2->setIgnoreResizeEvents(!autoResizeLayers);
-			g2->setAutoscaleFonts(autoScaleFonts);
-		}
-
-		setListViewSize(caption, plot->sizeToString());
+		ml2 = multilayerPlot(caption);
+		ml2->hide();//FiXME: find a better way to avoid a resize event
+		ml2->resize(ml->size());
+		ml2->copy(ml);
+		ml2->show();
+		
+		setListViewSize(caption, ml->sizeToString());
 	}
-	return plot2;
+	return ml2;
 }
 
 MyWidget* ApplicationWindow::copyWindow()
@@ -9714,7 +9728,7 @@ void ApplicationWindow::addLayer()
 			break;
 
 		case 1:
-			customGraph(plot->addLayerToOrigin());
+			customGraph(plot->addLayer(0, 0, plot->size().width(), plot->size().height()));
 			break;
 
 		case 2:
@@ -9729,42 +9743,6 @@ void ApplicationWindow::deleteLayer()
 		return;
 
 	((MultiLayer *)ws->activeWindow())->confirmRemoveLayer();
-}
-
-void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w, const QString s)
-{
-	w->blockSignals (true);
-	QString caption = w->name();
-	if (s.contains ("minimized"))
-	{
-		w->parentWidget()->setGeometry(0, 0, 500, 400);
-		w->showMinimized();
-		((MyWidget *)w)->setStatus(MyWidget::Minimized);
-		app->setListView(caption, tr("Minimized"));
-	}
-	else if (s.contains ("maximized"))
-	{
-		w->parentWidget()->setGeometry(0, 0, 500, 400);
-		if (w->isA("MultiLayer"))
-			w->hide();//trick used in order to avoid a resize event
-		w->showMaximized();
-		((MyWidget *)w)->setStatus(MyWidget::Maximized);
-		app->setListView(caption, tr("Maximized"));
-	}
-	else
-	{
-		QStringList lst=s.split("\t");
-		w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
-		((MyWidget *)w)->setStatus(MyWidget::Normal);
-
-		if (lst[5] == "hidden")
-			app->hideWindow((MyWidget* )w);
-	}
-
-	if (s.contains ("active"))
-		app->aw=(MyWidget*)w;
-
-	w->blockSignals (false);
 }
 
 Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &flist)
@@ -10448,7 +10426,6 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 	ag->setTextMarkerDefaults(app->legendFrameStyle, app->plotLegendFont, app->legendTextColor, app->legendBackground);
 	ag->setArrowDefaults(app->defaultArrowLineWidth, app->defaultArrowColor, app->defaultArrowLineStyle,
 			app->defaultArrowHeadLength, app->defaultArrowHeadAngle, app->defaultArrowHeadFill);
-	plot->connectLayer(ag);
     return ag;
 }
 

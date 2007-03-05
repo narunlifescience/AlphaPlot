@@ -239,6 +239,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	legendMarkerID = -1; // no legend for an empty graph
 	d_texts = QwtArray<long>(0);
 
+	connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
 	connect (cp,SIGNAL(viewTextDialog()),this,SIGNAL(viewTextDialog()));

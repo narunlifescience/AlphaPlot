@@ -92,6 +92,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 		case QEvent::MouseButtonPress:
 			{
+				emit selectPlot();
+				
 				const QMouseEvent *me = (const QMouseEvent *)e;	
 
 				bool allAxisDisabled = true;
