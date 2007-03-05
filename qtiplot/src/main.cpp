@@ -128,9 +128,12 @@ int main( int argc, char ** argv )
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name
 		
-	if (args.count() == 1 && (args[0] == "-m" || args[0] == "--manual"))
-	{
+	if( (args.count() == 1) && (args[0] == "-m" || args[0] == "--manual") )
 		ApplicationWindow::showStandAloneHelp();
+	else if ( (args.count() == 1) && (args[0] == "-a" || args[0] == "--about") )
+	{
+		ApplicationWindow::about();
+		exit(0);
 	}
 	else
 	{
@@ -147,6 +150,6 @@ int main( int argc, char ** argv )
 		}
 		mw->parseCommandLineArguments(args);
 	}
-    app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
-    return app.exec();
+	app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
+	return app.exec();
 }

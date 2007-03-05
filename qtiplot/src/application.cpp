@@ -289,9 +289,6 @@ void ApplicationWindow::initGlobalConstants()
 {
 	appStyle = qApp->style()->objectName();
 
-	d_version_string = "QtiPlot " + QString::number(maj_version) + "." +
-		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
-
 	projectname="untitled";
 	lastModified=0;
 	activeGraph=0;
@@ -7542,7 +7539,7 @@ Table* ApplicationWindow::copyTable()
 	return w;
 }
 
-Matrix* ApplicationWindow::cloneMatrix()
+Matrix* ApplicationWindow::cloneMatrix() // TODO: this method or parts of it should be in the Matrix class
 {
 	Matrix *w = 0, *m = (Matrix*)ws->activeWindow();
 	if (m)
@@ -8034,8 +8031,8 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 
 void ApplicationWindow::about()
 {
-	QMessageBox::about(this, tr("About QtiPlot"),
-			"<h2>"+ d_version_string + "</h2>"
+	QMessageBox::about(0, tr("About QtiPlot"),
+			"<h2>"+ versionString() + "</h2>"
 			"<p><h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>"
 			"<p><h3>Released: " + release_date + "</h3>");
 }
@@ -12338,20 +12335,15 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	QString str;
 	foreach(str, args)
 	{
-		if (str == "-a" || str == "--about")
-		{
-			hide();
-			about();
-			exit(0);
-		}
-        else if (str == "-m" || str == "--manual")
+		if( (str == "-a" || str == "--about") ||
+				(str == "-m" || str == "--manual") )
 		{
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
 			tr("<b> %1 </b>: This command line option must be used without other arguments!").arg(str));
 		}
 		else if (str == "-v" || str == "--version")
 		{
-			QString s = d_version_string + "\n";
+			QString s = versionString() + "\n";
 			s += QString(copyright_string) + "\n";
 			s += tr("Released") + ": " + release_date + "\n";
 			#ifdef Q_OS_WIN 
@@ -13906,6 +13898,8 @@ void ApplicationWindow::goToRow()
 			((Table*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
 		else if (ws->activeWindow()->isA("Matrix"))
 			((Matrix*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
+//	TODO: replace the line above as soon as the porting of matrix is done
+//	((Matrix*)ws->activeWindow())->table()->scrollToItem( ((Matrix*)ws->activeWindow())->table()->item(row - 1, 0));
 	}
 }
 
@@ -13971,4 +13965,10 @@ ApplicationWindow::~ApplicationWindow()
 		delete scriptWindow;
 
 	QApplication::clipboard()->clear(QClipboard::Clipboard);
+}
+
+QString ApplicationWindow::versionString()
+{
+	return "QtiPlot " + QString::number(maj_version) + "." +
+		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
 }

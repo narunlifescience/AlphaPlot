@@ -482,7 +482,10 @@ public slots:
 
 	void updateTable(const QString& caption,int row,const QString& text);
 	void updateTableColumn(const QString& colName, double *dat, int rows);
-	void about();
+	//! Show about dialog
+	static void about();
+	//! Return a version string ("QtiPlot x.y.z")
+	static QString versionString();
 	void windowsMenuAboutToShow();
 	void windowsMenuActivated( int id );
 	void removeCurves(const QString& name);
@@ -972,8 +975,6 @@ public:
 	enum {MaxRecentProjects = 5};
 	//! File version code used when opening project files (= maj * 100 + min * 10 + patch)
 	int d_file_version;
-	//! Version string ("QtiPlot x.y.z"). Initialized in initGlobalConstants().
-	QString d_version_string;
 
 	QColor workspaceColor, panelsColor, panelsTextColor;
 	QString appStyle, workingDir;
