@@ -106,8 +106,8 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	top_margin = 5; bottom_margin = 5;
 	l_canvas_width = 400; l_canvas_height = 300;
 	hor_align = HCenter;  vert_align = VCenter; 
-	active_graph=0;
-	addTextOn=FALSE;
+	active_graph = 0;
+	addTextOn = false;
 	ignore_resize = false;
 
 	layerButtonsBox = new QHBoxLayout();
@@ -126,7 +126,6 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
     setGeometry(QRect( 0, 0, graph_width, graph_height + LayerButton::btnSize()));
 
 	setFocusPolicy(Qt::StrongFocus);
-	connect (this, SIGNAL(resizeCanvas (const QResizeEvent *)), this, SLOT(resizeLayers (const QResizeEvent *)));
 }
 
 Graph *MultiLayer::layer(int num)
@@ -157,12 +156,10 @@ Graph* MultiLayer::addLayer()
 
 	Graph* g = new Graph(canvas);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-
-	g->setGeometry(QRect(0,0,graph_width, graph_height));
-	g->plotWidget()->resize(QSize(graph_width, graph_height));	
+	g->setGeometry(0, 0, graph_width, graph_height);
+	g->plotWidget()->resize(QSize(graph_width, graph_height));
 	graphsList.append(g);
 
-    g->setIgnoreResizeEvents(true);
 	active_graph = g;
 	g->show();
 	connectLayer(g);
@@ -175,8 +172,8 @@ Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 
 	Graph* g = new Graph(canvas);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	QSize size=QSize(width, height);
 	g->setGeometry(x, y, width, height);
+    g->plotWidget()->resize(QSize(width, height));
 	graphsList.append(g);
 
 	active_graph = g;
@@ -192,7 +189,7 @@ Graph* MultiLayer::addLayerToOrigin()
 	int w = canvas->width();
 	int h = canvas->height();
 	g->setGeometry(QRect(0, 0, w, h));
-	g->plotWidget()->resize(QSize(w,h));
+	g->plotWidget()->resize(QSize(w, h));
 	graphsList.append(g);
 
 	connectLayer(g);
@@ -201,6 +198,11 @@ Graph* MultiLayer::addLayerToOrigin()
 	g->show();
 	emit modifiedPlot();
 	return g;
+}
+
+void MultiLayer::adjustSize()
+{
+    canvas->resize(size().width(), size().height() - LayerButton::btnSize());
 }
 
 void MultiLayer::activateGraph(LayerButton* button)
@@ -250,10 +252,11 @@ void MultiLayer::contextMenuEvent(QContextMenuEvent *e)
 
 void MultiLayer::resizeLayers (const QResizeEvent *re)
 {
-	QSize oldSize=re->oldSize();
-	QSize size=re->size();
+	QSize oldSize = re->oldSize();
+	QSize size = re->size();
 
-	if ( size == oldSize || (maxSize().width() > oldSize.width()) || !userRequested())
+	if (!this->isVisible() || size == oldSize ||
+        (canvas->childrenRect().size().width() > oldSize.width()) || !userRequested())
 		return;
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
@@ -266,65 +269,19 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 		Graph *gr=(Graph *)graphsList.at(i);
 		if (gr && gr->isVisible() && !gr->ignoresResizeEvents())
 		{
-			QwtPlot *plot=gr->plotWidget();
-			QwtPlotLayout *plotLayout=plot->plotLayout();
-			QRect cRect=plotLayout->canvasRect();			
+			QwtPlot *plot = gr->plotWidget();
+			QwtPlotLayout *plotLayout = plot->plotLayout();
+			QRect cRect = plotLayout->canvasRect();
 
 			int gx = qRound(gr->x()*w_ratio);
 			int gy = qRound(gr->y()*h_ratio);
 			int gw = qRound(gr->width()*w_ratio);
 			int gh = qRound(gr->height()*h_ratio);
 
-			gr->setGeometry(QRect(gx,gy,gw,gh));
+			gr->setGeometry(QRect(gx, gy, gw, gh));
 			gr->plotWidget()->resize(QSize(gw, gh));
-
-			//we try to maintain the aspect ratio of the plot canvas
-			/*plotLayout=plot->plotLayout();
-
-			  int height = 0;
-			  QRect tRect=plotLayout->titleRect ();
-			  if (!tRect.isNull())
-			  height+=tRect.height() + plotLayout->spacing();
-
-			  QwtScaleWidget *scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::xTop);
-			  if (scale)
-			  {
-			  QRect sRect=plotLayout->scaleRect (QwtPlot::xTop);
-			  height+= sRect.height();
-			  }
-
-			  scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::xBottom);			
-			  if (scale)
-			  {
-			  QRect sRect=plotLayout->scaleRect (QwtPlot::xBottom);
-			  height+= sRect.height();
-			  }	
-
-			  height += int(h_ratio*ch);
-
-			  int width = 0;
-			  scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yLeft);			
-			  if (scale)
-			  {
-			  QRect sRect=plotLayout->scaleRect (QwtPlot::yLeft);
-			  width+= sRect.width();
-			  }	
-
-			  scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yRight);			
-			  if (scale)
-			  {
-			  QRect sRect=plotLayout->scaleRect (QwtPlot::yRight);
-			  width+= sRect.width();
-			  }
-
-			  width += int(w_ratio*cw);
-
-			  gr->setGeometry(QRect(gx,gy, width, height));
-			  gr->plotWidget()->resize(QSize(width, height));*/
 		}
 	}
-
-	//arrangeLayers(false, false); //restore the layout of the layers
 
 	emit modifiedPlot();
 	emit resizedWindow(this);
@@ -422,17 +379,17 @@ void MultiLayer::removeLayer()
 void MultiLayer::setGraphGeometry(int x, int y, int w, int h)
 {
 	if (active_graph->pos() == QPoint (x,y) && 
-			active_graph->size() == QSize (w,h))
+		active_graph->size() == QSize (w,h))
 		return;
 
 	active_graph->setGeometry(QRect(QPoint(x,y),QSize(w,h)));
-
+    active_graph->plotWidget()->resize(QSize(w, h));
 	emit modifiedPlot();
 }
 
 QSize MultiLayer::arrangeLayers(bool userSize)
 {
-	const QRect rect=canvas->geometry();
+	const QRect rect = canvas->geometry();
 
 	gsl_vector *xTopR = gsl_vector_calloc (graphs);//ratio between top axis + title and canvas height
 	gsl_vector *xBottomR = gsl_vector_calloc (graphs); //ratio between bottom axis and canvas height
@@ -460,32 +417,32 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 
 		int topHeight = 0;
 		if (!tRect.isNull())
-			topHeight+=tRect.height() + plotLayout->spacing();		
+			topHeight += tRect.height() + plotLayout->spacing();
 		if (scale)
 		{
 			QRect sRect=plotLayout->scaleRect (QwtPlot::xTop);
-			topHeight+= sRect.height();
+			topHeight += sRect.height();
 		}
 		gsl_vector_set (xTopR, i, double(topHeight)/ch);
 
 		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::xBottom);			
 		if (scale)
 		{
-			QRect sRect=plotLayout->scaleRect (QwtPlot::xBottom);
+			QRect sRect = plotLayout->scaleRect (QwtPlot::xBottom);
 			gsl_vector_set (xBottomR, i, double(sRect.height())/ch);
 		}	
 
 		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yLeft);			
 		if (scale)
 		{
-			QRect sRect=plotLayout->scaleRect (QwtPlot::yLeft);
+			QRect sRect = plotLayout->scaleRect (QwtPlot::yLeft);
 			gsl_vector_set (yLeftR, i, double(sRect.width())/cw);
 		}	
 
 		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yRight);			
 		if (scale)
 		{
-			QRect sRect=plotLayout->scaleRect (QwtPlot::yRight);
+			QRect sRect = plotLayout->scaleRect (QwtPlot::yRight);
 			gsl_vector_set (yRightR, i, double(sRect.width())/cw);
 		}
 
@@ -518,14 +475,14 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 	for (i=0; i<rows; i++)
 	{
 		gsl_vector_set (Y, i, c_heights);	
-		c_heights+= 1 + gsl_vector_get(maxXTopHeight, i) + gsl_vector_get(maxXBottomHeight, i);	
+		c_heights += 1 + gsl_vector_get(maxXTopHeight, i) + gsl_vector_get(maxXBottomHeight, i);
 	}
 
 	double c_widths = 0.0;
 	for (i=0; i<cols; i++)
 	{
 		gsl_vector_set (X, i, c_widths);	
-		c_widths+= 1 + gsl_vector_get(maxYLeftWidth, i) + gsl_vector_get(maxYRightWidth, i);	
+		c_widths += 1 + gsl_vector_get(maxYLeftWidth, i) + gsl_vector_get(maxYRightWidth, i);
 	}
 
 	if (!userSize)
@@ -567,7 +524,7 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 						+ gsl_vector_get(maxXBottomHeight, row) - gsl_vector_get(xBottomR, i)));
 
 		//resizes and moves layers
-		Graph *gr=(Graph *)graphsList.at(i);
+		Graph *gr = (Graph *)graphsList.at(i);
 		bool autoscaleFonts = false;
 		if (!userSize)
 		{//When the user specifies the layer canvas size, the window is resized
@@ -592,7 +549,6 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 	gsl_vector_free (xTopR); gsl_vector_free (xBottomR);
 	gsl_vector_free (yLeftR); gsl_vector_free (yRightR); 
 	gsl_vector_free (X); gsl_vector_free (Y);
-
 	return size;
 }
 
@@ -654,45 +610,27 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 
 	if (userSize)
 	{//resize window
-		int i;
-		for (i=0;i<(int)graphsList.count();i++)
+		bool ignoreResize = active_graph->ignoresResizeEvents();
+		for (int i=0; i<(int)graphsList.count(); i++)
 		{
-			Graph *gr=(Graph *)graphsList.at(i);
+			Graph *gr = (Graph *)graphsList.at(i);
 			gr->setIgnoreResizeEvents(true);
 		}
 
 		this->showNormal();
-		QSize size = maxSize();
+		QSize size = canvas->childrenRect().size();
 		this->resize(QSize(size.width() + right_margin,
 					size.height() + bottom_margin + LayerButton::btnSize()));
 
-		for (i=0;i<(int)graphsList.count();i++)
+		for (int i=0; i<(int)graphsList.count(); i++)
 		{
-			Graph *gr=(Graph *)graphsList.at(i);
-			gr->setIgnoreResizeEvents(false);
+			Graph *gr = (Graph *)graphsList.at(i);
+			gr->setIgnoreResizeEvents(ignoreResize);
 		}
 	}
 
 	emit modifiedPlot();
 	QApplication::restoreOverrideCursor();
-}
-
-QSize MultiLayer::maxSize()
-{
-	int w=0, h=0, maxw=0, maxh=0;	
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		w = gr->pos().x() + gr->frameGeometry().width();
-
-		if (maxw <= w)
-			maxw = w;
-
-		h = gr->pos().y() + gr->frameGeometry().height();
-		if (maxh <= h)
-			maxh = h;
-	}	
-	return QSize(maxw, maxh);
 }
 
 void MultiLayer::setCols(int c)
@@ -903,7 +841,7 @@ void MultiLayer::printAllLayers(QPainter *painter)
 	int dpiy = paintDevice->logicalDpiY();
 	int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
 
-	QSize size=maxSize();
+	QSize size = canvas->childrenRect().size();
 	double scaleFactorX=(double)(paintDevice->width()-2*margin)/(double)size.width();
 	double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
 
@@ -1027,7 +965,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	g->show();
 	QApplication::restoreOverrideCursor();
 	canvas->releaseMouse();
-	addTextOn=FALSE;
+	addTextOn=false;
 	emit drawTextOff();
 	emit modifiedPlot();
 }
@@ -1094,7 +1032,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 {
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
-	bool resize=FALSE;
+	bool resize=false;
 	QPoint aux;
 	QSize intSize;
 	Graph *resize_graph = 0;

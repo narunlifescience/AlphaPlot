@@ -537,7 +537,7 @@ public slots:
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);
 	TableStatistics* openTableStatistics(const QStringList &flist);
 	Graph3D* openSurfacePlot(ApplicationWindow* app, const QStringList &lst);
-	void openGraph(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
+	Graph* openGraph(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
 
 	void openRecentProject(int index);
 	//@}
@@ -672,7 +672,8 @@ public slots:
 	void showWindowContextMenu();
 	void showWindowTitleBarMenu();
 	void showCurveContextMenu(int curveKey);
-	void showCurveWorksheet(int curveKey);
+	//void showCurveWorksheet(int curveKey);
+    void showCurveWorksheet(Graph *g, int curveIndex);
 	void showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p, int);
 
 	//! Connected to the context menu signal from lv; it's called when there are several items selected in the list

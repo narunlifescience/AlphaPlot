@@ -47,61 +47,66 @@ PlotWizard::PlotWizard( QWidget* parent, Qt::WFlags fl )
 	setSizeGripEnabled( true );
 
 	// top part starts here
-	groupBox1 = new QGroupBox( QString() );
+	groupBox1 = new QGroupBox();
 
-	QGridLayout * topLayout = new QGridLayout( groupBox1 );
+    QGridLayout *gl1 = new QGridLayout();
+	buttonX = new QPushButton("<->" + tr("&X"));
+	buttonX->setAutoDefault( false );
+	gl1->addWidget( buttonX, 0, 0);
 
-	topLayout->addWidget(new QLabel(tr( "Worksheet" )), 0, 0);
+	buttonXErr = new QPushButton("<->" + tr("x&Err"));
+	buttonXErr->setAutoDefault( false );
+	gl1->addWidget( buttonXErr, 0, 1);
 
-	boxTables = new QComboBox();
-	topLayout->addWidget( boxTables, 0, 2, 1, 2 );
+	buttonY = new QPushButton("<->" + tr("&Y"));
+	buttonY->setAutoDefault( false );
+	gl1->addWidget( buttonY, 1, 0);
 
-	columnsList = new QListWidget();
-	topLayout->addWidget( columnsList, 1, 0, 3, 2 );
+	buttonYErr = new QPushButton("<->" + tr("yE&rr"));
+	buttonYErr->setAutoDefault( false );
+	gl1->addWidget( buttonYErr, 1, 1);
 
-	buttonX = new QPushButton();
-	buttonX->setText("<->&X");
-	topLayout->addWidget( buttonX, 1, 2 );
+	buttonZ = new QPushButton("<->" + tr("&Z"));
+	buttonZ->setAutoDefault( false );
+	gl1->addWidget( buttonZ, 2, 0);
+    gl1->setRowStretch(3,1);
+    
+    QHBoxLayout *hl2 = new QHBoxLayout();
+    buttonNew = new QPushButton(tr("&New curve"));
+    buttonNew->setDefault( true );
+    buttonNew->setAutoDefault( true );
+	hl2->addWidget(buttonNew);
 
-	buttonXErr = new QPushButton();
-	buttonXErr->setText("<->x&Err");
-	topLayout->addWidget( buttonXErr, 1, 3 );
+	buttonDelete = new QPushButton(tr("&Delete curve"));
+    buttonDelete->setAutoDefault( false );
+	hl2->addWidget(buttonDelete);
 
-	buttonY = new QPushButton();
-	buttonY->setText("<->&Y");
-	topLayout->addWidget( buttonY, 2, 2 );
+    QVBoxLayout *vl = new QVBoxLayout();
+    vl->addLayout(gl1);
+    vl->addStretch();
+    vl->addLayout(hl2);
 
-	buttonYErr = new QPushButton();
-	buttonYErr->setText("<->yE&rr");
-	topLayout->addWidget( buttonYErr, 2, 3 );
+    QGridLayout *gl2 = new QGridLayout(groupBox1);
+    gl2->addWidget(new QLabel(tr( "Worksheet" )), 0, 0);
+    boxTables = new QComboBox();
+    gl2->addWidget(boxTables, 0, 1);
+    columnsList = new QListWidget();
+    gl2->addWidget(columnsList, 1, 0);
+    gl2->addLayout(vl, 1, 1);
 
-	buttonZ = new QPushButton();
-	buttonZ->setText("<->&Z");
-	topLayout->addWidget( buttonZ, 3, 2 );
-
-	buttonNew = new QPushButton();
-	buttonNew->setText(tr("&New curve"));
-	topLayout->addWidget( buttonNew, 4, 0, 1, 2 );
-
-	buttonDelete = new QPushButton();
-	buttonDelete->setText(tr("&Delete curve"));
-	topLayout->addWidget( buttonDelete, 4, 2, 1, 2 );
-
-	topLayout->setColumnStretch(1, 1);
-	
 	// middle part is only one widget
 	plotAssociations = new QListWidget();
 
 	// bottom part starts here
 	QHBoxLayout * bottomLayout = new QHBoxLayout();
+    bottomLayout->addStretch();
 
-	buttonOk = new QPushButton();
-	buttonOk->setText(tr("&Plot"));
-	buttonOk->setDefault( true );
+	buttonOk = new QPushButton(tr("&Plot"));
+    buttonOk->setAutoDefault( false );
 	bottomLayout->addWidget( buttonOk );
 
-	buttonCancel = new QPushButton();
-	buttonCancel->setText(tr("&Cancel"));
+	buttonCancel = new QPushButton(tr("&Close"));
+    buttonCancel->setAutoDefault( false );
 	bottomLayout->addWidget( buttonCancel );
 
 	QVBoxLayout* vlayout = new QVBoxLayout( this );
@@ -120,6 +125,11 @@ PlotWizard::PlotWizard( QWidget* parent, Qt::WFlags fl )
 	connect( buttonXErr, SIGNAL( clicked() ), this, SLOT(addXErrCol()));
 	connect( buttonYErr, SIGNAL( clicked() ), this, SLOT(addYErrCol()));
 	connect( buttonZ, SIGNAL( clicked() ), this, SLOT(addZCol()));
+}
+
+QSize PlotWizard::sizeHint() const
+{
+	return QSize(350, 400);
 }
 
 void PlotWizard::accept()
@@ -185,7 +195,7 @@ void PlotWizard::addXCol()
 
 	QString text = plotAssociations->currentItem()->text();
 	if ( text.contains("(X)") )
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a X column!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have already defined a X column!"));
 	else
 	{
 		plotAssociations->currentItem()->setText(text+columnsList->currentItem()->text()+"(X)");
@@ -201,7 +211,7 @@ void PlotWizard::addYCol()
 	if ( !text.contains("(X)") )
 		QMessageBox::warning(this, tr("QtiPlot - Error"),tr("You must define a X column first!"));
 	else if ( text.contains("(Y)") )
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Y column!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have already defined a Y column!"));
 	else
 	{
 		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(Y)");
@@ -219,7 +229,7 @@ void PlotWizard::addZCol()
 	else if ( !text.contains("(X)") )
 		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a X column first!"));
 	else if ( text.contains("(Z)") )
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined a Z column!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have already defined a Z column!"));
 	else
 	{
 		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(Z)");
@@ -239,7 +249,7 @@ void PlotWizard::addXErrCol()
 	else if ( !text.contains("(Y)") )
 		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
 	else if ( text.contains("(xErr)") || text.contains("(yErr)") )
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have already defined an error-bars column!"));
 	else
 	{
 		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(xErr)");
@@ -259,7 +269,7 @@ void PlotWizard::addYErrCol()
 	else if ( !text.contains("(Y)") )
 		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You must define a Y column first!"));
 	else if ( text.contains("(xErr)") || text.contains("(yErr)") )
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have allready defined an error-bars column!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("You have already defined an error-bars column!"));
 	else
 	{
 		plotAssociations->currentItem()->setText(text+", "+columnsList->currentItem()->text()+"(yErr)");

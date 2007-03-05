@@ -2287,7 +2287,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 		plot->setGeometry(0,0, plot->width(), photo.height()+20);
 
 	plot->showNormal();
-	Graph *g=plot->addLayer(0,0, plot->width(), plot->height()-20);
+	Graph *g = plot->addLayer(0, 0, plot->width(), plot->height()-20);
 
 	g->setTitle("");
 	QVector<bool> axesOn(4);
@@ -2328,17 +2328,15 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QString& caption)
 
 MultiLayer* ApplicationWindow::newGraph(const QString& caption)
 {
-	MultiLayer* ml = multilayerPlot(generateUniqueName(caption));
+	MultiLayer *ml = multilayerPlot(generateUniqueName(caption));
 	if (ml)
     {
+        ml->hide();
         Graph *g = ml->addLayer();
-        g->newLegend();
 		customGraph(g);
+        ml->showNormal();
+        g->newLegend();
     }
-
-    //This must be done in order to build correctly the format menu, since "ml" is empty on creation
-    //and we can't check if it's a pie plot or not
-    customMenu(ml); 
 	return ml;
 }
 
@@ -2348,7 +2346,6 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 
 	MultiLayer* g = new MultiLayer("",ws,0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	g->askOnCloseEvent(confirmClosePlot2D);
 
 	activeGraph = g->addLayer();
 	if (!activeGraph)
@@ -2361,15 +2358,13 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	activeGraph->newLegend();
 
-	//the following function must be called last in order to avoid resizing problems
-	activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
 	emit modified();
 	QApplication::restoreOverrideCursor();
 	return g;
 }
 
 MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
-{//used when plotting with the panel menu
+{//used when plotting from the panel menu
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return 0;
 
@@ -2380,41 +2375,39 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	QStringList list=w->selectedYColumns();
 	if((int)list.count() < 1)
 	{
-		QMessageBox::warning(0, tr("QtiPlot - Plot error"), 
-				tr("Please select a Y column to plot!"));
+		QMessageBox::warning(0, tr("QtiPlot - Plot error"), tr("Please select a Y column to plot!"));
 		return 0;
 	}
 
-	int curves= (int)list.count();
+	int curves = (int)list.count();
 	if (r<0)
 		r = curves;
 
-	MultiLayer* g = new MultiLayer("", ws,0);
+	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	g->askOnCloseEvent(confirmClosePlot2D);
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
-	int layers=c*r;
+	int layers = c*r;
 	if (curves<layers)
 	{
 		for (int i=0; i<curves; i++)
 		{
-			activeGraph=g->addLayer();
+			activeGraph = g->addLayer();
 			if (activeGraph)
 			{
 				activeGraph->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
 				customGraph(activeGraph);
 				activeGraph->newLegend();
 				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
-				activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
+                activeGraph->setIgnoreResizeEvents(false);
 				polishGraph(activeGraph, style);
 			}
 		}
 	}
 	else
 	{
-		for (int i=0; i<layers;i++)
+		for (int i=0; i<layers; i++)
 		{
-			activeGraph=g->addLayer();
+			activeGraph = g->addLayer();
 			if (activeGraph)
 			{
 				QStringList lst;
@@ -2423,7 +2416,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 				customGraph(activeGraph);
 				activeGraph->newLegend();
 				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
-				activeGraph->setIgnoreResizeEvents(!autoResizeLayers);
+                activeGraph->setIgnoreResizeEvents(false);
 				polishGraph(activeGraph, style);
 			}
 		}
@@ -2431,13 +2424,14 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	g->setRows(r);
 	g->setCols(c);
 	g->arrangeLayers(false, false);
-
-	QWidgetList lst = g->graphPtrs();
-	for (int i=0; i<g->layers();i++)
-	{
-		Graph *ag = (Graph *)lst.at(i);
-		ag->setAutoscaleFonts(autoScaleFonts);//restore user defined fonts behaviour
-	}
+    g->adjustSize();
+    QWidgetList lst = g->graphPtrs();
+	foreach(QWidget *widget, lst)
+    {
+        Graph *ag = (Graph *)widget;
+        ag->setAutoscaleFonts(autoScaleFonts);//restore user defined fonts behaviour
+        ag->setIgnoreResizeEvents(!autoResizeLayers);
+    }
 	emit modified();
 	return g;
 }
@@ -2514,7 +2508,6 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	ag->newLegend();
 	ag->updatePlot();
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
-	ag->setIgnoreResizeEvents(!autoResizeLayers);
 	emit modified();
 	QApplication::restoreOverrideCursor();
 	return g;
@@ -2532,7 +2525,7 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->setWindowTitle(label);
 	g->setName(label);
 	g->setIcon(QPixmap(graph_xpm));
-	g->showNormal();
+	g->show();
 	g->setFocus();
 
 	addListViewItem(g);
@@ -2610,6 +2603,7 @@ void ApplicationWindow::customGraph(Graph* g)
 	g->plotWidget()->setMargin(defaultPlotMargin);
 	g->enableAutoscaling(autoscale2DPlots);
 	g->setAutoscaleFonts(autoScaleFonts);
+    g->setIgnoreResizeEvents(!autoResizeLayers);
 }
 
 void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, const QString& text)
@@ -2677,12 +2671,16 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const QString& text)
 {
 	QStringList lst = caption.split("\t", QString::SkipEmptyParts);
-	Table* w = new Table(scriptEnv, r, c, lst[1], ws, 0);
+    QString legend = QString();
+    if (lst.count() == 2)
+        legend = lst[1];
+
+	Table* w = new Table(scriptEnv, r, c, legend, ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
-	QStringList rows=text.split("\n", QString::SkipEmptyParts);
-	QString rlist=rows[0];
-	QStringList list=rlist.split("\t");
+	QStringList rows = text.split("\n", QString::SkipEmptyParts);
+	QString rlist = rows[0];
+	QStringList list = rlist.split("\t");
 	w->setHeader(list);
 
 	for (int i=0; i<r; i++)
@@ -3373,9 +3371,9 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, b
 
 void ApplicationWindow::setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers)
 {	
-	if (autoscale2DPlots == autoscale && 
-			autoScaleFonts == scaleFonts &&
-			autoResizeLayers != resizeLayers)
+	if (autoscale2DPlots == autoscale &&
+		autoScaleFonts == scaleFonts &&
+		autoResizeLayers != resizeLayers)
 		return;
 
 	autoscale2DPlots = autoscale; 
@@ -3947,7 +3945,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 			while ( s!="</multiLayer>" )
 			{//open layers
-				s=t.readLine();
+				s = t.readLine();
 				if (s.left(7)=="<graph>")
 				{
 					list.clear();
@@ -3956,7 +3954,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 						s=t.readLine();
 						list<<s;
 					}
-					openGraph(app,plot,list);
+					openGraph(app, plot, list);
 				}
 			}
 			plot->blockSignals(false);
@@ -4034,6 +4032,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->blockSignals (false);
 	app->renamedTables.clear();
 
+    //app->setGraphDefaultSettings(autoscale2DPlots, autoScaleFonts, autoResizeLayers);
 	app->executeNotes();
 	return app;
 }
@@ -6370,15 +6369,18 @@ void ApplicationWindow::removeCurve(int curveKey)
 	activeGraph->removeCurve(activeGraph->curveIndex(curveKey));
 }
 
-void ApplicationWindow::showCurveWorksheet(int curveKey)
+void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
 {
-	const QwtPlotItem *c = activeGraph->curve(activeGraph->curveIndex(curveKey));
+	if (!g)
+		return;
+
+    const QwtPlotCurve *c = g->curve(curveIndex);
 	if (!c)
 		return;
 
-	QString curveTitle = c->title().text();
+    QString curveTitle = c->title().text();
 	if (c->rtti() == FunctionCurve::RTTI)
-		activeGraph->createWorksheet(curveTitle);
+		g->createTable(c);
 	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
 	{
 		Spectrogram *sp = (Spectrogram *)c;
@@ -6397,7 +6399,7 @@ void ApplicationWindow::zoomIn()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();	
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("QtiPlot - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setOn(true);
@@ -7242,7 +7244,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 	{
 		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
-		connect (id,SIGNAL(setGeometry(int,int,int,int)),plot,SLOT(setGraphGeometry(int,int,int,int)));
+		connect (id, SIGNAL(setGeometry(int,int,int,int)), plot, SLOT(setGraphGeometry(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
 		id->setWindowTitle(tr("QtiPlot - Layer Geometry"));
 		id->setOrigin(g->pos());
@@ -7652,10 +7654,8 @@ MultiLayer* ApplicationWindow::copyGraph()
 
 		for (int j=0;j<graphsList.count();j++)
 		{
-			Graph* g=(Graph*)graphsList.at(j);
-			Graph* g2=plot2->addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
-			g2->setIgnoreResizeEvents(true);
-			g2->setAutoscaleFonts(false);
+			Graph* g = (Graph*)graphsList.at(j);
+			Graph* g2 = plot2->addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
 			g2->copy(g);
 			g2->updateScale();
 			plot2->connectLayer(g2);
@@ -9974,7 +9974,7 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 	return w;
 }
 
-void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
+Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		const QStringList &list)
 {
 	Graph* ag=0;
@@ -9990,9 +9990,9 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		if (s.contains ("ggeometry"))
 		{
 			fList=s.split("\t");
-			ag=(Graph*)plot->addLayer(fList[1].toInt(), fList[2].toInt(), 
+			ag =(Graph*)plot->addLayer(fList[1].toInt(), fList[2].toInt(),
 					fList[3].toInt(), fList[4].toInt());
-			ag->setIgnoreResizeEvents(true);
+            ag->blockSignals(true);
 			ag->enableAutoscaling(autoscale2DPlots);
 		}
 		else if (s.left(10) == "Background")
@@ -10442,12 +10442,14 @@ void ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 	}
 	ag->replot();
-	ag->setIgnoreResizeEvents(!app->autoResizeLayers);
-	ag->setAutoscaleFonts(app->autoScaleFonts);
+    ag->blockSignals(false);
+    ag->setIgnoreResizeEvents(!app->autoResizeLayers);
+    ag->setAutoscaleFonts(app->autoScaleFonts);
 	ag->setTextMarkerDefaults(app->legendFrameStyle, app->plotLegendFont, app->legendTextColor, app->legendBackground);
 	ag->setArrowDefaults(app->defaultArrowLineWidth, app->defaultArrowColor, app->defaultArrowLineStyle,
 			app->defaultArrowHeadLength, app->defaultArrowHeadAngle, app->defaultArrowHeadFill);
 	plot->connectLayer(ag);
+    return ag;
 }
 
 Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStringList &lst)
@@ -12784,7 +12786,7 @@ void ApplicationWindow::appendProject()
 							s=t.readLine();
 							lst<<s;
 						}
-						openGraph(this,plot, lst);
+						openGraph(this, plot, lst);
 					}
 				}
 				plot->blockSignals(false);
@@ -12830,8 +12832,8 @@ void ApplicationWindow::showDemoVersionMessage()
 				<a href=\"http://soft.proindependent.com/individual_contract.html\">single-user binaries maintenance contract</a>.\
 				<br><br>\
 				QtiPlot is free software in the sense of free speech.\
-				If you know how to Use it, you can get\
-				<a href=\"http://developer.berlios.de/project/showfiles.php?group_id=6626\">The Source</a>\
+				If you know how to use it, you can get\
+				<a href=\"http://developer.berlios.de/project/showfiles.php?group_id=6626\">the source code</a>\
 				free of charge.\
 				Nevertheless, you are welcome to\
 				<a href=\"http://soft.proindependent.com/why_donate.html\">make a donation</a>\

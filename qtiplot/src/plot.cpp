@@ -38,6 +38,7 @@
 #include <qwt_plot_layout.h>
 #include <qwt_scale_widget.h>
 #include <qwt_scale_map.h>
+#include <qwt_text_label.h>
 
 #include <QPainter>
 
@@ -84,7 +85,7 @@ Plot::Plot(QWidget *parent, const char *name)
 		}
 	}
 
-	QwtPlotLayout *pLayout=plotLayout();
+	QwtPlotLayout *pLayout = plotLayout();
 	pLayout->setCanvasMargin(0);
 	pLayout->setAlignCanvasToScales (true);
 	
@@ -589,6 +590,47 @@ void Plot::setAxisLabelFormat(int axis, char f, int prec)
 		sd->setLabelFormat(f, prec);
 	}
 }
+
+/*!
+  \brief Adjust plot content to its current size.
+  Must be reimplemented because the base implementation adds a mask causing an ugly drawing artefact.
+*/
+void Plot::updateLayout()
+{
+    plotLayout()->activate(this, contentsRect());
+
+    //
+    // resize and show the visible widgets
+    //
+    if (!titleLabel()->text().isEmpty())
+    {
+        titleLabel()->setGeometry(plotLayout()->titleRect());
+        if (!titleLabel()->isVisible())
+            titleLabel()->show();
+    }
+    else
+        titleLabel()->hide();
+
+    for (int axisId = 0; axisId < axisCnt; axisId++ )
+    {
+        if (axisEnabled(axisId) )
+        {
+            axisWidget(axisId)->setGeometry(plotLayout()->scaleRect(axisId));
+            if (!axisWidget(axisId)->isVisible())
+                axisWidget(axisId)->show();
+        }
+        else
+            axisWidget(axisId)->hide();
+    }
+
+    canvas()->setGeometry(plotLayout()->canvasRect());
+}
+
+/*****************************************************************************
+ *
+ * Class Grid
+ *
+ *****************************************************************************/
 
 /*!
   \brief Draw the grid

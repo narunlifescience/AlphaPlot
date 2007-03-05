@@ -123,8 +123,7 @@ public slots:
 	
 	QSize arrangeLayers(bool userSize);
 	void arrangeLayers(bool fit, bool userSize);
-	
-	QSize maxSize();
+    void adjustSize();
 	
 	int getRows(){return rows;};
 	void setRows(int r);
@@ -215,7 +214,6 @@ signals:
 	void pasteMarker();
 	void createIntensityTable(const QPixmap&);
 	void setPointerCursor();
-	void resizeCanvas(const QResizeEvent *);
 	
 private:
 	Graph* active_graph;

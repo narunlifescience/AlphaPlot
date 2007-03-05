@@ -29,12 +29,7 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-/*#include <QResizeEvent>
-#include <QContextMenuEvent>
-#include <QCloseEvent>*/
-
-#include <Q3ValueList>
-#include <Q3MemArray>
+#include <QList>
 #include <QPointer>
 #include <QPrinter>
 #include <QVector>
@@ -119,7 +114,7 @@ class Graph: public QWidget
 		~Graph();
 
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
-		enum MarkerType{None=-1, Text = 0, Arrow=1, Image=2};
+		enum MarkerType{None = -1, Text = 0, Arrow = 1, Image = 2};
 		enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines, 
 			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, 
 			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap};
@@ -140,7 +135,7 @@ class Graph: public QWidget
 
 		//! \name Pie Curves
 		//@{
-		//! Returns true if this Graph is a pie plot, false else.
+		//! Returns true if this Graph is a pie plot, false otherwise.
 		bool isPiePlot(){return piePlot;};
 		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name);
@@ -178,8 +173,8 @@ class Graph: public QWidget
 		double selectedXStartValue();
 		double selectedXEndValue();
 
-		long curveKey(int curve);
-		int curveIndex(long key);
+        long curveKey(int curve){return c_keys[curve];}
+		int curveIndex(long key){return c_keys.indexOf(key);};
 		//! map curve title to index
   	    int curveIndex(const QString &title) { return curvesList().findIndex(title); }
   	    //! get curve by index
@@ -407,8 +402,8 @@ class Graph: public QWidget
 
 		//! \name Axes 
 		//@{
-		Q3ValueList<int> axesType();
-		void setAxesType(const Q3ValueList<int> tl); 
+		QList<int> axesType();
+		void setAxesType(const QList<int> tl);
 
 		QStringList scalesTitles();
 		void setXAxisTitle(const QString& text);
@@ -473,14 +468,14 @@ class Graph: public QWidget
 		//! used when opening a project file
 		void loadAxesOptions(const QString& s);
 
-		Q3ValueList<int> axesBaseline();
-		void setAxesBaseline(const Q3ValueList<int> &lst);
+		QList<int> axesBaseline();
+		void setAxesBaseline(const QList<int> &lst);
 		void setAxesBaseline(QStringList &lst);
 
-		void setMajorTicksType(const Q3ValueList<int>& lst);
+		void setMajorTicksType(const QList<int>& lst);
 		void setMajorTicksType(const QStringList& lst);
 
-		void setMinorTicksType(const Q3ValueList<int>& lst);
+		void setMinorTicksType(const QList<int>& lst);
 		void setMinorTicksType(const QStringList& lst);
 
 		int minorTickLength();
@@ -549,7 +544,6 @@ class Graph: public QWidget
 		void removePoints(bool enabled);
 		bool removePointActivated();
 
-		void copyCanvas(bool on);
 		void enableCursor(bool on){cursorEnabled=on;};
 		bool enabledCursor(){return cursorEnabled;};
 		void showPlotPicker(bool on);
@@ -600,10 +594,9 @@ class Graph: public QWidget
 
 		//! \name Histograms
 		//@{
-		void initHistogram(long curveID, const Q3MemArray<double>& Y, int it);
-		void updateHistogram(Table* w, const QString& curveName, int curve);
-		void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, 
-				double binSize, double begin, double end);
+		void initHistogram(long curveID, const QVector<double>& Y, int size);
+		void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic = true,
+				double binSize = 0, double begin = 0, double end = 0);
 		void setBarsGap(int curve, int gapPercent, int offset);
 		QString showHistogramStats(Table* w, const QString& curveName, int curve);
 		//@}
@@ -629,7 +622,9 @@ class Graph: public QWidget
         QString generateFunctionName(const QString& name = tr("F"));
 		//@}
 
-		void createWorksheet(const QString& name);
+        //! Provided for convenience in scripts.
+		void createTable(const QString& curveName);
+        void createTable(const QwtPlotCurve* curve);
 		void activateGraph();
 
 		//! \name Vector Curves
@@ -749,7 +744,7 @@ signals:
 		QStringList axesFormulas;
 		//! Stores columns used for axes with text labels or  time/date format info
 		QStringList axesFormatInfo;
-		Q3ValueList <int> axisType;
+		QList <int> axisType;
 		//! Structure used to define the grid
 		GridOptions grid;
 		MarkerType selectedMarkerType;
@@ -779,15 +774,15 @@ signals:
 		//! Stores the step the user specified for the four scale. If step = 0.0, the step will be calculated automatically by the Qwt scale engine.
 		QVector<double> d_user_step;
 		//! Curve types
-		Q3MemArray<int> c_type; 
+		QVector<int> c_type;
 		//! Curves on plot keys
-		Q3MemArray<long> c_keys;
+		QVector<long> c_keys;
 		//! Arrows/lines on plot keys
-		Q3MemArray<long> d_lines; 
+		QVector<long> d_lines;
 		//! Images on plot keys
-		Q3MemArray<long> d_images; 
+		QVector<long> d_images;
 		//! Stores the identifiers (keys) of the text objects on the plot
-		Q3MemArray<long> d_texts;
+		QVector<long> d_texts;
 
 		QPen mrkLinePen;
 		QFont auxMrkFont, defaultMarkerFont;
@@ -803,7 +798,7 @@ signals:
 		int auxArrowHeadLength, auxArrowHeadAngle;
 		int translationDirection;
 		long selectedMarker,legendMarkerID, startID, endID;
-		long mrkX,mrkY;//x=0 et y=0 line markers keys
+		long mrkX, mrkY;//x=0 et y=0 line markers keys
 		bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 
 		//! \name Which data tool is activated by the user

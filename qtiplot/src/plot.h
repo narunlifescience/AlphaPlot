@@ -90,6 +90,8 @@ public:
 	virtual void print(QPainter *, const QRect &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
 	
+    void updateLayout();
+
 protected:
 	void printCanvas(QPainter *painter, const QRect &canvasRect,
    			 const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const;

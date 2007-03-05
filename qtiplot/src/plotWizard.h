@@ -116,6 +116,7 @@ public slots:
 private:
 	//! Display a warning that a new curve must be added first before the selection of the columns
 	bool noCurves();
+    QSize sizeHint() const;
 
 signals:
 	//! Emitted when new plots need to be created

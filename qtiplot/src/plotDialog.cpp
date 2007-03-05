@@ -1049,7 +1049,7 @@ void PlotDialog::showWorksheet()
 	if (!app)
 		return;
 
-	app->showCurveWorksheet(graph->curveKey(listBox->currentRow()));
+	app->showCurveWorksheet(graph, listBox->currentRow());
 	close();
 }
 
@@ -1380,19 +1380,29 @@ bool PlotDialog::acceptParams()
 	}
 	else if (privateTabWidget->currentPage()==histogramPage)
 	{
-		QString text=listBox->currentItem()->text();
-		QStringList t=text.split(": ", QString::SkipEmptyParts);
-		QStringList list=t[1].split(",", QString::SkipEmptyParts);
-		text=t[0] + "_" + list[1].remove("(Y)");
-		bool accept=validInput();
+        QwtHistogram *h = (QwtHistogram *)graph->curve(listBox->currentRow());
+		if (!h)
+			return false;
+
+		QString text = listBox->currentItem()->text();
+		QStringList t = text.split(": ", QString::SkipEmptyParts);
+		QStringList list = t[1].split(",", QString::SkipEmptyParts);
+		text = t[0] + "_" + list[1].remove("(Y)");
+		bool accept = validInput();
 		if (accept)
 		{
 			ApplicationWindow *app = (ApplicationWindow *)this->parent();
 			if (!app)
 				return false;
-			Table* w=app->table(text);
+
+            if (h->autoBinning() == automaticBox->isChecked() &&
+                h->binSize() == binSizeBox->text().toDouble() &&
+                h->begin() == histogramBeginBox->text().toDouble() &&
+                h->end() == histogramEndBox->text().toDouble()) return false;
+
+			Table* w = app->table(text);
 			if (w)
-				graph->updateHistogram(w, text, listBox->currentRow(), automaticBox->isChecked(),binSizeBox->text().toDouble(),
+				graph->updateHistogram(w, text, listBox->currentRow(), automaticBox->isChecked(), binSizeBox->text().toDouble(),
 						histogramBeginBox->text().toDouble(), histogramEndBox->text().toDouble());		
 		}
 		return accept;
@@ -1518,38 +1528,35 @@ void PlotDialog::setAutomaticBinning()
 
 bool PlotDialog::validInput()
 {
-	QString from=histogramBeginBox->text();
-	QString to=histogramEndBox->text();
-	QString step=binSizeBox->text();
+	QString from = histogramBeginBox->text();
+	QString to = histogramEndBox->text();
+	QString step = binSizeBox->text();
 	QRegExp nonDigit("\\D");
 
 	if (histogramBeginBox->text().isEmpty())
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Input error"),
-				tr("Please enter a valid start limit!"));
+		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid start limit!"));
 		histogramBeginBox->setFocus();
 		return false;
 	}
 
 	if (histogramEndBox->text().isEmpty())
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Input error"),
-				tr("Please enter a valid end limit!"));
+		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid end limit!"));
 		histogramEndBox->setFocus();
 		return false;
 	}
 
 	if (binSizeBox->text().isEmpty())
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Input error"),
-				tr("Please enter a valid bin size value!"));
+		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid bin size value!"));
 		binSizeBox->setFocus();
 		return false;
 	}	
 
-	from=from.remove(".");
-	to=to.remove(".");
-	step=step.remove(".");
+	from = from.remove(".");
+	to = to.remove(".");
+	step = step.remove(".");
 
 	int pos=from.find("-",0);
 	if(pos==0)
@@ -1560,7 +1567,7 @@ bool PlotDialog::validInput()
 		to=to.replace(pos,1,"");
 
 	double start,end, stp;
-	bool error=false;	
+	bool error = false;
 	if (from.contains(nonDigit))
 	{
 		try
@@ -1571,14 +1578,14 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,"QtiPlot - Start limit error",QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
 			histogramBeginBox->setFocus();
-			error=true;
+			error = true;
 			return false;
 		}	
 	}
 	else
-		start=histogramBeginBox->text().toDouble();
+		start = histogramBeginBox->text().toDouble();
 
 	if (to.contains(nonDigit))
 	{
@@ -1590,7 +1597,7 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,"QtiPlot - End limit error",QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
 			histogramEndBox->setFocus();
 			error=true;
 			return false;
@@ -1601,8 +1608,7 @@ bool PlotDialog::validInput()
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Input error"),
-				tr("Please enter limits that satisfy: begin < end!"));
+		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter limits that satisfy: begin < end!"));
 		histogramEndBox->setFocus();
 		return false;
 	}
@@ -1617,7 +1623,7 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("QtiPlot - Bin size input error"),QString::fromStdString(e.GetMsg()));
 			binSizeBox->setFocus();
 			error=true;
 			return false;
@@ -1628,7 +1634,7 @@ bool PlotDialog::validInput()
 
 	if (stp <=0)
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Bin size input error"),tr("Please enter a positive bin size value!"));
+		QMessageBox::critical(this, tr("QtiPlot - Bin size input error"), tr("Please enter a positive bin size value!"));
 		binSizeBox->setFocus();
 		return false;	
 	}

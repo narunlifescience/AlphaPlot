@@ -34,14 +34,12 @@
 #include "LineMarker.h"
 
 #include <QPainter>
-#include <QPixmapCache> 
 #include <QApplication> 
 #include <QMessageBox> 
+#include <QVector>
 
 #include <qwt_text_label.h>
 #include <qwt_plot_canvas.h>
-
-#include <Q3MemArray>
 
 CanvasPicker::CanvasPicker(Graph *graph):
 	QObject(graph)
@@ -57,9 +55,9 @@ CanvasPicker::CanvasPicker(Graph *graph):
 
 bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 {
-	Q3MemArray<long> images=plot()->imageMarkerKeys();	
-	Q3MemArray<long> texts=plot()->textMarkerKeys();
-	Q3MemArray<long> lines=plot()->lineMarkerKeys();	
+	QVector<long> images=plot()->imageMarkerKeys();
+	QVector<long> texts=plot()->textMarkerKeys();
+	QVector<long> lines=plot()->lineMarkerKeys();
 
 	if (object != (QObject *)plot()->plotWidget()->canvas())
 		return FALSE;
@@ -130,8 +128,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 				if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
 				{ 	
-					startLinePoint= me->pos();
-					plot()->copyCanvas(TRUE);
+					startLinePoint = me->pos();
 					return true;
 				}
 
