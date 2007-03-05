@@ -59,7 +59,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 			{
 			((QwtScaleWidget *)object)->setFocus();
 			emit clicked();	
-			return !scaleRect((const QwtScaleWidget *)object).contains(me->pos());
+			return !(me->modifiers() & Qt::ShiftModifier) && !scaleRect((const QwtScaleWidget *)object).contains(me->pos());
 			}
 		else if (me->button() == Qt::RightButton)
 			{
@@ -185,7 +185,7 @@ bool TitlePicker::eventFilter(QObject *object, QEvent *e)
 
 		 if (me->button()==Qt::RightButton)
 			 emit showTitleMenu();
-		 return true;
+		 return !(me->modifiers() & Qt::ShiftModifier);
     }
 
 	if ( object->inherits("QwtTextLabel") && 

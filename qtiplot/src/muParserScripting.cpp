@@ -195,7 +195,7 @@ double muParserScript::cell(int row, int col)
 	if (matrix->text(row-1,col-1).isEmpty())
 		throw new EmptySourceError();
 	else
-		return (matrix->text(row-1,col-1)).toDouble();
+		return matrix->cell(row-1,col-1);
 }
 
 double *muParserScript::addVariable(const char *name)

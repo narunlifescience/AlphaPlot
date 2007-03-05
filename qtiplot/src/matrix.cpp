@@ -182,6 +182,19 @@ void Matrix::cellEdited(int row,int col)
 	emit modifiedWindow(this);
 }
 
+double Matrix::cell(int row, int col)
+{
+	if(dMatrix)
+		return dMatrix[row][col];
+	else
+		return d_table->text(row, col).toDouble();
+}
+
+void Matrix::setCell(int row, int col, double value)
+{
+	d_table->setText(row, col, QString::number(value, txt_format.toAscii(), num_precision));
+}
+
 QString Matrix::text (int row, int col)
 {
 	if(dMatrix)
@@ -384,7 +397,7 @@ void Matrix::setMatrixDimensions(int rows, int cols)
 	{
 		QString text="Deleting rows/columns from the matrix!";
 		text+="<p>Do you really want to continue?";
-		switch( QMessageBox::information(0,"QtiPlot", tr(text),tr("Yes"), tr("Cancel"), 0, 1 ) ) 
+		switch( QMessageBox::information(this, "QtiPlot", tr(text),tr("Yes"), tr("Cancel"), 0, 1 ) ) 
 		{
 			case 0:
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -430,7 +443,7 @@ double Matrix::determinant()
 
 	if (rows != cols)
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Calculation failed, the matrix is not square!"));
 		return GSL_POSINF;
 	}
@@ -468,7 +481,7 @@ void Matrix::invert()
 
 	if (rows != cols)
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Inversion failed, the matrix is not square!"));
 		return;
 	}
@@ -850,7 +863,7 @@ void Matrix::pasteSelection()
 	QApplication::restoreOverrideCursor();
 	if (rows>r || cols>c)
 	{
-		switch( QMessageBox::information(0,"QtiPlot",
+		switch( QMessageBox::information(this, "QtiPlot",
 					tr("The text in the clipboard is larger than your current selection!\
 						\nDo you want to insert cells?"),
 					tr("Yes"), tr("No"), tr("Cancel"), 0, 0) ) 

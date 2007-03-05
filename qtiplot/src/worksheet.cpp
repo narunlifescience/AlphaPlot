@@ -2069,6 +2069,11 @@ void Table::setAscValues()
 		QString name=list[j];
 		selectedCol=colIndex(name);
 
+		if (columnType(selectedCol) != Numeric) {
+			colTypes[selectedCol] = Numeric;
+			col_format[selectedCol] = "0/6";
+		}
+
 		int prec;
 		char f;
 		columnNumericFormat(selectedCol, f, prec);

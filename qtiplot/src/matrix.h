@@ -78,7 +78,13 @@ public slots:
 
 	bool calculate(int startRow, int endRow, int startCol, int endCol);
 
+	//! Return the numeric value in the specified cell.
+	double cell(int row, int col);
+	//! Set the (numeric) value of the specified cell.
+	void setCell(int row, int col, double value);
+	//! Return the textual representation of the contents of the specified cell.
 	QString text (int row, int col);
+	//! Set a cell's value from a string.
 	void setText (int row, int col, const QString & text );
 
 	QChar textFormat(){return txt_format;};

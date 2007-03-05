@@ -243,7 +243,6 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 		{
 			QwtPlot *plot = gr->plotWidget();
 			QwtPlotLayout *plotLayout = plot->plotLayout();
-			QRect cRect = plotLayout->canvasRect();
 
 			int gx = qRound(gr->x()*w_ratio);
 			int gy = qRound(gr->y()*h_ratio);

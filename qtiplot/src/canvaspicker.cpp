@@ -160,7 +160,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				if(plot()->markerSelected())
 					plot()->deselectMarker();
 
-				return true;
+				return !(me->modifiers() & Qt::ShiftModifier);
 			}		
 			break;
 

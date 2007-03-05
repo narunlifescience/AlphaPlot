@@ -247,7 +247,7 @@ public:
 	CHECK_MATRIX_ROW(a0);
 	CHECK_MATRIX_COL(a1);
 	if (sipIsErr == 0)
-		sipRes = sipCpp->text(row, col).toDouble();
+		sipRes = sipCpp->cell(row, col);
 %End
   void setText(int, int, const QString&);
 %MethodCode
@@ -262,11 +262,8 @@ public:
 	sipIsErr = 0;
 	CHECK_MATRIX_ROW(a0);
 	CHECK_MATRIX_COL(a1);
-	if (sipIsErr == 0) {
-		int prec = sipCpp->precision();
-		char f = sipCpp->textFormat().toAscii();
-		sipCpp->setText(row, col, QString::number(a2, f, prec));
-	}
+	if (sipIsErr == 0)
+		sipCpp->setCell(row, col, a2);
 %End
 private:
   Matrix(const Matrix&);
