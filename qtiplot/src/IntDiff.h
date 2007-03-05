@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : Fitter.h
+    File                 : CHECKMEFit.h fitclasses.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief

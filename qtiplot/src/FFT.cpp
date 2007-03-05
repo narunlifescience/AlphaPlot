@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFT.h"
-#include "multilayer.h"
-#include "plot.h"
+#include "MultiLayer.h"
+#include "Plot.h"
 
 #include <QApplication>
 #include <QMessageBox>

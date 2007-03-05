@@ -26,9 +26,9 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qapplication.h>
+#include <qApplicationWindow.h>
 #include <qaction.h>
- #include "application.h"
+ #include "ApplicationWindow.h"
  
 // The following stuff is for the doxygen title page
 /*!  \mainpage QtiPlot - Data analysis and scientific plotting - API documentation
@@ -46,7 +46,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
 <br>
  
  The QtiPlot web page can be found at<br>
- <a href="http://soft.proindependent.com/qtiplot.html">http://soft.proindependent.com/qtiplot.html</a><br>
+ <a href="http://soft.proindependent.com/qtiPlot.html">http://soft.proindependent.com/qtiPlot.html</a><br>
   
   \section libs QtiPlot uses the following libraries:
   <a href="http://www.trolltech.com/products/qt/index.html">Qt</a>, 

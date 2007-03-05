@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "graph.h"
-#include "plot.h"
+#include "Graph.h"
+#include "Plot.h"
 #include "ImageMarker.h"
 
 #include <QImage>

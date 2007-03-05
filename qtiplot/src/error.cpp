@@ -1,9 +1,9 @@
-#include <qapplication.h>
+#include <qApplicationWindow.h>
 #include <qpainter.h>
 #include <qpen.h>
 
 #include <qwt_array.h>
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_grid.h>
 #include <qwt_plot_marker.h>

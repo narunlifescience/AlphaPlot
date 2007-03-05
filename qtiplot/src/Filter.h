@@ -31,7 +31,7 @@
 
 #include <QObject>
 
-#include "application.h"
+#include "ApplicationWindow.h"
 
 class QwtPlotCurve;
 class Graph;

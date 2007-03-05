@@ -33,7 +33,7 @@
 #include <QMouseEvent>
 
 #include <qwt_scale_map.h>
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_canvas.h>
 
 #include "LegendMarker.h"

@@ -32,13 +32,13 @@
 #include <qfont.h>
 #include <qpen.h>
 
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_marker.h>
 #include <qwt_array.h>
 #include <qwt_text.h>
 
-#include "graph.h"
-#include "plot.h"
+#include "Graph.h"
+#include "Plot.h"
 	
 /**
  * \brief A piece of text to be drawn on a Plot.

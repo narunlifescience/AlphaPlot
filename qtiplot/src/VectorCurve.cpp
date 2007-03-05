@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "VectorCurve.h"
 
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>

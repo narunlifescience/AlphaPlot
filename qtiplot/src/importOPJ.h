@@ -29,7 +29,7 @@
 #ifndef IMPORTOPJ_H
 #define IMPORTOPJ_H
 
-#include "application.h"
+#include "ApplicationWindow.h"
 
 class OPJFile;
 	

@@ -28,8 +28,8 @@
  ***************************************************************************/
 #include "Filter.h"
 #include "LegendMarker.h"
-#include "colorBox.h"
-#include "worksheet.h"
+#include "ColorBox.h"
+#include "Table.h"
 
 #include <QApplication>
 #include <QMessageBox>

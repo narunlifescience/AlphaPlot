@@ -35,7 +35,7 @@
 class ScriptEdit: QTextEdit
 {
 %TypeHeaderCode
-#include "src/scriptedit.h"
+#include "src/ScriptEdit.h"
 %End
 public slots:
   void execute();
@@ -50,7 +50,7 @@ private:
 class MyWidget: QWidget /PyName=MDIWindow/
 {
 %TypeHeaderCode
-#include "src/widget.h"
+#include "src/MyWidget.h"
 %End
 public:
   enum CaptionPolicy{Name = 0, Label = 1, Both = 2};
@@ -79,7 +79,7 @@ typedef QList<MyWidget*> MDIWindowList;
 class Table: MyWidget
 {
 %TypeHeaderCode
-#include "src/worksheet.h"
+#include "src/Table.h"
 
 #define CHECK_TABLE_COL(arg)\
     int col;\
@@ -216,7 +216,7 @@ private:
 class Matrix: MyWidget
 {
 %TypeHeaderCode
-#include "src/matrix.h"
+#include "src/Matrix.h"
 #define CHECK_MATRIX_COL(arg)\
 	int col = arg-1;\
    if (col < 0 || col >= sipCpp->numCols()) {\
@@ -286,7 +286,7 @@ private:
 class Graph : QWidget /PyName=Layer/
 {
 %TypeHeaderCode
-#include "src/graph.h"
+#include "src/Graph.h"
 #include "src/LegendMarker.h"
 %End
 public:
@@ -337,7 +337,7 @@ private:
 class MultiLayer : MyWidget /PyName=Graph/
 {
 %TypeHeaderCode
-#include "src/multilayer.h"
+#include "src/MultiLayer.h"
 %End
 public:
   Graph *activeGraph() /PyName=activeLayer/;
@@ -356,7 +356,7 @@ private:
 class Note: MyWidget
 {
 %TypeHeaderCode
-#include "src/note.h"
+#include "src/Note.h"
 %End
 public:
   void execute() const;
@@ -368,7 +368,7 @@ private:
 class ApplicationWindow: QMainWindow
 {
 %TypeHeaderCode
-#include "src/application.h"
+#include "src/ApplicationWindow.h"
 %End
 %ConvertToSubClassCode
 // we have to do this to override casting in qt/qobject.sip (PyQt 3.16)
@@ -464,7 +464,7 @@ private:
 class Fit : QObject
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
@@ -587,7 +587,7 @@ else { sipCpp = NULL; }
 class ExponentialFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
@@ -605,7 +605,7 @@ public:
 class TwoExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -623,7 +623,7 @@ public:
 class ThreeExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -641,7 +641,7 @@ public:
 class SigmoidalFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -659,7 +659,7 @@ public:
 class GaussAmpFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -677,7 +677,7 @@ public:
 class NonLinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -708,7 +708,7 @@ public:
 class PluginFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -727,7 +727,7 @@ public:
 class MultiPeakFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   enum PeakProfile{Gauss, Lorentz};
@@ -746,7 +746,7 @@ public:
 class LorentzFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -764,7 +764,7 @@ public:
 class GaussFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -782,7 +782,7 @@ public:
 class PolynomialFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
@@ -806,7 +806,7 @@ public:
 class LinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/Fitter.h"
+#include "src/CHECKMEFit.h fitclasses.h"
 %End
 public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -826,7 +826,7 @@ public:
 class PythonScripting
 {
 %TypeHeaderCode
-#include "src/PythonScripting.h"
+#include "src/CHECKMEPythonScript.h PythonScripting.h"
 %End
 public:
   void write(const QString&);
@@ -836,7 +836,7 @@ private:
 class PythonScript
 {
 %TypeHeaderCode
-#include "src/PythonScripting.h"
+#include "src/CHECKMEPythonScript.h PythonScripting.h"
 %End
 public:
   void write(const QString&);
@@ -847,7 +847,7 @@ private:
 class Folder : QObject
 {
 %TypeHeaderCode
-#include "src/folder.h"
+#include "src/Folder.h"
 %End
 public:
   MDIWindowList windowsList() /PyName=windows/;

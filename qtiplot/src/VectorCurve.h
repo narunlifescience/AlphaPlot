@@ -30,7 +30,7 @@
 #define VECTORCURVE_H
 
 #include <qwt_plot_curve.h>
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 
 class QwtPlot;
 class QwtPlotCurve;

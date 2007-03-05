@@ -30,7 +30,7 @@
 #ifndef TABLE_STATISTICS_H
 #define TABLE_STATISTICS_H
 
-#include "worksheet.h"
+#include "Table.h"
 
 /*!\brief Table that computes and displays statistics on another Table.
  *

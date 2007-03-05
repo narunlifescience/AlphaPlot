@@ -29,7 +29,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScriptWindow.h"
-#include "scriptedit.h"
+#include "ScriptEdit.h"
 #include "pixmaps.h"
 
 #include <QMenuBar>

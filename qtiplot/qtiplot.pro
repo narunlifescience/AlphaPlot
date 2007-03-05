@@ -97,86 +97,90 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
  
 ###################### HEADERS ##############################################
 
-HEADERS  += src/application.h \
+HEADERS  += src/ApplicationWindow.h \
      src/globals.h\
-     src/graph.h \
-     src/graph3D.h \
-     src/worksheet.h \
-     src/curvesDialog.h \
-     src/valuesDialog.h \
-     src/plotDialog.h \
-     src/plot3DDialog.h \
-     src/plotWizard.h \
-     src/exportDialog.h \
-     src/importDialog.h \
-     src/axesDialog.h \
-     src/pieDialog.h \
-     src/polynomFitDialog.h \
-     src/expDecayDialog.h \
-     src/functionDialog.h \
-     src/fitDialog.h \
-     src/surfaceDialog.h \
-     src/tableDialog.h \
-     src/textDialog.h \
-     src/lineDlg.h \
-     src/scalePicker.h \
-     src/canvaspicker.h \
-     src/ErrorBar.h \
-     src/pie.h \
-     src/errDlg.h \
+     src/Graph.h \
+     src/Graph3D.h \
+     src/Table.h \
+     src/CurvesDialog.h \
+     src/SetColValuesDialog.h \
+     src/PlotDialog.h \
+     src/Plot3DDialog.h \
+     src/PlotWizard.h \
+     src/ExportDialog.h \
+     src/ImportDialog.h \
+     src/AxesDialog.h \
+     src/PieDialog.h \
+     src/PolynomFitDialog.h \
+     src/ExpDecayDialog.h \
+     src/FunctionDialog.h \
+     src/FitDialog.h \
+     src/SurfaceDialog.h \
+     src/TableDialog.h \
+     src/TextDialog.h \
+     src/LineDialog.h \
+     src/ScalePicker.h \
+     src/TitlePicker.h \
+     src/CanvasPicker.h \
+     src/QwtErrorPlotCurve.h \
+     src/QwtPieCurve.h \
+     src/ErrDialog.h \
      src/LegendMarker.h \
      src/LineMarker.h\
      src/ImageMarker.h\
-     src/imageDialog.h \
+     src/ImageDialog.h \
      src/fit.h \
      src/nrutil.h\
      src/pixmaps.h\
-     src/multilayer.h\
-     src/layerDialog.h \
-     src/intDialog.h \
-     src/sortDialog.h\
-	 src/bars.h \
-	 src/cones.h \
-	 src/configDialog.h \
-	 src/BarCurve.h \
+     src/MultiLayer.h\
+     src/LayerDialog.h \
+     src/IntDialog.h \
+     src/SortDialog.h\
+	 src/Bar.h \
+	 src/Cone3D.h \
+	 src/ConfigDialog.h \
+	 src/QwtBarCurve.h \
 	 src/BoxCurve.h \
-	 src/Histogram.h \
+	 src/QwtHistogram.h \
 	 src/VectorCurve.h \
-     src/scales.h \
-	 src/imageExportOptionsDialog.h \
-	 src/matrix.h \
-	 src/matrixDialog.h \
-	 src/matrixSizeDialog.h \
-	 src/matrixValuesDialog.h \
-     src/dataSetDialog.h \
-	 src/parser.h \
-	 src/colorBox.h \
-	 src/symbolBox.h \
-	 src/patternBox.h \
+     src/ScaleDraw.h \
+	 src/ImageExportOptionsDialog.h \
+	 src/Matrix.h \
+	 src/MatrixDialog.h \
+	 src/MatrixSizeDialog.h \
+	 src/MatrixValuesDialog.h \
+     src/DataSetDialog.h \
+	 src/MyParser.h \
+	 src/ColorBox.h \
+	 src/SymbolBox.h \
+	 src/PatternBox.h \
 	 src/importOPJ.h\
-	 src/symbolDialog.h \
-	 src/plot.h \
-	 src/colorButton.h \
-	 src/associationsDialog.h \
-	 src/renameWindowDialog.h \
-	 src/widget.h \
-	 src/interpolationDialog.h\
-	 src/fileDialogs.h\
-	 src/epsExportDialog.h\
-	 src/smoothCurveDialog.h\
-	 src/filterDialog.h\
-	 src/fftDialog.h\
-	 src/note.h\
-	 src/folder.h\
-	 src/findDialog.h\
-	 src/Scripting.h\
-	 src/scriptedit.h\
+	 src/SymbolDialog.h \
+	 src/Plot.h \
+	 src/ColorButton.h \
+	 src/AssociationsDialog.h \
+	 src/RenameWindowDialog.h \
+	 src/MyWidget.h \
+	 src/InterpolationDialog.h\
+	 src/ImportFilesDialog.h \
+     src/ImageExportDialog.h\
+	 src/EpsExportDialog.h\
+	 src/SmoothCurveDialog.h\
+	 src/FilterDialog.h\
+	 src/FFTDialog.h\
+	 src/Note.h\
+	 src/Folder.h\
+	 src/FindDialog.h\
+	 src/ScriptingEnv.h\
+     src/Script.h\
+	 src/ScriptEdit.h\
 	 src/FunctionCurve.h\
-	 src/Fitter.h\
-	 src/customEvents.h\
+	 src/Fit.h\
+	 src/fitclasses.h\
+	 src/customevents.h\
 	 src/ScriptingLangDialog.h\
 	 src/ScriptWindow.h\
-	 src/textformatbuttons.h\
+	 src/TextFormatButtons.h\
 	 src/TableStatistics.h\
 	 src/Spectrogram.h\
 	 src/ColorMapEditor.h\
@@ -190,83 +194,87 @@ HEADERS  += src/application.h \
 
 ###################### SOURCES ##############################################
 	
-SOURCES  += src/application.cpp \
-     src/graph.cpp \
+SOURCES  += src/ApplicationWindow.cpp \
+     src/Graph.cpp \
      src/analysis.cpp \
-     src/graph3D.cpp \
-     src/worksheet.cpp \
-     src/valuesDialog.cpp \
-     src/curvesDialog.cpp \
-     src/plotDialog.cpp \
-     src/plot3DDialog.cpp \
-     src/plotWizard.cpp \
-     src/exportDialog.cpp \
-     src/importDialog.cpp \
-     src/axesDialog.cpp \
-     src/pieDialog.cpp \
-     src/polynomFitDialog.cpp \
-     src/tableDialog.cpp \
-     src/textDialog.cpp \
-     src/scalePicker.cpp \
-     src/canvaspicker.cpp \
-     src/expDecayDialog.cpp \
-     src/functionDialog.cpp \
-     src/fitDialog.cpp \
-     src/surfaceDialog.cpp \
-     src/lineDlg.cpp \
-     src/ErrorBar.cpp \
-     src/pie.cpp \
-     src/errDlg.cpp \
+     src/Graph3D.cpp \
+     src/Table.cpp \
+     src/SetColValuesDialog.cpp \
+     src/CurvesDialog.cpp \
+     src/PlotDialog.cpp \
+     src/Plot3DDialog.cpp \
+     src/PlotWizard.cpp \
+     src/ExportDialog.cpp \
+     src/ImportDialog.cpp \
+     src/AxesDialog.cpp \
+     src/PieDialog.cpp \
+     src/PolynomFitDialog.cpp \
+     src/TableDialog.cpp \
+     src/TextDialog.cpp \
+     src/ScalePicker.cpp\ 
+     src/TitlePicker.cpp \
+     src/CanvasPicker.cpp \
+     src/ExpDecayDialog.cpp \
+     src/FunctionDialog.cpp \
+     src/FitDialog.cpp \
+     src/SurfaceDialog.cpp \
+     src/LineDialog.cpp \
+     src/QwtErrorPlotCurve.cpp \
+     src/QwtPieCurve.cpp \
+     src/ErrDialog.cpp \
      src/LegendMarker.cpp \
      src/LineMarker.cpp \
      src/ImageMarker.cpp\
-     src/imageDialog.cpp \
-     src/multilayer.cpp\
-     src/layerDialog.cpp \
-     src/intDialog.cpp \
-     src/sortDialog.cpp\
-	 src/bars.cpp \
-	 src/cones.cpp \
-     src/dataSetDialog.cpp \
-	 src/configDialog.cpp \
-	 src/BarCurve.cpp \
+     src/ImageDialog.cpp \
+     src/MultiLayer.cpp\
+     src/LayerDialog.cpp \
+     src/IntDialog.cpp \
+     src/SortDialog.cpp\
+	 src/Bar.cpp \
+	 src/Cone3D.cpp \
+     src/DataSetDialog.cpp \
+	 src/ConfigDialog.cpp \
+	 src/QwtBarCurve.cpp \
 	 src/BoxCurve.cpp \
-	 src/Histogram.cpp \
+	 src/QwtHistogram.cpp \
 	 src/VectorCurve.cpp \
-	 src/imageExportOptionsDialog.cpp \
-	 src/matrix.cpp \
-	 src/matrixDialog.cpp \
-	 src/matrixSizeDialog.cpp \
-	 src/matrixValuesDialog.cpp \
-	 src/parser.cpp\
-	 src/colorBox.cpp \
-	 src/symbolBox.cpp \
-	 src/patternBox.cpp \
+	 src/ImageExportOptionsDialog.cpp \
+	 src/Matrix.cpp \
+	 src/MatrixDialog.cpp \
+	 src/MatrixSizeDialog.cpp \
+	 src/MatrixValuesDialog.cpp \
+	 src/MyParser.cpp\
+	 src/ColorBox.cpp \
+	 src/SymbolBox.cpp \
+	 src/PatternBox.cpp \
 	 src/importOPJ.cpp\
 	 src/main.cpp \
-	 src/symbolDialog.cpp \
-	 src/plot.cpp \
-	 src/colorButton.cpp \
-	 src/associationsDialog.cpp \
-	 src/renameWindowDialog.cpp \
-	 src/widget.cpp\
-	 src/interpolationDialog.cpp\
-	 src/epsExportDialog.cpp\
+	 src/SymbolDialog.cpp \
+	 src/Plot.cpp \
+	 src/ColorButton.cpp \
+	 src/AssociationsDialog.cpp \
+	 src/RenameWindowDialog.cpp \
+	 src/MyWidget.cpp\
+	 src/InterpolationDialog.cpp\
+	 src/EpsExportDialog.cpp\
 	 src/nrutil.cpp\
      src/fit.cpp\
-	 src/smoothCurveDialog.cpp\
-	 src/filterDialog.cpp\
-	 src/fftDialog.cpp\
-	 src/note.cpp\
-	 src/folder.cpp\
-	 src/findDialog.cpp\
-	 src/textformatbuttons.cpp\
-	 src/scriptedit.cpp\
-	 src/fileDialogs.cpp\
-     src/scales.cpp\
+	 src/SmoothCurveDialog.cpp\
+	 src/FilterDialog.cpp\
+	 src/FFTDialog.cpp\
+	 src/Note.cpp\
+	 src/Folder.cpp\
+	 src/FindDialog.cpp\
+	 src/TextFormatButtons.cpp\
+	 src/ScriptEdit.cpp\
+	 src/ImportFilesDialog.cpp\
+	 src/ImageExportDialog.cpp\
+     src/ScaleDraw.cpp\
 	 src/FunctionCurve.cpp\
-	 src/Fitter.cpp\
-	 src/Scripting.cpp\
+	 src/Fit.cpp\
+	 src/fitclasses.h\
+	 src/ScriptingEnv.cpp\
+	 src/Script.cpp\
 	 src/ScriptingLangDialog.cpp\
 	 src/ScriptWindow.cpp\
 	 src/TableStatistics.cpp\
@@ -296,7 +304,8 @@ SCRIPTING_LANGS = muParser Python
 
 contains(SCRIPTING_LANGS, muParser) {
   DEFINES +=	SCRIPTING_MUPARSER
-  HEADERS +=	src/muParserScripting.h \
+  HEADERS +=	src/muParserScript.h \
+			 	src/muParserScripting.h \
 		../3rdparty/muParser/muParser.h \
 		../3rdparty/muParser/muParserBase.h \
 		../3rdparty/muParser/muParserInt.h \
@@ -308,7 +317,8 @@ contains(SCRIPTING_LANGS, muParser) {
 		../3rdparty/muParser/muParserTokenReader.h \ 
 		../3rdparty/muParser/muParserFixes.h \
 		../3rdparty/muParser/muParserDef.h  	   
-  SOURCES +=	src/muParserScripting.cpp \
+  SOURCES +=	src/muParserScript.cpp \
+				src/muParserScripting.cpp \
 		../3rdparty/muParser/muParser.cpp \
 		../3rdparty/muParser/muParserBase.cpp \
 		../3rdparty/muParser/muParserInt.cpp \
@@ -322,8 +332,8 @@ contains(SCRIPTING_LANGS, muParser) {
 	
 contains(SCRIPTING_LANGS, Python) {
   DEFINES +=	SCRIPTING_PYTHON
-  HEADERS +=	src/PythonScripting.h
-  SOURCES +=	src/PythonScripting.cpp
+  HEADERS +=	src/PythonScript.h src/PythonScripting.h
+  SOURCES +=	src/PythonScript.cpp src/PythonScripting.cpp
 
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
@@ -354,21 +364,24 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiNote.h\
 	 ../tmp/qtiplot/sipqtiPythonScript.h\
 	 ../tmp/qtiplot/sipqtiPythonScripting.h\
+	 ../tmp/qtiplot/sipqtiPythonScript.h\
+	 ../tmp/qtiplot/sipqtiPythonScripting.h\
 	 ../tmp/qtiplot/sipqtiFolder.h\
 	 ../tmp/qtiplot/sipqtiQList.h\
-	 ../tmp/qtiplot/sipqtiFit.h\
-	 ../tmp/qtiplot/sipqtiExponentialFit.h\
-	 ../tmp/qtiplot/sipqtiTwoExpFit.h\
-	 ../tmp/qtiplot/sipqtiThreeExpFit.h\
-	 ../tmp/qtiplot/sipqtiSigmoidalFit.h\
-	 ../tmp/qtiplot/sipqtiGaussAmpFit.h\
-	 ../tmp/qtiplot/sipqtiLorentzFit.h\
-	 ../tmp/qtiplot/sipqtiNonLinearFit.h\
-	 ../tmp/qtiplot/sipqtiPluginFit.h\
-	 ../tmp/qtiplot/sipqtiMultiPeakFit.h\
-	 ../tmp/qtiplot/sipqtiPolynomialFit.h\
-	 ../tmp/qtiplot/sipqtiLinearFit.h\
-	 ../tmp/qtiplot/sipqtiGaussFit.h
+	 ../tmp/qtiplot/sipqtifitclasses.h\
+	 ../tmp/qtiplot/sipqtiFit.h \
+	 ../tmp/qtiplot/sipqtiExponentialFit.h \
+	 ../tmp/qtiplot/sipqtiTwoExpFit.h \
+	 ../tmp/qtiplot/sipqtiThreeExpFit.h \
+	 ../tmp/qtiplot/sipqtiSigmoidalFit.h \
+	 ../tmp/qtiplot/sipqtiGaussAmpFit.h \
+	 ../tmp/qtiplot/sipqtiLorentzFit.h \
+	 ../tmp/qtiplot/sipqtiNonLinearFit.h \
+	 ../tmp/qtiplot/sipqtiPluginFit.h \
+	 ../tmp/qtiplot/sipqtiMultiPeakFit.h \
+	 ../tmp/qtiplot/sipqtiPolynomialFit.h \
+	 ../tmp/qtiplot/sipqtiLinearFit.h \
+	 ../tmp/qtiplot/sipqtiGaussFit.h 
   SOURCES +=\
 	 ../tmp/qtiplot/sipqticmodule.cpp\
 	 ../tmp/qtiplot/sipqtiApplicationWindow.cpp\
@@ -382,20 +395,23 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiNote.cpp\
 	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
 	 ../tmp/qtiplot/sipqtiPythonScripting.cpp\
+	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
+	 ../tmp/qitplot/sipqtiPythonScripting.cpp\
 	 ../tmp/qtiplot/sipqtiFolder.cpp\
 	 ../tmp/qtiplot/sipqtiQList.cpp\
-	 ../tmp/qtiplot/sipqtiFit.cpp\
-	 ../tmp/qtiplot/sipqtiExponentialFit.cpp\
-	 ../tmp/qtiplot/sipqtiTwoExpFit.cpp\
-	 ../tmp/qtiplot/sipqtiThreeExpFit.cpp\
-	 ../tmp/qtiplot/sipqtiSigmoidalFit.cpp\
-	 ../tmp/qtiplot/sipqtiGaussAmpFit.cpp\
-	 ../tmp/qtiplot/sipqtiLorentzFit.cpp\
-	 ../tmp/qtiplot/sipqtiNonLinearFit.cpp\
-	 ../tmp/qtiplot/sipqtiPluginFit.cpp\
-	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp\
-	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp\
-	 ../tmp/qtiplot/sipqtiLinearFit.cpp\
-	 ../tmp/qtiplot/sipqtiGaussFit.cpp
+	 ../tmp/qtiplot/sipqtifitclasses.cpp\
+	 ../tmp/qtiplot/sipqtiFit.cpp \
+	 ../tmp/qtiplot/sipqtiExponentialFit.cpp \
+	 ../tmp/qtiplot/sipqtiTwoExpFit.cpp \
+	 ../tmp/qtiplot/sipqtiThreeExpFit.cpp \
+	 ../tmp/qtiplot/sipqtiSigmoidalFit.cpp \
+	 ../tmp/qtiplot/sipqtiGaussAmpFit.cpp \
+	 ../tmp/qtiplot/sipqtiLorentzFit.cpp \
+; 	 ../tmp/qtiplot/sipqtiNonLinearFit.cpp \
+	 ../tmp/qtiplot/sipqtiPluginFit.cpp \
+	 ../tmp/qtiplot/sipqtiMultiPeakFit.cpp \
+	 ../tmp/qtiplot/sipqtiPolynomialFit.cpp \
+	 ../tmp/qtiplot/sipqtiLinearFit.cpp \
+	 ../tmp/qtiplot/sipqtiGaussFit.cpp 
 }
 ###############################################################

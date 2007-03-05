@@ -29,9 +29,9 @@
 #ifndef SPECTROGRAM_H
 #define SPECTROGRAM_H
 
-#include "matrix.h"
+#include "Matrix.h"
 #include <qwt_raster_data.h>
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
 

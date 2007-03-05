@@ -29,7 +29,7 @@
 #ifndef FUNCTIONCURVE_H
 #define FUNCTIONCURVE_H
 
-#include <qwt_plot.h>
+#include <qwt_Plot.h>
 #include <qwt_plot_curve.h>
 
 // Function curve class

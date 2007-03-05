@@ -31,7 +31,7 @@
 #ifndef SCRIPTWINDOW_H
 #define SCRIPTWINDOW_H
 
-#include "scriptedit.h"
+#include "ScriptEdit.h"
 
 #include <QMainWindow>
 #include <QMenu>

@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "IntDiff.h"
 #include "nrutil.h"
-#include "multilayer.h"
+#include "MultiLayer.h"
 #include "LegendMarker.h"
 
 #include <QApplication>
