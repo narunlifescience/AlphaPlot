@@ -33,6 +33,7 @@
 
 #include "ApplicationWindow.h"
 #include "Filter.h"
+#include "Fit.h"
 
 #include <gsl/gsl_multifit_nlin.h>
 #include <gsl/gsl_multimin.h>

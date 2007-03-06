@@ -29,10 +29,10 @@
 #include "ScalePicker.h" 
 #include "TitlePicker.h"
 
-#include <qApplicationWindow.h>
+#include <qapplication.h>
 
-#include <qwt_Plot.h>
-#include <qwt_scale_MyWidget.h>
+#include <qwt_plot.h>
+#include <qwt_scale_widget.h>
 #include <qwt_text_label.h>
 #include <QMouseEvent>
 

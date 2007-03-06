@@ -114,3 +114,4 @@ class ScriptingEnv : public QObject
     int d_refcount;
 };
 
+#endif

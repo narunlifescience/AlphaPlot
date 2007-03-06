@@ -32,7 +32,7 @@
 #include <qfont.h>
 #include <qpen.h>
 
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 #include <qwt_plot_marker.h>
 #include <qwt_array.h>
 #include <qwt_text.h>

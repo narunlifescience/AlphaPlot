@@ -29,7 +29,7 @@
 #ifndef BARCURVE_H
 #define BARCURVE_H
 
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
 //! Bar curve

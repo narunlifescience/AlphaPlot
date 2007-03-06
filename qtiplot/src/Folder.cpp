@@ -43,7 +43,7 @@
 #include <q3strlist.h>
 #include <qstringlist.h>
 #include <q3header.h>
-#include <qApplicationWindow.h>
+#include <qapplication.h>
 #include <q3dragobject.h>
 #include <q3iconview.h>
 #include <qcursor.h>

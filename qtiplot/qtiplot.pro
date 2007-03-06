@@ -186,7 +186,8 @@ HEADERS  += src/ApplicationWindow.h \
 	 src/ColorMapEditor.h\
 	 src/SelectionMoveResizer.h\
 	 src/Filter.h\
-	 src/IntDiff.h\
+	 src/Differentiation.h\
+	 src/Integration.h\
 	 src/Interpolation.h\
 	 src/SmoothFilter.h\
      src/FFTFilter.h\
@@ -196,7 +197,6 @@ HEADERS  += src/ApplicationWindow.h \
 	
 SOURCES  += src/ApplicationWindow.cpp \
      src/Graph.cpp \
-     src/analysis.cpp \
      src/Graph3D.cpp \
      src/Table.cpp \
      src/SetColValuesDialog.cpp \
@@ -272,7 +272,7 @@ SOURCES  += src/ApplicationWindow.cpp \
      src/ScaleDraw.cpp\
 	 src/FunctionCurve.cpp\
 	 src/Fit.cpp\
-	 src/fitclasses.h\
+	 src/fitclasses.cpp\
 	 src/ScriptingEnv.cpp\
 	 src/Script.cpp\
 	 src/ScriptingLangDialog.cpp\
@@ -282,7 +282,8 @@ SOURCES  += src/ApplicationWindow.cpp \
 	 src/ColorMapEditor.cpp\
 	 src/SelectionMoveResizer.cpp\
 	 src/Filter.cpp\
-	 src/IntDiff.cpp\
+	 src/Differentiation.cpp\
+	 src/Integration.cpp\
 	 src/Interpolation.cpp\
 	 src/SmoothFilter.cpp\
      src/FFTFilter.cpp\
@@ -364,8 +365,6 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiNote.h\
 	 ../tmp/qtiplot/sipqtiPythonScript.h\
 	 ../tmp/qtiplot/sipqtiPythonScripting.h\
-	 ../tmp/qtiplot/sipqtiPythonScript.h\
-	 ../tmp/qtiplot/sipqtiPythonScripting.h\
 	 ../tmp/qtiplot/sipqtiFolder.h\
 	 ../tmp/qtiplot/sipqtiQList.h\
 	 ../tmp/qtiplot/sipqtifitclasses.h\
@@ -393,8 +392,6 @@ contains(SCRIPTING_LANGS, Python) {
 	 ../tmp/qtiplot/sipqtiMyWidget.cpp\
 	 ../tmp/qtiplot/sipqtiScriptEdit.cpp\
 	 ../tmp/qtiplot/sipqtiNote.cpp\
-	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
-	 ../tmp/qtiplot/sipqtiPythonScripting.cpp\
 	 ../tmp/qtiplot/sipqtiPythonScript.cpp\
 	 ../tmp/qitplot/sipqtiPythonScripting.cpp\
 	 ../tmp/qtiplot/sipqtiFolder.cpp\

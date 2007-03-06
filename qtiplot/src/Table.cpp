@@ -39,7 +39,7 @@
 #include <qregexp.h>
 #include <qtextstream.h>
 #include <qclipboard.h> 
-#include <qApplicationWindow.h> 
+#include <qapplication.h> 
 #include <qcursor.h>
 #include <qdatetime.h>
 #include <qprinter.h>

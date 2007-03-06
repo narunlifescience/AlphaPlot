@@ -33,7 +33,7 @@
 #include "Plot.h"
 #include "ApplicationWindow.h"
 
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 
 #include <QMessageBox>
 #include <QLayout>

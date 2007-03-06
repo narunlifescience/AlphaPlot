@@ -29,7 +29,7 @@
 #ifndef MYCONES_H
 #define MYCONES_H
 
-#include <qwt3d_Plot.h>
+#include <qwt3d_plot.h>
 
 //! 3D cone class (based on QwtPlot3D)
 class Cone3D : public Qwt3D::VertexEnrichment

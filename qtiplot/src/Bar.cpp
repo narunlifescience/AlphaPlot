@@ -29,7 +29,7 @@
 #include <qbitmap.h>
 
 #include <qwt3d_color.h>
-#include <qwt3d_Plot.h>
+#include <qwt3d_plot.h>
 #include "Bar.h"
 
 using namespace Qwt3D;

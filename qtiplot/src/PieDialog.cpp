@@ -48,7 +48,7 @@
 #include <QMenu>
 #include <QColorDialog>
 
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 
 PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )

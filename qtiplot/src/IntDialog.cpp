@@ -30,7 +30,8 @@
 #include "MyParser.h"
 #include "Graph.h"
 #include "ApplicationWindow.h"
-#include "IntDiff.h"
+#include "Integration.h"
+#include "Differentiation.h"
 
 #include <QGroupBox>
 #include <QSpinBox>

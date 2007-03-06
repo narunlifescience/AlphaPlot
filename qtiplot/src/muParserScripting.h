@@ -35,6 +35,7 @@
 
 #include "ScriptingEnv.h"
 #include "Script.h"
+#include "muParserScript.h"
 
 #include <muParser/muParser.h>
 #include "math.h"

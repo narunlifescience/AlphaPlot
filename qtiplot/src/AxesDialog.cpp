@@ -53,8 +53,8 @@
 #include <QVector>
 #include <QGroupBox>
 
-#include <qwt_Plot.h>
-#include <qwt_scale_MyWidget.h>
+#include <qwt_plot.h>
+#include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 
 /* XPM */

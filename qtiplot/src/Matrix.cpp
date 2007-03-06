@@ -37,7 +37,7 @@
 #include <q3accel.h>
 #include <qregexp.h>
 #include <qmessagebox.h>
-#include <qApplicationWindow.h>
+#include <qapplication.h>
 #include <qclipboard.h>
 #include <q3dragobject.h>
 #include <qprinter.h>

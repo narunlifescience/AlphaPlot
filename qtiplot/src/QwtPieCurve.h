@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 
 //! Pie plot class

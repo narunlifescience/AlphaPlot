@@ -29,7 +29,7 @@
 #ifndef BARS_H
 #define BARS_H
 
-#include <qwt3d_Plot.h>
+#include <qwt3d_plot.h>
 
 //! 3D bars (modifed enrichment from QwtPlot3D)
 class Bar : public Qwt3D::VertexEnrichment

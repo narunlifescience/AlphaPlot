@@ -32,11 +32,11 @@
 #include "Spectrogram.h"
 #include "FunctionCurve.h"
 	
-#include <qwt_Plot.h>
+#include <qwt_plot.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
-#include <qwt_scale_MyWidget.h>
+#include <qwt_scale_widget.h>
 #include <qwt_scale_map.h>
 #include <qwt_text_label.h>
 

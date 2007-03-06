@@ -139,7 +139,7 @@ static const char *unzoom_xpm[]={
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
 #include <qwt_plot_zoomer.h>
-#include <qwt_scale_MyWidget.h>
+#include <qwt_scale_widget.h>
 #include <qwt_scale_engine.h>
 #include <qwt_text.h>
 #include <qwt_text_label.h>

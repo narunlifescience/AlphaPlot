@@ -39,9 +39,9 @@
 #include <QEvent>
 
 #include "customevents.h"
+#include "ScriptingEnv.h"
 
 class ApplicationWindow;
-class Script;
 
 //! A chunk of scripting code. Abstract.
   /**

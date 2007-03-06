@@ -31,7 +31,7 @@
 #ifndef WORKSHEET_H
 #define WORKSHEET_H
 
-#include <qMyWidget.h>
+#include <QWidget>
 #include <q3table.h>
 #include <q3header.h>
 //Added by qt3to4:

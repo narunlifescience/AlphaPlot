@@ -213,7 +213,7 @@ signals:
 private:
 	Graph* active_graph;
 	//! Used for resizing of layers.
-	int graphs, cols, rows, graph_width, Graph.height, colsSpace, rowsSpace;
+	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	bool addTextOn;
