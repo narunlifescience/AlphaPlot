@@ -151,6 +151,16 @@ public:
 
 	//! Initializes the pointer to the parent folder of the window
 	void setFolder(Folder* f){parentFolder = f;};
+	
+	//! Returns the size of the widget in the Qt::WindowMaximized state.
+	/**
+	 * When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
+	 * Qt posts a resize event with invalid oldSize (width = height = -1).
+	 * This is why we must keep track of the size of the window in the 
+	 * Qt::WindowMaximized state and use it as the real oldSize when processing
+	 * the resize event for the MultiLayer windows.		
+	 */
+	QSize maximizedSize(){return d_max_size;};
 
 signals:  
 	//! Emitted when the window was closed
@@ -194,6 +204,8 @@ private:
 	bool askOnClose;
 	//! Tells if the showMaximized action was requested by the user or generated programatically
 	bool user_request;
+	//! Stores the size of the widget in the Qt::WindowMaximized state.
+	QSize d_max_size;
 };
 
 #endif

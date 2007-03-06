@@ -38,6 +38,7 @@
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)
 {
+	d_max_size = QSize();
 	w_label = label;
 	caption_policy = Both;
 	askOnClose = true;
@@ -126,22 +127,30 @@ return s;
 
 bool MyWidget::event( QEvent *e )
 {
-bool result = QWidget::event( e );
-if( e->type() == QEvent::WindowStateChange)
+	bool result = QWidget::event( e );
+	if( e->type() == QEvent::WindowStateChange)
 	{
-	if( windowState() & Qt::WindowMinimized ) 
-	    w_status = Minimized;
-	else if ( windowState() & Qt::WindowMaximized ) 
-	     w_status = Maximized;
-	else
+		if( windowState() & Qt::WindowMinimized ) 
+	    	w_status = Minimized;
+		else if ( windowState() & Qt::WindowMaximized )
+		{			
+	     	w_status = Maximized;
+			// When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
+			// Qt posts a resize event with invalid oldSize (width = height = -1).
+			// This is why we must keep track of the size of the window in the 
+			// Qt::WindowMaximized state and use it as the real oldSize when processing
+			// the resize event for the MultiLayer windows.		
+			d_max_size = size();
+		}
+		else
 	    {
-	    user_request = true; 
-	    w_status = Normal; 
+	    	user_request = true; 
+	    	w_status = Normal; 
 	    }
-    emit statusChanged (this);
-   	return result;
+    	emit statusChanged (this);
+   		return result;
 	}
-return false;
+	return false;
 }
 
 void MyWidget::setHidden()

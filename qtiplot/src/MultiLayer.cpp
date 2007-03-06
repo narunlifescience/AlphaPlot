@@ -227,20 +227,24 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 {
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
-		
+	
 	if (size == oldSize || !userRequested())
 		return;
-
+	else if (!oldSize.isValid() && !maximizedSize().isValid())
+		return;
+	else if(!oldSize.isValid())
+		oldSize = QSize(maximizedSize().width(), maximizedSize().height()-LayerButton::btnSize());
+	
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
-	double w_ratio=(double)size.width()/(double)oldSize.width();
-	double h_ratio=(double)(size.height())/(double)(oldSize.height());
-
+	double w_ratio = (double)size.width()/(double)oldSize.width();
+	double h_ratio = (double)(size.height())/(double)(oldSize.height());
+	
 	for (int i=0;i<graphsList.count();i++)
 	{
 		Graph *gr=(Graph *)graphsList.at(i);
-		if (gr && gr->isVisible() && !gr->ignoresResizeEvents())
-		{
+		if (gr && !gr->ignoresResizeEvents())
+		{			
 			QwtPlot *plot = gr->plotWidget();
 			QwtPlotLayout *plotLayout = plot->plotLayout();
 
