@@ -26,14 +26,11 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ScalePicker.h" 
 #include "TitlePicker.h"
 
-#include <qapplication.h>
-
 #include <qwt_plot.h>
-#include <qwt_scale_widget.h>
 #include <qwt_text_label.h>
+
 #include <QMouseEvent>
 
 TitlePicker::TitlePicker(QwtPlot *plot):

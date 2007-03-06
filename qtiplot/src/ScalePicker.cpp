@@ -28,11 +28,10 @@
  ***************************************************************************/
 #include "ScalePicker.h"
 
-#include <qapplication.h>
-
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
 #include <qwt_text_label.h>
+
 #include <QMouseEvent>
 
 ScalePicker::ScalePicker(QwtPlot *plot):
@@ -157,4 +156,3 @@ void ScalePicker::refresh()
             scale->installEventFilter(this);
     }
 }
-

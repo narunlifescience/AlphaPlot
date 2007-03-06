@@ -33,9 +33,6 @@
 #include "LegendMarker.h"
 #include "LineMarker.h"
 
-#include <QPainter>
-#include <QApplication> 
-#include <QMessageBox> 
 #include <QVector>
 
 #include <qwt_text_label.h>

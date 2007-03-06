@@ -31,14 +31,6 @@
 #include "MultiLayer.h"
 #include "LegendMarker.h"
 
-#include <QApplication>
-#include <QMessageBox>
-#include <QDateTime>
-
-#include <gsl/gsl_spline.h>
-#include <gsl/gsl_interp.h>
-#include <gsl/gsl_vector.h>
-
 Differentiation::Differentiation(ApplicationWindow *parent, Graph *g)
 : Filter(parent, g)
 {
@@ -87,5 +79,3 @@ void Differentiation::output()
     LegendMarker *l = ml->activeGraph()->legend();
     l->setText("\\c{1}" + tr("Derivative") + " " + tr("of") + " " + curveTitle);
 }
-
-

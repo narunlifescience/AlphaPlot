@@ -5,8 +5,8 @@ TARGET       = qtiplot
 TEMPLATE     = app
 CONFIG      += qt warn_on exceptions opengl
 CONFIG      += assistant
-CONFIG	    += release
-#CONFIG	    += debug
+#CONFIG	    += release
+CONFIG	    += debug
 
 MOC_DIR      = ../tmp/qtiplot
 OBJECTS_DIR  = ../tmp/qtiplot
@@ -299,7 +299,8 @@ SOURCES+=../3rdparty/zlib123/minigzip.c
 ##################### SCRIPTING LANGUAGES SECTION #############
 ############################################################### 
 
-SCRIPTING_LANGS = muParser Python
+SCRIPTING_LANGS = muParser
+#SCRIPTING_LANGS += Python
 
 ##################### Default: muParser v1.28 #################
 

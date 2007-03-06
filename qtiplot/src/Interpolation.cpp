@@ -28,7 +28,6 @@
  ***************************************************************************/
 #include "Interpolation.h"
 
-#include <QApplication>
 #include <QMessageBox>
 
 #include <gsl/gsl_sort.h>

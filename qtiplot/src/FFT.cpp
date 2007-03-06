@@ -30,7 +30,6 @@
 #include "MultiLayer.h"
 #include "Plot.h"
 
-#include <QApplication>
 #include <QMessageBox>
 
 #include <gsl/gsl_fft_complex.h>
@@ -321,5 +320,3 @@ void FFT::setDataFromTable(Table *t, const QString& realColName, const QString& 
         d_init_err = true;
 	}
 }
-
-

@@ -119,7 +119,7 @@ public slots:
 	void deleteSelectedColumns();
 	int numSelectedColumns();
 
-	//! This slot notifies the main application that the Matrix.has been modified
+	//! This slot notifies the main application that the Matrix has been modified
 	void saveCellsToMemory();
 	void forgetSavedCells();
 
@@ -136,7 +136,7 @@ public slots:
   	void range(double *min, double *max);
 	Q3Table* table(){return d_table;};
 
-	//! Notifies the main application that the Matrix.has been modified
+	//! Notifies the main application that the Matrix has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
 
 signals:
@@ -147,7 +147,7 @@ private:
 	QString formula_str;
 	QChar txt_format;
 	int selectedCol, num_precision;
-	//!Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
+	//! Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, x_end, y_start, y_end;
 };

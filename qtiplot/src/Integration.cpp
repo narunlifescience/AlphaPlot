@@ -31,7 +31,6 @@
 #include "MultiLayer.h"
 #include "LegendMarker.h"
 
-#include <QApplication>
 #include <QMessageBox>
 #include <QDateTime>
 
@@ -193,4 +192,3 @@ if (n < 1 || n > 5)
 
 d_method = n;
 }
-

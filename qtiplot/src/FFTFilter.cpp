@@ -28,7 +28,6 @@
  ***************************************************************************/
 #include "FFTFilter.h"
 
-#include <QApplication>
 #include <QMessageBox>
 
 #include <gsl/gsl_fft_halfcomplex.h>
@@ -168,8 +167,3 @@ void FFTFilter::calculateOutputData(double *x, double *y)
 	gsl_fft_halfcomplex_wavetable_free (hc);
 	gsl_fft_real_workspace_free (work);
 }
-
-
-
-
-

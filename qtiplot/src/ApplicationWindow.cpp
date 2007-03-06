@@ -8033,11 +8033,17 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 }
 
 void ApplicationWindow::about()
-{
-	QMessageBox::about(0, tr("About QtiPlot"),
-			"<h2>"+ versionString() + "</h2>"
-			"<p><h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>"
-			"<p><h3>Released: " + release_date + "</h3>");
+{	
+QString text = "<h2>"+ versionString() + "</h2>";
+text +=	"<h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>";
+text += "<h3>" + tr("Released") + ": " + QString(release_date) + "</h3>";
+	
+QMessageBox *mb = new QMessageBox();
+mb->setWindowTitle (tr("About QtiPlot"));
+mb->setWindowIcon (QPixmap(logo_xpm));
+mb->setIconPixmap(QPixmap(logo_xpm));
+mb->setText(text);
+mb->exec();
 }
 
 void ApplicationWindow::windowsMenuAboutToShow()
