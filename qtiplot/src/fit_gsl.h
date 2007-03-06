@@ -1,5 +1,5 @@
-#ifndef _FIT_H
-#define _FIT_H
+#ifndef FIT_GSL_H
+#define FIT_GSL_H
 
 #include <gsl/gsl_vector.h>
 

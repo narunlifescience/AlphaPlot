@@ -7,7 +7,7 @@
 
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_math.h>
-#include "fit.h"
+#include "fit_gsl.h"
 #include "MyParser.h"
 #include "nrutil.h"
 

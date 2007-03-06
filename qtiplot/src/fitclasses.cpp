@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "Fit.h"
 #include "fitclasses.h"
-#include "fit.h"
+#include "fit_gsl.h"
 #include "Table.h"
 #include "Matrix.h"
 #include "QwtErrorPlotCurve.h"

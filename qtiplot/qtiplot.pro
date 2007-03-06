@@ -129,7 +129,6 @@ HEADERS  += src/ApplicationWindow.h \
      src/LineMarker.h\
      src/ImageMarker.h\
      src/ImageDialog.h \
-     src/fit.h \
      src/nrutil.h\
      src/pixmaps.h\
      src/MultiLayer.h\
@@ -177,6 +176,7 @@ HEADERS  += src/ApplicationWindow.h \
 	 src/FunctionCurve.h\
 	 src/Fit.h\
 	 src/fitclasses.h\
+	 src/fit_gsl.h \
 	 src/customevents.h\
 	 src/ScriptingLangDialog.h\
 	 src/ScriptWindow.h\
@@ -258,7 +258,6 @@ SOURCES  += src/ApplicationWindow.cpp \
 	 src/InterpolationDialog.cpp\
 	 src/EpsExportDialog.cpp\
 	 src/nrutil.cpp\
-     src/fit.cpp\
 	 src/SmoothCurveDialog.cpp\
 	 src/FilterDialog.cpp\
 	 src/FFTDialog.cpp\
@@ -269,10 +268,11 @@ SOURCES  += src/ApplicationWindow.cpp \
 	 src/ScriptEdit.cpp\
 	 src/ImportFilesDialog.cpp\
 	 src/ImageExportDialog.cpp\
-     src/ScaleDraw.cpp\
+     	 src/ScaleDraw.cpp\
 	 src/FunctionCurve.cpp\
 	 src/Fit.cpp\
 	 src/fitclasses.cpp\
+	 src/fit_gsl.cpp\
 	 src/ScriptingEnv.cpp\
 	 src/Script.cpp\
 	 src/ScriptingLangDialog.cpp\
