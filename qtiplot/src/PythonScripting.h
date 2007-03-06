@@ -31,6 +31,7 @@
 
 #include "ScriptingEnv.h"
 #include "Script.h"
+#include "PythonScript.h"
 
 #include <qobject.h>
 #include <qstring.h>

@@ -1,4 +1,5 @@
 /* vim: set filetype=cpp : */
+/* due to a limitation of sip, this file has to use Unix style line endings */
 /***************************************************************************
 	File                 : qti.sip
 	Project              : QtiPlot

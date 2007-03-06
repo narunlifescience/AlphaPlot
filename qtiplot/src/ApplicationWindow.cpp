@@ -4011,12 +4011,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	if (app->aw)
 	{
 		app->aw->setFocus();
-		if (app->aw->status() == MyWidget::Maximized)
-		{
-			app->aw->hide();
-			app->aw->showMaximized();
-		}
-
 		app->customMenu(app->aw);
 		app->customToolBars(app->aw);
 	}
@@ -4063,25 +4057,29 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 	if (lang.isEmpty()) return false;
 
 	ScriptingEnv *newEnv = ScriptingLangManager::newEnv(lang, this);
-	if (newEnv)
+	if (!newEnv)
+		return false;
+
+	connect(newEnv, SIGNAL(error(const QString&,const QString&,int)),
+			this, SLOT(scriptError(const QString&,const QString&,int)));
+	connect(newEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	if (!newEnv->initialize())
 	{
-		connect(newEnv, SIGNAL(error(const QString&,const QString&,int)),
-				this, SLOT(scriptError(const QString&,const QString&,int)));
-		connect(newEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
-		if (!newEnv->initialize())
-		{
-			delete newEnv;
-			return false;
-		}
-		ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
-		QApplication::sendEvent(this, sce);
-		delete sce;
-		foreach(QObject *i, queryList())
+		delete newEnv;
+		return false;
+	}
+
+	// notify everyone who might be interested
+	ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
+	QApplication::sendEvent(this, sce);
+	delete sce;
+	foreach(QObject *i, queryList())
+		QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
+	if (scriptWindow)
+		foreach(QObject *i, scriptWindow->queryList())
 			QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 
-		return true;
-	}
-	return false;
+	return true;
 }
 
 void ApplicationWindow::showScriptingLangDialog()

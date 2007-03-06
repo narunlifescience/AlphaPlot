@@ -120,7 +120,7 @@ void SmoothFilter::smoothFFT(double *x, double *y)
 	gsl_fft_real_workspace_free (work);
 }
 
-void SmoothFilter::smoothAverage(double *x, double *y)
+void SmoothFilter::smoothAverage(double *, double *y)
 {
 	int p2 = d_smooth_points/2;
 	double m = double(2*p2+1);
@@ -160,7 +160,7 @@ void SmoothFilter::smoothAverage(double *x, double *y)
     delete[] s;
 }
 
-void SmoothFilter::smoothSavGol(double *x, double *y)
+void SmoothFilter::smoothSavGol(double *, double *y)
 {
 	double *s = new double[d_n];
     int nl = d_smooth_points;
