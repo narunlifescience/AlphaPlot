@@ -27,24 +27,18 @@
  *                                                                         *
  ***************************************************************************/
 #include "Fit.h"
-#include "fitclasses.h"
 #include "fit_gsl.h"
 #include "Table.h"
 #include "Matrix.h"
 #include "QwtErrorPlotCurve.h"
 #include "LegendMarker.h"
-#include "MyParser.h"
 #include "FunctionCurve.h"
 #include "ColorBox.h"
 
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_blas.h>
-#include <gsl/gsl_multifit_nlin.h>
-#include <gsl/gsl_multifit.h>
-#include <gsl/gsl_fit.h>
 
 #include <QApplication>
-#include <QLibrary>
 #include <QMessageBox>
 #include <QDateTime>
 

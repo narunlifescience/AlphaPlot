@@ -32,11 +32,7 @@
 #include <QObject>
 
 #include "ApplicationWindow.h"
-#include "Filter.h"
 #include "Fit.h"
-
-#include <gsl/gsl_multifit_nlin.h>
-#include <gsl/gsl_multimin.h>
 
 class Table;
 class Matrix;
