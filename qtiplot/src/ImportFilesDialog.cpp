@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : fileDialogs.cpp
+    File                 : ImportFilesDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : 2 File dialogs: Import multiple ASCII/Export image
+    Description          : Import multiple ASCII files dialog
                            
  ***************************************************************************/
 
@@ -28,13 +28,7 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "CHECKMEImportFilesDialog.h ImageExportDialog.h"
-
-/*****************************************************************************
- *
- * Class ImportFilesDialog
- *
- *****************************************************************************/
+#include "ImportFilesDialog.h"
 
 ImportFilesDialog::ImportFilesDialog(bool importTypeEnabled, QWidget * parent, Qt::WFlags flags ) 
 : QFileDialog( parent, flags )
@@ -71,48 +65,3 @@ int ImportFilesDialog::importFileAs()
 	return importType->currentIndex();
 }
 
-
-/*****************************************************************************
- *
- * Class ImageExportDialog
- *
- *****************************************************************************/
-
-ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
-: QFileDialog( parent, flags )
-{
-	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
-
-	QList<QByteArray> list = QImageWriter::supportedImageFormats();
-	list<<"EPS";
-    list<<"PDF";
-	//list<<"SVG";
-
-	QStringList filters, selectedFilter;
-    for(int i=0 ; i<list.count() ; i++)
-	{
-		filters << "*."+list[i].toLower();
-	}
-    filters.sort();
-	setFilters(filters);
-	setFileMode( QFileDialog::AnyFile );
-
-	boxOptions = new QCheckBox(tr("Show export &options"));
-	boxOptions->setChecked( false );
-
-	// FIXME: The following code may not work anymore
-	// if the internal layout of QFileDialog changes
-	QSpacerItem * si1 = new QSpacerItem( 20, 20 );
-	QSpacerItem * si2 = new QSpacerItem( 20, 20 );
-	layout()->addItem( si1 );
-	layout()->addItem( si2 );
-	layout()->addWidget( boxOptions );
-}
-
-void ImageExportDialog::showOptionsBox ( const QString & filter)
-{
-	if (filter.contains("svg"))
-		boxOptions->hide();
-	else
-		boxOptions->show();
-}

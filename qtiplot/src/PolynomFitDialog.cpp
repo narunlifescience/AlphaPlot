@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : polynomFitDialog.cpp
+    File                 : PolynomFitDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -30,7 +30,8 @@
 #include "Graph.h"
 #include "ColorBox.h"
 #include "ApplicationWindow.h"
-#include "CHECKMEFit.h fitclasses.h"
+#include "Fit.h"
+#include "fitclasses.h"
 
 #include <QSpinBox>
 #include <QCheckBox>

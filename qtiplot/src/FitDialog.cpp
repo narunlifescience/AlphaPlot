@@ -30,7 +30,8 @@
 #include "MyParser.h"
 #include "ApplicationWindow.h"
 #include "ColorBox.h"
-#include "CHECKMEFit.h fitclasses.h"
+#include "Fit.h"
+#include "fitclasses.h"
 #include "Matrix.h"
 
 #include <QListWidget>

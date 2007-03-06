@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : Integration.h
+    File                 : Differentiation.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical integration/differetiation of data sets
+    Description          : Numerical differentiation of data sets
 
  ***************************************************************************/
 
@@ -26,32 +26,10 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef INTEGRATION_H
-#define INTEGRATION_H
+#ifndef DIFFERENTIATION_H
+#define DIFFERENTIATION_H
 
 #include "Filter.h"
-
-class Integration : public Filter
-{
-Q_OBJECT
-
-public:
-	Integration(ApplicationWindow *parent, Graph *g);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-    int method(){return d_method;};
-    void setMethod(int n);
-
-private:
-    void init();
-    //!Uses code originally written by Vasileios Gkanis. It needs some more checking.
-    QString logInfo();
-    void output(){};
-
-    //! the integration method: 1 = trapezoidal, max = 5!
-    int d_method;
-};
 
 class Differentiation : public Filter
 {

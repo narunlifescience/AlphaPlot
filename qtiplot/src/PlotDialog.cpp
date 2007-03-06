@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : plotDialog.cpp
+    File                 : PlotDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen

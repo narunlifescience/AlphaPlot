@@ -464,7 +464,7 @@ private:
 class Fit : QObject
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/Fit.h"
 %End
 public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
@@ -587,7 +587,7 @@ else { sipCpp = NULL; }
 class ExponentialFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
@@ -605,7 +605,7 @@ public:
 class TwoExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -623,7 +623,7 @@ public:
 class ThreeExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -641,7 +641,7 @@ public:
 class SigmoidalFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -659,7 +659,7 @@ public:
 class GaussAmpFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -677,7 +677,7 @@ public:
 class NonLinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -708,7 +708,7 @@ public:
 class PluginFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -727,7 +727,7 @@ public:
 class MultiPeakFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   enum PeakProfile{Gauss, Lorentz};
@@ -746,7 +746,7 @@ public:
 class LorentzFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -764,7 +764,7 @@ public:
 class GaussFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -782,7 +782,7 @@ public:
 class PolynomialFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
@@ -806,7 +806,7 @@ public:
 class LinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/CHECKMEFit.h fitclasses.h"
+#include "src/fitclasses.h"
 %End
 public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -826,7 +826,7 @@ public:
 class PythonScripting
 {
 %TypeHeaderCode
-#include "src/CHECKMEPythonScript.h PythonScripting.h"
+#include "src/PythonScripting.h"
 %End
 public:
   void write(const QString&);
@@ -836,7 +836,7 @@ private:
 class PythonScript
 {
 %TypeHeaderCode
-#include "src/CHECKMEPythonScript.h PythonScripting.h"
+#include "src/PythonScript.h"
 %End
 public:
   void write(const QString&);

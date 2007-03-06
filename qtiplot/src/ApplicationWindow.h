@@ -41,7 +41,8 @@
 #include <QBuffer>
 
 #include "Table.h"
-#include "CHECKMEScriptingEnv.h Script.h"
+#include "ScriptingEnv.h"
+#include "Script.h"
 
 class QPixmap;
 class QCloseEvent;

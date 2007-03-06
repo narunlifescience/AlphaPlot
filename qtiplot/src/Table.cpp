@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : worksheet.cpp
+    File                 : Table.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
@@ -2850,7 +2850,7 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 void Table::customEvent(QCustomEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
-		scriptingChangeEvent((CHECKMEScriptingEnv.h Script.hangeEvent*)e);
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 QString& Table::getSpecifications()

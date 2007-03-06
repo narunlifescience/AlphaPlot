@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : scriptedit.cpp
+    File                 : ScriptEdit.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
@@ -83,7 +83,7 @@ void ScriptEdit::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
-		scriptingChangeEvent((CHECKMEScriptingEnv.h Script.hangeEvent*)e);
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 		delete myScript;
 		myScript = scriptEnv->newScript("", this, name());
 		connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));

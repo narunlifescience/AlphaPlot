@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : valuesDialog.cpp
+    File                 : SetColValuesDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
@@ -198,7 +198,7 @@ QSize SetColValuesDialog::sizeHint() const
 void SetColValuesDialog::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
-		scriptingChangeEvent((CHECKMEScriptingEnv.h Script.hangeEvent*)e);
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 void SetColValuesDialog::accept()

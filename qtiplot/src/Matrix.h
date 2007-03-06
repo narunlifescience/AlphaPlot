@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
-					  Knut Franke
+						   Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Matrix worksheet class
@@ -37,7 +37,8 @@
 #include <QContextMenuEvent>
 #include <QEvent>
 #include "MyWidget.h"
-#include "CHECKMEScriptingEnv.h Script.h"
+#include "ScriptingEnv.h"
+#include "Script.h"
 #include <qwt_double_rect.h>
 
 //! Matrix worksheet class

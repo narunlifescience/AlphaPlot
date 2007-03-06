@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : surfaceDialog.cpp
+    File                 : SurfaceDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief

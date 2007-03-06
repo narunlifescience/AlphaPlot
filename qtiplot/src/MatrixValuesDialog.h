@@ -33,7 +33,8 @@
 #define MVALUESDIALOG_H
 
 #include <QDialog>
-#include "CHECKMEScriptingEnv.h Script.h"
+#include "ScriptingEnv.h" 
+#include "Script.h"
 #include "ScriptEdit.h"
 #include "Matrix.h"
 

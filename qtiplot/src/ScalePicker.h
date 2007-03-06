@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : CHECKMEScalePicker.h TitlePicker.h
+    File                 : ScalePicker.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Scale and title picker classes
+    Description          : Scale picker
                            
  ***************************************************************************/
 
@@ -99,19 +99,3 @@ signals:
 	void topAxisTitleDblClicked();
 };
 
-class TitlePicker: public QObject
-{
-    Q_OBJECT
-public:
-    TitlePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
-
-signals:
-	void clicked();
-	void doubleClicked();
-	void removeTitle();
-	void showTitleMenu();
-
-protected:
-	QwtTextLabel *title;
-};

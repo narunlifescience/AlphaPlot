@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : CHECKMEFit.h fitclasses.h
+    File                 : Fit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : TODO
+    Description          : Fit base class
                            
  ***************************************************************************/
 
@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef FITTER_H
-#define FITTER_H
+#ifndef FIT_H
+#define FIT_H
 
 #include <QObject>
 
@@ -40,7 +40,7 @@
 class Table;
 class Matrix;
 
-//! TODO
+//! Fit base class
 class Fit : public Filter
 {
 	Q_OBJECT
@@ -180,222 +180,4 @@ class Fit : public Filter
 		bool d_scale_errors;
 };
 
-class ExponentialFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		ExponentialFit(ApplicationWindow *parent, Graph *g,  bool expGrowth = false);
-		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth = false);
-		ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, 
-				double start, double end, bool expGrowth = false);
-
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-
-		bool is_exp_growth;
-};
-
-class TwoExpFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		TwoExpFit(ApplicationWindow *parent, Graph *g);
-		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
-
-class ThreeExpFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		ThreeExpFit(ApplicationWindow *parent, Graph *g);
-		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-	private:
-		void init();
-		void storeCustomFitResults(double *par);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
-
-class SigmoidalFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		SigmoidalFit(ApplicationWindow *parent, Graph *g);
-		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-		void guessInitialValues();
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
-
-class GaussAmpFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		GaussAmpFit(ApplicationWindow *parent, Graph *g);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
-
-class NonLinearFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		NonLinearFit(ApplicationWindow *parent, Graph *g);
-		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		NonLinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-		void setParametersList(const QStringList& lst);
-		void setFormula(const QString& s);
-
-	private:
-		void calculateFitCurveData(double *par, double *X, double *Y);
-		void init();
-};
-
-class PluginFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		PluginFit(ApplicationWindow *parent, Graph *g);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-		bool load(const QString& pluginName);
-
-	private:
-		void init();
-		typedef double (*fitFunctionEval)(double, double *);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-		fitFunctionEval f_eval;
-};
-
-class MultiPeakFit : public Fit
-{
-	Q_OBJECT
-
-	public:		
-		enum PeakProfile{Gauss, Lorentz};
-		MultiPeakFit(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 1);
-
-		int peaks(){return d_peaks;};
-		void setNumPeaks(int n);
-
-		void enablePeakCurves(bool on){generate_peak_curves = on;};
-		void setPeakCurvesColor(int colorIndex){d_peaks_color = colorIndex;};
-
-		static QString generateFormula(int order, PeakProfile profile);
-		static QStringList generateParameterList(int order);
-		static QStringList generateExplanationList(int order);
-
-	private:
-		QString logFitInfo(double *par, int iterations, int status, const QString& plotName);
-		void generateFitCurve(double *par);
-		static QString peakFormula(int peakIndex, PeakProfile profile);
-		//! Inserts a peak function curve into the plot 
-		void insertPeakFunctionCurve(double *x, double *y, int peak);
-		void storeCustomFitResults(double *par);
-
-		//! Used by the GaussFit and LorentzFit derived classes to calculate initial values for the parameters 
-		void guessInitialValues();
-
-		//! Number of peaks
-		int d_peaks;
-
-		//! Tells weather the peak curves should be displayed together with the best line fit.
-		bool generate_peak_curves;
-
-		//! Color index for the peak curves
-		int d_peaks_color;
-
-		//! The peak profile
-		PeakProfile d_profile;
-};
-
-class LorentzFit : public MultiPeakFit
-{
-	Q_OBJECT
-
-	public:
-		LorentzFit(ApplicationWindow *parent, Graph *g);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-	private:
-		void init();
-};
-
-class GaussFit : public MultiPeakFit
-{
-	Q_OBJECT
-
-	public:
-		GaussFit(ApplicationWindow *parent, Graph *g);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-	private:
-		void init();
-};
-
-class PolynomialFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
-
-		virtual QString legendInfo();
-		void fit();
-
-		static QString generateFormula(int order);
-		static QStringList generateParameterList(int order);
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-
-		int d_order;
-		bool show_legend;
-};
-
-class LinearFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		LinearFit(ApplicationWindow *parent, Graph *g);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-		void fit();
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
 #endif

@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : Scripting.cpp
+    File                 : ScriptingEnv.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Knut Franke
@@ -26,50 +26,19 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "CHECKMEScriptingEnv.h Script.h"
+#include "ScriptingEnv.h"
+#include "Script.h"
 
 #include <string.h>
 
 #ifdef SCRIPTING_MUPARSER
-#include "CHECKMEmuParserScript.h muParserScripting.h"
+#include "muParserScript.h"
+#include "muParserScripting.h"
 #endif
 #ifdef SCRIPTING_PYTHON
-#include "CHECKMEPythonScript.h PythonScripting.h"
+#include "PythonScript.h"
+#include "PythonScripting.h"
 #endif
-
-ScriptingLangManager::ScriptingLang ScriptingLangManager::langs[] = {
-#ifdef SCRIPTING_MUPARSER
-	{ muParserScripting::langName, muParserScripting::constructor },
-#endif
-#ifdef SCRIPTING_PYTHON
-	{ PythonScripting::langName, PythonScripting::constructor },
-#endif
-	{ NULL, NULL }
-};
-
-ScriptingEnv *ScriptingLangManager::newEnv(ApplicationWindow *parent)
-{
-	if (!langs[0].constructor)
-		return NULL;
-	else
-		return langs[0].constructor(parent);
-}
-
-ScriptingEnv *ScriptingLangManager::newEnv(const char *name, ApplicationWindow *parent)
-{
-	for (ScriptingLang *i = langs; i->constructor; i++)
-		if (!strcmp(name, i->name))
-			return i->constructor(parent);
-	return NULL;
-}
-
-QStringList ScriptingLangManager::languages()
-{
-	QStringList l;
-	for (ScriptingLang *i = langs; i->constructor; i++)
-		l << i->name;
-	return l;
-}
 
 	ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *langName)
 : QObject(0, langName), d_parent(parent)
@@ -99,38 +68,3 @@ void ScriptingEnv::decref()
 		delete this;
 }
 
-bool Script::compile(bool for_eval)
-{
-	emit_error("Script::compile called!", 0);
-	return false;
-}
-
-QVariant Script::eval()
-{
-	emit_error("Script::eval called!",0);
-	return QVariant();
-}
-
-bool Script::exec()
-{
-	emit_error("Script::exec called!",0);
-	return false;
-}
-
-scripted::scripted(ScriptingEnv *env)
-{
-	env->incref();
-	scriptEnv = env;
-}
-
-scripted::~scripted()
-{
-	scriptEnv->decref();
-}
-
-void scripted::scriptingChangeEvent(CHECKMEScriptingEnv.h Script.hangeEvent *sce)
-{
-	scriptEnv->decref();
-	sce->scriptingEnv()->incref();
-	scriptEnv = sce->scriptingEnv();
-}

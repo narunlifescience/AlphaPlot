@@ -1,5 +1,5 @@
 /***************************************************************************
-	File                 : application.cpp
+	File                 : ApplicationWindow.cpp
 	Project              : QtiPlot
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Ion Vasilief,
@@ -71,7 +71,8 @@
 #include "RenameWindowDialog.h"
 #include "QwtErrorPlotCurve.h"
 #include "InterpolationDialog.h"
-#include "CHECKMEImportFilesDialog.h ImageExportDialog.h"
+#include "ImportFilesDialog.h" 
+#include "ImageExportDialog.h"
 #include "SmoothCurveDialog.h"
 #include "FilterDialog.h"
 #include "FFTDialog.h"
@@ -83,7 +84,8 @@
 #include "ScriptingLangDialog.h"
 #include "ScriptWindow.h"
 #include "TableStatistics.h"
-#include "CHECKMEFit.h fitclasses.h"
+#include "Fit.h" "
+#include "fitclasses.h"
 #include "FunctionCurve.h"
 #include "Spectrogram.h"
 #include "IntDiff.h"
@@ -4070,11 +4072,11 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 			delete newEnv;
 			return false;
 		}
-		CHECKMEScriptingEnv.h Script.hangeEvent *sce = new CHECKMEScriptingEnv.h Script.hangeEvent(newEnv);
+		ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
 		QApplication::sendEvent(this, sce);
 		delete sce;
 		foreach(QObject *i, queryList())
-			QApplication::postEvent(i, new CHECKMEScriptingEnv.h Script.hangeEvent(newEnv));
+			QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 
 		return true;
 	}
@@ -8271,7 +8273,7 @@ void ApplicationWindow::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
-		scriptingChangeEvent((CHECKMEScriptingEnv.h Script.hangeEvent*)e);
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 		connect(scriptEnv,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
 	}
 }

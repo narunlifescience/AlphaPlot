@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : CHECKMEImportFilesDialog.h ImageExportDialog.h
+    File                 : ImportFilesDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : 2 File dialogs: Import multiple ASCII/Export image
+    Description          : Import multiple ASCII files dialog
                            
  ***************************************************************************/
 
@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef MYFILESDIALOGS_H
-#define MYFILESDIALOGS_H
+#ifndef IMPORTFILESDIALOG_H
+#define IMPORTFILESDIALOG_H
 
 #include <QFileDialog>
 #include <QLabel>
@@ -65,26 +65,5 @@ public:
 	int importFileAs();
 };
 
-
-//! Export as image dialog
-class ImageExportDialog: public QFileDialog
-{
-	Q_OBJECT
-
-private:
-	QCheckBox* boxOptions;
-
-public:
-	//! Constructor
-	/**
-	 * \param parent parent widget
-	 * \param fl window flags
-	 */
-	ImageExportDialog( QWidget * parent = 0, Qt::WFlags flags = 0 );
-	bool showExportOptions(){return boxOptions->isChecked();};
-
-public slots:
-	void showOptionsBox ( const QString & filter);
-};
 
 #endif

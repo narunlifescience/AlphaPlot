@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : matrix.cpp
+    File                 : Matrix.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
@@ -920,7 +920,7 @@ void Matrix::contextMenuEvent(QContextMenuEvent *e)
 void Matrix::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
-		scriptingChangeEvent((CHECKMEScriptingEnv.h Script.hangeEvent*)e);
+		scriptingChangeEvent((ScriptingChangeEvent*)e);
 }
 
 bool Matrix::eventFilter(QObject *object, QEvent *e)

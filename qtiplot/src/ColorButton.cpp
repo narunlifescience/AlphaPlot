@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : colorButton.cpp
+    File                 : ColorButton.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen

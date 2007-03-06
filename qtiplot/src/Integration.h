@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical integration/differetiation of data sets
+    Description          : Numerical integration of data sets
 
  ***************************************************************************/
 
@@ -53,17 +53,4 @@ private:
     int d_method;
 };
 
-class Differentiation : public Filter
-{
-Q_OBJECT
-
-public:
-	Differentiation(ApplicationWindow *parent, Graph *g);
-	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-	Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-private:
-    void init();
-    void output();
-};
 #endif

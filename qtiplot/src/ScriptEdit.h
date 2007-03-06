@@ -31,7 +31,8 @@
 #ifndef SCRIPTEDIT_H
 #define SCRIPTEDIT_H
 
-#include "CHECKMEScriptingEnv.h Script.h"
+#include "ScriptingEnv.h"
+#include "Script.h"
 
 #include <QMenu>
 #include <QTextEdit>

@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : errDlg.cpp
+    File                 : ErrDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen

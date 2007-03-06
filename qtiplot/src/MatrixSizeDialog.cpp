@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : matrixSizeDialog.cpp
+    File                 : MatrixSizeDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen

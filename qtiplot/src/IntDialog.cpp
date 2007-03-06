@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : intDialog.cpp
+    File                 : IntDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Hoener zu Siederdissen

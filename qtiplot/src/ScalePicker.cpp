@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : scalePicker.cpp
+    File                 : ScalePicker.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "CHECKMEScalePicker.h TitlePicker.h"
+#include "ScalePicker.h"
 
 #include <qApplicationWindow.h>
 
@@ -158,46 +158,3 @@ void ScalePicker::refresh()
     }
 }
 
-TitlePicker::TitlePicker(QwtPlot *plot):
-	QObject(plot)
-{
-	title = (QwtTextLabel *)plot->titleLabel();
-	title->setFocusPolicy(Qt::StrongFocus);
-	if (title)
-		title->installEventFilter(this);
-}
-
-bool TitlePicker::eventFilter(QObject *object, QEvent *e)
-{
-	if (object != (QObject *)title)
-		return FALSE;
-	
-    if ( object->inherits("QwtTextLabel") && e->type() == QEvent::MouseButtonDblClick)
-		{
-        emit doubleClicked();
-        return TRUE;
-		}
-
-	 if ( object->inherits("QwtTextLabel") &&  e->type() == QEvent::MouseButtonPress )
-	 {
-		 const QMouseEvent *me = (const QMouseEvent *)e;	
-		 emit clicked();
-
-		 if (me->button()==Qt::RightButton)
-			 emit showTitleMenu();
-		 return !(me->modifiers() & Qt::ShiftModifier);
-    }
-
-	if ( object->inherits("QwtTextLabel") && 
-        e->type() == QEvent::KeyPress)
-		{
-		switch (((const QKeyEvent *)e)->key()) 
-			{
-			case Qt::Key_Delete: 
-			emit removeTitle();	
-            return TRUE;
-			}
-		}
-
-    return QObject::eventFilter(object, e);
-}
