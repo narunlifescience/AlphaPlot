@@ -113,6 +113,7 @@ signals:
 	void saveFunctionsList(const QStringList&);
 
 private:
+    int d_param_table_rows;
     Fit *fitter;
 	Graph *graph;
 	QStringList userFunctions, userFunctionNames, userFunctionParams;

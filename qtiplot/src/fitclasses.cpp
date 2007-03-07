@@ -490,7 +490,7 @@ void NonLinearFit::setFormula(const QString& s)
 		return;
 	}
 
-	if (d_p < 2)
+	if (!d_p)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
 				tr("There are no parameters specified for this fit operation. Please define a list of parameters first!"));
@@ -529,10 +529,10 @@ void NonLinearFit::setFormula(const QString& s)
 
 void NonLinearFit::setParametersList(const QStringList& lst)
 {	
-	if ((int)lst.count() < 2)
+	if ((int)lst.count() < 1)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
-				tr("You must provide a list containing at least 2 parameters for this type of fit. Operation aborted!"));
+				tr("You must provide a list containing at least one parameter for this type of fit. Operation aborted!"));
 		d_init_err = true;
 		return;
 	}

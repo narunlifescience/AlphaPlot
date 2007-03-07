@@ -629,6 +629,8 @@ void FitDialog::removeUserFunction()
 
 void FitDialog::showFitPage()
 {
+    d_param_table_rows = boxParams->rowCount();
+
 	QString par = boxParam->text().simplified();
 	QStringList paramList = par.split(QRegExp("[,;]+[\\s]*"), QString::SkipEmptyParts);
 	int parameters = (int)paramList.count();
@@ -639,7 +641,7 @@ void FitDialog::showFitPage()
 		parameters = 7;
 	boxParams->setMinimumHeight(4+(parameters+1)*boxParams->horizontalHeader()->height());
 
-    for (int i=0; i<(int)paramList.count(); i++)
+    for (int i = d_param_table_rows; i<(int)paramList.count(); i++)
 	{
         QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
         it->setFlags(!Qt::ItemIsEditable);
@@ -654,6 +656,8 @@ void FitDialog::showFitPage()
         it->setTextAlignment(Qt::AlignRight);
         boxParams->setItem(i, 1, it);
 	}
+    for (int i = 0; i<(int)paramList.count(); i++)
+        boxParams->item (i, 0)->setText(paramList[i]);
 
 	// FIXME: this check is pretty ugly, should be changed to a more elegant way some time
 	if (!boxUseBuiltIn->isChecked() || 
@@ -661,7 +665,7 @@ void FitDialog::showFitPage()
 	{
         boxParams->showColumn(2);
         
-		for (int i=0; i<boxParams->rowCount(); i++ )
+		for (int i = 0; i<boxParams->rowCount(); i++ )
 		{
             QTableWidgetItem *it = new QTableWidgetItem();
             it->setFlags(!Qt::ItemIsEditable);
