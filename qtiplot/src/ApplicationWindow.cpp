@@ -243,6 +243,7 @@ void ApplicationWindow::init()
 
 	scriptWindow = 0;
 
+	renamedTables = QStringList();
 	readSettings();
 	createLanguagesList();
 	insertTranslatedStrings();
@@ -1784,7 +1785,7 @@ void ApplicationWindow::add3DData()
 		return;
 	}
 
-	DataSetDialog *ad=new DataSetDialog(tr("Column :"));
+	DataSetDialog *ad=new DataSetDialog(tr("Column") + " : ");
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insertNew3DData(const QString&)));
 	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
@@ -1794,7 +1795,7 @@ void ApplicationWindow::add3DData()
 
 void ApplicationWindow::change3DData()
 {
-	DataSetDialog *ad=new DataSetDialog(tr("Column :"));
+	DataSetDialog *ad=new DataSetDialog(tr("Column") + " : ");
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DData(const QString&)));
 
@@ -1805,9 +1806,9 @@ void ApplicationWindow::change3DData()
 
 void ApplicationWindow::change3DMatrix()
 {
-	DataSetDialog *ad=new DataSetDialog(tr("Matrix :"));
+	DataSetDialog *ad = new DataSetDialog(tr("Matrix") + " : ");
 	ad->setAttribute(Qt::WA_DeleteOnClose);
-	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DMatrix(const QString&)));
+	connect (ad, SIGNAL(options(const QString&)), this, SLOT(change3DMatrix(const QString&)));
 
 	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
 	ad->setCurveNames(matrixNames());
@@ -1818,7 +1819,11 @@ void ApplicationWindow::change3DMatrix(const QString& matrix_name)
 {
 	if ( ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
 	{
-		((Graph3D*)ws->activeWindow())->changeMatrix(matrix(matrix_name));
+		Graph3D* g = (Graph3D*)ws->activeWindow();		
+		Matrix *m = matrix(matrix_name);
+		if (m && g)
+			g->changeMatrix(m);
+		
 		emit modified();
 	}
 }
@@ -2808,12 +2813,9 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 	emit modified();
 }
 
-/*
- *creates a new empty matrix
- */
-Matrix* ApplicationWindow::newMatrix()
+Matrix* ApplicationWindow::newMatrix(int rows, int columns)
 {
-	Matrix* m = new Matrix(scriptEnv, 32, 32, "", ws, 0);
+	Matrix* m = new Matrix(scriptEnv, rows, columns, "", ws, 0);
 	m->setAttribute(Qt::WA_DeleteOnClose);
 	QString caption = generateUniqueName(tr("Matrix"));
 	initMatrix(m, caption);
@@ -2821,9 +2823,6 @@ Matrix* ApplicationWindow::newMatrix()
 	return m;
 }
 
-/*
- *used when opening a project file
- */
 Matrix* ApplicationWindow::newMatrix(const QString& caption, int r, int c)
 {
 	Matrix* w = new Matrix(scriptEnv, r, c, "", ws,0);
@@ -2963,7 +2962,7 @@ Matrix* ApplicationWindow::convertTableToMatrix()
 
 QWidget* ApplicationWindow::window(const QString& name)
 {
-	QWidget* w=0;
+	QWidget* w = 0;
 	QWidgetList *windows = windowsList();
 	for (int i = 0; i < int(windows->count());i++ )
 	{
@@ -3000,10 +2999,10 @@ Matrix* ApplicationWindow::matrix(const QString& name)
 	QString caption = name;
 	if (!renamedTables.isEmpty() && renamedTables.contains(caption))
 	{
-		int index = renamedTables.findIndex (caption);
+		int index = renamedTables.findIndex(caption);
 		caption = renamedTables[index+1];	
 	}
-
+	
 	QWidgetList *lst = windowsList();
 	foreach(QWidget *w, *lst)
 	{
@@ -4194,9 +4193,9 @@ void ApplicationWindow::openTemplate()
 				else 
 				{
 					if (templateType == "<table>")
-						w = newTable(tr("table1"), rows, cols);
+						w = newTable(tr("Table1"), rows, cols);
 					else if (templateType == "<matrix>")
-						w = newMatrix(tr("matrix1"), rows, cols);
+						w = newMatrix(rows, cols);
 					if (w)
 					{
 						QStringList lst;
@@ -5126,32 +5125,23 @@ void ApplicationWindow::saveAsTemplate()
 			selectedFilter = selectedFilter.right(5).left(4);
 			fn.append(selectedFilter);	
 		}
-
-		if ( QFile::exists(fn) &&
-				QMessageBox::question(this, tr("QtiPlot -- Overwrite file? "),
-					tr("A file called: <p><b>%1</b><p>already exists.\n"
-						"Do you want to overwrite it?")
-					.arg(fn), tr("&Yes"), tr("&No"),QString(), 0, 1 ) )
-			return ;
-		else
+		
+		QFile f(fn);
+		if ( !f.open( QIODevice::WriteOnly ) )
 		{
-			QFile f(fn);
-			if ( !f.open( QIODevice::WriteOnly ) )
-			{
-				QMessageBox::critical(0, tr("QtiPlot - Export error"),
-						tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
-				return;
-			}
-			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			QString text="QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
-				QString::number(patch_version)+" template file\n";
-			text += w->saveAsTemplate(windowGeometryInfo(w));
-			QTextStream t( &f );
-			t.setEncoding(QTextStream::UnicodeUTF8);
-			t << text;
-			f.close();
-			QApplication::restoreOverrideCursor();
+			QMessageBox::critical(0, tr("QtiPlot - Export error"),
+			tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
+			return;
 		}
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		QString text = "QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
+				QString::number(patch_version) + " template file\n";
+		text += w->saveAsTemplate(windowGeometryInfo(w));
+		QTextStream t( &f );
+		t.setEncoding(QTextStream::UnicodeUTF8);
+		t << text;
+		f.close();
+		QApplication::restoreOverrideCursor();
 	}
 }
 
@@ -5549,9 +5539,8 @@ void ApplicationWindow::exportASCII(const QString& tableName, const QString& sep
 
 	QString selectedFilter;
 	QString fname = QFileDialog::getSaveFileName(this, tr("Choose a filename to save under"), asciiDirPath, "*.txt;;*.dat;;*.DAT", &selectedFilter);
-
 	if (!fname.isEmpty() ) 
-	{ // the user gave a file name	
+	{ 
 		QFileInfo fi(fname);
 		QString baseName = fi.fileName();	
 		if (baseName.contains(".")==0)
@@ -5559,17 +5548,9 @@ void ApplicationWindow::exportASCII(const QString& tableName, const QString& sep
 
 		asciiDirPath = fi.dirPath(true);
 
-		if ( QFile::exists(fname) &&
-				QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
-					tr("A file called: <p><b>%1</b><p>already exists. "
-						"Do you want to overwrite it?").arg(fname),tr("&Yes"), tr("&No"), QString(), 0, 1 ) )
-			return ;
-		else
-		{	
-			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			t->exportToASCIIFile(fname, sep, colNames, expSelection);
-			QApplication::restoreOverrideCursor();
-		}
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		t->exportToASCIIFile(fname, sep, colNames, expSelection);
+		QApplication::restoreOverrideCursor();
 	}
 }
 
@@ -7545,22 +7526,20 @@ Matrix* ApplicationWindow::cloneMatrix() // TODO: this method or parts of it sho
 	Matrix *w = 0, *m = (Matrix*)ws->activeWindow();
 	if (m)
 	{
-		QString caption = generateUniqueName(tr("Matrix"));
-		int c=m->numCols();
-		int r=m->numRows();
-		w = newMatrix(caption,r,c);
+		int c = m->numCols();
+		int r = m->numRows();
+		w = newMatrix(r, c);
 		w->setCoordinates(m->xStart(), m->xEnd(), m->yStart(), m->yEnd());
-		for (int i=0;i<r;i++)
-			for (int j=0;j<c;j++)
+		for (int i=0; i<r; i++)
+			for (int j=0; j<c; j++)
 			{
 				w->setText(i, j, m->text(i,j));
 			}
-
 		w->setColumnsWidth(m->columnsWidth());
 		w->setFormula(m->formula());
 		w->setTextFormat(m->textFormat(), m->precision());
 		w->showNormal();
-		setListViewSize(caption, m->sizeToString());
+		setListViewSize(w->name(), m->sizeToString());
 		emit modified();
 	}
 	return w;
@@ -9686,7 +9665,7 @@ Matrix* ApplicationWindow::createIntensityMatrix(const QPixmap& pic)
 	int rows=size.height();
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	Matrix* w = newMatrix("Matrix1", rows, cols);
+	Matrix* w = newMatrix(rows, cols);
 	for (int i=0; i<rows; i++ )
 	{
 		int l = rows - i -1;
@@ -12941,18 +12920,9 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 		if (!baseName.contains("."))
 			fn.append(".qti");
 
-		if ( QFile::exists(fn) && !selectedFilter.contains(".gz") &&
-				QMessageBox::question(this, tr("QtiPlot - Overwrite file? "),
-					tr("A file called: <p><b>%1</b><p>already exists.\n"
-						"Do you want to overwrite it?")
-					.arg(fn), tr("&Yes"), tr("&No"),QString(), 0, 1 ) )
-			return ;
-		else
-		{
-			saveFolder(f, fn);
-			if (selectedFilter.contains(".gz"))
-				file_compress((char *)fn.ascii(), "wb9");
-		}
+		saveFolder(f, fn);
+		if (selectedFilter.contains(".gz"))
+			file_compress((char *)fn.ascii(), "wb9");
 	}
 }
 

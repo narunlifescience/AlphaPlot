@@ -330,7 +330,9 @@ public slots:
 	//! \name Matrices
 	//@{
 	Matrix* cloneMatrix();
-	Matrix* newMatrix();
+	//! Creates a new empty matrix
+	Matrix* newMatrix(int rows = 32, int columns = 32);
+	//! To be used when opening a project file only!
 	Matrix* newMatrix(const QString& caption, int r, int c);
 	Matrix* matrix(const QString& name);
 	Matrix* createIntensityMatrix(const QPixmap& pic);

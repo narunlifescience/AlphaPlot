@@ -311,10 +311,10 @@ void Graph3D::addMatrixData(Matrix* m)
 {
 	matrix_ = m;
 	plotAssociation = "matrix<" + QString(m->name()) + ">";
-
-	int cols=m->numCols();	
-	int rows=m->numRows();
-	double** data_matrix = matrix(0, rows-1, 0, cols-1);
+	
+	int cols = m->numCols();	
+	int rows = m->numRows();
+	double **data_matrix = matrix(0, rows-1, 0, cols-1);
 	for (int i = 0; i < rows; i++ ) 
 	{
 		for (int j = 0; j < cols; j++) 
@@ -333,7 +333,7 @@ void Graph3D::addMatrixData(Matrix* m)
 	sp->legend()->setLimits(start, end);
 	sp->legend()->setMajors(legendMajorTicks);
 
-	free_matrix(data_matrix,0,rows-1,0,cols-1);
+	free_matrix(data_matrix, 0, rows-1, 0, cols-1);
 	
 	findBestLayout();
 	update();
