@@ -696,6 +696,10 @@ class Graph: public QWidget
   		void plotSpectrogram(Matrix *m, CurveType type);
 		//! Restores a spectrogram. Used when opening a project file.
   		void restoreSpectrogram(ApplicationWindow *app, const QStringList& lst);
+		
+		bool antialiasing(){return d_antialiasing;};	
+		//! Enables/Disables antialiasing of plot items.
+		void setAntialiasing(bool on = true);
 
 signals:
 		void selectedGraph (Graph*);
@@ -739,6 +743,8 @@ signals:
 		void showFitResults(const QString&);
 
 	private:
+		//! Render hint for plot items.
+		bool d_antialiasing;
 		bool autoScaleFonts;
 		int selectedAxis;
 		QStringList axesFormulas;

@@ -346,6 +346,9 @@ public slots:
 	bool isAnimated(){return d_timer->isActive();};
 	
     void findBestLayout();
+	bool autoscale(){return d_autoscale;};	
+	//! Enables/Disables autoscaling using findBestLayout().
+	void setAutoscale(bool on = true){d_autoscale = on;};
 	
 signals:   
 	void showContextMenu();
@@ -363,7 +366,7 @@ private:
 	QString title, plotAssociation;
 	QStringList labels;
 	QFont titleFnt;
-	bool legendOn, smoothMesh;
+	bool legendOn, smoothMesh, d_autoscale;
 	QVector<int> scaleType;
 	QColor axesCol,labelsCol,titleCol,meshCol,bgCol,numCol,gridCol;
 	//! Custom data colors.

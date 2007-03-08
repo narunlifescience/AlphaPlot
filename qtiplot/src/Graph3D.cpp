@@ -113,6 +113,8 @@ void Graph3D::initPlot()
 	smoothMesh = true;
 	sp->setSmoothMesh(smoothMesh);
 
+	d_autoscale = true;
+	
 	title=QString();
 	sp->setTitle(title);
 
@@ -221,8 +223,8 @@ void Graph3D::addFunction(const QString& s,double xl,double xr,double yl,
 		style_=FILLED;
 		pointStyle = None;
 	}
-	findBestLayout();
   	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
+	findBestLayout();
 }
 
 void Graph3D::insertFunction(const QString& s,double xl,double xr,double yl,
@@ -275,7 +277,8 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 	sp->legend()->setLimits(gsl_vector_min(y),maxy);
 	sp->loadFromData(data, xmesh, ymesh, gsl_vector_min(x),gsl_vector_max(x),0,maxz);
 
-	findBestLayout();
+	if (d_autoscale)
+		findBestLayout();
 	
 	gsl_vector_free (x);
 	gsl_vector_free (y);
@@ -309,6 +312,13 @@ void Graph3D::changeMatrix(Matrix* m)
 
 void Graph3D::addMatrixData(Matrix* m)
 {
+	if (matrix_ == m)
+		return;
+	
+	bool first_time = false;
+	if(!matrix_)
+		first_time = true;
+	
 	matrix_ = m;
 	plotAssociation = "matrix<" + QString(m->name()) + ">";
 	
@@ -335,7 +345,8 @@ void Graph3D::addMatrixData(Matrix* m)
 
 	free_matrix(data_matrix, 0, rows-1, 0, cols-1);
 	
-	findBestLayout();
+	if (d_autoscale || first_time)
+		findBestLayout();
 	update();
 }
 
@@ -428,7 +439,8 @@ void Graph3D::changeDataColumn(Table* table, const QString& colName)
 	plotAssociation += colName+"(Z)";
 
 	updateDataXYZ(table, xCol, yCol, zCol);
-	findBestLayout();
+	if (d_autoscale)
+		findBestLayout();
 }
 
 void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
@@ -496,7 +508,8 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 		style_ = Qwt3D::USER;
 	}
 
-	findBestLayout();
+	if (d_autoscale)
+		findBestLayout();
 	deleteData(data,columns);
 }
 
@@ -588,7 +601,8 @@ void Graph3D::updateData(Table* table)
 	else
 		updateDataXY(table, xCol, yCol);
 	
-	findBestLayout();
+	if (d_autoscale)
+		findBestLayout();
 	update();
 }
 
@@ -729,7 +743,8 @@ void Graph3D::updateMatrixData(Matrix* m)
 	sp->legend()->setMajors(legendMajorTicks);
 
 	free_matrix(data,0,rows-1,0,cols-1);
-	findBestLayout();
+	if (d_autoscale)
+		findBestLayout();
 	update();
 }
 

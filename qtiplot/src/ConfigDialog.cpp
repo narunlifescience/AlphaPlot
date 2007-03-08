@@ -248,18 +248,22 @@ void ConfigDialog::initPlotsPage()
 	boxAllAxes->setChecked (app->allAxesOn);
 	optionsLayout->addWidget( boxAllAxes, 1, 1 );
 
-	boxFrame = new QCheckBox();
-	boxFrame->setChecked(app->canvasFrameOn);
-	optionsLayout->addWidget( boxFrame, 2, 0 );
+	boxAntialiasing = new QCheckBox();
+	boxAntialiasing->setChecked(app->antialiasing2DPlots);
+	optionsLayout->addWidget( boxAntialiasing, 2, 0 );
 
 	boxBackbones= new QCheckBox();
 	boxBackbones->setChecked(app->drawBackbones);
 	optionsLayout->addWidget( boxBackbones, 2, 1 );
+	
+	boxFrame = new QCheckBox();
+	boxFrame->setChecked(app->canvasFrameOn);
+	optionsLayout->addWidget( boxFrame, 3, 0 );
 
 	labelFrameWidth = new QLabel();
-	optionsLayout->addWidget( labelFrameWidth, 3, 0 );
+	optionsLayout->addWidget( labelFrameWidth, 4, 0 );
 	boxFrameWidth= new QSpinBox();
-	optionsLayout->addWidget( boxFrameWidth, 3, 1 );
+	optionsLayout->addWidget( boxFrameWidth, 4, 1 );
 	boxFrameWidth->setRange(1, 100);
 	boxFrameWidth->setValue(app->canvasFrameWidth);
 	if (!app->canvasFrameOn)
@@ -269,21 +273,21 @@ void ConfigDialog::initPlotsPage()
 	}
 
 	lblAxesLineWidth = new QLabel();  
-	optionsLayout->addWidget( lblAxesLineWidth, 4, 0 );
+	optionsLayout->addWidget( lblAxesLineWidth, 5, 0 );
 	boxLineWidth= new QSpinBox();
 	boxLineWidth->setRange(0, 100);
 	boxLineWidth->setValue(app->axesLineWidth);
-	optionsLayout->addWidget( boxLineWidth, 4, 1 );
+	optionsLayout->addWidget( boxLineWidth, 5, 1 );
 
 	lblMargin = new QLabel(); 
-	optionsLayout->addWidget( lblMargin, 5, 0 );
+	optionsLayout->addWidget( lblMargin, 6, 0 );
 	boxMargin= new QSpinBox();
 	boxMargin->setRange(0, 1000);
 	boxMargin->setSingleStep(5);
 	boxMargin->setValue(app->defaultPlotMargin);
-	optionsLayout->addWidget( boxMargin, 5, 1 );
+	optionsLayout->addWidget( boxMargin, 6, 1 );
 
-	optionsLayout->setRowStretch( 6, 1 );
+	optionsLayout->setRowStretch( 7, 1 );
 
 	boxResize = new QCheckBox();
 	boxResize->setChecked(!app->autoResizeLayers);
@@ -412,6 +416,10 @@ void ConfigDialog::initPlots3DPage()
 	boxOrthogonal = new QCheckBox();
 	boxOrthogonal->setChecked(app->orthogonal3DPlots);
 	topLayout->addWidget( boxOrthogonal, 2, 1 );
+	
+	boxAutoscale3DPlots = new QCheckBox();
+	boxAutoscale3DPlots->setChecked(app->autoscale3DPlots);
+	topLayout->addWidget( boxAutoscale3DPlots, 3, 0 );
 
 	groupBox3DCol = new QGroupBox();
 	QGridLayout * middleLayout = new QGridLayout( groupBox3DCol );
@@ -711,10 +719,6 @@ void ConfigDialog::initConfirmationsPage()
 	confirmPageLayout->addWidget(groupBoxConfirm);
 }
 
-ConfigDialog::~ConfigDialog()
-{
-}
-
 void ConfigDialog::languageChange()
 {
 	setWindowTitle( tr( "QtiPlot - Choose default settings" ) );
@@ -770,6 +774,7 @@ void ConfigDialog::languageChange()
 	boxTitle->setText(tr("Show &Title"));
 	boxScaleFonts->setText(tr("Scale &Fonts"));
 	boxAutoscaling->setText(tr("Auto&scaling"));
+	boxAntialiasing->setText(tr("Antia&liasing"));
 
 	boxMajTicks->clear();
 	boxMajTicks->addItem(tr("None"));
@@ -900,6 +905,7 @@ void ConfigDialog::languageChange()
 	btnTitleFnt->setText( tr( "&Title" ) );
 	btnLabelsFnt->setText( tr( "&Axes Labels" ) );
 	btnNumFnt->setText( tr( "&Numbers" ) );
+	boxAutoscale3DPlots->setText( tr( "Autosca&ling" ) );
 
 	//Fitting page
 	groupBoxFittingCurve->setTitle(tr("Generated Fit Curve"));
@@ -955,7 +961,8 @@ void ConfigDialog::apply()
 	app->drawBackbones = boxBackbones->isChecked();
 	app->axesLineWidth = boxLineWidth->value();
 	app->defaultPlotMargin = boxMargin->value();
-	app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),boxResize->isChecked());
+	app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),
+								boxResize->isChecked(), boxAntialiasing->isChecked());
 	// 2D plots page: curves tab
 	app->defaultCurveStyle = curveStyle();
 	app->defaultCurveLineWidth = boxCurveLineWidth->value();
@@ -994,7 +1001,9 @@ void ConfigDialog::apply()
 	app->plot3DAxesFont = plot3DAxesFont;
 	app->orthogonal3DPlots = boxOrthogonal->isChecked();
 	app->smooth3DMesh = boxSmoothMesh->isChecked();
-
+	app->autoscale3DPlots = boxAutoscale3DPlots->isChecked();
+	app->setPlot3DOptions();
+		
 	// fitting page
 	app->fit_output_precision = boxPrecision->value();
 	app->pasteFitResultsToPlot = plotLabelBox->isChecked();
@@ -1004,7 +1013,6 @@ void ConfigDialog::apply()
 	app->generatePeakCurves = groupBoxMultiPeak->isChecked();
 	app->peakCurvesColor = boxPeaksColor->currentIndex();
 	app->fit_scale_errors = scaleErrorsBox->isChecked();
-	app->setPlot3DOptions();
 	app->saveSettings();
 
 	// calculate a sensible width for the items list 

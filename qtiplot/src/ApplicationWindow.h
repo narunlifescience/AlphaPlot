@@ -393,7 +393,7 @@ public slots:
 	//! \name Graphs
 	//@{
 	void customGraph(Graph* g);
-	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers);
+	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers, bool antialiasing);
 	void setLegendDefaultSettings(int frame, const QFont& font, 
 							 const QColor& textCol, const QColor& backgroundCol);
 	void setArrowDefaultSettings(int lineWidth,  const QColor& c, Qt::PenStyle style,
@@ -987,7 +987,7 @@ public:
 	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport, autoSearchUpdates;
 	bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D, confirmClosePlot3D;
 	bool confirmCloseFolder, confirmCloseNotes;
-	bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn, autoscale2DPlots;
+	bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn, autoscale2DPlots, antialiasing2DPlots;
 	int majTicksStyle, minTicksStyle, legendFrameStyle, autoSaveTime, axesLineWidth, canvasFrameWidth;
 	QColor legendBackground, legendTextColor, defaultArrowColor;
 	int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
@@ -1003,7 +1003,7 @@ public:
 	int logID,asciiID,closeID, exportID, printAllID, ignoredLines, savingTimerId, plot3DResolution;
 	bool renameColumns, copiedLayer, strip_spaces, simplify_spaces;
 	QStringList recentProjects, tableWindows;
-	bool saved, showPlot3DProjection, showPlot3DLegend, orthogonal3DPlots;
+	bool saved, showPlot3DProjection, showPlot3DLegend, orthogonal3DPlots, autoscale3DPlots;
 	QStringList plot3DColors, locales;
 	QStringList functions; //user-defined functions;
 	QStringList xFunctions, yFunctions, rFunctions,thetaFunctions; // user functions for parametric and polar plots

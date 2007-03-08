@@ -1785,7 +1785,7 @@ void ApplicationWindow::add3DData()
 		return;
 	}
 
-	DataSetDialog *ad=new DataSetDialog(tr("Column") + " : ");
+	DataSetDialog *ad = new DataSetDialog(tr("Column") + " : ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insertNew3DData(const QString&)));
 	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
@@ -1795,7 +1795,7 @@ void ApplicationWindow::add3DData()
 
 void ApplicationWindow::change3DData()
 {
-	DataSetDialog *ad=new DataSetDialog(tr("Column") + " : ");
+	DataSetDialog *ad = new DataSetDialog(tr("Column") + " : ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DData(const QString&)));
 
@@ -1806,7 +1806,7 @@ void ApplicationWindow::change3DData()
 
 void ApplicationWindow::change3DMatrix()
 {
-	DataSetDialog *ad = new DataSetDialog(tr("Matrix") + " : ");
+	DataSetDialog *ad = new DataSetDialog(tr("Matrix") + " : ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad, SIGNAL(options(const QString&)), this, SLOT(change3DMatrix(const QString&)));
 
@@ -1833,13 +1833,13 @@ void ApplicationWindow::add3DMatrixPlot()
 	QStringList matrices = matrixNames();
 	if ((int)matrices.count() <= 0)
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("QtiPlot - Warning"),
 				tr("<h4>There are no matrices available in this project.</h4>"
 					"<p><h4>Please create a matrix and try again!</h4>"));
 		return;
 	}
 
-	DataSetDialog *ad=new DataSetDialog(tr("Matrix :"));
+	DataSetDialog *ad = new DataSetDialog(tr("Matrix") + " :", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insert3DMatrixPlot(const QString&)));
 
@@ -1915,7 +1915,7 @@ Graph3D* ApplicationWindow::newPlot3D(const QString& formula, double xl, double 
 {
 	QString label = generateUniqueName(tr("Graph"));
 
-	Graph3D *plot=new Graph3D("",ws,0);
+	Graph3D *plot = new Graph3D("",ws,0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->addFunction(formula, xl, xr, yl, yr, zl, zr);
 	plot->resize(500,400);
@@ -1942,7 +1942,7 @@ Graph3D* ApplicationWindow::newPlot3D(const QString& caption,const QString& form
 		double xl, double xr,double yl, double yr,
 		double zl, double zr)
 {
-	Graph3D *plot=new Graph3D("",ws,0);
+	Graph3D *plot = new Graph3D("",ws,0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->addFunction(formula, xl, xr, yl, yr, zl, zr);
 	plot->update();
@@ -1962,7 +1962,7 @@ Graph3D* ApplicationWindow::dataPlot3D(Table* table, const QString& colName)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QString label = generateUniqueName(tr("Graph"));
-	Graph3D *plot=new Graph3D("", ws, 0);
+	Graph3D *plot = new Graph3D("", ws, 0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->addData(table, colName);
 	plot->resize(500,400);
@@ -1995,7 +1995,7 @@ Graph3D* ApplicationWindow::dataPlot3D(const QString& caption,const QString& for
 	posX=formula.find("(",pos);
 	QString yCol=formula.mid(pos+1,posX-pos-1);
 
-	Graph3D *plot=new Graph3D("", ws, 0);
+	Graph3D *plot = new Graph3D("", ws, 0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->addData(w, xCol, yCol, xl, xr, yl, yr, zl, zr);
 	plot->update();
@@ -2608,6 +2608,7 @@ void ApplicationWindow::customGraph(Graph* g)
 	g->enableAutoscaling(autoscale2DPlots);
 	g->setAutoscaleFonts(autoScaleFonts);
     g->setIgnoreResizeEvents(!autoResizeLayers);
+	g->setAntialiasing(antialiasing2DPlots);
 }
 
 void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, const QString& text)
@@ -3367,16 +3368,19 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, b
 	delete windows;
 }
 
-void ApplicationWindow::setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers)
+void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts, 
+												bool resizeLayers, bool antialiasing)
 {	
 	if (autoscale2DPlots == autoscale &&
 		autoScaleFonts == scaleFonts &&
-		autoResizeLayers != resizeLayers)
+		autoResizeLayers != resizeLayers &&
+		antialiasing2DPlots == antialiasing)
 		return;
 
 	autoscale2DPlots = autoscale; 
 	autoScaleFonts = scaleFonts;
 	autoResizeLayers = !resizeLayers;
+	antialiasing2DPlots = antialiasing;
 
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
@@ -3392,6 +3396,7 @@ void ApplicationWindow::setGraphDefaultSettings(bool autoscale,bool scaleFonts,b
 				g->updateScale();
 				g->setIgnoreResizeEvents(!autoResizeLayers);
 				g->setAutoscaleFonts(autoScaleFonts);
+				g->setAntialiasing(antialiasing2DPlots);
 			}
 		}
 	}
@@ -4038,7 +4043,7 @@ void ApplicationWindow::executeNotes()
 
 void ApplicationWindow::scriptError(const QString &message, const QString &scriptName, int lineNumber)
 {
-	QMessageBox::critical(this, "QtiPlot - Script Error", message);
+	QMessageBox::critical(this, tr("QtiPlot") + " - "+ tr("Script Error"), message);
 }
 
 void ApplicationWindow::scriptPrint(const QString &text)
@@ -4328,6 +4333,7 @@ void ApplicationWindow::readSettings()
 	autoscale2DPlots = settings.value("/Autoscale", true).toBool();
 	autoScaleFonts = settings.value("/AutoScaleFonts", true).toBool();
 	autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
+	antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
 
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
 	if (graphFonts.size() == 16)
@@ -4376,6 +4382,8 @@ void ApplicationWindow::readSettings()
 	showPlot3DProjection = settings.value("/Projection", false).toBool();
 	smooth3DMesh = settings.value("/Antialiasing", true).toBool();
 	plot3DResolution = settings.value ("/Resolution", 1).toInt();
+	orthogonal3DPlots = settings.value("/Orthogonal", false).toBool();
+	autoscale3DPlots = settings.value ("/Autoscale", true).toBool();
 
 	QStringList plot3DFonts = settings.value("/Fonts").toStringList();
 	if (plot3DFonts.size() == 12)
@@ -4520,6 +4528,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Autoscale", autoscale2DPlots);
 	settings.setValue("/AutoScaleFonts", autoScaleFonts);
 	settings.setValue("/AutoResizeLayers", autoResizeLayers);
+	settings.setValue("/Antialiasing", antialiasing2DPlots);
 
 	QStringList graphFonts;
 	graphFonts<<plotAxesFont.family();
@@ -4577,6 +4586,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Projection", showPlot3DProjection);
 	settings.setValue("/Antialiasing", smooth3DMesh);
 	settings.setValue("/Resolution", plot3DResolution);
+	settings.setValue("/Orthogonal", orthogonal3DPlots);
+	settings.setValue("/Autoscale", autoscale3DPlots);
 
 	QStringList plot3DFonts;
 	plot3DFonts<<plot3DTitleFont.family();
@@ -10534,7 +10545,7 @@ void ApplicationWindow::copyActiveLayer()
 
 void ApplicationWindow::showDataSetDialog(const QString& whichFit)
 {
-	DataSetDialog *ad=new DataSetDialog(tr("Curve:"));
+	DataSetDialog *ad = new DataSetDialog(tr("Curve") + ": ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setCurveNames(activeGraph->curvesList());
 	ad->setOperationType(whichFit);
@@ -10774,6 +10785,7 @@ void ApplicationWindow::setPlot3DOptions()
 			Graph3D *g = (Graph3D*)windows->at(i);
 			g->setSmoothMesh(smooth3DMesh);
 			g->setOrtho(orthogonal3DPlots);
+			g->setAutoscale(autoscale3DPlots);
 		}
 	}
 	delete windows;
@@ -11894,7 +11906,7 @@ Graph3D * ApplicationWindow::openMatrixPlot3D(const QString& caption, const QStr
 	if (!m)
 		return 0;
 
-	Graph3D *plot=new Graph3D("", ws, 0, 0);
+	Graph3D *plot = new Graph3D("", ws, 0, 0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->setWindowTitle(caption);
 	plot->setName(caption);
@@ -11913,14 +11925,14 @@ void ApplicationWindow::plot3DMatrix(int style)
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 	QString label = generateUniqueName(tr("Graph"));
 
-	Graph3D *plot=new Graph3D("", ws, 0);
+	Graph3D *plot = new Graph3D("", ws, 0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
 	plot->addMatrixData((Matrix*)ws->activeWindow());
 	plot->customPlotStyle(style);
 	customPlot3D(plot);
 	plot->update();
 
-	plot->resize(500,400);
+	plot->resize(500, 400);
 	plot->setWindowTitle(label);
 	plot->setName(label);
 	initPlot3D(plot);

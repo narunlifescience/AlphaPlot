@@ -182,6 +182,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	autoscale = true;
 	autoScaleFonts = false;
 	translateOn = false;
+	d_antialiasing = true;
 	
 	defaultArrowLineWidth = 1;
 	defaultArrowColor = QColor(Qt::black);
@@ -7358,3 +7359,19 @@ void Graph::calculateProfile(int average, bool ok)
 		averagePixels=average;
 }
 
+void Graph::setAntialiasing(bool on)
+{
+	if (d_antialiasing == on)
+		return;
+	
+	d_antialiasing = on;
+		
+	QList<int> keys = d_plot->curveKeys();
+  	for (int i=0; i<(int)keys.count(); i++)
+  	{
+  		QwtPlotItem *c = d_plot->curve(keys[i]);
+		if (c)
+			c->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+	}	
+	d_plot->replot();
+}

@@ -58,44 +58,7 @@ public:
 	 */
     ConfigDialog( QWidget* parent, Qt::WFlags fl = 0 );
 	//! Destructor
-    ~ConfigDialog();
-
-	QTabWidget *plotsTabWidget, *appTabWidget;
-
-	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
-	QPushButton *btnFromColor, *btnToColor, *btnGrid;
-	QPushButton	*btnTitleFnt, *btnLabelsFnt, *btnNumFnt;
-
-	ColorButton *buttonBackground, *buttonText, *buttonHeader;
-    QPushButton *buttonOk, *buttonCancel, *buttonApply;
-	QPushButton* buttonTextFont, *buttonHeaderFont;
-	QStackedWidget * generalDialog;
-	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm;
-	QWidget *application, *curves, *plots3D, *fitPage;
-	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
-	QCheckBox *boxSearchUpdates, *boxOrthogonal, *logBox, *plotLabelBox, *scaleErrorsBox;
-	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
-	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
-	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
-	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
-	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision;
-	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
-	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
-	QListWidget * itemsList;
-	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
-	QLabel *lblPanelsText, *lblFonts, *lblStyle;
-	QGroupBox *groupBoxConfirm;
-	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
-	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
-	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution, *lblPrecision;
-	QGroupBox *groupBox3DFonts, *groupBox3DCol;
-	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints, *lblPeaksColor;
-	QGroupBox *groupBoxFittingCurve, *groupBoxFitParameters;
-	QRadioButton *samePointsBtn, *generatePointsBtn;
-    QGroupBox *groupBoxMultiPeak;
-	ColorBox *boxPeaksColor;
-	QLabel *lblScriptingLanguage;
-	QComboBox *boxScriptingLanguage;
+    ~ConfigDialog(){};
 
 public slots:
     virtual void languageChange();
@@ -162,6 +125,42 @@ private:
 	QFont textFont, headerFont, axesFont, numbersFont, legendFont, titleFont, appFont;
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QStringList plot3DColors;
+
+	QTabWidget *plotsTabWidget, *appTabWidget;
+	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
+	QPushButton *btnFromColor, *btnToColor, *btnGrid;
+	QPushButton	*btnTitleFnt, *btnLabelsFnt, *btnNumFnt;
+	ColorButton *buttonBackground, *buttonText, *buttonHeader;
+    QPushButton *buttonOk, *buttonCancel, *buttonApply;
+	QPushButton* buttonTextFont, *buttonHeaderFont;
+	QStackedWidget * generalDialog;
+	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm;
+	QWidget *application, *curves, *plots3D, *fitPage;
+	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
+	QCheckBox *boxSearchUpdates, *boxOrthogonal, *logBox, *plotLabelBox, *scaleErrorsBox;
+	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
+	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
+	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
+	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
+	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision;
+	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
+	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
+	QListWidget * itemsList;
+	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
+	QLabel *lblPanelsText, *lblFonts, *lblStyle;
+	QGroupBox *groupBoxConfirm;
+	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
+	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;
+	QLabel *lblSymbSize, *lblAxesLineWidth, *lblCurveStyle, *lblResolution, *lblPrecision;
+	QGroupBox *groupBox3DFonts, *groupBox3DCol;
+	QLabel *lblMargin, *lblMajTicks, *lblMajTicksLength, *lblLineWidth, *lblMinTicks, *lblMinTicksLength, *lblPoints, *lblPeaksColor;
+	QGroupBox *groupBoxFittingCurve, *groupBoxFitParameters;
+	QRadioButton *samePointsBtn, *generatePointsBtn;
+    QGroupBox *groupBoxMultiPeak;
+	ColorBox *boxPeaksColor;
+	QLabel *lblScriptingLanguage;
+	QComboBox *boxScriptingLanguage;
+	QCheckBox *boxAntialiasing, *boxAutoscale3DPlots;
 };
 
 #endif // CONFIGDIALOG_H
