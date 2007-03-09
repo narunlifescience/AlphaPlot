@@ -27,7 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "Differentiation.h"
-#include "nrutil.h"
 #include "MultiLayer.h"
 #include "LegendMarker.h"
 

@@ -44,7 +44,7 @@ class DataSetDialog : public QDialog
 
 public:
     DataSetDialog( const QString& text, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~DataSetDialog();
+    ~DataSetDialog(){};
 
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
@@ -53,10 +53,10 @@ public:
 	QComboBox* boxName;
 
 public slots:
-    virtual void languageChange();
 	void accept();
 	void setCurveNames(const QStringList& names);
 	void setOperationType(const QString& s){operation=s;};
+	void setCurentDataSet(const QString& s);
 
 signals:
 	void options(const QString&);
@@ -67,7 +67,4 @@ private:
 	QString windowTitle;
 };
 
-#endif 
-
-
-
+#endif

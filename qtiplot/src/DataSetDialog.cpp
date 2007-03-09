@@ -54,33 +54,20 @@ DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags 
 	boxName = new QComboBox();
 	topLayout->addWidget(boxName);
 
-	buttonOk = new QPushButton();
+	buttonOk = new QPushButton(tr( "&OK" ));
 	buttonOk->setAutoDefault( true );
 	buttonOk->setDefault( true );
 	bottomLayout->addWidget( buttonOk );
 
-	buttonCancel = new QPushButton();
+	buttonCancel = new QPushButton(tr( "&Cancel" ));
 	buttonCancel->setAutoDefault( true );
 	bottomLayout->addWidget( buttonCancel );
 
 	mainLayout->addWidget( groupBox1 );
 	mainLayout->addLayout( bottomLayout );
 
-	languageChange();
-
-	// signals and slots connections
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-}
-
-DataSetDialog::~DataSetDialog()
-{
-}
-
-void DataSetDialog::languageChange()
-{
-	buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
 void DataSetDialog::accept()
@@ -94,5 +81,11 @@ void DataSetDialog::accept()
 
 void DataSetDialog::setCurveNames(const QStringList& names)
 {
-	boxName->insertStringList (names,-1);
+	boxName->addItems(names);
+}
+
+void DataSetDialog::setCurentDataSet(const QString& s)
+{
+	int row = boxName->findText(s);
+	boxName->setCurrentIndex(row);
 }

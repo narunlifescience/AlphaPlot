@@ -30,7 +30,6 @@
 #include "Bar.h"
 #include "Cone3D.h"
 #include "MyParser.h"
-#include "nrutil.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -248,7 +247,7 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 	if (xmesh == 0)
 		xmesh++;
 
-	double** data =matrix(0,xmesh-1,0,ymesh-1);
+	double **data = Matrix::allocateMatrixData(xmesh, ymesh); 
 	gsl_vector * x = gsl_vector_alloc (xmesh);
 	gsl_vector * y = gsl_vector_alloc (xmesh);
 
@@ -282,7 +281,7 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 	
 	gsl_vector_free (x);
 	gsl_vector_free (y);
-	free_matrix(data,0,xmesh-1,0,ymesh-1);
+	Matrix::freeMatrixData(data, xmesh); 
 }
 
 void Graph3D::addData(Table* table,const QString& colName)
@@ -324,7 +323,7 @@ void Graph3D::addMatrixData(Matrix* m)
 	
 	int cols = m->numCols();	
 	int rows = m->numRows();
-	double **data_matrix = matrix(0, rows-1, 0, cols-1);
+	double **data_matrix = Matrix::allocateMatrixData(rows, cols); 
 	for (int i = 0; i < rows; i++ ) 
 	{
 		for (int j = 0; j < cols; j++) 
@@ -343,7 +342,7 @@ void Graph3D::addMatrixData(Matrix* m)
 	sp->legend()->setLimits(start, end);
 	sp->legend()->setMajors(legendMajorTicks);
 
-	free_matrix(data_matrix, 0, rows-1, 0, cols-1);
+	Matrix::freeMatrixData(data_matrix, rows);
 	
 	if (d_autoscale || first_time)
 		findBestLayout();
@@ -387,7 +386,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 	if (xmesh == 0)
 		xmesh++;
 
-	double** data =matrix(0,xmesh-1,0,ymesh-1);
+	double **data = Matrix::allocateMatrixData(xmesh, ymesh);
 	for ( j = 0; j < ymesh; j++) 
 	{ 
 		int k=0;		
@@ -416,7 +415,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 	sp->legend()->setLimits(zl, zr);
 	sp->legend()->setMajors(legendMajorTicks);
 
-	free_matrix(data,0,xmesh-1,0,ymesh-1);
+	Matrix::freeMatrixData(data, xmesh);
 }
 
 void Graph3D::insertNewData(Table* table, const QString& colName)
@@ -624,7 +623,7 @@ void Graph3D::updateDataXY(Table* table, int xCol, int yCol)
 		return;
 	}
 
-	double** data =matrix(0,xmesh-1,0,ymesh-1);
+	double **data = Matrix::allocateMatrixData(xmesh, ymesh);
 	gsl_vector * x = gsl_vector_alloc (xmesh);
 	gsl_vector * y = gsl_vector_alloc (xmesh);
 
@@ -661,7 +660,7 @@ void Graph3D::updateDataXY(Table* table, int xCol, int yCol)
 	sp->legend()->setMajors(legendMajorTicks);
 
 	gsl_vector_free (x);gsl_vector_free (y);
-	free_matrix(data,0,xmesh-1,0,ymesh-1);
+	Matrix::freeMatrixData(data, xmesh);
 }
 
 void Graph3D::updateDataXYZ(Table* table, int xCol, int yCol, int zCol)
@@ -721,7 +720,8 @@ void Graph3D::updateMatrixData(Matrix* m)
 {
 	int cols=m->numCols();	
 	int rows=m->numRows();
-	double** data = matrix(0, rows-1, 0, cols-1);
+
+	double **data = Matrix::allocateMatrixData(rows, cols);
 	for (int i = 0; i < rows; i++ ) 
 	{
 		for (int j = 0; j < cols; j++) 
@@ -742,7 +742,7 @@ void Graph3D::updateMatrixData(Matrix* m)
 	sp->legend()->setLimits(start, end);
 	sp->legend()->setMajors(legendMajorTicks);
 
-	free_matrix(data,0,rows-1,0,cols-1);
+	Matrix::freeMatrixData(data, rows);
 	if (d_autoscale)
 		findBestLayout();
 	update();
@@ -1439,7 +1439,7 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 	int start_row = int((yl - matrix_->yStart())/dy);
 	int start_col = int((xl - matrix_->xStart())/dx);
 
-	double** data_matrix = matrix(0, nc-1, 0, nr-1);
+	double **data_matrix = Matrix::allocateMatrixData(nc, nr);
 	for (int j = 0; j < nr; j++) 
 	{
 		for (int i = 0; i < nc; i++) 
@@ -1454,7 +1454,8 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 		}
 	} 
 	sp->loadFromData(data_matrix, nc, nr, xl, xr, yl, yr);
-	free_matrix(data_matrix, 0, nc-1, 0, nr-1);
+	Matrix::freeMatrixData(data_matrix, nc);
+
 	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
 	sp->legend()->setLimits(zl, zr);
 	sp->legend()->setMajors(legendMajorTicks);
@@ -1481,8 +1482,8 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 	if (xmesh == 0)
 		xmesh++;
 
-	double** data =matrix(0,xmesh-1,0,ymesh-1);
-
+	double **data = Matrix::allocateMatrixData(xmesh, ymesh);
+	
 	for ( j = 0; j < ymesh; j++) 
 	{  
 		int k=0;		
@@ -1508,7 +1509,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 
 	sp->loadFromData(data, xmesh, ymesh, xl, xr, yl, yr);
 	sp->createCoordinateSystem(Triple(xl, yl, zl), Triple(xr, yr, zr));
-	free_matrix(data,0,xmesh-1,0,ymesh-1);
+	Matrix::freeMatrixData(data, xmesh);
 }
 
 void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl, double zr,

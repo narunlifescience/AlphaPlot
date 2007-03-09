@@ -30,7 +30,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "Matrix.h"
-#include "nrutil.h"
 
 #include <qdatetime.h>
 #include <qlayout.h>
@@ -551,13 +550,13 @@ void Matrix::saveCellsToMemory()
 {
 	int rows=d_table->numRows();
 	int cols=d_table->numCols();
-	dMatrix=matrix(0,rows-1,0,cols-1);
+	dMatrix = allocateMatrixData(rows, cols);
 	for (int i=0; i<rows; i++)
 	{
 		for (int j=0; j<cols; j++)
 		{
 			QString s = d_table->text(i, j);
-			dMatrix[i][j]=s.toDouble();
+			dMatrix[i][j] = s.toDouble();
 		}
 	}
 }
@@ -566,7 +565,7 @@ void Matrix::forgetSavedCells()
 {
 	int rows=d_table->numRows();
 	int cols=d_table->numCols();
-	free_matrix (dMatrix, 0, rows-1, 0, cols-1);
+	freeMatrixData(dMatrix, rows);
 	dMatrix = 0;
 }
 
@@ -1062,7 +1061,7 @@ void Matrix::print()
 }
 
 void Matrix::range(double *min, double *max)
-  	{
+{
   	double d_min = d_table->text(0, 0).toDouble();
   	double d_max = d_min;
   	for (int i=0; i<d_table->numRows(); i++)
@@ -1080,4 +1079,23 @@ void Matrix::range(double *min, double *max)
   	 
   	*min = d_min;
   	*max = d_max;
-  	}
+}
+
+double** Matrix::allocateMatrixData(int rows, int columns)
+{
+	double** data = new double* [rows];
+	for ( int i = 0; i < rows; ++i) 
+	{
+		data[i] = new double [columns];
+	}
+	return data;
+}
+
+void Matrix::freeMatrixData(double **data, int rows)
+{
+	for ( int i = 0; i < rows; i++) 
+	{
+		delete [] data[i];
+	}
+	delete [] data;
+}

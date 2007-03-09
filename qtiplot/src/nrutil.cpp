@@ -49,6 +49,7 @@ free((FREE_ARG) (m[nrl]+ncl-NR_END));
 free((FREE_ARG) (m+nrl-NR_END));
 }
 
+
 double *vector(long nl, long nh)
 {//allocate a double vector with subscript range v[nl..nh] 
 double *v;
@@ -120,7 +121,7 @@ for (ipj=0;ipj<=(m << 1);ipj++)
 		a[1+(ipj+imj)/2][1+(ipj-imj)/2]=sum;
 	}
 
-ludcmp(a,m+1,indx,&d); //Solve them: LU decomposition.
+ludcmp(a, m+1, indx, &d); //Solve them: LU decomposition.
 
 for (j=1;j<=m+1;j++) 
 	b[j]=0.0;
@@ -296,4 +297,3 @@ for(m=1;m<n;m++)
 free_vector(d,1,n);
 free_vector(c,1,n);
 }
-

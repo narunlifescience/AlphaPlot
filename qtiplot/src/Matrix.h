@@ -138,6 +138,9 @@ public slots:
 
 	//! Notifies the main application that the Matrix has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
+	
+	static double** allocateMatrixData(int rows, int columns);
+	static void freeMatrixData(double **data, int rows);
 
 signals:
 	void showContextMenu();

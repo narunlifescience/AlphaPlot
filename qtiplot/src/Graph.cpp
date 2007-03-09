@@ -120,7 +120,6 @@ static const char *unzoom_xpm[]={
 #include "FunctionCurve.h"
 #include "Fit.h"
 #include "fitclasses.h"
-#include "nrutil.h"
 #include "Spectrogram.h"
 #include "SelectionMoveResizer.h"
 
@@ -6991,13 +6990,13 @@ void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool 
 		if (!h)
 			return;
 
-		double *range = vector(0,n+1);
-		for (i = 0; i<= n+1;i++ )
+		double *range = new double[n+2];
+		for (i = 0; i<= n+1; i++ )
 			range[i] = begin+i*binSize;
 
 		gsl_histogram_set_ranges (h, range, n+1);
-		free_vector(range, 0, n+1);
 		cv->setBinning(false, begin, end, binSize);
+		delete[] range;
 	}
 
 	for (i = 0; i<size; i++ )
@@ -7078,12 +7077,12 @@ QString Graph::showHistogramStats(Table* w, const QString& curveName, int curve)
 		if (!h)
 			return "";
 
-		double *range = vector(0,n+1);
+		double *range = new double [n+2];
 		for (i = 0; i<=n+1; i++ )
 			range[i] = begin+i*binSize;
 
 		gsl_histogram_set_ranges (h, range, n+1);
-		free_vector(range,0,n+1);
+		delete[] range;
 	}
 
 	for (i = 0; i<size; i++ )

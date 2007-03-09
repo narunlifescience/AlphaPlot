@@ -31,7 +31,6 @@
  ***************************************************************************/
 #include "Table.h"
 #include "SortDialog.h"
-#include "nrutil.h"
 
 #include <q3popupmenu.h>
 #include <q3filedialog.h>

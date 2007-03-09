@@ -1713,7 +1713,7 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
-		if (w->isA("Graph3D") && ((Graph3D*)w)->getMatrix() == m)
+		if (w->isA("Graph3D") && ((Graph3D*)w)->matrix() == m)
 			((Graph3D*)w)->clearData();
 		else if (w->isA("MultiLayer"))
 		{
@@ -1745,7 +1745,7 @@ void ApplicationWindow::update3DMatrixPlots(QWidget *window)
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
-		if (w->isA("Graph3D") && ((Graph3D*)w)->getMatrix() == m)
+		if (w->isA("Graph3D") && ((Graph3D*)w)->matrix() == m)
 			((Graph3D*)w)->updateMatrixData(m);
 		else if (w->isA("MultiLayer"))
 		{
@@ -1812,6 +1812,10 @@ void ApplicationWindow::change3DMatrix()
 
 	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
 	ad->setCurveNames(matrixNames());
+	
+	Graph3D* g = (Graph3D*)ws->activeWindow();
+	if (g && g->matrix())
+		ad->setCurentDataSet(g->matrix()->name());
 	ad->exec();
 }
 
@@ -6255,7 +6259,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 			pd->customWorksheetBtn(QString());
 		else if (g->getTable())
 			pd->customWorksheetBtn(tr("&Worksheet"));
-		else if (g->getMatrix())
+		else if (g->matrix())
 			pd->customWorksheetBtn(tr("&Matrix"));
 
 		pd->exec();
@@ -8424,7 +8428,7 @@ void ApplicationWindow::showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p,
 		else if (w->isA("Graph3D"))
 		{
 			Graph3D *sp=(Graph3D*)w;
-			Matrix *m = sp->getMatrix();
+			Matrix *m = sp->matrix();
 			QString formula = sp->formula();
 			if (!formula.isEmpty())
 			{
@@ -8491,7 +8495,7 @@ QStringList ApplicationWindow::depending3DPlots(Matrix *m)
 	for (int i=0; i<(int)windows->count(); i++)
 	{
 		QWidget *w = windows->at(i);
-		if (w->isA("Graph3D") && ((Graph3D *)w)->getMatrix() == m)
+		if (w->isA("Graph3D") && ((Graph3D *)w)->matrix() == m)
 			plots << w->name();
 	}
 	delete windows;
@@ -8704,7 +8708,7 @@ void ApplicationWindow::showWindowContextMenu()
 		{
 			if (g->getTable())
 				cm.insertItem(tr("Choose &Data Set..."), this, SLOT(change3DData()));
-			else if (g->getMatrix())
+			else if (g->matrix())
 				cm.insertItem(tr("Choose &Matrix..."), this, SLOT(change3DMatrix()));
 			else if (g->userFunction())
 				cm.addAction(actionEditSurfacePlot);

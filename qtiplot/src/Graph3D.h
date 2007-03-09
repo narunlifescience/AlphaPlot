@@ -76,7 +76,7 @@ public slots:
 						  double yr,double zl,double zr);
 	void insertNewData(Table* table, const QString& colName);
 
-	Matrix * getMatrix(){return matrix_;};
+	Matrix * matrix(){return matrix_;};
 	void addMatrixData(Matrix* m);//used to plot matrixes
 	void addMatrixData(Matrix* m,double xl,double xr,double yl,double yr,double zl,double zr);
 	void updateMatrixData(Matrix* m);
@@ -301,9 +301,6 @@ public slots:
 	void setOptions(const QStringList& lst);
 	void update();
 
-	Qwt3D::Triple** allocateData(int columns, int rows);
-	void deleteData(Qwt3D::Triple **data, int columns);
-
 	//! \name Bars
 	//@{
 	double barsRadius();
@@ -357,6 +354,9 @@ signals:
 	void custom3DActions(QWidget*);
 	
 private:
+	Qwt3D::Triple** allocateData(int columns, int rows);
+	void deleteData(Qwt3D::Triple **data, int columns);
+
 	//! Wait this many msecs before redraw 3D plot (used for animations)
   	int animation_redraw_wait;
 	//! File name of the color map used for the data (if any)

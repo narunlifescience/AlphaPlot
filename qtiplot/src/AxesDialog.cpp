@@ -1723,7 +1723,6 @@ void AxesDialog::initFramePage()
 		boxAxesLayout->setRowStretch( 4, 1 );
 		
 		QGroupBox * box4 = new QGroupBox(QString());
-		
 		QGridLayout * box4Layout = new QGridLayout( box4 );
 		
 		box4Layout->addWidget( new QLabel(tr( "Margin" )), 0, 0 );
@@ -1732,10 +1731,13 @@ void AxesDialog::initFramePage()
 		boxMargin->setSingleStep(5);
 		box4Layout->addWidget( boxMargin, 0, 1 );
 		
-		boxAll = new QCheckBox(tr("Apply to all layers"));
-		box4Layout->addWidget( boxAll, 1, 1 );
+		boxAntialiasing = new QCheckBox(tr("Antialiasing"));
+		box4Layout->addWidget( boxAntialiasing, 1, 1 );
 		
-		box4Layout->setRowStretch( 2, 1 );
+		boxAll = new QCheckBox(tr("Apply to all layers"));
+		box4Layout->addWidget( boxAll, 2, 1 );
+		
+		box4Layout->setRowStretch( 3, 1 );
 		
 		QGridLayout * mainLayout = new QGridLayout( frame );
 		mainLayout->addWidget( boxFramed , 0, 0 );
@@ -1745,19 +1747,19 @@ void AxesDialog::initFramePage()
 		
 		generalDialog->addTab(frame, tr( "General" ) );
 		
-		//frame page slot connections
-		connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
-		connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
+	connect(boxAntialiasing, SIGNAL(toggled(bool)), this, SLOT(updateAntialiasing(bool)));
+	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
+	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
 	connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
 	connect(boxCanvasColor, SIGNAL(clicked()), this, SLOT(pickCanvasColor()));
 	connect(boxBorderWidth,SIGNAL(valueChanged (int)), this, SLOT(updateBorder(int)));
 	connect(boxFrameColor, SIGNAL(clicked()), this, SLOT(pickCanvasFrameColor()));
-	connect(boxBackbones,SIGNAL(toggled(bool)), this, SLOT(drawAxesBackbones(bool)));
-	connect(boxFramed,SIGNAL(toggled(bool)), this, SLOT(drawFrame(bool)));
-	connect(boxFrameWidth,SIGNAL(valueChanged (int)),this, SLOT(updateFrame(int)));
-	connect(boxAxesLinewidth,SIGNAL(valueChanged (int)), this, SLOT(changeAxesLinewidth(int)));
-	connect(boxMajorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMajorTicksLength(int)));
-	connect(boxMinorTicksLength,SIGNAL(valueChanged (int)),this, SLOT(changeMinorTicksLength(int)));
+	connect(boxBackbones, SIGNAL(toggled(bool)), this, SLOT(drawAxesBackbones(bool)));
+	connect(boxFramed, SIGNAL(toggled(bool)), this, SLOT(drawFrame(bool)));
+	connect(boxFrameWidth, SIGNAL(valueChanged (int)), this, SLOT(updateFrame(int)));
+	connect(boxAxesLinewidth, SIGNAL(valueChanged (int)), this, SLOT(changeAxesLinewidth(int)));
+	connect(boxMajorTicksLength, SIGNAL(valueChanged (int)), this, SLOT(changeMajorTicksLength(int)));
+	connect(boxMinorTicksLength, SIGNAL(valueChanged (int)), this, SLOT(changeMinorTicksLength(int)));
 }
 
 void AxesDialog::changeMinorTicksLength (int minLength)
@@ -1884,22 +1886,22 @@ void AxesDialog::drawFrame(bool framed)
 	if (generalDialog->currentWidget() != frame)
 		return;
 			
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
-			}
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g=(Graph*)allPlots.at(i);
+			if (g)
+				g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+	}
 }
 
 void AxesDialog::updateFrame(int width)
@@ -2743,6 +2745,7 @@ bool AxesDialog::updatePlot()
 				g->changeMargin(boxMargin->value());
 				g->setBackgroundColor(c);
 				g->setCanvasBackground(boxCanvasColor->color());
+				g->setAntialiasing(boxAntialiasing->isChecked());
 			}
 		}
 	}
@@ -2753,8 +2756,8 @@ bool AxesDialog::updatePlot()
 void AxesDialog::setMultiLayerPlot(MultiLayer *m)
 {
 	mPlot = m;
-		d_graph = (Graph*)mPlot->activeGraph();
-		Plot *p = d_graph->plotWidget();
+	d_graph = (Graph*)mPlot->activeGraph();
+	Plot *p = d_graph->plotWidget();
 
 	boxMargin->setValue (p->margin());
 	boxBorderWidth->setValue(p->lineWidth());
@@ -2767,6 +2770,7 @@ void AxesDialog::setMultiLayerPlot(MultiLayer *m)
 	boxFrameColor->setColor(d_graph->canvasFrameColor());
 	boxFrameWidth->setValue(d_graph->canvasFrameWidth());
 
+	boxAntialiasing->setChecked(d_graph->antialiasing());
 	boxBackbones->setChecked (d_graph->axesBackbones());
 
 	boxMinorTicksLength->setValue(p->minorTickLength());
@@ -3213,6 +3217,29 @@ void AxesDialog::pageChanged ( QWidget *page )
   		axesList->setCurrentRow(axesTitlesList->currentRow());
   	    lastPage = page;
   	}
+}
+
+void AxesDialog::updateAntialiasing(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+				g->setAntialiasing(on);
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->setAntialiasing(on);
+	}
 }
 
 int AxesDialog::exec()

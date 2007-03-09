@@ -132,7 +132,7 @@ protected:
     QListWidget* axesGridList;
     QWidget* axesPage, *frame;
     QListWidget* axesTitlesList;
-    QCheckBox* boxShowAxis, *boxShowLabels;
+    QCheckBox* boxShowAxis, *boxShowLabels, *boxAntialiasing;
 	
 	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
@@ -183,6 +183,7 @@ public slots:
 	void setCurrentScale(int axisPos);
 	void initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR );
 
+	void updateAntialiasing(bool on);
 	void updateMajTicksType(int);
 	void updateMinTicksType(int);
 	void updateGrid(int);
