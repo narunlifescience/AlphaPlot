@@ -42,9 +42,8 @@ class TextFormatButtons : public QGroupBox
 public:
 	//! Constructor
 	/**
-	 * \param testEdit the QTextEdit that the buttons shall affect
+	 * \param textEdit the QTextEdit that the buttons shall affect
 	 * \param parent parent widget
-	 * \param fl window flags
 	 */
 	TextFormatButtons(QTextEdit * textEdit, QWidget * parent=0);
 	//! Show/Hide the "add curve" button

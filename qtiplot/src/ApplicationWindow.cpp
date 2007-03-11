@@ -2896,8 +2896,7 @@ Table* ApplicationWindow::convertMatrixToTable()
 			w->setText(i, j, m->text(i,j));
 	}
 
-	QString caption = generateUniqueName(tr("Table"));
-
+	initTable(w, generateUniqueName(tr("Table")));
 	w->setWindowLabel(m->windowLabel());
 	w->setCaptionPolicy(m->captionPolicy());
 	w->resize(m->size());
@@ -8732,14 +8731,14 @@ void ApplicationWindow::showWindowContextMenu()
 		cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
 		cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
 		cm.insertSeparator();
+		cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
+		cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
 		if (t->rowsSelected())
 		{
-			cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
 			cm.insertItem(QPixmap(close_xpm), tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
 		}
 		else if (t->columnsSelected())
 		{
-			cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
 			cm.insertItem(QPixmap(close_xpm), tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
 		}
 		cm.insertItem(QPixmap(erase_xpm),tr("Clea&r"), t, SLOT(clearSelection()));
@@ -8769,7 +8768,7 @@ void ApplicationWindow::showWindowTitleBarMenu()
 	cm.addAction(actionRename);
 	cm.addAction(actionCopyWindow);
 	cm.insertSeparator();
-	cm.addAction(actionHideWindow);
+	cm.addAction(actionHideActiveWindow);
 	cm.addAction(actionCloseWindow);
 	cm.exec(QCursor::pos());
 }
@@ -13890,9 +13889,7 @@ void ApplicationWindow::goToRow()
 		if (ws->activeWindow()->isA("Table"))
 			((Table*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
 		else if (ws->activeWindow()->isA("Matrix"))
-			((Matrix*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
-//	TODO: replace the line above as soon as the porting of matrix is done
-//	((Matrix*)ws->activeWindow())->table()->scrollToItem( ((Matrix*)ws->activeWindow())->table()->item(row - 1, 0));
+			((Matrix *)ws->activeWindow())->goToRow(row);
 	}
 }
 

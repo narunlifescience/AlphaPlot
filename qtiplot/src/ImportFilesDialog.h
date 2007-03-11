@@ -53,7 +53,7 @@ public:
 	/**
 	 * \param importTypeEnabled flag: enable/disable import type combo box
 	 * \param parent parent widget
-	 * \param fl window flags
+	 * \param flags window flags
 	 */
 	ImportFilesDialog(bool importTypeEnabled, QWidget * parent = 0, Qt::WFlags flags = 0 );
 

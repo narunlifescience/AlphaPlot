@@ -52,7 +52,7 @@ public:
 	//! Constructor
 	/**
 	 * \param parent parent widget
-	 * \param fl window flags
+	 * \param flags window flags
 	 */
 	ImageExportDialog( QWidget * parent = 0, Qt::WFlags flags = 0 );
 	bool showExportOptions(){return boxOptions->isChecked();};

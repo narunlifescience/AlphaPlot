@@ -83,7 +83,6 @@ class AxesDialog : public QDialog
 public:
 	//! Constructor
 	/**
-	 * \param type text type (TextMarker | AxisTitle)
 	 * \param parent parent widget
 	 * \param fl window flags
 	 */

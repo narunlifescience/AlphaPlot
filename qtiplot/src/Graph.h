@@ -389,7 +389,7 @@ class Graph: public QWidget
 		/*!\brief Set the selected marker.
 		 * \param mrk key of the marker to be selected.
 		 * \param add whether the marker is to be added to an existing selection.
-		 * If \var add is false (the default) or there is no existing selection, a new SelectionMoveResizer is
+		 * If <i>add</i> is false (the default) or there is no existing selection, a new SelectionMoveResizer is
 		 * created and stored in #d_markers_selector.
 		 */
 		void setSelectedMarker(long mrk, bool add=false);

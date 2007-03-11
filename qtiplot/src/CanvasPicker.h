@@ -57,7 +57,7 @@ private:
 
 	//! Selects and highlights the marker at the given position.
 	/**
-	 * \return whether a marker was found at \var point
+	 * \return whether a marker was found at #pointSelected
 	 */
 	bool selectMarker(const QMouseEvent *e);
 

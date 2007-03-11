@@ -100,7 +100,7 @@ public slots:
 	 * This works by having #canvas grab the mouse, remembering that we are in the midst of adding
 	 * text in #addTextOn and dispatching the next mouse click to addTextLayer(const QPoint&) in eventFilter().
 	 *
-	 * \sa #defaultTexMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground
+	 * \sa #defaultTextMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground
 	 */
 	void addTextLayer(int f, const QFont& font, const QColor& textCol, const QColor& backgroundCol);
 	/*!\brief Finish adding a text layer.
@@ -108,7 +108,7 @@ public slots:
 	 * An empty Graph is created and added to me.
 	 * Legend, title and axes are removed and a new LegendMarker is added with a placeholder text.
 	 *
-	 * \sa #defaultTexMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground, addTextLayer(int,const QFont&,const QColor&,const QColor&)
+	 * \sa #defaultTextMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground, addTextLayer(int,const QFont&,const QColor&,const QColor&)
 	 */
 	void addTextLayer(const QPoint& pos);
 
