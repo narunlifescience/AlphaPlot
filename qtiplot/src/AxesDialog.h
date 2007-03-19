@@ -131,7 +131,8 @@ protected:
     QListWidget* axesGridList;
     QWidget* axesPage, *frame;
     QListWidget* axesTitlesList;
-    QCheckBox* boxShowAxis, *boxShowLabels, *boxAntialiasing;
+	QGroupBox *boxShowLabels;
+    QCheckBox* boxShowAxis, *boxAntialiasing;
 	
 	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
@@ -176,7 +177,7 @@ public slots:
 	int mapToQwtAxis(int axis);
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
-	void updateTickLabelsList();
+	void updateTickLabelsList(bool);
 	void setTicksType(const QList<int>& majLst, const QList<int>& minLst);
 	void setTicksType(int);
 	void setCurrentScale(int axisPos);
@@ -188,7 +189,7 @@ public slots:
 	void updateGrid(int);
 	void updateFrame(int);
 	void setLabelsNumericFormat(int);
-	void updateLabelsFormat(QListWidgetItem * item);
+	void updateLabelsFormat(int);
 	void initLabelsRotation(int xAngle, int yAngle);
 	void insertColList(const QStringList& cols);
 	void insertTablesList(const QStringList& l);

@@ -30,12 +30,12 @@
 #ifndef TEXTFORMATBUTTONS_H
 #define TEXTFORMATBUTTONS_H
 
-#include <QGroupBox>
+#include <QWidget>
 class QTextEdit;
 class QPushButton;
 
 //! Widget with text format buttons (connected to a QTextEdit)
-class TextFormatButtons : public QGroupBox
+class TextFormatButtons : public QWidget
 {
 	Q_OBJECT
 
@@ -92,4 +92,3 @@ private slots:
 };
 
 #endif // TEXTFORMATBUTTONS_H
- 

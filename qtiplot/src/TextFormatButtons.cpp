@@ -60,7 +60,7 @@ static const char * lineSymbol_xpm[] = {
 
 
 TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
-: QGroupBox(QString(), parent)
+: QWidget(parent)
 {
 	connectedTextEdit = textEdit;
 
@@ -259,4 +259,3 @@ void TextFormatButtons::toggleCurveButton(bool enable)
 {
 	buttonCurve->setVisible(enable);
 }
-
