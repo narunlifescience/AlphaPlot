@@ -102,7 +102,7 @@ void Matrix::init(int rows, int cols)
 	hHeader->setResizeMode(QHeaderView::Fixed);
 	QHeaderView* vHeader=(QHeaderView*)d_table->verticalHeader();
 	vHeader->setMovable(false);
-	vHeader->setResizeMode(QHeaderView::Fixed);
+	vHeader->setResizeMode(QHeaderView::ResizeToContents);
 
 	// resize the table	
 	setGeometry(50,50,

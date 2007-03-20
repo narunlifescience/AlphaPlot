@@ -3707,7 +3707,7 @@ void ApplicationWindow::openRecentProject(int index)
 {
 	QString fn = recent->text(index);
 	int pos = fn.find(" ",0);
-	fn=fn.right(fn.length()-pos-1);
+	fn = fn.right(fn.length()-pos-1);
 
 	QFile f(fn);
 	if (!f.exists())
@@ -3717,7 +3717,7 @@ void ApplicationWindow::openRecentProject(int index)
 					"<p>It will be removed from the list.").arg(fn));
 
 		recentProjects.remove(fn);
-		updateRecentProjectsList();
+        updateRecentProjectsList();
 		return;
 	}
 
@@ -4251,7 +4251,18 @@ void ApplicationWindow::readSettings()
 #endif
 	appLanguage = settings.value("/Language", "en").toString();
 	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
-	recentProjects = settings.value("/RecentProjects").toStringList();
+
+    recentProjects = settings.value("/RecentProjects").toStringList();
+    //Follows an ugly hack added by Ion in order to fix Qt4 porting issues
+    //(only needed on Windows due to a Qt bug?)
+    //found another possible Qt4 bug: empty spaces are not correctly saved to the user settings!
+#ifdef Q_OS_WIN 
+	if (!recentProjects.isEmpty() && recentProjects[0].contains("^e"))
+        recentProjects = recentProjects[0].split("^e", QString::SkipEmptyParts);
+    else if (recentProjects.count() == 1 && recentProjects[0].remove(QRegExp("\\s")).isEmpty())
+        recentProjects = QStringList();
+#endif
+
 	updateRecentProjectsList();
 
 	changeAppStyle(settings.value("/Style", appStyle).toString());
@@ -5085,7 +5096,7 @@ void ApplicationWindow::saveProjectAs()
 		if (!baseName.contains("."))
 			fn.append(".qti");
 
-		projectname=fn;
+		projectname = fn;
 		if (saveProject())
 		{
 			recentProjects.remove(projectname);
@@ -12058,13 +12069,16 @@ QWidgetList* ApplicationWindow::windowsList()
 
 void ApplicationWindow::updateRecentProjectsList()
 {
+    if (recentProjects.isEmpty())
+        return;
+
 	while ((int)recentProjects.size() > MaxRecentProjects)
 		recentProjects.pop_back();
 
 	recent->clear();
 
 	for (int i = 0; i<(int)recentProjects.size(); i++ )
-		recent->insertItem("&"+QString::number(i+1)+" "+recentProjects[i]);
+		recent->insertItem("&" + QString::number(i+1) + " " + recentProjects[i]);
 }
 
 void ApplicationWindow::translateCurveHor()
@@ -12833,7 +12847,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 		}
 
 		if (f.isOpen() && backup.isOpen())
-		{
+		{// TODO:: rewrite this part using QFile:copy()!
 			while (!f.atEnd())
 				backup.putch(f.getch());
 
