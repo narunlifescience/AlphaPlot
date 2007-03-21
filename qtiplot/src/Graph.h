@@ -579,8 +579,7 @@ class Graph: public QWidget
 		//! \name Border and Margin
 		//@{
 		void changeMargin (int d);
-		void drawBorder (int width, const QColor& color);
-		void setBorder (int width, const QColor& color);
+		void setBorder (int width = 1, const QColor& color = QColor(Qt::black));
 		void setBackgroundColor(const QColor& color);
 		void setCanvasBackground(const QColor& color);
 		//@}

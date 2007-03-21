@@ -242,9 +242,6 @@ public slots:
 	//! Return a pointer to the QTableWidget
 	QTableWidget* table(){return d_table;};
 
-	//! Notifies the main application that the matrix has been modified
-	void notifyChanges(){emit modifiedWindow(this);};
-
 	//! Scroll to row (row starts with 1)
 	void goToRow(int row);
 

@@ -99,6 +99,11 @@ Plot::Plot(QWidget *parent, const char *name)
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
+	QColorGroup cg;
+    cg.setColor(QColorGroup::Window, QColor(255, 255, 255, 0));
+    setPalette(QPalette(cg, cg, cg));
+    setAutoFillBackground(true);
+	
 	setCanvasBackground (QColor(255, 255, 255, 0));
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);

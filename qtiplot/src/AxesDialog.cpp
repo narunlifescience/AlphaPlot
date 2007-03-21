@@ -1679,20 +1679,24 @@ void AxesDialog::initFramePage()
 		QGridLayout * boxBkgLayout = new QGridLayout( boxBkg );
 		
 		boxBkgLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
+		boxBackgroundTransparency = new QCheckBox(tr("Transparent"));
+		boxBkgLayout->addWidget( boxBackgroundTransparency, 0, 1 );
 		boxBackgroundColor = new ColorButton();
-		boxBkgLayout->addWidget( boxBackgroundColor, 0, 1 );
+		boxBkgLayout->addWidget( boxBackgroundColor, 0, 2 );
 		
-		boxBkgLayout->addWidget( new QLabel(tr( "Border Width" )), 1, 0);
+		boxBkgLayout->addWidget( new QLabel(tr("Canvas Color" )), 1, 0);
+		boxCanvasTransparency = new QCheckBox(tr("Transparent"));
+		boxBkgLayout->addWidget( boxCanvasTransparency, 1, 1 );
+		boxCanvasColor = new ColorButton();
+		boxBkgLayout->addWidget( boxCanvasColor, 1, 2 );
+		
+		boxBkgLayout->addWidget( new QLabel(tr( "Border Width" )), 2, 0);
 		boxBorderWidth = new QSpinBox();
-		boxBkgLayout->addWidget( boxBorderWidth, 1, 1 );
+		boxBkgLayout->addWidget( boxBorderWidth, 2, 2);
 		
-		boxBkgLayout->addWidget( new QLabel(tr("Border Color" )), 2, 0);
+		boxBkgLayout->addWidget( new QLabel(tr("Border Color" )), 3, 0);
 		boxBorderColor = new ColorButton();
-		boxBkgLayout->addWidget( boxBorderColor, 2, 1);
-		
-		boxBkgLayout->addWidget( new QLabel(tr("Canvas Color" )), 3, 0);
-		boxCanvasColor= new ColorButton();
-		boxBkgLayout->addWidget( boxCanvasColor, 3, 1 );
+		boxBkgLayout->addWidget( boxBorderColor, 3, 2);
 		
 		boxBkgLayout->setRowStretch( 4, 1 );
 		
@@ -1746,6 +1750,8 @@ void AxesDialog::initFramePage()
 		
 		generalDialog->addTab(frame, tr( "General" ) );
 		
+	connect(boxBackgroundTransparency, SIGNAL(toggled(bool)), this, SLOT(updateBackgroundTransparency(bool)));
+	connect(boxCanvasTransparency, SIGNAL(toggled(bool)), this, SLOT(updateCanvasTransparency(bool)));
 	connect(boxAntialiasing, SIGNAL(toggled(bool)), this, SLOT(updateAntialiasing(bool)));
 	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
 	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
@@ -1931,22 +1937,23 @@ void AxesDialog::updateBorder(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 			
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->drawBorder(width, boxBorderColor->color());
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->drawBorder(width, boxBorderColor->color());
-			}
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g=(Graph*)allPlots.at(i);
+			if (g)
+				g->setBorder(width, boxBorderColor->color());
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->setBorder(width, boxBorderColor->color());
+	}
+	mPlot->notifyChanges();
 }
 
 void AxesDialog::pickCanvasColor()
@@ -2016,8 +2023,8 @@ void AxesDialog::pickBackgroundColor()
 void AxesDialog::pickBorderColor()
 {
 	QColor c = QColorDialog::getColor(boxBorderColor->color(), this);
-		if ( !c.isValid() || c == boxBorderColor->color() )
-			return;
+	if ( !c.isValid() || c == boxBorderColor->color() )
+		return;
 
 	boxBorderColor->setColor ( c ) ;
 
@@ -2028,15 +2035,16 @@ void AxesDialog::pickBorderColor()
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
-				g->drawBorder(boxBorderWidth->value(), c);
+				g->setBorder(boxBorderWidth->value(), c);
 		}
 	}
 	else
 	{
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
-			g->drawBorder(boxBorderWidth->value(), c);
+			g->setBorder(boxBorderWidth->value(), c);
 	}
+	mPlot->notifyChanges();
 }
 
 void AxesDialog::pickCanvasFrameColor()
@@ -2729,7 +2737,6 @@ bool AxesDialog::updatePlot()
 		if (!boxAll->isChecked())
 			return true;
 
-		QColor c = boxBackgroundColor->color();
 		QWidgetList allPlots = mPlot->graphPtrs();
 		for (int i=0; i<allPlots.count();i++)
 		{
@@ -2737,13 +2744,23 @@ bool AxesDialog::updatePlot()
 			if (g)
 			{
 				g->setAxesLinewidth(boxAxesLinewidth->value());
-				g->drawBorder(boxBorderWidth->value(), boxBorderColor->color());
+				g->setBorder(boxBorderWidth->value(), boxBorderColor->color());
+				
 				g->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
 				g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
 				g->drawAxesBackbones(boxBackbones->isChecked());
 				g->changeMargin(boxMargin->value());
+				
+				QColor c = boxBackgroundColor->color();
+				if (boxBackgroundTransparency->isChecked())
+					c.setAlpha(0);
 				g->setBackgroundColor(c);
-				g->setCanvasBackground(boxCanvasColor->color());
+								
+				c = boxCanvasColor->color();
+				if (boxCanvasTransparency->isChecked())
+					c.setAlpha(0);
+				g->setCanvasBackground(c);
+				
 				g->setAntialiasing(boxAntialiasing->isChecked());
 			}
 		}
@@ -2761,8 +2778,19 @@ void AxesDialog::setMultiLayerPlot(MultiLayer *m)
 	boxMargin->setValue (p->margin());
 	boxBorderWidth->setValue(p->lineWidth());
 	boxBorderColor->setColor(p->frameColor());
-	boxBackgroundColor->setColor(p->paletteBackgroundColor());
-	boxCanvasColor->setColor(d_graph->plotWidget()->canvasBackground());
+	
+	QColor c = p->paletteBackgroundColor();
+	boxBackgroundTransparency->setChecked(!c.alpha());
+	boxBackgroundColor->setEnabled(c.alpha());
+	c.setAlpha(255);
+	boxBackgroundColor->setColor(c);
+	
+	c = d_graph->plotWidget()->canvasBackground();
+	boxCanvasTransparency->setChecked(!c.alpha());
+	boxCanvasColor->setEnabled(c.alpha());
+	c.setAlpha(255);
+	boxCanvasColor->setColor(c);
+	
 	boxAxesLinewidth->setValue(d_graph->plotWidget()->axesLinewidth());
 
 	boxFramed->setChecked(d_graph->framed());
@@ -3231,6 +3259,76 @@ void AxesDialog::updateAntialiasing(bool on)
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
 			g->setAntialiasing(on);
+	}
+}
+
+void AxesDialog::updateCanvasTransparency(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	boxCanvasColor->setEnabled(!on);
+	
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+			{
+				QColor c = boxCanvasColor->color();
+				if (boxCanvasTransparency->isChecked())
+					c.setAlpha(0);
+				g->setCanvasBackground(c);
+			}
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+		{
+			QColor c = boxCanvasColor->color();
+			if (boxCanvasTransparency->isChecked())
+				c.setAlpha(0);
+			g->setCanvasBackground(c);
+		}
+	}
+}
+
+void AxesDialog::updateBackgroundTransparency(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	boxBackgroundColor->setEnabled(!on);
+	
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+			{
+				QColor c = boxBackgroundColor->color();
+				if (boxBackgroundTransparency->isChecked())
+					c.setAlpha(0);
+				g->setBackgroundColor(c);
+			}
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+		{
+			QColor c = boxBackgroundColor->color();
+			if (boxBackgroundTransparency->isChecked())
+				c.setAlpha(0);
+			g->setBackgroundColor(c);
+		}
 	}
 }
 

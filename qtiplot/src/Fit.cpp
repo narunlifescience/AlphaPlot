@@ -485,7 +485,6 @@ void Fit::generateFitCurve(double *par)
 
 	calculateFitCurveData(par, X, Y);
 
-	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (d_gen_function)
 	{
 		insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);

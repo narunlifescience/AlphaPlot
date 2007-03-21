@@ -222,7 +222,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(d_plot);
 	setMouseTracking(true );
-
+	
 	grid.majorOnX=0;
 	grid.majorOnY=0;
 	grid.minorOnX=0;
@@ -3404,7 +3404,8 @@ QString Graph::saveCanvas()
 		s += "CanvasFrame\t" + QString::number(w)+"\t";
 		s += canvasFrameColor().name()+"\n";
 	}
-	s += "CanvasBackground\t" + d_plot->canvasBackground().name()+"\n"; 
+	s += "CanvasBackground\t" + d_plot->canvasBackground().name()+"\t"; 
+	s += QString::number(d_plot->canvasBackground().alpha())+"\n";
 	return s;
 }
 
@@ -5745,7 +5746,8 @@ QString Graph::saveToString(bool saveAsTemplate)
 	s+=QString::number(this->frameGeometry().width())+"\t";
 	s+=QString::number(this->frameGeometry().height())+"\n";
 	s+=saveTitle();
-	s+="Background\t"+ d_plot->paletteBackgroundColor().name()+"\n";
+	s+="Background\t" + d_plot->paletteBackgroundColor().name() + "\t";
+	s+=QString::number(d_plot->paletteBackgroundColor().alpha()) + "\n";
 	s+="Margin\t"+QString::number(d_plot->margin())+"\n";
 	s+="Border\t"+QString::number(d_plot->lineWidth())+"\t"+d_plot->frameColor().name()+"\n";
 	s+=saveGridOptions();
@@ -5864,24 +5866,6 @@ void Graph::changeMargin (int d)
 	emit modifiedGraph();
 }
 
-void Graph::drawBorder (int width, const QColor& color)
-{
-	if (d_plot->frameColor() == color && width == d_plot->lineWidth())
-		return;
-
-	QPalette pal = d_plot->palette();
-	pal.setColor(QColorGroup::Foreground, color);
-
-	d_plot->setPalette(pal);
-	d_plot->setLineWidth(width);
-
-	int margin = d_plot->margin();
-	d_plot->setMargin(margin + 5);
-	d_plot->setMargin(margin);
-
-	emit modifiedGraph();
-}
-
 void Graph::setBorder (int width, const QColor& color)
 {
 	if (d_plot->frameColor() == color && width == d_plot->lineWidth())
@@ -5889,18 +5873,19 @@ void Graph::setBorder (int width, const QColor& color)
 
 	QPalette pal = d_plot->palette();
 	pal.setColor(QColorGroup::Foreground, color);
-
 	d_plot->setPalette(pal);
+	
 	d_plot->setLineWidth(width);
 }
 
 void Graph::setBackgroundColor(const QColor& color)
 {
     QColorGroup cg;
-    cg.setColor(QColorGroup::Window, color );
-    d_plot->setPalette(QPalette(cg, cg, cg));
+	QPalette p = d_plot->palette();
+	p.setColor(QColorGroup::Window, color);
+    d_plot->setPalette(p);
+	
     d_plot->setAutoFillBackground(true);
-
 	emit modifiedGraph();
 }
 
@@ -6212,6 +6197,9 @@ void Graph::copy(Graph* g)
 	int i;
 	Plot *plot = g->plotWidget();
 	d_plot->setMargin(plot->margin());
+
+	setAntialiasing(g->antialiasing());
+	
 	setBackgroundColor(plot->paletteBackgroundColor());
 	setBorder(plot->lineWidth(), plot->frameColor());
 	setCanvasBackground(plot->canvasBackground());

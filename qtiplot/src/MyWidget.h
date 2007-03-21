@@ -161,6 +161,9 @@ public:
 	 * the resize event for the MultiLayer windows.		
 	 */
 	QSize maximizedSize(){return d_max_size;};
+	
+	//! Notifies the main application that the window has been modified
+	void notifyChanges(){emit modifiedWindow(this);};
 
 signals:  
 	//! Emitted when the window was closed

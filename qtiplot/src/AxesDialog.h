@@ -132,7 +132,8 @@ protected:
     QWidget* axesPage, *frame;
     QListWidget* axesTitlesList;
 	QGroupBox *boxShowLabels;
-    QCheckBox* boxShowAxis, *boxAntialiasing;
+    QCheckBox *boxShowAxis, *boxAntialiasing;
+	QCheckBox *boxBackgroundTransparency, *boxCanvasTransparency;
 	
 	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
@@ -213,7 +214,10 @@ public slots:
 	void showGridPage();
 	void showFormulaBox();
 	void showAxisFormula(int axis);
-
+	
+	void updateCanvasTransparency(bool on);
+	void updateBackgroundTransparency(bool on);
+	
 	void customAxisLabelFont();
 
 	//! Shows the dialog as a modal dialog

@@ -80,7 +80,6 @@ PieDialog::PieDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags
 	setLayout(vl);
 
 	resize(minimumSize());
-	setMaximumHeight(minimumSize ().height());
 
 	// signals and slots connections
 	connect( buttonWrk, SIGNAL(clicked()), this, SLOT(showWorksheet()));
@@ -112,6 +111,7 @@ void PieDialog::initPiePage()
 	gl1->addWidget(new QLabel(tr( "Width")), 2, 0);  
 	boxLineWidth = new QSpinBox();
 	gl1->addWidget(boxLineWidth, 2, 1);
+	gl1->setRowStretch(3,1);
 
 	QGroupBox *gb1 = new QGroupBox(tr( "Border" ));
 	gb1->setLayout(gl1);
@@ -132,7 +132,8 @@ void PieDialog::initPiePage()
 	boxRadius->setSingleStep(10);
 
 	gl2->addWidget(boxRadius, 2, 1);
-
+	gl2->setRowStretch(3,1);
+	
 	QGroupBox *gb2 = new QGroupBox(tr( "Fill" ));
 	gb2->setLayout(gl2);
 
@@ -152,20 +153,28 @@ void PieDialog::initBorderPage()
 	QGridLayout *gl1 = new QGridLayout();
 	gl1->addWidget(new QLabel( tr( "Color" )), 0, 0);
 
+	boxBackgroundTransparency = new QCheckBox(tr("Transparent"));
+	gl1->addWidget( boxBackgroundTransparency, 0, 1 );
+	
 	boxBackgroundColor = new ColorButton();
-	gl1->addWidget(boxBackgroundColor, 0, 1);
-
-	gl1->addWidget(new QLabel( tr( "Border Width" )), 1, 0);
-	boxBorderWidth = new QSpinBox();
-	gl1->addWidget(boxBorderWidth, 1, 1);
-
-	gl1->addWidget(new QLabel( tr( "Border Color" )), 2, 0);
-	boxBorderColor= new ColorButton();
-	gl1->addWidget(boxBorderColor, 2, 1);
-
-	gl1->addWidget(new QLabel( tr( "Canvas Color" )), 3, 0);
+	gl1->addWidget(boxBackgroundColor, 0, 2);
+	
+	gl1->addWidget(new QLabel( tr( "Canvas Color" )), 1, 0);
+	
+	boxCanvasTransparency = new QCheckBox(tr("Transparent"));
+	gl1->addWidget( boxCanvasTransparency, 1, 1 );
+	
 	boxCanvasColor= new ColorButton();
-	gl1->addWidget(boxCanvasColor, 3, 1);
+	gl1->addWidget(boxCanvasColor, 1, 2);
+
+	gl1->addWidget(new QLabel( tr( "Border Width" )), 2, 0);
+	boxBorderWidth = new QSpinBox();
+	gl1->addWidget(boxBorderWidth, 2, 2);
+
+	gl1->addWidget(new QLabel( tr( "Border Color" )), 3, 0);
+	boxBorderColor= new ColorButton();
+	gl1->addWidget(boxBorderColor, 3, 2);
+	gl1->setRowStretch(4,1);
 
 	QGroupBox *gb1 = new QGroupBox(tr("Background"));
 	gb1->setLayout(gl1);
@@ -180,8 +189,13 @@ void PieDialog::initBorderPage()
 
 	gl2->addWidget(boxMargin, 0, 1);
 
+	boxAntialiasing = new QCheckBox(tr("Antialiasing"));
+	gl2->addWidget(boxAntialiasing, 1, 1);
+	
 	boxAll = new QCheckBox(tr("Apply to all layers"));
-	gl2->addWidget(boxAll, 1, 0);
+	gl2->addWidget(boxAll, 2, 1);
+	
+	gl2->setRowStretch(3, 1);
 	gb2->setLayout(gl2);
 
 	QHBoxLayout* hl = new QHBoxLayout();
@@ -191,6 +205,9 @@ void PieDialog::initBorderPage()
 
 	generalDialog->insertTab(frame, tr( "General" ) );
 
+	connect(boxAntialiasing, SIGNAL(toggled(bool)), this, SLOT(updateAntialiasing(bool)));
+	connect(boxBackgroundTransparency, SIGNAL(toggled(bool)), this, SLOT(updateBackgroundTransparency(bool)));
+	connect(boxCanvasTransparency, SIGNAL(toggled(bool)), this, SLOT(updateCanvasTransparency(bool)));
 	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
 	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
 	connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
@@ -211,10 +228,21 @@ void PieDialog::setMultiLayerPlot(MultiLayer *m)
 	boxMargin->setValue (p->margin());
 	boxBorderWidth->setValue(p->lineWidth());
 	boxBorderColor->setColor(p->frameColor());
-	boxBackgroundColor->setColor(p->paletteBackgroundColor());
+		
+	QColor c = p->paletteBackgroundColor();
+	boxBackgroundTransparency->setChecked(!c.alpha());
+	boxBackgroundColor->setEnabled(c.alpha());
+	c.setAlpha(255);
+	boxBackgroundColor->setColor(c);
+	
+	c = p->canvasBackground();
+	boxCanvasTransparency->setChecked(!c.alpha());
+	boxCanvasColor->setEnabled(c.alpha());
+	c.setAlpha(255);
+	boxCanvasColor->setColor(c);
 
-	boxCanvasColor->setColor(p->canvasBackground());
-
+	boxAntialiasing->setChecked(g->antialiasing());
+	
 	curvesList->addItem(pie->title().text());
 	curvesList->setCurrentItem (0);
 
@@ -299,14 +327,14 @@ void PieDialog::pickBorderColor()
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
-				g->drawBorder(boxBorderWidth->value(), c);
+				g->setBorder(boxBorderWidth->value(), c);
 		}
 	}
 	else
 	{
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
-			g->drawBorder(boxBorderWidth->value(), c);
+			g->setBorder(boxBorderWidth->value(), c);
 	}
 }
 
@@ -322,14 +350,14 @@ void PieDialog::updateBorder(int width)
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
-				g->drawBorder(width, boxBorderColor->color());
+				g->setBorder(width, boxBorderColor->color());
 		}
 	}
 	else
 	{
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
-			g->drawBorder(width, boxBorderColor->color());
+			g->setBorder(width, boxBorderColor->color());
 	}
 }
 
@@ -436,9 +464,17 @@ void PieDialog::updatePlot()
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
 			{
-				g->drawBorder(boxBorderWidth->value(), boxBorderColor->color());
+				g->setBorder(boxBorderWidth->value(), boxBorderColor->color());
 				g->changeMargin(boxMargin->value());
+				
+				QColor c = boxBackgroundColor->color();
+				if (boxBackgroundTransparency->isChecked())
+					c.setAlpha(0);
 				g->setBackgroundColor(c);
+								
+				c = boxCanvasColor->color();
+				if (boxCanvasTransparency->isChecked())
+					c.setAlpha(0);
 				g->setCanvasBackground(c);
 			}
 		}
@@ -491,6 +527,99 @@ Qt::BrushStyle PieDialog::pattern()
 void PieDialog::showGeneralPage()
 {
 	generalDialog->showPage (frame);
+}
+
+void PieDialog::updateCanvasTransparency(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	boxCanvasColor->setEnabled(!on);
+	
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+			{
+				QColor c = boxCanvasColor->color();
+				if (boxCanvasTransparency->isChecked())
+					c.setAlpha(0);
+				g->setCanvasBackground(c);
+			}
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+		{
+			QColor c = boxCanvasColor->color();
+			if (boxCanvasTransparency->isChecked())
+				c.setAlpha(0);
+			g->setCanvasBackground(c);
+		}
+	}
+}
+
+void PieDialog::updateBackgroundTransparency(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	boxBackgroundColor->setEnabled(!on);
+	
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+			{
+				QColor c = boxBackgroundColor->color();
+				if (boxBackgroundTransparency->isChecked())
+					c.setAlpha(0);
+				g->setBackgroundColor(c);
+			}
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+		{
+			QColor c = boxBackgroundColor->color();
+			if (boxBackgroundTransparency->isChecked())
+				c.setAlpha(0);
+			g->setBackgroundColor(c);
+		}
+	}
+}
+
+void PieDialog::updateAntialiasing(bool on)
+{	
+	if (generalDialog->currentWidget() != frame)
+		return;
+			
+	if (boxAll->isChecked())
+	{
+		QWidgetList allPlots = mPlot->graphPtrs();
+		for (int i=0; i<allPlots.count();i++)
+		{
+			Graph* g = (Graph*)allPlots.at(i);
+			if (g)
+				g->setAntialiasing(on);
+		}
+	}
+	else
+	{
+		Graph* g = (Graph*)mPlot->activeGraph();
+		if (g)
+			g->setAntialiasing(on);
+	}
 }
 
 PieDialog::~PieDialog()

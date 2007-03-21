@@ -2922,8 +2922,8 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	current_folder->addWindow(m);
 	m->setFolder(current_folder);
 
-	connect(m,SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
-	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject()));
+	connect(m, SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
+	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(update3DMatrixPlots(QWidget *)));
 	connect(m, SIGNAL(closedWindow(MyWidget*)), this, SLOT(closeWindow(MyWidget*)));
 	connect(m, SIGNAL(hiddenWindow(MyWidget*)), this, SLOT(hideWindow(MyWidget*)));
@@ -9983,9 +9983,11 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(10) == "Background")
 		{
-			fList=s.split("\t");
-			if (QColor(fList[1]) != QColor(255, 255, 255))
-				ag->setBackgroundColor(QColor(fList[1]));
+			fList = s.split("\t");
+			QColor c = QColor(fList[1]);
+			if (fList.count() == 3)
+				c.setAlpha(fList[2].toInt());
+			ag->setBackgroundColor(c);
 		}
 		else if (s.contains ("Margin"))
 		{
@@ -10357,8 +10359,11 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("CanvasBackground"))
 		{
-			QStringList list=s.split("\t");
-			ag->setCanvasBackground(QColor(list[1]));
+			QStringList list = s.split("\t");
+			QColor c = QColor(list[1]);
+			if (list.count() == 3)
+				c.setAlpha(list[2].toInt());
+			ag->setCanvasBackground(c);
 		}
 		else if (s.contains ("Legend"))
 		{// version <= 0.8.9
@@ -10720,6 +10725,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(showPieDialog()),this,SLOT(showPieDialog()));
 	connect (g,SIGNAL(viewTitleDialog()),this,SLOT(showTitleDialog()));
+	connect (g,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));
 	connect (g,SIGNAL(showLineDialog()),this,SLOT(showLineDialog()));
 	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SLOT(updateTable(const QString&,int,const QString&)));
