@@ -808,45 +808,41 @@ QVarLengthArray<double> Table::col(int ycol)
 }
 
 void Table::insertCols(int start, int count)
-{	
-	start--;//insert new columns before the start/selected column
+{
+    if (start < 0)
+        start = 0;
 
-	int max=0,i;
-
-	int cols=worksheet->numCols();
-	for (i=0; i<cols; i++)
+	int max = 0;
+	for (int i = 0; i<worksheet->numCols(); i++)
 	{
-		if (col_label[i].contains(QRegExp ("\\D"))==0)
+		if (!col_label[i].contains(QRegExp ("\\D")))
 		{
-			int index = col_label[i].toInt();
-			if (index>max) 
-				max=index;
+			int id = col_label[i].toInt();
+			if (id > max)
+				max = id;
 		}
 	}
-	max++;
+    max++;
 
-	for(i=start+1 ; i<(count+start+1) ; i++ );
+    worksheet->insertColumns(start, count);
+
+	for(int i = 0; i<count; i++ )
 	{
-		commands.insert(i, QString());
-		col_format.insert(i, "0/6");
-		comments.insert(i, QString());
-		col_label.insert(i, QString());
-		colTypes.insert(i, Numeric);
-		col_plot_type.insert(i, Y);
+        int j = start + i;
+		commands.insert(j, QString());
+		col_format.insert(j, "0/6");
+		comments.insert(j, QString());
+		col_label.insert(j, QString::number(max + i));
+		colTypes.insert(j, Numeric);
+		col_plot_type.insert(j, Y);
 	}
-
-	worksheet->insertColumns(start, count);
-	for (i=0; i<count; i++)
-		col_label[start+i] = QString::number(max+i);
-
 	setHeaderColType();
 	emit modifiedWindow(this);	
 }
 
 void Table::insertCol()
 {
-	insertCols(selectedCol,1);
-	emit modifiedWindow(this);
+	insertCols(selectedCol, 1);
 }
 
 void Table::insertRow()
@@ -854,7 +850,7 @@ void Table::insertRow()
 	int cr = worksheet->currentRow();
 	if (worksheet->isRowSelected (cr, true))
 	{
-		worksheet->insertRows(cr,1);
+		worksheet->insertRows(cr, 1);
 		emit modifiedWindow(this);
 	}
 }
