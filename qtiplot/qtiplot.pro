@@ -223,6 +223,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
+			src/Convolution.h
 
 ###################### SOURCES ##############################################
 
@@ -319,6 +320,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
+			src/Convolution.cpp
 
 ############################################################### 
 ##################### Compression (zlib123) ###################

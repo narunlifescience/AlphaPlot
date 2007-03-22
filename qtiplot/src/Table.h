@@ -202,8 +202,6 @@ public slots:
 	//@}
 
 	void correlate();
-	void convolute(int sign);
-	void convlv(double *sig, int n, double *dres, int m, int sign);
 
 	QVarLengthArray<double> col(int ycol);
 	int firstXCol();

@@ -92,6 +92,7 @@
 #include "Differentiation.h"
 #include "SmoothFilter.h"
 #include "FFTFilter.h"
+#include "Convolution.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -5683,7 +5684,17 @@ void ApplicationWindow::convolute()
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->convolute(1);
+	Table *t = (Table*)ws->activeWindow();
+	QStringList s = t->selectedColumns();
+	if ((int)s.count() != 2)
+	{
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
+		return;
+	}
+	
+	Convolution *cv = new Convolution(this, t, s[0], s[1]);
+	cv->run();
+	delete cv;
 }
 
 void ApplicationWindow::deconvolute()
@@ -5691,7 +5702,17 @@ void ApplicationWindow::deconvolute()
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->convolute(-1);
+	Table *t = (Table*)ws->activeWindow();	
+	QStringList s = t->selectedColumns();
+	if ((int)s.count() != 2)
+	{
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
+		return;
+	}
+	
+	Deconvolution *dcv = new Deconvolution(this, t, s[0], s[1]);
+	dcv->run();
+	delete dcv;
 }
 
 void ApplicationWindow::showColStatistics()
