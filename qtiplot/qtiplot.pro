@@ -1,6 +1,6 @@
-############################################################################# 
+#############################################################################
 ###################### USER-SERVICEABLE PART ################################
-############################################################################# 
+#############################################################################
 
 # building without muParser doesn't work yet
 SCRIPTING_LANGS += muParser
@@ -12,14 +12,14 @@ DEFINES         += SCRIPTING_CONSOLE
 # a dialog for selecting the scripting language on a per-project basis
 DEFINES         += SCRIPTING_DIALOG
 
-#CONFIG          += release
-CONFIG          += debug
+CONFIG          += release
+#CONFIG          += debug
 
 # what to install and where
 INSTALLS        += target
 INSTALLS        += documentation
-unix:target.path = /usr/bin
-unix:documentation.path = /usr/share/doc/qtiplot
+unix: target.path = /usr/bin
+unix: documentation.path = /usr/share/doc/qtiplot
 
 ##################### 3rd PARTY HEADER FILES SECTION ########################
 #!!! Warning: You must modify these paths according to your computer settings
@@ -69,19 +69,19 @@ unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 ##################### Windows ###############################################
 
 win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a 
+win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
 win32:LIBS        += ../3rdparty/zlib123/lib/zdll.lib
 win32:LIBS        += ../3rdparty/liborigin/liborigin.a
 
-############################################################################# 
+#############################################################################
 ###################### END OF USER-SERVICEABLE PART #########################
-############################################################################# 
+#############################################################################
 
-############################################################################# 
+#############################################################################
 ###################### BASIC PROJECT PROPERTIES #############################
-############################################################################# 
+#############################################################################
 
 QMAKE_PROJECT_DEPTH = 0
 
@@ -91,7 +91,7 @@ CONFIG        += qt warn_on exceptions opengl
 CONFIG        += assistant
 
 DEFINES       += QT_PLUGIN
-win32:DEFINES += QT_DLL QT_THREAD_SUPPORT 
+win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
 QT            += opengl qt3support network
 
 MOC_DIR        = ../tmp/qtiplot
@@ -99,12 +99,12 @@ OBJECTS_DIR    = ../tmp/qtiplot
 SIP_DIR        = ../tmp/qtiplot
 DESTDIR        = ./
 
-############################################################################# 
+#############################################################################
 ###################### PROJECT FILES SECTION ################################
-############################################################################# 
- 
+#############################################################################
+
 ###################### ICONS ################################################
- 
+
 win32:RC_FILE = icons/qtiplot.rc
 mac:RC_FILE   = icons/qtiplot.icns
 
@@ -119,7 +119,7 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
 
 #system(lupdate -verbose qtiplot.pro)
 #system(lrelease -verbose qtiplot.pro)
- 
+
 ###################### DOCUMENTATION ########################################
 
 documentation.files += ../manual/html \
@@ -223,7 +223,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
-			src/Convolution.h
+			src/Convolution.h\
+			src/Correlation.h
 
 ###################### SOURCES ##############################################
 
@@ -243,7 +244,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/PolynomFitDialog.cpp \
             src/TableDialog.cpp \
             src/TextDialog.cpp \
-            src/ScalePicker.cpp\ 
+            src/ScalePicker.cpp\
             src/TitlePicker.cpp \
             src/CanvasPicker.cpp \
             src/ExpDecayDialog.cpp \
@@ -320,17 +321,18 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
-			src/Convolution.cpp
+			src/Convolution.cpp\
+			src/Correlation.cpp
 
-############################################################### 
+###############################################################
 ##################### Compression (zlib123) ###################
-############################################################### 
+###############################################################
 
 SOURCES += ../3rdparty/zlib123/minigzip.c
 
-############################################################### 
+###############################################################
 ##################### SCRIPTING LANGUAGES SECTION #############
-############################################################### 
+###############################################################
 
 ##################### Default: muParser v1.28 #################
 
@@ -347,7 +349,7 @@ contains(SCRIPTING_LANGS, muParser) {
              ../3rdparty/muParser/muParserToken.h \
              ../3rdparty/muParser/muParserBytecode.h \
              ../3rdparty/muParser/muParserCallback.h \
-             ../3rdparty/muParser/muParserTokenReader.h \ 
+             ../3rdparty/muParser/muParserTokenReader.h \
              ../3rdparty/muParser/muParserFixes.h \
              ../3rdparty/muParser/muParserDef.h \
 

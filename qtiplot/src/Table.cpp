@@ -59,9 +59,6 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_sort_vector.h>
-#include <gsl/gsl_fft_halfcomplex.h>
-//#include <gsl/gsl_fft_real.h>
-//#include <gsl/gsl_fft_complex.h>
 
 Table::Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
 			 bool stripSpaces, bool simplifySpaces, const QString& label, 
@@ -1223,105 +1220,6 @@ void Table::removeCol(const QStringList& list)
 	}	
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
-}
-
-void Table::correlate()
-{
-	QStringList s=selectedColumns();
-	if ((int)s.count() != 2)
-	{
-		QMessageBox::warning(0, tr("QtiPlot - Error"), tr("Please select two columns for this operation!"));
-		return;
-	}
-
-	int col1 = colIndex(s[0]);
-	int col2 = colIndex(s[1]);
-	int i, rows=worksheet->numRows();
-	int N = 16;
-	while (N < rows) 
-		N*=2;// round N up to the nearest power of 2
-
-	double *tmpdata = new double[N];
-	double *tmpdata2 = new double[N];
-	if(tmpdata && tmpdata2) 
-	{
-		// zero-pad the two arrays...
-		memset( tmpdata, 0, N * sizeof( double ) );
-		memset( tmpdata2, 0, N * sizeof( double ) );
-		for(i=0;i<rows;i++) 
-		{
-			tmpdata[i]=worksheet->text(i, col1).toDouble();
-			tmpdata2[i]=worksheet->text(i, col2).toDouble();
-		}
-	}
-	else
-	{
-		QMessageBox::warning(0,"QtiPlot", tr("Could not allocate memory, operation aborted!"));
-		return;
-	}
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));	
-	// calculate the FFTs of the two functions
-	if( gsl_fft_real_radix2_transform( tmpdata, 1, N ) == 0 && 
-			gsl_fft_real_radix2_transform( tmpdata2, 1, N ) == 0) 
-	{
-		// multiply the FFT by its complex conjugate
-		for(i=0; i<N/2; i++ ) 
-		{
-			if( i==0 || i==(N/2)-1 )
-				tmpdata[i] *= tmpdata[i];
-			else 
-			{
-				int ni = N-i;
-				double dReal = tmpdata[i] * tmpdata2[i] + tmpdata[ni] * tmpdata2[ni];
-				double dImag = tmpdata[i] * tmpdata2[ni] - tmpdata[ni] * tmpdata2[i];					
-				tmpdata[i] = dReal;
-				tmpdata[ni] = dImag;
-			}
-		}
-	}
-	else
-	{
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(0,"QtiPlot", tr("Error in GSL forward FFT operation!"));
-		return;
-	}
-
-	gsl_fft_halfcomplex_radix2_inverse(tmpdata, 1, N );	//inverse FFT
-
-	int cols=worksheet->numCols();
-	int cols2 = cols+1;
-	addCol();
-	addCol();
-	int n = rows/2;
-	for ( i = 0; i<rows; i++) 
-	{
-		double y=0;
-		if(i < n)
-			y = tmpdata[N - n + i];
-		else
-			y = tmpdata[i-n];
-
-		worksheet->setText(i, cols, QString::number(i - n));
-		worksheet->setText(i, cols2, QString::number(y));
-	}
-
-	delete[] tmpdata;
-	delete[] tmpdata2;
-
-	s=colNames();
-	QStringList l = s.grep("Lag");
-	QString id = QString::number((int)l.size()+1);
-	QString label="Corr"+id;
-
-	col_label[cols]= "Lag"+id;
-	col_label[cols2]= label;
-	col_plot_type[cols] = X;
-	setHeaderColType();
-
-	emit plotCol(this, QStringList(QString(this->name())+"_"+label), 0);
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();	
 }
 
 void Table::normalizeSelection()

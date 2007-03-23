@@ -31,8 +31,6 @@
 #include "Plot.h"
 
 #include <QMessageBox>
-
-#include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_fft_halfcomplex.h>
 
 Convolution::Convolution(ApplicationWindow *parent, Table *t, const QString& signalColName, const QString& responseColName)
@@ -47,23 +45,23 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
     if (t && d_table != t)
         d_table = t;
 
-    int d_signal_col = d_table->colIndex(signalColName);
-	int d_response_col = d_table->colIndex(responseColName);
-	
-	if (d_signal_col < 0)
+    int signal_col = d_table->colIndex(signalColName);
+	int response_col = d_table->colIndex(responseColName);
+
+	if (signal_col < 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"), 
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
 		tr("The signal data set %1 do not exist!").arg(signalColName));
 		d_init_err = true;
-		return;	
+		return;
 	}
-	else if (d_response_col < 0)
+	else if (response_col < 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"), 
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
 		tr("The response data set %1 do not exist!").arg(responseColName));
 		d_init_err = true;
-		return;	
-	} 
+		return;
+	}
 
     if (d_n > 0)
 	{//delete previousely allocated memory
@@ -73,42 +71,42 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 
 	d_n_response = 0;
 	int rows = d_table->tableRows();
-	for (int i=0; i<rows; i++) 
+	for (int i=0; i<rows; i++)
 	{
-		if (!d_table->text(i, d_response_col).isEmpty())
+		if (!d_table->text(i, response_col).isEmpty())
 			d_n_response++;
 	}
 	if (d_n_response >= rows/2)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"), 
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
 		tr("The response dataset '%1' must be less then half the size of the signal dataset '%2'!").arg(responseColName).arg(signalColName));
 		d_init_err = true;
 		return;
 	}
 	else if (d_n_response%2 == 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"), 
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
 		tr("The response dataset '%1' must contain an odd number of points!").arg(responseColName));
 		d_init_err = true;
 		return;
 	}
-	
+
 	d_n = rows;
-	
+
 	d_n_signal = 16;// tmp number of points
-	while (d_n_signal < d_n + d_n_response/2) 
+	while (d_n_signal < d_n + d_n_response/2)
 		d_n_signal *= 2;
-		
+
     d_x = new double[d_n_signal]; //signal
 	d_y = new double[d_n_response]; //response
 
     if(d_y && d_x)
-	{		
+	{
 		memset( d_x, 0, d_n_signal * sizeof( double ) );// zero-pad signal data array
 		for(int i=0; i<d_n; i++)
-			d_x[i] = d_table->text(i, d_signal_col).toDouble();
+			d_x[i] = d_table->text(i, signal_col).toDouble();
 		for(int i=0; i<d_n_response; i++)
-			d_y[i] = d_table->text(i, d_response_col).toDouble();
+			d_y[i] = d_table->text(i, response_col).toDouble();
 	}
 	else
 	{
@@ -129,10 +127,10 @@ void Convolution::addResultCurve()
 {
 	int cols = d_table->tableCols();
 	int cols2 = cols+1;
-	
+
 	d_table->addCol();
 	d_table->addCol();
-	for (int i = 0; i<d_n; i++) 
+	for (int i = 0; i<d_n; i++)
 	{
 		d_table->setText(i, cols, QString::number(i+1));
 		d_table->setText(i, cols2, QString::number(d_x[i]));
@@ -157,38 +155,38 @@ void Convolution::convlv(double *sig, int n, double *dres, int m, int sign)
 	double *res = new double[n];
 	memset(res,0,n*sizeof(double));
 	int i, m2 = m/2;
-	for (i=0;i<m2;i++) 
+	for (i=0;i<m2;i++)
 	{//store the response in wrap around order, see Numerical Recipes doc
 		res[i] = dres[m2+i];
 		res[n-m2+i] = dres[i];
 	}
 
 	if(m2%2==1)
-		res[m2]=dres[m-1];	
+		res[m2]=dres[m-1];
 
 	// calculate ffts
 	gsl_fft_real_radix2_transform(res,1,n);
 	gsl_fft_real_radix2_transform(sig,1,n);
 
 	double re, im, size;
-	for (i=0;i<n/2;i++) 
+	for (i=0;i<n/2;i++)
 	{// multiply/divide both ffts
-		if(i==0 || i==n/2-1) 
+		if(i==0 || i==n/2-1)
 		{
 			if(sign == 1)
 				sig[i] = res[i]*sig[i];
-			else 
+			else
 				sig[i] = sig[i]/res[i];
 		}
-		else 
+		else
 		{
 			int ni = n-i;
-			if(sign == 1) 
+			if(sign == 1)
 			{
 				re = res[i]*sig[i]-res[ni]*sig[ni];
 				im = res[i]*sig[ni]+res[ni]*sig[i];
 			}
-			else 
+			else
 			{
 				size = res[i]*res[i]+res[ni]*res[ni];
 				re = res[i]*sig[i]+res[ni]*sig[ni];

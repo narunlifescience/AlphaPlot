@@ -576,6 +576,7 @@ public slots:
 	void normalizeSelection();
 	void normalizeActiveTable();
 	void correlate();
+	void autoCorrelate();
 	void convolute();
 	void deconvolute();
 	void clearTable();
@@ -1081,7 +1082,7 @@ private:
 	QAction *actionSmoothSavGol, *actionSmoothFFT, *actionSmoothAverage, *actionFFT;
 	QAction *actionLowPassFilter, *actionHighPassFilter, *actionBandPassFilter, *actionBandBlockFilter;
 	QAction *actionSortTable, *actionSortSelection, *actionNormalizeSelection;
-	QAction *actionNormalizeTable, *actionConvolute, *actionDeconvolute, *actionCorrelate;
+	QAction *actionNormalizeTable, *actionConvolute, *actionDeconvolute, *actionCorrelate, *actionAutoCorrelate;
 	QAction *actionTranslateHor, *actionTranslateVert, *actionSetAscValues, *actionSetRandomValues;
 	QAction *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol, *actionSetXErrCol, *actionSetYErrCol;
 	QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;

@@ -93,6 +93,7 @@
 #include "SmoothFilter.h"
 #include "FFTFilter.h"
 #include "Convolution.h"
+#include "Correlation.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1012,9 +1013,11 @@ void ApplicationWindow::initTableAnalysisMenu()
 	normMenuID = dataMenu->insertItem(tr("&Normalize"), normMenu);
 
 	dataMenu->insertSeparator();
-
 	dataMenu->addAction(actionFFT);
+	dataMenu->insertSeparator();
 	dataMenu->addAction(actionCorrelate);
+	dataMenu->addAction(actionAutoCorrelate);
+	dataMenu->insertSeparator();
 	dataMenu->addAction(actionConvolute);
 	dataMenu->addAction(actionDeconvolute);
 
@@ -2524,6 +2527,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 
 void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 {
+	ws->addWindow(g);
 	connectMultilayerPlot(g);
 
 	QString label = name;
@@ -2536,7 +2540,6 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->show();
 	g->setFocus();
 
-	ws->addWindow(g);
 	addListViewItem(g);
 	current_folder->addWindow(g);
 	g->setFolder(current_folder);
@@ -5676,7 +5679,35 @@ void ApplicationWindow::correlate()
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->correlate();
+	Table *t = (Table*)ws->activeWindow();
+	QStringList s = t->selectedColumns();
+	if ((int)s.count() != 2)
+	{
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation!"));
+		return;
+	}
+
+	Correlation *cor = new Correlation(this, t, s[0], s[1]);
+	cor->run();
+	delete cor;
+}
+
+void ApplicationWindow::autoCorrelate()
+{
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("Table"))
+		return;
+
+	Table *t = (Table*)ws->activeWindow();
+	QStringList s = t->selectedColumns();
+	if ((int)s.count() != 1)
+	{
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select exactly one columns for this operation!"));
+		return;
+	}
+
+	Correlation *cor = new Correlation(this, t, s[0], s[0]);
+	cor->run();
+	delete cor;
 }
 
 void ApplicationWindow::convolute()
@@ -11341,6 +11372,9 @@ void ApplicationWindow::createActions()
 	actionCorrelate = new QAction(tr("Co&rrelate"), this);
 	connect(actionCorrelate, SIGNAL(activated()), this, SLOT(correlate()));
 
+	actionAutoCorrelate = new QAction(tr("&Autocorrelate"), this);
+	connect(actionAutoCorrelate, SIGNAL(activated()), this, SLOT(autoCorrelate()));
+
 	actionConvolute = new QAction(tr("&Convolute"), this);
 	connect(actionConvolute, SIGNAL(activated()), this, SLOT(convolute()));
 
@@ -11765,6 +11799,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionNormalizeTable->setMenuText(tr("&Table"));
 	actionNormalizeSelection->setMenuText(tr("&Columns"));
 	actionCorrelate->setMenuText(tr("Co&rrelate"));
+	actionAutoCorrelate->setMenuText(tr("&Autocorrelate"));
 	actionConvolute->setMenuText(tr("&Convolute"));
 	actionDeconvolute->setMenuText(tr("&Deconvolute"));
 	actionTranslateHor->setMenuText(tr("&Horizontal"));

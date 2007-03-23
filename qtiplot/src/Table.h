@@ -201,8 +201,6 @@ public slots:
 	void normalize();
 	//@}
 
-	void correlate();
-
 	QVarLengthArray<double> col(int ycol);
 	int firstXCol();
 	bool noXColumn();
