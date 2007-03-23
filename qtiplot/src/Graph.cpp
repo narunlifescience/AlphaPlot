@@ -3758,8 +3758,6 @@ QString Graph::saveCurveLayout(int index)
 		s+=QString::number(b->whiskersRangeType())+"\t";
 		s+=QString::number(b->whiskersRange())+"\t";
 	}
-	else
-		s+="\n";
 
 	return s;
 }
@@ -4508,7 +4506,7 @@ void Graph::plotPie(Table* w, const QString& name,const QPen& pen, int brush, in
 		QString yval=w->text(i,ycol);
 		if (!yval.isEmpty())
 		{
-			Y[size] = yval.toDouble();
+			Y[data_size] = yval.toDouble();
             data_size++;
 		}
 	}

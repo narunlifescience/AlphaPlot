@@ -1603,7 +1603,7 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 				if (legendMrk)
 				{
 					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
-					onPlot.gres (oldName,newName,TRUE);
+					onPlot.replaceInStrings (oldName,newName);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
 				}
@@ -1667,7 +1667,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 				if (legendMrk)
 				{
 					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
-					onPlot.gres (oldName,newName,TRUE);
+					onPlot.replaceInStrings (oldName,newName);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
 				}
@@ -2524,7 +2524,6 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 
 void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 {
-	ws->addWindow(g);
 	connectMultilayerPlot(g);
 
 	QString label = name;
@@ -2537,6 +2536,7 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->show();
 	g->setFocus();
 
+	ws->addWindow(g);
 	addListViewItem(g);
 	current_folder->addWindow(g);
 	g->setFolder(current_folder);
@@ -2733,7 +2733,6 @@ Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& lab
 
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
-	ws->addWindow(w);
 	connectTable(w);
 	customTable(w);
 
@@ -2748,6 +2747,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	w->setIcon( QPixmap(worksheet_xpm) );
 	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
 
+	ws->addWindow(w);
 	addListViewItem(w);
 	current_folder->addWindow(w);
 	w->setFolder(current_folder);
@@ -2794,7 +2794,6 @@ Note* ApplicationWindow::newNote(const QString& caption)
 
 void ApplicationWindow::initNote(Note* m, const QString& caption)
 {
-	ws->addWindow(m);
 	QString name=caption;
 	while(name.isEmpty() || alreadyUsedName(name))
 		name = generateUniqueName(tr("Notes"));
@@ -2804,6 +2803,7 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 	m->setIcon( QPixmap(note_xpm) );
 	m->askOnCloseEvent(confirmCloseNotes);
 
+	ws->addWindow(m);
 	addListViewItem(m);
 	current_folder->addWindow(m);
 	m->setFolder(current_folder);
@@ -2910,7 +2910,6 @@ Table* ApplicationWindow::convertMatrixToTable()
 
 void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 {
-	ws->addWindow(m);
 	QString name=caption;
 	while(alreadyUsedName(name)){name = generateUniqueName(tr("Matrix"));}
 
@@ -2919,6 +2918,7 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	m->setIcon( QPixmap(matrix_xpm) );
 	m->askOnCloseEvent(confirmCloseMatrix);
 
+	ws->addWindow(m);
 	addListViewItem(m);
 	current_folder->addWindow(m);
 	m->setFolder(current_folder);
@@ -10034,7 +10034,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		{//version < 0.8.6
 			fList=s.split("\t");
 			fList.pop_front();
-			fList.gres("-1", "3");
+			fList.replaceInStrings("-1", "3");
 			ag->setMajorTicksType(fList);
 			ag->setMinorTicksType(fList);
 		}
@@ -10099,6 +10099,16 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.contains ("PieCurve"))
 		{
 			curve=s.split("\t");
+			if (!app->renamedTables.isEmpty())
+			{
+				QString caption = (curve[1]).left((curve[1]).find("_",0));
+				if (app->renamedTables.contains(caption))
+				{//modify the name of the curve according to the new table name
+					int index = app->renamedTables.findIndex(caption);
+					QString newCaption = app->renamedTables[++index];
+					curve.replaceInStrings(caption+"_", newCaption+"_");
+				}
+			}
 			QPen pen=QPen(QColor(curve[3]),curve[2].toInt(),Graph::getPenStyle(curve[4]));
 			ag->plotPie(app->table(curve[1]),curve[1],pen,curve[5].toInt(),
 					curve[6].toInt(),curve[7].toInt());
@@ -10109,11 +10119,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			if (!app->renamedTables.isEmpty())
 			{
 				QString caption = (curve[2]).left((curve[2]).find("_",0));
+
 				if (app->renamedTables.contains(caption))
 				{//modify the name of the curve according to the new table name
 					int index = app->renamedTables.findIndex (caption);
 					QString newCaption = app->renamedTables[++index];
-					curve.gres(caption+"_", newCaption+"_", true);
+					curve.replaceInStrings(caption+"_", newCaption+"_");
 				}
 			}
 
@@ -10550,7 +10561,7 @@ Graph3D* ApplicationWindow::openSurfacePlot(ApplicationWindow* app, const QStrin
 
 	if (d_file_version > 71)
 	{
-		fList=lst[20].split("\t", QString::SkipEmptyParts);
+		fList=lst[20].split("\t"); // using QString::SkipEmptyParts here causes a crash for empty window labels
 		plot->setWindowLabel(fList[1]);
 		plot->setCaptionPolicy((MyWidget::CaptionPolicy)fList[2].toInt());
 		app->setListViewLabel(plot->name(),fList[1]);

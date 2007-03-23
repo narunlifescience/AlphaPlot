@@ -595,7 +595,7 @@ void Table::enumerateRightCols(bool checked)
 	for (int i=selectedCol; i<(int)worksheet->numCols(); i++)
 	{
 		QString newLabel=oldLabel+QString::number(n);
-		commands.gres("col(\""+colLabel(i)+"\")", "col(\""+newLabel+"\")", true);
+		commands.replaceInStrings("col(\""+colLabel(i)+"\")", "col(\""+newLabel+"\")");
 		setColName(i, newLabel);
 		emit changedColHeader(caption+oldLabels[i],colName(i));
 		n++;
@@ -655,7 +655,7 @@ void Table::changeColName(const QString& text)
 		return;	
 	}
 
-	commands.gres("col(\""+colLabel(selectedCol)+"\")", "col(\""+text+"\")", true);	
+	commands.replaceInStrings("col(\""+colLabel(selectedCol)+"\")", "col(\""+text+"\")");	
 
 	setColName(selectedCol, text);	
 	emit changedColHeader(oldName, newName);
@@ -2349,7 +2349,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		cols = (int)line.count();
 
 		bool allNumbers = true;
-		line.gres ( ",", ".", false ); //Qt uses decimal dot
+		line.replaceInStrings ( ",", "." ); //Qt uses decimal dot
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers
 			(line[i]).toDouble(&allNumbers);
@@ -2502,7 +2502,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		cols = (int)line.count();
 
 		bool allNumbers = true;
-		line.gres ( ",", ".", false ); //Qt uses decimal dot
+		line.replaceInStrings ( ",", "." ); //Qt uses decimal dot
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers
 			(line[i]).toDouble(&allNumbers);
@@ -2933,11 +2933,11 @@ void Table::restore(QString& spec)
 	if (!col_label.isEmpty() && col_label != list)
 	{
 		loadHeader(list);
-		list.gres("[X]","");
-		list.gres("[Y]","");
-		list.gres("[Z]","");
-		list.gres("[xEr]","");
-		list.gres("[yEr]","");
+		list.replaceInStrings("[X]","");
+		list.replaceInStrings("[Y]","");
+		list.replaceInStrings("[Z]","");
+		list.replaceInStrings("[xEr]","");
+		list.replaceInStrings("[yEr]","");
 
 		for (j=0;j<c;j++)
 		{
