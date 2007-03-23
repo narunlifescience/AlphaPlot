@@ -632,6 +632,13 @@ void Plot::updateLayout()
     canvas()->setGeometry(plotLayout()->canvasRect());
 }
 
+
+const QColor & Plot::paletteBackgroundColor() const
+{
+	return	palette().color(QPalette::Window);
+}
+
+
 /*****************************************************************************
  *
  * Class Grid

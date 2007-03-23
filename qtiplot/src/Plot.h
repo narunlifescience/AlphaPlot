@@ -86,6 +86,7 @@ public:
 	void printFrame(QPainter *painter, const QRect &rect) const;
 
 	QColor frameColor();
+	const QColor & paletteBackgroundColor() const;
 
 	virtual void print(QPainter *, const QRect &rect,
         const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
