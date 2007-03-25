@@ -4277,9 +4277,11 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	else
 		c->setStyle((QwtPlotCurve::CurveStyle)cL->connectType); 
 
-	QBrush brush = QBrush(ColorBox::color(cL->aCol), Qt::NoBrush);
+	QBrush brush = QBrush(ColorBox::color(cL->aCol));
 	if (cL->filledArea)
 		brush.setStyle(getBrushStyle(cL->aStyle));
+	else
+		brush.setStyle(Qt::NoBrush);
 	c->setBrush(brush);
 
 	QString yColName=c->title().text();
