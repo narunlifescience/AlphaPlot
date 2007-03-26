@@ -1371,6 +1371,10 @@ bool PlotDialog::acceptParams()
 	else if (privateTabWidget->currentPage()==symbolPage)
 	{
 		int size = boxSymbolSize->value();
+		// TODO: The next 2 lines must be removed once floating point symbol
+		// sizes are implemented
+		if(size%2 == 0)size++;
+		boxSymbolSize->setValue(size);
 		QBrush br = QBrush(boxFillColor->color(), Qt::SolidPattern);
 		if (!boxFillSymbol->isChecked())
 			br = QBrush();
@@ -1460,6 +1464,10 @@ bool PlotDialog::acceptParams()
 	else if (privateTabWidget->currentPage() == percentilePage)
 	{	
 		int size = boxPercSize->value();
+		// TODO: The next 2 lines must be removed once floating point symbol
+		// sizes are implemented
+		if(size%2 == 0)size++;
+		boxSymbolSize->setValue(size);
 		QBrush br = QBrush(boxPercFillColor->color(), Qt::SolidPattern);
 		if (!boxFillSymbols->isChecked())
 			br = QBrush();

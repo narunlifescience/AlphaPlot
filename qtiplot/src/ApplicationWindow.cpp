@@ -10171,6 +10171,10 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
 			cl.sSize=curve[8].toInt();
+			// TODO: The next 2 lines must be removed once floating point symbol
+			// sizes are implemented
+			if( cl.sSize%2 == 0) 
+				cl.sSize++;
 			if (d_file_version <= 78)
 				cl.sType=Graph::obsoleteSymbolStyle(curve[9].toInt());
 			else
@@ -10257,6 +10261,10 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.lStyle=curve[8].toInt();
 			cl.lWidth=curve[9].toInt();
 			cl.sSize=curve[10].toInt();
+			// TODO: The next 2 lines must be removed once floating point symbol
+			// sizes are implemented
+			if( cl.sSize%2 == 0) 
+				cl.sSize++;
 			cl.sType=curve[11].toInt();
 			cl.symCol=curve[12].toInt();
 			cl.fillCol=curve[13].toInt();

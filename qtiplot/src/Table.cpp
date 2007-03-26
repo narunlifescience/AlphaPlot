@@ -2664,6 +2664,7 @@ bool Table::exportToASCIIFile(const QString& fname, const QString& separator,
 void Table::contextMenuEvent(QContextMenuEvent *e)
 {
 	QRect r = worksheet->horizontalHeader()->sectionRect(worksheet->numCols()-1);
+	setFocus();
 	if (e->pos().x() > r.right() + worksheet->verticalHeader()->width())
 		emit showContextMenu(false);
 	else

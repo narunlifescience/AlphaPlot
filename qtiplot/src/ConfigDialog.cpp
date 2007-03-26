@@ -966,6 +966,11 @@ void ConfigDialog::apply()
 	// 2D plots page: curves tab
 	app->defaultCurveStyle = curveStyle();
 	app->defaultCurveLineWidth = boxCurveLineWidth->value();
+	// TODO: The next 2 lines must be removed once floating point symbol
+	// sizes are implemented
+	if( boxSymbolSize->value()%2 == 0) 
+		boxSymbolSize->setValue(boxSymbolSize->value()+1);
+
 	app->defaultSymbolSize = boxSymbolSize->value();
 	// 2D plots page: ticks tab
 	app->majTicksLength = boxMajTicksLength->value();
