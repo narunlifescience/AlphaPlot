@@ -36,7 +36,8 @@ class QTextEdit;
 class QTextCursor;
 class QComboBox;
 class QLabel;
-
+class QCheckBox;
+	
 #include "ColorButton.h"
 #include "TextFormatButtons.h"
 
@@ -60,7 +61,7 @@ public:
 	 */
 	TextDialog(TextType type, QWidget* parent = 0, Qt::WFlags fl = 0 );
 	//! Destructor
-	~TextDialog();
+	~TextDialog(){};
 
 	//! Return axis label alignment
 	/**
@@ -149,7 +150,7 @@ protected:
 	QGroupBox *groupBox1, *groupBox2;
 	QComboBox *alignmentBox;
 	TextFormatButtons *formatButtons;
-
+	QCheckBox *boxBackgroundTransparency;
 };
 
 #endif // TEXTDLG_H

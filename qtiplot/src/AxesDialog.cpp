@@ -1614,6 +1614,7 @@ void AxesDialog::initAxesPage()
 	boxFormula->setMaximumHeight(3*metrics.height());
 	boxFormula->hide();
 	rightBoxLayout->addWidget( boxFormula, 6, 1 );
+	rightBoxLayout->setRowStretch(7, 1);
 	
 	QVBoxLayout * rightLayout = new QVBoxLayout();
 	rightLayout->addLayout( topLayout );

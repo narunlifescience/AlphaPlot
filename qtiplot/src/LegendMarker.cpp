@@ -45,7 +45,7 @@
 LegendMarker::LegendMarker(Plot *plot):
 	d_plot(plot),
 	d_frame (0),
-	angle(0),
+	d_angle(0),
 	bkgColor(plot->paletteBackgroundColor())
 {
 	d_text = new QwtText(QString::null, QwtText::RichText);
@@ -77,27 +77,17 @@ void LegendMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap 
 	drawLegends(p, rs, heights, symbolLineLength);
 }
 
-QString LegendMarker::getText()
-{
-	return d_text->text();
-}
-
 void LegendMarker::setText(const QString& s)
 {
 	d_text->setText(s);
 }
 
-int LegendMarker::getBkgType()
+void LegendMarker::setFrameStyle(int style)
 {
-	return d_frame; 
-}
-
-void LegendMarker::setBackground(int bkg)
-{
-	if (d_frame == bkg)
+	if (d_frame == style)
 		return;
 
-	d_frame = bkg;
+	d_frame = style;
 }
 
 void LegendMarker::setBackgroundColor(const QColor& c)
@@ -134,11 +124,6 @@ QwtDoubleRect LegendMarker::boundingRect() const
 	double bottom = y_map.invTransform(bounding_rect.bottom());
 
 	return QwtDoubleRect(left, top, qAbs(right-left), qAbs(bottom-top));
-}
-
-QColor LegendMarker::getTextColor()
-{
-	return d_text->color();
 }
 
 void LegendMarker::setTextColor(const QColor& c)
@@ -196,11 +181,6 @@ void LegendMarker::setOriginCoord(double x, double y)
 	d_pos = QPoint(xMap.transform(x), yMap.transform(y));
 }
 
-QFont LegendMarker::getFont()
-{
-	return d_text->font();
-}
-
 void LegendMarker::setFont(const QFont& font)
 {
 	if ( font == d_text->font() )
@@ -223,9 +203,12 @@ void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 	}
 	else if (type == Shadow)
 	{
-		QRect shadow=QRect(rect.x()+5,rect.y()+5,rect.width(),rect.height());
+		QRect shadow_right = QRect(rect.right(), rect.y() + 5, 5, rect.height()-1);
+		QRect shadow_bottom = QRect(rect.x() + 5, rect.bottom(), rect.width()-1, 5);
 		p->setBrush(QBrush(Qt::black));
-		p->drawRect(shadow);
+		p->drawRect(shadow_right);
+		p->drawRect(shadow_bottom);
+	
 		p->setBrush(QBrush(bkgColor));
 		QwtPainter::drawRect(p,rect);
 	}

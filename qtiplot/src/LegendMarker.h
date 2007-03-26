@@ -63,7 +63,7 @@ public:
 
 	virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
-	QString getText();
+	QString text(){return d_text->text();};
 	void setText(const QString& s);
 
 	//! Bounding rectangle in paint coordinates.
@@ -79,20 +79,20 @@ public:
 	//! Keep the markers on screen each time the scales are modified by adding/removing curves
 	void updateOrigin();
 
-	QColor getTextColor();
+	QColor textColor(){return d_text->color();};
 	void setTextColor(const QColor& c);
 	
 	QColor backgroundColor(){return bkgColor;};
 	void setBackgroundColor(const QColor& c);
 
-	int getBkgType();
-	void setBackground(int bkg);
+	int frameStyle(){return d_frame;};
+	void setFrameStyle(int style);
 
-	QFont getFont();
+	QFont font(){return d_text->font();};
 	void setFont(const QFont& font);
 
-	int getAngle(){return angle;};
-	void setAngle(int ang){angle=ang;};
+	int angle(){return d_angle;};
+	void setAngle(int ang){d_angle=ang;};
 	
 	void drawFrame(QPainter *p, int type, const QRect& rect) const;
 
@@ -115,7 +115,7 @@ protected:
 	int d_frame;
 	
 	//! Rotation angle: not implemented yet
-	int angle;
+	int d_angle;
 	
 	//! Pointer to the QwtText object
 	QwtText* d_text;

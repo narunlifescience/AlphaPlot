@@ -1605,7 +1605,7 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 				LegendMarker *legendMrk = g->legend();
 				if (legendMrk)
 				{
-					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
+					onPlot = legendMrk->text().split("\n", QString::SkipEmptyParts);
 					onPlot.replaceInStrings (oldName,newName);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
@@ -1669,7 +1669,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 				LegendMarker *legendMrk = g->legend();
 				if (legendMrk)
 				{
-					onPlot = legendMrk->getText().split("\n", QString::SkipEmptyParts);
+					onPlot = legendMrk->text().split("\n", QString::SkipEmptyParts);
 					onPlot.replaceInStrings (oldName,newName);
 					legendMrk->setText(onPlot.join("\n"));
 					g->replot();
@@ -4383,8 +4383,9 @@ void ApplicationWindow::readSettings()
 
 	settings.beginGroup("/Legend");
 	legendFrameStyle = settings.value("/FrameStyle", LegendMarker::Line).toInt();
-	legendTextColor = settings.value("/TextColor","#000000").value<QColor>(); //default color Qt::black
+	legendTextColor = settings.value("/TextColor", "#000000").value<QColor>(); //default color Qt::black
 	legendBackground = settings.value("/BackgroundColor", "#ffffff").value<QColor>(); //default color Qt::white
+	legendBackground.setAlpha(settings.value("/Transparency", 0).toInt()); // transparent by default;
 	settings.endGroup(); // Legend
 
 	settings.beginGroup("/Arrows");
@@ -4590,6 +4591,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/FrameStyle", legendFrameStyle);
 	settings.setValue("/TextColor", legendTextColor);
 	settings.setValue("/BackgroundColor", legendBackground);
+	settings.setValue("/Transparency", legendBackground.alpha());
 	settings.endGroup(); // Legend
 
 	settings.beginGroup("/Arrows");
@@ -7362,12 +7364,12 @@ void ApplicationWindow::showTextDialog()
 				g,SLOT(updateTextMarker(const QString&,int,int,const QFont&, const QColor&, const QColor&)));
 
 		td->setIcon(QPixmap(logo_xpm));
-		td->setText(m->getText());
-		td->setFont(m->getFont());
-		td->setTextColor(m->getTextColor());
+		td->setText(m->text());
+		td->setFont(m->font());
+		td->setTextColor(m->textColor());
 		td->setBackgroundColor(m->backgroundColor());
-		td->setBackgroundType(m->getBkgType());
-		td->setAngle(m->getAngle());
+		td->setBackgroundType(m->frameStyle());
+		td->setAngle(m->angle());
 		td->exec();
 	}
 }
@@ -7504,10 +7506,10 @@ void ApplicationWindow::copyMarker()
 		if (copiedMarkerType == Graph::Text)
 		{
 			LegendMarker *m= (LegendMarker *) g->selectedMarkerPtr();
-			auxMrkText=m->getText();
-			auxMrkColor=m->getTextColor();
-			auxMrkFont=m->getFont();
-			auxMrkBkg=m->getBkgType();
+			auxMrkText=m->text();
+			auxMrkColor=m->textColor();
+			auxMrkFont=m->font();
+			auxMrkBkg=m->frameStyle();
 			auxMrkBkgColor=m->backgroundColor();
 		}
 		else if (copiedMarkerType == Graph::Arrow)

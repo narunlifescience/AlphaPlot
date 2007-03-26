@@ -29,12 +29,10 @@
 #include "ScaleDraw.h"
 #include "MyParser.h"
 
-#include <QPainter>
 #include <QDateTime>
 
 #include <qwt_painter.h>
 #include <qwt_text.h>		
-#include <qwt_scale_map.h>
 
 ScaleDraw::ScaleDraw(const QString& s):
 	d_fmt('g'),

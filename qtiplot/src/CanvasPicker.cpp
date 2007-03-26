@@ -493,7 +493,7 @@ void CanvasPicker::drawTextMarker(const QPoint& point)
 {
 	LegendMarker mrkT(plotWidget);			
 	mrkT.setOrigin(point);
-	mrkT.setBackground(plot()->textMarkerDefaultFrame());
+	mrkT.setFrameStyle(plot()->textMarkerDefaultFrame());
 	mrkT.setFont(plot()->defaultTextMarkerFont());
 	mrkT.setTextColor(plot()->textMarkerDefaultColor());
 	mrkT.setBackgroundColor(plot()->textMarkerDefaultBackground());
