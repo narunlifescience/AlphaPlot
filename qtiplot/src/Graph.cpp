@@ -1869,6 +1869,19 @@ void Graph::insertPlottedList(const QStringList& names)
 	}
 }
 
+QStringList Graph::analysableCurvesList()
+{
+	QStringList cList;
+	QList<int> keys = d_plot->curveKeys();
+	for (int i=0; i<(int)keys.count(); i++)
+	{
+		QwtPlotItem *c = d_plot->curve(keys[i]);
+  	    if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve && c_type[i] != ErrorBars)
+  	        cList << c->title().text();
+  	 }
+return cList;
+}
+
 QStringList Graph::curvesList()
 {	
 	QStringList cList;

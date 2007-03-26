@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fit base class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -73,7 +73,7 @@ gsl_multifit_fdfsolver * Fit::fitGSL(gsl_multifit_function_fdf f, int &iteration
 	if (d_solver)
 		T = gsl_multifit_fdfsolver_lmder;
 	else
-		T = gsl_multifit_fdfsolver_lmsder;  
+		T = gsl_multifit_fdfsolver_lmsder;
 
 	gsl_multifit_fdfsolver *s = gsl_multifit_fdfsolver_alloc (T, d_n, d_p);
 	gsl_multifit_fdfsolver_set (s, &f, d_param_init);
@@ -130,16 +130,36 @@ gsl_multimin_fminimizer * Fit::fitSimplex(gsl_multimin_function f, int &iteratio
 }
 
 void Fit::setDataCurve(int curve, double start, double end)
-{ 
+{
     if (d_n > 0)
 		delete[] d_w;
 
     Filter::setDataCurve(curve, start, end);
 
-    // initialize the weighting data
     d_w = new double[d_n];
+    if (d_graph && d_curve)
+    {
+        QString curve_title = d_curve->title().text();
+        QStringList lst = d_graph->plotAssociations();
+        for (int i=0; i<(int) lst.count(); i++)
+        {
+            if (lst[i].contains(curve_title) && d_graph->curveType(i) == Graph::ErrorBars)
+            {
+                QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)d_graph->curve(i);
+                if (er && !er->xErrors())
+                {
+                    d_weihting = Instrumental;
+                    for (int i=0; i<d_n; i++)
+                        d_w[i] = er->errorValue(i); //d_w are equal to the error bar values
+                    weighting_dataset = er->title().text();
+                    return;
+                }
+            }
+        }
+    }
+	// if no error bars initialize the weighting data to 1.0
     for (int i=0; i<d_n; i++)
-  	  d_w[i] = 1.0;
+        d_w[i] = 1.0;
 }
 
 void Fit::setInitialGuesses(double *x_init)
@@ -318,12 +338,12 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
   	                tr("The column %1 has less points than the fitted data set. Please choose another column!.").arg(colName));
   	                return false;
   	            }
-							
+
 				weighting_dataset = colName;
 
 				int col = t->colIndex(colName);
 				for (int i=0; i<d_n; i++)
-					d_w[i] = t->text(i, col).toDouble(); 
+					d_w[i] = t->text(i, col).toDouble();
 			}
 			break;
 	}
@@ -347,7 +367,7 @@ Table* Fit::parametersTable(const QString& tableName)
 	for (int j=0; j<3; j++)
 		t->table()->adjustColumn(j);
 
-	t->showNormal();	
+	t->showNormal();
 	return t;
 }
 
@@ -387,7 +407,7 @@ void Fit::storeCustomFitResults(double *par)
 }
 
 void Fit::fit()
-{  
+{
 	if (!d_graph || d_init_err)
 		return;
 
@@ -500,7 +520,7 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 {
     QString title = d_graph->generateFunctionName(name);
 	FunctionCurve *c = new FunctionCurve(FunctionCurve::Normal, title);
-	c->setPen(QPen(ColorBox::color(d_curveColorIndex), penWidth)); 
+	c->setPen(QPen(ColorBox::color(d_curveColorIndex), penWidth));
 	c->setData(x, y, d_points);
 	c->setRange(d_x[0], d_x[d_n-1]);
 

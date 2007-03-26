@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Graph widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -44,7 +44,7 @@
 
 class QwtPlotCurve;
 class QwtPlotZoomer;
-class QwtPieCurve;	
+class QwtPieCurve;
 class Table;
 class LegendMarker;
 class LineMarker;
@@ -57,7 +57,7 @@ class MultiPeakFit;
 class ApplicationWindow;
 class Matrix;
 class SelectionMoveResizer;
-	
+
 //! Structure containing curve layout parameters
 typedef struct{
   int lCol;
@@ -115,8 +115,8 @@ class Graph: public QWidget
 
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 		enum MarkerType{None = -1, Text = 0, Arrow = 1, Image = 2};
-		enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines, 
-			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars, 
+		enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines,
+			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars,
 			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap};
 
 		Plot *d_plot;
@@ -185,6 +185,8 @@ class Graph: public QWidget
 		QString curveXColName(const QString& curveTitle);
 
 		void insertPlottedList(const QStringList& names);
+		//! Returns the names of all the curves suitable for data analysis, as a string list. The list excludes error bars and spectrograms.
+		QStringList analysableCurvesList();
 		//! Returns the names of all the QwtPlotCurve items on the plot, as a string list
   		QStringList curvesList();
   	    //! Returns the names of all plot items, including spectrograms, as a string list
@@ -204,22 +206,22 @@ class Graph: public QWidget
 		//! Provided for convenience in scripts
 		void exportLayer(const QString& fileName);
 		void exportSVG(const QString& fname);
-		void exportPDF(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, 
-						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);		
-		void exportEPS(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, 
-						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);		
-		void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0, 
-						  QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5, 
+		void exportPDF(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
+		void exportEPS(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
+		void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0,
+						  QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5,
 						  QPrinter::ColorMode col = QPrinter::Color);
 		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 		//@}
-		
+
 		void replot();
 		void updatePlot();
 
 		//! \name Error Bars
 		//@{
-		bool addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable, 
+		bool addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable,
 				const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true, double xOffset = 0, double yOffset = 0);
 
@@ -234,14 +236,14 @@ class Graph: public QWidget
 		void resetErrorBarsOffset(int index);
 		//@}
 
-		//! \name Event Handlers 
+		//! \name Event Handlers
 		//@{
 		void contextMenuEvent(QContextMenuEvent *);
 		void closeEvent(QCloseEvent *e);
 		//@}
 
 		//! Set axis scale
-		void setScale(int axis, double start, double end, double step = 0.0, 
+		void setScale(int axis, double start, double end, double step = 0.0,
 				int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 		double axisStep(int axis){return d_user_step[axis];};
 
@@ -269,7 +271,7 @@ class Graph: public QWidget
 		void setAutoScale();
 		void updateScale();
 
-		//! \name Saving to File 
+		//! \name Saving to File
 		//@{
 		QString saveToString(bool saveAsTemplate = false);
 		QString saveGridOptions();
@@ -294,7 +296,7 @@ class Graph: public QWidget
 		QString saveAxesFormulas();
 		//@}
 
-		//! \name Text Markers 
+		//! \name Text Markers
 		//@{
 		void drawText(bool on);
 		bool drawTextActive(){return drawTextOn;};
@@ -313,11 +315,11 @@ class Graph: public QWidget
 
 		void setCopiedMarkerType(Graph::MarkerType type){selectedMarkerType=type;};
 		void setCopiedMarkerEnds(const QPoint& start, const QPoint& end);
-		void setCopiedTextOptions(int bkg, const QString& text, const QFont& font, 
+		void setCopiedTextOptions(int bkg, const QString& text, const QFont& font,
 				const QColor& color, const QColor& bkgColor);
 		void setCopiedArrowOptions(int width, Qt::PenStyle style, const QColor& color,
-				bool start, bool end, int headLength, int headAngle, bool filledHead);	
-		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};	
+				bool start, bool end, int headLength, int headAngle, bool filledHead);
+		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 		QwtArray<long> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
@@ -337,7 +339,7 @@ class Graph: public QWidget
 		QString legendText();
 		//@}
 
-		//! \name Line Markers 
+		//! \name Line Markers
 		//@{
 		LineMarker* lineMarker(long id);
 		void insertLineMarker(LineMarker* mrk);
@@ -400,7 +402,7 @@ class Graph: public QWidget
 		MarkerType copiedMarkerType(){return selectedMarkerType;};
 		//@}
 
-		//! \name Axes 
+		//! \name Axes
 		//@{
 		QList<int> axesType();
 		void setAxesType(const QList<int> tl);
@@ -445,13 +447,13 @@ class Graph: public QWidget
   	    QStringList axesNumColors();
   	    void setAxesNumColors(const QStringList& colors);
 
-		void showAxis(int axis, int type, const QString& formatInfo, Table *table, bool axisOn, 
+		void showAxis(int axis, int type, const QString& formatInfo, Table *table, bool axisOn,
 				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format,
                 int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor);
 
 		QVector<bool> enabledAxes();
 		void enableAxes(QVector<bool> axesOn);
-		void enableAxes(const QStringList& list);	
+		void enableAxes(const QStringList& list);
 
 		int labelsRotation(int axis);
 		void setAxisLabelRotation(int axis, int rotation);
@@ -486,7 +488,7 @@ class Graph: public QWidget
 		void changeTicksLength(int minLength, int majLength);
 
 		void setLabelsNumericFormat(const QStringList& l);
-		void setLabelsNumericFormat(int axis, const QStringList& l);	
+		void setLabelsNumericFormat(int axis, const QStringList& l);
 		void setLabelsNumericFormat(int axis, int format, int prec, const QString& formula);
 		void setLabelsDateTimeFormat(int axis, int type, const QString& formatInfo);
 		void setLabelsDayFormat(int axis, int format);
@@ -500,7 +502,7 @@ class Graph: public QWidget
 		void setAxisFormula(int pos, const QString &f){axesFormulas[pos] = f;};
 		//@}
 
-		//! \name Canvas Frame 
+		//! \name Canvas Frame
 		//@{
 		void drawCanvasFrame(bool frameOn, int width);
 		void drawCanvasFrame(const QStringList& frame);
@@ -524,7 +526,7 @@ class Graph: public QWidget
 		void initTitle( bool on, const QFont& fnt);
 		//@}
 
-		//! \name Modifing insertCurve Data 
+		//! \name Modifing insertCurve Data
 		//@{
 		bool selectPoint(const QPoint &pos);
 		void highlightPoint(bool showIt);
@@ -572,7 +574,7 @@ class Graph: public QWidget
 		void moveRangeSelector();
 		void shiftRangeSelector(bool shift);
 
-		//! Select the next/previous curve 
+		//! Select the next/previous curve
 		void shiftCurveSelector(bool up);
 		int selectedPoints(long curveKey);
 
@@ -614,7 +616,7 @@ class Graph: public QWidget
 		//@{
 		void modifyFunctionCurve(int curve, int type, const QStringList &formulas, const QString &var,QList<double> &ranges, int points);
 		void addFunctionCurve(int type, const QStringList &formulas, const QString& var,
-				QList<double> &ranges, int points, const QString& title = QString::null);	 
+				QList<double> &ranges, int points, const QString& title = QString::null);
 		//! Used when reading from a project file.
 		void insertFunctionCurve(const QString& formula, int points, int fileVersion);
 		//! Returns an unique function name
@@ -631,7 +633,7 @@ class Graph: public QWidget
 		void plotVectorCurve(Table* w, const QStringList& colList, int style);
 		void setVectorsLook(int curve, const QColor& c, int width, int arrowLength,
 				int arrowAngle, bool filled, int position);
-		void updateVectorsLayout(Table *w, int curve, int colorIndex, int width, 
+		void updateVectorsLayout(Table *w, int curve, int colorIndex, int width,
 				int arrowLength, int arrowAngle, bool filled, int position,
 				const QString& xEndColName, const QString& yEndColName);
 		void updateVectorsData(Table* w,  int curve);
@@ -648,7 +650,7 @@ class Graph: public QWidget
 		void setCurveBrush(int index, const QBrush& b);
 		void setCurveStyle(int index, int s);
 
-		//! \name Resizing	
+		//! \name Resizing
 		//@{
 		bool ignoresResizeEvents(){return ignoreResize;};
 		void setIgnoreResizeEvents(bool ok){ignoreResize=ok;};
@@ -690,13 +692,13 @@ class Graph: public QWidget
 		void multiPeakFit(ApplicationWindow *app, int profile, int peaks);
 		void selectPeak(const QPoint &pos);
 		bool selectPeaksOn();
-		
+
 		//! Add a spectrogram to the graph
   		void plotSpectrogram(Matrix *m, CurveType type);
 		//! Restores a spectrogram. Used when opening a project file.
   		void restoreSpectrogram(ApplicationWindow *app, const QStringList& lst);
-		
-		bool antialiasing(){return d_antialiasing;};	
+
+		bool antialiasing(){return d_antialiasing;};
 		//! Enables/Disables antialiasing of plot items.
 		void setAntialiasing(bool on = true);
 
@@ -729,8 +731,8 @@ signals:
 		void showMarkerPopupMenu();
 
 		void showAxisDialog(int);
-		void axisDblClicked(int);	
-		void xAxisTitleDblClicked();		
+		void axisDblClicked(int);
+		void xAxisTitleDblClicked();
 		void yAxisTitleDblClicked();
 		void rightAxisTitleDblClicked();
 		void topAxisTitleDblClicked();
@@ -809,7 +811,7 @@ signals:
 		//! \name Which data tool is activated by the user
 		//@{
 		bool removePointsEnabled,movePointsEnabled, translateOn;
-		bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;	
+		bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;
 		//@}
 
 		//! Whether the plot is a pie plot.

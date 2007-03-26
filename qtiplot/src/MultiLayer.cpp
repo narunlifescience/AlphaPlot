@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Multi layer widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -105,7 +105,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	left_margin = 5; right_margin = 5;
 	top_margin = 5; bottom_margin = 5;
 	l_canvas_width = 400; l_canvas_height = 300;
-	hor_align = HCenter;  vert_align = VCenter; 
+	hor_align = HCenter;  vert_align = VCenter;
 	active_graph = 0;
 	addTextOn = false;
 
@@ -143,7 +143,7 @@ LayerButton* MultiLayer::addLayerButton()
 	LayerButton *button = new LayerButton(QString::number(++graphs));
 	connect (button, SIGNAL(clicked(LayerButton*)),this, SLOT(activateGraph(LayerButton*)));
 	connect (button, SIGNAL(showCurvesDialog()),this, SIGNAL(showCurvesDialog()));
-	
+
 	buttonsList.append(button);
     layerButtonsBox->addWidget(button);
 	return button;
@@ -183,7 +183,7 @@ void MultiLayer::activateGraph(LayerButton* button)
 		if (btn->isOn())
 			btn->setOn(false);
 
-		if (btn == button)	
+		if (btn == button)
 		{
 			active_graph = (Graph*) graphsList.at(i);
 			active_graph->setFocus();
@@ -197,7 +197,7 @@ void MultiLayer::setActiveGraph(Graph* g)
 {
 	if (!g || active_graph == g)
 		return;
-	
+
 	active_graph = g;
 	active_graph->setFocus();
 
@@ -205,12 +205,12 @@ void MultiLayer::setActiveGraph(Graph* g)
 		delete d_layers_selector;
 
 	active_graph->raise();//raise layer on top of the layers stack
-	
+
 	for (int i=0;i<(int)graphsList.count();i++)
 	{
 		Graph *gr = (Graph *)graphsList.at(i);
 		LayerButton *btn = (LayerButton *)buttonsList.at(i);
-		if (gr == g)	
+		if (gr == g)
 			btn->setOn(true);
 		else
 			btn->setOn(false);
@@ -227,27 +227,24 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 {
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
-	
+
 	if (size == oldSize || !userRequested())
 		return;
 	else if (!oldSize.isValid() && !maximizedSize().isValid())
 		return;
 	else if(!oldSize.isValid())
 		oldSize = QSize(maximizedSize().width(), maximizedSize().height()-LayerButton::btnSize());
-	
+
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	double w_ratio = (double)size.width()/(double)oldSize.width();
 	double h_ratio = (double)(size.height())/(double)(oldSize.height());
-	
+
 	for (int i=0;i<graphsList.count();i++)
 	{
-		Graph *gr=(Graph *)graphsList.at(i);
+		Graph *gr = (Graph *)graphsList.at(i);
 		if (gr && !gr->ignoresResizeEvents())
-		{			
-			QwtPlot *plot = gr->plotWidget();
-			QwtPlotLayout *plotLayout = plot->plotLayout();
-
+		{
 			int gx = qRound(gr->x()*w_ratio);
 			int gy = qRound(gr->y()*h_ratio);
 			int gw = qRound(gr->width()*w_ratio);
@@ -265,7 +262,7 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 }
 
 void MultiLayer::confirmRemoveLayer()
-{	
+{
 	if (graphs>1)
 	{
 		switch(QMessageBox::information(this,
@@ -293,34 +290,34 @@ void MultiLayer::confirmRemoveLayer()
 }
 
 void MultiLayer::removeLayer()
-{			
+{
 	//remove corresponding button
 	LayerButton *btn=0;
 	int i;
 	for (i=0;i<buttonsList.count();i++)
 	{
-		btn=(LayerButton*)buttonsList.at(i);	
-		if (btn->isOn())	
+		btn=(LayerButton*)buttonsList.at(i);
+		if (btn->isOn())
 		{
 			buttonsList.removeAll(btn);
-			btn->close(true);			
+			btn->close(true);
 			break;
 		}
 	}
 
-	//update the texts of the buttons	
+	//update the texts of the buttons
 	for (i=0;i<buttonsList.count();i++)
 	{
-		btn=(LayerButton*)buttonsList.at(i);	
+		btn=(LayerButton*)buttonsList.at(i);
 		btn->setText(QString::number(i+1));
 	}
 
-	if (active_graph->selectorsEnabled() || active_graph->zoomOn() || 
-			active_graph->removePointActivated() || active_graph->movePointsActivated() || 
+	if (active_graph->selectorsEnabled() || active_graph->zoomOn() ||
+			active_graph->removePointActivated() || active_graph->movePointsActivated() ||
 			active_graph->enabledCursor()|| active_graph->pickerActivated())
 	{
 		emit setPointerCursor();
-	}		
+	}
 
 	int index = graphsList.indexOf(active_graph);
 	graphsList.removeAt(index);
@@ -335,25 +332,25 @@ void MultiLayer::removeLayer()
 		return;
 	}
 
-	active_graph=(Graph*) graphsList.at(index);	
+	active_graph=(Graph*) graphsList.at(index);
 
 	for (i=0;i<(int)graphsList.count();i++)
 	{
 		Graph *gr=(Graph *)graphsList.at(i);
-		if (gr == active_graph)	
+		if (gr == active_graph)
 		{
-			LayerButton *button=(LayerButton *)buttonsList.at(i);	
+			LayerButton *button=(LayerButton *)buttonsList.at(i);
 			button->setOn(TRUE);
 			break;
 		}
-	}	
+	}
 
 	emit modifiedPlot();
 }
 
 void MultiLayer::setGraphGeometry(int x, int y, int w, int h)
 {
-	if (active_graph->pos() == QPoint (x,y) && 
+	if (active_graph->pos() == QPoint (x,y) &&
 		active_graph->size() == QSize (w,h))
 		return;
 
@@ -374,7 +371,7 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 	gsl_vector *maxXBottomHeight = gsl_vector_calloc (rows);//maximum bottom axis height in a row
 	gsl_vector *maxYLeftWidth = gsl_vector_calloc (cols);//maximum left axis width in a column
 	gsl_vector *maxYRightWidth = gsl_vector_calloc (cols);//maximum right axis width in a column
-	gsl_vector *Y = gsl_vector_calloc (rows);			
+	gsl_vector *Y = gsl_vector_calloc (rows);
 	gsl_vector *X = gsl_vector_calloc (cols);
 
 	int i;
@@ -383,7 +380,7 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 		Graph *gr=(Graph *)graphsList.at(i);
 		QwtPlot *plot=gr->plotWidget();
 		QwtPlotLayout *plotLayout=plot->plotLayout();
-		QRect cRect=plotLayout->canvasRect();			
+		QRect cRect=plotLayout->canvasRect();
 		double ch = (double) cRect.height();
 		double cw = (double) cRect.width();
 
@@ -400,28 +397,28 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 		}
 		gsl_vector_set (xTopR, i, double(topHeight)/ch);
 
-		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::xBottom);			
+		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::xBottom);
 		if (scale)
 		{
 			QRect sRect = plotLayout->scaleRect (QwtPlot::xBottom);
 			gsl_vector_set (xBottomR, i, double(sRect.height())/ch);
-		}	
+		}
 
-		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yLeft);			
+		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yLeft);
 		if (scale)
 		{
 			QRect sRect = plotLayout->scaleRect (QwtPlot::yLeft);
 			gsl_vector_set (yLeftR, i, double(sRect.width())/cw);
-		}	
+		}
 
-		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yRight);			
+		scale=(QwtScaleWidget *) plot->axisWidget (QwtPlot::yRight);
 		if (scale)
 		{
 			QRect sRect = plotLayout->scaleRect (QwtPlot::yRight);
 			gsl_vector_set (yRightR, i, double(sRect.width())/cw);
 		}
 
-		//calculate max scales/canvas dimensions ratio for each line and column and stores them to vectors	
+		//calculate max scales/canvas dimensions ratio for each line and column and stores them to vectors
 		int row = i / cols;
 		if (row >= rows )
 			row = rows - 1;
@@ -443,20 +440,20 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 
 		aux = gsl_vector_get(yRightR, i);
 		if (aux >= gsl_vector_get(maxYRightWidth, col))
-			gsl_vector_set(maxYRightWidth, col, aux);	
-	}	
+			gsl_vector_set(maxYRightWidth, col, aux);
+	}
 
-	double c_heights = 0.0;	
+	double c_heights = 0.0;
 	for (i=0; i<rows; i++)
 	{
-		gsl_vector_set (Y, i, c_heights);	
+		gsl_vector_set (Y, i, c_heights);
 		c_heights += 1 + gsl_vector_get(maxXTopHeight, i) + gsl_vector_get(maxXBottomHeight, i);
 	}
 
 	double c_widths = 0.0;
 	for (i=0; i<cols; i++)
 	{
-		gsl_vector_set (X, i, c_widths);	
+		gsl_vector_set (X, i, c_widths);
 		c_widths += 1 + gsl_vector_get(maxYLeftWidth, i) + gsl_vector_get(maxYRightWidth, i);
 	}
 
@@ -469,12 +466,12 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 	QSize size = QSize(l_canvas_width, l_canvas_height);
 
 	for (i=0; i<graphs; i++)
-	{	
+	{
 		int row = i / cols;
 		if (row >= rows )
 			row = rows - 1;
 
-		int col = i % cols;	
+		int col = i % cols;
 
 		//calculate sizes and positions for layers
 		const int w = int (l_canvas_width*(1 + gsl_vector_get(yLeftR, i) + gsl_vector_get(yRightR, i)));
@@ -490,11 +487,11 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 						gsl_vector_get(maxYRightWidth, col) - gsl_vector_get(yRightR, i)));
 
 		int y = top_margin + row*rowsSpace;
-		if (vert_align == VCenter)	
+		if (vert_align == VCenter)
 			y += int(l_canvas_height*(gsl_vector_get(Y, row) + gsl_vector_get(maxXTopHeight, row) - gsl_vector_get(xTopR, i)));
-		else if (vert_align == Top)	
+		else if (vert_align == Top)
 			y += int(l_canvas_height*gsl_vector_get(Y, row));
-		else if (vert_align == Bottom)	
+		else if (vert_align == Bottom)
 			y += int(l_canvas_height*(gsl_vector_get(Y, row) + gsl_vector_get(maxXTopHeight, row) - gsl_vector_get(xTopR, i)+
 						+ gsl_vector_get(maxXBottomHeight, row) - gsl_vector_get(xBottomR, i)));
 
@@ -503,8 +500,8 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 		bool autoscaleFonts = false;
 		if (!userSize)
 		{//When the user specifies the layer canvas size, the window is resized
-			//and the fonts must be scaled accordingly. If the size is calculated 
-			//automatically we don't rescale the fonts in order to prevent problems 
+			//and the fonts must be scaled accordingly. If the size is calculated
+			//automatically we don't rescale the fonts in order to prevent problems
 			//with too small fonts when the user adds new layers or when removing layers
 
 			autoscaleFonts = gr->autoscaleFonts();//save user settings
@@ -518,11 +515,11 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 			gr->setAutoscaleFonts(autoscaleFonts);//restore user settings
 	}
 
-	//free memory		
+	//free memory
 	gsl_vector_free (maxXTopHeight); gsl_vector_free (maxXBottomHeight);
-	gsl_vector_free (maxYLeftWidth); gsl_vector_free (maxYRightWidth);		
+	gsl_vector_free (maxYLeftWidth); gsl_vector_free (maxYRightWidth);
 	gsl_vector_free (xTopR); gsl_vector_free (xBottomR);
-	gsl_vector_free (yLeftR); gsl_vector_free (yRightR); 
+	gsl_vector_free (yLeftR); gsl_vector_free (yRightR);
 	gsl_vector_free (X); gsl_vector_free (Y);
 	return size;
 }
@@ -569,9 +566,9 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 		delete d_layers_selector;
 
 	if (fit)
-		findBestLayout(rows, cols);	
+		findBestLayout(rows, cols);
 
-	//the canvas sizes of all layers become equal only after several 
+	//the canvas sizes of all layers become equal only after several
 	//resize iterations, due to the way Qwt handles the plot layout
 	int iterations = 0;
 	QSize size = arrangeLayers(userSize);
@@ -611,13 +608,13 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 void MultiLayer::setCols(int c)
 {
 	if (cols != c)
-		cols=c;	
+		cols=c;
 }
 
 void MultiLayer::setRows(int r)
 {
 	if (rows != r)
-		rows=r;	
+		rows=r;
 }
 
 QPixmap MultiLayer::canvasPixmap()
@@ -632,25 +629,25 @@ void MultiLayer::exportGraph(const QString& fileName)
 		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
-	
+
 	if (fileName.contains(".eps"))
 	{
-		exportVector(fileName, "eps");	
+		exportVector(fileName, "eps");
 		return;
 	}
 	else if (fileName.contains(".pdf"))
 	{
-		exportVector(fileName, "pdf");	
+		exportVector(fileName, "pdf");
 		return;
 	}
-	else 
+	else
 	{
 		QList<QByteArray> list = QImageWriter::supportedImageFormats();
     	for(int i=0 ; i<list.count() ; i++)
 		{
 			if (fileName.contains( "." + list[i].toLower()))
 			{
-				exportImage(fileName, list[i]);	
+				exportImage(fileName, list[i]);
 				return;
 			}
 		}
@@ -683,10 +680,10 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 					p.drawPoint( x, y );
 			}
 		}
-		p.end();	
+		p.end();
 		pic.setMask(mask);
 	}
-	pic.save(fileName, fileType, quality);	
+	pic.save(fileName, fileType, quality);
 }
 
 void MultiLayer::exportPDF(const QString& fname, int res, QPrinter::Orientation o,
@@ -695,22 +692,22 @@ void MultiLayer::exportPDF(const QString& fname, int res, QPrinter::Orientation 
 	exportVector(fname, "pdf", res, o, pageSize, col);
 }
 
-void MultiLayer::exportEPS(const QString& fname, int res, QPrinter::Orientation o, 
+void MultiLayer::exportEPS(const QString& fname, int res, QPrinter::Orientation o,
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
-{	
+{
 	exportVector(fname, "eps", res, o, pageSize, col);
 }
 
-void MultiLayer::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o, 
+void MultiLayer::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o,
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
-{	
+{
 	if ( fileName.isEmpty() )
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Error"),
 		tr("Please provide a valid file name!"));
         return;
 	}
-	
+
 	QPrinter printer;
     printer.setDocName (this->name());
     printer.setCreator("QtiPlot");
@@ -721,12 +718,12 @@ void MultiLayer::exportVector(const QString& fileName, const QString& fileType, 
 	printer.setColorMode(col);
 	printer.setFullPage(true);
 	printer.setOutputFileName(fileName);
-	
+
 	if (fileType == "eps")
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
 	else if (fileType == "pdf")
     	printer.setOutputFormat(QPrinter::PdfFormat);
-		
+
 	QPainter paint(&printer);
 
 	int dpiy = printer.logicalDpiY();
@@ -738,7 +735,7 @@ void MultiLayer::exportVector(const QString& fileName, const QString& fileType, 
 	double scaleFactorY=(double)(printer.height() - 2*margin)/(double)size.height();
 
 	// fit graph to page maintaining the aspect ratio
-	if(scaleFactorX > scaleFactorY) 
+	if(scaleFactorX > scaleFactorY)
 		scaleFactorX = scaleFactorY;
 	else
 		scaleFactorY = scaleFactorX;
@@ -759,7 +756,7 @@ void MultiLayer::exportVector(const QString& fileName, const QString& fileType, 
 }
 
 void MultiLayer::exportSVG(const QString& fname)
-{	
+{
 	QPicture picture;
 	QPainter p(&picture);
 	for (int i=0;i<(int)graphsList.count();i++)
@@ -781,9 +778,9 @@ void MultiLayer::exportSVG(const QString& fname)
 
 void MultiLayer::copyAllLayers()
 {
-	QPixmap pic = canvasPixmap();	
-	QImage image= pic.convertToImage();		
-	QApplication::clipboard()->setImage(image);	
+	QPixmap pic = canvasPixmap();
+	QImage image= pic.convertToImage();
+	QApplication::clipboard()->setImage(image);
 }
 
 void MultiLayer::printActiveLayer()
@@ -800,10 +797,10 @@ void MultiLayer::print()
 
 	if (printer.setup())
 	{
-		QPainter paint(&printer);	
+		QPainter paint(&printer);
 		printAllLayers(&paint);
-		paint.end();	
-	}		
+		paint.end();
+	}
 }
 
 void MultiLayer::printAllLayers(QPainter *painter)
@@ -821,11 +818,11 @@ void MultiLayer::printAllLayers(QPainter *painter)
 	double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
 
 	for (int i=0; i<(int)graphsList.count(); i++)
-	{			
+	{
 		Graph *gr=(Graph *)graphsList.at(i);
 		Plot *myPlot= gr->plotWidget();
 
-		QwtPlotPrintFilter  filter; 
+		QwtPlotPrintFilter  filter;
 		filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
 				~ QwtPlotPrintFilter::PrintCanvasBackground);
 
@@ -853,7 +850,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 		for (int j= 0;j<QwtPlot::axisCnt;j++)
 		{
 			plot->setAxisFont (j,numbersFnt);
-			
+
 			text = plot->axisTitle(j );
   	        text.setFont(scaleFnt);
   	        plot->setAxisTitle(j, text);
@@ -882,7 +879,7 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(showContextMenu()),this,SIGNAL(showGraphContextMenu()));
 	connect (g,SIGNAL(showAxisDialog(int)),this,SIGNAL(showAxisDialog(int)));
 	connect (g,SIGNAL(axisDblClicked(int)),this,SIGNAL(showScaleDialog(int)));
-	connect (g,SIGNAL(xAxisTitleDblClicked()),this,SIGNAL(showXAxisTitleDialog()));		
+	connect (g,SIGNAL(xAxisTitleDblClicked()),this,SIGNAL(showXAxisTitleDialog()));
 	connect (g,SIGNAL(yAxisTitleDblClicked()),this,SIGNAL(showYAxisTitleDialog()));
 	connect (g,SIGNAL(rightAxisTitleDblClicked()),this,SIGNAL(showRightAxisTitleDialog()));
 	connect (g,SIGNAL(topAxisTitleDblClicked()),this,SIGNAL(showTopAxisTitleDialog()));
@@ -899,18 +896,18 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SIGNAL(updateTable(const QString&,int,const QString&)));
 	connect (g,SIGNAL(updateTableColumn(const QString&, double *, int)),
 			this,SIGNAL(updateTableColumn(const QString&, double *, int)));
-	connect (g,SIGNAL(clearCell(const QString&,double)),this,SIGNAL(clearCell(const QString&,double)));	
+	connect (g,SIGNAL(clearCell(const QString&,double)),this,SIGNAL(clearCell(const QString&,double)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
 	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
 			this,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)));
 }
 
-void MultiLayer::addTextLayer(int f, const QFont& font, 
+void MultiLayer::addTextLayer(int f, const QFont& font,
 		const QColor& textCol, const QColor& backgroundCol)
 {
 	defaultTextMarkerFont = font;
-	defaultTextMarkerFrame = f; 
+	defaultTextMarkerFrame = f;
 	defaultTextMarkerColor = textCol;
 	defaultTextMarkerBackground = backgroundCol;
 
@@ -929,7 +926,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 		axesOn[j] = false;
 	g->enableAxes(axesOn);
 	g->setIgnoreResizeEvents(true);
-	g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont, 
+	g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont,
 			defaultTextMarkerColor, defaultTextMarkerBackground);
 	LegendMarker *mrk = g->newLegend(tr("enter your text here"));
 	QSize size = mrk->rect().size();
@@ -946,12 +943,12 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 {
 	if(e->type() == QEvent::MouseButtonPress && object == (QObject *)canvas)
-	{ 
+	{
 		const QMouseEvent *me = (const QMouseEvent *)e;
-		if (me->button()==Qt::LeftButton && addTextOn)	
+		if (me->button()==Qt::LeftButton && addTextOn)
 			addTextLayer(me->pos());
 
-		return false; 
+		return false;
 	}
 	else if(e->type() == QEvent::Resize && object == (QObject *)canvas)
 	{
@@ -968,7 +965,7 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 
 void MultiLayer::keyPressEvent(QKeyEvent * e)
 {
-	if (e->key() == Qt::Key_F12)	
+	if (e->key() == Qt::Key_F12)
 	{
 		if (d_layers_selector)
 			delete d_layers_selector;
@@ -981,7 +978,7 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 		return;
 	}
 
-	if (e->key() == Qt::Key_F10)	
+	if (e->key() == Qt::Key_F10)
 	{
 		if (d_layers_selector)
 			delete d_layers_selector;
@@ -1001,7 +998,7 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 	}
 }
 
-void MultiLayer::wheelEvent ( QWheelEvent * e ) 
+void MultiLayer::wheelEvent ( QWheelEvent * e )
 {
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
@@ -1016,7 +1013,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 	{
 		Graph *gr=(Graph *)graphsList.at(i);
 		intSize=gr->plotWidget()->size();
-		aux=gr->pos();	
+		aux=gr->pos();
 		if(xMouse>aux.x() && xMouse<(aux.x()+intSize.width()))
 		{
 			if(yMouse>aux.y() && yMouse<(aux.y()+intSize.height()))
@@ -1053,7 +1050,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 				intSize.rheight()-=5;
 			}
 		}
-		// If shift is pressed then resize 
+		// If shift is pressed then resize
 		else if(e->state()==Qt::ShiftButton)
 		{
 			if(e->delta()>0)
@@ -1077,7 +1074,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 	QApplication::restoreOverrideCursor();
 }
 
-bool MultiLayer::isEmpty () 
+bool MultiLayer::isEmpty ()
 {
 	if (graphs <= 0)
 		return true;
@@ -1108,7 +1105,7 @@ QString MultiLayer::saveToString(const QString& geometry)
 	return s+"</multiLayer>\n";
 }
 
-QString MultiLayer::saveAsTemplate(const QString& geometryInfo) 
+QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 {
 	QString s="<multiLayer>\t";
 	s+=QString::number(rows)+"\t";
@@ -1129,7 +1126,7 @@ QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 }
 
 void MultiLayer::mousePressEvent ( QMouseEvent * e )
-{	
+{
 	int margin = 5;
 	QPoint pos = canvas->mapFromParent(e->pos());
 	// iterate backwards, so layers on top are preferred for selection
@@ -1208,7 +1205,7 @@ void MultiLayer::setLayersNumber(int n)
 	{
 		for (int i = 0; i < dn; i++)
 		{//remove layer buttons
-			LayerButton *btn=(LayerButton*)buttonsList.last();	
+			LayerButton *btn=(LayerButton*)buttonsList.last();
 			if (btn)
 			{
 				btn->close();
@@ -1218,7 +1215,7 @@ void MultiLayer::setLayersNumber(int n)
 			Graph *g = (Graph *)graphsList.last();
 			if (g)
 			{//remove layers
-				if (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() || 
+				if (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() ||
 						g->movePointsActivated() || g->enabledCursor()|| g->pickerActivated())
 					setPointerCursor();
 
@@ -1235,18 +1232,18 @@ void MultiLayer::setLayersNumber(int n)
 
 		// check whether the active Graph.has been deleted
 		if(graphsList.indexOf(active_graph) == -1)
-			active_graph=(Graph*) graphsList.last();	
+			active_graph=(Graph*) graphsList.last();
 		for (int j=0;j<(int)graphsList.count();j++)
 		{
 			Graph *gr=(Graph *)graphsList.at(j);
-			if (gr == active_graph)	
+			if (gr == active_graph)
 			{
-				LayerButton *button=(LayerButton *)buttonsList.at(j);	
+				LayerButton *button=(LayerButton *)buttonsList.at(j);
 				button->setOn(TRUE);
 				break;
 			}
-		}	
-	}	
+		}
+	}
 	else
 	{
 		for (int i = 0; i < abs(dn); i++)
@@ -1260,7 +1257,7 @@ void MultiLayer::copy(MultiLayer* ml)
 {
 	setSpacing(ml->rowsSpacing(), ml->colsSpacing());
 	setAlignement(ml->horizontalAlignement(), ml->verticalAlignement());
-	setMargins(ml->leftMargin(), ml->rightMargin(), 
+	setMargins(ml->leftMargin(), ml->rightMargin(),
 				ml->topMargin(), ml->bottomMargin());
 
 	QWidgetList graphsList = ml->graphPtrs();
