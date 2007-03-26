@@ -213,8 +213,8 @@ void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 {
 	p->save();
 	p->setPen(QPen(Qt::black,1,Qt::SolidLine));
-	if (type == None && bkgColor != d_plot->paletteBackgroundColor())
-		p->fillRect (rect,QBrush(bkgColor));
+	if (type == None)
+		p->fillRect (rect, QBrush(bkgColor));
 
 	if (type == Line)
 	{

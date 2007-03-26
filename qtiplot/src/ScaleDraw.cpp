@@ -29,9 +29,8 @@
 #include "ScaleDraw.h"
 #include "MyParser.h"
 
-#include <qpainter.h>
-#include <qpaintdevice.h>
-#include <qdatetime.h>
+#include <QPainter>
+#include <QDateTime>
 
 #include <qwt_painter.h>
 #include <qwt_text.h>		
@@ -138,11 +137,18 @@ QwtTextScaleDraw::QwtTextScaleDraw(const QStringList& list):
 				
 QwtText QwtTextScaleDraw::label(double value) const
 {
-int index=qRound(value);
-if (floor(value) == value && index > 0 && index <= (int)labels.count())
-	return QwtText(labels[index - 1]);
-else
-	return QwtText();
+	const QwtScaleDiv scDiv = scaleDiv();
+	if (!scDiv.contains (value))
+		return QwtText();
+	
+	QwtValueList lst = scDiv.ticks (QwtScaleDiv::MajorTick);
+	lst.pop_front();
+	lst.pop_back();
+	int index = lst.indexOf(value);
+	if (index >= 0 && index < (int)labels.count())
+		return QwtText(labels[index]);
+	else
+		return QwtText();
 }
 
 /*****************************************************************************
@@ -310,7 +316,3 @@ if (list[0] == "1")
 else
 	return QwtText(list[0] + "x10<sup>" + s + "</sup>");
 }
-
-
-
-
