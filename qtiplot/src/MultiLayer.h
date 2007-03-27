@@ -86,8 +86,6 @@ public:
 	//@}
 
 public slots:
-	void resizeLayers (const QResizeEvent *re);
-
 	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
 	void setLayersNumber(int n);
 
@@ -211,6 +209,8 @@ signals:
 	void setPointerCursor();
 	
 private:
+	void resizeLayers (const QResizeEvent *re);
+
 	Graph* active_graph;
 	//! Used for resizing of layers.
 	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;

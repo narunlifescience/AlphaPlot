@@ -672,7 +672,7 @@ void ConfigDialog::initCurvesPage()
 	curvesBoxLayout->addWidget( lblSymbSize, 2, 0 );
 	boxSymbolSize = new QSpinBox();
 	boxSymbolSize->setRange(1,100);
-	boxSymbolSize->setValue(app->defaultSymbolSize);
+	boxSymbolSize->setValue(app->defaultSymbolSize/2);
 	curvesBoxLayout->addWidget( boxSymbolSize, 2, 1 );
 
 	curvesBoxLayout->setRowStretch( 3, 1 );
@@ -966,12 +966,7 @@ void ConfigDialog::apply()
 	// 2D plots page: curves tab
 	app->defaultCurveStyle = curveStyle();
 	app->defaultCurveLineWidth = boxCurveLineWidth->value();
-	// TODO: The next 2 lines must be removed once floating point symbol
-	// sizes are implemented
-	if( boxSymbolSize->value()%2 == 0) 
-		boxSymbolSize->setValue(boxSymbolSize->value()+1);
-
-	app->defaultSymbolSize = boxSymbolSize->value();
+	app->defaultSymbolSize = 2*boxSymbolSize->value() + 1;
 	// 2D plots page: ticks tab
 	app->majTicksLength = boxMajTicksLength->value();
 	app->minTicksLength = boxMinTicksLength->value();

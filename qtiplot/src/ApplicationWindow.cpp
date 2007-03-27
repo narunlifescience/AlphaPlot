@@ -2356,18 +2356,19 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 {//used when plotting selected columns
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	MultiLayer* g = new MultiLayer("",ws,0);
+	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-
+	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+	
 	activeGraph = g->addLayer();
 	if (!activeGraph)
 		return 0;
 
 	activeGraph->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
-
+	
 	customGraph(activeGraph);
 	polishGraph(activeGraph, style);
-	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	activeGraph->newLegend();
 
 	emit modified();
@@ -2453,6 +2454,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	MultiLayer* g = new MultiLayer("", ws,0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
+	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	Graph *ag = g->addLayer();
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
@@ -2519,7 +2521,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	}
 	ag->newLegend();
 	ag->updatePlot();
-	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	emit modified();
 	QApplication::restoreOverrideCursor();
 	return g;
@@ -10171,10 +10173,6 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
 			cl.sSize=curve[8].toInt();
-			// TODO: The next 2 lines must be removed once floating point symbol
-			// sizes are implemented
-			if( cl.sSize%2 == 0) 
-				cl.sSize++;
 			if (d_file_version <= 78)
 				cl.sType=Graph::obsoleteSymbolStyle(curve[9].toInt());
 			else
@@ -10261,10 +10259,6 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.lStyle=curve[8].toInt();
 			cl.lWidth=curve[9].toInt();
 			cl.sSize=curve[10].toInt();
-			// TODO: The next 2 lines must be removed once floating point symbol
-			// sizes are implemented
-			if( cl.sSize%2 == 0) 
-				cl.sSize++;
 			cl.sType=curve[11].toInt();
 			cl.symCol=curve[12].toInt();
 			cl.fillCol=curve[13].toInt();

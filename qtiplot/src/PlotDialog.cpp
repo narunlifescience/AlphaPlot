@@ -1186,7 +1186,7 @@ void PlotDialog::setActiveCurve(int index)
 
 		//symbol page
 		const QwtSymbol s = c->symbol();
-		boxSymbolSize->setValue(s.size().width());
+		boxSymbolSize->setValue(s.size().width()/2);
 		boxSymbolStyle->setStyle(s.style());
 		boxSymbolColor->setColor(s.pen().color());
 		boxPenWidth->setValue(s.pen().width());
@@ -1370,11 +1370,7 @@ bool PlotDialog::acceptParams()
 	}
 	else if (privateTabWidget->currentPage()==symbolPage)
 	{
-		int size = boxSymbolSize->value();
-		// TODO: The next 2 lines must be removed once floating point symbol
-		// sizes are implemented
-		if(size%2 == 0)size++;
-		boxSymbolSize->setValue(size);
+		int size = 2*boxSymbolSize->value()+1;
 		QBrush br = QBrush(boxFillColor->color(), Qt::SolidPattern);
 		if (!boxFillSymbol->isChecked())
 			br = QBrush();
@@ -1463,11 +1459,7 @@ bool PlotDialog::acceptParams()
 	}
 	else if (privateTabWidget->currentPage() == percentilePage)
 	{	
-		int size = boxPercSize->value();
-		// TODO: The next 2 lines must be removed once floating point symbol
-		// sizes are implemented
-		if(size%2 == 0)size++;
-		boxSymbolSize->setValue(size);
+		int size = 2*boxPercSize->value() + 1;
 		QBrush br = QBrush(boxPercFillColor->color(), Qt::SolidPattern);
 		if (!boxFillSymbols->isChecked())
 			br = QBrush();
