@@ -2343,11 +2343,10 @@ MultiLayer* ApplicationWindow::newGraph(const QString& caption)
 	MultiLayer *ml = multilayerPlot(generateUniqueName(caption));
 	if (ml)
     {
-        ml->hide();
         Graph *g = ml->addLayer();
 		customGraph(g);
-        ml->showNormal();
         g->newLegend();
+        customMenu(ml);
     }
 	return ml;
 }
@@ -2359,16 +2358,15 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
-	
+
 	activeGraph = g->addLayer();
 	if (!activeGraph)
 		return 0;
 
 	activeGraph->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
-	
+
 	customGraph(activeGraph);
 	polishGraph(activeGraph, style);
-	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	activeGraph->newLegend();
 
 	emit modified();
@@ -9817,10 +9815,13 @@ void ApplicationWindow::deleteLayer()
 Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &flist)
 {
 	QStringList lst=flist[0].split("\t", QString::SkipEmptyParts);
-	QString caption=lst[0];
+	QString caption = lst[0];
 	Note* w = app->newNote(caption);
-	app->setListViewDate(caption, lst[1]);
-	w->setBirthDate(lst[1]);
+	if (lst.count() == 2)
+	{
+		app->setListViewDate(caption, lst[1]);
+		w->setBirthDate(lst[1]);
+	}
 	restoreWindowGeometry(app, (QWidget *)w, flist[1]);
 
 	lst=flist[2].split("\t");
@@ -10208,7 +10209,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					{
 						if(plotType == Graph::VectXYXY)
 							ag->setVectorsLook(curveID, QColor(curve[15]), curve[16].toInt(),
-									curve[17].toInt(), curve[18].toInt(), curve[19].toInt(),0);
+									curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
 						else
 							ag->setVectorsLook(curveID, QColor(curve[15]), curve[16].toInt(), curve[17].toInt(),
 									curve[18].toInt(), curve[19].toInt(), curve[22].toInt());
@@ -10240,7 +10241,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					else
 						ag->setBarsGap(curveID, curve[15].toInt(), curve[16].toInt());
 				}
-				ag->updateCurveLayout(curveID,&cl);
+				ag->updateCurveLayout(curveID, &cl);
 				if (d_file_version >= 88)
 				{
 					QwtPlotCurve *c = ag->curve(curveID);

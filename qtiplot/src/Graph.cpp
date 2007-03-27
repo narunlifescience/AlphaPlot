@@ -4312,14 +4312,13 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 		brush.setStyle(Qt::NoBrush);
 	c->setBrush(brush);
 
-	QString yColName=c->title().text();
-	for (int i=0;i<n_curves;i++)
+	for (int i=0; i<n_curves; i++)
 	{
-		if (associations[i].contains(yColName) && i!=index && c_type[i] == ErrorBars)
+		if (associations[i].contains(c->title().text()) && i != index && c_type[i] == ErrorBars)
 		{
-			QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)this->curve(i);
+			QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)this->curve(i);
 			if (er)
-				er->setSymbolSize(QSize(cL->sSize,cL->sSize));		
+				er->setSymbolSize(QSize(cL->sSize, cL->sSize));		
 		}
 	}
 }
@@ -4675,28 +4674,7 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 	else if (style==Graph::VectXYXY || style==Graph::VectXYAM)
 		plotVectorCurve(w, names, style);
 	else
-	{		
-		/*int curves = (int)names.count();
-		QStringList lst = QStringList();
-		//We rearrange the curves list so that the error bars are placed at the end
-		for (int i=0; i<curves; i++)
-        {
-        	int j = w->colIndex(names[i]);
-  	        if (w->colPlotDesignation(j) != Table::xErr && w->colPlotDesignation(j) != Table::yErr)
-                lst << names[i];
-        }
-		
-		int errCurves = 0;
-		for (int i=0; i<curves; i++)
-        {
-			int j = w->colIndex(names[i]);
-        	if (w->colPlotDesignation(j) == Table::xErr || w->colPlotDesignation(j) == Table::yErr)
-            {
-            	errCurves++;
-                lst << names[i];
-            }
-        }*/
-		
+	{			
 		int curves = (int)names.count();
 		int errCurves = 0;
 		for (int j=0; j<curves; j++)
