@@ -34,6 +34,7 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 : QFileDialog( parent, flags )
 {
 	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
+	setAcceptMode(QFileDialog::AcceptSave);
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
 	list<<"EPS";
