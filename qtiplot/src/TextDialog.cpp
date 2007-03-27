@@ -42,7 +42,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
-#include <QCheckBox>
+#include <QSpinBox>
 
 TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	: QDialog( parent, fl )
@@ -113,8 +113,12 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 
 	if (textType == TextDialog::TextMarker)
 	{ //TODO: Sometime background features for axes lables should be implemented
-		topLayout->addWidget(new QLabel(tr("Background")), 3, 0);
-		boxBackgroundTransparency = new QCheckBox(tr("Transparent"));
+		topLayout->addWidget(new QLabel(tr("Opacity")), 3, 0);
+		boxBackgroundTransparency = new QSpinBox();
+		boxBackgroundTransparency->setRange(0, 255);
+     	boxBackgroundTransparency->setSingleStep(5);
+		boxBackgroundTransparency->setWrapping(true);
+     	boxBackgroundTransparency->setSpecialValueText(tr("Transparent"));
 		// add background button
 		topLayout->addWidget( boxBackgroundTransparency, 3, 1 );
 		
@@ -126,7 +130,8 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 		topLayout->addWidget( backgroundBtn, 4, 1 );	
 
 		connect(backgroundBtn, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
-		connect(boxBackgroundTransparency, SIGNAL(toggled(bool)), backgroundBtn, SLOT(setDisabled(bool)));
+		connect(boxBackgroundTransparency, SIGNAL(valueChanged(int)), 
+				this, SLOT(updateTransparency(int)));
 
 		buttonDefault = new QPushButton( tr( "Set As &Default" ) );
 		topLayout->addWidget( buttonDefault, 3, 3 );
@@ -193,8 +198,7 @@ void TextDialog::apply()
 	else
 	{
 		QColor c = backgroundBtn->color();
-		if (boxBackgroundTransparency->isChecked())
-			c.setAlpha(0);
+		c.setAlpha(boxBackgroundTransparency->value());
 		emit values(textEditBox->text(), angle(), backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
 	}
 }
@@ -206,11 +210,8 @@ void TextDialog::setDefaultValues()
 		return;
 	
 	QColor c = backgroundBtn->color();
-	if (boxBackgroundTransparency->isChecked())
-		c.setAlpha(0);
-	
-	app->setLegendDefaultSettings(backgroundBox->currentIndex(), selectedFont, 
-			colorBtn->color(), c);
+	c.setAlpha(boxBackgroundTransparency->value());
+	app->setLegendDefaultSettings(backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
 }
 
 void TextDialog::accept()
@@ -322,7 +323,7 @@ void TextDialog::pickTextColor()
 
 void TextDialog::setBackgroundColor(QColor c)
 {
-	boxBackgroundTransparency->setChecked(!c.alpha());
+	boxBackgroundTransparency->setValue(c.alpha());
 	backgroundBtn->setEnabled(c.alpha());
 	c.setAlpha(255);
 	
@@ -349,4 +350,9 @@ void TextDialog::setFont(const QFont & fnt)
 	QFont font = fnt;
 	font.setPointSize(12);
 	textEditBox->setFont(font);
+}
+
+void TextDialog::updateTransparency(int alpha)
+{
+backgroundBtn->setEnabled(alpha);
 }

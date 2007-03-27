@@ -72,7 +72,8 @@ public:
 	QComboBox *boxLineStyle;
     PatternBox *boxPattern;
 	QSpinBox *boxLineWidth, *boxBorderWidth;
-	QCheckBox *boxBackgroundTransparency, *boxCanvasTransparency, *boxAntialiasing;
+	QCheckBox *boxAntialiasing;
+	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency; 
 	ColorButton *boxBackgroundColor, *boxBorderColor, *boxCanvasColor;
 
 public slots:
@@ -99,8 +100,8 @@ public slots:
 	void showGeneralPage();
 	
 	void updateAntialiasing(bool on);
-	void updateCanvasTransparency(bool on);
-	void updateBackgroundTransparency(bool on);
+	void updateCanvasTransparency(int alpha);
+	void updateBackgroundTransparency(int alpha);
 
 signals:
 	void worksheet(const QString&);

@@ -36,7 +36,7 @@ class QTextEdit;
 class QTextCursor;
 class QComboBox;
 class QLabel;
-class QCheckBox;
+class QSpinBox;
 	
 #include "ColorButton.h"
 #include "TextFormatButtons.h"
@@ -113,6 +113,8 @@ private slots:
 	void apply();
 	void setDefaultValues();
 
+	void updateTransparency(int alpha);
+
 signals:
 	//! Emit all current values
 	/**
@@ -150,7 +152,7 @@ protected:
 	QGroupBox *groupBox1, *groupBox2;
 	QComboBox *alignmentBox;
 	TextFormatButtons *formatButtons;
-	QCheckBox *boxBackgroundTransparency;
+	QSpinBox *boxBackgroundTransparency;
 };
 
 #endif // TEXTDLG_H

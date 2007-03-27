@@ -153,27 +153,36 @@ void PieDialog::initBorderPage()
 	QGridLayout *gl1 = new QGridLayout();
 	gl1->addWidget(new QLabel( tr( "Color" )), 0, 0);
 
-	boxBackgroundTransparency = new QCheckBox(tr("Transparent"));
-	gl1->addWidget( boxBackgroundTransparency, 0, 1 );
-	
 	boxBackgroundColor = new ColorButton();
-	gl1->addWidget(boxBackgroundColor, 0, 2);
+	gl1->addWidget(boxBackgroundColor, 0, 1);
+	
+	gl1->addWidget( new QLabel(tr( "Opacity" )), 0, 2 );
+	boxBackgroundTransparency = new QSpinBox();
+	boxBackgroundTransparency->setRange(0, 255);
+    boxBackgroundTransparency->setSingleStep(5);
+	boxBackgroundTransparency->setWrapping(true);
+    boxBackgroundTransparency->setSpecialValueText(tr("Transparent"));
+	gl1->addWidget( boxBackgroundTransparency, 0, 3 );
 	
 	gl1->addWidget(new QLabel( tr( "Canvas Color" )), 1, 0);
 	
-	boxCanvasTransparency = new QCheckBox(tr("Transparent"));
-	gl1->addWidget( boxCanvasTransparency, 1, 1 );
-	
 	boxCanvasColor= new ColorButton();
-	gl1->addWidget(boxCanvasColor, 1, 2);
+	gl1->addWidget(boxCanvasColor, 1, 1);
+	gl1->addWidget(new QLabel( tr( "Opacity" )), 1, 2);
+	boxCanvasTransparency = new QSpinBox();
+	boxCanvasTransparency->setRange(0, 255);
+    boxCanvasTransparency->setSingleStep(5);
+	boxCanvasTransparency->setWrapping(true);
+    boxCanvasTransparency->setSpecialValueText(tr("Transparent"));
+	gl1->addWidget( boxCanvasTransparency, 1, 3 );
 
 	gl1->addWidget(new QLabel( tr( "Border Width" )), 2, 0);
 	boxBorderWidth = new QSpinBox();
-	gl1->addWidget(boxBorderWidth, 2, 2);
+	gl1->addWidget(boxBorderWidth, 2, 1);
 
 	gl1->addWidget(new QLabel( tr( "Border Color" )), 3, 0);
 	boxBorderColor= new ColorButton();
-	gl1->addWidget(boxBorderColor, 3, 2);
+	gl1->addWidget(boxBorderColor, 3, 1);
 	gl1->setRowStretch(4,1);
 
 	QGroupBox *gb1 = new QGroupBox(tr("Background"));
@@ -206,8 +215,8 @@ void PieDialog::initBorderPage()
 	generalDialog->insertTab(frame, tr( "General" ) );
 
 	connect(boxAntialiasing, SIGNAL(toggled(bool)), this, SLOT(updateAntialiasing(bool)));
-	connect(boxBackgroundTransparency, SIGNAL(toggled(bool)), this, SLOT(updateBackgroundTransparency(bool)));
-	connect(boxCanvasTransparency, SIGNAL(toggled(bool)), this, SLOT(updateCanvasTransparency(bool)));
+	connect(boxBackgroundTransparency, SIGNAL(valueChanged(int)), this, SLOT(updateBackgroundTransparency(int)));
+	connect(boxCanvasTransparency, SIGNAL(valueChanged(int)), this, SLOT(updateCanvasTransparency(int)));
 	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
 	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
 	connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
@@ -230,13 +239,13 @@ void PieDialog::setMultiLayerPlot(MultiLayer *m)
 	boxBorderColor->setColor(p->frameColor());
 		
 	QColor c = p->paletteBackgroundColor();
-	boxBackgroundTransparency->setChecked(!c.alpha());
+	boxBackgroundTransparency->setValue(c.alpha());
 	boxBackgroundColor->setEnabled(c.alpha());
 	c.setAlpha(255);
 	boxBackgroundColor->setColor(c);
 	
 	c = p->canvasBackground();
-	boxCanvasTransparency->setChecked(!c.alpha());
+	boxCanvasTransparency->setValue(c.alpha());
 	boxCanvasColor->setEnabled(c.alpha());
 	c.setAlpha(255);
 	boxCanvasColor->setColor(c);
@@ -270,6 +279,7 @@ void PieDialog::pickCanvasColor()
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
 			{
+				c.setAlpha(boxCanvasTransparency->value());
 				g->setCanvasBackground(c);
 				g->replot();
 			}
@@ -280,6 +290,7 @@ void PieDialog::pickCanvasColor()
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
 		{
+			c.setAlpha(boxCanvasTransparency->value());
 			g->setCanvasBackground(c);
 			g->replot();
 		}
@@ -301,14 +312,20 @@ void PieDialog::pickBackgroundColor()
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
+			{
+				c.setAlpha(boxBackgroundTransparency->value());
 				g->setBackgroundColor(c);
+			}
 		}
 	}
 	else
 	{
 		Graph* g = (Graph*)mPlot->activeGraph();
 		if (g)
+		{
+			c.setAlpha(boxBackgroundTransparency->value());
 			g->setBackgroundColor(c);
+		}
 	}
 }
 
@@ -468,13 +485,11 @@ void PieDialog::updatePlot()
 				g->changeMargin(boxMargin->value());
 				
 				QColor c = boxBackgroundColor->color();
-				if (boxBackgroundTransparency->isChecked())
-					c.setAlpha(0);
+				c.setAlpha(boxBackgroundTransparency->value());
 				g->setBackgroundColor(c);
 								
 				c = boxCanvasColor->color();
-				if (boxCanvasTransparency->isChecked())
-					c.setAlpha(0);
+				c.setAlpha(boxCanvasTransparency->value());
 				g->setCanvasBackground(c);
 			}
 		}
@@ -529,12 +544,12 @@ void PieDialog::showGeneralPage()
 	generalDialog->showPage (frame);
 }
 
-void PieDialog::updateCanvasTransparency(bool on)
+void PieDialog::updateCanvasTransparency(int alpha)
 {	
 	if (generalDialog->currentWidget() != frame)
 		return;
 			
-	boxCanvasColor->setEnabled(!on);
+	boxCanvasColor->setEnabled(alpha);
 	
 	if (boxAll->isChecked())
 	{
@@ -545,8 +560,7 @@ void PieDialog::updateCanvasTransparency(bool on)
 			if (g)
 			{
 				QColor c = boxCanvasColor->color();
-				if (boxCanvasTransparency->isChecked())
-					c.setAlpha(0);
+				c.setAlpha(boxCanvasTransparency->value());
 				g->setCanvasBackground(c);
 			}
 		}
@@ -557,19 +571,18 @@ void PieDialog::updateCanvasTransparency(bool on)
 		if (g)
 		{
 			QColor c = boxCanvasColor->color();
-			if (boxCanvasTransparency->isChecked())
-				c.setAlpha(0);
+			c.setAlpha(boxCanvasTransparency->value());
 			g->setCanvasBackground(c);
 		}
 	}
 }
 
-void PieDialog::updateBackgroundTransparency(bool on)
+void PieDialog::updateBackgroundTransparency(int alpha)
 {	
 	if (generalDialog->currentWidget() != frame)
 		return;
 			
-	boxBackgroundColor->setEnabled(!on);
+	boxBackgroundColor->setEnabled(alpha);
 	
 	if (boxAll->isChecked())
 	{
@@ -580,8 +593,7 @@ void PieDialog::updateBackgroundTransparency(bool on)
 			if (g)
 			{
 				QColor c = boxBackgroundColor->color();
-				if (boxBackgroundTransparency->isChecked())
-					c.setAlpha(0);
+				c.setAlpha(boxBackgroundTransparency->value());
 				g->setBackgroundColor(c);
 			}
 		}
@@ -592,8 +604,7 @@ void PieDialog::updateBackgroundTransparency(bool on)
 		if (g)
 		{
 			QColor c = boxBackgroundColor->color();
-			if (boxBackgroundTransparency->isChecked())
-				c.setAlpha(0);
+			c.setAlpha(boxBackgroundTransparency->value());
 			g->setBackgroundColor(c);
 		}
 	}

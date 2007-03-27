@@ -133,7 +133,7 @@ protected:
     QListWidget* axesTitlesList;
 	QGroupBox *boxShowLabels;
     QCheckBox *boxShowAxis, *boxAntialiasing;
-	QCheckBox *boxBackgroundTransparency, *boxCanvasTransparency;
+	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency;
 	
 	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
@@ -215,8 +215,8 @@ public slots:
 	void showFormulaBox();
 	void showAxisFormula(int axis);
 	
-	void updateCanvasTransparency(bool on);
-	void updateBackgroundTransparency(bool on);
+	void updateCanvasTransparency(int alpha);
+	void updateBackgroundTransparency(int alpha);
 	
 	void customAxisLabelFont();
 

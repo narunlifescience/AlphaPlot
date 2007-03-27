@@ -5919,13 +5919,6 @@ void Graph::setBackgroundColor(const QColor& color)
 
 void Graph::setCanvasBackground(const QColor& color)
 {
-	QwtArray<long> texts=textMarkerKeys();
-	for (int i=0; i<(int)texts.size(); i++)
-	{
-		LegendMarker* mrk = (LegendMarker*) d_plot->marker(d_texts[i]);
-		if (d_plot->canvasBackground() == mrk->backgroundColor())
-			mrk->setBackgroundColor(color);	
-	}
 	d_plot->setCanvasBackground(color);
 	emit modifiedGraph();
 }
