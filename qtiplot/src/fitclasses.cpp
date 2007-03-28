@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Multiple classes derived from Fit
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -89,14 +89,14 @@ void ExponentialFit::init()
 	{
 		setName("ExpGrowth");
 		d_explanation = tr("Exponential growth");
-		d_formula = "y0 + Aexp(x/t)";
+		d_formula = "y0+A*exp(x/t)";
 		d_param_explain << "(amplitude)" << "(lifetime)" << "(offset)";
 	}
 	else
 	{
 		setName("ExpDecay");
 		d_explanation = tr("Exponential decay");
-		d_formula = "y0 + A*exp(-x/t)";
+		d_formula = "y0+A*exp(-x/t)";
 		d_param_explain << "(amplitude)" << "(e-folding time)" << "(offset)";
 	}
 }
@@ -414,7 +414,7 @@ void GaussAmpFit::init()
 	d_param_explain << tr("(offset)") << tr("(height)") << tr("(center)") << tr("(width)");
 	d_param_names << "y0" << "A" << "xc" << "w";
 	d_explanation = tr("GaussAmp Fit");
-	d_formula = "y0 + A*exp(-(x-xc)^2/(2*w^2))";
+	d_formula = "y0+A*exp(-(x-xc)^2/(2*w^2))";
 }
 
 void GaussAmpFit::calculateFitCurveData(double *par, double *X, double *Y)
@@ -435,7 +435,7 @@ void GaussAmpFit::calculateFitCurveData(double *par, double *X, double *Y)
 	{
 		for (int i=0; i<d_points; i++)
 		{
-			X[i] = d_x[i];		
+			X[i] = d_x[i];
 			double diff = X[i]-par[2];
 			Y[i] = par[1]*exp(-0.5*diff*diff/w2)+par[0];
 		}
@@ -482,9 +482,9 @@ void NonLinearFit::init()
 
 void NonLinearFit::setFormula(const QString& s)
 {
-	if (s.isEmpty()) 
+	if (s.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"),
 				tr("Please enter a valid non-empty expression! Operation aborted!"));
 		d_init_err = true;
 		return;
@@ -498,14 +498,14 @@ void NonLinearFit::setFormula(const QString& s)
 		return;
 	}
 
-	if (d_formula == s) 
+	if (d_formula == s)
 		return;
 
 	try
 	{
 		double *param = new double[d_p];
 		MyParser parser;
-		double xvar; 
+		double xvar;
 		parser.DefineVar("x", &xvar);
 		for (int k=0; k<(int)d_p; k++)
 		{
@@ -523,12 +523,12 @@ void NonLinearFit::setFormula(const QString& s)
 		return;
 	}
 
-	d_init_err = false;	
+	d_init_err = false;
 	d_formula = s;
 }
 
 void NonLinearFit::setParametersList(const QStringList& lst)
-{	
+{
 	if ((int)lst.count() < 1)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
@@ -537,7 +537,7 @@ void NonLinearFit::setParametersList(const QStringList& lst)
 		return;
 	}
 
-	d_init_err = false;	
+	d_init_err = false;
 	d_param_names = lst;
 
 	if (d_p > 0)
@@ -584,7 +584,7 @@ void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y)
 	{
 		for (int i=0; i<d_points; i++)
 		{
-			X[i] = d_x[i];		
+			X[i] = d_x[i];
 			xvar = X[i];
 			Y[i] = parser.Eval();
 		}
@@ -639,7 +639,7 @@ bool PluginFit::load(const QString& pluginName)
 	d_fsimplex = (fit_function_simplex) lib.resolve( "function_d" );
 	if (!d_fsimplex)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for simplex fitting.").arg("function_d"));
 		return false;
 	}
@@ -647,7 +647,7 @@ bool PluginFit::load(const QString& pluginName)
 	d_f = (fit_function) lib.resolve( "function_f" );
 	if (!d_f)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_f"));
 		return false;
 	}
@@ -655,7 +655,7 @@ bool PluginFit::load(const QString& pluginName)
 	d_df = (fit_function_df) lib.resolve( "function_df" );
 	if (!d_df)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_df"));
 		return false;
 	}
@@ -663,7 +663,7 @@ bool PluginFit::load(const QString& pluginName)
 	d_fdf = (fit_function_fdf) lib.resolve( "function_fdf" );
 	if (!d_fdf)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"), 
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Plugin Error"),
 				tr("The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.").arg("function_fdf"));
 		return false;
 	}
@@ -722,7 +722,7 @@ void PluginFit::calculateFitCurveData(double *par, double *X, double *Y)
 	{
 		for (int i=0; i<d_points; i++)
 		{
-			X[i] = d_x[i];		
+			X[i] = d_x[i];
 			Y[i]= f_eval(X[i], par);
 		}
 	}
@@ -832,20 +832,20 @@ QString MultiPeakFit::generateFormula(int peaks, PeakProfile profile)
 		switch (profile)
 		{
 			case Gauss:
-				return "y0 + A*sqrt(2/PI)/w*exp(-2*((x-xc)/w)^2)";
+				return "y0+A*sqrt(2/PI)/w*exp(-2*((x-xc)/w)^2)";
 				break;
 
 			case Lorentz:
-				return "y0 + 2*A/PI*w/(4*(x-xc)^2+w^2)";
+				return "y0+2*A/PI*w/(4*(x-xc)^2+w^2)";
 				break;
 		}
 
-	QString formula = "y0 + ";
+	QString formula = "y0+";
 	for (int i = 0; i<peaks; i++)
 	{
 		formula += peakFormula(i+1, profile);
 		if (i < peaks - 1)
-			formula += " + ";
+			formula += "+";
 	}
 	return formula;
 }
@@ -912,7 +912,7 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 	QString title = tr("Peak") + QString::number(++index);
 
 	FunctionCurve *c = new FunctionCurve(FunctionCurve::Normal, title);
-	c->setPen(QPen(ColorBox::color(d_peaks_color), 1)); 
+	c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
 	c->setData(x, y, d_points);
 	c->setRange(d_x[0], d_x[d_n-1]);
 
@@ -1030,9 +1030,9 @@ void MultiPeakFit::generateFitCurve(double *par)
 		label = tableName + "_" + "2";
 		QwtPlotCurve *c = new QwtPlotCurve(label);
 		if (d_peaks > 1)
-			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2)); 
+			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2));
 		else
-			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1)); 
+			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
 		c->setData(X, Y, d_points);
 		d_graph->insertPlotItem(c, tableName+"_1(X),"+label+"(Y)", Graph::Line);
 
@@ -1045,7 +1045,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 
 				label = tableName + "_" + tr("peak") + QString::number(i+1);
 				c = new QwtPlotCurve(label);
-				c->setPen(QPen(ColorBox::color(d_peaks_color), 1)); 
+				c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
 				c->setData(X, Y, d_points);
 				d_graph->insertPlotItem(c, tableName+"_1(X),"+label+"(Y)", Graph::Line);
 			}
@@ -1208,7 +1208,7 @@ QString PolynomialFit::generateFormula(int order)
 		if (i>1)
 			formula += "^"+QString::number(i);
 		if (i != order)
-			formula += " + ";
+			formula += "+";
 	}
 	return formula;
 }
@@ -1241,7 +1241,7 @@ void PolynomialFit::calculateFitCurveData(double *par, double *X, double *Y)
 	{
 		for (int i=0; i<d_points; i++)
 		{
-			X[i] = d_x[i];		
+			X[i] = d_x[i];
 			double 	yi = 0.0;
 			for (int j=0; j<d_p;j++)
 				yi += par[j]*pow(X[i],j);
@@ -1262,18 +1262,18 @@ void PolynomialFit::fit()
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}
-			
+
 	gsl_matrix *X = gsl_matrix_alloc (d_n, d_p);
 	gsl_vector *c = gsl_vector_alloc (d_p);
 
 	for (int i = 0; i <d_n; i++)
-	{		
+	{
 		for (int j= 0; j < d_p; j++)
 			gsl_matrix_set (X, i, j, pow(d_x[i],j));
 	}
 
-	gsl_vector_view y = gsl_vector_view_array (d_y, d_n);	
-	gsl_vector_view w = gsl_vector_view_array (d_w, d_n);	
+	gsl_vector_view y = gsl_vector_view_array (d_y, d_n);
+	gsl_vector_view w = gsl_vector_view_array (d_w, d_n);
 	gsl_multifit_linear_workspace * work = gsl_multifit_linear_alloc (d_n, d_p);
 
 	if (d_weihting == NoWeighting)
@@ -1299,8 +1299,8 @@ void PolynomialFit::fit()
 }
 
 QString PolynomialFit::legendInfo()
-{		
-	QString legend = "Y=" + QString::number(d_results[0], 'g', d_prec);		
+{
+	QString legend = "Y=" + QString::number(d_results[0], 'g', d_prec);
 	for (int j = 1; j < d_p; j++)
 	{
 		double cj = d_results[j];
@@ -1308,7 +1308,7 @@ QString PolynomialFit::legendInfo()
 			legend += "+";
 
 		QString s;
-		s.sprintf("%.5f",cj);	
+		s.sprintf("%.5f",cj);
 		if (s != "1.00000")
 			legend += QString::number(cj, 'g', d_prec);
 
@@ -1354,7 +1354,7 @@ void LinearFit::init()
 	d_results = new double[d_p];
 
 	is_non_linear = false;
-	d_formula = "A*x + B";
+	d_formula = "A*x+B";
 	d_param_names << "B" << "A";
 	d_param_explain << "(y-intercept)" << "(slope)";
 	d_explanation = tr("Linear Regression");
@@ -1372,10 +1372,10 @@ void LinearFit::fit()
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}
-	
+
 	gsl_vector *c = gsl_vector_alloc (d_p);
 
-	double c0, c1, cov00, cov01, cov11;	
+	double c0, c1, cov00, cov01, cov11;
 	if (d_weihting == NoWeighting)
 		gsl_fit_linear(d_x, 1, d_y, 1, d_n, &c0, &c1, &cov00, &cov01, &cov11, &chi_2);
 	else
@@ -1413,7 +1413,7 @@ void LinearFit::calculateFitCurveData(double *par, double *X, double *Y)
 	{
 		for (int i=0; i<d_points; i++)
 		{
-			X[i] = d_x[i];		
+			X[i] = d_x[i];
 			Y[i] = par[0]+par[1]*X[i];
 		}
 	}

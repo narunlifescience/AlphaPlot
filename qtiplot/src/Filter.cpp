@@ -5,7 +5,7 @@
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Abstract base class for data analysis operations
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -68,7 +68,7 @@ void Filter::init()
 }
 
 void Filter::setInterval(double from, double to)
-{ 
+{
 	if (!d_curve)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
@@ -79,7 +79,7 @@ void Filter::setInterval(double from, double to)
 }
 
 void Filter::setDataCurve(int curve, double start, double end)
-{ 
+{
 	if (d_n > 0)
 	{//delete previousely allocated memory
 		delete[] d_x;
@@ -135,7 +135,7 @@ int Filter::curveIndex(const QString& curveTitle, Graph *g)
 }
 
 bool Filter::setDataFromCurve(const QString& curveTitle, Graph *g)
-{ 
+{
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
 	{
@@ -149,7 +149,7 @@ bool Filter::setDataFromCurve(const QString& curveTitle, Graph *g)
 }
 
 bool Filter::setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g)
-{  
+{
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
 	{
@@ -192,7 +192,7 @@ void Filter::showLegend()
 }
 
 bool Filter::run()
-{  
+{
 	if (d_init_err)
 		return false;
 
@@ -321,7 +321,7 @@ void Filter::addResultCurve(double *x, double *y)
 	QwtPlotCurve *c = new QwtPlotCurve(label);
 	c->setData(x, y, d_points);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	d_graph->insertPlotItem(c, label, Graph::Line);
+	d_graph->insertPlotItem(c, tableName + "_1(X)," + label + "(Y)", Graph::Line);
     d_graph->updatePlot();
 
     Table *t = app->newHiddenTable(tableName, d_explanation + " " + tr("of") + " " + d_curve->title().text(), d_points, 2);

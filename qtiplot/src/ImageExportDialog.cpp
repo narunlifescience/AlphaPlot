@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Export image dialog
-                           
+
  ***************************************************************************/
 
 
@@ -34,7 +34,7 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 : QFileDialog( parent, flags )
 {
 	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
-	setAcceptMode(QFileDialog::AcceptSave);
+    setAcceptMode(QFileDialog::AcceptSave);
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
 	list<<"EPS";

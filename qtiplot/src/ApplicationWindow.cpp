@@ -2736,6 +2736,7 @@ Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& lab
 
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
+    ws->addWindow(w);
 	connectTable(w);
 	customTable(w);
 
@@ -2750,7 +2751,6 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	w->setIcon( QPixmap(worksheet_xpm) );
 	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
 
-	ws->addWindow(w);
 	addListViewItem(w);
 	current_folder->addWindow(w);
 	w->setFolder(current_folder);
@@ -2986,8 +2986,8 @@ QWidget* ApplicationWindow::window(const QString& name)
 
 Table* ApplicationWindow::table(const QString& name)
 {
-	int pos=name.find("_",0);
-	QString caption=name.left(pos);
+	int pos = name.find("_", 0);
+	QString caption = name.left(pos);
 
 	QList<QWidget*> *lst = windowsList();
 	foreach(QWidget *w, *lst)
@@ -3679,32 +3679,25 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	QTextStream t( &f );
 	f.open(QIODevice::ReadOnly);
 	QString s = t.readLine();
-	if (s.isEmpty())
-	{
-        f.close();
-        QMessageBox::critical(this, tr("QtiPlot - File opening error"),  tr("The file: <b> %1 </b> is empty!").arg(fn));
-        return 0;
-    }
     QStringList list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-	QString fileType = list[0], version = list[1];
-	if (fileType != "QtiPlot")
-	{
-		f.close();
-		if (QFile::exists(fname+"~"))
-		{
-			int choice = QMessageBox::question(this, tr("QtiPlot - File opening error"),
+    if (list.count() < 2 || list[0] != "QtiPlot")
+    {
+        f.close();
+        if (QFile::exists(fname + "~"))
+        {
+            int choice = QMessageBox::question(this, tr("QtiPlot - File opening error"),
 					tr("The file <b>%1</b> is corrupted, but there exists a backup copy.<br>Do you want to open the backup instead?").arg(fn),
 					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
-			if (choice==QMessageBox::Yes)
-				return open(fname+"~");
+            if (choice == QMessageBox::Yes)
+                return open(fname + "~");
+            else
+                QMessageBox::critical(this, tr("QtiPlot - File opening error"),  tr("The file: <b> %1 </b> was not created using QtiPlot!").arg(fn));
+            return 0;
 		}
-		else
-			QMessageBox::critical(this, tr("QtiPlot - File opening error"),  tr("The file: <b> %1 </b> was not created using QtiPlot!").arg(fn));
-		return 0;
-	}
+    }
 
-	QStringList vl = version.split(".", QString::SkipEmptyParts);
-	d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+    QStringList vl = list[1].split(".", QString::SkipEmptyParts);
+    d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
 
 	ApplicationWindow* app = openProject(fname);
 
@@ -5069,7 +5062,7 @@ bool ApplicationWindow::saveProject()
 
 	saveFolder(projectFolder(), projectname);
 
-	setWindowTitle("QtiPlot - "+projectname);
+	setWindowTitle("QtiPlot - " + projectname);
 	savedProject();
 	actionUndo->setEnabled(false);
 	actionRedo->setEnabled(false);
@@ -5281,7 +5274,7 @@ QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
 {
 	QList<QWidget*> *windows = windowsList();
 	QStringList list;
-	for (int i=0;i<(int)windows->count();i++)
+	for (int i=0; i<(int)windows->count(); i++)
 	{
 		if (!windows->at(i)->inherits("Table"))
 			continue;
@@ -9106,15 +9099,9 @@ void ApplicationWindow::updateFunctionLists(int type, QStringList &formulas)
 
 void ApplicationWindow::newFunctionPlot(int type,QStringList &formulas, const QString& var, QList<double> &ranges, int points)
 {
-	QString label = generateUniqueName(tr("Graph"));
-	MultiLayer* plot = multilayerPlot(label);
-	Graph* g=plot->addLayer();
-	customGraph(g);
-	g->addFunctionCurve(type,formulas, var,ranges,points);
-	g->newLegend();
-
-	plot->showNormal();
-	setListViewSize(plot->name(), plot->sizeToString());
+    MultiLayer *ml = newGraph();
+    if (ml)
+        ml->activeGraph()->addFunctionCurve(type,formulas, var,ranges,points);
 
 	updateFunctionLists(type, formulas);
 }
@@ -12148,9 +12135,10 @@ QWidgetList* ApplicationWindow::windowsList()
 	QWidgetList windows = ws->windowList(QWorkspace::StackingOrder);
 	for (int i = 0; i<(int)windows.count(); i++ )
 		lst->append(windows.at(i));
-
-	for (int j = 0; j<(int)outWindows->count(); j++ )
-		lst->append(outWindows->at(j));
+    for (int i = 0; i<(int)hiddenWindows->count(); i++ )
+		lst->append(hiddenWindows->at(i));
+	for (int i = 0; i<(int)outWindows->count(); i++ )
+		lst->append(outWindows->at(i));
 
 	return lst;
 }

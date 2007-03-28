@@ -252,15 +252,15 @@ double Fit::rSquare()
 QString Fit::legendInfo()
 {
 	QString info = tr("Dataset") + ": " + d_curve->title().text() + "\n";
-	info += tr("Function") + ": " + d_formula + "\n<br>";
+	info += tr("Function") + ": " + d_formula + "\n\n";
 
 	double chi_2_dof = chi_2/(d_n - d_p);
 	QString info2;
 	info2.sprintf("Chi^2/doF = %g\n",  chi_2_dof);
 	info+=info2;
 	double sst = (d_n-1)*gsl_stats_variance(d_y, 1, d_n);
-	info2.sprintf(" R^2 = %g\n",  1 - chi_2/sst);
-	info += info2 + "<br>";
+	info2.sprintf("R^2 = %g\n",  1 - chi_2/sst);
+	info += info2 + "\n";
 
 	for (int i=0; i<d_p; i++)
 	{
