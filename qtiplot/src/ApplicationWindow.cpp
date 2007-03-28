@@ -2368,6 +2368,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	customGraph(activeGraph);
 	polishGraph(activeGraph, style);
 	activeGraph->newLegend();
+	customMenu(g);
 
 	emit modified();
 	QApplication::restoreOverrideCursor();
@@ -2443,6 +2444,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
         ag->setAutoscaleFonts(autoScaleFonts);//restore user defined fonts behaviour
         ag->setIgnoreResizeEvents(!autoResizeLayers);
     }
+	customMenu(g);
 	emit modified();
 	return g;
 }
@@ -2519,7 +2521,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	}
 	ag->newLegend();
 	ag->updatePlot();
-	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+	customMenu(g);
 	emit modified();
 	QApplication::restoreOverrideCursor();
 	return g;
@@ -2527,12 +2529,12 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 
 void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 {
-	ws->addWindow(g);
-	connectMultilayerPlot(g);
-
 	QString label = name;
 	while(alreadyUsedName(label))
 		label = generateUniqueName(tr("Graph"));
+
+	ws->addWindow(g);
+	connectMultilayerPlot(g);
 
 	g->setWindowTitle(label);
 	g->setName(label);
@@ -2736,16 +2738,16 @@ Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& lab
 
 void ApplicationWindow::initTable(Table* w, const QString& caption)
 {
-    ws->addWindow(w);
-	connectTable(w);
-	customTable(w);
-
 	QString name = caption;
 	name = name.replace ("_","-");
 
 	while(alreadyUsedName(name))
 		name = generateUniqueName(tr("Table"));
 
+	ws->addWindow(w);
+	connectTable(w);
+	customTable(w);
+	
 	tableWindows << name;
 	w->setName(name);
 	w->setIcon( QPixmap(worksheet_xpm) );
@@ -10273,7 +10275,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		{
 			curve=s.split("\t", QString::SkipEmptyParts);
 			w=app->table(curve[3]);
-			Table *errTable=app->table(curve[4]);
+			Table *errTable = app->table(curve[4]);
 			if (w && errTable)
 			{
 				double xOffset = 0, yOffset = 0;
@@ -10283,6 +10285,13 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				ag->addErrorBars(w,curve[2],curve[3],errTable, curve[4], curve[1].toInt(),
 						curve[5].toInt(),curve[6].toInt(), QColor(curve[7]),
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt(), xOffset, yOffset);
+					
+				if (d_file_version > 89)
+				{
+					QwtPlotCurve *c = ag->curve(curveID);
+					if (c && (int)curve.count() > 14)
+						c->setAxis(curve[13].toInt(), curve[14].toInt());
+				}
 			}
 			curveID++;
 		}

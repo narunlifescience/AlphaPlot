@@ -4424,37 +4424,42 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 	Y.resize(data_size);
 	err.resize(data_size);
 
-	QSize size;
-	for (i=0; i<n_curves; i++)
-	{
-		if (associations[i].contains(yColName) && c_type[i] != ErrorBars)
-		{
-			QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[i]);
-			size = c->symbol().size();
-
-			 if (c_type[i] == VerticalBars)
-  	         {
-  	         	QwtBarCurve *bc = (QwtBarCurve *)c;
-  	            xOffset = bc->dataOffset();
-  	         }
-  	         else if (c_type[i] == HorizontalBars)
-  	         {
-  	         	QwtBarCurve *bc = (QwtBarCurve *)c;
-  	            yOffset = bc->dataOffset();
-  	         }
-		}
-	}
-
 	QwtErrorPlotCurve *er = new QwtErrorPlotCurve(type, errColName);
 	er->setData(X.data(), Y.data(), data_size);
 	er->setErrors(err);
 	er->setCapLength(cap);
-	er->setSymbolSize(size);
 	er->setColor(color);
 	er->setWidth(width);
 	er->drawPlusSide(plus);
 	er->drawMinusSide(minus);
 	er->drawThroughSymbol(through);
+	
+	QString master_curve = xColName + "(X)," + yColName + "(Y)";
+	for (i=0; i<n_curves; i++)
+    {
+    	if (associations[i].startsWith(master_curve) && c_type[i] != ErrorBars)
+		{
+			QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[i]);
+			if (c)
+			{
+				er->setSymbolSize(c->symbol().size());
+				er->setAxis(c->xAxis(), c->yAxis());
+			
+				if (c_type[i] == VerticalBars)
+  	    		{
+					QwtBarCurve *bc = (QwtBarCurve *)c;
+					xOffset = bc->dataOffset();
+				}
+				else if (c_type[i] == HorizontalBars)
+				{
+					QwtBarCurve *bc = (QwtBarCurve *)c;
+					yOffset = bc->dataOffset();
+				}
+				break;
+			}
+		}
+	}
+	
 	er->setXDataOffset(xOffset);
 	er->setYDataOffset(yOffset);
 
