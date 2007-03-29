@@ -2896,7 +2896,7 @@ void Graph::shiftCurveCursor(bool up)
 }
 
 void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
-{
+{	
 	if (associations[curve] == text)
 		return;
 
@@ -2926,7 +2926,7 @@ void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
 		else
 			associations[curve] = text;
 	}
-	else if ((text.contains("(X)") == 2 && text.contains("(Y)") == 2) ||
+	else if ((text.count("(X)") == 2 && text.count("(Y)") == 2) ||
 			(text.contains("(A)") && text.contains("(M)")))
 	{//vectors curve
 		QStringList ls = text.split(",", QString::SkipEmptyParts);

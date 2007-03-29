@@ -5345,13 +5345,18 @@ QList<QWidget*>* ApplicationWindow::tableList()
 }
 
 void ApplicationWindow::showPlotAssociations(int curve)
-{
-	if (!activeGraph)
+{	
+	QWidget *w = ws->activeWindow();
+	if (!w || !w->isA("MultiLayer"))
 		return;
-
+	
+	Graph *g = ((MultiLayer*)w)->activeGraph();
+	if (!g)
+		return;
+	
 	AssociationsDialog* ad=new AssociationsDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
-	ad->setGraph(activeGraph);
+	ad->setGraph(g);
 	ad->initTablesList(tableList(), curve);
 	ad->exec();
 }
