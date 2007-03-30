@@ -207,6 +207,8 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScriptEdit.h\
             src/FunctionCurve.h\
             src/Fit.h\
+			src/MultiPeakFit.h\
+			src/ExponentialFit.h\
             src/fitclasses.h\
             src/customevents.h\
             src/ScriptingLangDialog.h\
@@ -305,6 +307,8 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ScaleDraw.cpp\
             src/FunctionCurve.cpp\
             src/Fit.cpp\
+			src/MultiPeakFit.cpp\
+			src/ExponentialFit.cpp\
             src/fitclasses.cpp\
             src/ScriptingEnv.cpp\
             src/Script.cpp\

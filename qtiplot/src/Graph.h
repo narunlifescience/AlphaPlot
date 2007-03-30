@@ -223,7 +223,7 @@ class Graph: public QWidget
 		//@{
 		bool addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable,
 				const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
-				bool through = true, bool minus = true, bool plus = true, double xOffset = 0, double yOffset = 0);
+				bool through = true, bool minus = true, bool plus = true);
 
 		bool addErrorBars(Table *w, const QString& yColName, Table *errTable, const QString& errColName,
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
@@ -700,7 +700,7 @@ class Graph: public QWidget
 
 		bool antialiasing(){return d_antialiasing;};
 		//! Enables/Disables antialiasing of plot items.
-		void setAntialiasing(bool on = true);
+		void setAntialiasing(bool on = true, bool update = true);
 
 signals:
 		void selectedGraph (Graph*);

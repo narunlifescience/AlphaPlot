@@ -85,6 +85,7 @@
 #include "ScriptWindow.h"
 #include "TableStatistics.h"
 #include "Fit.h"
+#include "MultiPeakFit.h"
 #include "fitclasses.h"
 #include "FunctionCurve.h"
 #include "Spectrogram.h"
@@ -2356,17 +2357,19 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 
 	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 
 	Graph *ag = g->addLayer();
 	if (!ag)
 		return 0;
 
 	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
-
+	
+	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	customGraph(ag);
 	polishGraph(ag, style);
 	ag->newLegend();
+	g->arrangeLayers(false, false);
 	customMenu(g);
 
 	emit modified();
@@ -2458,27 +2461,16 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
 	int curves = (int)colList.count();
-
-	//We rearrange the list so that the error bars are placed at the end
-	QStringList lst = QStringList();
-	for (int j=0; j<curves; j++)
-	{
-		if (!colList[j].contains("(yErr)") && !colList[j].contains("(xErr)"))
-			lst << colList[j];
-	}
 	int errorBars = 0;
-	for (int k=0; k<curves; k++)
+	for (int i=0; i<curves; i++)
 	{
-		if (colList[k].contains("(yErr)") || colList[k].contains("(xErr)"))
-		{
+		if (colList[i].contains("(yErr)") || colList[i].contains("(xErr)"))
 			errorBars++;
-			lst << colList[k];
-		}
 	}
 
 	for (int i=0; i<curves; i++)
 	{
-		QString s = lst[i];
+		QString s = colList[i];
 		int pos=s.find(":",0);
 		QString caption=s.left(pos)+"_";
 		Table *w=(Table *)table(caption);
@@ -3939,7 +3931,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			s=t.readLine();
 			QStringList graph=s.split("\t");
 			QString caption=graph[0];
-			plot=app->multilayerPlot(caption);
+			plot = app->multilayerPlot(caption);
 			plot->setCols(graph[1].toInt());
 			plot->setRows(graph[2].toInt());
 
@@ -3947,7 +3939,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 			plot->setBirthDate(graph[3]);
 
 			restoreWindowGeometry(app, plot, t.readLine());
-
 			plot->blockSignals(true);
 
 			if (d_file_version > 71)
@@ -10130,6 +10121,11 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			}
 			ag->setGridOptions(gr);
 		}
+		else if (s.startsWith ("<Antialiasing>") && s.endsWith ("</Antialiasing>"))
+		{
+			bool antialiasing = s.remove("<Antialiasing>").remove("</Antialiasing>").toInt();
+			ag->setAntialiasing(antialiasing, false);
+		}
 		else if (s.contains ("PieCurve"))
 		{
 			curve=s.split("\t");
@@ -10292,19 +10288,18 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			Table *errTable = app->table(curve[4]);
 			if (w && errTable)
 			{
-				double xOffset = 0, yOffset = 0;
-				if (d_file_version > 85){
-					xOffset = curve[11].toDouble(); yOffset = curve[12].toDouble();}
-
-				ag->addErrorBars(w,curve[2],curve[3],errTable, curve[4], curve[1].toInt(),
-						curve[5].toInt(),curve[6].toInt(), QColor(curve[7]),
-						curve[8].toInt(), curve[10].toInt(), curve[9].toInt(), xOffset, yOffset);
-
-				if (d_file_version > 89)
+				ag->addErrorBars(w, curve[2], curve[3], errTable, curve[4], curve[1].toInt(),
+						curve[5].toInt(), curve[6].toInt(), QColor(curve[7]),
+						curve[8].toInt(), curve[10].toInt(), curve[9].toInt());
+				
+				if (d_file_version > 85)
 				{
-					QwtPlotCurve *c = ag->curve(curveID);
-					if (c && (int)curve.count() > 14)
-						c->setAxis(curve[13].toInt(), curve[14].toInt());
+					QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)ag->curve(curveID);
+					if (er)
+					{
+						er->setXDataOffset(curve[11].toDouble()); 
+						er->setYDataOffset(curve[12].toDouble()); 
+					}
 				}
 			}
 			curveID++;

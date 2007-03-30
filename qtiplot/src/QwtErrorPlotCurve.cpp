@@ -106,15 +106,15 @@ void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
 			const int ylh = yi + sh/2;
 
 			if (plus)
-				{
+			{
 				QwtPainter::drawLine(painter, xi, yhl, xi, yh);
 				QwtPainter::drawLine(painter, xi-cap/2, yh, xi+cap/2, yh);
-				}
+			}
 			if (minus)
-				{
+			{
 				QwtPainter::drawLine(painter, xi, ylh, xi, yl);
 				QwtPainter::drawLine(painter, xi-cap/2, yl, xi+cap/2, yl);
-				}
+			}
 			if (through)
 				QwtPainter::drawLine(painter, xi, yhl, xi, ylh);
 		}
@@ -126,15 +126,15 @@ void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
   	        const int xmp = xi - sw/2;
 			
 			if (plus)
-				{
+			{
 				QwtPainter::drawLine(painter, xp, yi, xpm, yi);
 				QwtPainter::drawLine(painter, xp, yi-cap/2, xp, yi+cap/2);
-				}
+			}
 			if (minus)
-				{
+			{
 				QwtPainter::drawLine(painter, xm, yi, xmp, yi);
 				QwtPainter::drawLine(painter, xm, yi-cap/2, xm, yi+cap/2);
-				}
+			}
 			if (through)
 				QwtPainter::drawLine(painter, xmp, yi, xpm, yi);
 		}

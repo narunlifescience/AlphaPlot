@@ -31,7 +31,7 @@
 #include "ColorBox.h"
 #include "ApplicationWindow.h"
 #include "Fit.h"
-#include "fitclasses.h"
+#include "ExponentialFit.h"
 
 #include <QMessageBox>
 #include <QLayout>

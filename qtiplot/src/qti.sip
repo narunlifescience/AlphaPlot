@@ -588,7 +588,7 @@ else { sipCpp = NULL; }
 class ExponentialFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/ExponentialFit.h"
 %End
 public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
@@ -606,7 +606,7 @@ public:
 class TwoExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/ExponentialFit.h"
 %End
 public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -624,7 +624,7 @@ public:
 class ThreeExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/ExponentialFit.h"
 %End
 public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -660,7 +660,7 @@ public:
 class GaussAmpFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/MultiPeakFit.h"
 %End
 public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -728,7 +728,7 @@ public:
 class MultiPeakFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/MultiPeakFit.h"
 %End
 public:
   enum PeakProfile{Gauss, Lorentz};
@@ -747,7 +747,7 @@ public:
 class LorentzFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/MultiPeakFit.h"
 %End
 public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -765,7 +765,7 @@ public:
 class GaussFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/MultiPeakFit.h"
 %End
 public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);

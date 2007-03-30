@@ -119,6 +119,7 @@ static const char *unzoom_xpm[]={
 #include "SymbolBox.h"
 #include "FunctionCurve.h"
 #include "Fit.h"
+#include "MultiPeakFit.h"
 #include "fitclasses.h"
 #include "Spectrogram.h"
 #include "SelectionMoveResizer.h"
@@ -4221,7 +4222,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 	CurveLayout cl = initCurveLayout();
 	int color;
 	guessUniqueCurveLayout(color, cl.sType);
-
+	
   	cl.lCol = color;
   	cl.symCol = color;
   	cl.fillCol = color;
@@ -4264,7 +4265,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 	else if (style== Graph::Area)
 	{
 		cl.filledArea=1;
-		 cl.aCol= color;
+		cl.aCol= color;
 		cl.sType = 0;
 	}
 	return cl;
@@ -4286,8 +4287,8 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(ColorBox::color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
 	else
 		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(), pen, QSize(cL->sSize,cL->sSize)));
-
-	c->setPen(QPen(ColorBox::color(cL->lCol),cL->lWidth,getPenStyle(cL->lStyle)));
+	
+	c->setPen(QPen(ColorBox::color(cL->lCol), cL->lWidth, getPenStyle(cL->lStyle)));
 
 	int style = c_type[index];
 	if (style == Scatter)
@@ -4356,7 +4357,7 @@ void Graph::updateErrorBars(int curve,bool xErr,int width,int cap,const QColor& 
 bool Graph::addErrorBars(Table *w, const QString& yColName,
 		Table *errTable, const QString& errColName,
 		int type, int width, int cap, const QColor& color,
-		bool through, bool minus,bool plus)
+		bool through, bool minus, bool plus)
 {
 	QList<int> keys = d_plot->curveKeys();
 	for (int i = 0; i<n_curves; i++ )
@@ -4365,7 +4366,7 @@ bool Graph::addErrorBars(Table *w, const QString& yColName,
 		if (c && c->title().text() == yColName && c_type[i] != ErrorBars)
 		{
 			QStringList lst = associations[i].split(",", QString::SkipEmptyParts);
-			addErrorBars(w, lst[0].remove("(X)"), yColName, errTable, errColName,
+			return addErrorBars(w, lst[0].remove("(X)"), yColName, errTable, errColName,
 					type, width, cap, color, through, minus, plus);
 		}
 	}
@@ -4373,9 +4374,8 @@ bool Graph::addErrorBars(Table *w, const QString& yColName,
 }
 
 bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColName,
-		Table *errTable, const QString& errColName,
-		int type, int width, int cap, const QColor& color,
-		bool through, bool minus,bool plus, double xOffset, double yOffset)
+		Table *errTable, const QString& errColName, int type, int width, int cap, 
+		const QColor& color, bool through, bool minus, bool plus)
 {
 	int xcol=w->colIndex(xColName);
 	int ycol=w->colIndex(yColName);
@@ -4446,22 +4446,13 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 				er->setAxis(c->xAxis(), c->yAxis());
 
 				if (c_type[i] == VerticalBars)
-  	    		{
-					QwtBarCurve *bc = (QwtBarCurve *)c;
-					xOffset = bc->dataOffset();
-				}
+					er->setXDataOffset(((QwtBarCurve *)c)->dataOffset());
 				else if (c_type[i] == HorizontalBars)
-				{
-					QwtBarCurve *bc = (QwtBarCurve *)c;
-					yOffset = bc->dataOffset();
-				}
+					er->setYDataOffset(((QwtBarCurve *)c)->dataOffset());
 				break;
 			}
 		}
 	}
-
-	er->setXDataOffset(xOffset);
-	er->setYDataOffset(yOffset);
 
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = ErrorBars;
@@ -4682,16 +4673,22 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 	{
 		int curves = (int)names.count();
 		int errCurves = 0;
-		for (int j=0; j<curves; j++)
-  	    {
-  	    	int k = w->colIndex(names[j]);
-  	        if (w->colPlotDesignation(k) == Table::xErr || w->colPlotDesignation(k) == Table::yErr)
-  	        	errCurves++;
-  	    }
-
+		QStringList lst = QStringList();
+        for (int i=0; i<curves; i++)
+        {//We rearrange the list so that the error bars are placed at the end
+        	int j = w->colIndex(names[i]);
+  	        if (w->colPlotDesignation(j) == Table::xErr || w->colPlotDesignation(j) == Table::yErr)
+			{
+				errCurves++;
+				lst << names[i];
+			}
+			else
+				lst.prepend(names[i]);
+        }
+		
 		for (int i=0; i<curves; i++)
 		{
-			if (insertCurve(w, names[i],style))
+			if (insertCurve(w, names[i], style))
 			{
 				CurveLayout cl = initCurveLayout(i, curves - errCurves, style);
 				cl.sSize = sSize;
@@ -4701,6 +4698,28 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 			else
 				return false;
 		}
+		
+		/*int curves = (int)names.count();
+		int errCurves = 0;
+		for (int j=0; j<curves; j++)
+  	    {
+  	    	int k = w->colIndex(names[j]);
+  	        if (w->colPlotDesignation(k) == Table::xErr || w->colPlotDesignation(k) == Table::yErr)
+  	        	errCurves++;
+  	    }
+
+		for (int i=0; i<curves; i++)
+		{
+			if (insertCurve(w, names[i], style))
+			{
+				CurveLayout cl = initCurveLayout(i, curves - errCurves, style);
+				cl.sSize = sSize;
+				cl.lWidth = lWidth;
+				updateCurveLayout(i, &cl);
+			}
+			else
+				return false;
+		}*/
 	}
 	updatePlot();
 	return true;
@@ -5778,6 +5797,7 @@ QString Graph::saveToString(bool saveAsTemplate)
 	s+=QString::number(this->frameGeometry().width())+"\t";
 	s+=QString::number(this->frameGeometry().height())+"\n";
 	s+=saveTitle();
+	s+="<Antialiasing>" + QString::number(d_antialiasing) + "</Antialiasing>\n";
 	s+="Background\t" + d_plot->paletteBackgroundColor().name() + "\t";
 	s+=QString::number(d_plot->paletteBackgroundColor().alpha()) + "\n";
 	s+="Margin\t"+QString::number(d_plot->margin())+"\n";
@@ -6752,6 +6772,25 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 {
 	colorIndex = 0;
 	symbolIndex = 0;
+	
+	int curve_index = n_curves - 1;
+	if (curve_index >= 0 && c_type[curve_index] == ErrorBars)
+	{// find out the pen color of the master curve
+		QString curve_as = associations[curve_index];
+		QStringList lst = curve_as.split(",", QString::SkipEmptyParts);
+		QString master_curve_as = lst[0] + "," + lst[1];
+		int master_curve_index = associations.indexOf(master_curve_as);
+		if (master_curve_index >=0 && master_curve_index < n_curves)
+		{
+			QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(c_keys[master_curve_index]);
+			if (c)
+			{
+				colorIndex = ColorBox::colorIndex(c->pen().color());
+				return;
+			}
+		}
+	}
+	
 	for (int i=0; i<n_curves; i++)
 	{
 		const QwtPlotCurve *c = curve(i);
@@ -6760,9 +6799,6 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 			int index = ColorBox::colorIndex(c->pen().color());
 			if (index > colorIndex)
 				colorIndex = index;
-
-			if (c_type[i] == ErrorBars)
-  	        	colorIndex--;
 
 			QwtSymbol symb = c->symbol();
 			index = SymbolBox::symbolIndex(symb.style());
@@ -7371,19 +7407,22 @@ void Graph::calculateProfile(int average, bool ok)
 		averagePixels=average;
 }
 
-void Graph::setAntialiasing(bool on)
+void Graph::setAntialiasing(bool on, bool update)
 {
 	if (d_antialiasing == on)
 		return;
 
 	d_antialiasing = on;
 
-	QList<int> keys = d_plot->curveKeys();
-  	for (int i=0; i<(int)keys.count(); i++)
-  	{
-  		QwtPlotItem *c = d_plot->curve(keys[i]);
-		if (c)
-			c->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+	if (update)
+	{
+		QList<int> keys = d_plot->curveKeys();
+  		for (int i=0; i<(int)keys.count(); i++)
+  		{
+  			QwtPlotItem *c = d_plot->curve(keys[i]);
+			if (c)
+				c->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+		}
+		d_plot->replot();
 	}
-	d_plot->replot();
 }

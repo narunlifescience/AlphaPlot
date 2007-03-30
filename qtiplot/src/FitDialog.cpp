@@ -31,6 +31,8 @@
 #include "ApplicationWindow.h"
 #include "ColorBox.h"
 #include "Fit.h"
+#include "MultiPeakFit.h"
+#include "ExponentialFit.h"
 #include "fitclasses.h"
 #include "Matrix.h"
 

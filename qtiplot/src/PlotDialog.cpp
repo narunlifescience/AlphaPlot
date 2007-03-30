@@ -1750,7 +1750,7 @@ void PlotDialog::customVectorsPage(bool angleMag)
 	}
 }
 
-void PlotDialog::showColorMapEditor(bool show)
+void PlotDialog::showColorMapEditor(bool)
 {
   	if (grayScaleBox->isChecked() || defaultScaleBox->isChecked())
   		colorMapEditor->hide();
@@ -1761,7 +1761,7 @@ void PlotDialog::showColorMapEditor(bool show)
   	}
 }
 	
-void PlotDialog::showDefaultContourLinesBox(bool show)
+void PlotDialog::showDefaultContourLinesBox(bool)
 {
   	if (autoContourBox->isChecked())
   		defaultPenBox->hide();

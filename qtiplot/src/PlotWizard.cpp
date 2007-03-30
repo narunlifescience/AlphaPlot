@@ -135,10 +135,7 @@ QSize PlotWizard::sizeHint() const
 void PlotWizard::accept()
 {
 	QStringList curves, curves3D, ribbons;
-	bool multiple = false;
-	int i=0;
-
-	for ( i=0 ; i < plotAssociations->count() ; i++)
+	for (int i=0; i < plotAssociations->count(); i++)
 	{
 		QString text = plotAssociations->item(i)->text();
 
@@ -149,29 +146,32 @@ void PlotWizard::accept()
 			else if ( !text.contains("(Y)") && ribbons.contains(text) )
 				ribbons << text;
 		}
-		else
+		else if ( text.contains("(xErr)") || text.contains("(yErr)"))
 		{
-			if ( curves.contains(text) )
-				multiple = true;
-			else
-				curves << text;
+			QStringList lst = text.split(",", QString::SkipEmptyParts);
+			lst.pop_back();
+			QString master_curve = lst.join(",");
+				
+			if (!curves.contains(master_curve))
+				curves.prepend(master_curve);
+				
+			if (!curves.contains(text))
+				curves << text; //add error bars at the end of the list.
 		}
+		else if (!curves.contains(text))
+			curves.prepend(text);
 	}
-
-	if ( multiple )
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
-				tr("Redefinitions of the same curve are ignored!"));
-
-	if ( curves.count()>0 )	
+	
+	if (curves.count()>0 )	
 		emit plot(curves);
 
-	for( i=0 ; i < curves3D.count() ; i++)
+	for(int i=0; i < curves3D.count(); i++)
 		emit plot3D(curves3D[i]);
 
-	for ( i=0 ; i< ribbons.count() ; i++)
+	for (int i=0; i< ribbons.count(); i++)
 		emit plot3DRibbon(ribbons[i]);
 
-	if( !noCurves() )
+	if(!noCurves())
 		close();
 }
 
@@ -278,7 +278,7 @@ void PlotWizard::addYErrCol()
 
 void PlotWizard::addCurve()
 {
-	plotAssociations->addItem( boxTables->currentText()+": " );
+	plotAssociations->addItem( boxTables->currentText() + ": " );
 	plotAssociations->setCurrentRow( plotAssociations->count()-1 );
 }
 
@@ -318,4 +318,3 @@ bool PlotWizard::noCurves()
 PlotWizard::~PlotWizard()
 {
 }
-

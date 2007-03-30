@@ -45,6 +45,8 @@
 Plot::Plot(QWidget *parent, const char *name)
 : QwtPlot(parent)
 {
+	setAutoReplot (false);
+	
 	marker_key = 0;
 	curve_key = 0;
 
