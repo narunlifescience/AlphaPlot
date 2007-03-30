@@ -10173,10 +10173,11 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.filledArea=curve[12].toInt();
 			cl.aCol=curve[13].toInt();
 			cl.aStyle=curve[14].toInt();
-			// remark by thzs: according to the code of v0.8.9 the
-			// condition in the next line should be "> 77"
-			// but it does not work with the v0.7.8 files I got from Ion
-			if ((d_file_version > 78) && (curve[3].toInt() <= Graph::LineSymbols || curve[3].toInt() == Graph::Box))
+			if(curve.count() < 16)
+				cl.penWidth = cl.lWidth;
+			else if ((d_file_version >= 79) && (curve[3].toInt() == Graph::Box))
+				cl.penWidth = curve[15].toInt();
+			else if ((d_file_version >= 78) && (curve[3].toInt() <= Graph::LineSymbols))
 				cl.penWidth = curve[15].toInt();
 			else
 				cl.penWidth = cl.lWidth;
@@ -10259,10 +10260,14 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.aCol=curve[15].toInt();
 			cl.aStyle=curve[16].toInt();
 			int current_index = 17;
-			// remark by thzs: according to the code of v0.8.9 the
-			// condition in the next line should be "> 77"
-			// but it does not work with the v0.7.8 files I got from Ion
-			if ((d_file_version > 78) && (curve[5].toInt() <= Graph::LineSymbols || curve[5].toInt() == Graph::Box))
+			if(curve.count() < 16)
+				cl.penWidth = cl.lWidth;
+			else if ((d_file_version >= 79) && (curve[5].toInt() == Graph::Box))
+				{
+					cl.penWidth = curve[17].toInt();
+					current_index++;
+				}
+			else if ((d_file_version >= 78) && (curve[5].toInt() <= Graph::LineSymbols))
 				{
 					cl.penWidth = curve[17].toInt();
 					current_index++;
