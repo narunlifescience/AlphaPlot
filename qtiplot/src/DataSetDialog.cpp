@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Multi purpose dialog for choosing a data set
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,6 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataSetDialog.h"
+#include "ApplicationWindow.h"
+#include "Graph.h"
 
 #include <QPushButton>
 #include <QCheckBox>
@@ -43,9 +45,11 @@ DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags 
 	setWindowTitle(tr("QtiPlot - Select data set"));
 
 	operation = QString();
+	d_graph = 0;
 
 	QVBoxLayout * mainLayout = new QVBoxLayout( this );
 	QHBoxLayout * bottomLayout = new QHBoxLayout();
+	bottomLayout->addStretch();
 
 	groupBox1 = new QGroupBox();
 	QHBoxLayout * topLayout = new QHBoxLayout( groupBox1 );
@@ -74,8 +78,12 @@ void DataSetDialog::accept()
 {
 	if (operation.isEmpty())
 		emit options(boxName->currentText());
-	else
-		emit analyze(operation, boxName->currentText());
+	else if (d_graph)
+	{
+	    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	    if (app)
+            app->analyzeCurve(d_graph, operation, boxName->currentText());
+	}
 	close();
 }
 
@@ -88,4 +96,13 @@ void DataSetDialog::setCurentDataSet(const QString& s)
 {
 	int row = boxName->findText(s);
 	boxName->setCurrentIndex(row);
+}
+
+void DataSetDialog::setGraph(Graph *g)
+{
+    if (!g)
+        return;
+
+   d_graph = g;
+   boxName->addItems(g->analysableCurvesList());
 }

@@ -2896,7 +2896,7 @@ void Graph::shiftCurveCursor(bool up)
 }
 
 void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
-{	
+{
 	if (associations[curve] == text)
 		return;
 
@@ -4383,13 +4383,13 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 	if (xcol<0 || ycol<0 || errcol<0)
 		return false;
 
-	int i, data_size = 0;
 	int xColType = w->columnType(xcol);
 	int yColType = w->columnType(ycol);
     int r = w->tableRows();
 	QStringList xLabels, yLabels;// store text labels
 	QVector<double> X(r), Y(r), err(r);
-	for (i = 0; i< r; i++ )
+    int data_size = 0;
+	for (int i = 0; i<r; i++ )
 	{
 		QString xval=w->text(i,xcol);
 		QString yval=w->text(i,ycol);
@@ -4413,8 +4413,8 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 				Y[data_size]=yval.toDouble();
 
 			err[data_size]=errval.toDouble();
+            data_size++;
 		}
-        data_size++;
 	}
 
 	if (!data_size)
@@ -4433,9 +4433,9 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 	er->drawPlusSide(plus);
 	er->drawMinusSide(minus);
 	er->drawThroughSymbol(through);
-	
+
 	QString master_curve = xColName + "(X)," + yColName + "(Y)";
-	for (i=0; i<n_curves; i++)
+	for (int i=0; i<n_curves; i++)
     {
     	if (associations[i].startsWith(master_curve) && c_type[i] != ErrorBars)
 		{
@@ -4444,7 +4444,7 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 			{
 				er->setSymbolSize(c->symbol().size());
 				er->setAxis(c->xAxis(), c->yAxis());
-			
+
 				if (c_type[i] == VerticalBars)
   	    		{
 					QwtBarCurve *bc = (QwtBarCurve *)c;
@@ -4459,7 +4459,7 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 			}
 		}
 	}
-	
+
 	er->setXDataOffset(xOffset);
 	er->setYDataOffset(yOffset);
 

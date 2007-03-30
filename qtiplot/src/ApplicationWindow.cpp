@@ -297,7 +297,6 @@ void ApplicationWindow::initGlobalConstants()
 
 	projectname="untitled";
 	lastModified=0;
-	activeGraph=0;
 	lastCopiedLayer=0;
 	copiedLayer=false;
 	copiedMarkerType=Graph::None;
@@ -1258,7 +1257,7 @@ void ApplicationWindow::plot3DRibbon()
 	if(int(w->selectedColumns().count())==1)
 		w->plot3DRibbon();
 	else
-		QMessageBox::warning(0,tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+		QMessageBox::warning(this,tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
 }
 
 void ApplicationWindow::plot3DWireframe()
@@ -1292,7 +1291,7 @@ void ApplicationWindow::plot3DBars()
 		if(int(((Table*)w)->selectedColumns().count())==1)
 			((Table*)w)->plot3DBars();
 		else
-			QMessageBox::warning(0,tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+			QMessageBox::warning(this, tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
 	else
 		plot3DMatrix (Qwt3D::USER);
@@ -1309,7 +1308,7 @@ void ApplicationWindow::plot3DScatter()
 		if(int(((Table*)w)->selectedColumns().count())==1)
 			((Table*)w)->plot3DScatter();
 		else
-			QMessageBox::warning(0,tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+			QMessageBox::warning(this, tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
 	else if (w->isA("Matrix"))
 		plot3DMatrix (Qwt3D::POINTS);
@@ -1324,7 +1323,7 @@ void ApplicationWindow::plot3DTrajectory()
 	if(int(w->selectedColumns().count())==1)
 		w->plot3DTrajectory();
 	else
-		QMessageBox::warning(0, tr("QtiPlot - Plot error"),
+		QMessageBox::warning(this, tr("QtiPlot - Plot error"),
 				tr("You must select exactly one column for plotting!"));
 }
 
@@ -1368,7 +1367,7 @@ void ApplicationWindow::plotPie()
 	if(int(((Table*)ws->activeWindow())->selectedColumns().count())==1)
 		((Table*)ws->activeWindow())->plotPie();
 	else
-		QMessageBox::warning(0, tr("QtiPlot - Plot error"),
+		QMessageBox::warning(this, tr("QtiPlot - Plot error"),
 				tr("You must select exactly one column for plotting!"));
 }
 
@@ -2359,15 +2358,15 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 
-	activeGraph = g->addLayer();
-	if (!activeGraph)
+	Graph *ag = g->addLayer();
+	if (!ag)
 		return 0;
 
-	activeGraph->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
+	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
 
-	customGraph(activeGraph);
-	polishGraph(activeGraph, style);
-	activeGraph->newLegend();
+	customGraph(ag);
+	polishGraph(ag, style);
+	ag->newLegend();
 	customMenu(g);
 
 	emit modified();
@@ -2387,7 +2386,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	QStringList list=w->selectedYColumns();
 	if((int)list.count() < 1)
 	{
-		QMessageBox::warning(0, tr("QtiPlot - Plot error"), tr("Please select a Y column to plot!"));
+		QMessageBox::warning(this, tr("QtiPlot - Plot error"), tr("Please select a Y column to plot!"));
 		return 0;
 	}
 
@@ -2403,15 +2402,15 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	{
 		for (int i=0; i<curves; i++)
 		{
-			activeGraph = g->addLayer();
-			if (activeGraph)
+			Graph *ag = g->addLayer();
+			if (ag)
 			{
-				activeGraph->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
-				customGraph(activeGraph);
-				activeGraph->newLegend();
-				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
-                activeGraph->setIgnoreResizeEvents(false);
-				polishGraph(activeGraph, style);
+				ag->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
+				customGraph(ag);
+				ag->newLegend();
+				ag->setAutoscaleFonts(false);//in order to avoid to small fonts
+                ag->setIgnoreResizeEvents(false);
+				polishGraph(ag, style);
 			}
 		}
 	}
@@ -2419,17 +2418,17 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	{
 		for (int i=0; i<layers; i++)
 		{
-			activeGraph = g->addLayer();
-			if (activeGraph)
+			Graph *ag = g->addLayer();
+			if (ag)
 			{
 				QStringList lst;
 				lst << list[i];
-				activeGraph->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
-				customGraph(activeGraph);
-				activeGraph->newLegend();
-				activeGraph->setAutoscaleFonts(false);//in order to avoid to small fonts
-                activeGraph->setIgnoreResizeEvents(false);
-				polishGraph(activeGraph, style);
+				ag->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
+				customGraph(ag);
+				ag->newLegend();
+				ag->setAutoscaleFonts(false);//in order to avoid to small fonts
+                ag->setIgnoreResizeEvents(false);
+				polishGraph(ag, style);
 			}
 		}
 	}
@@ -2747,7 +2746,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	ws->addWindow(w);
 	connectTable(w);
 	customTable(w);
-	
+
 	tableWindows << name;
 	w->setName(name);
 	w->setIcon( QPixmap(worksheet_xpm) );
@@ -3048,31 +3047,41 @@ void ApplicationWindow::addErrorBars()
 	}
 
 	Graph* g = (Graph*)plot->activeGraph();
-	if ( g )
+	if (!g)
+        return;
+
+    if (!g->curves())
 	{
-		if (g->isPiePlot())
-			QMessageBox::warning(this,tr("QtiPlot - Warning"),
-					tr("This functionality is not available for pie plots!"));
-		else
-		{
-			activeGraph=g;
-			ErrDialog* ed = new ErrDialog(this ,0);
-			ed->setAttribute(Qt::WA_DeleteOnClose);
-			connect (ed,SIGNAL(options(const QString&,int,const QString&,int)),this,SLOT(defineErrorBars(const QString&,int,const QString&,int)));
-			connect (ed,SIGNAL(options(const QString&,const QString&,int)),this,SLOT(defineErrorBars(const QString&,const QString&,int)));
-
-			QStringList curvesOnPlot=activeGraph->curvesList();
-
-			ed->setCurveNames(curvesOnPlot);
-			ed->setSrcTables(tableList());
-			ed->exec();
-		}
+		QMessageBox::warning(this, tr("QtiPlot - Warning"), tr("There are no curves available on this plot!"));
+		return;
 	}
+
+	if (g->isPiePlot())
+	{
+        QMessageBox::warning(this, tr("QtiPlot - Warning"), tr("This functionality is not available for pie plots!"));
+        return;
+	}
+
+    ErrDialog* ed = new ErrDialog(this);
+    ed->setAttribute(Qt::WA_DeleteOnClose);
+    connect (ed,SIGNAL(options(const QString&,int,const QString&,int)),this,SLOT(defineErrorBars(const QString&,int,const QString&,int)));
+    connect (ed,SIGNAL(options(const QString&,const QString&,int)),this,SLOT(defineErrorBars(const QString&,const QString&,int)));
+
+    ed->setCurveNames(g->curvesList());
+    ed->setSrcTables(tableList());
+    ed->exec();
 }
 
 void ApplicationWindow::defineErrorBars(const QString& name, int type, const QString& percent, int direction)
 {
-	Table *w=table(name);
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	Table *w = table(name);
 	if (!w)
 	{ //user defined function
 		QMessageBox::critical(this,tr("QtiPlot - Error bars error"),
@@ -3080,7 +3089,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 		return;
 	}
 
-	QString xColName = activeGraph->curveXColName(name);
+	QString xColName = g->curveXColName(name);
 	if (xColName.isEmpty())
 		return;
 
@@ -3125,7 +3134,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 				w->setText(i,c,QString::number(dev,'g',15));
 		}
 	}
-	activeGraph->addErrorBars(w, xColName, name, w, errColName, direction);
+	g->addErrorBars(w, xColName, name, w, errColName, direction);
 }
 
 void ApplicationWindow::defineErrorBars(const QString& curveName, const QString& errColumnName, int direction)
@@ -3156,7 +3165,15 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 		addErrorBars();
 		return;
 	}
-	activeGraph->addErrorBars(w, curveName, errTable, errColumnName, direction);
+
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	g->addErrorBars(w, curveName, errTable, errColumnName, direction);
 	emit modified();
 }
 
@@ -3615,6 +3632,7 @@ void ApplicationWindow::open()
 	QString filter = tr("QtiPlot project") + " (*.qti);;";
 	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
+	filter += tr("Backup files") + " (*.qti~);;";
 	filter += tr("All files") + " (*);;";
 
 	QString fn = QFileDialog::getOpenFileName(workingDir, filter, this, 0,
@@ -3636,7 +3654,8 @@ void ApplicationWindow::open()
 			}
 		}
 
-		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".opj",Qt::CaseInsensitive))
+		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+            fn.endsWith(".opj",Qt::CaseInsensitive))
 		{
 			if (!fi.exists ())
 			{
@@ -3667,7 +3686,8 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 {
 	if (fn.endsWith(".opj", Qt::CaseInsensitive))
 		return importOPJ(fn);
-	else if ( !( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ) )
+	else if (!( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
+                fn.endsWith(".qti~",Qt::CaseInsensitive)))
 		return plotFile(fn);
 
 	QString fname = fn;
@@ -3737,15 +3757,12 @@ void ApplicationWindow::openRecentProject(int index)
 		}
 	}
 
-	if ( !fn.isEmpty())
+	if (!fn.isEmpty())
 	{
 		saveSettings();//the recent projects must be saved
-
 		ApplicationWindow * a = open (fn);
 		if (a)
-		{
 			this->close();
-		}
 	}
 }
 
@@ -4688,72 +4705,61 @@ void ApplicationWindow::exportGraph()
 			if (baseName.contains(".")==0)
 				fname.append(selectedFilter.remove("*"));
 
-			if ( QFile::exists(fname) &&
-					QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
-						tr("A file called: <p><b>%1</b><p>already exists. "
-							"Do you want to overwrite it?")
-						.arg(fname),
-						tr("&Yes"), tr("&No"),
-						QString(), 0, 1 ) )
-				return ;
-			else
-			{
-				QFile f(fname);
-				if ( !f.open( QIODevice::WriteOnly ) )
-				{
-					QMessageBox::critical(0, tr("QtiPlot - Export error"),
-							tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
-					return;
-				}
+			QFile f(fname);
+            if ( !f.open( QIODevice::WriteOnly ) )
+            {
+                QMessageBox::critical(this, tr("QtiPlot - Export error"),
+                tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
+                return;
+            }
 
-				if (selectedFilter.contains(".svg"))
-				{
-					plot->exportSVG(fname);
-					return;
-				}
-				else if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
-				{
-					if (ied->showExportOptions())
-					{
-						EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
-						ed->setAttribute(Qt::WA_DeleteOnClose);
-						if (selectedFilter.contains(".eps"))
-							connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-									plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-						else if (selectedFilter.contains(".pdf"))
-							connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-									plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+            if (selectedFilter.contains(".svg"))
+            {
+                plot->exportSVG(fname);
+                return;
+            }
+            else if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
+            {
+                if (ied->showExportOptions())
+                {
+                    EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+                    ed->setAttribute(Qt::WA_DeleteOnClose);
+                    if (selectedFilter.contains(".eps"))
+                        connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                                plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+                    else if (selectedFilter.contains(".pdf"))
+                        connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                                plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-						ed->exec();
-					}
-					else
-						plot->exportVector(fname, selectedFilter.remove("*."));
-					return;
-				}
+                    ed->exec();
+                }
+                else
+                    plot->exportVector(fname, selectedFilter.remove("*."));
+                return;
+            }
 
-				QList<QByteArray> list=QImageWriter::supportedImageFormats ();
-				for (int i=0; i<(int)list.count(); i++)
-				{
-					if (selectedFilter.contains("."+(list[i]).lower()))
-					{
-						if (ied->showExportOptions())
-						{
-							ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
-							ed->setAttribute(Qt::WA_DeleteOnClose);
-							connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-									plot, SLOT(exportImage(const QString&, const QString&, int, bool)));
+            QList<QByteArray> list=QImageWriter::supportedImageFormats ();
+            for (int i=0; i<(int)list.count(); i++)
+            {
+                if (selectedFilter.contains("."+(list[i]).lower()))
+                {
+                    if (ied->showExportOptions())
+                    {
+                        ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
+                        ed->setAttribute(Qt::WA_DeleteOnClose);
+                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
+                                plot, SLOT(exportImage(const QString&, const QString&, int, bool)));
 
-							ed->setExportPath(fname, list[i]);
-							ed->enableTransparency();
-							ed->exec();
-						}
-						else
-							plot->exportImage(fname, list[i]);
-						return;
-					}
-				}
-			}
-		}
+                        ed->setExportPath(fname, list[i]);
+                        ed->enableTransparency();
+                        ed->exec();
+                    }
+                    else
+                        plot->exportImage(fname, list[i]);
+                    return;
+                }
+            }
+        }
 	}
 
 	else if(w->isA("Graph3D"))
@@ -4784,65 +4790,58 @@ void ApplicationWindow::exportLayer()
 		if (baseName.contains(".")==0)
 			fname.append(selectedFilter.remove("*"));
 
-		if ( QFile::exists(fname) &&
-				QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
-					tr("A file called: <p><b>%1</b><p>already exists. Do you want to overwrite it?").arg(fname),
-					tr("&Yes"), tr("&No"),QString(), 0, 1 ) ) return ;
-		else
-		{
-			QFile f(fname);
-			if ( !f.open( QIODevice::WriteOnly ) )
-			{
-				QMessageBox::critical(0, tr("QtiPlot - Export error"),
-						tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
+		QFile f(fname);
+        if ( !f.open( QIODevice::WriteOnly ) )
+        {
+        QMessageBox::critical(this, tr("QtiPlot - Export error"),
+                    tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
 				return;
-			}
+        }
 
-			if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
-			{
-				if (ied->showExportOptions())
-				{
-					EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
-					ed->setAttribute(Qt::WA_DeleteOnClose);
-					if (selectedFilter.contains(".eps"))
-						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-								g, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-					else if (selectedFilter.contains(".pdf"))
-						connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-								g, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+        if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
+        {
+            if (ied->showExportOptions())
+            {
+                EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+                ed->setAttribute(Qt::WA_DeleteOnClose);
+                if (selectedFilter.contains(".eps"))
+                    connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                            g, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+                else if (selectedFilter.contains(".pdf"))
+                    connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                            g, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
 
-					ed->exec();
-				}
-				else
-					g->exportVector(fname, selectedFilter.remove("*."));
-				return;
-			}
-			else if (selectedFilter.contains(".svg"))
-			{
-				g->exportSVG(fname);
-				return;
-			}
-			QList<QByteArray> list = QImageWriter::supportedImageFormats();
-			for (int i=0; i<(int)list.count(); i++)
-			{
-				if (selectedFilter.contains("."+(list[i]).lower()))
-				{
-					if (ied->showExportOptions())
-					{
-						ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
-						ed->setAttribute(Qt::WA_DeleteOnClose);
-						connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-								g, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                ed->exec();
+            }
+            else
+                g->exportVector(fname, selectedFilter.remove("*."));
+            return;
+        }
+        else if (selectedFilter.contains(".svg"))
+        {
+            g->exportSVG(fname);
+            return;
+        }
+        QList<QByteArray> list = QImageWriter::supportedImageFormats();
+        for (int i=0; i<(int)list.count(); i++)
+        {
+            if (selectedFilter.contains("."+(list[i]).lower()))
+            {
+                if (ied->showExportOptions())
+                {
+                    ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
+                    ed->setAttribute(Qt::WA_DeleteOnClose);
+                    connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
+                            g, SLOT(exportImage(const QString&, const QString&, int, bool)));
 
-						ed->setExportPath(fname, list[i]);
-						ed->enableTransparency();
-						ed->exec();
-					}
-					else
-						g->exportImage(fname, list[i]);
+                    ed->setExportPath(fname, list[i]);
+                    ed->enableTransparency();
+                    ed->exec();
+                }
+                else
+                    g->exportImage(fname, list[i]);
 
-					return;
-				}
+                return;
 			}
 		}
 	}
@@ -4894,7 +4893,7 @@ void ApplicationWindow::exportAllGraphs(const QString& dir, const QString& forma
 			if (f.exists(fileName) && confirmOverwrite)
 			{
 				QApplication::restoreOverrideCursor();
-				switch(QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
+				switch(QMessageBox::question(this, tr("QtiPlot - Overwrite file?"),
 							tr("A file called: <p><b>%1</b><p>already exists. "
 								"Do you want to overwrite it?") .arg(fileName), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1))
 				{
@@ -4948,7 +4947,7 @@ void ApplicationWindow::export2DPlotToFile(MultiLayer *plot, const QString& file
 	if ( !f.open( QIODevice::WriteOnly ) )
 	{
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical(0, tr("QtiPlot - Export error"),
+		QMessageBox::critical(this, tr("QtiPlot - Export error"),
 				tr("Could not write to file: <br><h4>%1</h4><p>Please verify that you have the right to write to this location!").arg(fileName));
 
 		return;
@@ -4966,7 +4965,7 @@ void ApplicationWindow::export3DPlotToFile(Graph3D *plot, const QString& fileNam
 	QFile f(fileName);
 	if ( !f.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Export error"), tr("Could not write to file: <br><h4>%1</h4><p>Please verify that you have the right to write to this location!").arg(fileName));
+		QMessageBox::critical(this, tr("QtiPlot - Export error"), tr("Could not write to file: <br><h4>%1</h4><p>Please verify that you have the right to write to this location!").arg(fileName));
 
 		QApplication::restoreOverrideCursor();
 		return;
@@ -5160,7 +5159,7 @@ void ApplicationWindow::saveAsTemplate()
 		QFile f(fn);
 		if ( !f.open( QIODevice::WriteOnly ) )
 		{
-			QMessageBox::critical(0, tr("QtiPlot - Export error"),
+			QMessageBox::critical(this, tr("QtiPlot - Export error"),
 			tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
 			return;
 		}
@@ -5229,12 +5228,12 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	newName.replace("-", "_");
 	if (newName.isEmpty())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
+		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
 		return false;
 	}
 	else if (newName.contains(QRegExp("\\W")))
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("The name you chose is not valid: only letters and digits are allowed!")+
 				"<p>" + tr("Please choose another name!"));
 		return false;
@@ -5244,7 +5243,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 
 	while(alreadyUsedName(newName))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
+		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
 				"<p>"+tr("Please choose another name!")+
 				"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
 		return false;
@@ -5255,7 +5254,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 		QStringList labels=((Table *)w)->colNames();
 		if (labels.contains(newName)>0)
 		{
-			QMessageBox::critical(0,tr("QtiPlot - Error"),
+			QMessageBox::critical(this, tr("QtiPlot - Error"),
 					tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
 			return false;
 		}
@@ -5316,9 +5315,7 @@ void ApplicationWindow::showCurvesDialog()
 	}
 	else
 	{
-		activeGraph = g;
-
-		CurvesDialog* crvDialog=new CurvesDialog(this,"curves",true,Qt::WindowStaysOnTopHint);
+		CurvesDialog* crvDialog = new CurvesDialog(this,"curves",true,Qt::WindowStaysOnTopHint);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
 		connect (crvDialog,SIGNAL(showPlotAssociations(int)), this, SLOT(showPlotAssociations(int)));
 		connect (crvDialog,SIGNAL(showFunctionDialog(Graph *, int)), this, SLOT(showFunctionDialog(Graph *, int)));
@@ -5345,15 +5342,15 @@ QList<QWidget*>* ApplicationWindow::tableList()
 }
 
 void ApplicationWindow::showPlotAssociations(int curve)
-{	
+{
 	QWidget *w = ws->activeWindow();
 	if (!w || !w->isA("MultiLayer"))
 		return;
-	
+
 	Graph *g = ((MultiLayer*)w)->activeGraph();
 	if (!g)
 		return;
-	
+
 	AssociationsDialog* ad=new AssociationsDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	ad->setGraph(g);
@@ -5536,7 +5533,7 @@ void ApplicationWindow::exportAllTables(const QString& sep, bool colNames, bool 
 				if (f.exists(fileName) && confirmOverwrite)
 				{
 					QApplication::restoreOverrideCursor();
-					switch(QMessageBox::question(0, tr("QtiPlot - Overwrite file?"),
+					switch(QMessageBox::question(this, tr("QtiPlot - Overwrite file?"),
 								tr("A file called: <p><b>%1</b><p>already exists. "
 									"Do you want to overwrite it?").arg(fileName), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1))
 					{
@@ -6104,7 +6101,14 @@ void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColNam
 	if ((type == Graph::Txt || type == Graph::ColHeader) && !w)
 		return;
 
-	activeGraph->showAxis(axis, type, labelsColName, w, axisOn, majTicksType, minTicksType, labelsOn,
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	g->showAxis(axis, type, labelsColName, w, axisOn, majTicksType, minTicksType, labelsOn,
 			c, format, prec, rotation, baselineDist, formula, labelsColor);
 }
 
@@ -6161,8 +6165,6 @@ QDialog* ApplicationWindow::showScaleDialog()
 		Graph* g = ((MultiLayer*)w)->activeGraph();
 		if (!g->isPiePlot())
 		{
-			activeGraph = g;
-
 			AxesDialog* ad = new AxesDialog(this);
 			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
 			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
@@ -6345,9 +6347,7 @@ QDialog* ApplicationWindow::showPieDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g)
 	{
-		activeGraph = g;
-
-		PieDialog* pd= new PieDialog(this,"PlotDialog",true,0);
+		PieDialog* pd = new PieDialog(this,"PlotDialog",true,0);
 		connect (pd,SIGNAL(drawFrame(bool,int,const QColor&)),g,SLOT(drawCanvasFrame(bool,int,const QColor& )));
 		connect (pd,SIGNAL(toggleCurve()),g,SLOT(removePie()));
 		connect (pd,SIGNAL(updatePie(const QPen&, const Qt::BrushStyle &,int,int)),g,SLOT(updatePie(const QPen&, const Qt::BrushStyle &,int,int)));
@@ -6382,8 +6382,6 @@ void ApplicationWindow::showPlotDialog()
 				pd->setGraph(g);
 				pd->selectCurve(0);
 				pd->exec();
-
-				activeGraph = g;
 			}
 			else
 				showPieDialog();
@@ -6416,8 +6414,6 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 			pd->setGraph(g);
 			pd->selectCurve(g->curveIndex(curveKey));
 			pd->exec();
-
-			activeGraph = g;
 		}
 		else
             showPieDialog();
@@ -6429,8 +6425,8 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
 
-	activeGraph = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	QwtPlotCurve *c = activeGraph->curve(activeGraph->curveIndex(curveKey));
+	Graph *g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	QwtPlotCurve *c = g->curve(g->curveIndex(curveKey));
 	if (!c)
 		return;
 
@@ -6459,7 +6455,13 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 
 void ApplicationWindow::removeCurve(int curveKey)
 {
-	activeGraph->removeCurve(activeGraph->curveIndex(curveKey));
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+	g->removeCurve(g->curveIndex(curveKey));
 }
 
 void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
@@ -6736,7 +6738,6 @@ void ApplicationWindow::showExpDecayDialog(int type)
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	activeGraph = g;
 	aw = (MyWidget *)ws->activeWindow();
 
 	ExpDecayDialog *edd = new ExpDecayDialog(type, this,"polyDialog", false, 0);
@@ -6776,7 +6777,6 @@ void ApplicationWindow::showFitDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	activeGraph=g;
 	aw = (MyWidget *)ws->activeWindow();
 
 	FitDialog *fd=new FitDialog(this,"FitDialog", false);
@@ -6910,7 +6910,6 @@ void ApplicationWindow::showFitPolynomDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	activeGraph=g;
 	aw = (MyWidget *)ws->activeWindow();
 
 	PolynomFitDialog *pfd=new PolynomFitDialog(this, "polyDialog");
@@ -6949,7 +6948,6 @@ void ApplicationWindow::showIntDialog()
 	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
 	id->setGraph(g);
 	id->exec();
-	activeGraph = g;
 }
 
 void ApplicationWindow::fitSigmoidal()
@@ -7053,8 +7051,6 @@ void ApplicationWindow::showRangeSelectors()
 		return;
 	}
 
-
-	activeGraph=g;
 	if (g->enableRangeSelectors(true))
 	{
 		info->setText("Click or use Ctrl+arrow key to select range (arrows select active cursor)!");
@@ -8064,7 +8060,6 @@ void ApplicationWindow::removeWindowFromLists(QWidget* w)
 					g->movePointsActivated() || g->enabledCursor()|| g->pickerActivated()))
 		{
 			btnPointer->setChecked(true);
-			activeGraph = 0;
 		}
 	}
 	else if (w->isA("Matrix"))
@@ -9020,9 +9015,14 @@ void ApplicationWindow::showPlotWizard()
 
 void ApplicationWindow::showFunctionDialog(int curveKey)
 {
-	if ( !activeGraph )
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
-	showFunctionDialog(activeGraph, activeGraph->curveIndex(curveKey));
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	showFunctionDialog(g, g->curveIndex(curveKey));
 }
 
 void ApplicationWindow::showFunctionDialog(Graph *g, int curve)
@@ -9066,7 +9066,6 @@ void ApplicationWindow::addFunctionCurve()
 	Graph* g = ((MultiLayer*)w)->activeGraph();
 	if ( g )
 	{
-		activeGraph=g;
 		FunctionDialog* fd = functionDialog();
 		if (fd)
 			fd->setGraph(g);
@@ -10179,7 +10178,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.aCol=curve[13].toInt();
 			cl.aStyle=curve[14].toInt();
 			// remark by thzs: according to the code of v0.8.9 the
-			// condition in the next line should be "> 77" 
+			// condition in the next line should be "> 77"
 			// but it does not work with the v0.7.8 files I got from Ion
 			if ((d_file_version > 78) && (curve[3].toInt() <= Graph::LineSymbols || curve[3].toInt() == Graph::Box))
 				cl.penWidth = curve[15].toInt();
@@ -10265,7 +10264,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			cl.aStyle=curve[16].toInt();
 			int current_index = 17;
 			// remark by thzs: according to the code of v0.8.9 the
-			// condition in the next line should be "> 77" 
+			// condition in the next line should be "> 77"
 			// but it does not work with the v0.7.8 files I got from Ion
 			if ((d_file_version > 78) && (curve[5].toInt() <= Graph::LineSymbols || curve[5].toInt() == Graph::Box))
 				{
@@ -10300,7 +10299,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				ag->addErrorBars(w,curve[2],curve[3],errTable, curve[4], curve[1].toInt(),
 						curve[5].toInt(),curve[6].toInt(), QColor(curve[7]),
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt(), xOffset, yOffset);
-					
+
 				if (d_file_version > 89)
 				{
 					QwtPlotCurve *c = ag->curve(curveID);
@@ -10648,28 +10647,33 @@ void ApplicationWindow::copyActiveLayer()
 
 void ApplicationWindow::showDataSetDialog(const QString& whichFit)
 {
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph *g = ((MultiLayer *)ws->activeWindow())->activeGraph();
+	if (!g)
+        return;
+
 	DataSetDialog *ad = new DataSetDialog(tr("Curve") + ": ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
-	ad->setCurveNames(activeGraph->analysableCurvesList());
+	ad->setGraph(g);
 	ad->setOperationType(whichFit);
-
-	connect (ad,SIGNAL(analyze(const QString&, const QString&)),this,SLOT(analyzeCurve(const QString&, const QString& )));
 	ad->exec();
 }
 
-void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& curveTitle)
+void ApplicationWindow::analyzeCurve(Graph *g, const QString& whichFit, const QString& curveTitle)
 {
 	if(whichFit=="fitLinear" || whichFit=="fitSigmoidal" || whichFit=="fitGauss" || whichFit=="fitLorentz")
 	{
 		Fit *fitter = 0;
 		if (whichFit == "fitLinear")
-			fitter = new LinearFit (this, activeGraph);
+			fitter = new LinearFit (this, g);
 		else if (whichFit == "fitSigmoidal")
-			fitter = new SigmoidalFit (this, activeGraph);
+			fitter = new SigmoidalFit (this, g);
 		else if(whichFit == "fitGauss")
-			fitter = new GaussFit(this, activeGraph);
+			fitter = new GaussFit(this, g);
 		else if(whichFit == "fitLorentz")
-			fitter = new LorentzFit(this, activeGraph);
+			fitter = new LorentzFit(this, g);
 
 		if (fitter->setDataFromCurve(curveTitle))
 		{
@@ -10683,7 +10687,7 @@ void ApplicationWindow::analyzeCurve(const QString& whichFit, const QString& cur
 	}
 	else if(whichFit == "differentiate")
 	{
-		Differentiation *diff = new Differentiation(this, activeGraph, curveTitle);
+		Differentiation *diff = new Differentiation(this, g, curveTitle);
 		diff->run();
 		delete diff;
 	}
@@ -10698,12 +10702,11 @@ void ApplicationWindow::analysis(const QString& whichFit)
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	activeGraph=g;
 	aw = (MyWidget *)ws->activeWindow();
 
 	if (g->selectorsEnabled()) // a curve is selected
 	{
-		analyzeCurve(whichFit, g->selectedCurveTitle());
+		analyzeCurve(g, whichFit, g->selectedCurveTitle());
 		return;
 	}
 
@@ -10712,7 +10715,7 @@ void ApplicationWindow::analysis(const QString& whichFit)
 	{
 		const QwtPlotCurve *c = g->curve(0);
 		if (c)
-			analyzeCurve(whichFit, lst[0]);
+			analyzeCurve(g, whichFit, lst[0]);
 	}
 	else
 		showDataSetDialog(whichFit);
@@ -10721,7 +10724,6 @@ void ApplicationWindow::analysis(const QString& whichFit)
 void ApplicationWindow::pickPointerCursor()
 {
 	btnPointer->setChecked(true);
-	activeGraph = 0;
 }
 
 void ApplicationWindow::disableTools()
@@ -12211,7 +12213,6 @@ void ApplicationWindow::translateCurveHor()
 	}
 	else if (g->validCurvesDataSize())
 	{
-		activeGraph=g;
 		btnPointer->setChecked(true);
 		g->translateCurve(0);
 		info->setText(tr("Double-click on plot to select a data point!"));
@@ -12249,7 +12250,6 @@ void ApplicationWindow::translateCurveVert()
 	}
 	else if (g->validCurvesDataSize())
 	{
-		activeGraph=g;
 		btnPointer->setChecked(true);
 		g->translateCurve(1);
 		info->setText(tr("Double-click on plot to select a data point!"));
@@ -12367,7 +12367,6 @@ void ApplicationWindow::fitMultiPeak(int profile)
 	}
 	else
 	{
-		activeGraph=g;
 		bool ok;
 		int peaks = QInputDialog::getInteger(tr("QtiPlot - Enter the number of peaks"),
 				tr("Peaks"), 2, 2, 1000000, 1, &ok, this);

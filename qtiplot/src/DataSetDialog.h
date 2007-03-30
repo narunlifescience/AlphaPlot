@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Multi purpose dialog for choosing a data set
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -36,7 +36,9 @@ class QPushButton;
 class QCheckBox;
 class QLineEdit;
 class QComboBox;
-	
+
+class Graph;
+
 //! Multi purpose dialog for choosing a data set
 class DataSetDialog : public QDialog
 {
@@ -57,14 +59,15 @@ public slots:
 	void setCurveNames(const QStringList& names);
 	void setOperationType(const QString& s){operation=s;};
 	void setCurentDataSet(const QString& s);
+	void setGraph(Graph *g);
 
 signals:
 	void options(const QString&);
-	void analyze(const QString&, const QString&);
 
 private:
 	QString operation;
 	QString windowTitle;
+	Graph *d_graph;
 };
 
 #endif
