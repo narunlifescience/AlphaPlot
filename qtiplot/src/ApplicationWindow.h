@@ -692,7 +692,7 @@ public slots:
 	void chooseHelpFolder();
 	void showPlotWizard();
 	void showFitPolynomDialog();
-	void showIntDialog();
+	void showIntegrationDialog();
 	void showInterpolationDialog();
 	void showExpGrowthDialog();
 	void showExpDecayDialog();

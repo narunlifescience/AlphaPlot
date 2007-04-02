@@ -31,6 +31,7 @@
 #include "Graph.h"
 #include "ApplicationWindow.h"
 #include "Integration.h"
+#include "FunctionCurve.h"
 #include "Differentiation.h"
 
 #include <QGroupBox>
@@ -105,7 +106,7 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 void IntDialog::accept()
 {
 QString curve = boxName->currentText();
-QStringList curvesList = graph->curvesList();
+QStringList curvesList = graph->analysableCurvesList();
 if (curvesList.contains(curve) <= 0)
 	{
 	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") +" - "+ tr("Warning"),
@@ -117,7 +118,7 @@ if (curvesList.contains(curve) <= 0)
 
 int index = boxName->currentItem();
 QwtPlotCurve *c = graph->curve(index);
-if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve || c->dataSize()<2)
+if (!c || (c->rtti() != QwtPlotItem::Rtti_PlotCurve && c->rtti() != FunctionCurve::RTTI) || c->dataSize()<2)
 	{
 	QString s = tr("You cannot integrate curve:");
 	s += "<p><b>'"+boxName->currentText()+"'</b><p>";
@@ -142,11 +143,12 @@ catch(mu::ParserError &e)
 	return;
 	}	
 
-double start,stop;    
+double start = 0, stop = 0;    
 double minx = c->minXValue();
 double maxx = c->maxXValue();
+	
 // Check the Xmin 
-QString from=boxStart->text().lower();
+QString from = boxStart->text().lower();
 if(from=="min")
 	{
 	boxStart->setText(QString::number(minx));
@@ -209,16 +211,19 @@ else
 		{
 		MyParser parser;
 		parser.SetExpr((boxEnd->text()).ascii());
-		stop=parser.Eval();	
-		if(stop>maxx)
+		stop = parser.Eval();							
+		if(stop > maxx)
 			{
-			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
+			//FIXME: I don't understand why this doesn't work for FunctionCurves!!(Ion)
+			/*QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number smaller or equal to the maximum value of X, for the upper limit.\n If you do not know that value, type max in the box."));
 			boxEnd->clear();
 			boxEnd->setFocus();
 			return;
+			*/
+			boxEnd->setText(QString::number(maxx));
 			}
-		if(stop<minx)
+		if(stop < minx)
 			{
 			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
 				tr("Please give a number larger or equal to the minimum value of X, for the upper limit.\n If you do not know that value, type min in the box."));
@@ -248,7 +253,7 @@ delete i;
 void IntDialog::setGraph(Graph *g)
 {
 graph = g;
-boxName->insertStringList (g->curvesList(),-1);
+boxName->insertStringList (g->analysableCurvesList());
 int index = 0;
 if (graph->selectorsEnabled())
 	index = graph->curveIndex(graph->selectedCurveID());
@@ -283,7 +288,7 @@ else
 void IntDialog::changeCurve(int index)
 {
 QwtPlotCurve *c = graph->curve(index);
-while(c && c->rtti() == QwtPlotItem::Rtti_PlotCurve && c->dataSize()<2)
+while(c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI) && c->dataSize()<2)
 	{
 	index++;
 	c = graph->curve(index);

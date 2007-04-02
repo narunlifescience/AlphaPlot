@@ -1878,7 +1878,8 @@ QStringList Graph::analysableCurvesList()
 	for (int i=0; i<(int)keys.count(); i++)
 	{
 		QwtPlotItem *c = d_plot->curve(keys[i]);
-  	    if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve && c_type[i] != ErrorBars)
+  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || 
+			c->rtti() == FunctionCurve::RTTI) && c_type[i] != ErrorBars)
   	        cList << c->title().text();
   	 }
 return cList;
@@ -1891,7 +1892,7 @@ QStringList Graph::curvesList()
 	for (int i=0; i<(int)keys.count(); i++)
 	{
 		QwtPlotItem *c = d_plot->curve(keys[i]);
-  	    if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
+  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI))
   	        cList << c->title().text();
   	 }
 return cList;
@@ -7211,7 +7212,8 @@ bool Graph::validCurvesDataSize()
 		for (int i=0; i < n_curves; i++)
 		{
 			 QwtPlotCurve *c = curve(i);
-  	         if(c && c->rtti() == QwtPlotItem::Rtti_PlotCurve && c->dataSize() > 2)
+  	         if(c && c->dataSize() > 2 && 
+			 (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI))
   	         	return true;
   	    }
 		QMessageBox::warning(this, tr("QtiPlot - Error"),

@@ -6904,7 +6904,7 @@ void ApplicationWindow::updateLog(const QString& result)
 	}
 }
 
-void ApplicationWindow::showIntDialog()
+void ApplicationWindow::showIntegrationDialog()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
@@ -11139,7 +11139,7 @@ void ApplicationWindow::createActions()
 	connect(actionShowRowStatistics, SIGNAL(activated()), this, SLOT(showRowStatistics()));
 
 	actionShowIntDialog = new QAction(tr("&Integrate ..."), this);
-	connect(actionShowIntDialog, SIGNAL(activated()), this, SLOT(showIntDialog()));
+	connect(actionShowIntDialog, SIGNAL(activated()), this, SLOT(showIntegrationDialog()));
 
 	actionInterpolate = new QAction(tr("Inte&rpolate ..."), this);
 	connect(actionInterpolate, SIGNAL(activated()), this, SLOT(showInterpolationDialog()));
