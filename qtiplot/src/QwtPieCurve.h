@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Pie plot class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,24 +35,24 @@ class QwtPieCurve: public QwtPlotCurve
 public:
 	QwtPieCurve(const char *name=0);
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, int from, int to) const;
 
-	virtual void drawPie(QPainter *painter, const QwtScaleMap &xMap, 
+	virtual void drawPie(QPainter *painter, const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, int from, int to) const;
 
 public slots:
 	QColor color(int i) const;
 
-	int ray(){return pieRay;};
-	void setRay(int size){pieRay=size;};
+	int ray(){return d_pie_ray;};
+	void setRay(int size){d_pie_ray = size;};
 
 	Qt::BrushStyle pattern(){return QwtPlotCurve::brush().style();};
 	void setBrushStyle(const Qt::BrushStyle& style);
 
-	void setFirstColor(int index){firstColor=index;};
-	int first(){return firstColor;};
-	
+	void setFirstColor(int index){d_first_color = index;};
+	int first(){return d_first_color;};
+
 private:
-	int pieRay,firstColor;
+	int d_pie_ray, d_first_color;
 };

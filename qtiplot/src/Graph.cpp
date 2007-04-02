@@ -134,6 +134,7 @@ static const char *unzoom_xpm[]={
 #include <QPainter>
 #include <QMenu>
 #include <QTextStream>
+#include <QTimer>
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -1937,14 +1938,9 @@ void Graph::exportLayer(const QString& fileName)
         return;
 	}
 
-	if (fileName.contains(".eps"))
+	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps"))
 	{
-		exportVector(fileName, "eps");
-		return;
-	}
-	else if (fileName.contains(".pdf"))
-	{
-		exportVector(fileName, "pdf");
+		exportVector(fileName);
 		return;
 	}
 	else
@@ -1958,12 +1954,11 @@ void Graph::exportLayer(const QString& fileName)
 				return;
 			}
 		}
-    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Unknown file format, operation aborted!"));
+    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
 	}
 }
 
-void Graph::exportImage(const QString& fileName, const QString& fileType,
-		int quality, bool transparent)
+void Graph::exportImage(const QString& fileName, const QString& fileType, int quality, bool transparent)
 {
 	QPixmap pic=graphPixmap();
 
@@ -1996,35 +1991,17 @@ void Graph::exportImage(const QString& fileName, const QString& fileType,
 	pic.save(fileName, fileType, quality);
 }
 
-void Graph::exportPDF(const QString& fileName, int res, QPrinter::Orientation o,
-		QPrinter::PageSize size, QPrinter::ColorMode col)
-{
-	exportVector(fileName, "pdf", res, o, size, col);
-}
-
-void Graph::exportEPS(const QString& fileName, int res, QPrinter::Orientation o,
-		QPrinter::PageSize size, QPrinter::ColorMode col)
-{
-	exportVector(fileName, "eps", res, o, size, col);
-}
-
-void Graph::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o,
-		QPrinter::PageSize size, QPrinter::ColorMode col)
+void Graph::exportVector(const QString& fileName, int res, QPrinter::Orientation o,
+                         QPrinter::PageSize size, QPrinter::ColorMode col)
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"),
-		tr("Please provide a valid file name!"));
+		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
 	QPrinter printer;
     printer.setCreator("QtiPlot");
-
-	if (fileType == "eps")
-    	printer.setOutputFormat(QPrinter::PostScriptFormat);
-	else if (fileType == "pdf")
-    	printer.setOutputFormat(QPrinter::PdfFormat);
 
 	// export should preserve plot aspect ratio, if possible
 	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
@@ -2041,21 +2018,25 @@ void Graph::exportVector(const QString& fileName, const QString& fileType, int r
 			printer.setOrientation(QPrinter::Landscape);
 	}
 
-	printer.setPageSize (size);
-	printer.setColorMode (col);
+	printer.setPageSize(size);
+	printer.setColorMode(col);
 	printer.setFullPage(true);
-	printer.setOutputFileName(fileName);
+    printer.setOutputFileName(fileName);
+
+    if (fileName.contains(".eps"))
+    	printer.setOutputFormat(QPrinter::PostScriptFormat);
 
 	int dpiy = printer.logicalDpiY();
-	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
+	int margin = (int) ((0.5/2.54)*dpiy ); // 5 mm margins
 	int width = int(aspect*printer.height());
-	int x=qRound(abs(printer.width()-width)*0.5);
+	int x = qRound(abs(printer.width()-width)*0.5);
 	QRect rect(x, margin, width, printer.height() - 2*margin);
 	if (width > printer.width())
 	{
 		rect.setLeft(margin);
 		rect.setWidth(printer.width() - 2*margin);
 	}
+
 	QPainter paint(&printer);
 	d_plot->print(&paint, rect);
 }
@@ -3937,6 +3918,7 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 
 	mrk->setAngle(fList[11].toInt());
 
+    QString text = QString();
 	if (fileVersion < 71)
 	{
 		int bkg=fList[10].toInt();
@@ -3953,11 +3935,9 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 			mrk->setBackgroundColor(QColor(Qt::black));
 		}
 
-		QString text;
-		int n=(int)fList.count();
+		int n =(int)fList.count();
 		for (int i=0;i<n-12;i++)
-			text+=fList[12+i]+"\n";
-		mrk->setText(text);
+			text += fList[12+i]+"\n";
 	}
 	else if (fileVersion < 90)
 	{
@@ -3965,11 +3945,9 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 		mrk->setFrameStyle(fList[10].toInt());
 		mrk->setBackgroundColor(QColor(fList[12]));
 
-		QString text;
 		int n=(int)fList.count();
 		for (int i=0;i<n-13;i++)
-			text+=fList[13+i]+"\n";
-		mrk->setText(text);
+			text += fList[13+i]+"\n";
 	}
 	else
 	{
@@ -3979,12 +3957,11 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 		c.setAlpha(fList[13].toInt());
 		mrk->setBackgroundColor(c);
 
-		QString text;
-		int n=(int)fList.count();
-		for (int i=0;i<n-14;i++)
-			text+=fList[14+i]+"\n";
-		mrk->setText(text);
+		int n = (int)fList.count();
+		for (int i=0; i<n-14; i++)
+			text += fList[14+i]+"\n";
 	}
+    mrk->setText(text.trimmed());
 	return key;
 }
 
@@ -4217,12 +4194,14 @@ CurveLayout Graph::initCurveLayout()
 	return cl;
 }
 
-CurveLayout Graph::initCurveLayout(int i, int curves, int style)
+CurveLayout Graph::initCurveLayout(int style, int curves)
 {
+    int i = n_curves - 1;
+
 	CurveLayout cl = initCurveLayout();
 	int color;
 	guessUniqueCurveLayout(color, cl.sType);
-	
+
   	cl.lCol = color;
   	cl.symCol = color;
   	cl.fillCol = color;
@@ -4238,7 +4217,7 @@ CurveLayout Graph::initCurveLayout(int i, int curves, int style)
 	}
 	else if (style == Graph::Spline)
 		cl.connectType=5;
-	else if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
+	else if (curves && (style == Graph::VerticalBars || style == Graph::HorizontalBars))
 	{
 		cl.filledArea=1;
 		cl.lCol=0;//black color pen
@@ -4287,7 +4266,7 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(ColorBox::color(cL->fillCol)), pen, QSize(cL->sSize,cL->sSize)));
 	else
 		c->setSymbol(QwtSymbol(SymbolBox::style(cL->sType), QBrush(), pen, QSize(cL->sSize,cL->sSize)));
-	
+
 	c->setPen(QPen(ColorBox::color(cL->lCol), cL->lWidth, getPenStyle(cL->lStyle)));
 
 	int style = c_type[index];
@@ -4374,7 +4353,7 @@ bool Graph::addErrorBars(Table *w, const QString& yColName,
 }
 
 bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColName,
-		Table *errTable, const QString& errColName, int type, int width, int cap, 
+		Table *errTable, const QString& errColName, int type, int width, int cap,
 		const QColor& color, bool through, bool minus, bool plus)
 {
 	int xcol=w->colIndex(xColName);
@@ -4399,7 +4378,7 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 			if (xColType == Table::Text)
 			{
 				xLabels << xval;
-				X[data_size]=(double) (data_size + 1);
+				X[data_size] = (double)(data_size + 1);
 			}
 			else
 				X[data_size]=xval.toDouble();
@@ -4407,7 +4386,7 @@ bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColN
 			if (yColType == Table::Text)
 			{
 				yLabels << yval;
-				Y[data_size]=(double) (data_size + 1);
+				Y[data_size] = (double)(data_size + 1);
 			}
 			else
 				Y[data_size]=yval.toDouble();
@@ -4672,7 +4651,7 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 	else
 	{
 		int curves = (int)names.count();
-		int errCurves = 0;
+        int errCurves = 0;
 		QStringList lst = QStringList();
         for (int i=0; i<curves; i++)
         {//We rearrange the list so that the error bars are placed at the end
@@ -4685,41 +4664,35 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
 			else
 				lst.prepend(names[i]);
         }
-		
-		for (int i=0; i<curves; i++)
-		{
-			if (insertCurve(w, names[i], style))
-			{
-				CurveLayout cl = initCurveLayout(i, curves - errCurves, style);
-				cl.sSize = sSize;
-				cl.lWidth = lWidth;
-				updateCurveLayout(i, &cl);
-			}
-			else
-				return false;
-		}
-		
-		/*int curves = (int)names.count();
-		int errCurves = 0;
-		for (int j=0; j<curves; j++)
-  	    {
-  	    	int k = w->colIndex(names[j]);
-  	        if (w->colPlotDesignation(k) == Table::xErr || w->colPlotDesignation(k) == Table::yErr)
-  	        	errCurves++;
-  	    }
 
 		for (int i=0; i<curves; i++)
 		{
-			if (insertCurve(w, names[i], style))
+            int j = w->colIndex(names[i]);
+            bool ok = false;
+            if (w->colPlotDesignation(j) == Table::xErr || w->colPlotDesignation(j) == Table::yErr)
 			{
-				CurveLayout cl = initCurveLayout(i, curves - errCurves, style);
+				int ycol = w->colY(w->colIndex(names[i]));
+                if (ycol < 0)
+                    return false;
+
+                if (w->colPlotDesignation(j) == Table::xErr)
+                    ok = addErrorBars(w, w->colName(ycol), w, names[i], (int)QwtErrorPlotCurve::Horizontal);
+                else
+                    ok = addErrorBars(w, w->colName(ycol), w, names[i]);
+			}
+			else
+                ok = insertCurve(w, names[i], style);
+
+            if (ok)
+			{
+				CurveLayout cl = initCurveLayout(style, curves - errCurves);
 				cl.sSize = sSize;
 				cl.lWidth = lWidth;
 				updateCurveLayout(i, &cl);
 			}
 			else
-				return false;
-		}*/
+                return false;
+		}
 	}
 	updatePlot();
 	return true;
@@ -4747,16 +4720,6 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	int ycol=w->colIndex(yColName);
 	if (xcol < 0 || ycol < 0)
 		return false;
-
-	int colPlotDesignation = w->colPlotDesignation(ycol);
-	if (colPlotDesignation == Table::xErr || colPlotDesignation == Table::yErr)
-	{//add error bars
-		ycol = w->colY(ycol);
-		if (colPlotDesignation == Table::xErr)
-			return addErrorBars(w, xColName, w->colName(ycol), w, yColName, (int)QwtErrorPlotCurve::Horizontal);
-		else
-			return addErrorBars(w, xColName, w->colName(ycol), w, yColName);
-	}
 
 	int xColType = w->columnType(xcol);
 	int yColType = w->columnType(ycol);
@@ -5301,7 +5264,7 @@ void Graph::addLegendItem(const QString& colName)
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
 		if (mrk)
 		{
-			QString text=mrk->text();
+			QString text = mrk->text();
 			if (text.endsWith ( "\n", true ) )
 				text.append("\\c{"+QString::number(curves())+"}"+colName+"\n");
 			else
@@ -6772,7 +6735,7 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 {
 	colorIndex = 0;
 	symbolIndex = 0;
-	
+
 	int curve_index = n_curves - 1;
 	if (curve_index >= 0 && c_type[curve_index] == ErrorBars)
 	{// find out the pen color of the master curve
@@ -6790,7 +6753,7 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 			}
 		}
 	}
-	
+
 	for (int i=0; i<n_curves; i++)
 	{
 		const QwtPlotCurve *c = curve(i);

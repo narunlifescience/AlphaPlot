@@ -8,7 +8,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : MDI window widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -53,8 +53,8 @@ class MyWidget: public QWidget
 {
 	Q_OBJECT
 
-public:	
-	
+public:
+
 	//! Constructor
 	/**
 	 * \param label window label
@@ -103,20 +103,16 @@ public:
 	//! Set the window status flag (hidden, normal, minimized or maximized)
 	void setStatus(Status s){w_status = s;};
 
-	// TODO:
-	//! Not implemented yet
 	virtual QString saveAsTemplate(const QString& ){return QString();};
 	// TODO:
 	//! Not implemented yet
 	virtual void restore(const QStringList& ){};
 
-	// TODO:
-	//! Not implemented, yet
 	virtual void print(){};
-	// TODO:
-	//! Not implemented, yet
+	virtual void exportPDF(const QString& fileName){};
+
 	virtual QString saveToString(const QString &){return QString();};
-	
+
 	// TODO: make this return something useful
 	//! Size of the widget as a string
 	virtual QString sizeToString();
@@ -128,9 +124,9 @@ public:
 	void setHidden();
 
 	//event handlers
-	//! Close event handler 
+	//! Close event handler
 	/**
-	 * Ask the user "delete, hide, or cancel?" if the 
+	 * Ask the user "delete, hide, or cancel?" if the
 	 * "ask on close" flag is set.
 	 */
 	void closeEvent( QCloseEvent *);
@@ -151,21 +147,21 @@ public:
 
 	//! Initializes the pointer to the parent folder of the window
 	void setFolder(Folder* f){parentFolder = f;};
-	
+
 	//! Returns the size of the widget in the Qt::WindowMaximized state.
 	/**
 	 * When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
 	 * Qt posts a resize event with invalid oldSize (width = height = -1).
-	 * This is why we must keep track of the size of the window in the 
+	 * This is why we must keep track of the size of the window in the
 	 * Qt::WindowMaximized state and use it as the real oldSize when processing
-	 * the resize event for the MultiLayer windows.		
+	 * the resize event for the MultiLayer windows.
 	 */
 	QSize maximizedSize(){return d_max_size;};
-	
+
 	//! Notifies the main application that the window has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
 
-signals:  
+signals:
 	//! Emitted when the window was closed
 	void closedWindow(MyWidget *);
 	//! Emitted when the window was hidden

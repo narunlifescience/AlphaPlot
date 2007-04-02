@@ -8,7 +8,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Matrix worksheet class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -51,7 +51,7 @@ class Matrix: public MyWidget, public scripted
 
 public:
 
-	/*! 
+	/*!
 	 * \brief Constructor
 	 *
 	 * \param env scripting interpreter
@@ -59,18 +59,18 @@ public:
 	 * \param c initial number of columns
 	 * \param label window label
 	 * \param parent parent object
-	 * \param name 
+	 * \param name
 	 * \param name window name
 	 * \param f window flags
 	 */
 	Matrix(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Matrix(){};
-	
+
 	//! Return the number of rows
 	int numRows();
 	//! Return the number of columns
 	int numCols();
-	
+
 	//! Returns whether the row is empty or not
 	bool isEmptyRow(int row);
 
@@ -91,9 +91,11 @@ public:
 	void customEvent(QEvent *e);
 
 public slots:
-
+	void exportPDF(const QString& fileName);
 	//! Print the Matrix
 	void print();
+	//! Print the Matrix to fileName
+	void print(const QString& fileName);
 	//! Called if any cell value was changed
 	void cellEdited(int,int);
 
@@ -136,10 +138,10 @@ public slots:
 	 * \sa setNumericFormat(), setTextFormat()
 	 */
 	int precision(){return num_precision;};
-	/*! 
+	/*!
 	 * \brief Set the number format for the cells
 	 *
-	 * This method should only be called before any user 
+	 * This method should only be called before any user
 	 * interaction was done. Use setTextFormat() if you
 	 * want to change it from a dialog.
 	 * \sa setTextFormat()
@@ -149,10 +151,10 @@ public slots:
 	  \brief Set the number format for the cells
 
 	  You must call saveCellsToMemory() before and
-	  forgetSavedCells() after calling this!	
+	  forgetSavedCells() after calling this!
 	  Format character and precision have the same meaning as for
 	  sprintf().
-	  \param f format character 'e', 'f', 'g' 
+	  \param f format character 'e', 'f', 'g'
 	  \param prec
 	  - for 'e', 'f': the number of digits after the radix character (point)
 	  - for 'g': the maximum number of significant digits
@@ -176,7 +178,7 @@ public slots:
 	//! Return a string conaining the data of the matrix (\<data\> section)
 	QString saveText();
 
-	// selection operations 
+	// selection operations
 	//! Standard cut operation
 	void cutSelection();
 	//! Standard copy operation
@@ -186,7 +188,7 @@ public slots:
 	//! Standard paste operation
 	void pasteSelection();
 
-	//! Insert a row before the current cell 
+	//! Insert a row before the current cell
 	void insertRow();
 	//! Return whether any rows are fully selected
 	bool rowsSelected();
@@ -225,13 +227,13 @@ public slots:
 
 	//! Return the X value corresponding to column 1
 	double xStart(){return x_start;};
-	//! Return the X value corresponding to the last column 
+	//! Return the X value corresponding to the last column
 	double xEnd(){return x_end;};
 	//! Return the Y value corresponding to row 1
 	double yStart(){return y_start;};
 	//! Return the Y value corresponding to the last row
 	double yEnd(){return y_end;};
-	
+
 	//! Returns the bounding rect of the matrix coordinates
   	QwtDoubleRect boundingRect(){return QwtDoubleRect(x_start, y_start, x_end-x_start, y_end-y_start).normalized();};
 	//! Set the X and Y coordinate intervals
@@ -269,10 +271,10 @@ private:
 	//! Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
 	double **dMatrix;
 	double x_start, //!< X value corresponding to column 1
-	x_end,  //!< X value corresponding to the last column 
+	x_end,  //!< X value corresponding to the last column
 	y_start,  //!< Y value corresponding to row 1
 	y_end;  //!< Y value corresponding to the last row
-	/*! 
+	/*!
 	 * \brief Toggle between allow/suppress the emission of modification signals
 	 *
 	 * Set this to false during long operations to
@@ -282,5 +284,5 @@ private:
 	 */
 	bool allow_modification_signals;
 };
-   
+
 #endif

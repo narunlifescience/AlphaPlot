@@ -629,14 +629,9 @@ void MultiLayer::exportGraph(const QString& fileName)
         return;
 	}
 
-	if (fileName.contains(".eps"))
+	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps"))
 	{
-		exportVector(fileName, "eps");
-		return;
-	}
-	else if (fileName.contains(".pdf"))
-	{
-		exportVector(fileName, "pdf");
+		exportVector(fileName);
 		return;
 	}
 	else
@@ -650,7 +645,7 @@ void MultiLayer::exportGraph(const QString& fileName)
 				return;
 			}
 		}
-    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Unknown file format, operation aborted!"));
+    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
 	}
 }
 
@@ -685,19 +680,12 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 	pic.save(fileName, fileType, quality);
 }
 
-void MultiLayer::exportPDF(const QString& fname, int res, QPrinter::Orientation o,
-		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
+void MultiLayer::exportPDF(const QString& fname)
 {
-	exportVector(fname, "pdf", res, o, pageSize, col);
+	exportVector(fname);
 }
 
-void MultiLayer::exportEPS(const QString& fname, int res, QPrinter::Orientation o,
-		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
-{
-	exportVector(fname, "eps", res, o, pageSize, col);
-}
-
-void MultiLayer::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o,
+void MultiLayer::exportVector(const QString& fileName, int res, QPrinter::Orientation o,
 		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
 {
 	if ( fileName.isEmpty() )
@@ -717,11 +705,8 @@ void MultiLayer::exportVector(const QString& fileName, const QString& fileType, 
 	printer.setColorMode(col);
 	printer.setFullPage(true);
 	printer.setOutputFileName(fileName);
-
-	if (fileType == "eps")
+    if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
-	else if (fileType == "pdf")
-    	printer.setOutputFormat(QPrinter::PdfFormat);
 
 	QPainter paint(&printer);
 

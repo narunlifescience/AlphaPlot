@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Surface plot options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -47,7 +47,7 @@
 #include <QFontDialog>
 #include <QColorDialog>
 
-#include <qwt3d_color.h> 
+#include <qwt3d_color.h>
 
 Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -82,9 +82,8 @@ Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	QVBoxLayout* vl = new QVBoxLayout(this);
 	vl->addWidget(generalDialog);
 	vl->addLayout(hbox);
- 
+
     resize(minimumSize());
-    setMaximumHeight(height());
 
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
@@ -116,6 +115,7 @@ void Plot3DDialog::initScalesPage()
 	boxType->addItem(tr("logarithmic"));
 	boxType->setMaximumWidth(150);
     gl1->addWidget(boxType, 2, 1);
+    gl1->setRowStretch(3, 1);
 
     QGroupBox *gb1 = new QGroupBox();
     gb1->setLayout(gl1);
@@ -127,6 +127,7 @@ void Plot3DDialog::initScalesPage()
     gl2->addWidget(new QLabel(tr("Minor Ticks")), 1, 0);
 	boxMinors = new QSpinBox();
     gl2->addWidget(boxMinors, 1, 1);
+    gl2->setRowStretch(2, 1);
 
     TicksGroupBox = new QGroupBox();
     TicksGroupBox->setLayout(gl2);
@@ -159,9 +160,9 @@ void Plot3DDialog::initAxesPage()
     QHBoxLayout* hb1 = new QHBoxLayout();
 	btnLabelFont = new QPushButton(tr( "&Choose font" ));
     hb1->addWidget(btnLabelFont);
-	buttonAxisLowerGreek = new QPushButton(QChar(0x3B1)); 
+	buttonAxisLowerGreek = new QPushButton(QChar(0x3B1));
     hb1->addWidget(buttonAxisLowerGreek);
-	buttonAxisUpperGreek = new QPushButton(QChar(0x393)); 
+	buttonAxisUpperGreek = new QPushButton(QChar(0x393));
     hb1->addWidget(buttonAxisUpperGreek);
     hb1->addStretch();
     gl1->addLayout(hb1, 1, 1);
@@ -172,6 +173,7 @@ void Plot3DDialog::initAxesPage()
     gl1->addWidget(new QLabel(tr("Minor Ticks Length")), 3, 0);
 	boxMinorLength = new QLineEdit();
     gl1->addWidget(boxMinorLength, 3, 1);
+    gl1->setRowStretch(4, 1);
 
     QGroupBox *gb1 = new QGroupBox();
     gb1->setLayout(gl1);
@@ -195,9 +197,9 @@ void Plot3DDialog::initTitlePage()
 {
     QHBoxLayout* hb1 = new QHBoxLayout();
     hb1->addStretch();
-	buttonLowerGreek = new QPushButton(QChar(0x3B1)); 
+	buttonLowerGreek = new QPushButton(QChar(0x3B1));
     hb1->addWidget(buttonLowerGreek);
-	buttonUpperGreek = new QPushButton(QChar(0x393)); 
+	buttonUpperGreek = new QPushButton(QChar(0x393));
     hb1->addWidget(buttonUpperGreek);
 	btnTitleColor = new QPushButton(tr( "&Color" ));
     hb1->addWidget(btnTitleColor);
@@ -230,6 +232,7 @@ void Plot3DDialog::initColorsPage()
     vl1->addWidget(btnToColor);
 	btnColorMap = new QPushButton(tr( "Color Ma&p" ));
     vl1->addWidget(btnColorMap);
+    vl1->addStretch();
 
     QGroupBox *gb1 = new QGroupBox(tr( "Data" ));
     gb1->setLayout(vl1);
@@ -239,6 +242,7 @@ void Plot3DDialog::initColorsPage()
     vl2->addWidget(btnMesh);
 	btnBackground = new QPushButton(tr( "&Background" ));
     vl2->addWidget(btnBackground);
+    vl2->addStretch();
 
     QGroupBox *gb2 = new QGroupBox(tr( "General" ));
     gb2->setLayout(vl2);
@@ -252,6 +256,7 @@ void Plot3DDialog::initColorsPage()
     gl1->addWidget(btnNumbers, 1, 0);
 	btnGrid = new QPushButton(tr( "&Grid" ));
     gl1->addWidget(btnGrid, 1, 1);
+    gl1->setRowStretch(2, 1);
 
     AxesColorGroupBox = new QGroupBox(tr( "Coordinate System" ));
     AxesColorGroupBox->setLayout(gl1);
@@ -317,6 +322,7 @@ void Plot3DDialog::initGeneralPage()
     boxDistance->setRange(0, 1000);
     boxDistance->setSingleStep(5);
     gl1->addWidget(boxDistance, 4, 1);
+    gl1->setRowStretch(5, 1);
 
     QGroupBox *gb1 = new QGroupBox();
     gb1->setLayout(gl1);
@@ -345,6 +351,7 @@ void Plot3DDialog::initGeneralPage()
     boxZScale->setRange(1, 10000);
     boxZScale->setSingleStep(10);
     gl2->addWidget(boxZScale, 3, 1);
+    gl2->setRowStretch(4, 1);
 
     QGroupBox *gb2 = new QGroupBox();
     gb2->setLayout(gl2);
@@ -557,7 +564,7 @@ QString fn = QFileDialog::getOpenFileName(d_plot->colorMap(), tr("Colormap files
 if (!fn.isEmpty())
    emit setDataColorMap(fn);
 }
-  	
+
 QColor Plot3DDialog::pickFromColor()
 {
 	QColor c = QColorDialog::getColor(fromColor, this );
@@ -717,7 +724,7 @@ QColor Plot3DDialog::pickMeshColor()
 	if ( !c.isValid() )
 		return meshColor;
 
-	meshColor=c;	
+	meshColor=c;
 	return meshColor;
 }
 
@@ -773,12 +780,12 @@ bool Plot3DDialog::updatePlot()
 	int axis=-1;
 
 	if (generalDialog->currentPage()==(QWidget*)bars)
-	{	
+	{
 		emit updateBars(boxBarsRad->text().toDouble());
 	}
 
 	if (generalDialog->currentPage()==(QWidget*)points)
-	{	
+	{
 		if (boxPointStyle->currentItem() == 0)
 			emit updatePoints(boxSize->text().toDouble(), boxSmooth->isChecked());
 		else if (boxPointStyle->currentItem() == 1)
@@ -789,7 +796,7 @@ bool Plot3DDialog::updatePlot()
 	}
 
 	if (generalDialog->currentPage()==(QWidget*)title)
-	{	
+	{
 		emit updateTitle(boxTitle->text(),titleColor,titleFont);
 	}
 
@@ -819,7 +826,7 @@ bool Plot3DDialog::updatePlot()
 		QString from=boxFrom->text().lower();
 		QString to=boxTo->text().lower();
 		double start,end;
-		bool error=false;	
+		bool error=false;
 		try
 		{
 			MyParser parser;
@@ -832,7 +839,7 @@ bool Plot3DDialog::updatePlot()
 			boxFrom->setFocus();
 			error=true;
 			return false;
-		}	
+		}
 		try
 		{
 			MyParser parser;
@@ -856,7 +863,7 @@ bool Plot3DDialog::updatePlot()
 		}
 
 		if (! error)
-			emit updateScale(axis,scaleOptions(axis, start, end, 
+			emit updateScale(axis,scaleOptions(axis, start, end,
 						boxMajors->text(), boxMinors->text()));
 	}
 
@@ -872,7 +879,7 @@ bool Plot3DDialog::updatePlot()
 	return true;
 }
 
-QStringList Plot3DDialog::scaleOptions(int axis, double start, double end, 
+QStringList Plot3DDialog::scaleOptions(int axis, double start, double end,
 		const QString& majors, const QString& minors)
 {
 	QStringList l;
@@ -907,7 +914,7 @@ void Plot3DDialog::pickAxisLabelFont()
 	{
 		case 0:
 			font= QFontDialog::getFont(&ok,xAxisFont,this);
-			if ( ok ) 
+			if ( ok )
 				xAxisFont=font;
 			else
 				return;
@@ -915,7 +922,7 @@ void Plot3DDialog::pickAxisLabelFont()
 
 		case 1:
 			font= QFontDialog::getFont(&ok,yAxisFont,this);
-			if ( ok ) 
+			if ( ok )
 				yAxisFont=font;
 			else
 				return;
@@ -923,7 +930,7 @@ void Plot3DDialog::pickAxisLabelFont()
 
 		case 2:
 			font= QFontDialog::getFont(&ok,zAxisFont,this);
-			if ( ok ) 
+			if ( ok )
 				zAxisFont=font;
 			else
 				return;

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Notes window class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,7 +29,7 @@
 #ifndef NOTE_H
 #define NOTE_H
 
-#include "MyWidget.h"	
+#include "MyWidget.h"
 #include "ScriptEdit.h"
 #include <qtextedit.h>
 
@@ -49,7 +49,7 @@ public:
 	Note(ScriptingEnv *env, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Note(){};
 
-		
+
 	void init(ScriptingEnv *env);
 	void setName(const char *name);
 
@@ -66,6 +66,7 @@ public slots:
 	QString text() { return te->text(); };
 	void setText(const QString &s) { te->setText(s); };
 	void print() { te->print(); };
+	void exportPDF(const QString& fileName){te->exportPDF(fileName);};
 	QString exportASCII(const QString &file=QString::null) { return te->exportASCII(file); };
 	QString importASCII(const QString &file=QString::null) { return te->importASCII(file); };
 	void execute() { te->execute(); };
@@ -76,5 +77,5 @@ private:
 	ScriptEdit *te;
 	bool autoExec;
 };
-   
+
 #endif

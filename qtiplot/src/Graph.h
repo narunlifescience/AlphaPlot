@@ -206,13 +206,8 @@ class Graph: public QWidget
 		//! Provided for convenience in scripts
 		void exportLayer(const QString& fileName);
 		void exportSVG(const QString& fname);
-		void exportPDF(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
-						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
-		void exportEPS(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
-						QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
-		void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0,
-						  QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5,
-						  QPrinter::ColorMode col = QPrinter::Color);
+		void exportVector(const QString& fileName,int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
+                          QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
 		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 		//@}
 
@@ -249,7 +244,7 @@ class Graph: public QWidget
 
 		//! \name Curves Layout
 		//@{
-		CurveLayout initCurveLayout(int i, int curves, int style);
+		CurveLayout initCurveLayout(int style, int curves = 0);
 		static CurveLayout initCurveLayout();
 		void updateCurveLayout(int index,const CurveLayout *cL);
 		//! Tries to guess not already used curve color and symbol style

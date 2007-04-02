@@ -156,7 +156,7 @@ void NonLinearFit::init()
 	d_df = user_df;
 	d_fdf = user_fdf;
 	d_fsimplex = user_d;
-	d_explanation = tr("Non-linear Fit");
+	d_explanation = tr("Non-linear");
 }
 
 void NonLinearFit::setFormula(const QString& s)

@@ -265,15 +265,11 @@ public slots:
 						double xl, double xr, double yl, double yr, double zl, double zr);
 	Graph3D* dataPlotXYZ(const QString& caption,const QString& formula,
  						double xl, double xr, double yl, double yr, double zl, double zr);
-	/*!
-	 * used when plotting from the wizard
-	 */
-	Graph3D* dataPlotXYZ(const QString& formula);
-	Graph3D* dataPlot3D(const QString& formula);
 	//@}
 
 	//! \name Surface Plots
 	//@{
+	Graph3D* newPlot3D();
 	Graph3D* newPlot3D(const QString& formula, double xl, double xr,
 					   double yl, double yr, double zl, double zr);
 	Graph3D* newPlot3D(const QString& caption,const QString& formula,
@@ -432,12 +428,10 @@ public slots:
 	void exportGraph();
 	void exportAllGraphs();
 	void exportAllGraphs(const QString& dir, const QString& format,
-									int quality, bool transparency);
-	void export2DPlotToFile(MultiLayer *plot, const QString& fileName, const QString& format,
-										int quality, bool transparency);
-	void export3DPlotToFile(Graph3D *plot, const QString& fileName,
-										const QString& format);
-
+                        int quality, bool transparency);
+    void exportGraph(QWidget *w, const QString& fileName, const QString& format,
+                    int quality, bool transparency);
+    void exportPDF();
 	void print();
 	void print(QWidget* w);
 	void printAllPlots();
@@ -1051,7 +1045,7 @@ private:
 #endif
 
     QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
-    QAction *actionShowImportDialog;
+    QAction *actionShowImportDialog, *actionExportPDF;
     QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard, *actionShowConfigureDialog;
     QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve, *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
     QAction *actionPlotL, *actionPlotP, *actionPlotLP, *actionPlotVerticalDropLines, *actionPlotSpline;

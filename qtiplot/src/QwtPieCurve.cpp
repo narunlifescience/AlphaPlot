@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Pie plot class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,15 +30,17 @@
 #include "ColorBox.h"
 
 #include <qwt_painter.h>
+#include <QPaintDevice>
 #include <QPainter>
+#include <QMessageBox>
 
 QwtPieCurve::QwtPieCurve(const char *name):
     QwtPlotCurve(name)
 {
-pieRay=100;
-firstColor=0;
-setPen(QPen(QColor(Qt::black),1,Qt::SolidLine));
-setBrush(QBrush(Qt::black,Qt::SolidPattern));
+d_pie_ray = 100;
+d_first_color = 0;
+setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine));
+setBrush(QBrush(Qt::black, Qt::SolidPattern));
 }
 
 void QwtPieCurve::draw(QPainter *painter,
@@ -55,60 +57,48 @@ void QwtPieCurve::draw(QPainter *painter,
 
 void QwtPieCurve::drawPie(QPainter *painter,
     const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
-{   	
-	int i, d = pieRay*2;
-	QwtPlot *plot = (QwtPlot *)this->plot();
-	QRect rect = plot->rect();
-	int x_center = rect.x() + rect.width()/2;
-	int y_center = rect.y() + rect.height()/2;
+{
+    int x_center = xMap.transform((xMap.s1() + xMap.s2())/2);
+    int y_center = yMap.transform((yMap.s1() + yMap.s2())/2);
 
-// FIXME: fix the printing code
-/*
-	if (painter->device()->isExtDev()) 
-		{//draw on printer
-		QPaintDeviceMetrics pdmFrom(plot);
-		QPaintDeviceMetrics pdmTo(painter->device());
-		
-		double dx = (double)pdmTo.width()/(double)pdmFrom.width();
-		double dy = (double)pdmTo.height()/(double)pdmFrom.height();
+    QwtPlot *plot = (QwtPlot *)this->plot();
+    double dx = (double)painter->device()->width()/(double)plot->width();
+    double dy = (double)painter->device()->height()/(double)plot->height();
 
-		x_center = int(x_center*dx);
-		y_center = int(y_center*dy);
-		d = int(d*QMIN(dx, dy));
-		}
-*/
+    int d = int(2*d_pie_ray*QMIN(dx, dy));
+
 	QRect pieRect;
 	pieRect.setX(x_center - d/2);
 	pieRect.setY(y_center - d/2);
+	pieRect.setWidth(d);
 	pieRect.setHeight(d);
-	pieRect.setWidth(d);	
-				
-	double sum=0.0;
-	for (i = from; i <= to; i++)
-		{
+
+	double sum = 0.0;
+	for (int i = from; i <= to; i++)
+    {
 		const double yi = y(i);
-		sum+=yi;
-		}
-	
+		sum += yi;
+    }
+
 	int angle = (int)(5760 * 0.75);
 	painter->save();
-	for (i = from; i <= to; i++)
-		{
-		const double yi = y(i);			
+	for (int i = from; i <= to; i++)
+    {
+		const double yi = y(i);
 		const int value = (int)(yi/sum*5760);
-			
+
 		painter->setPen(QwtPlotCurve::pen());
         painter->setBrush(QBrush(color(i), QwtPlotCurve::brush().style()));
 		painter->drawPie(pieRect, -angle, -value);
 
 		angle += value;
-		}
+    }
 	painter->restore();
 }
 
 QColor QwtPieCurve::color(int i) const
 {
-int index=(firstColor+i)%16;
+int index=(d_first_color+i)%16;
 return ColorBox::color(index);
 }
 

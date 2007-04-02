@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : A wizard type dialog to create new plots
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -55,32 +55,32 @@ public:
 private:
 				//! Button "Plot"
     QPushButton* buttonOk,
-				//! Button "<->xErr" 
-				*buttonXErr, 
-				//! Button "<->yErr" 
-				*buttonYErr, 
-				//! Button "Delete curve" 
+				//! Button "<->xErr"
+				*buttonXErr,
+				//! Button "<->yErr"
+				*buttonYErr,
+				//! Button "Delete curve"
 				*buttonDelete;
-				//! Button "cancel" 
+				//! Button "cancel"
 	QPushButton* buttonCancel,
-				//! Button "<->X" 
+				//! Button "<->X"
 				*buttonX,
-				//! Button "<->Y" 
+				//! Button "<->Y"
 				*buttonY,
-				//! Button "New curve" 
+				//! Button "New curve"
 				*buttonNew,
-				//! Button "<->Z" 
+				//! Button "<->Z"
 				*buttonZ;
 				//! Button group defining the layout
-    QGroupBox*  groupBox1, 
+    QGroupBox*  groupBox1,
 				//! Button group defining the layout
-				*groupBox2, 
+				*groupBox2,
 				//! Button group defining the layout
 				*groupBox3;
 				//! Combo box to select the table
     QComboBox* boxTables;
 				//! List of the columns in the selected table
-	QListWidget *columnsList, 
+	QListWidget *columnsList,
 				//! List of the plots to generate
 			 *plotAssociations;
 
@@ -92,7 +92,7 @@ public slots:
 	void changeColumnsList(const QString &table);
 	//! Insert a list of tables into the tables combo box
 	void insertTablesList(const QStringList& tables);
-	//! Set the contents of the columns list box to the strings in 'cols' 
+	//! Set the contents of the columns list box to the strings in 'cols'
 	void setColumnsListBoxContents(const QStringList& cols);
 	//! Set the internal columns list to 'cols'
 	void setColumnsList(const QStringList& cols);
@@ -114,6 +114,8 @@ public slots:
 	void addZCol();
 
 private:
+    void plot3D(const QStringList& lst);
+    void plot3DRibbon(const QStringList& lst);
 	//! Display a warning that a new curve must be added first before the selection of the columns
 	bool noCurves();
     QSize sizeHint() const;
@@ -121,11 +123,6 @@ private:
 signals:
 	//! Emitted when new plots need to be created
 	void plot (const QStringList&);
-	//! Emitted when a new 3D plot needs to be generated
-	void plot3D (const QString&);
-	//! Emitted when a new 3D ribbon plot needs to be generated
-	void plot3DRibbon (const QString&);
-
 };
 
 #endif //  PLOTWIZARD_H

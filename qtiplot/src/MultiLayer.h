@@ -8,7 +8,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Multi layer widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -43,7 +43,7 @@ class QLabel;
 class QWidget;
 class LayerButton;
 class SelectionMoveResizer;
-	
+
 /**
  * \brief An MDI window (MyWidget) managing one or more Graph objects.
  *
@@ -69,7 +69,7 @@ public:
     MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	QWidgetList graphPtrs(){return graphsList;};
 	Graph *layer(int num);
-	LayerButton* addLayerButton();	
+	LayerButton* addLayerButton();
 	void copy(MultiLayer* ml);
 
 	enum HorAlignement{HCenter, Left, Right};
@@ -113,21 +113,21 @@ public slots:
 	Graph* activeGraph(){return active_graph;};
 	void setActiveGraph(Graph* g);
 	void activateGraph(LayerButton* button);
-	
+
 	void setGraphGeometry(int x, int y, int w, int h);
 
 	void findBestLayout(int &rows, int &cols);
-	
+
 	QSize arrangeLayers(bool userSize);
 	void arrangeLayers(bool fit, bool userSize);
     void adjustSize();
-	
+
 	int getRows(){return rows;};
 	void setRows(int r);
-	
+
 	int getCols(){return cols;};
 	void setCols(int c);
-	
+
 	int colsSpacing(){return colsSpace;};
 	int rowsSpacing(){return rowsSpace;};
 	void setSpacing (int rgap, int cgap);
@@ -146,19 +146,15 @@ public slots:
 	void setAlignement (int ha, int va);
 
 	int layers(){return graphs;};
-	
+
 	//! \name Print and Export
 	//@{
 	QPixmap canvasPixmap();
 	void exportGraph(const QString& fileName);
 	void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
 	void exportSVG(const QString& fname);
-	void exportEPS(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
-					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
-    void exportPDF(const QString& fname, int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
-					QPrinter::PageSize pageSize = QPrinter::A4, QPrinter::ColorMode col = QPrinter::Color);
-	void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0, 
-					QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize pageSize = QPrinter::A4, 
+    void exportPDF(const QString& fname);
+	void exportVector(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize pageSize = QPrinter::A4,
 					QPrinter::ColorMode col = QPrinter::Color);
 
 	void copyAllLayers();
@@ -166,7 +162,7 @@ public slots:
 	void printAllLayers(QPainter *painter);
 	void printActiveLayer();
 	//@}
-	
+
 	void setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 							const QFont& numbersFnt, const QFont& legendFnt);
 
@@ -175,7 +171,7 @@ public slots:
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
 
-signals:   
+signals:
 	void showTextDialog();
 	void showPlotDialog(int);
 	void showAxisDialog(int);
@@ -202,12 +198,12 @@ signals:
 	void createHistogramTable(const QString&,int,int,const QString&);
 	void updateTable(const QString&,int,const QString&);
 	void updateTableColumn(const QString&, double *, int);
-	void clearCell(const QString&,double);	
+	void clearCell(const QString&,double);
 	void showGeometryDialog();
 	void pasteMarker();
 	void createIntensityTable(const QPixmap&);
 	void setPointerCursor();
-	
+
 private:
 	void resizeLayers (const QResizeEvent *re);
 
@@ -230,7 +226,7 @@ private:
 	QPointer<SelectionMoveResizer> d_layers_selector;
 };
 
-	
+
 //! Button with layer number
 class LayerButton: public QPushButton
 {
@@ -239,7 +235,7 @@ class LayerButton: public QPushButton
 public:
     LayerButton (const QString& text = QString::null, QWidget* parent = 0);
 	~LayerButton(){};
-		
+
 	static int btnSize();
 
 protected:
@@ -247,7 +243,7 @@ protected:
 	void mouseDoubleClickEvent ( QMouseEvent * );
 
 signals:
-	void showCurvesDialog();	
+	void showCurvesDialog();
 	void clicked(LayerButton*);
 };
 

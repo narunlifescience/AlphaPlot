@@ -381,6 +381,7 @@ void ApplicationWindow::initToolBars()
 
 	fileTools->addAction(actionCopyWindow);
 	fileTools->addAction(actionPrint);
+	fileTools->addAction(actionExportPDF);
 
 	fileTools->addSeparator();
 
@@ -2019,38 +2020,19 @@ Graph3D* ApplicationWindow::dataPlot3D(const QString& caption,const QString& for
 	return plot;
 }
 
-//plot ribbon from the plot wizard
-Graph3D* ApplicationWindow::dataPlot3D(const QString& formula)
+Graph3D* ApplicationWindow::newPlot3D()
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	int pos=formula.find(":",0);
-	QString caption=formula.left(pos)+"_";
-	Table *w=(Table *)table(caption);
-	if (!w)
-	{
-		QApplication::restoreOverrideCursor();
-		return 0;
-	}
-
-	int posX=formula.find("(",pos);
-	QString xColName=caption+formula.mid(pos+2,posX-pos-2);
-
-	posX=formula.find(",",posX);
-	int posY=formula.find("(",posX);
-	QString yColName=caption+formula.mid(posX+2,posY-posX-2);
-
 	QString label = generateUniqueName(tr("Graph"));
 
-	Graph3D *plot=new Graph3D("", ws, 0);
+	Graph3D *plot = new Graph3D("", ws, 0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
-	plot->addData(w, xColName, yColName);
-	plot->resize(500,400);
+	plot->resize(500, 400);
 	plot->setWindowTitle(label);
 	plot->setName(label);
 
 	customPlot3D(plot);
-	plot->update();
 	initPlot3D(plot);
 
 	emit modified();
@@ -2120,51 +2102,6 @@ Graph3D* ApplicationWindow::dataPlotXYZ(const QString& caption,const QString& fo
 	plot->setWindowTitle(label);
 	plot->setName(label);
 	initPlot3D(plot);
-	return plot;
-}
-
-//plot 3D data from plot wizard string
-Graph3D* ApplicationWindow::dataPlotXYZ(const QString& formula)
-{
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	int pos=formula.find(":",0);
-	QString caption=formula.left(pos)+"_";
-	Table *w=(Table *)table(caption);
-	if (!w)
-	{
-		QApplication::restoreOverrideCursor();
-		return 0;
-	}
-
-	int posX=formula.find("(",pos);
-	QString xColName=caption+formula.mid(pos+2,posX-pos-2);
-
-	posX=formula.find(",",posX);
-	int posY=formula.find("(",posX);
-	QString yColName=caption+formula.mid(posX+2,posY-posX-2);
-
-	posY=formula.find(",",posY);
-	int posZ=formula.find("(",posY);
-	QString zColName=caption+formula.mid(posY+2,posZ-posY-2);
-
-	int xCol=w->colIndex(xColName);
-	int yCol=w->colIndex(yColName);
-	int zCol=w->colIndex(zColName);
-
-	Graph3D *plot=new Graph3D("", ws,0);
-	plot->setAttribute(Qt::WA_DeleteOnClose);
-	plot->addData(w, xCol, yCol, zCol, 1);
-	plot->resize(500,400);
-
-	QString label = generateUniqueName(tr("Graph"));
-	plot->setWindowTitle(label);
-	plot->setName(label);
-	customPlot3D(plot);
-	plot->update();
-	initPlot3D(plot);
-
-	QApplication::restoreOverrideCursor();
 	return plot;
 }
 
@@ -2364,7 +2301,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 		return 0;
 
 	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
-	
+
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	customGraph(ag);
 	polishGraph(ag, style);
@@ -2454,9 +2391,8 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 {//used when plotting from wizard
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	MultiLayer* g = new MultiLayer("", ws,0);
+	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	Graph *ag = g->addLayer();
 	customGraph(ag);
 	polishGraph(ag, defaultCurveStyle);
@@ -2471,47 +2407,48 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	for (int i=0; i<curves; i++)
 	{
 		QString s = colList[i];
-		int pos=s.find(":",0);
-		QString caption=s.left(pos)+"_";
-		Table *w=(Table *)table(caption);
+		int pos = s.find(":", 0);
+		QString caption = s.left(pos) + "_";
+		Table *w = (Table *)table(caption);
 
-		int posX=s.find("(X)",pos);
-		QString xColName=caption+s.mid(pos+2,posX-pos-2);
+		int posX = s.find("(X)", pos);
+		QString xColName = caption+s.mid(pos+2, posX-pos-2);
 		int xCol=w->colIndex(xColName);
 
-		posX=s.find(",",posX);
-		int posY=s.find("(Y)",posX);
-		QString yColName=caption+s.mid(posX+2,posY-posX-2);
+		posX = s.find(",", posX);
+		int posY = s.find("(Y)", posX);
+		QString yColName = caption+s.mid(posX+2, posY-posX-2);
 
 		if (s.contains("(yErr)") || s.contains("(xErr)"))
 		{
-			posY=s.find(",",posY);
+			posY = s.find(",", posY);
 			int posErr, errType;
 			if (s.contains("(yErr)"))
 			{
 				errType = QwtErrorPlotCurve::Vertical;
-				posErr=s.find("(yErr)",posY);
+				posErr = s.find("(yErr)", posY);
 			}
 			else
 			{
 				errType = QwtErrorPlotCurve::Horizontal;
-				posErr=s.find("(xErr)",posY);
+				posErr = s.find("(xErr)",posY);
 			}
 
-			QString errColName=caption+s.mid(posY+2,posErr-posY-2);
+			QString errColName = caption+s.mid(posY+2, posErr-posY-2);
 			ag->addErrorBars(w, xColName, yColName, w, errColName, errType);
 		}
-		else if (ag->insertCurve(w, xCol, yColName, defaultCurveStyle))
-		{
-			CurveLayout cl = ag->initCurveLayout(i, curves - errorBars, defaultCurveStyle);
-			cl.lWidth = defaultCurveLineWidth;
-			cl.sSize = defaultSymbolSize;
+		else
+            ag->insertCurve(w, xCol, yColName, defaultCurveStyle);
 
-			ag->updateCurveLayout(i,&cl);
-		}
+        CurveLayout cl = ag->initCurveLayout(defaultCurveStyle, curves - errorBars);
+        cl.lWidth = defaultCurveLineWidth;
+        cl.sSize = defaultSymbolSize;
+        ag->updateCurveLayout(i, &cl);
 	}
 	ag->newLegend();
 	ag->updatePlot();
+    initMultilayerPlot(g, generateUniqueName(tr("Graph")));
+    g->arrangeLayers(true, false);
 	customMenu(g);
 	emit modified();
 	QApplication::restoreOverrideCursor();
@@ -3640,7 +3577,7 @@ void ApplicationWindow::open()
 			QString pn = fi.absFilePath();
 			if (fn == pn)
 			{
-				QMessageBox::warning(this,tr("QtiPlot - File openning error"),
+				QMessageBox::warning(this, tr("QtiPlot - File openning error"),
 						tr("The file: <b>%1</b> is the current file!").arg(fn));
 				return;
 			}
@@ -4267,12 +4204,15 @@ void ApplicationWindow::readSettings()
     recentProjects = settings.value("/RecentProjects").toStringList();
     //Follows an ugly hack added by Ion in order to fix Qt4 porting issues
     //(only needed on Windows due to a Qt bug?)
-    //found another possible Qt4 bug: empty spaces are not correctly saved to the user settings!
 #ifdef Q_OS_WIN
 	if (!recentProjects.isEmpty() && recentProjects[0].contains("^e"))
         recentProjects = recentProjects[0].split("^e", QString::SkipEmptyParts);
-    else if (recentProjects.count() == 1 && recentProjects[0].remove(QRegExp("\\s")).isEmpty())
-        recentProjects = QStringList();
+    else if (recentProjects.count() == 1)
+    {
+        QString s = recentProjects[0];
+        if (s.remove(QRegExp("\\s")).isEmpty())
+            recentProjects = QStringList();
+    }
 #endif
 
 	updateRecentProjectsList();
@@ -4668,93 +4608,117 @@ void ApplicationWindow::saveSettings()
 
 void ApplicationWindow::exportGraph()
 {
-	QWidget *w=ws->activeWindow();
+	QWidget *w = ws->activeWindow();
 	if (!w)
 		return;
 
+    MultiLayer *plot2D = 0;
+    Graph3D *plot3D = 0;
 	if(w->isA("MultiLayer"))
 	{
-		MultiLayer *plot = (MultiLayer*)w;
-		if (plot->isEmpty())
+		plot2D = (MultiLayer*)w;
+		if (plot2D->isEmpty())
 		{
 			QMessageBox::warning(this, tr("QtiPlot - Warning"),
 					tr("<h4>There are no plot layers available in this window!</h4>"));
 			return;
 		}
+	}
+	else if (w->isA("Graph3D"))
+	   plot3D = (Graph3D*)w;
+    else
+        return;
 
-		ImageExportDialog *ied = new ImageExportDialog(this, 0);
-		ied->setDir(workingDir);
-		if ( ied->exec() == QDialog::Accepted )
-		{
-			workingDir = ied->directory().path();
-			QString fname = ied->selectedFile();
-			QString selectedFilter = ied->selectedFilter();
+    ImageExportDialog *ied = new ImageExportDialog(this);
+    ied->setDir(workingDir);
+    ied->show();
 
-			QFileInfo fi(fname);
-			QString baseName = fi.fileName();
+    if ( ied->exec() == QDialog::Accepted )
+    {
+        workingDir = ied->directory().path();
+        QString fname = ied->selectedFile();
+        QString selectedFilter = ied->selectedFilter();
 
-			if (baseName.contains(".")==0)
-				fname.append(selectedFilter.remove("*"));
+        QFileInfo fi(fname);
+        QString baseName = fi.fileName();
 
-			QFile f(fname);
-            if ( !f.open( QIODevice::WriteOnly ) )
+        if (!baseName.contains("."))
+            fname.append(selectedFilter.remove("*"));
+
+        QFile f(fname);
+        if ( !f.open( QIODevice::WriteOnly ) )
+        {
+            QMessageBox::critical(this, tr("QtiPlot - Export error"),
+            tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
+            return;
+        }
+
+        if (selectedFilter.contains(".svg"))
+        {
+            plot2D->exportSVG(fname);
+            return;
+        }
+        else if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf") || selectedFilter.contains(".ps"))
+        {
+            if (plot3D)
             {
-                QMessageBox::critical(this, tr("QtiPlot - Export error"),
-                tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fname));
+                plot3D->exportVector(fname, selectedFilter.remove("*."));
+                if (ied->showExportOptions())
+                {
+                    QMessageBox::information(this, tr("QtiPlot - Export"),
+                    tr("There are no export options available for 3D plots!"));
+                }
                 return;
             }
-
-            if (selectedFilter.contains(".svg"))
+            else if (plot2D)
             {
-                plot->exportSVG(fname);
+                if (ied->showExportOptions() )
+                {
+                EpsExportDialog *ed = new EpsExportDialog (fname, this, 0);
+                ed->setAttribute(Qt::WA_DeleteOnClose);
+                connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                        plot2D, SLOT(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+
+                ed->exec();
+                }
+                else if (plot2D)
+                    plot2D->exportVector(fname);
                 return;
             }
-            else if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
+        }
+
+        QList<QByteArray> list = QImageWriter::supportedImageFormats();
+        for (int i=0; i<(int)list.count(); i++)
+        {
+            if (selectedFilter.contains("." + (list[i]).lower()))
             {
                 if (ied->showExportOptions())
                 {
-                    EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+                    ImageExportOptionsDialog* ed = new ImageExportOptionsDialog(false, this);
                     ed->setAttribute(Qt::WA_DeleteOnClose);
-                    if (selectedFilter.contains(".eps"))
-                        connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                                plot, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-                    else if (selectedFilter.contains(".pdf"))
-                        connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                                plot, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+                    if (plot2D)
+                    {
+                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
+                             plot2D, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                    }
+                    else if (plot3D)
+                    {
+                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
+                             plot3D, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                    }
 
+                    ed->setExportPath(fname, list[i]);
+                    ed->enableTransparency();
                     ed->exec();
                 }
-                else
-                    plot->exportVector(fname, selectedFilter.remove("*."));
+                else if (plot2D)
+                    plot2D->exportImage(fname, list[i]);
+                else if (plot3D)
+                    plot3D->exportImage(fname, list[i]);
                 return;
-            }
-
-            QList<QByteArray> list=QImageWriter::supportedImageFormats ();
-            for (int i=0; i<(int)list.count(); i++)
-            {
-                if (selectedFilter.contains("."+(list[i]).lower()))
-                {
-                    if (ied->showExportOptions())
-                    {
-                        ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
-                        ed->setAttribute(Qt::WA_DeleteOnClose);
-                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-                                plot, SLOT(exportImage(const QString&, const QString&, int, bool)));
-
-                        ed->setExportPath(fname, list[i]);
-                        ed->enableTransparency();
-                        ed->exec();
-                    }
-                    else
-                        plot->exportImage(fname, list[i]);
-                    return;
-                }
             }
         }
 	}
-
-	else if(w->isA("Graph3D"))
-		((Graph3D*)w)->saveImage();
 }
 
 void ApplicationWindow::exportLayer()
@@ -4778,7 +4742,7 @@ void ApplicationWindow::exportLayer()
 		QFileInfo fi(fname);
 		QString baseName = fi.fileName();
 
-		if (baseName.contains(".")==0)
+		if (!baseName.contains("."))
 			fname.append(selectedFilter.remove("*"));
 
 		QFile f(fname);
@@ -4789,23 +4753,18 @@ void ApplicationWindow::exportLayer()
 				return;
         }
 
-        if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf"))
+        if (selectedFilter.contains(".eps") || selectedFilter.contains(".pdf") || selectedFilter.contains(".ps"))
         {
             if (ied->showExportOptions())
             {
-                EpsExportDialog *ed= new EpsExportDialog (fname, this, 0);
+                EpsExportDialog *ed = new EpsExportDialog (fname, this, 0);
                 ed->setAttribute(Qt::WA_DeleteOnClose);
-                if (selectedFilter.contains(".eps"))
-                    connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                            g, SLOT(exportEPS(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-                else if (selectedFilter.contains(".pdf"))
-                    connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                            g, SLOT(exportPDF(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
-
+                connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
+                    g, SLOT(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
                 ed->exec();
             }
             else
-                g->exportVector(fname, selectedFilter.remove("*."));
+                g->exportVector(fname);
             return;
         }
         else if (selectedFilter.contains(".svg"))
@@ -4843,7 +4802,7 @@ void ApplicationWindow::exportAllGraphs()
 	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose a directory to export the graphs to"), workingDir, QFileDialog::ShowDirsOnly);
 	if (!dir.isEmpty())
 	{
-		ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(true, this);
+		ImageExportOptionsDialog* ed = new ImageExportOptionsDialog(true, this);
 		ed->setAttribute(Qt::WA_DeleteOnClose);
 		connect (ed, SIGNAL(exportAll(const QString&, const QString&, int, bool)),
 				this, SLOT(exportAllGraphs(const QString&, const QString&, int, bool)));
@@ -4869,15 +4828,7 @@ void ApplicationWindow::exportAllGraphs(const QString& dir, const QString& forma
 
 	foreach (QWidget *w, *windows)
 	{
-		MultiLayer *plot = 0;
-		Graph3D *splot =0;
-
-		if (w->isA("MultiLayer"))
-			plot = (MultiLayer*)w;
-		else if (w->isA("Graph3D"))
-			splot = (Graph3D*)w;
-
-		if (plot || splot)
+		if (w->isA("MultiLayer") || w->isA("Graph3D"))
 		{
 			QString fileName = dir + "/" + w->name() + fileType;
 			QFile f(fileName);
@@ -4889,18 +4840,12 @@ void ApplicationWindow::exportAllGraphs(const QString& dir, const QString& forma
 								"Do you want to overwrite it?") .arg(fileName), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1))
 				{
 					case 0:
-						if (plot)
-							export2DPlotToFile(plot, fileName, format, quality, transparency);
-						else if (splot)
-							export3DPlotToFile(splot, fileName, format);
+                        exportGraph(w, fileName, format, quality, transparency);
 						break;
 
 					case 1:
 						confirmOverwrite = false;
-						if (plot)
-							export2DPlotToFile(plot, fileName, format, quality, transparency);
-						else if (splot)
-							export3DPlotToFile(splot, fileName, format);
+                        exportGraph(w, fileName, format, quality, transparency);
 						break;
 
 					case 2:
@@ -4909,12 +4854,7 @@ void ApplicationWindow::exportAllGraphs(const QString& dir, const QString& forma
 				}
 			}
 			else
-			{
-				if (plot)
-					export2DPlotToFile(plot, fileName, format, quality, transparency);
-				else if (splot)
-					export3DPlotToFile(splot, fileName, format);
-			}
+                exportGraph(w, fileName, format, quality, transparency);
 		}
 	}
 
@@ -4922,17 +4862,25 @@ void ApplicationWindow::exportAllGraphs(const QString& dir, const QString& forma
 	QApplication::restoreOverrideCursor();
 }
 
-void ApplicationWindow::export2DPlotToFile(MultiLayer *plot, const QString& fileName,
+void ApplicationWindow::exportGraph(QWidget *w, const QString& fileName,
 		const QString& format, int quality, bool transparency)
 {
-	if (plot->isEmpty())
-	{
-		QApplication::restoreOverrideCursor();
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+    MultiLayer *plot2D = 0;
+    Graph3D *plot3D = 0;
+    if (w->isA("MultiLayer"))
+    {
+        plot2D = (MultiLayer *)w;
+        if (plot2D->isEmpty())
+        {
+            QApplication::restoreOverrideCursor();
+            QMessageBox::warning(this, tr("QtiPlot - Warning"),
 				tr("There are no plot layers available in window <b>"+
-					QString(plot->name()) + "</b>.<br>Graph window not exported!"));
-		return;
-	}
+					QString(plot2D->name()) + "</b>.<br>Graph window not exported!"));
+            return;
+        }
+    }
+    else if (w->isA("Graph3D"))
+        plot3D = (Graph3D *)w;
 
 	QFile f(fileName);
 	if ( !f.open( QIODevice::WriteOnly ) )
@@ -4944,25 +4892,17 @@ void ApplicationWindow::export2DPlotToFile(MultiLayer *plot, const QString& file
 		return;
 	}
 
-	if (format == "EPS" || format == "PDF")
-		plot->exportVector(fileName, format);
-	else
-		plot->exportImage(fileName, format, quality, transparency);
-}
-
-void ApplicationWindow::export3DPlotToFile(Graph3D *plot, const QString& fileName,
-		const QString& format)
-{
-	QFile f(fileName);
-	if ( !f.open( QIODevice::WriteOnly ) )
+	if (format == "eps" || format == "pdf" || format == "ps")
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Export error"), tr("Could not write to file: <br><h4>%1</h4><p>Please verify that you have the right to write to this location!").arg(fileName));
-
-		QApplication::restoreOverrideCursor();
-		return;
+	    if (plot2D)
+            plot2D->exportVector(fileName);
+        else if (plot3D)
+            plot3D->exportVector(fileName, format);
 	}
-
-	plot->saveImageToFile(fileName, format);
+	else if (plot2D)
+		plot2D->exportImage(fileName, format, quality, transparency);
+    else if (plot3D)
+		plot3D->exportImage(fileName, format, quality, transparency);
 }
 
 QString ApplicationWindow::windowGeometryInfo(QWidget *w)
@@ -6639,6 +6579,45 @@ void ApplicationWindow::movePoints()
 				btnPointer->setChecked(true);
 				break;
 		}
+	}
+}
+
+void ApplicationWindow::exportPDF()
+{
+	QWidget* w = ws->activeWindow();
+	if (!w)
+		return;
+
+	if (w->isA("MultiLayer") && ((MultiLayer*)w)->isEmpty())
+	{
+		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+				tr("<h4>There are no plot layers available in this window.</h4>"));
+		return;
+	}
+
+    QString fname = QFileDialog::getSaveFileName(this, tr("Choose a filename to save under"), workingDir, "*.pdf");
+	if (!fname.isEmpty() )
+	{
+		QFileInfo fi(fname);
+		QString baseName = fi.fileName();
+		if (!baseName.contains("."))
+			fname.append(".pdf");
+
+        workingDir = fi.dirPath(true);
+
+        QFile f(fname);
+        if ( !f.open( QIODevice::WriteOnly ) )
+        {
+            QMessageBox::critical(this, tr("QtiPlot - Export error"),
+            tr("Could not write to file: <h4>%1</h4><p>Please verify that you have the right to write to this location or that the file is not being used by another application!").arg(fname));
+            return;
+        }
+
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+
+        ((MyWidget*)w)->exportPDF(fname);
+
+		QApplication::restoreOverrideCursor();
 	}
 }
 
@@ -8775,7 +8754,7 @@ void ApplicationWindow::showWindowContextMenu()
 		cm.addAction(actionCopyWindow);
 		cm.insertSeparator();
 		cm.insertItem(tr("&Copy Graph"), g, SLOT(copyImage()));
-		cm.insertItem(tr("&Export"), g, SLOT(saveImage()));
+		cm.insertItem(tr("&Export"), this, SLOT(exportGraph()));
 		cm.addAction(actionPrint);
 		cm.insertSeparator();
 		cm.addAction(actionCloseWindow);
@@ -8990,8 +8969,6 @@ void ApplicationWindow::showPlotWizard()
 		PlotWizard* pw = new PlotWizard(this, 0);
 		pw->setAttribute(Qt::WA_DeleteOnClose);
 		connect (pw,SIGNAL(plot(const QStringList&)),this,SLOT(multilayerPlot(const QStringList&)));
-		connect (pw,SIGNAL(plot3D(const QString&)),this,SLOT(dataPlotXYZ(const QString&)));
-		connect (pw,SIGNAL(plot3DRibbon(const QString&)),this,SLOT(dataPlot3D(const QString&)));
 
 		pw->insertTablesList(tableWindows);
 		pw->setColumnsList(columnsList(Table::All));
@@ -10296,14 +10273,14 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				ag->addErrorBars(w, curve[2], curve[3], errTable, curve[4], curve[1].toInt(),
 						curve[5].toInt(), curve[6].toInt(), QColor(curve[7]),
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt());
-				
+
 				if (d_file_version > 85)
 				{
 					QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)ag->curve(curveID);
 					if (er)
 					{
-						er->setXDataOffset(curve[11].toDouble()); 
-						er->setYDataOffset(curve[12].toDouble()); 
+						er->setXDataOffset(curve[11].toDouble());
+						er->setYDataOffset(curve[12].toDouble());
 					}
 				}
 			}
@@ -11024,6 +11001,10 @@ void ApplicationWindow::createActions()
 	actionExportAllGraphs->setShortcut( tr("Alt+X") );
 	connect(actionExportAllGraphs, SIGNAL(activated()), this, SLOT(exportAllGraphs()));
 
+    actionExportPDF = new QAction(QIcon(QPixmap(pdf_xpm)), tr("&Export PDF"), this);
+	actionExportPDF->setShortcut( tr("Ctrl+Alt+P") );
+	connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
+
 	actionPrint = new QAction(QIcon(QPixmap(fileprint_xpm)), tr("&Print"), this);
 	actionPrint->setShortcut( tr("Ctrl+P") );
 	connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
@@ -11618,6 +11599,10 @@ void ApplicationWindow::translateActionsStrings()
 	actionExportAllGraphs->setMenuText(tr("&All"));
 	actionExportAllGraphs->setShortcut(tr("Alt+X"));
 	actionExportAllGraphs->setToolTip(tr("Export all graphs"));
+
+    actionExportPDF->setMenuText(tr("&Export PDF"));
+	actionExportPDF->setShortcut(tr("Ctrl+Alt+P"));
+	actionExportPDF->setToolTip(tr("Export to PDF"));
 
 	actionPrint->setMenuText(tr("&Print"));
 	actionPrint->setShortcut(tr("Ctrl+P"));

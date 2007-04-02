@@ -2,12 +2,12 @@
     File                 : ScriptEdit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, 
+    Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Scripting classes
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -49,19 +49,20 @@ class QMenu;
 class ScriptEdit: public QTextEdit, public scripted
 {
   Q_OBJECT
-    
+
   public:
     ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
     ~ScriptEdit();
 
     void customEvent(QEvent*);
     int lineNumber(int pos) const;
-    
+
   public slots:
     void execute();
     void executeAll();
     void evaluate();
     void print();
+    void exportPDF(const QString& fileName);
     QString exportASCII(const QString &file=QString::null);
     QString importASCII(const QString &file=QString::null);
     void insertFunction(const QString &);

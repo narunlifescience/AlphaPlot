@@ -923,13 +923,33 @@ bool Matrix::eventFilter(QObject *object, QEvent *e)
 	return MyWidget::eventFilter(object, e);
 }
 
+void Matrix::exportPDF(const QString& fileName)
+{
+	print(fileName);
+}
+
 void Matrix::print()
+{
+    print(QString());
+}
+
+void Matrix::print(const QString& fileName)
 {
 	QPrinter printer;
 	printer.setColorMode (QPrinter::GrayScale);
-	QPrintDialog printDialog(&printer);
-	if (printDialog.exec() == QDialog::Accepted)
+
+	if (!fileName.isEmpty())
 	{
+	    printer.setCreator("QtiPlot");
+	    printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(fileName);
+	}
+    else
+    {
+        QPrintDialog printDialog(&printer);
+        if (printDialog.exec() != QDialog::Accepted)
+            return;
+    }
 		printer.setFullPage( true );
 		QPainter p;
 		if ( !p.begin(&printer ) )
@@ -1011,7 +1031,6 @@ void Matrix::print()
 				p.drawLine(margin, height, right, height);
 			}
 		}
-	}
 }
 
 void Matrix::range(double *min, double *max)

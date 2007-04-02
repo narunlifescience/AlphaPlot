@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Nonlinear curve fitting dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -55,7 +55,7 @@
 #include <QGroupBox>
 #include <QLibrary>
 
-#include <stdio.h> 
+#include <stdio.h>
 
 FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -64,6 +64,10 @@ FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 		setName( "FitDialog" );
 	setWindowTitle(tr("QtiPlot - Nonlinear curve fit"));
 	setSizeGripEnabled( true );
+
+    userFunctionNames = QStringList();
+    userFunctions = QStringList();
+    userFunctionParams = QStringList();
 
 	fitter = 0;
 
@@ -225,7 +229,7 @@ void FitDialog::initEditPage()
 	categoryBox->addItem(tr("Built-in"));
 	categoryBox->addItem(tr("Basic"));
 	categoryBox->addItem(tr("Plugins"));
-	
+
     gl1->addWidget(categoryBox, 1, 0);
 	funcBox = new QListWidget();
     gl1->addWidget(funcBox, 1, 1);
@@ -266,12 +270,12 @@ void FitDialog::initEditPage()
     gl2->addWidget(boxName, 0, 1);
 	btnAddFunc = new QPushButton(tr( "&Save" ));
     gl2->addWidget(btnAddFunc, 0, 2);
-    gl2->addWidget(new QLabel(tr("Parameters")), 1, 0);  
+    gl2->addWidget(new QLabel(tr("Parameters")), 1, 0);
 	boxParam = new QLineEdit("a, b");
     gl2->addWidget(boxParam, 1, 1);
 	btnDelFunc = new QPushButton( tr( "&Remove" ));
     gl2->addWidget(btnDelFunc, 1, 2);
-        
+
     QGroupBox *gb = new QGroupBox();
     gb->setLayout(gl2);
 
@@ -334,7 +338,7 @@ void FitDialog::initAdvancedPage()
     gl1->addWidget(generatePointsBtn, 0, 0);
 
 	lblPoints = new QLabel( tr("Points"));
-   
+
 	generatePointsBox = new QSpinBox ();
     generatePointsBox->setRange(0, 1000000);
 	generatePointsBox->setSingleStep(10);
@@ -443,14 +447,14 @@ void FitDialog::showParametersTable()
 	QString tableName = paramTableName->text();
 	if (tableName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Please enter a valid name for the parameters table."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -465,14 +469,14 @@ void FitDialog::showCovarianceMatrix()
 	QString matrixName = covMatrixName->text();
 	if (matrixName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Please enter a valid name for the covariance matrix."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"), 
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -534,21 +538,21 @@ void FitDialog::saveUserFunction()
 {
 	if (editBox->text().isEmpty())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
 				tr("Please enter a valid function!"));
 		editBox->setFocus();
 		return;
 	}
 	else if (boxName->text().isEmpty())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
 				tr("Please enter a function name!"));
 		boxName->setFocus();
 		return;
-	}	
+	}
 	else if (boxParam->text().remove(QRegExp("[,;\\s]")).isEmpty())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
 				tr("Please enter at least one parameter name!"));
 		boxParam->setFocus();
 		return;
@@ -556,21 +560,23 @@ void FitDialog::saveUserFunction()
 
 	if (builtInFunctionNames.contains(boxName->text()))
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error: function name"),
-				"<p><b>"+boxName->text()+ "</b>"+tr(" is a built-in function name"
+		QMessageBox::critical(this, tr("QtiPlot - Error: function name"),
+				"<p><b>" + boxName->text() + "</b>" + tr(" is a built-in function name"
 					"<p>You must choose another name for your function!"));
 		editBox->setFocus();
 		return;
 	}
 	if (editBox->text().contains(boxName->text()))
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
 				tr("You can't define functions recursevely!"));
 		editBox->setFocus();
 		return;
 	}
+
 	QString name = boxName->text();
-	QString f = name +"(x, " + boxParam->text() + ")="+editBox->text().remove("\n");
+	QString f = name + "(x, " + boxParam->text() + ")=" + editBox->text().remove("\n");
+
 	if (userFunctionNames.contains(name))
 	{
 		int index = userFunctionNames.findIndex(name);
@@ -662,11 +668,11 @@ void FitDialog::showFitPage()
         boxParams->item (i, 0)->setText(paramList[i]);
 
 	// FIXME: this check is pretty ugly, should be changed to a more elegant way some time
-	if (!boxUseBuiltIn->isChecked() || 
+	if (!boxUseBuiltIn->isChecked() ||
 		(boxUseBuiltIn->isChecked()&& categoryBox->currentRow()!=3 && categoryBox->currentRow()!=1))
 	{
         boxParams->showColumn(2);
-        
+
 		for (int i = 0; i<boxParams->rowCount(); i++ )
 		{
             QTableWidgetItem *it = new QTableWidgetItem();
@@ -774,16 +780,19 @@ void FitDialog::insertFunctionsList(const QStringList& list)
 		return;
 	}
 
-	userFunctions = list;
-
 	for (int i = 0; i<(int)list.count(); i++)
 	{
-		QString s = list[i];
-		int pos1 = s.find("(",0);
-		userFunctionNames << s.left(pos1);
+		QString s = list[i].simplified();
+		if (!s.isEmpty())
+		{
+            userFunctions << s;
 
-		int pos2 = s.find(")",pos1);
-		userFunctionParams << s.mid(pos1+4, pos2-pos1-4);
+            int pos1 = s.find("(", 0);
+            userFunctionNames << s.left(pos1);
+
+            int pos2 = s.find(")", pos1);
+            userFunctionParams << s.mid(pos1+4, pos2-pos1-4);
+		}
 	}
 }
 
@@ -805,7 +814,7 @@ void FitDialog::showFunctionsList(int category)
 	switch (category)
 	{
 		case 0:
-			if ((int)userFunctionNames.size() > 0)
+			if ((int)userFunctionNames.count() > 0)
 			{
 				showUserFunctions();
                 buttonClearUsrList->show();
@@ -908,7 +917,7 @@ void FitDialog::showUserFunctions()
 
 void FitDialog::setBuiltInFunctionNames()
 {
-	builtInFunctionNames << "Boltzmann" << "ExpGrowth" << "ExpDecay1" << "ExpDecay2" << "ExpDecay3" 
+	builtInFunctionNames << "Boltzmann" << "ExpGrowth" << "ExpDecay1" << "ExpDecay2" << "ExpDecay3"
 		<< "GaussAmp" << "Gauss" << "Lorentz" << "Polynomial";
 }
 
@@ -939,7 +948,7 @@ void FitDialog::showExpression(int function)
 	else if (categoryBox->currentRow() == 1)
 	{
 		polynomOrderLabel->show();
-		polynomOrderBox->show();		
+		polynomOrderBox->show();
 
 		if (funcBox->currentItem()->text() == tr("Gauss"))
 		{
@@ -993,7 +1002,7 @@ void FitDialog::addFunction()
 	{//basic parser function
 		f = f.left(f.find("(", 0)+1);
 		if (editBox->hasSelectedText())
-		{	
+		{
 			QString markedText=editBox->selectedText();
 			editBox->insert(f+markedText+")");
 		}
@@ -1043,11 +1052,11 @@ void FitDialog::accept()
 		QMessageBox::critical(this, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxFrom->setFocus();
 		return;
-	}	
+	}
 
 	try
 	{
-		MyParser parser;	
+		MyParser parser;
 		parser.SetExpr(to.ascii());
 		end=parser.Eval();
 	}
@@ -1056,7 +1065,7 @@ void FitDialog::accept()
 		QMessageBox::critical(this, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
 		boxTo->setFocus();
 		return;
-	}	
+	}
 
 	if (start>=end)
 	{
@@ -1077,7 +1086,7 @@ void FitDialog::accept()
 		QMessageBox::critical(0, tr("QtiPlot - Tolerance input error"),QString::fromStdString(e.GetMsg()));
 		boxTolerance->setFocus();
 		return;
-	}	
+	}
 
 	if (eps<0 || eps>=1)
 	{
@@ -1097,7 +1106,7 @@ void FitDialog::accept()
 				n++;
 		}
 	}
-	else 
+	else
 		n=rows;
 
 	QStringList parameters;
@@ -1126,7 +1135,7 @@ void FitDialog::accept()
 		{
 			if (formula.contains(builtInFunctionNames[i]))
 				formula.replace(builtInFunctionNames[i], "(" + builtInFunctions[i] + ")");
-		}	
+		}
 
 		if (!boxParams->isColumnHidden(2))
 		{
@@ -1136,7 +1145,7 @@ void FitDialog::accept()
                 QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
 				if (!cb->isChecked())
 				{
-					paramsInit[j] = boxParams->item(i,1)->text().toDouble();					
+					paramsInit[j] = boxParams->item(i,1)->text().toDouble();
 					parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[j]);
 					parameters << boxParams->item(i,0)->text();
 					j++;
@@ -1155,9 +1164,9 @@ void FitDialog::accept()
 			}
 		}
 
-		parser.SetExpr(formula.ascii());		
+		parser.SetExpr(formula.ascii());
 		double x=start;
-		parser.DefineVar("x", &x);	
+		parser.DefineVar("x", &x);
 		parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1167,7 +1176,7 @@ void FitDialog::accept()
 
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), errorMsg);
 		boxFunction->setFocus();
-		error = true;	
+		error = true;
 	}
 
 	if (!error)
@@ -1267,7 +1276,7 @@ void FitDialog::fitBuiltInFunction(const QString& function, double* initVal)
 		initVal[5] = 1/initVal[5];
 		fitter = new ThreeExpFit(app, graph);
 	}
-	else if (function == "Boltzmann")		
+	else if (function == "Boltzmann")
 		fitter = new SigmoidalFit(app, graph);
 	else if (function == "GaussAmp")
 		fitter = new GaussAmpFit(app, graph);
@@ -1309,7 +1318,7 @@ bool FitDialog::validInitialValues()
 			return false;
 		}
 
-		try 
+		try
 		{
 			MyParser parser;
 			parser.SetExpr(boxParams->item(i,1)->text().ascii());

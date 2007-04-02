@@ -2,12 +2,12 @@
     File                 : Table.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, 
+    Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Table worksheet class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -64,13 +64,13 @@ public:
 	enum ColType{Numeric = 0, Text = 1, Date = 2, Time = 3, Month = 4, Day = 5};
 
    	Table(ScriptingEnv *env, const QString &fname,const QString &sep, int ignoredLines, bool renameCols,
-		 bool stripSpaces, bool simplifySpaces, const QString &label, 
+		 bool stripSpaces, bool simplifySpaces, const QString &label,
 		 QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	Table(ScriptingEnv *env, int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Table();
 
 	Q3TableSelection getSelection();
-	
+
 public slots:
 	Q3Table* table(){return worksheet;};
 	void copy(Table *m);
@@ -108,14 +108,14 @@ public slots:
 	bool isEmptyRow(int row);
 	bool isEmptyColumn(int col);
 	int nonEmptyRows();
-	
+
 	void plotL();
 	void plotLP();
 	void plotP();
 	void plotVB();
 	void plotHB();
 	void plotArea();
-	void plotPie();	
+	void plotPie();
 	void plotVerticalDropLines();
 	void plotSpline();
 	void plotVertSteps();
@@ -124,28 +124,30 @@ public slots:
 	void plotVectXYXY();
 	void plotVectXYAM();
 	void plotBoxDiagram();
-	
+
 	//! \name 3D Plots
 	//@{
 	void plot3DRibbon();
 	void plot3DScatter();
 	void plot3DTrajectory();
 	void plot3DBars();
-	
+
 	bool valid2DPlot();
 	bool valid3DPlot();
 	//@}v
-	
+
 	void print();
-	
-	//! \name Event Handlers 
+	void print(const QString& fileName);
+	void exportPDF(const QString& fileName);
+
+	//! \name Event Handlers
 	//@{
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
 	void customEvent( QCustomEvent* e);
 	//@}v
-	
-	//! \name Column Operations 
+
+	//! \name Column Operations
 	//@{
 	void removeCol();
 	void removeCol(const QStringList& list);
@@ -155,7 +157,7 @@ public slots:
 	void addCol(PlotDesignation pd = Y);
 	void addColumns(int c);
 	//@}
-	
+
 	//! \name Sorting
 	//@{
 	/*!\brief Sort the current column in ascending order.
@@ -193,7 +195,7 @@ public slots:
 	 */
 	void sortColumnsDialog();
 	//@}
-	
+
 	//! \name Normalization
 	//@{
 	void normalizeCol(int col=-1);
@@ -221,14 +223,14 @@ public slots:
 	bool calculate(int col, int startRow, int endRow);
 	//! Compute selected cells from column formulae; use current cell if there's no selection.
 	bool calculate();
-	
-	//! \name Row Operations 
+
+	//! \name Row Operations
 	//@{
 	void deleteSelectedRows();
 	void insertRow();
 	//@}
 
-	//! Selection Operations 
+	//! Selection Operations
 	//@{
 	void cutSelection();
 	void copySelection();
@@ -250,18 +252,18 @@ public slots:
 	void changeColName(const QString& text);
 	void enumerateRightCols(bool checked);
 
-	void changeColWidth(int width, bool allCols);	
+	void changeColWidth(int width, bool allCols);
 	int columnWidth(int col);
 	QStringList columnWidths();
 	void setColWidths(const QStringList& widths);
-	
+
 	void setSelectedCol(int col){selectedCol = col;};
 	int selectedColumn(){return selectedCol;};
 	int firstSelectedColumn();
 	int selectedRows();
 	bool isRowSelected(int row, bool full=false) { return worksheet->isRowSelected(row, full); }
 	bool isColumnSelected(int col, bool full=false) { return worksheet->isColumnSelected(col, full); }
-	
+
 	void columnNumericFormat(int col, char &f, int &precision);
 	void columnNumericFormat(int col, int &f, int &precision);
 	int columnType(int col){return colTypes[col];};
@@ -278,7 +280,7 @@ public slots:
 	QString columnFormat(int col){return col_format[col];};
 	QStringList getColumnsFormat(){return col_format;};
 	void setColumnsFormat(const QStringList& lst);
-	
+
 	void setTextFormat(bool applyToAll);
 	void setColNumericFormat(int f, int prec, int col);
 	void setDateFormat(const QString& format, int col);
@@ -291,7 +293,7 @@ public slots:
 
 	bool exportToASCIIFile(const QString& fname, const QString& separator,
 							  bool withLabels,bool exportSelection);
-	void importASCII(const QString &fname, const QString &sep, int ignoredLines, 
+	void importASCII(const QString &fname, const QString &sep, int ignoredLines,
 						bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable);
 	void importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
 					bool renameCols, bool stripSpaces, bool simplifySpaces, int importFileAs);
@@ -310,15 +312,15 @@ public slots:
 	void restore(QString& spec);
 	QString& getNewSpecifications();
 	void setNewSpecifications();
-	
+
 	/*!
 	 *used for restoring the table old caption stored in specifications string
-	 */ 
+	 */
 	QString oldCaption();
-	
+
 	/*!
 	 *used for restoring the table caption stored in new specifications string
-	 */ 
+	 */
 	QString newCaption();
 	//@}
 
@@ -327,7 +329,7 @@ public slots:
 	void setHeaderColor(const QColor& col);
 	void setTextFont(const QFont& fnt);
 	void setHeaderFont(const QFont& fnt);
-		
+
 	int verticalHeaderWidth(){return worksheet->verticalHeader()->width();};
 
 	QString colComment(int col){return comments[col];};
@@ -344,7 +346,7 @@ public slots:
 
 	//! Notifies the main application that the width of a table column has been modified by the user.
 	void colWidthModified(int, int, int);
-				
+
 signals:
 	void plot3DRibbon(Table *,const QString&);
 	void plotXYZ(Table *,const QString&, int);
@@ -357,7 +359,7 @@ signals:
 	void resizedTable(QWidget*);
 	void showContextMenu(bool selection);
 	void createTable(const QString&,int,int,const QString&);
-	
+
 protected:
 	Q3Table *worksheet;
 

@@ -38,6 +38,7 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();
 	list<<"EPS";
+	list<<"PS";
     list<<"PDF";
 	//list<<"SVG";
 
@@ -62,10 +63,11 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 	layout()->addWidget( boxOptions );
 }
 
-void ImageExportDialog::showOptionsBox ( const QString & filter)
+void ImageExportDialog::showOptionsBox (const QString & filter)
 {
 	if (filter.contains("svg"))
 		boxOptions->hide();
 	else
 		boxOptions->show();
 }
+

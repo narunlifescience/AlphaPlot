@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Definition of global constants
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,8 +35,8 @@ const int min_version = 9;
 //! Patch version number (0..9)
 const int patch_version = 0;
 //! Extra version information string (like "alpha", "-2", etc...)
-const char * extra_version = "beta1";
+const char * extra_version = "rc1";
 //! Copyright string containing the author names
 const char * copyright_string = "Copyright (C) 2000-2005 Ion Vasilief\nCopyright (C) 2006-2007 Ion Vasilief, Tilman Hoener zu Siederdissen, Knut Franke";
 //! Release date as a string
-const char * release_date = " 2007/\?\?/\?\?";
+const char * release_date = " 2007/04/\?\?";

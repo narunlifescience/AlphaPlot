@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Image export options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -52,19 +52,18 @@ public:
     QGroupBox * groupBox1;
     QCheckBox * boxTransparency;
 	QSpinBox * boxQuality;
-	QLabel * formatLabel;
+	QLabel *formatLabel, *labelQuality;
 	QComboBox * boxFormat;
-	
+
 public slots:
 	void enableTransparency();
 	void enableTransparency(int);
 	void setExportPath(const QString& fname, const QString& fileType)
 			{f_name = fname; f_type = fileType;};
-			
+
 	void setExportDirPath(const QString& dir) {f_dir = dir;};
 
 protected slots:
-    virtual void languageChange();
 	void accept();
 
 signals:

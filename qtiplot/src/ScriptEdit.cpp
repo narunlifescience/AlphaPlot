@@ -2,13 +2,13 @@
     File                 : ScriptEdit.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, 
+    Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Editor widget for scripting code
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -183,7 +183,7 @@ void ScriptEdit::insertFunction(const QString &fname)
 		// if no text is selected, place cursor inside the ()
 		// instead of after it
 		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,1);
-		// the next line makes the selection visible to the user 
+		// the next line makes the selection visible to the user
 		// (the line above only changes the selection in the
 		// underlying QTextDocument)
 		setTextCursor(cursor);
@@ -214,7 +214,7 @@ void ScriptEdit::execute()
 		codeCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
 	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
-	
+
 	myScript->setName(fname);
 	myScript->setCode(codeCursor.selectedText());
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
@@ -259,12 +259,23 @@ void ScriptEdit::evaluate()
 			else
 				printCursor.insertText("\n");
 		}
-		 
+
 	setTextCursor(printCursor);
 }
 
 ScriptEdit::~ScriptEdit()
 {
+}
+
+void ScriptEdit::exportPDF(const QString& fileName)
+{
+	QTextDocument *doc = document();
+	QPrinter printer;
+	printer.setColorMode(QPrinter::GrayScale);
+	printer.setCreator("QtiPlot");
+    printer.setOutputFormat(QPrinter::PdfFormat);
+    printer.setOutputFileName(fileName);
+	doc->print(&printer);
 }
 
 void ScriptEdit::print()
@@ -274,7 +285,7 @@ void ScriptEdit::print()
 	printer.setColorMode(QPrinter::GrayScale);
 	QPrintDialog printDialog(&printer);
 	// TODO: Write a dialog to use more features of Qt4's QPrinter class
-	if (printDialog.exec() == QDialog::Accepted) 
+	if (printDialog.exec() == QDialog::Accepted)
 	{
 		doc->print(&printer);
 	}
@@ -322,7 +333,7 @@ QString ScriptEdit::exportASCII(const QString &filename)
 	if ( !fn.isEmpty() )
 	{
 		QFileInfo fi(fn);
-		QString baseName = fi.fileName();	
+		QString baseName = fi.fileName();
 		if (!baseName.contains("."))
 		{
 			if (selectedFilter.contains(".txt"))

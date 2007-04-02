@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Plot window class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -41,14 +41,14 @@ class Grid;
 
 //! Plot window class
 class Plot: public QwtPlot
-{	
+{
     Q_OBJECT
 
-public:	
+public:
 	Plot(QWidget *parent = 0, const char *name = 0);
-	
+
 	enum LabelFormat{Automatic, Decimal, Scientific, Superscripts};
-	
+
 	QwtPlotGrid *grid(){return (QwtPlotGrid *)d_grid;};
 	QList<int> curveKeys(){return d_curves.keys();};
 
@@ -89,8 +89,8 @@ public:
 	const QColor & paletteBackgroundColor() const;
 
 	virtual void print(QPainter *, const QRect &rect,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter()) const;
-	
+        const QwtPlotPrintFilter & = QwtPlotPrintFilter());
+
     void updateLayout();
 
 protected:
@@ -100,7 +100,7 @@ protected:
 	virtual void drawItems (QPainter *painter, const QRect &rect,
 			const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const;
 
-	void drawInwardTicks(QPainter *painter, const QRect &rect, 
+	void drawInwardTicks(QPainter *painter, const QRect &rect,
 							const QwtScaleMap&map, int axis, bool min, bool maj) const;
 
 protected:
@@ -119,7 +119,7 @@ public:
     Grid(){};
 
 void draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &rect) const;
-void drawLines(QPainter *painter, const QRect &rect, Qt::Orientation orientation, const QwtScaleMap &map, 
+void drawLines(QPainter *painter, const QRect &rect, Qt::Orientation orientation, const QwtScaleMap &map,
     const QwtValueList &values) const;
 };
 

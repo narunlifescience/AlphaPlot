@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : 3D graph widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,7 +30,7 @@
 #define GRAPH3D_H
 
 #include <qwt3d_surfaceplot.h>
-#include <qwt3d_function.h> 
+#include <qwt3d_function.h>
 
 #include <QTimer>
 #include <QVector>
@@ -66,7 +66,7 @@ public:
 
 	Qwt3D::SurfacePlot* sp;
 	UserFunction *func;
-	
+
 public slots:
 	void initPlot();
 	void initCoord();
@@ -90,7 +90,7 @@ public slots:
 	void addData(Table* table,const QString& xColName,const QString& yColName,
 							double xl, double xr, double yl, double yr, double zl, double zr);
 	void addData(Table* table, int xCol,int yCol,int zCol, int type);
-	void addData(Table* table, int xCol,int yCol,int zCol, 
+	void addData(Table* table, int xCol,int yCol,int zCol,
 							double xl, double xr, double yl, double yr, double zl, double zr);
 
 	void clearData();
@@ -138,7 +138,7 @@ public slots:
 	void setXAxisLabelFont(const QFont& fnt);
 	void setYAxisLabelFont(const QFont& fnt);
 	void setZAxisLabelFont(const QFont& fnt);
-	
+
 	void setXAxisLabelFont(const QStringList& lst);
 	void setYAxisLabelFont(const QStringList& lst);
 	void setZAxisLabelFont(const QStringList& lst);
@@ -156,15 +156,15 @@ public slots:
 	QStringList scaleLimits();
 	void updateScale(int axis,const QStringList& options);
 	void updateScales(double xl, double xr, double yl, double yr, double zl, double zr);
-	void updateScales(double xl, double xr, double yl, double yr, 
+	void updateScales(double xl, double xr, double yl, double yr,
 				  		double zl, double zr, int xcol, int ycol);
-	void updateScales(double xl, double xr, double yl, double yr, 
+	void updateScales(double xl, double xr, double yl, double yr,
 				  		double zl, double zr, int xCol, int yCol, int zCol);
 	void updateScalesFromMatrix(double xl,double xr,double yl,double yr,double zl,double zr);
 
 	QStringList scaleTicks();
 	void setTicks(const QStringList& options);
-	
+
 	void updateTickLength(int, double majorLength, double minorLength);
 	void adjustLabels(int val);
 	int labelsDistance(){return labelsDist;};
@@ -172,7 +172,7 @@ public slots:
 	QStringList axisTickLengths();
 	void setTickLengths(const QStringList& lst);
 	//@}
-    
+
 	//! \name Mesh
 	//@{
 	void setNoGrid();
@@ -213,31 +213,36 @@ public slots:
 	void setScale(double  xVal,double  yVal,double  zVal);
 	void setShift(double  xVal,double  yVal,double  zVal);
 	void updateScaling(double  xVal,double  yVal,double  zVal);
-	
+
 	double xRotation(){return sp->xRotation();};
 	double yRotation(){return sp->yRotation();};
 	double zRotation(){return sp->zRotation();};
-	
+
 	double xScale(){return sp->xScale();};
 	double yScale(){return sp->yScale();};
 	double zScale(){return sp->zScale();};
-	
+
 	double xShift(){return sp->xShift();};
 	double yShift(){return sp->yShift();};
 	double zShift(){return sp->zShift();};
-	
+
 	double zoom(){return sp->zoom();};
 	void setZoom(double  val);
 	void updateZoom(double  val);
-	
+
 	Qwt3D::PLOTSTYLE plotStyle();
 	Qwt3D::FLOORSTYLE floorStyle();
 	Qwt3D::COORDSTYLE coordStyle();
 
 	void print();
 	void copyImage();
-	void saveImageToFile(const QString& fname, const QString& format);
-	void saveImage();
+	void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
+
+    void exportPDF(const QString& fileName);
+    void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0,
+                    QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5,
+                    QPrinter::ColorMode col = QPrinter::Color);
+
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
 
@@ -255,7 +260,7 @@ public slots:
 	void changeTransparency(double t);
 	void setTransparency(double t);
 	double transparency(){return alpha;};
-		
+
 	QColor minDataColor();
 	QColor maxDataColor();
 	QColor meshColor(){return meshCol;};
@@ -264,11 +269,11 @@ public slots:
 	QColor numColor(){return numCol;};
 	QColor bgColor(){return bgCol;};
 	QColor gridColor(){return gridCol;};
-	
+
 	QString colorMap(){return color_map;};
 	void setDataColorMap(const QString& fileName);
 	bool openColorMap(ColorVector& cv, QString fname);
-  	 
+
 	void setColors(const QStringList& colors);
 	void setColors(const QColor& meshColor,const QColor& axesColor,const QColor& numColor,
 						   const QColor& labelColor,const QColor& bgColor,const QColor& gridColor);
@@ -290,7 +295,7 @@ public slots:
 	void setResolution(int r);
 	int resolution(){return sp->resolution();};
 	//@}
-	
+
 	//! \name Legend
 	//@{
 	void showColorLegend(bool show);
@@ -307,13 +312,13 @@ public slots:
 	void setBarsRadius(double rad);
 	void updateBars(double rad);
 	//@}
-	
+
 	//! \name Scatter Plots
 	//@{
 	double pointsSize(){return pointSize;};
 	bool smoothPoints(){return smooth;};
 	void updatePoints(double size, bool sm);
-	
+
 	bool smoothCrossHair(){return crossHairSmooth;};
 	bool boxedCrossHair(){return crossHairBoxed;};
 	double crossHairRadius(){return crossHairRad;};
@@ -321,17 +326,17 @@ public slots:
 	void updateCross(double rad, double linewidth, bool smooth, bool boxed);
 	void setCrossOptions(double rad, double linewidth, bool smooth, bool boxed);
 	void setCrossMesh();
-	
+
 	double coneRadius(){return conesRad;};
 	int coneQuality(){return conesQuality;};
 	void updateCones(double rad, int quality);
 	void setConesOptions(double rad, int quality);
 	void setConesMesh();
-	
+
 	PointStyle pointType(){return pointStyle;};
 	void setPointOptions(double size, bool s);
 	//@}
-	
+
 	Table* getTable(){return worksheet;};
 	void showWorksheet();
 	void setPlotAssociation(const QString& s){plotAssociation = s;};
@@ -341,18 +346,18 @@ public slots:
 	void rotate();
 	void animate(bool on = true);
 	bool isAnimated(){return d_timer->isActive();};
-	
+
     void findBestLayout();
-	bool autoscale(){return d_autoscale;};	
+	bool autoscale(){return d_autoscale;};
 	//! Enables/Disables autoscaling using findBestLayout().
 	void setAutoscale(bool on = true){d_autoscale = on;};
-	
-signals:   
+
+signals:
 	void showContextMenu();
 	void showOptionsDialog();
 	void modified();
 	void custom3DActions(QWidget*);
-	
+
 private:
 	Qwt3D::Triple** allocateData(int columns, int rows);
 	void deleteData(Qwt3D::Triple **data, int columns);
@@ -361,7 +366,7 @@ private:
   	int animation_redraw_wait;
 	//! File name of the color map used for the data (if any)
   	QString color_map;
-  	 
+
 	QTimer *d_timer;
 	QString title, plotAssociation;
 	QStringList labels;
@@ -372,7 +377,7 @@ private:
 	//! Custom data colors.
 	QColor fromColor, toColor;
 	int labelsDist, legendMajorTicks;
-	bool ignoreFonts; 
+	bool ignoreFonts;
 	Qwt3D::StandardColor* col_;
 	double barsRad, alpha, pointSize, crossHairRad, crossHairLineWidth, conesRad;
 	//! Draw 3D points with smoothed angles.

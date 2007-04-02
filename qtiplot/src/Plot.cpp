@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Plot window class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,7 +31,7 @@
 #include "ScaleDraw.h"
 #include "Spectrogram.h"
 #include "FunctionCurve.h"
-	
+
 #include <qwt_plot.h>
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -46,7 +46,7 @@ Plot::Plot(QWidget *parent, const char *name)
 : QwtPlot(parent)
 {
 	setAutoReplot (false);
-	
+
 	marker_key = 0;
 	curve_key = 0;
 
@@ -55,9 +55,9 @@ Plot::Plot(QWidget *parent, const char *name)
 
 	setGeometry(QRect(0,0,500,400));
 	setAxisTitle(QwtPlot::yLeft, tr("Y Axis Title"));
-	setAxisTitle(QwtPlot::xBottom, tr("X Axis Title"));	
+	setAxisTitle(QwtPlot::xBottom, tr("X Axis Title"));
 
-	// grid 
+	// grid
 	d_grid = new Grid;
 	d_grid->enableX(false);
 	d_grid->enableY(false);
@@ -79,7 +79,7 @@ Plot::Plot(QWidget *parent, const char *name)
 			scale->setTitle(title);
 
 			ScaleDraw *sd = new ScaleDraw();
-			sd->setTickLength(QwtScaleDiv::MinorTick, minTickLength); 
+			sd->setTickLength(QwtScaleDiv::MinorTick, minTickLength);
 			sd->setTickLength(QwtScaleDiv::MediumTick, minTickLength);
 			sd->setTickLength(QwtScaleDiv::MajorTick, majTickLength);
 
@@ -90,7 +90,7 @@ Plot::Plot(QWidget *parent, const char *name)
 	QwtPlotLayout *pLayout = plotLayout();
 	pLayout->setCanvasMargin(0);
 	pLayout->setAlignCanvasToScales (true);
-	
+
 	QwtPlotCanvas* plCanvas = canvas();
 	plCanvas->setFocusPolicy(Qt::StrongFocus);
 	plCanvas->setFocusIndicator(QwtPlotCanvas::ItemFocusIndicator);
@@ -105,7 +105,7 @@ Plot::Plot(QWidget *parent, const char *name)
     cg.setColor(QColorGroup::Window, QColor(255, 255, 255, 0));
     setPalette(QPalette(cg, cg, cg));
     setAutoFillBackground(true);
-	
+
 	setCanvasBackground (QColor(255, 255, 255, 0));
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
@@ -142,8 +142,8 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
    			 const QwtScaleMap map[axisCnt], const QwtPlotPrintFilter &pfilter) const
 {
 	painter->save();
-	
-	const QwtPlotCanvas* plotCanvas=canvas();	
+
+	const QwtPlotCanvas* plotCanvas=canvas();
 	QRect rect=canvasRect;
 	if(plotCanvas->lineWidth() > 0)
 	{
@@ -161,10 +161,10 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
   	{
   		QRect rect = canvasRect;
   	    rect.addCoords(1, 1, -1, -1);
-  	 
+
   	    QwtPainter::fillRect(painter, rect, canvasBackground());
-    } 	                   
-  	 
+    }
+
   	painter->restore();
 	painter->setClipping(true);
 	QwtPainter::setClipRect(painter, canvasRect);
@@ -194,9 +194,9 @@ void Plot::drawItems (QPainter *painter, const QRect &rect,
 	}
 }
 
-void Plot::drawInwardTicks(QPainter *painter, const QRect &rect, 
+void Plot::drawInwardTicks(QPainter *painter, const QRect &rect,
 		const QwtScaleMap &map, int axis, bool min, bool maj) const
-{	
+{
 	int x1=rect.left();
 	int x2=rect.right();
 	int y1=rect.top();
@@ -205,7 +205,7 @@ void Plot::drawInwardTicks(QPainter *painter, const QRect &rect,
 	QPalette pal=axisWidget(axis)->palette();
 	QColor color=pal.color(QPalette::Active, QColorGroup::Foreground);
 
-	painter->save();	
+	painter->save();
 	painter->setPen(QPen(color, axesLinewidth(), Qt::SolidLine));
 
 	QwtScaleDiv *scDiv=(QwtScaleDiv *)axisScaleDiv(axis);
@@ -396,10 +396,12 @@ void Plot::setTickLength (int minLength, int majLength)
 }
 
 void Plot::print(QPainter *painter, const QRect &plotRect,
-		const QwtPlotPrintFilter &pfilter) const
+		const QwtPlotPrintFilter &pfilter)
 {
+    QwtText t = title();
 	printFrame(painter, plotRect);
 	QwtPlot::print(painter, plotRect, pfilter);
+	setTitle(t);
 }
 
 int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
@@ -410,7 +412,7 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 	double dmin = 1.0e10;
 	int key = -1;
-	for (QMap<int, QwtPlotItem *>::iterator it = d_curves.begin(); it != d_curves.end(); ++it ) 
+	for (QMap<int, QwtPlotItem *>::iterator it = d_curves.begin(); it != d_curves.end(); ++it )
 	{
 		QwtPlotItem *c = (QwtPlotItem *)it.data();
 		if (!c)
@@ -469,7 +471,7 @@ void Plot::removeCurve(int index)
 	QwtPlotItem *c = d_curves[index];
   	if (!c)
   		return;
-  	 
+
   	if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	{
   		Spectrogram *sp = (Spectrogram *)c;
@@ -477,7 +479,7 @@ void Plot::removeCurve(int index)
   	    if (colorAxis)
   	    	colorAxis->setColorBarEnabled(false);
   	}
-	
+
 	c->detach();
 	d_curves.remove (index);
 }
@@ -548,7 +550,7 @@ int Plot::axisLabelFormat(int axis)
 			return Superscripts;
 	}
 
-	return 0; 
+	return 0;
 }
 
 int Plot::axisLabelPrecision(int axis)
@@ -579,7 +581,7 @@ void Plot::axisLabelFormat(int axis, char &f, int &prec) const
 	else
 	{
 		//for a bad call we return the default values
-		f = 'g'; 
+		f = 'g';
 		prec = 4;
 	}
 }
@@ -650,16 +652,16 @@ const QColor & Plot::paletteBackgroundColor() const
 /*!
   \brief Draw the grid
 
-  The grid is drawn into the bounding rectangle such that 
+  The grid is drawn into the bounding rectangle such that
   gridlines begin and end at the rectangle's borders. The X and Y
   maps are used to map the scale divisions into the drawing region
   screen.
   \param painter  Painter
   \param mx X axis map
-  \param my Y axis 
+  \param my Y axis
   \param r Contents rect of the plot canvas
   */
-void Grid::draw(QPainter *painter, 
+void Grid::draw(QPainter *painter,
 		const QwtScaleMap &mx, const QwtScaleMap &my,
 		const QRect &r) const
 {
@@ -668,17 +670,17 @@ void Grid::draw(QPainter *painter,
 
 	if (xEnabled() && xMinEnabled())
 	{
-		drawLines(painter, r, Qt::Vertical, mx, 
+		drawLines(painter, r, Qt::Vertical, mx,
 				xScaleDiv().ticks(QwtScaleDiv::MinorTick));
-		drawLines(painter, r, Qt::Vertical, mx, 
+		drawLines(painter, r, Qt::Vertical, mx,
 				xScaleDiv().ticks(QwtScaleDiv::MediumTick));
 	}
 
 	if (yEnabled() && yMinEnabled())
 	{
-		drawLines(painter, r, Qt::Horizontal, my, 
+		drawLines(painter, r, Qt::Horizontal, my,
 				yScaleDiv().ticks(QwtScaleDiv::MinorTick));
-		drawLines(painter, r, Qt::Horizontal, my, 
+		drawLines(painter, r, Qt::Horizontal, my,
 				yScaleDiv().ticks(QwtScaleDiv::MediumTick));
 	}
 
@@ -687,19 +689,19 @@ void Grid::draw(QPainter *painter,
 
 	if (xEnabled())
 	{
-		drawLines(painter, r, Qt::Vertical, mx, 
+		drawLines(painter, r, Qt::Vertical, mx,
 				xScaleDiv().ticks (QwtScaleDiv::MajorTick));
 	}
 
 	if (yEnabled())
 	{
-		drawLines(painter, r, Qt::Horizontal, my, 
+		drawLines(painter, r, Qt::Horizontal, my,
 				yScaleDiv().ticks (QwtScaleDiv::MajorTick));
 	}
 }
 
 void Grid::drawLines(QPainter *painter, const QRect &rect,
-		Qt::Orientation orientation, const QwtScaleMap &map, 
+		Qt::Orientation orientation, const QwtScaleMap &map,
 		const QwtValueList &values) const
 {
 	const int x1 = rect.left();

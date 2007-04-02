@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Image export options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -34,14 +34,16 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QGroupBox>
-#include <QImage>
-#include <QHBoxLayout>
-#include <QVBoxLayout>
+#include <QLayout>
 #include <QImageWriter>
+#include <QMessageBox>
+
 
 ImageExportOptionsDialog::ImageExportOptionsDialog( bool exportAllPlots, QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
+    setWindowTitle( tr( "QtiPlot - Export options" ) );
+
 	int row = 0;
 	groupBox1 = new QGroupBox();
 	QGridLayout * groupBoxLayout = new QGridLayout( groupBox1 );
@@ -51,66 +53,58 @@ ImageExportOptionsDialog::ImageExportOptionsDialog( bool exportAllPlots, QWidget
 		{
 		formatLabel = new QLabel( tr( "Image format" ) );
 		groupBoxLayout->addWidget( formatLabel, row, 0 );
-	
-		QList<QByteArray> list = QImageWriter::supportedImageFormats();
-		QByteArray temp;
-		QStringList outputFormatList;
-		foreach(temp,list)
-			outputFormatList.append(QString(temp));
 
-		#ifdef Q_OS_WIN
-			;
- 		#else
-			outputFormatList.prepend("EPS");
-		#endif
-				
-		boxFormat= new QComboBox();
+		QList<QByteArray> list = QImageWriter::supportedImageFormats();
+        list << "eps";
+        list << "pdf";
+        list << "ps";
+
+		QStringList outputFormatList;
+		for(int i=0 ; i<list.count() ; i++)
+            outputFormatList << list[i];
+        outputFormatList.sort();
+
+		boxFormat = new QComboBox();
 		boxFormat->insertStringList (outputFormatList);
 		groupBoxLayout->addWidget( boxFormat, row, 1 );
-		connect( boxFormat, SIGNAL( activated(int) ), this, SLOT( enableTransparency(int) ) );
+		connect( boxFormat, SIGNAL( currentIndexChanged (int)), this, SLOT( enableTransparency(int) ) );
 		row++;
 		}
-	
-	groupBoxLayout->addWidget( new QLabel(tr( "Image quality" )), row, 0 );
-	boxQuality= new QSpinBox();
+
+    labelQuality = new QLabel(tr( "Image quality" ));
+	groupBoxLayout->addWidget( labelQuality, row, 0 );
+	boxQuality = new QSpinBox();
 	boxQuality->setRange(1,100);
 	boxQuality->setValue(100);
 	groupBoxLayout->addWidget( boxQuality, row, 1 );
 	row++;
-	
+
     boxTransparency = new QCheckBox();
 	boxTransparency->setText( tr("Save transparency") );
     boxTransparency->setChecked( false );
 	boxTransparency->setEnabled( false );
-	groupBoxLayout->addWidget( boxTransparency, row, 0 );
-	
-	QVBoxLayout * rightLayout = new QVBoxLayout();
+	groupBoxLayout->addWidget( boxTransparency, row, 1 );
+    groupBoxLayout->setRowStretch(row + 1, 1);
 
-	buttonOk = new QPushButton();
+	QHBoxLayout * rightLayout = new QHBoxLayout();
+    rightLayout->addStretch();
+
+	buttonOk = new QPushButton(tr( "&OK" ));
     buttonOk->setAutoDefault( true );
     buttonOk->setDefault( true );
 	rightLayout->addWidget( buttonOk );
-   
-    buttonCancel = new QPushButton();
+
+    buttonCancel = new QPushButton(tr( "&Cancel" ));
     buttonCancel->setAutoDefault( true );
 	rightLayout->addWidget( buttonCancel );
-	
-	QHBoxLayout * mainLayout = new QHBoxLayout(this);
+
+	QVBoxLayout * mainLayout = new QVBoxLayout(this);
     mainLayout->addWidget(groupBox1);
 	mainLayout->addLayout(rightLayout);
 
-    languageChange();
-   
     // signals and slots connections
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-}
-
-void ImageExportOptionsDialog::languageChange()
-{
-	setWindowTitle( tr( "QtiPlot - Export options" ) );
-	buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
 }
 
 void ImageExportOptionsDialog::enableTransparency(int index)
@@ -121,6 +115,17 @@ void ImageExportOptionsDialog::enableTransparency(int index)
 		boxTransparency->setEnabled(true);
 	else
 		boxTransparency->setEnabled(false);
+
+    if (type == "eps" || type == "pdf" || type == "ps")
+    {
+        labelQuality->setEnabled(false);
+		boxQuality->setEnabled(false);
+    }
+	else
+	{
+	    labelQuality->setEnabled(true);
+		boxQuality->setEnabled(true);
+	}
 }
 
 void ImageExportOptionsDialog::enableTransparency()

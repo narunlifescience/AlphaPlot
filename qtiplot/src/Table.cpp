@@ -55,6 +55,7 @@
 #include <QMouseEvent>
 #include <Q3TableSelection>
 #include <Q3MemArray>
+#include <QPrintDialog>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
@@ -169,16 +170,38 @@ void Table::setHeaderFont(const QFont& fnt)
 	worksheet->horizontalHeader()->setFont (fnt);
 }
 
+void Table::exportPDF(const QString& fileName)
+{
+	print(fileName);
+}
+
 void Table::print()
+{
+    print(QString());
+}
+
+void Table::print(const QString& fileName)
 {
 	QPrinter printer;
 	printer.setColorMode (QPrinter::GrayScale);
-	if (printer.setup())
+	if (!fileName.isEmpty())
 	{
-		printer.setFullPage( true );
-		QPainter p;
-		if ( !p.begin(&printer ) )
-			return; // paint on printer
+	    printer.setCreator("QtiPlot");
+	    printer.setOutputFormat(QPrinter::PdfFormat);
+        printer.setOutputFileName(fileName);
+	}
+	else
+    {
+        QPrintDialog printDialog(&printer);
+        if (printDialog.exec() != QDialog::Accepted)
+            return;
+    }
+
+	printer.setFullPage( true );
+    QPainter p;
+    if ( !p.begin(&printer ) )
+        return; // paint on printer
+
 		Q3PaintDeviceMetrics metrics( p.device() );
 		int dpiy = metrics.logicalDpiY();
 		const int margin = (int) ( (1/2.54)*dpiy ); // 2 cm margins
@@ -256,7 +279,6 @@ void Table::print()
 				p.drawLine(margin,height,right,height);
 			}
 		}
-	}
 }
 
 void Table::cellEdited(int row, int col)
