@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : FFT.h
+    File                 : PolynomialFit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Ion Vasilief
-    Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical FFT of data sets
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Polynomial Fit and Linear Fit classes
 
  ***************************************************************************/
 
@@ -26,43 +26,48 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef FFT_H
-#define FFT_H
+#ifndef POLYNOMIALFIT_H
+#define POLYNOMIALFIT_H
 
-#include "Filter.h"
+#include "Fit.h"
 
-class FFT : public Filter
+class PolynomialFit : public Fit
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
-    FFT(ApplicationWindow *parent, Table *t, const QString& realColName, const QString& imagColName = QString());
-	FFT(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+	public:
+		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
 
-    void setInverseFFT(bool inverse = true){d_inverse = inverse;};
-    void setSampling(double sampling){d_sampling = sampling;};
-    void normalizeAmplitudes(bool norm = true){d_normalize = norm;};
-    void shiftFrequencies(bool shift = true){d_shift_order = shift;};
+		virtual QString legendInfo();
+		void fit();
 
-private:
-    void init();
-    void output();
-    void output(const QString &text);
+		static QString generateFormula(int order);
+		static QStringList generateParameterList(int order);
 
-    QString fftCurve();
-    QString fftTable();
+	private:
+		void init();
+		void calculateFitCurveData(double *par, double *X, double *Y);
 
-    void setDataFromTable(Table *t, const QString& realColName, const QString& imagColName = QString());
-
-    double d_sampling;
-    //! Flag telling if an inverse FFT must be performed.
-    bool d_inverse;
-    //! Flag telling if the amplitudes in the output spectrum must be normalized.
-    bool d_normalize;
-    //! Flag telling if the output frequencies must be shifted in order to have a zero-centered spectrum.
-    bool d_shift_order;
-
-    int d_real_col, d_imag_col;
+		int d_order;
+		bool show_legend;
 };
 
+class LinearFit : public Fit
+{
+	Q_OBJECT
+
+	public:
+		LinearFit(ApplicationWindow *parent, Graph *g);
+		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+
+		void fit();
+
+	private:
+		void init();
+		void calculateFitCurveData(double *par, double *X, double *Y);
+};
 #endif
+

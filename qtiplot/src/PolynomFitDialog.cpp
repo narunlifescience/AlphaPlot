@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fit polynomial dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -30,8 +30,7 @@
 #include "Graph.h"
 #include "ColorBox.h"
 #include "ApplicationWindow.h"
-#include "Fit.h"
-#include "fitclasses.h"
+#include "PolynomialFit.h"
 
 #include <QSpinBox>
 #include <QCheckBox>
@@ -57,13 +56,13 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 
 	boxName = new QComboBox();
     gl1->addWidget(boxName, 0, 1);
-	
+
     gl1->addWidget(new QLabel( tr("Order (1 - 9, 1 = linear)")), 1, 0);
-	boxOrder = new QSpinBox(); 
+	boxOrder = new QSpinBox();
     boxOrder->setRange(1, 9);
 	boxOrder->setValue(2);
     gl1->addWidget(boxOrder, 1, 1);
-	
+
     gl1->addWidget(new QLabel( tr("Fit curve # pts")), 2, 0);
 	boxPoints = new QSpinBox();
     boxPoints->setRange(1, 1000);
@@ -144,7 +143,7 @@ void PolynomFitDialog::fit()
 	{
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		PolynomialFit *fitter = new PolynomialFit(app, graph, boxOrder->value(), boxShowFormula->isChecked());
-		if (fitter->setDataFromCurve(boxName->currentText(), 
+		if (fitter->setDataFromCurve(boxName->currentText(),
 					boxStart->text().toDouble(), boxEnd->text().toDouble()))
 		{
 			fitter->setColor(boxColor->currentItem());
@@ -198,7 +197,7 @@ void PolynomFitDialog::changeCurve(int index)
 	{
 		index++;
 		c = graph->curve(index);
-		if(!c || index >= graph->curves()) 
+		if(!c || index >= graph->curves())
 			index=0; //Restart from the beginning
 	}
 	boxName->setCurrentItem(index);

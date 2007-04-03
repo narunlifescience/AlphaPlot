@@ -1,11 +1,11 @@
 /***************************************************************************
-    File                 : fitclasses.h
+    File                 : NonLinearFit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Multiple classes derived from Fit
-                           
+    Description          : NonLinearFit class
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,25 +26,10 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef FITCLASSES_H
-#define FITCLASSES_H
+#ifndef NONLINEARFIT_H
+#define NONLINEARFIT_H
 
 #include "Fit.h"
-
-class SigmoidalFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		SigmoidalFit(ApplicationWindow *parent, Graph *g);
-		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-		void guessInitialValues();
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
 
 class NonLinearFit : public Fit
 {
@@ -62,61 +47,5 @@ class NonLinearFit : public Fit
 		void calculateFitCurveData(double *par, double *X, double *Y);
 		void init();
 };
-
-class PluginFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		PluginFit(ApplicationWindow *parent, Graph *g);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-		bool load(const QString& pluginName);
-
-	private:
-		void init();
-		typedef double (*fitFunctionEval)(double, double *);
-		void calculateFitCurveData(double *par, double *X, double *Y);
-		fitFunctionEval f_eval;
-};
-
-class PolynomialFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
-
-		virtual QString legendInfo();
-		void fit();
-
-		static QString generateFormula(int order);
-		static QStringList generateParameterList(int order);
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-
-		int d_order;
-		bool show_legend;
-};
-
-class LinearFit : public Fit
-{
-	Q_OBJECT
-
-	public:
-		LinearFit(ApplicationWindow *parent, Graph *g);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
-
-		void fit();
-
-	private:
-		void init();
-		void calculateFitCurveData(double *par, double *X, double *Y);
-};
 #endif
+

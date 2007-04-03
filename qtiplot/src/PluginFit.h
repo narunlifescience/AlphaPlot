@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : FFT.h
+    File                 : PluginFit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Ion Vasilief
-    Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Numerical FFT of data sets
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Plugin Fit class
 
  ***************************************************************************/
 
@@ -26,43 +26,27 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef FFT_H
-#define FFT_H
+#ifndef PLUGINFIT_H
+#define PLUGINFIT_H
 
-#include "Filter.h"
+#include "Fit.h"
 
-class FFT : public Filter
+class PluginFit : public Fit
 {
-Q_OBJECT
+	Q_OBJECT
 
-public:
-    FFT(ApplicationWindow *parent, Table *t, const QString& realColName, const QString& imagColName = QString());
-	FFT(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+	public:
+		PluginFit(ApplicationWindow *parent, Graph *g);
+		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+		PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
-    void setInverseFFT(bool inverse = true){d_inverse = inverse;};
-    void setSampling(double sampling){d_sampling = sampling;};
-    void normalizeAmplitudes(bool norm = true){d_normalize = norm;};
-    void shiftFrequencies(bool shift = true){d_shift_order = shift;};
+		bool load(const QString& pluginName);
 
-private:
-    void init();
-    void output();
-    void output(const QString &text);
-
-    QString fftCurve();
-    QString fftTable();
-
-    void setDataFromTable(Table *t, const QString& realColName, const QString& imagColName = QString());
-
-    double d_sampling;
-    //! Flag telling if an inverse FFT must be performed.
-    bool d_inverse;
-    //! Flag telling if the amplitudes in the output spectrum must be normalized.
-    bool d_normalize;
-    //! Flag telling if the output frequencies must be shifted in order to have a zero-centered spectrum.
-    bool d_shift_order;
-
-    int d_real_col, d_imag_col;
+	private:
+		void init();
+		typedef double (*fitFunctionEval)(double, double *);
+		void calculateFitCurveData(double *par, double *X, double *Y);
+		fitFunctionEval f_eval;
 };
-
 #endif
+

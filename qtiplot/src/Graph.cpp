@@ -120,7 +120,6 @@ static const char *unzoom_xpm[]={
 #include "FunctionCurve.h"
 #include "Fit.h"
 #include "MultiPeakFit.h"
-#include "fitclasses.h"
 #include "Spectrogram.h"
 #include "SelectionMoveResizer.h"
 

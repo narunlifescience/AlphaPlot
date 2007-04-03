@@ -109,7 +109,7 @@ public:
 	virtual void restore(const QStringList& ){};
 
 	virtual void print(){};
-	virtual void exportPDF(const QString& fileName){};
+	virtual void exportPDF(const QString&){};
 
 	virtual QString saveToString(const QString &){return QString();};
 

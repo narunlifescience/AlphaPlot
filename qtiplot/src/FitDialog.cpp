@@ -33,7 +33,10 @@
 #include "Fit.h"
 #include "MultiPeakFit.h"
 #include "ExponentialFit.h"
-#include "fitclasses.h"
+#include "PolynomialFit.h"
+#include "PluginFit.h"
+#include "NonLinearFit.h"
+#include "SigmoidalFit.h"
 #include "Matrix.h"
 
 #include <QListWidget>

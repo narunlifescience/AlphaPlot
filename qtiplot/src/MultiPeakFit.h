@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : fitclasses.h
+    File                 : MultiPeakFit.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen

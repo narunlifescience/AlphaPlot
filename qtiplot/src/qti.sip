@@ -190,7 +190,7 @@ public:
 		sipCpp->normalizeCol(col);
 %End
   void normalize();
-  
+
   void sortColumn(int col = -1, int order = 0);
   void sort(int type = 0, int order = 0, const QString& leadCol = QString());
   void sortColumns(SIP_PYTUPLE, int=0, int=0, const QString&=QString());
@@ -209,7 +209,7 @@ public:
   }
   sipCpp->sortColumns(l, a1, a2, *a3);
 %End
-  
+
 private:
   Table(const Table&);
 };
@@ -304,7 +304,7 @@ public:
   void deleteFitCurves();
   int curves() /PyName=numCurves/;
 
-  void addErrorBars(Table *, const QString&, 
+  void addErrorBars(Table *, const QString&,
 		  Table *, const QString&,
 		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 		  bool through = true, bool minus = true, bool plus = true);
@@ -323,11 +323,11 @@ public:
 
   void setScale(int axis, double start, double end, double step = 0.0,
                 int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
-                
+
   void print();
-  void exportImage(const QString& fileName, const QString& fileType = "PNG", 
+  void exportImage(const QString& fileName, const QString& fileType = "PNG",
   			int quality = 100, bool transparent = false);
-							
+
   //void exportSVG(const QString& fname);
   void exportLayer(const QString& fileName);
 
@@ -381,7 +381,7 @@ sipTypeDef *t;
       (!t->td_cname && cN == t->td_name+4))
     sipClass = sipModuleAPI_qti.em_types[i];
 %End
-  
+
 public:
   Table* table(const QString&);
 %MethodCode
@@ -441,7 +441,7 @@ public:
 
 	Matrix* importImage();
 	Matrix* importImage(const QString&);
-	MultiLayer* plotContour(Matrix*);  
+	MultiLayer* plotContour(Matrix*);
 	MultiLayer* plotColorMap(Matrix*);
 	MultiLayer* plotGrayScale(Matrix*);
 
@@ -642,7 +642,7 @@ public:
 class SigmoidalFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/SigmoidalFit.h"
 %End
 public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -678,7 +678,7 @@ public:
 class NonLinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/NonLinearFit.h"
 %End
 public:
   NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -709,7 +709,7 @@ public:
 class PluginFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/PluginFit.h"
 %End
 public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -783,7 +783,7 @@ public:
 class PolynomialFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/PolynomialFit.h"
 %End
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
@@ -807,7 +807,7 @@ public:
 class LinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/fitclasses.h"
+#include "src/PolynomialFit.h"
 %End
 public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);

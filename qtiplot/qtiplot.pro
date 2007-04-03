@@ -209,7 +209,10 @@ HEADERS  += src/ApplicationWindow.h \
             src/Fit.h\
 			src/MultiPeakFit.h\
 			src/ExponentialFit.h\
-            src/fitclasses.h\
+			src/PolynomialFit.h\
+			src/NonLinearFit.h\
+			src/PluginFit.h\
+            src/SigmoidalFit.h\
             src/customevents.h\
             src/ScriptingLangDialog.h\
             src/ScriptWindow.h\
@@ -309,7 +312,10 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/Fit.cpp\
 			src/MultiPeakFit.cpp\
 			src/ExponentialFit.cpp\
-            src/fitclasses.cpp\
+			src/PolynomialFit.cpp\
+			src/PluginFit.cpp\
+			src/NonLinearFit.cpp\
+            src/SigmoidalFit.cpp\
             src/ScriptingEnv.cpp\
             src/Script.cpp\
             src/ScriptingLangDialog.cpp\
