@@ -239,9 +239,7 @@ public slots:
 	void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
 
     void exportPDF(const QString& fileName);
-    void exportVector(const QString& fileName, const QString& fileType = "pdf", int res = 0,
-                    QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize size = QPrinter::A5,
-                    QPrinter::ColorMode col = QPrinter::Color);
+    void exportVector(const QString& fileName, const QString& fileType = "pdf");
 
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);

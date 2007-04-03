@@ -57,8 +57,8 @@ public:
 	ImageExportDialog( QWidget * parent = 0, Qt::WFlags flags = 0 );
 	bool showExportOptions(){return boxOptions->isChecked();};
 
-public slots:
-	void showOptionsBox (const QString & filter);
+//public slots:
+	//void showOptionsBox (const QString &);
 };
 
 #endif

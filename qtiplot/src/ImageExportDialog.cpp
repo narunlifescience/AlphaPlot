@@ -27,7 +27,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-
+#include <QMessageBox>
 #include "ImageExportDialog.h"
 
 ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
@@ -61,13 +61,16 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, Qt::WFlags flags)
 	layout()->addItem( si1 );
 	layout()->addItem( si2 );
 	layout()->addWidget( boxOptions );
+	
+	//TODO: The following lines must be uncommented when building with Qt 4.3 (ion) 
+	//connect(this, SIGNAL(filterSelected ( const QString & )), 
+		//this, SLOT(showOptionsBox ( const QString & )));
 }
 
-void ImageExportDialog::showOptionsBox (const QString & filter)
+/*void ImageExportDialog::showOptionsBox (const QString & filter)
 {
 	if (filter.contains("svg"))
 		boxOptions->hide();
 	else
 		boxOptions->show();
-}
-
+}*/

@@ -42,7 +42,6 @@
 #include <QCursor>
 #include <QImageWriter>
 
-#include <qwt3d_io.h>
 #include <qwt3d_io_gl2ps.h>
 #include <qwt3d_coordsys.h>
 
@@ -2156,8 +2155,7 @@ void Graph3D::exportPDF(const QString& fileName)
 	exportVector(fileName);
 }
 
-void Graph3D::exportVector(const QString& fileName, const QString& fileType, int res, QPrinter::Orientation o,
-		QPrinter::PageSize size, QPrinter::ColorMode col)
+void Graph3D::exportVector(const QString& fileName, const QString& fileType)
 {
 	if ( fileName.isEmpty() )
 	{
