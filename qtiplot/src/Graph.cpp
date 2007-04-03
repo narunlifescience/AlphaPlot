@@ -734,7 +734,7 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks);
 
 	if (majTicksType == ScaleDraw::None || majTicksType == ScaleDraw::In)
-		majLength = 0;
+		majLength = minLength;	
 	if (minTicksType == ScaleDraw::None || minTicksType == ScaleDraw::In)
 		minLength = 0;
 
@@ -842,7 +842,7 @@ void Graph::showAxis(int axis, int type, const QString& formatInfo, Table *table
 
 	scalePicker->refresh();
 	d_plot->updateLayout();	//This is necessary in order to enable/disable tick labels
-//	scale->repaint();
+	scale->repaint();
 	d_plot->replot();
 	emit modifiedGraph();
 }
