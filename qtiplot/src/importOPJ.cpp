@@ -29,7 +29,8 @@
 #include "importOPJ.h"
 #include <OPJFile.h>
 
-#include <qregexp.h>
+#include <QRegExp>
+#include <QMessageBox>
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
@@ -68,9 +69,10 @@ for (int s=0; s<opj.numSpreads(); s++)
 			{
 			if(strcmp(opj.colType(s,j),"LABEL")) 
 				{// number
-				double val = opj.Data(s,j)[i];
-				if(fabs(val)<2.0e-300)// empty entry
+				double val = opj.Data(s,j)[i];		
+				if(fabs(val)>0 && fabs(val)<2.0e-300)// empty entry
 					continue;
+				
 				table->setText(i, j, QString::number(val));
 				}
 			else// label? doesn't seem to work

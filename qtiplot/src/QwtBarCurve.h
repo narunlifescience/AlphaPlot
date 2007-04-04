@@ -42,9 +42,6 @@ public:
 
 	void copy(const QwtBarCurve *b);
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
 	virtual QwtDoubleRect boundingRect() const;
 
 	BarStyle orientation(){return bar_style;};
@@ -58,6 +55,9 @@ public:
 	double dataOffset();
 	
 private:
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to) const;
+
 	int bar_gap, bar_offset;
 	BarStyle bar_style;
 };

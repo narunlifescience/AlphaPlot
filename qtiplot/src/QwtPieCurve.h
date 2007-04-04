@@ -35,12 +35,6 @@ class QwtPieCurve: public QwtPlotCurve
 public:
 	QwtPieCurve(const char *name=0);
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap,
-		const QwtScaleMap &yMap, int from, int to) const;
-
-	virtual void drawPie(QPainter *painter, const QwtScaleMap &xMap,
-		const QwtScaleMap &yMap, int from, int to) const;
-
 public slots:
 	QColor color(int i) const;
 
@@ -51,8 +45,14 @@ public slots:
 	void setBrushStyle(const Qt::BrushStyle& style);
 
 	void setFirstColor(int index){d_first_color = index;};
-	int first(){return d_first_color;};
+	int firstColor(){return d_first_color;};
 
 private:
+	void draw(QPainter *painter,const QwtScaleMap &xMap,
+		const QwtScaleMap &yMap, int from, int to) const;
+
+	void drawPie(QPainter *painter, const QwtScaleMap &xMap,
+		const QwtScaleMap &yMap, int from, int to) const;
+
 	int d_pie_ray, d_first_color;
 };

@@ -29,7 +29,7 @@
 #ifndef SYMBOLBOX_H
 #define SYMBOLBOX_H
 
-#include <qcombobox.h>
+#include <QComboBox>
 #include <qwt_symbol.h>
 
 //! Plot symbol combo box

@@ -43,14 +43,6 @@ public:
 
 	void copy(const BoxCurve *b);
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
-	void drawBox(QPainter *painter, const QwtScaleMap &xMap, 
-				const QwtScaleMap &yMap, double *dat, int size) const;
-	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, 
-				const QwtScaleMap &yMap, double *dat, int size) const;
-
 	virtual QwtDoubleRect boundingRect() const;
 
 	QwtSymbol::Style minStyle(){return min_style;};
@@ -83,6 +75,13 @@ public:
 	void setWhiskersRange(int type, double coeff);
 	
 private:
+	void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to) const;
+	void drawBox(QPainter *painter, const QwtScaleMap &xMap, 
+				const QwtScaleMap &yMap, double *dat, int size) const;
+	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, 
+				const QwtScaleMap &yMap, double *dat, int size) const;
+
 	QwtSymbol::Style min_style, max_style, mean_style, p99_style, p1_style;
 	double b_coeff, w_coeff;
 	int b_style, b_width, b_range, w_range;

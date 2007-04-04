@@ -260,7 +260,7 @@ void PieDialog::setMultiLayerPlot(MultiLayer *m)
 	boxLineWidth->setValue(pie->pen().width());
 	boxLineColor->setColor(pie->pen().color());
 	setBorderStyle(pie->pen().style());
-	boxFirstColor->setCurrentItem(pie->first());
+	boxFirstColor->setCurrentItem(pie->firstColor());
 }
 
 void PieDialog::pickCanvasColor()

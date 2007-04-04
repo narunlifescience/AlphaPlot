@@ -3666,7 +3666,7 @@ QString Graph::savePieCurveLayout()
 
 	s+=QString::number(index)+"\t";
 	s+=QString::number(pieRay)+"\t";
-	s+=QString::number(pieCurve->first())+"\n";
+	s+=QString::number(pieCurve->firstColor())+"\n";
 
 	return s;
 }
@@ -4492,7 +4492,7 @@ void Graph::plotPie(QwtPieCurve* curve)
 	pieRay=curve->ray();
 	pieCurve->setRay(pieRay);
 	pieCurve->setBrushStyle(curve->pattern());
-	pieCurve->setFirstColor(curve->first());
+	pieCurve->setFirstColor(curve->firstColor());
 	piePlot=true;
 
 	associations<<curve->title().text();

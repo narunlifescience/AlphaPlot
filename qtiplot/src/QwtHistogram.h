@@ -36,9 +36,6 @@ public:
 
 	void copy(const QwtHistogram *h);
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
 	QwtDoubleRect boundingRect() const;
 
 	void setBinning(bool autoBin, double begin, double end, double size);
@@ -48,6 +45,9 @@ public:
 	double binSize(){return d_binSize;};
 
 private:
+	void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to) const;
+
 	bool d_autoBin;
 	double d_binSize, d_begin, d_end;
 };

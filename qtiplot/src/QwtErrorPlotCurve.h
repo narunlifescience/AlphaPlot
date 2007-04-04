@@ -45,12 +45,6 @@ public:
 
 	QwtDoubleRect boundingRect() const;
 
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
-	virtual void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap, 
-		const QwtScaleMap &yMap, int from, int to) const;
-
 	double errorValue(int i);
 	QwtArray<double> errors(){return err;};
 	void setErrors(const QwtArray<double>&data){err=data;};
@@ -87,6 +81,12 @@ public:
 	void setYDataOffset(double offset){d_yOffset = offset;};
 
 private:
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to) const;
+
+	void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap, 
+		const QwtScaleMap &yMap, int from, int to) const;
+
     //! Stores the error bar values
     QwtArray<double> err;
 

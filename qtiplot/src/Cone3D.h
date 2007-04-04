@@ -45,11 +45,11 @@ public:
   void draw(Qwt3D::Triple const&);
 
 private:
-	GLUquadricObj *hat;
+  	GLUquadricObj *hat;
 	GLUquadricObj *disk;
-  unsigned quality_;
-  double radius_;
-  GLboolean oldstate_;
+	unsigned quality_;
+	double radius_;
+	GLboolean oldstate_;
 };
 
 #endif

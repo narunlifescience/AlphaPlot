@@ -26,21 +26,17 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qobject.h>
+#include <QObject>
 
 class QwtPlot;
-class QwtScaleWidget;
 class QwtTextLabel;
-class QLabel;
-#include <QPoint>
-class QRect;
-	
+
 class TitlePicker: public QObject
 {
     Q_OBJECT
+	
 public:
     TitlePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
 
 signals:
 	void clicked();
@@ -48,6 +44,7 @@ signals:
 	void removeTitle();
 	void showTitleMenu();
 
-protected:
+private:
+	bool eventFilter(QObject *, QEvent *);
 	QwtTextLabel *title;
 };

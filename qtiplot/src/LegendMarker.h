@@ -61,8 +61,6 @@ public:
 	//! The kinds of frame a LegendMarker can draw around the Text.
 	enum FrameStyle{None = 0, Line = 1, Shadow=2};
 
-	virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
-
 	QString text(){return d_text->text();};
 	void setText(const QString& s);
 
@@ -94,16 +92,16 @@ public:
 	int angle(){return d_angle;};
 	void setAngle(int ang){d_angle=ang;};
 	
-	void drawFrame(QPainter *p, int type, const QRect& rect) const;
+private:
+	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
+	void drawFrame(QPainter *p, int type, const QRect& rect) const;
 	void drawSymbols(QPainter *p, const QRect& rect,
 					QwtArray<long> height, int symbolLineLength) const;
-
 	void drawLegends(QPainter *p, const QRect& rect, 
 					QwtArray<long> height, int symbolLineLength) const;
-
 	void drawVector(QPainter *p, int x, int y, int l, int curveIndex) const;
-														
+													
 	QwtArray<long> itemsHeight(int y, int symbolLineLength, int &width, int &height) const;
 	int symbolsMaxLineLength() const;
 

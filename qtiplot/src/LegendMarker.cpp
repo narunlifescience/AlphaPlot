@@ -60,7 +60,7 @@ LegendMarker::LegendMarker(Plot *plot):
 	top_margin = 5;
 }
 
-void LegendMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const
+void LegendMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
 {
 	const int x = xMap.transform(xValue());
 	const int y = yMap.transform(yValue());

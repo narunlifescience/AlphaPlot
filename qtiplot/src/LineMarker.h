@@ -47,7 +47,6 @@ class LineMarker: public QObject, public QwtPlotMarker
 public:
 	enum Operation { None, MoveStart, MoveEnd, MoveBoth };
     LineMarker();
-    virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	//! Pixel coordinates of the start point
 	QPoint startPoint() const;
@@ -125,6 +124,7 @@ public:
 	bool eventFilter(QObject *o, QEvent *e);
 
 private:
+	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 	double theta(int xs, int ys, int xe, int ye) const;
 
 	//! Flag specifying if the start arrow is visible

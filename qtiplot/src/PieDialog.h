@@ -55,27 +55,6 @@ public:
     PieDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~PieDialog();
 
-	void initPiePage();
-	void initBorderPage();
-
-    QPushButton* buttonWrk;
-    QPushButton* buttonApply;
-    QPushButton* buttonOk;
-    QPushButton* buttonCancel;
-    QTabWidget* generalDialog;
-	QWidget* frame, *pieOptions;
-    QListWidget *curvesList;
-    QSpinBox *boxFrameWidth;
-	QSpinBox *boxRadius, *boxMargin;
-	QCheckBox *boxFramed, *boxAll;
-    ColorBox *boxFrameColor, *boxLineColor, *boxFirstColor;
-	QComboBox *boxLineStyle;
-    PatternBox *boxPattern;
-	QSpinBox *boxLineWidth, *boxBorderWidth;
-	QCheckBox *boxAntialiasing;
-	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency; 
-	ColorButton *boxBackgroundColor, *boxBorderColor, *boxCanvasColor;
-
 public slots:
 	void accept();
 	void updatePlot();
@@ -110,7 +89,28 @@ signals:
 	void updatePie(const QPen&, const Qt::BrushStyle &,int, int);
 
 private:
+	void initPiePage();
+	void initBorderPage();
+
 	MultiLayer *mPlot;
+
+    QPushButton* buttonWrk;
+    QPushButton* buttonApply;
+    QPushButton* buttonOk;
+    QPushButton* buttonCancel;
+    QTabWidget* generalDialog;
+	QWidget* frame, *pieOptions;
+    QListWidget *curvesList;
+    QSpinBox *boxFrameWidth;
+	QSpinBox *boxRadius, *boxMargin;
+	QCheckBox *boxFramed, *boxAll;
+    ColorBox *boxFrameColor, *boxLineColor, *boxFirstColor;
+	QComboBox *boxLineStyle;
+    PatternBox *boxPattern;
+	QSpinBox *boxLineWidth, *boxBorderWidth;
+	QCheckBox *boxAntialiasing;
+	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency; 
+	ColorButton *boxBackgroundColor, *boxBorderColor, *boxCanvasColor;
 
 protected:
     void contextMenuEvent(QContextMenuEvent *e);

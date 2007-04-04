@@ -26,14 +26,12 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qobject.h>
+#include <QObject>
 
+class QRect;
+class QPoint;
 class QwtPlot;
 class QwtScaleWidget;
-class QwtTextLabel;
-class QLabel;
-#include <QPoint>
-class QRect;
 	
 /*!\brief Handles user interaction with a QwtScaleWidget.
  *
@@ -45,14 +43,9 @@ class ScalePicker: public QObject
     Q_OBJECT
 public:
     ScalePicker(QwtPlot *plot);
-    virtual bool eventFilter(QObject *, QEvent *);
 
 	//! The bounding rectangle of a scale without the title.
 	QRect scaleRect(const QwtScaleWidget *) const;
-
-	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
-	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
-	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
 
 	/*! Install myself as event filter for all axes of my parent.
 	 * For every axis of plot(), add myself to the corresponding QwtScaleWidget.
@@ -97,5 +90,11 @@ signals:
 	 * \sa QwtScaleDraw::Alignment
 	 */
 	void topAxisTitleDblClicked();
-};
+	
+private:
+    bool eventFilter(QObject *, QEvent *);
 
+	void mouseDblClicked(const QwtScaleWidget *, const QPoint &);
+	void mouseClicked(const QwtScaleWidget *scale, const QPoint &pos) ;
+	void mouseRightClicked(const QwtScaleWidget *scale, const QPoint &pos);
+};

@@ -66,8 +66,6 @@ class ImageMarker: public QwtPlotMarker
 public:
 	//! Construct an image marker from a pixmap.
 	ImageMarker(const QPixmap& p);
-	//! Does the actual drawing; see QwtPlotItem::draw.
-	virtual void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 	
 	//! Return bounding rectangle in paint coordinates.
 	QRect rect() const {return transform(plot()->canvasMap(xAxis()), plot()->canvasMap(yAxis()), d_rect);};
@@ -100,6 +98,9 @@ public:
 	void updateBoundingRect();
 
 private:
+	//! Does the actual drawing; see QwtPlotItem::draw.
+	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
+
 	QPoint d_pos;
 	//! The pixmap to be drawn.
 	QPixmap d_pic;

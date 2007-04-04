@@ -29,10 +29,9 @@
 #ifndef SCALES_H
 #define SCALES_H
 
+#include <QDateTime>
+#include <QStringList>
 #include <qwt_scale_draw.h>
-
-#include <qstringlist.h>
-#include <qdatetime.h>
 
 //! Extension to QwtScaleDraw
 class ScaleDraw: public QwtScaleDraw
@@ -65,7 +64,7 @@ public:
 	void setMinorTicksStyle(TicksStyle type){d_minTicks = type;};
 	
 protected:
-	virtual void drawTick(QPainter *p, double value, int len) const;
+	void drawTick(QPainter *p, double value, int len) const;
 
 private:
 	QString formula_string;
@@ -80,7 +79,7 @@ public:
 	QwtTextScaleDraw(const QStringList& list);
 	~QwtTextScaleDraw(){};
 		
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 
 	QStringList labelsList(){return labels;};
 private:
@@ -96,7 +95,7 @@ public:
 	QString origin();
 	QString timeFormat() {return t_format;};
 		
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 	
 private:
 	QTime t_origin;
@@ -112,7 +111,7 @@ public:
 	QString origin();
 	
 	QString format() {return t_format;};
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 	
 private:
 	QDate t_origin;
@@ -128,7 +127,7 @@ public:
 	~WeekDayScaleDraw(){};
 		
 	NameFormat format() {return d_format;};
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 	
 private:
 	NameFormat d_format;
@@ -143,7 +142,7 @@ public:
 	~MonthScaleDraw(){};
 		
 	NameFormat format() {return d_format;};	
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 	
 private:
 	NameFormat d_format;
@@ -155,7 +154,7 @@ public:
 	QwtSupersciptsScaleDraw(const QString& s = QString::null);
 	~QwtSupersciptsScaleDraw(){};
 
-	virtual QwtText label(double value) const;
+	QwtText label(double value) const;
 };
 
 #endif

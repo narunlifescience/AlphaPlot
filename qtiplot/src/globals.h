@@ -37,6 +37,6 @@ const int patch_version = 0;
 //! Extra version information string (like "alpha", "-2", etc...)
 const char * extra_version = "rc1";
 //! Copyright string containing the author names
-const char * copyright_string = "Copyright (C) 2000-2005 Ion Vasilief\nCopyright (C) 2006-2007 Ion Vasilief, Tilman Hoener zu Siederdissen, Knut Franke";
+const char * copyright_string = "Copyright (C) 2004-2007 Ion Vasilief\nCopyright (C) 2006-2007 Tilman Hoener zu Siederdissen, Knut Franke";
 //! Release date as a string
 const char * release_date = " 2007/04/\?\?";

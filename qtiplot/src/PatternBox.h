@@ -29,7 +29,7 @@
 #ifndef PATTERNBOX_H
 #define PATTERNBOX_H
 
-#include <qcombobox.h>
+#include <QComboBox>
 
 //! Pattern combo box
 class PatternBox : public QComboBox
