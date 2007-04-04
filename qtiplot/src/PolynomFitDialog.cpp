@@ -157,9 +157,8 @@ void PolynomFitDialog::setGraph(Graph *g)
 {
 	graph = g;
 	boxName->insertStringList (g->curvesList(),-1);
-	int index = 0;
-	if (graph->selectorsEnabled())
-		index = graph->curveIndex(graph->selectedCurveID());
+	int index = graph->curveIndex(graph->selectedCurveID());
+	if (index < 0) index = 0;
 
 	activateCurve(index);
 	boxName->setCurrentItem(index);
@@ -170,24 +169,12 @@ void PolynomFitDialog::setGraph(Graph *g)
 
 void PolynomFitDialog::activateCurve(int index)
 {
-	QwtPlotCurve *c = graph->curve(index);
-	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
-		return;
+	double start, end;
+	int n_points = graph->range(index, &start, &end);
 
-	if (graph->selectorsEnabled() && graph->selectedCurveID() == graph->curveKey(index))
-	{
-		double start = graph->selectedXStartValue();
-		double end = graph->selectedXEndValue();
-		boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
-		boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
-	}
-	else
-	{
-		boxStart->setText(QString::number(c->minXValue(), 'g', 15));
-		boxEnd->setText(QString::number(c->maxXValue(), 'g', 15));
-	}
-
-	boxPoints->setValue(QMAX(c->dataSize(), 100));
+	boxStart->setText(QString::number(start, 'g', 15));
+	boxEnd->setText(QString::number(end, 'g', 15));
+	boxPoints->setValue(QMAX(n_points, 100));
 };
 
 void PolynomFitDialog::changeCurve(int index)

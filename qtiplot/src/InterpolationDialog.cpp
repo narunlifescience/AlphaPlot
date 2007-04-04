@@ -161,40 +161,31 @@ delete i;
 
 void InterpolationDialog::setGraph(Graph *g)
 {
-graph = g;
-boxName->insertStringList (g->curvesList(),-1);
-	
-if (g->selectorsEnabled())
-	{
-	int index = g->curveIndex(g->selectedCurveID());
-	boxName->setCurrentItem(index);
-	activateCurve(index);
-	}
-else
-	activateCurve(0);
+	graph = g;
+	boxName->insertStringList (g->curvesList(),-1);
 
-connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
-connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	int index = g->curveIndex(g->selectedCurveID());
+	if (index > 0) {
+		boxName->setCurrentItem(index);
+		activateCurve(index);
+	}
+	else
+		activateCurve(0);
+
+	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
+	connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void InterpolationDialog::activateCurve(int index)
 {
-QwtPlotCurve *c = graph->curve(index);
-if (!c)
-	return;
+	QwtPlotCurve *c = graph->curve(index);
+	if (!c)
+		return;
 
-if (graph->selectorsEnabled() && graph->selectedCurveID() == graph->curveKey(index))
-	{
-	double start = graph->selectedXStartValue();
-	double end = graph->selectedXEndValue();
+	double start, end;
+	graph->range(index, &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end)));
 	boxEnd->setText(QString::number(QMAX(start, end)));
-	}
-else
-	{
-	boxStart->setText(QString::number(c->minXValue()));
-	boxEnd->setText(QString::number(c->maxXValue()));
-	}
 };
 
 void InterpolationDialog::changeDataRange()

@@ -512,13 +512,11 @@ void FitDialog::setGraph(Graph *g)
 	boxCurve->clear();
 	boxCurve->addItems(graph->curvesList());
 
-	if (g->selectorsEnabled())
-	{
-		int index = g->curveIndex(g->selectedCurveID());
+	int index = g->curveIndex(g->selectedCurveID());
+	if (index >= 0) {
 		boxCurve->setCurrentIndex(index);
 		activateCurve(index);
-	}
-	else
+	} else
 		activateCurve(0);
 
 	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));

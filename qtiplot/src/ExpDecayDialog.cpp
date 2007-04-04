@@ -191,7 +191,7 @@ void ExpDecayDialog::fit()
 	}
 
 	bool dataAllocated = false;
-	if (graph->selectorsEnabled())
+	if (graph->selectedCurveID() >= 0)
   		dataAllocated = fitter->setDataFromCurve(boxName->currentText());
   	else
   		dataAllocated = fitter->setDataFromCurve(boxName->currentText(), boxStart->text().toDouble(), c->maxXValue());

@@ -25,7 +25,7 @@ unix: documentation.path = /usr/share/doc/qtiplot
 #!!! Warning: You must modify these paths according to your computer settings
 #############################################################################
 
-INCLUDEPATH       += ../3rdparty
+INCLUDEPATH       += ../3rdparty/muParser
 
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
 INCLUDEPATH       += ../3rdparty/qwt/src
@@ -228,8 +228,14 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
-			src/Convolution.h\
-			src/Correlation.h
+				src/Convolution.h\
+				src/Correlation.h\
+				src/PlotToolInterface.h\
+				src/ScreenPickerTool.h\
+				src/DataPickerTool.h\
+				src/RangeSelectorTool.h\
+				src/TranslateCurveTool.h\
+				src/MultiPeakFitTool.h\
 
 ###################### SOURCES ##############################################
 
@@ -331,8 +337,13 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
-			src/Convolution.cpp\
-			src/Correlation.cpp
+				src/Convolution.cpp\
+				src/Correlation.cpp\
+				src/ScreenPickerTool.cpp\
+				src/DataPickerTool.cpp\
+				src/RangeSelectorTool.cpp\
+				src/TranslateCurveTool.cpp\
+				src/MultiPeakFitTool.cpp\
 
 ###############################################################
 ##################### Compression (zlib123) ###################
@@ -399,60 +410,60 @@ contains(SCRIPTING_LANGS, Python) {
 
 ##################### SIP generated files #####################
 
-  HEADERS += ../tmp/qtiplot/sipqtiApplicationWindow.h\
-             ../tmp/qtiplot/sipqtiGraph.h\
-             ../tmp/qtiplot/sipqtiLineMarker.h\
-             ../tmp/qtiplot/sipqtiMultiLayer.h\
-             ../tmp/qtiplot/sipqtiTable.h\
-             ../tmp/qtiplot/sipqtiMatrix.h\
-             ../tmp/qtiplot/sipqtiMyWidget.h\
-             ../tmp/qtiplot/sipqtiScriptEdit.h\
-             ../tmp/qtiplot/sipqtiNote.h\
-             ../tmp/qtiplot/sipqtiPythonScript.h\
-             ../tmp/qtiplot/sipqtiPythonScripting.h\
-             ../tmp/qtiplot/sipqtiFolder.h\
-             ../tmp/qtiplot/sipqtiQList.h\
-             ../tmp/qtiplot/sipqtiFit.h \
-             ../tmp/qtiplot/sipqtiExponentialFit.h \
-             ../tmp/qtiplot/sipqtiTwoExpFit.h \
-             ../tmp/qtiplot/sipqtiThreeExpFit.h \
-             ../tmp/qtiplot/sipqtiSigmoidalFit.h \
-             ../tmp/qtiplot/sipqtiGaussAmpFit.h \
-             ../tmp/qtiplot/sipqtiLorentzFit.h \
-             ../tmp/qtiplot/sipqtiNonLinearFit.h \
-             ../tmp/qtiplot/sipqtiPluginFit.h \
-             ../tmp/qtiplot/sipqtiMultiPeakFit.h \
-             ../tmp/qtiplot/sipqtiPolynomialFit.h \
-             ../tmp/qtiplot/sipqtiLinearFit.h \
-             ../tmp/qtiplot/sipqtiGaussFit.h \
+  HEADERS += $${SIP_DIR}/sipqtiApplicationWindow.h\
+             $${SIP_DIR}/sipqtiGraph.h\
+             $${SIP_DIR}/sipqtiLineMarker.h\
+             $${SIP_DIR}/sipqtiMultiLayer.h\
+             $${SIP_DIR}/sipqtiTable.h\
+             $${SIP_DIR}/sipqtiMatrix.h\
+             $${SIP_DIR}/sipqtiMyWidget.h\
+             $${SIP_DIR}/sipqtiScriptEdit.h\
+             $${SIP_DIR}/sipqtiNote.h\
+             $${SIP_DIR}/sipqtiPythonScript.h\
+             $${SIP_DIR}/sipqtiPythonScripting.h\
+             $${SIP_DIR}/sipqtiFolder.h\
+             $${SIP_DIR}/sipqtiQList.h\
+             $${SIP_DIR}/sipqtiFit.h \
+             $${SIP_DIR}/sipqtiExponentialFit.h \
+             $${SIP_DIR}/sipqtiTwoExpFit.h \
+             $${SIP_DIR}/sipqtiThreeExpFit.h \
+             $${SIP_DIR}/sipqtiSigmoidalFit.h \
+             $${SIP_DIR}/sipqtiGaussAmpFit.h \
+             $${SIP_DIR}/sipqtiLorentzFit.h \
+             $${SIP_DIR}/sipqtiNonLinearFit.h \
+             $${SIP_DIR}/sipqtiPluginFit.h \
+             $${SIP_DIR}/sipqtiMultiPeakFit.h \
+             $${SIP_DIR}/sipqtiPolynomialFit.h \
+             $${SIP_DIR}/sipqtiLinearFit.h \
+             $${SIP_DIR}/sipqtiGaussFit.h \
 
-  SOURCES += ../tmp/qtiplot/sipqticmodule.cpp\
-             ../tmp/qtiplot/sipqtiApplicationWindow.cpp\
-             ../tmp/qtiplot/sipqtiGraph.cpp\
-             ../tmp/qtiplot/sipqtiLineMarker.cpp\
-             ../tmp/qtiplot/sipqtiMultiLayer.cpp\
-             ../tmp/qtiplot/sipqtiTable.cpp\
-             ../tmp/qtiplot/sipqtiMatrix.cpp\
-             ../tmp/qtiplot/sipqtiMyWidget.cpp\
-             ../tmp/qtiplot/sipqtiScriptEdit.cpp\
-             ../tmp/qtiplot/sipqtiNote.cpp\
-             ../tmp/qtiplot/sipqtiPythonScript.cpp\
-             ../tmp/qtiplot/sipqtiPythonScripting.cpp\
-             ../tmp/qtiplot/sipqtiFolder.cpp\
-             ../tmp/qtiplot/sipqtiQList.cpp\
-             ../tmp/qtiplot/sipqtiFit.cpp \
-             ../tmp/qtiplot/sipqtiExponentialFit.cpp \
-             ../tmp/qtiplot/sipqtiTwoExpFit.cpp \
-             ../tmp/qtiplot/sipqtiThreeExpFit.cpp \
-             ../tmp/qtiplot/sipqtiSigmoidalFit.cpp \
-             ../tmp/qtiplot/sipqtiGaussAmpFit.cpp \
-             ../tmp/qtiplot/sipqtiLorentzFit.cpp \
-             ../tmp/qtiplot/sipqtiNonLinearFit.cpp \
-             ../tmp/qtiplot/sipqtiPluginFit.cpp \
-             ../tmp/qtiplot/sipqtiMultiPeakFit.cpp \
-             ../tmp/qtiplot/sipqtiPolynomialFit.cpp \
-             ../tmp/qtiplot/sipqtiLinearFit.cpp \
-             ../tmp/qtiplot/sipqtiGaussFit.cpp \
+  SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
+             $${SIP_DIR}/sipqtiApplicationWindow.cpp\
+             $${SIP_DIR}/sipqtiGraph.cpp\
+             $${SIP_DIR}/sipqtiLineMarker.cpp\
+             $${SIP_DIR}/sipqtiMultiLayer.cpp\
+             $${SIP_DIR}/sipqtiTable.cpp\
+             $${SIP_DIR}/sipqtiMatrix.cpp\
+             $${SIP_DIR}/sipqtiMyWidget.cpp\
+             $${SIP_DIR}/sipqtiScriptEdit.cpp\
+             $${SIP_DIR}/sipqtiNote.cpp\
+             $${SIP_DIR}/sipqtiPythonScript.cpp\
+             $${SIP_DIR}/sipqtiPythonScripting.cpp\
+             $${SIP_DIR}/sipqtiFolder.cpp\
+             $${SIP_DIR}/sipqtiQList.cpp\
+             $${SIP_DIR}/sipqtiFit.cpp \
+             $${SIP_DIR}/sipqtiExponentialFit.cpp \
+             $${SIP_DIR}/sipqtiTwoExpFit.cpp \
+             $${SIP_DIR}/sipqtiThreeExpFit.cpp \
+             $${SIP_DIR}/sipqtiSigmoidalFit.cpp \
+             $${SIP_DIR}/sipqtiGaussAmpFit.cpp \
+             $${SIP_DIR}/sipqtiLorentzFit.cpp \
+             $${SIP_DIR}/sipqtiNonLinearFit.cpp \
+             $${SIP_DIR}/sipqtiPluginFit.cpp \
+             $${SIP_DIR}/sipqtiMultiPeakFit.cpp \
+             $${SIP_DIR}/sipqtiPolynomialFit.cpp \
+             $${SIP_DIR}/sipqtiLinearFit.cpp \
+             $${SIP_DIR}/sipqtiGaussFit.cpp \
 
 }
 ###############################################################

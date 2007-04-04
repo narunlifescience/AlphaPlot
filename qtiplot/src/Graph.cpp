@@ -122,6 +122,7 @@ static const char *unzoom_xpm[]={
 #include "MultiPeakFit.h"
 #include "Spectrogram.h"
 #include "SelectionMoveResizer.h"
+#include "RangeSelectorTool.h"
 
 #include <QApplication>
 #include <QBitmap>
@@ -133,7 +134,6 @@ static const char *unzoom_xpm[]={
 #include <QPainter>
 #include <QMenu>
 #include <QTextStream>
-#include <QTimer>
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -159,29 +159,20 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	if ( !name )
 		setName( "graph" );
 
-	fitter = 0;
 	n_curves=0;
+	d_active_tool = NULL;
 	widthLine=1;mrkX=-1;mrkY=-1;;
-	selectedCol=0;selectedPoint=-1;
-	selectedCurve =-1;selectedMarker=-1;selectedCursor=-1;
-	startPoint=0;endPoint=-1;
-	startID=-1; endID=-1;
+	selectedMarker=-1;
 	pieRay=100;
 	lineProfileOn=false;
 	drawTextOn=false;
 	drawLineOn=false;
 	drawArrowOn=false;
-	cursorEnabled=false;
-	movePointsEnabled=false;
-	removePointsEnabled=false;
-	pickerEnabled=false;
-	rangeSelectorsEnabled=false;
 	piePlot = false;
 	ignoreResize = true;
 	drawAxesBackbone = true;
 	autoscale = true;
 	autoScaleFonts = false;
-	translateOn = false;
 	d_antialiasing = true;
 
 	defaultArrowLineWidth = 1;
@@ -360,50 +351,6 @@ void Graph::setSelectedMarker(long mrk, bool add)
 void Graph::replot()
 {
 	d_plot->replot();
-}
-
-void Graph::movedPicker(const QPoint &pos, bool mark)
-{
-	QString info;
-	info.sprintf("x=%g; y=%g",
-			d_plot->invTransform(QwtPlot::xBottom, pos.x()),
-			d_plot->invTransform(QwtPlot::yLeft, pos.y()));
-	emit cursorInfo(info);
-
-	if (mark)
-	{
-		QwtPlotMarker mrk;
-		mrk.setSymbol(QwtSymbol(QwtSymbol::Cross,QBrush(Qt::NoBrush),QPen(Qt::red,1),QSize(15,15)));
-
-		QPainter painter(d_plot->canvas());
-		painter.setClipping(true);
-		QRect cr = d_plot->canvas()->contentsRect();
-		painter.setClipRect(cr);
-		// FIXME: next line
-		//painter.setRasterOp(Qt::NotXorROP);
-
-		if (translateOn)
-		{
-			const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-			if (!c)
-				return;
-
-			if (translationDirection)
-				mrk.setValue(c->x(selectedPoint), d_plot->invTransform(QwtPlot::yLeft, pos.y()));
-			else
-				mrk.setValue(d_plot->invTransform(QwtPlot::xBottom,pos.x()), c->y(selectedPoint));
-		}
-		else
-			mrk.setValue(d_plot->invTransform(QwtPlot::xBottom, pos.x()),
-					d_plot->invTransform(QwtPlot::yLeft, pos.y()));
-
-		mrk.draw(&painter, d_plot->canvasMap(QwtPlot::xBottom), d_plot->canvasMap(QwtPlot::yLeft), cr);
-	}
-}
-
-bool Graph::pickerActivated()
-{
-	return pickerEnabled;
 }
 
 void Graph::initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt)
@@ -1490,375 +1437,6 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 	d_plot->replot();
 }
 
-void Graph::shiftCurveSelector(bool up)
-{
-	const QList<int> keys = d_plot->curveKeys();
-
-	int index = 0;
-	if ( selectedCurve >= 0 )
-	{
-		for ( int i = 0; i < keys.count() - 1; i++ )
-		{
-			if ( selectedCurve == keys[(int)i] )
-			{
-				index = i + (up ? 1 : -1);
-				break;
-			}
-		}
-	}
-
-	index = (keys.count() + index) % keys.count();
-	if ( selectedCurve != keys[index] )
-		selectedCurve = keys[index];
-
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve || curve->dataSize()<=0)
-		return;
-
-
-	startPoint=0;
-	endPoint=curve->dataSize()-1;
-
-	QwtPlotMarker *m = d_plot->marker(startID);
-	m->setValue (curve->x(startPoint),curve->y(startPoint));
-	m = d_plot->marker(endID);
-	m->setValue(curve->x(endPoint),curve->y(endPoint));
-	d_plot->replot();
-
-	QString info;
-	if ( selectedCursor == startID )
-	{
-		info = tr("Left") + " <=> ";
-		selectedPoint=startPoint;
-	}
-	else if ( selectedCursor == endID )
-	{
-		info = tr("Right") + " <=> ";
-		selectedPoint=endPoint;
-	}
-
-	info+=curve->title().text();
-	info+="[";
-	info+=QString::number(selectedPoint);
-	info+="]: x=";
-	info+=QString::number(curve->x(selectedPoint), 'G', 15);
-	info+="; y=";
-	info+=QString::number(curve->y(selectedPoint), 'G', 15);
-
-	emit cursorInfo(info);
-	emit dataRangeChanged();
-
-	QPainter painter(d_plot->canvas());
-	painter.setClipping(true);
-	painter.setClipRect(d_plot->canvas()->contentsRect());
-	// FIXME: next line
-	//painter.setRasterOp(Qt::NotROP);
-
-	curve->draw(&painter,
-			d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),
-			selectedPoint,selectedPoint);
-}
-
-void Graph::shiftRangeSelector(bool shift)
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve || curve->dataSize()<=0)
-		return;
-
-	QString info;
-	if (shift)
-	{
-		QwtPlotMarker *m = d_plot->marker(selectedCursor);
-		QwtSymbol symbol = m->symbol();
-		if ( selectedCursor == startID )
-		{
-			symbol.setPen(QPen(Qt::black,2,Qt::SolidLine));
-			m->setSymbol (symbol);
-			m->setLinePen(QPen(Qt::black,1,Qt::DashLine));
-
-			selectedCursor = endID;
-			m = d_plot->marker(selectedCursor);
-			symbol = m->symbol();
-			symbol.setPen(QPen(Qt::red,2,Qt::SolidLine));
-			m->setSymbol (symbol);
-			m->setLinePen(QPen(Qt::red,1,Qt::DashLine));
-
-			selectedPoint = endPoint;
-			info = tr("Right") + " <=> ";
-		}
-		else if ( selectedCursor == endID )
-		{
-			symbol.setPen(QPen(Qt::black,2,Qt::SolidLine));
-			m->setSymbol (symbol);
-			m->setLinePen(QPen(Qt::black,1,Qt::DashLine));
-
-			selectedCursor = startID;
-			m = d_plot->marker(selectedCursor);
-			symbol = m->symbol();
-			symbol.setPen(QPen(Qt::red,2,Qt::SolidLine));
-			m->setSymbol (symbol);
-			m->setLinePen(QPen(Qt::red,1,Qt::DashLine));
-
-			selectedPoint = startPoint;
-			info = tr("Left") + " <=> ";
-		}
-		d_plot->replot();
-
-		info+=curve->title().text();
-		info+="[";
-		info+=QString::number(selectedPoint+1);
-		info+="]: x=";
-		info+=QString::number(curve->x(selectedPoint), 'G', 15);
-		info+="; y=";
-		info+=QString::number(curve->y(selectedPoint), 'G', 15);
-
-		emit cursorInfo(info);
-
-		QPainter painter(d_plot->canvas());
-		painter.setClipping(true);
-		painter.setClipRect(d_plot->canvas()->contentsRect());
-		// FIXME: next line
-		//painter.setRasterOp(Qt::NotROP);
-
-		curve->draw(&painter, d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),
-				selectedPoint,selectedPoint);
-	}
-}
-
-void Graph::moveRangeSelector(bool up)
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	int points=curve->dataSize();
-	if (points == 0)
-	{
-		QMessageBox::critical(this, tr("QtiPlot - Warning"),
-				tr("All the curves on this plot are empty!"));
-		disableRangeSelectors();
-		return;
-	}
-
-	int index = selectedPoint + (up ? 1 : -1);
-	index = (index + points) % points;
-
-	QString info;
-	if ( index != selectedPoint )
-		selectedPoint = index;
-
-	QwtPlotMarker *m = d_plot->marker(selectedCursor);
-	m->setValue(curve->x(selectedPoint),curve->y(selectedPoint));
-	d_plot->replot();
-
-	if ( selectedCursor == startID )
-	{
-		startPoint = selectedPoint;
-		info = tr("Left") + " <=> ";
-	}
-	else if ( selectedCursor == endID )
-	{
-		endPoint = selectedPoint;
-		info = tr("Right") + " <=> ";
-	}
-
-	info+=curve->title().text();
-	info+="[";
-	info+=QString::number(index+1);
-	info+="]: x=";
-	info+=QString::number(curve->x(index), 'G', 15);
-	info+="; y=";
-	info+=QString::number(curve->y(index), 'G', 15);
-
-	emit cursorInfo(info);
-	emit dataRangeChanged();
-
-	QPainter painter(d_plot->canvas());
-	painter.setClipping(true);
-	painter.setClipRect(d_plot->canvas()->contentsRect());
-	// FIXME: next line
-	//painter.setRasterOp(Qt::NotROP);
-
-	curve->draw(&painter, d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),
-			selectedPoint,selectedPoint);
-}
-
-//places the active range selector at the selected point
-void Graph::moveRangeSelector()
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	int points=curve->dataSize();
-	if (!points)
-	{
-		QMessageBox::critical(this, tr("QtiPlot - Warning"),
-				tr("All the curves on this plot are empty!"));
-		disableRangeSelectors();
-		return;
-	}
-
-	int index = selectedPoint;
-	index = (index + points) % points;
-
-	QString info;
-	if ( index != selectedPoint )
-		selectedPoint = index;
-
-	QwtPlotMarker *m = d_plot->marker(selectedCursor);
-	m->setValue(curve->x(selectedPoint),curve->y(selectedPoint));
-
-	d_plot->replot();
-
-	if ( selectedCursor == startID )
-	{
-		startPoint = selectedPoint;
-		info = tr("Left") + " <=> ";
-	}
-	else if ( selectedCursor == endID )
-	{
-		endPoint = selectedPoint;
-		info = tr("Right") + " <=> ";
-	}
-
-	info+=curve->title().text();
-	info+="[";
-	info+=QString::number(index+1);
-	info+="]: x=";
-	info+=QString::number(curve->x(index), 'G', 15);
-	info+="; y=";
-	info+=QString::number(curve->y(index), 'G', 15);
-
-	emit cursorInfo(info);
-	emit dataRangeChanged();
-
-	QPainter painter(d_plot->canvas());
-	painter.setClipping(true);
-	painter.setClipRect(d_plot->canvas()->contentsRect());
-	// FIXME: next line
-	//painter.setRasterOp(Qt::NotROP);
-
-	curve->draw(&painter,d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),
-			selectedPoint,selectedPoint);
-}
-
-bool Graph::enableRangeSelectors(bool on)
-{
-	rangeSelectorsEnabled=on;
-
-	long curveID;
-	QwtPlotCurve *curve=0;
-	bool success=false;
-	for (int i=n_curves-1;i>=0;i--)
-	{
-		curveID= c_keys[i];
-		curve = (QwtPlotCurve *)d_plot->curve(curveID);
-		if (curve && curve->rtti() == QwtPlotItem::Rtti_PlotCurve && curve->dataSize()>0)
-		{
-			success=true;
-			break;
-		}
-	}
-
-	if (!success)
-	{
-		QMessageBox::critical(this, tr("QtiPlot - Warning"),
-				tr("All the curves on this plot are empty!"));
-
-		disableRangeSelectors();
-		return false;
-	}
-
-	startPoint=0;
-
-	if (on)
-	{
-		QCursor cursor=QCursor (QPixmap(vizor_xpm),-1,-1);
-		d_plot->canvas()->setCursor(cursor);
-
-		endPoint=curve->dataSize()-1;
-		selectedCurve=curveID;
-		selectedPoint=0;
-		d_plot->canvas()->setFocus();
-
-		int d=32;
-		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-		QwtSymbol symbol = c->symbol();
-		if (symbol.style() != QwtSymbol::NoSymbol)
-		{
-			QSize sz=symbol.size();
-			d+=QMAX(sz.width(),sz.height());
-		}
-
-		QwtPlotMarker *m = new QwtPlotMarker();
-		m->setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush), QPen(Qt::red,2), QSize(d,d)));
-		m->setLineStyle(QwtPlotMarker::VLine);
-		m->setLinePen(QPen(Qt::red,1,Qt::DashLine));
-		m->setValue (curve->x(0),curve->y(0));
-		startID=d_plot->insertMarker(m);
-
-		selectedCursor=startID;
-
-		m = new QwtPlotMarker();
-		m->setLineStyle(QwtPlotMarker::VLine);
-		m->setLinePen(QPen(Qt::black,1,Qt::DashLine));
-		m->setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush), QPen(Qt::black,2), QSize(d,d)));
-		m->setValue(curve->x(endPoint),curve->y(endPoint));
-		endID=d_plot->insertMarker(m);
-
-		d_plot->replot();
-
-		QPainter painter(d_plot->canvas());
-
-		painter.setClipping(true);
-		painter.setClipRect(d_plot->canvas()->contentsRect());
-		// FIXME: next line
-		//painter.setRasterOp(Qt::NotROP);
-
-		curve->draw(&painter,
-				d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),0,0);
-
-		emit dataRangeChanged();
-	}
-	else
-		disableRangeSelectors();
-
-	return true;
-}
-
-void  Graph::disableRangeSelectors()
-{
-	d_plot->removeMarker(startID);
-	d_plot->removeMarker(endID);
-	d_plot->replot();
-	startID=-1;
-	endID=-1;
-	startPoint=0;
-	endPoint=-1;
-	selectedCurve=-1;
-	selectedPoint=-1;
-	selectedCursor=-1;
-	rangeSelectorsEnabled=false;
-	d_plot->canvas()->setCursor(Qt::arrowCursor);
-}
-
-void Graph::showPlotPicker(bool on)
-{
-	pickerEnabled = on;
-	QCursor cursor=QCursor (QPixmap(cursor_xpm),-1,-1);
-	if (on)
-		d_plot->canvas()->setCursor(cursor);
-	else
-		d_plot->canvas()->setCursor(Qt::arrowCursor);
-}
-
-void Graph::startCurveTranslation()
-{
-	showPlotPicker(true);
-	emit cursorInfo(tr("Curve selected! Move cursor and click to choose a point and double-click/press 'Enter' to finish!"));
-}
-
 void Graph::insertPlottedList(const QStringList& names)
 {
 	QList<int> keys = d_plot->curveKeys();
@@ -2087,236 +1665,20 @@ void Graph::exportSVG(const QString& fname)
 	picture.save(fname, "svg");*/
 }
 
-void Graph::movePoints(bool enabled)
+int Graph::selectedCurveID()
 {
-	movePointsEnabled=enabled;
-	if (enabled)
-		d_plot->canvas()->setCursor(Qt::pointingHandCursor);
+	if (d_range_selector)
+		return curveKey(curveIndex(d_range_selector->selectedCurve()));
 	else
-		d_plot->canvas()->setCursor(Qt::arrowCursor);
-}
-
-bool Graph::movePointsActivated()
-{
-	return movePointsEnabled;
-}
-
-void Graph::removePoints(bool enabled)
-{
-	removePointsEnabled=enabled;
-	QCursor cursor=QCursor (QPixmap(vizor_xpm),-1,-1);
-
-	if (enabled)
-		d_plot->canvas()->setCursor(cursor);
-	else
-		d_plot->canvas()->setCursor(Qt::arrowCursor);
-}
-
-bool Graph::removePointActivated()
-{
-	return removePointsEnabled;
-}
-
-void Graph::translateCurve(int direction)
-{
-	translateOn=true;
-	translationDirection = direction;
-	d_plot->canvas()->setCursor(QCursor (QPixmap(vizor_xpm),-1,-1));
-}
-
-void Graph::translateCurveTo(const QPoint& p)
-{
-	QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if (!c)
-		return;
-
-	QStringList ass=associations[curveIndex(selectedCurve)].split(",", QString::SkipEmptyParts);
-
-	int n=c->dataSize();
-	double *dat= new double[n];
-	if (translationDirection)
-	{
-		double dy= d_plot->invTransform(QwtPlot::yLeft,p.y()) - c->y(selectedPoint);
-		for (int i=0; i<n; i++)
-			dat[i]=c->y(i)+dy;
-		emit updateTableColumn(ass[1].remove("(Y)"), dat, n);
-	}
-	else
-	{
-		double dx= d_plot->invTransform(QwtPlot::xBottom,p.x()) - c->x(selectedPoint);
-		for (int i=0; i<n; i++)
-			dat[i]=c->x(i)+dx;
-		emit updateTableColumn(ass[0].remove("(X)"), dat, n);
-	}
-	showPlotPicker(false);
-	translateOn=false;
-
-	//no need for setCurveData() or replot(), since the main application will call
-	//updateCurves() which does this job!
+		return -1;
 }
 
 QString Graph::selectedCurveTitle()
 {
-	const QwtPlotItem *c = d_plot->curve(selectedCurve);
-	if (c)
-		return c->title().text();
+	if (d_range_selector)
+		return d_range_selector->selectedCurve()->title().text();
 	else
 		return QString::null;
-}
-
-void Graph::multiPeakFit(ApplicationWindow *app, int profile, int peaks)
-{
-	showPlotPicker(true);
-	selected_peaks = 0;
-	fitter = new MultiPeakFit(app, this, (MultiPeakFit::PeakProfile)profile, peaks);
-	fitter->enablePeakCurves(app->generatePeakCurves);
-	fitter->setPeakCurvesColor(app->peakCurvesColor);
-	fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
-	d_plot->canvas()->grabMouse();
-}
-
-bool Graph::selectPeaksOn()
-{
-	if (fitter)
-		return true;
-	else
-		return false;
-}
-
-void Graph::selectPeak(const QPoint &)
-{
-	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if (!c)
-		return;
-
-	fitter->setInitialGuess(3*selected_peaks, c->y(selectedPoint));
-	fitter->setInitialGuess(3*selected_peaks+1, c->x(selectedPoint));
-
-	QwtPlotMarker *m = new QwtPlotMarker();
-	m->setLineStyle(QwtPlotMarker::VLine);
-	m->setLinePen(QPen(Qt::green, 2, Qt::DashLine));
-	m->setXValue(c->x(selectedPoint));
-	d_plot->insertMarker(m);
-	d_plot->replot();
-
-	selected_peaks++;
-	int peaks = fitter->peaks();
-	if (selected_peaks == peaks)
-	{
-		showPlotPicker(false);
-		d_plot->canvas()->releaseMouse();
-
-		if (fitter->setDataFromCurve(c->title().text()))
-		{
-			QApplication::setOverrideCursor(Qt::WaitCursor);
-			fitter->fit();
-			delete fitter;
-			QApplication::restoreOverrideCursor();
-		}
-
-		//remove peak line markers
-		QList<int>mrks = d_plot->markerKeys();
-		int n=(int)mrks.count();
-		for (int i=0; i<peaks; i++)
-			d_plot->removeMarker(mrks[n-i-1]);
-
-		d_plot->replot();
-		return;
-	}
-	emit cursorInfo(tr("Peak %1 selected! Click to select a point and double-click/press 'Enter' to set the position of the next peak!").arg(QString::number(selected_peaks)));
-}
-
-bool Graph::selectPoint(const QPoint &pos)
-{
-	int dist, point;
-	const int curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
-	if (curve >= 0 && dist < 5)//5 pixels tolerance
-	{
-		const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(curve);
-		if (!c)
-			return false;
-
-		if (rangeSelectorsEnabled && selectedCurve != curve)
-		{
-			if ( selectedCursor == startID )
-			{
-				startPoint=point;
-				int n=c->dataSize()-1;
-				endPoint=n;
-				if (point ==n)
-					endPoint=0;
-			}
-			else if ( selectedCursor == endID )
-			{
-				startPoint=0;
-				endPoint=point;
-				if (!point)
-					startPoint=c->dataSize()-1;
-			}
-
-			QwtPlotMarker *m = d_plot->marker(startID);
-			if (m)
-				m->setValue(c->x(startPoint),c->y(startPoint));
-
-			m = d_plot->marker(endID);
-			if (m)
-				m->setValue(c->x(endPoint),c->y(endPoint));
-		}
-
-		selectedCurve = curve;
-		selectedPoint = point;
-		highlightPoint(true);
-
-		QString info;
-		info=c->title().text();
-		info+="[";
-		info+=QString::number(point+1);
-		info+="]: x=";
-		info+=QString::number(c->x(point), 'G', 15);
-		info+="; y=";
-		info+=QString::number(c->y(point), 'G', 15);
-
-		emit cursorInfo(info);
-		return true;
-	}
-	else if (!rangeSelectorsEnabled && !translateOn)
-	{// deselect
-		selectedCurve = -1;
-		selectedPoint = -1;
-		highlightPoint(false);
-		return false;
-	}
-	return false;
-}
-
-void Graph::selectCurve(const QPoint &pos)
-{
-	int dist, point;
-	const int curve = d_plot->closestCurve(pos.x(), pos.y(), dist, point);
-	if ( curve >= 0 && dist < 10 ) // 10 pixels tolerance
-	{
-		selectedCurve = curve;
-		selectedPoint = point;
-		showCursor(true);
-
-		const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-		QString info;
-		info=c->title().text();
-		info+="[";
-		info+=QString::number(point+1);
-		info+="]: x=";
-		info+=QString::number(c->x(point), 'G', 15);
-		info+="; y=";
-		info+=QString::number(c->y(point), 'G', 15);
-
-		emit cursorInfo(info);
-	}
-	else // deselect
-	{
-		showCursor(false);
-		selectedCurve = -1;
-		selectedPoint = -1;
-	}
 }
 
 bool Graph::markerSelected()
@@ -2663,218 +2025,6 @@ QString Graph::pieLegendText()
 		}
 	}
 	return text;
-}
-
-void Graph::moveBy(int dx, int dy)
-{
-	if ( dx == 0 && dy == 0 )
-		return;
-
-	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	const int x = d_plot->transform(curve->xAxis(),
-			curve->x(selectedPoint)) + dx;
-	const int y = d_plot->transform(curve->yAxis(),
-			curve->y(selectedPoint)) + dy;
-
-	move(QPoint(x, y));
-}
-
-void Graph::removePoint()
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	QList<int> keys = d_plot->curveKeys();
-	int id = keys.findIndex(selectedCurve);
-	QString name=associations[id];
-	if (name.contains("=")>0)
-	{
-		QMessageBox::critical(0, tr("QtiPlot - Remove point error"),
-				tr("This function is not available for function curves!"));
-		return;
-	}
-
-	if (name.contains("(yErr)") || name.contains("(xErr)"))
-	{
-		int pos1=name.find(",",0);
-		pos1=name.find(",",pos1+1);
-		int pos2=name.find("(",pos1);
-		name=name.mid(pos1+1,pos2-pos1-1);
-		QwtErrorPlotCurve *err= (QwtErrorPlotCurve *) d_plot->curve(selectedCurve);
-		double val=err->errors()[selectedPoint];
-		emit clearCell(name,val);
-	}
-	else
-	{
-		int pos1=name.find(",",0);
-		int pos2=name.find("(",pos1);
-		name=name.mid(pos1+1,pos2-pos1-1);
-		emit clearCell(name,curve->y(selectedPoint));
-	}
-
-	this->setFocus();
-	selectedPoint=-1;
-	selectedCurve=-1;
-}
-
-// Move the selected point
-void Graph::move(const QPoint &pos)
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	QList<int> keys= d_plot->curveKeys();
-	int id=keys.findIndex(selectedCurve);
-	if (associations[id].contains("=")>0)
-	{
-		QMessageBox::critical(0, tr("QtiPlot - Move point error"),
-				tr("This function is not available for function curves!"));
-		return;
-	}
-
-	QwtArray<double> xData(curve->dataSize());
-	QwtArray<double> yData(curve->dataSize());
-
-	for ( int i = 0; i < curve->dataSize(); i++ )
-	{
-		if ( i == selectedPoint )
-		{
-			xData[i] = d_plot->invTransform(curve->xAxis(), pos.x());
-			yData[i] = d_plot->invTransform(curve->yAxis(), pos.y());
-		}
-		else
-		{
-			xData[i] = curve->x(i);
-			yData[i] = curve->y(i);
-		}
-	}
-	curve->setData(xData, yData);
-	d_plot->replot();
-
-	QString text=QString::number(xData[selectedPoint])+"\t"+QString::number(yData[selectedPoint]);
-	emit updateTable(associations[id],selectedPoint,text);
-
-	QString info;
-	info.sprintf("x=%g; y=%g", xData[selectedPoint], yData[selectedPoint]);
-	emit cursorInfo(info);
-}
-
-// Hightlight the selected point
-void Graph::highlightPoint(bool)
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve )
-		return;
-
-	QPainter painter(d_plot->canvas());
-
-	painter.setClipping(true);
-	painter.setClipRect(d_plot->canvas()->contentsRect());
-
-	// FIXME: next line
-	//    if ( showIt )
-	//        painter.setRasterOp(Qt::NotROP);
-
-	curve->draw(&painter,
-			d_plot->canvasMap(curve->xAxis()), d_plot->canvasMap(curve->yAxis()),
-			selectedPoint,selectedPoint);
-}
-
-void Graph::showCursor(bool showIt)
-{
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve || curve->rtti() != QwtPlotItem::Rtti_PlotCurve)
-		return;
-
-	d_plot->replot();
-
-	if ( showIt )
-	{
-		QPainter paint(d_plot->canvas());
-		// FIXME: next line
-		//paint.setRasterOp(Qt::NotXorROP);
-		QwtPlotMarker mrkCross;
-		mrkCross.setValue(curve->x(selectedPoint), curve->y(selectedPoint));
-		mrkCross.setLinePen (QPen(Qt::red,1));
-		mrkCross.setLineStyle(QwtPlotMarker::Cross);
-		mrkCross.setSymbol(QwtSymbol(QwtSymbol::Rect,
-					QBrush(Qt::NoBrush), QPen(Qt::black,1), QSize(25,25)));
-		mrkCross.draw(&paint, d_plot->canvasMap(QwtPlot::xBottom),
-				d_plot->canvasMap(QwtPlot::yLeft),
-				d_plot->canvas()->contentsRect());
-	}
-}
-
-// Select the next/previous neighbour of the selected point
-void Graph::shiftPointCursor(bool up)
-{
-	const QwtPlotCurve *curve = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !curve || curve->rtti() != QwtPlotItem::Rtti_PlotCurve )
-		return;
-
-	int index = selectedPoint + (up ? 1 : -1);
-	index = (index + curve->dataSize()) % curve->dataSize();
-
-	QString info;
-	info=curve->title().text();
-	info+="[";
-	info+=QString::number(index+1);
-	info+="]: x=";
-	info+=QString::number(curve->x(index), 'G', 15);
-	info+="; y=";
-	info+=QString::number(curve->y(index), 'G', 15);
-
-	emit cursorInfo(info);
-
-	if ( index != selectedPoint )
-	{
-		showCursor(false);
-		selectedPoint = index;
-		showCursor(true);
-	}
-}
-
-void Graph::shiftCurveCursor(bool up)
-{// Select the next/previous curve
-	int index = 0;
-	if ( selectedCurve >= 0 )
-	{
-		for ( uint i = 0; i < c_keys.count() - 1; i++ )
-		{
-			if ( selectedCurve == c_keys[(int)i] )
-			{
-				index = i + (up ? 1 : -1);
-				break;
-			}
-		}
-	}
-	index = (c_keys.count() + index) % c_keys.count();
-
-	if ( selectedCurve != c_keys[index] )
-	{
-		showCursor(false);
-		selectedCurve = c_keys[index];
-		showCursor(true);
-	}
-
-	const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	if ( !c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
-		return;
-
-	QString info;
-	info=c->title().text();
-	info+="[";
-	info+=QString::number(selectedPoint+1);
-	info+="]: x=";
-	info+=QString::number(c->x(selectedPoint), 'G', 15);
-	info+="; y=";
-	info+=QString::number(c->y(selectedPoint), 'G', 15);
-	emit cursorInfo(info);
 }
 
 void Graph::changePlotAssociation(Table* t, int curve, const QString& text)
@@ -4130,14 +3280,18 @@ QString Graph::saveMarkers()
 
 double Graph::selectedXStartValue()
 {
-	QwtPlotCurve *cv = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	return cv->x(startPoint);
+	if (d_range_selector)
+		return d_range_selector->minXValue();
+	else
+		return 0;
 }
 
 double Graph::selectedXEndValue()
 {
-	QwtPlotCurve *cv = (QwtPlotCurve *)d_plot->curve(selectedCurve);
-	return cv->x(endPoint);
+	if (d_range_selector)
+		return d_range_selector->maxXValue();
+	else
+		return 0;
 }
 
 QwtPlotCurve *Graph::curve(int index)
@@ -4148,32 +3302,23 @@ QwtPlotCurve *Graph::curve(int index)
 	return (QwtPlotCurve *)d_plot->curve(c_keys[index]);
 }
 
-void Graph::range(int index, double *start, double *end)
-  	{
-  	  if (rangeSelectorsEnabled && selectedCurve == c_keys[index])
-  	  {
-  	    *start = selectedXStartValue();
-  	    *end = selectedXEndValue();
-  	    return;
-  	  }
-  	  else
-  	  {
-  	    QwtPlotCurve *c = curve(index);
-  	    *start = c->minXValue();
-  	    *end = c->maxXValue();
-  	  }
-  	}
-
-int Graph::selectedPoints(long curveKey)
+int Graph::curveIndex(QwtPlotCurve *c) const
 {
-	int points;
-	QwtPlotCurve *cv = (QwtPlotCurve *)d_plot->curve(curveKey);
+	return d_plot->curveKeys().findIndex(d_plot->curves().key(c));
+}
 
-	if (endPoint>0)
-		points=abs(endPoint-startPoint)+1;
-	else
-		points=cv->dataSize();
-	return points;
+int Graph::range(int index, double *start, double *end)
+{
+	if (d_range_selector && d_range_selector->selectedCurve() == curve(index)) {
+		*start = d_range_selector->minXValue();
+		*end = d_range_selector->maxXValue();
+		return d_range_selector->dataSize();
+	} else {
+		QwtPlotCurve *c = curve(index);
+		*start = c->minXValue();
+		*end = c->maxXValue();
+		return c->dataSize();
+	}
 }
 
 CurveLayout Graph::initCurveLayout()
@@ -5035,9 +4180,7 @@ void Graph::setVectorsLook(int curve, const QColor& c, int width, int arrowLengt
 
 void Graph::updatePlot()
 {
-	if (autoscale && !removePointsEnabled && !movePointsEnabled &&
-			!zoomOn() && !rangeSelectorsEnabled)
-	{
+	if (autoscale && !zoomOn() && d_active_tool==NULL)	{
 		for (int i = 0; i < QwtPlot::axisCnt; i++)
 			d_plot->setAxisAutoScale(i);
 	}
@@ -5163,22 +4306,8 @@ void Graph::removeCurve(int index)
 	}
 	else
 	{
-		if (rangeSelectorsEnabled && c_keys[index] == selectedCurve)
-		{
-			if (n_curves>0)
-				shiftCurveSelector(true);
-			else
-			{
-				d_plot->removeMarker(startID);
-				d_plot->removeMarker(endID);
-				startID=-1;
-				endID=-1;
-				endPoint=-1;
-				selectedCurve=-1;
-				selectedPoint=-1;
-				selectedCursor=-1;
-			}
-		}
+		if (curve(index) == d_range_selector->selectedCurve())
+			delete d_range_selector;
 		for (int i=index; i<n_curves; i++)
 		{
 			c_type[i] = c_type[i+1];
@@ -6667,42 +5796,22 @@ QString Graph::curveXColName(const QString& curveTitle)
 
 void Graph::disableTools()
 {
-	if (selectorsEnabled())
-	{
-		disableRangeSelectors();
-		return;
-	}
-	else if (enabledCursor())
-	{
-		enableCursor(false);
-		replot();
-		return;
-	}
-	else if (pickerActivated())
-	{
-		showPlotPicker(false);
-		return;
-	}
-	else if (movePointsActivated())
-	{
-		movePoints(false);
-		return;
-	}
-	else if (removePointActivated())
-	{
-		removePoints(false);
-		return;
-	}
-	else if (zoomOn())
-	{
+	if (zoomOn())
 		zoom(false);
-		return;
-	}
-	else if (drawLineActive())
-	{
+	if (drawLineActive())
 		drawLine(false);
-		return;
-	}
+	setActiveTool(NULL);
+	if (d_range_selector)
+		delete d_range_selector;
+}
+
+bool Graph::enableRangeSelectors(const QObject *status_target, const char *status_slot)
+{
+	if (d_range_selector)
+		delete d_range_selector;
+	d_range_selector = new RangeSelectorTool(this, status_target, status_slot);
+	connect(d_range_selector, SIGNAL(changed()), this, SIGNAL(dataRangeChanged()));
+	return true;
 }
 
 void Graph::setTextMarkerDefaults(int f, const QFont& font,
@@ -7223,6 +6332,9 @@ bool Graph::validCurvesDataSize()
 
 Graph::~Graph()
 {
+	setActiveTool(NULL);
+	if (d_range_selector)
+		delete d_range_selector;
 	delete titlePicker;
 	delete scalePicker;
 	delete cp;

@@ -41,6 +41,7 @@
 
 #include "Table.h"
 #include "AxesDialog.h"
+#include "PlotToolInterface.h"
 
 class QwtPlotCurve;
 class QwtPlotZoomer;
@@ -53,10 +54,10 @@ class TitlePicker;
 class ScalePicker;
 class CanvasPicker;
 class Plot;
-class MultiPeakFit;
 class ApplicationWindow;
 class Matrix;
 class SelectionMoveResizer;
+class RangeSelectorTool;
 
 //! Structure containing curve layout parameters
 typedef struct{
@@ -128,6 +129,11 @@ class Graph: public QWidget
 		//! Returns the name of the parent MultiLayer object.
 		QString parentPlotName();
 
+		//! Change the active tool, deleting the old one if it exists.
+		void setActiveTool(PlotToolInterface *tool) { if(d_active_tool) delete d_active_tool; d_active_tool=tool; }
+		//! Return the active tool, or NULL if none is active.
+		PlotToolInterface* activeTool() const { return d_active_tool; }
+
 	public slots:
 		//! Accessor method for #d_plot.
 		Plot* plotWidget(){return d_plot;};
@@ -175,6 +181,8 @@ class Graph: public QWidget
 
         long curveKey(int curve){return c_keys[curve];}
 		int curveIndex(long key){return c_keys.indexOf(key);};
+		//! Map curve pointer to index.
+		int curveIndex(QwtPlotCurve *c) const;
 		//! map curve title to index
   	    int curveIndex(const QString &title) { return curvesList().findIndex(title); }
   	    //! get curve by index
@@ -262,7 +270,6 @@ class Graph: public QWidget
 		bool zoomOn();
 		//@}
 
-		void movedPicker(const QPoint &pos, bool mark);
 		void setAutoScale();
 		void updateScale();
 
@@ -523,55 +530,20 @@ class Graph: public QWidget
 
 		//! \name Modifing insertCurve Data
 		//@{
-		bool selectPoint(const QPoint &pos);
-		void highlightPoint(bool showIt);
-		void selectCurve(const QPoint &pos);
-		int selectedCurveID(){return selectedCurve;};
+		int selectedCurveID();
+		int selectedCurveIndex() { return curveIndex(selectedCurveID()); }
 		QString selectedCurveTitle();
 		//@}
 
-		void showCursor(bool showIt);
-		void shiftPointCursor(bool up);
-		void shiftCurveCursor(bool up);
-		void moveBy(int dx, int dy);
-		void move(const QPoint &pos);
-		void removePoint();
-		void movePoints(bool enabled);
-		bool movePointsActivated();
-		void removePoints(bool enabled);
-		bool removePointActivated();
-
-		void enableCursor(bool on){cursorEnabled=on;};
-		bool enabledCursor(){return cursorEnabled;};
-		void showPlotPicker(bool on);
-		bool pickerActivated();
-
 		void disableTools();
 
-		//! \name Translating Curves
-		//@{
-		void translateCurve(int direction);
-		void translateCurveTo(const QPoint& p);
-		bool translationInProgress(){return translateOn;};
-		void startCurveTranslation();
-		//@}
-
-		//! Returns TRUE if the data range selectors are enables, FALSE otherwise.
-		bool selectorsEnabled(){return rangeSelectorsEnabled;};
-
-		//! Enables the data range selectors depending on the value of ON (ON = false will call disableRangeSelectors()).
-		bool enableRangeSelectors(bool on);
-
-		//! Disables the data range selectors tool.
-		void disableRangeSelectors();
-
-		void moveRangeSelector(bool up);
-		void moveRangeSelector();
-		void shiftRangeSelector(bool shift);
-
-		//! Select the next/previous curve
-		void shiftCurveSelector(bool up);
-		int selectedPoints(long curveKey);
+		/*! Enables the data range selector tool.
+		 *
+		 * This one is a bit special, because other tools can depend upon an existing selection.
+		 * Therefore, range selection (like zooming) has to be provided in addition to the generic
+		 * tool interface.
+		 */
+		bool enableRangeSelectors(const QObject *status_target=NULL, const char *status_slot="");
 
 		//! \name Border and Margin
 		//@{
@@ -584,8 +556,11 @@ class Graph: public QWidget
 		//! \name Functions in analysis.cpp
 		//@{
 		void deleteFitCurves();
-   		//! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
-        void range(int index, double *start, double *end);
+		/*! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
+		 *
+		 * \return the number of selected or total points
+		 */
+		int range(int index, double *start, double *end);
 		//@}
 
 		//! \name Histograms
@@ -683,11 +658,6 @@ class Graph: public QWidget
 		void showAxisDialog();
 		void showScaleDialog();
 
-		//! Initialize a multi peak fitting operations and creates a new MultiPeakFit object
-		void multiPeakFit(ApplicationWindow *app, int profile, int peaks);
-		void selectPeak(const QPoint &pos);
-		bool selectPeaksOn();
-
 		//! Add a spectrogram to the graph
   		void plotSpectrogram(Matrix *m, CurveType type);
 		//! Restores a spectrogram. Used when opening a project file.
@@ -707,8 +677,6 @@ signals:
 		void showPieDialog();
 		void createTable(const QString&,int,int,const QString&);
 		void updateTable(const QString&,int,const QString&);
-		void updateTableColumn(const QString&, double *, int);
-		void clearCell(const QString&,double);
 
 		void viewImageDialog();
 		void viewTextDialog();
@@ -793,21 +761,14 @@ signals:
 		Qt::PenStyle auxMrkStyle;
 		QString auxMrkFileName, auxMrkText;
 
-		int n_curves, selectedCurve, selectedPoint,startPoint,endPoint, selectedCursor, pieRay;
-		int selectedCol,xCol,widthLine, defaultMarkerFrame;
+		int n_curves, pieRay;
+		int widthLine, defaultMarkerFrame;
 		QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 		int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
 		int auxArrowHeadLength, auxArrowHeadAngle;
-		int translationDirection;
-		long selectedMarker,legendMarkerID, startID, endID;
+		long selectedMarker,legendMarkerID;
 		long mrkX, mrkY;//x=0 et y=0 line markers keys
 		bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
-
-		//! \name Which data tool is activated by the user
-		//@{
-		bool removePointsEnabled,movePointsEnabled, translateOn;
-		bool pickerEnabled, cursorEnabled, rangeSelectorsEnabled;
-		//@}
 
 		//! Whether the plot is a pie plot.
 		bool piePlot;
@@ -816,15 +777,16 @@ signals:
 		bool auxFilledArrowHead, ignoreResize;
 		bool drawAxesBackbone, autoscale;
 
-		int selected_peaks;
-		MultiPeakFit *fitter;
-
 		QColor defaultArrowColor;
 		int defaultArrowLineWidth, defaultArrowHeadLength, defaultArrowHeadAngle;
 		bool defaultArrowHeadFill;
 		Qt::PenStyle defaultArrowLineStyle;
 
-	//! The markers selected for move/resize operations or 0 none are selected.
-	QPointer<SelectionMoveResizer> d_markers_selector;
+		//! The markers selected for move/resize operations or NULL if none are selected.
+		QPointer<SelectionMoveResizer> d_markers_selector;
+		//! The current curve selection, or NULL if none is active.
+		QPointer<RangeSelectorTool> d_range_selector;
+		//! The currently active tool, or NULL for default (pointer).
+		PlotToolInterface *d_active_tool;
 };
 #endif // GRAPH_H

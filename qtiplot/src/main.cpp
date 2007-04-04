@@ -63,9 +63,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   - Make QtiPlot easier to extend and maintain by modularizing it. For
     example, ideally it should be possible to implement new plot or marker
     types without modifying existing classes (think of plug-ins here).
-  - Being at it, unify object names between file name, class name, other
-    classes' method and variable names and user interface.
-	 [ file renamings assigned to thzs ]
+  - Unify naming of some methods and variables with class names.
   - Add generic plug-in support, support for implementing extensions in
     Python, a full-featured multi-level undo/redo framework (-&gt; visitor pattern).
 	 [ undo/redo assigned to thzs; plug-in/Python extension support assigned to knut ]
@@ -77,7 +75,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
     more robust parser based on Qt's XML support. Legacy support for the old
     format could be a plug-in.
 	 See whether we can make use of the XML save/restore interface planned for Qwt.
-	 Consider SAX instead of DOM in order to constrain memory requirements for large files.
+	 Wait for the new XML reader in Qt 4.3 or use SAX?
   - Document as much as possible using doxygen and write simple demo
     plug-ins.
   - Modularize the build process so that Python support could use SIP's
@@ -104,7 +102,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   - Ternary plots
   - Improved data analysis: base-line detection tool, more built-in fit functions...
   - Improved import of Origin project files
-  - More import/export filters including Open Document spreasheets (plugin)
+  - More import/export filters including Open Document spreadsheets (plugin)
 
   \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, LegendMarker, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, Table
 

@@ -311,12 +311,8 @@ void MultiLayer::removeLayer()
 		btn->setText(QString::number(i+1));
 	}
 
-	if (active_graph->selectorsEnabled() || active_graph->zoomOn() ||
-			active_graph->removePointActivated() || active_graph->movePointsActivated() ||
-			active_graph->enabledCursor()|| active_graph->pickerActivated())
-	{
+	if (active_graph->zoomOn() || active_graph->activeTool())
 		emit setPointerCursor();
-	}
 
 	int index = graphsList.indexOf(active_graph);
 	graphsList.removeAt(index);
@@ -878,9 +874,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(selectedGraph(Graph*)),this, SLOT(setActiveGraph(Graph*)));
 	connect (g,SIGNAL(viewTextDialog()),this,SIGNAL(showTextDialog()));
 	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SIGNAL(updateTable(const QString&,int,const QString&)));
-	connect (g,SIGNAL(updateTableColumn(const QString&, double *, int)),
-			this,SIGNAL(updateTableColumn(const QString&, double *, int)));
-	connect (g,SIGNAL(clearCell(const QString&,double)),this,SIGNAL(clearCell(const QString&,double)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
 	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
@@ -1199,8 +1192,7 @@ void MultiLayer::setLayersNumber(int n)
 			Graph *g = (Graph *)graphsList.last();
 			if (g)
 			{//remove layers
-				if (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() ||
-						g->movePointsActivated() || g->enabledCursor()|| g->pickerActivated())
+				if (g->zoomOn() || g->activeTool())
 					setPointerCursor();
 
 				g->close();

@@ -478,7 +478,6 @@ public slots:
 	//@}
 
 	void updateTable(const QString& caption,int row,const QString& text);
-	void updateTableColumn(const QString& colName, double *dat, int rows);
 	//! Show about dialog
 	static void about();
 	//! Return a version string ("QtiPlot x.y.z")

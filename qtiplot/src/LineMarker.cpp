@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "LineMarker.h"
+#include "LineDialog.h"
 
 #include <QPainter>
 #include <QMouseEvent>
@@ -454,6 +455,16 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 						QApplication::restoreOverrideCursor();
 						return false;
 				}
+			}
+		case QEvent::MouseButtonDblClick:
+			{
+				const QMouseEvent *me = (const QMouseEvent *)e;	
+				if (me->button() != Qt::LeftButton)
+					return false;
+				LineDialog *ld = new LineDialog(this, plot(), "lineDialog", true, Qt::Tool);
+				ld->setAttribute(Qt::WA_DeleteOnClose);
+				ld->exec();
+				return true;
 			}
 		default:
 			return false;

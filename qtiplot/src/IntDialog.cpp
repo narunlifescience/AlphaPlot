@@ -254,9 +254,8 @@ void IntDialog::setGraph(Graph *g)
 {
 graph = g;
 boxName->insertStringList (g->analysableCurvesList());
-int index = 0;
-if (graph->selectorsEnabled())
-	index = graph->curveIndex(graph->selectedCurveID());
+int index = graph->selectedCurveIndex();
+if (index < 0) index = 0;
 
 activateCurve(index);
 boxName->setCurrentItem(index);
@@ -267,22 +266,14 @@ connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 
 void IntDialog::activateCurve(int index)
 {
-QwtPlotCurve *c = graph->curve(index);
-if (!c)
-	return;
+	QwtPlotCurve *c = graph->curve(index);
+	if (!c)
+		return;
 
-if (graph->selectorsEnabled() && graph->selectedCurveID() == graph->curveKey(index))
-	{
-	double start = graph->selectedXStartValue();
-	double end = graph->selectedXEndValue();
+	double start, end;
+	graph->range(index, &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 	boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
-	}
-else
-	{
-	boxStart->setText(QString::number(c->minXValue(), 'g', 15));
-	boxEnd->setText(QString::number(c->maxXValue(), 'g', 15));
-	}
 };
 
 void IntDialog::changeCurve(int index)

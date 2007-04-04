@@ -97,6 +97,12 @@
 #include "Convolution.h"
 #include "Correlation.h"
 
+// TODO: move tool-specific code to an extension manager
+#include "ScreenPickerTool.h"
+#include "DataPickerTool.h"
+#include "TranslateCurveTool.h"
+#include "MultiPeakFitTool.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -1466,38 +1472,6 @@ void ApplicationWindow::updateTable(const QString& caption,int row,const QString
 		w->setText(row,xcol,values[0]);
 		w->setText(row,ycol,values[1]);
 		updateCurves(w, colName);
-		emit modified();
-	}
-	else
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
-				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
-}
-
-void ApplicationWindow::updateTableColumn(const QString& colName, double *dat, int rows)
-{
-	Table* w = table(colName);
-	if (!w)
-		return;
-
-	int col=w->colIndex(colName);
-	if (w->columnType(col) == Table::Numeric)
-	{
-		int prec;
-		char f;
-		w->columnNumericFormat(col, f, prec);
-		int i=0, j=0;
-		while(i<rows && j<w->tableRows())
-		{
-			if(!w->text(j, col).isEmpty())
-			{
-				w->setText(j,col, QString::number(dat[i], f, prec));
-				i++;
-			}
-			j++;
-		}
-
-		updateCurves(w, colName);
-		delete[] dat;
 		emit modified();
 	}
 	else
@@ -6521,8 +6495,7 @@ void ApplicationWindow::removePoints()
 					tr("Continue"),tr("Cancel"),0,1))
 		{
 			case 0:
-				g->removePoints(true);
-				info->setText("Select point and double click to remove it!");
+				g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove, info, SLOT(setText(const QString&))));
 				displayBar->show();
 				break;
 
@@ -6570,8 +6543,7 @@ void ApplicationWindow::movePoints()
 			case 0:
 				if (g)
 				{
-					g->movePoints(true);
-					info->setText("Please, click on plot and move cursor!");
+					g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move, info, SLOT(setText(const QString&))));
 					displayBar->show();
 				}
 				break;
@@ -6983,9 +6955,8 @@ void ApplicationWindow::showScreenReader()
 
 	QWidgetList graphsList=plot->graphPtrs();
 	foreach(QWidget *w, graphsList)
-		((Graph *)w)->showPlotPicker(true);
+		((Graph *)w)->setActiveTool(new ScreenPickerTool((Graph*)w, info, SLOT(setText(const QString&))));
 
-	info->setText(tr("Click on plot or move cursor to display coordinates!"));
 	displayBar->show();
 }
 
@@ -7022,11 +6993,9 @@ void ApplicationWindow::showRangeSelectors()
 		return;
 	}
 
-	if (g->enableRangeSelectors(true))
-	{
-		info->setText("Click or use Ctrl+arrow key to select range (arrows select active cursor)!");
-		displayBar->show();
-	}
+
+	displayBar->show();
+	g->enableRangeSelectors(info, SLOT(setText(const QString&)));
 }
 
 void ApplicationWindow::showCursor()
@@ -7055,12 +7024,9 @@ void ApplicationWindow::showCursor()
 
 	QWidgetList graphsList=plot->graphPtrs();
 	foreach(QWidget *w, graphsList)
-	{
 		if (!((Graph *)w)->isPiePlot() && ((Graph *)w)->validCurvesDataSize())
-			((Graph *)w)->enableCursor(true);
-	}
+			((Graph *)w)->setActiveTool(new DataPickerTool((Graph*)w, this, DataPickerTool::Display, info, SLOT(setText(const QString&))));
 
-	info->setText(tr("Click on data point to display information!"));
 	displayBar->show();
 }
 
@@ -8026,12 +7992,8 @@ void ApplicationWindow::removeWindowFromLists(QWidget* w)
 	{
 		MultiLayer *ml =  (MultiLayer*)w;
 		Graph *g = ml->activeGraph();
-
-		if (g && (g->selectorsEnabled() || g->zoomOn() || g->removePointActivated() ||
-					g->movePointsActivated() || g->enabledCursor()|| g->pickerActivated()))
-		{
+		if (g)
 			btnPointer->setChecked(true);
-		}
 	}
 	else if (w->isA("Matrix"))
 		remove3DMatrixPlots((Matrix*)w);
@@ -10682,9 +10644,9 @@ void ApplicationWindow::analysis(const QString& whichFit)
 
 	aw = (MyWidget *)ws->activeWindow();
 
-	if (g->selectorsEnabled()) // a curve is selected
-	{
-		analyzeCurve(g, whichFit, g->selectedCurveTitle());
+	QString curve_title = g->selectedCurveTitle();
+	if (!curve_title.isNull()) {
+		analyzeCurve(g, whichFit, curve_title);
 		return;
 	}
 
@@ -10798,10 +10760,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));
 	connect (g,SIGNAL(showLineDialog()),this,SLOT(showLineDialog()));
 	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SLOT(updateTable(const QString&,int,const QString&)));
-	connect (g,SIGNAL(updateTableColumn(const QString&, double *, int)),
-			this,SLOT(updateTableColumn(const QString&, double *, int)));
 
-	connect (g,SIGNAL(clearCell(const QString&,double)),this,SLOT(clearCellFromTable(const QString&,double)));
 	connect (g,SIGNAL(showGeometryDialog()),this,SLOT(showPlotGeometryDialog()));
 	connect (g,SIGNAL(pasteMarker()),this,SLOT(pasteSelection()));
 	connect (g,SIGNAL(showGraphContextMenu()),this,SLOT(showGraphContextMenu()));
@@ -12200,8 +12159,7 @@ void ApplicationWindow::translateCurveHor()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->translateCurve(0);
-		info->setText(tr("Double-click on plot to select a data point!"));
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal, info, SLOT(setText(const QString&))));
 		displayBar->show();
 	}
 }
@@ -12237,8 +12195,7 @@ void ApplicationWindow::translateCurveVert()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->translateCurve(1);
-		info->setText(tr("Double-click on plot to select a data point!"));
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Vertical, info, SLOT(setText(const QString&))));
 		displayBar->show();
 	}
 }
@@ -12358,10 +12315,8 @@ void ApplicationWindow::fitMultiPeak(int profile)
 				tr("Peaks"), 2, 2, 1000000, 1, &ok, this);
 		if (ok && peaks)
 		{
-			g->multiPeakFit(this, (int)profile, peaks);
-			info->setText(tr("Move cursor and click to select a point and double-click/press 'Enter' to set the position of a peak!"));
+			g->setActiveTool(new MultiPeakFitTool(g, this, (MultiPeakFit::PeakProfile)profile, peaks, info, SLOT(setText(const QString&))));
 			displayBar->show();
-			connect (g,SIGNAL(showFitResults(const QString&)), this, SLOT(showResults(const QString&)));
 		}
 	}
 }

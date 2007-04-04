@@ -197,8 +197,6 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 	void createHistogramTable(const QString&,int,int,const QString&);
 	void updateTable(const QString&,int,const QString&);
-	void updateTableColumn(const QString&, double *, int);
-	void clearCell(const QString&,double);
 	void showGeometryDialog();
 	void pasteMarker();
 	void createIntensityTable(const QPixmap&);

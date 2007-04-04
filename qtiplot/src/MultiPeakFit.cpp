@@ -88,6 +88,7 @@ void MultiPeakFit::setNumPeaks(int n)
 	d_results = new double[d_p];
 
 	d_param_names = generateParameterList(d_peaks);
+	d_param_explain = generateExplanationList(d_peaks);
 	d_formula = generateFormula(d_peaks, d_profile);
 }
 

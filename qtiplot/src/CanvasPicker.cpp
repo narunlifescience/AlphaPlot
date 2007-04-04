@@ -2,8 +2,8 @@
     File                 : CanvasPicker.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen,
-                           Knut Franke
+    Copyright            : (C) 2006,2007 by Ion Vasilief,
+                           Tilman Hoener zu Siederdissen, Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
                            knut.franke*gmx.de
     Description          : Canvas picker
@@ -59,34 +59,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 	if (object != (QObject *)plot()->plotWidget()->canvas())
 		return FALSE;
 
-	bool moveRangeSelector=plot()->selectorsEnabled();
-	bool pickerActivated=plot()->pickerActivated();
-	bool dataCursorEnabled=plot()->enabledCursor();
-	bool removePoint=plot()->removePointActivated();
-	bool movePoint=plot()->movePointsActivated();
-
 	switch(e->type())
 	{
-		case QEvent::FocusIn:
-			{
-				if (plot()->enabledCursor()) 
-					plot()->showCursor(TRUE);
-				return TRUE;
-			}
-			break;
-
-		case QEvent::FocusOut:
-			{
-				if (plot()->enabledCursor()) 
-					plot()->showCursor(TRUE);
-				{
-					plotWidget->titleLabel()->repaint();
-					plotWidget->replot();
-					return TRUE;
-				}
-			}
-			break;
-
 		case QEvent::MouseButtonPress:
 			{
 				emit selectPlot();
@@ -103,28 +77,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					}
 				}
 
-				if (removePoint || movePoint || 
-						(plot()->translationInProgress() && !pickerActivated)) {
-					pointSelected = plot()->selectPoint(me->pos());
-					return true;
-				}
-
-				if (dataCursorEnabled) {
-					plot()->selectCurve(me->pos());
-					return true;
-				}
-
-				if (plot()->pickerActivated())
-				{
-					plot()->movedPicker(me->pos(), true);
-					if (plot()->selectPeaksOn())
-					{
-						pointSelected = plot()->selectPoint(me->pos());	
-						return TRUE;
-					}
-					return TRUE;
-				}
-
 				if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
 				{ 	
 					startLinePoint = me->pos();
@@ -133,13 +85,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 				if (me->button()==Qt::LeftButton && plot()->drawTextActive()) {
 					drawTextMarker(me->pos());
-					return true;
-				}
-
-				if (moveRangeSelector)
-				{//moves quickly the active selector at the mouse selected point
-					plot()->selectPoint(me->pos());	
-					plot()->moveRangeSelector();
 					return true;
 				}
 
@@ -162,51 +107,10 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			break;
 
 		case QEvent::MouseButtonDblClick:
-			{	
-				const QMouseEvent *me = (const QMouseEvent *)e;	
-				if (plot()->translationInProgress() && pointSelected) 
-				{
-					if (!pickerActivated)
-						plot()->startCurveTranslation();
-					else
-						plot()->translateCurveTo(me->pos());
-					return true;
-				}
-
-				if (plot()->selectPeaksOn() && pointSelected && pickerActivated)
-				{
-					plot()->selectPeak(me->pos());
-					return TRUE;
-				}
-
-				if (movePoint || moveRangeSelector || pickerActivated || dataCursorEnabled)
-					return true;
-
-				if (removePoint) 
-				{
-					plot()->removePoint();
-					return TRUE;
-				}
-
-				long selectedMarker=plot()->selectedMarkerKey();				
-				if (selectedMarker<0)
-				{
-					if (plot()->isPiePlot())
-						emit showPieDialog();
-					else
-					{
-						const QMouseEvent *me = (const QMouseEvent *)e;	
-						int dist, point;
-						int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
-						if (dist < 10)
-							emit showPlotDialog(curveKey);
-						else if (plot()->curves() > 0)
-							emit showPlotDialog(plot()->curveKey(0));
-					}
-					return TRUE;
-				}
-				else
-				{
+			{
+				if (d_editing_marker) {
+					return d_editing_marker->eventFilter(plotWidget->canvas(), e);
+				} else if (long selectedMarker=plot()->selectedMarkerKey() >= 0) {
 					if (texts.contains(selectedMarker)>0)
 					{
 						emit viewTextDialog();
@@ -222,7 +126,21 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 						emit viewImageDialog();
 						return TRUE;
 					}
-				}	
+				} else {
+					if (plot()->isPiePlot())
+						emit showPieDialog();
+					else
+					{
+						const QMouseEvent *me = (const QMouseEvent *)e;	
+						int dist, point;
+						int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
+						if (dist < 10)
+							emit showPlotDialog(curveKey);
+						else if (plot()->curves() > 0)
+							emit showPlotDialog(plot()->curveKey(0));
+					}
+					return TRUE;
+				}
 			}
 			break;
 
@@ -239,12 +157,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					return true;
 				} else if (plot()->lineProfile()) {
 					drawLineMarker(pos,FALSE);	
-					return true;
-				} else if (plot()->movePointsActivated()) {
-					plot()->move(pos); 
-					return true;
-				} else if (plot()->pickerActivated()) {
-					plot()->movedPicker(pos, false);		
 					return true;
 				}
 
@@ -307,127 +219,12 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 
 		case QEvent::KeyPress:
 			{	
-				const int delta = 5;
 				int key=((const QKeyEvent *)e)->key();
-
-				if ((key == Qt::Key_Enter || key == Qt::Key_Return)&&
-						plot()->translationInProgress() && pointSelected) 
-				{
-					if (!pickerActivated)
-						plot()->startCurveTranslation();
-					else
-						plot()->translateCurveTo(plotWidget->canvas()->mapFromGlobal(QCursor::pos()));
-					return true;
-				}
-
-				if ((key == Qt::Key_Enter || key == Qt::Key_Return) &&
-						plot()->selectPeaksOn() && pointSelected && pickerActivated)
-				{
-					plot()->selectPeak(plotWidget->canvas()->mapFromGlobal(QCursor::pos()));
-					return TRUE;
-				}
 
 				if (key == Qt::Key_Tab)
 				{
 					selectNextMarker();
 					return true;
-				}
-
-				if (plot()->enabledCursor())
-				{		
-					switch(key)
-					{
-						case Qt::Key_Up:
-							plot()->shiftCurveCursor(TRUE);
-							return TRUE;
-
-						case Qt::Key_Down:
-							plot()->shiftCurveCursor(FALSE);
-							return TRUE;
-
-						case Qt::Key_Right:
-						case Qt::Key_Plus:
-							if ( plot()->selectedCurveID() < 0 )
-								plot()->shiftCurveCursor(TRUE);
-							else
-								plot()->shiftPointCursor(TRUE);
-							return TRUE;
-
-						case Qt::Key_Left:
-						case Qt::Key_Minus:
-							if ( plot()->selectedCurveID() < 0 )
-								plot()->shiftCurveCursor(TRUE);
-							else
-								plot()->shiftPointCursor(FALSE);
-
-							return TRUE;
-					}
-				} 
-
-				//moving range selector				
-				if (plot()->selectorsEnabled())
-				{
-					switch(key)
-					{
-						case Qt::Key_Up:
-							plot()->shiftCurveSelector(TRUE);
-							return TRUE;
-
-						case Qt::Key_Down:
-							plot()->shiftCurveSelector(TRUE);
-							return TRUE;
-
-						case Qt::Key_Right:
-						case Qt::Key_Plus:
-							if (((const QKeyEvent *)e)->state ()==Qt::ControlButton)
-								plot()->moveRangeSelector(TRUE);
-							else
-								plot()->shiftRangeSelector(TRUE);
-							return TRUE;
-
-						case Qt::Key_Left:
-						case Qt::Key_Minus:
-							if (((const QKeyEvent *)e)->state ()==Qt::ControlButton)
-								plot()->moveRangeSelector(FALSE);
-							else
-								plot()->shiftRangeSelector(TRUE);
-
-							return TRUE;
-					}
-				} 
-
-				// The following keys represent a direction, they are
-				// organized on the keyboard.
-
-				if (plot()->movePointsActivated())
-				{
-					switch(key)
-					{
-						case Qt::Key_1: 
-							plot()->moveBy(-delta, delta);
-							break;
-						case Qt::Key_2:
-							plot()->moveBy(0, delta);
-							break;
-						case Qt::Key_3: 
-							plot()->moveBy(delta, delta);
-							break;
-						case Qt::Key_4:
-							plot()->moveBy(-delta, 0);
-							break;
-						case Qt::Key_6: 
-							plot()->moveBy(delta, 0);
-							break;
-						case Qt::Key_7:
-							plot()->moveBy(-delta, -delta);
-							break;
-						case Qt::Key_8:
-							plot()->moveBy(0, -delta);
-							break;
-						case Qt::Key_9:
-							plot()->moveBy(delta, -delta);
-							break;
-					}
 				}
 
 				long selectedMarker=plot()->selectedMarkerKey();
