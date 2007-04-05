@@ -48,7 +48,7 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 	if ( e->type() == QEvent::MouseButtonDblClick )
     	{
 		mouseDblClicked((const QwtScaleWidget *)object, ((QMouseEvent *)e)->pos());
-        return TRUE;
+        return true;
     	}
 
 	if ( e->type() == QEvent::MouseButtonPress)
@@ -58,12 +58,12 @@ bool ScalePicker::eventFilter(QObject *object, QEvent *e)
 			{
 			((QwtScaleWidget *)object)->setFocus();
 			emit clicked();	
-			return !(me->modifiers() & Qt::ShiftModifier) && !scaleRect((const QwtScaleWidget *)object).contains(me->pos());
+			return !(me->modifiers() & Qt::ShiftModifier) && !scaleTicksRect((const QwtScaleWidget *)object).contains(me->pos());
 			}
 		else if (me->button() == Qt::RightButton)
 			{
 			mouseRightClicked((const QwtScaleWidget *)object, me->pos());
-			return TRUE;
+			return true;
 			}
     	}
 	
@@ -155,4 +155,27 @@ void ScalePicker::refresh()
         if ( scale )
             scale->installEventFilter(this);
     }
+}
+
+QRect ScalePicker::scaleTicksRect(const QwtScaleWidget *scale) const
+{
+	
+	int majTickLength = scale->scaleDraw()->majTickLength();
+	QRect rect = scale->rect();
+	switch(scale->alignment())
+	{
+	case QwtScaleDraw::LeftScale:
+		rect.setLeft(rect.right() - majTickLength);
+	break;
+	case QwtScaleDraw::RightScale:
+		rect.setRight(rect.left() + majTickLength);
+	break;
+	case QwtScaleDraw::TopScale:
+		rect.setTop(rect.bottom() - majTickLength);
+	break;
+	case QwtScaleDraw::BottomScale:
+		rect.setBottom(rect.top() + majTickLength);
+	break;
+	}
+	return rect;
 }

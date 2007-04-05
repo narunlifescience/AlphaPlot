@@ -463,7 +463,7 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 					return false;
 				LineDialog *ld = new LineDialog(this, plot(), "lineDialog", true, Qt::Tool);
 				ld->setAttribute(Qt::WA_DeleteOnClose);
-				ld->exec();
+				ld->exec();	
 				return true;
 			}
 		default:

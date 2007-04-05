@@ -44,8 +44,11 @@ class ScalePicker: public QObject
 public:
     ScalePicker(QwtPlot *plot);
 
-	//! The bounding rectangle of a scale without the title.
+	//! Returns the bounding rectangle of a scale without the title.
 	QRect scaleRect(const QwtScaleWidget *) const;
+
+	//! Returns the bounding rectangle of a scale excluding the title and the tick labels.
+	QRect scaleTicksRect(const QwtScaleWidget *scale) const;
 
 	/*! Install myself as event filter for all axes of my parent.
 	 * For every axis of plot(), add myself to the corresponding QwtScaleWidget.

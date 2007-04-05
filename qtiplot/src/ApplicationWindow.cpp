@@ -7225,13 +7225,14 @@ void ApplicationWindow::showImageDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g)
 	{
-		ImageMarker *im= (ImageMarker *) g->selectedMarkerPtr();
+		ImageMarker *im = (ImageMarker *) g->selectedMarkerPtr();
 		if (!im)
 			return;
 
-		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
+		ImageDialog *id = new ImageDialog(this, "ImageDialog", true);
 		id->setAttribute(Qt::WA_DeleteOnClose);
-		connect (id,SIGNAL(setGeometry(int,int,int,int)),g,SLOT(updateImageMarker(int,int,int,int)));
+		connect (id, SIGNAL(setGeometry(int, int, int, int)), 
+				g, SLOT(updateImageMarker(int, int, int, int)));
 		id->setIcon(QPixmap(logo_xpm));
 		id->setOrigin(im->origin());
 		id->setSize(im->size());
@@ -7315,11 +7316,11 @@ void ApplicationWindow::showLineDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g)
 	{
-		LineMarker* lm=(LineMarker*)g->selectedMarkerPtr();
+		LineMarker *lm = (LineMarker*)g->selectedMarkerPtr();
 		if (!lm)
 			return;
 
-		LineDialog *ld = new LineDialog(lm, this, "lineDialog", TRUE, Qt::Tool);
+		LineDialog *ld = new LineDialog(lm, this, "lineDialog", true, Qt::Tool);
 		ld->setAttribute(Qt::WA_DeleteOnClose);
 		ld->exec();
 	}
@@ -8233,7 +8234,7 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 {
 	if (!saved)
 	{
-		QString s= tr("Save changes to project: <p><b> %1 </b> ?").arg(projectname);
+		QString s = tr("Save changes to project: <p><b> %1 </b> ?").arg(projectname);
 		switch( QMessageBox::information(this, tr("QtiPlot"), s, tr("Yes"), tr("No"),
 					tr("Cancel"), 0, 2 ) )
 		{
