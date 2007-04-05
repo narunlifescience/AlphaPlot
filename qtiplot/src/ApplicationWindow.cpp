@@ -12417,7 +12417,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += tr("Valid options are") + ":\n";
 			s += "-a " + tr("or") + " --about: " + tr("show about dialog and exit") + "\n";
 			s += "-h " + tr("or") + " --help: " + tr("show command line options") + "\n";
-			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot int language") + " XX ('en', 'fr', 'de', ...)\n";
+			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
 			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
 			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n\n";
 			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj or ASCII file") + "\n";
