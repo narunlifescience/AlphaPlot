@@ -253,6 +253,7 @@ public slots:
 	void enumerateRightCols(bool checked);
 
 	void changeColWidth(int width, bool allCols);
+	void changeColWidth(int width, int col);
 	int columnWidth(int col);
 	QStringList columnWidths();
 	void setColWidths(const QStringList& widths);
@@ -282,6 +283,7 @@ public slots:
 	void setColumnsFormat(const QStringList& lst);
 
 	void setTextFormat(bool applyToAll);
+	void setTextFormat(int col);
 	void setColNumericFormat(int f, int prec, int col);
 	void setDateFormat(const QString& format, int col);
 	void setTimeFormat(const QString& format, int col);
@@ -334,6 +336,7 @@ public slots:
 
 	QString colComment(int col){return comments[col];};
 	void setColComment(const QString& s);
+	void setColComment(int col, const QString& s);
 
 	QStringList colComments(){return comments;};
 	void setColComments(const QStringList& lst){comments = lst;};

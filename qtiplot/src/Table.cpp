@@ -630,6 +630,14 @@ void Table::setColComment(const QString& s)
 	comments[selectedCol] = s;
 }
 
+void Table::setColComment(int col, const QString& s)
+{
+	if (comments[col] == s)
+		return;
+
+	comments[col] = s;
+}
+
 void Table::changeColWidth(int width, bool allCols)
 {
 	int cols=worksheet->numCols();
@@ -648,6 +656,16 @@ void Table::changeColWidth(int width, bool allCols)
 		worksheet->setColumnWidth (selectedCol, width);
 		emit modifiedWindow(this);
 	}
+}
+
+void Table::changeColWidth(int width, int col)
+{
+
+	if (worksheet->columnWidth(col) == width)
+		return;
+
+	worksheet->setColumnWidth (col, width);
+	emit modifiedWindow(this);
 }
 
 void Table::changeColName(const QString& text)
@@ -1606,6 +1624,11 @@ void Table::setTextFormat(bool applyToAll)
 	}
 	else
 		colTypes[selectedCol] = Text;
+}
+
+void Table::setTextFormat(int col)
+{
+	colTypes[col] = Text;
 }
 
 void Table::setNumericFormat(int f, int prec, bool applyToAll)
