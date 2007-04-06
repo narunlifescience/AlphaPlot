@@ -150,7 +150,7 @@ public slots:
 	//! \name Print and Export
 	//@{
 	QPixmap canvasPixmap();
-	void exportGraph(const QString& fileName);
+	void exportToFile(const QString& fileName);
 	void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
 	void exportSVG(const QString& fname);
     void exportPDF(const QString& fname);

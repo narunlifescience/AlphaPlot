@@ -6934,7 +6934,7 @@ void ApplicationWindow::showResults(bool ok)
 
 void ApplicationWindow::showResults(const QString& s)
 {
-	logInfo+=s;
+	logInfo += s;
 	showResults(true);
 }
 
@@ -6992,7 +6992,6 @@ void ApplicationWindow::showRangeSelectors()
 		btnPointer->setChecked(true);
 		return;
 	}
-
 
 	displayBar->show();
 	g->enableRangeSelectors(info, SLOT(setText(const QString&)));
@@ -7231,7 +7230,7 @@ void ApplicationWindow::showImageDialog()
 
 		ImageDialog *id = new ImageDialog(this, "ImageDialog", true);
 		id->setAttribute(Qt::WA_DeleteOnClose);
-		connect (id, SIGNAL(setGeometry(int, int, int, int)), 
+		connect (id, SIGNAL(setGeometry(int, int, int, int)),
 				g, SLOT(updateImageMarker(int, int, int, int)));
 		id->setIcon(QPixmap(logo_xpm));
 		id->setOrigin(im->origin());

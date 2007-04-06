@@ -212,7 +212,7 @@ class Graph: public QWidget
 		void copyImage();
 		QPixmap graphPixmap();
 		//! Provided for convenience in scripts
-		void exportLayer(const QString& fileName);
+		void exportToFile(const QString& fileName);
 		void exportSVG(const QString& fname);
 		void exportVector(const QString& fileName,int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
                           QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);

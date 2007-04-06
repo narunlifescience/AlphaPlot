@@ -62,9 +62,14 @@ class RangeSelectorTool : public QwtPlotPicker, public PlotToolInterface
 		int dataSize() const { return qAbs(d_active_point - d_inactive_point); }
 		virtual bool eventFilter(QObject *obj, QEvent *event);
 		bool keyEventFilter(QKeyEvent *ke);
+
 		QwtPlotCurve *selectedCurve() const { return d_selected_curve; }
+		//! Caller is responsible for replot.
+		void setSelectedCurve(QwtPlotCurve *curve);
+
 	public slots:
 		virtual void pointSelected(const QPoint &point);
+
 	signals:
 		/*! Emitted whenever a new message should be presented to the user.
 		 *
@@ -77,8 +82,6 @@ class RangeSelectorTool : public QwtPlotPicker, public PlotToolInterface
 		virtual void append(const QPoint& point) { pointSelected(point); }
 		void emitStatusText();
 		void switchActiveMarker();
-		//! Caller is responsible for replot.
-		void setSelectedCurve(QwtPlotCurve *curve);
 		//! Caller is responsible for replot.
 		void setActivePoint(int index);
 	private:

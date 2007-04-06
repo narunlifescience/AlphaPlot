@@ -617,7 +617,7 @@ QPixmap MultiLayer::canvasPixmap()
     return QPixmap::grabWidget(canvas);
 }
 
-void MultiLayer::exportGraph(const QString& fileName)
+void MultiLayer::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() )
 	{

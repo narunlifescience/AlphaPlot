@@ -66,12 +66,10 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 		marker_size += qMax(ssize.width(), ssize.height());
 	}
 	*/
-//	d_active_marker.setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush),
 	d_active_marker.setSymbol(QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255,255,0,128)),
 				QPen(Qt::red,2), QSize(marker_size,marker_size)));
 	d_active_marker.setLineStyle(QwtPlotMarker::VLine);
 	d_active_marker.setLinePen(QPen(Qt::red, 1, Qt::DashLine));
-//	d_inactive_marker.setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush),
 	d_inactive_marker.setSymbol(QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255,255,0,128)),
 				QPen(Qt::black,2), QSize(marker_size,marker_size)));
 	d_inactive_marker.setLineStyle(QwtPlotMarker::VLine);

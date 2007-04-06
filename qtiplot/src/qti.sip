@@ -329,7 +329,7 @@ public:
   			int quality = 100, bool transparent = false);
 
   //void exportSVG(const QString& fname);
-  void exportLayer(const QString& fileName);
+  void exportToFile(const QString& fileName) /PyName=export/;
 
 private:
   Graph(const Graph&);
@@ -347,7 +347,7 @@ public:
   Graph* layer(int num);
   Graph* addLayer();
   //void exportSVG(const QString& fname);
-  void exportGraph(const QString& fileName);
+  void exportToFile(const QString& fileName) /PyName=export/;
   void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
   void print();
 private:

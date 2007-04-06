@@ -681,7 +681,7 @@ void Graph::setAxisTicksLength(int axis, int majTicksType, int minTicksType,
 		sd->enableComponent (QwtAbstractScaleDraw::Ticks);
 
 	if (majTicksType == ScaleDraw::None || majTicksType == ScaleDraw::In)
-		majLength = minLength;	
+		majLength = minLength;
 	if (minTicksType == ScaleDraw::None || minTicksType == ScaleDraw::In)
 		minLength = 0;
 
@@ -1455,7 +1455,7 @@ QStringList Graph::analysableCurvesList()
 	for (int i=0; i<(int)keys.count(); i++)
 	{
 		QwtPlotItem *c = d_plot->curve(keys[i]);
-  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || 
+  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve ||
 			c->rtti() == FunctionCurve::RTTI) && c_type[i] != ErrorBars)
   	        cList << c->title().text();
   	 }
@@ -1508,7 +1508,7 @@ QPixmap Graph::graphPixmap()
 	return QPixmap::grabWidget(this);
 }
 
-void Graph::exportLayer(const QString& fileName)
+void Graph::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() )
 	{
@@ -4296,18 +4296,26 @@ void Graph::removeCurve(int index)
 
 	removeLegendItem(index);
 
+    if (d_range_selector && curve(index) == d_range_selector->selectedCurve())
+    {
+        if (n_curves > 1 && (index - 1) >= 0)
+            d_range_selector->setSelectedCurve(curve(index - 1));
+        else if (n_curves > 1 && index + 1 < n_curves)
+            d_range_selector->setSelectedCurve(curve(index + 1));
+        else
+            delete d_range_selector;
+    }
+
 	d_plot->removeCurve(c_keys[index]);
 	n_curves--;
 
 	if (piePlot)
 	{
-		piePlot=false;
+		piePlot = false;
 		c_keys.resize(n_curves);
 	}
 	else
 	{
-		if (curve(index) == d_range_selector->selectedCurve())
-			delete d_range_selector;
 		for (int i=index; i<n_curves; i++)
 		{
 			c_type[i] = c_type[i+1];
@@ -6320,7 +6328,7 @@ bool Graph::validCurvesDataSize()
 		for (int i=0; i < n_curves; i++)
 		{
 			 QwtPlotCurve *c = curve(i);
-  	         if(c && c->dataSize() > 2 && 
+  	         if(c && c->dataSize() > 2 &&
 			 (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI))
   	         	return true;
   	    }
