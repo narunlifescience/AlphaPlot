@@ -259,7 +259,7 @@ void ApplicationWindow::init()
 	insertTranslatedStrings();
 
 	assistant = new QAssistantClient( QString(), this );
-
+	
 	actionNextWindow = new QAction(QIcon(QPixmap(next_xpm)), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
 	connect(actionNextWindow, SIGNAL(activated()), ws, SLOT(activateNextWindow()));
@@ -6314,7 +6314,7 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 
 		if (!g->isPiePlot())
 		{
-			PlotDialog* pd= new PlotDialog(this,"PlotDialog",false,0);
+			PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
 			pd->setAttribute(Qt::WA_DeleteOnClose);
 			pd->insertColumnsList(columnsList(Table::All));
 			pd->setGraph(g);
@@ -6324,6 +6324,11 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 		else
             showPieDialog();
 	}
+}
+
+void ApplicationWindow::showCurvePlotDialog()
+{
+	showPlotDialog(actionShowCurvePlotDialog->data().toInt());
 }
 
 void ApplicationWindow::showCurveContextMenu(int curveKey)
@@ -6336,30 +6341,30 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	if (!c)
 		return;
 
-	QMenu curveMenu(this);
-
-	QAction *act = curveMenu.addAction(c->title().text(), this, SLOT(showPlotDialog(int)));
-	act->setData(curveKey);
+	QMenu curveMenu(this);	
+	curveMenu.addAction(c->title().text(), this, SLOT(showCurvePlotDialog()));
 	curveMenu.insertSeparator();
 
 	if (c->rtti() == FunctionCurve::RTTI)
 	{
-		act = curveMenu.addAction(tr("&Edit Function..."), this, SLOT(showFunctionDialog(int)));
-		act->setData(curveKey);
+		curveMenu.addAction(actionEditFunction);
+		actionEditFunction->setData(curveKey);
 	}
 
-	act = curveMenu.addAction(tr("&Worksheet"), this, SLOT(showCurveWorksheet(int)));
-	act->setData(curveKey);
-	act = curveMenu.addAction(tr("&Plot details..."), this, SLOT(showPlotDialog(int)));
-	act->setData(curveKey);
+	curveMenu.addAction(actionShowCurveWorksheet);
+	actionShowCurveWorksheet->setData(curveKey);
+		
+	curveMenu.addAction(actionShowCurvePlotDialog);
+	actionShowCurvePlotDialog->setData(curveKey);
+	
 	curveMenu.insertSeparator();
-	act = curveMenu.addAction(QPixmap(close_xpm), tr("&Delete"), this, SLOT(removeCurve(int)));
-	act->setData(curveKey);
-
+	
+	curveMenu.addAction(actionRemoveCurve);
+	actionRemoveCurve->setData(curveKey);
 	curveMenu.exec(QCursor::pos());
 }
 
-void ApplicationWindow::removeCurve(int curveKey)
+void ApplicationWindow::removeCurve()
 {
     if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
@@ -6367,6 +6372,8 @@ void ApplicationWindow::removeCurve(int curveKey)
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (!g)
 		return;
+	
+	int curveKey = actionRemoveCurve->data().toInt();
 	g->removeCurve(g->curveIndex(curveKey));
 }
 
@@ -6379,7 +6386,6 @@ void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
 	if (!c)
 		return;
 
-    QString curveTitle = c->title().text();
 	if (c->rtti() == FunctionCurve::RTTI)
 		g->createTable(c);
 	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
@@ -6389,7 +6395,20 @@ void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
 			sp->matrix()->showMaximized();
 	}
 	else
-		showTable(curveTitle);
+		showTable(c->title().text());
+}
+
+void ApplicationWindow::showCurveWorksheet()
+{
+	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+	
+	int curveKey = actionShowCurveWorksheet->data().toInt();
+	showCurveWorksheet(g, g->curveIndex(curveKey));
 }
 
 void ApplicationWindow::zoomIn()
@@ -8944,8 +8963,8 @@ void ApplicationWindow::showPlotWizard()
 					"<p><h4>Please create a table and try again!</h4>"));
 }
 
-void ApplicationWindow::showFunctionDialog(int curveKey)
-{
+void ApplicationWindow::showFunctionDialog()
+{	
     if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
 
@@ -8953,6 +8972,7 @@ void ApplicationWindow::showFunctionDialog(int curveKey)
 	if (!g)
 		return;
 
+	int curveKey = actionEditFunction->data().toInt();		
 	showFunctionDialog(g, g->curveIndex(curveKey));
 }
 
@@ -11436,10 +11456,27 @@ void ApplicationWindow::createActions()
 	actionShowScriptWindow->setToggleAction( true );
 	connect(actionShowScriptWindow, SIGNAL(activated()), this, SLOT(showScriptWindow()));
 #endif
+		
+	actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
+	connect(actionShowCurvePlotDialog, SIGNAL(activated()), this, SLOT(showCurvePlotDialog()));
+
+	actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
+	connect(actionShowCurveWorksheet, SIGNAL(activated()), this, SLOT(showCurveWorksheet()));
+
+	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);
+	connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
+
+	actionEditFunction = new QAction(tr("&Edit Function..."), this);
+	connect(actionEditFunction, SIGNAL(activated()), this, SLOT(showFunctionDialog()));
 }
 
 void ApplicationWindow::translateActionsStrings()
 {
+	actionShowCurvePlotDialog->setMenuText(tr("&Plot details..."));
+	actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
+	actionRemoveCurve->setMenuText(tr("&Delete"));
+	actionEditFunction->setMenuText(tr("&Edit Function..."));
+	
 	actionNewProject->setMenuText(tr("New &Project"));
 	actionNewProject->setToolTip(tr("Open a new project"));
 	actionNewProject->setShortcut(tr("Ctrl+N"));

@@ -127,49 +127,11 @@ public:
 #endif
 	QWorkspace* ws;
     QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools, *plotMatrixBar;
-    QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
-	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
-	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
-	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
-	QMenu *scriptingMenu;
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
 	QLineEdit *info;
 	QWidget *lastModified;
-
-private:
-	QActionGroup* dataTools;
-	QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
-	QAction  *btnZoomIn, *btnZoomOut, *btnPointer, *btnLine, *btnArrow;
-
-	QActionGroup* coord;
-	QAction* Box;
-    QAction* Frame;
-    QAction* None;
-
-	QActionGroup* grids;
-    QAction* front;
-    QAction* back;
-    QAction* right;
-    QAction* left;
-    QAction* ceil;
-    QAction* floor;
-
-	QActionGroup* floorstyle;
-    QAction* floordata;
-    QAction* flooriso;
-    QAction* floornone;
-
-	QActionGroup* plotstyle;
-    QAction* wireframe;
-    QAction* hiddenline;
-    QAction* polygon;
-    QAction* filledmesh;
-    QAction* pointstyle;
-	QAction* barstyle;
-	QAction *conestyle, *crossHairStyle;
-	Graph *lastCopiedLayer;
 
 public:
 	/*! Generates a new unique name starting with string /param name.
@@ -310,7 +272,7 @@ public slots:
 	void newFunctionPlot(int type,QStringList &formulas, const QString& var,QList<double> &ranges, int points);
 
 	FunctionDialog* functionDialog();
-	void showFunctionDialog(int curveKey);
+	void showFunctionDialog();
 	void showFunctionDialog(Graph * g, int curve);
 	void addFunctionCurve();
 	void clearFitFunctionsList();
@@ -672,7 +634,8 @@ public slots:
 	void showWindowContextMenu();
 	void showWindowTitleBarMenu();
 	void showCurveContextMenu(int curveKey);
-	//void showCurveWorksheet(int curveKey);
+	void showCurvePlotDialog();
+	void showCurveWorksheet();
     void showCurveWorksheet(Graph *g, int curveIndex);
 	void showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p, int);
 
@@ -723,8 +686,8 @@ public slots:
 	void translateCurveHor();
 	void translateCurveVert();
 
-	//! Removes the curve identified by key 'curveKey' from a 2D plot
-	void removeCurve(int curveKey);
+	//! Removes the curve identified by a key stored in the data() of actionRemoveCurve.
+	void removeCurve();
 
 	void setAscValues();
 	void setRandomValues();
@@ -1033,6 +996,23 @@ public:
 	QString defaultScriptingLang;
 
 private:
+	//! Stores the pointers to the dragged items from the FolderListViews objects
+	QList<Q3ListViewItem *> draggedItems;
+
+	//! Used when checking for new versions
+	QHttp http;
+	//! Used when checking for new versions
+	QBuffer version_buffer;
+
+	Graph *lastCopiedLayer;
+	QSplitter *explorerSplitter;
+	
+	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
+	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
+	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
+	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
+	QMenu *scriptingMenu;
+	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
     QAction *actionLoad, *actionLoadMultiple, *actionUndo, *actionRedo;
@@ -1087,16 +1067,36 @@ private:
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 	QAction *actionShowScriptWindow;
 	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;
+		
+	QActionGroup* dataTools;
+	QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
+	QAction  *btnZoomIn, *btnZoomOut, *btnPointer, *btnLine, *btnArrow;
 
-private:
-	//! Stores the pointers to the dragged items from the FolderListViews objects
-	QList<Q3ListViewItem *> draggedItems;
+	QActionGroup* coord;
+	QAction* Box;
+    QAction* Frame;
+    QAction* None;
 
-	//! Used when checking for new versions
-	QHttp http;
-	//! Used when checking for new versions
-	QBuffer version_buffer;
+	QActionGroup* grids;
+    QAction* front;
+    QAction* back;
+    QAction* right;
+    QAction* left;
+    QAction* ceil;
+    QAction* floor;
 
-	QSplitter *explorerSplitter;
+	QActionGroup* floorstyle;
+    QAction* floordata;
+    QAction* flooriso;
+    QAction* floornone;
+
+	QActionGroup* plotstyle;
+    QAction* wireframe;
+    QAction* hiddenline;
+    QAction* polygon;
+    QAction* filledmesh;
+    QAction* pointstyle;
+	QAction* barstyle;
+	QAction *conestyle, *crossHairStyle;
 };
 #endif

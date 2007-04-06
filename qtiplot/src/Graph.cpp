@@ -4879,7 +4879,7 @@ void Graph::createTable(const QwtPlotCurve* curve)
         text += QString::number(curve->y(i))+"\n";
     }
     QString legend = tr("Data set generated from curve") + ": " + curve->title().text();
-    emit createTable(tr("Table") + "\t" + legend, size, 2, text);
+    emit createTable(tr("Table") + "1" + "\t" + legend, size, 2, text);
 }
 
 bool Graph::lineProfile()
