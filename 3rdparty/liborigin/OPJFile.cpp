@@ -661,7 +661,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 
 		fseek(f,LAYER+0x11, SEEK_SET);
 		fread(&c,1,1,f);
-		byte width=0;
+		unsigned char width=0;
 		fseek(f,LAYER+0x4A, SEEK_SET);
 		fread(&width,2,1,f);
 		int col_index=compareColumnnames(spread,name);
