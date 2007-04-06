@@ -83,6 +83,8 @@ public:
 	void keyPressEvent(QKeyEvent *);
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
+	
+	bool focusNextPrevChild ( bool next );
 	//@}
 
 public slots:

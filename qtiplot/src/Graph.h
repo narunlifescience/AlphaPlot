@@ -243,6 +243,7 @@ class Graph: public QWidget
 		//@{
 		void contextMenuEvent(QContextMenuEvent *);
 		void closeEvent(QCloseEvent *e);
+		bool focusNextPrevChild ( bool next );
 		//@}
 
 		//! Set axis scale
@@ -323,7 +324,7 @@ class Graph: public QWidget
 				bool start, bool end, int headLength, int headAngle, bool filledHead);
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
-		QwtArray<long> textMarkerKeys(){return d_texts;};
+		QVector<long> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
 
 		void addTimeStamp();

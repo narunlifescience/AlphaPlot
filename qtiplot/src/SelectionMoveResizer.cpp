@@ -31,6 +31,7 @@
 
 #include <QPainter>
 #include <QMouseEvent>
+#include <QMessageBox>
 
 #include <qwt_scale_map.h>
 #include <qwt_plot.h>
@@ -425,6 +426,11 @@ void SelectionMoveResizer::mouseReleaseEvent(QMouseEvent *me)
 void SelectionMoveResizer::keyPressEvent(QKeyEvent *ke)
 {
 	switch(ke->key()) {
+		case Qt::Key_Tab:
+			QMessageBox::about(0, "", "tab");
+			ke->ignore();
+		break;
+		
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
 			if (d_op == None) {

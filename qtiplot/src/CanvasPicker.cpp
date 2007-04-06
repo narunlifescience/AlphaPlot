@@ -34,6 +34,7 @@
 #include "LineMarker.h"
 
 #include <QVector>
+#include <QMessageBox>
 
 #include <qwt_text_label.h>
 #include <qwt_plot_canvas.h>
@@ -110,21 +111,21 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			{
 				if (d_editing_marker) {
 					return d_editing_marker->eventFilter(plotWidget->canvas(), e);
-				} else if (long selectedMarker=plot()->selectedMarkerKey() >= 0) {
-					if (texts.contains(selectedMarker)>0)
+				} else if (plot()->selectedMarkerKey() >= 0) {					
+					if (texts.contains(plot()->selectedMarkerKey()))
 					{
 						emit viewTextDialog();
-						return TRUE;
+						return true;
 					}			
-					if (lines.contains(selectedMarker)>0)
+					else if (lines.contains(plot()->selectedMarkerKey()))
 					{
 						emit viewLineDialog();
-						return TRUE;
+						return true;
 					}
-					if (images.contains(selectedMarker)>0)
+					else if (images.contains(plot()->selectedMarkerKey()))
 					{
 						emit viewImageDialog();
-						return TRUE;
+						return true;
 					}
 				} else {
 					if (plot()->isPiePlot())
@@ -139,7 +140,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 						else if (plot()->curves() > 0)
 							emit showPlotDialog(plot()->curveKey(0));
 					}
-					return TRUE;
+					return true;
 				}
 			}
 			break;
@@ -221,30 +222,30 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			{	
 				int key=((const QKeyEvent *)e)->key();
 
-				if (key == Qt::Key_Tab)
-				{
+				long selectedMarker = plot()->selectedMarkerKey();
+				if (selectedMarker >= 0 && key == Qt::Key_Tab)
+				{					
 					selectNextMarker();
 					return true;
 				}
-
-				long selectedMarker=plot()->selectedMarkerKey();
+				
 				if (texts.contains(selectedMarker)>0 &&
 						(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 					emit viewTextDialog();
-					return TRUE;
+					return true;
 				}			
 				if (lines.contains(selectedMarker)>0 &&
 						(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 					emit viewLineDialog();
-					return TRUE;
+					return true;
 				}
 				if (images.contains(selectedMarker)>0 &&
 						(key==Qt::Key_Enter|| key==Qt::Key_Return))
 				{
 					emit viewImageDialog();
-					return TRUE;
+					return true;
 				}	
 			}
 			break;
@@ -256,34 +257,36 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 }
 
 void CanvasPicker::selectNextMarker()
-{
-	QList<int> mrkKeys=plotWidget->markerKeys();
-	int n=mrkKeys.size();
-	if (n==0)
+{	
+	QList<int> mrkKeys = plotWidget->markerKeys();
+	int n = mrkKeys.size();
+	if (n < 2)
 		return;
 
-	int min_key=mrkKeys[0], max_key=mrkKeys[0];
+	int min_key = mrkKeys[0], max_key = mrkKeys[0];
 	for (int i = 0; i<n; i++ )
 	{
 		if (mrkKeys[i] >= max_key)
-			max_key=mrkKeys[i];
+			max_key = mrkKeys[i];
 		if (mrkKeys[i] <= min_key)
-			min_key=mrkKeys[i];
+			min_key = mrkKeys[i];		
 	}
 
-	int key;
-	if (plot()->selectedMarkerKey() >= 0)
+	int key = plot()->selectedMarkerKey();
+	if (key >= 0)
 	{
-		key = plot()->selectedMarkerKey() + 1;
+		key++;
 		if ( key > max_key )
-			key=min_key;
+			key = min_key;
 	} else
 		key = min_key;
+	
 	if (d_editing_marker) {
 		d_editing_marker->setEditable(false);
 		d_editing_marker = 0;
 	}
 	plot()->setSelectedMarker(key);
+	
 }
 
 void CanvasPicker::drawTextMarker(const QPoint& point)

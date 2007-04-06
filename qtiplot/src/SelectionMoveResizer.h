@@ -216,4 +216,3 @@ class SelectionMoveResizer : public QWidget
 };
 
 #endif // ifndef SELECTION_MOVE_RESIZER_H
-

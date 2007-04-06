@@ -1247,3 +1247,11 @@ void MultiLayer::copy(MultiLayer* ml)
 		g2->setAutoscaleFonts(g->autoscaleFonts());
 	}
 }
+
+bool MultiLayer::focusNextPrevChild ( bool next )
+{
+	if (!active_graph)
+		return true;
+	
+	return active_graph->focusNextPrevChild(next);
+}

@@ -232,7 +232,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	grid.yAxis = QwtPlot::yLeft;
 
 	legendMarkerID = -1; // no legend for an empty graph
-	d_texts = QwtArray<long>(0);
+	d_texts = QVector<long>();
 
 	connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
@@ -300,7 +300,7 @@ QwtPlotMarker* Graph::selectedMarkerPtr()
 
 void Graph::setSelectedMarker(long mrk, bool add)
 {
-	selectedMarker=mrk;
+	selectedMarker = mrk;	
 	if (add) {
 		if (d_markers_selector) {
 			if (d_texts.contains(mrk))
@@ -3023,7 +3023,7 @@ void Graph::addTimeStamp()
 
 LegendMarker* Graph::newLegend(const QString& text)
 {
-	LegendMarker* mrk= new LegendMarker(d_plot);
+	LegendMarker* mrk = new LegendMarker(d_plot);
 	selectedMarker = d_plot->insertMarker(mrk);
 	if(d_markers_selector)
 		delete d_markers_selector;
@@ -6509,4 +6509,37 @@ void Graph::setAntialiasing(bool on, bool update)
 		}
 		d_plot->replot();
 	}
+}
+
+bool Graph::focusNextPrevChild ( bool next )
+{
+	QList<int> mrkKeys = d_plot->markerKeys();
+	int n = mrkKeys.size();
+	if (n < 2)
+		return false;
+
+	int min_key = mrkKeys[0], max_key = mrkKeys[0];
+	for (int i = 0; i<n; i++ )
+	{
+		if (mrkKeys[i] >= max_key)
+			max_key = mrkKeys[i];
+		if (mrkKeys[i] <= min_key)
+			min_key = mrkKeys[i];		
+	}
+
+	int key = selectedMarker;
+	if (key >= 0)
+	{
+		key++;
+		if ( key > max_key )
+			key = min_key;
+	} else
+		key = min_key;
+	
+	/*if (d_editing_marker) {
+		d_editing_marker->setEditable(false);
+		d_editing_marker = 0;
+	}*/
+	
+	setSelectedMarker(key);
 }

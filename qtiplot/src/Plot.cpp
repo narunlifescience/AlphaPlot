@@ -642,7 +642,6 @@ const QColor & Plot::paletteBackgroundColor() const
 	return	palette().color(QPalette::Window);
 }
 
-
 /*****************************************************************************
  *
  * Class Grid

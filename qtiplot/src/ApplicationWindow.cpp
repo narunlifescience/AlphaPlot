@@ -7306,7 +7306,7 @@ void ApplicationWindow::showTextDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if ( g )
 	{
-		LegendMarker *m= (LegendMarker *) g->selectedMarkerPtr();
+		LegendMarker *m = (LegendMarker *) g->selectedMarkerPtr();
 		if (!m)
 			return;
 
