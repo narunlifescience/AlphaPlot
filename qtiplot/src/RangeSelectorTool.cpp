@@ -188,6 +188,8 @@ void RangeSelectorTool::switchActiveMarker()
 	d_active_point = d_inactive_point;
 	d_inactive_point = tmp2;
 	d_graph->plotWidget()->replot();
+
+	emitStatusText();
 }
 
 bool RangeSelectorTool::eventFilter(QObject *obj, QEvent *event)
