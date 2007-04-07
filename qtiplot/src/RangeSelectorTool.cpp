@@ -170,13 +170,18 @@ void RangeSelectorTool::setActivePoint(int point)
 
 void RangeSelectorTool::emitStatusText()
 {
-	emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5")
+	emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5 | %6=%7; %8=%9")
 			.arg(d_active_marker.xValue() > d_inactive_marker.xValue()
 				? tr("Right") : tr("Left"))
 			.arg(d_selected_curve->title().text())
 			.arg(d_active_point + 1)
 			.arg(QString::number(d_selected_curve->x(d_active_point), 'G', 15))
-			.arg(QString::number(d_selected_curve->y(d_active_point), 'G', 15)) );
+			.arg(QString::number(d_selected_curve->y(d_active_point), 'G', 15))
+			.arg(tr("Delta_x","x difference = abs(x2-x1)"))
+			.arg(QString::number(fabs(d_selected_curve->x(d_active_point) - d_selected_curve->x(d_inactive_point))))
+			.arg(tr("Delta_y","y difference = abs(y2-y1)"))
+			.arg(QString::number(fabs(d_selected_curve->y(d_active_point) - d_selected_curve->y(d_inactive_point))))
+			);
 }
 
 void RangeSelectorTool::switchActiveMarker()
