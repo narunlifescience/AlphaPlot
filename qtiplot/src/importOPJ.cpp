@@ -31,6 +31,7 @@
 
 #include <QRegExp>
 #include <QMessageBox>
+#include "Matrix.h"
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
@@ -43,12 +44,13 @@ importTables(opj);
 bool ImportOPJ::importTables(OPJFile opj) 
 {
 	int visible_count=0;
+	int QtiPlot_scaling_factor=10; //in Origin width is measured in characters while in QtiPlot - pixels --- need to be accurate
 	for (int s=0; s<opj.numSpreads(); s++) 
 	{	
 		int nr_cols = opj.numCols(s);
 		int maxrows = opj.maxRows(s);
 
-		Table *table = (opj.spreadHidden(s)||opj.spreadLoose(s)) ? mw->newHiddenTable(opj.spreadName(s), opj.spreadLabel(s), maxrows, nr_cols) 
+		Table *table = (opj.spreadHidden(s)||opj.spreadLoose(s))&&opj.Version()==7.5 ? mw->newHiddenTable(opj.spreadName(s), opj.spreadLabel(s), maxrows, nr_cols) 
 										: mw->newTable(opj.spreadName(s), maxrows, nr_cols);
 		if (!table)
 			return false;
@@ -60,7 +62,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 			table->setColName(j, name.replace(QRegExp(".*_"),""));
 			table->setCommand(j, QString(opj.colCommand(s,j)));
 			table->setColComment(j, QString(opj.colComment(s,j)));
-			table->changeColWidth(opj.colWidth(s,j)*7, j);//approximately col_width_in_pixel(QtiPlot)/col_width_in_character(Origin)=7 - need to fix
+			table->changeColWidth(opj.colWidth(s,j)*QtiPlot_scaling_factor, j);
 
 			if (QString(opj.colType(s,j)) == "X")
 				table->setColPlotDesignation(j, Table::X);
@@ -91,19 +93,22 @@ bool ImportOPJ::importTables(OPJFile opj)
 			case 0: //Numeric
 			case 6: //Text&Numeric
 				int f;
-				switch(opj.colValueTypeSpec(s,j))
-				{
-				case 0: //Decimal 1000
-					f=1;
-					break;
-				case 1: //Scientific
-					f=2;
-					break;
-				case 2: //Engeneering
-				case 3: //Decimal 1,000
+				if(opj.colNumDisplayType(s,j)==0)
 					f=0;
-					break;
-				}
+				else
+					switch(opj.colValueTypeSpec(s,j))
+					{
+					case 0: //Decimal 1000
+						f=1;
+						break;
+					case 1: //Scientific
+						f=2;
+						break;
+					case 2: //Engeneering
+					case 3: //Decimal 1,000
+						f=0;
+						break;
+					}
 				table->setColNumericFormat(f, opj.colDecPlaces(s,j), j);
 				break;
 			case 1: //Text
@@ -224,7 +229,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 		}
 
 
-		if(!(opj.spreadHidden(s)||opj.spreadLoose(s)))
+		if(!(opj.spreadHidden(s)||opj.spreadLoose(s))||opj.Version()!=7.5)
 		{
 			table->showNormal();
 
@@ -236,6 +241,58 @@ bool ImportOPJ::importTables(OPJFile opj)
 		}
 	}
 
-//TO DO: import matrices
+//TO DO: import matrices 
+	for (int s=0; s<opj.numMatrices(); s++) 
+	{	
+		int nr_cols = opj.numMartixCols(s);
+		int nr_rows = opj.numMartixRows(s);
+
+		Matrix* matrix = mw->newMatrix(opj.matrixName(s), nr_rows, nr_cols);
+		if (!matrix)
+			return false;
+
+		matrix->setWindowLabel(opj.matrixLabel(s));
+		matrix->setFormula(opj.matrixFormula(s));
+		matrix->setColumnsWidth(opj.matrixWidth(s)*QtiPlot_scaling_factor);
+		for (int j=0; j<nr_cols; j++) 
+		{
+			for (int i=0; i<nr_rows; i++) 
+			{
+				double val = opj.matrixData(s,j,i);		
+				if(fabs(val)>0 && fabs(val)<2.0e-300)// empty entry
+					continue;
+				
+				matrix->setCell(i, j, val);
+			}		
+		}
+
+		matrix->saveCellsToMemory();
+		
+		QChar f;
+		switch(opj.matrixValueTypeSpec(s))
+		{
+		case 0: //Decimal 1000
+			f='f';
+			break;
+		case 1: //Scientific
+			f='e';
+			break;
+		case 2: //Engeneering
+		case 3: //Decimal 1,000
+			f='g';
+			break;
+		}
+		matrix->setNumericFormat(f, opj.matrixSignificantDigits(s));
+		
+		matrix->showNormal();
+
+		//cascade the matrices
+		int dx=matrix->verticalHeaderWidth();
+		int dy=matrix->parentWidget()->frameGeometry().height() - matrix->height();
+		matrix->parentWidget()->move(QPoint(visible_count*dx,visible_count*dy));
+		visible_count++;
+
+	}
+
 return true;
 }

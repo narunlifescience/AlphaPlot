@@ -87,6 +87,7 @@ struct spreadColumn {
 	int value_type_specification; //see above
 	int significant_digits;
 	int decimal_places;
+	int numeric_display_type;//Default Decimal Digits=0, Decimal Places=1, Significant Digits=2
 	string command;
 	string comment;
 	int width;
@@ -94,11 +95,14 @@ struct spreadColumn {
 	vector <string> sdata;
 	spreadColumn(string _name="")
 	:	name(_name)
+	,	command("")
+	,	comment("")
 	,	value_type(0)
 	,	value_type_specification(0)
 	,	significant_digits(6)
 	,	decimal_places(6)
 	,	width(8)
+	,	numeric_display_type(0)
 	{};
 };
 
@@ -109,7 +113,12 @@ struct spreadSheet {
 	bool bHidden;
 	bool bLoose;
 	vector <spreadColumn> column;
-	spreadSheet(string _name=""):name(_name),bHidden(false),bLoose(true){};
+	spreadSheet(string _name="")
+	:	name(_name)
+	,	label("")
+	,	bHidden(false)
+	,	bLoose(true)
+	{};
 };
 
 struct matrix {
@@ -117,7 +126,22 @@ struct matrix {
 	string label;
 	int nr_rows;
 	int nr_cols;
+	int value_type_specification;
+	int significant_digits;
+	int decimal_places;
+	int numeric_display_type;//Default Decimal Digits=0, Decimal Places=1, Significant Digits=2
+	string command;
+	int width;
 	vector <double> data;
+	matrix(string _name="")
+	:	name(_name)
+	,	command("")
+	,	value_type_specification(0)
+	,	significant_digits(6)
+	,	decimal_places(6)
+	,	width(8)
+	,	numeric_display_type(0)
+	{};
 };
 
 class OPJFile
@@ -139,26 +163,43 @@ public:
 	const char *colType(int s, int c) { printf("T"); return SPREADSHEET[s].column[c].type.c_str(); }	//!< get type of column c of spreadsheet s
 	const char *colCommand(int s, int c) { printf("C"); return SPREADSHEET[s].column[c].command.c_str(); }	//!< get command of column c of spreadsheet s
 	const char *colComment(int s, int c) { printf("C"); return SPREADSHEET[s].column[c].comment.c_str(); }	//!< get comment of column c of spreadsheet s
-	int colValueType(int s, int c) { return SPREADSHEET[s].column[c].value_type; }
-	int colValueTypeSpec(int s, int c) { return SPREADSHEET[s].column[c].value_type_specification; }
-	int colSignificantDigits(int s, int c) { return SPREADSHEET[s].column[c].significant_digits; }
-	int colDecPlaces(int s, int c) { return SPREADSHEET[s].column[c].decimal_places; }
-	int colWidth(int s, int c) { return SPREADSHEET[s].column[c].width; }
+	int colValueType(int s, int c) { return SPREADSHEET[s].column[c].value_type; }	//!< get value type of column c of spreadsheet s
+	int colValueTypeSpec(int s, int c) { return SPREADSHEET[s].column[c].value_type_specification; }	//!< get value type specification of column c of spreadsheet s
+	int colSignificantDigits(int s, int c) { return SPREADSHEET[s].column[c].significant_digits; }	//!< get significant digits of column c of spreadsheet s
+	int colDecPlaces(int s, int c) { return SPREADSHEET[s].column[c].decimal_places; }	//!< get decimal places of column c of spreadsheet s
+	int colNumDisplayType(int s, int c) { return SPREADSHEET[s].column[c].numeric_display_type; }	//!< get numeric display type of column c of spreadsheet s
+	int colWidth(int s, int c) { return SPREADSHEET[s].column[c].width; }	//!< get width of column c of spreadsheet s
 	vector <double> Data(int s, int c) { return SPREADSHEET[s].column[c].data; }	//!< get data of column c of spreadsheet s
-	const char* SData(int s, int c, int r) { 
-		return SPREADSHEET[s].column[c].sdata[r].c_str();
-	}	//!< get data strings of column c/row r of spreadsheet s
+	const char* SData(int s, int c, int r) { return SPREADSHEET[s].column[c].sdata[r].c_str();}	//!< get data strings of column c/row r of spreadsheet s
+	
+	//matrix properties
+	int numMatrices() { return MATRIX.size(); }			//!< get number of matrices
+	const char *matrixName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of matrix s	
+	const char *matrixLabel(int s) { return MATRIX[s].label.c_str(); }	//!< get label of matrix s
+	int numMartixCols(int s) { return MATRIX[s].nr_cols; }		//!< get number of columns of matrix s
+	int numMartixRows(int s) { return MATRIX[s].nr_rows; }	//!< get number of rows of matrix s
+	const char *matrixFormula(int s) { return MATRIX[s].command.c_str(); }	//!< get formula of matrix s
+	int matrixValueTypeSpec(int s) { return MATRIX[s].value_type_specification; }	//!< get value type specification of matrix s
+	int matrixSignificantDigits(int s) { return MATRIX[s].significant_digits; }	//!< get significant digits of matrix s
+	int matrixDecPlaces(int s) { return MATRIX[s].decimal_places; }	//!< get decimal places of matrix s
+	int matrixNumDisplayType(int s) { return MATRIX[s].numeric_display_type; }	//!< get numeric display type of matrix s
+	int matrixWidth(int s) { return MATRIX[s].width; }	//!< get width of matrix s	
+	double matrixData(int s, int c, int r) { return MATRIX[s].data[r*MATRIX[s].nr_cols+c]; }	//!< get data of row r of column c of matrix s
+
 private:
 	bool IsBigEndian() { return( htonl(1)==1 ); }
 	void ByteSwap(unsigned char * b, int n);
 	int  compareSpreadnames(char *sname);				//!< returns matching spread index
 	int  compareColumnnames(int spread, char *sname);	//!< returns matching column index
+	int  compareMatrixnames(char *sname);				//!< returns matching matrix index
 	void readSpreadInfo(FILE *fopj, FILE *fdebug);
+	void readMatrixInfo(FILE *fopj, FILE *fdebug);
 	void skipObjectInfo(FILE *fopj, FILE *fdebug);
 	void setColName(int spread);		//!< set default column name starting from spreadsheet spread
 	const char* filename;			//!< project file name
 	int version;				//!< project version
 	vector <spreadSheet> SPREADSHEET;
+	vector <matrix> MATRIX;
 };
 
 #endif // OPJFILE_H

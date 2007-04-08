@@ -35,6 +35,7 @@
 #include <QTableWidget>
 #include <QContextMenuEvent>
 #include <QEvent>
+#include <QHeaderView>
 #include "MyWidget.h"
 #include "ScriptingEnv.h"
 #include "Script.h"
@@ -251,6 +252,8 @@ public slots:
 	static double** allocateMatrixData(int rows, int columns);
 	//! Free memory used for a matrix buffer
 	static void freeMatrixData(double **data, int rows);
+
+	int verticalHeaderWidth(){return table()->verticalHeader()->width();}
 
 signals:
 	//! Show the context menu
