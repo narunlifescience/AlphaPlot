@@ -49,8 +49,10 @@ public:
 	 void selectPoints(int n);
 	 void selectPeak(const QPoint& p);
 
-	 //! Move selection to next marker.
-	void selectNextMarker();
+	 //! Disable editing of #d_editing_marker on a TAB-key event.
+	 /*!\brief Called by Graph::focusNextPrevChild ()
+	 */
+	void disableEditing();
 
 private:
 	void drawTextMarker(const QPoint&);

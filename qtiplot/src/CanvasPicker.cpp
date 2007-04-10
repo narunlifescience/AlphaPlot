@@ -249,37 +249,12 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 	return QObject::eventFilter(object, e);
 }
 
-void CanvasPicker::selectNextMarker()
+void CanvasPicker::disableEditing()
 {
-	QList<int> mrkKeys = plotWidget->markerKeys();
-	int n = mrkKeys.size();
-	if (n < 2)
-		return;
-
-	int min_key = mrkKeys[0], max_key = mrkKeys[0];
-	for (int i = 0; i<n; i++ )
-	{
-		if (mrkKeys[i] >= max_key)
-			max_key = mrkKeys[i];
-		if (mrkKeys[i] <= min_key)
-			min_key = mrkKeys[i];
-	}
-
-	int key = plot()->selectedMarkerKey();
-	if (key >= 0)
-	{
-		key++;
-		if ( key > max_key )
-			key = min_key;
-	} else
-		key = min_key;
-
 	if (d_editing_marker) {
 		d_editing_marker->setEditable(false);
 		d_editing_marker = 0;
 	}
-	plot()->setSelectedMarker(key);
-
 }
 
 void CanvasPicker::drawTextMarker(const QPoint& point)

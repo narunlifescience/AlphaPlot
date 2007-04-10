@@ -6516,11 +6516,9 @@ void Graph::setAntialiasing(bool on, bool update)
 	}
 }
 
-bool Graph::focusNextPrevChild ( bool next )
+bool Graph::focusNextPrevChild ( bool )
 {
-    cp->selectNextMarker();
-
-	/*QList<int> mrkKeys = d_plot->markerKeys();
+	QList<int> mrkKeys = d_plot->markerKeys();
 	int n = mrkKeys.size();
 	if (n < 2)
 		return false;
@@ -6543,10 +6541,8 @@ bool Graph::focusNextPrevChild ( bool next )
 	} else
 		key = min_key;
 
-	/*if (d_editing_marker) {
-		d_editing_marker->setEditable(false);
-		d_editing_marker = 0;
-	}*/
+	cp->disableEditing();
 
-	//setSelectedMarker(key);
+	setSelectedMarker(key);
+	return true;
 }
