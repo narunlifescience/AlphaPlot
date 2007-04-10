@@ -7,7 +7,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
                            knut.franke*gmx.de
     Description          : Canvas picker
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -34,7 +34,6 @@
 #include "LineMarker.h"
 
 #include <QVector>
-#include <QMessageBox>
 
 #include <qwt_text_label.h>
 #include <qwt_plot_canvas.h>
@@ -65,8 +64,8 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 		case QEvent::MouseButtonPress:
 			{
 				emit selectPlot();
-				
-				const QMouseEvent *me = (const QMouseEvent *)e;	
+
+				const QMouseEvent *me = (const QMouseEvent *)e;
 
 				bool allAxisDisabled = true;
 				for (int i=0; i < QwtPlot::axisCnt; i++)
@@ -79,7 +78,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				}
 
 				if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
-				{ 	
+				{
 					startLinePoint = me->pos();
 					return true;
 				}
@@ -99,24 +98,24 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					d_editing_marker->setEditable(false);
 					d_editing_marker = 0;
 				}
-				
+
 				if(plot()->markerSelected())
 					plot()->deselectMarker();
 
 				return !(me->modifiers() & Qt::ShiftModifier);
-			}		
+			}
 			break;
 
 		case QEvent::MouseButtonDblClick:
 			{
 				if (d_editing_marker) {
 					return d_editing_marker->eventFilter(plotWidget->canvas(), e);
-				} else if (plot()->selectedMarkerKey() >= 0) {					
+				} else if (plot()->selectedMarkerKey() >= 0) {
 					if (texts.contains(plot()->selectedMarkerKey()))
 					{
 						emit viewTextDialog();
 						return true;
-					}			
+					}
 					else if (lines.contains(plot()->selectedMarkerKey()))
 					{
 						emit viewLineDialog();
@@ -132,7 +131,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 						emit showPieDialog();
 					else
 					{
-						const QMouseEvent *me = (const QMouseEvent *)e;	
+						const QMouseEvent *me = (const QMouseEvent *)e;
 						int dist, point;
 						int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
 						if (dist < 10)
@@ -150,14 +149,14 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				if (me->state() != Qt::LeftButton)
   	            	return true;
-				
+
 				QPoint pos = me->pos();
 
 				if (plot()->drawLineActive()) {
 					drawLineMarker(pos, plot()->drawArrow());
 					return true;
 				} else if (plot()->lineProfile()) {
-					drawLineMarker(pos,FALSE);	
+					drawLineMarker(pos,FALSE);
 					return true;
 				}
 
@@ -170,7 +169,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				const QMouseEvent *me = (const QMouseEvent *)e;
 				Graph *g = plot();
 
-				if (g->drawLineActive()) { 	
+				if (g->drawLineActive()) {
 					LineMarker mrk;
 					mrk.attach(g->plotWidget());
 					mrk.setStartPoint(startLinePoint);
@@ -192,11 +191,11 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					return true;
 				}
 				else if (plot()->lineProfile())
-				{ 	
-					QPoint endLinePoint=QPoint(me->x(),me->y());	
+				{
+					QPoint endLinePoint=QPoint(me->x(),me->y());
 					if (endLinePoint == startLinePoint)
 						return FALSE;
-					LineMarker mrk;	
+					LineMarker mrk;
 					mrk.attach(g->plotWidget());
 					mrk.setStartPoint(startLinePoint);
 					mrk.setEndPoint(endLinePoint);
@@ -219,34 +218,28 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 			break;
 
 		case QEvent::KeyPress:
-			{	
+			{
 				int key=((const QKeyEvent *)e)->key();
 
 				long selectedMarker = plot()->selectedMarkerKey();
-				if (selectedMarker >= 0 && key == Qt::Key_Tab)
-				{					
-					selectNextMarker();
-					return true;
-				}
-				
-				if (texts.contains(selectedMarker)>0 &&
-						(key==Qt::Key_Enter|| key==Qt::Key_Return))
+				if (texts.contains(selectedMarker) &&
+						(key==Qt::Key_Enter || key==Qt::Key_Return))
 				{
 					emit viewTextDialog();
 					return true;
-				}			
-				if (lines.contains(selectedMarker)>0 &&
-						(key==Qt::Key_Enter|| key==Qt::Key_Return))
+				}
+				if (lines.contains(selectedMarker) &&
+						(key==Qt::Key_Enter || key==Qt::Key_Return))
 				{
 					emit viewLineDialog();
 					return true;
 				}
-				if (images.contains(selectedMarker)>0 &&
-						(key==Qt::Key_Enter|| key==Qt::Key_Return))
+				if (images.contains(selectedMarker) &&
+						(key==Qt::Key_Enter || key==Qt::Key_Return))
 				{
 					emit viewImageDialog();
 					return true;
-				}	
+				}
 			}
 			break;
 
@@ -257,7 +250,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 }
 
 void CanvasPicker::selectNextMarker()
-{	
+{
 	QList<int> mrkKeys = plotWidget->markerKeys();
 	int n = mrkKeys.size();
 	if (n < 2)
@@ -269,7 +262,7 @@ void CanvasPicker::selectNextMarker()
 		if (mrkKeys[i] >= max_key)
 			max_key = mrkKeys[i];
 		if (mrkKeys[i] <= min_key)
-			min_key = mrkKeys[i];		
+			min_key = mrkKeys[i];
 	}
 
 	int key = plot()->selectedMarkerKey();
@@ -280,25 +273,25 @@ void CanvasPicker::selectNextMarker()
 			key = min_key;
 	} else
 		key = min_key;
-	
+
 	if (d_editing_marker) {
 		d_editing_marker->setEditable(false);
 		d_editing_marker = 0;
 	}
 	plot()->setSelectedMarker(key);
-	
+
 }
 
 void CanvasPicker::drawTextMarker(const QPoint& point)
 {
-	LegendMarker mrkT(plotWidget);			
+	LegendMarker mrkT(plotWidget);
 	mrkT.setOrigin(point);
 	mrkT.setFrameStyle(plot()->textMarkerDefaultFrame());
 	mrkT.setFont(plot()->defaultTextMarkerFont());
 	mrkT.setTextColor(plot()->textMarkerDefaultColor());
 	mrkT.setBackgroundColor(plot()->textMarkerDefaultBackground());
 	mrkT.setText(tr("enter your text here"));
-	plot()->insertTextMarker(&mrkT);		
+	plot()->insertTextMarker(&mrkT);
 	plot()->drawText(FALSE);
 	emit drawTextOff();
 }
@@ -309,7 +302,7 @@ void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 	LineMarker mrk;
 	mrk.attach(plotWidget);
 
-	int clw = plotWidget->canvas()->lineWidth();	
+	int clw = plotWidget->canvas()->lineWidth();
 	mrk.setStartPoint(QPoint(startLinePoint.x() + clw, startLinePoint.y() + clw));
 	mrk.setEndPoint(QPoint(point.x() + clw,point.y() + clw));
 	mrk.setWidth(1);
@@ -323,7 +316,7 @@ void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 		mrk.setColor(Qt::red);
 
 	plotWidget->replot();
-	mrk.detach();	
+	mrk.detach();
 }
 
 bool CanvasPicker::selectMarker(const QMouseEvent *e)

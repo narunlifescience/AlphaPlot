@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fast Fourier transform options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -57,14 +57,14 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 	forwardBtn = new QRadioButton(tr("&Forward"));
 	forwardBtn->setChecked( true );
 	backwardBtn = new QRadioButton(tr("&Inverse"));
-	
-	QHBoxLayout *hbox1 = new QHBoxLayout(); 
+
+	QHBoxLayout *hbox1 = new QHBoxLayout();
     hbox1->addWidget(forwardBtn);
     hbox1->addWidget(backwardBtn);
-    
+
 	QGroupBox *gb1 = new QGroupBox();
     gb1->setLayout(hbox1);
-    
+
 	QGridLayout *gl1 = new QGridLayout();
 	if (d_type == onGraph)
 	    gl1->addWidget(new QLabel(tr("Curve")), 0, 0);
@@ -84,48 +84,48 @@ FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt
 		gl1->addWidget(new QLabel(tr("Imaginary")), 2, 0);
 		boxImaginary = new QComboBox();
 		gl1->addWidget(boxImaginary, 2, 1);
-		
+
 		gl1->addWidget(new QLabel(tr("Sampling Interval")), 3, 0);
 		gl1->addWidget(boxSampling, 3, 1);
 	   }
     else
        {
         gl1->addWidget(new QLabel(tr("Sampling Interval")), 1, 0);
-		gl1->addWidget(boxSampling, 1, 1);                             
+		gl1->addWidget(boxSampling, 1, 1);
        }
  	QGroupBox *gb2 = new QGroupBox();
-    gb2->setLayout(gl1);	
+    gb2->setLayout(gl1);
 
 	boxNormalize = new QCheckBox(tr( "&Normalize Amplitude" ));
 	boxNormalize->setChecked(true);
 
     boxOrder = new QCheckBox(tr( "&Shift Results" ));
 	boxOrder->setChecked(true);
-	
+
     QVBoxLayout *vbox1 = new QVBoxLayout();
     vbox1->addWidget(gb1);
     vbox1->addWidget(gb2);
     vbox1->addWidget(boxNormalize);
     vbox1->addWidget(boxOrder);
-	vbox1->addStretch();  
-    
+	vbox1->addStretch();
+
     buttonOK = new QPushButton(tr("&OK"));
 	buttonOK->setDefault( true );
 	buttonCancel = new QPushButton(tr("&Close"));
-	
-	QVBoxLayout *vbox2 = new QVBoxLayout(); 
+
+	QVBoxLayout *vbox2 = new QVBoxLayout();
     vbox2->addWidget(buttonOK);
-    vbox2->addWidget(buttonCancel); 
-    vbox2->addStretch();  
-    
-    QHBoxLayout *hbox2 = new QHBoxLayout(this); 
+    vbox2->addWidget(buttonCancel);
+    vbox2->addStretch();
+
+    QHBoxLayout *hbox2 = new QHBoxLayout(this);
     hbox2->addLayout(vbox1);
     hbox2->addLayout(vbox2);
-    
+
 	setFocusProxy(boxName);
 
 	// signals and slots connections
-	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
+	connect( boxName, SIGNAL( activated(const QString&) ), this, SLOT( activateCurve(const QString&) ) );
 	connect( buttonOK, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
@@ -144,7 +144,7 @@ void FFTDialog::accept()
 		QMessageBox::critical(this, tr("QtiPlot - Sampling value error"), QString::fromStdString(e.GetMsg()));
 		boxSampling->setFocus();
 		return;
-	}		
+	}
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
     FFT *fft;
@@ -174,24 +174,25 @@ void FFTDialog::accept()
 void FFTDialog::setGraph(Graph *g)
 {
 	graph = g;
-	boxName->insertStringList (g->curvesList());
-	activateCurve(0);
+	boxName->insertStringList (g->analysableCurvesList());
+	activateCurve(boxName->currentText());
 };
 
-void FFTDialog::activateCurve(int index)
+void FFTDialog::activateCurve(const QString& curveName)
 {
 	if (graph)
 	{
-		QwtPlotCurve *c = graph->curve(index);
-		if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
+		QwtPlotCurve *c = graph->curve(curveName);
+		if (!c)
 			return;
 
 		boxSampling->setText(QString::number(c->x(1) - c->x(0)));
 	}
 	else if (d_table)
 	{
-		double x0 = d_table->text(0, index).toDouble();
-		double x1 = d_table->text(1, index).toDouble();
+	    int col = d_table->colIndex(curveName);
+		double x0 = d_table->text(0, col).toDouble();
+		double x1 = d_table->text(1, col).toDouble();
 		boxSampling->setText(QString::number(x1 - x0));
 	}
 };

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Smoothing options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -56,10 +56,10 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 
     boxName = new QComboBox();
 	gl1->addWidget(boxName, 0, 1);
-	
+
 	boxColor = new ColorBox();
 	boxColor->setColor(QColor(Qt::red));
-	
+
 	if (method == SmoothFilter::SavitzkyGolay)
 		{
         gl1->addWidget(new QLabel(tr("Polynomial Order")), 1, 0);
@@ -79,12 +79,12 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 		boxPointsRight->setRange(1, 25);
 		boxPointsRight->setValue(2);
 		gl1->addWidget(boxPointsRight, 3, 1);
-		
+
 		gl1->addWidget(new QLabel(tr("Color")), 4, 0);
 		gl1->addWidget(boxColor, 4, 1);
         gl1->setRowStretch(5, 1);
 		}
-	else 
+	else
 		{
 		gl1->addWidget(new QLabel(tr("Points")), 1, 0);
 		boxPointsLeft = new QSpinBox();
@@ -92,7 +92,7 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 		boxPointsLeft->setSingleStep(10);
 		boxPointsLeft->setValue(5);
 		gl1->addWidget(boxPointsLeft, 1, 1);
-		
+
 		gl1->addWidget(new QLabel(tr("Color")), 2, 0);
 		gl1->addWidget(boxColor, 2, 1);
         gl1->setRowStretch(3, 1);
@@ -102,7 +102,7 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 	btnSmooth = new QPushButton(tr( "&Smooth" ));
     btnSmooth->setDefault(true);
     buttonCancel = new QPushButton(tr( "&Close" ));
-	
+
 	QVBoxLayout *vl = new QVBoxLayout();
  	vl->addWidget(btnSmooth);
 	vl->addWidget(buttonCancel);
@@ -111,10 +111,10 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
     QHBoxLayout *hb = new QHBoxLayout(this);
     hb->addWidget(gb1);
     hb->addLayout(vl);
-   
-	connect( btnSmooth, SIGNAL( clicked() ), this, SLOT( smooth() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
+
+	connect( btnSmooth, SIGNAL(clicked()), this, SLOT( smooth()));
+    connect( buttonCancel, SIGNAL(clicked()), this, SLOT( reject()));
+	connect( boxName, SIGNAL(activated(const QString&)), this, SLOT(activateCurve(const QString&)));
 }
 
 void SmoothCurveDialog::smooth()
@@ -137,15 +137,15 @@ void SmoothCurveDialog::smooth()
 void SmoothCurveDialog::setGraph(Graph *g)
 {
     graph = g;
-    boxName->insertStringList (g->curvesList(),-1);
-    activateCurve(0);
+    boxName->addItems (g->analysableCurvesList());
+    activateCurve(boxName->currentText());
 }
 
-void SmoothCurveDialog::activateCurve(int index)
+void SmoothCurveDialog::activateCurve(const QString& curveName)
 {
     if (smooth_method == SmoothFilter::Average)
 	{
-	QwtPlotCurve *c = graph->curve(index);
+	QwtPlotCurve *c = graph->curve(curveName);
 	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 

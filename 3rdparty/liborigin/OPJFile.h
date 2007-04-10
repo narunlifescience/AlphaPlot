@@ -1,7 +1,7 @@
 // OPJFile.h
 /*
 Origin 7.5 column value display
-Numeric, Text&Numeric: 
+Numeric, Text&Numeric:
 	Decimal:1000            = 0
 	Scientific:1E3          = 1
 	Engeneering:1k          = 2
@@ -27,7 +27,7 @@ Date:
 	M/d                     = 3
 	d                       = 4
 	ddd                     = 5
-	F                       = 6	 (first letter of day of week) 
+	F                       = 6	 (first letter of day of week)
 	yyyy                    = 7
 	yy                      = 8
 	dd.MM.yyyy hh:mm        = 9
@@ -56,15 +56,6 @@ Day of Week:
 #ifndef OPJFILE_H
 #define OPJFILE_H
 
-// for htonl
-#if defined (_MSC_VER) || defined (_WIN32)
-#include <windows.h>
-#else
-#include <sys/types.h>
-#include <netinet/in.h>
-#include <inttypes.h>
-#endif
-
 #include <string>
 #include <vector>
 
@@ -83,7 +74,7 @@ typedef Entry Entry;
 struct spreadColumn {
 	string name;
 	string type;
-	int value_type;//Numeric = 0, Text = 1, Date = 2, Time = 3, Month = 4, Day = 5, Text&Numeric = 6 
+	int value_type;//Numeric = 0, Text = 1, Date = 2, Time = 3, Month = 4, Day = 5, Text&Numeric = 6
 	int value_type_specification; //see above
 	int significant_digits;
 	int decimal_places;
@@ -170,11 +161,12 @@ public:
 	int colNumDisplayType(int s, int c) { return SPREADSHEET[s].column[c].numeric_display_type; }	//!< get numeric display type of column c of spreadsheet s
 	int colWidth(int s, int c) { return SPREADSHEET[s].column[c].width; }	//!< get width of column c of spreadsheet s
 	vector <double> Data(int s, int c) { return SPREADSHEET[s].column[c].data; }	//!< get data of column c of spreadsheet s
+
 	const char* SData(int s, int c, int r) { return SPREADSHEET[s].column[c].sdata[r].c_str();}	//!< get data strings of column c/row r of spreadsheet s
-	
+
 	//matrix properties
 	int numMatrices() { return MATRIX.size(); }			//!< get number of matrices
-	const char *matrixName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of matrix s	
+	const char *matrixName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of matrix s
 	const char *matrixLabel(int s) { return MATRIX[s].label.c_str(); }	//!< get label of matrix s
 	int numMartixCols(int s) { return MATRIX[s].nr_cols; }		//!< get number of columns of matrix s
 	int numMartixRows(int s) { return MATRIX[s].nr_rows; }	//!< get number of rows of matrix s
@@ -183,11 +175,11 @@ public:
 	int matrixSignificantDigits(int s) { return MATRIX[s].significant_digits; }	//!< get significant digits of matrix s
 	int matrixDecPlaces(int s) { return MATRIX[s].decimal_places; }	//!< get decimal places of matrix s
 	int matrixNumDisplayType(int s) { return MATRIX[s].numeric_display_type; }	//!< get numeric display type of matrix s
-	int matrixWidth(int s) { return MATRIX[s].width; }	//!< get width of matrix s	
+	int matrixWidth(int s) { return MATRIX[s].width; }	//!< get width of matrix s
 	double matrixData(int s, int c, int r) { return MATRIX[s].data[r*MATRIX[s].nr_cols+c]; }	//!< get data of row r of column c of matrix s
 
 private:
-	bool IsBigEndian() { return( htonl(1)==1 ); }
+	bool IsBigEndian();
 	void ByteSwap(unsigned char * b, int n);
 	int  compareSpreadnames(char *sname);				//!< returns matching spread index
 	int  compareColumnnames(int spread, char *sname);	//!< returns matching column index

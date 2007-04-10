@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fit polynomial dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -46,13 +46,11 @@ class PolynomFitDialog : public QDialog
 
 public:
     PolynomFitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~PolynomFitDialog();
 
 public slots:
 	void fit();
 	void setGraph(Graph *g);
-	void activateCurve(int index);
-	void changeCurve(int index);
+	void activateCurve(const QString& curveName);
 	void changeDataRange();
 
 private:
@@ -69,4 +67,5 @@ private:
 	ColorBox* boxColor;
 };
 
-#endif // EXPORTDIALOG_H
+#endif
+

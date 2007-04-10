@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Nonlinear curve fitting dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -55,7 +55,7 @@ class FitDialog : public QDialog
 public:
     FitDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~FitDialog();
- 
+
 protected:
 	void closeEvent (QCloseEvent * e );
     void initFitPage();
@@ -85,7 +85,7 @@ public slots:
 	void setBuiltInFunctions();
 	bool containsUserFunctionName(const QString& s);
 	void setGraph(Graph *g);
-	void activateCurve(int index);
+	void activateCurve(const QString& curveName);
 	void choosePluginsFolder();
 	bool validInitialValues();
 	void changeDataRange();

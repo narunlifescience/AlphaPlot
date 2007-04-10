@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Integration options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -56,12 +56,12 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 	gl1->addWidget(new QLabel(tr("Integration of")), 0, 0);
 	boxName = new QComboBox();
 	gl1->addWidget(boxName, 0, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Order (1 - 5, 1 = Trapezoid Rule)")), 1, 0);
 	boxOrder = new QSpinBox();
 	boxOrder->setRange(1, 5);
 	gl1->addWidget(boxOrder, 1, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Number of iterations (Max=40)")), 2, 0);
 	boxSteps = new QSpinBox();
 	boxSteps->setRange(2, 40);
@@ -72,16 +72,16 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 	boxTol = new QLineEdit();
 	boxTol->setText("0.01");
 	gl1->addWidget(boxTol, 3, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Lower limit")), 4, 0);
 	boxStart = new QLineEdit();
 	gl1->addWidget(boxStart, 4, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Upper limit")), 5, 0);
 	boxEnd = new QLineEdit();
 	gl1->addWidget(boxEnd, 5, 1);
     gl1->setRowStretch(6, 1);
-	
+
 	buttonOk = new QPushButton(tr( "&Integrate" ));
     buttonOk->setDefault( true );
 	buttonHelp = new QPushButton(tr("&Help"));
@@ -100,35 +100,23 @@ IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
     connect( buttonHelp, SIGNAL(clicked()),this, SLOT(help()));
-    connect( boxName, SIGNAL( activated(int) ), this, SLOT(activateCurve(int)));
+    connect( boxName, SIGNAL( activated(const QString&) ), this, SLOT(activateCurve(const QString&)));
 }
 
 void IntDialog::accept()
 {
-QString curve = boxName->currentText();
+QString curveName = boxName->currentText();
+QwtPlotCurve *c = graph->curve(curveName);
 QStringList curvesList = graph->analysableCurvesList();
-if (curvesList.contains(curve) <= 0)
+if (!c || !curvesList.contains(curveName))
 	{
 	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") +" - "+ tr("Warning"),
-		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
+		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curveName));
 	boxName->clear();
 	boxName->insertStringList(curvesList);
 	return;
 	}
 
-int index = boxName->currentItem();
-QwtPlotCurve *c = graph->curve(index);
-if (!c || (c->rtti() != QwtPlotItem::Rtti_PlotCurve && c->rtti() != FunctionCurve::RTTI) || c->dataSize()<2)
-	{
-	QString s = tr("You cannot integrate curve:");
-	s += "<p><b>'"+boxName->currentText()+"'</b><p>";
-	s += tr("because it has less than 2 points!");
-	QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") +" - "+ tr("Warning"), s);
-
-	changeCurve(index);
-	return;
-	}
-	    
 try
 	{
 	mu::Parser parser;
@@ -141,13 +129,13 @@ catch(mu::ParserError &e)
 	boxTol->clear();
 	boxTol->setFocus();
 	return;
-	}	
+	}
 
-double start = 0, stop = 0;    
+double start = 0, stop = 0;
 double minx = c->minXValue();
 double maxx = c->maxXValue();
-	
-// Check the Xmin 
+
+// Check the Xmin
 QString from = boxStart->text().lower();
 if(from=="min")
 	{
@@ -163,10 +151,10 @@ else
 	{
 	try
 		{
-		MyParser parser;			
+		MyParser parser;
 		parser.SetExpr((boxStart->text()).ascii());
 		start=parser.Eval();
-			
+
 		if(start<minx)
 			{
 			QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot - Input error"),
@@ -190,11 +178,11 @@ else
 		boxStart->clear();
 		boxStart->setFocus();
 		return;
-		}	
+		}
 	}
-	
+
 // Check Xmax
-QString end=boxEnd->text().lower();    
+QString end=boxEnd->text().lower();
 if(end=="min")
 	{
 	boxEnd->setText(QString::number(minx));
@@ -211,7 +199,7 @@ else
 		{
 		MyParser parser;
 		parser.SetExpr((boxEnd->text()).ascii());
-		stop = parser.Eval();							
+		stop = parser.Eval();
 		if(stop > maxx)
 			{
 			//FIXME: I don't understand why this doesn't work for FunctionCurves!!(Ion)
@@ -238,10 +226,10 @@ else
 		boxEnd->clear();
 		boxEnd->setFocus();
 		return;
-		}	
+		}
 	}
 
-Integration *i = new Integration((ApplicationWindow *)this->parent(), graph, boxName->currentText(),
+Integration *i = new Integration((ApplicationWindow *)this->parent(), graph, curveName,
                                  boxStart->text().toDouble(), boxEnd->text().toDouble());
 i->setTolerance(boxTol->text().toDouble());
 i->setMaximumIterations(boxSteps->value());
@@ -252,43 +240,32 @@ delete i;
 
 void IntDialog::setGraph(Graph *g)
 {
-graph = g;
-boxName->insertStringList (g->analysableCurvesList());
-int index = graph->selectedCurveIndex();
-if (index < 0) index = 0;
+    graph = g;
+    boxName->insertStringList (g->analysableCurvesList());
 
-activateCurve(index);
-boxName->setCurrentItem(index);
+    QString selectedCurve = g->selectedCurveTitle();
+	if(!selectedCurve.isEmpty())
+	{
+	    int index = boxName->findText(selectedCurve);
+		boxName->setCurrentItem(index);
+	}
+    activateCurve(boxName->currentText());
 
-connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
-connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
-};
+    connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
+    connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+}
 
-void IntDialog::activateCurve(int index)
+void IntDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = graph->curve(index);
+	QwtPlotCurve *c = graph->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-	graph->range(index, &start, &end);
+	graph->range(graph->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 	boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
 };
-
-void IntDialog::changeCurve(int index)
-{
-QwtPlotCurve *c = graph->curve(index);
-while(c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI) && c->dataSize()<2)
-	{
-	index++;
-	c = graph->curve(index);
-	if(!c || index >= graph->curves()) 
-		index=0; //Restart from the beginning
-	}
-activateCurve(index);
-boxName->setCurrentItem(index);
-}
 
 void IntDialog::changeDataRange()
 {

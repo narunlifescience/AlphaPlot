@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Filter options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -49,14 +49,14 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
 
     if ( !name )
 		setName( "FilterDialog" );
-	
+
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);
 	gl1->addWidget(new QLabel(tr("Filter curve: ")), 0, 0);
-	
+
 	boxName = new QComboBox();
 	gl1->addWidget(boxName, 0, 1);
-	
+
 	if (type <= FFTFilter::HighPass)
 		gl1->addWidget(new QLabel(tr("Frequency cutoff (Hz)")), 1, 0);
 	else
@@ -65,17 +65,17 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
 	boxStart = new QLineEdit();
 	boxStart->setText(tr("0"));
 	gl1->addWidget(boxStart, 1, 1);
-	
+
 	boxColor = new ColorBox(false);
 	boxColor->setColor(QColor(Qt::red));
 	if (type >= FFTFilter::BandPass)
 		{
 	    gl1->addWidget(new QLabel(tr("High Frequency (Hz)")), 2, 0);
-	
+
 		boxEnd = new QLineEdit();
 		boxEnd->setText(tr("0"));
         gl1->addWidget(boxEnd, 2, 1);
-        
+
 		if (type == FFTFilter::BandPass)
 		    gl1->addWidget(new QLabel(tr("Add DC Offset")), 3, 0);
 		else
@@ -83,7 +83,7 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
 
 		boxOffset = new QCheckBox();
 		gl1->addWidget(boxOffset, 3, 1);
-		
+
 		gl1->addWidget(new QLabel(tr("Color")), 4, 0);
 		gl1->addWidget(boxColor, 4, 1);
         gl1->setRowStretch(5, 1);
@@ -94,11 +94,11 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
 		gl1->addWidget(boxColor, 2, 1);
         gl1->setRowStretch(3, 1);
         }
-    
+
 	buttonFilter = new QPushButton(tr( "&Filter" ));
     buttonFilter->setDefault( true );
     buttonCancel = new QPushButton(tr( "&Close" ));
-    
+
     QVBoxLayout *vl = new QVBoxLayout();
  	vl->addWidget(buttonFilter);
 	vl->addWidget(buttonCancel);
@@ -107,7 +107,7 @@ FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool mod
     QHBoxLayout *hb = new QHBoxLayout(this);
     hb->addWidget(gb1);
     hb->addLayout(vl);
-   
+
 	connect( buttonFilter, SIGNAL( clicked() ), this, SLOT( filter() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
@@ -126,7 +126,7 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(this, tr("QtiPlot - Frequency input error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
-	}		
+	}
 
 if (from < 0)
 		{
@@ -137,10 +137,10 @@ if (from < 0)
 		}
 
 if (filter_type >= FFTFilter::BandPass)
-	{	
+	{
 	try
 		{
-		MyParser parser;	
+		MyParser parser;
 		parser.SetExpr(boxEnd->text().replace(",", ".").ascii());
 		to=parser.Eval();
 		}
@@ -149,7 +149,7 @@ if (filter_type >= FFTFilter::BandPass)
 		QMessageBox::critical(this, tr("QtiPlot - High Frequency input error"), QString::fromStdString(e.GetMsg()));
 		boxEnd->setFocus();
 		return;
-		}	
+		}
 
 	if (to < 0)
 		{
@@ -179,7 +179,7 @@ else if (filter_type == FFTFilter::BandBlock)
     f->setBand(from, to);
     f->enableOffset(!boxOffset->isChecked());
     }
-else 
+else
     f->setCutoff(from);
 
 f->setColor(boxColor->currentIndex());
@@ -190,5 +190,5 @@ delete f;
 void FilterDialog::setGraph(Graph *g)
 {
 graph = g;
-boxName->insertStringList (g->curvesList(),-1);
+boxName->addItems (g->analysableCurvesList());
 };

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Add/remove curves dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,7 +29,9 @@
 #include "CurvesDialog.h"
 #include "Graph.h"
 #include "Table.h"
+#include "Matrix.h"
 #include "FunctionCurve.h"
+#include "ApplicationWindow.h"
 #include "pixmaps.h"
 
 #include <QPushButton>
@@ -53,9 +55,10 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
     setSizeGripEnabled(true);
 	setFocus();
 
-    QHBoxLayout* hl1 = new QHBoxLayout();
-	hl1->addWidget(new QLabel(tr("New curves style")));
-	boxStyle = new QComboBox ();
+    QHBoxLayout *hl = new QHBoxLayout();
+
+	hl->addWidget(new QLabel(tr("New curves style")));
+	boxStyle = new QComboBox();
 	boxStyle->addItem( QPixmap(lPlot_xpm), tr( " Line" ) );
 	boxStyle->addItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
 	boxStyle->addItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
@@ -66,18 +69,24 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	boxStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
 	boxStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
-    hl1->addWidget(boxStyle);
-    hl1->addStretch();
+	boxStyle->hide();
+    hl->addWidget(boxStyle);
 
-    QGridLayout *gl = new QGridLayout(this);
-    gl->addLayout(hl1, 0, 0);
+    boxMatrixStyle = new QComboBox();
+	boxMatrixStyle->addItem( QPixmap(color_map_xpm), tr("Contour - Color Fill"));
+	boxMatrixStyle->addItem( QPixmap(contour_map_xpm), tr("Contour Lines"));
+	boxMatrixStyle->addItem( QPixmap(gray_map_xpm), tr("Gray Scale Map"));
+	boxMatrixStyle->hide();
+    hl->addWidget(boxMatrixStyle);
+    hl->addStretch();
 
-    gl->addWidget(new QLabel( tr( "Available data" )), 1, 0);
-    gl->addWidget(new QLabel( tr( "Graph contents" )), 1, 2);
+    QGridLayout *gl = new QGridLayout();
+    gl->addWidget(new QLabel( tr( "Available data" )), 0, 0);
+    gl->addWidget(new QLabel( tr( "Graph contents" )), 0, 2);
 
 	available = new QListWidget();
 	available->setSelectionMode (QAbstractItemView::ExtendedSelection);
-    gl->addWidget(available, 2, 0);
+    gl->addWidget(available, 1, 0);
 
     QVBoxLayout* vl1 = new QVBoxLayout();
 	btnAdd = new QPushButton();
@@ -93,10 +102,10 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
     vl1->addWidget(btnRemove);
     vl1->addStretch();
 
-    gl->addLayout(vl1, 2, 1);
+    gl->addLayout(vl1, 1, 1);
 	contents = new QListWidget();
 	contents->setSelectionMode (QAbstractItemView::ExtendedSelection);
-    gl->addWidget(contents, 2, 2);
+    gl->addWidget(contents, 1, 2);
 
     QVBoxLayout* vl2 = new QVBoxLayout();
 	btnAssociations = new QPushButton(tr( "&Plot Associations..." ));
@@ -114,7 +123,13 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	btnCancel = new QPushButton(tr( "Close" ));
     vl2->addWidget(btnCancel);
     vl2->addStretch();
-    gl->addLayout(vl2, 2, 3);
+    gl->addLayout(vl2, 1, 3);
+
+    QVBoxLayout* vl3 = new QVBoxLayout(this);
+    vl3->addLayout(hl);
+    vl3->addLayout(gl);
+
+    init();
 
 	connect(btnAssociations, SIGNAL(clicked()),this, SLOT(showPlotAssociations()));
 	connect(btnEditFunction, SIGNAL(clicked()),this, SLOT(showFunctionDialog()));
@@ -134,9 +149,9 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
     connect(shortcut, SIGNAL(activated()), this, SLOT(addCurves()));
 }
 
-void CurvesDialog::showCurveBtn(int) 
+void CurvesDialog::showCurveBtn(int)
 {
-	QwtPlotCurve *c = g->curve(contents->currentRow());
+	QwtPlotItem *c = g->plotItem(contents->currentRow());
 	if (!c)
 		return;
 
@@ -157,22 +172,28 @@ void CurvesDialog::showCurveBtn(int)
   	}
 }
 
-void CurvesDialog::showPlotAssociations() 
+void CurvesDialog::showPlotAssociations()
 {
-	int curve = contents->currentRow ();
+	int curve = contents->currentRow();
 	if (curve < 0)
 		curve = 0;
-	emit showPlotAssociations(curve);
+
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    if (app)
+        app->showPlotAssociations(curve);
+
 	close();
 }
 
-void CurvesDialog::showFunctionDialog() 
+void CurvesDialog::showFunctionDialog()
 {
-	emit showFunctionDialog(g, contents->currentRow());
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    if (app)
+        app->showFunctionDialog(g, contents->currentRow());
 	close();
 }
 
-QSize CurvesDialog::sizeHint() const 
+QSize CurvesDialog::sizeHint() const
 {
 	return QSize(600, 300);
 }
@@ -208,11 +229,49 @@ void CurvesDialog::contextMenuEvent(QContextMenuEvent *e)
     e->accept();
 }
 
-void CurvesDialog::insertCurvesToDialog(const QStringList& names)
+void CurvesDialog::init()
 {
-	available->clear();
-	available->addItems (names);
-	if (!names.count())
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    if (app)
+    {
+        QStringList tables = app->columnsList(Table::Y);
+        if (!tables.isEmpty())
+        {
+            boxStyle->show();
+            available->addItems(tables);
+        }
+
+        QStringList matrices = app->matrixNames();
+        if (!matrices.isEmpty ())
+        {
+            boxMatrixStyle->show();
+            available->addItems(matrices);
+        }
+
+        int style = app->defaultCurveStyle;
+        if (style == Graph::Line)
+            boxStyle->setCurrentItem(0);
+        else if (style == Graph::Scatter)
+            boxStyle->setCurrentItem(1);
+        else if (style == Graph::LineSymbols)
+            boxStyle->setCurrentItem(2);
+        else if (style == Graph::VerticalDropLines)
+            boxStyle->setCurrentItem(3);
+        else if (style == Graph::Spline)
+            boxStyle->setCurrentItem(4);
+        else if (style == Graph::VerticalSteps)
+            boxStyle->setCurrentItem(5);
+        else if (style == Graph::HorizontalSteps)
+            boxStyle->setCurrentItem(6);
+        else if (style == Graph::Area)
+            boxStyle->setCurrentItem(7);
+        else if (style == Graph::VerticalBars)
+            boxStyle->setCurrentItem(8);
+        else if (style == Graph::HorizontalBars)
+            boxStyle->setCurrentItem(9);
+    }
+
+	if (!available->count())
 		btnAdd->setDisabled(true);
 }
 
@@ -244,8 +303,36 @@ void CurvesDialog::addCurves()
 
 bool CurvesDialog::addCurve(const QString& name)
 {
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    if (!app)
+        return false;
+
+    QStringList matrices = app->matrixNames();
+    if (matrices.contains(name))
+    {
+        Matrix *m = app->matrix(name);
+        if (!m)
+            return false;
+
+        switch (boxMatrixStyle->currentIndex())
+        {
+            case 0:
+                g->plotSpectrogram(m, Graph::ColorMap);
+            break;
+            case 1:
+                g->plotSpectrogram(m, Graph::ContourMap);
+            break;
+            case 2:
+                g->plotSpectrogram(m, Graph::GrayMap);
+            break;
+        }
+
+        contents->addItem(name);
+		return true;
+    }
+
 	int style = curveStyle();
-	Table* t = findTable(name);
+	Table* t = app->table(name);
 	if (t && g->insertCurve(t, name, style))
 	{
 		CurveLayout cl = Graph::initCurveLayout();
@@ -254,9 +341,9 @@ bool CurvesDialog::addCurve(const QString& name)
 
 		cl.lCol = color;
 		cl.symCol = color;
-		cl.fillCol = color;	
-		cl.lWidth = defaultCurveLineWidth;
-		cl.sSize = defaultSymbolSize;
+		cl.fillCol = color;
+		cl.lWidth = app->defaultCurveLineWidth;
+		cl.sSize = app->defaultSymbolSize;
 		cl.sType = symbol;
 
 		if (style == Graph::Line)
@@ -278,7 +365,7 @@ bool CurvesDialog::addCurve(const QString& name)
 			cl.connectType=2;
 		else if (style == Graph::VerticalSteps || style == Graph::HorizontalSteps)
 		{
-			cl.connectType=3; 	                
+			cl.connectType=3;
 			cl.sType = 0;
 		}
 		else if (style == Graph::Spline)
@@ -290,45 +377,6 @@ bool CurvesDialog::addCurve(const QString& name)
 		return true;
 	}
 	return false;
-}
-
-
-void CurvesDialog::setCurveDefaultSettings(int style, int width, int size)
-{
-	defaultCurveLineWidth = width;
-	defaultSymbolSize = size;
-
-	if (style == Graph::Line)
-		boxStyle->setCurrentItem(0);
-	else if (style == Graph::Scatter)
-		boxStyle->setCurrentItem(1);
-	else if (style == Graph::LineSymbols)
-		boxStyle->setCurrentItem(2);
-	else if (style == Graph::VerticalDropLines)
-		boxStyle->setCurrentItem(3);
-	else if (style == Graph::Spline)
-		boxStyle->setCurrentItem(4);
-	else if (style == Graph::VerticalSteps)
-		boxStyle->setCurrentItem(5);
-	else if (style == Graph::HorizontalSteps)
-		boxStyle->setCurrentItem(6);
-	else if (style == Graph::Area)
-		boxStyle->setCurrentItem(7);
-	else if (style == Graph::VerticalBars)
-		boxStyle->setCurrentItem(8);
-	else if (style == Graph::HorizontalBars)
-		boxStyle->setCurrentItem(9);	
-}
-
-Table * CurvesDialog::findTable(const QString& text)
-{
-	int pos = text.find("_", 0);
-	for (int i=0; i < (int)tables->count(); i++ )
-	{
-		if (tables->at(i)->name() == text.left(pos))
-			return (Table *)tables->at(i);
-	}
-	return 0;
 }
 
 void CurvesDialog::removeCurves()
@@ -394,7 +442,4 @@ int CurvesDialog::curveStyle()
 	return style;
 }
 
-CurvesDialog::~CurvesDialog()
-{
-	delete tables;
-}
+

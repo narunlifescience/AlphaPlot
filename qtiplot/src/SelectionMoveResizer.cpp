@@ -5,7 +5,7 @@
     Copyright            : (C) 2007 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
     Description          : Selection of Widgets and QwtPlotMarkers
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,7 +31,6 @@
 
 #include <QPainter>
 #include <QMouseEvent>
-#include <QMessageBox>
 
 #include <qwt_scale_map.h>
 #include <qwt_plot.h>
@@ -312,6 +311,12 @@ void SelectionMoveResizer::operateOnTargets()
 	foreach(LegendMarker *i, d_legend_markers) {
 		QRect new_rect = operateOn(i->rect());
 		i->setOrigin(new_rect.topLeft());
+		if (!i->text().isEmpty())
+		{
+            QFont f = i->font();
+            f.setPointSize(f.pointSize() * new_rect.width() * new_rect.height()/(i->rect().width() * i->rect().height()));
+            i->setFont(f);
+		}
 	}
 	foreach(LineMarker *i, d_line_markers) {
 		QPoint p1 = i->startPoint();
@@ -426,11 +431,6 @@ void SelectionMoveResizer::mouseReleaseEvent(QMouseEvent *me)
 void SelectionMoveResizer::keyPressEvent(QKeyEvent *ke)
 {
 	switch(ke->key()) {
-		case Qt::Key_Tab:
-			QMessageBox::about(0, "", "tab");
-			ke->ignore();
-		break;
-		
 		case Qt::Key_Enter:
 		case Qt::Key_Return:
 			if (d_op == None) {

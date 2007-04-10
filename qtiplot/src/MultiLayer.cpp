@@ -637,20 +637,19 @@ void MultiLayer::exportToFile(const QString& fileName)
 		{
 			if (fileName.contains( "." + list[i].toLower()))
 			{
-				exportImage(fileName, list[i]);
+				exportImage(fileName);
 				return;
 			}
 		}
-    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
+    	QMessageBox::critical(this, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
 	}
 }
 
-void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
-		int quality, bool transparent)
+void MultiLayer::exportImage(const QString& fileName, int quality, bool transparent)
 {
-	QPixmap pic=canvasPixmap();
+	QPixmap pic = canvasPixmap();
 	if (transparent)
-	{//save transparency
+	{
 		QBitmap mask(pic.size());
 		mask.fill(Qt::color1);
 		QPainter p;
@@ -673,7 +672,7 @@ void MultiLayer::exportImage(const QString& fileName, const QString& fileType,
 		p.end();
 		pic.setMask(mask);
 	}
-	pic.save(fileName, fileType, quality);
+	pic.save(fileName, 0, quality);
 }
 
 void MultiLayer::exportPDF(const QString& fname)
@@ -1233,16 +1232,14 @@ void MultiLayer::copy(MultiLayer* ml)
 {
 	setSpacing(ml->rowsSpacing(), ml->colsSpacing());
 	setAlignement(ml->horizontalAlignement(), ml->verticalAlignement());
-	setMargins(ml->leftMargin(), ml->rightMargin(),
-				ml->topMargin(), ml->bottomMargin());
+	setMargins(ml->leftMargin(), ml->rightMargin(), ml->topMargin(), ml->bottomMargin());
 
 	QWidgetList graphsList = ml->graphPtrs();
-	for (int j=0; j<graphsList.count(); j++)
+	for (int i=0; i<graphsList.count(); i++)
 	{
-		Graph* g = (Graph*)graphsList.at(j);
+		Graph* g = (Graph*)graphsList.at(i);
 		Graph* g2 = addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
 		g2->copy(g);
-		g2->updateScale();
 		g2->setIgnoreResizeEvents(g->ignoresResizeEvents());
 		g2->setAutoscaleFonts(g->autoscaleFonts());
 	}
@@ -1252,6 +1249,6 @@ bool MultiLayer::focusNextPrevChild ( bool next )
 {
 	if (!active_graph)
 		return true;
-	
+
 	return active_graph->focusNextPrevChild(next);
 }

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Smoothing options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -36,7 +36,7 @@ class QComboBox;
 class QSpinBox;
 class Graph;
 class ColorBox;
-	
+
 //! Smoothing options dialog
 class SmoothCurveDialog : public QDialog
 {
@@ -55,7 +55,7 @@ public:
 public slots:
 	void setGraph(Graph *g);
 	void smooth();
-	void activateCurve(int index);
+	void activateCurve(const QString& curveName);
 
 private:
 	Graph *graph;

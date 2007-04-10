@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Canvas picker
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,13 +31,13 @@
 
 class Graph;
 class LineMarker;
-	
+
 /**
  * \brief Handles parts of the user interaction for a Plot by registering itself as an event filter for its QwtPlotCanvas.
  *
  * CanvasPicker relies heavily on its parent being the Graph that owns the Plot it operates on.
  * Additionally, parts of the code use Graph::plotWidget instead of CanvasPicker::plotWidget.
- * 
+ *
  * \sa Plot::mousePressEvent, Plot::mouseReleaseEvent, Plot::presspos, Plot::movedGraph
  */
 class CanvasPicker: public QObject
@@ -49,9 +49,10 @@ public:
 	 void selectPoints(int n);
 	 void selectPeak(const QPoint& p);
 
-private:
-	//! Move selection to next marker.
+	 //! Move selection to next marker.
 	void selectNextMarker();
+
+private:
 	void drawTextMarker(const QPoint&);
 	void drawLineMarker(const QPoint&, bool endArrow);
 
@@ -67,13 +68,13 @@ private:
 	 * %Note that contrary to the method name, this does NOT return the Plot I operate on.
 	 */
 	Graph *plot() { return (Graph *)parent(); }
-	
+
 	/**
 	 * \brief The Plot I handle user interaction for.
 	 *
 	 * %Note that this has to be owned by my parent Graph.
 	 */
-	Plot* plotWidget;	
+	Plot* plotWidget;
 	QPoint startLinePoint, endLinePoint;
 
 signals:
@@ -87,7 +88,7 @@ signals:
 	void modified();
 	void calculateProfile(const QPoint&, const QPoint&);
 	void selectPlot();
-	
+
 private:
 	bool pointSelected;
 	/*!\brief The marker that is currently being edited, or NULL.

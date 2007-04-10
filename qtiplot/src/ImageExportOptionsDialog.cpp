@@ -143,11 +143,7 @@ void ImageExportOptionsDialog::accept()
 	if (expAll)
 		emit exportAll(f_dir, boxFormat->currentText(), boxQuality->value(), boxTransparency->isChecked());
 	else
-		emit options(f_name, f_type, boxQuality->value(), boxTransparency->isChecked());
+		emit options(f_name, boxQuality->value(), boxTransparency->isChecked());
 	close();
 }
 
-
-ImageExportOptionsDialog::~ImageExportOptionsDialog()
-{
-}

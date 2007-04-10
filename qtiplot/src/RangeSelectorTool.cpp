@@ -59,7 +59,6 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 	d_active_point = 0;
 	d_inactive_point = d_selected_curve->dataSize() - 1;
 	int marker_size = 20;
-//	int marker_size = 32;
 	/* If we want this, it should also be added setSelectedCurve and pointSelected
 	if (d_selected_curve->symbol().style() != QwtSymbol::NoSymbol) {
 		QSize ssize = d_selected_curve->symbol().size();
@@ -147,7 +146,7 @@ void RangeSelectorTool::pointSelected(const QPoint &pos)
 
 void RangeSelectorTool::setSelectedCurve(QwtPlotCurve *curve)
 {
-	if (d_selected_curve == curve)
+	if (!curve || d_selected_curve == curve)
 		return;
 	d_selected_curve = curve;
 	d_active_point = 0;

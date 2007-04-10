@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Custom curves dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -45,22 +45,22 @@ class QStringList;
 class QGroupBox;
 class QDoubleSpinBox;
 class QRadioButton;
-		
+
 class ColorBox;
 class PatternBox;
 class ColorButton;
 class Graph;
 class SymbolBox;
 class ColorMapEditor;
-	
+
 //! Custom curves dialog
 class PlotDialog : public QDialog
-{ 
+{
     Q_OBJECT
 
 public:
     PlotDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~PlotDialog();
+    ~PlotDialog(){};
 
 public slots:
 	void showStatistics();
@@ -68,7 +68,7 @@ public slots:
 	void insertCurvesList();
 	void insertColumnsList(const QStringList& names){columnNames = names;};
 	void updateEndPointColumns(const QString& text);
-	
+
 	void fillBoxSymbols();
 	void fillSymbols();
 	bool acceptParams();
@@ -84,14 +84,14 @@ public slots:
 	void showAreaColor(bool show);
 
 	void removeSelectedCurve();
-	
+
 	/******* error bars options **************/
 	void pickErrorBarsColor();
 	void changeErrorBarsType();
 	void changeErrorBarsPlus();
 	void changeErrorBarsMinus();
 	void changeErrorBarsThrough();
-	
+
 	void setAutomaticBinning();
 	bool validInput();
 	void showPlotAssociations();
@@ -106,12 +106,12 @@ public slots:
 	void setBoxType(int index);
 	void setBoxRangeType(int index);
 	void setWhiskersRange(int index);
-	
+
 	//spectrograms
   	void pickContourLinesColor();
   	void showDefaultContourLinesBox(bool show);
 	void showColorMapEditor(bool show);
-	
+
 protected:
     void clearTabWidget();
 	void initAxesPage();
@@ -180,7 +180,7 @@ protected:
   	QGroupBox *levelsGroupBox, *axisScaleBox, *imageGroupBox;
   	QGroupBox *defaultPenBox;
   	QRadioButton *defaultScaleBox, *grayScaleBox, *customScaleBox, *defaultContourBox, *autoContourBox;
- 
+
     SymbolBox *boxMaxStyle, *boxMinStyle, *boxMeanStyle, *box99Style, *box1Style;
     QDoubleSpinBox *whiskerCnt, *boxCnt;
 };

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Interpolation options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -47,21 +47,21 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
     if ( !name )
 		setName( "InterpolationDialog" );
 	setWindowTitle(tr("QtiPlot - Interpolation Options"));
-	
+
     QGroupBox *gb1 = new QGroupBox();
 	QGridLayout *gl1 = new QGridLayout(gb1);
 	gl1->addWidget(new QLabel(tr("Make curve from")), 0, 0);
 
 	boxName = new QComboBox();
 	gl1->addWidget(boxName, 0, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Spline")), 1, 0);
 	boxMethod = new QComboBox();
 	boxMethod->insertItem(tr("Linear"));
     boxMethod->insertItem(tr("Cubic"));
     boxMethod->insertItem(tr("Non-rounded Akima"));
 	gl1->addWidget(boxMethod, 1, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("Points")), 2, 0);
 	boxPoints = new QSpinBox();
 	boxPoints->setRange(3,100000);
@@ -73,13 +73,13 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 	boxStart = new QLineEdit();
 	boxStart->setText(tr("0"));
 	gl1->addWidget(boxStart, 3, 1);
-	
+
 	gl1->addWidget(new QLabel(tr("To Xmax")), 4, 0);
 	boxEnd = new QLineEdit();
 	gl1->addWidget(boxEnd, 4, 1);
 
 	gl1->addWidget(new QLabel(tr("Color")), 5, 0);
-	
+
 	boxColor = new ColorBox(false);
 	boxColor->setColor(QColor(Qt::red));
 	gl1->addWidget(boxColor, 5, 1);
@@ -88,7 +88,7 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 	buttonFit = new QPushButton(tr( "&Make" ));
     buttonFit->setDefault( true );
     buttonCancel = new QPushButton(tr( "&Close" ));
-	
+
 	QVBoxLayout *vl = new QVBoxLayout();
  	vl->addWidget(buttonFit);
 	vl->addWidget(buttonCancel);
@@ -97,8 +97,8 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
     QHBoxLayout *hb = new QHBoxLayout(this);
     hb->addWidget(gb1);
     hb->addLayout(vl);
-   
-	connect( boxName, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
+
+	connect( boxName, SIGNAL(activated(const QString&)), this, SLOT( activateCurve(const QString&)));
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT( interpolate() ) );
     connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
@@ -106,13 +106,13 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 void InterpolationDialog::interpolate()
 {
 QString curve = boxName->currentText();
-QStringList curvesList = graph->curvesList();
-if (curvesList.contains(curve) <= 0)
+QStringList curvesList = graph->analysableCurvesList();
+if (!curvesList.contains(curve))
 	{
 	QMessageBox::critical(this,tr("QtiPlot - Warning"),
 		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 	boxName->clear();
-	boxName->insertStringList(curvesList);
+	boxName->addItems(curvesList);
 	return;
 	}
 
@@ -128,11 +128,11 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(this, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
-	}		
-	
+	}
+
 try
 	{
-	MyParser parser;	
+	MyParser parser;
 	parser.SetExpr(boxEnd->text().replace(",", ".").ascii());
 	to = parser.Eval();
 	}
@@ -141,7 +141,7 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(this, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
 	boxEnd->setFocus();
 	return;
-	}	
+	}
 
 if (from >= to)
 	{
@@ -150,8 +150,7 @@ if (from >= to)
 	return;
 	}
 
-
-Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), graph, boxName->currentText(),
+Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), graph, curve,
                                       from, to, boxMethod->currentIndex());
 i->setOutputPoints(boxPoints->value());
 i->setColor(boxColor->currentIndex());
@@ -162,28 +161,29 @@ delete i;
 void InterpolationDialog::setGraph(Graph *g)
 {
 	graph = g;
-	boxName->insertStringList (g->curvesList(),-1);
+	boxName->addItems(g->analysableCurvesList());
 
-	int index = g->curveIndex(g->selectedCurveID());
-	if (index > 0) {
+    QString selectedCurve = g->selectedCurveTitle();
+	if (!selectedCurve.isEmpty())
+	{
+	    int index = boxName->findText (selectedCurve);
 		boxName->setCurrentItem(index);
-		activateCurve(index);
 	}
-	else
-		activateCurve(0);
+
+    activateCurve(boxName->currentText());
 
 	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 	connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void InterpolationDialog::activateCurve(int index)
+void InterpolationDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = graph->curve(index);
+	QwtPlotCurve *c = graph->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-	graph->range(index, &start, &end);
+	graph->range(graph->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end)));
 	boxEnd->setText(QString::number(QMAX(start, end)));
 };

@@ -39,6 +39,7 @@
 #include <qwt_plot_marker.h>
 #include <qwt_plot_curve.h>
 
+#include "Plot.h"
 #include "Table.h"
 #include "AxesDialog.h"
 #include "PlotToolInterface.h"
@@ -53,7 +54,6 @@ class ImageMarker;
 class TitlePicker;
 class ScalePicker;
 class CanvasPicker;
-class Plot;
 class ApplicationWindow;
 class Matrix;
 class SelectionMoveResizer;
@@ -184,7 +184,7 @@ class Graph: public QWidget
 		//! Map curve pointer to index.
 		int curveIndex(QwtPlotCurve *c) const;
 		//! map curve title to index
-  	    int curveIndex(const QString &title) { return curvesList().findIndex(title); }
+  	    int curveIndex(const QString &title){return plotItemsList().findIndex(title);}
   	    //! get curve by index
   	    QwtPlotCurve* curve(int index);
   	    //! get curve by name
@@ -199,6 +199,9 @@ class Graph: public QWidget
   		QStringList curvesList();
   	    //! Returns the names of all plot items, including spectrograms, as a string list
   		QStringList plotItemsList();
+  		 //! get plotted item by index
+  	    QwtPlotItem* plotItem(int index);
+
 		QStringList plotAssociations();
 		void setPlotAssociations(const QStringList& newList);
 		void changePlotAssociation(Table* t, int curve, const QString& text);
@@ -216,7 +219,7 @@ class Graph: public QWidget
 		void exportSVG(const QString& fname);
 		void exportVector(const QString& fileName,int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
                           QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
-		void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
+		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 		//@}
 
 		void replot();
@@ -349,7 +352,7 @@ class Graph: public QWidget
 
 		//! Used when opening a project file
 		void insertLineMarker(QStringList list, int fileVersion);
-		QwtArray<long> lineMarkerKeys(){return d_lines;};
+		QVector<long> lineMarkerKeys(){return d_lines;};
 
 		//!Draws a line/arrow depending on the value of "arrow"
 		void drawLine(bool on, bool arrow = FALSE);
@@ -370,7 +373,7 @@ class Graph: public QWidget
 		//! \name Image Markers
 		//@{
 		ImageMarker* imageMarker(long id);
-		QwtArray<long> imageMarkerKeys(){return d_images;};
+		QVector<long> imageMarkerKeys(){return d_images;};
 		void insertImageMarker(ImageMarker* mrk);
 		void insertImageMarker(const QPixmap& photo, const QString& fileName);
 

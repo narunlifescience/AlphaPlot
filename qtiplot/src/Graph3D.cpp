@@ -2108,7 +2108,7 @@ void Graph3D::copyImage()
     sp->updateData();
 }
 
-void Graph3D::exportImage(const QString& fileName, const QString& fileType, int quality, bool transparent)
+void Graph3D::exportImage(const QString& fileName, int quality, bool transparent)
 {
 	if (transparent)
 	{
@@ -2121,7 +2121,7 @@ void Graph3D::exportImage(const QString& fileName, const QString& fileType, int 
 		p.begin(&mask);
 		p.setPen(Qt::color0);
 
-		QColor background = QColor (QColor(255, 255, 255));
+		QColor background = QColor (Qt::white);
 		QRgb backgroundPixel = background.rgb ();
 		QImage image = pic.convertToImage();
 		for (int y=0; y<image.height(); y++)
@@ -2130,22 +2130,18 @@ void Graph3D::exportImage(const QString& fileName, const QString& fileType, int 
 			{
 				QRgb rgb = image.pixel(x, y);
 				if (rgb == backgroundPixel) // we want the frame transparent
-				{
 					p.drawPoint( x, y );
-				}
 			}
 		}
 		p.end();
 		pic.setMask(mask);
-		pic.save(fileName, fileType, quality);
+		pic.save(fileName, 0, quality);
 	}
     else
     {
         QImage im = sp->grabFrameBuffer(true);
-        QImageWriter iw;
-        iw.setFormat(QWT3DLOCAL8BIT(fileType.toUpper().remove(".")));
+        QImageWriter iw(fileName);
         iw.setQuality(quality);
-        iw.setFileName(fileName);
         iw.write(im);
     }
 }

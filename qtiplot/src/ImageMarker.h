@@ -5,7 +5,7 @@
     Copyright            : (C) 2007 by Ion Vasilief, Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, knut.franke*gmx.de
     Description          : Draw images on a QwtPlot.
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,7 +31,7 @@
 
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
-	
+
 #include <QPixmap>
 
 /*!\brief Draw images on a QwtPlot.
@@ -66,41 +66,44 @@ class ImageMarker: public QwtPlotMarker
 public:
 	//! Construct an image marker from a pixmap.
 	ImageMarker(const QPixmap& p);
-	
+
 	//! Return bounding rectangle in paint coordinates.
-	QRect rect() const {return transform(plot()->canvasMap(xAxis()), plot()->canvasMap(yAxis()), d_rect);};
+	QRect rect() const;
 	//! Set value (position) and #d_size, giving everything in paint coordinates.
 	void setRect(int x, int y, int w, int h);
 
 	//! Return bounding rectangle in plot coordinates.
 	virtual QwtDoubleRect boundingRect() const;
-	//! Set value (position) and #d_size, giving everything in plot coordinates.
-	void setBoundingRect(const QwtDoubleRect& rect);
+	//! Set position (xValue() and yValue()), right and bottom values giving everything in plot coordinates.
+	void setBoundingRect(double left, double top, double right, double bottom);
+
+	double right(){return d_x_right;};
+	double bottom(){return d_y_bottom;};
 
 	//! Return #d_size.
-	QSize size() { return rect().size(); };
+	QSize size() {return rect().size();};
 	//! Set #d_size.
 	void setSize(const QSize& size);
-	
+
 	//! Return position in paint coordinates.
 	QPoint origin() const { return rect().topLeft(); };
 	//! Set QwtPlotMarker::value() in paint coordinates.
 	void setOrigin(const QPoint &p);
-	
+
 	//! Set #d_file_name.
 	void setFileName(const QString& fn) { d_file_name = fn; };
 	//! Return #d_file_name.
 	QString getFileName(){return d_file_name;};
-	
-	//! Return the image to be drawin, #d_pic.
-	QPixmap image() const { return d_pic; };
+
+	//! Return the pixmap to be drawn, #d_pic.
+	QPixmap pixmap() const {return d_pic;};
 
 	void updateBoundingRect();
 
 private:
 	//! Does the actual drawing; see QwtPlotItem::draw.
 	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
-
+    //! The position in paint coordiantes.
 	QPoint d_pos;
 	//! The pixmap to be drawn.
 	QPixmap d_pic;
@@ -108,7 +111,10 @@ private:
 	QSize d_size;
 	//! The file from which the image was loaded.
 	QString d_file_name;
-	QwtDoubleRect d_rect;
+	//! The right side position in scale coordinates.
+	double d_x_right;
+    //! The bottom side position in scale coordinates.
+    double d_y_bottom;
 };
 
 #endif

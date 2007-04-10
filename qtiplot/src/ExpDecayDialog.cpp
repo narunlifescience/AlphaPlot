@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fit exponential decay dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -56,12 +56,13 @@
 	gl1->addWidget(new QLabel(tr("Exponential Fit of")), 0, 0);
 
 	boxName = new QComboBox();
+	connect( boxName, SIGNAL( activated(const QString&) ), this, SLOT( activateCurve(const QString&) ) );
 	gl1->addWidget(boxName, 0, 1);
 
 	if (type < 0)
 		dampingLabel = new QLabel( tr("Growth time"));
 	else if (type == 1)
-		dampingLabel = new QLabel( tr("Damping"));
+		dampingLabel = new QLabel( tr("Decay time"));
 	else
 		dampingLabel = new QLabel( tr("First decay time (t1)"));
 	gl1->addWidget(dampingLabel, 1, 0);
@@ -93,22 +94,23 @@
 	}
 
 	if (type <= 1)
-		gl1->addWidget(new QLabel(tr("Amplitude")), 4, 0);
-	else
-		gl1->addWidget(new QLabel(tr("Initial time")), 4, 0);
+	{
+		gl1->addWidget(new QLabel(tr("Amplitude")), 2, 0);
+		boxAmplitude = new QLineEdit();
+		boxAmplitude->setText(tr("1"));
+		gl1->addWidget(boxAmplitude, 2, 1);
+	}
 
-	boxStart = new QLineEdit();
-	gl1->addWidget(boxStart, 4, 1);
-
-	if (type == 1)
-		boxStart->setText(tr("1"));
-	else
-		boxStart->setText(tr("0"));
-
-	gl1->addWidget(new QLabel(tr("Y Offset")), 5, 0 );
+	gl1->addWidget(new QLabel(tr("Y Offset")), 4, 0 );
 	boxYOffset = new QLineEdit();
 	boxYOffset->setText(tr("0"));
-	gl1->addWidget(boxYOffset, 5, 1);
+	gl1->addWidget(boxYOffset, 4, 1);
+
+    gl1->addWidget(new QLabel(tr("Initial time")), 5, 0);
+
+	boxStart = new QLineEdit();
+	boxStart->setText(tr("0"));
+	gl1->addWidget(boxStart, 5, 1);
 
 	gl1->addWidget(new QLabel(tr("Color")), 6, 0 );
 	boxColor = new ColorBox(false);
@@ -134,12 +136,7 @@
 
 	// signals and slots connections
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT(fit()));
-	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT(reject()));
-}
-
-
-ExpDecayDialog::~ExpDecayDialog()
-{
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT(close()));
 }
 
 void ExpDecayDialog::setGraph(Graph *g)
@@ -147,60 +144,131 @@ void ExpDecayDialog::setGraph(Graph *g)
 	if (!g)
 		return;
 
+    fitter = 0;
 	graph = g;
-	boxName->insertStringList (graph->curvesList(),-1);
+
+	boxName->addItems(graph->analysableCurvesList());
+
+    QString selectedCurve = g->selectedCurveTitle();
+	if (!selectedCurve.isEmpty())
+	{
+	    int index = boxName->findText (selectedCurve);
+		boxName->setCurrentItem(index);
+	}
+    activateCurve(boxName->currentText());
 
 	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
+    connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
+
+void ExpDecayDialog::activateCurve(const QString& curveName)
+{
+	QwtPlotCurve *c = graph->curve(curveName);
+	if (!c)
+		return;
+
+    ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (!app)
+        return;
+
+	int precision = app->fit_output_precision;
+	double start, end;
+	graph->range(graph->curveIndex(curveName), &start, &end);
+	boxStart->setText(QString::number(QMIN(start, end)));
+	boxYOffset->setText(QString::number(c->minYValue(), 'g', precision));
+	if (slopes < 2)
+        boxAmplitude->setText(QString::number(c->maxYValue() - c->minYValue(), 'g', precision));
+
+};
+
+void ExpDecayDialog::changeDataRange()
+{
+double start = graph->selectedXStartValue();
+double end = graph->selectedXEndValue();
+boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
+}
 
 void ExpDecayDialog::fit()
 {
 	QString curve = boxName->currentText();
 	QwtPlotCurve *c = graph->curve(curve);
-	QStringList curvesList = graph->curvesList();
-	if (!c || curvesList.contains(curve) <= 0)
+	QStringList curvesList = graph->analysableCurvesList();
+	if (!c || !curvesList.contains(curve))
 	{
 		QMessageBox::critical(this,tr("QtiPlot - Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 		boxName->clear();
-		boxName->insertStringList(curvesList);
+		boxName->addItems(curvesList);
 		return;
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	Fit *fitter;
+	if (!app)
+        return;
+
+	int precision = app->fit_output_precision;
+
+	if (fitter)
+        delete fitter;
+
 	if (slopes == 3)
-	{		
-		double x_init[7] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(), 
+	{
+		double x_init[7] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			1.0, boxThird->text().toDouble(), boxYOffset->text().toDouble()};
 		fitter = new ThreeExpFit(app, graph);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 2)
 	{
-		double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(), 
+		double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			boxYOffset->text().toDouble()};
 		fitter = new TwoExpFit(app, graph);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 1 || slopes == -1)
 	{
-		double x_init[3] = {boxStart->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
+		double x_init[3] = {boxAmplitude->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
 		fitter = new ExponentialFit(app, graph, slopes == -1);
 		fitter->setInitialGuesses(x_init);
 	}
 
-	bool dataAllocated = false;
-	if (graph->selectedCurveID() >= 0)
-  		dataAllocated = fitter->setDataFromCurve(boxName->currentText());
-  	else
-  		dataAllocated = fitter->setDataFromCurve(boxName->currentText(), boxStart->text().toDouble(), c->maxXValue());
-  	 
-  	if (dataAllocated)
+  	if (fitter->setDataFromCurve(boxName->currentText(), boxStart->text().toDouble(), c->maxXValue()))
 	{
 		fitter->setColor(boxColor->currentItem());
 		fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
 		fitter->fit();
-		delete fitter;
+
+		double *results = fitter->results();
+		boxFirst->setText(QString::number(results[1], 'g', precision));
+		if (slopes < 2)
+		{
+            boxAmplitude->setText(QString::number(results[0], 'g', precision));
+            boxYOffset->setText(QString::number(results[2], 'g', precision));
+        }
+        else if (slopes == 2)
+        {
+            boxSecond->setText(QString::number(results[3], 'g', precision));
+            boxYOffset->setText(QString::number(results[4], 'g', precision));
+        }
+        else if (slopes == 3)
+        {
+            boxSecond->setText(QString::number(results[3], 'g', precision));
+            boxThird->setText(QString::number(results[5], 'g', precision));
+            boxYOffset->setText(QString::number(results[6], 'g', precision));
+        }
 	}
+}
+
+void ExpDecayDialog::closeEvent (QCloseEvent * e )
+{
+	if(fitter)
+	{
+        ApplicationWindow *app = (ApplicationWindow *)this->parent();
+        if (app && app->pasteFitResultsToPlot)
+            fitter->showLegend();
+
+        delete fitter;
+	}
+
+	e->accept();
 }

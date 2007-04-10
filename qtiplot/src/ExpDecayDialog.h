@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fit exponential decay dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -37,7 +37,8 @@ class QComboBox;
 class QLabel;
 class Graph;
 class ColorBox;
-	
+class Fit;
+
 //! Fit exponential decay dialog
 class ExpDecayDialog : public QDialog
 {
@@ -45,11 +46,15 @@ class ExpDecayDialog : public QDialog
 
 public:
     ExpDecayDialog( int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~ExpDecayDialog();
+    ~ExpDecayDialog(){};
 
 public slots:
 	void fit();
 	void setGraph(Graph *g);
+
+private slots:
+    void activateCurve(const QString& curveName);
+	void changeDataRange();
 
 signals:
 	void options(const QString&,double,double,double,double,int);
@@ -57,12 +62,16 @@ signals:
 	void options3(const QString&,double,double,double,double,double,int);
 
 private:
+    void closeEvent (QCloseEvent *);
+
+    Fit *fitter;
 	Graph *graph;
 	int slopes;
-	
+
 	QPushButton* buttonFit;
 	QPushButton* buttonCancel;
 	QComboBox* boxName;
+	QLineEdit* boxAmplitude;
 	QLineEdit* boxFirst;
 	QLineEdit* boxSecond;
 	QLineEdit* boxThird;

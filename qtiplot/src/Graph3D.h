@@ -236,7 +236,7 @@ public slots:
 
 	void print();
 	void copyImage();
-	void exportImage(const QString& fileName, const QString& fileType, int quality = 100, bool transparent = false);
+	void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 
     void exportPDF(const QString& fileName);
     void exportVector(const QString& fileName, const QString& fileType = "pdf");

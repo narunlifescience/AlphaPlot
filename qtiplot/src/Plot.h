@@ -56,7 +56,8 @@ public:
 	void removeCurve(int index);
 
 	int closestCurve(int xpos, int ypos, int &dist, int &point);
-	QwtPlotItem* curve(int index){return d_curves[index];};
+	QwtPlotCurve* curve(int index);
+	QwtPlotItem* plotItem(int index){return d_curves[index];};
 	QMap<int, QwtPlotItem*> curves(){return d_curves;};
 
 	QwtPlotMarker* marker(int index){return d_markers[index];};

@@ -45,7 +45,7 @@ class ImageExportOptionsDialog : public QDialog
 
 public:
     ImageExportOptionsDialog( bool exportAllPlots, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~ImageExportOptionsDialog();
+    ~ImageExportOptionsDialog(){};
 
     QPushButton * buttonOk;
 	QPushButton * buttonCancel;
@@ -67,7 +67,7 @@ protected slots:
 	void accept();
 
 signals:
-	void options(const QString&, const QString&, int, bool);
+	void options(const QString&, int, bool);
 	void exportAll(const QString&, const QString&, int, bool);
 
 private:

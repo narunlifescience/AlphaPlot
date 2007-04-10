@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Fast Fourier transform options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -38,7 +38,7 @@ class QComboBox;
 class QCheckBox;
 class Graph;
 class Table;
-	
+
 //! Fast Fourier transform options dialog
 class FFTDialog : public QDialog
 {
@@ -60,7 +60,7 @@ public:
 public slots:
 	void setGraph(Graph *g);
 	void setTable(Table *t);
-	void activateCurve(int index);
+	void activateCurve(const QString& curveName);
 	void accept();
 
 private:

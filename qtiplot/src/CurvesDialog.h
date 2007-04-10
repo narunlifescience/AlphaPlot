@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Add/remove curves dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -36,46 +36,34 @@ class QListWidget;
 class QPushButton;
 
 class Graph;
-class Table;
 
 //! Add/remove curves dialog
 class CurvesDialog : public QDialog
-{ 
+{
     Q_OBJECT
 
 public:
     CurvesDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~CurvesDialog();
 
-	void initTablesList(QWidgetList* lst){tables = lst;};
 	void setGraph(Graph *graph);
 
-public slots:
-	void insertCurvesToDialog(const QStringList& names);
+private slots:
 	void addCurves();
-	bool addCurve(const QString& name);
 	void removeCurves();
 	int curveStyle();
 	void showPlotAssociations();
 	void showFunctionDialog();
 	void showCurveBtn(int);
-	void setCurveDefaultSettings(int style, int width, int size);
-
-private slots:
     void enableAddBtn();
 	void enableRemoveBtn();
 
-signals:
-	void showPlotAssociations(int);
-	void showFunctionDialog(Graph *, int);
-
 private:
-    Table* findTable(const QString& text);
+    void init();
+    bool addCurve(const QString& name);
     QSize sizeHint() const;
     void contextMenuEvent(QContextMenuEvent *);
 
 	int defaultCurveLineWidth, defaultSymbolSize;
-	QWidgetList* tables;
 	Graph *g;
 
     QPushButton* btnAdd;
@@ -87,6 +75,7 @@ private:
     QListWidget* available;
     QListWidget* contents;
 	QComboBox* boxStyle;
+	QComboBox* boxMatrixStyle;
 };
 
 #endif // CurvesDialog_H

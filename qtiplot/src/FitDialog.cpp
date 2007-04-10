@@ -208,7 +208,7 @@ void FitDialog::initFitPage()
     fitPage->setLayout(vbox1);
     tw->addWidget(fitPage);
 
-	connect( boxCurve, SIGNAL( activated(int) ), this, SLOT( activateCurve(int) ) );
+	connect( boxCurve, SIGNAL( activated(const QString&) ), this, SLOT( activateCurve(const QString&) ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT(accept()));
 	connect( buttonCancel1, SIGNAL( clicked() ), this, SLOT(close()));
 	connect( buttonEdit, SIGNAL( clicked() ), this, SLOT(showEditPage()));
@@ -510,27 +510,28 @@ void FitDialog::setGraph(Graph *g)
 
 	graph = g;
 	boxCurve->clear();
-	boxCurve->addItems(graph->curvesList());
+	boxCurve->addItems(graph->analysableCurvesList());
 
-	int index = g->curveIndex(g->selectedCurveID());
-	if (index >= 0) {
-		boxCurve->setCurrentIndex(index);
-		activateCurve(index);
-	} else
-		activateCurve(0);
+    QString selectedCurve = g->selectedCurveTitle();
+	if (!selectedCurve.isEmpty())
+	{
+	    int index = boxCurve->findText (selectedCurve);
+		boxCurve->setCurrentItem(index);
+	}
+    activateCurve(boxCurve->currentText());
 
 	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 	connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void FitDialog::activateCurve(int index)
+void FitDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = graph->curve(index);
+	QwtPlotCurve *c = graph->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-    graph->range(index, &start, &end);
+    graph->range(graph->curveIndex(curveName), &start, &end);
     boxFrom->setText(QString::number(QMIN(start, end), 'g', 15));
     boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
 };
@@ -539,8 +540,7 @@ void FitDialog::saveUserFunction()
 {
 	if (editBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
-				tr("Please enter a valid function!"));
+		QMessageBox::critical(this, tr("QtiPlot - Input function error"), tr("Please enter a valid function!"));
 		editBox->setFocus();
 		return;
 	}
@@ -1041,7 +1041,7 @@ void FitDialog::accept()
 	QString from=boxFrom->text().lower();
 	QString to=boxTo->text().lower();
 	QString tolerance=boxTolerance->text().lower();
-	double start,end,eps;
+	double start, end, eps;
 	try
 	{
 		MyParser parser;

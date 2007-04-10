@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Custom curves dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -97,7 +97,7 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	initBoxPage();
 	initPercentilePage();
 	initSpectrogramPage();
-	
+
 	clearTabWidget();
 	graph = 0;
 
@@ -151,7 +151,7 @@ void PlotDialog::showPlotAssociations( QListWidgetItem *item)
 	QwtPlotCurve *c = (QwtPlotCurve*)graph->curve(curveIndex);
 	if (!c)
   		return;
-	
+
 	if (c->rtti() == FunctionCurve::RTTI)
   	    app->showFunctionDialog(graph, curveIndex);
 	else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
@@ -183,7 +183,7 @@ void PlotDialog::changePlotType(int plotType)
   		clearTabWidget();
   	else if (curveType == Graph::VectXYAM || curveType == Graph::VectXYXY)
 	{
-		if ((plotType && curveType == Graph::VectXYAM) || 
+		if ((plotType && curveType == Graph::VectXYAM) ||
 				(!plotType && curveType == Graph::VectXYXY))
 			return;
 
@@ -194,7 +194,7 @@ void PlotDialog::changePlotType(int plotType)
 		if (plotType)
 		{
 			graph->setCurveType(curve, Graph::VectXYAM);
-			v->setVectorStyle(VectorCurve::XYAM);	
+			v->setVectorStyle(VectorCurve::XYAM);
 		}
 		else
 		{
@@ -209,7 +209,7 @@ void PlotDialog::changePlotType(int plotType)
 		insertTabs(plotType);
 
 		lastSelectedCurve = curve;
-		graph->setCurveType(lastSelectedCurve, plotType);	
+		graph->setCurveType(lastSelectedCurve, plotType);
 		setActiveCurve(lastSelectedCurve);
 
 		boxConnect->setCurrentIndex(1);//show line for Line and LineSymbol plots
@@ -238,7 +238,7 @@ void PlotDialog::initAxesPage()
 	QGroupBox *gb = new QGroupBox(tr( "Attach curve to: " ));
     QGridLayout *gl = new QGridLayout(gb);
     gl->addWidget(new QLabel( tr( "x Axis" )), 0, 0);
-	boxXAxis = new QComboBox(); 
+	boxXAxis = new QComboBox();
 	boxXAxis->setEditable(false);
 	boxXAxis->addItem(tr("Bottom"));
 	boxXAxis->addItem(tr("Top"));
@@ -273,7 +273,7 @@ void PlotDialog::initLinePage()
 	boxConnect->addItem(tr("Spline"));
 	boxConnect->addItem(tr("Vertical Steps"));
 	gl1->addWidget(boxConnect, 0, 1);
-	
+
 	gl1->addWidget(new QLabel(tr( "Style" )), 1, 0);
 	boxLineStyle = new QComboBox();
 	boxLineStyle->setEditable(false);
@@ -283,13 +283,13 @@ void PlotDialog::initLinePage()
 	boxLineStyle->addItem("_._._");
 	boxLineStyle->addItem("_.._..");
 	gl1->addWidget(boxLineStyle, 1, 1);
-	
+
 	gl1->addWidget(new QLabel(tr( "Width" )), 2, 0);
 	boxLineWidth = new QSpinBox();
 	boxLineWidth->setMinValue( 1 );
 	boxLineWidth->setValue( 1 );
 	gl1->addWidget(boxLineWidth, 2, 1);
-	
+
 	gl1->addWidget(new QLabel(tr( "Color" )), 3, 0);
 	boxLineColor = new ColorBox( false);
 	gl1->addWidget(boxLineColor, 3, 1);
@@ -322,7 +322,7 @@ void PlotDialog::initLinePage()
 }
 
 void PlotDialog::initSymbolsPage()
-{	
+{
 	QGroupBox *gb = new QGroupBox();
     QGridLayout *gl = new QGridLayout(gb);
     gl->addWidget(new QLabel(tr( "Style" )), 0, 0);
@@ -359,7 +359,7 @@ void PlotDialog::initSymbolsPage()
 }
 
 void PlotDialog::initBoxPage()
-{	
+{
 	QGroupBox *gb1 = new QGroupBox(tr( "Box" ));
     QGridLayout *gl1 = new QGridLayout(gb1);
     gl1->addWidget(new QLabel(tr( "Type" )), 0, 0);
@@ -461,7 +461,7 @@ void PlotDialog::initBoxPage()
 }
 
 void PlotDialog::initPercentilePage()
-{	
+{
 	QGroupBox *gb1 = new QGroupBox(tr( "Type" ) );
     QGridLayout *gl1 = new QGridLayout(gb1);
     gl1->addWidget(new QLabel(tr( "Max" )), 0, 0);
@@ -529,7 +529,7 @@ void PlotDialog::initPercentilePage()
 void PlotDialog::initSpectrogramPage()
 {
   	spectrogramPage = new QWidget();
-  	 
+
   	imageGroupBox = new QGroupBox(tr( "Image" ));
   	imageGroupBox->setCheckable (true);
 
@@ -543,15 +543,15 @@ void PlotDialog::initSpectrogramPage()
   	customScaleBox = new QRadioButton(tr("&Custom Color Map"));
 	connect(customScaleBox, SIGNAL(toggled(bool)), this, SLOT(showColorMapEditor(bool)));
     vl->addWidget(customScaleBox);
-  	 
+
     QHBoxLayout *hl = new QHBoxLayout(imageGroupBox);
 	colorMapEditor = new ColorMapEditor();
     hl->addLayout(vl);
 	hl->addWidget(colorMapEditor);
-	
+
   	levelsGroupBox = new QGroupBox(tr( "Contour Lines" ));
   	levelsGroupBox->setCheckable(true);
-  	 
+
     QHBoxLayout *hl1 = new QHBoxLayout();
     hl1->addWidget(new QLabel(tr( "Levels" )));
 
@@ -584,10 +584,10 @@ void PlotDialog::initSpectrogramPage()
     gl1->addWidget(new QLabel(tr( "Width" )), 1, 0);
   	contourWidthBox = new QSpinBox();
     gl1->addWidget(contourWidthBox, 1, 1);
-  	 
+
     gl1->addWidget(new QLabel(tr( "Style" )), 2, 0);
   	boxContourStyle = new QComboBox();
-	boxContourStyle->setEditable(FALSE);
+	boxContourStyle->setEditable(false);
   	boxContourStyle->addItem("_____");
   	boxContourStyle->addItem("_ _ _");
   	boxContourStyle->addItem(".....");
@@ -597,10 +597,10 @@ void PlotDialog::initSpectrogramPage()
     hl2->addWidget(defaultPenBox);
 
   	connect(levelsColorBox, SIGNAL(clicked()), this, SLOT(pickContourLinesColor()));
-  	 
+
   	axisScaleBox = new QGroupBox(tr( "Color Bar Scale" ));
   	axisScaleBox->setCheckable (true);
-  	 
+
     QGridLayout *gl2 = new QGridLayout(axisScaleBox);
     gl2->addWidget(new QLabel(tr( "Axis" )), 0, 0);
 
@@ -615,7 +615,7 @@ void PlotDialog::initSpectrogramPage()
   	colorScaleWidthBox = new QSpinBox();
   	colorScaleWidthBox->setRange(2, 10000);
     gl2->addWidget(colorScaleWidthBox, 1, 1);
-	
+
   	QVBoxLayout* vl2 = new QVBoxLayout(spectrogramPage);
   	vl2->addWidget(imageGroupBox);
   	vl2->addWidget(levelsGroupBox);
@@ -624,7 +624,7 @@ void PlotDialog::initSpectrogramPage()
 
   	privateTabWidget->insertTab(spectrogramPage, tr("Contour") + " / " + tr("Image"));
 }
-	
+
 void PlotDialog::fillBoxSymbols()
 {
 	boxPercFillColor->setEnabled(boxFillSymbols->isChecked());
@@ -707,10 +707,10 @@ void PlotDialog::initHistogramPage()
 	GroupBoxH = new QGroupBox();
     QGridLayout *gl = new QGridLayout(GroupBoxH);
     gl->addWidget(new QLabel(tr( "Bin Size" )), 0, 0);
-	binSizeBox = new QLineEdit();	
+	binSizeBox = new QLineEdit();
     gl->addWidget(binSizeBox, 0, 1);
     gl->addWidget(new QLabel(tr( "Begin" )), 1, 0);
-	histogramBeginBox = new QLineEdit();	
+	histogramBeginBox = new QLineEdit();
     gl->addWidget(histogramBeginBox, 1, 1);
     gl->addWidget(new QLabel(tr( "End" )), 2, 0);
 	histogramEndBox = new QLineEdit();
@@ -980,8 +980,8 @@ void PlotDialog::insertTabs(int plot_type)
 		privateTabWidget->addTab (symbolPage, tr("Symbol"));
 		privateTabWidget->showPage(symbolPage);
 	}
-	else if (plot_type == Graph::VerticalBars || 
-			plot_type == Graph::HorizontalBars || 
+	else if (plot_type == Graph::VerticalBars ||
+			plot_type == Graph::HorizontalBars ||
 			plot_type == Graph::Histogram)
 	{
 		boxConnect->setEnabled(false);
@@ -990,7 +990,7 @@ void PlotDialog::insertTabs(int plot_type)
 
 		if (plot_type == Graph::Histogram)
 		{
-			privateTabWidget->addTab (histogramPage, tr("Histogram Data"));	
+			privateTabWidget->addTab (histogramPage, tr("Histogram Data"));
 			privateTabWidget->showPage(histogramPage);
 		}
 		else
@@ -1080,7 +1080,7 @@ int PlotDialog::setPlotType(int index)
 			boxPlotType->addItem( tr( "Box" ) );
 		else if (curveType == Graph::ColorMap || curveType == Graph::GrayMap || curveType == Graph::ContourMap)
   	    	boxPlotType->insertItem(tr("Contour") + " / " + tr("Image"));
-		else 
+		else
 		{
 			boxPlotType->addItem( tr( "Line" ) );
 			boxPlotType->addItem( tr( "Scatter" ) );
@@ -1101,7 +1101,7 @@ int PlotDialog::setPlotType(int index)
 				boxPlotType->setCurrentIndex(1);
 				return Graph::Scatter;
 			}
-			else 
+			else
 			{
 				boxPlotType->setCurrentIndex(2);
 				return Graph::LineSymbols;
@@ -1115,44 +1115,47 @@ void PlotDialog::setActiveCurve(int index)
 {//connected to the listBox highlighted signal, displays the current curve parameters
 	if (listBox->count() > 0)
 	{
-		QwtPlotItem *i = (QwtPlotItem*)graph->curve(index);
+		QwtPlotItem *i = graph->plotItem(index);
 		if (!i)
 			return;
-		
+
 		//axes page
   		boxXAxis->setCurrentItem(i->xAxis()-2);
   	    boxYAxis->setCurrentItem(i->yAxis());
-  	 
+
   	    if (i->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    {
   	    	btnAssociations->hide();
   	        btnEditFunction->hide();
   	        Spectrogram *sp = (Spectrogram *)i;
-  	 
+
   	        imageGroupBox->setChecked(sp->testDisplayMode(QwtPlotSpectrogram::ImageMode));
   	        grayScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::GrayScale);
   	        defaultScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::Default);
   	 		customScaleBox->setChecked(sp->colorMapPolicy() == Spectrogram::Custom);
-  	 
+
   	        colorMapEditor->setRange(sp->data().range().minValue(), sp->data().range().maxValue());
   	        colorMapEditor->setColorMap((const QwtLinearColorMap &)sp->colorMap());
-			
+
   	        levelsGroupBox->setChecked(sp->testDisplayMode(QwtPlotSpectrogram::ContourMode));
   	        levelsBox->setValue(sp->levels());
-  	 
+
   	        autoContourBox->setChecked(sp->defaultContourPen().style() == Qt::NoPen);
   	        defaultContourBox->setChecked(sp->defaultContourPen().style() != Qt::NoPen);
-  	 
+
   	        levelsColorBox->setColor(sp->defaultContourPen().color());
   	        contourWidthBox->setValue(sp->defaultContourPen().width());
-			boxContourStyle->setCurrentItem(sp->defaultContourPen().style() - 1);
-  	 
+  	        if (sp->defaultContourPen().style() != Qt::NoPen)
+                boxContourStyle->setCurrentIndex(sp->defaultContourPen().style() - 1);
+            else
+                boxContourStyle->setCurrentIndex(0);
+
   	        axisScaleBox->setChecked(sp->hasColorScale());
   	        colorScaleBox->setCurrentItem((int)sp->colorScaleAxis());
   	        colorScaleWidthBox->setValue(sp->colorBarWidth());
 			return;
   	    }
-  	 
+
   	    QwtPlotCurve *c = (QwtPlotCurve*)i;
 		if (c->rtti() == FunctionCurve::RTTI)
 		{
@@ -1177,8 +1180,8 @@ void PlotDialog::setActiveCurve(int index)
 
 		setPenStyle(c->pen().style());
 		boxLineColor->setColor(c->pen().color());
-		boxLineWidth->setValue(c->pen().width());	
-		fillGroupBox->blockSignals(true);		
+		boxLineWidth->setValue(c->pen().width());
+		fillGroupBox->blockSignals(true);
 		fillGroupBox->setChecked(c->brush().style() != Qt::NoBrush );
 		fillGroupBox->blockSignals(false);
 		boxAreaColor->setColor(c->brush().color());
@@ -1219,7 +1222,7 @@ void PlotDialog::setActiveCurve(int index)
 		}
 
 		if (curveType == Graph::VectXYXY || curveType == Graph::VectXYAM)
-		{//Vector page		
+		{//Vector page
 			VectorCurve *v = (VectorCurve*)graph->curve(index);
 			if (v)
 			{
@@ -1291,13 +1294,13 @@ void PlotDialog::updateEndPointColumns(const QString& text)
 {
 	QStringList cols=text.split(",", QString::SkipEmptyParts);
 	QStringList aux=cols[0].split(":", QString::SkipEmptyParts);
-	QString table=aux[0];	
+	QString table=aux[0];
 	QStringList list;
-	for (int i=0; i<(int)columnNames.count(); i++)	
+	for (int i=0; i<(int)columnNames.count(); i++)
 	{
 		QString s=columnNames[i];
 		if (s.contains(table))
-			list<<s;	
+			list<<s;
 	}
 
 	xEndBox->clear();
@@ -1305,7 +1308,7 @@ void PlotDialog::updateEndPointColumns(const QString& text)
 	xEndBox->setCurrentText(table + "_" + cols[2].remove("(X)").remove("(A)"));
 
 	yEndBox->clear();
-	yEndBox->insertStringList(list);	
+	yEndBox->insertStringList(list);
 	yEndBox->setCurrentText(table + "_" + cols[3].remove("(Y)").remove("(M)"));
 }
 
@@ -1313,7 +1316,7 @@ bool PlotDialog::acceptParams()
 {
 	if (privateTabWidget->currentPage() == axesPage)
 	{
-		QwtPlotCurve *c = graph->curve(listBox->currentRow());
+		QwtPlotItem *c = graph->plotItem(listBox->currentRow());
 		if (!c)
 			return false;
 
@@ -1323,20 +1326,20 @@ bool PlotDialog::acceptParams()
 	}
 	else if (privateTabWidget->currentPage() == spectrogramPage)
   	{
-  		Spectrogram *sp = (Spectrogram *)graph->curve(listBox->currentRow());
+  		Spectrogram *sp = (Spectrogram *)graph->plotItem(listBox->currentRow());
   	    if (!sp || sp->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
   	    	return false;
-  	 
+
   	    sp->setLevelsNumber(levelsBox->value());
   	    if (autoContourBox->isChecked())
   	    	sp->setDefaultContourPen(Qt::NoPen);
   	    else
   	    	sp->setDefaultContourPen(QPen(levelsColorBox->color(), contourWidthBox->value(),
   	                            Graph::getPenStyle(boxContourStyle->currentItem())));
-  	 
+
   	   sp->setDisplayMode(QwtPlotSpectrogram::ContourMode, levelsGroupBox->isChecked());
   	   sp->setDisplayMode(QwtPlotSpectrogram::ImageMode, imageGroupBox->isChecked());
-  	 
+
   	   if (grayScaleBox->isChecked())
 	   {
 		   sp->setGrayScale();
@@ -1349,10 +1352,10 @@ bool PlotDialog::acceptParams()
 	   }
   	   else
 	   	   sp->setCustomColorMap(colorMapEditor->colorMap());
-  	 
+
   	   sp->showColorScale((QwtPlot::Axis)colorScaleBox->currentItem(), axisScaleBox->isChecked());
   	   sp->setColorBarWidth(colorScaleWidthBox->value());
-  	 
+
   	   //Update axes page
   	   boxXAxis->setCurrentItem(sp->xAxis()-2);
   	   boxYAxis->setCurrentItem(sp->yAxis());
@@ -1403,7 +1406,7 @@ bool PlotDialog::acceptParams()
 			Table* w = app->table(text);
 			if (w)
 				graph->updateHistogram(w, text, listBox->currentRow(), automaticBox->isChecked(), binSizeBox->text().toDouble(),
-						histogramBeginBox->text().toDouble(), histogramEndBox->text().toDouble());		
+						histogramBeginBox->text().toDouble(), histogramEndBox->text().toDouble());
 		}
 		return accept;
 	}
@@ -1417,13 +1420,13 @@ bool PlotDialog::acceptParams()
 			return false;
 
 		QString xEndCol = xEndBox->currentText();
-		QString yEndCol = yEndBox->currentText(); 
+		QString yEndCol = yEndBox->currentText();
 		Table* w=app->table(xEndCol);
 		if (!w)
 			return false;
 
 		graph->updateVectorsLayout(w, index, vectColorBox->currentIndex(), vectWidthBox->value(),
-				headLengthBox->value(), headAngleBox->value(), 
+				headLengthBox->value(), headAngleBox->value(),
 				filledHeadBox->isChecked(),vectPosBox->currentIndex(),xEndCol,yEndCol);
 
 		QString text=listBox->currentItem()->text();
@@ -1448,7 +1451,7 @@ bool PlotDialog::acceptParams()
 			cols[3] = yEndCol;
 			text=table + ": " + cols.join(",");
 			//listBox->changeItem (text, index);
-		}		
+		}
 		return true;
 	}
 	else if (privateTabWidget->currentPage() == errorsPage)
@@ -1458,7 +1461,7 @@ bool PlotDialog::acceptParams()
 				throughBox->isChecked());
 	}
 	else if (privateTabWidget->currentPage() == percentilePage)
-	{	
+	{
 		int size = 2*boxPercSize->value() + 1;
 		QBrush br = QBrush(boxPercFillColor->color(), Qt::SolidPattern);
 		if (!boxFillSymbols->isChecked())
@@ -1477,7 +1480,7 @@ bool PlotDialog::acceptParams()
 		}
 	}
 	else if (privateTabWidget->currentPage() == boxPage)
-	{	
+	{
 		BoxCurve *b = (BoxCurve*)graph->curve(listBox->currentRow());
 		if (b)
 		{
@@ -1503,16 +1506,15 @@ void PlotDialog::insertCurvesList()
 {
 	QStringList names = graph->plotAssociations();
 	listBox->clear();
-	QStringList newNames;
-	int i;
-	for (i=0;i<(int)names.count();i++)
+	QStringList newNames = QStringList();
+	for (int i=0; i<(int)names.count(); i++)
 	{
 		QString s=names[i];
 		int pos=s.find("_",0);
 		if (pos>0)
 		{
-			QString table=s.left(pos);	
-			QString cols=s.right(s.length()-pos-1);			
+			QString table=s.left(pos);
+			QString cols=s.right(s.length()-pos-1);
 			newNames<<table+": "+cols.remove(table+"_",true);
 		}
 		else
@@ -1552,7 +1554,7 @@ bool PlotDialog::validInput()
 		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid bin size value!"));
 		binSizeBox->setFocus();
 		return false;
-	}	
+	}
 
 	from = from.remove(".");
 	to = to.remove(".");
@@ -1582,7 +1584,7 @@ bool PlotDialog::validInput()
 			histogramBeginBox->setFocus();
 			error = true;
 			return false;
-		}	
+		}
 	}
 	else
 		start = histogramBeginBox->text().toDouble();
@@ -1601,7 +1603,7 @@ bool PlotDialog::validInput()
 			histogramEndBox->setFocus();
 			error=true;
 			return false;
-		}	
+		}
 	}
 	else
 		end=histogramEndBox->text().toDouble();
@@ -1627,7 +1629,7 @@ bool PlotDialog::validInput()
 			binSizeBox->setFocus();
 			error=true;
 			return false;
-		}	
+		}
 	}
 	else
 		stp=binSizeBox->text().toDouble();
@@ -1636,7 +1638,7 @@ bool PlotDialog::validInput()
 	{
 		QMessageBox::critical(this, tr("QtiPlot - Bin size input error"), tr("Please enter a positive bin size value!"));
 		binSizeBox->setFocus();
-		return false;	
+		return false;
 	}
 
 	return true;
@@ -1735,7 +1737,7 @@ void PlotDialog::customVectorsPage(bool angleMag)
 	if (angleMag)
 	{
 		GroupBoxVectEnd->setTitle(tr("Vector Data"));
-		labelXEnd->setText(tr("Angle"));	
+		labelXEnd->setText(tr("Angle"));
 		labelYEnd->setText(tr("Magnitude"));
 		labelPosition->show();
 		vectPosBox->show();
@@ -1743,7 +1745,7 @@ void PlotDialog::customVectorsPage(bool angleMag)
 	else
 	{
 		GroupBoxVectEnd->setTitle(tr("End Point"));
-		labelXEnd->setText(tr("X End"));	
+		labelXEnd->setText(tr("X End"));
 		labelYEnd->setText(tr("Y End"));
 		labelPosition->hide();
 		vectPosBox->hide();
@@ -1760,7 +1762,7 @@ void PlotDialog::showColorMapEditor(bool)
   	    colorMapEditor->setFocus();
   	}
 }
-	
+
 void PlotDialog::showDefaultContourLinesBox(bool)
 {
   	if (autoContourBox->isChecked())
@@ -1768,16 +1770,13 @@ void PlotDialog::showDefaultContourLinesBox(bool)
   	else
   		defaultPenBox->show();
 }
-  	 
+
 void PlotDialog::pickContourLinesColor()
 {
   	QColor color = QColorDialog::getColor(levelsColorBox->color(), this);
   	if ( !color.isValid() || color == levelsColorBox->color() )
   		return;
-  	 
+
   	levelsColorBox->setColor(color);
 }
-	
-PlotDialog::~PlotDialog()
-{
-}
+

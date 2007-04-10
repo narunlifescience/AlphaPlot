@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Interpolation options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -37,7 +37,7 @@ class QComboBox;
 class QSpinBox;
 class Graph;
 class ColorBox;
-	
+
 //! Interpolation options dialog
 class InterpolationDialog : public QDialog
 {
@@ -57,7 +57,7 @@ public:
 	ColorBox* boxColor;
 
 public slots:
-	void activateCurve(int index);
+	void activateCurve(const QString& curveName);
 	void setGraph(Graph *g);
 	void interpolate();
 	void changeDataRange();

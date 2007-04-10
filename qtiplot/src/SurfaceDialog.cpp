@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Define surface plot dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -45,10 +45,10 @@ SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt:
 	setName( "SurfaceDialog" );
 	setWindowTitle(tr("QtiPlot - Define surface plot"));
     setSizeGripEnabled( true );
-	
+
 	boxFunction = new QComboBox();
 	boxFunction->setEditable(true);
-	
+
 	QBoxLayout *bl1 = new QBoxLayout (QBoxLayout::LeftToRight);
 	bl1->addWidget(new QLabel( tr("f(x,y)=")), 1);
 	bl1->addWidget(boxFunction, 10);
@@ -57,60 +57,58 @@ SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt:
 
 	boxXFrom = new QLineEdit();
 	boxXFrom->setText(tr("-1"));
-	
+
 	boxXTo = new QLineEdit();
 	boxXTo->setText(tr("1"));
-	
+
     QGridLayout *gl1 = new QGridLayout();
     gl1->addWidget(new QLabel( tr("From")), 0, 0);
     gl1->addWidget(boxXFrom, 0, 1);
     gl1->addWidget(new QLabel(tr("To")), 1, 0);
     gl1->addWidget(boxXTo, 1, 1);
+    gl1->setRowStretch(2, 1);
     gb1->setLayout(gl1);
 
     QGroupBox *gb2 = new QGroupBox(tr("Y - axis"));
 	boxYFrom = new QLineEdit();
 	boxYFrom->setText(tr("-1"));
-	
+
 	boxYTo = new QLineEdit();
 	boxYTo->setText(tr("1"));
-	
+
     QGridLayout *gl2 = new QGridLayout();
     gl2->addWidget(new QLabel( tr("From")), 0, 0);
     gl2->addWidget(boxYFrom, 0, 1);
     gl2->addWidget(new QLabel(tr("To")), 1, 0);
     gl2->addWidget(boxYTo, 1, 1);
+    gl2->setRowStretch(2, 1);
     gb2->setLayout(gl2);
-    
+
     QGroupBox *gb3 = new QGroupBox(tr("Z - axis"));
 	boxZFrom = new QLineEdit();
 	boxZFrom->setText(tr("-1"));
-	
+
 	boxZTo = new QLineEdit();
 	boxZTo->setText(tr("1"));
-	
+
     QGridLayout *gl3 = new QGridLayout();
     gl3->addWidget(new QLabel( tr("From")), 0, 0);
     gl3->addWidget(boxZFrom, 0, 1);
     gl3->addWidget(new QLabel(tr("To")), 1, 0);
     gl3->addWidget(boxZTo, 1, 1);
+    gl3->setRowStretch(2, 1);
     gb3->setLayout(gl3);
-    
-    QBoxLayout *bl3 = new QBoxLayout ( QBoxLayout::LeftToRight);
+
+    QBoxLayout *bl3 = new QBoxLayout (QBoxLayout::LeftToRight);
 	bl3->addWidget(gb1);
 	bl3->addWidget(gb2);
 	bl3->addWidget(gb3);
 
-	buttonClear = new QPushButton();
-    buttonClear->setText( tr( "Clear &list" ) );
-	
-	buttonOk = new QPushButton();
-    buttonOk->setText( tr( "&OK" ) );
-    buttonOk->setDefault( true );
-   
-    buttonCancel = new QPushButton();
-    buttonCancel->setText( tr( "&Cancel" ) );
-	
+	buttonClear = new QPushButton(tr("Clear &list"));
+	buttonOk = new QPushButton(tr("&OK"));
+    buttonOk->setDefault(true);
+    buttonCancel = new QPushButton(tr("&Close"));
+
     QBoxLayout *bl2 = new QBoxLayout ( QBoxLayout::LeftToRight);
     bl2->addStretch();
 	bl2->addWidget(buttonOk);
@@ -122,7 +120,6 @@ SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt:
     vl->addLayout(bl1);
 	vl->addLayout(bl3);
 	vl->addLayout(bl2);
-    vl->addStretch();
 
     resize(minimumSize());
     setFocusProxy(boxFunction);
@@ -165,7 +162,7 @@ QString Zto=boxZTo->text().lower();
 double fromX, toX, fromY,toY, fromZ,toZ;
 try
 	{
-	MyParser parser;	
+	MyParser parser;
 	parser.SetExpr(Xfrom.ascii());
 	fromX=parser.Eval();
 	}
@@ -186,7 +183,7 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(0, tr("QtiPlot - X End limit error"), QString::fromStdString(e.GetMsg()));
 	boxXTo->setFocus();
 	return;
-	}	
+	}
 
 try
 	{
@@ -199,10 +196,10 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(0, tr("QtiPlot - Y Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxYFrom->setFocus();
 	return;
-	}	
+	}
 try
 	{
-	MyParser parser;	
+	MyParser parser;
 	parser.SetExpr(Yto.ascii());
 	toY=parser.Eval();
 	}
@@ -211,7 +208,7 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(0, tr("QtiPlot - Y End limit error"), QString::fromStdString(e.GetMsg()));
 	boxYTo->setFocus();
 	return;
-	}	
+	}
 try
 	{
 	MyParser parser;
@@ -223,7 +220,7 @@ catch(mu::ParserError &e)
 	QMessageBox::critical(0, tr("QtiPlot - Z Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxZFrom->setFocus();
 	return;
-	}	
+	}
 try
 	{
 	MyParser parser;
@@ -251,10 +248,10 @@ bool error=false;
 try
 	{
 	MyParser parser;
-	parser.DefineVar("x", &x);	
-	parser.DefineVar("y", &y);		
+	parser.DefineVar("x", &x);
+	parser.DefineVar("y", &y);
 	parser.SetExpr(formula.ascii());
-		
+
 	x=fromX; y=fromY;
 	parser.Eval();
 	x=toX; y=toY;
@@ -264,9 +261,9 @@ catch(mu::ParserError &e)
 	{
 	QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 	boxFunction->setFocus();
-	error=true;	
+	error=true;
 	}
-	
+
 if (!error)
 	{
 	emit options(boxFunction->currentText(),fromX, toX, fromY, toY, fromZ, toZ);

@@ -105,91 +105,60 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 	languageChange();
 	resize(minimumSize());
 
-	// signals and slots connections
 	connect( buttonFit, SIGNAL( clicked() ), this, SLOT( fit() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-	connect( boxName, SIGNAL( activated(int) ), this, SLOT(activateCurve(int)));
-}
-
-PolynomFitDialog::~PolynomFitDialog()
-{
+	connect( boxName, SIGNAL( activated(const QString&) ), this, SLOT(activateCurve(const QString&)));
 }
 
 void PolynomFitDialog::fit()
 {
-	QString curve = boxName->currentText();
-	QStringList curvesList = graph->curvesList();
-	if (curvesList.contains(curve) <= 0)
+	QString curveName = boxName->currentText();
+	QStringList curvesList = graph->analysableCurvesList();
+	if (!curvesList.contains(curveName))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
-				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
+		QMessageBox::critical(this, tr("QtiPlot - Warning"),
+				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curveName));
 		boxName->clear();
 		boxName->insertStringList(curvesList);
 		return;
 	}
 
-	int index = boxName->currentItem();
-	QwtPlotCurve *c = graph->curve(index);
-	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve || c->dataSize()<2)
-	{
-		QString s= tr("You cannot fit curve:");
-		s+="<p><b>'"+boxName->text(index)+"'</b><p>";
-		s+=tr("because it has less than 2 points!");
-		QMessageBox::warning(0,tr("QtiPlot - Warning"),s);
-
-		changeCurve(index);
-	}
-	else
-	{
-		ApplicationWindow *app = (ApplicationWindow *)this->parent();
-		PolynomialFit *fitter = new PolynomialFit(app, graph, boxOrder->value(), boxShowFormula->isChecked());
-		if (fitter->setDataFromCurve(boxName->currentText(),
-					boxStart->text().toDouble(), boxEnd->text().toDouble()))
-		{
-			fitter->setColor(boxColor->currentItem());
-			fitter->fit();
-			delete fitter;
-		}
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    PolynomialFit *fitter = new PolynomialFit(app, graph, boxOrder->value(), boxShowFormula->isChecked());
+    if (fitter->setDataFromCurve(curveName, boxStart->text().toDouble(), boxEnd->text().toDouble()))
+    {
+        fitter->setColor(boxColor->currentItem());
+        fitter->fit();
+        delete fitter;
 	}
 }
 
 void PolynomFitDialog::setGraph(Graph *g)
 {
 	graph = g;
-	boxName->insertStringList (g->curvesList(),-1);
-	int index = graph->curveIndex(graph->selectedCurveID());
-	if (index < 0) index = 0;
+	boxName->addItems (g->analysableCurvesList());
 
-	activateCurve(index);
-	boxName->setCurrentItem(index);
+	QString selectedCurve = g->selectedCurveTitle();
+	if (!selectedCurve.isEmpty())
+	{
+	    int index = boxName->findText (selectedCurve);
+		boxName->setCurrentItem(index);
+	}
+    activateCurve(boxName->currentText());
 
 	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
 	connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
-void PolynomFitDialog::activateCurve(int index)
+void PolynomFitDialog::activateCurve(const QString& curveName)
 {
 	double start, end;
-	int n_points = graph->range(index, &start, &end);
+	int n_points = graph->range(graph->curveIndex(curveName), &start, &end);
 
 	boxStart->setText(QString::number(start, 'g', 15));
 	boxEnd->setText(QString::number(end, 'g', 15));
 	boxPoints->setValue(QMAX(n_points, 100));
 };
-
-void PolynomFitDialog::changeCurve(int index)
-{
-	QwtPlotCurve *c = graph->curve(index);
-	while(c && c->rtti() == QwtPlotItem::Rtti_PlotCurve && c->dataSize()<2)
-	{
-		index++;
-		c = graph->curve(index);
-		if(!c || index >= graph->curves())
-			index=0; //Restart from the beginning
-	}
-	boxName->setCurrentItem(index);
-	activateCurve(index);
-}
 
 void PolynomFitDialog::changeDataRange()
 {

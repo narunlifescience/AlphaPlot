@@ -241,7 +241,7 @@ public slots:
 	void newSurfacePlot();
 	void editSurfacePlot();
 	void remove3DMatrixPlots(Matrix *m);
-	void update3DMatrixPlots(QWidget *);
+	void updateMatrixPlots(QWidget *);
 	void add3DData();
 	void change3DData();
 	void change3DData(const QString& colName);
@@ -1006,7 +1006,7 @@ private:
 
 	Graph *lastCopiedLayer;
 	QSplitter *explorerSplitter;
-	
+
 	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
 	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
@@ -1067,7 +1067,7 @@ private:
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 	QAction *actionShowScriptWindow;
 	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;
-		
+
 	QActionGroup* dataTools;
 	QAction *btnCursor, *btnSelect, *btnPicker, *btnRemovePoints, *btnMovePoints;
 	QAction  *btnZoomIn, *btnZoomOut, *btnPointer, *btnLine, *btnArrow;

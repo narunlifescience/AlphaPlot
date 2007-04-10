@@ -110,7 +110,6 @@ static const char *unzoom_xpm[]={
 #include "QwtHistogram.h"
 #include "VectorCurve.h"
 #include "ScaleDraw.h"
-#include "Plot.h"
 #include "MyParser.h"
 #include "ImportFilesDialog.h"
 #include "ImageExportDialog.h"
@@ -300,7 +299,7 @@ QwtPlotMarker* Graph::selectedMarkerPtr()
 
 void Graph::setSelectedMarker(long mrk, bool add)
 {
-	selectedMarker = mrk;	
+	selectedMarker = mrk;
 	if (add) {
 		if (d_markers_selector) {
 			if (d_texts.contains(mrk))
@@ -1338,19 +1337,19 @@ void Graph::updateSecondaryAxis(int axis)
 {
 	for (int i=0; i<n_curves; i++)
 	{
-		QwtPlotCurve *c = this->curve(i);
-		if (!c)
+		QwtPlotItem *it = plotItem(i);
+		if (!it)
 			continue;
 
-		if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+		if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	         {
-  	         Spectrogram *sp = (Spectrogram *)c;
+  	         Spectrogram *sp = (Spectrogram *)it;
   	         if (sp->colorScaleAxis() == axis)
   	              return;
   	         }
 
-		if ((axis == QwtPlot::yRight && c->yAxis () == QwtPlot::yRight) ||
-				(axis == QwtPlot::xTop && c->xAxis () == QwtPlot::xTop))
+		if ((axis == QwtPlot::yRight && it->yAxis() == QwtPlot::yRight) ||
+            (axis == QwtPlot::xTop && it->xAxis () == QwtPlot::xTop))
 			return;
 	}
 
@@ -1442,9 +1441,9 @@ void Graph::insertPlottedList(const QStringList& names)
 	QList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *c = d_plot->curve(keys[i]);
-		if (c)
-			c->setTitle(names[i]);
+		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		if (it)
+			it->setTitle(names[i]);
 	}
 }
 
@@ -1454,9 +1453,8 @@ QStringList Graph::analysableCurvesList()
 	QList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *c = d_plot->curve(keys[i]);
-  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve ||
-			c->rtti() == FunctionCurve::RTTI) && c_type[i] != ErrorBars)
+		QwtPlotCurve *c = d_plot->curve(keys[i]);
+  	    if (c && c_type[i] != ErrorBars)
   	        cList << c->title().text();
   	 }
 return cList;
@@ -1468,8 +1466,8 @@ QStringList Graph::curvesList()
 	QList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)
 	{
-		QwtPlotItem *c = d_plot->curve(keys[i]);
-  	    if (c && (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI))
+		QwtPlotCurve *c = d_plot->curve(keys[i]);
+  	    if (c)
   	        cList << c->title().text();
   	 }
 return cList;
@@ -1481,9 +1479,9 @@ QStringList Graph::plotItemsList()
   	QList<int> keys = d_plot->curveKeys();
   	for (int i=0; i<(int)keys.count(); i++)
   	{
-  		QwtPlotItem *c = d_plot->curve(keys[i]);
-		if (c)
-			cList << c->title().text();
+  		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		if (it)
+			cList << it->title().text();
 	}
 	return cList;
 }
@@ -1512,7 +1510,7 @@ void Graph::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
+		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
@@ -1528,27 +1526,27 @@ void Graph::exportToFile(const QString& fileName)
 		{
 			if (fileName.contains( "." + list[i].toLower()))
 			{
-				exportImage(fileName, list[i]);
+				exportImage(fileName);
 				return;
 			}
 		}
-    	QMessageBox::critical(0, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
+    	QMessageBox::critical(this, tr("QtiPlot - Error"), tr("File format not handled, operation aborted!"));
 	}
 }
 
-void Graph::exportImage(const QString& fileName, const QString& fileType, int quality, bool transparent)
+void Graph::exportImage(const QString& fileName, int quality, bool transparent)
 {
-	QPixmap pic=graphPixmap();
+	QPixmap pic = graphPixmap();
 
 	if (transparent)
-	{//save transparency
+	{
 		QBitmap mask(pic.size());
 		mask.fill(Qt::color1);
 		QPainter p;
 		p.begin(&mask);
 		p.setPen(Qt::color0);
 
-		QColor background = QColor (QColor(255, 255, 255));
+        QColor background = QColor (Qt::white);
 		QRgb backgroundPixel = background.rgb ();
 		QImage image = pic.convertToImage();
 		for (int y=0; y<image.height(); y++)
@@ -1557,16 +1555,14 @@ void Graph::exportImage(const QString& fileName, const QString& fileType, int qu
 			{
 				QRgb rgb = image.pixel(x, y);
 				if (rgb == backgroundPixel) // we want the frame transparent
-				{
-					p.drawPoint( x, y );
-				}
+					p.drawPoint(x, y);
 			}
 		}
 		p.end();
 		pic.setMask(mask);
 	}
 
-	pic.save(fileName, fileType, quality);
+	pic.save(fileName, 0, quality);
 }
 
 void Graph::exportVector(const QString& fileName, int res, QPrinter::Orientation o,
@@ -1574,7 +1570,7 @@ void Graph::exportVector(const QString& fileName, int res, QPrinter::Orientation
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
+		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
@@ -1741,12 +1737,12 @@ void Graph::cutMarker()
 
 bool Graph::arrowMarkerSelected()
 {
-	return (d_lines.contains(selectedMarker)>0);
+	return (d_lines.contains(selectedMarker));
 }
 
 bool Graph::imageMarkerSelected()
 {
-	return (d_images.contains(selectedMarker)>0);
+	return (d_images.contains(selectedMarker));
 }
 
 void Graph::copyMarker()
@@ -1961,7 +1957,7 @@ void Graph::removeLegend()
 
 void Graph::updateImageMarker(int x, int y, int w, int h)
 {
-	ImageMarker* mrk=(ImageMarker*) d_plot->marker(selectedMarker);
+	ImageMarker* mrk =(ImageMarker*) d_plot->marker(selectedMarker);
 	mrk->setRect(x, y, w, h);
 	d_plot->replot();
 	emit modifiedGraph();
@@ -2916,18 +2912,18 @@ QString Graph::saveCurves()
 	{
 		for (int i=0; i<n_curves; i++)
 		{
-			QwtPlotCurve *c = this->curve(i);
-			if (!c)
+			QwtPlotItem *it = plotItem(i);
+			if (!it)
   	        	continue;
 
 			if (c_type[i] != ErrorBars)
 			{
-				QwtPlotCurve *c = this->curve(i);
+				QwtPlotCurve *c = (QwtPlotCurve *)it;
 				if (c->rtti() == FunctionCurve::RTTI)
 					s += ((FunctionCurve *)c)->saveToString();
-				else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+				else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	            {
-  	            	s += ((Spectrogram *)c)->saveToString();
+  	            	s += ((Spectrogram *)it)->saveToString();
   	            	continue;
   	            }
 				else if (c_type[i] == Box)
@@ -2943,7 +2939,7 @@ QString Graph::saveCurves()
 			}
 		    else if (c_type[i] == ErrorBars)
   	        {
-  	        	QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)c;
+  	        	QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)it;
   	            s+="ErrorBars\t";
   	            s+=QString::number(er->direction())+"\t";
   	            QStringList cvs=QStringList::split(",",associations[i],false);
@@ -3156,7 +3152,6 @@ void Graph::insertLineMarker(LineMarker* mrk)
 
 	aux->setStartPoint(mrk->startPointCoord().x(), mrk->startPointCoord().y());
 	aux->setEndPoint(mrk->endPointCoord().x(), mrk->endPointCoord().y());
-	aux->setEndPoint(mrk->endPoint());
 	aux->setWidth(mrk->width());
 	aux->setColor(mrk->color());
 	aux->setStyle(mrk->style());
@@ -3195,7 +3190,7 @@ long Graph::insertTextMarker(LegendMarker* mrk)
 
 	aux->setTextColor(mrk->textColor());
 	aux->setBackgroundColor(mrk->backgroundColor());
-	aux->setOrigin(mrk->rect().topLeft ());
+	aux->setOriginCoord(mrk->xValue(), mrk->yValue());
 	aux->setFont(mrk->font());
 	aux->setFrameStyle(mrk->frameStyle());
 	aux->setAngle(mrk->angle());
@@ -3206,22 +3201,19 @@ long Graph::insertTextMarker(LegendMarker* mrk)
 QString Graph::saveMarkers()
 {
 	QString s;
-	QwtArray<long> texts=textMarkerKeys();
-	int i,t=texts.size(),l=d_lines.size(),im=d_images.size();
-	for (i=0;i<im;i++)
+	int t = d_texts.size(), l = d_lines.size(), im = d_images.size();
+	for (int i=0; i<im; i++)
 	{
 		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(d_images[i]);
-		s+="<image>\t";
-		s+=mrkI->getFileName()+"\t";
-
-		QwtDoubleRect rect = mrkI->boundingRect();
-		s += QString::number(rect.left(), 'g', 15)+"\t";
-		s += QString::number(rect.top(), 'g', 15)+"\t";
-		s += QString::number(rect.width(), 'g', 15)+"\t";
-		s += QString::number(rect.height(), 'g', 15)+"</image>\n";
+		s += "<image>\t";
+		s += mrkI->getFileName()+"\t";
+		s += QString::number(mrkI->xValue(), 'g', 15)+"\t";
+		s += QString::number(mrkI->yValue(), 'g', 15)+"\t";
+		s += QString::number(mrkI->right(), 'g', 15)+"\t";
+		s += QString::number(mrkI->bottom(), 'g', 15)+"</image>\n";
 	}
 
-	for (i=0;i<l;i++)
+	for (int i=0; i<l; i++)
 	{
 		LineMarker* mrkL=(LineMarker*) d_plot->marker(d_lines[i]);
 		s+="<line>\t";
@@ -3244,10 +3236,10 @@ QString Graph::saveMarkers()
 		s+=QString::number(mrkL->filledArrowHead())+"</line>\n";
 	}
 
-	for (i=0;i<t;i++)
+	for (int i=0; i<t; i++)
 	{
-		LegendMarker* mrk=(LegendMarker*) d_plot->marker(texts[i]);
-		if (texts[i]!=legendMarkerID)
+		LegendMarker* mrk=(LegendMarker*) d_plot->marker(d_texts[i]);
+		if (d_texts[i] != legendMarkerID)
 			s+="<text>\t";
 		else
 			s+="<legend>\t";
@@ -3294,12 +3286,20 @@ double Graph::selectedXEndValue()
 		return 0;
 }
 
+QwtPlotItem* Graph::plotItem(int index)
+{
+    if (!n_curves || index >= n_curves || index < 0)
+		return 0;
+
+    return d_plot->plotItem(c_keys[index]);
+}
+
 QwtPlotCurve *Graph::curve(int index)
 {
 	if (!n_curves || index >= n_curves || index < 0)
 		return 0;
 
-	return (QwtPlotCurve *)d_plot->curve(c_keys[index]);
+	return d_plot->curve(c_keys[index]);
 }
 
 int Graph::curveIndex(QwtPlotCurve *c) const
@@ -4494,7 +4494,7 @@ void Graph::drawText(bool on)
 
 void Graph::insertImageMarker(ImageMarker* mrk)
 {
-	QPixmap photo = mrk->image();
+	QPixmap photo = mrk->pixmap();
 	ImageMarker* mrk2= new ImageMarker(photo);
 
 	int imagesOnPlot=d_images.size();
@@ -4502,7 +4502,7 @@ void Graph::insertImageMarker(ImageMarker* mrk)
 	d_images[imagesOnPlot-1]=d_plot->insertMarker(mrk2);
 
 	mrk2->setFileName(mrk->getFileName());
-	mrk2->setBoundingRect(mrk->boundingRect());
+	mrk2->setBoundingRect(mrk->xValue(), mrk->yValue(), mrk->right(), mrk->bottom());
 }
 
 void Graph::insertImageMarker(const QPixmap& photo, const QString& fileName)
@@ -4533,9 +4533,8 @@ void Graph::insertImageMarker(const QPixmap& photo, const QString& fileName)
 
 void Graph::insertImageMarker(const QStringList& lst, int fileVersion)
 {
-	QString fn=lst[1];
-	QFile f(fn);
-	if (!f.exists())
+	QString fn = lst[1];
+	if (!QFile::exists(fn))
 	{
 		QMessageBox::warning(0, tr("QtiPlot - File open error"),
 				tr("Image file: <p><b> %1 </b><p>does not exist anymore!").arg(fn));
@@ -4554,24 +4553,28 @@ void Graph::insertImageMarker(const QStringList& lst, int fileVersion)
 			photo.load(fn,type.upper(),QPixmap::Auto);
 		}
 
+        int imagesOnPlot = d_images.size();
+		d_images.resize(++imagesOnPlot);
+
 		ImageMarker* mrk = new ImageMarker(photo);
-		long mrkID=d_plot->insertMarker(mrk);
 		mrk->setFileName(fn);
+		d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
 
 		if (fileVersion < 86)
 		{
-			mrk->setOrigin(QPoint(lst[2].toInt(),lst[3].toInt()));
-			mrk->setSize(QSize(lst[4].toInt(),lst[5].toInt()));
+			mrk->setOrigin(QPoint(lst[2].toInt(), lst[3].toInt()));
+			mrk->setSize(QSize(lst[4].toInt(), lst[5].toInt()));
+		}
+		else if (fileVersion < 90)
+		{
+		    double left = lst[2].toDouble();
+		    double right = left + lst[4].toDouble();
+		    double top = lst[3].toDouble();
+		    double bottom = top - lst[5].toDouble();
+			mrk->setBoundingRect(left, top, right, bottom);
 		}
 		else
-		{
-			mrk->setBoundingRect(QwtDoubleRect(lst[2].toDouble(),lst[3].toDouble(),
-						lst[4].toDouble(),lst[5].toDouble()));
-		}
-
-		int imagesOnPlot=d_images.size();
-		d_images.resize(++imagesOnPlot);
-		d_images[imagesOnPlot-1]=mrkID;
+			mrk->setBoundingRect(lst[2].toDouble(), lst[3].toDouble(), lst[4].toDouble(), lst[5].toDouble());
 	}
 }
 
@@ -4936,7 +4939,7 @@ void Graph::showIntensityTable()
 	if (!mrk)
 		return;
 
-	QPixmap pic=mrk->image();
+	QPixmap pic = mrk->pixmap();
 	emit createIntensityTable(pic);
 }
 
@@ -4944,7 +4947,7 @@ void Graph::updateMarkersBoundingRect()
 {
 	for (int i=0;i<(int)d_lines.size();i++)
 	{
-		LineMarker* mrkL=(LineMarker*)d_plot->marker(d_lines[i]);
+		LineMarker* mrkL = (LineMarker*)d_plot->marker(d_lines[i]);
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
@@ -5179,14 +5182,14 @@ void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumn
 	{
 		QString columns;
 		for (int i = 0; i < n; i++)
-			columns+= "<p><b>" + emptyColumns[i] + "</b></p>";
+			columns += "<p><b>" + emptyColumns[i] + "</b></p>";
 
 		QMessageBox::warning(parent, tr("QtiPlot - Warning"),
-				tr("The columns")+": "+columns+tr("are empty and will not be added to the plot!"));
+				tr("The columns") + ": " + columns + tr("are empty and will not be added to the plot!"));
 	}
 	else if (n == 1)
 		QMessageBox::warning(parent, tr("QtiPlot - Warning"),
-				tr("The column")+": <p><b>" + emptyColumns[0] + "</b></p>" + tr("is empty and will not be added to the plot!"));
+				tr("The column") + " <b>" + emptyColumns[0] + "</b> " + tr("is empty and will not be added to the plot!"));
 }
 
 void Graph::showTitleContextMenu()
@@ -5393,10 +5396,10 @@ void Graph::copy(Graph* g)
 	{
 		for (i=0; i<g->curves(); i++)
 		{
-			QwtPlotItem *size = (QwtPlotItem *)g->curve(i);
-			if (size->rtti() == QwtPlotItem::Rtti_PlotCurve || size->rtti() == FunctionCurve::RTTI)
+			QwtPlotItem *it = (QwtPlotItem *)g->plotItem(i);
+			if (it->rtti() == QwtPlotItem::Rtti_PlotCurve || it->rtti() == FunctionCurve::RTTI)
   	        {
-  	        QwtPlotCurve *cv = (QwtPlotCurve *)size;
+  	        QwtPlotCurve *cv = (QwtPlotCurve *)it;
 			int n = cv->dataSize();
 			int style = g->c_type[i];
 			QVector<double> x(n);
@@ -5467,14 +5470,14 @@ void Graph::copy(Graph* g)
 
 			c->setAxis(cv->xAxis(), cv->yAxis());
 		}
-		else if (size->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+		else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    	{
-  	     	Spectrogram *sp = ((Spectrogram *)size)->copy();
+  	     	Spectrogram *sp = ((Spectrogram *)it)->copy();
   	        c_keys.resize(++n_curves);
   	        c_keys[i] = d_plot->insertCurve(sp);
 
-  	        sp->showColorScale(((Spectrogram *)size)->colorScaleAxis(), ((Spectrogram *)size)->hasColorScale());
-  	        sp->setColorBarWidth(((Spectrogram *)size)->colorBarWidth());
+  	        sp->showColorScale(((Spectrogram *)it)->colorScaleAxis(), ((Spectrogram *)it)->hasColorScale());
+  	        sp->setColorBarWidth(((Spectrogram *)it)->colorBarWidth());
 
   	        c_type.resize(n_curves);
   	        c_type[i] = g->curveType(i);
@@ -5558,18 +5561,18 @@ void Graph::copy(Graph* g)
 	setAxisLabelRotation(QwtPlot::xBottom, g->labelsRotation(QwtPlot::xBottom));
   	setAxisLabelRotation(QwtPlot::xTop, g->labelsRotation(QwtPlot::xTop));
 
-	QwtArray<long> imag = g->imageMarkerKeys();
-	for (i=0;i<(int)imag.size();i++)
+	QVector<long> imag = g->imageMarkerKeys();
+	for (i=0; i<(int)imag.size(); i++)
 	{
-		ImageMarker* imrk=(ImageMarker*)g->imageMarker(imag[i]);
+		ImageMarker* imrk = (ImageMarker*)g->imageMarker(imag[i]);
 		if (imrk)
 			insertImageMarker(imrk);
 	}
 
-	QwtArray<long> txtMrkKeys=g->textMarkerKeys();
-	for (i=0;i<(int)txtMrkKeys.size();i++)
+	QVector<long> txtMrkKeys=g->textMarkerKeys();
+	for (i=0; i<(int)txtMrkKeys.size(); i++)
 	{
-		LegendMarker* mrk=(LegendMarker*)g->textMarker(txtMrkKeys[i]);
+		LegendMarker* mrk = (LegendMarker*)g->textMarker(txtMrkKeys[i]);
 		if (!mrk)
 			continue;
 
@@ -5579,8 +5582,8 @@ void Graph::copy(Graph* g)
 			insertTextMarker(mrk);
 	}
 
-	QwtArray<long> l = g->lineMarkerKeys();
-	for (i=0;i<(int)l.size();i++)
+	QVector<long> l = g->lineMarkerKeys();
+	for (i=0; i<(int)l.size(); i++)
 	{
 		LineMarker* lmrk=(LineMarker*)g->lineMarker(l[i]);
 		if (lmrk)
@@ -5956,92 +5959,92 @@ void Graph::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
   	QString matrixName = s.remove("<matrix>").remove("</matrix>");
   	Matrix *m = app->matrix(matrixName);
   	if (!m)
-  	        return;
+        return;
 
   	Spectrogram *sp = new Spectrogram(m);
   	insertPlotItem(sp, matrixName, Graph::ColorMap);
 
   	for (line++; line != lst.end(); line++)
-  	        {
-  	        QString s = *line;
-  	        if (s.contains("<ColorPolicy>"))
-  	                {
-  	                int color_policy = s.remove("<ColorPolicy>").remove("</ColorPolicy>").stripWhiteSpace().toInt();
-  	                if (color_policy == Spectrogram::GrayScale)
-  	                        sp->setGrayScale();
-  	                else if (color_policy == Spectrogram::Default)
-  	                        sp->setDefaultColorMap();
-  	                }
-  	        else if (s.contains("<ColorMap>"))
-  	                {
-  	                s = *(++line);
-  	                int mode = s.remove("<Mode>").remove("</Mode>").stripWhiteSpace().toInt();
-  	                s = *(++line);
-  	                QColor color1 = QColor(s.remove("<MinColor>").remove("</MinColor>").stripWhiteSpace());
-  	                s = *(++line);
-  	                QColor color2 = QColor(s.remove("<MaxColor>").remove("</MaxColor>").stripWhiteSpace());
+    {
+        QString s = *line;
+        if (s.contains("<ColorPolicy>"))
+        {
+            int color_policy = s.remove("<ColorPolicy>").remove("</ColorPolicy>").stripWhiteSpace().toInt();
+            if (color_policy == Spectrogram::GrayScale)
+                sp->setGrayScale();
+            else if (color_policy == Spectrogram::Default)
+                sp->setDefaultColorMap();
+        }
+        else if (s.contains("<ColorMap>"))
+        {
+            s = *(++line);
+            int mode = s.remove("<Mode>").remove("</Mode>").stripWhiteSpace().toInt();
+            s = *(++line);
+            QColor color1 = QColor(s.remove("<MinColor>").remove("</MinColor>").stripWhiteSpace());
+            s = *(++line);
+            QColor color2 = QColor(s.remove("<MaxColor>").remove("</MaxColor>").stripWhiteSpace());
 
-  	                QwtLinearColorMap colorMap = QwtLinearColorMap(color1, color2);
-  	                colorMap.setMode((QwtLinearColorMap::Mode)mode);
+            QwtLinearColorMap colorMap = QwtLinearColorMap(color1, color2);
+            colorMap.setMode((QwtLinearColorMap::Mode)mode);
 
-  	                s = *(++line);
-  	                int stops = s.remove("<ColorStops>").remove("</ColorStops>").stripWhiteSpace().toInt();
-  	                for (int i = 0; i < stops; i++)
-  	                        {
-  	                        s = (*(++line)).stripWhiteSpace();
-  	                        QStringList l = QStringList::split("\t", s.remove("<Stop>").remove("</Stop>"));
-  	                        colorMap.addColorStop(l[0].toDouble(), QColor(l[1]));
-  	                        }
-  	                sp->setCustomColorMap(colorMap);
-  	                line++;
-  	                }
-  	        else if (s.contains("<Image>"))
-  	                {
-  	                int mode = s.remove("<Image>").remove("</Image>").stripWhiteSpace().toInt();
-  	                sp->setDisplayMode(QwtPlotSpectrogram::ImageMode, mode);
-  	                }
-  	        else if (s.contains("<ContourLines>"))
-  	                {
-  	                int contours = s.remove("<ContourLines>").remove("</ContourLines>").stripWhiteSpace().toInt();
-  	                sp->setDisplayMode(QwtPlotSpectrogram::ContourMode, contours);
-  	                if (contours)
-  	                        {
-  	                        s = (*(++line)).stripWhiteSpace();
-  	                        int levels = s.remove("<Levels>").remove("</Levels>").toInt();
-  	                        sp->setLevelsNumber(levels);
+            s = *(++line);
+            int stops = s.remove("<ColorStops>").remove("</ColorStops>").stripWhiteSpace().toInt();
+            for (int i = 0; i < stops; i++)
+            {
+                s = (*(++line)).stripWhiteSpace();
+                QStringList l = QStringList::split("\t", s.remove("<Stop>").remove("</Stop>"));
+                colorMap.addColorStop(l[0].toDouble(), QColor(l[1]));
+            }
+            sp->setCustomColorMap(colorMap);
+            line++;
+        }
+        else if (s.contains("<Image>"))
+        {
+            int mode = s.remove("<Image>").remove("</Image>").stripWhiteSpace().toInt();
+            sp->setDisplayMode(QwtPlotSpectrogram::ImageMode, mode);
+        }
+        else if (s.contains("<ContourLines>"))
+        {
+            int contours = s.remove("<ContourLines>").remove("</ContourLines>").stripWhiteSpace().toInt();
+            sp->setDisplayMode(QwtPlotSpectrogram::ContourMode, contours);
+            if (contours)
+            {
+                s = (*(++line)).stripWhiteSpace();
+                int levels = s.remove("<Levels>").remove("</Levels>").toInt();
+                sp->setLevelsNumber(levels);
 
-  	                        s = (*(++line)).stripWhiteSpace();
-  	                        int defaultPen = s.remove("<DefaultPen>").remove("</DefaultPen>").toInt();
-  	                        if (!defaultPen)
-  	                                sp->setDefaultContourPen(Qt::NoPen);
-  	                        else
-  	                                {
-  	                                s = (*(++line)).stripWhiteSpace();
-  	                                QColor c = QColor(s.remove("<PenColor>").remove("</PenColor>"));
-  	                                s = (*(++line)).stripWhiteSpace();
-  	                                int width = s.remove("<PenWidth>").remove("</PenWidth>").toInt();
-  	                                s = (*(++line)).stripWhiteSpace();
-  	                                int style = s.remove("<PenStyle>").remove("</PenStyle>").toInt();
-  	                                sp->setDefaultContourPen(QPen(c, width, Graph::getPenStyle(style)));
-  	                                }
-  	                        }
-  	                }
-  	        else if (s.contains("<ColorBar>"))
-  	                {
-  	                s = *(++line);
-  	                int color_axis = s.remove("<axis>").remove("</axis>").stripWhiteSpace().toInt();
-  	                s = *(++line);
-  	                int width = s.remove("<width>").remove("</width>").stripWhiteSpace().toInt();
+                s = (*(++line)).stripWhiteSpace();
+                int defaultPen = s.remove("<DefaultPen>").remove("</DefaultPen>").toInt();
+                if (!defaultPen)
+                    sp->setDefaultContourPen(Qt::NoPen);
+                else
+                {
+                    s = (*(++line)).stripWhiteSpace();
+                    QColor c = QColor(s.remove("<PenColor>").remove("</PenColor>"));
+                    s = (*(++line)).stripWhiteSpace();
+                    int width = s.remove("<PenWidth>").remove("</PenWidth>").toInt();
+                    s = (*(++line)).stripWhiteSpace();
+                    int style = s.remove("<PenStyle>").remove("</PenStyle>").toInt();
+                    sp->setDefaultContourPen(QPen(c, width, Graph::getPenStyle(style)));
+                }
+            }
+        }
+        else if (s.contains("<ColorBar>"))
+        {
+            s = *(++line);
+            int color_axis = s.remove("<axis>").remove("</axis>").stripWhiteSpace().toInt();
+            s = *(++line);
+            int width = s.remove("<width>").remove("</width>").stripWhiteSpace().toInt();
 
-  	                QwtScaleWidget *colorAxis = d_plot->axisWidget(color_axis);
-  	                if (colorAxis)
-  	                        {
-  	                        colorAxis->setColorBarWidth(width);
-  	                        colorAxis->setColorBarEnabled(true);
-  	                        }
-  	                line++;
-  	                }
-  	        }
+            QwtScaleWidget *colorAxis = d_plot->axisWidget(color_axis);
+            if (colorAxis)
+            {
+                colorAxis->setColorBarWidth(width);
+                colorAxis->setColorBarEnabled(true);
+            }
+            line++;
+        }
+    }
 }
 
 void Graph::updateHistogram(Table* w, const QString& curveName, int curve, bool automatic, double binSize, double begin, double end)
@@ -6319,18 +6322,20 @@ bool Graph::validCurvesDataSize()
 {
 	if (!n_curves)
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
-				tr("There are no curves available on this plot!"));
+		QMessageBox::warning(this, tr("QtiPlot - Warning"), tr("There are no curves available on this plot!"));
 		return false;
 	}
 	else
 	{
 		for (int i=0; i < n_curves; i++)
 		{
-			 QwtPlotCurve *c = curve(i);
-  	         if(c && c->dataSize() > 2 &&
-			 (c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI))
-  	         	return true;
+			 QwtPlotItem *item = curve(i);
+  	         if(item && item->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
+  	         {
+  	             QwtPlotCurve *c = (QwtPlotCurve *)item;
+  	             if (c->dataSize() > 2)
+                    return true;
+  	         }
   	    }
 		QMessageBox::warning(this, tr("QtiPlot - Error"),
 		tr("There are no curves with more than two points on this plot. Operation aborted!"));
@@ -6375,10 +6380,10 @@ void Graph::calculateLineProfile(const QPoint& start, const QPoint& end)
 		return;
 	}
 
-	QPoint o=mrk->origin();
-	QPixmap pic=mrk->image();
-	QImage image=pic.convertToImage();
-	lineProfileOn=FALSE;
+	QPoint o = mrk->origin();
+	QPixmap pic = mrk->pixmap();
+	QImage image = pic.convertToImage();
+	lineProfileOn = FALSE;
 
 	int x1=start.x()-o.x();
 	int x2=end.x()-o.x();
@@ -6513,7 +6518,9 @@ void Graph::setAntialiasing(bool on, bool update)
 
 bool Graph::focusNextPrevChild ( bool next )
 {
-	QList<int> mrkKeys = d_plot->markerKeys();
+    cp->selectNextMarker();
+
+	/*QList<int> mrkKeys = d_plot->markerKeys();
 	int n = mrkKeys.size();
 	if (n < 2)
 		return false;
@@ -6524,7 +6531,7 @@ bool Graph::focusNextPrevChild ( bool next )
 		if (mrkKeys[i] >= max_key)
 			max_key = mrkKeys[i];
 		if (mrkKeys[i] <= min_key)
-			min_key = mrkKeys[i];		
+			min_key = mrkKeys[i];
 	}
 
 	int key = selectedMarker;
@@ -6535,11 +6542,11 @@ bool Graph::focusNextPrevChild ( bool next )
 			key = min_key;
 	} else
 		key = min_key;
-	
+
 	/*if (d_editing_marker) {
 		d_editing_marker->setEditable(false);
 		d_editing_marker = 0;
 	}*/
-	
-	setSelectedMarker(key);
+
+	//setSelectedMarker(key);
 }

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Integration options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -37,7 +37,7 @@ class QLineEdit;
 class QComboBox;
 class QSpinBox;
 class Graph;
-	
+
 //! Integration options dialog
 class IntDialog : public QDialog
 {
@@ -56,13 +56,12 @@ public:
 	QSpinBox* boxSteps;
 	QLineEdit* boxStart;
 	QLineEdit* boxEnd;
-	QLineEdit* boxTol;	
+	QLineEdit* boxTol;
 
 public slots:
 	void accept();
 	void setGraph(Graph *g);
-	void activateCurve(int index);
-	void changeCurve(int index);
+	void activateCurve(const QString& curveName);
 	void help();
 	void changeDataRange();
 
@@ -73,6 +72,6 @@ private:
 	Graph *graph;
 };
 
-#endif 
+#endif
 
 

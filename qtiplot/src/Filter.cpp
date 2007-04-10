@@ -80,7 +80,7 @@ void Filter::setInterval(double from, double to)
 }
 
 void Filter::setDataCurve(int curve, double start, double end)
-{	
+{
 	if (d_n > 0)
 	{//delete previousely allocated memory
 		delete[] d_x;
@@ -226,9 +226,9 @@ void Filter::output()
 
 int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y)
 {
-    if (!c || (c->rtti() != QwtPlotItem::Rtti_PlotCurve && c->rtti() != FunctionCurve::RTTI))
+    if (!c)
         return 0;
-	
+
     int i_start = 0, i_end = c->dataSize();
     for (int i = 0; i < i_end; i++)
   	    if (c->x(i) >= start)
@@ -277,7 +277,7 @@ int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **
 
 int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, double **y)
 {
-    if (!c || (c->rtti() != QwtPlotItem::Rtti_PlotCurve && c->rtti() != FunctionCurve::RTTI))
+    if (!c)
         return 0;
 
     int i_start = 0, i_end = c->dataSize();

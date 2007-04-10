@@ -325,8 +325,7 @@ public:
                 int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 
   void print();
-  void exportImage(const QString& fileName, const QString& fileType = "PNG",
-  			int quality = 100, bool transparent = false);
+  void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 
   //void exportSVG(const QString& fname);
   void exportToFile(const QString& fileName) /PyName=export/;
@@ -348,7 +347,7 @@ public:
   Graph* addLayer();
   //void exportSVG(const QString& fname);
   void exportToFile(const QString& fileName) /PyName=export/;
-  void exportImage(const QString& fileName, const QString& fileType = "PNG", int quality = 100, bool transparent = false);
+  void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
   void print();
 private:
   MultiLayer(const MultiLayer&);

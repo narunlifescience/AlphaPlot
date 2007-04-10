@@ -404,6 +404,15 @@ void Plot::print(QPainter *painter, const QRect &plotRect,
 	setTitle(t);
 }
 
+QwtPlotCurve* Plot::curve(int index)
+{
+    QwtPlotItem *it = d_curves[index];
+    if (it && it->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
+        return (QwtPlotCurve*)it;
+    else
+        return 0;
+}
+
 int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 {
 	QwtScaleMap map[QwtPlot::axisCnt];

@@ -259,7 +259,7 @@ void ApplicationWindow::init()
 	insertTranslatedStrings();
 
 	assistant = new QAssistantClient( QString(), this );
-	
+
 	actionNextWindow = new QAction(QIcon(QPixmap(next_xpm)), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
 	connect(actionNextWindow, SIGNAL(activated()), ws, SLOT(activateNextWindow()));
@@ -1714,7 +1714,7 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 	QApplication::restoreOverrideCursor();
 }
 
-void ApplicationWindow::update3DMatrixPlots(QWidget *window)
+void ApplicationWindow::updateMatrixPlots(QWidget *window)
 {
 	Matrix *m = (Matrix *)window;
 	if (!m)
@@ -1735,7 +1735,7 @@ void ApplicationWindow::update3DMatrixPlots(QWidget *window)
 				Graph* g = (Graph*)graphsList.at(j);
 				for (int i=0; i<g->curves(); i++)
 				{
-					Spectrogram *sp = (Spectrogram *)g->curve(i);
+					Spectrogram *sp = (Spectrogram *)g->plotItem(i);
 					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
 						sp->updateData(m);
 				}
@@ -2833,7 +2833,7 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 
 	connect(m, SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
-	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(update3DMatrixPlots(QWidget *)));
+	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(updateMatrixPlots(QWidget *)));
 	connect(m, SIGNAL(closedWindow(MyWidget*)), this, SLOT(closeWindow(MyWidget*)));
 	connect(m, SIGNAL(hiddenWindow(MyWidget*)), this, SLOT(hideWindow(MyWidget*)));
 	connect(m, SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
@@ -4673,13 +4673,13 @@ void ApplicationWindow::exportGraph()
                     ed->setAttribute(Qt::WA_DeleteOnClose);
                     if (plot2D)
                     {
-                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-                             plot2D, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                        connect (ed, SIGNAL(options(const QString&, int, bool)),
+                             plot2D, SLOT(exportImage(const QString&, int, bool)));
                     }
                     else if (plot3D)
                     {
-                        connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-                             plot3D, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                        connect (ed, SIGNAL(options(const QString&, int, bool)),
+                             plot3D, SLOT(exportImage(const QString&, int, bool)));
                     }
 
                     ed->setExportPath(fname, list[i]);
@@ -4687,9 +4687,9 @@ void ApplicationWindow::exportGraph()
                     ed->exec();
                 }
                 else if (plot2D)
-                    plot2D->exportImage(fname, list[i]);
+                    plot2D->exportImage(fname);
                 else if (plot3D)
-                    plot3D->exportImage(fname, list[i]);
+                    plot3D->exportImage(fname);
                 return;
             }
         }
@@ -4754,17 +4754,17 @@ void ApplicationWindow::exportLayer()
             {
                 if (ied->showExportOptions())
                 {
-                    ImageExportOptionsDialog* ed= new ImageExportOptionsDialog(false, this);
+                    ImageExportOptionsDialog* ed = new ImageExportOptionsDialog(false, this);
                     ed->setAttribute(Qt::WA_DeleteOnClose);
-                    connect (ed, SIGNAL(options(const QString&, const QString&, int, bool)),
-                            g, SLOT(exportImage(const QString&, const QString&, int, bool)));
+                    connect (ed, SIGNAL(options(const QString&, int, bool)),
+                            g, SLOT(exportImage(const QString&, int, bool)));
 
                     ed->setExportPath(fname, list[i]);
                     ed->enableTransparency();
                     ed->exec();
                 }
                 else
-                    g->exportImage(fname, list[i]);
+                    g->exportImage(fname);
 
                 return;
 			}
@@ -4875,9 +4875,9 @@ void ApplicationWindow::exportGraph(QWidget *w, const QString& fileName,
             plot3D->exportVector(fileName, format);
 	}
 	else if (plot2D)
-		plot2D->exportImage(fileName, format, quality, transparency);
+		plot2D->exportImage(fileName, quality, transparency);
     else if (plot3D)
-		plot3D->exportImage(fileName, format, quality, transparency);
+		plot3D->exportImage(fileName, quality, transparency);
 }
 
 QString ApplicationWindow::windowGeometryInfo(QWidget *w)
@@ -5221,15 +5221,9 @@ void ApplicationWindow::showCurvesDialog()
 	}
 	else
 	{
-		CurvesDialog* crvDialog = new CurvesDialog(this,"curves",true,Qt::WindowStaysOnTopHint);
+		CurvesDialog* crvDialog = new CurvesDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
-		connect (crvDialog,SIGNAL(showPlotAssociations(int)), this, SLOT(showPlotAssociations(int)));
-		connect (crvDialog,SIGNAL(showFunctionDialog(Graph *, int)), this, SLOT(showFunctionDialog(Graph *, int)));
-
-		crvDialog->insertCurvesToDialog(columnsList(Table::Y));
-		crvDialog->setCurveDefaultSettings(defaultCurveStyle, defaultCurveLineWidth, defaultSymbolSize);
 		crvDialog->setGraph(g);
-		crvDialog->initTablesList(tableList());
 		crvDialog->exec();
 	}
 }
@@ -6341,7 +6335,7 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	if (!c)
 		return;
 
-	QMenu curveMenu(this);	
+	QMenu curveMenu(this);
 	curveMenu.addAction(c->title().text(), this, SLOT(showCurvePlotDialog()));
 	curveMenu.insertSeparator();
 
@@ -6353,12 +6347,12 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 
 	curveMenu.addAction(actionShowCurveWorksheet);
 	actionShowCurveWorksheet->setData(curveKey);
-		
+
 	curveMenu.addAction(actionShowCurvePlotDialog);
 	actionShowCurvePlotDialog->setData(curveKey);
-	
+
 	curveMenu.insertSeparator();
-	
+
 	curveMenu.addAction(actionRemoveCurve);
 	actionRemoveCurve->setData(curveKey);
 	curveMenu.exec(QCursor::pos());
@@ -6372,7 +6366,7 @@ void ApplicationWindow::removeCurve()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (!g)
 		return;
-	
+
 	int curveKey = actionRemoveCurve->data().toInt();
 	g->removeCurve(g->curveIndex(curveKey));
 }
@@ -6406,7 +6400,7 @@ void ApplicationWindow::showCurveWorksheet()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (!g)
 		return;
-	
+
 	int curveKey = actionShowCurveWorksheet->data().toInt();
 	showCurveWorksheet(g, g->curveIndex(curveKey));
 }
@@ -6541,8 +6535,11 @@ void ApplicationWindow::movePoints()
 	}
 
 	Graph* g = (Graph*)plot->activeGraph();
-	if (!g)
+	if (!g || !g->validCurvesDataSize())
+	{
+		btnPointer->setChecked(true);
 		return;
+	}
 
 	if (g->isPiePlot())
 	{
@@ -6702,12 +6699,12 @@ void ApplicationWindow::showExpDecayDialog(int type)
 
 	aw = (MyWidget *)ws->activeWindow();
 
-	ExpDecayDialog *edd = new ExpDecayDialog(type, this,"polyDialog", false, 0);
+	ExpDecayDialog *edd = new ExpDecayDialog(type, this, "ExpDecayDialog", false);
 	edd->setAttribute(Qt::WA_DeleteOnClose);
 	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), edd, SLOT(close()));
 
 	edd->setGraph(g);
-	edd->exec();
+	edd->show();
 }
 
 void ApplicationWindow::showTwoExpDecayDialog()
@@ -6856,11 +6853,11 @@ void ApplicationWindow::showInterpolationDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	InterpolationDialog *id=new InterpolationDialog(this,"InterpolationDialog",false,0);
+	InterpolationDialog *id = new InterpolationDialog(this, "InterpolationDialog", false);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect ((MyWidget *)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
 	id->setGraph(g);
-	id->exec();
+	id->show();
 }
 
 void ApplicationWindow::showFitPolynomDialog()
@@ -6874,11 +6871,11 @@ void ApplicationWindow::showFitPolynomDialog()
 
 	aw = (MyWidget *)ws->activeWindow();
 
-	PolynomFitDialog *pfd=new PolynomFitDialog(this, "polyDialog");
+	PolynomFitDialog *pfd = new PolynomFitDialog(this);
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
-	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), pfd, SLOT(close()));
+	connect((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), pfd, SLOT(close()));
 	pfd->setGraph(g);
-	pfd->exec();
+	pfd->show();
 }
 
 void ApplicationWindow::fitLinear()
@@ -6909,7 +6906,7 @@ void ApplicationWindow::showIntegrationDialog()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
 	id->setGraph(g);
-	id->exec();
+	id->show();
 }
 
 void ApplicationWindow::fitSigmoidal()
@@ -7685,7 +7682,7 @@ MultiLayer* ApplicationWindow::copyGraph()
 		QString caption = generateUniqueName(tr("Graph"));
 
 		ml2 = multilayerPlot(caption);
-		ml2->hide();//FiXME: find a better way to avoid a resize event
+		ml2->hide();//FIXME: find a better way to avoid a resize event
 		ml2->resize(ml->size());
 		ml2->copy(ml);
 		ml2->show();
@@ -8964,7 +8961,7 @@ void ApplicationWindow::showPlotWizard()
 }
 
 void ApplicationWindow::showFunctionDialog()
-{	
+{
     if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
 
@@ -8972,7 +8969,7 @@ void ApplicationWindow::showFunctionDialog()
 	if (!g)
 		return;
 
-	int curveKey = actionEditFunction->data().toInt();		
+	int curveKey = actionEditFunction->data().toInt();
 	showFunctionDialog(g, g->curveIndex(curveKey));
 }
 
@@ -10673,7 +10670,7 @@ void ApplicationWindow::analysis(const QString& whichFit)
     QStringList lst = g->analysableCurvesList();
 	if (lst.count() == 1)
 	{
-		const QwtPlotCurve *c = g->curve(0);
+		const QwtPlotCurve *c = g->curve(lst[0]);
 		if (c)
 			analyzeCurve(g, whichFit, lst[0]);
 	}
@@ -11456,7 +11453,7 @@ void ApplicationWindow::createActions()
 	actionShowScriptWindow->setToggleAction( true );
 	connect(actionShowScriptWindow, SIGNAL(activated()), this, SLOT(showScriptWindow()));
 #endif
-		
+
 	actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
 	connect(actionShowCurvePlotDialog, SIGNAL(activated()), this, SLOT(showCurvePlotDialog()));
 
@@ -11476,7 +11473,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
 	actionRemoveCurve->setMenuText(tr("&Delete"));
 	actionEditFunction->setMenuText(tr("&Edit Function..."));
-	
+
 	actionNewProject->setMenuText(tr("New &Project"));
 	actionNewProject->setToolTip(tr("Open a new project"));
 	actionNewProject->setShortcut(tr("Ctrl+N"));

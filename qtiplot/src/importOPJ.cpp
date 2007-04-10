@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Origin project import class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,28 +35,28 @@
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
-{	
+{
 OPJFile opj((const char *)filename.latin1());
 parse_error = opj.Parse();
 importTables(opj);
 }
 
-bool ImportOPJ::importTables(OPJFile opj) 
+bool ImportOPJ::importTables(OPJFile opj)
 {
 	int visible_count=0;
 	int QtiPlot_scaling_factor=10; //in Origin width is measured in characters while in QtiPlot - pixels --- need to be accurate
-	for (int s=0; s<opj.numSpreads(); s++) 
-	{	
+	for (int s=0; s<opj.numSpreads(); s++)
+	{
 		int nr_cols = opj.numCols(s);
 		int maxrows = opj.maxRows(s);
 
-		Table *table = (opj.spreadHidden(s)||opj.spreadLoose(s))&&opj.Version()==7.5 ? mw->newHiddenTable(opj.spreadName(s), opj.spreadLabel(s), maxrows, nr_cols) 
+		Table *table = (opj.spreadHidden(s)||opj.spreadLoose(s))&&opj.Version()==7.5 ? mw->newHiddenTable(opj.spreadName(s), opj.spreadLabel(s), maxrows, nr_cols)
 										: mw->newTable(opj.spreadName(s), maxrows, nr_cols);
 		if (!table)
 			return false;
 
 		table->setWindowLabel(opj.spreadLabel(s));
-		for (int j=0; j<nr_cols; j++) 
+		for (int j=0; j<nr_cols; j++)
 		{
 			QString name(opj.colName(s,j));
 			table->setColName(j, name.replace(QRegExp(".*_"),""));
@@ -73,14 +73,16 @@ bool ImportOPJ::importTables(OPJFile opj)
 			else
 				table->setColPlotDesignation(j, Table::None);
 
-			for (int i=0; i<opj.numRows(s,j); i++) 
+            table->setHeaderColType();//update header
+
+			for (int i=0; i<opj.numRows(s,j); i++)
 			{
-				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1) 
+				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
 				{// number
-					double val = opj.Data(s,j)[i];		
+					double val = opj.Data(s,j)[i];
 					if(fabs(val)>0 && fabs(val)<2.0e-300)// empty entry
 						continue;
-					
+
 					table->setText(i, j, QString::number(val));
 				}
 				else// label? doesn't seem to work
@@ -134,7 +136,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 				case 5:
 				case 6:
 					format="ddd";
-					break; 
+					break;
 				case 7:
 					format="yyyy";
 					break;
@@ -241,9 +243,9 @@ bool ImportOPJ::importTables(OPJFile opj)
 		}
 	}
 
-//TO DO: import matrices 
-	for (int s=0; s<opj.numMatrices(); s++) 
-	{	
+//TO DO: import matrices
+	for (int s=0; s<opj.numMatrices(); s++)
+	{
 		int nr_cols = opj.numMartixCols(s);
 		int nr_rows = opj.numMartixRows(s);
 
@@ -254,20 +256,20 @@ bool ImportOPJ::importTables(OPJFile opj)
 		matrix->setWindowLabel(opj.matrixLabel(s));
 		matrix->setFormula(opj.matrixFormula(s));
 		matrix->setColumnsWidth(opj.matrixWidth(s)*QtiPlot_scaling_factor);
-		for (int j=0; j<nr_cols; j++) 
+		for (int j=0; j<nr_cols; j++)
 		{
-			for (int i=0; i<nr_rows; i++) 
+			for (int i=0; i<nr_rows; i++)
 			{
-				double val = opj.matrixData(s,j,i);		
+				double val = opj.matrixData(s,j,i);
 				if(fabs(val)>0 && fabs(val)<2.0e-300)// empty entry
 					continue;
-				
+
 				matrix->setCell(i, j, val);
-			}		
+			}
 		}
 
 		matrix->saveCellsToMemory();
-		
+
 		QChar f;
 		switch(opj.matrixValueTypeSpec(s))
 		{
@@ -283,7 +285,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 			break;
 		}
 		matrix->setNumericFormat(f, opj.matrixSignificantDigits(s));
-		
+
 		matrix->showNormal();
 
 		//cascade the matrices
