@@ -135,12 +135,31 @@ struct matrix {
 	{};
 };
 
+struct function {
+	string name;
+	int type;//Normal = 0, Polar = 1
+	string formula;
+	double begin;
+	double end;
+	int points;
+	function(string _name="")
+	:	name(_name)
+	,	type(0)
+	,	formula("")
+	,	begin(0.0)
+	,	end(0.0)
+	,	points(0)
+	{};
+};
+
 class OPJFile
 {
 public:
 	OPJFile(const char* filename);
 	int Parse();
 	double Version() { return version/100.0; }		//!< get version of project file
+	
+	//spreadsheet properties
 	int numSpreads() { return SPREADSHEET.size(); }			//!< get number of spreadsheets
 	const char *spreadName(int s) { return SPREADSHEET[s].name.c_str(); }	//!< get name of spreadsheet s
 	bool spreadHidden(int s) { return SPREADSHEET[s].bHidden; }	//!< is spreadsheet s hidden
@@ -149,7 +168,7 @@ public:
 	int numCols(int s) { return SPREADSHEET[s].column.size(); }		//!< get number of columns of spreadsheet s
 	int numRows(int s,int c) { return SPREADSHEET[s].column[c].value_type==1 ? SPREADSHEET[s].column[c].sdata.size() : SPREADSHEET[s].column[c].data.size(); }	//!< get number of rows of column c of spreadsheet s
 	int maxRows(int s) { return SPREADSHEET[s].maxRows; }		//!< get maximum number of rows of spreadsheet s
-	//column properties
+	//spreadsheet's column properties
 	const char *colName(int s, int c) { printf("N"); return SPREADSHEET[s].column[c].name.c_str(); }	//!< get name of column c of spreadsheet s
 	const char *colType(int s, int c) { printf("T"); return SPREADSHEET[s].column[c].type.c_str(); }	//!< get type of column c of spreadsheet s
 	const char *colCommand(int s, int c) { printf("C"); return SPREADSHEET[s].column[c].command.c_str(); }	//!< get command of column c of spreadsheet s
@@ -178,6 +197,14 @@ public:
 	int matrixWidth(int s) { return MATRIX[s].width; }	//!< get width of matrix s
 	double matrixData(int s, int c, int r) { return MATRIX[s].data[r*MATRIX[s].nr_cols+c]; }	//!< get data of row r of column c of matrix s
 
+	//function properties
+	int numFunctions() { return FUNCTION.size(); }			//!< get number of functions
+	const char *functionName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of function s	
+	int functionType(int s) { return FUNCTION[s].type; }		//!< get type of function s
+	double functionBegin(int s) { return FUNCTION[s].begin; }	//!< get begin of interval of function s
+	double functionEnd(int s) { return FUNCTION[s].end; }	//!< get end of interval of function s
+	int functionPoints(int s) { return FUNCTION[s].points; }	//!< get number of points in interval of function s
+	const char *functionFormula(int s) { return FUNCTION[s].formula.c_str(); }	//!< get formula of function s
 private:
 	bool IsBigEndian();
 	void ByteSwap(unsigned char * b, int n);
@@ -192,6 +219,7 @@ private:
 	int version;				//!< project version
 	vector <spreadSheet> SPREADSHEET;
 	vector <matrix> MATRIX;
+	vector <function> FUNCTION;
 };
 
 #endif // OPJFILE_H

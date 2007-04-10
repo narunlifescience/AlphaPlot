@@ -39,6 +39,7 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 OPJFile opj((const char *)filename.latin1());
 parse_error = opj.Parse();
 importTables(opj);
+//importFunctions(opj);
 }
 
 bool ImportOPJ::importTables(OPJFile opj)
@@ -70,6 +71,10 @@ bool ImportOPJ::importTables(OPJFile opj)
 				table->setColPlotDesignation(j, Table::Y);
 			else if (QString(opj.colType(s,j)) == "Z")
 				table->setColPlotDesignation(j, Table::Z);
+			else if (QString(opj.colType(s,j)) == "DX")
+				table->setColPlotDesignation(j, Table::xErr);
+			else if (QString(opj.colType(s,j)) == "DY")
+				table->setColPlotDesignation(j, Table::yErr);
 			else
 				table->setColPlotDesignation(j, Table::None);
 
@@ -293,6 +298,34 @@ bool ImportOPJ::importTables(OPJFile opj)
 		int dy=matrix->parentWidget()->frameGeometry().height() - matrix->height();
 		matrix->parentWidget()->move(QPoint(visible_count*dx,visible_count*dy));
 		visible_count++;
+
+	}
+
+return true;
+}
+
+
+bool ImportOPJ::importFunctions(OPJFile opj) 
+{
+	double pi=3.141592653589793;
+	for (int s=0; s<opj.numFunctions(); s++) 
+	{	
+		QStringList formulas;
+		QList<double> ranges;
+		int type;
+		if(opj.functionType(s)==1)//Polar
+		{
+			type=2;
+			formulas << opj.functionFormula(s) << "x";
+			ranges << pi/180*opj.functionBegin(s) << pi/180*opj.functionEnd(s);
+		}
+		else
+		{
+			type=0;
+			formulas << opj.functionFormula(s);
+			ranges << opj.functionBegin(s) << opj.functionEnd(s);
+		}
+		mw->newFunctionPlot(type, formulas, "x", ranges, opj.functionPoints(s));
 
 	}
 
