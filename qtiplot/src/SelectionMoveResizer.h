@@ -75,14 +75,7 @@ class ImageMarker;
  *   .
  *
  * \section future Future Plans
- * Move other code (particularly in Graph/CanvasPicker) to tool classes similar to SelectionMoveResizer.
- * This will simplify the management of the different modes of operation (like picking data points, selecting ranges
- * or choosing peaks for fitting) and will ideally allow the implementation of new tools as plugins.
- *
- * Maybe a common superclass for these tools could be written so that Graph would only need to maintain
- * a reference to the current tool, independently of what it does or how it works.
- *
- * Also see the documentation of ImageMarker for ideas about replacing QwtPlotMarker with a new QwtPlotItem subclass.
+ * See the documentation of ImageMarker for ideas about replacing QwtPlotMarker with a new QwtPlotItem subclass.
  * For SelectionMoveResizer this would mean supporting new enrichments without modifications and being able
  * to automatically remove them upon deletion (if the new class inherits QObject).
  * Not to mention that the implementation would be a lot cleaner if we would only have to handle two target classes

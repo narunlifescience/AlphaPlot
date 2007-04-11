@@ -50,14 +50,14 @@ void Correlation::setDataFromTable(Table *t, const QString& colName1, const QStr
 	if (col1 < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-		tr("The data set %1 do not exist!").arg(colName1));
+		tr("The data set %1 does not exist!").arg(colName1));
 		d_init_err = true;
 		return;
 	}
 	else if (col2 < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-		tr("The data set %1 do not exist!").arg(colName2));
+		tr("The data set %1 does not exist!").arg(colName2));
 		d_init_err = true;
 		return;
 	}

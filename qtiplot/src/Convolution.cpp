@@ -51,20 +51,20 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 	if (signal_col < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-		tr("The signal data set %1 do not exist!").arg(signalColName));
+		tr("The signal data set %1 does not exist!").arg(signalColName));
 		d_init_err = true;
 		return;
 	}
 	else if (response_col < 0)
 	{
 		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
-		tr("The response data set %1 do not exist!").arg(responseColName));
+		tr("The response data set %1 does not exist!").arg(responseColName));
 		d_init_err = true;
 		return;
 	}
 
     if (d_n > 0)
-	{//delete previousely allocated memory
+	{//delete previously allocated memory
 		delete[] d_x;
 		delete[] d_y;
 	}

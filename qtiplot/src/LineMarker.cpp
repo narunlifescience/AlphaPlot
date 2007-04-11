@@ -461,7 +461,7 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 				const QMouseEvent *me = (const QMouseEvent *)e;	
 				if (me->button() != Qt::LeftButton)
 					return false;
-				LineDialog *ld = new LineDialog(this, plot(), "lineDialog", true, Qt::Tool);
+				LineDialog *ld = new LineDialog(this, plot()->window(), "lineDialog", true, Qt::Tool);
 				ld->setAttribute(Qt::WA_DeleteOnClose);
 				ld->exec();	
 				return true;

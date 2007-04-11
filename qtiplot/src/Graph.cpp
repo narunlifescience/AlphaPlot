@@ -1704,26 +1704,26 @@ void Graph::removeMarker()
 		if (d_lines.contains(selectedMarker)>0)
 		{
 			int index = d_lines.indexOf(selectedMarker);
-            int linesOnPlot = (int)d_lines.size();
-			for (int i=index; i<linesOnPlot; i++)
+            int last_line_marker = (int)d_lines.size() - 1;
+			for (int i=index; i < last_line_marker; i++)
 				d_lines[i]=d_lines[i+1];
-			d_lines.resize(--linesOnPlot);
+			d_lines.resize(last_line_marker);
 		}
 		else if(d_texts.contains(selectedMarker)>0)
 		{
 			int index=d_texts.indexOf(selectedMarker);
-			int texts=d_texts.size();
-			for (int i=index; i<texts; i++)
+			int last_text_marker = d_texts.size() - 1;
+			for (int i=index; i < last_text_marker; i++)
 				d_texts[i]=d_texts[i+1];
-			d_texts.resize(--texts);
+			d_texts.resize(last_text_marker);
 		}
 		else if(d_images.contains(selectedMarker)>0)
 		{
 			int index=d_images.indexOf(selectedMarker);
-			int imagesOnPlot=d_images.size();
-			for (int i=index; i<imagesOnPlot; i++)
+			int last_image_marker = d_images.size() - 1;
+			for (int i=index; i < last_image_marker; i++)
 				d_images[i]=d_images[i+1];
-			d_images.resize(--imagesOnPlot);
+			d_images.resize(last_image_marker);
 		}
 		selectedMarker=-1;
 	}

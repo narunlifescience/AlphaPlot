@@ -6423,12 +6423,12 @@ Die folgenden Spezialcodes können benutzt werden:
     </message>
     <message>
         <location filename="../src/Convolution.cpp" line="54"/>
-        <source>The signal data set %1 do not exist!</source>
+        <source>The signal data set %1 does not exist!</source>
         <translation>Der Signaldatensatz %1 existiert nicht!</translation>
     </message>
     <message>
         <location filename="../src/Convolution.cpp" line="61"/>
-        <source>The response data set %1 do not exist!</source>
+        <source>The response data set %1 does not exist!</source>
         <translation>Der Antwortdatensatz %1 existiert nicht!</translation>
     </message>
     <message>
@@ -6476,7 +6476,7 @@ Die folgenden Spezialcodes können benutzt werden:
     </message>
     <message>
         <location filename="../src/Correlation.cpp" line="60"/>
-        <source>The data set %1 do not exist!</source>
+        <source>The data set %1 does not exist!</source>
         <translation>Der Datensatz %1 existiert nicht!</translation>
     </message>
     <message>

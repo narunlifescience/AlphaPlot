@@ -42,7 +42,7 @@ class Graph;
  * Additionally, a pointer to the parent Graph (#d_graph) is managed.
  * In the future, this class may provide other generic tool functionality.
  *
- * %Note that zooming and range selecting are somewhat special in that they can be active in addition
+ * %Note that zooming and range selection are somewhat special in that they can be active in addition
  * to other tools. These are handled as special cases, while all other tools are rendered mutually exclusive
  * by having Graph manage a pointer to the currently active tool (Graph::d_active_tool).
  *
@@ -54,7 +54,7 @@ class Graph;
  * during this call.
  *
  * Currently, plot tools are instantiated by ApplicationWindow and handed to the Graph in question;
- * this scheme will have to be revised for 
+ * this scheme will have to be revised for dynamically adding new tools via plugins.
  */
 class PlotToolInterface
 {
