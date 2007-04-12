@@ -66,4 +66,3 @@ class PlotToolInterface
 };
 
 #endif // ifndef PLOT_TOOL_INTERFACE_H
-

@@ -29,7 +29,8 @@
 #include "AssociationsDialog.h"
 #include "Table.h"
 #include "FunctionCurve.h"
-	
+#include "PlotCurve.h"
+
 #include <QLabel>
 #include <QListWidget>
 #include <QPushButton>
@@ -38,6 +39,8 @@
 #include <QCheckBox>
 #include <QEvent>
 #include <QLayout>
+#include <QApplication>
+#include <QMessageBox>
 
 AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
@@ -71,7 +74,7 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
 	associations->setSelectionMode ( QListWidget::SingleSelection );
     vl->addWidget(associations);
     
-	btnApply = new QPushButton(tr( "&Update curve" ));
+	btnApply = new QPushButton(tr( "&Update curves" ));
     btnOK = new QPushButton( tr( "&OK" ) );
 	btnOK->setDefault( true );
     btnCancel = new QPushButton( tr( "&Cancel" ) );
@@ -87,27 +90,30 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
 	
 	active_table = 0;
 
-connect(associations, SIGNAL(currentRowChanged(int)), this, SLOT(updateTable(int)));
-connect(btnOK, SIGNAL(clicked()),this, SLOT(accept()));
-connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
-connect(btnApply, SIGNAL(clicked()),this, SLOT(updateCurve()));
+	connect(associations, SIGNAL(currentRowChanged(int)), this, SLOT(updateTable(int)));
+	connect(btnOK, SIGNAL(clicked()),this, SLOT(accept()));
+	connect(btnCancel, SIGNAL(clicked()),this, SLOT(close()));
+	connect(btnApply, SIGNAL(clicked()),this, SLOT(updateCurves()));
 }
 
 void AssociationsDialog::accept()
 {
-updateCurve();
+updateCurves();
 close();
 }
 
-void AssociationsDialog::updateCurve()
+void AssociationsDialog::updateCurves()
 {
-int index = associations->currentRow();
-Table *t = findTable(index);
-if (t && graph)
-	{
-	graph->changePlotAssociation(t, index, plotAssociation(associations->currentItem()->text()));
+	if (!graph)
+		return;
+	
+	QApplication::setOverrideCursor(Qt::waitCursor);
+
+	for (int i = 0; i < associations->count(); i++)
+		graph->changePlotAssociation(i, plotAssociation(associations->item(i)->text()));	
 	graph->updatePlot();
-	}
+	
+	QApplication::restoreOverrideCursor();
 }
 
 QString AssociationsDialog::plotAssociation(const QString& text)
@@ -217,7 +223,7 @@ for (int i=0; i < table->rowCount(); i++ )
 		it->setChecked(false);
 	}
 
-bool xerr = false, yerr = false, vectXYXY = false;
+bool xerr = false, yerr = false, vectors = false;
 QString errColName, xEndColName, yEndColName;
 if (n > 2)
 	{
@@ -242,18 +248,26 @@ if (n > 2)
 		}
 	else if (cols.count() > 3 && cols[2].contains("(X)") && cols[3].contains("(Y)"))
 		{
-		vectXYXY = true;
+		vectors = true;
 		xEndColName = cols[2].remove("(X)");
 		yEndColName = cols[3].remove("(Y)");
 		table->horizontalHeaderItem(3)->setText(tr("xEnd"));
 		table->horizontalHeaderItem(4)->setText(tr("yEnd"));
+		}
+	else if (cols.count() > 3 && cols[2].contains("(A)") && cols[3].contains("(M)"))
+		{
+		vectors = true;
+		xEndColName = cols[2].remove("(A)");
+		yEndColName = cols[3].remove("(M)");
+		table->horizontalHeaderItem(3)->setText(tr("Angle"));
+		table->horizontalHeaderItem(4)->setText(tr("Magn."));
 		}
 	}
 
 for (int i=0; i < table->rowCount(); i++ )
 	{
 	it = (QCheckBox *)table->cellWidget(i, 3);
-	if (xerr || vectXYXY)
+	if (xerr || vectors)
 		{
 		if (table->item(i,0)->text() == errColName || table->item(i,0)->text() == xEndColName)
 			it->setChecked(true);
@@ -264,7 +278,7 @@ for (int i=0; i < table->rowCount(); i++ )
 		it->setChecked(false);	
 
 	it = (QCheckBox *)table->cellWidget(i, 4);
-	if (yerr || vectXYXY)
+	if (yerr || vectors)
 		{
 		if (table->item(i,0)->text() == errColName || table->item(i,0)->text() == yEndColName)
 			it->setChecked(true);
@@ -290,12 +304,12 @@ void AssociationsDialog::setGraph(Graph *g)
 {
 graph = g;
 
-QStringList names = g->plotAssociations();
+QStringList names = graph->plotAssociations();
 QStringList newNames;
 for (int i=0;i<(int)names.count();i++)
 	{
-	QString s=names[i];
-	int pos=s.find("_",0);
+	QString s = names[i];
+	int pos = s.find("_",0);
 	const QwtPlotItem *c = (QwtPlotItem *)graph->curve(i);
   	if (!c || c->rtti() == FunctionCurve::RTTI)
   		continue;
@@ -318,7 +332,7 @@ void AssociationsDialog::updatePlotAssociation(int row, int col)
 {
 int index = associations->currentRow();
 QString text = associations->currentItem()->text();
-QStringList lst= text.split(": ", QString::SkipEmptyParts);
+QStringList lst = text.split(": ", QString::SkipEmptyParts);
 QStringList cols = lst[1].split(",", QString::SkipEmptyParts);
 
 if (col == 1)
@@ -333,13 +347,18 @@ else if (col == 2)
 	}
 else if (col == 3)
 	{
-	if (text.contains("(X)", true) == 1)
+	if (text.contains("(A)"))
+		{//vect XYAM curve
+		cols[2] = table->item(row, 0)->text() + "(A)";
+		text = lst[0] + ": " + cols.join(",");
+		}
+	else if (!text.contains("(A)") && text.count("(X)") == 1)
 		{
 		cols[2] = table->item(row, 0)->text() + "(xErr)";
 		text = lst[0] + ": " + cols.join(",");
 		uncheckCol(4);
 		}
-	else if (text.contains("(X)", true) == 2)
+	else if (text.count("(X)") == 2)
 		{//vect XYXY curve
 		cols[2] = table->item(row, 0)->text() + "(X)";
 		text = lst[0] + ": " + cols.join(",");
@@ -347,13 +366,18 @@ else if (col == 3)
 	}
 else if (col == 4)
 	{
-	if (text.contains("(X)", true) == 1)
+	if (text.contains("(M)"))
+		{//vect XYAM curve
+		cols[3] = table->item(row, 0)->text() + "(M)";
+		text = lst[0] + ": " + cols.join(",");
+		}
+	else if (!text.contains("(M)") && text.count("(X)") == 1)
 		{
 		cols[2] = table->item(row, 0)->text() + "(yErr)";
 		text = lst[0] + ": " + cols.join(",");
 		uncheckCol(3);
 		}
-	else if (text.contains("(Y)", true) == 2)
+	else if (text.count("(Y)") == 2)
 		{//vect XYXY curve
 		cols[3] = table->item(row, 0)->text() + "(Y)";
 		text = lst[0] + ": " + cols.join(",");

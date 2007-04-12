@@ -187,7 +187,7 @@ public slots:
 	//@{
 	MultiLayer* copyGraph();
 	MultiLayer* multilayerPlot(int c, int r, int style);
-	MultiLayer* multilayerPlot(Table* w,const QStringList& colList, int style);
+	MultiLayer* multilayerPlot(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
 	//! used when restoring a plot from a project file
 	MultiLayer* multilayerPlot(const QString& caption);
 	//! used by the plot wizard
@@ -617,6 +617,8 @@ public slots:
 	void showTitleDialog();
 	void showExportASCIIDialog();
 	void showCurvesDialog();
+	void showCurveRangeDialog();
+	void showCurveRangeDialog(Graph *g, int curve);
 	void showPlotAssociations(int curve);
 
 	void showXAxisTitleDialog();
@@ -688,6 +690,7 @@ public slots:
 
 	//! Removes the curve identified by a key stored in the data() of actionRemoveCurve.
 	void removeCurve();
+	void setCurveFullRange();
 
 	void setAscValues();
 	void setRandomValues();
@@ -1012,6 +1015,7 @@ private:
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	QMenu *scriptingMenu;
+	QAction *actionEditCurveRange, *actionCurveFullRange;
 	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;

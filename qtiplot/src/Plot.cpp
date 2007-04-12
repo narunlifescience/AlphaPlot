@@ -42,7 +42,7 @@
 
 #include <QPainter>
 
-Plot::Plot(QWidget *parent, const char *name)
+Plot::Plot(QWidget *parent, const char *)
 : QwtPlot(parent)
 {
 	setAutoReplot (false);

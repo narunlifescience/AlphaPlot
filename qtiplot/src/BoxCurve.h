@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Box curve
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,17 +29,18 @@
 #ifndef BOXCURVE_H
 #define BOXCURVE_H
 
+#include "PlotCurve.h"
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
 #include <qwt_symbol.h>
 
 //! Box curve
-class BoxCurve: public QwtPlotCurve
+class BoxCurve: public PlotCurve
 {
 public:
 	enum BoxStyle{NoBox, Rect, Diamond, WindBox, Notch};
 	enum Range{None, SD, SE, r25_75, r10_90, r5_95, r1_99, MinMax, UserDef};
-	BoxCurve(const char *name=0);
+	
+	BoxCurve(Table *t, const char *name, int startRow, int endRow);
 
 	void copy(const BoxCurve *b);
 
@@ -73,13 +74,15 @@ public:
 	double whiskersRange(){return w_coeff;};
 	int whiskersRangeType(){return w_range;};
 	void setWhiskersRange(int type, double coeff);
-	
+
 private:
-	void draw(QPainter *painter,const QwtScaleMap &xMap, 
+	void reloadData();
+
+	void draw(QPainter *painter,const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, int from, int to) const;
-	void drawBox(QPainter *painter, const QwtScaleMap &xMap, 
+	void drawBox(QPainter *painter, const QwtScaleMap &xMap,
 				const QwtScaleMap &yMap, double *dat, int size) const;
-	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap, 
+	void drawSymbols(QPainter *painter, const QwtScaleMap &xMap,
 				const QwtScaleMap &yMap, double *dat, int size) const;
 
 	QwtSymbol::Style min_style, max_style, mean_style, p99_style, p1_style;
@@ -99,11 +102,11 @@ public:
 	};
 
     virtual QwtData *copy() const{return new QwtSingleArrayData(d_x, d_y, size());};
- 
+
     virtual size_t size() const{return d_y.size();};
     virtual double x(size_t) const{return d_x;};
     virtual double y(size_t i) const{return d_y[int(i)];};
- 
+
 private:
     QwtArray<double> d_y;
 	double d_x;

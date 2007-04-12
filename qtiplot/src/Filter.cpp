@@ -31,6 +31,7 @@
 #include "ColorBox.h"
 #include "Table.h"
 #include "FunctionCurve.h"
+#include "PlotCurve.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -318,19 +319,18 @@ void Filter::addResultCurve(double *x, double *y)
 {
     ApplicationWindow *app = (ApplicationWindow *)parent();
     const QString tableName = app->generateUniqueName(QString(this->name()));
-	const QString label = tableName + "_2";
-	QwtPlotCurve *c = new QwtPlotCurve(label);
-	c->setData(x, y, d_points);
-    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	d_graph->insertPlotItem(c, tableName + "_1(X)," + label + "(Y)", Graph::Line);
-    d_graph->updatePlot();
-
     Table *t = app->newHiddenTable(tableName, d_explanation + " " + tr("of") + " " + d_curve->title().text(), d_points, 2);
 	for (int i=0; i<d_points; i++)
 	{
 		t->setText(i, 0, QString::number(x[i], 'g', 15));
 		t->setText(i, 1, QString::number(y[i], 'g', 15));
 	}
+	
+	PlotCurve *c = new PlotCurve(t, tableName + "_1", tableName + "_2");
+	c->setData(x, y, d_points);
+    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+	d_graph->insertPlotItem(c, Graph::Line);
+    d_graph->updatePlot();
 
     delete[] x;
 	delete[] y;

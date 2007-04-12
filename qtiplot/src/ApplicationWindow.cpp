@@ -96,6 +96,7 @@
 #include "FFTFilter.h"
 #include "Convolution.h"
 #include "Correlation.h"
+#include "CurveRangeDialog.h"
 
 // TODO: move tool-specific code to an extension manager
 #include "ScreenPickerTool.h"
@@ -1547,46 +1548,9 @@ void ApplicationWindow::updateTableNames(const QString& oldName, const QString& 
 	{
 		if (w->isA("MultiLayer"))
 		{
-			QWidgetList gr_lst= ((MultiLayer*)w)->graphPtrs();
-			Graph *g;
+			QWidgetList gr_lst = ((MultiLayer*)w)->graphPtrs();
 			foreach(QWidget *widget, gr_lst)
-			{
-				g = (Graph *)widget;
-				//update plotted curves list
-				QStringList onPlot=g->curvesList();
-				for (int i=0; i<(int)onPlot.count(); i++)
-				{
-					QStringList cols = onPlot[i].split("_", QString::SkipEmptyParts);
-					if (cols[0] == oldName)
-						onPlot[i] = newName + "_" + cols[1];
-				}
-				g->insertPlottedList(onPlot);
-
-				//update plot associations
-				onPlot=g->plotAssociations();
-				for (int k=0; k<(int)onPlot.count(); k++)
-				{
-					QStringList cols = onPlot[k].split(",", QString::SkipEmptyParts);
-					for (int l=0; l<(int)cols.count(); l++)
-					{
-						QStringList lst = cols[l].split("_", QString::SkipEmptyParts);
-						if (lst[0] == oldName)
-							cols[l] = newName + "_" + lst[1];
-					}
-					onPlot[k] = cols.join (",");
-				}
-				g->setPlotAssociations(onPlot);
-
-				//update legend
-				LegendMarker *legendMrk = g->legend();
-				if (legendMrk)
-				{
-					onPlot = legendMrk->text().split("\n", QString::SkipEmptyParts);
-					onPlot.replaceInStrings (oldName,newName);
-					legendMrk->setText(onPlot.join("\n"));
-					g->replot();
-				}
-			}
+				((Graph *)widget)->updateCurveNames(oldName, newName);
 		}
 		else if (w->isA("Graph3D"))
 		{
@@ -1609,48 +1573,8 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 		if (w->isA("MultiLayer"))
 		{
 			QWidgetList gr_lst= ((MultiLayer*)w)->graphPtrs();
-			Graph *g;
 			foreach (QWidget *widget, gr_lst)
-			{
-				g = (Graph *)widget;
-				//update plotted curves list
-				QStringList onPlot=g->curvesList();
-				for (int i=0; i<(int)onPlot.count(); i++)
-				{
-					if (onPlot[i] == oldName)
-						onPlot[i] = newName;
-				}
-				g->insertPlottedList(onPlot);
-
-				//update plot associations
-				onPlot=g->plotAssociations();
-				for (int k=0; k<(int)onPlot.count(); k++)
-				{
-					QStringList cols = onPlot[k].split(",", QString::SkipEmptyParts);
-					for (int l=0; l<(int)cols.count(); l++)
-					{
-						QString s = cols[l];
-						int pos = s.findRev("(");
-						QString colName = s.left(pos);
-						QString endString = s.right(s.length()-pos);
-
-						if (colName == oldName)
-							cols[l] = newName + endString;
-					}
-					onPlot[k] = cols.join (",");
-				}
-				g->setPlotAssociations(onPlot);
-
-				//update legend
-				LegendMarker *legendMrk = g->legend();
-				if (legendMrk)
-				{
-					onPlot = legendMrk->text().split("\n", QString::SkipEmptyParts);
-					onPlot.replaceInStrings (oldName,newName);
-					legendMrk->setText(onPlot.join("\n"));
-					g->replot();
-				}
-			}
+                ((Graph *)widget)->updateCurveNames(oldName, newName, false);
 		}
 		else if (w->isA("Graph3D"))
 		{
@@ -2263,19 +2187,18 @@ MultiLayer* ApplicationWindow::newGraph(const QString& caption)
 	return ml;
 }
 
-MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colList, int style)
+MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colList, int style, int startRow, int endRow)
 {//used when plotting selected columns
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
-	//initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 
 	Graph *ag = g->addLayer();
 	if (!ag)
 		return 0;
 
-	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize);
+	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize, startRow, endRow);
 
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 	customGraph(ag);
@@ -2971,7 +2894,7 @@ void ApplicationWindow::addErrorBars()
     connect (ed,SIGNAL(options(const QString&,int,const QString&,int)),this,SLOT(defineErrorBars(const QString&,int,const QString&,int)));
     connect (ed,SIGNAL(options(const QString&,const QString&,int)),this,SLOT(defineErrorBars(const QString&,const QString&,int)));
 
-    ed->setCurveNames(g->curvesList());
+    ed->setCurveNames(g->analysableCurvesList());
     ed->setSrcTables(tableList());
     ed->exec();
 }
@@ -2993,7 +2916,8 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 		return;
 	}
 
-	QString xColName = g->curveXColName(name);
+	PlotCurve *master_curve = (PlotCurve *)g->curve(name);
+	QString xColName = master_curve->xColumnName();
 	if (xColName.isEmpty())
 		return;
 
@@ -3536,6 +3460,8 @@ void ApplicationWindow::open()
 	QString filter = tr("QtiPlot project") + " (*.qti);;";
 	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
+	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
+	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
 	filter += tr("Backup files") + " (*.qti~);;";
 	filter += tr("All files") + " (*);;";
 
@@ -3559,7 +3485,8 @@ void ApplicationWindow::open()
 		}
 
 		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
-            fn.endsWith(".opj",Qt::CaseInsensitive))
+            fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
+			fn.endsWith(".ogw",Qt::CaseInsensitive))
 		{
 			if (!fi.exists ())
 			{
@@ -3588,7 +3515,8 @@ void ApplicationWindow::open()
 
 ApplicationWindow* ApplicationWindow::open(const QString& fn)
 {
-	if (fn.endsWith(".opj", Qt::CaseInsensitive))
+	if (fn.endsWith(".opj", Qt::CaseInsensitive) || fn.endsWith(".ogm", Qt::CaseInsensitive) ||
+		fn.endsWith(".ogw", Qt::CaseInsensitive))
 		return importOPJ(fn);
 	else if (!( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
                 fn.endsWith(".qti~",Qt::CaseInsensitive)))
@@ -4956,7 +4884,8 @@ Folder* ApplicationWindow::projectFolder()
 
 bool ApplicationWindow::saveProject()
 {
-	if (projectname == "untitled" || projectname.contains(".opj", Qt::CaseInsensitive))
+	if (projectname == "untitled" || projectname.endsWith(".opj", Qt::CaseInsensitive) ||
+		projectname.endsWith(".ogm", Qt::CaseInsensitive) || projectname.endsWith(".ogw", Qt::CaseInsensitive))
 	{
 		saveProjectAs();
 		return false;
@@ -5221,10 +5150,10 @@ void ApplicationWindow::showCurvesDialog()
 	}
 	else
 	{
-		CurvesDialog* crvDialog = new CurvesDialog(this, "curves", true, Qt::WindowStaysOnTopHint);
+		CurvesDialog* crvDialog = new CurvesDialog(this, "curves", true);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
 		crvDialog->setGraph(g);
-		crvDialog->exec();
+		crvDialog->show();
 	}
 }
 
@@ -6247,7 +6176,7 @@ QDialog* ApplicationWindow::showPieDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g)
 	{
-		PieDialog* pd = new PieDialog(this,"PlotDialog",true,0);
+		PieDialog* pd = new PieDialog(this, "PlotDialog", true);
 		connect (pd,SIGNAL(drawFrame(bool,int,const QColor&)),g,SLOT(drawCanvasFrame(bool,int,const QColor& )));
 		connect (pd,SIGNAL(toggleCurve()),g,SLOT(removePie()));
 		connect (pd,SIGNAL(updatePie(const QPen&, const Qt::BrushStyle &,int,int)),g,SLOT(updatePie(const QPen&, const Qt::BrushStyle &,int,int)));
@@ -6276,12 +6205,12 @@ void ApplicationWindow::showPlotDialog()
 		{
 			if (!g->isPiePlot())
 			{
-				PlotDialog* pd = new PlotDialog(this,"PlotDialog",false,0);
+				PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
 				pd->setAttribute(Qt::WA_DeleteOnClose);
 				pd->insertColumnsList(columnsList(Table::All));
 				pd->setGraph(g);
 				pd->selectCurve(0);
-				pd->exec();
+				pd->show();
 			}
 			else
 				showPieDialog();
@@ -6313,7 +6242,7 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 			pd->insertColumnsList(columnsList(Table::All));
 			pd->setGraph(g);
 			pd->selectCurve(g->curveIndex(curveKey));
-			pd->exec();
+			pd->show();
 		}
 		else
             showPieDialog();
@@ -6331,7 +6260,7 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 		return;
 
 	Graph *g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	QwtPlotCurve *c = g->curve(g->curveIndex(curveKey));
+	PlotCurve *c = (PlotCurve *)g->curve(g->curveIndex(curveKey));
 	if (!c)
 		return;
 
@@ -6343,6 +6272,20 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	{
 		curveMenu.addAction(actionEditFunction);
 		actionEditFunction->setData(curveKey);
+	}
+	else if (c->type() != Graph::ErrorBars)
+	{
+		curveMenu.addAction(actionEditCurveRange);
+		actionEditCurveRange->setData(curveKey);
+		
+		curveMenu.addAction(actionCurveFullRange);
+		if (c->isFullRange())
+			actionCurveFullRange->setDisabled(true);
+		else
+			actionCurveFullRange->setEnabled(true);
+		actionCurveFullRange->setData(curveKey);
+		
+		curveMenu.insertSeparator();
 	}
 
 	curveMenu.addAction(actionShowCurveWorksheet);
@@ -8960,6 +8903,43 @@ void ApplicationWindow::showPlotWizard()
 					"<p><h4>Please create a table and try again!</h4>"));
 }
 
+void ApplicationWindow::setCurveFullRange()
+{
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	int curveKey = actionCurveFullRange->data().toInt();
+	g->setCurveFullRange(g->curveIndex(curveKey));	
+}
+
+void ApplicationWindow::showCurveRangeDialog()
+{
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	int curveKey = actionEditCurveRange->data().toInt();
+	showCurveRangeDialog(g, g->curveIndex(curveKey));
+}
+
+void ApplicationWindow::showCurveRangeDialog(Graph *g, int curve)
+{
+	if ( !g )
+		return;
+
+	CurveRangeDialog* crd = new CurveRangeDialog(this, "FunctionDialog", true);
+	crd->setAttribute(Qt::WA_DeleteOnClose);
+	crd->setCurveToModify(g, curve);
+	crd->exec();
+}
+
 void ApplicationWindow::showFunctionDialog()
 {
     if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
@@ -8985,7 +8965,7 @@ void ApplicationWindow::showFunctionDialog(Graph *g, int curve)
 
 FunctionDialog* ApplicationWindow::functionDialog()
 {
-	FunctionDialog* fd= new FunctionDialog(this,"FunctionDialog",true,0);
+	FunctionDialog* fd= new FunctionDialog(this,"FunctionDialog",true);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (fd,SIGNAL(clearParamFunctionsList()),this,SLOT(clearParamFunctionsList()));
 	connect (fd,SIGNAL(clearPolarFunctionsList()),this,SLOT(clearPolarFunctionsList()));
@@ -10153,15 +10133,15 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 						colsList.prepend(curve[1]);
 					ag->plotVectorCurve(w, colsList, plotType);
 					if (d_file_version <= 77)
-						ag->updateVectorsLayout(w, curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
+						ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
 								curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
 					else
 					{
 						if(plotType == Graph::VectXYXY)
-							ag->setVectorsLook(curveID, QColor(curve[15]), curve[16].toInt(),
+							ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(),
 									curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
 						else
-							ag->setVectorsLook(curveID, QColor(curve[15]), curve[16].toInt(), curve[17].toInt(),
+							ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
 									curve[18].toInt(), curve[19].toInt(), curve[22].toInt());
 					}
 				}
@@ -10253,16 +10233,6 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				ag->addErrorBars(w, curve[2], curve[3], errTable, curve[4], curve[1].toInt(),
 						curve[5].toInt(), curve[6].toInt(), QColor(curve[7]),
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt());
-
-				if (d_file_version > 85)
-				{
-					QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)ag->curve(curveID);
-					if (er)
-					{
-						er->setXDataOffset(curve[11].toDouble());
-						er->setYDataOffset(curve[12].toDouble());
-					}
-				}
 			}
 			curveID++;
 		}
@@ -10800,7 +10770,8 @@ void ApplicationWindow::connectTable(Table* w)
 	connect (w,SIGNAL(removedCol(const QString&)),this,SLOT(removeCurves(const QString&)));
 	connect (w,SIGNAL(modifiedData(Table *, const QString&)),
 			this,SLOT(updateCurves(Table *, const QString&)));
-	connect (w,SIGNAL(plotCol(Table*,const QStringList&, int)),this, SLOT(multilayerPlot(Table*,const QStringList&, int)));
+	connect (w,SIGNAL(plotCol(Table*,const QStringList&, int, int, int)),
+			this, SLOT(multilayerPlot(Table*,const QStringList&, int, int, int)));
 	connect (w,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (w,SIGNAL(optionsDialog()),this,SLOT(showColumnOptionsDialog()));
 	connect (w,SIGNAL(colValuesDialog()),this,SLOT(showColumnValuesDialog()));
@@ -11459,6 +11430,13 @@ void ApplicationWindow::createActions()
 
 	actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
 	connect(actionShowCurveWorksheet, SIGNAL(activated()), this, SLOT(showCurveWorksheet()));
+
+	
+	actionCurveFullRange = new QAction(tr("&Set full range"), this);
+	connect(actionCurveFullRange, SIGNAL(activated()), this, SLOT(setCurveFullRange()));
+
+	actionEditCurveRange = new QAction(tr("&Edit range..."), this);
+	connect(actionEditCurveRange, SIGNAL(activated()), this, SLOT(showCurveRangeDialog()));
 
 	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);
 	connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
@@ -12453,7 +12431,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
 			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
 			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n\n";
-			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj or ASCII file") + "\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw or ASCII file") + "\n";
 			#ifdef Q_OS_WIN
                 hide();
 				QMessageBox::information(this, tr("QtiPlot - Help"), s);
@@ -12645,6 +12623,8 @@ void ApplicationWindow::appendProject()
 	QString filter = tr("QtiPlot project") + " (*.qti);;";
 	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
+	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
+	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open project"), workingDir, filter);
 
@@ -12654,7 +12634,8 @@ void ApplicationWindow::appendProject()
 	QFileInfo fi(fn);
 	workingDir = fi.dirPath(true);
 
-	if (fn.contains(".qti",true) || fn.contains(".opj",false))
+	if (fn.contains(".qti",true) || fn.contains(".opj",false) ||
+		fn.contains(".ogm",false) || fn.contains(".ogw",false))
 	{
 		QFileInfo f(fn);
 		if (!f.exists ())
@@ -12699,7 +12680,7 @@ void ApplicationWindow::appendProject()
 	FolderListItem *fli = new FolderListItem(item, current_folder);
 	current_folder->setFolderListItem(fli);
 
-	if (fn.contains(".opj", false))
+	if (fn.contains(".opj", false) || fn.contains(".ogm",false) || fn.contains(".ogw",false))
 		ImportOPJ(this, fn);
 	else
 	{

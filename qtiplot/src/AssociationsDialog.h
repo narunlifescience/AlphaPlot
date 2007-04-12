@@ -60,7 +60,7 @@ public slots:
 	void updateColumnTypes();
 	void uncheckCol(int col);
 	void updatePlotAssociation(int row, int col);
-	void updateCurve();
+	void updateCurves();
 	void accept();
 	QString plotAssociation(const QString& text);
 	void setGraph(Graph *g);

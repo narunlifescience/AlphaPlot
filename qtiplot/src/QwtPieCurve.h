@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
+#include "PlotCurve.h"
 
 //! Pie plot class
-class QwtPieCurve: public QwtPlotCurve
+class QwtPieCurve: public PlotCurve
 {
 public:
-	QwtPieCurve(const char *name=0);
+	QwtPieCurve(Table *t, const char *name, int startRow, int endRow);
 
 public slots:
 	QColor color(int i) const;
@@ -46,6 +46,8 @@ public slots:
 
 	void setFirstColor(int index){d_first_color = index;};
 	int firstColor(){return d_first_color;};
+	
+	void reloadData();
 
 private:
 	void draw(QPainter *painter,const QwtScaleMap &xMap,

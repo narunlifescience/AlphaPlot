@@ -29,26 +29,20 @@
 #include "QwtBarCurve.h"
 #include <QPainter>
 
-QwtBarCurve::QwtBarCurve(const char *name):
-    QwtPlotCurve(name)
-{
-bar_offset=0;
-bar_gap=0;
-bar_style=Vertical;
-
-setPen(QPen(Qt::black,1,Qt::SolidLine));
-setBrush(QBrush(Qt::red));
-}
-
-QwtBarCurve::QwtBarCurve(BarStyle style, const char *name):
-    QwtPlotCurve(name)
+QwtBarCurve::QwtBarCurve(BarStyle style, Table *t, const QString& xColName, const char *name, int startRow, int endRow):
+    PlotCurve(t, xColName, name, startRow, endRow)
 {
 bar_offset=0;
 bar_gap=0;
 bar_style=style;
 
-setPen(QPen(Qt::black,1,Qt::SolidLine));
+setPen(QPen(Qt::black, 1, Qt::SolidLine));
 setBrush(QBrush(Qt::red));
+	
+if (bar_style == Vertical)
+	setType(Graph::VerticalBars);
+else
+	setType(Graph::HorizontalBars);
 }
 
 void QwtBarCurve::copy(const QwtBarCurve *b)

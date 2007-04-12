@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Box curve
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -28,11 +28,12 @@
  ***************************************************************************/
 #include "BoxCurve.h"
 #include <QPainter>
-#include <qwt_symbol.h>
+
+#include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
 
-BoxCurve::BoxCurve(const char *name):
-	QwtPlotCurve(name)
+BoxCurve::BoxCurve(Table *t, const char *name, int startRow, int endRow):
+	PlotCurve(t, QString(), name, startRow, endRow)
 {
 	mean_style = QwtSymbol::Rect;
 	max_style = QwtSymbol::XCross;
@@ -49,7 +50,7 @@ BoxCurve::BoxCurve(const char *name):
 }
 
 void BoxCurve::copy(const BoxCurve *b)
-{	
+{
 	mean_style = b->mean_style;
 	max_style = b->max_style;
 	min_style = b->min_style;
@@ -88,7 +89,7 @@ void BoxCurve::draw(QPainter *painter,
 	delete[] dat;
 }
 
-void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap, 
+void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, double *dat, int size) const
 {
 	const int px = xMap.transform(x(0));
@@ -131,8 +132,8 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 	}
 	else if (b_style == Diamond)
 	{
-		QPolygon pa(4);	
-		pa[0] = QPoint(px, b_upperq);	
+		QPolygon pa(4);
+		pa[0] = QPoint(px, b_upperq);
 		pa[1] = QPoint(px + hbw, median);
 		pa[2] = QPoint(px, b_lowerq);
 		pa[3] = QPoint(px - hbw, median);
@@ -144,15 +145,15 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 	{
 		const int lowerq = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.25));
 		const int upperq = yMap.transform(gsl_stats_quantile_from_sorted_data (dat, 1, size, 0.75));
-		QPolygon pa(8);	
-		pa[0] = QPoint(px + hbw, b_upperq);	
+		QPolygon pa(8);
+		pa[0] = QPoint(px + hbw, b_upperq);
 		pa[1] = QPoint(int(px + 0.4*box_width), upperq);
 		pa[2] = QPoint(int(px + 0.4*box_width), lowerq);
 		pa[3] = QPoint(px + hbw, b_lowerq);
 		pa[4] = QPoint(px - hbw, b_lowerq);
 		pa[5] = QPoint(int(px - 0.4*box_width), lowerq);
 		pa[6] = QPoint(int(px - 0.4*box_width), upperq);
-		pa[7] = QPoint(px - hbw, b_upperq);	
+		pa[7] = QPoint(px - hbw, b_upperq);
 
 		painter->setBrush(QwtPlotCurve::brush());
 		painter->drawPolygon(pa);
@@ -164,8 +165,8 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 		const int lowerCI = yMap.transform(dat[j]);
 		const int upperCI = yMap.transform(dat[k]);
 
-		QPolygon pa(10);	
-		pa[0] = QPoint(px + hbw, b_upperq);	
+		QPolygon pa(10);
+		pa[0] = QPoint(px + hbw, b_upperq);
 		pa[1] = QPoint(px + hbw, upperCI);
 		pa[2] = QPoint(int(px + 0.25*hbw), median);
 		pa[3] = QPoint(px + hbw, lowerCI);
@@ -174,7 +175,7 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 		pa[6] = QPoint(px - hbw, lowerCI);
 		pa[7] = QPoint(int(px - 0.25*hbw), median);
 		pa[8] = QPoint(px - hbw, upperCI);
-		pa[9] = QPoint(px - hbw, b_upperq);	
+		pa[9] = QPoint(px - hbw, b_upperq);
 
 		painter->setBrush(QwtPlotCurve::brush());
 		painter->drawPolygon(pa);
@@ -223,7 +224,7 @@ void BoxCurve::drawBox(QPainter *painter, const QwtScaleMap &xMap,
 		painter->drawLine(px - hbw, median, px + hbw, median);
 }
 
-void BoxCurve::drawSymbols(QPainter *painter, const QwtScaleMap &xMap, 
+void BoxCurve::drawSymbols(QPainter *painter, const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, double *dat, int size) const
 {
 	const int px = xMap.transform(x(0));
@@ -322,4 +323,26 @@ QwtDoubleRect BoxCurve::boundingRect() const
 	rect.setLeft(rect.left()-0.5);
 	rect.setRight(rect.right()+0.5);
 	return rect;
+}
+
+void BoxCurve::reloadData()
+{
+	QVector<double> Y(abs(d_end_row - d_start_row) + 1);
+    int ycol = d_table->colIndex(title().text());
+	int size=0;
+	for (int i = d_start_row; i <= d_end_row; i++)
+	{
+		QString s = d_table->text(i, ycol);
+        if (!s.isEmpty())
+            Y[size++] = s.toDouble();
+	}
+
+	if (size>0)
+	{
+		Y.resize(size);
+		gsl_sort (Y.data(), 1, size);
+        setData(QwtSingleArrayData(this->x(0), Y, size));
+	}
+	else
+		remove();
 }

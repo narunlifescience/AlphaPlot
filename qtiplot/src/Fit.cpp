@@ -532,7 +532,7 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 		formula.replace(d_param_names[j], parameter);
 	}
 	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
-	d_graph->insertPlotItem(c, title, Graph::Line);
+	d_graph->insertPlotItem(c, Graph::Line);
 }
 
 Fit::~Fit()

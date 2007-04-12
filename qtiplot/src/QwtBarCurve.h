@@ -29,16 +29,15 @@
 #ifndef BARCURVE_H
 #define BARCURVE_H
 
+#include "PlotCurve.h"
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
 
 //! Bar curve
-class QwtBarCurve: public QwtPlotCurve
+class QwtBarCurve: public PlotCurve
 {
 public:
-	enum BarStyle{Vertical = 0, Horizontal=1};
-	QwtBarCurve(const char *name=0);
-	QwtBarCurve(BarStyle style, const char *name=0);
+	enum BarStyle{Vertical = 0, Horizontal = 1};
+	QwtBarCurve(BarStyle style, Table *t, const QString& xColName, const char *name, int startRow, int endRow);
 
 	void copy(const QwtBarCurve *b);
 

@@ -138,7 +138,7 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     connect(shortcut, SIGNAL(activated()), this, SLOT(removeSelectedCurve()));
 }
 
-void PlotDialog::showPlotAssociations( QListWidgetItem *item)
+void PlotDialog::showPlotAssociations(QListWidgetItem *item)
 {
 	if (!item)
 		return;
@@ -162,6 +162,7 @@ void PlotDialog::showPlotAssociations( QListWidgetItem *item)
   	    if (sp->matrix())
   	    	sp->matrix()->showMaximized();
   	    }
+	
 	close();
 }
 
@@ -170,6 +171,8 @@ void PlotDialog::showPlotAssociations()
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (app)
 		app->showPlotAssociations(listBox->currentRow());
+	
+	close();
 }
 
 void PlotDialog::changePlotType(int plotType)
@@ -815,8 +818,8 @@ void PlotDialog::setGraph(Graph *g)
 	insertCurvesList();
     resize(minimumSize());
 
-	connect( graph, SIGNAL(modifiedFunction()), this, SLOT(insertCurvesList() ) );
-	connect( graph, SIGNAL( modifiedPlotAssociation() ), this, SLOT( insertCurvesList() ) );
+	connect( graph, SIGNAL(modifiedFunction()), this, SLOT(insertCurvesList()));
+	connect( graph, SIGNAL( modifiedPlotAssociation() ), this, SLOT(insertCurvesList()));
 }
 
 void PlotDialog::selectCurve(int index)
@@ -882,11 +885,12 @@ void PlotDialog::editFunctionCurve()
 
 void PlotDialog::removeSelectedCurve()
 {
-	int curve=listBox->currentRow();
-	graph->removeCurve(curve);
-	QListWidgetItem *it =listBox->takeItem(curve);
-    delete it;
-
+	graph->removeCurve(listBox->currentRow());
+	graph->updatePlot();
+	
+	listBox->clear();
+	insertCurvesList();
+	
 	if (listBox->count() == 0)
 		close();
 }
@@ -1414,26 +1418,26 @@ bool PlotDialog::acceptParams()
 		graph->setBarsGap(listBox->currentRow(),gapBox->value(), offsetBox->value());
 	else if (privateTabWidget->currentPage() == vectPage)
 	{
-		int index=listBox->currentRow();
+		int index = listBox->currentRow();
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		if (!app)
 			return false;
 
 		QString xEndCol = xEndBox->currentText();
 		QString yEndCol = yEndBox->currentText();
-		Table* w=app->table(xEndCol);
+		Table* w = app->table(xEndCol);
 		if (!w)
 			return false;
 
-		graph->updateVectorsLayout(w, index, vectColorBox->currentIndex(), vectWidthBox->value(),
+		graph->updateVectorsLayout(index, vectColorBox->currentIndex(), vectWidthBox->value(),
 				headLengthBox->value(), headAngleBox->value(),
-				filledHeadBox->isChecked(),vectPosBox->currentIndex(),xEndCol,yEndCol);
+				filledHeadBox->isChecked(), vectPosBox->currentIndex(), xEndCol, yEndCol);
 
-		QString text=listBox->currentItem()->text();
-		QStringList t=text.split(": ", QString::SkipEmptyParts);
+		QString text = listBox->currentItem()->text();
+		QStringList t = text.split(": ", QString::SkipEmptyParts);
 		QString table = t[0];
 
-		QStringList cols=t[1].split(",", QString::SkipEmptyParts);
+		QStringList cols = t[1].split(",", QString::SkipEmptyParts);
 		if (graph->curveType(index) == Graph::VectXYXY)
 		{
 			xEndCol = xEndCol.remove(table + "_") + "(X)";
@@ -1449,7 +1453,7 @@ bool PlotDialog::acceptParams()
 		{
 			cols[2] = xEndCol;
 			cols[3] = yEndCol;
-			text=table + ": " + cols.join(",");
+			text = table + ": " + cols.join(",");
 			//listBox->changeItem (text, index);
 		}
 		return true;
@@ -1779,4 +1783,3 @@ void PlotDialog::pickContourLinesColor()
 
   	levelsColorBox->setColor(color);
 }
-

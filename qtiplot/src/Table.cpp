@@ -711,10 +711,10 @@ void Table::setColName(int col, const QString& text)
 QStringList Table::selectedColumns()
 {
 	QStringList names;
-	for (int i=0;i<worksheet->numCols();i++)
+	for (int i=0; i<worksheet->numCols(); i++)
 	{
-		if(worksheet->isColumnSelected (i,true))
-			names<<QString(name())+"_"+col_label[i];
+		if(worksheet->isColumnSelected (i))
+			names << QString(name()) + "_" + col_label[i];
 	}
 	return names;
 }
@@ -735,7 +735,7 @@ QStringList Table::selectedYColumns()
 	QStringList names;
 	for (int i=0;i<worksheet->numCols();i++)
 	{
-	if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
+	if(worksheet->isColumnSelected (i) && col_plot_type[i] == Y)
   		names<<QString(name())+"_"+col_label[i];
   	}
   	return names;
@@ -756,16 +756,16 @@ QStringList Table::selectedErrColumns()
 QStringList Table::drawableColumnSelection()
 {
   	QStringList names;
-  	for (int i=0;i<worksheet->numCols();i++)
+  	for (int i=0; i<worksheet->numCols(); i++)
   	{
-	if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
-		names<<QString(name())+"_"+col_label[i];
+	if(worksheet->isColumnSelected (i) && col_plot_type[i] == Y)
+		names << QString(name()) + "_" + col_label[i];
     }
 
-  	for (int j=0; j<worksheet->numCols(); j++)
+  	for (int i=0; i<worksheet->numCols(); i++)
   	{
-  	 	if(worksheet->isColumnSelected (j,true) && (col_plot_type[j] == yErr || col_plot_type[j] == xErr))
-  	    	names<<QString(name())+"_"+col_label[j];
+  	 	if(worksheet->isColumnSelected (i) && (col_plot_type[i] == yErr || col_plot_type[i] == xErr))
+  	    	names << QString(name()) + "_" + col_label[i];
   	}
 	return names;
 }
@@ -2031,7 +2031,8 @@ void Table::plotL()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::Line);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Line, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotP()
@@ -2039,7 +2040,8 @@ void Table::plotP()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::Scatter);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Scatter, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotLP()
@@ -2047,7 +2049,8 @@ void Table::plotLP()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::LineSymbols);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::LineSymbols, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotVB()
@@ -2055,7 +2058,8 @@ void Table::plotVB()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::VerticalBars);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalBars, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotHB()
@@ -2063,7 +2067,8 @@ void Table::plotHB()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalBars);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalBars, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotArea()
@@ -2071,7 +2076,8 @@ void Table::plotArea()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::Area);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Area, sel.topRow(), sel.bottomRow());
 }
 
 bool Table::noXColumn()
@@ -2106,9 +2112,12 @@ void Table::plotPie()
 
 	QStringList s=selectedColumns();
 	if (int(s.count())>0)
-		emit plotCol(this,s, Graph::Pie);
+	{
+		Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+		emit plotCol(this, s, Graph::Pie, sel.topRow(), sel.bottomRow());
+	}
 	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a column to plot!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select a column to plot!"));
 }
 
 void Table::plotVerticalDropLines()
@@ -2116,7 +2125,8 @@ void Table::plotVerticalDropLines()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::VerticalDropLines);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalDropLines, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotSpline()
@@ -2124,7 +2134,8 @@ void Table::plotSpline()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::Spline);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Spline, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotVertSteps()
@@ -2132,7 +2143,8 @@ void Table::plotVertSteps()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::VerticalSteps);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::VerticalSteps, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotHorSteps()
@@ -2140,7 +2152,8 @@ void Table::plotHorSteps()
 	if (!valid2DPlot())
 		return;
 
-	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalSteps);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::HorizontalSteps, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotHistogram()
@@ -2148,14 +2161,17 @@ void Table::plotHistogram()
 	if (!valid2DPlot())
 		return;
 
-	 emit plotCol(this, drawableColumnSelection(), Graph::Histogram);
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Histogram, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotBoxDiagram()
 {
 	if (!valid2DPlot())
 		return;
-	emit plotCol(this, drawableColumnSelection(), Graph::Box);
+
+	Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+	emit plotCol(this, drawableColumnSelection(), Graph::Box, sel.topRow(), sel.bottomRow());
 }
 
 void Table::plotVectXYXY()
@@ -2163,11 +2179,14 @@ void Table::plotVectXYXY()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedColumns();
+	QStringList s = selectedColumns();
 	if ((int)s.count() == 4)
-		emit plotCol(this, s, Graph::VectXYXY);
+	{
+		Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+		emit plotCol(this, s, Graph::VectXYXY, sel.topRow(), sel.bottomRow());
+	}
 	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"),tr("Please select four columns for this operation!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select four columns for this operation!"));
 }
 
 void Table::plotVectXYAM()
@@ -2175,28 +2194,31 @@ void Table::plotVectXYAM()
 	if (!valid2DPlot())
 		return;
 
-	QStringList s=selectedColumns();
+	QStringList s = selectedColumns();
 	if ((int)s.count() == 4)
-		emit plotCol(this, s, Graph::VectXYAM);
+	{
+		Q3TableSelection sel = worksheet->selection(worksheet->currentSelection());
+		emit plotCol(this, s, Graph::VectXYAM, sel.topRow(), sel.bottomRow());
+	}
 	else
-		QMessageBox::warning(0,tr("QtiPlot - Error"),tr("Please select four columns for this operation!"));
+		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select four columns for this operation!"));
 }
 
 bool Table::valid2DPlot()
 {
 	if (!selectedYColumns().count())
   	{
-  		QMessageBox::warning(0,tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
+  		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select a Y column to plot!"));
   	    return false;
   	}
   	else if (worksheet->numCols()<2)
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Error"),tr("You need at least two columns for this operation!"));
+		QMessageBox::critical(this, tr("QtiPlot - Error"),tr("You need at least two columns for this operation!"));
 		return false;
 	}
 	else if (noXColumn())
 	{
-		QMessageBox::critical(0,tr("QtiPlot - Error"), tr("Please set a default X column for this table, first!"));
+		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please set a default X column for this table, first!"));
 		return false;
 	}
 

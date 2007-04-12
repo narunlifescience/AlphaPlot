@@ -28,14 +28,14 @@
  ***************************************************************************/
 #include "QwtPieCurve.h"
 #include "ColorBox.h"
+#include "Table.h"
 
-#include <qwt_painter.h>
 #include <QPaintDevice>
 #include <QPainter>
-#include <QMessageBox>
+#include <QVarLengthArray>
 
-QwtPieCurve::QwtPieCurve(const char *name):
-    QwtPlotCurve(name)
+QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
+    PlotCurve(t, QString(), name, startRow, endRow)
 {
 d_pie_ray = 100;
 d_first_color = 0;
@@ -110,4 +110,22 @@ if (br.style() == style)
 
 br.setStyle(style);
 setBrush(br);
+}
+
+void QwtPieCurve::reloadData()
+{	
+	QVarLengthArray<double> X(abs(d_end_row - d_start_row) + 1);
+	int size = 0;
+	int ycol = d_table->colIndex(title().text());
+	for (int i = d_start_row; i <= d_end_row; i++ )
+	{
+		QString xval = d_table->text(i, ycol);
+		if (!xval.isEmpty())
+		{
+			X[size] = xval.toDouble();
+            size++;
+		}
+	}
+    X.resize(size);
+    setData(X.data(), X.data(), size);	
 }

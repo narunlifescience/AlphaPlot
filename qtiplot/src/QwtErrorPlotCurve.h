@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Error bars curve
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,18 +29,18 @@
 #ifndef ERRORBARS_H
 #define ERRORBARS_H
 
+#include "PlotCurve.h"
 #include <qwt_plot.h>
-#include <qwt_plot_curve.h>
 
 //! Error bars curve
-class QwtErrorPlotCurve: public QwtPlotCurve
+class QwtErrorPlotCurve: public PlotCurve
 {
 public:
 	enum Orientation{Horizontal = 0, Vertical = 1};
 
-	QwtErrorPlotCurve(int orientation, const char *name);
-	QwtErrorPlotCurve(const char *name=0);
-			
+	QwtErrorPlotCurve(int orientation, Table *t, const char *name);
+	QwtErrorPlotCurve(Table *t, const char *name);
+
 	void copy(const QwtErrorPlotCurve *e);
 
 	QwtDoubleRect boundingRect() const;
@@ -48,7 +48,6 @@ public:
 	double errorValue(int i);
 	QwtArray<double> errors(){return err;};
 	void setErrors(const QwtArray<double>&data){err=data;};
-	void setSymbolSize(const QSize& sz){size=sz;};
 
 	int capLength(){return cap;};
 	void setCapLength(int t){cap=t;};
@@ -73,34 +72,37 @@ public:
 
 	bool minusSide(){return minus;};
 	void drawMinusSide(bool yes){minus=yes;};
+	
+	//! Returns the master curve to which this error bars curve is attached.
+	PlotCurve* masterCurve(){return d_master_curve;};
+	void setMasterCurve(PlotCurve *c);
+	
+	//! Causes the master curve to delete this curve from its managed error bars list.
+	void detachFromMasterCurve(){d_master_curve->removeErrorBars(this);};
 
-	double xDataOffset() const {return d_xOffset;}
-	void setXDataOffset(double offset){d_xOffset = offset;};
-
-	double yDataOffset() const {return d_yOffset;}
-	void setYDataOffset(double offset){d_yOffset = offset;};
+	QString plotAssociation();
+	void reloadData();
 
 private:
-	virtual void draw(QPainter *painter,const QwtScaleMap &xMap, 
+	virtual void draw(QPainter *painter,const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, int from, int to) const;
 
-	void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap, 
+	void drawErrorBars(QPainter *painter, const QwtScaleMap &xMap,
 		const QwtScaleMap &yMap, int from, int to) const;
 
     //! Stores the error bar values
     QwtArray<double> err;
 
-	//! Size of the symbol in the master curve
-	QSize size;
-
 	//! Orientation of the bars: Horizontal or Vertical
 	int type;
-	
+
 	//! Length of the bar cap decoration
 	int cap;
 
 	bool plus, minus, through;
-	double d_xOffset, d_yOffset;
+
+	//! Reference to the master curve to which this error bars curve is attached.
+	PlotCurve *d_master_curve;
 };
 
 #endif

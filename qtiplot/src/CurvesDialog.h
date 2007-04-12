@@ -51,6 +51,7 @@ private slots:
 	void addCurves();
 	void removeCurves();
 	int curveStyle();
+	void showCurveRangeDialog();
 	void showPlotAssociations();
 	void showFunctionDialog();
 	void showCurveBtn(int);
@@ -64,7 +65,7 @@ private:
     void contextMenuEvent(QContextMenuEvent *);
 
 	int defaultCurveLineWidth, defaultSymbolSize;
-	Graph *g;
+	Graph *d_graph;
 
     QPushButton* btnAdd;
     QPushButton* btnRemove;
@@ -72,6 +73,7 @@ private:
     QPushButton* btnCancel;
 	QPushButton* btnAssociations;
 	QPushButton* btnEditFunction;
+	QPushButton* btnRange;
     QListWidget* available;
     QListWidget* contents;
 	QComboBox* boxStyle;

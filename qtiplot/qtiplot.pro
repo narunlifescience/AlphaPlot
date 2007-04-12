@@ -12,8 +12,8 @@ DEFINES         += SCRIPTING_CONSOLE
 # a dialog for selecting the scripting language on a per-project basis
 DEFINES         += SCRIPTING_DIALOG
 
-#CONFIG          += release
-CONFIG          += debug
+CONFIG          += release
+#CONFIG          += debug
 
 # what to install and where
 INSTALLS        += target
@@ -28,12 +28,12 @@ unix: documentation.path = /usr/share/doc/qtiplot
 INCLUDEPATH       += ../3rdparty/muParser
 
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
-#INCLUDEPATH       += ../3rdparty/qwt/src
+INCLUDEPATH       += ../3rdparty/qwt/src
 #INCLUDEPATH       += /usr/include/qwtplot3d
-INCLUDEPATH       += /usr/include/qwt5
+#INCLUDEPATH       += /usr/include/qwt5
 
 INCLUDEPATH       += ../3rdparty/liborigin
-#INCLUDEPATH       += ../3rdparty/gsl/include
+INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
 ##################### 3rd PARTY LIBRARIES SECTION ###########################
@@ -48,11 +48,11 @@ unix:LIBS         += -L /usr/lib$${libsuff}
 
 # statically link against Qwt(3D) in 3rdparty
 unix:LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
-#unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
+unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
 # dynamically link against Qwt(3D) installed system-wide
 # WARNING: make sure they are compiled against Qt4
 #unix:LIBS         += -lqwtplot3d
-unix:LIBS         += -lqwt
+#unix:LIBS         += -lqwt
 
 # statically link against liborigin in 3rdparty
 unix:LIBS         += ../3rdparty/liborigin/liborigin.a
@@ -60,10 +60,10 @@ unix:LIBS         += ../3rdparty/liborigin/liborigin.a
 #unix:LIBS         += -lorigin
 
 # statically link against GSL in 3rdparty
-#unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
-#unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 #dynamically link against GSL installed system-wide
-unix:LIBS         += -lgsl -lgslcblas
+#unix:LIBS         += -lgsl -lgslcblas
 
 
 ##################### Windows ###############################################
@@ -153,6 +153,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
             src/CanvasPicker.h \
+			src/PlotCurve.h \
             src/QwtErrorPlotCurve.h \
             src/QwtPieCurve.h \
             src/ErrDialog.h \
@@ -236,6 +237,7 @@ HEADERS  += src/ApplicationWindow.h \
 				src/RangeSelectorTool.h\
 				src/TranslateCurveTool.h\
 				src/MultiPeakFitTool.h\
+				src/CurveRangeDialog.h
 
 ###################### SOURCES ##############################################
 
@@ -263,6 +265,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/FitDialog.cpp \
             src/SurfaceDialog.cpp \
             src/LineDialog.cpp \
+			src/PlotCurve.cpp \
             src/QwtErrorPlotCurve.cpp \
             src/QwtPieCurve.cpp \
             src/ErrDialog.cpp \
@@ -344,6 +347,7 @@ SOURCES  += src/ApplicationWindow.cpp \
 				src/RangeSelectorTool.cpp\
 				src/TranslateCurveTool.cpp\
 				src/MultiPeakFitTool.cpp\
+				src/CurveRangeDialog.cpp
 
 ###############################################################
 ##################### Compression (zlib123) ###################

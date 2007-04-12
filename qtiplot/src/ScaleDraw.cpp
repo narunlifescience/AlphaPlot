@@ -140,8 +140,8 @@ QwtText QwtTextScaleDraw::label(double value) const
 		return QwtText();
 	
 	QwtValueList lst = scDiv.ticks (QwtScaleDiv::MajorTick);
-	lst.pop_front();
-	lst.pop_back();
+	//lst.pop_front();
+	//lst.pop_back();
 	int index = lst.indexOf(value);
 	if (index >= 0 && index < (int)labels.count())
 		return QwtText(labels[index]);

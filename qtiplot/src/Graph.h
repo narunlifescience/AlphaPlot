@@ -58,7 +58,9 @@ class ApplicationWindow;
 class Matrix;
 class SelectionMoveResizer;
 class RangeSelectorTool;
-
+class PlotCurve;
+class QwtErrorPlotCurve;
+	
 //! Structure containing curve layout parameters
 typedef struct{
   int lCol;
@@ -144,20 +146,20 @@ class Graph: public QWidget
 		//! Returns true if this Graph is a pie plot, false otherwise.
 		bool isPiePlot(){return piePlot;};
 		void plotPie(QwtPieCurve* curve);
-		void plotPie(Table* w,const QString& name);
-		void plotPie(Table* w,const QString& name,const QPen& pen, int brush, int size, int firstColor);
+		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
+		//! Used when restoring a pie plot from a project file
+		void plotPie(Table* w,const QString& name, const QPen& pen, int brush, int size, int firstColor, int startRow = 0, int endRow = -1);
 		void updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int size, int firstColor);
-		void updatePieCurveData(Table* w, const QString& yColName, int curve);
 		void removePie();
 		QString pieLegendText();
 		QString savePieCurveLayout();
 		//@}
 
-		bool insertCurvesList(Table* w, const QStringList& names, int style, int lWidth, int sSize);
-		bool insertCurve(Table* w, const QString& name, int style);
+		bool insertCurvesList(Table* w, const QStringList& names, int style, int lWidth, int sSize, int startRow = 0, int endRow = -1);
+		bool insertCurve(Table* w, const QString& name, int style, int startRow = 0, int endRow = -1);
 		bool insertCurve(Table* w, int xcol, const QString& name, int style);
-		bool insertCurve(Table* w, const QString& xColName, const QString& yColName, int style);
-		void insertPlotItem(QwtPlotItem *i, const QString& plotAssociation, int type);
+		bool insertCurve(Table* w, const QString& xColName, const QString& yColName, int style, int startRow = 0, int endRow = -1);
+		void insertPlotItem(QwtPlotItem *i, int type);
 
 		//! Removes a curve defined by its index.
 		void removeCurve(int index);
@@ -169,10 +171,7 @@ class Graph: public QWidget
 		 * \sa #associations, curvesList()
 		 */
 		void removeCurve(const QString& s);
-
-		void updateData(Table* w, int curve);
 		void updateCurveData(Table* w, const QString& yColName, int curve);
-		void updateBoxData(Table* w, const QString& yColName, int curve);
 
 		int curves(){return n_curves;};
 		bool validCurvesDataSize();
@@ -188,11 +187,8 @@ class Graph: public QWidget
   	    //! get curve by index
   	    QwtPlotCurve* curve(int index);
   	    //! get curve by name
-  	    QwtPlotCurve* curve(const QString &title) { return curve(curveIndex(title)); }
-
-		QString curveXColName(const QString& curveTitle);
-
-		void insertPlottedList(const QStringList& names);
+  	    QwtPlotCurve* curve(const QString &title){return curve(curveIndex(title));}
+		
 		//! Returns the names of all the curves suitable for data analysis, as a string list. The list excludes error bars and spectrograms.
 		QStringList analysableCurvesList();
 		//! Returns the names of all the QwtPlotCurve items on the plot, as a string list
@@ -202,12 +198,32 @@ class Graph: public QWidget
   		 //! get plotted item by index
   	    QwtPlotItem* plotItem(int index);
 
+        /**
+		 * \brief A list of data sources for my curves.
+		 *
+		 * Elements must be in either of the following forms:
+		 *  - &lt;id of X column> "(X)," &lt;id of Y column> "(Y)" [ "," &lt;id of error column> ("(xErr)" | "(yErr)") ]
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column>"(Y)," &lt;id of Xend column> "(X)," &lt;id of Yend column> "(Y)"\n
+		 *    (denoting start and end coordinates for the #VectXYXY style)
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
+		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
+		 *  - A function.
+		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F&lt;number>'.
+		 *    Formulas are stored in the associated FunctionCurve object.
+		 * .
+		 * Column ids are of the form '&lt;name of table> "_" &lt;name of column>'.
+		 *
+		 * [ TODO: what about pie charts, histograms, box plots and others? ]
+		 *
+		 * \sa curvesList()
+		 */
 		QStringList plotAssociations();
-		void setPlotAssociations(const QStringList& newList);
-		void changePlotAssociation(Table* t, int curve, const QString& text);
+		void changePlotAssociation(int curve, const QString& text);
+        void updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName = true);
 
 		int curveType(int curveIndex);
 		void setCurveType(int curve, int style);
+		void setCurveFullRange(int curveIndex);
 
 		//! \name Output: Copy/Export/Print
 		//@{
@@ -235,11 +251,12 @@ class Graph: public QWidget
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
-		void updateErrorBarsData(Table* w, int curve);
 		void updateErrorBars(int curve, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
-
-		//! Called when a bar curve associated to an error bars curve curve is deleted
-		void resetErrorBarsOffset(int index);
+		
+		//! Returns a valid master curve for the error bars curve.
+		PlotCurve* masterCurve(QwtErrorPlotCurve *er);
+		//! Returns a valid master curve for a plot association.
+		PlotCurve* masterCurve(const QString& xColName, const QString& yColName);
 		//@}
 
 		//! \name Event Handlers
@@ -500,6 +517,7 @@ class Graph: public QWidget
 		void setLabelsDayFormat(int axis, int format);
 		void setLabelsMonthFormat(int axis, int format);
 
+		QString axisFormatInfo(int axis);
 		QStringList axesLabelsFormatInfo(){return axesFormatInfo;};
 		void setLabelsTextFormat(int axis, int type, const QString& labelsColName, Table *table);
 
@@ -604,19 +622,15 @@ class Graph: public QWidget
 
 		//! \name Vector Curves
 		//@{
-		void plotVectorCurve(Table* w, const QStringList& colList, int style);
-		void setVectorsLook(int curve, const QColor& c, int width, int arrowLength,
-				int arrowAngle, bool filled, int position);
-		void updateVectorsLayout(Table *w, int curve, int colorIndex, int width,
-				int arrowLength, int arrowAngle, bool filled, int position,
-				const QString& xEndColName, const QString& yEndColName);
-		void updateVectorsData(Table* w,  int curve);
+		void plotVectorCurve(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
+		void updateVectorsLayout(int curve, int colorIndex, int width, int arrowLength, int arrowAngle, bool filled, int position,
+				const QString& xEndColName = QString(), const QString& yEndColName = QString());
 		//@}
 
 		//! \name Box Plots
 		//@{
 		void openBoxDiagram(Table *w, const QStringList& l);
-		void plotBoxDiagram(Table *w, const QStringList& names);
+		void plotBoxDiagram(Table *w, const QStringList& names, int startRow = 0, int endRow = -1);
 		//@}
 
 		void setCurveSymbol(int index, const QwtSymbol& s);
@@ -716,34 +730,13 @@ signals:
 		bool autoScaleFonts;
 		int selectedAxis;
 		QStringList axesFormulas;
-		//! Stores columns used for axes with text labels or  time/date format info
+		//! Stores columns used for axes with text labels or time/date format info
 		QStringList axesFormatInfo;
 		QList <int> axisType;
 		//! Structure used to define the grid
 		GridOptions grid;
 		MarkerType selectedMarkerType;
 		QwtPlotMarker::LineStyle mrklStyle;
-		/**
-		 * \brief A list of data sources for my curves.
-		 *
-		 * Elements must be in either of the following forms:
-		 *  - &lt;id of X column> "(X)," &lt;id of Y column> "(Y)" [ "," &lt;id of error column> ("(xErr)" | "(yErr)") ]
-		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column>"(Y)," &lt;id of Xend column> "(X)," &lt;id of Yend column> "(Y)"\n
-		 *    (denoting start and end coordinates for the #VectXYXY style)
-		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
-		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
-		 *  - A function.
-		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F&lt;number>'.
-		 *    Formulas are stored in the associated FunctionCurve object.
-		 * .
-		 * Column ids are of the form '&lt;name of table> "_" &lt;name of column>'.
-		 *
-		 * [ TODO: what about pie charts, histograms, box plots and others? ]
-		 *
-		 * Access via plotAssociations() and setPlotAssociations().
-		 * \sa curvesList()
-		 */
-		QStringList associations;
 
 		//! Stores the step the user specified for the four scale. If step = 0.0, the step will be calculated automatically by the Qwt scale engine.
 		QVector<double> d_user_step;

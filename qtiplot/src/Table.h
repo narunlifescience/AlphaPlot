@@ -353,7 +353,7 @@ public slots:
 signals:
 	void plot3DRibbon(Table *,const QString&);
 	void plotXYZ(Table *,const QString&, int);
-	void plotCol(Table *,const QStringList&, int);
+	void plotCol(Table *,const QStringList&, int, int, int);
 	void changedColHeader(const QString&, const QString&);
 	void removedCol(const QString&);
 	void modifiedData(Table *, const QString&);
