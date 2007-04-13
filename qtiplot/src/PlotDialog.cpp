@@ -162,7 +162,7 @@ void PlotDialog::showPlotAssociations(QListWidgetItem *item)
   	    if (sp->matrix())
   	    	sp->matrix()->showMaximized();
   	    }
-	
+
 	close();
 }
 
@@ -171,7 +171,7 @@ void PlotDialog::showPlotAssociations()
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (app)
 		app->showPlotAssociations(listBox->currentRow());
-	
+
 	close();
 }
 
@@ -887,10 +887,10 @@ void PlotDialog::removeSelectedCurve()
 {
 	graph->removeCurve(listBox->currentRow());
 	graph->updatePlot();
-	
+
 	listBox->clear();
 	insertCurvesList();
-	
+
 	if (listBox->count() == 0)
 		close();
 }
@@ -1508,21 +1508,22 @@ bool PlotDialog::acceptParams()
 
 void PlotDialog::insertCurvesList()
 {
-	QStringList names = graph->plotAssociations();
 	listBox->clear();
 	QStringList newNames = QStringList();
-	for (int i=0; i<(int)names.count(); i++)
+	for (int i=0; i<graph->curves(); i++)
 	{
-		QString s=names[i];
-		int pos=s.find("_",0);
-		if (pos>0)
-		{
-			QString table=s.left(pos);
-			QString cols=s.right(s.length()-pos-1);
-			newNames<<table+": "+cols.remove(table+"_",true);
-		}
-		else
-			newNames<<s;
+        const QwtPlotItem *it = (QwtPlotItem *)graph->plotItem(i);
+        if (!it)
+            continue;
+
+        if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+        {
+            QString s = ((PlotCurve *)it)->plotAssociation();
+            QString table = ((PlotCurve *)it)->table()->name();
+            newNames << table + ": " + s.remove(table + "_");
+        }
+        else
+            newNames << it->title().text();
 	}
 	listBox->addItems(newNames);
 }

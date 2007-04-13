@@ -41,7 +41,7 @@
 CurveRangeDialog::CurveRangeDialog(QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
-	setWindowTitle(tr("QtiPlot - Edit curve range"));
+	setWindowTitle(tr("QtiPlot - Plot range"));
 
     if ( !name )
 		setName( "CurveRangeDialog" );
@@ -53,15 +53,15 @@ CurveRangeDialog::CurveRangeDialog(QWidget* parent, const char* name, bool modal
 	boxName = new QLabel();
 	gl1->addWidget(boxName, 0, 1);
 
-	gl1->addWidget(new QLabel(tr("Start Row")), 1, 0);
+	gl1->addWidget(new QLabel(tr("From row number")), 1, 0);
 	boxStart = new QSpinBox();
 	boxStart->setMinValue(1);
 	gl1->addWidget(boxStart, 1, 1);
 
-	gl1->addWidget(new QLabel(tr("End Row")), 2, 0);
+	gl1->addWidget(new QLabel(tr("To row number")), 2, 0);
 	boxEnd = new QSpinBox();
 	boxEnd->setMinValue(1);
-    gl1->addWidget(boxEnd, 2, 1);	
+    gl1->addWidget(boxEnd, 2, 1);
     gl1->setRowStretch(3, 1);
 
 	buttonOK = new QPushButton(tr( "&OK" ));
@@ -90,26 +90,28 @@ void CurveRangeDialog::accept()
 	int end = boxEnd->value() - 1;
 	d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
 	d_graph->updatePlot();
+
+	close();
 }
 
 void CurveRangeDialog::setCurveToModify(Graph *g, int curve)
 {
 	if (!g)
 		return;
-	
+
 	d_graph = g;
 	d_curve = (PlotCurve *)d_graph->curve(curve);
 	if (!d_curve)
 		return;
 
-	boxName->setText(d_curve->title().text());
-	boxStart->setValue(d_curve->startRow() + 1);
-	boxEnd->setValue(d_curve->endRow() + 1);
-	
-	Table *t = d_curve->table();
+    Table *t = d_curve->table();
 	if (t)
 	{
 		boxStart->setMaxValue(t->tableRows());
 		boxEnd->setMaxValue(t->tableRows());
 	}
+
+	boxName->setText(d_curve->title().text());
+	boxStart->setValue(d_curve->startRow() + 1);
+	boxEnd->setValue(d_curve->endRow() + 1);
 }

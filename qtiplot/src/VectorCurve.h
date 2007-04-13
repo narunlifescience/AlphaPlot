@@ -86,7 +86,7 @@ public:
 	void setVectorStyle(int style){d_style = style;};
 
 	void updateData(Table *t, const QString& colName);
-	void reloadData();
+	void loadData();
 
     QString plotAssociation();
 	void updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName);

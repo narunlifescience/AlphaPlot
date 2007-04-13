@@ -1572,7 +1572,7 @@ void ApplicationWindow::updateColNames(const QString& oldName, const QString& ne
 	{
 		if (w->isA("MultiLayer"))
 		{
-			QWidgetList gr_lst= ((MultiLayer*)w)->graphPtrs();
+			QWidgetList gr_lst = ((MultiLayer*)w)->graphPtrs();
 			foreach (QWidget *widget, gr_lst)
                 ((Graph *)widget)->updateCurveNames(oldName, newName, false);
 		}
@@ -1603,6 +1603,20 @@ void ApplicationWindow::changeMatrixName(const QString& oldName, const QString& 
 				((Graph3D*)w)->setPlotAssociation(s);
 			}
 		}
+		else if (w->isA("MultiLayer"))
+		{
+			QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
+			foreach (QWidget *gr_widget, graphsList)
+			{
+				Graph* g = (Graph*)gr_widget;
+				for (int i=0; i<g->curves(); i++)
+				{
+					QwtPlotItem *sp = (QwtPlotItem *)g->plotItem(i);
+					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->title().text() == oldName)
+						sp->setTitle(newName);
+				}
+			}
+		}
 	}
 	delete lst;
 }
@@ -1627,7 +1641,7 @@ void ApplicationWindow::remove3DMatrixPlots(Matrix *m)
 				Graph* g = (Graph*)graphsList.at(j);
 				for (int i=0; i<g->curves(); i++)
 				{
-					Spectrogram *sp = (Spectrogram *)g->curve(i);
+					Spectrogram *sp = (Spectrogram *)g->plotItem(i);
 					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
 						g->removeCurve(i);
 				}
@@ -3019,13 +3033,14 @@ void ApplicationWindow::removeCurves(const QString& name)
 			foreach(QWidget *widget, lst)
 			{
 				g = (Graph *)widget;
-				QStringList associations=g->plotAssociations();
-				for (int i=0; i<int(associations.count()); i++)
+                QStringList associations = g->plotAssociations();
+                for (int i=0; i<int(associations.count()); i++)
 				{
-					QString ass = associations[i];
-					if (ass.contains(name))
-						g->removeCurve(ass);
+                    QString as = associations[i];
+                    if (as.contains(name))
+                        g->removeCurve(as);
 				}
+				g->updatePlot();
 			}
 		}
 		else if (w->isA("Graph3D"))
@@ -3050,20 +3065,20 @@ void ApplicationWindow::updateCurves(Table *t, const QString& name)
 			for (int k=0; k<(int)graphsList.count(); k++)
 			{
 				Graph* g=(Graph*)graphsList.at(k);
-				if (g && g->curves() > 0)
+                if (g && g->curves())
 				{
-					bool modified = false;
-					QStringList as=g->plotAssociations();
-					for (int j=0; j<g->curves(); j++)
-					{
-						if (as[j].contains(name))
-						{
-							modified = true;
-							g->updateCurveData(t, name, j);
+                    bool modified = false;
+                    QStringList as = g->plotAssociations();
+                    for (int j=0; j<g->curves(); j++)
+                    {
+                        if (as[j].contains(name))
+                        {
+                            modified = true;
+                            g->updateCurveData(t, name, j);
 						}
 					}
-					if (modified)
-						g->updatePlot();
+                    if (modified)
+                        g->updatePlot();
 				}
 			}
 		}
@@ -6277,14 +6292,14 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	{
 		curveMenu.addAction(actionEditCurveRange);
 		actionEditCurveRange->setData(curveKey);
-		
+
 		curveMenu.addAction(actionCurveFullRange);
 		if (c->isFullRange())
 			actionCurveFullRange->setDisabled(true);
 		else
 			actionCurveFullRange->setEnabled(true);
 		actionCurveFullRange->setData(curveKey);
-		
+
 		curveMenu.insertSeparator();
 	}
 
@@ -6312,6 +6327,7 @@ void ApplicationWindow::removeCurve()
 
 	int curveKey = actionRemoveCurve->data().toInt();
 	g->removeCurve(g->curveIndex(curveKey));
+	g->updatePlot();
 }
 
 void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
@@ -8913,7 +8929,7 @@ void ApplicationWindow::setCurveFullRange()
 		return;
 
 	int curveKey = actionCurveFullRange->data().toInt();
-	g->setCurveFullRange(g->curveIndex(curveKey));	
+	g->setCurveFullRange(g->curveIndex(curveKey));
 }
 
 void ApplicationWindow::showCurveRangeDialog()
@@ -8929,15 +8945,16 @@ void ApplicationWindow::showCurveRangeDialog()
 	showCurveRangeDialog(g, g->curveIndex(curveKey));
 }
 
-void ApplicationWindow::showCurveRangeDialog(Graph *g, int curve)
+CurveRangeDialog* ApplicationWindow::showCurveRangeDialog(Graph *g, int curve)
 {
-	if ( !g )
-		return;
+	if (!g)
+		return 0;
 
 	CurveRangeDialog* crd = new CurveRangeDialog(this, "FunctionDialog", true);
 	crd->setAttribute(Qt::WA_DeleteOnClose);
 	crd->setCurveToModify(g, curve);
-	crd->exec();
+	crd->show();
+	return crd;
 }
 
 void ApplicationWindow::showFunctionDialog()
@@ -11431,11 +11448,11 @@ void ApplicationWindow::createActions()
 	actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
 	connect(actionShowCurveWorksheet, SIGNAL(activated()), this, SLOT(showCurveWorksheet()));
 
-	
-	actionCurveFullRange = new QAction(tr("&Set full range"), this);
+
+	actionCurveFullRange = new QAction(tr("&Reset to Full Range"), this);
 	connect(actionCurveFullRange, SIGNAL(activated()), this, SLOT(setCurveFullRange()));
 
-	actionEditCurveRange = new QAction(tr("&Edit range..."), this);
+	actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
 	connect(actionEditCurveRange, SIGNAL(activated()), this, SLOT(showCurveRangeDialog()));
 
 	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);

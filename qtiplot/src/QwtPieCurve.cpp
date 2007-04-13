@@ -112,8 +112,8 @@ br.setStyle(style);
 setBrush(br);
 }
 
-void QwtPieCurve::reloadData()
-{	
+void QwtPieCurve::loadData()
+{
 	QVarLengthArray<double> X(abs(d_end_row - d_start_row) + 1);
 	int size = 0;
 	int ycol = d_table->colIndex(title().text());
@@ -127,5 +127,5 @@ void QwtPieCurve::reloadData()
 		}
 	}
     X.resize(size);
-    setData(X.data(), X.data(), size);	
+    setData(X.data(), X.data(), size);
 }

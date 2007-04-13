@@ -60,7 +60,7 @@ class SelectionMoveResizer;
 class RangeSelectorTool;
 class PlotCurve;
 class QwtErrorPlotCurve;
-	
+
 //! Structure containing curve layout parameters
 typedef struct{
   int lCol;
@@ -188,7 +188,7 @@ class Graph: public QWidget
   	    QwtPlotCurve* curve(int index);
   	    //! get curve by name
   	    QwtPlotCurve* curve(const QString &title){return curve(curveIndex(title));}
-		
+
 		//! Returns the names of all the curves suitable for data analysis, as a string list. The list excludes error bars and spectrograms.
 		QStringList analysableCurvesList();
 		//! Returns the names of all the QwtPlotCurve items on the plot, as a string list
@@ -252,7 +252,7 @@ class Graph: public QWidget
 				bool through = true, bool minus = true, bool plus = true);
 
 		void updateErrorBars(int curve, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
-		
+
 		//! Returns a valid master curve for the error bars curve.
 		PlotCurve* masterCurve(QwtErrorPlotCurve *er);
 		//! Returns a valid master curve for a plot association.

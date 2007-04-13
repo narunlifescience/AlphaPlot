@@ -140,21 +140,17 @@ void Fit::setDataCurve(int curve, double start, double end)
     d_w = new double[d_n];
     if (d_graph && d_curve)
     {
-        QString curve_title = d_curve->title().text();
-        QStringList lst = d_graph->plotAssociations();
-        for (int i=0; i<(int) lst.count(); i++)
+        QList<PlotCurve *> lst = ((PlotCurve *)d_curve)->errorBarsList();
+        foreach (PlotCurve *c, lst)
         {
-            if (lst[i].contains(curve_title) && d_graph->curveType(i) == Graph::ErrorBars)
+            QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
+            if (!er->xErrors())
             {
-                QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)d_graph->curve(i);
-                if (er && !er->xErrors())
-                {
-                    d_weihting = Instrumental;
-                    for (int i=0; i<d_n; i++)
-                        d_w[i] = er->errorValue(i); //d_w are equal to the error bar values
-                    weighting_dataset = er->title().text();
-                    return;
-                }
+                d_weihting = Instrumental;
+                for (int i=0; i<d_n; i++)
+                    d_w[i] = er->errorValue(i); //d_w are equal to the error bar values
+                weighting_dataset = er->title().text();
+                return;
             }
         }
     }
@@ -288,27 +284,23 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 			break;
 		case Instrumental:
 			{
-				QString yColName = d_curve->title().text();
-				QStringList lst = d_graph->plotAssociations();
 				bool error = true;
 				QwtErrorPlotCurve *er = 0;
-				for (int i=0; i<(int)lst.count(); i++)
-				{
-					if (lst[i].contains(yColName) && d_graph->curveType(i) == Graph::ErrorBars)
-					{
-						er = (QwtErrorPlotCurve *)d_graph->curve(i);
-						if (er && !er->xErrors())
-						{
-							weighting_dataset = er->title().text();
-							error = false;
-							break;
-						}
-					}
-				}
+				QList<PlotCurve *> lst = ((PlotCurve *)d_curve)->errorBarsList();
+                foreach (PlotCurve *c, lst)
+                {
+                    er = (QwtErrorPlotCurve *)c;
+                    if (!er->xErrors())
+                    {
+                        weighting_dataset = er->title().text();
+                        error = false;
+                        break;
+                    }
+                }
 				if (error)
 				{
 					QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
-					tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(yColName));
+					tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(d_curve->title().text()));
 					return false;
 				}
 

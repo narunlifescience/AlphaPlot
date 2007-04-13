@@ -178,11 +178,11 @@ void VectorCurve::setVectorEnd(const QString& xColName, const QString& yColName)
 {
 if (d_end_x_a == xColName && d_end_y_m == yColName)
 	return;
-	
+
 d_end_x_a = xColName;
 d_end_y_m = yColName;
 
-reloadData();
+loadData();
 }
 
 void VectorCurve::setVectorEnd(const QwtArray<double>&x, const QwtArray<double>&y)
@@ -287,11 +287,11 @@ void VectorCurve::updateColumnNames(const QString& oldName, const QString& newNa
         lst = d_x_column.split("_", QString::SkipEmptyParts);
         if (lst[0] == oldName)
             d_x_column = newName + "_" + lst[1];
-		
+
 		lst = d_end_x_a.split("_", QString::SkipEmptyParts);
         if (lst[0] == oldName)
             d_end_x_a = newName + "_" + lst[1];
-		
+
 		lst = d_end_y_m.split("_", QString::SkipEmptyParts);
         if (lst[0] == oldName)
             d_end_y_m = newName + "_" + lst[1];
@@ -324,10 +324,10 @@ void VectorCurve::updateData(Table *t, const QString& colName)
 	   (colName != title().text() && d_x_column != colName && d_end_x_a != colName && d_end_y_m != colName))
 		return;
 
-	reloadData();
+	loadData();
 }
 
-void VectorCurve::reloadData()
+void VectorCurve::loadData()
 {
 	int xcol = d_table->colIndex(d_x_column);
 	int ycol = d_table->colIndex(title().text());

@@ -96,7 +96,7 @@ void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
 		d_xOffset = ((QwtBarCurve *)d_master_curve)->dataOffset();
 	else if (d_master_curve->type() == Graph::HorizontalBars)
 		d_yOffset = ((QwtBarCurve *)d_master_curve)->dataOffset();
-	
+
 	for (int i = from; i <= to; i++)
 	{
 		const int xi = xMap.transform(x(i) + d_xOffset);
@@ -244,10 +244,10 @@ void QwtErrorPlotCurve::setMasterCurve(PlotCurve *c)
 	d_end_row = c->endRow();
 	c->addErrorBars(this);
 
-	reloadData();
+	loadData();
 }
 
-void QwtErrorPlotCurve::reloadData()
+void QwtErrorPlotCurve::loadData()
 {
 	if (!d_master_curve)
 		return;

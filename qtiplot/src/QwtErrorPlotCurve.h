@@ -72,16 +72,16 @@ public:
 
 	bool minusSide(){return minus;};
 	void drawMinusSide(bool yes){minus=yes;};
-	
+
 	//! Returns the master curve to which this error bars curve is attached.
 	PlotCurve* masterCurve(){return d_master_curve;};
 	void setMasterCurve(PlotCurve *c);
-	
+
 	//! Causes the master curve to delete this curve from its managed error bars list.
 	void detachFromMasterCurve(){d_master_curve->removeErrorBars(this);};
 
 	QString plotAssociation();
-	void reloadData();
+	void loadData();
 
 private:
 	virtual void draw(QPainter *painter,const QwtScaleMap &xMap,

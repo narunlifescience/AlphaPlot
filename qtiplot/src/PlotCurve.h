@@ -48,18 +48,18 @@ public:
 	int startRow(){return d_start_row;};
 	int endRow(){return d_end_row;};
 	void setRowRange(int startRow, int endRow);
-	
+
 	bool isFullRange();
 	void setFullRange();
 
 	virtual void updateData(Table *t, const QString& colName);
-	virtual void reloadData();
+	virtual void loadData();
 
 	void remove();
 
 	int type(){return d_type;};
 	void setType(int t){d_type = t;};
-		
+
 	virtual QString plotAssociation();
 	virtual void updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName);
 
@@ -71,14 +71,14 @@ public:
 	void removeErrorBars(PlotCurve *c);
 	//! Clears the list of attached error bars.
 	void clearErrorBars();
-	
+
 protected:
 	//! List of the error bar curves associated to this curve.
 	QList <PlotCurve *> d_error_bars;
 	//! The data source table.
 	Table *d_table;
-	//!\brief The name of the column used for abscissae values. 
-	/* 
+	//!\brief The name of the column used for abscissae values.
+	/*
 	 *The column name used for Y values is stored in title().text().
 	 */
 	QString d_x_column;

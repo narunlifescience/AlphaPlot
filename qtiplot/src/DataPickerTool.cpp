@@ -208,7 +208,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 
 		// The following keys represent a direction, they are
 		// organized on the keyboard.
-		case Qt::Key_1: 
+		case Qt::Key_1:
 			if (d_mode == Move) {
 				moveBy(-delta, delta);
 				return true;
@@ -220,7 +220,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 				return true;
 			}
 			break;
-		case Qt::Key_3: 
+		case Qt::Key_3:
 			if (d_mode == Move) {
 				moveBy(delta, delta);
 				return true;
@@ -232,7 +232,7 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 				return true;
 			}
 			break;
-		case Qt::Key_6: 
+		case Qt::Key_6:
 			if (d_mode == Move) {
 				moveBy(delta, 0);
 				return true;
@@ -270,11 +270,11 @@ void DataPickerTool::removePoint()
 	{
 		QMessageBox::critical(d_graph, tr("QtiPlot - Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
-		return;	
+		return;
 	}
 
 	QString name = d_graph->plotAssociations()[d_graph->curveIndex(d_selected_curve)];
-	if (name.contains("(yErr)") || name.contains("(xErr)"))	
+	if (name.contains("(yErr)") || name.contains("(xErr)"))
 	{
 		int pos1=name.find(",",0);
 		pos1=name.find(",",pos1+1);
@@ -289,7 +289,7 @@ void DataPickerTool::removePoint()
 		int pos2=name.find("(",pos1);
 		name=name.mid(pos1+1,pos2-pos1-1);
 		d_app->clearCellFromTable(name, d_selected_curve->y(d_selected_point));
-	}		
+	}
 
 	d_selection_marker.detach();
 	d_graph->plotWidget()->replot();
@@ -305,7 +305,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	{
 		QMessageBox::critical(d_graph, tr("QtiPlot - Move point error"),
 				tr("Sorry, but moving points of a function is not possible."));
-		return;	
+		return;
 	}
 
 	QString name = d_graph->plotAssociations()[d_graph->curveIndex(d_selected_curve)];

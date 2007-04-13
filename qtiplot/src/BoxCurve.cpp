@@ -325,11 +325,11 @@ QwtDoubleRect BoxCurve::boundingRect() const
 	return rect;
 }
 
-void BoxCurve::reloadData()
+void BoxCurve::loadData()
 {
 	QVector<double> Y(abs(d_end_row - d_start_row) + 1);
     int ycol = d_table->colIndex(title().text());
-	int size=0;
+	int size = 0;
 	for (int i = d_start_row; i <= d_end_row; i++)
 	{
 		QString s = d_table->text(i, ycol);

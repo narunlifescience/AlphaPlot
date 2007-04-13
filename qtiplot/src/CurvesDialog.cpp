@@ -31,12 +31,14 @@
 #include "Table.h"
 #include "Matrix.h"
 #include "FunctionCurve.h"
+#include "PlotCurve.h"
 #include "ApplicationWindow.h"
 #include "pixmaps.h"
 
 #include <QPushButton>
 #include <QLabel>
 #include <QComboBox>
+#include <QCheckBox>
 #include <QLayout>
 #include <QListWidget>
 #include <QGroupBox>
@@ -111,11 +113,11 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	btnAssociations = new QPushButton(tr( "&Plot Associations..." ));
 	btnAssociations->setEnabled(false);
     vl2->addWidget(btnAssociations);
-	
+
 	btnRange = new QPushButton(tr( "Edit &Range..." ));
 	btnRange->setEnabled(false);
     vl2->addWidget(btnRange);
-	
+
 	btnEditFunction = new QPushButton(tr( "&Edit Function..." ));
 	btnEditFunction->setEnabled(false);
     vl2->addWidget(btnEditFunction);
@@ -126,8 +128,13 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
 	btnCancel = new QPushButton(tr( "Close" ));
     vl2->addWidget(btnCancel);
+
+    boxShowRange = new QCheckBox(tr( "&Show Range" ));
+    vl2->addWidget(boxShowRange);
+
     vl2->addStretch();
     gl->addLayout(vl2, 1, 3);
+
 
     QVBoxLayout* vl3 = new QVBoxLayout(this);
     vl3->addLayout(hl);
@@ -135,6 +142,7 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
     init();
 
+    connect(boxShowRange, SIGNAL(toggled(bool)), this, SLOT(showCurveRange(bool)));
 	connect(btnRange, SIGNAL(clicked()),this, SLOT(showCurveRangeDialog()));
 	connect(btnAssociations, SIGNAL(clicked()),this, SLOT(showPlotAssociations()));
 	connect(btnEditFunction, SIGNAL(clicked()),this, SLOT(showFunctionDialog()));
@@ -164,17 +172,17 @@ void CurvesDialog::showCurveBtn(int)
 		btnEditFunction->setEnabled(true);
 	else
 		btnEditFunction->setEnabled(false);
-	
+
 	if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
 		btnAssociations->setEnabled(true);
 	else
 		btnAssociations->setEnabled(false);
-	
-	if (c->rtti() == QwtPlotItem::Rtti_PlotCurve && 
+
+	if (c->rtti() == QwtPlotItem::Rtti_PlotCurve &&
 		d_graph->curveType(contents->currentRow()) != Graph::ErrorBars)
 		btnRange->setEnabled(true);
   	else
-  		btnRange->setEnabled(false); 
+  		btnRange->setEnabled(false);
 }
 
 void CurvesDialog::showCurveRangeDialog()
@@ -185,7 +193,10 @@ void CurvesDialog::showCurveRangeDialog()
 
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app)
-        app->showCurveRangeDialog(d_graph, curve);
+    {
+        CurveRangeDialog *crd = app->showCurveRangeDialog(d_graph, curve);
+        connect((QObject *)crd, SIGNAL(destroyed()), this, SLOT(updateCurveRange()));
+    }
 }
 
 void CurvesDialog::showPlotAssociations()
@@ -311,7 +322,8 @@ void CurvesDialog::addCurves()
     }
 	d_graph->updatePlot();
 	Graph::showPlotErrorMessage(this, emptyColumns);
-    enableRemoveBtn();
+
+	showCurveRange(boxShowRange->isChecked());
 }
 
 bool CurvesDialog::addCurve(const QString& name)
@@ -396,14 +408,13 @@ void CurvesDialog::removeCurves()
 {
 	QList<QListWidgetItem *> lst = contents->selectedItems();
 	for (int i = 0; i < lst.size(); ++i)
-     {
-     	QListWidgetItem *it = lst.at(i);
-	 	d_graph->removeCurve(it->text());
-     }
+    {
+        QListWidgetItem *it = lst.at(i);
+        d_graph->removeCurve(contents->row(it));
+    }
+
+	showCurveRange(boxShowRange->isChecked());
 	d_graph->updatePlot();
-	contents->clear();
-	contents->addItems(d_graph->plotItemsList());	 
-	enableRemoveBtn();
 }
 
 void CurvesDialog::enableAddBtn()
@@ -453,4 +464,39 @@ int CurvesDialog::curveStyle()
 			break;
 	}
 	return style;
+}
+
+void CurvesDialog::showCurveRange(bool on )
+{
+    int row = contents->currentRow();
+    contents->clear();
+    if (on)
+    {
+        QStringList lst = QStringList();
+        for (int i=0; i<d_graph->curves(); i++)
+        {
+            QwtPlotItem *it = d_graph->plotItem(i);
+            if (!it)
+                continue;
+
+            if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+            {
+                PlotCurve *c = (PlotCurve *)it;
+                lst << c->title().text() + "[" + QString::number(c->startRow()+1) + ":" + QString::number(c->endRow()+1) + "]";
+            }
+            else
+                lst << it->title().text();
+        }
+        contents->addItems(lst);
+    }
+    else
+        contents->addItems(d_graph->plotItemsList());
+
+    contents->setCurrentRow(row);
+    enableRemoveBtn();
+}
+
+void CurvesDialog::updateCurveRange()
+{
+    showCurveRange(boxShowRange->isChecked());
 }

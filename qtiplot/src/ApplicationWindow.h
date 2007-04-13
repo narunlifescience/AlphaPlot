@@ -77,6 +77,7 @@ class ScriptWindow;
 class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
+class CurveRangeDialog;
 
 /**
  * \brief QtiPlot's main window.
@@ -618,7 +619,7 @@ public slots:
 	void showExportASCIIDialog();
 	void showCurvesDialog();
 	void showCurveRangeDialog();
-	void showCurveRangeDialog(Graph *g, int curve);
+	CurveRangeDialog* showCurveRangeDialog(Graph *g, int curve);
 	void showPlotAssociations(int curve);
 
 	void showXAxisTitleDialog();

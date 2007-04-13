@@ -34,7 +34,7 @@
 class QComboBox;
 class QListWidget;
 class QPushButton;
-
+class QCheckBox;
 class Graph;
 
 //! Add/remove curves dialog
@@ -57,6 +57,8 @@ private slots:
 	void showCurveBtn(int);
     void enableAddBtn();
 	void enableRemoveBtn();
+	void showCurveRange(bool);
+	void updateCurveRange();
 
 private:
     void init();
@@ -78,6 +80,7 @@ private:
     QListWidget* contents;
 	QComboBox* boxStyle;
 	QComboBox* boxMatrixStyle;
+	QCheckBox* boxShowRange;
 };
 
 #endif // CurvesDialog_H

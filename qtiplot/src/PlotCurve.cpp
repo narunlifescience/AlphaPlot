@@ -68,10 +68,10 @@ void PlotCurve::setRowRange(int startRow, int endRow)
 	d_start_row = startRow;
 	d_end_row = endRow;
 
-	reloadData();
-	
-	foreach(PlotCurve *c, d_error_bars) 
-		c->reloadData();
+	loadData();
+
+	foreach(PlotCurve *c, d_error_bars)
+		c->loadData();
 }
 
 void PlotCurve::setFullRange()
@@ -79,15 +79,15 @@ void PlotCurve::setFullRange()
 	d_start_row = 0;
 	d_end_row = d_table->tableRows() - 1;
 
-	reloadData();
-	
-	foreach(PlotCurve *c, d_error_bars) 
-		c->reloadData();
+	loadData();
+
+	foreach(PlotCurve *c, d_error_bars)
+		c->loadData();
 }
 
 bool PlotCurve::isFullRange()
 {
-	if (d_start_row != 0 && d_end_row != d_table->tableRows() - 1)
+	if (d_start_row != 0 || d_end_row != d_table->tableRows() - 1)
 		return false;
 	else
 		return true;
@@ -128,10 +128,10 @@ void PlotCurve::updateData(Table *t, const QString& colName)
 	if (d_table != t || (colName != title().text() && d_x_column != colName))
 		return;
 
-	reloadData();
+	loadData();
 }
 
-void PlotCurve::reloadData()
+void PlotCurve::loadData()
 {
 	Graph *g = (Graph *)plot()->parent();
 	if (!g)
@@ -142,7 +142,7 @@ void PlotCurve::reloadData()
 
 	if (xcol < 0 || ycol < 0)
 	{
-		g->removeCurve(g->curveIndex(this));
+		remove();
 		return;
 	}
 
@@ -226,7 +226,7 @@ void PlotCurve::reloadData()
 
 	if (!size)
 	{
-		g->removeCurve(g->curveIndex(this));
+		remove();
 		return;
 	}
 	else
@@ -290,35 +290,14 @@ void PlotCurve::reloadData()
 			plot()->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(yLabels));
 		}
 	}
-
-	// move error bars
-	QStringList associations = g->plotAssociations();
-	for (int i=0; i<g->curves(); i++)
-	{
-		if (g->curveType(i) == Graph::ErrorBars)
-		{
-			QStringList lst = associations[i].split(",", QString::SkipEmptyParts);
-			if (lst[0].remove("(X)") == d_x_column && lst[1].remove("(Y)") == title().text())
-			{
-				if (!size)
-					g->removeCurve(i);
-				else
-				{
-					QwtPlotCurve *c = (QwtPlotCurve *)g->curve(i);
-					if (c)
-						c->setData(X.data(), Y.data(), size);
-				}
-			}
-		}
-	}
 }
 
 void PlotCurve::removeErrorBars(PlotCurve *c)
 {
 	if (!c || d_error_bars.isEmpty())
 		return;
-		
-	int index = d_error_bars.indexOf(c);	
+
+	int index = d_error_bars.indexOf(c);
 	if (index >= 0 && index < d_error_bars.size())
 		d_error_bars.removeAt(index);
 }
@@ -327,9 +306,9 @@ void PlotCurve::clearErrorBars()
 {
 	if (d_error_bars.isEmpty())
 		return;
-	
-	foreach(PlotCurve *c, d_error_bars) 
-		c->remove();	
+
+	foreach(PlotCurve *c, d_error_bars)
+		c->remove();
 }
 
 void PlotCurve::remove()
@@ -338,5 +317,5 @@ void PlotCurve::remove()
 	if (!g)
 		return;
 
-	g->removeCurve(g->curveIndex(this));
+	g->removeCurve(title().text());
 }
