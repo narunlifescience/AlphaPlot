@@ -5200,6 +5200,7 @@ void Graph::setCurveBrush(int index, const QBrush& b)
 void Graph::openBoxDiagram(Table *w, const QStringList& l)
 {
 	BoxCurve *c = new BoxCurve(w, l[2]);
+	c->setData(QwtSingleArrayData(l[1].toDouble(), QwtArray<double>(), 0));
 	c->loadData();
 
 	c_keys.resize(++n_curves);

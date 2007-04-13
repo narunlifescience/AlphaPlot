@@ -40,7 +40,7 @@ PlotCurve::PlotCurve(Table *t, const QString& xColName, const char *name, int st
 	d_type(0)
 {
 	if (t && d_end_row < 0)
-		d_end_row = t->tableRows();
+		d_end_row = t->tableRows() - 1;
 }
 
 void PlotCurve::setRowRange(int startRow, int endRow)
