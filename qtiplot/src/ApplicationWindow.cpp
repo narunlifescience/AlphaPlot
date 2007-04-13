@@ -97,6 +97,7 @@
 #include "Convolution.h"
 #include "Correlation.h"
 #include "CurveRangeDialog.h"
+#include "ColorBox.h"
 
 // TODO: move tool-specific code to an extension manager
 #include "ScreenPickerTool.h"
@@ -2347,7 +2348,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 			}
 
 			QString errColName = caption+s.mid(posY+2, posErr-posY-2);
-			ag->addErrorBars(w, xColName, yColName, w, errColName, errType);
+			ag->addErrorBars(xColName, yColName, w, errColName, errType);
 		}
 		else
             ag->insertCurve(w, xCol, yColName, defaultCurveStyle);
@@ -2976,7 +2977,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 				w->setText(i,c,QString::number(dev,'g',15));
 		}
 	}
-	g->addErrorBars(w, xColName, name, w, errColName, direction);
+	g->addErrorBars(xColName, name, w, errColName, direction);
 }
 
 void ApplicationWindow::defineErrorBars(const QString& curveName, const QString& errColumnName, int direction)
@@ -3015,7 +3016,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	if (!g)
 		return;
 
-	g->addErrorBars(w, curveName, errTable, errColumnName, direction);
+	g->addErrorBars(curveName, errTable, errColumnName, direction);
 	emit modified();
 }
 
@@ -6276,13 +6277,23 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 
 	Graph *g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	PlotCurve *c = (PlotCurve *)g->curve(g->curveIndex(curveKey));
-	if (!c)
+	if (!c || !c->isVisible())
 		return;
 
 	QMenu curveMenu(this);
 	curveMenu.addAction(c->title().text(), this, SLOT(showCurvePlotDialog()));
 	curveMenu.insertSeparator();
 
+	curveMenu.addAction(actionHideCurve);
+	actionHideCurve->setData(curveKey);
+	
+	curveMenu.addAction(actionHideOtherCurves);
+	actionHideOtherCurves->setData(curveKey);
+	
+	if (g->hasHiddenItems())
+		curveMenu.addAction(actionShowAllCurves);
+	curveMenu.insertSeparator();
+	
 	if (c->rtti() == FunctionCurve::RTTI)
 	{
 		curveMenu.addAction(actionEditFunction);
@@ -6314,6 +6325,50 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 	curveMenu.addAction(actionRemoveCurve);
 	actionRemoveCurve->setData(curveKey);
 	curveMenu.exec(QCursor::pos());
+}
+
+void ApplicationWindow::showAllCurves()
+{
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	for(int i=0; i< g->curves(); i++)
+		g->showCurve(i);	
+	g->replot();
+}
+
+void ApplicationWindow::hideOtherCurves()
+{
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	int curveKey = actionHideOtherCurves->data().toInt();
+	for(int i=0; i< g->curves(); i++)
+		g->showCurve(i, false);
+	
+	g->showCurve(g->curveIndex(curveKey));
+	g->replot();
+}
+
+void ApplicationWindow::hideCurve()
+{
+    if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
+		return;
+
+	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
+	if (!g)
+		return;
+
+	int curveKey = actionHideCurve->data().toInt();
+	g->showCurve(g->curveIndex(curveKey), false);
 }
 
 void ApplicationWindow::removeCurve()
@@ -8549,6 +8604,11 @@ void ApplicationWindow::showGraphContextMenu()
 			cm.insertItem(tr("Re&move Pie Curve"),ag, SLOT(removePie()));
 		else
 		{
+			if (ag->hasHiddenItems())
+			{
+				cm.addAction(actionShowAllCurves);
+				cm.insertSeparator();
+			}
 			cm.addAction(actionShowCurvesDialog);
 			cm.addAction(actionAddFunctionCurve);
 
@@ -9963,19 +10023,14 @@ TableStatistics* ApplicationWindow::openTableStatistics(const QStringList &flist
 Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		const QStringList &list)
 {
-	Graph* ag=0;
-	int curveID=0,i;
-	Table* w=0;
-	QStringList fList,curve;
-	QString caption;
-	CurveLayout cl;
-
+	Graph* ag = 0;
+	int curveID = 0;
 	for (int j=0;j<(int)list.count()-1;j++)
 	{
 		QString s=list[j];
 		if (s.contains ("ggeometry"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag =(Graph*)plot->addLayer(fList[1].toInt(), fList[2].toInt(),
 					fList[3].toInt(), fList[4].toInt());
             ag->blockSignals(true);
@@ -9983,7 +10038,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.left(10) == "Background")
 		{
-			fList = s.split("\t");
+			QStringList fList = s.split("\t");
 			QColor c = QColor(fList[1]);
 			if (fList.count() == 3)
 				c.setAlpha(fList[2].toInt());
@@ -9991,27 +10046,27 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("Margin"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->plotWidget()->setMargin(fList[1].toInt());
 		}
 		else if (s.contains ("Border"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->setBorder(fList[1].toInt(), QColor(fList[2]));
 		}
 		else if (s.contains ("EnabledAxes"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->enableAxes(fList);
 		}
 		else if (s.contains ("AxesBaseline"))
 		{
-			fList=s.split("\t", QString::SkipEmptyParts);
+			QStringList fList=s.split("\t", QString::SkipEmptyParts);
 			ag->setAxesBaseline(fList);
 		}
 		else if (s.contains ("EnabledTicks"))
 		{//version < 0.8.6
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			fList.replaceInStrings("-1", "3");
 			ag->setMajorTicksType(fList);
@@ -10019,36 +10074,36 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("MajorTicks"))
 		{//version >= 0.8.6
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			ag->setMajorTicksType(fList);
 		}
 		else if (s.contains ("MinorTicks"))
 		{//version >= 0.8.6
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			ag->setMinorTicksType(fList);
 		}
 		else if (s.contains ("TicksLength"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->setTicksLength(fList[1].toInt(), fList[2].toInt());
 		}
 		else if (s.contains ("EnabledTickLabels"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			ag->setEnabledTickLabels(fList);
 		}
 		else if (s.contains ("AxesColors"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			ag->setAxesColors(fList);
 		}
 		else if (s.contains ("AxesNumberColors"))
 		{
-			fList=QStringList::split ("\t",s,TRUE);
+			QStringList fList=QStringList::split ("\t",s,TRUE);
 			fList.pop_front();
 			ag->setAxesNumColors(fList);
 		}
@@ -10082,7 +10137,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("PieCurve"))
 		{
-			curve=s.split("\t");
+			QStringList curve=s.split("\t");
 			if (!app->renamedTables.isEmpty())
 			{
 				QString caption = (curve[1]).left((curve[1]).find("_",0));
@@ -10093,13 +10148,27 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					curve.replaceInStrings(caption+"_", newCaption+"_");
 				}
 			}
-			QPen pen=QPen(QColor(curve[3]),curve[2].toInt(),Graph::getPenStyle(curve[4]));
-			ag->plotPie(app->table(curve[1]),curve[1],pen,curve[5].toInt(),
-					curve[6].toInt(),curve[7].toInt());
+			QPen pen = QPen(QColor(curve[3]),curve[2].toInt(),Graph::getPenStyle(curve[4]));
+			
+			Table *table = app->table(curve[1]);
+			if (table)
+			{
+				int startRow = 0;
+				int endRow = table->tableRows();
+				bool visible = true;
+				if (d_file_version >= 90)
+				{
+					startRow = curve[8].toInt();
+					endRow = curve[9].toInt();
+					visible = ((curve.last() == "1") ? true : false);
+				}
+				ag->plotPie(table, curve[1], pen, curve[5].toInt(),
+					curve[6].toInt(), curve[7].toInt(), startRow, endRow, visible);
+			}
 		}
 		else if (s.left(6)=="curve\t")
 		{
-			curve = s.split("\t", QString::SkipEmptyParts);
+			QStringList curve = s.split("\t", QString::SkipEmptyParts);
 			if (!app->renamedTables.isEmpty())
 			{
 				QString caption = (curve[2]).left((curve[2]).find("_",0));
@@ -10112,6 +10181,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				}
 			}
 
+			CurveLayout cl;
 			cl.connectType=curve[4].toInt();
 			cl.lCol=curve[5].toInt();
 			cl.lStyle=curve[6].toInt();
@@ -10136,7 +10206,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			else
 				cl.penWidth = cl.lWidth;
 
-			w = app->table(curve[2]);
+			Table *w = app->table(curve[2]);
 			if (w)
 			{
 				int plotType = curve[3].toInt();
@@ -10147,18 +10217,30 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					if (d_file_version < 72)
 						colsList.prepend(w->colName(curve[1].toInt()));
 					else
-						colsList.prepend(curve[1]);
-					ag->plotVectorCurve(w, colsList, plotType);
+                        colsList.prepend(curve[1]);
+					
+					int startRow = 0;
+					int endRow = -1;
+					if (d_file_version >= 90)
+					{
+						startRow = curve[curve.count()-3].toInt();
+						endRow = curve[curve.count()-2].toInt();
+					}
+					
+					ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
+					
 					if (d_file_version <= 77)
-						ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
+					{
+						ag->updateVectorsLayout(curveID, ColorBox::color(curve[15].toInt()), curve[16].toInt(), curve[17].toInt(),
 								curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
+					}
 					else
 					{
 						if(plotType == Graph::VectXYXY)
-							ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(),
-									curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
+							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), 
+								curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
 						else
-							ag->updateVectorsLayout(curveID, curve[15].toInt(), curve[16].toInt(), curve[17].toInt(),
+							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), curve[17].toInt(),
 									curve[18].toInt(), curve[19].toInt(), curve[22].toInt());
 					}
 				}
@@ -10168,8 +10250,14 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				{
 					if (d_file_version < 72)
 						ag->insertCurve(w, curve[1].toInt(), curve[2], plotType);
-					else
+					else if (d_file_version < 90)
 						ag->insertCurve(w, curve[1], curve[2], plotType);
+					else
+					{
+						int startRow = curve[curve.count()-3].toInt();
+						int endRow = curve[curve.count()-2].toInt();
+						ag->insertCurve(w, curve[1], curve[2], plotType, startRow, endRow);
+					}
 				}
 
 				if(plotType == Graph::Histogram)
@@ -10193,15 +10281,23 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				{
 					QwtPlotCurve *c = ag->curve(curveID);
 					if (c && c->rtti() == QwtPlotItem::Rtti_PlotCurve)
-						c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
+					{
+						if (d_file_version < 90)
+							c->setAxis(curve[curve.count()-2].toInt(), curve[curve.count()-1].toInt());
+						else
+						{
+							c->setAxis(curve[curve.count()-5].toInt(), curve[curve.count()-4].toInt());
+							c->setVisible(curve.last().toInt());
+						}
+					}
 				}
 			}
 			curveID++;
 		}
 		else if (s.contains ("FunctionCurve"))
 		{
-			curve=s.split("\t");
-
+			QStringList curve = s.split("\t");
+			CurveLayout cl;
 			cl.connectType=curve[6].toInt();
 			cl.lCol=curve[7].toInt();
 			cl.lStyle=curve[8].toInt();
@@ -10236,18 +10332,23 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			{
 				QwtPlotCurve *c = ag->curve(curveID);
 				if (c)
+				{
 					c->setAxis(curve[current_index].toInt(), curve[current_index+1].toInt());
+					if (d_file_version >= 90)
+						c->setVisible(curve.last().toInt());
+				}
+					
 			}
 			curveID++;
 		}
 		else if (s.contains ("ErrorBars"))
 		{
-			curve=s.split("\t", QString::SkipEmptyParts);
-			w=app->table(curve[3]);
+			QStringList curve = s.split("\t", QString::SkipEmptyParts);
+			Table *w = app->table(curve[3]);
 			Table *errTable = app->table(curve[4]);
 			if (w && errTable)
 			{
-				ag->addErrorBars(w, curve[2], curve[3], errTable, curve[4], curve[1].toInt(),
+				ag->addErrorBars(curve[2], curve[3], errTable, curve[4], curve[1].toInt(),
 						curve[5].toInt(), curve[6].toInt(), QColor(curve[7]),
 						curve[8].toInt(), curve[10].toInt(), curve[9].toInt());
 			}
@@ -10293,14 +10394,14 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("PlotTitle"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->setTitle(fList[1]);
 			ag->setTitleColor(QColor(fList[2]));
 			ag->setTitleAlignment(fList[3].toInt());
 		}
 		else if (s.contains ("TitleFont"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10309,7 +10410,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.contains ("AxesTitles"))
 		{
 			QStringList legend=s.split("\t");
-			for (i=0;i<4;i++)
+			for (int i=0; i<4; i++)
 				ag->setAxisTitle(i,legend[i+1]);
 		}
 		else if (s.contains ("AxesTitleColors"))
@@ -10324,7 +10425,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("ScaleFont"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10334,7 +10435,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("AxisFont"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			QFont fnt=QFont (fList[1],fList[2].toInt(),fList[3].toInt(),fList[4].toInt());
 			fnt.setUnderline(fList[5].toInt());
 			fnt.setStrikeOut(fList[6].toInt());
@@ -10344,7 +10445,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("AxesFormulas"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.remove(fList.first());
 			ag->setAxesFormulas(fList);
 		}
@@ -10359,24 +10460,24 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("LabelsFormat"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			fList.pop_front();
 			ag->setLabelsNumericFormat(fList);
 		}
 		else if (s.contains ("LabelsRotation"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->setAxisLabelRotation(QwtPlot::xBottom, fList[1].toInt());
 			ag->setAxisLabelRotation(QwtPlot::xTop, fList[2].toInt());
 		}
 		else if (s.contains ("DrawAxesBackbone"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->loadAxesOptions(fList[1]);
 		}
 		else if (s.contains ("AxesLineWidth"))
 		{
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->loadAxesLinewidth(fList[1].toInt());
 		}
 		else if (s.contains ("CanvasFrame"))
@@ -10394,43 +10495,43 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (s.contains ("Legend"))
 		{// version <= 0.8.9
-			fList=QStringList::split ("\t",s, true);
+			QStringList fList=QStringList::split ("\t",s, true);
 			ag->insertLegend(fList, d_file_version);
 		}
 		else if (s.startsWith ("<legend>") && s.endsWith ("</legend>"))
 		{
-			fList=QStringList::split ("\t", s.remove("</legend>"), true);
+			QStringList fList=QStringList::split ("\t", s.remove("</legend>"), true);
 			ag->insertLegend(fList, d_file_version);
 		}
 		else if (s.contains ("textMarker"))
 		{// version <= 0.8.9
-			fList=QStringList::split ("\t",s, true);
+			QStringList fList=QStringList::split ("\t",s, true);
 			ag->insertTextMarker(fList, d_file_version);
 		}
 		else if (s.startsWith ("<text>") && s.endsWith ("</text>"))
 		{
-			fList=QStringList::split ("\t", s.remove("</text>"), true);
+			QStringList fList=QStringList::split ("\t", s.remove("</text>"), true);
 			ag->insertTextMarker(fList, d_file_version);
 		}
 		else if (s.contains ("lineMarker"))
 		{// version <= 0.8.9
-			fList=s.split("\t");
+			QStringList fList=s.split("\t");
 			ag->insertLineMarker(fList, d_file_version);
 		}
 		else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
-			fList=s.remove("</line>").split("\t");
+			QStringList fList=s.remove("</line>").split("\t");
 			ag->insertLineMarker(fList, d_file_version);
 		}
 		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
-			fList=s.remove("</image>").split("\t");
+			QStringList fList=s.remove("</image>").split("\t");
 			ag->insertImageMarker(fList, d_file_version);
 		}
 		else if (s.contains("AxisType"))
 		{
-			fList=s.split("\t");
-			for (i=0; i<4; i++)
+			QStringList fList=s.split("\t");
+			for (int i=0; i<4; i++)
 			{
 				QStringList lst = fList[i+1].split(";", QString::SkipEmptyParts);
 				int format = lst[0].toInt();
@@ -10449,9 +10550,9 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 		else if (d_file_version < 69 && s.contains ("AxesTickLabelsCol"))
 		{
-			fList = s.split("\t");
+			QStringList fList = s.split("\t");
 			QList<int> axesTypes = ag->axesType();
-			for (i=0; i<4; i++)
+			for (int i=0; i<4; i++)
 			{
 				QString colName = fList[i+1];
 				Table *nw = app->table(colName);
@@ -10731,15 +10832,12 @@ void ApplicationWindow::connectSurfacePlot(Graph3D *plot)
 
 void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 {
-	// FIXME: the signal changeActiveLayer does not exist
-	//connect (g,SIGNAL(changeActiveLayer(Graph *)),this,SLOT(changeActiveGraph(Graph *)));
 	connect (g,SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect (g,SIGNAL(showTextDialog()),this,SLOT(showTextDialog()));
 	connect (g,SIGNAL(showPlotDialog(int)),this,SLOT(showPlotDialog(int)));
 	connect (g,SIGNAL(showScaleDialog(int)), this, SLOT(showScalePageFromAxisDialog(int)));
 	connect (g,SIGNAL(showAxisDialog(int)), this, SLOT(showAxisPageFromAxisDialog(int)));
-	connect (g,SIGNAL(showCurveContextMenu(int)),this,SLOT(showCurveContextMenu(int)));
-
+	connect (g,SIGNAL(showCurveContextMenu(int)), this, SLOT(showCurveContextMenu(int)));
 	connect (g,SIGNAL(showWindowContextMenu()),this,SLOT(showWindowContextMenu()));
 	connect (g,SIGNAL(showCurvesDialog()),this,SLOT(showCurvesDialog()));
 	connect (g,SIGNAL(drawLineEnded(bool)), btnPointer, SLOT(setOn(bool)));
@@ -11457,6 +11555,15 @@ void ApplicationWindow::createActions()
 
 	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);
 	connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
+	
+	actionHideCurve = new QAction(tr("&Hide"), this);
+	connect(actionHideCurve, SIGNAL(activated()), this, SLOT(hideCurve()));
+
+	actionHideOtherCurves = new QAction(tr("Hide &Other Curves"), this);
+	connect(actionHideOtherCurves, SIGNAL(activated()), this, SLOT(hideOtherCurves()));
+
+	actionShowAllCurves = new QAction(tr("&Show All Curves"), this);
+	connect(actionShowAllCurves, SIGNAL(activated()), this, SLOT(showAllCurves()));
 
 	actionEditFunction = new QAction(tr("&Edit Function..."), this);
 	connect(actionEditFunction, SIGNAL(activated()), this, SLOT(showFunctionDialog()));

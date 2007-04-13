@@ -37,7 +37,6 @@ class PlotCurve: public QwtPlotCurve
 {
 
 public:
-	PlotCurve(const char *name);
 	PlotCurve(Table *t, const QString& xColName, const char *name, int startRow = 0, int endRow = -1);
 
 	QString xColumnName(){return d_x_column;};
@@ -71,6 +70,8 @@ public:
 	void removeErrorBars(PlotCurve *c);
 	//! Clears the list of attached error bars.
 	void clearErrorBars();
+	
+	void setVisible(bool on);
 
 protected:
 	//! List of the error bar curves associated to this curve.

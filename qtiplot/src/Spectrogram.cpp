@@ -285,7 +285,7 @@ if (colorAxis && colorAxis->isColorBarEnabled())
 	s += "\t\t<width>" + QString::number(colorAxis->colorBarWidth()) + "</width>\n";
 	s += "\t</ColorBar>\n";
 	}
-
+s += "\t<Visible>"+ QString::number(isVisible()) + "</Visible>\n";
 return s+"</spectrogram>\n";
 }
 
@@ -299,5 +299,3 @@ if (d_m && i < n_rows && j < n_cols)
 else 
 	return 0.0;
 }
-
-

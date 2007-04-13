@@ -31,6 +31,7 @@
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>
 #include <QPainter>
+#include <QMessageBox>
 
 VectorCurve::VectorCurve(VectorStyle style, Table *t, const QString& xColName, const char *name,
 				const QString& endCol1, const QString& endCol2, int startRow, int endRow):
@@ -328,7 +329,7 @@ void VectorCurve::updateData(Table *t, const QString& colName)
 }
 
 void VectorCurve::loadData()
-{
+{	
 	int xcol = d_table->colIndex(d_x_column);
 	int ycol = d_table->colIndex(title().text());
 	int endXCol = d_table->colIndex(d_end_x_a);
@@ -343,14 +344,13 @@ void VectorCurve::loadData()
 		QString yval = d_table->text(i, ycol);
 		QString xend = d_table->text(i, endXCol);
 		QString yend = d_table->text(i, endYCol);
-
 		if (!xval.isEmpty() && !yval.isEmpty() && !xend.isEmpty() && !yend.isEmpty())
 		{
 			Y[size] = yval.toDouble();
 			X[size] = xval.toDouble();
 			Y2[size] = yend.toDouble();
 			X2[size] = xend.toDouble();
-			size++;
+			size++;	
 		}
 	}
 

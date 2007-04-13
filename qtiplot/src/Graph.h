@@ -148,7 +148,7 @@ class Graph: public QWidget
 		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
 		//! Used when restoring a pie plot from a project file
-		void plotPie(Table* w,const QString& name, const QPen& pen, int brush, int size, int firstColor, int startRow = 0, int endRow = -1);
+		void plotPie(Table* w,const QString& name, const QPen& pen, int brush, int size, int firstColor, int startRow = 0, int endRow = -1, bool visible = true);
 		void updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int size, int firstColor);
 		void removePie();
 		QString pieLegendText();
@@ -161,9 +161,12 @@ class Graph: public QWidget
 		bool insertCurve(Table* w, const QString& xColName, const QString& yColName, int style, int startRow = 0, int endRow = -1);
 		void insertPlotItem(QwtPlotItem *i, int type);
 
+		//! Shows/Hides a curve defined by its index.
+		void showCurve(int index, bool visible = true);
+		bool hasHiddenItems();
+
 		//! Removes a curve defined by its index.
 		void removeCurve(int index);
-
 		/**
 		 * \brief Removes a curve defined by the title/plot association string s.
 		 *
@@ -243,11 +246,11 @@ class Graph: public QWidget
 
 		//! \name Error Bars
 		//@{
-		bool addErrorBars(Table *w, const QString& xColName, const QString& yColName, Table *errTable,
+		bool addErrorBars(const QString& xColName, const QString& yColName, Table *errTable,
 				const QString& errColName, int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
-		bool addErrorBars(Table *w, const QString& yColName, Table *errTable, const QString& errColName,
+		bool addErrorBars(const QString& yColName, Table *errTable, const QString& errColName,
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
@@ -623,7 +626,7 @@ class Graph: public QWidget
 		//! \name Vector Curves
 		//@{
 		void plotVectorCurve(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
-		void updateVectorsLayout(int curve, int colorIndex, int width, int arrowLength, int arrowAngle, bool filled, int position,
+		void updateVectorsLayout(int curve, const QColor& color, int width, int arrowLength, int arrowAngle, bool filled, int position,
 				const QString& xEndColName = QString(), const QString& yEndColName = QString());
 		//@}
 

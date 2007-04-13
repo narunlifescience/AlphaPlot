@@ -1589,9 +1589,9 @@ int Table::nonEmptyRows()
 
 QString Table::text(int row, int col)
 {
-	if (col == savedCol)
+	/*if (col == savedCol)
 		return savedCells[row].replace(",",".");
-	else
+	else*/
 		return worksheet->text(row,col).replace(",", ".");
 }
 

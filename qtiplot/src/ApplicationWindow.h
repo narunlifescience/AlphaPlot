@@ -691,6 +691,9 @@ public slots:
 
 	//! Removes the curve identified by a key stored in the data() of actionRemoveCurve.
 	void removeCurve();
+	void hideCurve();
+	void hideOtherCurves();
+	void showAllCurves();
 	void setCurveFullRange();
 
 	void setAscValues();
@@ -1016,7 +1019,7 @@ private:
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	QMenu *scriptingMenu;
-	QAction *actionEditCurveRange, *actionCurveFullRange;
+	QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves, *actionHideCurve, *actionHideOtherCurves;
 	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;

@@ -31,33 +31,16 @@
 #include <QDateTime>
 #include <QMessageBox>
 
-PlotCurve::PlotCurve(const char *name):
-    QwtPlotCurve(name),
-	d_table(NULL),
-	d_x_column(QString()),
-	d_start_row(0),
-	d_end_row(-1),
-	d_type(0)
-{
-}
-
 PlotCurve::PlotCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
     QwtPlotCurve(name),
-	d_table(NULL),
-	d_x_column(QString()),
-	d_start_row(0),
-	d_end_row(-1),
+	d_table(t),
+	d_x_column(xColName),
+	d_start_row(startRow),
+	d_end_row(endRow),
 	d_type(0)
 {
-	if (t)
-	{
-		d_table = t;
-		d_x_column = xColName;
-		d_start_row = startRow;
-		d_end_row = endRow;
-		if (d_end_row < 0)
-			d_end_row = t->tableRows();
-	}
+	if (t && d_end_row < 0)
+		d_end_row = t->tableRows();
 }
 
 void PlotCurve::setRowRange(int startRow, int endRow)
@@ -318,4 +301,11 @@ void PlotCurve::remove()
 		return;
 
 	g->removeCurve(title().text());
+}
+
+void PlotCurve::setVisible(bool on)
+{
+	QwtPlotCurve::setVisible(on);
+	foreach(PlotCurve *c, d_error_bars)
+		c->setVisible(on);
 }

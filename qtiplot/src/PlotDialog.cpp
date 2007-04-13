@@ -1429,7 +1429,7 @@ bool PlotDialog::acceptParams()
 		if (!w)
 			return false;
 
-		graph->updateVectorsLayout(index, vectColorBox->currentIndex(), vectWidthBox->value(),
+		graph->updateVectorsLayout(index, vectColorBox->color(), vectWidthBox->value(),
 				headLengthBox->value(), headAngleBox->value(),
 				filledHeadBox->isChecked(), vectPosBox->currentIndex(), xEndCol, yEndCol);
 

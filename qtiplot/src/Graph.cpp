@@ -2515,8 +2515,9 @@ QString Graph::savePieCurveLayout()
 
 	s+=QString::number(index)+"\t";
 	s+=QString::number(pieRay)+"\t";
-	s+=QString::number(pieCurve->firstColor())+"\n";
-
+	s+=QString::number(pieCurve->firstColor())+"\t";
+	s+=QString::number(pieCurve->startRow())+"\t"+QString::number(pieCurve->endRow())+"\t";		
+	s+=QString::number(pieCurve->isVisible())+"\n";
 	return s;
 }
 
@@ -2633,8 +2634,14 @@ QString Graph::saveCurves()
 					s += "curve\t" + QString::number(c->x(0)) + "\t" + c->title().text() + "\t";
 				else
 					s += "curve\t" + c->xColumnName() + "\t" + c->title().text() + "\t";
+				
 				s += saveCurveLayout(i);
-				s += QString::number(c->xAxis())+"\t"+QString::number(c->yAxis())+"\n";
+				s += QString::number(c->xAxis())+"\t"+QString::number(c->yAxis())+"\t";
+				
+				if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+					s += QString::number(c->startRow())+"\t"+QString::number(c->endRow())+"\t";
+				
+				s += QString::number(c->isVisible())+"\n";
 			}
 		    else if (c_type[i] == ErrorBars)
   	        {
@@ -3154,10 +3161,8 @@ void Graph::updateErrorBars(int curve, bool xErr, int width, int cap, const QCol
 	er->drawMinusSide(minus);
 }
 
-bool Graph::addErrorBars(Table *w, const QString& yColName,
-		Table *errTable, const QString& errColName,
-		int type, int width, int cap, const QColor& color,
-		bool through, bool minus, bool plus)
+bool Graph::addErrorBars(const QString& yColName, Table *errTable, const QString& errColName,
+		int type, int width, int cap, const QColor& color, bool through, bool minus, bool plus)
 {
 	QList<int> keys = d_plot->curveKeys();
 	for (int i = 0; i<n_curves; i++ )
@@ -3165,14 +3170,14 @@ bool Graph::addErrorBars(Table *w, const QString& yColName,
 		PlotCurve *c = (PlotCurve *)d_plot->curve(keys[i]);
 		if (c && c->title().text() == yColName && c_type[i] != ErrorBars)
 		{
-			return addErrorBars(w, c->xColumnName(), yColName, errTable, errColName,
+			return addErrorBars(c->xColumnName(), yColName, errTable, errColName,
 					type, width, cap, color, through, minus, plus);
 		}
 	}
 	return false;
 }
 
-bool Graph::addErrorBars(Table *w, const QString& xColName, const QString& yColName,
+bool Graph::addErrorBars(const QString& xColName, const QString& yColName,
 		Table *errTable, const QString& errColName, int type, int width, int cap,
 		const QColor& color, bool through, bool minus, bool plus)
 {
@@ -3245,7 +3250,7 @@ void Graph::plotPie(QwtPieCurve* curve)
 
 
 void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
-					int size, int firstColor, int startRow, int endRow)
+					int size, int firstColor, int startRow, int endRow, bool visible)
 {
 	if (endRow < 0)
 		endRow = w->tableRows() - 1;
@@ -3256,6 +3261,7 @@ void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 	pieCurve->setRay(size);
 	pieCurve->setFirstColor(firstColor);
 	pieCurve->setBrushStyle(getBrushStyle(brush));
+	pieCurve->setVisible(visible);
 	piePlot = true;
 	pieRay = size;
 
@@ -3411,9 +3417,9 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
                     return false;
 
                 if (w->colPlotDesignation(j) == Table::xErr)
-                    ok = addErrorBars(w, w->colName(ycol), w, names[i], (int)QwtErrorPlotCurve::Horizontal);
+                    ok = addErrorBars(w->colName(ycol), w, names[i], (int)QwtErrorPlotCurve::Horizontal);
                 else
-                    ok = addErrorBars(w, w->colName(ycol), w, names[i]);
+                    ok = addErrorBars(w->colName(ycol), w, names[i]);
 			}
 			else
                 ok = insertCurve(w, names[i], style, startRow, endRow);
@@ -3445,7 +3451,7 @@ bool Graph::insertCurve(Table* w, const QString& name, int style, int startRow, 
 }
 
 bool Graph::insertCurve(Table* w, int xcol, const QString& name, int style)
-{//provided for convenience
+{
 	return insertCurve(w, w->colName(xcol), w->colName(w->colIndex(name)), style);
 }
 
@@ -3640,6 +3646,9 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 void Graph::plotVectorCurve(Table* w, const QStringList& colList, int style, int startRow, int endRow)
 {
+	if (colList.count() != 4)
+		return;	
+	
 	if (endRow < 0)
 		endRow = w->tableRows() - 1;
 
@@ -3651,29 +3660,29 @@ void Graph::plotVectorCurve(Table* w, const QStringList& colList, int style, int
 
 	if (!v)
 		return;
-
+	
+	v->loadData();
+	v->setStyle(QwtPlotCurve::NoCurve);
+	
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = style;
 
 	c_keys.resize(n_curves);
 	c_keys[n_curves-1] = d_plot->insertCurve(v);
 
-	v->loadData();
-	v->setStyle(QwtPlotCurve::NoCurve);
-
 	addLegendItem(colList[1]);
 	updatePlot();
 }
 
-void Graph::updateVectorsLayout(int curve, int colorIndex, int width,
+void Graph::updateVectorsLayout(int curve, const QColor& color, int width,
 		int arrowLength, int arrowAngle, bool filled, int position,
 		const QString& xEndColName, const QString& yEndColName)
 {
 	VectorCurve *vect = (VectorCurve *)this->curve(curve);
 	if (!vect)
 		return;
-
-	vect->setColor(ColorBox::color(colorIndex));
+	
+	vect->setColor(color);
 	vect->setWidth(width);
 	vect->setHeadLength(arrowLength);
 	vect->setHeadAngle(arrowAngle);
@@ -4949,6 +4958,7 @@ void Graph::copy(Graph* g)
 				c->setCurveAttribute(QwtPlotCurve::Inverted, true);
 
 			c->setAxis(cv->xAxis(), cv->yAxis());
+			c->setVisible(cv->isVisible());
 		}
 		else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    	{
@@ -4958,7 +4968,8 @@ void Graph::copy(Graph* g)
 
   	        sp->showColorScale(((Spectrogram *)it)->colorScaleAxis(), ((Spectrogram *)it)->hasColorScale());
   	        sp->setColorBarWidth(((Spectrogram *)it)->colorBarWidth());
-
+			sp->setVisible(it->isVisible());
+				
   	        c_type.resize(n_curves);
   	        c_type[i] = g->curveType(i);
   	        }
@@ -5438,6 +5449,11 @@ void Graph::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
                 colorAxis->setColorBarEnabled(true);
             }
             line++;
+        }
+		else if (s.contains("<Visible>"))
+        {
+            int on = s.remove("<Visible>").remove("</Visible>").stripWhiteSpace().toInt();
+            sp->setVisible(on);
         }
     }
 }
@@ -6015,4 +6031,23 @@ PlotCurve* Graph::masterCurve(const QString& xColName, const QString& yColName)
 			return (PlotCurve *)it;
 	}
 	return 0;
+}
+
+void Graph::showCurve(int index, bool visible)
+{
+	QwtPlotItem *it = plotItem(index);
+	if (it)
+		it->setVisible(visible);
+}
+
+bool Graph::hasHiddenItems()
+{
+	QList<int> keys = d_plot->curveKeys();
+	for (int i=0; i<(int)keys.count(); i++)
+	{
+		QwtPlotItem *it = d_plot->plotItem(keys[i]);
+		if (it && !it->isVisible())
+            return true;
+	}
+	return false;
 }

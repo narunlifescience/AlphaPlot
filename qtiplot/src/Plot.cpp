@@ -421,24 +421,24 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 	double dmin = 1.0e10;
 	int key = -1;
-	for (QMap<int, QwtPlotItem *>::iterator it = d_curves.begin(); it != d_curves.end(); ++it )
+	for (QMap<int, QwtPlotItem *>::iterator iter = d_curves.begin(); iter != d_curves.end(); ++iter )
 	{
-		QwtPlotItem *c = (QwtPlotItem *)it.data();
-		if (!c)
+		QwtPlotItem *item = (QwtPlotItem *)iter.data();
+		if (!item)
 			continue;
 
-		if(c->rtti() == QwtPlotItem::Rtti_PlotCurve || c->rtti() == FunctionCurve::RTTI)
+		if(item->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		{
-			QwtPlotCurve *cv = (QwtPlotCurve *)c;
-			for (int i=0; i<cv->dataSize(); i++)
+			QwtPlotCurve *c = (QwtPlotCurve *)item;
+			for (int i=0; i<c->dataSize(); i++)
 			{
-				double cx = map[c->xAxis()].xTransform(cv->x(i)) - double(xpos);
-				double cy = map[c->yAxis()].xTransform(cv->y(i)) - double(ypos);
+				double cx = map[c->xAxis()].xTransform(c->x(i)) - double(xpos);
+				double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);				
 				double f = qwtSqr(cx) + qwtSqr(cy);
 				if (f < dmin)
 				{
 					dmin = f;
-					key = it.key();
+					key = iter.key();
 					point = i;
 				}
 			}
