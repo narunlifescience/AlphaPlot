@@ -12499,7 +12499,7 @@ void ApplicationWindow::showDonationDialog()
 	{
 		QString s= tr("<font size=+2, color = darkBlue><b>QtiPlot is open-source software and its development required hundreds of hours of work.<br><br>\
 				If you like it, you're using it in your work and you would like to see it \
-				constantly improved,<br> please support its author by making a donation.<br><br> \
+				constantly improved,<br> please support its authors by making a donation.<br><br> \
 				Would you like to make a donation for QtiPlot now?</b></font>");
 		switch( QMessageBox::information(this, tr("Please support QtiPlot!"), s,
 					tr("Yes, I'd love to!"), tr("Ask me again later!"), tr("No, stop bothering me!"), 0, 1 ) )

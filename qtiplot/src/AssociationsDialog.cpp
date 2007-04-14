@@ -260,7 +260,7 @@ if (n > 2)
 		xEndColName = cols[2].remove("(A)");
 		yEndColName = cols[3].remove("(M)");
 		table->horizontalHeaderItem(3)->setText(tr("Angle"));
-		table->horizontalHeaderItem(4)->setText(tr("Magn."));
+		table->horizontalHeaderItem(4)->setText(tr("Magn.","Magnitude, vector length"));
 		}
 	}
 
