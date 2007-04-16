@@ -2,8 +2,8 @@
     File                 : importOPJ.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
     Description          : Origin project import class
 
  ***************************************************************************/
@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "importOPJ.h"
-#include <OPJFile.h>
+#include "../3rdparty/liborigin/OPJFile.h"
 
 #include <QRegExp>
 #include <QMessageBox>
@@ -393,11 +393,11 @@ return true;
 }
 
 
-bool ImportOPJ::importFunctions(OPJFile opj) 
+bool ImportOPJ::importFunctions(OPJFile opj)
 {
 	double pi=3.141592653589793;
-	for (int s=0; s<opj.numFunctions(); s++) 
-	{	
+	for (int s=0; s<opj.numFunctions(); s++)
+	{
 		QStringList formulas;
 		QList<double> ranges;
 		int type;
@@ -420,10 +420,10 @@ bool ImportOPJ::importFunctions(OPJFile opj)
 return true;
 }
 
-bool ImportOPJ::importGraphs(OPJFile opj) 
+bool ImportOPJ::importGraphs(OPJFile opj)
 {
-	for (int g=0; g<opj.numGraphs(); g++) 
-	{	
+	for (int g=0; g<opj.numGraphs(); g++)
+	{
 		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
 		if (!ml)
 			return false;
@@ -512,7 +512,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				default:
 					cl.sType=0;
 				}
-				
+
 				switch(opj.curveSymbolType(g,l,c)>>8)
 				{
 				case 0:
@@ -526,7 +526,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				default:
 					cl.fillCol=-1;
 				}
-				
+
 				cl.filledArea=opj.curveIsFilledArea(g,l,c)?1:0;
 				if(cl.filledArea)
 				{
@@ -616,7 +616,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					graph->setCurveStyle(c, 6);
 					break;
 				}
-		
+
 			}
 			vector<double> range=opj.layerXRange(g,l);
 			graph->setScale(2,range[0],range[1]);

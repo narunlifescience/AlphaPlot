@@ -33,6 +33,7 @@
 #include "Plot.h"
 #include "cursors.h"
 #include "FunctionCurve.h"
+#include "PlotCurve.h"
 #include "QwtErrorPlotCurve.h"
 #include "ApplicationWindow.h"
 
@@ -49,7 +50,6 @@ DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, 
 {
 	d_selected_curve = NULL;
 
-//	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Rect, QBrush(Qt::NoBrush), QPen(Qt::black,1), QSize(25,25)));
 	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Ellipse, QBrush(QColor(255,255,0,128)), QPen(Qt::black,2), QSize(20,20)));
 	d_selection_marker.setLineStyle(QwtPlotMarker::Cross);
 	d_selection_marker.setLinePen(QPen(Qt::red,1));
@@ -266,30 +266,20 @@ void DataPickerTool::removePoint()
 {
 	if ( !d_selected_curve )
 		return;
-	if ( d_selected_curve->rtti() == FunctionCurve::RTTI)
+	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
 	{
 		QMessageBox::critical(d_graph, tr("QtiPlot - Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
 
-	QString name = d_graph->plotAssociations()[d_graph->curveIndex(d_selected_curve)];
-	if (name.contains("(yErr)") || name.contains("(xErr)"))
+	if (((PlotCurve *)d_selected_curve)->type() == Graph::ErrorBars)
 	{
-		int pos1=name.find(",",0);
-		pos1=name.find(",",pos1+1);
-		int pos2=name.find("(",pos1);
-		name=name.mid(pos1+1,pos2-pos1-1);
-		double val = ((QwtErrorPlotCurve *) d_selected_curve)->errors()[d_selected_point];
-		d_app->clearCellFromTable(name, val);
-	}
-	else
-	{
-		int pos1=name.find(",",0);
-		int pos2=name.find("(",pos1);
-		name=name.mid(pos1+1,pos2-pos1-1);
-		d_app->clearCellFromTable(name, d_selected_curve->y(d_selected_point));
-	}
+        double val = ((QwtErrorPlotCurve *) d_selected_curve)->errors()[d_selected_point];
+		d_app->clearCellFromTable(d_selected_curve->title().text(), val);
+    }
+    else
+        d_app->clearCellFromTable(d_selected_curve->title().text(), d_selected_curve->y(d_selected_point));
 
 	d_selection_marker.detach();
 	d_graph->plotWidget()->replot();
@@ -301,44 +291,31 @@ void DataPickerTool::movePoint(const QPoint &pos)
 {
 	if ( !d_selected_curve )
 		return;
-	if ( d_selected_curve->rtti() == FunctionCurve::RTTI)
+	if ( ((PlotCurve *)d_selected_curve)->type() == Graph::Function)
 	{
 		QMessageBox::critical(d_graph, tr("QtiPlot - Move point error"),
 				tr("Sorry, but moving points of a function is not possible."));
 		return;
 	}
 
-	QString name = d_graph->plotAssociations()[d_graph->curveIndex(d_selected_curve)];
+	double new_x_val = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
+	double new_y_val = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
 
-	// copy curve data, moving the selected point to pos
-	QwtArray<double> x_data(d_selected_curve->dataSize());
-	QwtArray<double> y_data(d_selected_curve->dataSize());
-	for ( int i = 0; i < d_selected_curve->dataSize(); i++ )
-		if ( i == d_selected_point ) {
-			x_data[i] = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
-			y_data[i] = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
-		} else {
-			x_data[i] = d_selected_curve->x(i);
-			y_data[i] = d_selected_curve->y(i);
-		}
-
-	// update curve
-	d_selected_curve->setData(x_data, y_data);
-	QwtDoublePoint selected_point_value(x_data[d_selected_point], y_data[d_selected_point]);
-	d_selection_marker.setValue(selected_point_value);
+    d_selection_marker.setValue(new_x_val, new_y_val);
 	if (d_selection_marker.plot() == NULL)
 		d_selection_marker.attach(d_graph->plotWidget());
 	d_graph->plotWidget()->replot();
 
-	// update source table
-	QString text=QString::number(x_data[d_selected_point])+"\t"+QString::number(y_data[d_selected_point]);
-	d_app->updateTable(name, d_selected_point, text);
+	// update source table which triggers an updateCurves()
+	QString text = QString::number(new_x_val)+"\t"+QString::number(new_y_val);
+    QString name = ((DataCurve *)d_selected_curve)->plotAssociation();
+    d_app->updateTable(name, ((DataCurve *)d_selected_curve)->startRow() + d_selected_point, text);
 
 	emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
 			.arg(d_selected_point + 1)
-			.arg(QString::number(d_selected_curve->x(d_selected_point), 'G', 15))
-			.arg(QString::number(d_selected_curve->y(d_selected_point), 'G', 15)) );
+			.arg(QString::number(new_x_val, 'G', 15))
+			.arg(QString::number(new_y_val, 'G', 15)) );
 }
 
 void DataPickerTool::move(const QPoint &point)

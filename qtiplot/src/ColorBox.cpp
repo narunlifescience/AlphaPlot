@@ -2,10 +2,10 @@
     File                 : ColorBox.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
     Description          : A combo box to select a standard color
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -50,7 +50,7 @@ const QColor ColorBox::colors[] = {
   QColor("#0000A0"),
   QColor("#FF8000"),
   QColor("#8000FF"),
-  QColor("#FF0080"),	
+  QColor("#FF0080"),
   QColor(Qt::white),
   QColor("lightGray"),
   QColor("#808080"),
@@ -122,14 +122,14 @@ void ColorBox::init()
 	this->addItem(icon, tr( "light magenta" ) );
 
 	icon.fill (QColor (Qt::darkGray) );
-	this->addItem(icon, tr( "dark gray" ) );    
+	this->addItem(icon, tr( "dark gray" ) );
 }
 
 void ColorBox::setColor(const QColor& c)
 {
 	const QColor *ite = std::find(colors, colors + sizeof(colors), c);
 	if (ite == colors + sizeof(colors))
-		this->setCurrentIndex(0); // default color is black. 
+		this->setCurrentIndex(0); // default color is black.
 	else
 		this->setCurrentIndex(ite - colors);
 }

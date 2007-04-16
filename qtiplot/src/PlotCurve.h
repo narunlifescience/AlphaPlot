@@ -2,9 +2,9 @@
     File                 : PlotCurve.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Abstract 2D Plot Curve
+    Description          : AbstractPlotCurve and DataCurve classes
 
  ***************************************************************************/
 
@@ -37,7 +37,20 @@ class PlotCurve: public QwtPlotCurve
 {
 
 public:
-	PlotCurve(Table *t, const QString& xColName, const char *name, int startRow = 0, int endRow = -1);
+	PlotCurve(const char *name = 0): QwtPlotCurve(name), d_type(0){};
+
+	int type(){return d_type;};
+	void setType(int t){d_type = t;};
+
+protected:
+	int d_type;
+};
+
+class DataCurve: public PlotCurve
+{
+
+public:
+	DataCurve(Table *t, const QString& xColName, const char *name, int startRow = 0, int endRow = -1);
 
 	QString xColumnName(){return d_x_column;};
 	void setXColumnName(const QString& name){d_x_column = name;};
@@ -51,31 +64,40 @@ public:
 	bool isFullRange();
 	void setFullRange();
 
-	virtual void updateData(Table *t, const QString& colName);
+	virtual bool updateData(Table *t, const QString& colName);
 	virtual void loadData();
 
 	void remove();
 
-	int type(){return d_type;};
-	void setType(int t){d_type = t;};
-
-	virtual QString plotAssociation();
+        /**
+		 * \brief A list of data sources for this curve.
+		 *
+		 * Elements must be in either of the following forms:
+		 *  - &lt;id of X column> "(X)," &lt;id of Y column> "(Y)" [ "," &lt;id of error column> ("(xErr)" | "(yErr)") ]
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column>"(Y)," &lt;id of Xend column> "(X)," &lt;id of Yend column> "(Y)"\n
+		 *    (denoting start and end coordinates for the #VectXYXY style)
+		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
+		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
+		 *
+		 * Column ids are of the form '&lt;name of table> "_" &lt;name of column>'.
+		 */
+    virtual QString plotAssociation();
 	virtual void updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName);
 
 	//! The list of attached error bars.
-	QList<PlotCurve *> errorBarsList(){return d_error_bars;};
+	QList<DataCurve *> errorBarsList(){return d_error_bars;};
 	//! Adds a single error bars curve to the list of attached error bars.
-	void addErrorBars(PlotCurve *c){if (c) d_error_bars << c;};
+	void addErrorBars(DataCurve *c){if (c) d_error_bars << c;};
 	//! Remove a single error bars curve from the list of attached error bars.
-	void removeErrorBars(PlotCurve *c);
+	void removeErrorBars(DataCurve *c);
 	//! Clears the list of attached error bars.
 	void clearErrorBars();
-	
+
 	void setVisible(bool on);
 
 protected:
 	//! List of the error bar curves associated to this curve.
-	QList <PlotCurve *> d_error_bars;
+	QList <DataCurve *> d_error_bars;
 	//! The data source table.
 	Table *d_table;
 	//!\brief The name of the column used for abscissae values.
@@ -86,7 +108,5 @@ protected:
 
 	int d_start_row;
 	int d_end_row;
-	int d_type;
 };
-
 #endif

@@ -58,7 +58,7 @@ class ApplicationWindow;
 class Matrix;
 class SelectionMoveResizer;
 class RangeSelectorTool;
-class PlotCurve;
+class DataCurve;
 class QwtErrorPlotCurve;
 
 //! Structure containing curve layout parameters
@@ -118,9 +118,9 @@ class Graph: public QWidget
 
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 		enum MarkerType{None = -1, Text = 0, Arrow = 1, Image = 2};
-		enum CurveType{Line, Scatter, LineSymbols, VerticalBars , Area, Pie, VerticalDropLines,
+		enum CurveType{Line, Scatter, LineSymbols, VerticalBars, Area, Pie, VerticalDropLines,
 			Spline, HorizontalSteps, Histogram, HorizontalBars, VectXYXY, ErrorBars,
-			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap};
+			Box, VectXYAM, VerticalSteps, ColorMap, GrayMap, ContourMap, Function};
 
 		Plot *d_plot;
 		QwtPlotZoomer *d_zoomer[2];
@@ -163,18 +163,20 @@ class Graph: public QWidget
 
 		//! Shows/Hides a curve defined by its index.
 		void showCurve(int index, bool visible = true);
-		bool hasHiddenItems();
+		int visibleCurves();
 
 		//! Removes a curve defined by its index.
 		void removeCurve(int index);
 		/**
-		 * \brief Removes a curve defined by the title/plot association string s.
-		 *
-		 * See #associations for a documentation of the format of s.
-		 * \sa #associations, curvesList()
+		 * \brief Removes a curve defined by its title string s.
 		 */
 		void removeCurve(const QString& s);
-		void updateCurveData(Table* w, const QString& yColName, int curve);
+		/**
+		 * \brief Removes all curves defined by the title/plot association string s.
+		 */
+		void removeCurves(const QString& s);
+
+		void updateCurvesData(Table* w, const QString& yColName);
 
 		int curves(){return n_curves;};
 		bool validCurvesDataSize();
@@ -201,27 +203,6 @@ class Graph: public QWidget
   		 //! get plotted item by index
   	    QwtPlotItem* plotItem(int index);
 
-        /**
-		 * \brief A list of data sources for my curves.
-		 *
-		 * Elements must be in either of the following forms:
-		 *  - &lt;id of X column> "(X)," &lt;id of Y column> "(Y)" [ "," &lt;id of error column> ("(xErr)" | "(yErr)") ]
-		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column>"(Y)," &lt;id of Xend column> "(X)," &lt;id of Yend column> "(Y)"\n
-		 *    (denoting start and end coordinates for the #VectXYXY style)
-		 *  - &lt;id of Xstart column> "(X)," &lt;id of Ystart column> "(Y)," &lt;id of angle column> "(A)," &lt;id of magnitude column> "(M)"\n
-		 *    (denoting start coordinates, angle in radians and length for the #VectXYAM style)
-		 *  - A function.
-		 *    Some parts of the code test for a '=' in this context, others seem to use the format 'F&lt;number>'.
-		 *    Formulas are stored in the associated FunctionCurve object.
-		 * .
-		 * Column ids are of the form '&lt;name of table> "_" &lt;name of column>'.
-		 *
-		 * [ TODO: what about pie charts, histograms, box plots and others? ]
-		 *
-		 * \sa curvesList()
-		 */
-		QStringList plotAssociations();
-		void changePlotAssociation(int curve, const QString& text);
         void updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName = true);
 
 		int curveType(int curveIndex);
@@ -257,9 +238,9 @@ class Graph: public QWidget
 		void updateErrorBars(int curve, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
 
 		//! Returns a valid master curve for the error bars curve.
-		PlotCurve* masterCurve(QwtErrorPlotCurve *er);
+		DataCurve* masterCurve(QwtErrorPlotCurve *er);
 		//! Returns a valid master curve for a plot association.
-		PlotCurve* masterCurve(const QString& xColName, const QString& yColName);
+		DataCurve* masterCurve(const QString& xColName, const QString& yColName);
 		//@}
 
 		//! \name Event Handlers
@@ -522,6 +503,8 @@ class Graph: public QWidget
 
 		QString axisFormatInfo(int axis);
 		QStringList axesLabelsFormatInfo(){return axesFormatInfo;};
+
+		void setLabelsTextFormat(int axis, int type, const QString& name, const QStringList& lst);
 		void setLabelsTextFormat(int axis, int type, const QString& labelsColName, Table *table);
 
 		QStringList getAxesFormulas(){return axesFormulas;};
@@ -588,14 +571,8 @@ class Graph: public QWidget
 		int range(int index, double *start, double *end);
 		//@}
 
-		//! \name Histograms
-		//@{
-		void initHistogram(long curveID, const QVector<double>& Y, int size);
-		void updateHistogram(Table* w, const QString& curveName, int curve, bool automatic = true,
-				double binSize = 0, double begin = 0, double end = 0);
+		//!  Used for VerticalBars, HorizontalBars and Histograms
 		void setBarsGap(int curve, int gapPercent, int offset);
-		QString showHistogramStats(Table* w, const QString& curveName, int curve);
-		//@}
 
 		//! \name Image Analysis Tools
 		//@{
@@ -632,7 +609,7 @@ class Graph: public QWidget
 
 		//! \name Box Plots
 		//@{
-		void openBoxDiagram(Table *w, const QStringList& l);
+		void openBoxDiagram(Table *w, const QStringList& l, int fileVersion);
 		void plotBoxDiagram(Table *w, const QStringList& names, int startRow = 0, int endRow = -1);
 		//@}
 
@@ -650,7 +627,7 @@ class Graph: public QWidget
 		//@}
 
 		void modified();
-		void emitModified();
+		void notifyChanges();
 
 		void updateSecondaryAxis(int axis);
 		void enableAutoscaling(bool yes){autoscale = yes;};
@@ -707,9 +684,6 @@ signals:
 		void modifiedGraph(Graph *);
 		void hiddenPlot(QWidget*);
 
-		void modifiedFunction();
-		void modifiedPlotAssociation();
-
 		void showContextMenu();
 		void showCurveContextMenu(int);
 		void showMarkerPopupMenu();
@@ -723,7 +697,6 @@ signals:
 
 		void createTablePlot(const QString&,int,int,const QString&);
 		void createIntensityTable(const QPixmap&);
-		void createHistogramTable(const QString&,int,int,const QString&);
 		void dataRangeChanged();
 		void showFitResults(const QString&);
 

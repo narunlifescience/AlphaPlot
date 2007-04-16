@@ -63,6 +63,7 @@
 #include <QKeySequence>
 #include <QDoubleSpinBox>
 #include <QMenu>
+#include <QDateTime>
 
 PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -148,31 +149,39 @@ void PlotDialog::showPlotAssociations(QListWidgetItem *item)
 		return;
 
 	int curveIndex = listBox->row(item);
-	QwtPlotCurve *c = (QwtPlotCurve*)graph->curve(curveIndex);
-	if (!c)
+	QwtPlotItem *it = (QwtPlotItem*)graph->plotItem(curveIndex);
+	if (!it)
   		return;
 
-	if (c->rtti() == FunctionCurve::RTTI)
-  	    app->showFunctionDialog(graph, curveIndex);
-	else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
-		 app->showPlotAssociations(curveIndex);
-	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
-  		{
-  	    Spectrogram *sp = (Spectrogram *)c;
+    if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+    {
+  	    Spectrogram *sp = (Spectrogram *)it;
   	    if (sp->matrix())
   	    	sp->matrix()->showMaximized();
-  	    }
+        return;
+    }
 
-	close();
+	if (((PlotCurve *)it)->type() == Graph::Function)
+	{
+	    close();
+  	    app->showFunctionDialog(graph, curveIndex);
+	}
+	else
+	{
+	    close();
+        app->showPlotAssociations(curveIndex);
+	}
 }
 
 void PlotDialog::showPlotAssociations()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (app)
-		app->showPlotAssociations(listBox->currentRow());
+	int index = listBox->currentRow();
 
 	close();
+
+	if (app)
+		app->showPlotAssociations(index);
 }
 
 void PlotDialog::changePlotType(int plotType)
@@ -817,9 +826,6 @@ void PlotDialog::setGraph(Graph *g)
 	graph = g;
 	insertCurvesList();
     resize(minimumSize());
-
-	connect( graph, SIGNAL(modifiedFunction()), this, SLOT(insertCurvesList()));
-	connect( graph, SIGNAL( modifiedPlotAssociation() ), this, SLOT(insertCurvesList()));
 }
 
 void PlotDialog::selectCurve(int index)
@@ -832,32 +838,57 @@ void PlotDialog::selectCurve(int index)
 
 void PlotDialog::showStatistics()
 {
-	QString text=listBox->currentItem()->text();
-	QStringList t=text.split(": ", QString::SkipEmptyParts);
-	QStringList list=t[1].split(",", QString::SkipEmptyParts);
-	text=t[0] + "_" + list[1].remove("(Y)");
-
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (app)
-	{
-		Table* w=app->table(text);
-		if (!w)
-			return;
-		QString result=graph->showHistogramStats(w, text, listBox->currentRow());
-		if (!result.isEmpty())
-		{
-			app->logInfo+=result;
-			app->showResults(true);
-		}
+	if (!app)
+        return;
+
+	QwtHistogram *h = (QwtHistogram *)graph->curve(listBox->currentRow());
+	if (!h)
+		return;
+
+    QString tableName = app->generateUniqueName(tr("Bins"));
+    Table *t = app->newTable(h->dataSize(), 4, tableName, tr("Histogram and Probabilities for") + " " + h->title().text());
+    if (t)
+    {
+        double h_sum = 0.0;
+        for (int i = 0; i<h->dataSize(); i++ )
+            h_sum += h->y(i);
+
+        double sum = 0.0;
+        for (int i = 0; i<h->dataSize(); i++ )
+        {
+            sum += h->y(i);
+            t->setText(i, 0, QString::number(h->x(i)));
+            t->setText(i, 1, QString::number(h->y(i)));
+            t->setText(i, 2, QString::number(sum));
+            t->setText(i, 3, QString::number(sum/h_sum*100));
+        }
+        t->setHeader(QStringList() << tr("Bins") << tr("Quantity") << tr("Sum") << tr("Percent"));
+        t->showMaximized();
 	}
+
+    QDateTime dt = QDateTime::currentDateTime();
+	QString info = dt.toString(Qt::LocalDate)+"\t"+tr("Histogram and Probabilities for") + " " + h->title().text()+"\n";
+	info += tr("Mean")+" = "+QString::number(h->mean())+"\t";
+	info += tr("Standard Deviation")+" = "+QString::number(h->standardDeviation())+"\n";
+	info += tr("Minimum")+" = "+QString::number(h->minimum())+"\t";
+	info += tr("Maximum")+" = "+QString::number(h->maximum())+"\t";
+	info += tr("Bins")+" = "+QString::number(h->dataSize())+"\n";
+	info += "-------------------------------------------------------------\n";
+    if (!info.isEmpty())
+    {
+        app->logInfo += info;
+        app->showResults(true);
+    }
+
 	close();
 }
 
 void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
 {
 	lastSelectedCurve = listBox->currentRow();
-    QwtPlotCurve *c = graph->curve(lastSelectedCurve);
-	if (!c)
+    QwtPlotItem *it = graph->curve(lastSelectedCurve);
+	if (!it)
 		return;
 
 	QPoint pos = listBox->viewport()->mapFromGlobal(QCursor::pos());
@@ -866,11 +897,14 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
 	{
 	   QMenu contextMenu(this);
 	   contextMenu.insertItem(tr("&Delete"), this, SLOT(removeSelectedCurve()));
-	   if (c->rtti() == FunctionCurve::RTTI)
-		  contextMenu.insertItem(tr("&Edit..."), this, SLOT(editFunctionCurve()));
-	   else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
-		  contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(showPlotAssociations()));
 
+	   if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+	   {
+            if (((PlotCurve *)it)->type() == Graph::Function)
+                contextMenu.insertItem(tr("&Edit..."), this, SLOT(editFunctionCurve()));
+            else
+                contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(showPlotAssociations()));
+	   }
 	   contextMenu.exec(QCursor::pos());
     }
     e->accept();
@@ -879,8 +913,12 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
 void PlotDialog::editFunctionCurve()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	int index = listBox->currentRow();
+
+	close();
+
 	if (app)
-		app->showFunctionDialog(graph, listBox->currentRow());
+		app->showFunctionDialog(graph, index);
 }
 
 void PlotDialog::removeSelectedCurve()
@@ -1160,13 +1198,13 @@ void PlotDialog::setActiveCurve(int index)
 			return;
   	    }
 
-  	    QwtPlotCurve *c = (QwtPlotCurve*)i;
-		if (c->rtti() == FunctionCurve::RTTI)
+  	    PlotCurve *c = (PlotCurve*)i;
+		if (c->type() == Graph::Function)
 		{
 			btnAssociations->hide();
 			btnEditFunction->show();
 		}
-		else if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
+		else
 		{
 			btnAssociations->show();
 			btnEditFunction->hide();
@@ -1398,19 +1436,16 @@ bool PlotDialog::acceptParams()
 		bool accept = validInput();
 		if (accept)
 		{
-			ApplicationWindow *app = (ApplicationWindow *)this->parent();
-			if (!app)
-				return false;
-
             if (h->autoBinning() == automaticBox->isChecked() &&
                 h->binSize() == binSizeBox->text().toDouble() &&
                 h->begin() == histogramBeginBox->text().toDouble() &&
                 h->end() == histogramEndBox->text().toDouble()) return false;
 
-			Table* w = app->table(text);
-			if (w)
-				graph->updateHistogram(w, text, listBox->currentRow(), automaticBox->isChecked(), binSizeBox->text().toDouble(),
-						histogramBeginBox->text().toDouble(), histogramEndBox->text().toDouble());
+            h->setBinning(automaticBox->isChecked(), binSizeBox->text().toDouble(),
+                         histogramBeginBox->text().toDouble(), histogramEndBox->text().toDouble());
+            h->loadData();
+			graph->updateScale();
+			graph->notifyChanges();
 		}
 		return accept;
 	}
@@ -1502,7 +1537,7 @@ bool PlotDialog::acceptParams()
 		}
 	}
 	graph->replot();
-	graph->emitModified();
+	graph->notifyChanges();
 	return true;
 }
 
@@ -1518,9 +1553,15 @@ void PlotDialog::insertCurvesList()
 
         if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
         {
-            QString s = ((PlotCurve *)it)->plotAssociation();
-            QString table = ((PlotCurve *)it)->table()->name();
-            newNames << table + ": " + s.remove(table + "_");
+            PlotCurve *c = (PlotCurve *)it;
+            if (c->type() != Graph::Function)
+            {
+                QString s = ((DataCurve *)it)->plotAssociation();
+                QString table = ((DataCurve *)it)->table()->name();
+                newNames << table + ": " + s.remove(table + "_");
+            }
+            else
+                newNames << it->title().text();
         }
         else
             newNames << it->title().text();

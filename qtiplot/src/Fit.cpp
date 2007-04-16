@@ -140,8 +140,8 @@ void Fit::setDataCurve(int curve, double start, double end)
     d_w = new double[d_n];
     if (d_graph && d_curve)
     {
-        QList<PlotCurve *> lst = ((PlotCurve *)d_curve)->errorBarsList();
-        foreach (PlotCurve *c, lst)
+        QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
+        foreach (DataCurve *c, lst)
         {
             QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
             if (!er->xErrors())
@@ -286,8 +286,8 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 			{
 				bool error = true;
 				QwtErrorPlotCurve *er = 0;
-				QList<PlotCurve *> lst = ((PlotCurve *)d_curve)->errorBarsList();
-                foreach (PlotCurve *c, lst)
+				QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
+                foreach (DataCurve *c, lst)
                 {
                     er = (QwtErrorPlotCurve *)c;
                     if (!er->xErrors())

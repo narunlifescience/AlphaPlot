@@ -875,8 +875,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SIGNAL(updateTable(const QString&,int,const QString&)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
-	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
-			this,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)));
 }
 
 void MultiLayer::addTextLayer(int f, const QFont& font,

@@ -2,10 +2,10 @@
     File                 : importOPJ.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
     Description          : Origin project import class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,7 +32,7 @@
 #include "ApplicationWindow.h"
 
 class OPJFile;
-	
+
 //! Origin project import class
 class ImportOPJ
 {

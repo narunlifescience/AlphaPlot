@@ -34,7 +34,7 @@
 #include <qwt_symbol.h>
 
 //! Box curve
-class BoxCurve: public PlotCurve
+class BoxCurve: public DataCurve
 {
 public:
 	enum BoxStyle{NoBox, Rect, Diamond, WindBox, Notch};

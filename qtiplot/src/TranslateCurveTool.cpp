@@ -30,7 +30,8 @@
  ***************************************************************************/
 #include "TranslateCurveTool.h"
 #include "Graph.h"
-#include "Plot.h"
+#include "PlotCurve.h"
+#include "FunctionCurve.h"
 #include "ApplicationWindow.h"
 #include "cursors.h"
 #include "DataPickerTool.h"
@@ -74,20 +75,45 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 
 	// Phase 3: execute the translation
 
-	QStringList ass = d_graph->plotAssociations()[d_graph->curveIndex(d_selected_curve)].split(",", QString::SkipEmptyParts);
-	int n = d_selected_curve->dataSize();
+	if(((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+	{
+	    if (d_dir == Horizontal)
+	    {
+            QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
+            tr("This operation cannot be performed on function curves."));
+        }
+        else
+        {
+            FunctionCurve *func = (FunctionCurve *)d_selected_curve;
+            if (func->functionType() == FunctionCurve::Normal)
+            {
+                QString formula = func->formulas().first();
+                double d = point.y() - d_curve_point.y();
+                if (d > 0)
+                    func->setFormula(formula + "+" + QString::number(d, 'g', 15));
+                else
+                    func->setFormula(formula + QString::number(d, 'g', 15));
+                func->loadData();
+            }
+        }
+	    d_graph->setActiveTool(NULL);
+	    return;
+    }
+    else
+    {
+    DataCurve *c = (DataCurve *)d_selected_curve;
 	double d;
 	QString col_name;
 	switch(d_dir) {
 		case Vertical:
 			{
-				col_name = ass[1].remove("(Y)");
+				col_name = c->title().text();
 				d = point.y() - d_curve_point.y();
 				break;
 			}
 		case Horizontal:
 			{
-				col_name = ass[0].remove("(X)");
+				col_name = c->xColumnName();
 				d = point.x() - d_curve_point.x();
 				break;
 			}
@@ -103,15 +129,15 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 
 	int prec; char f;
 	tab->columnNumericFormat(col, f, prec);
-	for (int i=0; i<n; i++)
+	for (int i=0; i<c->dataSize(); i++)
 		if (!tab->text(i, col).isEmpty())
-			tab->setText(i, col, QString::number(
+			tab->setText(i + c->startRow(), col, QString::number(
 						(d_dir==Horizontal ? d_selected_curve->x(i) : d_selected_curve->y(i)) + d,
 						f, prec));
 	d_app->updateCurves(tab, col_name);
-	//d_app->emit modified()
 
 	d_graph->setActiveTool(NULL);
-	// attention: I'm now deleted. Maybe there is a cleaner solution...
+	// attention: I'm now deleted. Maybe there is a cleaner solution...*/
+    }
 }
 

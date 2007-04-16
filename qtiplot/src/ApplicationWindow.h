@@ -311,6 +311,7 @@ public slots:
 		            bool renameCols, bool stripSpaces, bool simplifySpaces);
 	//! Used when loading a table from a project file
 	Table* newTable(const QString& caption,int r, int c);
+	Table* newTable(int r, int c, const QString& name = QString(),const QString& legend = QString());
 	Table* newTable(const QString& caption, int r, int c, const QString& text);
 	/**
 	 * \brief Create a Table which is initially hidden; used to return the result of an analysis operation.
@@ -329,7 +330,6 @@ public slots:
 
 	void connectTable(Table* w);
 	void newWrksheetPlot(const QString& caption,int r, int c, const QString& text);
-	void showHistogramTable(const QString& caption, int r, int c, const QString& text);
 	void initTable(Table* w, const QString& caption);
 	void customTable(Table* w);
 	void customizeTables(const QColor& bgColor,const QColor& textColor,
@@ -1003,6 +1003,11 @@ public:
 	QString defaultScriptingLang;
 
 private:
+
+#ifdef QTIPLOT_DEMO
+	int demoCloseTimerId;
+#endif
+
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
 

@@ -32,7 +32,6 @@ INCLUDEPATH       += ../3rdparty/qwt/src
 #INCLUDEPATH       += /usr/include/qwtplot3d
 #INCLUDEPATH       += /usr/include/qwt5
 
-INCLUDEPATH       += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
@@ -54,11 +53,6 @@ unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
 #unix:LIBS         += -lqwtplot3d
 #unix:LIBS         += -lqwt
 
-# statically link against liborigin in 3rdparty
-unix:LIBS         += ../3rdparty/liborigin/liborigin.a
-# dynamically link against liborigin installed system-wide
-#unix:LIBS         += -lorigin
-
 # statically link against GSL in 3rdparty
 unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
 unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
@@ -73,7 +67,6 @@ win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
 win32:LIBS        += ../3rdparty/zlib123/lib/zdll.lib
-win32:LIBS        += ../3rdparty/liborigin/liborigin.a
 
 #############################################################################
 ###################### END OF USER-SERVICEABLE PART #########################
@@ -359,7 +352,7 @@ SOURCES += ../3rdparty/zlib123/minigzip.c
 ################# Origin Import (liborigin) ###################
 ###############################################################
 
-HEADERS += ../3rdparty/liborigin/OPJFile.h   
+HEADERS += ../3rdparty/liborigin/OPJFile.h
 SOURCES += ../3rdparty/liborigin/OPJFile.cpp
 
 ###############################################################

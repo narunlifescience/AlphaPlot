@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : PlotCurve.cpp
+    File                 : DataCurve.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief
+    Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Abstract 2D Plot Curve
+    Description          : AbstractPlotCurve and DataCurve classes
 
  ***************************************************************************/
 
@@ -29,21 +29,19 @@
 #include "PlotCurve.h"
 #include "ScaleDraw.h"
 #include <QDateTime>
-#include <QMessageBox>
 
-PlotCurve::PlotCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
-    QwtPlotCurve(name),
+DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
+    PlotCurve(name),
 	d_table(t),
 	d_x_column(xColName),
 	d_start_row(startRow),
-	d_end_row(endRow),
-	d_type(0)
+	d_end_row(endRow)
 {
 	if (t && d_end_row < 0)
 		d_end_row = t->tableRows() - 1;
 }
 
-void PlotCurve::setRowRange(int startRow, int endRow)
+void DataCurve::setRowRange(int startRow, int endRow)
 {
 	if (d_start_row == startRow && d_end_row == endRow)
 		return;
@@ -53,22 +51,22 @@ void PlotCurve::setRowRange(int startRow, int endRow)
 
 	loadData();
 
-	foreach(PlotCurve *c, d_error_bars)
+	foreach(DataCurve *c, d_error_bars)
 		c->loadData();
 }
 
-void PlotCurve::setFullRange()
+void DataCurve::setFullRange()
 {
 	d_start_row = 0;
 	d_end_row = d_table->tableRows() - 1;
 
 	loadData();
 
-	foreach(PlotCurve *c, d_error_bars)
+	foreach(DataCurve *c, d_error_bars)
 		c->loadData();
 }
 
-bool PlotCurve::isFullRange()
+bool DataCurve::isFullRange()
 {
 	if (d_start_row != 0 || d_end_row != d_table->tableRows() - 1)
 		return false;
@@ -76,7 +74,7 @@ bool PlotCurve::isFullRange()
 		return true;
 }
 
-QString PlotCurve::plotAssociation()
+QString DataCurve::plotAssociation()
 {
     if (!d_x_column.isEmpty())
         return d_x_column + "(X)," + title().text() + "(Y)";
@@ -84,7 +82,7 @@ QString PlotCurve::plotAssociation()
         return title().text();
 }
 
-void PlotCurve::updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName)
+void DataCurve::updateColumnNames(const QString& oldName, const QString& newName, bool updateTableName)
 {
     if (updateTableName)
     {
@@ -106,15 +104,16 @@ void PlotCurve::updateColumnNames(const QString& oldName, const QString& newName
     }
 }
 
-void PlotCurve::updateData(Table *t, const QString& colName)
+bool DataCurve::updateData(Table *t, const QString& colName)
 {
 	if (d_table != t || (colName != title().text() && d_x_column != colName))
-		return;
+		return false;
 
 	loadData();
+	return true;
 }
 
-void PlotCurve::loadData()
+void DataCurve::loadData()
 {
 	Graph *g = (Graph *)plot()->parent();
 	if (!g)
@@ -213,31 +212,30 @@ void PlotCurve::loadData()
 		return;
 	}
 	else
-	{//update curve data
-		int curveType = g->curveType(g->curveIndex(this));
-		if (curveType == Graph::HorizontalBars)
+	{
+		if (d_type == Graph::HorizontalBars)
+		{
 			setData(Y.data(), X.data(), size);
+			foreach(DataCurve *c, d_error_bars)
+                c->setData(Y.data(), X.data(), size);
+		}
 		else
+		{
 			setData(X.data(), Y.data(), size);
+			foreach(DataCurve *c, d_error_bars)
+                c->setData(X.data(), Y.data(), size);
+		}
 
 		if (xColType == Table::Text)
 		{
-			if (curveType == Graph::HorizontalBars)
-			{
-				//axisType[QwtPlot::yLeft] = Txt;
-				//axesFormatInfo[QwtPlot::yLeft] = xcName;
-				plot()->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(xLabels));
-			}
+			if (d_type == Graph::HorizontalBars)
+				g->setLabelsTextFormat(QwtPlot::yLeft, Graph::Txt, d_x_column, xLabels);
 			else
-			{
-				//axisType[QwtPlot::xBottom] = Txt;
-				//axesFormatInfo[QwtPlot::xBottom] = xcName;
-				plot()->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
-			}
+                g->setLabelsTextFormat(QwtPlot::xBottom, Graph::Txt, d_x_column, xLabels);
 		}
 		else if (xColType == Table::Time )
 		{
-			if (curveType == Graph::HorizontalBars)
+			if (d_type == Graph::HorizontalBars)
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = time0.toString(Qt::TextDate) + ";" + lst[1];
@@ -252,7 +250,7 @@ void PlotCurve::loadData()
 		}
 		else if (xColType == Table::Date )
 		{
-			if (curveType == Graph::HorizontalBars)
+			if (d_type == Graph::HorizontalBars)
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = date.toString(Qt::ISODate) + ";" + lst[1];
@@ -267,15 +265,11 @@ void PlotCurve::loadData()
 		}
 
 		if (yColType == Table::Text)
-		{
-			//axisType[QwtPlot::yLeft] = Txt;
-			//axesFormatInfo[QwtPlot::yLeft] = ycName;
-			plot()->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(yLabels));
-		}
+            g->setLabelsTextFormat(QwtPlot::yLeft, Graph::Txt, title().text(), yLabels);
 	}
 }
 
-void PlotCurve::removeErrorBars(PlotCurve *c)
+void DataCurve::removeErrorBars(DataCurve *c)
 {
 	if (!c || d_error_bars.isEmpty())
 		return;
@@ -285,16 +279,16 @@ void PlotCurve::removeErrorBars(PlotCurve *c)
 		d_error_bars.removeAt(index);
 }
 
-void PlotCurve::clearErrorBars()
+void DataCurve::clearErrorBars()
 {
 	if (d_error_bars.isEmpty())
 		return;
 
-	foreach(PlotCurve *c, d_error_bars)
+	foreach(DataCurve *c, d_error_bars)
 		c->remove();
 }
 
-void PlotCurve::remove()
+void DataCurve::remove()
 {
 	Graph *g = (Graph *)plot()->parent();
 	if (!g)
@@ -303,9 +297,9 @@ void PlotCurve::remove()
 	g->removeCurve(title().text());
 }
 
-void PlotCurve::setVisible(bool on)
+void DataCurve::setVisible(bool on)
 {
 	QwtPlotCurve::setVisible(on);
-	foreach(PlotCurve *c, d_error_bars)
+	foreach(DataCurve *c, d_error_bars)
 		c->setVisible(on);
 }

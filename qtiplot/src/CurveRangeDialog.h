@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Filter options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,8 +35,8 @@ class QPushButton;
 class QLabel;
 class QSpinBox;
 class Graph;
-class PlotCurve;
-	
+class DataCurve;
+
 //! Curve range dialog
 class CurveRangeDialog : public QDialog
 {
@@ -57,7 +57,7 @@ public slots:
 	void accept();
 
 private:
-	PlotCurve *d_curve;
+	DataCurve *d_curve;
 	Graph *d_graph;
 };
 

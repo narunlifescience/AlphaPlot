@@ -31,11 +31,10 @@
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>
 #include <QPainter>
-#include <QMessageBox>
 
 VectorCurve::VectorCurve(VectorStyle style, Table *t, const QString& xColName, const char *name,
 				const QString& endCol1, const QString& endCol2, int startRow, int endRow):
-    PlotCurve(t, xColName, name, startRow, endRow)
+    DataCurve(t, xColName, name, startRow, endRow)
 {
 d_style = style;
 pen=QPen(Qt::black, 1, Qt::SolidLine);
@@ -319,17 +318,18 @@ QString VectorCurve::plotAssociation()
         return base + "(X)," + d_end_y_m + "(Y)";
 }
 
-void VectorCurve::updateData(Table *t, const QString& colName)
+bool VectorCurve::updateData(Table *t, const QString& colName)
 {
 	if (d_table != t ||
 	   (colName != title().text() && d_x_column != colName && d_end_x_a != colName && d_end_y_m != colName))
-		return;
+		return false;
 
 	loadData();
+	return true;
 }
 
 void VectorCurve::loadData()
-{	
+{
 	int xcol = d_table->colIndex(d_x_column);
 	int ycol = d_table->colIndex(title().text());
 	int endXCol = d_table->colIndex(d_end_x_a);
@@ -350,7 +350,7 @@ void VectorCurve::loadData()
 			X[size] = xval.toDouble();
 			Y2[size] = yend.toDouble();
 			X2[size] = xend.toDouble();
-			size++;	
+			size++;
 		}
 	}
 
@@ -359,6 +359,8 @@ void VectorCurve::loadData()
 
     X.resize(size); Y.resize(size); X2.resize(size); Y2.resize(size);
 	setData(X.data(), Y.data(), size);
+	foreach(DataCurve *c, d_error_bars)
+        c->setData(X.data(), Y.data(), size);
 	setVectorEnd(X2, Y2);
 }
 

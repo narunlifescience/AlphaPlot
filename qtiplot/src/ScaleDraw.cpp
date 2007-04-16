@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Extension to QwtScaleDraw
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,7 +32,7 @@
 #include <QDateTime>
 
 #include <qwt_painter.h>
-#include <qwt_text.h>		
+#include <qwt_text.h>
 
 ScaleDraw::ScaleDraw(const QString& s):
 	d_fmt('g'),
@@ -74,7 +74,7 @@ double ScaleDraw::transformValue(double value) const
 
   Format character and precision have the same meaning as for
   sprintf().
-  \param f format character 'e', 'f', 'g' 
+  \param f format character 'e', 'f', 'g'
   \param prec
     - for 'e', 'f': the number of digits after the radix character (point)
     - for 'g': the maximum number of significant digits
@@ -92,7 +92,7 @@ d_prec = prec;
 
   Format character and precision have the same meaning as for
   sprintf().
-  \param f format character 'e', 'f' or 'g' 
+  \param f format character 'e', 'f' or 'g'
   \param prec
     - for 'e', 'f': the number of digits after the radix character (point)
     - for 'g': the maximum number of significant digits
@@ -132,16 +132,16 @@ QwtScaleDraw::drawTick(p, value, len);
 QwtTextScaleDraw::QwtTextScaleDraw(const QStringList& list):
 					  labels(list)
 {}
-				
+
 QwtText QwtTextScaleDraw::label(double value) const
 {
 	const QwtScaleDiv scDiv = scaleDiv();
 	if (!scDiv.contains (value))
 		return QwtText();
-	
+
 	QwtValueList lst = scDiv.ticks (QwtScaleDiv::MajorTick);
-	//lst.pop_front();
-	//lst.pop_back();
+	lst.pop_front();
+	lst.pop_back();
 	int index = lst.indexOf(value);
 	if (index >= 0 && index < (int)labels.count())
 		return QwtText(labels[index]);
@@ -156,19 +156,19 @@ QwtText QwtTextScaleDraw::label(double value) const
  *****************************************************************************/
 
 TimeScaleDraw::TimeScaleDraw(const QTime& t, const QString& format):
-		t_origin (t), 
+		t_origin (t),
 		t_format (format)
 		{}
-			
-QString TimeScaleDraw::origin() 
+
+QString TimeScaleDraw::origin()
 {
 return t_origin.toString ( "hh:mm:ss.zzz" );
 }
-	
-		
+
+
 QwtText TimeScaleDraw::label(double value) const
 {
-QTime t = t_origin.addMSecs ( (int)value );		
+QTime t = t_origin.addMSecs ( (int)value );
 return QwtText(t.toString ( t_format ));
 }
 
@@ -179,15 +179,15 @@ return QwtText(t.toString ( t_format ));
  *****************************************************************************/
 
 DateScaleDraw::DateScaleDraw(const QDate& t, const QString& format):
-			  t_origin (t), 
+			  t_origin (t),
 			  t_format (format)
 {}
-		
-QString DateScaleDraw::origin() 
+
+QString DateScaleDraw::origin()
 {
 return t_origin.toString ( Qt::ISODate );
 }
-	
+
 QwtText DateScaleDraw::label(double value) const
 {
 QDate t = t_origin.addDays ( (int)value );
@@ -203,7 +203,7 @@ return QwtText(t.toString ( t_format ));
 WeekDayScaleDraw:: WeekDayScaleDraw(NameFormat format):
 				d_format(format)
 {}
-				
+
 QwtText WeekDayScaleDraw::label(double value) const
 {
 int val = int(transformValue(value))%7;
@@ -240,7 +240,7 @@ return QwtText(day);
 MonthScaleDraw::MonthScaleDraw(NameFormat format):
 		d_format(format)
 {};
-		
+
 QwtText MonthScaleDraw::label(double value) const
 {
 int val = int(transformValue(value))%12;
@@ -278,37 +278,37 @@ QwtSupersciptsScaleDraw::QwtSupersciptsScaleDraw(const QString& s)
 {
 setFormulaString(s);
 }
- 
+
 QwtText QwtSupersciptsScaleDraw::label(double value) const
 {
 char f;
 int prec;
 labelFormat(f, prec);
-	
+
 double val = transformValue(value);
-	
+
 QString txt;
 txt.setNum (val, 'e', prec);
 
 QStringList list = txt.split( "e", QString::SkipEmptyParts);
 if (list[0].toDouble() == 0.0)
 	return QString("0");
-	
+
 QString s= list[1];
 int l = s.length();
 QChar sign = s[0];
-	
+
 s.remove (sign);
-		
+
 while (l>1 && s.startsWith ("0", false))
 	{
 	s.remove ( 0, 1 );
 	l = s.length();
 	}
-		
+
 if (sign == '-')
 	s.prepend(sign);
-	
+
 if (list[0] == "1")
 	return QwtText("10<sup>" + s + "</sup>");
 else

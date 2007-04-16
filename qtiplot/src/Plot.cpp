@@ -30,7 +30,7 @@
 #include "Graph.h"
 #include "ScaleDraw.h"
 #include "Spectrogram.h"
-#include "FunctionCurve.h"
+#include "PlotCurve.h"
 
 #include <qwt_plot.h>
 #include <qwt_painter.h>
@@ -429,13 +429,13 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 
 		if(item->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		{
-			QwtPlotCurve *c = (QwtPlotCurve *)item;
+			PlotCurve *c = (PlotCurve *)item;
 			for (int i=0; i<c->dataSize(); i++)
 			{
 				double cx = map[c->xAxis()].xTransform(c->x(i)) - double(xpos);
-				double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);				
+				double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);
 				double f = qwtSqr(cx) + qwtSqr(cy);
-				if (f < dmin)
+				if (f < dmin && c->type() != Graph::ErrorBars)
 				{
 					dmin = f;
 					key = iter.key();

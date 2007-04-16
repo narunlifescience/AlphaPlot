@@ -33,7 +33,7 @@
 #include <qwt_plot.h>
 
 //! Error bars curve
-class QwtErrorPlotCurve: public PlotCurve
+class QwtErrorPlotCurve: public DataCurve
 {
 public:
 	enum Orientation{Horizontal = 0, Vertical = 1};
@@ -74,13 +74,15 @@ public:
 	void drawMinusSide(bool yes){minus=yes;};
 
 	//! Returns the master curve to which this error bars curve is attached.
-	PlotCurve* masterCurve(){return d_master_curve;};
-	void setMasterCurve(PlotCurve *c);
+	DataCurve* masterCurve(){return d_master_curve;};
+	void setMasterCurve(DataCurve *c);
 
 	//! Causes the master curve to delete this curve from its managed error bars list.
 	void detachFromMasterCurve(){d_master_curve->removeErrorBars(this);};
 
-	QString plotAssociation();
+    QString plotAssociation();
+
+	bool updateData(Table *t, const QString& colName);
 	void loadData();
 
 private:
@@ -102,7 +104,7 @@ private:
 	bool plus, minus, through;
 
 	//! Reference to the master curve to which this error bars curve is attached.
-	PlotCurve *d_master_curve;
+	DataCurve *d_master_curve;
 };
 
 #endif

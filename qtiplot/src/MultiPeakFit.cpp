@@ -328,7 +328,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 		}
 
 		label = tableName + "_2";
-		PlotCurve *c = new PlotCurve(t, tableName + "_1", label);
+		DataCurve *c = new DataCurve(t, tableName + "_1", label);
 		if (d_peaks > 1)
 			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 2));
 		else
@@ -344,7 +344,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 					Y[j] = gsl_matrix_get (m, j, i);
 
 				label = tableName + "_" + tr("peak") + QString::number(i+1);
-				c = new PlotCurve(t, tableName + "_1", label);
+				c = new DataCurve(t, tableName + "_1", label);
 				c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
 				c->setData(X, Y, d_points);
 				d_graph->insertPlotItem(c, Graph::Line);

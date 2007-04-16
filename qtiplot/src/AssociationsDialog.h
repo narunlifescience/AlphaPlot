@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Plot associations dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -41,37 +41,39 @@ class Graph;
 
 //! Plot associations dialog
 class AssociationsDialog : public QDialog
-{ 
+{
     Q_OBJECT
 
 public:
     AssociationsDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     ~AssociationsDialog();
 
-	QLabel* tableCaptionLabel;
-	QTableWidget *table;
-	QPushButton *btnOK, *btnCancel, *btnApply;
-    QListWidget* associations;
+    void initTablesList(QWidgetList* lst, int curve);
+	void setGraph(Graph *g);
 
-public slots:
-	Table * findTable(int index);
-	void initTablesList(QWidgetList* lst, int curve);
-	void updateTable(int index);
+private slots:
+    void updateTable(int index);
+    void updateCurves();
+    void accept();
+
+private:
+    void changePlotAssociation(int curve, const QString& text);
 	void updateColumnTypes();
 	void uncheckCol(int col);
 	void updatePlotAssociation(int row, int col);
-	void updateCurves();
-	void accept();
 	QString plotAssociation(const QString& text);
-	void setGraph(Graph *g);
+    Table *findTable(int index);
+    bool eventFilter(QObject *object, QEvent *e);
 
-	bool eventFilter(QObject *object, QEvent *e);
-
-private:
 	QWidgetList* tables;
 	Table *active_table;
 	Graph *graph;
 	QStringList plotAssociationsList;
+
+    QLabel* tableCaptionLabel;
+	QTableWidget *table;
+	QPushButton *btnOK, *btnCancel, *btnApply;
+    QListWidget* associations;
 };
 
 #endif // ASSOCIATIONSDIALOG_H

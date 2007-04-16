@@ -164,24 +164,31 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
 void CurvesDialog::showCurveBtn(int)
 {
-	QwtPlotItem *c = d_graph->plotItem(contents->currentRow());
-	if (!c)
+	QwtPlotItem *it = d_graph->plotItem(contents->currentRow());
+	if (!it)
 		return;
 
-	if (c->rtti() == FunctionCurve::RTTI)
+    if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+    {
+        btnEditFunction->setEnabled(false);
+        btnAssociations->setEnabled(false);
+        btnRange->setEnabled(false);
+        return;
+    }
+
+    PlotCurve *c = (PlotCurve *)it;
+	if (c->type() == Graph::Function)
+	{
 		btnEditFunction->setEnabled(true);
-	else
-		btnEditFunction->setEnabled(false);
-
-	if (c->rtti() == QwtPlotItem::Rtti_PlotCurve)
-		btnAssociations->setEnabled(true);
-	else
 		btnAssociations->setEnabled(false);
+		btnRange->setEnabled(false);
+		return;
+	}
 
-	if (c->rtti() == QwtPlotItem::Rtti_PlotCurve &&
-		d_graph->curveType(contents->currentRow()) != Graph::ErrorBars)
-		btnRange->setEnabled(true);
-  	else
+    btnAssociations->setEnabled(true);
+
+    btnRange->setEnabled(true);
+	if (c->type() == Graph::ErrorBars)
   		btnRange->setEnabled(false);
 }
 
@@ -206,6 +213,8 @@ void CurvesDialog::showPlotAssociations()
 		curve = 0;
 
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    close();
+
     if (app)
         app->showPlotAssociations(curve);
 }
@@ -213,8 +222,11 @@ void CurvesDialog::showPlotAssociations()
 void CurvesDialog::showFunctionDialog()
 {
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
+    int currentRow = contents->currentRow();
+    close();
+
     if (app)
-        app->showFunctionDialog(d_graph, contents->currentRow());
+        app->showFunctionDialog(d_graph, currentRow);
 }
 
 QSize CurvesDialog::sizeHint() const
@@ -410,7 +422,13 @@ void CurvesDialog::removeCurves()
 	for (int i = 0; i < lst.size(); ++i)
     {
         QListWidgetItem *it = lst.at(i);
-        d_graph->removeCurve(contents->row(it));
+        QString s = it->text();
+        if (boxShowRange->isChecked())
+        {
+            QStringList lst = s.split("[");
+            s = lst[0];
+        }
+        d_graph->removeCurve(s);
     }
 
 	showCurveRange(boxShowRange->isChecked());
@@ -481,7 +499,7 @@ void CurvesDialog::showCurveRange(bool on )
 
             if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
             {
-                PlotCurve *c = (PlotCurve *)it;
+                DataCurve *c = (DataCurve *)it;
                 lst << c->title().text() + "[" + QString::number(c->startRow()+1) + ":" + QString::number(c->endRow()+1) + "]";
             }
             else

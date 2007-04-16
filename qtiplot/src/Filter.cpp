@@ -325,8 +325,8 @@ void Filter::addResultCurve(double *x, double *y)
 		t->setText(i, 0, QString::number(x[i], 'g', 15));
 		t->setText(i, 1, QString::number(y[i], 'g', 15));
 	}
-	
-	PlotCurve *c = new PlotCurve(t, tableName + "_1", tableName + "_2");
+
+	DataCurve *c = new DataCurve(t, tableName + "_1", tableName + "_2");
 	c->setData(x, y, d_points);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
 	d_graph->insertPlotItem(c, Graph::Line);

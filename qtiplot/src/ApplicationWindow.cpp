@@ -104,6 +104,7 @@
 #include "DataPickerTool.h"
 #include "TranslateCurveTool.h"
 #include "MultiPeakFitTool.h"
+#include "QwtHistogram.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -313,6 +314,10 @@ void ApplicationWindow::initGlobalConstants()
 	aw=0;
 	logInfo=QString();
 	savingTimerId=0;
+
+	#ifdef QTIPLOT_DEMO
+        demoCloseTimerId = startTimer(10*60000);
+    #endif
 
 	autoSearchUpdatesRequest = false;
 
@@ -2524,6 +2529,14 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 	return w;
 }
 
+Table* ApplicationWindow::newTable(int r, int c, const QString& name, const QString& legend)
+{
+	Table* w = new Table(scriptEnv, r, c, legend, ws, 0);
+	w->setAttribute(Qt::WA_DeleteOnClose);
+	initTable(w, name);
+	return w;
+}
+
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const QString& text)
 {
 	QStringList lst = caption.split("\t", QString::SkipEmptyParts);
@@ -2582,7 +2595,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	QString name = caption;
 	name = name.replace ("_","-");
 
-	while(alreadyUsedName(name))
+	while(name.isEmpty() || alreadyUsedName(name))
 		name = generateUniqueName(tr("Table"));
 
 	ws->addWindow(w);
@@ -2599,12 +2612,6 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	w->setFolder(current_folder);
 
 	emit modified();
-}
-
-void ApplicationWindow::showHistogramTable(const QString& caption, int r, int c, const QString& text)
-{
-	Table* w = newTable(caption, r, c, text);
-	w->showMaximized();
 }
 
 /*
@@ -2931,7 +2938,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 		return;
 	}
 
-	PlotCurve *master_curve = (PlotCurve *)g->curve(name);
+	DataCurve *master_curve = (DataCurve *)g->curve(name);
 	QString xColName = master_curve->xColumnName();
 	if (xColName.isEmpty())
 		return;
@@ -3030,19 +3037,8 @@ void ApplicationWindow::removeCurves(const QString& name)
 		if (w->isA("MultiLayer"))
 		{
 			QWidgetList lst= ((MultiLayer*)w)->graphPtrs();
-			Graph *g;
 			foreach(QWidget *widget, lst)
-			{
-				g = (Graph *)widget;
-                QStringList associations = g->plotAssociations();
-                for (int i=0; i<int(associations.count()); i++)
-				{
-                    QString as = associations[i];
-                    if (as.contains(name))
-                        g->removeCurve(as);
-				}
-				g->updatePlot();
-			}
+                ((Graph *)widget)->removeCurves(name);
 		}
 		else if (w->isA("Graph3D"))
 		{
@@ -3056,7 +3052,6 @@ void ApplicationWindow::removeCurves(const QString& name)
 
 void ApplicationWindow::updateCurves(Table *t, const QString& name)
 {
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
@@ -3066,21 +3061,8 @@ void ApplicationWindow::updateCurves(Table *t, const QString& name)
 			for (int k=0; k<(int)graphsList.count(); k++)
 			{
 				Graph* g=(Graph*)graphsList.at(k);
-                if (g && g->curves())
-				{
-                    bool modified = false;
-                    QStringList as = g->plotAssociations();
-                    for (int j=0; j<g->curves(); j++)
-                    {
-                        if (as[j].contains(name))
-                        {
-                            modified = true;
-                            g->updateCurveData(t, name, j);
-						}
-					}
-                    if (modified)
-                        g->updatePlot();
-				}
+                if (g)
+                    g->updateCurvesData(t, name);
 			}
 		}
 		else if (w->isA("Graph3D"))
@@ -3091,7 +3073,6 @@ void ApplicationWindow::updateCurves(Table *t, const QString& name)
 		}
 	}
 	delete windows;
-	QApplication::restoreOverrideCursor();
 }
 
 void ApplicationWindow::showPreferencesDialog()
@@ -3890,8 +3871,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		app->customToolBars(app->aw);
 	}
 
-	app->savedProject();
-
 	app->folders->setCurrentItem(cf->folderListItem());
 	app->folders->blockSignals (false);
 	//change folder to user defined current folder
@@ -3901,6 +3880,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
    	app->showMaximized();
 	app->executeNotes();
+    app->savedProject();
 	return app;
 }
 
@@ -6276,7 +6256,7 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 		return;
 
 	Graph *g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	PlotCurve *c = (PlotCurve *)g->curve(g->curveIndex(curveKey));
+	DataCurve *c = (DataCurve *)g->curve(g->curveIndex(curveKey));
 	if (!c || !c->isVisible())
 		return;
 
@@ -6286,15 +6266,26 @@ void ApplicationWindow::showCurveContextMenu(int curveKey)
 
 	curveMenu.addAction(actionHideCurve);
 	actionHideCurve->setData(curveKey);
-	
-	curveMenu.addAction(actionHideOtherCurves);
-	actionHideOtherCurves->setData(curveKey);
-	
-	if (g->hasHiddenItems())
+
+    if (g->visibleCurves() > 1 && c->type() == Graph::Function)
+    {
+        curveMenu.addAction(actionHideOtherCurves);
+        actionHideOtherCurves->setData(curveKey);
+    }
+    else if (c->type() != Graph::Function)
+    {
+        if ((g->visibleCurves() - c->errorBarsList().count()) > 1)
+        {
+            curveMenu.addAction(actionHideOtherCurves);
+            actionHideOtherCurves->setData(curveKey);
+        }
+    }
+
+	if (g->visibleCurves() != g->curves())
 		curveMenu.addAction(actionShowAllCurves);
 	curveMenu.insertSeparator();
-	
-	if (c->rtti() == FunctionCurve::RTTI)
+
+	if (c->type() == Graph::Function)
 	{
 		curveMenu.addAction(actionEditFunction);
 		actionEditFunction->setData(curveKey);
@@ -6337,7 +6328,7 @@ void ApplicationWindow::showAllCurves()
 		return;
 
 	for(int i=0; i< g->curves(); i++)
-		g->showCurve(i);	
+		g->showCurve(i);
 	g->replot();
 }
 
@@ -6353,7 +6344,7 @@ void ApplicationWindow::hideOtherCurves()
 	int curveKey = actionHideOtherCurves->data().toInt();
 	for(int i=0; i< g->curves(); i++)
 		g->showCurve(i, false);
-	
+
 	g->showCurve(g->curveIndex(curveKey));
 	g->replot();
 }
@@ -6390,20 +6381,20 @@ void ApplicationWindow::showCurveWorksheet(Graph *g, int curveIndex)
 	if (!g)
 		return;
 
-    const QwtPlotCurve *c = g->curve(curveIndex);
-	if (!c)
+    const QwtPlotItem *it = g->plotItem(curveIndex);
+	if (!it)
 		return;
 
-	if (c->rtti() == FunctionCurve::RTTI)
-		g->createTable(c);
-	else if (c->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
+	if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
 	{
-		Spectrogram *sp = (Spectrogram *)c;
+		Spectrogram *sp = (Spectrogram *)it;
 		if (sp->matrix())
 			sp->matrix()->showMaximized();
 	}
-	else
-		showTable(c->title().text());
+	else if (((PlotCurve *)it)->type() == Graph::Function)
+		g->createTable((PlotCurve *)it);
+    else
+		showTable(it->title().text());
 }
 
 void ApplicationWindow::showCurveWorksheet()
@@ -8211,6 +8202,15 @@ void ApplicationWindow::modifiedProject(QWidget *w)
 
 void ApplicationWindow::timerEvent ( QTimerEvent *e)
 {
+    #ifdef QTIPLOT_DEMO
+        if (e->timerId() == demoCloseTimerId)
+        {
+            saved = true;
+            showDemoVersionMessage();
+            close();
+        }
+    #endif
+
 	if (e->timerId() == savingTimerId)
 		saveProject();
 	else
@@ -8604,7 +8604,7 @@ void ApplicationWindow::showGraphContextMenu()
 			cm.insertItem(tr("Re&move Pie Curve"),ag, SLOT(removePie()));
 		else
 		{
-			if (ag->hasHiddenItems())
+			if (ag->visibleCurves() != ag->curves())
 			{
 				cm.addAction(actionShowAllCurves);
 				cm.insertSeparator();
@@ -10149,7 +10149,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				}
 			}
 			QPen pen = QPen(QColor(curve[3]),curve[2].toInt(),Graph::getPenStyle(curve[4]));
-			
+
 			Table *table = app->table(curve[1]);
 			if (table)
 			{
@@ -10218,7 +10218,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 						colsList.prepend(w->colName(curve[1].toInt()));
 					else
                         colsList.prepend(curve[1]);
-					
+
 					int startRow = 0;
 					int endRow = -1;
 					if (d_file_version >= 90)
@@ -10226,9 +10226,9 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 						startRow = curve[curve.count()-3].toInt();
 						endRow = curve[curve.count()-2].toInt();
 					}
-					
+
 					ag->plotVectorCurve(w, colsList, plotType, startRow, endRow);
-					
+
 					if (d_file_version <= 77)
 					{
 						ag->updateVectorsLayout(curveID, ColorBox::color(curve[15].toInt()), curve[16].toInt(), curve[17].toInt(),
@@ -10237,7 +10237,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					else
 					{
 						if(plotType == Graph::VectXYXY)
-							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), 
+							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(),
 								curve[17].toInt(), curve[18].toInt(), curve[19].toInt(), 0);
 						else
 							ag->updateVectorsLayout(curveID, curve[15], curve[16].toInt(), curve[17].toInt(),
@@ -10245,7 +10245,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					}
 				}
 				else if(plotType == Graph::Box)
-					ag->openBoxDiagram(w, curve);
+					ag->openBoxDiagram(w, curve, d_file_version);
 				else
 				{
 					if (d_file_version < 72)
@@ -10262,10 +10262,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 
 				if(plotType == Graph::Histogram)
 				{
+				    QwtHistogram *h = (QwtHistogram *)ag->curve(curveID);
 					if (d_file_version <= 76)
-						ag->updateHistogram(w,curve[2],curveID,curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
+                        h->setBinning(curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
 					else
-						ag->updateHistogram(w,curve[2],curveID,curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
+						h->setBinning(curve[17].toInt(),curve[18].toDouble(),curve[19].toDouble(),curve[20].toDouble());
+                    h->loadData();
 				}
 
 				if(plotType == Graph::VerticalBars || plotType == Graph::HorizontalBars ||
@@ -10337,7 +10339,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					if (d_file_version >= 90)
 						c->setVisible(curve.last().toInt());
 				}
-					
+
 			}
 			curveID++;
 		}
@@ -10869,8 +10871,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SLOT(createIntensityMatrix(const QPixmap&)));
-	connect (g,SIGNAL(createHistogramTable(const QString&,int,int,const QString&)),
-			this,SLOT(showHistogramTable(const QString&,int,int,const QString&)));
 	connect (g, SIGNAL(setPointerCursor()),this, SLOT(pickPointerCursor()));
 
 	g->askOnCloseEvent(confirmClosePlot2D);
@@ -11555,7 +11555,7 @@ void ApplicationWindow::createActions()
 
 	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);
 	connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
-	
+
 	actionHideCurve = new QAction(tr("&Hide"), this);
 	connect(actionHideCurve, SIGNAL(activated()), this, SLOT(hideCurve()));
 
@@ -12989,7 +12989,7 @@ void ApplicationWindow::showDemoVersionMessage()
 {
 	QMessageBox::critical(this, tr("QtiPlot - Demo Version"),
 			tr("You are using the demonstration version of Qtiplot.\
-				It is identical with the full version, except that you can't save your projects.\
+				It is identical with the full version, except that you can't save your work to project files and you can't use it for more than 10 minutes per session.\
 				<br><br>\
 				If you want to have ready-to-use, fully functional binaries, please subscribe for a\
 				<a href=\"http://soft.proindependent.com/individual_contract.html\">single-user binaries maintenance contract</a>.\

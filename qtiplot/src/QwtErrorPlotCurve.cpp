@@ -35,7 +35,7 @@
 #include <QPainter>
 
 QwtErrorPlotCurve::QwtErrorPlotCurve(int orientation, Table *t, const char *name):
-	PlotCurve(t, QString(), name),
+	DataCurve(t, QString(), name),
 	d_master_curve(NULL)
 {
 	cap = 10;
@@ -47,7 +47,7 @@ QwtErrorPlotCurve::QwtErrorPlotCurve(int orientation, Table *t, const char *name
 }
 
 QwtErrorPlotCurve::QwtErrorPlotCurve(Table *t, const char *name):
-	PlotCurve(t, QString(), name),
+	DataCurve(t, QString(), name),
 	d_master_curve(NULL)
 {
 	cap=10;
@@ -87,8 +87,13 @@ void QwtErrorPlotCurve::draw(QPainter *painter,
 void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-	int sh = d_master_curve->symbol().size().height();
-	int sw = d_master_curve->symbol().size().width();
+    int sh = 0, sw =0;
+    const QwtSymbol symbol = d_master_curve->symbol();
+    if (symbol.style() != QwtSymbol::NoSymbol)
+    {
+        sh = symbol.size().height();
+        sw = symbol.size().width();
+    }
 
 	double d_xOffset = 0.0;
 	double d_yOffset = 0.0;
@@ -233,7 +238,7 @@ QwtDoubleRect QwtErrorPlotCurve::boundingRect() const
 	return rect;
 }
 
-void QwtErrorPlotCurve::setMasterCurve(PlotCurve *c)
+void QwtErrorPlotCurve::setMasterCurve(DataCurve *c)
 {
 	if (!c || d_master_curve == c)
 		return;
@@ -294,7 +299,7 @@ void QwtErrorPlotCurve::loadData()
 	}
 
 	if (!data_size)
-		return;
+		remove();
 
     X.resize(data_size);
 	Y.resize(data_size);
@@ -314,4 +319,13 @@ QString QwtErrorPlotCurve::plotAssociation()
         return base + "(xErr)";
     else
         return base + "(yErr)";
+}
+
+bool QwtErrorPlotCurve::updateData(Table *t, const QString& colName)
+{
+	if (d_table != t || colName != title().text())
+		return false;
+
+	loadData();
+	return true;
 }

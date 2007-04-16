@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Histogram class
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,6 +29,9 @@
 #include "QwtHistogram.h"
 #include <QPainter>
 
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_histogram.h>
+
 QwtHistogram::QwtHistogram(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
 	QwtBarCurve(QwtBarCurve::Vertical, t, xColName, name, startRow, endRow)
 {}
@@ -38,7 +41,7 @@ void QwtHistogram::copy(const QwtHistogram *h)
 	QwtBarCurve::copy((const QwtBarCurve *)h);
 
 	d_autoBin = h->d_autoBin;
-	d_binSize = h->d_binSize;
+	d_bin_size = h->d_bin_size;
 	d_begin = h->d_begin;
 	d_end = h->d_end;
 }
@@ -83,10 +86,156 @@ QwtDoubleRect QwtHistogram::boundingRect() const
 	return rect;
 }
 
-void QwtHistogram::setBinning(bool autoBin, double begin, double end, double size)
+void QwtHistogram::setBinning(bool autoBin, double size, double begin, double end)
 {
 	d_autoBin = autoBin;
-	d_binSize = size;
+	d_bin_size = size;
 	d_begin = begin;
 	d_end = end;
+}
+
+void QwtHistogram::loadData()
+{
+    int r = abs(d_end_row - d_start_row) + 1;
+	QVarLengthArray<double> Y(r);
+
+    int ycol = d_table->colIndex(title().text());
+	int size = 0;
+	for (int i = 0; i<r; i++ )
+	{
+		QString yval = d_table->text(i, ycol);
+		if (!yval.isEmpty())
+		{
+			Y[size] = yval.toDouble();
+			size++;
+		}
+	}
+	if(size < 2 || (size==2 && Y[0] == Y[1]))
+	{//non valid histogram
+		double X[2];
+		Y.resize(2);
+		for (int i = 0; i<2; i++ )
+		{
+			Y[i] = 0;
+			X[i] = 0;
+		}
+		setData(X, Y.data(), 2);
+		return;
+	}
+
+	int n;
+	gsl_histogram *h;
+	if (d_autoBin)
+	{
+		n = 10;
+		h = gsl_histogram_alloc (n);
+		if (!h)
+			return;
+
+		gsl_vector *v = gsl_vector_alloc (size);
+		for (int i = 0; i<size; i++ )
+			gsl_vector_set (v, i, Y[i]);
+
+		double min, max;
+		gsl_vector_minmax (v, &min, &max);
+		gsl_vector_free (v);
+
+		d_begin = floor(min);
+		d_end = ceil(max);
+		d_bin_size = (d_end - d_begin)/(double)n;
+
+		gsl_histogram_set_ranges_uniform (h, floor(min), ceil(max));
+	}
+	else
+	{
+		n = int((d_end - d_begin)/d_bin_size + 1);
+		h = gsl_histogram_alloc (n);
+		if (!h)
+			return;
+
+		double *range = new double[n+2];
+		for (int i = 0; i<= n+1; i++ )
+			range[i] = d_begin + i*d_bin_size;
+
+		gsl_histogram_set_ranges (h, range, n+1);
+		delete[] range;
+	}
+
+	for (int i = 0; i<size; i++ )
+		gsl_histogram_increment (h, Y[i]);
+
+	double X[n]; //stores ranges (x) and bins (y)
+	Y.resize(n);
+	for (int i = 0; i<n; i++ )
+	{
+		Y[i] = gsl_histogram_get (h, i);
+		double lower, upper;
+		gsl_histogram_get_range (h, i, &lower, &upper);
+		X[i] = lower;
+	}
+	setData(X, Y.data(), n);
+
+	d_mean = gsl_histogram_mean(h);
+	d_standard_deviation = gsl_histogram_sigma(h);
+	d_min = gsl_histogram_min_val(h);
+	d_max = gsl_histogram_max_val(h);
+
+	gsl_histogram_free (h);
+}
+
+void QwtHistogram::initData(const QVector<double>& Y, int size)
+{
+	if(size<2 || (size == 2 && Y[0] == Y[1]))
+	{//non valid histogram data
+		double x[2], y[2];
+		for (int i = 0; i<2; i++ )
+		{
+			y[i] = 0;
+			x[i] = 0;
+		}
+		setData(x, y, 2);
+		return;
+	}
+
+	int n = 10;//default value
+	double x[n], y[n]; //store ranges (x) and bins (y)
+	gsl_histogram * h = gsl_histogram_alloc (n);
+	if (!h)
+		return;
+
+	gsl_vector *v;
+	v = gsl_vector_alloc (size);
+	for (int i = 0; i<size; i++ )
+		gsl_vector_set (v, i, Y[i]);
+
+	double min, max;
+	gsl_vector_minmax (v, &min, &max);
+	gsl_vector_free (v);
+
+	d_begin = floor(min);
+	d_end = ceil(max);
+
+	gsl_histogram_set_ranges_uniform (h, floor(min), ceil(max));
+
+	for (int i = 0; i<size; i++ )
+		gsl_histogram_increment (h, Y[i]);
+
+	for (int i = 0; i<n; i++ )
+	{
+		y[i] = gsl_histogram_get (h, i);
+		double lower, upper;
+		gsl_histogram_get_range (h, i, &lower, &upper);
+		x[i] = lower;
+	}
+
+	setData(x, y, n);
+
+	d_bin_size = (d_end - d_begin)/(double)n;
+	d_autoBin = true;
+    d_mean = gsl_histogram_mean(h);
+	d_standard_deviation = gsl_histogram_sigma(h);
+	d_min = gsl_histogram_min_val(h);
+	d_max = gsl_histogram_max_val(h);
+
+	gsl_histogram_free (h);
 }

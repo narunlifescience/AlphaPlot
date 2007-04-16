@@ -775,7 +775,7 @@ QStringList Table::selectedYLabels()
 	QStringList names;
 	for (int i=0;i<worksheet->numCols();i++)
 	{
-		if(worksheet->isColumnSelected (i,true) && col_plot_type[i] == Y)
+		if(worksheet->isColumnSelected (i) && col_plot_type[i] == Y)
 			names<<col_label[i];
 	}
 	return names;
@@ -2776,6 +2776,7 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 			emit modifiedWindow(this);
 		} else
 			emit optionsDialog();
+        setActiveWindow();
 		return true;
 	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)hheader) {
 		const QMouseEvent *me = (const QMouseEvent *)e;
@@ -2783,12 +2784,14 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
 			worksheet->selectColumn (selectedCol);
 			worksheet->setCurrentCell (0, selectedCol);
+			setActiveWindow();
 			return true;
 		} else if (selectedColsNumber() <= 1) {
 			selectedCol = hheader->sectionAt (me->pos().x() + hheader->offset());
 			worksheet->clearSelection();
 			worksheet->selectColumn (selectedCol);
 			worksheet->setCurrentCell (0, selectedCol);
+			setActiveWindow();
 			return false;
 		}
 	} else if (e->type() == QEvent::MouseButtonPress && object == (QObject*)vheader) {
@@ -2798,10 +2801,12 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 			int row = vheader->sectionAt(me->pos().y() + vheader->offset());
 			worksheet->selectRow (row);
 			worksheet->setCurrentCell (row, 0);
+			setActiveWindow();
 		}
 	} else if (e->type()==QEvent::ContextMenu && object == titleBar) {
 		emit showTitleBarMenu();
 		((QContextMenuEvent*)e)->accept();
+		setActiveWindow();
 		return true;
 	}
 

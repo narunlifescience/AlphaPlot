@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Function dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -50,7 +50,7 @@ FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Q
 		setName( "FunctionDialog" );
 	setWindowTitle( tr( "QtiPlot - Add function curve" ) );
 	setSizeGripEnabled(true);
-	
+
 	QHBoxLayout *hbox1 = new QHBoxLayout();
 	hbox1->addWidget(new QLabel(tr( "Curve type " )));
 	boxType = new QComboBox();
@@ -58,7 +58,7 @@ FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Q
 	boxType->addItem( tr( "Parametric plot" ) );
 	boxType->addItem( tr( "Polar plot" ) );
 	hbox1->addWidget(boxType);
-	
+
 	optionStack = new QStackedWidget();
 	optionStack->setFrameShape( QFrame::StyledPanel );
 	optionStack->setFrameShadow( QStackedWidget::Plain );
@@ -161,17 +161,17 @@ FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Q
 	hbox2->addWidget(buttonClear);
 	hbox2->addWidget(buttonOk);
 	hbox2->addWidget(buttonCancel);
-	
+
 	QVBoxLayout *vbox1 = new QVBoxLayout();
     vbox1->addLayout(hbox1);
 	vbox1->addWidget(optionStack);
 	vbox1->addLayout(hbox2);
-	
+
 	setLayout(vbox1);
 	languageChange();
 	setFocusProxy (boxFunction);
     resize(minimumSize());
-	
+
 	connect( boxType, SIGNAL( activated(int) ), this, SLOT( raiseWidget(int) ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
@@ -279,7 +279,7 @@ void FunctionDialog::acceptFunction()
 		QMessageBox::critical(0, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
 		boxFrom->setFocus();
 		return;
-	}	
+	}
 	try
 	{
 		MyParser parser;
@@ -307,8 +307,8 @@ void FunctionDialog::acceptFunction()
 
 	try
 	{
-		MyParser parser;	
-		parser.DefineVar("x", &x);	
+		MyParser parser;
+		parser.DefineVar("x", &x);
 		parser.SetExpr(formula.ascii());
 
 		x=start;
@@ -320,8 +320,8 @@ void FunctionDialog::acceptFunction()
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxFunction->setFocus();
-		error=true;	
-	}	
+		error=true;
+	}
 
 	// Collecting all the information
 	int type = boxType->currentItem();
@@ -343,7 +343,7 @@ void FunctionDialog::acceptFunction()
 			else
 				graph->addFunctionCurve(type,formulas, "x", ranges, boxPoints->value());
 		}
-	}		
+	}
 
 }
 void FunctionDialog::acceptParametric()
@@ -364,7 +364,7 @@ void FunctionDialog::acceptParametric()
 		QMessageBox::critical(0, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
 		boxParFrom->setFocus();
 		return;
-	}	
+	}
 
 	try
 	{
@@ -377,7 +377,7 @@ void FunctionDialog::acceptParametric()
 		QMessageBox::critical(0, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
 		boxParTo->setFocus();
 		return;
-	}	
+	}
 
 	if (start>=end)
 	{
@@ -389,13 +389,13 @@ void FunctionDialog::acceptParametric()
 
 	double parameter;
 	QString xformula=boxXFunction->currentText();
-	QString yformula=boxYFunction->currentText();	
+	QString yformula=boxYFunction->currentText();
 	bool error=false;
 
 	try
 	{
-		MyParser parser;				
-		parser.DefineVar((boxParameter->text()).ascii(), &parameter);	
+		MyParser parser;
+		parser.DefineVar((boxParameter->text()).ascii(), &parameter);
 		parser.SetExpr(xformula.ascii());
 
 		parameter=start;
@@ -407,12 +407,12 @@ void FunctionDialog::acceptParametric()
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxXFunction->setFocus();
-		error=true;	
-	}	
+		error=true;
+	}
 	try
 	{
-		MyParser parser;				
-		parser.DefineVar((boxParameter->text()).ascii(), &parameter);	
+		MyParser parser;
+		parser.DefineVar((boxParameter->text()).ascii(), &parameter);
 		parser.SetExpr(yformula.ascii());
 
 		parameter=start;
@@ -424,7 +424,7 @@ void FunctionDialog::acceptParametric()
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxYFunction->setFocus();
-		error=true;	
+		error=true;
 	}
 	// Collecting all the information
 	int type = boxType->currentItem();
@@ -472,7 +472,7 @@ void FunctionDialog::acceptPolar()
 
 	try
 	{
-		MyParser parser;	
+		MyParser parser;
 		parser.SetExpr(to.ascii());
 		end=parser.Eval();
 	}
@@ -493,13 +493,13 @@ void FunctionDialog::acceptPolar()
 
 	double parameter;
 	QString rformula=boxPolarRadius->currentText();
-	QString tformula=boxPolarTheta->currentText();	
+	QString tformula=boxPolarTheta->currentText();
 	bool error=false;
 
 	try
 	{
-		MyParser parser;				
-		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);	
+		MyParser parser;
+		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);
 		parser.SetExpr(rformula.ascii());
 
 		parameter=start;
@@ -511,12 +511,12 @@ void FunctionDialog::acceptPolar()
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarRadius->setFocus();
-		error=true;	
-	}	
+		error=true;
+	}
 	try
 	{
-		MyParser parser;				
-		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);	
+		MyParser parser;
+		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);
 		parser.SetExpr(tformula.ascii());
 
 		parameter=start;
@@ -528,7 +528,7 @@ void FunctionDialog::acceptPolar()
 	{
 		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarTheta->setFocus();
-		error=true;	
+		error=true;
 	}
 	// Collecting all the information
 	int type = boxType->currentItem();
@@ -557,8 +557,7 @@ void FunctionDialog::acceptPolar()
 
 void FunctionDialog::accept()
 {
-	int type=boxType->currentItem();
-	switch (type)
+	switch (boxType->currentIndex())
 	{
 		case 0:
 			acceptFunction();
@@ -572,6 +571,7 @@ void FunctionDialog::accept()
 			acceptPolar();
 			break;
 	}
+	close();
 }
 
 void FunctionDialog::insertParamFunctionsList(const QStringList& xList, const QStringList& yList)
@@ -583,9 +583,6 @@ void FunctionDialog::insertParamFunctionsList(const QStringList& xList, const QS
 void FunctionDialog::insertPolarFunctionsList(const QStringList& rList, const QStringList& thetaList)
 {
 	boxPolarRadius->insertItems (0, rList);
-	boxPolarTheta->insertItems (0, thetaList);	
+	boxPolarTheta->insertItems (0, thetaList);
 }
 
-FunctionDialog::~FunctionDialog()
-{
-}

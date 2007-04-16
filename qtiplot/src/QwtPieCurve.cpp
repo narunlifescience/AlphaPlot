@@ -35,7 +35,7 @@
 #include <QVarLengthArray>
 
 QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
-    PlotCurve(t, QString(), name, startRow, endRow)
+    DataCurve(t, QString(), name, startRow, endRow)
 {
 d_pie_ray = 100;
 d_first_color = 0;

@@ -35,7 +35,7 @@
 class QwtPlot;
 
 //! Vector curve class
-class VectorCurve: public PlotCurve
+class VectorCurve: public DataCurve
 {
 public:
 	enum VectorStyle{XYXY, XYAM};
@@ -85,7 +85,7 @@ public:
 	int vectorStyle(){return d_style;};
 	void setVectorStyle(int style){d_style = style;};
 
-	void updateData(Table *t, const QString& colName);
+	bool updateData(Table *t, const QString& colName);
 	void loadData();
 
     QString plotAssociation();

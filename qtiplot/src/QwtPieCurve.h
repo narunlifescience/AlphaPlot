@@ -30,7 +30,7 @@
 #include "PlotCurve.h"
 
 //! Pie plot class
-class QwtPieCurve: public PlotCurve
+class QwtPieCurve: public DataCurve
 {
 public:
 	QwtPieCurve(Table *t, const char *name, int startRow, int endRow);

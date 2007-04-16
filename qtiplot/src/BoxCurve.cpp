@@ -33,7 +33,7 @@
 #include <gsl/gsl_statistics.h>
 
 BoxCurve::BoxCurve(Table *t, const char *name, int startRow, int endRow):
-	PlotCurve(t, QString(), name, startRow, endRow)
+	DataCurve(t, QString(), name, startRow, endRow)
 {
 	mean_style = QwtSymbol::Rect;
 	max_style = QwtSymbol::XCross;
@@ -47,6 +47,8 @@ BoxCurve::BoxCurve(Table *t, const char *name, int startRow, int endRow):
 	w_range = r5_95;
 	w_coeff = 95.0;
 	b_width = 80;
+
+	setType(Graph::Box);
 }
 
 void BoxCurve::copy(const BoxCurve *b)

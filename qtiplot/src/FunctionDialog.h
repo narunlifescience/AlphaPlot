@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Function dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -47,11 +47,10 @@ class FunctionDialog : public QDialog
 
 public:
     FunctionDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~FunctionDialog();
 
 protected:
 	QComboBox* boxXFunction;
-    QComboBox* boxYFunction;  
+    QComboBox* boxYFunction;
     QComboBox* boxPolarRadius;
     QComboBox* boxPolarTheta;
     QComboBox* boxType;
@@ -75,7 +74,7 @@ protected:
 	QWidget* functionPage;
 	QWidget* polarPage;
 	QWidget* parametricPage;
-	
+
 protected slots:
 	void raiseWidget(int index);
 
