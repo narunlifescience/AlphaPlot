@@ -31,7 +31,7 @@
 #include <QPixmap>
 #include <algorithm>
 
-const int colorsCnt = 16;
+const int colorsCnt = 24;
 
 const QColor ColorBox::colors[] = {
   QColor(Qt::black),
@@ -47,8 +47,17 @@ const QColor ColorBox::colors[] = {
   QColor("darkRed"),
   QColor("darkGreen"),
   QColor("darkCyan"),
+  QColor("#0000A0"),
+  QColor("#FF8000"),
+  QColor("#8000FF"),
+  QColor("#FF0080"),	
   QColor(Qt::white),
   QColor("lightGray"),
+  QColor("#808080"),
+  QColor("#FFFF80"),
+  QColor("#80FFFF"),
+  QColor("#FF80FF"),
+  QColor("#404040"),
   QColor("darkGray"),
 };
 
@@ -88,10 +97,30 @@ void ColorBox::init()
 	this->addItem(icon, tr( "olive" ) );
 	icon.fill (QColor (Qt::darkCyan) );
 	this->addItem(icon, tr( "dark cyan" ) );
+
+	icon.fill (QColor ("#0000A0") );
+	this->addItem(icon, tr( "royal" ) );
+	icon.fill (QColor ("#FF8000") );
+	this->addItem(icon, tr( "orange" ) );
+	icon.fill (QColor ("#8000FF") );
+	this->addItem(icon, tr( "violet" ) );
+	icon.fill (QColor ("#FF0080") );
+	this->addItem(icon, tr( "pink" ) );
+
 	icon.fill (QColor (Qt::white) );
 	this->addItem(icon,tr( "white" ) );
 	icon.fill (QColor (Qt::lightGray) );
 	this->addItem(icon, tr( "light gray" ) );
+
+	icon.fill (QColor ("#808080") );
+	this->addItem(icon, tr( "gray" ) );
+	icon.fill (QColor ("#FFFF80") );
+	this->addItem(icon, tr( "light yellow" ) );
+	icon.fill (QColor ("#80FFFF") );
+	this->addItem(icon, tr( "light cyan" ) );
+	icon.fill (QColor ("#FF80FF") );
+	this->addItem(icon, tr( "light magenta" ) );
+
 	icon.fill (QColor (Qt::darkGray) );
 	this->addItem(icon, tr( "dark gray" ) );    
 }

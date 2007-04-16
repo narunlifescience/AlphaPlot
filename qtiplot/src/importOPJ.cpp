@@ -32,6 +32,7 @@
 #include <QRegExp>
 #include <QMessageBox>
 #include "Matrix.h"
+#include "MultiLayer.h"
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
@@ -39,7 +40,94 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 OPJFile opj((const char *)filename.latin1());
 parse_error = opj.Parse();
 importTables(opj);
+importGraphs(opj);
 importFunctions(opj);
+}
+
+QColor ImportOPJ::originColor(int c)
+{
+	QColor clr;
+	switch(c)
+	{
+	case OPJFile::Black:
+		clr=Qt::black;
+		break;
+	case OPJFile::Red:
+		clr=Qt::red;
+		break;
+	case OPJFile::Green:
+		clr=Qt::green;
+		break;
+	case OPJFile::Blue:
+		clr=Qt::blue;
+		break;
+	case OPJFile::Cyan:
+		clr=Qt::cyan;
+		break;
+	case OPJFile::Magenta:
+		clr=Qt::magenta;
+		break;
+	case OPJFile::Yellow:
+		clr=Qt::yellow;
+		break;
+	case OPJFile::DarkYellow:
+		clr.setNamedColor("#808000");
+		break;
+	case OPJFile::Navy:
+		clr.setNamedColor("#000080");
+		break;
+	case OPJFile::Purple:
+		clr.setNamedColor("#800080");
+		break;
+	case OPJFile::Wine:
+		clr.setNamedColor("#800000");
+		break;
+	case OPJFile::Olive:
+		clr.setNamedColor("#008000");
+		break;
+	case OPJFile::DarkCyan:
+		clr.setNamedColor("#008080");
+		break;
+	case OPJFile::Royal:
+		clr.setNamedColor("#0000A0");
+		break;
+	case OPJFile::Orange:
+		clr.setNamedColor("#FF8000");
+		break;
+	case OPJFile::Violet:
+		clr.setNamedColor("#8000FF");
+		break;
+	case OPJFile::Pink:
+		clr.setNamedColor("#FF0080");
+		break;
+	case OPJFile::White:
+		clr=Qt::white;
+		break;
+	case OPJFile::LightGray:
+		clr.setNamedColor("#C0C0C0");
+		break;
+	case OPJFile::Gray:
+		clr.setNamedColor("#808080");
+		break;
+	case OPJFile::LTYellow:
+		clr.setNamedColor("#FFFF80");
+		break;
+	case OPJFile::LTCyan:
+		clr.setNamedColor("#80FFFF");
+		break;
+	case OPJFile::LTMagenta:
+		clr.setNamedColor("#FF80FF");
+		break;
+	case OPJFile::DarkGray:
+		clr.setNamedColor("#404040");
+		break;
+	case OPJFile::Custom:
+		clr=Qt::white;
+		break;
+	default:
+		clr=Qt::black;
+	}
+	return clr;
 }
 
 bool ImportOPJ::importTables(OPJFile opj)
@@ -330,4 +418,213 @@ bool ImportOPJ::importFunctions(OPJFile opj)
 	}
 
 return true;
+}
+
+bool ImportOPJ::importGraphs(OPJFile opj) 
+{
+	for (int g=0; g<opj.numGraphs(); g++) 
+	{	
+		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
+		if (!ml)
+			return false;
+		ml->setWindowLabel(opj.graphLabel(g));
+		for(int l=0; l<opj.numLayers(g); l++)
+		{
+			Graph *graph=ml->addLayer();
+			if(!graph)
+				return false;
+			graph->setXAxisTitle(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l)));
+			graph->setYAxisTitle(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l)));
+			if(strlen(opj.layerLegend(g,l))>0)
+				graph->newLegend(QString::fromLocal8Bit(opj.layerLegend(g,l)));
+			for(int c=0; c<opj.numCurves(g,l); c++)
+			{
+				QString data(opj.curveDataName(g,l,c));
+				int style=0;
+				int color=0;
+				switch(opj.curveType(g,l,c))
+				{
+				case OPJFile::Line:
+					style=Graph::Line;
+					break;
+				case OPJFile::Scatter:
+					style=Graph::Scatter;
+					break;
+				case OPJFile::LineSymbol:
+					style=Graph::LineSymbols;
+					break;
+				}
+				graph->insertCurve(mw->table(data.right(data.length()-2)), opj.curveXColName(g,l,c), opj.curveYColName(g,l,c), style);
+				CurveLayout cl = graph->initCurveLayout(style, opj.numCurves(g,l));
+				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
+				cl.penWidth=opj.curveSymbolThickness(g,l,c);
+				color=opj.curveSymbolColor(g,l,c);
+				cl.symCol=(color==0xF7?0:color); //0xF7 -Automatic color
+				switch(opj.curveSymbolType(g,l,c)&0xFF)
+				{
+				case 0: //NoSymbol
+					cl.sType=0;
+					break;
+				case 1: //Rect
+					cl.sType=2;
+					break;
+				case 2: //Ellipse
+				case 20://Sphere
+					cl.sType=1;
+					break;
+				case 3: //UTriangle
+					cl.sType=6;
+					break;
+				case 4: //DTriangle
+					cl.sType=5;
+					break;
+				case 5: //Diamond
+					cl.sType=3;
+					break;
+				case 6: //Cross +
+					cl.sType=9;
+					break;
+				case 7: //Cross x
+					cl.sType=10;
+					break;
+				case 8: //Snow
+					cl.sType=13;
+					break;
+				case 9: //Horizontal -
+					cl.sType=11;
+					break;
+				case 10: //Vertical |
+					cl.sType=12;
+					break;
+				case 15: //LTriangle
+					cl.sType=7;
+					break;
+				case 16: //RTriangle
+					cl.sType=8;
+					break;
+				case 17: //Hexagon
+				case 19: //Pentagon
+					cl.sType=15;
+					break;
+				case 18: //Star
+					cl.sType=14;
+					break;
+				default:
+					cl.sType=0;
+				}
+				
+				switch(opj.curveSymbolType(g,l,c)>>8)
+				{
+				case 0:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+					color=opj.curveSymbolColor(g,l,c);
+					cl.fillCol=(color==0xF7?0:color); //0xF7 -Automatic color
+					break;
+				default:
+					cl.fillCol=-1;
+				}
+				
+				cl.filledArea=opj.curveIsFilledArea(g,l,c)?1:0;
+				if(cl.filledArea)
+				{
+					switch(opj.curveFillPattern(g,l,c))
+					{
+					case 0:
+						cl.aStyle=0;
+						break;
+					case 1:
+					case 2:
+					case 3:
+						cl.aStyle=4;
+						break;
+					case 4:
+					case 5:
+					case 6:
+						cl.aStyle=5;
+						break;
+					case 7:
+					case 8:
+					case 9:
+						cl.aStyle=6;
+						break;
+					case 10:
+					case 11:
+					case 12:
+						cl.aStyle=1;
+						break;
+					case 13:
+					case 14:
+					case 15:
+						cl.aStyle=2;
+						break;
+					case 16:
+					case 17:
+					case 18:
+						cl.aStyle=3;
+						break;
+					}
+					color=opj.curveFillAreaColor(g,l,c);
+					cl.aCol=(color==0xF7?0:color); //0xF7 -Automatic color
+				}
+				cl.lWidth = ceil(opj.curveLineWidth(g,l,c));
+				color=opj.curveLineColor(g,l,c);
+				cl.lCol=(color==0xF7?0:color); //0xF7 -Automatic color
+				switch (opj.curveLineStyle(g,l,c))
+				{
+					case OPJFile::Solid:
+						cl.lStyle=0;
+						break;
+					case OPJFile::Dash:
+					case OPJFile::ShortDash:
+						cl.lStyle=1;
+						break;
+					case OPJFile::Dot:
+					case OPJFile::ShortDot:
+						cl.lStyle=2;
+						break;
+					case OPJFile::DashDot:
+					case OPJFile::ShortDashDot:
+						cl.lStyle=3;
+						break;
+					case OPJFile::DashDotDot:
+						cl.lStyle=4;
+						break;
+				}
+				graph->updateCurveLayout(c, &cl);
+				switch(opj.curveLineConnect(g,l,c))
+				{
+				case OPJFile::NoLine:
+					graph->setCurveStyle(c, QwtPlotCurve::NoCurve);
+					break;
+				case OPJFile::Straight:
+					graph->setCurveStyle(c, QwtPlotCurve::Lines);
+					break;
+				case OPJFile::BSpline:
+				case OPJFile::Bezier:
+				case OPJFile::Spline:
+					graph->setCurveStyle(c, 5);
+					break;
+				case OPJFile::StepHorizontal:
+				case OPJFile::StepHCenter:
+					graph->setCurveStyle(c, QwtPlotCurve::Steps);
+					break;
+				case OPJFile::StepVertical:
+				case OPJFile::StepVCenter:
+					graph->setCurveStyle(c, 6);
+					break;
+				}
+		
+			}
+			vector<double> range=opj.layerXRange(g,l);
+			graph->setScale(2,range[0],range[1]);
+			range=opj.layerYRange(g,l);
+			graph->setScale(0,range[0],range[1]);
+		}
+		ml->arrangeLayers(true,true);
+	}
+
+	return true;
 }

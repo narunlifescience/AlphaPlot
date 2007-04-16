@@ -26,6 +26,7 @@ OPJFile::OPJFile(const char *filename)
 	: filename(filename) 
 {
 	version=0;
+	dataIndex=0;
 //	nr_spreads=0;
 //	entry=0;
 }
@@ -49,6 +50,33 @@ int OPJFile::compareMatrixnames(char *sname) {
 		if (MATRIX[i].name == sname)
 			return i;
 	return -1;
+}
+
+vector<string> OPJFile::findDataByIndex(int index) {
+	vector<string> str;
+	for(int spread=0;spread<SPREADSHEET.size();spread++)
+		for(int i=0;i<SPREADSHEET[spread].column.size();i++)
+			if (SPREADSHEET[spread].column[i].index == index)
+			{
+				str.push_back(SPREADSHEET[spread].column[i].name);
+				str.push_back("T_" + SPREADSHEET[spread].name);
+				return str;
+			}
+	for(int i=0;i<MATRIX.size();i++)
+		if (MATRIX[i].index == index)
+		{
+			str.push_back(MATRIX[i].name);
+			str.push_back("M_" + MATRIX[i].name);
+			return str;
+		}
+	for(int i=0;i<FUNCTION.size();i++)
+		if (FUNCTION[i].index == index)
+		{
+			str.push_back(FUNCTION[i].name);
+			str.push_back("F_" + FUNCTION[i].name);
+			return str;
+		}
+	return str;
 }
 
 // set default name for columns starting from spreadsheet spread
@@ -234,7 +262,8 @@ int OPJFile::Parse() {
 				case 0x50CA:
 				case 0x70CA:
 					fprintf(debug,"NEW MATRIX\n");
-					MATRIX.push_back(matrix(sname));
+					MATRIX.push_back(matrix(sname, dataIndex));
+					dataIndex++;
 			
 					fprintf(debug,"VALUES :\n");
 
@@ -313,7 +342,8 @@ int OPJFile::Parse() {
 					break;
 				case 0x10C8:
 					fprintf(debug,"NEW FUNCTION\n");
-					FUNCTION.push_back(function(sname));
+					FUNCTION.push_back(function(sname, dataIndex));
+					dataIndex++;
 			
 					char *cmd;
 					cmd=new char[valuesize+1];
@@ -436,7 +466,8 @@ int OPJFile::Parse() {
 			fprintf(debug,"SPREADSHEET = %s COLUMN NAME = %s (%d) (@0x%X)\n",
 				sname, cname,current_col,(unsigned int) ftell(f));
 			fflush(debug);
-			SPREADSHEET[spread].column.push_back(spreadColumn(cname));
+			SPREADSHEET[spread].column.push_back(spreadColumn(cname, dataIndex));
+			dataIndex++;
 
 ////////////////////////////// SIZE of column /////////////////////////////////////////////
 			do{	// skip until '\n'
@@ -551,8 +582,14 @@ int OPJFile::Parse() {
 					skipObjectInfo(f, debug);
 
 			}
+			else if(0==strcmp(object_type,"LINE")
+				|| 0==strcmp(object_type,"SCATTER"))
+				readGraphInfo(f, debug);
 			else
+			{
+				fprintf(debug,"Object %s has not supported yes type: %s\n", object_name, object_type);
 				skipObjectInfo(f, debug);
+			}
 		}
 	}
 	else
@@ -845,7 +882,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 
 		fseek(f,LAYER+0x11, SEEK_SET);
 		fread(&c,1,1,f);
-		unsigned char width=0;
+		short width=0;
 		fseek(f,LAYER+0x4A, SEEK_SET);
 		fread(&width,2,1,f);
 		int col_index=compareColumnnames(spread,name);
@@ -1099,6 +1136,282 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	}
 
 	LAYER+=0x5*0x5+0x1ED*0x12;
+	POS = LAYER+0x5;
+
+	fseek(f,POS,SEEK_SET);
+}
+
+
+void OPJFile::readGraphInfo(FILE *f, FILE *debug)
+{
+	int POS=ftell(f);
+	
+	int headersize;
+	fread(&headersize,4,1,f);
+	POS+=5;
+	GRAPH.push_back(graph());
+
+	fprintf(debug,"			[Graph SECTION (@ 0x%X)]\n",POS);
+	fflush(debug);
+
+	// check spreadsheet name
+	char name[25];
+	fseek(f,POS + 0x2,SEEK_SET);
+	fread(&name,25,1,f);
+
+	GRAPH.back().name=name;
+
+	fprintf(debug,"			GRAPH %d NAME : %s	(@ 0x%X) \n", GRAPH.size(),name,POS + 0x2);
+	fflush(debug);
+
+	if(headersize>0xC3)
+	{
+		int labellen=0;
+		char c=0;
+		fseek(f,POS + 0xC3,SEEK_SET);
+		fread(&c,1,1,f);
+		while (c != '@'){
+			fread(&c,1,1,f);
+			labellen++;
+		}
+		if(labellen>0)
+		{
+			char label[255];
+			label[labellen]='\0';
+			fseek(f,POS + 0xC3,SEEK_SET);
+			fread(&label,labellen,1,f);
+			GRAPH.back().label=label;
+		}
+		else
+			GRAPH.back().label="";
+		fprintf(debug,"			GRAPH %d LABEL : %s\n",GRAPH.size(),GRAPH.back().label.c_str());
+		fflush(debug);
+	}
+
+	int LAYER = POS;
+	LAYER += headersize + 0x1; 
+	int sec_size;
+	while(1)// multilayer loop
+	{
+		GRAPH.back().layer.push_back(graphLayer());
+		// LAYER section
+		LAYER +=0x5;
+		double range=0.0;
+		fseek(f, LAYER+0xF, SEEK_SET);
+		fread(&range,8,1,f);
+		GRAPH.back().layer.back().xMin=range;
+		fread(&range,8,1,f);
+		GRAPH.back().layer.back().xMax=range;
+		fseek(f, LAYER+0x3A, SEEK_SET);
+		fread(&range,8,1,f);
+		GRAPH.back().layer.back().yMin=range;
+		fread(&range,8,1,f);
+		GRAPH.back().layer.back().yMax=range;
+
+		LAYER += 0x12D + 0x1;
+		//now structure is next : section_header_size=0x6F(4 bytes) + '\n' + section_header(0x6F bytes) + section_body_1_size(4 bytes) + '\n' + section_body_1 + section_body_2_size(maybe=0)(4 bytes) + '\n' + section_body_2 + '\n'
+		//possible sections: axes, legend, __BC02, _202, _231, _232, __LayerInfoStorage etc
+		//section name starts with 0x46 position
+		while(1)
+		{
+		//section_header_size=0x6F(4 bytes) + '\n'
+			LAYER+=0x5;
+							
+		//section_header
+			fseek(f,LAYER+0x46,SEEK_SET);
+			char sec_name[42];
+			sec_name[41]='\0';
+			fread(&sec_name,41,1,f);
+
+		//section_body_1_size
+			LAYER+=0x6F+0x1;
+			fseek(f,LAYER,SEEK_SET);
+			fread(&sec_size,4,1,f);
+
+		//section_body_1
+			LAYER+=0x5;
+
+		//section_body_2_size
+			LAYER+=sec_size+0x1;
+			fseek(f,LAYER,SEEK_SET);
+			fread(&sec_size,4,1,f);
+
+		//section_body_2
+			LAYER+=0x5;
+			//check if it is a axis or legend
+			fseek(f,1,SEEK_CUR);
+			char stmp[255];
+			if(0==strcmp(sec_name,"XB"))
+			{
+				stmp[sec_size]='\0';
+				fread(&stmp,sec_size,1,f);
+				GRAPH.back().layer.back().xPos=Bottom;
+				GRAPH.back().layer.back().xLabel=stmp;
+			}
+			else if(0==strcmp(sec_name,"XT"))
+			{
+				stmp[sec_size]='\0';
+				fread(&stmp,sec_size,1,f);
+				GRAPH.back().layer.back().xPos=Top;
+				GRAPH.back().layer.back().xLabel=stmp;
+			}
+			else if(0==strcmp(sec_name,"YL"))
+			{
+				stmp[sec_size]='\0';
+				fread(&stmp,sec_size,1,f);
+				GRAPH.back().layer.back().yPos=Left;
+				GRAPH.back().layer.back().yLabel=stmp;
+			}
+			else if(0==strcmp(sec_name,"YR"))
+			{
+				stmp[sec_size]='\0';
+				fread(&stmp,sec_size,1,f);
+				GRAPH.back().layer.back().yPos=Right;
+				GRAPH.back().layer.back().yLabel=stmp;
+			}
+			else if(0==strcmp(sec_name,"Legend"))
+			{
+				stmp[sec_size]='\0';
+				fread(&stmp,sec_size,1,f);
+				GRAPH.back().layer.back().legend=stmp;
+			}
+
+		//close section 00 00 00 00 0A
+			LAYER+=sec_size+(sec_size>0?0x1:0);
+
+		//section_body_3_size
+			fseek(f,LAYER,SEEK_SET);
+			fread(&sec_size,4,1,f);
+
+		//section_body_3
+			LAYER+=0x5;
+
+		//close section 00 00 00 00 0A
+			LAYER+=sec_size+(sec_size>0?0x1:0);
+
+			if(0==strcmp(sec_name,"__LayerInfoStorage"))
+				break;
+
+		}
+		LAYER+=0x5;
+
+		while(1)//need to add empty layer check!!!
+		{
+			LAYER+=0x5;
+			unsigned char h;
+			short w;
+			GRAPH.back().layer.back().curve.push_back(graphCurve());
+
+			vector<string> col;
+			fseek(f,LAYER+0x4,SEEK_SET);
+			fread(&w,2,1,f);
+			col=findDataByIndex(w-1);
+			if(col.size()>0)
+			{
+				fprintf(debug,"			GRAPH %d Y : %s.%s\n",GRAPH.size(),col[0].c_str(),col[1].c_str());
+				fflush(debug);
+				GRAPH.back().layer.back().curve.back().yColName=col[0];
+				GRAPH.back().layer.back().curve.back().dataName=col[1];
+			}
+
+			fseek(f,LAYER+0x23,SEEK_SET);
+			fread(&w,2,1,f);
+			col=findDataByIndex(w-1);
+			if(col.size()>0)
+			{
+				fprintf(debug,"			GRAPH %d X : %s.%s\n",GRAPH.size(),col[0].c_str(),col[1].c_str());
+				fflush(debug);
+				GRAPH.back().layer.back().curve.back().xColName=col[0];
+				if(GRAPH.back().layer.back().curve.back().dataName!=col[1])
+					fprintf(debug,"			GRAPH %d X and Y from different tables\n",GRAPH.size());
+			}
+			
+			fseek(f,LAYER+0x4C,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().type=h;
+
+			fseek(f,LAYER+0x11,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().line_connect=h;
+
+			fseek(f,LAYER+0x12,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().line_style=h;
+
+			fseek(f,LAYER+0x15,SEEK_SET);
+			fread(&w,2,1,f);
+			GRAPH.back().layer.back().curve.back().line_width=(double)w/500.0;
+
+			fseek(f,LAYER+0x19,SEEK_SET);
+			fread(&w,2,1,f);
+			GRAPH.back().layer.back().curve.back().symbol_size=(double)w/500.0;
+
+			fseek(f,LAYER+0x1C,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea=(h==2?true:false);
+
+			fseek(f,LAYER+0x1E,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_type=h;
+
+			fseek(f,LAYER+0xC2,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_color=h;
+
+			fseek(f,LAYER+0xCE,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern=h;
+
+			fseek(f,LAYER+0xCA,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern_color=h;
+
+			fseek(f,LAYER+0xCE,SEEK_SET);
+			fread(&w,2,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern_width=(double)w/500.0;
+
+			fseek(f,LAYER+0x16A,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().line_color=h;
+
+			fseek(f,LAYER+0x17,SEEK_SET);
+			fread(&w,2,1,f);
+			GRAPH.back().layer.back().curve.back().symbol_type=w;
+
+			fseek(f,LAYER+0x132,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().symbol_color=h;
+
+			fseek(f,LAYER+0x136,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().symbol_thickness=(h==255?1:h);
+
+			fseek(f,LAYER+0x137,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().point_offset=h;
+
+			LAYER+=0x1E7+0x1;
+			fseek(f,LAYER,SEEK_SET);
+			int comm_size=0;
+			fread(&comm_size,4,1,f);
+			LAYER+=0x5;
+			if(comm_size>0)
+			{
+				LAYER+=comm_size+0x1;
+			}
+			fseek(f,LAYER,SEEK_SET);
+			int ntmp;
+			fread(&ntmp,4,1,f);
+			if(ntmp!=0x1E7)
+				break;
+		}
+
+		LAYER+=0x5*0x5+0x1ED*0x12;
+		fseek(f,LAYER,SEEK_SET);
+		fread(&sec_size,4,1,f);
+		if(sec_size==0)
+			break;	
+	}
 	POS = LAYER+0x5;
 
 	fseek(f,POS,SEEK_SET);
