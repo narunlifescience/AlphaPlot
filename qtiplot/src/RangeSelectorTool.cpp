@@ -31,6 +31,7 @@
 #include "RangeSelectorTool.h"
 #include "Graph.h"
 #include "Plot.h"
+#include "PlotCurve.h"
 #include "cursors.h"
 
 #include <qwt_symbol.h>
@@ -173,7 +174,7 @@ void RangeSelectorTool::emitStatusText()
 			.arg(d_active_marker.xValue() > d_inactive_marker.xValue()
 				? tr("Right") : tr("Left"))
 			.arg(d_selected_curve->title().text())
-			.arg(d_active_point + 1)
+			.arg(((DataCurve*)d_selected_curve)->startRow() + d_active_point + 1)
 			.arg(QString::number(d_selected_curve->x(d_active_point), 'G', 15))
 			.arg(QString::number(d_selected_curve->y(d_active_point), 'G', 15))
 			.arg(tr("Delta_x","x difference = abs(x2-x1)"))

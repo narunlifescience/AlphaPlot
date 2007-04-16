@@ -72,8 +72,9 @@ To install the Debian package, download the file <a class="qindex" href="http://
 To install the RPM package, download the file <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot-X.X.X-1.i386.rpm</a> and login to your machine as "root", then execute:<br>
       <code>rpm -i qtiplot-X.X.X-1.i386.rpm</code><br>
       <br>
-//TODO: What about the Mac OS X binaries?<br>
-<br>
+	  
+To install the binary package on Mac OS X 10.4, download the file <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot-X.X.X.pkg.zip</a>, unzip it, double-click on the "qtiplot-X.X.X.pkg" file and follow the installation instructions. The package provides all needed libraries, except Python 2.5, which must be installed separately on your system. 
+
 <h3>QtiPlot Linux binaries free of charge:</h3>
 The QtiPlot team offers GNU/Linux binaries for several distributions free of charge but without any guaranteed support. Some time after each release, you will find these (including notes how to install them) on the <a href="http://soft.proindependent.com/download.html">QtiPlot download page</a> or in the files section at the <a href="https://developer.berlios.de/project/showfiles.php?group_id=6626">QtiPlot project page at berliOS</a>.<br>
 
@@ -98,13 +99,13 @@ Remark: Lines stating with # are comments and thus ignored by qmake.<br>
 <li>login as root and run <code>make install</code> <br>
 or simply <code>su -c "make install"</code></li>
 </ol>
-<br>
+
 If you want <span style="font-weight: bold;">Python scripting support</span> (uncomment the line <code>SCRIPTING_LANGS += Python</code> in qtiplot/qtiplot.pro before running <code>qmake</code>), you will also need to download and install <a href="http://www.python.org/">Python</a> 2.5, <a href="http://www.riverbankcomputing.co.uk/sip">SIP</a> 4.5.2 and <a href="http://www.riverbankcomputing.co.uk/pyqt">PyQt</a> 4.2.
 All three of them are included in many Linux distributions.
 Other versions as those indicated above may or may not work.
 Specifically, there are known issues with a number of SIP versions and
 a given version of PyQt will only work with a limited range of SIP
-versions. <br>
+versions.
 
 <h2>Windows:</h2>
 

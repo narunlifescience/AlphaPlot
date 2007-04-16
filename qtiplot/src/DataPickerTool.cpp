@@ -117,7 +117,7 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 
 	emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
-			.arg(d_selected_point + 1)
+			.arg(((DataCurve*)d_selected_curve)->startRow() + d_selected_point + 1)
 			.arg(QString::number(d_selected_curve->x(d_selected_point), 'G', 15))
 			.arg(QString::number(d_selected_curve->y(d_selected_point), 'G', 15)) );
 
