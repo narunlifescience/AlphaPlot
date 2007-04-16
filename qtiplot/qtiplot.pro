@@ -109,7 +109,7 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
                   translations/qtiplot_fr.ts \
                   translations/qtiplot_ru.ts \
                   translations/qtiplot_ja.ts \
-                  translations/qtiplot_sv.ts \
+                  translations/qtiplot_sv.ts 
 
 #system(lupdate -verbose qtiplot.pro)
 #system(lrelease -verbose qtiplot.pro)
