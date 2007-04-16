@@ -53,11 +53,16 @@ public:
 	static QColor color(int colorIndex);
     //! Returns TRUE if the color is included in the color box, otherwise returns FALSE.
     static bool isValidColor(const QColor& color);
+	//! Returns the number of predefined colors
+    static int numPredefinedColors();
+
 
 protected:
 	//! Internal initialization function
 	void init();
-	//! Array containing the 16 colors
+	//! The number of predefined colors
+	static const int colors_count = 24;
+	//! Array containing the 24 predefined colors
 	static const QColor colors[];
 };
 

@@ -63,18 +63,18 @@ class QwtErrorPlotCurve;
 
 //! Structure containing curve layout parameters
 typedef struct{
-  int lCol;
-  int lWidth;
-  int lStyle;
-  int filledArea;
-  int aCol;
-  int aStyle;
-  int symCol;
-  int fillCol;
-  int penWidth;
-  int sSize;
-  int sType;
-  int connectType;
+  int lCol;        //!< line color
+  int lWidth;      //!< line width
+  int lStyle;      //!< line style
+  int filledArea;  //!< flag: toggles area filling under curve
+  int aCol;        //!< curve area color
+  int aStyle;      //!< area filling style
+  int symCol;      //!< symbol outline color
+  int fillCol;     //!< symbol fill color
+  int penWidth;    //!< symbol outline width
+  int sSize;       //!< symbol size
+  int sType;       //!< symbol type (shape)
+  int connectType; //!< symbol connection type
 }  CurveLayout;
 
 /**

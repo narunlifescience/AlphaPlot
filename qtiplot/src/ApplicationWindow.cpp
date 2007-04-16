@@ -10154,7 +10154,8 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			if (table)
 			{
 				int startRow = 0;
-				int endRow = table->tableRows();
+				int endRow = table->tableRows() - 1;
+				int first_color = curve[7].toInt();
 				bool visible = true;
 				if (d_file_version >= 90)
 				{
@@ -10162,8 +10163,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					endRow = curve[9].toInt();
 					visible = ((curve.last() == "1") ? true : false);
 				}
+			
+				if (d_file_version <= 89)
+					first_color = convertOldToNewColorIndex(first_color);
+
 				ag->plotPie(table, curve[1], pen, curve[5].toInt(),
-					curve[6].toInt(), curve[7].toInt(), startRow, endRow, visible);
+					curve[6].toInt(), first_color, startRow, endRow, visible);
 			}
 		}
 		else if (s.left(6)=="curve\t")
@@ -10184,6 +10189,8 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			CurveLayout cl;
 			cl.connectType=curve[4].toInt();
 			cl.lCol=curve[5].toInt();
+			if (d_file_version <= 89)
+				cl.lCol = convertOldToNewColorIndex(cl.lCol);
 			cl.lStyle=curve[6].toInt();
 			cl.lWidth=curve[7].toInt();
 			cl.sSize=curve[8].toInt();
@@ -10193,9 +10200,15 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				cl.sType=curve[9].toInt();
 
 			cl.symCol=curve[10].toInt();
+			if (d_file_version <= 89)
+				cl.symCol = convertOldToNewColorIndex(cl.symCol);
 			cl.fillCol=curve[11].toInt();
+			if (d_file_version <= 89)
+				cl.fillCol = convertOldToNewColorIndex(cl.fillCol);
 			cl.filledArea=curve[12].toInt();
 			cl.aCol=curve[13].toInt();
+			if (d_file_version <= 89)
+				cl.aCol = convertOldToNewColorIndex(cl.aCol);
 			cl.aStyle=curve[14].toInt();
 			if(curve.count() < 16)
 				cl.penWidth = cl.lWidth;
@@ -10231,7 +10244,8 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 
 					if (d_file_version <= 77)
 					{
-						ag->updateVectorsLayout(curveID, ColorBox::color(curve[15].toInt()), curve[16].toInt(), curve[17].toInt(),
+						int temp_index = convertOldToNewColorIndex(curve[15].toInt());
+						ag->updateVectorsLayout(curveID, ColorBox::color(temp_index), curve[16].toInt(), curve[17].toInt(),
 								curve[18].toInt(), curve[19].toInt(), 0, curve[20], curve[21]);
 					}
 					else
@@ -14155,3 +14169,16 @@ QString ApplicationWindow::versionString()
 	return "QtiPlot " + QString::number(maj_version) + "." +
 		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
 }
+
+
+int ApplicationWindow::convertOldToNewColorIndex(int cindex)
+{
+	if( (cindex == 13) || (cindex == 14) ) // white and light gray
+		return cindex + 4; 
+	
+	if(cindex == 15) // dark gray
+		return cindex + 8;
+
+	return cindex;
+}
+

@@ -32,8 +32,6 @@
 #include <QPainter>
 #include <algorithm>
 
-const int colorsCnt = 24;
-
 const QColor ColorBox::colors[] = {
   QColor(Qt::black),
   QColor(Qt::red),
@@ -43,23 +41,22 @@ const QColor ColorBox::colors[] = {
   QColor(Qt::magenta),
   QColor(Qt::yellow),
   QColor(Qt::darkYellow),
-  QColor("darkBlue"),
-  QColor("darkMagenta"),
-  QColor("darkRed"),
-  QColor("darkGreen"),
-  QColor("darkCyan"),
+  QColor(Qt::darkBlue),
+  QColor(Qt::darkMagenta),
+  QColor(Qt::darkRed),
+  QColor(Qt::darkGreen),
+  QColor(Qt::darkCyan),
   QColor("#0000A0"),
   QColor("#FF8000"),
   QColor("#8000FF"),
   QColor("#FF0080"),
   QColor(Qt::white),
-  QColor("lightGray"),
-  QColor("#808080"),
+  QColor(Qt::lightGray),
+  QColor(Qt::gray),
   QColor("#FFFF80"),
   QColor("#80FFFF"),
   QColor("#FF80FF"),
-  QColor("#404040"),
-  QColor("darkGray"),
+  QColor(Qt::darkGray),
 };
 
 ColorBox::ColorBox(QWidget *parent) : QComboBox(parent)
@@ -73,100 +70,100 @@ void ColorBox::init()
 	QPixmap icon = QPixmap(28, 16);
 	QRect r = QRect(0, 0, 27, 15);
 
-	icon.fill ( QColor (Qt::black) );
+	icon.fill ( colors[0] );
 	this->addItem(icon, tr( "black" ) );
 	
 	QPainter p;
 	p.begin(&icon);
-	p.setBrush(QBrush(QColor (Qt::red)));
+	p.setBrush(QBrush(colors[1]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "red" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::green)));
+	p.setBrush(QBrush(colors[2]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "green" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::blue)));
+	p.setBrush(QBrush(colors[3]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "blue" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::cyan)));
+	p.setBrush(QBrush(colors[4]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "cyan" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::magenta)));
+	p.setBrush(QBrush(colors[5]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "magenta" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::yellow)));
+	p.setBrush(QBrush(colors[6]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "yellow" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::darkYellow)));
+	p.setBrush(QBrush(colors[7]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "dark yellow" ) );
 		
-	p.setBrush(QBrush(QColor (Qt::darkBlue)));
+	p.setBrush(QBrush(colors[8]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "navy" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::darkMagenta)));
+	p.setBrush(QBrush(colors[9]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "purple" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::darkRed)));
+	p.setBrush(QBrush(colors[10]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "wine" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::darkGreen)));
+	p.setBrush(QBrush(colors[11]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "olive" ) );
 	
-	p.setBrush(QBrush(QColor (Qt::darkCyan)));
+	p.setBrush(QBrush(colors[12]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "dark cyan" ) );
 
-	p.setBrush(QBrush(QColor ("#0000A0")));
+	p.setBrush(QBrush(colors[13]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "royal" ) );
 	
-	p.setBrush(QBrush(QColor("#FF8000")));
+	p.setBrush(QBrush(colors[14]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "orange" ) );
 	
-	p.setBrush(QBrush(QColor("#8000FF")));
+	p.setBrush(QBrush(colors[15]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "violet" ) );
 	
-	p.setBrush(QBrush(QColor("#FF0080")));
+	p.setBrush(QBrush(colors[16]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "pink" ) );
 
-	p.setBrush(QBrush(QColor(Qt::white)));
+	p.setBrush(QBrush(colors[17]));
 	p.drawRect(r);
 	this->addItem(icon,tr( "white" ) );
 	
-	p.setBrush(QBrush(QColor(Qt::lightGray)));
+	p.setBrush(QBrush(colors[18]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "light gray" ) );
 
-	p.setBrush(QBrush(QColor("#808080")));
+	p.setBrush(QBrush(colors[19]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "gray" ) );
 	
-	p.setBrush(QBrush(QColor("#FFFF80")));
+	p.setBrush(QBrush(colors[20]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "light yellow" ) );
 	
-	p.setBrush(QBrush(QColor("#80FFFF")));
+	p.setBrush(QBrush(colors[21]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "light cyan" ) );
 	
-	p.setBrush(QBrush(QColor("#FF80FF")));
+	p.setBrush(QBrush(colors[22]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "light magenta" ) );
 
-	p.setBrush(QBrush(QColor(Qt::darkGray)));
+	p.setBrush(QBrush(colors[23]));
 	p.drawRect(r);
 	this->addItem(icon, tr( "dark gray" ) );
 	p.end();
@@ -206,10 +203,16 @@ QColor ColorBox::color(int colorIndex)
 
 bool ColorBox::isValidColor(const QColor& color)
 {
-	for (int i = 0; i < colorsCnt; i++)
+	for (int i = 0; i < colors_count; i++)
 	{
         if (color == colors[i])
             return true;
     }
     return false;
 }
+
+int ColorBox::numPredefinedColors()
+{
+	return colors_count;
+}
+

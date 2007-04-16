@@ -1008,6 +1008,9 @@ private:
 	int demoCloseTimerId;
 #endif
 
+	//! Workaround for the new colors introduced in rev 447
+	int convertOldToNewColorIndex(int cindex);
+
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
 

@@ -32,6 +32,7 @@ INCLUDEPATH       += ../3rdparty/qwt/src
 #INCLUDEPATH       += /usr/include/qwtplot3d
 #INCLUDEPATH       += /usr/include/qwt5
 
+INCLUDEPATH       += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 

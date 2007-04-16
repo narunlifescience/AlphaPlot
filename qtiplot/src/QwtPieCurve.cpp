@@ -35,37 +35,37 @@
 #include <QVarLengthArray>
 
 QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
-    DataCurve(t, QString(), name, startRow, endRow)
+	DataCurve(t, QString(), name, startRow, endRow)
 {
-d_pie_ray = 100;
-d_first_color = 0;
-setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine));
-setBrush(QBrush(Qt::black, Qt::SolidPattern));
+	d_pie_ray = 100;
+	d_first_color = 0;
+	setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine));
+	setBrush(QBrush(Qt::black, Qt::SolidPattern));
 }
 
 void QwtPieCurve::draw(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-    if ( !painter || dataSize() <= 0 )
-        return;
+	if ( !painter || dataSize() <= 0 )
+		return;
 
-    if (to < 0)
-        to = dataSize() - 1;
+	if (to < 0)
+		to = dataSize() - 1;
 
-    drawPie(painter, xMap, yMap, from, to);
+	drawPie(painter, xMap, yMap, from, to);
 }
 
 void QwtPieCurve::drawPie(QPainter *painter,
-    const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
+		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-    int x_center = xMap.transform((xMap.s1() + xMap.s2())/2);
-    int y_center = yMap.transform((yMap.s1() + yMap.s2())/2);
+	int x_center = xMap.transform((xMap.s1() + xMap.s2())/2);
+	int y_center = yMap.transform((yMap.s1() + yMap.s2())/2);
 
-    QwtPlot *plot = (QwtPlot *)this->plot();
-    double dx = (double)painter->device()->width()/(double)plot->width();
-    double dy = (double)painter->device()->height()/(double)plot->height();
+	QwtPlot *plot = (QwtPlot *)this->plot();
+	double dx = (double)painter->device()->width()/(double)plot->width();
+	double dy = (double)painter->device()->height()/(double)plot->height();
 
-    int d = int(2*d_pie_ray*QMIN(dx, dy));
+	int d = int(2*d_pie_ray*QMIN(dx, dy));
 
 	QRect pieRect;
 	pieRect.setX(x_center - d/2);
@@ -75,41 +75,41 @@ void QwtPieCurve::drawPie(QPainter *painter,
 
 	double sum = 0.0;
 	for (int i = from; i <= to; i++)
-    {
+	{
 		const double yi = y(i);
 		sum += yi;
-    }
+	}
 
 	int angle = (int)(5760 * 0.75);
 	painter->save();
 	for (int i = from; i <= to; i++)
-    {
+	{
 		const double yi = y(i);
 		const int value = (int)(yi/sum*5760);
 
 		painter->setPen(QwtPlotCurve::pen());
-        painter->setBrush(QBrush(color(i), QwtPlotCurve::brush().style()));
+		painter->setBrush(QBrush(color(i), QwtPlotCurve::brush().style()));
 		painter->drawPie(pieRect, -angle, -value);
 
 		angle += value;
-    }
+	}
 	painter->restore();
 }
 
 QColor QwtPieCurve::color(int i) const
 {
-int index=(d_first_color+i)%16;
-return ColorBox::color(index);
+	int index=(d_first_color+i) % ColorBox::numPredefinedColors();
+	return ColorBox::color(index);
 }
 
 void QwtPieCurve::setBrushStyle(const Qt::BrushStyle& style)
 {
-QBrush br = QwtPlotCurve::brush();
-if (br.style() == style)
-	return;
+	QBrush br = QwtPlotCurve::brush();
+	if (br.style() == style)
+		return;
 
-br.setStyle(style);
-setBrush(br);
+	br.setStyle(style);
+	setBrush(br);
 }
 
 void QwtPieCurve::loadData()
@@ -123,9 +123,9 @@ void QwtPieCurve::loadData()
 		if (!xval.isEmpty())
 		{
 			X[size] = xval.toDouble();
-            size++;
+			size++;
 		}
 	}
-    X.resize(size);
-    setData(X.data(), X.data(), size);
+	X.resize(size);
+	setData(X.data(), X.data(), size);
 }
