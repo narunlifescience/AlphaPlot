@@ -1481,24 +1481,6 @@ QStringList Graph::plotItemsList()
 	return cList;
 }
 
-/*QStringList Graph::plotAssociations()
-{
-    QStringList	lst = QStringList();
-    QList<int> keys = d_plot->curveKeys();
-	for (int i=0; i<(int)keys.count(); i++)
-	{
-		QwtPlotItem *it = d_plot->plotItem(keys[i]);
-		if (!it)
-            continue;
-
-        if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
-            lst << it->title().text();
-        else
-            lst << ((PlotCurve *)it)->plotAssociation();
-	}
-    return lst;
-}*/
-
 void Graph::copyImage()
 {
 	QApplication::clipboard()->setPixmap(graphPixmap(), QClipboard::Clipboard);
