@@ -3232,7 +3232,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 
 	QwtPlotLayout *pLayout = d_plot->plotLayout();
 	pLayout->activate(d_plot, d_plot->rect(), 0);
-	const QRect rect=pLayout->canvasRect();
+	const QRect rect = pLayout->canvasRect();
 
 	QwtPieCurve *pieCurve = new QwtPieCurve(w, name, startRow, endRow);
 	pieCurve->setData(Y.data(), Y.data(), size);
@@ -3245,7 +3245,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 
 	const int ray = 125;
 	int xc = int(rect.width()/2 + 10);
-	int yc = int(rect.y()+rect.height()/2 + pLayout->titleRect().height() + 15);
+	int yc = int(rect.y() + rect.height()/2 + pLayout->titleRect().height() + 5);
 
 	double PI = 4*atan(1.0);
 	double angle = 90;
@@ -3253,19 +3253,19 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	for (int i = 0; i<size; i++ )
 	{
 		const double value = Y[i]/sum*360;
-		double alabel = (angle-value*0.5)*PI/180.0;
+		double alabel = (angle - value*0.5)*PI/180.0;
 
-		const int x=int(xc+ray*cos(alabel));
-		const int y=int(yc-ray*sin(alabel));
+		const int x = int(xc + ray*cos(alabel));
+		const int y = int(yc - ray*sin(alabel));
 
 		LegendMarker* aux = new LegendMarker(d_plot);
 		aux->setOrigin(QPoint(x,y));
 		aux->setFrameStyle(0);
 		aux->setText(QString::number(Y[i]/sum*100,'g',2)+"%");
-		long key = d_plot->insertMarker(aux);
+
 		int texts = d_texts.size();
 		d_texts.resize(++texts);
-		d_texts[texts-1] = key;
+		d_texts[texts-1] = d_plot->insertMarker(aux);
 
 		angle -= value;
 	}
@@ -3483,9 +3483,6 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	X.resize(size);
 	Y.resize(size);
 
-	c_type.resize(++n_curves);
-	c_type[n_curves-1] = style;
-
 	DataCurve *c = 0;
 	if (style == VerticalBars)
 	{
@@ -3506,6 +3503,8 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	else
 		c = new DataCurve(w, xColName, yColName, startRow, endRow);
 
+	c_type.resize(++n_curves);
+	c_type[n_curves-1] = style;
 	c_keys.resize(n_curves);
 	c_keys[n_curves-1] = d_plot->insertCurve(c);
 

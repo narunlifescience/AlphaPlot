@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Legend marker (extension to QwtPlotMarker)
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -39,7 +39,7 @@
 
 #include "Graph.h"
 #include "Plot.h"
-	
+
 /**
  * \brief A piece of text to be drawn on a Plot.
  *
@@ -79,7 +79,7 @@ public:
 
 	QColor textColor(){return d_text->color();};
 	void setTextColor(const QColor& c);
-	
+
 	QColor backgroundColor(){return bkgColor;};
 	void setBackgroundColor(const QColor& c);
 
@@ -91,19 +91,20 @@ public:
 
 	int angle(){return d_angle;};
 	void setAngle(int ang){d_angle=ang;};
-	
+
 private:
 	void draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &r) const;
 
 	void drawFrame(QPainter *p, int type, const QRect& rect) const;
 	void drawSymbols(QPainter *p, const QRect& rect,
 					QwtArray<long> height, int symbolLineLength) const;
-	void drawLegends(QPainter *p, const QRect& rect, 
+	void drawLegends(QPainter *p, const QRect& rect,
 					QwtArray<long> height, int symbolLineLength) const;
 	void drawVector(QPainter *p, int x, int y, int l, int curveIndex) const;
-													
+
 	QwtArray<long> itemsHeight(int y, int symbolLineLength, int &width, int &height) const;
 	int symbolsMaxLineLength() const;
+	QString parse(const QString& str) const;
 
 protected:
 	//! Parent plot
@@ -111,10 +112,10 @@ protected:
 
 	//! Frame type
 	int d_frame;
-	
+
 	//! Rotation angle: not implemented yet
 	int d_angle;
-	
+
 	//! Pointer to the QwtText object
 	QwtText* d_text;
 

@@ -336,7 +336,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 		}
 	}
 
-//TO DO: import matrices
+//Import matrices
 	for (int s=0; s<opj.numMatrices(); s++)
 	{
 		int nr_cols = opj.numMartixCols(s);
@@ -454,7 +454,8 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					style=Graph::LineSymbols;
 					break;
 				}
-				graph->insertCurve(mw->table(data.right(data.length()-2)), opj.curveXColName(g,l,c), opj.curveYColName(g,l,c), style);
+				QString tableName = data.right(data.length()-2);
+				graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
 				CurveLayout cl = graph->initCurveLayout(style, opj.numCurves(g,l));
 				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
 				cl.penWidth=opj.curveSymbolThickness(g,l,c);

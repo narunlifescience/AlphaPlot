@@ -65,8 +65,8 @@ void QwtPieCurve::drawPie(QPainter *painter,
 	double dx = (double)painter->device()->width()/(double)plot->width();
 	double dy = (double)painter->device()->height()/(double)plot->height();
 
-	int d = int(2*d_pie_ray*QMIN(dx, dy));
-
+    double d = 2*0.9*d_pie_ray*qMin(dx, dy);
+	
 	QRect pieRect;
 	pieRect.setX(x_center - d/2);
 	pieRect.setY(y_center - d/2);

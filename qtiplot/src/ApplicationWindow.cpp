@@ -8119,7 +8119,7 @@ void ApplicationWindow::showMarkerPopupMenu()
 
 	if (g->imageMarkerSelected())
 	{
-		markerMenu.insertItem(QPixmap(pixelProfile_xpm),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
+		//markerMenu.insertItem(QPixmap(pixelProfile_xpm),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
 		markerMenu.insertItem(tr("&Intensity Matrix"),this, SLOT(intensityTable()));
 		markerMenu.insertSeparator();
 	}

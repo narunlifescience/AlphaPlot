@@ -31,7 +31,6 @@
 #include "VectorCurve.h"
 
 #include <QPainter>
-#include <QMessageBox>
 #include <QPolygon>
 
 #include <qwt_plot.h>
@@ -262,11 +261,22 @@ void LegendMarker::drawSymbols(QPainter *p, const QRect& rect,
 
 	for (int i=0;i<(int)titles.count();i++)
 	{
-		if (titles[i].contains("\\c{"))
+		if (titles[i].contains("\\c{") || titles[i].contains("\\l("))
 		{
-			int pos=titles[i].find("{",0);
-			int pos2=titles[i].find("}",pos);
-			QString aux=titles[i].mid(pos+1,pos2-pos-1);
+		    QString aux;
+		    if (titles[i].contains("\\c{"))
+		    {//QtiPlot symbol specification
+                int pos=titles[i].find("{",0);
+                int pos2=titles[i].find("}",pos);
+                aux=titles[i].mid(pos+1,pos2-pos-1);
+		    }
+		    else if (titles[i].contains("\\l("))
+		    {//Origin project legend
+		        int pos=titles[i].find("(",0);
+                int pos2=titles[i].find(")",pos);
+                aux=titles[i].mid(pos+1,pos2-pos-1);
+            }
+
 			int cv = aux.toInt() - 1;
 			if (cv < 0)
 				continue;
@@ -348,14 +358,10 @@ void LegendMarker::drawLegends(QPainter *p, const QRect& rect,
 	{
 		QString str = titles[i];
 		int x = w;
-		if (str.contains("\\c{",TRUE)>0 || str.contains("\\p{",TRUE)>0)
-		{
+		if (str.contains("\\c{") || str.contains("\\p{") || str.contains("\\l("))
 			x += symbolLineLength + hspace;
-			int pos = str.find("}",0);
-			str = str.right(str.length()-pos-1);
-		}
 
-		QwtText aux(str);
+		QwtText aux(parse(str));
 		aux.setFont(d_text->font());
 		aux.setColor(d_text->color());
 
@@ -384,17 +390,13 @@ QwtArray<long> LegendMarker::itemsHeight(int y, int symbolLineLength, int &width
 	{
 		QString str=titles[i];
 		int textL=0;
-		if (str.contains("\\c{",TRUE)>0 || str.contains("\\p{",TRUE)>0)
-		{
+		if (str.contains("\\c{") || str.contains("\\p{") || str.contains("\\l("))
 			textL = symbolLineLength + hspace;
-			int pos=str.find("}",0);
-			str = str.right(str.length()-pos-1);
-		}
 
-		QwtText aux(str);
+		QwtText aux(parse(str));
 		QSize size = aux.textSize(d_text->font());
 		textL += size.width();
-		if (textL>maxL)
+		if (textL > maxL)
 			maxL = textL;
 
 		int textH = size.height();
@@ -421,9 +423,20 @@ int LegendMarker::symbolsMaxLineLength() const
 	{
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0)
 		{
-			int pos=titles[i].find("{",0);
-			int pos2=titles[i].find("}",pos);
-			QString aux=titles[i].mid(pos+1,pos2-pos-1);
+		    QString aux;
+		    if (titles[i].contains("\\c{"))
+		    {//QtiPlot symbol specification
+                int pos=titles[i].find("{",0);
+                int pos2=titles[i].find("}",pos);
+                aux=titles[i].mid(pos+1,pos2-pos-1);
+		    }
+		    else if (titles[i].contains("\\l("))
+		    {//Origin project legend
+		        int pos=titles[i].find("(",0);
+                int pos2=titles[i].find(")",pos);
+                aux=titles[i].mid(pos+1,pos2-pos-1);
+            }
+
 			int cv = aux.toInt()-1;
 			if (cv < 0)
 				continue;
@@ -445,6 +458,37 @@ int LegendMarker::symbolsMaxLineLength() const
 			maxL=10;
 	}
 	return maxL;
+}
+
+QString LegendMarker::parse(const QString& str) const
+{
+    QString s = str;
+    if (s.contains("\\c{") || s.contains("\\p{") || s.contains("\\l("))
+    {
+        int pos = s.find("}",0);
+        if (s.contains("\\l("))
+            pos = s.find(")",0);
+        s = s.right(s.length()-pos-1);
+    }
+
+    if (s.contains("%("))
+    {//curve name specification
+        int pos = s.find("%(",0);
+        int pos2 = s.find(")",pos);
+        int cv = s.mid(pos+2, pos2-pos-2).toInt() - 1;
+        if (cv >= 0)
+        {
+            QList<int> cvs = d_plot->curveKeys();
+			Graph *g = (Graph *)d_plot->parent();
+			if (g)
+			{
+            	const QwtPlotCurve *c = (QwtPlotCurve *)g->curve(cv);
+            	if (c)
+                	s = s.replace(pos, pos2-pos+1, c->title().text());
+			}
+        }
+    }
+    return s;
 }
 
 LegendMarker::~LegendMarker()
