@@ -478,7 +478,6 @@ QString LegendMarker::parse(const QString& str) const
         int cv = s.mid(pos+2, pos2-pos-2).toInt() - 1;
         if (cv >= 0)
         {
-            QList<int> cvs = d_plot->curveKeys();
 			Graph *g = (Graph *)d_plot->parent();
 			if (g)
 			{
