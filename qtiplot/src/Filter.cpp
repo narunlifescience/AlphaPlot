@@ -94,7 +94,7 @@ void Filter::setDataCurve(int curve, double start, double end)
         d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
     else
     	d_n = curveData(d_curve, start, end, &d_x, &d_y);
-
+	
 	if (d_n == -1)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),

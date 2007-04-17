@@ -14181,4 +14181,3 @@ int ApplicationWindow::convertOldToNewColorIndex(int cindex)
 
 	return cindex;
 }
-

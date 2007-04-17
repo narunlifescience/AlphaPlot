@@ -1208,19 +1208,19 @@ void FitDialog::accept()
 			fitter->setInitialGuesses(paramsInit);
 		}
 		delete[] paramsInit;
-
+				
 		if (!fitter->setDataFromCurve(curve, start, end) ||
-			!fitter->setWeightingData ((Fit::WeightingMethod)boxWeighting->currentItem(),
+			!fitter->setWeightingData ((Fit::WeightingMethod)boxWeighting->currentIndex(),
 					       tableNamesBox->currentText()+"_"+colNamesBox->currentText()))
 		{
 			delete fitter;
 			fitter  = 0;
 			return;
 		}
-
+				
 		fitter->setTolerance (eps);
-		fitter->setAlgorithm((Fit::Algorithm)boxAlgorithm->currentItem());
-		fitter->setColor(boxColor->currentItem());
+		fitter->setAlgorithm((Fit::Algorithm)boxAlgorithm->currentIndex());
+		fitter->setColor(boxColor->currentIndex());
 		fitter->generateFunction(generatePointsBtn->isChecked(), generatePointsBox->value());
 		fitter->setMaximumIterations(boxPoints->value());
 		fitter->scaleErrors(scaleErrorsBox->isChecked());
@@ -1345,6 +1345,13 @@ void FitDialog::changeDataRange()
 
 void FitDialog::setSrcTables(QWidgetList* tables)
 {
+	if (tables->isEmpty())
+	{
+		tableNamesBox->addItem(tr("No data tables"));
+		colNamesBox->addItem(tr("No data tables"));
+		return;
+	}
+	
 	srcTables = tables;
 	tableNamesBox->clear();
 	foreach(QWidget *i, *srcTables)
@@ -1357,7 +1364,7 @@ void FitDialog::setSrcTables(QWidgetList* tables)
 void FitDialog::selectSrcTable(int tabnr)
 {
 	colNamesBox->clear();
-	colNamesBox->insertStringList(((Table*)srcTables->at(tabnr))->colNames());
+	colNamesBox->addItems(((Table*)srcTables->at(tabnr))->colNames());
 }
 
 void FitDialog::enableWeightingParameters(int index)

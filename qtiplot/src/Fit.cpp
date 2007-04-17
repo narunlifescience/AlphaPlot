@@ -138,7 +138,7 @@ void Fit::setDataCurve(int curve, double start, double end)
     Filter::setDataCurve(curve, start, end);
 
     d_w = new double[d_n];
-    if (d_graph && d_curve)
+    if (d_graph && d_curve && ((PlotCurve *)d_curve)->type() != Graph::Function)
     {
         QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
         foreach (DataCurve *c, lst)
@@ -271,7 +271,7 @@ QString Fit::legendInfo()
 }
 
 bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
-{
+{	
 	d_weihting = w;
 	switch (d_weihting)
 	{
