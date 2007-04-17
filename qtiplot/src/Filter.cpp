@@ -315,7 +315,7 @@ int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, dou
     return n;
 }
 
-void Filter::addResultCurve(double *x, double *y)
+QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
 {
     ApplicationWindow *app = (ApplicationWindow *)parent();
     const QString tableName = app->generateUniqueName(QString(this->name()));
@@ -334,6 +334,7 @@ void Filter::addResultCurve(double *x, double *y)
 
     delete[] x;
 	delete[] y;
+	return (QwtPlotCurve*)c;
 }
 
 Filter::~Filter()

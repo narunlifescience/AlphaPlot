@@ -286,16 +286,19 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 			{
 				bool error = true;
 				QwtErrorPlotCurve *er = 0;
-				QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
-                foreach (DataCurve *c, lst)
-                {
-                    er = (QwtErrorPlotCurve *)c;
-                    if (!er->xErrors())
-                    {
-                        weighting_dataset = er->title().text();
-                        error = false;
-                        break;
-                    }
+				if (((PlotCurve *)d_curve)->type() != Graph::Function)
+				{
+					QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
+                	foreach (DataCurve *c, lst)
+                	{
+                    	er = (QwtErrorPlotCurve *)c;
+                    	if (!er->xErrors())
+                    	{
+                        	weighting_dataset = er->title().text();
+                        	error = false;
+                        	break;
+                    	}
+					}
                 }
 				if (error)
 				{
@@ -303,9 +306,11 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 					tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(d_curve->title().text()));
 					return false;
 				}
-
-				for (int j=0; j<d_n; j++)
-					d_w[j] = er->errorValue(j); //d_w are equal to the error bar values
+				if (er)
+				{
+					for (int j=0; j<d_n; j++)
+						d_w[j] = er->errorValue(j); //d_w are equal to the error bar values
+				}
 			}
 			break;
 		case Statistical:
@@ -506,7 +511,9 @@ void Fit::generateFitCurve(double *par)
 		delete[] Y;
 	}
 	else
-        addResultCurve(X, Y);
+	{
+        d_graph->addFitCurve(addResultCurve(X, Y));
+	}
 }
 
 void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth)
@@ -525,6 +532,7 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 	}
 	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
 	d_graph->insertPlotItem(c, Graph::Line);
+	d_graph->addFitCurve(c);
 }
 
 Fit::~Fit()

@@ -1364,7 +1364,13 @@ void FitDialog::setSrcTables(QWidgetList* tables)
 void FitDialog::selectSrcTable(int tabnr)
 {
 	colNamesBox->clear();
-	colNamesBox->addItems(((Table*)srcTables->at(tabnr))->colNames());
+	
+	if (tabnr >= 0 && tabnr < srcTables->count())
+	{
+		Table *t = (Table*)srcTables->at(tabnr);
+		if (t)
+			colNamesBox->addItems(t->colNames());
+	}
 }
 
 void FitDialog::enableWeightingParameters(int index)
@@ -1396,14 +1402,6 @@ void FitDialog::enableApplyChanges(int)
 
 void FitDialog::deleteFitCurves()
 {
-/*
-	QStringList lst = graph->curvesList();
-	for (int i = 0; i<lst.count(); i++)
-	{
-		if (lst[i].contains(tr("Fit")))
-			graph->removeCurve(lst[i]);
-	}
-*/
 	graph->deleteFitCurves();
 }
 

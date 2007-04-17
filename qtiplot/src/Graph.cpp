@@ -5104,15 +5104,19 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 		symbolIndex = 1;
 }
 
+void Graph::addFitCurve(QwtPlotCurve *c)
+{
+	if (c)
+		d_fit_curves << c;
+}
+
 void Graph::deleteFitCurves()
 {
 	QList<int> keys = d_plot->curveKeys();
-	for (int i=0; i<(int)keys.count(); i++)
-	{
-		QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(keys[i]);
-		if (c && c->title().text().contains(tr("Fit")))
-			removeCurve(c->title().text());
-	}
+	foreach(QwtPlotCurve *c, d_fit_curves) 
+		removeCurve(curveIndex(c));
+	
+	d_plot->replot();
 }
 
 void Graph::plotSpectrogram(Matrix *m, CurveType type)
@@ -5165,8 +5169,12 @@ void Graph::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
         return;
 
   	Spectrogram *sp = new Spectrogram(m);
-  	insertPlotItem(sp, Graph::ColorMap);
-
+	
+	c_type.resize(++n_curves);
+	c_type[n_curves-1] = Graph::ColorMap;
+	c_keys.resize(n_curves);
+	c_keys[n_curves-1] = d_plot->insertCurve(sp);
+	
   	for (line++; line != lst.end(); line++)
     {
         QString s = *line;

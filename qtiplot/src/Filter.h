@@ -96,7 +96,7 @@ class Filter : public QObject
         virtual int sortedCurveData(QwtPlotCurve *c, double start, double end, double **x, double **y);
 
         //! Adds the result curve to the target output plot window. Creates a hidden table and frees the input data from memory.
-        void addResultCurve(double *x, double *y);
+        QwtPlotCurve* addResultCurve(double *x, double *y);
 
         //! Performs checks and returns the index of the source data curve if OK, -1 otherwise
         int curveIndex(const QString& curveTitle, Graph *g);

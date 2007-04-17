@@ -59,6 +59,7 @@ class Matrix;
 class SelectionMoveResizer;
 class RangeSelectorTool;
 class DataCurve;
+class PlotCurve;
 class QwtErrorPlotCurve;
 
 //! Structure containing curve layout parameters
@@ -561,15 +562,13 @@ class Graph: public QWidget
 		void setCanvasBackground(const QColor& color);
 		//@}
 
-		//! \name Functions in analysis.cpp
-		//@{
+		void addFitCurve(QwtPlotCurve *c);
 		void deleteFitCurves();
 		/*! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
 		 *
 		 * \return the number of selected or total points
 		 */
 		int range(int index, double *start, double *end);
-		//@}
 
 		//!  Used for VerticalBars, HorizontalBars and Histograms
 		void setBarsGap(int curve, int gapPercent, int offset);
@@ -701,6 +700,8 @@ signals:
 		void showFitResults(const QString&);
 
 	private:
+		//! List storing pointers to the curves resulting after a fit session, in case the user wants to delete them later on.
+		QList<QwtPlotCurve *>d_fit_curves;
 		//! Render hint for plot items.
 		bool d_antialiasing;
 		bool autoScaleFonts;

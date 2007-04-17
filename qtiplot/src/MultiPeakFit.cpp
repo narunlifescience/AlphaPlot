@@ -227,6 +227,7 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 	}
 	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
 	d_graph->insertPlotItem(c, Graph::Line);
+	d_graph->addFitCurve(c);
 }
 
 void MultiPeakFit::generateFitCurve(double *par)
@@ -335,6 +336,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
 		c->setData(X, Y, d_points);
 		d_graph->insertPlotItem(c, Graph::Line);
+		d_graph->addFitCurve(c);
 
 		if (generate_peak_curves)
 		{
@@ -348,6 +350,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 				c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
 				c->setData(X, Y, d_points);
 				d_graph->insertPlotItem(c, Graph::Line);
+				d_graph->addFitCurve(c);
 			}
 		}
 	}
