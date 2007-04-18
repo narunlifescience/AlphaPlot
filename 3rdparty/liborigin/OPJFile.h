@@ -92,6 +92,22 @@ struct Entry {
 
 typedef Entry Entry;
 
+struct originData {
+	int type; // 0 - double, 1 - string
+	double d;
+	string s;
+	originData(double _d)
+	:	d(_d)
+	,	type(0)
+	,	s("")
+	{};
+	originData(char* _s)
+	:	s(_s)
+	,	type(1)
+	,	d(1.0e-307)
+	{};
+};
+
 struct spreadColumn {
 	string name;
 	string type;
@@ -104,8 +120,9 @@ struct spreadColumn {
 	string comment;
 	int width;
 	int index;
-	vector <double> data;
-	vector <string> sdata;
+	//vector <double> data;
+	//vector <string> sdata;
+	vector <originData> odata;
 	spreadColumn(string _name="", int _index=0)
 	:	name(_name)
 	,	index(_index)
@@ -214,8 +231,17 @@ struct graphLayer {
 	string legend;
 	double xMin;
 	double xMax;
+	double xStep;
+	int xMajorTicks;
+	int xMinorTicks;
+	int xScale;
 	double yMin;
 	double yMax;
+	double yStep;
+	int yMajorTicks;
+	int yMinorTicks;
+	int yScale;
+
 	vector<graphCurve> curve;
 };
 
@@ -239,7 +265,7 @@ public:
 	bool spreadLoose(int s) { return SPREADSHEET[s].bLoose; }	//!< is spreadsheet s loose
 	const char *spreadLabel(int s) { return SPREADSHEET[s].label.c_str(); }	//!< get label of spreadsheet s
 	int numCols(int s) { return SPREADSHEET[s].column.size(); }		//!< get number of columns of spreadsheet s
-	int numRows(int s,int c) { return SPREADSHEET[s].column[c].value_type==1 ? SPREADSHEET[s].column[c].sdata.size() : SPREADSHEET[s].column[c].data.size(); }	//!< get number of rows of column c of spreadsheet s
+	int numRows(int s,int c) { return /*SPREADSHEET[s].column[c].value_type==1 ? SPREADSHEET[s].column[c].sdata.size() : SPREADSHEET[s].column[c].data.size();*/SPREADSHEET[s].column[c].odata.size(); }	//!< get number of rows of column c of spreadsheet s
 	int maxRows(int s) { return SPREADSHEET[s].maxRows; }		//!< get maximum number of rows of spreadsheet s
 	//spreadsheet's column properties
 	const char *colName(int s, int c) { printf("N"); return SPREADSHEET[s].column[c].name.c_str(); }	//!< get name of column c of spreadsheet s
@@ -252,10 +278,17 @@ public:
 	int colDecPlaces(int s, int c) { return SPREADSHEET[s].column[c].decimal_places; }	//!< get decimal places of column c of spreadsheet s
 	int colNumDisplayType(int s, int c) { return SPREADSHEET[s].column[c].numeric_display_type; }	//!< get numeric display type of column c of spreadsheet s
 	int colWidth(int s, int c) { return SPREADSHEET[s].column[c].width; }	//!< get width of column c of spreadsheet s
-	vector <double> Data(int s, int c) { return SPREADSHEET[s].column[c].data; }	//!< get data of column c of spreadsheet s
+//	vector <double> Data(int s, int c) { return SPREADSHEET[s].column[c].data; }	//!< get data of column c of spreadsheet s
 
-	const char* SData(int s, int c, int r) { return SPREADSHEET[s].column[c].sdata[r].c_str();}	//!< get data strings of column c/row r of spreadsheet s
-
+//	const char* SData(int s, int c, int r) { return SPREADSHEET[s].column[c].sdata[r].c_str();}	//!< get data strings of column c/row r of spreadsheet s
+	void* oData(int s, int c, int r, bool alwaysDouble=false) {
+		if(alwaysDouble)
+			return (void*)&SPREADSHEET[s].column[c].odata[r].d;
+		if(SPREADSHEET[s].column[c].odata[r].type==0)
+			return (void*)&SPREADSHEET[s].column[c].odata[r].d;
+		else
+			return (void*)SPREADSHEET[s].column[c].odata[r].s.c_str();
+	}	//!< get data of column c/row r of spreadsheet s
 	//matrix properties
 	int numMatrices() { return MATRIX.size(); }			//!< get number of matrices
 	const char *matrixName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of matrix s
@@ -296,6 +329,8 @@ public:
 
 	enum LineConnect {NoLine=0, Straight=1, TwoPointSegment=2, ThreePointSegment=3, BSpline=8, Spline=9, StepHorizontal=11, StepVertical=12, StepHCenter=13, StepVCenter=14, Bezier=15};
 
+	enum Scale{Linear=0, Log10=1, Probability=2, Probit=3, Reciprocal=4, OffsetReciprocal=5, Logit=6, Ln=7, Log2=8};
+	
 	int numGraphs() { return GRAPH.size(); }			//!< get number of graphs
 	const char *graphName(int s) { return GRAPH[s].name.c_str(); }	//!< get name of graph s
 	const char *graphLabel(int s) { return GRAPH[s].label.c_str(); }	//!< get name of graph s
@@ -307,14 +342,30 @@ public:
 		vector<double> range; 
 		range.push_back(GRAPH[s].layer[l].xMin);
 		range.push_back(GRAPH[s].layer[l].xMax);
+		range.push_back(GRAPH[s].layer[l].xStep);
 		return range;
 	} //!< get X-range of layer l of graph s
 	vector<double> layerYRange(int s, int l) { 
 		vector<double> range; 
 		range.push_back(GRAPH[s].layer[l].yMin);
 		range.push_back(GRAPH[s].layer[l].yMax);
+		range.push_back(GRAPH[s].layer[l].yStep);
 		return range;
 	} //!< get Y-range of layer l of graph s
+	vector<int> layerXTicks(int s, int l) { 
+		vector<int> tick; 
+		tick.push_back(GRAPH[s].layer[l].xMajorTicks);
+		tick.push_back(GRAPH[s].layer[l].xMinorTicks);
+		return tick;
+	} //!< get X-axis ticks of layer l of graph s
+	vector<int> layerYTicks(int s, int l) { 
+		vector<int> tick; 
+		tick.push_back(GRAPH[s].layer[l].yMajorTicks);
+		tick.push_back(GRAPH[s].layer[l].yMinorTicks);
+		return tick;
+	} //!< get Y-axis ticks of layer l of graph s
+	int layerXScale(int s, int l){ return GRAPH[s].layer[l].xScale; }		//!< get scale of X-axis of layer l of graph s
+	int layerYScale(int s, int l){ return GRAPH[s].layer[l].yScale; }		//!< get scale of Y-axis of layer l of graph s
 	int numCurves(int s, int l) { return GRAPH[s].layer[l].curve.size(); }			//!< get number of curves of layer l of graph s
 	const char *curveDataName(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].dataName.c_str(); }	//!< get data source name of curve c of layer l of graph s
 	const char *curveXColName(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].xColName.c_str(); }	//!< get X-column name of curve c of layer l of graph s
@@ -340,6 +391,8 @@ public:
 private:
 	bool IsBigEndian();
 	void ByteSwap(unsigned char * b, int n);
+	int ParseFormatOld();
+	int ParseFormatNew();
 	int  compareSpreadnames(char *sname);				//!< returns matching spread index
 	int  compareColumnnames(int spread, char *sname);	//!< returns matching column index
 	int  compareMatrixnames(char *sname);				//!< returns matching matrix index

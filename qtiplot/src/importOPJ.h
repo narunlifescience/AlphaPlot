@@ -47,7 +47,6 @@ public:
 private:
 	int parse_error;
 	ApplicationWindow *mw;
-	QColor originColor(int c);
 };
 
 #endif //IMPORTOPJ_H

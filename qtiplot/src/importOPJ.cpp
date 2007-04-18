@@ -37,97 +37,11 @@
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
 {
-OPJFile opj((const char *)filename.latin1());
-parse_error = opj.Parse();
-importTables(opj);
-importGraphs(opj);
-importFunctions(opj);
-}
-
-QColor ImportOPJ::originColor(int c)
-{
-	QColor clr;
-	switch(c)
-	{
-	case OPJFile::Black:
-		clr=Qt::black;
-		break;
-	case OPJFile::Red:
-		clr=Qt::red;
-		break;
-	case OPJFile::Green:
-		clr=Qt::green;
-		break;
-	case OPJFile::Blue:
-		clr=Qt::blue;
-		break;
-	case OPJFile::Cyan:
-		clr=Qt::cyan;
-		break;
-	case OPJFile::Magenta:
-		clr=Qt::magenta;
-		break;
-	case OPJFile::Yellow:
-		clr=Qt::yellow;
-		break;
-	case OPJFile::DarkYellow:
-		clr.setNamedColor("#808000");
-		break;
-	case OPJFile::Navy:
-		clr.setNamedColor("#000080");
-		break;
-	case OPJFile::Purple:
-		clr.setNamedColor("#800080");
-		break;
-	case OPJFile::Wine:
-		clr.setNamedColor("#800000");
-		break;
-	case OPJFile::Olive:
-		clr.setNamedColor("#008000");
-		break;
-	case OPJFile::DarkCyan:
-		clr.setNamedColor("#008080");
-		break;
-	case OPJFile::Royal:
-		clr.setNamedColor("#0000A0");
-		break;
-	case OPJFile::Orange:
-		clr.setNamedColor("#FF8000");
-		break;
-	case OPJFile::Violet:
-		clr.setNamedColor("#8000FF");
-		break;
-	case OPJFile::Pink:
-		clr.setNamedColor("#FF0080");
-		break;
-	case OPJFile::White:
-		clr=Qt::white;
-		break;
-	case OPJFile::LightGray:
-		clr.setNamedColor("#C0C0C0");
-		break;
-	case OPJFile::Gray:
-		clr.setNamedColor("#808080");
-		break;
-	case OPJFile::LTYellow:
-		clr.setNamedColor("#FFFF80");
-		break;
-	case OPJFile::LTCyan:
-		clr.setNamedColor("#80FFFF");
-		break;
-	case OPJFile::LTMagenta:
-		clr.setNamedColor("#FF80FF");
-		break;
-	case OPJFile::DarkGray:
-		clr.setNamedColor("#404040");
-		break;
-	case OPJFile::Custom:
-		clr=Qt::white;
-		break;
-	default:
-		clr=Qt::black;
-	}
-	return clr;
+	OPJFile opj((const char *)filename.latin1());
+	parse_error = opj.Parse();
+	importTables(opj);
+	importGraphs(opj);
+	importFunctions(opj);
 }
 
 bool ImportOPJ::importTables(OPJFile opj)
@@ -172,14 +86,16 @@ bool ImportOPJ::importTables(OPJFile opj)
 			{
 				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
 				{// number
-					double val = opj.Data(s,j)[i];
-					if(fabs(val)>0 && fabs(val)<2.0e-300)// empty entry
+					//double val = opj.Data(s,j)[i];
+					double* val = (double*)opj.oData(s,j,i,true);
+					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
-					table->setText(i, j, QString::number(val));
+					table->setText(i, j, QString::number(*val));
 				}
 				else// label? doesn't seem to work
-					table->setText(i, j, QString(opj.SData(s,j,i)));
+					//table->setText(i, j, QString(opj.SData(s,j,i)));
+					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
 			}
 
 			QString format;
@@ -620,9 +536,11 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 
 			}
 			vector<double> range=opj.layerXRange(g,l);
-			graph->setScale(2,range[0],range[1]);
+			vector<int> ticks=opj.layerXTicks(g,l);
+			graph->setScale(2,range[0],range[1],range[2],ticks[0],ticks[1],opj.layerXScale(g,l));
 			range=opj.layerYRange(g,l);
-			graph->setScale(0,range[0],range[1]);
+			ticks=opj.layerYTicks(g,l);
+			graph->setScale(0,range[0],range[1],range[2],ticks[0],ticks[1],opj.layerYScale(g,l));
 		}
 		ml->arrangeLayers(true,true);
 	}
