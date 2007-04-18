@@ -511,9 +511,7 @@ void Fit::generateFitCurve(double *par)
 		delete[] Y;
 	}
 	else
-	{
         d_graph->addFitCurve(addResultCurve(X, Y));
-	}
 }
 
 void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth)

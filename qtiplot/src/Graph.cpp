@@ -3709,6 +3709,7 @@ void Graph::removeCurves(const QString& s)
         if(((DataCurve *)it)->plotAssociation().contains(s))
             removeCurve(i);
 	}
+	d_plot->replot();
 }
 
 void Graph::removeCurve(const QString& s)
@@ -3733,6 +3734,13 @@ void Graph::removeCurve(int index)
             ((QwtErrorPlotCurve *)it)->detachFromMasterCurve();
 		else if (((PlotCurve *)it)->type() != Function)
 			((DataCurve *)it)->clearErrorBars();
+		
+		if (d_fit_curves.contains((QwtPlotCurve *)it))
+		{
+			int i = d_fit_curves.indexOf((QwtPlotCurve *)it);
+			if (i >= 0 && i < d_fit_curves.size())
+				d_fit_curves.removeAt(i);	
+		}
 	}
 
     if (d_range_selector && curve(index) == d_range_selector->selectedCurve())
@@ -4764,6 +4772,10 @@ void Graph::copy(Graph* g)
 
 			c->setAxis(cv->xAxis(), cv->yAxis());
 			c->setVisible(cv->isVisible());
+			
+			QList<QwtPlotCurve *>lst = g->fitCurvesList();
+			if (lst.contains((QwtPlotCurve *)it))
+				d_fit_curves << c;
 		}
 		else if (it->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
   	    	{

@@ -1403,15 +1403,13 @@ void FitDialog::enableApplyChanges(int)
 void FitDialog::deleteFitCurves()
 {
 	graph->deleteFitCurves();
+	boxCurve->clear();
+	boxCurve->addItems(graph->curvesList());
 }
 
 void FitDialog::resetFunction()
 {
-boxName->clear();
-boxParam->clear();
-editBox->clear();
-}
-
-FitDialog::~FitDialog()
-{
+	boxName->clear();
+	boxParam->clear();
+	editBox->clear();
 }

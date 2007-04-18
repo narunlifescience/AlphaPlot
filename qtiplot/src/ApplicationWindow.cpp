@@ -11560,7 +11560,6 @@ void ApplicationWindow::createActions()
 	actionShowCurveWorksheet = new QAction(tr("&Worksheet"), this);
 	connect(actionShowCurveWorksheet, SIGNAL(activated()), this, SLOT(showCurveWorksheet()));
 
-
 	actionCurveFullRange = new QAction(tr("&Reset to Full Range"), this);
 	connect(actionCurveFullRange, SIGNAL(activated()), this, SLOT(setCurveFullRange()));
 
@@ -11589,6 +11588,12 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
 	actionRemoveCurve->setMenuText(tr("&Delete"));
 	actionEditFunction->setMenuText(tr("&Edit Function..."));
+		
+	actionCurveFullRange->setMenuText(tr("&Reset to Full Range"));
+	actionEditCurveRange->setMenuText(tr("Edit &Range..."));
+	actionHideCurve->setMenuText(tr("&Hide"));
+	actionHideOtherCurves->setMenuText(tr("Hide &Other Curves"));
+	actionShowAllCurves->setMenuText(tr("&Show All Curves"));
 
 	actionNewProject->setMenuText(tr("New &Project"));
 	actionNewProject->setToolTip(tr("Open a new project"));
@@ -12236,17 +12241,39 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 
 void ApplicationWindow::deleteFitTables()
 {
-	QWidgetList *windows = windowsList();
-	foreach(QWidget *w, *windows)
+	QList<QWidget*>* mLst = new QList<QWidget*>();
+	QList<QWidget*> *windows = windowsList();
+	for (int i = 0; i < int(windows->count());i++ )
 	{
-		QString caption = w->name();
-		if (w->isA("Table") && caption.contains(tr("Fit")))
-		{
-			((Table*)w)->askOnCloseEvent(false);
-			((Table*)w)->close();
-		}
+		if (windows->at(i)->isA("MultiLayer"))
+			mLst->append(windows->at(i));
 	}
 	delete windows;
+	
+	foreach(QWidget *ml, *mLst)
+	{
+		if (ml->isA("MultiLayer"))
+		{
+			QWidgetList lst = ((MultiLayer*)ml)->graphPtrs();
+			foreach(QWidget *widget, lst)
+			{
+				QList<QwtPlotCurve *> curves = ((Graph *)widget)->fitCurvesList();				
+				foreach(QwtPlotCurve *c, curves)
+				{
+					if (((PlotCurve *)c)->type() != Graph::Function)
+					{
+						Table *t = ((DataCurve *)c)->table();
+						if (!t)
+							continue;
+						
+						t->askOnCloseEvent(false);
+						t->close();
+					}
+				}
+			}
+		}
+	}
+	delete mLst;
 }
 
 QWidgetList* ApplicationWindow::windowsList()

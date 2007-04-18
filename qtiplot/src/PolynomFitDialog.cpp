@@ -128,6 +128,7 @@ void PolynomFitDialog::fit()
     if (fitter->setDataFromCurve(curveName, boxStart->text().toDouble(), boxEnd->text().toDouble()))
     {
         fitter->setColor(boxColor->currentItem());
+		fitter->generateFunction(app->generateUniformFitPoints, app->fitPoints);
         fitter->fit();
         delete fitter;
 	}

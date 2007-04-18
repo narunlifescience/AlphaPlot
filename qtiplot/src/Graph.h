@@ -564,6 +564,7 @@ class Graph: public QWidget
 
 		void addFitCurve(QwtPlotCurve *c);
 		void deleteFitCurves();
+		QList<QwtPlotCurve *> fitCurvesList(){return d_fit_curves;};
 		/*! Set start and end to selected X range of curve index or, if there's no selection, to the curve's total range.
 		 *
 		 * \return the number of selected or total points
