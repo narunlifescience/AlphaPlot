@@ -1047,7 +1047,8 @@ int OPJFile::ParseFormatNew() {
 
 		}
 		else if(0==strcmp(object_type,"LINE")
-			|| 0==strcmp(object_type,"SCATTER"))
+			|| 0==strcmp(object_type,"SCATTER")
+			|| 0==strcmp(object_type,"LINESYMB"))
 			readGraphInfo(f, debug);
 		else
 		{

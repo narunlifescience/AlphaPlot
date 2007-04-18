@@ -353,6 +353,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			graph->setYAxisTitle(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l)));
 			if(strlen(opj.layerLegend(g,l))>0)
 				graph->newLegend(QString::fromLocal8Bit(opj.layerLegend(g,l)));
+			int auto_color=0;
 			for(int c=0; c<opj.numCurves(g,l); c++)
 			{
 				QString data(opj.curveDataName(g,l,c));
@@ -376,7 +377,9 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
 				cl.penWidth=opj.curveSymbolThickness(g,l,c);
 				color=opj.curveSymbolColor(g,l,c);
-				cl.symCol=(color==0xF7?0:color); //0xF7 -Automatic color
+				if((style==Graph::Scatter||style==Graph::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
+					color=auto_color++;
+				cl.symCol=color;
 				switch(opj.curveSymbolType(g,l,c)&0xFF)
 				{
 				case 0: //NoSymbol
@@ -437,8 +440,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case 9:
 				case 10:
 				case 11:
-					color=opj.curveSymbolColor(g,l,c);
-					cl.fillCol=(color==0xF7?0:color); //0xF7 -Automatic color
+					cl.fillCol=color;
 					break;
 				default:
 					cl.fillCol=-1;
