@@ -343,12 +343,15 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
 		if (!ml)
 			return false;
+		
+		ml->hide();//!hack used in order to avoid resize and repaint events
 		ml->setWindowLabel(opj.graphLabel(g));
 		for(int l=0; l<opj.numLayers(g); l++)
 		{
 			Graph *graph=ml->addLayer();
 			if(!graph)
 				return false;
+			
 			graph->setXAxisTitle(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l)));
 			graph->setYAxisTitle(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l)));
 			if(strlen(opj.layerLegend(g,l))>0)
@@ -543,7 +546,11 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			range=opj.layerYRange(g,l);
 			ticks=opj.layerYTicks(g,l);
 			graph->setScale(0,range[0],range[1],range[2],ticks[0],ticks[1],opj.layerYScale(g,l));
+			
+			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
+        	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
 		}
+		ml->show();
 		ml->arrangeLayers(true,true);
 	}
 

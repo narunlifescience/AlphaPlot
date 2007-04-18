@@ -1,7 +1,0 @@
-all : liborigin.dll
-
-liborigin.dll : OPJFile.cpp OPJFile.h
-	g++ -s -shared OPJFile.cpp -o liborigin.dll -lws2_32 -Wl,--out-implib,liborigin.a
-
-clean :
-	rm -f *~ *.o

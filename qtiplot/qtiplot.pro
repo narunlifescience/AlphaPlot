@@ -12,8 +12,8 @@ DEFINES         += SCRIPTING_CONSOLE
 # a dialog for selecting the scripting language on a per-project basis
 DEFINES         += SCRIPTING_DIALOG
 
-#CONFIG          += release
-CONFIG          += debug
+CONFIG          += release
+#CONFIG          += debug
 
 # what to install and where
 INSTALLS        += target
@@ -147,7 +147,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
             src/CanvasPicker.h \
-			src/PlotCurve.h \
+	    src/PlotCurve.h \
             src/QwtErrorPlotCurve.h \
             src/QwtPieCurve.h \
             src/ErrDialog.h \
@@ -202,11 +202,11 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScriptEdit.h\
             src/FunctionCurve.h\
             src/Fit.h\
-			src/MultiPeakFit.h\
-			src/ExponentialFit.h\
-			src/PolynomialFit.h\
-			src/NonLinearFit.h\
-			src/PluginFit.h\
+	    src/MultiPeakFit.h\
+	    src/ExponentialFit.h\
+	    src/PolynomialFit.h\
+	    src/NonLinearFit.h\
+	    src/PluginFit.h\
             src/SigmoidalFit.h\
             src/customevents.h\
             src/ScriptingLangDialog.h\
@@ -223,15 +223,15 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
-				src/Convolution.h\
-				src/Correlation.h\
-				src/PlotToolInterface.h\
-				src/ScreenPickerTool.h\
-				src/DataPickerTool.h\
-				src/RangeSelectorTool.h\
-				src/TranslateCurveTool.h\
-				src/MultiPeakFitTool.h\
-				src/CurveRangeDialog.h
+	    src/Convolution.h\
+	    src/Correlation.h\
+	    src/PlotToolInterface.h\
+	    src/ScreenPickerTool.h\
+	    src/DataPickerTool.h\
+	    src/RangeSelectorTool.h\
+	    src/TranslateCurveTool.h\
+	    src/MultiPeakFitTool.h\
+	    src/CurveRangeDialog.h
 
 ###################### SOURCES ##############################################
 
@@ -259,7 +259,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/FitDialog.cpp \
             src/SurfaceDialog.cpp \
             src/LineDialog.cpp \
-			src/PlotCurve.cpp \
+	    src/PlotCurve.cpp \
             src/QwtErrorPlotCurve.cpp \
             src/QwtPieCurve.cpp \
             src/ErrDialog.cpp \
@@ -313,11 +313,11 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ScaleDraw.cpp\
             src/FunctionCurve.cpp\
             src/Fit.cpp\
-			src/MultiPeakFit.cpp\
-			src/ExponentialFit.cpp\
-			src/PolynomialFit.cpp\
-			src/PluginFit.cpp\
-			src/NonLinearFit.cpp\
+	    src/MultiPeakFit.cpp\
+	    src/ExponentialFit.cpp\
+	    src/PolynomialFit.cpp\
+	    src/PluginFit.cpp\
+	    src/NonLinearFit.cpp\
             src/SigmoidalFit.cpp\
             src/ScriptingEnv.cpp\
             src/Script.cpp\
@@ -334,14 +334,14 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
-				src/Convolution.cpp\
-				src/Correlation.cpp\
-				src/ScreenPickerTool.cpp\
-				src/DataPickerTool.cpp\
-				src/RangeSelectorTool.cpp\
-				src/TranslateCurveTool.cpp\
-				src/MultiPeakFitTool.cpp\
-				src/CurveRangeDialog.cpp
+	    src/Convolution.cpp\
+	    src/Correlation.cpp\
+	    src/ScreenPickerTool.cpp\
+	    src/DataPickerTool.cpp\
+	    src/RangeSelectorTool.cpp\
+	    src/TranslateCurveTool.cpp\
+	    src/MultiPeakFitTool.cpp\
+	    src/CurveRangeDialog.cpp
 
 ###############################################################
 ##################### Compression (zlib123) ###################

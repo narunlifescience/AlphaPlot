@@ -10,11 +10,10 @@ CONFIG           += release
 CONFIG           += dll 
 
 DESTDIR           = ../
-unix:LIBS += -L /usr/lib$${libsuff} -lgsl 
 
-win32:INCLUDEPATH += C:/Qt/WinGsl
-win32:LIBS     += C:/Qt/WinGsl/Lib/WinGsl.lib 
-win32:DEFINES  += GSL_DLL 
+INCLUDEPATH += ../../3rdparty/gsl
+LIBS        += ../../3rdparty/gsl/lib/libgsl.a
+LIBS        += ../../3rdparty/gsl/lib/libgslcblas.a
 
 target.path=/usr/lib$${libsuff}
 INSTALLS += target
