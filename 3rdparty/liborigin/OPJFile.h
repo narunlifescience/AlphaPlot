@@ -1,4 +1,31 @@
-// OPJFile.h
+/***************************************************************************
+    File                 : OPJFile.h
+    --------------------------------------------------------------------
+    Copyright            : (C) 2005-2007 Stefan Gerlach
+						   (C) 2007 by Alex Kargovsky, Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Origin project import class
+
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 /*
 Origin 7.5 column value display
 Numeric, Text&Numeric:
@@ -251,6 +278,15 @@ struct graph {
 	vector<graphLayer> layer;
 };
 
+struct note {
+	string name;
+	string label;
+	string text;
+	note(string _name="")
+	:	name(_name)
+	{};
+};
+
 class OPJFile
 {
 public:
@@ -265,7 +301,7 @@ public:
 	bool spreadLoose(int s) { return SPREADSHEET[s].bLoose; }	//!< is spreadsheet s loose
 	const char *spreadLabel(int s) { return SPREADSHEET[s].label.c_str(); }	//!< get label of spreadsheet s
 	int numCols(int s) { return SPREADSHEET[s].column.size(); }		//!< get number of columns of spreadsheet s
-	int numRows(int s,int c) { return /*SPREADSHEET[s].column[c].value_type==1 ? SPREADSHEET[s].column[c].sdata.size() : SPREADSHEET[s].column[c].data.size();*/SPREADSHEET[s].column[c].odata.size(); }	//!< get number of rows of column c of spreadsheet s
+	int numRows(int s,int c) { return SPREADSHEET[s].column[c].odata.size(); }	//!< get number of rows of column c of spreadsheet s
 	int maxRows(int s) { return SPREADSHEET[s].maxRows; }		//!< get maximum number of rows of spreadsheet s
 	//spreadsheet's column properties
 	const char *colName(int s, int c) { printf("N"); return SPREADSHEET[s].column[c].name.c_str(); }	//!< get name of column c of spreadsheet s
@@ -278,9 +314,6 @@ public:
 	int colDecPlaces(int s, int c) { return SPREADSHEET[s].column[c].decimal_places; }	//!< get decimal places of column c of spreadsheet s
 	int colNumDisplayType(int s, int c) { return SPREADSHEET[s].column[c].numeric_display_type; }	//!< get numeric display type of column c of spreadsheet s
 	int colWidth(int s, int c) { return SPREADSHEET[s].column[c].width; }	//!< get width of column c of spreadsheet s
-//	vector <double> Data(int s, int c) { return SPREADSHEET[s].column[c].data; }	//!< get data of column c of spreadsheet s
-
-//	const char* SData(int s, int c, int r) { return SPREADSHEET[s].column[c].sdata[r].c_str();}	//!< get data strings of column c/row r of spreadsheet s
 	void* oData(int s, int c, int r, bool alwaysDouble=false) {
 		if(alwaysDouble)
 			return (void*)&SPREADSHEET[s].column[c].odata[r].d;
@@ -387,6 +420,13 @@ public:
 	double curveSymbolSize(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_size; }	//!< get symbol size of curve c of layer l of graph s
 	int curveSymbolThickness(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_thickness; }	//!< get symbol thickness of curve c of layer l of graph s
 
+	//note
+	int numNotes() { return NOTE.size(); }			//!< get number of notes
+	const char *noteName(int n) { return NOTE[n].name.c_str(); }	//!< get name of note n
+	const char *noteLabel(int n) { return NOTE[n].label.c_str(); }	//!< get label of note n
+	const char *noteText(int n) { return NOTE[n].text.c_str(); }	//!< get text of note n
+
+	const char* resultsLogString(){ return resultsLog.c_str();}		//!< get Results Log
 
 private:
 	bool IsBigEndian();
@@ -405,10 +445,12 @@ private:
 	const char* filename;			//!< project file name
 	int version;				//!< project version
 	int dataIndex;
+	string resultsLog;
 	vector <spreadSheet> SPREADSHEET;
 	vector <matrix> MATRIX;
 	vector <function> FUNCTION;
 	vector <graph> GRAPH;
+	vector <note> NOTE;
 };
 
 #endif // OPJFILE_H

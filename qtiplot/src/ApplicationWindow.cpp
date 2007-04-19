@@ -6953,10 +6953,12 @@ void ApplicationWindow::showResults(bool ok)
 		logWindow->hide();
 }
 
-void ApplicationWindow::showResults(const QString& s)
+void ApplicationWindow::showResults(const QString& s, bool ok)
 {
 	logInfo += s;
-	showResults(true);
+	if (!logInfo.isEmpty())
+			results->setText(logInfo);
+	showResults(ok);
 }
 
 void ApplicationWindow::showScreenReader()

@@ -612,7 +612,7 @@ public slots:
 	void showGridDialog();
 	void showGeneralPlotDialog();
 	void showResults(bool ok);
-	void showResults(const QString& s);
+	void showResults(const QString& s, bool ok=true);
 	void showTextDialog();
 	void showLineDialog();
 	void showTitleDialog();

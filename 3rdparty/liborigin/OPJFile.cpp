@@ -1,4 +1,31 @@
-// OPJFile.cpp
+/***************************************************************************
+    File                 : OPJFile.cpp
+    --------------------------------------------------------------------
+    Copyright            : (C) 2005-2007 Stefan Gerlach
+						   (C) 2007 by Alex Kargovsky, Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Origin project import class
+
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *  This program is free software; you can redistribute it and/or modify   *
+ *  it under the terms of the GNU General Public License as published by   *
+ *  the Free Software Foundation; either version 2 of the License, or      *
+ *  (at your option) any later version.                                    *
+ *                                                                         *
+ *  This program is distributed in the hope that it will be useful,        *
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *  GNU General Public License for more details.                           *
+ *                                                                         *
+ *   You should have received a copy of the GNU General Public License     *
+ *   along with this program; if not, write to the Free Software           *
+ *   Foundation, Inc., 51 Franklin Street, Fifth Floor,                    *
+ *   Boston, MA  02110-1301  USA                                           *
+ *                                                                         *
+ ***************************************************************************/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -917,28 +944,10 @@ int OPJFile::ParseFormatNew() {
 			fflush(debug);
 
 			for (i=0;i<nr;i++) {
-				/*if(valuesize <= 16) {	// value
-					fread(&a,valuesize,1,f);
-					if(IsBigEndian()) SwapBytes(a);
-					fprintf(debug,"%g ",a);
-					//SPREADSHEET[spread].column[(current_col-1)].data.push_back(a);
-					SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(a));
-				}
-				else {			// label or text
-					char *stmp = new char[valuesize+1];
-					fread(stmp,valuesize,1,f);
-					if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
-						stmp[0]='\0';
-					//SPREADSHEET[spread].column[(current_col-1)].sdata.push_back(stmp);
-					SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(stmp));
-					fprintf(debug,"%s ",stmp);
-					delete stmp;
-				}*/
 				if(valuesize <= 8) {	// Numeric, Time, Date, Month, Day
 					fread(&a,valuesize,1,f);
 					if(IsBigEndian()) SwapBytes(a);
 					fprintf(debug,"%g ",a);
-					//SPREADSHEET[spread].column[(current_col-1)].data.push_back(a);
 					SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(a));
 				}
 				else if((data_type&0x100)==0x100) // Text&Numeric
@@ -958,8 +967,8 @@ int OPJFile::ParseFormatNew() {
 					{
 						char *stmp = new char[valuesize-1];
 						fread(stmp,valuesize-2,1,f);
-						if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
-							stmp[0]='\0';
+						/*if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
+							stmp[0]='\0';*/
 						SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(stmp));
 						fprintf(debug,"%s ",stmp);
 						delete stmp;
@@ -969,27 +978,19 @@ int OPJFile::ParseFormatNew() {
 				{
 					char *stmp = new char[valuesize+1];
 					fread(stmp,valuesize,1,f);
-					if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
-						stmp[0]='\0';
+					/*if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
+						stmp[0]='\0';*/
 					SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(stmp));
 					fprintf(debug,"%s ",stmp);
 					delete stmp;
 				}
 			}
 		
-			/*if(nbytes==0)
-				fseek(f,1,SEEK_CUR); //need to be fixed*/
 		}	// else
-//		fprintf(debug,"	[now @ 0x%X]\n",ftell(f));
+
 		fprintf(debug,"\n");
 		fflush(debug);
 
-		/*for(i=0;i<4;i++)	// skip "0"
-			fread(&c,1,1,f);
-		if((valuesize == 8 || valuesize > 16) && (nbytes>0||cname==0)) {	// skip 0 0
-			fread(&c,1,1,f);
-			fread(&c,1,1,f);
-		}*/
 		fseek(f,5+((nbytes>0||cname==0)?1:0),SEEK_CUR);
 		fread(&col_found,4,1,f);
 		if(IsBigEndian()) SwapBytes(col_found);
@@ -1000,7 +1001,6 @@ int OPJFile::ParseFormatNew() {
 	}
 
 ////////////////////// HEADER SECTION //////////////////////////////////////
-	// TODO : use new method ('\n')
 
 	int POS = ftell(f)-11;
 	fprintf(debug,"\nHEADER SECTION\n");
@@ -1057,6 +1057,77 @@ int OPJFile::ParseFormatNew() {
 		}
 	}
 
+
+	
+	fseek(f,1,SEEK_CUR);
+	fprintf(debug,"Some Origin params @ 0x%X:\n", ftell(f));
+	fread(&c,1,1,f);
+	while(c!=0)
+	{
+		fprintf(debug,"		");
+		while(c!='\n'){
+			fprintf(debug,"%c",c);
+			fread(&c,1,1,f);
+		}
+		double parvalue;
+		fread(&parvalue,8,1,f);
+		fprintf(debug,": %g\n", parvalue);
+		fseek(f,1,SEEK_CUR);
+		fread(&c,1,1,f);
+	}
+	fseek(f,1+5,SEEK_CUR);
+	while(1)
+	{
+		//fseek(f,5+0x40+1,SEEK_CUR);
+		fseek(f,5+0x40-4,SEEK_CUR);
+		unsigned char labellen;
+		fread(&labellen,1,1,f);
+		
+		fseek(f,4,SEEK_CUR);
+		int size;
+		fread(&size,4,1,f);
+		fseek(f,1,SEEK_CUR);
+		char *stmp = new char[size+1];
+		fread(stmp,size,1,f);
+		if(0==strcmp(stmp,"ResultsLog"))
+		{
+			delete stmp;
+			fseek(f,1,SEEK_CUR);
+			fread(&size,4,1,f);
+			fseek(f,1,SEEK_CUR);
+			stmp = new char[size+1];
+			fread(stmp,size,1,f);
+			resultsLog=stmp;
+			fprintf(debug,"Results Log: %s\n", resultsLog.c_str());
+			delete stmp;
+			break;
+		}
+		else
+		{
+			NOTE.push_back(note(stmp));
+			delete stmp;
+			fseek(f,1,SEEK_CUR);
+			fread(&size,4,1,f);
+			fseek(f,1,SEEK_CUR);
+			if(labellen>1)
+			{
+				stmp = new char[labellen];
+				stmp[labellen-1]='\0';
+				fread(stmp,labellen-1,1,f);
+				NOTE.back().label=stmp;
+				delete stmp;
+				fseek(f,1,SEEK_CUR);
+			}
+			stmp = new char[size-labellen+1];
+			fread(stmp,size-labellen,1,f);
+			NOTE.back().text=stmp;
+			fprintf(debug,"NOTE %d NAME: %s\n", NOTE.size(), NOTE.back().name.c_str());
+			fprintf(debug,"NOTE %d LABEL: %s\n", NOTE.size(), NOTE.back().label.c_str());
+			fprintf(debug,"NOTE %d TEXT:\n%s\n", NOTE.size(), NOTE.back().text.c_str());
+			delete stmp;
+			fseek(f,1,SEEK_CUR);
+		}
+	}
 
 	fprintf(debug,"Done parsing\n");
 	fclose(debug);

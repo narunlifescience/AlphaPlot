@@ -42,10 +42,12 @@ public:
 	bool importTables (OPJFile opj);
 	bool importFunctions (OPJFile opj);
 	bool importGraphs (OPJFile opj);
+	bool importNotes (OPJFile opj);
 	int error(){return parse_error;};
 
 private:
 	int parse_error;
+	int xoffset;
 	ApplicationWindow *mw;
 };
 

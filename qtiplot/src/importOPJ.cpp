@@ -31,17 +31,24 @@
 
 #include <QRegExp>
 #include <QMessageBox>
+#include <QDockWidget>
 #include "Matrix.h"
 #include "MultiLayer.h"
+#include "Note.h"
+
+#define OBJECTXOFFSET 200
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
 {
+	xoffset=0;
 	OPJFile opj((const char *)filename.latin1());
 	parse_error = opj.Parse();
 	importTables(opj);
 	importGraphs(opj);
 	importFunctions(opj);
+	importNotes(opj);
+	mw->showResults(opj.resultsLogString(),mw->logWindow->isVisible());
 }
 
 bool ImportOPJ::importTables(OPJFile opj)
@@ -86,7 +93,6 @@ bool ImportOPJ::importTables(OPJFile opj)
 			{
 				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
 				{// number
-					//double val = opj.Data(s,j)[i];
 					double* val = (double*)opj.oData(s,j,i,true);
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
@@ -94,7 +100,6 @@ bool ImportOPJ::importTables(OPJFile opj)
 					table->setText(i, j, QString::number(*val));
 				}
 				else// label? doesn't seem to work
-					//table->setText(i, j, QString(opj.SData(s,j,i)));
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
 			}
 
@@ -247,7 +252,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 			//cascade the tables
 			int dx=table->verticalHeaderWidth();
 			int dy=table->parentWidget()->frameGeometry().height() - table->height();
-			table->parentWidget()->move(QPoint(visible_count*dx,visible_count*dy));
+			table->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
 			visible_count++;
 		}
 	}
@@ -300,17 +305,20 @@ bool ImportOPJ::importTables(OPJFile opj)
 		//cascade the matrices
 		int dx=matrix->verticalHeaderWidth();
 		int dy=matrix->parentWidget()->frameGeometry().height() - matrix->height();
-		matrix->parentWidget()->move(QPoint(visible_count*dx,visible_count*dy));
+		matrix->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
 		visible_count++;
 
 	}
-
-return true;
+	
+	if(visible_count>0)
+		xoffset++;
+	return true;
 }
 
 
 bool ImportOPJ::importFunctions(OPJFile opj)
 {
+	int visible_count=0;
 	double pi=3.141592653589793;
 	for (int s=0; s<opj.numFunctions(); s++)
 	{
@@ -329,15 +337,55 @@ bool ImportOPJ::importFunctions(OPJFile opj)
 			formulas << opj.functionFormula(s);
 			ranges << opj.functionBegin(s) << opj.functionEnd(s);
 		}
-		mw->newFunctionPlot(type, formulas, "x", ranges, opj.functionPoints(s));
+		//mw->newFunctionPlot(type, formulas, "x", ranges, opj.functionPoints(s));
+		MultiLayer *ml = mw->newGraph();
+		if (ml)
+			ml->activeGraph()->addFunctionCurve(type, formulas, "x", ranges, opj.functionPoints(s));
 
+		mw->updateFunctionLists(type, formulas);
+
+		//cascade the formulas
+		int dx=20;
+		int dy=ml->parentWidget()->frameGeometry().height() - ml->height();
+		ml->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
+		visible_count++;
 	}
+	if(visible_count>0)
+		xoffset++;
+	return true;
+}
 
-return true;
+bool ImportOPJ::importNotes(OPJFile opj)
+{
+	int visible_count=0;
+	for (int n=0; n<opj.numNotes(); n++)
+	{
+		QString name=opj.noteName(n);
+		QRegExp rx("^@(\\S+)$");
+		if(rx.indexIn(name)==0)
+		{
+			name=name.mid(2,name.length()-3);
+		}
+		Note *note = mw->newNote(name);
+		if(!note)
+			return false;
+		note->setWindowLabel(opj.noteLabel(n));
+		note->setText(opj.noteText(n));
+
+		//cascade the notes
+		int dx=20;
+		int dy=note->parentWidget()->frameGeometry().height() - note->height();
+		note->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
+		visible_count++;
+	}
+	if(visible_count>0)
+		xoffset++;
+	return true;
 }
 
 bool ImportOPJ::importGraphs(OPJFile opj)
 {
+	int visible_count=0;
 	for (int g=0; g<opj.numGraphs(); g++)
 	{
 		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
@@ -550,9 +598,15 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
         	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
 		}
+		//cascade the graphs
+		int dx=20;
+		int dy=ml->parentWidget()->frameGeometry().height() - ml->height();
+		ml->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
+		visible_count++;
 		ml->show();
 		ml->arrangeLayers(true,true);
 	}
-
+	if(visible_count>0)
+		xoffset++;
 	return true;
 }
