@@ -1283,9 +1283,10 @@ void AxesDialog::initScalesPage()
 
 		minorBoxLabel = new QLabel( tr( "Minor Ticks" ));
 		rightLayout->addWidget( minorBoxLabel, 2, 0);
-
-		boxMinorValue = new QSpinBox();
-		boxMinorValue->setDisabled(true);
+		
+		boxMinorValue = new QComboBox();
+		boxMinorValue->setEditable(true);
+		boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
 		rightLayout->addWidget( boxMinorValue, 2, 1);
 
 		rightLayout->setRowStretch( 3, 1 );
@@ -1324,7 +1325,7 @@ void AxesDialog::initScalesPage()
 
 		connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
 		connect(axesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateScale()));
-		connect(boxScaleType,SIGNAL(activated(int)), this, SLOT(updatePlot()));
+		connect(boxScaleType,SIGNAL(activated(int)), this, SLOT(updateMinorTicksList(int)));
 		connect(btnStep,SIGNAL(clicked()), this, SLOT(stepEnabled()));
 		connect(btnMajor,SIGNAL(clicked()), this, SLOT(stepDisabled()));
 }
@@ -2458,7 +2459,6 @@ void AxesDialog::stepEnabled()
 {
 	boxStep->setEnabled(btnStep->isChecked ());
 	boxUnit->setEnabled(btnStep->isChecked ());
-	boxMinorValue->setDisabled(btnStep->isChecked ());
 	boxMajorValue->setDisabled(btnStep->isChecked ());
 	btnMajor->setChecked(!btnStep->isChecked ());
 }
@@ -2467,7 +2467,6 @@ void AxesDialog::stepDisabled()
 {
 	boxStep->setDisabled(btnMajor->isChecked ());
 	boxUnit->setDisabled(btnMajor->isChecked ());
-	boxMinorValue->setEnabled(btnMajor->isChecked ());
 	boxMajorValue->setEnabled(btnMajor->isChecked ());
 	btnStep->setChecked(!btnMajor->isChecked ());
 }
@@ -2671,7 +2670,7 @@ bool AxesDialog::updatePlot()
 	             }
           }
 
-		d_graph->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->value(),
+		d_graph->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->currentText().toInt(),
                              boxScaleType->currentIndex(), btnInvert->isChecked());
 		d_graph->notifyChanges();
 	}
@@ -2862,8 +2861,7 @@ boxEnd->setText(QString::number(QMAX(scDiv->lBound(), scDiv->hBound())));
 QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
 boxStep->setText(QString::number(d_graph->axisStep(a)));
 boxMajorValue->setValue(lst.count());
-boxMinorValue->setValue(d_plot->axisMaxMinor(a));
-
+	
 if (axesType[a] == Graph::Time)
 	{
 	boxUnit->show();
@@ -2887,7 +2885,6 @@ if (d_graph->axisStep(a) != 0.0)
 
 	btnMajor->setChecked(false);
 	boxMajorValue->setEnabled(false);
-	boxMinorValue->setEnabled(false);
 	}
 else
 	{
@@ -2896,7 +2893,6 @@ else
 	boxUnit->setEnabled(false);
 	btnMajor->setChecked(true);
 	boxMajorValue->setEnabled(true);
-	boxMinorValue->setEnabled(true);
 	}
 
 const QwtScaleEngine *sc_eng = d_plot->axisScaleEngine(a);
@@ -2904,6 +2900,14 @@ btnInvert->setChecked(sc_eng->testAttribute(QwtScaleEngine::Inverted));
 
 QwtScaleTransformation *tr = sc_eng->transformation();
 boxScaleType->setCurrentItem((int)tr->type());
+	
+boxMinorValue->clear();
+if (tr->type())//log scale
+	boxMinorValue->addItems(QStringList()<<"0"<<"2"<<"4"<<"8");
+else
+	boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
+
+boxMinorValue->setEditText(QString::number(d_plot->axisMaxMinor(a)));
 }
 
 void AxesDialog::updateTitleBox(int axis)
@@ -3350,4 +3354,18 @@ int AxesDialog::exec()
     setModal(true);
     show();
 	return 0;
+}
+
+void AxesDialog::updateMinorTicksList(int scaleType)
+{
+	updatePlot();
+	
+	boxMinorValue->clear();
+	if (scaleType)//log scale
+		boxMinorValue->addItems(QStringList()<<"0"<<"2"<<"4"<<"8");
+	else
+		boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
+
+	int a = mapToQwtAxis(axesList->currentRow());
+	boxMinorValue->setEditText(QString::number(d_graph->plotWidget()->axisMaxMinor(a)));
 }

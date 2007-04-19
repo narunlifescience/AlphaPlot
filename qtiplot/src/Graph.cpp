@@ -1412,7 +1412,13 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 	else
 		sc_engine = new QwtLinearScaleEngine();
 
-	QwtScaleDiv div = sc_engine->divideScale (QMIN(start, end), QMAX(start, end), majorTicks, minorTicks, step);
+	int max_min_intervals = minorTicks;
+	if (minorTicks == 1)
+		max_min_intervals = 3;
+	if (minorTicks > 1)
+		max_min_intervals = minorTicks + 1;
+	
+	QwtScaleDiv div = sc_engine->divideScale (QMIN(start, end), QMAX(start, end), majorTicks, max_min_intervals, step);
 	d_plot->setAxisMaxMajor (axis, majorTicks);
 	d_plot->setAxisMaxMinor (axis, minorTicks);
 

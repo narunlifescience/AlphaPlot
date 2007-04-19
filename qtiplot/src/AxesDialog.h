@@ -110,7 +110,7 @@ protected:
     QLineEdit* boxEnd;   
     QLineEdit* boxStart;
     QComboBox* boxScaleType;
-    QSpinBox* boxMinorValue;
+    QComboBox* boxMinorValue;
     QLineEdit* boxStep;
     QCheckBox* btnStep, *btnInvert;
     QSpinBox* boxMajorValue;
@@ -179,6 +179,7 @@ public slots:
 	int mapToQwtAxisId();
 	void setEnabledTickLabels(const QStringList& labelsOn);
 	void updateTickLabelsList(bool);
+	void updateMinorTicksList(int scaleType);
 	void setTicksType(const QList<int>& majLst, const QList<int>& minLst);
 	void setTicksType(int);
 	void setCurrentScale(int axisPos);
