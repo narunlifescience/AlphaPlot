@@ -405,6 +405,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			if(strlen(opj.layerLegend(g,l))>0)
 				graph->newLegend(QString::fromLocal8Bit(opj.layerLegend(g,l)));
 			int auto_color=0;
+			int auto_color1=0;
 			for(int c=0; c<opj.numCurves(g,l); c++)
 			{
 				QString data(opj.curveDataName(g,l,c));
@@ -421,6 +422,8 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case OPJFile::LineSymbol:
 					style=Graph::LineSymbols;
 					break;
+				default:
+					continue;
 				}
 				QString tableName = data.right(data.length()-2);
 				graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
@@ -487,10 +490,17 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				switch(opj.curveSymbolType(g,l,c)>>8)
 				{
 				case 0:
+					cl.fillCol=color;
+					break;
+				case 1:
+				case 2:
 				case 8:
 				case 9:
 				case 10:
 				case 11:
+					color=opj.curveSymbolFillColor(g,l,c);
+					if((style==Graph::Scatter||style==Graph::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
+						color=17;// depend on Origin settings - not stored in file
 					cl.fillCol=color;
 					break;
 				default:

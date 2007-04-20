@@ -243,6 +243,7 @@ struct graphCurve {
 	
 	int symbol_type;
 	int symbol_color;
+	int symbol_fill_color;
 	double symbol_size;
 	int symbol_thickness;
 	int point_offset;
@@ -417,6 +418,7 @@ public:
 
 	int curveSymbolType(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_type; }	//!< get symbol type of curve c of layer l of graph s
 	int curveSymbolColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_color; }	//!< get symbol color of curve c of layer l of graph s
+	int curveSymbolFillColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_fill_color; }	//!< get symbol fill color of curve c of layer l of graph s
 	double curveSymbolSize(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_size; }	//!< get symbol size of curve c of layer l of graph s
 	int curveSymbolThickness(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_thickness; }	//!< get symbol thickness of curve c of layer l of graph s
 

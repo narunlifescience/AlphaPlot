@@ -1031,12 +1031,13 @@ int OPJFile::ParseFormatNew() {
 		fread(&object_type,10,1,f);
 		
 		fseek(f,POS,SEEK_SET);
-		if(0==strcmp(object_type,"ORIGIN")
+		/*if(0==strcmp(object_type,"ORIGIN")
 			|| 0==strcmp(object_type,"CREATE")
 			|| 0==strcmp(object_type,"FFT")
 			|| 0==strcmp(object_type,"TEMP")
 			|| 0==strcmp(object_type,"Microc.OT")
-			|| 0==strcmp(object_type,"MICROC.OT"))
+			|| 0==strcmp(object_type,"MICROC.OT")
+			|| 0==strcmp(object_type,"EXCEL"))
 		{
 			if(compareSpreadnames(object_name)!=-1)
 				readSpreadInfo(f, debug);
@@ -1054,7 +1055,13 @@ int OPJFile::ParseFormatNew() {
 		{
 			fprintf(debug,"Object %s has not supported yes type: %s\n", object_name, object_type);
 			skipObjectInfo(f, debug);
-		}
+		}*/
+		if(compareSpreadnames(object_name)!=-1)
+			readSpreadInfo(f, debug);
+		else if(compareMatrixnames(object_name)!=-1)
+			readMatrixInfo(f, debug);
+		else
+			readGraphInfo(f, debug);
 	}
 
 
@@ -1780,6 +1787,10 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			fseek(f,LAYER+0x17,SEEK_SET);
 			fread(&w,2,1,f);
 			GRAPH.back().layer.back().curve.back().symbol_type=w;
+
+			fseek(f,LAYER+0x12E,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().symbol_fill_color=h;
 
 			fseek(f,LAYER+0x132,SEEK_SET);
 			fread(&h,1,1,f);
