@@ -79,6 +79,14 @@ int OPJFile::compareMatrixnames(char *sname) {
 	return -1;
 }
 
+int OPJFile::compareFunctionnames(const char *sname) {
+	for(int i=0;i<FUNCTION.size();i++)
+		if (FUNCTION[i].name == sname)
+			return i;
+	return -1;
+}
+
+
 vector<string> OPJFile::findDataByIndex(int index) {
 	vector<string> str;
 	for(int spread=0;spread<SPREADSHEET.size();spread++)
@@ -769,12 +777,14 @@ int OPJFile::ParseFormatNew() {
 			fflush(debug);
 
 			// catch exception
-			if(size>10000)
-				size=1000;
+			/*if(size>10000)
+				size=1000;*/
 			switch(signature)
 			{
 			case 0x50CA:
 			case 0x70CA:
+			case 0x50F2:
+			case 0x50E2:
 				fprintf(debug,"NEW MATRIX\n");
 				MATRIX.push_back(matrix(sname, dataIndex));
 				dataIndex++;
@@ -850,6 +860,7 @@ int OPJFile::ParseFormatNew() {
 				default:
 					fprintf(debug,"UNKNOWN MATRIX DATATYPE: %.2X SKIP DATA\n", data_type);
 					fseek(f, valuesize*size, SEEK_CUR);
+					MATRIX.pop_back();
 				}
 
 				break;
@@ -967,8 +978,8 @@ int OPJFile::ParseFormatNew() {
 					{
 						char *stmp = new char[valuesize-1];
 						fread(stmp,valuesize-2,1,f);
-						/*if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
-							stmp[0]='\0';*/
+						if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
+							stmp[0]='\0';
 						SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(stmp));
 						fprintf(debug,"%s ",stmp);
 						delete stmp;
@@ -978,8 +989,8 @@ int OPJFile::ParseFormatNew() {
 				{
 					char *stmp = new char[valuesize+1];
 					fread(stmp,valuesize,1,f);
-					/*if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
-						stmp[0]='\0';*/
+					if(strchr(stmp,0x0E)) // try find non-printable symbol - garbage test
+						stmp[0]='\0';
 					SPREADSHEET[spread].column[(current_col-1)].odata.push_back(originData(stmp));
 					fprintf(debug,"%s ",stmp);
 					delete stmp;
@@ -991,10 +1002,16 @@ int OPJFile::ParseFormatNew() {
 		fprintf(debug,"\n");
 		fflush(debug);
 
-		fseek(f,5+((nbytes>0||cname==0)?1:0),SEEK_CUR);
+		if(nbytes>0||cname==0)
+			fseek(f,1,SEEK_CUR);
+
+		int tailsize;
+		fread(&tailsize,4,1,f);
+		fseek(f,1+tailsize+(tailsize>0?1:0),SEEK_CUR); //skip tail
+		//fseek(f,5+((nbytes>0||cname==0)?1:0),SEEK_CUR);
 		fread(&col_found,4,1,f);
 		if(IsBigEndian()) SwapBytes(col_found);
-		fread(&c,1,1,f);	// skip '\n'
+		fseek(f,1,SEEK_CUR);	// skip '\n'
 		fprintf(debug,"	[column found = %d/0x%X (@ 0x%X)]\n",col_found,col_found,(unsigned int) ftell(f)-5);
 		colpos=ftell(f);
 		fflush(debug);

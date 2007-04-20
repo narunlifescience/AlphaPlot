@@ -339,7 +339,8 @@ public:
 
 	//function properties
 	int numFunctions() { return FUNCTION.size(); }			//!< get number of functions
-	const char *functionName(int s) { return MATRIX[s].name.c_str(); }	//!< get name of function s	
+	int functionIndex(const char* s) { return compareFunctionnames(s); }	//!< get name of function s
+	const char *functionName(int s) { return FUNCTION[s].name.c_str(); }	//!< get name of function s	
 	int functionType(int s) { return FUNCTION[s].type; }		//!< get type of function s
 	double functionBegin(int s) { return FUNCTION[s].begin; }	//!< get begin of interval of function s
 	double functionEnd(int s) { return FUNCTION[s].end; }	//!< get end of interval of function s
@@ -438,6 +439,7 @@ private:
 	int  compareSpreadnames(char *sname);				//!< returns matching spread index
 	int  compareColumnnames(int spread, char *sname);	//!< returns matching column index
 	int  compareMatrixnames(char *sname);				//!< returns matching matrix index
+	int  compareFunctionnames(const char *sname);				//!< returns matching function index
 	vector<string> findDataByIndex(int index);
 	void readSpreadInfo(FILE *fopj, FILE *fdebug);
 	void readMatrixInfo(FILE *fopj, FILE *fdebug);

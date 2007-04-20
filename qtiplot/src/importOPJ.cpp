@@ -46,7 +46,6 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 	parse_error = opj.Parse();
 	importTables(opj);
 	importGraphs(opj);
-	importFunctions(opj);
 	importNotes(opj);
 	mw->showResults(opj.resultsLogString(),mw->logWindow->isVisible());
 }
@@ -315,46 +314,6 @@ bool ImportOPJ::importTables(OPJFile opj)
 	return true;
 }
 
-
-bool ImportOPJ::importFunctions(OPJFile opj)
-{
-	int visible_count=0;
-	double pi=3.141592653589793;
-	for (int s=0; s<opj.numFunctions(); s++)
-	{
-		QStringList formulas;
-		QList<double> ranges;
-		int type;
-		if(opj.functionType(s)==1)//Polar
-		{
-			type=2;
-			formulas << opj.functionFormula(s) << "x";
-			ranges << pi/180*opj.functionBegin(s) << pi/180*opj.functionEnd(s);
-		}
-		else
-		{
-			type=0;
-			formulas << opj.functionFormula(s);
-			ranges << opj.functionBegin(s) << opj.functionEnd(s);
-		}
-		//mw->newFunctionPlot(type, formulas, "x", ranges, opj.functionPoints(s));
-		MultiLayer *ml = mw->newGraph();
-		if (ml)
-			ml->activeGraph()->addFunctionCurve(type, formulas, "x", ranges, opj.functionPoints(s));
-
-		mw->updateFunctionLists(type, formulas);
-
-		//cascade the formulas
-		int dx=20;
-		int dy=ml->parentWidget()->frameGeometry().height() - ml->height();
-		ml->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
-		visible_count++;
-	}
-	if(visible_count>0)
-		xoffset++;
-	return true;
-}
-
 bool ImportOPJ::importNotes(OPJFile opj)
 {
 	int visible_count=0;
@@ -385,6 +344,7 @@ bool ImportOPJ::importNotes(OPJFile opj)
 
 bool ImportOPJ::importGraphs(OPJFile opj)
 {
+	double pi=3.141592653589793;
 	int visible_count=0;
 	for (int g=0; g<opj.numGraphs(); g++)
 	{
@@ -425,8 +385,36 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				default:
 					continue;
 				}
-				QString tableName = data.right(data.length()-2);
-				graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
+				QString tableName;
+				switch(data[0].toAscii())
+				{
+				case 'T':
+					tableName = data.right(data.length()-2);
+					graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
+					break;
+				case 'F':
+					QStringList formulas;
+					QList<double> ranges;
+					int s=opj.functionIndex(data.right(data.length()-2).toStdString().c_str());
+					int type;
+					if(opj.functionType(s)==1)//Polar
+					{
+						type=2;
+						formulas << opj.functionFormula(s) << "x";
+						ranges << pi/180*opj.functionBegin(s) << pi/180*opj.functionEnd(s);
+					}
+					else
+					{
+						type=0;
+						formulas << opj.functionFormula(s);
+						ranges << opj.functionBegin(s) << opj.functionEnd(s);
+					}
+					graph->addFunctionCurve(type, formulas, "x", ranges, opj.functionPoints(s), opj.functionName(s));
+
+					mw->updateFunctionLists(type, formulas);
+					break;
+				}
+				
 				CurveLayout cl = graph->initCurveLayout(style, opj.numCurves(g,l));
 				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
 				cl.penWidth=opj.curveSymbolThickness(g,l,c);
