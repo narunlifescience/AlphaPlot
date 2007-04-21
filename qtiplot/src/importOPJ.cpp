@@ -382,6 +382,10 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case OPJFile::LineSymbol:
 					style=Graph::LineSymbols;
 					break;
+				case OPJFile::ErrorBar:
+				case OPJFile::XErrorBar:
+					style=Graph::ErrorBars;
+					break;
 				default:
 					continue;
 				}
@@ -390,7 +394,15 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				{
 				case 'T':
 					tableName = data.right(data.length()-2);
-					graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
+					if(style==Graph::ErrorBars)
+					{
+						int flags=opj.curveSymbolType(g,l,c);
+						graph->addErrorBars(tableName + "_" + opj.curveXColName(g,l,c), mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c),
+							((flags&0x10)==0x10?0:1), ceil(opj.curveLineWidth(g,l,c)), ceil(opj.curveSymbolSize(g,l,c)), QColor(Qt::black),
+							(flags&0x40)==0x40, (flags&2)==2, (flags&1)==1);
+					}
+					else
+						graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
 					break;
 				case 'F':
 					QStringList formulas;
