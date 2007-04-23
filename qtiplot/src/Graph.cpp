@@ -132,6 +132,7 @@ static const char *unzoom_xpm[]={
 #include <QPainter>
 #include <QMenu>
 #include <QTextStream>
+#include <QLocale>
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -1417,7 +1418,7 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 		max_min_intervals = 3;
 	if (minorTicks > 1)
 		max_min_intervals = minorTicks + 1;
-	
+
 	QwtScaleDiv div = sc_engine->divideScale (QMIN(start, end), QMAX(start, end), majorTicks, max_min_intervals, step);
 	d_plot->setAxisMaxMajor (axis, majorTicks);
 	d_plot->setAxisMaxMinor (axis, minorTicks);
@@ -3409,6 +3410,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	QStringList xLabels, yLabels;// store text labels
 	QTime time0;
 	QDate date;
+    QLocale locale;
 
 	if (endRow < 0)
 		endRow = w->tableRows() - 1;
@@ -3469,7 +3471,12 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 					X[size] = (double) date.daysTo (d);
 			}
 			else
-				X[size] = xval.toDouble();
+			{
+			    bool ok;
+				X[size] = xval.toDouble(&ok);
+				if (!ok)
+                    X[size] = locale.toDouble(xval);
+			}
 
 			if (yColType == Table::Text)
 			{
@@ -3477,9 +3484,14 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 				Y[size] = (double) (size + 1);
 			}
 			else
-				Y[size] = yval.toDouble();
+			{
+			    bool ok;
+				Y[size] = yval.toDouble(&ok);
+				if (!ok)
+                    Y[size] = locale.toDouble(yval);
+			}
 
-             size++;
+            size++;
 		}
 	}
 
@@ -3740,12 +3752,12 @@ void Graph::removeCurve(int index)
             ((QwtErrorPlotCurve *)it)->detachFromMasterCurve();
 		else if (((PlotCurve *)it)->type() != Function)
 			((DataCurve *)it)->clearErrorBars();
-		
+
 		if (d_fit_curves.contains((QwtPlotCurve *)it))
 		{
 			int i = d_fit_curves.indexOf((QwtPlotCurve *)it);
 			if (i >= 0 && i < d_fit_curves.size())
-				d_fit_curves.removeAt(i);	
+				d_fit_curves.removeAt(i);
 		}
 	}
 
@@ -4778,7 +4790,7 @@ void Graph::copy(Graph* g)
 
 			c->setAxis(cv->xAxis(), cv->yAxis());
 			c->setVisible(cv->isVisible());
-			
+
 			QList<QwtPlotCurve *>lst = g->fitCurvesList();
 			if (lst.contains((QwtPlotCurve *)it))
 				d_fit_curves << c;
@@ -5131,9 +5143,9 @@ void Graph::addFitCurve(QwtPlotCurve *c)
 void Graph::deleteFitCurves()
 {
 	QList<int> keys = d_plot->curveKeys();
-	foreach(QwtPlotCurve *c, d_fit_curves) 
+	foreach(QwtPlotCurve *c, d_fit_curves)
 		removeCurve(curveIndex(c));
-	
+
 	d_plot->replot();
 }
 
@@ -5187,12 +5199,12 @@ void Graph::restoreSpectrogram(ApplicationWindow *app, const QStringList& lst)
         return;
 
   	Spectrogram *sp = new Spectrogram(m);
-	
+
 	c_type.resize(++n_curves);
 	c_type[n_curves-1] = Graph::ColorMap;
 	c_keys.resize(n_curves);
 	c_keys[n_curves-1] = d_plot->insertCurve(sp);
-	
+
   	for (line++; line != lst.end(); line++)
     {
         QString s = *line;

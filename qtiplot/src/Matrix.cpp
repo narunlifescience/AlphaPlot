@@ -48,6 +48,7 @@
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPainter>
+#include <QLocale>
 
 #include <stdlib.h>
 #include <math.h>
@@ -124,12 +125,11 @@ void Matrix::cellEdited(int row,int col)
 
 	QString cell_formula = cell_text;
 
-	bool ok = false;
-	// TODO: [ Feature Request #2892 ] Decimal sign should be customizable
-	double res = cell_text.replace(",", ".").toDouble(&ok);
-
+	bool ok = true;
+    QLocale locale;
+  	double res = locale.toDouble(cell_text, &ok);
 	if (ok)
-		setText(row, col, QString::number(res, txt_format.toAscii(), num_precision));
+		setText(row, col, locale.toString(res, txt_format.toAscii(), num_precision));
 	else
 	{
 		Script *script = scriptEnv->newScript(cell_formula, this, QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
@@ -145,7 +145,7 @@ void Matrix::cellEdited(int row,int col)
 				|| ret.type()==QVariant::ULongLong)
 			setText(row, col, ret.toString());
 		else if(ret.canConvert(QVariant::Double))
-			setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
+			setText(row, col, locale.toString(ret.toDouble(), txt_format.toAscii(), num_precision));
 		else
 			setText(row, col, "");
 	}
@@ -160,8 +160,7 @@ double Matrix::cell(int row, int col)
 	else
 	{
 		if(d_table->item(row, col))
-			// TODO: [ Feature Request #2892 ] Decimal sign should be customizable
-			return d_table->item(row, col)->text().toDouble();
+			return QLocale().toDouble(d_table->item(row, col)->text());
 		else
 			return 0.0;
 	}
@@ -170,9 +169,9 @@ double Matrix::cell(int row, int col)
 void Matrix::setCell(int row, int col, double value)
 {
 	if(d_table->item(row, col))
-		d_table->item(row, col)->setText( QString::number(value, txt_format.toAscii(), num_precision) );
+		d_table->item(row, col)->setText(QLocale().toString(value, txt_format.toAscii(), num_precision));
 	else
-		d_table->setItem(row, col, new QTableWidgetItem( QString::number(value, txt_format.toAscii(), num_precision) ));
+		d_table->setItem(row, col, new QTableWidgetItem(QLocale().toString(value, txt_format.toAscii(), num_precision)));
 }
 
 QString Matrix::text(int row, int col)
@@ -333,11 +332,7 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 		{
 			QString t = text(i, j);
 			if (!t.isEmpty())
-			{
-				double val = dMatrix[i][j];
-				t.setNum(val, txt_format.toAscii(), num_precision);
-				setText(i, j, t);
-			}
+				setCell(i, j, dMatrix[i][j]);
 		}
 	}
 
@@ -357,7 +352,6 @@ int Matrix::columnsWidth()
 	return d_table->columnWidth(0);
 }
 
-// TODO: Row height should also be adjustable
 void Matrix::setColumnsWidth(int width)
 {
 	if (width == columnsWidth())
@@ -496,10 +490,7 @@ void Matrix::invert()
 	for(i=0; i<rows; i++)
 	{
 		for(j=0; j<cols; j++)
-		{
-			double val = gsl_matrix_get(inverse, i, j);
-			setText(i, j, QString::number(val));
-		}
+			setCell(i, j, gsl_matrix_get(inverse, i, j));
 	}
 
 	gsl_matrix_free(inverse);
@@ -527,8 +518,8 @@ void Matrix::transpose()
 		for(j = 0; j<=i; j++)
 		{
 			temp = text(i,j);
-			setText(i,j,text(j,i));
-			setText(j,i,temp);
+			setText(i, j, text(j,i));
+			setText(j, i, temp);
 		}
 
 	// shrink matrix to desired size
@@ -599,7 +590,7 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 					|| ret.type()==QVariant::ULongLong)
 				setText(row, col, ret.toString());
 			else if (ret.canConvert(QVariant::Double))
-				setText(row, col, QString::number(ret.toDouble(), txt_format.toAscii(), num_precision));
+				setText(row, col, QLocale().toString(ret.toDouble(), txt_format.toAscii(), num_precision));
 			else
 			{
 				setText(row, col, "");
@@ -880,15 +871,16 @@ void Matrix::pasteSelection()
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	bool numeric;
 	double value;
+	QLocale system_locale = QLocale::system();
 	for(i=top; i<top+rows; i++)
 	{
 		s = ts2.readLine();
 		cellTexts=s.split("\t");
 		for(j=left; j<left+cols; j++)
 		{
-			value = cellTexts[j-left].toDouble(&numeric);
+			value = system_locale.toDouble(cellTexts[j-left], &numeric);
 			if (numeric)
-				setText(i, j, QString::number(value, txt_format.toAscii(), num_precision));
+				setText(i, j, QLocale().toString(value, txt_format.toAscii(), num_precision));
 			else
 				setText(i, j, cellTexts[j-left]);
 		}

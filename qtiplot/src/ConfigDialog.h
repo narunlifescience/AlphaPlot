@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Preferences dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -92,7 +92,7 @@ public slots:
 	void pickPanelsTextColor();
 	void pickPanelsColor();
 	void pickWorkspaceColor();
-	
+
 	//2D curves
 	int curveStyle();
 
@@ -107,7 +107,7 @@ public slots:
 	void pick3DTitleFont();
 	void pick3DNumbersFont();
 	void pick3DAxesFont();
- 
+
 	//Fitting
 	void showPointsBox(bool);
 
@@ -141,13 +141,13 @@ private:
 	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
-	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage;
+	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage, *boxDecimalSeparator;
 	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision;
 	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
 	QListWidget * itemsList;
 	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
-	QLabel *lblPanelsText, *lblFonts, *lblStyle;
+	QLabel *lblPanelsText, *lblFonts, *lblStyle, *lblDecimalSeparator;
 	QGroupBox *groupBoxConfirm;
 	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;

@@ -94,7 +94,7 @@ void Filter::setDataCurve(int curve, double start, double end)
         d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
     else
     	d_n = curveData(d_curve, start, end, &d_x, &d_y);
-	
+
 	if (d_n == -1)
 	{
 		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
@@ -249,7 +249,7 @@ int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **
     double *xtemp = new double[n];
     double *ytemp = new double[n];
 
-	double pr_x;
+	double pr_x = c->x(i_start) - 1.0;
   	int j=0;
     for (int i = i_start; i <= i_end; i++)
     {
@@ -298,7 +298,7 @@ int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, dou
     (*x) = new double[n];
     (*y) = new double[n];
 
-    double pr_x;
+    double pr_x = c->x(i_start) - 1.0;
     int j=0;
     for (int i = i_start; i <= i_end; i++)
     {

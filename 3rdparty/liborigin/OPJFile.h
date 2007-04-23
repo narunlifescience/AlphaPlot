@@ -2,8 +2,8 @@
     File                 : OPJFile.h
     --------------------------------------------------------------------
     Copyright            : (C) 2005-2007 Stefan Gerlach
-						   (C) 2007 by Alex Kargovsky, Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr, thzs*gmx.net
+						   (C) 2007 by Alex Kargovsky, Ion Vasilief
+    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr
     Description          : Origin project import class
 
  ***************************************************************************/
@@ -240,7 +240,7 @@ struct graphCurve {
 	int fillarea_pattern_color;
 	int fillarea_pattern_width;
 
-	
+
 	int symbol_type;
 	int symbol_color;
 	int symbol_fill_color;
@@ -294,7 +294,7 @@ public:
 	OPJFile(const char* filename);
 	int Parse();
 	double Version() { return version/100.0; }		//!< get version of project file
-	
+
 	//spreadsheet properties
 	int numSpreads() { return SPREADSHEET.size(); }			//!< get number of spreadsheets
 	const char *spreadName(int s) { return SPREADSHEET[s].name.c_str(); }	//!< get name of spreadsheet s
@@ -340,7 +340,7 @@ public:
 	//function properties
 	int numFunctions() { return FUNCTION.size(); }			//!< get number of functions
 	int functionIndex(const char* s) { return compareFunctionnames(s); }	//!< get name of function s
-	const char *functionName(int s) { return FUNCTION[s].name.c_str(); }	//!< get name of function s	
+	const char *functionName(int s) { return FUNCTION[s].name.c_str(); }	//!< get name of function s
 	int functionType(int s) { return FUNCTION[s].type; }		//!< get type of function s
 	double functionBegin(int s) { return FUNCTION[s].begin; }	//!< get begin of interval of function s
 	double functionEnd(int s) { return FUNCTION[s].end; }	//!< get end of interval of function s
@@ -351,13 +351,13 @@ public:
 	enum Color {Black=0, Red=1, Green=2, Blue=3, Cyan=4, Magenta=5, Yellow=6, DarkYellow=7, Navy=8,
 		Purple=9, Wine=10, Olive=11, DarkCyan=12, Royal=13, Orange=14, Violet=15, Pink=16, White=17,
 		LightGray=18, Gray=19, LTYellow=20, LTCyan=21, LTMagenta=22, DarkGray=23, Custom=255};
-	
-	enum Plot {Line=200, Scatter=201, LineSymbol=202, Column=203, Area=204, HiLoClose=205, Box=206, 
-		ColumnFloat=207, Vector=208, PlotDot=209, Wall3D=210, Ribbon3D=211, Bar3D=212, ColumnStack=213, 
-		AreaStack=214, Bar=215, BarStack=216, FlowVector=218, Histogram=219, MatrixImage=220, Pie=225, 
-		Contour=226, Unknown=230, ErrorBar=231, Text=232, XErrorBar=233, SurfaceColorMap=236, 
-		SurfaceColorFill=237, SurfaceWireframe=238, SurfaceBars=239, Line3D=240, Text3D=241, Mesh3D=242, 
-		XYZTriangular=245, LineSeries=246, YErrorBar=254, XYErrorBar=255, GraphScatter3D=0x8AF0, 
+
+	enum Plot {Line=200, Scatter=201, LineSymbol=202, Column=203, Area=204, HiLoClose=205, Box=206,
+		ColumnFloat=207, Vector=208, PlotDot=209, Wall3D=210, Ribbon3D=211, Bar3D=212, ColumnStack=213,
+		AreaStack=214, Bar=215, BarStack=216, FlowVector=218, Histogram=219, MatrixImage=220, Pie=225,
+		Contour=226, Unknown=230, ErrorBar=231, Text=232, XErrorBar=233, SurfaceColorMap=236,
+		SurfaceColorFill=237, SurfaceWireframe=238, SurfaceBars=239, Line3D=240, Text3D=241, Mesh3D=242,
+		XYZTriangular=245, LineSeries=246, YErrorBar=254, XYErrorBar=255, GraphScatter3D=0x8AF0,
 		GraphTrajectory3D=0x8AF1, Polar=0x00020000, SmithChart=0x00040000, FillArea=0x00800000};
 
 	enum LineStyle {Solid=0, Dash=1, Dot=2, DashDot=3, DashDotDot=4, ShortDash=5, ShortDot=6, ShortDashDot=7};
@@ -365,7 +365,7 @@ public:
 	enum LineConnect {NoLine=0, Straight=1, TwoPointSegment=2, ThreePointSegment=3, BSpline=8, Spline=9, StepHorizontal=11, StepVertical=12, StepHCenter=13, StepVCenter=14, Bezier=15};
 
 	enum Scale{Linear=0, Log10=1, Probability=2, Probit=3, Reciprocal=4, OffsetReciprocal=5, Logit=6, Ln=7, Log2=8};
-	
+
 	int numGraphs() { return GRAPH.size(); }			//!< get number of graphs
 	const char *graphName(int s) { return GRAPH[s].name.c_str(); }	//!< get name of graph s
 	const char *graphLabel(int s) { return GRAPH[s].label.c_str(); }	//!< get name of graph s
@@ -373,28 +373,28 @@ public:
 	const char *layerXAxisTitle(int s, int l) { return GRAPH[s].layer[l].xLabel.c_str(); }		//!< get label of X-axis of layer l of graph s
 	const char *layerYAxisTitle(int s, int l) { return GRAPH[s].layer[l].yLabel.c_str(); }		//!< get label of Y-axis of layer l of graph s
 	const char *layerLegend(int s, int l) { return GRAPH[s].layer[l].legend.c_str(); }		//!< get legend of layer l of graph s
-	vector<double> layerXRange(int s, int l) { 
-		vector<double> range; 
+	vector<double> layerXRange(int s, int l) {
+		vector<double> range;
 		range.push_back(GRAPH[s].layer[l].xMin);
 		range.push_back(GRAPH[s].layer[l].xMax);
 		range.push_back(GRAPH[s].layer[l].xStep);
 		return range;
 	} //!< get X-range of layer l of graph s
-	vector<double> layerYRange(int s, int l) { 
-		vector<double> range; 
+	vector<double> layerYRange(int s, int l) {
+		vector<double> range;
 		range.push_back(GRAPH[s].layer[l].yMin);
 		range.push_back(GRAPH[s].layer[l].yMax);
 		range.push_back(GRAPH[s].layer[l].yStep);
 		return range;
 	} //!< get Y-range of layer l of graph s
-	vector<int> layerXTicks(int s, int l) { 
-		vector<int> tick; 
+	vector<int> layerXTicks(int s, int l) {
+		vector<int> tick;
 		tick.push_back(GRAPH[s].layer[l].xMajorTicks);
 		tick.push_back(GRAPH[s].layer[l].xMinorTicks);
 		return tick;
 	} //!< get X-axis ticks of layer l of graph s
-	vector<int> layerYTicks(int s, int l) { 
-		vector<int> tick; 
+	vector<int> layerYTicks(int s, int l) {
+		vector<int> tick;
 		tick.push_back(GRAPH[s].layer[l].yMajorTicks);
 		tick.push_back(GRAPH[s].layer[l].yMinorTicks);
 		return tick;
@@ -410,7 +410,7 @@ public:
 	int curveLineColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].line_color; }	//!< get line color of curve c of layer l of graph s
 	int curveLineConnect(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].line_connect; }	//!< get line connect of curve c of layer l of graph s
 	double curveLineWidth(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].line_width; }	//!< get line width of curve c of layer l of graph s
-	
+
 	bool curveIsFilledArea(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea; }	//!< get is filled area of curve c of layer l of graph s
 	int curveFillAreaColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_color; }	//!< get area fillcolor of curve c of layer l of graph s
 	int curveFillPattern(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern; }	//!< get fill pattern of curve c of layer l of graph s

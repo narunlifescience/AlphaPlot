@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Column options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -49,7 +49,7 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 		setName( "TableDialog" );
     setWindowTitle( tr( "QtiPlot - Column options" ) );
     setSizeGripEnabled(true);
-	
+
 	QHBoxLayout *hboxa = new QHBoxLayout();
 	hboxa->addWidget(new QLabel(tr( "Column Name:" )));
     colName = new QLineEdit();
@@ -65,12 +65,12 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	buttonNext = new QPushButton();
 	buttonNext->setText("&>>");
 	buttonNext->setMaximumWidth(40);
-	
+
 	QHBoxLayout *hboxb = new QHBoxLayout();
     hboxb->addWidget(buttonPrev);
     hboxb->addWidget(buttonNext);
     hboxb->addStretch();
-    
+
     QVBoxLayout *vbox1 = new QVBoxLayout();
     vbox1->addLayout(hboxa);
     vbox1->addWidget(enumerateAllBox);
@@ -83,7 +83,7 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	buttonApply->setText(tr("&Apply"));
 
 	buttonCancel = new QPushButton(tr( "&Cancel" ));
-	
+
 	QVBoxLayout  *vbox2 = new QVBoxLayout();
 	vbox2->setSpacing(5);
 	vbox2->setMargin(5);
@@ -95,10 +95,10 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	hbox1->setSpacing(5);
 	hbox1->addLayout(vbox1);
 	hbox1->addLayout(vbox2);
-	
+
 	QGridLayout *gl1 = new QGridLayout();
     gl1->addWidget(new QLabel( tr("Plot Designation:")), 0, 0);
-    
+
    	columnsBox = new QComboBox();
 	columnsBox->insertItem(tr("None"));
 	columnsBox->insertItem(tr("X (abscissae)"));
@@ -107,9 +107,9 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	columnsBox->insertItem(tr("X Error"));
 	columnsBox->insertItem(tr("Y Error"));
     gl1->addWidget(columnsBox, 0, 1);
-    
+
     gl1->addWidget(new QLabel(tr("Display")), 1, 0);
-    
+
    	displayBox = new QComboBox();
 	displayBox->insertItem(tr("Numeric"));
 	displayBox->insertItem(tr("Text"));
@@ -118,13 +118,13 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	displayBox->insertItem(tr("Month"));
 	displayBox->insertItem(tr("Day of Week"));
     gl1->addWidget(displayBox, 1, 1);
-    
+
     labelFormat = new QLabel(tr( "Format:" ));
  	gl1->addWidget(labelFormat, 2, 0);
-	 
+
     formatBox = new QComboBox(false);
     gl1->addWidget(formatBox, 2, 1);
-    
+
 	labelNumeric = new QLabel(tr( "Precision:" ));
 	gl1->addWidget(labelNumeric, 3, 0);
 
@@ -132,26 +132,26 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
     gl1->addWidget(precisionBox, 3, 1);
 
 	applyToRightCols = new QCheckBox(tr( "Apply to all columns to the right" ));
-		
+
     QVBoxLayout *vbox3 = new QVBoxLayout();
     vbox3->addLayout(gl1);
     vbox3->addWidget(applyToRightCols);
-    
+
     QGroupBox *gb = new QGroupBox(tr("Options"));
     gb->setLayout(vbox3);
 
     QHBoxLayout  *hbox2 = new QHBoxLayout();
     hbox2->addWidget(new QLabel(tr( "Column Width:" )));
-    
+
 	colWidth = new QSpinBox();
     colWidth->setRange(0, 1000);
 	colWidth->setSingleStep(10);
 
 	hbox2->addWidget(colWidth);
-	
+
     applyToAllBox = new QCheckBox(tr( "Apply to all" ));
 	hbox2->addWidget(applyToAllBox);
-	
+
 	comments = new QTextEdit();
 
 	QVBoxLayout* vbox4 = new QVBoxLayout();
@@ -160,7 +160,7 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 	vbox4->addLayout(hbox2);
 	vbox4->addWidget(new QLabel(tr( "Comment:" )));
 	vbox4->addWidget(comments);
- 
+
     setLayout(vbox4);
     setFocusProxy (colName);
     resize(minimumSize());
@@ -237,10 +237,12 @@ colName->setText(colLabel);
 colName->selectAll();
 
 comments->setText(w->colComment(sc));
-colWidth->setValue(w->columnWidth(sc));  
+colWidth->setValue(w->columnWidth(sc));
 
 displayBox->setCurrentItem(colType);
 updateDisplay(colType);
+
+w->saveColToMemory(sc);
 
 if (colType == Table::Numeric)
 	{
@@ -270,11 +272,11 @@ void TableDialog::apply()
 if (colName->text().contains("_")){
 	QMessageBox::warning(this, tr("QtiPlot - Warning"),
   	tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
-  	 
+
 QString name=colName->text().replace("-", "_");
 if (name.contains(QRegExp("\\W")))
 	{
-	QMessageBox::warning(this,tr("QtiPlot - Error"), 
+	QMessageBox::warning(this,tr("QtiPlot - Error"),
 						tr("The column names must only contain letters and digits!"));
 	name.remove(QRegExp("\\W"));
 	}
@@ -286,34 +288,34 @@ w->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
 int colType = displayBox->currentItem();
 int format = formatBox->currentItem();
 
-switch(colType)   
+switch(colType)
 	{
 	case 0:
 		w->setNumericFormat(format,precisionBox->value(),applyToRightCols->isChecked());
 	break;
 
 	case 1:
-		w->setTextFormat(applyToRightCols->isChecked()); 
+		w->setTextFormat(applyToRightCols->isChecked());
 	break;
 
 	case 2:
-		 w->setDateTimeFormat(colType, "yyyy-MM-dd", applyToRightCols->isChecked()); 
+		 w->setDateTimeFormat(colType, "yyyy-MM-dd", applyToRightCols->isChecked());
 	break;
 
 	case 3:
-		w->setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked()); 
+		w->setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	break;
 
 	case 4:
 	if (!format)
-		w->setDateTimeFormat(colType, "shortMonthName", applyToRightCols->isChecked()); 
+		w->setDateTimeFormat(colType, "shortMonthName", applyToRightCols->isChecked());
 	else
 		w->setDateTimeFormat(colType, "longMonthName", applyToRightCols->isChecked());
 	break;
 
 	case 5:
 	if (!format)
-		w->setDateTimeFormat(colType, "shortDayName", applyToRightCols->isChecked()); 
+		w->setDateTimeFormat(colType, "shortDayName", applyToRightCols->isChecked());
 	else
 		w->setDateTimeFormat(colType, "longDayName", applyToRightCols->isChecked());
 	break;
@@ -322,6 +324,7 @@ switch(colType)
 
 void TableDialog::closeEvent( QCloseEvent* ce )
 {
+w->forgetSavedCol();
 ce->accept();
 }
 
@@ -357,7 +360,7 @@ switch(i)
 
 void TableDialog::showPrecisionBox(int item)
 {
-switch(item)   
+switch(item)
         {
             case 0:
             {
@@ -426,7 +429,7 @@ else
 		case 3:
 			{
 			formatBox->setEditable ( true );
-			
+
 			formatBox->insertItem(tr("h") );
 			formatBox->insertItem(tr("h ap") );
 			formatBox->insertItem(tr("h AP") );

@@ -55,9 +55,6 @@ LayerButton::LayerButton(const QString& text, QWidget* parent)
 : QPushButton(text, parent)
 {
 	int btn_size = 20;
-#ifdef Q_OS_MAC
-	btn_size = 40;
-#endif
 
 	setToggleButton(true);
 	setOn(true);
@@ -74,14 +71,6 @@ void LayerButton::mousePressEvent( QMouseEvent *event )
 void LayerButton::mouseDoubleClickEvent ( QMouseEvent * )
 {
 	emit showCurvesDialog();
-}
-
-int LayerButton::btnSize()
-{
-#ifdef Q_OS_MAC // Mac
-	return 40;
-#endif
-	return 20;
 }
 
 MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)

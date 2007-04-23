@@ -41,7 +41,7 @@ public:
 	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
 
     int method(){return d_method;};
-    void setMethod(int n);
+    void setMethodOrder(int n);
 
 private:
     void init();

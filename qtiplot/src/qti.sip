@@ -821,6 +821,87 @@ public:
   void fit();
 };
 
+class Filter : QObject
+{
+%TypeHeaderCode
+#include "src/Filter.h"
+%End
+public:
+  Filter(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
+  ~Filter();
+
+  void setOutputPoints(int);
+  
+  void setColor(int);
+  void setColor(const QString&);
+  
+  virtual bool run();
+};
+
+class Differentiation : Filter
+{
+%TypeHeaderCode
+#include "src/Differentiation.h"
+%End
+public:
+  Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&);
+  Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
+  Differentiation(Graph *, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipDifferentiation(app, a0, *a1))
+%End
+  Differentiation(Graph *, const QString&, double, double) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipDifferentiation(app, a0, *a1, a2, a3))
+%End
+  bool run();
+};
+
+class Integration : Filter
+{
+%TypeHeaderCode
+#include "src/Integration.h"
+%End
+public:
+  Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&);
+  Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
+  Integration(Graph *, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipIntegration(app, a0, *a1))
+%End
+  Integration(Graph *, const QString&, double, double) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipIntegration(app, a0, *a1, a2, a3))
+%End
+
+  void setMethodOrder(int n);
+  bool run();
+};
+
+class Interpolation : Filter
+{
+%TypeHeaderCode
+#include "src/Interpolation.h"
+%End
+public:
+  enum InterpolationMethod{Linear, Cubic, Akima};
+  
+  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, int m = 0);
+  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int m = 0);
+  Interpolation(Graph *, const QString&, int=0) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipInterpolation(app, a0, *a1, a2))
+%End
+  Interpolation(Graph *, const QString&, double, double, int=0) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipInterpolation(app, a0, *a1, a2, a3, a4))
+%End
+
+  void setMethod(int n);
+  void setMethod(InterpolationMethod m);
+  bool run();
+};
+
 // used for output redirection
 class PythonScripting
 {

@@ -29,6 +29,7 @@
 #include "PlotCurve.h"
 #include "ScaleDraw.h"
 #include <QDateTime>
+#include <QLocale>
 
 DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
     PlotCurve(name),
@@ -167,6 +168,7 @@ void DataCurve::loadData()
 	int size = 0;
 	for (int i = d_start_row; i <= d_end_row; i++ )
 	{
+	    bool ok = true;
 		QString xval = d_table->text(i,xcol);
 		QString yval = d_table->text(i,ycol);
 		if (!xval.isEmpty() && !yval.isEmpty())
@@ -189,7 +191,11 @@ void DataCurve::loadData()
 					X[size] = (double) date.daysTo(d);
 			}
 			else
-				X[size] = xval.toDouble();
+			{
+				X[size] = xval.toDouble(&ok);
+				if (!ok)
+                    X[size] = QLocale().toDouble(xval);
+			}
 
 			if (yColType == Table::Text)
 			{
@@ -197,7 +203,11 @@ void DataCurve::loadData()
 				Y[size] = (double)(size + 1);
 			}
 			else
-				Y[size] = yval.toDouble();
+			{
+				Y[size] = yval.toDouble(&ok);
+				if (!ok)
+                    Y[size] = QLocale().toDouble(yval);
+			}
 
             size++;
 		}

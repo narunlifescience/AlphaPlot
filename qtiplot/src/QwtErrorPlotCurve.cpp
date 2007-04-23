@@ -33,6 +33,7 @@
 #include <qwt_symbol.h>
 
 #include <QPainter>
+#include <QLocale>
 
 QwtErrorPlotCurve::QwtErrorPlotCurve(int orientation, Table *t, const char *name):
 	DataCurve(t, QString(), name),
@@ -283,17 +284,28 @@ void QwtErrorPlotCurve::loadData()
 
 		if (!xval.isEmpty() && !yval.isEmpty() && !errval.isEmpty())
 		{
+		    bool ok = true;
 			if (xColType == Table::Text)
 				X[data_size] = (double)(data_size + 1);
 			else
-				X[data_size] = xval.toDouble();
+			{
+				X[data_size] = xval.toDouble(&ok);
+				if (!ok)
+                    X[data_size] = QLocale().toDouble(xval);
+			}
 
 			if (yColType == Table::Text)
 				Y[data_size] = (double)(data_size + 1);
 			else
-				Y[data_size] = yval.toDouble();
+			{
+				Y[data_size] = yval.toDouble(&ok);
+				if (!ok)
+                    Y[data_size] = QLocale().toDouble(yval);
+			}
 
-			err[data_size] = errval.toDouble();
+			err[data_size] = errval.toDouble(&ok);
+			if (!ok)
+                err[data_size] = QLocale().toDouble(errval);
             data_size++;
 		}
 	}

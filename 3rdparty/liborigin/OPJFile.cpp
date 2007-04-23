@@ -2,8 +2,8 @@
     File                 : OPJFile.cpp
     --------------------------------------------------------------------
     Copyright            : (C) 2005-2007 Stefan Gerlach
-						   (C) 2007 by Alex Kargovsky, Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr, thzs*gmx.net
+						   (C) 2007 by Alex Kargovsky, Ion Vasilief
+    Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr
     Description          : Origin project import class
 
  ***************************************************************************/
@@ -43,14 +43,14 @@
 void OPJFile::ByteSwap(unsigned char * b, int n) {
 	register int i = 0;
 	register int j = n-1;
-	while (i<j) {       
+	while (i<j) {
 		std::swap(b[i], b[j]);
 		i++, j--;
-	}       
+	}
 }
 
-OPJFile::OPJFile(const char *filename) 
-	: filename(filename) 
+OPJFile::OPJFile(const char *filename)
+	: filename(filename)
 {
 	version=0;
 	dataIndex=0;
@@ -117,7 +117,7 @@ vector<string> OPJFile::findDataByIndex(int index) {
 // set default name for columns starting from spreadsheet spread
 void OPJFile::setColName(int spread) {
 	for(int j=spread;j<SPREADSHEET.size();j++) {
-		SPREADSHEET[j].column[0].type="X";	
+		SPREADSHEET[j].column[0].type="X";
 		for (int k=1;k<SPREADSHEET[j].column.size();k++)
 			SPREADSHEET[j].column[k].type="Y";
 	}
@@ -137,7 +137,7 @@ int OPJFile::Parse() {
 		printf("Could not open %s!\n",filename);
 		return -1;
 	}
-	
+
 
 ////////////////////////////// check version from header ///////////////////////////////
 	char vers[5];
@@ -148,7 +148,7 @@ int OPJFile::Parse() {
 	fread(&vers,4,1,f);
 	version = atoi(vers);
 	//fprintf(debug,"	[version = %d]\n",version);
-	
+
 	// translate version
 	if(version >= 130 && version <= 140) 		// 4.1
 		version=410;
@@ -276,7 +276,7 @@ int OPJFile::ParseFormatOld() {
 		if(valuesize <= 0) {
 			fprintf(debug,"	WARNING : found strange valuesize of %d\n",valuesize);
 			valuesize=10;
-		}	
+		}
 
 		fprintf(debug,"SKIP :\n");
 		for(i=0;i<0x1A;i++) {	// skip to name
@@ -380,10 +380,10 @@ int OPJFile::ParseFormatOld() {
 				fprintf(debug,"%g ",value);
 			}
 			fprintf(debug,"\n");
-			fflush(debug);	
+			fflush(debug);
 
 		}
-		else {	// worksheet		
+		else {	// worksheet
 			SPREADSHEET[spread].column.push_back(spreadColumn(cname));
 
 			////////////////////////////// SIZE of column /////////////////////////////////////////////
@@ -459,22 +459,22 @@ int OPJFile::ParseFormatOld() {
 	fprintf(debug,"		reading	Spreadsheet %d/%d properties\n",i+1,SPREADSHEET.size());
 	fflush(debug);
 	if(i > 0) {
-		if (version == 700 ) 
+		if (version == 700 )
 			POS += 0x2530 + SPREADSHEET[i-1].column.size()*COL_JUMP;
-		else if (version == 610 ) 
+		else if (version == 610 )
 			POS += 0x25A4 + SPREADSHEET[i-1].column.size()*COL_JUMP;
-		else if (version == 604 ) 
+		else if (version == 604 )
 			POS += 0x25A0 + SPREADSHEET[i-1].column.size()*COL_JUMP;
-		else if (version == 601 ) 
+		else if (version == 601 )
 			POS += 0x2560 + SPREADSHEET[i-1].column.size()*COL_JUMP;	// ?
-		else if (version == 600 ) 
+		else if (version == 600 )
 			POS += 0x2560 + SPREADSHEET[i-1].column.size()*COL_JUMP;
-		else if (version == 500 ) 
+		else if (version == 500 )
 			POS += 0x92C + SPREADSHEET[i-1].column.size()*COL_JUMP;
-		else if (version == 410 ) 
+		else if (version == 410 )
 			POS += 0x7FB + SPREADSHEET[i-1].column.size()*COL_JUMP;
 	}
-	
+
 	fprintf(debug,"			reading	Header\n");
 	fflush(debug);
 	// HEADER
@@ -497,14 +497,14 @@ int OPJFile::ParseFormatOld() {
 		fread(&c,1,1,f);
 		jump++;
 	}
-	
+
 	int spread=i;
 	if(jump == MAX_LEVEL){
 		fprintf(debug,"		Spreadsheet SECTION not found ! 	(@ 0x%X)\n",POS-10*0x1F2+0x55);
 		// setColName(spread);
 		return -5;
 	}
-	
+
 	fprintf(debug,"			[Spreadsheet SECTION (@ 0x%X)]\n",POS);
 	fflush(debug);
 
@@ -513,7 +513,7 @@ int OPJFile::ParseFormatOld() {
 	fread(&name,25,1,f);
 
 	spread=compareSpreadnames(name);
-	
+
 	fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
 		spread+1,name,POS + 0x12,SPREADSHEET[spread].column.size());
 	fflush(debug);
@@ -560,9 +560,9 @@ int OPJFile::ParseFormatOld() {
 		case 4: sprintf(type,"LABEL");break;
 		default: sprintf(type,"NONE");break;
 		}
-		
+
 		SPREADSHEET[spread].column[j].type=type;
-		
+
 		fprintf(debug,"				COLUMN \"%s\" type = %s (@ 0x%X)\n",
 			SPREADSHEET[spread].column[j].name.c_str(),type,LAYER+ATYPE+j*COL_JUMP);
 		fflush(debug);
@@ -588,7 +588,7 @@ int OPJFile::ParseFormatOld() {
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
+
 	// TODO : GRAPHS
 /*	int graph = 0x2fc1;
 	int pre_graph = 0x12;
@@ -626,7 +626,7 @@ int OPJFile::ParseFormatNew() {
 		printf("Could not open %s!\n",filename);
 		return -1;
 	}
-	
+
 	if((debug=fopen("opjfile.log","w")) == NULL ) {
 		printf("Could not open log file!\n");
 		return -1;
@@ -641,7 +641,7 @@ int OPJFile::ParseFormatNew() {
 	fread(&vers,4,1,f);
 	version = atoi(vers);
 	fprintf(debug,"	[version = %d]\n",version);
-	
+
 	// translate version
 	if(version >= 130 && version <= 140) 		// 4.1
 		version=410;
@@ -666,9 +666,9 @@ int OPJFile::ParseFormatNew() {
 		fprintf(debug,"Please contact the author of opj2dat\n");
 	}
 	fprintf(debug,"Found project version %.2f\n",version/100.0);
-	
+
 	unsigned char c=0;	// tmp char
-	
+
 	fprintf(debug,"HEADER :\n");
 	for(i=0;i<0x16;i++) {	// skip header + 5 Bytes ("27")
 		fread(&c,1,1,f);
@@ -681,12 +681,12 @@ int OPJFile::ParseFormatNew() {
 		fread(&c,1,1,f);
 	} while (c != '\n');
 	fprintf(debug,"	[file header @ 0x%X]\n", (unsigned int) ftell(f));
-	
+
 /////////////////// find column ///////////////////////////////////////////////////////////
 	if(version>410)
 		for(i=0;i<5;i++)	// skip "0"
 			fread(&c,1,1,f);
-	
+
 	int col_found;
 	fread(&col_found,4,1,f);
 	if(IsBigEndian()) SwapBytes(col_found);
@@ -718,13 +718,13 @@ int OPJFile::ParseFormatNew() {
 			//}
 		}
 		fprintf(debug,"\n");
-		
+
 		fread(&valuesize,1,1,f);
 		fprintf(debug,"	[valuesize = %d @ 0x%X]\n",valuesize,(unsigned int) ftell(f)-1);
 		if(valuesize <= 0) {
 			fprintf(debug,"	WARNING : found strange valuesize of %d\n",valuesize);
 			valuesize=10;
-		}	
+		}
 
 		fprintf(debug,"SKIP :\n");
 		for(i=0;i<0x1A;i++) {	// skip to name
@@ -759,14 +759,14 @@ int OPJFile::ParseFormatNew() {
 			fprintf(debug,"	SIGNATURE : ");
 			fprintf(debug,"%.2X ",signature);
 			fflush(debug);
-	
+
 			do{	// skip until '\n'
 				fread(&c,1,1,f);
 				// fprintf(debug,"%.2X ",c);
 			} while (c != '\n');
 			fprintf(debug,"\n");
 			fflush(debug);
-			
+
 			// read size
 			int size;
 			fread(&size,4,1,f);
@@ -788,7 +788,7 @@ int OPJFile::ParseFormatNew() {
 				fprintf(debug,"NEW MATRIX\n");
 				MATRIX.push_back(matrix(sname, dataIndex));
 				dataIndex++;
-		
+
 				fprintf(debug,"VALUES :\n");
 
 				switch(data_type)
@@ -868,7 +868,7 @@ int OPJFile::ParseFormatNew() {
 				fprintf(debug,"NEW FUNCTION\n");
 				FUNCTION.push_back(function(sname, dataIndex));
 				dataIndex++;
-		
+
 				char *cmd;
 				cmd=new char[valuesize+1];
 				cmd[valuesize]='\0';
@@ -893,7 +893,7 @@ int OPJFile::ParseFormatNew() {
 				fprintf(debug,"FUNCTION %s : %s \n", FUNCTION.back().name.c_str(), FUNCTION.back().formula.c_str());
 				fprintf(debug," interval %g : %g, number of points %d \n", FUNCTION.back().begin, FUNCTION.back().end, FUNCTION.back().points);
 				fseek(f,oldpos,SEEK_SET);
-				
+
 				delete [] cmd;
 				break;
 			default:
@@ -904,7 +904,7 @@ int OPJFile::ParseFormatNew() {
 			}
 
 			fprintf(debug,"\n");
-			fflush(debug);		
+			fflush(debug);
 		}
 		else {	// worksheet
 			if(SPREADSHEET.size() == 0 || compareSpreadnames(sname) == -1) {
@@ -996,7 +996,7 @@ int OPJFile::ParseFormatNew() {
 					delete stmp;
 				}
 			}
-		
+
 		}	// else
 
 		fprintf(debug,"\n");
@@ -1030,7 +1030,7 @@ int OPJFile::ParseFormatNew() {
 	POS+=0xB;
 	fseek(f,POS,SEEK_SET);
 	while(1) {
-		
+
 		fprintf(debug,"			reading	Header\n");
 		fflush(debug);
 		// HEADER
@@ -1046,7 +1046,7 @@ int OPJFile::ParseFormatNew() {
 		fread(&object_name,25,1,f);
 		fseek(f,POS + 0x4A,SEEK_SET);
 		fread(&object_type,10,1,f);
-		
+
 		fseek(f,POS,SEEK_SET);
 		/*if(0==strcmp(object_type,"ORIGIN")
 			|| 0==strcmp(object_type,"CREATE")
@@ -1082,7 +1082,7 @@ int OPJFile::ParseFormatNew() {
 	}
 
 
-	
+
 	fseek(f,1,SEEK_CUR);
 	fprintf(debug,"Some Origin params @ 0x%X:\n", ftell(f));
 	fread(&c,1,1,f);
@@ -1106,7 +1106,7 @@ int OPJFile::ParseFormatNew() {
 		fseek(f,5+0x40-4,SEEK_CUR);
 		unsigned char labellen;
 		fread(&labellen,1,1,f);
-		
+
 		fseek(f,4,SEEK_CUR);
 		int size;
 		fread(&size,4,1,f);
@@ -1162,7 +1162,7 @@ int OPJFile::ParseFormatNew() {
 void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 {
 	int POS=ftell(f);
-	
+
 	int headersize;
 	fread(&headersize,4,1,f);
 	POS+=5;
@@ -1176,7 +1176,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 	fread(&name,25,1,f);
 
 	int spread=compareSpreadnames(name);
-	
+
 	fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
 		spread+1,name,POS + 0x2,SPREADSHEET[spread].column.size());
 	fflush(debug);
@@ -1227,7 +1227,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 			int sec_size;
 		//section_header_size=0x6F(4 bytes) + '\n'
 			LAYER+=0x5;
-							
+
 		//section_header
 			fseek(f,LAYER+0x46,SEEK_SET);
 			char sec_name[42];
@@ -1271,7 +1271,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		LAYER+=0x5;
 
 	}
-	
+
 	fflush(debug);
 
 	/////////////// COLUMN Types ///////////////////////////////////////////
@@ -1393,7 +1393,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 {
 	int POS=ftell(f);
-	
+
 	int headersize;
 	fread(&headersize,4,1,f);
 	POS+=5;
@@ -1407,7 +1407,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	fread(&name,25,1,f);
 
 	int idx=compareMatrixnames(name);
-	
+
 	fprintf(debug,"			MATRIX %d NAME : %s	(@ 0x%X) \n", idx+1,name,POS + 0x2);
 	fflush(debug);
 
@@ -1436,7 +1436,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	}
 
 	int LAYER = POS;
-	LAYER += headersize + 0x1; 
+	LAYER += headersize + 0x1;
 	int sec_size;
 	// LAYER section
 	LAYER +=0x5;
@@ -1455,7 +1455,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	{
 	//section_header_size=0x6F(4 bytes) + '\n'
 		LAYER+=0x5;
-						
+
 	//section_header
 		fseek(f,LAYER+0x46,SEEK_SET);
 		char sec_name[42];
@@ -1523,7 +1523,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 			MATRIX[idx].decimal_places=c2-0x03;
 			MATRIX[idx].numeric_display_type=1;
 		}
-	
+
 		LAYER+=0x1E7+0x1;
 		fseek(f,LAYER,SEEK_SET);
 		int comm_size=0;
@@ -1550,7 +1550,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 {
 	int POS=ftell(f);
-	
+
 	int headersize;
 	fread(&headersize,4,1,f);
 	POS+=5;
@@ -1594,7 +1594,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 	}
 
 	int LAYER = POS;
-	LAYER += headersize + 0x1; 
+	LAYER += headersize + 0x1;
 	int sec_size;
 	while(1)// multilayer loop
 	{
@@ -1618,7 +1618,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		GRAPH.back().layer.back().xMinorTicks=m;
 		fread(&m,1,1,f);
 		GRAPH.back().layer.back().xScale=m;
-		
+
 		fseek(f, LAYER+0x3A, SEEK_SET);
 		fread(&range,8,1,f);
 		GRAPH.back().layer.back().yMin=range;
@@ -1643,7 +1643,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		{
 		//section_header_size=0x6F(4 bytes) + '\n'
 			LAYER+=0x5;
-							
+
 		//section_header
 			fseek(f,LAYER+0x46,SEEK_SET);
 			char sec_name[42];
@@ -1752,7 +1752,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 				if(GRAPH.back().layer.back().curve.back().dataName!=col[1])
 					fprintf(debug,"			GRAPH %d X and Y from different tables\n",GRAPH.size());
 			}
-			
+
 			fseek(f,LAYER+0x4C,SEEK_SET);
 			fread(&h,1,1,f);
 			GRAPH.back().layer.back().curve.back().type=h;
@@ -1841,7 +1841,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
 		if(sec_size==0)
-			break;	
+			break;
 	}
 	POS = LAYER+0x5;
 
@@ -1851,13 +1851,13 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 {
 	int POS=ftell(f);
-	
+
 	int headersize;
 	fread(&headersize,4,1,f);
 	POS+=5;
 
 	int LAYER = POS;
-	LAYER += headersize + 0x1; 
+	LAYER += headersize + 0x1;
 	int sec_size;
 	while(1)// multilayer loop
 	{
@@ -1870,7 +1870,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 		{
 		//section_header_size=0x6F(4 bytes) + '\n'
 			LAYER+=0x5;
-							
+
 		//section_header
 			fseek(f,LAYER+0x46,SEEK_SET);
 			char sec_name[42];
@@ -1936,7 +1936,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
 		if(sec_size==0)
-			break;	
+			break;
 	}
 	POS = LAYER+0x5;
 

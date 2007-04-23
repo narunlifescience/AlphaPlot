@@ -31,6 +31,7 @@
 #include <qwt_painter.h>
 #include <qwt_double_rect.h>
 #include <QPainter>
+#include <QLocale>
 
 VectorCurve::VectorCurve(VectorStyle style, Table *t, const QString& xColName, const char *name,
 				const QString& endCol1, const QString& endCol2, int startRow, int endRow):
@@ -338,6 +339,7 @@ void VectorCurve::loadData()
 	int rows = abs(d_end_row - d_start_row) + 1;
     QVector<double> X(rows), Y(rows), X2(rows), Y2(rows);
     int size = 0;
+    bool ok = true;
 	for (int i = d_start_row; i <= d_end_row; i++)
 	{
 		QString xval = d_table->text(i, xcol);
@@ -346,10 +348,22 @@ void VectorCurve::loadData()
 		QString yend = d_table->text(i, endYCol);
 		if (!xval.isEmpty() && !yval.isEmpty() && !xend.isEmpty() && !yend.isEmpty())
 		{
-			Y[size] = yval.toDouble();
-			X[size] = xval.toDouble();
-			Y2[size] = yend.toDouble();
-			X2[size] = xend.toDouble();
+			Y[size] = yval.toDouble(&ok);
+			if (!ok)
+                Y[size] = QLocale().toDouble(yval);
+
+			X[size] = xval.toDouble(&ok);
+			if (!ok)
+                X[size] = QLocale().toDouble(xval);
+
+			Y2[size] = yend.toDouble(&ok);
+			if (!ok)
+                Y2[size] = QLocale().toDouble(yend);
+
+			X2[size] = xend.toDouble(&ok);
+			if (!ok)
+                X2[size] = QLocale().toDouble(xend);
+
 			size++;
 		}
 	}

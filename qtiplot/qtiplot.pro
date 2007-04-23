@@ -60,10 +60,9 @@ unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 #dynamically link against GSL installed system-wide
 #unix:LIBS         += -lgsl -lgslcblas
 
-
 ##################### Windows ###############################################
 
-win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+win32:LIBS        += ../3rdparty/qwtplot3d/lib/qwtplot3d.dll
 win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
@@ -109,7 +108,7 @@ TRANSLATIONS    = translations/qtiplot_de.ts \
                   translations/qtiplot_fr.ts \
                   translations/qtiplot_ru.ts \
                   translations/qtiplot_ja.ts \
-                  translations/qtiplot_sv.ts 
+                  translations/qtiplot_sv.ts
 
 #system(lupdate -verbose qtiplot.pro)
 #system(lrelease -verbose qtiplot.pro)
@@ -441,6 +440,10 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipqtiPolynomialFit.h \
              $${SIP_DIR}/sipqtiLinearFit.h \
              $${SIP_DIR}/sipqtiGaussFit.h \
+             $${SIP_DIR}/sipqtiFilter.h \
+             $${SIP_DIR}/sipqtiDifferentiation.h \
+             $${SIP_DIR}/sipqtiIntegration.h \
+			 $${SIP_DIR}/sipqtiInterpolation.h \
 
   SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
              $${SIP_DIR}/sipqtiApplicationWindow.cpp\
@@ -469,6 +472,9 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipqtiPolynomialFit.cpp \
              $${SIP_DIR}/sipqtiLinearFit.cpp \
              $${SIP_DIR}/sipqtiGaussFit.cpp \
-
+             $${SIP_DIR}/sipqtiFilter.cpp \
+             $${SIP_DIR}/sipqtiDifferentiation.cpp \
+             $${SIP_DIR}/sipqtiIntegration.cpp \
+			 $${SIP_DIR}/sipqtiInterpolation.cpp \
 }
 ###############################################################

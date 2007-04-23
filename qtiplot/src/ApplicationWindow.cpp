@@ -139,6 +139,7 @@
 #include <QList>
 #include <QUrl>
 #include <QAssistantClient>
+#include <QLocale>
 
 #include <zlib.h>
 
@@ -4097,7 +4098,7 @@ void ApplicationWindow::readSettings()
 #else
 	askForSupport = settings.value("/Support", true).toBool();
 #endif
-	appLanguage = settings.value("/Language", "en").toString();
+	appLanguage = settings.value("/Language", QLocale::system().name().left(2)).toString();
 	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
 
     recentProjects = settings.value("/RecentProjects").toStringList();
@@ -4120,6 +4121,7 @@ void ApplicationWindow::readSettings()
 	autoSave = settings.value("/AutoSave",true).toBool();
 	autoSaveTime = settings.value("/AutoSaveTime",15).toInt();
 	defaultScriptingLang = settings.value("/ScriptingLang","muParser").toString();
+	QLocale::setDefault(settings.value("/Locale", QLocale::system().name()).toString());
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4314,6 +4316,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoSave", autoSave);
 	settings.setValue("/AutoSaveTime", autoSaveTime);
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
+	settings.setValue("/Locale", QLocale().name());
 
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
@@ -10165,7 +10168,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 					endRow = curve[9].toInt();
 					visible = ((curve.last() == "1") ? true : false);
 				}
-			
+
 				if (d_file_version <= 89)
 					first_color = convertOldToNewColorIndex(first_color);
 
@@ -11590,7 +11593,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
 	actionRemoveCurve->setMenuText(tr("&Delete"));
 	actionEditFunction->setMenuText(tr("&Edit Function..."));
-		
+
 	actionCurveFullRange->setMenuText(tr("&Reset to Full Range"));
 	actionEditCurveRange->setMenuText(tr("Edit &Range..."));
 	actionHideCurve->setMenuText(tr("&Hide"));
@@ -12251,7 +12254,7 @@ void ApplicationWindow::deleteFitTables()
 			mLst->append(windows->at(i));
 	}
 	delete windows;
-	
+
 	foreach(QWidget *ml, *mLst)
 	{
 		if (ml->isA("MultiLayer"))
@@ -12259,7 +12262,7 @@ void ApplicationWindow::deleteFitTables()
 			QWidgetList lst = ((MultiLayer*)ml)->graphPtrs();
 			foreach(QWidget *widget, lst)
 			{
-				QList<QwtPlotCurve *> curves = ((Graph *)widget)->fitCurvesList();				
+				QList<QwtPlotCurve *> curves = ((Graph *)widget)->fitCurvesList();
 				foreach(QwtPlotCurve *c, curves)
 				{
 					if (((PlotCurve *)c)->type() != Graph::Function)
@@ -12267,7 +12270,7 @@ void ApplicationWindow::deleteFitTables()
 						Table *t = ((DataCurve *)c)->table();
 						if (!t)
 							continue;
-						
+
 						t->askOnCloseEvent(false);
 						t->close();
 					}
@@ -14040,7 +14043,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 		version_buffer.close();
 
 		QString currentVersion = QString::number(maj_version) + "." + QString::number(min_version) +
-			"." + QString::number(patch_version);
+			"." + QString::number(patch_version) + QString(extra_version);
 
 		if (currentVersion != version)
 		{
@@ -14203,8 +14206,8 @@ QString ApplicationWindow::versionString()
 int ApplicationWindow::convertOldToNewColorIndex(int cindex)
 {
 	if( (cindex == 13) || (cindex == 14) ) // white and light gray
-		return cindex + 4; 
-	
+		return cindex + 4;
+
 	if(cindex == 15) // dark gray
 		return cindex + 8;
 

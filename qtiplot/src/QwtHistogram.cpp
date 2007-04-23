@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "QwtHistogram.h"
 #include <QPainter>
+#include <QLocale>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_histogram.h>
@@ -106,7 +107,10 @@ void QwtHistogram::loadData()
 		QString yval = d_table->text(i, ycol);
 		if (!yval.isEmpty())
 		{
-			Y[size] = yval.toDouble();
+		    bool ok = true;
+			Y[size] = yval.toDouble(&ok);
+			if (!ok)
+                Y[size] = QLocale().toDouble(yval);
 			size++;
 		}
 	}

@@ -181,7 +181,7 @@ QString Integration::logInfo()
     return logInfo;
 }
 
-void Integration::setMethod(int n)
+void Integration::setMethodOrder(int n)
 {
 if (n < 1 || n > 5)
     {

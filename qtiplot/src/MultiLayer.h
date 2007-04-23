@@ -235,7 +235,7 @@ public:
     LayerButton (const QString& text = QString::null, QWidget* parent = 0);
 	~LayerButton(){};
 
-	static int btnSize();
+	static int btnSize(){return 20;};
 
 protected:
 	void mousePressEvent( QMouseEvent * );

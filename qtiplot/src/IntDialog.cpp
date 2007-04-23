@@ -233,7 +233,7 @@ Integration *i = new Integration((ApplicationWindow *)this->parent(), graph, cur
                                  boxStart->text().toDouble(), boxEnd->text().toDouble());
 i->setTolerance(boxTol->text().toDouble());
 i->setMaximumIterations(boxSteps->value());
-i->setMethod(boxOrder->value());
+i->setMethodOrder(boxOrder->value());
 i->run();
 delete i;
 }

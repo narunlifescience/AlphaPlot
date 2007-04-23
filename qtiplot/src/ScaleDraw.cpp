@@ -285,11 +285,7 @@ char f;
 int prec;
 labelFormat(f, prec);
 
-double val = transformValue(value);
-
-QString txt;
-txt.setNum (val, 'e', prec);
-
+QString txt = QLocale().toString(transformValue(value), 'e', prec);
 QStringList list = txt.split( "e", QString::SkipEmptyParts);
 if (list[0].toDouble() == 0.0)
 	return QString("0");

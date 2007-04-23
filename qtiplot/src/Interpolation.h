@@ -37,11 +37,14 @@ class Interpolation : public Filter
 Q_OBJECT
 
 public:
+	enum InterpolationMethod{Linear, Cubic, Akima};
+
 	Interpolation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int m = 0);
 	Interpolation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end, int m = 0);
 
     int method(){return d_method;};
     void setMethod(int m);
+	void setMethod(InterpolationMethod m){setMethod((int)m);};
 
 private:
     void init(int m);

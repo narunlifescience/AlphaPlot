@@ -101,12 +101,18 @@ Plot::Plot(QWidget *parent, const char *)
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintCached, false);
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
+    QColor background = QColor(Qt::white);
+    background.setAlpha(0);
+    #ifdef Q_MAC_OS
+        background.setAlpha(255);
+    #endif
+
 	QColorGroup cg;
-    cg.setColor(QColorGroup::Window, QColor(255, 255, 255, 0));
+    cg.setColor(QColorGroup::Window, background);
     setPalette(QPalette(cg, cg, cg));
     setAutoFillBackground(true);
 
-	setCanvasBackground (QColor(255, 255, 255, 0));
+	setCanvasBackground (background);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocusProxy(plCanvas);
 	setFrameShape (QFrame::Box);

@@ -56,6 +56,7 @@
 #include <Q3TableSelection>
 #include <Q3MemArray>
 #include <QPrintDialog>
+#include <QLocale>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
@@ -294,11 +295,12 @@ void Table::cellEdited(int row, int col)
 	int precision;
   	columnNumericFormat(col, f, precision);
 
-  	QString text = worksheet->text(row,col).replace(",", ".");
-  	bool ok = false;
-  	double res = text.toDouble(&ok);
+  	QString text = worksheet->text(row,col);
+  	bool ok = true;
+  	QLocale locale;
+  	double res = locale.toDouble(text, &ok);
   	if (!text.isEmpty() && ok)
-  		worksheet->setText(row, col, QString::number(res, f, precision));
+  		worksheet->setText(row, col, locale.toString(res, f, precision));
   	else
   	{
   	Script *script = scriptEnv->newScript(worksheet->text(row,col),this,QString("<%1_%2_%3>").arg(name()).arg(row+1).arg(col+1));
@@ -310,7 +312,7 @@ void Table::cellEdited(int row, int col)
   	if(ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong || ret.type()==QVariant::ULongLong)
   		worksheet->setText(row, col, ret.toString());
   	else if(ret.canCast(QVariant::Double))
-  		worksheet->setText(row, col, QString::number(ret.toDouble(), f, precision));
+  		worksheet->setText(row, col, locale.toString(ret.toDouble(), f, precision));
   	else
   		worksheet->setText(row, col, "");
   	}
@@ -490,7 +492,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 			int prec;
 			char f;
 			columnNumericFormat(col, f, prec);
-			worksheet->setText(i,col,QString::number(ret.toDouble(), f, prec));
+			worksheet->setText(i, col, QLocale().toString(ret.toDouble(), f, prec));
 		} else if(ret.canConvert(QVariant::String))
 			worksheet->setText(i, col, ret.toString());
 		else {
@@ -1013,11 +1015,11 @@ void Table::deselect()
 void Table::clearSelection()
 {
 	QStringList list=selectedColumns();
-	int i,n=int(list.count());
+	int n=int(list.count());
 
 	if (n>0)
 	{
-		for (i=0;i<n;i++)
+		for (int i=0;i<n;i++)
 		{
 			QString name=list[i];
 			int id=colIndex(name);
@@ -1044,7 +1046,7 @@ void Table::clearSelection()
 		}
 		else
 		{
-			for (i=top;i<=bottom;i++)
+			for (int i=top;i<=bottom;i++)
 			{
 				for (int j=left;j<=right;j++)
 				{
@@ -1052,7 +1054,7 @@ void Table::clearSelection()
 				}
 			}
 
-			for (i=left;i<=right;i++)
+			for (int i=left;i<=right;i++)
 			{
 				QString name=colName(i);
 				emit modifiedData(this, name);
@@ -1196,17 +1198,19 @@ void Table::pasteSelection()
 	char f;
 	bool numeric;
 	double value;
+	QLocale system_locale = QLocale::system();
+	QLocale locale;
 	for (i=top; i<top+rows; i++)
 	{
 		s = ts2.readLine();
 		cellTexts=s.split("\t");
 		for (j=left; j<left+cols; j++)
 		{
-			value = cellTexts[j-left].toDouble(&numeric);
+			value = system_locale.toDouble(cellTexts[j-left], &numeric);
 			if (numeric)
 			{
 				columnNumericFormat(j, f, prec);
-				worksheet->setText(i, j, QString::number(value, f, prec));
+				worksheet->setText(i, j, locale.toString(value, f, prec));
 			}
 			else
 				worksheet->setText(i, j, cellTexts[j-left]);
@@ -1289,9 +1293,8 @@ void Table::normalizeCol(int col)
 	if (col<0) col = selectedCol;
 	double max=worksheet->text(0,col).toDouble();
 	double aux=0.0;
-	int i;
 	int rows=worksheet->numRows();
-	for (i=0; i<rows; i++)
+	for (int i=0; i<rows; i++)
 	{
 		QString text=this->text(i,col);
 		aux=text.toDouble();
@@ -1302,12 +1305,16 @@ void Table::normalizeCol(int col)
 	if (max == 1.0)
 		return;
 
-	for (i=0;i<rows;i++)
+    int prec;
+    char f;
+    columnNumericFormat(col, f, prec);
+
+	for (int i=0; i<rows; i++)
 	{
-		QString text=this->text(i,col);
+		QString text = this->text(i, col);
 		aux=text.toDouble();
 		if ( !text.isEmpty() )
-			worksheet->setText(i,col,QString::number(aux/max));
+			worksheet->setText(i, col, QLocale().toString(aux/max, f, prec));
 	}
 
 	QString name=colName(col);
@@ -1421,10 +1428,10 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
                 columnNumericFormat(col, f, prec);
                 if(!order)
                     for (int j=0; j<non_empty_cells; j++)
-                        worksheet->setText(valid_cell[j], col, QString::number(data_double[p[j]], f, prec));
+                        worksheet->setText(valid_cell[j], col, QLocale().toString(data_double[p[j]], f, prec));
                 else
                     for (int j=0; j<non_empty_cells; j++)
-                        worksheet->setText(valid_cell[j], col, QString::number(data_double[p[non_empty_cells-j-1]], f, prec));
+                        worksheet->setText(valid_cell[j], col, QLocale().toString(data_double[p[non_empty_cells-j-1]], f, prec));
             }
             emit modifiedData(this, colName(col));
         }
@@ -1492,12 +1499,12 @@ void Table::sortColumn(int col, int order)
         if (!order)
         {
 	       for (int i=0; i<non_empty_cells; i++)
-                worksheet->setText(valid_cell[i], col, QString::number(r[i], f, prec));
+                worksheet->setText(valid_cell[i], col, QLocale().toString(r[i], f, prec));
         }
         else
         {
             for (int i=0; i<non_empty_cells; i++)
-                worksheet->setText(valid_cell[i], col, QString::number(r[non_empty_cells-i-1], f, prec));
+                worksheet->setText(valid_cell[i], col, QLocale().toString(r[non_empty_cells-i-1], f, prec));
         }
     }
 	emit modifiedData(this, colName(col));
@@ -1589,10 +1596,10 @@ int Table::nonEmptyRows()
 
 QString Table::text(int row, int col)
 {
-	/*if (col == savedCol)
-		return savedCells[row].replace(",",".");
-	else*/
-		return worksheet->text(row,col).replace(",", ".");
+	if (col == savedCol)
+		return savedCells[row];
+	else
+        return worksheet->text(row,col);
 }
 
 void Table::setText (int row, int col, const QString & text )
@@ -1655,21 +1662,25 @@ void Table::setColNumericFormat(int f, int prec, int col)
 	colTypes[col] = Numeric;
 	col_format[col] = QString::number(f)+"/"+QString::number(prec);
 
-	int rows=worksheet->numRows();
-	for (int i=0;i<rows;i++)
+    char format = 'g';
+	for (int i=0; i<worksheet->numRows(); i++)
 	{
-		QString t = worksheet->text(i, col);
+		QString t = text(i, col);
 		if (!t.isEmpty())
 		{
-			double val = t.toDouble();
 			if (!f)
-				t.setNum(val, 'g', 6);
-			else if (f==1)
-				t.setNum(val,'f',prec);
-			else if (f==2)
-				t.setNum(val,'e',prec);
+				prec = 6;
+			else if (f == 1)
+                format = 'f';
+			else if (f == 2)
+                format = 'e';
 
-			worksheet->setText(i, col, t);
+            bool ok = true;
+            double val = t.toDouble(&ok);
+            if (!ok)
+                val = QLocale().toDouble(t, &ok);
+
+            worksheet->setText(i, col, QLocale().toString(val, format, prec));
 		}
 	}
 }
@@ -1848,7 +1859,6 @@ void Table::setRandomValues()
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	int i;
 	double max=0.0;
 	int rows=worksheet->numRows();
 	QStringList list=selectedColumns();
@@ -1862,19 +1872,20 @@ void Table::setRandomValues()
 		int prec;
 		char f;
 		columnNumericFormat(selectedCol, f, prec);
+		QLocale locale;
 
 		srand(rand());
 
-		for (i=0;i<rows;i++)
+		for (int i=0; i<rows; i++)
 		{
 			r[i]=rand();
 			if (max<r[i]) max=r[i];
 		}
 
-		for (i=0;i<rows;i++)
+		for (int i=0; i<rows; i++)
 		{
 			r[i]/=max;
-			worksheet->setText(i,selectedCol,QString::number(r[i], f, prec));
+			worksheet->setText(i, selectedCol, locale.toString(r[i], f, prec));
 		}
 
 		emit modifiedData(this, name);
