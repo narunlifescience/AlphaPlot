@@ -1283,6 +1283,9 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER+0x12, SEEK_SET);
 		fread(&name,12,1,f);
 
+		fprintf(debug,"				DEBUG COLUMN NAME: %s (@ 0x%X)\n", name, LAYER+0x12);
+		fflush(debug);
+
 		fseek(f,LAYER+0x11, SEEK_SET);
 		fread(&c,1,1,f);
 		short width=0;
@@ -1358,8 +1361,8 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 				SPREADSHEET[spread].column[col_index].value_type=1;
 				break;
 			}
-			fprintf(debug,"				COLUMN \"%s\" type = %s (@ 0x%X)\n",
-				SPREADSHEET[spread].column[col_index].name.c_str(),type,LAYER+0x46);
+			fprintf(debug,"				COLUMN \"%s\" type = %s(%d) (@ 0x%X)\n",
+				SPREADSHEET[spread].column[col_index].name.c_str(),type,c,LAYER+0x11);
 			fflush(debug);
 		}
 		LAYER+=0x1E7+0x1;

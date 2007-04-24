@@ -35,6 +35,7 @@
 #include "Matrix.h"
 #include "MultiLayer.h"
 #include "Note.h"
+#include "QwtBarCurve.h"
 
 #define OBJECTXOFFSET 200
 
@@ -366,10 +367,10 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				graph->newLegend(QString::fromLocal8Bit(opj.layerLegend(g,l)));
 			int auto_color=0;
 			int auto_color1=0;
+			int style=0;
 			for(int c=0; c<opj.numCurves(g,l); c++)
 			{
 				QString data(opj.curveDataName(g,l,c));
-				int style=0;
 				int color=0;
 				switch(opj.curveType(g,l,c))
 				{
@@ -386,6 +387,15 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case OPJFile::XErrorBar:
 					style=Graph::ErrorBars;
 					break;
+				case OPJFile::Column:
+					style=Graph::VerticalBars;
+					break;
+				case OPJFile::Bar:
+					style=Graph::HorizontalBars;
+					break;
+				/*case OPJFile::Histogram: //do later
+					style=Graph::Histogram;
+					break;*/
 				default:
 					continue;
 				}
@@ -401,6 +411,8 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 							((flags&0x10)==0x10?0:1), ceil(opj.curveLineWidth(g,l,c)), ceil(opj.curveSymbolSize(g,l,c)), QColor(Qt::black),
 							(flags&0x40)==0x40, (flags&2)==2, (flags&1)==1);
 					}
+					else if(style==Graph::Histogram)
+						graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c), style);
 					else
 						graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
 					break;
@@ -507,7 +519,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					cl.fillCol=-1;
 				}
 
-				cl.filledArea=opj.curveIsFilledArea(g,l,c)?1:0;
+				cl.filledArea=(opj.curveIsFilledArea(g,l,c)||style==Graph::VerticalBars||style==Graph::HorizontalBars)?1:0;
 				if(cl.filledArea)
 				{
 					switch(opj.curveFillPattern(g,l,c))
@@ -574,6 +586,12 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 						break;
 				}
 				graph->updateCurveLayout(c, &cl);
+				if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
+				{
+					QwtBarCurve *b = (QwtBarCurve*)graph->curve(c);
+					if (b)
+						b->setGap(qRound(100-opj.curveSymbolSize(g,l,c)*10));
+				}
 				switch(opj.curveLineConnect(g,l,c))
 				{
 				case OPJFile::NoLine:
@@ -598,12 +616,20 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				}
 
 			}
-			vector<double> range=opj.layerXRange(g,l);
-			vector<int> ticks=opj.layerXTicks(g,l);
-			graph->setScale(2,range[0],range[1],range[2],ticks[0],ticks[1],opj.layerXScale(g,l));
-			range=opj.layerYRange(g,l);
-			ticks=opj.layerYTicks(g,l);
-			graph->setScale(0,range[0],range[1],range[2],ticks[0],ticks[1],opj.layerYScale(g,l));
+			vector<double> rangeX=opj.layerXRange(g,l);
+			vector<int>    ticksX=opj.layerXTicks(g,l);
+			vector<double> rangeY=opj.layerYRange(g,l);
+			vector<int>	   ticksY=opj.layerYTicks(g,l);
+			if(style==Graph::HorizontalBars)
+			{
+				graph->setScale(0,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
+				graph->setScale(2,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
+			}
+			else
+			{
+				graph->setScale(2,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
+				graph->setScale(0,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
+			}
 			
 			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
         	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
