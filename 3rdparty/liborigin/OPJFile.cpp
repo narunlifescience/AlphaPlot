@@ -1234,6 +1234,9 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 			sec_name[41]='\0';
 			fread(&sec_name,41,1,f);
 
+			fprintf(debug,"				DEBUG SECTION NAME: %s (@ 0x%X)\n", sec_name, LAYER+0x46);
+			fflush(debug);
+
 		//section_body_1_size
 			LAYER+=0x6F+0x1;
 			fseek(f,LAYER,SEEK_SET);
