@@ -467,6 +467,7 @@ int Plot::insertMarker(QwtPlotMarker *m)
 {
 	marker_key++;
 	d_markers.insert (marker_key, m, false );
+	m->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
 	m->attach(((QwtPlot *)this));
 	return marker_key;
 }
@@ -475,7 +476,9 @@ int Plot::insertCurve(QwtPlotItem *c)
 {
 	curve_key++;
 	d_curves.insert (curve_key, c, false);
-	//Graph *g = ;
+	if (c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
+		((QwtPlotCurve *)c)->setPaintAttribute(QwtPlotCurve::PaintFiltered);
+	
 	c->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
 	c->attach(this);
 	return curve_key;

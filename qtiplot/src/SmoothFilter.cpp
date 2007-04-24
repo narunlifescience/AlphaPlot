@@ -229,6 +229,13 @@ void SmoothFilter::setSmoothPoints(int points, int left_points)
 
 void SmoothFilter::setPolynomOrder(int order)
 {
+	if (d_method != SavitzkyGolay)
+    {
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+				tr("Setting polynomial order is only available for Savitzky-Golay smooth filters! Ignored option!"));
+		return;
+    }
+	
     if (order > d_smooth_points + d_sav_gol_points)
     {
         QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),

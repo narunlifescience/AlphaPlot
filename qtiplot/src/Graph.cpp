@@ -5480,12 +5480,19 @@ void Graph::setAntialiasing(bool on, bool update)
 
 	if (update)
 	{
-		QList<int> keys = d_plot->curveKeys();
-  		for (int i=0; i<(int)keys.count(); i++)
+		QList<int> curve_keys = d_plot->curveKeys();
+  		for (int i=0; i<(int)curve_keys.count(); i++)
   		{
-  			QwtPlotItem *c = d_plot->curve(keys[i]);
+  			QwtPlotItem *c = d_plot->curve(curve_keys[i]);
 			if (c)
 				c->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
+		}
+		QList<int> marker_keys = d_plot->markerKeys();
+  		for (int i=0; i<(int)marker_keys.count(); i++)
+  		{
+  			QwtPlotMarker *m = d_plot->marker(marker_keys[i]);
+			if (m)
+				m->setRenderHint(QwtPlotItem::RenderAntialiased, d_antialiasing);
 		}
 		d_plot->replot();
 	}

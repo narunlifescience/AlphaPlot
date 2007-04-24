@@ -886,8 +886,8 @@ class Interpolation : Filter
 public:
   enum InterpolationMethod{Linear, Cubic, Akima};
   
-  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, int m = 0);
-  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int m = 0);
+  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=0);
+  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=0);
   Interpolation(Graph *, const QString&, int=0) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipInterpolation(app, a0, *a1, a2))
@@ -899,6 +899,34 @@ public:
 
   void setMethod(int n);
   void setMethod(InterpolationMethod m);
+  bool run();
+};
+
+class SmoothFilter : Filter
+{
+%TypeHeaderCode
+#include "src/SmoothFilter.h"
+%End
+public:
+  enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
+  
+  SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=3);
+  SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=3);
+  SmoothFilter(Graph *, const QString&, int=3) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipSmoothFilter(app, a0, *a1, a2))
+%End
+  SmoothFilter(Graph *, const QString&, double, double, int=3) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipSmoothFilter(app, a0, *a1, a2, a3, a4))
+%End
+
+  void setMethod(int n);
+  void setMethod(SmoothMethod m);
+  
+  void setSmoothPoints(int, int = 0);
+  void setPolynomOrder(int);
+	
   bool run();
 };
 

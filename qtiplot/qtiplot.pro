@@ -444,7 +444,8 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipqtiDifferentiation.h \
              $${SIP_DIR}/sipqtiIntegration.h \
 			 $${SIP_DIR}/sipqtiInterpolation.h \
-
+			 $${SIP_DIR}/sipqtiSmoothFilter.h \
+			 
   SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
              $${SIP_DIR}/sipqtiApplicationWindow.cpp\
              $${SIP_DIR}/sipqtiGraph.cpp\
@@ -476,5 +477,6 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipqtiDifferentiation.cpp \
              $${SIP_DIR}/sipqtiIntegration.cpp \
 			 $${SIP_DIR}/sipqtiInterpolation.cpp \
+			 $${SIP_DIR}/sipqtiSmoothFilter.cpp \
 }
 ###############################################################
