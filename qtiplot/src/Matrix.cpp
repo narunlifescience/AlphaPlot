@@ -160,7 +160,7 @@ double Matrix::cell(int row, int col)
 	else
 	{
 		if(d_table->item(row, col))
-			return QLocale().toDouble(d_table->item(row, col)->text());
+		    stringToDouble(d_table->item(row, col)->text());
 		else
 			return 0.0;
 	}
@@ -537,10 +537,7 @@ void Matrix::saveCellsToMemory()
 	for(int i=0; i<rows; i++)
 	{
 		for(int j=0; j<cols; j++)
-		{
-			QString s = text(i, j);
-			dMatrix[i][j] = s.toDouble();
-		}
+			dMatrix[i][j] = stringToDouble(text(i, j));
 	}
 }
 

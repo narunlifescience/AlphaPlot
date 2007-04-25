@@ -3471,12 +3471,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 					X[size] = (double) date.daysTo (d);
 			}
 			else
-			{
-			    bool ok;
-				X[size] = xval.toDouble(&ok);
-				if (!ok)
-                    X[size] = locale.toDouble(xval);
-			}
+                X[size] = Table::stringToDouble(xval);
 
 			if (yColType == Table::Text)
 			{
@@ -3484,12 +3479,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 				Y[size] = (double) (size + 1);
 			}
 			else
-			{
-			    bool ok;
-				Y[size] = yval.toDouble(&ok);
-				if (!ok)
-                    Y[size] = locale.toDouble(yval);
-			}
+                Y[size] = Table::stringToDouble(yval);
 
             size++;
 		}
@@ -5308,7 +5298,7 @@ bool Graph::validCurvesDataSize()
   	         if(item && item->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
   	         {
   	             QwtPlotCurve *c = (QwtPlotCurve *)item;
-  	             if (c->dataSize() > 2)
+  	             if (c->dataSize() >= 2)
                     return true;
   	         }
   	    }

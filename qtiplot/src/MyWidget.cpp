@@ -8,7 +8,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : MDI window widget
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -34,6 +34,7 @@
 #include <QEvent>
 #include <QCloseEvent>
 #include <QString>
+#include <QLocale>
 
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)
@@ -78,7 +79,7 @@ if (askOnClose)
     {
     switch( QMessageBox::information(this,tr("QtiPlot"),
 					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
-				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2)) 
+				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2))
 		{
 		case 0:
 			emit closedWindow(this);
@@ -93,9 +94,9 @@ if (askOnClose)
 		case 2:
 			e->ignore();
 		break;
-		} 
+		}
     }
-else 
+else
     {
 	emit closedWindow(this);
     e->accept();
@@ -130,22 +131,22 @@ bool MyWidget::event( QEvent *e )
 	bool result = QWidget::event( e );
 	if( e->type() == QEvent::WindowStateChange)
 	{
-		if( windowState() & Qt::WindowMinimized ) 
+		if( windowState() & Qt::WindowMinimized )
 	    	w_status = Minimized;
 		else if ( windowState() & Qt::WindowMaximized )
-		{			
+		{
 	     	w_status = Maximized;
 			// When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
 			// Qt posts a resize event with invalid oldSize (width = height = -1).
-			// This is why we must keep track of the size of the window in the 
+			// This is why we must keep track of the size of the window in the
 			// Qt::WindowMaximized state and use it as the real oldSize when processing
-			// the resize event for the MultiLayer windows.		
+			// the resize event for the MultiLayer windows.
 			d_max_size = size();
 		}
 		else
 	    {
-	    	user_request = true; 
-	    	w_status = Normal; 
+	    	user_request = true;
+	    	w_status = Normal;
 	    }
     	emit statusChanged (this);
    		return result;
@@ -155,14 +156,14 @@ bool MyWidget::event( QEvent *e )
 
 void MyWidget::setHidden()
 {
-w_status = Hidden; 
+w_status = Hidden;
 emit statusChanged (this);
 hide();
 }
 
 void MyWidget::setNormal()
 {
-w_status = Normal; 
+w_status = Normal;
 emit statusChanged (this);
 }
 
@@ -204,4 +205,25 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 		parent()->removeEventFilter(this);
 	}
 	return QObject::eventFilter(object, e);
+}
+
+double MyWidget::stringToDouble(const QString& s)
+{
+    bool ok = false;
+
+    double val = QLocale::c().toDouble(s, &ok);
+    if (ok)
+        return val;
+
+    val = QLocale(QLocale::German).toDouble(s, &ok);
+    if (ok)
+        return val;
+
+    val = QLocale(QLocale::French).toDouble(s, &ok);
+    if (ok)
+        return val;
+
+    val = QLocale().toDouble(s, &ok);
+    if (ok)
+        return val;
 }

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Matrix properties dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -31,10 +31,11 @@
 
 #include <QDialog>
 
+class Matrix;
 class QPushButton;
 class QSpinBox;
 class QComboBox;
-	
+
 //! Matrix properties dialog
 class MatrixDialog : public QDialog
 {
@@ -47,25 +48,7 @@ public:
 	 * \param fl window flags
 	 */
     MatrixDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-	//! Destructor
-    ~MatrixDialog();
-
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel, *buttonApply;
-	QSpinBox* boxColWidth, *boxPrecision; 
-	QComboBox *boxFormat, *boxNumericDisplay;
-
-public slots:
-	//! Set all strings in the current language
-	virtual void languageChange();
-	//! Set the text format
-	/**
-	 * \param format format code ("e" or "f")
-	 * \param precision number of decimal places
-	 */
-	void setTextFormat(const QString& format, int precision);
-	//! Set the column width
-	void setColumnsWidth(int width);
+    void setMatrix(Matrix *m);
 
 private slots:
 	//! Accept changes and quit
@@ -77,15 +60,15 @@ private slots:
 	//! Change the numeric precision (emits changeTextFormat)
 	void changePrecision(int precision);
 
-signals:
-	//! Emit new column width
-	void changeColumnsWidth(int width);
-	//! Emit new text format
-	/**
-	 * \param format format code ('e' or 'f')
-	 * \param precision number of decimal places
-	 */
-	void changeTextFormat(const QChar& format, int precision);
+private:
+    Matrix *d_matrix;
+
+    void closeEvent(QCloseEvent*);
+
+    QPushButton* buttonOk;
+	QPushButton* buttonCancel, *buttonApply;
+	QSpinBox* boxColWidth, *boxPrecision;
+	QComboBox *boxFormat, *boxNumericDisplay;
 };
 
 #endif // MATRIXDIALOG_H

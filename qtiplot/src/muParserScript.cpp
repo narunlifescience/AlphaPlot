@@ -3,13 +3,13 @@
     Project              : QtiPlot
     --------------------------------------------------------------------
 
-    Copyright            : (C) 2006 by Ion Vasilief, 
+    Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Evaluate mathematical expression using muParser
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -126,7 +126,7 @@ double muParserScript::col(const QString &arg)
 	if (table->text(row,col).isEmpty())
 		throw new EmptySourceError();
 	else
-		return (table->text(row,col)).toDouble();
+		return Table::stringToDouble(table->text(row,col));
 }
 
 double muParserScript::cell(int row, int col)
@@ -205,7 +205,7 @@ bool muParserScript::setQObject(QObject*, const char*)
 QString muParserScript::compileColArg(const QString &in)
 {
 	QString out = "\"";
-	for (int i=0; i < in.size(); i++) 
+	for (int i=0; i < in.size(); i++)
 		if (in[i] == 'c' && in.mid(i,4)=="col(") {
 			out += "col(";
 			QString arg = "";
@@ -246,7 +246,7 @@ bool muParserScript::compile(bool)
 {
 	muCode.clear();
 	QString muCodeLine = "";
-	for (int i=0; i < Code.size(); i++) 
+	for (int i=0; i < Code.size(); i++)
 		if (Code[i] == 'c' && Code.mid(i,4)=="col(") {
 			muCodeLine += "col(";
 			QString arg = "";

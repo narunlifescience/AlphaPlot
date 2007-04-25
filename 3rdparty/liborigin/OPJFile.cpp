@@ -40,6 +40,7 @@
 
 #define SwapBytes(x) ByteSwap((unsigned char *) &x,sizeof(x))
 
+
 void OPJFile::ByteSwap(unsigned char * b, int n) {
 	register int i = 0;
 	register int j = n-1;
@@ -705,6 +706,7 @@ int OPJFile::ParseFormatNew() {
 		int oldpos=ftell(f);
 		fseek(f,oldpos+0x16,SEEK_SET);
 		fread(&data_type,2,1,f);
+		if(IsBigEndian()) SwapBytes(data_type);
 		fseek(f,oldpos+0x3F,SEEK_SET);
 		fread(&data_type_u,1,1,f);
 		fseek(f,oldpos,SEEK_SET);
@@ -756,6 +758,7 @@ int OPJFile::ParseFormatNew() {
 			// TODO
 			short signature;
 			fread(&signature,2,1,f);
+			if(IsBigEndian()) SwapBytes(signature);
 			fprintf(debug,"	SIGNATURE : ");
 			fprintf(debug,"%.2X ",signature);
 			fflush(debug);
@@ -770,6 +773,7 @@ int OPJFile::ParseFormatNew() {
 			// read size
 			int size;
 			fread(&size,4,1,f);
+			if(IsBigEndian()) SwapBytes(size);
 			fread(&c,1,1,f);	// skip '\n'
 			// TODO : use entry size : double, float, ...
 			size /= valuesize;
@@ -797,6 +801,7 @@ int OPJFile::ParseFormatNew() {
 					for(i=0;i<size;i++) {
 						double value;
 						fread(&value,valuesize,1,f);
+						if(IsBigEndian()) SwapBytes(value);
 						MATRIX.back().data.push_back((double)value);
 						fprintf(debug,"%g ",MATRIX.back().data.back());
 					}
@@ -805,6 +810,7 @@ int OPJFile::ParseFormatNew() {
 					for(i=0;i<size;i++) {
 						float value;
 						fread(&value,valuesize,1,f);
+						if(IsBigEndian()) SwapBytes(value);
 						MATRIX.back().data.push_back((double)value);
 						fprintf(debug,"%g ",MATRIX.back().data.back());
 					}
@@ -814,6 +820,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							unsigned int value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -821,6 +828,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							int value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -830,6 +838,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							unsigned short value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -837,6 +846,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							short value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -846,6 +856,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							unsigned char value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -853,6 +864,7 @@ int OPJFile::ParseFormatNew() {
 						for(i=0;i<size;i++) {
 							char value;
 							fread(&value,valuesize,1,f);
+							if(IsBigEndian()) SwapBytes(value);
 							MATRIX.back().data.push_back((double)value);
 							fprintf(debug,"%g ",MATRIX.back().data.back());
 						}
@@ -879,16 +891,20 @@ int OPJFile::ParseFormatNew() {
 				short t;
 				fseek(f,colpos+0xA,SEEK_SET);
 				fread(&t,2,1,f);
+				if(IsBigEndian()) SwapBytes(t);
 				if(t==0x1194)
 					FUNCTION.back().type=1;
 				int N;
 				fseek(f,colpos+0x21,SEEK_SET);
 				fread(&N,4,1,f);
+				if(IsBigEndian()) SwapBytes(N);
 				FUNCTION.back().points=N;
 				double d;
 				fread(&d,8,1,f);
+				if(IsBigEndian()) SwapBytes(d);
 				FUNCTION.back().begin=d;
 				fread(&d,8,1,f);
+				if(IsBigEndian()) SwapBytes(d);
 				FUNCTION.back().end=FUNCTION.back().begin+d*(FUNCTION.back().points-1);
 				fprintf(debug,"FUNCTION %s : %s \n", FUNCTION.back().name.c_str(), FUNCTION.back().formula.c_str());
 				fprintf(debug," interval %g : %g, number of points %d \n", FUNCTION.back().begin, FUNCTION.back().end, FUNCTION.back().points);
@@ -1007,6 +1023,7 @@ int OPJFile::ParseFormatNew() {
 
 		int tailsize;
 		fread(&tailsize,4,1,f);
+		if(IsBigEndian()) SwapBytes(tailsize);
 		fseek(f,1+tailsize+(tailsize>0?1:0),SEEK_CUR); //skip tail
 		//fseek(f,5+((nbytes>0||cname==0)?1:0),SEEK_CUR);
 		fread(&col_found,4,1,f);
@@ -1038,6 +1055,7 @@ int OPJFile::ParseFormatNew() {
 		POS=ftell(f);
 		int headersize;
 		fread(&headersize,4,1,f);
+		if(IsBigEndian()) SwapBytes(headersize);
 		if(headersize==0)
 			break;
 		char object_type[10];
@@ -1095,6 +1113,7 @@ int OPJFile::ParseFormatNew() {
 		}
 		double parvalue;
 		fread(&parvalue,8,1,f);
+		if(IsBigEndian()) SwapBytes(parvalue);
 		fprintf(debug,": %g\n", parvalue);
 		fseek(f,1,SEEK_CUR);
 		fread(&c,1,1,f);
@@ -1110,6 +1129,7 @@ int OPJFile::ParseFormatNew() {
 		fseek(f,4,SEEK_CUR);
 		int size;
 		fread(&size,4,1,f);
+		if(IsBigEndian()) SwapBytes(size);
 		fseek(f,1,SEEK_CUR);
 		char *stmp = new char[size+1];
 		fread(stmp,size,1,f);
@@ -1118,6 +1138,7 @@ int OPJFile::ParseFormatNew() {
 			delete stmp;
 			fseek(f,1,SEEK_CUR);
 			fread(&size,4,1,f);
+			if(IsBigEndian()) SwapBytes(size);
 			fseek(f,1,SEEK_CUR);
 			stmp = new char[size+1];
 			fread(stmp,size,1,f);
@@ -1132,6 +1153,7 @@ int OPJFile::ParseFormatNew() {
 			delete stmp;
 			fseek(f,1,SEEK_CUR);
 			fread(&size,4,1,f);
+			if(IsBigEndian()) SwapBytes(size);
 			fseek(f,1,SEEK_CUR);
 			if(labellen>1)
 			{
@@ -1165,6 +1187,8 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 
 	int headersize;
 	fread(&headersize,4,1,f);
+	if(IsBigEndian()) SwapBytes(headersize);
+
 	POS+=5;
 
 	fprintf(debug,"			[Spreadsheet SECTION (@ 0x%X)]\n",POS);
@@ -1241,6 +1265,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 			LAYER+=0x6F+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_1
 			LAYER+=0x5;
@@ -1260,6 +1285,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 			LAYER+=sec_size+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_2
 			LAYER+=0x5;
@@ -1286,7 +1312,6 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER+0x12, SEEK_SET);
 		fread(&name,12,1,f);
 
-		fprintf(debug,"				DEBUG COLUMN NAME: %s (@ 0x%X)\n", name, LAYER+0x12);
 		fflush(debug);
 
 		fseek(f,LAYER+0x11, SEEK_SET);
@@ -1294,6 +1319,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		short width=0;
 		fseek(f,LAYER+0x4A, SEEK_SET);
 		fread(&width,2,1,f);
+		if(IsBigEndian()) SwapBytes(width);
 		int col_index=compareColumnnames(spread,name);
 		if(col_index!=-1)
 		{
@@ -1372,6 +1398,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		int comm_size=0;
 		fread(&comm_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(comm_size);
 		LAYER+=0x5;
 		if(comm_size>0)
 		{
@@ -1386,6 +1413,7 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		int ntmp;
 		fread(&ntmp,4,1,f);
+		if(IsBigEndian()) SwapBytes(ntmp);
 		if(ntmp!=0x1E7)
 			break;
 	}
@@ -1402,6 +1430,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 
 	int headersize;
 	fread(&headersize,4,1,f);
+	if(IsBigEndian()) SwapBytes(headersize);
 	POS+=5;
 
 	fprintf(debug,"			[Matrix SECTION (@ 0x%X)]\n",POS);
@@ -1447,12 +1476,14 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	// LAYER section
 	LAYER +=0x5;
 	fseek(f,LAYER+0x2B,SEEK_SET);
-	unsigned char c=0;
-	fread(&c,2,1,f);
-	MATRIX[idx].nr_cols=c;
+	short w=0;
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	MATRIX[idx].nr_cols=w;
 	fseek(f,LAYER+0x52,SEEK_SET);
-	fread(&c,2,1,f);
-	MATRIX[idx].nr_rows=c;
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	MATRIX[idx].nr_rows=w;
 	LAYER +=0x12D + 0x1;
 	//now structure is next : section_header_size=0x6F(4 bytes) + '\n' + section_header(0x6F bytes) + section_body_1_size(4 bytes) + '\n' + section_body_1 + section_body_2_size(maybe=0)(4 bytes) + '\n' + section_body_2 + '\n'
 	//possible sections: column formulas, __WIPR, __WIOTN, __LayerInfoStorage
@@ -1472,6 +1503,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		LAYER+=0x6F+0x1;
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(sec_size);
 
 	//section_body_1
 		LAYER+=0x5;
@@ -1489,6 +1521,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		LAYER+=sec_size+0x1;
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(sec_size);
 
 	//section_body_2
 		LAYER+=0x5;
@@ -1506,9 +1539,10 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 	{
 		LAYER+=0x5;
 
-		unsigned char width=0;
+		short width=0;
 		fseek(f,LAYER+0x2B, SEEK_SET);
 		fread(&width,2,1,f);
+		if(IsBigEndian()) SwapBytes(width);
 		width=(width-55)/0xA;
 		if(width==0)
 			width=8;
@@ -1534,6 +1568,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		int comm_size=0;
 		fread(&comm_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(comm_size);
 		LAYER+=0x5;
 		if(comm_size>0)
 		{
@@ -1542,6 +1577,7 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		fseek(f,LAYER,SEEK_SET);
 		int ntmp;
 		fread(&ntmp,4,1,f);
+		if(IsBigEndian()) SwapBytes(ntmp);
 		if(ntmp!=0x1E7)
 			break;
 	}
@@ -1559,6 +1595,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 	int headersize;
 	fread(&headersize,4,1,f);
+	if(IsBigEndian()) SwapBytes(headersize);
 	POS+=5;
 	GRAPH.push_back(graph());
 
@@ -1611,10 +1648,13 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		int m=0;
 		fseek(f, LAYER+0xF, SEEK_SET);
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().xMin=range;
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().xMax=range;
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().xStep=range;
 		fseek(f, LAYER+0x2B, SEEK_SET);
 		fread(&m,1,1,f);
@@ -1627,10 +1667,13 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 		fseek(f, LAYER+0x3A, SEEK_SET);
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().yMin=range;
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().yMax=range;
 		fread(&range,8,1,f);
+		if(IsBigEndian()) SwapBytes(range);
 		GRAPH.back().layer.back().yStep=range;
 		fseek(f, LAYER+0x56, SEEK_SET);
 		fread(&m,1,1,f);
@@ -1660,6 +1703,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			LAYER+=0x6F+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_1
 			LAYER+=0x5;
@@ -1668,6 +1712,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			LAYER+=sec_size+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_2
 			LAYER+=0x5;
@@ -1715,6 +1760,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		//section_body_3_size
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_3
 			LAYER+=0x5;
@@ -1738,6 +1784,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			vector<string> col;
 			fseek(f,LAYER+0x4,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			col=findDataByIndex(w-1);
 			if(col.size()>0)
 			{
@@ -1749,6 +1796,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 			fseek(f,LAYER+0x23,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			col=findDataByIndex(w-1);
 			if(col.size()>0)
 			{
@@ -1773,10 +1821,12 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 			fseek(f,LAYER+0x15,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			GRAPH.back().layer.back().curve.back().line_width=(double)w/500.0;
 
 			fseek(f,LAYER+0x19,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			GRAPH.back().layer.back().curve.back().symbol_size=(double)w/500.0;
 
 			fseek(f,LAYER+0x1C,SEEK_SET);
@@ -1801,6 +1851,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 			fseek(f,LAYER+0xCE,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			GRAPH.back().layer.back().curve.back().fillarea_pattern_width=(double)w/500.0;
 
 			fseek(f,LAYER+0x16A,SEEK_SET);
@@ -1809,6 +1860,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 
 			fseek(f,LAYER+0x17,SEEK_SET);
 			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
 			GRAPH.back().layer.back().curve.back().symbol_type=w;
 
 			fseek(f,LAYER+0x12E,SEEK_SET);
@@ -1831,6 +1883,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			fseek(f,LAYER,SEEK_SET);
 			int comm_size=0;
 			fread(&comm_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(comm_size);
 			LAYER+=0x5;
 			if(comm_size>0)
 			{
@@ -1839,6 +1892,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			fseek(f,LAYER,SEEK_SET);
 			int ntmp;
 			fread(&ntmp,4,1,f);
+			if(IsBigEndian()) SwapBytes(ntmp);
 			if(ntmp!=0x1E7)
 				break;
 		}
@@ -1846,6 +1900,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		LAYER+=0x5*0x5+0x1ED*0x12;
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(sec_size);
 		if(sec_size==0)
 			break;
 	}
@@ -1860,6 +1915,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 
 	int headersize;
 	fread(&headersize,4,1,f);
+	if(IsBigEndian()) SwapBytes(headersize);
 	POS+=5;
 
 	int LAYER = POS;
@@ -1887,6 +1943,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 			LAYER+=0x6F+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_1
 			LAYER+=0x5;
@@ -1895,6 +1952,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 			LAYER+=sec_size+0x1;
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_2
 			LAYER+=0x5;
@@ -1905,6 +1963,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 		//section_body_3_size
 			fseek(f,LAYER,SEEK_SET);
 			fread(&sec_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(sec_size);
 
 		//section_body_3
 			LAYER+=0x5;
@@ -1926,6 +1985,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 			fseek(f,LAYER,SEEK_SET);
 			int comm_size=0;
 			fread(&comm_size,4,1,f);
+			if(IsBigEndian()) SwapBytes(comm_size);
 			LAYER+=0x5;
 			if(comm_size>0)
 			{
@@ -1934,6 +1994,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 			fseek(f,LAYER,SEEK_SET);
 			int ntmp;
 			fread(&ntmp,4,1,f);
+			if(IsBigEndian()) SwapBytes(ntmp);
 			if(ntmp!=0x1E7)
 				break;
 		}
@@ -1941,6 +2002,7 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 		LAYER+=0x5*0x5+0x1ED*0x12;
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
+		if(IsBigEndian()) SwapBytes(sec_size);
 		if(sec_size==0)
 			break;
 	}

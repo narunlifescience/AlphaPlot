@@ -95,12 +95,12 @@ public:
 	n_cols = d_matrix->numCols();
 
 	d_m = new double* [n_rows];
-	for ( int l = 0; l < n_rows; ++l) 
+	for ( int l = 0; l < n_rows; ++l)
 		d_m[l] = new double [n_cols];
 
 	for (int i = 0; i < n_rows; i++)
          for (int j = 0; j < n_cols; j++)
-           d_m[i][j] = d_matrix->text(i, j).replace(",", ".").toDouble();
+           d_m[i][j] = d_matrix->cell(i, j);
 
 	m->range(&min_z, &max_z);
 
@@ -113,9 +113,9 @@ public:
 
 	~MatrixData()
 	{
-	for (int i = 0; i < n_rows; i++) 
+	for (int i = 0; i < n_rows; i++)
 		delete [] d_m[i];
-	
+
 	delete [] d_m;
 	};
 

@@ -5859,17 +5859,10 @@ void ApplicationWindow::showMatrixDialog()
 	{
 		Matrix* w = (Matrix*)ws->activeWindow();
 
-		MatrixDialog* md= new MatrixDialog(this);
+		MatrixDialog* md = new MatrixDialog(this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
-		connect (md, SIGNAL(changeColumnsWidth(int)), w, SLOT(setColumnsWidth(int)));
-		connect (md, SIGNAL(changeTextFormat(const QChar&, int)),
-				w, SLOT(setNumericFormat(const QChar&, int)));
-
-		w->saveCellsToMemory();
-		md->setTextFormat(w->textFormat(), w->precision());
-		md->setColumnsWidth(w->columnsWidth());
+		md->setMatrix (w);
 		md->exec();
-		w->forgetSavedCells();
 	}
 }
 
@@ -9954,7 +9947,8 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		QStringList fields = (*line).split("\t");
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
-			w->setText(row, col, fields[col+1]);
+		    w->setText(row, col, fields[col+1]);
+
 		qApp->processEvents(QEventLoop::ExcludeUserInput);
 	}
     QApplication::restoreOverrideCursor();

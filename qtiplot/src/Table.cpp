@@ -1605,6 +1605,15 @@ QString Table::text(int row, int col)
 void Table::setText (int row, int col, const QString & text )
 {
 	worksheet->setText(row, col, text);
+	/*if (colTypes[col] == Numeric)
+    {
+        int prec;
+        char format;
+        columnNumericFormat(col, format, prec);
+        worksheet->setText(row, col, QLocale().toString(Table::stringToDouble(text), format, prec));
+    }
+    else
+        worksheet->setText(row, col, text);*/
 }
 
 void Table::saveColToMemory(int col)
@@ -1675,12 +1684,7 @@ void Table::setColNumericFormat(int f, int prec, int col)
 			else if (f == 2)
                 format = 'e';
 
-            bool ok = true;
-            double val = t.toDouble(&ok);
-            if (!ok)
-                val = QLocale().toDouble(t, &ok);
-
-            worksheet->setText(i, col, QLocale().toString(val, format, prec));
+            worksheet->setText(i, col, QLocale().toString(stringToDouble(t), format, prec));
 		}
 	}
 }
@@ -1872,7 +1876,6 @@ void Table::setRandomValues()
 		int prec;
 		char f;
 		columnNumericFormat(selectedCol, f, prec);
-		QLocale locale;
 
 		srand(rand());
 
@@ -1885,7 +1888,7 @@ void Table::setRandomValues()
 		for (int i=0; i<rows; i++)
 		{
 			r[i]/=max;
-			worksheet->setText(i, selectedCol, locale.toString(r[i], f, prec));
+			worksheet->setText(i, selectedCol, QLocale().toString(r[i], f, prec));
 		}
 
 		emit modifiedData(this, name);
