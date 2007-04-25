@@ -921,11 +921,66 @@ public:
   SIPQTI_APP(new sipSmoothFilter(app, a0, *a1, a2, a3, a4))
 %End
 
-  void setMethod(int n);
-  void setMethod(SmoothMethod m);
+  void setMethod(int);
+  void setMethod(SmoothMethod);
   
   void setSmoothPoints(int, int = 0);
   void setPolynomOrder(int);
+	
+  bool run();
+};
+
+class FFTFilter : Filter
+{
+%TypeHeaderCode
+#include "src/FFTFilter.h"
+%End
+public:
+  enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
+  
+  FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=1);
+  FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=1);
+  FFTFilter(Graph *, const QString&, int=1) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipFFTFilter(app, a0, *a1, a2))
+%End
+  FFTFilter(Graph *, const QString&, double, double, int=1) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipFFTFilter(app, a0, *a1, a2, a3, a4))
+%End
+
+  void setFilterType(int);
+  void setFilterType(FilterType);
+  
+  void setCutoff(double);
+  void setBand(double, double);
+  void enableOffset(bool=true);
+	
+  bool run();
+};
+
+class FFT : Filter
+{
+%TypeHeaderCode
+#include "src/FFT.h"
+%End
+public:
+  
+  //FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = "");
+  FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
+  //FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
+//%MethodCode
+  //SIPQTI_APP(new sipFFT(app, a0, *a1, a2))
+//%End
+  FFT(Graph *, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipFFT(app, a0, *a1))
+%End
+
+  void setInverseFFT(bool=true);
+  void setSampling(double);
+  void normalizeAmplitudes(bool=true);
+  void shiftFrequencies(bool=true);
 	
   bool run();
 };

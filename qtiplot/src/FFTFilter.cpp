@@ -29,6 +29,7 @@
 #include "FFTFilter.h"
 
 #include <QMessageBox>
+#include <QLocale>
 
 #include <gsl/gsl_fft_halfcomplex.h>
 
@@ -118,9 +119,9 @@ void FFTFilter::calculateOutputData(double *x, double *y)
 	gsl_fft_real_transform (y, 1, d_n, real, work);
 	gsl_fft_real_wavetable_free (real);
 
-    d_explanation = QString::number(d_low_freq) + " ";
+    d_explanation = QLocale().toString(d_low_freq) + " ";
 	if (d_filter_type > 2)
-	   d_explanation += tr("to") + " " + QString::number(d_high_freq) + " ";
+	   d_explanation += tr("to") + " " + QLocale().toString(d_high_freq) + " ";
 	d_explanation += tr("Hz") + " ";
 
 	switch ((int)d_filter_type)

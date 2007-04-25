@@ -29,6 +29,7 @@
 #include "FFT.h"
 #include "MultiLayer.h"
 #include "Plot.h"
+#include "ColorBox.h"
 
 #include <QMessageBox>
 #include <QLocale>
@@ -58,6 +59,7 @@ void FFT::init ()
     d_shift_order = true;
     d_real_col = -1;
     d_imag_col = -1;
+	d_sampling = 1.0;
 }
 
 QString FFT::fftCurve()
@@ -269,6 +271,8 @@ void FFT::output(const QString &text)
 	Graph* g = ml->activeGraph();
 	if ( g )
 	{
+		g->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
+		
         Plot* plot = g->plotWidget();
 		plot->setTitle(QString());
 		if (!d_inverse)
