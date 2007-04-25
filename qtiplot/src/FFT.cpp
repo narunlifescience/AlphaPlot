@@ -31,6 +31,7 @@
 #include "Plot.h"
 
 #include <QMessageBox>
+#include <QLocale>
 
 #include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_fft_halfcomplex.h>
@@ -152,14 +153,14 @@ QString FFT::fftCurve()
 	for (i=0;i<d_n;i++)
 	{
 		i2 = 2*i;
-		text += QString::number(d_x[i])+"\t";
-		text += QString::number(result[i2])+"\t";
-		text += QString::number(result[i2+1])+"\t";
+		text += QLocale().toString(d_x[i])+"\t";
+		text += QLocale().toString(result[i2])+"\t";
+		text += QLocale().toString(result[i2+1])+"\t";
 		if (d_normalize)
-			text += QString::number(amp[i]/aMax)+"\t";
+			text += QLocale().toString(amp[i]/aMax)+"\t";
 		else
-			text += QString::number(amp[i])+"\t";
-		text += QString::number(atan(result[i2+1]/result[i2]))+"\n";
+			text += QLocale().toString(amp[i])+"\t";
+		text += QLocale().toString(atan(result[i2+1]/result[i2]))+"\n";
 	}
 	delete[] amp;
 	delete[] result;
@@ -231,14 +232,14 @@ QString FFT::fftTable()
 	for (i=0; i<rows; i++)
 	{
 		int i2 = 2*i;
-		text += QString::number(d_x[i])+"\t";
-		text += QString::number(d_y[i2])+"\t";
-		text += QString::number(d_y[i2+1])+"\t";
+		text += QLocale().toString(d_x[i])+"\t";
+		text += QLocale().toString(d_y[i2])+"\t";
+		text += QLocale().toString(d_y[i2+1])+"\t";
 		if (d_normalize)
-			text += QString::number(amp[i]/aMax)+"\t";
+			text += QLocale().toString(amp[i]/aMax)+"\t";
 		else
-			text += QString::number(amp[i])+"\t";
-		text += QString::number(atan(d_y[i2+1]/d_y[i2]))+"\n";
+			text += QLocale().toString(amp[i])+"\t";
+		text += QLocale().toString(atan(d_y[i2+1]/d_y[i2]))+"\n";
 	}
 	delete[] amp;
     return text;
@@ -308,9 +309,9 @@ void FFT::setDataFromTable(Table *t, const QString& realColName, const QString& 
 		for(int i=0; i<d_n; i++)
 		{
 			int i2 = 2*i;
-			d_y[i2] = d_table->text(i, d_real_col).toDouble();
+			d_y[i2] = d_table->cell(i, d_real_col);
 			if (d_imag_col >= 0)
-				d_y[i2+1] = d_table->text(i, d_imag_col).toDouble();
+				d_y[i2+1] = d_table->cell(i, d_imag_col);
 		}
 	}
 	else

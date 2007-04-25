@@ -260,13 +260,11 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 		{
 			if (!table->text(i,xcol).isEmpty() && !table->text(i,ycol).isEmpty())
 			{
-				double xv=table->text(i,xcol).toDouble();
-				double yv=table->text(i,ycol).toDouble();
-
-				gsl_vector_set (x, k, xv);
+				gsl_vector_set (x, k, table->cell(i, xcol));
+				
+				double yv = table->cell(i, ycol);
 				gsl_vector_set (y, k, yv);
-
-				data[k][j] =yv;
+				data[k][j] = yv;
 				k++;
 			}
 		}
@@ -329,10 +327,7 @@ void Graph3D::addMatrixData(Matrix* m)
 	for (int i = 0; i < rows; i++ )
 	{
 		for (int j = 0; j < cols; j++)
-		{
-			double val = m->text(i,j).toDouble();
-			data_matrix[i][j] = val;
-		}
+			data_matrix[i][j] = m->cell(i,j);
 	}
 
 	sp->makeCurrent();
@@ -379,7 +374,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 	{
 		if (!table->text(i,xcol).isEmpty() && !table->text(i,ycol).isEmpty())
 		{
-			xv=table->text(i,xcol).toDouble();
+			xv=table->cell(i, xcol);
 			if (xv>=xl && xv <= xr)
 				xmesh++;
 		}
@@ -396,10 +391,10 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 		{
 			if (!table->text(i,xcol).isEmpty() && !table->text(i,ycol).isEmpty())
 			{
-				xv=table->text(i,xcol).toDouble();
+				xv=table->cell(i,xcol);
 				if (xv>=xl && xv <= xr)
 				{
-					yv=table->text(i,ycol).toDouble();
+					yv=table->cell(i,ycol);
 					if (yv > zr)
 						data[k][j] = zr;
 					else if (yv < zl)
@@ -472,9 +467,9 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 		{
 			if(!table->text(i,xCol).isEmpty() && !table->text(i,yCol).isEmpty() && !table->text(i,zCol).isEmpty())
 			{
-				double xv=table->text(i,xCol).toDouble();
-				double yv=table->text(i,yCol).toDouble();
-				double zv=table->text(i,zCol).toDouble();
+				double xv=table->cell(i,xCol);
+				double yv=table->cell(i,yCol);
+				double zv=table->cell(i,zCol);
 
 				data[k][j] = Triple(xv,yv,zv);
 				k++;
@@ -531,8 +526,8 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol,
 	{
 		if (!table->text(i,xCol).isEmpty() && !table->text(i,yCol).isEmpty() && !table->text(i,zCol).isEmpty())
 		{
-			xv=table->text(i,xCol).toDouble();
-			yv=table->text(i,yCol).toDouble();
+			xv=table->cell(i,xCol);
+			yv=table->cell(i,yCol);
 			if (xv >= xl && xv <= xr && yv >= yl && yv <= yr)
 				columns++;
 		}
@@ -549,11 +544,11 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol,
 		{
 			if (!table->text(i,xCol).isEmpty() && !table->text(i,yCol).isEmpty() && !table->text(i,zCol).isEmpty())
 			{
-				xv=table->text(i,xCol).toDouble();
-				yv=table->text(i,yCol).toDouble();
+				xv=table->cell(i,xCol);
+				yv=table->cell(i,yCol);
 				if (xv >= xl && xv <= xr && yv >= yl && yv <= yr)
 				{
-					double zv=table->text(i,zCol).toDouble();
+					double zv=table->cell(i,zCol);
 					if (zv > zr)
 						data[k][j] = Triple(xv,yv,zr);
 					else if (zv < zl)
@@ -636,8 +631,8 @@ void Graph3D::updateDataXY(Table* table, int xCol, int yCol)
 		{
 			if (!table->text(i,xCol).isEmpty() && !table->text(i,yCol).isEmpty())
 			{
-				double xv=table->text(i,xCol).toDouble();
-				double yv=table->text(i,yCol).toDouble();
+				double xv=table->cell(i,xCol);
+				double yv=table->cell(i,yCol);
 
 				gsl_vector_set (x, k, xv);
 				gsl_vector_set (y, k, yv);
@@ -693,9 +688,9 @@ void Graph3D::updateDataXYZ(Table* table, int xCol, int yCol, int zCol)
 		{
 			if (!table->text(i,xCol).isEmpty() && !table->text(i,yCol).isEmpty() && !table->text(i,zCol).isEmpty())
 			{
-				double xv=table->text(i,xCol).toDouble();
-				double yv=table->text(i,yCol).toDouble();
-				double zv=table->text(i,zCol).toDouble();
+				double xv=table->cell(i,xCol);
+				double yv=table->cell(i,yCol);
+				double zv=table->cell(i,zCol);
 
 				gsl_vector_set (z, k, zv);
 				data[k][j] = Triple(xv,yv,zv);
@@ -728,7 +723,7 @@ void Graph3D::updateMatrixData(Matrix* m)
 	{
 		for (int j = 0; j < cols; j++)
 		{
-			double val = m->text(i,j).toDouble();
+			double val = m->cell(i,j);
 			data[i][j] = val;
 		}
 	}
@@ -1446,7 +1441,7 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 	{
 		for (int i = 0; i < nc; i++)
 		{
-			double val = matrix_->text(j + start_row, i + start_col).toDouble();
+			double val = matrix_->cell(j + start_row, i + start_col);
 			if (val > zr)
 				data_matrix[i][j] = zr;
 			else if (val < zl)
@@ -1475,7 +1470,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 	{
 		if (!worksheet->text(i,xcol).isEmpty() && !worksheet->text(i,ycol).isEmpty())
 		{
-			xv=worksheet->text(i,xcol).toDouble();
+			xv=worksheet->cell(i,xcol);
 			if (xv >= xl && xv <= xr)
 				xmesh++;
 		}
@@ -1493,10 +1488,10 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 		{
 			if (!worksheet->text(i,xcol).isEmpty() && !worksheet->text(i,ycol).isEmpty())
 			{
-				xv=worksheet->text(i,xcol).toDouble();
+				xv=worksheet->cell(i,xcol);
 				if (xv >= xl && xv <= xr)
 				{
-					yv=worksheet->text(i,ycol).toDouble();
+					yv=worksheet->cell(i,ycol);
 					if (yv > zr)
 						data[k][j] = zr;
 					else if (yv < zl)
@@ -1524,8 +1519,8 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 	{
 		if (!worksheet->text(i,xCol).isEmpty() && !worksheet->text(i,yCol).isEmpty() && !worksheet->text(i,zCol).isEmpty())
 		{
-			xv=worksheet->text(i,xCol).toDouble();
-			yv=worksheet->text(i,yCol).toDouble();
+			xv=worksheet->cell(i,xCol);
+			yv=worksheet->cell(i,yCol);
 			if (xv >= xl && xv <= xr && yv >= yl && yv <= yr)
 				columns++;
 		}
@@ -1542,11 +1537,11 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 		{
 			if (!worksheet->text(i,xCol).isEmpty() && !worksheet->text(i,yCol).isEmpty() && !worksheet->text(i,zCol).isEmpty())
 			{
-				xv=worksheet->text(i,xCol).toDouble();
-				yv=worksheet->text(i,yCol).toDouble();
+				xv=worksheet->cell(i,xCol);
+				yv=worksheet->cell(i,yCol);
 				if (xv >= xl && xv <= xr && yv >= yl && yv <= yr )
 				{
-					zv=worksheet->text(i,zCol).toDouble();
+					zv=worksheet->cell(i,zCol);
 					if (zv > zr)
 						data[k][j] = Triple(xv,yv,zr);
 					else if (zv < zl)

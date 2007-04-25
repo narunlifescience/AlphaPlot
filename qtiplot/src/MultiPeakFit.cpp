@@ -32,6 +32,7 @@
 #include "FunctionCurve.h"
 #include "ColorBox.h"
 
+#include <QLocale>
 #include <QMessageBox>
 
 	MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, Graph *g, PeakProfile profile, int peaks)
@@ -305,7 +306,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 		for (i = 0; i<d_points; i++)
 		{
 			X[i] = d_x[i];
-			t->setText(i, 0, QString::number(X[i], 'g', d_prec));
+			t->setText(i, 0, QLocale().toString(X[i], 'g', d_prec));
 
 			double yi=0;
 			for (j=0; j<d_peaks; j++)
@@ -320,12 +321,12 @@ void MultiPeakFit::generateFitCurve(double *par)
 
 				yi += y_aux;
 				y_aux += par[d_p - 1];
-				t->setText(i, j+1, QString::number(y_aux, 'g', d_prec));
+				t->setText(i, j+1, QLocale().toString(y_aux, 'g', d_prec));
 				gsl_matrix_set(m, i, j, y_aux);
 			}
 			Y[i] = yi + par[d_p - 1];//add offset
 			if (d_peaks > 1)
-				t->setText(i, d_peaks+1, QString::number(Y[i], 'g', d_prec));
+				t->setText(i, d_peaks+1, QLocale().toString(Y[i], 'g', d_prec));
 		}
 
 		label = tableName + "_2";
@@ -374,14 +375,14 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, const 
 	for (int j=0; j<d_peaks; j++)
 	{
 		info += QString::number(j+1)+"\t";
-		info += QString::number(par[3*j],'g', d_prec)+"\t";
-		info += QString::number(par[3*j+1],'g', d_prec)+"\t";
-		info += QString::number(par[3*j+2],'g', d_prec)+"\t";
+		info += QLocale().toString(par[3*j],'g', d_prec)+"\t";
+		info += QLocale().toString(par[3*j+1],'g', d_prec)+"\t";
+		info += QLocale().toString(par[3*j+2],'g', d_prec)+"\t";
 
 		if (d_profile == Lorentz)
-			info += QString::number(M_2_PI*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
+			info += QLocale().toString(M_2_PI*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
 		else
-			info += QString::number(sqrt(M_2_PI)*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
+			info += QLocale().toString(sqrt(M_2_PI)*par[3*j]/par[3*j+2],'g', d_prec)+"\n";
 	}
 	info += "---------------------------------------------------------------------------------------\n";
 	return info;

@@ -30,6 +30,8 @@
 #include "MultiLayer.h"
 #include "LegendMarker.h"
 
+#include <QLocale>
+
 Differentiation::Differentiation(ApplicationWindow *parent, Graph *g)
 : Filter(parent, g)
 {
@@ -68,8 +70,8 @@ void Differentiation::output()
     Table *t = app->newHiddenTable(tableName, tr("Derivative") + " " + tr("of","Derivative of")  + " " + curveTitle, d_n-2, 2);
 	for (int i = 1; i < d_n-1; i++)
 	{
-		t->setText(i-1, 0, QString::number(d_x[i]));
-		t->setText(i-1, 1, QString::number(result[i]));
+		t->setText(i-1, 0, QLocale().toString(d_x[i]));
+		t->setText(i-1, 1, QLocale().toString(result[i]));
 	}
     delete[] result;
 

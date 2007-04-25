@@ -160,7 +160,7 @@ double Matrix::cell(int row, int col)
 	else
 	{
 		if(d_table->item(row, col))
-		    stringToDouble(d_table->item(row, col)->text());
+		    return stringToDouble(d_table->item(row, col)->text());
 		else
 			return 0.0;
 	}

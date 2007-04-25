@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QDateTime>
+#include <QLocale>
 
 Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
 : Filter( parent, g, name)
@@ -209,27 +210,24 @@ QString Fit::logFitInfo(double *par, int iterations, int status, const QString& 
 		else
 			info+=tr("Scaled Levenberg-Marquardt");
 
-		info+=tr(" algorithm with tolerance = ")+QString::number(d_tolerance)+"\n";
+		info+=tr(" algorithm with tolerance = ") + QLocale().toString(d_tolerance)+"\n";
 	}
 
-	info+=tr("From x")+" = "+QString::number(d_x[0], 'g', 15)+" "+tr("to x")+" = "+QString::number(d_x[d_n-1], 'g', 15)+"\n";
+	info+=tr("From x")+" = "+QLocale().toString(d_x[0], 'g', 15)+" "+tr("to x")+" = "+QLocale().toString(d_x[d_n-1], 'g', 15)+"\n";
 	double chi_2_dof = chi_2/(d_n - d_p);
 	for (int i=0; i<d_p; i++)
 	{
-		info += d_param_names[i]+" "+d_param_explain[i]+" = "+QString::number(par[i], 'g', d_prec) + " +/- ";
+		info += d_param_names[i]+" "+d_param_explain[i]+" = "+QLocale().toString(par[i], 'g', d_prec) + " +/- ";
 		if (d_scale_errors)
-			info += QString::number(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+			info += QLocale().toString(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 		else
-			info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+			info += QLocale().toString(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	info += "--------------------------------------------------------------------------------------\n";
+	info += "Chi^2/doF = " + QLocale().toString(chi_2_dof, 'g', d_prec) + "\n";
 
-	QString info2;
-	info2.sprintf("Chi^2/doF = %g\n",  chi_2_dof);
-	info+=info2;
 	double sst = (d_n-1)*gsl_stats_variance(d_y, 1, d_n);
-	info2.sprintf(tr("R^2") + " = %g\n",  1 - chi_2/sst);
-	info+=info2;
+	info += tr("R^2") + " = " + QLocale().toString(1 - chi_2/sst, 'g', d_prec) + "\n";
 	info += "---------------------------------------------------------------------------------------\n";
 	if (is_non_linear)
 	{
@@ -252,20 +250,17 @@ QString Fit::legendInfo()
 	info += tr("Function") + ": " + d_formula + "\n\n";
 
 	double chi_2_dof = chi_2/(d_n - d_p);
-	QString info2;
-	info2.sprintf("Chi^2/doF = %g\n",  chi_2_dof);
-	info+=info2;
+	info += "Chi^2/doF = " + QLocale().toString(chi_2_dof, 'g', d_prec) + "\n";
 	double sst = (d_n-1)*gsl_stats_variance(d_y, 1, d_n);
-	info2.sprintf("R^2 = %g\n",  1 - chi_2/sst);
-	info += info2 + "\n";
+	info += tr("R^2") + " = " + QLocale().toString(1 - chi_2/sst, 'g', d_prec) + "\n";
 
 	for (int i=0; i<d_p; i++)
 	{
-		info += d_param_names[i] + " = " + QString::number(d_results[i], 'g', d_prec) + " +/- ";
+		info += d_param_names[i] + " = " + QLocale().toString(d_results[i], 'g', d_prec) + " +/- ";
 		if (d_scale_errors)
-			info += QString::number(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+			info += QLocale().toString(sqrt(chi_2_dof*gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 		else
-			info += QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
+			info += QLocale().toString(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec) + "\n";
 	}
 	return info;
 }
@@ -341,7 +336,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 
 				int col = t->colIndex(colName);
 				for (int i=0; i<d_n; i++)
-					d_w[i] = t->text(i, col).toDouble();
+					d_w[i] = t->cell(i, col);
 			}
 			break;
 	}
@@ -356,8 +351,8 @@ Table* Fit::parametersTable(const QString& tableName)
 	for (int i=0; i<d_p; i++)
 	{
 		t->setText(i, 0, d_param_names[i]);
-		t->setText(i, 1, QString::number(d_results[i], 'g', d_prec));
-		t->setText(i, 2, QString::number(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec));
+		t->setText(i, 1, QLocale().toString(d_results[i], 'g', d_prec));
+		t->setText(i, 2, QLocale().toString(sqrt(gsl_matrix_get(covar,i,i)), 'g', d_prec));
 	}
 
 	t->setColPlotDesignation(2, Table::yErr);
@@ -376,7 +371,7 @@ Matrix* Fit::covarianceMatrix(const QString& matrixName)
 	for (int i = 0; i < d_p; i++)
 	{
 		for (int j = 0; j < d_p; j++)
-			m->setText(i, j, QString::number(gsl_matrix_get(covar, i, j), 'g', d_prec));
+			m->setText(i, j, QLocale().toString(gsl_matrix_get(covar, i, j), 'g', d_prec));
 	}
 	m->showNormal();
 	return m;

@@ -81,6 +81,8 @@ public slots:
 	void resizeRows(int);
 	void resizeCols(int);
 
+	//! Return the value of the cell as a double
+	double cell(int row, int col);
 	QString text(int row, int col);
 	QStringList columnsList();
 	QStringList colNames(){return col_label;}

@@ -29,6 +29,7 @@
 #include "PolynomialFit.h"
 
 #include <QMessageBox>
+#include <QLocale>
 
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_fit.h>
@@ -175,7 +176,7 @@ void PolynomialFit::fit()
 
 QString PolynomialFit::legendInfo()
 {
-	QString legend = "Y=" + QString::number(d_results[0], 'g', d_prec);
+	QString legend = "Y=" + QLocale().toString(d_results[0], 'g', d_prec);
 	for (int j = 1; j < d_p; j++)
 	{
 		double cj = d_results[j];
@@ -185,7 +186,7 @@ QString PolynomialFit::legendInfo()
 		QString s;
 		s.sprintf("%.5f",cj);
 		if (s != "1.00000")
-			legend += QString::number(cj, 'g', d_prec);
+			legend += QLocale().toString(cj, 'g', d_prec);
 
 		legend += "X";
 		if (j>1)

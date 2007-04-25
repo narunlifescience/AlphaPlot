@@ -30,6 +30,8 @@
 #include "MultiLayer.h"
 #include "Plot.h"
 #include <QMessageBox>
+#include <QLocale>
+
 #include <gsl/gsl_fft_halfcomplex.h>
 
 Correlation::Correlation(ApplicationWindow *parent, Table *t, const QString& colName1, const QString& colName2)
@@ -82,8 +84,8 @@ void Correlation::setDataFromTable(Table *t, const QString& colName1, const QStr
 		memset( d_y, 0, d_n * sizeof( double ) );
 		for(int i=0; i<rows; i++)
 		{
-			d_x[i] = d_table->text(i, col1).toDouble();
-			d_y[i] = d_table->text(i, col2).toDouble();
+			d_x[i] = d_table->cell(i, col1);
+			d_y[i] = d_table->cell(i, col2);
 		}
 	}
 	else
@@ -144,7 +146,7 @@ void Correlation::addResultCurve()
 			y = d_x[i-n];
 
 		d_table->setText(i, cols, QString::number(i - n));
-		d_table->setText(i, cols2, QString::number(y));
+		d_table->setText(i, cols2, QLocale().toString(y));
 	}
 
 	QStringList l = d_table->colNames().grep(tr("Lag"));

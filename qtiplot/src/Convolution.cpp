@@ -31,6 +31,7 @@
 #include "Plot.h"
 
 #include <QMessageBox>
+#include <QLocale>
 #include <gsl/gsl_fft_halfcomplex.h>
 
 Convolution::Convolution(ApplicationWindow *parent, Table *t, const QString& signalColName, const QString& responseColName)
@@ -104,9 +105,9 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 	{
 		memset( d_x, 0, d_n_signal * sizeof( double ) );// zero-pad signal data array
 		for(int i=0; i<d_n; i++)
-			d_x[i] = d_table->text(i, signal_col).toDouble();
+			d_x[i] = d_table->cell(i, signal_col);
 		for(int i=0; i<d_n_response; i++)
-			d_y[i] = d_table->text(i, response_col).toDouble();
+			d_y[i] = d_table->cell(i, response_col);
 	}
 	else
 	{
@@ -133,7 +134,7 @@ void Convolution::addResultCurve()
 	for (int i = 0; i<d_n; i++)
 	{
 		d_table->setText(i, cols, QString::number(i+1));
-		d_table->setText(i, cols2, QString::number(d_x[i]));
+		d_table->setText(i, cols2, QLocale().toString(d_x[i]));
 	}
 
 	QStringList l = d_table->colNames().grep(tr("Index"));

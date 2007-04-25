@@ -1594,6 +1594,11 @@ int Table::nonEmptyRows()
 	return r;
 }
 
+double Table::cell(int row, int col)
+{
+	return stringToDouble(worksheet->text(row, col));
+}
+
 QString Table::text(int row, int col)
 {
 	if (col == savedCol)
@@ -1605,15 +1610,6 @@ QString Table::text(int row, int col)
 void Table::setText (int row, int col, const QString & text )
 {
 	worksheet->setText(row, col, text);
-	/*if (colTypes[col] == Numeric)
-    {
-        int prec;
-        char format;
-        columnNumericFormat(col, format, prec);
-        worksheet->setText(row, col, QLocale().toString(Table::stringToDouble(text), format, prec));
-    }
-    else
-        worksheet->setText(row, col, text);*/
 }
 
 void Table::saveColToMemory(int col)

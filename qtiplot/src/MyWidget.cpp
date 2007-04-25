@@ -210,8 +210,11 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 double MyWidget::stringToDouble(const QString& s)
 {
     bool ok = false;
-
-    double val = QLocale::c().toDouble(s, &ok);
+	double val = QLocale().toDouble(s, &ok);
+    if (ok)
+        return val;
+	
+    val = QLocale::c().toDouble(s, &ok);
     if (ok)
         return val;
 
@@ -220,10 +223,6 @@ double MyWidget::stringToDouble(const QString& s)
         return val;
 
     val = QLocale(QLocale::French).toDouble(s, &ok);
-    if (ok)
-        return val;
-
-    val = QLocale().toDouble(s, &ok);
     if (ok)
         return val;
 }
