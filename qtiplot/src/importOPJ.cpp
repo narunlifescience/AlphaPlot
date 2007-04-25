@@ -35,7 +35,7 @@
 #include "Matrix.h"
 #include "MultiLayer.h"
 #include "Note.h"
-#include "QwtBarCurve.h"
+#include "QwtHistogram.h"
 
 #define OBJECTXOFFSET 200
 
@@ -393,9 +393,9 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case OPJFile::Bar:
 					style=Graph::HorizontalBars;
 					break;
-				/*case OPJFile::Histogram: //do later
+				case OPJFile::Histogram: //do later
 					style=Graph::Histogram;
-					break;*/
+					break;
 				default:
 					continue;
 				}
@@ -519,7 +519,11 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					cl.fillCol=-1;
 				}
 
-				cl.filledArea=(opj.curveIsFilledArea(g,l,c)||style==Graph::VerticalBars||style==Graph::HorizontalBars)?1:0;
+				cl.lWidth = ceil(opj.curveLineWidth(g,l,c));
+				color=opj.curveLineColor(g,l,c);
+				cl.lCol=(color==0xF7?0:color); //0xF7 -Automatic color
+				int linestyle=opj.curveLineStyle(g,l,c);
+				cl.filledArea=(opj.curveIsFilledArea(g,l,c)||style==Graph::VerticalBars||style==Graph::HorizontalBars||style==Graph::Histogram)?1:0;
 				if(cl.filledArea)
 				{
 					switch(opj.curveFillPattern(g,l,c))
@@ -558,13 +562,19 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 						cl.aStyle=3;
 						break;
 					}
-					color=opj.curveFillAreaColor(g,l,c);
+					color=(cl.aStyle==0 ? opj.curveFillAreaColor(g,l,c) : opj.curveFillPatternColor(g,l,c));
 					cl.aCol=(color==0xF7?0:color); //0xF7 -Automatic color
+					if (style == Graph::VerticalBars || style == Graph::HorizontalBars || style == Graph::Histogram)
+					{
+						color=opj.curveFillPatternBorderColor(g,l,c);
+						cl.lCol = (color==0xF7?0:color); //0xF7 -Automatic color
+						color=(cl.aStyle==0 ? opj.curveFillAreaColor(g,l,c) : opj.curveFillPatternColor(g,l,c));
+						cl.aCol=(color==0xF7?cl.lCol:color); //0xF7 -Automatic color
+						cl.lWidth = ceil(opj.curveFillPatternBorderWidth(g,l,c));
+						linestyle=opj.curveFillPatternBorderStyle(g,l,c);
+					}
 				}
-				cl.lWidth = ceil(opj.curveLineWidth(g,l,c));
-				color=opj.curveLineColor(g,l,c);
-				cl.lCol=(color==0xF7?0:color); //0xF7 -Automatic color
-				switch (opj.curveLineStyle(g,l,c))
+				switch (linestyle)
 				{
 					case OPJFile::Solid:
 						cl.lStyle=0;
@@ -585,12 +595,24 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 						cl.lStyle=4;
 						break;
 				}
+				
 				graph->updateCurveLayout(c, &cl);
 				if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
 				{
 					QwtBarCurve *b = (QwtBarCurve*)graph->curve(c);
 					if (b)
 						b->setGap(qRound(100-opj.curveSymbolSize(g,l,c)*10));
+				}
+				else if(style == Graph::Histogram)
+				{
+					QwtHistogram *h = (QwtHistogram*)graph->curve(c);
+					if (h)
+					{
+						vector<double> bin=opj.layerHistogram(g,l);
+						if(bin.size()==3)
+							h->setBinning(false, bin[0], bin[1], bin[2]);
+						h->loadData();
+					}
 				}
 				switch(opj.curveLineConnect(g,l,c))
 				{

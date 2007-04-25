@@ -1753,6 +1753,22 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 				fread(&stmp,sec_size,1,f);
 				GRAPH.back().layer.back().legend=stmp;
 			}
+			else if(0==strcmp(sec_name,"__BCO2"))
+			{
+				double d;
+				fseek(f,LAYER+0x10,SEEK_SET);
+				fread(&d,8,1,f);
+				if(IsBigEndian()) SwapBytes(d);
+				GRAPH.back().layer.back().histogram_bin=d;
+				fseek(f,LAYER+0x20,SEEK_SET);
+				fread(&d,8,1,f);
+				if(IsBigEndian()) SwapBytes(d);
+				GRAPH.back().layer.back().histogram_end=d;
+				fseek(f,LAYER+0x28,SEEK_SET);
+				fread(&d,8,1,f);
+				if(IsBigEndian()) SwapBytes(d);
+				GRAPH.back().layer.back().histogram_begin=d;
+			}
 
 		//close section 00 00 00 00 0A
 			LAYER+=sec_size+(sec_size>0?0x1:0);
@@ -1849,10 +1865,23 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 			fread(&h,1,1,f);
 			GRAPH.back().layer.back().curve.back().fillarea_pattern_color=h;
 
-			fseek(f,LAYER+0xCE,SEEK_SET);
+			fseek(f,LAYER+0xC6,SEEK_SET);
 			fread(&w,2,1,f);
 			if(IsBigEndian()) SwapBytes(w);
 			GRAPH.back().layer.back().curve.back().fillarea_pattern_width=(double)w/500.0;
+
+			fseek(f,LAYER+0xCF,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern_border_style=h;
+
+			fseek(f,LAYER+0xD2,SEEK_SET);
+			fread(&h,1,1,f);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern_border_color=h;
+			
+			fseek(f,LAYER+0xD0,SEEK_SET);
+			fread(&w,2,1,f);
+			if(IsBigEndian()) SwapBytes(w);
+			GRAPH.back().layer.back().curve.back().fillarea_pattern_border_width=(double)w/500.0;
 
 			fseek(f,LAYER+0x16A,SEEK_SET);
 			fread(&h,1,1,f);

@@ -239,6 +239,9 @@ struct graphCurve {
 	int fillarea_color;
 	int fillarea_pattern_color;
 	int fillarea_pattern_width;
+	int fillarea_pattern_border_style;
+	int fillarea_pattern_border_color;
+	int fillarea_pattern_border_width;
 
 
 	int symbol_type;
@@ -269,6 +272,10 @@ struct graphLayer {
 	int yMajorTicks;
 	int yMinorTicks;
 	int yScale;
+
+	double histogram_bin;
+	double histogram_begin;
+	double histogram_end;
 
 	vector<graphCurve> curve;
 };
@@ -399,6 +406,13 @@ public:
 		tick.push_back(GRAPH[s].layer[l].yMinorTicks);
 		return tick;
 	} //!< get Y-axis ticks of layer l of graph s
+	vector<double> layerHistogram(int s, int l) {
+		vector<double> range;
+		range.push_back(GRAPH[s].layer[l].histogram_bin);
+		range.push_back(GRAPH[s].layer[l].histogram_begin);
+		range.push_back(GRAPH[s].layer[l].histogram_end);
+		return range;
+	} //!< get histogram bin of layer l of graph s
 	int layerXScale(int s, int l){ return GRAPH[s].layer[l].xScale; }		//!< get scale of X-axis of layer l of graph s
 	int layerYScale(int s, int l){ return GRAPH[s].layer[l].yScale; }		//!< get scale of Y-axis of layer l of graph s
 	int numCurves(int s, int l) { return GRAPH[s].layer[l].curve.size(); }			//!< get number of curves of layer l of graph s
@@ -416,6 +430,9 @@ public:
 	int curveFillPattern(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern; }	//!< get fill pattern of curve c of layer l of graph s
 	int curveFillPatternColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern_color; }	//!< get fill pattern color of curve c of layer l of graph s
 	double curveFillPatternWidth(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern_width; }	//!< get fill pattern line width of curve c of layer l of graph s
+	int curveFillPatternBorderStyle(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern_border_style; }	//!< get fill pattern border style of curve c of layer l of graph s
+	int curveFillPatternBorderColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern_border_color; }	//!< get fill pattern border color of curve c of layer l of graph s
+	double curveFillPatternBorderWidth(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].fillarea_pattern_border_width; }	//!< get fill pattern border line width of curve c of layer l of graph s
 
 	int curveSymbolType(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_type; }	//!< get symbol type of curve c of layer l of graph s
 	int curveSymbolColor(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].symbol_color; }	//!< get symbol color of curve c of layer l of graph s
