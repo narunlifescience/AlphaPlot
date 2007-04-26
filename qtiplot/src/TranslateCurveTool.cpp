@@ -37,6 +37,7 @@
 #include "DataPickerTool.h"
 #include "ScreenPickerTool.h"
 #include <QMessageBox>
+#include <QLocale>
 #include <qwt_plot_curve.h>
 
 TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir, const QObject *status_target, const char *status_slot)
@@ -130,14 +131,12 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	int prec; char f;
 	tab->columnNumericFormat(col, f, prec);
 	for (int i=0; i<c->dataSize(); i++)
-		if (!tab->text(i, col).isEmpty())
-			tab->setText(i + c->startRow(), col, QString::number(
-						(d_dir==Horizontal ? d_selected_curve->x(i) : d_selected_curve->y(i)) + d,
-						f, prec));
+		tab->setText(c->tableRow(i), col, QLocale().toString(
+					(d_dir==Horizontal ? d_selected_curve->x(i) : d_selected_curve->y(i)) + d,
+					f, prec));
 	d_app->updateCurves(tab, col_name);
-
+	d_app->modifiedProject();
 	d_graph->setActiveTool(NULL);
 	// attention: I'm now deleted. Maybe there is a cleaner solution...*/
     }
 }
-

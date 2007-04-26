@@ -38,6 +38,7 @@
 #include <QPoint>
 #include <QMessageBox>
 #include <QEvent>
+#include <QLocale>
 
 RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target, const char *status_slot)
 	: QwtPlotPicker(graph->plotWidget()->canvas()),
@@ -174,13 +175,13 @@ void RangeSelectorTool::emitStatusText()
 			.arg(d_active_marker.xValue() > d_inactive_marker.xValue()
 				? tr("Right") : tr("Left"))
 			.arg(d_selected_curve->title().text())
-			.arg(((DataCurve*)d_selected_curve)->startRow() + d_active_point + 1)
-			.arg(QString::number(d_selected_curve->x(d_active_point), 'G', 15))
-			.arg(QString::number(d_selected_curve->y(d_active_point), 'G', 15))
+			.arg(((DataCurve*)d_selected_curve)->tableRow(d_active_point) + 1)
+			.arg(QLocale().toString(d_selected_curve->x(d_active_point), 'G', 15))
+			.arg(QLocale().toString(d_selected_curve->y(d_active_point), 'G', 15))
 			.arg(tr("Delta_x","x difference = abs(x2-x1)"))
-			.arg(QString::number(fabs(d_selected_curve->x(d_active_point) - d_selected_curve->x(d_inactive_point))))
+			.arg(QLocale().toString(fabs(d_selected_curve->x(d_active_point) - d_selected_curve->x(d_inactive_point))))
 			.arg(tr("Delta_y","y difference = abs(y2-y1)"))
-			.arg(QString::number(fabs(d_selected_curve->y(d_active_point) - d_selected_curve->y(d_inactive_point))))
+			.arg(QLocale().toString(fabs(d_selected_curve->y(d_active_point) - d_selected_curve->y(d_inactive_point))))
 			);
 }
 

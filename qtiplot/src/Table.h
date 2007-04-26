@@ -212,8 +212,6 @@ public slots:
 	int colX(int col);
 	int colY(int col);
 
-	int atRow(int col, double value);
-
 	QStringList getCommands(){return commands;};
 	//! Set all column formulae.
 	void setCommands(const QStringList& com);

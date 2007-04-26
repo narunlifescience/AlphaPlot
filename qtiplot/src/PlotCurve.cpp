@@ -29,7 +29,7 @@
 #include "PlotCurve.h"
 #include "ScaleDraw.h"
 #include <QDateTime>
-
+#include <QMessageBox>
 DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
     PlotCurve(name),
 	d_table(t),
@@ -302,4 +302,20 @@ void DataCurve::setVisible(bool on)
 	QwtPlotCurve::setVisible(on);
 	foreach(DataCurve *c, d_error_bars)
 		c->setVisible(on);
+}
+
+int DataCurve::tableRow(int point)
+{
+	int xcol = d_table->colIndex(d_x_column);
+	int ycol = d_table->colIndex(title().text());
+
+	if (xcol < 0 || ycol < 0)
+		return -1;
+	
+	for (int i = d_start_row; i <= d_end_row; i++ )
+	{
+		if (d_table->cell(i, xcol) == x(point) && d_table->cell(i, ycol) == y(point))
+			return i;
+	}
+	return -1;
 }

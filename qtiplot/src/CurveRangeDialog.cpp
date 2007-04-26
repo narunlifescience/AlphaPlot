@@ -90,7 +90,7 @@ void CurveRangeDialog::accept()
 	int end = boxEnd->value() - 1;
 	d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
 	d_graph->updatePlot();
-
+	d_graph->notifyChanges();
 	close();
 }
 

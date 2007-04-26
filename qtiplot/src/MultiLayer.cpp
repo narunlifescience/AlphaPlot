@@ -861,7 +861,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(modifiedGraph()),this,SIGNAL(modifiedPlot()));
 	connect (g,SIGNAL(selectedGraph(Graph*)),this, SLOT(setActiveGraph(Graph*)));
 	connect (g,SIGNAL(viewTextDialog()),this,SIGNAL(showTextDialog()));
-	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SIGNAL(updateTable(const QString&,int,const QString&)));
 	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
 			this,SIGNAL(createIntensityTable(const QPixmap&)));
 }

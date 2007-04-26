@@ -626,7 +626,6 @@ class Graph: public QWidget
 		void scaleFonts(double factor);
 		//@}
 
-		void modified();
 		void notifyChanges();
 
 		void updateSecondaryAxis(int axis);
@@ -674,14 +673,12 @@ signals:
 		void showPlotDialog(int);
 		void showPieDialog();
 		void createTable(const QString&,int,int,const QString&);
-		void updateTable(const QString&,int,const QString&);
 
 		void viewImageDialog();
 		void viewTextDialog();
 		void viewLineDialog();
 		void viewTitleDialog();
 		void modifiedGraph();
-		void modifiedGraph(Graph *);
 		void hiddenPlot(QWidget*);
 
 		void showContextMenu();

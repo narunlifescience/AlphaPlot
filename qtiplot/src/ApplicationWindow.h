@@ -440,7 +440,6 @@ public slots:
 	void printWindow();
 	//@}
 
-	void updateTable(const QString& caption,int row,const QString& text);
 	//! Show about dialog
 	static void about();
 	//! Return a version string ("QtiPlot x.y.z")
@@ -485,7 +484,6 @@ public slots:
 	void copyMarker();
 	void pasteSelection();
 	void clearSelection();
-	void clearCellFromTable(const QString& name,double value);
 	void copyActiveLayer();
 
 	void newProject();

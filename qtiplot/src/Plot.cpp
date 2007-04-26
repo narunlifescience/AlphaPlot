@@ -643,7 +643,7 @@ void Plot::updateLayout()
             titleLabel()->show();
     }
     else
-        titleLabel()->hide();
+		titleLabel()->hide();
 
     for (int axisId = 0; axisId < axisCnt; axisId++ )
     {

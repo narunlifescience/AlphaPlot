@@ -238,7 +238,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (cp,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
 	connect (cp,SIGNAL(showPieDialog()),this,SIGNAL(showPieDialog()));
 	connect (cp,SIGNAL(showMarkerPopupMenu()),this,SIGNAL(showMarkerPopupMenu()));
-	connect (cp,SIGNAL(modified()), this, SLOT(modified()));
 	connect (cp,SIGNAL(modified()), this, SIGNAL(modifiedGraph()));
 	connect (cp,SIGNAL(calculateProfile(const QPoint&, const QPoint&)),
 			this,SLOT(calculateLineProfile(const QPoint&, const QPoint&)));
@@ -264,11 +263,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 void Graph::notifyChanges()
 {
 	emit modifiedGraph();
-}
-
-void Graph::modified()
-{
-	emit modifiedGraph(this);
 }
 
 void Graph::activateGraph()
@@ -1902,21 +1896,7 @@ void Graph::removeTitle()
 {
 	if (d_plot->titleLabel()->hasFocus())
 	{
-		QRect rect = d_plot->contentsRect();
-
-		QwtPlotLayout *layout = (QwtPlotLayout *)d_plot->plotLayout();
-		int y = 0;
-		if (d_plot->axisEnabled(QwtPlot::xTop))
-			y = layout->scaleRect(QwtPlot::xTop).y();
-		else
-			y = layout->canvasRect().y();
-
-		rect.setY(y);
-
-		d_plot->setTitle(QString::null);
-		d_plot->resize(rect.size());
-		setGeometry(rect);
-
+		d_plot->setTitle(" ");
 		emit modifiedGraph();
 	}
 }
@@ -5564,6 +5544,7 @@ void Graph::setCurveFullRange(int curveIndex)
 	{
 		c->setFullRange();
 		updatePlot();
+		emit modifiedGraph();
 	}
 }
 
@@ -5611,6 +5592,8 @@ void Graph::showCurve(int index, bool visible)
 	QwtPlotItem *it = plotItem(index);
 	if (it)
 		it->setVisible(visible);
+	
+	emit modifiedGraph();
 }
 
 int Graph::visibleCurves()

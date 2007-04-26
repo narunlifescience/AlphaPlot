@@ -41,6 +41,7 @@
 #include <qwt_plot_picker.h>
 #include <qwt_plot_curve.h>
 #include <QMessageBox>
+#include <QLocale>
 
 DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, const QObject *status_target, const char *status_slot) :
 	QwtPlotPicker(graph->plotWidget()->canvas()),
@@ -117,9 +118,9 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 
 	emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
-			.arg(((DataCurve*)d_selected_curve)->startRow() + d_selected_point + 1)
-			.arg(QString::number(d_selected_curve->x(d_selected_point), 'G', 15))
-			.arg(QString::number(d_selected_curve->y(d_selected_point), 'G', 15)) );
+			.arg(((DataCurve*)d_selected_curve)->tableRow(d_selected_point) + 1)
+			.arg(QLocale().toString(d_selected_curve->x(d_selected_point), 'G', 15))
+			.arg(QLocale().toString(d_selected_curve->y(d_selected_point), 'G', 15)) );
 
 	QwtDoublePoint selected_point_value(d_selected_curve->x(d_selected_point), d_selected_curve->y(d_selected_point));
 	d_selection_marker.setValue(selected_point_value);
@@ -272,15 +273,20 @@ void DataPickerTool::removePoint()
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
-
-	if (((PlotCurve *)d_selected_curve)->type() == Graph::ErrorBars)
+	
+	Table *t = ((DataCurve *)d_selected_curve)->table();
+	if (!t)
+		return;
+		
+	int col = t->colIndex(d_selected_curve->title().text());
+	if (t->columnType(col) == Table::Numeric)
+		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
+	else
 	{
-        double val = ((QwtErrorPlotCurve *) d_selected_curve)->errors()[d_selected_point];
-		d_app->clearCellFromTable(d_selected_curve->title().text(), val);
-    }
-    else
-        d_app->clearCellFromTable(d_selected_curve->title().text(), d_selected_curve->y(d_selected_point));
-
+		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
+					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
+	}
+	
 	d_selection_marker.detach();
 	d_graph->plotWidget()->replot();
 	d_graph->setFocus();
@@ -297,25 +303,37 @@ void DataPickerTool::movePoint(const QPoint &pos)
 				tr("Sorry, but moving points of a function is not possible."));
 		return;
 	}
-
+	Table *t = ((DataCurve *)d_selected_curve)->table();
+	if (!t)
+		return;
+	
 	double new_x_val = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
 	double new_y_val = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
 
     d_selection_marker.setValue(new_x_val, new_y_val);
 	if (d_selection_marker.plot() == NULL)
 		d_selection_marker.attach(d_graph->plotWidget());
-	d_graph->plotWidget()->replot();
+	
+	int row = ((DataCurve *)d_selected_curve)->tableRow(d_selected_point);	
+	int xcol = t->colIndex(((DataCurve *)d_selected_curve)->xColumnName());
+	int ycol = t->colIndex(d_selected_curve->title().text());
+	if (t->columnType(xcol) == Table::Numeric && t->columnType(ycol) == Table::Numeric)
+	{
+		t->setText(row, xcol, QLocale().toString(new_x_val));
+		t->setText(row, ycol, QLocale().toString(new_y_val));
+		d_app->updateCurves(t, d_selected_curve->title().text());
+		d_app->modifiedProject();
+	}
+	else
+		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
+				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 
-	// update source table which triggers an updateCurves()
-	QString text = QString::number(new_x_val)+"\t"+QString::number(new_y_val);
-    QString name = ((DataCurve *)d_selected_curve)->plotAssociation();
-    d_app->updateTable(name, ((DataCurve *)d_selected_curve)->startRow() + d_selected_point, text);
 
 	emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
-			.arg(d_selected_point + 1)
-			.arg(QString::number(new_x_val, 'G', 15))
-			.arg(QString::number(new_y_val, 'G', 15)) );
+			.arg(row + 1)
+			.arg(QLocale().toString(new_x_val, 'G', 15))
+			.arg(QLocale().toString(new_y_val, 'G', 15)) );
 }
 
 void DataPickerTool::move(const QPoint &point)

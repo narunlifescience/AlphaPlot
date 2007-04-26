@@ -284,7 +284,8 @@ void Table::print(const QString& fileName)
 
 void Table::cellEdited(int row, int col)
 {
-	if (columnType(col) != Numeric)
+	QString text = worksheet->text(row,col).remove(QRegExp("\\s"));
+	if (columnType(col) != Numeric || text.isEmpty())
 	{
 		emit modifiedData(this, colName(col));
 		emit modifiedWindow(this);
@@ -294,12 +295,10 @@ void Table::cellEdited(int row, int col)
 	char f;
 	int precision;
   	columnNumericFormat(col, f, precision);
-
-  	QString text = worksheet->text(row,col);
   	bool ok = true;
   	QLocale locale;
   	double res = locale.toDouble(text, &ok);
-  	if (!text.isEmpty() && ok)
+  	if (ok)
   		worksheet->setText(row, col, locale.toString(res, f, precision));
   	else
   	{
@@ -948,10 +947,10 @@ void Table::addColumns(int c)
 
 void Table::clearCol()
 {
-	int rows=worksheet->numRows();
-	for (int i=0;i<rows;i++)
+	for (int i=0; i<worksheet->numRows(); i++)
 	{
-		worksheet->setText(i,selectedCol, "");
+		if (worksheet->isSelected (i, selectedCol))
+			worksheet->setText(i, selectedCol, "");
 	}
 	QString name=colName(selectedCol);
 	emit modifiedData(this, name);
@@ -965,22 +964,6 @@ void Table::clearCell(int row, int col)
 	QString name=colName(col);
 	emit modifiedData(this, name);
 	emit modifiedWindow(this);
-}
-
-int Table::atRow(int col, double value)
-{
-	if (colTypes[col] == Numeric)
-	{
-		int row = -1;
-		for (int i=0; i<worksheet->numRows(); i++)
-		{
-			if (worksheet->text(i,col).toDouble() == value)
-				return i;
-		}
-		return row;
-	}
-	else
-		return  -1;
 }
 
 void Table::deleteSelectedRows()
@@ -1019,11 +1002,10 @@ void Table::clearSelection()
 
 	if (n>0)
 	{
-		for (int i=0;i<n;i++)
+		for (int i=0; i<n; i++)
 		{
-			QString name=list[i];
-			int id=colIndex(name);
-			selectedCol=id;
+			QString name = list[i];
+			selectedCol = colIndex(name);
 			clearCol();
 		}
 	}
@@ -1884,7 +1866,8 @@ void Table::setRandomValues()
 		for (int i=0; i<rows; i++)
 		{
 			r[i]/=max;
-			worksheet->setText(i, selectedCol, QLocale().toString(r[i], f, prec));
+			if (worksheet->isSelected (i, selectedCol))
+				worksheet->setText(i, selectedCol, QLocale().toString(r[i], f, prec));
 		}
 
 		emit modifiedData(this, name);
@@ -2026,8 +2009,9 @@ void Table::setAscValues()
 		char f;
 		columnNumericFormat(selectedCol, f, prec);
 
-		for (int i=0;i<rows;i++)
-			worksheet->setText(i,selectedCol,QString::number(i+1, f, prec));
+		for (int i=0; i<rows; i++)
+			if (worksheet->isSelected (i, selectedCol))
+				worksheet->setText(i, selectedCol, QString::number(i+1, f, prec));
 
 		emit modifiedData(this, name);
 	}

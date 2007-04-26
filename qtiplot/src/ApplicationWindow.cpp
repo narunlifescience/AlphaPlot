@@ -1461,50 +1461,6 @@ void ApplicationWindow::plotVectXYAM()
 	((Table*)ws->activeWindow())->plotVectXYAM();
 }
 
-void ApplicationWindow::updateTable(const QString& caption,int row,const QString& text)
-{
-	Table* w = table(caption);
-	if (!w)
-		return;
-
-	QStringList cvs=caption.split(",", QString::SkipEmptyParts);
-	int pos=cvs[0].findRev("(");
-	QString colName=cvs[0].left(pos);
-	int xcol=w->colIndex(colName);
-	pos=cvs[1].findRev("(");
-	colName=cvs[1].left(pos);
-	int ycol=w->colIndex(colName);
-
-	if (w->columnType(xcol) == Table::Numeric && w->columnType(ycol) == Table::Numeric)
-	{
-		QStringList values=text.split("\t", QString::SkipEmptyParts);
-		w->setText(row,xcol,values[0]);
-		w->setText(row,ycol,values[1]);
-		updateCurves(w, colName);
-		emit modified();
-	}
-	else
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
-				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
-}
-
-void ApplicationWindow::clearCellFromTable(const QString& name, double value)
-{
-	Table* w = table(name);
-	if (w)
-	{
-		int col = w->colIndex(name);
-		if (w->columnType(col) == Table::Numeric)
-		{
-			int row = w->atRow(col, value);
-			w->clearCell(row, col);
-		}
-		else
-			QMessageBox::warning(this, tr("QtiPlot - Warning"),
-					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
-	}
-}
-
 void ApplicationWindow::renameListViewItem(const QString& oldName,const QString& newName)
 {
 	Q3ListViewItem *it=lv->findItem (oldName,0, Q3ListView::ExactMatch | Qt::CaseSensitive );
@@ -10877,8 +10833,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));
 	connect (g,SIGNAL(showLineDialog()),this,SLOT(showLineDialog()));
-	connect (g,SIGNAL(updateTable(const QString&,int,const QString&)),this,SLOT(updateTable(const QString&,int,const QString&)));
-
 	connect (g,SIGNAL(showGeometryDialog()),this,SLOT(showPlotGeometryDialog()));
 	connect (g,SIGNAL(pasteMarker()),this,SLOT(pasteSelection()));
 	connect (g,SIGNAL(showGraphContextMenu()),this,SLOT(showGraphContextMenu()));
