@@ -126,7 +126,7 @@ double muParserScript::col(const QString &arg)
 	if (table->text(row,col).isEmpty())
 		throw new EmptySourceError();
 	else
-		return Table::stringToDouble(table->text(row,col));
+		return table->cell(row,col);
 }
 
 double muParserScript::cell(int row, int col)
@@ -329,4 +329,3 @@ bool muParserScript::exec()
 	}
 	return true;
 }
-

@@ -86,7 +86,13 @@ Plot::Plot(QWidget *parent, const char *)
 			setAxisScaleDraw (i, sd);
 		}
 	}
-
+	
+	/*QwtTextLabel *title = titleLabel();
+	title->setMargin(5);
+	QwtText t = title->text();
+	t.setBackgroundPen(QPen(QColor(Qt::red), 2));
+	title->setText(t);*/
+	
 	QwtPlotLayout *pLayout = plotLayout();
 	pLayout->setCanvasMargin(0);
 	pLayout->setAlignCanvasToScales (true);

@@ -173,17 +173,15 @@ void ApplicationWindow::init()
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
 	explorerWindow->setMinimumHeight(150);
 	addDockWidget( Qt::BottomDockWidgetArea, explorerWindow );
-
-	explorerSplitter = new QSplitter( Qt::Horizontal, explorerWindow );
-
-	folders = new FolderListView( explorerSplitter );
+	
+	folders = new FolderListView();
 	folders->header()->setClickEnabled( false );
 	folders->addColumn( tr("Folder") );
 	folders->setRootIsDecorated( true );
 	folders->setResizeMode(Q3ListView::LastColumn);
 	folders->header()->hide();
 	folders->setSelectionMode(Q3ListView::Single);
-
+		
 	connect(folders, SIGNAL(currentChanged(Q3ListViewItem *)),
 			this, SLOT(folderItemChanged(Q3ListViewItem *)));
 	connect(folders, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
@@ -204,7 +202,7 @@ void ApplicationWindow::init()
 	current_folder->setFolderListItem(fli);
 	fli->setOpen( true );
 
-	lv = new FolderListView( explorerSplitter );
+	lv = new FolderListView();
 	lv->addColumn (tr("Name"),-1 );
 	lv->addColumn (tr("Type"),-1 );
 	lv->addColumn (tr("View"),-1 );
@@ -214,7 +212,10 @@ void ApplicationWindow::init()
 	lv->setResizeMode(Q3ListView::LastColumn);
 	lv->setMinimumHeight(80);
 	lv->setSelectionMode(Q3ListView::Extended);
-
+	
+	explorerSplitter = new QSplitter(Qt::Horizontal, explorerWindow);
+	explorerSplitter->addWidget(folders);
+	explorerSplitter->addWidget(lv);
 	explorerWindow->setWidget(explorerSplitter);
 	explorerWindow->hide();
 
@@ -6702,7 +6703,7 @@ void ApplicationWindow::showExpDecayDialog(int type)
 
 	ExpDecayDialog *edd = new ExpDecayDialog(type, this, "ExpDecayDialog", false);
 	edd->setAttribute(Qt::WA_DeleteOnClose);
-	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), edd, SLOT(close()));
+	connect (g, SIGNAL(destroyed()), edd, SLOT(close()));
 
 	edd->setGraph(g);
 	edd->show();
@@ -6744,12 +6745,12 @@ void ApplicationWindow::showFitDialog()
 	connect (fd, SIGNAL(clearFunctionsList()), this, SLOT(clearFitFunctionsList()));
 	connect (fd, SIGNAL(saveFunctionsList(const QStringList&)),
 			this, SLOT(saveFitFunctionsList(const QStringList&)));
-	connect (plot, SIGNAL(closedWindow(MyWidget*)), fd, SLOT(close()));
+	connect (plot, SIGNAL(destroyed()), fd, SLOT(close()));
 
 	fd->insertFunctionsList(fitFunctions);
 	fd->setGraph(g);
 	fd->setSrcTables(tableList());
-	fd->exec();
+	fd->show();
 }
 
 void ApplicationWindow::showFilterDialog(int filter)
@@ -6856,7 +6857,7 @@ void ApplicationWindow::showInterpolationDialog()
 
 	InterpolationDialog *id = new InterpolationDialog(this, "InterpolationDialog", false);
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect ((MyWidget *)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
+	connect (g, SIGNAL(destroyed()), id, SLOT(close()));
 	id->setGraph(g);
 	id->show();
 }
@@ -6874,7 +6875,7 @@ void ApplicationWindow::showFitPolynomDialog()
 
 	PolynomFitDialog *pfd = new PolynomFitDialog(this);
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
-	connect((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), pfd, SLOT(close()));
+	connect(g, SIGNAL(destroyed()), pfd, SLOT(close()));
 	pfd->setGraph(g);
 	pfd->show();
 }
@@ -6905,7 +6906,7 @@ void ApplicationWindow::showIntegrationDialog()
 
 	IntDialog *id = new IntDialog(this, "IntDialog");
 	id->setAttribute(Qt::WA_DeleteOnClose);
-	connect ((MyWidget*)ws->activeWindow(), SIGNAL(closedWindow(MyWidget*)), id, SLOT(close()));
+	connect (g, SIGNAL(destroyed()), id, SLOT(close()));
 	id->setGraph(g);
 	id->show();
 }

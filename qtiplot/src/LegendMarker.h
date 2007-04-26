@@ -80,7 +80,7 @@ public:
 	QColor textColor(){return d_text->color();};
 	void setTextColor(const QColor& c);
 
-	QColor backgroundColor(){return bkgColor;};
+	QColor backgroundColor(){return d_text->backgroundBrush().color();};
 	void setBackgroundColor(const QColor& c);
 
 	int frameStyle(){return d_frame;};
@@ -118,9 +118,6 @@ protected:
 
 	//! Pointer to the QwtText object
 	QwtText* d_text;
-
-	//! Background color
-	QColor bkgColor;
 
 	//! TopLeft position in pixels
 	QPoint d_pos;

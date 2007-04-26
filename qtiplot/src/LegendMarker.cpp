@@ -44,8 +44,7 @@
 LegendMarker::LegendMarker(Plot *plot):
 	d_plot(plot),
 	d_frame (0),
-	d_angle(0),
-	bkgColor(plot->paletteBackgroundColor())
+	d_angle(0)
 {
 	d_text = new QwtText(QString::null, QwtText::RichText);
 	d_text->setFont(QFont("Arial",12, QFont::Normal, FALSE));
@@ -53,7 +52,8 @@ LegendMarker::LegendMarker(Plot *plot):
 	d_text->setBackgroundBrush(QBrush(Qt::NoBrush));
 	d_text->setColor(Qt::black);
 	d_text->setBackgroundPen (QPen(Qt::NoPen));
-
+	d_text->setPaintAttribute(QwtText::PaintBackground);
+	
 	hspace = 30;
 	left_margin = 10;
 	top_margin = 5;
@@ -90,11 +90,11 @@ void LegendMarker::setFrameStyle(int style)
 }
 
 void LegendMarker::setBackgroundColor(const QColor& c)
-{
-	if ( c == bkgColor )
+{	
+	if (d_text->backgroundBrush().color() == c)
 		return;
-
-	bkgColor = c;
+	
+	d_text->setBackgroundBrush(QBrush(c));
 }
 
 QRect LegendMarker::rect() const
@@ -193,11 +193,11 @@ void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 	p->save();
 	p->setPen(QPen(Qt::black,1,Qt::SolidLine));
 	if (type == None)
-		p->fillRect (rect, QBrush(bkgColor));
+		p->fillRect (rect, d_text->backgroundBrush());
 
 	if (type == Line)
 	{
-		p->setBrush(QBrush(bkgColor));
+		p->setBrush(d_text->backgroundBrush());
 		QwtPainter::drawRect(p, rect);
 	}
 	else if (type == Shadow)
@@ -208,7 +208,7 @@ void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 		p->drawRect(shadow_right);
 		p->drawRect(shadow_bottom);
 
-		p->setBrush(QBrush(bkgColor));
+		p->setBrush(d_text->backgroundBrush());
 		QwtPainter::drawRect(p,rect);
 	}
 	p->restore();
