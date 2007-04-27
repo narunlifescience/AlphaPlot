@@ -115,7 +115,7 @@ public slots:
 	double determinant();
 
 	//! Calculate matrix values using the #formula_str
-	bool calculate(int startRow, int endRow, int startCol, int endCol);
+	bool calculate(int startRow = 0, int endRow = -1, int startCol = 0, int endCol = -1);
 
 	//! Return the content of the cell as a string
 	QString text(int row, int col);

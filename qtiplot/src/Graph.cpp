@@ -4266,29 +4266,31 @@ void Graph::resizeEvent ( QResizeEvent *e )
 
 void Graph::scaleFonts(double factor)
 {
-	QFont font;
-	int i;
-	for (i=0;i<(int)d_texts.size();i++)
+	for (int i=0;i<(int)d_texts.size();i++)
 	{
 		LegendMarker* mrk = (LegendMarker*) d_plot->marker(d_texts[i]);
-		font = mrk->font();
+		QFont font = mrk->font();
 		font.setPointSizeFloat(factor*font.pointSizeFloat());
 		mrk->setFont(font);
 	}
-	for (i = 0; i<QwtPlot::axisCnt; i++)
+	for (int i = 0; i<QwtPlot::axisCnt; i++)
 	{
-		font = axisFont(i);
+		QFont font = axisFont(i);
 		font.setPointSizeFloat(factor*font.pointSizeFloat());
-		d_plot->setAxisFont (i, font);
+		d_plot->setAxisFont(i, font);
 
-		font = axisTitleFont(i);
+		QwtText title = d_plot->axisTitle(i);
+		font = title.font();
 		font.setPointSizeFloat(factor*font.pointSizeFloat());
-		d_plot->axisTitle(i).setFont (font);
+		title.setFont(font);
+		d_plot->setAxisTitle(i, title);
 	}
 
-	font = d_plot->title().font();
+	QwtText title = d_plot->title();
+	QFont font = title.font();
 	font.setPointSizeFloat(factor*font.pointSizeFloat());
-	d_plot->title().setFont(font);
+	title.setFont(font);
+	d_plot->setTitle(title);
 
 	d_plot->replot();
 }

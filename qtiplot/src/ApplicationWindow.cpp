@@ -780,8 +780,9 @@ void ApplicationWindow::initMainMenu()
 
 	matrixMenu->addAction(actionSetMatrixProperties);
 	matrixMenu->addAction(actionSetMatrixDimensions);
+	matrixMenu->insertSeparator();
 	matrixMenu->addAction(actionSetMatrixValues);
-
+	matrixMenu->addAction(actionTableRecalculate);
 	matrixMenu->insertSeparator();
 
 	matrixMenu->addAction(actionTransposeMatrix);
@@ -1132,6 +1133,7 @@ void ApplicationWindow::customMenu(QWidget* w)
 		}
 		else if (w->isA("Matrix"))
 		{
+			actionTableRecalculate->setEnabled(true);
 			menuBar()->insertItem(tr("3D &Plot"), plot3DMenu);
 			menuBar()->insertItem(tr("&Matrix"), matrixMenu);
 		}
@@ -5416,9 +5418,14 @@ void ApplicationWindow::showColumnValuesDialog()
 
 void ApplicationWindow::recalculateTable()
 {
-	Table* w = (Table*)ws->activeWindow();
-	if ( w && w->isA("Table"))
-		w->calculate();
+	QWidget* w = ws->activeWindow();
+	if (!w)
+		return;
+	
+	if (w->isA("Table"))
+		((Table*)w)->calculate();
+	else if (w->isA("Matrix"))
+		((Matrix*)w)->calculate();
 }
 
 void ApplicationWindow::sortActiveTable()

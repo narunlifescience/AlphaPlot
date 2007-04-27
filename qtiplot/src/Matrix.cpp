@@ -561,9 +561,14 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 		QApplication::restoreOverrideCursor();
 		return false;
 	}
-
+	
 	int rows = numRows();
 	int cols = numCols();
+	
+	if (endRow < 0)
+		endRow = rows - 1;
+	if (endCol < 0)
+		endCol = cols - 1;
 	if (endCol >= cols)
 		d_table->setColumnCount(endCol+1);
 	if (endRow >= rows)

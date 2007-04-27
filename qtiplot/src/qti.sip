@@ -966,7 +966,7 @@ class FFT : Filter
 %End
 public:
   
-  //FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = "");
+  //FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = QString());
   FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   //FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
 //%MethodCode
