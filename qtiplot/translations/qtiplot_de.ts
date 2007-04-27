@@ -10,6 +10,14 @@
         <source>Shift</source>
         <translation>Umschalt</translation>
     </message>
+    <message>
+        <source>Del</source>
+        <translation>Entf</translation>
+    </message>
+    <message>
+        <source>Return</source>
+        <translation>Eingabe</translation>
+    </message>
 </context>
 <context>
     <name>@default</name>
@@ -4719,7 +4727,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
         <location filename="../src/ApplicationWindow.cpp" line="11633"/>
         <source>Del</source>
         <comment>delete key</comment>
-        <translation>Entf</translation>
+        <translation>Del</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11688"/>
@@ -14257,7 +14265,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ScriptEdit.cpp" line="65"/>
         <source>Ctrl+Return</source>
-        <translation>Ctrl+Eingabe</translation>
+        <translation>Ctrl+Return</translation>
     </message>
     <message>
         <location filename="../src/ScriptEdit.cpp" line="68"/>
@@ -14345,7 +14353,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="" line="135763132"/>
         <source>Del</source>
-        <translation type="obsolete">Entf</translation>
+        <translation type="obsolete">Del</translation>
     </message>
     <message>
         <location filename="../src/ScriptWindow.cpp" line="199"/>
