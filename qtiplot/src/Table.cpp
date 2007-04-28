@@ -714,7 +714,7 @@ QStringList Table::selectedColumns()
 	QStringList names;
 	for (int i=0; i<worksheet->numCols(); i++)
 	{
-		if(worksheet->isColumnSelected (i))
+		if(worksheet->isColumnSelected (i, true))
 			names << QString(name()) + "_" + col_label[i];
 	}
 	return names;
