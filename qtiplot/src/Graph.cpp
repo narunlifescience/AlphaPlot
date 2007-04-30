@@ -159,12 +159,10 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	d_active_tool = NULL;
 	widthLine=1;mrkX=-1;mrkY=-1;;
 	selectedMarker=-1;
-	pieRay=100;
 	lineProfileOn=false;
 	drawTextOn=false;
 	drawLineOn=false;
 	drawArrowOn=false;
-	piePlot = false;
 	ignoreResize = true;
 	drawAxesBackbone = true;
 	autoscale = true;
@@ -236,7 +234,6 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	connect (cp,SIGNAL(viewTextDialog()),this,SIGNAL(viewTextDialog()));
 	connect (cp,SIGNAL(viewLineDialog()),this,SIGNAL(viewLineDialog()));
 	connect (cp,SIGNAL(showPlotDialog(int)),this,SIGNAL(showPlotDialog(int)));
-	connect (cp,SIGNAL(showPieDialog()),this,SIGNAL(showPieDialog()));
 	connect (cp,SIGNAL(showMarkerPopupMenu()),this,SIGNAL(showMarkerPopupMenu()));
 	connect (cp,SIGNAL(modified()), this, SIGNAL(modifiedGraph()));
 	connect (cp,SIGNAL(calculateProfile(const QPoint&, const QPoint&)),
@@ -2435,7 +2432,7 @@ QString Graph::savePieCurveLayout()
 		index=13;
 
 	s+=QString::number(index)+"\t";
-	s+=QString::number(pieRay)+"\t";
+	s+=QString::number(pieCurve->ray())+"\t";
 	s+=QString::number(pieCurve->firstColor())+"\t";
 	s+=QString::number(pieCurve->startRow())+"\t"+QString::number(pieCurve->endRow())+"\t";
 	s+=QString::number(pieCurve->isVisible())+"\n";
@@ -2531,7 +2528,7 @@ QString Graph::saveCurveLayout(int index)
 QString Graph::saveCurves()
 {
 	QString s;
-	if (piePlot)
+	if (c_type[0] == Pie)
 		s+=savePieCurveLayout();
 	else
 	{
@@ -2607,7 +2604,7 @@ void Graph::newLegend()
 	LegendMarker* mrk = new LegendMarker(d_plot);
 	mrk->setOrigin(QPoint(10, 10));
 
-	if (piePlot)
+	if (c_type[0] == Pie)
 		mrk->setText(pieLegendText());
 	else
 		mrk->setText(legendText());
@@ -2911,6 +2908,11 @@ QwtPlotItem* Graph::plotItem(int index)
     return d_plot->plotItem(c_keys[index]);
 }
 
+int Graph::plotItemIndex(QwtPlotItem *it) const
+{
+	return d_plot->curveKeys().findIndex(d_plot->curves().key(it));
+}
+
 QwtPlotCurve *Graph::curve(int index)
 {
 	if (!n_curves || index >= n_curves || index < 0)
@@ -3057,10 +3059,9 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	c->setBrush(brush);
 }
 
-void Graph::updateErrorBars(int curve, bool xErr, int width, int cap, const QColor& c,
+void Graph::updateErrorBars(QwtErrorPlotCurve *er, bool xErr, int width, int cap, const QColor& c,
 		bool plus, bool minus, bool through)
 {
-	QwtErrorPlotCurve *er=(QwtErrorPlotCurve *)this->curve(curve);
 	if (!er)
 		return;
 
@@ -3080,6 +3081,9 @@ void Graph::updateErrorBars(int curve, bool xErr, int width, int cap, const QCol
 	er->drawThroughSymbol(through);
 	er->drawPlusSide(plus);
 	er->drawMinusSide(minus);
+
+	d_plot->replot();
+	emit modifiedGraph();
 }
 
 bool Graph::addErrorBars(const QString& yColName, Table *errTable, const QString& errColName,
@@ -3125,25 +3129,6 @@ bool Graph::addErrorBars(const QString& xColName, const QString& yColName,
 	return true;
 }
 
-void Graph::updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int size, int firstColor)
-{
-	if (curves()>0)
-	{
-		QwtPieCurve *pieCurve=(QwtPieCurve*)curve(0);
-		if (pieCurve)
-		{
-			pieCurve->setPen(pen);
-			pieCurve->setRay(size);
-			pieCurve->setBrushStyle(brushStyle);
-			pieCurve->setFirstColor(firstColor);
-			d_plot->replot();
-
-			pieRay=size;
-			emit modifiedGraph();
-		}
-	}
-}
-
 void Graph::plotPie(QwtPieCurve* curve)
 {
 	int n = curve->dataSize();
@@ -3154,8 +3139,7 @@ void Graph::plotPie(QwtPieCurve* curve)
 	QwtPieCurve *pieCurve = new QwtPieCurve(curve->table(), curve->title().text(), curve->startRow(), curve->endRow());
 	pieCurve->setData(dat, dat, n);
     pieCurve->setPen(curve->pen());
-	pieRay = curve->ray();
-	pieCurve->setRay(pieRay);
+	pieCurve->setRay(curve->ray());
 	pieCurve->setBrushStyle(curve->pattern());
 	pieCurve->setFirstColor(curve->firstColor());
 
@@ -3166,7 +3150,6 @@ void Graph::plotPie(QwtPieCurve* curve)
 	c_type[n_curves-1] = Pie;
 
 	delete[] dat;
-	piePlot=true;
 }
 
 
@@ -3183,8 +3166,6 @@ void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 	pieCurve->setFirstColor(firstColor);
 	pieCurve->setBrushStyle(getBrushStyle(brush));
 	pieCurve->setVisible(visible);
-	piePlot = true;
-	pieRay = size;
 
 	c_keys.resize(++n_curves);
 	c_keys[n_curves-1] = d_plot->insertCurve(pieCurve);
@@ -3257,7 +3238,6 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		angle -= value;
 	}
 
-	piePlot=true;
 	if (legendMarkerID>=0)
 	{
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
@@ -3670,7 +3650,6 @@ void Graph::removePie()
 	c_keys.resize(0);
 	c_type.resize(0);
 	n_curves=0;
-	piePlot=false;
 	emit modifiedGraph();
 }
 
@@ -3744,21 +3723,13 @@ void Graph::removeCurve(int index)
 	d_plot->removeCurve(c_keys[index]);
 	n_curves--;
 
-	if (piePlot)
-	{
-		piePlot = false;
-		c_keys.resize(n_curves);
-	}
-	else
-	{
-		for (int i=index; i<n_curves; i++)
-		{
-			c_type[i] = c_type[i+1];
-			c_keys[i] = c_keys[i+1];
-		}
-		c_type.resize(n_curves);
-		c_keys.resize(n_curves);
-	}
+	for (int i=index; i<n_curves; i++)
+    {
+        c_type[i] = c_type[i+1];
+        c_keys[i] = c_keys[i+1];
+    }
+    c_type.resize(n_curves);
+    c_keys.resize(n_curves);
 	emit modifiedGraph();
 }
 
@@ -3771,7 +3742,7 @@ void Graph::removeLegendItem(int index)
 	if (!mrk)
 		return;
 
-	if (piePlot)
+	if (c_type[0] == Pie)
 	{
 		mrk->setText(QString::null);
 		return;
@@ -5594,7 +5565,7 @@ void Graph::showCurve(int index, bool visible)
 	QwtPlotItem *it = plotItem(index);
 	if (it)
 		it->setVisible(visible);
-	
+
 	emit modifiedGraph();
 }
 

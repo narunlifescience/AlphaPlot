@@ -47,7 +47,6 @@
 #include "ImportDialog.h"
 #include "Graph.h"
 #include "Plot.h"
-#include "PieDialog.h"
 #include "PlotWizard.h"
 #include "PolynomFitDialog.h"
 #include "ExpDecayDialog.h"
@@ -173,7 +172,7 @@ void ApplicationWindow::init()
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
 	explorerWindow->setMinimumHeight(150);
 	addDockWidget( Qt::BottomDockWidgetArea, explorerWindow );
-	
+
 	folders = new FolderListView();
 	folders->header()->setClickEnabled( false );
 	folders->addColumn( tr("Folder") );
@@ -181,7 +180,7 @@ void ApplicationWindow::init()
 	folders->setResizeMode(Q3ListView::LastColumn);
 	folders->header()->hide();
 	folders->setSelectionMode(Q3ListView::Single);
-		
+
 	connect(folders, SIGNAL(currentChanged(Q3ListViewItem *)),
 			this, SLOT(folderItemChanged(Q3ListViewItem *)));
 	connect(folders, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
@@ -212,7 +211,7 @@ void ApplicationWindow::init()
 	lv->setResizeMode(Q3ListView::LastColumn);
 	lv->setMinimumHeight(80);
 	lv->setSelectionMode(Q3ListView::Extended);
-	
+
 	explorerSplitter = new QSplitter(Qt::Horizontal, explorerWindow);
 	explorerSplitter->addWidget(folders);
 	explorerSplitter->addWidget(lv);
@@ -1084,18 +1083,12 @@ void ApplicationWindow::customMenu(QWidget* w)
 
 			format->clear();
 			format->addAction(actionShowPlotDialog);
-			format->addAction(actionShowCurveFormatDialog);
-
-			Graph *g = ((MultiLayer*)w)->activeGraph();
-			if (g && !g->isPiePlot())
-			{
-				format->insertSeparator();
-				format->addAction(actionShowScaleDialog);
-				format->addAction(actionShowAxisDialog);
-				actionShowAxisDialog->setEnabled(true);
-				format->insertSeparator();
-				format->addAction(actionShowGridDialog);
-			}
+			format->insertSeparator();
+            format->addAction(actionShowScaleDialog);
+            format->addAction(actionShowAxisDialog);
+            actionShowAxisDialog->setEnabled(true);
+            format->insertSeparator();
+            format->addAction(actionShowGridDialog);
 			format->addAction(actionShowTitleDialog);
 		}
 		else if (w->isA("Graph3D"))
@@ -5421,7 +5414,7 @@ void ApplicationWindow::recalculateTable()
 	QWidget* w = ws->activeWindow();
 	if (!w)
 		return;
-	
+
 	if (w->isA("Table"))
 		((Table*)w)->calculate();
 	else if (w->isA("Matrix"))
@@ -5903,17 +5896,13 @@ void ApplicationWindow::showGeneralPlotDialog()
 	if (!plot)
 		return;
 
-	QDialog* gd = showScaleDialog();
-	if (gd && plot->isA("MultiLayer") && ((MultiLayer*)plot)->layers())
+	if (plot->isA("MultiLayer") && ((MultiLayer*)plot)->layers())
+		showPlotDialog();
+	else if (plot->isA("Graph3D"))
 	{
-		Graph* g = ((MultiLayer*)plot)->activeGraph();
-		if (!g->isPiePlot())
-			((AxesDialog*)gd)->showGeneralPage();
-		else
-			((PieDialog*)gd)->showGeneralPage();
-	}
-	else if (gd && plot->isA("Graph3D"))
+	    QDialog* gd = showScaleDialog();
 		((Plot3DDialog*)gd)->showGeneralTab();
+	}
 }
 
 void ApplicationWindow::showAxisDialog()
@@ -5948,34 +5937,29 @@ QDialog* ApplicationWindow::showScaleDialog()
 			return 0;
 
 		Graph* g = ((MultiLayer*)w)->activeGraph();
-		if (!g->isPiePlot())
-		{
-			AxesDialog* ad = new AxesDialog(this);
-			connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
-			connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
-			connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&,int, int, int, int, const QString&, const QColor&)),
+		AxesDialog* ad = new AxesDialog(this);
+        connect (ad,SIGNAL(updateAxisTitle(int,const QString&)),g,SLOT(setAxisTitle(int,const QString&)));
+        connect (ad,SIGNAL(changeAxisFont(int, const QFont &)),g,SLOT(setAxisFont(int,const QFont &)));
+        connect (ad,SIGNAL(showAxis(int, int, const QString&, bool,int, int, bool,const QColor&,int, int, int, int, const QString&, const QColor&)),
 					this, SLOT(showAxis(int,int, const QString&, bool, int, int, bool,const QColor&, int, int, int, int, const QString&, const QColor&)));
 
-			ad->setMultiLayerPlot((MultiLayer*)w);
-			ad->insertColList(columnsList(Table::All));
-			ad->insertTablesList(tableWindows);
-			ad->setAxesLabelsFormatInfo(g->axesLabelsFormatInfo());
-			ad->setEnabledAxes(g->enabledAxes());
-			ad->setAxesType(g->axesType());
-			ad->setAxesBaseline(g->axesBaseline());
+        ad->setGraph(g);
+        ad->insertColList(columnsList(Table::All));
+        ad->insertTablesList(tableWindows);
+        ad->setAxesLabelsFormatInfo(g->axesLabelsFormatInfo());
+        ad->setEnabledAxes(g->enabledAxes());
+        ad->setAxesType(g->axesType());
+        ad->setAxesBaseline(g->axesBaseline());
 
-			ad->initAxisFonts(g->axisFont(2), g->axisFont(0),g->axisFont(3),g->axisFont(1));
-			ad->setAxisTitles(g->scalesTitles());
-			ad->updateTitleBox(0);
-			ad->putGridOptions(g->getGridOptions());
-			ad->setTicksType(g->plotWidget()->getMajorTicksType(), g->plotWidget()->getMinorTicksType());
-			ad->setEnabledTickLabels(g->enabledTickLabels());
-			ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
-			ad->exec();
-			return ad;
-		}
-		else if (g->isPiePlot())
-			return showPieDialog();
+        ad->initAxisFonts(g->axisFont(2), g->axisFont(0),g->axisFont(3),g->axisFont(1));
+        ad->setAxisTitles(g->scalesTitles());
+        ad->updateTitleBox(0);
+        ad->putGridOptions(g->getGridOptions());
+        ad->setTicksType(g->plotWidget()->getMajorTicksType(), g->plotWidget()->getMinorTicksType());
+        ad->setEnabledTickLabels(g->enabledTickLabels());
+        ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
+        ad->exec();
+        return ad;
 	}
 	else if (w->isA("Graph3D"))
 		return showPlot3dDialog();
@@ -6124,27 +6108,6 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 	else return 0;
 }
 
-QDialog* ApplicationWindow::showPieDialog()
-{
-	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
-		return 0;
-
-	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	if (g)
-	{
-		PieDialog* pd = new PieDialog(this, "PlotDialog", true);
-		connect (pd,SIGNAL(drawFrame(bool,int,const QColor&)),g,SLOT(drawCanvasFrame(bool,int,const QColor& )));
-		connect (pd,SIGNAL(toggleCurve()),g,SLOT(removePie()));
-		connect (pd,SIGNAL(updatePie(const QPen&, const Qt::BrushStyle &,int,int)),g,SLOT(updatePie(const QPen&, const Qt::BrushStyle &,int,int)));
-		connect (pd,SIGNAL(worksheet(const QString&)),this,SLOT(showTable(const QString&)));
-
-		pd->setMultiLayerPlot((MultiLayer*)ws->activeWindow());
-		pd->show();
-		return pd;
-	}
-	return 0;
-}
-
 void ApplicationWindow::showPlotDialog()
 {
 	QWidget *w = ws->activeWindow();
@@ -6157,23 +6120,12 @@ void ApplicationWindow::showPlotDialog()
 		if (!g)
 			return;
 
-		if (g->curves()>0)
-		{
-			if (!g->isPiePlot())
-			{
-				PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
-				pd->setAttribute(Qt::WA_DeleteOnClose);
-				pd->insertColumnsList(columnsList(Table::All));
-				pd->setGraph(g);
-				pd->selectCurve(0);
-				pd->show();
-			}
-			else
-				showPieDialog();
-		}
-		else if (g->curves() == 0)
-			QMessageBox::warning(this, tr("QtiPlot - Empty plot"),
-					tr("There are actually no curves on the active layer!"));
+		PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
+        pd->setAttribute(Qt::WA_DeleteOnClose);
+        pd->insertColumnsList(columnsList(Table::All));
+        pd->setMultiLayer((MultiLayer*)w);
+        pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
+        pd->show();
 	}
 	else if (w->isA("Graph3D"))
         showPlot3dDialog();
@@ -6188,20 +6140,17 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 	if (w->isA("MultiLayer"))
 	{
 		Graph *g = ((MultiLayer*)w)->activeGraph();
-		if (!g || g->curves() <= 0)
+		if (!g)
 			return;
 
-		if (!g->isPiePlot())
-		{
-			PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
-			pd->setAttribute(Qt::WA_DeleteOnClose);
-			pd->insertColumnsList(columnsList(Table::All));
-			pd->setGraph(g);
-			pd->selectCurve(g->curveIndex(curveKey));
-			pd->show();
-		}
-		else
-            showPieDialog();
+		PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
+        pd->setAttribute(Qt::WA_DeleteOnClose);
+        pd->insertColumnsList(columnsList(Table::All));
+        pd->setMultiLayer((MultiLayer*)w);
+        if (curveKey >= 0)
+            pd->selectCurve(g->curveIndex(curveKey));
+        pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
+        pd->show();
 	}
 }
 
@@ -7238,7 +7187,6 @@ void ApplicationWindow::showLayerDialog()
 	LayerDialog *id=new LayerDialog(this,"LayerDialog",true,0);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	id->setMultiLayer(plot);
-	id->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
 	id->exec();
 }
 
@@ -10835,7 +10783,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 			this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
-	connect (g,SIGNAL(showPieDialog()),this,SLOT(showPieDialog()));
 	connect (g,SIGNAL(viewTitleDialog()),this,SLOT(showTitleDialog()));
 	connect (g,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));
@@ -11242,9 +11189,6 @@ void ApplicationWindow::createActions()
 
 	actionShowPlotDialog = new QAction(tr("&Plot ..."), this);
 	connect(actionShowPlotDialog, SIGNAL(activated()), this, SLOT(showGeneralPlotDialog()));
-
-	actionShowCurveFormatDialog = new QAction(tr("&Curves ..."), this);
-	connect(actionShowCurveFormatDialog, SIGNAL(activated()), this, SLOT(showPlotDialog()));
 
 	actionShowScaleDialog = new QAction(tr("&Scales..."), this);
 	connect(actionShowScaleDialog, SIGNAL(activated()), this, SLOT(showScaleDialog()));
@@ -11820,7 +11764,6 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionShowPlotDialog->setMenuText(tr("&Plot ..."));
 	actionShowScaleDialog->setMenuText(tr("&Scales..."));
-	actionShowCurveFormatDialog->setMenuText(tr("&Curves..."));
 	actionShowAxisDialog->setMenuText(tr("&Axes..."));
 	actionShowGridDialog->setMenuText(tr("&Grid ..."));
 	actionShowTitleDialog->setMenuText(tr("&Title ..."));

@@ -80,7 +80,6 @@ private:
 	QPoint startLinePoint, endLinePoint;
 
 signals:
-	void showPieDialog();
 	void showPlotDialog(int);
 	void viewTextDialog();
 	void viewLineDialog();

@@ -602,7 +602,6 @@ public slots:
 	//! Show plot style dialog for the active MultiLayer / active Graph / specified curve.
 	void showPlotDialog(int curveKey);
 	QDialog* showScaleDialog();
-	QDialog* showPieDialog();
 	QDialog* showPlot3dDialog();
 	AxesDialog* showScalePageFromAxisDialog(int axisPos);
 	AxesDialog* showAxisPageFromAxisDialog(int axisPos);
@@ -1050,7 +1049,7 @@ private:
     QAction *actionDifferentiate, *actionFitLinear, *actionShowFitPolynomDialog;
     QAction *actionShowExpDecayDialog, *actionShowTwoExpDecayDialog, *actionShowExpDecay3Dialog;
     QAction *actionFitExpGrowth, *actionFitSigmoidal, *actionFitGauss, *actionFitLorentz, *actionShowFitDialog;
-    QAction *actionShowCurveFormatDialog, *actionShowAxisDialog, *actionShowTitleDialog;
+    QAction *actionShowAxisDialog, *actionShowTitleDialog;
     QAction *actionShowColumnOptionsDialog, *actionShowColumnValuesDialog, *actionShowColsDialog, *actionShowRowsDialog;
     QAction *actionTableRecalculate;
     QAction *actionAbout, *actionShowHelp, *actionChooseHelpFolder;

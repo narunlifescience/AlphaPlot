@@ -134,7 +134,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ExportDialog.h \
             src/ImportDialog.h \
             src/AxesDialog.h \
-            src/PieDialog.h \
             src/PolynomFitDialog.h \
             src/ExpDecayDialog.h \
             src/FunctionDialog.h \
@@ -246,7 +245,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ExportDialog.cpp \
             src/ImportDialog.cpp \
             src/AxesDialog.cpp \
-            src/PieDialog.cpp \
             src/PolynomFitDialog.cpp \
             src/TableDialog.cpp \
             src/TextDialog.cpp \
@@ -447,7 +445,7 @@ contains(SCRIPTING_LANGS, Python) {
 			 $${SIP_DIR}/sipqtiSmoothFilter.h \
 			 $${SIP_DIR}/sipqtiFFTFilter.h \
 			 $${SIP_DIR}/sipqtiFFT.h \
-			 
+
   SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
              $${SIP_DIR}/sipqtiApplicationWindow.cpp\
              $${SIP_DIR}/sipqtiGraph.cpp\

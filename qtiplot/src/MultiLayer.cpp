@@ -856,7 +856,6 @@ void MultiLayer::connectLayer(Graph *g)
 	connect (g,SIGNAL(cursorInfo(const QString&)),this,SIGNAL(cursorInfo(const QString&)));
 	connect (g,SIGNAL(viewImageDialog()),this,SIGNAL(showImageDialog()));
 	connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),this,SIGNAL(createTablePlot(const QString&,int,int,const QString&)));
-	connect (g,SIGNAL(showPieDialog()),this,SIGNAL(showPieDialog()));
 	connect (g,SIGNAL(viewTitleDialog()),this,SIGNAL(viewTitleDialog()));
 	connect (g,SIGNAL(modifiedGraph()),this,SIGNAL(modifiedPlot()));
 	connect (g,SIGNAL(selectedGraph(Graph*)),this, SLOT(setActiveGraph(Graph*)));

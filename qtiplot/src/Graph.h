@@ -145,12 +145,11 @@ class Graph: public QWidget
 		//! \name Pie Curves
 		//@{
 		//! Returns true if this Graph is a pie plot, false otherwise.
-		bool isPiePlot(){return piePlot;};
+		bool isPiePlot(){return (c_type[0] == Pie);};
 		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
 		//! Used when restoring a pie plot from a project file
 		void plotPie(Table* w,const QString& name, const QPen& pen, int brush, int size, int firstColor, int startRow = 0, int endRow = -1, bool visible = true);
-		void updatePie(const QPen& pen, const Qt::BrushStyle &brushStyle, int size, int firstColor);
 		void removePie();
 		QString pieLegendText();
 		QString savePieCurveLayout();
@@ -203,6 +202,8 @@ class Graph: public QWidget
   		QStringList plotItemsList();
   		 //! get plotted item by index
   	    QwtPlotItem* plotItem(int index);
+  	    //! get plot item by index
+  	    int plotItemIndex(QwtPlotItem *it) const;
 
         void updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName = true);
 
@@ -236,7 +237,7 @@ class Graph: public QWidget
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
-		void updateErrorBars(int curve, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
+		void updateErrorBars(QwtErrorPlotCurve *er, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
 
 		//! Returns a valid master curve for the error bars curve.
 		DataCurve* masterCurve(QwtErrorPlotCurve *er);
@@ -671,7 +672,6 @@ signals:
 		void drawLineEnded(bool);
 		void cursorInfo(const QString&);
 		void showPlotDialog(int);
-		void showPieDialog();
 		void createTable(const QString&,int,int,const QString&);
 
 		void viewImageDialog();
@@ -733,7 +733,7 @@ signals:
 		Qt::PenStyle auxMrkStyle;
 		QString auxMrkFileName, auxMrkText;
 
-		int n_curves, pieRay;
+		int n_curves;
 		int widthLine, defaultMarkerFrame;
 		QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 		int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
@@ -742,8 +742,6 @@ signals:
 		long mrkX, mrkY;//x=0 et y=0 line markers keys
 		bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 
-		//! Whether the plot is a pie plot.
-		bool piePlot;
 		//! Whether pixel line profile is asked.
 		bool lineProfileOn;
 		bool auxFilledArrowHead, ignoreResize;

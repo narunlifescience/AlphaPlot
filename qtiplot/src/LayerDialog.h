@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Arrange layers dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,8 +35,6 @@ class QGroupBox;
 class QPushButton;
 class QSpinBox;
 class QCheckBox;
-class QTabWidget;
-class QWidget;
 class QComboBox;
 
 //! Arrange layers dialog
@@ -46,13 +44,17 @@ class LayerDialog : public QDialog
 
 public:
     LayerDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~LayerDialog();
-
 	void setMultiLayer(MultiLayer *g);
-	void initFonts(const QFont& titlefont, const QFont& axesfont, 
-				   const QFont& numbersfont, const QFont& legendfont);
 
-    QPushButton* buttonOk, *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;
+protected slots:
+	void accept();
+	void update();
+	void enableLayoutOptions(bool ok);
+
+private:
+	MultiLayer *multi_layer;
+
+	QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonApply;
     QGroupBox *GroupCanvasSize, *GroupGrid;
@@ -60,22 +62,7 @@ public:
 	QSpinBox *boxRightSpace, *boxLeftSpace, *boxTopSpace, *boxBottomSpace;
 	QSpinBox *boxCanvasWidth, *boxCanvasHeight, *layersBox;
 	QCheckBox *fitBox;
-	QTabWidget* generalDialog;
-	QWidget* layout, *fonts;	
 	QComboBox *alignHorBox, *alignVertBox;
-
-protected slots:
-	void accept();
-	void update();
-	void setTitlesFont();
-	void setAxesLabelsFont();
-	void setAxesNumbersFont();
-	void setLegendsFont();
-	void enableLayoutOptions(bool ok);
-
-private:
-	QFont titleFont, legendFont, axesFont, numbersFont;
-	MultiLayer *multi_layer;
 };
 
 #endif

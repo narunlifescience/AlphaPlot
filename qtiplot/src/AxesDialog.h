@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : General plot options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -50,12 +50,11 @@ class QWidget;
 class QStringList;
 class ColorBox;
 class ColorButton;
-class MultiLayer;
 class Graph;
 class TextFormatButtons;
 
 //! Structure containing grid properties
-typedef struct{ 
+typedef struct{
   int majorOnX;
   int minorOnX;
   int majorOnY;
@@ -77,7 +76,7 @@ typedef struct{
  * Remark: Don't use this dialog as a non modal dialog!
  */
 class AxesDialog : public QDialog
-{ 
+{
     Q_OBJECT
 
 public:
@@ -90,7 +89,7 @@ public:
 	//! Destructor
     ~AxesDialog(){};
 
-	void setMultiLayerPlot(MultiLayer *m);
+	void setGraph(Graph *g);
 
 protected:
 	//! generate UI for the axes page
@@ -107,7 +106,7 @@ protected:
     QPushButton* buttonCancel;
     QTabWidget* generalDialog;
     QWidget* scalesPage;
-    QLineEdit* boxEnd;   
+    QLineEdit* boxEnd;
     QLineEdit* boxStart;
     QComboBox* boxScaleType;
     QComboBox* boxMinorValue;
@@ -132,24 +131,23 @@ protected:
     QWidget* axesPage, *frame;
     QListWidget* axesTitlesList;
 	QGroupBox *boxShowLabels;
-    QCheckBox *boxShowAxis, *boxAntialiasing;
-	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency;
-	
+    QCheckBox *boxShowAxis;
+
 	QTextEdit *boxFormula, *boxTitle;
 	QSpinBox *boxFrameWidth, *boxPrecision, *boxAngle, *boxBaseline, *boxAxesLinewidth;
     QPushButton* btnAxesFont;
-	QCheckBox *boxBackbones, *boxAll, *boxShowFormula;
+	QCheckBox *boxBackbones, *boxShowFormula;
 	ColorButton* boxAxisColor;
 	QComboBox *boxMajorTicksType, *boxMinorTicksType, *boxFormat, *boxAxisType, *boxColName;
 	QGroupBox *boxFramed;
 	QLabel *label1, *label2, *label3, *boxScaleTypeLabel, *minorBoxLabel, *labelTable;
-	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth, *boxMargin;
+	QSpinBox *boxMajorTicksLength, *boxMinorTicksLength, *boxBorderWidth;
 	QComboBox *boxUnit, *boxTableName, *boxGridXAxis, *boxGridYAxis;
-	ColorButton *boxBorderColor, *boxFrameColor, *boxBackgroundColor, *boxAxisNumColor;
+	ColorButton *boxFrameColor, *boxAxisNumColor;
 	QGroupBox  *labelBox;
 	QPushButton * buttonLabelFont;
 	TextFormatButtons *formatButtons;
-	
+
 public slots:
 	void setAxesType(const QList<int>& list);
 	void setAxisType(int axis);
@@ -185,7 +183,6 @@ public slots:
 	void setCurrentScale(int axisPos);
 	void initAxisFonts(const QFont& xB, const QFont& yL, const QFont& xT, const QFont& yR );
 
-	void updateAntialiasing(bool on);
 	void updateMajTicksType(int);
 	void updateMinTicksType(int);
 	void updateGrid(int);
@@ -202,23 +199,15 @@ public slots:
 	void setAxesBaseline(const QList<int>& lst);
 	void changeMinorTicksLength (int minLength);
 	void changeMajorTicksLength (int majLength);
-	void pickBorderColor();
 	void pickCanvasFrameColor();
-	void updateBorder(int width);
-	void changeMargin (int);
 	void changeAxesLinewidth (int);
 	void drawAxesBackbones (bool);
-	void pickBackgroundColor();
-	void pickCanvasColor();
 	void showGeneralPage();
 	void showAxesPage();
 	void showGridPage();
 	void showFormulaBox();
 	void showAxisFormula(int axis);
-	
-	void updateCanvasTransparency(int alpha);
-	void updateBackgroundTransparency(int alpha);
-	
+
 	void customAxisLabelFont();
 
 	//! Shows the dialog as a modal dialog
@@ -245,7 +234,7 @@ protected:
 	GridOptions grid;
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;
 	int xBottomLabelsRotation, xTopLabelsRotation;
-	MultiLayer *mPlot;
+
 	Graph* d_graph;
 	//! Last selected tab
   	QWidget* lastPage;

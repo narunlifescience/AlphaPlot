@@ -29,8 +29,9 @@
 #ifndef PLOTDIALOG_H
 #define PLOTDIALOG_H
 
-#include "Graph.h"
 #include <QDialog>
+#include <QTreeWidgetItem>
+#include "MultiLayer.h"
 
 class QCheckBox;
 class QComboBox;
@@ -45,27 +46,88 @@ class QStringList;
 class QGroupBox;
 class QDoubleSpinBox;
 class QRadioButton;
+class QTreeWidget;
 
+class LayerItem;
+class PlotTreeItem;
 class ColorBox;
 class PatternBox;
 class ColorButton;
-class Graph;
+class MultiLayer;
 class SymbolBox;
 class ColorMapEditor;
+class QwtPlotItem;
 
-//! Custom curves dialog
+static const char* folder_closed[]={
+    "16 16 9 1",
+    "g c #808080",
+    "b c #c0c000",
+    "e c #c0c0c0",
+    "# c #000000",
+    "c c #ffff00",
+    ". c None",
+    "a c #585858",
+    "f c #a0a0a4",
+    "d c #ffffff",
+    "..###...........",
+    ".#abc##.........",
+    ".#daabc#####....",
+    ".#ddeaabbccc#...",
+    ".#dedeeabbbba...",
+    ".#edeeeeaaaab#..",
+    ".#deeeeeeefe#ba.",
+    ".#eeeeeeefef#ba.",
+    ".#eeeeeefeff#ba.",
+    ".#eeeeefefff#ba.",
+    ".##geefeffff#ba.",
+    "...##gefffff#ba.",
+    ".....##fffff#ba.",
+    ".......##fff#b##",
+    ".........##f#b##",
+    "...........####."};
+
+static const char* folder_open[]={
+    "16 16 11 1",
+    "# c #000000",
+    "g c #c0c0c0",
+    "e c #303030",
+    "a c #ffa858",
+    "b c #808080",
+    "d c #a0a0a4",
+    "f c #585858",
+    "c c #ffdca8",
+    "h c #dcdcdc",
+    "i c #ffffff",
+    ". c None",
+    "....###.........",
+    "....#ab##.......",
+    "....#acab####...",
+    "###.#acccccca#..",
+    "#ddefaaaccccca#.",
+    "#bdddbaaaacccab#",
+    ".eddddbbaaaacab#",
+    ".#bddggdbbaaaab#",
+    "..edgdggggbbaab#",
+    "..#bgggghghdaab#",
+    "...ebhggghicfab#",
+    "....#edhhiiidab#",
+    "......#egiiicfb#",
+    "........#egiibb#",
+    "..........#egib#",
+    "............#ee#"};
+
+//! Custom plot/curves dialog
 class PlotDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     PlotDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~PlotDialog(){};
+    void initFonts(const QFont& titlefont, const QFont& axesfont, const QFont& numbersfont, const QFont& legendfont);
 
 public slots:
 	void showStatistics();
 	void customVectorsPage(bool angleMag);
-	void insertCurvesList();
 	void insertColumnsList(const QStringList& names){columnNames = names;};
 	void updateEndPointColumns(const QString& text);
 
@@ -75,12 +137,12 @@ public slots:
 	void showWorksheet();
 	void quit();
 
-	int setPlotType(int index);
+	int setPlotType(PlotTreeItem *item);
 	void changePlotType(int plotType);
-	void setActiveCurve(int curveIndex);
+	void setActiveCurve(PlotTreeItem *item);
 
 	void insertTabs(int plot_type);
-	void updateTabWindow(int);
+	void updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *previousItem);
 	void showAreaColor(bool show);
 
 	void removeSelectedCurve();
@@ -95,12 +157,13 @@ public slots:
 	void setAutomaticBinning();
 	bool validInput();
 	void showPlotAssociations();
-	void showPlotAssociations( QListWidgetItem *item);
+	void showPlotAssociations(QTreeWidgetItem *item, int);
 	void editFunctionCurve();
-	void setGraph(Graph *g);
+	void setMultiLayer(MultiLayer *ml);
 	void selectCurve(int index);
 
 	void setPenStyle(Qt::PenStyle style);
+	void setPiePenStyle(const Qt::PenStyle& style);
 
 	//box plots
 	void setBoxType(int index);
@@ -111,6 +174,22 @@ public slots:
   	void pickContourLinesColor();
   	void showDefaultContourLinesBox(bool show);
 	void showColorMapEditor(bool show);
+
+protected slots:
+    void setActiveLayer(LayerItem *item);
+    void updateTreeWidgetItem(QTreeWidgetItem *item);
+    void updateBackgroundTransparency(int alpha);
+    void updateCanvasTransparency(int alpha);
+    void updateAntialiasing(bool on);
+    void updateBorder(int width);
+	void pickBackgroundColor();
+	void pickCanvasColor();
+	void pickBorderColor();
+	void changeMargin(int);
+	void setTitlesFont();
+	void setAxesLabelsFont();
+	void setAxesNumbersFont();
+	void setLegendsFont();
 
 protected:
     void clearTabWidget();
@@ -124,15 +203,28 @@ protected:
 	void initBoxPage();
 	void initPercentilePage();
 	void initSpectrogramPage();
+	void initLayerPage();
+	void initFontsPage();
+	void initPiePage();
     void contextMenuEvent(QContextMenuEvent *e);
 
-    Graph *graph;
+    QFont titleFont, legendFont, axesFont, numbersFont;
+
+    MultiLayer *d_ml;
 	QStringList columnNames;
-	int lastSelectedCurve;
 
+    QPushButton *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;
 	ColorMapEditor *colorMapEditor;
+    QWidget *curvePlotTypeBox, *layerPage, *piePage, *fontsPage;
+    QTreeWidget* listBox;
+    QCheckBox *boxAntialiasing, *boxAll;
+    ColorButton *boxBorderColor, *boxBackgroundColor, *boxCanvasColor;
+	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency, *boxBorderWidth, *boxMargin;
+	QSpinBox *boxRadius, *boxPieLineWidth;
+    ColorBox *boxFirstColor, *boxPieLineColor;
+    PatternBox *boxPiePattern;
+    QComboBox* boxPieLineStyle;
 
-    QListWidget* listBox;
     QPushButton* buttonApply, *btnWorksheet, *btnAssociations;
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
@@ -183,6 +275,49 @@ protected:
 
     SymbolBox *boxMaxStyle, *boxMinStyle, *boxMeanStyle, *box99Style, *box1Style;
     QDoubleSpinBox *whiskerCnt, *boxCnt;
+};
+
+/*****************************************************************************
+ *
+ * Class LayerItem
+ *
+ *****************************************************************************/
+//! LayerItem tree widget item class
+class LayerItem : public QTreeWidgetItem
+{
+public:
+    enum {LayerTreeItem = 1001};
+    LayerItem(Graph *g, QTreeWidgetItem *parent, const QString& s);
+
+    Graph *graph() { return d_graph; };
+    void setActive(bool select);
+
+protected:
+    void insertCurvesList();
+    Graph *d_graph;
+};
+
+/*****************************************************************************
+ *
+ * Class PlotTreeItem
+ *
+ *****************************************************************************/
+//! PlotTreeItem tree widget item class
+class PlotTreeItem : public QTreeWidgetItem
+{
+public:
+    enum {PlotCurveTreeItem = 1002};
+    PlotTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s);
+
+    Graph* graph(){return ((LayerItem *)parent())->graph();};
+    void setActive(bool on);
+
+    const QwtPlotItem *plotItem() { return d_curve; };
+    int plotItemType();
+    int plotItemIndex();
+
+protected:
+    const QwtPlotItem *d_curve;
 };
 
 #endif

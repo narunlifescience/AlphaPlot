@@ -33,7 +33,6 @@
 #include "Plot.h"
 #include "MyParser.h"
 #include "ColorButton.h"
-#include "MultiLayer.h"
 #include "TextFormatButtons.h"
 
 #include <QColorDialog>
@@ -1283,7 +1282,7 @@ void AxesDialog::initScalesPage()
 
 		minorBoxLabel = new QLabel( tr( "Minor Ticks" ));
 		rightLayout->addWidget( minorBoxLabel, 2, 0);
-		
+
 		boxMinorValue = new QComboBox();
 		boxMinorValue->setEditable(true);
 		boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
@@ -1660,116 +1659,50 @@ void AxesDialog::initFramePage()
 {
 	frame = new QWidget();
 
-		boxFramed = new QGroupBox(tr("Canvas frame"));
-		boxFramed->setCheckable (true);
+    boxFramed = new QGroupBox(tr("Canvas frame"));
+    boxFramed->setCheckable (true);
 
-		QGridLayout * boxFramedLayout = new QGridLayout( boxFramed );
+    QGridLayout * boxFramedLayout = new QGridLayout( boxFramed );
+    boxFramedLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
+    boxFrameColor= new ColorButton(boxFramed);
+    boxFramedLayout->addWidget( boxFrameColor, 0, 1 );
 
-		boxFramedLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
-		boxFrameColor= new ColorButton(boxFramed);
-		boxFramedLayout->addWidget( boxFrameColor, 0, 1 );
+    boxFramedLayout->addWidget( new QLabel(tr( "Width" )), 1, 0 );
+    boxFrameWidth= new QSpinBox();
+    boxFrameWidth->setMinimum(1);
+    boxFramedLayout->addWidget( boxFrameWidth, 1, 1 );
 
-		boxFramedLayout->addWidget( new QLabel(tr( "Width" )), 1, 0 );
-		boxFrameWidth= new QSpinBox();
-		boxFrameWidth->setMinimum(1);
-		boxFramedLayout->addWidget( boxFrameWidth, 1, 1 );
+    boxFramedLayout->setRowStretch( 2, 1 );
 
-		boxFramedLayout->setRowStretch( 2, 1 );
+    QGroupBox * boxAxes = new QGroupBox(tr("Axes"));
+    QGridLayout * boxAxesLayout = new QGridLayout( boxAxes );
+    boxBackbones = new QCheckBox();
+    boxBackbones->setText( tr( "Draw backbones" ) );
+    boxAxesLayout->addWidget( boxBackbones, 0, 0 );
 
-		QGroupBox * boxBkg = new QGroupBox(tr("Background"));
+    boxAxesLayout->addWidget( new QLabel(tr( "Line Width" )), 1, 0 );
+    boxAxesLinewidth = new QSpinBox();
+    boxAxesLinewidth->setRange( 1, 100 );
+    boxAxesLayout->addWidget( boxAxesLinewidth, 1, 1 );
 
-		QGridLayout * boxBkgLayout = new QGridLayout( boxBkg );
+    boxAxesLayout->addWidget( new QLabel(tr( "Major ticks length" )), 2, 0 );
+    boxMajorTicksLength = new QSpinBox();
+    boxMajorTicksLength->setRange( 0, 1000 );
+    boxAxesLayout->addWidget( boxMajorTicksLength, 2, 1 );
 
-		boxBkgLayout->addWidget( new QLabel(tr( "Color" )), 0, 0 );
-		boxBackgroundColor = new ColorButton();
-		boxBkgLayout->addWidget( boxBackgroundColor, 0, 1 );
-		boxBkgLayout->addWidget( new QLabel(tr( "Opacity" )), 0, 2 );
-		boxBackgroundTransparency = new QSpinBox();
-		boxBackgroundTransparency->setRange(0, 255);
-     	boxBackgroundTransparency->setSingleStep(5);
-		boxBackgroundTransparency->setWrapping(true);
-     	boxBackgroundTransparency->setSpecialValueText(tr("Transparent"));
-		boxBkgLayout->addWidget( boxBackgroundTransparency, 0, 3 );
+    boxAxesLayout->addWidget( new QLabel(tr( "Minor ticks length" )), 3, 0 );
+    boxMinorTicksLength = new QSpinBox();
+    boxMinorTicksLength->setRange( 0, 1000 );
+    boxAxesLayout->addWidget( boxMinorTicksLength, 3, 1 );
 
-		boxBkgLayout->addWidget( new QLabel(tr("Canvas Color" )), 1, 0);
-		boxCanvasColor = new ColorButton();
-		boxBkgLayout->addWidget( boxCanvasColor, 1, 1 );
-		boxBkgLayout->addWidget( new QLabel(tr( "Opacity" )), 1, 2 );
-		boxCanvasTransparency = new QSpinBox();
-		boxCanvasTransparency->setRange(0, 255);
-     	boxCanvasTransparency->setSingleStep(5);
-		boxCanvasTransparency->setWrapping(true);
-     	boxCanvasTransparency->setSpecialValueText(tr("Transparent"));
-		boxBkgLayout->addWidget( boxCanvasTransparency, 1, 3 );
+    boxAxesLayout->setRowStretch( 4, 1 );
 
-		boxBkgLayout->addWidget( new QLabel(tr( "Border Width" )), 2, 0);
-		boxBorderWidth = new QSpinBox();
-		boxBkgLayout->addWidget( boxBorderWidth, 2, 1);
+    QHBoxLayout * mainLayout = new QHBoxLayout( frame );
+    mainLayout->addWidget(boxFramed);
+    mainLayout->addWidget(boxAxes);
 
-		boxBkgLayout->addWidget( new QLabel(tr("Border Color" )), 3, 0);
-		boxBorderColor = new ColorButton();
-		boxBkgLayout->addWidget( boxBorderColor, 3, 1);
+    generalDialog->addTab(frame, tr( "General" ) );
 
-		boxBkgLayout->setRowStretch( 4, 1 );
-
-		QGroupBox * boxAxes = new QGroupBox(tr("Axes"));
-
-		QGridLayout * boxAxesLayout = new QGridLayout( boxAxes );
-
-		boxBackbones = new QCheckBox();
-		boxBackbones->setText( tr( "Draw backbones" ) );
-		boxAxesLayout->addWidget( boxBackbones, 0, 0 );
-
-		boxAxesLayout->addWidget( new QLabel(tr( "Line Width" )), 1, 0 );
-		boxAxesLinewidth = new QSpinBox();
-		boxAxesLinewidth->setRange( 1, 100 );
-		boxAxesLayout->addWidget( boxAxesLinewidth, 1, 1 );
-
-		boxAxesLayout->addWidget( new QLabel(tr( "Major ticks length" )), 2, 0 );
-		boxMajorTicksLength = new QSpinBox();
-		boxMajorTicksLength->setRange( 0, 1000 );
-		boxAxesLayout->addWidget( boxMajorTicksLength, 2, 1 );
-
-		boxAxesLayout->addWidget( new QLabel(tr( "Minor ticks length" )), 3, 0 );
-		boxMinorTicksLength = new QSpinBox();
-		boxMinorTicksLength->setRange( 0, 1000 );
-		boxAxesLayout->addWidget( boxMinorTicksLength, 3, 1 );
-
-		boxAxesLayout->setRowStretch( 4, 1 );
-
-		QGroupBox * box4 = new QGroupBox(QString());
-		QGridLayout * box4Layout = new QGridLayout( box4 );
-
-		box4Layout->addWidget( new QLabel(tr( "Margin" )), 0, 0 );
-		boxMargin = new QSpinBox();
-		boxMargin->setRange( 0, 1000 );
-		boxMargin->setSingleStep(5);
-		box4Layout->addWidget( boxMargin, 0, 1 );
-
-		boxAntialiasing = new QCheckBox(tr("Antialiasing"));
-		box4Layout->addWidget( boxAntialiasing, 1, 1 );
-
-		boxAll = new QCheckBox(tr("Apply to all layers"));
-		box4Layout->addWidget( boxAll, 2, 1 );
-
-		box4Layout->setRowStretch( 3, 1 );
-
-		QGridLayout * mainLayout = new QGridLayout( frame );
-		mainLayout->addWidget( boxFramed , 0, 0 );
-		mainLayout->addWidget( boxBkg, 0, 1 );
-		mainLayout->addWidget( boxAxes, 1, 0 );
-		mainLayout->addWidget( box4, 1, 1 );
-
-		generalDialog->addTab(frame, tr( "General" ) );
-
-	connect(boxBackgroundTransparency, SIGNAL(valueChanged(int)), this, SLOT(updateBackgroundTransparency(int)));
-	connect(boxCanvasTransparency, SIGNAL(valueChanged(int)), this, SLOT(updateCanvasTransparency(int)));
-	connect(boxAntialiasing, SIGNAL(toggled(bool)), this, SLOT(updateAntialiasing(bool)));
-	connect(boxMargin, SIGNAL(valueChanged (int)), this, SLOT(changeMargin(int)));
-	connect(boxBorderColor, SIGNAL(clicked()), this, SLOT(pickBorderColor()));
-	connect(boxBackgroundColor, SIGNAL(clicked()), this, SLOT(pickBackgroundColor()));
-	connect(boxCanvasColor, SIGNAL(clicked()), this, SLOT(pickCanvasColor()));
-	connect(boxBorderWidth,SIGNAL(valueChanged (int)), this, SLOT(updateBorder(int)));
 	connect(boxFrameColor, SIGNAL(clicked()), this, SLOT(pickCanvasFrameColor()));
 	connect(boxBackbones, SIGNAL(toggled(bool)), this, SLOT(drawAxesBackbones(bool)));
 	connect(boxFramed, SIGNAL(toggled(bool)), this, SLOT(drawFrame(bool)));
@@ -1784,23 +1717,7 @@ void AxesDialog::changeMinorTicksLength (int minLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->changeTicksLength(minLength, boxMajorTicksLength->value());
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->changeTicksLength(minLength, boxMajorTicksLength->value());
-			}
-
+    d_graph->changeTicksLength(minLength, boxMajorTicksLength->value());
 	boxMajorTicksLength->setMinValue(minLength);
 }
 
@@ -1809,23 +1726,7 @@ void AxesDialog::changeMajorTicksLength (int majLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->changeTicksLength(boxMinorTicksLength->value(), majLength);
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->changeTicksLength(boxMinorTicksLength->value(), majLength);
-			}
-
+    d_graph->changeTicksLength(boxMinorTicksLength->value(), majLength);
 	boxMinorTicksLength->setMaxValue(majLength);
 }
 
@@ -1834,22 +1735,7 @@ void AxesDialog::drawAxesBackbones(bool draw)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->drawAxesBackbones(draw);
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->drawAxesBackbones(draw);
-			}
+	d_graph->drawAxesBackbones(draw);
 }
 
 void AxesDialog::changeAxesLinewidth(int width)
@@ -1857,45 +1743,7 @@ void AxesDialog::changeAxesLinewidth(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->setAxesLinewidth(width);
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->setAxesLinewidth(width);
-			}
-}
-
-void AxesDialog::changeMargin(int width)
-{
-	if (generalDialog->currentWidget() != frame)
-		return;
-
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->changeMargin(width);
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->changeMargin(width);
-			}
+    d_graph->setAxesLinewidth(width);
 }
 
 void AxesDialog::drawFrame(bool framed)
@@ -1903,22 +1751,7 @@ void AxesDialog::drawFrame(bool framed)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-				g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-			g->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
-	}
+	d_graph->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
 }
 
 void AxesDialog::updateFrame(int width)
@@ -1926,141 +1759,7 @@ void AxesDialog::updateFrame(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-			if (boxAll->isChecked())
-			{
-				QWidgetList allPlots = mPlot->graphPtrs();
-					for (int i=0; i<allPlots.count();i++)
-					{
-						Graph* g=(Graph*)allPlots.at(i);
-							if (g)
-								g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
-					}
-			}
-			else
-			{
-				Graph* g = (Graph*)mPlot->activeGraph();
-				if (g)
-					g->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
-			}
-}
-
-void AxesDialog::updateBorder(int width)
-{
-	if (generalDialog->currentWidget() != frame)
-		return;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-				g->setBorder(width, boxBorderColor->color());
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-			g->setBorder(width, boxBorderColor->color());
-	}
-	mPlot->notifyChanges();
-}
-
-void AxesDialog::pickCanvasColor()
-{
-	QColor c = QColorDialog::getColor(boxCanvasColor->color(), this);
-		if ( !c.isValid() || c == boxCanvasColor->color() )
-			return;
-
-	boxCanvasColor->setColor ( c ) ;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-			{
-				c.setAlpha(boxCanvasTransparency->value());
-				g->setCanvasBackground(c);
-				g->replot();
-			}
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-		{
-			c.setAlpha(boxCanvasTransparency->value());
-			g->setCanvasBackground(c);
-			g->replot();
-		}
-	}
-}
-
-void AxesDialog::pickBackgroundColor()
-{
-	QColor c = QColorDialog::getColor(boxBackgroundColor->color(), this);
-		if ( !c.isValid() || c == boxBackgroundColor->color() )
-			return;
-
-	boxBackgroundColor->setColor ( c ) ;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<(int)allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-			{
-				c.setAlpha(boxBackgroundTransparency->value());
-				g->setBackgroundColor(c);
-				g->replot();
-			}
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-		{
-			c.setAlpha(boxBackgroundTransparency->value());
-			g->setBackgroundColor(c);
-			g->replot();
-		}
-	}
-}
-
-void AxesDialog::pickBorderColor()
-{
-	QColor c = QColorDialog::getColor(boxBorderColor->color(), this);
-	if ( !c.isValid() || c == boxBorderColor->color() )
-		return;
-
-	boxBorderColor->setColor ( c ) ;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-				g->setBorder(boxBorderWidth->value(), c);
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-			g->setBorder(boxBorderWidth->value(), c);
-	}
-	mPlot->notifyChanges();
+    d_graph->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
 }
 
 void AxesDialog::pickCanvasFrameColor()
@@ -2070,23 +1769,7 @@ void AxesDialog::pickCanvasFrameColor()
 			return;
 
 	boxFrameColor->setColor ( c ) ;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-				g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-			g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
-	}
+	d_graph->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
 }
 
 void AxesDialog::showAxisFormatOptions(int format)
@@ -2748,69 +2431,29 @@ bool AxesDialog::updatePlot()
 	}
 	else if (generalDialog->currentWidget()==(QWidget*)frame)
 	{
-		if (!boxAll->isChecked())
-			return true;
-
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g=(Graph*)allPlots.at(i);
-			if (g)
-			{
-				g->setAxesLinewidth(boxAxesLinewidth->value());
-				g->setBorder(boxBorderWidth->value(), boxBorderColor->color());
-
-				g->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
-				g->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
-				g->drawAxesBackbones(boxBackbones->isChecked());
-				g->changeMargin(boxMargin->value());
-
-				QColor c = boxBackgroundColor->color();
-				c.setAlpha(boxBackgroundTransparency->value());
-				g->setBackgroundColor(c);
-
-				c = boxCanvasColor->color();
-				c.setAlpha(boxCanvasTransparency->value());
-				g->setCanvasBackground(c);
-
-				g->setAntialiasing(boxAntialiasing->isChecked());
-			}
-		}
+		d_graph->setAxesLinewidth(boxAxesLinewidth->value());
+        d_graph->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
+        d_graph->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
+        d_graph->drawAxesBackbones(boxBackbones->isChecked());
 	}
 
 	return true;
 }
 
-void AxesDialog::setMultiLayerPlot(MultiLayer *m)
+void AxesDialog::setGraph(Graph *g)
 {
-	mPlot = m;
-	d_graph = (Graph*)mPlot->activeGraph();
+	if (!g)
+        return;
+
+	d_graph = g;
 	Plot *p = d_graph->plotWidget();
 
-	boxMargin->setValue (p->margin());
-	boxBorderWidth->setValue(p->lineWidth());
-	boxBorderColor->setColor(p->frameColor());
-
-	QColor c = p->paletteBackgroundColor();
-	boxBackgroundTransparency->setValue(c.alpha());
-	boxBackgroundColor->setEnabled(c.alpha());
-	c.setAlpha(255);
-	boxBackgroundColor->setColor(c);
-
-	c = d_graph->plotWidget()->canvasBackground();
-	boxCanvasTransparency->setValue(c.alpha());
-	boxCanvasColor->setEnabled(c.alpha());
-	c.setAlpha(255);
-	boxCanvasColor->setColor(c);
-
-	boxAxesLinewidth->setValue(d_graph->plotWidget()->axesLinewidth());
+	boxAxesLinewidth->setValue(p->axesLinewidth());
+    boxBackbones->setChecked (d_graph->axesBackbones());
 
 	boxFramed->setChecked(d_graph->framed());
 	boxFrameColor->setColor(d_graph->canvasFrameColor());
 	boxFrameWidth->setValue(d_graph->canvasFrameWidth());
-
-	boxAntialiasing->setChecked(d_graph->antialiasing());
-	boxBackbones->setChecked (d_graph->axesBackbones());
 
 	boxMinorTicksLength->setValue(p->minorTickLength());
 	boxMajorTicksLength->setValue(p->majorTickLength());
@@ -2861,7 +2504,7 @@ boxEnd->setText(QString::number(QMAX(scDiv->lBound(), scDiv->hBound())));
 QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
 boxStep->setText(QString::number(d_graph->axisStep(a)));
 boxMajorValue->setValue(lst.count());
-	
+
 if (axesType[a] == Graph::Time)
 	{
 	boxUnit->show();
@@ -2900,7 +2543,7 @@ btnInvert->setChecked(sc_eng->testAttribute(QwtScaleEngine::Inverted));
 
 QwtScaleTransformation *tr = sc_eng->transformation();
 boxScaleType->setCurrentItem((int)tr->type());
-	
+
 boxMinorValue->clear();
 if (tr->type())//log scale
 	boxMinorValue->addItems(QStringList()<<"0"<<"2"<<"4"<<"8");
@@ -3256,95 +2899,6 @@ void AxesDialog::pageChanged ( QWidget *page )
   	}
 }
 
-void AxesDialog::updateAntialiasing(bool on)
-{
-	if (generalDialog->currentWidget() != frame)
-		return;
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g = (Graph*)allPlots.at(i);
-			if (g)
-				g->setAntialiasing(on);
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-			g->setAntialiasing(on);
-	}
-}
-
-void AxesDialog::updateCanvasTransparency(int alpha)
-{
-	if (generalDialog->currentWidget() != frame)
-		return;
-
-	boxCanvasColor->setEnabled(alpha);
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g = (Graph*)allPlots.at(i);
-			if (g)
-			{
-				QColor c = boxCanvasColor->color();
-				c.setAlpha(boxCanvasTransparency->value());
-				g->setCanvasBackground(c);
-			}
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-		{
-			QColor c = boxCanvasColor->color();
-			c.setAlpha(boxCanvasTransparency->value());
-			g->setCanvasBackground(c);
-		}
-	}
-}
-
-void AxesDialog::updateBackgroundTransparency(int alpha)
-{
-	if (generalDialog->currentWidget() != frame)
-		return;
-
-	boxBackgroundColor->setEnabled(alpha);
-
-	if (boxAll->isChecked())
-	{
-		QWidgetList allPlots = mPlot->graphPtrs();
-		for (int i=0; i<allPlots.count();i++)
-		{
-			Graph* g = (Graph*)allPlots.at(i);
-			if (g)
-			{
-				QColor c = boxBackgroundColor->color();
-				c.setAlpha(boxBackgroundTransparency->value());
-				g->setBackgroundColor(c);
-			}
-		}
-	}
-	else
-	{
-		Graph* g = (Graph*)mPlot->activeGraph();
-		if (g)
-		{
-			QColor c = boxBackgroundColor->color();
-			c.setAlpha(boxBackgroundTransparency->value());
-			g->setBackgroundColor(c);
-		}
-	}
-}
-
 int AxesDialog::exec()
 {
 	axesList->setCurrentRow(0);
@@ -3359,7 +2913,7 @@ int AxesDialog::exec()
 void AxesDialog::updateMinorTicksList(int scaleType)
 {
 	updatePlot();
-	
+
 	boxMinorValue->clear();
 	if (scaleType)//log scale
 		boxMinorValue->addItems(QStringList()<<"0"<<"2"<<"4"<<"8");

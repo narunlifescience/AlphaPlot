@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : A button used for color selection
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -327,16 +327,16 @@ void ColorButton::init()
 	display->setLineWidth(2);
 	display->setFrameStyle (QFrame::Panel | QFrame::Sunken);
 	display->setMinimumHeight(btn_size);
-	display->setMinimumWidth(3*btn_size);
+	display->setMinimumWidth(2*btn_size);
 	display->setAutoFillBackground(true);
 	setColor(QColor(Qt::white));
-	
+
 	QHBoxLayout *l = new QHBoxLayout(this);
 	l->setMargin( 0 );
 	l->addWidget( display );
 	l->addWidget( selectButton );
 
-	setMaximumWidth(4*btn_size);
+	setMaximumWidth(3*btn_size);
 	setMaximumHeight(btn_size);
 
 	connect(selectButton, SIGNAL(clicked()), this, SIGNAL(clicked()));

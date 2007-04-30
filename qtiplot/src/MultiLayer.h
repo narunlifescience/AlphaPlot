@@ -192,7 +192,6 @@ signals:
 	void modifiedPlot();
 	void cursorInfo(const QString&);
 	void showImageDialog();
-	void showPieDialog();
 	void showLineDialog();
 	void viewTitleDialog();
 	void createTablePlot(const QString&,int,int,const QString&);

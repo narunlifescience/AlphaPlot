@@ -126,19 +126,18 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 						emit viewImageDialog();
 						return true;
 					}
-				} else {
-					if (plot()->isPiePlot())
-						emit showPieDialog();
-					else
-					{
-						const QMouseEvent *me = (const QMouseEvent *)e;
-						int dist, point;
-						int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
-						if (dist < 10)
-							emit showPlotDialog(curveKey);
-						else if (plot()->curves() > 0)
-							emit showPlotDialog(plot()->curveKey(0));
-					}
+				} else if (plot()->isPiePlot()){
+                        emit showPlotDialog(plot()->curveKey(0));
+                        return true;
+				}
+                  else{
+					const QMouseEvent *me = (const QMouseEvent *)e;
+                    int dist, point;
+                    int curveKey = plotWidget->closestCurve(me->pos().x(), me->pos().y(), dist, point);
+                    if (dist < 10)
+                        emit showPlotDialog(curveKey);
+                    else
+                        emit showPlotDialog(-1);
 					return true;
 				}
 			}

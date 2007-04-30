@@ -8,7 +8,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Folder for the project explorer
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -164,7 +164,7 @@ Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partial
 		foreach(f,folderList)
 		{
 			QString name = static_cast<Folder *>(f)->folderName();
-			if (partialMatch) 
+			if (partialMatch)
 			{
 				if (caseSensitive && name.startsWith(s,Qt::CaseSensitive))
 					return static_cast<Folder *>(f);
@@ -183,7 +183,7 @@ Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partial
 	return 0;
 }
 
-MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels, 
+MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 							 bool caseSensitive, bool partialMatch)
 {
 	MyWidget* w;
@@ -196,7 +196,7 @@ MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 				return w;
 			else if (caseSensitive && name == s)
 				return w;
-			else 
+			else
 			{
 				QString text = s;
 				if (name == text.lower())
@@ -211,7 +211,7 @@ MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 				return w;
 			else if (caseSensitive && label == s)
 				return w;
-			else 
+			else
 			{
 				QString text = s;
 				if (label == text.lower())
@@ -358,11 +358,11 @@ drag->drag();
 void FolderListView::contentsDropEvent( QDropEvent *e )
 {
 Q3ListViewItem *dest = itemAt( contentsToViewport(e->pos()) );
-if ( dest && dest->rtti() == FolderListItem::RTTI) 
+if ( dest && dest->rtti() == FolderListItem::RTTI)
 	{
 	emit dropItems(dest);
 	e->accept();
-    } 
+    }
 else
 	e->ignore();
 }
@@ -413,21 +413,21 @@ void FolderListView::contentsMouseDoubleClickEvent( QMouseEvent* e )
 		e->ignore();
 		return;
 		}
-	
+
 	Q3ListView::contentsMouseDoubleClickEvent( e );
 }
 
 void FolderListView::contentsMousePressEvent( QMouseEvent* e )
-{	
+{
 Q3ListView::contentsMousePressEvent(e);
 QPoint p( contentsToViewport( e->pos() ) );
 Q3ListViewItem *i = itemAt( p );
 
-if ( i ) 
+if ( i )
 		{// if the user clicked into the root decoration of the item, don't try to start a drag!
 		if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
 			treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
-			p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) 
+			p.x() < header()->cellPos( header()->mapToActual( 0 ) ) )
 			{
 			presspos = e->pos();
 	    	mousePressed = true;
@@ -437,11 +437,11 @@ if ( i )
 
 void FolderListView::contentsMouseMoveEvent( QMouseEvent* e )
 {
-if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) 
+if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() )
 	{
 	mousePressed = false;
 	Q3ListViewItem *item = itemAt( contentsToViewport(presspos) );
-	if ( item ) 
+	if ( item )
 		startDrag();
     }
 }
