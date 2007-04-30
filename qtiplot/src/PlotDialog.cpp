@@ -77,8 +77,9 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	listBox = new QTreeWidget();
     listBox->setColumnCount(1);
 	listBox->header()->hide();
-
+	
     QGridLayout *gl = new QGridLayout(this);
+	gl->setSizeConstraint(QLayout::SetFixedSize);
     gl->addWidget(listBox, 0, 0);
 
 	privateTabWidget = new QTabWidget();
@@ -90,7 +91,6 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     boxPlotType = new QComboBox();
     boxPlotType->setEditable(false);
     hb1->addWidget(boxPlotType);
-    curvePlotTypeBox->hide();
     gl->addWidget(curvePlotTypeBox, 1, 0);
 
 	initAxesPage();
@@ -110,6 +110,10 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	clearTabWidget();
 
     QHBoxLayout* hb2 = new QHBoxLayout();
+	btnMore = new QPushButton("<<");
+	btnMore->setFixedWidth(25);
+	btnMore->setCheckable(true);
+    hb2->addWidget(btnMore);
 	btnWorksheet = new QPushButton(tr( "&Worksheet" ) );
     hb2->addWidget(btnWorksheet);
 	buttonOk = new QPushButton(tr( "&OK" ));
@@ -119,21 +123,20 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     hb2->addWidget(buttonCancel);
     buttonApply = new QPushButton(tr( "&Apply" ));
     hb2->addWidget(buttonApply);
-    btnAssociations = new QPushButton(tr( "&Plot Associations..." ));
-	btnAssociations->hide();
-    hb2->addWidget(btnAssociations);
-	btnEditFunction = new QPushButton(tr( "&Edit Function..." ));
-	btnEditFunction->hide();
-    hb2->addWidget(btnEditFunction);
+	btnEditCurve = new QPushButton(tr("&Plot Associations..."));
+    hb2->addWidget(btnEditCurve);
     hb2->addStretch();
     gl->addLayout(hb2, 1, 1);
-
+	
+	resize(minimumSize());
+	
+	connect(btnMore, SIGNAL(toggled(bool)), this, SLOT(showAll(bool)));
+	
 	connect( buttonOk, SIGNAL(clicked()), this, SLOT(quit() ) );
 	connect( buttonCancel, SIGNAL(clicked()), this, SLOT(close()));
 	connect( buttonApply, SIGNAL(clicked() ), this, SLOT(acceptParams() ) );
 	connect( btnWorksheet, SIGNAL(clicked()), this, SLOT(showWorksheet()));
-	connect( btnAssociations, SIGNAL(clicked()), this, SLOT(showPlotAssociations()));
-	connect( btnEditFunction, SIGNAL(clicked()), this, SLOT(editFunctionCurve()));
+	connect( btnEditCurve, SIGNAL(clicked()), this, SLOT(editCurve()));
 	connect(listBox, SIGNAL(itemDoubleClicked( QTreeWidgetItem *, int)),
             this, SLOT(showPlotAssociations( QTreeWidgetItem *, int)));
 	connect(listBox, SIGNAL(currentItemChanged (QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -146,6 +149,27 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
     connect(shortcut, SIGNAL(activated()), this, SLOT(removeSelectedCurve()));
 }
 
+void PlotDialog::showAll(bool all)
+{
+	if(all)
+	{
+		listBox->show();
+		listBox->setFocus();
+		
+		QTreeWidgetItem *item = listBox->currentItem();
+    	if (item->type() == CurveTreeItem::PlotCurveTreeItem)
+        	curvePlotTypeBox->show();
+		
+		btnMore->setText(">>");
+	}
+	else
+	{
+		listBox->hide();
+		curvePlotTypeBox->hide();
+		btnMore->setText("<<");
+	}
+}
+
 void PlotDialog::showPlotAssociations(QTreeWidgetItem *item, int)
 {
 	if (!item)
@@ -155,10 +179,10 @@ void PlotDialog::showPlotAssociations(QTreeWidgetItem *item, int)
 	if (!app)
 		return;
 
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
-    QwtPlotItem *it = (QwtPlotItem *)((PlotTreeItem *)item)->plotItem();
+    QwtPlotItem *it = (QwtPlotItem *)((CurveTreeItem *)item)->plotItem();
     if (!it)
         return;
 
@@ -173,38 +197,45 @@ void PlotDialog::showPlotAssociations(QTreeWidgetItem *item, int)
 	if (((PlotCurve *)it)->type() == Graph::Function)
 	{
 	    close();
-  	    app->showFunctionDialog(((PlotTreeItem *)item)->graph(), ((PlotTreeItem *)item)->plotItemIndex());
+  	    app->showFunctionDialog(((CurveTreeItem *)item)->graph(), ((CurveTreeItem *)item)->plotItemIndex());
 	}
 	else
 	{
 	    close();
-        app->showPlotAssociations(((PlotTreeItem *)item)->plotItemIndex());
+        app->showPlotAssociations(((CurveTreeItem *)item)->plotItemIndex());
 	}
 }
 
-void PlotDialog::showPlotAssociations()
+void PlotDialog::editCurve()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+
+	CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
 	int index = item->plotItemIndex();
+	int curveType = ((PlotCurve *)item->plotItem())->type();
 
 	close();
 
 	if (app)
-		app->showPlotAssociations(index);
+	{
+		if (curveType == Graph::Function)
+			app->showFunctionDialog(item->graph(), index);
+		else 
+			app->showPlotAssociations(index);
+	}
 }
 
 void PlotDialog::changePlotType(int plotType)
 {
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
     Graph *graph = item->graph();
     if (!graph)
@@ -1009,7 +1040,6 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
     listBox->addTopLevelItem(item);
     listBox->setCurrentItem(item);
 
-    LayerItem *active_layer = 0;
     QWidgetList plots = ml->graphPtrs();
     for (int i = 0; i < plots.count(); ++i)
     {
@@ -1021,15 +1051,15 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
         item->addChild(layer);
 
         if (g == ml->activeGraph())
-            active_layer = layer;
+		{
+            layer->setExpanded(true);
+        	layer->setActive(true);
+        	listBox->setCurrentItem(layer);
+		}
     }
-    if (active_layer)
-    {
-        active_layer->setExpanded(true);
-        active_layer->setActive(true);
-        listBox->setCurrentItem(active_layer);
-    }
+
     listBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+	showAll(false);
 }
 
 void PlotDialog::selectCurve(int index)
@@ -1042,9 +1072,10 @@ void PlotDialog::selectCurve(int index)
 	QTreeWidgetItem *item = layerItem->child(index);
 	if (item)
 	{
-	    ((PlotTreeItem *)item)->setActive(true);
+	    ((CurveTreeItem *)item)->setActive(true);
         listBox->setCurrentItem(item);
 	}
+	showAll(false);
 }
 
 void PlotDialog::showStatistics()
@@ -1056,10 +1087,10 @@ void PlotDialog::showStatistics()
     QTreeWidgetItem *it = listBox->currentItem();
     if (!it)
         return;
-    if (it->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (it->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
-    QwtPlotItem *plotItem = (QwtPlotItem *)((PlotTreeItem *)it)->plotItem();
+    QwtPlotItem *plotItem = (QwtPlotItem *)((CurveTreeItem *)it)->plotItem();
     if (!plotItem)
         return;
 
@@ -1110,9 +1141,9 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
     QTreeWidgetItem *item = listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
-    QwtPlotItem *it = (QwtPlotItem *)((PlotTreeItem *)item)->plotItem();
+    QwtPlotItem *it = (QwtPlotItem *)((CurveTreeItem *)item)->plotItem();
 	if (!it)
 		return;
 
@@ -1126,39 +1157,21 @@ void PlotDialog::contextMenuEvent(QContextMenuEvent *e)
 	   if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
 	   {
             if (((PlotCurve *)it)->type() == Graph::Function)
-                contextMenu.insertItem(tr("&Edit..."), this, SLOT(editFunctionCurve()));
+                contextMenu.insertItem(tr("&Edit..."), this, SLOT(editCurve()));
             else
-                contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(showPlotAssociations()));
+                contextMenu.insertItem(tr("&Plot Associations..."), this, SLOT(editCurve()));
 	   }
 	   contextMenu.exec(QCursor::pos());
     }
     e->accept();
 }
 
-void PlotDialog::editFunctionCurve()
-{
-	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-
-	PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
-    if (!item)
-        return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
-        return;
-
-	int index = item->plotItemIndex();
-
-	close();
-
-	if (app)
-		app->showFunctionDialog(item->graph(), index);
-}
-
 void PlotDialog::removeSelectedCurve()
 {
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1176,10 +1189,10 @@ void PlotDialog::removeSelectedCurve()
 
 void PlotDialog::changeErrorBarsPlus()
 {
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1193,10 +1206,10 @@ void PlotDialog::changeErrorBarsPlus()
 
 void PlotDialog::changeErrorBarsMinus()
 {
-	PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+	CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1210,10 +1223,10 @@ void PlotDialog::changeErrorBarsMinus()
 
 void PlotDialog::changeErrorBarsThrough()
 {
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1227,10 +1240,10 @@ void PlotDialog::changeErrorBarsThrough()
 
 void PlotDialog::changeErrorBarsType()
 {
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1250,10 +1263,10 @@ void PlotDialog::pickErrorBarsColor()
 
 	colorBox->setColor (color);
 
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
     Graph *graph = item->graph();
@@ -1276,26 +1289,20 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
     if (!previousItem || !currentItem)
         return;
 
-    if (previousItem->type() == PlotTreeItem::PlotCurveTreeItem)
-        ((PlotTreeItem *)previousItem)->setActive(false);
+    if (previousItem->type() == CurveTreeItem::PlotCurveTreeItem)
+        ((CurveTreeItem *)previousItem)->setActive(false);
     else if (previousItem->type() == LayerItem::LayerTreeItem)
         ((LayerItem *)previousItem)->setActive(false);
 
     boxPlotType->blockSignals(true);
 
-    if (currentItem->type() == PlotTreeItem::PlotCurveTreeItem)
+    if (currentItem->type() == CurveTreeItem::PlotCurveTreeItem)
     {
-        ((PlotTreeItem *)currentItem)->setActive(true);
-
-        btnWorksheet->show();
-        btnAssociations->show();
-        btnEditFunction->show();
-
-        PlotTreeItem *curveItem = (PlotTreeItem *)currentItem;
+        CurveTreeItem *curveItem = (CurveTreeItem *)currentItem;
         setActiveCurve(curveItem);
 
-        if (previousItem->type() != PlotTreeItem::PlotCurveTreeItem ||
-           ((PlotTreeItem *)previousItem)->plotItemType() != curveItem->plotItemType())
+        if (previousItem->type() != CurveTreeItem::PlotCurveTreeItem ||
+           ((CurveTreeItem *)previousItem)->plotItemType() != curveItem->plotItemType())
         {
             clearTabWidget();
             insertTabs(curveItem->plotItemType());
@@ -1311,11 +1318,6 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
             clearTabWidget();
             privateTabWidget->addTab (layerPage, tr("Layer"));
             privateTabWidget->showPage(layerPage);
-
-            curvePlotTypeBox->hide();
-            btnWorksheet->hide();
-            btnAssociations->hide();
-            btnEditFunction->hide();
         }
         setActiveLayer((LayerItem *)currentItem);
     }
@@ -1327,8 +1329,7 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
 
         curvePlotTypeBox->hide();
         btnWorksheet->hide();
-        btnAssociations->hide();
-        btnEditFunction->hide();
+        btnEditCurve->hide();
     }
     boxPlotType->blockSignals(false);
 }
@@ -1339,8 +1340,7 @@ void PlotDialog::insertTabs(int plot_type)
 	{
 		privateTabWidget->addTab (piePage, tr("Pie"));
 		privateTabWidget->showPage(piePage);
-		btnAssociations->hide();
-		btnEditFunction->hide();
+		btnEditCurve->hide();
 		return;
 	}
 
@@ -1438,17 +1438,17 @@ void PlotDialog::showWorksheet()
 	if (!app)
 		return;
 
-    PlotTreeItem *item = (PlotTreeItem *)listBox->currentItem();
+    CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
     if (!item)
         return;
-    if (item->type() != PlotTreeItem::PlotCurveTreeItem)
+    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
 
 	app->showCurveWorksheet(item->graph(), item->plotItemIndex());
 	close();
 }
 
-int PlotDialog::setPlotType(PlotTreeItem *item)
+int PlotDialog::setPlotType(CurveTreeItem *item)
 {
 	int curveType = item->plotItemType();
 	if (curveType >= 0)
@@ -1517,6 +1517,10 @@ void PlotDialog::setActiveLayer(LayerItem *item)
     if (!g)
         return;
 
+	curvePlotTypeBox->hide();
+    btnWorksheet->hide();
+    btnEditCurve->hide();
+	
     boxBackgroundTransparency->blockSignals(true);
     boxCanvasTransparency->blockSignals(true);
     boxBorderWidth->blockSignals(true);
@@ -1545,7 +1549,7 @@ void PlotDialog::setActiveLayer(LayerItem *item)
     boxBorderWidth->blockSignals(false);
 }
 
-void PlotDialog::setActiveCurve(PlotTreeItem *item)
+void PlotDialog::setActiveCurve(CurveTreeItem *item)
 {
     if (!item)
         return;
@@ -1554,6 +1558,10 @@ void PlotDialog::setActiveCurve(PlotTreeItem *item)
     if (!i)
         return;
 
+	item->setActive(true);
+	btnWorksheet->show();
+    btnEditCurve->show();
+	
     int curveType = item->plotItemType();
     if (curveType == Graph::Pie)
     {
@@ -1573,8 +1581,7 @@ void PlotDialog::setActiveCurve(PlotTreeItem *item)
 
     if (i->rtti() == QwtPlotItem::Rtti_PlotSpectrogram)
     {
-        btnAssociations->hide();
-        btnEditFunction->hide();
+        btnEditCurve->hide();
         Spectrogram *sp = (Spectrogram *)i;
 
         imageGroupBox->setChecked(sp->testDisplayMode(QwtPlotSpectrogram::ImageMode));
@@ -1606,15 +1613,9 @@ void PlotDialog::setActiveCurve(PlotTreeItem *item)
 
     PlotCurve *c = (PlotCurve*)i;
     if (c->type() == Graph::Function)
-    {
-        btnAssociations->hide();
-        btnEditFunction->show();
-    }
+        btnEditCurve->setText(tr("&Edit..."));
     else
-    {
-        btnAssociations->show();
-        btnEditFunction->hide();
-    }
+        btnEditCurve->setText(tr("&Plot Associations..."));
 
     //line page
     int style = c->style();
@@ -1796,7 +1797,7 @@ bool PlotDialog::acceptParams()
     if (!it)
         return false;
 
-    PlotTreeItem *item = (PlotTreeItem *)it;
+    CurveTreeItem *item = (CurveTreeItem *)it;
     QwtPlotItem *plotItem = (QwtPlotItem *)item->plotItem();
     if (!plotItem)
         return false;
@@ -2626,24 +2627,24 @@ void LayerItem::insertCurvesList()
         else
             plotAssociation = it->title().text();
 
-        addChild(new PlotTreeItem(it, this, plotAssociation));
+        addChild(new CurveTreeItem(it, this, plotAssociation));
 	}
 }
 
 /*****************************************************************************
  *
- * Class PlotTreeItem
+ * Class CurveTreeItem
  *
  *****************************************************************************/
 
-PlotTreeItem::PlotTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s)
+CurveTreeItem::CurveTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s)
     : QTreeWidgetItem( parent, QStringList(s), PlotCurveTreeItem ),
       d_curve(curve)
 {
     setIcon(0, QPixmap(graph_disabled_xpm));
 }
 
-void PlotTreeItem::setActive(bool on)
+void CurveTreeItem::setActive(bool on)
 {
     if (on)
 		setIcon(0, QPixmap(graph_xpm));
@@ -2651,7 +2652,7 @@ void PlotTreeItem::setActive(bool on)
 		setIcon(0, QPixmap(graph_disabled_xpm));
 }
 
-int PlotTreeItem::plotItemIndex()
+int CurveTreeItem::plotItemIndex()
 {
 Graph *g = graph();
 if (!g)
@@ -2660,7 +2661,7 @@ if (!g)
 return g->plotItemIndex((QwtPlotItem *)d_curve);
 }
 
-int PlotTreeItem::plotItemType()
+int CurveTreeItem::plotItemType()
 {
 Graph *g = graph();
 if (!g)

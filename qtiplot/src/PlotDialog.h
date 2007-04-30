@@ -49,7 +49,7 @@ class QRadioButton;
 class QTreeWidget;
 
 class LayerItem;
-class PlotTreeItem;
+class CurveTreeItem;
 class ColorBox;
 class PatternBox;
 class ColorButton;
@@ -137,9 +137,9 @@ public slots:
 	void showWorksheet();
 	void quit();
 
-	int setPlotType(PlotTreeItem *item);
+	int setPlotType(CurveTreeItem *item);
 	void changePlotType(int plotType);
-	void setActiveCurve(PlotTreeItem *item);
+	void setActiveCurve(CurveTreeItem *item);
 
 	void insertTabs(int plot_type);
 	void updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *previousItem);
@@ -156,9 +156,7 @@ public slots:
 
 	void setAutomaticBinning();
 	bool validInput();
-	void showPlotAssociations();
 	void showPlotAssociations(QTreeWidgetItem *item, int);
-	void editFunctionCurve();
 	void setMultiLayer(MultiLayer *ml);
 	void selectCurve(int index);
 
@@ -190,6 +188,8 @@ protected slots:
 	void setAxesLabelsFont();
 	void setAxesNumbersFont();
 	void setLegendsFont();
+	void editCurve();
+	void showAll(bool all);
 
 protected:
     void clearTabWidget();
@@ -225,8 +225,8 @@ protected:
     PatternBox *boxPiePattern;
     QComboBox* boxPieLineStyle;
 
-    QPushButton* buttonApply, *btnWorksheet, *btnAssociations;
-    QPushButton* buttonOk;
+    QPushButton* buttonApply, *btnWorksheet;
+    QPushButton* buttonOk, *btnMore;
     QPushButton* buttonCancel;
     QComboBox* boxPlotType;
     QWidget* linePage;
@@ -255,7 +255,7 @@ protected:
 	QWidget *histogramPage, *spacingPage;
 	QLineEdit *binSizeBox, *histogramBeginBox, *histogramEndBox;
 	QCheckBox *automaticBox;
-	QPushButton* buttonStatistics, *btnEditFunction;
+	QPushButton* buttonStatistics, *btnEditCurve;
 	QSpinBox* gapBox, *offsetBox, *boxWidth;
 	QWidget *vectPage, *boxPage, *percentilePage, *axesPage;
 	QComboBox *xEndBox, *yEndBox, *boxType, *boxWhiskersType, *boxWhiskersRange, *boxRange;
@@ -299,15 +299,15 @@ protected:
 
 /*****************************************************************************
  *
- * Class PlotTreeItem
+ * Class CurveTreeItem
  *
  *****************************************************************************/
-//! PlotTreeItem tree widget item class
-class PlotTreeItem : public QTreeWidgetItem
+//! CurveTreeItem tree widget item class
+class CurveTreeItem : public QTreeWidgetItem
 {
 public:
     enum {PlotCurveTreeItem = 1002};
-    PlotTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s);
+    CurveTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s);
 
     Graph* graph(){return ((LayerItem *)parent())->graph();};
     void setActive(bool on);
