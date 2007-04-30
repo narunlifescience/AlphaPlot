@@ -45,6 +45,7 @@ public:
 	int error(){return parse_error;};
 
 private:
+	int translateOrigin2QtiplotLineStyle(int linestyle);
 	int parse_error;
 	int xoffset;
 	ApplicationWindow *mw;

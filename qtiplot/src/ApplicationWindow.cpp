@@ -3412,6 +3412,7 @@ void ApplicationWindow::open()
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
 	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
 	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
+	filter += tr("Origin graph") + " (*.ogg *.OGG);;";
 	filter += tr("Backup files") + " (*.qti~);;";
 	filter += tr("All files") + " (*);;";
 
@@ -3436,7 +3437,7 @@ void ApplicationWindow::open()
 
 		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
-			fn.endsWith(".ogw",Qt::CaseInsensitive))
+			fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
 		{
 			if (!fi.exists ())
 			{
@@ -3466,7 +3467,7 @@ void ApplicationWindow::open()
 ApplicationWindow* ApplicationWindow::open(const QString& fn)
 {
 	if (fn.endsWith(".opj", Qt::CaseInsensitive) || fn.endsWith(".ogm", Qt::CaseInsensitive) ||
-		fn.endsWith(".ogw", Qt::CaseInsensitive))
+		fn.endsWith(".ogw", Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
 		return importOPJ(fn);
 	else if (!( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
                 fn.endsWith(".qti~",Qt::CaseInsensitive)))
@@ -4836,7 +4837,8 @@ Folder* ApplicationWindow::projectFolder()
 bool ApplicationWindow::saveProject()
 {
 	if (projectname == "untitled" || projectname.endsWith(".opj", Qt::CaseInsensitive) ||
-		projectname.endsWith(".ogm", Qt::CaseInsensitive) || projectname.endsWith(".ogw", Qt::CaseInsensitive))
+		projectname.endsWith(".ogm", Qt::CaseInsensitive) || projectname.endsWith(".ogw", Qt::CaseInsensitive)
+		|| projectname.endsWith(".ogg", Qt::CaseInsensitive))
 	{
 		saveProjectAs();
 		return false;
@@ -12500,7 +12502,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
 			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
 			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n\n";
-			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw or ASCII file") + "\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII file") + "\n";
 			#ifdef Q_OS_WIN
                 hide();
 				QMessageBox::information(this, tr("QtiPlot - Help"), s);
@@ -12694,6 +12696,7 @@ void ApplicationWindow::appendProject()
 	filter += tr("Origin project") + " (*.opj *.OPJ);;";
 	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
 	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
+	filter += tr("Origin graph") + " (*.ogg *.OGG);;";
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open project"), workingDir, filter);
 
@@ -12704,7 +12707,7 @@ void ApplicationWindow::appendProject()
 	workingDir = fi.dirPath(true);
 
 	if (fn.contains(".qti",true) || fn.contains(".opj",false) ||
-		fn.contains(".ogm",false) || fn.contains(".ogw",false))
+		fn.contains(".ogm",false) || fn.contains(".ogw",false) || fn.contains(".ogg",false))
 	{
 		QFileInfo f(fn);
 		if (!f.exists ())
@@ -12749,7 +12752,7 @@ void ApplicationWindow::appendProject()
 	FolderListItem *fli = new FolderListItem(item, current_folder);
 	current_folder->setFolderListItem(fli);
 
-	if (fn.contains(".opj", false) || fn.contains(".ogm",false) || fn.contains(".ogw",false))
+	if (fn.contains(".opj", false) || fn.contains(".ogm",false) || fn.contains(".ogw",false) || fn.contains(".ogg",false))
 		ImportOPJ(this, fn);
 	else
 	{

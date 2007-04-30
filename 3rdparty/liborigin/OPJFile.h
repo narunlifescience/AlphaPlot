@@ -254,24 +254,30 @@ struct graphCurve {
 
 enum AxisPosition{ Left = 0, Bottom = 1, Right = 2, Top = 3};
 
+struct graphGrid {
+	bool hidden;
+	int color;
+	int style;
+	double width;
+};
+
+struct graphAxis {
+	int pos;
+	string label;
+	double min;
+	double max;
+	double step;
+	int majorTicks;
+	int minorTicks;
+	int scale;
+	graphGrid majorGrid;
+	graphGrid minorGrid;
+};
+
 struct graphLayer {
-	int xPos;
-	int yPos;
-	string xLabel;
-	string yLabel;
 	string legend;
-	double xMin;
-	double xMax;
-	double xStep;
-	int xMajorTicks;
-	int xMinorTicks;
-	int xScale;
-	double yMin;
-	double yMax;
-	double yStep;
-	int yMajorTicks;
-	int yMinorTicks;
-	int yScale;
+	graphAxis xAxis;
+	graphAxis yAxis;
 
 	double histogram_bin;
 	double histogram_begin;
@@ -283,7 +289,13 @@ struct graphLayer {
 struct graph {
 	string name;
 	string label;
+	bool bHidden;
 	vector<graphLayer> layer;
+	graph(string _name="")
+	:	name(_name)
+	,	label("")
+	,	bHidden(false)
+	{};
 };
 
 struct note {
@@ -376,36 +388,45 @@ public:
 	int numGraphs() { return GRAPH.size(); }			//!< get number of graphs
 	const char *graphName(int s) { return GRAPH[s].name.c_str(); }	//!< get name of graph s
 	const char *graphLabel(int s) { return GRAPH[s].label.c_str(); }	//!< get name of graph s
+	bool graphHidden(int s) { return GRAPH[s].bHidden; }	//!< is graph s hidden
 	int numLayers(int s) { return GRAPH[s].layer.size(); }			//!< get number of layers of graph s
-	const char *layerXAxisTitle(int s, int l) { return GRAPH[s].layer[l].xLabel.c_str(); }		//!< get label of X-axis of layer l of graph s
-	const char *layerYAxisTitle(int s, int l) { return GRAPH[s].layer[l].yLabel.c_str(); }		//!< get label of Y-axis of layer l of graph s
+	const char *layerXAxisTitle(int s, int l) { return GRAPH[s].layer[l].xAxis.label.c_str(); }		//!< get label of X-axis of layer l of graph s
+	const char *layerYAxisTitle(int s, int l) { return GRAPH[s].layer[l].yAxis.label.c_str(); }		//!< get label of Y-axis of layer l of graph s
 	const char *layerLegend(int s, int l) { return GRAPH[s].layer[l].legend.c_str(); }		//!< get legend of layer l of graph s
 	vector<double> layerXRange(int s, int l) {
 		vector<double> range;
-		range.push_back(GRAPH[s].layer[l].xMin);
-		range.push_back(GRAPH[s].layer[l].xMax);
-		range.push_back(GRAPH[s].layer[l].xStep);
+		range.push_back(GRAPH[s].layer[l].xAxis.min);
+		range.push_back(GRAPH[s].layer[l].xAxis.max);
+		range.push_back(GRAPH[s].layer[l].xAxis.step);
 		return range;
 	} //!< get X-range of layer l of graph s
 	vector<double> layerYRange(int s, int l) {
 		vector<double> range;
-		range.push_back(GRAPH[s].layer[l].yMin);
-		range.push_back(GRAPH[s].layer[l].yMax);
-		range.push_back(GRAPH[s].layer[l].yStep);
+		range.push_back(GRAPH[s].layer[l].yAxis.min);
+		range.push_back(GRAPH[s].layer[l].yAxis.max);
+		range.push_back(GRAPH[s].layer[l].yAxis.step);
 		return range;
 	} //!< get Y-range of layer l of graph s
 	vector<int> layerXTicks(int s, int l) {
 		vector<int> tick;
-		tick.push_back(GRAPH[s].layer[l].xMajorTicks);
-		tick.push_back(GRAPH[s].layer[l].xMinorTicks);
+		tick.push_back(GRAPH[s].layer[l].xAxis.majorTicks);
+		tick.push_back(GRAPH[s].layer[l].xAxis.minorTicks);
 		return tick;
 	} //!< get X-axis ticks of layer l of graph s
 	vector<int> layerYTicks(int s, int l) {
 		vector<int> tick;
-		tick.push_back(GRAPH[s].layer[l].yMajorTicks);
-		tick.push_back(GRAPH[s].layer[l].yMinorTicks);
+		tick.push_back(GRAPH[s].layer[l].yAxis.majorTicks);
+		tick.push_back(GRAPH[s].layer[l].yAxis.minorTicks);
 		return tick;
 	} //!< get Y-axis ticks of layer l of graph s
+	vector<graphGrid> layerGrid(int s, int l) {
+		vector<graphGrid> grid;
+		grid.push_back(GRAPH[s].layer[l].yAxis.majorGrid);
+		grid.push_back(GRAPH[s].layer[l].yAxis.minorGrid);
+		grid.push_back(GRAPH[s].layer[l].xAxis.majorGrid);
+		grid.push_back(GRAPH[s].layer[l].xAxis.minorGrid);
+		return grid;
+	} //!< get grid ticks of layer l of graph s
 	vector<double> layerHistogram(int s, int l) {
 		vector<double> range;
 		range.push_back(GRAPH[s].layer[l].histogram_bin);
@@ -413,8 +434,8 @@ public:
 		range.push_back(GRAPH[s].layer[l].histogram_end);
 		return range;
 	} //!< get histogram bin of layer l of graph s
-	int layerXScale(int s, int l){ return GRAPH[s].layer[l].xScale; }		//!< get scale of X-axis of layer l of graph s
-	int layerYScale(int s, int l){ return GRAPH[s].layer[l].yScale; }		//!< get scale of Y-axis of layer l of graph s
+	int layerXScale(int s, int l){ return GRAPH[s].layer[l].xAxis.scale; }		//!< get scale of X-axis of layer l of graph s
+	int layerYScale(int s, int l){ return GRAPH[s].layer[l].yAxis.scale; }		//!< get scale of Y-axis of layer l of graph s
 	int numCurves(int s, int l) { return GRAPH[s].layer[l].curve.size(); }			//!< get number of curves of layer l of graph s
 	const char *curveDataName(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].dataName.c_str(); }	//!< get data source name of curve c of layer l of graph s
 	const char *curveXColName(int s, int l, int c) { return GRAPH[s].layer[l].curve[c].xColName.c_str(); }	//!< get X-column name of curve c of layer l of graph s

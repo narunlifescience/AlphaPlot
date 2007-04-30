@@ -623,7 +623,7 @@ Do you want to overwrite it?</source>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12553"/>
-        <source>can be any .qti, qti.gz, .opj, .ogm, .ogw or ASCII file</source>
+        <source>can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

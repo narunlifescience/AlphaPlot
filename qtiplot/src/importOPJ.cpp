@@ -51,6 +51,32 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 	mw->showResults(opj.resultsLogString(),mw->logWindow->isVisible());
 }
 
+int ImportOPJ::translateOrigin2QtiplotLineStyle(int linestyle) {
+	int qtiplotstyle=0;
+	switch (linestyle)
+	{
+		case OPJFile::Solid:
+			qtiplotstyle=0;
+			break;
+		case OPJFile::Dash:
+		case OPJFile::ShortDash:
+			qtiplotstyle=1;
+			break;
+		case OPJFile::Dot:
+		case OPJFile::ShortDot:
+			qtiplotstyle=2;
+			break;
+		case OPJFile::DashDot:
+		case OPJFile::ShortDashDot:
+			qtiplotstyle=3;
+			break;
+		case OPJFile::DashDotDot:
+			qtiplotstyle=4;
+			break;
+	}
+	return qtiplotstyle;
+}
+
 bool ImportOPJ::importTables(OPJFile opj)
 {
 	int visible_count=0;
@@ -653,16 +679,44 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				graph->setScale(0,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
 			}
 			
+			//grid
+			vector<graphGrid> grids=opj.layerGrid(g,l);
+			GridOptions grid;
+			grid.majorOnX=(grids[0].hidden?0:1);
+			grid.minorOnX=(grids[1].hidden?0:1);
+			grid.majorOnY=(grids[2].hidden?0:1);
+			grid.minorOnY=(grids[3].hidden?0:1);
+			grid.majorStyle=translateOrigin2QtiplotLineStyle(grids[0].style);
+			grid.majorCol=grids[0].color;
+			grid.majorWidth=ceil(grids[0].width);
+			grid.minorStyle=translateOrigin2QtiplotLineStyle(grids[1].style);
+			grid.minorCol=grids[1].color;
+			grid.minorWidth=ceil(grids[1].width);
+			grid.xZeroOn=0;
+			grid.yZeroOn=0;
+			grid.xAxis=0;
+			grid.yAxis=2;
+			graph->setGridOptions(grid);
+
 			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
         	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
 		}
 		//cascade the graphs
-		int dx=20;
-		int dy=ml->parentWidget()->frameGeometry().height() - ml->height();
-		ml->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
-		visible_count++;
-		ml->show();
-		ml->arrangeLayers(true,true);
+		if(!opj.graphHidden(g))
+		{
+			int dx=20;
+			int dy=ml->parentWidget()->frameGeometry().height() - ml->height();
+			ml->parentWidget()->move(QPoint(visible_count*dx+xoffset*OBJECTXOFFSET,visible_count*dy));
+			visible_count++;
+			ml->show();
+			ml->arrangeLayers(true,true);
+		}
+		else
+		{
+			ml->show();
+			ml->arrangeLayers(true,true);
+			mw->hideWindow(ml);
+		}
 	}
 	if(visible_count>0)
 		xoffset++;

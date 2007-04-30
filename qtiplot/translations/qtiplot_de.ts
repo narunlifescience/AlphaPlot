@@ -725,8 +725,8 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12553"/>
-        <source>can be any .qti, qti.gz, .opj, .ogm, .ogw or ASCII file</source>
-        <translation type="unfinished">Kann eine beliebige .qti, qti.gz, .opj, .ogm, .ogw or ASCII Datei sein</translation>
+        <source>can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII file</source>
+        <translation type="unfinished">Kann eine beliebige .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII Datei sein</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12745"/>
@@ -5239,7 +5239,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12601"/>
         <source>can be any .qti, qti.gz, .opj, .ogm, .ogw or ASCII file</source>
-        <translation type="obsolete">Kann eine beliebige .qti, qti.gz, .opj, .ogm, .ogw or ASCII Datei sein</translation>
+        <translation type="obsolete">Kann eine beliebige .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII Datei sein</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12623"/>
