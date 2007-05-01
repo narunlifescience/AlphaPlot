@@ -11839,7 +11839,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionTranslateHor->setMenuText(tr("&Horizontal"));
 	actionTranslateVert->setMenuText(tr("&Vertical"));
 	actionSetAscValues->setMenuText(tr("Ro&w Numbers"));
-	actionSetRandomValues->setMenuText(tr("&Random values"));
+	actionSetRandomValues->setMenuText(tr("&Random Values"));
 	actionSetXCol->setMenuText(tr("&X"));
 	actionSetYCol->setMenuText(tr("&Y"));
 	actionSetZCol->setMenuText(tr("&Z"));

@@ -1,25 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS><TS version="1.1" language="de_DE">
 <context>
-    <name>QShortcut</name>
-    <message>
-        <source>Ctrl</source>
-        <translation>Strg</translation>
-    </message>
-    <message>
-        <source>Shift</source>
-        <translation>Umschalt</translation>
-    </message>
-    <message>
-        <source>Del</source>
-        <translation>Entf</translation>
-    </message>
-    <message>
-        <source>Return</source>
-        <translation>Eingabe</translation>
-    </message>
-</context>
-<context>
     <name>@default</name>
     <message>
         <location filename="../src/Table.cpp" line="3065"/>
@@ -3012,7 +2993,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="8810"/>
         <source>Clea&amp;r</source>
-        <translation>&amp;Löschen</translation>
+        <translation>&amp;Leeren</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="5746"/>
@@ -3544,7 +3525,7 @@ Wollen Sie fortfahren?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11890"/>
         <source>&amp;Random values</source>
-        <translation>Z&amp;ufallswerte</translation>
+        <translation type="unfinished">Z&amp;ufallswerten</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11896"/>
@@ -4110,7 +4091,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11843"/>
         <source>Clear</source>
-        <translation>Löschen</translation>
+        <translation type="unfinished">Leeren</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11913"/>
@@ -4797,7 +4778,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11433"/>
         <source>&amp;Random Values</source>
-        <translation>Z&amp;ufallswerte</translation>
+        <translation type="unfinished">Z&amp;ufallswerten</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11469"/>
@@ -14058,6 +14039,29 @@ Wollen sie Zellen einfügen?</translation>
     </message>
 </context>
 <context>
+    <name>QShortcut</name>
+    <message>
+        <location filename="../src/PolynomialFit.cpp" line="138"/>
+        <source>Ctrl</source>
+        <translation>Strg</translation>
+    </message>
+    <message>
+        <location filename="../src/PolynomialFit.cpp" line="138"/>
+        <source>Shift</source>
+        <translation>Umschalt</translation>
+    </message>
+    <message>
+        <location filename="../src/PolynomialFit.cpp" line="138"/>
+        <source>Del</source>
+        <translation>Entf</translation>
+    </message>
+    <message>
+        <location filename="../src/PolynomialFit.cpp" line="138"/>
+        <source>Return</source>
+        <translation>Eingabe</translation>
+    </message>
+</context>
+<context>
     <name>RangeSelectorTool</name>
     <message>
         <location filename="../src/RangeSelectorTool.cpp" line="56"/>
@@ -14812,7 +14816,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="107"/>
         <source>Clear &amp;list</source>
-        <translation>&amp;Liste löschen</translation>
+        <translation type="unfinished">&amp;Liste leeren</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="108"/>

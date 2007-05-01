@@ -79,7 +79,7 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	// create the GUI
 	generalDialog = new QStackedWidget();
 	itemsList = new QListWidget();
-	itemsList->setSpacing(3);
+	itemsList->setSpacing(10);
 	itemsList->setAlternatingRowColors( true );
 
 	initAppPage();
