@@ -52,9 +52,9 @@ CanvasPicker::CanvasPicker(Graph *graph):
 
 bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 {
-	QVector<long> images=plot()->imageMarkerKeys();
-	QVector<long> texts=plot()->textMarkerKeys();
-	QVector<long> lines=plot()->lineMarkerKeys();
+	QVector<int> images=plot()->imageMarkerKeys();
+	QVector<int> texts=plot()->textMarkerKeys();
+	QVector<int> lines=plot()->lineMarkerKeys();
 
 	if (object != (QObject *)plot()->plotWidget()->canvas())
 		return FALSE;

@@ -847,7 +847,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
   	        plot->setAxisTitle(j, text);
 		}
 
-		QwtArray<long> keys=gr->textMarkerKeys();
+		QVector<int> keys=gr->textMarkerKeys();
 		for (int k=0;k<(int)keys.size();k++)
 		{
 			LegendMarker* mrk=(LegendMarker*)gr->textMarker(keys[k]);

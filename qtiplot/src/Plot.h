@@ -51,16 +51,17 @@ public:
 
 	QwtPlotGrid *grid(){return (QwtPlotGrid *)d_grid;};
 	QList<int> curveKeys(){return d_curves.keys();};
-
+	QList<QwtPlotItem *> curvesList(){return d_curves.values();};
+	
 	int insertCurve(QwtPlotItem *c);
 	void removeCurve(int index);
 
 	int closestCurve(int xpos, int ypos, int &dist, int &point);
 	QwtPlotCurve* curve(int index);
-	QwtPlotItem* plotItem(int index){return d_curves[index];};
+	QwtPlotItem* plotItem(int index){return d_curves.value(index);};
 	QMap<int, QwtPlotItem*> curves(){return d_curves;};
 
-	QwtPlotMarker* marker(int index){return d_markers[index];};
+	QwtPlotMarker* marker(int index){return d_markers.value(index);};
 	QList<int> markerKeys(){return d_markers.keys();};
 	int insertMarker(QwtPlotMarker *m);
 	void removeMarker(int index);

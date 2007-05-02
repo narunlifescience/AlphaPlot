@@ -226,8 +226,10 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	grid.yAxis = QwtPlot::yLeft;
 
 	legendMarkerID = -1; // no legend for an empty graph
-	d_texts = QVector<long>();
-
+	d_texts = QVector<int>();
+	c_type = QVector<int>();
+	c_keys = QVector<int>();
+	
 	connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
@@ -2905,12 +2907,17 @@ QwtPlotItem* Graph::plotItem(int index)
     if (!n_curves || index >= n_curves || index < 0)
 		return 0;
 
-    return d_plot->plotItem(c_keys[index]);
+	return d_plot->plotItem(c_keys[index]);
 }
 
 int Graph::plotItemIndex(QwtPlotItem *it) const
 {
-	return d_plot->curveKeys().findIndex(d_plot->curves().key(it));
+	for (int i = 0; i < n_curves; i++)
+	{
+		if (d_plot->plotItem(c_keys[i]) == it)
+			return i;
+	}
+	return -1;
 }
 
 QwtPlotCurve *Graph::curve(int index)
@@ -2923,7 +2930,7 @@ QwtPlotCurve *Graph::curve(int index)
 
 int Graph::curveIndex(QwtPlotCurve *c) const
 {
-	return d_plot->curveKeys().findIndex(d_plot->curves().key(c));
+	return plotItemIndex(c);
 }
 
 int Graph::range(int index, double *start, double *end)
@@ -4829,7 +4836,7 @@ void Graph::copy(Graph* g)
 	setAxisLabelRotation(QwtPlot::xBottom, g->labelsRotation(QwtPlot::xBottom));
   	setAxisLabelRotation(QwtPlot::xTop, g->labelsRotation(QwtPlot::xTop));
 
-	QVector<long> imag = g->imageMarkerKeys();
+	QVector<int> imag = g->imageMarkerKeys();
 	for (i=0; i<(int)imag.size(); i++)
 	{
 		ImageMarker* imrk = (ImageMarker*)g->imageMarker(imag[i]);
@@ -4837,7 +4844,7 @@ void Graph::copy(Graph* g)
 			insertImageMarker(imrk);
 	}
 
-	QVector<long> txtMrkKeys=g->textMarkerKeys();
+	QVector<int> txtMrkKeys=g->textMarkerKeys();
 	for (i=0; i<(int)txtMrkKeys.size(); i++)
 	{
 		LegendMarker* mrk = (LegendMarker*)g->textMarker(txtMrkKeys[i]);
@@ -4850,7 +4857,7 @@ void Graph::copy(Graph* g)
 			insertTextMarker(mrk);
 	}
 
-	QVector<long> l = g->lineMarkerKeys();
+	QVector<int> l = g->lineMarkerKeys();
 	for (i=0; i<(int)l.size(); i++)
 	{
 		LineMarker* lmrk=(LineMarker*)g->lineMarker(l[i]);

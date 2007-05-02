@@ -330,7 +330,7 @@ class Graph: public QWidget
 				bool start, bool end, int headLength, int headAngle, bool filledHead);
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
-		QVector<long> textMarkerKeys(){return d_texts;};
+		QVector<int> textMarkerKeys(){return d_texts;};
 		LegendMarker* textMarker(long id);
 
 		void addTimeStamp();
@@ -355,7 +355,7 @@ class Graph: public QWidget
 
 		//! Used when opening a project file
 		void insertLineMarker(QStringList list, int fileVersion);
-		QVector<long> lineMarkerKeys(){return d_lines;};
+		QVector<int> lineMarkerKeys(){return d_lines;};
 
 		//!Draws a line/arrow depending on the value of "arrow"
 		void drawLine(bool on, bool arrow = FALSE);
@@ -376,7 +376,7 @@ class Graph: public QWidget
 		//! \name Image Markers
 		//@{
 		ImageMarker* imageMarker(long id);
-		QVector<long> imageMarkerKeys(){return d_images;};
+		QVector<int> imageMarkerKeys(){return d_images;};
 		void insertImageMarker(ImageMarker* mrk);
 		void insertImageMarker(const QPixmap& photo, const QString& fileName);
 
@@ -718,13 +718,13 @@ signals:
 		//! Curve types
 		QVector<int> c_type;
 		//! Curves on plot keys
-		QVector<long> c_keys;
+		QVector<int> c_keys;
 		//! Arrows/lines on plot keys
-		QVector<long> d_lines;
+		QVector<int> d_lines;
 		//! Images on plot keys
-		QVector<long> d_images;
+		QVector<int> d_images;
 		//! Stores the identifiers (keys) of the text objects on the plot
-		QVector<long> d_texts;
+		QVector<int> d_texts;
 
 		QPen mrkLinePen;
 		QFont auxMrkFont, defaultMarkerFont;

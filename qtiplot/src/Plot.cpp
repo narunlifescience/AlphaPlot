@@ -416,7 +416,7 @@ void Plot::print(QPainter *painter, const QRect &plotRect, const QwtPlotPrintFil
 
 QwtPlotCurve* Plot::curve(int index)
 {
-    QwtPlotItem *it = d_curves[index];
+    QwtPlotItem *it = d_curves.value(index);
     if (it && it->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
         return (QwtPlotCurve*)it;
     else
@@ -470,7 +470,8 @@ void Plot::removeMarker(int index)
 int Plot::insertMarker(QwtPlotMarker *m)
 {
 	marker_key++;
-	d_markers.insert (marker_key, m, false );
+	if (!d_markers.contains(marker_key))
+		d_markers.insert (marker_key, m);
 	m->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
 	m->attach(((QwtPlot *)this));
 	return marker_key;
@@ -479,7 +480,8 @@ int Plot::insertMarker(QwtPlotMarker *m)
 int Plot::insertCurve(QwtPlotItem *c)
 {
 	curve_key++;
-	d_curves.insert (curve_key, c, false);
+	if (!d_curves.contains(curve_key))
+		d_curves.insert (curve_key, c);
 	if (c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		((QwtPlotCurve *)c)->setPaintAttribute(QwtPlotCurve::PaintFiltered);
 

@@ -1302,9 +1302,10 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
         if (previousItem->type() != CurveTreeItem::PlotCurveTreeItem ||
            ((CurveTreeItem *)previousItem)->plotItemType() != curveItem->plotItemType())
         {
-            clearTabWidget();
-            insertTabs(curveItem->plotItemType());
-            setPlotType(curveItem);
+            clearTabWidget();  
+            int plot_type = setPlotType(curveItem);
+			if (plot_type >= 0)
+				insertTabs(plot_type);
             if (!curvePlotTypeBox->isVisible())
                 curvePlotTypeBox->show();
         }
@@ -1482,7 +1483,7 @@ int PlotDialog::setPlotType(CurveTreeItem *item)
 
 			QwtPlotCurve *c = (QwtPlotCurve*)item->plotItem();
 			if (!c)
-				return Graph::Line;
+				return -1;
 
 			QwtSymbol s = c->symbol();
 			if (s.style() == QwtSymbol::NoSymbol)
@@ -1560,7 +1561,7 @@ void PlotDialog::setActiveCurve(CurveTreeItem *item)
 	btnWorksheet->show();
     btnEditCurve->show();
 	
-    int curveType = item->plotItemType();
+    int curveType = item->plotItemType();	
     if (curveType == Graph::Pie)
     {
         QwtPieCurve *pie = (QwtPieCurve*)i;
