@@ -97,6 +97,8 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	hor_align = HCenter;  vert_align = VCenter;
 	active_graph = 0;
 	addTextOn = false;
+    d_open_maximized = 0;
+    d_max_size = QSize();
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -216,12 +218,30 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
 
-	if (size == oldSize || !userRequested())
-		return;
-	else if (!oldSize.isValid() && !maximizedSize().isValid())
-		return;
-	else if(!oldSize.isValid())
-		oldSize = QSize(maximizedSize().width(), maximizedSize().height()-LayerButton::btnSize());
+    if (d_open_maximized == 1)
+    {// 2 resize events are triggered for maximized windows: this hack allows to ignore the first one!
+        d_open_maximized++;
+        return;
+    }
+    else if (d_open_maximized == 2)
+    {
+        d_open_maximized = 0;
+        //TODO: for maximized windows, the size of the layers should be saved in % of the workspace area in order to restore
+        //the layers properly! For the moment just resize the layers to occupy the whole canvas, although the restored geometry might be altered!
+        oldSize = QSize(canvas->childrenRect().width() + left_margin + right_margin,
+                        canvas->childrenRect().height() + top_margin + bottom_margin);
+        //return;
+    }
+
+    if(!oldSize.isValid() && !d_max_size.isValid())
+        return;
+
+    bool scaleFonts = false;
+    if(!oldSize.isValid())
+    {// window is in minimized state, thus having an invalid oldSize()
+        oldSize = QSize(d_max_size.width(), d_max_size.height() - LayerButton::btnSize());
+        scaleFonts = true;
+    }
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
@@ -240,6 +260,9 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 
 			gr->setGeometry(QRect(gx, gy, gw, gh));
 			gr->plotWidget()->resize(QSize(gw, gh));
+
+            if (scaleFonts)
+                gr->scaleFonts(h_ratio);
 		}
 	}
 
@@ -1236,4 +1259,13 @@ bool MultiLayer::focusNextPrevChild ( bool next )
 		return true;
 
 	return active_graph->focusNextPrevChild(next);
+}
+
+void MultiLayer::changeEvent(QEvent *event)
+{
+	if (event->type() == QEvent::WindowStateChange) {
+		if ( windowState() & Qt::WindowMaximized )
+	     	d_max_size = size();
+	}
+	MyWidget::changeEvent(event);
 }

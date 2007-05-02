@@ -597,10 +597,8 @@ public slots:
 	//! \name Dialogs
 	//@{
 	void showFindDialogue();
-	//! Show plot style dialog for the active MultiLayer / active Graph / first curve.
-	void showPlotDialog();
-	//! Show plot style dialog for the active MultiLayer / active Graph / specified curve.
-	void showPlotDialog(int curveKey);
+	//! Show plot style dialog for the active MultiLayer / activeGraph / specified curve or the activeGraph options dialog if no curve is specified (curveKey = -1).
+	void showPlotDialog(int curveKey = -1);
 	QDialog* showScaleDialog();
 	QDialog* showPlot3dDialog();
 	AxesDialog* showScalePageFromAxisDialog(int axisPos);
@@ -914,6 +912,7 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+	bool d_extended_plot_dialog;
 	bool generateUniformFitPoints;
 	bool generatePeakCurves;
 	int peakCurvesColor;

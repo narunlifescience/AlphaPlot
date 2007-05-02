@@ -117,9 +117,6 @@ public:
 	//! Size of the widget as a string
 	virtual QString sizeToString();
 
-	//!Notifies a change in the status of a former maximized window after it was shown as normal as a result of an indirect user action (e.g.: another window was maximized)
-	void setNormal();
-
 	//!Notifies that a window was hidden by a direct user action
 	void setHidden();
 
@@ -132,31 +129,14 @@ public:
 	void closeEvent( QCloseEvent *);
 	//! Toggle the "ask on close" flag
 	void askOnCloseEvent(bool ask){askOnClose = ask;};
-	//! General event handler (updates the window status if it changed)
-	bool event( QEvent *e );
 	//! Filters other object's events (customizes title bar's context menu)
 	bool eventFilter(QObject *object, QEvent *e);
-
-	//! Show the window maximized
-	void showMaximized();
-	//! Tells if a resize event was requested by the user or generated programatically
-	bool userRequested(){return user_request;};
 
 	//! Returns the pointer to the parent folder of the window
 	Folder* folder(){return parentFolder;};
 
 	//! Initializes the pointer to the parent folder of the window
 	void setFolder(Folder* f){parentFolder = f;};
-
-	//! Returns the size of the widget in the Qt::WindowMaximized state.
-	/**
-	 * When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
-	 * Qt posts a resize event with invalid oldSize (width = height = -1).
-	 * This is why we must keep track of the size of the window in the
-	 * Qt::WindowMaximized state and use it as the real oldSize when processing
-	 * the resize event for the MultiLayer windows.
-	 */
-	QSize maximizedSize(){return d_max_size;};
 
 	//! Notifies the main application that the window has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
@@ -203,10 +183,6 @@ private:
 	CaptionPolicy caption_policy;
 	//! Toggle on/off: Ask the user "delete, hide, or cancel?" on a close event
 	bool askOnClose;
-	//! Tells if the showMaximized action was requested by the user or generated programatically
-	bool user_request;
-	//! Stores the size of the widget in the Qt::WindowMaximized state.
-	QSize d_max_size;
 };
 
 #endif

@@ -39,11 +39,9 @@
 MyWidget::MyWidget(const QString& label, QWidget * parent, const char * name, Qt::WFlags f):
 		QWidget (parent, f)
 {
-	d_max_size = QSize();
 	w_label = label;
 	caption_policy = Both;
 	askOnClose = true;
-	user_request = false;
 	w_status = Normal;
 	titleBar = NULL;
 	setObjectName(QString(name));
@@ -126,51 +124,11 @@ switch (w_status)
 return s;
 };
 
-bool MyWidget::event( QEvent *e )
-{
-	bool result = QWidget::event( e );
-	if( e->type() == QEvent::WindowStateChange)
-	{
-		if( windowState() & Qt::WindowMinimized )
-	    	w_status = Minimized;
-		else if ( windowState() & Qt::WindowMaximized )
-		{
-	     	w_status = Maximized;
-			// When switching from the Qt::WindowMaximized state to Qt::WindowMinimized
-			// Qt posts a resize event with invalid oldSize (width = height = -1).
-			// This is why we must keep track of the size of the window in the
-			// Qt::WindowMaximized state and use it as the real oldSize when processing
-			// the resize event for the MultiLayer windows.
-			d_max_size = size();
-		}
-		else
-	    {
-	    	user_request = true;
-	    	w_status = Normal;
-	    }
-    	emit statusChanged (this);
-   		return result;
-	}
-	return false;
-}
-
 void MyWidget::setHidden()
 {
 w_status = Hidden;
 emit statusChanged (this);
 hide();
-}
-
-void MyWidget::setNormal()
-{
-w_status = Normal;
-emit statusChanged (this);
-}
-
-void MyWidget::showMaximized()
-{
-user_request = this->isVisible();
-QWidget::showMaximized();
 }
 
 QString MyWidget::sizeToString()
@@ -188,6 +146,15 @@ void MyWidget::changeEvent(QEvent *event)
 	if (event->type() == QEvent::ParentChange) {
 		titleBar = 0;
 		parent()->installEventFilter(this);
+	}
+	else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
+		if( windowState() & Qt::WindowMinimized )
+	    	w_status = Minimized;
+		else if ( windowState() & Qt::WindowMaximized )
+	     	w_status = Maximized;
+		else
+	    	w_status = Normal;
+    	emit statusChanged (this);
 	}
 	QWidget::changeEvent(event);
 }
@@ -213,7 +180,7 @@ double MyWidget::stringToDouble(const QString& s)
 	double val = QLocale().toDouble(s, &ok);
     if (ok)
         return val;
-	
+
     val = QLocale::c().toDouble(s, &ok);
     if (ok)
         return val;

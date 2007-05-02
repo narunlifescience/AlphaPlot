@@ -81,11 +81,14 @@ public:
 	void contextMenuEvent(QContextMenuEvent *);
 	void wheelEvent(QWheelEvent *);
 	void keyPressEvent(QKeyEvent *);
+	void changeEvent(QEvent *);
 	bool eventFilter(QObject *object, QEvent *);
 	void releaseLayer();
 
 	bool focusNextPrevChild ( bool next );
 	//@}
+
+	void setOpenMaximized(){d_open_maximized = 1;};
 
 public slots:
 	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
@@ -221,6 +224,9 @@ private:
     QWidget *canvas;
 
 	QPointer<SelectionMoveResizer> d_layers_selector;
+    //! Stores the size of the widget in the Qt::WindowMaximized state.
+	int d_open_maximized;
+	QSize d_max_size;
 };
 
 

@@ -4075,6 +4075,7 @@ void ApplicationWindow::readSettings()
 	autoSaveTime = settings.value("/AutoSaveTime",15).toInt();
 	defaultScriptingLang = settings.value("/ScriptingLang","muParser").toString();
 	QLocale::setDefault(settings.value("/Locale", QLocale::system().name()).toString());
+	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4270,6 +4271,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoSaveTime", autoSaveTime);
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
 	settings.setValue("/Locale", QLocale().name());
+	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
 
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
@@ -4803,14 +4805,17 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	QString caption = w->name();
 	if (s.contains ("minimized"))
 	{
-		w->parentWidget()->showMinimized();
+		//w->parentWidget()->showMinimized();
 		((MyWidget *)w)->setStatus(MyWidget::Minimized);
 		app->setListView(caption, tr("Minimized"));
 	}
 	else if (s.contains ("maximized"))
 	{
-		w->parentWidget()->showMaximized();
+	    //w->parentWidget()->showMaximized();
 		((MyWidget *)w)->setStatus(MyWidget::Maximized);
+		if (w->isA("MultiLayer"))
+            ((MultiLayer *)w)->setOpenMaximized();
+
 		app->setListView(caption, tr("Maximized"));
 	}
 	else
@@ -6110,29 +6115,6 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 	else return 0;
 }
 
-void ApplicationWindow::showPlotDialog()
-{
-	QWidget *w = ws->activeWindow();
-	if (!w)
-		return;
-
-	if (w->isA("MultiLayer"))
-	{
-		Graph *g = ((MultiLayer*)w)->activeGraph();
-		if (!g)
-			return;
-
-		PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
-        pd->setAttribute(Qt::WA_DeleteOnClose);
-        pd->insertColumnsList(columnsList(Table::All));
-        pd->setMultiLayer((MultiLayer*)w);
-        pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
-        pd->show();
-	}
-	else if (w->isA("Graph3D"))
-        showPlot3dDialog();
-}
-
 void ApplicationWindow::showPlotDialog(int curveKey)
 {
 	QWidget *w = ws->activeWindow();
@@ -6141,17 +6123,18 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 
 	if (w->isA("MultiLayer"))
 	{
-		Graph *g = ((MultiLayer*)w)->activeGraph();
-		if (!g)
-			return;
-
-		PlotDialog* pd = new PlotDialog(this, "PlotDialog", false);
+		PlotDialog* pd = new PlotDialog(d_extended_plot_dialog, this, "PlotDialog", false);
         pd->setAttribute(Qt::WA_DeleteOnClose);
         pd->insertColumnsList(columnsList(Table::All));
         pd->setMultiLayer((MultiLayer*)w);
         if (curveKey >= 0)
-            pd->selectCurve(g->curveIndex(curveKey));
+		{
+			Graph *g = ((MultiLayer*)w)->activeGraph();
+			if (g)
+            	pd->selectCurve(g->curveIndex(curveKey));
+		}
         pd->initFonts(plotTitleFont, plotAxesFont, plotNumbersFont, plotLegendFont);
+		pd->showAll(d_extended_plot_dialog);
         pd->show();
 	}
 }
@@ -7746,22 +7729,6 @@ bool ApplicationWindow::hidden(QWidget* window)
 void ApplicationWindow::updateWindowStatus(MyWidget* w)
 {
 	setListView(w->name(), w->aspect());
-
-	if (w->status() == MyWidget::Maximized)
-	{//set any other window having status = Maximized to status = Normal
-		QList<MyWidget *> lst = current_folder->windowsList();
-		if (!lst.contains(w))
-			return;
-
-		foreach(MyWidget *aw, lst)
-		{
-			if (aw != w && aw->status() == MyWidget::Maximized)
-			{
-				aw->setNormal();
-				return;
-			}
-		}
-	}
 }
 
 void ApplicationWindow::hideActiveWindow()
@@ -7841,10 +7808,11 @@ void ApplicationWindow::activateWindow(MyWidget *w)
 	if (!w)
 		return;
 
-	updateWindowLists(w);
-
-	w->showNormal();
 	w->setActiveWindow();
+	w->setFocus();
+	w->showNormal();
+
+	updateWindowLists(w);
 	emit modified();
 }
 

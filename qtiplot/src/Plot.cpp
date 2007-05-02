@@ -86,13 +86,13 @@ Plot::Plot(QWidget *parent, const char *)
 			setAxisScaleDraw (i, sd);
 		}
 	}
-	
+
 	/*QwtTextLabel *title = titleLabel();
 	title->setMargin(5);
 	QwtText t = title->text();
 	t.setBackgroundPen(QPen(QColor(Qt::red), 2));
 	title->setText(t);*/
-	
+
 	QwtPlotLayout *pLayout = plotLayout();
 	pLayout->setCanvasMargin(0);
 	pLayout->setAlignCanvasToScales (true);
@@ -143,8 +143,7 @@ void Plot::printFrame(QPainter *painter, const QRect &rect) const
 	else
 		painter->setPen(QPen(Qt::NoPen));
 
-	if (paletteBackgroundColor() != Qt::white)
-		painter->setBrush(paletteBackgroundColor());
+    painter->setBrush(paletteBackgroundColor());
 
 	QwtPainter::drawRect(painter, rect.x()-lw/2, rect.y()-lw/2, rect.width()+3/2*lw, rect.height()+3/2*lw);
 	painter->restore();
@@ -407,8 +406,7 @@ void Plot::setTickLength (int minLength, int majLength)
 	minTickLength = minLength;
 }
 
-void Plot::print(QPainter *painter, const QRect &plotRect,
-		const QwtPlotPrintFilter &pfilter)
+void Plot::print(QPainter *painter, const QRect &plotRect, const QwtPlotPrintFilter &pfilter)
 {
     QwtText t = title();
 	printFrame(painter, plotRect);
@@ -484,7 +482,7 @@ int Plot::insertCurve(QwtPlotItem *c)
 	d_curves.insert (curve_key, c, false);
 	if (c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		((QwtPlotCurve *)c)->setPaintAttribute(QwtPlotCurve::PaintFiltered);
-	
+
 	c->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
 	c->attach(this);
 	return curve_key;

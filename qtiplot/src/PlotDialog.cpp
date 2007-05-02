@@ -66,7 +66,7 @@
 #include <QMenu>
 #include <QDateTime>
 
-PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+PlotDialog::PlotDialog( bool showExtended, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl ),
   d_ml(0)
 {
@@ -110,9 +110,11 @@ PlotDialog::PlotDialog( QWidget* parent,  const char* name, bool modal, Qt::WFla
 	clearTabWidget();
 
     QHBoxLayout* hb2 = new QHBoxLayout();
-	btnMore = new QPushButton("<<");
+	btnMore = new QPushButton("&<<");
 	btnMore->setFixedWidth(25);
 	btnMore->setCheckable(true);
+	if (showExtended)
+		btnMore->toggle ();
     hb2->addWidget(btnMore);
 	btnWorksheet = new QPushButton(tr( "&Worksheet" ) );
     hb2->addWidget(btnWorksheet);
@@ -160,13 +162,13 @@ void PlotDialog::showAll(bool all)
     	if (item->type() == CurveTreeItem::PlotCurveTreeItem)
         	curvePlotTypeBox->show();
 		
-		btnMore->setText(">>");
+		btnMore->setText("&>>");
 	}
 	else
 	{
 		listBox->hide();
 		curvePlotTypeBox->hide();
-		btnMore->setText("<<");
+		btnMore->setText("&<<");
 	}
 }
 
@@ -1057,9 +1059,6 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
         	listBox->setCurrentItem(layer);
 		}
     }
-
-    listBox->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-	showAll(false);
 }
 
 void PlotDialog::selectCurve(int index)
@@ -1075,7 +1074,6 @@ void PlotDialog::selectCurve(int index)
 	    ((CurveTreeItem *)item)->setActive(true);
         listBox->setCurrentItem(item);
 	}
-	showAll(false);
 }
 
 void PlotDialog::showStatistics()
@@ -1768,7 +1766,7 @@ bool PlotDialog::acceptParams()
     else if (privateTabWidget->currentWidget() == layerPage)
 	{
 		if (!boxAll->isChecked())
-			return false;
+			return true;
 
 		QWidgetList allPlots = d_ml->graphPtrs();
 		for (int i=0; i<allPlots.count();i++)
@@ -2580,6 +2578,16 @@ void PlotDialog::initFonts(const QFont& titlefont, const QFont& axesfont, const 
 	numbersFont = numbersfont;
 	legendFont = legendfont;
 }
+
+void PlotDialog::closeEvent(QCloseEvent* e)
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (app)
+		app->d_extended_plot_dialog = btnMore->isChecked ();
+	
+	e->accept();
+}
+
 /*****************************************************************************
  *
  * Class LayerItem

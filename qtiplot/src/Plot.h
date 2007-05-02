@@ -89,9 +89,7 @@ public:
 	QColor frameColor();
 	const QColor & paletteBackgroundColor() const;
 
-	virtual void print(QPainter *, const QRect &rect,
-        const QwtPlotPrintFilter & = QwtPlotPrintFilter());
-
+	void print(QPainter *, const QRect &rect, const QwtPlotPrintFilter & = QwtPlotPrintFilter());
     void updateLayout();
 
 protected:

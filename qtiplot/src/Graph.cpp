@@ -4146,9 +4146,8 @@ QString Graph::saveToString(bool saveAsTemplate)
 {
 	QString s="<graph>\n";
 	s+="ggeometry\t";
-	QPoint p=this->pos();
-	s+=QString::number(p.x())+"\t";
-	s+=QString::number(p.y())+"\t";
+	s+=QString::number(this->pos().x())+"\t";
+	s+=QString::number(this->pos().y())+"\t";
 	s+=QString::number(this->frameGeometry().width())+"\t";
 	s+=QString::number(this->frameGeometry().height())+"\n";
 	s+=saveTitle();

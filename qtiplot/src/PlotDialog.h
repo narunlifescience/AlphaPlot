@@ -122,13 +122,18 @@ class PlotDialog : public QDialog
     Q_OBJECT
 
 public:
-    PlotDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    PlotDialog( bool showExtended, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
     void initFonts(const QFont& titlefont, const QFont& axesfont, const QFont& numbersfont, const QFont& legendfont);
+	void insertColumnsList(const QStringList& names){columnNames = names;};
 
 public slots:
+	void showAll(bool all);
+	void setMultiLayer(MultiLayer *ml);
+	void selectCurve(int index);
+
+private slots:
 	void showStatistics();
 	void customVectorsPage(bool angleMag);
-	void insertColumnsList(const QStringList& names){columnNames = names;};
 	void updateEndPointColumns(const QString& text);
 
 	void fillBoxSymbols();
@@ -157,8 +162,6 @@ public slots:
 	void setAutomaticBinning();
 	bool validInput();
 	void showPlotAssociations(QTreeWidgetItem *item, int);
-	void setMultiLayer(MultiLayer *ml);
-	void selectCurve(int index);
 
 	void setPenStyle(Qt::PenStyle style);
 	void setPiePenStyle(const Qt::PenStyle& style);
@@ -189,9 +192,10 @@ protected slots:
 	void setAxesNumbersFont();
 	void setLegendsFont();
 	void editCurve();
-	void showAll(bool all);
 
-protected:
+private:
+	void closeEvent(QCloseEvent* e);
+
     void clearTabWidget();
 	void initAxesPage();
 	void initLinePage();
