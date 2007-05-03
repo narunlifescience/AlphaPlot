@@ -229,7 +229,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	d_texts = QVector<int>();
 	c_type = QVector<int>();
 	c_keys = QVector<int>();
-	
+
 	connect (cp,SIGNAL(selectPlot()),this,SLOT(activateGraph()));
 	connect (cp,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
 	connect (cp,SIGNAL(viewImageDialog()),this,SIGNAL(viewImageDialog()));
@@ -858,9 +858,17 @@ void Graph::setLabelsDateTimeFormat(int axis, int type, const QString& formatInf
 	if (type < Time)
 		return;
 
-	QStringList list = formatInfo.split(";");
-	if ((int)list.count() < 2 || list[0].isEmpty() || list[1].isEmpty())
-		return;
+	QStringList list = formatInfo.split(";", QString::KeepEmptyParts);
+	if ((int)list.count() < 2)
+	{
+        QMessageBox::critical(this, tr("QtiPlot - Error"), "Couldn't change the axis type to the requested format!");
+        return;
+    }
+    if (list[0].isEmpty() || list[1].isEmpty())
+    {
+        QMessageBox::critical(this, tr("QtiPlot - Error"), "Couldn't change the axis type to the requested format!");
+        return;
+    }
 
 	if (type == Time)
 	{

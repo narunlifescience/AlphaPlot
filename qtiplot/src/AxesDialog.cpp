@@ -1813,85 +1813,85 @@ void AxesDialog::showAxisFormatOptions(int format)
 			break;
 
 		case 2:
-			{
-				int day = (QDate::currentDate()).dayOfWeek();
-				label2->show();
-				boxFormat->show();
-				boxFormat->insertItem(QDate::shortDayName(day));
-				boxFormat->insertItem(QDate::longDayName(day));
-				boxFormat->insertItem((QDate::shortDayName(day)).left(1));
-				boxFormat->setCurrentIndex (formatInfo[axis].toInt());
-			}
-			break;
+        {
+            int day = (QDate::currentDate()).dayOfWeek();
+            label2->show();
+            boxFormat->show();
+            boxFormat->insertItem(QDate::shortDayName(day));
+            boxFormat->insertItem(QDate::longDayName(day));
+            boxFormat->insertItem((QDate::shortDayName(day)).left(1));
+            boxFormat->setCurrentIndex (formatInfo[axis].toInt());
+        }
+        break;
 
 		case 3:
-				{
-					int month = (QDate::currentDate()).month();
-					label2->show();
-					boxFormat->show();
-					boxFormat->insertItem(QDate::shortMonthName(month));
-					boxFormat->insertItem(QDate::longMonthName(month));
-					boxFormat->insertItem((QDate::shortMonthName(month)).left(1));
-					boxFormat->setCurrentIndex (formatInfo[axis].toInt());
-				}
-				break;
+        {
+            int month = (QDate::currentDate()).month();
+            label2->show();
+            boxFormat->show();
+            boxFormat->insertItem(QDate::shortMonthName(month));
+            boxFormat->insertItem(QDate::longMonthName(month));
+            boxFormat->insertItem((QDate::shortMonthName(month)).left(1));
+            boxFormat->setCurrentIndex (formatInfo[axis].toInt());
+        }
+        break;
 
 		case 4:
-					{
-						label2->show();
-						boxFormat->show();
-						boxFormat->setEditable(true);
+        {
+            label2->show();
+            boxFormat->show();
+            boxFormat->setEditable(true);
 
-						QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
-						if (!lst[1].isEmpty())
-						{
-							boxFormat->insertItem(lst[1]);
-							boxFormat->setCurrentText(lst[1]);
-						}
+            QStringList lst = formatInfo[axis].split(";", QString::KeepEmptyParts);
+            if (lst.count() == 2)
+            {
+                boxFormat->insertItem(lst[1]);
+                boxFormat->setCurrentText(lst[1]);
+            }
 
-						boxFormat->insertItem("h");
-						boxFormat->insertItem("h ap");
-						boxFormat->insertItem("h AP");
-						boxFormat->insertItem("h:mm");
-						boxFormat->insertItem("h:mm ap");
-						boxFormat->insertItem("hh:mm");
-						boxFormat->insertItem("h:mm:ss");
-						boxFormat->insertItem("h:mm:ss.zzz");
-						boxFormat->insertItem("mm:ss");
-						boxFormat->insertItem("mm:ss.zzz");
-						boxFormat->insertItem("hmm");
-						boxFormat->insertItem("hmmss");
-						boxFormat->insertItem("hhmmss");
-					}
-					break;
+            boxFormat->insertItem("h");
+            boxFormat->insertItem("h ap");
+            boxFormat->insertItem("h AP");
+            boxFormat->insertItem("h:mm");
+            boxFormat->insertItem("h:mm ap");
+            boxFormat->insertItem("hh:mm");
+            boxFormat->insertItem("h:mm:ss");
+            boxFormat->insertItem("h:mm:ss.zzz");
+            boxFormat->insertItem("mm:ss");
+            boxFormat->insertItem("mm:ss.zzz");
+            boxFormat->insertItem("hmm");
+            boxFormat->insertItem("hmmss");
+            boxFormat->insertItem("hhmmss");
+        }
+        break;
 
 		case 5:
-					{
-						label2->show();
-						boxFormat->show();
-						boxFormat->setEditable(true);
+        {
+            label2->show();
+            boxFormat->show();
+            boxFormat->setEditable(true);
 
-						QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
-						if (!lst[1].isEmpty())
-						{
-							boxFormat->insertItem(lst[1]);
-							boxFormat->setCurrentText(lst[1]);
-						}
-						boxFormat->insertItem("yyyy-MM-dd");
-						boxFormat->insertItem("dd.MM.yyyy");
-						boxFormat->insertItem("ddd MMMM d yy");
-						boxFormat->insertItem("dd/MM/yyyy");
-					}
-					break;
+            QStringList lst = formatInfo[axis].split(";", QString::KeepEmptyParts);
+            if (lst.count() == 2)
+            {
+                boxFormat->insertItem(lst[1]);
+                boxFormat->setCurrentText(lst[1]);
+            }
+            boxFormat->insertItem("yyyy-MM-dd");
+            boxFormat->insertItem("dd.MM.yyyy");
+            boxFormat->insertItem("ddd MMMM d yy");
+            boxFormat->insertItem("dd/MM/yyyy");
+        }
+        break;
 
 		case 6:
-					{
-						labelTable->show();
-						if (tablesList.contains(formatInfo[axis]))
-							boxTableName->setCurrentText(formatInfo[axis]);
-						boxTableName->show();
-					}
-					break;
+        {
+            labelTable->show();
+            if (tablesList.contains(formatInfo[axis]))
+                boxTableName->setCurrentText(formatInfo[axis]);
+            boxTableName->show();
+        }
+        break;
 	}
 }
 
@@ -2398,8 +2398,9 @@ bool AxesDialog::updatePlot()
 		}
 		else if (format == Graph::Time || format == Graph::Date)
 		{
-			QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
-			lst[1] = boxFormat->currentText();
+			QStringList lst = formatInfo[axis].split(";", QString::KeepEmptyParts);
+			if ((int)lst.count() >= 2)
+				lst[1] = boxFormat->currentText();
 			formatInfo[axis]  = lst.join(";");
 		}
 		else if (format == Graph::Day || format == Graph::Month)

@@ -73,10 +73,15 @@ Plot::Plot(QWidget *parent, const char *)
 		{
 			scale->setMargin(0);
 
-			//the axis title color must be initialized
+			//the axis title color must be initialized...
 			QwtText title = scale->title();
 			title.setColor(Qt::black);
 			scale->setTitle(title);
+
+            //...same for axis color
+            QPalette pal = scale->palette();
+            pal.setColor(QColorGroup::Foreground, QColor(Qt::black));
+            scale->setPalette(pal);
 
 			ScaleDraw *sd = new ScaleDraw();
 			sd->setTickLength(QwtScaleDiv::MinorTick, minTickLength);

@@ -66,8 +66,8 @@
 #include <QMenu>
 #include <QDateTime>
 
-PlotDialog::PlotDialog( bool showExtended, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl ),
+PlotDialog::PlotDialog(bool showExtended, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+: QDialog(parent, name, modal, fl),
   d_ml(0)
 {
 	if ( !name )
@@ -77,7 +77,8 @@ PlotDialog::PlotDialog( bool showExtended, QWidget* parent,  const char* name, b
 	listBox = new QTreeWidget();
     listBox->setColumnCount(1);
 	listBox->header()->hide();
-	
+    listBox->setIndentation(15);
+
     QGridLayout *gl = new QGridLayout(this);
 	gl->setSizeConstraint(QLayout::SetFixedSize);
     gl->addWidget(listBox, 0, 0);
@@ -129,11 +130,11 @@ PlotDialog::PlotDialog( bool showExtended, QWidget* parent,  const char* name, b
     hb2->addWidget(btnEditCurve);
     hb2->addStretch();
     gl->addLayout(hb2, 1, 1);
-	
+
 	resize(minimumSize());
-	
+
 	connect(btnMore, SIGNAL(toggled(bool)), this, SLOT(showAll(bool)));
-	
+
 	connect( buttonOk, SIGNAL(clicked()), this, SLOT(quit() ) );
 	connect( buttonCancel, SIGNAL(clicked()), this, SLOT(close()));
 	connect( buttonApply, SIGNAL(clicked() ), this, SLOT(acceptParams() ) );
@@ -157,11 +158,11 @@ void PlotDialog::showAll(bool all)
 	{
 		listBox->show();
 		listBox->setFocus();
-		
+
 		QTreeWidgetItem *item = listBox->currentItem();
     	if (item->type() == CurveTreeItem::PlotCurveTreeItem)
         	curvePlotTypeBox->show();
-		
+
 		btnMore->setText("&>>");
 	}
 	else
@@ -227,7 +228,7 @@ void PlotDialog::editCurve()
 	{
 		if (curveType == Graph::Function)
 			app->showFunctionDialog(item->graph(), index);
-		else 
+		else
 			app->showPlotAssociations(index);
 	}
 }
@@ -1302,7 +1303,7 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
         if (previousItem->type() != CurveTreeItem::PlotCurveTreeItem ||
            ((CurveTreeItem *)previousItem)->plotItemType() != curveItem->plotItemType())
         {
-            clearTabWidget();  
+            clearTabWidget();
             int plot_type = setPlotType(curveItem);
 			if (plot_type >= 0)
 				insertTabs(plot_type);
@@ -1519,7 +1520,7 @@ void PlotDialog::setActiveLayer(LayerItem *item)
 	curvePlotTypeBox->hide();
     btnWorksheet->hide();
     btnEditCurve->hide();
-	
+
     boxBackgroundTransparency->blockSignals(true);
     boxCanvasTransparency->blockSignals(true);
     boxBorderWidth->blockSignals(true);
@@ -1560,8 +1561,8 @@ void PlotDialog::setActiveCurve(CurveTreeItem *item)
 	item->setActive(true);
 	btnWorksheet->show();
     btnEditCurve->show();
-	
-    int curveType = item->plotItemType();	
+
+    int curveType = item->plotItemType();
     if (curveType == Graph::Pie)
     {
         QwtPieCurve *pie = (QwtPieCurve*)i;
@@ -1708,7 +1709,7 @@ void PlotDialog::setActiveCurve(CurveTreeItem *item)
             box99Style->setStyle(b->p99Style());
             box1Style->setStyle(b->p1Style());
 
-            boxPercSize->setValue(s.size().width());
+            boxPercSize->setValue(s.size().width()/2);
             boxFillSymbols->setChecked(s.brush() != Qt::NoBrush);
             boxPercFillColor->setEnabled(s.brush() != Qt::NoBrush);
             boxPercFillColor->setColor(s.brush().color());
@@ -2585,7 +2586,7 @@ void PlotDialog::closeEvent(QCloseEvent* e)
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (app)
 		app->d_extended_plot_dialog = btnMore->isChecked ();
-	
+
 	e->accept();
 }
 
