@@ -872,22 +872,13 @@ void Graph::setLabelsDateTimeFormat(int axis, int type, const QString& formatInf
 
 	if (type == Time)
 	{
-		/*QTime t;
-		  if (axis == QwtPlot::xTop &&  axisType[QwtPlot::xBottom] == Time)
-		  {
-		  TimeScaleDraw *scd = (TimeScaleDraw *)d_plot->axisScaleDraw (QwtPlot::xBottom);
-		  t = QTime::fromString (scd->origin(), Qt::TextDate);
-		  }
-		  else*/
-		QTime t = QTime::fromString (list[0], Qt::TextDate);
-		TimeScaleDraw *sd = new TimeScaleDraw (t, list[1]);
+		TimeScaleDraw *sd = new TimeScaleDraw (QTime::fromString (list[0]), list[1]);
 		sd->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
 		d_plot->setAxisScaleDraw (axis, sd);
 	}
 	else if (type == Date)
 	{
-		QDate d = QDate::fromString (list[0], Qt::ISODate);
-		DateScaleDraw *sd = new DateScaleDraw (d, list[1]);
+		DateScaleDraw *sd = new DateScaleDraw (QDate::fromString (list[0], Qt::ISODate), list[1]);
 		sd->enableComponent (QwtAbstractScaleDraw::Backbone, drawAxesBackbone);
 		d_plot->setAxisScaleDraw (axis, sd);
 	}
@@ -3380,11 +3371,11 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	int xColType = w->columnType(xcol);
 	int yColType = w->columnType(ycol);
-
 	int i, size=0;
+	QString date_time_fmt = w->columnFormat(xcol);
 	QStringList xLabels, yLabels;// store text labels
 	QTime time0;
-	QDate date;
+	QDate date0;
     QLocale locale;
 
 	if (endRow < 0)
@@ -3399,7 +3390,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			QString xval=w->text(i,xcol);
 			if (!xval.isEmpty())
 			{
-				time0 = QTime::fromString (xval, Qt::TextDate);
+				time0 = QTime::fromString (xval, date_time_fmt);
 				if (time0.isValid())
 					break;
 			}
@@ -3412,8 +3403,8 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			QString xval=w->text(i,xcol);
 			if (!xval.isEmpty())
 			{
-				date = QDate::fromString (xval, Qt::ISODate);
-				if (date.isValid())
+				date0 = QDate::fromString(xval, date_time_fmt);
+				if (date0.isValid())
 					break;
 			}
 		}
@@ -3433,7 +3424,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			}
 			else if (xColType == Table::Time)
 			{
-				QTime time = QTime::fromString (xval, Qt::TextDate);
+				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size] = time0.msecsTo (time);
 				else
@@ -3441,9 +3432,9 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			}
 			else if (xColType == Table::Date)
 			{
-				QDate d = QDate::fromString (xval, Qt::ISODate);
+				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
-					X[size] = (double) date.daysTo (d);
+					X[size] = (double) date0.daysTo(d);
 			}
 			else
                 X[size] = Table::stringToDouble(xval);
@@ -3515,9 +3506,9 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
 		}
 	}
-	else if (xColType == Table::Time )
+	else if (xColType == Table::Time)
 	{
-		QString fmtInfo = time0.toString(Qt::TextDate) + ";" + w->columnFormat(xcol);
+		QString fmtInfo = time0.toString() + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Time, fmtInfo);
 		else
@@ -3525,7 +3516,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	}
 	else if (xColType == Table::Date )
 	{
-		QString fmtInfo = date.toString(Qt::ISODate ) + ";yyyy-MM-dd";
+		QString fmtInfo = date0.toString(Qt::ISODate) + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Date, fmtInfo);
 		else

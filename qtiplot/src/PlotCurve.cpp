@@ -136,7 +136,8 @@ void DataCurve::loadData()
 	QStringList xLabels, yLabels;// store text labels
 
 	QTime time0;
-	QDate date;
+	QDate date0;
+	QString date_time_fmt = d_table->columnFormat(xcol);
 	if (xColType == Table::Time)
 	{
 		for (int i = d_start_row; i <= d_end_row; i++ )
@@ -144,7 +145,7 @@ void DataCurve::loadData()
 			QString xval=d_table->text(i,xcol);
 			if (!xval.isEmpty())
 			{
-				time0 = QTime::fromString (xval, Qt::TextDate);
+				time0 = QTime::fromString (xval, date_time_fmt);
 				if (time0.isValid())
 					break;
 			}
@@ -157,8 +158,8 @@ void DataCurve::loadData()
 			QString xval=d_table->text(i,xcol);
 			if (!xval.isEmpty())
 			{
-				date = QDate::fromString (xval, Qt::ISODate);
-				if (date.isValid())
+				date0 = QDate::fromString (xval, date_time_fmt);
+				if (date0.isValid())
 					break;
 			}
 		}
@@ -178,15 +179,15 @@ void DataCurve::loadData()
 			}
 			else if (xColType == Table::Time)
 			{
-				QTime time = QTime::fromString (xval, Qt::TextDate);
+				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size]= time0.msecsTo (time);
 			}
 			else if (xColType == Table::Date)
 			{
-				QDate d = QDate::fromString (xval, Qt::ISODate);
+				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
-					X[size] = (double) date.daysTo(d);
+					X[size] = (double) date0.daysTo(d);
 			}
 			else
 				X[size] = Table::stringToDouble(xval);
@@ -238,13 +239,13 @@ void DataCurve::loadData()
 			if (d_type == Graph::HorizontalBars)
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
-				QString fmtInfo = time0.toString(Qt::TextDate) + ";" + lst[1];
+				QString fmtInfo = time0.toString() + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Time, fmtInfo);
 			}
 			else
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
-				QString fmtInfo = time0.toString(Qt::TextDate) + ";" + lst[1];
+				QString fmtInfo = time0.toString() + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Time, fmtInfo);
 			}
 		}
@@ -253,13 +254,13 @@ void DataCurve::loadData()
 			if (d_type == Graph::HorizontalBars)
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
-				QString fmtInfo = date.toString(Qt::ISODate) + ";" + lst[1];
+				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Date, fmtInfo);
 			}
 			else
 			{
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
-				QString fmtInfo = date.toString(Qt::ISODate) + ";" + lst[1];
+				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Date, fmtInfo);
 			}
 		}
@@ -311,7 +312,7 @@ int DataCurve::tableRow(int point)
 
 	if (xcol < 0 || ycol < 0)
 		return -1;
-	
+
 	for (int i = d_start_row; i <= d_end_row; i++ )
 	{
 		if (d_table->cell(i, xcol) == x(point) && d_table->cell(i, ycol) == y(point))

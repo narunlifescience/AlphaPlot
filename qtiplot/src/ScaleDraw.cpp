@@ -30,6 +30,7 @@
 #include "MyParser.h"
 
 #include <QDateTime>
+#include <QMessageBox>
 
 #include <qwt_painter.h>
 #include <qwt_text.h>
@@ -185,12 +186,12 @@ DateScaleDraw::DateScaleDraw(const QDate& t, const QString& format):
 
 QString DateScaleDraw::origin()
 {
-return t_origin.toString ( Qt::ISODate );
+return t_origin.toString ();
 }
 
 QwtText DateScaleDraw::label(double value) const
 {
-QDate t = t_origin.addDays ( (int)value );
+QDate t = t_origin.addDays( (int) value );
 return QwtText(t.toString ( t_format ));
 }
 

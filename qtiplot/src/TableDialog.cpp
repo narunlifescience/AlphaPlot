@@ -27,7 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "TableDialog.h"
-#include "Table.h"
 
 #include <QMessageBox>
 #include <QLayout>
@@ -42,8 +41,9 @@
 #include <QRegExp>
 #include <QDate>
 
-TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
+    : QDialog( parent, name, modal, fl ),
+    d_table(t)
 {
     if ( !name )
 		setName( "TableDialog" );
@@ -163,6 +163,8 @@ TableDialog::TableDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 
     setLayout(vbox4);
     setFocusProxy (colName);
+
+    updateColumn(d_table->selectedColumn());
     resize(minimumSize());
 
    // signals and slots connections
@@ -201,70 +203,70 @@ close();
 
 void TableDialog::prevColumn()
 {
-int sc = w->selectedColumn();
+int sc = d_table->selectedColumn();
 apply();
 updateColumn(--sc);
 }
 
 void TableDialog::nextColumn()
 {
-int sc = w->selectedColumn();
+int sc = d_table->selectedColumn();
 apply();
 updateColumn(++sc);
 }
 
 void TableDialog::updateColumn(int sc)
 {
-int colType = w->columnType(sc);
+    int colType = d_table->columnType(sc);
 
-if (!sc)
-	buttonPrev->setEnabled(false);
-else
-	buttonPrev->setEnabled(true);
+    if (!sc)
+        buttonPrev->setEnabled(false);
+    else
+        buttonPrev->setEnabled(true);
 
-if (sc >= w->tableCols() - 1)
-	buttonNext->setEnabled(false);
-else
-	buttonNext->setEnabled(true);
+    if (sc >= d_table->tableCols() - 1)
+        buttonNext->setEnabled(false);
+    else
+        buttonNext->setEnabled(true);
 
-w->setSelectedCol(sc);
-w->table()->clearSelection ();
-w->table()->selectColumn(sc);
-columnsBox->setCurrentItem(w->colPlotDesignation(sc));
+    d_table->setSelectedCol(sc);
+    d_table->table()->clearSelection ();
+    d_table->table()->selectColumn(sc);
+    columnsBox->setCurrentItem(d_table->colPlotDesignation(sc));
 
-QString colLabel = w->colLabel(sc);
-colName->setText(colLabel);
-colName->selectAll();
+    QString colLabel = d_table->colLabel(sc);
+    colName->setText(colLabel);
+    colName->selectAll();
 
-comments->setText(w->colComment(sc));
-colWidth->setValue(w->columnWidth(sc));
+    comments->setText(d_table->colComment(sc));
+    colWidth->setValue(d_table->columnWidth(sc));
 
-displayBox->setCurrentItem(colType);
-updateDisplay(colType);
+    displayBox->setCurrentItem(colType);
+    updateDisplay(colType);
 
-w->saveColToMemory(sc);
+    d_table->saveColToMemory(sc);
 
-if (colType == Table::Numeric)
+    if (colType == Table::Numeric)
 	{
-	int f, prec;
-	w->columnNumericFormat(sc, f, prec);
-	formatBox->setCurrentItem(f);
-	precisionBox->setValue(prec);
-	enablePrecision(f);
+        int f, prec;
+        d_table->columnNumericFormat(sc, f, prec);
+        formatBox->setCurrentItem(f);
+        precisionBox->setValue(prec);
+        enablePrecision(f);
 	}
-else if (colType == Table::Time)
-	formatBox->setCurrentText(w->columnFormat(sc));
-}
+    else if (colType == Table::Time || colType == Table::Date)
+    {
+        QString format = d_table->columnFormat(sc);
+        if (formatBox->findText(format) < 0)
+            formatBox->insertItem(0, format);
 
-void TableDialog::setWorksheet(Table * table)
-{
-w=table;
-updateColumn(w->selectedColumn());
+        formatBox->setCurrentText(format);
+    }
 }
 
 void TableDialog::changeColWidth(int width)
 {
-w->changeColWidth(width, applyToAllBox->isChecked());
+d_table->changeColWidth(width, applyToAllBox->isChecked());
 }
 
 void TableDialog::apply()
@@ -280,10 +282,10 @@ if (name.contains(QRegExp("\\W")))
 						tr("The column names must only contain letters and digits!"));
 	name.remove(QRegExp("\\W"));
 	}
-w->changeColName(name.replace("_", "-"));
-w->enumerateRightCols(enumerateAllBox->isChecked());
-w->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
-w->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
+d_table->changeColName(name.replace("_", "-"));
+d_table->enumerateRightCols(enumerateAllBox->isChecked());
+d_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
+d_table->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
 
 int colType = displayBox->currentItem();
 int format = formatBox->currentItem();
@@ -291,40 +293,40 @@ int format = formatBox->currentItem();
 switch(colType)
 	{
 	case 0:
-		w->setNumericFormat(format,precisionBox->value(),applyToRightCols->isChecked());
+		d_table->setNumericFormat(format, precisionBox->value(),applyToRightCols->isChecked());
 	break;
 
 	case 1:
-		w->setTextFormat(applyToRightCols->isChecked());
+		d_table->setTextFormat(applyToRightCols->isChecked());
 	break;
 
 	case 2:
-		 w->setDateTimeFormat(colType, "yyyy-MM-dd", applyToRightCols->isChecked());
+		 setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	break;
 
 	case 3:
-		w->setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
+		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	break;
 
 	case 4:
 	if (!format)
-		w->setDateTimeFormat(colType, "shortMonthName", applyToRightCols->isChecked());
+		d_table->setDateTimeFormat(colType, "shortMonthName", applyToRightCols->isChecked());
 	else
-		w->setDateTimeFormat(colType, "longMonthName", applyToRightCols->isChecked());
+		d_table->setDateTimeFormat(colType, "longMonthName", applyToRightCols->isChecked());
 	break;
 
 	case 5:
 	if (!format)
-		w->setDateTimeFormat(colType, "shortDayName", applyToRightCols->isChecked());
+		d_table->setDateTimeFormat(colType, "shortDayName", applyToRightCols->isChecked());
 	else
-		w->setDateTimeFormat(colType, "longDayName", applyToRightCols->isChecked());
+		d_table->setDateTimeFormat(colType, "longDayName", applyToRightCols->isChecked());
 	break;
 	}
 }
 
 void TableDialog::closeEvent( QCloseEvent* ce )
 {
-w->forgetSavedCol();
+d_table->forgetSavedCol();
 ce->accept();
 }
 
@@ -333,65 +335,61 @@ void TableDialog::setPlotDesignation(int i)
 switch(i)
 	{
 	case 0:
-		w->setPlotDesignation(Table::None);
+		d_table->setPlotDesignation(Table::None);
 	break;
 
 	case 1:
-		w->setPlotDesignation(Table::X);
+		d_table->setPlotDesignation(Table::X);
 	break;
 
 	case 2:
-		w->setPlotDesignation(Table::Y);
+		d_table->setPlotDesignation(Table::Y);
 	break;
 
 	case 3:
-		w->setPlotDesignation(Table::Z);
+		d_table->setPlotDesignation(Table::Z);
 	break;
 
 	case 4:
-		w->setPlotDesignation(Table::xErr);
+		d_table->setPlotDesignation(Table::xErr);
 	break;
 
 	case 5:
-		w->setPlotDesignation(Table::yErr);
+		d_table->setPlotDesignation(Table::yErr);
 	break;
 	}
 }
 
 void TableDialog::showPrecisionBox(int item)
 {
-switch(item)
+    switch(item)
+    {
+        case 0:
         {
-            case 0:
-            {
-                precisionBox->hide();
-                break;
-            }
-            case 1:
-            {
-                precisionBox->show();
-                break;
-            }
-			case 2:
-            {
-                precisionBox->show();
-                break;
-            }
-		}
+            precisionBox->hide();
+            break;
+        }
+        case 1:
+        {
+            precisionBox->show();
+            break;
+        }
+        case 2:
+        {
+            precisionBox->show();
+            break;
+        }
+    }
 }
 
 void TableDialog::updatePrecision(int prec)
 {
-w->setNumericFormat(formatBox->currentItem(),prec,applyToRightCols->isChecked());
+    d_table->setNumericFormat(formatBox->currentItem(),prec,applyToRightCols->isChecked());
 }
 
 void TableDialog::updateFormat()
 {
-w->setNumericFormat(formatBox->currentItem(),precisionBox->value(),applyToRightCols->isChecked());
-}
-
-TableDialog::~TableDialog()
-{
+    d_table->setNumericFormat(formatBox->currentItem(),precisionBox->value(),applyToRightCols->isChecked());
 }
 
 void TableDialog::updateDisplay(int item)
@@ -423,6 +421,12 @@ else
 		break;
 
 		case 2:
+            formatBox->setEditable ( true );
+
+			formatBox->insertItem(tr("dd/MM/yyyy"));
+			formatBox->insertItem(tr("dd.MM.yyyy"));
+			formatBox->insertItem(tr("dd MM yyyy"));
+			formatBox->insertItem(tr("yyyyMMdd"));
 			formatBox->insertItem(tr("yyyy-MM-dd"));
 		break;
 
@@ -457,4 +461,20 @@ else
 		break;
 		}
 	}
+}
+
+void TableDialog::setDateTimeFormat(int type, const QString& format, bool allColumns)
+{
+    if (!d_table->setDateTimeFormat(type, format, allColumns))
+    {
+        QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
+                             tr("For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!"));
+        return;
+    }
+
+    if (formatBox->findText(format) < 0)
+    {
+        formatBox->insertItem(0, format);
+        formatBox->setCurrentText(format);
+    }
 }

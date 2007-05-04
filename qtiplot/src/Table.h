@@ -285,13 +285,13 @@ public slots:
 	void setTextFormat(bool applyToAll);
 	void setTextFormat(int col);
 	void setColNumericFormat(int f, int prec, int col);
-	void setDateFormat(const QString& format, int col);
-	void setTimeFormat(const QString& format, int col);
+	bool setDateFormat(const QString& format, int col);
+	bool setTimeFormat(const QString& format, int col);
 	void setMonthFormat(const QString& format, int col);
 	void setDayFormat(const QString& format, int col);
-	void setDateTimeFormat(int f, const QString& format,int col);
-	void setDateTimeFormat(int f, const QString& format,bool applyToAll);
-	void setNumericFormat(int f, int prec,bool applyToAll);
+	bool setDateTimeFormat(int f, const QString& format, int col);
+	bool setDateTimeFormat(int f, const QString& format, bool applyToAll);
+	void setNumericFormat(int f, int prec, bool applyToAll);
 
 	bool exportToASCIIFile(const QString& fname, const QString& separator,
 							  bool withLabels,bool exportSelection);

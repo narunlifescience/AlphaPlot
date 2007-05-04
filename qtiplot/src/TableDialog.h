@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Column options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -45,8 +45,32 @@ class TableDialog : public QDialog
     Q_OBJECT
 
 public:
-    TableDialog( QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
-    ~TableDialog();
+    TableDialog(Table *t, QWidget* parent, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+
+private slots:
+	void prevColumn();
+	void nextColumn();
+	void updateColumn(int);
+	void changeColWidth(int width);
+	void showPrecisionBox(int item);
+	void updateFormat();
+	void updatePrecision(int prec);
+	void setPlotDesignation(int i);
+	void accept();
+	void apply();
+	void updateDisplay(int item);
+	void enablePrecision(int f);
+
+signals:
+	void nameChanged(const QString&);
+	void enumRightCols(bool);
+	void changeWidth(const QString&, bool);
+
+private:
+    void setDateTimeFormat(int type, const QString& format, bool allColumns);
+    void closeEvent( QCloseEvent *);
+
+    Table * d_table;
 
     QPushButton* buttonOk;
     QPushButton* buttonCancel;
@@ -63,30 +87,6 @@ public:
     QSpinBox* colWidth, *precisionBox;
 	QLabel *labelNumeric, *labelFormat;
 	QTextEdit *comments;
-
-public slots:
-	void prevColumn();
-	void nextColumn();
-	void updateColumn(int);
-	void changeColWidth(int width);
-	void setWorksheet(Table * table);
-	void showPrecisionBox(int item);
-	void updateFormat();
-	void updatePrecision(int prec);
-	void setPlotDesignation(int i);
-	void accept();
-	void apply();
-	void closeEvent( QCloseEvent *);
-	void updateDisplay(int item);
-	void enablePrecision(int f);
-
-signals:
-	void nameChanged(const QString&);
-	void enumRightCols(bool);
-	void changeWidth(const QString&, bool);
-
-protected:
-	Table * w;
 };
 
 #endif // TABLEDIALOG_H

@@ -1675,94 +1675,108 @@ void Table::setColumnsFormat(const QStringList& lst)
 	col_format = lst;
 }
 
-void Table::setDateTimeFormat(int f, const QString& format, bool applyToAll)
+bool Table::setDateTimeFormat(int f, const QString& format, bool applyToAll)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	int cols=worksheet->numCols();
+    bool ok = false;
 	if (applyToAll)
 	{
-		for (int j=selectedCol; j<cols; j++)
-			setDateTimeFormat(f, format, j);
+		for (int j=selectedCol; j<worksheet->numCols(); j++)
+		{
+			ok = setDateTimeFormat(f, format, j);
+			if (!ok)
+                break;
+		}
 	}
 	else
-		setDateTimeFormat(f, format, selectedCol);
+		ok = setDateTimeFormat(f, format, selectedCol);
 
-	emit modifiedWindow(this);
+    if (ok)
+        emit modifiedWindow(this);
 
 	QApplication::restoreOverrideCursor();
+	return ok;
 }
 
-void Table::setDateTimeFormat(int f, const QString& format, int col)
+bool Table::setDateTimeFormat(int f, const QString& format, int col)
 {
 	switch (f)
 	{
 		case 2:
-			setDateFormat(format, col);
-			break;
+			return setDateFormat(format, col);
 
 		case 3:
-			setTimeFormat(format, col);
-			break;
+			return setTimeFormat(format, col);
 
 		case 4:
-			setMonthFormat(format, col);
-			break;
+            setMonthFormat(format, col);
+            return true;
 
 		case 5:
-			setDayFormat(format, col);
-			break;
+            setDayFormat(format, col);
+			return true;
 
 		default:
-			break;
+			return false;
 	}
 }
 
-void Table::setDateFormat(const QString& format, int col)
+bool Table::setDateFormat(const QString& format, int col)
 {
 	if (col_format[col] == format)
-		return;
+		return true;
 
-	colTypes[col] = Date;
-	col_format[col] = format;
-	int rows=worksheet->numRows();
-
-	for (int i=0; i<rows; i++)
+	for (int i=0; i<worksheet->numRows(); i++)
 	{
 		QString s = worksheet->text(i,col);
 		if (!s.isEmpty())
 		{
-			QDate d = QDate::fromString (s, Qt::ISODate);
+			QDateTime d = QDateTime::fromString (s, col_format[col]);
 			if (d.isValid())
 				worksheet->setText(i, col, d.toString(format));
-			else
-				worksheet->setText(i, col, "-");
+            else
+            {//This might be the first time the user assigns a date format.
+             //If Qt understands the format we break the loop, assign it to the column and return true!
+                d = QDateTime::fromString (s, format);
+                if (d.isValid())
+                    break;
+                else
+                    return false;
+            }
 		}
 	}
+	colTypes[col] = Date;
+	col_format[col] = format;
+	return true;
 }
 
-void Table::setTimeFormat(const QString& format, int col)
+bool Table::setTimeFormat(const QString& format, int col)
 {
 	if (col_format[col] == format)
-		return;
+		return true;
 
-	int rows=worksheet->numRows();
-
-	colTypes[col] = Time;
-	col_format[col] = format;
-
-	for (int i=0; i<rows; i++)
+	for (int i=0; i<worksheet->numRows(); i++)
 	{
 		QString s = worksheet->text(i,col);
 		if (!s.isEmpty())
 		{
-			QTime t = QTime::fromString (s,Qt::TextDate);
+			QTime t = QTime::fromString (s, col_format[col]);
 			if (t.isValid())
 				worksheet->setText(i, col, t.toString(format));
-			else
-				worksheet->setText(i, col, "-");
+            else
+            {//This might be the first time the user assigns a date format.
+             //If Qt understands the format we break the loop, assign it to the column and return true!
+                t = QTime::fromString (s, format);
+                if (t.isValid())
+                    break;
+                else
+                    return false;
+            }
 		}
 	}
+	colTypes[col] = Time;
+	col_format[col] = format;
+	return true;
 }
 
 void Table::setMonthFormat(const QString& format, int col)

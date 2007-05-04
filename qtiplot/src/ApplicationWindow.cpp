@@ -5853,7 +5853,7 @@ void ApplicationWindow::showMatrixValuesDialog()
 {
 	if ( ws->activeWindow() && ws->activeWindow()->isA("Matrix"))
 	{
-		MatrixValuesDialog* md= new MatrixValuesDialog(scriptEnv, this, 0, false);
+		MatrixValuesDialog* md = new MatrixValuesDialog(scriptEnv, this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		md->setMatrix((Matrix*)ws->activeWindow());
 		md->exec();
@@ -5865,17 +5865,15 @@ void ApplicationWindow::showColumnOptionsDialog()
 	if ( !ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	Table* w = (Table*)ws->activeWindow();
-
-	if(w->selectedColumns().count()>0)
+	Table *t = (Table*)ws->activeWindow();
+	if(t->selectedColumns().count()>0)
 	{
-		TableDialog* td = new TableDialog(this,"optionsDialog", false);
+		TableDialog* td = new TableDialog(t, this);
 		td->setAttribute(Qt::WA_DeleteOnClose);
-		td->setWorksheet(w);
 		td->exec();
 	}
 	else
-		QMessageBox::warning(this, tr("QtiPlot"),tr("Please select a column first!"));
+		QMessageBox::warning(this, tr("QtiPlot"), tr("Please select a column first!"));
 }
 
 void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColName, bool axisOn,
