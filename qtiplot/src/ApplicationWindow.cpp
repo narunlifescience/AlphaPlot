@@ -7285,6 +7285,11 @@ void ApplicationWindow::copySelection()
 		results->copy();
 		return;
 	}
+	else if(info->hasFocus())
+	{
+		info->copy();
+		return;
+	}
 
 	QWidget* m = (QWidget*)ws->activeWindow();
 	if (!m)

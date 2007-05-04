@@ -88,6 +88,7 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
     gl1->addWidget(btnAddCol, 1, 1);
 
 	QHBoxLayout *hbox3 = new QHBoxLayout(); 
+	hbox3->addStretch();
 	buttonPrev = new QPushButton("&<<");
     hbox3->addWidget(buttonPrev);
 	buttonNext = new QPushButton("&>>");

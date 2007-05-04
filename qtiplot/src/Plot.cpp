@@ -92,12 +92,6 @@ Plot::Plot(QWidget *parent, const char *)
 		}
 	}
 
-	/*QwtTextLabel *title = titleLabel();
-	title->setMargin(5);
-	QwtText t = title->text();
-	t.setBackgroundPen(QPen(QColor(Qt::red), 2));
-	title->setText(t);*/
-
 	QwtPlotLayout *pLayout = plotLayout();
 	pLayout->setCanvasMargin(0);
 	pLayout->setAlignCanvasToScales (true);
@@ -113,10 +107,7 @@ Plot::Plot(QWidget *parent, const char *)
 	plCanvas->setPaintAttribute(QwtPlotCanvas::PaintPacked, false);
 
     QColor background = QColor(Qt::white);
-    background.setAlpha(0);
-    #ifdef Q_MAC_OS
-        background.setAlpha(255);
-    #endif
+    background.setAlpha(255);
 
 	QColorGroup cg;
     cg.setColor(QColorGroup::Window, background);
