@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "TableDialog.h"
 
+#include <QApplication>
 #include <QMessageBox>
 #include <QLayout>
 #include <QSpinBox>
@@ -100,23 +101,23 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
     gl1->addWidget(new QLabel( tr("Plot Designation:")), 0, 0);
 
    	columnsBox = new QComboBox();
-	columnsBox->insertItem(tr("None"));
-	columnsBox->insertItem(tr("X (abscissae)"));
-	columnsBox->insertItem(tr("Y (ordinates)"));
-	columnsBox->insertItem(tr("Z (height)"));
-	columnsBox->insertItem(tr("X Error"));
-	columnsBox->insertItem(tr("Y Error"));
+	columnsBox->addItem(tr("None"));
+	columnsBox->addItem(tr("X (abscissae)"));
+	columnsBox->addItem(tr("Y (ordinates)"));
+	columnsBox->addItem(tr("Z (height)"));
+	columnsBox->addItem(tr("X Error"));
+	columnsBox->addItem(tr("Y Error"));
     gl1->addWidget(columnsBox, 0, 1);
 
     gl1->addWidget(new QLabel(tr("Display")), 1, 0);
 
    	displayBox = new QComboBox();
-	displayBox->insertItem(tr("Numeric"));
-	displayBox->insertItem(tr("Text"));
-	displayBox->insertItem(tr("Date"));
-	displayBox->insertItem(tr("Time"));
-	displayBox->insertItem(tr("Month"));
-	displayBox->insertItem(tr("Day of Week"));
+	displayBox->addItem(tr("Numeric"));
+	displayBox->addItem(tr("Text"));
+	displayBox->addItem(tr("Date"));
+	displayBox->addItem(tr("Time"));
+	displayBox->addItem(tr("Month"));
+	displayBox->addItem(tr("Day of Week"));
     gl1->addWidget(displayBox, 1, 1);
 
     labelFormat = new QLabel(tr( "Format:" ));
@@ -183,7 +184,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 
 void TableDialog::enablePrecision(int f)
 {
-if(displayBox->currentItem())
+if(displayBox->currentIndex())
 	return;//the col type != "Numeric"
 
 if (!f)
@@ -241,7 +242,7 @@ void TableDialog::updateColumn(int sc)
     comments->setText(d_table->colComment(sc));
     colWidth->setValue(d_table->columnWidth(sc));
 
-    displayBox->setCurrentItem(colType);
+    displayBox->setCurrentIndex(colType);
     updateDisplay(colType);
 
     d_table->saveColToMemory(sc);
@@ -250,7 +251,7 @@ void TableDialog::updateColumn(int sc)
 	{
         int f, prec;
         d_table->columnNumericFormat(sc, f, prec);
-        formatBox->setCurrentItem(f);
+        formatBox->setCurrentIndex(f);
         precisionBox->setValue(prec);
         enablePrecision(f);
 	}
@@ -287,17 +288,16 @@ d_table->enumerateRightCols(enumerateAllBox->isChecked());
 d_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
 d_table->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
 
-int colType = displayBox->currentItem();
-int format = formatBox->currentItem();
-
+int format = formatBox->currentIndex();
+int colType = displayBox->currentIndex();
 switch(colType)
 	{
 	case 0:
-		d_table->setNumericFormat(format, precisionBox->value(),applyToRightCols->isChecked());
+		setNumericFormat(formatBox->currentIndex(), precisionBox->value(), applyToRightCols->isChecked());
 	break;
 
 	case 1:
-		d_table->setTextFormat(applyToRightCols->isChecked());
+		setTextFormat(applyToRightCols->isChecked());
 	break;
 
 	case 2:
@@ -310,16 +310,16 @@ switch(colType)
 
 	case 4:
 	if (!format)
-		d_table->setDateTimeFormat(colType, "shortMonthName", applyToRightCols->isChecked());
+		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	else
-		d_table->setDateTimeFormat(colType, "longMonthName", applyToRightCols->isChecked());
+		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	break;
 
 	case 5:
 	if (!format)
-		d_table->setDateTimeFormat(colType, "shortDayName", applyToRightCols->isChecked());
+		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	else
-		d_table->setDateTimeFormat(colType, "longDayName", applyToRightCols->isChecked());
+		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
 	break;
 	}
 }
@@ -384,12 +384,12 @@ void TableDialog::showPrecisionBox(int item)
 
 void TableDialog::updatePrecision(int prec)
 {
-    d_table->setNumericFormat(formatBox->currentItem(),prec,applyToRightCols->isChecked());
+    setNumericFormat(formatBox->currentIndex(), prec, applyToRightCols->isChecked());
 }
 
 void TableDialog::updateFormat()
 {
-    d_table->setNumericFormat(formatBox->currentItem(),precisionBox->value(),applyToRightCols->isChecked());
+    setNumericFormat(formatBox->currentIndex(), precisionBox->value(), applyToRightCols->isChecked());
 }
 
 void TableDialog::updateDisplay(int item)
@@ -403,16 +403,15 @@ precisionBox->hide();
 
 if (item == 0)
 	{
-	formatBox->insertItem( tr( "Default" ) );
-    formatBox->insertItem( tr( "Decimal: 1000" ) );
-    formatBox->insertItem( tr( "Scientific: 1E3" ) );
+	formatBox->addItem( tr( "Default" ) );
+    formatBox->addItem( tr( "Decimal: 1000" ) );
+    formatBox->addItem( tr( "Scientific: 1E3" ) );
 
 	labelNumeric->show();
 	precisionBox->show();
 	}
 else
 	{
-	QDate date=QDate::currentDate();
 	switch (item)
 		{
 		case 1:
@@ -423,49 +422,72 @@ else
 		case 2:
             formatBox->setEditable ( true );
 
-			formatBox->insertItem(tr("dd/MM/yyyy"));
-			formatBox->insertItem(tr("dd.MM.yyyy"));
-			formatBox->insertItem(tr("dd MM yyyy"));
-			formatBox->insertItem(tr("yyyyMMdd"));
-			formatBox->insertItem(tr("yyyy-MM-dd"));
+			formatBox->addItem(tr("dd/MM/yyyy"));
+			formatBox->addItem(tr("dd.MM.yyyy"));
+			formatBox->addItem(tr("dd MM yyyy"));
+			formatBox->addItem(tr("yyyyMMdd"));
+			formatBox->addItem(tr("yyyy-MM-dd"));
 		break;
 
 		case 3:
 			{
 			formatBox->setEditable ( true );
 
-			formatBox->insertItem(tr("h") );
-			formatBox->insertItem(tr("h ap") );
-			formatBox->insertItem(tr("h AP") );
-			formatBox->insertItem(tr("h:mm"));
-			formatBox->insertItem(tr("h:mm ap") );
-			formatBox->insertItem(tr("hh:mm"));
-			formatBox->insertItem(tr("h:mm:ss") );
-			formatBox->insertItem(tr("h:mm:ss.zzz") );
-			formatBox->insertItem(tr("mm:ss") );
-			formatBox->insertItem(tr("mm:ss.zzz") );
-			formatBox->insertItem(tr("hmm") );
-			formatBox->insertItem(tr("hmmss") );
-			formatBox->insertItem(tr("hhmmss") );
+			formatBox->addItem(tr("h") );
+			formatBox->addItem(tr("h ap") );
+			formatBox->addItem(tr("h AP") );
+			formatBox->addItem(tr("h:mm"));
+			formatBox->addItem(tr("h:mm ap") );
+			formatBox->addItem(tr("hh:mm"));
+			formatBox->addItem(tr("h:mm:ss") );
+			formatBox->addItem(tr("h:mm:ss.zzz") );
+			formatBox->addItem(tr("mm:ss") );
+			formatBox->addItem(tr("mm:ss.zzz") );
+			formatBox->addItem(tr("hmm") );
+			formatBox->addItem(tr("hmmss") );
+			formatBox->addItem(tr("hhmmss") );
 			}
 		break;
 
 		case 4:
-			formatBox->insertItem(QDate::shortMonthName (date.month()));
-			formatBox->insertItem(QDate::longMonthName (date.month()));
+		{
+			QDate date=QDate::currentDate();
+			formatBox->addItem(QDate::shortMonthName(date.month()));
+			formatBox->addItem(QDate::longMonthName(date.month()));
+		}
 		break;
 
 		case 5:
-			formatBox->insertItem(QDate::shortDayName (date.dayOfWeek ()) );
-			formatBox->insertItem(QDate::longDayName (date.dayOfWeek ()));
+		{
+			QDate date=QDate::currentDate();
+			formatBox->addItem(QDate::shortDayName(date.dayOfWeek()));
+			formatBox->addItem(QDate::longDayName(date.dayOfWeek()));
+		}
 		break;
 		}
 	}
 }
 
-void TableDialog::setDateTimeFormat(int type, const QString& format, bool allColumns)
-{
-    if (!d_table->setDateTimeFormat(type, format, allColumns))
+void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRightColumns)
+{	
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    bool ok = false;
+	int sc = d_table->selectedColumn();
+	if (allRightColumns)
+	{
+		for (int i = sc; i<d_table->tableCols(); i++)
+		{
+			ok = d_table->setDateTimeFormat(type, format, i);
+			if (!ok)
+                break;
+		}
+	}
+	else
+		ok = d_table->setDateTimeFormat(type, format, sc);
+
+	QApplication::restoreOverrideCursor();
+	
+    if (!ok)
     {
         QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
                              tr("For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!"));
@@ -477,4 +499,33 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allCol
         formatBox->insertItem(0, format);
         formatBox->setCurrentText(format);
     }
+    d_table->notifyChanges();
+}
+
+void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
+{		
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	int sc = d_table->selectedColumn();
+	if (allRightColumns)
+	{
+		for (int i = sc; i<d_table->tableCols(); i++)
+			d_table->setColNumericFormat(type, prec, i);
+	}
+	else
+		d_table->setColNumericFormat(type, prec, sc);
+
+	d_table->notifyChanges();
+	QApplication::restoreOverrideCursor();
+}
+
+void TableDialog::setTextFormat(bool allRightColumns)
+{	
+	int sc = d_table->selectedColumn();
+	if (allRightColumns)
+	{
+		for (int i = sc; i<d_table->tableCols(); i++)
+			d_table->setTextFormat(i);
+	}
+	else
+		d_table->setTextFormat(sc);
 }

@@ -294,7 +294,6 @@ public slots:
 	//! To be used when opening a project file only!
 	Matrix* newMatrix(const QString& caption, int r, int c);
 	Matrix* matrix(const QString& name);
-	Matrix* createIntensityMatrix(const QPixmap& pic);
 	Matrix* convertTableToMatrix();
 	void initMatrix(Matrix* m, const QString& caption);
 	void transposeMatrix();

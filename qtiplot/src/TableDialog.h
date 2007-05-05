@@ -60,6 +60,7 @@ private slots:
 	void apply();
 	void updateDisplay(int item);
 	void enablePrecision(int f);
+	void setNumericFormat(int type, int prec, bool allRightColumns);
 
 signals:
 	void nameChanged(const QString&);
@@ -67,7 +68,8 @@ signals:
 	void changeWidth(const QString&, bool);
 
 private:
-    void setDateTimeFormat(int type, const QString& format, bool allColumns);
+    void setDateTimeFormat(int type, const QString& format, bool allRightColumns);
+	void setTextFormat(bool allRightColumns);
     void closeEvent( QCloseEvent *);
 
     Table * d_table;

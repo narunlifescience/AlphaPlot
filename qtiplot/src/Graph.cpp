@@ -4196,8 +4196,7 @@ void Graph::showIntensityTable()
 	if (!mrk)
 		return;
 
-	QPixmap pic = mrk->pixmap();
-	emit createIntensityTable(pic);
+	emit createIntensityTable(mrk->getFileName());
 }
 
 void Graph::updateMarkersBoundingRect()

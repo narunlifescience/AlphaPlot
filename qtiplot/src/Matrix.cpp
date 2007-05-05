@@ -106,9 +106,8 @@ void Matrix::init(int rows, int cols)
 	vHeader->setResizeMode(QHeaderView::ResizeToContents);
 
 	// resize the table
-	setGeometry(50,50,
-			qMin(_Matrix_initial_columns_, cols)*hHeader->sectionSize(0)+55,
-			(qMin(_Matrix_initial_rows_,rows)+1)*vHeader->sectionSize(0));
+	setGeometry(50, 50, qMin(_Matrix_initial_columns_, cols)*hHeader->sectionSize(0) + 55,
+                (qMin(_Matrix_initial_rows_,rows)+1)*vHeader->sectionSize(0));
 
 	// keyboard shortcuts
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Matrix: select all")), this);
@@ -561,10 +560,10 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 		QApplication::restoreOverrideCursor();
 		return false;
 	}
-	
+
 	int rows = numRows();
 	int cols = numCols();
-	
+
 	if (endRow < 0)
 		endRow = rows - 1;
 	if (endCol < 0)

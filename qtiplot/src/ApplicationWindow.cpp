@@ -2043,28 +2043,6 @@ Matrix* ApplicationWindow::importImage()
 	else return 0;
 }
 
-Matrix* ApplicationWindow::importImage(const QString& fn)
-{
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	QPixmap photo;
-	QList<QByteArray> lst = QImageReader::supportedImageFormats();
-	for (int i=0; i<(int)lst.count();i++)
-	{
-		if (fn.contains("." + lst[i], false))
-		{
-			photo.load(fn, lst[i], QPixmap::Auto);
-			break;
-		}
-	}
-	Matrix* m = createIntensityMatrix(photo);
-	m->setWindowLabel(fn);
-	m->setCaptionPolicy(MyWidget::Both);
-	setListViewLabel(m->name(), fn);
-
-	QApplication::restoreOverrideCursor();
-	return m;
-}
-
 void ApplicationWindow::loadImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
@@ -9622,28 +9600,59 @@ void ApplicationWindow::intensityTable()
 		g->showIntensityTable();
 }
 
-Matrix* ApplicationWindow::createIntensityMatrix(const QPixmap& pic)
+Matrix* ApplicationWindow::importImage(const QString& fileName)
 {
-	QImage image=pic.convertToImage();
-	QSize size=pic.size();
-	int cols=size.width();
-	int rows=size.height();
+    QImage image(fileName);
+    if (image.isNull())
+        return 0;
 
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	Matrix* w = newMatrix(rows, cols);
+	int cols = image.width();
+	int rows = image.height();
+
+	QProgressDialog progress(this);
+	progress.setRange(0, rows);
+	progress.setMinimumWidth(width()/2);
+	progress.setWindowTitle(tr("QtiPlot") + " - " + tr("Import image..."));
+	progress.setLabelText(fileName);
+	progress.setActiveWindow();
+
+	Matrix* m = new Matrix(scriptEnv, rows, cols, "", ws);
+	m->setAttribute(Qt::WA_DeleteOnClose);
+	m->blockSignals(true);
+
+	int aux = rows - 1;
 	for (int i=0; i<rows; i++ )
 	{
-		int l = rows - i -1;
+		int l = aux - i;
 		for (int j=0; j<cols; j++)
+			m->setCell(i, j, qGray(image.pixel (j, l)));
+
+		if (i%10 == 9)
 		{
-			QRgb pixel = image.pixel (j, l);
-			w->setText (i, j, QString::number(qGray(pixel)));
+		    progress.setValue(i);
+		    QApplication::processEvents();
 		}
+
+        if (progress.wasCanceled())
+            break;
 	}
 
-	w->show();
-	QApplication::restoreOverrideCursor();
-	return w;
+	if (!progress.wasCanceled())
+	{
+		QString caption = generateUniqueName(tr("Matrix"));
+		initMatrix(m, caption);
+    	m->show();
+    	m->setWindowLabel(fileName);
+    	m->setCaptionPolicy(MyWidget::Both);
+    	setListViewLabel(m->name(), fileName);
+    	m->blockSignals(false);
+		return m;
+	}
+	else
+	{
+		delete m;
+		return 0;
+	}
 }
 
 void ApplicationWindow::autoArrangeLayers()
@@ -10763,9 +10772,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(showGeometryDialog()),this,SLOT(showPlotGeometryDialog()));
 	connect (g,SIGNAL(pasteMarker()),this,SLOT(pasteSelection()));
 	connect (g,SIGNAL(showGraphContextMenu()),this,SLOT(showGraphContextMenu()));
-
-	connect (g,SIGNAL(createIntensityTable(const QPixmap&)),
-			this,SLOT(createIntensityMatrix(const QPixmap&)));
+	connect (g,SIGNAL(createIntensityTable(const QString&)),this,SLOT(importImage(const QString&)));
 	connect (g, SIGNAL(setPointerCursor()),this, SLOT(pickPointerCursor()));
 
 	g->askOnCloseEvent(confirmClosePlot2D);

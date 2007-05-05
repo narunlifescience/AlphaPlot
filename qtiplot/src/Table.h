@@ -282,7 +282,6 @@ public slots:
 	QStringList getColumnsFormat(){return col_format;};
 	void setColumnsFormat(const QStringList& lst);
 
-	void setTextFormat(bool applyToAll);
 	void setTextFormat(int col);
 	void setColNumericFormat(int f, int prec, int col);
 	bool setDateFormat(const QString& format, int col);
@@ -290,8 +289,6 @@ public slots:
 	void setMonthFormat(const QString& format, int col);
 	void setDayFormat(const QString& format, int col);
 	bool setDateTimeFormat(int f, const QString& format, int col);
-	bool setDateTimeFormat(int f, const QString& format, bool applyToAll);
-	void setNumericFormat(int f, int prec, bool applyToAll);
 
 	bool exportToASCIIFile(const QString& fname, const QString& separator,
 							  bool withLabels,bool exportSelection);

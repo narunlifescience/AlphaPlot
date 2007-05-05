@@ -693,7 +693,7 @@ signals:
 		void topAxisTitleDblClicked();
 
 		void createTablePlot(const QString&,int,int,const QString&);
-		void createIntensityTable(const QPixmap&);
+		void createIntensityTable(const QString&);
 		void dataRangeChanged();
 		void showFitResults(const QString&);
 

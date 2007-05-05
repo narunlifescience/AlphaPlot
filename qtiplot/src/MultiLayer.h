@@ -201,7 +201,7 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 	void showGeometryDialog();
 	void pasteMarker();
-	void createIntensityTable(const QPixmap&);
+	void createIntensityTable(const QString&);
 	void setPointerCursor();
 
 private:

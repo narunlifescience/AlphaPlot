@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Matrix dimensions dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -35,7 +35,7 @@ class QGroupBox;
 class QPushButton;
 class QSpinBox;
 class QLineEdit;
-	
+
 //! Matrix dimensions dialog
 class MatrixSizeDialog : public QDialog
 {
@@ -48,18 +48,8 @@ public:
 	 * \param fl window flags
 	 */
     MatrixSizeDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-	//! Destructor
-    ~MatrixSizeDialog();
-
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-    QGroupBox* groupBox1, *groupBox2;
-	QSpinBox *boxCols, *boxRows;
-	QLineEdit *boxXStart, *boxYStart, *boxXEnd, *boxYEnd;
 
 public slots:
-	//! Set all strings in the current language
-    virtual void languageChange();
 	//! Accept changes and quit
 	void accept();
 	//! Set the number of columns
@@ -90,6 +80,13 @@ signals:
 	 * \param toY end y value
 	 */
 	void changeCoordinates(double fromX, double toX, double fromY, double toY);
+
+private:
+    QPushButton* buttonOk;
+	QPushButton* buttonCancel;
+    QGroupBox* groupBox1, *groupBox2;
+	QSpinBox *boxCols, *boxRows;
+	QLineEdit *boxXStart, *boxYStart, *boxXEnd, *boxYEnd;
 };
 
 #endif // MATRIXSIZEDIALOG_H

@@ -1609,42 +1609,21 @@ void Table::forgetSavedCol()
 	savedCol = -1;
 }
 
-void Table::setTextFormat(bool applyToAll)
-{
-	if (applyToAll)
-	{
-		for (int i=selectedCol; i<worksheet->numCols(); i++)
-			colTypes[i] = Text;
-	}
-	else
-		colTypes[selectedCol] = Text;
-}
-
 void Table::setTextFormat(int col)
 {
-	colTypes[col] = Text;
-}
-
-void Table::setNumericFormat(int f, int prec, bool applyToAll)
-{
-	int cols=worksheet->numCols();
-	if (applyToAll)
-	{
-		for (int i=selectedCol; i<cols; i++)
-			setColNumericFormat(f, prec, i);
-	}
-	else
-		setColNumericFormat(f, prec, selectedCol);
-
-	emit modifiedWindow(this);
+	if (col >= 0 && col < colTypes.count())
+		colTypes[col] = Text;
 }
 
 void Table::setColNumericFormat(int f, int prec, int col)
 {
-	int old_f, old_prec;
-	columnNumericFormat(col, old_f, old_prec);
-	if (colTypes[col] == Numeric && old_f == f && old_prec == prec)
-		return;
+	if (colTypes[col] == Numeric)
+	{
+		int old_f, old_prec;
+		columnNumericFormat(col, old_f, old_prec);
+		if (old_f == f && old_prec == prec)
+			return;
+	}
 
 	colTypes[col] = Numeric;
 	col_format[col] = QString::number(f)+"/"+QString::number(prec);
@@ -1673,29 +1652,6 @@ void Table::setColumnsFormat(const QStringList& lst)
 		return;
 
 	col_format = lst;
-}
-
-bool Table::setDateTimeFormat(int f, const QString& format, bool applyToAll)
-{
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-    bool ok = false;
-	if (applyToAll)
-	{
-		for (int j=selectedCol; j<worksheet->numCols(); j++)
-		{
-			ok = setDateTimeFormat(f, format, j);
-			if (!ok)
-                break;
-		}
-	}
-	else
-		ok = setDateTimeFormat(f, format, selectedCol);
-
-    if (ok)
-        emit modifiedWindow(this);
-
-	QApplication::restoreOverrideCursor();
-	return ok;
 }
 
 bool Table::setDateTimeFormat(int f, const QString& format, int col)
@@ -1783,7 +1739,7 @@ void Table::setMonthFormat(const QString& format, int col)
 {
 	colTypes[col] = Month;
 	int rows=worksheet->numRows();
-	if (format == "shortMonthName")
+	if (format == QDate::shortMonthName(QDate::currentDate().month()))
 	{
 		for (int i=0;i<rows; i++)
 		{
@@ -1798,7 +1754,7 @@ void Table::setMonthFormat(const QString& format, int col)
 			}
 		}
 	}
-	else if (format == "longMonthName")
+	else if (format == QDate::longMonthName(QDate::currentDate().month()))
 	{
 		for (int i=0;i<rows; i++)
 		{
@@ -1818,8 +1774,8 @@ void Table::setMonthFormat(const QString& format, int col)
 void Table::setDayFormat(const QString& format, int col)
 {
 	colTypes[col] = Day;
-	int rows=worksheet->numRows();
-	if (format == "shortDayName")
+	int rows=worksheet->numRows();	
+	if (format == QDate::shortDayName(QDate::currentDate().dayOfWeek()))
 	{
 		for (int i=0;i<rows; i++)
 		{
@@ -1834,7 +1790,7 @@ void Table::setDayFormat(const QString& format, int col)
 			}
 		}
 	}
-	else if (format == "longDayName")
+	else if (format == QDate::longDayName(QDate::currentDate().dayOfWeek()))
 	{
 		for (int i=0;i<rows; i++)
 		{
