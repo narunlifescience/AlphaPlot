@@ -261,6 +261,29 @@ struct graphGrid {
 	double width;
 };
 
+struct graphAxisFormat {
+	bool hidden;
+	int color;
+	double thickness;
+	double majorTickLength;
+	int majorTicksType;
+	int minorTicksType;
+	int axisPosition;
+	double axisPositionValue;
+};
+
+struct graphAxisTick {
+	bool hidden;
+	int color;
+	int value_type;//Numeric = 0, Text = 1, Date = 2, Time = 3, Month = 4, Day = 5, Text&Numeric = 6
+	int value_type_specification; 
+	int decimal_places;
+	int fontsize;
+	string dataName;
+	string colName;
+	int rotation;
+};
+
 struct graphAxis {
 	int pos;
 	string label;
@@ -272,6 +295,8 @@ struct graphAxis {
 	int scale;
 	graphGrid majorGrid;
 	graphGrid minorGrid;
+	graphAxisFormat formatAxis[2];
+	graphAxisTick tickAxis[2]; //bottom-top, left-right
 };
 
 struct graphLayer {
@@ -374,7 +399,7 @@ public:
 	enum Plot {Line=200, Scatter=201, LineSymbol=202, Column=203, Area=204, HiLoClose=205, Box=206,
 		ColumnFloat=207, Vector=208, PlotDot=209, Wall3D=210, Ribbon3D=211, Bar3D=212, ColumnStack=213,
 		AreaStack=214, Bar=215, BarStack=216, FlowVector=218, Histogram=219, MatrixImage=220, Pie=225,
-		Contour=226, Unknown=230, ErrorBar=231, Text=232, XErrorBar=233, SurfaceColorMap=236,
+		Contour=226, Unknown=230, ErrorBar=231, TextPlot=232, XErrorBar=233, SurfaceColorMap=236,
 		SurfaceColorFill=237, SurfaceWireframe=238, SurfaceBars=239, Line3D=240, Text3D=241, Mesh3D=242,
 		XYZTriangular=245, LineSeries=246, YErrorBar=254, XYErrorBar=255, GraphScatter3D=0x8AF0,
 		GraphTrajectory3D=0x8AF1, Polar=0x00020000, SmithChart=0x00040000, FillArea=0x00800000};
@@ -384,6 +409,8 @@ public:
 	enum LineConnect {NoLine=0, Straight=1, TwoPointSegment=2, ThreePointSegment=3, BSpline=8, Spline=9, StepHorizontal=11, StepVertical=12, StepHCenter=13, StepVCenter=14, Bezier=15};
 
 	enum Scale{Linear=0, Log10=1, Probability=2, Probit=3, Reciprocal=4, OffsetReciprocal=5, Logit=6, Ln=7, Log2=8};
+
+	enum ValueType {Numeric=0, Text=1, Time=2, Date=3,  Month=4, Day=5, ColumnHeading=6, TickIndexedDataset=7, TextNumeric=9, Categorical=10};
 
 	int numGraphs() { return GRAPH.size(); }			//!< get number of graphs
 	const char *graphName(int s) { return GRAPH[s].name.c_str(); }	//!< get name of graph s
@@ -421,12 +448,28 @@ public:
 	} //!< get Y-axis ticks of layer l of graph s
 	vector<graphGrid> layerGrid(int s, int l) {
 		vector<graphGrid> grid;
-		grid.push_back(GRAPH[s].layer[l].yAxis.majorGrid);
-		grid.push_back(GRAPH[s].layer[l].yAxis.minorGrid);
 		grid.push_back(GRAPH[s].layer[l].xAxis.majorGrid);
 		grid.push_back(GRAPH[s].layer[l].xAxis.minorGrid);
+		grid.push_back(GRAPH[s].layer[l].yAxis.majorGrid);
+		grid.push_back(GRAPH[s].layer[l].yAxis.minorGrid);
 		return grid;
-	} //!< get grid ticks of layer l of graph s
+	} //!< get grid of layer l of graph s
+	vector<graphAxisFormat> layerAxisFormat(int s, int l) {
+		vector<graphAxisFormat> format;
+		format.push_back(GRAPH[s].layer[l].yAxis.formatAxis[0]); //bottom
+		format.push_back(GRAPH[s].layer[l].yAxis.formatAxis[1]); //top
+		format.push_back(GRAPH[s].layer[l].xAxis.formatAxis[0]); //left
+		format.push_back(GRAPH[s].layer[l].xAxis.formatAxis[1]); //right
+		return format;
+	} //!< get title and format of axes of layer l of graph s
+	vector<graphAxisTick> layerAxisTickLabels(int s, int l) {
+		vector<graphAxisTick> tick;
+		tick.push_back(GRAPH[s].layer[l].yAxis.tickAxis[0]); //bottom
+		tick.push_back(GRAPH[s].layer[l].yAxis.tickAxis[1]); //top
+		tick.push_back(GRAPH[s].layer[l].xAxis.tickAxis[0]); //left
+		tick.push_back(GRAPH[s].layer[l].xAxis.tickAxis[1]); //right
+		return tick;
+	} //!< get tick labels of axes of layer l of graph s
 	vector<double> layerHistogram(int s, int l) {
 		vector<double> range;
 		range.push_back(GRAPH[s].layer[l].histogram_bin);
@@ -482,6 +525,9 @@ private:
 	void readSpreadInfo(FILE *fopj, FILE *fdebug);
 	void readMatrixInfo(FILE *fopj, FILE *fdebug);
 	void readGraphInfo(FILE *fopj, FILE *fdebug);
+	void readGraphGridInfo(graphGrid &grid, FILE *fopj, int pos);
+	void readGraphAxisFormatInfo(graphAxisFormat &format, FILE *fopj, int pos);
+	void readGraphAxisTickLabelsInfo(graphAxisTick &tick, FILE *fopj, int pos);
 	void skipObjectInfo(FILE *fopj, FILE *fdebug);
 	void setColName(int spread);		//!< set default column name starting from spreadsheet spread
 	const char* filename;			//!< project file name

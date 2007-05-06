@@ -1897,91 +1897,57 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		LAYER+=2*0x5;
 
 		LAYER+=0x5;
-		fseek(f,LAYER+0x26,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.minorGrid.hidden=(h==0);
-
-		fseek(f,LAYER+0xF,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.minorGrid.color=h;
-
-		
-		fseek(f,LAYER+0x12,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.minorGrid.style=h;
-		
-		fseek(f,LAYER+0x15,SEEK_SET);
-		fread(&w,2,1,f);
-		if(IsBigEndian()) SwapBytes(w);
-		GRAPH.back().layer.back().yAxis.minorGrid.width=(double)w/500.0;
-
+		readGraphGridInfo(GRAPH.back().layer.back().xAxis.minorGrid, f, LAYER);
 		LAYER+=0x1E7+1;
 
 		LAYER+=0x5;
-		fseek(f,LAYER+0x26,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.majorGrid.hidden=(h==0);
-
-		fseek(f,LAYER+0xF,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.majorGrid.color=h;
-
-		
-		fseek(f,LAYER+0x12,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().yAxis.majorGrid.style=h;
-		
-		fseek(f,LAYER+0x15,SEEK_SET);
-		fread(&w,2,1,f);
-		if(IsBigEndian()) SwapBytes(w);
-		GRAPH.back().layer.back().yAxis.majorGrid.width=(double)w/500.0;
-
-		LAYER+=0x1E7+1;
-
-		LAYER+=0x5+0x1ED*0x4;
-
-		
-		LAYER+=0x5;
-		fseek(f,LAYER+0x26,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.minorGrid.hidden=(h==0);
-
-		fseek(f,LAYER+0xF,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.minorGrid.color=h;
-
-		fseek(f,LAYER+0x12,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.minorGrid.style=h;
-		
-		fseek(f,LAYER+0x15,SEEK_SET);
-		fread(&w,2,1,f);
-		if(IsBigEndian()) SwapBytes(w);
-		GRAPH.back().layer.back().xAxis.minorGrid.width=(double)w/500.0;
-
+		readGraphGridInfo(GRAPH.back().layer.back().xAxis.majorGrid, f, LAYER);
 		LAYER+=0x1E7+1;
 
 		LAYER+=0x5;
-		fseek(f,LAYER+0x26,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.majorGrid.hidden=(h==0);
+		readGraphAxisTickLabelsInfo(GRAPH.back().layer.back().xAxis.tickAxis[0], f, LAYER);
+		LAYER+=0x1E7+1;
 
-		fseek(f,LAYER+0xF,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.majorGrid.color=h;
+		LAYER+=0x5;
+		readGraphAxisFormatInfo(GRAPH.back().layer.back().xAxis.formatAxis[0], f, LAYER);
+		LAYER+=0x1E7+1;
 		
-		fseek(f,LAYER+0x12,SEEK_SET);
-		fread(&h,1,1,f);
-		GRAPH.back().layer.back().xAxis.majorGrid.style=h;
-		
-		fseek(f,LAYER+0x15,SEEK_SET);
-		fread(&w,2,1,f);
-		if(IsBigEndian()) SwapBytes(w);
-		GRAPH.back().layer.back().xAxis.majorGrid.width=(double)w/500.0;
+		LAYER+=0x5;
+		readGraphAxisTickLabelsInfo(GRAPH.back().layer.back().xAxis.tickAxis[1], f, LAYER);
+		LAYER+=0x1E7+1;
 
+		LAYER+=0x5;
+		readGraphAxisFormatInfo(GRAPH.back().layer.back().xAxis.formatAxis[1], f, LAYER);
+		LAYER+=0x1E7+1;
+		
+		LAYER+=0x5;
+
+		
+		LAYER+=0x5;
+		readGraphGridInfo(GRAPH.back().layer.back().yAxis.minorGrid, f, LAYER);
+		LAYER+=0x1E7+1;
+
+		LAYER+=0x5;
+		readGraphGridInfo(GRAPH.back().layer.back().yAxis.majorGrid, f, LAYER);
 		LAYER+=0x1E7+1;		
 		
-		LAYER+=0x2*0x5+0x1ED*0x0A;
+		LAYER+=0x5;
+		readGraphAxisTickLabelsInfo(GRAPH.back().layer.back().yAxis.tickAxis[0], f, LAYER);
+		LAYER+=0x1E7+1;
+
+		LAYER+=0x5;
+		readGraphAxisFormatInfo(GRAPH.back().layer.back().yAxis.formatAxis[0], f, LAYER);
+		LAYER+=0x1E7+1;
+		
+		LAYER+=0x5;
+		readGraphAxisTickLabelsInfo(GRAPH.back().layer.back().yAxis.tickAxis[1], f, LAYER);
+		LAYER+=0x1E7+1;
+
+		LAYER+=0x5;
+		readGraphAxisFormatInfo(GRAPH.back().layer.back().yAxis.formatAxis[1], f, LAYER);
+		LAYER+=0x1E7+1;
+
+		LAYER+=0x2*0x5+0x1ED*0x6;
 
 		fseek(f,LAYER,SEEK_SET);
 		fread(&sec_size,4,1,f);
@@ -2094,6 +2060,161 @@ void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
 	POS = LAYER+0x5;
 
 	fseek(f,POS,SEEK_SET);
+}
+
+void OPJFile::readGraphGridInfo(graphGrid &grid, FILE *f, int pos) 
+{
+	unsigned char h;
+	short w;
+	fseek(f,pos+0x26,SEEK_SET);
+	fread(&h,1,1,f);
+	grid.hidden=(h==0);
+
+	fseek(f,pos+0xF,SEEK_SET);
+	fread(&h,1,1,f);
+	grid.color=h;
+
+	
+	fseek(f,pos+0x12,SEEK_SET);
+	fread(&h,1,1,f);
+	grid.style=h;
+	
+	fseek(f,pos+0x15,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	grid.width=(double)w/500.0;
+}
+
+void OPJFile::readGraphAxisFormatInfo(graphAxisFormat &format, FILE *f, int pos) 
+{
+	unsigned char h;
+	short w;
+	double p;
+	fseek(f,pos+0x26,SEEK_SET);
+	fread(&h,1,1,f);
+	format.hidden=(h==0);
+
+	fseek(f,pos+0xF,SEEK_SET);
+	fread(&h,1,1,f);
+	format.color=h;
+
+	fseek(f,pos+0x4A,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	format.majorTickLength=(double)w/10.0;
+	
+	fseek(f,pos+0x15,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	format.thickness=(double)w/500.0;
+
+	fseek(f,pos+0x25,SEEK_SET);
+	fread(&h,1,1,f);
+	format.minorTicksType=(h>>6);
+	format.majorTicksType=((h>>4)&3);
+	format.axisPosition=(h&0xF);
+	switch(format.axisPosition) 
+	{
+		case 1:
+			fseek(f,pos+0x37,SEEK_SET);
+			fread(&h,1,1,f);
+			format.axisPositionValue=(double)h;
+			break;
+		case 2:
+			fseek(f,pos+0x2F,SEEK_SET);
+			fread(&p,8,1,f);
+			if(IsBigEndian()) SwapBytes(p);
+			format.axisPositionValue=p;
+			break;
+	}
+}
+
+void OPJFile::readGraphAxisTickLabelsInfo(graphAxisTick &tick, FILE *f, int pos) {
+	unsigned char h;
+	unsigned char h1;
+	unsigned char h2;
+	short w;
+	double p;
+	fseek(f,pos+0x26,SEEK_SET);
+	fread(&h,1,1,f);
+	tick.hidden=(h==0);
+
+	fseek(f,pos+0xF,SEEK_SET);
+	fread(&h,1,1,f);
+	tick.color=h;
+	
+	fseek(f,pos+0x13,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	tick.rotation=w/10;
+
+	fseek(f,pos+0x15,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	tick.fontsize=w;
+
+	fseek(f,pos+0x23,SEEK_SET);
+	fread(&w,2,1,f);
+	if(IsBigEndian()) SwapBytes(w);
+	
+	fseek(f,pos+0x25,SEEK_SET);
+	fread(&h,1,1,f);
+	fread(&h1,1,1,f);
+	tick.value_type=(h&0xF);
+
+	vector<string> col;
+	switch(tick.value_type)
+	{
+	case 0: //Numeric
+
+		/*switch((h>>4))
+		{
+			case 0x9:
+				tick.value_type_specification=1;
+				break;
+			case 0xA:
+				tick.value_type_specification=2;
+				break;
+			case 0xB:
+				tick.value_type_specification=3;
+				break;
+			default:
+				tick.value_type_specification=0;
+		}*/
+		if((h>>4)>7)
+		{
+			tick.value_type_specification=(h>>4)-8;
+			tick.decimal_places=h1-0x40;
+		}
+		else
+		{
+			tick.value_type_specification=(h>>4);
+			tick.decimal_places=-1;
+		}
+		
+		break;
+	case 2: // Time
+	case 3: // Date
+	case 4: // Month
+	case 5: // Day
+	case 6: // Column heading
+		tick.value_type_specification=h1-0x40;
+		break;
+	case 1: // Text
+	case 7: // Tick-indexed dataset
+	case 10: // Categorical
+		col=findDataByIndex(w-1);
+		if(col.size()>0)
+		{
+			tick.colName=col[0];
+			tick.dataName=col[1];
+		}
+		break;
+	default: // Numeric Decimal 1.000
+		tick.value_type=Numeric;
+		tick.value_type_specification=0;
+		break;
+	}
 }
 
 bool OPJFile::IsBigEndian()

@@ -33,11 +33,22 @@
 #include <QMessageBox>
 #include <QDockWidget>
 #include "Matrix.h"
+#include "ColorBox.h"
 #include "MultiLayer.h"
 #include "Note.h"
 #include "QwtHistogram.h"
 
 #define OBJECTXOFFSET 200
+
+QString strreverse(const QString &str) //QString reversing
+{
+	QString out="";
+	for(int i=str.length()-1; i>=0; --i)
+	{
+		out+=str[i];
+	}
+	return out;
+}
 
 ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 		mw(app)
@@ -373,6 +384,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 {
 	double pi=3.141592653589793;
 	int visible_count=0;
+	int tickTypeMap[]={0,3,1,2};
 	for (int g=0; g<opj.numGraphs(); g++)
 	{
 		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
@@ -387,10 +399,10 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			if(!graph)
 				return false;
 			
-			graph->setXAxisTitle(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l)));
-			graph->setYAxisTitle(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l)));
+			graph->setXAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l))));
+			graph->setYAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l))));
 			if(strlen(opj.layerLegend(g,l))>0)
-				graph->newLegend(QString::fromLocal8Bit(opj.layerLegend(g,l)));
+				graph->newLegend(parseOriginText(QString::fromLocal8Bit(opj.layerLegend(g,l))));
 			int auto_color=0;
 			int auto_color1=0;
 			int style=0;
@@ -419,7 +431,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				case OPJFile::Bar:
 					style=Graph::HorizontalBars;
 					break;
-				case OPJFile::Histogram: //do later
+				case OPJFile::Histogram:
 					style=Graph::Histogram;
 					break;
 				default:
@@ -694,9 +706,87 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			grid.minorWidth=ceil(grids[1].width);
 			grid.xZeroOn=0;
 			grid.yZeroOn=0;
-			grid.xAxis=0;
-			grid.yAxis=2;
+			grid.xAxis=2;
+			grid.yAxis=0;
 			graph->setGridOptions(grid);
+
+			vector<graphAxisFormat> formats=opj.layerAxisFormat(g,l);
+			vector<graphAxisTick> ticks=opj.layerAxisTickLabels(g,l);
+			for(int i=0; i<4; ++i)
+			{
+				QString data(ticks[i].dataName.c_str());
+				QString tableName=data.right(data.length()-2) + "_" + ticks[i].colName.c_str();
+
+				QString formatInfo;
+				int format;
+				int type;
+				int prec=ticks[i].decimal_places;
+				switch(ticks[i].value_type)
+				{
+				case OPJFile::Numeric:
+					type=Graph::Numeric;
+					switch(ticks[i].value_type_specification)
+					{
+					case 0: //Decimal 1000
+						format=1;
+						break;
+					case 1: //Scientific
+						format=2;
+						break;
+					case 2: //Engeneering
+					case 3: //Decimal 1,000
+						format=0;
+						break;
+					}
+					if(prec==-1)
+						prec=2;
+					break;
+				case OPJFile::Text: //Text
+					type=Graph::Txt;
+					break;
+				case 2: // Date
+					type=Graph::Date;
+					break;
+				case 3: // Time
+					type=Graph::Time;
+					break;
+				case OPJFile::Month: // Month
+					type=Graph::Month;
+					format=ticks[i].value_type_specification;
+					break;
+				case OPJFile::Day: // Day
+					type=Graph::Day;
+					format=ticks[i].value_type_specification;
+					break;
+				case OPJFile::ColumnHeading:
+					type=Graph::ColHeader;
+					switch(ticks[i].value_type_specification)
+					{
+					case 0: //Decimal 1000
+						format=1;
+						break;
+					case 1: //Scientific
+						format=2;
+						break;
+					case 2: //Engeneering
+					case 3: //Decimal 1,000
+						format=0;
+						break;
+					}
+					prec=2;
+					break;
+				default:
+					type=Graph::Numeric;
+					format=0;
+					prec=2;
+				}
+
+				graph->showAxis(i, type, tableName, mw->table(tableName), !(formats[i].hidden), 
+					tickTypeMap[formats[i].majorTicksType], tickTypeMap[formats[i].minorTicksType], 
+					!(ticks[i].hidden),	ColorBox::color(formats[i].color), format, prec, 
+					ticks[i].rotation, 0, "", (ticks[i].color==0xF7 ? ColorBox::color(formats[i].color) : ColorBox::color(ticks[i].color)));
+			}
+
 
 			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
         	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
@@ -722,3 +812,145 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 		xoffset++;
 	return true;
 }
+
+QString ImportOPJ::parseOriginText(const QString &str)
+{
+	QStringList lines=str.split("\n");
+	QString text="";
+	for(int i=0; i<lines.size(); ++i)
+	{
+		if(i>0)
+			text.append("\n");
+		text.append(parseOriginTags(lines[i]));
+	}
+	return text;
+}
+
+QString ImportOPJ::parseOriginTags(const QString &str)
+{
+	QString line=str;
+	//replace \l(...) and %(...) tags
+	QRegExp rxline("\\\\\\s*l\\s*\\(\\s*\\d+\\s*\\)");
+	QRegExp rxcol("\\%\\(\\d+\\)");
+	int pos = rxline.indexIn(line);
+	while (pos > -1) {
+		QString value = rxline.cap(0);
+		int len=value.length();
+		value.replace(QRegExp(" "),"");
+		value="\\c{"+value.mid(3,value.length()-4)+"}";
+		line.replace(pos, len, value);
+		pos = rxline.indexIn(line);
+	}
+	//Lookbehind conditions are not supported - so need to reverse string
+	QRegExp rx("\\)[^\\)\\(]*\\((?!\\s*[buig\\+\\-]\\s*\\\\)");
+	QRegExp rxfont("\\)[^\\)\\(]*\\((?![^\\:]*\\:f\\s*\\\\)");
+	QString linerev = strreverse(line);
+	QString lBracket=strreverse("&lbracket;");
+	QString rBracket=strreverse("&rbracket;");
+	QString ltagBracket=strreverse("&ltagbracket;");
+	QString rtagBracket=strreverse("&rtagbracket;");
+	int pos1=rx.indexIn(linerev);
+	int pos2=rxfont.indexIn(linerev);
+	
+	while (pos1>-1 || pos2>-1) {
+		if(pos1==pos2)
+		{
+			QString value = rx.cap(0);
+			int len=value.length();
+			value=rBracket+value.mid(1,len-2)+lBracket;
+			linerev.replace(pos1, len, value);
+		}
+		else if ((pos1>pos2&&pos2!=-1)||pos1==-1)
+		{
+			QString value = rxfont.cap(0);
+			int len=value.length();
+			value=rtagBracket+value.mid(1,len-2)+ltagBracket;
+			linerev.replace(pos2, len, value);
+		}
+		else if ((pos2>pos1&&pos1!=-1)||pos2==-1)
+		{
+			QString value = rx.cap(0);
+			int len=value.length();
+			value=rtagBracket+value.mid(1,len-2)+ltagBracket;
+			linerev.replace(pos1, len, value);
+		}
+		
+		pos1=rx.indexIn(linerev);
+		pos2=rxfont.indexIn(linerev);
+	}
+	linerev.replace(ltagBracket, "(");
+	linerev.replace(rtagBracket, ")");
+	
+	line = strreverse(linerev);
+	
+	//replace \b(...), \i(...), \u(...), \g(...), \+(...), \-(...), \f:font(...) tags
+	QString rxstr[]={
+		"\\\\\\s*b\\s*\\(",
+		"\\\\\\s*i\\s*\\(",
+		"\\\\\\s*u\\s*\\(",
+		"\\\\\\s*g\\s*\\(",
+		"\\\\\\s*\\+\\s*\\(",
+		"\\\\\\s*\\-\\s*\\(",
+		"\\\\\\s*f\\:[^\\(]*\\("};
+	int postag[]={0,0,0,0,0,0,0};
+	QString ltag[]={"<b>","<i>","<u>","<font face=Symbol>","<sup>","<sub>","<font face=%1>"};
+	QString rtag[]={"</b>","</i>","</u>","</font>","</sup>","</sub>","</font>"};
+	QRegExp rxtags[7];
+	for(int i=0; i<7; ++i)
+		rxtags[i].setPattern(rxstr[i]+"[^\\(\\)]*\\)");
+
+	bool flag=true;
+	while(flag) {
+		for(int i=0; i<7; ++i)
+		{
+			postag[i] = rxtags[i].indexIn(line);
+			while (postag[i] > -1) {
+				QString value = rxtags[i].cap(0);
+				int len=value.length();
+				int pos2=value.indexOf("(");
+				if(i<6)
+					value=ltag[i]+value.mid(pos2+1,len-pos2-2)+rtag[i];
+				else
+				{
+					int posfont=value.indexOf("f:");
+					value=ltag[i].arg(value.mid(posfont+2,pos2-posfont-2))+value.mid(pos2+1,len-pos2-2)+rtag[i];
+				}
+				line.replace(postag[i], len, value);
+				postag[i] = rxtags[i].indexIn(line);
+			}
+		}
+		flag=false;
+		for(int i=0; i<7; ++i)
+		{
+			if(rxtags[i].indexIn(line)>-1)
+			{
+				flag=true;
+				break;
+			}
+		}
+	}
+
+	//replace unclosed tags
+	for(int i=0; i<6; ++i)
+		line.replace(QRegExp(rxstr[i]), ltag[i]);
+	rxfont.setPattern(rxstr[6]);
+	pos = rxfont.indexIn(line);
+	while (pos > -1) {
+		QString value = rxfont.cap(0);
+		int len=value.length();
+		int posfont=value.indexOf("f:");
+		value=ltag[6].arg(value.mid(posfont+2,len-posfont-3));
+		line.replace(pos, len, value);
+		pos = rxfont.indexIn(line);
+	}
+
+	line.replace("&lbracket;", "(");
+	line.replace("&rbracket;", ")");
+
+	return line;
+}
+
+//TODO: bug in grid dialog
+//		scale/minor ticks checkbox
+//		histogram: autobin export
+//		if prec not setted - automac+4digits

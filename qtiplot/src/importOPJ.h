@@ -46,6 +46,8 @@ public:
 
 private:
 	int translateOrigin2QtiplotLineStyle(int linestyle);
+	QString parseOriginText(const QString &str);
+	QString parseOriginTags(const QString &str);
 	int parse_error;
 	int xoffset;
 	ApplicationWindow *mw;
