@@ -129,7 +129,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	}
 
 	int prec; char f;
-	tab->columnNumericFormat(col, f, prec);
+	tab->columnNumericFormat(col, &f, &prec);
 	for (int i=0; i<c->dataSize(); i++)
 		tab->setText(c->tableRow(i), col, QLocale().toString(
 					(d_dir==Horizontal ? d_selected_curve->x(i) : d_selected_curve->y(i)) + d,

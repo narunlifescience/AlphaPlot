@@ -28,31 +28,28 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef WORKSHEET_H
-#define WORKSHEET_H
+#ifndef TABLE_H
+#define TABLE_H
 
 #include <QWidget>
-#include <q3table.h>
-#include <q3header.h>
-//Added by qt3to4:
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QHeaderView>
 #include <QContextMenuEvent>
-#include <Q3ValueList>
-#include <QEvent>
-#include <Q3TableSelection>
-
+#include <QList>
 #include <QVarLengthArray>
+#include <QTableWidgetSelectionRange>
+class QEvent;
 
 #include "Graph.h"
 #include "MyWidget.h"
 #include "ScriptingEnv.h"
 #include "Script.h"
 
-class ScriptingEnv;
-
 /*!\brief MDI window providing a spreadsheet table with column logic.
  *
  * \section future Future Plans
- * Port to the Model/View approach used in Qt4 and get rid of the Qt3Support dependancy.
+ * Port to the Model/View approach used in Qt4 
  * [ assigned to thzs ]
  */
 class Table: public MyWidget, public scripted
@@ -69,13 +66,13 @@ public:
 	Table(ScriptingEnv *env, int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Table();
 
-	Q3TableSelection getSelection();
+	QList<QTableWidgetSelectionRange> getSelection();
 
 public slots:
-	Q3Table* table(){return worksheet;};
+	QTableWidget* table(){return d_table;};
 	void copy(Table *m);
-	int tableRows();
-	int tableCols();
+	int numRows();
+	int numCols();
 	void setNumRows(int rows);
 	void setNumCols(int cols);
 	void resizeRows(int);
@@ -93,18 +90,17 @@ public slots:
 	int colPlotDesignation(int col){return col_plot_type[col];};
 	void setColPlotDesignation(int col, PlotDesignation d){col_plot_type[col]=d;};
 	void setPlotDesignation(PlotDesignation pd);
-	Q3ValueList<int> plotDesignations(){return col_plot_type;};
+	QList<int> plotDesignations(){return col_plot_type;};
 
-	void setColName(int col,const QString& text);
+	void setColName(int col,const QString& new_name);
 	void setHeader(QStringList header);
 	void loadHeader(QStringList header);
 	void setHeaderColType();
-	void setText(int row,int col,const QString & text);
+	void setText(int row,int col,const QString & new_text);
 	void setRandomValues();
 	void setAscValues();
 
 	void cellEdited(int,int col);
-	void moveCurrentCell();
 	void clearCell(int row, int col);
 	QString saveText();
 	bool isEmptyRow(int row);
@@ -142,13 +138,6 @@ public slots:
 	void print(const QString& fileName);
 	void exportPDF(const QString& fileName);
 
-	//! \name Event Handlers
-	//@{
-	bool eventFilter(QObject *object, QEvent *e);
-	void contextMenuEvent(QContextMenuEvent *e);
-	void customEvent( QCustomEvent* e);
-	//@}v
-
 	//! \name Column Operations
 	//@{
 	void removeCol();
@@ -163,11 +152,11 @@ public slots:
 	//! \name Sorting
 	//@{
 	/*!\brief Sort the current column in ascending order.
-	 * \sa sortColDesc(), sortColumn(), Q3Table::currentColumn()
+	 * \sa sortColDesc(), sortColumn(), QTableWidget::currentColumn()
 	 */
 	void sortColAsc();
 	/*!\brief Sort the current column in descending order.
-	 * \sa sortColAsc(), sortColumn(), Q3Table::currentColumn()
+	 * \sa sortColAsc(), sortColumn(), QTable::currentColumn()
 	 */
 	void sortColDesc();
 	/*!\brief Sort the specified column.
@@ -249,7 +238,7 @@ public slots:
 	QStringList drawableColumnSelection();
 	QStringList YColumns();
 	int selectedColsNumber();
-	void changeColName(const QString& text);
+	void changeColName(const QString& new_name);
 	void enumerateRightCols(bool checked);
 
 	void changeColWidth(int width, bool allCols);
@@ -261,16 +250,22 @@ public slots:
 	void setSelectedCol(int col){selectedCol = col;};
 	int selectedColumn(){return selectedCol;};
 	int firstSelectedColumn();
-	int selectedRows();
-	bool isRowSelected(int row, bool full=false) { return worksheet->isRowSelected(row, full); }
-	bool isColumnSelected(int col, bool full=false) { return worksheet->isColumnSelected(col, full); }
+	//! Return the number of fully selected rows
+	int numSelectedRows();
+	//! Return the number of fully selected columns
+	int numSelectedColumns();
+	bool isRowSelected(int row, bool full=false);
+	bool isColumnSelected(int col, bool full=false);
 
-	void columnNumericFormat(int col, char &f, int &precision);
-	void columnNumericFormat(int col, int &f, int &precision);
+	//! Scroll to row (row starts with 1)
+	void goToRow(int row);
+
+	void columnNumericFormat(int col, char *f, int *precision);
+	void columnNumericFormat(int col, int *f, int *precision);
 	int columnType(int col){return colTypes[col];};
 
-	Q3ValueList<int> columnTypes(){return colTypes;};
-	void setColumnTypes(Q3ValueList<int> ctl){colTypes = ctl;};
+	QList<int> columnTypes(){return colTypes;};
+	void setColumnTypes(QList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
 
 	//! Use a copy of column col when accessing it via text() until forgetSavedCol() is called.
@@ -329,7 +324,7 @@ public slots:
 	void setTextFont(const QFont& fnt);
 	void setHeaderFont(const QFont& fnt);
 
-	int verticalHeaderWidth(){return worksheet->verticalHeader()->width();};
+	int verticalHeaderWidth(){return d_table->verticalHeader()->width();};
 
 	QString colComment(int col){return comments[col];};
 	void setColComment(const QString& s);
@@ -361,7 +356,18 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 
 protected:
-	Q3Table *worksheet;
+	QTableWidget *d_table;
+
+private slots:
+	//! \name Event Handlers
+	//@{
+	void contextMenuEvent(QContextMenuEvent *e);
+	void customEvent( QCustomEvent* e);
+	//! Called whenever a header section is double clicked
+	void headerDoubleClickedHandler(int section);
+	//@}v
+
+
 
 private:
 	QString specifications, newSpecifications;
@@ -370,6 +376,17 @@ private:
 	int selectedCol;
 	QStringList savedCells;
 	int savedCol;
+	/*!
+	 * \brief Toggle between allow/suppress the emission of modification signals
+	 *
+	 * Set this to false during long operations to
+	 * prevent "emit modifiedWindow(this)" being
+	 * called for each cell.
+	 * \sa MyWidget::modifiedWindow()
+	 */
+	bool allow_modification_signals;
+	//! Internal function to change the column header
+	void setColumnHeader(int index, QString label);
 };
 
 #endif

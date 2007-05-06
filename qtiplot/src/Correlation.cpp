@@ -70,7 +70,7 @@ void Correlation::setDataFromTable(Table *t, const QString& colName1, const QStr
 		delete[] d_y;
 	}
 
-	int rows = d_table->tableRows();
+	int rows = d_table->numRows();
 	d_n = 16; // tmp number of points
 	while (d_n < rows)
 		d_n *= 2;
@@ -132,12 +132,12 @@ void Correlation::output()
 
 void Correlation::addResultCurve()
 {
-	int cols = d_table->tableCols();
+	int cols = d_table->numCols();
 	int cols2 = cols+1;
 	d_table->addCol();
 	d_table->addCol();
-	int n = d_table->tableRows()/2;
-	for (int i = 0; i<d_table->tableRows(); i++)
+	int n = d_table->numRows()/2;
+	for (int i = 0; i<d_table->numRows(); i++)
 	{
 		double y = 0;
 		if(i < n)

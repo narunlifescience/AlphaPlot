@@ -217,7 +217,7 @@ if (active_table != t)
 	active_table = t;
 	tableCaptionLabel->setText(t->name());
 	table->clearContents();
-	table->setRowCount(t->tableCols());
+	table->setRowCount(t->numCols());
 
 	QStringList colNames = t->colNames();
 	for (int i=0; i<table->rowCount(); i++ )

@@ -238,7 +238,7 @@ void Graph3D::insertFunction(const QString& s,double xl,double xr,double yl,
 void Graph3D::addData(Table* table, int xcol, int ycol)
 {
 	worksheet=table;
-	int r=table->tableRows();
+	int r=table->numRows();
 	int i, xmesh=0, ymesh=2;
 	for (i = 0; i < r; i++)
 	{
@@ -359,7 +359,7 @@ void Graph3D::addData(Table* table,const QString& xColName,const QString& yColNa
 		double xl, double xr, double yl, double yr, double zl, double zr)
 {
 	worksheet=table;
-	int r=table->tableRows();
+	int r=table->numRows();
 	int xcol=table->colIndex(xColName);
 	int ycol=table->colIndex(yColName);
 
@@ -442,7 +442,7 @@ void Graph3D::changeDataColumn(Table* table, const QString& colName)
 void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 {
 	worksheet=table;
-	int r=table->tableRows();
+	int r=table->numRows();
 
 	QString s=table->colName(xCol)+"(X),";
 	s+=table->colName(yCol)+"(Y),";
@@ -513,7 +513,7 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol,
 		double xl, double xr, double yl, double yr, double zl, double zr)
 {
 	worksheet=table;
-	int r=table->tableRows();
+	int r=table->numRows();
 
 	QString s=table->colName(xCol)+"(X),";
 	s+=table->colName(yCol)+"(Y),";
@@ -604,7 +604,7 @@ void Graph3D::updateData(Table* table)
 
 void Graph3D::updateDataXY(Table* table, int xCol, int yCol)
 {
-	int r=table->tableRows();
+	int r=table->numRows();
 	int i, j, xmesh=0, ymesh=2;
 
 	for (i = 0; i < r; i++)
@@ -662,7 +662,7 @@ void Graph3D::updateDataXY(Table* table, int xCol, int yCol)
 
 void Graph3D::updateDataXYZ(Table* table, int xCol, int yCol, int zCol)
 {
-	int r=table->tableRows();
+	int r=table->numRows();
 	int i,j,columns=0;
 
 	for ( i = 0; i < r; i++)
@@ -1462,7 +1462,7 @@ void Graph3D::updateScalesFromMatrix(double xl, double xr, double yl,
 void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl, double zr,
 		int xcol, int ycol)
 {
-	int r=worksheet->tableRows();
+	int r=worksheet->numRows();
 	int i, j, xmesh=0, ymesh=2;
 	double xv, yv;
 
@@ -1512,7 +1512,7 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr,double zl,
 void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl, double zr,
 		int xCol, int yCol, int zCol)
 {
-	int r=worksheet->tableRows();
+	int r=worksheet->numRows();
 	int i,j,columns=0;
 	double xv, yv, zv;
 	for ( i = 0; i < r; i++)

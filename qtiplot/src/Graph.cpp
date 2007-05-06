@@ -831,7 +831,7 @@ void Graph::setLabelsTextFormat(int axis, int type, const QString& labelsColName
 			return;
 
 		axesFormatInfo[axis] = labelsColName;
-		int r = table->tableRows();
+		int r = table->numRows();
 		int col = table->colIndex(labelsColName);
 
 		for (int i=0; i < r; i++)
@@ -843,7 +843,7 @@ void Graph::setLabelsTextFormat(int axis, int type, const QString& labelsColName
 			return;
 
 		axesFormatInfo[axis] = table->name();
-		for (int i=0; i<table->tableCols(); i++)
+		for (int i=0; i<table->numCols(); i++)
 		{
 			if (table->colPlotDesignation(i) == Table::Y)
 				list<<table->colLabel(i);
@@ -3163,7 +3163,7 @@ void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 					int size, int firstColor, int startRow, int endRow, bool visible)
 {
 	if (endRow < 0)
-		endRow = w->tableRows() - 1;
+		endRow = w->numRows() - 1;
 
 	QwtPieCurve *pieCurve = new QwtPieCurve(w, name, startRow, endRow);
 	pieCurve->loadData();
@@ -3187,7 +3187,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	double sum = 0.0;
 
 	if (endRow < 0)
-		endRow = w->tableRows() - 1;
+		endRow = w->numRows() - 1;
 
 	QVarLengthArray<double> Y(abs(endRow - startRow) + 1);
 	for (int i = startRow; i<= endRow; i++)
@@ -3379,7 +3379,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
     QLocale locale;
 
 	if (endRow < 0)
-		endRow = w->tableRows() - 1;
+		endRow = w->numRows() - 1;
 
 	int r = abs(endRow - startRow) + 1;
     QVector<double> X(r), Y(r);
@@ -3542,7 +3542,7 @@ void Graph::plotVectorCurve(Table* w, const QStringList& colList, int style, int
 		return;
 
 	if (endRow < 0)
-		endRow = w->tableRows() - 1;
+		endRow = w->numRows() - 1;
 
 	VectorCurve *v = 0;
 	if (style == VectXYAM)
@@ -4868,7 +4868,7 @@ void Graph::copy(Graph* g)
 void Graph::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int endRow)
 {
 	if (endRow < 0)
-		endRow = w->tableRows() - 1;
+		endRow = w->numRows() - 1;
 
 	for (int j = 0; j <(int)names.count(); j++)
 	{
@@ -4964,7 +4964,7 @@ void Graph::openBoxDiagram(Table *w, const QStringList& l, int fileVersion)
         return;
 
     int startRow = 0;
-    int endRow = w->tableRows()-1;
+    int endRow = w->numRows()-1;
     if (fileVersion >= 90)
     {
         startRow = l[l.count()-3].toInt();

@@ -148,8 +148,8 @@ using namespace Qwt3D;
 
 extern "C"
 {
-void file_compress(char  *file, char  *mode);
-void file_uncompress(char  *file);
+	void file_compress(char  *file, char  *mode);
+	void file_uncompress(char  *file);
 }
 
 ApplicationWindow::ApplicationWindow()
@@ -2726,8 +2726,8 @@ Matrix* ApplicationWindow::convertTableToMatrix()
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	int rows = m->tableRows();
-	int cols = m->tableCols();
+	int rows = m->numRows();
+	int cols = m->numCols();
 
 	Matrix* w = new Matrix(scriptEnv, rows, cols, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
@@ -2879,8 +2879,8 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 	else
 		w->addCol(Table::yErr);
 
-	int r=w->tableRows();
-	int c=w->tableCols()-1;
+	int r=w->numRows();
+	int c=w->numCols()-1;
 	int ycol=w->colIndex(name);
 	if (!direction)
 		ycol=w->colIndex(xColName);
@@ -2929,7 +2929,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	}
 
 	Table *errTable=table(errColumnName);
-	if (w->tableRows() != errTable->tableRows())
+	if (w->numRows() != errTable->numRows())
 	{
 		QMessageBox::critical(this,tr("QtiPlot - Error"),
 				tr("The selected columns have different numbers of rows!"));
@@ -5052,7 +5052,7 @@ QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
 			continue;
 
 		Table *t = (Table *)windows->at(i);
-		for (int j=0; j < t->tableCols(); j++)
+		for (int j=0; j < t->numCols(); j++)
 		{
 			if (t->colPlotDesignation(j) == plotType || plotType == Table::All)
 				list << QString(t->name()) + "_" + t->colLabel(j);
@@ -5359,7 +5359,7 @@ void ApplicationWindow::showRowsDialog()
 
 	bool ok;
 	int rows = QInputDialog::getInteger(tr("QtiPlot - Enter rows number"), tr("Rows"),
-			((Table*)ws->activeWindow())->tableRows(), 0, 1000000, 1, &ok, this );
+			((Table*)ws->activeWindow())->numRows(), 0, 1000000, 1, &ok, this );
 	if ( ok )
 		((Table*)ws->activeWindow())->resizeRows(rows);
 }
@@ -5371,7 +5371,7 @@ void ApplicationWindow::showColsDialog()
 
 	bool ok;
 	int cols = QInputDialog::getInteger(tr("QtiPlot - Enter columns number"), tr("Columns"),
-			((Table*)ws->activeWindow())->tableCols(), 0, 1000000, 1, &ok, this );
+			((Table*)ws->activeWindow())->numCols(), 0, 1000000, 1, &ok, this );
 	if ( ok )
 		((Table*)ws->activeWindow())->resizeCols(cols);
 }
@@ -5381,7 +5381,12 @@ void ApplicationWindow::showColumnValuesDialog()
 	Table* w = (Table*)ws->activeWindow();
 	if ( w && w->isA("Table"))
 	{
-		if (int(w->selectedColumns().count())>0 || !(w->getSelection().isEmpty()) )
+		QList<QTableWidgetSelectionRange> sel = w->getSelection();
+		QListIterator<QTableWidgetSelectionRange> it(sel);
+		QTableWidgetSelectionRange cur;
+		while(it.hasNext())
+			cur = it.next();
+		if (w->numSelectedColumns()>0 || !(w->getSelection().isEmpty()) )
 		{
 			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this,"valuesDialog",true);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
@@ -5529,7 +5534,7 @@ void ApplicationWindow::showColStatistics()
 	if (int(t->selectedColumns().count()) > 0)
 	{
 		QList<int> targets;
-		for (int i=0; i < t->tableCols(); i++)
+		for (int i=0; i < t->numCols(); i++)
 			if (t->isColumnSelected(i, true))
 				targets << i;
 		newTableStatistics(t, TableStatistics::column, targets)->showNormal();
@@ -5545,10 +5550,10 @@ void ApplicationWindow::showRowStatistics()
 		return;
 	Table *t = (Table*)ws->activeWindow();
 
-	if (t->selectedRows() > 0)
+	if (t->numSelectedRows() > 0)
 	{
 		QList<int> targets;
-		for (int i=0; i < t->tableRows(); i++)
+		for (int i=0; i < t->numRows(); i++)
 			if (t->isRowSelected(i, true))
 				targets << i;
 		newTableStatistics(t, TableStatistics::row, targets)->showNormal();
@@ -7422,7 +7427,7 @@ Table* ApplicationWindow::copyTable()
 	if (m)
 	{
 		QString caption = generateUniqueName(tr("Table"));
-		w=newTable(caption, m->tableRows(), m->tableCols());
+		w=newTable(caption, m->numRows(), m->numCols());
 		w->copy(m);
 
 		QString spec=m->saveToString("geometry\n");
@@ -7856,7 +7861,7 @@ void ApplicationWindow::removeWindowFromLists(QWidget* w)
 	if (w->isA("Table"))
 	{
 		Table* m=(Table*)w;
-		for (int i=0; i<m->tableCols(); i++)
+		for (int i=0; i<m->numCols(); i++)
 		{
 			QString name=m->colName(i);
 			removeCurves(name);
@@ -8676,13 +8681,14 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 	QMenu cm(this);
 	if (selection)
 	{
-		if ((int)t->selectedColumns().count() > 0)
+		if (t->selectedColumns().count() > 0)
 		{
 			showColMenu(t->firstSelectedColumn());
 			return;
 		}
-		else if (t->selectedRows() == 1)
+		else if (t->numSelectedRows() == 1)
 		{
+			cm.addAction(actionShowColumnValuesDialog);
 			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
 			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
 			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
@@ -8694,8 +8700,9 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 			cm.insertSeparator();
 			cm.addAction(actionShowRowStatistics);
 		}
-		else if (t->selectedRows() > 1)
+		else if (t->numSelectedRows() > 1)
 		{
+			cm.addAction(actionShowColumnValuesDialog);
 			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
 			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
 			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
@@ -8708,6 +8715,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 		}
 		else
 		{
+			cm.addAction(actionShowColumnValuesDialog);
 			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
 			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
 			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
@@ -10047,7 +10055,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			if (table)
 			{
 				int startRow = 0;
-				int endRow = table->tableRows() - 1;
+				int endRow = table->numRows() - 1;
 				int first_color = curve[7].toInt();
 				bool visible = true;
 				if (d_file_version >= 90)
@@ -14006,7 +14014,7 @@ void ApplicationWindow::goToRow()
 			return;
 
 		if (ws->activeWindow()->isA("Table"))
-			((Table*)ws->activeWindow())->table()->ensureCellVisible(row - 1, 0);
+			((Table *)ws->activeWindow())->goToRow(row);
 		else if (ws->activeWindow()->isA("Matrix"))
 			((Matrix *)ws->activeWindow())->goToRow(row);
 	}

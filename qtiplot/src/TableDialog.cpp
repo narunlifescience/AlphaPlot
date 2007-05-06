@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "TableDialog.h"
+#include "Table.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -225,7 +226,7 @@ void TableDialog::updateColumn(int sc)
     else
         buttonPrev->setEnabled(true);
 
-    if (sc >= d_table->tableCols() - 1)
+    if (sc >= d_table->numCols() - 1)
         buttonNext->setEnabled(false);
     else
         buttonNext->setEnabled(true);
@@ -250,7 +251,7 @@ void TableDialog::updateColumn(int sc)
     if (colType == Table::Numeric)
 	{
         int f, prec;
-        d_table->columnNumericFormat(sc, f, prec);
+        d_table->columnNumericFormat(sc, &f, &prec);
         formatBox->setCurrentIndex(f);
         precisionBox->setValue(prec);
         enablePrecision(f);
@@ -475,7 +476,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
 	{
-		for (int i = sc; i<d_table->tableCols(); i++)
+		for (int i = sc; i<d_table->numCols(); i++)
 		{
 			ok = d_table->setDateTimeFormat(type, format, i);
 			if (!ok)
@@ -508,7 +509,7 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
 	{
-		for (int i = sc; i<d_table->tableCols(); i++)
+		for (int i = sc; i<d_table->numCols(); i++)
 			d_table->setColNumericFormat(type, prec, i);
 	}
 	else
@@ -523,7 +524,7 @@ void TableDialog::setTextFormat(bool allRightColumns)
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
 	{
-		for (int i = sc; i<d_table->tableCols(); i++)
+		for (int i = sc; i<d_table->numCols(); i++)
 			d_table->setTextFormat(i);
 	}
 	else

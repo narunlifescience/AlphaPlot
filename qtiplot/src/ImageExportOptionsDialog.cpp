@@ -109,7 +109,7 @@ ImageExportOptionsDialog::ImageExportOptionsDialog( bool exportAllPlots, QWidget
 
 void ImageExportOptionsDialog::enableTransparency(int index)
 {
-	QString type = boxFormat->itemText(index).toLower();
+	QString type = boxFormat->text(index).toLower();
 
 	if (type == "tif" || type == "tiff" || type == "png" || type == "xpm")
 		boxTransparency->setEnabled(true);

@@ -325,7 +325,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 				if (!t)
 					return false;
 
-				if (t->tableRows() < d_n)
+				if (t->numRows() < d_n)
   	            {
   	            	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
   	                tr("The column %1 has less points than the fitted data set. Please choose another column!.").arg(colName));
@@ -358,7 +358,7 @@ Table* Fit::parametersTable(const QString& tableName)
 	t->setColPlotDesignation(2, Table::yErr);
 	t->setHeaderColType();
 	for (int j=0; j<3; j++)
-		t->table()->adjustColumn(j);
+		t->table()->resizeColumnToContents(j);
 
 	t->showNormal();
 	return t;

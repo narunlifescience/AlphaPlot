@@ -172,7 +172,7 @@ QString FFT::fftCurve()
 QString FFT::fftTable()
 {
     int i;
-	int rows = d_table->tableRows();
+	int rows = d_table->numRows();
 	double *amp = new double[rows];
 
 	gsl_fft_complex_wavetable *wavetable = gsl_fft_complex_wavetable_alloc (rows);
@@ -302,7 +302,7 @@ void FFT::setDataFromTable(Table *t, const QString& realColName, const QString& 
 		delete[] d_y;
 	}
 
-    d_n = d_table->tableRows();
+    d_n = d_table->numRows();
     int n2 = 2*d_n;
     d_y = new double[n2];
     d_x = new double[d_n];

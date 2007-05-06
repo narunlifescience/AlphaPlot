@@ -34,6 +34,7 @@
 
 #include <QMainWindow>
 #include <q3listview.h>
+#include <Q3Header>
 #include <QHttp>
 #include <QFile>
 #include <QSplitter>

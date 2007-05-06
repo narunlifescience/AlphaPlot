@@ -38,7 +38,7 @@ DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int st
 	d_end_row(endRow)
 {
 	if (t && d_end_row < 0)
-		d_end_row = t->tableRows() - 1;
+		d_end_row = t->numRows() - 1;
 }
 
 void DataCurve::setRowRange(int startRow, int endRow)
@@ -58,7 +58,7 @@ void DataCurve::setRowRange(int startRow, int endRow)
 void DataCurve::setFullRange()
 {
 	d_start_row = 0;
-	d_end_row = d_table->tableRows() - 1;
+	d_end_row = d_table->numRows() - 1;
 
 	loadData();
 
@@ -68,7 +68,7 @@ void DataCurve::setFullRange()
 
 bool DataCurve::isFullRange()
 {
-	if (d_start_row != 0 || d_end_row != d_table->tableRows() - 1)
+	if (d_start_row != 0 || d_end_row != d_table->numRows() - 1)
 		return false;
 	else
 		return true;

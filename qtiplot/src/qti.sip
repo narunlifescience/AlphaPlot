@@ -86,7 +86,7 @@ class Table: MyWidget
     int col;\
     if (PyInt_Check(arg)) {\
       col = (int)PyInt_AsLong(arg) - 1;\
-		if (col < 0 || col >= sipCpp->tableCols()) {\
+		if (col < 0 || col >= sipCpp->numCols()) {\
 			sipIsErr = 1;\
 			PyErr_Format(PyExc_ValueError, "There's no column %d in table %s!", col+1, sipCpp->name().ascii());\
 		}\
@@ -107,7 +107,7 @@ class Table: MyWidget
 	 }
 #define CHECK_TABLE_ROW(arg)\
    int row = arg-1;\
-	if (row < 0 || row >= sipCpp->tableRows()) {\
+	if (row < 0 || row >= sipCpp->numRows()) {\
 		sipIsErr = 1;\
 		PyErr_Format(PyExc_ValueError, "There's no row %d in table %s!", row+1, sipCpp->name().ascii());\
 	}
@@ -115,8 +115,8 @@ class Table: MyWidget
 %End
 
 public:
-  int tableRows() /PyName=numRows/;
-  int tableCols() /PyName=numCols/;
+  int numRows() /PyName=numRows/;
+  int numCols() /PyName=numCols/;
   void resizeRows(int) /PyName=setNumRows/;
   void resizeCols(int) /PyName=setNumCols/;
 
@@ -160,13 +160,13 @@ public:
 	if (sipIsErr == 0) {
 		int prec;
 		char f;
-		sipCpp->columnNumericFormat(col, f, prec);
+		sipCpp->columnNumericFormat(col, &f, &prec);
 		sipCpp->setText(row,col,QString::number(a2, f, prec));
 	}
 %End
   SIP_PYOBJECT colName(int);
 %MethodCode
-   if (a0 < 1 || a0 > sipCpp->tableCols()) {\
+   if (a0 < 1 || a0 > sipCpp->numCols()) {\
 		sipIsErr = 1;\
 		PyErr_SetString(PyExc_ValueError, "Invalid column argument");\
 	} else

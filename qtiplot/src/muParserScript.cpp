@@ -117,10 +117,10 @@ double muParserScript::col(const QString &arg)
 	else
 		return 0;
 	rvariables.clear();
-	if (row < 0 || row >= table->tableRows())
+	if (row < 0 || row >= table->numRows())
 		throw Parser::exception_type(tr("There's no row %1 in table %2!").
 				arg(row+1).arg(Context->name()).ascii());
-	if (col < 0 || col >= table->tableCols())
+	if (col < 0 || col >= table->numCols())
 		throw Parser::exception_type(tr("There's no column %1 in table %2!").
 				arg(col+1).arg(Context->name()).ascii());
 	if (table->text(row,col).isEmpty())

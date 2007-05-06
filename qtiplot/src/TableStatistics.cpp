@@ -38,7 +38,7 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 	d_base(base), d_type(t), d_targets(targets)
 {
 	// FIXME: Haven't found a set read-only method in Qt4 yet
-	// worksheet->setReadOnly(true);
+	// d_table->setReadOnly(true);
 	setCaptionPolicy(MyWidget::Both);
 	if (d_type == row)
 	{
@@ -84,12 +84,12 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 			update(d_base, d_base->colName(d_targets[i]));
 		}
 	}
-	int w=9*(worksheet->horizontalHeader())->sectionSize(0);
+	int w=9*(d_table->horizontalHeader())->sectionSize(0);
 	int h;
-	if (tableRows()>11)
-		h=11*(worksheet->verticalHeader())->sectionSize(0);
+	if (numRows()>11)
+		h=11*(d_table->verticalHeader())->sectionSize(0);
 	else
-		h=(tableRows()+1)*(worksheet->verticalHeader())->sectionSize(0);
+		h=(numRows()+1)*(d_table->verticalHeader())->sectionSize(0);
 	setGeometry(50,50,w + 45, h + 45);
 
 	setColPlotDesignation(0, Table::X);
@@ -104,7 +104,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 	if (d_type == row)
 		for (int r=0; r < d_targets.size(); r++)
 		{
-			int cols=d_base->tableCols();
+			int cols=d_base->numCols();
 			int i = d_targets[r];
 			int m = 0;
 			for (j = 0; j < cols; j++)
@@ -137,7 +137,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				double min, max;
 				gsl_vector_minmax (y, &min, &max);
 
-				setText(r, 1, QString::number(d_base->tableCols()));
+				setText(r, 1, QString::number(d_base->numCols()));
 				setText(r, 2, QString::number(mean));
 				setText(r, 3, QString::number(gsl_stats_sd(dat, 1, m)));
 				setText(r, 4, QString::number(gsl_stats_variance(dat, 1, m)));
@@ -157,7 +157,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				int i = d_base->colIndex(colName);
 				if (d_base->columnType(i) != Numeric) return;
 
-				int rows = d_base->tableRows();
+				int rows = d_base->numRows();
 				int start = -1, m = 0;
 				for (j=0; j<rows; j++)
 					if (!d_base->text(j,i).isEmpty())
@@ -220,7 +220,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				delete[] dat;
 			}
 
-	for (int i=0; i<worksheet->numCols(); i++)
+	for (int i=0; i<numCols(); i++)
 		emit modifiedData(this, Table::colName(i));
 }
 
@@ -246,7 +246,7 @@ void TableStatistics::removeCol(const QString &col)
 		if (col == QString(d_base->name())+"_"+text(c, 0))
 		{
 			d_targets.remove(d_targets.at(c));
-			worksheet->removeRow(c);
+			d_table->removeRow(c);
 			return;
 		}
 }
