@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "importOPJ.h"
-#include "../3rdparty/liborigin/OPJFile.h"
+#include <OPJFile.h>
 
 #include <QRegExp>
 #include <QMessageBox>
