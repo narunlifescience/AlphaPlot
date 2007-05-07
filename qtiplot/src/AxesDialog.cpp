@@ -2414,7 +2414,7 @@ bool AxesDialog::updatePlot()
 		QString title=boxTitle->text();
 		if (titles[at] != title)
 		{
-			emit updateAxisTitle(at,title);
+			emit updateAxisTitle(at, title);
 			titles[at] = title;
 		}
 

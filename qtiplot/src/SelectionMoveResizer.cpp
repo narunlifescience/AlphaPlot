@@ -39,6 +39,7 @@
 #include "LegendMarker.h"
 #include "LineMarker.h"
 #include "ImageMarker.h"
+#include "PlotEnrichement.h"
 
 SelectionMoveResizer::SelectionMoveResizer(LegendMarker *target)
 	: QWidget(target->plot()->canvas())
@@ -143,16 +144,7 @@ void SelectionMoveResizer::add(QWidget *target)
 
 QRect SelectionMoveResizer::boundingRectOf(QwtPlotMarker *target) const
 {
-	const QwtScaleMap x_map = target->plot()->canvasMap(target->xAxis());
-	const QwtScaleMap y_map = target->plot()->canvasMap(target->yAxis());
-	QwtDoubleRect dr = target->boundingRect();
-
-	int left = x_map.transform(dr.left());
-	int right = x_map.transform(dr.right());
-	int top = y_map.transform(dr.top());
-	int bottom = y_map.transform(dr.bottom());
-
-	return QRect(left, top, qAbs(right-left), qAbs(bottom-top));
+	return ((PlotEnrichement *)target)->rect();
 }
 
 int SelectionMoveResizer::removeAll(LegendMarker *target)
@@ -321,8 +313,7 @@ void SelectionMoveResizer::operateOnTargets()
 	foreach(LineMarker *i, d_line_markers) {
 		QPoint p1 = i->startPoint();
 		QPoint p2 = i->endPoint();
-		QRect old_rect = QRect(qMin(p1.x(),p2.x()), qMin(p1.y(),p2.y()), qAbs(p1.x()-p2.x()), qAbs(p1.y()-p2.y()));
-		QRect new_rect = operateOn(old_rect);
+		QRect new_rect = operateOn(i->rect());
 		i->setStartPoint(QPoint(
 					p1.x()<p2.x() ? new_rect.left() : new_rect.right(),
 					p1.y()<p2.y() ? new_rect.top() : new_rect.bottom() ));

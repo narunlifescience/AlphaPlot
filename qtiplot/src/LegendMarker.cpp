@@ -53,7 +53,7 @@ LegendMarker::LegendMarker(Plot *plot):
 	d_text->setColor(Qt::black);
 	d_text->setBackgroundPen (QPen(Qt::NoPen));
 	d_text->setPaintAttribute(QwtText::PaintBackground);
-	
+
 	hspace = 30;
 	left_margin = 10;
 	top_margin = 5;
@@ -90,10 +90,10 @@ void LegendMarker::setFrameStyle(int style)
 }
 
 void LegendMarker::setBackgroundColor(const QColor& c)
-{	
+{
 	if (d_text->backgroundBrush().color() == c)
 		return;
-	
+
 	d_text->setBackgroundBrush(QBrush(c));
 }
 
@@ -108,7 +108,7 @@ QRect LegendMarker::rect() const
 	int width, height;
 	itemsHeight(y, symbolsMaxLineLength(), width, height);
 
-	return QRect(QPoint(x, y), QSize(width, height));
+	return QRect(QPoint(x, y), QSize(width - 1, height - 1));
 }
 
 QwtDoubleRect LegendMarker::boundingRect() const

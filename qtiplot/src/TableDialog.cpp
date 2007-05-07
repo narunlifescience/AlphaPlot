@@ -234,7 +234,7 @@ void TableDialog::updateColumn(int sc)
     d_table->setSelectedCol(sc);
     d_table->table()->clearSelection ();
     d_table->table()->selectColumn(sc);
-    columnsBox->setCurrentItem(d_table->colPlotDesignation(sc));
+    columnsBox->setCurrentIndex(d_table->colPlotDesignation(sc));
 
     QString colLabel = d_table->colLabel(sc);
     colName->setText(colLabel);
@@ -252,6 +252,7 @@ void TableDialog::updateColumn(int sc)
 	{
         int f, prec;
         d_table->columnNumericFormat(sc, &f, &prec);
+
         formatBox->setCurrentIndex(f);
         precisionBox->setValue(prec);
         enablePrecision(f);
@@ -470,7 +471,7 @@ else
 }
 
 void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRightColumns)
-{	
+{
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     bool ok = false;
 	int sc = d_table->selectedColumn();
@@ -487,7 +488,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 		ok = d_table->setDateTimeFormat(type, format, sc);
 
 	QApplication::restoreOverrideCursor();
-	
+
     if (!ok)
     {
         QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
@@ -504,7 +505,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 }
 
 void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
-{		
+{
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
@@ -520,7 +521,7 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 }
 
 void TableDialog::setTextFormat(bool allRightColumns)
-{	
+{
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
 	{

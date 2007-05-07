@@ -148,8 +148,8 @@ using namespace Qwt3D;
 
 extern "C"
 {
-	void file_compress(char  *file, char  *mode);
-	void file_uncompress(char  *file);
+void file_compress(char  *file, char  *mode);
+void file_uncompress(char  *file);
 }
 
 ApplicationWindow::ApplicationWindow()
@@ -2133,6 +2133,12 @@ MultiLayer* ApplicationWindow::newGraph(const QString& caption)
         Graph *g = ml->addLayer();
 		customGraph(g);
         g->newLegend();
+        g->setAutoscaleFonts(false);
+        g->setIgnoreResizeEvents(false);
+        ml->arrangeLayers(false, false);
+        ml->adjustSize();
+        g->setAutoscaleFonts(autoScaleFonts);//restore user defined fonts behaviour
+        g->setIgnoreResizeEvents(!autoResizeLayers);
         customMenu(ml);
     }
 	return ml;
@@ -4743,37 +4749,36 @@ void ApplicationWindow::exportGraph(QWidget *w, const QString& fileName,
 QString ApplicationWindow::windowGeometryInfo(QWidget *w)
 {
 	QString s = "geometry\t";
-
-	if (((MyWidget *)w)->status() == MyWidget::Minimized)
-		s+="minimized\n";
-	else if (((MyWidget *)w)->status() == MyWidget::Maximized)
+    if (((MyWidget *)w)->status() == MyWidget::Maximized)
 	{
 		if (w == ws->activeWindow())
-			s+="maximized\tactive\n";
+			return s + "maximized\tactive\n";
 		else
-			s+="maximized\n";
+			return s + "maximized\n";
 	}
-	else
-	{
-		if (!w->parent())
-			s+="0\t0\t500\t400\t";
-		else
-		{
-			QPoint p = w->parentWidget()->pos();// store position
-			s+=QString::number(p.x())+"\t";
-			s+=QString::number(p.y())+"\t";
-			s+=QString::number(w->parentWidget()->frameGeometry().width())+"\t";
-			s+=QString::number(w->parentWidget()->frameGeometry().height())+"\t";
-		}
 
-		bool hide = hidden(w);
-		if (w == ws->activeWindow() && !hide)
-			s+="active\n";
-		else if(hide)
-			s+="hidden\n";
-		else
-			s+="\n";
-	}
+	if (!w->parent())
+        s+="0\t0\t500\t400\t";
+    else
+    {
+        QPoint p = w->parentWidget()->pos();// store position
+        s+=QString::number(p.x())+"\t";
+        s+=QString::number(p.y())+"\t";
+        s+=QString::number(w->parentWidget()->frameGeometry().width())+"\t";
+        s+=QString::number(w->parentWidget()->frameGeometry().height())+"\t";
+    }
+
+    if (((MyWidget *)w)->status() == MyWidget::Minimized)
+        return s + "minimized\n";
+
+    bool hide = hidden(w);
+    if (w == ws->activeWindow() && !hide)
+        s+="active\n";
+    else if(hide)
+        s+="hidden\n";
+    else
+        s+="\n";
+
 	return s;
 }
 
@@ -4783,13 +4788,14 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	QString caption = w->name();
 	if (s.contains ("minimized"))
 	{
-		//w->parentWidget()->showMinimized();
+	    QStringList lst = s.split("\t");
+	    if (lst.count() > 4)
+            w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 		((MyWidget *)w)->setStatus(MyWidget::Minimized);
 		app->setListView(caption, tr("Minimized"));
 	}
 	else if (s.contains ("maximized"))
 	{
-	    //w->parentWidget()->showMaximized();
 		((MyWidget *)w)->setStatus(MyWidget::Maximized);
 		if (w->isA("MultiLayer"))
             ((MultiLayer *)w)->setOpenMaximized();
@@ -4798,12 +4804,15 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	}
 	else
 	{
-		QStringList lst=s.split("\t");
+		QStringList lst = s.split("\t");
 		w->parentWidget()->setGeometry(lst[1].toInt(),lst[2].toInt(),lst[3].toInt(),lst[4].toInt());
 		((MyWidget *)w)->setStatus(MyWidget::Normal);
 
-		if (lst[5] == "hidden")
-			app->hideWindow((MyWidget* )w);
+        if (lst.count() > 5)
+        {
+            if (lst[5] == "hidden")
+                app->hideWindow((MyWidget* )w);
+        }
 	}
 
 	if (s.contains ("active"))
@@ -5382,11 +5391,11 @@ void ApplicationWindow::showColumnValuesDialog()
 	if ( w && w->isA("Table"))
 	{
 		QList<QTableWidgetSelectionRange> sel = w->getSelection();
-		QListIterator<QTableWidgetSelectionRange> it(sel);
-		QTableWidgetSelectionRange cur;
-		while(it.hasNext())
-			cur = it.next();
-		if (w->numSelectedColumns()>0 || !(w->getSelection().isEmpty()) )
+  	    QListIterator<QTableWidgetSelectionRange> it(sel);
+  	    QTableWidgetSelectionRange cur;
+  	    while(it.hasNext())
+  	    	cur = it.next();
+		if (int(w->selectedColumns().count())>0 || !(w->getSelection().isEmpty()) )
 		{
 			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this,"valuesDialog",true);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
@@ -5942,7 +5951,7 @@ QDialog* ApplicationWindow::showScaleDialog()
         ad->initAxisFonts(g->axisFont(2), g->axisFont(0),g->axisFont(3),g->axisFont(1));
         ad->setAxisTitles(g->scalesTitles());
         ad->updateTitleBox(0);
-        ad->putGridOptions(g->getGridOptions());
+        ad->putGridOptions(g->gridOptions());
         ad->setTicksType(g->plotWidget()->getMajorTicksType(), g->plotWidget()->getMinorTicksType());
         ad->setEnabledTickLabels(g->enabledTickLabels());
         ad->initLabelsRotation(g->labelsRotation(QwtPlot::xBottom), g->labelsRotation(QwtPlot::xTop));
@@ -7715,6 +7724,7 @@ bool ApplicationWindow::hidden(QWidget* window)
 void ApplicationWindow::updateWindowStatus(MyWidget* w)
 {
 	setListView(w->name(), w->aspect());
+	modifiedProject();
 }
 
 void ApplicationWindow::hideActiveWindow()
@@ -8681,7 +8691,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 	QMenu cm(this);
 	if (selection)
 	{
-		if (t->selectedColumns().count() > 0)
+		if ((int)t->selectedColumns().count() > 0)
 		{
 			showColMenu(t->firstSelectedColumn());
 			return;
@@ -9849,9 +9859,11 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		QStringList fields = (*line).split("\t");
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
-		    w->setText(row, col, fields[col+1]);
-
-		qApp->processEvents(QEventLoop::ExcludeUserInput);
+		{
+		    if (fields.count() >= col+2)
+                w->setText(row, col, fields[col+1]);
+		}
+		QApplication::processEvents(QEventLoop::ExcludeUserInput);
 	}
     QApplication::restoreOverrideCursor();
 
@@ -10327,8 +10339,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.contains ("AxesTitles"))
 		{
 			QStringList legend=s.split("\t");
+			legend.pop_front();
 			for (int i=0; i<4; i++)
-				ag->setAxisTitle(i,legend[i+1]);
+			{
+			    if (legend.count() > i)
+                    ag->setAxisTitle(i, legend[i]);
+			}
 		}
 		else if (s.contains ("AxesTitleColors"))
 		{
@@ -13906,10 +13922,18 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 
 void ApplicationWindow::searchForUpdates()
 {
-	version_buffer.open(IO_WriteOnly);
-	http.setHost("soft.proindependent.com");
-	http.get("/version.txt", &version_buffer);
-	http.closeConnection();
+    int choice = QMessageBox::question(this, tr("QtiPlot"),
+					tr("QtiPlot will try to download necessary information about the last available updates. Please modify your firewall settings in order to allow QtiPlot to connect to the internet!") + "\n" +
+					tr("Do you wish to continue?"),
+					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+    if (choice == QMessageBox::Yes)
+    {
+        version_buffer.open(IO_WriteOnly);
+        http.setHost("soft.proindependent.com");
+        http.get("/version.txt", &version_buffer);
+        http.closeConnection();
+    }
 }
 
 void ApplicationWindow::receivedVersionFile(bool error)

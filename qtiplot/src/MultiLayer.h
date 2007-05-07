@@ -206,6 +206,7 @@ signals:
 
 private:
 	void resizeLayers (const QResizeEvent *re);
+	void resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts);
 
 	Graph* active_graph;
 	//! Used for resizing of layers.
@@ -224,9 +225,11 @@ private:
     QWidget *canvas;
 
 	QPointer<SelectionMoveResizer> d_layers_selector;
-    //! Stores the size of the widget in the Qt::WindowMaximized state.
 	int d_open_maximized;
+	//! Stores the size of the widget in the Qt::WindowMaximized state.
 	QSize d_max_size;
+	//! Stores the size of the widget in Qt::WindowNoState (normal state).
+    QSize d_normal_size;
 };
 
 

@@ -266,7 +266,7 @@ class Graph: public QWidget
 		void guessUniqueCurveLayout(int& colorIndex, int& symbolIndex);
 		//@}
 
-		GridOptions getGridOptions();
+		GridOptions gridOptions(){return grid;};
 		void setGridOptions(const GridOptions& options);
 
 		//! \name Zoom

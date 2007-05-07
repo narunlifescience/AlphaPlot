@@ -498,50 +498,42 @@ void ConfigDialog::initAppPage()
 	boxStyle->addItems(styles);
 	boxStyle->setCurrentIndex(boxStyle->findText(app->appStyle,Qt::MatchWildcard));
 
-#ifdef Q_OS_MACX // Mac
-	if (QApplication::macVersion() == QSysInfo::MV_10_3)
-	{
-		lblStyle->hide();
-		boxStyle->hide();
-	}
-#endif
-
 	lblFonts = new QLabel();
 	topBoxLayout->addWidget( lblFonts, 2, 0 );
 	fontsBtn= new QPushButton();
 	topBoxLayout->addWidget( fontsBtn, 2, 1 );
 
-	boxSave= new QCheckBox();
-	boxSave->setChecked(app->autoSave);
-	topBoxLayout->addWidget( boxSave, 3, 0 );
-
-	boxMinutes = new QSpinBox();
-	boxMinutes->setRange(1,100);
-	boxMinutes->setValue(app->autoSaveTime);
-	boxMinutes->setEnabled(app->autoSave);
-	topBoxLayout->addWidget( boxMinutes, 3, 1 );
-
-	boxSearchUpdates = new QCheckBox();
-	boxSearchUpdates->setChecked(app->autoSearchUpdates);
-	topBoxLayout->addWidget( boxSearchUpdates, 4, 0, 1, 2 );
-
 	lblScriptingLanguage = new QLabel();
-	topBoxLayout->addWidget( lblScriptingLanguage, 5, 0 );
+	topBoxLayout->addWidget( lblScriptingLanguage, 3, 0 );
 	boxScriptingLanguage = new QComboBox();
 	QStringList llist = ScriptingLangManager::languages();
 	boxScriptingLanguage->insertStringList(llist);
 	boxScriptingLanguage->setCurrentItem(llist.findIndex(app->defaultScriptingLang));
-	topBoxLayout->addWidget( boxScriptingLanguage, 5, 1 );
+	topBoxLayout->addWidget( boxScriptingLanguage, 3, 1 );
 
     lblDecimalSeparator = new QLabel();
-    topBoxLayout->addWidget(lblDecimalSeparator, 6, 0 );
+    topBoxLayout->addWidget(lblDecimalSeparator, 4, 0 );
 	boxDecimalSeparator = new QComboBox();
 	boxDecimalSeparator->addItem(tr("System Locale Setting"));
 	boxDecimalSeparator->addItem("1,000.0");
 	boxDecimalSeparator->addItem("1.000,0");
 	boxDecimalSeparator->addItem("1 000,0");
 
-	topBoxLayout->addWidget(boxDecimalSeparator, 6, 1);
+	topBoxLayout->addWidget(boxDecimalSeparator, 4, 1);
+
+    boxSave= new QCheckBox();
+	boxSave->setChecked(app->autoSave);
+	topBoxLayout->addWidget( boxSave, 5, 0 );
+
+	boxMinutes = new QSpinBox();
+	boxMinutes->setRange(1,100);
+	boxMinutes->setValue(app->autoSaveTime);
+	boxMinutes->setEnabled(app->autoSave);
+	topBoxLayout->addWidget( boxMinutes, 5, 1 );
+
+	boxSearchUpdates = new QCheckBox();
+	boxSearchUpdates->setChecked(app->autoSearchUpdates);
+	topBoxLayout->addWidget( boxSearchUpdates, 6, 0, 1, 2 );
 
 	topBoxLayout->setRowStretch( 7, 1 );
 

@@ -574,9 +574,14 @@ QString Table::saveCommands()
 
 QString Table::saveComments()
 {
-	QString s="Comments\t";
+	QString s = "Comments\t";
 	for (int i=0; i<d_table->columnCount(); i++)
-		s+= comments[i] + "\t";
+	{
+		if (comments.count() > i)
+			s += comments[i] + "\t";
+		else
+			s += "\t";
+	}
 	return s + "\n";
 }
 
@@ -1611,34 +1616,24 @@ int Table::numCols()
 
 bool Table::isEmptyRow(int row)
 {
-	bool empty = true;
-	int cols = d_table->columnCount();
-	for (int i=0;i<cols;i++)
+	for (int i=0; i<d_table->columnCount(); i++)
 	{
-		QString the_text = text(row,i);
+		QString the_text = text(row, i);
 		if (!the_text.isEmpty())
-		{
-			empty=false;
-			break;
-		}
+			return false;
 	}
-	return empty;
+	return true;
 }
 
 bool Table::isEmptyColumn(int col)
 {
-	bool empty = true;
-	int rows = d_table->rowCount();
-	for (int i=0;i<rows;i++)
+	for (int i=0; i<d_table->rowCount(); i++)
 	{
-		QString the_text = text(i,col);
+		QString the_text = text(i, col);
 		if (!the_text.isEmpty())
-		{
-			empty=false;
-			break;
-		}
+			return false;
 	}
-	return empty;
+	return true;
 }
 
 QString Table::saveText()

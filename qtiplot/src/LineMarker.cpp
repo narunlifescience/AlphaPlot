@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Line marker (extension to QwtPlotMarker)
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -53,12 +53,12 @@ LineMarker::LineMarker():
 }
 
 void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
-{	
+{
 	const int x0 = xMap.transform(d_rect.left());
 	const int y0 = yMap.transform(d_rect.top());
 	const int x1 = xMap.transform(d_rect.right());
 	const int y1 = yMap.transform(d_rect.bottom());
-	
+
 	p->save();
 	QPen pen = linePen();
 	p->setPen(pen);
@@ -66,7 +66,7 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 	QBrush brush = QBrush(pen.color(), Qt::SolidPattern);
 	QwtPainter::drawLine(p,x0,y0,x1,y1);
 	p->restore();
-		
+
 	if (d_end_arrow)
 		{
 		p->save();
@@ -74,10 +74,10 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		const double t = theta(x0, y0, x1, y1);
 		p->rotate(-t);
 
-		QPolygon endArray(3);	
+		QPolygon endArray(3);
 		endArray[0] = QPoint(0,0);
-			
-		int d=(int)floor(d_head_length*tan(M_PI*d_head_angle/180.0)+0.5);				
+
+		int d=(int)floor(d_head_length*tan(M_PI*d_head_angle/180.0)+0.5);
 		endArray[1] = QPoint(-d_head_length,d);
 		endArray[2] = QPoint(-d_head_length,-d);
 
@@ -96,9 +96,9 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 		const double t = theta(x0, y0, x1, y1);
 		p->rotate(-t);
 
-		QPolygon startArray(3);	
+		QPolygon startArray(3);
 		startArray[0] = QPoint(0,0);
-			
+
 		int d=(int)floor(d_head_length*tan(M_PI*d_head_angle/180.0)+0.5);
 		startArray[1] = QPoint(d_head_length,d);
 		startArray[2] = QPoint(d_head_length,-d);
@@ -154,7 +154,7 @@ double LineMarker::length()
 	const int x1 = xMap.transform(d_rect.right());
 	const int y1 = yMap.transform(d_rect.bottom());
 
-	double l=sqrt(double((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0)));	
+	double l=sqrt(double((x1-x0)*(x1-x0)+(y1-y0)*(y1-y0)));
 	return fabs(l);
 }
 
@@ -189,7 +189,7 @@ double LineMarker::dist(int x, int y)
 		double a=(double)(y1-y0)/(double)(x1-x0);
 		double b=y0-a*x0;
 		d=(a*x-y+b)/sqrt(a*a+1);
-	}	
+	}
 	return fabs(d);
 }
 
@@ -277,11 +277,11 @@ d_rect.setBottom(plot()->invTransform(yAxis(), p.y()));
 
 QPoint LineMarker::startPoint() const
 {
-	if (!plot())
+    if (!plot())
 		return QPoint();
 
-return QPoint(plot()->transform(xAxis(), d_rect.left()), 
-			  plot()->transform(yAxis(), d_rect.top()));
+    return QPoint(plot()->transform(xAxis(), d_rect.left()),
+                plot()->transform(yAxis(), d_rect.top()));
 }
 
 QwtDoublePoint LineMarker::startPointCoord()
@@ -300,15 +300,16 @@ d_rect.setTop(y);
 if (!plot())
 	return;
 
+plot()->updateLayout();
 d_start = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
 QPoint LineMarker::endPoint() const
 {
-	if (!plot())
+    if (!plot())
 		return QPoint();
 
-	return QPoint(plot()->transform(xAxis(), d_rect.right()), 
+	return QPoint(plot()->transform(xAxis(), d_rect.right()),
 			plot()->transform(yAxis(), d_rect.bottom()));
 }
 
@@ -323,12 +324,32 @@ d_rect.setBottom(y);
 if (!plot())
 	return;
 
+plot()->updateLayout();
 d_end = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
 QwtDoublePoint LineMarker::endPointCoord()
 {
 return QwtDoublePoint(d_rect.right(), d_rect.bottom());
+}
+
+void LineMarker::setBoundingRect(double xs, double ys, double xe, double ye)
+{
+if (d_rect.left() == xs && d_rect.top() == ys && 
+	d_rect.right() == xe && d_rect.bottom() == ye)
+	return;
+
+d_rect.setLeft(xs);
+d_rect.setTop(ys);
+d_rect.setRight(xe);
+d_rect.setBottom(ye);
+
+if (!plot())
+	return;
+
+plot()->updateLayout();
+d_start = QPoint(plot()->transform(xAxis(), xs), plot()->transform(yAxis(), ys));
+d_end = QPoint(plot()->transform(xAxis(), xe), plot()->transform(yAxis(), ye));
 }
 
 QwtDoubleRect LineMarker::boundingRect() const
@@ -378,7 +399,7 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 	switch(e->type()) {
 		case QEvent::MouseButtonPress:
 			{
-				const QMouseEvent *me = (const QMouseEvent *)e;	
+				const QMouseEvent *me = (const QMouseEvent *)e;
 				if (me->button() != Qt::LeftButton)
 					return false;
 				QRect handler = QRect (QPoint(0,0), QSize(10, 10));
@@ -408,7 +429,7 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 			}
 		case QEvent::MouseMove:
 			{
-				const QMouseEvent *me = (const QMouseEvent *)e;	
+				const QMouseEvent *me = (const QMouseEvent *)e;
 				switch(d_op) {
 					case MoveStart:
 						setStartPoint(me->pos());
@@ -429,7 +450,7 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 			}
 		case QEvent::MouseButtonRelease:
 			{
-				const QMouseEvent *me = (const QMouseEvent *)e;	
+				const QMouseEvent *me = (const QMouseEvent *)e;
 				switch(d_op) {
 					case MoveStart:
 						setStartPoint(me->pos());
@@ -458,12 +479,12 @@ bool LineMarker::eventFilter(QObject *, QEvent *e)
 			}
 		case QEvent::MouseButtonDblClick:
 			{
-				const QMouseEvent *me = (const QMouseEvent *)e;	
+				const QMouseEvent *me = (const QMouseEvent *)e;
 				if (me->button() != Qt::LeftButton)
 					return false;
 				LineDialog *ld = new LineDialog(this, plot()->window(), "lineDialog", true, Qt::Tool);
 				ld->setAttribute(Qt::WA_DeleteOnClose);
-				ld->exec();	
+				ld->exec();
 				return true;
 			}
 		default:

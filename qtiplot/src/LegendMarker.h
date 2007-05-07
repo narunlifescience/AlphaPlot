@@ -33,12 +33,12 @@
 #include <qpen.h>
 
 #include <qwt_plot.h>
-#include <qwt_plot_marker.h>
 #include <qwt_array.h>
 #include <qwt_text.h>
 
 #include "Graph.h"
 #include "Plot.h"
+#include "PlotEnrichement.h"
 
 /**
  * \brief A piece of text to be drawn on a Plot.
@@ -52,7 +52,7 @@
  *
  * \sa ImageMarker, LineMarker
  */
-class LegendMarker: public QwtPlotMarker
+class LegendMarker: public PlotEnrichement
 {
 public:
     LegendMarker(Plot *);

@@ -57,7 +57,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 	QVector<int> lines=plot()->lineMarkerKeys();
 
 	if (object != (QObject *)plot()->plotWidget()->canvas())
-		return FALSE;
+		return false;
 
 	switch(e->type())
 	{

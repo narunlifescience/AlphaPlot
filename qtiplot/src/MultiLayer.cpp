@@ -99,6 +99,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	addTextOn = false;
     d_open_maximized = 0;
     d_max_size = QSize();
+    d_normal_size = QSize();
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -233,16 +234,14 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
         //return;
     }
 
-    if(!oldSize.isValid() && !d_max_size.isValid())
+    if(!oldSize.isValid())
         return;
 
-    bool scaleFonts = false;
-    if(!oldSize.isValid())
-    {// window is in minimized state, thus having an invalid oldSize()
-        oldSize = QSize(d_max_size.width(), d_max_size.height() - LayerButton::btnSize());
-        scaleFonts = true;
-    }
+    resizeLayers(size, oldSize, false);
+}
 
+void MultiLayer::resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts)
+{
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	double w_ratio = (double)size.width()/(double)oldSize.width();
@@ -268,7 +267,6 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
 
 	emit modifiedPlot();
 	emit resizedWindow(this);
-
 	QApplication::restoreOverrideCursor();
 }
 
@@ -1265,7 +1263,14 @@ void MultiLayer::changeEvent(QEvent *event)
 {
 	if (event->type() == QEvent::WindowStateChange) {
 		if ( windowState() & Qt::WindowMaximized )
-	     	d_max_size = size();
+	     	d_max_size = QSize(width(), height() - LayerButton::btnSize());
+        else if ( windowState() & Qt::WindowMinimized )
+        {
+            if (((QWindowStateChangeEvent*)event)->oldState() == Qt::WindowMaximized)
+                resizeLayers(d_normal_size, d_max_size, true);
+        }
+        else if ( windowState() == Qt::WindowNoState )
+            d_normal_size = QSize(width(), height() - LayerButton::btnSize());
 	}
 	MyWidget::changeEvent(event);
 }

@@ -4,7 +4,7 @@
 
 # building without muParser doesn't work yet
 SCRIPTING_LANGS += muParser
-SCRIPTING_LANGS += Python
+#SCRIPTING_LANGS += Python
 
 # a console displaying output of scripts; particularly useful on Windows
 # where running QtiPlot from a terminal is inconvenient
@@ -229,7 +229,8 @@ HEADERS  += src/ApplicationWindow.h \
 	    src/RangeSelectorTool.h\
 	    src/TranslateCurveTool.h\
 	    src/MultiPeakFitTool.h\
-	    src/CurveRangeDialog.h
+	    src/CurveRangeDialog.h\
+	    src/PlotEnrichement.h
 
 ###################### SOURCES ##############################################
 
@@ -338,7 +339,8 @@ SOURCES  += src/ApplicationWindow.cpp \
 	    src/RangeSelectorTool.cpp\
 	    src/TranslateCurveTool.cpp\
 	    src/MultiPeakFitTool.cpp\
-	    src/CurveRangeDialog.cpp
+	    src/CurveRangeDialog.cpp\
+	    src/PlotEnrichement.cpp
 
 ###############################################################
 ##################### Compression (zlib123) ###################

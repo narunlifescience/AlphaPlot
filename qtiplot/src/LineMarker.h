@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Line marker (extension to QwtPlotMarker)
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,8 +29,7 @@
 #ifndef LINEMARKER_H
 #define LINEMARKER_H
 
-#include <QObject>
-#include <qwt_plot_marker.h>
+#include "PlotEnrichement.h"
 
 /*!\brief Draws lines and arrows on a QwtPlot.
  *
@@ -41,9 +40,8 @@
  *
  * \sa ImageMarker, LegendMarker
  */
-class LineMarker: public QObject, public QwtPlotMarker
+class LineMarker: public QObject, public PlotEnrichement
 {
-	Q_OBJECT
 public:
 	enum Operation { None, MoveStart, MoveEnd, MoveBoth };
     LineMarker();
@@ -88,33 +86,37 @@ public:
 	//! Specifies weather the end arrow should be drawn
 	void drawEndArrow(bool on = true){d_end_arrow = on;};
 	bool hasEndArrow(){return d_end_arrow;};
-	
+
 	//! Length of the arrow head
 	int headLength(){return d_head_length;};
 	//! Sets the length of the arrow head
 	void setHeadLength(int l);
-	
+
 	//! The angle of the arrow head
 	int headAngle(){return d_head_angle;};
 	//! Sets the angle of the arrow head
 	void setHeadAngle(int a);
-	
+
 	bool filledArrowHead(){return d_fill_head;};
 	//! Specifies weather the arrow head should be filled with a brush
 	void fillArrowHead(bool fill = true);
-	
+
 	//! Returns the shortest distance to the arrow line or to one of the arrow heads
 	double dist(int x, int y);
 
 	//! Returns the length of the arrow line
 	double length();
 
+    //! Returns the bounding rectangle in paint coordinates.
+	QRect rect() const {return QRect(startPoint(), endPoint()).normalize();};
+
 	//! Returns the bounding rectangle in plot coordinates.
 	QwtDoubleRect boundingRect() const;
-
+	void setBoundingRect(double xs, double ys, double xe, double ye);
+	
 	//! Recalculates the bounding rectangle in values coordinates using the pixel coordinats when the scales change
 	void updateBoundingRect();
-	
+
 	//! Returns the state of #d_editable.
 	bool editable() const { return d_editable; }
 	//! Starts/ends editing of end points by the user.
@@ -146,7 +148,7 @@ private:
 	QPoint d_start;
 
 	//! Pixel coordinates of the end point
-	QPoint d_end; 
+	QPoint d_end;
 
 	//! Bounding rectangle of the arrow in axes values coordinates
 	QwtDoubleRect d_rect;

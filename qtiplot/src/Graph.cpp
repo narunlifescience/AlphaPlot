@@ -216,7 +216,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	grid.majorCol=3;
 	grid.majorStyle=0;
 	grid.majorWidth=1;
-	grid.minorCol=15;
+	grid.minorCol=18;
 	grid.minorStyle=2;
 	grid.minorWidth=1;
 	grid.xZeroOn=0;
@@ -1204,22 +1204,18 @@ void Graph::setAxisTitle(int axis, const QString& text)
 	{
 		case 0:
 			a=2;
-			break;
-
+        break;
 		case 1:
 			a=0;
-			break;
-
+        break;
 		case 2:
 			a=3;
-			break;
-
+        break;
 		case 3:
 			a=1;
-			break;
+        break;
 	}
-
-	d_plot->setAxisTitle(a,text);
+	d_plot->setAxisTitle(a, text);
 	d_plot->replot();
 	emit modifiedGraph();
 }
@@ -1293,11 +1289,6 @@ void Graph::setGridOptions(const GridOptions& o)
 	}
 
 	emit modifiedGraph();
-}
-
-GridOptions Graph::getGridOptions()
-{
-	return grid;
 }
 
 QStringList Graph::scalesTitles()
@@ -2345,27 +2336,28 @@ QString Graph::saveScaleTitles()
 {
 	int a;
 	QString s="";
-	for (int i=0;i<4;i++)
+	for (int i=0; i<4; i++)
 	{
 		switch (i)
 		{
 			case 0:
 				a=2;
-				break;
-
+            break;
 			case 1:
 				a=0;
-				break;
-
+            break;
 			case 2:
 				a=3;
-				break;
-
+            break;
 			case 3:
 				a=1;
-				break;
+            break;
 		}
-		s+=(d_plot->axisTitle(a)).text().replace("\n", "<br>")+"\t";
+		QString title = d_plot->axisTitle(a).text();
+		if (!title.isEmpty())
+            s += title.replace("\n", "<br>")+"\t";
+        else
+            s += "\t";
 	}
 	return s+"\n";
 }
@@ -2740,10 +2732,8 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 		mrk->setEndPoint(QPoint(list[3].toInt(), list[4].toInt()));
 	}
 	else
-	{
-		mrk->setStartPoint(list[1].toDouble(), list[2].toDouble());
-		mrk->setEndPoint(list[3].toDouble(), list[4].toDouble());
-	}
+		mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(), 
+							list[3].toDouble(), list[4].toDouble());
 
 	mrk->setWidth(list[5].toInt());
 	mrk->setColor(QColor(list[6]));
@@ -2765,8 +2755,8 @@ void Graph::insertLineMarker(LineMarker* mrk)
 	d_lines.resize(++linesOnPlot);
 	d_lines[linesOnPlot-1] = d_plot->insertMarker(aux);
 
-	aux->setStartPoint(mrk->startPointCoord().x(), mrk->startPointCoord().y());
-	aux->setEndPoint(mrk->endPointCoord().x(), mrk->endPointCoord().y());
+	aux->setBoundingRect(mrk->startPointCoord().x(), mrk->startPointCoord().y(),
+						 mrk->endPointCoord().x(), mrk->endPointCoord().y());
 	aux->setWidth(mrk->width());
 	aux->setColor(mrk->color());
 	aux->setStyle(mrk->style());
@@ -4615,7 +4605,7 @@ void Graph::copy(Graph* g)
     setAxesNumColors(g->axesNumColors());
 	setAxesBaseline(g->axesBaseline());
 
-	setGridOptions(g->grid);
+	setGridOptions(g->gridOptions());
 
 	d_plot->setTitle (g->plotWidget()->title());
 
