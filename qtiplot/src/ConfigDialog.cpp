@@ -210,7 +210,11 @@ void ConfigDialog::initTablesPage()
 	buttonHeaderFont= new QPushButton();
 	bottomLayout->addWidget( buttonHeaderFont );
 
+	boxTableComments = new QCheckBox();
+	boxTableComments->setChecked(app->d_show_table_comments);
+	
 	QVBoxLayout * tablesPageLayout = new QVBoxLayout( tables );
+	tablesPageLayout->addWidget(boxTableComments);
 	tablesPageLayout->addLayout(topLayout,1);
 	tablesPageLayout->addWidget(groupBoxTableCol);
 	tablesPageLayout->addWidget(groupBoxTableFonts);
@@ -843,6 +847,7 @@ void ConfigDialog::languageChange()
         boxDecimalSeparator->setCurrentIndex(3);
 
 	//tables page
+	boxTableComments->setText(tr("&Display Comments in Header"));
 	groupBoxTableCol->setTitle(tr("Colors"));
 	lblSeparator->setText(tr("Default Column Separator"));
 	boxSeparator->clear();
@@ -967,7 +972,7 @@ void ConfigDialog::apply()
 
 	app->columnSeparator = sep;
 	app->customizeTables(buttonBackground->color(), buttonText->color(),
-			buttonHeader->color(), textFont, headerFont);
+			buttonHeader->color(), textFont, headerFont, boxTableComments->isChecked());
 	// 2D plots page: options tab
 	app->titleOn=boxTitle->isChecked();
 	app->allAxesOn = boxAllAxes->isChecked();

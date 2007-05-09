@@ -76,13 +76,14 @@ Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* par
 
 void Table::init(int rows, int cols)
 {
-	selectedCol=0;
+	selectedCol=-1;
 	savedCol=-1;
+	d_show_comments = false;
 
 	QDateTime dt = QDateTime::currentDateTime();
 	setBirthDate(dt.toString(Qt::LocalDate));
 
-	d_table = new QTableWidget(rows, cols);
+	d_table = new QTableWidget(rows, cols);	
 	d_table->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
 	d_table->setFocusPolicy(Qt::StrongFocus);
@@ -113,7 +114,7 @@ void Table::init(int rows, int cols)
 	QHeaderView* head=(QHeaderView*)d_table->horizontalHeader();
 	head->setResizeMode(QHeaderView::Interactive);
 	connect(head, SIGNAL(sectionResized(int, int, int)), this, SLOT(colWidthModified(int, int, int)));
-
+	
 	col_plot_type[0] = X;
 	setHeaderColType();
 
@@ -124,7 +125,7 @@ void Table::init(int rows, int cols)
 		h=11*(d_table->verticalHeader())->sectionSize(0);
 	else
 		h=(rows+1)*(d_table->verticalHeader())->sectionSize(0);
-	setGeometry(50,50,w + 45, h);
+	setGeometry(50, 50, w + 45, h);
 
 	// keyboard shortcuts
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), this);
@@ -301,6 +302,8 @@ void Table::cellEdited(int row, int col)
 	{
 		emit modifiedData(this, colName(col));
 		emit modifiedWindow(this);
+		if (row + 1 < d_table->rowCount())
+			d_table->setCurrentCell (row+1, col);
 		return;
 	}
 
@@ -337,6 +340,8 @@ void Table::cellEdited(int row, int col)
 		emit modifiedData(this, colName(col));
 		emit modifiedWindow(this);
 	}
+	if (row + 1 < d_table->rowCount())
+		d_table->setCurrentCell (row+1, col);
 }
 
 int Table::colX(int col)
@@ -655,20 +660,26 @@ void Table::enumerateRightCols(bool checked)
 	emit modifiedWindow(this);
 }
 
-void Table::setColComment(const QString& s)
-{
-	if (comments[selectedCol] == s)
-		return;
-
-	comments[selectedCol] = s;
-}
-
 void Table::setColComment(int col, const QString& s)
 {
+	if (col < 0 || col >= d_table->columnCount())
+		return;
+	
 	if (comments[col] == s)
 		return;
 
 	comments[col] = s;
+	
+	if (d_show_comments)
+	{
+		QTableWidgetItem *item = d_table->horizontalHeaderItem (col);
+		if (item)
+		{
+			QString text = item->text();
+			QStringList lst = text.split("\n");
+			item->setText(lst[0] + "\n" + s);
+		}			
+	}	
 }
 
 void Table::changeColWidth(int width, bool allCols)
@@ -953,10 +964,10 @@ void Table::addCol(PlotDesignation pd)
 	d_table->insertColumn(cols);
 
 	// TODO: find out why this does not work
-	// Remark by thzs: this code crashes with the error 
+	// Remark by thzs: this code crashes with the error
 	// "ASSERT failure in QList<T>::operator[]: "index out of range", file /usr/include/qt4/QtCore/qlist.h, line 378"
 	// in the setItem line. I have no idea why, the column should exist.
-	/*	QTableWidgetItem * the_item = d_table->item(0, cols);	
+	/*	QTableWidgetItem * the_item = d_table->item(0, cols);
 		if(!the_item)
 		{
 		the_item = new QTableWidgetItem("");
@@ -1692,9 +1703,8 @@ void Table::setText(int row, int col, const QString & new_text)
 
 void Table::saveColToMemory(int col)
 {
-	int rows=d_table->rowCount();
 	savedCells.clear();
-	for (int row=0; row<rows; row++)
+	for (int row=0; row<d_table->rowCount(); row++)
 		savedCells << text(row, col);
 	savedCol = col;
 }
@@ -1869,7 +1879,7 @@ void Table::setMonthFormat(const QString& format, int col)
 void Table::setDayFormat(const QString& format, int col)
 {
 	colTypes[col] = Day;
-	int rows = numRows();	
+	int rows = numRows();
 	if (format == QDate::shortDayName(QDate::currentDate().dayOfWeek()))
 	{
 		for (int i=0;i<rows; i++)
@@ -2878,6 +2888,7 @@ void Table::contextMenuEvent(QContextMenuEvent *e)
 
 void Table::headerDoubleClickedHandler(int section)
 {
+	selectedCol = section;
 	emit optionsDialog();
 	setActiveWindow();
 }
@@ -3342,19 +3353,34 @@ void Table::goToRow(int row)
 	d_table->selectRow(row-1);
 }
 
-void Table::setColumnHeader(int index, QString label)
+void Table::setColumnHeader(int index, const QString& label)
 {
 	QTableWidgetItem *item;
 	item = d_table->horizontalHeaderItem(index);
-	if (!item) 
+	if (!item)
 	{
 		item = new QTableWidgetItem();
 		d_table->setHorizontalHeaderItem(index, item);
 	}
-	item->setText(label);
+	if (d_show_comments)
+	{
+		QString s = label;
+		item->setText(s.remove("\n") + "\n" + comments[index]);
+	}
+	else
+		item->setText(label);
 }
 
-
-Table::~Table()
+void Table::showComments(bool on)
 {
+	if (d_show_comments == on)
+		return;
+	
+	d_show_comments = on; 
+	setHeaderColType();
+		
+	if (on)
+		resize(QSize(width(), height() + 1));
+	else
+		resize(QSize(width(), height() - 1));
 }

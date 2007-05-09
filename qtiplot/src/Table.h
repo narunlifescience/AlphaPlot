@@ -64,7 +64,6 @@ public:
 		 bool stripSpaces, bool simplifySpaces, const QString &label,
 		 QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	Table(ScriptingEnv *env, int r,int c, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	~Table();
 
 	QList<QTableWidgetSelectionRange> getSelection();
 
@@ -327,11 +326,10 @@ public slots:
 	int verticalHeaderWidth(){return d_table->verticalHeader()->width();};
 
 	QString colComment(int col){return comments[col];};
-	void setColComment(const QString& s);
 	void setColComment(int col, const QString& s);
-
 	QStringList colComments(){return comments;};
 	void setColComments(const QStringList& lst){comments = lst;};
+	void showComments(bool on = true);
 
 	QString saveAsTemplate(const QString& geometryInfo);
 	void restore(const QStringList& lst);
@@ -370,6 +368,7 @@ private slots:
 
 
 private:
+	bool d_show_comments;
 	QString specifications, newSpecifications;
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
@@ -386,7 +385,7 @@ private:
 	 */
 	bool allow_modification_signals;
 	//! Internal function to change the column header
-	void setColumnHeader(int index, QString label);
+	void setColumnHeader(int index, const QString& label);
 };
 
 #endif

@@ -285,10 +285,10 @@ if (name.contains(QRegExp("\\W")))
 						tr("The column names must only contain letters and digits!"));
 	name.remove(QRegExp("\\W"));
 	}
-d_table->changeColName(name.replace("_", "-"));
 d_table->enumerateRightCols(enumerateAllBox->isChecked());
 d_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
-d_table->setColComment(comments->text().replace("\n", " ").replace("\t", " "));
+d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\n", " ").replace("\t", " "));
+d_table->changeColName(name.replace("_", "-"));
 
 int format = formatBox->currentIndex();
 int colType = displayBox->currentIndex();

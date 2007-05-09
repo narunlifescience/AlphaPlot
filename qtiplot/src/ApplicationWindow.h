@@ -333,7 +333,8 @@ public slots:
 	void initTable(Table* w, const QString& caption);
 	void customTable(Table* w);
 	void customizeTables(const QColor& bgColor,const QColor& textColor,
-						const QColor& headerColor,const QFont& textFont, const QFont& headerFont);
+						const QColor& headerColor,const QFont& textFont, 
+						const QFont& headerFont, bool showComments);
 
 	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
 	void loadASCII();
@@ -912,6 +913,7 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+	bool d_show_table_comments;
 	bool d_extended_plot_dialog;
 	bool generateUniformFitPoints;
 	bool generatePeakCurves;

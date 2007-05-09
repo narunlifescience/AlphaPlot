@@ -2332,11 +2332,11 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 
 void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& textColor,
 		const QColor& headerColor,const QFont& textFont,
-		const QFont& headerFont)
+		const QFont& headerFont, bool showComments)
 {
 	if (tableBkgdColor == bgColor && tableTextColor == textColor &&
-			tableHeaderColor == headerColor && tableTextFont == textFont &&
-			tableHeaderFont == headerFont)
+		tableHeaderColor == headerColor && tableTextFont == textFont &&
+		tableHeaderFont == headerFont && d_show_table_comments == showComments)
 		return;
 
 	tableBkgdColor = bgColor;
@@ -2344,6 +2344,7 @@ void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& text
 	tableHeaderColor = headerColor;
 	tableTextFont = textFont;
 	tableHeaderFont = headerFont;
+	d_show_table_comments = showComments;
 
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
@@ -2364,6 +2365,7 @@ void ApplicationWindow::customTable(Table* w)
 	w->setHeaderColor (tableHeaderColor);
 	w->setTextFont(tableTextFont);
 	w->setHeaderFont(tableHeaderFont);
+	w->showComments(d_show_table_comments);
 }
 
 void ApplicationWindow::customGraph(Graph* g)
@@ -4110,6 +4112,7 @@ void ApplicationWindow::readSettings()
 
 	/* ---------------- group Tables --------------- */
 	settings.beginGroup("/Tables");
+	d_show_table_comments = settings.value("/DisplayComments", false).toBool();
 	QStringList tableFonts = settings.value("/Fonts").toStringList();
 	if (tableFonts.size() == 8)
 	{
@@ -4304,6 +4307,7 @@ void ApplicationWindow::saveSettings()
 
 	/* ----------------- group Tables -------------- */
 	settings.beginGroup("/Tables");
+	settings.setValue("/DisplayComments", d_show_table_comments);
 	QStringList tableFonts;
 	tableFonts<<tableTextFont.family();
 	tableFonts<<QString::number(tableTextFont.pointSize());
