@@ -173,7 +173,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	connect(colWidth, SIGNAL(valueChanged(int)), this, SLOT(changeColWidth(int)));
 	connect(buttonApply, SIGNAL(clicked()), this, SLOT(apply()));
     connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
-    connect(buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+    connect(buttonCancel, SIGNAL( clicked() ), this, SLOT( close() ) );
 	connect(applyToRightCols, SIGNAL(clicked()), this, SLOT(updateFormat()));
 	connect(columnsBox, SIGNAL(activated(int)), this, SLOT(setPlotDesignation(int)) );
 	connect(displayBox, SIGNAL(activated(int)), this, SLOT(updateDisplay(int)));
@@ -219,8 +219,7 @@ updateColumn(++sc);
 
 void TableDialog::updateColumn(int sc)
 {
-    int colType = d_table->columnType(sc);
-
+    int colType = d_table->columnType(sc);	
     if (!sc)
         buttonPrev->setEnabled(false);
     else
@@ -245,7 +244,7 @@ void TableDialog::updateColumn(int sc)
 
     displayBox->setCurrentIndex(colType);
     updateDisplay(colType);
-
+	
     d_table->saveColToMemory(sc);
 
     if (colType == Table::Numeric)

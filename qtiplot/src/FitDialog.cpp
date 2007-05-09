@@ -57,7 +57,7 @@
 #include <QFileDialog>
 #include <QGroupBox>
 #include <QLibrary>
-
+#include <QLocale>
 #include <stdio.h>
 
 FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
@@ -661,7 +661,7 @@ void FitDialog::showFitPage()
         it->setFont(font);
         boxParams->setItem(i, 0, it);
 
-        it = new QTableWidgetItem(QString::number(1, 'f', boxPrecision->value()));
+        it = new QTableWidgetItem(QLocale().toString(1.0, 'f', boxPrecision->value()));
         it->setTextAlignment(Qt::AlignRight);
         boxParams->setItem(i, 1, it);
 	}
@@ -1159,7 +1159,7 @@ void FitDialog::accept()
 		{
 			for (i=0;i<n;i++)
 			{
-				paramsInit[i] = boxParams->item(i,1)->text().toDouble();
+				paramsInit[i] = QLocale().toDouble(boxParams->item(i,1)->text());
 				parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[i]);
 				parameters << boxParams->item(i,0)->text();
 			}

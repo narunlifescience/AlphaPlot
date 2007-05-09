@@ -2425,12 +2425,12 @@ void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, co
 Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
 		int lines, bool renameCols, bool stripSpaces,
 		bool simplifySpaces)
-{
+{			
 	Table* w = new Table(scriptEnv, fname, sep, lines, renameCols, stripSpaces,
 			simplifySpaces, fname, ws, 0, 0);
-	w->setAttribute(Qt::WA_DeleteOnClose);
 	if (w)
 	{
+		w->setAttribute(Qt::WA_DeleteOnClose);
 		initTable(w, generateUniqueName(tr("Table")));
 		w->show();
 	}
@@ -3307,10 +3307,13 @@ void ApplicationWindow::loadASCII()
 			t = newTable(fn, columnSeparator, ignoredLines, renameColumns,
 					strip_spaces, simplify_spaces);
 
-		t->setCaptionPolicy(MyWidget::Both);
-		setListViewLabel(t->name(), fn);
-		QFileInfo fi(fn);
-		asciiDirPath = fi.dirPath(true);
+		if (t)
+		{
+			t->setCaptionPolicy(MyWidget::Both);
+			setListViewLabel(t->name(), fn);
+			QFileInfo fi(fn);
+			asciiDirPath = fi.dirPath(true);
+		}
 	}
 }
 
@@ -9858,6 +9861,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 	}
 
 	QApplication::setOverrideCursor(Qt::WaitCursor);
+	w->table()->blockSignals(true);
 	for (line++; line!=flist.end() && *line != "</data>"; line++)
 	{//read and set table values
 		QStringList fields = (*line).split("\t");
@@ -9872,6 +9876,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
     QApplication::restoreOverrideCursor();
 
 	w->setSpecifications(w->saveToString("geometry\n"));
+	w->table()->blockSignals(false);
 	return w;
 }
 

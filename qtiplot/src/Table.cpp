@@ -77,7 +77,7 @@ Table::Table(ScriptingEnv *env, int r, int c, const QString& label, QWidget* par
 void Table::init(int rows, int cols)
 {
 	selectedCol=-1;
-	savedCol=-1;
+	d_saved_cells = 0;
 	d_show_comments = false;
 
 	QDateTime dt = QDateTime::currentDateTime();
@@ -294,7 +294,7 @@ void Table::cellEdited(int row, int col)
 	// text value by the saved one. The problem is that setText() emits
 	// a cellChanged() signal even if it was not altered by user input
 	// but by a dialog.
-	if(savedCol != -1)
+	if(!d_saved_cells)
 		return;
 
 	QString cell_text = text(row,col).remove(QRegExp("\\s"));
@@ -388,29 +388,45 @@ void Table::setPlotDesignation(PlotDesignation pd)
 
 void Table::columnNumericFormat(int col, int *f, int *precision)
 {
-	QStringList format = col_format[col].split("/", QString::SkipEmptyParts);
-	*f = format[0].toInt();
-	*precision = format[1].toInt();
+	QStringList format = col_format[col].split("/", QString::KeepEmptyParts);
+	if (format.count() == 2)
+	{
+		*f = format[0].toInt();
+		*precision = format[1].toInt();
+	}
+	else
+	{
+		*f = 0;
+		*precision = 6;
+	}	
 }
 
 void Table::columnNumericFormat(int col, char *f, int *precision)
 {
-	QStringList format = col_format[col].split("/", QString::SkipEmptyParts);
-	switch(format[0].toInt())
+	QStringList format = col_format[col].split("/", QString::KeepEmptyParts);
+	if (format.count() == 2)
 	{
-		case 0:
+		switch(format[0].toInt())
+		{
+			case 0:
 			*f = 'g';
 			break;
 
-		case 1:
+			case 1:
 			*f = 'f';
 			break;
 
-		case 2:
+			case 2:
 			*f = 'e';
 			break;
+		}
+		*precision = format[1].toInt();
 	}
-	*precision = format[1].toInt();
+	else
+	{
+		*f = 'g';
+		*precision = 6;
+	}
 }
 
 int Table::columnWidth(int col)
@@ -677,7 +693,9 @@ void Table::setColComment(int col, const QString& s)
 		{
 			QString text = item->text();
 			QStringList lst = text.split("\n");
-			item->setText(lst[0] + "\n" + s);
+			
+			int lines = d_table->columnWidth(col)/d_table->horizontalHeader()->fontMetrics().averageCharWidth();
+			item->setText(lst[0] + "\n" + QString(lines, '_') + "\n" + s);
 		}			
 	}	
 }
@@ -1685,10 +1703,9 @@ double Table::cell(int row, int col)
 
 QString Table::text(int row, int col)
 {
-	if (col == savedCol)
-		return savedCells[row];
-	else if(d_table->item(row, col))
-		return d_table->item(row, col)->text();
+	QTableWidgetItem *item = d_table->item(row, col);
+	if(item)
+		return item->text();
 	else
 		return QString("");
 }
@@ -1702,17 +1719,26 @@ void Table::setText(int row, int col, const QString & new_text)
 }
 
 void Table::saveColToMemory(int col)
-{
-	savedCells.clear();
+{	
+	d_saved_cells = new double* [d_table->rowCount()];
+	for ( int i = 0; i < d_table->rowCount(); ++i)
+	{
+		d_saved_cells[i] = new double [d_table->columnCount()];
+	}
+	
 	for (int row=0; row<d_table->rowCount(); row++)
-		savedCells << text(row, col);
-	savedCol = col;
+		for (int col=0; col<d_table->columnCount(); col++)
+			d_saved_cells[row][col] = cell(row, col);
 }
 
 void Table::forgetSavedCol()
 {
-	savedCells.clear();
-	savedCol = -1;
+	for ( int i = 0; i < d_table->rowCount(); i++)
+	{
+		delete[] d_saved_cells[i];
+	}
+	delete[] d_saved_cells;
+	d_saved_cells = 0;
 }
 
 void Table::setTextFormat(int col)
@@ -1746,7 +1772,10 @@ void Table::setColNumericFormat(int f, int prec, int col)
 			else if (f == 2)
 				format = 'e';
 
-			setText(i, col, QLocale().toString(stringToDouble(t), format, prec));
+			if (d_saved_cells)
+				setText(i, col, QLocale().toString(d_saved_cells[i][col], format, prec));
+			else
+				setText(i, col, QLocale().toString(stringToDouble(t), format, prec));
 		}
 	}
 }
@@ -2435,7 +2464,8 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 	if ( f.open(QIODevice::ReadOnly) )
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
+		d_table->blockSignals(true);
+		
 		int i, rows = 1, cols = 0;
 		int r = d_table->rowCount();
 		int c = d_table->columnCount();
@@ -2469,15 +2499,13 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		if (renameCols && !allNumbers)
 			rows--;
 
-		QProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+		int steps = int(rows/1000);
+		
+		QProgressDialog progress(this);
 		progress.setWindowTitle("Qtiplot - Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
-		progress.setAutoClose(true);
-		progress.setAutoReset(true);
-
-		int steps = int(rows/1000);
-		progress.setMaximum(steps+1);
+		progress.setRange(0, steps+1);
 
 		QApplication::restoreOverrideCursor();
 
@@ -2571,6 +2599,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 				setText(i, j, line[j-startCol]);
 		}
 		progress.setValue(steps+1);
+		d_table->blockSignals(false);
 		f.close();
 
 		if (importFileAs)
@@ -2588,6 +2617,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 	QTextStream t( &f );// use a text stream
 	if ( f.open(QIODevice::ReadOnly) )
 	{
+		d_table->blockSignals(true);
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 		int i, c, rows = 1, cols = 0;
@@ -2623,13 +2653,11 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			rows--;
 		int steps = int(rows/1000);
 
-		QProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+		QProgressDialog progress(this);
 		progress.setWindowTitle("Qtiplot - Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
-		progress.setAutoClose(true);
-		progress.setAutoReset(true);
-		progress.setMaximum(steps+1);
+		progress.setRange(0, steps+1);
 
 		QApplication::restoreOverrideCursor();
 
@@ -2737,6 +2765,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		}
 		progress.setValue(steps+1);
 		qApp->processEvents();
+		d_table->blockSignals(false);
 		f.close();
 
 		if (!newTable)
@@ -3365,7 +3394,9 @@ void Table::setColumnHeader(int index, const QString& label)
 	if (d_show_comments)
 	{
 		QString s = label;
-		item->setText(s.remove("\n") + "\n" + comments[index]);
+		
+		int lines = d_table->columnWidth(index)/d_table->horizontalHeader()->fontMetrics().averageCharWidth();
+		item->setText(s.remove("\n") + "\n" + QString(lines, '_') + "\n" + comments[index]);
 	}
 	else
 		item->setText(label);

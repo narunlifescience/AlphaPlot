@@ -373,8 +373,7 @@ private:
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
 	int selectedCol;
-	QStringList savedCells;
-	int savedCol;
+	double **d_saved_cells;
 	/*!
 	 * \brief Toggle between allow/suppress the emission of modification signals
 	 *
