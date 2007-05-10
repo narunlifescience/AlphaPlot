@@ -77,7 +77,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					}
 				}
 
-				if (me->button()==Qt::LeftButton && (plot()->drawLineActive() || plot()->lineProfile()))
+				if (me->button()==Qt::LeftButton && (plot()->drawLineActive()))
 				{
 					startLinePoint = me->pos();
 					return true;
@@ -154,9 +154,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				if (plot()->drawLineActive()) {
 					drawLineMarker(pos, plot()->drawArrow());
 					return true;
-				} else if (plot()->lineProfile()) {
-					drawLineMarker(pos,FALSE);
-					return true;
 				}
 
 				return false;
@@ -186,29 +183,6 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					g->drawLine(false);
 					mrk.detach();
 					plotWidget->replot();
-
-					return true;
-				}
-				else if (plot()->lineProfile())
-				{
-					QPoint endLinePoint=QPoint(me->x(),me->y());
-					if (endLinePoint == startLinePoint)
-						return FALSE;
-					LineMarker mrk;
-					mrk.attach(g->plotWidget());
-					mrk.setStartPoint(startLinePoint);
-					mrk.setEndPoint(endLinePoint);
-					mrk.setColor(Qt::red);
-					mrk.setWidth(1);
-					Qt::PenStyle style=Qt::SolidLine;
-					mrk.setStyle(style);
-					mrk.drawEndArrow(false);
-					mrk.drawStartArrow(false);
-
-					mrk.detach();
-					plot()->insertLineMarker(&mrk);
-					plotWidget->replot();
-					emit calculateProfile(startLinePoint,endLinePoint);
 
 					return true;
 				}

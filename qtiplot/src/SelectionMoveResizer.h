@@ -173,7 +173,7 @@ class SelectionMoveResizer : public QWidget
 		virtual void mouseDoubleClickEvent(QMouseEvent *e);
 
 	private:
-		//! Size of resize handelers in pixels.
+		//! Size of resize handle in pixels.
 		static const int handler_size = 10;
 		//! Return one of the rectangles to be filled for starting resize operations.
 		static const QRect handlerRect(QRect rect, Operation op);

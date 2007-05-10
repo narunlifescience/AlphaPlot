@@ -230,7 +230,8 @@ HEADERS  += src/ApplicationWindow.h \
 	    src/TranslateCurveTool.h\
 	    src/MultiPeakFitTool.h\
 	    src/CurveRangeDialog.h\
-	    src/PlotEnrichement.h
+       src/LineProfileTool.h\
+       src/PlotEnrichement.h\
 
 ###################### SOURCES ##############################################
 
@@ -340,7 +341,8 @@ SOURCES  += src/ApplicationWindow.cpp \
 	    src/TranslateCurveTool.cpp\
 	    src/MultiPeakFitTool.cpp\
 	    src/CurveRangeDialog.cpp\
-	    src/PlotEnrichement.cpp
+       src/LineProfileTool.cpp\
+       src/PlotEnrichement.cpp\
 
 ###############################################################
 ##################### Compression (zlib123) ###################

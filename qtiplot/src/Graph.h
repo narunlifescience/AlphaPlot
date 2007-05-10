@@ -145,7 +145,7 @@ class Graph: public QWidget
 		//! \name Pie Curves
 		//@{
 		//! Returns true if this Graph is a pie plot, false otherwise.
-		bool isPiePlot(){return (c_type[0] == Pie);};
+		bool isPiePlot(){return (c_type.count() == 1 && c_type[0] == Pie);};
 		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
 		//! Used when restoring a pie plot from a project file
@@ -576,11 +576,6 @@ class Graph: public QWidget
 
 		//! \name Image Analysis Tools
 		//@{
-		//! Return #lineProfileOn.
-		bool lineProfile();
-		void calculateProfile(int average, bool ok);
-		void calculateLineProfile(const QPoint& start, const QPoint& end);
-		int averageImagePixel(const QImage& image, int px, int py, int average, bool moreHorizontal);
 		void showIntensityTable();
 		//@}
 
@@ -692,7 +687,6 @@ signals:
 		void rightAxisTitleDblClicked();
 		void topAxisTitleDblClicked();
 
-		void createTablePlot(const QString&,int,int,const QString&);
 		void createIntensityTable(const QString&);
 		void dataRangeChanged();
 		void showFitResults(const QString&);
@@ -736,14 +730,12 @@ signals:
 		int n_curves;
 		int widthLine, defaultMarkerFrame;
 		QColor defaultTextMarkerColor, defaultTextMarkerBackground;
-		int auxMrkAngle,auxMrkBkg,auxMrkWidth, averagePixels;
+		int auxMrkAngle,auxMrkBkg,auxMrkWidth;
 		int auxArrowHeadLength, auxArrowHeadAngle;
 		long selectedMarker,legendMarkerID;
 		long mrkX, mrkY;//x=0 et y=0 line markers keys
 		bool startArrowOn, endArrowOn, drawTextOn, drawLineOn, drawArrowOn;
 
-		//! Whether pixel line profile is asked.
-		bool lineProfileOn;
 		bool auxFilledArrowHead, ignoreResize;
 		bool drawAxesBackbone, autoscale;
 

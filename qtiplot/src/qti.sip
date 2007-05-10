@@ -966,12 +966,12 @@ class FFT : Filter
 %End
 public:
   
-  //FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = QString());
+  FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = QString());
   FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  //FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
-//%MethodCode
-  //SIPQTI_APP(new sipFFT(app, a0, *a1, a2))
-//%End
+  FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipFFT(app, a0, *a1, *a2))
+%End
   FFT(Graph *, const QString&) /NoDerived/;
 %MethodCode
   SIPQTI_APP(new sipFFT(app, a0, *a1))

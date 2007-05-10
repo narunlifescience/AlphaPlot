@@ -97,13 +97,14 @@
 #include "Correlation.h"
 #include "CurveRangeDialog.h"
 #include "ColorBox.h"
+#include "QwtHistogram.h"
 
 // TODO: move tool-specific code to an extension manager
 #include "ScreenPickerTool.h"
 #include "DataPickerTool.h"
 #include "TranslateCurveTool.h"
 #include "MultiPeakFitTool.h"
-#include "QwtHistogram.h"
+#include "LineProfileTool.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -8002,7 +8003,7 @@ void ApplicationWindow::showMarkerPopupMenu()
 
 	if (g->imageMarkerSelected())
 	{
-		//markerMenu.insertItem(QPixmap(pixelProfile_xpm),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
+		markerMenu.insertItem(QPixmap(pixelProfile_xpm),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
 		markerMenu.insertItem(tr("&Intensity Matrix"),this, SLOT(intensityTable()));
 		markerMenu.insertSeparator();
 	}
@@ -9598,21 +9599,20 @@ void ApplicationWindow::pixelLineProfile()
 		return;
 
 	Graph* g = ((MultiLayer *)ws->activeWindow())->activeGraph();
-	if (g)
-	{
-		bool ok;
-		int res = QInputDialog::getInteger(
-				tr("QtiPlot - Set the number of pixels to average"), tr("Number of averaged pixels"),1, 1, 2000, 2,
-				&ok, this );
-		if ( ok )
-		{
-			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			g->calculateProfile(res,true);
-			QApplication::restoreOverrideCursor();
-		}
-		else
-			return;
-	}
+	if (!g)
+		return;
+
+	bool ok;
+	int res = QInputDialog::getInteger(
+			tr("QtiPlot - Set the number of pixels to average"), tr("Number of averaged pixels"),1, 1, 2000, 2,
+			&ok, this );
+	if ( !ok )
+		return;
+
+	LineProfileTool *lpt = new LineProfileTool(g, res);
+	connect(lpt, SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
+			this, SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
+	g->setActiveTool(lpt);
 }
 
 void ApplicationWindow::intensityTable()
@@ -10794,8 +10794,6 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect (g,SIGNAL(cursorInfo(const QString&)),info,SLOT(setText(const QString&)));
 	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
-	connect (g,SIGNAL(createTablePlot(const QString&,int,int,const QString&)),
-			this,SLOT(newWrksheetPlot(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(viewTitleDialog()),this,SLOT(showTitleDialog()));

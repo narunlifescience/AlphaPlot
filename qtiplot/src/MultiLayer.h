@@ -196,7 +196,6 @@ signals:
 	void showImageDialog();
 	void showLineDialog();
 	void viewTitleDialog();
-	void createTablePlot(const QString&,int,int,const QString&);
 	void createTable(const QString&,int,int,const QString&);
 	void showGeometryDialog();
 	void pasteMarker();

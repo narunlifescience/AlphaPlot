@@ -44,15 +44,26 @@ class TranslateCurveTool : public QObject, public PlotToolInterface
 	Q_OBJECT
 	public:
 		enum Direction { Vertical, Horizontal };
+		/*!\brief Standard constructor.
+		 * \param graph the Graph to operate on (or rather, on whose image markers to operate on)
+		 * \param app parent window of graph
+		 * \param dir the direction in which to translate curves
+		 * \param status_target target to which the statusText(const QString&) signal will be connected
+		 * \param status_slot slot on status_target to which the statusText(const QString&) signal will be connected
+		 * The status_target/status_slot arguments are provided, because statusText(const QString&) is emitted
+		 * during initialization, before there's any other chance of connecting to it.
+		 */
 		TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir, const QObject *status_target=NULL, const char *status_slot="");
 	signals:
-		/*! Emitted whenever a new message should be presented to the user.
+		/*!\brief Emitted whenever a new message should be presented to the user.
 		 *
 		 * You don't have to connect to this signal if you alreay specified a reciever during initialization.
 		 */
 		void statusText(const QString&);
 	public slots:
+		//! Select curve to translate, using the specified point as base point.
 		void selectCurvePoint(QwtPlotCurve *curve, int point_index);
+		//! Select the coordinates where the base point should end up (modulo projection on #d_dir direction).
 		void selectDestination(const QwtDoublePoint &point);
 	private:
 		Direction d_dir;
