@@ -2323,6 +2323,7 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->setWindowTitle(label);
 	g->setName(label);
 	g->setIcon(QPixmap(graph_xpm));
+	g->setScaleLayersOnPrint(d_scale_plots_on_print);
 	g->show();
 	g->setFocus();
 
@@ -3159,25 +3160,28 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, b
 	delete windows;
 }
 
-void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts,
-												bool resizeLayers, bool antialiasing)
+void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts, bool resizeLayers, 
+												bool antialiasing, bool scaleOnPrint)
 {
 	if (autoscale2DPlots == autoscale &&
 		autoScaleFonts == scaleFonts &&
 		autoResizeLayers != resizeLayers &&
-		antialiasing2DPlots == antialiasing)
+		antialiasing2DPlots == antialiasing &&
+		d_scale_plots_on_print == scaleOnPrint)
 		return;
 
 	autoscale2DPlots = autoscale;
 	autoScaleFonts = scaleFonts;
 	autoResizeLayers = !resizeLayers;
 	antialiasing2DPlots = antialiasing;
-
+	d_scale_plots_on_print = scaleOnPrint;
+	
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
 		if (w->isA("MultiLayer"))
 		{
+			((MultiLayer*)w)->setScaleLayersOnPrint(d_scale_plots_on_print);
 			QWidgetList lst = ((MultiLayer*)w)->graphPtrs();
 			Graph *g;
 			foreach(QWidget *widget, lst)
@@ -4146,6 +4150,7 @@ void ApplicationWindow::readSettings()
 	autoScaleFonts = settings.value("/AutoScaleFonts", true).toBool();
 	autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
 	antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
+	d_scale_plots_on_print = settings.value("/ScaleLayersOnPrint", false).toBool();
 
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
 	if (graphFonts.size() == 16)
@@ -4345,6 +4350,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoScaleFonts", autoScaleFonts);
 	settings.setValue("/AutoResizeLayers", autoResizeLayers);
 	settings.setValue("/Antialiasing", antialiasing2DPlots);
+	settings.setValue("/ScaleLayersOnPrint", d_scale_plots_on_print);
 
 	QStringList graphFonts;
 	graphFonts<<plotAxesFont.family();
@@ -6543,10 +6549,9 @@ void ApplicationWindow::printWindow()
 void ApplicationWindow::printAllPlots()
 {
 	QPrinter printer;
-	printer.setResolution(84);
 	printer.setOrientation(QPrinter::Landscape);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
+	printer.setFullPage(true);
 
 	if (printer.setup())
 	{

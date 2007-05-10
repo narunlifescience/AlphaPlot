@@ -353,7 +353,8 @@ public slots:
 	//! \name Graphs
 	//@{
 	void customGraph(Graph* g);
-	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers, bool antialiasing);
+	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers, 
+								 bool antialiasing, bool scaleOnPrint);
 	void setLegendDefaultSettings(int frame, const QFont& font,
 							 const QColor& textCol, const QColor& backgroundCol);
 	void setArrowDefaultSettings(int lineWidth,  const QColor& c, Qt::PenStyle style,
@@ -913,6 +914,7 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+	bool d_scale_plots_on_print;
 	bool d_show_table_comments;
 	bool d_extended_plot_dialog;
 	bool generateUniformFitPoints;

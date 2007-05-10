@@ -524,7 +524,6 @@ bool Table::calculate(int col, int startRow, int endRow)
 	colscript->setInt(startRow+1, "sr");
 	colscript->setInt(endRow+1, "er");
 	QVariant ret;
-	saveColToMemory(col);
 	for (int i=startRow; i<=endRow; i++)
 	{
 		colscript->setInt(i+1,"i");
@@ -542,7 +541,6 @@ bool Table::calculate(int col, int startRow, int endRow)
 			return false;
 		}
 	}
-	forgetSavedCol();
 
 	allow_modification_signals = true;
 	emit modifiedData(this, colName(col));
@@ -1719,7 +1717,7 @@ void Table::setText(int row, int col, const QString & new_text)
 		d_table->setItem(row, col, new QTableWidgetItem(new_text));
 }
 
-void Table::saveColToMemory(int col)
+void Table::saveToMemory()
 {
 	d_saved_cells = new double* [d_table->rowCount()];
 	for ( int i = 0; i < d_table->rowCount(); ++i)
@@ -1730,12 +1728,11 @@ void Table::saveColToMemory(int col)
 			d_saved_cells[row][col] = cell(row, col);
 }
 
-void Table::forgetSavedCol()
+void Table::freeMemory()
 {
 	for ( int i = 0; i < d_table->rowCount(); i++)
-	{
 		delete[] d_saved_cells[i];
-	}
+
 	delete[] d_saved_cells;
 	d_saved_cells = 0;
 }

@@ -300,6 +300,10 @@ void ConfigDialog::initPlotsPage()
 
 	optionsTabLayout->addWidget( boxResize );
 
+	boxScaleLayersOnPrint = new QCheckBox();
+	boxScaleLayersOnPrint->setChecked(app->d_scale_plots_on_print);
+	optionsTabLayout->addWidget( boxScaleLayersOnPrint );
+	
 	plotsTabWidget->addTab( plotOptions, QString() );
 
 	initCurvesPage();
@@ -762,6 +766,7 @@ void ConfigDialog::languageChange()
 	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotFonts), tr("Fonts"));
 
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
+	boxScaleLayersOnPrint->setText(tr("&Scale layers to paper size when printing"));
 	lblMinTicksLength->setText(tr("Length"));
 
 	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
@@ -982,7 +987,8 @@ void ConfigDialog::apply()
 	app->axesLineWidth = boxLineWidth->value();
 	app->defaultPlotMargin = boxMargin->value();
 	app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),
-								boxResize->isChecked(), boxAntialiasing->isChecked());
+								boxResize->isChecked(), boxAntialiasing->isChecked(),
+								boxScaleLayersOnPrint->isChecked());
 	// 2D plots page: curves tab
 	app->defaultCurveStyle = curveStyle();
 	app->defaultCurveLineWidth = boxCurveLineWidth->value();

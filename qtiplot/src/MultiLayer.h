@@ -89,6 +89,9 @@ public:
 	//@}
 
 	void setOpenMaximized(){d_open_maximized = 1;};
+	
+	bool scaleLayersOnPrint(){return d_scale_on_print;};
+	void setScaleLayersOnPrint(bool on){d_scale_on_print = on;};
 
 public slots:
 	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
@@ -212,6 +215,7 @@ private:
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	bool addTextOn;
+	bool d_scale_on_print;
 
 	//! Used when adding text markers on new layers
 	int defaultTextMarkerFrame;

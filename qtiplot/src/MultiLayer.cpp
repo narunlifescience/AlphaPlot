@@ -100,6 +100,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
     d_open_maximized = 0;
     d_max_size = QSize();
     d_normal_size = QSize();
+	d_scale_on_print = true;
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -736,11 +737,7 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 
 		QPoint pos = gr->pos();
 		pos = QPoint(x_margin + pos.x(), y_margin + pos.y());
-
-		int width = myPlot->frameGeometry().width();
-		int height = myPlot->frameGeometry().height();
-
-		myPlot->print(&paint, QRect(pos, QSize(width, height)));
+		myPlot->print(&paint, QRect(pos, myPlot->size()));
 	}
 }
 
@@ -774,16 +771,26 @@ void MultiLayer::copyAllLayers()
 
 void MultiLayer::printActiveLayer()
 {
-	active_graph->print();
+	if (active_graph)
+	{
+		active_graph->setScaleOnPrint(d_scale_on_print);
+		active_graph->print();
+	}
 }
 
 void MultiLayer::print()
 {
 	QPrinter printer;
-	printer.setOrientation(QPrinter::Landscape);
 	printer.setColorMode (QPrinter::Color);
-	printer.setFullPage(TRUE);
-
+	printer.setFullPage(true);
+	
+	QRect canvasRect = canvas->rect();
+	double aspect = double(canvasRect.width())/double(canvasRect.height());
+	if (aspect < 1)
+		printer.setOrientation(QPrinter::Portrait);
+	else
+		printer.setOrientation(QPrinter::Landscape);
+	
 	if (printer.setup())
 	{
 		QPainter paint(&printer);
@@ -798,31 +805,48 @@ void MultiLayer::printAllLayers(QPainter *painter)
 		return;
 
 	QPaintDevice *paintDevice = painter->device();
-
 	int dpiy = paintDevice->logicalDpiY();
 	int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
 
-	QSize size = canvas->childrenRect().size();
-	double scaleFactorX=(double)(paintDevice->width()-2*margin)/(double)size.width();
-	double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
-
-	for (int i=0; i<(int)graphsList.count(); i++)
+	if (d_scale_on_print)
 	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		Plot *myPlot= gr->plotWidget();
+		QSize size = canvas->childrenRect().size();
+		double scaleFactorX=(double)(paintDevice->width()-2*margin)/(double)size.width();
+		double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
 
-		QwtPlotPrintFilter  filter;
-		filter.setOptions(QwtPlotPrintFilter::PrintAll | QwtPlotPrintFilter::PrintTitle |
-				~ QwtPlotPrintFilter::PrintCanvasBackground);
+		for (int i=0; i<(int)graphsList.count(); i++)
+		{
+			Graph *gr=(Graph *)graphsList.at(i);
+			Plot *myPlot= gr->plotWidget();
 
-		QPoint pos=gr->pos();
-		pos=QPoint(margin + int(pos.x()*scaleFactorX), margin + int(pos.y()*scaleFactorY));
+			QPoint pos=gr->pos();
+			pos=QPoint(margin + int(pos.x()*scaleFactorX), margin + int(pos.y()*scaleFactorY));
 
-		int width=int(myPlot->frameGeometry().width()*scaleFactorX);
-		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
+			int width=int(myPlot->frameGeometry().width()*scaleFactorX);
+			int height=int(myPlot->frameGeometry().height()*scaleFactorY);
 
-		myPlot->print(painter, QRect(pos,QSize(width,height)), filter);
+			myPlot->print(painter, QRect(pos, QSize(width,height)));
+		}
 	}
+	else
+	{
+		QPrinter *printer = (QPrinter *)painter->device();
+		QRect canvasRect = canvas->rect();
+		QRect pageRect = printer->pageRect();
+    	int x_margin = (pageRect.width() - canvasRect.width())/2;
+    	int y_margin = (pageRect.height() - canvasRect.height())/2;
+	
+		for (int i=0; i<(int)graphsList.count(); i++)
+		{
+			Graph *gr = (Graph *)graphsList.at(i);
+			Plot *myPlot = (Plot *)gr->plotWidget();
+
+			QPoint pos = gr->pos();
+			pos = QPoint(x_margin + pos.x(), y_margin + pos.y());
+			myPlot->print(painter, QRect(pos, myPlot->size()));
+		}	
+	}
+		
 }
 
 void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,

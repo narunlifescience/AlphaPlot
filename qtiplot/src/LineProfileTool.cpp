@@ -62,7 +62,7 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 	QRect rect = d_target->rect();
 	if (!rect.contains(start) || !rect.contains(end))
 	{
-		QMessageBox::warning(0,tr("QtiPlot - Pixel selection warning"),
+		QMessageBox::warning(d_graph, tr("QtiPlot - Pixel selection warning"),
 				"Please select the end line point inside the image rectangle!");
 		return;
 	}
@@ -89,7 +89,7 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 		y2 = int(y2*ratioY);
 	}
 
-	QString text="pixel\tx\ty\tintensity\n";
+	QString text = tr("pixel") + "\tx\ty\t" + tr("intensity") + "\n";
 
 	//uses the fast Bresenham's line-drawing algorithm
 #define sgn(x) ((x<0)?-1:((x>0)?1:0))
@@ -122,7 +122,7 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 			text+=QString::number(i)+"\t";
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, TRUE))+"\n";
+			text+=QString::number(averageImagePixel(image, px, py, true))+"\n";
 		}
 	}
 	else // the line is more vertical than horizontal
@@ -141,10 +141,10 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 			text+=QString::number(i)+"\t";
 			text+=QString::number(px)+"\t";
 			text+=QString::number(py)+"\t";
-			text+=QString::number(averageImagePixel(image, px, py, FALSE))+"\n";
+			text+=QString::number(averageImagePixel(image, px, py, false))+"\n";
 		}
 	}
-	QString caption="table1";
+	QString caption = tr("Table") + "1";
 	emit createTablePlot(caption, n, 4, text);
 }
 
@@ -195,7 +195,7 @@ void LineProfileTool::addLineMarker(const QPoint &start, const QPoint &end)
 void LineProfileTool::paintEvent(QPaintEvent *)
 {
 	QPainter p(this);
-	p.setPen(QPen(Qt::black,1,Qt::SolidLine));
+	p.setPen(QPen(Qt::red, 1, Qt::SolidLine));
 	p.drawLine(d_op_start, d_op_start+d_op_dp);
 }
 
@@ -221,4 +221,3 @@ void LineProfileTool::mouseReleaseEvent(QMouseEvent *e)
 	d_graph->setActiveTool(NULL);
 	// attention: I'm now deleted
 }
-

@@ -167,6 +167,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	autoscale = true;
 	autoScaleFonts = false;
 	d_antialiasing = true;
+	d_scale_on_print = true;
 
 	defaultArrowLineWidth = 1;
 	defaultArrowColor = QColor(Qt::black);
@@ -1594,20 +1595,32 @@ void Graph::print()
 
 	if (printer.setup())
 	{
-		int dpiy = printer.logicalDpiY();
-		int margin = (int) ((2/2.54)*dpiy ); // 2 cm margins
-
-		int width = qRound(aspect*printer.height()) - 2*margin;
-		int x=qRound(abs(printer.width()- width)*0.5);
-
-		QRect rect(x, margin, width, printer.height() - 2*margin);
-		if (x < margin)
+		QRect plotRect = d_plot->rect();
+		if (d_scale_on_print)
 		{
-			rect.setLeft(margin);
-			rect.setWidth(printer.width() - 2*margin);
+			int dpiy = printer.logicalDpiY();
+			int margin = (int) ((2/2.54)*dpiy ); // 2 cm margins
+
+			int width = qRound(aspect*printer.height()) - 2*margin;
+			int x=qRound(abs(printer.width()- width)*0.5);
+
+			plotRect = QRect(x, margin, width, printer.height() - 2*margin);
+			if (x < margin)
+			{
+				plotRect.setLeft(margin);
+				plotRect.setWidth(printer.width() - 2*margin);
+			}
 		}
+		else
+		{
+			QRect paperRect = printer.paperRect();
+    		int x_margin = (paperRect.width() - plotRect.width())/2;
+    		int y_margin = (paperRect.height() - plotRect.height())/2;
+    		plotRect.moveTo(x_margin, y_margin);
+		}
+		
 		QPainter paint(&printer);
-		d_plot->print(&paint, rect);
+		d_plot->print(&paint, plotRect);
 	}
 }
 

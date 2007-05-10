@@ -267,10 +267,8 @@ public slots:
 	void setColumnTypes(QList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
 
-	//! Use a copy of column col when accessing it via text() until forgetSavedCol() is called.
-	void saveColToMemory(int col);
-	//! Use spreadsheat data again for all columns after saveColToMemory(int) was called.
-	void forgetSavedCol();
+	void saveToMemory();
+	void freeMemory();
 
 	QString columnFormat(int col){return col_format[col];};
 	QStringList getColumnsFormat(){return col_format;};

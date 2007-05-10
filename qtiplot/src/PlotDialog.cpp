@@ -107,6 +107,7 @@ PlotDialog::PlotDialog(bool showExtended, QWidget* parent,  const char* name, bo
 	initPiePage();
 	initLayerPage();
 	initFontsPage();
+	initPrintPage();
 
 	clearTabWidget();
 
@@ -453,6 +454,22 @@ void PlotDialog::initPiePage()
 	piePage->setLayout(hl);
 
 	privateTabWidget->addTab(piePage, tr( "Pie" ) );
+}
+
+void PlotDialog::initPrintPage()
+{
+	QGroupBox *gb = new QGroupBox();
+    QVBoxLayout *vl = new QVBoxLayout(gb);
+	boxScaleLayers = new QCheckBox(tr("&Scale layers to paper size"));
+	vl->addWidget(boxScaleLayers);
+	boxPrintCrops = new QCheckBox(tr("Print &crops"));
+	vl->addWidget(boxPrintCrops);
+    vl->addStretch();
+
+	printPage = new QWidget();
+	QHBoxLayout* hlayout = new QHBoxLayout(printPage);
+	hlayout->addWidget(gb);
+	privateTabWidget->addTab(printPage, tr( "Print" ) );
 }
 
 void PlotDialog::initAxesPage()
@@ -1037,6 +1054,7 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
         return;
 
     d_ml = ml;
+	boxScaleLayers->setChecked(d_ml->scaleLayersOnPrint());
 
     QTreeWidgetItem *item = new QTreeWidgetItem(listBox, QStringList(ml->name()));
     item->setIcon(0, QIcon(folder_open));
@@ -1324,8 +1342,9 @@ void PlotDialog::updateTabWindow(QTreeWidgetItem *currentItem, QTreeWidgetItem *
     else
     {
         clearTabWidget();
+		privateTabWidget->addTab(printPage, tr("Print"));
         privateTabWidget->addTab(fontsPage, tr("Fonts"));
-        privateTabWidget->showPage(fontsPage);
+        privateTabWidget->showPage(printPage);
 
         curvePlotTypeBox->hide();
         btnWorksheet->hide();
@@ -1424,6 +1443,7 @@ void PlotDialog::clearTabWidget()
 
 	privateTabWidget->removeTab(privateTabWidget->indexOf(layerPage));
 	privateTabWidget->removeTab(privateTabWidget->indexOf(fontsPage));
+	privateTabWidget->removeTab(privateTabWidget->indexOf(printPage));
 }
 
 void PlotDialog::quit()
@@ -1763,6 +1783,11 @@ bool PlotDialog::acceptParams()
     if (privateTabWidget->currentWidget() == fontsPage)
     {
 		d_ml->setFonts(titleFont, axesFont, numbersFont, legendFont);
+		return true;
+    }
+	else if (privateTabWidget->currentWidget() == printPage)
+    {
+		d_ml->setScaleLayersOnPrint(boxScaleLayers->isChecked());
 		return true;
     }
     else if (privateTabWidget->currentWidget() == layerPage)

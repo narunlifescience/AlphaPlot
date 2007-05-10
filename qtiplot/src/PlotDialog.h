@@ -210,6 +210,7 @@ private:
 	void initLayerPage();
 	void initFontsPage();
 	void initPiePage();
+	void initPrintPage();
     void contextMenuEvent(QContextMenuEvent *e);
 
     QFont titleFont, legendFont, axesFont, numbersFont;
@@ -219,9 +220,9 @@ private:
 
     QPushButton *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;
 	ColorMapEditor *colorMapEditor;
-    QWidget *curvePlotTypeBox, *layerPage, *piePage, *fontsPage;
+    QWidget *curvePlotTypeBox, *layerPage, *piePage, *fontsPage, *printPage;
     QTreeWidget* listBox;
-    QCheckBox *boxAntialiasing, *boxAll;
+    QCheckBox *boxAntialiasing, *boxAll, *boxScaleLayers, *boxPrintCrops;
     ColorButton *boxBorderColor, *boxBackgroundColor, *boxCanvasColor;
 	QSpinBox *boxBackgroundTransparency, *boxCanvasTransparency, *boxBorderWidth, *boxMargin;
 	QSpinBox *boxRadius, *boxPieLineWidth;

@@ -245,7 +245,7 @@ void TableDialog::updateColumn(int sc)
     displayBox->setCurrentIndex(colType);
     updateDisplay(colType);
 	
-    d_table->saveColToMemory(sc);
+    d_table->saveToMemory();
 
     if (colType == Table::Numeric)
 	{
@@ -327,7 +327,7 @@ switch(colType)
 
 void TableDialog::closeEvent( QCloseEvent* ce )
 {
-d_table->forgetSavedCol();
+d_table->freeMemory();
 ce->accept();
 }
 
