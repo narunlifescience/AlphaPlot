@@ -110,7 +110,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   The following rules are not used everywhere (yet), but are intended as guidelines for new code and eventually
   old code should be adapted as well.
 
-  - Files use DOS-style line endings (CR-LF == "\r\n").
+  - Files use Unix-style line endings ("\n").
   - Class names start with a capital letter, object/variable names with a lower case letter.
   - Methods and functions are named likeThis(), variables like_this and instance variables are prefixed with "d_".
   - Property access methods use Qt style: property() and setProperty().
