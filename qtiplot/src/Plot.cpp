@@ -154,29 +154,26 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
 	QRect rect=canvasRect;
 	if(plotCanvas->lineWidth() > 0)
 	{
-		QPalette pal = plotCanvas->palette();
-		QColor color=pal.color(QPalette::Active, QColorGroup::Foreground);
-
-		painter->setPen (QPen(color, plotCanvas->lineWidth(),Qt::SolidLine));
-
+		QColor color = plotCanvas->palette().color(QPalette::Active, QColorGroup::Foreground);
+		painter->setPen (QPen(color, plotCanvas->lineWidth(), Qt::SolidLine));
 		painter->setBrush(canvasBackground());
 
 		QwtPainter::drawRect(painter, canvasRect);
-		painter->restore();
 	}
 	else
   	{
   		QRect rect = canvasRect;
   	    rect.addCoords(1, 1, -1, -1);
-
   	    QwtPainter::fillRect(painter, rect, canvasBackground());
     }
 
-  	painter->restore();
+    painter->restore();
+    painter->save();
 	painter->setClipping(true);
 	QwtPainter::setClipRect(painter, canvasRect);
 
 	drawItems(painter, canvasRect, map, pfilter);
+	painter->restore();
 }
 
 void Plot::drawItems (QPainter *painter, const QRect &rect,

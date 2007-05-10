@@ -690,57 +690,57 @@ void MultiLayer::exportPDF(const QString& fname)
 	exportVector(fname);
 }
 
-void MultiLayer::exportVector(const QString& fileName, int res, QPrinter::Orientation o,
-		QPrinter::PageSize pageSize, QPrinter::ColorMode col)
+void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("QtiPlot - Error"),
 		tr("Please provide a valid file name!"));
         return;
 	}
-
+	
 	QPrinter printer;
     printer.setDocName (this->name());
     printer.setCreator("QtiPlot");
-	if (res)
-		printer.setResolution(res);
-	printer.setOrientation(o);
-	printer.setPageSize(pageSize);
-	printer.setColorMode(col);
 	printer.setFullPage(true);
 	printer.setOutputFileName(fileName);
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
-
-	QPainter paint(&printer);
-
-	int dpiy = printer.logicalDpiY();
-	int margin = (int) ( (0.5/2.54)*dpiy ); // 5 mm margins
-
-	QSize size = canvas->size();
-
-	double scaleFactorX=(double)(printer.width() - 2*margin)/(double)size.width();
-	double scaleFactorY=(double)(printer.height() - 2*margin)/(double)size.height();
-
-	// fit graph to page maintaining the aspect ratio
-	if(scaleFactorX > scaleFactorY)
-		scaleFactorX = scaleFactorY;
+	
+	if (res)
+		printer.setResolution(res);
+	
+	QRect canvasRect = canvas->rect();
+	printer.setPageSize(Graph::minPageSize(printer, canvasRect));
+	
+	double aspect = double(canvasRect.width())/double(canvasRect.height());
+	if (aspect < 1)
+		printer.setOrientation(QPrinter::Portrait);
 	else
-		scaleFactorY = scaleFactorX;
+		printer.setOrientation(QPrinter::Landscape);
 
-	for (int i=0;i<(int)graphsList.count();i++)
+	if (color)
+		printer.setColorMode(QPrinter::Color);
+	else
+		printer.setColorMode(QPrinter::GrayScale);
+	
+	QRect paperRect = printer.paperRect();
+    int x_margin = (paperRect.width() - canvasRect.width())/2;
+    int y_margin = (paperRect.height() - canvasRect.height())/2;
+	
+	QPainter paint(&printer);
+	for (int i=0; i<(int)graphsList.count(); i++)
 	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		Plot *myPlot= (Plot *)gr->plotWidget();
+		Graph *gr = (Graph *)graphsList.at(i);
+		Plot *myPlot = (Plot *)gr->plotWidget();
 
-		QPoint pos=gr->pos();
-		pos=QPoint(int(margin + pos.x()*scaleFactorX),int(margin + pos.y()*scaleFactorY));
+		QPoint pos = gr->pos();
+		pos = QPoint(x_margin + pos.x(), y_margin + pos.y());
 
-		int width=int(myPlot->frameGeometry().width()*scaleFactorX);
-		int height=int(myPlot->frameGeometry().height()*scaleFactorY);
+		int width = myPlot->frameGeometry().width();
+		int height = myPlot->frameGeometry().height();
 
-		myPlot->print(&paint, QRect(pos,QSize(width, height)));
+		myPlot->print(&paint, QRect(pos, QSize(width, height)));
 	}
 }
 

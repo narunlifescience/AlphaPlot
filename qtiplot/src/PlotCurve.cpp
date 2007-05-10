@@ -30,6 +30,8 @@
 #include "ScaleDraw.h"
 #include <QDateTime>
 #include <QMessageBox>
+#include <qwt_symbol.h>
+
 DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):
     PlotCurve(name),
 	d_table(t),
@@ -319,4 +321,27 @@ int DataCurve::tableRow(int point)
 			return i;
 	}
 	return -1;
+}
+
+QwtDoubleRect PlotCurve::boundingRect() const
+{
+    QwtDoubleRect r = QwtPlotCurve::boundingRect();
+    int margin = 1;
+    if (symbol().style() != QwtSymbol::NoSymbol)
+        margin += symbol().size().width();
+
+    const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
+	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
+
+    int x_right = xMap.transform(r.right());
+    double d_x_right = xMap.invTransform(x_right + margin);
+    int x_left = xMap.transform(r.left());
+    double d_x_left = xMap.invTransform(x_left - margin);
+
+    int y_top = yMap.transform(r.top());
+    double d_y_top = yMap.invTransform(y_top + margin);
+    int y_bottom = yMap.transform(r.bottom());
+    double d_y_bottom = yMap.invTransform(y_bottom - margin);
+
+    return QwtDoubleRect(d_x_left, d_y_top, qAbs(d_x_right - d_x_left), qAbs(d_y_bottom - d_y_top));
 }

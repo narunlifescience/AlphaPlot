@@ -159,8 +159,7 @@ public slots:
 	void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 	void exportSVG(const QString& fname);
     void exportPDF(const QString& fname);
-	void exportVector(const QString& fileName, int res = 0, QPrinter::Orientation o = QPrinter::Landscape, QPrinter::PageSize pageSize = QPrinter::A4,
-					QPrinter::ColorMode col = QPrinter::Color);
+	void exportVector(const QString& fileName, int res = 0, bool color = true);
 
 	void copyAllLayers();
 	void print();

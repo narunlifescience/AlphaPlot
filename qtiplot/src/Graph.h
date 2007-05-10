@@ -219,8 +219,7 @@ class Graph: public QWidget
 		//! Provided for convenience in scripts
 		void exportToFile(const QString& fileName);
 		void exportSVG(const QString& fname);
-		void exportVector(const QString& fileName,int res = 0, QPrinter::Orientation o = QPrinter::Landscape,
-                          QPrinter::PageSize size = QPrinter::A5, QPrinter::ColorMode col = QPrinter::Color);
+		void exportVector(const QString& fileName, int res = 0, bool color = true);
 		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 		//@}
 
@@ -641,6 +640,7 @@ class Graph: public QWidget
 		static Qt::PenStyle getPenStyle(int style);
 		static Qt::BrushStyle getBrushStyle(int style);
 		static void showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumns);
+		static QPrinter::PageSize minPageSize(const QPrinter& printer, const QRect& r);
 
 		void showTitleContextMenu();
 		void copyTitle();

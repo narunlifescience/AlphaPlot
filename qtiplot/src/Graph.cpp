@@ -1540,8 +1540,7 @@ void Graph::exportImage(const QString& fileName, int quality, bool transparent)
 	pic.save(fileName, 0, quality);
 }
 
-void Graph::exportVector(const QString& fileName, int res, QPrinter::Orientation o,
-                         QPrinter::PageSize size, QPrinter::ColorMode col)
+void Graph::exportVector(const QString& fileName, int res, bool color)
 {
 	if ( fileName.isEmpty() )
 	{
@@ -1550,44 +1549,37 @@ void Graph::exportVector(const QString& fileName, int res, QPrinter::Orientation
 	}
 
 	QPrinter printer;
-    printer.setCreator("QtiPlot");
-
-	// export should preserve plot aspect ratio, if possible
-	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
-	if (res)
-	{
-		printer.setResolution(res);
-		printer.setOrientation(o);
-	}
-	else
-	{
-		if (aspect < 1)
-			printer.setOrientation(QPrinter::Portrait);
-		else
-			printer.setOrientation(QPrinter::Landscape);
-	}
-
-	printer.setPageSize(size);
-	printer.setColorMode(col);
+    printer.setCreator("QtiPlot");			
 	printer.setFullPage(true);
-    printer.setOutputFileName(fileName);
+	if (res)
+		printer.setResolution(res);
 
+    printer.setOutputFileName(fileName);
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
 
-	int dpiy = printer.logicalDpiY();
-	int margin = (int) ((0.5/2.54)*dpiy ); // 5 mm margins
-	int width = int(aspect*printer.height());
-	int x = qRound(abs(printer.width()-width)*0.5);
-	QRect rect(x, margin, width, printer.height() - 2*margin);
-	if (width > printer.width())
-	{
-		rect.setLeft(margin);
-		rect.setWidth(printer.width() - 2*margin);
-	}
+    QRect plotRect = d_plot->rect();
+    printer.setPageSize(minPageSize(printer, plotRect));
 
-	QPainter paint(&printer);
-	d_plot->print(&paint, rect);
+	// export should preserve plot aspect ratio, if possible
+	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
+	if (aspect < 1)
+		printer.setOrientation(QPrinter::Portrait);
+	else
+		printer.setOrientation(QPrinter::Landscape);
+
+	if (color)
+		printer.setColorMode(QPrinter::Color);
+	else
+		printer.setColorMode(QPrinter::GrayScale);
+	
+    QRect paperRect = printer.paperRect();
+    int x_margin = (paperRect.width() - plotRect.width())/2;
+    int y_margin = (paperRect.height() - plotRect.height())/2;
+    plotRect.moveTo(x_margin, y_margin);
+
+    QPainter paint(&printer);
+	d_plot->print(&paint, plotRect);
 }
 
 void Graph::print()
@@ -2732,7 +2724,7 @@ void Graph::insertLineMarker(QStringList list, int fileVersion)
 		mrk->setEndPoint(QPoint(list[3].toInt(), list[4].toInt()));
 	}
 	else
-		mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(), 
+		mrk->setBoundingRect(list[1].toDouble(), list[2].toDouble(),
 							list[3].toDouble(), list[4].toDouble());
 
 	mrk->setWidth(list[5].toInt());
@@ -5574,4 +5566,68 @@ int Graph::visibleCurves()
             c++;
 	}
 	return c;
+}
+
+QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
+{
+    double w_mm = (double)r.width()/(double)printer.logicalDpiX() * 25.4;
+    double h_mm = (double)r.height()/(double)printer.logicalDpiY() * 25.4;
+	
+    int w, h;
+    if (w_mm/h_mm > 1)
+    {
+        w = (int)ceil(w_mm);
+        h = (int)ceil(h_mm);
+    }
+    else
+    {
+        h = (int)ceil(w_mm);
+        w = (int)ceil(h_mm);
+    }
+
+	QPrinter::PageSize size = QPrinter::A5;
+	if (w < 45 && h < 32)
+        size =  QPrinter::B10;
+	else if (w < 52 && h < 37)
+        size =  QPrinter::A9;
+    else if (w < 64 && h < 45)
+        size =  QPrinter::B9;
+    else if (w < 74 && h < 52)
+        size =  QPrinter::A8;
+    else if (w < 91 && h < 64)
+        size =  QPrinter::B8;
+    else if (w < 105 && h < 74)
+        size =  QPrinter::A7;
+    else if (w < 128 && h < 91)
+        size =  QPrinter::B7;
+    else if (w < 148 && h < 105)
+        size =  QPrinter::A6;
+    else if (w < 182 && h < 128)
+        size =  QPrinter::B6;
+    else if (w < 210 && h < 148)
+        size =  QPrinter::A5;
+    else if (w < 257 && h < 182)
+        size =  QPrinter::B5;
+    else if (w < 297 && h < 210)
+        size =  QPrinter::A4;
+    else if (w < 364 && h < 257)
+        size =  QPrinter::B4;
+    else if (w < 420 && h < 297)
+        size =  QPrinter::A3;
+    else if (w < 515 && h < 364)
+        size =  QPrinter::B3;
+    else if (w < 594 && h < 420)
+        size =  QPrinter::A2;
+    else if (w < 728 && h < 515)
+        size =  QPrinter::B2;
+	else if (w < 841 && h < 594)
+        size =  QPrinter::A1;
+    else if (w < 1030 && h < 728)
+        size =  QPrinter::B1;
+	else if (w < 1189 && h < 841)
+        size =  QPrinter::A0;
+    else if (w < 1456 && h < 1030)
+        size =  QPrinter::B0;
+		
+	return size;
 }

@@ -42,6 +42,8 @@ public:
 	int type(){return d_type;};
 	void setType(int t){d_type = t;};
 
+	QwtDoubleRect boundingRect() const;
+
 protected:
 	int d_type;
 };
@@ -66,7 +68,7 @@ public:
 
 	virtual bool updateData(Table *t, const QString& colName);
 	virtual void loadData();
-	
+
 	//! Returns the row index in the data source table corresponding to the data point index.
 	int tableRow(int point);
 

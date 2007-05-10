@@ -4522,10 +4522,10 @@ void ApplicationWindow::exportGraph()
             {
                 if (ied->showExportOptions() )
                 {
-                EpsExportDialog *ed = new EpsExportDialog (fname, this, 0);
+                EpsExportDialog *ed = new EpsExportDialog (fname, this);
                 ed->setAttribute(Qt::WA_DeleteOnClose);
-                connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                        plot2D, SLOT(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+                connect (ed, SIGNAL(exportVector(const QString&, int, bool)),
+                        plot2D, SLOT(exportVector(const QString&, int, bool)));
 
                 ed->exec();
                 }
@@ -4579,7 +4579,7 @@ void ApplicationWindow::exportLayer()
 	if (!g)
 		return;
 
-	ImageExportDialog *ied = new ImageExportDialog(this, 0);
+	ImageExportDialog *ied = new ImageExportDialog(this);
 	ied->setDir(workingDir);
 	if ( ied->exec() == QDialog::Accepted )
 	{
@@ -4605,10 +4605,10 @@ void ApplicationWindow::exportLayer()
         {
             if (ied->showExportOptions())
             {
-                EpsExportDialog *ed = new EpsExportDialog (fname, this, 0);
+                EpsExportDialog *ed = new EpsExportDialog (fname, this);
                 ed->setAttribute(Qt::WA_DeleteOnClose);
-                connect (ed, SIGNAL(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)),
-                    g, SLOT(exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode)));
+                connect (ed, SIGNAL(exportVector(const QString&, int, bool)),
+                    	 g, SLOT(exportVector(const QString&, int, bool)));
                 ed->exec();
             }
             else

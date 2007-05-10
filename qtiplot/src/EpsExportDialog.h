@@ -30,13 +30,10 @@
 #define EPSEXPORTDIALOG_H
 
 #include <QDialog>
-#include <QPrinter>
 
-class QGroupBox;
 class QPushButton;
 class QCheckBox;
 class QSpinBox;
-class QComboBox;
 	
 //! EPS export dialog
 class EpsExportDialog : public QDialog
@@ -45,24 +42,17 @@ class EpsExportDialog : public QDialog
 
 public:
     EpsExportDialog(const QString& fileName, QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~EpsExportDialog();
 
     QPushButton *buttonOk;
 	QPushButton *buttonCancel;
-    QGroupBox *groupBox1;
     QCheckBox *boxColor;
 	QSpinBox *boxResolution;
-	QComboBox *boxPageSize, *boxOrientation;
 	
-public slots:
-	QPrinter::PageSize pageSize();
-
 protected slots:
-    virtual void languageChange();
 	void accept();
 
 signals:
-	void exportVector(const QString&, int, QPrinter::Orientation, QPrinter::PageSize, QPrinter::ColorMode);
+	void exportVector(const QString&, int, bool);
 
 private:
 	QString f_name;

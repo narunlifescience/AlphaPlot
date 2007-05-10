@@ -83,7 +83,7 @@ void Table::init(int rows, int cols)
 	QDateTime dt = QDateTime::currentDateTime();
 	setBirthDate(dt.toString(Qt::LocalDate));
 
-	d_table = new QTableWidget(rows, cols);	
+	d_table = new QTableWidget(rows, cols);
 	d_table->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
 	d_table->setFocusPolicy(Qt::StrongFocus);
@@ -114,7 +114,7 @@ void Table::init(int rows, int cols)
 	QHeaderView* head=(QHeaderView*)d_table->horizontalHeader();
 	head->setResizeMode(QHeaderView::Interactive);
 	connect(head, SIGNAL(sectionResized(int, int, int)), this, SLOT(colWidthModified(int, int, int)));
-	
+
 	col_plot_type[0] = X;
 	setHeaderColType();
 
@@ -398,7 +398,7 @@ void Table::columnNumericFormat(int col, int *f, int *precision)
 	{
 		*f = 0;
 		*precision = 6;
-	}	
+	}
 }
 
 void Table::columnNumericFormat(int col, char *f, int *precision)
@@ -680,12 +680,12 @@ void Table::setColComment(int col, const QString& s)
 {
 	if (col < 0 || col >= d_table->columnCount())
 		return;
-	
+
 	if (comments[col] == s)
 		return;
 
 	comments[col] = s;
-	
+
 	if (d_show_comments)
 	{
 		QTableWidgetItem *item = d_table->horizontalHeaderItem (col);
@@ -693,11 +693,11 @@ void Table::setColComment(int col, const QString& s)
 		{
 			QString text = item->text();
 			QStringList lst = text.split("\n");
-			
+
 			int lines = d_table->columnWidth(col)/d_table->horizontalHeader()->fontMetrics().averageCharWidth();
 			item->setText(lst[0] + "\n" + QString(lines, '_') + "\n" + s);
-		}			
-	}	
+		}
+	}
 }
 
 void Table::changeColWidth(int width, bool allCols)
@@ -1712,20 +1712,19 @@ QString Table::text(int row, int col)
 
 void Table::setText(int row, int col, const QString & new_text)
 {
-	if(d_table->item(row, col))
-		d_table->item(row, col)->setText(new_text);
+	QTableWidgetItem *item = d_table->item(row, col);
+	if(item)
+		item->setText(new_text);
 	else
 		d_table->setItem(row, col, new QTableWidgetItem(new_text));
 }
 
 void Table::saveColToMemory(int col)
-{	
+{
 	d_saved_cells = new double* [d_table->rowCount()];
 	for ( int i = 0; i < d_table->rowCount(); ++i)
-	{
 		d_saved_cells[i] = new double [d_table->columnCount()];
-	}
-	
+
 	for (int row=0; row<d_table->rowCount(); row++)
 		for (int col=0; col<d_table->columnCount(); col++)
 			d_saved_cells[row][col] = cell(row, col);
@@ -2464,8 +2463,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 	if ( f.open(QIODevice::ReadOnly) )
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		d_table->blockSignals(true);
-		
+
 		int i, rows = 1, cols = 0;
 		int r = d_table->rowCount();
 		int c = d_table->columnCount();
@@ -2500,7 +2498,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			rows--;
 
 		int steps = int(rows/1000);
-		
+
 		QProgressDialog progress(this);
 		progress.setWindowTitle("Qtiplot - Reading file...");
 		progress.setLabelText(fname);
@@ -2561,6 +2559,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 				col_label[i] = s;
 			}
 		}
+		d_table->blockSignals(true);
 		setHeaderColType();
 
 		for (i=0; i<steps; i++)
@@ -2617,7 +2616,6 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 	QTextStream t( &f );// use a text stream
 	if ( f.open(QIODevice::ReadOnly) )
 	{
-		d_table->blockSignals(true);
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 		int i, c, rows = 1, cols = 0;
@@ -2714,6 +2712,8 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				col_label[i] = s;
 			}
 		}
+
+        d_table->blockSignals(true);
 		setHeaderColType();
 
 		int start = 0;
@@ -3394,7 +3394,7 @@ void Table::setColumnHeader(int index, const QString& label)
 	if (d_show_comments)
 	{
 		QString s = label;
-		
+
 		int lines = d_table->columnWidth(index)/d_table->horizontalHeader()->fontMetrics().averageCharWidth();
 		item->setText(s.remove("\n") + "\n" + QString(lines, '_') + "\n" + comments[index]);
 	}
@@ -3406,10 +3406,10 @@ void Table::showComments(bool on)
 {
 	if (d_show_comments == on)
 		return;
-	
-	d_show_comments = on; 
+
+	d_show_comments = on;
 	setHeaderColType();
-		
+
 	if (on)
 		resize(QSize(width(), height() + 1));
 	else
