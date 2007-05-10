@@ -48,16 +48,17 @@ typedef struct _traceback {
 
 #include "PythonScript.h"
 #include "PythonScripting.h"
-#include "sipAPIqti.h"
-extern "C" void initqti();
 #include "ApplicationWindow.h"
 
-#include <qobject.h>
-#include <qstringlist.h>
-#include <qvariant.h>
-#include <qdir.h>
+#include <QObject>
+#include <QStringList>
+#include <QDir>
 #include <QDateTime>
 #include <QCoreApplication>
+
+// includes sip.h, which undefines Qt's "slots" macro since SIP 4.6
+#include "sipAPIqti.h"
+extern "C" void initqti();
 
 const char* PythonScripting::langName = "Python";
 

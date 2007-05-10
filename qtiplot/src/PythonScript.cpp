@@ -31,33 +31,13 @@
 #undef _POSIX_C_SOURCE
 #endif
 #include <Python.h>
-#include <compile.h>
-#include <eval.h>
-#include <frameobject.h>
-#include <traceback.h>
-
-#if PY_VERSION_HEX < 0x020400A1
-typedef struct _traceback {
-	PyObject_HEAD
-		struct _traceback *tb_next;
-	PyFrameObject *tb_frame;
-	int tb_lasti;
-	int tb_lineno;
-} PyTracebackObject;
-#endif
 
 #include "PythonScript.h"
 #include "PythonScripting.h"
-#include "sipAPIqti.h"
-extern "C" void initqti();
 #include "ApplicationWindow.h"
 
-#include <qobject.h>
-#include <qstringlist.h>
-#include <qvariant.h>
-#include <qdir.h>
-#include <QDateTime>
-#include <QCoreApplication>
+#include <QObject>
+#include <QVariant>
 
 PythonScript::PythonScript(PythonScripting *env, const QString &code, QObject *context, const QString &name)
 : Script(env, code, context, name)
