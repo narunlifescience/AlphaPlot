@@ -126,20 +126,6 @@ bool ImportOPJ::importTables(OPJFile opj)
 
             table->setHeaderColType();//update header
 
-			for (int i=0; i<opj.numRows(s,j); i++)
-			{
-				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
-				{// number
-					double* val = (double*)opj.oData(s,j,i,true);
-					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
-						continue;
-
-					table->setText(i, j, QString::number(*val));
-				}
-				else// label? doesn't seem to work
-					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
-			}
-
 			QString format;
 			switch(opj.colValueType(s,j))
 			{
@@ -278,6 +264,20 @@ bool ImportOPJ::importTables(OPJFile opj)
 				}
 				table->setDayFormat(format, j);
 				break;
+			}
+
+			for (int i=0; i<opj.numRows(s,j); i++)
+			{
+				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
+				{// number
+					double* val = (double*)opj.oData(s,j,i,true);
+					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
+						continue;
+
+					table->setText(i, j, QString::number(*val));
+				}
+				else// label? doesn't seem to work
+					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
 			}
 		}
 
