@@ -57,8 +57,6 @@ public:
 	 * \param fl window flags
 	 */
     ConfigDialog( QWidget* parent, Qt::WFlags fl = 0 );
-	//! Destructor
-    ~ConfigDialog(){};
 
 public slots:
     virtual void languageChange();
@@ -126,7 +124,7 @@ private:
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QStringList plot3DColors;
 	
-	QCheckBox *boxScaleLayersOnPrint;
+	QCheckBox *boxScaleLayersOnPrint, *boxPrintCropmarks;
 	QTabWidget *plotsTabWidget, *appTabWidget;
 	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
 	QPushButton *btnFromColor, *btnToColor, *btnGrid;
@@ -135,7 +133,7 @@ private:
     QPushButton *buttonOk, *buttonCancel, *buttonApply;
 	QPushButton* buttonTextFont, *buttonHeaderFont;
 	QStackedWidget * generalDialog;
-	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm;
+	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm, *plotPrint;
 	QWidget *application, *curves, *plots3D, *fitPage;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
 	QCheckBox *boxSearchUpdates, *boxOrthogonal, *logBox, *plotLabelBox, *scaleErrorsBox;

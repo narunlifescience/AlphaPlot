@@ -215,7 +215,8 @@ class Graph: public QWidget
 		//@{
 		void print();
 		void setScaleOnPrint(bool on){d_scale_on_print = on;};
-		
+		void printCropmarks(bool on){d_print_cropmarks = on;};
+
 		void copyImage();
 		QPixmap graphPixmap();
 		//! Provided for convenience in scripts
@@ -699,7 +700,7 @@ signals:
 		//! Render hint for plot items.
 		bool d_antialiasing;
 		bool autoScaleFonts;
-		bool d_scale_on_print;
+		bool d_scale_on_print, d_print_cropmarks;
 		int selectedAxis;
 		QStringList axesFormulas;
 		//! Stores columns used for axes with text labels or time/date format info

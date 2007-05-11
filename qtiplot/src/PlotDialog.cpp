@@ -462,7 +462,7 @@ void PlotDialog::initPrintPage()
     QVBoxLayout *vl = new QVBoxLayout(gb);
 	boxScaleLayers = new QCheckBox(tr("&Scale layers to paper size"));
 	vl->addWidget(boxScaleLayers);
-	boxPrintCrops = new QCheckBox(tr("Print &crops"));
+	boxPrintCrops = new QCheckBox(tr("Print Crop&marks"));
 	vl->addWidget(boxPrintCrops);
     vl->addStretch();
 
@@ -1055,6 +1055,7 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
 
     d_ml = ml;
 	boxScaleLayers->setChecked(d_ml->scaleLayersOnPrint());
+	boxPrintCrops->setChecked(d_ml->printCropmarksEnabled());
 
     QTreeWidgetItem *item = new QTreeWidgetItem(listBox, QStringList(ml->name()));
     item->setIcon(0, QIcon(folder_open));
@@ -1788,6 +1789,7 @@ bool PlotDialog::acceptParams()
 	else if (privateTabWidget->currentWidget() == printPage)
     {
 		d_ml->setScaleLayersOnPrint(boxScaleLayers->isChecked());
+		d_ml->printCropmarks(boxPrintCrops->isChecked());
 		return true;
     }
     else if (privateTabWidget->currentWidget() == layerPage)

@@ -2324,6 +2324,7 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 	g->setName(label);
 	g->setIcon(QPixmap(graph_xpm));
 	g->setScaleLayersOnPrint(d_scale_plots_on_print);
+	g->printCropmarks(d_print_cropmarks);
 	g->show();
 	g->setFocus();
 
@@ -3160,28 +3161,25 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, b
 	delete windows;
 }
 
-void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts, bool resizeLayers, 
-												bool antialiasing, bool scaleOnPrint)
+void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts, 
+												bool resizeLayers, bool antialiasing)
 {
 	if (autoscale2DPlots == autoscale &&
 		autoScaleFonts == scaleFonts &&
 		autoResizeLayers != resizeLayers &&
-		antialiasing2DPlots == antialiasing &&
-		d_scale_plots_on_print == scaleOnPrint)
+		antialiasing2DPlots == antialiasing)
 		return;
 
 	autoscale2DPlots = autoscale;
 	autoScaleFonts = scaleFonts;
 	autoResizeLayers = !resizeLayers;
 	antialiasing2DPlots = antialiasing;
-	d_scale_plots_on_print = scaleOnPrint;
 	
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
 		if (w->isA("MultiLayer"))
 		{
-			((MultiLayer*)w)->setScaleLayersOnPrint(d_scale_plots_on_print);
 			QWidgetList lst = ((MultiLayer*)w)->graphPtrs();
 			Graph *g;
 			foreach(QWidget *widget, lst)
@@ -4151,7 +4149,8 @@ void ApplicationWindow::readSettings()
 	autoResizeLayers = settings.value("/AutoResizeLayers", true).toBool();
 	antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
 	d_scale_plots_on_print = settings.value("/ScaleLayersOnPrint", false).toBool();
-
+	d_print_cropmarks = settings.value("/PrintCropmarks", false).toBool();
+	
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
 	if (graphFonts.size() == 16)
 	{
@@ -4351,7 +4350,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoResizeLayers", autoResizeLayers);
 	settings.setValue("/Antialiasing", antialiasing2DPlots);
 	settings.setValue("/ScaleLayersOnPrint", d_scale_plots_on_print);
-
+	settings.setValue("/PrintCropmarks", d_print_cropmarks);
+	
 	QStringList graphFonts;
 	graphFonts<<plotAxesFont.family();
 	graphFonts<<QString::number(plotAxesFont.pointSize());

@@ -133,6 +133,7 @@ static const char *unzoom_xpm[]={
 #include <QMenu>
 #include <QTextStream>
 #include <QLocale>
+#include <QPrintDialog>
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
@@ -168,6 +169,7 @@ Graph::Graph(QWidget* parent, const char* name, Qt::WFlags f)
 	autoScaleFonts = false;
 	d_antialiasing = true;
 	d_scale_on_print = true;
+	d_print_cropmarks = false;
 
 	defaultArrowLineWidth = 1;
 	defaultArrowColor = QColor(Qt::black);
@@ -1547,7 +1549,7 @@ void Graph::exportVector(const QString& fileName, int res, bool color)
 	}
 
 	QPrinter printer;
-    printer.setCreator("QtiPlot");			
+    printer.setCreator("QtiPlot");
 	printer.setFullPage(true);
 	if (res)
 		printer.setResolution(res);
@@ -1570,7 +1572,7 @@ void Graph::exportVector(const QString& fileName, int res, bool color)
 		printer.setColorMode(QPrinter::Color);
 	else
 		printer.setColorMode(QPrinter::GrayScale);
-	
+
     QRect paperRect = printer.paperRect();
     int x_margin = (paperRect.width() - plotRect.width())/2;
     int y_margin = (paperRect.height() - plotRect.height())/2;
@@ -1593,9 +1595,11 @@ void Graph::print()
 	else
 		printer.setOrientation(QPrinter::Landscape);
 
-	if (printer.setup())
+	QPrintDialog printDialog(&printer);
+    if (printDialog.exec() == QDialog::Accepted)
 	{
 		QRect plotRect = d_plot->rect();
+		QRect paperRect = printer.paperRect();
 		if (d_scale_on_print)
 		{
 			int dpiy = printer.logicalDpiY();
@@ -1613,13 +1617,25 @@ void Graph::print()
 		}
 		else
 		{
-			QRect paperRect = printer.paperRect();
     		int x_margin = (paperRect.width() - plotRect.width())/2;
     		int y_margin = (paperRect.height() - plotRect.height())/2;
     		plotRect.moveTo(x_margin, y_margin);
 		}
-		
-		QPainter paint(&printer);
+
+        QPainter paint(&printer);
+        if (d_print_cropmarks)
+        {
+			QRect cr = plotRect; // cropmarks rectangle
+			cr.addCoords(-1, -1, 2, 2);
+            paint.save();
+            paint.setPen(QPen(QColor(Qt::black), 0.5, Qt::DashLine));
+            paint.drawLine(paperRect.left(), cr.top(), paperRect.right(), cr.top());
+            paint.drawLine(paperRect.left(), cr.bottom(), paperRect.right(), cr.bottom());
+            paint.drawLine(cr.left(), paperRect.top(), cr.left(), paperRect.bottom());
+            paint.drawLine(cr.right(), paperRect.top(), cr.right(), paperRect.bottom());
+            paint.restore();
+        }
+
 		d_plot->print(&paint, plotRect);
 	}
 }
@@ -5435,7 +5451,7 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
 {
     double w_mm = (double)r.width()/(double)printer.logicalDpiX() * 25.4;
     double h_mm = (double)r.height()/(double)printer.logicalDpiY() * 25.4;
-	
+
     int w, h;
     if (w_mm/h_mm > 1)
     {
@@ -5491,6 +5507,6 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         size =  QPrinter::A0;
     else if (w < 1456 && h < 1030)
         size =  QPrinter::B0;
-		
+
 	return size;
 }

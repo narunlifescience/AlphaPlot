@@ -29,6 +29,7 @@
 #include <QVector>
 #include <QWidgetList>
 #include <QPrinter>
+#include <QPrintDialog>
 #include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
@@ -101,6 +102,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
     d_max_size = QSize();
     d_normal_size = QSize();
 	d_scale_on_print = true;
+	d_print_cropmarks = false;
 
 	layerButtonsBox = new QHBoxLayout();
 	QHBoxLayout *hbox = new QHBoxLayout();
@@ -699,7 +701,7 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 		tr("Please provide a valid file name!"));
         return;
 	}
-	
+
 	QPrinter printer;
     printer.setDocName (this->name());
     printer.setCreator("QtiPlot");
@@ -707,13 +709,13 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 	printer.setOutputFileName(fileName);
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
-	
+
 	if (res)
 		printer.setResolution(res);
-	
+
 	QRect canvasRect = canvas->rect();
 	printer.setPageSize(Graph::minPageSize(printer, canvasRect));
-	
+
 	double aspect = double(canvasRect.width())/double(canvasRect.height());
 	if (aspect < 1)
 		printer.setOrientation(QPrinter::Portrait);
@@ -724,11 +726,11 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 		printer.setColorMode(QPrinter::Color);
 	else
 		printer.setColorMode(QPrinter::GrayScale);
-	
+
 	QRect paperRect = printer.paperRect();
     int x_margin = (paperRect.width() - canvasRect.width())/2;
     int y_margin = (paperRect.height() - canvasRect.height())/2;
-	
+
 	QPainter paint(&printer);
 	for (int i=0; i<(int)graphsList.count(); i++)
 	{
@@ -774,6 +776,7 @@ void MultiLayer::printActiveLayer()
 	if (active_graph)
 	{
 		active_graph->setScaleOnPrint(d_scale_on_print);
+		active_graph->printCropmarks(d_print_cropmarks);
 		active_graph->print();
 	}
 }
@@ -783,15 +786,15 @@ void MultiLayer::print()
 	QPrinter printer;
 	printer.setColorMode (QPrinter::Color);
 	printer.setFullPage(true);
-	
-	QRect canvasRect = canvas->rect();
-	double aspect = double(canvasRect.width())/double(canvasRect.height());
-	if (aspect < 1)
-		printer.setOrientation(QPrinter::Portrait);
-	else
-		printer.setOrientation(QPrinter::Landscape);
-	
-	if (printer.setup())
+    QRect canvasRect = canvas->rect();
+    double aspect = double(canvasRect.width())/double(canvasRect.height());
+    if (aspect < 1)
+        printer.setOrientation(QPrinter::Portrait);
+    else
+        printer.setOrientation(QPrinter::Landscape);
+
+    QPrintDialog printDialog(&printer);
+    if (printDialog.exec() == QDialog::Accepted)
 	{
 		QPainter paint(&printer);
 		printAllLayers(&paint);
@@ -804,15 +807,25 @@ void MultiLayer::printAllLayers(QPainter *painter)
 	if (!painter)
 		return;
 
-	QPaintDevice *paintDevice = painter->device();
-	int dpiy = paintDevice->logicalDpiY();
-	int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
-
+	QPrinter *printer = (QPrinter *)painter->device();
+	QRect paperRect = ((QPrinter *)painter->device())->paperRect();
+	QRect canvasRect = canvas->rect();
+	QRect pageRect = printer->pageRect();
+	QRect cr = canvasRect; // cropmarks rectangle
+	
 	if (d_scale_on_print)
 	{
-		QSize size = canvas->childrenRect().size();
-		double scaleFactorX=(double)(paintDevice->width()-2*margin)/(double)size.width();
-		double scaleFactorY=(double)(paintDevice->height()-2*margin)/(double)size.height();
+        int margin = (int)((1/2.54)*printer->logicalDpiY()); // 1 cm margins
+		double scaleFactorX=(double)(paperRect.width()-2*margin)/(double)canvasRect.width();
+		double scaleFactorY=(double)(paperRect.height()-2*margin)/(double)canvasRect.height();
+
+        if (d_print_cropmarks)
+        {
+			cr.moveTo(QPoint(margin + int(cr.x()*scaleFactorX), 
+							 margin + int(cr.y()*scaleFactorY)));
+			cr.setWidth(int(cr.width()*scaleFactorX));
+			cr.setHeight(int(cr.height()*scaleFactorX));
+        }
 
 		for (int i=0; i<(int)graphsList.count(); i++)
 		{
@@ -830,12 +843,12 @@ void MultiLayer::printAllLayers(QPainter *painter)
 	}
 	else
 	{
-		QPrinter *printer = (QPrinter *)painter->device();
-		QRect canvasRect = canvas->rect();
-		QRect pageRect = printer->pageRect();
     	int x_margin = (pageRect.width() - canvasRect.width())/2;
     	int y_margin = (pageRect.height() - canvasRect.height())/2;
-	
+
+        if (d_print_cropmarks)
+            cr.moveTo(x_margin, y_margin);
+
 		for (int i=0; i<(int)graphsList.count(); i++)
 		{
 			Graph *gr = (Graph *)graphsList.at(i);
@@ -844,9 +857,20 @@ void MultiLayer::printAllLayers(QPainter *painter)
 			QPoint pos = gr->pos();
 			pos = QPoint(x_margin + pos.x(), y_margin + pos.y());
 			myPlot->print(painter, QRect(pos, myPlot->size()));
-		}	
+		}
 	}
-		
+	if (d_print_cropmarks)
+    {
+		cr.addCoords(-1, -1, 2, 2);
+    	painter->save();
+		painter->setPen(QPen(QColor(Qt::black), 0.5, Qt::DashLine));		
+		painter->drawLine(paperRect.left(), cr.top(), paperRect.right(), cr.top());
+		painter->drawLine(paperRect.left(), cr.bottom(), paperRect.right(), cr.bottom());
+		painter->drawLine(cr.left(), paperRect.top(), cr.left(), paperRect.bottom());
+		painter->drawLine(cr.right(), paperRect.top(), cr.right(), paperRect.bottom());	
+		painter->restore();
+	}
+
 }
 
 void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,

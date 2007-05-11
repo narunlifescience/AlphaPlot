@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "ConfigDialog.h"
 #include "ApplicationWindow.h"
+#include "MultiLayer.h"
 #include "Graph.h"
 #include "ColorButton.h"
 #include "ColorBox.h"
@@ -212,7 +213,7 @@ void ConfigDialog::initTablesPage()
 
 	boxTableComments = new QCheckBox();
 	boxTableComments->setChecked(app->d_show_table_comments);
-	
+
 	QVBoxLayout * tablesPageLayout = new QVBoxLayout( tables );
 	tablesPageLayout->addWidget(boxTableComments);
 	tablesPageLayout->addLayout(topLayout,1);
@@ -300,10 +301,6 @@ void ConfigDialog::initPlotsPage()
 
 	optionsTabLayout->addWidget( boxResize );
 
-	boxScaleLayersOnPrint = new QCheckBox();
-	boxScaleLayersOnPrint->setChecked(app->d_scale_plots_on_print);
-	optionsTabLayout->addWidget( boxScaleLayersOnPrint );
-	
 	plotsTabWidget->addTab( plotOptions, QString() );
 
 	initCurvesPage();
@@ -363,6 +360,19 @@ void ConfigDialog::initPlotsPage()
 
 	plotsTabWidget->addTab( plotFonts, QString() );
 
+	plotPrint = new QWidget();
+	QVBoxLayout *printLayout = new QVBoxLayout( plotPrint );
+	
+	boxScaleLayersOnPrint = new QCheckBox();
+	boxScaleLayersOnPrint->setChecked(app->d_scale_plots_on_print);
+	printLayout->addWidget( boxScaleLayersOnPrint );
+	
+	boxPrintCropmarks = new QCheckBox();
+	boxPrintCropmarks->setChecked(app->d_print_cropmarks);
+	printLayout->addWidget( boxPrintCropmarks );
+	printLayout->addStretch();
+	plotsTabWidget->addTab(plotPrint, QString());
+	
 	connect( boxResize, SIGNAL( clicked() ), this, SLOT( enableScaleFonts() ) );
 	connect( boxFrame, SIGNAL( toggled(bool) ), this, SLOT( showFrameWidth(bool) ) );
 	connect( buttonAxesFont, SIGNAL( clicked() ), this, SLOT( pickAxesFont() ) );
@@ -766,7 +776,7 @@ void ConfigDialog::languageChange()
 	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotFonts), tr("Fonts"));
 
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
-	boxScaleLayersOnPrint->setText(tr("&Scale layers to paper size when printing"));
+		
 	lblMinTicksLength->setText(tr("Length"));
 
 	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
@@ -801,6 +811,10 @@ void ConfigDialog::languageChange()
 
 	boxMajTicks->setCurrentIndex(app->majTicksStyle);
 	boxMinTicks->setCurrentIndex(app->minTicksStyle);
+
+	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotPrint), tr("Print"));
+	boxPrintCropmarks->setText(tr("Print Crop&marks"));
+	boxScaleLayersOnPrint->setText(tr("&Scale layers to paper size"));
 
 	//confirmations page
 	groupBoxConfirm->setTitle(tr("Prompt on closing"));
@@ -987,8 +1001,7 @@ void ConfigDialog::apply()
 	app->axesLineWidth = boxLineWidth->value();
 	app->defaultPlotMargin = boxMargin->value();
 	app->setGraphDefaultSettings(boxAutoscaling->isChecked(),boxScaleFonts->isChecked(),
-								boxResize->isChecked(), boxAntialiasing->isChecked(),
-								boxScaleLayersOnPrint->isChecked());
+								boxResize->isChecked(), boxAntialiasing->isChecked());
 	// 2D plots page: curves tab
 	app->defaultCurveStyle = curveStyle();
 	app->defaultCurveLineWidth = boxCurveLineWidth->value();
@@ -1003,6 +1016,19 @@ void ConfigDialog::apply()
 	app->plotNumbersFont=numbersFont;
 	app->plotLegendFont=legendFont;
 	app->plotTitleFont=titleFont;
+	// 2D plots page: print tab
+	app->d_print_cropmarks = boxPrintCropmarks->isChecked();
+	app->d_scale_plots_on_print = boxScaleLayersOnPrint->isChecked();
+	QWidgetList *windows = app->windowsList();
+	foreach(QWidget *w, *windows)
+	{
+		if (w->isA("MultiLayer"))
+		{
+			((MultiLayer*)w)->setScaleLayersOnPrint(boxScaleLayersOnPrint->isChecked());
+			((MultiLayer*)w)->printCropmarks(boxPrintCropmarks->isChecked());
+		}
+	}
+	delete windows;
 	// general page: application tab
 	app->changeAppFont(appFont);
 	setFont(appFont);
