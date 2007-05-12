@@ -45,7 +45,7 @@ LineProfileTool::LineProfileTool(Graph *graph, int average_pixels)
 	PlotToolInterface(graph)
 {
 	d_op_start = d_op_dp = QPoint(0,0);
-	// make sure we average over an odd number of pixels (why?)
+	// make sure we average over an odd number of pixels
 	d_average_pixels = (average_pixels % 2) ? average_pixels : average_pixels + 1;
 	d_target = dynamic_cast<ImageMarker*>(d_graph->selectedMarkerPtr());
 	if (!d_target)

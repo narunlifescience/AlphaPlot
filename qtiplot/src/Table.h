@@ -266,6 +266,7 @@ public slots:
 	QList<int> columnTypes(){return colTypes;};
 	void setColumnTypes(QList<int> ctl){colTypes = ctl;};
 	void setColumnTypes(const QStringList& ctl);
+	void setColumnType(int col, ColType val) { colTypes[col] = val; }
 
 	void saveToMemory();
 	void freeMemory();

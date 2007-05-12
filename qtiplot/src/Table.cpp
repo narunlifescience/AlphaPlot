@@ -249,7 +249,7 @@ void Table::print(const QString& fileName)
 	for(i=0;i<rows;i++)
 	{
 		right = margin;
-		QString cell_text = d_table->model()->headerData(i, Qt::Horizontal).toString()+"\t";
+		QString cell_text = d_table->model()->headerData(i, Qt::Vertical).toString()+"\t";
 		tr = p.boundingRect(tr, Qt::AlignCenter, cell_text);
 		p.drawLine(right, height, right, height+tr.height());
 
@@ -294,7 +294,7 @@ void Table::cellEdited(int row, int col)
 	// text value by the saved one. The problem is that setText() emits
 	// a cellChanged() signal even if it was not altered by user input
 	// but by a dialog.
-	if(!d_saved_cells)
+	if(d_saved_cells)
 		return;
 
 	QString cell_text = text(row,col).remove(QRegExp("\\s"));
@@ -1973,8 +1973,7 @@ void Table::setRandomValues()
 				d_table->setItem(i, selectedCol, the_item);
 			}
 
-			if(the_item->isSelected())
-					setText(i, selectedCol, QLocale().toString(r[i], f, prec));
+			setText(i, selectedCol, QLocale().toString(r[i], f, prec));
 		}
 
 		emit modifiedData(this, name);
@@ -2124,8 +2123,7 @@ void Table::setAscValues()
 				d_table->setItem(i, selectedCol, the_item);
 			}
 
-			if(the_item->isSelected())
-				setText(i,selectedCol,QString::number(i+1, f, prec));
+			setText(i,selectedCol,QString::number(i+1, f, prec));
 		}
 
 		emit modifiedData(this, name);

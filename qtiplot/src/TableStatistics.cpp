@@ -56,6 +56,9 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 		setColName(7, tr("Min"));
 		setColName(8, "N");
 
+		for (int i=0; i < 9; i++)
+			setColumnType(i, Text);
+
 		for (int i=0; i < d_targets.size(); i++)
 			setText(i, 0, QString::number(d_targets[i]+1));
 		update(d_base, QString::null);
@@ -77,6 +80,9 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 		setColName(8, tr("iMin"));
 		setColName(9, tr("Min"));
 		setColName(10, "N");
+
+		for (int i=0; i < 11; i++)
+			setColumnType(i, Text);
 
 		for (int i=0; i < d_targets.size(); i++)
 		{
