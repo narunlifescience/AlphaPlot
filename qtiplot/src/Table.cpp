@@ -141,6 +141,7 @@ void Table::init(int rows, int cols)
 void Table::colWidthModified(int, int, int)
 {
 	emit modifiedWindow(this);
+	setHeaderColType();
 }
 
 

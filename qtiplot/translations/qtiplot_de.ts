@@ -2518,7 +2518,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11822"/>
         <source>Set Column &amp;Values ...</source>
-        <translation>Spalenten&amp;werte setzen...</translation>
+        <translation>Spalten&amp;werte setzen...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11847"/>
