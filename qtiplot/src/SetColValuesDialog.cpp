@@ -255,15 +255,14 @@ void SetColValuesDialog::setTable(Table* w)
 	for (int i=0; i<cols; i++)
 		boxColumn->insertItem("col(\""+colNames[i]+"\")",i); 
 
-	QList<QTableWidgetSelectionRange> sel = w->getSelection();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
-
-	if(it.hasNext())
+	int s = w->table()->currentSelection();
+	if (s >= 0)
 	{
-		cur = it.next();
-		start->setValue(cur.topRow() + 1);
-		end->setValue(cur.bottomRow() + 1);
+		Q3TableSelection sel = w->table()->selection(s);
+		w->setSelectedCol(sel.leftCol());
+
+		start->setValue(sel.topRow() + 1);
+		end->setValue(sel.bottomRow() + 1);
 	}
 	else
 	{
@@ -274,8 +273,6 @@ void SetColValuesDialog::setTable(Table* w)
 	updateColumn(w->selectedColumn());
 	commands->setContext(w);
 }
-
-
 
 SetColValuesDialog::~SetColValuesDialog()
 {

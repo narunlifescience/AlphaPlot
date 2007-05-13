@@ -5404,11 +5404,6 @@ void ApplicationWindow::showColumnValuesDialog()
 	Table* w = (Table*)ws->activeWindow();
 	if ( w && w->isA("Table"))
 	{
-		QList<QTableWidgetSelectionRange> sel = w->getSelection();
-  	    QListIterator<QTableWidgetSelectionRange> it(sel);
-  	    QTableWidgetSelectionRange cur;
-  	    while(it.hasNext())
-  	    	cur = it.next();
 		if (int(w->selectedColumns().count())>0 || !(w->getSelection().isEmpty()) )
 		{
 			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this,"valuesDialog",true);

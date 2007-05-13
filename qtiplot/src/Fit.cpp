@@ -358,7 +358,7 @@ Table* Fit::parametersTable(const QString& tableName)
 	t->setColPlotDesignation(2, Table::yErr);
 	t->setHeaderColType();
 	for (int j=0; j<3; j++)
-		t->table()->resizeColumnToContents(j);
+		t->table()->adjustColumn(j);
 
 	t->showNormal();
 	return t;
