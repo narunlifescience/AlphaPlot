@@ -116,11 +116,28 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 
 	setAxis(d_selected_curve->xAxis(), d_selected_curve->yAxis());
 
-	emit statusText(QString("%1[%2]: x=%3; y=%4")
+    if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+    {
+         emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
-			.arg(((DataCurve*)d_selected_curve)->tableRow(d_selected_point) + 1)
+			.arg(d_selected_point + 1)
 			.arg(QLocale().toString(d_selected_curve->x(d_selected_point), 'G', 15))
-			.arg(QLocale().toString(d_selected_curve->y(d_selected_point), 'G', 15)) );
+			.arg(QLocale().toString(d_selected_curve->y(d_selected_point), 'G', 15)));
+    }
+    else
+    {
+        int row = ((DataCurve*)d_selected_curve)->tableRow(d_selected_point);
+
+        Table *t = ((DataCurve*)d_selected_curve)->table();
+        int xCol = t->colIndex(((DataCurve*)d_selected_curve)->xColumnName());
+        int yCol = t->colIndex(d_selected_curve->title().text());
+
+        emit statusText(QString("%1[%2]: x=%3; y=%4")
+			.arg(d_selected_curve->title().text())
+			.arg(row + 1)
+			.arg(t->text(row, xCol))
+			.arg(t->text(row, yCol)));
+    }
 
 	QwtDoublePoint selected_point_value(d_selected_curve->x(d_selected_point), d_selected_curve->y(d_selected_point));
 	d_selection_marker.setValue(selected_point_value);
@@ -273,11 +290,11 @@ void DataPickerTool::removePoint()
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
-	
+
 	Table *t = ((DataCurve *)d_selected_curve)->table();
 	if (!t)
 		return;
-		
+
 	int col = t->colIndex(d_selected_curve->title().text());
 	if (t->columnType(col) == Table::Numeric)
 		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
@@ -286,7 +303,7 @@ void DataPickerTool::removePoint()
 		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
 					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
-	
+
 	d_selection_marker.detach();
 	d_graph->plotWidget()->replot();
 	d_graph->setFocus();
@@ -306,15 +323,15 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	Table *t = ((DataCurve *)d_selected_curve)->table();
 	if (!t)
 		return;
-	
+
 	double new_x_val = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
 	double new_y_val = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
 
     d_selection_marker.setValue(new_x_val, new_y_val);
 	if (d_selection_marker.plot() == NULL)
 		d_selection_marker.attach(d_graph->plotWidget());
-	
-	int row = ((DataCurve *)d_selected_curve)->tableRow(d_selected_point);	
+
+	int row = ((DataCurve *)d_selected_curve)->tableRow(d_selected_point);
 	int xcol = t->colIndex(((DataCurve *)d_selected_curve)->xColumnName());
 	int ycol = t->colIndex(d_selected_curve->title().text());
 	if (t->columnType(xcol) == Table::Numeric && t->columnType(ycol) == Table::Numeric)

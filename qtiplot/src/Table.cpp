@@ -497,7 +497,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 		return false;
 	}
 	if (endRow >= numRows())
-		resizeRows(endRow);
+		resizeRows(endRow + 1);
 
 	colscript->setInt(col+1, "j");
 	colscript->setInt(startRow+1, "sr");
@@ -3216,4 +3216,3 @@ void Table::showComments(bool on)
 	else
 		resize(QSize(width(), height() - 1));
 }
-

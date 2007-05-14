@@ -155,6 +155,8 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	hbox2->addWidget(applyToAllBox);
 
 	comments = new QTextEdit();
+	boxShowTableComments = new QCheckBox(tr("&Display Comments in Header"));
+	boxShowTableComments->setChecked(d_table->commentsEnabled());
 
 	QVBoxLayout* vbox4 = new QVBoxLayout();
     vbox4->addLayout(hbox1);
@@ -162,6 +164,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	vbox4->addLayout(hbox2);
 	vbox4->addWidget(new QLabel(tr( "Comment:" )));
 	vbox4->addWidget(comments);
+	vbox4->addWidget(boxShowTableComments);
 
     setLayout(vbox4);
     setFocusProxy (colName);
@@ -181,6 +184,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	connect(buttonNext, SIGNAL(clicked()), this, SLOT(nextColumn()));
 	connect(formatBox, SIGNAL(activated(int)), this, SLOT(enablePrecision(int)) );
 	connect(precisionBox, SIGNAL(valueChanged(int)), this, SLOT(updatePrecision(int)));
+	connect(boxShowTableComments, SIGNAL(toggled(bool)), d_table, SLOT(showComments(bool)));
 }
 
 void TableDialog::enablePrecision(int f)
@@ -219,7 +223,7 @@ updateColumn(++sc);
 
 void TableDialog::updateColumn(int sc)
 {
-    int colType = d_table->columnType(sc);	
+    int colType = d_table->columnType(sc);
     if (!sc)
         buttonPrev->setEnabled(false);
     else
@@ -244,7 +248,7 @@ void TableDialog::updateColumn(int sc)
 
     displayBox->setCurrentIndex(colType);
     updateDisplay(colType);
-	
+
     d_table->saveToMemory();
 
     if (colType == Table::Numeric)

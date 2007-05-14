@@ -339,6 +339,3 @@ else
 	buttonDefault->setEnabled(true);
 }
 
-LineDialog::~LineDialog()
-{
-}

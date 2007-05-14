@@ -3143,30 +3143,6 @@ bool Graph::addErrorBars(const QString& xColName, const QString& yColName,
 	return true;
 }
 
-void Graph::plotPie(QwtPieCurve* curve)
-{
-	int n = curve->dataSize();
-	double *dat = new double[n];
-	for (int i=0; i<n; i++)
-		dat[i]=curve->y(i);
-
-	QwtPieCurve *pieCurve = new QwtPieCurve(curve->table(), curve->title().text(), curve->startRow(), curve->endRow());
-	pieCurve->setData(dat, dat, n);
-    pieCurve->setPen(curve->pen());
-	pieCurve->setRay(curve->ray());
-	pieCurve->setBrushStyle(curve->pattern());
-	pieCurve->setFirstColor(curve->firstColor());
-
-	c_keys.resize(++n_curves);
-	c_keys[n_curves-1] = d_plot->insertCurve(pieCurve);
-
-    c_type.resize(n_curves);
-	c_type[n_curves-1] = Pie;
-
-	delete[] dat;
-}
-
-
 void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 					int size, int firstColor, int startRow, int endRow, bool visible)
 {
@@ -3605,6 +3581,12 @@ void Graph::updatePlot()
 
 	d_plot->replot();
     updateMarkersBoundingRect();
+    if (isPiePlot())
+    {
+        QwtPieCurve *c = (QwtPieCurve *)curve(0);
+        c->updateBoundingRect();
+    }
+
     d_plot->replot();
 	d_zoomer[0]->setZoomBase();
 	d_zoomer[1]->setZoomBase();
@@ -4650,11 +4632,7 @@ void Graph::copy(Graph* g)
 	setAxesLinewidth(plot->axesLinewidth());
 	removeLegend();
 
-	if (g->isPiePlot())
-		plotPie((QwtPieCurve*)g->curve(0));
-	else
-	{
-		for (i=0; i<g->curves(); i++)
+    for (i=0; i<g->curves(); i++)
 		{
 			QwtPlotItem *it = (QwtPlotItem *)g->plotItem(i);
 			if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
@@ -4671,7 +4649,13 @@ void Graph::copy(Graph* g)
 			}
 
 			PlotCurve *c = 0;
-			if (style == Function)
+			if (style == Pie)
+			{
+				c = new QwtPieCurve(cv->table(), cv->title().text(), cv->startRow(), cv->endRow());
+				((QwtPieCurve*)c)->setRay(((QwtPieCurve*)cv)->ray());
+                ((QwtPieCurve*)c)->setFirstColor(((QwtPieCurve*)cv)->firstColor());
+			}
+			else if (style == Function)
 			{
 				c = new FunctionCurve(cv->title().text());
 				((FunctionCurve*)c)->copy((FunctionCurve*)cv);
@@ -4759,7 +4743,7 @@ void Graph::copy(Graph* g)
   	        c_type[i] = g->curveType(i);
   	        }
   	    }
-	}
+
 	axesFormulas = g->axesFormulas;
 	axisType = g->axisType;
 	axesFormatInfo = g->axesFormatInfo;
@@ -4866,6 +4850,12 @@ void Graph::copy(Graph* g)
 			insertLineMarker(lmrk);
 	}
 	d_plot->replot();
+
+    if (c_type[0] = Pie)
+    {
+        QwtPieCurve *c = (QwtPieCurve *)curve(0);
+        c->updateBoundingRect();
+    }
 }
 
 void Graph::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int endRow)

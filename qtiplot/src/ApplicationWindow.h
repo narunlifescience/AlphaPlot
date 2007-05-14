@@ -161,6 +161,10 @@ public slots:
 
 	QWidgetList * windowsList();
 	void updateWindowLists(MyWidget *w);
+	/*!
+    Arranges all the visible project windows in a cascade pattern.
+    */
+	void cascade();
 
 	void saveProjectAs();
 	bool saveProject();
@@ -333,7 +337,7 @@ public slots:
 	void initTable(Table* w, const QString& caption);
 	void customTable(Table* w);
 	void customizeTables(const QColor& bgColor,const QColor& textColor,
-						const QColor& headerColor,const QFont& textFont, 
+						const QColor& headerColor,const QFont& textFont,
 						const QFont& headerFont, bool showComments);
 
 	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);

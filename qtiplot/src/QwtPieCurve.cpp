@@ -41,6 +41,8 @@ QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
 	d_first_color = 0;
 	setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine));
 	setBrush(QBrush(Qt::black, Qt::SolidPattern));
+
+	setType(Graph::Pie);
 }
 
 void QwtPieCurve::draw(QPainter *painter,
@@ -58,18 +60,15 @@ void QwtPieCurve::draw(QPainter *painter,
 void QwtPieCurve::drawPie(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-	int x_center = xMap.transform((xMap.s1() + xMap.s2())/2);
-	int y_center = yMap.transform((yMap.s1() + yMap.s2())/2);
+	int x_center = (xMap.p1() + xMap.p2())/2;
+	int y_center = (yMap.p1() + yMap.p2())/2;
 
-	QwtPlot *plot = (QwtPlot *)this->plot();
-	double dx = (double)painter->device()->width()/(double)plot->width();
-	double dy = (double)painter->device()->height()/(double)plot->height();
-
-    double d = 2*0.9*d_pie_ray*qMin(dx, dy);
+	int ray = (x_center - xMap.transform(d_left_coord));
+    int d = 2*ray;
 
 	QRect pieRect;
-	pieRect.setX(x_center - d/2);
-	pieRect.setY(y_center - d/2);
+	pieRect.setX(x_center - ray);
+	pieRect.setY(y_center - ray);
 	pieRect.setWidth(d);
 	pieRect.setHeight(d);
 
@@ -125,4 +124,15 @@ void QwtPieCurve::loadData()
 	}
 	X.resize(size);
 	setData(X.data(), X.data(), size);
+}
+
+void QwtPieCurve::updateBoundingRect()
+{
+    if (!plot())
+        return;
+
+    QwtScaleMap xMap = plot()->canvasMap(xAxis());
+    int x_center = (xMap.p1() + xMap.p2())/2;
+    int x_left = x_center - d_pie_ray;
+    d_left_coord = xMap.invTransform(x_left);
 }

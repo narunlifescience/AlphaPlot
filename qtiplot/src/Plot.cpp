@@ -134,14 +134,13 @@ void Plot::printFrame(QPainter *painter, const QRect &rect) const
 	if (lw)
 	{
 		QColor color = palette().color(QPalette::Active, QColorGroup::Foreground);
-		painter->setPen (QPen(color, lw, Qt::SolidLine));
+		painter->setPen (QPen(color, lw, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
 	}
 	else
 		painter->setPen(QPen(Qt::NoPen));
 
     painter->setBrush(paletteBackgroundColor());
-
-	QwtPainter::drawRect(painter, rect.x()-lw/2, rect.y()-lw/2, rect.width()+3/2*lw, rect.height()+3/2*lw);
+    QwtPainter::drawRect(painter, rect);
 	painter->restore();
 }
 
@@ -151,29 +150,28 @@ void Plot::printCanvas(QPainter *painter, const QRect &canvasRect,
 	painter->save();
 
 	const QwtPlotCanvas* plotCanvas=canvas();
-	QRect rect=canvasRect;
+	QRect rect = canvasRect;
+	rect.addCoords(1, 0, -1, -1);
+    QwtPainter::fillRect(painter, rect, canvasBackground());
+
+	painter->setClipping(true);
+	QwtPainter::setClipRect(painter, rect);
+
+	drawItems(painter, canvasRect, map, pfilter);
+    painter->restore();
+
+    painter->save();
 	if(plotCanvas->lineWidth() > 0)
 	{
 		QColor color = plotCanvas->palette().color(QPalette::Active, QColorGroup::Foreground);
-		painter->setPen (QPen(color, plotCanvas->lineWidth(), Qt::SolidLine));
-		painter->setBrush(canvasBackground());
+		painter->setPen (QPen(color, plotCanvas->lineWidth(),
+                         Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
 
-		QwtPainter::drawRect(painter, canvasRect);
+        int lw = plotCanvas->lineWidth()/2;
+  	    rect.addCoords(-lw, -lw, plotCanvas->lineWidth(), plotCanvas->lineWidth());
+		QwtPainter::drawRect(painter, rect);
 	}
-	else
-  	{
-  		QRect rect = canvasRect;
-  	    rect.addCoords(1, 1, -1, -1);
-  	    QwtPainter::fillRect(painter, rect, canvasBackground());
-    }
-
     painter->restore();
-    painter->save();
-	painter->setClipping(true);
-	QwtPainter::setClipRect(painter, canvasRect);
-
-	drawItems(painter, canvasRect, map, pfilter);
-	painter->restore();
 }
 
 void Plot::drawItems (QPainter *painter, const QRect &rect,

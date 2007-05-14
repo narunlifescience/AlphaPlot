@@ -146,7 +146,6 @@ class Graph: public QWidget
 		//@{
 		//! Returns true if this Graph is a pie plot, false otherwise.
 		bool isPiePlot(){return (c_type.count() == 1 && c_type[0] == Pie);};
-		void plotPie(QwtPieCurve* curve);
 		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
 		//! Used when restoring a pie plot from a project file
 		void plotPie(Table* w,const QString& name, const QPen& pen, int brush, int size, int firstColor, int startRow = 0, int endRow = -1, bool visible = true);

@@ -88,6 +88,7 @@
 #include "PolynomialFit.h"
 #include "SigmoidalFit.h"
 #include "FunctionCurve.h"
+#include "QwtPieCurve.h"
 #include "Spectrogram.h"
 #include "Integration.h"
 #include "Differentiation.h"
@@ -2334,14 +2335,8 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 }
 
 void ApplicationWindow::customizeTables(const QColor& bgColor,const QColor& textColor,
-		const QColor& headerColor,const QFont& textFont,
-		const QFont& headerFont, bool showComments)
+		const QColor& headerColor,const QFont& textFont, const QFont& headerFont, bool showComments)
 {
-	if (tableBkgdColor == bgColor && tableTextColor == textColor &&
-		tableHeaderColor == headerColor && tableTextFont == textFont &&
-		tableHeaderFont == headerFont && d_show_table_comments == showComments)
-		return;
-
 	tableBkgdColor = bgColor;
 	tableTextColor = textColor;
 	tableHeaderColor = headerColor;
@@ -2428,7 +2423,7 @@ void ApplicationWindow::newWrksheetPlot(const QString& caption, int r, int c, co
 Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
 		int lines, bool renameCols, bool stripSpaces,
 		bool simplifySpaces)
-{			
+{
 	Table* w = new Table(scriptEnv, fname, sep, lines, renameCols, stripSpaces,
 			simplifySpaces, fname, ws, 0, 0);
 	if (w)
@@ -3161,7 +3156,7 @@ void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, b
 	delete windows;
 }
 
-void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts, 
+void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts,
 												bool resizeLayers, bool antialiasing)
 {
 	if (autoscale2DPlots == autoscale &&
@@ -3174,7 +3169,7 @@ void ApplicationWindow::setGraphDefaultSettings(bool autoscale, bool scaleFonts,
 	autoScaleFonts = scaleFonts;
 	autoResizeLayers = !resizeLayers;
 	antialiasing2DPlots = antialiasing;
-	
+
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
@@ -3810,6 +3805,11 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->recentProjects.push_front(fileName);
 	app->updateRecentProjectsList();
 
+	app->folders->setCurrentItem(cf->folderListItem());
+	app->folders->blockSignals (false);
+	//change folder to user defined current folder
+	app->changeFolder(cf, true);
+
 	if (app->aw)
 	{
 		app->aw->setFocus();
@@ -3817,10 +3817,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 		app->customToolBars(app->aw);
 	}
 
-	app->folders->setCurrentItem(cf->folderListItem());
-	app->folders->blockSignals (false);
-	//change folder to user defined current folder
-	app->changeFolder(cf, true);
 	app->blockSignals (false);
 	app->renamedTables.clear();
 
@@ -4150,7 +4146,7 @@ void ApplicationWindow::readSettings()
 	antialiasing2DPlots = settings.value("/Antialiasing", true).toBool();
 	d_scale_plots_on_print = settings.value("/ScaleLayersOnPrint", false).toBool();
 	d_print_cropmarks = settings.value("/PrintCropmarks", false).toBool();
-	
+
 	QStringList graphFonts = settings.value("/Fonts").toStringList();
 	if (graphFonts.size() == 16)
 	{
@@ -4351,7 +4347,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Antialiasing", antialiasing2DPlots);
 	settings.setValue("/ScaleLayersOnPrint", d_scale_plots_on_print);
 	settings.setValue("/PrintCropmarks", d_print_cropmarks);
-	
+
 	QStringList graphFonts;
 	graphFonts<<plotAxesFont.family();
 	graphFonts<<QString::number(plotAxesFont.pointSize());
@@ -4830,7 +4826,7 @@ void ApplicationWindow::restoreWindowGeometry(ApplicationWindow *app, QWidget *w
 	}
 
 	if (s.contains ("active"))
-		app->aw=(MyWidget*)w;
+		app->aw = (MyWidget*)w;
 
 	w->blockSignals (false);
 }
@@ -6594,8 +6590,6 @@ void ApplicationWindow::showExpDecayDialog(int type)
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	aw = (MyWidget *)ws->activeWindow();
-
 	ExpDecayDialog *edd = new ExpDecayDialog(type, this, "ExpDecayDialog", false);
 	edd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (g, SIGNAL(destroyed()), edd, SLOT(close()));
@@ -6632,8 +6626,6 @@ void ApplicationWindow::showFitDialog()
 	Graph* g = (Graph*)plot->activeGraph();
 	if (!g || !g->validCurvesDataSize())
 		return;
-
-	aw = (MyWidget *)ws->activeWindow();
 
 	FitDialog *fd=new FitDialog(this,"FitDialog", false);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
@@ -6765,8 +6757,6 @@ void ApplicationWindow::showFitPolynomDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (!g || !g->validCurvesDataSize())
 		return;
-
-	aw = (MyWidget *)ws->activeWindow();
 
 	PolynomFitDialog *pfd = new PolynomFitDialog(this);
 	pfd->setAttribute(Qt::WA_DeleteOnClose);
@@ -7948,7 +7938,7 @@ void ApplicationWindow::windowsMenuAboutToShow()
 		return;
 
 	windowsMenu->clear();
-	windowsMenu->insertItem(tr("&Cascade"), ws, SLOT(cascade() ) );
+	windowsMenu->insertItem(tr("&Cascade"), this, SLOT(cascade() ) );
 	windowsMenu->insertItem(tr("&Tile"), ws, SLOT(tile() ) );
 	windowsMenu->insertSeparator();
 	windowsMenu->addAction(actionNextWindow);
@@ -10503,6 +10493,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		}
 	}
 	ag->replot();
+	if (ag->isPiePlot())
+	{
+        QwtPieCurve *c = (QwtPieCurve *)ag->curve(0);
+        if (c) c->updateBoundingRect();
+    }
+
     ag->blockSignals(false);
     ag->setIgnoreResizeEvents(!app->autoResizeLayers);
     ag->setAutoscaleFonts(app->autoScaleFonts);
@@ -10688,8 +10684,6 @@ void ApplicationWindow::analysis(const QString& whichFit)
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (!g || !g->validCurvesDataSize())
 		return;
-
-	aw = (MyWidget *)ws->activeWindow();
 
 	QString curve_title = g->selectedCurveTitle();
 	if (!curve_title.isNull()) {
@@ -13549,11 +13543,8 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 	{//show only windows in the current folder which are not hidden by the user
 		if (w)
 		{
-			if (!hiddenWindows->contains(w) && !outWindows->contains(w) &&
-					show_windows_policy != HideAll)
-			{
-				switch (w->status())
-				{
+			if (!hiddenWindows->contains(w) && !outWindows->contains(w) && show_windows_policy != HideAll){
+				switch (w->status()){
 					case MyWidget::Normal:
 						w->showNormal();
 						break;
@@ -13561,17 +13552,9 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 						w->showMinimized();
 						break;
 					case MyWidget::Maximized:
-						{
-							if (w->isA("Graph3D"))
-								((Graph3D *)w)->setIgnoreFonts(true);
-
-							w->showMaximized();
-
-							if (w->isA("Graph3D"))
-								((Graph3D *)w)->setIgnoreFonts(false);
-						}
+                        current_folder->setActiveWindow(w);
 						break;
-					case MyWidget::Hidden: // this case is only here to suppress compiler warnings
+					case MyWidget::Hidden:
 						break;
 				}
 			}
@@ -13582,8 +13565,17 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 		}
 	}
 
-	if ( (newFolder->children()).isEmpty() )
+	if ((newFolder->children()).isEmpty()){
+	    MyWidget *w = current_folder->activeWindow();
+	    if (w){
+	        if (w->isA("Graph3D"))
+                ((Graph3D *)w)->setIgnoreFonts(true);
+            w->showMaximized();
+            if (w->isA("Graph3D"))
+                ((Graph3D *)w)->setIgnoreFonts(false);
+	    }
 		return;
+	}
 
 	FolderListItem *fi = newFolder->folderListItem();
 	FolderListItem *item = (FolderListItem *)fi->firstChild();
@@ -13593,12 +13585,9 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 		lst = ((Folder *)item->folder())->windowsList();
 		foreach(MyWidget *w, lst)
 		{
-			if (w &&!hiddenWindows->contains(w) && !outWindows->contains(w))
-			{
-				if (show_windows_policy == SubFolders)
-				{
-					switch (w->status())
-					{
+			if (w &&!hiddenWindows->contains(w) && !outWindows->contains(w)){
+				if (show_windows_policy == SubFolders){
+					switch (w->status()){
 						case MyWidget::Normal:
 							w->showNormal();
 							break;
@@ -13614,7 +13603,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 							if (w->isA("Graph3D"))
 								((Graph3D*)w)->setIgnoreFonts(false);
 							break;
-						case MyWidget::Hidden: // this case is only here to suppress compiler warnings
+						case MyWidget::Hidden:
 							break;
 					}
 				}
@@ -13625,6 +13614,15 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 
 		item = (FolderListItem *)item->itemBelow();
 	}
+
+    MyWidget *w = current_folder->activeWindow();
+    if (w){
+        if (w->isA("Graph3D"))
+            ((Graph3D *)w)->setIgnoreFonts(true);
+        w->showMaximized();
+        if (w->isA("Graph3D"))
+            ((Graph3D *)w)->setIgnoreFonts(false);
+        }
 }
 
 void ApplicationWindow::desactivateFolders()
@@ -14131,4 +14129,28 @@ int ApplicationWindow::convertOldToNewColorIndex(int cindex)
 		return cindex + 8;
 
 	return cindex;
+}
+
+void ApplicationWindow::cascade()
+{
+	QList<QWidget*> windows = ws->windowList(QWorkspace::StackingOrder);
+
+    const int xoffset = 13;
+    const int yoffset = 20;
+
+    int x = 0;
+    int y = 0;
+
+    foreach (QWidget *w, windows){
+        w->setActiveWindow();
+        w->showNormal();
+        ((MyWidget *)w)->setStatus(MyWidget::Normal);
+        updateWindowStatus((MyWidget *)w);
+
+        w->parentWidget()->setGeometry(x, y, w->width(), w->height());
+        w->raise();
+        x += xoffset;
+        y += yoffset;
+    }
+    modifiedProject();
 }

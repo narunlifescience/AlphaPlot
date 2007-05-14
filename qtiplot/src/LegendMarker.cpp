@@ -191,7 +191,7 @@ void LegendMarker::setFont(const QFont& font)
 void LegendMarker::drawFrame(QPainter *p, int type, const QRect& rect) const
 {
 	p->save();
-	p->setPen(QPen(Qt::black,1,Qt::SolidLine));
+	p->setPen(QPen(Qt::black, 1, Qt::SolidLine, Qt::SquareCap, Qt::MiterJoin));
 	if (type == None)
 		p->fillRect (rect, d_text->backgroundBrush());
 

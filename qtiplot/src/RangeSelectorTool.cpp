@@ -171,18 +171,30 @@ void RangeSelectorTool::setActivePoint(int point)
 
 void RangeSelectorTool::emitStatusText()
 {
-	emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5 | %6=%7; %8=%9")
-			.arg(d_active_marker.xValue() > d_inactive_marker.xValue()
-				? tr("Right") : tr("Left"))
+    if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+    {
+         emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5")
+			.arg(d_active_marker.xValue() > d_inactive_marker.xValue() ? tr("Right") : tr("Left"))
 			.arg(d_selected_curve->title().text())
-			.arg(((DataCurve*)d_selected_curve)->tableRow(d_active_point) + 1)
+			.arg(d_active_point + 1)
 			.arg(QLocale().toString(d_selected_curve->x(d_active_point), 'G', 15))
-			.arg(QLocale().toString(d_selected_curve->y(d_active_point), 'G', 15))
-			.arg(tr("Delta_x","x difference = abs(x2-x1)"))
-			.arg(QLocale().toString(fabs(d_selected_curve->x(d_active_point) - d_selected_curve->x(d_inactive_point))))
-			.arg(tr("Delta_y","y difference = abs(y2-y1)"))
-			.arg(QLocale().toString(fabs(d_selected_curve->y(d_active_point) - d_selected_curve->y(d_inactive_point))))
-			);
+			.arg(QLocale().toString(d_selected_curve->y(d_active_point), 'G', 15)));
+    }
+    else
+    {
+        Table *t = ((DataCurve*)d_selected_curve)->table();
+        if (!t)
+            return;
+
+        int row = ((DataCurve*)d_selected_curve)->tableRow(d_active_point);
+
+        emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5")
+			.arg(d_active_marker.xValue() > d_inactive_marker.xValue() ? tr("Right") : tr("Left"))
+			.arg(d_selected_curve->title().text())
+			.arg(row + 1)
+			.arg(t->text(row, t->colIndex(((DataCurve*)d_selected_curve)->xColumnName())))
+			.arg(t->text(row, t->colIndex(d_selected_curve->title().text()))));
+    }
 }
 
 void RangeSelectorTool::switchActiveMarker()

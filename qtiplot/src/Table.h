@@ -334,6 +334,7 @@ public slots:
 	QStringList colComments(){return comments;};
 	void setColComments(const QStringList& lst){comments = lst;};
 	void showComments(bool on = true);
+	bool commentsEnabled(){return d_show_comments;}
 
 	QString saveAsTemplate(const QString& geometryInfo);
 	void restore(const QStringList& lst);
@@ -373,4 +374,3 @@ private:
 };
 
 #endif
-

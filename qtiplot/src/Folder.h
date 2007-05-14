@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Folder for the project explorer
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -83,7 +83,7 @@ public:
 	Folder* findSubfolder(const QString& s, bool caseSensitive = true, bool partialMatch = false);
 
 	//! Pointer to the first window matching the search criteria
-	MyWidget* findWindow(const QString& s, bool windowNames, bool labels, 
+	MyWidget* findWindow(const QString& s, bool windowNames, bool labels,
 							 bool caseSensitive, bool partialMatch);
 
 	//! get a window by name
@@ -118,10 +118,16 @@ public:
 	FolderListItem * folderListItem(){return myFolderListItem;};
 	void setFolderListItem(FolderListItem *it){myFolderListItem = it;};
 
+    MyWidget *activeWindow(){return d_active_window;};
+    void setActiveWindow(MyWidget *w){d_active_window = w;};
+
 protected:
     QString fName, birthdate, modifDate;
     QList<MyWidget *> lstWindows;
 	FolderListItem *myFolderListItem;
+
+	//! Pointer to the active window in the folder
+	MyWidget *d_active_window;
 };
 
 /*****************************************************************************
@@ -163,7 +169,7 @@ public:
 
     Folder *folder() { return myFolder; };
 
-	//! Checks weather the folder item is a grandchild of the source folder 
+	//! Checks weather the folder item is a grandchild of the source folder
 	/**
 	 * \param src source folder item
 	 */

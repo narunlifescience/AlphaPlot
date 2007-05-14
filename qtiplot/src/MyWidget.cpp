@@ -148,6 +148,9 @@ void MyWidget::changeEvent(QEvent *event)
 		parent()->installEventFilter(this);
 	}
 	else if (!isHidden() && event->type() == QEvent::WindowStateChange) {
+	    if (((QWindowStateChangeEvent *)event)->oldState() == windowState())
+            return;
+
 		if( windowState() & Qt::WindowMinimized )
 	    	w_status = Minimized;
 		else if ( windowState() & Qt::WindowMaximized )

@@ -89,6 +89,7 @@ private:
     QSpinBox* colWidth, *precisionBox;
 	QLabel *labelNumeric, *labelFormat;
 	QTextEdit *comments;
+	QCheckBox *boxShowTableComments;
 };
 
 #endif // TABLEDIALOG_H

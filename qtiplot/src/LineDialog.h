@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Line options dialog
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -43,15 +43,14 @@ class LineMarker;
 
 //! Line options dialog
 class LineDialog : public QDialog
-{ 
+{
     Q_OBJECT
 
 public:
     LineDialog(LineMarker *line, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0);
-    ~LineDialog();
 
     enum Unit{ScaleCoordinates, Pixels};
-    
+
 	void initGeometryTab();
 	void enableHeadTab();
 	void setCoordinates(int unit);
@@ -67,7 +66,7 @@ public slots:
 
 private:
 	LineMarker *lm;
-	
+
     ColorButton* colorBox;
     QComboBox* styleBox;
     QComboBox* widthBox;
