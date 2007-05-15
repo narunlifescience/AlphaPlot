@@ -180,7 +180,7 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 double MyWidget::stringToDouble(const QString& s)
 {
     bool ok = false;
-	double val = QLocale().toDouble(s, &ok);
+	double val = QLocale().toDouble(s, &ok);	
     if (ok)
         return val;
 

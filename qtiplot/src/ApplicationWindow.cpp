@@ -1062,7 +1062,7 @@ void ApplicationWindow::customMenu(QWidget* w)
 	actionTableRecalculate->setEnabled(false);
 
 	if(w)
-	{
+	{		
 		actionPrintAllPlots->setEnabled(projectHas2DPlots());
 		actionPrint->setEnabled(true);
 		actionCutSelection->setEnabled(true);
@@ -2818,7 +2818,7 @@ Matrix* ApplicationWindow::matrix(const QString& name)
 
 void ApplicationWindow::windowActivated(QWidget *w)
 {
-	if (!w || !w->isA("MyWidget"))
+	if (!w || !w->inherits("MyWidget"))
 		return;
 	
 	customToolBars(w);

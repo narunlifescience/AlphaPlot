@@ -35,7 +35,8 @@
 #include "Table.h"
 #include "Matrix.h"
 
-#include <qstringlist.h>
+#include <QLocale>
+#include <QStringList>
 
 using namespace mu;
 
@@ -85,7 +86,7 @@ double muParserScript::col(const QString &arg)
 				} else
 					item += arg[i];
 				item += "\"";
-		} else if (arg[i] == ',') {
+		} else if (arg[i] == ',' && QLocale().decimalPoint() != ',') {
 			items << item;
 			item = "";
 		} else

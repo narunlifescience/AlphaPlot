@@ -287,11 +287,9 @@ void Table::cellEdited(int row, int col)
 {
 	QString text = d_table->text(row,col).remove(QRegExp("\\s"));
 	if (columnType(col) != Numeric || text.isEmpty())
-	{
+	{		
 		emit modifiedData(this, colName(col));
 		emit modifiedWindow(this);
-		if (row + 1 < d_table->numRows())
-			d_table->setCurrentCell (row+1, col);
 		return;
 	}
 
@@ -318,11 +316,9 @@ void Table::cellEdited(int row, int col)
   	else
   		d_table->setText(row, col, "");
   	}
-
+	
   	emit modifiedData(this, colName(col));
 	emit modifiedWindow(this);
-	if (row + 1 < d_table->numRows())
-		d_table->setCurrentCell (row+1, col);
 }
 
 int Table::colX(int col)
