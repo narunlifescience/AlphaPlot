@@ -151,18 +151,22 @@ QString FFT::fftCurve()
 		if (a > aMax)
 			aMax = a;
 	}
+
+	ApplicationWindow *app = (ApplicationWindow *)parent();
+	int prec = app->d_decimal_digits;
+
 	text += "\t"+tr("Real")+"\t"+tr("Imaginary")+"\t"+ tr("Amplitude")+"\t"+tr("Angle")+"\n";
 	for (i=0;i<d_n;i++)
 	{
 		i2 = 2*i;
-		text += QLocale().toString(d_x[i])+"\t";
-		text += QLocale().toString(result[i2])+"\t";
-		text += QLocale().toString(result[i2+1])+"\t";
+		text += QLocale().toString(d_x[i], 'g', prec)+"\t";
+		text += QLocale().toString(result[i2], 'g', prec)+"\t";
+		text += QLocale().toString(result[i2+1], 'g', prec)+"\t";
 		if (d_normalize)
-			text += QLocale().toString(amp[i]/aMax)+"\t";
+			text += QLocale().toString(amp[i]/aMax, 'g', prec)+"\t";
 		else
-			text += QLocale().toString(amp[i])+"\t";
-		text += QLocale().toString(atan(result[i2+1]/result[i2]))+"\n";
+			text += QLocale().toString(amp[i], 'g', prec)+"\t";
+		text += QLocale().toString(atan(result[i2+1]/result[i2]), 'g', prec)+"\n";
 	}
 	delete[] amp;
 	delete[] result;
@@ -230,18 +234,21 @@ QString FFT::fftTable()
 			aMax = a;
 	}
 
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+	int prec = app->d_decimal_digits;
+
 	text += "\t"+tr("Real")+"\t"+tr("Imaginary")+"\t"+tr("Amplitude")+"\t"+tr("Angle")+"\n";
 	for (i=0; i<rows; i++)
 	{
 		int i2 = 2*i;
-		text += QLocale().toString(d_x[i])+"\t";
-		text += QLocale().toString(d_y[i2])+"\t";
-		text += QLocale().toString(d_y[i2+1])+"\t";
+		text += QLocale().toString(d_x[i], 'g', prec)+"\t";
+		text += QLocale().toString(d_y[i2], 'g', prec)+"\t";
+		text += QLocale().toString(d_y[i2+1], 'g', prec)+"\t";
 		if (d_normalize)
-			text += QLocale().toString(amp[i]/aMax)+"\t";
+			text += QLocale().toString(amp[i]/aMax, 'g', prec)+"\t";
 		else
-			text += QLocale().toString(amp[i])+"\t";
-		text += QLocale().toString(atan(d_y[i2+1]/d_y[i2]))+"\n";
+			text += QLocale().toString(amp[i], 'g', prec)+"\t";
+		text += QLocale().toString(atan(d_y[i2+1]/d_y[i2]), 'g', prec)+"\n";
 	}
 	delete[] amp;
     return text;
@@ -272,7 +279,7 @@ void FFT::output(const QString &text)
 	if ( g )
 	{
 		g->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
-		
+
         Plot* plot = g->plotWidget();
 		plot->setTitle(QString());
 		if (!d_inverse)

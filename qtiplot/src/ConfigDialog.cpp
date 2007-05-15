@@ -362,17 +362,17 @@ void ConfigDialog::initPlotsPage()
 
 	plotPrint = new QWidget();
 	QVBoxLayout *printLayout = new QVBoxLayout( plotPrint );
-	
+
 	boxScaleLayersOnPrint = new QCheckBox();
 	boxScaleLayersOnPrint->setChecked(app->d_scale_plots_on_print);
 	printLayout->addWidget( boxScaleLayersOnPrint );
-	
+
 	boxPrintCropmarks = new QCheckBox();
 	boxPrintCropmarks->setChecked(app->d_print_cropmarks);
 	printLayout->addWidget( boxPrintCropmarks );
 	printLayout->addStretch();
 	plotsTabWidget->addTab(plotPrint, QString());
-	
+
 	connect( boxResize, SIGNAL( clicked() ), this, SLOT( enableScaleFonts() ) );
 	connect( boxFrame, SIGNAL( toggled(bool) ), this, SLOT( showFrameWidth(bool) ) );
 	connect( buttonAxesFont, SIGNAL( clicked() ), this, SLOT( pickAxesFont() ) );
@@ -529,31 +529,21 @@ void ConfigDialog::initAppPage()
 	boxScriptingLanguage->setCurrentItem(llist.findIndex(app->defaultScriptingLang));
 	topBoxLayout->addWidget( boxScriptingLanguage, 3, 1 );
 
-    lblDecimalSeparator = new QLabel();
-    topBoxLayout->addWidget(lblDecimalSeparator, 4, 0 );
-	boxDecimalSeparator = new QComboBox();
-	boxDecimalSeparator->addItem(tr("System Locale Setting"));
-	boxDecimalSeparator->addItem("1,000.0");
-	boxDecimalSeparator->addItem("1.000,0");
-	boxDecimalSeparator->addItem("1 000,0");
-
-	topBoxLayout->addWidget(boxDecimalSeparator, 4, 1);
-
     boxSave= new QCheckBox();
 	boxSave->setChecked(app->autoSave);
-	topBoxLayout->addWidget( boxSave, 5, 0 );
+	topBoxLayout->addWidget( boxSave, 4, 0 );
 
 	boxMinutes = new QSpinBox();
 	boxMinutes->setRange(1,100);
 	boxMinutes->setValue(app->autoSaveTime);
 	boxMinutes->setEnabled(app->autoSave);
-	topBoxLayout->addWidget( boxMinutes, 5, 1 );
+	topBoxLayout->addWidget( boxMinutes, 4, 1 );
 
 	boxSearchUpdates = new QCheckBox();
 	boxSearchUpdates->setChecked(app->autoSearchUpdates);
-	topBoxLayout->addWidget( boxSearchUpdates, 6, 0, 1, 2 );
+	topBoxLayout->addWidget( boxSearchUpdates, 5, 0, 1, 2 );
 
-	topBoxLayout->setRowStretch( 7, 1 );
+	topBoxLayout->setRowStretch( 6, 1 );
 
 	appTabWidget->addTab( application, QString() );
 
@@ -588,6 +578,32 @@ void ConfigDialog::initAppPage()
 	colorsBoxLayout->setRowStretch( 3, 1 );
 
 	appTabWidget->addTab( appColors, QString() );
+
+	numericFormatPage = new QWidget();
+	QVBoxLayout *numLayout = new QVBoxLayout( numericFormatPage );
+	QGroupBox *numericFormatBox = new QGroupBox();
+	numLayout->addWidget( numericFormatBox );
+	QGridLayout *numericFormatLayout = new QGridLayout( numericFormatBox );
+
+	lblAppPrecision = new QLabel();
+	numericFormatLayout->addWidget(lblAppPrecision, 0, 0);
+	boxAppPrecision = new QSpinBox();
+	boxAppPrecision->setRange(0, 14);
+	boxAppPrecision->setValue(app->d_decimal_digits);
+	numericFormatLayout->addWidget(boxAppPrecision, 0, 1);
+
+    lblDecimalSeparator = new QLabel();
+    numericFormatLayout->addWidget(lblDecimalSeparator, 1, 0 );
+	boxDecimalSeparator = new QComboBox();
+	boxDecimalSeparator->addItem(tr("System Locale Setting"));
+	boxDecimalSeparator->addItem("1,000.0");
+	boxDecimalSeparator->addItem("1.000,0");
+	boxDecimalSeparator->addItem("1 000,0");
+
+	numericFormatLayout->addWidget(boxDecimalSeparator, 1, 1);
+	numericFormatLayout->setRowStretch(2, 1);
+
+	appTabWidget->addTab( numericFormatPage, QString() );
 
 	connect( boxLanguage, SIGNAL( activated(int) ), this, SLOT( switchToLanguage(int) ) );
 	connect( fontsBtn, SIGNAL( clicked() ), this, SLOT( pickApplicationFont() ) );
@@ -776,7 +792,7 @@ void ConfigDialog::languageChange()
 	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotFonts), tr("Fonts"));
 
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
-		
+
 	lblMinTicksLength->setText(tr("Length"));
 
 	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
@@ -839,6 +855,7 @@ void ConfigDialog::languageChange()
 	appTabWidget->setTabText(appTabWidget->indexOf(application), tr("Application"));
 	appTabWidget->setTabText(appTabWidget->indexOf(confirm), tr("Confirmations"));
 	appTabWidget->setTabText(appTabWidget->indexOf(appColors), tr("Colors"));
+	appTabWidget->setTabText(appTabWidget->indexOf(numericFormatPage), tr("Numeric Format"));
 
 	lblLanguage->setText(tr("Language"));
 	lblStyle->setText(tr("Style"));
@@ -851,6 +868,8 @@ void ConfigDialog::languageChange()
 	boxSearchUpdates->setText(tr("Check for new versions at startup"));
 	boxMinutes->setSuffix(tr(" minutes"));
 	lblScriptingLanguage->setText(tr("Default scripting language"));
+
+	lblAppPrecision->setText(tr("Number of Decimal Digits"));
 	lblDecimalSeparator->setText(tr("Decimal Separators"));
 	boxDecimalSeparator->clear();
 	boxDecimalSeparator->addItem(tr("System Locale Setting"));
@@ -1036,6 +1055,9 @@ void ConfigDialog::apply()
 	app->autoSearchUpdates = boxSearchUpdates->isChecked();
 	app->setSaveSettings(boxSave->isChecked(), boxMinutes->value());
 	app->defaultScriptingLang = boxScriptingLanguage->currentText();
+
+	// general page: numeric format tab
+	app->d_decimal_digits = boxAppPrecision->value();
 	switch (boxDecimalSeparator->currentIndex())
 	{
         case 0:

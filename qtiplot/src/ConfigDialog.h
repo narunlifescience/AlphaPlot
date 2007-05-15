@@ -123,7 +123,7 @@ private:
 	QFont textFont, headerFont, axesFont, numbersFont, legendFont, titleFont, appFont;
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QStringList plot3DColors;
-	
+
 	QCheckBox *boxScaleLayersOnPrint, *boxPrintCropmarks;
 	QTabWidget *plotsTabWidget, *appTabWidget;
 	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
@@ -134,19 +134,19 @@ private:
 	QPushButton* buttonTextFont, *buttonHeaderFont;
 	QStackedWidget * generalDialog;
 	QWidget *appColors, *tables, *plotOptions, *plotTicks, *plotFonts, *confirm, *plotPrint;
-	QWidget *application, *curves, *plots3D, *fitPage;
+	QWidget *application, *curves, *plots3D, *fitPage, *numericFormatPage;
 	QPushButton* buttonAxesFont, *buttonNumbersFont, *buttonLegendFont, *buttonTitleFont, *fontsBtn;
 	QCheckBox *boxSearchUpdates, *boxOrthogonal, *logBox, *plotLabelBox, *scaleErrorsBox;
 	QCheckBox *boxTitle, *boxFrame, *boxPlots3D, *boxPlots2D, *boxTables, *boxNotes, *boxFolders;
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize;
 	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage, *boxDecimalSeparator;
-	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision;
+	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision, *boxAppPrecision;
 	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;
 	QListWidget * itemsList;
 	QLabel *labelFrameWidth, *lblLanguage, *lblWorkspace, *lblPanels, *lblPageHeader;
-	QLabel *lblPanelsText, *lblFonts, *lblStyle, *lblDecimalSeparator;
+	QLabel *lblPanelsText, *lblFonts, *lblStyle, *lblDecimalSeparator, *lblAppPrecision;
 	QGroupBox *groupBoxConfirm;
 	QGroupBox *groupBoxTableFonts, *groupBoxTableCol;
 	QLabel *lblSeparator, *lblTableBackground, *lblTextColor, *lblHeaderColor;

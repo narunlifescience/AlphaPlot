@@ -459,8 +459,8 @@ public slots:
 	void saveAsTemplate();
 	void openTemplate();
 
-	QString windowGeometryInfo(QWidget *w);
-	void restoreWindowGeometry(ApplicationWindow *app, QWidget *w, const QString s);
+	QString windowGeometryInfo(MyWidget *w);
+	void restoreWindowGeometry(ApplicationWindow *app, MyWidget *w, const QString s);
 
 	void resizeActiveWindow();
 	void resizeWindow();
@@ -938,6 +938,9 @@ public:
 	//! precision used for the output of the fit operations
 	int fit_output_precision;
 
+	//! default precision to be used for all other operations than fitting
+	int d_decimal_digits;
+
 	//! pointer to the current folder in the project
 	Folder *current_folder;
 	//! Describes which windows are shown when the folder becomes the current folder
@@ -979,8 +982,6 @@ public:
 
 	//! List of tables and matrices renamed in order to avoid conflicts when appending a project to a folder
 	QStringList renamedTables;
-	//!active window
-	MyWidget *aw;
 	Graph::MarkerType copiedMarkerType;
 
 	//! \name variables used when user copy/paste markers

@@ -257,22 +257,30 @@ void IntDialog::setGraph(Graph *g)
 
 void IntDialog::activateCurve(const QString& curveName)
 {
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    if(!app)
+        return;
+
 	QwtPlotCurve *c = graph->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
 	graph->range(graph->curveIndex(curveName), &start, &end);
-	boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
-	boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
+	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 };
 
 void IntDialog::changeDataRange()
 {
+ApplicationWindow *app = (ApplicationWindow *)parent();
+if(!app)
+    return;
+
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();
-boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
-boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
+boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 }
 
 void IntDialog::help()

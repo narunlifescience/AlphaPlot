@@ -152,9 +152,11 @@ QString Integration::logInfo()
 	if(!success)
 		logInfo += tr("Iterations") + ": " + QString::number(j-1)+"\n";
 
-	logInfo += tr("Tolerance") + "(" + tr("max") + " = " + QLocale().toString(d_tolerance)+"): " + QString::number(error)+ "\n";
-	logInfo += tr("Points") + ": "+QString::number(d_n) + " " + tr("from") + " x = " +QLocale().toString(d_from) + " ";
-    logInfo += tr("to") + " x = " + QLocale().toString(d_to) + "\n";
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    int prec = app->d_decimal_digits;
+	logInfo += tr("Tolerance") + "(" + tr("max") + " = " + QLocale().toString(d_tolerance, 'g', prec)+"): " + QString::number(error)+ "\n";
+	logInfo += tr("Points") + ": "+QString::number(d_n) + " " + tr("from") + " x = " +QLocale().toString(d_from, 'g', prec) + " ";
+    logInfo += tr("to") + " x = " + QLocale().toString(d_to, 'g', prec) + "\n";
 
     // using GSL to find maximum value of data set
     gsl_vector *aux = gsl_vector_alloc(d_n);
@@ -163,14 +165,14 @@ QString Integration::logInfo()
     int maxID=gsl_vector_max_index (aux);
     gsl_vector_free (aux);
 
-    logInfo += tr("Peak at") + " x = " + QLocale().toString(d_x[maxID])+"\t";
-	logInfo += "y = " + QLocale().toString(d_y[maxID])+"\n";
+    logInfo += tr("Peak at") + " x = " + QLocale().toString(d_x[maxID], 'g', prec)+"\t";
+	logInfo += "y = " + QLocale().toString(d_y[maxID], 'g', prec)+"\n";
 
 	logInfo += tr("Area") + "=";
 	if(success)
-		logInfo += QLocale().toString(S[j]);
+		logInfo += QLocale().toString(S[j], 'g', prec);
 	if(!success)
-		logInfo += QLocale().toString(S[j-1]);
+		logInfo += QLocale().toString(S[j-1], 'g', prec);
 	logInfo += "\n-------------------------------------------------------------\n";
 
 	if(d_n>3)

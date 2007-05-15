@@ -140,6 +140,13 @@ public slots:
 	 */
 	int precision(){return num_precision;};
 	/*!
+	 * \brief Set the number of significant digits
+	 *
+	 * \sa precision(), setNumericFormat(), setTextFormat()
+	 */
+	void setNumericPrecision(int prec){num_precision = prec;};
+
+	/*!
 	 * \brief Set the number format for the cells
 	 *
 	 * This method should only be called before any user

@@ -323,8 +323,8 @@ QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
     Table *t = app->newHiddenTable(tableName, d_explanation + " " + tr("of") + " " + d_curve->title().text(), d_points, 2);
 	for (int i=0; i<d_points; i++)
 	{
-		t->setText(i, 0, QLocale().toString(x[i], 'g', 15));
-		t->setText(i, 1, QLocale().toString(y[i], 'g', 15));
+		t->setText(i, 0, QLocale().toString(x[i], 'g', app->d_decimal_digits));
+		t->setText(i, 1, QLocale().toString(y[i], 'g', app->d_decimal_digits));
 	}
 
 	DataCurve *c = new DataCurve(t, tableName + "_1", tableName + "_2");

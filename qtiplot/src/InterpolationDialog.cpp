@@ -182,16 +182,24 @@ void InterpolationDialog::activateCurve(const QString& curveName)
 	if (!c)
 		return;
 
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    if(!app)
+        return;
+
 	double start, end;
 	graph->range(graph->curveIndex(curveName), &start, &end);
-	boxStart->setText(QString::number(QMIN(start, end)));
-	boxEnd->setText(QString::number(QMAX(start, end)));
+	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 };
 
 void InterpolationDialog::changeDataRange()
 {
+ApplicationWindow *app = (ApplicationWindow *)parent();
+if(!app)
+    return;
+
 double start = graph->selectedXStartValue();
 double end = graph->selectedXEndValue();
-boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
-boxEnd->setText(QString::number(QMAX(start, end), 'g', 15));
+boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
+boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 }

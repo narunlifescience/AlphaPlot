@@ -105,7 +105,7 @@ void Table::init(int rows, int cols)
 	{
 		commands << "";
 		colTypes << Numeric;
-		col_format << "0/6";
+		col_format << "0/14";
 		comments << "";
 		col_label << QString::number(i+1);
 		col_plot_type << Y;
@@ -378,7 +378,7 @@ void Table::columnNumericFormat(int col, int *f, int *precision)
 	else
 	{
 		*f = 0;
-		*precision = 6;
+		*precision = 14;
 	}
 }
 
@@ -406,7 +406,7 @@ void Table::columnNumericFormat(int col, char *f, int *precision)
 	else
 	{
 		*f = 'g';
-		*precision = 6;
+		*precision = 14;
 	}
 }
 
@@ -3191,7 +3191,7 @@ void Table::goToRow(int row)
 void Table::setColumnHeader(int index, const QString& label)
 {
 	Q3Header *head = d_table->horizontalHeader();
-	
+
 	if (d_show_comments)
 	{
 		QString s = label;
@@ -3211,8 +3211,12 @@ void Table::showComments(bool on)
 	d_show_comments = on;
 	setHeaderColType();
 
-	if (on)
-		resize(QSize(width(), height() + 1));
-	else
-		resize(QSize(width(), height() - 1));
+	if(!on)
+		d_table->setTopMargin (d_table->horizontalHeader()->height()/2);
+}
+
+void Table::setNumericPrecision(int prec)
+{
+	for (int i=0; i<d_table->numCols(); i++)
+        col_format[i] = "0/"+QString::number(prec);
 }

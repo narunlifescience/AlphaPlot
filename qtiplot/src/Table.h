@@ -68,6 +68,9 @@ public:
 
 	Q3TableSelection getSelection();
 
+	//! Sets the number of significant digits
+	void setNumericPrecision(int prec);
+
 public slots:
 	Q3Table* table(){return d_table;};
 	void copy(Table *m);

@@ -192,13 +192,7 @@ void TableDialog::enablePrecision(int f)
 if(displayBox->currentIndex())
 	return;//the col type != "Numeric"
 
-if (!f)
-	{
-	precisionBox->setValue(6);
-	precisionBox->setEnabled(false);
-	}
-else
-	precisionBox->setEnabled(true);
+precisionBox->setEnabled(f > 0);
 }
 
 void TableDialog::accept()

@@ -1153,3 +1153,5 @@ void Matrix::goToRow(int row)
 	d_table->scrollToItem(the_item);
 	d_table->selectRow(row-1);
 }
+
+

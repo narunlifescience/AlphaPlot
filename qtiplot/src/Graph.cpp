@@ -2941,15 +2941,18 @@ int Graph::curveIndex(QwtPlotCurve *c) const
 }
 
 int Graph::range(int index, double *start, double *end)
-{
+{	
 	if (d_range_selector && d_range_selector->selectedCurve() == curve(index)) {
 		*start = d_range_selector->minXValue();
 		*end = d_range_selector->maxXValue();
 		return d_range_selector->dataSize();
 	} else {
 		QwtPlotCurve *c = curve(index);
-		*start = c->minXValue();
-		*end = c->maxXValue();
+		if (!c)
+			return 0;
+		
+		*start = c->x(0);
+		*end = c->x(c->dataSize() - 1);
 		return c->dataSize();
 	}
 }
@@ -3347,7 +3350,7 @@ bool Graph::insertCurve(Table* w, int xcol, const QString& name, int style)
 }
 
 bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColName, int style, int startRow, int endRow)
-{
+{	
 	int xcol=w->colIndex(xColName);
 	int ycol=w->colIndex(yColName);
 	if (xcol < 0 || ycol < 0)
