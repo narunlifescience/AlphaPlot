@@ -37,8 +37,6 @@ class LineMarker;
  *
  * CanvasPicker relies heavily on its parent being the Graph that owns the Plot it operates on.
  * Additionally, parts of the code use Graph::plotWidget instead of CanvasPicker::plotWidget.
- *
- * \sa Plot::mousePressEvent, Plot::mouseReleaseEvent, Plot::presspos, Plot::movedGraph
  */
 class CanvasPicker: public QObject
 {

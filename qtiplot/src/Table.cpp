@@ -1828,10 +1828,8 @@ void Table::setRandomValues()
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	double max=0.0;
 	int rows=d_table->numRows();
 	QStringList list=selectedColumns();
-	QVarLengthArray<double> r(rows);
 
 	for (int j=0;j<(int) list.count(); j++)
 	{
@@ -1842,19 +1840,11 @@ void Table::setRandomValues()
 		char f;
 		columnNumericFormat(selectedCol, &f, &prec);
 
-		srand(rand());
+		time_t tmp;
+		srand(time(&tmp));
 
 		for (int i=0; i<rows; i++)
-		{
-			r[i]=rand();
-			if (max<r[i]) max=r[i];
-		}
-
-		for (int i=0; i<rows; i++)
-		{
-			r[i]/=max;
-			d_table->setText(i, selectedCol, QLocale().toString(r[i], f, prec));
-		}
+			d_table->setText(i, selectedCol, QLocale().toString(double(rand())/double(RAND_MAX), f, prec));
 
 		emit modifiedData(this, name);
 	}
@@ -2733,6 +2723,8 @@ void Table::moveCurrentCell()
 	}
 	else
 	{
+		if(row+1 >= d_table->numRows())
+			resizeRows(row+2);
 		d_table->setCurrentCell (row+1,0);
 		d_table->selectCells(row+1,0,row+1,0);
 	}
