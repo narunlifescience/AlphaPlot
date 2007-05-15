@@ -2818,6 +2818,9 @@ Matrix* ApplicationWindow::matrix(const QString& name)
 
 void ApplicationWindow::windowActivated(QWidget *w)
 {
+	if (!w || !w->isA("MyWidget"))
+		return;
+	
 	customToolBars(w);
 	customMenu(w);
 	Folder *f = ((MyWidget *)w)->folder();
@@ -3584,7 +3587,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	QString titleBase = tr("Window") + ": ";
 	QString title = titleBase + "1/"+QString::number(widgets)+"  ";
 
-	QProgressDialog progress;
+	QProgressDialog progress(this);
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setRange(0, widgets);
 	progress.setMinimumWidth(app->width()/2);
@@ -5070,21 +5073,22 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 }
 
 QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
-{
+{	
 	QList<QWidget*> *windows = windowsList();
 	QStringList list;
-	for (int i=0; i<(int)windows->count(); i++)
+	foreach (QWidget *w, *windows)
 	{
-		if (!windows->at(i)->inherits("Table"))
+		if (!w->inherits("Table"))
 			continue;
 
-		Table *t = (Table *)windows->at(i);
-		for (int j=0; j < t->numCols(); j++)
+		Table *t = (Table *)w;
+		for (int i=0; i < t->numCols(); i++)
 		{
-			if (t->colPlotDesignation(j) == plotType || plotType == Table::All)
-				list << QString(t->name()) + "_" + t->colLabel(j);
+			if (t->colPlotDesignation(i) == plotType || plotType == Table::All)
+				list << QString(t->name()) + "_" + t->colLabel(i);
 		}
 	}
+	
 	delete windows;
 	return list;
 }
@@ -12198,13 +12202,25 @@ QWidgetList* ApplicationWindow::windowsList()
 	QWidgetList *lst = new QWidgetList;
 
 	QWidgetList windows = ws->windowList(QWorkspace::StackingOrder);
-	for (int i = 0; i<(int)windows.count(); i++ )
-		lst->append(windows.at(i));
-    for (int i = 0; i<(int)hiddenWindows->count(); i++ )
-		lst->append(hiddenWindows->at(i));
-	for (int i = 0; i<(int)outWindows->count(); i++ )
-		lst->append(outWindows->at(i));
-
+	foreach(QWidget *w, windows)
+		lst->append(w);
+	foreach(QWidget *w, *hiddenWindows)
+		lst->append(w);
+	foreach(QWidget *w, *outWindows)
+		lst->append(w);
+	
+	if (!(current_folder->children()).isEmpty()){
+		FolderListItem *fi = current_folder->folderListItem();
+		FolderListItem *item = (FolderListItem *)fi->firstChild();
+		int initial_depth = item->depth();
+		while (item && item->depth() >= initial_depth)
+		{
+			QList<MyWidget *> folderWindows = item->folder()->windowsList();
+			foreach(MyWidget *w, folderWindows)
+				lst->append(w);
+			item = (FolderListItem *)item->itemBelow();
+		}
+	}
 	return lst;
 }
 
