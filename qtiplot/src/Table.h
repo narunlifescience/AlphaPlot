@@ -146,7 +146,7 @@ public slots:
 	//@{
 	bool eventFilter(QObject *object, QEvent *e);
 	void contextMenuEvent(QContextMenuEvent *e);
-	void customEvent( QCustomEvent* e);
+	void customEvent( QEvent* e);
 	//@}v
 
 	//! \name Column Operations

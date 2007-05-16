@@ -1827,6 +1827,9 @@ void Table::setRandomValues()
 	int rows=d_table->numRows();
 	QStringList list=selectedColumns();
 
+	time_t tmp;
+	srand(time(&tmp));
+
 	for (int j=0;j<(int) list.count(); j++)
 	{
 		QString name=list[j];
@@ -1835,9 +1838,6 @@ void Table::setRandomValues()
 		int prec;
 		char f;
 		columnNumericFormat(selectedCol, &f, &prec);
-
-		time_t tmp;
-		srand(time(&tmp));
 
 		for (int i=0; i<rows; i++)
 			d_table->setText(i, selectedCol, QLocale().toString(double(rand())/double(RAND_MAX), f, prec));
@@ -2781,7 +2781,7 @@ bool Table::eventFilter(QObject *object, QEvent *e)
 	return MyWidget::eventFilter(object, e);
 }
 
-void Table::customEvent(QCustomEvent *e)
+void Table::customEvent(QEvent *e)
 {
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 		scriptingChangeEvent((ScriptingChangeEvent*)e);

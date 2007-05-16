@@ -3875,10 +3875,11 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 	ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
 	QApplication::sendEvent(this, sce);
 	delete sce;
-	foreach(QObject *i, queryList())
+
+	foreach(QObject *i, findChildren<QObject*>())
 		QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 	if (scriptWindow)
-		foreach(QObject *i, scriptWindow->queryList())
+		foreach(QObject *i, scriptWindow->findChildren<QObject*>())
 			QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 
 	return true;
