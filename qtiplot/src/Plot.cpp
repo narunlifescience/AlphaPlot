@@ -680,7 +680,7 @@ void Grid::draw(QPainter *painter,
 		const QRect &r) const
 {
 	//  draw minor gridlines
-	painter->setPen(minPen ());
+	painter->setPen(minPen());
 
 	if (xEnabled() && xMinEnabled())
 	{

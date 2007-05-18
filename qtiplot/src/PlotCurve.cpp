@@ -363,6 +363,9 @@ int DataCurve::tableRow(int point)
 QwtDoubleRect PlotCurve::boundingRect() const
 {
     QwtDoubleRect r = QwtPlotCurve::boundingRect();
+    if (symbol().style() == QwtSymbol::NoSymbol)
+        return r;
+
     int margin = 1;
     if (symbol().style() != QwtSymbol::NoSymbol)
         margin += symbol().size().width();

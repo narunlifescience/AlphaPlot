@@ -1062,7 +1062,7 @@ void ApplicationWindow::customMenu(QWidget* w)
 	actionTableRecalculate->setEnabled(false);
 
 	if(w)
-	{		
+	{
 		actionPrintAllPlots->setEnabled(projectHas2DPlots());
 		actionPrint->setEnabled(true);
 		actionCutSelection->setEnabled(true);
@@ -2157,11 +2157,11 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 		return 0;
 
 	ag->insertCurvesList(w, colList, style, defaultCurveLineWidth, defaultSymbolSize, startRow, endRow);
-			
+
 	//QMessageBox::about(0, "multilayerPlot", "muie");
 
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
-	
+
 	customGraph(ag);
 	polishGraph(ag, style);
 	ag->newLegend();
@@ -2542,7 +2542,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 	current_folder->addWindow(w);
 	w->setFolder(current_folder);
 	ws->addWindow(w);
-	
+
 	connectTable(w);
 	customTable(w);
 
@@ -2597,7 +2597,7 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 	m->setIcon( QPixmap(note_xpm) );
 	m->askOnCloseEvent(confirmCloseNotes);
 	m->setFolder(current_folder);
-	
+
 	current_folder->addWindow(m);
 	ws->addWindow(m);
 	addListViewItem(m);
@@ -2713,11 +2713,11 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 	m->askOnCloseEvent(confirmCloseMatrix);
 	m->setNumericPrecision(d_decimal_digits);
 	m->setFolder(current_folder);
-	
+
 	current_folder->addWindow(m);
 	ws->addWindow(m);
 	addListViewItem(m);
-	
+
 	connect(m, SIGNAL(showTitleBarMenu()),this,SLOT(showWindowTitleBarMenu()));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(modifiedProject(QWidget*)));
 	connect(m, SIGNAL(modifiedWindow(QWidget*)), this, SLOT(updateMatrixPlots(QWidget *)));
@@ -2820,7 +2820,7 @@ void ApplicationWindow::windowActivated(QWidget *w)
 {
 	if (!w || !w->inherits("MyWidget"))
 		return;
-	
+
 	customToolBars(w);
 	customMenu(w);
 	Folder *f = ((MyWidget *)w)->folder();
@@ -3320,9 +3320,12 @@ void ApplicationWindow::loadASCII()
 		if (t)
 		{
 			t->setCaptionPolicy(MyWidget::Both);
+
 			setListViewLabel(t->name(), fn);
 			QFileInfo fi(fn);
 			asciiDirPath = fi.dirPath(true);
+
+			modifiedProject(t);
 		}
 	}
 }
@@ -5074,7 +5077,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 }
 
 QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
-{	
+{
 	QList<QWidget*> *windows = windowsList();
 	QStringList list;
 	foreach (QWidget *w, *windows)
@@ -5089,7 +5092,7 @@ QStringList ApplicationWindow::columnsList(Table::PlotDesignation plotType)
 				list << QString(t->name()) + "_" + t->colLabel(i);
 		}
 	}
-	
+
 	delete windows;
 	return list;
 }
@@ -7668,7 +7671,7 @@ void ApplicationWindow::undo()
 
 	if (lastModified->isA("Table"))
 	{
-		Table *t= (Table *)lastModified;
+		Table *t = (Table *)lastModified;
 		t->setNewSpecifications();
 		QString newCaption=t->oldCaption();
 		QString name=lastModified->name();
@@ -7735,6 +7738,15 @@ bool ApplicationWindow::hidden(QWidget* window)
 void ApplicationWindow::updateWindowStatus(MyWidget* w)
 {
 	setListView(w->name(), w->aspect());
+	if (w->status() == MyWidget::Maximized)
+	{
+		QList<MyWidget *> windows = current_folder->windowsList();
+		foreach(MyWidget *oldMaxWindow, windows)
+		{
+			if (oldMaxWindow != w && oldMaxWindow->status() == MyWidget::Maximized)
+				oldMaxWindow->setStatus(MyWidget::Normal);
+		}
+	}
 	modifiedProject();
 }
 
@@ -7815,9 +7827,10 @@ void ApplicationWindow::activateWindow(MyWidget *w)
 	if (!w)
 		return;
 
-	w->setActiveWindow();
-	w->setFocus();
+	//w->setActiveWindow();
+	//w->setFocus();
 	w->showNormal();
+	ws->setActiveWindow(w);
 
 	updateWindowLists(w);
 	emit modified();
@@ -7832,8 +7845,8 @@ void ApplicationWindow::maximizeWindow(Q3ListViewItem * lbi)
 	if (!w)
 		return;
 
-	updateWindowLists(w);
 	w->showMaximized();
+	updateWindowLists(w);
 	emit modified();
 }
 
@@ -9793,16 +9806,26 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 	}
 	if (*line == "<data>") line++;
 
+    w->table()->blockSignals(true);
 	//read and set table values
 	for (; line!=flist.end() && *line != "</data>"; line++)
 	{
 		QStringList fields = (*line).split("\t");
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
-			w->setText(row,col,fields[col+1]);
+		{
+		    QString cell = fields[col+1];
+		    if (cell.isEmpty())
+                continue;
+
+		    if (d_file_version < 90)
+                w->setCell(row, col, QLocale::c().toDouble(cell));
+            else
+                w->setText(row, col, cell);
+		}
 		qApp->processEvents(QEventLoop::ExcludeUserInput);
 	}
-
+    w->table()->blockSignals(false);
 	return w;
 }
 
@@ -9871,8 +9894,16 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		int row = fields[0].toInt();
 		for (int col=0; col<cols; col++)
 		{
-		    if (fields.count() >= col+2)
-                w->setText(row, col, fields[col+1]);
+		    if (fields.count() >= col+2){
+		        QString cell = fields[col+1];
+		        if (cell.isEmpty())
+                    continue;
+
+		        if (d_file_version < 90)
+                    w->setCell(row, col, QLocale::c().toDouble(cell));
+		        else
+                    w->setText(row, col, cell);
+		    }
 		}
 		QApplication::processEvents(QEventLoop::ExcludeUserInput);
 	}
@@ -10676,8 +10707,12 @@ void ApplicationWindow::analyzeCurve(Graph *g, const QString& whichFit, const QS
 			if (whichFit != "fitLinear")
 				fitter->guessInitialValues();
 
+            fitter->scaleErrors(fit_scale_errors);
+            fitter->setOutputPrecision(fit_output_precision);
 			fitter->generateFunction(generateUniformFitPoints, fitPoints);
 			fitter->fit();
+			if (pasteFitResultsToPlot)
+                fitter->showLegend();
 			delete fitter;
 		}
 	}
@@ -12209,7 +12244,7 @@ QWidgetList* ApplicationWindow::windowsList()
 		lst->append(w);
 	foreach(QWidget *w, *outWindows)
 		lst->append(w);
-	
+
 	if (!(current_folder->children()).isEmpty()){
 		FolderListItem *fi = current_folder->folderListItem();
 		FolderListItem *item = (FolderListItem *)fi->firstChild();
@@ -13632,11 +13667,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 
     MyWidget *w = current_folder->activeWindow();
     if (w){
-        w->setActiveWindow();
-        w->setFocus();
-		customMenu(w);
-		customToolBars(w);
-
+        ws->setActiveWindow(w);
         if (w->status() == MyWidget::Maximized){
             if (w->isA("Graph3D"))
                 ((Graph3D *)w)->setIgnoreFonts(true);

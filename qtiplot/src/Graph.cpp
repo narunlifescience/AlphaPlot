@@ -4854,7 +4854,7 @@ void Graph::copy(Graph* g)
 	}
 	d_plot->replot();
 
-    if (c_type[0] = Pie)
+    if (isPiePlot())
     {
         QwtPieCurve *c = (QwtPieCurve *)curve(0);
         c->updateBoundingRect();

@@ -266,7 +266,7 @@ QString Fit::legendInfo()
 }
 
 bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
-{	
+{
 	d_weihting = w;
 	switch (d_weihting)
 	{

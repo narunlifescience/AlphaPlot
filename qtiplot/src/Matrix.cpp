@@ -148,6 +148,12 @@ void Matrix::cellEdited(int row,int col)
 		else
 			setText(row, col, "");
 	}
+
+    if(row+1 >= numRows())
+        d_table->setRowCount(row + 2);
+
+	d_table->setCurrentCell(row+1, col);
+
 	if(allow_modification_signals)
 		emit modifiedWindow(this);
 }
@@ -534,9 +540,56 @@ void Matrix::saveCellsToMemory()
 	int cols = numCols();
 	dMatrix = allocateMatrixData(rows, cols);
 	for(int i=0; i<rows; i++)
-	{
+	{// initialize the matrix to zero
 		for(int j=0; j<cols; j++)
-			dMatrix[i][j] = stringToDouble(text(i, j));
+			dMatrix[i][j] = 0.0;
+	}
+
+    bool ok = true;
+	for (int i=0; i<rows; i++)
+	{
+        for (int j=0; j<cols; j++)
+        {
+            dMatrix[i][j] = QLocale().toDouble(text(i, j), &ok);
+            if (!ok)
+                break;
+        }
+	}
+	if (!ok){// fall back to C locale
+	    ok = true;
+        for (int i=0; i<rows; i++)
+        {
+            for (int j=0; j<cols; j++)
+            {
+                dMatrix[i][j] = QLocale().toDouble(text(i, j), &ok);
+                if (!ok)
+                    break;
+            }
+        }
+	}
+	if (!ok){// fall back to German locale
+	    ok = true;
+        for (int i=0; i<rows; i++)
+        {
+            for (int j=0; j<cols; j++)
+            {
+                dMatrix[i][j] = QLocale(QLocale::German).toDouble(text(i, j), &ok);
+                if (!ok)
+                    break;
+            }
+        }
+	}
+	if (!ok){// fall back to French locale
+	    ok = true;
+        for (int i=0; i<rows; i++)
+        {
+            for (int j=0; j<cols; j++)
+            {
+                dMatrix[i][j] = QLocale(QLocale::French).toDouble(text(i, j), &ok);
+                if (!ok)
+                    break;
+            }
+        }
 	}
 }
 

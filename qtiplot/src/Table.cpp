@@ -32,31 +32,24 @@
 #include "Table.h"
 #include "SortDialog.h"
 
-#include <q3popupmenu.h>
-#include <q3filedialog.h>
-#include <qmessagebox.h>
-#include <qregexp.h>
-#include <qtextstream.h>
-#include <qclipboard.h>
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qdatetime.h>
-#include <qprinter.h>
-#include <qpainter.h>
-#include <q3paintdevicemetrics.h>
-#include <q3dragobject.h>
-#include <qlayout.h>
-#include <q3accel.h>
-#include <q3progressdialog.h>
-//Added by qt3to4:
+#include <QMessageBox>
+#include <QDateTime>
+#include <QTextStream>
+#include <QClipboard>
+#include <QApplication>
+#include <QPainter>
 #include <QEvent>
-#include <QContextMenuEvent>
-#include <Q3VBoxLayout>
-#include <QMouseEvent>
-#include <Q3TableSelection>
-#include <Q3MemArray>
+#include <QLayout>
 #include <QPrintDialog>
 #include <QLocale>
+#include <QShortcut>
+#include <QProgressDialog>
+#include <QFile>
+
+#include <q3paintdevicemetrics.h>
+#include <q3dragobject.h>
+#include <Q3TableSelection>
+#include <Q3MemArray>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_sort.h>
@@ -82,10 +75,9 @@ void Table::init(int rows, int cols)
 	d_saved_cells = 0;
 	d_show_comments = false;
 
-	QDateTime dt = QDateTime::currentDateTime ();
-	setBirthDate(dt.toString(Qt::LocalDate));
+	setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
 
-	d_table= new Q3Table (rows,cols,this,"table");
+	d_table = new MyTable(rows, cols, this, "table");
 	d_table->setFocusPolicy(Qt::StrongFocus);
 	d_table->setFocus();
 	d_table->setSelectionMode (Q3Table::Single);
@@ -98,7 +90,8 @@ void Table::init(int rows, int cols)
 	connect(d_table->verticalHeader(), SIGNAL(indexChange ( int, int, int )),
 			this, SLOT(notifyChanges()));
 
-	Q3VBoxLayout* hlayout = new Q3VBoxLayout(this);
+	QVBoxLayout* hlayout = new QVBoxLayout(this);
+	hlayout->setMargin(0);
 	hlayout->addWidget(d_table);
 
 	for (int i=0; i<cols; i++)
@@ -131,9 +124,11 @@ void Table::init(int rows, int cols)
 	d_table->verticalHeader()->setResizeEnabled(false);
 	d_table->verticalHeader()->installEventFilter(this);
 
-	Q3Accel *accel = new Q3Accel(this);
-	accel->connectItem( accel->insertItem( Qt::Key_Tab ), this, SLOT(moveCurrentCell()));
-	accel->connectItem( accel->insertItem( Qt::CTRL+Qt::Key_A ), this, SLOT(selectAllTable()) );
+	QShortcut *accelTab = new QShortcut(QKeySequence(Qt::Key_Tab), this);
+	connect(accelTab, SIGNAL(activated()), this, SLOT(moveCurrentCell()));
+
+	QShortcut *accelAll = new QShortcut(QKeySequence(Qt::CTRL+Qt::Key_A), this);
+	connect(accelAll, SIGNAL(activated()), this, SLOT(selectAllTable()));
 
 	connect(d_table, SIGNAL(valueChanged(int,int)),this, SLOT(cellEdited(int,int)));
 }
@@ -287,7 +282,7 @@ void Table::cellEdited(int row, int col)
 {
 	QString text = d_table->text(row,col).remove(QRegExp("\\s"));
 	if (columnType(col) != Numeric || text.isEmpty())
-	{		
+	{
 		emit modifiedData(this, colName(col));
 		emit modifiedWindow(this);
 		return;
@@ -316,7 +311,7 @@ void Table::cellEdited(int row, int col)
   	else
   		d_table->setText(row, col, "");
   	}
-	
+
   	emit modifiedData(this, colName(col));
 	emit modifiedWindow(this);
 }
@@ -1105,14 +1100,14 @@ void Table::copySelection()
 	}
 
 	// Copy text into the clipboard
-	QApplication::clipboard()->setData(new Q3TextDrag(text,d_table,0));
+	QApplication::clipboard()->setText(text);
 }
 
 // Paste text from the clipboard
 void Table::pasteSelection()
 {
-	QString text;
-	if (!Q3TextDrag::decode(QApplication::clipboard()->data(), text) || text.isEmpty())
+	QString text = QApplication::clipboard()->text();
+	if (text.isEmpty())
 		return;
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -1589,6 +1584,14 @@ double Table::cell(int row, int col)
 	return stringToDouble(d_table->text(row, col));
 }
 
+void Table::setCell(int row, int col, double val)
+{
+	char format;
+    int prec;
+    columnNumericFormat(col, &format, &prec);
+    d_table->setText(row, col, QLocale().toString(val, format, prec));
+}
+
 QString Table::text(int row, int col)
 {
 	return d_table->text(row,col);
@@ -1601,19 +1604,102 @@ void Table::setText (int row, int col, const QString & text )
 
 void Table::saveToMemory()
 {
-	d_saved_cells = new double* [d_table->numRows()];
-	for ( int i = 0; i < d_table->numRows(); ++i)
-		d_saved_cells[i] = new double [d_table->numCols()];
+    d_saved_cells = new double* [d_table->numCols()];
+	for ( int i = 0; i < d_table->numCols(); ++i)
+		d_saved_cells[i] = new double [d_table->numRows()];
 
-	for (int row=0; row<d_table->numRows(); row++)
-		for (int col=0; col<d_table->numCols(); col++)
-			d_saved_cells[row][col] = cell(row, col);
+    for (int col = 0; col<d_table->numCols(); col++){// initialize the matrix to zero
+        for (int row=0; row<d_table->numRows(); row++)
+            d_saved_cells[col][row] = 0.0;}
+
+    bool wrongLocale = false;
+	for (int col = 0; col<d_table->numCols(); col++)
+	{
+	    if (colTypes[col] == Numeric)
+	    {
+            bool ok = false;
+            for (int row=0; row<d_table->numRows(); row++)
+            {
+                d_saved_cells[col][row] = QLocale().toDouble(d_table->text(row, col), &ok);
+                if (!ok){
+                    wrongLocale = true;
+                    break;
+                }
+            }
+            if (wrongLocale)
+                break;
+	    }
+	}
+
+	if (wrongLocale){// fall back to C locale
+	    wrongLocale = false;
+        for (int col = 0; col<d_table->numCols(); col++)
+        {
+            if (colTypes[col] == Numeric)
+            {
+                bool ok = false;
+                for (int row=0; row<d_table->numRows(); row++)
+                {
+                    d_saved_cells[col][row] = QLocale::c().toDouble(d_table->text(row, col), &ok);
+                    if (!ok)
+                    {
+                        wrongLocale = true;
+                        break;
+                    }
+                }
+            if (wrongLocale)
+                break;
+            }
+        }
+	}
+	if (wrongLocale){// fall back to German locale
+	    wrongLocale = false;
+        for (int col = 0; col<d_table->numCols(); col++)
+        {
+            if (colTypes[col] == Numeric)
+            {
+                bool ok = false;
+                for (int row=0; row<d_table->numRows(); row++)
+                {
+                    d_saved_cells[col][row] = QLocale(QLocale::German).toDouble(d_table->text(row, col), &ok);
+                    if (!ok)
+                    {
+                        wrongLocale = true;
+                        break;
+                    }
+                }
+            if (wrongLocale)
+                break;
+            }
+        }
+	}
+	if (wrongLocale){// fall back to French locale
+	    wrongLocale = false;
+        for (int col = 0; col<d_table->numCols(); col++)
+        {
+            if (colTypes[col] == Numeric)
+            {
+                bool ok = false;
+                for (int row=0; row<d_table->numRows(); row++)
+                {
+                    d_saved_cells[col][row] = QLocale(QLocale::French).toDouble(d_table->text(row, col), &ok);
+                    if (!ok)
+                    {
+                        wrongLocale = true;
+                        break;
+                    }
+                }
+            if (wrongLocale)
+                break;
+            }
+        }
+	}
 }
 
 void Table::freeMemory()
 {
-	for ( int i = 0; i < d_table->numRows(); i++)
-		delete[] d_saved_cells[i];
+    for ( int i = 0; i < d_table->numCols(); i++)
+        delete[] d_saved_cells[i];
 
 	delete[] d_saved_cells;
 	d_saved_cells = 0;
@@ -1652,7 +1738,7 @@ void Table::setColNumericFormat(int f, int prec, int col)
                 format = 'e';
 
 			if (d_saved_cells)
-				setText(i, col, QLocale().toString(d_saved_cells[i][col], format, prec));
+				setText(i, col, QLocale().toString(d_saved_cells[col][i], format, prec));
 			else
 				setText(i, col, QLocale().toString(stringToDouble(t), format, prec));
 		}
@@ -1827,8 +1913,8 @@ void Table::setRandomValues()
 	int rows=d_table->numRows();
 	QStringList list=selectedColumns();
 
-	time_t tmp;
-	srand(time(&tmp));
+    time_t tmp;
+    srand(time(&tmp));
 
 	for (int j=0;j<(int) list.count(); j++)
 	{
@@ -2278,10 +2364,9 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		cols = (int)line.count();
 
 		bool allNumbers = true;
-		line.replaceInStrings ( ",", "." ); //Qt uses decimal dot
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers
-			(line[i]).toDouble(&allNumbers);
+			QLocale().toDouble(line[i], &allNumbers);
 			if (!allNumbers)
 				break;
 		}
@@ -2289,12 +2374,12 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		if (renameCols && !allNumbers)
 			rows--;
 
-		Q3ProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+		QProgressDialog progress(this);
 		int steps = int(rows/1000);
+        progress.setRange(0, steps+1);
 		progress.setWindowTitle("Qtiplot - Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
-		progress.setTotalSteps(steps+1);
 
 		QApplication::restoreOverrideCursor();
 
@@ -2374,7 +2459,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			}
 
 			startRow+= 1000;
-			progress.setProgress(i);
+			progress.setValue(i);
 		}
 
 		for (i=startRow; i<d_table->numRows(); i++)
@@ -2388,7 +2473,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			for (int j=startCol; j<d_table->numCols(); j++)
 				d_table->setText(i, j, line[j-startCol]);
 		}
-		progress.setProgress(steps+1);
+		progress.setValue(steps+1);
 		d_table->blockSignals(false);
 		f.close();
 
@@ -2430,10 +2515,9 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		cols = (int)line.count();
 
 		bool allNumbers = true;
-		line.replaceInStrings ( ",", "." ); //Qt uses decimal dot
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers
-			(line[i]).toDouble(&allNumbers);
+			QLocale().toDouble(line[i], &allNumbers);
 			if (!allNumbers)
 				break;
 		}
@@ -2442,13 +2526,13 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			rows--;
 		int steps = int(rows/1000);
 
-		Q3ProgressDialog progress(0, "progress", true, Qt::WindowStaysOnTopHint|Qt::Tool);
+		QProgressDialog progress(this);
 		progress.setWindowTitle("Qtiplot - Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
 		progress.setAutoClose(true);
 		progress.setAutoReset(true);
-		progress.setTotalSteps(steps+1);
+		progress.setRange(0, steps+1);
 
 		QApplication::restoreOverrideCursor();
 
@@ -2535,7 +2619,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				for (int j=0; j<cols && j<lc; j++)
 					d_table->setText(start + k, j, line[j]);
 			}
-			progress.setProgress(i);
+			progress.setValue(i);
 			qApp->processEvents();
 		}
 
@@ -2556,7 +2640,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			for (int j=0; j<cols && j<lc; j++)
 				d_table->setText(i, j, line[j]);
 		}
-		progress.setProgress(steps+1);
+		progress.setValue(steps+1);
 		qApp->processEvents();
 		d_table->blockSignals(false);
 		f.close();
@@ -2714,15 +2798,16 @@ void Table::moveCurrentCell()
 
 	if (col+1<cols)
 	{
-		d_table->setCurrentCell (row,col+1);
-		d_table->selectCells(row,col+1,row,col+1);
+		d_table->setCurrentCell(row, col+1);
+		d_table->selectCells(row, col+1, row, col+1);
 	}
 	else
 	{
-		if(row+1 >= d_table->numRows())
-			resizeRows(row+2);
-		d_table->setCurrentCell (row+1,0);
-		d_table->selectCells(row+1,0,row+1,0);
+        if(row+1 >= numRows())
+            d_table->setNumRows(row + 11);
+
+		d_table->setCurrentCell (row+1, 0);
+		d_table->selectCells(row+1, 0, row+1, 0);
 	}
 }
 
@@ -2803,7 +2888,7 @@ void Table::setSpecifications(const QString& s)
 void Table::setNewSpecifications()
 {
 
-	newSpecifications= saveToString("geometry\n");
+	newSpecifications = saveToString("geometry\n");
 }
 
 QString& Table::getNewSpecifications()
@@ -2857,7 +2942,7 @@ void Table::restore(QString& spec)
 		d_table->setNumCols(c);
 
 	//clear all cells
-	for (i=0;i<rows;i++)
+	for (i=0; i<r; i++)
 	{
 		for (j=0; j<c; j++)
 			d_table->setText(i,j, "");
@@ -3084,12 +3169,13 @@ void Table::copy(Table *m)
 	setColWidths(m->columnWidths());
 	col_label = m->colNames();
 	col_plot_type = m->plotDesignations();
+	d_show_comments = m->commentsEnabled();
+    comments = m->colComments();
 	setHeaderColType();
 
 	commands = m->getCommands();
 	setColumnTypes(m->columnTypes());
 	col_format = m->getColumnsFormat();
-	comments = m->colComments();
 }
 
 QString Table::saveAsTemplate(const QString& geometryInfo)
@@ -3207,4 +3293,32 @@ void Table::setNumericPrecision(int prec)
 {
 	for (int i=0; i<d_table->numCols(); i++)
         col_format[i] = "0/"+QString::number(prec);
+}
+
+/*****************************************************************************
+ *
+ * Class MyTable
+ *
+ *****************************************************************************/
+
+MyTable::MyTable(QWidget * parent, const char * name)
+:Q3Table(parent, name)
+{}
+
+MyTable::MyTable(int numRows, int numCols, QWidget * parent, const char * name)
+:Q3Table(numRows, numCols, parent, name)
+{}
+
+void MyTable::activateNextCell()
+{
+	int row = currentRow();
+	int col = currentColumn();
+
+	clearSelection (true);
+
+    if(row+1 >= numRows())
+        setNumRows(row + 11);
+
+	setCurrentCell (row + 1, col);
+    selectCells(row+1, col, row+1, col);
 }

@@ -142,7 +142,7 @@ public:
   CHECK_TABLE_COL(a0);
   CHECK_TABLE_ROW(a1);
 	if (sipIsErr == 0)
-		sipRes = sipCpp->text(row, col).toDouble();
+		sipRes = sipCpp->cell(row, col);
 %End
   void setText(SIP_PYOBJECT, int, const QString&);
 %MethodCode
@@ -157,12 +157,8 @@ public:
   sipIsErr = 0;
   CHECK_TABLE_COL(a0);
   CHECK_TABLE_ROW(a1);
-	if (sipIsErr == 0) {
-		int prec;
-		char f;
-		sipCpp->columnNumericFormat(col, &f, &prec);
-		sipCpp->setText(row,col,QString::number(a2, f, prec));
-	}
+	if (sipIsErr == 0)
+		sipCpp->setCell(row, col, a2);
 %End
   SIP_PYOBJECT colName(int);
 %MethodCode
@@ -831,10 +827,10 @@ public:
   ~Filter();
 
   void setOutputPoints(int);
-  
+
   void setColor(int);
   void setColor(const QString&);
-  
+
   virtual bool run();
 };
 
@@ -885,7 +881,7 @@ class Interpolation : Filter
 %End
 public:
   enum InterpolationMethod{Linear, Cubic, Akima};
-  
+
   Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=0);
   Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=0);
   Interpolation(Graph *, const QString&, int=0) /NoDerived/;
@@ -909,7 +905,7 @@ class SmoothFilter : Filter
 %End
 public:
   enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
-  
+
   SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=3);
   SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=3);
   SmoothFilter(Graph *, const QString&, int=3) /NoDerived/;
@@ -923,10 +919,10 @@ public:
 
   void setMethod(int);
   void setMethod(SmoothMethod);
-  
+
   void setSmoothPoints(int, int = 0);
   void setPolynomOrder(int);
-	
+
   bool run();
 };
 
@@ -937,7 +933,7 @@ class FFTFilter : Filter
 %End
 public:
   enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
-  
+
   FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=1);
   FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=1);
   FFTFilter(Graph *, const QString&, int=1) /NoDerived/;
@@ -951,11 +947,11 @@ public:
 
   void setFilterType(int);
   void setFilterType(FilterType);
-  
+
   void setCutoff(double);
   void setBand(double, double);
   void enableOffset(bool=true);
-	
+
   bool run();
 };
 
@@ -965,7 +961,7 @@ class FFT : Filter
 #include "src/FFT.h"
 %End
 public:
-  
+
   FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = QString());
   FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
@@ -981,7 +977,7 @@ public:
   void setSampling(double);
   void normalizeAmplitudes(bool=true);
   void shiftFrequencies(bool=true);
-	
+
   bool run();
 };
 

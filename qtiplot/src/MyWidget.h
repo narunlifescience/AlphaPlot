@@ -101,7 +101,7 @@ public:
 	//! Return the window status flag (hidden, normal, minimized or maximized)
 	Status status(){return w_status;};
 	//! Set the window status flag (hidden, normal, minimized or maximized)
-	void setStatus(Status s){w_status = s;};
+	void setStatus(Status s);
 
 	virtual QString saveAsTemplate(const QString& ){return QString();};
 	// TODO:
@@ -118,7 +118,7 @@ public:
 	virtual QString sizeToString();
 
 	//!Notifies that a window was hidden by a direct user action
-	void setHidden();
+	virtual void setHidden();
 
 	//event handlers
 	//! Close event handler
@@ -142,6 +142,10 @@ public:
 	void notifyChanges(){emit modifiedWindow(this);};
 
 	static double stringToDouble(const QString& s);
+	
+	void showNormal();
+	void showMinimized();
+	void showMaximized();
 
 signals:
 	//! Emitted when the window was closed

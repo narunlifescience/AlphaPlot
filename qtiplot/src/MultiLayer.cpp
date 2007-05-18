@@ -1321,3 +1321,11 @@ void MultiLayer::changeEvent(QEvent *event)
 	}
 	MyWidget::changeEvent(event);
 }
+
+void MultiLayer::setHidden()
+{
+	if (status() == MyWidget::Maximized)
+		resizeLayers(d_normal_size, d_max_size, false);
+	
+	MyWidget::setHidden();
+}

@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Widget with text format buttons (connected to a QTextEdit)
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -65,11 +65,13 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	connectedTextEdit = textEdit;
 
 	QHBoxLayout * layout = new QHBoxLayout(this);
+	layout->setMargin(0);
+	layout->setSpacing(0);
     layout->addStretch();
 
 	QFont font = this->font();
 	font.setPointSize(14);
-		
+
 	buttonCurve = new QPushButton( QPixmap(lineSymbol_xpm), QString());
 	buttonCurve->setMaximumWidth(40);
 	buttonCurve->setMinimumHeight(35);
@@ -88,22 +90,22 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	buttonSuperscript->setFont(font);
 	layout->addWidget(buttonSuperscript);
 
-	buttonLowerGreek = new QPushButton(QString(QChar(0x3B1))); 
+	buttonLowerGreek = new QPushButton(QString(QChar(0x3B1)));
 	buttonLowerGreek->setFont(font);
 	buttonLowerGreek->setMaximumWidth(40);
 	layout->addWidget(buttonLowerGreek);
 
-	buttonUpperGreek = new QPushButton(QString(QChar(0x393))); 
+	buttonUpperGreek = new QPushButton(QString(QChar(0x393)));
 	buttonUpperGreek->setFont(font);
 	buttonUpperGreek->setMaximumWidth(40);
 	layout->addWidget(buttonUpperGreek);
 
-	buttonMathSymbols = new QPushButton(QString(QChar(0x222B))); 
+	buttonMathSymbols = new QPushButton(QString(QChar(0x222B)));
 	buttonMathSymbols->setFont(font);
 	buttonMathSymbols->setMaximumWidth(40);
 	layout->addWidget(buttonMathSymbols);
 
-	buttonArrowSymbols = new QPushButton(QString(QChar(0x2192))); 
+	buttonArrowSymbols = new QPushButton(QString(QChar(0x2192)));
 	buttonArrowSymbols->setFont(font);
 	buttonArrowSymbols->setMaximumWidth(40);
 	layout->addWidget(buttonArrowSymbols);
@@ -112,7 +114,7 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	font.setBold(true);
 	font.setPointSize(14);
 
-	buttonBold = new QPushButton(tr("B","Button bold")); 
+	buttonBold = new QPushButton(tr("B","Button bold"));
 	buttonBold->setFont(font);
 	buttonBold->setMaximumWidth(40);
 	layout->addWidget(buttonBold);
@@ -120,7 +122,7 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	font = this->font();
 	font.setItalic(true);
 	font.setPointSize(14);
-	
+
 	buttonItalics = new QPushButton(tr("It","Button italics"));
 	buttonItalics->setFont(font);
 	buttonItalics->setMaximumWidth(40);
@@ -246,7 +248,7 @@ void TextFormatButtons::formatText(const QString & prefix, const QString & postf
 		// if no text is marked, place cursor inside the <..></..> statement
 		// instead of after it
 		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,postfix.size());
-		// the next line makes the selection visible to the user 
+		// the next line makes the selection visible to the user
 		// (the line above only changes the selection in the
 		// underlying QTextDocument)
 		connectedTextEdit->setTextCursor(cursor);

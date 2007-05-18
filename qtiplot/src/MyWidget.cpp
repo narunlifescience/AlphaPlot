@@ -177,22 +177,37 @@ bool MyWidget::eventFilter(QObject *object, QEvent *e)
 	return QObject::eventFilter(object, e);
 }
 
+void MyWidget::setStatus(Status s)
+{
+	if (w_status == s)
+		return;
+	
+	w_status = s; 
+	emit statusChanged (this);
+}
+
+void MyWidget::showNormal()
+{
+	QWidget::showNormal();
+	w_status = Normal;
+	emit statusChanged (this);
+}
+
+void MyWidget::showMinimized()
+{
+	QWidget::showMinimized();
+	w_status = Minimized;
+	emit statusChanged (this);
+}
+
+void MyWidget::showMaximized()
+{
+	QWidget::showMaximized();
+	w_status = Maximized;
+	emit statusChanged (this);
+}
+
 double MyWidget::stringToDouble(const QString& s)
 {
-    bool ok = false;
-	double val = QLocale().toDouble(s, &ok);	
-    if (ok)
-        return val;
-
-    val = QLocale::c().toDouble(s, &ok);
-    if (ok)
-        return val;
-
-    val = QLocale(QLocale::German).toDouble(s, &ok);
-    if (ok)
-        return val;
-
-    val = QLocale(QLocale::French).toDouble(s, &ok);
-    if (ok)
-        return val;
+    return QLocale().toDouble(s);
 }

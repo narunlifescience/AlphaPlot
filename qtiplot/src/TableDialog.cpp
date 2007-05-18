@@ -177,7 +177,6 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	connect(buttonApply, SIGNAL(clicked()), this, SLOT(apply()));
     connect(buttonOk, SIGNAL(clicked()), this, SLOT(accept()));
     connect(buttonCancel, SIGNAL( clicked() ), this, SLOT( close() ) );
-	connect(applyToRightCols, SIGNAL(clicked()), this, SLOT(updateFormat()));
 	connect(columnsBox, SIGNAL(activated(int)), this, SLOT(setPlotDesignation(int)) );
 	connect(displayBox, SIGNAL(activated(int)), this, SLOT(updateDisplay(int)));
 	connect(buttonPrev, SIGNAL(clicked()), this, SLOT(prevColumn()));
@@ -267,6 +266,7 @@ void TableDialog::updateColumn(int sc)
 void TableDialog::changeColWidth(int width)
 {
 d_table->changeColWidth(width, applyToAllBox->isChecked());
+d_table->setHeaderColType();
 }
 
 void TableDialog::apply()
@@ -384,11 +384,6 @@ void TableDialog::showPrecisionBox(int item)
 void TableDialog::updatePrecision(int prec)
 {
     setNumericFormat(formatBox->currentIndex(), prec, applyToRightCols->isChecked());
-}
-
-void TableDialog::updateFormat()
-{
-    setNumericFormat(formatBox->currentIndex(), precisionBox->value(), applyToRightCols->isChecked());
 }
 
 void TableDialog::updateDisplay(int item)

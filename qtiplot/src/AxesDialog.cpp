@@ -1410,8 +1410,8 @@ void AxesDialog::initGridPage()
 		boxYLine->setText( tr( "Y=0" ) );
 		rightLayout->addWidget( boxYLine, 5, 2);
 
-		rightLayout->setRowStretch( 5, 1 );
-		rightLayout->setColumnStretch( 3, 1 );
+		rightLayout->setRowStretch( 6, 1 );
+		rightLayout->setColumnStretch( 4, 1 );
 
 		QPixmap image2( ( const char** ) image2_data );
 		QPixmap image3( ( const char** ) image3_data );
@@ -1494,15 +1494,17 @@ void AxesDialog::initAxesPage()
 	topLayout->addWidget( labelBox );
 
 	QVBoxLayout *labelBoxLayout = new QVBoxLayout( labelBox );
+    labelBoxLayout->setSpacing(2);
 
 	boxTitle = new QTextEdit();
 	boxTitle->setTextFormat(Qt::PlainText);
 	QFontMetrics metrics(this->font());
 	boxTitle->setMaximumHeight(3*metrics.height());
-	labelBoxLayout->addWidget(boxTitle);
+    labelBoxLayout->addWidget(boxTitle);
 
 	QHBoxLayout *hl = new QHBoxLayout();
-	hl->addStretch();
+	hl->setMargin(0);
+	hl->setSpacing(2);
 	buttonLabelFont = new QPushButton(tr("&Font"));
 	hl->addWidget(buttonLabelFont);
 
@@ -1510,6 +1512,8 @@ void AxesDialog::initAxesPage()
 	formatButtons->toggleCurveButton(false);
 	hl->addWidget(formatButtons);
 	hl->addStretch();
+
+	boxTitle->setMaximumWidth(buttonLabelFont->width() + formatButtons->width());
 	labelBoxLayout->addLayout(hl);
 
 	QHBoxLayout * bottomLayout = new QHBoxLayout();

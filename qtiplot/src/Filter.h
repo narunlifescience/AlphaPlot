@@ -5,7 +5,7 @@
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
     Description          : Abstract base class for data analysis operations
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -57,10 +57,10 @@ class Filter : public QObject
 		//! Changes the data range if the source curve was already assigned. Provided for convenience.
 		void setInterval(double from, double to);
 
-		//! Sets the tolerance used by the GSL routines 
+		//! Sets the tolerance used by the GSL routines
 		void setTolerance(double eps){d_tolerance = eps;};
 
-		//! Sets the color of the output fit curve. 
+		//! Sets the color of the output fit curve.
 		void setColor(int colorId){d_curveColorIndex = colorId;};
 
         //! Sets the color of the output fit curve. Provided for convenience. To be used in scripts only!
@@ -138,7 +138,7 @@ class Filter : public QObject
 		int d_max_iterations;
 
 		//! The curve to be analysed
-		QwtPlotCurve *d_curve; 
+		QwtPlotCurve *d_curve;
 
 		//! Precision (number of significant digits) used for the results output
 		int d_prec;

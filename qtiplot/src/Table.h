@@ -31,21 +31,24 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include <QWidget>
 #include <q3table.h>
 #include <q3header.h>
-//Added by qt3to4:
-#include <QContextMenuEvent>
 #include <Q3ValueList>
-#include <QEvent>
-#include <Q3TableSelection>
-
 #include <QVarLengthArray>
 
 #include "Graph.h"
 #include "MyWidget.h"
 #include "ScriptingEnv.h"
 #include "Script.h"
+
+class MyTable : public Q3Table
+{
+public:
+    MyTable(QWidget * parent = 0, const char * name = 0);
+    MyTable(int numRows, int numCols, QWidget * parent = 0, const char * name = 0);
+
+    void activateNextCell();
+};
 
 /*!\brief MDI window providing a spreadsheet table with column logic.
  *
@@ -72,7 +75,7 @@ public:
 	void setNumericPrecision(int prec);
 
 public slots:
-	Q3Table* table(){return d_table;};
+	MyTable* table(){return d_table;};
 	void copy(Table *m);
 	int numRows();
 	int numCols();
@@ -83,6 +86,8 @@ public slots:
 
 	//! Return the value of the cell as a double
 	double cell(int row, int col);
+	void setCell(int row, int col, double val);
+
 	QString text(int row, int col);
 	QStringList columnsList();
 	QStringList colNames(){return col_label;}
@@ -362,7 +367,7 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 
 protected:
-	Q3Table *d_table;
+	MyTable *d_table;
 
 private:
 	bool d_show_comments;

@@ -53,7 +53,6 @@ private slots:
 	void updateColumn(int);
 	void changeColWidth(int width);
 	void showPrecisionBox(int item);
-	void updateFormat();
 	void updatePrecision(int prec);
 	void setPlotDesignation(int i);
 	void accept();
