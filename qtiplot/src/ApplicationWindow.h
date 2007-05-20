@@ -395,11 +395,7 @@ public slots:
 	void exportLayer();
 	void exportGraph();
 	void exportAllGraphs();
-	void exportAllGraphs(const QString& dir, const QString& format,
-                        int quality, bool transparency);
-    void exportGraph(QWidget *w, const QString& fileName, const QString& format,
-                    int quality, bool transparency);
-    void exportPDF();
+	void exportPDF();
 	void print();
 	void print(QWidget* w);
 	void printAllPlots();

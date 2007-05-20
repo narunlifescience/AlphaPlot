@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Nonlinear curve fitting dialog
+    Description          : Fit Wizard
 
  ***************************************************************************/
 
@@ -47,7 +47,7 @@ class QLineEdit;
 class ColorBox;
 class Fit;
 
-//! Nonlinear curve fitting dialog
+//! Fit Wizard
 class FitDialog : public QDialog
 {
     Q_OBJECT

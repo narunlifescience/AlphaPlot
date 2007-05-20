@@ -168,7 +168,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/QwtHistogram.h \
             src/VectorCurve.h \
             src/ScaleDraw.h \
-            src/ImageExportOptionsDialog.h \
             src/Matrix.h \
             src/MatrixDialog.h \
             src/MatrixSizeDialog.h \
@@ -188,7 +187,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/InterpolationDialog.h\
             src/ImportFilesDialog.h \
             src/ImageExportDialog.h\
-            src/EpsExportDialog.h\
             src/SmoothCurveDialog.h\
             src/FilterDialog.h\
             src/FFTDialog.h\
@@ -278,7 +276,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/BoxCurve.cpp \
             src/QwtHistogram.cpp \
             src/VectorCurve.cpp \
-            src/ImageExportOptionsDialog.cpp \
             src/Matrix.cpp \
             src/MatrixDialog.cpp \
             src/MatrixSizeDialog.cpp \
@@ -296,7 +293,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/RenameWindowDialog.cpp \
             src/MyWidget.cpp\
             src/InterpolationDialog.cpp\
-            src/EpsExportDialog.cpp\
             src/nrutil.cpp\
             src/fit_gsl.cpp\
             src/SmoothCurveDialog.cpp\

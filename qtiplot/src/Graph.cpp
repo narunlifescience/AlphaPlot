@@ -110,8 +110,6 @@ static const char *unzoom_xpm[]={
 #include "QwtHistogram.h"
 #include "VectorCurve.h"
 #include "ScaleDraw.h"
-#include "ImportFilesDialog.h"
-#include "ImageExportDialog.h"
 #include "ColorBox.h"
 #include "PatternBox.h"
 #include "SymbolBox.h"
@@ -134,6 +132,8 @@ static const char *unzoom_xpm[]={
 #include <QTextStream>
 #include <QLocale>
 #include <QPrintDialog>
+#include <QImageWriter>
+#include <QFileInfo>
 
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>

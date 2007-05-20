@@ -64,20 +64,22 @@ bool PythonScript::compile(bool for_eval)
 	// Support for the convenient col() and cell() functions.
 	// This can't be done anywhere else, because we need access to the local
 	// variables self, i and j.
-	if(Context->isA("Table")) {
+	if(Context->inherits("Table")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
 		PyDict_SetItemString(localDict, "__builtins__",
 				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def col(c,*arg):\n"
 				"\ttry: return self.cell(c,arg[0])\n"
-				"\texcept(IndexError): return self.cell(c,i)\n",
+				"\texcept(IndexError): return self.cell(c,i)\n"
+				"def cell(c,r):\n"
+				"\treturn self.cell(c,r)",
 				Py_file_input, localDict, localDict);
 		if (ret)
 			Py_DECREF(ret);
 		else
 			PyErr_Print();
-	} else if(Context->isA("Matrix")) {
+	} else if(Context->inherits("Matrix")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
 		PyDict_SetItemString(localDict, "__builtins__",
 				PyDict_GetItemString(env()->globalDict(), "__builtins__"));

@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Nonlinear curve fitting dialog
+    Description          : Fit Wizard
 
  ***************************************************************************/
 
@@ -65,7 +65,7 @@ FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 {
 	if ( !name )
 		setName( "FitDialog" );
-	setWindowTitle(tr("QtiPlot - Nonlinear curve fit"));
+	setWindowTitle(tr("QtiPlot - Fit Wizard"));
 	setSizeGripEnabled( true );
 
     userFunctionNames = QStringList();

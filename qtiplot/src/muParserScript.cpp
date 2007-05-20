@@ -60,9 +60,10 @@ muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *
     else if (i->numargs == 3 && i->fun3 != NULL)
       parser.DefineFun(i->name, i->fun3);
 
-  if (Context->isA("Table"))
+  if (Context->isA("Table")) {
 	  parser.DefineFun("col", mu_col, false);
-  else if (Context->isA("Matrix"))
+	  parser.DefineFun("cell", mu_tableCell);
+  } else if (Context->isA("Matrix"))
 	  parser.DefineFun("cell", mu_cell);
 
   rparser = parser;
@@ -133,7 +134,7 @@ double muParserScript::col(const QString &arg)
 double muParserScript::cell(int row, int col)
 {
 	if (!Context->isA("Matrix"))
-		throw Parser::exception_type(tr("cell() works only on matrices!").ascii());
+		throw Parser::exception_type(tr("cell() works only on tables and matrices!").ascii());
 	Matrix *matrix = (Matrix*) Context;
 	if (row < 1 || row > matrix->numRows())
 		throw Parser::exception_type(tr("There's no row %1 in matrix %2!").
@@ -145,6 +146,23 @@ double muParserScript::cell(int row, int col)
 		throw new EmptySourceError();
 	else
 		return matrix->cell(row-1,col-1);
+}
+
+double muParserScript::tableCell(int col, int row)
+{
+	if (!Context->isA("Table"))
+		throw Parser::exception_type(tr("cell() works only on tables and matrices!").ascii());
+	Table *table = (Table*) Context;
+	if (row < 1 || row > table->numRows())
+		throw Parser::exception_type(tr("There's no row %1 in table %2!").
+				arg(row).arg(Context->name()).ascii());
+	if (col < 1 || col > table->numCols())
+		throw Parser::exception_type(tr("There's no column %1 in table %2!").
+				arg(col).arg(Context->name()).ascii());
+	if (table->text(row-1,col-1).isEmpty())
+		throw new EmptySourceError();
+	else
+		return table->cell(row-1,col-1);
 }
 
 double *muParserScript::addVariable(const char *name)
