@@ -135,6 +135,10 @@ static const char *unzoom_xpm[]={
 #include <QImageWriter>
 #include <QFileInfo>
 
+#if QT_VERSION >= 0x040300
+	#include <QSvgGenerator>
+#endif
+
 #include <qwt_painter.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
@@ -1553,7 +1557,7 @@ void Graph::exportVector(const QString& fileName, int res, bool color)
 	printer.setFullPage(true);
 	if (res)
 		printer.setResolution(res);
-
+	
     printer.setOutputFileName(fileName);
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
@@ -1642,16 +1646,15 @@ void Graph::print()
 
 void Graph::exportSVG(const QString& fname)
 {
-	// TODO: check if the next 2 lines can be removed
-	// enable workaround for Qt3 misalignments
-	// QwtPainter::setSVGMode(true);
-
-	/*Q3Picture picture;
-	QPainter p(&picture);
-	d_plot->print(&p, d_plot->rect());
-	p.end();
-
-	picture.save(fname, "svg");*/
+	#if QT_VERSION >= 0x040300
+		QSvgGenerator svg;
+        svg.setFileName(fname);
+        svg.setSize(d_plot->size());
+	
+		QPainter p(&svg);
+		d_plot->print(&p, d_plot->rect());
+		p.end();
+	#endif
 }
 
 int Graph::selectedCurveID()
@@ -5442,8 +5445,10 @@ int Graph::visibleCurves()
 
 QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
 {
-    double w_mm = (double)r.width()/(double)printer.logicalDpiX() * 25.4;
-    double h_mm = (double)r.height()/(double)printer.logicalDpiY() * 25.4;
+	double x_margin = 0.2/2.54*printer.logicalDpiX(); // 2 mm margins
+	double y_margin = 0.2/2.54*printer.logicalDpiY(); 
+    double w_mm = 2*x_margin + (double)(r.width())/(double)printer.logicalDpiX() * 25.4;
+    double h_mm = 2*y_margin + (double)(r.height())/(double)printer.logicalDpiY() * 25.4;
 
     int w, h;
     if (w_mm/h_mm > 1)
@@ -5456,7 +5461,7 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         h = (int)ceil(w_mm);
         w = (int)ceil(h_mm);
     }
-
+	
 	QPrinter::PageSize size = QPrinter::A5;
 	if (w < 45 && h < 32)
         size =  QPrinter::B10;
@@ -5478,10 +5483,22 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         size =  QPrinter::B6;
     else if (w < 210 && h < 148)
         size =  QPrinter::A5;
+	else if (w < 220 && h < 110)
+        size =  QPrinter::DLE;
+	else if (w < 229 && h < 163)
+        size =  QPrinter::C5E;
+	else if (w < 241 && h < 105)
+        size =  QPrinter::Comm10E;
     else if (w < 257 && h < 182)
         size =  QPrinter::B5;
+	else if (w < 279 && h < 216)
+        size =  QPrinter::Letter;
     else if (w < 297 && h < 210)
         size =  QPrinter::A4;
+	else if (w < 330 && h < 210)
+        size =  QPrinter::Folio;
+	else if (w < 356 && h < 216)
+        size =  QPrinter::Legal;
     else if (w < 364 && h < 257)
         size =  QPrinter::B4;
     else if (w < 420 && h < 297)
@@ -5500,6 +5517,6 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         size =  QPrinter::A0;
     else if (w < 1456 && h < 1030)
         size =  QPrinter::B0;
-
+	
 	return size;
 }

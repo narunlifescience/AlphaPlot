@@ -250,18 +250,10 @@ int Filter::sortedCurveData(QwtPlotCurve *c, double start, double end, double **
     double *xtemp = new double[n];
     double *ytemp = new double[n];
 
-	double pr_x = c->x(i_start) - 1.0;
   	int j=0;
     for (int i = i_start; i <= i_end; i++)
     {
         xtemp[j] = c->x(i);
-        if (xtemp[j] == pr_x)
-        {
-            delete (*x);
-            delete (*y);
-            return -1;//this kind of data causes division by zero in GSL interpolation routines
-        }
-        pr_x = xtemp[j];
         ytemp[j++] = c->y(i);
     }
     size_t *p = new size_t[n];
@@ -299,18 +291,10 @@ int Filter::curveData(QwtPlotCurve *c, double start, double end, double **x, dou
     (*x) = new double[n];
     (*y) = new double[n];
 
-    double pr_x = c->x(i_start) - 1.0;
     int j=0;
     for (int i = i_start; i <= i_end; i++)
     {
         (*x)[j] = c->x(i);
-        if ((*x)[j] == pr_x)
-        {
-            delete (*x);
-            delete (*y);
-            return -1;//this kind of data causes division by zero in GSL interpolation routines
-        }
-        pr_x = (*x)[j];
         (*y)[j++] = c->y(i);
     }
     return n;

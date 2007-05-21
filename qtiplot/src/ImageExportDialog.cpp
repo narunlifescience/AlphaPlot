@@ -50,7 +50,9 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, bool vector_options, Qt:
 	list<<"EPS";
 	list<<"PS";
 	list<<"PDF";
-	//list<<"SVG";
+	#if QT_VERSION >= 0x040300
+		list<<"SVG";
+	#endif
 
 	QStringList filters;
 	for(int i=0 ; i<list.count() ; i++)
@@ -74,6 +76,7 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, bool vector_options, Qt:
 		int advanced_row = main_layout->rowCount();
 		main_layout->addWidget(d_advanced_toggle, advanced_row, main_layout->columnCount()-1, 2, 1);
 		main_layout->addWidget(d_advanced_options, advanced_row, 0, 2, main_layout->columnCount()-1);
+		main_layout->setColumnStretch(1, 1);
 	} else {
 		// fallback in case QFileDialog uses a different layout in the future
 		main_layout->addWidget(d_advanced_toggle);

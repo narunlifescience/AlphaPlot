@@ -39,6 +39,10 @@
 #include <QPicture>
 #include <QClipboard>
 
+#if QT_VERSION >= 0x040300
+	#include <QSvgGenerator>
+#endif
+
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
 #include <qwt_plot_layout.h>
@@ -745,23 +749,22 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color)
 
 void MultiLayer::exportSVG(const QString& fname)
 {
-	QPicture picture;
-	QPainter p(&picture);
-	for (int i=0;i<(int)graphsList.count();i++)
-	{
-		Graph *gr=(Graph *)graphsList.at(i);
-		Plot *myPlot= (Plot *)gr->plotWidget();
+	#if QT_VERSION >= 0x040300
+		QSvgGenerator generator;
+        generator.setFileName(fname);
+        generator.setSize(canvas->size());
+	
+		QPainter p(&generator);
+        for (int i=0; i<(int)graphsList.count(); i++)
+		{
+			Graph *gr = (Graph *)graphsList.at(i);
+			Plot *myPlot = (Plot *)gr->plotWidget();
 
-		QPoint pos=gr->pos();
-
-		int width=int(myPlot->frameGeometry().width());
-		int height=int(myPlot->frameGeometry().height());
-
-		myPlot->print(&p, QRect(pos,QSize(width,height)));
-	}
-
-	p.end();
-	picture.save(fname, "svg");
+			QPoint pos = QPoint(gr->pos().x(), gr->pos().y());
+			myPlot->print(&p, QRect(pos, myPlot->size()));
+		}
+		p.end();
+	#endif
 }
 
 void MultiLayer::copyAllLayers()
