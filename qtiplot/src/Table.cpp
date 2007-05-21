@@ -838,9 +838,9 @@ int Table::selectedColsNumber()
 
 QString Table::colName(int col)
 {//returns the table name + horizontal header text
-	if (col<0 || col >=d_table->numCols())
+	if (col<0 || col >= col_label.count())
 		return QString();
-
+	
 	return QString(this->name())+"_"+col_label[col];
 }
 
@@ -1937,38 +1937,40 @@ void Table::setRandomValues()
 
 void Table::loadHeader(QStringList header)
 {
-	for (int i=0;i<(int)d_table->numCols();i++)
+	col_label.clear();
+	col_plot_type.clear();
+	for (int i=0; i<header.count();i++)
 	{
 		QString s = header[i].replace("_","-");
 		if (s.contains("[X]"))
 		{
-			col_label[i]=s.remove("[X]");
-			col_plot_type[i] = X;
+			col_label << s.remove("[X]");
+			col_plot_type << X;
 		}
 		else if (s.contains("[Y]"))
 		{
-			col_label[i]=s.remove("[Y]");
-			col_plot_type[i] = Y;
+			col_label << s.remove("[Y]");
+			col_plot_type << Y;
 		}
 		else if (s.contains("[Z]"))
 		{
-			col_label[i]=s.remove("[Z]");
-			col_plot_type[i] = Z;
+			col_label << s.remove("[Z]");
+			col_plot_type << Z;
 		}
 		else if (s.contains("[xEr]"))
 		{
-			col_label[i]=s.remove("[xEr]");
-			col_plot_type[i] = xErr;
+			col_label << s.remove("[xEr]");
+			col_plot_type << xErr;
 		}
 		else if (s.contains("[yEr]"))
 		{
-			col_label[i]=s.remove("[yEr]");
-			col_plot_type[i] = yErr;
+			col_label << s.remove("[yEr]");
+			col_plot_type << yErr;
 		}
 		else
 		{
-			col_label[i]=s;
-			col_plot_type[i] = None;
+			col_label << s;
+			col_plot_type << None;
 		}
 	}
 	setHeaderColType();
@@ -2940,7 +2942,7 @@ void Table::restore(QString& spec)
 	int c=list[2].toInt();
 	if (cols != c)
 		d_table->setNumCols(c);
-
+	
 	//clear all cells
 	for (i=0; i<r; i++)
 	{
@@ -2954,7 +2956,7 @@ void Table::restore(QString& spec)
 	list = s.split("\t");
 	list.remove(list.first());
 
-	if (!col_label.isEmpty() && col_label != list)
+	if (col_label != list)
 	{
 		loadHeader(list);
 		list.replaceInStrings("[X]","");
@@ -2979,7 +2981,7 @@ void Table::restore(QString& spec)
 		}
 	}
 
-	s= t.readLine();	//colWidth line
+	s = t.readLine();	//colWidth line
 	list = s.split("\t");
 	list.remove(list.first());
 	if (columnWidths() != list)
@@ -3007,17 +3009,22 @@ void Table::restore(QString& spec)
 		}
 	}
 
-	s= t.readLine();	//colType line ?
+	s = t.readLine();	//colType line ?	
 	list = s.split("\t");
-	if (s.contains ("ColType",true))
+	colTypes.clear();
+	col_format.clear();
+	if (s.contains ("ColType"))
 	{
 		list.remove(list.first());
-		for (i=0; i<int(list.count()); i++)
+		for (i=0; i<list.count(); i++)
 		{
-			QStringList l= list[i].split(";");
-			colTypes[i] = l[0].toInt();
-
-			if ((int)l.count() > 0)
+			colTypes << Numeric;
+			col_format << "0/14";
+			
+			QStringList l = list[i].split(";");
+			if (l.count() >= 1)
+				colTypes[i] = l[0].toInt();
+			if (l.count() >= 2)
 				col_format[i] = l[1];
 		}
 	}
@@ -3028,37 +3035,37 @@ void Table::restore(QString& spec)
 			d_table->setText(row, j, list[j+1]);
 	}
 
-	s= t.readLine();	//comments line ?
+	s = t.readLine();	//comments line ?
 	list = s.split("\t");
-	if (s.contains ("Comments",true))
+	if (s.contains ("Comments"))
 	{
 		list.remove(list.first());
 		comments = list;
 	}
 
-	s= t.readLine();
+	s = t.readLine();
 	list = s.split("\t");
-	if (s.contains ("WindowLabel",true))
+		
+	if (s.contains ("WindowLabel"))
 	{
-		setWindowLabel(list[1]);
+		setWindowLabel(list[1]);	
 		setCaptionPolicy((MyWidget::CaptionPolicy)list[2].toInt());
 	}
 
-	s= t.readLine();
+	s = t.readLine();
 	if (s == "<data>")
 		s = t.readLine();
 
 	while (!t.atEnd () && s != "</data>")
 	{
 		list = s.split("\t");
-
 		row = list[0].toInt();
 		for (j=0; j<c; j++)
 			d_table->setText(row, j, list[j+1]);
 
-		s= t.readLine();
+		s = t.readLine();
 	}
-
+	
 	for (j=0; j<c; j++)
 		emit modifiedData(this, colName(j));
 }
