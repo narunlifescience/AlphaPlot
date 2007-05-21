@@ -162,9 +162,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 
 	textEditBox = new QTextEdit();
 	textEditBox->setTextFormat(Qt::PlainText);
-    QFont ftemp = QFont();
-	ftemp.setPointSize(12);
-	textEditBox->setFont(ftemp);
+	textEditBox->setFont(QFont());
 
 	formatButtons =  new TextFormatButtons(textEditBox);
 	formatButtons->toggleCurveButton(textType == TextDialog::TextMarker);
@@ -267,12 +265,9 @@ void TextDialog::customFont()
 	QFont fnt = QFontDialog::getFont( &okF, selectedFont, this);
 	if (okF && fnt != selectedFont)
 	{
-		selectedFont = fnt;
-		QFont font = fnt;
-		font.setPointSize(12);
-		textEditBox->setFont(font);
+		selectedFont = fnt;		
+		emit changeFont (fnt);
 	}
-	emit changeFont (fnt);
 }
 
 void TextDialog::setAngle(int /*angle*/)
@@ -339,17 +334,9 @@ void TextDialog::pickBackgroundColor()
 	backgroundBtn->setColor ( c ) ;
 }
 
-QFont TextDialog::font()
-{
-	return selectedFont;
-}
-
 void TextDialog::setFont(const QFont & fnt)
 {
 	selectedFont = fnt;
-	QFont font = fnt;
-	font.setPointSize(12);
-	textEditBox->setFont(font);
 }
 
 void TextDialog::updateTransparency(int alpha)

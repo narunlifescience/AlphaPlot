@@ -142,10 +142,10 @@ public:
 	void notifyChanges(){emit modifiedWindow(this);};
 
 	static double stringToDouble(const QString& s);
-	
-	void showNormal();
-	void showMinimized();
-	void showMaximized();
+
+	void setNormal();
+	void setMinimized();
+	void setMaximized();
 
 signals:
 	//! Emitted when the window was closed

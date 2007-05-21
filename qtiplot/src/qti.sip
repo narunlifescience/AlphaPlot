@@ -1012,7 +1012,7 @@ public:
   MDIWindowList windowsList() /PyName=windows/;
 // TODO: implement signal Folder::nameChanged and make it update the project explorer; adjust renaming from GUI accordingly
 //  void setFolderName(const QString&) /PyName=setName/;
-  QString folderName() /PyName=name/;
+  QString name();
   QString path();
 
   QList<Folder*> folders();

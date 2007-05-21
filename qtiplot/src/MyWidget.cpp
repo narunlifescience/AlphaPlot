@@ -30,6 +30,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "MyWidget.h"
+#include "Folder.h"
+
 #include <QMessageBox>
 #include <QEvent>
 #include <QCloseEvent>
@@ -122,13 +124,6 @@ switch (w_status)
 	break;
 	}
 return s;
-};
-
-void MyWidget::setHidden()
-{
-w_status = Hidden;
-emit statusChanged (this);
-hide();
 }
 
 QString MyWidget::sizeToString()
@@ -181,28 +176,35 @@ void MyWidget::setStatus(Status s)
 {
 	if (w_status == s)
 		return;
-	
-	w_status = s; 
+
+	w_status = s;
 	emit statusChanged (this);
 }
 
-void MyWidget::showNormal()
+void MyWidget::setHidden()
 {
-	QWidget::showNormal();
+    w_status = Hidden;
+    emit statusChanged (this);
+    hide();
+}
+
+void MyWidget::setNormal()
+{
+	showNormal();
 	w_status = Normal;
 	emit statusChanged (this);
 }
 
-void MyWidget::showMinimized()
+void MyWidget::setMinimized()
 {
-	QWidget::showMinimized();
+	showMinimized();
 	w_status = Minimized;
 	emit statusChanged (this);
 }
 
-void MyWidget::showMaximized()
+void MyWidget::setMaximized()
 {
-	QWidget::showMaximized();
+	showMaximized();
 	w_status = Maximized;
 	emit statusChanged (this);
 }

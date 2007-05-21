@@ -112,7 +112,7 @@ static const char* folder_open_xpm[]={
     "............#ee#"};
 
 Folder::Folder( Folder *parent, const QString &name )
-    : QObject( parent, name ), fName( name ), d_active_window(0)
+    : QObject( parent, name ), d_active_window(0)
 {
     QDateTime dt = QDateTime::currentDateTime ();
 	birthdate = dt.toString(Qt::LocalDate);
@@ -137,18 +137,18 @@ QStringList Folder::subfolders()
 	{
 		QObject * f;
 		foreach(f,folderList)
-			list << static_cast<Folder *>(f)->folderName();
+			list << static_cast<Folder *>(f)->name();
 	}
 	return list;
 }
 
 QString Folder::path()
 {
-QString s = "/" + fName + "/";
+QString s = "/" + QString(name()) + "/";
 Folder *parentFolder = (Folder *)parent();
 while (parentFolder)
 	{
-	s.prepend("/"+parentFolder->folderName());
+	s.prepend("/" + QString(parentFolder->name()));
 	parentFolder = (Folder *)parentFolder->parent();
 	}
 return s;
@@ -163,7 +163,7 @@ Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partial
 
 		foreach(f,folderList)
 		{
-			QString name = static_cast<Folder *>(f)->folderName();
+			QString name = static_cast<Folder *>(f)->name();
 			if (partialMatch)
 			{
 				if (caseSensitive && name.startsWith(s,Qt::CaseSensitive))
@@ -256,10 +256,6 @@ foreach(w, lstWindows)
 return QString::number(8*size/1024.0,'f',1)+" "+tr("kB")+" ("+QString::number(8*size)+" "+tr("bytes")+")";
 }
 
-Folder::~Folder()
-{
-}
-
 /*****************************************************************************
  *
  * Class FolderListItem
@@ -271,7 +267,7 @@ FolderListItem::FolderListItem( Q3ListView *parent, Folder *f )
 {
     myFolder = f;
 
-    setText( 0, f->folderName() );
+    setText( 0, f->name() );
 	setOpen( true );
 	setActive( true );
 	setDragEnabled ( true );
@@ -283,7 +279,7 @@ FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
 {
     myFolder = f;
 
-    setText( 0, f->folderName() );
+    setText( 0, f->name() );
 	setOpen( true );
 	setActive( true );
 }

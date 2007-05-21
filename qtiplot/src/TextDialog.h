@@ -68,8 +68,6 @@ public:
 	 * \sa setAlignment()
 	 */
 	int alignment();
-	//! Return the current font
-	QFont font();
 	//! Return rotation angle (not yet implemented)
 	int angle();
 
@@ -98,7 +96,6 @@ public slots:
 	 *  Qt::AlignHCenter, Qt::AlignLeft, or Qt::AlignRight)
 	 */
 	void setAlignment(int align);
-
 
 private slots:
 	//! Let the user select another font
@@ -137,6 +134,7 @@ signals:
 	void changeFont(const QFont &);
 
 protected:
+	//! current font
 	QFont selectedFont;
 	TextType textType;
 

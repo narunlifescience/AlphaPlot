@@ -3602,7 +3602,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	//rename project folder item
 	FolderListItem *item = (FolderListItem *)app->folders->firstChild();
 	item->setText(0, fi.baseName());
-	item->folder()->setFolderName(fi.baseName());
+	item->folder()->setName(fi.baseName());
 
 	//process tables and matrix information
 	while ( !t.atEnd() && !progress.wasCanceled())
@@ -4699,7 +4699,7 @@ QString ApplicationWindow::windowGeometryInfo(MyWidget *w)
     }
 
     if (w->status() == MyWidget::Minimized)
-        return s + "minimized\n";
+        s += "minimized\t";
 
     bool hide = hidden(w);
     if (w == w->folder()->activeWindow() && !hide)
@@ -4708,7 +4708,6 @@ QString ApplicationWindow::windowGeometryInfo(MyWidget *w)
         s+="hidden\n";
     else
         s+="\n";
-
 	return s;
 }
 
@@ -4826,7 +4825,7 @@ void ApplicationWindow::saveProjectAs()
 			QString baseName = fi.baseName();
 			FolderListItem *item = (FolderListItem *)folders->firstChild();
 			item->setText(0, baseName);
-			item->folder()->setFolderName(baseName);
+			item->folder()->setName(baseName);
 		}
 		if (selectedFilter.contains(".gz"))
 			file_compress((char *)fn.ascii(), "wb9");
@@ -4904,7 +4903,7 @@ void ApplicationWindow::rename()
 void ApplicationWindow::renameWindow()
 {
 	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w= it->window();
+	MyWidget *w = it->window();
 	if (!w)
 		return;
 
@@ -7736,9 +7735,7 @@ void ApplicationWindow::activateWindow(MyWidget *w)
 	if (!w)
 		return;
 
-	//w->setActiveWindow();
-	//w->setFocus();
-	w->showNormal();
+	w->setNormal();
 	ws->setActiveWindow(w);
 
 	updateWindowLists(w);
@@ -7754,7 +7751,7 @@ void ApplicationWindow::maximizeWindow(Q3ListViewItem * lbi)
 	if (!w)
 		return;
 
-	w->showMaximized();
+	w->setMaximized();
 	updateWindowLists(w);
 	emit modified();
 }
@@ -7772,7 +7769,7 @@ void ApplicationWindow::minimizeWindow()
 		return;
 
 	updateWindowLists(w);
-	w->showMinimized();
+	w->setMinimized();
 	emit modified();
 }
 
@@ -7966,7 +7963,7 @@ void ApplicationWindow::windowsMenuActivated( int id )
 		if(hidden(w))
 		{
 			hiddenWindows->takeAt(hiddenWindows->indexOf(w));
-			setListView(w->name(),tr("Normal"));
+			setListView(w->name(), tr("Normal"));
 		}
 	}
 }
@@ -11894,9 +11891,6 @@ void ApplicationWindow::translateActionsStrings()
 	None->setToolTip( tr( "No axes" ) );
 	None->setStatusTip( tr( "No axes" ) );
 
-	//grids->setText( tr( "grid" ) );
-	//grids->setMenuText( tr( "grid" ) );
-	//grids->setStatusTip( tr( "grid" ) );
 	front->setToolTip( tr( "Front grid" ) );
 	back->setToolTip( tr( "Back grid" ) );
 	right->setToolTip( tr( "Right grid" ) );
@@ -11904,9 +11898,6 @@ void ApplicationWindow::translateActionsStrings()
 	ceil->setToolTip( tr( "Ceiling grid" ) );
 	floor->setToolTip( tr( "Floor grid" ) );
 
-	//plotstyle->setText( tr( "Plot Style" ) );
-	//plotstyle->setMenuText( tr( "Plot Style" ) );
-	//plotstyle->setStatusTip( tr( "Plot Style" ) );
 	wireframe->setText( tr( "Wireframe" ) );
 	wireframe->setMenuText( tr( "Wireframe" ) );
 	wireframe->setToolTip( tr( "Wireframe" ) );
@@ -12154,9 +12145,9 @@ QWidgetList* ApplicationWindow::windowsList()
 	foreach(QWidget *w, *outWindows)
 		lst->append(w);
 
-	if (!(current_folder->children()).isEmpty()){
-		FolderListItem *fi = current_folder->folderListItem();
-		FolderListItem *item = (FolderListItem *)fi->firstChild();
+    Folder *project_folder = projectFolder();
+	if (!(project_folder->children()).isEmpty()){
+		FolderListItem *item = project_folder->folderListItem();
 		int initial_depth = item->depth();
 		while (item && item->depth() >= initial_depth)
 		{
@@ -12929,13 +12920,10 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	QFile f( fn );
 	if (f.exists())
 	{// make byte-copy of current file so that there's always a copy of the data on disk
-		QFile backup(fn + "~");
-		while (!f.open(QIODevice::ReadOnly) || !backup.open(QIODevice::WriteOnly))
+		while (!f.open(QIODevice::ReadOnly))
 		{
 			if (f.isOpen())
 				f.close();
-			if (backup.isOpen())
-				backup.close();
 			int choice = QMessageBox::warning(this, tr("QtiPlot - File backup error"),
 					tr("Cannot make a backup copy of <b>%1</b> (to %2).<br>If you ignore this, you run the risk of <b>data loss</b>.").arg(projectname).arg(projectname+"~"),
 					QMessageBox::Retry|QMessageBox::Default, QMessageBox::Abort|QMessageBox::Escape, QMessageBox::Ignore);
@@ -12945,12 +12933,9 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 				break;
 		}
 
-		if (f.isOpen() && backup.isOpen())
-		{// TODO:: rewrite this part using QFile:copy()!
-			while (!f.atEnd())
-				backup.putch(f.getch());
-
-			backup.close();
+		if (f.isOpen())
+		{
+            QFile::copy (fn, fn + "~");
 			f.close();
 		}
 	}
@@ -12978,7 +12963,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	while (item && item->depth() > initial_depth)
 	{
 		Folder *dir = (Folder *)item->folder();
-		text += "<folder>\t"+dir->folderName()+"\t"+dir->birthDate()+"\t"+dir->modificationDate();
+		text += "<folder>\t"+QString(dir->name())+"\t"+dir->birthDate()+"\t"+dir->modificationDate();
 		if (dir == current_folder)
 			text += "\tcurrent\n";
 		else
@@ -13164,10 +13149,9 @@ void ApplicationWindow::startRenameFolder(Q3ListViewItem *item)
 	if (!item || item == folders->firstChild())
 		return;
 
-	disconnect(folders, SIGNAL(currentChanged(Q3ListViewItem *)), this, SLOT(folderItemChanged(Q3ListViewItem *)));
-
 	if (item->listView() == lv && item->rtti() == FolderListItem::RTTI)
 	{
+        disconnect(folders, SIGNAL(currentChanged(Q3ListViewItem *)), this, SLOT(folderItemChanged(Q3ListViewItem *)));
 		current_folder = ((FolderListItem *)item)->folder();
 		FolderListItem *it = current_folder->folderListItem();
 		it->setRenameEnabled (0, true);
@@ -13200,7 +13184,7 @@ void ApplicationWindow::renameFolder(Q3ListViewItem *it, int col, const QString 
 	}
 
 	QStringList lst = parent->subfolders();
-	lst.remove(current_folder->folderName());
+	lst.remove(current_folder->name());
 	while(lst.contains(text))
 	{
 		QMessageBox::critical(this,tr("QtiPlot - Error"),
@@ -13211,7 +13195,7 @@ void ApplicationWindow::renameFolder(Q3ListViewItem *it, int col, const QString 
 		return;
 	}
 
-	current_folder->setFolderName(text);
+	current_folder->setName(text);
 	it->setRenameEnabled (0, false);
 	connect(folders, SIGNAL(currentChanged(Q3ListViewItem *)),
 			this, SLOT(folderItemChanged(Q3ListViewItem *)));
@@ -13315,7 +13299,7 @@ void ApplicationWindow::hideAllFolderWindows()
 
 void ApplicationWindow::projectProperties()
 {
-	QString s = current_folder->folderName() + "\n\n";
+	QString s = QString(current_folder->name()) + "\n\n";
 	s += "\n\n\n";
 	s += tr("Type") + ": " + tr("Project")+"\n\n";
 	if (projectname != "untitled")
@@ -13357,7 +13341,7 @@ void ApplicationWindow::folderProperties()
 		return;
 	}
 
-	QString s = current_folder->folderName() + "\n\n";
+	QString s = QString(current_folder->name()) + "\n\n";
 	s += "\n\n\n";
 	s += tr("Type") + ": " + tr("Folder")+"\n\n";
 	s += tr("Path") + ": " + current_folder->path() + "\n\n";
@@ -13398,7 +13382,7 @@ void ApplicationWindow::addFolder()
 bool ApplicationWindow::deleteFolder(Folder *f)
 {
 	if (confirmCloseFolder && QMessageBox::information(this, tr("QtiPlot - Delete folder?"),
-				tr("Delete folder '%1' and all the windows it contains?").arg(f->folderName()),
+				tr("Delete folder '%1' and all the windows it contains?").arg(f->name()),
 				tr("Yes"), tr("No"), 0, 0))
 		return false;
 	else
@@ -13489,13 +13473,25 @@ void ApplicationWindow::hideFolderWindows(Folder *f)
 
 void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 {
-	desactivateFolders();
-	newFolder->folderListItem()->setActive(true);
-
 	if (current_folder == newFolder && !force)
 		return;
 
-	hideFolderWindows(current_folder);
+    desactivateFolders();
+	newFolder->folderListItem()->setActive(true);
+
+    Folder *oldFolder = current_folder;
+    MyWidget::Status old_active_window_state = MyWidget::Normal;
+    MyWidget *old_active_window = oldFolder->activeWindow();
+    if (old_active_window)
+        old_active_window_state = old_active_window->status();
+
+    MyWidget::Status active_window_state = MyWidget::Normal;
+    MyWidget *active_window = newFolder->activeWindow();
+    if (active_window)
+        active_window_state = active_window->status();
+
+    ws->blockSignals(true);
+	hideFolderWindows(oldFolder);
 	current_folder = newFolder;
 
 	lv->clear();
@@ -13509,82 +13505,71 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 
 	QList<MyWidget *> lst = newFolder->windowsList();
 	foreach(MyWidget *w, lst)
-	{//show only windows in the current folder which are not hidden by the user
-		if (w)
-		{
-			if (!hiddenWindows->contains(w) && !outWindows->contains(w) && show_windows_policy != HideAll){
-				switch (w->status()){
-					case MyWidget::Normal:
-						w->showNormal();
-						break;
-					case MyWidget::Minimized:
-						w->showMinimized();
-						break;
-					case MyWidget::Maximized:
-                        current_folder->setActiveWindow(w);
-						break;
-					case MyWidget::Hidden:
-						break;
-				}
-			}
-			else
-				w->setStatus(MyWidget::Hidden);
+	{
+        w->blockSignals(true);
+        if (!hiddenWindows->contains(w) && !outWindows->contains(w) && show_windows_policy != HideAll){
+            //show only windows in the current folder which are not hidden by the user
+            if(w->status() == MyWidget::Normal)
+                w->showNormal();
+            else if(w->status() == MyWidget::Minimized)
+                w->showMinimized();
+        }
+        else
+            w->setStatus(MyWidget::Hidden);
 
-			addListViewItem(w);
-		}
+        addListViewItem(w);
 	}
 
 	if (!(newFolder->children()).isEmpty()){
-	FolderListItem *fi = newFolder->folderListItem();
-	FolderListItem *item = (FolderListItem *)fi->firstChild();
-	int initial_depth = item->depth();
-	while (item && item->depth() >= initial_depth)
-	{//show/hide windows in subfolders
-		lst = ((Folder *)item->folder())->windowsList();
-		foreach(MyWidget *w, lst)
-		{
-			if (w &&!hiddenWindows->contains(w) && !outWindows->contains(w)){
-				if (show_windows_policy == SubFolders){
-					switch (w->status()){
-						case MyWidget::Normal:
-							w->showNormal();
-							break;
-						case MyWidget::Minimized:
-							w->showMinimized();
-							break;
-						case MyWidget::Maximized:
-							if (w->isA("Graph3D"))
-								((Graph3D*)w)->setIgnoreFonts(true);
-
-							w->showMaximized();
-
-							if (w->isA("Graph3D"))
-								((Graph3D*)w)->setIgnoreFonts(false);
-							break;
-						case MyWidget::Hidden:
-							break;
-					}
-				}
+        FolderListItem *fi = newFolder->folderListItem();
+        FolderListItem *item = (FolderListItem *)fi->firstChild();
+        int initial_depth = item->depth();
+        while (item && item->depth() >= initial_depth)
+        {//show/hide windows in subfolders
+            lst = ((Folder *)item->folder())->windowsList();
+            foreach(MyWidget *w, lst)
+            {
+                if (!hiddenWindows->contains(w) && !outWindows->contains(w)){
+                    if (show_windows_policy == SubFolders){
+                        if (w->status() == MyWidget::Normal || w->status() == MyWidget::Maximized)
+                            w->showNormal();
+                        else if (w->status() == MyWidget::Minimized)
+                            w->showMinimized();
+                    }
 				else if (w->isVisible())
 					w->hide();
-			}
-		}
-
-		item = (FolderListItem *)item->itemBelow();
-	}
-	}
-
-    MyWidget *w = current_folder->activeWindow();
-    if (w){
-        ws->setActiveWindow(w);
-        if (w->status() == MyWidget::Maximized){
-            if (w->isA("Graph3D"))
-                ((Graph3D *)w)->setIgnoreFonts(true);
-            w->showMaximized();
-            if (w->isA("Graph3D"))
-                ((Graph3D *)w)->setIgnoreFonts(false);
+                }
             }
+		item = (FolderListItem *)item->itemBelow();
         }
+	}
+
+    ws->blockSignals(false);
+
+    if (active_window){
+        ws->setActiveWindow(active_window);
+        if (active_window_state == MyWidget::Minimized)
+            active_window->showMinimized();//ws->setActiveWindow() makes minimized windows to be shown normally
+        else if (active_window_state == MyWidget::Maximized){
+            if (active_window->isA("Graph3D"))
+                ((Graph3D *)active_window)->setIgnoreFonts(true);
+            active_window->showMaximized();
+            if (active_window->isA("Graph3D"))
+                ((Graph3D *)active_window)->setIgnoreFonts(false);
+            }
+        current_folder->setActiveWindow(active_window);
+        customMenu(active_window);
+        customToolBars(active_window);
+        }
+
+     if (old_active_window)
+     {
+        old_active_window->setStatus(old_active_window_state);
+        oldFolder->setActiveWindow(old_active_window);
+     }
+
+    foreach(MyWidget *w, newFolder->windowsList())
+        w->blockSignals(false);
 }
 
 void ApplicationWindow::desactivateFolders()
@@ -13631,11 +13616,7 @@ void ApplicationWindow::addListViewItem(MyWidget *w)
 	}
 
 	it->setText(0, w->name());
-	if (w->isHidden())
-		it->setText(2, tr("Hidden"));
-	else
-		it->setText(2, w->aspect());
-
+    it->setText(2, w->aspect());
 	it->setText(3, w->sizeToString());
 	it->setText(4, w->birthDate());
 	it->setText(5, w->windowLabel());
@@ -13696,7 +13677,7 @@ void ApplicationWindow::addFolderListViewItem(Folder *f)
 
 	FolderListItem* it = new FolderListItem(lv, f);
 	it->setActive(false);
-	it->setText(0, f->folderName());
+	it->setText(0, f->name());
 	it->setText(1, tr("Folder"));
 	it->setText(3, f->sizeToString());
 	it->setText(4, f->birthDate());
@@ -13799,10 +13780,10 @@ void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest)
 			if (dest_f == parent)
 				return;
 
-			if (subfolders.contains(f->folderName()))
+			if (subfolders.contains(f->name()))
 			{
 				QMessageBox::critical(this, tr("QtiPlot") +" - " + tr("Skipped moving folder"),
-						tr("The destination folder already contains a folder called '%1'! Folder skipped!").arg(f->folderName()));
+						tr("The destination folder already contains a folder called '%1'! Folder skipped!").arg(f->name()));
 			}
 			else
 				moveFolder(src, (FolderListItem *)dest);
@@ -13837,12 +13818,12 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 	Folder *dest_f = dest->folder();
 	Folder *src_f = src->folder();
 
-	dest_f = new Folder(dest_f, src_f->folderName());
+	dest_f = new Folder(dest_f, src_f->name());
 	dest_f->setBirthDate(src_f->birthDate());
 	dest_f->setModificationDate(src_f->modificationDate());
 
 	FolderListItem *copy_item = new FolderListItem(dest, dest_f);
-	copy_item->setText(0, src_f->folderName());
+	copy_item->setText(0, src_f->name());
 	dest_f->setFolderListItem(copy_item);
 
 	QList<MyWidget *> lst = QList<MyWidget *>(src_f->windowsList());
@@ -13861,12 +13842,12 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 		{
 			src_f = (Folder *)item->folder();
 
-			dest_f = new Folder(dest_f, src_f->folderName());
+			dest_f = new Folder(dest_f, src_f->name());
 			dest_f->setBirthDate(src_f->birthDate());
 			dest_f->setModificationDate(src_f->modificationDate());
 
 			copy_item = new FolderListItem(copy_item, dest_f);
-			copy_item->setText(0, src_f->folderName());
+			copy_item->setText(0, src_f->name());
 			dest_f->setFolderListItem(copy_item);
 
 			lst = QList<MyWidget *>(src_f->windowsList());

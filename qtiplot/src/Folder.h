@@ -63,15 +63,11 @@ class Folder : public QObject
 
 public:
     Folder( Folder *parent, const QString &name );
-    ~Folder();
 
 	QList<MyWidget *> windowsList(){return lstWindows;};
 
     void addWindow( MyWidget *w ){ lstWindows.append( w );};
 	void removeWindow( MyWidget *w ){ lstWindows.takeAt( lstWindows.indexOf(w) );};
-
-	void setFolderName(const QString& s){fName = s;};
-    QString folderName() { return fName;};
 
 	//! The list of subfolder names, including first generation children only
 	QStringList subfolders();
@@ -122,7 +118,7 @@ public:
     void setActiveWindow(MyWidget *w){d_active_window = w;};
 
 protected:
-    QString fName, birthdate, modifDate;
+    QString birthdate, modifDate;
     QList<MyWidget *> lstWindows;
 	FolderListItem *myFolderListItem;
 

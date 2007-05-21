@@ -87,7 +87,7 @@ double muParserScript::col(const QString &arg)
 				} else
 					item += arg[i];
 				item += "\"";
-		} else if (arg[i] == ',' && QLocale().decimalPoint() != ',') {
+		} else if (arg[i] == ',') {
 			items << item;
 			item = "";
 		} else
