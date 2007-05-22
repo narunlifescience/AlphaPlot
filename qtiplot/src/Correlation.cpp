@@ -29,6 +29,8 @@
 #include "Correlation.h"
 #include "MultiLayer.h"
 #include "Plot.h"
+#include "PlotCurve.h"
+#include "ColorBox.h"
 #include <QMessageBox>
 #include <QLocale>
 
@@ -132,21 +134,31 @@ void Correlation::output()
 
 void Correlation::addResultCurve()
 {
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    if (!app)
+        return;
+
+    int rows = d_table->numRows();
 	int cols = d_table->numCols();
 	int cols2 = cols+1;
 	d_table->addCol();
 	d_table->addCol();
-	int n = d_table->numRows()/2;
-	for (int i = 0; i<d_table->numRows(); i++)
-	{
-		double y = 0;
-		if(i < n)
-			y = d_x[d_n - n + i];
-		else
-			y = d_x[i-n];
+	int n = rows/2;
 
-		d_table->setText(i, cols, QString::number(i - n));
-		d_table->setText(i, cols2, QLocale().toString(y));
+	double x_temp[rows], y_temp[rows];
+	for (int i = 0; i<rows; i++)
+	{
+	    double x = i - n;
+        x_temp[i] = x;
+
+        double y;
+        if(i < n)
+			y_temp[i] = d_x[d_n - n + i];
+		else
+			y_temp[i] = d_x[i-n];
+
+		d_table->setText(i, cols, QString::number(x));
+		d_table->setText(i, cols2, QLocale().toString(y, 'g', app->d_decimal_digits));
 	}
 
 	QStringList l = d_table->colNames().grep(tr("Lag"));
@@ -158,7 +170,13 @@ void Correlation::addResultCurve()
 	d_table->setColPlotDesignation(cols, Table::X);
 	d_table->setHeaderColType();
 
-	ApplicationWindow *app = (ApplicationWindow *)parent();
 	MultiLayer *ml = app->newGraph(name() + tr("Plot"));
-    ml->activeGraph()->insertCurve(d_table, d_table->name() + "_" + label, 0);
+	if (!ml)
+        return;
+
+    DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
+	c->setData(x_temp, y_temp, rows);
+    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+	ml->activeGraph()->insertPlotItem(c, Graph::Line);
+	ml->activeGraph()->updatePlot();
 }

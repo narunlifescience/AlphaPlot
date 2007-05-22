@@ -981,6 +981,57 @@ public:
   bool run();
 };
 
+class Correlation : Filter
+{
+%TypeHeaderCode
+#include "src/Correlation.h"
+%End
+public:
+
+  Correlation(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
+  Correlation(Table *, const QString&, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipCorrelation(app, a0, *a1, *a2))
+%End
+
+  void setDataFromTable(Table *, const QString&, const QString&);
+  bool run();
+};
+
+class Convolution : Filter
+{
+%TypeHeaderCode
+#include "src/Convolution.h"
+%End
+public:
+
+  Convolution(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
+  Convolution(Table *, const QString&, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipConvolution(app, a0, *a1, *a2))
+%End
+
+  void setDataFromTable(Table *, const QString&, const QString&);
+  bool run();
+};
+
+class Deconvolution : Filter
+{
+%TypeHeaderCode
+#include "src/Convolution.h"
+%End
+public:
+
+  Deconvolution(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
+  Deconvolution(Table *, const QString&, const QString&) /NoDerived/;
+%MethodCode
+  SIPQTI_APP(new sipDeconvolution(app, a0, *a1, *a2))
+%End
+
+  void setDataFromTable(Table *, const QString&, const QString&);
+  bool run();
+};
+
 // used for output redirection
 class PythonScripting
 {

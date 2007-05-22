@@ -29,6 +29,8 @@
 #include "Convolution.h"
 #include "MultiLayer.h"
 #include "Plot.h"
+#include "PlotCurve.h"
+#include "ColorBox.h"
 
 #include <QMessageBox>
 #include <QLocale>
@@ -126,15 +128,23 @@ void Convolution::output()
 
 void Convolution::addResultCurve()
 {
+    ApplicationWindow *app = (ApplicationWindow *)parent();
+    if (!app)
+        return;
+
 	int cols = d_table->numCols();
 	int cols2 = cols+1;
 
 	d_table->addCol();
 	d_table->addCol();
+	double x_temp[d_n];
 	for (int i = 0; i<d_n; i++)
 	{
-		d_table->setText(i, cols, QString::number(i+1));
-		d_table->setText(i, cols2, QLocale().toString(d_x[i]));
+		double x = i+1;
+		x_temp[i] = x;
+
+		d_table->setText(i, cols, QString::number(x));
+		d_table->setText(i, cols2, QLocale().toString(d_x[i], 'g', app->d_decimal_digits));
 	}
 
 	QStringList l = d_table->colNames().grep(tr("Index"));
@@ -146,9 +156,15 @@ void Convolution::addResultCurve()
 	d_table->setColPlotDesignation(cols, Table::X);
 	d_table->setHeaderColType();
 
-	ApplicationWindow *app = (ApplicationWindow *)parent();
 	MultiLayer *ml = app->newGraph(name() + tr("Plot"));
-    ml->activeGraph()->insertCurve(d_table, d_table->name() + "_" + label, 0);
+	if (!ml)
+        return;
+
+    DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
+	c->setData(x_temp, d_x, d_n);
+    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+	ml->activeGraph()->insertPlotItem(c, Graph::Line);
+	ml->activeGraph()->updatePlot();
 }
 
 void Convolution::convlv(double *sig, int n, double *dres, int m, int sign)
