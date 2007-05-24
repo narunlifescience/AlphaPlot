@@ -113,7 +113,7 @@ PlotDialog::PlotDialog(bool showExtended, QWidget* parent,  const char* name, bo
 
     QHBoxLayout* hb2 = new QHBoxLayout();
 	btnMore = new QPushButton("&<<");
-	btnMore->setFixedWidth(25);
+	btnMore->setFixedWidth(30);
 	btnMore->setCheckable(true);
 	if (showExtended)
 		btnMore->toggle ();

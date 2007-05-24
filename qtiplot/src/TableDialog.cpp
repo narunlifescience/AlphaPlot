@@ -57,15 +57,14 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
     colName = new QLineEdit();
     hboxa->addWidget(colName);
 
-	enumerateAllBox = new QCheckBox();
-	enumerateAllBox->setText(tr("Enumerate all to the right" ));
+	enumerateAllBox = new QCheckBox(tr("Enumerate all to the right" ));
 
-	buttonPrev = new QPushButton();
-	buttonPrev->setText("&<<");
+	buttonPrev = new QPushButton("&<<");
+	buttonPrev->setAutoDefault(false);
 	buttonPrev->setMaximumWidth(40);
 
-	buttonNext = new QPushButton();
-	buttonNext->setText("&>>");
+	buttonNext = new QPushButton("&>>");
+	buttonNext->setAutoDefault(false);
 	buttonNext->setMaximumWidth(40);
 
 	QHBoxLayout *hboxb = new QHBoxLayout();
@@ -81,11 +80,12 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 	buttonOk = new QPushButton(tr( "&OK" ));
     buttonOk->setDefault(true);
 
-	buttonApply = new QPushButton();
-	buttonApply->setText(tr("&Apply"));
-
+	buttonApply = new QPushButton(tr("&Apply"));
+	buttonApply->setAutoDefault(false);
+	
 	buttonCancel = new QPushButton(tr( "&Cancel" ));
-
+	buttonCancel->setAutoDefault(false);
+	
 	QVBoxLayout  *vbox2 = new QVBoxLayout();
 	vbox2->setSpacing(5);
 	vbox2->setMargin(5);
