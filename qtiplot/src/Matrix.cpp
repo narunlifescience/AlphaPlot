@@ -287,18 +287,16 @@ void Matrix::restore(const QStringList &lst)
 QString Matrix::saveText()
 {
 	QString out_text = "<data>\n";
-	int cols = numRows();
-	int rows = numCols();
-
-	for(int i=0; i<rows; i++)
+	int cols = d_table->columnCount() - 1;
+	for(int i=0; i<d_table->rowCount(); i++)
 	{
 		if (!isEmptyRow(i))
 		{
 			out_text += QString::number(i)+"\t";
-			for(int j=0; j<cols-1; j++)
+			for(int j=0; j<cols; j++)
 				out_text += text(i, j) + "\t";
 
-			out_text += text(i,cols-1)+"\n";
+			out_text += text(i, cols)+"\n";
 		}
 	}
 	return out_text + "</data>\n";
@@ -1206,5 +1204,3 @@ void Matrix::goToRow(int row)
 	d_table->scrollToItem(the_item);
 	d_table->selectRow(row-1);
 }
-
-
