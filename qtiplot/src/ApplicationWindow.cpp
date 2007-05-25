@@ -12137,14 +12137,6 @@ QWidgetList* ApplicationWindow::windowsList()
 {
 	QWidgetList *lst = new QWidgetList;
 
-	QWidgetList windows = ws->windowList(QWorkspace::StackingOrder);
-	foreach(QWidget *w, windows)
-		lst->append(w);
-	foreach(QWidget *w, *hiddenWindows)
-		lst->append(w);
-	foreach(QWidget *w, *outWindows)
-		lst->append(w);
-
     Folder *project_folder = projectFolder();
 	if (!(project_folder->children()).isEmpty()){
 		FolderListItem *item = project_folder->folderListItem();
@@ -12157,6 +12149,12 @@ QWidgetList* ApplicationWindow::windowsList()
 			item = (FolderListItem *)item->itemBelow();
 		}
 	}
+	
+	foreach(QWidget *w, *hiddenWindows)
+		lst->append(w);
+	foreach(QWidget *w, *outWindows)
+		lst->append(w);
+	
 	return lst;
 }
 
@@ -12497,15 +12495,26 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	if (!file_name.isEmpty())
 	{
 		QFileInfo fi(file_name);
-		workingDir = fi.dirPath(true);
-
-		if (!fi.exists ())
+		if (fi.isDir())
+		{
+			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+					tr("<b>%1</b> is a directory, please specify a file name!").arg(file_name));
+			return;
+		}
+		else if (!fi.isReadable())
+		{
+			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+					tr("You don't have the permission to open this file: <b>%1</b>").arg(file_name));
+			return;
+		}
+		else if (!fi.exists())
 		{
 			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 					tr("The file: <b>%1</b> doesn't exist!").arg(file_name));
 			return;
 		}
 
+		workingDir = fi.dirPath(true);
 		saveSettings();//the recent projects must be saved
 
 		ApplicationWindow *a = open(file_name);
