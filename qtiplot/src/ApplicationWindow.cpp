@@ -4072,6 +4072,7 @@ void ApplicationWindow::readSettings()
 	QLocale::setDefault(settings.value("/Locale", QLocale::system().name()).toString());
 	d_decimal_digits = settings.value("/DecimalDigits", 14).toInt();
 	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();
+	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4272,6 +4273,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/Locale", QLocale().name());
 	settings.setValue("/DecimalDigits", d_decimal_digits);
 	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
+	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
 
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());

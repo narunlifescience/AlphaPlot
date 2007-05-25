@@ -59,6 +59,7 @@ private slots:
 	void enableRemoveBtn();
 	void showCurveRange(bool);
 	void updateCurveRange();
+	void showCurrentFolder(bool);
 
 private:
     void init();
@@ -81,6 +82,7 @@ private:
 	QComboBox* boxStyle;
 	QComboBox* boxMatrixStyle;
 	QCheckBox* boxShowRange;
+	QCheckBox* boxShowCurrentFolder;
 };
 
 #endif // CurvesDialog_H

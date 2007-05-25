@@ -33,6 +33,7 @@
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
 #include "ApplicationWindow.h"
+#include "Folder.h"
 #include "pixmaps.h"
 
 #include <QPushButton>
@@ -46,6 +47,8 @@
 #include <QShortcut>
 #include <QKeySequence>
 #include <QMenu>
+
+#include <QMessageBox>
 
 CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -134,14 +137,17 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
     vl2->addStretch();
     gl->addLayout(vl2, 1, 3);
-
-
+	
     QVBoxLayout* vl3 = new QVBoxLayout(this);
     vl3->addLayout(hl);
     vl3->addLayout(gl);
 
+	boxShowCurrentFolder = new QCheckBox(tr("Show current &folder only" ));
+	vl3->addWidget(boxShowCurrentFolder);
+	
     init();
 
+	connect(boxShowCurrentFolder, SIGNAL(toggled(bool)), this, SLOT(showCurrentFolder(bool)));
     connect(boxShowRange, SIGNAL(toggled(bool)), this, SLOT(showCurveRange(bool)));
 	connect(btnRange, SIGNAL(clicked()),this, SLOT(showCurveRangeDialog()));
 	connect(btnAssociations, SIGNAL(clicked()),this, SLOT(showPlotAssociations()));
@@ -270,12 +276,9 @@ void CurvesDialog::init()
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app)
     {
-        QStringList tables = app->columnsList(Table::Y);
-        if (!tables.isEmpty())
-        {
-            boxStyle->show();
-            available->addItems(tables);
-        }
+		bool currentFolderOnly = app->d_show_current_folder;		
+        boxShowCurrentFolder->setChecked(currentFolderOnly);
+		showCurrentFolder(currentFolderOnly);
 
         QStringList matrices = app->matrixNames();
         if (!matrices.isEmpty ())
@@ -517,4 +520,34 @@ void CurvesDialog::showCurveRange(bool on )
 void CurvesDialog::updateCurveRange()
 {
     showCurveRange(boxShowRange->isChecked());
+}
+
+void CurvesDialog::showCurrentFolder(bool currentFolder)
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (!app)
+		return;
+	
+	app->d_show_current_folder = currentFolder;
+	available->clear();
+	
+    if (currentFolder){
+    	Folder *f = app->currentFolder();
+		if (f){
+			QStringList columns;
+			foreach (QWidget *w, f->windowsList()){
+				if (!w->inherits("Table"))
+					continue;
+
+				Table *t = (Table *)w;
+				for (int i=0; i < t->numCols(); i++){
+					if(t->colPlotDesignation(i) == Table::Y)
+						columns << QString(t->name()) + "_" + t->colLabel(i);
+				}
+			}
+			available->addItems(columns);
+		}
+    }
+	else 
+        available->addItems(app->columnsList(Table::Y));		
 }

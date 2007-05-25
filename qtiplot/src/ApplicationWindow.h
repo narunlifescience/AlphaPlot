@@ -796,6 +796,8 @@ public slots:
 
 	//! \name Folders
 	//@{
+	//! Returns a to the current folder in the project
+	Folder* currentFolder(){return current_folder;};
 	//! Adds a new folder to the project
 	void addFolder();
 	//! Deletes the current folder
@@ -913,6 +915,8 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+	//! Specifies if only the Tables/Matrices in the current folder should be displayed in the Add/remove curve dialog.
+	bool d_show_current_folder;
 	bool d_scale_plots_on_print, d_print_cropmarks;
 	bool d_show_table_comments;
 	bool d_extended_plot_dialog;
