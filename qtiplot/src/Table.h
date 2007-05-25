@@ -73,6 +73,8 @@ public:
 
 	//! Sets the number of significant digits
 	void setNumericPrecision(int prec);
+	//! Updates the decimal separators in the numerical columns on user request
+	void updateDecimalSeparators();
 
 public slots:
 	MyTable* table(){return d_table;};

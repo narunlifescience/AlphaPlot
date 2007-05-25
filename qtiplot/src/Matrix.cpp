@@ -321,7 +321,7 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 		return;
 
 	allow_modification_signals = false;
-
+    d_table->blockSignals(true);
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	txt_format = f;
@@ -338,7 +338,7 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 				setCell(i, j, dMatrix[i][j]);
 		}
 	}
-
+    d_table->blockSignals(false);
 	allow_modification_signals = true;
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
@@ -559,7 +559,7 @@ void Matrix::saveCellsToMemory()
         {
             for (int j=0; j<cols; j++)
             {
-                dMatrix[i][j] = QLocale().toDouble(text(i, j), &ok);
+                dMatrix[i][j] = QLocale::c().toDouble(text(i, j), &ok);
                 if (!ok)
                     break;
             }
@@ -612,6 +612,7 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 		return false;
 	}
 
+    d_table->blockSignals(true);
 	int rows = numRows();
 	int cols = numCols();
 
@@ -654,6 +655,7 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 	forgetSavedCells();
 
 	allow_modification_signals = true;
+    d_table->blockSignals(false);
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 	return true;
@@ -1203,4 +1205,21 @@ void Matrix::goToRow(int row)
 
 	d_table->scrollToItem(the_item);
 	d_table->selectRow(row-1);
+}
+
+void Matrix::updateDecimalSeparators()
+{
+    saveCellsToMemory();
+
+    d_table->blockSignals(true);
+    for(int i=0; i<d_table->rowCount(); i++)
+	{
+		for(int j=0; j<d_table->columnCount(); j++)
+		{
+			if (!text(i, j).isEmpty())
+				setCell(i, j, dMatrix[i][j]);
+		}
+	}
+    d_table->blockSignals(false);
+    forgetSavedCells();
 }

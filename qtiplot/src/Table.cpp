@@ -840,7 +840,7 @@ QString Table::colName(int col)
 {//returns the table name + horizontal header text
 	if (col<0 || col >= col_label.count())
 		return QString();
-	
+
 	return QString(this->name())+"_"+col_label[col];
 }
 
@@ -2942,7 +2942,7 @@ void Table::restore(QString& spec)
 	int c=list[2].toInt();
 	if (cols != c)
 		d_table->setNumCols(c);
-	
+
 	//clear all cells
 	for (i=0; i<r; i++)
 	{
@@ -3009,7 +3009,7 @@ void Table::restore(QString& spec)
 		}
 	}
 
-	s = t.readLine();	//colType line ?	
+	s = t.readLine();	//colType line ?
 	list = s.split("\t");
 	colTypes.clear();
 	col_format.clear();
@@ -3020,7 +3020,7 @@ void Table::restore(QString& spec)
 		{
 			colTypes << Numeric;
 			col_format << "0/14";
-			
+
 			QStringList l = list[i].split(";");
 			if (l.count() >= 1)
 				colTypes[i] = l[0].toInt();
@@ -3045,10 +3045,10 @@ void Table::restore(QString& spec)
 
 	s = t.readLine();
 	list = s.split("\t");
-		
+
 	if (s.contains ("WindowLabel"))
 	{
-		setWindowLabel(list[1]);	
+		setWindowLabel(list[1]);
 		setCaptionPolicy((MyWidget::CaptionPolicy)list[2].toInt());
 	}
 
@@ -3065,7 +3065,7 @@ void Table::restore(QString& spec)
 
 		s = t.readLine();
 	}
-	
+
 	for (j=0; j<c; j++)
 		emit modifiedData(this, colName(j));
 }
@@ -3300,6 +3300,28 @@ void Table::setNumericPrecision(int prec)
 {
 	for (int i=0; i<d_table->numCols(); i++)
         col_format[i] = "0/"+QString::number(prec);
+}
+
+void Table::updateDecimalSeparators()
+{
+    saveToMemory();
+
+	for (int i=0; i<d_table->numCols(); i++)
+	{
+	    if (colTypes[i] != Numeric)
+            continue;
+
+        char format;
+        int prec;
+        columnNumericFormat(i, &format, &prec);
+
+        for (int j=0; j<d_table->numRows(); j++){
+            if (!d_table->text(j, i).isEmpty())
+                d_table->setText(j, i, QLocale().toString(d_saved_cells[i][j], format, prec));
+		}
+	}
+
+    freeMemory();
 }
 
 /*****************************************************************************

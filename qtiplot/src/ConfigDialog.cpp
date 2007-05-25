@@ -30,6 +30,7 @@
 #include "ApplicationWindow.h"
 #include "MultiLayer.h"
 #include "Graph.h"
+#include "Matrix.h"
 #include "ColorButton.h"
 #include "ColorBox.h"
 #include "pixmaps.h"
@@ -601,7 +602,11 @@ void ConfigDialog::initAppPage()
 	boxDecimalSeparator->addItem("1 000,0");
 
 	numericFormatLayout->addWidget(boxDecimalSeparator, 1, 1);
-	numericFormatLayout->setRowStretch(2, 1);
+
+    boxUpdateSeparators = new QCheckBox();
+    boxUpdateSeparators->setChecked(true);
+    numericFormatLayout->addWidget(boxUpdateSeparators, 2, 0);
+	numericFormatLayout->setRowStretch(3, 1);
 
 	appTabWidget->addTab( numericFormatPage, QString() );
 
@@ -869,6 +874,7 @@ void ConfigDialog::languageChange()
 	boxMinutes->setSuffix(tr(" minutes"));
 	lblScriptingLanguage->setText(tr("Default scripting language"));
 
+    boxUpdateSeparators->setText(tr("Update separators in Tables/Matrices"));
 	lblAppPrecision->setText(tr("Number of Decimal Digits"));
 	lblDecimalSeparator->setText(tr("Decimal Separators"));
 	boxDecimalSeparator->clear();
@@ -1058,7 +1064,8 @@ void ConfigDialog::apply()
 
 	// general page: numeric format tab
 	app->d_decimal_digits = boxAppPrecision->value();
-	switch (boxDecimalSeparator->currentIndex())
+
+	/*switch (boxDecimalSeparator->currentIndex())
 	{
         case 0:
             QLocale::setDefault(QLocale::system());
@@ -1072,7 +1079,42 @@ void ConfigDialog::apply()
         case 3:
             QLocale::setDefault(QLocale::French);
         break;
+    }*/
+
+    QLocale locale;
+    switch (boxDecimalSeparator->currentIndex())
+	{
+        case 0:
+            locale = QLocale::system();
+        break;
+        case 1:
+            locale = QLocale::c();
+        break;
+        case 2:
+            locale = QLocale(QLocale::German);
+        break;
+        case 3:
+            locale = QLocale(QLocale::French);
+        break;
     }
+
+    if (QLocale() != locale){
+        QLocale::setDefault(locale);
+
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        if (boxUpdateSeparators->isChecked()){
+            QList<QWidget*> *lst = app->windowsList();
+            foreach(QWidget *w, *lst){
+                if(w->isA("Table"))
+                    ((Table *)w)->updateDecimalSeparators();
+                else if(w->isA("Matrix"))
+                    ((Matrix *)w)->updateDecimalSeparators();
+            }
+            delete lst;
+        }
+        QApplication::restoreOverrideCursor();
+    }
+
 	// general page: confirmations tab
 	app->confirmCloseFolder = boxFolders->isChecked();
 	app->updateConfirmOptions(boxTables->isChecked(), boxMatrices->isChecked(),

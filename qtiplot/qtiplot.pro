@@ -448,6 +448,9 @@ contains(SCRIPTING_LANGS, Python) {
 			 $${SIP_DIR}/sipqtiCorrelation.h \
 			 $${SIP_DIR}/sipqtiConvolution.h \
 			 $${SIP_DIR}/sipqtiDeconvolution.h \
+			 $${SIP_DIR}/sipqtiCorrelation.h \
+			 $${SIP_DIR}/sipqtiConvolution.h \
+			 $${SIP_DIR}/sipqtiDeconvolution.h \
 
   SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
              $${SIP_DIR}/sipqtiApplicationWindow.cpp\

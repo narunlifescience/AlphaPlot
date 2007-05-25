@@ -91,6 +91,8 @@ public:
 	 */
 	void customEvent(QEvent *e);
 
+	void updateDecimalSeparators();
+
 public slots:
 	void exportPDF(const QString& fileName);
 	//! Print the Matrix
