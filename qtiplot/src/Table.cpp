@@ -46,6 +46,7 @@
 #include <QProgressDialog>
 #include <QFile>
 
+#include <Q3TextStream>
 #include <q3paintdevicemetrics.h>
 #include <q3dragobject.h>
 #include <Q3TableSelection>
@@ -2339,7 +2340,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		int importFileAs)
 {
 	QFile f(fname);
-	QTextStream t( &f );// use a text stream
+	Q3TextStream t( &f );// use a text stream
 	if ( f.open(QIODevice::ReadOnly) )
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -2491,10 +2492,11 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable)
 {
 	QFile f(fname);
-	QTextStream t( &f );// use a text stream
-	if ( f.open(QIODevice::ReadOnly) )
+	if (f.open(QIODevice::ReadOnly)) //| QIODevice::Text | QIODevice::Unbuffered ))
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        Q3TextStream t(&f);//TODO: use QTextStream instead and find a way to make it read the end-of-line char correctly.
+                         //Opening the file with the above combination doesn't seem to help: problems on Mac OS X generated ASCII files!
 
 		int i, c, rows = 1, cols = 0;
 		for (i=0; i<ignoredLines; i++)
