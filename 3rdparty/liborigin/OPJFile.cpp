@@ -1359,13 +1359,14 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		LAYER+=0x5;
 		if(comm_size>0)
 		{
-			char comment[255];
+			char* comment=new char[comm_size+1];
 			comment[comm_size]='\0';
 			fseek(f,LAYER,SEEK_SET);
-			fread(&comment,comm_size,1,f);
+			fread(comment,comm_size,1,f);
 			if(col_index!=-1)
 				SPREADSHEET[spread].column[col_index].comment=comment;
 			LAYER+=comm_size+0x1;
+			delete comment;
 		}
 		fseek(f,LAYER,SEEK_SET);
 		int ntmp;
