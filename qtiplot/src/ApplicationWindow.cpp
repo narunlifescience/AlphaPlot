@@ -7357,7 +7357,7 @@ Table* ApplicationWindow::copyTable()
 	Table *w = 0, *m = (Table*)ws->activeWindow();
 	if (m)
 	{
-		QString caption = generateUniqueName(tr("Table"));
+		QString caption = generateUniqueName(tr("Table"));		
 		w=newTable(caption, m->numRows(), m->numCols());
 		w->copy(m);
 
@@ -12138,16 +12138,13 @@ QWidgetList* ApplicationWindow::windowsList()
 	QWidgetList *lst = new QWidgetList;
 
     Folder *project_folder = projectFolder();
-	if (!(project_folder->children()).isEmpty()){
-		FolderListItem *item = project_folder->folderListItem();
-		int initial_depth = item->depth();
-		while (item && item->depth() >= initial_depth)
-		{
-			QList<MyWidget *> folderWindows = item->folder()->windowsList();
-			foreach(MyWidget *w, folderWindows)
-				lst->append(w);
-			item = (FolderListItem *)item->itemBelow();
-		}
+	FolderListItem *item = project_folder->folderListItem();
+	int initial_depth = item->depth();
+	while (item && item->depth() >= initial_depth){
+		QList<MyWidget *> folderWindows = item->folder()->windowsList();
+		foreach(MyWidget *w, folderWindows)
+			lst->append(w);
+		item = (FolderListItem *)item->itemBelow();
 	}
 	
 	foreach(QWidget *w, *hiddenWindows)
@@ -12590,10 +12587,9 @@ QStringList ApplicationWindow::matrixNames()
 {
 	QStringList names;
 	QWidgetList *windows = windowsList();
-	for (int i=0; i<(int)windows->count(); i++)
-	{
-		if (windows->at(i)->isA("Matrix"))
-			names << windows->at(i)->name();
+	foreach(QWidget *w, *windows){
+		if (w->isA("Matrix"))
+			names << w->name();
 	}
 	delete windows;
 	return names;
@@ -12602,10 +12598,8 @@ QStringList ApplicationWindow::matrixNames()
 bool ApplicationWindow::alreadyUsedName(const QString& label)
 {
 	QWidgetList *windows = windowsList();
-	for (int i=0; i<(int)windows->count(); i++)
-	{
-		if (windows->at(i)->name() == label)
-		{
+	foreach(QWidget *w, *windows){
+		if (w->name() == label){
 			delete windows;
 			return true;
 		}
@@ -12618,10 +12612,8 @@ bool ApplicationWindow::projectHasMatrices()
 {
 	QWidgetList *windows = windowsList();
 	bool has = false;
-	for (int i=0; i<(int)windows->count(); i++)
-	{
-		if (windows->at(i)->isA("Matrix"))
-		{
+	foreach(QWidget *w, *windows){
+		if (w->isA("Matrix")){
 			has = true;
 			break;
 		}
@@ -12634,10 +12626,8 @@ bool ApplicationWindow::projectHas2DPlots()
 {
 	QWidgetList *windows = windowsList();
 	bool hasPlots = false;
-	for (int i=0; i<(int)windows->count(); i++)
-	{
-		if (windows->at(i)->isA("MultiLayer"))
-		{
+	foreach(QWidget *w, *windows){
+		if (w->isA("MultiLayer")){
 			hasPlots = true;
 			break;
 		}
@@ -12649,10 +12639,8 @@ bool ApplicationWindow::projectHas2DPlots()
 bool ApplicationWindow::projectHas3DPlots()
 {
 	QWidgetList *windows = windowsList();
-	for (int i=0; i<(int)windows->count(); i++)
-	{
-		if (windows->at(i)->isA("Graph3D"))
-		{
+	foreach(QWidget *w, *windows){
+		if (w->isA("Graph3D")){
 			delete windows;
 			return true;
 		}
@@ -13947,7 +13935,7 @@ QString ApplicationWindow::generateUniqueName(const QString& name, bool incremen
 
 	for (int i = 0; i < windows->count();i++ )
 	{
-		lst << windows->at(i)->name();
+		lst << windows->at(i)->name();		
 		if (QString(windows->at(i)->name()).startsWith(name))
 			index++;
 	}
