@@ -32,6 +32,7 @@
 #include <QRegExp>
 #include <QMessageBox>
 #include <QDockWidget>
+#include <QLocale>
 #include "Matrix.h"
 #include "ColorBox.h"
 #include "MultiLayer.h"
@@ -274,7 +275,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
-					table->setText(i, j, QString::number(*val));
+					table->setText(i, j, /*QString::number(*val)*/QLocale().toString(*val));
 				}
 				else// label? doesn't seem to work
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
