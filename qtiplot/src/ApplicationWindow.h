@@ -857,7 +857,10 @@ public slots:
 	//!  pops up information about the current project
 	void projectProperties();
 
+	//! Pops up a file dialog and invokes appendProject(const QString&) on the result.
 	void appendProject();
+	//! Open the specified project file and add it as a subfolder to the current folder.
+	void appendProject(const QString& file_name);
 	void saveAsProject();
 	void saveFolderAsProject(Folder *f);
 	void saveFolder(Folder *folder, const QString& fn);

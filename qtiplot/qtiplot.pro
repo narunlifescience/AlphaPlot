@@ -230,6 +230,7 @@ HEADERS  += src/ApplicationWindow.h \
        src/LineProfileTool.h\
        src/PlotEnrichement.h\
 		 src/ExtensibleFileDialog.h\
+		 src/OpenProjectDialog.h\
 
 ###################### SOURCES ##############################################
 
@@ -339,6 +340,7 @@ SOURCES  += src/ApplicationWindow.cpp \
        src/LineProfileTool.cpp\
        src/PlotEnrichement.cpp\
 		 src/ExtensibleFileDialog.cpp\
+		 src/OpenProjectDialog.cpp\
 
 ###############################################################
 ##################### Compression (zlib123) ###################

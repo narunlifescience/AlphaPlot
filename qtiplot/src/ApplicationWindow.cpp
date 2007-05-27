@@ -96,6 +96,7 @@
 #include "CurveRangeDialog.h"
 #include "ColorBox.h"
 #include "QwtHistogram.h"
+#include "OpenProjectDialog.h"
 
 // TODO: move tool-specific code to an extension manager
 #include "ScreenPickerTool.h"
@@ -3359,60 +3360,61 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 void ApplicationWindow::open()
 {
-	QString filter = tr("QtiPlot project") + " (*.qti);;";
-	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
-	filter += tr("Origin project") + " (*.opj *.OPJ);;";
-	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
-	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
-	filter += tr("Origin graph") + " (*.ogg *.OGG);;";
-	filter += tr("Backup files") + " (*.qti~);;";
-	filter += tr("All files") + " (*);;";
+	OpenProjectDialog *open_dialog = new OpenProjectDialog(this);
+	open_dialog->setDirectory(workingDir);
+	if (open_dialog->exec() != QDialog::Accepted || open_dialog->selectedFiles().isEmpty())
+		return;
+	workingDir = open_dialog->directory().path();
 
-	QString fn = QFileDialog::getOpenFileName(workingDir, filter, this, 0,
-			tr("QtiPlot - Open Project"), 0, true);
-	if (!fn.isEmpty())
-	{
-		QFileInfo fi(fn);
-		workingDir = fi.dirPath(true);
-
-		if (projectname != "untitled")
-		{
-			QFileInfo fi(projectname);
-			QString pn = fi.absFilePath();
-			if (fn == pn)
+	switch(open_dialog->openMode()) {
+		case OpenProjectDialog::NewProject:
 			{
-				QMessageBox::warning(this, tr("QtiPlot - File openning error"),
-						tr("The file: <b>%1</b> is the current file!").arg(fn));
-				return;
-			}
-		}
+				QString fn = open_dialog->selectedFiles()[0];
+				QFileInfo fi(fn);
 
-		if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
-            fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
-			fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
-		{
-			if (!fi.exists ())
-			{
-				QMessageBox::critical(this, tr("QtiPlot - File openning error"),
-						tr("The file: <b>%1</b> doesn't exist!").arg(fn));
-				return;
-			}
+				if (projectname != "untitled")
+				{
+					QFileInfo fi(projectname);
+					QString pn = fi.absFilePath();
+					if (fn == pn)
+					{
+						QMessageBox::warning(this, tr("QtiPlot - File openning error"),
+								tr("The file: <b>%1</b> is the current file!").arg(fn));
+						return;
+					}
+				}
 
-			saveSettings();//the recent projects must be saved
+				if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+						fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
+						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
+				{
+					if (!fi.exists ())
+					{
+						QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+								tr("The file: <b>%1</b> doesn't exist!").arg(fn));
+						return;
+					}
 
-			ApplicationWindow *a = open (fn);
-			if (a)
-			{
-				a->workingDir = workingDir;
-				this->close();
+					saveSettings();//the recent projects must be saved
+
+					ApplicationWindow *a = open (fn);
+					if (a)
+					{
+						a->workingDir = workingDir;
+						this->close();
+					}
+				}
+				else
+				{
+					QMessageBox::critical(this,tr("QtiPlot - File openning error"),
+							tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
+					return;
+				}
+				break;
 			}
-		}
-		else
-		{
-			QMessageBox::critical(this,tr("QtiPlot - File openning error"),
-					tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
-			return;
-		}
+		case OpenProjectDialog::NewFolder:
+			appendProject(open_dialog->selectedFiles()[0]);
+			break;
 	}
 }
 
@@ -12594,15 +12596,17 @@ bool ApplicationWindow::projectHas3DPlots()
 
 void ApplicationWindow::appendProject()
 {
-	QString filter = tr("QtiPlot project") + " (*.qti);;";
-	filter += tr("Compressed QtiPlot project") + " (*.qti.gz);;";
-	filter += tr("Origin project") + " (*.opj *.OPJ);;";
-	filter += tr("Origin matrix") + " (*.ogm *.OGM);;";
-	filter += tr("Origin worksheet") + " (*.ogw *.OGW);;";
-	filter += tr("Origin graph") + " (*.ogg *.OGG);;";
+	OpenProjectDialog *open_dialog = new OpenProjectDialog(this);
+	open_dialog->setDirectory(workingDir);
+	open_dialog->setExtensionWidget(0);
+	if (open_dialog->exec() != QDialog::Accepted || open_dialog->selectedFiles().isEmpty())
+		return;
+	workingDir = open_dialog->directory().path();
+	appendProject(open_dialog->selectedFiles()[0]);
+}
 
-	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open project"), workingDir, filter);
-
+void ApplicationWindow::appendProject(const QString& fn)
+{
 	if (fn.isEmpty())
 		return;
 
