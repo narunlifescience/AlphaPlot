@@ -41,7 +41,7 @@
 #include <QComboBox>
 
 ImageExportDialog::ImageExportDialog( QWidget * parent, bool vector_options, Qt::WFlags flags)
-	: QFileDialog( parent, flags )
+	: ExtensibleFileDialog( parent, flags )
 {
 	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
 	setAcceptMode(QFileDialog::AcceptSave);
@@ -64,25 +64,8 @@ ImageExportDialog::ImageExportDialog( QWidget * parent, bool vector_options, Qt:
 	setFileMode( QFileDialog::AnyFile );
 
 	initAdvancedOptions();
-	if (!vector_options)
-		d_vector_options->setEnabled(false);
-
-	d_advanced_toggle = new QPushButton(tr("<< &Advanced"));
-	d_advanced_toggle->setCheckable(true);
-	connect(d_advanced_toggle, SIGNAL(toggled(bool)), d_advanced_options, SLOT(setVisible(bool)));
-
-	QGridLayout *main_layout = qobject_cast<QGridLayout*>(layout());
-	if (main_layout) {
-		int advanced_row = main_layout->rowCount();
-		main_layout->addWidget(d_advanced_toggle, advanced_row, main_layout->columnCount()-1, 2, 1);
-		main_layout->addWidget(d_advanced_options, advanced_row, 0, 2, main_layout->columnCount()-1);
-		main_layout->setColumnStretch(1, 1);
-	} else {
-		// fallback in case QFileDialog uses a different layout in the future
-		main_layout->addWidget(d_advanced_toggle);
-		main_layout->addWidget(d_advanced_options);
-	}
-	d_advanced_options->setVisible(false);
+	d_vector_options->setEnabled(vector_options);
+	setExtensionWidget(d_advanced_options);
 
 #if QT_VERSION >= 0x040300
 	connect(this, SIGNAL(filterSelected ( const QString & )), 
@@ -134,11 +117,11 @@ void ImageExportDialog::initAdvancedOptions()
 void ImageExportDialog::updateAdvancedOptions (const QString & filter)
 {
 	if (filter.contains("*.svg")) {
-		d_advanced_toggle->setChecked(false);
-		d_advanced_toggle->setEnabled(false);
+		d_extension_toggle->setChecked(false);
+		d_extension_toggle->setEnabled(false);
 		return;
 	}
-	d_advanced_toggle->setEnabled(true);
+	d_extension_toggle->setEnabled(true);
 	if (filter.contains("*.eps") || filter.contains("*.ps") || filter.contains("*.pdf"))
 		d_advanced_options->setCurrentIndex(0);
 	else {

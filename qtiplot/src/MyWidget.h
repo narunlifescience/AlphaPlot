@@ -45,7 +45,7 @@ class Folder;
  * All content (apart from the directory structure) is managed by subclasses of MyWidget.
  *
  * \section future Future Plans
- * Rename to MDIWindow or View (or some yet-to-find better name; ideas anyone?).
+ * Rename to Aspect.
  *
  * \sa Folder, ApplicationWindow
  */

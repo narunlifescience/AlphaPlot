@@ -31,16 +31,16 @@
 #ifndef IMAGEEXPORTDIALOG_H
 #define IMAGEEXPORTDIALOG_H
 
-#include <QFileDialog>
+#include "ExtensibleFileDialog.h"
+
 #include <QSpinBox>
 #include <QCheckBox>
 
-class QPushButton;
 class QStackedWidget;
 class QGroupBox;
 
 //! QFileDialog extended with options for image export
-class ImageExportDialog: public QFileDialog
+class ImageExportDialog: public ExtensibleFileDialog
 {
 	Q_OBJECT
 
@@ -48,8 +48,6 @@ private:
 	//! Create #d_advanced_options and everything it contains.
 	void initAdvancedOptions();
 
-	//! Button for toggling display of advanced options on/off.
-	QPushButton *d_advanced_toggle;
 	//! Container widget for all advanced options.
 	QStackedWidget *d_advanced_options;
 	// vector format options

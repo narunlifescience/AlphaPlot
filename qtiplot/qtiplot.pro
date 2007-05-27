@@ -132,7 +132,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/Plot3DDialog.h \
             src/PlotWizard.h \
             src/ExportDialog.h \
-            src/ImportDialog.h \
             src/AxesDialog.h \
             src/PolynomFitDialog.h \
             src/ExpDecayDialog.h \
@@ -185,7 +184,7 @@ HEADERS  += src/ApplicationWindow.h \
             src/RenameWindowDialog.h \
             src/MyWidget.h \
             src/InterpolationDialog.h\
-            src/ImportFilesDialog.h \
+            src/ImportASCIIDialog.h \
             src/ImageExportDialog.h\
             src/SmoothCurveDialog.h\
             src/FilterDialog.h\
@@ -230,6 +229,7 @@ HEADERS  += src/ApplicationWindow.h \
 	    src/CurveRangeDialog.h\
        src/LineProfileTool.h\
        src/PlotEnrichement.h\
+		 src/ExtensibleFileDialog.h\
 
 ###################### SOURCES ##############################################
 
@@ -243,7 +243,6 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/Plot3DDialog.cpp \
             src/PlotWizard.cpp \
             src/ExportDialog.cpp \
-            src/ImportDialog.cpp \
             src/AxesDialog.cpp \
             src/PolynomFitDialog.cpp \
             src/TableDialog.cpp \
@@ -303,7 +302,7 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/FindDialog.cpp\
             src/TextFormatButtons.cpp\
             src/ScriptEdit.cpp\
-            src/ImportFilesDialog.cpp\
+            src/ImportASCIIDialog.cpp\
             src/ImageExportDialog.cpp\
             src/ScaleDraw.cpp\
             src/FunctionCurve.cpp\
@@ -339,6 +338,7 @@ SOURCES  += src/ApplicationWindow.cpp \
 	    src/CurveRangeDialog.cpp\
        src/LineProfileTool.cpp\
        src/PlotEnrichement.cpp\
+		 src/ExtensibleFileDialog.cpp\
 
 ###############################################################
 ##################### Compression (zlib123) ###################
@@ -445,9 +445,6 @@ contains(SCRIPTING_LANGS, Python) {
 			 $${SIP_DIR}/sipqtiSmoothFilter.h \
 			 $${SIP_DIR}/sipqtiFFTFilter.h \
 			 $${SIP_DIR}/sipqtiFFT.h \
-			 $${SIP_DIR}/sipqtiCorrelation.h \
-			 $${SIP_DIR}/sipqtiConvolution.h \
-			 $${SIP_DIR}/sipqtiDeconvolution.h \
 			 $${SIP_DIR}/sipqtiCorrelation.h \
 			 $${SIP_DIR}/sipqtiConvolution.h \
 			 $${SIP_DIR}/sipqtiDeconvolution.h \

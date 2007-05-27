@@ -1,11 +1,11 @@
 /***************************************************************************
-    File                 : ImportDialog.h
+    File                 : ExtensibleFileDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : ASCII import options dialog
-                           
+    Copyright            : (C) 2007 by Knut Franke
+    Email (use @ for *)  : knut.franke*gmx.de
+    Description          : QFileDialog plus generic extension support
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,53 +26,50 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef IMPORTDIALOG_H
-#define IMPORTDIALOG_H
+#ifndef EXTENSIBLE_FILE_DIALOG_H
+#define EXTENSIBLE_FILE_DIALOG_H
 
-#include <QDialog>
-class QLabel;
+#include <QFileDialog>
+
 class QPushButton;
-class QComboBox;
-class QSpinBox;
-class QCheckBox;
 
-
-//! ASCII import options dialog
-class ImportDialog : public QDialog
+//! QFileDialog plus generic extension support.
+/**
+ * This is a simple hack on top of QFileDialog that allows a custom extension widget to be added to
+ * the bottom of the dialog. A button is provided for toggling display of this widget on/off.
+ *
+ * For the placement of button and extension widget, it is assumed that QFileDialog uses a
+ * QGridLayout as its top-level layout. Other layouts will probably lead to a strange outlook,
+ * although the functionality should stay intact.
+ */
+class ExtensibleFileDialog : public QFileDialog
 {
-    Q_OBJECT
+	Q_OBJECT
+	
+	public:
+		//! Constructor.
+		/**
+		 * \param parent parent widget (only affects placement of the dialog)
+		 * \param flags window flags
+		 */
+		ExtensibleFileDialog(QWidget *parent=0, Qt::WFlags flags=0);
+		//! Set the extension widget to be displayed when the user presses the toggle button.
+		void setExtensionWidget(QWidget *extension);
 
-public:
-	//! Constructor
-	/**
-	 * Parameters: see QDialog constructor
-	 */
-    ImportDialog( QWidget* parent = 0 , Qt::WFlags fl = 0 );
-	//! Destructor
-    ~ImportDialog();
+	protected:
+		//! Button for toggling display of extension on/off.
+		QPushButton *d_extension_toggle;
 
-private:
-	QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-	QPushButton* buttonHelp;
-    QComboBox* boxSeparator;
-	QSpinBox* boxLines;
-	QCheckBox *boxRenameCols, *boxSimplifySpaces, *boxStripSpaces;
-	QLabel *ignoreLabel,*sepText;
+	private slots:
+		//! Resize to make/take space for the extension widget.
+		void resize(bool extension_on);
 
-public slots:
-	//! Set the column delimiter for ASCII import
-	void setSeparator(const QString& sep);
-
-private slots:
-	void quit();
-	//! Accept changes
-	void accept();
-	//! Display help
-	void help();
-
-	void enableApplyButton(int);
-	void enableApplyButton(const QString &);
+	private:
+		//! The extension widget
+		QWidget *d_extension;
+		//! The layout row (of the assumed QGridLayout) used for extensions
+		int d_extension_row;
 };
 
-#endif // IMPORTDIALOG_H
+#endif // ifndef EXTENSIBLE_FILE_DIALOG_H
+

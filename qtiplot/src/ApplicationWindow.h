@@ -340,10 +340,9 @@ public slots:
 						const QColor& headerColor,const QFont& textFont,
 						const QFont& headerFont, bool showComments);
 
-	void setImportOptions(const QString& sep, int lines, bool rename, bool strip, bool simplify);
-	void loadASCII();
-	void loadMultiple();
-	void loadMultipleASCIIFiles(const QStringList& fileNames, int importFileAs);
+	void importASCII();
+	void importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
+			bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces);
 	void exportAllTables(const QString& sep, bool colNames, bool expSelection);
 	void exportASCII(const QString& tableName, const QString& sep, bool colNames, bool expSelection);
 
@@ -646,7 +645,6 @@ public slots:
 
 	void showScriptWindow();
 	void showMoreWindows();
-	void showImportDialog();
 	void showMarkerPopupMenu();
 	void showHelp();
 	static void showStandAloneHelp();
@@ -997,7 +995,7 @@ public:
 
 	bool startArrowOn, endArrowOn, fillArrowHead;
 	int arrowHeadLength, arrowHeadAngle, specialPlotMenuID, statMenuID, panelMenuID, plot3dID;
-	int plotMenuID, importMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;
+	int plotMenuID, newMenuID, recentMenuID, setAsMenuID, fillMenuID, normMenuID;
 	int translateMenuID, smoothMenuID, filterMenuID, fitExpMenuID, multiPeakMenuID;
 
 	//! Equals true if an automatical search for updates was performed on start-up otherwise is set to false;
@@ -1027,7 +1025,7 @@ private:
 	QSplitter *explorerSplitter;
 
 	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
-	QMenu *help,*type,*import,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
+	QMenu *help,*type,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	QMenu *scriptingMenu;
@@ -1035,7 +1033,7 @@ private:
 	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
-    QAction *actionLoad, *actionLoadMultiple, *actionUndo, *actionRedo;
+    QAction *actionLoad, *actionUndo, *actionRedo;
     QAction *actionCopyWindow;
     QAction *actionCutSelection, *actionCopySelection, *actionPasteSelection, *actionClearSelection;
     QAction *actionShowExplorer, *actionShowLog, *actionAddLayer, *actionShowLayerDialog, *actionAutomaticLayout;
@@ -1044,7 +1042,7 @@ private:
 #endif
 
     QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
-    QAction *actionShowImportDialog, *actionExportPDF;
+    QAction *actionExportPDF;
     QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard, *actionShowConfigureDialog;
     QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve, *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
     QAction *actionPlotL, *actionPlotP, *actionPlotLP, *actionPlotVerticalDropLines, *actionPlotSpline;

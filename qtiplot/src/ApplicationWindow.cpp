@@ -44,7 +44,6 @@
 #include "LegendMarker.h"
 #include "LineMarker.h"
 #include "ImageMarker.h"
-#include "ImportDialog.h"
 #include "Graph.h"
 #include "Plot.h"
 #include "PlotWizard.h"
@@ -69,7 +68,7 @@
 #include "RenameWindowDialog.h"
 #include "QwtErrorPlotCurve.h"
 #include "InterpolationDialog.h"
-#include "ImportFilesDialog.h"
+#include "ImportASCIIDialog.h"
 #include "ImageExportDialog.h"
 #include "SmoothCurveDialog.h"
 #include "FilterDialog.h"
@@ -389,7 +388,6 @@ void ApplicationWindow::initToolBars()
 	fileTools->addSeparator ();
 
 	fileTools->addAction(actionLoad);
-	fileTools->addAction(actionLoadMultiple);
 
 	fileTools->addSeparator ();
 
@@ -620,7 +618,6 @@ void ApplicationWindow::insertTranslatedStrings()
 	file->changeItem(newMenuID, tr("&New"));
 	file->changeItem(recentMenuID, tr("&Recent Projects"));
 	file->changeItem(exportID, tr("&Export Graph"));
-	file->changeItem(importMenuID, tr("&Import ASCII"));
 
 	plot2D->changeItem(specialPlotMenuID, tr("Special Line/Symb&ol"));
 	plot2D->changeItem(statMenuID, tr("Statistical &Graphs"));
@@ -690,16 +687,7 @@ void ApplicationWindow::initMainMenu()
 	file->insertSeparator();
 
 	file->addAction(actionShowExportASCIIDialog);
-
-	import = new QMenu(this);
-	import->setFont(appFont);
-	import->addAction(actionLoad);
-	import->addAction(actionLoadMultiple);
-
-	import->insertSeparator();
-
-	import->addAction(actionShowImportDialog);
-	importMenuID = file->insertItem(tr("&Import ASCII"),import);
+	file->addAction(actionLoad);
 
 	file->insertSeparator();
 
@@ -3086,7 +3074,6 @@ void ApplicationWindow::updateAppFonts()
 	recent->setFont(appFont);
 	help->setFont(appFont);
 	type->setFont(appFont);
-	import->setFont(appFont);
 	plot2D->setFont(appFont);
 	plot3D->setFont(appFont);
 	plot3DMenu->setFont(appFont);
@@ -3278,130 +3265,95 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 	return 0;
 }
 
-void ApplicationWindow::showImportDialog()
+void ApplicationWindow::importASCII()
 {
-	ImportDialog* id= new ImportDialog(this, Qt::WindowContextHelpButtonHint);
-	id->setAttribute(Qt::WA_DeleteOnClose);
-	id->exec();
-}
-
-void ApplicationWindow::setImportOptions(const QString& sep, int lines, bool rename,
-		bool strip, bool simplify)
-{
-	columnSeparator = sep;
-	ignoredLines = lines;
-	renameColumns = rename;
-	strip_spaces = strip;
-	simplify_spaces = simplify;
-	saveSettings();
-}
-
-void ApplicationWindow::loadASCII()
-{
-	QString filter=tr("All files") + " *;;" + tr("Text") + " (*.TXT *.txt);;" +
-		tr("Data")+" (*DAT *.dat);;" + tr("Comma Separated Values") + " (*.CSV *.csv);;";
-	QString fn = QFileDialog::getOpenFileName(asciiDirPath, filter, this, 0,
-			tr("QtiPlot - Import ASCII File"), 0, true);
-	if (!fn.isEmpty())
-	{
-		Table* t = (Table*)ws->activeWindow();
-		if ( t && t->isA("Table"))
-		{
-			t->importASCII(fn, columnSeparator, ignoredLines, renameColumns,
-					strip_spaces, simplify_spaces, false);
-			t->setWindowLabel(fn);
-		}
-		else
-			t = newTable(fn, columnSeparator, ignoredLines, renameColumns,
-					strip_spaces, simplify_spaces);
-
-		if (t)
-		{
-			t->setCaptionPolicy(MyWidget::Both);
-
-			setListViewLabel(t->name(), fn);
-			QFileInfo fi(fn);
-			asciiDirPath = fi.dirPath(true);
-
-			modifiedProject(t);
-		}
-	}
-}
-
-void ApplicationWindow::loadMultiple()
-{
-	Table* t = (Table*)ws->activeWindow();
-	if ( t && tableWindows.contains(t->name()))
-	{
-		ImportFilesDialog *fd = new ImportFilesDialog(true, this, 0);
-		fd->setDir(asciiDirPath);
-		if ( fd->exec() == QDialog::Accepted )
-		{
-			asciiDirPath = fd->directory().path();
-			loadMultipleASCIIFiles(fd->selectedFiles(), fd->importFileAs());
-		}
-	}
-	else
-	{
-		ImportFilesDialog *fd = new ImportFilesDialog(false, this, 0);
-		fd->setDir(asciiDirPath);
-		if ( fd->exec() == QDialog::Accepted )
-		{
-			asciiDirPath = fd->directory().path();
-			loadMultipleASCIIFiles(fd->selectedFiles(), 0);
-		}
-	}
-}
-
-void ApplicationWindow::loadMultipleASCIIFiles(const QStringList& fileNames, int importFileAs)
-{
-	int files = fileNames.count();
-	if (!files)
+	ImportASCIIDialog *import_dialog = new ImportASCIIDialog(ws->activeWindow() && ws->activeWindow()->isA("Table"), this);
+	import_dialog->setDir(asciiDirPath);
+	if (import_dialog->exec() != QDialog::Accepted)
 		return;
 
-	if (!importFileAs)
-	{
-		QString fn  = fileNames[0];
-		Table *firstTable=newTable(fn, columnSeparator, ignoredLines, renameColumns,
-				strip_spaces, simplify_spaces);
-		if (!firstTable)
-			return;
-
-		firstTable->setCaptionPolicy(MyWidget::Both);
-		setListViewLabel(firstTable->name(), fn);
-
-		int dx=firstTable->verticalHeaderWidth();
-		int dy=firstTable->parentWidget()->frameGeometry().height() - firstTable->height();
-		firstTable->parentWidget()->move(QPoint(0,0));
-
-		for (int i=1;i<files;i++)
-		{
-			fn  = fileNames[i];
-			Table *w = newTable(fn, columnSeparator, ignoredLines, renameColumns,
-					strip_spaces, simplify_spaces);
-			if (w)
-			{
-				w->setCaptionPolicy(MyWidget::Both);
-				setListViewLabel(w->name(), fn);
-				w->parentWidget()->move(QPoint(i*dx,i*dy));
-			}
-		}
-
-		modifiedProject();
+	asciiDirPath = import_dialog->directory().path();
+	if (import_dialog->rememberOptions()) {
+		columnSeparator = import_dialog->columnSeparator();
+		ignoredLines = import_dialog->ignoredLines();
+		renameColumns = import_dialog->renameColumns();
+		strip_spaces = import_dialog->stripSpaces();
+		simplify_spaces = import_dialog->simplifySpaces();
+		saveSettings();
 	}
-	else
-	{
-		if (ws->activeWindow() && ws->activeWindow()->isA("Table"))
-		{
-			Table* t = (Table*)ws->activeWindow();
 
-			for (int i=0; i<files; i++)
-				t->importMultipleASCIIFiles(fileNames[i], columnSeparator, ignoredLines, renameColumns,
-						strip_spaces, simplify_spaces, importFileAs);
-			t->setWindowLabel(fileNames.join("; "));
-			t->setCaptionPolicy(MyWidget::Name);
-			emit modifiedProject(t);
-		}
+	importASCII(import_dialog->selectedFiles(),
+			import_dialog->importMode(),
+			import_dialog->columnSeparator(),
+			import_dialog->ignoredLines(),
+			import_dialog->renameColumns(),
+			import_dialog->stripSpaces(),
+			import_dialog->simplifySpaces());
+}
+
+void ApplicationWindow::importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
+		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces)
+{
+	if (files.isEmpty())
+		return;
+
+	switch(import_mode) {
+		case ImportASCIIDialog::NewTables:
+			{
+				int dx, dy;
+				for (int i=0; i<files.size(); i++)
+				{
+					Table *w = newTable(files[i], local_column_separator, local_ignored_lines,
+							local_rename_columns, local_strip_spaces, local_simplify_spaces);
+					if (!w) continue;
+					w->setCaptionPolicy(MyWidget::Both);
+					setListViewLabel(w->name(), files[i]);
+					if (i==0) {
+						dx = w->verticalHeaderWidth();
+						dy = w->parentWidget()->frameGeometry().height() - w->height();
+						w->parentWidget()->move(QPoint(0,0));
+					} else
+						w->parentWidget()->move(QPoint(i*dx,i*dy));
+				}
+				modifiedProject();
+				break;
+			}
+		case ImportASCIIDialog::NewColumns:
+		case ImportASCIIDialog::NewRows:
+			{
+				Table *t = (Table*) ws->activeWindow();
+				if (t && t->isA("Table"))
+				{
+					for (int i=0; i<files.size(); i++)
+					t->importMultipleASCIIFiles(files[i], local_column_separator, local_ignored_lines, local_rename_columns,
+							local_strip_spaces, local_simplify_spaces, import_mode);
+					t->setWindowLabel(files.join("; "));
+					t->setCaptionPolicy(MyWidget::Name);
+					emit modifiedProject(t);
+				}
+				break;
+			}
+		case ImportASCIIDialog::Overwrite:
+			{
+				Table *t = (Table*) ws->activeWindow();
+				if ( t && t->isA("Table"))
+				{
+					t->importASCII(files[0], local_column_separator, local_ignored_lines, local_rename_columns,
+							local_strip_spaces, local_simplify_spaces, false);
+					t->setWindowLabel(files[0]);
+				}
+				else
+					t = newTable(files[0], local_column_separator, local_ignored_lines,
+							local_rename_columns, local_strip_spaces, local_simplify_spaces);
+
+				if (t)
+				{
+					t->setCaptionPolicy(MyWidget::Both);
+					setListViewLabel(t->name(), files[0]);
+					modifiedProject(t);
+				}
+				break;
+			}
 	}
 }
 
@@ -8052,7 +8004,8 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 				asciiFiles << fn;
 		}
 
-		loadMultipleASCIIFiles(asciiFiles, 0);
+		importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
+				strip_spaces, simplify_spaces);
 	}
 }
 
@@ -10882,11 +10835,8 @@ void ApplicationWindow::createActions()
 	actionSaveNote = new QAction(tr("Save Note As..."), this);
 	connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Single file..."), this);
-	connect(actionLoad, SIGNAL(activated()), this, SLOT(loadASCII()));
-
-	actionLoadMultiple = new QAction(QIcon(QPixmap(multiload_xpm)), tr("&Multiple files..."), this);
-	connect(actionLoadMultiple, SIGNAL(activated()), this, SLOT(loadMultiple()));
+	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Import ASCII..."), this);
+	connect(actionLoad, SIGNAL(activated()), this, SLOT(importASCII()));
 
 	actionUndo = new QAction(QIcon(QPixmap(undo_xpm)), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
@@ -10960,9 +10910,6 @@ void ApplicationWindow::createActions()
 
 	actionShowExportASCIIDialog = new QAction(tr("E&xport ASCII"), this);
 	connect(actionShowExportASCIIDialog, SIGNAL(activated()), this, SLOT(showExportASCIIDialog()));
-
-	actionShowImportDialog = new QAction(tr("Set import &options"), this);
-	connect(actionShowImportDialog, SIGNAL(activated()), this, SLOT(showImportDialog()));
 
 	actionCloseAllWindows = new QAction(QIcon(QPixmap(quit_xpm)), tr("&Quit"), this);
 	actionCloseAllWindows->setShortcut( tr("Ctrl+Q") );
@@ -11509,13 +11456,9 @@ void ApplicationWindow::translateActionsStrings()
 	actionSaveTemplate->setMenuText(tr("Save As &Template..."));
 	actionSaveTemplate->setToolTip(tr("Save window as template"));
 
-	actionLoad->setMenuText(tr("&Single File..."));
-	actionLoad->setToolTip(tr("Import data file"));
+	actionLoad->setMenuText(tr("&Import ASCII..."));
+	actionLoad->setToolTip(tr("Import data file(s)"));
 	actionLoad->setShortcut(tr("Ctrl+K"));
-
-	actionLoadMultiple->setMenuText(tr("&Multiple Files..."));
-	actionLoadMultiple->setToolTip(tr("Import multiple data files"));
-	actionLoadMultiple->setShortcut(tr("Ctrl+Alt+K"));
 
 	actionUndo->setMenuText(tr("&Undo"));
 	actionUndo->setToolTip(tr("Undo changes"));
@@ -11591,8 +11534,6 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionPrintAllPlots->setMenuText(tr("Print All Plo&ts"));
 	actionShowExportASCIIDialog->setMenuText(tr("E&xport ASCII"));
-	actionShowImportDialog->setMenuText(tr("Set import &options"));
-	actionShowImportDialog->setShortcut(tr("Ctrl+Alt+0"));
 
 	actionCloseAllWindows->setMenuText(tr("&Quit"));
 	actionCloseAllWindows->setShortcut(tr("Ctrl+Q"));
