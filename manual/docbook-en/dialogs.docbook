@@ -759,7 +759,12 @@
   <title>Set Column Values</title>
       <indexterm><primary>table</primary></indexterm>
   <para>This dialog is activated by the &set-column-values-lnk; of the &table-menu-lnk;. It allows to fill a column with the result of a function.</para>
-  <para>The available mathematical functions are listed in the <link linkend= "sec-intrinsic-functions">appendix</link>. The special function <emphasis>col(x)</emphasis> can be used to access to the values of the column number x, and the variables i and j can be used to access to the row and column numbers.</para>
+  <para>The available mathematical functions (assuming you are using the default scripting language, muParser) are listed in the <link linkend= "sec-intrinsic-functions">appendix</link>. The special function <emphasis>col(x)</emphasis> can be used to access to the values of the column x, where x can be the column's number (as in <emphasis>col(2)</emphasis>) or its name in doublequotes (as in <emphasis>col("time")</emphasis>).
+  You can also get values from other tables using the function <emphasis>tablecol(t,c)</emphasis>, where t is the table's name in doublequotes and c is the column's number or name in doublequotes (example: <emphasis>tablecol("Table1","time")</emphasis>).</para>
+  <para>The variables <var>i</var> and <var>j</var> can be used to access the current row and column numbers.
+	  Similarly, <var>sr</var> and <var>er</var> represent the selected start and end row, respectively.
+  </para>
+  <para>Using Python as scripting language gives you even more possibilities, since you can not only use arbitrary Python code in the function body, but also access other objects within your project. For details, see <link linkend="Python">here</link>.</para>
 
   <figure id="fig-sec-column-values">
     <title>The &set-column-values-cmd; dialog.</title>
@@ -770,7 +775,9 @@
     </mediaobject>
   </figure>
 
-  <para>If you make some changes in the table, the values are not computed again. So you have to recall the function in order to update the calculated columns.</para>
+  <para>If you make some changes in the table, the values are not computed again.
+	  You have to explicitly tell QtiPlot to recalculate individual cells or whole columns or rows by selecting "Recalculate" from their context menu or pressing Control+Return.
+  </para>
 
 </sect1>
 

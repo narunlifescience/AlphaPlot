@@ -3,9 +3,7 @@
 <title>Mathematical Expressions and Scripting</title>
 
   <para>Starting with version 0.8.7, QtiPlot supports different interpreters
-  for evaluating mathematical expressions and for executing scripts. On Windows currently only evaluation of mathematical expressions using muParser 
-  is supported. Support for scripts using the Python programming language is only available for Linux and Mac OS X. 
-  When the port of QtiPlot to Qt4 will be ready this feature will also be supported on Windows systems.</para>
+  for evaluating mathematical expressions and for executing scripts.</para>
 
   <sect1 id="muParser">
     <title>muParser</title>
@@ -117,11 +115,8 @@
       </tgroup>
     </table>
 
-    <sect2 id="sec-intrinsic-functions">
-      <title>Supported Mathematical Functions</title>
-
       <table frame="sides" pgwide="1" tocentry="1">
-        <title>Supported Mathematical Functions</title>
+        <title>Mathematical Functions</title>
 
         <tgroup cols="2">
           <colspec align="left" colname="name" colwidth="1*" />
@@ -304,13 +299,6 @@
             </row>
 
             <row>
-              <entry>if(e1,e2,e3)</entry>
-
-              <entry>if e1 is true, e2 is executed else e3 is
-              executed.</entry>
-            </row>
-
-            <row>
               <entry>ln(x)</entry>
 
               <entry>natural logarythm of x</entry>
@@ -384,7 +372,60 @@
           </tbody>
         </tgroup>
       </table>
-    </sect2>
+
+      <table frame="sides" pgwide="1" tocentry="1">
+        <title>Non-Mathematical Functions</title>
+
+        <tgroup cols="2">
+          <colspec align="left" colname="name" colwidth="1*" />
+
+          <colspec align="justify" colname="description" colwidth="10*" />
+
+          <thead>
+            <row>
+              <entry>Name</entry>
+
+              <entry>Description</entry>
+            </row>
+          </thead>
+
+          <tbody>
+            <row>
+              <entry>cell(a,b)</entry>
+
+				  <entry>In the contex of a matrix, returns the value at row a and column b.
+					  In the context of a table, returns the value at column a and row b (remember that tables use column logic).
+					  Everywhere else, this function is undefined.
+				  </entry>
+            </row>
+
+            <row>
+              <entry>col(c)</entry>
+
+				  <entry>Only works in the context of a table.
+					  Returns the value at column c and row i (the current row) in the context table.
+					  c can either be the column's number, or its name in doublequotes.
+				  </entry>
+            </row>
+
+            <row>
+              <entry>if(e1,e2,e3)</entry>
+
+              <entry>if e1 is true, e2 is executed else e3 is
+              executed.</entry>
+            </row>
+
+            <row>
+              <entry>tablecol(t,c)</entry>
+
+				  <entry>Only works in the context of a table.
+					  Returns the value at column c and row i (the current row) in the table t.
+					  t is the table's name in doublequotes, c is either the column's number or its name in doublequotes.
+				  </entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
   </sect1>
 
   <sect1 id="Python">
