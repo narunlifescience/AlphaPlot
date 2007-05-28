@@ -101,6 +101,9 @@ public:
 	//! The complete path of the folder in the project tree
 	QString path();
 
+	//! The root of the hierarchy this folder belongs to.
+	Folder* rootFolder();
+
 	//! Size of the folder as a string
 	QString sizeToString();
 

@@ -256,6 +256,14 @@ foreach(w, lstWindows)
 return QString::number(8*size/1024.0,'f',1)+" "+tr("kB")+" ("+QString::number(8*size)+" "+tr("bytes")+")";
 }
 
+Folder* Folder::rootFolder()
+{
+	Folder *i = this;
+	while(i->parent())
+		i = (Folder*)i->parent();
+	return i;
+}
+
 /*****************************************************************************
  *
  * Class FolderListItem

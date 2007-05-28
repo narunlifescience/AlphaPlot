@@ -73,7 +73,12 @@ bool PythonScript::compile(bool for_eval)
 				"\ttry: return self.cell(c,arg[0])\n"
 				"\texcept(IndexError): return self.cell(c,i)\n"
 				"def cell(c,r):\n"
-				"\treturn self.cell(c,r)",
+				"\treturn self.cell(c,r)\n"
+				"def tablecol(t,c):\n"
+				"\treturn self.folder().rootFolder().table(t,True).cell(c,i)\n"
+				"def _meth_table_col_(t,c):\n"
+				"\treturn t.cell(c,i)\n"
+				"self.__class__.col = _meth_table_col_",
 				Py_file_input, localDict, localDict);
 		if (ret)
 			Py_DECREF(ret);

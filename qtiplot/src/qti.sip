@@ -70,6 +70,7 @@ public:
   sipRes = PyString_FromString(sipCpp->saveAsTemplate(*a0));
 %End
   virtual void restore(const QStringList& );
+  Folder* folder();
 
 private:
   MyWidget(const MyWidget&);
@@ -1075,6 +1076,8 @@ public:
   Matrix *matrix(const QString &name, bool recursive=false);
   MultiLayer *graph(const QString &name, bool recursive=false);
   Note *note(const QString &name, bool recursive=false);
+
+  Folder* rootFolder();
 
 private:
   Folder(const Folder&);

@@ -65,7 +65,12 @@ public:
 	 */
 	MyWidget(const QString& label = QString(), QWidget * parent = 0, const char * name = 0, Qt::WFlags f = 0);
 
-	enum CaptionPolicy{Name = 0, Label = 1, Both = 2};
+	//! Possible window captions.
+	enum CaptionPolicy{
+		Name = 0, //!< caption determined by the window name
+		Label = 1, //!< caption detemined by the window label
+		Both = 2 //!< caption = "name - label"
+	};
 	enum Status{Hidden = -1, Normal = 0, Minimized = 1, Maximized = 2};
 
 	//! Return the window label
@@ -81,12 +86,6 @@ public:
 	//! Return the caption policy
 	CaptionPolicy captionPolicy(){return caption_policy;};
 	//! Set the caption policy
-	/**
-	 * The caption policy can be
-	 * Name -> caption determined by the window name
-	 * Label -> caption detemined by the window label
-	 * Both -> caption = "name - label"
-	 */
 	void setCaptionPolicy(CaptionPolicy policy) { caption_policy = policy; updateCaption(); }
  	//! Set the widget's name
 	void setName(const char *newname) { QWidget::setName(newname); updateCaption(); }
