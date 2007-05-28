@@ -1186,11 +1186,12 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 		}
 		if(labellen>0)
 		{
-			char label[255];
+			char *label=new char[labellen+1];
 			label[labellen]='\0';
 			fseek(f,POS + 0xC3,SEEK_SET);
-			fread(&label,labellen,1,f);
+			fread(label,labellen,1,f);
 			SPREADSHEET[spread].label=label;
+			delete label;
 		}
 		else
 			SPREADSHEET[spread].label="";
@@ -1233,11 +1234,11 @@ void OPJFile::readSpreadInfo(FILE *f, FILE *debug)
 			int col_index=compareColumnnames(spread,sec_name);
 			if(col_index!=-1)
 			{
-				char stmp[255];
+				char *stmp=new char[sec_size+1];
 				stmp[sec_size]='\0';
-				fread(&stmp,sec_size,1,f);
+				fread(stmp,sec_size,1,f);
 				SPREADSHEET[spread].column[col_index].command=stmp;
-				/*delete stmp;*/
+				delete stmp;
 			}
 
 		//section_body_2_size
@@ -1417,11 +1418,12 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		}
 		if(labellen>0)
 		{
-			char label[255];
+			char *label=new char[labellen+1];
 			label[labellen]='\0';
 			fseek(f,POS + 0xC3,SEEK_SET);
-			fread(&label,labellen,1,f);
+			fread(label,labellen,1,f);
 			MATRIX[idx].label=label;
+			delete label;
 		}
 		else
 			MATRIX[idx].label="";
@@ -1470,10 +1472,11 @@ void OPJFile::readMatrixInfo(FILE *f, FILE *debug)
 		if(0==strcmp(sec_name,"MV"))
 		{
 			fseek(f,LAYER,SEEK_SET);
-			char stmp[255];
+			char *stmp=new char[sec_size+1];
 			stmp[sec_size]='\0';
-			fread(&stmp,sec_size,1,f);
+			fread(stmp,sec_size,1,f);
 			MATRIX[idx].command=stmp;
+			delete stmp;
 		}
 
 	//section_body_2_size
@@ -1592,11 +1595,12 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 		}
 		if(labellen>0)
 		{
-			char label[255];
+			char *label=new char[labellen+1];
 			label[labellen]='\0';
 			fseek(f,POS + 0xC3,SEEK_SET);
-			fread(&label,labellen,1,f);
+			fread(label,labellen,1,f);
 			GRAPH.back().label=label;
+			delete label;
 		}
 		else
 			GRAPH.back().label="";
