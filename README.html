@@ -79,32 +79,44 @@ The QtiPlot team offers GNU/Linux binaries for several distributions free of cha
 
 <h3>Compiling QtiPlot from source:</h3>
 <ol>
-<li>open a  terminal window<br>
-<li>download the .tar.bz2 archive (or the .zip archive, which has the same contents):<br> <code>wget http://soft.proindependent.com/src/qtiplot-X.X.X.tar.bz2</code> <br>
-<li>unpack the source archive: <br>
-<code>tar -xvjf qtiplot-X.X.X.tar.bz2</code> and <code>unzip qtiplot-X.X.X.zip</code> respectively</il>
-<li>go to the main folder of the decompressed archive:<br>
-<code>cd qtiplot-X.X.X</code>
-<li>open the file 'qtiplot/qtiplot.pro' in you favorite text editor and adjust the INCLUDEPATH and LIBS variables to point to the locations of the required libraries on your system (INCLUDEPATH is for header files and LIBS for the libraries).<br>
-This can look like this if you want to statically link against Qwt3D:<br>
-<code>unix:LIBS += /path/to/qwtplot3d/lib/libqwtplot3d.a</code><br>
-and like this if you want to link dynamically:<br>
-<code>unix:LIBS += -L /path/to/qwtplot3d/lib -lqwtplot3d</code><br>
-For system-wide installed libraries (e.g. by your package manager) you can omit the "-L" parameter:<br>
-<code>unix:LIBS += -lqwtplot3d</code><br>
-Remark: Lines stating with # are comments and thus ignored by qmake.<br>
-<li>run <code>qmake</code></li>
-<li>run <code>make</code></li>
-<li>login as root and run <code>make install</code> <br>
-or simply <code>su -c "make install"</code></li>
+	<li>Install <a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>, <a href="http://sources.redhat.com/gsl/">GSL</a> and <a href="http://www.zlib.net/">zlib</a>; either from your package manager or from the sources. If you are using precompiled packages, make sure you also install the corresponding development packages (*-dev or *-devel).
+	If you want to display the manual from within QtiPlot (you can also view it with your favorite browser), you also need the Qt Assistant, which sometimes comes in a separate package (qt4-dev-tools for Ubuntu edgy).</li>
+	<li>Open a terminal window.</li>
+	<li>Download the .tar.bz2 archive with QtiPlot's sources (or the .zip archive, which has the same contents):<br>
+	<code>wget http://soft.proindependent.com/src/qtiplot-X.X.X.tar.bz2</code></li>
+	<li>Unpack the source archive:
+	<code>tar -xvjf qtiplot-X.X.X.tar.bz2</code> (or <code>unzip qtiplot-X.X.X.zip</code>, respectively)</li>
+	<li>Get <a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a> sources and unpack them to the 3rdparty folder:<br>
+	<code>cd qtiplot-X.X.X/3rdparty<br>tar -xvjf /path/to/qwt-Y.Y.Y.tar.bz2</code></li>
+	<li>Rename the new directory to <code>qwt</code>:<br>
+	<code>mv qwt-Y.Y.Y qwt</code></li>
+	<li>We want to build the static version of Qwt in order to avoid potential conflicts with an already installed version.
+	Open the file qwt/qwtconfig.pri and comment out the line<br>
+	<code>CONFIG += QwtDll</code></li>
+	<li>Build Qwt:<br><code>cd qwt; qmake &amp;&amp; make; cd ..</code></li>
+	<li>Get <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a> sources and also unpack them to qtiplot-X.X.X/3rdparty:<br>
+	<code>tar -xvzf qwtplot3d-Z.Z.Z.tgz</code></li>
+	<li>We also want to build a static version here, so open qwtplot3d/qwtplot3d.pro in your favorite text editor and add the line<br>
+	<code>CONFIG += staticlib</code><br>
+	at a convenient place (say, below the other CONFIG line).</li>
+	<li>Build qwtplot3d:<br><code>cd qwtplot3d; qmake &amp;&amp; make; cd ..</code></li>
+	<li>Go to the directory qtiplot-X.X.X/qtiplot:<br><code>cd ../qtiplot</code></li>
+	<li>We don't want to build GSL ourselves, but rather use the system-wide installation.
+	To do this, open qtiplot.pro in your favorite editor and uncomment/comment the corresponding lines in the "Linux (Mac OS X)" section.</li>
+	<li>Near the head of the same file, either comment out the line <code>SCRIPTING_LANGS += Python</code> or make sure you have the following additional dependencies installed:
+	<a href="http://www.python.org/">Python</a> 2.5,
+	<a href="http://www.riverbankcomputing.co.uk/sip">SIP</a> 4.5.2 or 4.6,
+	<a href="http://www.riverbankcomputing.co.uk/pyqt">PyQt</a> 4.2.
+	Other versions as those indicated above may or may not work.
+	Specifically, there are known issues with a number of SIP versions and
+	a given version of PyQt will only work with a limited range of SIP
+	versions.
+	</li>
+	<li>Build qtiplot:<br><code>qmake &amp;&amp; make</code></li>
+	<li>You should now be able to run QtiPlot by entering<br><code>./qtiplot</code></li>
+	<li>Install QtiPlot on your system (you need root priviliges):<br>
+	<code>sudo make install</code><br>or, alternatively,<br><code>su -c "make install"</code></li>
 </ol>
-
-If you want <span style="font-weight: bold;">Python scripting support</span> (uncomment the line <code>SCRIPTING_LANGS += Python</code> in qtiplot/qtiplot.pro before running <code>qmake</code>), you will also need to download and install <a href="http://www.python.org/">Python</a> 2.5, <a href="http://www.riverbankcomputing.co.uk/sip">SIP</a> 4.5.2 and <a href="http://www.riverbankcomputing.co.uk/pyqt">PyQt</a> 4.2.
-All three of them are included in many Linux distributions.
-Other versions as those indicated above may or may not work.
-Specifically, there are known issues with a number of SIP versions and
-a given version of PyQt will only work with a limited range of SIP
-versions.
 
 <h2>Windows:</h2>
 
