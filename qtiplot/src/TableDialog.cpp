@@ -82,10 +82,10 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 
 	buttonApply = new QPushButton(tr("&Apply"));
 	buttonApply->setAutoDefault(false);
-	
+
 	buttonCancel = new QPushButton(tr( "&Cancel" ));
 	buttonCancel->setAutoDefault(false);
-	
+
 	QVBoxLayout  *vbox2 = new QVBoxLayout();
 	vbox2->setSpacing(5);
 	vbox2->setMargin(5);
@@ -261,6 +261,26 @@ void TableDialog::updateColumn(int sc)
 
         formatBox->setCurrentText(format);
     }
+    else if (colType == Table::Day)
+    {
+        QString format = d_table->columnFormat(sc);
+        if (format == "ddd")
+            formatBox->setCurrentIndex(0);
+        else if (format == "dddd")
+            formatBox->setCurrentIndex(1);
+        else if (format == "d")
+            formatBox->setCurrentIndex(2);
+    }
+    else if (colType == Table::Month)
+    {
+        QString format = d_table->columnFormat(sc);
+        if (format == "MMM")
+            formatBox->setCurrentIndex(0);
+        else if (format == "MMMM")
+            formatBox->setCurrentIndex(1);
+        else if (format == "M")
+            formatBox->setCurrentIndex(2);
+    }
 }
 
 void TableDialog::changeColWidth(int width)
@@ -308,17 +328,21 @@ switch(colType)
 	break;
 
 	case 4:
-	if (!format)
-		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
-	else
-		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
+        if(format == 0)
+            setMonthFormat("MMM", applyToRightCols->isChecked());
+        else if(format == 1)
+            setMonthFormat("MMMM", applyToRightCols->isChecked());
+        else if(format == 2)
+            setMonthFormat("M", applyToRightCols->isChecked());
 	break;
 
 	case 5:
-	if (!format)
-		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
-	else
-		setDateTimeFormat(colType, formatBox->currentText(), applyToRightCols->isChecked());
+        if(format == 0)
+            setDayFormat("ddd", applyToRightCols->isChecked());
+        else if(format == 1)
+            setDayFormat("dddd", applyToRightCols->isChecked());
+        else if(format == 2)
+            setDayFormat("d", applyToRightCols->isChecked());
 	break;
 	}
 }
@@ -448,6 +472,7 @@ else
 			QDate date=QDate::currentDate();
 			formatBox->addItem(QDate::shortMonthName(date.month()));
 			formatBox->addItem(QDate::longMonthName(date.month()));
+			formatBox->addItem(QDate::shortMonthName(date.month()).left(1));
 		}
 		break;
 
@@ -456,6 +481,7 @@ else
 			QDate date=QDate::currentDate();
 			formatBox->addItem(QDate::shortDayName(date.dayOfWeek()));
 			formatBox->addItem(QDate::longDayName(date.dayOfWeek()));
+			formatBox->addItem(QDate::shortDayName(date.dayOfWeek()).left(1));
 		}
 		break;
 		}
@@ -467,29 +493,30 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
     bool ok = false;
 	int sc = d_table->selectedColumn();
-	if (allRightColumns)
-	{
-		for (int i = sc; i<d_table->numCols(); i++)
-		{
-			ok = d_table->setDateTimeFormat(type, format, i);
+	if (allRightColumns){
+		for (int i = sc; i<d_table->numCols(); i++){
+		    if (type == Table::Date)
+                ok = d_table->setDateFormat(format, i);
+            else if (type == Table::Time)
+                ok = d_table->setTimeFormat(format, i);
 			if (!ok)
                 break;
 		}
 	}
-	else
-		ok = d_table->setDateTimeFormat(type, format, sc);
+	else if (type == Table::Date)
+		ok = d_table->setDateFormat(format, sc);
+    else if (type == Table::Time)
+		ok = d_table->setTimeFormat(format, sc);
 
 	QApplication::restoreOverrideCursor();
 
-    if (!ok)
-    {
+    if (!ok){
         QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
                              tr("For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!"));
         return;
     }
 
-    if (formatBox->findText(format) < 0)
-    {
+    if (formatBox->findText(format) < 0){
         formatBox->insertItem(0, format);
         formatBox->setCurrentText(format);
     }
@@ -515,11 +542,40 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 void TableDialog::setTextFormat(bool allRightColumns)
 {
 	int sc = d_table->selectedColumn();
-	if (allRightColumns)
-	{
+	if (allRightColumns){
 		for (int i = sc; i<d_table->numCols(); i++)
 			d_table->setTextFormat(i);
 	}
 	else
 		d_table->setTextFormat(sc);
+}
+
+void TableDialog::setDayFormat(const QString& format, bool allRightColumns)
+{
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	int sc = d_table->selectedColumn();
+	if (allRightColumns){
+		for (int i = sc; i<d_table->numCols(); i++)
+            d_table->setDayFormat(format, i);
+	}
+	else
+        d_table->setDayFormat(format, sc);
+
+	QApplication::restoreOverrideCursor();
+    d_table->notifyChanges();
+}
+
+void TableDialog::setMonthFormat(const QString& format, bool allRightColumns)
+{
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	int sc = d_table->selectedColumn();
+	if (allRightColumns){
+		for (int i = sc; i<d_table->numCols(); i++)
+            d_table->setMonthFormat(format, i);
+	}
+	else
+        d_table->setMonthFormat(format, sc);
+
+	QApplication::restoreOverrideCursor();
+    d_table->notifyChanges();
 }

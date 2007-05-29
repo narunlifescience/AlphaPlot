@@ -124,7 +124,7 @@ private:
 	QFont plot3DTitleFont, plot3DNumbersFont, plot3DAxesFont;
 	QStringList plot3DColors;
 
-	QCheckBox *boxScaleLayersOnPrint, *boxPrintCropmarks, *boxUpdateSeparators;
+	QCheckBox *boxScaleLayersOnPrint, *boxPrintCropmarks, *boxUpdateSeparators, *linearFit2PointsBox;
 	QTabWidget *plotsTabWidget, *appTabWidget;
 	QPushButton *btnBackground3D, *btnMesh, *btnAxes, *btnLabels, *btnNumbers;
 	QPushButton *btnFromColor, *btnToColor, *btnGrid;

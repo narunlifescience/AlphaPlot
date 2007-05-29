@@ -1621,10 +1621,12 @@ void Table::saveToMemory()
             bool ok = false;
             for (int row=0; row<d_table->numRows(); row++)
             {
-                d_saved_cells[col][row] = QLocale().toDouble(d_table->text(row, col), &ok);
-                if (!ok){
-                    wrongLocale = true;
-                    break;
+                if (!d_table->text(row, col).isEmpty()){
+                    d_saved_cells[col][row] = QLocale().toDouble(d_table->text(row, col), &ok);
+                    if (!ok){
+                        wrongLocale = true;
+                        break;
+                    }
                 }
             }
             if (wrongLocale)
@@ -1641,11 +1643,12 @@ void Table::saveToMemory()
                 bool ok = false;
                 for (int row=0; row<d_table->numRows(); row++)
                 {
-                    d_saved_cells[col][row] = QLocale::c().toDouble(d_table->text(row, col), &ok);
-                    if (!ok)
-                    {
-                        wrongLocale = true;
-                        break;
+                    if (!d_table->text(row, col).isEmpty()){
+                        d_saved_cells[col][row] = QLocale::c().toDouble(d_table->text(row, col), &ok);
+                        if (!ok){
+                            wrongLocale = true;
+                            break;
+                        }
                     }
                 }
             if (wrongLocale)
@@ -1662,11 +1665,12 @@ void Table::saveToMemory()
                 bool ok = false;
                 for (int row=0; row<d_table->numRows(); row++)
                 {
-                    d_saved_cells[col][row] = QLocale(QLocale::German).toDouble(d_table->text(row, col), &ok);
-                    if (!ok)
-                    {
-                        wrongLocale = true;
-                        break;
+                    if (!d_table->text(row, col).isEmpty()){
+                        d_saved_cells[col][row] = QLocale(QLocale::German).toDouble(d_table->text(row, col), &ok);
+                        if (!ok){
+                            wrongLocale = true;
+                            break;
+                        }
                     }
                 }
             if (wrongLocale)
@@ -1683,11 +1687,12 @@ void Table::saveToMemory()
                 bool ok = false;
                 for (int row=0; row<d_table->numRows(); row++)
                 {
-                    d_saved_cells[col][row] = QLocale(QLocale::French).toDouble(d_table->text(row, col), &ok);
-                    if (!ok)
-                    {
-                        wrongLocale = true;
-                        break;
+                    if (!d_table->text(row, col).isEmpty()){
+                        d_saved_cells[col][row] = QLocale(QLocale::French).toDouble(d_table->text(row, col), &ok);
+                        if (!ok){
+                            wrongLocale = true;
+                            break;
+                        }
                     }
                 }
             if (wrongLocale)
@@ -1712,7 +1717,7 @@ void Table::setTextFormat(int col)
 		colTypes[col] = Text;
 }
 
-void Table::setColNumericFormat(int f, int prec, int col)
+void Table::setColNumericFormat(int f, int prec, int col, bool updateCells)
 {
 	if (colTypes[col] == Numeric)
 	{
@@ -1724,6 +1729,9 @@ void Table::setColNumericFormat(int f, int prec, int col)
 
 	colTypes[col] = Numeric;
 	col_format[col] = QString::number(f)+"/"+QString::number(prec);
+
+    if (!updateCells)
+        return;
 
     char format = 'g';
 	for (int i=0; i<d_table->numRows(); i++)
@@ -1754,34 +1762,12 @@ void Table::setColumnsFormat(const QStringList& lst)
 	col_format = lst;
 }
 
-bool Table::setDateTimeFormat(int f, const QString& format, int col)
-{
-	switch (f)
-	{
-		case 2:
-			return setDateFormat(format, col);
-
-		case 3:
-			return setTimeFormat(format, col);
-
-		case 4:
-            setMonthFormat(format, col);
-            return true;
-
-		case 5:
-            setDayFormat(format, col);
-			return true;
-
-		default:
-			return false;
-	}
-}
-
-bool Table::setDateFormat(const QString& format, int col)
+bool Table::setDateFormat(const QString& format, int col, bool updateCells)
 {
 	if (col_format[col] == format)
 		return true;
 
+    if (updateCells){
 	for (int i=0; i<d_table->numRows(); i++)
 	{
 		QString s = d_table->text(i,col);
@@ -1801,16 +1787,18 @@ bool Table::setDateFormat(const QString& format, int col)
             }
 		}
 	}
+    }
 	colTypes[col] = Date;
 	col_format[col] = format;
 	return true;
 }
 
-bool Table::setTimeFormat(const QString& format, int col)
+bool Table::setTimeFormat(const QString& format, int col, bool updateCells)
 {
 	if (col_format[col] == format)
 		return true;
 
+    if (updateCells){
 	for (int i=0; i<d_table->numRows(); i++)
 	{
 		QString s = d_table->text(i,col);
@@ -1830,81 +1818,74 @@ bool Table::setTimeFormat(const QString& format, int col)
             }
 		}
 	}
+    }
 	colTypes[col] = Time;
 	col_format[col] = format;
 	return true;
 }
 
-void Table::setMonthFormat(const QString& format, int col)
+void Table::setMonthFormat(const QString& format, int col, bool updateCells)
 {
+    if (colTypes[col] == Month && col_format[col] == format)
+        return;
+
 	colTypes[col] = Month;
-	int rows=d_table->numRows();
-	if (format == QDate::shortMonthName(QDate::currentDate().month()))
-	{
-		for (int i=0;i<rows; i++)
-		{
-			QString s = d_table->text(i,col);
-			if (!s.isEmpty())
-			{
-				int month= s.toInt() % 12;
-				if (!month)
-					month = 12;
+	col_format[col] = format;
 
-				d_table->setText(i, col, QDate::shortMonthName(month));
-			}
-		}
-	}
-	else if (format == QDate::longMonthName(QDate::currentDate().month()))
-	{
-		for (int i=0;i<rows; i++)
-		{
-			QString t = d_table->text(i,col);
-			if (!t.isEmpty())
-			{
-				int month= t.toInt() % 12;
-				if (!month)
-					month = 12;
+	if (!updateCells)
+        return;
 
-				d_table->setText(i, col, QDate::longMonthName(month));
-			}
-		}
-	}
+    for (int i=0; i<numRows(); i++){
+        QString t = d_table->text(i,col);
+        if (!t.isEmpty()){
+            int day;
+            if (d_saved_cells)
+                day = int(d_saved_cells[col][i]) % 12;
+            else
+                day = t.toInt() % 12;
+            if (!day)
+                day = 12;
+
+            if (format == "M")
+                d_table->setText(i, col, QDate::shortMonthName(day).left(1));
+            else if (format == "MMM")
+                d_table->setText(i, col, QDate::shortMonthName(day));
+            else if (format == "MMMM")
+                d_table->setText(i, col, QDate::longMonthName(day));
+        }
+    }
 }
 
-void Table::setDayFormat(const QString& format, int col)
+void Table::setDayFormat(const QString& format, int col, bool updateCells)
 {
+    if (colTypes[col] == Day && col_format[col] == format)
+        return;
+
 	colTypes[col] = Day;
-	int rows = numRows();
-	if (format == QDate::shortDayName(QDate::currentDate().dayOfWeek()))
-	{
-		for (int i=0;i<rows; i++)
-		{
-			QString t = d_table->text(i,col);
-			if (!t.isEmpty())
-			{
-				int day= t.toInt() % 7;
-				if (!day)
-					day = 7;
+	col_format[col] = format;
 
-				d_table->setText(i, col, QDate::shortDayName(day));
-			}
-		}
-	}
-	else if (format == QDate::longDayName(QDate::currentDate().dayOfWeek()))
-	{
-		for (int i=0;i<rows; i++)
-		{
-			QString t = d_table->text(i,col);
-			if (!t.isEmpty())
-			{
-				int day= t.toInt() % 7;
-				if (!day)
-					day = 7;
+	if (!updateCells)
+        return;
 
-				d_table->setText(i, col, QDate::longDayName(day));
-			}
-		}
-	}
+	for (int i=0; i<numRows(); i++){
+        QString t = d_table->text(i,col);
+        if (!t.isEmpty()){
+            int day;
+            if (d_saved_cells)
+                day = int(d_saved_cells[col][i]) % 7;
+            else
+                day = t.toInt() % 7;
+            if (!day)
+                day = 7;
+
+            if (format == "d")
+                d_table->setText(i, col, QDate::shortDayName(day).left(1));
+            else if (format == "ddd")
+                d_table->setText(i, col, QDate::shortDayName(day));
+            else if (format == "dddd")
+                d_table->setText(i, col, QDate::longDayName(day));
+        }
+    }
 }
 
 void Table::setRandomValues()

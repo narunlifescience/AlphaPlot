@@ -33,6 +33,7 @@
 #include <QMessageBox>
 #include <QDockWidget>
 #include <QLocale>
+#include <QDate>
 #include "Matrix.h"
 #include "ColorBox.h"
 #include "MultiLayer.h"
@@ -149,7 +150,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 						f=0;
 						break;
 					}
-				table->setColNumericFormat(f, opj.colDecPlaces(s,j), j);
+				table->setColNumericFormat(f, opj.colDecPlaces(s,j), j, false);
 				break;
 			case 1: //Text
 				table->setTextFormat(j);
@@ -198,7 +199,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 				default:
 					format="dd.MM.yyyy";
 				}
-				table->setDateFormat(format, j);
+				table->setDateFormat(format, j, false);
 				break;
 			case 3: // Time
 				switch(opj.colValueTypeSpec(s,j))
@@ -237,35 +238,50 @@ bool ImportOPJ::importTables(OPJFile opj)
 					format="hh:mm:ss.zzz";
 					break;
 				}
-				table->setTimeFormat(format, j);
+				table->setTimeFormat(format, j, false);
 				break;
 			case 4: // Month
-				switch(opj.colValueTypeSpec(s,j))
-				{
-				case 0:
-				case 2:
-					format="shortMonthName";
+				switch(opj.colValueTypeSpec(s,j)){
+                    case 0:
+                        format = "MMM";
 					break;
-				case 1:
-					format="longMonthName";
+                    case 1:
+                        format = "MMMM";
+					break;
+                    case 2:
+                        format = "M";
 					break;
 				}
-				table->setMonthFormat(format, j);
+				table->setMonthFormat(format, j, false);
 				break;
 			case 5: // Day
-				switch(opj.colValueTypeSpec(s,j))
-				{
-				case 0:
-				case 2:
-					format="shortDayName";
+				switch(opj.colValueTypeSpec(s,j)){
+                    case 0:
+                        format = "ddd";
 					break;
-				case 1:
-					format="longDayName";
+                    case 1:
+                        format = "dddd";
+					break;
+                    case 2:
+                        format = "d";
 					break;
 				}
-				table->setDayFormat(format, j);
+				table->setDayFormat(format, j, false);
 				break;
 			}
+            char f = 'g';
+            switch(opj.colValueTypeSpec(s,j)){
+                case 0: //Decimal 1000
+                    f='f';
+                break;
+                case 1: //Scientific
+                    f='e';
+                break;
+                case 2: //Engeneering
+                case 3: //Decimal 1,000
+                    f='f';
+                break;
+            }
 
 			for (int i=0; i<opj.numRows(s,j); i++)
 			{
@@ -275,7 +291,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
-					table->setText(i, j, /*QString::number(*val)*/QLocale().toString(*val));
+					table->setText(i, j, QLocale().toString(*val, f, opj.colDecPlaces(s,j)));
 				}
 				else// label? doesn't seem to work
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
@@ -308,6 +324,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 		matrix->setWindowLabel(opj.matrixLabel(s));
 		matrix->setFormula(opj.matrixFormula(s));
 		matrix->setColumnsWidth(opj.matrixWidth(s)*QtiPlot_scaling_factor);
+		matrix->table()->blockSignals(true);
 		for (int j=0; j<nr_cols; j++)
 		{
 			for (int i=0; i<nr_rows; i++)
@@ -337,7 +354,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 			break;
 		}
 		matrix->setNumericFormat(f, opj.matrixSignificantDigits(s));
-
+        matrix->table()->blockSignals(false);
 		matrix->showNormal();
 
 		//cascade the matrices
@@ -347,7 +364,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 		visible_count++;
 
 	}
-	
+
 	if(visible_count>0)
 		xoffset++;
 	return true;
@@ -391,7 +408,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
 		if (!ml)
 			return false;
-		
+
 		ml->hide();//!hack used in order to avoid resize and repaint events
 		ml->setWindowLabel(opj.graphLabel(g));
 		for(int l=0; l<opj.numLayers(g); l++)
@@ -399,7 +416,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			Graph *graph=ml->addLayer();
 			if(!graph)
 				return false;
-			
+
 			graph->setXAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l))));
 			graph->setYAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l))));
 			if(strlen(opj.layerLegend(g,l))>0)
@@ -477,7 +494,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					mw->updateFunctionLists(type, formulas);
 					break;
 				}
-				
+
 				CurveLayout cl = graph->initCurveLayout(style, opj.numCurves(g,l));
 				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
 				cl.penWidth=opj.curveSymbolThickness(g,l,c);
@@ -634,7 +651,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 						cl.lStyle=4;
 						break;
 				}
-				
+
 				graph->updateCurveLayout(c, &cl);
 				if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
 				{
@@ -691,7 +708,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 				graph->setScale(2,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
 				graph->setScale(0,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
 			}
-			
+
 			//grid
 			vector<graphGrid> grids=opj.layerGrid(g,l);
 			GridOptions grid;
@@ -782,9 +799,9 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 					prec=2;
 				}
 
-				graph->showAxis(i, type, tableName, mw->table(tableName), !(formats[i].hidden), 
-					tickTypeMap[formats[i].majorTicksType], tickTypeMap[formats[i].minorTicksType], 
-					!(ticks[i].hidden),	ColorBox::color(formats[i].color), format, prec, 
+				graph->showAxis(i, type, tableName, mw->table(tableName), !(formats[i].hidden),
+					tickTypeMap[formats[i].majorTicksType], tickTypeMap[formats[i].minorTicksType],
+					!(ticks[i].hidden),	ColorBox::color(formats[i].color), format, prec,
 					ticks[i].rotation, 0, "", (ticks[i].color==0xF7 ? ColorBox::color(formats[i].color) : ColorBox::color(ticks[i].color)));
 			}
 
@@ -852,7 +869,7 @@ QString ImportOPJ::parseOriginTags(const QString &str)
 	QString rtagBracket=strreverse("&rtagbracket;");
 	int pos1=rx.indexIn(linerev);
 	int pos2=rxfont.indexIn(linerev);
-	
+
 	while (pos1>-1 || pos2>-1) {
 		if(pos1==pos2)
 		{
@@ -875,15 +892,15 @@ QString ImportOPJ::parseOriginTags(const QString &str)
 			value=rtagBracket+value.mid(1,len-2)+ltagBracket;
 			linerev.replace(pos1, len, value);
 		}
-		
+
 		pos1=rx.indexIn(linerev);
 		pos2=rxfont.indexIn(linerev);
 	}
 	linerev.replace(ltagBracket, "(");
 	linerev.replace(rtagBracket, ")");
-	
+
 	line = strreverse(linerev);
-	
+
 	//replace \b(...), \i(...), \u(...), \g(...), \+(...), \-(...), \f:font(...) tags
 	QString rxstr[]={
 		"\\\\\\s*b\\s*\\(",

@@ -3315,6 +3315,8 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 						w->parentWidget()->move(QPoint(0,0));
 					} else
 						w->parentWidget()->move(QPoint(i*dx,i*dy));
+
+                    w->updateDecimalSeparators();
 				}
 				modifiedProject();
 				break;
@@ -3330,6 +3332,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 							local_strip_spaces, local_simplify_spaces, import_mode);
 					t->setWindowLabel(files.join("; "));
 					t->setCaptionPolicy(MyWidget::Name);
+					t->updateDecimalSeparators();
 					emit modifiedProject(t);
 				}
 				break;
@@ -3349,6 +3352,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 				if (t)
 				{
+				    t->updateDecimalSeparators();
 					t->setCaptionPolicy(MyWidget::Both);
 					setListViewLabel(t->name(), files[0]);
 					modifiedProject(t);
@@ -3401,7 +3405,9 @@ void ApplicationWindow::open()
 					if (a)
 					{
 						a->workingDir = workingDir;
-						this->close();
+						if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+                            fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
+                            this->close();
 					}
 				}
 				else
@@ -3498,7 +3504,8 @@ void ApplicationWindow::openRecentProject(int index)
 	{
 		saveSettings();//the recent projects must be saved
 		ApplicationWindow * a = open (fn);
-		if (a)
+		if (a && (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+            fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive)))
 			this->close();
 	}
 }
@@ -4192,6 +4199,7 @@ void ApplicationWindow::readSettings()
 	generatePeakCurves = settings.value("/GeneratePeakCurves", true).toBool();
 	peakCurvesColor = settings.value("/PeaksColor", 2).toInt();//green color
 	fit_scale_errors = settings.value("/ScaleErrors", false).toBool();
+	d_2_linear_fit_points = settings.value("/TwoPointsLinearFit", true).toBool();
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
@@ -4410,6 +4418,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/GeneratePeakCurves", generatePeakCurves);
 	settings.setValue("/PeaksColor", peakCurvesColor);
 	settings.setValue("/ScaleErrors", fit_scale_errors);
+	settings.setValue("/TwoPointsLinearFit", d_2_linear_fit_points);
 	settings.endGroup(); // Fitting
 
 	settings.beginGroup("/ImportASCII");
@@ -7313,7 +7322,7 @@ Table* ApplicationWindow::copyTable()
 	Table *w = 0, *m = (Table*)ws->activeWindow();
 	if (m)
 	{
-		QString caption = generateUniqueName(tr("Table"));		
+		QString caption = generateUniqueName(tr("Table"));
 		w=newTable(caption, m->numRows(), m->numCols());
 		w->copy(m);
 
@@ -9762,7 +9771,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 		        if (cell.isEmpty())
                     continue;
 
-		        if (d_file_version < 90)
+		        if (d_file_version < 90 && w->columnType(col) == Table::Numeric)
                     w->setCell(row, col, QLocale::c().toDouble(cell));
 		        else
                     w->setText(row, col, cell);
@@ -10572,7 +10581,11 @@ void ApplicationWindow::analyzeCurve(Graph *g, const QString& whichFit, const QS
 
             fitter->scaleErrors(fit_scale_errors);
             fitter->setOutputPrecision(fit_output_precision);
-			fitter->generateFunction(generateUniformFitPoints, fitPoints);
+
+            if (whichFit == "fitLinear" && d_2_linear_fit_points)
+                fitter->generateFunction(generateUniformFitPoints, 2);
+            else
+                fitter->generateFunction(generateUniformFitPoints, fitPoints);
 			fitter->fit();
 			if (pasteFitResultsToPlot)
                 fitter->showLegend();
@@ -12024,21 +12037,32 @@ MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
 
 ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 {
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+    if (filename.endsWith(".opj", Qt::CaseInsensitive) || filename.endsWith(".ogg", Qt::CaseInsensitive))
+    {
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	ApplicationWindow *app = new ApplicationWindow();
-	app->applyUserSettings();
-	app->setWindowTitle("QtiPlot - " + filename);
-	app->showMaximized();
-	app->projectname = filename;
-	app->recentProjects.remove(filename);
-	app->recentProjects.push_front(filename);
-	app->updateRecentProjectsList();
+        ApplicationWindow *app = new ApplicationWindow();
+        app->applyUserSettings();
+        app->setWindowTitle("QtiPlot - " + filename);
+        app->showMaximized();
+        app->projectname = filename;
+        app->recentProjects.remove(filename);
+        app->recentProjects.push_front(filename);
+        app->updateRecentProjectsList();
 
-	ImportOPJ(app, filename);
+        ImportOPJ(app, filename);
 
-	QApplication::restoreOverrideCursor();
-	return app;
+        QApplication::restoreOverrideCursor();
+        return app;
+    }
+    else if (filename.endsWith(".ogm", Qt::CaseInsensitive) || filename.endsWith(".ogw", Qt::CaseInsensitive))
+    {
+		ImportOPJ(this, filename);
+        recentProjects.remove(filename);
+        recentProjects.push_front(filename);
+        updateRecentProjectsList();
+        return this;
+    }
 }
 
 void ApplicationWindow::deleteFitTables()
@@ -12091,12 +12115,12 @@ QWidgetList* ApplicationWindow::windowsList()
 			lst->append(w);
 		item = (FolderListItem *)item->itemBelow();
 	}
-	
+
 	foreach(QWidget *w, *hiddenWindows)
 		lst->append(w);
 	foreach(QWidget *w, *outWindows)
 		lst->append(w);
-	
+
 	return lst;
 }
 
@@ -12613,8 +12637,9 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QFileInfo fi(fn);
 	workingDir = fi.dirPath(true);
 
-	if (fn.contains(".qti",true) || fn.contains(".opj",false) ||
-		fn.contains(".ogm",false) || fn.contains(".ogw",false) || fn.contains(".ogg",false))
+	if (fn.contains(".qti") || fn.contains(".opj", Qt::CaseInsensitive) ||
+		fn.contains(".ogm", Qt::CaseInsensitive) || fn.contains(".ogw", Qt::CaseInsensitive) ||
+        fn.contains(".ogg", Qt::CaseInsensitive))
 	{
 		QFileInfo f(fn);
 		if (!f.exists ())
@@ -12630,6 +12655,10 @@ void ApplicationWindow::appendProject(const QString& fn)
 				tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
 		return;
 	}
+
+    recentProjects.remove(fn);
+    recentProjects.push_front(fn);
+    updateRecentProjectsList();
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -12659,7 +12688,8 @@ void ApplicationWindow::appendProject(const QString& fn)
 	FolderListItem *fli = new FolderListItem(item, current_folder);
 	current_folder->setFolderListItem(fli);
 
-	if (fn.contains(".opj", false) || fn.contains(".ogm",false) || fn.contains(".ogw",false) || fn.contains(".ogg",false))
+	if (fn.contains(".opj", Qt::CaseInsensitive) || fn.contains(".ogm", Qt::CaseInsensitive) ||
+        fn.contains(".ogw", Qt::CaseInsensitive) || fn.contains(".ogg", Qt::CaseInsensitive))
 		ImportOPJ(this, fn);
 	else
 	{
@@ -13882,7 +13912,7 @@ QString ApplicationWindow::generateUniqueName(const QString& name, bool incremen
 
 	for (int i = 0; i < windows->count();i++ )
 	{
-		lst << windows->at(i)->name();		
+		lst << windows->at(i)->name();
 		if (QString(windows->at(i)->name()).startsWith(name))
 			index++;
 	}

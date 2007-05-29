@@ -291,12 +291,11 @@ public slots:
 	void setColumnsFormat(const QStringList& lst);
 
 	void setTextFormat(int col);
-	void setColNumericFormat(int f, int prec, int col);
-	bool setDateFormat(const QString& format, int col);
-	bool setTimeFormat(const QString& format, int col);
-	void setMonthFormat(const QString& format, int col);
-	void setDayFormat(const QString& format, int col);
-	bool setDateTimeFormat(int f, const QString& format, int col);
+	void setColNumericFormat(int f, int prec, int col, bool updateCells = true);
+	bool setDateFormat(const QString& format, int col, bool updateCells = true);
+	bool setTimeFormat(const QString& format, int col, bool updateCells = true);
+	void setMonthFormat(const QString& format, int col, bool updateCells = true);
+	void setDayFormat(const QString& format, int col, bool updateCells = true);
 
 	bool exportToASCIIFile(const QString& fname, const QString& separator,
 							  bool withLabels,bool exportSelection);

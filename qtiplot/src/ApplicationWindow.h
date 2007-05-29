@@ -931,6 +931,9 @@ public:
 	//! Number of points in a generated fit curve
 	int fitPoints;
 
+	//! Calculate only 2 points in a generated linear fit function curve
+	bool d_2_linear_fit_points;
+
 	bool pasteFitResultsToPlot;
 
 	//! Write fit output information to Result Log
@@ -946,7 +949,7 @@ public:
 	Folder *current_folder;
 	//! Describes which windows are shown when the folder becomes the current folder
 	ShowWindowsPolicy show_windows_policy;
-	enum {MaxRecentProjects = 5};
+	enum {MaxRecentProjects = 10};
 	//! File version code used when opening project files (= maj * 100 + min * 10 + patch)
 	int d_file_version;
 

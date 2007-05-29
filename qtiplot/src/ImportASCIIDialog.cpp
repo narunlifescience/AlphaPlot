@@ -7,7 +7,7 @@
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Import ASCII file(s) dialog
-                           
+
  ***************************************************************************/
 
 
@@ -41,7 +41,7 @@
 #include <QRegExp>
 #include <QMessageBox>
 
-ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, Qt::WFlags flags ) 
+ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, Qt::WFlags flags )
 : ExtensibleFileDialog( parent, flags )
 {
 	setWindowTitle(tr("QtiPlot - Import ASCII File(s)"));
@@ -64,7 +64,7 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent,
 	d_strip_spaces->setChecked(app->strip_spaces);
 	d_simplify_spaces->setChecked(app->simplify_spaces);
 	d_ignored_lines->setValue(app->ignoredLines);
-	d_rename_columns->setChecked(app->renameColumns);	
+	d_rename_columns->setChecked(app->renameColumns);
 	setColumnSeparator(app->columnSeparator);
 
 	connect(d_import_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImportMode(int)));
@@ -118,7 +118,7 @@ void ImportASCIIDialog::initAdvancedOptions()
 
 	d_rename_columns = new QCheckBox(tr("Use first row to &name columns"));
 	advanced_layout->addWidget(d_rename_columns, 0, 2, 1, 2);
- 
+
 	d_strip_spaces = new QCheckBox(tr("&Remove white spaces from line ends"));
 	advanced_layout->addWidget(d_strip_spaces, 1, 2, 1, 2);
 	// context-sensitive help
@@ -143,6 +143,7 @@ void ImportASCIIDialog::initAdvancedOptions()
 	d_help_button = new QPushButton(tr("&Help"));
 	connect(d_help_button, SIGNAL(clicked()), this, SLOT(displayHelp()));
 	meta_options_layout->addWidget(d_help_button);
+	meta_options_layout->addStretch();
 	main_layout->addLayout(meta_options_layout);
 }
 
@@ -174,7 +175,7 @@ void ImportASCIIDialog::setColumnSeparator(const QString& sep)
 const QString ImportASCIIDialog::columnSeparator() const
 {
 	QString sep = d_column_separator->currentText();
-	
+
 	if (d_simplify_spaces->isChecked())
 		sep.replace(tr("TAB"), " ", Qt::CaseInsensitive);
 	else
@@ -183,7 +184,7 @@ const QString ImportASCIIDialog::columnSeparator() const
 	sep.replace(tr("SPACE"), " ", Qt::CaseInsensitive);
 	sep.replace("\\s", " ");
 	sep.replace("\\t", "\t");
-		
+
 	/* TODO
 	if (sep.contains(QRegExp("[0-9.eE+-]")))
 		QMessageBox::warning(this, tr("QtiPlot - Import options error"),

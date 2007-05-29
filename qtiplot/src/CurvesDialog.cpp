@@ -137,14 +137,14 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 
     vl2->addStretch();
     gl->addLayout(vl2, 1, 3);
-	
+
     QVBoxLayout* vl3 = new QVBoxLayout(this);
     vl3->addLayout(hl);
     vl3->addLayout(gl);
 
 	boxShowCurrentFolder = new QCheckBox(tr("Show current &folder only" ));
 	vl3->addWidget(boxShowCurrentFolder);
-	
+
     init();
 
 	connect(boxShowCurrentFolder, SIGNAL(toggled(bool)), this, SLOT(showCurrentFolder(bool)));
@@ -276,7 +276,7 @@ void CurvesDialog::init()
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app)
     {
-		bool currentFolderOnly = app->d_show_current_folder;		
+		bool currentFolderOnly = app->d_show_current_folder;
         boxShowCurrentFolder->setChecked(currentFolderOnly);
 		showCurrentFolder(currentFolderOnly);
 
@@ -500,7 +500,7 @@ void CurvesDialog::showCurveRange(bool on )
             if (!it)
                 continue;
 
-            if (it->rtti() == QwtPlotItem::Rtti_PlotCurve)
+            if (it->rtti() == QwtPlotItem::Rtti_PlotCurve && ((PlotCurve *)it)->type() != Graph::Function)
             {
                 DataCurve *c = (DataCurve *)it;
                 lst << c->title().text() + "[" + QString::number(c->startRow()+1) + ":" + QString::number(c->endRow()+1) + "]";
@@ -527,10 +527,10 @@ void CurvesDialog::showCurrentFolder(bool currentFolder)
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	if (!app)
 		return;
-	
+
 	app->d_show_current_folder = currentFolder;
 	available->clear();
-	
+
     if (currentFolder){
     	Folder *f = app->currentFolder();
 		if (f){
@@ -548,6 +548,6 @@ void CurvesDialog::showCurrentFolder(bool currentFolder)
 			available->addItems(columns);
 		}
     }
-	else 
-        available->addItems(app->columnsList(Table::Y));		
+	else
+        available->addItems(app->columnsList(Table::Y));
 }

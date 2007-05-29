@@ -637,9 +637,14 @@ void ConfigDialog::initFittingPage()
 	generatePointsBox->setRange(0, 1000000);
 	generatePointsBox->setSingleStep(10);
 	generatePointsBox->setValue(app->fitPoints);
-	showPointsBox(!app->generateUniformFitPoints);
 	fittingCurveLayout->addWidget(generatePointsBox, 0, 2);
 
+    linearFit2PointsBox = new QCheckBox();
+    linearFit2PointsBox->setChecked(app->d_2_linear_fit_points);
+    fittingCurveLayout->addWidget(linearFit2PointsBox, 0, 3);
+
+	showPointsBox(!app->generateUniformFitPoints);
+	
 	samePointsBtn = new QRadioButton();
 	samePointsBtn->setChecked(!app->generateUniformFitPoints);
 	fittingCurveLayout->addWidget(samePointsBtn, 1, 0);
@@ -799,9 +804,6 @@ void ConfigDialog::languageChange()
 	boxResize->setText(tr("Do not &resize layers when window size changes"));
 
 	lblMinTicksLength->setText(tr("Length"));
-
-	scaleErrorsBox->setText(tr("Scale Errors with sqrt(Chi^2/doF)"));
-	scaleErrorsBox->setChecked(app->fit_scale_errors);
 
 	lblAxesLineWidth->setText(tr("Axes linewidth" ));
 	lblMajTicksLength->setText(tr("Length" ));
@@ -976,6 +978,7 @@ void ConfigDialog::languageChange()
 	generatePointsBtn->setText(tr("Uniform X Function"));
 	lblPoints->setText( tr("Points") );
 	samePointsBtn->setText( tr( "Same X as Fitting Data" ) );
+	linearFit2PointsBox->setText( tr( "2 points for linear fits" ) );
 
 	groupBoxMultiPeak->setTitle(tr("Display Peak Curves for Multi-peak Fits"));
 
@@ -1064,23 +1067,6 @@ void ConfigDialog::apply()
 
 	// general page: numeric format tab
 	app->d_decimal_digits = boxAppPrecision->value();
-
-	/*switch (boxDecimalSeparator->currentIndex())
-	{
-        case 0:
-            QLocale::setDefault(QLocale::system());
-        break;
-        case 1:
-            QLocale::setDefault(QLocale::C);
-        break;
-        case 2:
-            QLocale::setDefault(QLocale::German);
-        break;
-        case 3:
-            QLocale::setDefault(QLocale::French);
-        break;
-    }*/
-
     QLocale locale;
     switch (boxDecimalSeparator->currentIndex())
 	{
@@ -1144,6 +1130,7 @@ void ConfigDialog::apply()
 	app->generatePeakCurves = groupBoxMultiPeak->isChecked();
 	app->peakCurvesColor = boxPeaksColor->currentIndex();
 	app->fit_scale_errors = scaleErrorsBox->isChecked();
+	app->d_2_linear_fit_points = linearFit2PointsBox->isChecked();
 	app->saveSettings();
 
 	// calculate a sensible width for the items list
@@ -1499,10 +1486,12 @@ void ConfigDialog::showPointsBox(bool)
 	{
 		lblPoints->show();
 		generatePointsBox->show();
+		linearFit2PointsBox->show();
 	}
 	else
 	{
 		lblPoints->hide();
 		generatePointsBox->hide();
+		linearFit2PointsBox->hide();
 	}
 }
