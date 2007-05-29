@@ -2474,7 +2474,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 {
 	QFile f(fname);
 	if (f.open(QIODevice::ReadOnly)) //| QIODevice::Text | QIODevice::Unbuffered ))
-	{
+	{		
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         Q3TextStream t(&f);//TODO: use QTextStream instead and find a way to make it read the end-of-line char correctly.
                          //Opening the file with the above combination doesn't seem to help: problems on Mac OS X generated ASCII files!
@@ -2484,9 +2484,11 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			t.readLine();
 
 		QString s = t.readLine();//read first line after the ignored ones
+		QMessageBox::about(0, "", QString::number(rows) + "/" + s);
 		while ( !t.atEnd() )
 		{
 			t.readLine();
+			QMessageBox::about(0, "", QString::number(rows) + "/" + s);
 			rows++;
 			qApp->processEvents(QEventLoop::ExcludeUserInput);
 		}

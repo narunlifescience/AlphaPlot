@@ -269,19 +269,6 @@ bool ImportOPJ::importTables(OPJFile opj)
 				table->setDayFormat(format, j, false);
 				break;
 			}
-            char f = 'g';
-            switch(opj.colValueTypeSpec(s,j)){
-                case 0: //Decimal 1000
-                    f='f';
-                break;
-                case 1: //Scientific
-                    f='e';
-                break;
-                case 2: //Engeneering
-                case 3: //Decimal 1,000
-                    f='f';
-                break;
-            }
 
 			for (int i=0; i<opj.numRows(s,j); i++)
 			{
@@ -291,7 +278,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
-					table->setText(i, j, QLocale().toString(*val, f, opj.colDecPlaces(s,j)));
+					table->setText(i, j, QLocale().toString(*val));
 				}
 				else// label? doesn't seem to work
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
