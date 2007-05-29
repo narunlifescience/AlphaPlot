@@ -3315,8 +3315,6 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 						w->parentWidget()->move(QPoint(0,0));
 					} else
 						w->parentWidget()->move(QPoint(i*dx,i*dy));
-
-                    w->updateDecimalSeparators();
 				}
 				modifiedProject();
 				break;
@@ -3332,7 +3330,6 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 							local_strip_spaces, local_simplify_spaces, import_mode);
 					t->setWindowLabel(files.join("; "));
 					t->setCaptionPolicy(MyWidget::Name);
-					t->updateDecimalSeparators();
 					emit modifiedProject(t);
 				}
 				break;
@@ -3352,7 +3349,6 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 				if (t)
 				{
-				    t->updateDecimalSeparators();
 					t->setCaptionPolicy(MyWidget::Both);
 					setListViewLabel(t->name(), files[0]);
 					modifiedProject(t);
