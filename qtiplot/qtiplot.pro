@@ -85,7 +85,7 @@ CONFIG        += assistant
 
 DEFINES       += QT_PLUGIN
 win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
-QT            += opengl qt3support network
+QT            += opengl qt3support network svg
 
 MOC_DIR        = ../tmp/qtiplot
 OBJECTS_DIR    = ../tmp/qtiplot

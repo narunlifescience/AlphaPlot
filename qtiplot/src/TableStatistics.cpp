@@ -133,7 +133,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 					QString text = d_base->text(i,j);
 					if (!text.isEmpty() && d_base->columnType(j) == Numeric)
 					{					
-						double val = text.toDouble();
+						double val = d_base->cell(i,j);
 						gsl_vector_set (y, aux, val);
 						dat[aux] = val;
 						aux++;
@@ -185,7 +185,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				gsl_vector *y = gsl_vector_alloc (m);
 
 				int aux = 0, min_index = start, max_index = start;
-				double val = d_base->text(start, i).toDouble();
+				double val = d_base->cell(start, i);
 				gsl_vector_set (y, 0, val);
 				dat[0] = val;
 				double min = val, max = val;
@@ -194,7 +194,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 					if (!d_base->text(j, i).isEmpty())
 					{
 						aux++;
-						val = d_base->text(j, i).toDouble();
+						val = d_base->cell(j, i);
 						gsl_vector_set (y, aux, val);
 						dat[aux] = val;
 						if (val < min)
