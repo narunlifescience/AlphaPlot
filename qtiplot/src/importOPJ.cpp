@@ -278,6 +278,9 @@ bool ImportOPJ::importTables(OPJFile opj)
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
+                    //if (table->columnType(j) == Table::Date)
+                        //QMessageBox::about(0, "", QDate::fromJulianDay(int(*val)+1).toString("dd/MM/yyyy"));
+
 					table->setText(i, j, QLocale().toString(*val));
 				}
 				else// label? doesn't seem to work

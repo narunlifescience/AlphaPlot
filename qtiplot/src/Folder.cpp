@@ -114,8 +114,7 @@ static const char* folder_open_xpm[]={
 Folder::Folder( Folder *parent, const QString &name )
     : QObject( parent, name ), d_active_window(0)
 {
-    QDateTime dt = QDateTime::currentDateTime ();
-	birthdate = dt.toString(Qt::LocalDate);
+	birthdate = QDateTime::currentDateTime ().toString(Qt::LocalDate);
 
 	// FIXME: This doesn't work anymore in Qt4, need alternative method
 	// lstWindows.setAutoDelete( true );
@@ -133,8 +132,7 @@ QStringList Folder::subfolders()
 {
 	QStringList list = QStringList();
 	QObjectList folderList = children();
-	if (!folderList.isEmpty())
-	{
+	if (!folderList.isEmpty()){
 		QObject * f;
 		foreach(f,folderList)
 			list << static_cast<Folder *>(f)->name();
@@ -144,28 +142,24 @@ QStringList Folder::subfolders()
 
 QString Folder::path()
 {
-QString s = "/" + QString(name()) + "/";
-Folder *parentFolder = (Folder *)parent();
-while (parentFolder)
-	{
-	s.prepend("/" + QString(parentFolder->name()));
-	parentFolder = (Folder *)parentFolder->parent();
+    QString s = "/" + QString(name()) + "/";
+    Folder *parentFolder = (Folder *)parent();
+    while (parentFolder){
+        s.prepend("/" + QString(parentFolder->name()));
+        parentFolder = (Folder *)parentFolder->parent();
 	}
-return s;
+    return s;
 }
 
 Folder* Folder::findSubfolder(const QString& s, bool caseSensitive, bool partialMatch)
 {
 	QObjectList folderList = children();
-	if (!folderList.isEmpty())
-	{
+	if (!folderList.isEmpty()){
 		QObject * f;
 
-		foreach(f,folderList)
-		{
+		foreach(f,folderList){
 			QString name = static_cast<Folder *>(f)->name();
-			if (partialMatch)
-			{
+			if (partialMatch){
 				if (caseSensitive && name.startsWith(s,Qt::CaseSensitive))
 					return static_cast<Folder *>(f);
 				else if (!caseSensitive && name.startsWith(s,Qt::CaseInsensitive))

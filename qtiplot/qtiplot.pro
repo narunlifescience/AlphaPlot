@@ -80,7 +80,7 @@ QMAKE_PROJECT_DEPTH = 0
 
 TARGET         = qtiplot
 TEMPLATE       = app
-CONFIG        += qt warn_on exceptions opengl
+CONFIG        += qt warn_on exceptions opengl thread
 CONFIG        += assistant
 
 DEFINES       += QT_PLUGIN

@@ -589,23 +589,22 @@ QString Table::saveToString(const QString& geometry)
 
 QString Table::saveHeader()
 {
-	QString s="header\t";
-	for (int j=0; j<d_table->numCols(); j++)
-	{
+	QString s = "header";
+	for (int j=0; j<d_table->numCols(); j++){
 		if (col_plot_type[j] == X)
-			s+= colLabel(j) + "[X]\t";
+			s += "\t" + colLabel(j) + "[X]";
 		else if (col_plot_type[j] == Y)
-			s+= colLabel(j) + "[Y]\t";
+			s += "\t" + colLabel(j) + "[Y]";
 		else if (col_plot_type[j] == Z)
-			s+= colLabel(j) + "[Z]\t";
+			s += "\t" + colLabel(j) + "[Z]";
 		else if (col_plot_type[j] == xErr)
-			s+= colLabel(j) + "[xEr]\t";
+			s += "\t" + colLabel(j) + "[xEr]";
 		else if (col_plot_type[j] == yErr)
-			s+= colLabel(j) + "[yEr]\t";
+			s += "\t" + colLabel(j) + "[yEr]";
 		else
-			s+= colLabel(j) + "\t";
+			s += "\t" + colLabel(j);
 	}
-	return s+="\n";
+	return s += "\n";
 }
 
 int Table::firstXCol()
@@ -1319,54 +1318,51 @@ void Table::normalizeCol(int col)
 
 void Table::sortColumnsDialog()
 {
-	QStringList s=selectedColumns();
-	SortDialog *sortd=new SortDialog(this);
+	SortDialog *sortd = new SortDialog(this);
 	sortd->setAttribute(Qt::WA_DeleteOnClose);
-	connect (sortd,SIGNAL(sort(int, int, const QString&)),
-			this,SLOT(sortColumns(int, int, const QString&)));
-	sortd->insertColumnsList(s);
+	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sortColumns(int, int, const QString&)));
+	sortd->insertColumnsList(selectedColumns());
 	sortd->exec();
 }
 
 void Table::sortTableDialog()
 {
-	SortDialog *sortd=new SortDialog(this);
+	SortDialog *sortd = new SortDialog(this);
 	sortd->setAttribute(Qt::WA_DeleteOnClose);
-	connect (sortd,SIGNAL(sort(int, int, const QString&)),
-			this,SLOT(sort(int, int, const QString&)));
+	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sort(int, int, const QString&)));
 	sortd->insertColumnsList(colNames());
 	sortd->exec();
 }
 
 void Table::sort(int type, int order, const QString& leadCol)
 {
-	sortColumns(colNames(), type, order, leadCol);
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	sortColumns(col_label, type, order, leadCol);
+    QApplication::restoreOverrideCursor();
 }
 
 void Table::sortColumns(int type, int order, const QString& leadCol)
 {
+    QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	sortColumns(selectedColumns(), type, order, leadCol);
+    QApplication::restoreOverrideCursor();
 }
 
 void Table::sortColumns(const QStringList&s, int type, int order, const QString& leadCol)
 {
 	int cols=s.count();
-	if(!type)
-	{
+	if(!type){
 		for(int i=0;i<cols;i++)
 			sortColumn(colIndex(s[i]), order);
 	}
-	else
-	{
+	else{
 		int leadcol = colIndex(leadCol);
-		if (leadcol < 0)
-		{
+		if (leadcol < 0){
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
 			tr("Please indicate the name of the leading column!"));
 			return;
 		}
-		if (columnType(leadcol) == Table::Text)
-		{
+		if (columnType(leadcol) == Table::Text){
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
 			tr("The leading column has the type set to 'Text'! Operation aborted!"));
 			return;
@@ -1376,18 +1372,15 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 		int non_empty_cells = 0;
 		QVarLengthArray<int> valid_cell(rows);
 		QVarLengthArray<double> data_double(rows);
-		for (int j = 0; j <rows; j++)
-		{
-			if (!d_table->text(j, leadcol).isEmpty())
-			{
-				data_double[non_empty_cells] = this->text(j,leadcol).toDouble();
+		for (int j = 0; j <rows; j++){
+			if (!d_table->text(j, leadcol).isEmpty()){
+				data_double[non_empty_cells] = cell(j,leadcol);
 				valid_cell[non_empty_cells] = j;
 				non_empty_cells++;
 			}
 		}
 
-		if (!non_empty_cells)
-		{
+		if (!non_empty_cells){
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
 			tr("The leading column is empty! Operation aborted!"));
 			return;
@@ -1400,12 +1393,11 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 
 		// Find the permutation index for the lead col
 		gsl_sort_index(p, data_double.data(), 1, non_empty_cells);
-
+		
 		for(int i=0;i<cols;i++)
 		{// Since we have the permutation index, sort all the columns
             int col=colIndex(s[i]);
-            if (columnType(col) == Text)
-            {
+            if (columnType(col) == Text){
                 for (int j=0; j<non_empty_cells; j++)
                     data_string[j] = text(valid_cell[j], col);
                 if(!order)
@@ -1415,10 +1407,9 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
                     for (int j=0; j<non_empty_cells; j++)
                         d_table->setText(valid_cell[j], col, data_string[p[non_empty_cells-j-1]]);
             }
-            else
-            {
+            else{
                 for (int j = 0; j<non_empty_cells; j++)
-                    data_double[j] = text(valid_cell[j], col).toDouble();
+                    data_double[j] = cell(valid_cell[j], col);
                 int prec;
                 char f;
                 columnNumericFormat(col, &f, &prec);
@@ -1919,10 +1910,13 @@ void Table::setRandomValues()
 
 void Table::loadHeader(QStringList header)
 {
-	col_label.clear();
-	col_plot_type.clear();
+	col_label = QStringList();
+	col_plot_type = QList <int>();
 	for (int i=0; i<header.count();i++)
 	{
+		if (header[i].isEmpty())
+			continue;
+		
 		QString s = header[i].replace("_","-");
 		if (s.contains("[X]"))
 		{
@@ -2474,7 +2468,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 {
 	QFile f(fname);
 	if (f.open(QIODevice::ReadOnly)) //| QIODevice::Text | QIODevice::Unbuffered ))
-	{		
+	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
         Q3TextStream t(&f);//TODO: use QTextStream instead and find a way to make it read the end-of-line char correctly.
                          //Opening the file with the above combination doesn't seem to help: problems on Mac OS X generated ASCII files!

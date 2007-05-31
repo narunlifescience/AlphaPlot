@@ -5345,8 +5345,7 @@ void Graph::updateCurveNames(const QString& oldName, const QString& newName, boo
 {
     //update plotted curves list
 	QList<int> keys = d_plot->curveKeys();
-	for (int i=0; i<(int)keys.count(); i++)
-	{
+	for (int i=0; i<(int)keys.count(); i++){
 		QwtPlotItem *it = d_plot->plotItem(keys[i]);
 		if (!it)
             continue;
@@ -5354,7 +5353,7 @@ void Graph::updateCurveNames(const QString& oldName, const QString& newName, boo
             continue;
 
         DataCurve *c = (DataCurve *)it;
-        if (c->plotAssociation().contains(oldName))
+        if (c->type() != Function && c->plotAssociation().contains(oldName))
             c->updateColumnNames(oldName, newName, updateTableName);
 	}
 

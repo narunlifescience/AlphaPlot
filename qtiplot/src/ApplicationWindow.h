@@ -430,7 +430,7 @@ public slots:
 	void closeWindow(MyWidget* window);
 
 	//!  Does all the cleaning work before actually deleting a window!
-	void removeWindowFromLists(QWidget* w);
+	void removeWindowFromLists(MyWidget* w);
 
 	void hideWindow(MyWidget* window);
 	void hideWindow();

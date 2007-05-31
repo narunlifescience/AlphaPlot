@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Superscript extension of QwtScaleDraw
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -32,8 +32,6 @@
 #include <QDialog>
 
 class QPushButton;
-class QCheckBox;
-class QLineEdit;
 class QComboBox;
 
 //! Sorting options dialog
@@ -43,24 +41,22 @@ class SortDialog : public QDialog
 
 public:
     SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~SortDialog(){};
+    void insertColumnsList(const QStringList& cols);
 
+private slots:
+	void accept();
+	void changeType(int index);
+
+signals:
+	void sort(int, int, const QString&);
+
+private:
     QPushButton* buttonOk;
 	QPushButton* buttonCancel;
 	QPushButton* buttonHelp;
 	QComboBox* boxType;
 	QComboBox* boxOrder;
 	QComboBox *columnsList;
-	
-
-public slots:
-    virtual void languageChange();
-	void accept();
-	void insertColumnsList(const QStringList& cols);
-	void changeType(int index);
-
-signals:
-	void sort(int, int, const QString&);
 };
 
-#endif // EXPORTDIALOG_H
+#endif

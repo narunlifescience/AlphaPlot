@@ -2810,6 +2810,7 @@ void ApplicationWindow::windowActivated(QWidget *w)
 
 	customToolBars(w);
 	customMenu(w);
+	
 	Folder *f = ((MyWidget *)w)->folder();
 	if (f)
         f->setActiveWindow((MyWidget *)w);
@@ -7738,7 +7739,7 @@ void ApplicationWindow::updateWindowLists(MyWidget *w)
 {
 	if (!w)
 		return;
-
+	
 	if (hiddenWindows->contains(w))
 		hiddenWindows->takeAt(hiddenWindows->indexOf(w));
 	else if (outWindows->contains(w))
@@ -7756,28 +7757,27 @@ void ApplicationWindow::closeActiveWindow()
 		w->close();
 }
 
-void ApplicationWindow::removeWindowFromLists(QWidget* w)
+void ApplicationWindow::removeWindowFromLists(MyWidget* w)
 {
+	if (!w)
+		return;
+	
 	QString caption = w->name();
-	if (w->isA("Table"))
-	{
+	if (w->isA("Table")){
 		Table* m=(Table*)w;
-		for (int i=0; i<m->numCols(); i++)
-		{
+		for (int i=0; i<m->numCols(); i++){
 			QString name=m->colName(i);
 			removeCurves(name);
 		}
 		tableWindows.remove(caption);
-		if (w == lastModified)
-		{
+		if (w == lastModified){
 			actionUndo->setEnabled(false);
 			actionRedo->setEnabled(false);
 		}
 	}
 	else if (w->isA("TableStatistics"))
 		tableWindows.remove(caption);
-	else if (w->isA("MultiLayer"))
-	{
+	else if (w->isA("MultiLayer")){
 		MultiLayer *ml =  (MultiLayer*)w;
 		Graph *g = ml->activeGraph();
 		if (g)
@@ -7796,16 +7796,16 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 {
 	if (!window)
 		return;
-
+	
 	removeWindowFromLists(window);
-	window->folder()->removeWindow((MyWidget*)window);
-
+	window->folder()->removeWindow(window);	
+	
 	//update list view in project explorer
 	Q3ListViewItem *it=lv->findItem (window->name(), 0, Q3ListView::ExactMatch|Q3ListView::CaseSensitive);
 	if (it)
 		lv->takeItem(it);
 
-	delete window;
+	delete window;	
 	emit modified();
 }
 
@@ -13358,21 +13358,26 @@ bool ApplicationWindow::deleteFolder(Folder *f)
 	else
 	{
 		FolderListItem *fi = f->folderListItem();
-		QList<MyWidget *> lst = f->windowsList();
-		foreach(MyWidget *w, lst)
-			removeWindowFromLists(w);
+		foreach(MyWidget *w, f->windowsList())
+            closeWindow(w);
 
-		if ( !(f->children()).isEmpty() )
-		{
+		if ( !(f->children()).isEmpty() ){
 			FolderListItem *item = (FolderListItem *)fi->firstChild();
 			int initial_depth = item->depth();
-			while (item && item->depth() >= initial_depth)
-			{
-				lst = ((Folder *)item->folder())->windowsList();
-				foreach(MyWidget *w, lst)
-					removeWindowFromLists(w);
+			while (item && item->depth() >= initial_depth){
+			    Folder *subFolder = (Folder *)item->folder();
+			    if (subFolder){
+                    foreach(MyWidget *w, subFolder->windowsList()){
+                        removeWindowFromLists(w);
+                        subFolder->removeWindow(w);
+                        delete w;
+                    }
 
-				item = (FolderListItem *)item->itemBelow();
+                    FolderListItem *old_item = item;
+                    item = (FolderListItem *)item->itemBelow();
+                    delete subFolder;
+                    delete old_item;
+			    }
 			}
 		}
 
@@ -13390,8 +13395,7 @@ void ApplicationWindow::deleteFolder()
 
 	folders->blockSignals(true);
 
-	if (deleteFolder(current_folder))
-	{
+	if (deleteFolder(current_folder)){
 		current_folder = parent;
 		folders->setCurrentItem(parent->folderListItem());
 		changeFolder(parent, true);
@@ -13432,8 +13436,7 @@ void ApplicationWindow::hideFolderWindows(Folder *f)
 	FolderListItem *fi = f->folderListItem();
 	FolderListItem *item = (FolderListItem *)fi->firstChild();
 	int initial_depth = item->depth();
-	while (item && item->depth() >= initial_depth)
-	{
+	while (item && item->depth() >= initial_depth){
 		lst = item->folder()->windowsList();
 		foreach(MyWidget *w, lst)
 			w->hide();
@@ -13467,16 +13470,14 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 	lv->clear();
 
 	QObjectList folderLst = newFolder->children();
-	if(!folderLst.isEmpty())
-	{
+	if(!folderLst.isEmpty()){
 		foreach(QObject *f, folderLst)
 			addFolderListViewItem(static_cast<Folder *>(f));
 	}
 
 	QList<MyWidget *> lst = newFolder->windowsList();
-	foreach(MyWidget *w, lst)
-	{
-        w->blockSignals(true);
+	foreach(MyWidget *w, lst){
+        w->blockSignals(true);	
         if (!hiddenWindows->contains(w) && !outWindows->contains(w) && show_windows_policy != HideAll){
             //show only windows in the current folder which are not hidden by the user
             if(w->status() == MyWidget::Normal)
@@ -13486,8 +13487,8 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
         }
         else
             w->setStatus(MyWidget::Hidden);
-
-        addListViewItem(w);
+		
+        addListViewItem(w);	
 	}
 
 	if (!(newFolder->children()).isEmpty()){
@@ -13497,8 +13498,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
         while (item && item->depth() >= initial_depth)
         {//show/hide windows in subfolders
             lst = ((Folder *)item->folder())->windowsList();
-            foreach(MyWidget *w, lst)
-            {
+            foreach(MyWidget *w, lst){
                 if (!hiddenWindows->contains(w) && !outWindows->contains(w)){
                     if (show_windows_policy == SubFolders){
                         if (w->status() == MyWidget::Normal || w->status() == MyWidget::Maximized)
@@ -13532,8 +13532,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
         customToolBars(active_window);
         }
 
-     if (old_active_window)
-     {
+     if (old_active_window){
         old_active_window->setStatus(old_active_window_state);
         oldFolder->setActiveWindow(old_active_window);
      }
@@ -13558,29 +13557,23 @@ void ApplicationWindow::addListViewItem(MyWidget *w)
 		return;
 
 	WindowListItem* it = new WindowListItem(lv, w);
-
-	if (w->isA("Matrix"))
-	{
+	if (w->isA("Matrix")){
 		it->setPixmap(0, QPixmap(matrix_xpm));
 		it->setText(1, tr("Matrix"));
 	}
-	else if (w->inherits("Table"))
-	{
+	else if (w->inherits("Table")){
 		it->setPixmap(0, QPixmap(worksheet_xpm));
 		it->setText(1, tr("Table"));
 	}
-	else if (w->isA("Note"))
-	{
+	else if (w->isA("Note")){
 		it->setPixmap(0, QPixmap(note_xpm));
 		it->setText(1, tr("Note"));
 	}
-	else if (w->isA("MultiLayer"))
-	{
+	else if (w->isA("MultiLayer")){
 		it->setPixmap(0, QPixmap(graph_xpm));
 		it->setText(1, tr("Graph"));
 	}
-	else if (w->isA("Graph3D"))
-	{
+	else if (w->isA("Graph3D")){
 		it->setPixmap(0, QPixmap(trajectory_xpm));
 		it->setText(1, tr("3D Graph"));
 	}
