@@ -4004,7 +4004,7 @@ void ApplicationWindow::readSettings()
 #else
 	askForSupport = settings.value("/Support", true).toBool();
 #endif
-	appLanguage = settings.value("/Language", QLocale::system().name().left(2)).toString();
+	appLanguage = settings.value("/Language", QLocale::system().name().section('_',0,0)).toString();
 	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
 
     recentProjects = settings.value("/RecentProjects").toStringList();
@@ -4049,11 +4049,34 @@ void ApplicationWindow::readSettings()
 
 	settings.beginGroup("/Paths");
 	workingDir = settings.value("/WorkingDir", qApp->applicationDirPath()).toString();
-	templatesDir = settings.value("/TemplatesDir", qApp->applicationDirPath()).toString();
+#ifdef Q_OS_WIN
 	helpFilePath = settings.value("/HelpFile", qApp->applicationDirPath()+"/manual/index.html").toString();
 	fitPluginsPath = settings.value("/FitPlugins", "fitPlugins").toString();
+	templatesDir = settings.value("/TemplatesDir", qApp->applicationDirPath()).toString();
 	asciiDirPath = settings.value("/ASCII", qApp->applicationDirPath()).toString();
 	imagesDirPath = settings.value("/Images", qApp->applicationDirPath()).toString();
+#else
+	QVariant help_file_setting = settings.value("/HelpFile");
+	if (help_file_setting.isValid())
+		helpFilePath = help_file_setting.toString();
+	else {
+		QString locale = QLocale().name(); // language_country according to ISO 639 and 3166, respectively
+		QStringList help_dir_suffixes;
+		help_dir_suffixes << locale << locale.section('_',0,0) << appLanguage << "en";
+		QFileInfo help_file_info;
+		foreach (QString suffix, help_dir_suffixes) {
+			help_file_info.setFile(QString("/usr/share/doc/qtiplot/manual-%1/index.html").arg(suffix));
+			if (help_file_info.exists())
+				break;
+		}
+		// intentionally defaults to .../manual-en/index.html even if it doesn't exist
+		helpFilePath = help_file_info.absoluteFilePath();
+	}
+	fitPluginsPath = settings.value("/FitPlugins", "/usr/lib/qtiplot/plugins").toString();
+	templatesDir = settings.value("/TemplatesDir", QDir::homePath()).toString();
+	asciiDirPath = settings.value("/ASCII", QDir::homePath()).toString();
+	imagesDirPath = settings.value("/Images", QDir::homePath()).toString();
+#endif
 	settings.endGroup(); // Paths
 	settings.endGroup();
 	/* ------------- end group General ------------------- */

@@ -118,7 +118,7 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 
 	QVBoxLayout* layout = new QVBoxLayout(this);
 	layout->addLayout(hbox);
-	layout->addWidget(canvas);
+	layout->addWidget(canvas, 1);
 	layout->setMargin(0);
 	layout->setSpacing(0);
     setGeometry(QRect( 0, 0, graph_width, graph_height ));

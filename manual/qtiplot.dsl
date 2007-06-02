@@ -13,7 +13,7 @@
 
 (define %root-filename%
 	;; Nom du .fichier HTML principal
-	"manual-0.8.9"
+	"index"
 )
 
 (define %stylesheet%
