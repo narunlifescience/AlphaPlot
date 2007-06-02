@@ -5,7 +5,7 @@
   <para>Starting with version 0.8.7, QtiPlot supports different interpreters
   for evaluating mathematical expressions and for executing scripts.</para>
 
-  <sect1 id="muParser">
+  <sect1 id="sec-muParser">
     <title>muParser</title>
 
     <para>The constants _e=e=E and _pi=pi=PI=Pi are defined, as well as the

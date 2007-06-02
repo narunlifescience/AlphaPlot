@@ -17,12 +17,12 @@
   <title>Fourier equation</title>
   <mediaobject>
     <imageobject>
-      <imagedata format="png" fileref="equations/equation_fourier.png"/>
+      <imagedata format="PNG" fileref="equations/equation_fourier.png"/>
     </imageobject>
   </mediaobject>
 </equation>
 
-<para>in which <inlinemediaobject><imageobject><imagedata format="png" fileref="equations/equation_omega-n.png"/></imageobject></inlinemediaobject> are the frequencies, a<subscript>n</subscript> are the amplitudes of each frequency and <inlinemediaobject><imageobject><imagedata format="png" fileref="equations/equation_psi-n.png"/></imageobject></inlinemediaobject> are the phase corresponding frequency. &appname; will compute these parameters and build a new plot of the amplitude as a function of the frequency.</para>
+<para>in which <inlinemediaobject><imageobject><imagedata format="PNG" fileref="equations/equation_omega-n.png"/></imageobject></inlinemediaobject> are the frequencies, a<subscript>n</subscript> are the amplitudes of each frequency and <inlinemediaobject><imageobject><imagedata format="PNG" fileref="equations/equation_psi-n.png"/></imageobject></inlinemediaobject> are the phase corresponding frequency. &appname; will compute these parameters and build a new plot of the amplitude as a function of the frequency.</para>
 
 <figure id="fig-exemple-fft">
   <title>An example of a inverse FFT.</title>
@@ -49,7 +49,7 @@
   <title>Covariance function of two signals <emphasis>x(t)</emphasis> and <emphasis>y(t)</emphasis></title>
   <mediaobject>
     <imageobject>
-      <imagedata format="png" fileref="equations/equation_covariance.png"/>
+      <imagedata format="PNG" fileref="equations/equation_covariance.png"/>
     </imageobject>
   </mediaobject>
 </equation>
@@ -195,7 +195,7 @@
   <title>Gauss equation</title>
   <mediaobject>
     <imageobject>
-      <imagedata  format="png" fileref="equations/equation_gauss.png"/>
+      <imagedata  format="PNG" fileref="equations/equation_gauss.png"/>
     </imageobject>
   </mediaobject>
 </equation>
@@ -222,7 +222,7 @@
   <title>Lorentz equation</title>
   <mediaobject>
     <imageobject>
-      <imagedata  format="png" fileref="equations/equation_lorentz.png"/>
+      <imagedata  format="PNG" fileref="equations/equation_lorentz.png"/>
     </imageobject>
   </mediaobject>
 </equation>
@@ -373,7 +373,7 @@
 <title>Interpolation</title>
 
 <para>The interpolation command will create a new data curve with a high number of points by interpolation of your data. The dialog box allows to define this number of points (default value = 1000). Then the method used for interpolation, the interval of X-values and the color of the interpolated curve can be chosen. In addition to the new curve in the active plot, a new table will be created.</para>
-  <informalfigure id="fig-interpolate-dialog">
+  <informalfigure id="fig-interpolate-dialog-b">
     <mediaobject> 
       <imageobject>
         <imagedata  format="PNG" fileref="pics/interpolate-dialog.png"/>

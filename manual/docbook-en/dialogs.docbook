@@ -60,7 +60,7 @@
 <!-- ************************************************** -->
 <sect1 id="add-function-dialog">
   <title>Add Function</title>
-  <para>This dialog box is used to add a function curve to the active plot. The function can be built with the common operators: * + / - and ^ for the power. The intrinsic functions available are listed in the <link linkend="sec-intrinsic-functions">appendix</link>.</para>
+  <para>This dialog box is used to add a function curve to the active plot. The function can be built with the common operators: * + / - and ^ for the power. The intrinsic functions available are listed in the <link linkend="sec-muParser">appendix</link>.</para>
   <para>The most common way to define a function is the classical cartesian coordinate definition y=f(x), this is the defaut option. The two following parameters allow to select the x range used for the plot, and the last one is used for the number of data points that are computed in the X-range.</para>
   <figure id="add-function-dialog-1">
     <title>The &add-function-cmd; dialog box: cartesian coordinates.</title>
@@ -245,7 +245,7 @@
 <sect1 id="contour-options-dialog">
   <title>Contour Curves Options</title>
   <para>This dialog is activated by clicking on a contour curve (or on the plotting area) when a 3D plot has been created from a matrix with one of the following commands of the &plot3d-menu-lnk;: &contour-color-lnk;, &contour-lines-lnk; or &gray-scale-lnk;.</para>
-  <figure id="fig-contour-options">
+  <figure id="fig-contour-options-1">
     <title>The Contour Options dialog.</title>
     <mediaobject> 
       <imageobject>
@@ -254,14 +254,14 @@
     </mediaobject>
   </figure>
   <para>The first group of settings <emphasis>Image</emphasis> is checked if you want to have a color or gray level filling of the contour plot. The default gray and color maps are the following: </para>
-  <informalfigure id="fig-contour-options">
+  <informalfigure id="fig-contour-options-5">
     <mediaobject> 
       <imageobject>
         <imagedata  format="PNG" fileref="pics/contour-curve-dialog-5.png"/>
       </imageobject>
     </mediaobject>
   </informalfigure>
-  <informalfigure id="fig-contour-options">
+  <informalfigure id="fig-contour-options-6">
     <mediaobject> 
       <imageobject>
         <imagedata  format="PNG" fileref="pics/contour-curve-dialog-6.png"/>
@@ -269,7 +269,7 @@
     </mediaobject>
   </informalfigure>
   <para>You can customize this colormap by checking the <emphasis>Custom Colors</emphasis> box. A table with a set of numbers (the Z levels) and the corresponding colors is presented. You can then add or delete new levels for the definition of the colormap, and modify the corresponding Z levels. You are not allowed to modify the first and last levels, which are set to the minimum and maximum Z values. Beware that this is only the definition of the colormap, it won't change the number of contour lines of your plot. An example of classical custom colormap is given here:</para>
-    <informalfigure id="fig-contour-options-1">
+    <informalfigure id="fig-contour-options-3">
     <mediaobject> 
       <imageobject>
         <imagedata  format="PNG" fileref="pics/contour-curve-dialog-3.png"/>
@@ -277,7 +277,7 @@
     </mediaobject>
   </informalfigure>
   <para>If you want to obtain discrete colors for each level,you must uncheck the <emphasis>Scale Colors</emphasis> checkbox. In this case you must define enough levels in your colormap.</para>
-    <informalfigure id="fig-contour-options-1">
+    <informalfigure id="fig-contour-options-4">
     <mediaobject> 
       <imageobject>
         <imagedata  format="PNG" fileref="pics/contour-curve-dialog-4.png"/>
@@ -759,10 +759,10 @@
   <title>Set Column Values</title>
       <indexterm><primary>table</primary></indexterm>
   <para>This dialog is activated by the &set-column-values-lnk; of the &table-menu-lnk;. It allows to fill a column with the result of a function.</para>
-  <para>The available mathematical functions (assuming you are using the default scripting language, muParser) are listed in the <link linkend= "sec-intrinsic-functions">appendix</link>. The special function <emphasis>col(x)</emphasis> can be used to access to the values of the column x, where x can be the column's number (as in <emphasis>col(2)</emphasis>) or its name in doublequotes (as in <emphasis>col("time")</emphasis>).
+  <para>The available mathematical functions (assuming you are using the default scripting language, muParser) are listed in the <link linkend= "sec-muParser">appendix</link>. The special function <emphasis>col(x)</emphasis> can be used to access to the values of the column x, where x can be the column's number (as in <emphasis>col(2)</emphasis>) or its name in doublequotes (as in <emphasis>col("time")</emphasis>).
   You can also get values from other tables using the function <emphasis>tablecol(t,c)</emphasis>, where t is the table's name in doublequotes and c is the column's number or name in doublequotes (example: <emphasis>tablecol("Table1","time")</emphasis>).</para>
-  <para>The variables <var>i</var> and <var>j</var> can be used to access the current row and column numbers.
-	  Similarly, <var>sr</var> and <var>er</var> represent the selected start and end row, respectively.
+  <para>The variables <code>i</code> and <code>j</code> can be used to access the current row and column numbers.
+	  Similarly, <code>sr</code> and <code>er</code> represent the selected start and end row, respectively.
   </para>
   <para>Using Python as scripting language gives you even more possibilities, since you can not only use arbitrary Python code in the function body, but also access other objects within your project. For details, see <link linkend="Python">here</link>.</para>
 
@@ -850,7 +850,7 @@
       <indexterm><primary>matrix</primary></indexterm>
   <para>This command is in the &matrix-menu-lnk;. It allows to fill in a matrix with the results of a function z=f(i,j) in which i and j are the row and column numbers.</para>
   <para>Even if you have defined X-values and Y-values with the &set-dimensions-lnk; command, you must use i and j as parameters for the function. In the example below, X and Y ranges have been defined as 101 values ( i and j from 1 to 101) between -5 and +5. Therefore, the function uses as entries the parameters x=(j-1)/100-5 and y=(i-1)/100-5.</para>
-  <para>The functions can be written on several lines, and the intrinsic functions which are available are listed in the <link linkend="sec-intrinsic-functions">appendix</link> .</para>
+  <para>The functions can be written on several lines, and the intrinsic functions which are available are listed in the <link linkend="sec-muParser">appendix</link> .</para>
   <figure id="fig-set-values-dialog">
     <title>The &set-values-cmd; dialog for matrix.</title>
     <mediaobject> 
@@ -905,7 +905,7 @@
   <informalequation> 
   <mediaobject>
     <imageobject>
-      <imagedata  format="png" fileref="equations/equation_couleur.png"/>
+      <imagedata  format="PNG" fileref="equations/equation_couleur.png"/>
     </imageobject>
   </mediaobject>
   </informalequation>

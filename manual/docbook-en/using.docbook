@@ -84,7 +84,7 @@
 
 <para>It is possible to use up to four axes for the data:</para>
 
-<figure id="fig-two-axis-plot">
+<figure id="fig-two-axes-plot">
   <title>A 2D plot with two Y axis.</title>
   <mediaobject> 
     <imageobject>
@@ -95,7 +95,7 @@
 
 <para>In addition to the customization which has been already described, the  axes which are used for each curve were defined with the <link linkend="custom-curves-dialog">Custom Curves</link> Dialog, and two arrows were added with the &draw-arrow-lnk;.</para>
 
-<informalfigure id="fig-two-axis-plot">
+<informalfigure id="fig-two-axes-dialog">
   <mediaobject> 
     <imageobject>
       <imagedata  format="PNG" fileref="pics/plot-two-axes-dialog.png"/>

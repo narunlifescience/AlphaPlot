@@ -126,8 +126,8 @@ The active items in the menus depend on the active window in the project. If the
         </imageobject>
       </mediaobject>
     </informalfigure>
+	 <para>This example shows the 3D plot which has been drawn from the matrix obtained with the &appname; logo.</para>
   </listitem>
-  <para>This example shows the 3D plot which has been drawn from the matrix obtained with the &appname; logo.</para>
 </varlistentry>
 <!--
 		export or print plots
@@ -895,7 +895,7 @@ The active items in the menus depend on the active window in the project. If the
 	<term>&contour-lines-cmd;</term>
 	<listitem>
 	  <para>Makes a contour plot of the data in the active matrix window. The contour lines and the colormap settings may be changed by clicking on the plotting area, this will active the <link linkend="contour-options-dialog">Contour Options Dialog</link>.</para>
-      <informalfigure id="fig-3dplot-contour-color">
+      <informalfigure id="fig-3dplot-contour">
         <mediaobject> 
           <imageobject>
             <imagedata  format="PNG" fileref="pics/3d-gallery-contour.png"/>
@@ -1138,7 +1138,7 @@ The active items in the menus depend on the active window in the project. If the
 	  <informalequation> 
 	    <mediaobject>
 	      <imageobject>
-	        <imagedata format="png" fileref="equations/savitzky-golay.png"/>
+	        <imagedata format="PNG" fileref="equations/savitzky-golay.png"/>
 	      </imageobject>
 	    </mediaobject>
 	  </informalequation>
@@ -1161,7 +1161,7 @@ The active items in the menus depend on the active window in the project. If the
 	  <informalequation> 
 	    <mediaobject>
 	      <imageobject>
-	        <imagedata format="png" fileref="equations/equation_moving_window.png"/>
+	        <imagedata format="PNG" fileref="equations/equation_moving_window.png"/>
 	      </imageobject>
 	    </mediaobject>
 	  </informalequation>
