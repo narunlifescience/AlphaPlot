@@ -1760,41 +1760,6 @@ void Table::setColumnsFormat(const QStringList& lst)
 
 bool Table::setDateFormat(const QString& format, int col, bool updateCells)
 {
-	/*if (col_format[col] == format)
-		return true;
-
-    if (updateCells){
-	for (int i=0; i<d_table->numRows(); i++)
-	{
-		QString s = d_table->text(i,col);
-		if (!s.isEmpty()){
-		    QDateTime d;
-		    if (d_saved_cells && colTypes[col] == Numeric){
-                d = QDateTime(QDate::fromJulianDay(d_saved_cells[col][i]+1));
-                double secs = (d_saved_cells[col][i] - int(d_saved_cells[col][i]))*86400;
-                d.setTime(d.time().addSecs(int(secs)+1));
-		    }
-		    else
-                d = QDateTime::fromString (s, col_format[col]);
-
-			if (d.isValid())
-				d_table->setText(i, col, d.toString(format));
-            else
-            {//This might be the first time the user assigns a date format.
-             //If Qt understands the format we break the loop, assign it to the column and return true!
-                d = QDateTime::fromString (s, format);
-                if (d.isValid())
-                    break;
-                else
-                    return false;
-            }
-		}
-	}
-    }
-	colTypes[col] = Date;
-	col_format[col] = format;
-	return true;*/
-	
 	if (colTypes[col] == Date && col_format[col] == format)
 		return true;
 
