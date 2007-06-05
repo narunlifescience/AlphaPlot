@@ -1393,7 +1393,7 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 
 		// Find the permutation index for the lead col
 		gsl_sort_index(p, data_double.data(), 1, non_empty_cells);
-		
+
 		for(int i=0;i<cols;i++)
 		{// Since we have the permutation index, sort all the columns
             int col=colIndex(s[i]);
@@ -1603,15 +1603,29 @@ void Table::saveToMemory()
     for (int col = 0; col<d_table->numCols(); col++){// initialize the matrix to zero
         for (int row=0; row<d_table->numRows(); row++)
             d_saved_cells[col][row] = 0.0;}
+			
+	for (int col = 0; col<d_table->numCols(); col++){
+		if (colTypes[col] == Time){
+			QTime ref = QTime(0, 0);
+			for (int row=0; row<d_table->numRows(); row++){
+				QTime t = QTime::fromString(d_table->text(row, col), col_format[col]);
+                d_saved_cells[col][row] = ref.msecsTo(t); 
+				}
+            }
+		else if (colTypes[col] == Date){
+			QTime ref = QTime(0, 0);
+			for (int row=0; row<d_table->numRows(); row++){
+				QDateTime dt = QDateTime::fromString(d_table->text(row, col), col_format[col]);
+				d_saved_cells[col][row] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5; 
+				}
+            }
+        }
 
     bool wrongLocale = false;
-	for (int col = 0; col<d_table->numCols(); col++)
-	{
-	    if (colTypes[col] == Numeric)
-	    {
+	for (int col = 0; col<d_table->numCols(); col++){
+	    if (colTypes[col] == Numeric){
             bool ok = false;
-            for (int row=0; row<d_table->numRows(); row++)
-            {
+            for (int row=0; row<d_table->numRows(); row++){
                 if (!d_table->text(row, col).isEmpty()){
                     d_saved_cells[col][row] = QLocale().toDouble(d_table->text(row, col), &ok);
                     if (!ok){
@@ -1627,13 +1641,10 @@ void Table::saveToMemory()
 
 	if (wrongLocale){// fall back to C locale
 	    wrongLocale = false;
-        for (int col = 0; col<d_table->numCols(); col++)
-        {
-            if (colTypes[col] == Numeric)
-            {
+        for (int col = 0; col<d_table->numCols(); col++){
+            if (colTypes[col] == Numeric){
                 bool ok = false;
-                for (int row=0; row<d_table->numRows(); row++)
-                {
+                for (int row=0; row<d_table->numRows(); row++){
                     if (!d_table->text(row, col).isEmpty()){
                         d_saved_cells[col][row] = QLocale::c().toDouble(d_table->text(row, col), &ok);
                         if (!ok){
@@ -1649,13 +1660,10 @@ void Table::saveToMemory()
 	}
 	if (wrongLocale){// fall back to German locale
 	    wrongLocale = false;
-        for (int col = 0; col<d_table->numCols(); col++)
-        {
-            if (colTypes[col] == Numeric)
-            {
+        for (int col = 0; col<d_table->numCols(); col++){
+            if (colTypes[col] == Numeric){
                 bool ok = false;
-                for (int row=0; row<d_table->numRows(); row++)
-                {
+                for (int row=0; row<d_table->numRows(); row++){
                     if (!d_table->text(row, col).isEmpty()){
                         d_saved_cells[col][row] = QLocale(QLocale::German).toDouble(d_table->text(row, col), &ok);
                         if (!ok){
@@ -1671,13 +1679,10 @@ void Table::saveToMemory()
 	}
 	if (wrongLocale){// fall back to French locale
 	    wrongLocale = false;
-        for (int col = 0; col<d_table->numCols(); col++)
-        {
-            if (colTypes[col] == Numeric)
-            {
+        for (int col = 0; col<d_table->numCols(); col++){
+            if (colTypes[col] == Numeric){
                 bool ok = false;
-                for (int row=0; row<d_table->numRows(); row++)
-                {
+                for (int row=0; row<d_table->numRows(); row++){
                     if (!d_table->text(row, col).isEmpty()){
                         d_saved_cells[col][row] = QLocale(QLocale::French).toDouble(d_table->text(row, col), &ok);
                         if (!ok){
@@ -1755,16 +1760,23 @@ void Table::setColumnsFormat(const QStringList& lst)
 
 bool Table::setDateFormat(const QString& format, int col, bool updateCells)
 {
-	if (col_format[col] == format)
+	/*if (col_format[col] == format)
 		return true;
 
     if (updateCells){
 	for (int i=0; i<d_table->numRows(); i++)
 	{
 		QString s = d_table->text(i,col);
-		if (!s.isEmpty())
-		{
-			QDateTime d = QDateTime::fromString (s, col_format[col]);
+		if (!s.isEmpty()){
+		    QDateTime d;
+		    if (d_saved_cells && colTypes[col] == Numeric){
+                d = QDateTime(QDate::fromJulianDay(d_saved_cells[col][i]+1));
+                double secs = (d_saved_cells[col][i] - int(d_saved_cells[col][i]))*86400;
+                d.setTime(d.time().addSecs(int(secs)+1));
+		    }
+		    else
+                d = QDateTime::fromString (s, col_format[col]);
+
 			if (d.isValid())
 				d_table->setText(i, col, d.toString(format));
             else
@@ -1781,37 +1793,86 @@ bool Table::setDateFormat(const QString& format, int col, bool updateCells)
     }
 	colTypes[col] = Date;
 	col_format[col] = format;
+	return true;*/
+	
+	if (colTypes[col] == Date && col_format[col] == format)
+		return true;
+
+	bool first_time = false;
+    if (updateCells){
+	for (int i=0; i<d_table->numRows(); i++){
+		QString s = d_table->text(i,col);
+		if (!s.isEmpty()){
+		    QDateTime d = QDateTime::fromString (s, format);
+			if (colTypes[col] != Date && d.isValid()){
+			//This might be the first time the user assigns a date format.
+            //If Qt understands the format we break the loop, assign it to the column and return true!
+				first_time = true;
+                break;
+			}
+				
+		    if (d_saved_cells){
+                d = QDateTime(QDate::fromJulianDay(d_saved_cells[col][i]+1));
+                double secs = (d_saved_cells[col][i] - int(d_saved_cells[col][i]))*86400;
+                d.setTime(d.time().addSecs(int(secs)+1));
+				
+				if (d.isValid())
+					d_table->setText(i, col, d.toString(format));
+		    }
+		}
+	}
+    }
+	colTypes[col] = Date;
+	col_format[col] = format;
+	QTime ref = QTime(0, 0);
+	if (first_time){//update d_saved_cells in case the user changes the time format before pressing OK in the column dialog
+		for (int i=0; i<d_table->numRows(); i++){
+			QDateTime dt = QDateTime::fromString(d_table->text(i, col), format);
+			d_saved_cells[col][i] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5; 
+		}
+	}
 	return true;
 }
 
 bool Table::setTimeFormat(const QString& format, int col, bool updateCells)
 {
-	if (col_format[col] == format)
+	if (colTypes[col] == Time && col_format[col] == format)
 		return true;
 
+	QTime ref = QTime(0, 0);
+	bool first_time = false;
     if (updateCells){
-	for (int i=0; i<d_table->numRows(); i++)
-	{
+	for (int i=0; i<d_table->numRows(); i++){
 		QString s = d_table->text(i,col);
-		if (!s.isEmpty())
-		{
-			QTime t = QTime::fromString (s, col_format[col]);
-			if (t.isValid())
-				d_table->setText(i, col, t.toString(format));
-            else
-            {//This might be the first time the user assigns a date format.
-             //If Qt understands the format we break the loop, assign it to the column and return true!
-                t = QTime::fromString (s, format);
-                if (t.isValid())
-                    break;
-                else
-                    return false;
-            }
+		if (!s.isEmpty()){
+			QTime t = QTime::fromString (s, format);
+			if (colTypes[col] != Time && t.isValid()){
+			//This is the first time the user assigns a time format.
+            //If Qt understands the format we break the loop, assign it to the column and return true!
+            	first_time = true;
+				break;
+			}
+			
+		    if (d_saved_cells){
+				if (d_saved_cells[col][i] < 1)// import of Origin files
+                	t = ref.addMSecs(int(d_saved_cells[col][i]*86400000));
+				else
+					t = ref.addMSecs(d_saved_cells[col][i]);
+				
+				if (t.isValid())
+					d_table->setText(i, col, t.toString(format));
+			}	
 		}
 	}
     }
 	colTypes[col] = Time;
 	col_format[col] = format;
+	if (first_time){//update d_saved_cells in case the user changes the time format before pressing OK in the column dialog
+		for (int i=0; i<d_table->numRows(); i++){
+			QTime t = QTime::fromString(d_table->text(i, col), format);
+			d_saved_cells[col][i] = ref.msecsTo(t); 
+		}
+	}
 	return true;
 }
 
@@ -1916,7 +1977,7 @@ void Table::loadHeader(QStringList header)
 	{
 		if (header[i].isEmpty())
 			continue;
-		
+
 		QString s = header[i].replace("_","-");
 		if (s.contains("[X]"))
 		{

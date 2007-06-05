@@ -283,6 +283,7 @@ public slots:
 	void setColumnTypes(const QStringList& ctl);
 	void setColumnType(int col, ColType val) { colTypes[col] = val; }
 
+    void saveToMemory(double **cells){d_saved_cells = cells;};
 	void saveToMemory();
 	void freeMemory();
 

@@ -128,6 +128,24 @@ bool ImportOPJ::importTables(OPJFile opj)
 
             table->setHeaderColType();//update header
 
+            double **d_cells = new double* [nr_cols];
+            for ( int i = 0; i < nr_cols; ++i)
+                d_cells[i] = new double [table->numRows()];
+
+			for (int i=0; i<opj.numRows(s,j); i++){
+				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1){// number
+					double* val = (double*)opj.oData(s,j,i,true);
+					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
+						continue;
+
+                    table->setText(i, j, QLocale().toString(*val, 'g', 14));
+                    d_cells[j][i] = *val;
+				}
+				else// label? doesn't seem to work
+					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
+			}
+            table->saveToMemory(d_cells);
+
 			QString format;
 			switch(opj.colValueType(s,j))
 			{
@@ -150,7 +168,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 						f=0;
 						break;
 					}
-				table->setColNumericFormat(f, opj.colDecPlaces(s,j), j, false);
+				table->setColNumericFormat(f, opj.colDecPlaces(s,j), j);
 				break;
 			case 1: //Text
 				table->setTextFormat(j);
@@ -158,6 +176,15 @@ bool ImportOPJ::importTables(OPJFile opj)
 			case 2: // Date
 				switch(opj.colValueTypeSpec(s,j))
 				{
+                case -128:
+                    format="dd/MM/yyyy";
+					break;
+                case -119:
+                    format="dd/MM/yyyy HH:mm";
+					break;
+                case -118:
+                    format="dd/MM/yyyy HH:mm:ss";
+					break;
 				case 0:
 				case 9:
 				case 10:
@@ -199,10 +226,10 @@ bool ImportOPJ::importTables(OPJFile opj)
 				default:
 					format="dd.MM.yyyy";
 				}
-				table->setDateFormat(format, j, false);
+				table->setDateFormat(format, j);
 				break;
 			case 3: // Time
-				switch(opj.colValueTypeSpec(s,j))
+				switch(opj.colValueTypeSpec(s,j)+128)
 				{
 				case 0:
 					format="hh:mm";
@@ -238,7 +265,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 					format="hh:mm:ss.zzz";
 					break;
 				}
-				table->setTimeFormat(format, j, false);
+				table->setTimeFormat(format, j);
 				break;
 			case 4: // Month
 				switch(opj.colValueTypeSpec(s,j)){
@@ -252,7 +279,7 @@ bool ImportOPJ::importTables(OPJFile opj)
                         format = "M";
 					break;
 				}
-				table->setMonthFormat(format, j, false);
+				table->setMonthFormat(format, j);
 				break;
 			case 5: // Day
 				switch(opj.colValueTypeSpec(s,j)){
@@ -266,11 +293,12 @@ bool ImportOPJ::importTables(OPJFile opj)
                         format = "d";
 					break;
 				}
-				table->setDayFormat(format, j, false);
+				table->setDayFormat(format, j);
 				break;
 			}
+            table->freeMemory();
 
-			for (int i=0; i<opj.numRows(s,j); i++)
+			/*for (int i=0; i<opj.numRows(s,j); i++)
 			{
 				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1)
 				{// number
@@ -285,7 +313,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 				}
 				else// label? doesn't seem to work
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
-			}
+			}*/
 		}
 
 
