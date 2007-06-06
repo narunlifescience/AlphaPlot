@@ -2,8 +2,8 @@
     File                 : OpenProjectDialog.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Ion Vasilief
+    Email (use @ for *)  : knut.franke*gmx.de, ion_vasilief*yahoo.fr
     Description          : Dialog for opening project files.
 
  ***************************************************************************/
@@ -28,13 +28,14 @@
  ***************************************************************************/
 
 #include "OpenProjectDialog.h"
+#include "ApplicationWindow.h"
 
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPushButton>
 
-OpenProjectDialog::OpenProjectDialog(QWidget *parent, Qt::WFlags flags)
-	: ExtensibleFileDialog(parent, flags)
+OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags flags)
+	: ExtensibleFileDialog(parent, extended, flags)
 {
 	setCaption(tr("QtiPlot - Open Project"));
 	setFileMode(ExistingFile);
@@ -80,4 +81,15 @@ void OpenProjectDialog::updateAdvancedOptions (const QString & filter)
 		return;
 	}
 	d_extension_toggle->setEnabled(true);
+}
+
+void OpenProjectDialog::closeEvent(QCloseEvent* e)
+{
+	if (isExtendable()){
+		ApplicationWindow *app = (ApplicationWindow *)this->parent();
+		if (app)
+			app->d_extended_open_dialog = this->isExtended();
+	}
+
+	e->accept();
 }

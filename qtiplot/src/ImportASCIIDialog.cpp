@@ -41,8 +41,8 @@
 #include <QRegExp>
 #include <QMessageBox>
 
-ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, Qt::WFlags flags )
-: ExtensibleFileDialog( parent, flags )
+ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, bool extended, Qt::WFlags flags )
+: ExtensibleFileDialog(parent, extended, flags )
 {
 	setWindowTitle(tr("QtiPlot - Import ASCII File(s)"));
 
@@ -216,4 +216,13 @@ void ImportASCIIDialog::updateImportMode(int mode)
 		setFileMode( QFileDialog::ExistingFile );
 	else
 		setFileMode( QFileDialog::ExistingFiles );
+}
+
+void ImportASCIIDialog::closeEvent(QCloseEvent* e)
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (app)
+		app->d_extended_import_ASCII_dialog = this->isExtended();
+
+	e->accept();
 }

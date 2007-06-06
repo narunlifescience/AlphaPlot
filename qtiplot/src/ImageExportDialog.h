@@ -68,7 +68,7 @@ public:
 	 * \param vector_options whether advanced options are to be provided for export to vector formats
 	 * \param flags window flags
 	 */
-	ImageExportDialog( QWidget * parent = 0, bool vector_options = true, Qt::WFlags flags = 0 );
+	ImageExportDialog(QWidget * parent = 0, bool vector_options = true, bool extended = true, Qt::WFlags flags = 0 );
 	//! For vector formats: returns the output resolution the user selected, defaulting to the screen resolution.
 	int resolution() const { return d_resolution->value(); }
 	//! For vector formats: returns whether colors should be enabled for ouput (default: true).
@@ -79,6 +79,7 @@ public:
 	bool transparency() const { return d_transparency->isChecked(); }
 
 protected slots:
+	void closeEvent(QCloseEvent*);
 	//! Update which options are visible and enabled based on the output format.
 	void updateAdvancedOptions (const QString &filter);
 };

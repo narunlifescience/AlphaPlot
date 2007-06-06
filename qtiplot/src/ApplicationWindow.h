@@ -921,6 +921,9 @@ public:
 	bool d_scale_plots_on_print, d_print_cropmarks;
 	bool d_show_table_comments;
 	bool d_extended_plot_dialog;
+	bool d_extended_import_ASCII_dialog;
+	bool d_extended_export_dialog;
+	bool d_extended_open_dialog;
 	bool generateUniformFitPoints;
 	bool generatePeakCurves;
 	int peakCurvesColor;

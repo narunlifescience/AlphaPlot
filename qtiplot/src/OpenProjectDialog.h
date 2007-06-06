@@ -2,8 +2,8 @@
     File                 : OpenProjectDialog.h
     Project              : QtiPlot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Ion Vasilief
+    Email (use @ for *)  : knut.franke*gmx.de, ion_vasilief*yahoo.fr
     Description          : Dialog for opening project files.
 
  ***************************************************************************/
@@ -38,16 +38,16 @@ class OpenProjectDialog : public ExtensibleFileDialog
 	Q_OBJECT
 	public:
 		enum OpenMode { NewProject, NewFolder };
-		OpenProjectDialog(QWidget *parent=0, Qt::WFlags flags=0);
+		OpenProjectDialog(QWidget *parent=0, bool extended = true, Qt::WFlags flags=0);
 		OpenMode openMode() const { return (OpenMode) d_open_mode->currentIndex(); }
 
 	private:
 		QComboBox *d_open_mode;
 
     protected slots:
+		void closeEvent(QCloseEvent* );
         //! Update which options are visible and enabled based on the output format.
         void updateAdvancedOptions (const QString &filter);
 };
 
 #endif // ifndef OPEN_PROJECT_DIALOG_H
-

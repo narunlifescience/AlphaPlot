@@ -30,6 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ImageExportDialog.h"
+#include "ApplicationWindow.h"
 
 #include <QStackedWidget>
 #include <QImageWriter>
@@ -40,8 +41,8 @@
 #include <QLabel>
 #include <QComboBox>
 
-ImageExportDialog::ImageExportDialog( QWidget * parent, bool vector_options, Qt::WFlags flags)
-	: ExtensibleFileDialog( parent, flags )
+ImageExportDialog::ImageExportDialog(QWidget * parent, bool vector_options, bool extended, Qt::WFlags flags)
+	: ExtensibleFileDialog( parent, extended, flags )
 {
 	setWindowTitle( tr( "QtiPlot - Choose a filename to save under" ) );
 	setAcceptMode(QFileDialog::AcceptSave);
@@ -128,4 +129,13 @@ void ImageExportDialog::updateAdvancedOptions (const QString & filter)
 		d_advanced_options->setCurrentIndex(1);
 		d_transparency->setEnabled(filter.contains("*.tif") || filter.contains("*.tiff") || filter.contains("*.png") || filter.contains("*.xpm"));
 	}
+}
+
+void ImageExportDialog::closeEvent(QCloseEvent* e)
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (app)
+		app->d_extended_export_dialog = this->isExtended();
+
+	e->accept();
 }

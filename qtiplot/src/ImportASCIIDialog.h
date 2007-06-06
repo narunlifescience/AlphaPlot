@@ -63,7 +63,7 @@ public:
 	 * \param parent parent widget (only affects placement of the dialog)
 	 * \param flags window flags
 	 */
-	ImportASCIIDialog(bool importModeEnabled, QWidget * parent = 0, Qt::WFlags flags = 0 );
+	ImportASCIIDialog(bool importModeEnabled, QWidget * parent = 0, bool extended = true, Qt::WFlags flags = 0 );
 
 	//! Return the selected import mode
 	/**
@@ -93,6 +93,7 @@ private slots:
 	void updateImportMode(int mode);
 
 private:
+	void closeEvent(QCloseEvent*);
 	//! Initialise #d_advanced_options and everything it contains.
 	void initAdvancedOptions();
 

@@ -29,15 +29,16 @@
 
 #include "ExtensibleFileDialog.h"
 #include <QGridLayout>
-#include <QPushButton>
 
-ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, Qt::WFlags flags)
+ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended, Qt::WFlags flags)
 	: QFileDialog(parent, flags)
 {
 	d_extension = 0;
 
 	d_extension_toggle = new QPushButton(tr("<< &Advanced"));
 	d_extension_toggle->setCheckable(true);
+	if (extended)
+		d_extension_toggle->toggle();
 	d_extension_toggle->hide(); // show only for d_extension != 0
 
 	QGridLayout *main_layout = qobject_cast<QGridLayout*>(layout());
@@ -53,6 +54,7 @@ ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, Qt::WFlags flags)
 	}
 	
 	connect(d_extension_toggle, SIGNAL(toggled(bool)), this, SLOT(resize(bool)));
+	connect(this, SIGNAL(rejected()), this, SLOT(close()));
 }
 
 void ExtensibleFileDialog::setExtensionWidget(QWidget *extension)

@@ -3269,11 +3269,11 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 
 void ApplicationWindow::importASCII()
 {
-	ImportASCIIDialog *import_dialog = new ImportASCIIDialog(ws->activeWindow() && ws->activeWindow()->isA("Table"), this);
+	ImportASCIIDialog *import_dialog = new ImportASCIIDialog(ws->activeWindow() && ws->activeWindow()->isA("Table"), this, d_extended_import_ASCII_dialog);
 	import_dialog->setDir(asciiDirPath);
 	if (import_dialog->exec() != QDialog::Accepted)
 		return;
-
+	
 	asciiDirPath = import_dialog->directory().path();
 	if (import_dialog->rememberOptions()) {
 		columnSeparator = import_dialog->columnSeparator();
@@ -3361,7 +3361,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 
 void ApplicationWindow::open()
 {
-	OpenProjectDialog *open_dialog = new OpenProjectDialog(this);
+	OpenProjectDialog *open_dialog = new OpenProjectDialog(this, d_extended_open_dialog);
 	open_dialog->setDirectory(workingDir);
 	if (open_dialog->exec() != QDialog::Accepted || open_dialog->selectedFiles().isEmpty())
 		return;
@@ -4029,8 +4029,6 @@ void ApplicationWindow::readSettings()
 	defaultScriptingLang = settings.value("/ScriptingLang","muParser").toString();
 	QLocale::setDefault(settings.value("/Locale", QLocale::system().name()).toString());
 	d_decimal_digits = settings.value("/DecimalDigits", 14).toInt();
-	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();
-	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
 
 	//restore dock windows and tool bars
 	restoreState(settings.value("/DockWindows").toByteArray());
@@ -4040,6 +4038,14 @@ void ApplicationWindow::readSettings()
 	if (applicationFont.size() == 4)
 		appFont=QFont (applicationFont[0],applicationFont[1].toInt(),applicationFont[2].toInt(),applicationFont[3].toInt());
 
+	settings.beginGroup("/Dialogs");
+	d_extended_open_dialog = settings.value("/ExtendedOpenDialog", true).toBool();
+	d_extended_export_dialog = settings.value("/ExtendedExportDialog", true).toBool();
+	d_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
+	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
+	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();//used by CurvesDialog
+	settings.endGroup(); // Dialogs
+	
 	settings.beginGroup("/Colors");
 	workspaceColor = settings.value("/Workspace","darkGray").value<QColor>();
 	// see http://doc.trolltech.com/4.2/qvariant.html for instructions on qcolor <-> qvariant conversion
@@ -4254,8 +4260,6 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
 	settings.setValue("/Locale", QLocale().name());
 	settings.setValue("/DecimalDigits", d_decimal_digits);
-	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
-	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
 
 	settings.setValue("/DockWindows", saveState());
 	settings.setValue("/ExplorerSplitter", explorerSplitter->saveState());
@@ -4267,6 +4271,14 @@ void ApplicationWindow::saveSettings()
 	applicationFont<<QString::number(appFont.italic());
 	settings.setValue("/Font", applicationFont);
 
+	settings.beginGroup("/Dialogs");
+	settings.setValue("/ExtendedOpenDialog", d_extended_open_dialog);
+	settings.setValue("/ExtendedExportDialog", d_extended_export_dialog);
+	settings.setValue("/ExtendedImportAsciiDialog", d_extended_import_ASCII_dialog);
+	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
+	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
+	settings.endGroup(); // Dialogs
+	
 	settings.beginGroup("/Colors");
 	settings.setValue("/Workspace", workspaceColor);
 	settings.setValue("/Panels", panelsColor);
@@ -4474,7 +4486,7 @@ void ApplicationWindow::exportGraph()
 	else
 		return;
 
-	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL);
+	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL, d_extended_export_dialog);
 	ied->setDir(workingDir);
 	if ( ied->exec() != QDialog::Accepted )
 		return;
@@ -4528,7 +4540,7 @@ void ApplicationWindow::exportLayer()
 	if (!g)
 		return;
 
-	ImageExportDialog *ied = new ImageExportDialog(this);
+	ImageExportDialog *ied = new ImageExportDialog(this, g!=NULL, d_extended_export_dialog);
 	ied->setDir(workingDir);
 	if ( ied->exec() != QDialog::Accepted )
 		return;
@@ -4564,7 +4576,7 @@ void ApplicationWindow::exportLayer()
 
 void ApplicationWindow::exportAllGraphs()
 {
-	ImageExportDialog *ied = new ImageExportDialog(this);
+	ImageExportDialog *ied = new ImageExportDialog(this, true, d_extended_export_dialog);
 	ied->setWindowTitle(tr("Choose a directory to export the graphs to"));
 	QStringList tmp = ied->filters();
 	ied->setFileMode(QFileDialog::Directory);
@@ -12639,7 +12651,7 @@ bool ApplicationWindow::projectHas3DPlots()
 
 void ApplicationWindow::appendProject()
 {
-	OpenProjectDialog *open_dialog = new OpenProjectDialog(this);
+	OpenProjectDialog *open_dialog = new OpenProjectDialog(this, false);
 	open_dialog->setDirectory(workingDir);
 	open_dialog->setExtensionWidget(0);
 	if (open_dialog->exec() != QDialog::Accepted || open_dialog->selectedFiles().isEmpty())

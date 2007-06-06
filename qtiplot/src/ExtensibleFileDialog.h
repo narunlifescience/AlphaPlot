@@ -30,8 +30,7 @@
 #define EXTENSIBLE_FILE_DIALOG_H
 
 #include <QFileDialog>
-
-class QPushButton;
+#include <QPushButton>
 
 //! QFileDialog plus generic extension support.
 /**
@@ -52,10 +51,15 @@ class ExtensibleFileDialog : public QFileDialog
 		 * \param parent parent widget (only affects placement of the dialog)
 		 * \param flags window flags
 		 */
-		ExtensibleFileDialog(QWidget *parent=0, Qt::WFlags flags=0);
+		ExtensibleFileDialog(QWidget *parent=0, bool extended = true, Qt::WFlags flags=0);
 		//! Set the extension widget to be displayed when the user presses the toggle button.
 		void setExtensionWidget(QWidget *extension);
-
+	
+		//! Tells weather the dialog has a valid extension widget
+		bool isExtendable(){return d_extension != NULL;};
+		bool isExtended(){return d_extension_toggle->isChecked();};
+		void setExtended(bool extended){if (extended) d_extension_toggle->toggle();};
+		
 	protected:
 		//! Button for toggling display of extension on/off.
 		QPushButton *d_extension_toggle;
@@ -72,4 +76,3 @@ class ExtensibleFileDialog : public QFileDialog
 };
 
 #endif // ifndef EXTENSIBLE_FILE_DIALOG_H
-
