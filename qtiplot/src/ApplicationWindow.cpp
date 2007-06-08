@@ -2810,7 +2810,7 @@ void ApplicationWindow::windowActivated(QWidget *w)
 
 	customToolBars(w);
 	customMenu(w);
-	
+
 	Folder *f = ((MyWidget *)w)->folder();
 	if (f)
         f->setActiveWindow((MyWidget *)w);
@@ -3271,9 +3271,10 @@ void ApplicationWindow::importASCII()
 {
 	ImportASCIIDialog *import_dialog = new ImportASCIIDialog(ws->activeWindow() && ws->activeWindow()->isA("Table"), this, d_extended_import_ASCII_dialog);
 	import_dialog->setDir(asciiDirPath);
+	import_dialog->selectFilter(d_ASCII_file_filter);
 	if (import_dialog->exec() != QDialog::Accepted)
 		return;
-	
+
 	asciiDirPath = import_dialog->directory().path();
 	if (import_dialog->rememberOptions()) {
 		columnSeparator = import_dialog->columnSeparator();
@@ -4045,7 +4046,7 @@ void ApplicationWindow::readSettings()
 	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
 	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();//used by CurvesDialog
 	settings.endGroup(); // Dialogs
-	
+
 	settings.beginGroup("/Colors");
 	workspaceColor = settings.value("/Workspace","darkGray").value<QColor>();
 	// see http://doc.trolltech.com/4.2/qvariant.html for instructions on qcolor <-> qvariant conversion
@@ -4235,6 +4236,7 @@ void ApplicationWindow::readSettings()
 	renameColumns = settings.value("/RenameColumns", true).toBool();
 	strip_spaces = settings.value("/StripSpaces", false).toBool();
 	simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
+	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
 	settings.endGroup(); // Import ASCII
 }
 
@@ -4278,7 +4280,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
 	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
 	settings.endGroup(); // Dialogs
-	
+
 	settings.beginGroup("/Colors");
 	settings.setValue("/Workspace", workspaceColor);
 	settings.setValue("/Panels", panelsColor);
@@ -4460,6 +4462,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/RenameColumns", renameColumns);
 	settings.setValue("/StripSpaces", strip_spaces);
 	settings.setValue("/SimplifySpaces", simplify_spaces);
+    settings.setValue("/AsciiFileTypeFilter", d_ASCII_file_filter);
+
 	settings.endGroup(); // ImportASCII
 }
 
@@ -5243,12 +5247,12 @@ void ApplicationWindow::exportAllTables(const QString& sep, bool colNames, bool 
 									"Do you want to overwrite it?").arg(fileName), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1))
 					{
 						case 0:
-							success = t->exportToASCIIFile(fileName, sep, colNames, expSelection);
+							success = t->exportASCII(fileName, sep, colNames, expSelection);
 							break;
 
 						case 1:
 							confirmOverwrite = false;
-							success = t->exportToASCIIFile(fileName, sep, colNames, expSelection);
+							success = t->exportASCII(fileName, sep, colNames, expSelection);
 							break;
 
 						case 2:
@@ -5257,7 +5261,7 @@ void ApplicationWindow::exportAllTables(const QString& sep, bool colNames, bool 
 					}
 				}
 				else
-					success = t->exportToASCIIFile(fileName, sep, colNames, expSelection);
+					success = t->exportASCII(fileName, sep, colNames, expSelection);
 
 				if (!success)
 					break;
@@ -5287,7 +5291,7 @@ void ApplicationWindow::exportASCII(const QString& tableName, const QString& sep
 		asciiDirPath = fi.dirPath(true);
 
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		t->exportToASCIIFile(fname, sep, colNames, expSelection);
+		t->exportASCII(fname, sep, colNames, expSelection);
 		QApplication::restoreOverrideCursor();
 	}
 }
@@ -7774,7 +7778,7 @@ void ApplicationWindow::updateWindowLists(MyWidget *w)
 {
 	if (!w)
 		return;
-	
+
 	if (hiddenWindows->contains(w))
 		hiddenWindows->takeAt(hiddenWindows->indexOf(w));
 	else if (outWindows->contains(w))
@@ -7796,7 +7800,7 @@ void ApplicationWindow::removeWindowFromLists(MyWidget* w)
 {
 	if (!w)
 		return;
-	
+
 	QString caption = w->name();
 	if (w->isA("Table")){
 		Table* m=(Table*)w;
@@ -7831,16 +7835,16 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 {
 	if (!window)
 		return;
-	
+
 	removeWindowFromLists(window);
-	window->folder()->removeWindow(window);	
-	
+	window->folder()->removeWindow(window);
+
 	//update list view in project explorer
 	Q3ListViewItem *it=lv->findItem (window->name(), 0, Q3ListView::ExactMatch|Q3ListView::CaseSensitive);
 	if (it)
 		lv->takeItem(it);
 
-	delete window;	
+	delete window;
 	emit modified();
 }
 
@@ -13030,8 +13034,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), workingDir, filter, &selectedFilter);
-	if ( !fn.isEmpty() )
-	{
+	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
@@ -13512,7 +13515,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 
 	QList<MyWidget *> lst = newFolder->windowsList();
 	foreach(MyWidget *w, lst){
-        w->blockSignals(true);	
+        w->blockSignals(true);
         if (!hiddenWindows->contains(w) && !outWindows->contains(w) && show_windows_policy != HideAll){
             //show only windows in the current folder which are not hidden by the user
             if(w->status() == MyWidget::Normal)
@@ -13522,8 +13525,8 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
         }
         else
             w->setStatus(MyWidget::Hidden);
-		
-        addListViewItem(w);	
+
+        addListViewItem(w);
 	}
 
 	if (!(newFolder->children()).isEmpty()){

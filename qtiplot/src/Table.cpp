@@ -75,6 +75,7 @@ void Table::init(int rows, int cols)
 	selectedCol=-1;
 	d_saved_cells = 0;
 	d_show_comments = false;
+	d_numeric_precision = 14;
 
 	setBirthDate(QDateTime::currentDateTime().toString(Qt::LocalDate));
 
@@ -925,7 +926,7 @@ void Table::addCol(PlotDesignation pd)
 	comments << QString();
 	commands<<"";
 	colTypes<<Numeric;
-	col_format<<"0/6";
+	col_format<<"0/" + QString::number(d_numeric_precision);
 	col_label<< QString::number(max+1);
 	col_plot_type << pd;
 
@@ -952,7 +953,7 @@ void Table::addColumns(int c)
 		comments << QString();
 		commands<<"";
 		colTypes<<Numeric;
-		col_format<<"0/6";
+		col_format<<"0/" + QString::number(d_numeric_precision);
 		col_label<< QString::number(max+i);
 		col_plot_type << Y;
 	}
@@ -1229,12 +1230,10 @@ void Table::removeCol(const QStringList& list)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	for (int i=0; i<list.count(); i++)
-	{
+	for (int i=0; i<list.count(); i++){
 		QString name = list[i];
 		int id = colIndex(name);
-		if (id >= 0)
-		{
+		if (id >= 0){
 			if ( id < commands.size() )
 				commands.removeAt(id);
 
@@ -1351,11 +1350,10 @@ void Table::sortColumns(int type, int order, const QString& leadCol)
 void Table::sortColumns(const QStringList&s, int type, int order, const QString& leadCol)
 {
 	int cols=s.count();
-	if(!type){
+	if(!type){//Sort columns separately
 		for(int i=0;i<cols;i++)
 			sortColumn(colIndex(s[i]), order);
-	}
-	else{
+	}else{
 		int leadcol = colIndex(leadCol);
 		if (leadcol < 0){
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
@@ -1394,8 +1392,7 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 		// Find the permutation index for the lead col
 		gsl_sort_index(p, data_double.data(), 1, non_empty_cells);
 
-		for(int i=0;i<cols;i++)
-		{// Since we have the permutation index, sort all the columns
+		for(int i=0;i<cols;i++){// Since we have the permutation index, sort all the columns
             int col=colIndex(s[i]);
             if (columnType(col) == Text){
                 for (int j=0; j<non_empty_cells; j++)
@@ -1406,8 +1403,7 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
                 else
                     for (int j=0; j<non_empty_cells; j++)
                         d_table->setText(valid_cell[j], col, data_string[p[non_empty_cells-j-1]]);
-            }
-            else{
+            }else{
                 for (int j = 0; j<non_empty_cells; j++)
                     data_double[j] = cell(valid_cell[j], col);
                 int prec;
@@ -1603,20 +1599,20 @@ void Table::saveToMemory()
     for (int col = 0; col<d_table->numCols(); col++){// initialize the matrix to zero
         for (int row=0; row<d_table->numRows(); row++)
             d_saved_cells[col][row] = 0.0;}
-			
+
 	for (int col = 0; col<d_table->numCols(); col++){
 		if (colTypes[col] == Time){
 			QTime ref = QTime(0, 0);
 			for (int row=0; row<d_table->numRows(); row++){
 				QTime t = QTime::fromString(d_table->text(row, col), col_format[col]);
-                d_saved_cells[col][row] = ref.msecsTo(t); 
+                d_saved_cells[col][row] = ref.msecsTo(t);
 				}
             }
 		else if (colTypes[col] == Date){
 			QTime ref = QTime(0, 0);
 			for (int row=0; row<d_table->numRows(); row++){
 				QDateTime dt = QDateTime::fromString(d_table->text(row, col), col_format[col]);
-				d_saved_cells[col][row] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5; 
+				d_saved_cells[col][row] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5;
 				}
             }
         }
@@ -1775,12 +1771,12 @@ bool Table::setDateFormat(const QString& format, int col, bool updateCells)
 				first_time = true;
                 break;
 			}
-				
+
 		    if (d_saved_cells){
                 d = QDateTime(QDate::fromJulianDay(d_saved_cells[col][i]+1));
                 double secs = (d_saved_cells[col][i] - int(d_saved_cells[col][i]))*86400;
                 d.setTime(d.time().addSecs(int(secs)+1));
-				
+
 				if (d.isValid())
 					d_table->setText(i, col, d.toString(format));
 		    }
@@ -1793,7 +1789,7 @@ bool Table::setDateFormat(const QString& format, int col, bool updateCells)
 	if (first_time){//update d_saved_cells in case the user changes the time format before pressing OK in the column dialog
 		for (int i=0; i<d_table->numRows(); i++){
 			QDateTime dt = QDateTime::fromString(d_table->text(i, col), format);
-			d_saved_cells[col][i] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5; 
+			d_saved_cells[col][i] = dt.date().toJulianDay() - 1 + (double)ref.msecsTo(dt.time())/864.0e5;
 		}
 	}
 	return true;
@@ -1817,16 +1813,16 @@ bool Table::setTimeFormat(const QString& format, int col, bool updateCells)
             	first_time = true;
 				break;
 			}
-			
+
 		    if (d_saved_cells){
 				if (d_saved_cells[col][i] < 1)// import of Origin files
                 	t = ref.addMSecs(int(d_saved_cells[col][i]*86400000));
 				else
 					t = ref.addMSecs(d_saved_cells[col][i]);
-				
+
 				if (t.isValid())
 					d_table->setText(i, col, t.toString(format));
-			}	
+			}
 		}
 	}
     }
@@ -1835,7 +1831,7 @@ bool Table::setTimeFormat(const QString& format, int col, bool updateCells)
 	if (first_time){//update d_saved_cells in case the user changes the time format before pressing OK in the column dialog
 		for (int i=0; i<d_table->numRows(); i++){
 			QTime t = QTime::fromString(d_table->text(i, col), format);
-			d_saved_cells[col][i] = ref.msecsTo(t); 
+			d_saved_cells[col][i] = ref.msecsTo(t);
 		}
 	}
 	return true;
@@ -2342,8 +2338,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 {
 	QFile f(fname);
 	Q3TextStream t( &f );// use a text stream
-	if ( f.open(QIODevice::ReadOnly) )
-	{
+	if ( f.open(QIODevice::ReadOnly) ){
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 		int i, rows = 1, cols = 0;
@@ -2353,8 +2348,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			t.readLine();
 
 		QString s = t.readLine();//read first line after the ignored ones
-		while (!t.atEnd())
-		{
+		while (!t.atEnd()){
 			t.readLine();
 			rows++;
 			qApp->processEvents(QEventLoop::ExcludeUserInputEvents);
@@ -2389,14 +2383,12 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 
 		if (!importFileAs)
 			init (rows, cols);
-		else if (importFileAs == 1)
-		{//new cols
+		else if (importFileAs == 1){//new cols
 			addColumns(cols);
 			if (r < rows)
 				d_table->setNumRows(rows);
 		}
-		else if (importFileAs == 2)
-		{//new rows
+		else if (importFileAs == 2){//new rows
 			if (c < cols)
 				addColumns(cols-c);
 			d_table->setNumRows(r+rows);
@@ -2424,13 +2416,11 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			int end = startCol+(int)line.count();
 			for (i=startCol; i<end; i++)
   	        	col_label[i] = QString::null;
-			for (i=startCol; i<end; i++)
-			{
+			for (i=startCol; i<end; i++){
 				comments[i] = line[i-startCol];
 				s = line[i-startCol].replace("-","_").remove(QRegExp("\\W")).replace("_","-");
 				int n = col_label.count(s);
-				if(n)
-				{
+				if(n){
 					//avoid identical col names
 					while (col_label.contains(s+QString::number(n)))
 						n++;
@@ -2442,16 +2432,13 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		d_table->blockSignals(true);
 		setHeaderColType();
 
-		for (i=0; i<steps; i++)
-		{
-			if (progress.wasCanceled())
-			{
+		for (i=0; i<steps; i++){
+			if (progress.wasCanceled()){
 				f.close();
 				return;
 			}
 
-			for (int k=0; k<1000; k++)
-			{
+			for (int k=0; k<1000; k++){
 				s = t.readLine();
 				if (simplifySpaces)
 					s = s.simplifyWhiteSpace();
@@ -2462,12 +2449,11 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 					d_table->setText(startRow + k, j, line[j-startCol]);
 			}
 
-			startRow+= 1000;
+			startRow += 1000;
 			progress.setValue(i);
 		}
 
-		for (i=startRow; i<d_table->numRows(); i++)
-		{
+		for (i=startRow; i<d_table->numRows(); i++){
 			s = t.readLine();
 			if (simplifySpaces)
 				s = s.simplifyWhiteSpace();
@@ -2543,22 +2529,26 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		QStringList oldHeader;
 		if (newTable)
 			init (rows, cols);
-		else
-		{
+		else{
 			if (d_table->numRows() != rows)
 				d_table->setNumRows(rows);
 
 			c = d_table->numCols();
 			oldHeader = col_label;
-			if (c != cols)
-			{
+			if (c != cols){
 				if (c < cols)
 					addColumns(cols - c);
-				else
-				{
+				else{
 					d_table->setNumCols(cols);
-					for (i=cols; i<c; i++)
-						emit removedCol(QString(name()) + "_" + oldHeader[i]);
+                    for (int i=c-1; i>=cols; i--){
+                        emit removedCol(QString(name()) + "_" + oldHeader[i]);
+                        commands.removeLast();
+                        comments.removeLast();
+                        col_format.removeLast();
+                        col_label.removeLast();
+                        colTypes.removeLast();
+                        col_plot_type.removeLast();
+                    }
 				}
 			}
 		}
@@ -2664,7 +2654,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 	}
 }
 
-bool Table::exportToASCIIFile(const QString& fname, const QString& separator,
+bool Table::exportASCII(const QString& fname, const QString& separator,
 		bool withLabels,bool exportSelection)
 {
 	QFile f(fname);
@@ -3121,21 +3111,18 @@ void Table::resizeRows(int r)
 
 void Table::resizeCols(int c)
 {
-	int i, cols = d_table->numCols();
+	int cols = d_table->numCols();
 	if (cols == c)
 		return;
 
-	if (cols > c)
-	{
+	if (cols > c){
 		QString text= tr("Columns will be deleted from the table!");
 		text+="<p>"+tr("Do you really want to continue?");
-		Q3MemArray<int> columns(cols-c);
-		switch( QMessageBox::information(this,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) )
-		{
-			case 0:
+		switch( QMessageBox::information(this,tr("QtiPlot"), text, tr("Yes"), tr("Cancel"), 0, 1 ) ){
+			case 0: {
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-				for (i=cols-1; i>=c; i--)
-				{
+                Q3MemArray<int> columns(cols-c);
+				for (int i=cols-1; i>=c; i--){
 					QString name = colName(i);
 					emit removedCol(name);
 					columns[i-c]=i;
@@ -3151,14 +3138,14 @@ void Table::resizeCols(int c)
 				d_table->removeColumns(columns);
 				QApplication::restoreOverrideCursor();
 				break;
+			}
 
 			case 1:
 				return;
 				break;
 		}
 	}
-	else
-	{
+	else{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		addColumns(c-cols);
 		setHeaderColType();
@@ -3300,6 +3287,7 @@ void Table::showComments(bool on)
 
 void Table::setNumericPrecision(int prec)
 {
+	d_numeric_precision = prec;
 	for (int i=0; i<d_table->numCols(); i++)
         col_format[i] = "0/"+QString::number(prec);
 }

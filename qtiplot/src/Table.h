@@ -298,8 +298,8 @@ public slots:
 	void setMonthFormat(const QString& format, int col, bool updateCells = true);
 	void setDayFormat(const QString& format, int col, bool updateCells = true);
 
-	bool exportToASCIIFile(const QString& fname, const QString& separator,
-							  bool withLabels,bool exportSelection);
+	bool exportASCII(const QString& fname, const QString& separator,
+					bool withLabels = false, bool exportSelection = false);
 	void importASCII(const QString &fname, const QString &sep, int ignoredLines,
 						bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable);
 	void importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
@@ -377,6 +377,7 @@ private:
 	QStringList commands, col_format, comments, col_label;
 	QList<int> colTypes, col_plot_type;
 	int selectedCol;
+	int d_numeric_precision;
 	double **d_saved_cells;
 
 	//! Internal function to change the column header

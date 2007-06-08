@@ -916,6 +916,8 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+    //! Last selected filter in import ASCII dialog
+    QString d_ASCII_file_filter;
 	//! Specifies if only the Tables/Matrices in the current folder should be displayed in the Add/remove curve dialog.
 	bool d_show_current_folder;
 	bool d_scale_plots_on_print, d_print_cropmarks;

@@ -221,8 +221,10 @@ void ImportASCIIDialog::updateImportMode(int mode)
 void ImportASCIIDialog::closeEvent(QCloseEvent* e)
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (app)
+	if (app){
 		app->d_extended_import_ASCII_dialog = this->isExtended();
+		app->d_ASCII_file_filter = this->selectedFilter();
+	}
 
 	e->accept();
 }

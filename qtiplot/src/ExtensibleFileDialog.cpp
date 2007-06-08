@@ -52,9 +52,10 @@ ExtensibleFileDialog::ExtensibleFileDialog(QWidget *parent, bool extended, Qt::W
 		// would probably look a mess, but at least all functions would be accessible
 		layout()->addWidget(d_extension_toggle);
 	}
-	
+
 	connect(d_extension_toggle, SIGNAL(toggled(bool)), this, SLOT(resize(bool)));
-	connect(this, SIGNAL(rejected()), this, SLOT(close()));
+	connect(this, SIGNAL(accepted()), this, SLOT(close()));
+    connect(this, SIGNAL(rejected()), this, SLOT(close()));
 }
 
 void ExtensibleFileDialog::setExtensionWidget(QWidget *extension)

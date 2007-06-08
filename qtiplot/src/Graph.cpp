@@ -1557,7 +1557,7 @@ void Graph::exportVector(const QString& fileName, int res, bool color)
 	printer.setFullPage(true);
 	if (res)
 		printer.setResolution(res);
-	
+
     printer.setOutputFileName(fileName);
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
@@ -1650,7 +1650,7 @@ void Graph::exportSVG(const QString& fname)
 		QSvgGenerator svg;
         svg.setFileName(fname);
         svg.setSize(d_plot->size());
-	
+
 		QPainter p(&svg);
 		d_plot->print(&p, d_plot->rect());
 		p.end();
@@ -3373,26 +3373,20 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	int r = abs(endRow - startRow) + 1;
     QVector<double> X(r), Y(r);
-	if (xColType == Table::Time)
-	{
-		for (i = startRow; i<=endRow; i++ )
-		{
+	if (xColType == Table::Time){
+		for (i = startRow; i<=endRow; i++ ){
 			QString xval=w->text(i,xcol);
-			if (!xval.isEmpty())
-			{
+			if (!xval.isEmpty()){
 				time0 = QTime::fromString (xval, date_time_fmt);
 				if (time0.isValid())
 					break;
 			}
 		}
 	}
-	else if (xColType == Table::Date)
-	{
-		for (i = startRow; i<=endRow; i++ )
-		{
+	else if (xColType == Table::Date){
+		for (i = startRow; i<=endRow; i++ ){
 			QString xval=w->text(i,xcol);
-			if (!xval.isEmpty())
-			{
+			if (!xval.isEmpty()){
 				date0 = QDate::fromString(xval, date_time_fmt);
 				if (date0.isValid())
 					break;
@@ -3400,28 +3394,23 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 		}
 	}
 
-	for (i = startRow; i<=endRow; i++ )
-	{
+	for (i = startRow; i<=endRow; i++ ){
 		QString xval=w->text(i,xcol);
 		QString yval=w->text(i,ycol);
-		if (!xval.isEmpty() && !yval.isEmpty())
-		{
-			if (xColType == Table::Text)
-			{
+		if (!xval.isEmpty() && !yval.isEmpty()){
+			if (xColType == Table::Text){
 				if (xLabels.contains(xval) == 0)
 					xLabels << xval;
 				X[size] = (double)(xLabels.findIndex(xval)+1);
 			}
-			else if (xColType == Table::Time)
-			{
+			else if (xColType == Table::Time){
 				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size] = time0.msecsTo (time);
 				else
 					X[size] = 0;
 			}
-			else if (xColType == Table::Date)
-			{
+			else if (xColType == Table::Date){
 				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
 					X[size] = (double) date0.daysTo(d);
@@ -3429,8 +3418,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			else
                 X[size] = Table::stringToDouble(xval);
 
-			if (yColType == Table::Text)
-			{
+			if (yColType == Table::Text){
 				yLabels << yval;
 				Y[size] = (double) (size + 1);
 			}
@@ -3448,18 +3436,15 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	Y.resize(size);
 
 	DataCurve *c = 0;
-	if (style == VerticalBars)
-	{
+	if (style == VerticalBars){
 		c = new QwtBarCurve(QwtBarCurve::Vertical, w, xColName, yColName, startRow, endRow);
 		c->setStyle(QwtPlotCurve::UserCurve);
 	}
-	else if (style == HorizontalBars)
-	{
+	else if (style == HorizontalBars){
 		c = new QwtBarCurve(QwtBarCurve::Horizontal, w, xColName, yColName, startRow, endRow);
 		c->setStyle(QwtPlotCurve::UserCurve);
 	}
-	else if (style == Histogram)
-	{
+	else if (style == Histogram){
 		c = new QwtHistogram(w, xColName, yColName, startRow, endRow);
 		((QwtHistogram *)c)->initData(Y, size);
 		c->setStyle(QwtPlotCurve::UserCurve);
@@ -3479,33 +3464,28 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	else if (style != Histogram)
 		c->setData(X.data(), Y.data(), size);
 
-	if (xColType == Table::Text )
-	{
-		if (style == HorizontalBars)
-		{
+	if (xColType == Table::Text ){
+		if (style == HorizontalBars){
 			axesFormatInfo[QwtPlot::yLeft] = xColName;
 			axesFormatInfo[QwtPlot::yRight] = xColName;
 			axisType[QwtPlot::yLeft] = Txt;
 			d_plot->setAxisScaleDraw (QwtPlot::yLeft, new QwtTextScaleDraw(xLabels));
 		}
-		else
-		{
+		else{
 			axesFormatInfo[QwtPlot::xBottom] = xColName;
 			axesFormatInfo[QwtPlot::xTop] = xColName;
 			axisType[QwtPlot::xBottom] = Txt;
 			d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
 		}
 	}
-	else if (xColType == Table::Time)
-	{
+	else if (xColType == Table::Time){
 		QString fmtInfo = time0.toString() + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Time, fmtInfo);
 		else
 			setLabelsDateTimeFormat(QwtPlot::xBottom, Time, fmtInfo);
 	}
-	else if (xColType == Table::Date )
-	{
+	else if (xColType == Table::Date ){
 		QString fmtInfo = date0.toString(Qt::ISODate) + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Date, fmtInfo);
@@ -3513,8 +3493,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			setLabelsDateTimeFormat(QwtPlot::xBottom, Date, fmtInfo);
 	}
 
-	if (yColType == Table::Text)
-	{
+	if (yColType == Table::Text){
 		axesFormatInfo[QwtPlot::yLeft] = yColName;
 		axesFormatInfo[QwtPlot::yRight] = yColName;
 		axisType[QwtPlot::yLeft] = Txt;
@@ -5445,7 +5424,7 @@ int Graph::visibleCurves()
 QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
 {
 	double x_margin = 0.2/2.54*printer.logicalDpiX(); // 2 mm margins
-	double y_margin = 0.2/2.54*printer.logicalDpiY(); 
+	double y_margin = 0.2/2.54*printer.logicalDpiY();
     double w_mm = 2*x_margin + (double)(r.width())/(double)printer.logicalDpiX() * 25.4;
     double h_mm = 2*y_margin + (double)(r.height())/(double)printer.logicalDpiY() * 25.4;
 
@@ -5460,7 +5439,7 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         h = (int)ceil(w_mm);
         w = (int)ceil(h_mm);
     }
-	
+
 	QPrinter::PageSize size = QPrinter::A5;
 	if (w < 45 && h < 32)
         size =  QPrinter::B10;
@@ -5516,6 +5495,6 @@ QPrinter::PageSize Graph::minPageSize(const QPrinter& printer, const QRect& r)
         size =  QPrinter::A0;
     else if (w < 1456 && h < 1030)
         size =  QPrinter::B0;
-	
+
 	return size;
 }

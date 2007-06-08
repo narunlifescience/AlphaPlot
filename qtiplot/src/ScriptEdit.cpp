@@ -330,29 +330,19 @@ QString ScriptEdit::exportASCII(const QString &filename)
 				tr("Save Text to File"), &selectedFilter, false);
 	else
 		fn = filename;
-	if ( !fn.isEmpty() )
-	{
+	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		QString baseName = fi.fileName();
-		if (!baseName.contains("."))
-		{
+		if (!baseName.contains(".")){
 			if (selectedFilter.contains(".txt"))
 				fn.append(".txt");
 			else if (selectedFilter.contains(".py"))
 				fn.append(".py");
 		}
 
-		if ( QFile::exists(fn) &&
-				QMessageBox::question(this, tr("QtiPlot -- Overwrite File? "),
-					tr("A file called: <p><b>%1</b><p>already exists.\n"
-						"Do you want to overwrite it?")
-					.arg(fn), tr("&Yes"), tr("&No"),QString::null, 0, 1 ) )
-			return QString::null;
-		else
-		{
+		if ( QFile::exists(fn)){
 			QFile f(fn);
-			if ( !f.open( IO_WriteOnly ) )
-			{
+			if ( !f.open( IO_WriteOnly ) ){
 				QMessageBox::critical(0, tr("QtiPlot - File Save Error"),
 						tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
 				return QString::null;
@@ -377,4 +367,3 @@ void ScriptEdit::updateIndentation()
 	cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 	cursor.insertText(indent);
 }
-
