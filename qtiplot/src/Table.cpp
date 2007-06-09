@@ -3292,12 +3292,30 @@ void Table::setNumericPrecision(int prec)
         col_format[i] = "0/"+QString::number(prec);
 }
 
+void Table::updateDecimalSeparators(const QLocale& oldSeparators)
+{
+	for (int i=0; i<d_table->numCols(); i++){
+	    if (colTypes[i] != Numeric)
+            continue;
+
+        char format;
+        int prec;
+        columnNumericFormat(i, &format, &prec);
+
+        for (int j=0; j<d_table->numRows(); j++){
+            if (!d_table->text(j, i).isEmpty()){
+				double val = oldSeparators.toDouble(d_table->text(j, i));
+                d_table->setText(j, i, QLocale().toString(val, format, prec));
+			}
+		}
+	}
+}
+
 void Table::updateDecimalSeparators()
 {
     saveToMemory();
 
-	for (int i=0; i<d_table->numCols(); i++)
-	{
+	for (int i=0; i<d_table->numCols(); i++){
 	    if (colTypes[i] != Numeric)
             continue;
 

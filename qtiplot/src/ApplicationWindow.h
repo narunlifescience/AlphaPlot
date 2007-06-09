@@ -40,6 +40,7 @@
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QBuffer>
+#include <QLocale>
 
 #include "Table.h"
 #include "ScriptingEnv.h"
@@ -342,7 +343,7 @@ public slots:
 
 	void importASCII();
 	void importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
-			bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces);
+		 bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces, bool update_dec_separators, QLocale local_separators);
 	void exportAllTables(const QString& sep, bool colNames, bool expSelection);
 	void exportASCII(const QString& tableName, const QString& sep, bool colNames, bool expSelection);
 
@@ -916,8 +917,11 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+	//! Locale used to specify the decimal separators in imported ASCII files
+	QLocale d_ASCII_import_locale;
     //! Last selected filter in import ASCII dialog
     QString d_ASCII_file_filter;
+	bool d_import_dec_separators;
 	//! Specifies if only the Tables/Matrices in the current folder should be displayed in the Add/remove curve dialog.
 	bool d_show_current_folder;
 	bool d_scale_plots_on_print, d_print_cropmarks;

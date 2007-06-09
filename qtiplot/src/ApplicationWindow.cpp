@@ -138,7 +138,6 @@
 #include <QList>
 #include <QUrl>
 #include <QAssistantClient>
-#include <QLocale>
 
 #include <zlib.h>
 
@@ -3282,6 +3281,8 @@ void ApplicationWindow::importASCII()
 		renameColumns = import_dialog->renameColumns();
 		strip_spaces = import_dialog->stripSpaces();
 		simplify_spaces = import_dialog->simplifySpaces();
+		d_ASCII_import_locale = import_dialog->decimalSeparators();
+		d_import_dec_separators = import_dialog->updateDecimalSeparators();
 		saveSettings();
 	}
 
@@ -3291,11 +3292,13 @@ void ApplicationWindow::importASCII()
 			import_dialog->ignoredLines(),
 			import_dialog->renameColumns(),
 			import_dialog->stripSpaces(),
-			import_dialog->simplifySpaces());
+			import_dialog->simplifySpaces(),
+			import_dialog->updateDecimalSeparators(),
+			import_dialog->decimalSeparators());
 }
 
 void ApplicationWindow::importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
-		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces)
+		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces, bool update_dec_separators, QLocale local_separators)
 {
 	if (files.isEmpty())
 		return;
@@ -3304,8 +3307,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 		case ImportASCIIDialog::NewTables:
 			{
 				int dx, dy;
-				for (int i=0; i<files.size(); i++)
-				{
+				for (int i=0; i<files.size(); i++){
 					Table *w = newTable(files[i], local_column_separator, local_ignored_lines,
 							local_rename_columns, local_strip_spaces, local_simplify_spaces);
 					if (!w) continue;
@@ -3317,6 +3319,9 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 						w->parentWidget()->move(QPoint(0,0));
 					} else
 						w->parentWidget()->move(QPoint(i*dx,i*dy));
+					
+					if (update_dec_separators)
+						w->updateDecimalSeparators(local_separators);
 				}
 				modifiedProject();
 				break;
@@ -3325,13 +3330,15 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 		case ImportASCIIDialog::NewRows:
 			{
 				Table *t = (Table*) ws->activeWindow();
-				if (t && t->isA("Table"))
-				{
+				if (t && t->isA("Table")){
 					for (int i=0; i<files.size(); i++)
 					t->importMultipleASCIIFiles(files[i], local_column_separator, local_ignored_lines, local_rename_columns,
 							local_strip_spaces, local_simplify_spaces, import_mode);
 					t->setWindowLabel(files.join("; "));
 					t->setCaptionPolicy(MyWidget::Name);
+					if (update_dec_separators)
+						t->updateDecimalSeparators(local_separators);
+					t->notifyChanges();
 					emit modifiedProject(t);
 				}
 				break;
@@ -3339,18 +3346,21 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 		case ImportASCIIDialog::Overwrite:
 			{
 				Table *t = (Table*) ws->activeWindow();
-				if ( t && t->isA("Table"))
-				{
+				if ( t && t->isA("Table")){
 					t->importASCII(files[0], local_column_separator, local_ignored_lines, local_rename_columns,
 							local_strip_spaces, local_simplify_spaces, false);
+					if (update_dec_separators)
+						t->updateDecimalSeparators(local_separators);
 					t->setWindowLabel(files[0]);
-				}
-				else
+					t->notifyChanges();
+				} else {
 					t = newTable(files[0], local_column_separator, local_ignored_lines,
 							local_rename_columns, local_strip_spaces, local_simplify_spaces);
+					if (update_dec_separators)
+						t->updateDecimalSeparators(local_separators);
+				}
 
-				if (t)
-				{
+				if (t){
 					t->setCaptionPolicy(MyWidget::Both);
 					setListViewLabel(t->name(), files[0]);
 					modifiedProject(t);
@@ -4236,7 +4246,9 @@ void ApplicationWindow::readSettings()
 	renameColumns = settings.value("/RenameColumns", true).toBool();
 	strip_spaces = settings.value("/StripSpaces", false).toBool();
 	simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
-	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
+	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();	
+	d_ASCII_import_locale = settings.value("/AsciiImportLocale", QLocale::system().name()).toString();
+	d_import_dec_separators = settings.value("/UpdateDecSeparators", true).toBool();
 	settings.endGroup(); // Import ASCII
 }
 
@@ -4463,7 +4475,8 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/StripSpaces", strip_spaces);
 	settings.setValue("/SimplifySpaces", simplify_spaces);
     settings.setValue("/AsciiFileTypeFilter", d_ASCII_file_filter);
-
+	settings.setValue("/AsciiImportLocale", d_ASCII_import_locale.name());
+	settings.setValue("/UpdateDecSeparators", d_import_dec_separators);
 	settings.endGroup(); // ImportASCII
 }
 
@@ -8051,7 +8064,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 		}
 
 		importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
-				strip_spaces, simplify_spaces);
+				strip_spaces, simplify_spaces, d_import_dec_separators, d_ASCII_import_locale);
 	}
 }
 

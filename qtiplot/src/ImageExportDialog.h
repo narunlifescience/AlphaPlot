@@ -66,6 +66,7 @@ public:
 	/**
 	 * \param parent parent widget
 	 * \param vector_options whether advanced options are to be provided for export to vector formats
+	 * \param extended flag: show/hide the advanced options on start-up
 	 * \param flags window flags
 	 */
 	ImageExportDialog(QWidget * parent = 0, bool vector_options = true, bool extended = true, Qt::WFlags flags = 0 );

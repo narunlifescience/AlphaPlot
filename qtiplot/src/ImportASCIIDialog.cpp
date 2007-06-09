@@ -66,6 +66,15 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent,
 	d_ignored_lines->setValue(app->ignoredLines);
 	d_rename_columns->setChecked(app->renameColumns);
 	setColumnSeparator(app->columnSeparator);
+		
+	if (app->d_ASCII_import_locale.name() == QLocale::c().name())
+        boxDecimalSeparator->setCurrentIndex(1);
+    else if (app->d_ASCII_import_locale.name() == QLocale(QLocale::German).name())
+        boxDecimalSeparator->setCurrentIndex(2);
+    else if (app->d_ASCII_import_locale.name() == QLocale(QLocale::French).name())
+        boxDecimalSeparator->setCurrentIndex(3);
+	boxDecimalSeparator->setEnabled(app->d_import_dec_separators);
+	d_import_dec_separators->setChecked(app->d_import_dec_separators);
 
 	connect(d_import_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImportMode(int)));
 }
@@ -137,8 +146,20 @@ void ImportASCIIDialog::initAdvancedOptions()
 	d_simplify_spaces->setWhatsThis(help_simplify_spaces);
 	d_simplify_spaces->setToolTip(help_simplify_spaces);
 
+	advanced_layout->addWidget(new QLabel(tr("Decimal Separators")), 3, 0);
+	boxDecimalSeparator = new QComboBox();
+	boxDecimalSeparator->addItem(tr("System Locale Setting"));
+	boxDecimalSeparator->addItem("1,000.0");
+	boxDecimalSeparator->addItem("1.000,0");
+	boxDecimalSeparator->addItem("1 000,0");
+	advanced_layout->addWidget(boxDecimalSeparator, 3, 1);
+	
+	d_import_dec_separators = new QCheckBox(tr("Import &decimal separators"));
+	connect(d_import_dec_separators, SIGNAL(toggled(bool)), boxDecimalSeparator, SLOT(setEnabled(bool)));
+	advanced_layout->addWidget(d_import_dec_separators, 3, 2, 1, 2);
+	
 	QHBoxLayout *meta_options_layout = new QHBoxLayout();
-	d_remember_options = new QCheckBox(tr("Remember the above options"));
+	d_remember_options = new QCheckBox(tr("Re&member the above options"));
 	meta_options_layout->addWidget(d_remember_options);
 	d_help_button = new QPushButton(tr("&Help"));
 	connect(d_help_button, SIGNAL(clicked()), this, SLOT(displayHelp()));
@@ -227,4 +248,24 @@ void ImportASCIIDialog::closeEvent(QCloseEvent* e)
 	}
 
 	e->accept();
+}
+
+QLocale ImportASCIIDialog::decimalSeparators()
+{
+	QLocale locale;
+    switch (boxDecimalSeparator->currentIndex()){
+        case 0:
+            locale = QLocale::system();
+        break;
+        case 1:
+            locale = QLocale::c();
+        break;
+        case 2:
+            locale = QLocale(QLocale::German);
+        break;
+        case 3:
+            locale = QLocale(QLocale::French);
+        break;
+    }
+	return locale;
 }

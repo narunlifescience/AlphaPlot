@@ -61,6 +61,7 @@ public:
 	/**
 	 * \param importModeEnabled flag: enable/disable import mode combo box
 	 * \param parent parent widget (only affects placement of the dialog)
+	 * \param extended flag: show/hide the advanced options on start-up
 	 * \param flags window flags
 	 */
 	ImportASCIIDialog(bool importModeEnabled, QWidget * parent = 0, bool extended = true, Qt::WFlags flags = 0 );
@@ -85,7 +86,12 @@ public:
 
 	//! Set the selected columns separator.
 	void setColumnSeparator(const QString &sep);
-
+	
+	//! Returns a locale having the decimal separators set to user custom settings.
+	QLocale decimalSeparators();
+	//! Whether the user wants the decimal separators to be changed to application settings.
+	bool updateDecimalSeparators() const { return d_import_dec_separators->isChecked(); };
+		
 private slots:
 	//! Display help for advanced options.
 	void displayHelp();
@@ -99,10 +105,10 @@ private:
 
 	//! Container widget for all advanced options.
 	QGroupBox *d_advanced_options;
-	QCheckBox *d_remember_options;
+	QCheckBox *d_remember_options, *d_import_dec_separators;
 	QPushButton *d_help_button;
 	// the actual options
-	QComboBox *d_import_mode, *d_column_separator;
+	QComboBox *d_import_mode, *d_column_separator, *boxDecimalSeparator;
 	QSpinBox *d_ignored_lines;
 	QCheckBox *d_rename_columns, *d_simplify_spaces, *d_strip_spaces;
 };
