@@ -936,20 +936,17 @@ void Table::addCol(PlotDesignation pd)
 
 void Table::addColumns(int c)
 {
-	int i, index,max=0, cols=d_table->numCols();
-	for (i=0; i<cols; i++)
-	{
-		if (!col_label[i].contains(QRegExp ("\\D")))
-		{
-			index=col_label[i].toInt();
+	int max=0, cols=d_table->numCols();
+	for (int i=0; i<cols; i++){
+		if (!col_label[i].contains(QRegExp ("\\D"))){
+			int index=col_label[i].toInt();
 			if (index>max)
 				max=index;
 		}
 	}
 	max++;
-	d_table->insertColumns(cols,c);
-	for (i=0; i<c; i++)
-	{
+	d_table->insertColumns(cols, c);
+	for (int i=0; i<c; i++){
 		comments << QString();
 		commands<<"";
 		colTypes<<Numeric;
@@ -1116,104 +1113,59 @@ void Table::pasteSelection()
 	QTextStream ts( &text, QIODevice::ReadOnly );
 	QString s = ts.readLine();
 	QStringList cellTexts=s.split("\t");
-	int cols=int(cellTexts.count());
-	int rows= 1;
-	while(!ts.atEnd())
-	{
+	int cols = int(cellTexts.count());
+	int rows = 1;
+	while(!ts.atEnd()){
 		rows++;
 		s = ts.readLine();
 	}
 	ts.reset();
 
-	int i, j, top, bottom, right, left, firstCol=firstSelectedColumn();
+	int top, left, firstCol=firstSelectedColumn();
 	Q3TableSelection sel=d_table->selection(0);
-	if (!sel.isEmpty())
-	{// not columns but only cells are selected
+	if (!sel.isEmpty()){// not columns but only cells are selected
 		top=sel.topRow();
-		bottom=sel.bottomRow();
 		left=sel.leftCol();
-		right=sel.rightCol();
-	}
-	else
-	{
-		if(cols==1 && rows==1)
-		{
-			top=bottom=d_table->currentRow();
-			left=right=d_table->currentColumn();
-		}
-		else
-		{
+	} else {
+		if(cols==1 && rows==1){
+			top=d_table->currentRow();
+			left=d_table->currentColumn();
+		} else {
 			top=0;
-			bottom=d_table->numRows() - 1;
 			left=0;
-			right=d_table->numCols() - 1;
-			if (firstCol>=0)
-			{// columns are selected
+			if (firstCol>=0)// columns are selected
 				left=firstCol;
-				right=firstCol+selectedColsNumber()-1;
-			}
 		}
 	}
 
 	QTextStream ts2( &text, QIODevice::ReadOnly );
-	int r = bottom-top+1;
-	int c = right-left+1;
 
-	QApplication::restoreOverrideCursor();
-	if (rows>r || cols>c)
-	{
-		switch( QMessageBox::information(0,"QtiPlot",
-					tr("The text in the clipboard is larger than your current selection!\
-						\nDo you want to insert cells?"),
-					tr("Yes"), tr("No"), tr("Cancel"),0,0))
-		{
-			case 0:
-				if(cols > c)
-					insertCols(left, cols - c);
+    if (top + rows > d_table->numRows())
+        d_table->setNumRows(top + rows);
+    if (left + cols > d_table->numCols()){
+        addColumns(left + cols - d_table->numCols());
+        setHeaderColType();
+    }
 
-				if(rows > r)
-				{
-					if (firstCol >= 0)
-						d_table->insertRows(top, rows - r);
-					else
-						d_table->insertRows(top, rows - r + 1);
-				}
-				break;
-			case 1:
-				rows = r;
-				cols = c;
-				break;
-			case 2:
-				return;
-				break;
-		}
-	}
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	int prec;
-	char f;
 	bool numeric;
-	double value;
 	QLocale system_locale = QLocale::system();
 	QLocale locale;
-	for (i=top; i<top+rows; i++)
-	{
+	for (int i=top; i<top+rows; i++){
 		s = ts2.readLine();
 		cellTexts=s.split("\t");
-		for (j=left; j<left+cols; j++)
-		{
-			value = system_locale.toDouble(cellTexts[j-left], &numeric);
-			if (numeric)
-			{
+		for (int j=left; j<left+cols; j++){
+			double value = system_locale.toDouble(cellTexts[j-left], &numeric);
+			if (numeric){
+			    int prec;
+                char f;
 				columnNumericFormat(j, &f, &prec);
 				d_table->setText(i, j, locale.toString(value, f, prec));
-			}
-			else
+			} else
 				d_table->setText(i, j, cellTexts[j-left]);
 		}
 	}
 
-	for (i=left; i<left+cols; i++)
+	for (int i=left; i<left+cols; i++)
 		emit modifiedData(this, colName(i));
 
 	emit modifiedWindow(this);

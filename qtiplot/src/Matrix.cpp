@@ -830,7 +830,6 @@ void Matrix::pasteSelection()
 	if (the_text.isEmpty())
 		return;
 
-	allow_modification_signals = false;
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QTextStream ts( &the_text, QIODevice::ReadOnly );
@@ -838,101 +837,52 @@ void Matrix::pasteSelection()
 	QStringList cellTexts = s.split("\t");
 	int cols = cellTexts.count();
 	int rows = 1;
-	while(!ts.atEnd())
-	{
+	while(!ts.atEnd()){
 		rows++;
 		s = ts.readLine();
 	}
 	ts.reset();
 
-	int i, j, top, bottom, right, left, firstCol;
-
 	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
 	QListIterator<QTableWidgetSelectionRange> it(sel);
 	QTableWidgetSelectionRange cur;
 
-	if (!sel.isEmpty())
-	{
+    int top, left, firstCol;
+	if (!sel.isEmpty()){
 		cur = it.next();
 		top = cur.topRow();
-		bottom = cur.bottomRow();
 		left = cur.leftColumn();
-		right = cur.rightColumn();
-	}
-	else
-	{
+	} else {
 		top = 0;
-		bottom = numRows() - 1;
 		left = 0;
-		right = numCols() - 1;
 
 		firstCol = firstSelectedColumn();
 
-		if (firstCol >= 0)
-		{ // columns are selected
+		if (firstCol >= 0){ // columns are selected
 			left = firstCol;
 			int selectedColsNumber = 0;
-			for(i=0; i<numCols(); i++)
-			{
+			for(int i=0; i<numCols(); i++) {
 				if (isColumnSelected(i, true))
 					selectedColsNumber++;
 			}
-			right = firstCol + selectedColsNumber - 1;
 		}
 	}
 
 	QTextStream ts2( &the_text, QIODevice::ReadOnly );
-	int r = bottom-top+1;
-	int c = right-left+1;
 
-	QApplication::restoreOverrideCursor();
-	if (rows>r || cols>c)
-	{
-		// TODO: I find the insert cells option awkward
-		// I would prefer the behavior of OpenOffice Calc
-		// here - thzs
-		switch( QMessageBox::information(0,"QtiPlot",
-					tr("The text in the clipboard is larger than your current selection!\
-						\nDo you want to insert cells?"),
-					tr("Yes"), tr("No"), tr("Cancel"), 0, 0) )
-		{
-			case 0:
-				if(cols > c )
-					for(int i=0; i<(cols-c); i++)
-						d_table->insertColumn(left);
+    d_table->blockSignals(true);
+	if (top + rows > d_table->rowCount())
+        d_table->setRowCount(top + rows);
+    if (left + cols > d_table->columnCount())
+        d_table->setColumnCount(left + cols);
 
-				if(rows > r)
-				{
-					if (firstCol >= 0)
-						for(int i=0; i<(rows-r); i++)
-							d_table->insertRow(top);
-					else
-						for(int i=0; i<(rows-r+1); i++)
-							d_table->insertRow(top);
-				}
-				break;
-			case 1:
-				rows = r;
-				cols = c;
-				break;
-			case 2:
-				allow_modification_signals = true;
-				return;
-				break;
-		}
-	}
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	bool numeric;
-	double value;
 	QLocale system_locale = QLocale::system();
-	for(i=top; i<top+rows; i++)
-	{
+	for(int i=top; i<top+rows; i++){
 		s = ts2.readLine();
 		cellTexts=s.split("\t");
-		for(j=left; j<left+cols; j++)
-		{
-			value = system_locale.toDouble(cellTexts[j-left], &numeric);
+		for(int j=left; j<left+cols; j++){
+			double value = system_locale.toDouble(cellTexts[j-left], &numeric);
 			if (numeric)
 				setText(i, j, QLocale().toString(value, txt_format.toAscii(), num_precision));
 			else
@@ -940,7 +890,7 @@ void Matrix::pasteSelection()
 		}
 	}
 
-	allow_modification_signals = true;
+	d_table->blockSignals(false);
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 }
