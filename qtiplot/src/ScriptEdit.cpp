@@ -49,6 +49,7 @@ ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
 
 	setLineWrapMode(NoWrap);
 	setTextFormat(Qt::PlainText);
+	setAcceptRichText (false);
 	setFamily("Monospace");
 
 	printCursor = textCursor();

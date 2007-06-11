@@ -44,6 +44,8 @@
 RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
+	setWindowTitle(tr("QtiPlot - Rename Window"));
+
 	QGridLayout * leftLayout = new QGridLayout();
 	QVBoxLayout * rightLayout = new QVBoxLayout();
 
@@ -71,12 +73,12 @@ RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
 	buttons->addButton(boxLabel);
 	buttons->addButton(boxBoth);
 	
-	buttonOk = new QPushButton();
+	buttonOk = new QPushButton(tr( "&OK" ));
     buttonOk->setAutoDefault( true );
     buttonOk->setDefault( true );
 	rightLayout->addWidget(buttonOk);
    
-    buttonCancel = new QPushButton();
+    buttonCancel = new QPushButton(tr( "&Cancel" ));
     buttonCancel->setAutoDefault( true );
 	rightLayout->addWidget(buttonCancel);
 	rightLayout->addStretch();
@@ -84,8 +86,6 @@ RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
 	QHBoxLayout * mainLayout = new QHBoxLayout(this);
     mainLayout->addWidget(groupBox1);
 	mainLayout->addLayout(rightLayout);
-
-    languageChange();
 
     // signals and slots connections
     connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
@@ -124,17 +124,6 @@ MyWidget::CaptionPolicy RenameWindowDialog::getCaptionPolicy()
 	return policy;
 }
 
-RenameWindowDialog::~RenameWindowDialog()
-{
-}
-
-void RenameWindowDialog::languageChange()
-{
-	setWindowTitle(tr("QtiPlot - Rename Window"));
-	buttonOk->setText( tr( "&OK" ) );
-	buttonCancel->setText( tr( "&Cancel" ) );
-}
-
 void RenameWindowDialog::accept()
 {
 	QString name = window->name();
@@ -153,12 +142,9 @@ void RenameWindowDialog::accept()
   		QMessageBox::warning(this, tr("QtiPlot - Warning"),
   	    tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
   	 
-  	if (text.replace("_", "-") != name)
-	{
+  	if (text.replace("_", "-") != name){
 		if(!app->renameWindow(window, text))
 			return;
-
-		app->renameListViewItem(name,text);
 	}
 
 	label.replace("\n"," ").replace("\t"," ");

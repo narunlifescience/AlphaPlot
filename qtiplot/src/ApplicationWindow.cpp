@@ -4953,13 +4953,11 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 
 	QString newName = text;
 	newName.replace("-", "_");
-	if (newName.isEmpty())
-	{
+	if (newName.isEmpty()){
 		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
 		return false;
 	}
-	else if (newName.contains(QRegExp("\\W")))
-	{
+	else if (newName.contains(QRegExp("\\W"))){
 		QMessageBox::critical(this, tr("QtiPlot - Error"),
 				tr("The name you chose is not valid: only letters and digits are allowed!")+
 				"<p>" + tr("Please choose another name!"));
@@ -4968,19 +4966,16 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 
 	newName.replace("_", "-");
 
-	while(alreadyUsedName(newName))
-	{
+	while(alreadyUsedName(newName)){
 		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
 				"<p>"+tr("Please choose another name!")+
 				"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
 		return false;
 	}
 
-	if (w->inherits("Table"))
-	{
+	if (w->inherits("Table")){
 		QStringList labels=((Table *)w)->colNames();
-		if (labels.contains(newName)>0)
-		{
+		if (labels.contains(newName)>0){
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
 					tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
 			return false;
@@ -4995,6 +4990,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 
 	w->setName(newName);
 	w->setCaptionPolicy(w->captionPolicy());
+	renameListViewItem(name, newName);
 	return true;
 }
 

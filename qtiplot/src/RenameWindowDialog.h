@@ -49,7 +49,6 @@ class RenameWindowDialog : public QDialog
 
 public:
     RenameWindowDialog(QWidget* parent = 0, Qt::WFlags fl = 0 );
-    ~RenameWindowDialog();
 
 private:
     QPushButton * buttonOk;
@@ -65,7 +64,6 @@ private:
 public slots:
 	void setWidget(MyWidget *w);
 	MyWidget::CaptionPolicy getCaptionPolicy();
-    virtual void languageChange();
 	void accept();
 
 signals:

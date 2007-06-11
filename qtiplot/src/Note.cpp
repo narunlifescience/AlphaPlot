@@ -91,15 +91,14 @@ void Note::restore(const QStringList& data)
   QStringList fields;
 
   fields = (*line).split("\t");
-  if (fields[0] == "AutoExec")
-  {
+  if (fields[0] == "AutoExec"){
     setAutoexec(fields[1] == "1");
     line++;
   }
 
   if (*line == "<content>") line++;
   while (line != data.end() && *line != "</content>")
-    te->append((*line++));
+    te->insertPlainText((*line++)+"\n");
 }
 
 void Note::setAutoexec(bool exec)

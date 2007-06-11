@@ -650,6 +650,7 @@ class Graph: public QWidget
 		void showAxisContextMenu(int axis);
 		void hideSelectedAxis();
 		void showGrids();
+		void showGrid(int axis);
 		void showAxisDialog();
 		void showScaleDialog();
 

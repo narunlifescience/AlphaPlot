@@ -589,7 +589,7 @@ void ConfigDialog::initAppPage()
 	lblAppPrecision = new QLabel();
 	numericFormatLayout->addWidget(lblAppPrecision, 0, 0);
 	boxAppPrecision = new QSpinBox();
-	boxAppPrecision->setRange(0, 14);
+	boxAppPrecision->setRange(0, 16);
 	boxAppPrecision->setValue(app->d_decimal_digits);
 	numericFormatLayout->addWidget(boxAppPrecision, 0, 1);
 

@@ -100,7 +100,7 @@ void Table::init(int rows, int cols)
 	{
 		commands << "";
 		colTypes << Numeric;
-		col_format << "0/14";
+		col_format << "0/16";
 		comments << "";
 		col_label << QString::number(i+1);
 		col_plot_type << Y;
@@ -1385,10 +1385,8 @@ void Table::sortColumn(int col, int order)
 	QVarLengthArray<int> valid_cell(rows);
 	QVarLengthArray<double> r(rows);
     QStringList text_cells;
-	for (int i = 0; i <rows; i++)
-	{
-		if (!d_table->text(i, col).isEmpty())
-		{
+	for (int i = 0; i <rows; i++){
+		if (!d_table->text(i, col).isEmpty()){
             if (columnType(col) == Table::Text)
                 text_cells << d_table->text(i, col);
             else
@@ -1402,42 +1400,30 @@ void Table::sortColumn(int col, int order)
 		return;
 
 	valid_cell.resize(non_empty_cells);
-    if (columnType(col) == Table::Text)
-    {
+    if (columnType(col) == Table::Text){
         r.clear();
         text_cells.sort();
-    }
-    else
-    {
+    } else {
         r.resize(non_empty_cells);
         gsl_sort(r.data(), 1, non_empty_cells);
     }
 
-    if (columnType(col) == Table::Text)
-    {
-        if (!order)
-        {
+    if (columnType(col) == Table::Text){
+        if (!order){
             for (int i=0; i<non_empty_cells; i++)
                 d_table->setText(valid_cell[i], col, text_cells[i]);
-        }
-		else
-        {
+        } else {
             for (int i=0; i<non_empty_cells; i++)
                 d_table->setText(valid_cell[i], col, text_cells[non_empty_cells-i-1]);
         }
-    }
-    else
-    {
+    } else {
 	   int prec;
 	   char f;
 	   columnNumericFormat(col, &f, &prec);
-        if (!order)
-        {
+       if (!order) {
 	       for (int i=0; i<non_empty_cells; i++)
                 d_table->setText(valid_cell[i], col, QLocale().toString(r[i], f, prec));
-        }
-        else
-        {
+        } else {
             for (int i=0; i<non_empty_cells; i++)
                 d_table->setText(valid_cell[i], col, QLocale().toString(r[non_empty_cells-i-1], f, prec));
         }
@@ -2429,7 +2415,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 
 void Table::importASCII(const QString &fname, const QString &sep, int ignoredLines,
 		bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable)
-{
+{		
 	QFile f(fname);
 	if (f.open(QIODevice::ReadOnly)) //| QIODevice::Text | QIODevice::Unbuffered ))
 	{
@@ -2455,7 +2441,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 
 		QStringList line = s.split(sep);
 		cols = (int)line.count();
-
+		
 		bool allNumbers = true;
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers
@@ -2610,8 +2596,7 @@ bool Table::exportASCII(const QString& fname, const QString& separator,
 		bool withLabels,bool exportSelection)
 {
 	QFile f(fname);
-	if ( !f.open( QIODevice::WriteOnly ) )
-	{
+	if ( !f.open( QIODevice::WriteOnly ) ){
 		QApplication::restoreOverrideCursor();
 		QMessageBox::critical(0, tr("QtiPlot - ASCII Export Error"),
 				tr("Could not write to file: <br><h4>"+fname+ "</h4><p>Please verify that you have the right to write to this location!").arg(fname));
@@ -2625,20 +2610,16 @@ bool Table::exportASCII(const QString& fname, const QString& separator,
 	int selectedCols = 0;
 	int topRow = 0, bottomRow = 0;
 	int *sCols;
-	if (exportSelection)
-	{
-		for (i=0; i<cols; i++)
-		{
+	if (exportSelection){
+		for (i=0; i<cols; i++){
 			if (d_table->isColumnSelected(i))
 				selectedCols++;
 		}
 
 		sCols = new int[selectedCols];
 		int aux = 1;
-		for (i=0; i<cols; i++)
-		{
-			if (d_table->isColumnSelected(i))
-			{
+		for (i=0; i<cols; i++){
+			if (d_table->isColumnSelected(i)){
 				sCols[aux] = i;
 				aux++;
 			}
@@ -2963,7 +2944,7 @@ void Table::restore(QString& spec)
 		for (i=0; i<list.count(); i++)
 		{
 			colTypes << Numeric;
-			col_format << "0/14";
+			col_format << "0/16";
 
 			QStringList l = list[i].split(";");
 			if (l.count() >= 1)

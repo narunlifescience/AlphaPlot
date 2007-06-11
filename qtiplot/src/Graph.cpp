@@ -4548,16 +4548,18 @@ void Graph::hideSelectedAxis()
 
 void Graph::showGrids()
 {
-	if (selectedAxis == QwtScaleDraw::LeftScale || selectedAxis == QwtScaleDraw::RightScale)
-	{
+	showGrid (selectedAxis);
+}
+
+void Graph::showGrid(int axis)
+{
+	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale){
 		grid.majorOnY = 1 - grid.majorOnY;
 		d_plot->grid()->enableY(grid.majorOnY);
 
 		grid.minorOnY = 1 - grid.minorOnY;
 		d_plot->grid()->enableYMin(grid.minorOnY);
-	}
-	else
-	{
+	} else {
 		grid.majorOnX = 1 - grid.majorOnX;
 		d_plot->grid()->enableX(grid.majorOnX);
 

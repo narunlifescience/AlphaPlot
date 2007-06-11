@@ -61,7 +61,7 @@ public:
   sipRes = PyString_FromString(sipCpp->windowLabel());
 %End
   void setWindowLabel(const QString&);
-
+  
   CaptionPolicy captionPolicy();
   void setCaptionPolicy(CaptionPolicy);
 
@@ -72,6 +72,8 @@ public:
   virtual void restore(const QStringList& );
   Folder* folder();
 
+  void askOnCloseEvent(bool)/PyName=confirmClose/;
+  
 private:
   MyWidget(const MyWidget&);
 };
@@ -282,6 +284,22 @@ private:
   LineMarker(const LineMarker&);
 };
 
+class LegendMarker // : QwtPlotMarker
+{
+%TypeHeaderCode
+#include "src/LegendMarker.h"
+%End
+public:
+  void setText(const QString&);
+  void setFrameStyle(int);
+  void setBackgroundColor(const QColor&);
+  void setFont(const QFont&);
+  void setOriginCoord(double, double);
+  
+private:
+  LegendMarker(const LegendMarker&);
+};
+
 class Graph : QWidget /PyName=Layer/
 {
 %TypeHeaderCode
@@ -315,12 +333,16 @@ public:
 %MethodCode
   sipCpp->legend()->setText(*a0);
 %End
+
+  LegendMarker* legend();
+  
   void setXAxisTitle(const QString& text) /PyName=setXTitle/;
   void setYAxisTitle(const QString& text) /PyName=setYTitle/;
 
   void setScale(int axis, double start, double end, double step = 0.0,
                 int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 
+  void showGrid(int axis = 2);
   void print();
   void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 
@@ -453,7 +475,9 @@ public:
 %End
   void saveFolder(Folder *folder, const QString& fn);
   Folder* projectFolder() /PyName=rootFolder/;
-
+  
+  void renameWindow(MyWidget *, const QString &);
+  
 private:
   ApplicationWindow(const ApplicationWindow&);
 };
