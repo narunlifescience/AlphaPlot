@@ -179,8 +179,7 @@ void ScriptEdit::insertFunction(const QString &fname)
 	QTextCursor cursor = textCursor();
 	QString markedText = cursor.selectedText();
 	cursor.insertText(fname+"("+markedText+")");
-	if(markedText.isEmpty())
-	{
+	if(markedText.isEmpty()){
 		// if no text is selected, place cursor inside the ()
 		// instead of after it
 		cursor.movePosition(QTextCursor::PreviousCharacter,QTextCursor::MoveAnchor,1);
@@ -209,8 +208,7 @@ void ScriptEdit::execute()
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
 	QTextCursor codeCursor = textCursor();
-	if (codeCursor.selectedText().isEmpty())
-	{
+	if (codeCursor.selectedText().isEmpty()){
 		codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 		codeCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
@@ -238,8 +236,7 @@ void ScriptEdit::evaluate()
 	QString fname = "<%1:%2>";
 	fname = fname.arg(name());
 	QTextCursor codeCursor = textCursor();
-	if (codeCursor.selectedText().isEmpty())
-	{
+	if (codeCursor.selectedText().isEmpty()){
 		codeCursor.movePosition(QTextCursor::StartOfLine, QTextCursor::MoveAnchor);
 		codeCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
 	}
@@ -251,8 +248,7 @@ void ScriptEdit::evaluate()
 	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
 	QVariant res = myScript->eval();
 	if (res.isValid())
-		if (!res.isNull() && res.canConvert(QVariant::String))
-		{
+		if (!res.isNull() && res.canConvert(QVariant::String)){
 			QString strVal = res.toString();
 			strVal.replace("\n", "\n#> ");
 			if (!strVal.isEmpty())
@@ -262,10 +258,6 @@ void ScriptEdit::evaluate()
 		}
 
 	setTextCursor(printCursor);
-}
-
-ScriptEdit::~ScriptEdit()
-{
 }
 
 void ScriptEdit::exportPDF(const QString& fileName)
@@ -287,9 +279,7 @@ void ScriptEdit::print()
 	QPrintDialog printDialog(&printer);
 	// TODO: Write a dialog to use more features of Qt4's QPrinter class
 	if (printDialog.exec() == QDialog::Accepted)
-	{
 		doc->print(&printer);
-	}
 }
 
 QString ScriptEdit::importASCII(const QString &filename)
@@ -305,8 +295,7 @@ QString ScriptEdit::importASCII(const QString &filename)
 		f = filename;
 	if (f.isEmpty()) return QString::null;
 	QFile file(f);
-	if (!file.open(IO_ReadOnly))
-	{
+	if (!file.open(IO_ReadOnly)){
 		QMessageBox::critical(this, tr("QtiPlot - Error Opening File"), tr("Could not open file \"%1\" for reading.").arg(f));
 		return QString::null;
 	}
@@ -331,6 +320,7 @@ QString ScriptEdit::exportASCII(const QString &filename)
 				tr("Save Text to File"), &selectedFilter, false);
 	else
 		fn = filename;
+		
 	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		QString baseName = fi.fileName();
@@ -341,18 +331,17 @@ QString ScriptEdit::exportASCII(const QString &filename)
 				fn.append(".py");
 		}
 
-		if ( QFile::exists(fn)){
-			QFile f(fn);
-			if ( !f.open( IO_WriteOnly ) ){
-				QMessageBox::critical(0, tr("QtiPlot - File Save Error"),
+		QFile f(fn);
+		if (!f.open(IO_WriteOnly)){
+			QMessageBox::critical(0, tr("QtiPlot - File Save Error"),
 						tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
-				return QString::null;
-			}
-			QTextStream t( &f );
-			t.setEncoding(QTextStream::UnicodeUTF8);
-			t << text();
-			f.close();
+			return QString::null;
 		}
+			
+		QTextStream t( &f );
+		t.setEncoding(QTextStream::UnicodeUTF8);
+		t << text();
+		f.close();
 	}
 	return fn;
 }

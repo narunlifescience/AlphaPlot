@@ -52,7 +52,6 @@ class ScriptEdit: public QTextEdit, public scripted
 
   public:
     ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
-    ~ScriptEdit();
 
     void customEvent(QEvent*);
     int lineNumber(int pos) const;
