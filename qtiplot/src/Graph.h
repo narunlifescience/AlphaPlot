@@ -225,7 +225,7 @@ class Graph: public QWidget
 		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 		//@}
 
-		void replot();
+		void replot(){d_plot->replot();};
 		void updatePlot();
 
 		//! \name Error Bars
@@ -341,7 +341,7 @@ class Graph: public QWidget
 		void addLegendItem(const QString& colName);
 		void insertLegend(const QStringList& lst, int fileVersion);
 		LegendMarker *legend();
-		void newLegend();
+		LegendMarker *newLegend();
 		LegendMarker *newLegend(const QString& text);
 		bool hasLegend(){return legendMarkerID >= 0;};
 
@@ -650,7 +650,12 @@ class Graph: public QWidget
 		void showAxisContextMenu(int axis);
 		void hideSelectedAxis();
 		void showGrids();
+		
+		//! Convenience function enabling the grid for QwtScaleDraw::Left and Bottom Scales
+		void showGrid();
+		//! Convenience function enabling the grid for a user defined axis
 		void showGrid(int axis);
+		
 		void showAxisDialog();
 		void showScaleDialog();
 

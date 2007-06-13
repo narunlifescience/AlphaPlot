@@ -463,7 +463,7 @@ void Table::setCommands(const QStringList& com)
 		commands << com[i].stripWhiteSpace();
 }
 
-void Table::setCommand(int col, const QString com)
+void Table::setCommand(int col, const QString& com)
 {
 	if(col<(int)commands.size())
 		commands[col]=com.stripWhiteSpace();

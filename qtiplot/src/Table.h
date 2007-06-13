@@ -227,7 +227,7 @@ public slots:
 	//! Set all column formulae.
 	void setCommands(const QString& com);
 	//! Set formula for column col.
-	void setCommand(int col, const QString com);
+	void setCommand(int col, const QString& com);
 	//! Compute specified cells from column formula.
 	bool calculate(int col, int startRow, int endRow);
 	//! Compute selected cells from column formulae; use current cell if there's no selection.

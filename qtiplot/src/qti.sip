@@ -210,6 +210,9 @@ public:
   sipCpp->sortColumns(l, a1, a2, *a3);
 %End
 
+	void setCommand(int, const QString&);
+	void setColComment(int, const QString&) /PyName=setComment/;
+
 private:
   Table(const Table&);
 };
@@ -276,10 +279,23 @@ class LineMarker // : QwtPlotMarker
 #include "src/LineMarker.h"
 %End
 public:
+
+  LineMarker();
+  
   QPoint startPoint() /PyName=start/;
-  void setStartPoint(QPoint) /PyName=setStart/;
+  void setStartPoint(double, double) /PyName=setStart/;
   QPoint endPoint() /PyName=end/;
-  void setEndPoint(QPoint) /PyName=setEnd/;
+  void setEndPoint(double, double) /PyName=setEnd/;
+  
+  void setStyle(Qt::PenStyle);
+  void setColor(const QColor&);
+  void setWidth(int);
+  void drawStartArrow(bool = true);
+  void drawEndArrow(bool = true);
+  void setHeadLength(int);
+  void setHeadAngle(int);
+  void fillArrowHead(bool = true);
+  
 private:
   LineMarker(const LineMarker&);
 };
@@ -291,6 +307,7 @@ class LegendMarker // : QwtPlotMarker
 %End
 public:
   void setText(const QString&);
+  void setTextColor(const QColor&);
   void setFrameStyle(int);
   void setBackgroundColor(const QColor&);
   void setFont(const QFont&);
@@ -324,11 +341,12 @@ public:
 		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 		  bool through = true, bool minus = true, bool plus = true);
 
-  void insertLineMarker(LineMarker*);
-  LineMarker* lineMarker(long);
+  void insertLineMarker(LineMarker*) /PyName=addLine/;
+  LineMarker* lineMarker(long) /PyName=line/;
 
   void setTitle(const QString& t);
-  void newLegend();
+  LegendMarker* newLegend();
+  LegendMarker* newLegend(const QString&);
   void setLegend(const QString&) /NoDerived/;
 %MethodCode
   sipCpp->legend()->setText(*a0);
@@ -342,7 +360,9 @@ public:
   void setScale(int axis, double start, double end, double step = 0.0,
                 int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 
-  void showGrid(int axis = 2);
+  void showGrid(int);
+  void showGrid();
+  void replot();
   void print();
   void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 

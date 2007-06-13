@@ -221,6 +221,9 @@ except(ImportError): pass
 global QtGui
 from PyQt4 import QtGui
 
+global QtCore
+from PyQt4 import QtCore
+
 # import QtiPlot's classes to the global namespace (particularly useful for fits)
 from qti import *
 
@@ -231,7 +234,8 @@ appImports = (
 	"graph", "newGraph",
 	"note", "newNote",
 	"plot",
-	"activeFolder", "rootFolder"
+	"activeFolder", "rootFolder",
+	"renameWindow"
 	)
 for name in appImports:
 	setattr(__main__,name,getattr(qti.app,name))

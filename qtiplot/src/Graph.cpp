@@ -341,11 +341,6 @@ void Graph::setSelectedMarker(long mrk, bool add)
 	}
 }
 
-void Graph::replot()
-{
-	d_plot->replot();
-}
-
 void Graph::initFonts(const QFont &scaleTitleFnt, const QFont &numbersFnt)
 {
 	for (int i = 0;i<QwtPlot::axisCnt;i++)
@@ -2613,7 +2608,7 @@ QString Graph::saveGridOptions()
 	return s;
 }
 
-void Graph::newLegend()
+LegendMarker* Graph::newLegend()
 {
 	LegendMarker* mrk = new LegendMarker(d_plot);
 	mrk->setOrigin(QPoint(10, 10));
@@ -2635,6 +2630,7 @@ void Graph::newLegend()
 
 	emit modifiedGraph();
 	d_plot->replot();
+	return mrk;
 }
 
 void Graph::addTimeStamp()
@@ -4551,6 +4547,12 @@ void Graph::showGrids()
 	showGrid (selectedAxis);
 }
 
+void Graph::showGrid()
+{
+	showGrid(QwtScaleDraw::LeftScale);
+	showGrid(QwtScaleDraw::BottomScale);	
+}
+
 void Graph::showGrid(int axis)
 {
 	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale){
@@ -4559,13 +4561,15 @@ void Graph::showGrid(int axis)
 
 		grid.minorOnY = 1 - grid.minorOnY;
 		d_plot->grid()->enableYMin(grid.minorOnY);
-	} else {
+	} else if (axis == QwtScaleDraw::BottomScale || axis == QwtScaleDraw::TopScale){
 		grid.majorOnX = 1 - grid.majorOnX;
 		d_plot->grid()->enableX(grid.majorOnX);
 
 		grid.minorOnX = 1 - grid.minorOnX;
 		d_plot->grid()->enableXMin(grid.minorOnX);
-	}
+	} else
+		return;
+	
 	d_plot->replot();
 	emit modifiedGraph();
 }
