@@ -4502,13 +4502,10 @@ void Graph::showAxisContextMenu(int axis)
 	menu.insertItem(tr("&Hide axis"), this, SLOT(hideSelectedAxis()));
 
 	int gridsID = menu.insertItem(tr("&Show grids"), this, SLOT(showGrids()));
-	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale)
-	{
+	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale){
 		if (grid.majorOnY)
 			menu. setItemChecked(gridsID, true);
-	}
-	else
-	{
+	} else {
 		if (grid.majorOnX)
 			menu. setItemChecked(gridsID, true);
 	}
