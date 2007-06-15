@@ -319,31 +319,24 @@ int DataCurve::tableRow(int point)
 		return -1;
 
     int xColType = d_table->columnType(xcol);
-    if (xColType == Table::Date)
-    {
+    if (xColType == Table::Date){
         QString format = d_table->columnFormat(xcol);
         QDate date0 = QDate::fromString (d_table->text(d_start_row, xcol), format);
-        for (int i = d_start_row; i <= d_end_row; i++ )
-        {
+        for (int i = d_start_row; i <= d_end_row; i++ ){
             QDate d = QDate::fromString (d_table->text(i, xcol), format);
-            if (d.isValid())
-            {
+            if (d.isValid()){
                 if (d_type == Graph::HorizontalBars && date0.daysTo(d) == y(point) && d_table->cell(i, ycol) == x(point))
                     return i;
                 else if (date0.daysTo(d) == x(point) && d_table->cell(i, ycol) == y(point))
                     return i;
             }
         }
-    }
-    else if (xColType == Table::Time)
-    {
+    } else if (xColType == Table::Time){
         QString format = d_table->columnFormat(xcol);
         QTime t0 = QTime::fromString (d_table->text(d_start_row, xcol), format);
-        for (int i = d_start_row; i <= d_end_row; i++ )
-        {
+        for (int i = d_start_row; i <= d_end_row; i++ ){
             QTime t = QTime::fromString (d_table->text(i, xcol), format);
-            if (t.isValid())
-            {
+            if (t.isValid()){
                 if (d_type == Graph::HorizontalBars && t0.msecsTo(t) == y(point) && d_table->cell(i, ycol) == x(point))
                     return i;
                 if (t0.msecsTo(t) == x(point) && d_table->cell(i, ycol) == y(point))
@@ -352,9 +345,10 @@ int DataCurve::tableRow(int point)
         }
     }
 
-	for (int i = d_start_row; i <= d_end_row; i++ )
-	{
-		if (d_table->cell(i, xcol) == x(point) && d_table->cell(i, ycol) == y(point))
+	double x_val = x(point);
+	double y_val = y(point);
+	for (int i = d_start_row; i <= d_end_row; i++ ){
+		if (d_table->cell(i, xcol) == x_val && d_table->cell(i, ycol) == y_val)
 			return i;
 	}
 	return -1;

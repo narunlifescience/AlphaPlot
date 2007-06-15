@@ -61,7 +61,7 @@ public:
   sipRes = PyString_FromString(sipCpp->windowLabel());
 %End
   void setWindowLabel(const QString&);
-  
+
   CaptionPolicy captionPolicy();
   void setCaptionPolicy(CaptionPolicy);
 
@@ -73,7 +73,7 @@ public:
   Folder* folder();
 
   void askOnCloseEvent(bool)/PyName=confirmClose/;
-  
+
 private:
   MyWidget(const MyWidget&);
 };
@@ -210,8 +210,21 @@ public:
   sipCpp->sortColumns(l, a1, a2, *a3);
 %End
 
-	void setCommand(int, const QString&);
-	void setColComment(int, const QString&) /PyName=setComment/;
+	void setCommand(SIP_PYOBJECT, const QString&);
+%MethodCode
+  	sipIsErr = 0;
+  	CHECK_TABLE_COL(a0);
+	if (sipIsErr == 0)
+		sipCpp->setCommand(col, *a1);
+%End
+
+	void setComment(SIP_PYOBJECT, const QString&);
+%MethodCode
+  	sipIsErr = 0;
+  	CHECK_TABLE_COL(a0);
+	if (sipIsErr == 0)
+		sipCpp->setColComment(col, *a1);
+%End
 
 private:
   Table(const Table&);
@@ -281,12 +294,12 @@ class LineMarker // : QwtPlotMarker
 public:
 
   LineMarker();
-  
+
   QPoint startPoint() /PyName=start/;
   void setStartPoint(double, double) /PyName=setStart/;
   QPoint endPoint() /PyName=end/;
   void setEndPoint(double, double) /PyName=setEnd/;
-  
+
   void setStyle(Qt::PenStyle);
   void setColor(const QColor&);
   void setWidth(int);
@@ -295,7 +308,7 @@ public:
   void setHeadLength(int);
   void setHeadAngle(int);
   void fillArrowHead(bool = true);
-  
+
 private:
   LineMarker(const LineMarker&);
 };
@@ -312,7 +325,7 @@ public:
   void setBackgroundColor(const QColor&);
   void setFont(const QFont&);
   void setOriginCoord(double, double);
-  
+
 private:
   LegendMarker(const LegendMarker&);
 };
@@ -353,7 +366,7 @@ public:
 %End
 
   LegendMarker* legend();
-  
+
   void setXAxisTitle(const QString& text) /PyName=setXTitle/;
   void setYAxisTitle(const QString& text) /PyName=setYTitle/;
 
@@ -495,9 +508,9 @@ public:
 %End
   void saveFolder(Folder *folder, const QString& fn);
   Folder* projectFolder() /PyName=rootFolder/;
-  
+
   void renameWindow(MyWidget *, const QString &);
-  
+
 private:
   ApplicationWindow(const ApplicationWindow&);
 };

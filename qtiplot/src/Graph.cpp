@@ -4555,13 +4555,11 @@ void Graph::showGrid(int axis)
 	if (axis == QwtScaleDraw::LeftScale || axis == QwtScaleDraw::RightScale){
 		grid.majorOnY = 1 - grid.majorOnY;
 		d_plot->grid()->enableY(grid.majorOnY);
-
 		grid.minorOnY = 1 - grid.minorOnY;
 		d_plot->grid()->enableYMin(grid.minorOnY);
 	} else if (axis == QwtScaleDraw::BottomScale || axis == QwtScaleDraw::TopScale){
 		grid.majorOnX = 1 - grid.majorOnX;
 		d_plot->grid()->enableX(grid.majorOnX);
-
 		grid.minorOnX = 1 - grid.minorOnX;
 		d_plot->grid()->enableXMin(grid.minorOnX);
 	} else

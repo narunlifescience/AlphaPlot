@@ -1506,8 +1506,9 @@ int Table::nonEmptyRows()
 }
 
 double Table::cell(int row, int col)
-{
-	return stringToDouble(d_table->text(row, col));
+{	
+	//return stringToDouble(d_table->text(row, col));
+	return QLocale().toDouble(d_table->text(row, col));
 }
 
 void Table::setCell(int row, int col, double val)
@@ -1520,11 +1521,11 @@ void Table::setCell(int row, int col, double val)
 
 QString Table::text(int row, int col)
 {
-	return d_table->text(row,col);
+	return d_table->text(row, col);
 }
 
 void Table::setText (int row, int col, const QString & text )
-{
+{	
 	d_table->setText(row, col, text);
 }
 
