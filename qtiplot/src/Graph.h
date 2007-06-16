@@ -221,7 +221,8 @@ class Graph: public QWidget
 		//! Provided for convenience in scripts
 		void exportToFile(const QString& fileName);
 		void exportSVG(const QString& fname);
-		void exportVector(const QString& fileName, int res = 0, bool color = true);
+		void exportVector(const QString& fileName, int res = 0, bool color = true,
+                        bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
 		void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 		//@}
 
@@ -650,12 +651,12 @@ class Graph: public QWidget
 		void showAxisContextMenu(int axis);
 		void hideSelectedAxis();
 		void showGrids();
-		
+
 		//! Convenience function enabling the grid for QwtScaleDraw::Left and Bottom Scales
 		void showGrid();
 		//! Convenience function enabling the grid for a user defined axis
 		void showGrid(int axis);
-		
+
 		void showAxisDialog();
 		void showScaleDialog();
 

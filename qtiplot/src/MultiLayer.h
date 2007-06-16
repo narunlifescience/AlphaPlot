@@ -95,7 +95,7 @@ public:
 
 	bool printCropmarksEnabled(){return d_print_cropmarks;};
 	void printCropmarks(bool on){d_print_cropmarks = on;};
-	
+
 	void setHidden();
 
 public slots:
@@ -167,7 +167,8 @@ public slots:
 	void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
 	void exportSVG(const QString& fname);
     void exportPDF(const QString& fname);
-	void exportVector(const QString& fileName, int res = 0, bool color = true);
+	void exportVector(const QString& fileName, int res = 0, bool color = true,
+                    bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
 
 	void copyAllLayers();
 	void print();

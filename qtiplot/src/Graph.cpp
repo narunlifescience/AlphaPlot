@@ -1539,10 +1539,9 @@ void Graph::exportImage(const QString& fileName, int quality, bool transparent)
 	pic.save(fileName, 0, quality);
 }
 
-void Graph::exportVector(const QString& fileName, int res, bool color)
+void Graph::exportVector(const QString& fileName, int res, bool color, bool keepAspect, QPrinter::PageSize pageSize)
 {
-	if ( fileName.isEmpty() )
-	{
+	if ( fileName.isEmpty() ){
 		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
@@ -1557,25 +1556,45 @@ void Graph::exportVector(const QString& fileName, int res, bool color)
     if (fileName.contains(".eps"))
     	printer.setOutputFormat(QPrinter::PostScriptFormat);
 
-    QRect plotRect = d_plot->rect();
-    printer.setPageSize(minPageSize(printer, plotRect));
-
-	// export should preserve plot aspect ratio, if possible
-	double aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
-	if (aspect < 1)
-		printer.setOrientation(QPrinter::Portrait);
-	else
-		printer.setOrientation(QPrinter::Landscape);
-
-	if (color)
+    if (color)
 		printer.setColorMode(QPrinter::Color);
 	else
 		printer.setColorMode(QPrinter::GrayScale);
 
-    QRect paperRect = printer.paperRect();
-    int x_margin = (paperRect.width() - plotRect.width())/2;
-    int y_margin = (paperRect.height() - plotRect.height())/2;
-    plotRect.moveTo(x_margin, y_margin);
+    QRect plotRect = d_plot->rect();
+    if (pageSize == QPrinter::Custom)
+        printer.setPageSize(minPageSize(printer, plotRect));
+    else
+        printer.setPageSize(pageSize);
+
+    double plot_aspect = double(d_plot->frameGeometry().width())/double(d_plot->frameGeometry().height());
+	if (plot_aspect < 1)
+		printer.setOrientation(QPrinter::Portrait);
+	else
+		printer.setOrientation(QPrinter::Landscape);
+
+    if (keepAspect){// export should preserve plot aspect ratio
+        double page_aspect = double(printer.width())/double(printer.height());
+        if (page_aspect > plot_aspect){
+            int margin = (int) ((0.1/2.54)*printer.logicalDpiY()); // 1 mm margins
+            int height = printer.height() - 2*margin;
+            int width = height*plot_aspect;
+            int x = (printer.width()- width)/2;
+            plotRect = QRect(x, margin, width, height);
+        } else if (plot_aspect >= page_aspect){
+            int margin = (int) ((0.1/2.54)*printer.logicalDpiX()); // 1 mm margins
+            int width = printer.width() - 2*margin;
+            int height = width/plot_aspect;
+            int y = (printer.height()- height)/2;
+            plotRect = QRect(margin, y, width, height);
+        }
+	} else {
+	    int x_margin = (int) ((0.1/2.54)*printer.logicalDpiX()); // 1 mm margins
+        int y_margin = (int) ((0.1/2.54)*printer.logicalDpiY()); // 1 mm margins
+        int width = printer.width() - 2*x_margin;
+        int height = printer.height() - 2*y_margin;
+        plotRect = QRect(x_margin, y_margin, width, height);
+	}
 
     QPainter paint(&printer);
 	d_plot->print(&paint, plotRect);
@@ -4547,7 +4566,7 @@ void Graph::showGrids()
 void Graph::showGrid()
 {
 	showGrid(QwtScaleDraw::LeftScale);
-	showGrid(QwtScaleDraw::BottomScale);	
+	showGrid(QwtScaleDraw::BottomScale);
 }
 
 void Graph::showGrid(int axis)
@@ -4564,7 +4583,7 @@ void Graph::showGrid(int axis)
 		d_plot->grid()->enableXMin(grid.minorOnX);
 	} else
 		return;
-	
+
 	d_plot->replot();
 	emit modifiedGraph();
 }

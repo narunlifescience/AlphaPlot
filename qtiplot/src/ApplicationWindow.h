@@ -917,6 +917,14 @@ signals:
 
 // TODO: a lot of this stuff should be private
 public:
+    //! Last selected filter in export image dialog
+    QString d_image_export_filter;
+    bool d_keep_plot_aspect;
+    int d_export_vector_size;
+    bool d_export_transparency;
+    int d_export_quality;
+    int d_export_resolution;
+    bool d_export_color;
 	//! Locale used to specify the decimal separators in imported ASCII files
 	QLocale d_ASCII_import_locale;
     //! Last selected filter in import ASCII dialog

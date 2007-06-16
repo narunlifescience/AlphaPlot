@@ -3319,7 +3319,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 						w->parentWidget()->move(QPoint(0,0));
 					} else
 						w->parentWidget()->move(QPoint(i*dx,i*dy));
-					
+
 					if (update_dec_separators)
 						w->updateDecimalSeparators(local_separators);
 				}
@@ -4246,10 +4246,20 @@ void ApplicationWindow::readSettings()
 	renameColumns = settings.value("/RenameColumns", true).toBool();
 	strip_spaces = settings.value("/StripSpaces", false).toBool();
 	simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
-	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();	
+	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
 	d_ASCII_import_locale = settings.value("/AsciiImportLocale", QLocale::system().name()).toString();
 	d_import_dec_separators = settings.value("/UpdateDecSeparators", true).toBool();
 	settings.endGroup(); // Import ASCII
+
+    settings.beginGroup("/ExportImage");
+	d_image_export_filter = settings.value("/ImageFileTypeFilter", ".png").toString();
+	d_export_transparency = settings.value("/ExportTransparency", false).toBool();
+	d_export_quality = settings.value("/ImageQuality", 100).toInt();
+	d_export_resolution = settings.value("/Resolution", QPrinter().resolution()).toInt();
+	d_export_color = settings.value("/ExportColor", true).toBool();
+	d_export_vector_size = settings.value("/ExportPageSize", QPrinter::Custom).toInt();
+	d_keep_plot_aspect = settings.value("/KeepAspect", true).toBool();
+	settings.endGroup(); // ExportImage
 }
 
 void ApplicationWindow::saveSettings()
@@ -4478,6 +4488,16 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AsciiImportLocale", d_ASCII_import_locale.name());
 	settings.setValue("/UpdateDecSeparators", d_import_dec_separators);
 	settings.endGroup(); // ImportASCII
+
+    settings.beginGroup("/ExportImage");
+	settings.setValue("/ImageFileTypeFilter", d_image_export_filter);
+	settings.setValue("/ExportTransparency", d_export_transparency);
+	settings.setValue("/ImageQuality", d_export_quality);
+	settings.setValue("/Resolution", d_export_resolution);
+	settings.setValue("/ExportColor", d_export_color);
+	settings.setValue("/ExportPageSize", d_export_vector_size);
+	settings.setValue("/KeepAspect", d_keep_plot_aspect);
+	settings.endGroup(); // ExportImage
 }
 
 void ApplicationWindow::exportGraph()
@@ -4505,6 +4525,7 @@ void ApplicationWindow::exportGraph()
 
 	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL, d_extended_export_dialog);
 	ied->setDir(workingDir);
+    ied->selectFilter(d_image_export_filter);
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 	workingDir = ied->directory().path();
@@ -4529,7 +4550,7 @@ void ApplicationWindow::exportGraph()
 		if (plot3D)
 			plot3D->exportVector(file_name, selected_filter.remove("*."));
 		else if (plot2D)
-			plot2D->exportVector(file_name, ied->resolution(), ied->color());
+			plot2D->exportVector(file_name, ied->resolution(), ied->color(), ied->keepAspect(), ied->pageSize());
 	} else if (selected_filter.contains(".svg")) {
 		if (plot2D)
 			plot2D->exportSVG(file_name);
@@ -4559,6 +4580,7 @@ void ApplicationWindow::exportLayer()
 
 	ImageExportDialog *ied = new ImageExportDialog(this, g!=NULL, d_extended_export_dialog);
 	ied->setDir(workingDir);
+	ied->selectFilter(d_image_export_filter);
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 	workingDir = ied->directory().path();
@@ -4580,7 +4602,7 @@ void ApplicationWindow::exportLayer()
 	}
 
 	if (selected_filter.contains(".eps") || selected_filter.contains(".pdf") || selected_filter.contains(".ps"))
-		g->exportVector(file_name, ied->resolution(), ied->color());
+		g->exportVector(file_name, ied->resolution(), ied->color(), ied->keepAspect(), ied->pageSize());
 	else if (selected_filter.contains(".svg"))
 		g->exportSVG(file_name);
 	else {
@@ -4602,6 +4624,8 @@ void ApplicationWindow::exportAllGraphs()
 	ied->setLabelText(QFileDialog::FileName, tr("Directory:"));
 
 	ied->setDir(workingDir);
+    ied->selectFilter(d_image_export_filter);
+
 	if ( ied->exec() != QDialog::Accepted )
 		return;
 	workingDir = ied->directory().path();
