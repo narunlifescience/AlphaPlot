@@ -89,6 +89,8 @@ public:
 	//! Return whether the output's background should be transparent.
 	bool transparency() const { return d_transparency->isChecked(); }
 
+	void selectFilter(const QString & filter);
+	
 protected slots:
 	void closeEvent(QCloseEvent*);
 	//! Update which options are visible and enabled based on the output format.

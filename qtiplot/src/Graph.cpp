@@ -2686,7 +2686,7 @@ void Graph::insertLegend(const QStringList& lst, int fileVersion)
 }
 
 long Graph::insertTextMarker(const QStringList& list, int fileVersion)
-{
+{	
 	QStringList fList=list;
 	LegendMarker* mrk = new LegendMarker(d_plot);
 	long key = d_plot->insertMarker(mrk);
@@ -2704,7 +2704,7 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 	fnt.setUnderline(fList[7].toInt());
 	fnt.setStrikeOut(fList[8].toInt());
 	mrk->setFont(fnt);
-
+	
 	mrk->setAngle(fList[11].toInt());
 
     QString text = QString();
@@ -3516,6 +3516,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	addLegendItem(yColName);
 	updatePlot();
+
 	return true;
 }
 
@@ -3580,8 +3581,8 @@ void Graph::updatePlot()
 
 	d_plot->replot();
     updateMarkersBoundingRect();
-    if (isPiePlot())
-    {
+	
+    if (isPiePlot()){
         QwtPieCurve *c = (QwtPieCurve *)curve(0);
         c->updateBoundingRect();
     }
@@ -3768,12 +3769,10 @@ void Graph::removeLegendItem(int index)
 }
 
 void Graph::addLegendItem(const QString& colName)
-{
-	if (legendMarkerID >= 0 )
-	{
+{		
+	if (legendMarkerID >= 0 ){
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
-		if (mrk)
-		{
+		if (mrk){
 			QString text = mrk->text();
 			if (text.endsWith ( "\n", true ) )
 				text.append("\\c{"+QString::number(curves())+"}"+colName+"\n");
@@ -4038,8 +4037,9 @@ void Graph::addFunctionCurve(int type, const QStringList &formulas, const QStrin
 	c_keys.resize(n_curves);
 	c_keys[n_curves-1] = d_plot->insertCurve(c);
 
-	addLegendItem(c->legend());
+	addLegendItem(c->legend());		
 	updatePlot();
+
 	emit modifiedGraph();
 }
 

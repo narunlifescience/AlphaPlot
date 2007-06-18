@@ -291,3 +291,9 @@ else if (size >= 5 && size <= 8)
 else if (size > 8 && size <= 23)
     boxPageSize->setCurrentIndex(size - 4);
 }
+
+void ImageExportDialog::selectFilter(const QString & filter)
+{
+	QFileDialog::selectFilter(filter);
+	updateAdvancedOptions(filter);
+}

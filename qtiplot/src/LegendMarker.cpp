@@ -32,6 +32,7 @@
 
 #include <QPainter>
 #include <QPolygon>
+#include <QMessageBox>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -112,8 +113,8 @@ QRect LegendMarker::rect() const
 }
 
 QwtDoubleRect LegendMarker::boundingRect() const
-{
-	QRect bounding_rect = rect();
+{	
+	QRect bounding_rect = rect();	
 	const QwtScaleMap &x_map = d_plot->canvasMap(xAxis());
 	const QwtScaleMap &y_map = d_plot->canvasMap(yAxis());
 
@@ -418,32 +419,26 @@ int LegendMarker::symbolsMaxLineLength() const
 
 	int maxL=0;
 	QString text = d_text->text().trimmed();
-	QStringList titles = text.split("\n", QString::KeepEmptyParts);
-	for (int i=0;i<(int)titles.count();i++)
-	{
-		if (titles[i].contains("\\c{") && (int)cvs.size()>0)
-		{
+	QStringList titles = text.split("\n", QString::KeepEmptyParts);	
+	for (int i=0;i<(int)titles.count();i++){
+		if (titles[i].contains("\\c{") && (int)cvs.size()>0){
 		    QString aux;
-		    if (titles[i].contains("\\c{"))
-		    {//QtiPlot symbol specification
-                int pos=titles[i].find("{",0);
-                int pos2=titles[i].find("}",pos);
-                aux=titles[i].mid(pos+1,pos2-pos-1);
-		    }
-		    else if (titles[i].contains("\\l("))
-		    {//Origin project legend
-		        int pos=titles[i].find("(",0);
-                int pos2=titles[i].find(")",pos);
-                aux=titles[i].mid(pos+1,pos2-pos-1);
+		    if (titles[i].contains("\\c{")){//QtiPlot symbol specification
+                int pos=titles[i].find("{", 0);
+                int pos2=titles[i].find("}", pos);
+                aux=titles[i].mid(pos+1, pos2-pos-1);
+		    } else if (titles[i].contains("\\l(")){//Origin project legend
+		        int pos=titles[i].find("(", 0);
+                int pos2=titles[i].find(")", pos);
+                aux=titles[i].mid(pos+1, pos2-pos-1);
             }
 
-			int cv = aux.toInt()-1;
-			if (cv < 0)
+			int cv = aux.toInt()-1;			
+			if (cv < 0 || cv >= cvs.count())
 				continue;
 
 			const QwtPlotCurve *c = (QwtPlotCurve *)d_plot->curve(cvs[cv]);
-			if (c && c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
-			{
+			if (c && c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram) {
 				int l=c->symbol().size().width();
 				if (l < 3)
   	            	l = 3;
@@ -463,24 +458,20 @@ int LegendMarker::symbolsMaxLineLength() const
 QString LegendMarker::parse(const QString& str) const
 {
     QString s = str;
-    if (s.contains("\\c{") || s.contains("\\p{") || s.contains("\\l("))
-    {
+    if (s.contains("\\c{") || s.contains("\\p{") || s.contains("\\l(")){
         int pos = s.find("}",0);
         if (s.contains("\\l("))
             pos = s.find(")",0);
         s = s.right(s.length()-pos-1);
     }
 
-    if (s.contains("%("))
-    {//curve name specification
+    if (s.contains("%(")){//curve name specification
         int pos = s.find("%(",0);
         int pos2 = s.find(")",pos);
         int cv = s.mid(pos+2, pos2-pos-2).toInt() - 1;
-        if (cv >= 0)
-        {
+        if (cv >= 0){
 			Graph *g = (Graph *)d_plot->parent();
-			if (g)
-			{
+			if (g){
             	const QwtPlotCurve *c = (QwtPlotCurve *)g->curve(cv);
             	if (c)
                 	s = s.replace(pos, pos2-pos+1, c->title().text());

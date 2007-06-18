@@ -234,7 +234,7 @@ appImports = (
 	"graph", "newGraph",
 	"note", "newNote",
 	"plot",
-	"activeFolder", "rootFolder",
+	"activeFolder", "rootFolder", "saveFolder",
 	"renameWindow"
 	)
 for name in appImports:
