@@ -162,10 +162,9 @@ double Matrix::cell(int row, int col)
 {
 	if(dMatrix)
 		return dMatrix[row][col];
-	else
-	{
+	else {
 		if(d_table->item(row, col))
-		    return stringToDouble(d_table->item(row, col)->text());
+		    return QLocale().toDouble(d_table->item(row, col)->text());
 		else
 			return 0.0;
 	}

@@ -90,8 +90,7 @@ void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
 {
     int sh = 0, sw =0;
     const QwtSymbol symbol = d_master_curve->symbol();
-    if (symbol.style() != QwtSymbol::NoSymbol)
-    {
+    if (symbol.style() != QwtSymbol::NoSymbol){
         sh = symbol.size().height();
         sw = symbol.size().width();
     }
@@ -103,45 +102,37 @@ void QwtErrorPlotCurve::drawErrorBars(QPainter *painter,
 	else if (d_master_curve->type() == Graph::HorizontalBars)
 		d_yOffset = ((QwtBarCurve *)d_master_curve)->dataOffset();
 
-	for (int i = from; i <= to; i++)
-	{
+	for (int i = from; i <= to; i++){
 		const int xi = xMap.transform(x(i) + d_xOffset);
 		const int yi = yMap.transform(y(i) + d_yOffset);
 
-		if (type == Vertical)
-		{
+		if (type == Vertical){
 			const int yh = yMap.transform(y(i)+err[i]);
 			const int yl = yMap.transform(y(i)-err[i]);
 			const int yhl = yi - sh/2;
 			const int ylh = yi + sh/2;
 
-			if (plus)
-			{
+			if (plus){
 				QwtPainter::drawLine(painter, xi, yhl, xi, yh);
 				QwtPainter::drawLine(painter, xi-cap/2, yh, xi+cap/2, yh);
 			}
-			if (minus)
-			{
+			if (minus){
 				QwtPainter::drawLine(painter, xi, ylh, xi, yl);
 				QwtPainter::drawLine(painter, xi-cap/2, yl, xi+cap/2, yl);
 			}
 			if (through)
 				QwtPainter::drawLine(painter, xi, yhl, xi, ylh);
-		}
-		else if (type == Horizontal)
-		{
+		} else if (type == Horizontal) {
 			const int xp = xMap.transform(x(i)+err[i]);
 			const int xm = xMap.transform(x(i)-err[i]);
   			const int xpm = xi + sw/2;
   	        const int xmp = xi - sw/2;
 
-			if (plus)
-			{
+			if (plus){
 				QwtPainter::drawLine(painter, xp, yi, xpm, yi);
 				QwtPainter::drawLine(painter, xp, yi-cap/2, xp, yi+cap/2);
 			}
-			if (minus)
-			{
+			if (minus){
 				QwtPainter::drawLine(painter, xm, yi, xmp, yi);
 				QwtPainter::drawLine(painter, xm, yi-cap/2, xm, yi+cap/2);
 			}
@@ -197,30 +188,23 @@ QwtDoubleRect QwtErrorPlotCurve::boundingRect() const
 	int size = dataSize();
 
 	QwtArray <double> X(size), Y(size), min(size), max(size);
-	for (int i=0; i<size; i++)
-	{
+	for (int i=0; i<size; i++){
 		X[i]=x(i);
 		Y[i]=y(i);
-		if (type == Vertical)
-		{
+		if (type == Vertical){
 			min[i] = y(i) - err[i];
 			max[i] = y(i) + err[i];
-		}
-		else
-		{
+		} else {
 			min[i] = x(i) - err[i];
 			max[i] = x(i) + err[i];
 		}
 	}
 
 	QwtArrayData *erMin, *erMax;
-	if (type == Vertical)
-	{
+	if (type == Vertical) {
 		erMin=new QwtArrayData(X, min);
 		erMax=new QwtArrayData(X, max);
-	}
-	else
-	{
+	} else {
 		erMin=new QwtArrayData(min, Y);
 		erMax=new QwtArrayData(max, Y);
 	}
@@ -276,37 +260,28 @@ void QwtErrorPlotCurve::loadData()
     int r = abs(d_end_row - d_start_row) + 1;
 	QVector<double> X(r), Y(r), err(r);
     int data_size = 0;
-	for (int i = d_start_row; i <= d_end_row; i++)
-	{
+	for (int i = d_start_row; i <= d_end_row; i++){
 		QString xval = mt->text(i, xcol);
 		QString yval = mt->text(i, ycol);
 		QString errval = d_table->text(i, errcol);
-
-		if (!xval.isEmpty() && !yval.isEmpty() && !errval.isEmpty())
-		{
+		if (!xval.isEmpty() && !yval.isEmpty() && !errval.isEmpty()){
 		    bool ok = true;
 			if (xColType == Table::Text)
 				X[data_size] = (double)(data_size + 1);
 			else
-			{
-				X[data_size] = xval.toDouble(&ok);
-				if (!ok)
-                    X[data_size] = QLocale().toDouble(xval);
-			}
+				X[data_size] = QLocale().toDouble(xval, &ok);
 
 			if (yColType == Table::Text)
 				Y[data_size] = (double)(data_size + 1);
 			else
-			{
-				Y[data_size] = yval.toDouble(&ok);
-				if (!ok)
-                    Y[data_size] = QLocale().toDouble(yval);
-			}
+				Y[data_size] = QLocale().toDouble(yval, &ok);
 
-			err[data_size] = errval.toDouble(&ok);
-			if (!ok)
-                err[data_size] = QLocale().toDouble(errval);
-            data_size++;
+            if (!ok)
+                continue;
+
+			err[data_size] = QLocale().toDouble(errval, &ok);
+			if (ok)
+                data_size++;
 		}
 	}
 

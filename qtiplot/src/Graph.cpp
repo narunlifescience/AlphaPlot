@@ -3195,14 +3195,15 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		endRow = w->numRows() - 1;
 
 	QVarLengthArray<double> Y(abs(endRow - startRow) + 1);
-	for (int i = startRow; i<= endRow; i++)
-	{
+	for (int i = startRow; i<= endRow; i++){
 		QString yval = w->text(i,ycol);
-		if (!yval.isEmpty())
-		{
-			Y[size]=yval.toDouble();
-			sum += Y[size];
-			size++;
+		if (!yval.isEmpty()){
+		    bool valid_data = true;
+			Y[size] = QLocale().toDouble(yval, &valid_data);
+			if (valid_data){
+                sum += Y[size];
+                size++;
+			}
 		}
 	}
 	if (!size)
@@ -3229,8 +3230,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	double PI = 4*atan(1.0);
 	double angle = 90;
 
-	for (int i = 0; i<size; i++ )
-	{
+	for (int i = 0; i<size; i++ ){
 		const double value = Y[i]/sum*360;
 		double alabel = (angle - value*0.5)*PI/180.0;
 
@@ -3249,14 +3249,11 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		angle -= value;
 	}
 
-	if (legendMarkerID>=0)
-	{
+	if (legendMarkerID>=0){
 		LegendMarker* mrk=(LegendMarker*) d_plot->marker(legendMarkerID);
-		if (mrk)
-		{
+		if (mrk){
 			QString text="";
-			for (int i=0;i<size;i++)
-			{
+			for (int i=0; i<size; i++){
 				text+="\\p{";
 				text+=QString::number(i+1);
 				text+="} ";
@@ -3413,6 +3410,7 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 		QString xval=w->text(i,xcol);
 		QString yval=w->text(i,ycol);
 		if (!xval.isEmpty() && !yval.isEmpty()){
+		    bool valid_data = true;
 			if (xColType == Table::Text){
 				if (xLabels.contains(xval) == 0)
 					xLabels << xval;
@@ -3431,16 +3429,17 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 					X[size] = (double) date0.daysTo(d);
 			}
 			else
-                X[size] = Table::stringToDouble(xval);
+                X[size] = QLocale().toDouble(xval, &valid_data);
 
 			if (yColType == Table::Text){
 				yLabels << yval;
 				Y[size] = (double) (size + 1);
 			}
 			else
-                Y[size] = Table::stringToDouble(yval);
+                Y[size] = QLocale().toDouble(yval, &valid_data);
 
-            size++;
+            if (valid_data)
+                size++;
 		}
 	}
 
@@ -4868,8 +4867,7 @@ void Graph::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int
 	if (endRow < 0)
 		endRow = w->numRows() - 1;
 
-	for (int j = 0; j <(int)names.count(); j++)
-	{
+	for (int j = 0; j <(int)names.count(); j++){
         BoxCurve *c = new BoxCurve(w, names[j], startRow, endRow);
         c->setData(QwtSingleArrayData(double(j+1), QwtArray<double>(), 0));
         c->loadData();

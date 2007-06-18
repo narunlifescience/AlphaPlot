@@ -209,7 +209,4 @@ void MyWidget::setMaximized()
 	emit statusChanged (this);
 }
 
-double MyWidget::stringToDouble(const QString& s)
-{
-    return QLocale().toDouble(s);
-}
+

@@ -124,8 +124,7 @@ void DataCurve::loadData()
 	int xcol = d_table->colIndex(d_x_column);
 	int ycol = d_table->colIndex(title().text());
 
-	if (xcol < 0 || ycol < 0)
-	{
+	if (xcol < 0 || ycol < 0){
 		remove();
 		return;
 	}
@@ -140,26 +139,19 @@ void DataCurve::loadData()
 	QTime time0;
 	QDate date0;
 	QString date_time_fmt = d_table->columnFormat(xcol);
-	if (xColType == Table::Time)
-	{
-		for (int i = d_start_row; i <= d_end_row; i++ )
-		{
+	if (xColType == Table::Time){
+		for (int i = d_start_row; i <= d_end_row; i++ ){
 			QString xval=d_table->text(i,xcol);
-			if (!xval.isEmpty())
-			{
+			if (!xval.isEmpty()){
 				time0 = QTime::fromString (xval, date_time_fmt);
 				if (time0.isValid())
 					break;
 			}
 		}
-	}
-	else if (xColType == Table::Date)
-	{
-		for (int i = d_start_row; i <= d_end_row; i++ )
-		{
+	} else if (xColType == Table::Date){
+		for (int i = d_start_row; i <= d_end_row; i++ ){
 			QString xval=d_table->text(i,xcol);
-			if (!xval.isEmpty())
-			{
+			if (!xval.isEmpty()){
 				date0 = QDate::fromString (xval, date_time_fmt);
 				if (date0.isValid())
 					break;
@@ -168,99 +160,74 @@ void DataCurve::loadData()
 	}
 
 	int size = 0;
-	for (int i = d_start_row; i <= d_end_row; i++ )
-	{
+	for (int i = d_start_row; i <= d_end_row; i++ ){
 		QString xval = d_table->text(i,xcol);
 		QString yval = d_table->text(i,ycol);
-		if (!xval.isEmpty() && !yval.isEmpty())
-		{
-			if (xColType == Table::Text)
-			{
+		if (!xval.isEmpty() && !yval.isEmpty()){
+		    bool valid_data = true;
+			if (xColType == Table::Text){
 				xLabels << xval;
 				X[size] = (double)(size + 1);
-			}
-			else if (xColType == Table::Time)
-			{
+			} else if (xColType == Table::Time){
 				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size]= time0.msecsTo (time);
-			}
-			else if (xColType == Table::Date)
-			{
+			} else if (xColType == Table::Date){
 				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
 					X[size] = (double) date0.daysTo(d);
-			}
-			else
-				X[size] = Table::stringToDouble(xval);
+			} else
+				X[size] = QLocale().toDouble(xval, &valid_data);
 
-			if (yColType == Table::Text)
-			{
+			if (yColType == Table::Text){
 				yLabels << yval;
 				Y[size] = (double)(size + 1);
-			}
-			else
-				Y[size] = Table::stringToDouble(yval);
+			} else
+				Y[size] = QLocale().toDouble(yval, &valid_data);
 
-            size++;
+            if (valid_data)
+                size++;
 		}
 	}
 
     X.resize(size);
     Y.resize(size);
 
-	if (!size)
-	{
+	if (!size){
 		remove();
 		return;
-	}
-	else
-	{
-		if (d_type == Graph::HorizontalBars)
-		{
+	} else {
+		if (d_type == Graph::HorizontalBars){
 			setData(Y.data(), X.data(), size);
 			foreach(DataCurve *c, d_error_bars)
                 c->setData(Y.data(), X.data(), size);
-		}
-		else
-		{
+		} else {
 			setData(X.data(), Y.data(), size);
 			foreach(DataCurve *c, d_error_bars)
                 c->setData(X.data(), Y.data(), size);
 		}
 
-		if (xColType == Table::Text)
-		{
+		if (xColType == Table::Text){
 			if (d_type == Graph::HorizontalBars)
 				g->setLabelsTextFormat(QwtPlot::yLeft, Graph::Txt, d_x_column, xLabels);
 			else
                 g->setLabelsTextFormat(QwtPlot::xBottom, Graph::Txt, d_x_column, xLabels);
-		}
-		else if (xColType == Table::Time )
-		{
-			if (d_type == Graph::HorizontalBars)
-			{
+		} else if (xColType == Table::Time ){
+			if (d_type == Graph::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = time0.toString() + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Time, fmtInfo);
-			}
-			else
-			{
+			} else {
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
 				QString fmtInfo = time0.toString() + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Time, fmtInfo);
 			}
-		}
-		else if (xColType == Table::Date )
-		{
-			if (d_type == Graph::HorizontalBars)
-			{
+		} else if (xColType == Table::Date ) {
+			if (d_type == Graph::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Date, fmtInfo);
-			}
-			else
-			{
+			} else {
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
 				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Date, fmtInfo);

@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "BoxCurve.h"
 #include <QPainter>
+#include <QLocale>
 
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_statistics.h>
@@ -332,19 +333,20 @@ void BoxCurve::loadData()
 	QVector<double> Y(abs(d_end_row - d_start_row) + 1);
     int ycol = d_table->colIndex(title().text());
 	int size = 0;
-	for (int i = d_start_row; i <= d_end_row; i++)
-	{
+	for (int i = d_start_row; i <= d_end_row; i++){
 		QString s = d_table->text(i, ycol);
-        if (!s.isEmpty())
-            Y[size++] = Table::stringToDouble(s);
+        if (!s.isEmpty()){
+            bool valid_data = true;
+            Y[size] = QLocale().toDouble(s, &valid_data);
+            if (valid_data)
+                size++;
+        }
 	}
 
-	if (size>0)
-	{
+	if (size>0){
 		Y.resize(size);
 		gsl_sort (Y.data(), 1, size);
         setData(QwtSingleArrayData(this->x(0), Y, size));
-	}
-	else
+	} else
 		remove();
 }

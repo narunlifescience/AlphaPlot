@@ -1506,8 +1506,7 @@ int Table::nonEmptyRows()
 }
 
 double Table::cell(int row, int col)
-{	
-	//return stringToDouble(d_table->text(row, col));
+{
 	return QLocale().toDouble(d_table->text(row, col));
 }
 
@@ -1525,7 +1524,7 @@ QString Table::text(int row, int col)
 }
 
 void Table::setText (int row, int col, const QString & text )
-{	
+{
 	d_table->setText(row, col, text);
 }
 
@@ -1650,8 +1649,7 @@ void Table::setTextFormat(int col)
 
 void Table::setColNumericFormat(int f, int prec, int col, bool updateCells)
 {
-	if (colTypes[col] == Numeric)
-	{
+	if (colTypes[col] == Numeric){
 		int old_f, old_prec;
 		columnNumericFormat(col, &old_f, &old_prec);
 		if (old_f == f && old_prec == prec)
@@ -1665,11 +1663,9 @@ void Table::setColNumericFormat(int f, int prec, int col, bool updateCells)
         return;
 
     char format = 'g';
-	for (int i=0; i<d_table->numRows(); i++)
-	{
+	for (int i=0; i<d_table->numRows(); i++) {
 		QString t = text(i, col);
-		if (!t.isEmpty())
-		{
+		if (!t.isEmpty()) {
 			if (!f)
 				prec = 6;
 			else if (f == 1)
@@ -1680,7 +1676,7 @@ void Table::setColNumericFormat(int f, int prec, int col, bool updateCells)
 			if (d_saved_cells)
 				setText(i, col, QLocale().toString(d_saved_cells[col][i], format, prec));
 			else
-				setText(i, col, QLocale().toString(stringToDouble(t), format, prec));
+				setText(i, col, QLocale().toString(QLocale().toDouble(t), format, prec));
 		}
 	}
 }
@@ -2416,7 +2412,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 
 void Table::importASCII(const QString &fname, const QString &sep, int ignoredLines,
 		bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable)
-{		
+{
 	QFile f(fname);
 	if (f.open(QIODevice::ReadOnly)) //| QIODevice::Text | QIODevice::Unbuffered ))
 	{
@@ -2442,7 +2438,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 
 		QStringList line = s.split(sep);
 		cols = (int)line.count();
-		
+
 		bool allNumbers = true;
 		for (i=0; i<cols; i++)
 		{//verify if the strings in the line used to rename the columns are not all numbers

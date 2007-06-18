@@ -126,7 +126,6 @@ bool PluginFit::load(const QString& pluginName)
 		for (int i=0; i<d_p; i++)
 			d_param_explain << "";
 
-
 	fitFunction = (fitFunc) lib.resolve( "name" );
 	setName(QString(fitFunction()));
 

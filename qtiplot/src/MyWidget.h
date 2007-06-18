@@ -140,8 +140,6 @@ public:
 	//! Notifies the main application that the window has been modified
 	void notifyChanges(){emit modifiedWindow(this);};
 
-	static double stringToDouble(const QString& s);
-
 	void setNormal();
 	void setMinimized();
 	void setMaximized();

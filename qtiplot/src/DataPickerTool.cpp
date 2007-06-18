@@ -47,7 +47,8 @@ DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, 
 	QwtPlotPicker(graph->plotWidget()->canvas()),
 	PlotToolInterface(graph),
 	d_app(app),
-	d_mode(mode)
+	d_mode(mode),
+	d_move_mode(Free)
 {
 	d_selected_curve = NULL;
 
@@ -116,13 +117,16 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 
 	setAxis(d_selected_curve->xAxis(), d_selected_curve->yAxis());
 
+    d_restricted_move_pos = QPoint(plot()->transform(xAxis(), d_selected_curve->x(d_selected_point)),
+                                    plot()->transform(yAxis(), d_selected_curve->y(d_selected_point)));
+
     if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
     {
          emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
 			.arg(d_selected_point + 1)
-			.arg(QLocale().toString(d_selected_curve->x(d_selected_point), 'G', 15))
-			.arg(QLocale().toString(d_selected_curve->y(d_selected_point), 'G', 15)));
+			.arg(QLocale().toString(d_selected_curve->x(d_selected_point), 'G', d_app->d_decimal_digits))
+			.arg(QLocale().toString(d_selected_curve->y(d_selected_point), 'G', d_app->d_decimal_digits)));
     }
     else
     {
@@ -159,6 +163,15 @@ bool DataPickerTool::eventFilter(QObject *obj, QEvent *event)
 						emit selected(d_selected_curve, d_selected_point);
 					return true;
 			}
+        case QEvent::MouseMove:
+            if (((QMouseEvent *)event)->modifiers() == Qt::ControlModifier)
+                d_move_mode = Vertical;
+            else if (((QMouseEvent *)event)->modifiers() == Qt::AltModifier)
+                d_move_mode = Horizontal;
+            else
+                d_move_mode = Free;
+            break;
+
 		case QEvent::KeyPress:
 			if (keyEventFilter((QKeyEvent*)event))
 				return true;
@@ -284,8 +297,7 @@ void DataPickerTool::removePoint()
 {
 	if ( !d_selected_curve )
 		return;
-	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
-	{
+	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function){
 		QMessageBox::critical(d_graph, tr("QtiPlot - Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
@@ -298,8 +310,7 @@ void DataPickerTool::removePoint()
 	int col = t->colIndex(d_selected_curve->title().text());
 	if (t->columnType(col) == Table::Numeric)
 		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
-	else
-	{
+	else {
 		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
 					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
@@ -327,6 +338,18 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	double new_x_val = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
 	double new_y_val = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
 
+	switch (d_move_mode){
+        case Free:
+            d_restricted_move_pos = pos;
+        break;
+        case Vertical:
+            d_restricted_move_pos.setY(pos.y());
+        break;
+        case Horizontal:
+            d_restricted_move_pos.setX(pos.x());
+        break;
+    }
+
     d_selection_marker.setValue(new_x_val, new_y_val);
 	if (d_selection_marker.plot() == NULL)
 		d_selection_marker.attach(d_graph->plotWidget());
@@ -349,15 +372,30 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
 			.arg(row + 1)
-			.arg(QLocale().toString(new_x_val, 'G', 15))
-			.arg(QLocale().toString(new_y_val, 'G', 15)) );
+			.arg(QLocale().toString(new_x_val, 'G', d_app->d_decimal_digits))
+			.arg(QLocale().toString(new_y_val, 'G', d_app->d_decimal_digits)) );
 }
 
 void DataPickerTool::move(const QPoint &point)
 {
-	if (d_mode == Move)
-		movePoint(point);
-	QwtPlotPicker::move(point);
+	QPoint p = point;
+	if (d_mode == Move){
+	    switch (d_move_mode){
+	        case Free:
+                movePoint(point);
+            break;
+            case Vertical:
+                p = QPoint(d_restricted_move_pos.x(), point.y());
+                movePoint(p);
+            break;
+            case Horizontal:
+                p = QPoint(point.x(), d_restricted_move_pos.y());
+                movePoint(p);
+            break;
+	    }
+	}
+
+	QwtPlotPicker::move(p);
 }
 
 bool DataPickerTool::end(bool ok)

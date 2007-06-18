@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "QwtHistogram.h"
 #include <QPainter>
+#include <QLocale>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_histogram.h>
@@ -55,7 +56,6 @@ void QwtHistogram::draw(QPainter *painter,
 	if (to < 0)
 		to = dataSize() - 1;
 
-
 	painter->save();
 	painter->setPen(QwtPlotCurve::pen());
 	painter->setBrush(QwtPlotCurve::brush());
@@ -66,8 +66,7 @@ void QwtHistogram::draw(QPainter *painter,
 	const int half_width = int(0.5*(dx-bar_width));
 	const int xOffset = int(0.01*offset()*bar_width);
 
-	for (int i=from; i<=to; i++)
-	{
+	for (int i=from; i<=to; i++){
 		const int px1 = xMap.transform(x(i));
 		const int py1 = yMap.transform(y(i));
 		painter->drawRect(px1+half_width+xOffset,py1,bar_width+1,(ref-py1+1));
@@ -101,18 +100,19 @@ void QwtHistogram::loadData()
 
     int ycol = d_table->colIndex(title().text());
 	int size = 0;
-	for (int i = 0; i<r; i++ )
-	{
+	for (int i = 0; i<r; i++ ){
 		QString yval = d_table->text(i, ycol);
-		if (!yval.isEmpty())
-            Y[size++] = Table::stringToDouble(yval);
+		if (!yval.isEmpty()){
+		    bool valid_data = true;
+            Y[size] = QLocale().toDouble(yval, &valid_data);
+            if (valid_data)
+                size++;
+		}
 	}
-	if(size < 2 || (size==2 && Y[0] == Y[1]))
-	{//non valid histogram
+	if(size < 2 || (size==2 && Y[0] == Y[1])){//non valid histogram
 		double X[2];
 		Y.resize(2);
-		for (int i = 0; i<2; i++ )
-		{
+		for (int i = 0; i<2; i++ ){
 			Y[i] = 0;
 			X[i] = 0;
 		}
@@ -122,8 +122,7 @@ void QwtHistogram::loadData()
 
 	int n;
 	gsl_histogram *h;
-	if (d_autoBin)
-	{
+	if (d_autoBin){
 		n = 10;
 		h = gsl_histogram_alloc (n);
 		if (!h)
@@ -142,9 +141,7 @@ void QwtHistogram::loadData()
 		d_bin_size = (d_end - d_begin)/(double)n;
 
 		gsl_histogram_set_ranges_uniform (h, floor(min), ceil(max));
-	}
-	else
-	{
+	} else {
 		n = int((d_end - d_begin)/d_bin_size + 1);
 		h = gsl_histogram_alloc (n);
 		if (!h)
@@ -163,8 +160,7 @@ void QwtHistogram::loadData()
 
 	double X[n]; //stores ranges (x) and bins (y)
 	Y.resize(n);
-	for (int i = 0; i<n; i++ )
-	{
+	for (int i = 0; i<n; i++ ){
 		Y[i] = gsl_histogram_get (h, i);
 		double lower, upper;
 		gsl_histogram_get_range (h, i, &lower, &upper);
@@ -185,8 +181,7 @@ void QwtHistogram::initData(const QVector<double>& Y, int size)
 	if(size<2 || (size == 2 && Y[0] == Y[1]))
 	{//non valid histogram data
 		double x[2], y[2];
-		for (int i = 0; i<2; i++ )
-		{
+		for (int i = 0; i<2; i++ ){
 			y[i] = 0;
 			x[i] = 0;
 		}
@@ -217,8 +212,7 @@ void QwtHistogram::initData(const QVector<double>& Y, int size)
 	for (int i = 0; i<size; i++ )
 		gsl_histogram_increment (h, Y[i]);
 
-	for (int i = 0; i<n; i++ )
-	{
+	for (int i = 0; i<n; i++ ){
 		y[i] = gsl_histogram_get (h, i);
 		double lower, upper;
 		gsl_histogram_get_range (h, i, &lower, &upper);

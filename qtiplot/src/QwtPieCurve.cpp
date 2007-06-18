@@ -33,6 +33,7 @@
 #include <QPaintDevice>
 #include <QPainter>
 #include <QVarLengthArray>
+#include <QLocale>
 
 QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
 	DataCurve(t, QString(), name, startRow, endRow)
@@ -73,16 +74,14 @@ void QwtPieCurve::drawPie(QPainter *painter,
 	pieRect.setHeight(d);
 
 	double sum = 0.0;
-	for (int i = from; i <= to; i++)
-	{
+	for (int i = from; i <= to; i++){
 		const double yi = y(i);
 		sum += yi;
 	}
 
 	int angle = (int)(5760 * 0.75);
 	painter->save();
-	for (int i = from; i <= to; i++)
-	{
+	for (int i = from; i <= to; i++){
 		const double yi = y(i);
 		const int value = (int)(yi/sum*5760);
 
@@ -116,11 +115,14 @@ void QwtPieCurve::loadData()
 	QVarLengthArray<double> X(abs(d_end_row - d_start_row) + 1);
 	int size = 0;
 	int ycol = d_table->colIndex(title().text());
-	for (int i = d_start_row; i <= d_end_row; i++ )
-	{
+	for (int i = d_start_row; i <= d_end_row; i++ ){
 		QString xval = d_table->text(i, ycol);
-		if (!xval.isEmpty())
-            X[size++] = Table::stringToDouble(xval);
+		bool valid_data = true;
+		if (!xval.isEmpty()){
+            X[size] = QLocale().toDouble(xval, &valid_data);
+            if (valid_data)
+                size++;
+		}
 	}
 	X.resize(size);
 	setData(X.data(), X.data(), size);
