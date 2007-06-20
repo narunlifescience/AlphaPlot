@@ -949,6 +949,8 @@ public:
 	bool generateUniformFitPoints;
 	bool generatePeakCurves;
 	int peakCurvesColor;
+	//! User defined size for the Add/Remove curves dialog
+	QSize d_add_curves_dialog_size;
 
 	//! Scale the errors output in fit operations with reduced chi^2
 	bool fit_scale_errors;

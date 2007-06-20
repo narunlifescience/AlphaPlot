@@ -4050,7 +4050,12 @@ void ApplicationWindow::readSettings()
 	d_extended_export_dialog = settings.value("/ExtendedExportDialog", true).toBool();
 	d_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
 	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
-	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();//used by CurvesDialog
+	
+	settings.beginGroup("/AddRemoveCurves");
+	d_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(), 
+									settings.value("/Height", 400).toInt());
+	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
+	settings.endGroup(); // AddRemoveCurves Dialog
 	settings.endGroup(); // Dialogs
 
 	settings.beginGroup("/Colors");
@@ -4296,7 +4301,11 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/ExtendedExportDialog", d_extended_export_dialog);
 	settings.setValue("/ExtendedImportAsciiDialog", d_extended_import_ASCII_dialog);
 	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
+	settings.beginGroup("/AddRemoveCurves");
+	settings.setValue("/Width", d_add_curves_dialog_size.width());
+	settings.setValue("/Height", d_add_curves_dialog_size.height());
 	settings.setValue("/ShowCurrentFolder", d_show_current_folder);
+	settings.endGroup(); // AddRemoveCurves Dialog
 	settings.endGroup(); // Dialogs
 
 	settings.beginGroup("/Colors");
@@ -5040,8 +5049,7 @@ void ApplicationWindow::showCurvesDialog()
 	if (!ws->activeWindow() || !ws->activeWindow()->isA("MultiLayer"))
 		return;
 
-	if (((MultiLayer*)ws->activeWindow())->isEmpty())
-	{
+	if (((MultiLayer*)ws->activeWindow())->isEmpty()){
 		QMessageBox::warning(this,tr("QtiPlot - Error"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
@@ -5052,16 +5060,14 @@ void ApplicationWindow::showCurvesDialog()
 	if (!g)
 		return;
 
-	if (g->isPiePlot())
-	{
+	if (g->isPiePlot()){
 		QMessageBox::warning(this,tr("QtiPlot - Error"),
 				tr("This functionality is not available for pie plots!"));
-	}
-	else
-	{
+	} else {
 		CurvesDialog* crvDialog = new CurvesDialog(this, "curves", true);
 		crvDialog->setAttribute(Qt::WA_DeleteOnClose);
 		crvDialog->setGraph(g);
+		crvDialog->resize(d_add_curves_dialog_size);
 		crvDialog->show();
 	}
 }
@@ -9829,7 +9835,7 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
                     continue;
 
 		        if (d_file_version < 90 && w->columnType(col) == Table::Numeric)
-                    w->setCell(row, col, QLocale::c().toDouble(cell));
+                    w->setCell(row, col, QLocale::c().toDouble(cell.replace(",", ".")));
 		        else
                     w->setText(row, col, cell);
 		    }

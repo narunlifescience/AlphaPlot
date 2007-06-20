@@ -62,6 +62,8 @@ private slots:
 	void showCurrentFolder(bool);
 
 private:
+	void closeEvent(QCloseEvent*);
+
     void init();
     bool addCurve(const QString& name);
     QSize sizeHint() const;

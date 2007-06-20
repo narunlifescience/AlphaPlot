@@ -74,7 +74,6 @@ CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::
 	boxStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
 	boxStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
 	boxStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
-	boxStyle->hide();
     hl->addWidget(boxStyle);
 
     boxMatrixStyle = new QComboBox();
@@ -237,7 +236,7 @@ void CurvesDialog::showFunctionDialog()
 
 QSize CurvesDialog::sizeHint() const
 {
-	return QSize(600, 300);
+	return QSize(700, 400);
 }
 
 void CurvesDialog::contextMenuEvent(QContextMenuEvent *e)
@@ -274,15 +273,13 @@ void CurvesDialog::contextMenuEvent(QContextMenuEvent *e)
 void CurvesDialog::init()
 {
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
-    if (app)
-    {
+    if (app){
 		bool currentFolderOnly = app->d_show_current_folder;
         boxShowCurrentFolder->setChecked(currentFolderOnly);
 		showCurrentFolder(currentFolderOnly);
 
         QStringList matrices = app->matrixNames();
-        if (!matrices.isEmpty ())
-        {
+        if (!matrices.isEmpty ()){
             boxMatrixStyle->show();
             available->addItems(matrices);
         }
@@ -326,11 +323,9 @@ void CurvesDialog::addCurves()
 {
 	QStringList emptyColumns;
     QList<QListWidgetItem *> lst = available->selectedItems();
-    for (int i = 0; i < lst.size(); ++i)
-    {
+    for (int i = 0; i < lst.size(); ++i){
         QString text = lst.at(i)->text();
-        if (contents->findItems(text, Qt::MatchExactly ).isEmpty ())
-			{
+        if (contents->findItems(text, Qt::MatchExactly ).isEmpty ()){
 			if (!addCurve(text))
 				emptyColumns << text;
 			}
@@ -422,12 +417,10 @@ bool CurvesDialog::addCurve(const QString& name)
 void CurvesDialog::removeCurves()
 {
 	QList<QListWidgetItem *> lst = contents->selectedItems();
-	for (int i = 0; i < lst.size(); ++i)
-    {
+	for (int i = 0; i < lst.size(); ++i){
         QListWidgetItem *it = lst.at(i);
         QString s = it->text();
-        if (boxShowRange->isChecked())
-        {
+        if (boxShowRange->isChecked()){
             QStringList lst = s.split("[");
             s = lst[0];
         }
@@ -550,4 +543,13 @@ void CurvesDialog::showCurrentFolder(bool currentFolder)
     }
 	else
         available->addItems(app->columnsList(Table::Y));
+}
+
+void CurvesDialog::closeEvent(QCloseEvent* e)
+{
+	ApplicationWindow *app = (ApplicationWindow *)this->parent();
+	if (app)
+		app->d_add_curves_dialog_size = this->size();
+
+	e->accept();
 }
