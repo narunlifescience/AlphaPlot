@@ -364,6 +364,16 @@ QFont Graph::axisFont(int axis)
 	return d_plot->axisFont (axis);
 }
 
+void Graph::enableAxis(int axis, bool on)
+{
+	d_plot->enableAxis(axis, on);
+	QwtScaleWidget *scale = (QwtScaleWidget *)d_plot->axisWidget(axis);
+	if (scale)
+		scale->setMargin(0);
+	
+	scalePicker->refresh();
+}
+
 void Graph::enableAxes(const QStringList& list)
 {
 	int i;
@@ -452,15 +462,12 @@ void Graph::setLabelsNumericFormat(int axis, int format, int prec, const QString
 	ScaleDraw *sd_old = (ScaleDraw *)d_plot->axisScaleDraw (axis);
 	const QwtScaleDiv div = sd_old->scaleDiv ();
 
-	if (format == Plot::Superscripts)
-	{
+	if (format == Plot::Superscripts){
 		QwtSupersciptsScaleDraw *sd = new QwtSupersciptsScaleDraw(formula.ascii());
 		sd->setLabelFormat('s', prec);
 		sd->setScaleDiv(div);
 		d_plot->setAxisScaleDraw (axis, sd);
-	}
-	else
-	{
+	} else {
 		ScaleDraw *sd = new ScaleDraw(formula.ascii());
 		sd->setScaleDiv(div);
 
@@ -1405,8 +1412,7 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 	d_plot->setAxisMaxMajor (axis, majorTicks);
 	d_plot->setAxisMaxMinor (axis, minorTicks);
 
-	if (inverted)
-	{
+	if (inverted){
 		sc_engine->setAttribute(QwtScaleEngine::Inverted);
 		div.invert();
 	}
@@ -1419,8 +1425,7 @@ void Graph::setScale(int axis, double start, double end, double step, int majorT
 
 	d_user_step[axis] = step;
 
-	if (axis == QwtPlot::xBottom || axis == QwtPlot::yLeft)
-  	{
+	if (axis == QwtPlot::xBottom || axis == QwtPlot::yLeft){
   		updateSecondaryAxis(QwtPlot::xTop);
   	    updateSecondaryAxis(QwtPlot::yRight);
   	}
@@ -1482,24 +1487,21 @@ QPixmap Graph::graphPixmap()
 
 void Graph::exportToFile(const QString& fileName)
 {
-	if ( fileName.isEmpty() )
-	{
+	if ( fileName.isEmpty() ){
 		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
-	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps"))
-	{
+	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps")){
 		exportVector(fileName);
 		return;
-	}
-	else
-	{
+	} else if(fileName.contains(".svg")){
+		exportSVG(fileName);
+		return;
+	} else {
 		QList<QByteArray> list = QImageWriter::supportedImageFormats();
-    	for(int i=0 ; i<list.count() ; i++)
-		{
-			if (fileName.contains( "." + list[i].toLower()))
-			{
+    	for(int i=0 ; i<list.count() ; i++){
+			if (fileName.contains( "." + list[i].toLower())){
 				exportImage(fileName);
 				return;
 			}
@@ -1512,8 +1514,7 @@ void Graph::exportImage(const QString& fileName, int quality, bool transparent)
 {
 	QPixmap pic = graphPixmap();
 
-	if (transparent)
-	{
+	if (transparent){
 		QBitmap mask(pic.size());
 		mask.fill(Qt::color1);
 		QPainter p;
@@ -1523,10 +1524,8 @@ void Graph::exportImage(const QString& fileName, int quality, bool transparent)
         QColor background = QColor (Qt::white);
 		QRgb backgroundPixel = background.rgb ();
 		QImage image = pic.convertToImage();
-		for (int y=0; y<image.height(); y++)
-		{
-			for ( int x=0; x<image.width(); x++ )
-			{
+		for (int y=0; y<image.height(); y++){
+			for ( int x=0; x<image.width(); x++ ){
 				QRgb rgb = image.pixel(x, y);
 				if (rgb == backgroundPixel) // we want the frame transparent
 					p.drawPoint(x, y);
@@ -2079,7 +2078,7 @@ void Graph::drawCanvasFrame(const QStringList& frame)
 	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
 	canvas->setLineWidth((frame[1]).toInt());
 
-	QPalette pal =canvas->palette();
+	QPalette pal = canvas->palette();
 	pal.setColor(QColorGroup::Foreground,QColor(frame[2]));
 	canvas->setPalette(pal);
 }
@@ -4254,7 +4253,7 @@ void Graph::scaleFonts(double factor)
 	d_plot->replot();
 }
 
-void Graph::changeMargin (int d)
+void Graph::setMargin (int d)
 {
 	if (d_plot->margin() == d)
 		return;
@@ -4263,7 +4262,7 @@ void Graph::changeMargin (int d)
 	emit modifiedGraph();
 }
 
-void Graph::setBorder (int width, const QColor& color)
+void Graph::setFrame (int width, const QColor& color)
 {
 	if (d_plot->frameColor() == color && width == d_plot->lineWidth())
 		return;
@@ -4596,7 +4595,7 @@ void Graph::copy(Graph* g)
 	setAntialiasing(g->antialiasing());
 
 	setBackgroundColor(plot->paletteBackgroundColor());
-	setBorder(plot->lineWidth(), plot->frameColor());
+	setFrame(plot->lineWidth(), plot->frameColor());
 	setCanvasBackground(plot->canvasBackground());
 
 	enableAxes(g->enabledAxes());

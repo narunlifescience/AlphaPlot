@@ -462,6 +462,7 @@ class Graph: public QWidget
 				int majTicksType, int minTicksType, bool labelsOn, const QColor& c, int format,
                 int prec, int rotation, int baselineDist, const QString& formula, const QColor& labelsColor);
 
+		void enableAxis(int axis, bool on = true);
 		QVector<bool> enabledAxes();
 		void enableAxes(QVector<bool> axesOn);
 		void enableAxes(const QStringList& list);
@@ -500,7 +501,7 @@ class Graph: public QWidget
 
 		void setLabelsNumericFormat(const QStringList& l);
 		void setLabelsNumericFormat(int axis, const QStringList& l);
-		void setLabelsNumericFormat(int axis, int format, int prec, const QString& formula);
+		void setLabelsNumericFormat(int axis, int format, int prec = 6, const QString& formula = QString());
 		void setLabelsDateTimeFormat(int axis, int type, const QString& formatInfo);
 		void setLabelsDayFormat(int axis, int format);
 		void setLabelsMonthFormat(int axis, int format);
@@ -559,8 +560,8 @@ class Graph: public QWidget
 
 		//! \name Border and Margin
 		//@{
-		void changeMargin (int d);
-		void setBorder (int width = 1, const QColor& color = QColor(Qt::black));
+		void setMargin (int d);
+		void setFrame(int width = 1, const QColor& color = QColor(Qt::black));
 		void setBackgroundColor(const QColor& color);
 		void setCanvasBackground(const QColor& color);
 		//@}

@@ -1803,8 +1803,8 @@ bool PlotDialog::acceptParams()
 			Graph* g = (Graph*)allPlots.at(i);
 			if (g)
 			{
-				g->setBorder(boxBorderWidth->value(), boxBorderColor->color());
-				g->changeMargin(boxMargin->value());
+				g->setFrame(boxBorderWidth->value(), boxBorderColor->color());
+				g->setMargin(boxMargin->value());
 
 				QColor c = boxBackgroundColor->color();
 				c.setAlpha(boxBackgroundTransparency->value());
@@ -2462,7 +2462,7 @@ void PlotDialog::pickBorderColor()
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
-				g->setBorder(boxBorderWidth->value(), c);
+				g->setFrame(boxBorderWidth->value(), c);
 		}
 	}
 	else
@@ -2472,7 +2472,7 @@ void PlotDialog::pickBorderColor()
             return;
         Graph *g = item->graph();
 		if (g)
-			g->setBorder(boxBorderWidth->value(), c);
+			g->setFrame(boxBorderWidth->value(), c);
 	}
 	d_ml->notifyChanges();
 }
@@ -2515,7 +2515,7 @@ void PlotDialog::updateBorder(int width)
 		{
 			Graph* g=(Graph*)allPlots.at(i);
 			if (g)
-				g->setBorder(width, boxBorderColor->color());
+				g->setFrame(width, boxBorderColor->color());
 		}
 	}
 	else
@@ -2525,7 +2525,7 @@ void PlotDialog::updateBorder(int width)
             return;
         Graph *g = item->graph();
 		if (g)
-			g->setBorder(width, boxBorderColor->color());
+			g->setFrame(width, boxBorderColor->color());
 	}
 	d_ml->notifyChanges();
 }
@@ -2542,7 +2542,7 @@ void PlotDialog::changeMargin(int width)
         {
             Graph* g=(Graph*)allPlots.at(i);
             if (g)
-                g->changeMargin(width);
+                g->setMargin(width);
         }
     }
     else
@@ -2552,7 +2552,7 @@ void PlotDialog::changeMargin(int width)
             return;
         Graph *g = item->graph();
         if (g)
-            g->changeMargin(width);
+            g->setMargin(width);
     }
 }
 

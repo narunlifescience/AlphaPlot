@@ -150,8 +150,7 @@ LayerButton* MultiLayer::addLayerButton()
 Graph* MultiLayer::addLayer(int x, int y, int width, int height)
 {
 	addLayerButton();
-	if (!width && !height)
-	{
+	if (!width && !height) {
 		width =	graph_width;
 		height = graph_height;
 	}
@@ -636,24 +635,21 @@ QPixmap MultiLayer::canvasPixmap()
 
 void MultiLayer::exportToFile(const QString& fileName)
 {
-	if ( fileName.isEmpty() )
-	{
+	if ( fileName.isEmpty() ){
 		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
-	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps"))
-	{
+	if (fileName.contains(".eps") || fileName.contains(".pdf") || fileName.contains(".ps")){
 		exportVector(fileName);
 		return;
-	}
-	else
-	{
+	} else if(fileName.contains(".svg")){
+		exportSVG(fileName);
+		return;
+	} else {
 		QList<QByteArray> list = QImageWriter::supportedImageFormats();
-    	for(int i=0 ; i<list.count() ; i++)
-		{
-			if (fileName.contains( "." + list[i].toLower()))
-			{
+    	for(int i=0 ; i<list.count() ; i++){
+			if (fileName.contains( "." + list[i].toLower())){
 				exportImage(fileName);
 				return;
 			}

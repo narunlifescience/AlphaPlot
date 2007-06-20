@@ -367,21 +367,36 @@ public:
 
   LegendMarker* legend();
 
+  void removeLegend();
+  void addTimeStamp();
+
+  void enableAxis(int axis, bool on = true);
   void setXAxisTitle(const QString& text) /PyName=setXTitle/;
   void setYAxisTitle(const QString& text) /PyName=setYTitle/;
 
+  void setLabelsNumericFormat(int axis, int format, int = 6, const QString& = QString()) /PyName=setAxisNumericFormat/;
   void setScale(int axis, double start, double end, double step = 0.0,
                 int majorTicks = 5, int minorTicks = 5, int type = 0, bool inverted = false);
 
+  void setMargin(int);
+  void setFrame(int width = 1, const QColor& color = QColor(Qt::black));
+  void setBackgroundColor(const QColor& color);
+  void setCanvasBackground(const QColor& color) /PyName=setCanvasColor/;
+		
   void showGrid(int);
   void showGrid();
   void replot();
   void print();
   void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
-
-  //void exportSVG(const QString& fname);
+  void exportVector(const QString& fileName, int res = 0, bool color = true,
+                    bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
   void exportToFile(const QString& fileName) /PyName=export/;
 
+  void enableAutoscaling(bool = true);
+  void setIgnoreResizeEvents(bool = true)/PyName=setIgnoreResize/;
+  void setAutoscaleFonts(bool = true);
+  void setAntialiasing(bool on = true, bool update = true);
+  
 private:
   Graph(const Graph&);
 };
@@ -396,10 +411,21 @@ public:
   void setActiveGraph(Graph*) /PyName=setActiveLayer/;
   int layers() /PyName=numLayers/;
   Graph* layer(int num);
-  Graph* addLayer();
-  //void exportSVG(const QString& fname);
+  Graph* addLayer(int = 0, int = 0, int = 0, int = 0);
+  
+  void setCols(int);
+  void setRows(int);
+  void setSpacing (int, int);
+  void setMargins (int, int, int, int);
+  void setLayerCanvasSize (int, int);
+  void setAlignement (int, int);
+  void arrangeLayers(bool fit = true, bool userSize = false);
+  
   void exportToFile(const QString& fileName) /PyName=export/;
   void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
+  void exportVector(const QString& fileName, int res = 0, bool color = true,
+                    bool keepAspect = true, QPrinter::PageSize pageSize = QPrinter::Custom);
+
   void print();
 private:
   MultiLayer(const MultiLayer&);
@@ -510,6 +536,7 @@ public:
   Folder* projectFolder() /PyName=rootFolder/;
 
   void renameWindow(MyWidget *, const QString &);
+  void customGraph(Graph*) /PyName=customLayer/;
 
 private:
   ApplicationWindow(const ApplicationWindow&);

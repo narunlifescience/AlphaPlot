@@ -3384,12 +3384,10 @@ void ApplicationWindow::open()
 				QString fn = open_dialog->selectedFiles()[0];
 				QFileInfo fi(fn);
 
-				if (projectname != "untitled")
-				{
+				if (projectname != "untitled"){
 					QFileInfo fi(projectname);
 					QString pn = fi.absFilePath();
-					if (fn == pn)
-					{
+					if (fn == pn){
 						QMessageBox::warning(this, tr("QtiPlot - File openning error"),
 								tr("The file: <b>%1</b> is the current file!").arg(fn));
 						return;
@@ -3400,8 +3398,7 @@ void ApplicationWindow::open()
 						fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
 						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
 				{
-					if (!fi.exists ())
-					{
+					if (!fi.exists ()){
 						QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 								tr("The file: <b>%1</b> doesn't exist!").arg(fn));
 						return;
@@ -3410,16 +3407,13 @@ void ApplicationWindow::open()
 					saveSettings();//the recent projects must be saved
 
 					ApplicationWindow *a = open (fn);
-					if (a)
-					{
+					if (a){
 						a->workingDir = workingDir;
 						if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
                             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
                             this->close();
 					}
-				}
-				else
-				{
+				} else {
 					QMessageBox::critical(this,tr("QtiPlot - File openning error"),
 							tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
 					return;
@@ -3437,6 +3431,8 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	if (fn.endsWith(".opj", Qt::CaseInsensitive) || fn.endsWith(".ogm", Qt::CaseInsensitive) ||
 		fn.endsWith(".ogw", Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
 		return importOPJ(fn);
+	else if (fn.endsWith(".py", Qt::CaseInsensitive))
+		return loadScript(fn);
 	else if (!( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
                 fn.endsWith(".qti~",Qt::CaseInsensitive)))
 		return plotFile(fn);
@@ -9941,7 +9937,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.contains ("Border"))
 		{
 			QStringList fList=s.split("\t");
-			ag->setBorder(fList[1].toInt(), QColor(fList[2]));
+			ag->setFrame(fList[1].toInt(), QColor(fList[2]));
 		}
 		else if (s.contains ("EnabledAxes"))
 		{
@@ -12459,8 +12455,8 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	if(num_args == 0) return;
 
 	QString str;
-	foreach(str, args)
-	{
+	bool exec = false;
+	foreach(str, args){
 		if( (str == "-a" || str == "--about") ||
 				(str == "-m" || str == "--manual") )
 		{
@@ -12489,8 +12485,9 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += "-h " + tr("or") + " --help: " + tr("show command line options") + "\n";
 			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
 			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
-			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n\n";
-			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg or ASCII file") + "\n";
+			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n";
+			s += "-x " + tr("or") + " --execute: " + tr("execute the script file given as argument") + "\n\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file") + "\n";
 			#ifdef Q_OS_WIN
                 hide();
 				QMessageBox::information(this, tr("QtiPlot - Help"), s);
@@ -12509,6 +12506,8 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 				QMessageBox::critical(this, tr("QtiPlot - Error"),
 						tr("<b> %1 </b>: Wrong locale option or no translation available!").arg(locale));
 		}
+		else if (str.startsWith("--execute") || str.startsWith("-x"))
+			exec = true;
 		else if (str.startsWith("-") || str.startsWith("--"))
 		{
 			QMessageBox::critical(this, tr("QtiPlot - Error"),
@@ -12519,23 +12518,17 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	QString file_name = args[num_args-1]; // last argument
 	if(file_name.startsWith("-")) return; // no file name given
 
-	if (!file_name.isEmpty())
-	{
+	if (!file_name.isEmpty()){
 		QFileInfo fi(file_name);
-		if (fi.isDir())
-		{
+		if (fi.isDir()){
 			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 					tr("<b>%1</b> is a directory, please specify a file name!").arg(file_name));
 			return;
-		}
-		else if (!fi.isReadable())
-		{
+		} else if (!fi.isReadable()) {
 			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 					tr("You don't have the permission to open this file: <b>%1</b>").arg(file_name));
 			return;
-		}
-		else if (!fi.exists())
-		{
+		} else if (!fi.exists()) {
 			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
 					tr("The file: <b>%1</b> doesn't exist!").arg(file_name));
 			return;
@@ -12544,9 +12537,13 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 		workingDir = fi.dirPath(true);
 		saveSettings();//the recent projects must be saved
 
-		ApplicationWindow *a = open(file_name);
-		if (a)
-		{
+		ApplicationWindow *a;
+		if (exec)
+			a = loadScript(file_name, exec);
+		else
+			a = open(file_name);
+		
+		if (a){
 			a->workingDir = workingDir;
 			close();
 		}
@@ -14123,4 +14120,18 @@ void ApplicationWindow::cascade()
         y += yoffset;
     }
     modifiedProject();
+}
+
+ApplicationWindow * ApplicationWindow::loadScript(const QString& fn, bool execute)
+{
+	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+	ApplicationWindow *app= new ApplicationWindow();
+	app->applyUserSettings();
+	app->showMaximized();
+	app->showScriptWindow();
+	app->scriptWindow->open(fn);
+	QApplication::restoreOverrideCursor();
+	if (execute)
+		app->scriptWindow->executeAll();
+	return app;
 }

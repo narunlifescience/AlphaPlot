@@ -160,6 +160,14 @@ public slots:
 	 */
 	ApplicationWindow * plotFile(const QString& fn);
 
+	/**
+	 * \brief Create a new project from a script file.
+	 *
+	 * \param fn is read as a Python script file and loaded in the command script window.
+	 * \param execute specifies if the script should be executed after opening.
+	 */
+	ApplicationWindow * loadScript(const QString& fn, bool execute = false);
+
 	QWidgetList * windowsList();
 	void updateWindowLists(MyWidget *w);
 	/*!

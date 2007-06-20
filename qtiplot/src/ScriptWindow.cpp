@@ -212,11 +212,11 @@ void ScriptWindow::newScript()
 	te->clear();
 }
 
-void ScriptWindow::open()
+void ScriptWindow::open(const QString& fn)
 {
-	QString fn = te->importASCII();
-	if (!fn.isEmpty())
-		fileName = fn;
+	QString s = te->importASCII(fn);
+	if (!s.isEmpty())
+		fileName = s;
 }
 
 void ScriptWindow::saveAs()

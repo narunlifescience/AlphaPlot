@@ -50,12 +50,14 @@ public:
 
 public slots:
 		void newScript();
-		void open();
+		void open(const QString& fn = QString());
 		void save();
 		void saveAs();
 		void languageChange();
 		virtual void setVisible(bool visible);
 
+		void executeAll(){te->executeAll();};
+		
 signals:
 		void visibilityChanged(bool visible);
 

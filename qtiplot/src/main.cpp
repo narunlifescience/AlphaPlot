@@ -128,21 +128,17 @@ int main( int argc, char ** argv )
 		
 	if( (args.count() == 1) && (args[0] == "-m" || args[0] == "--manual") )
 		ApplicationWindow::showStandAloneHelp();
-	else if ( (args.count() == 1) && (args[0] == "-a" || args[0] == "--about") )
-	{
+	else if ( (args.count() == 1) && (args[0] == "-a" || args[0] == "--about") ) {
 		ApplicationWindow::about();
 		exit(0);
-	}
-	else
-	{
+	} else {
 		ApplicationWindow *mw = new ApplicationWindow();
 		mw->applyUserSettings();
 		mw->newTable();
 		mw->showMaximized();
 		mw->savedProject();
 		mw->showDonationDialog();
-		if (mw->autoSearchUpdates)
-		{
+		if (mw->autoSearchUpdates){
 			mw->autoSearchUpdatesRequest = true;
 			mw->searchForUpdates();
 		}
