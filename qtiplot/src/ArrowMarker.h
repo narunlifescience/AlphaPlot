@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : LineMarker.h
+    File                 : ArrowMarker.h
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Line marker (extension to QwtPlotMarker)
+    Description          : Arrow marker (extension to QwtPlotMarker)
 
  ***************************************************************************/
 
@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef LINEMARKER_H
-#define LINEMARKER_H
+#ifndef ARROWMARKER_H
+#define ARROWMARKER_H
 
 #include "PlotEnrichement.h"
 
@@ -40,11 +40,11 @@
  *
  * \sa ImageMarker, Legend
  */
-class LineMarker: public QObject, public PlotEnrichement
+class ArrowMarker: public QObject, public PlotEnrichement
 {
 public:
 	enum Operation { None, MoveStart, MoveEnd, MoveBoth };
-    LineMarker();
+    ArrowMarker();
 
 	//! Pixel coordinates of the start point
 	QPoint startPoint() const;

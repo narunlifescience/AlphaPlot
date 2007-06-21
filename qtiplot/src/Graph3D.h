@@ -68,6 +68,7 @@ public:
 	UserFunction *func;
 
 public slots:
+	void copy(Graph3D* g);
 	void initPlot();
 	void initCoord();
 	void addFunction(const QString& s,double xl,double xr,double yl,

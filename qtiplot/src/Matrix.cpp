@@ -73,7 +73,6 @@ void Matrix::init(int rows, int cols)
 	y_start = 1.0;
 	y_end = 10.0;
 	dMatrix = 0;
-	allow_modification_signals = true;
 
 	QDateTime dt = QDateTime::currentDateTime();
 	setBirthDate(dt.toString(Qt::LocalDate));
@@ -154,8 +153,7 @@ void Matrix::cellEdited(int row,int col)
 
 	d_table->setCurrentCell(row+1, col);
 
-	if(allow_modification_signals)
-		emit modifiedWindow(this);
+    emit modifiedWindow(this);
 }
 
 double Matrix::cell(int row, int col)
@@ -319,7 +317,6 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 	if (txt_format == f && num_precision == prec)
 		return;
 
-	allow_modification_signals = false;
     d_table->blockSignals(true);
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -328,17 +325,14 @@ void Matrix::setNumericFormat(const QChar& f, int prec)
 
 	int rows = numRows();
 	int cols = numCols();
-	for(int i=0; i<rows; i++)
-	{
-		for(int j=0; j<cols; j++)
-		{
+	for(int i=0; i<rows; i++){
+		for(int j=0; j<cols; j++){
 			QString t = text(i, j);
 			if (!t.isEmpty())
 				setCell(i, j, dMatrix[i][j]);
 		}
 	}
     d_table->blockSignals(false);
-	allow_modification_signals = true;
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 }
@@ -365,7 +359,7 @@ void Matrix::setColumnsWidth(int width)
 	emit modifiedWindow(this);
 }
 
-void Matrix::setMatrixDimensions(int rows, int cols)
+void Matrix::setDimensions(int rows, int cols)
 {
 	int r = numRows();
 	int c = numCols();
@@ -373,11 +367,10 @@ void Matrix::setMatrixDimensions(int rows, int cols)
 	if (r == rows && c == cols)
 		return;
 
-	if (rows < r || cols < c)
-	{
+	if (rows < r || cols < c){
 		QString msg_text = tr("Deleting rows/columns from the matrix!","set matrix dimensions");
 		msg_text += tr("<p>Do you really want to continue?","set matrix dimensions");
-		switch( QMessageBox::information(0,tr("QtiPlot"), msg_text,tr("Yes"), tr("Cancel"), 0, 1 ) )
+		switch( QMessageBox::information(0, tr("QtiPlot"), msg_text,tr("Yes"), tr("Cancel"), 0, 1 ) )
 		{
 			case 0: // Yes
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -393,9 +386,7 @@ void Matrix::setMatrixDimensions(int rows, int cols)
 				return;
 				break;
 		}
-	}
-	else
-	{
+	} else {
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 		if (cols != c)
 			d_table->setColumnCount(cols);
@@ -411,9 +402,29 @@ int Matrix::numRows()
 	return d_table->rowCount();
 }
 
+void Matrix::setNumRows(int rows)
+{
+    if (rows != d_table->rowCount()){
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        d_table->setRowCount(rows);
+        QApplication::restoreOverrideCursor();
+        emit modifiedWindow(this);
+    }
+}
+
 int Matrix::numCols()
 {
 	return d_table->columnCount();
+}
+
+void Matrix::setNumCols(int cols)
+{
+    if (cols != d_table->columnCount()){
+        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+        d_table->setColumnCount(cols);
+        QApplication::restoreOverrideCursor();
+        emit modifiedWindow(this);
+    }
 }
 
 double Matrix::determinant()
@@ -421,8 +432,7 @@ double Matrix::determinant()
 	int rows = numRows();
 	int cols = numCols();
 
-	if (rows != cols)
-	{
+	if (rows != cols){
 		QMessageBox::critical(0,tr("QtiPlot - Error"),
 				tr("Calculation failed, the matrix is not square!"));
 		return GSL_POSINF;
@@ -431,15 +441,10 @@ double Matrix::determinant()
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	gsl_matrix *A = gsl_matrix_alloc(rows, cols);
-	int i, j;
+	int i;
 	for(i=0; i<rows; i++)
-	{
-		for(j=0; j<cols; j++)
-		{
-			QString s = text(i,j);
-			gsl_matrix_set(A, i, j, s.toDouble());
-		}
-	}
+		for(int j=0; j<cols; j++)
+			gsl_matrix_set(A, i, j, cell(i, j));
 
 	gsl_permutation * p = gsl_permutation_alloc(rows);
 	gsl_linalg_LU_decomp(A, p, &i);
@@ -455,29 +460,22 @@ double Matrix::determinant()
 
 void Matrix::invert()
 {
-	allow_modification_signals = false;
 	int rows = numRows();
 	int cols = numCols();
 
-	if (rows != cols)
-	{
+	if (rows != cols){
 		QMessageBox::critical(0,tr("QtiPlot - Error"),
 				tr("Inversion failed, the matrix is not square!"));
-		allow_modification_signals = true;
 		return;
 	}
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	gsl_matrix *A = gsl_matrix_alloc(rows, cols);
-	int i, j;
-	for(i=0; i<rows; i++)
-	{
-		for(j=0; j<cols; j++)
-		{
-			QString s = text(i,j);
-			gsl_matrix_set(A, i, j, s.toDouble());
-		}
+	int i;
+	for(i=0; i<rows; i++){
+		for(int j=0; j<cols; j++)
+			gsl_matrix_set(A, i, j, cell(i, j));
 	}
 
 	gsl_permutation * p = gsl_permutation_alloc(cols);
@@ -489,24 +487,21 @@ void Matrix::invert()
 	gsl_matrix_free(A);
 	gsl_permutation_free(p);
 
-	for(i=0; i<rows; i++)
-	{
-		for(j=0; j<cols; j++)
+    d_table->blockSignals(true);
+	for(i=0; i<rows; i++){
+		for(int j=0; j<cols; j++)
 			setCell(i, j, gsl_matrix_get(inverse, i, j));
 	}
+    d_table->blockSignals(false);
 
 	gsl_matrix_free(inverse);
 	QApplication::restoreOverrideCursor();
-	allow_modification_signals = true;
 	emit modifiedWindow(this);
 }
 
 // TODO: Mirror matrix horizontally/vertically would also be nice
 void Matrix::transpose()
 {
-	allow_modification_signals = false;
-
-	int i, j;
 	int rows = numRows();
 	int cols = numCols();
 	int temp_size = qMax(rows, cols);
@@ -515,19 +510,18 @@ void Matrix::transpose()
 	// blow up matrix to a square one
 	d_table->setColumnCount(temp_size);
 	d_table->setRowCount(temp_size);
-
-	for(i = 0; i<temp_size; i++)
-		for(j = 0; j<=i; j++)
-		{
+    d_table->blockSignals(true);
+	for(int i = 0; i<temp_size; i++)
+		for(int j = 0; j<=i; j++){
 			temp = text(i,j);
 			setText(i, j, text(j,i));
 			setText(j, i, temp);
 		}
+    d_table->blockSignals(false);
 
 	// shrink matrix to desired size
 	d_table->setColumnCount(rows);
 	d_table->setRowCount(cols);
-	allow_modification_signals = true;
 	emit modifiedWindow(this);
 }
 
@@ -598,15 +592,12 @@ void Matrix::forgetSavedCells()
 
 bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 {
-	allow_modification_signals = false;
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	Script *script = scriptEnv->newScript(formula_str, this, QString("<%1>").arg(name()));
 	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
 	connect(script, SIGNAL(print(const QString&)), scriptEnv, SIGNAL(print(const QString&)));
-	if (!script->compile())
-	{
-		allow_modification_signals = true;
+	if (!script->compile()){
 		QApplication::restoreOverrideCursor();
 		return false;
 	}
@@ -643,17 +634,15 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 				setText(row, col, ret.toString());
 			else if (ret.canConvert(QVariant::Double))
 				setText(row, col, QLocale().toString(ret.toDouble(), txt_format.toAscii(), num_precision));
-			else
-			{
+			else{
 				setText(row, col, "");
-				allow_modification_signals = true;
+				d_table->blockSignals(false);
 				QApplication::restoreOverrideCursor();
 				return false;
 			}
 		}
 	forgetSavedCells();
 
-	allow_modification_signals = true;
     d_table->blockSignals(false);
 	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
@@ -662,21 +651,18 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 
 void Matrix::clearSelection()
 {
-	allow_modification_signals = false;
-
 	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
 	QListIterator<QTableWidgetSelectionRange> it(sel);
 	QTableWidgetSelectionRange cur;
 
-	if( it.hasNext() )
-	{
+    d_table->blockSignals(true);
+	if( it.hasNext() ){
 		cur = it.next();
 		for(int i = cur.topRow(); i <= cur.bottomRow(); i++)
 			for(int j = cur.leftColumn(); j<= cur.rightColumn();j++)
 				setText(i, j, "");
 	}
-
-	allow_modification_signals = true;
+    d_table->blockSignals(false);
 	emit modifiedWindow(this);
 }
 
@@ -687,8 +673,7 @@ void Matrix::copySelection()
 	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
 	if (sel.isEmpty())
 		the_text = text(d_table->currentRow(),d_table->currentColumn());
-	else
-	{
+	else{
 		QListIterator<QTableWidgetSelectionRange> it(sel);
 		QTableWidgetSelectionRange cur;
 
@@ -699,8 +684,7 @@ void Matrix::copySelection()
 		int bottom = cur.bottomRow();
 		int left = cur.leftColumn();
 		int right = cur.rightColumn();
-		for(int i=top; i<=bottom; i++)
-		{
+		for(int i=top; i<=bottom; i++){
 			for(int j=left; j<right; j++)
 				the_text += text(i,j)+"\t";
 			the_text += text(i,right)+"\n";
@@ -1125,18 +1109,16 @@ double** Matrix::allocateMatrixData(int rows, int columns)
 {
 	double** data = new double* [rows];
 	for ( int i = 0; i < rows; ++i)
-	{
 		data[i] = new double [columns];
-	}
+
 	return data;
 }
 
 void Matrix::freeMatrixData(double **data, int rows)
 {
 	for ( int i = 0; i < rows; i++)
-	{
 		delete [] data[i];
-	}
+
 	delete [] data;
 }
 
@@ -1171,4 +1153,25 @@ void Matrix::updateDecimalSeparators()
 	}
     d_table->blockSignals(false);
     forgetSavedCells();
+}
+
+void Matrix::copy(Matrix *m)
+{
+	if (!m)
+        return;
+
+	x_start = m->xStart();
+	x_end = m->xEnd();
+	y_start = m->yStart();
+	y_end = m->yEnd();
+
+	d_table->blockSignals(true);
+    for (int i=0; i<m->numRows(); i++)
+        for (int j=0; j<m->numCols(); j++)
+            setText(i, j, m->text(i,j));
+    d_table->blockSignals(false);
+
+	setColumnsWidth(m->columnsWidth());
+	formula_str = m->formula();
+	setTextFormat(m->textFormat(), m->precision());
 }

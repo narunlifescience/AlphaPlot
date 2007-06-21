@@ -261,7 +261,7 @@ void Graph3D::addData(Table* table, int xcol, int ycol)
 			if (!table->text(i,xcol).isEmpty() && !table->text(i,ycol).isEmpty())
 			{
 				gsl_vector_set (x, k, table->cell(i, xcol));
-				
+
 				double yv = table->cell(i, ycol);
 				gsl_vector_set (y, k, yv);
 				data[k][j] = yv;
@@ -719,16 +719,12 @@ void Graph3D::updateMatrixData(Matrix* m)
 	int rows=m->numRows();
 
 	double **data = Matrix::allocateMatrixData(rows, cols);
-	for (int i = 0; i < rows; i++ )
-	{
+	for (int i = 0; i < rows; i++ ){
 		for (int j = 0; j < cols; j++)
-		{
-			double val = m->cell(i,j);
-			data[i][j] = val;
-		}
+			data[i][j] = m->cell(i, j);
 	}
 
-	sp->loadFromData(data,rows,cols,m->xStart(),m->xEnd(),m->yStart(),m->yEnd());
+	sp->loadFromData(data, rows, cols, m->xStart(), m->xEnd(), m->yStart(), m->yEnd());
 
 	Qwt3D::Axis z_axis = sp->coordinates()->axes[Z1];
 	double start, end;
@@ -3029,6 +3025,63 @@ void Graph3D::findBestLayout()
   	majl = 0.1/xScale;
   	updateTickLength(1, majl, 0.6*majl);
   	updateTickLength(2, majl, 0.6*majl);
+}
+
+void Graph3D::copy(Graph3D* g)
+{
+	if (!g)
+        return;
+
+	Graph3D::PointStyle pt = g->pointType();
+	if (g->plotStyle() == Qwt3D::USER ){
+		switch (pt){
+			case Graph3D::None :
+				break;
+
+			case Graph3D::Dots :
+				setPointOptions(g->pointsSize(), g->smoothPoints());
+				break;
+
+			case Graph3D::VerticalBars :
+				setBarsRadius(g->barsRadius());
+				break;
+
+			case Graph3D::HairCross :
+				setCrossOptions(g->crossHairRadius(), g->crossHairLinewidth(), g->smoothCrossHair(), g->boxedCrossHair());
+				break;
+
+			case Graph3D::Cones :
+				setConesOptions(g->coneRadius(), g->coneQuality());
+				break;
+		}
+	}
+	setStyle(g->coordStyle(), g->floorStyle(), g->plotStyle(), pt);
+	setGrid(g->grids());
+	setTitle(g->plotTitle(),g->titleColor(),g->titleFont());
+	setTransparency(g->transparency());
+	if (!g->colorMap().isEmpty())
+		setDataColorMap(g->colorMap());
+	else
+		setDataColors(g->minDataColor(),g->maxDataColor());
+	
+	setColors(g->meshColor(),g->axesColor(),g->numColor(),
+				g->labelColor(), g->bgColor(),g->gridColor());
+	setAxesLabels(g->axesLabels());
+	setTicks(g->scaleTicks());
+	setTickLengths(g->axisTickLengths());
+	setOptions(g->isLegendOn(), g->resolution(),g->labelsDistance());
+	setNumbersFont(g->numbersFont());
+	setXAxisLabelFont(g->xAxisLabelFont());
+	setYAxisLabelFont(g->yAxisLabelFont());
+	setZAxisLabelFont(g->zAxisLabelFont());
+	setRotation(g->xRotation(),g->yRotation(),g->zRotation());
+	setZoom(g->zoom());
+	setScale(g->xScale(),g->yScale(),g->zScale());
+	setShift(g->xShift(),g->yShift(),g->zShift());
+	setMeshLineWidth((int)g->meshLineWidth());
+	setOrtho(g->isOrthogonal());
+	update();
+	animate(g->isAnimated());
 }
 
 Graph3D::~Graph3D()

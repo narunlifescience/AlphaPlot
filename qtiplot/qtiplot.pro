@@ -12,8 +12,8 @@ DEFINES         += SCRIPTING_CONSOLE
 # a dialog for selecting the scripting language on a per-project basis
 DEFINES         += SCRIPTING_DIALOG
 
-#CONFIG          += release
-CONFIG          += debug
+CONFIG          += release
+#CONFIG          += debug
 
 # what to install and where
 INSTALLS        += target
@@ -26,12 +26,8 @@ unix: documentation.path = /usr/share/doc/qtiplot
 #############################################################################
 
 INCLUDEPATH       += ../3rdparty/muParser
-
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
 INCLUDEPATH       += ../3rdparty/qwt/src
-#INCLUDEPATH       += /usr/include/qwtplot3d
-#INCLUDEPATH       += /usr/include/qwt5
-
 INCLUDEPATH       += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
@@ -62,7 +58,7 @@ unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 
 ##################### Windows ###############################################
 
-win32:LIBS        += ../3rdparty/qwtplot3d/lib/qwtplot3d.dll
+win32:LIBS        += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
 win32:LIBS        += ../3rdparty/qwt/lib/libqwt.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgsl.a
 win32:LIBS        += ../3rdparty/gsl/lib/libgslcblas.a
@@ -144,13 +140,13 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScalePicker.h \
             src/TitlePicker.h \
             src/CanvasPicker.h \
-	    src/PlotCurve.h \
+            src/PlotCurve.h \
             src/QwtErrorPlotCurve.h \
             src/QwtPieCurve.h \
             src/ErrDialog.h \
-            src/LegendMarker.h \
-            src/LineMarker.h\
-            src/ImageMarker.h\
+            src/Legend.h \
+            src/ArrowMarker.h \
+            src/ImageMarker.h \
             src/ImageDialog.h \
             src/fit_gsl.h \
             src/nrutil.h\
@@ -197,11 +193,11 @@ HEADERS  += src/ApplicationWindow.h \
             src/ScriptEdit.h\
             src/FunctionCurve.h\
             src/Fit.h\
-	    src/MultiPeakFit.h\
-	    src/ExponentialFit.h\
-	    src/PolynomialFit.h\
-	    src/NonLinearFit.h\
-	    src/PluginFit.h\
+            src/MultiPeakFit.h\
+            src/ExponentialFit.h\
+            src/PolynomialFit.h\
+            src/NonLinearFit.h\
+            src/PluginFit.h\
             src/SigmoidalFit.h\
             src/customevents.h\
             src/ScriptingLangDialog.h\
@@ -218,19 +214,19 @@ HEADERS  += src/ApplicationWindow.h \
             src/SmoothFilter.h\
             src/FFTFilter.h\
             src/FFT.h\
-	    src/Convolution.h\
-	    src/Correlation.h\
-	    src/PlotToolInterface.h\
-	    src/ScreenPickerTool.h\
-	    src/DataPickerTool.h\
-	    src/RangeSelectorTool.h\
-	    src/TranslateCurveTool.h\
-	    src/MultiPeakFitTool.h\
-	    src/CurveRangeDialog.h\
-       src/LineProfileTool.h\
-       src/PlotEnrichement.h\
-		 src/ExtensibleFileDialog.h\
-		 src/OpenProjectDialog.h\
+            src/Convolution.h\
+            src/Correlation.h\
+            src/PlotToolInterface.h\
+            src/ScreenPickerTool.h\
+            src/DataPickerTool.h\
+            src/RangeSelectorTool.h\
+            src/TranslateCurveTool.h\
+            src/MultiPeakFitTool.h\
+            src/CurveRangeDialog.h\
+            src/LineProfileTool.h\
+            src/PlotEnrichement.h\
+            src/ExtensibleFileDialog.h\
+            src/OpenProjectDialog.h\
 
 ###################### SOURCES ##############################################
 
@@ -256,13 +252,13 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/FitDialog.cpp \
             src/SurfaceDialog.cpp \
             src/LineDialog.cpp \
-	    src/PlotCurve.cpp \
+            src/PlotCurve.cpp \
             src/QwtErrorPlotCurve.cpp \
             src/QwtPieCurve.cpp \
             src/ErrDialog.cpp \
-            src/LegendMarker.cpp \
-            src/LineMarker.cpp \
-            src/ImageMarker.cpp\
+            src/Legend.cpp \
+            src/ArrowMarker.cpp \
+            src/ImageMarker.cpp \
             src/ImageDialog.cpp \
             src/MultiLayer.cpp\
             src/LayerDialog.cpp \
@@ -308,11 +304,11 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/ScaleDraw.cpp\
             src/FunctionCurve.cpp\
             src/Fit.cpp\
-	    src/MultiPeakFit.cpp\
-	    src/ExponentialFit.cpp\
-	    src/PolynomialFit.cpp\
-	    src/PluginFit.cpp\
-	    src/NonLinearFit.cpp\
+            src/MultiPeakFit.cpp\
+            src/ExponentialFit.cpp\
+            src/PolynomialFit.cpp\
+            src/PluginFit.cpp\
+            src/NonLinearFit.cpp\
             src/SigmoidalFit.cpp\
             src/ScriptingEnv.cpp\
             src/Script.cpp\
@@ -329,18 +325,18 @@ SOURCES  += src/ApplicationWindow.cpp \
             src/SmoothFilter.cpp\
             src/FFTFilter.cpp\
             src/FFT.cpp\
-	    src/Convolution.cpp\
-	    src/Correlation.cpp\
-	    src/ScreenPickerTool.cpp\
-	    src/DataPickerTool.cpp\
-	    src/RangeSelectorTool.cpp\
-	    src/TranslateCurveTool.cpp\
-	    src/MultiPeakFitTool.cpp\
-	    src/CurveRangeDialog.cpp\
-       src/LineProfileTool.cpp\
-       src/PlotEnrichement.cpp\
-		 src/ExtensibleFileDialog.cpp\
-		 src/OpenProjectDialog.cpp\
+            src/Convolution.cpp\
+            src/Correlation.cpp\
+            src/ScreenPickerTool.cpp\
+            src/DataPickerTool.cpp\
+            src/RangeSelectorTool.cpp\
+            src/TranslateCurveTool.cpp\
+            src/MultiPeakFitTool.cpp\
+            src/CurveRangeDialog.cpp\
+            src/LineProfileTool.cpp\
+            src/PlotEnrichement.cpp\
+            src/ExtensibleFileDialog.cpp\
+            src/OpenProjectDialog.cpp\
 
 ###############################################################
 ##################### Compression (zlib123) ###################
@@ -416,8 +412,9 @@ contains(SCRIPTING_LANGS, Python) {
 
   HEADERS += $${SIP_DIR}/sipqtiApplicationWindow.h\
              $${SIP_DIR}/sipqtiGraph.h\
-             $${SIP_DIR}/sipqtiLineMarker.h\
-			 $${SIP_DIR}/sipqtiLegendMarker.h\
+             $${SIP_DIR}/sipqtiArrowMarker.h\
+			 $${SIP_DIR}/sipqtiImageMarker.h\
+			 $${SIP_DIR}/sipqtiLegend.h\
              $${SIP_DIR}/sipqtiMultiLayer.h\
              $${SIP_DIR}/sipqtiTable.h\
              $${SIP_DIR}/sipqtiMatrix.h\
@@ -455,8 +452,9 @@ contains(SCRIPTING_LANGS, Python) {
   SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
              $${SIP_DIR}/sipqtiApplicationWindow.cpp\
              $${SIP_DIR}/sipqtiGraph.cpp\
-             $${SIP_DIR}/sipqtiLineMarker.cpp\
-			 $${SIP_DIR}/sipqtiLegendMarker.cpp\
+             $${SIP_DIR}/sipqtiArrowMarker.cpp\
+			 $${SIP_DIR}/sipqtiImageMarker.cpp\
+			 $${SIP_DIR}/sipqtiLegend.cpp\
              $${SIP_DIR}/sipqtiMultiLayer.cpp\
              $${SIP_DIR}/sipqtiTable.cpp\
              $${SIP_DIR}/sipqtiMatrix.cpp\

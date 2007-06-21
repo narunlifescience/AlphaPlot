@@ -100,7 +100,7 @@ try:
 	have_scipy = True
 	print("Loaded %d special functions from scipy.special." % len(special_functions))
 except(ImportError): pass
- 
+
 # Import selected parts of pygsl.sf (if available) into global namespace.
 # See pygsl.sourceforge.net for information on pygsl and how to get it.
 try:
@@ -233,9 +233,10 @@ appImports = (
 	"matrix", "newMatrix",
 	"graph", "newGraph",
 	"note", "newNote",
-	"plot",
+	"plot", "plotContour", "plotColorMap", "plotGrayScale",
 	"activeFolder", "rootFolder", "saveFolder",
-	"renameWindow"
+	"renameWindow", "clone",
+	"importImage"
 	)
 for name in appImports:
 	setattr(__main__,name,getattr(qti.app,name))

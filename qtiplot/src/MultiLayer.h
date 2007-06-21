@@ -117,7 +117,7 @@ public slots:
 	/*!\brief Finish adding a text layer.
 	 *
 	 * An empty Graph is created and added to me.
-	 * Legend, title and axes are removed and a new LegendMarker is added with a placeholder text.
+	 * Legend, title and axes are removed and a new Legend is added with a placeholder text.
 	 *
 	 * \sa #defaultTextMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground, addTextLayer(int,const QFont&,const QColor&,const QColor&)
 	 */

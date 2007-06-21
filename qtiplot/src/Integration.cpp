@@ -29,7 +29,7 @@
 #include "Integration.h"
 #include "nrutil.h"
 #include "MultiLayer.h"
-#include "LegendMarker.h"
+#include "Legend.h"
 
 #include <QMessageBox>
 #include <QDateTime>

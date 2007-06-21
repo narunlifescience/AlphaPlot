@@ -69,8 +69,11 @@ public:
 
 	//! Return the number of rows
 	int numRows();
+	void setNumRows(int rows);
+
 	//! Return the number of columns
 	int numCols();
+	void setNumCols(int cols);
 
 	//! Returns whether the row is empty or not
 	bool isEmptyRow(int row);
@@ -108,7 +111,7 @@ public slots:
 	void setColumnsWidth(int width);
 
 	//! Set the Matrix size
-	void setMatrixDimensions(int rows, int cols);
+	void setDimensions(int rows, int cols);
 	//! Transpose the matrix
 	void transpose();
 	//! Invert the matrix
@@ -264,6 +267,8 @@ public slots:
 
 	int verticalHeaderWidth(){return table()->verticalHeader()->width();}
 
+    void copy(Matrix *m);
+
 signals:
 	//! Show the context menu
 	void showContextMenu();
@@ -286,15 +291,6 @@ private:
 	x_end,  //!< X value corresponding to the last column
 	y_start,  //!< Y value corresponding to row 1
 	y_end;  //!< Y value corresponding to the last row
-	/*!
-	 * \brief Toggle between allow/suppress the emission of modification signals
-	 *
-	 * Set this to false during long operations to
-	 * prevent "emit modifiedWindow(this)" being
-	 * called for each cell.
-	 * \sa MyWidget::modifiedWindow()
-	 */
-	bool allow_modification_signals;
 };
 
 #endif

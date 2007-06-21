@@ -5,7 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : QtiPlot main function
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -29,30 +29,30 @@
 #include <qapplication.h>
 #include <qaction.h>
  #include "ApplicationWindow.h"
- 
+
 // The following stuff is for the doxygen title page
 /*!  \mainpage QtiPlot - Data analysis and scientific plotting - API documentation
 
   \section description Program description:
-Scientists often need to use data analysis and plotting software. 
-For Windows systems there is a well known and widely used software 
-called <a href="http://www.originlab.com">Origin</a>, which is not 
-free, of course. The purpose of this project is to develop 
-a free (open source), platform independent alternative to 
-Origin. QtiPlot is still far from this goal, but 
-there's a <a class="el" href="http://soft.proindependent.com/wishtolist.html">"wish to"</a> list we are constantly working on. 
+Scientists often need to use data analysis and plotting software.
+For Windows systems there is a well known and widely used software
+called <a href="http://www.originlab.com">Origin</a>, which is not
+free, of course. The purpose of this project is to develop
+a free (open source), platform independent alternative to
+Origin. QtiPlot is still far from this goal, but
+there's a <a class="el" href="http://soft.proindependent.com/wishtolist.html">"wish to"</a> list we are constantly working on.
 All suggestions and contributions are most welcome!
 If you want to contribute code, please read the notes on \ref style "coding style" first.
 <br>
- 
+
  The QtiPlot web page can be found at<br>
  <a href="http://soft.proindependent.com/qtiPlot.html">http://soft.proindependent.com/qtiPlot.html</a><br>
-  
+
   \section libs QtiPlot uses the following libraries:
-  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a>, 
-  <a href="http://qwt.sourceforge.net/index.html">Qwt (5.0.0)</a>,  
+  <a href="http://www.trolltech.com/products/qt/index.html">Qt</a>,
+  <a href="http://qwt.sourceforge.net/index.html">Qwt (5.0.0)</a>,
   <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,
-  <a href="http://sources.redhat.com/gsl/">GSL</a>, 
+  <a href="http://sources.redhat.com/gsl/">GSL</a>,
   <a href="http://muparser.sourceforge.net/">muParser</a>,
   <a href="http://www.zlib.net/">zlib (1.2.3)</a>,
   and <a href="http://sourceforge.net/projects/liborigin/">liborigin</a>.
@@ -104,7 +104,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   - Improved import of Origin project files
   - More import/export filters including Open Document spreadsheets (plugin)
 
-  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, LegendMarker, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, Table
+  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, Legend, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, Table
 
   \page style Coding Style
   The following rules are not used everywhere (yet), but are intended as guidelines for new code and eventually
@@ -119,13 +119,13 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   - For indentations, tabs are preferred because they allow everyone to choose the indentation depth for him/herself.
 */
 
-int main( int argc, char ** argv ) 
+int main( int argc, char ** argv )
 {
     QApplication app( argc, argv );
 
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name
-		
+
 	if( (args.count() == 1) && (args[0] == "-m" || args[0] == "--manual") )
 		ApplicationWindow::showStandAloneHelp();
 	else if ( (args.count() == 1) && (args[0] == "-a" || args[0] == "--about") ) {

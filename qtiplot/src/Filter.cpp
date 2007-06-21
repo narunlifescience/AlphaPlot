@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Filter.h"
-#include "LegendMarker.h"
+#include "Legend.h"
 #include "ColorBox.h"
 #include "Table.h"
 #include "FunctionCurve.h"
@@ -184,10 +184,10 @@ void Filter::setColor(const QString& colorName)
 
 void Filter::showLegend()
 {
-	LegendMarker* mrk = d_graph->newLegend(legendInfo());
+	Legend* mrk = d_graph->newLegend(legendInfo());
 	if (d_graph->hasLegend())
 	{
-		LegendMarker* legend = d_graph->legend();
+		Legend* legend = d_graph->legend();
 		QPoint p = legend->rect().bottomLeft();
 		mrk->setOrigin(QPoint(p.x(), p.y()+20));
 	}

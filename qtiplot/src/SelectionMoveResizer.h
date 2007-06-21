@@ -5,7 +5,7 @@
     Copyright            : (C) 2007 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
     Description          : Selection of Widgets and QwtPlotMarkers
-                           
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -36,8 +36,8 @@
 
 class QPoint;
 class QwtPlotMarker;
-class LegendMarker;
-class LineMarker;
+class Legend;
+class ArrowMarker;
 class ImageMarker;
 
 /*!\brief Handler for modifying one or more QWidget and/or QwtPlotMarker with mouse or keyboard.
@@ -69,9 +69,9 @@ class ImageMarker;
  *     (than MultiLayer's canvas QWidget and Plot's QwtPlotCanvas)
  *     and/or targets (e.g. new QwtPlotMarker subclasses) with little to no modifications.
  *   - Differentiate between move/resize, which are generic operations, and editing (like moving the
- *     endpoints of a LineMarker), which requires detailed knowledge about the target.
+ *     endpoints of a ArrowMarker), which requires detailed knowledge about the target.
  *     This way, new types of markers or MultiLayer children support moving/resizing without further
- *     work. Editing can then be implemented in the targets themselves, as shown in LineMarker.
+ *     work. Editing can then be implemented in the targets themselves, as shown in ArrowMarker.
  *   .
  *
  * \section future Future Plans
@@ -92,9 +92,9 @@ class SelectionMoveResizer : public QWidget
 
 	public:
 		//! Construct a new MoveResizer with the given marker as the only target.
-		SelectionMoveResizer(LegendMarker *target);
+		SelectionMoveResizer(Legend *target);
 		//! Construct a new MoveResizer with the given marker as the only target.
-		SelectionMoveResizer(LineMarker *target);
+		SelectionMoveResizer(ArrowMarker *target);
 		//! Construct a new MoveResizer with the given marker as the only target.
 		SelectionMoveResizer(ImageMarker *target);
 		//! Construct a new MoveResizer with the given widget as the only target.
@@ -107,25 +107,25 @@ class SelectionMoveResizer : public QWidget
 		//! Returns true if w is one of targets, false else.
 		bool contains(QWidget *w) const { return d_widgets.contains(w); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(LegendMarker *m) const { return d_legend_markers.contains(m); };
+		bool contains(Legend *m) const { return d_legend_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(LineMarker *m) const { return d_line_markers.contains(m); };
+		bool contains(ArrowMarker *m) const { return d_line_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
 		bool contains(ImageMarker *m) const { return d_image_markers.contains(m); };
 
 	public slots:
 		//! Add target to the list of items to be moved/resized together.
-		void add(LegendMarker *target);
+		void add(Legend *target);
 		//! Add target to the list of items to be moved/resized together.
-		void add(LineMarker *target);
+		void add(ArrowMarker *target);
 		//! Add target to the list of items to be moved/resized together.
 		void add(ImageMarker *target);
 		//! Add target to the list of items to be moved/resized together.
 		void add(QWidget *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
-		int removeAll(LegendMarker *target);
+		int removeAll(Legend *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
-		int removeAll(LineMarker *target);
+		int removeAll(ArrowMarker *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
 		int removeAll(ImageMarker *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
@@ -187,9 +187,9 @@ class SelectionMoveResizer : public QWidget
 		QRect boundingRectOf(QwtPlotMarker *target) const;
 
 		//! Target markers I'm handling.
-		QList <LegendMarker *> d_legend_markers;
+		QList <Legend *> d_legend_markers;
 		//! Target markers I'm handling.
-		QList <LineMarker *> d_line_markers;
+		QList <ArrowMarker *> d_line_markers;
 		//! Target markers I'm handling.
 		QList <ImageMarker *> d_image_markers;
 		//! Target widgets I'm handling.

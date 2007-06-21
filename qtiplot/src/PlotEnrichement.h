@@ -39,7 +39,7 @@
  * Graph manage save/restore.
  *
  * \section future Future Plans
- * Add a QwtPlotItem subclass (PlotEnrichment ?) and make PlotEnrichement, LegendMarker and LineMarker
+ * Add a QwtPlotItem subclass (PlotEnrichment ?) and make PlotEnrichement, Legend and ArrowMarker
  * subclasses of that. These (usually) don't really mark a specific point in a plot and they don't
  * use the symbol/label functionality of QwtPlotMarker. Instead, it would make sense to provide a
  * unified move/resize (or even general affine transformations via QMatrix) interface and support for
@@ -51,13 +51,13 @@
  * directly to MultiLayer without the need for a dummy Graph in between.
  * Could also help to avoid the hack in MultiLayer::updateMarkersBoundingRect().
  *
- * Following the above thoughts, it might help clarify the purpose of PlotEnrichement, LegendMarker
- * and LineMarker if they are renamed according to the new superclasse's name
+ * Following the above thoughts, it might help clarify the purpose of PlotEnrichement, Legend
+ * and ArrowMarker if they are renamed according to the new superclasse's name
  * (e.g. ImageEnrichment, TextEnrichment and LineEnrichment).
  *
  * See the documentation of SelectionMoveResizer for other advantages of this approach.
  *
- * \sa LegendMarker, LineMarker
+ * \sa Legend, ArrowMarker
  */
 class PlotEnrichement: public QwtPlotMarker
 {

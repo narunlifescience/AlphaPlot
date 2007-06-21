@@ -29,14 +29,22 @@
 
 #include "ImageMarker.h"
 #include <QPainter>
+#include <QImageReader>
 
-ImageMarker::ImageMarker(const QPixmap& p):
-	d_pic(p),
+ImageMarker::ImageMarker(const QString& fn):
 	d_pos(QPoint(0,0)),
-	d_size(p.size()),
 	d_x_right(0),
     d_y_bottom(0)
 {
+	QList<QByteArray> lst = QImageReader::supportedImageFormats();
+	for (int i=0; i<(int)lst.count(); i++){
+		if (fn.contains("." + lst[i])){
+			d_pic.load(fn, lst[i], QPixmap::Auto);
+			d_size = d_pic.size();
+			d_file_name = fn;
+			break;
+		}
+	}
 }
 
 void ImageMarker::draw (QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const

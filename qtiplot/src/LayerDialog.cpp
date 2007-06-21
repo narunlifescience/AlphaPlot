@@ -221,7 +221,7 @@ void LayerDialog::update()
 		{// Customize new layers with user default settings
 			ApplicationWindow *app = (ApplicationWindow *)this->parent();
 			for (int i = old_graphs+1; i <= graphs; i++)
-				app->customGraph(multi_layer->layer(i));
+				app->setPreferences(multi_layer->layer(i));
 		}
 
 		int cols=boxX->value();

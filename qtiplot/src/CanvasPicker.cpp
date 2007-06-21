@@ -30,8 +30,8 @@
  ***************************************************************************/
 #include "CanvasPicker.h"
 #include "ImageMarker.h"
-#include "LegendMarker.h"
-#include "LineMarker.h"
+#include "Legend.h"
+#include "ArrowMarker.h"
 
 #include <QVector>
 
@@ -166,7 +166,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				Graph *g = plot();
 
 				if (g->drawLineActive()) {
-					LineMarker mrk;
+					ArrowMarker mrk;
 					mrk.attach(g->plotWidget());
 					mrk.setStartPoint(startLinePoint);
 					mrk.setEndPoint(QPoint(me->x(), me->y()));
@@ -179,7 +179,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 					mrk.drawEndArrow(g->drawArrow());
 					mrk.drawStartArrow(false);
 
-					g->insertLineMarker(&mrk);
+					g->addArrow(&mrk);
 					g->drawLine(false);
 					mrk.detach();
 					plotWidget->replot();
@@ -232,7 +232,7 @@ void CanvasPicker::disableEditing()
 
 void CanvasPicker::drawTextMarker(const QPoint& point)
 {
-	LegendMarker mrkT(plotWidget);
+	Legend mrkT(plotWidget);
 	mrkT.setOrigin(point);
 	mrkT.setFrameStyle(plot()->textMarkerDefaultFrame());
 	mrkT.setFont(plot()->defaultTextMarkerFont());
@@ -247,7 +247,7 @@ void CanvasPicker::drawTextMarker(const QPoint& point)
 void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 {
 	plot()->plotWidget()->canvas()->repaint();
-	LineMarker mrk;
+	ArrowMarker mrk;
 	mrk.attach(plotWidget);
 
 	int clw = plotWidget->canvas()->lineWidth();
@@ -271,7 +271,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 {
 	const QPoint point = e->pos();
 	foreach(long i, plot()->textMarkerKeys()) {
-		LegendMarker *m = (LegendMarker*)plotWidget->marker(i);
+		Legend *m = (Legend*)plotWidget->marker(i);
 		if (!m) return false;
 		if (m->rect().contains(point)) {
 			if (d_editing_marker) {
@@ -295,7 +295,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		}
 	}
 	foreach(long i, plot()->lineMarkerKeys()) {
-		LineMarker* mrkL=(LineMarker*) plotWidget->marker(i);
+		ArrowMarker* mrkL=(ArrowMarker*) plotWidget->marker(i);
 		if (!mrkL)
 			return false;
 		int d=mrkL->width()+(int)floor(mrkL->headLength()*tan(M_PI*mrkL->headAngle()/180.0)+0.5);

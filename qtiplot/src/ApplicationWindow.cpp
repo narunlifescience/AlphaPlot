@@ -41,8 +41,8 @@
 #include "TableDialog.h"
 #include "SetColValuesDialog.h"
 #include "ErrDialog.h"
-#include "LegendMarker.h"
-#include "LineMarker.h"
+#include "Legend.h"
+#include "ArrowMarker.h"
 #include "ImageMarker.h"
 #include "Graph.h"
 #include "Plot.h"
@@ -1607,18 +1607,14 @@ void ApplicationWindow::updateMatrixPlots(QWidget *window)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QWidgetList *windows = windowsList();
-	foreach(QWidget *w, *windows)
-	{
+	foreach(QWidget *w, *windows){
 		if (w->isA("Graph3D") && ((Graph3D*)w)->matrix() == m)
 			((Graph3D*)w)->updateMatrixData(m);
-		else if (w->isA("MultiLayer"))
-		{
+		else if (w->isA("MultiLayer")){
 			QWidgetList graphsList = ((MultiLayer*)w)->graphPtrs();
-			for (int j=0; j<(int)graphsList.count(); j++)
-			{
+			for (int j=0; j<(int)graphsList.count(); j++){
 				Graph* g = (Graph*)graphsList.at(j);
-				for (int i=0; i<g->curves(); i++)
-				{
+				for (int i=0; i<g->curves(); i++){
 					Spectrogram *sp = (Spectrogram *)g->plotItem(i);
 					if (sp && sp->rtti() == QwtPlotItem::Rtti_PlotSpectrogram && sp->matrix() == m)
 						sp->updateData(m);
@@ -2012,8 +2008,7 @@ Matrix* ApplicationWindow::importImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
 	QString filter = tr("Images") + " (", aux1, aux2;
-	for (int i=0; i<(int)list.count(); i++)
-	{
+	for (int i=0; i<(int)list.count(); i++){
 		aux1 = " *."+list[i]+" ";
 		aux2 += " *."+list[i]+";;";
 		filter += aux1;
@@ -2021,8 +2016,7 @@ Matrix* ApplicationWindow::importImage()
 	filter+=");;" + aux2;
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Import image from file"), imagesDirPath, filter);
-	if ( !fn.isEmpty() )
-	{
+	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		imagesDirPath = fi.dirPath(true);
 		return importImage(fn);
@@ -2034,8 +2028,7 @@ void ApplicationWindow::loadImage()
 {
 	QList<QByteArray> list = QImageReader::supportedImageFormats();
 	QString filter = tr("Images") + " (", aux1, aux2;
-	for (int i=0; i<(int)list.count(); i++)
-	{
+	for (int i=0; i<(int)list.count(); i++){
 		aux1 = " *."+list[i]+" ";
 		aux2 += " *."+list[i]+";;";
 		filter += aux1;
@@ -2043,8 +2036,7 @@ void ApplicationWindow::loadImage()
 	filter+=");;" + aux2;
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Load image from file"), imagesDirPath, filter);
-	if ( !fn.isEmpty() )
-	{
+	if ( !fn.isEmpty() ){
 		loadImage(fn);
 		QFileInfo fi(fn);
 		imagesDirPath = fi.dirPath(true);
@@ -2054,24 +2046,11 @@ void ApplicationWindow::loadImage()
 void ApplicationWindow::loadImage(const QString& fn)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-	QPixmap photo;
-	QList<QByteArray> lst = QImageReader::supportedImageFormats();
-	for (int i=0; i<(int)lst.count(); i++)
-	{
-		if (fn.contains("." + lst[i], false))
-		{
-			photo.load(fn, lst[i], QPixmap::Auto);
-			break;
-		}
-	}
 
 	MultiLayer *plot = multilayerPlot(generateUniqueName(tr("Graph")));
 	plot->setWindowLabel(fn);
 	plot->setCaptionPolicy(MyWidget::Both);
 	setListViewLabel(plot->name(), fn);
-
-	if (plot->height()-20>photo.height())
-		plot->setGeometry(0, 0, plot->width(), photo.height()+20);
 
 	plot->showNormal();
 	Graph *g = plot->addLayer(0, 0, plot->width(), plot->height()-20);
@@ -2082,7 +2061,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 		axesOn[j]=false;
 	g->enableAxes(axesOn);
 	g->removeLegend();
-	g->insertImageMarker(photo,fn);
+	g->addImage(fn);
 	QApplication::restoreOverrideCursor();
 }
 
@@ -2118,7 +2097,7 @@ MultiLayer* ApplicationWindow::newGraph(const QString& caption)
 	if (ml)
     {
         Graph *g = ml->addLayer();
-		customGraph(g);
+		setPreferences(g);
         g->newLegend();
         g->setAutoscaleFonts(false);
         g->setIgnoreResizeEvents(false);
@@ -2148,7 +2127,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(Table* w, const QStringList& colLi
 
 	initMultilayerPlot(g, generateUniqueName(tr("Graph")));
 
-	customGraph(ag);
+	setPreferences(ag);
 	polishGraph(ag, style);
 	ag->newLegend();
 	g->arrangeLayers(false, false);
@@ -2191,7 +2170,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 			if (ag)
 			{
 				ag->insertCurvesList(w, QStringList(list[i]), style, defaultCurveLineWidth, defaultSymbolSize);
-				customGraph(ag);
+				setPreferences(ag);
 				ag->newLegend();
 				ag->setAutoscaleFonts(false);//in order to avoid to small fonts
                 ag->setIgnoreResizeEvents(false);
@@ -2209,7 +2188,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 				QStringList lst;
 				lst << list[i];
 				ag->insertCurvesList(w, lst, style, defaultCurveLineWidth, defaultSymbolSize);
-				customGraph(ag);
+				setPreferences(ag);
 				ag->newLegend();
 				ag->setAutoscaleFonts(false);//in order to avoid to small fonts
                 ag->setIgnoreResizeEvents(false);
@@ -2239,7 +2218,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 	MultiLayer* g = new MultiLayer("", ws, 0);
 	g->setAttribute(Qt::WA_DeleteOnClose);
 	Graph *ag = g->addLayer();
-	customGraph(ag);
+	setPreferences(ag);
 	polishGraph(ag, defaultCurveStyle);
 	int curves = (int)colList.count();
 	int errorBars = 0;
@@ -2356,12 +2335,10 @@ void ApplicationWindow::customTable(Table* w)
 	w->setNumericPrecision(d_decimal_digits);
 }
 
-void ApplicationWindow::customGraph(Graph* g)
+void ApplicationWindow::setPreferences(Graph* g)
 {
-	if (!g->isPiePlot())
-	{
-		if (allAxesOn)
-		{
+	if (!g->isPiePlot()){
+		if (allAxesOn){
 			QVector<bool> axesOn(QwtPlot::axisCnt);
 			axesOn.fill (true);
 			g->enableAxes(axesOn);
@@ -4050,9 +4027,9 @@ void ApplicationWindow::readSettings()
 	d_extended_export_dialog = settings.value("/ExtendedExportDialog", true).toBool();
 	d_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
 	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
-	
+
 	settings.beginGroup("/AddRemoveCurves");
-	d_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(), 
+	d_add_curves_dialog_size = QSize(settings.value("/Width", 700).toInt(),
 									settings.value("/Height", 400).toInt());
 	d_show_current_folder = settings.value("/ShowCurrentFolder", false).toBool();
 	settings.endGroup(); // AddRemoveCurves Dialog
@@ -4179,7 +4156,7 @@ void ApplicationWindow::readSettings()
 	settings.endGroup(); // Ticks
 
 	settings.beginGroup("/Legend");
-	legendFrameStyle = settings.value("/FrameStyle", LegendMarker::Line).toInt();
+	legendFrameStyle = settings.value("/FrameStyle", Legend::Line).toInt();
 	legendTextColor = settings.value("/TextColor", "#000000").value<QColor>(); //default color Qt::black
 	legendBackground = settings.value("/BackgroundColor", "#ffffff").value<QColor>(); //default color Qt::white
 	legendBackground.setAlpha(settings.value("/Transparency", 0).toInt()); // transparent by default;
@@ -4187,7 +4164,6 @@ void ApplicationWindow::readSettings()
 
 	settings.beginGroup("/Arrows");
 	defaultArrowLineWidth = settings.value("/Width", 1).toInt();
-
 	defaultArrowColor = settings.value("/Color", "#000000").value<QColor>();//default color Qt::black
 	defaultArrowHeadLength = settings.value("/HeadLength", 4).toInt();
 	defaultArrowHeadAngle = settings.value("/HeadAngle", 45).toInt();
@@ -5795,7 +5771,7 @@ void ApplicationWindow::showMatrixSizeDialog()
 
 		MatrixSizeDialog* md= new MatrixSizeDialog(this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
-		connect (md, SIGNAL(changeDimensions(int, int)), w, SLOT(setMatrixDimensions(int, int)));
+		connect (md, SIGNAL(changeDimensions(int, int)), w, SLOT(setDimensions(int, int)));
 		connect (md, SIGNAL(changeCoordinates(double, double, double, double)),
 				w, SLOT(setCoordinates(double, double, double, double)));
 
@@ -6982,8 +6958,7 @@ void ApplicationWindow::addImage()
 		return;
 
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
-	if (plot->isEmpty())
-	{
+	if (plot->isEmpty()){
 		QMessageBox::warning(this,tr("QtiPlot - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
@@ -6991,38 +6966,26 @@ void ApplicationWindow::addImage()
 	}
 
 	Graph* g = (Graph*)plot->activeGraph();
-	if (g)
-	{
-		QList<QByteArray> list = QImageReader::supportedImageFormats();
-		QString filter = tr("Images") + " (", aux1, aux2;
-		for (int i=0; i<(int)list.count(); i++)
-		{
-			aux1 = " *."+list[i]+" ";
-			aux2 += " *."+list[i]+";;";
-			filter += aux1;
-		}
-		filter+=");;" + aux2;
+	if (!g)
+		return;
+		
+	QList<QByteArray> list = QImageReader::supportedImageFormats();
+	QString filter = tr("Images") + " (", aux1, aux2;
+	for (int i=0; i<(int)list.count(); i++){
+		aux1 = " *."+list[i]+" ";
+		aux2 += " *."+list[i]+";;";
+		filter += aux1;
+	}
+	filter+=");;" + aux2;
 
-		QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Insert image from file"), imagesDirPath, filter);
-		if ( !fn.isEmpty() )
-		{
-			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-			QPixmap photo;
-			for (int i=0;i<(int)list.count();i++)
-			{
-				if (fn.contains("."+list[i], false))
-				{
-					photo.load(fn,list[i],QPixmap::Color);
-					break;
-				}
-			}
+	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Insert image from file"), imagesDirPath, filter);
+	if ( !fn.isEmpty() ){
+		QFileInfo fi(fn);
+		imagesDirPath = fi.dirPath(true);
 
-			g->insertImageMarker(photo,fn);
-
-			QFileInfo fi(fn);
-			imagesDirPath = fi.dirPath(true);
-			QApplication::restoreOverrideCursor();
-		}
+		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
+		g->addImage(fn);
+		QApplication::restoreOverrideCursor();
 	}
 }
 
@@ -7144,7 +7107,7 @@ void ApplicationWindow::showTextDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if ( g )
 	{
-		LegendMarker *m = (LegendMarker *) g->selectedMarkerPtr();
+		Legend *m = (Legend *) g->selectedMarkerPtr();
 		if (!m)
 			return;
 
@@ -7170,9 +7133,8 @@ void ApplicationWindow::showLineDialog()
 		return;
 
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
-	if (g)
-	{
-		LineMarker *lm = (LineMarker*)g->selectedMarkerPtr();
+	if (g){
+		ArrowMarker *lm = (ArrowMarker *) g->selectedMarkerPtr();
 		if (!lm)
 			return;
 
@@ -7300,7 +7262,7 @@ void ApplicationWindow::copyMarker()
 
 		if (copiedMarkerType == Graph::Text)
 		{
-			LegendMarker *m= (LegendMarker *) g->selectedMarkerPtr();
+			Legend *m = (Legend *) g->selectedMarkerPtr();
 			auxMrkText=m->text();
 			auxMrkColor=m->textColor();
 			auxMrkFont=m->font();
@@ -7309,7 +7271,7 @@ void ApplicationWindow::copyMarker()
 		}
 		else if (copiedMarkerType == Graph::Arrow)
 		{
-			LineMarker *m=(LineMarker *) g->selectedMarkerPtr();
+			ArrowMarker *m = (ArrowMarker *) g->selectedMarkerPtr();
 			auxMrkWidth=m->width();
 			auxMrkColor=m->color();
 			auxMrkStyle=m->style();
@@ -7321,8 +7283,9 @@ void ApplicationWindow::copyMarker()
 		}
 		else if (copiedMarkerType == Graph::Image)
 		{
-			ImageMarker *im= (ImageMarker *) g->selectedMarkerPtr();
-			auxMrkFileName=im->getFileName();
+			ImageMarker *im = (ImageMarker *) g->selectedMarkerPtr();
+			if (im)
+				auxMrkFileName = im->fileName();
 		}
 	}
 	copiedLayer=false;
@@ -7381,222 +7344,95 @@ void ApplicationWindow::pasteSelection()
 	emit modified();
 }
 
-Table* ApplicationWindow::copyTable()
+MyWidget* ApplicationWindow::clone()
 {
-	Table *w = 0, *m = (Table*)ws->activeWindow();
-	if (m)
-	{
-		QString caption = generateUniqueName(tr("Table"));
-		w=newTable(caption, m->numRows(), m->numCols());
-		w->copy(m);
-
-		QString spec=m->saveToString("geometry\n");
-		w->setSpecifications(spec.replace(m->name(),caption));
-
-		w->showNormal();
-		setListViewSize(caption, m->sizeToString());
-		emit modified();
-	}
-	return w;
-}
-
-Matrix* ApplicationWindow::cloneMatrix() // TODO: this method or parts of it should be in the Matrix class
-{
-	Matrix *w = 0, *m = (Matrix*)ws->activeWindow();
-	if (m)
-	{
-		int c = m->numCols();
-		int r = m->numRows();
-		w = newMatrix(r, c);
-		w->setCoordinates(m->xStart(), m->xEnd(), m->yStart(), m->yEnd());
-		for (int i=0; i<r; i++)
-			for (int j=0; j<c; j++)
-			{
-				w->setText(i, j, m->text(i,j));
-			}
-		w->setColumnsWidth(m->columnsWidth());
-		w->setFormula(m->formula());
-		w->setTextFormat(m->textFormat(), m->precision());
-		w->showNormal();
-		setListViewSize(w->name(), m->sizeToString());
-		emit modified();
-	}
-	return w;
-}
-
-Graph3D* ApplicationWindow::copySurfacePlot()
-{
-	if (ws->activeWindow() && ws->activeWindow()->isA("Graph3D"))
-	{
-		Graph3D* g = (Graph3D*)ws->activeWindow();
-		if (!g->hasData())
-		{
-			QApplication::restoreOverrideCursor();
-			QMessageBox::warning(this, tr("QtiPlot - Duplicate error"),
-					tr("Empty 3D surface plots cannot be duplicated!"));
-			return 0;
-		}
-
-		QString caption = generateUniqueName(tr("Graph"));
-		Graph3D *g2=0;
-		QString s = g->formula();
-		if (g->userFunction())
-		{
-			g2 = newPlot3D(caption,g->formula(),g->xStart(),g->xStop(),
-					g->yStart(),g->yStop(), g->zStart(),g->zStop());
-		}
-		else if (s.endsWith("(Z)",true))
-			g2 = dataPlotXYZ(caption,s,g->xStart(),g->xStop(),
-					g->yStart(),g->yStop(),g->zStart(),g->zStop());
-		else if (s.endsWith("(Y)",true))
-			g2 = dataPlot3D(caption, s, g->xStart(),g->xStop(),
-					g->yStart(),g->yStop(),g->zStart(),g->zStop());//Ribbon plot
-		else
-			g2 = openMatrixPlot3D(caption, s, g->xStart(), g->xStop(),
-					g->yStart(), g->yStop(),g->zStart(),g->zStop());
-
-		if (!g2)
-			return 0;
-
-		Graph3D::PointStyle pt=g->pointType();
-		if (g->plotStyle() == Qwt3D::USER )
-		{
-			switch (pt)
-			{
-				case Graph3D::None :
-					break;
-
-				case Graph3D::Dots :
-					g2->setPointOptions(g->pointsSize(), g->smoothPoints());
-					break;
-
-				case Graph3D::VerticalBars :
-					g2->setBarsRadius(g->barsRadius());
-					break;
-
-				case Graph3D::HairCross :
-					g2->setCrossOptions(g->crossHairRadius(), g->crossHairLinewidth(),
-							g->smoothCrossHair(), g->boxedCrossHair());
-					break;
-
-				case Graph3D::Cones :
-					g2->setConesOptions(g->coneRadius(), g->coneQuality());
-					break;
-			}
-		}
-		g2->setStyle(g->coordStyle(),g->floorStyle(),g->plotStyle(),pt);
-		g2->setGrid(g->grids());
-		g2->setTitle(g->plotTitle(),g->titleColor(),g->titleFont());
-		g2->setTransparency(g->transparency());
-		if (!g->colorMap().isEmpty())
-			g2->setDataColorMap(g->colorMap());
-		else
-			g2->setDataColors(g->minDataColor(),g->maxDataColor());
-		g2->setColors(g->meshColor(),g->axesColor(),g->numColor(),
-				g->labelColor(), g->bgColor(),g->gridColor());
-		g2->setAxesLabels(g->axesLabels());
-		g2->setTicks(g->scaleTicks());
-		g2->setTickLengths(g->axisTickLengths());
-		g2->setOptions(g->isLegendOn(), g->resolution(),g->labelsDistance());
-		g2->setNumbersFont(g->numbersFont());
-		g2->setXAxisLabelFont(g->xAxisLabelFont());
-		g2->setYAxisLabelFont(g->yAxisLabelFont());
-		g2->setZAxisLabelFont(g->zAxisLabelFont());
-		g2->setRotation(g->xRotation(),g->yRotation(),g->zRotation());
-		g2->setZoom(g->zoom());
-		g2->setScale(g->xScale(),g->yScale(),g->zScale());
-		g2->setShift(g->xShift(),g->yShift(),g->zShift());
-		g2->setMeshLineWidth((int)g->meshLineWidth());
-		g2->setOrtho(g->isOrthogonal());
-		g2->update();
-		g2->animate(g->isAnimated());
-		customToolBars((QWidget*)g2);
-
-		setListViewSize(caption, g->sizeToString());
-		return g2;
-	}
-	else
-		return 0;
-}
-
-MultiLayer* ApplicationWindow::copyGraph()
-{
-	MultiLayer* ml2 = 0;
-	if (ws->activeWindow() &&  ws->activeWindow()->isA("MultiLayer"))
-	{
-		MultiLayer* ml = (MultiLayer*)ws->activeWindow();
-		QString caption = generateUniqueName(tr("Graph"));
-
-		ml2 = multilayerPlot(caption);
-		ml2->hide();//FIXME: find a better way to avoid a resize event
-		ml2->resize(ml->size());
-		ml2->copy(ml);
-		ml2->show();
-
-		setListViewSize(caption, ml->sizeToString());
-	}
-	return ml2;
-}
-
-MyWidget* ApplicationWindow::copyWindow()
-{
-	MyWidget* w=0;
-	MyWidget* g = (MyWidget*)ws->activeWindow();
-	if (!g)
-	{
+	MyWidget* w = (MyWidget*)ws->activeWindow();
+	if (!w){
 		QMessageBox::critical(this,tr("QtiPlot - Duplicate window error"),
 				tr("There are no windows available in this project!"));
-		return w;
+		return 0;
 	}
 
+	return clone(w);
+}
+
+MyWidget* ApplicationWindow::clone(MyWidget* w)
+{
+    if (!w)
+        return 0;
+
+	MyWidget* nw = 0;
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	if (g->isA("MultiLayer"))
-		w = copyGraph();
-	else if (g->inherits("Table"))
-		w = copyTable();
-	else if (g->isA("Graph3D"))
-		w = copySurfacePlot();
-	else if (g->isA("Matrix"))
-		w = cloneMatrix();
-	else if (g->isA("Note"))
-	{
-		w = newNote();
-		if (w)
-			((Note*)w)->setText(((Note*)g)->text());
-	}
+	if (w->isA("MultiLayer")){
+		nw = multilayerPlot(generateUniqueName(tr("Graph")));
+		((MultiLayer *)nw)->copy((MultiLayer *)w);
+	} else if (w->inherits("Table")){
+		Table *t = (Table *)w;
+		QString caption = generateUniqueName(tr("Table"));
+    	nw = newTable(caption, t->numRows(), t->numCols());
+    	((Table *)nw)->copy(t);
+    	QString spec = t->saveToString("geometry\n");
+    	((Table *)nw)->setSpecifications(spec.replace(t->name(), caption));
+	} else if (w->isA("Graph3D")){
+		Graph3D *g = (Graph3D *)w;
+		if (!g->hasData()){
+        	QApplication::restoreOverrideCursor();
+        	QMessageBox::warning(this, tr("QtiPlot - Duplicate error"), tr("Empty 3D surface plots cannot be duplicated!"));
+        	return 0;
+    	}
 
-	if (w)
-	{
-		if (g->isA("MultiLayer"))
-		{
-			if (g->status() == MyWidget::Maximized)
-				w->showMaximized();
-		}
-		else if (g->isA("Graph3D"))
-		{
-			((Graph3D*)w)->setIgnoreFonts(true);
-			if (g->status() == MyWidget::Maximized)
-			{
-				g->showNormal();
-				g->resize(500,400);
-				w->resize(g->size());
-				w->showMaximized();
-			}
-			else
-				w->resize(g->size());
-			((Graph3D*)w)->setIgnoreFonts(false);
-		}
+		QString caption = generateUniqueName(tr("Graph"));
+		QString s = g->formula();
+		if (g->userFunction())
+			nw = newPlot3D(caption, s, g->xStart(), g->xStop(), g->yStart(), g->yStop(), g->zStart(), g->zStop());
+		else if (s.endsWith("(Z)"))
+			nw = dataPlotXYZ(caption, s, g->xStart(),g->xStop(), g->yStart(),g->yStop(),g->zStart(),g->zStop());
+		else if (s.endsWith("(Y)"))//Ribbon plot
+			nw = dataPlot3D(caption, s, g->xStart(),g->xStop(), g->yStart(),g->yStop(),g->zStart(),g->zStop());
 		else
-			w->resize(g->size());
+			nw = openMatrixPlot3D(caption, s, g->xStart(), g->xStop(), g->yStart(), g->yStop(),g->zStart(),g->zStop());
 
-		w->setWindowLabel(g->windowLabel());
-		w->setCaptionPolicy(g->captionPolicy());
-		setListViewLabel(w->name(), g->windowLabel());
+		if (!nw)
+			return 0;
+
+		((Graph3D *)nw)->copy(g);
+		customToolBars((QWidget*)nw);
+	} else if (w->isA("Matrix")){
+		nw = newMatrix(((Matrix *)w)->numRows(), ((Matrix *)w)->numCols());
+    	((Matrix *)nw)->copy((Matrix *)w);
+	} else if (w->isA("Note")){
+		nw = newNote();
+		if (nw)
+			((Note*)nw)->setText(((Note*)w)->text());
 	}
 
+	if (nw){
+		if (w->isA("MultiLayer")){
+			if (w->status() == MyWidget::Maximized)
+				nw->showMaximized();
+		} else if (w->isA("Graph3D")){
+			((Graph3D*)nw)->setIgnoreFonts(true);
+			if (w->status() == MyWidget::Maximized){
+				w->showNormal();
+				w->resize(500,400);
+				nw->resize(w->size());
+				nw->showMaximized();
+			} else
+				nw->resize(w->size());
+			((Graph3D*)nw)->setIgnoreFonts(false);
+		} else {
+			nw->resize(w->size());
+			nw->showNormal();
+		}
+
+		nw->setWindowLabel(w->windowLabel());
+		nw->setCaptionPolicy(w->captionPolicy());
+		setListViewLabel(nw->name(), w->windowLabel());
+		setListViewSize(nw->name(), w->sizeToString());
+	}
 	QApplication::restoreOverrideCursor();
-	return w;
+	return nw;
 }
 
 void ApplicationWindow::undo()
@@ -7606,14 +7442,12 @@ void ApplicationWindow::undo()
 
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	if (lastModified->isA("Table"))
-	{
+	if (lastModified->isA("Table")){
 		Table *t = (Table *)lastModified;
 		t->setNewSpecifications();
 		QString newCaption=t->oldCaption();
 		QString name=lastModified->name();
-		if (newCaption != name)
-		{
+		if (newCaption != name){
 			int id=tableWindows.findIndex(name);
 			tableWindows[id]=newCaption;
 			updateTableNames(name,newCaption);
@@ -7622,9 +7456,7 @@ void ApplicationWindow::undo()
 		t->restore(t->getSpecifications());
 		actionUndo->setEnabled(false);
 		actionRedo->setEnabled(true);
-	}
-	else if (lastModified->isA("Note"))
-	{
+	} else if (lastModified->isA("Note")) {
 		((Note*)lastModified)->textWidget()->undo();
 		actionUndo->setEnabled(false);
 		actionRedo->setEnabled(true);
@@ -9594,17 +9426,15 @@ Matrix* ApplicationWindow::importImage(const QString& fileName)
 
 	Matrix* m = new Matrix(scriptEnv, rows, cols, "", ws);
 	m->setAttribute(Qt::WA_DeleteOnClose);
-	m->blockSignals(true);
+	m->table()->blockSignals(true);
 
 	int aux = rows - 1;
-	for (int i=0; i<rows; i++ )
-	{
+	for (int i=0; i<rows; i++ ){
 		int l = aux - i;
 		for (int j=0; j<cols; j++)
 			m->setCell(i, j, qGray(image.pixel (j, l)));
 
-		if (i%10 == 9)
-		{
+		if (i%10 == 9){
 		    progress.setValue(i);
 		    QApplication::processEvents();
 		}
@@ -9613,19 +9443,16 @@ Matrix* ApplicationWindow::importImage(const QString& fileName)
             break;
 	}
 
-	if (!progress.wasCanceled())
-	{
+	if (!progress.wasCanceled()){
 		QString caption = generateUniqueName(tr("Matrix"));
 		initMatrix(m, caption);
     	m->show();
     	m->setWindowLabel(fileName);
     	m->setCaptionPolicy(MyWidget::Both);
     	setListViewLabel(m->name(), fileName);
-    	m->blockSignals(false);
+    	m->table()->blockSignals(false);
 		return m;
-	}
-	else
-	{
+	} else {
 		delete m;
 		return 0;
 	}
@@ -9655,13 +9482,13 @@ void ApplicationWindow::addLayer()
 	{
 		case 0:
 			{
-				customGraph(plot->addLayer());
+				setPreferences(plot->addLayer());
 				plot->arrangeLayers(true, false);
 			}
 			break;
 
 		case 1:
-			customGraph(plot->addLayer(0, 0, plot->size().width(), plot->size().height()));
+			setPreferences(plot->addLayer(0, 0, plot->size().width(), plot->size().height()));
 			break;
 
 		case 2:
@@ -10427,12 +10254,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 		else if (s.contains ("lineMarker"))
 		{// version <= 0.8.9
 			QStringList fList=s.split("\t");
-			ag->insertLineMarker(fList, d_file_version);
+			ag->addArrow(fList, d_file_version);
 		}
 		else if (s.startsWith ("<line>") && s.endsWith ("</line>"))
 		{
 			QStringList fList=s.remove("</line>").split("\t");
-			ag->insertLineMarker(fList, d_file_version);
+			ag->addArrow(fList, d_file_version);
 		}
 		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
@@ -10927,7 +10754,7 @@ void ApplicationWindow::createActions()
 	actionRedo->setEnabled(false);
 
 	actionCopyWindow = new QAction(QIcon(QPixmap(duplicate_xpm)), tr("&Duplicate"), this);
-	connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(copyWindow()));
+	connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
 	actionCutSelection = new QAction(QIcon(QPixmap(cut_xpm)), tr("Cu&t Selection"), this);
 	actionCutSelection->setShortcut( tr("Ctrl+X") );
@@ -12088,7 +11915,7 @@ MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
 
 	MultiLayer* g = multilayerPlot(generateUniqueName(tr("Graph")));
 	Graph* plot = g->addLayer();
-	customGraph(plot);
+	setPreferences(plot);
 
 	plot->plotSpectrogram(m, type);
 	g->showNormal();
@@ -12548,7 +12375,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			a = loadScript(file_name, exec);
 		else
 			a = open(file_name);
-		
+
 		if (a){
 			a->workingDir = workingDir;
 			close();

@@ -50,7 +50,7 @@
  * \section future Future Plans
  * Rename to TextMarker (or maybe TextEnrichment; see documentation of ImageMarker for details).
  *
- * \sa ImageMarker, Arrow
+ * \sa ImageMarker, ArrowMarker
  */
 class Legend: public PlotEnrichement
 {

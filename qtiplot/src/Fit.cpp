@@ -31,7 +31,7 @@
 #include "Table.h"
 #include "Matrix.h"
 #include "QwtErrorPlotCurve.h"
-#include "LegendMarker.h"
+#include "Legend.h"
 #include "FunctionCurve.h"
 #include "ColorBox.h"
 

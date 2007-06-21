@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "Differentiation.h"
 #include "MultiLayer.h"
-#include "LegendMarker.h"
+#include "Legend.h"
 
 #include <QLocale>
 
@@ -77,6 +77,6 @@ void Differentiation::output()
 
     MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
     ml->activeGraph()->insertCurve(t, tableName + "_2", 0);
-    LegendMarker *l = ml->activeGraph()->legend();
+    Legend *l = ml->activeGraph()->legend();
     l->setText("\\c{1}" + tr("Derivative") + " " + tr("of","Derivative of") + " " + curveTitle);
 }

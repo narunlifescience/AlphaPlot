@@ -51,7 +51,7 @@
 
 #include "MultiLayer.h"
 #include "Plot.h"
-#include "LegendMarker.h"
+#include "Legend.h"
 #include "SelectionMoveResizer.h"
 
 #include <gsl/gsl_vector.h>
@@ -920,7 +920,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 		QVector<int> keys=gr->textMarkerKeys();
 		for (int k=0;k<(int)keys.size();k++)
 		{
-			LegendMarker* mrk=(LegendMarker*)gr->textMarker(keys[k]);
+			Legend* mrk=(Legend*)gr->textMarker(keys[k]);
 			if (mrk)
 				mrk->setFont(legendFnt);
 		}
@@ -981,7 +981,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	g->setIgnoreResizeEvents(true);
 	g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont,
 			defaultTextMarkerColor, defaultTextMarkerBackground);
-	LegendMarker *mrk = g->newLegend(tr("enter your text here"));
+	Legend *mrk = g->newLegend(tr("enter your text here"));
 	QSize size = mrk->rect().size();
 	setGraphGeometry(pos.x(), pos.y(), size.width()+10, size.height()+10);
 	g->setIgnoreResizeEvents(false);
@@ -1307,19 +1307,22 @@ void MultiLayer::setLayersNumber(int n)
 
 void MultiLayer::copy(MultiLayer* ml)
 {
+	hide();//FIXME: find a better way to avoid a resize event
+    resize(ml->size());
+	
 	setSpacing(ml->rowsSpacing(), ml->colsSpacing());
 	setAlignement(ml->horizontalAlignement(), ml->verticalAlignement());
 	setMargins(ml->leftMargin(), ml->rightMargin(), ml->topMargin(), ml->bottomMargin());
 
 	QWidgetList graphsList = ml->graphPtrs();
-	for (int i=0; i<graphsList.count(); i++)
-	{
+	for (int i=0; i<graphsList.count(); i++){
 		Graph* g = (Graph*)graphsList.at(i);
 		Graph* g2 = addLayer(g->pos().x(), g->pos().y(), g->width(), g->height());
 		g2->copy(g);
 		g2->setIgnoreResizeEvents(g->ignoresResizeEvents());
 		g2->setAutoscaleFonts(g->autoscaleFonts());
 	}
+	show();
 }
 
 bool MultiLayer::focusNextPrevChild ( bool next )

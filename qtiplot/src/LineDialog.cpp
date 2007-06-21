@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "LineDialog.h"
 #include "ColorButton.h"
-#include "LineMarker.h"
+#include "ArrowMarker.h"
 #include "Graph.h"
 #include "Plot.h"
 #include "ApplicationWindow.h"
@@ -47,7 +47,7 @@
 #include <QColorDialog>
 #include <QTabWidget>
 
-LineDialog::LineDialog( LineMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
+LineDialog::LineDialog( ArrowMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
     setWindowTitle( tr( "QtiPlot - Line options" ) );

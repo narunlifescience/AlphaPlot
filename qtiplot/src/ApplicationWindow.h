@@ -200,7 +200,6 @@ public slots:
 
 	//! \name Multilayer Plots
 	//@{
-	MultiLayer* copyGraph();
 	MultiLayer* multilayerPlot(int c, int r, int style);
 	MultiLayer* multilayerPlot(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
 	//! used when restoring a plot from a project file
@@ -251,7 +250,6 @@ public slots:
 					   double yl, double yr, double zl, double zr);
 	Graph3D* newPlot3D(const QString& caption,const QString& formula,
 					   double xl, double xr,double yl, double yr, double zl, double zr);
-	Graph3D* copySurfacePlot();
 	void connectSurfacePlot(Graph3D *plot);
 	void newSurfacePlot();
 	void editSurfacePlot();
@@ -302,7 +300,6 @@ public slots:
 
 	//! \name Matrices
 	//@{
-	Matrix* cloneMatrix();
 	//! Creates a new empty matrix
 	Matrix* newMatrix(int rows = 32, int columns = 32);
 	//! To be used when opening a project file only!
@@ -337,7 +334,6 @@ public slots:
 	 */
 	Table* newHiddenTable(const QString& name, const QString& label, int r, int c, const QString& text=QString());
 	Table* table(const QString& name);
-	Table* copyTable();
 	Table* convertMatrixToTable();
 	QWidgetList* tableList();
 
@@ -364,7 +360,7 @@ public slots:
 
 	//! \name Graphs
 	//@{
-	void customGraph(Graph* g);
+	void setPreferences(Graph* g);
 	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers,bool antialiasing);
 	void setLegendDefaultSettings(int frame, const QFont& font,
 							 const QColor& textCol, const QColor& backgroundCol);
@@ -416,7 +412,8 @@ public slots:
 
 	//! \name MDI Windows
 	//@{
-	MyWidget* copyWindow();
+	MyWidget* clone();
+	MyWidget* clone(MyWidget*);
 	void rename();
 	void renameWindow();
 

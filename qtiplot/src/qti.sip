@@ -191,7 +191,13 @@ public:
 %End
   void normalize();
 
-  void sortColumn(int col = -1, int order = 0);
+  void sortColumn(SIP_PYOBJECT, int order = 0);
+%MethodCode
+  	sipIsErr = 0;
+  	CHECK_TABLE_COL(a0);
+	if (sipIsErr == 0)
+		sipCpp->sortColumn(col, a1);
+%End
   void sort(int type = 0, int order = 0, const QString& leadCol = QString());
   void sortColumns(SIP_PYTUPLE, int=0, int=0, const QString&=QString());
 %MethodCode
@@ -249,7 +255,11 @@ class Matrix: MyWidget
 %End
 public:
   int numRows();
+  void setNumRows(int);
   int numCols();
+  void setNumCols(int);
+  void setDimensions(int rows, int cols);
+
   SIP_PYOBJECT text(int, int);
 %MethodCode
 	sipIsErr = 0;
@@ -282,22 +292,36 @@ public:
 	if (sipIsErr == 0)
 		sipCpp->setCell(row, col, a2);
 %End
+
+    double xStart();
+	double xEnd();
+	double yStart();
+	double yEnd();
+    void setCoordinates(double xs, double xe, double ys, double ye);
+
+    void setFormula(const QString &s);
+    bool calculate(int startRow = 0, int endRow = -1, int startCol = 0, int endCol = -1);
+
+    void setNumericPrecision(int prec);
+
+    void transpose();
+	void invert();
+	double determinant();
+
 private:
   Matrix(const Matrix&);
 };
 
-class LineMarker // : QwtPlotMarker
+class ArrowMarker // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "src/LineMarker.h"
+#include "src/ArrowMarker.h"
 %End
 public:
 
-  LineMarker();
+  ArrowMarker();
 
-  QPoint startPoint() /PyName=start/;
   void setStartPoint(double, double) /PyName=setStart/;
-  QPoint endPoint() /PyName=end/;
   void setEndPoint(double, double) /PyName=setEnd/;
 
   void setStyle(Qt::PenStyle);
@@ -310,15 +334,35 @@ public:
   void fillArrowHead(bool = true);
 
 private:
-  LineMarker(const LineMarker&);
+  ArrowMarker(const ArrowMarker&);
 };
 
-class LegendMarker // : QwtPlotMarker
+class ImageMarker // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "src/LegendMarker.h"
+#include "src/ImageMarker.h"
 %End
 public:
+
+  ImageMarker(const QString&);
+  QString fileName();
+  
+  QSize size();
+  void setSize(int, int);
+  
+  void setBoundingRect(double, double, double, double) /PyName=setCoordinates/;
+  
+private:
+  ImageMarker(const ImageMarker&);
+};
+
+class Legend // : QwtPlotMarker
+{
+%TypeHeaderCode
+#include "src/Legend.h"
+%End
+public:
+
   void setText(const QString&);
   void setTextColor(const QColor&);
   void setFrameStyle(int);
@@ -327,14 +371,14 @@ public:
   void setOriginCoord(double, double);
 
 private:
-  LegendMarker(const LegendMarker&);
+  Legend(const Legend&);
 };
 
 class Graph : QWidget /PyName=Layer/
 {
 %TypeHeaderCode
 #include "src/Graph.h"
-#include "src/LegendMarker.h"
+#include "src/Legend.h"
 %End
 public:
   bool isPiePlot();
@@ -354,18 +398,20 @@ public:
 		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 		  bool through = true, bool minus = true, bool plus = true);
 
-  void insertLineMarker(LineMarker*) /PyName=addLine/;
-  LineMarker* lineMarker(long) /PyName=line/;
+  void addArrow(ArrowMarker*);
 
+  ImageMarker* addImage(ImageMarker*);
+  ImageMarker* addImage(const QString& fileName);
+  
   void setTitle(const QString& t);
-  LegendMarker* newLegend();
-  LegendMarker* newLegend(const QString&);
+  Legend* newLegend();
+  Legend* newLegend(const QString&);
   void setLegend(const QString&) /NoDerived/;
 %MethodCode
   sipCpp->legend()->setText(*a0);
 %End
 
-  LegendMarker* legend();
+  Legend* legend();
 
   void removeLegend();
   void addTimeStamp();
@@ -382,7 +428,7 @@ public:
   void setFrame(int width = 1, const QColor& color = QColor(Qt::black));
   void setBackgroundColor(const QColor& color);
   void setCanvasBackground(const QColor& color) /PyName=setCanvasColor/;
-		
+
   void showGrid(int);
   void showGrid();
   void replot();
@@ -396,7 +442,7 @@ public:
   void setIgnoreResizeEvents(bool = true)/PyName=setIgnoreResize/;
   void setAutoscaleFonts(bool = true);
   void setAntialiasing(bool on = true, bool update = true);
-  
+
 private:
   Graph(const Graph&);
 };
@@ -412,7 +458,7 @@ public:
   int layers() /PyName=numLayers/;
   Graph* layer(int num);
   Graph* addLayer(int = 0, int = 0, int = 0, int = 0);
-  
+
   void setCols(int);
   void setRows(int);
   void setSpacing (int, int);
@@ -420,7 +466,7 @@ public:
   void setLayerCanvasSize (int, int);
   void setAlignement (int, int);
   void arrangeLayers(bool fit = true, bool userSize = false);
-  
+
   void exportToFile(const QString& fileName) /PyName=export/;
   void exportImage(const QString& fileName, int quality = 100, bool transparent = false);
   void exportVector(const QString& fileName, int res = 0, bool color = true,
@@ -536,7 +582,9 @@ public:
   Folder* projectFolder() /PyName=rootFolder/;
 
   void renameWindow(MyWidget *, const QString &);
-  void customGraph(Graph*) /PyName=customLayer/;
+  void setPreferences(Graph*);
+
+  MyWidget* clone(MyWidget*);
 
 private:
   ApplicationWindow(const ApplicationWindow&);

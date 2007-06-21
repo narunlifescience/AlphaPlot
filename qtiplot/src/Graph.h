@@ -48,8 +48,8 @@ class QwtPlotCurve;
 class QwtPlotZoomer;
 class QwtPieCurve;
 class Table;
-class LegendMarker;
-class LineMarker;
+class Legend;
+class ArrowMarker;
 class ImageMarker;
 class TitlePicker;
 class ScalePicker;
@@ -311,7 +311,7 @@ class Graph: public QWidget
 		//@{
 		void drawText(bool on);
 		bool drawTextActive(){return drawTextOn;};
-		long insertTextMarker(LegendMarker* mrk);
+		long insertTextMarker(Legend* mrk);
 
 		//! Used when opening a project file
 		long insertTextMarker(const QStringList& list, int fileVersion);
@@ -333,7 +333,7 @@ class Graph: public QWidget
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 		QVector<int> textMarkerKeys(){return d_texts;};
-		LegendMarker* textMarker(long id);
+		Legend* textMarker(long id);
 
 		void addTimeStamp();
 
@@ -341,9 +341,9 @@ class Graph: public QWidget
 		void removeLegendItem(int index);
 		void addLegendItem(const QString& colName);
 		void insertLegend(const QStringList& lst, int fileVersion);
-		LegendMarker *legend();
-		LegendMarker *newLegend();
-		LegendMarker *newLegend(const QString& text);
+		Legend *legend();
+		Legend *newLegend();
+		Legend *newLegend(const QString& text);
 		bool hasLegend(){return legendMarkerID >= 0;};
 
 		//! Creates a new legend text using the curves titles
@@ -352,11 +352,11 @@ class Graph: public QWidget
 
 		//! \name Line Markers
 		//@{
-		LineMarker* lineMarker(long id);
-		void insertLineMarker(LineMarker* mrk);
+		ArrowMarker* arrow(long id);
+		void addArrow(ArrowMarker* mrk);
 
 		//! Used when opening a project file
-		void insertLineMarker(QStringList list, int fileVersion);
+		void addArrow(QStringList list, int fileVersion);
 		QVector<int> lineMarkerKeys(){return d_lines;};
 
 		//!Draws a line/arrow depending on the value of "arrow"
@@ -373,20 +373,19 @@ class Graph: public QWidget
 
 		void setArrowDefaults(int lineWidth,  const QColor& c, Qt::PenStyle style,
 				int headLength, int headAngle, bool fillHead);
+        bool arrowMarkerSelected();
 		//@}
 
 		//! \name Image Markers
 		//@{
 		ImageMarker* imageMarker(long id);
 		QVector<int> imageMarkerKeys(){return d_images;};
-		void insertImageMarker(ImageMarker* mrk);
-		void insertImageMarker(const QPixmap& photo, const QString& fileName);
+		ImageMarker* addImage(ImageMarker* mrk);
+		ImageMarker* addImage(const QString& fileName);
 
 		void insertImageMarker(const QStringList& lst, int fileVersion);
 		bool imageMarkerSelected();
 		void updateImageMarker(int x, int y, int width, int height);
-
-		bool arrowMarkerSelected();
 		//@}
 
 		//! \name Common to all Markers

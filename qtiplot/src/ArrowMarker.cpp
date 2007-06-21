@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : LineMarker.cpp
+    File                 : ArrowMarker.cpp
     Project              : QtiPlot
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
-    Description          : Line marker (extension to QwtPlotMarker)
+    Description          : Arrow marker (extension to QwtPlotMarker)
 
  ***************************************************************************/
 
@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "LineMarker.h"
+#include "ArrowMarker.h"
 #include "LineDialog.h"
 
 #include <QPainter>
@@ -41,7 +41,7 @@
 #define M_PI 3.141592653589793238462643;
 #endif
 
-LineMarker::LineMarker():
+ArrowMarker::ArrowMarker():
 		d_end_arrow(true),
 		d_fill_head(true),
 		d_head_angle(45),
@@ -52,7 +52,7 @@ LineMarker::LineMarker():
 {
 }
 
-void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
+void ArrowMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &yMap, const QRect &) const
 {
 	const int x0 = xMap.transform(d_rect.left());
 	const int y0 = yMap.transform(d_rect.top());
@@ -122,7 +122,7 @@ void LineMarker::draw(QPainter *p, const QwtScaleMap &xMap, const QwtScaleMap &y
 	}
 }
 
-double LineMarker::theta(int xs, int ys, int xe, int ye) const
+double ArrowMarker::theta(int xs, int ys, int xe, int ye) const
 {
 double t;
 if (xe == xs)
@@ -141,7 +141,7 @@ else
 return t;
 }
 
-double LineMarker::length()
+double ArrowMarker::length()
 {
 	if (!plot())
 		return -1.0;
@@ -158,7 +158,7 @@ double LineMarker::length()
 	return fabs(l);
 }
 
-double LineMarker::dist(int x, int y)
+double ArrowMarker::dist(int x, int y)
 {
 	if (!plot())
 		return -1.0;
@@ -193,7 +193,7 @@ double LineMarker::dist(int x, int y)
 	return fabs(d);
 }
 
-void LineMarker::setColor(const QColor& c)
+void ArrowMarker::setColor(const QColor& c)
 {
 if (linePen().color() == c)
 	return;
@@ -203,7 +203,7 @@ pen.setColor(c);
 setLinePen(pen);
 }
 
-void LineMarker::setWidth(int w)
+void ArrowMarker::setWidth(int w)
 {
 if (linePen().width() == w)
 	return;
@@ -213,7 +213,7 @@ pen.setWidth (w);
 setLinePen(pen);
 }
 
-void LineMarker::setStyle(Qt::PenStyle style)
+void ArrowMarker::setStyle(Qt::PenStyle style)
 {
 if (linePen().style() == style)
 	return;
@@ -223,7 +223,7 @@ pen.setStyle(style);
 setLinePen(pen);
 }
 
-void LineMarker::setHeadLength(int l)
+void ArrowMarker::setHeadLength(int l)
 {
 if (d_head_length == l)
 	return;
@@ -231,7 +231,7 @@ if (d_head_length == l)
 d_head_length=l;
 }
 
-void LineMarker::setHeadAngle(int a)
+void ArrowMarker::setHeadAngle(int a)
 {
 if (d_head_angle == a)
 	return;
@@ -239,7 +239,7 @@ if (d_head_angle == a)
 d_head_angle=a;
 }
 
-void LineMarker::fillArrowHead(bool fill)
+void ArrowMarker::fillArrowHead(bool fill)
 {
 if (d_fill_head == fill)
 	return;
@@ -247,7 +247,7 @@ if (d_fill_head == fill)
 d_fill_head=fill;
 }
 
-void LineMarker::setStartPoint(const QPoint& p)
+void ArrowMarker::setStartPoint(const QPoint& p)
 {
 if (d_start == p)
 	return;
@@ -261,7 +261,7 @@ d_rect.setLeft(plot()->invTransform(xAxis(), p.x()));
 d_rect.setTop(plot()->invTransform(yAxis(), p.y()));
 }
 
-void LineMarker::setEndPoint(const QPoint& p)
+void ArrowMarker::setEndPoint(const QPoint& p)
 {
 if (d_end == p)
 	return;
@@ -275,7 +275,7 @@ d_rect.setRight(plot()->invTransform(xAxis(), p.x()));
 d_rect.setBottom(plot()->invTransform(yAxis(), p.y()));
 }
 
-QPoint LineMarker::startPoint() const
+QPoint ArrowMarker::startPoint() const
 {
     if (!plot())
 		return QPoint();
@@ -284,12 +284,12 @@ QPoint LineMarker::startPoint() const
                 plot()->transform(yAxis(), d_rect.top()));
 }
 
-QwtDoublePoint LineMarker::startPointCoord()
+QwtDoublePoint ArrowMarker::startPointCoord()
 {
 	return QwtDoublePoint(d_rect.left(), d_rect.top());
 }
 
-void LineMarker::setStartPoint(double x, double y)
+void ArrowMarker::setStartPoint(double x, double y)
 {
 if (d_rect.left() == x && d_rect.top() == y)
 	return;
@@ -304,7 +304,7 @@ plot()->updateLayout();
 d_start = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
-QPoint LineMarker::endPoint() const
+QPoint ArrowMarker::endPoint() const
 {
     if (!plot())
 		return QPoint();
@@ -313,7 +313,7 @@ QPoint LineMarker::endPoint() const
 			plot()->transform(yAxis(), d_rect.bottom()));
 }
 
-void LineMarker::setEndPoint(double x, double y)
+void ArrowMarker::setEndPoint(double x, double y)
 {
 if (d_rect.right() == x && d_rect.bottom() == y)
 	return;
@@ -328,12 +328,12 @@ plot()->updateLayout();
 d_end = QPoint(plot()->transform(xAxis(), x), plot()->transform(yAxis(), y));
 }
 
-QwtDoublePoint LineMarker::endPointCoord()
+QwtDoublePoint ArrowMarker::endPointCoord()
 {
 return QwtDoublePoint(d_rect.right(), d_rect.bottom());
 }
 
-void LineMarker::setBoundingRect(double xs, double ys, double xe, double ye)
+void ArrowMarker::setBoundingRect(double xs, double ys, double xe, double ye)
 {
 if (d_rect.left() == xs && d_rect.top() == ys &&
 	d_rect.right() == xe && d_rect.bottom() == ye)
@@ -352,7 +352,7 @@ d_start = QPoint(plot()->transform(xAxis(), xs), plot()->transform(yAxis(), ys))
 d_end = QPoint(plot()->transform(xAxis(), xe), plot()->transform(yAxis(), ye));
 }
 
-QwtDoubleRect LineMarker::boundingRect() const
+QwtDoubleRect ArrowMarker::boundingRect() const
 {
 	const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
 	const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
@@ -369,7 +369,7 @@ QwtDoubleRect LineMarker::boundingRect() const
 			qAbs(d_rect.top() - d_rect.bottom()));
 }
 
-void LineMarker::updateBoundingRect()
+void ArrowMarker::updateBoundingRect()
 {
 const QwtScaleMap &xMap = plot()->canvasMap(xAxis());
 const QwtScaleMap &yMap = plot()->canvasMap(yAxis());
@@ -380,7 +380,7 @@ d_rect.setRight(xMap.invTransform(d_end.x()));
 d_rect.setBottom(yMap.invTransform(d_end.y()));
 }
 
-void LineMarker::setEditable(bool yes)
+void ArrowMarker::setEditable(bool yes)
 {
 	if (yes == d_editable)
 		return;
@@ -394,7 +394,7 @@ void LineMarker::setEditable(bool yes)
 	plot()->replot();
 }
 
-bool LineMarker::eventFilter(QObject *, QEvent *e)
+bool ArrowMarker::eventFilter(QObject *, QEvent *e)
 {
 	switch(e->type()) {
 		case QEvent::MouseButtonPress:
