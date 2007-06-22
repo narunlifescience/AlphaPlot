@@ -1,5 +1,9 @@
+# SciDAVis main project file
+# run "qmake scidavis.pro" to generate the Makefile
 TEMPLATE = subdirs
 
-SUBDIRS = fitPlugins/fitRational0\
-          fitPlugins/fitRational1\
-          qtiplot
+SUBDIRS = scidavis
+
+# optional fit plugins
+SUBDIRS += fitPlugins/fitRational0\
+           fitPlugins/fitRational1
