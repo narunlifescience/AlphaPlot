@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : DataSetDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -42,7 +42,7 @@
 DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags fl )
 : QDialog( parent, fl )
 {
-	setWindowTitle(tr("QtiPlot - Select data set"));
+	setWindowTitle(tr("SciDAVis - Select data set"));
 
 	operation = QString();
 	d_graph = 0;

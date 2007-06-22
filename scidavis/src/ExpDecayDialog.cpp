@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ExpDecayDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -49,7 +49,7 @@
 
 	slopes = type;
 
-	setWindowTitle(tr("QtiPlot - Verify initial guesses"));
+	setWindowTitle(tr("SciDAVis - Verify initial guesses"));
 
 	QGroupBox *gb1 = new QGroupBox();
 	QGridLayout *gl1 = new QGridLayout();
@@ -195,7 +195,7 @@ void ExpDecayDialog::fit()
 	QStringList curvesList = graph->analysableCurvesList();
 	if (!c || !curvesList.contains(curve))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+		QMessageBox::critical(this,tr("SciDAVis - Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 		boxName->clear();
 		boxName->addItems(curvesList);

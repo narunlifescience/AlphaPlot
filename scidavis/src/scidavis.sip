@@ -1,8 +1,8 @@
 /* vim: set filetype=cpp : */
 /* due to a limitation of sip, this file has to use Unix style line endings */
 /***************************************************************************
-	File                 : qti.sip
-	Project              : QtiPlot
+	File                 : scidavis.sip
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke, Ion Vasilief
 	Email                : knut.franke@gmx.de, ion_vasilief@yahoo.fr
@@ -29,7 +29,7 @@
  *                                                                         *
  ***************************************************************************/
 
-%Module qti 0
+%Module scidavis 0
 %Import QtCore/QtCoremod.sip
 %Import QtGui/QtGuimod.sip
 
@@ -499,10 +499,10 @@ class ApplicationWindow: QMainWindow
 sipClass=NULL;
 QString cN = sipCpp->className();
 sipTypeDef *t;
-  for (int i=0; i<sipModuleAPI_qti.em_nrtypes; i++)
-  if (((t=sipModuleAPI_qti.em_types[i]->type)->td_cname && cN == t->td_cname) ||
+  for (int i=0; i<sipModuleAPI_scidavis.em_nrtypes; i++)
+  if (((t=sipModuleAPI_scidavis.em_types[i]->type)->td_cname && cN == t->td_cname) ||
       (!t->td_cname && cN == t->td_name+4))
-    sipClass = sipModuleAPI_qti.em_types[i];
+    sipClass = sipModuleAPI_scidavis.em_types[i];
 %End
 
 public:
@@ -691,10 +691,10 @@ if(sipRes)
 };
 
 %ModuleCode
-ApplicationWindow *sipqti_app()
+ApplicationWindow *sipscidavis_app()
 {
   int iserr = 0;
-  PyObject *me = PyImport_ImportModule("qti");
+  PyObject *me = PyImport_ImportModule("scidavis");
   PyObject *mydict = PyModule_GetDict(me);
   PyObject *pyapp = PyDict_GetItemString(mydict,"app");
   Py_DECREF(me);
@@ -706,9 +706,9 @@ ApplicationWindow *sipqti_app()
 %End
 %ModuleHeaderCode
 class ApplicationWindow;
-ApplicationWindow *sipqti_app();
+ApplicationWindow *sipscidavis_app();
 #define SIPQTI_APP(sipcppexpr)\
-ApplicationWindow *app = sipqti_app();\
+ApplicationWindow *app = sipscidavis_app();\
 if (app) sipCpp = sipcppexpr;\
 else { sipCpp = NULL; }
 %End

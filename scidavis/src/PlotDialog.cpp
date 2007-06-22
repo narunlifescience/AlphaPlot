@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : PlotDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -72,7 +72,7 @@ PlotDialog::PlotDialog(bool showExtended, QWidget* parent,  const char* name, bo
 {
 	if ( !name )
 		setName( "PlotDialog" );
-	setWindowTitle( tr( "QtiPlot - Plot details" ) );
+	setWindowTitle( tr( "SciDAVis - Plot details" ) );
 
 	listBox = new QTreeWidget();
     listBox->setColumnCount(1);
@@ -2040,21 +2040,21 @@ bool PlotDialog::validInput()
 
 	if (histogramBeginBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid start limit!"));
+		QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter a valid start limit!"));
 		histogramBeginBox->setFocus();
 		return false;
 	}
 
 	if (histogramEndBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid end limit!"));
+		QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter a valid end limit!"));
 		histogramEndBox->setFocus();
 		return false;
 	}
 
 	if (binSizeBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter a valid bin size value!"));
+		QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter a valid bin size value!"));
 		binSizeBox->setFocus();
 		return false;
 	}
@@ -2083,7 +2083,7 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 			histogramBeginBox->setFocus();
 			error = true;
 			return false;
@@ -2102,7 +2102,7 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(this, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 			histogramEndBox->setFocus();
 			error=true;
 			return false;
@@ -2113,7 +2113,7 @@ bool PlotDialog::validInput()
 
 	if (start>=end)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter limits that satisfy: begin < end!"));
+		QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter limits that satisfy: begin < end!"));
 		histogramEndBox->setFocus();
 		return false;
 	}
@@ -2128,7 +2128,7 @@ bool PlotDialog::validInput()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Bin size input error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(this, tr("SciDAVis - Bin size input error"),QString::fromStdString(e.GetMsg()));
 			binSizeBox->setFocus();
 			error=true;
 			return false;
@@ -2139,7 +2139,7 @@ bool PlotDialog::validInput()
 
 	if (stp <=0)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Bin size input error"), tr("Please enter a positive bin size value!"));
+		QMessageBox::critical(this, tr("SciDAVis - Bin size input error"), tr("Please enter a positive bin size value!"));
 		binSizeBox->setFocus();
 		return false;
 	}

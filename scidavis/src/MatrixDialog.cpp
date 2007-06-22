@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : MatrixDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -40,7 +40,7 @@ MatrixDialog::MatrixDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl ),
     d_matrix(0)
 {
-    setWindowTitle( tr( "QtiPlot - Matrix Properties" ) );
+    setWindowTitle( tr( "SciDAVis - Matrix Properties" ) );
 
 	QGridLayout * topLayout = new QGridLayout();
 	QHBoxLayout * bottomLayout = new QHBoxLayout();

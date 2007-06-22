@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : SortDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -39,7 +39,7 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
     setWindowIcon(qApp->windowIcon());
-	setWindowTitle(tr("QtiPlot - Sorting Options"));
+	setWindowTitle(tr("SciDAVis - Sorting Options"));
 	setSizeGripEnabled(true);
 
 	QGroupBox *groupBox1 = new QGroupBox();

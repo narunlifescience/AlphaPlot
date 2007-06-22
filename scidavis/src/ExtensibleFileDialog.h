@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ExtensibleFileDialog.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de

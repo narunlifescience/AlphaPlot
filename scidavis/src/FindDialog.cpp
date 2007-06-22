@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : FindDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -43,7 +43,7 @@
 FindDialog::FindDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle (tr("QtiPlot") + " - " + tr("Find"));
+	setWindowTitle (tr("SciDAVis") + " - " + tr("Find"));
 	setSizeGripEnabled( true );
 
 	QGridLayout * topLayout = new QGridLayout();

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Interpolation.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -53,7 +53,7 @@ void Interpolation::init(int m)
 {
     if (m < 0 || m > 2)
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
         tr("Unknown interpolation method. Valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
         d_init_err = true;
         return;
@@ -83,7 +83,7 @@ void Interpolation::setMethod(int m)
 {
 if (m < 0 || m > 2)
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
         tr("Unknown interpolation method, valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
         d_init_err = true;
         return;
@@ -91,7 +91,7 @@ if (m < 0 || m > 2)
 int min_points = m + 3;
 if (d_n < min_points)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You need at least %1 points in order to perform this operation!").arg(min_points));
         d_init_err = true;
         return;

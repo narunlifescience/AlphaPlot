@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : MyWidget.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
@@ -77,7 +77,7 @@ void MyWidget::closeEvent( QCloseEvent *e )
 {
 if (askOnClose)
     {
-    switch( QMessageBox::information(this,tr("QtiPlot"),
+    switch( QMessageBox::information(this,tr("SciDAVis"),
 					tr("Do you want to hide or delete") + "<p><b>'" + objectName() + "'</b> ?",
 				      tr("Delete"), tr("Hide"), tr("Cancel"), 0,2))
 		{

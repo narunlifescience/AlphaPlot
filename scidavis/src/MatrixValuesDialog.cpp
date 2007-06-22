@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : MatrixValuesDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
@@ -47,7 +47,7 @@ MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	if ( !name )
 		setName( "MatrixValuesDialog" );
 
-	setWindowTitle( tr( "QtiPlot - Set Matrix Values" ) );
+	setWindowTitle( tr( "SciDAVis - Set Matrix Values" ) );
 	setSizeGripEnabled(true);
 
 	QGridLayout *gl1 = new QGridLayout();

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : MultiPeakFitTool.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen, Knut Franke

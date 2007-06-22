@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : OpenProjectDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Ion Vasilief
     Email (use @ for *)  : knut.franke*gmx.de, ion_vasilief*yahoo.fr
@@ -37,16 +37,18 @@
 OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags flags)
 	: ExtensibleFileDialog(parent, extended, flags)
 {
-	setCaption(tr("QtiPlot - Open Project"));
+	setCaption(tr("SciDAVis - Open Project"));
 	setFileMode(ExistingFile);
 	QStringList filters;
-	filters << tr("QtiPlot project") + " (*.qti)"
+	filters << tr("SciDAVis project") + " (*.sprj)"
+		<< tr("Compressed SciDAVis project") + " (*.sprj.gz)"
+		<< tr("QtiPlot project") + " (*.qti)"
 		<< tr("Compressed QtiPlot project") + " (*.qti.gz)"
 		<< tr("Origin project") + " (*.opj *.OPJ)"
 		<< tr("Origin matrix") + " (*.ogm *.OGM)"
 		<< tr("Origin worksheet") + " (*.ogw *.OGW)"
 		<< tr("Origin graph") + " (*.ogg *.OGG)"
-		<< tr("Backup files") + " (*.qti~)"
+		<< tr("Backup files") + " (*.sprj~)"
 		//<< tr("Python Source") + " (*.py *.PY)"
 		<< tr("All files") + " (*)";
 	setFilters(filters);

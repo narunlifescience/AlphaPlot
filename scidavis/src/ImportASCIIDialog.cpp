@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ImportASCIIDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen, Knut Franke
@@ -44,7 +44,7 @@
 ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, bool extended, Qt::WFlags flags )
 : ExtensibleFileDialog(parent, extended, flags )
 {
-	setWindowTitle(tr("QtiPlot - Import ASCII File(s)"));
+	setWindowTitle(tr("SciDAVis - Import ASCII File(s)"));
 
 	QStringList filters;
 	filters << tr("All files") + " (*)";
@@ -208,7 +208,7 @@ const QString ImportASCIIDialog::columnSeparator() const
 
 	/* TODO
 	if (sep.contains(QRegExp("[0-9.eE+-]")))
-		QMessageBox::warning(this, tr("QtiPlot - Import options error"),
+		QMessageBox::warning(this, tr("SciDAVis - Import options error"),
 				tr("The separator must not contain the following characters: 0-9eE.+-"));
 	*/
 
@@ -228,7 +228,7 @@ void ImportASCIIDialog::displayHelp()
 	s +="\n\n"+tr("Warning: using these two last options leads to column overlaping if the columns in the ASCII file don't have the same number of rows.");
 	s +="\n"+tr("To avoid this problem you should precisely define the column separator using TAB and SPACE characters.");
 
-	QMessageBox::about(this, tr("QtiPlot - Help"), s);
+	QMessageBox::about(this, tr("SciDAVis - Help"), s);
 }
 
 void ImportASCIIDialog::updateImportMode(int mode)

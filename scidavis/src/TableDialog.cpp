@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : TableDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -49,7 +49,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 {
     if ( !name )
 		setName( "TableDialog" );
-    setWindowTitle( tr( "QtiPlot - Column options" ) );
+    setWindowTitle( tr( "SciDAVis - Column options" ) );
     setSizeGripEnabled(true);
 
 	QHBoxLayout *hboxa = new QHBoxLayout();
@@ -292,13 +292,13 @@ d_table->setHeaderColType();
 void TableDialog::apply()
 {
 if (colName->text().contains("_")){
-	QMessageBox::warning(this, tr("QtiPlot - Warning"),
+	QMessageBox::warning(this, tr("SciDAVis - Warning"),
   	tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
 
 QString name=colName->text().replace("-", "_");
 if (name.contains(QRegExp("\\W")))
 	{
-	QMessageBox::warning(this,tr("QtiPlot - Error"),
+	QMessageBox::warning(this,tr("SciDAVis - Error"),
 						tr("The column names must only contain letters and digits!"));
 	name.remove(QRegExp("\\W"));
 	}
@@ -511,7 +511,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	QApplication::restoreOverrideCursor();
 
     if (!ok){
-        QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
+        QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
                              tr("For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!"));
         return;
     }

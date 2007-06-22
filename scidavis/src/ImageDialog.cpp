@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ImageDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -37,7 +37,7 @@ ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFl
 {
     if ( !name )
 	setName( "ImageDialog" );
-	setWindowTitle( tr( "QtiPlot - Image Geometry" ) );
+	setWindowTitle( tr( "SciDAVis - Image Geometry" ) );
 	
 	QGroupBox *gb1 = new QGroupBox(tr("Origin"));
 	boxX = new QSpinBox();

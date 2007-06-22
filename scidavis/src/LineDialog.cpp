@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : LineDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -50,7 +50,7 @@
 LineDialog::LineDialog( ArrowMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
-    setWindowTitle( tr( "QtiPlot - Line options" ) );
+    setWindowTitle( tr( "SciDAVis - Line options" ) );
 
 	lm = line;
 

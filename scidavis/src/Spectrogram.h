@@ -1,10 +1,10 @@
 /***************************************************************************
 	File                 : Spectrogram.h
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Ion Vasilief
 	Email (use @ for *)  : ion_vasilief*yahoo.fr
-	Description          : QtiPlot's Spectrogram Class
+	Description          : SciDAVis's Spectrogram Class
  ***************************************************************************/
 
 /***************************************************************************

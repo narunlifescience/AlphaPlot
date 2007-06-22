@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : PolynomialFit.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -134,7 +134,7 @@ void PolynomialFit::fit()
 
 	if (d_p > d_n)
   	{
-  		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+  		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}
@@ -244,7 +244,7 @@ void LinearFit::fit()
 
 	if (d_p > d_n)
   	{
-  		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+  		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}

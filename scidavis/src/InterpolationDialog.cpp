@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : InterpolationDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -46,7 +46,7 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, boo
 {
     if ( !name )
 		setName( "InterpolationDialog" );
-	setWindowTitle(tr("QtiPlot - Interpolation Options"));
+	setWindowTitle(tr("SciDAVis - Interpolation Options"));
 
     QGroupBox *gb1 = new QGroupBox();
 	QGridLayout *gl1 = new QGridLayout(gb1);
@@ -109,7 +109,7 @@ QString curve = boxName->currentText();
 QStringList curvesList = graph->analysableCurvesList();
 if (!curvesList.contains(curve))
 	{
-	QMessageBox::critical(this,tr("QtiPlot - Warning"),
+	QMessageBox::critical(this,tr("SciDAVis - Warning"),
 		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 	boxName->clear();
 	boxName->addItems(curvesList);
@@ -125,7 +125,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(this, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
 	}
@@ -138,14 +138,14 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(this, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 	boxEnd->setFocus();
 	return;
 	}
 
 if (from >= to)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Input error"), tr("Please enter x limits that satisfy: from < to!"));
+	QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter x limits that satisfy: from < to!"));
 	boxEnd->setFocus();
 	return;
 	}

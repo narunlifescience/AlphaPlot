@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ScriptWindow.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
@@ -54,7 +54,7 @@ ScriptWindow::ScriptWindow(ScriptingEnv *env)
 
 	initActions();
 	setIcon(QPixmap(logo_xpm));
-	setWindowTitle(tr("QtiPlot - Script Window"));
+	setWindowTitle(tr("SciDAVis - Script Window"));
 	setFocusProxy(te);
 	setFocusPolicy(Qt::StrongFocus);
 	resize(QSize(500, 300));
@@ -153,7 +153,7 @@ void ScriptWindow::initActions()
 
 void ScriptWindow::languageChange()
 {
-	setWindowTitle(tr("QtiPlot - Python Script Window"));
+	setWindowTitle(tr("SciDAVis - Python Script Window"));
 
 	menuBar()->clear();
 	menuBar()->addMenu(file);
@@ -233,7 +233,7 @@ void ScriptWindow::save()
 		QFile f(fileName);
 		if ( !f.open( QIODevice::WriteOnly ) )
 		{
-			QMessageBox::critical(0, tr("QtiPlot - File Save Error"),
+			QMessageBox::critical(0, tr("SciDAVis - File Save Error"),
 					tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fileName));
 			return;
 		}

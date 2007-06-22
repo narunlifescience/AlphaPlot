@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Graph3D.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -71,7 +71,7 @@ double UserFunction::operator()(double x, double y)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0,"QtiPlot - Input function error",QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0,"SciDAVis - Input function error",QString::fromStdString(e.GetMsg()));
 	}
 	return result;
 }
@@ -2075,20 +2075,20 @@ void Graph3D::print()
 
 	if (printer.setup())
 	{
-		if (IO::save (sp,"qtiplot.png","PNG"))
+		if (IO::save (sp,"scidavis.png","PNG"))
 		{
 			QPixmap p;
-			p.load ("qtiplot.png","PNG", QPixmap::Color );
+			p.load ("scidavis.png","PNG", QPixmap::Color );
 
 			QPainter paint(&printer);
 			paint.drawPixmap(QPoint(0,0),p);
 			paint.end();
 
-			QFile f("qtiplot.png");
+			QFile f("scidavis.png");
 			f.remove();
 		}
 		else
-			QMessageBox::about(0,tr("QtiPlot - IO Error"),
+			QMessageBox::about(0,tr("SciDAVis - IO Error"),
 					tr("Could not print: <h4>" + QString(name()) + "</h4>."));
 	}
 }
@@ -2146,7 +2146,7 @@ void Graph3D::exportVector(const QString& fileName, const QString& fileType)
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Error"), tr("Please provide a valid file name!"));
+		QMessageBox::critical(0, tr("SciDAVis - Error"), tr("Please provide a valid file name!"));
         return;
 	}
 

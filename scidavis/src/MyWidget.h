@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : MyWidget.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
@@ -41,7 +41,7 @@ class Folder;
 /**
  * \brief Base class of all MDI client windows.
  *
- * These are the main objects of every Qtiplot project.
+ * These are the main objects of every SciDAVis project.
  * All content (apart from the directory structure) is managed by subclasses of MyWidget.
  *
  * \section future Future Plans

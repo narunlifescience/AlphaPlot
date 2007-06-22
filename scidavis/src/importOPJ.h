@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : importOPJ.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
@@ -45,7 +45,7 @@ public:
 	int error(){return parse_error;};
 
 private:
-	int translateOrigin2QtiplotLineStyle(int linestyle);
+	int translateOrigin2SciDAVisLineStyle(int linestyle);
 	QString parseOriginText(const QString &str);
 	QString parseOriginTags(const QString &str);
 	int parse_error;

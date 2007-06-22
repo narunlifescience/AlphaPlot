@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : FilterDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -44,7 +44,7 @@
 FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
     : QDialog( parent, name, modal, fl )
 {
-	setWindowTitle(tr("QtiPlot - Filter options"));
+	setWindowTitle(tr("SciDAVis - Filter options"));
     filter_type = type;
 
     if ( !name )
@@ -123,14 +123,14 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("QtiPlot - Frequency input error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(this, tr("SciDAVis - Frequency input error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
 	}
 
 if (from < 0)
 		{
-		QMessageBox::critical(this, tr("QtiPlot - Frequency input error"),
+		QMessageBox::critical(this, tr("SciDAVis - Frequency input error"),
 				tr("Please enter positive frequency values!"));
 		boxStart->setFocus();
 		return;
@@ -146,14 +146,14 @@ if (filter_type >= FFTFilter::BandPass)
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical(this, tr("QtiPlot - High Frequency input error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("SciDAVis - High Frequency input error"), QString::fromStdString(e.GetMsg()));
 		boxEnd->setFocus();
 		return;
 		}
 
 	if (to < 0)
 		{
-		QMessageBox::critical(this, tr("QtiPlot - High Frequency input error"),
+		QMessageBox::critical(this, tr("SciDAVis - High Frequency input error"),
 				tr("Please enter positive frequency values!"));
 		boxEnd->setFocus();
 		return;
@@ -161,7 +161,7 @@ if (filter_type >= FFTFilter::BandPass)
 
 	if (from>=to)
 		{
-		QMessageBox::critical(this, tr("QtiPlot - Frequency input error"),
+		QMessageBox::critical(this, tr("SciDAVis - Frequency input error"),
 				tr("Please enter frequency limits that satisfy: Low < High !"));
 		boxEnd->setFocus();
 		return;

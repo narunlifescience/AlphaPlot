@@ -1,13 +1,13 @@
 /***************************************************************************
 	File                 : ApplicationWindow.cpp
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Ion Vasilief,
 	                       Tilman Hoener zu Siederdissen,
                           Knut Franke
 	Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
 	                       knut.franke*gmx.de
-	Description          : QtiPlot's main window
+	Description          : SciDAVis's main window
 
  ***************************************************************************/
 
@@ -160,7 +160,7 @@ ApplicationWindow::ApplicationWindow()
 
 void ApplicationWindow::init()
 {
-	setWindowTitle(tr("QtiPlot - untitled"));
+	setWindowTitle(tr("SciDAVis - untitled"));
 	initGlobalConstants();
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
@@ -313,10 +313,6 @@ void ApplicationWindow::initGlobalConstants()
 	copiedMarkerType=Graph::None;
 	logInfo=QString();
 	savingTimerId=0;
-
-	#ifdef QTIPLOT_DEMO
-        demoCloseTimerId = startTimer(10*60000);
-    #endif
 
 	autoSearchUpdatesRequest = false;
 
@@ -591,7 +587,7 @@ void ApplicationWindow::initToolBars()
 void ApplicationWindow::insertTranslatedStrings()
 {
 	if (projectname == "untitled")
-		setWindowTitle(tr("QtiPlot - untitled"));
+		setWindowTitle(tr("SciDAVis - untitled"));
 
 	lv->setColumnText (0, tr("Name"));
 	lv->setColumnText (1, tr("Type"));
@@ -601,7 +597,7 @@ void ApplicationWindow::insertTranslatedStrings()
 	lv->setColumnText (5, tr("Label"));
 
 	if (scriptWindow)
-		scriptWindow->setCaption(tr("QtiPlot - Script Window"));
+		scriptWindow->setCaption(tr("SciDAVis - Script Window"));
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	logWindow->setWindowTitle(tr("Results Log"));
 #ifdef SCRIPTING_CONSOLE
@@ -869,8 +865,6 @@ void ApplicationWindow::initMainMenu()
 	help->addAction(actionDownloadManual);
 	help->addAction(actionTranslations);
 	help->insertSeparator();
-	help->addAction(actionTechnicalSupport);
-	help->addAction(actionDonate);
 	help->addAction(actionHelpForums);
 	help->addAction(actionHelpBugReports);
 	help->insertSeparator();
@@ -1257,7 +1251,7 @@ void ApplicationWindow::plot3DRibbon()
 	if(int(w->selectedColumns().count())==1)
 		w->plot3DRibbon();
 	else
-		QMessageBox::warning(this,tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+		QMessageBox::warning(this,tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 }
 
 void ApplicationWindow::plot3DWireframe()
@@ -1291,7 +1285,7 @@ void ApplicationWindow::plot3DBars()
 		if(int(((Table*)w)->selectedColumns().count())==1)
 			((Table*)w)->plot3DBars();
 		else
-			QMessageBox::warning(this, tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+			QMessageBox::warning(this, tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
 	else
 		plot3DMatrix (Qwt3D::USER);
@@ -1308,7 +1302,7 @@ void ApplicationWindow::plot3DScatter()
 		if(int(((Table*)w)->selectedColumns().count())==1)
 			((Table*)w)->plot3DScatter();
 		else
-			QMessageBox::warning(this, tr("QtiPlot - Plot error"),tr("You must select exactly one column for plotting!"));
+			QMessageBox::warning(this, tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
 	else if (w->isA("Matrix"))
 		plot3DMatrix (Qwt3D::POINTS);
@@ -1323,7 +1317,7 @@ void ApplicationWindow::plot3DTrajectory()
 	if(int(w->selectedColumns().count())==1)
 		w->plot3DTrajectory();
 	else
-		QMessageBox::warning(this, tr("QtiPlot - Plot error"),
+		QMessageBox::warning(this, tr("SciDAVis - Plot error"),
 				tr("You must select exactly one column for plotting!"));
 }
 
@@ -1367,7 +1361,7 @@ void ApplicationWindow::plotPie()
 	if(int(((Table*)ws->activeWindow())->selectedColumns().count())==1)
 		((Table*)ws->activeWindow())->plotPie();
 	else
-		QMessageBox::warning(this, tr("QtiPlot - Plot error"),
+		QMessageBox::warning(this, tr("SciDAVis - Plot error"),
 				tr("You must select exactly one column for plotting!"));
 }
 
@@ -1631,7 +1625,7 @@ void ApplicationWindow::add3DData()
 {
 	if (tableWindows.count() <= 0)
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no tables available in this project.</h4>"
 					"<p><h4>Please create a table and try again!</h4>"));
 		return;
@@ -1640,7 +1634,7 @@ void ApplicationWindow::add3DData()
 	QStringList zColumns = columnsList(Table::Z);
 	if ((int)zColumns.count() <= 0)
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+		QMessageBox::critical(this,tr("SciDAVis - Warning"),
 				tr("There are no available columns with plot designation set to Z!"));
 		return;
 	}
@@ -1648,7 +1642,7 @@ void ApplicationWindow::add3DData()
 	DataSetDialog *ad = new DataSetDialog(tr("Column") + " : ", this);
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insertNew3DData(const QString&)));
-	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
+	ad->setWindowTitle(tr("SciDAVis - Choose data set"));
 	ad->setCurveNames(zColumns);
 	ad->exec();
 }
@@ -1659,7 +1653,7 @@ void ApplicationWindow::change3DData()
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(change3DData(const QString&)));
 
-	ad->setWindowTitle(tr("QtiPlot - Choose data set"));
+	ad->setWindowTitle(tr("SciDAVis - Choose data set"));
 	ad->setCurveNames(columnsList(Table::Z));
 	ad->exec();
 }
@@ -1670,7 +1664,7 @@ void ApplicationWindow::change3DMatrix()
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad, SIGNAL(options(const QString&)), this, SLOT(change3DMatrix(const QString&)));
 
-	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
+	ad->setWindowTitle(tr("SciDAVis - Choose matrix to plot"));
 	ad->setCurveNames(matrixNames());
 
 	Graph3D* g = (Graph3D*)ws->activeWindow();
@@ -1697,7 +1691,7 @@ void ApplicationWindow::add3DMatrixPlot()
 	QStringList matrices = matrixNames();
 	if ((int)matrices.count() <= 0)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("<h4>There are no matrices available in this project.</h4>"
 					"<p><h4>Please create a matrix and try again!</h4>"));
 		return;
@@ -1707,7 +1701,7 @@ void ApplicationWindow::add3DMatrixPlot()
 	ad->setAttribute(Qt::WA_DeleteOnClose);
 	connect (ad,SIGNAL(options(const QString&)), this, SLOT(insert3DMatrixPlot(const QString&)));
 
-	ad->setWindowTitle(tr("QtiPlot - Choose matrix to plot"));
+	ad->setWindowTitle(tr("SciDAVis - Choose matrix to plot"));
 	ad->setCurveNames(matrices);
 	ad->exec();
 }
@@ -2015,7 +2009,7 @@ Matrix* ApplicationWindow::importImage()
 	}
 	filter+=");;" + aux2;
 
-	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Import image from file"), imagesDirPath, filter);
+	QString fn = QFileDialog::getOpenFileName(this, tr("SciDAVis - Import image from file"), imagesDirPath, filter);
 	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		imagesDirPath = fi.dirPath(true);
@@ -2035,7 +2029,7 @@ void ApplicationWindow::loadImage()
 	}
 	filter+=");;" + aux2;
 
-	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Load image from file"), imagesDirPath, filter);
+	QString fn = QFileDialog::getOpenFileName(this, tr("SciDAVis - Load image from file"), imagesDirPath, filter);
 	if ( !fn.isEmpty() ){
 		loadImage(fn);
 		QFileInfo fi(fn);
@@ -2150,7 +2144,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 	QStringList list=w->selectedYColumns();
 	if((int)list.count() < 1)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Plot error"), tr("Please select a Y column to plot!"));
+		QMessageBox::warning(this, tr("SciDAVis - Plot error"), tr("Please select a Y column to plot!"));
 		return 0;
 	}
 
@@ -2426,7 +2420,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 	{
 		renamedTables << caption << w->name();
 
-		QMessageBox:: warning(this, tr("QtiPlot - Renamed Window"),
+		QMessageBox:: warning(this, tr("SciDAVis - Renamed Window"),
 				tr("The table '%1' already exists. It has been renamed '%2'.").arg(caption).arg(w->name()));
 	}
 	w->showNormal();
@@ -2802,7 +2796,7 @@ void ApplicationWindow::addErrorBars()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -2814,13 +2808,13 @@ void ApplicationWindow::addErrorBars()
 
     if (!g->curves())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"), tr("There are no curves available on this plot!"));
+		QMessageBox::warning(this, tr("SciDAVis - Warning"), tr("There are no curves available on this plot!"));
 		return;
 	}
 
 	if (g->isPiePlot())
 	{
-        QMessageBox::warning(this, tr("QtiPlot - Warning"), tr("This functionality is not available for pie plots!"));
+        QMessageBox::warning(this, tr("SciDAVis - Warning"), tr("This functionality is not available for pie plots!"));
         return;
 	}
 
@@ -2846,7 +2840,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 	Table *w = table(name);
 	if (!w)
 	{ //user defined function
-		QMessageBox::critical(this,tr("QtiPlot - Error bars error"),
+		QMessageBox::critical(this,tr("SciDAVis - Error bars error"),
 				tr("This feature is not available for user defined function curves!"));
 		return;
 	}
@@ -2905,7 +2899,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	Table *w=table(curveName);
 	if (!w)
 	{//user defined function --> no worksheet available
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
+		QMessageBox::critical(this,tr("SciDAVis - Error"),
 				tr("This feature is not available for user defined function curves!"));
 		return;
 	}
@@ -2913,7 +2907,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	Table *errTable=table(errColumnName);
 	if (w->numRows() != errTable->numRows())
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
+		QMessageBox::critical(this,tr("SciDAVis - Error"),
 				tr("The selected columns have different numbers of rows!"));
 
 		addErrorBars();
@@ -2923,7 +2917,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	int errCol=errTable->colIndex(errColumnName);
 	if (errTable->isEmptyColumn(errCol))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
+		QMessageBox::critical(this,tr("SciDAVis - Error"),
 				tr("The selected error column is empty!"));
 		addErrorBars();
 		return;
@@ -3365,18 +3359,19 @@ void ApplicationWindow::open()
 					QFileInfo fi(projectname);
 					QString pn = fi.absFilePath();
 					if (fn == pn){
-						QMessageBox::warning(this, tr("QtiPlot - File openning error"),
+						QMessageBox::warning(this, tr("SciDAVis - File openning error"),
 								tr("The file: <b>%1</b> is the current file!").arg(fn));
 						return;
 					}
 				}
 
-				if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+				if (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+						fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
 						fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
 						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
 				{
 					if (!fi.exists ()){
-						QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+						QMessageBox::critical(this, tr("SciDAVis - File openning error"),
 								tr("The file: <b>%1</b> doesn't exist!").arg(fn));
 						return;
 					}
@@ -3386,13 +3381,14 @@ void ApplicationWindow::open()
 					ApplicationWindow *a = open (fn);
 					if (a){
 						a->workingDir = workingDir;
-						if (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+						if (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+							fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
                             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
                             this->close();
 					}
 				} else {
-					QMessageBox::critical(this,tr("QtiPlot - File openning error"),
-							tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
+					QMessageBox::critical(this,tr("SciDAVis - File openning error"),
+							tr("The file: <b>%1</b> is not a SciDAVis or Origin project file!").arg(fn));
 					return;
 				}
 				break;
@@ -3410,12 +3406,13 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 		return importOPJ(fn);
 	else if (fn.endsWith(".py", Qt::CaseInsensitive))
 		return loadScript(fn);
-	else if (!( fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
+	else if (!( fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj.gz",Qt::CaseInsensitive) ||
+				fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
                 fn.endsWith(".qti~",Qt::CaseInsensitive)))
 		return plotFile(fn);
 
 	QString fname = fn;
-	if (fn.endsWith(".qti.gz",Qt::CaseInsensitive))
+	if ( fn.endsWith(".sprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
 		fname = fname.left(fname.size() - 3);
@@ -3426,18 +3423,18 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	f.open(QIODevice::ReadOnly);
 	QString s = t.readLine();
     QStringList list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-    if (list.count() < 2 || list[0] != "QtiPlot")
+    if (list.count() < 2 || list[0] != "SciDAVis")
     {
         f.close();
         if (QFile::exists(fname + "~"))
         {
-            int choice = QMessageBox::question(this, tr("QtiPlot - File opening error"),
+            int choice = QMessageBox::question(this, tr("SciDAVis - File opening error"),
 					tr("The file <b>%1</b> is corrupted, but there exists a backup copy.<br>Do you want to open the backup instead?").arg(fn),
 					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
             if (choice == QMessageBox::Yes)
                 return open(fname + "~");
             else
-                QMessageBox::critical(this, tr("QtiPlot - File opening error"),  tr("The file: <b> %1 </b> was not created using QtiPlot!").arg(fn));
+                QMessageBox::critical(this, tr("SciDAVis - File opening error"),  tr("The file: <b> %1 </b> was not created using SciDAVis!").arg(fn));
             return 0;
 		}
     }
@@ -3460,7 +3457,7 @@ void ApplicationWindow::openRecentProject(int index)
 	QFile f(fn);
 	if (!f.exists())
 	{
-		QMessageBox::critical(this,tr("QtiPlot - File Open Error"),
+		QMessageBox::critical(this,tr("SciDAVis - File Open Error"),
 				tr("The file: <b> %1 </b> <p>does not exist anymore!"
 					"<p>It will be removed from the list.").arg(fn));
 
@@ -3475,7 +3472,7 @@ void ApplicationWindow::openRecentProject(int index)
 		QString pn = fi.absFilePath();
 		if (fn == pn)
 		{
-			QMessageBox::warning(this, tr("QtiPlot - File openning error"),
+			QMessageBox::warning(this, tr("SciDAVis - File openning error"),
 					tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
 			return;
 		}
@@ -3485,7 +3482,8 @@ void ApplicationWindow::openRecentProject(int index)
 	{
 		saveSettings();//the recent projects must be saved
 		ApplicationWindow * a = open (fn);
-		if (a && (fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+		if (a && (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+			fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive)))
 			this->close();
 	}
@@ -3497,7 +3495,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	app->applyUserSettings();
 	app->projectname = fn;
 	app->d_file_version = d_file_version;
-	app->setWindowTitle(tr("QtiPlot") + " - " + fn);
+	app->setWindowTitle(tr("SciDAVis") + " - " + fn);
 
 	QFile f(fn);
 	QTextStream t( &f );
@@ -3516,7 +3514,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	if (list[0] == "<scripting-lang>")
 	{
 		if (!app->setScriptingLang(list[1], true))
-			QMessageBox::warning(app, tr("QtiPlot - File opening error"),
+			QMessageBox::warning(app, tr("SciDAVis - File opening error"),
 					tr("The file \"%1\" was created using \"%2\" as scripting language.\n\n"\
 						"Initializing support for this language FAILED; I'm using \"%3\" instead.\n"\
 						"Various parts of this file may not be displayed as expected.")\
@@ -3534,7 +3532,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	progress.setWindowModality(Qt::WindowModal);
 	progress.setRange(0, widgets);
 	progress.setMinimumWidth(app->width()/2);
-	progress.setWindowTitle(tr("QtiPlot - Opening file") + ": " + baseName);
+	progress.setWindowTitle(tr("SciDAVis - Opening file") + ": " + baseName);
 	progress.setLabelText(title);
 	progress.setActiveWindow();
 
@@ -3784,7 +3782,7 @@ void ApplicationWindow::executeNotes()
 
 void ApplicationWindow::scriptError(const QString &message, const QString &scriptName, int lineNumber)
 {
-	QMessageBox::critical(this, tr("QtiPlot") + " - "+ tr("Script Error"), message);
+	QMessageBox::critical(this, tr("SciDAVis") + " - "+ tr("Script Error"), message);
 }
 
 void ApplicationWindow::scriptPrint(const QString &text)
@@ -3840,18 +3838,18 @@ void ApplicationWindow::restartScriptingEnv()
 	if (setScriptingLang(scriptEnv->name(), true))
 		executeNotes();
 	else
-		QMessageBox::critical(this, tr("QtiPlot - Scripting Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Scripting Error"),
 				tr("Scripting language \"%1\" failed to initialize.").arg(scriptEnv->name()));
 }
 
 void ApplicationWindow::openTemplate()
 {
-	QString filter = "QtiPlot 2D Graph Template (*.qpt);;";
-	filter += "QtiPlot 3D Surface Template (*.qst);;";
-	filter += "QtiPlot Table Template (*.qtt);;";
-	filter += "QtiPlot Matrix Template (*.qmt);;";
+	QString filter = "SciDAVis 2D Graph Template (*.qpt);;";
+	filter += "SciDAVis 3D Surface Template (*.qst);;";
+	filter += "SciDAVis Table Template (*.qtt);;";
+	filter += "SciDAVis Matrix Template (*.qmt);;";
 
-	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Open Template File"), templatesDir, filter);
+	QString fn = QFileDialog::getOpenFileName(this, tr("SciDAVis - Open Template File"), templatesDir, filter);
 	if (!fn.isEmpty())
 	{
 		QFileInfo fi(fn);
@@ -3861,7 +3859,7 @@ void ApplicationWindow::openTemplate()
 		{
 			if (!fi.exists())
 			{
-				QMessageBox::critical(this, tr("QtiPlot - File opening error"),
+				QMessageBox::critical(this, tr("SciDAVis - File opening error"),
 						tr("The file: <b>%1</b> doesn't exist!").arg(fn));
 				return;
 			}
@@ -3871,10 +3869,10 @@ void ApplicationWindow::openTemplate()
 			f.open(QIODevice::ReadOnly);
 			QStringList l=t.readLine().split(QRegExp("\\s"), QString::SkipEmptyParts);
 			QString fileType=l[0];
-			if (fileType != "QtiPlot")
+			if (fileType != "SciDAVis")
 			{
-				QMessageBox::critical(this,tr("QtiPlot - File opening error"),
-						tr("The file: <b> %1 </b> was not created using QtiPlot!").arg(fn));
+				QMessageBox::critical(this,tr("SciDAVis - File opening error"),
+						tr("The file: <b> %1 </b> was not created using SciDAVis!").arg(fn));
 				return;
 			}
 			QStringList vl = l[1].split(".", QString::SkipEmptyParts);
@@ -3964,8 +3962,8 @@ void ApplicationWindow::openTemplate()
 		}
 		else
 		{
-			QMessageBox::critical(this,tr("QtiPlot - File opening error"),
-					tr("The file: <b>%1</b> is not a QtiPlot template file!").arg(fn));
+			QMessageBox::critical(this,tr("SciDAVis - File opening error"),
+					tr("The file: <b>%1</b> is not a SciDAVis template file!").arg(fn));
 			return;
 		}
 	}
@@ -3974,20 +3972,14 @@ void ApplicationWindow::openTemplate()
 void ApplicationWindow::readSettings()
 {
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #endif
 
 	/* ---------------- group General --------------- */
 	settings.beginGroup("/General");
 	autoSearchUpdates = settings.value("/AutoSearchUpdates", false).toBool();
-#ifdef QTIPLOT_DEMO
-	// don't overdo it.. ;)
-	askForSupport = settings.value("/Support", false).toBool();
-#else
-	askForSupport = settings.value("/Support", true).toBool();
-#endif
 	appLanguage = settings.value("/Language", QLocale::system().name().section('_',0,0)).toString();
 	show_windows_policy = (ShowWindowsPolicy)settings.value("/ShowWindowsPolicy", ApplicationWindow::ActiveFolder).toInt();
 
@@ -4060,14 +4052,14 @@ void ApplicationWindow::readSettings()
 		help_dir_suffixes << locale << locale.section('_',0,0) << appLanguage << "en";
 		QFileInfo help_file_info;
 		foreach (QString suffix, help_dir_suffixes) {
-			help_file_info.setFile(QString("/usr/share/doc/qtiplot/manual-%1/index.html").arg(suffix));
+			help_file_info.setFile(QString("/usr/share/doc/scidavis/manual-%1/index.html").arg(suffix));
 			if (help_file_info.exists())
 				break;
 		}
 		// intentionally defaults to .../manual-en/index.html even if it doesn't exist
 		helpFilePath = help_file_info.absoluteFilePath();
 	}
-	fitPluginsPath = settings.value("/FitPlugins", "/usr/lib/qtiplot/plugins").toString();
+	fitPluginsPath = settings.value("/FitPlugins", "/usr/lib/scidavis/plugins").toString();
 	templatesDir = settings.value("/TemplatesDir", QDir::homePath()).toString();
 	asciiDirPath = settings.value("/ASCII", QDir::homePath()).toString();
 	imagesDirPath = settings.value("/Images", QDir::homePath()).toString();
@@ -4243,15 +4235,14 @@ void ApplicationWindow::saveSettings()
 {
 
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #endif
 
 	/* ---------------- group General --------------- */
 	settings.beginGroup("/General");
 	settings.setValue("/AutoSearchUpdates", autoSearchUpdates);
-	settings.setValue("/Support", askForSupport);
 	settings.setValue("/Language", appLanguage);
 	settings.setValue("/ShowWindowsPolicy", show_windows_policy);
 	settings.setValue("/RecentProjects", recentProjects);
@@ -4494,7 +4485,7 @@ void ApplicationWindow::exportGraph()
 		plot2D = (MultiLayer*)w;
 		if (plot2D->isEmpty())
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Export Error"),
+			QMessageBox::critical(this, tr("SciDAVis - Export Error"),
 					tr("<h4>There are no plot layers available in this window!</h4>"));
 			return;
 		}
@@ -4522,7 +4513,7 @@ void ApplicationWindow::exportGraph()
 	QFile file(file_name);
 	if ( !file.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Export error"),
+		QMessageBox::critical(this, tr("SciDAVis - Export error"),
 				tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(file_name));
 		return;
 	}
@@ -4577,7 +4568,7 @@ void ApplicationWindow::exportLayer()
 	QFile file(file_name);
 	if ( !file.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Export error"),
+		QMessageBox::critical(this, tr("SciDAVis - Export error"),
 				tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(file_name));
 		return;
 	}
@@ -4632,7 +4623,7 @@ void ApplicationWindow::exportAllGraphs()
 			plot2D = (MultiLayer *)w;
 			if (plot2D->isEmpty()) {
 				QApplication::restoreOverrideCursor();
-				QMessageBox::warning(this, tr("QtiPlot - Warning"),
+				QMessageBox::warning(this, tr("SciDAVis - Warning"),
 						tr("There are no plot layers available in window <b>%1</b>.<br>"
 							"Graph window not exported!").arg(plot2D->name()));
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -4648,7 +4639,7 @@ void ApplicationWindow::exportAllGraphs()
 		QFile f(file_name);
 		if (f.exists() && confirm_overwrite) {
 			QApplication::restoreOverrideCursor();
-			switch(QMessageBox::question(this, tr("QtiPlot - Overwrite file?"),
+			switch(QMessageBox::question(this, tr("SciDAVis - Overwrite file?"),
 						tr("A file called: <p><b>%1</b><p>already exists. "
 							"Do you want to overwrite it?") .arg(file_name), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1)) {
 				case 1:
@@ -4663,7 +4654,7 @@ void ApplicationWindow::exportAllGraphs()
 		}
 		if ( !f.open( QIODevice::WriteOnly ) ) {
 			QApplication::restoreOverrideCursor();
-			QMessageBox::critical(this, tr("QtiPlot - Export error"),
+			QMessageBox::critical(this, tr("SciDAVis - Export error"),
 					tr("Could not write to file: <br><h4>%1</h4><p>"
 						"Please verify that you have the right to write to this location!").arg(file_name));
 			delete windows;
@@ -4788,14 +4779,9 @@ bool ApplicationWindow::saveProject()
 		return false;
 	}
 
-#ifdef QTIPLOT_DEMO
-	showDemoVersionMessage();
-	return false;
-#endif
-
 	saveFolder(projectFolder(), projectname);
 
-	setWindowTitle("QtiPlot - " + projectname);
+	setWindowTitle("SciDAVis - " + projectname);
 	savedProject();
 	actionUndo->setEnabled(false);
 	actionRedo->setEnabled(false);
@@ -4815,13 +4801,8 @@ bool ApplicationWindow::saveProject()
 
 void ApplicationWindow::saveProjectAs()
 {
-#ifdef QTIPLOT_DEMO
-	showDemoVersionMessage();
-	return;
-#endif
-
-	QString filter = tr("QtiPlot project")+" (*.qti);;";
-	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
+	QString filter = tr("SciDAVis project")+" (*.sprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sprj.gz)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save Project As"), workingDir, filter, &selectedFilter);
@@ -4831,7 +4812,7 @@ void ApplicationWindow::saveProjectAs()
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
 		if (!baseName.contains("."))
-			fn.append(".qti");
+			fn.append(".sprj");
 
 		projectname = fn;
 		if (saveProject())
@@ -4867,13 +4848,13 @@ void ApplicationWindow::saveAsTemplate()
 
 	QString filter;
 	if (w->isA("Matrix"))
-		filter = tr("QtiPlot Matrix Template")+" (*.qmt)";
+		filter = tr("SciDAVis Matrix Template")+" (*.qmt)";
 	else if (w->isA("MultiLayer"))
-		filter = tr("QtiPlot 2D Graph Template")+" (*.qpt)";
+		filter = tr("SciDAVis 2D Graph Template")+" (*.qpt)";
 	else if (w->isA("Table"))
-		filter = tr("QtiPlot Table Template")+" (*.qtt)";
+		filter = tr("SciDAVis Table Template")+" (*.qtt)";
 	else if (w->isA("Graph3D"))
-		filter = tr("QtiPlot 3D Surface Template")+" (*.qst)";
+		filter = tr("SciDAVis 3D Surface Template")+" (*.qst)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save Window As Template"), templatesDir + "/" + w->name(), filter, &selectedFilter);
@@ -4891,12 +4872,12 @@ void ApplicationWindow::saveAsTemplate()
 		QFile f(fn);
 		if ( !f.open( QIODevice::WriteOnly ) )
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Export error"),
+			QMessageBox::critical(this, tr("SciDAVis - Export error"),
 			tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
 			return;
 		}
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		QString text = "QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
+		QString text = "SciDAVis " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
 				QString::number(patch_version) + " template file\n";
 		text += w->saveAsTemplate(windowGeometryInfo(w));
 		QTextStream t( &f );
@@ -4959,11 +4940,11 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	QString newName = text;
 	newName.replace("-", "_");
 	if (newName.isEmpty()){
-		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please enter a valid name!"));
+		QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Please enter a valid name!"));
 		return false;
 	}
 	else if (newName.contains(QRegExp("\\W"))){
-		QMessageBox::critical(this, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Error"),
 				tr("The name you chose is not valid: only letters and digits are allowed!")+
 				"<p>" + tr("Please choose another name!"));
 		return false;
@@ -4972,7 +4953,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	newName.replace("_", "-");
 
 	while(alreadyUsedName(newName)){
-		QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
+		QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Name <b>%1</b> already exists!").arg(newName)+
 				"<p>"+tr("Please choose another name!")+
 				"<p>"+tr("Warning: for internal consistency reasons the underscore character is replaced with a minus sign."));
 		return false;
@@ -4981,7 +4962,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	if (w->inherits("Table")){
 		QStringList labels=((Table *)w)->colNames();
 		if (labels.contains(newName)>0){
-			QMessageBox::critical(this, tr("QtiPlot - Error"),
+			QMessageBox::critical(this, tr("SciDAVis - Error"),
 					tr("The table name must be different from the names of its columns!")+"<p>"+tr("Please choose another name!"));
 			return false;
 		}
@@ -5026,7 +5007,7 @@ void ApplicationWindow::showCurvesDialog()
 		return;
 
 	if (((MultiLayer*)ws->activeWindow())->isEmpty()){
-		QMessageBox::warning(this,tr("QtiPlot - Error"),
+		QMessageBox::warning(this,tr("SciDAVis - Error"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -5037,7 +5018,7 @@ void ApplicationWindow::showCurvesDialog()
 		return;
 
 	if (g->isPiePlot()){
-		QMessageBox::warning(this,tr("QtiPlot - Error"),
+		QMessageBox::warning(this,tr("SciDAVis - Error"),
 				tr("This functionality is not available for pie plots!"));
 	} else {
 		CurvesDialog* crvDialog = new CurvesDialog(this, "curves", true);
@@ -5133,7 +5114,7 @@ void ApplicationWindow::showXAxisTitleDialog()
 		td->setFont(g->axisTitleFont(2));
 		td->setTextColor(g->axisTitleColor(2));
 		td->setAlignment(g->axisTitleAlignment(2));
-		td->setWindowTitle(tr("QtiPlot - X Axis Title"));
+		td->setWindowTitle(tr("SciDAVis - X Axis Title"));
 		td->exec();
 	}
 }
@@ -5158,7 +5139,7 @@ void ApplicationWindow::showYAxisTitleDialog()
 		td->setFont(g->axisTitleFont(0));
 		td->setTextColor(g->axisTitleColor(0));
 		td->setAlignment(g->axisTitleAlignment(0));
-		td->setWindowTitle(tr("QtiPlot - Y Axis Title"));
+		td->setWindowTitle(tr("SciDAVis - Y Axis Title"));
 		td->exec();
 	}
 }
@@ -5183,7 +5164,7 @@ void ApplicationWindow::showRightAxisTitleDialog()
 		td->setFont(g->axisTitleFont(1));
 		td->setTextColor(g->axisTitleColor(1));
 		td->setAlignment(g->axisTitleAlignment(1));
-		td->setWindowTitle(tr("QtiPlot - Right Axis Title"));
+		td->setWindowTitle(tr("SciDAVis - Right Axis Title"));
 		td->exec();
 	}
 }
@@ -5208,7 +5189,7 @@ void ApplicationWindow::showTopAxisTitleDialog()
 		td->setFont(g->axisTitleFont(3));
 		td->setTextColor(g->axisTitleColor(3));
 		td->setAlignment(g->axisTitleAlignment(3));
-		td->setWindowTitle(tr("QtiPLot - Top Axis Title"));
+		td->setWindowTitle(tr("SciDAVis - Top Axis Title"));
 		td->exec();
 	}
 }
@@ -5253,7 +5234,7 @@ void ApplicationWindow::exportAllTables(const QString& sep, bool colNames, bool 
 				if (f.exists(fileName) && confirmOverwrite)
 				{
 					QApplication::restoreOverrideCursor();
-					switch(QMessageBox::question(this, tr("QtiPlot - Overwrite file?"),
+					switch(QMessageBox::question(this, tr("SciDAVis - Overwrite file?"),
 								tr("A file called: <p><b>%1</b><p>already exists. "
 									"Do you want to overwrite it?").arg(fileName), tr("&Yes"), tr("&All"), tr("&Cancel"), 0, 1))
 					{
@@ -5313,7 +5294,7 @@ void ApplicationWindow::showRowsDialog()
 		return;
 
 	bool ok;
-	int rows = QInputDialog::getInteger(tr("QtiPlot - Enter rows number"), tr("Rows"),
+	int rows = QInputDialog::getInteger(tr("SciDAVis - Enter rows number"), tr("Rows"),
 			((Table*)ws->activeWindow())->numRows(), 0, 1000000, 1, &ok, this );
 	if ( ok )
 		((Table*)ws->activeWindow())->resizeRows(rows);
@@ -5325,7 +5306,7 @@ void ApplicationWindow::showColsDialog()
 		return;
 
 	bool ok;
-	int cols = QInputDialog::getInteger(tr("QtiPlot - Enter columns number"), tr("Columns"),
+	int cols = QInputDialog::getInteger(tr("SciDAVis - Enter columns number"), tr("Columns"),
 			((Table*)ws->activeWindow())->numCols(), 0, 1000000, 1, &ok, this );
 	if ( ok )
 		((Table*)ws->activeWindow())->resizeCols(cols);
@@ -5344,7 +5325,7 @@ void ApplicationWindow::showColumnValuesDialog()
 			vd->exec();
 		}
 		else
-			QMessageBox::warning(this, tr("QtiPlot - Column selection error"),
+			QMessageBox::warning(this, tr("SciDAVis - Column selection error"),
 					tr("Please select a column first!"));
 	}
 }
@@ -5369,7 +5350,7 @@ void ApplicationWindow::sortActiveTable()
 	if (int(((Table*)ws->activeWindow())->selectedColumns().count())>0)
 		((Table*)ws->activeWindow())->sortTableDialog();
 	else
-		QMessageBox::warning(this, "QtiPlot - Column selection error","Please select a column first!");
+		QMessageBox::warning(this, "SciDAVis - Column selection error","Please select a column first!");
 }
 
 void ApplicationWindow::sortSelection()
@@ -5388,7 +5369,7 @@ void ApplicationWindow::normalizeActiveTable()
 		if (int(w->selectedColumns().count())>0)
 			w->normalize();
 		else
-			QMessageBox::warning(this, tr("QtiPlot - Column selection error"), tr("Please select a column first!"));
+			QMessageBox::warning(this, tr("SciDAVis - Column selection error"), tr("Please select a column first!"));
 	}
 }
 
@@ -5400,7 +5381,7 @@ void ApplicationWindow::normalizeSelection()
 	if (int(((Table*)ws->activeWindow())->selectedColumns().count())>0)
 		((Table*)ws->activeWindow())->normalizeSelection();
 	else
-		QMessageBox::warning(this, tr("QtiPlot - Column selection error"), tr("Please select a column first!"));
+		QMessageBox::warning(this, tr("SciDAVis - Column selection error"), tr("Please select a column first!"));
 }
 
 void ApplicationWindow::correlate()
@@ -5412,7 +5393,7 @@ void ApplicationWindow::correlate()
 	QStringList s = t->selectedColumns();
 	if ((int)s.count() != 2)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation!"));
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select two columns for this operation!"));
 		return;
 	}
 
@@ -5430,7 +5411,7 @@ void ApplicationWindow::autoCorrelate()
 	QStringList s = t->selectedColumns();
 	if ((int)s.count() != 1)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select exactly one columns for this operation!"));
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select exactly one columns for this operation!"));
 		return;
 	}
 
@@ -5448,7 +5429,7 @@ void ApplicationWindow::convolute()
 	QStringList s = t->selectedColumns();
 	if ((int)s.count() != 2)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
 		return;
 	}
 
@@ -5466,7 +5447,7 @@ void ApplicationWindow::deconvolute()
 	QStringList s = t->selectedColumns();
 	if ((int)s.count() != 2)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select two columns for this operation:\n the first represents the signal and the second the response function!"));
 		return;
 	}
 
@@ -5490,7 +5471,7 @@ void ApplicationWindow::showColStatistics()
 		newTableStatistics(t, TableStatistics::column, targets)->showNormal();
 	}
 	else
-		QMessageBox::warning(this, tr("QtiPlot - Column selection error"),
+		QMessageBox::warning(this, tr("SciDAVis - Column selection error"),
 				tr("Please select a column first!"));
 }
 
@@ -5509,7 +5490,7 @@ void ApplicationWindow::showRowStatistics()
 		newTableStatistics(t, TableStatistics::row, targets)->showNormal();
 	}
 	else
-		QMessageBox::warning(this, tr("QtiPlot - Row selection error"),
+		QMessageBox::warning(this, tr("SciDAVis - Row selection error"),
 				tr("Please select a row first!"));
 }
 
@@ -5806,7 +5787,7 @@ void ApplicationWindow::showColumnOptionsDialog()
 		td->exec();
 	}
 	else
-		QMessageBox::warning(this, tr("QtiPlot"), tr("Please select a column first!"));
+		QMessageBox::warning(this, tr("SciDAVis"), tr("Please select a column first!"));
 }
 
 void ApplicationWindow::showAxis(int axis, int type, const QString& labelsColName, bool axisOn,
@@ -5933,7 +5914,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 		if (!g->hasData())
 		{
 			QApplication::restoreOverrideCursor();
-			QMessageBox::warning(this, tr("QtiPlot - Warning"),
+			QMessageBox::warning(this, tr("SciDAVis - Warning"),
 					tr("Not available for empty 3D surface plots!"));
 			return 0;
 		}
@@ -6243,7 +6224,7 @@ void ApplicationWindow::zoomIn()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setOn(true);
@@ -6253,7 +6234,7 @@ void ApplicationWindow::zoomIn()
 	if ((Graph*)plot->activeGraph()->isPiePlot())
 	{
 		if (btnZoomIn->isOn())
-			QMessageBox::warning(this,tr("QtiPlot - Warning"),
+			QMessageBox::warning(this,tr("SciDAVis - Warning"),
 					tr("This functionality is not available for pie plots!"));
 		btnPointer->setOn(true);
 		return;
@@ -6289,7 +6270,7 @@ void ApplicationWindow::setAutoScale()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"));
 		return;
 	}
@@ -6310,7 +6291,7 @@ void ApplicationWindow::removePoints()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -6326,14 +6307,14 @@ void ApplicationWindow::removePoints()
 
 	if (g->isPiePlot())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 		btnPointer->setChecked(true);
 		return;
 	}
 	else
 	{
-		switch(QMessageBox::warning (this,tr("QtiPlot"),
+		switch(QMessageBox::warning (this,tr("SciDAVis"),
 					tr("This will modify the data in the worksheets!\nAre you sure you want to continue?"),
 					tr("Continue"),tr("Cancel"),0,1))
 		{
@@ -6356,7 +6337,7 @@ void ApplicationWindow::movePoints()
 
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty()){
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -6370,13 +6351,13 @@ void ApplicationWindow::movePoints()
 	}
 
 	if (g->isPiePlot()){
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 
 		btnPointer->setChecked(true);
 		return;
 	} else {
-		switch(QMessageBox::warning (this, tr("QtiPlot"),
+		switch(QMessageBox::warning (this, tr("SciDAVis"),
 					tr("This will modify the data in the worksheets!\nAre you sure you want to continue?"),
 					tr("Continue"), tr("Cancel"), 0, 1))
 		{
@@ -6402,7 +6383,7 @@ void ApplicationWindow::exportPDF()
 
 	if (w->isA("MultiLayer") && ((MultiLayer*)w)->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"));
 		return;
 	}
@@ -6420,7 +6401,7 @@ void ApplicationWindow::exportPDF()
         QFile f(fname);
         if ( !f.open( QIODevice::WriteOnly ) )
         {
-            QMessageBox::critical(this, tr("QtiPlot - Export error"),
+            QMessageBox::critical(this, tr("SciDAVis - Export error"),
             tr("Could not write to file: <h4>%1</h4><p>Please verify that you have the right to write to this location or that the file is not being used by another application!").arg(fname));
             return;
         }
@@ -6437,7 +6418,7 @@ void ApplicationWindow::print(QWidget* w)
 {
 	if (w->isA("MultiLayer") && ((MultiLayer*)w)->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"));
 		return;
 	}
@@ -6780,7 +6761,7 @@ void ApplicationWindow::showScreenReader()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -6802,7 +6783,7 @@ void ApplicationWindow::showRangeSelectors()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("There are no plot layers available in this window!"));
 		btnPointer->setChecked(true);
 		return;
@@ -6814,14 +6795,14 @@ void ApplicationWindow::showRangeSelectors()
 
 	if (!g->curves())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("There are no curves available on this plot!"));
 		btnPointer->setChecked(true);
 		return;
 	}
 	else if (g->isPiePlot())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 		btnPointer->setChecked(true);
 		return;
@@ -6839,7 +6820,7 @@ void ApplicationWindow::showCursor()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -6848,7 +6829,7 @@ void ApplicationWindow::showCursor()
 
 	if ((Graph*)plot->activeGraph()->isPiePlot())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 
 		btnPointer->setChecked(true);
@@ -6871,7 +6852,7 @@ void ApplicationWindow::newLegend()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -6890,7 +6871,7 @@ void ApplicationWindow::addTimeStamp()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -6918,7 +6899,7 @@ void ApplicationWindow::addText()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 
 	switch(QMessageBox::information(this,
-				tr("QtiPlot - Add new layer?"),
+				tr("SciDAVis - Add new layer?"),
 				tr("Do you want to add the text on a new layer or on the active layer?"),
 				tr("On &New Layer"), tr("On &Active Layer"), tr("&Cancel"),
 				0, 2 ) )
@@ -6931,7 +6912,7 @@ void ApplicationWindow::addText()
 			{
 				if (plot->isEmpty())
 				{
-					QMessageBox::warning(this,tr("QtiPlot - Warning"),
+					QMessageBox::warning(this,tr("SciDAVis - Warning"),
 							tr("<h4>There are no plot layers available in this window.</h4>"
 								"<p><h4>Please add a layer and try again!</h4>"));
 
@@ -6959,7 +6940,7 @@ void ApplicationWindow::addImage()
 
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty()){
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -6978,7 +6959,7 @@ void ApplicationWindow::addImage()
 	}
 	filter+=");;" + aux2;
 
-	QString fn = QFileDialog::getOpenFileName(this, tr("QtiPlot - Insert image from file"), imagesDirPath, filter);
+	QString fn = QFileDialog::getOpenFileName(this, tr("SciDAVis - Insert image from file"), imagesDirPath, filter);
 	if ( !fn.isEmpty() ){
 		QFileInfo fi(fn);
 		imagesDirPath = fi.dirPath(true);
@@ -6997,7 +6978,7 @@ void ApplicationWindow::drawLine()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 
@@ -7021,7 +7002,7 @@ void ApplicationWindow::drawArrow()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 
@@ -7068,7 +7049,7 @@ void ApplicationWindow::showLayerDialog()
 	MultiLayer* plot = (MultiLayer*)ws->activeWindow();
 	if(plot->isEmpty())
 	{
-		QMessageBox::warning(this, tr("QtiPlot - Warning"),
+		QMessageBox::warning(this, tr("SciDAVis - Warning"),
 				tr("There are no plot layers available in this window."));
 		return;
 	}
@@ -7092,7 +7073,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id, SIGNAL(setGeometry(int,int,int,int)), plot, SLOT(setGraphGeometry(int,int,int,int)));
 		id->setIcon(QPixmap(logo_xpm));
-		id->setWindowTitle(tr("QtiPlot - Layer Geometry"));
+		id->setWindowTitle(tr("SciDAVis - Layer Geometry"));
 		id->setOrigin(g->pos());
 		id->setSize(g->plotWidget()->size());
 		id->exec();
@@ -7348,7 +7329,7 @@ MyWidget* ApplicationWindow::clone()
 {
 	MyWidget* w = (MyWidget*)ws->activeWindow();
 	if (!w){
-		QMessageBox::critical(this,tr("QtiPlot - Duplicate window error"),
+		QMessageBox::critical(this,tr("SciDAVis - Duplicate window error"),
 				tr("There are no windows available in this project!"));
 		return 0;
 	}
@@ -7378,7 +7359,7 @@ MyWidget* ApplicationWindow::clone(MyWidget* w)
 		Graph3D *g = (Graph3D *)w;
 		if (!g->hasData()){
         	QApplication::restoreOverrideCursor();
-        	QMessageBox::warning(this, tr("QtiPlot - Duplicate error"), tr("Empty 3D surface plots cannot be duplicated!"));
+        	QMessageBox::warning(this, tr("SciDAVis - Duplicate error"), tr("Empty 3D surface plots cannot be duplicated!"));
         	return 0;
     	}
 
@@ -7555,7 +7536,7 @@ void ApplicationWindow::resizeActiveWindow()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
 
-	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
+	id->setWindowTitle(tr("SciDAVis - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
 	id->setSize(w->parentWidget()->size());
 	id->exec();
@@ -7574,7 +7555,7 @@ void ApplicationWindow::resizeWindow()
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
 
-	id->setWindowTitle(tr("QtiPlot - Window Geometry"));
+	id->setWindowTitle(tr("SciDAVis - Window Geometry"));
 	id->setOrigin(w->parentWidget()->pos());
 	id->setSize(w->parentWidget()->size());
 	id->exec();
@@ -7715,7 +7696,7 @@ text +=	"<h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>";
 text += "<h3>" + tr("Released") + ": " + QString(release_date) + "</h3>";
 
 QMessageBox *mb = new QMessageBox();
-mb->setWindowTitle (tr("About QtiPlot"));
+mb->setWindowTitle (tr("About SciDAVis"));
 mb->setWindowIcon (QPixmap(logo_xpm));
 mb->setIconPixmap(QPixmap(logo_xpm));
 mb->setText(text);
@@ -7807,7 +7788,7 @@ void ApplicationWindow::showMarkerPopupMenu()
 void ApplicationWindow::showMoreWindows()
 {
 	if (explorerWindow->isVisible())
-		QMessageBox::information(this, "QtiPlot",tr("Please use the project explorer to select a window!"));
+		QMessageBox::information(this, "SciDAVis",tr("Please use the project explorer to select a window!"));
 	else
 		explorerWindow->show();
 }
@@ -7868,15 +7849,6 @@ void ApplicationWindow::modifiedProject(QWidget *w)
 
 void ApplicationWindow::timerEvent ( QTimerEvent *e)
 {
-    #ifdef QTIPLOT_DEMO
-        if (e->timerId() == demoCloseTimerId)
-        {
-            saved = true;
-            showDemoVersionMessage();
-            close();
-        }
-    #endif
-
 	if (e->timerId() == savingTimerId)
 		saveProject();
 	else
@@ -7904,7 +7876,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 			QStringList l = tempList.filter(ext, Qt::CaseInsensitive);
 			if (l.count()>0)
 				loadImage(fn);
-			else if ( ext == "opj" || ext == "qti")
+			else if ( ext == "opj" || ext == "sprj" || ext == "qti")
 				open(fn);
 			else
 				asciiFiles << fn;
@@ -7931,7 +7903,7 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
 	if (!saved)
 	{
 		QString s = tr("Save changes to project: <p><b> %1 </b> ?").arg(projectname);
-		switch( QMessageBox::information(this, tr("QtiPlot"), s, tr("Yes"), tr("No"),
+		switch( QMessageBox::information(this, tr("SciDAVis"), s, tr("Yes"), tr("No"),
 					tr("Cancel"), 0, 2 ) )
 		{
 			case 0:
@@ -8539,7 +8511,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 
 void ApplicationWindow::chooseHelpFolder()
 {
-	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose the location of the QtiPlot help folder!"),
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose the location of the SciDAVis help folder!"),
 			qApp->applicationDirPath());
 
 	if (!dir.isEmpty())
@@ -8549,7 +8521,7 @@ void ApplicationWindow::chooseHelpFolder()
 		QFile helpFile(helpFilePath);
 		if (!helpFile.exists())
 		{
-			QMessageBox::critical(this, tr("QtiPlot - index.html File Not Found!"),
+			QMessageBox::critical(this, tr("SciDAVis - index.html File Not Found!"),
 					tr("There is no file called <b>index.html</b> in this folder.<br>Please choose another folder!"));
 		}
 	}
@@ -8558,9 +8530,9 @@ void ApplicationWindow::chooseHelpFolder()
 void ApplicationWindow::showStandAloneHelp()
 {
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "QtiPlot");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
 #endif
 
 	settings.beginGroup("/General");
@@ -8572,19 +8544,19 @@ void ApplicationWindow::showStandAloneHelp()
 	QFile helpFile(helpPath);
 	if (!helpPath.isEmpty() && !helpFile.exists())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Help Files Not Found!"),
+		QMessageBox::critical(0, tr("SciDAVis - Help Files Not Found!"),
 				tr("The manual can be downloaded from the following internet address:")+
 				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		exit(0);
 	}
 
 	QFileInfo fi(helpPath);
-	QString profilePath = QString(fi.dirPath(true)+"/qtiplot.adp");
+	QString profilePath = QString(fi.dirPath(true)+"/scidavis.adp");
 	if (!QFile(profilePath).exists())
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Help Profile Not Found!"),
-				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
-				tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
+		QMessageBox::critical(0, tr("SciDAVis - Help Profile Not Found!"),
+				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
+				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
 				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		exit(0);
 	}
@@ -8601,7 +8573,7 @@ void ApplicationWindow::showHelp()
 	QFile helpFile(helpFilePath);
 	if (!helpFile.exists())
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Help Files Not Found!"),
+		QMessageBox::critical(this,tr("SciDAVis - Help Files Not Found!"),
 				tr("Please indicate the location of the help file!")+"<br>"+
 				tr("The manual can be downloaded from the following internet address:")+
 				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
@@ -8615,12 +8587,12 @@ void ApplicationWindow::showHelp()
 	}
 
 	QFileInfo fi(helpFilePath);
-	QString profilePath = QString(fi.dirPath(true)+"/qtiplot.adp");
+	QString profilePath = QString(fi.dirPath(true)+"/scidavis.adp");
 	if (!QFile(profilePath).exists())
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Help Profile Not Found!"),
-				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("qtiplot.adp")+"<br>"+
-				tr("This file is provided with the QtiPlot manual which can be downloaded from the following internet address:")+
+		QMessageBox::critical(this,tr("SciDAVis - Help Profile Not Found!"),
+				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
+				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
 				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
 		return;
 	}
@@ -8644,7 +8616,7 @@ void ApplicationWindow::showPlotWizard()
 		pw->exec();
 	}
 	else
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no tables available in this project.</h4>"
 					"<p><h4>Please create a table and try again!</h4>"));
 }
@@ -8706,7 +8678,7 @@ void ApplicationWindow::showFunctionDialog(Graph *g, int curve)
 		return;
 
 	FunctionDialog* fd = functionDialog();
-	fd->setWindowTitle(tr("QtiPlot - Edit function"));
+	fd->setWindowTitle(tr("SciDAVis - Edit function"));
 	fd->setCurveToModify(g, curve);
 }
 
@@ -8732,7 +8704,7 @@ void ApplicationWindow::addFunctionCurve()
 
 	if (((MultiLayer*)w)->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		return;
@@ -9387,7 +9359,7 @@ void ApplicationWindow::pixelLineProfile()
 
 	bool ok;
 	int res = QInputDialog::getInteger(
-			tr("QtiPlot - Set the number of pixels to average"), tr("Number of averaged pixels"),1, 1, 2000, 2,
+			tr("SciDAVis - Set the number of pixels to average"), tr("Number of averaged pixels"),1, 1, 2000, 2,
 			&ok, this );
 	if ( !ok )
 		return;
@@ -9420,7 +9392,7 @@ Matrix* ApplicationWindow::importImage(const QString& fileName)
 	QProgressDialog progress(this);
 	progress.setRange(0, rows);
 	progress.setMinimumWidth(width()/2);
-	progress.setWindowTitle(tr("QtiPlot") + " - " + tr("Import image..."));
+	progress.setWindowTitle(tr("SciDAVis") + " - " + tr("Import image..."));
 	progress.setLabelText(fileName);
 	progress.setActiveWindow();
 
@@ -9476,8 +9448,8 @@ void ApplicationWindow::addLayer()
 
 	MultiLayer* plot = (MultiLayer *)ws->activeWindow();
 	switch(QMessageBox::information(this,
-				tr("QtiPlot - Guess best origin for the new layer?"),
-				tr("Do you want QtiPlot to guess the best position for the new layer?\n Warning: this will rearrange existing layers!"),
+				tr("SciDAVis - Guess best origin for the new layer?"),
+				tr("Do you want SciDAVis to guess the best position for the new layer?\n Warning: this will rearrange existing layers!"),
 				tr("&Guess"), tr("&Top-left corner"), tr("&Cancel"), 0, 2 ) )
 	{
 		case 0:
@@ -11033,7 +11005,7 @@ void ApplicationWindow::createActions()
 	actionShowRowsDialog = new QAction(tr("&Rows..."), this);
 	connect(actionShowRowsDialog, SIGNAL(activated()), this, SLOT(showRowsDialog()));
 
-	actionAbout = new QAction(tr("&About QtiPlot"), this);
+	actionAbout = new QAction(tr("&About SciDAVis"), this);
 	actionAbout->setShortcut( tr("F1") );
 	connect(actionAbout, SIGNAL(activated()), this, SLOT(about()));
 
@@ -11227,10 +11199,10 @@ void ApplicationWindow::createActions()
 	actionCheckUpdates = new QAction(tr("Search for &Updates"), this);
 	connect(actionCheckUpdates, SIGNAL(activated()), this, SLOT(searchForUpdates()));
 
-	actionHomePage = new QAction(tr("&QtiPlot Homepage"), this);
+	actionHomePage = new QAction(tr("&SciDAVis Homepage"), this);
 	connect(actionHomePage, SIGNAL(activated()), this, SLOT(showHomePage()));
 
-	actionHelpForums = new QAction(tr("QtiPlot &Forums"), this);
+	actionHelpForums = new QAction(tr("SciDAVis &Forums"), this);
 	connect(actionHelpForums, SIGNAL(triggered()), this, SLOT(showForums()));
 
 	actionHelpBugReports = new QAction(tr("Report a &Bug"), this);
@@ -11241,12 +11213,6 @@ void ApplicationWindow::createActions()
 
 	actionTranslations = new QAction(tr("&Translations"), this);
 	connect(actionTranslations, SIGNAL(activated()), this, SLOT(downloadTranslation()));
-
-	actionDonate = new QAction(tr("Make a &Donation"), this);
-	connect(actionDonate, SIGNAL(activated()), this, SLOT(showDonationsPage()));
-
-	actionTechnicalSupport = new QAction(tr("Technical &Support"), this);
-	connect(actionTechnicalSupport, SIGNAL(activated()), this, SLOT(showSupportPage()));
 
 #ifdef SCRIPTING_DIALOG
 	actionScriptingLang = new QAction(tr("Scripting &language"), this);
@@ -11582,7 +11548,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowColsDialog->setMenuText(tr("&Columns..."));
 	actionShowRowsDialog->setMenuText(tr("&Rows..."));
 
-	actionAbout->setMenuText(tr("&About QtiPlot"));
+	actionAbout->setMenuText(tr("&About SciDAVis"));
 	actionAbout->setShortcut(tr("F1"));
 
 	actionShowHelp->setMenuText(tr("&Help"));
@@ -11657,14 +11623,12 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionMultiPeakGauss->setMenuText(tr("&Gaussian..."));
 	actionMultiPeakLorentz->setMenuText(tr("&Lorentzian..."));
-	actionHomePage->setMenuText(tr("&QtiPlot Homepage"));
+	actionHomePage->setMenuText(tr("&SciDAVis Homepage"));
 	actionCheckUpdates->setMenuText(tr("Search for &Updates"));
-	actionHelpForums->setText(tr("Visit QtiPlot &Forums"));
+	actionHelpForums->setText(tr("Visit SciDAVis &Forums"));
 	actionHelpBugReports->setText(tr("Report a &Bug"));
 	actionDownloadManual->setMenuText(tr("Download &Manual"));
 	actionTranslations->setMenuText(tr("&Translations"));
-	actionDonate->setMenuText(tr("Make a &Donation"));
-	actionTechnicalSupport->setMenuText(tr("Technical &Support"));
 
 #ifdef SCRIPTING_DIALOG
 	actionScriptingLang->setMenuText(tr("Scripting &language"));
@@ -11933,7 +11897,7 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
 
         ApplicationWindow *app = new ApplicationWindow();
         app->applyUserSettings();
-        app->setWindowTitle("QtiPlot - " + filename);
+        app->setWindowTitle("SciDAVis - " + filename);
         app->showMaximized();
         app->projectname = filename;
         app->recentProjects.remove(filename);
@@ -12037,7 +12001,7 @@ void ApplicationWindow::translateCurveHor()
 	MultiLayer *plot = (MultiLayer*)w;
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -12050,7 +12014,7 @@ void ApplicationWindow::translateCurveHor()
 
 	if (g->isPiePlot())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 
 		btnPointer->setChecked(true);
@@ -12073,7 +12037,7 @@ void ApplicationWindow::translateCurveVert()
 	MultiLayer *plot = (MultiLayer*)w;
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -12086,7 +12050,7 @@ void ApplicationWindow::translateCurveVert()
 
 	if (g->isPiePlot())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 
 		btnPointer->setChecked(true);
@@ -12191,7 +12155,7 @@ void ApplicationWindow::fitMultiPeak(int profile)
 	MultiLayer *plot = (MultiLayer*)w;
 	if (plot->isEmpty())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("<h4>There are no plot layers available in this window.</h4>"
 					"<p><h4>Please add a layer and try again!</h4>"));
 		btnPointer->setChecked(true);
@@ -12204,14 +12168,14 @@ void ApplicationWindow::fitMultiPeak(int profile)
 
 	if (g->isPiePlot())
 	{
-		QMessageBox::warning(this,tr("QtiPlot - Warning"),
+		QMessageBox::warning(this,tr("SciDAVis - Warning"),
 				tr("This functionality is not available for pie plots!"));
 		return;
 	}
 	else
 	{
 		bool ok;
-		int peaks = QInputDialog::getInteger(tr("QtiPlot - Enter the number of peaks"),
+		int peaks = QInputDialog::getInteger(tr("SciDAVis - Enter the number of peaks"),
 				tr("Peaks"), 2, 2, 1000000, 1, &ok, this);
 		if (ok && peaks)
 		{
@@ -12221,65 +12185,30 @@ void ApplicationWindow::fitMultiPeak(int profile)
 	}
 }
 
-void ApplicationWindow::showSupportPage()
-{
-	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/contracts.html"));
-}
-
-
-void ApplicationWindow::showDonationsPage()
-{
-	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/why_donate.html"));
-}
-
+// TODO: adjust the directories hier to point directly to the correct sections
 void ApplicationWindow::downloadManual()
 {
-	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/manuals.html"));
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
 }
 
 void ApplicationWindow::downloadTranslation()
 {
-	QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/translations.html"));
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
 }
 
 void ApplicationWindow::showHomePage()
 {
-	QDesktopServices::openUrl(QUrl("http://www.qtiplot.ro"));
+	QDesktopServices::openUrl(QUrl("http://scidavis.sf.net"));
 }
 
 void ApplicationWindow::showForums()
 {
-	QDesktopServices::openUrl(QUrl("https://developer.berlios.de/forum/?group_id=6626"));
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/forum/?group_id=199120"));
 }
 
 void ApplicationWindow::showBugTracker()
 {
-	QDesktopServices::openUrl(QUrl("https://developer.berlios.de/bugs/?group_id=6626"));
-}
-
-void ApplicationWindow::showDonationDialog()
-{
-	if (askForSupport)
-	{
-		QString s= tr("<font size=+2, color = darkBlue><b>QtiPlot is open-source software and its development required hundreds of hours of work.<br><br>\
-				If you like it, you're using it in your work and you would like to see it \
-				constantly improved,<br> please support its authors by making a donation.<br><br> \
-				Would you like to make a donation for QtiPlot now?</b></font>");
-		switch( QMessageBox::information(this, tr("Please support QtiPlot!"), s,
-					tr("Yes, I'd love to!"), tr("Ask me again later!"), tr("No, stop bothering me!"), 0, 1 ) )
-		{
-			case 0:
-				showDonationsPage();
-				break;
-
-			case 1:
-				break;
-
-			case 2:
-				askForSupport = false;
-				break;
-		}
-	}
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/tracker/?group_id=199120&atid=968214"));
 }
 
 void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
@@ -12293,7 +12222,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 		if( (str == "-a" || str == "--about") ||
 				(str == "-m" || str == "--manual") )
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Error"),
+			QMessageBox::critical(this, tr("SciDAVis - Error"),
 			tr("<b> %1 </b>: This command line option must be used without other arguments!").arg(str));
 		}
 		else if (str == "-v" || str == "--version")
@@ -12303,7 +12232,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += tr("Released") + ": " + release_date + "\n";
 			#ifdef Q_OS_WIN
                 hide();
-				QMessageBox::information(this, tr("QtiPlot") + " - " + tr("Version"), s);
+				QMessageBox::information(this, tr("SciDAVis") + " - " + tr("Version"), s);
 			#else
 				std::cout << s.toStdString();
 			#endif
@@ -12312,18 +12241,18 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 		else if (str == "-h" || str == "--help")
 		{
 			QString s = "\n" + tr("Usage") + ": ";
-			s += "qtiplot [" + tr("options") + "] [" + tr("file") + "_" + tr("name") + "]\n\n";
+			s += "scidavis [" + tr("options") + "] [" + tr("file") + "_" + tr("name") + "]\n\n";
 			s += tr("Valid options are") + ":\n";
 			s += "-a " + tr("or") + " --about: " + tr("show about dialog and exit") + "\n";
 			s += "-h " + tr("or") + " --help: " + tr("show command line options") + "\n";
-			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start QtiPlot in language") + " XX ('en', 'fr', 'de', ...)\n";
-			s += "-m " + tr("or") + " --manual: " + tr("show QtiPlot manual in a standalone window") + "\n";
-			s += "-v " + tr("or") + " --version: " + tr("print QtiPlot version and release date") + "\n";
+			s += "-l=XX " + tr("or") + " --lang=XX: " + tr("start SciDAVis in language") + " XX ('en', 'fr', 'de', ...)\n";
+			s += "-m " + tr("or") + " --manual: " + tr("show SciDAVis manual in a standalone window") + "\n";
+			s += "-v " + tr("or") + " --version: " + tr("print SciDAVis version and release date") + "\n";
 			s += "-x " + tr("or") + " --execute: " + tr("execute the script file given as argument") + "\n\n";
-			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file") + "\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .sprj, .sprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file") + "\n";
 			#ifdef Q_OS_WIN
                 hide();
-				QMessageBox::information(this, tr("QtiPlot - Help"), s);
+				QMessageBox::information(this, tr("SciDAVis - Help"), s);
 			#else
 				std::cout << s.toStdString();
 			#endif
@@ -12336,15 +12265,15 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 				switchToLanguage(locale);
 
 			if (!locales.contains(locale))
-				QMessageBox::critical(this, tr("QtiPlot - Error"),
+				QMessageBox::critical(this, tr("SciDAVis - Error"),
 						tr("<b> %1 </b>: Wrong locale option or no translation available!").arg(locale));
 		}
 		else if (str.startsWith("--execute") || str.startsWith("-x"))
 			exec = true;
 		else if (str.startsWith("-") || str.startsWith("--"))
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Error"),
-			tr("<b> %1 </b> unknown command line option!").arg(str) + "\n" + tr("Type %1 to see the list of the valid options.").arg("'qtiplot -h'"));
+			QMessageBox::critical(this, tr("SciDAVis - Error"),
+			tr("<b> %1 </b> unknown command line option!").arg(str) + "\n" + tr("Type %1 to see the list of the valid options.").arg("'scidavis -h'"));
 		}
 	}
 
@@ -12354,15 +12283,15 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	if (!file_name.isEmpty()){
 		QFileInfo fi(file_name);
 		if (fi.isDir()){
-			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+			QMessageBox::critical(this, tr("SciDAVis - File openning error"),
 					tr("<b>%1</b> is a directory, please specify a file name!").arg(file_name));
 			return;
 		} else if (!fi.isReadable()) {
-			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+			QMessageBox::critical(this, tr("SciDAVis - File openning error"),
 					tr("You don't have the permission to open this file: <b>%1</b>").arg(file_name));
 			return;
 		} else if (!fi.exists()) {
-			QMessageBox::critical(this, tr("QtiPlot - File openning error"),
+			QMessageBox::critical(this, tr("SciDAVis - File openning error"),
 					tr("The file: <b>%1</b> doesn't exist!").arg(file_name));
 			return;
 		}
@@ -12393,7 +12322,7 @@ void ApplicationWindow::createLanguagesList()
 
 	QString qmPath = qApp->applicationDirPath() + "/translations";
 	QDir dir(qmPath);
-	QStringList fileNames = dir.entryList("qtiplot_*.qm");
+	QStringList fileNames = dir.entryList("scidavis_*.qm");
 	for (int i=0; i < (int)fileNames.size(); i++)
 	{
 		QString locale = fileNames[i];
@@ -12406,7 +12335,7 @@ void ApplicationWindow::createLanguagesList()
 
 	if (appLanguage != "en")
 	{
-		appTranslator->load("qtiplot_" + appLanguage, qmPath);
+		appTranslator->load("scidavis_" + appLanguage, qmPath);
 		qtTranslator->load("qt_" + appLanguage, qmPath+"/qt");
 	}
 }
@@ -12437,7 +12366,7 @@ void ApplicationWindow::switchToLanguage(const QString& locale)
 	else
 	{
 		QString qmPath = qApp->applicationDirPath() + "/translations";
-		appTranslator->load("qtiplot_" + locale, qmPath);
+		appTranslator->load("scidavis_" + locale, qmPath);
 		qtTranslator->load("qt_" + locale, qmPath+"/qt");
 	}
 	insertTranslatedStrings();
@@ -12528,22 +12457,23 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QFileInfo fi(fn);
 	workingDir = fi.dirPath(true);
 
-	if (fn.contains(".qti") || fn.contains(".opj", Qt::CaseInsensitive) ||
+	if (fn.contains(".sprj") ||
+		fn.contains(".qti") || fn.contains(".opj", Qt::CaseInsensitive) ||
 		fn.contains(".ogm", Qt::CaseInsensitive) || fn.contains(".ogw", Qt::CaseInsensitive) ||
         fn.contains(".ogg", Qt::CaseInsensitive))
 	{
 		QFileInfo f(fn);
 		if (!f.exists ())
 		{
-			QMessageBox::critical(this, tr("QtiPlot - File opening error"),
+			QMessageBox::critical(this, tr("SciDAVis - File opening error"),
 					tr("The file: <b>%1</b> doesn't exist!").arg(fn));
 			return;
 		}
 	}
 	else
 	{
-		QMessageBox::critical(this,tr("QtiPlot - File opening error"),
-				tr("The file: <b>%1</b> is not a QtiPlot or Origin project file!").arg(fn));
+		QMessageBox::critical(this,tr("SciDAVis - File opening error"),
+				tr("The file: <b>%1</b> is not a SciDAVis or Origin project file!").arg(fn));
 		return;
 	}
 
@@ -12554,7 +12484,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QString fname = fn;
-	if (fn.contains(".qti.gz"))
+	if ( fn.contains(".sprj.gz") || fn.contains(".qti.gz"))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
 		fname.remove(".gz");
@@ -12760,26 +12690,6 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QApplication::restoreOverrideCursor();
 }
 
-#ifdef QTIPLOT_DEMO
-void ApplicationWindow::showDemoVersionMessage()
-{
-	QMessageBox::critical(this, tr("QtiPlot - Demo Version"),
-			tr("You are using the demonstration version of Qtiplot.\
-				It is identical with the full version, except that you can't save your work to project files and you can't use it for more than 10 minutes per session.\
-				<br><br>\
-				If you want to have ready-to-use, fully functional binaries, please subscribe for a\
-				<a href=\"http://soft.proindependent.com/individual_contract.html\">single-user binaries maintenance contract</a>.\
-				<br><br>\
-				QtiPlot is free software in the sense of free speech.\
-				If you know how to use it, you can get\
-				<a href=\"http://developer.berlios.de/project/showfiles.php?group_id=6626\">the source code</a>\
-				free of charge.\
-				Nevertheless, you are welcome to\
-				<a href=\"http://soft.proindependent.com/why_donate.html\">make a donation</a>\
-				in order to support the further development of QtiPlot."));
-}
-#endif
-
 void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 {
 	QFile f( fn );
@@ -12789,7 +12699,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 		{
 			if (f.isOpen())
 				f.close();
-			int choice = QMessageBox::warning(this, tr("QtiPlot - File backup error"),
+			int choice = QMessageBox::warning(this, tr("SciDAVis - File backup error"),
 					tr("Cannot make a backup copy of <b>%1</b> (to %2).<br>If you ignore this, you run the risk of <b>data loss</b>.").arg(projectname).arg(projectname+"~"),
 					QMessageBox::Retry|QMessageBox::Default, QMessageBox::Abort|QMessageBox::Escape, QMessageBox::Ignore);
 			if (choice == QMessageBox::Abort)
@@ -12807,7 +12717,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 
 	if ( !f.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::about(this, tr("QtiPlot - File save error"), tr("The file: <br><b>%1</b> is opened in read-only mode").arg(fn));
+		QMessageBox::about(this, tr("SciDAVis - File save error"), tr("The file: <br><b>%1</b> is opened in read-only mode").arg(fn));
 		return;
 	}
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -12863,7 +12773,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	text += "<log>\n"+logInfo+"</log>";
 	text.prepend("<windows>\t"+QString::number(windows)+"\n");
 	text.prepend("<scripting-lang>\t"+QString(scriptEnv->name())+"\n");
-	text.prepend("QtiPlot " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
+	text.prepend("SciDAVis " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
 			QString::number(patch_version)+" project file\n");
 
 	QTextStream t( &f );
@@ -12881,12 +12791,8 @@ void ApplicationWindow::saveAsProject()
 
 void ApplicationWindow::saveFolderAsProject(Folder *f)
 {
-#ifdef QTIPLOT_DEMO
-	showDemoVersionMessage();
-	return;
-#endif
-	QString filter = tr("QtiPlot project")+" (*.qti);;";
-	filter += tr("Compressed QtiPlot project")+" (*.qti.gz)";
+	QString filter = tr("SciDAVis project")+" (*.sprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sprj.gz)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), workingDir, filter, &selectedFilter);
@@ -12895,7 +12801,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
 		if (!baseName.contains("."))
-			fn.append(".qti");
+			fn.append(".sprj");
 
 		saveFolder(f, fn);
 		if (selectedFilter.contains(".gz"))
@@ -13041,7 +12947,7 @@ void ApplicationWindow::renameFolder(Q3ListViewItem *it, int col, const QString 
 
 	while(text.isEmpty())
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"), tr("Please enter a valid name!"));
+		QMessageBox::critical(this,tr("SciDAVis - Error"), tr("Please enter a valid name!"));
 		it->setRenameEnabled (0, true);
 		it->startRename (0);
 		return;
@@ -13051,7 +12957,7 @@ void ApplicationWindow::renameFolder(Q3ListViewItem *it, int col, const QString 
 	lst.remove(current_folder->name());
 	while(lst.contains(text))
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Error"),
+		QMessageBox::critical(this,tr("SciDAVis - Error"),
 				tr("Name already exists!")+"\n"+tr("Please choose another name!"));
 
 		it->setRenameEnabled (0, true);
@@ -13193,7 +13099,7 @@ void ApplicationWindow::projectProperties()
 	QMessageBox *mbox = new QMessageBox ( tr("Properties"), s, QMessageBox::NoIcon,
 			QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
 
-	mbox->setIconPixmap(QPixmap( qtiplot_logo_xpm ));
+	mbox->setIconPixmap(QPixmap( scidavis_logo_xpm ));
 	mbox->show();
 }
 
@@ -13245,7 +13151,7 @@ void ApplicationWindow::addFolder()
 
 bool ApplicationWindow::deleteFolder(Folder *f)
 {
-	if (confirmCloseFolder && QMessageBox::information(this, tr("QtiPlot - Delete folder?"),
+	if (confirmCloseFolder && QMessageBox::information(this, tr("SciDAVis - Delete folder?"),
 				tr("Delete folder '%1' and all the windows it contains?").arg(f->name()),
 				tr("Yes"), tr("No"), 0, 0))
 		return false;
@@ -13597,7 +13503,7 @@ void ApplicationWindow::find(const QString& s, bool windowNames, bool labels,
 		}
 	}
 
-	QMessageBox::warning(this, tr("QtiPlot - No match found"),
+	QMessageBox::warning(this, tr("SciDAVis - No match found"),
 			tr("Sorry, no match found for string: '%1'").arg(s));
 }
 
@@ -13619,13 +13525,13 @@ void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest)
 			FolderListItem *src = f->folderListItem();
 			if (dest_f == f)
 			{
-				QMessageBox::critical(this, "QtiPlot - Error", tr("Cannot move an object to itself!"));
+				QMessageBox::critical(this, "SciDAVis - Error", tr("Cannot move an object to itself!"));
 				return;
 			}
 
 			if (((FolderListItem *)dest)->isChildOf(src))
 			{
-				QMessageBox::critical(this,"QtiPlot - Error",tr("Cannot move a parent folder into a child folder!"));
+				QMessageBox::critical(this,"SciDAVis - Error",tr("Cannot move a parent folder into a child folder!"));
 				draggedItems.clear();
 				folders->setCurrentItem(current_folder->folderListItem());
 				return;
@@ -13639,7 +13545,7 @@ void ApplicationWindow::dropFolderItems(Q3ListViewItem *dest)
 
 			if (subfolders.contains(f->name()))
 			{
-				QMessageBox::critical(this, tr("QtiPlot") +" - " + tr("Skipped moving folder"),
+				QMessageBox::critical(this, tr("SciDAVis") +" - " + tr("Skipped moving folder"),
 						tr("The destination folder already contains a folder called '%1'! Folder skipped!").arg(f->name()));
 			}
 			else
@@ -13727,8 +13633,8 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 
 void ApplicationWindow::searchForUpdates()
 {
-    int choice = QMessageBox::question(this, tr("QtiPlot"),
-					tr("QtiPlot will try to download necessary information about the last available updates. Please modify your firewall settings in order to allow QtiPlot to connect to the internet!") + "\n" +
+    int choice = QMessageBox::question(this, tr("SciDAVis"),
+					tr("SciDAVis will try to download necessary information about the last available updates. Please modify your firewall settings in order to allow SciDAVis to connect to the internet!") + "\n" +
 					tr("Do you wish to continue?"),
 					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
 
@@ -13745,7 +13651,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 {
 	if (error)
 	{
-		QMessageBox::warning(this, tr("QtiPlot - HTTP get version file"),
+		QMessageBox::warning(this, tr("SciDAVis - HTTP get version file"),
 				tr("Error while fetching version file with HTTP: %1.").arg(http.errorString()));
 		return;
 	}
@@ -13764,14 +13670,14 @@ void ApplicationWindow::receivedVersionFile(bool error)
 
 		if (currentVersion != version)
 		{
-			if(QMessageBox::question(this, tr("QtiPlot - Updates Available"),
-						tr("There is a newer version of QtiPlot (%1) available for download. Would you like to download it?").arg(version),
+			if(QMessageBox::question(this, tr("SciDAVis - Updates Available"),
+						tr("There is a newer version of SciDAVis (%1) available for download. Would you like to download it?").arg(version),
 						QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
 				QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/download.html"));
 		}
 		else if (!autoSearchUpdatesRequest)
 		{
-			QMessageBox::information(this, tr("QtiPlot - No Updates Available"),
+			QMessageBox::information(this, tr("SciDAVis - No Updates Available"),
 					tr("No updates available. Your current version %1 is the last version available!").arg(version));
 		}
 		autoSearchUpdatesRequest = false;
@@ -13821,7 +13727,7 @@ void ApplicationWindow::clearTable()
 	if (!t || !t->isA("Table"))
 		return;
 
-	if (QMessageBox::question(this, tr("QtiPlot - Warning"),
+	if (QMessageBox::question(this, tr("SciDAVis - Warning"),
 				tr("This will clear the contents of all the data associated with the table. Are you sure?"),
 				tr("&Yes"), tr("&No"), QString(), 0, 1 ) )
 		return;
@@ -13837,7 +13743,7 @@ void ApplicationWindow::goToRow()
 	if (ws->activeWindow()->isA("Table") || ws->activeWindow()->isA("Matrix"))
 	{
 		bool ok;
-		int row = QInputDialog::getInteger(tr("QtiPlot - Enter row number"), tr("Row"),
+		int row = QInputDialog::getInteger(tr("SciDAVis - Enter row number"), tr("Row"),
 				1, 0, 1000000, 1, &ok, this );
 		if ( !ok )
 			return;
@@ -13915,7 +13821,7 @@ ApplicationWindow::~ApplicationWindow()
 
 QString ApplicationWindow::versionString()
 {
-	return "QtiPlot " + QString::number(maj_version) + "." +
+	return "SciDAVis " + QString::number(maj_version) + "." +
 		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
 }
 

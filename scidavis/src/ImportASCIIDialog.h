@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ImportASCIIDialog.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen, Knut Franke
@@ -54,7 +54,7 @@ public:
 		NewTables, //!< create a new table for each file (default)
 		NewColumns, //!< add each file as new columns to the current table
 		NewRows, //!< add each file as new rows to the current table
-		Overwrite //!< replace content of current table with the selected file (like importing a single file in previous versions of QtiPlot)
+		Overwrite //!< replace content of current table with the selected file (like importing a single file in previous versions of SciDAVis)
 	};
 
 	//! Constructor

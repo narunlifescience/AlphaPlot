@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : importOPJ.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
@@ -64,36 +64,36 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 	mw->showResults(opj.resultsLogString(),mw->logWindow->isVisible());
 }
 
-int ImportOPJ::translateOrigin2QtiplotLineStyle(int linestyle) {
-	int qtiplotstyle=0;
+int ImportOPJ::translateOrigin2SciDAVisLineStyle(int linestyle) {
+	int scidavisstyle=0;
 	switch (linestyle)
 	{
 		case OPJFile::Solid:
-			qtiplotstyle=0;
+			scidavisstyle=0;
 			break;
 		case OPJFile::Dash:
 		case OPJFile::ShortDash:
-			qtiplotstyle=1;
+			scidavisstyle=1;
 			break;
 		case OPJFile::Dot:
 		case OPJFile::ShortDot:
-			qtiplotstyle=2;
+			scidavisstyle=2;
 			break;
 		case OPJFile::DashDot:
 		case OPJFile::ShortDashDot:
-			qtiplotstyle=3;
+			scidavisstyle=3;
 			break;
 		case OPJFile::DashDotDot:
-			qtiplotstyle=4;
+			scidavisstyle=4;
 			break;
 	}
-	return qtiplotstyle;
+	return scidavisstyle;
 }
 
 bool ImportOPJ::importTables(OPJFile opj)
 {
 	int visible_count=0;
-	int QtiPlot_scaling_factor=10; //in Origin width is measured in characters while in QtiPlot - pixels --- need to be accurate
+	int SciDAVis_scaling_factor=10; //in Origin width is measured in characters while in SciDAVis - pixels --- need to be accurate
 	for (int s=0; s<opj.numSpreads(); s++)
 	{
 		int nr_cols = opj.numCols(s);
@@ -111,7 +111,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 			table->setColName(j, name.replace(QRegExp(".*_"),""));
 			table->setCommand(j, QString(opj.colCommand(s,j)));
 			table->setColComment(j, QString(opj.colComment(s,j)));
-			table->changeColWidth(opj.colWidth(s,j)*QtiPlot_scaling_factor, j);
+			table->changeColWidth(opj.colWidth(s,j)*SciDAVis_scaling_factor, j);
 
 			if (QString(opj.colType(s,j)) == "X")
 				table->setColPlotDesignation(j, Table::X);
@@ -341,7 +341,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 
 		matrix->setWindowLabel(opj.matrixLabel(s));
 		matrix->setFormula(opj.matrixFormula(s));
-		matrix->setColumnsWidth(opj.matrixWidth(s)*QtiPlot_scaling_factor);
+		matrix->setColumnsWidth(opj.matrixWidth(s)*SciDAVis_scaling_factor);
 		matrix->table()->blockSignals(true);
 		for (int j=0; j<nr_cols; j++)
 		{
@@ -734,10 +734,10 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 			grid.minorOnX=(grids[1].hidden?0:1);
 			grid.majorOnY=(grids[2].hidden?0:1);
 			grid.minorOnY=(grids[3].hidden?0:1);
-			grid.majorStyle=translateOrigin2QtiplotLineStyle(grids[0].style);
+			grid.majorStyle=translateOrigin2SciDAVisLineStyle(grids[0].style);
 			grid.majorCol=grids[0].color;
 			grid.majorWidth=ceil(grids[0].width);
-			grid.minorStyle=translateOrigin2QtiplotLineStyle(grids[1].style);
+			grid.minorStyle=translateOrigin2SciDAVisLineStyle(grids[1].style);
 			grid.minorCol=grids[1].color;
 			grid.minorWidth=ceil(grids[1].width);
 			grid.xZeroOn=0;

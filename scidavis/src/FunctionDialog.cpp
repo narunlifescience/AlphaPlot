@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : FunctionDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -48,7 +48,7 @@ FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Q
 {
 	if ( !name )
 		setName( "FunctionDialog" );
-	setWindowTitle( tr( "QtiPlot - Add function curve" ) );
+	setWindowTitle( tr( "SciDAVis - Add function curve" ) );
 	setSizeGripEnabled(true);
 
 	QHBoxLayout *hbox1 = new QHBoxLayout();
@@ -276,7 +276,7 @@ void FunctionDialog::acceptFunction()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 		boxFrom->setFocus();
 		return;
 	}
@@ -288,14 +288,14 @@ void FunctionDialog::acceptFunction()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 		boxTo->setFocus();
 		return;
 	}
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input error"),
+		QMessageBox::critical(0, tr("SciDAVis - Input error"),
 				tr("Please enter x limits that satisfy: from < end!"));
 		boxTo->setFocus();
 		return;
@@ -318,7 +318,7 @@ void FunctionDialog::acceptFunction()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxFunction->setFocus();
 		error=true;
 	}
@@ -361,7 +361,7 @@ void FunctionDialog::acceptParametric()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 		boxParFrom->setFocus();
 		return;
 	}
@@ -374,14 +374,14 @@ void FunctionDialog::acceptParametric()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 		boxParTo->setFocus();
 		return;
 	}
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input error"),
+		QMessageBox::critical(0, tr("SciDAVis - Input error"),
 				tr("Please enter parameter limits that satisfy: from < end!"));
 		boxParTo->setFocus();
 		return;
@@ -405,7 +405,7 @@ void FunctionDialog::acceptParametric()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxXFunction->setFocus();
 		error=true;
 	}
@@ -422,7 +422,7 @@ void FunctionDialog::acceptParametric()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxYFunction->setFocus();
 		error=true;
 	}
@@ -465,7 +465,7 @@ void FunctionDialog::acceptPolar()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Start limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 		boxPolarFrom->setFocus();
 		return;
 	}
@@ -478,14 +478,14 @@ void FunctionDialog::acceptPolar()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 		boxPolarTo->setFocus();
 		return;
 	}
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input error"),
+		QMessageBox::critical(0, tr("SciDAVis - Input error"),
 				tr("Please enter parameter limits that satisfy: from < end!"));
 		boxPolarTo->setFocus();
 		return;
@@ -509,7 +509,7 @@ void FunctionDialog::acceptPolar()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarRadius->setFocus();
 		error=true;
 	}
@@ -526,7 +526,7 @@ void FunctionDialog::acceptPolar()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		boxPolarTheta->setFocus();
 		error=true;
 	}

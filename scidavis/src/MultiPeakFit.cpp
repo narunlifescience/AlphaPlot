@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : fitclasses.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -240,7 +240,7 @@ void MultiPeakFit::generateFitCurve(double *par)
 	gsl_matrix * m = gsl_matrix_alloc (d_points, d_peaks);
 	if (!m)
 	{
-		QMessageBox::warning(app, tr("QtiPlot - Fit Error"), tr("Could not allocate enough memory for the fit curves!"));
+		QMessageBox::warning(app, tr("SciDAVis - Fit Error"), tr("Could not allocate enough memory for the fit curves!"));
 		return;
 	}
 

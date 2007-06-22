@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Fit.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -74,7 +74,7 @@ void Filter::setInterval(double from, double to)
 {
 	if (!d_curve)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("Please assign a curve first!"));
 		return;
 	}
@@ -98,14 +98,14 @@ void Filter::setDataCurve(int curve, double start, double end)
 
 	if (d_n == -1)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("Several data points have the same x value causing divisions by zero, operation aborted!"));
 		d_init_err = true;
         return;
 	}
     else if (d_n < d_min_points)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You need at least %1 points in order to perform this operation!").arg(d_min_points));
 		d_init_err = true;
         return;
@@ -119,7 +119,7 @@ int Filter::curveIndex(const QString& curveTitle, Graph *g)
 {
 	if (curveTitle.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Filter Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Filter Error"),
 				tr("Please enter a valid curve name!"));
 		d_init_err = true;
 		return -1;
@@ -173,7 +173,7 @@ void Filter::setColor(const QString& colorName)
         c = QColor(Qt::darkYellow);
     if (!ColorBox::isValidColor(c))
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Color Name Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Color Name Error"),
 				tr("The color name '%1' is not valid, a default color (red) will be used instead!").arg(colorName));
         d_curveColorIndex = 1;
         return;
@@ -201,7 +201,7 @@ bool Filter::run()
 
 	if (d_n < 0)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 				tr("You didn't specify a valid data set for this operation!"));
 		return false;
 	}

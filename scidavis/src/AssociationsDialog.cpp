@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : AssociationsDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -50,7 +50,7 @@ AssociationsDialog::AssociationsDialog( QWidget* parent,  const char* name, bool
     if ( !name )
 		setName( "AssociationsDialog" );
 
-    setWindowTitle( tr( "QtiPlot - Plot Associations" ) );
+    setWindowTitle( tr( "SciDAVis - Plot Associations" ) );
 	setSizeGripEnabled(true);
 	setFocus();
 

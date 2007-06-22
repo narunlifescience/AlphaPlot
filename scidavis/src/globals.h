@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : globals.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 
+//  TODO: adjust the version numbering
 //  Don't forget to change the Doxyfile when changing these!
 //! Major version number
 const int maj_version = 0;
@@ -37,6 +38,6 @@ const int patch_version = 0;
 //! Extra version information string (like "alpha", "-2", etc...)
 const char * extra_version = "-rc3";
 //! Copyright string containing the author names
-const char * copyright_string = "Copyright (C) 2004-2007 Ion Vasilief\nCopyright (C) 2006-2007 Tilman Hoener zu Siederdissen, Knut Franke";
+const char * copyright_string = "Developed by (in alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nFurther acknowledgments:\n...TODO";
 //! Release date as a string
-const char * release_date = " 2007/06/22";
+const char * release_date = " 2007/00/00";

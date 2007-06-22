@@ -1,6 +1,6 @@
 /***************************************************************************
 	File                 : TableStatistics.h
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de

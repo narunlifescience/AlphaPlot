@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Matrix.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen

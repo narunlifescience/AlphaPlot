@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : NonLinearFit.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -67,7 +67,7 @@ void NonLinearFit::setFormula(const QString& s)
 {
 	if (s.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"),
+		QMessageBox::critical((ApplicationWindow *)parent(),  tr("SciDAVis - Input function error"),
 				tr("Please enter a valid non-empty expression! Operation aborted!"));
 		d_init_err = true;
 		return;
@@ -75,7 +75,7 @@ void NonLinearFit::setFormula(const QString& s)
 
 	if (!d_p)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
 				tr("There are no parameters specified for this fit operation. Please define a list of parameters first!"));
 		d_init_err = true;
 		return;
@@ -101,7 +101,7 @@ void NonLinearFit::setFormula(const QString& s)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(),  tr("QtiPlot - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(),  tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
 		d_init_err = true;
 		return;
 	}
@@ -114,7 +114,7 @@ void NonLinearFit::setParametersList(const QStringList& lst)
 {
 	if ((int)lst.count() < 1)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
 				tr("You must provide a list containing at least one parameter for this type of fit. Operation aborted!"));
 		d_init_err = true;
 		return;

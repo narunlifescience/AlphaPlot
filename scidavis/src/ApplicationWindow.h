@@ -1,13 +1,13 @@
 /***************************************************************************
     File                 : ApplicationWindow.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
-    Description          : QtiPlot's main window
+    Description          : SciDAVis's main window
 
  ***************************************************************************/
 
@@ -82,7 +82,7 @@ class TableStatistics;
 class CurveRangeDialog;
 
 /**
- * \brief QtiPlot's main window.
+ * \brief SciDAVis's main window.
  *
  * This class contains the main part of the user interface as well as the central project management facilities.
  *
@@ -236,7 +236,6 @@ public slots:
 							 double xl,double xr,double yl,double yr,double zl,double zr);
 	Graph3D* dataPlot3D(Table* table,const QString& colName);
 	Graph3D* dataPlotXYZ(Table* table,const QString& zColName, int type);
-		//when reading from .qti file
 	Graph3D* dataPlot3D(const QString& caption,const QString& formula,
 						double xl, double xr, double yl, double yr, double zl, double zr);
 	Graph3D* dataPlotXYZ(const QString& caption,const QString& formula,
@@ -448,7 +447,7 @@ public slots:
 
 	//! Show about dialog
 	static void about();
-	//! Return a version string ("QtiPlot x.y.z")
+	//! Return a version string ("SciDAVis x.y.z")
 	static QString versionString();
 	void windowsMenuAboutToShow();
 	void windowsMenuActivated( int id );
@@ -753,12 +752,7 @@ public slots:
 	//!  called when the user presses the actionCheckUpdates
 	void searchForUpdates();
 
-	void showDonationDialog();
-	//! Open support page in external browser
-	void showSupportPage();
-	//! Open donation page in external browser
-	void showDonationsPage();
-	//! Open QtiPlot homepage in external browser
+	//! Open SciDAVis homepage in external browser
 	void showHomePage();
 	//! Open forums page at berliOS in external browser
 	void showForums();
@@ -768,10 +762,6 @@ public slots:
 	void downloadManual();
 	//! Show translations page in external browser
 	void downloadTranslation();
-#ifdef QTIPLOT_DEMO
-	//! Shown when the user tries to save the project.
-	void showDemoVersionMessage();
-#endif
 
 	void parseCommandLineArguments(const QStringList& args);
 	void createLanguagesList();
@@ -982,7 +972,7 @@ public:
 
 	//! Path to the folder where the last template file was opened/saved
 	QString templatesDir;
-	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, askForSupport, autoSearchUpdates;
+	bool smooth3DMesh, autoScaleFonts, autoResizeLayers, autoSearchUpdates;
 	bool confirmCloseTable, confirmCloseMatrix, confirmClosePlot2D, confirmClosePlot3D;
 	bool confirmCloseFolder, confirmCloseNotes;
 	bool canvasFrameOn, titleOn, autoSave, drawBackbones, allAxesOn, autoscale2DPlots, antialiasing2DPlots;
@@ -1035,10 +1025,6 @@ public:
 	QString defaultScriptingLang;
 
 private:
-
-#ifdef QTIPLOT_DEMO
-	int demoCloseTimerId;
-#endif
 
 	//! Workaround for the new colors introduced in rev 447
 	int convertOldToNewColorIndex(int cindex);
@@ -1107,7 +1093,7 @@ private:
 	QAction *actionTranslateHor, *actionTranslateVert, *actionSetAscValues, *actionSetRandomValues;
 	QAction *actionSetXCol, *actionSetYCol, *actionSetZCol, *actionDisregardCol, *actionSetXErrCol, *actionSetYErrCol;
 	QAction *actionBoxPlot, *actionMultiPeakGauss, *actionMultiPeakLorentz, *actionCheckUpdates;
-	QAction *actionDonate, *actionHomePage, *actionDownloadManual, *actionTechnicalSupport, *actionTranslations;
+	QAction *actionHomePage, *actionDownloadManual, *actionTranslations;
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 	QAction *actionNextWindow, *actionPrevWindow;

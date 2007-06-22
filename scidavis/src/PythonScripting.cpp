@@ -1,10 +1,10 @@
 /***************************************************************************
 	File                 : PythonScripting.cpp
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de
-	Description          : Execute Python code from within QtiPlot
+	Description          : Execute Python code from within SciDAVis
 
  ***************************************************************************/
 
@@ -57,8 +57,8 @@ typedef struct _traceback {
 #include <QCoreApplication>
 
 // includes sip.h, which undefines Qt's "slots" macro since SIP 4.6
-#include "sipAPIqti.h"
-extern "C" void initqti();
+#include "sipAPIscidavis.h"
+extern "C" void initscidavis();
 
 const char* PythonScripting::langName = "Python";
 
@@ -173,7 +173,7 @@ QString PythonScripting::errorMsg()
 PythonScripting::PythonScripting(ApplicationWindow *parent)
 	: ScriptingEnv(parent, langName)
 {
-	PyObject *mainmod=NULL, *qtimod=NULL, *sysmod=NULL;
+	PyObject *mainmod=NULL, *scidavismod=NULL, *sysmod=NULL;
 	math = NULL;
 	sys = NULL;
 	d_initialized = false;
@@ -194,7 +194,7 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 		Py_Initialize ();
 		if (!Py_IsInitialized ())
 			return;
-		initqti();
+		initscidavis();
 
 		mainmod = PyImport_AddModule("__main__");
 		if (!mainmod)
@@ -218,14 +218,14 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 	if (!math)
 		PyErr_Print();
 
-	qtimod = PyImport_ImportModule("qti");
-	if (qtimod)
+	scidavismod = PyImport_ImportModule("scidavis");
+	if (scidavismod)
 	{
-		PyDict_SetItemString(globals, "qti", qtimod);
-		PyObject *qtiDict = PyModule_GetDict(qtimod);
-		setQObject(d_parent, "app", qtiDict);
-		PyDict_SetItemString(qtiDict, "mathFunctions", math);
-		Py_DECREF(qtimod);
+		PyDict_SetItemString(globals, "scidavis", scidavismod);
+		PyObject *scidavisDict = PyModule_GetDict(scidavismod);
+		setQObject(d_parent, "app", scidavisDict);
+		PyDict_SetItemString(scidavisDict, "mathFunctions", math);
+		Py_DECREF(scidavismod);
 	} else
 		PyErr_Print();
 
@@ -253,13 +253,13 @@ bool PythonScripting::initialize()
 	setQObject(this, "stderr", sys);
 
 #ifdef Q_WS_WIN
-	loadInitFile(QDir::homeDirPath()+"/qtiplotrc") ||
-		loadInitFile(QCoreApplication::instance()->applicationDirPath()+"/qtiplotrc") ||
+	loadInitFile(QDir::homeDirPath()+"/scidavisrc") ||
+		loadInitFile(QCoreApplication::instance()->applicationDirPath()+"/scidavisrc") ||
 #else
-	loadInitFile(QDir::homeDirPath()+"/.qtiplotrc") ||
-		loadInitFile(QDir::rootDirPath()+"etc/qtiplotrc") ||
+	loadInitFile(QDir::homeDirPath()+"/.scidavisrc") ||
+		loadInitFile(QDir::rootDirPath()+"etc/scidavisrc") ||
 #endif
-		loadInitFile("qtiplotrc");
+		loadInitFile("scidavisrc");
 
 //	PyEval_ReleaseLock();
 	return true;
@@ -333,23 +333,23 @@ bool PythonScripting::setQObject(QObject *val, const char *name, PyObject *dict)
 	if(!val) return false;
 	PyObject *pyobj=NULL;
 	sipTypeDef *t;
-	for (int i=0; i<sipModuleAPI_qti.em_nrtypes; i++)
+	for (int i=0; i<sipModuleAPI_scidavis.em_nrtypes; i++)
 			// Note that the SIP API is a bit confusing here.
 			// sipTypeDef.td_cname holds the C++ class name, but is NULL if that's the same as the Python class name.
-			// sipTypeDef.td_name OTOH always holds the Python class name, but prepended by the module name ("qti.")
-			if (((t=sipModuleAPI_qti.em_types[i]->type)->td_cname && !strcmp(val->className(),t->td_cname)) ||
+			// sipTypeDef.td_name OTOH always holds the Python class name, but prepended by the module name ("scidavis.")
+			if (((t=sipModuleAPI_scidavis.em_types[i]->type)->td_cname && !strcmp(val->className(),t->td_cname)) ||
 					(!t->td_cname && !strcmp(val->className(),t->td_name+4)))
 			{
-				pyobj=sipConvertFromInstance(val,sipModuleAPI_qti.em_types[i],NULL);
+				pyobj=sipConvertFromInstance(val,sipModuleAPI_scidavis.em_types[i],NULL);
 				if (!pyobj) return false;
 				break;
 			}
 	if (!pyobj) {
-		for (int i=0; i<sipModuleAPI_qti_QtCore->em_nrtypes; i++)
-				if (((t=sipModuleAPI_qti_QtCore->em_types[i]->type)->td_cname && !strcmp(val->className(),t->td_cname)) ||
+		for (int i=0; i<sipModuleAPI_scidavis_QtCore->em_nrtypes; i++)
+				if (((t=sipModuleAPI_scidavis_QtCore->em_types[i]->type)->td_cname && !strcmp(val->className(),t->td_cname)) ||
 						(!t->td_cname && !strcmp(val->className(),t->td_name+3)))
 				{
-					pyobj=sipConvertFromInstance(val,sipModuleAPI_qti_QtCore->em_types[i],NULL);
+					pyobj=sipConvertFromInstance(val,sipModuleAPI_scidavis_QtCore->em_types[i],NULL);
 					if (!pyobj) return false;
 					break;
 				}

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Fit.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -297,7 +297,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
                 }
 				if (error)
 				{
-					QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+					QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
 					tr("The curve %1 has no associated Y error bars. You cannot use instrumental weighting method.").arg(d_curve->title().text()));
 					return false;
 				}
@@ -327,7 +327,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 
 				if (t->numRows() < d_n)
   	            {
-  	            	QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+  	            	QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
   	                tr("The column %1 has less points than the fitted data set. Please choose another column!.").arg(colName));
   	                return false;
   	            }
@@ -406,25 +406,25 @@ void Fit::fit()
 
 	if (!d_n)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
 				tr("You didn't specify a valid data set for this fit operation. Operation aborted!"));
 		return;
 	}
 	if (!d_p)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
 				tr("There are no parameters specified for this fit operation. Operation aborted!"));
 		return;
 	}
 	if (d_p > d_n)
   	{
-  		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+  		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   	    return;
   	}
 	if (d_formula.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
 				tr("You must specify a valid fit function first. Operation aborted!"));
 		return;
 	}

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : SymbolDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -383,7 +383,7 @@ void SymbolDialog::getChar(int btnIndex)
 
 void SymbolDialog::languageChange()
 {
-	setWindowTitle( tr( "QtiPlot - Choose Symbol" ) );
+	setWindowTitle( tr( "SciDAVis - Choose Symbol" ) );
 }
 
 

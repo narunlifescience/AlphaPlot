@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : DataPickerTool.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen, Knut Franke
@@ -298,7 +298,7 @@ void DataPickerTool::removePoint()
 	if ( !d_selected_curve )
 		return;
 	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function){
-		QMessageBox::critical(d_graph, tr("QtiPlot - Remove point error"),
+		QMessageBox::critical(d_graph, tr("SciDAVis - Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
@@ -311,7 +311,7 @@ void DataPickerTool::removePoint()
 	if (t->columnType(col) == Table::Numeric)
 		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
 	else {
-		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
+		QMessageBox::warning(d_graph, tr("SciDAVis - Warning"),
 					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
 
@@ -327,7 +327,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 		return;
 	if ( ((PlotCurve *)d_selected_curve)->type() == Graph::Function)
 	{
-		QMessageBox::critical(d_graph, tr("QtiPlot - Move point error"),
+		QMessageBox::critical(d_graph, tr("SciDAVis - Move point error"),
 				tr("Sorry, but moving points of a function is not possible."));
 		return;
 	}
@@ -365,7 +365,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 		d_app->modifiedProject();
 	}
 	else
-		QMessageBox::warning(d_graph, tr("QtiPlot - Warning"),
+		QMessageBox::warning(d_graph, tr("SciDAVis - Warning"),
 				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 
 

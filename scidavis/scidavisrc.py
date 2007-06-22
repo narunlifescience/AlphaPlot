@@ -4,7 +4,7 @@ def import_to_global(modname, attrs=None, math=False):
 	"""
 		import_to_global(modname, (a,b,c,...), math): like "from modname import a,b,c,...",
 		but imports to global namespace (__main__).
-		If math==True, also registers functions with QtiPlot's math function list.
+		If math==True, also registers functions with SciDAVis' math function list.
 	"""
 	mod = __import__(modname)
 	for submod in modname.split(".")[1:]:
@@ -13,8 +13,8 @@ def import_to_global(modname, attrs=None, math=False):
 	for name in attrs:
 		f = getattr(mod, name)
 		setattr(__main__, name, f)
-		# make functions available in QtiPlot's math function list
-		if math and callable(f): qti.mathFunctions[name] = f
+		# make functions available in SciDAVis' math function list
+		if math and callable(f): scidavis.mathFunctions[name] = f
 
 # Import standard math functions and constants into global namespace.
 import_to_global("math", None, True)
@@ -217,15 +217,15 @@ try:
 except(ImportError): pass
 
 
-# make Qt API available (it gets imported in any case by the qti module)
+# make Qt API available (it gets imported in any case by the scidavis module)
 global QtGui
 from PyQt4 import QtGui
 
 global QtCore
 from PyQt4 import QtCore
 
-# import QtiPlot's classes to the global namespace (particularly useful for fits)
-from qti import *
+# import SciDAVis' classes to the global namespace (particularly useful for fits)
+from scidavis import *
 
 # import selected methods of ApplicationWindow into the global namespace
 appImports = (
@@ -239,9 +239,9 @@ appImports = (
 	"importImage"
 	)
 for name in appImports:
-	setattr(__main__,name,getattr(qti.app,name))
+	setattr(__main__,name,getattr(scidavis.app,name))
 
 # import utility module
 import sys
 sys.path.append(".")
-import_to_global("qtiUtil")
+import_to_global("scidavisUtil")

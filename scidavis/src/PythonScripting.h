@@ -1,10 +1,10 @@
 /***************************************************************************
 	File                 : PythonScripting.h
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de
-	Description          : Execute Python code from within QtiPlot
+	Description          : Execute Python code from within SciDAVis
 
  ***************************************************************************/
 
@@ -64,7 +64,7 @@ class PythonScripting: public ScriptingEnv
 		 * reporting errors. Returns a new reference; NULL means caller has to do
 		 * exception handling.
 		 */
-		PyObject* eval(const QString &code, PyObject *argDict=NULL, const char *name="<qtiplot>");
+		PyObject* eval(const QString &code, PyObject *argDict=NULL, const char *name="<scidavis>");
 		//! execute a sequence of Python statements
 		/**
 		 * Executes code, using argDict (borrowed reference) as local dictionary
@@ -72,7 +72,7 @@ class PythonScripting: public ScriptingEnv
 		 * reporting errors. A false return value means caller has to do exception
 		 * handling.
 		 */
-		bool exec(const QString &code, PyObject *argDict=NULL, const char *name="<qtiplot>");
+		bool exec(const QString &code, PyObject *argDict=NULL, const char *name="<scidavis>");
 		QString errorMsg();
 
 		bool isRunning() const;

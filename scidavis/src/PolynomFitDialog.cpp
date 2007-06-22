@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : PolynomFitDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -47,7 +47,7 @@ PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool moda
 {
 	if ( !name )
 		setName( "PolynomFitDialog" );
-	setWindowTitle(tr("QtiPlot - Polynomial Fit Options"));
+	setWindowTitle(tr("SciDAVis - Polynomial Fit Options"));
     setSizeGripEnabled( true );
 
     QGroupBox *gb1 = new QGroupBox();
@@ -116,7 +116,7 @@ void PolynomFitDialog::fit()
 	QStringList curvesList = graph->analysableCurvesList();
 	if (!curvesList.contains(curveName))
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Warning"),
+		QMessageBox::critical(this, tr("SciDAVis - Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curveName));
 		boxName->clear();
 		boxName->insertStringList(curvesList);

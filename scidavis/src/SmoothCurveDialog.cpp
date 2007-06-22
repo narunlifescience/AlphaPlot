@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : SmoothCurveDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -48,7 +48,7 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* na
 
     if ( !name )
 		setName( "SmoothCurveDialog" );
-	setWindowTitle(tr("QtiPlot - Smoothing Options"));
+	setWindowTitle(tr("SciDAVis - Smoothing Options"));
 
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);

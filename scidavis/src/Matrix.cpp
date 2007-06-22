@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Matrix.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
@@ -370,7 +370,7 @@ void Matrix::setDimensions(int rows, int cols)
 	if (rows < r || cols < c){
 		QString msg_text = tr("Deleting rows/columns from the matrix!","set matrix dimensions");
 		msg_text += tr("<p>Do you really want to continue?","set matrix dimensions");
-		switch( QMessageBox::information(0, tr("QtiPlot"), msg_text,tr("Yes"), tr("Cancel"), 0, 1 ) )
+		switch( QMessageBox::information(0, tr("SciDAVis"), msg_text,tr("Yes"), tr("Cancel"), 0, 1 ) )
 		{
 			case 0: // Yes
 				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -433,7 +433,7 @@ double Matrix::determinant()
 	int cols = numCols();
 
 	if (rows != cols){
-		QMessageBox::critical(0,tr("QtiPlot - Error"),
+		QMessageBox::critical(0,tr("SciDAVis - Error"),
 				tr("Calculation failed, the matrix is not square!"));
 		return GSL_POSINF;
 	}
@@ -464,7 +464,7 @@ void Matrix::invert()
 	int cols = numCols();
 
 	if (rows != cols){
-		QMessageBox::critical(0,tr("QtiPlot - Error"),
+		QMessageBox::critical(0,tr("SciDAVis - Error"),
 				tr("Inversion failed, the matrix is not square!"));
 		return;
 	}
@@ -919,7 +919,7 @@ void Matrix::print(const QString& fileName)
 
 	if (!fileName.isEmpty())
 	{
-	    printer.setCreator("QtiPlot");
+	    printer.setCreator("SciDAVis");
 	    printer.setOutputFormat(QPrinter::PdfFormat);
         printer.setOutputFileName(fileName);
 	}

@@ -7,7 +7,7 @@ SCRIPTING_LANGS += muParser
 SCRIPTING_LANGS += Python
 
 # a console displaying output of scripts; particularly useful on Windows
-# where running QtiPlot from a terminal is inconvenient
+# where running SciDAVis from a terminal is inconvenient
 DEFINES         += SCRIPTING_CONSOLE
 # a dialog for selecting the scripting language on a per-project basis
 DEFINES         += SCRIPTING_DIALOG
@@ -19,7 +19,7 @@ CONFIG          += release
 INSTALLS        += target
 INSTALLS        += documentation
 unix: target.path = /usr/bin
-unix: documentation.path = /usr/share/doc/qtiplot
+unix: documentation.path = /usr/share/doc/scidavis
 
 ##################### 3rd PARTY HEADER FILES SECTION ########################
 #!!! Warning: You must modify these paths according to your computer settings
@@ -74,7 +74,7 @@ win32:LIBS        += ../3rdparty/zlib123/lib/zdll.lib
 
 QMAKE_PROJECT_DEPTH = 0
 
-TARGET         = qtiplot
+TARGET         = scidavis
 TEMPLATE       = app
 CONFIG        += qt warn_on exceptions opengl thread
 CONFIG        += assistant
@@ -83,9 +83,9 @@ DEFINES       += QT_PLUGIN
 win32:DEFINES += QT_DLL QT_THREAD_SUPPORT
 QT            += opengl qt3support network svg
 
-MOC_DIR        = ../tmp/qtiplot
-OBJECTS_DIR    = ../tmp/qtiplot
-SIP_DIR        = ../tmp/qtiplot
+MOC_DIR        = ../tmp/scidavis
+OBJECTS_DIR    = ../tmp/scidavis
+SIP_DIR        = ../tmp/scidavis
 DESTDIR        = ./
 
 #############################################################################
@@ -94,20 +94,20 @@ DESTDIR        = ./
 
 ###################### ICONS ################################################
 
-win32:RC_FILE = icons/qtiplot.rc
-mac:RC_FILE   = icons/qtiplot.icns
+win32:RC_FILE = icons/scidavis.rc
+mac:RC_FILE   = icons/scidavis.icns
 
 ###################### TRANSLATIONS #########################################
 
-TRANSLATIONS    = translations/qtiplot_de.ts \
-                  translations/qtiplot_es.ts \
-                  translations/qtiplot_fr.ts \
-                  translations/qtiplot_ru.ts \
-                  translations/qtiplot_ja.ts \
-                  translations/qtiplot_sv.ts
+TRANSLATIONS    = translations/scidavis_de.ts \
+                  translations/scidavis_es.ts \
+                  translations/scidavis_fr.ts \
+                  translations/scidavis_ru.ts \
+                  translations/scidavis_ja.ts \
+                  translations/scidavis_sv.ts
 
-#system(lupdate -verbose qtiplot.pro)
-#system(lrelease -verbose qtiplot.pro)
+#system(lupdate -verbose scidavis.pro)
+#system(lrelease -verbose scidavis.pro)
 
 ###################### DOCUMENTATION ########################################
 
@@ -398,95 +398,95 @@ contains(SCRIPTING_LANGS, Python) {
     LIBS        += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
     LIBS        += -lm
     system(mkdir -p $${SIP_DIR})
-    system($$system(python python-sipcmd.py) -c $${SIP_DIR} src/qti.sip)
+    system($$system(python python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
   }
 
   win32 {
     INCLUDEPATH += $$system(call python-includepath.py)
     LIBS        += $$system(call python-libs-win.py)
     system(md $${SIP_DIR})
-    system($$system(call python-sipcmd.py) -c $${SIP_DIR} src/qti.sip)
+    system($$system(call python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
   }
 
 ##################### SIP generated files #####################
 
-  HEADERS += $${SIP_DIR}/sipqtiApplicationWindow.h\
-             $${SIP_DIR}/sipqtiGraph.h\
-             $${SIP_DIR}/sipqtiArrowMarker.h\
-			 $${SIP_DIR}/sipqtiImageMarker.h\
-			 $${SIP_DIR}/sipqtiLegend.h\
-             $${SIP_DIR}/sipqtiMultiLayer.h\
-             $${SIP_DIR}/sipqtiTable.h\
-             $${SIP_DIR}/sipqtiMatrix.h\
-             $${SIP_DIR}/sipqtiMyWidget.h\
-             $${SIP_DIR}/sipqtiScriptEdit.h\
-             $${SIP_DIR}/sipqtiNote.h\
-             $${SIP_DIR}/sipqtiPythonScript.h\
-             $${SIP_DIR}/sipqtiPythonScripting.h\
-             $${SIP_DIR}/sipqtiFolder.h\
-             $${SIP_DIR}/sipqtiQList.h\
-             $${SIP_DIR}/sipqtiFit.h \
-             $${SIP_DIR}/sipqtiExponentialFit.h \
-             $${SIP_DIR}/sipqtiTwoExpFit.h \
-             $${SIP_DIR}/sipqtiThreeExpFit.h \
-             $${SIP_DIR}/sipqtiSigmoidalFit.h \
-             $${SIP_DIR}/sipqtiGaussAmpFit.h \
-             $${SIP_DIR}/sipqtiLorentzFit.h \
-             $${SIP_DIR}/sipqtiNonLinearFit.h \
-             $${SIP_DIR}/sipqtiPluginFit.h \
-             $${SIP_DIR}/sipqtiMultiPeakFit.h \
-             $${SIP_DIR}/sipqtiPolynomialFit.h \
-             $${SIP_DIR}/sipqtiLinearFit.h \
-             $${SIP_DIR}/sipqtiGaussFit.h \
-             $${SIP_DIR}/sipqtiFilter.h \
-             $${SIP_DIR}/sipqtiDifferentiation.h \
-             $${SIP_DIR}/sipqtiIntegration.h \
-			 $${SIP_DIR}/sipqtiInterpolation.h \
-			 $${SIP_DIR}/sipqtiSmoothFilter.h \
-			 $${SIP_DIR}/sipqtiFFTFilter.h \
-			 $${SIP_DIR}/sipqtiFFT.h \
-			 $${SIP_DIR}/sipqtiCorrelation.h \
-			 $${SIP_DIR}/sipqtiConvolution.h \
-			 $${SIP_DIR}/sipqtiDeconvolution.h \
+  HEADERS += $${SIP_DIR}/sipscidavisApplicationWindow.h\
+             $${SIP_DIR}/sipscidavisGraph.h\
+             $${SIP_DIR}/sipscidavisArrowMarker.h\
+			 $${SIP_DIR}/sipscidavisImageMarker.h\
+			 $${SIP_DIR}/sipscidavisLegend.h\
+             $${SIP_DIR}/sipscidavisMultiLayer.h\
+             $${SIP_DIR}/sipscidavisTable.h\
+             $${SIP_DIR}/sipscidavisMatrix.h\
+             $${SIP_DIR}/sipscidavisMyWidget.h\
+             $${SIP_DIR}/sipscidavisScriptEdit.h\
+             $${SIP_DIR}/sipscidavisNote.h\
+             $${SIP_DIR}/sipscidavisPythonScript.h\
+             $${SIP_DIR}/sipscidavisPythonScripting.h\
+             $${SIP_DIR}/sipscidavisFolder.h\
+             $${SIP_DIR}/sipscidavisQList.h\
+             $${SIP_DIR}/sipscidavisFit.h \
+             $${SIP_DIR}/sipscidavisExponentialFit.h \
+             $${SIP_DIR}/sipscidavisTwoExpFit.h \
+             $${SIP_DIR}/sipscidavisThreeExpFit.h \
+             $${SIP_DIR}/sipscidavisSigmoidalFit.h \
+             $${SIP_DIR}/sipscidavisGaussAmpFit.h \
+             $${SIP_DIR}/sipscidavisLorentzFit.h \
+             $${SIP_DIR}/sipscidavisNonLinearFit.h \
+             $${SIP_DIR}/sipscidavisPluginFit.h \
+             $${SIP_DIR}/sipscidavisMultiPeakFit.h \
+             $${SIP_DIR}/sipscidavisPolynomialFit.h \
+             $${SIP_DIR}/sipscidavisLinearFit.h \
+             $${SIP_DIR}/sipscidavisGaussFit.h \
+             $${SIP_DIR}/sipscidavisFilter.h \
+             $${SIP_DIR}/sipscidavisDifferentiation.h \
+             $${SIP_DIR}/sipscidavisIntegration.h \
+			 $${SIP_DIR}/sipscidavisInterpolation.h \
+			 $${SIP_DIR}/sipscidavisSmoothFilter.h \
+			 $${SIP_DIR}/sipscidavisFFTFilter.h \
+			 $${SIP_DIR}/sipscidavisFFT.h \
+			 $${SIP_DIR}/sipscidavisCorrelation.h \
+			 $${SIP_DIR}/sipscidavisConvolution.h \
+			 $${SIP_DIR}/sipscidavisDeconvolution.h \
 
-  SOURCES += $${SIP_DIR}/sipqticmodule.cpp\
-             $${SIP_DIR}/sipqtiApplicationWindow.cpp\
-             $${SIP_DIR}/sipqtiGraph.cpp\
-             $${SIP_DIR}/sipqtiArrowMarker.cpp\
-			 $${SIP_DIR}/sipqtiImageMarker.cpp\
-			 $${SIP_DIR}/sipqtiLegend.cpp\
-             $${SIP_DIR}/sipqtiMultiLayer.cpp\
-             $${SIP_DIR}/sipqtiTable.cpp\
-             $${SIP_DIR}/sipqtiMatrix.cpp\
-             $${SIP_DIR}/sipqtiMyWidget.cpp\
-             $${SIP_DIR}/sipqtiScriptEdit.cpp\
-             $${SIP_DIR}/sipqtiNote.cpp\
-             $${SIP_DIR}/sipqtiPythonScript.cpp\
-             $${SIP_DIR}/sipqtiPythonScripting.cpp\
-             $${SIP_DIR}/sipqtiFolder.cpp\
-             $${SIP_DIR}/sipqtiQList.cpp\
-             $${SIP_DIR}/sipqtiFit.cpp \
-             $${SIP_DIR}/sipqtiExponentialFit.cpp \
-             $${SIP_DIR}/sipqtiTwoExpFit.cpp \
-             $${SIP_DIR}/sipqtiThreeExpFit.cpp \
-             $${SIP_DIR}/sipqtiSigmoidalFit.cpp \
-             $${SIP_DIR}/sipqtiGaussAmpFit.cpp \
-             $${SIP_DIR}/sipqtiLorentzFit.cpp \
-             $${SIP_DIR}/sipqtiNonLinearFit.cpp \
-             $${SIP_DIR}/sipqtiPluginFit.cpp \
-             $${SIP_DIR}/sipqtiMultiPeakFit.cpp \
-             $${SIP_DIR}/sipqtiPolynomialFit.cpp \
-             $${SIP_DIR}/sipqtiLinearFit.cpp \
-             $${SIP_DIR}/sipqtiGaussFit.cpp \
-             $${SIP_DIR}/sipqtiFilter.cpp \
-             $${SIP_DIR}/sipqtiDifferentiation.cpp \
-             $${SIP_DIR}/sipqtiIntegration.cpp \
-			 $${SIP_DIR}/sipqtiInterpolation.cpp \
-			 $${SIP_DIR}/sipqtiSmoothFilter.cpp \
-			 $${SIP_DIR}/sipqtiFFTFilter.cpp \
-			 $${SIP_DIR}/sipqtiFFT.cpp \
-			 $${SIP_DIR}/sipqtiCorrelation.cpp \
-			 $${SIP_DIR}/sipqtiConvolution.cpp \
-			 $${SIP_DIR}/sipqtiDeconvolution.cpp \
+  SOURCES += $${SIP_DIR}/sipscidaviscmodule.cpp\
+             $${SIP_DIR}/sipscidavisApplicationWindow.cpp\
+             $${SIP_DIR}/sipscidavisGraph.cpp\
+             $${SIP_DIR}/sipscidavisArrowMarker.cpp\
+			 $${SIP_DIR}/sipscidavisImageMarker.cpp\
+			 $${SIP_DIR}/sipscidavisLegend.cpp\
+             $${SIP_DIR}/sipscidavisMultiLayer.cpp\
+             $${SIP_DIR}/sipscidavisTable.cpp\
+             $${SIP_DIR}/sipscidavisMatrix.cpp\
+             $${SIP_DIR}/sipscidavisMyWidget.cpp\
+             $${SIP_DIR}/sipscidavisScriptEdit.cpp\
+             $${SIP_DIR}/sipscidavisNote.cpp\
+             $${SIP_DIR}/sipscidavisPythonScript.cpp\
+             $${SIP_DIR}/sipscidavisPythonScripting.cpp\
+             $${SIP_DIR}/sipscidavisFolder.cpp\
+             $${SIP_DIR}/sipscidavisQList.cpp\
+             $${SIP_DIR}/sipscidavisFit.cpp \
+             $${SIP_DIR}/sipscidavisExponentialFit.cpp \
+             $${SIP_DIR}/sipscidavisTwoExpFit.cpp \
+             $${SIP_DIR}/sipscidavisThreeExpFit.cpp \
+             $${SIP_DIR}/sipscidavisSigmoidalFit.cpp \
+             $${SIP_DIR}/sipscidavisGaussAmpFit.cpp \
+             $${SIP_DIR}/sipscidavisLorentzFit.cpp \
+             $${SIP_DIR}/sipscidavisNonLinearFit.cpp \
+             $${SIP_DIR}/sipscidavisPluginFit.cpp \
+             $${SIP_DIR}/sipscidavisMultiPeakFit.cpp \
+             $${SIP_DIR}/sipscidavisPolynomialFit.cpp \
+             $${SIP_DIR}/sipscidavisLinearFit.cpp \
+             $${SIP_DIR}/sipscidavisGaussFit.cpp \
+             $${SIP_DIR}/sipscidavisFilter.cpp \
+             $${SIP_DIR}/sipscidavisDifferentiation.cpp \
+             $${SIP_DIR}/sipscidavisIntegration.cpp \
+			 $${SIP_DIR}/sipscidavisInterpolation.cpp \
+			 $${SIP_DIR}/sipscidavisSmoothFilter.cpp \
+			 $${SIP_DIR}/sipscidavisFFTFilter.cpp \
+			 $${SIP_DIR}/sipscidavisFFT.cpp \
+			 $${SIP_DIR}/sipscidavisCorrelation.cpp \
+			 $${SIP_DIR}/sipscidavisConvolution.cpp \
+			 $${SIP_DIR}/sipscidavisDeconvolution.cpp \
 }
 ###############################################################

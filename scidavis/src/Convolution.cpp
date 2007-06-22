@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Convolution.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -53,14 +53,14 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 
 	if (signal_col < 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The signal data set %1 does not exist!").arg(signalColName));
 		d_init_err = true;
 		return;
 	}
 	else if (response_col < 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response data set %1 does not exist!").arg(responseColName));
 		d_init_err = true;
 		return;
@@ -81,14 +81,14 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 	}
 	if (d_n_response >= rows/2)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response dataset '%1' must be less then half the size of the signal dataset '%2'!").arg(responseColName).arg(signalColName));
 		d_init_err = true;
 		return;
 	}
 	else if (d_n_response%2 == 0)
 	{
-		QMessageBox::warning((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
 		tr("The response dataset '%1' must contain an odd number of points!").arg(responseColName));
 		d_init_err = true;
 		return;
@@ -113,7 +113,7 @@ void Convolution::setDataFromTable(Table *t, const QString& signalColName, const
 	}
 	else
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot") + " - " + tr("Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") + " - " + tr("Error"),
                         tr("Could not allocate memory, operation aborted!"));
         d_init_err = true;
 		d_n = 0;

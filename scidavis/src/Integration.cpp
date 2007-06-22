@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Integration.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief
     Email (use @ for *)  : ion_vasilief*yahoo.fr
@@ -188,7 +188,7 @@ void Integration::setMethodOrder(int n)
 {
 if (n < 1 || n > 5)
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("QtiPlot - Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
         tr("Unknown integration method. Valid values must be in the range: 1 (Trapezoidal Method) to 5."));
         return;
     }

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : ErrDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -190,7 +190,7 @@ ErrDialog::~ErrDialog()
 
 void ErrDialog::languageChange()
 {
-    setWindowTitle( tr( "QtiPlot - Error Bars" ) );
+    setWindowTitle( tr( "SciDAVis - Error Bars" ) );
     xErrBox->setText( tr( "&X Error Bars" ) );
 	buttonAdd->setText( tr( "&Add" ) );
     textLabel1->setText( tr( "Add Error Bars to" ) );

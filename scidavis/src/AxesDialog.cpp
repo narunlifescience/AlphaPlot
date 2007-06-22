@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : AxesDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -1182,7 +1182,7 @@ AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
 		QPixmap image5( ( const char** ) image5_data );
 		QPixmap image6( ( const char** ) image6_data );
 		QPixmap image7( ( const char** ) image7_data );
-		setWindowTitle( tr( "QtiPlot - General Plot Options" ) );
+		setWindowTitle( tr( "SciDAVis - General Plot Options" ) );
 
 		generalDialog = new QTabWidget();
 
@@ -2289,7 +2289,7 @@ bool AxesDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
 			boxStart->setFocus();
 			return false;
 		}
@@ -2301,7 +2301,7 @@ bool AxesDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("SciDAVis - End limit error"),QString::fromStdString(e.GetMsg()));
 			boxEnd->setFocus();
 			return false;
 		}
@@ -2315,14 +2315,14 @@ bool AxesDialog::updatePlot()
 		       }
            catch(mu::ParserError &e)
               {
-			  QMessageBox::critical(0, tr("QtiPlot - Step input error"),QString::fromStdString(e.GetMsg()));
+			  QMessageBox::critical(0, tr("SciDAVis - Step input error"),QString::fromStdString(e.GetMsg()));
 			  boxStep->setFocus();
 			  return false;
 		      }
 
 		      if (stp <=0)
 		      {
-			  QMessageBox::critical(0,tr("QtiPlot - Step input error"), tr("Please enter a positive step value!"));
+			  QMessageBox::critical(0,tr("SciDAVis - Step input error"), tr("Please enter a positive step value!"));
 			  boxStep->setFocus();
 			  return false;
 		      }
@@ -2393,7 +2393,7 @@ bool AxesDialog::updatePlot()
 				}
 				catch(mu::ParserError &e)
 				{
-					QMessageBox::critical(0, tr("QtiPlot - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
+					QMessageBox::critical(0, tr("SciDAVis - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
 							tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
 					boxFormula->setFocus();
 					return false;

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : FFTDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -48,7 +48,7 @@
 FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
 {
-	setWindowTitle(tr("QtiPlot - FFT Options"));
+	setWindowTitle(tr("SciDAVis - FFT Options"));
 
 	d_table = 0;
 	graph = 0;
@@ -141,7 +141,7 @@ void FFTDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Sampling value error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("SciDAVis - Sampling value error"), QString::fromStdString(e.GetMsg()));
 		boxSampling->setFocus();
 		return;
 	}
@@ -156,7 +156,7 @@ void FFTDialog::accept()
 	{
 		if (boxReal->currentText().isEmpty())
 		{
-			QMessageBox::critical(this, tr("QtiPlot - Error"), tr("Please choose a column for the real part of the data!"));
+			QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Please choose a column for the real part of the data!"));
 			boxReal->setFocus();
 			return;
 		}

@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : FitDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -65,7 +65,7 @@ FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags 
 {
 	if ( !name )
 		setName( "FitDialog" );
-	setWindowTitle(tr("QtiPlot - Fit Wizard"));
+	setWindowTitle(tr("SciDAVis - Fit Wizard"));
 	setSizeGripEnabled( true );
 
     userFunctionNames = QStringList();
@@ -450,14 +450,14 @@ void FitDialog::showParametersTable()
 	QString tableName = paramTableName->text();
 	if (tableName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Error"),
 				tr("Please enter a valid name for the parameters table."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -472,14 +472,14 @@ void FitDialog::showCovarianceMatrix()
 	QString matrixName = covMatrixName->text();
 	if (matrixName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Error"),
 				tr("Please enter a valid name for the covariance matrix."));
 		return;
 	}
 
 	if (!fitter)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -540,20 +540,20 @@ void FitDialog::saveUserFunction()
 {
 	if (editBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input function error"), tr("Please enter a valid function!"));
+		QMessageBox::critical(this, tr("SciDAVis - Input function error"), tr("Please enter a valid function!"));
 		editBox->setFocus();
 		return;
 	}
 	else if (boxName->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
 				tr("Please enter a function name!"));
 		boxName->setFocus();
 		return;
 	}
 	else if (boxParam->text().remove(QRegExp("[,;\\s]")).isEmpty())
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
 				tr("Please enter at least one parameter name!"));
 		boxParam->setFocus();
 		return;
@@ -561,7 +561,7 @@ void FitDialog::saveUserFunction()
 
 	if (builtInFunctionNames.contains(boxName->text()))
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Error: function name"),
+		QMessageBox::critical(this, tr("SciDAVis - Error: function name"),
 				"<p><b>" + boxName->text() + "</b>" + tr(" is a built-in function name"
 					"<p>You must choose another name for your function!"));
 		editBox->setFocus();
@@ -569,7 +569,7 @@ void FitDialog::saveUserFunction()
 	}
 	if (editBox->text().contains(boxName->text()))
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Input function error"),
+		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
 				tr("You can't define functions recursevely!"));
 		editBox->setFocus();
 		return;
@@ -1028,7 +1028,7 @@ void FitDialog::accept()
 	QStringList curvesList = graph->curvesList();
 	if (curvesList.contains(curve) <= 0)
 	{
-		QMessageBox::critical(this,tr("QtiPlot - Warning"),
+		QMessageBox::critical(this,tr("SciDAVis - Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 		boxCurve->clear();
 		boxCurve->addItems(curvesList);
@@ -1050,7 +1050,7 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxFrom->setFocus();
 		return;
 	}
@@ -1063,14 +1063,14 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("QtiPlot - End limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("SciDAVis - End limit error"),QString::fromStdString(e.GetMsg()));
 		boxTo->setFocus();
 		return;
 	}
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Input error"),
+		QMessageBox::critical(0, tr("SciDAVis - Input error"),
 				tr("Please enter x limits that satisfy: from < end!"));
 		boxTo->setFocus();
 		return;
@@ -1084,14 +1084,14 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Tolerance input error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("SciDAVis - Tolerance input error"),QString::fromStdString(e.GetMsg()));
 		boxTolerance->setFocus();
 		return;
 	}
 
 	if (eps<0 || eps>=1)
 	{
-		QMessageBox::critical(0, tr("QtiPlot - Tolerance input error"),
+		QMessageBox::critical(0, tr("SciDAVis - Tolerance input error"),
 				tr("The tolerance value must be positive and less than 1!"));
 		boxTolerance->setFocus();
 		return;
@@ -1175,7 +1175,7 @@ void FitDialog::accept()
 		QString errorMsg = boxFunction->text() + " = " + formula + "\n" + QString::fromStdString(e.GetMsg()) + "\n" +
 			tr("Please verify that you have initialized all the parameters!");
 
-		QMessageBox::critical(0, tr("QtiPlot - Input function error"), errorMsg);
+		QMessageBox::critical(0, tr("SciDAVis - Input function error"), errorMsg);
 		boxFunction->setFocus();
 		error = true;
 	}
@@ -1313,7 +1313,7 @@ bool FitDialog::validInitialValues()
 	{
 		if(boxParams->item(i,1)->text().isEmpty())
 		{
-			QMessageBox::critical(0, tr("QtiPlot - Input error"),
+			QMessageBox::critical(0, tr("SciDAVis - Input error"),
 					tr("Please enter initial guesses for your parameters!"));
 			boxParams->setCurrentCell (i,1);
 			return false;
@@ -1327,7 +1327,7 @@ bool FitDialog::validInitialValues()
 		}
 		catch (mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("QtiPlot - Start limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
 			boxParams->setCurrentCell (i,1);
 			return false;
 		}

@@ -1,10 +1,10 @@
 /***************************************************************************
 	File                 : PythonScript.cpp
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de
-	Description          : Execute Python code from within QtiPlot
+	Description          : Execute Python code from within SciDAVis
 
  ***************************************************************************/
 

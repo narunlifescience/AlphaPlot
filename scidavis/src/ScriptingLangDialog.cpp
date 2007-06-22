@@ -1,6 +1,6 @@
 /***************************************************************************
 	File                 : ScriptingLangDialog.cpp
-	Project              : QtiPlot
+	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke, Ion Vasilief
 	Email (use @ for *)  : knut.franke*gmx.de, ion_vasilief*yahoo.fr
@@ -39,7 +39,7 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *p
 		bool modal, Qt::WFlags fl )
 : QDialog(parent, name, modal, fl), scripted(env)
 {
-	setCaption(tr("QtiPlot - Select scripting language"));
+	setCaption(tr("SciDAVis - Select scripting language"));
 
 	langList = new QListWidget(this);
 
@@ -77,7 +77,7 @@ void ScriptingLangDialog::accept()
 	if (app->setScriptingLang(langList->currentItem()->text()))
 		close();
 	else
-		QMessageBox::critical(this, tr("QtiPlot - Scripting Error"),
+		QMessageBox::critical(this, tr("SciDAVis - Scripting Error"),
 				tr("Scripting language \"%1\" failed to initialize.").arg(langList->currentItem()->text()));
 }
 

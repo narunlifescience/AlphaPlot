@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : RangeSelectorTool.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen, Knut Franke
@@ -53,7 +53,7 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 		d_selected_curve = NULL;
 	}
 	if (!d_selected_curve) {
-		QMessageBox::critical(d_graph, tr("QtiPlot - Warning"),
+		QMessageBox::critical(d_graph, tr("SciDAVis - Warning"),
 				tr("All the curves on this plot are empty!"));
 		return;
 	}

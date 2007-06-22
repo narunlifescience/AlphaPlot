@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Legend.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -266,7 +266,7 @@ void Legend::drawSymbols(QPainter *p, const QRect& rect,
 		{
 		    QString aux;
 		    if (titles[i].contains("\\c{"))
-		    {//QtiPlot symbol specification
+		    {//SciDAVis symbol specification
                 int pos=titles[i].find("{",0);
                 int pos2=titles[i].find("}",pos);
                 aux=titles[i].mid(pos+1,pos2-pos-1);
@@ -423,7 +423,7 @@ int Legend::symbolsMaxLineLength() const
 	for (int i=0;i<(int)titles.count();i++){
 		if (titles[i].contains("\\c{") && (int)cvs.size()>0){
 		    QString aux;
-		    if (titles[i].contains("\\c{")){//QtiPlot symbol specification
+		    if (titles[i].contains("\\c{")){//SciDAVis symbol specification
                 int pos=titles[i].find("{", 0);
                 int pos2=titles[i].find("}", pos);
                 aux=titles[i].mid(pos+1, pos2-pos-1);

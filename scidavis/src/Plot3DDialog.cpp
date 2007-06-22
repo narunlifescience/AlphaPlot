@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : Plot3DDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -54,7 +54,7 @@ Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::
 {
 	if ( !name )
 		setName( "Plot3DDialog" );
-	setWindowTitle( tr( "QtiPlot - Surface Plot Options" ) );
+	setWindowTitle( tr( "SciDAVis - Surface Plot Options" ) );
 
 	bars=0; points=0;
 
@@ -835,7 +835,7 @@ bool Plot3DDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,tr("QtiPlot - Start limit error"),  QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0,tr("SciDAVis - Start limit error"),  QString::fromStdString(e.GetMsg()));
 			boxFrom->setFocus();
 			error=true;
 			return false;
@@ -848,7 +848,7 @@ bool Plot3DDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,tr("QtiPlot - End limit error"), QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0,tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
 			boxTo->setFocus();
 			error=true;
 			return false;
@@ -856,7 +856,7 @@ bool Plot3DDialog::updatePlot()
 
 		if (start>=end)
 		{
-			QMessageBox::critical(0,tr("QtiPlot - Input error"),
+			QMessageBox::critical(0,tr("SciDAVis - Input error"),
 					tr("Please enter scale limits that satisfy: from < to!"));
 			boxTo->setFocus();
 			return false;

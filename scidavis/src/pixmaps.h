@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : pixmaps.h
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
@@ -9009,7 +9009,7 @@ static const char *quit_xpm[]={
 "QtQtQtaCaBaBaCaCaCaBaBaCaCaCaBaBaCaCaC.c.c.caCaCaBaBaCaCQtQtQtQt"};
 
 /* XPM */
-static const char * qtiplot_logo_xpm[] = {
+static const char * scidavis_logo_xpm[] = {
 "64 64 1304 2",
 "  	c None",
 ". 	c #4A81AE",

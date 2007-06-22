@@ -1,6 +1,6 @@
 /***************************************************************************
     File                 : SetColValuesDialog.cpp
-    Project              : QtiPlot
+    Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
@@ -51,7 +51,7 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 {
 	if ( !name )
 		setName( "SetColValuesDialog" );
-	setWindowTitle( tr( "QtiPlot - Set column values" ) );
+	setWindowTitle( tr( "SciDAVis - Set column values" ) );
 	setSizeGripEnabled(true);
 
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
