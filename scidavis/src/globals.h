@@ -27,17 +27,18 @@
  *                                                                         *
  ***************************************************************************/
 
-//  TODO: adjust the version numbering
 //  Don't forget to change the Doxyfile when changing these!
-//! Major version number
-const int maj_version = 0;
-//! Minor version number (0..9)
-const int min_version = 9;
-//! Patch version number (0..9)
-const int patch_version = 0;
-//! Extra version information string (like "alpha", "-2", etc...)
-const char * extra_version = "-rc3";
-//! Copyright string containing the author names
-const char * copyright_string = "Developed by (in alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nFurther acknowledgments:\n...TODO";
+//! SciDAVis version number
+/**
+ * 0xMMmmbb means MM.mm.bb with<br>
+ * MM = major version
+ * mm = minor version
+ * bb = bugfix version
+ */
+int scidavis_version = 0x000100;
+//! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
+const char * extra_version = "-beta1";
+//! Copyright string containing the author names etc.
+const char * copyright_string = "Developers (alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nSpecial thanks to (alphabetical order):\nQuentin Denis\nRoger Gadiou\nGudjon I. Gudjonsson\nAlex Kargovsky\nIon Vasilief\n\nThanks to (no particular order):\nthe developers of Qt, Qwt, QwtPlot3D, GSL, muParser, zlib, Python, PyQt, and liborigin\nall bug reporters, translators and other contributors";
 //! Release date as a string
 const char * release_date = " 2007/00/00";

@@ -358,7 +358,7 @@ void ApplicationWindow::applyUserSettings()
 
 void ApplicationWindow::initToolBars()
 {
-	setWindowIcon(QIcon(QPixmap(logo_xpm)));
+	setWindowIcon(QIcon(":/appicon"));
 	QPixmap openIcon, saveIcon;
 
 	fileTools = new QToolBar( tr( "File" ), this );
@@ -3972,9 +3972,9 @@ void ApplicationWindow::openTemplate()
 void ApplicationWindow::readSettings()
 {
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #endif
 
 	/* ---------------- group General --------------- */
@@ -4003,7 +4003,15 @@ void ApplicationWindow::readSettings()
 	autoSave = settings.value("/AutoSave",true).toBool();
 	autoSaveTime = settings.value("/AutoSaveTime",15).toInt();
 	defaultScriptingLang = settings.value("/ScriptingLang","muParser").toString();
-	QLocale::setDefault(settings.value("/Locale", QLocale::system().name()).toString());
+
+	QLocale temp_locale = QLocale( settings.value("/Locale", QLocale::system().name()).toString() );
+	bool usegl = settings.value("/LocaleUseGroupSeparator", true).toBool();
+    if(usegl)
+		temp_locale.setNumberOptions(temp_locale.numberOptions() & ~QLocale::OmitGroupSeparator);
+	else
+		temp_locale.setNumberOptions(temp_locale.numberOptions() | QLocale::OmitGroupSeparator);
+	QLocale::setDefault(temp_locale);
+
 	d_decimal_digits = settings.value("/DecimalDigits", 14).toInt();
 
 	//restore dock windows and tool bars
@@ -4235,9 +4243,9 @@ void ApplicationWindow::saveSettings()
 {
 
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #endif
 
 	/* ---------------- group General --------------- */
@@ -4251,6 +4259,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/AutoSaveTime", autoSaveTime);
 	settings.setValue("/ScriptingLang", defaultScriptingLang);
 	settings.setValue("/Locale", QLocale().name());
+	settings.setValue("/LocaleUseGroupSeparator", bool(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator)));
 	settings.setValue("/DecimalDigits", d_decimal_digits);
 
 	settings.setValue("/DockWindows", saveState());
@@ -4877,8 +4886,9 @@ void ApplicationWindow::saveAsTemplate()
 			return;
 		}
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		QString text = "SciDAVis " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
-				QString::number(patch_version) + " template file\n";
+		QString text = "SciDAVis " + QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
+			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
+			QString::number(scidavis_version & 0x0000FF) + " template file\n";
 		text += w->saveAsTemplate(windowGeometryInfo(w));
 		QTextStream t( &f );
 		t.setEncoding(QTextStream::UnicodeUTF8);
@@ -7034,7 +7044,7 @@ void ApplicationWindow::showImageDialog()
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id, SIGNAL(setGeometry(int, int, int, int)),
 				g, SLOT(updateImageMarker(int, int, int, int)));
-		id->setIcon(QPixmap(logo_xpm));
+		id->setIcon(QPixmap(":/appicon"));
 		id->setOrigin(im->origin());
 		id->setSize(im->size());
 		id->exec();
@@ -7072,7 +7082,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 		ImageDialog *id=new ImageDialog(0,"ImageDialog",true,0);
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id, SIGNAL(setGeometry(int,int,int,int)), plot, SLOT(setGraphGeometry(int,int,int,int)));
-		id->setIcon(QPixmap(logo_xpm));
+		id->setIcon(QPixmap(":/appicon"));
 		id->setWindowTitle(tr("SciDAVis - Layer Geometry"));
 		id->setOrigin(g->pos());
 		id->setSize(g->plotWidget()->size());
@@ -7097,7 +7107,7 @@ void ApplicationWindow::showTextDialog()
 		connect (td,SIGNAL(values(const QString&,int,int,const QFont&, const QColor&, const QColor&)),
 				g,SLOT(updateTextMarker(const QString&,int,int,const QFont&, const QColor&, const QColor&)));
 
-		td->setIcon(QPixmap(logo_xpm));
+		td->setIcon(QPixmap(":/appicon"));
 		td->setText(m->text());
 		td->setFont(m->font());
 		td->setTextColor(m->textColor());
@@ -7692,13 +7702,13 @@ void ApplicationWindow::closeWindow(MyWidget* window)
 void ApplicationWindow::about()
 {
 QString text = "<h2>"+ versionString() + "</h2>";
-text +=	"<h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>";
 text += "<h3>" + tr("Released") + ": " + QString(release_date) + "</h3>";
+text +=	"<h3>" + QString(copyright_string).replace("\n", "<br>") + "</h3>";
 
 QMessageBox *mb = new QMessageBox();
-mb->setWindowTitle (tr("About SciDAVis"));
-mb->setWindowIcon (QPixmap(logo_xpm));
-mb->setIconPixmap(QPixmap(logo_xpm));
+mb->setWindowTitle(tr("About SciDAVis"));
+mb->setWindowIcon(QIcon(":/appicon"));
+mb->setIconPixmap(QPixmap(":/appicon"));
 mb->setText(text);
 mb->exec();
 }
@@ -8530,9 +8540,9 @@ void ApplicationWindow::chooseHelpFolder()
 void ApplicationWindow::showStandAloneHelp()
 {
 #ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "ProIndependent", "SciDAVis");
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
 #endif
 
 	settings.beginGroup("/General");
@@ -12773,8 +12783,10 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	text += "<log>\n"+logInfo+"</log>";
 	text.prepend("<windows>\t"+QString::number(windows)+"\n");
 	text.prepend("<scripting-lang>\t"+QString(scriptEnv->name())+"\n");
-	text.prepend("SciDAVis " + QString::number(maj_version)+"."+ QString::number(min_version)+"."+
-			QString::number(patch_version)+" project file\n");
+	text.prepend("SciDAVis " + 
+			QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
+			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
+			QString::number(scidavis_version & 0x0000FF) + " project file\n");
 
 	QTextStream t( &f );
 	t.setEncoding(QTextStream::UnicodeUTF8);
@@ -13665,8 +13677,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 		QString version = t.readLine();
 		version_buffer.close();
 
-		QString currentVersion = QString::number(maj_version) + "." + QString::number(min_version) +
-			"." + QString::number(patch_version) + QString(extra_version);
+		QString currentVersion = versionString();
 
 		if (currentVersion != version)
 		{
@@ -13821,8 +13832,9 @@ ApplicationWindow::~ApplicationWindow()
 
 QString ApplicationWindow::versionString()
 {
-	return "SciDAVis " + QString::number(maj_version) + "." +
-		QString::number(min_version) + "." + QString::number(patch_version) + extra_version;
+	return "SciDAVis " + QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
+			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
+			QString::number(scidavis_version & 0x0000FF) + QString(extra_version);
 }
 
 

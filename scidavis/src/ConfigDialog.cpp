@@ -603,10 +603,15 @@ void ConfigDialog::initAppPage()
 
 	numericFormatLayout->addWidget(boxDecimalSeparator, 1, 1);
 
+	boxUseGroupSeparator = new QCheckBox();
+	boxUseGroupSeparator->setChecked(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator));
+
+	numericFormatLayout->addWidget(boxUseGroupSeparator, 2, 0);
+
     boxUpdateSeparators = new QCheckBox();
     boxUpdateSeparators->setChecked(true);
-    numericFormatLayout->addWidget(boxUpdateSeparators, 2, 0);
-	numericFormatLayout->setRowStretch(3, 1);
+    numericFormatLayout->addWidget(boxUpdateSeparators, 3, 0);
+	numericFormatLayout->setRowStretch(4, 1);
 
 	appTabWidget->addTab( numericFormatPage, QString() );
 
@@ -877,6 +882,7 @@ void ConfigDialog::languageChange()
 	lblScriptingLanguage->setText(tr("Default scripting language"));
 
     boxUpdateSeparators->setText(tr("Update separators in Tables/Matrices"));
+    boxUseGroupSeparator->setText(tr("Use group separator","option: use separator every 3 digits"));
 	lblAppPrecision->setText(tr("Number of Decimal Digits"));
 	lblDecimalSeparator->setText(tr("Decimal Separators"));
 	boxDecimalSeparator->clear();
@@ -1083,6 +1089,11 @@ void ConfigDialog::apply()
             locale = QLocale(QLocale::French);
         break;
     }
+
+    if(boxUseGroupSeparator->isChecked())
+		locale.setNumberOptions(locale.numberOptions() & ~QLocale::OmitGroupSeparator);
+	else
+		locale.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
 
     if (QLocale() != locale){
         QLocale::setDefault(locale);
