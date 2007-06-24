@@ -44,7 +44,7 @@ class Folder;
  * These are the main objects of every SciDAVis project.
  * All content (apart from the directory structure) is managed by subclasses of MyWidget.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Rename to Aspect.
  *
  * \sa Folder, ApplicationWindow

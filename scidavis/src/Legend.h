@@ -47,7 +47,7 @@
  * but for any kind of text; particularly also for the "Add Text" tool.
  * Accordingly, it is also referred to as "TextMarker" by other classes.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Rename to TextMarker (or maybe TextEnrichment; see documentation of ImageMarker for details).
  *
  * \sa ImageMarker, ArrowMarker

@@ -34,7 +34,7 @@
 
 /*!\brief Table that computes and displays statistics on another Table.
  *
- * \section future Future Plans
+ * \section tablestats_future Future Plans
  * Make it possible to add new columns/rows to be monitored.
  */
 class TableStatistics : public Table

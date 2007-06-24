@@ -3365,7 +3365,7 @@ void ApplicationWindow::open()
 					}
 				}
 
-				if (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+				if (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
 						fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
 						fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
 						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
@@ -3381,7 +3381,7 @@ void ApplicationWindow::open()
 					ApplicationWindow *a = open (fn);
 					if (a){
 						a->workingDir = workingDir;
-						if (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+						if (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
 							fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
                             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
                             this->close();
@@ -3406,13 +3406,13 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 		return importOPJ(fn);
 	else if (fn.endsWith(".py", Qt::CaseInsensitive))
 		return loadScript(fn);
-	else if (!( fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj.gz",Qt::CaseInsensitive) ||
+	else if (!( fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) ||
 				fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
                 fn.endsWith(".qti~",Qt::CaseInsensitive)))
 		return plotFile(fn);
 
 	QString fname = fn;
-	if ( fn.endsWith(".sprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive))
+	if ( fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
 		fname = fname.left(fname.size() - 3);
@@ -3440,7 +3440,12 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
     }
 
     QStringList vl = list[1].split(".", QString::SkipEmptyParts);
-    d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+	// TODO: fix this
+	if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
+	    d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+	else 
+		d_file_version = 90;
+	
 
 	ApplicationWindow* app = openProject(fname);
 
@@ -3482,7 +3487,7 @@ void ApplicationWindow::openRecentProject(int index)
 	{
 		saveSettings();//the recent projects must be saved
 		ApplicationWindow * a = open (fn);
-		if (a && (fn.endsWith(".sprj",Qt::CaseInsensitive) || fn.endsWith(".sprj~",Qt::CaseInsensitive) ||
+		if (a && (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
 			fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive)))
 			this->close();
@@ -3842,6 +3847,7 @@ void ApplicationWindow::restartScriptingEnv()
 				tr("Scripting language \"%1\" failed to initialize.").arg(scriptEnv->name()));
 }
 
+//TODO: rewrite the template system
 void ApplicationWindow::openTemplate()
 {
 	QString filter = "SciDAVis 2D Graph Template (*.qpt);;";
@@ -4810,8 +4816,8 @@ bool ApplicationWindow::saveProject()
 
 void ApplicationWindow::saveProjectAs()
 {
-	QString filter = tr("SciDAVis project")+" (*.sprj);;";
-	filter += tr("Compressed SciDAVis project")+" (*.sprj.gz)";
+	QString filter = tr("SciDAVis project")+" (*.sciprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sciprj.gz)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save Project As"), workingDir, filter, &selectedFilter);
@@ -4821,7 +4827,7 @@ void ApplicationWindow::saveProjectAs()
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
 		if (!baseName.contains("."))
-			fn.append(".sprj");
+			fn.append(".sciprj");
 
 		projectname = fn;
 		if (saveProject())
@@ -7886,7 +7892,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 			QStringList l = tempList.filter(ext, Qt::CaseInsensitive);
 			if (l.count()>0)
 				loadImage(fn);
-			else if ( ext == "opj" || ext == "sprj" || ext == "qti")
+			else if ( ext == "opj" || ext == "sciprj" || ext == "qti")
 				open(fn);
 			else
 				asciiFiles << fn;
@@ -8556,7 +8562,7 @@ void ApplicationWindow::showStandAloneHelp()
 	{
 		QMessageBox::critical(0, tr("SciDAVis - Help Files Not Found!"),
 				tr("The manual can be downloaded from the following internet address:")+
-				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
 		exit(0);
 	}
 
@@ -8567,7 +8573,7 @@ void ApplicationWindow::showStandAloneHelp()
 		QMessageBox::critical(0, tr("SciDAVis - Help Profile Not Found!"),
 				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
 				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
-				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
 		exit(0);
 	}
 
@@ -8586,7 +8592,7 @@ void ApplicationWindow::showHelp()
 		QMessageBox::critical(this,tr("SciDAVis - Help Files Not Found!"),
 				tr("Please indicate the location of the help file!")+"<br>"+
 				tr("The manual can be downloaded from the following internet address:")+
-				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
 		QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this );
 		if (!fn.isEmpty())
 		{
@@ -8603,7 +8609,7 @@ void ApplicationWindow::showHelp()
 		QMessageBox::critical(this,tr("SciDAVis - Help Profile Not Found!"),
 				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
 				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
-				"<p><a href = http://soft.proindependent.com/manuals.html>http://soft.proindependent.com/manuals.html</a></p>");
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
 		return;
 	}
 
@@ -12259,7 +12265,7 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 			s += "-m " + tr("or") + " --manual: " + tr("show SciDAVis manual in a standalone window") + "\n";
 			s += "-v " + tr("or") + " --version: " + tr("print SciDAVis version and release date") + "\n";
 			s += "-x " + tr("or") + " --execute: " + tr("execute the script file given as argument") + "\n\n";
-			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .sprj, .sprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file") + "\n";
+			s += "'" + tr("file") + "_" + tr("name") + "' " + tr("can be any .sciprj, .sciprj.gz, .qti, qti.gz, .opj, .ogm, .ogw, .ogg, .py or ASCII file") + "\n";
 			#ifdef Q_OS_WIN
                 hide();
 				QMessageBox::information(this, tr("SciDAVis - Help"), s);
@@ -12467,7 +12473,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QFileInfo fi(fn);
 	workingDir = fi.dirPath(true);
 
-	if (fn.contains(".sprj") ||
+	if (fn.contains(".sciprj") ||
 		fn.contains(".qti") || fn.contains(".opj", Qt::CaseInsensitive) ||
 		fn.contains(".ogm", Qt::CaseInsensitive) || fn.contains(".ogw", Qt::CaseInsensitive) ||
         fn.contains(".ogg", Qt::CaseInsensitive))
@@ -12494,7 +12500,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	QString fname = fn;
-	if ( fn.contains(".sprj.gz") || fn.contains(".qti.gz"))
+	if ( fn.contains(".sciprj.gz") || fn.contains(".qti.gz"))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
 		fname.remove(".gz");
@@ -12803,8 +12809,8 @@ void ApplicationWindow::saveAsProject()
 
 void ApplicationWindow::saveFolderAsProject(Folder *f)
 {
-	QString filter = tr("SciDAVis project")+" (*.sprj);;";
-	filter += tr("Compressed SciDAVis project")+" (*.sprj.gz)";
+	QString filter = tr("SciDAVis project")+" (*.sciprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sciprj.gz)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), workingDir, filter, &selectedFilter);
@@ -13653,7 +13659,7 @@ void ApplicationWindow::searchForUpdates()
     if (choice == QMessageBox::Yes)
     {
         version_buffer.open(IO_WriteOnly);
-        http.setHost("soft.proindependent.com");
+        http.setHost("scidavis.sourceforge.net");
         http.get("/version.txt", &version_buffer);
         http.closeConnection();
     }
@@ -13684,7 +13690,7 @@ void ApplicationWindow::receivedVersionFile(bool error)
 			if(QMessageBox::question(this, tr("SciDAVis - Updates Available"),
 						tr("There is a newer version of SciDAVis (%1) available for download. Would you like to download it?").arg(version),
 						QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
-				QDesktopServices::openUrl(QUrl("http://soft.proindependent.com/download.html"));
+				QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
 		}
 		else if (!autoSearchUpdatesRequest)
 		{

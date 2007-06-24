@@ -40,15 +40,15 @@ OpenProjectDialog::OpenProjectDialog(QWidget *parent, bool extended, Qt::WFlags 
 	setCaption(tr("SciDAVis - Open Project"));
 	setFileMode(ExistingFile);
 	QStringList filters;
-	filters << tr("SciDAVis project") + " (*.sprj)"
-		<< tr("Compressed SciDAVis project") + " (*.sprj.gz)"
+	filters << tr("SciDAVis project") + " (*.sciprj)"
+		<< tr("Compressed SciDAVis project") + " (*.sciprj.gz)"
 		<< tr("QtiPlot project") + " (*.qti)"
 		<< tr("Compressed QtiPlot project") + " (*.qti.gz)"
 		<< tr("Origin project") + " (*.opj *.OPJ)"
 		<< tr("Origin matrix") + " (*.ogm *.OGM)"
 		<< tr("Origin worksheet") + " (*.ogw *.OGW)"
 		<< tr("Origin graph") + " (*.ogg *.OGG)"
-		<< tr("Backup files") + " (*.sprj~)"
+		<< tr("Backup files") + " (*.sciprj~)"
 		//<< tr("Python Source") + " (*.py *.PY)"
 		<< tr("All files") + " (*)";
 	setFilters(filters);

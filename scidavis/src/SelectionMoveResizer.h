@@ -74,7 +74,7 @@ class ImageMarker;
  *     work. Editing can then be implemented in the targets themselves, as shown in ArrowMarker.
  *   .
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * See the documentation of ImageMarker for ideas about replacing QwtPlotMarker with a new QwtPlotItem subclass.
  * For SelectionMoveResizer this would mean supporting new enrichments without modifications and being able
  * to automatically remove them upon deletion (if the new class inherits QObject).

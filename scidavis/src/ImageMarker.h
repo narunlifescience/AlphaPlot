@@ -40,7 +40,7 @@
  * scaled to #d_size. #d_file_name isn't used internally, but only provided to help
  * Graph manage save/restore.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Add a QwtPlotItem subclass (PlotEnrichment ?) and make ImageMarker, Legend and ArrowMarker
  * subclasses of that. These (usually) don't really mark a specific point in a plot and they don't
  * use the symbol/label functionality of QwtPlotMarker. Instead, it would make sense to provide a

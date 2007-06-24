@@ -50,7 +50,7 @@ class ImageMarker;
  * profile line is added to the Graph and the LineProfileTool deletes itself by setting the
  * Graph's active tool to NULL.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Actually, image analysis doesn't fit terribly well into the Graph framework.
  * A cleaner approach would be to add a new MyWidget subclass (Image?) that operates on a single
  * image, providing things like line profiles, intensity tables and measuring points on scanned graphs

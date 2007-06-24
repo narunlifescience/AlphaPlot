@@ -47,7 +47,7 @@ class UserFunction;
  *
  * This provides 3D plotting using Qwt3D.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * If MultiLayer is extended to accept any QWidget, Graph3D wouldn't have to inherit from MyWidget any more.
  * It could also make sense to unify the interface with other plot types; see documentation of Graph.
  * Big problem here: export to vector formats. Qwt3D's export filters write directly to a file, so they

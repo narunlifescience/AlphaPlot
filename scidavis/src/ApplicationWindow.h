@@ -91,7 +91,7 @@ class CurveRangeDialog;
  *
  * Furthermore, it is responsible for displaying most MDI Windows' context menus and opening all sorts of dialogs.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Split out the project management part into a new Project class.
  * If MyWidget maintains a reference to its parent Project, it should be possible to have its subclasses
  * display their own context menus and dialogs.

@@ -37,7 +37,7 @@ class ScriptingEnv;
 
 /*!\brief Notes window class.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * - Search and replace
  */
 class Note: public MyWidget

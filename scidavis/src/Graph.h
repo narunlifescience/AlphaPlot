@@ -94,7 +94,7 @@ typedef struct{
  *
  * %Note that some of Graph's methods are implemented in analysis.cpp.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Merge with Plot and CanvasPicker.
  * Think about merging in TitlePicker and ScalePicker.
  * On the other hand, things like range selection, peak selection or (re)moving data points could be split out into tool classes

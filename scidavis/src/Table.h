@@ -52,7 +52,7 @@ public:
 
 /*!\brief MDI window providing a spreadsheet table with column logic.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Port to the Model/View approach used in Qt4 and get rid of the Qt3Support dependancy.
  * [ assigned to thzs ]
  */

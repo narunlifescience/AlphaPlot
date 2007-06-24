@@ -26,66 +26,70 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include <qapplication.h>
-#include <qaction.h>
- #include "ApplicationWindow.h"
+#include <QApplication>
+#include <QAction>
+#include "ApplicationWindow.h"
+#include <QSplashScreen>
+#include <QTimer>
 
 // The following stuff is for the doxygen title page
 /*!  \mainpage SciDAVis - Scientific Data Analysis and Visualization - API documentation
 
   \section description Program description:
-Scientists often need to use data analysis and plotting software.
-For Windows systems there is a well known and widely used software
-called <a href="http://www.originlab.com">Origin</a>, which is not
-free, of course. The purpose of this project is to develop
-a free (open source), platform independent alternative to
-Origin. SciDAVis is still far from this goal, but
-there's a <a class="el" href="http://soft.proindependent.com/wishtolist.html">"wish to"</a> list we are constantly working on.
-All suggestions and contributions are most welcome!
-If you want to contribute code, please read the notes on \ref style "coding style" first.
-<br>
+SciDAVis is a user-friendly data analysis and visualization program primarily aimed at high-quality plotting of scientific data. It strives to combine an intuitive, easy-to-use graphical user interface with powerful features such as Python scriptability.
 
  The SciDAVis web page can be found at<br>
  <a href="http://scidavis.sourceforge.net">http://scidavis.sourceforge.net</a><br>
+ 
+All suggestions and contributions are most welcome!<br>
+If you want to contribute code, please read the notes on \ref style "coding style" first.
+There is also a section with some notes about \ref future "future plans".
+<br>
 
   \section libs SciDAVis uses the following libraries:
   <a href="http://www.trolltech.com/products/qt/index.html">Qt</a>,
-  <a href="http://qwt.sourceforge.net/index.html">Qwt (5.0.0)</a>,
+  <a href="http://qwt.sourceforge.net/index.html">Qwt</a>,
   <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,
   <a href="http://sources.redhat.com/gsl/">GSL</a>,
   <a href="http://muparser.sourceforge.net/">muParser</a>,
-  <a href="http://www.zlib.net/">zlib (1.2.3)</a>,
+  <a href="http://www.zlib.net/">zlib</a>,
   and <a href="http://sourceforge.net/projects/liborigin/">liborigin</a>.
   <br>
 
   \page future Future Plans
 
-  - Make SciDAVis easier to extend and maintain by modularizing it. For
-    example, ideally it should be possible to implement new plot or marker
-    types without modifying existing classes (think of plug-ins here).
-  - Unify naming of some methods and variables with class names.
-  - Add generic plug-in support, support for implementing extensions in
-    Python, a full-featured multi-level undo/redo framework (-&gt; visitor pattern).
-	 [ undo/redo assigned to thzs; plug-in/Python extension support assigned to knut ]
+  - Make SciDAVis easier to extend and maintain by modularizing it and add 
+    generic plug-in support, support for implementing extensions in Python. 
+	For example, ideally it should be possible to implement new plot or marker
+    types without modifying existing classes.
+  - A full-featured multi-level undo/redo framework (based on QUndoCommand).
+	 [ undo/redo assigned to thzs; plug-in/Python extension support assigned to knut_f ]
   - Revise some internal APIs that use undocumented protocols for the
     strings that get passed around. Wherever possible, consistency should be
     checked at compile-time. This would also probably eliminate the need to
     place restrictions on object/column names.
   - Switch file format to a completely XML-based one so we can write a
     more robust parser based on Qt's XML support. Legacy support for the old
-    format could be a plug-in.
-	 See whether we can make use of the XML save/restore interface planned for Qwt.
-	 Wait for the new XML reader in Qt 4.3 or use SAX?
+    format could be a plug-in. Use the new XML reader/write in Qt 4.3 for 
+	this since it is very fast.
   - Document as much as possible using doxygen and write simple demo
-    plug-ins.
+    plug-ins. Also a collection of demo projects, tutorials etc. would
+	be nice. The latter could be contributed by non-developers.
   - Modularize the build process so that Python support could use SIP's
     build system instead of the current hacks. Support for muParser,
     liborigin and zlib could also be split out into plug-ins on the basis
     that you shouldn't have to install libraries you don't use. Also reduces
     compile times during bugfixing.
-	 [ assigned to knut ]
+	 [ assigned to knut_f ]
   - Change some internal APIs that depend on the notion of a selected/current item.
-    This will lead to a cleaner and simpler interface for plug-ins and Python scripts.
+    This will lead to a cleaner and simpler interface for plug-ins and Python scripts. 
+	This will have to wait until the model/view implementation is done since it
+	will extend the handling of selections to non-contiguous selections.
+  - Replace or fork Qwt by a system based on Qt4's features and optimize it for
+    optimum export quality. Very important: Eliminate the restriction to integer
+	coordinates and implement true plot scaling.
+  - Add support for custom page sizes once Trolltech fixes this issue:
+    http://trolltech.com/developer/task-tracker/index_html?method=entry&id=99441
   .
 
   %Note about modularization: this is mainly about internal reorganizations.
@@ -96,7 +100,7 @@ If you want to contribute code, please read the notes on \ref style "coding styl
   don't need them, but this can be decided shortly before distribution and ideally by
   modifying just a few lines in a build script.
 
-  \section features Features
+  \section features Other Planned Features
   - Waterfall plots
   - Polar charts
   - Ternary plots
@@ -132,6 +136,11 @@ int main( int argc, char ** argv )
 		ApplicationWindow::about();
 		exit(0);
 	} else {
+		QSplashScreen *splash = new QSplashScreen(QPixmap(":/appsplash"));
+		splash->show();
+		QTimer *timer = new QTimer(&app);
+		app.connect( timer, SIGNAL(timeout()), splash, SLOT(close()) );
+		timer->start(5000);
 		ApplicationWindow *mw = new ApplicationWindow();
 		mw->applyUserSettings();
 		mw->newTable();

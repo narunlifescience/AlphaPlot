@@ -42,7 +42,7 @@ class QMenu;
 
 /*!\brief Editor widget with support for evaluating expressions and executing code.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * - Display line numbers.
  * - syntax highlighting, indentation, auto-completion etc. (maybe using QScintilla)
  */

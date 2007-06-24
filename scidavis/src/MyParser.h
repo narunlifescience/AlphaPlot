@@ -39,7 +39,7 @@ using namespace mu;
 
 /*!\brief Mathematical parser class based on muParser.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Eliminate in favour of Script/ScriptingEnv.
  * This will allow you to use e.g. Python's global variables and functions everywhere.
  * Before this happens, a cleaner and more generic solution for accessing the current ScriptingEnv

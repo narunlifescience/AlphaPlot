@@ -50,7 +50,7 @@ class SelectionMoveResizer;
  * %Note that several parts of the code, as well as the user interface, refer to MultiLayer as "graph" or "plot",
  * practically guaranteeing confusion with the classes Graph and Plot.
  *
- * \section future Future Plans
+ * \section future_plans Future Plans
  * Manage any QWidget instead of only Graph.
  * This would allow 3D graphs to be added as well, so you could produce mixed 2D/3D arrangements.
  * It would also allow text labels to be added directly instead of having to complicate things by wrapping them
