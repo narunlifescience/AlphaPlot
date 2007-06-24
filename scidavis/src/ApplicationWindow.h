@@ -803,8 +803,8 @@ public slots:
 	//! Deletes the currently selected items from the list view #lv.
 	void deleteSelectedItems();
 
-	//! Sets all items in the folders list view to be desactivated (QPixmap = folder_closed_xpm)
-	void desactivateFolders();
+	//! Sets all items in the folders list view to be deactivated
+	void deactivateFolders();
 
 	//! Changes the current folder
 	void changeFolder(Folder *newFolder, bool force = false);

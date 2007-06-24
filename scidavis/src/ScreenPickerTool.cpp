@@ -31,7 +31,6 @@
 #include "ScreenPickerTool.h"
 #include "Graph.h"
 #include "Plot.h"
-#include "cursors.h"
 #include <qwt_symbol.h>
 
 ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, const char *status_slot)
@@ -43,7 +42,7 @@ ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, c
 	d_selection_marker.setLinePen(QPen(Qt::red,1));
 	setTrackerMode(QwtPicker::AlwaysOn);
 	setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(cursor_xpm), -1, -1));
+	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/cursor.xpm"), -1, -1));
 
 	if (status_target)
 		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);

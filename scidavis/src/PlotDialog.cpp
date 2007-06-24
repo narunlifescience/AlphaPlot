@@ -42,7 +42,6 @@
 #include "Spectrogram.h"
 #include "QwtPieCurve.h"
 #include "ColorMapEditor.h"
-#include "pixmaps.h"
 
 #include <QTreeWidget>
 #include <QLineEdit>
@@ -2627,7 +2626,7 @@ LayerItem::LayerItem(Graph *g, QTreeWidgetItem *parent, const QString& s)
     : QTreeWidgetItem( parent, QStringList(s), LayerTreeItem ),
       d_graph(g)
 {
-    setIcon(0, QPixmap(layer_disabled_xpm));
+    setIcon(0, QPixmap(":/layer_disabled.xpm"));
     if (g)
         insertCurvesList();
 }
@@ -2635,9 +2634,9 @@ LayerItem::LayerItem(Graph *g, QTreeWidgetItem *parent, const QString& s)
 void LayerItem::setActive(bool on)
 {
     if (on)
-		setIcon(0, QPixmap(layer_enabled_xpm));
+		setIcon(0, QPixmap(":/layer_enabled.xpm"));
     else
-		setIcon(0, QPixmap(layer_disabled_xpm));
+		setIcon(0, QPixmap(":/layer_disabled.xpm"));
 }
 
 void LayerItem::insertCurvesList()
@@ -2678,15 +2677,15 @@ CurveTreeItem::CurveTreeItem(const QwtPlotItem *curve, LayerItem *parent, const 
     : QTreeWidgetItem( parent, QStringList(s), PlotCurveTreeItem ),
       d_curve(curve)
 {
-    setIcon(0, QPixmap(graph_disabled_xpm));
+    setIcon(0, QPixmap(":/graph_disabled.xpm"));
 }
 
 void CurveTreeItem::setActive(bool on)
 {
     if (on)
-		setIcon(0, QPixmap(graph_xpm));
+		setIcon(0, QPixmap(":/graph.xpm"));
     else
-		setIcon(0, QPixmap(graph_disabled_xpm));
+		setIcon(0, QPixmap(":/graph_disabled.xpm"));
 }
 
 int CurveTreeItem::plotItemIndex()

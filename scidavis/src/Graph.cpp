@@ -29,78 +29,11 @@
 
 #include <QVarLengthArray>
 
-static const char *cut_xpm[]={
-"18 18 3 1",
-". c None",
-"# c #000000",
-"a c #00007f",
-"..................",
-"..................",
-"..................",
-".......#...#......",
-".......#...#......",
-".......#...#......",
-".......##.##......",
-"........#.#.......",
-"........###.......",
-".........#........",
-"........a#a.......",
-"........a.aaa.....",
-"......aaa.a..a....",
-".....a..a.a..a....",
-".....a..a.a..a....",
-".....a..a..aa.....",
-"......aa..........",
-".................."};
-
-static const char *copy_xpm[]={
-"15 13 4 1",
-"# c None",
-". c #000000",
-"b c #00007f",
-"a c #ffffff",
-"......#########",
-".aaaa..########",
-".aaaa.a.#######",
-".a..a.bbbbbb###",
-".aaaaabaaaabb##",
-".a....baaaabab#",
-".aaaaaba..abbbb",
-".a....baaaaaaab",
-".aaaaaba.....ab",
-"......baaaaaaab",
-"######ba.....ab",
-"######baaaaaaab",
-"######bbbbbbbbb"};
-
-static const char *unzoom_xpm[]={
-"18 17 2 1",
-". c None",
-"# c #000000",
-"..................",
-"...#..............",
-"..###.............",
-".#.#.#.......##...",
-"...#.....##..##...",
-"...#..##.##.......",
-"...#..##....##....",
-"...#........##....",
-"...#...##.........",
-"...#...##.##.##...",
-".#.#.#....##.##...",
-"..###.............",
-"...#...#......#...",
-"...#..#........#..",
-"...##############.",
-"......#........#..",
-".......#......#..."};
-
 #include "Graph.h"
 #include "CanvasPicker.h"
 #include "QwtErrorPlotCurve.h"
 #include "Legend.h"
 #include "ArrowMarker.h"
-#include "cursors.h"
 #include "ScalePicker.h"
 #include "TitlePicker.h"
 #include "QwtPieCurve.h"
@@ -3802,7 +3735,7 @@ void Graph::zoom(bool on)
   	    }
   	}
 
-	QCursor cursor=QCursor (QPixmap(lens_xpm),-1,-1);
+	QCursor cursor=QCursor (QPixmap(":/lens.xpm"),-1,-1);
 	if (on)
 		d_plot->canvas()->setCursor(cursor);
 	else
@@ -4389,8 +4322,8 @@ void Graph::showPlotErrorMessage(QWidget *parent, const QStringList& emptyColumn
 void Graph::showTitleContextMenu()
 {
 	QMenu titleMenu(this);
-	titleMenu.insertItem(QPixmap(cut_xpm), tr("&Cut"),this, SLOT(cutTitle()));
-	titleMenu.insertItem(QPixmap(copy_xpm), tr("&Copy"),this, SLOT(copyTitle()));
+	titleMenu.insertItem(QPixmap(":/cut.xpm"), tr("&Cut"),this, SLOT(cutTitle()));
+	titleMenu.insertItem(QPixmap(":/copy.xpm"), tr("&Copy"),this, SLOT(copyTitle()));
 	titleMenu.insertItem(tr("&Delete"),this, SLOT(removeTitle()));
 	titleMenu.insertSeparator();
 	titleMenu.insertItem(tr("&Properties..."), this, SIGNAL(viewTitleDialog()));
@@ -4435,8 +4368,8 @@ void Graph::showAxisTitleMenu(int axis)
 	selectedAxis = axis;
 
 	QMenu titleMenu(this);
-	titleMenu.insertItem(QPixmap(cut_xpm), tr("&Cut"), this, SLOT(cutAxisTitle()));
-	titleMenu.insertItem(QPixmap(copy_xpm), tr("&Copy"), this, SLOT(copyAxisTitle()));
+	titleMenu.insertItem(QPixmap(":/cut.xpm"), tr("&Cut"), this, SLOT(cutAxisTitle()));
+	titleMenu.insertItem(QPixmap(":/copy.xpm"), tr("&Copy"), this, SLOT(copyAxisTitle()));
 	titleMenu.insertItem(tr("&Delete"),this, SLOT(removeAxisTitle()));
 	titleMenu.insertSeparator();
 	switch (axis)
@@ -4467,7 +4400,7 @@ void Graph::showAxisContextMenu(int axis)
 
 	QMenu menu(this);
 	menu.setCheckable(true);
-	menu.insertItem(QPixmap(unzoom_xpm), tr("&Rescale to show all"), this, SLOT(setAutoScale()), tr("Ctrl+Shift+R"));
+	menu.insertItem(QPixmap(":/unzoom.xpm"), tr("&Rescale to show all"), this, SLOT(setAutoScale()), tr("Ctrl+Shift+R"));
 	menu.insertSeparator();
 	menu.insertItem(tr("&Hide axis"), this, SLOT(hideSelectedAxis()));
 

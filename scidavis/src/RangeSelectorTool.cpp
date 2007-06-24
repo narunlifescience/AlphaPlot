@@ -32,7 +32,6 @@
 #include "Graph.h"
 #include "Plot.h"
 #include "PlotCurve.h"
-#include "cursors.h"
 
 #include <qwt_symbol.h>
 #include <QPoint>
@@ -84,7 +83,7 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 
 	setTrackerMode(QwtPicker::AlwaysOn);
 	setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(vizor_xpm), -1, -1));
+	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/vizor.xpm"), -1, -1));
 	d_graph->plotWidget()->canvas()->setFocus();
 	d_graph->plotWidget()->replot();
 

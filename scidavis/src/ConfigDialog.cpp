@@ -33,7 +33,6 @@
 #include "Matrix.h"
 #include "ColorButton.h"
 #include "ColorBox.h"
-#include "pixmaps.h"
 
 #include <QLocale>
 #include <QPushButton>
@@ -783,11 +782,11 @@ void ConfigDialog::languageChange()
 	itemsList->addItem( tr( "3D Plots" ) );
 	itemsList->addItem( tr( "Fitting" ) );
 	itemsList->setCurrentRow(0);
-	itemsList->item(0)->setIcon(QIcon(QPixmap(general_xpm)));
-	itemsList->item(1)->setIcon(QIcon(QPixmap(configTable_xpm)));
-	itemsList->item(2)->setIcon(QIcon(QPixmap(config_curves_xpm)));
-	itemsList->item(3)->setIcon(QIcon(QPixmap(logo_xpm)));
-	itemsList->item(4)->setIcon(QIcon(QPixmap(fit_xpm)));
+	itemsList->item(0)->setIcon(QIcon(QPixmap(":/general.xpm")));
+	itemsList->item(1)->setIcon(QIcon(QPixmap(":/configTable.xpm")));
+	itemsList->item(2)->setIcon(QIcon(QPixmap(":/config_curves.xpm")));
+	itemsList->item(3)->setIcon(QIcon(QPixmap(":/3dplots.xpm")));
+	itemsList->item(4)->setIcon(QIcon(QPixmap(":/fit.xpm")));
 	itemsList->setIconSize(QSize(32,32));
 	// calculate a sensible width for the items list
 	// (default QListWidget size is 256 which looks too big)
@@ -924,16 +923,16 @@ void ConfigDialog::languageChange()
 	lblSymbSize->setText(tr( "Symbol size" ));
 
 	boxCurveStyle->clear();
-	boxCurveStyle->addItem( QPixmap(lPlot_xpm), tr( " Line" ) );
-	boxCurveStyle->addItem( QPixmap(pPlot_xpm), tr( " Scatter" ) );
-	boxCurveStyle->addItem( QPixmap(lpPlot_xpm), tr( " Line + Symbol" ) );
-	boxCurveStyle->addItem( QPixmap(dropLines_xpm), tr( " Vertical drop lines" ) );
-	boxCurveStyle->addItem( QPixmap(spline_xpm), tr( " Spline" ) );
-	boxCurveStyle->addItem( QPixmap(vert_steps_xpm), tr( " Vertical steps" ) );
-	boxCurveStyle->addItem( QPixmap(hor_steps_xpm), tr( " Horizontal steps" ) );
-	boxCurveStyle->addItem( QPixmap(area_xpm), tr( " Area" ) );
-	boxCurveStyle->addItem( QPixmap(vertBars_xpm), tr( " Vertical Bars" ) );
-	boxCurveStyle->addItem( QPixmap(hBars_xpm), tr( " Horizontal Bars" ) );
+	boxCurveStyle->addItem( QPixmap(":/lPlot.xpm"), tr( " Line" ) );
+	boxCurveStyle->addItem( QPixmap(":/pPlot.xpm"), tr( " Scatter" ) );
+	boxCurveStyle->addItem( QPixmap(":/lpPlot.xpm"), tr( " Line + Symbol" ) );
+	boxCurveStyle->addItem( QPixmap(":/dropLines.xpm"), tr( " Vertical drop lines" ) );
+	boxCurveStyle->addItem( QPixmap(":/spline.xpm"), tr( " Spline" ) );
+	boxCurveStyle->addItem( QPixmap(":/vert_steps.xpm"), tr( " Vertical steps" ) );
+	boxCurveStyle->addItem( QPixmap(":/hor_steps.xpm"), tr( " Horizontal steps" ) );
+	boxCurveStyle->addItem( QPixmap(":/area.xpm"), tr( " Area" ) );
+	boxCurveStyle->addItem( QPixmap(":/vertBars.xpm"), tr( " Vertical Bars" ) );
+	boxCurveStyle->addItem( QPixmap(":/hBars.xpm"), tr( " Horizontal Bars" ) );
 
 	int style = app->defaultCurveStyle;
 	if (style == Graph::Line)

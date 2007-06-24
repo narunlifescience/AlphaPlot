@@ -53,64 +53,6 @@
 #include <QDropEvent>
 #include <QMouseEvent>
 
-static const char* folder_closed_xpm[]={
-    "16 16 9 1",
-    "g c #808080",
-    "b c #c0c000",
-    "e c #c0c0c0",
-    "# c #000000",
-    "c c #ffff00",
-    ". c None",
-    "a c #585858",
-    "f c #a0a0a4",
-    "d c #ffffff",
-    "..###...........",
-    ".#abc##.........",
-    ".#daabc#####....",
-    ".#ddeaabbccc#...",
-    ".#dedeeabbbba...",
-    ".#edeeeeaaaab#..",
-    ".#deeeeeeefe#ba.",
-    ".#eeeeeeefef#ba.",
-    ".#eeeeeefeff#ba.",
-    ".#eeeeefefff#ba.",
-    ".##geefeffff#ba.",
-    "...##gefffff#ba.",
-    ".....##fffff#ba.",
-    ".......##fff#b##",
-    ".........##f#b##",
-    "...........####."};
-
-static const char* folder_open_xpm[]={
-    "16 16 11 1",
-    "# c #000000",
-    "g c #c0c0c0",
-    "e c #303030",
-    "a c #ffa858",
-    "b c #808080",
-    "d c #a0a0a4",
-    "f c #585858",
-    "c c #ffdca8",
-    "h c #dcdcdc",
-    "i c #ffffff",
-    ". c None",
-    "....###.........",
-    "....#ab##.......",
-    "....#acab####...",
-    "###.#acccccca#..",
-    "#ddefaaaccccca#.",
-    "#bdddbaaaacccab#",
-    ".eddddbbaaaacab#",
-    ".#bddggdbbaaaab#",
-    "..edgdggggbbaab#",
-    "..#bgggghghdaab#",
-    "...ebhggghicfab#",
-    "....#edhhiiidab#",
-    "......#egiiicfb#",
-    "........#egiibb#",
-    "..........#egib#",
-    "............#ee#"};
-
 Folder::Folder( Folder *parent, const QString &name )
     : QObject( parent, name ), d_active_window(0)
 {
@@ -289,9 +231,9 @@ FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
 void FolderListItem::setActive( bool o )
 {
     if ( o )
-		setPixmap(0, QPixmap( folder_open_xpm ) );
+		setPixmap(0, QPixmap(":/ folder_open.xpm") );
     else
-		setPixmap(0, QPixmap( folder_closed_xpm ) );
+		setPixmap(0, QPixmap(":/ folder_closed.xpm") );
 
 	setSelected(o);
 }
@@ -335,7 +277,7 @@ QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
 
 QPixmap pix;
 if (item->rtti() == FolderListItem::RTTI)
-	pix = QPixmap( folder_closed_xpm );
+	pix = QPixmap(":/ folder_closed.xpm");
 else
 	pix = *item->pixmap (0);
 

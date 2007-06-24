@@ -30,7 +30,6 @@
  ***************************************************************************/
 #include "ScriptWindow.h"
 #include "ScriptEdit.h"
-#include "pixmaps.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -53,7 +52,7 @@ ScriptWindow::ScriptWindow(ScriptingEnv *env)
 	setCentralWidget(te);
 
 	initActions();
-	setIcon(QPixmap(logo_xpm));
+	setIcon(QPixmap(":/appicon"));
 	setWindowTitle(tr("SciDAVis - Script Window"));
 	setFocusProxy(te);
 	setFocusPolicy(Qt::StrongFocus);
@@ -76,17 +75,17 @@ void ScriptWindow::initMenu()
 
 void ScriptWindow::initActions()
 {
-	actionNew = new QAction(QPixmap(new_xpm), tr("&New"), this);
+	actionNew = new QAction(QPixmap(":/new.xpm"), tr("&New"), this);
 	actionNew->setShortcut( tr("Ctrl+N") );
 	connect(actionNew, SIGNAL(activated()), this, SLOT(newScript()));
 	file->addAction(actionNew);
 
-	actionOpen = new QAction(QPixmap(fileopen_xpm), tr("&Open..."), this);
+	actionOpen = new QAction(QPixmap(":/fileopen.xpm"), tr("&Open..."), this);
 	actionOpen->setShortcut( tr("Ctrl+O") );
 	connect(actionOpen, SIGNAL(activated()), this, SLOT(open()));
 	file->addAction(actionOpen);
 
-	actionSave = new QAction(QPixmap(filesave_xpm), tr("&Save"), this);
+	actionSave = new QAction(QPixmap(":/filesave.xpm"), tr("&Save"), this);
 	actionSave->setShortcut( tr("Ctrl+S") );
 	connect(actionSave, SIGNAL(activated()), this, SLOT(save()));
 	file->addAction(actionSave);
@@ -95,37 +94,37 @@ void ScriptWindow::initActions()
 	connect(actionSaveAs, SIGNAL(activated()), this, SLOT(saveAs()));
 	file->addAction(actionSaveAs);
 
-	actionPrint = new QAction(QPixmap(fileprint_xpm), tr("&Print"), this);
+	actionPrint = new QAction(QPixmap(":/fileprint.xpm"), tr("&Print"), this);
 	actionPrint->setShortcut( tr("Ctrl+P") );
 	connect(actionPrint, SIGNAL(activated()), te, SLOT(print()));
 	file->addAction(actionPrint);
 
-	actionUndo = new QAction(QPixmap(undo_xpm), tr("&Undo"), this);
+	actionUndo = new QAction(QPixmap(":/undo.xpm"), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
 	connect(actionUndo, SIGNAL(activated()), te, SLOT(undo()));	
 	edit->addAction(actionUndo);
 	actionUndo->setEnabled(false);
 
-	actionRedo = new QAction(QPixmap(redo_xpm), tr("&Redo"), this);
+	actionRedo = new QAction(QPixmap(":/redo.xpm"), tr("&Redo"), this);
 	actionRedo->setShortcut( tr("Ctrl+Y") );
 	connect(actionRedo, SIGNAL(activated()), te, SLOT(redo()));	
 	edit->addAction(actionRedo);
 	actionRedo->setEnabled(false);
 	edit->insertSeparator();
 
-	actionCut = new QAction(QPixmap(cut_xpm), tr("&Cut"), this);
+	actionCut = new QAction(QPixmap(":/cut.xpm"), tr("&Cut"), this);
 	actionCut->setShortcut( tr("Ctrl+x") );
 	connect(actionCut, SIGNAL(activated()), te, SLOT(cut()));	
 	edit->addAction(actionCut);
 	actionCut->setEnabled(false);
 
-	actionCopy = new QAction(QPixmap(copy_xpm), tr("&Copy"), this);
+	actionCopy = new QAction(QPixmap(":/copy.xpm"), tr("&Copy"), this);
 	actionCopy->setShortcut( tr("Ctrl+C") );
 	connect(actionCopy, SIGNAL(activated()), te, SLOT(copy()));	
 	edit->addAction(actionCopy);
 	actionCopy->setEnabled(false);
 
-	actionPaste = new QAction(QPixmap(paste_xpm), tr("&Paste"), this);
+	actionPaste = new QAction(QPixmap(":/paste.xpm"), tr("&Paste"), this);
 	actionPaste->setShortcut( tr("Ctrl+V") );
 	connect(actionPaste, SIGNAL(activated()), te, SLOT(paste()));	
 	edit->addAction(actionPaste);

@@ -94,6 +94,7 @@ DESTDIR        = ./
 
 ###################### ICONS ################################################
 RESOURCES	+=		appicons.qrc
+RESOURCES	+=		icons.qrc
 
 ###################### TRANSLATIONS #########################################
 
@@ -148,7 +149,6 @@ HEADERS  += src/ApplicationWindow.h \
             src/ImageDialog.h \
             src/fit_gsl.h \
             src/nrutil.h\
-            src/pixmaps.h\
             src/MultiLayer.h\
             src/LayerDialog.h \
             src/IntDialog.h \

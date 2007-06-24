@@ -29,35 +29,10 @@
 
 #include "TextFormatButtons.h"
 #include "SymbolDialog.h"
-#include "txt_icons.h"
 #include <QTextEdit>
 #include <QPushButton>
 #include <QHBoxLayout>
 #include <QString>
-
-static const char * lineSymbol_xpm[] = {
-"16 16 4 1",
-" 	c None",
-".	c #8C2727",
-"+	c #272787",
-"@	c #FFFFFF",
-"                ",
-"                ",
-"                ",
-"      ...       ",
-"  ............  ",
-"      ...       ",
-"                ",
-"                ",
-"                ",
-"      +++       ",
-"  +++++@++++++  ",
-"      +++       ",
-"                ",
-"                ",
-"                ",
-"                "};
-
 
 TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 : QWidget(parent)
@@ -72,19 +47,19 @@ TextFormatButtons::TextFormatButtons(QTextEdit * textEdit, QWidget * parent)
 	QFont font = this->font();
 	font.setPointSize(14);
 
-	buttonCurve = new QPushButton( QPixmap(lineSymbol_xpm), QString());
+	buttonCurve = new QPushButton( QPixmap(":/lineSymbol.xpm"), QString());
 	buttonCurve->setMaximumWidth(40);
 	buttonCurve->setMinimumHeight(35);
 	buttonCurve->setFont(font);
 	layout->addWidget(buttonCurve);
 
-	buttonSubscript = new QPushButton(QPixmap(index_xpm),QString());
+	buttonSubscript = new QPushButton(QPixmap(":/index.xpm"),QString());
 	buttonSubscript->setMaximumWidth(40);
 	buttonSubscript->setMinimumHeight(35);
 	buttonSubscript->setFont(font);
 	layout->addWidget(buttonSubscript);
 
-	buttonSuperscript = new QPushButton(QPixmap(exp_xpm),QString());
+	buttonSuperscript = new QPushButton(QPixmap(":/exp.xpm"),QString());
 	buttonSuperscript->setMaximumWidth(40);
 	buttonSuperscript->setMinimumHeight(35);
 	buttonSuperscript->setFont(font);

@@ -31,7 +31,6 @@
  ***************************************************************************/
 #include "globals.h"
 #include "ApplicationWindow.h"
-#include "pixmaps.h"
 #include "CurvesDialog.h"
 #include "PlotDialog.h"
 #include "AxesDialog.h"
@@ -263,11 +262,11 @@ void ApplicationWindow::init()
 
 	assistant = new QAssistantClient( QString(), this );
 
-	actionNextWindow = new QAction(QIcon(QPixmap(next_xpm)), tr("&Next","next window"), this);
+	actionNextWindow = new QAction(QIcon(QPixmap(":/next.xpm")), tr("&Next","next window"), this);
 	actionNextWindow->setShortcut( tr("F5","next window shortcut") );
 	connect(actionNextWindow, SIGNAL(activated()), ws, SLOT(activateNextWindow()));
 
-	actionPrevWindow = new QAction(QIcon(QPixmap(prev_xpm)), tr("&Previous","previous window"), this);
+	actionPrevWindow = new QAction(QIcon(QPixmap(":/prev.xpm")), tr("&Previous","previous window"), this);
 	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
 	connect(actionPrevWindow, SIGNAL(activated()), ws, SLOT(activatePreviousWindow()));
 
@@ -437,7 +436,7 @@ void ApplicationWindow::initToolBars()
 	btnPointer = new QAction(tr("Disable &Tools"), this);
 	btnPointer->setActionGroup(dataTools);
 	btnPointer->setCheckable( true );
-	btnPointer->setIcon(QIcon(QPixmap(pointer_xpm)) );
+	btnPointer->setIcon(QIcon(QPixmap(":/pointer.xpm")) );
 	btnPointer->setChecked(true);
 	plotTools->addAction(btnPointer);
 
@@ -445,48 +444,48 @@ void ApplicationWindow::initToolBars()
 	btnZoomIn->setShortcut( tr("Ctrl++") );
 	btnZoomIn->setActionGroup(dataTools);
 	btnZoomIn->setCheckable( true );
-	btnZoomIn->setIcon(QIcon(QPixmap(zoom_xpm)) );
+	btnZoomIn->setIcon(QIcon(QPixmap(":/zoom.xpm")) );
 	plotTools->addAction(btnZoomIn);
 
 	btnZoomOut = new QAction(tr("&Zoom Out"), this);
 	btnZoomOut->setShortcut( tr("Ctrl+-") );
 	btnZoomOut->setActionGroup(dataTools);
 	btnZoomOut->setCheckable( true );
-	btnZoomOut->setIcon(QIcon(QPixmap(zoomOut_xpm)) );
+	btnZoomOut->setIcon(QIcon(QPixmap(":/zoomOut.xpm")) );
 	plotTools->addAction(btnZoomOut);
 
 	btnCursor = new QAction(tr("&Data Reader"), this);
 	btnCursor->setShortcut( tr("CTRL+D") );
 	btnCursor->setActionGroup(dataTools);
 	btnCursor->setCheckable( true );
-	btnCursor->setIcon(QIcon(QPixmap(select_xpm)) );
+	btnCursor->setIcon(QIcon(QPixmap(":/select.xpm")) );
 	plotTools->addAction(btnCursor);
 
 	btnSelect = new QAction(tr("&Select Data Range"), this);
 	btnSelect->setShortcut( tr("ALT+S") );
 	btnSelect->setActionGroup(dataTools);
 	btnSelect->setCheckable( true );
-	btnSelect->setIcon(QIcon(QPixmap(cursors_xpm)) );
+	btnSelect->setIcon(QIcon(QPixmap(":/cursors.xpm")) );
 	plotTools->addAction(btnSelect);
 
 	btnPicker = new QAction(tr("S&creen Reader"), this);
 	btnPicker->setActionGroup(dataTools);
 	btnPicker->setCheckable( true );
-	btnPicker->setIcon(QIcon(QPixmap(cursor_16)) );
+	btnPicker->setIcon(QIcon(QPixmap(":/cursor_16.xpm")) );
 	plotTools->addAction(btnPicker);
 
 	btnMovePoints = new QAction(tr("&Move Data Points..."), this);
 	btnMovePoints->setShortcut( tr("Ctrl+ALT+M") );
 	btnMovePoints->setActionGroup(dataTools);
 	btnMovePoints->setCheckable( true );
-	btnMovePoints->setIcon(QIcon(QPixmap(hand_xpm)) );
+	btnMovePoints->setIcon(QIcon(QPixmap(":/hand.xpm")) );
 	plotTools->addAction(btnMovePoints);
 
 	btnRemovePoints = new QAction(tr("Remove &Bad Data Points..."), this);
 	btnRemovePoints->setShortcut( tr("Alt+B") );
 	btnRemovePoints->setActionGroup(dataTools);
 	btnRemovePoints->setCheckable( true );
-	btnRemovePoints->setIcon(QIcon(QPixmap(gomme_xpm)));
+	btnRemovePoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
 	plotTools->addAction(btnRemovePoints);
 
 	connect( dataTools, SIGNAL( triggered( QAction* ) ), this, SLOT( pickDataTool( QAction* ) ) );
@@ -494,7 +493,7 @@ void ApplicationWindow::initToolBars()
 
 	actionAddText = new QAction(tr("Add &Text"), this);
 	actionAddText->setShortcut( tr("ALT+T") );
-	actionAddText->setIcon(QIcon(QPixmap(text_xpm)));
+	actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
 	actionAddText->setCheckable(true);
 	connect(actionAddText, SIGNAL(activated()), this, SLOT(addText()));
 	plotTools->addAction(actionAddText);
@@ -503,14 +502,14 @@ void ApplicationWindow::initToolBars()
 	btnArrow->setShortcut( tr("CTRL+ALT+A") );
 	btnArrow->setActionGroup(dataTools);
 	btnArrow->setCheckable( true );
-	btnArrow->setIcon(QIcon(QPixmap(arrow_xpm)) );
+	btnArrow->setIcon(QIcon(QPixmap(":/arrow.xpm")) );
 	plotTools->addAction(btnArrow);
 
 	btnLine = new QAction(tr("Draw &Line"), this);
 	btnLine->setShortcut( tr("CTRL+ALT+L") );
 	btnLine->setActionGroup(dataTools);
 	btnLine->setCheckable( true );
-	btnLine->setIcon(QIcon(QPixmap(lPlot_xpm)) );
+	btnLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")) );
 	plotTools->addAction(btnLine);
 
 	plotTools->addAction(actionTimeStamp);
@@ -1982,7 +1981,7 @@ void ApplicationWindow::initPlot3D(Graph3D *plot)
 	ws->addWindow(plot);
 	connectSurfacePlot(plot);
 
-	plot->setIcon(QPixmap(trajectory_xpm));
+	plot->setIcon(QPixmap(":/trajectory.xpm"));
 	plot->show();
 	plot->setFocus();
 
@@ -2287,7 +2286,7 @@ void ApplicationWindow::initMultilayerPlot(MultiLayer* g, const QString& name)
 
 	g->setWindowTitle(label);
 	g->setName(label);
-	g->setIcon(QPixmap(graph_xpm));
+	g->setIcon(QPixmap(":/graph.xpm"));
 	g->setScaleLayersOnPrint(d_scale_plots_on_print);
 	g->printCropmarks(d_print_cropmarks);
 	g->show();
@@ -2505,7 +2504,7 @@ void ApplicationWindow::initTable(Table* w, const QString& caption)
 
 	tableWindows << name;
 	w->setName(name);
-	w->setIcon( QPixmap(worksheet_xpm) );
+	w->setIcon( QPixmap(":/worksheet.xpm") );
 	w->setSpecifications(w->saveToString(windowGeometryInfo(w)));
 
 	addListViewItem(w);
@@ -2551,7 +2550,7 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 
 	m->setWindowTitle(name);
 	m->setName(name);
-	m->setIcon( QPixmap(note_xpm) );
+	m->setIcon( QPixmap(":/note.xpm") );
 	m->askOnCloseEvent(confirmCloseNotes);
 	m->setFolder(current_folder);
 
@@ -2666,7 +2665,7 @@ void ApplicationWindow::initMatrix(Matrix* m, const QString& caption)
 
 	m->setWindowTitle(name);
 	m->setName(name);
-	m->setIcon( QPixmap(matrix_xpm) );
+	m->setIcon( QPixmap(":/matrix.xpm") );
 	m->askOnCloseEvent(confirmCloseMatrix);
 	m->setNumericPrecision(d_decimal_digits);
 	m->setFolder(current_folder);
@@ -5531,35 +5530,35 @@ void ApplicationWindow::showColMenu(int c)
 	if ((int)w->selectedColumns().count()==1)
 	{
 		w->setSelectedCol(c);
-		plot.addAction(QIcon(QPixmap(lPlot_xpm)),tr("&Line"),w, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(pPlot_xpm)),tr("&Scatter"),w, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(lpPlot_xpm)),tr("Line + S&ymbol"),w,SLOT(plotLP()));
+		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),w, SLOT(plotL()));
+		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),w, SLOT(plotP()));
+		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),w,SLOT(plotLP()));
 
-		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(hor_steps_xpm)),tr("&Horizontal Steps"),w,SLOT(plotHorSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
+		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),w,SLOT(plotSpline()));
+		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Horizontal Steps"),w,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
 
-		plot.addAction(QIcon(QPixmap(vertBars_xpm)),tr("&Columns"),w,SLOT(plotVB()));
-		plot.addAction(QIcon(QPixmap(hBars_xpm)),tr("&Rows"),w,SLOT(plotHB()));
-		plot.addAction(QIcon(QPixmap(area_xpm)),tr("&Area"),w,SLOT(plotArea()));
+		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Columns"),w,SLOT(plotVB()));
+		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Rows"),w,SLOT(plotHB()));
+		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),w,SLOT(plotArea()));
 
-		plot.addAction(QIcon(QPixmap(pie_xpm)),tr("&Pie"),w,SLOT(plotPie()));
+		plot.addAction(QIcon(QPixmap(":/pie.xpm")),tr("&Pie"),w,SLOT(plotPie()));
 		plot.insertSeparator();
 
-		plot.addAction(QIcon(QPixmap(ribbon_xpm)),tr("3D Ribbo&n"),w,SLOT(plot3DRibbon()));
-		plot.addAction(QIcon(QPixmap(bars_xpm)),tr("3D &Bars"),w,SLOT(plot3DBars()));
-		plot.addAction(QIcon(QPixmap(scatter_xpm)),tr("3&D Scatter"),w,SLOT(plot3DScatter()));
-		plot.addAction(QIcon(QPixmap(trajectory_xpm)),tr("3D &Trajectory"),w,SLOT(plot3DTrajectory()));
+		plot.addAction(QIcon(QPixmap(":/ribbon.xpm")),tr("3D Ribbo&n"),w,SLOT(plot3DRibbon()));
+		plot.addAction(QIcon(QPixmap(":/bars.xpm")),tr("3D &Bars"),w,SLOT(plot3DBars()));
+		plot.addAction(QIcon(QPixmap(":/scatter.xpm")),tr("3&D Scatter"),w,SLOT(plot3DScatter()));
+		plot.addAction(QIcon(QPixmap(":/trajectory.xpm")),tr("3D &Trajectory"),w,SLOT(plot3DTrajectory()));
 
 		plot.insertSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(histogram_xpm)),tr("&Histogram"),w,SLOT(plotHistogram()));
-		stat.addAction(QIcon(QPixmap(stacked_hist_xpm)),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
+		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),w,SLOT(plotHistogram()));
+		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
 
@@ -5567,9 +5566,9 @@ void ApplicationWindow::showColMenu(int c)
 		contextMenu.addMenu(&plot);
 		contextMenu.insertSeparator();
 
-		contextMenu.addAction(QIcon(QPixmap(cut_xpm)),tr("Cu&t"), w, SLOT(cutSelection()));
-		contextMenu.addAction(QIcon(QPixmap(copy_xpm)),tr("&Copy"), w, SLOT(copySelection()));
-		contextMenu.addAction(QIcon(QPixmap(paste_xpm)),tr("Past&e"), w, SLOT(pasteSelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/cut.xpm")),tr("Cu&t"), w, SLOT(cutSelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/copy.xpm")),tr("&Copy"), w, SLOT(copySelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/paste.xpm")),tr("Past&e"), w, SLOT(pasteSelection()));
 		contextMenu.insertSeparator();
 
 		QAction * xColID=colType.addAction(tr("X"), this, SLOT(setXCol()));
@@ -5577,7 +5576,7 @@ void ApplicationWindow::showColMenu(int c)
 		QAction * zColID=colType.addAction(tr("Z"), this, SLOT(setZCol()));
 		colType.insertSeparator();
 		QAction * xErrColID =colType.addAction(tr("X Error"), this, SLOT(setXErrCol()));
-		QAction * yErrColID = colType.addAction(QIcon(QPixmap(errors_xpm)), tr("Y Error"), this, SLOT(setYErrCol()));
+		QAction * yErrColID = colType.addAction(QIcon(QPixmap(":/errors.xpm")), tr("Y Error"), this, SLOT(setYErrCol()));
 		colType.insertSeparator();
 		QAction * noneID=colType.addAction(tr("None"), this, SLOT(disregardCol()));
 
@@ -5617,8 +5616,8 @@ void ApplicationWindow::showColMenu(int c)
 
 			contextMenu.insertSeparator();
 
-			contextMenu.addAction(QIcon(QPixmap(erase_xpm)), tr("Clea&r"), w, SLOT(clearCol()));
-			contextMenu.addAction(QIcon(QPixmap(close_xpm)), tr("&Delete"), w, SLOT(removeCol()));
+			contextMenu.addAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r"), w, SLOT(clearCol()));
+			contextMenu.addAction(QIcon(QPixmap(":/close.xpm")), tr("&Delete"), w, SLOT(removeCol()));
 			contextMenu.addAction(tr("&Insert"), w, SLOT(insertCol()));
 			contextMenu.addAction(tr("&Add Column"),w, SLOT(addCol()));
 			contextMenu.insertSeparator();
@@ -5636,49 +5635,49 @@ void ApplicationWindow::showColMenu(int c)
 	}
 	else if ((int)w->selectedColumns().count()>1)
 	{
-		plot.addAction(QIcon(QPixmap(lPlot_xpm)),tr("&Line"),w, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(pPlot_xpm)),tr("&Scatter"),w, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(lpPlot_xpm)),tr("Line + S&ymbol"),w,SLOT(plotLP()));
+		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),w, SLOT(plotL()));
+		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),w, SLOT(plotP()));
+		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),w,SLOT(plotLP()));
 
-		specialPlot.addAction(QIcon(QPixmap(dropLines_xpm)),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(spline_xpm)),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(vert_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(hor_steps_xpm)),tr("&Vertical Steps"),w,SLOT(plotHorSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
+		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),w,SLOT(plotSpline()));
+		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.insertSeparator();
 
-		plot.addAction(QIcon(QPixmap(vertBars_xpm)),tr("&Columns"),w,SLOT(plotVB()));
-		plot.addAction(QIcon(QPixmap(hBars_xpm)),tr("&Rows"),w,SLOT(plotHB()));
-		plot.addAction(QIcon(QPixmap(area_xpm)),tr("&Area"),w,SLOT(plotArea()));
-		plot.addAction(QIcon(QPixmap(vectXYXY_xpm)),tr("Vectors &XYXY"), w, SLOT(plotVectXYXY()));
+		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Columns"),w,SLOT(plotVB()));
+		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Rows"),w,SLOT(plotHB()));
+		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),w,SLOT(plotArea()));
+		plot.addAction(QIcon(QPixmap(":/vectXYXY.xpm")),tr("Vectors &XYXY"), w, SLOT(plotVectXYXY()));
 		plot.insertSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(histogram_xpm)),tr("&Histogram"),w,SLOT(plotHistogram()));
-		stat.addAction(QIcon(QPixmap(stacked_hist_xpm)),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
+		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),w,SLOT(plotHistogram()));
+		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
 
-		panels.addAction(QIcon(QPixmap(panel_v2_xpm)),tr("&Vertical 2 Layers"),this, SLOT(plot2VerticalLayers()));
-		panels.addAction(QIcon(QPixmap(panel_h2_xpm)),tr("&Horizontal 2 Layers"),this, SLOT(plot2HorizontalLayers()));
-		panels.addAction(QIcon(QPixmap(panel_4_xpm)),tr("&4 Layers"),this, SLOT(plot4Layers()));
-		panels.addAction(QIcon(QPixmap(stacked_xpm)),tr("&Stacked Layers"),this, SLOT(plotStackedLayers()));
+		panels.addAction(QIcon(QPixmap(":/panel_v2.xpm")),tr("&Vertical 2 Layers"),this, SLOT(plot2VerticalLayers()));
+		panels.addAction(QIcon(QPixmap(":/panel_h2.xpm")),tr("&Horizontal 2 Layers"),this, SLOT(plot2HorizontalLayers()));
+		panels.addAction(QIcon(QPixmap(":/panel_4.xpm")),tr("&4 Layers"),this, SLOT(plot4Layers()));
+		panels.addAction(QIcon(QPixmap(":/stacked.xpm")),tr("&Stacked Layers"),this, SLOT(plotStackedLayers()));
 		panels.setTitle(tr("Pa&nel"));
 		plot.addMenu(&panels);
 
 		plot.setTitle(tr("&Plot"));
 		contextMenu.addMenu(&plot);
 		contextMenu.insertSeparator();
-		contextMenu.addAction(QIcon(QPixmap(cut_xpm)),tr("Cu&t"), w, SLOT(cutSelection()));
-		contextMenu.addAction(QIcon(QPixmap(copy_xpm)),tr("&Copy"), w, SLOT(copySelection()));
-		contextMenu.addAction(QIcon(QPixmap(paste_xpm)),tr("Past&e"), w, SLOT(pasteSelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/cut.xpm")),tr("Cu&t"), w, SLOT(cutSelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/copy.xpm")),tr("&Copy"), w, SLOT(copySelection()));
+		contextMenu.addAction(QIcon(QPixmap(":/paste.xpm")),tr("Past&e"), w, SLOT(pasteSelection()));
 		contextMenu.insertSeparator();
 
 		if (ws->activeWindow()->isA("Table"))
 		{
-			contextMenu.addAction(QIcon(QPixmap(erase_xpm)),tr("Clea&r"), w, SLOT(clearSelection()));
-			contextMenu.addAction(QIcon(QPixmap(close_xpm)),tr("&Delete"), w, SLOT(removeCol()));
+			contextMenu.addAction(QIcon(QPixmap(":/erase.xpm")),tr("Clea&r"), w, SLOT(clearSelection()));
+			contextMenu.addAction(QIcon(QPixmap(":/close.xpm")),tr("&Delete"), w, SLOT(removeCol()));
 			contextMenu.insertSeparator();
 			contextMenu.addAction(tr("&Insert"), w, SLOT(insertCol()));
 			contextMenu.addAction(tr("&Add Column"),w, SLOT(addCol()));
@@ -7743,7 +7742,7 @@ void ApplicationWindow::windowsMenuAboutToShow()
 	windowsMenu->addAction(actionResizeActiveWindow);
 	windowsMenu->insertItem(tr("&Hide Window"),
 			this, SLOT(hideActiveWindow()));
-	windowsMenu->insertItem(QPixmap(close_xpm), tr("Close &Window"),
+	windowsMenu->insertItem(QPixmap(":/close.xpm"), tr("Close &Window"),
 			this, SLOT(closeActiveWindow()), Qt::CTRL+Qt::Key_W );
 
 	if (n>0 && n<10)
@@ -7782,14 +7781,14 @@ void ApplicationWindow::showMarkerPopupMenu()
 
 	if (g->imageMarkerSelected())
 	{
-		markerMenu.insertItem(QPixmap(pixelProfile_xpm),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
+		markerMenu.insertItem(QPixmap(":/pixelProfile.xpm"),tr("&View Pixel Line profile"),this, SLOT(pixelLineProfile()));
 		markerMenu.insertItem(tr("&Intensity Matrix"),this, SLOT(intensityTable()));
 		markerMenu.insertSeparator();
 	}
 
-	markerMenu.insertItem(QPixmap(cut_xpm),tr("&Cut"),this, SLOT(cutSelection()));
-	markerMenu.insertItem(QPixmap(copy_xpm), tr("&Copy"),this, SLOT(copySelection()));
-	markerMenu.insertItem(QPixmap(erase_xpm), tr("&Delete"),this, SLOT(clearSelection()));
+	markerMenu.insertItem(QPixmap(":/cut.xpm"),tr("&Cut"),this, SLOT(cutSelection()));
+	markerMenu.insertItem(QPixmap(":/copy.xpm"), tr("&Copy"),this, SLOT(copySelection()));
+	markerMenu.insertItem(QPixmap(":/erase.xpm"), tr("&Delete"),this, SLOT(clearSelection()));
 	markerMenu.insertSeparator();
 	if (g->arrowMarkerSelected())
 		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showLineDialog()));
@@ -8010,7 +8009,7 @@ void ApplicationWindow::showListViewPopupMenu(const QPoint &p)
 	window.addAction(actionNewSurfacePlot);
 	cm.insertItem(tr("New &Window"), &window);
 
-	cm.insertItem(QPixmap(newfolder_xpm), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+	cm.insertItem(QPixmap(":/newfolder.xpm"), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
 	cm.insertSeparator();
 	cm.insertItem(tr("Auto &Column Width"), lv, SLOT(adjustColumns()));
 	cm.exec(p);
@@ -8060,7 +8059,7 @@ void ApplicationWindow::showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p,
 		cm.insertSeparator();
 		if (!hidden(w))
 			cm.addAction(actionHideWindow);
-		cm.insertItem(QPixmap(close_xpm), tr("&Delete Window"), w, SLOT(close()), Qt::Key_F8);
+		cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Window"), w, SLOT(close()), Qt::Key_F8);
 		cm.insertSeparator();
 		cm.insertItem(tr("&Rename Window"), this, SLOT(renameWindow()), Qt::Key_F2);
 		cm.addAction(actionResizeWindow);
@@ -8312,22 +8311,22 @@ void ApplicationWindow::showGraphContextMenu()
 		if (copiedLayer)
 		{
 			cm.insertSeparator();
-			cm.insertItem(QPixmap(paste_xpm), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+			cm.insertItem(QPixmap(":/paste.xpm"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
 		}
 		else if (copiedMarkerType >=0 )
 		{
 			cm.insertSeparator();
 			if (copiedMarkerType == Graph::Text )
-				cm.insertItem(QPixmap(paste_xpm),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Arrow )
-				cm.insertItem(QPixmap(paste_xpm),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
 			else if (copiedMarkerType == Graph::Image )
-				cm.insertItem(QPixmap(paste_xpm),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
 		}
 		cm.insertSeparator();
 		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
 		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
-		cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), &copy);
+		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), &copy);
 
 		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
 		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
@@ -8335,12 +8334,12 @@ void ApplicationWindow::showGraphContextMenu()
 
 		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
 		prints.insertItem(tr("&Window"),plot, SLOT(print()));
-		cm.insertItem(QPixmap(fileprint_xpm),tr("&Print"),&prints);
+		cm.insertItem(QPixmap(":/fileprint.xpm"),tr("&Print"),&prints);
 		cm.insertSeparator();
-		cm.insertItem(QPixmap(resize_xpm), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
+		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
 		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
 		cm.insertSeparator();
-		cm.insertItem(QPixmap(close_xpm), tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
+		cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
 		cm.exec(QCursor::pos());
 	}
 }
@@ -8358,7 +8357,7 @@ void ApplicationWindow::showWindowContextMenu()
 		MultiLayer *g=(MultiLayer*)w;
 		if (copiedLayer)
 		{
-			cm.insertItem(QPixmap(paste_xpm),tr("&Paste Layer"),this, SLOT(pasteSelection()));
+			cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Layer"),this, SLOT(pasteSelection()));
 			cm.insertSeparator();
 		}
 
@@ -8375,7 +8374,7 @@ void ApplicationWindow::showWindowContextMenu()
 		cm.addAction(actionRename);
 		cm.addAction(actionCopyWindow);
 		cm.insertSeparator();
-		cm.insertItem(QPixmap(copy_xpm),tr("&Copy Page"), g, SLOT(copyAllLayers()));
+		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy Page"), g, SLOT(copyAllLayers()));
 		cm.insertItem(tr("E&xport Page"), this, SLOT(exportGraph()));
 		cm.addAction(actionPrint);
 		cm.insertSeparator();
@@ -8399,7 +8398,7 @@ void ApplicationWindow::showWindowContextMenu()
 				cm.insertItem(tr("Choose &Matrix..."), this, SLOT(change3DMatrix()));
 			else if (g->userFunction())
 				cm.addAction(actionEditSurfacePlot);
-			cm.insertItem(QPixmap(erase_xpm), tr("C&lear"), g, SLOT(clearData()));
+			cm.insertItem(QPixmap(":/erase.xpm"), tr("C&lear"), g, SLOT(clearData()));
 		}
 
 		cm.insertSeparator();
@@ -8415,21 +8414,21 @@ void ApplicationWindow::showWindowContextMenu()
 	else if (w->isA("Matrix"))
 	{
 		Matrix *t=(Matrix *)w;
-		cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
-		cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
-		cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
+		cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
+		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), t, SLOT(copySelection()));
+		cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste"), t, SLOT(pasteSelection()));
 		cm.insertSeparator();
 		cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
 		cm.insertItem(tr("&Insert Column"), t, SLOT(insertColumn()));
 		if (t->rowsSelected())
 		{
-			cm.insertItem(QPixmap(close_xpm), tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
+			cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
 		}
 		else if (t->columnsSelected())
 		{
-			cm.insertItem(QPixmap(close_xpm), tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
+			cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Columns"), t, SLOT(deleteSelectedColumns()));
 		}
-		cm.insertItem(QPixmap(erase_xpm),tr("Clea&r"), t, SLOT(clearSelection()));
+		cm.insertItem(QPixmap(":/erase.xpm"),tr("Clea&r"), t, SLOT(clearSelection()));
 	}
 	cm.exec(QCursor::pos());
 }
@@ -8478,39 +8477,39 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 		else if (t->numSelectedRows() == 1)
 		{
 			cm.addAction(actionShowColumnValuesDialog);
-			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
-			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
-			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
+			cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
+			cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), t, SLOT(copySelection()));
+			cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste"), t, SLOT(pasteSelection()));
 			cm.insertSeparator();
 			cm.addAction(actionTableRecalculate);
 			cm.insertItem(tr("&Insert Row"), t, SLOT(insertRow()));
-			cm.insertItem(QPixmap(close_xpm), tr("&Delete Row"), t, SLOT(deleteSelectedRows()));
-			cm.insertItem(QPixmap(erase_xpm),tr("Clea&r Row"), t, SLOT(clearSelection()));
+			cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Row"), t, SLOT(deleteSelectedRows()));
+			cm.insertItem(QPixmap(":/erase.xpm"),tr("Clea&r Row"), t, SLOT(clearSelection()));
 			cm.insertSeparator();
 			cm.addAction(actionShowRowStatistics);
 		}
 		else if (t->numSelectedRows() > 1)
 		{
 			cm.addAction(actionShowColumnValuesDialog);
-			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
-			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
-			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
+			cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
+			cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), t, SLOT(copySelection()));
+			cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste"), t, SLOT(pasteSelection()));
 			cm.insertSeparator();
 			cm.addAction(actionTableRecalculate);
-			cm.insertItem(QPixmap(close_xpm), tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
-			cm.insertItem(QPixmap(erase_xpm),tr("Clea&r Rows"), t, SLOT(clearSelection()));
+			cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Rows"), t, SLOT(deleteSelectedRows()));
+			cm.insertItem(QPixmap(":/erase.xpm"),tr("Clea&r Rows"), t, SLOT(clearSelection()));
 			cm.insertSeparator();
 			cm.addAction(actionShowRowStatistics);
 		}
 		else
 		{
 			cm.addAction(actionShowColumnValuesDialog);
-			cm.insertItem(QPixmap(cut_xpm),tr("Cu&t"), t, SLOT(cutSelection()));
-			cm.insertItem(QPixmap(copy_xpm),tr("&Copy"), t, SLOT(copySelection()));
-			cm.insertItem(QPixmap(paste_xpm),tr("&Paste"), t, SLOT(pasteSelection()));
+			cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
+			cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), t, SLOT(copySelection()));
+			cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste"), t, SLOT(pasteSelection()));
 			cm.insertSeparator();
 			cm.addAction(actionTableRecalculate);
-			cm.insertItem(QPixmap(erase_xpm),tr("Clea&r"), t, SLOT(clearSelection()));
+			cm.insertItem(QPixmap(":/erase.xpm"),tr("Clea&r"), t, SLOT(clearSelection()));
 		}
 	}
 	else
@@ -9206,15 +9205,15 @@ void ApplicationWindow::initPlot3DToolBar()
 
 	coord = new QActionGroup( this );
 	Box = new QAction( coord );
-	Box->setIcon(QIcon(QPixmap(box_xpm)));
+	Box->setIcon(QIcon(QPixmap(":/box.xpm")));
 	Box->setCheckable(true);
 
 	Frame = new QAction( coord );
-	Frame->setIcon(QIcon(QPixmap(free_axes_xpm)) );
+	Frame->setIcon(QIcon(QPixmap(":/free_axes.xpm")) );
 	Frame->setCheckable(true);
 
 	None = new QAction( coord );
-	None->setIcon(QIcon(QPixmap(no_axes_xpm)) );
+	None->setIcon(QIcon(QPixmap(":/no_axes.xpm")) );
 	None->setCheckable(true);
 
 	plot3DTools->addAction(Frame);
@@ -9230,22 +9229,22 @@ void ApplicationWindow::initPlot3DToolBar()
 	grids->setExclusive( false );
 	front = new QAction( grids );
 	front->setCheckable( true );
-	front->setIcon(QIcon(QPixmap(frontGrid_xpm)) );
+	front->setIcon(QIcon(QPixmap(":/frontGrid.xpm")) );
 	back = new QAction( grids );
 	back->setCheckable( true );
-	back->setIcon(QIcon(QPixmap(backGrid_xpm)));
+	back->setIcon(QIcon(QPixmap(":/backGrid.xpm")));
 	right = new QAction( grids );
 	right->setCheckable( true );
-	right->setIcon(QIcon(QPixmap(leftGrid_xpm)) );
+	right->setIcon(QIcon(QPixmap(":/leftGrid.xpm")) );
 	left = new QAction( grids );
 	left->setCheckable( true );
-	left->setIcon(QIcon(QPixmap(rightGrid_xpm)));
+	left->setIcon(QIcon(QPixmap(":/rightGrid.xpm")));
 	ceil = new QAction( grids );
 	ceil->setCheckable( true );
-	ceil->setIcon(QIcon(QPixmap(ceilGrid_xpm)) );
+	ceil->setIcon(QIcon(QPixmap(":/ceilGrid.xpm")) );
 	floor = new QAction( grids );
 	floor->setCheckable( true );
-	floor->setIcon(QIcon(QPixmap(floorGrid_xpm)) );
+	floor->setIcon(QIcon(QPixmap(":/floorGrid.xpm")) );
 
 	plot3DTools->addAction(front);
 	plot3DTools->addAction(back);
@@ -9258,20 +9257,20 @@ void ApplicationWindow::initPlot3DToolBar()
 
 	actionPerspective = new QAction( this );
 	actionPerspective->setToggleAction( TRUE );
-	actionPerspective->setIconSet(QPixmap(perspective_xpm) );
+	actionPerspective->setIconSet(QPixmap(":/perspective.xpm") );
 	actionPerspective->addTo( plot3DTools );
 	actionPerspective->setOn(!orthogonal3DPlots);
 	connect(actionPerspective, SIGNAL(toggled(bool)), this, SLOT(togglePerspective(bool)));
 
 	actionResetRotation = new QAction( this );
 	actionResetRotation->setToggleAction( false );
-	actionResetRotation->setIconSet(QPixmap(reset_rotation_xpm));
+	actionResetRotation->setIconSet(QPixmap(":/reset_rotation.xpm"));
 	actionResetRotation->addTo( plot3DTools );
 	connect(actionResetRotation, SIGNAL(activated()), this, SLOT(resetRotation()));
 
 	actionFitFrame = new QAction( this );
 	actionFitFrame->setToggleAction( false );
-	actionFitFrame->setIconSet(QPixmap(fit_frame_xpm));
+	actionFitFrame->setIconSet(QPixmap(":/fit_frame.xpm"));
 	actionFitFrame->addTo( plot3DTools );
 	connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
 
@@ -9282,33 +9281,33 @@ void ApplicationWindow::initPlot3DToolBar()
 	wireframe = new QAction( plotstyle );
 	wireframe->setCheckable( true );
 	wireframe->setEnabled( true );
-	wireframe->setIcon(QIcon(QPixmap(lineMesh_xpm)) );
+	wireframe->setIcon(QIcon(QPixmap(":/lineMesh.xpm")) );
 	hiddenline = new QAction( plotstyle );
 	hiddenline->setCheckable( true );
 	hiddenline->setEnabled( true );
-	hiddenline->setIcon(QIcon(QPixmap(grid_only_xpm)) );
+	hiddenline->setIcon(QIcon(QPixmap(":/grid_only.xpm")) );
 	polygon = new QAction( plotstyle );
 	polygon->setCheckable( true );
 	polygon->setEnabled( true );
-	polygon->setIcon(QIcon(QPixmap(no_grid_xpm)));
+	polygon->setIcon(QIcon(QPixmap(":/no_grid.xpm")));
 	filledmesh = new QAction( plotstyle );
 	filledmesh->setCheckable( true );
-	filledmesh->setIcon(QIcon(QPixmap(grid_poly_xpm)) );
+	filledmesh->setIcon(QIcon(QPixmap(":/grid_poly.xpm")) );
 	pointstyle = new QAction( plotstyle );
 	pointstyle->setCheckable( true );
-	pointstyle->setIcon(QIcon(QPixmap(pointsMesh_xpm)) );
+	pointstyle->setIcon(QIcon(QPixmap(":/pointsMesh.xpm")) );
 
 	conestyle = new QAction( plotstyle );
 	conestyle->setCheckable( true );
-	conestyle->setIcon(QIcon(QPixmap(cones_xpm)) );
+	conestyle->setIcon(QIcon(QPixmap(":/cones.xpm")) );
 
 	crossHairStyle = new QAction( plotstyle );
 	crossHairStyle->setCheckable( true );
-	crossHairStyle->setIcon(QIcon(QPixmap(crosses_xpm)) );
+	crossHairStyle->setIcon(QIcon(QPixmap(":/crosses.xpm")) );
 
 	barstyle = new QAction( plotstyle );
 	barstyle->setCheckable( true );
-	barstyle->setIcon(QIcon(QPixmap(plot_bars_xpm)) );
+	barstyle->setIcon(QIcon(QPixmap(":/plot_bars.xpm")) );
 
 	plot3DTools->addAction(barstyle);
 	plot3DTools->addAction(pointstyle);
@@ -9329,13 +9328,13 @@ void ApplicationWindow::initPlot3DToolBar()
 	floorstyle = new QActionGroup( this );
 	floordata = new QAction( floorstyle );
 	floordata->setCheckable( true );
-	floordata->setIcon(QIcon(QPixmap(floor_xpm)) );
+	floordata->setIcon(QIcon(QPixmap(":/floor.xpm")) );
 	flooriso = new QAction( floorstyle );
 	flooriso->setCheckable( true );
-	flooriso->setIcon(QIcon(QPixmap(isolines_xpm)) );
+	flooriso->setIcon(QIcon(QPixmap(":/isolines.xpm")) );
 	floornone = new QAction( floorstyle );
 	floornone->setCheckable( true );
-	floornone->setIcon(QIcon(QPixmap(no_floor_xpm)));
+	floornone->setIcon(QIcon(QPixmap(":/no_floor.xpm")));
 
 	plot3DTools->addAction(floordata);
 	plot3DTools->addAction(flooriso);
@@ -9346,7 +9345,7 @@ void ApplicationWindow::initPlot3DToolBar()
 
 	actionAnimate = new QAction( this );
 	actionAnimate->setToggleAction( true );
-	actionAnimate->setIconSet(QPixmap(movie_xpm));
+	actionAnimate->setIconSet(QPixmap(":/movie.xpm"));
 	plot3DTools->addAction(actionAnimate);
 
 	plot3DTools->hide();
@@ -10673,34 +10672,34 @@ void ApplicationWindow::setPlot3DOptions()
 
 void ApplicationWindow::createActions()
 {
-	actionNewProject = new QAction(QIcon(QPixmap(new_xpm)), tr("New &Project"), this);
+	actionNewProject = new QAction(QIcon(QPixmap(":/new.xpm")), tr("New &Project"), this);
 	actionNewProject->setShortcut( tr("Ctrl+N") );
 	connect(actionNewProject, SIGNAL(activated()), this, SLOT(newProject()));
 
-	actionNewGraph = new QAction(QIcon(QPixmap(new_graph_xpm)), tr("New &Graph"), this);
+	actionNewGraph = new QAction(QIcon(QPixmap(":/new_graph.xpm")), tr("New &Graph"), this);
 	actionNewGraph->setShortcut( tr("Ctrl+G") );
 	connect(actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
 
-	actionNewNote = new QAction(QIcon(QPixmap(new_note_xpm)), tr("New &Note"), this);
+	actionNewNote = new QAction(QIcon(QPixmap(":/new_note.xpm")), tr("New &Note"), this);
 	connect(actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
 
-	actionNewTable = new QAction(QIcon(QPixmap(table_xpm)), tr("New &Table"), this);
+	actionNewTable = new QAction(QIcon(QPixmap(":/table.xpm")), tr("New &Table"), this);
 	actionNewTable->setShortcut( tr("Ctrl+T") );
 	connect(actionNewTable, SIGNAL(activated()), this, SLOT(newTable()));
 
-	actionNewMatrix = new QAction(QIcon(QPixmap(new_matrix_xpm)), tr("New &Matrix"), this);
+	actionNewMatrix = new QAction(QIcon(QPixmap(":/new_matrix.xpm")), tr("New &Matrix"), this);
 	actionNewMatrix->setShortcut( tr("Ctrl+M") );
 	connect(actionNewMatrix, SIGNAL(activated()), this, SLOT(newMatrix()));
 
-	actionNewFunctionPlot = new QAction(QIcon(QPixmap(newF_xpm)), tr("New &Function Plot"), this);
+	actionNewFunctionPlot = new QAction(QIcon(QPixmap(":/newF.xpm")), tr("New &Function Plot"), this);
 	actionNewFunctionPlot->setShortcut( tr("Ctrl+F") );
 	connect(actionNewFunctionPlot, SIGNAL(activated()), this, SLOT(functionDialog()));
 
-	actionNewSurfacePlot = new QAction(QIcon(QPixmap(newFxy_xpm)), tr("New 3D &Surface Plot"), this);
+	actionNewSurfacePlot = new QAction(QIcon(QPixmap(":/newFxy.xpm")), tr("New 3D &Surface Plot"), this);
 	actionNewSurfacePlot->setShortcut( tr("Ctrl+ALT+Z") );
 	connect(actionNewSurfacePlot, SIGNAL(activated()), this, SLOT(newSurfacePlot()));
 
-	actionOpen = new QAction(QIcon(QPixmap(fileopen_xpm)), tr("&Open"), this);
+	actionOpen = new QAction(QIcon(QPixmap(":/fileopen.xpm")), tr("&Open"), this);
 	actionOpen->setShortcut( tr("Ctrl+O") );
 	connect(actionOpen, SIGNAL(activated()), this, SLOT(open()));
 
@@ -10711,7 +10710,7 @@ void ApplicationWindow::createActions()
 	actionImportImage = new QAction(tr("Import I&mage..."), this);
 	connect(actionImportImage, SIGNAL(activated()), this, SLOT(importImage()));
 
-	actionSaveProject = new QAction(QIcon(QPixmap(filesave_xpm)), tr("&Save Project"), this);
+	actionSaveProject = new QAction(QIcon(QPixmap(":/filesave.xpm")), tr("&Save Project"), this);
 	actionSaveProject->setShortcut( tr("Ctrl+S") );
 	connect(actionSaveProject, SIGNAL(activated()), this, SLOT(saveProject()));
 	savedProject();
@@ -10719,67 +10718,67 @@ void ApplicationWindow::createActions()
 	actionSaveProjectAs = new QAction(tr("Save Project &As..."), this);
 	connect(actionSaveProjectAs, SIGNAL(activated()), this, SLOT(saveProjectAs()));
 
-	actionOpenTemplate = new QAction(QIcon(QPixmap(open_template_xpm)),tr("Open Temp&late..."), this);
+	actionOpenTemplate = new QAction(QIcon(QPixmap(":/open_template.xpm")),tr("Open Temp&late..."), this);
 	connect(actionOpenTemplate, SIGNAL(activated()), this, SLOT(openTemplate()));
 
-	actionSaveTemplate = new QAction(QIcon(QPixmap(save_template_xpm)), tr("Save As &Template..."), this);
+	actionSaveTemplate = new QAction(QIcon(QPixmap(":/save_template.xpm")), tr("Save As &Template..."), this);
 	connect(actionSaveTemplate, SIGNAL(activated()), this, SLOT(saveAsTemplate()));
 
 	actionSaveNote = new QAction(tr("Save Note As..."), this);
 	connect(actionSaveNote, SIGNAL(activated()), this, SLOT(saveNoteAs()));
 
-	actionLoad = new QAction(QIcon(QPixmap(import_xpm)), tr("&Import ASCII..."), this);
+	actionLoad = new QAction(QIcon(QPixmap(":/import.xpm")), tr("&Import ASCII..."), this);
 	connect(actionLoad, SIGNAL(activated()), this, SLOT(importASCII()));
 
-	actionUndo = new QAction(QIcon(QPixmap(undo_xpm)), tr("&Undo"), this);
+	actionUndo = new QAction(QIcon(QPixmap(":/undo.xpm")), tr("&Undo"), this);
 	actionUndo->setShortcut( tr("Ctrl+Z") );
 	connect(actionUndo, SIGNAL(activated()), this, SLOT(undo()));
 	actionUndo->setEnabled(false);
 
-	actionRedo = new QAction(QIcon(QPixmap(redo_xpm)), tr("&Redo"), this);
+	actionRedo = new QAction(QIcon(QPixmap(":/redo.xpm")), tr("&Redo"), this);
 	actionRedo->setShortcut( tr("Ctrl+R") );
 	connect(actionRedo, SIGNAL(activated()), this, SLOT(redo()));
 	actionRedo->setEnabled(false);
 
-	actionCopyWindow = new QAction(QIcon(QPixmap(duplicate_xpm)), tr("&Duplicate"), this);
+	actionCopyWindow = new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate"), this);
 	connect(actionCopyWindow, SIGNAL(activated()), this, SLOT(clone()));
 
-	actionCutSelection = new QAction(QIcon(QPixmap(cut_xpm)), tr("Cu&t Selection"), this);
+	actionCutSelection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t Selection"), this);
 	actionCutSelection->setShortcut( tr("Ctrl+X") );
 	connect(actionCutSelection, SIGNAL(activated()), this, SLOT(cutSelection()));
 
-	actionCopySelection = new QAction(QIcon(QPixmap(copy_xpm)), tr("&Copy Selection"), this);
+	actionCopySelection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy Selection"), this);
 	actionCopySelection->setShortcut( tr("Ctrl+C") );
 	connect(actionCopySelection, SIGNAL(activated()), this, SLOT(copySelection()));
 
-	actionPasteSelection = new QAction(QIcon(QPixmap(paste_xpm)), tr("&Paste Selection"), this);
+	actionPasteSelection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("&Paste Selection"), this);
 	actionPasteSelection->setShortcut( tr("Ctrl+V") );
 	connect(actionPasteSelection, SIGNAL(activated()), this, SLOT(pasteSelection()));
 
-	actionClearSelection = new QAction(QIcon(QPixmap(erase_xpm)), tr("&Delete Selection"), this);
+	actionClearSelection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("&Delete Selection"), this);
 	actionClearSelection->setShortcut( tr("Del","delete key") );
 	connect(actionClearSelection, SIGNAL(activated()), this, SLOT(clearSelection()));
 
 	actionShowExplorer = explorerWindow->toggleViewAction();
-	actionShowExplorer->setIcon(QPixmap(folder_xpm));
+	actionShowExplorer->setIcon(QPixmap(":/folder.xpm"));
 	actionShowExplorer->setShortcut( tr("Ctrl+E") );
 
 	actionShowLog = logWindow->toggleViewAction();
-	actionShowLog->setIcon(QPixmap(log_xpm));
+	actionShowLog->setIcon(QPixmap(":/log.xpm"));
 
 #ifdef SCRIPTING_CONSOLE
 	actionShowConsole = consoleWindow->toggleViewAction();
 #endif
 
-	actionAddLayer = new QAction(QIcon(QPixmap(newLayer_xpm)), tr("Add La&yer"), this);
+	actionAddLayer = new QAction(QIcon(QPixmap(":/newLayer.xpm")), tr("Add La&yer"), this);
 	actionAddLayer->setShortcut( tr("ALT+L") );
 	connect(actionAddLayer, SIGNAL(activated()), this, SLOT(addLayer()));
 
-	actionShowLayerDialog = new QAction(QIcon(QPixmap(arrangeLayers_xpm)), tr("Arran&ge Layers"), this);
+	actionShowLayerDialog = new QAction(QIcon(QPixmap(":/arrangeLayers.xpm")), tr("Arran&ge Layers"), this);
 	actionShowLayerDialog->setShortcut( tr("ALT+A") );
 	connect(actionShowLayerDialog, SIGNAL(activated()), this, SLOT(showLayerDialog()));
 
-	actionAutomaticLayout = new QAction(QIcon(QPixmap(auto_layout_xpm)), tr("Automatic Layout"), this);
+	actionAutomaticLayout = new QAction(QIcon(QPixmap(":/auto_layout.xpm")), tr("Automatic Layout"), this);
 	connect(actionAutomaticLayout, SIGNAL(activated()), this, SLOT(autoArrangeLayers()));
 
 	actionExportGraph = new QAction(tr("&Current"), this);
@@ -10790,11 +10789,11 @@ void ApplicationWindow::createActions()
 	actionExportAllGraphs->setShortcut( tr("Alt+X") );
 	connect(actionExportAllGraphs, SIGNAL(activated()), this, SLOT(exportAllGraphs()));
 
-    actionExportPDF = new QAction(QIcon(QPixmap(pdf_xpm)), tr("&Export PDF"), this);
+    actionExportPDF = new QAction(QIcon(QPixmap(":/pdf.xpm")), tr("&Export PDF"), this);
 	actionExportPDF->setShortcut( tr("Ctrl+Alt+P") );
 	connect(actionExportPDF, SIGNAL(activated()), this, SLOT(exportPDF()));
 
-	actionPrint = new QAction(QIcon(QPixmap(fileprint_xpm)), tr("&Print"), this);
+	actionPrint = new QAction(QIcon(QPixmap(":/fileprint.xpm")), tr("&Print"), this);
 	actionPrint->setShortcut( tr("Ctrl+P") );
 	connect(actionPrint, SIGNAL(activated()), this, SLOT(print()));
 
@@ -10804,124 +10803,124 @@ void ApplicationWindow::createActions()
 	actionShowExportASCIIDialog = new QAction(tr("E&xport ASCII"), this);
 	connect(actionShowExportASCIIDialog, SIGNAL(activated()), this, SLOT(showExportASCIIDialog()));
 
-	actionCloseAllWindows = new QAction(QIcon(QPixmap(quit_xpm)), tr("&Quit"), this);
+	actionCloseAllWindows = new QAction(QIcon(QPixmap(":/quit.xpm")), tr("&Quit"), this);
 	actionCloseAllWindows->setShortcut( tr("Ctrl+Q") );
 	connect(actionCloseAllWindows, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
 
 	actionClearLogInfo = new QAction(tr("Clear &Log Information"), this);
 	connect(actionClearLogInfo, SIGNAL(activated()), this, SLOT(clearLogInfo()));
 
-	actionDeleteFitTables = new QAction(QIcon(QPixmap(close_xpm)), tr("Delete &Fit Tables"), this);
+	actionDeleteFitTables = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Delete &Fit Tables"), this);
 	connect(actionDeleteFitTables, SIGNAL(activated()), this, SLOT(deleteFitTables()));
 
-	actionShowPlotWizard = new QAction(QIcon(QPixmap(wizard_xpm)), tr("Plot &Wizard"), this);
+	actionShowPlotWizard = new QAction(QIcon(QPixmap(":/wizard.xpm")), tr("Plot &Wizard"), this);
 	actionShowPlotWizard->setShortcut( tr("Ctrl+Alt+W") );
 	connect(actionShowPlotWizard, SIGNAL(activated()), this, SLOT(showPlotWizard()));
 
 	actionShowConfigureDialog = new QAction(tr("&Preferences..."), this);
 	connect(actionShowConfigureDialog, SIGNAL(activated()), this, SLOT(showPreferencesDialog()));
 
-	actionShowCurvesDialog = new QAction(QIcon(QPixmap(curves_xpm)), tr("Add/Remove &Curve..."), this);
+	actionShowCurvesDialog = new QAction(QIcon(QPixmap(":/curves.xpm")), tr("Add/Remove &Curve..."), this);
 	actionShowCurvesDialog->setShortcut( tr("ALT+C") );
 	connect(actionShowCurvesDialog, SIGNAL(activated()), this, SLOT(showCurvesDialog()));
 
-	actionAddErrorBars = new QAction(QIcon(QPixmap(errors_xpm)), tr("Add &Error Bars..."), this);
+	actionAddErrorBars = new QAction(QIcon(QPixmap(":/errors.xpm")), tr("Add &Error Bars..."), this);
 	actionAddErrorBars->setShortcut( tr("Ctrl+B") );
 	connect(actionAddErrorBars, SIGNAL(activated()), this, SLOT(addErrorBars()));
 
-	actionAddFunctionCurve = new QAction(QIcon(QPixmap(fx_xpm)), tr("Add &Function..."), this);
+	actionAddFunctionCurve = new QAction(QIcon(QPixmap(":/fx.xpm")), tr("Add &Function..."), this);
 	actionAddFunctionCurve->setShortcut( tr("Ctrl+Alt+F") );
 	connect(actionAddFunctionCurve, SIGNAL(activated()), this, SLOT(addFunctionCurve()));
 
-	actionUnzoom = new QAction(QIcon(QPixmap(unzoom_xpm)), tr("&Rescale to Show All"), this);
+	actionUnzoom = new QAction(QIcon(QPixmap(":/unzoom.xpm")), tr("&Rescale to Show All"), this);
 	actionUnzoom->setShortcut( tr("Ctrl+Shift+R") );
 	connect(actionUnzoom, SIGNAL(activated()), this, SLOT(setAutoScale()));
 
-	actionNewLegend = new QAction(QIcon(QPixmap(legend_xpm)), tr("New &Legend"), this);
+	actionNewLegend = new QAction(QIcon(QPixmap(":/legend.xpm")), tr("New &Legend"), this);
 	actionNewLegend->setShortcut( tr("Ctrl+L") );
 	connect(actionNewLegend, SIGNAL(activated()), this, SLOT(newLegend()));
 
-	actionTimeStamp = new QAction(QIcon(QPixmap(clock_xpm)), tr("Add Time Stamp"), this);
+	actionTimeStamp = new QAction(QIcon(QPixmap(":/clock.xpm")), tr("Add Time Stamp"), this);
 	actionTimeStamp->setShortcut( tr("Ctrl+ALT+T") );
 	connect(actionTimeStamp, SIGNAL(activated()), this, SLOT(addTimeStamp()));
 
-	actionAddImage = new QAction(QIcon(QPixmap(monalisa_xpm)), tr("Add &Image"), this);
+	actionAddImage = new QAction(QIcon(QPixmap(":/monalisa.xpm")), tr("Add &Image"), this);
 	actionAddImage->setShortcut( tr("ALT+I") );
 	connect(actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
-	actionPlotL = new QAction(QIcon(QPixmap(lPlot_xpm)), tr("&Line"), this);
+	actionPlotL = new QAction(QIcon(QPixmap(":/lPlot.xpm")), tr("&Line"), this);
 	connect(actionPlotL, SIGNAL(activated()), this, SLOT(plotL()));
 
-	actionPlotP = new QAction(QIcon(QPixmap(pPlot_xpm)), tr("&Scatter"), this);
+	actionPlotP = new QAction(QIcon(QPixmap(":/pPlot.xpm")), tr("&Scatter"), this);
 	connect(actionPlotP, SIGNAL(activated()), this, SLOT(plotP()));
 
-	actionPlotLP = new QAction(QIcon(QPixmap(lpPlot_xpm)), tr("Line + S&ymbol"), this);
+	actionPlotLP = new QAction(QIcon(QPixmap(":/lpPlot.xpm")), tr("Line + S&ymbol"), this);
 	connect(actionPlotLP, SIGNAL(activated()), this, SLOT(plotLP()));
 
-	actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(dropLines_xpm)), tr("Vertical &Drop Lines"), this);
+	actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(":/dropLines.xpm")), tr("Vertical &Drop Lines"), this);
 	connect(actionPlotVerticalDropLines, SIGNAL(activated()), this, SLOT(plotVerticalDropLines()));
 
-	actionPlotSpline = new QAction(QIcon(QPixmap(spline_xpm)), tr("&Spline"), this);
+	actionPlotSpline = new QAction(QIcon(QPixmap(":/spline.xpm")), tr("&Spline"), this);
 	connect(actionPlotSpline, SIGNAL(activated()), this, SLOT(plotSpline()));
 
-	actionPlotHorSteps = new QAction(QPixmap(hor_steps_xpm), tr("&Horizontal Steps"), this);
+	actionPlotHorSteps = new QAction(QPixmap(":/hor_steps.xpm"), tr("&Horizontal Steps"), this);
 	connect(actionPlotHorSteps, SIGNAL(activated()), this, SLOT(plotHorSteps()));
 
-	actionPlotVertSteps = new QAction(QIcon(QPixmap(vert_steps_xpm)), tr("&Vertical Steps"), this);
+	actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")), tr("&Vertical Steps"), this);
 	connect(actionPlotVertSteps, SIGNAL(activated()), this, SLOT(plotVertSteps()));
 
-	actionPlotVerticalBars = new QAction(QIcon(QPixmap(vertBars_xpm)), tr("&Columns"), this);
+	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Columns"), this);
 	connect(actionPlotVerticalBars, SIGNAL(activated()), this, SLOT(plotVerticalBars()));
 
-	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(hBars_xpm)), tr("&Rows"), this);
+	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Rows"), this);
 	connect(actionPlotHorizontalBars, SIGNAL(activated()), this, SLOT(plotHorizontalBars()));
 
-	actionPlotArea = new QAction(QIcon(QPixmap(area_xpm)), tr("&Area"), this);
+	actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
 	connect(actionPlotArea, SIGNAL(activated()), this, SLOT(plotArea()));
 
-	actionPlotPie = new QAction(QIcon(QPixmap(pie_xpm)), tr("&Pie"), this);
+	actionPlotPie = new QAction(QIcon(QPixmap(":/pie.xpm")), tr("&Pie"), this);
 	connect(actionPlotPie, SIGNAL(activated()), this, SLOT(plotPie()));
 
-	actionPlotVectXYAM = new QAction(QIcon(QPixmap(vectXYAM_xpm)), tr("Vectors XY&AM"), this);
+	actionPlotVectXYAM = new QAction(QIcon(QPixmap(":/vectXYAM.xpm")), tr("Vectors XY&AM"), this);
 	connect(actionPlotVectXYAM, SIGNAL(activated()), this, SLOT(plotVectXYAM()));
 
-	actionPlotVectXYXY = new QAction(QIcon(QPixmap(vectXYXY_xpm)), tr("&Vectors &XYXY"), this);
+	actionPlotVectXYXY = new QAction(QIcon(QPixmap(":/vectXYXY.xpm")), tr("&Vectors &XYXY"), this);
 	connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
 
-	actionPlotHistogram = new QAction(QIcon(QPixmap(histogram_xpm)), tr("&Histogram"), this);
+	actionPlotHistogram = new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
 	connect(actionPlotHistogram, SIGNAL(activated()), this, SLOT(plotHistogram()));
 
-	actionPlotStackedHistograms = new QAction(QIcon(QPixmap(stacked_hist_xpm)), tr("&Stacked Histogram"), this);
+	actionPlotStackedHistograms = new QAction(QIcon(QPixmap(":/stacked_hist.xpm")), tr("&Stacked Histogram"), this);
 	connect(actionPlotStackedHistograms, SIGNAL(activated()), this, SLOT(plotStackedHistograms()));
 
-	actionPlot2VerticalLayers = new QAction(QIcon(QPixmap(panel_v2_xpm)), tr("&Vertical 2 Layers"), this);
+	actionPlot2VerticalLayers = new QAction(QIcon(QPixmap(":/panel_v2.xpm")), tr("&Vertical 2 Layers"), this);
 	connect(actionPlot2VerticalLayers, SIGNAL(activated()), this, SLOT(plot2VerticalLayers()));
 
-	actionPlot2HorizontalLayers = new QAction(QIcon(QPixmap(panel_h2_xpm)), tr("&Horizontal 2 Layers"), this);
+	actionPlot2HorizontalLayers = new QAction(QIcon(QPixmap(":/panel_h2.xpm")), tr("&Horizontal 2 Layers"), this);
 	connect(actionPlot2HorizontalLayers, SIGNAL(activated()), this, SLOT(plot2HorizontalLayers()));
 
-	actionPlot4Layers = new QAction(QIcon(QPixmap(panel_4_xpm)), tr("&4 Layers"), this);
+	actionPlot4Layers = new QAction(QIcon(QPixmap(":/panel_4.xpm")), tr("&4 Layers"), this);
 	connect(actionPlot4Layers, SIGNAL(activated()), this, SLOT(plot4Layers()));
 
-	actionPlotStackedLayers = new QAction(QIcon(QPixmap(stacked_xpm)), tr("&Stacked Layers"), this);
+	actionPlotStackedLayers = new QAction(QIcon(QPixmap(":/stacked.xpm")), tr("&Stacked Layers"), this);
 	connect(actionPlotStackedLayers, SIGNAL(activated()), this, SLOT(plotStackedLayers()));
 
-	actionPlot3DRibbon = new QAction(QIcon(QPixmap(ribbon_xpm)), tr("&Ribbon"), this);
+	actionPlot3DRibbon = new QAction(QIcon(QPixmap(":/ribbon.xpm")), tr("&Ribbon"), this);
 	connect(actionPlot3DRibbon, SIGNAL(activated()), this, SLOT(plot3DRibbon()));
 
-	actionPlot3DBars = new QAction(QIcon(QPixmap(bars_xpm)), tr("&Bars"), this);
+	actionPlot3DBars = new QAction(QIcon(QPixmap(":/bars.xpm")), tr("&Bars"), this);
 	connect(actionPlot3DBars, SIGNAL(activated()), this, SLOT(plot3DBars()));
 
-	actionPlot3DScatter = new QAction(QIcon(QPixmap(scatter_xpm)), tr("&Scatter"), this);
+	actionPlot3DScatter = new QAction(QIcon(QPixmap(":/scatter.xpm")), tr("&Scatter"), this);
 	connect(actionPlot3DScatter, SIGNAL(activated()), this, SLOT(plot3DScatter()));
 
-	actionPlot3DTrajectory = new QAction(QIcon(QPixmap(trajectory_xpm)), tr("&Trajectory"), this);
+	actionPlot3DTrajectory = new QAction(QIcon(QPixmap(":/trajectory.xpm")), tr("&Trajectory"), this);
 	connect(actionPlot3DTrajectory, SIGNAL(activated()), this, SLOT(plot3DTrajectory()));
 
-	actionShowColStatistics = new QAction(QIcon(QPixmap(col_stat_xpm)), tr("Statistics on &Columns"), this);
+	actionShowColStatistics = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Statistics on &Columns"), this);
 	connect(actionShowColStatistics, SIGNAL(activated()), this, SLOT(showColStatistics()));
 
-	actionShowRowStatistics = new QAction(QIcon(QPixmap(stat_rows_xpm)), tr("Statistics on &Rows"), this);
+	actionShowRowStatistics = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Statistics on &Rows"), this);
 	connect(actionShowRowStatistics, SIGNAL(activated()), this, SLOT(showRowStatistics()));
 
 	actionShowIntDialog = new QAction(tr("&Integrate ..."), this);
@@ -11035,25 +11034,25 @@ void ApplicationWindow::createActions()
 	actionRename = new QAction(tr("&Rename Window"), this);
 	connect(actionRename, SIGNAL(activated()), this, SLOT(rename()));
 
-	actionCloseWindow = new QAction(QIcon(QPixmap(close_xpm)), tr("Close &Window"), this);
+	actionCloseWindow = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Close &Window"), this);
 	actionCloseWindow->setShortcut( tr("Ctrl+W") );
 	connect(actionCloseWindow, SIGNAL(activated()), this, SLOT(closeActiveWindow()));
 
-	actionAddColToTable = new QAction(QIcon(QPixmap(addCol_xpm)), tr("Add Column"), this);
+	actionAddColToTable = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("Add Column"), this);
 	connect(actionAddColToTable, SIGNAL(activated()), this, SLOT(addColToTable()));
 
 	actionGoToRow = new QAction(tr("&Go to Row..."), this);
 	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));
 	connect(actionGoToRow, SIGNAL(activated()), this, SLOT(goToRow()));
 
-	actionClearTable = new QAction(QPixmap(erase_xpm), tr("Clear"), this);
+	actionClearTable = new QAction(QPixmap(":/erase.xpm"), tr("Clear"), this);
 	connect(actionClearTable, SIGNAL(activated()), this, SLOT(clearTable()));
 
-	actionDeleteLayer = new QAction(QIcon(QPixmap(erase_xpm)), tr("&Remove Layer"), this);
+	actionDeleteLayer = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("&Remove Layer"), this);
 	actionDeleteLayer->setShortcut( tr("Alt+R") );
 	connect(actionDeleteLayer, SIGNAL(activated()), this, SLOT(deleteLayer()));
 
-	actionResizeActiveWindow = new QAction(QIcon(QPixmap(resize_xpm)), tr("Window &Geometry..."), this);
+	actionResizeActiveWindow = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("Window &Geometry..."), this);
 	connect(actionResizeActiveWindow, SIGNAL(activated()), this, SLOT(resizeActiveWindow()));
 
 	actionHideActiveWindow = new QAction(tr("&Hide Window"), this);
@@ -11062,7 +11061,7 @@ void ApplicationWindow::createActions()
 	actionShowMoreWindows = new QAction(tr("More windows..."), this);
 	connect(actionShowMoreWindows, SIGNAL(activated()), this, SLOT(showMoreWindows()));
 
-	actionPixelLineProfile = new QAction(QIcon(QPixmap(pixelProfile_xpm)), tr("&View Pixel Line Profile"), this);
+	actionPixelLineProfile = new QAction(QIcon(QPixmap(":/pixelProfile.xpm")), tr("&View Pixel Line Profile"), this);
 	connect(actionPixelLineProfile, SIGNAL(activated()), this, SLOT(pixelLineProfile()));
 
 	actionIntensityTable = new QAction(tr("&Intensity Table"), this);
@@ -11089,13 +11088,13 @@ void ApplicationWindow::createActions()
 	actionHideWindow = new QAction(tr("&Hide Window"), this);
 	connect(actionHideWindow, SIGNAL(activated()), this, SLOT(hideWindow()));
 
-	actionResizeWindow = new QAction(QIcon(QPixmap(resize_xpm)), tr("Re&size Window..."), this);
+	actionResizeWindow = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("Re&size Window..."), this);
 	connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
-	actionPrintWindow = new QAction(QIcon(QPixmap(fileprint_xpm)),tr("&Print Window"), this);
+	actionPrintWindow = new QAction(QIcon(QPixmap(":/fileprint.xpm")),tr("&Print Window"), this);
 	connect(actionPrintWindow, SIGNAL(activated()), this, SLOT(printWindow()));
 
-	actionShowPlotGeometryDialog = new QAction(QIcon(QPixmap(resize_xpm)), tr("&Layer Geometry"), this);
+	actionShowPlotGeometryDialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Layer Geometry"), this);
 	connect(actionShowPlotGeometryDialog, SIGNAL(activated()), this, SLOT(showPlotGeometryDialog()));
 
 	actionEditSurfacePlot = new QAction(tr("&Surface..."), this);
@@ -11128,25 +11127,25 @@ void ApplicationWindow::createActions()
 	actionConvertTable= new QAction(tr("Convert to &Matrix"), this);
 	connect(actionConvertTable, SIGNAL(activated()), this, SLOT(convertTableToMatrix()));
 
-	actionPlot3DWireFrame = new QAction(QIcon(QPixmap(lineMesh_xpm)), tr("3D &Wire Frame"), this);
+	actionPlot3DWireFrame = new QAction(QIcon(QPixmap(":/lineMesh.xpm")), tr("3D &Wire Frame"), this);
 	connect(actionPlot3DWireFrame, SIGNAL(activated()), this, SLOT(plot3DWireframe()));
 
-	actionPlot3DHiddenLine = new QAction(QIcon(QPixmap(grid_only_xpm)), tr("3D &Hidden Line"), this);
+	actionPlot3DHiddenLine = new QAction(QIcon(QPixmap(":/grid_only.xpm")), tr("3D &Hidden Line"), this);
 	connect(actionPlot3DHiddenLine, SIGNAL(activated()), this, SLOT(plot3DHiddenLine()));
 
-	actionPlot3DPolygons = new QAction(QIcon(QPixmap(no_grid_xpm)), tr("3D &Polygons"), this);
+	actionPlot3DPolygons = new QAction(QIcon(QPixmap(":/no_grid.xpm")), tr("3D &Polygons"), this);
 	connect(actionPlot3DPolygons, SIGNAL(activated()), this, SLOT(plot3DPolygons()));
 
-	actionPlot3DWireSurface = new QAction(QIcon(QPixmap(grid_poly_xpm)), tr("3D Wire &Surface"), this);
+	actionPlot3DWireSurface = new QAction(QIcon(QPixmap(":/grid_poly.xpm")), tr("3D Wire &Surface"), this);
 	connect(actionPlot3DWireSurface, SIGNAL(activated()), this, SLOT(plot3DWireSurface()));
 
-	actionColorMap = new QAction(QIcon(QPixmap(color_map_xpm)), tr("Contour - &Color Fill"), this);
+	actionColorMap = new QAction(QIcon(QPixmap(":/color_map.xpm")), tr("Contour - &Color Fill"), this);
 	connect(actionColorMap, SIGNAL(activated()), this, SLOT(plotColorMap()));
 
-	actionContourMap = new QAction(QIcon(QPixmap(contour_map_xpm)), tr("Contour &Lines"), this);
+	actionContourMap = new QAction(QIcon(QPixmap(":/contour_map.xpm")), tr("Contour &Lines"), this);
 	connect(actionContourMap, SIGNAL(activated()), this, SLOT(plotContour()));
 
-	actionGrayMap = new QAction(QIcon(QPixmap(gray_map_xpm)), tr("&Gray Scale Map"), this);
+	actionGrayMap = new QAction(QIcon(QPixmap(":/gray_map.xpm")), tr("&Gray Scale Map"), this);
 	connect(actionGrayMap, SIGNAL(activated()), this, SLOT(plotGrayScale()));
 
 	actionSortTable = new QAction(tr("Sort Ta&ble"), this);
@@ -11179,10 +11178,10 @@ void ApplicationWindow::createActions()
 	actionTranslateVert = new QAction(tr("&Vertical"), this);
 	connect(actionTranslateVert, SIGNAL(activated()), this, SLOT(translateCurveVert()));
 
-	actionSetAscValues = new QAction(QIcon(QPixmap(rowNumbers_xpm)),tr("Ro&w Numbers"), this);
+	actionSetAscValues = new QAction(QIcon(QPixmap(":/rowNumbers.xpm")),tr("Ro&w Numbers"), this);
 	connect(actionSetAscValues, SIGNAL(activated()), this, SLOT(setAscValues()));
 
-	actionSetRandomValues = new QAction(QIcon(QPixmap(randomNumbers_xpm)),tr("&Random Values"), this);
+	actionSetRandomValues = new QAction(QIcon(QPixmap(":/randomNumbers.xpm")),tr("&Random Values"), this);
 	connect(actionSetRandomValues, SIGNAL(activated()), this, SLOT(setRandomValues()));
 
 	actionSetXCol = new QAction(tr("&X"), this);
@@ -11197,13 +11196,13 @@ void ApplicationWindow::createActions()
 	actionSetXErrCol = new QAction(tr("X E&rror"), this);
 	connect(actionSetXErrCol, SIGNAL(activated()), this, SLOT(setXErrCol()));
 
-	actionSetYErrCol = new QAction(QIcon(QPixmap(errors_xpm)), tr("Y &Error"), this);
+	actionSetYErrCol = new QAction(QIcon(QPixmap(":/errors.xpm")), tr("Y &Error"), this);
 	connect(actionSetYErrCol, SIGNAL(activated()), this, SLOT(setYErrCol()));
 
 	actionDisregardCol = new QAction(tr("&None"), this);
 	connect(actionDisregardCol, SIGNAL(activated()), this, SLOT(disregardCol()));
 
-	actionBoxPlot = new QAction(QIcon(QPixmap(boxPlot_xpm)),tr("&Box Plot"), this);
+	actionBoxPlot = new QAction(QIcon(QPixmap(":/boxPlot.xpm")),tr("&Box Plot"), this);
 	connect(actionBoxPlot, SIGNAL(activated()), this, SLOT(plotBoxDiagram()));
 
 	actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
@@ -11248,7 +11247,7 @@ void ApplicationWindow::createActions()
 	actionNoteEvaluate->setShortcut(tr("Ctrl+Return"));
 
 #ifdef SCRIPTING_PYTHON
-	actionShowScriptWindow = new QAction(QPixmap(python_xpm), tr("&Script Window"), this);
+	actionShowScriptWindow = new QAction(QPixmap(":/python.xpm"), tr("&Script Window"), this);
 	actionShowScriptWindow->setShortcut(tr("F3"));
 	actionShowScriptWindow->setToggleAction( true );
 	connect(actionShowScriptWindow, SIGNAL(activated()), this, SLOT(showScriptWindow()));
@@ -11266,7 +11265,7 @@ void ApplicationWindow::createActions()
 	actionEditCurveRange = new QAction(tr("Edit &Range..."), this);
 	connect(actionEditCurveRange, SIGNAL(activated()), this, SLOT(showCurveRangeDialog()));
 
-	actionRemoveCurve = new QAction(QPixmap(close_xpm), tr("&Delete"), this);
+	actionRemoveCurve = new QAction(QPixmap(":/close.xpm"), tr("&Delete"), this);
 	connect(actionRemoveCurve, SIGNAL(activated()), this, SLOT(removeCurve()));
 
 	actionHideCurve = new QAction(tr("&Hide"), this);
@@ -12860,7 +12859,7 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 
 	if (((FolderListItem *)it)->folder()->parent())
 	{
-		cm.insertItem(QPixmap(close_xpm), tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
+		cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Folder"), this, SLOT(deleteFolder()), Qt::Key_F8);
 		cm.insertItem(tr("&Rename"), this, SLOT(startRenameFolder()), Qt::Key_F2);
 		cm.insertSeparator();
 	}
@@ -12876,7 +12875,7 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 		cm.insertItem(tr("New &Window"), &window);
 	}
 
-	cm.insertItem(QPixmap(newfolder_xpm), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
+	cm.insertItem(QPixmap(":/newfolder.xpm"), tr("New F&older"), this, SLOT(addFolder()), Qt::Key_F7);
 	cm.insertSeparator();
 
 	QStringList lst;
@@ -13117,7 +13116,7 @@ void ApplicationWindow::projectProperties()
 	QMessageBox *mbox = new QMessageBox ( tr("Properties"), s, QMessageBox::NoIcon,
 			QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
 
-	mbox->setIconPixmap(QPixmap( scidavis_logo_xpm ));
+	mbox->setIconPixmap(QPixmap( ":/appicon" ));
 	mbox->show();
 }
 
@@ -13143,7 +13142,7 @@ void ApplicationWindow::folderProperties()
 	QMessageBox *mbox = new QMessageBox ( tr("Properties"), s, QMessageBox::NoIcon,
 			QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton, this);
 
-	mbox->setIconPixmap(QPixmap( folder_open_xpm ));
+	mbox->setIconPixmap(QPixmap( ":/folder_open.xpm" ));
 	mbox->show();
 }
 
@@ -13267,7 +13266,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
 	if (current_folder == newFolder && !force)
 		return;
 
-    desactivateFolders();
+    deactivateFolders();
 	newFolder->folderListItem()->setActive(true);
 
     Folder *oldFolder = current_folder;
@@ -13359,7 +13358,7 @@ void ApplicationWindow::changeFolder(Folder *newFolder, bool force)
         w->blockSignals(false);
 }
 
-void ApplicationWindow::desactivateFolders()
+void ApplicationWindow::deactivateFolders()
 {
 	FolderListItem *item = (FolderListItem *)folders->firstChild();
 	while (item)
@@ -13376,23 +13375,23 @@ void ApplicationWindow::addListViewItem(MyWidget *w)
 
 	WindowListItem* it = new WindowListItem(lv, w);
 	if (w->isA("Matrix")){
-		it->setPixmap(0, QPixmap(matrix_xpm));
+		it->setPixmap(0, QPixmap(":/matrix.xpm"));
 		it->setText(1, tr("Matrix"));
 	}
 	else if (w->inherits("Table")){
-		it->setPixmap(0, QPixmap(worksheet_xpm));
+		it->setPixmap(0, QPixmap(":/worksheet.xpm"));
 		it->setText(1, tr("Table"));
 	}
 	else if (w->isA("Note")){
-		it->setPixmap(0, QPixmap(note_xpm));
+		it->setPixmap(0, QPixmap(":/note.xpm"));
 		it->setText(1, tr("Note"));
 	}
 	else if (w->isA("MultiLayer")){
-		it->setPixmap(0, QPixmap(graph_xpm));
+		it->setPixmap(0, QPixmap(":/graph.xpm"));
 		it->setText(1, tr("Graph"));
 	}
 	else if (w->isA("Graph3D")){
-		it->setPixmap(0, QPixmap(trajectory_xpm));
+		it->setPixmap(0, QPixmap(":/trajectory.xpm"));
 		it->setText(1, tr("3D Graph"));
 	}
 
@@ -13420,27 +13419,27 @@ void ApplicationWindow::windowProperties()
 
 	if (w->isA("Matrix"))
 	{
-		mbox->setIconPixmap(QPixmap(matrix_xpm));
+		mbox->setIconPixmap(QPixmap(":/matrix.xpm"));
 		s +=  tr("Type") + ": " + tr("Matrix") + "\n\n";
 	}
 	else if (w->inherits("Table"))
 	{
-		mbox->setIconPixmap(QPixmap(worksheet_xpm));
+		mbox->setIconPixmap(QPixmap(":/worksheet.xpm"));
 		s +=  tr("Type") + ": " + tr("Table") + "\n\n";
 	}
 	else if (w->isA("Note"))
 	{
-		mbox->setIconPixmap(QPixmap(note_xpm));
+		mbox->setIconPixmap(QPixmap(":/note.xpm"));
 		s +=  tr("Type") + ": " + tr("Note") + "\n\n";
 	}
 	else if (w->isA("MultiLayer"))
 	{
-		mbox->setIconPixmap(QPixmap(graph_xpm));
+		mbox->setIconPixmap(QPixmap(":/graph.xpm"));
 		s +=  tr("Type") + ": " + tr("Graph") + "\n\n";
 	}
 	else if (w->isA("Graph3D"))
 	{
-		mbox->setIconPixmap(QPixmap(trajectory_xpm));
+		mbox->setIconPixmap(QPixmap(":/trajectory.xpm"));
 		s +=  tr("Type") + ": " + tr("3D Graph") + "\n\n";
 	}
 	s += tr("Path") + ": " + current_folder->path() + "\n\n";
