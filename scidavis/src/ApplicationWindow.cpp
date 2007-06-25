@@ -138,6 +138,8 @@
 #include <QUrl>
 #include <QAssistantClient>
 
+#include <QtDebug>
+
 #include <zlib.h>
 
 #include <iostream>
@@ -3387,7 +3389,7 @@ void ApplicationWindow::open()
 					}
 				} else {
 					QMessageBox::critical(this,tr("SciDAVis - File openning error"),
-							tr("The file: <b>%1</b> is not a SciDAVis or Origin project file!").arg(fn));
+							tr("The file <b>%1</b> is not a valid project file.").arg(fn));
 					return;
 				}
 				break;
@@ -3422,7 +3424,7 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	f.open(QIODevice::ReadOnly);
 	QString s = t.readLine();
     QStringList list = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
-    if (list.count() < 2 || list[0] != "SciDAVis")
+    if (list.count() < 2 || (list[0] != "SciDAVis" && list[0] != "QtiPlot"))
     {
         f.close();
         if (QFile::exists(fname + "~"))
@@ -3433,19 +3435,30 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
             if (choice == QMessageBox::Yes)
                 return open(fname + "~");
             else
-                QMessageBox::critical(this, tr("SciDAVis - File opening error"),  tr("The file: <b> %1 </b> was not created using SciDAVis!").arg(fn));
+                QMessageBox::critical(this, tr("SciDAVis - File opening error"),  tr("The file <b>%1</b> is not a valid project file.").arg(fn));
             return 0;
 		}
     }
 
     QStringList vl = list[1].split(".", QString::SkipEmptyParts);
-	// TODO: fix this
 	if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
+	{
 	    d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+		if(d_file_version > 90)
+		{
+                QMessageBox::critical(this, tr("SciDAVis - File opening error"),  tr("SciDAVis does not support QtiPlot project files from versions later than 0.9.0.").arg(fn));
+				return 0;
+		}
+	}
 	else 
-		d_file_version = 90;
-	
+		d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
+    qDebug() << "vl =" << vl;
+	qDebug() << ((vl[0]).toInt() << 16);
+	qDebug() << ((vl[1]).toInt() << 8);
+	qDebug() << (vl[2]).toInt();
+	qDebug() << "d_file_version =" << d_file_version;
+	
 	ApplicationWindow* app = openProject(fname);
 
 	f.close();
@@ -3552,6 +3565,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	while ( !t.atEnd() && !progress.wasCanceled())
 	{
 		s = t.readLine();
+		qDebug() << "openProject(): parsing data line:" << s;
 		list.clear();
 		if  (s.left(8) == "<folder>")
 		{
@@ -3653,6 +3667,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	while ( !t.atEnd() && !progress.wasCanceled())
 	{
 		s=t.readLine();
+		qDebug() << "openProject(): parsing plot line:" << s;
 		if  (s.left(8) == "<folder>")
 		{
 			list = s.split("\t");
@@ -3849,10 +3864,10 @@ void ApplicationWindow::restartScriptingEnv()
 //TODO: rewrite the template system
 void ApplicationWindow::openTemplate()
 {
-	QString filter = "SciDAVis 2D Graph Template (*.qpt);;";
-	filter += "SciDAVis 3D Surface Template (*.qst);;";
-	filter += "SciDAVis Table Template (*.qtt);;";
-	filter += "SciDAVis Matrix Template (*.qmt);;";
+	QString filter = "SciDAVis/QtiPlot 2D Graph Template (*.qpt);;";
+	filter += "SciDAVis/QtiPlot 3D Surface Template (*.qst);;";
+	filter += "SciDAVis/QtiPlot Table Template (*.qtt);;";
+	filter += "SciDAVis/QtiPlot Matrix Template (*.qmt);;";
 
 	QString fn = QFileDialog::getOpenFileName(this, tr("SciDAVis - Open Template File"), templatesDir, filter);
 	if (!fn.isEmpty())
@@ -3874,14 +3889,30 @@ void ApplicationWindow::openTemplate()
 			f.open(QIODevice::ReadOnly);
 			QStringList l=t.readLine().split(QRegExp("\\s"), QString::SkipEmptyParts);
 			QString fileType=l[0];
-			if (fileType != "SciDAVis")
+			if( (fileType != "SciDAVis") && (fileType != "QtiPlot") )
 			{
 				QMessageBox::critical(this,tr("SciDAVis - File opening error"),
 						tr("The file: <b> %1 </b> was not created using SciDAVis!").arg(fn));
 				return;
 			}
 			QStringList vl = l[1].split(".", QString::SkipEmptyParts);
-			d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+			if( fileType == "QtiPlot" )
+			{
+				d_file_version = 100*(vl[0]).toInt()+10*(vl[1]).toInt()+(vl[2]).toInt();
+				if(d_file_version > 90)
+				{
+					QMessageBox::critical(this, tr("SciDAVis - File opening error"),  tr("SciDAVis does not support QtiPlot template files from versions later than 0.9.0.").arg(fn));
+					return;
+				}
+			}
+			else 
+				d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
+
+    		qDebug() << "vl =" << vl;
+			qDebug() << ((vl[0]).toInt() << 16);
+			qDebug() << ((vl[1]).toInt() << 8);
+			qDebug() << (vl[2]).toInt();
+			qDebug() << "d_file_version =" << d_file_version;
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			MyWidget *w = 0;
@@ -4862,13 +4893,13 @@ void ApplicationWindow::saveAsTemplate()
 
 	QString filter;
 	if (w->isA("Matrix"))
-		filter = tr("SciDAVis Matrix Template")+" (*.qmt)";
+		filter = tr("SciDAVis/QtiPlot Matrix Template")+" (*.qmt)";
 	else if (w->isA("MultiLayer"))
-		filter = tr("SciDAVis 2D Graph Template")+" (*.qpt)";
+		filter = tr("SciDAVis/QtiPlot 2D Graph Template")+" (*.qpt)";
 	else if (w->isA("Table"))
-		filter = tr("SciDAVis Table Template")+" (*.qtt)";
+		filter = tr("SciDAVis/QtiPlot Table Template")+" (*.qtt)";
 	else if (w->isA("Graph3D"))
-		filter = tr("SciDAVis 3D Surface Template")+" (*.qst)";
+		filter = tr("SciDAVis/QtiPlot 3D Surface Template")+" (*.qst)";
 
 	QString selectedFilter;
 	QString fn = QFileDialog::getSaveFileName(this, tr("Save Window As Template"), templatesDir + "/" + w->name(), filter, &selectedFilter);
@@ -4891,8 +4922,8 @@ void ApplicationWindow::saveAsTemplate()
 			return;
 		}
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		QString text = "SciDAVis " + QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
-			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
+		QString text = "SciDAVis " + QString::number((scidavis_version & 0xFF0000) >> 16) + "." + 
+			QString::number((scidavis_version & 0x00FF00) >> 8) + "." +
 			QString::number(scidavis_version & 0x0000FF) + " template file\n";
 		text += w->saveAsTemplate(windowGeometryInfo(w));
 		QTextStream t( &f );
@@ -12538,7 +12569,10 @@ void ApplicationWindow::appendProject(const QString& fn)
 		lst = s.split(QRegExp("\\s"), QString::SkipEmptyParts);
 		QString version = lst[1];
 		lst = version.split(".", QString::SkipEmptyParts);
-		d_file_version =100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+		if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
+			d_file_version = 100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
+		else 
+			d_file_version = (lst[0]).toInt() << 16 + (lst[1]).toInt() << 8 + (lst[2]).toInt();
 
 		t.readLine();
 		if (d_file_version < 73)
@@ -12818,7 +12852,7 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
 		if (!baseName.contains("."))
-			fn.append(".sprj");
+			fn.append(".sciprj");
 
 		saveFolder(f, fn);
 		if (selectedFilter.contains(".gz"))
