@@ -1,163 +1,139 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-<head>
-<!-- Thanks to The GIMP Web Team (www.gimp.org) for their inspirational page design. -->
+	<head>
+		<title>SciDAVis - Installation Notes</title>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<link href="scidavis.css" rel="stylesheet" type="text/css">
+	</head>
+	<body>
+		<div id="header">
+			<div id="logo"><img src="scidavis-logo.png" alt="SciDAVis-Logo"></div>
+			<div class="webgen-menu-horiz webgen-menu">
+				<ul>
+					<li><span>Installation Notes</span></li>
+				</ul>
+			</div>
+		</div>
+		<div id="subheader">
+			<div class="left">
+				Please visit our <a href="http://scidavis.sourceforge.net">homepage</a> for more information.
+			</div>
+			<div style="clear:both"></div>
+		</div>
+		<div id="content">
 
-<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+			<h1>Generic requirements</h1>
+			<p>
+			In order to compile SciDAVis, you need to install the following libraries:
+			<a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>,
+			<a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a>,
+			<a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,
+			<a href="http://sources.redhat.com/gsl/">GSL</a> and
+			<a href="http://www.zlib.net/">zlib</a>.
+			<strong>QwtPlot3D and Qwt must be compiled against Qt 4.x! If these are compiled with Qt3 the application will crash!</strong>
+			See below for how to ensure this.
+			</p><p>
+			This version of SciDAVis uses a modified version of
+			<a href="http://sourceforge.net/projects/liborigin/">liborigin</a> which is supplied in the "3rdparty" folder.
+			It is already included in the scidavis/scidavis.pro file and does not need to be compiled or installed separately.
+			The latest version of <a href="http://muparser.sourceforge.net/">muParser (snapshot taken between 1.27 and 1.28)</a>
+			is also included in "3rdparty/muParser", so you don't need to download, install or compile it.
+			Version 1.27 has some known issues with 64bit Linux and 1.28 has not been released yet as of this writing.
+			</p>
 
-<title>QtiPlot - Installation Notes</title>
+			<h1>Linux / Mac OS X</h1>
+			<ol>
+				<li>Install <a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>, <a href="http://sources.redhat.com/gsl/">GSL</a> and <a href="http://www.zlib.net/">zlib</a>; either from your package manager or from the sources. If you are using precompiled packages, make sure you also install the corresponding development packages (*-dev or *-devel).
+				If you want to display the manual from within SciDAVis (you can also view it with your favorite browser),
+				you need to have the Qt Assistant installed, which sometimes comes in a separate package (qt4-dev-tools for Ubuntu edgy).</li>
+				<li>Open a terminal window.</li>
+				<li>Get <a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a> sources and unpack them to the 3rdparty folder:<br>
+				<code>cd scidavis-X.X.X/3rdparty<br>tar -xvjf /path/to/qwt-Y.Y.Y.tar.bz2</code></li>
+				<li>Rename the new directory to <code>qwt</code>:<br>
+				<code>mv qwt-Y.Y.Y qwt</code></li>
+				<li>We want to build the static version of Qwt in order to avoid potential conflicts with an already installed version.
+				Open the file qwt/qwtconfig.pri and comment out the line<br>
+				<code>CONFIG += QwtDll</code></li>
+				<li>Build Qwt:<br><code>cd qwt; qmake &amp;&amp; make; cd ..</code></li>
+				<li>Get <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a> sources and also unpack them to scidavis-X.X.X/3rdparty:<br>
+				<code>tar -xvzf qwtplot3d-Z.Z.Z.tgz</code></li>
+				<li>We also want to build a static version here, so open qwtplot3d/qwtplot3d.pro in your favorite text editor and add the line<br>
+				<code>CONFIG += staticlib</code><br>
+				at a convenient place (say, below the other CONFIG line).</li>
+				<li>Build qwtplot3d:<br><code>cd qwtplot3d; qmake &amp;&amp; make; cd ..</code></li>
+				<li>Go to the directory scidavis-X.X.X/scidavis:<br><code>cd ../scidavis</code></li>
+				<li>If you want to use Python expressions and scripts, make sure you have the following additional dependencies installed:
+				<a href="http://www.python.org/">Python</a> 2.5,
+				<a href="http://www.riverbankcomputing.co.uk/sip">SIP</a> 4.5.2 or 4.6,
+				<a href="http://www.riverbankcomputing.co.uk/pyqt">PyQt</a> 4.2.
+				Other versions as those indicated above may or may not work.
+				Specifically, there are known issues with a number of SIP versions and
+				a given version of PyQt will only work with a limited range of SIP
+				versions.
+				<br>
+				Open scidavis.pro in a text editor and remove the comment marker (#) from the line <code>SCRIPTING_LANGS += Python</code>.
+				</li>
+				<li>Build SciDAVis:<br><code>qmake &amp;&amp; make</code></li>
+				<li>You should now be able to run SciDAVis by entering<br><code>./scidavis</code></li>
+				<li>Optionally, install SciDAVis on your system (you need root priviliges):<br>
+				<code>sudo make install</code><br>or, alternatively,<br><code>su -c "make install"</code></li>
+			</ol>
 
-<link href="qtiplot.css" rel="stylesheet" type="text/css">
+			<h1>Windows</h1>
 
-<table border="0" cellpadding="0" cellspacing="0" width="100%">
-<tbody>
-<tr style="height: 100%;" valign="top">
+			<p>
+			This section needs some loving care.
+			Maybe the above Linux / MacOS X list can be adapted to include all the quirks
+			of the procedure necessary for Windows.
+			Since we're mostly using Linux, someone more familiar with compilation on Windows
+			would be very welcome to rewrite the instructions below and/or to provide pre-compiled binaries.
+			</p>
 
-<!-- ######################################## begin navigation bar ########################### -->
-<td id="navibar" rowspan="2" height="100%">
-<img id="logo" src="qtiplot_logo.png" alt="QtiPlot logo">
-<span> [ </span>
-<a href="http://soft.proindependent.com/qtiplot.html">Visit the<br>QtiPlot homepage</a><span> | </span>
-<span> ] </span>
-<br>
-</td>
-<!-- ######################################## end navigation bar ########################### -->
+			You need to install the
+			<a href="http://www.trolltech.com/developer/downloads/qt/windows">Qt/Windows Open Source Edition</a> (&gt;= 4.2).
+			and use the <a href="http://www.mingw.org/">MinGW</a> compiler.<br>
+			<br>
+			The compilation of SciDAVis from sources requires the following steps:<br>
+			<ol>
+				<li>Install or compile the required libraries listed above.</li>
+				<li>Modify the 'scidavis/scidavis.pro' file with a text editor in order to set the INCLUDEPATH variables to the header files ('include' directory) of your local build of the libraries listed above. E.g. <code>INCLUDEPATH  += ../3rdparty/qwtplot3d/include</code> if you put QwtPlot3D into the "3rdparty" directory.<br>
+				Remark: Lines stating with # are comments and thus ignored by qmake.</li>
+				<li>Modify the 'scidavis/scidavis.pro' file to set the LIBS variables (those prefixed <code>win32:</code> only) to the actual directories of your library builds. E.g. <code>win32:LIBS += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a</code> if you put QwtPlot3D (as a static library) into the "3rdparty" directory.</li>
+				<li>Open a command prompt, go to the 'scidavis-X.X.X\scidavis' folder (<code>cd X:\path\to\scidavis\scidavis-X.X.X\scidavis</code>) and execute<br>
+				<code>qmake scidavis.pro</code>.</li>
+				<li>Finally type <code>mingw32-make</code> and wait until it finishes building scidavis.exe.</li>
+			</ol>
 
-<!-- ######################################## begin title bar ########################### -->
-<td id="titlebar">
-<h1>QtiPlot - Installation Notes</h1>
-</td>
-<!-- ######################################## end title bar ########################### -->
+			<h1>Additional information</h1>
 
-</tr><tr>
+			<h2>Forums and mailing lists:</h2>
+			If you want to discuss SciDAVis with other users (or the developers) or if you are insterested
+			in its further development, you can go to the
+			<a href="http://sourceforge.net/forum/?group_id=199120">SciDAVis forum</a> or subscribe to the
+			<a href="http://sourceforge.net/mail/?group_id=199120">SciDAVis mailing list</a>.
 
-<td id="main" width="100%">
-
-<table border="0" width="">
-<tbody>
-<tr>
-<td valign="top" width="80%">
-<!-- ######################################## page content goes here ########################### -->
-
-<h2>License:</h2>
-QtiPlot is distributed under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>. Thus it is <a href="http://www.fsf.org/licensing/essays/free-sw.html">"free software"</a>. "Free software" is a matter of liberty, not price. To understand the concept, you should think of "free" as in "free speech", not as in "free beer". "Free software" is also often called <a href="http://en.wikipedia.org/wiki/Alternative_terms_for_free_software">Open Source, FOSS, or FLOSS</a>.<br>
-<br>
-Free software is a matter of the users' freedom to run, copy, distribute, study, change and improve the software. More precisely, it refers to four kinds of freedom, for the users of the software:<br>
-<ul>
-    <li> The freedom to run the program, for any purpose (freedom 0).</li>
-    <li> The freedom to study how the program works, and adapt it to your needs (freedom 1). Access to the source code is a precondition for this.</li>
-    <li> The freedom to redistribute copies so you can help your neighbor (freedom 2).</li>
-    <li> The freedom to improve the program, and release your improvements to the public, so that the whole community benefits (freedom 3). Access to the source code is a precondition for this.</li>
-</ul>
-
-<h2>General requirements:</h2>
-For QtiPlot, you need to install the following libraries:
-<a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>, <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>, <a href="http://sources.redhat.com/gsl/">GSL</a>, <a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a> and <a href="http://www.zlib.net/">zlib</a>.
-<b>QwtPlot3D and Qwt must be compiled against Qt 4.2! If these are compiled with Qt3 the application will crash!</b><br>
-This version of QtiPlot uses a modified version of <a href="http://sourceforge.net/projects/liborigin/">liborigin</a> which is supplied in the "3rdparty" folder.
-It is already included in the qtiplot/qtiplot.pro file and does not need to be compiled or installed separately. <br>
-
-The latest version of <a href="http://muparser.sourceforge.net/">muParser (1.28 not officially released yet)</a> is also included in "3rdparty/muParser", so you don't need to download and install it.<br>
-
-In order to build QtiPlot you also need <b>qmake</b>, which is distributed as a part of Qt. <br>
-
-<h2>Linux/Mac OS X:</h2>
-
-<h3>Binaries from maintenance contracts:</h3>
-Ion Vasilief offers supported QtiPlot binaries as <a href="http://www.debian.org/">Debian</a> packages (for Debian, Ubuntu, ...) and <a href="http://www.rpm.org/">RPM</a> packages (for RedHat, Mandrake, SuSE, Fedora, ...) as well as for Mac OS X 10.4. (The RPM packages are created on <a href="http://www.ubuntulinux.org/">Ubuntu</a>.)<br>
-To use this service, you need to subscribe to a maintenance contract. You can find details about this here: <a href="http://soft.proindependent.com/download.html">QtiPlot download page</a>.<br>
-To install the Debian package, download the file <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot_X.X.X_i386.deb</a> and login to your machine as "root" (on Ubuntu, login as a normal user and prepend <code>sudo</code>), then open a terminal and execute the following command:<br>
-      <code>dpkg -i qtiplot_X.X.X_i386.deb</code><br>
-
-To install the RPM package, download the file <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot-X.X.X-1.i386.rpm</a> and login to your machine as "root", then execute:<br>
-      <code>rpm -i qtiplot-X.X.X-1.i386.rpm</code><br>
-	  
-To install the binary package on Mac OS X 10.4, download the file <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot-X.X.X.pkg.zip</a>, unzip it, double-click on the "qtiplot-X.X.X.pkg" file and follow the installation instructions. The package provides all needed libraries, except Python 2.5, which must be installed separately on your system. 
-
-<h3>QtiPlot Linux binaries free of charge:</h3>
-The QtiPlot team offers GNU/Linux binaries for several distributions free of charge but without any guaranteed support. Some time after each release, you will find these (including notes how to install them) on the <a href="http://soft.proindependent.com/download.html">QtiPlot download page</a> or in the files section at the <a href="https://developer.berlios.de/project/showfiles.php?group_id=6626">QtiPlot project page at berliOS</a>.<br>
-
-<h3>Compiling QtiPlot from source:</h3>
-<ol>
-	<li>Install <a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>, <a href="http://sources.redhat.com/gsl/">GSL</a> and <a href="http://www.zlib.net/">zlib</a>; either from your package manager or from the sources. If you are using precompiled packages, make sure you also install the corresponding development packages (*-dev or *-devel).
-	If you want to display the manual from within QtiPlot (you can also view it with your favorite browser), you also need the Qt Assistant, which sometimes comes in a separate package (qt4-dev-tools for Ubuntu edgy).</li>
-	<li>Open a terminal window.</li>
-	<li>Download the .tar.bz2 archive with QtiPlot's sources (or the .zip archive, which has the same contents):<br>
-	<code>wget http://soft.proindependent.com/src/qtiplot-X.X.X.tar.bz2</code></li>
-	<li>Unpack the source archive:
-	<code>tar -xvjf qtiplot-X.X.X.tar.bz2</code> (or <code>unzip qtiplot-X.X.X.zip</code>, respectively)</li>
-	<li>Get <a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a> sources and unpack them to the 3rdparty folder:<br>
-	<code>cd qtiplot-X.X.X/3rdparty<br>tar -xvjf /path/to/qwt-Y.Y.Y.tar.bz2</code></li>
-	<li>Rename the new directory to <code>qwt</code>:<br>
-	<code>mv qwt-Y.Y.Y qwt</code></li>
-	<li>We want to build the static version of Qwt in order to avoid potential conflicts with an already installed version.
-	Open the file qwt/qwtconfig.pri and comment out the line<br>
-	<code>CONFIG += QwtDll</code></li>
-	<li>Build Qwt:<br><code>cd qwt; qmake &amp;&amp; make; cd ..</code></li>
-	<li>Get <a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a> sources and also unpack them to qtiplot-X.X.X/3rdparty:<br>
-	<code>tar -xvzf qwtplot3d-Z.Z.Z.tgz</code></li>
-	<li>We also want to build a static version here, so open qwtplot3d/qwtplot3d.pro in your favorite text editor and add the line<br>
-	<code>CONFIG += staticlib</code><br>
-	at a convenient place (say, below the other CONFIG line).</li>
-	<li>Build qwtplot3d:<br><code>cd qwtplot3d; qmake &amp;&amp; make; cd ..</code></li>
-	<li>Go to the directory qtiplot-X.X.X/qtiplot:<br><code>cd ../qtiplot</code></li>
-	<li>We don't want to build GSL ourselves, but rather use the system-wide installation.
-	To do this, open qtiplot.pro in your favorite editor and uncomment/comment the corresponding lines in the "Linux (Mac OS X)" section.</li>
-	<li>Near the head of the same file, either comment out the line <code>SCRIPTING_LANGS += Python</code> or make sure you have the following additional dependencies installed:
-	<a href="http://www.python.org/">Python</a> 2.5,
-	<a href="http://www.riverbankcomputing.co.uk/sip">SIP</a> 4.5.2 or 4.6,
-	<a href="http://www.riverbankcomputing.co.uk/pyqt">PyQt</a> 4.2.
-	Other versions as those indicated above may or may not work.
-	Specifically, there are known issues with a number of SIP versions and
-	a given version of PyQt will only work with a limited range of SIP
-	versions.
-	</li>
-	<li>Build qtiplot:<br><code>qmake &amp;&amp; make</code></li>
-	<li>You should now be able to run QtiPlot by entering<br><code>./qtiplot</code></li>
-	<li>Install QtiPlot on your system (you need root priviliges):<br>
-	<code>sudo make install</code><br>or, alternatively,<br><code>su -c "make install"</code></li>
-</ol>
-
-<h2>Windows:</h2>
-
-<h3>Binaries from maintenance contracts:</h3>
-Ion Vasilief offers supported QtiPlot Windows binaries. In principle QtiPlot should work on any Windows version from 98 to Vista. But don't expect it to run perfectly on older versions than 2000. For platform specific issues of Qt4 based applications see <a href="http://www.trolltech.com/developer/notes/platforms/index">doc.trolltech.com</a>.<br>
-To install:<br>
-<ol>
-<li>Download the <a class="qindex" href="http://soft.proindependent.com/download.html">qtiplot-X.X.X.exe</a> file.</li>
-<li>Open a Windows Explorer, double click on 'qtiplot-X.X.X.exe' and follow the installation instructions.</li>
-</ol>
-
-<h3>Compiling QtiPlot from source:</h3>
-If you want to compile the application from source, you need to install the <a href="http://www.trolltech.com/developer/downloads/qt/windows">Qt/Windows Open Source Edition</a> 4.2. and use <a href="http://www.mingw.org/">MinGW</a> as a compiler.<br>
-<br>
-The compilation of QtiPlot from sources requires the following steps:<br>
-<ol>
-<li>Install or compile the required libraries listed above.</li>
-<li>Download the <a href="http://soft.proindependent.com/download.html">qtiplot</a> archive (qtiplot-X.X.X.zip) and unzip it.</li>
-<li>Modify the 'qtiplot/qtiplot.pro' file with a text editor in order to set the INCLUDEPATH variables to the header files ('include' directory) of your local build of the libraries listed above. E.g. <code>INCLUDEPATH  += ../3rdparty/qwtplot3d/include</code> if you put QwtPlot3D into the "3rdparty" directory.<br>
-Remark: Lines stating with # are comments and thus ignored by qmake.</li>
-<li>Modify the 'qtiplot/qtiplot.pro' file to set the LIBS variables (those prefixed <code>win32:</code> only) to the actual directories of your library builds. E.g. <code>win32:LIBS += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a</code> if you put QwtPlot3D (as a static library) into the "3rdparty" directory.</li>
-<li>Open a command prompt, go to the 'qtiplot-X.X.X\qtiplot' folder (<code>cd X:\path\to\qtiplot\qtiplot-X.X.X\qtiplot</code>) and execute<br>
-    <code>qmake qtiplot.pro</code>.</li>
-<li>Finally type <code>mingw32-make</code> and wait until it finishes building qtiplot.exe.</li>
-</ol>
-
-<h2>Forums and mailing lists:</h2>
-If you want to discuss QtiPlot with other users (or the developers) or if you are insterested in its further development, you can go to the relevant <a href="https://developer.berlios.de/forum/?group_id=6626">QtiPlot forum</a> or subscribe to the appropriate <a href="https://developer.berlios.de/mail/?group_id=6626">QtiPlot mailing list</a>.<br><br>
-
-
-<!-- ######################################## end of page content ########################### -->
-</td>
-</tr>
-
-</tbody>
-</table>
-
-</td>  <!-- main -->
-</tr>
-</tbody>
-</table>
-
-
-</body></html>
+			<h2>License:</h2>
+			<p>
+			SciDAVis is distributed under the <a href="http://www.gnu.org/licenses/gpl.html">GNU General Public License</a>.
+			A copy of this license is provided in the file <code>gpl.txt</code>.
+			</p><p>
+			Thus it is <a href="http://www.fsf.org/licensing/essays/free-sw.html">"free software"</a>.
+			"Free software" is a matter of liberty, not price. To understand the concept, you should think of "free" as in
+			"free speech", not as in "free beer".
+			"Free software" is also often called
+			<a href="http://en.wikipedia.org/wiki/Alternative_terms_for_free_software">Open Source, FOSS, or FLOSS</a>.
+			When we say that SciDAVis is "free", we are talking about
+			<ul>
+				<li> The freedom to run the program, for any purpose (freedom 0).</li>
+				<li> The freedom to study how the program works, and adapt it to your needs (freedom 1).
+				Access to the source code is a precondition for this.</li>
+				<li> The freedom to redistribute copies so you can help your neighbor (freedom 2).</li>
+				<li> The freedom to improve the program, and release your improvements to the public, so that the whole community benefits (freedom 3). Access to the source code is a precondition for this.</li>
+			</ul>
+			That said, SciDAVis is also free as in "free beer".
+			We do not charge money for anything you can download on our homepage and we will not do so in the future.
+			See <a href="http://scidavis.sourceforge.net/contributing/index.html">here</a> for why
+			we can do this and why we're working on SciDAVis.
+		</div><!-- end of content -->
+	</body>
+</html>

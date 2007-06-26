@@ -2,9 +2,9 @@
 ###################### USER-SERVICEABLE PART ################################
 #############################################################################
 
-# building without muParser doesn't work yet
+# building without muParser doesn't work yet (but will in a future version)
 SCRIPTING_LANGS += muParser
-SCRIPTING_LANGS += Python
+#SCRIPTING_LANGS += Python
 
 # a console displaying output of scripts; particularly useful on Windows
 # where running SciDAVis from a terminal is inconvenient
@@ -22,8 +22,6 @@ unix: target.path = /usr/bin
 unix: documentation.path = /usr/share/doc/scidavis
 
 ##################### 3rd PARTY HEADER FILES SECTION ########################
-#!!! Warning: You must modify these paths according to your computer settings
-#############################################################################
 
 INCLUDEPATH       += ../3rdparty/muParser
 INCLUDEPATH       += ../3rdparty/qwtplot3d/include
@@ -32,9 +30,10 @@ INCLUDEPATH       += ../3rdparty/liborigin
 INCLUDEPATH       += ../3rdparty/gsl/include
 INCLUDEPATH       += ../3rdparty/zlib123/include
 
+#INCLUDEPATH            += /usr/include/qwt5
+#INCLUDEPATH            += /usr/include/qwtplot3d
+
 ##################### 3rd PARTY LIBRARIES SECTION ###########################
-#!!! Warning: You must modify these paths according to your computer settings
-#############################################################################
 
 ##################### Linux (Mac OS X) ######################################
 
@@ -51,10 +50,10 @@ unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
 #unix:LIBS         += -lqwt
 
 # statically link against GSL in 3rdparty
-unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
-unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
+#unix:LIBS         += ../3rdparty/gsl/lib/libgsl.a
+#unix:LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
 #dynamically link against GSL installed system-wide
-#unix:LIBS         += -lgsl -lgslcblas
+unix:LIBS         += -lgsl -lgslcblas
 
 ##################### Windows ###############################################
 
@@ -93,8 +92,8 @@ DESTDIR        = ./
 #############################################################################
 
 ###################### ICONS ################################################
-RESOURCES	+=		appicons.qrc
-RESOURCES	+=		icons.qrc
+RESOURCES    +=        appicons.qrc
+RESOURCES    +=        icons.qrc
 
 ###################### TRANSLATIONS #########################################
 
@@ -112,7 +111,7 @@ TRANSLATIONS    = translations/scidavis_de.ts \
 
 documentation.files += ../manual/html \
                        ../README.html \
-                       ../gpl_licence.txt \
+                       ../gpl.txt \
 
 ###################### HEADERS ##############################################
 
@@ -411,8 +410,8 @@ contains(SCRIPTING_LANGS, Python) {
   HEADERS += $${SIP_DIR}/sipscidavisApplicationWindow.h\
              $${SIP_DIR}/sipscidavisGraph.h\
              $${SIP_DIR}/sipscidavisArrowMarker.h\
-			 $${SIP_DIR}/sipscidavisImageMarker.h\
-			 $${SIP_DIR}/sipscidavisLegend.h\
+             $${SIP_DIR}/sipscidavisImageMarker.h\
+             $${SIP_DIR}/sipscidavisLegend.h\
              $${SIP_DIR}/sipscidavisMultiLayer.h\
              $${SIP_DIR}/sipscidavisTable.h\
              $${SIP_DIR}/sipscidavisMatrix.h\
@@ -439,20 +438,20 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipscidavisFilter.h \
              $${SIP_DIR}/sipscidavisDifferentiation.h \
              $${SIP_DIR}/sipscidavisIntegration.h \
-			 $${SIP_DIR}/sipscidavisInterpolation.h \
-			 $${SIP_DIR}/sipscidavisSmoothFilter.h \
-			 $${SIP_DIR}/sipscidavisFFTFilter.h \
-			 $${SIP_DIR}/sipscidavisFFT.h \
-			 $${SIP_DIR}/sipscidavisCorrelation.h \
-			 $${SIP_DIR}/sipscidavisConvolution.h \
-			 $${SIP_DIR}/sipscidavisDeconvolution.h \
+             $${SIP_DIR}/sipscidavisInterpolation.h \
+             $${SIP_DIR}/sipscidavisSmoothFilter.h \
+             $${SIP_DIR}/sipscidavisFFTFilter.h \
+             $${SIP_DIR}/sipscidavisFFT.h \
+             $${SIP_DIR}/sipscidavisCorrelation.h \
+             $${SIP_DIR}/sipscidavisConvolution.h \
+             $${SIP_DIR}/sipscidavisDeconvolution.h \
 
   SOURCES += $${SIP_DIR}/sipscidaviscmodule.cpp\
              $${SIP_DIR}/sipscidavisApplicationWindow.cpp\
              $${SIP_DIR}/sipscidavisGraph.cpp\
              $${SIP_DIR}/sipscidavisArrowMarker.cpp\
-			 $${SIP_DIR}/sipscidavisImageMarker.cpp\
-			 $${SIP_DIR}/sipscidavisLegend.cpp\
+             $${SIP_DIR}/sipscidavisImageMarker.cpp\
+             $${SIP_DIR}/sipscidavisLegend.cpp\
              $${SIP_DIR}/sipscidavisMultiLayer.cpp\
              $${SIP_DIR}/sipscidavisTable.cpp\
              $${SIP_DIR}/sipscidavisMatrix.cpp\
@@ -479,12 +478,12 @@ contains(SCRIPTING_LANGS, Python) {
              $${SIP_DIR}/sipscidavisFilter.cpp \
              $${SIP_DIR}/sipscidavisDifferentiation.cpp \
              $${SIP_DIR}/sipscidavisIntegration.cpp \
-			 $${SIP_DIR}/sipscidavisInterpolation.cpp \
-			 $${SIP_DIR}/sipscidavisSmoothFilter.cpp \
-			 $${SIP_DIR}/sipscidavisFFTFilter.cpp \
-			 $${SIP_DIR}/sipscidavisFFT.cpp \
-			 $${SIP_DIR}/sipscidavisCorrelation.cpp \
-			 $${SIP_DIR}/sipscidavisConvolution.cpp \
-			 $${SIP_DIR}/sipscidavisDeconvolution.cpp \
+             $${SIP_DIR}/sipscidavisInterpolation.cpp \
+             $${SIP_DIR}/sipscidavisSmoothFilter.cpp \
+             $${SIP_DIR}/sipscidavisFFTFilter.cpp \
+             $${SIP_DIR}/sipscidavisFFT.cpp \
+             $${SIP_DIR}/sipscidavisCorrelation.cpp \
+             $${SIP_DIR}/sipscidavisConvolution.cpp \
+             $${SIP_DIR}/sipscidavisDeconvolution.cpp \
 }
 ###############################################################
