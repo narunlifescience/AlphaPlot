@@ -1,7 +1,6 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
      <file alias="appicon">icons/scidavis-icon.png</file>
-     <file alias="applogo">icons/scidavis-logo.png</file>
      <file alias="appsplash">icons/scidavis-splash.png</file>
 </qresource>
 </RCC>

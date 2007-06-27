@@ -9542,6 +9542,7 @@ Note* ApplicationWindow::openNote(ApplicationWindow* app, const QStringList &fli
 	return w;
 }
 
+// TODO: most of this code belongs into matrix
 Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList &flist)
 {
 	QStringList::const_iterator line = flist.begin();
@@ -9600,6 +9601,8 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 
 		    if (d_file_version < 90)
                 w->setCell(row, col, QLocale::c().toDouble(cell));
+		    else if (d_file_version >= 0x000100)
+                w->setCell(row, col, cell.toDouble());
             else
                 w->setText(row, col, cell);
 		}
@@ -9609,6 +9612,7 @@ Matrix* ApplicationWindow::openMatrix(ApplicationWindow* app, const QStringList 
 	return w;
 }
 
+// TODO: most of this code belongs into Table
 Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &flist)
 {
 	QStringList::const_iterator line = flist.begin();
@@ -9681,6 +9685,8 @@ Table* ApplicationWindow::openTable(ApplicationWindow* app, const QStringList &f
 
 		        if (d_file_version < 90 && w->columnType(col) == Table::Numeric)
                     w->setCell(row, col, QLocale::c().toDouble(cell.replace(",", ".")));
+		        else if (d_file_version >= 0x000100 && w->columnType(col) == Table::Numeric)
+                    w->setCell(row, col, cell.toDouble());
 		        else
                     w->setText(row, col, cell);
 		    }

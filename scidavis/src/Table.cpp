@@ -1484,11 +1484,11 @@ QString Table::saveText()
 	{
 		if (!isEmptyRow(i))
 		{
-			text+=QString::number(i)+"\t";
+			text += QString::number(i)+"\t";
 			for (int j=0; j<cols-1; j++)
-				text+=d_table->text(i,j)+"\t";
+				text += QString::number(cell(i,j), 'e', 16)+"\t";
 
-			text+=d_table->text(i,cols-1)+"\n";
+			text += QString::number(cell(i,cols-1), 'e', 16)+"\n";
 		}
 	}
 	return text + "</data>\n";
@@ -2983,7 +2983,7 @@ void Table::restore(QString& spec)
 		list = s.split("\t");
 		row = list[0].toInt();
 		for (j=0; j<c; j++)
-			d_table->setText(row, j, list[j+1]);
+			setCell(row, j, list[j+1].toDouble());
 
 		s = t.readLine();
 	}
