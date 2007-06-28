@@ -73,8 +73,8 @@ ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent,
         boxDecimalSeparator->setCurrentIndex(2);
     else if (app->d_ASCII_import_locale.name() == QLocale(QLocale::French).name())
         boxDecimalSeparator->setCurrentIndex(3);
-	boxDecimalSeparator->setEnabled(app->d_import_dec_separators);
-	d_import_dec_separators->setChecked(app->d_import_dec_separators);
+	boxDecimalSeparator->setEnabled(app->d_use_custom_locale);
+	d_use_custom_locale->setChecked(app->d_use_custom_locale);
 
 	connect(d_import_mode, SIGNAL(currentIndexChanged(int)), this, SLOT(updateImportMode(int)));
 }
@@ -148,23 +148,23 @@ void ImportASCIIDialog::initAdvancedOptions()
 
 	advanced_layout->addWidget(new QLabel(tr("Decimal Separators")), 3, 0);
 	boxDecimalSeparator = new QComboBox();
-	boxDecimalSeparator->addItem(tr("System Locale Setting"));
-	boxDecimalSeparator->addItem("1,000.0");
-	boxDecimalSeparator->addItem("1.000,0");
-	boxDecimalSeparator->addItem("1 000,0");
+	boxDecimalSeparator->addItem(tr("default") + " (" + QLocale::system().toString(1000.0, 'f', 1) +")");
+	boxDecimalSeparator->addItem(QLocale::c().toString(1000.0, 'f', 1));
+	boxDecimalSeparator->addItem(QLocale(QLocale::German).toString(1000.0, 'f', 1));
+	boxDecimalSeparator->addItem(QLocale(QLocale::French).toString(1000.0, 'f', 1));
 	advanced_layout->addWidget(boxDecimalSeparator, 3, 1);
 	
-	d_import_dec_separators = new QCheckBox(tr("Import &decimal separators"));
-	connect(d_import_dec_separators, SIGNAL(toggled(bool)), boxDecimalSeparator, SLOT(setEnabled(bool)));
-	advanced_layout->addWidget(d_import_dec_separators, 3, 2, 1, 2);
+	d_use_custom_locale = new QCheckBox(tr("Use custom &decimal separator"));
+	connect(d_use_custom_locale, SIGNAL(toggled(bool)), boxDecimalSeparator, SLOT(setEnabled(bool)));
+	advanced_layout->addWidget(d_use_custom_locale, 3, 2, 1, 2);
 	
 	QHBoxLayout *meta_options_layout = new QHBoxLayout();
 	d_remember_options = new QCheckBox(tr("Re&member the above options"));
 	meta_options_layout->addWidget(d_remember_options);
 	d_help_button = new QPushButton(tr("&Help"));
 	connect(d_help_button, SIGNAL(clicked()), this, SLOT(displayHelp()));
-	meta_options_layout->addWidget(d_help_button);
 	meta_options_layout->addStretch();
+	meta_options_layout->addWidget(d_help_button);
 	main_layout->addLayout(meta_options_layout);
 }
 

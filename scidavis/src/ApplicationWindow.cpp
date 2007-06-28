@@ -710,6 +710,12 @@ void ApplicationWindow::initMainMenu()
 	view = new QMenu(this);
 	view->setFont(appFont);
 	view->setCheckable(true);
+	// TODO: Make separate windows for toolbars and docking windows
+	toolbarsMenu = createPopupMenu();
+	toolbarsMenu->setTitle(tr("Toolbars"));
+
+	view->addMenu(toolbarsMenu);
+	view->insertSeparator();
 	view->addAction(actionShowPlotWizard);
 	view->addAction(actionShowExplorer);
 	view->addAction(actionShowLog);
@@ -1055,7 +1061,7 @@ void ApplicationWindow::customMenu(QWidget* w)
 		if (w->isA("MultiLayer"))
 		{
 			menuBar()->insertItem(tr("&Graph"), graph);
-			menuBar()->insertItem(tr("&Data"), plotDataMenu);
+			menuBar()->insertItem(tr("&Tools"), plotDataMenu);
 			menuBar()->insertItem(tr("&Analysis"), calcul);
 			menuBar()->insertItem(tr("For&mat"), format);
 
@@ -3254,7 +3260,7 @@ void ApplicationWindow::importASCII()
 		strip_spaces = import_dialog->stripSpaces();
 		simplify_spaces = import_dialog->simplifySpaces();
 		d_ASCII_import_locale = import_dialog->decimalSeparators();
-		d_import_dec_separators = import_dialog->updateDecimalSeparators();
+		d_use_custom_locale = import_dialog->useCustomLocale();
 		saveSettings();
 	}
 
@@ -3265,12 +3271,12 @@ void ApplicationWindow::importASCII()
 			import_dialog->renameColumns(),
 			import_dialog->stripSpaces(),
 			import_dialog->simplifySpaces(),
-			import_dialog->updateDecimalSeparators(),
+			import_dialog->useCustomLocale(),
 			import_dialog->decimalSeparators());
 }
 
 void ApplicationWindow::importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
-		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces, bool update_dec_separators, QLocale local_separators)
+		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces, bool use_custom_locale, QLocale local_separators)
 {
 	if (files.isEmpty())
 		return;
@@ -3292,7 +3298,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 					} else
 						w->parentWidget()->move(QPoint(i*dx,i*dy));
 
-					if (update_dec_separators)
+					if (use_custom_locale)
 						w->updateDecimalSeparators(local_separators);
 				}
 				modifiedProject();
@@ -3308,7 +3314,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 							local_strip_spaces, local_simplify_spaces, import_mode);
 					t->setWindowLabel(files.join("; "));
 					t->setCaptionPolicy(MyWidget::Name);
-					if (update_dec_separators)
+					if (use_custom_locale)
 						t->updateDecimalSeparators(local_separators);
 					t->notifyChanges();
 					emit modifiedProject(t);
@@ -3321,14 +3327,14 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 				if ( t && t->isA("Table")){
 					t->importASCII(files[0], local_column_separator, local_ignored_lines, local_rename_columns,
 							local_strip_spaces, local_simplify_spaces, false);
-					if (update_dec_separators)
+					if (use_custom_locale)
 						t->updateDecimalSeparators(local_separators);
 					t->setWindowLabel(files[0]);
 					t->notifyChanges();
 				} else {
 					t = newTable(files[0], local_column_separator, local_ignored_lines,
 							local_rename_columns, local_strip_spaces, local_simplify_spaces);
-					if (update_dec_separators)
+					if (use_custom_locale)
 						t->updateDecimalSeparators(local_separators);
 				}
 
@@ -4261,7 +4267,7 @@ void ApplicationWindow::readSettings()
 	simplify_spaces = settings.value("/SimplifySpaces", false).toBool();
 	d_ASCII_file_filter = settings.value("/AsciiFileTypeFilter", "*").toString();
 	d_ASCII_import_locale = settings.value("/AsciiImportLocale", QLocale::system().name()).toString();
-	d_import_dec_separators = settings.value("/UpdateDecSeparators", true).toBool();
+	d_use_custom_locale = settings.value("/UseCustomLocale", true).toBool();
 	settings.endGroup(); // Import ASCII
 
     settings.beginGroup("/ExportImage");
@@ -4503,7 +4509,7 @@ void ApplicationWindow::saveSettings()
 	settings.setValue("/SimplifySpaces", simplify_spaces);
     settings.setValue("/AsciiFileTypeFilter", d_ASCII_file_filter);
 	settings.setValue("/AsciiImportLocale", d_ASCII_import_locale.name());
-	settings.setValue("/UpdateDecSeparators", d_import_dec_separators);
+	settings.setValue("/UseCustomLocale", d_use_custom_locale);
 	settings.endGroup(); // ImportASCII
 
     settings.beginGroup("/ExportImage");
@@ -7929,7 +7935,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 		}
 
 		importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
-				strip_spaces, simplify_spaces, d_import_dec_separators, d_ASCII_import_locale);
+				strip_spaces, simplify_spaces, d_use_custom_locale, d_ASCII_import_locale);
 	}
 }
 
@@ -11466,6 +11472,7 @@ void ApplicationWindow::translateActionsStrings()
 
 	actionShowPlotWizard->setMenuText(tr("Plot &Wizard"));
 	actionShowPlotWizard->setShortcut(tr("Ctrl+Alt+W"));
+	toolbarsMenu->setTitle(tr("Toolbars"));
 
 	actionShowConfigureDialog->setMenuText(tr("&Preferences..."));
 
@@ -11969,6 +11976,7 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
         updateRecentProjectsList();
         return this;
     }
+	else return 0;
 }
 
 void ApplicationWindow::deleteFitTables()

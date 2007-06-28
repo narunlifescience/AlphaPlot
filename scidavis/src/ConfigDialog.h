@@ -111,6 +111,10 @@ public slots:
 
 	void switchToLanguage(int param);
 
+private slots:
+	//! Update the decimal separator preview
+	void updateDecSepPreview();
+
 private:
 	void initPlotsPage();
 	void initAppPage();
@@ -141,6 +145,7 @@ private:
 	QCheckBox *boxSave, *boxBackbones, *boxAllAxes, *boxShowLegend, *boxSmoothMesh;
 	QCheckBox *boxAutoscaling, *boxShowProjection, *boxMatrices, *boxScaleFonts, *boxResize, *boxUseGroupSeparator;
 	QComboBox *boxMajTicks, *boxMinTicks, *boxStyle, *boxCurveStyle, *boxSeparator, *boxLanguage, *boxDecimalSeparator;
+	QLabel *boxSeparatorPreview;
 	QSpinBox *boxMinutes, *boxLineWidth, *boxFrameWidth, *boxResolution, *boxMargin, *boxPrecision, *boxAppPrecision;
 	QSpinBox *boxCurveLineWidth, *boxSymbolSize, *boxMinTicksLength, *boxMajTicksLength, *generatePointsBox;
 	ColorButton *btnWorkspace, *btnPanels, *btnPanelsText;

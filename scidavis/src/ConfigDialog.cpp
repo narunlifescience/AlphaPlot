@@ -595,10 +595,6 @@ void ConfigDialog::initAppPage()
     lblDecimalSeparator = new QLabel();
     numericFormatLayout->addWidget(lblDecimalSeparator, 1, 0 );
 	boxDecimalSeparator = new QComboBox();
-	boxDecimalSeparator->addItem(tr("System Locale Setting"));
-	boxDecimalSeparator->addItem("1,000.0");
-	boxDecimalSeparator->addItem("1.000,0");
-	boxDecimalSeparator->addItem("1 000,0");
 
 	numericFormatLayout->addWidget(boxDecimalSeparator, 1, 1);
 
@@ -606,6 +602,10 @@ void ConfigDialog::initAppPage()
 	boxUseGroupSeparator->setChecked(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator));
 
 	numericFormatLayout->addWidget(boxUseGroupSeparator, 2, 0);
+
+	boxSeparatorPreview = new QLabel();
+	boxSeparatorPreview->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+	numericFormatLayout->addWidget(boxSeparatorPreview, 2, 1);
 
     boxUpdateSeparators = new QCheckBox();
     boxUpdateSeparators->setChecked(true);
@@ -620,6 +620,9 @@ void ConfigDialog::initAppPage()
 	connect( btnWorkspace, SIGNAL( clicked() ), this, SLOT( pickWorkspaceColor() ) );
 	connect( btnPanels, SIGNAL( clicked() ), this, SLOT( pickPanelsColor() ) );
 	connect( btnPanelsText, SIGNAL( clicked() ), this, SLOT( pickPanelsTextColor() ) );
+	connect( boxUseGroupSeparator, SIGNAL( toggled(bool) ), this, SLOT(updateDecSepPreview()) );
+	connect( boxDecimalSeparator, SIGNAL( currentIndexChanged(int) ), this, SLOT(updateDecSepPreview()) );
+	connect( boxAppPrecision, SIGNAL( valueChanged(int) ), this, SLOT(updateDecSepPreview()) );
 }
 
 void ConfigDialog::initFittingPage()
@@ -885,10 +888,10 @@ void ConfigDialog::languageChange()
 	lblAppPrecision->setText(tr("Number of Decimal Digits"));
 	lblDecimalSeparator->setText(tr("Decimal Separators"));
 	boxDecimalSeparator->clear();
-	boxDecimalSeparator->addItem(tr("System Locale Setting"));
-	boxDecimalSeparator->addItem("1,000.0");
-	boxDecimalSeparator->addItem("1.000,0");
-	boxDecimalSeparator->addItem("1 000,0");
+	boxDecimalSeparator->addItem(tr("default") + " (" + QLocale::system().toString(1000.0, 'f', 1) +")");
+	boxDecimalSeparator->addItem(QLocale::c().toString(1000.0, 'f', 1));
+	boxDecimalSeparator->addItem(QLocale(QLocale::German).toString(1000.0, 'f', 1));
+	boxDecimalSeparator->addItem(QLocale(QLocale::French).toString(1000.0, 'f', 1));
 
     if (QLocale().name() == QLocale::c().name())
         boxDecimalSeparator->setCurrentIndex(1);
@@ -896,6 +899,8 @@ void ConfigDialog::languageChange()
         boxDecimalSeparator->setCurrentIndex(2);
     else if (QLocale().name() == QLocale(QLocale::French).name())
         boxDecimalSeparator->setCurrentIndex(3);
+
+	boxSeparatorPreview->setText(tr("Preview:","preview of the decimal separator") + " " + QLocale().toString(1000.1234567890123456, 'f', boxAppPrecision->value()) );
 
 	//tables page
 	boxTableComments->setText(tr("&Display Comments in Header"));
@@ -1504,4 +1509,31 @@ void ConfigDialog::showPointsBox(bool)
 		generatePointsBox->hide();
 		linearFit2PointsBox->hide();
 	}
+}
+
+void ConfigDialog::updateDecSepPreview()
+{
+    QLocale locale;
+    switch (boxDecimalSeparator->currentIndex())
+	{
+        case 0:
+            locale = QLocale::system();
+        break;
+        case 1:
+            locale = QLocale::c();
+        break;
+        case 2:
+            locale = QLocale(QLocale::German);
+        break;
+        case 3:
+            locale = QLocale(QLocale::French);
+        break;
+    }
+
+    if(boxUseGroupSeparator->isChecked())
+		locale.setNumberOptions(locale.numberOptions() & ~QLocale::OmitGroupSeparator);
+	else
+		locale.setNumberOptions(locale.numberOptions() | QLocale::OmitGroupSeparator);
+
+	boxSeparatorPreview->setText(tr("Preview:","preview of the decimal separator") + " " + locale.toString(1000.1234567890123456, 'f', boxAppPrecision->value()) );
 }

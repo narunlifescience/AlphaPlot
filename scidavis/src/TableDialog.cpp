@@ -59,13 +59,11 @@ TableDialog::TableDialog(Table *t, QWidget* parent, const char* name, bool modal
 
 	enumerateAllBox = new QCheckBox(tr("Enumerate all to the right" ));
 
-	buttonPrev = new QPushButton("&<<");
+	buttonPrev = new QPushButton(tr("&<< Prev.","previous column"));
 	buttonPrev->setAutoDefault(false);
-	buttonPrev->setMaximumWidth(40);
 
-	buttonNext = new QPushButton("&>>");
+	buttonNext = new QPushButton(tr("Next &>>","next column"));
 	buttonNext->setAutoDefault(false);
-	buttonNext->setMaximumWidth(40);
 
 	QHBoxLayout *hboxb = new QHBoxLayout();
     hboxb->addWidget(buttonPrev);

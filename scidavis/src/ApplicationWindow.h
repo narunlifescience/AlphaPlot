@@ -924,7 +924,7 @@ public:
 	QLocale d_ASCII_import_locale;
     //! Last selected filter in import ASCII dialog
     QString d_ASCII_file_filter;
-	bool d_import_dec_separators;
+	bool d_use_custom_locale;
 	//! Specifies if only the Tables/Matrices in the current folder should be displayed in the Add/remove curve dialog.
 	bool d_show_current_folder;
 	bool d_scale_plots_on_print, d_print_cropmarks;
@@ -1040,7 +1040,7 @@ private:
 	Graph *lastCopiedLayer;
 	QSplitter *explorerSplitter;
 
-	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot;
+	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot, *toolbarsMenu;
 	QMenu *help,*type,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;

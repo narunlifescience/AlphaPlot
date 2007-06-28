@@ -89,9 +89,9 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 
 	QHBoxLayout *hbox3 = new QHBoxLayout(); 
 	hbox3->addStretch();
-	buttonPrev = new QPushButton("&<<");
+	buttonPrev = new QPushButton(tr("&<< Prev.","previous column"));
 	hbox3->addWidget(buttonPrev);
-	buttonNext = new QPushButton("&>>");
+	buttonNext = new QPushButton(tr("Next &>>","next column"));
 	hbox3->addWidget(buttonNext);
 	gl1->addLayout(hbox3, 2, 0);
 	addCellButton = new QPushButton(tr( "Add cell" ));

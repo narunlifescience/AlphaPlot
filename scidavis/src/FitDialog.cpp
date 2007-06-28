@@ -1146,13 +1146,15 @@ void FitDialog::accept()
                 QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
 				if (!cb->isChecked())
 				{
-					paramsInit[j] = boxParams->item(i,1)->text().toDouble();
+					paramsInit[j] = QLocale().toDouble(boxParams->item(i,1)->text());
 					parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[j]);
 					parameters << boxParams->item(i,0)->text();
 					j++;
 				}
 				else
-					formula.replace(boxParams->item(i,0)->text(), boxParams->item(i,1)->text());
+					formula.replace(boxParams->item(i,0)->text(), 
+						QString::number(QLocale().toDouble(boxParams->item(i,1)->text()), 
+						'g', boxPrecision->value()));
 			}
 		}
 		else
@@ -1240,13 +1242,13 @@ void FitDialog::accept()
 			{
                 QCheckBox *cb = (QCheckBox*)boxParams->cellWidget(i, 2);
 				if (!cb->isChecked())
-					boxParams->item(i, 1)->setText(QString::number(res[j++], 'g', app->fit_output_precision));
+					boxParams->item(i, 1)->setText(QLocale().toString(res[j++], 'g', boxPrecision->value()));
 			}
 		}
 		else
 		{
 			for (i=0;i<rows;i++)
-				boxParams->item(i, 1)->setText(QString::number(res[i], 'g', app->fit_output_precision));
+				boxParams->item(i, 1)->setText(QLocale().toString(res[i], 'g', boxPrecision->value()));
 		}
 	}
 }
@@ -1322,7 +1324,7 @@ bool FitDialog::validInitialValues()
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(boxParams->item(i,1)->text().ascii());
+			parser.SetExpr(QString::number(QLocale().toDouble(boxParams->item(i,1)->text())).ascii());
 			parser.Eval();
 		}
 		catch (mu::ParserError &e)
