@@ -78,24 +78,26 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	}
 
 	QGridLayout *gl1 = new QGridLayout();
-	functions = new QComboBox(false);
+	functions = new QComboBox();
 	gl1->addWidget(functions, 0, 0);
 	btnAddFunction = new QPushButton(tr( "Add function" ));
 	gl1->addWidget(btnAddFunction, 0, 1);
-	boxColumn = new QComboBox(false);
+	boxColumn = new QComboBox();
 	gl1->addWidget(boxColumn, 1, 0);
 	btnAddCol = new QPushButton(tr( "Add column" ));
 	gl1->addWidget(btnAddCol, 1, 1);
 
-	QHBoxLayout *hbox3 = new QHBoxLayout(); 
-	hbox3->addStretch();
-	buttonPrev = new QPushButton(tr("&<< Prev.","previous column"));
-	hbox3->addWidget(buttonPrev);
-	buttonNext = new QPushButton(tr("Next &>>","next column"));
-	hbox3->addWidget(buttonNext);
-	gl1->addLayout(hbox3, 2, 0);
 	addCellButton = new QPushButton(tr( "Add cell" ));
 	gl1->addWidget(addCellButton, 2, 1);
+
+	QHBoxLayout *hbox3 = new QHBoxLayout(); 
+	buttonPrev = new QPushButton(tr("&<< Prev.","previous column"));
+	hbox3->addWidget(buttonPrev);
+	boxSelectColumn = new QComboBox();
+	hbox3->addWidget(boxSelectColumn);
+	hbox3->setStretchFactor(boxSelectColumn, 1);
+	buttonNext = new QPushButton(tr("Next &>>","next column"));
+	hbox3->addWidget(buttonNext);
 
 	QGroupBox *gb = new QGroupBox();
 	QVBoxLayout *vbox1 = new QVBoxLayout(); 
@@ -111,9 +113,10 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	palette.setColor(QPalette::Active, QPalette::Base, Qt::lightGray);
 	explain->setPalette(palette);
 
-	QHBoxLayout *hbox2 = new QHBoxLayout(); 
-	hbox2->addWidget(explain);
-	hbox2->addWidget(gb);
+	QGridLayout *gl2 = new QGridLayout(); 
+	gl2->addWidget(explain, 0, 0, 2, 1);
+	gl2->addLayout(hbox3, 0, 1);
+	gl2->addWidget(gb, 1, 1);
 
 	commands = new ScriptEdit( scriptEnv);
 
@@ -132,7 +135,7 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 	hbox4->addLayout(vbox2);
 
 	QVBoxLayout* vbox3 = new QVBoxLayout();
-	vbox3->addLayout(hbox2);
+	vbox3->addLayout(gl2);
 	colNameLabel = new QLabel();
 	vbox3->addWidget(colNameLabel);
 	vbox3->addLayout(hbox4);
@@ -158,34 +161,29 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  con
 
 void SetColValuesDialog::prevColumn()
 {
-	int sc = table->selectedColumn();
+	int sc = d_table->selectedColumn();
 	updateColumn(--sc);
 }
 
 void SetColValuesDialog::nextColumn()
 {
-	int sc = table->selectedColumn();
+	int sc = d_table->selectedColumn();
 	updateColumn(++sc);
 }
 
 void SetColValuesDialog::updateColumn(int sc)
 {
-	if (!sc)
-		buttonPrev->setEnabled(false);
-	else
-		buttonPrev->setEnabled(true);
+	if(sc <0) sc = d_table->numCols() -1;
+	if(sc >= d_table->numCols()) sc = 0;
 
-	if (sc >= table->numCols() - 1)
-		buttonNext->setEnabled(false);
-	else
-		buttonNext->setEnabled(true);
+	boxSelectColumn->setCurrentIndex(sc);
 
-	table->setSelectedCol(sc);
-	table->table()->clearSelection();
-	table->table()->selectColumn(sc);
-	colNameLabel->setText("col(\""+table->colLabel(sc)+"\")= ");
+	d_table->setSelectedCol(sc);
+	d_table->table()->clearSelection();
+	d_table->table()->selectColumn(sc);
+	colNameLabel->setText("col(\""+d_table->colLabel(sc)+"\")= ");
 
-	QStringList com = table->getCommands();
+	QStringList com = d_table->getCommands();
 	commands->setText(com[sc]);
 	QTextCursor cursor = commands->textCursor();
 	cursor.movePosition(QTextCursor::End,QTextCursor::KeepAnchor);
@@ -210,14 +208,14 @@ void SetColValuesDialog::accept()
 
 bool SetColValuesDialog::apply()
 {
-	int col = table->selectedColumn();
+	int col = d_table->selectedColumn();
 	QString formula = commands->text();
-	QString oldFormula = table->getCommands()[col];
+	QString oldFormula = d_table->getCommands()[col];
 
-	table->setCommand(col,formula);
-	if(table->calculate(col,start->value()-1,end->value()-1))
+	d_table->setCommand(col,formula);
+	if(d_table->calculate(col,start->value()-1,end->value()-1))
 		return true;
-	table->setCommand(col,oldFormula);
+	d_table->setCommand(col,oldFormula);
 	return false;
 }
 
@@ -249,11 +247,13 @@ void SetColValuesDialog::insertCell()
 
 void SetColValuesDialog::setTable(Table* w)
 {
-	table=w;
+	d_table=w;
 	QStringList colNames=w->colNames();
 	int cols = w->numCols();
 	for (int i=0; i<cols; i++)
-		boxColumn->insertItem("col(\""+colNames[i]+"\")",i); 
+		boxColumn->addItem("col(\""+colNames[i]+"\")",i); 
+	for (int i=0; i<cols; i++)
+		boxSelectColumn->addItem(colNames[i]); 
 
 	int s = w->table()->currentSelection();
 	if (s >= 0)
@@ -270,8 +270,10 @@ void SetColValuesDialog::setTable(Table* w)
 		end->setValue(w->numRows());
 	}
 
+	boxSelectColumn->setCurrentIndex(w->selectedColumn());
 	updateColumn(w->selectedColumn());
 	commands->setContext(w);
+	connect(boxSelectColumn, SIGNAL(currentIndexChanged(int)), this, SLOT(updateColumn(int)));
 }
 
 SetColValuesDialog::~SetColValuesDialog()

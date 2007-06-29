@@ -710,8 +710,8 @@ void ApplicationWindow::initMainMenu()
 	view = new QMenu(this);
 	view->setFont(appFont);
 	view->setCheckable(true);
-	// TODO: Make separate windows for toolbars and docking windows
-	toolbarsMenu = createPopupMenu();
+	toolbarsMenu = createToolbarsMenu();
+	if(!toolbarsMenu) toolbarsMenu = new QMenu(this);
 	toolbarsMenu->setTitle(tr("Toolbars"));
 
 	view->addMenu(toolbarsMenu);
@@ -5369,6 +5369,7 @@ void ApplicationWindow::showColumnValuesDialog()
 	Table* w = (Table*)ws->activeWindow();
 	if ( w && w->isA("Table"))
 	{
+		if(w->numCols() == 0) return;
 		if (int(w->selectedColumns().count())>0 || !(w->getSelection().isEmpty()) )
 		{
 			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this,"valuesDialog",true);
@@ -12586,7 +12587,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 		if(fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) )
 			d_file_version = 100*(lst[0]).toInt()+10*(lst[1]).toInt()+(lst[2]).toInt();
 		else 
-			d_file_version = (lst[0]).toInt() << 16 + (lst[1]).toInt() << 8 + (lst[2]).toInt();
+			d_file_version = ((lst[0]).toInt() << 16) + ((lst[1]).toInt() << 8) + (lst[2]).toInt();
 
 		t.readLine();
 		if (d_file_version < 73)
@@ -13938,4 +13939,20 @@ ApplicationWindow * ApplicationWindow::loadScript(const QString& fn, bool execut
 	if (execute)
 		app->scriptWindow->executeAll();
 	return app;
+}
+
+QMenu * ApplicationWindow::createToolbarsMenu()
+{
+    QMenu *menu = 0;
+    QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+    if (toolbars.size())
+	{
+        menu = new QMenu(this);
+		foreach(QToolBar *toolbar, toolbars)
+		{
+            if (toolbar->parentWidget() == this)
+                menu->addAction(toolbar->toggleViewAction());
+        }
+    }
+    return menu;
 }

@@ -1025,6 +1025,8 @@ public:
 	QString defaultScriptingLang;
 
 private:
+	//! Create a menu for toggeling the toolbars
+	QMenu *createToolbarsMenu();
 
 	//! Workaround for the new colors introduced in rev 447
 	int convertOldToNewColorIndex(int cindex);

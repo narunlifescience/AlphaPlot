@@ -38,6 +38,7 @@
 #include "NonLinearFit.h"
 #include "SigmoidalFit.h"
 #include "Matrix.h"
+#include <muParserError.h>
 
 #include <QListWidget>
 #include <QTableWidget>
@@ -59,6 +60,8 @@
 #include <QLibrary>
 #include <QLocale>
 #include <stdio.h>
+
+#define CONFS(string) QString::number(QLocale().toDouble(string),'g',boxPrecision->value())
 
 FitDialog::FitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
 : QDialog( parent, name, modal, fl )
@@ -532,8 +535,8 @@ void FitDialog::activateCurve(const QString& curveName)
 
 	double start, end;
     graph->range(graph->curveIndex(curveName), &start, &end);
-    boxFrom->setText(QString::number(QMIN(start, end), 'g', 15));
-    boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
+    boxFrom->setText(QLocale().toString(QMIN(start, end), 'g', 15));
+    boxTo->setText(QLocale().toString(QMAX(start, end), 'g', 15));
 };
 
 void FitDialog::saveUserFunction()
@@ -1045,7 +1048,7 @@ void FitDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(from.ascii());
+		parser.SetExpr(CONFS(from).ascii());
 		start=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1058,7 +1061,7 @@ void FitDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(to.ascii());
+		parser.SetExpr(CONFS(to).ascii());
 		end=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1079,7 +1082,7 @@ void FitDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(tolerance.ascii());
+		parser.SetExpr(CONFS(tolerance).ascii());
 		eps=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1153,8 +1156,7 @@ void FitDialog::accept()
 				}
 				else
 					formula.replace(boxParams->item(i,0)->text(), 
-						QString::number(QLocale().toDouble(boxParams->item(i,1)->text()), 
-						'g', boxPrecision->value()));
+						CONFS(boxParams->item(i,1)->text()) );
 			}
 		}
 		else
@@ -1174,8 +1176,12 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QString errorMsg = boxFunction->text() + " = " + formula + "\n" + QString::fromStdString(e.GetMsg()) + "\n" +
-			tr("Please verify that you have initialized all the parameters!");
+		QString errorMsg = boxFunction->text() + " = " + formula + "\n" + QString::fromStdString(e.GetMsg()) + "\n";
+		
+		if(e.GetCode() == ecUNEXPECTED_COMMA)
+			errorMsg += tr("You have to use a dot as decimal separator in formulas.");
+		else
+			errorMsg += tr("Please verify that you have initialized all the parameters!");
 
 		QMessageBox::critical(0, tr("SciDAVis - Input function error"), errorMsg);
 		boxFunction->setFocus();
@@ -1324,12 +1330,12 @@ bool FitDialog::validInitialValues()
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(QString::number(QLocale().toDouble(boxParams->item(i,1)->text())).ascii());
+			parser.SetExpr(CONFS(boxParams->item(i,1)->text()).ascii());
 			parser.Eval();
 		}
 		catch (mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
 			boxParams->setCurrentCell (i,1);
 			return false;
 		}

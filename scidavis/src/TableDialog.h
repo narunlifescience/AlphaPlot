@@ -50,6 +50,7 @@ public:
 private slots:
 	void prevColumn();
 	void nextColumn();
+	void selectColumn(int sc);
 	void updateColumn(int);
 	void changeColWidth(int width);
 	void showPrecisionBox(int item);
@@ -80,6 +81,7 @@ private:
 	QPushButton* buttonApply;
 	QPushButton* buttonPrev;
 	QPushButton* buttonNext;
+    QComboBox* boxSelectColumn;
     QLineEdit* colName;
     QCheckBox* enumerateAllBox;
     QCheckBox* applyToRightCols;

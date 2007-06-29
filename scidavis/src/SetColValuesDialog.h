@@ -61,6 +61,7 @@ public:
 
     QComboBox* functions;
     QComboBox* boxColumn;
+    QComboBox* boxSelectColumn;
     QPushButton* btnAddFunction; 
     QPushButton* btnAddCol;
     QPushButton* btnOk;
@@ -88,7 +89,7 @@ public slots:
 	void updateColumn(int sc);
 
 private:
-	Table* table;
+	Table* d_table;
 };
 
 #endif //
