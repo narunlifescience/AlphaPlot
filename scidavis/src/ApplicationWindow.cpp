@@ -138,8 +138,6 @@
 #include <QUrl>
 #include <QAssistantClient>
 
-#include <QtDebug>
-
 #include <zlib.h>
 
 #include <iostream>
@@ -3459,12 +3457,6 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 	else 
 		d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
 
-    qDebug() << "vl =" << vl;
-	qDebug() << ((vl[0]).toInt() << 16);
-	qDebug() << ((vl[1]).toInt() << 8);
-	qDebug() << (vl[2]).toInt();
-	qDebug() << "d_file_version =" << d_file_version;
-	
 	ApplicationWindow* app = openProject(fname);
 
 	f.close();
@@ -3571,7 +3563,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	while ( !t.atEnd() && !progress.wasCanceled())
 	{
 		s = t.readLine();
-		qDebug() << "openProject(): parsing data line:" << s;
 		list.clear();
 		if  (s.left(8) == "<folder>")
 		{
@@ -3673,7 +3664,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 	while ( !t.atEnd() && !progress.wasCanceled())
 	{
 		s=t.readLine();
-		qDebug() << "openProject(): parsing plot line:" << s;
 		if  (s.left(8) == "<folder>")
 		{
 			list = s.split("\t");
@@ -3913,12 +3903,6 @@ void ApplicationWindow::openTemplate()
 			}
 			else 
 				d_file_version = ((vl[0]).toInt() << 16) + ((vl[1]).toInt() << 8) + (vl[2]).toInt();
-
-    		qDebug() << "vl =" << vl;
-			qDebug() << ((vl[0]).toInt() << 16);
-			qDebug() << ((vl[1]).toInt() << 8);
-			qDebug() << (vl[2]).toInt();
-			qDebug() << "d_file_version =" << d_file_version;
 
 			QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 			MyWidget *w = 0;
@@ -10098,9 +10082,12 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				QwtPlotCurve *c = ag->curve(curveID);
 				if (c)
 				{
-					c->setAxis(curve[current_index].toInt(), curve[current_index+1].toInt());
-					if (d_file_version >= 90)
+					if(current_index+1 < curve.size())
+						c->setAxis(curve[current_index].toInt(), curve[current_index+1].toInt());
+					if(d_file_version >= 90 && current_index+2 < curve.size())
 						c->setVisible(curve.last().toInt());
+					else
+						c->setVisible(true);
 				}
 
 			}
