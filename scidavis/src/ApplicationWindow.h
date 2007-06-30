@@ -539,7 +539,7 @@ public slots:
 	void convolute();
 	void deconvolute();
 	void clearTable();
-	void goToRow();
+	void goToCell();
 	//@}
 
 	//! \name Plot Tools
@@ -1099,7 +1099,7 @@ private:
 	QAction *actionHelpForums, *actionHelpBugReports;
 	QAction *actionShowPlotDialog, *actionShowScaleDialog, *actionOpenTemplate, *actionSaveTemplate;
 	QAction *actionNextWindow, *actionPrevWindow;
-	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToRow;
+	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToCell;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
 	QAction *actionShowScriptWindow;
 	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;

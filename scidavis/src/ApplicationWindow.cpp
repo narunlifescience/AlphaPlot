@@ -705,6 +705,10 @@ void ApplicationWindow::initMainMenu()
 	edit->addAction(actionDeleteFitTables);
 	edit->addAction(actionClearLogInfo);
 
+	edit->insertSeparator();
+	
+	edit->addAction(actionShowConfigureDialog);
+
 	view = new QMenu(this);
 	view->setFont(appFont);
 	view->setCheckable(true);
@@ -720,7 +724,6 @@ void ApplicationWindow::initMainMenu()
 #ifdef SCRIPTING_CONSOLE
 	view->addAction(actionShowConsole);
 #endif
-	view->addAction(actionShowConfigureDialog);
 
 	graph = new QMenu(this);
 	graph->setFont(appFont);
@@ -777,7 +780,7 @@ void ApplicationWindow::initMainMenu()
 	matrixMenu->addAction(actionMatrixDeterminant);
 
 	matrixMenu->insertSeparator();
-	matrixMenu->addAction(actionGoToRow);
+	matrixMenu->addAction(actionGoToCell);
 	matrixMenu->insertSeparator();
 	matrixMenu->addAction(actionConvertMatrix);
 
@@ -913,9 +916,8 @@ void ApplicationWindow::initTableMenu()
 	tableMenu->insertSeparator();
 	tableMenu->addAction(actionAddColToTable);
 	tableMenu->addAction(actionShowColsDialog);
-	tableMenu->insertSeparator();
 	tableMenu->addAction(actionShowRowsDialog);
-	tableMenu->addAction(actionGoToRow);
+	tableMenu->addAction(actionGoToCell);
 	tableMenu->insertSeparator();
 	tableMenu->addAction(actionConvertTable);
 }
@@ -8541,7 +8543,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 		cm.addAction(actionAddColToTable);
 		cm.addAction(actionClearTable);
 		cm.insertSeparator();
-		cm.addAction(actionGoToRow);
+		cm.addAction(actionGoToCell);
 	}
 	cm.exec(QCursor::pos());
 }
@@ -11072,9 +11074,9 @@ void ApplicationWindow::createActions()
 	actionAddColToTable = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("Add Column"), this);
 	connect(actionAddColToTable, SIGNAL(activated()), this, SLOT(addColToTable()));
 
-	actionGoToRow = new QAction(tr("&Go to Row..."), this);
-	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));
-	connect(actionGoToRow, SIGNAL(activated()), this, SLOT(goToRow()));
+	actionGoToCell = new QAction(tr("&Go to Cell..."), this);
+	actionGoToCell->setShortcut(tr("Ctrl+Alt+G"));
+	connect(actionGoToCell, SIGNAL(activated()), this, SLOT(goToCell()));
 
 	actionClearTable = new QAction(QPixmap(":/erase.xpm"), tr("Clear"), this);
 	connect(actionClearTable, SIGNAL(activated()), this, SLOT(clearTable()));
@@ -11611,8 +11613,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionAddColToTable->setToolTip(tr("Add Column"));
 
 	actionClearTable->setMenuText(tr("Clear"));
-	actionGoToRow->setMenuText(tr("&Go to Row..."));
-	actionGoToRow->setShortcut(tr("Ctrl+Alt+G"));
+	actionGoToCell->setMenuText(tr("&Go to Cell..."));
+	actionGoToCell->setShortcut(tr("Ctrl+Alt+G"));
 
 	actionDeleteLayer->setMenuText(tr("&Remove Layer"));
 	actionDeleteLayer->setShortcut(tr("Alt+R"));
@@ -13787,24 +13789,38 @@ void ApplicationWindow::clearTable()
 		t->clear();
 }
 
-void ApplicationWindow::goToRow()
+void ApplicationWindow::goToCell()
 {
 	if (!ws->activeWindow())
 		return;
+	int num_rows, num_cols;
+	bool ok;
 
-	if (ws->activeWindow()->isA("Table") || ws->activeWindow()->isA("Matrix"))
+	if (ws->activeWindow()->isA("Table"))
 	{
-		bool ok;
-		int row = QInputDialog::getInteger(tr("SciDAVis - Enter row number"), tr("Row"),
-				1, 0, 1000000, 1, &ok, this );
-		if ( !ok )
-			return;
-
-		if (ws->activeWindow()->isA("Table"))
-			((Table *)ws->activeWindow())->goToRow(row);
-		else if (ws->activeWindow()->isA("Matrix"))
-			((Matrix *)ws->activeWindow())->goToRow(row);
+		num_rows = ((Table *)ws->activeWindow())->numRows();
+		num_cols = ((Table *)ws->activeWindow())->numCols();
 	}
+	else if (ws->activeWindow()->isA("Matrix")) 
+	{
+		num_rows = ((Matrix *)ws->activeWindow())->numRows();
+		num_cols = ((Matrix *)ws->activeWindow())->numCols();
+	}
+	else return;
+
+	int row = QInputDialog::getInteger(tr("Go to Cell"), tr("Enter row"),
+			1, 1, num_rows, 1, &ok, this );
+	if ( !ok )
+		return;
+	int col = QInputDialog::getInteger(tr("Go to Cell"), tr("Enter column"),
+			1, 1, num_cols, 1, &ok, this );
+	if ( !ok )
+		return;
+
+	if (ws->activeWindow()->isA("Table"))
+		((Table *)ws->activeWindow())->goToCell(row-1, col-1);
+	else if (ws->activeWindow()->isA("Matrix"))
+		((Matrix *)ws->activeWindow())->goToCell(row-1, col-1);
 }
 
 void ApplicationWindow::showScriptWindow()

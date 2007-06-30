@@ -1122,20 +1122,20 @@ void Matrix::freeMatrixData(double **data, int rows)
 	delete [] data;
 }
 
-// TODO: in a matrix goToCell would make more sense since rows and columns are equally important
-void Matrix::goToRow(int row)
+void Matrix::goToCell(int row, int col)
 {
-	if( (row < 1) || (row > numRows()) ) return;
+	if( (row < 0) || (row >= numRows()) ) return;
+	if( (col < 0) || (col >= numCols()) ) return;
 
-	QTableWidgetItem * the_item = d_table->item(row-1, 0);
+	QTableWidgetItem * the_item = d_table->item(row, col);
 	if(!the_item)
 	{
 		the_item = new QTableWidgetItem("");
-		d_table->setItem(row-1, 0, the_item);
+		d_table->setItem(row, col, the_item);
 	}
 
 	d_table->scrollToItem(the_item);
-	d_table->selectRow(row-1);
+	d_table->setCurrentCell(row, col);
 }
 
 void Matrix::updateDecimalSeparators()

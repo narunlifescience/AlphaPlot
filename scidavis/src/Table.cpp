@@ -3180,12 +3180,13 @@ void Table::clear()
 	emit modifiedWindow(this);
 }
 
-void Table::goToRow(int row)
+void Table::goToCell(int row, int col)
 {
-	if( (row < 1) || (row > numRows()) ) return;
+	if( (row < 0) || (row >= numRows()) ) return;
+	if( (col < 0) || (col >= numCols()) ) return;
 
-	d_table->ensureCellVisible ( row-1, 0 );
-	d_table->selectRow(row-1);
+	d_table->ensureCellVisible ( row, col );
+	d_table->setCurrentCell( row, col );
 }
 
 void Table::setColumnHeader(int index, const QString& label)

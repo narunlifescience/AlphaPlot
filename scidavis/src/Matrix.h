@@ -257,8 +257,8 @@ public slots:
 	//! Return a pointer to the QTableWidget
 	QTableWidget* table(){return d_table;};
 
-	//! Scroll to row (row starts with 1)
-	void goToRow(int row);
+	//! Scroll to cell
+	void goToCell(int row, int col);
 
 	//! Allocate memory for a matrix buffer
 	static double** allocateMatrixData(int rows, int columns);
