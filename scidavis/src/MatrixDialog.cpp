@@ -36,11 +36,11 @@
 #include <QGroupBox>
 #include <QSpinBox>
 
-MatrixDialog::MatrixDialog( QWidget* parent, Qt::WFlags fl )
+MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
     : QDialog( parent, fl ),
-    d_matrix(0)
+    d_matrix(matrix)
 {
-    setWindowTitle( tr( "SciDAVis - Matrix Properties" ) );
+    setWindowTitle( tr( "Matrix Properties" ) );
 
 	QGridLayout * topLayout = new QGridLayout();
 	QHBoxLayout * bottomLayout = new QHBoxLayout();
@@ -58,16 +58,10 @@ MatrixDialog::MatrixDialog( QWidget* parent, Qt::WFlags fl )
 
 	topLayout->addWidget( boxFormat, 1, 1 );
 
-	topLayout->addWidget( new QLabel( tr( "Numeric Display" )), 2, 0 );
-	boxNumericDisplay = new QComboBox();
-    boxNumericDisplay->addItem( tr( "Default Decimal Digits" ) );
-	boxNumericDisplay->addItem( tr( "Significant Digits=" ) );
-
-	topLayout->addWidget( boxNumericDisplay, 2, 1 );
+	topLayout->addWidget( new QLabel( tr( "Decimal digits" )), 2, 0 );
 	boxPrecision = new QSpinBox();
-	boxPrecision->setRange(0,100);
-	boxPrecision->setEnabled( false );
-	topLayout->addWidget( boxPrecision, 2, 2 );
+	boxPrecision->setRange(0,16);
+	topLayout->addWidget( boxPrecision, 2, 1 );
 
 	buttonApply = new QPushButton(tr( "&Apply" ));
 	buttonApply->setAutoDefault( true );
@@ -86,61 +80,44 @@ MatrixDialog::MatrixDialog( QWidget* parent, Qt::WFlags fl )
 	mainLayout->addLayout(topLayout);
 	mainLayout->addLayout(bottomLayout);
 
+	d_initial_col_width = matrix->columnsWidth();
+    boxColWidth->setValue(matrix->columnsWidth());
+
+    if (matrix->textFormat() == 'f')
+		boxFormat->setCurrentIndex(0);
+	else
+		boxFormat->setCurrentIndex(1);
+
+	boxPrecision->setValue(matrix->precision());
+
+    matrix->saveCellsToMemory();
+	
 	// signals and slots connections
+    connect(boxColWidth, SIGNAL(valueChanged(int)), d_matrix, SLOT(setColumnsWidth(int)));
 	connect( buttonApply, SIGNAL( clicked() ), this, SLOT( apply() ) );
 	connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( close() ) );
-	connect( boxNumericDisplay, SIGNAL( activated(int) ), this, SLOT( showPrecisionBox(int) ) );
-	connect( boxPrecision, SIGNAL( valueChanged(int) ), this, SLOT( changePrecision(int) ) );
+	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( cancel() ) );
 }
 
 void MatrixDialog::changePrecision(int precision)
 {
-    if (boxFormat->currentIndex())
+    if (boxFormat->currentIndex() == 1)
 		d_matrix->setNumericFormat('e', precision);
 	else
 		d_matrix->setNumericFormat('f', precision);
-}
-
-void MatrixDialog::showPrecisionBox(int item)
-{
-	if (item)
-		boxPrecision->setEnabled( true );
-	else
-	{
-		boxPrecision->setValue(6);
-		boxPrecision->setEnabled( false );
-	}
 }
 
 void MatrixDialog::apply()
 {
 	d_matrix->setColumnsWidth(boxColWidth->value());
     changePrecision(boxPrecision->value());
+	d_initial_col_width = d_matrix->columnsWidth();
 }
 
-void MatrixDialog::setMatrix(Matrix *m)
+void MatrixDialog::cancel()
 {
-    if (!m)
-        return;
-
-    d_matrix = m;
-    boxColWidth->setValue(m->columnsWidth());
-
-    if (QString(m->textFormat()) == "f")
-		boxFormat->setCurrentIndex(0);
-	else
-		boxFormat->setCurrentIndex(1);
-
-	boxPrecision->setValue(m->precision());
-	if (m->precision() != 6)
-	{
-		boxPrecision->setEnabled( true );
-		boxNumericDisplay->setCurrentIndex(1);
-	}
-
-    connect(boxColWidth, SIGNAL(valueChanged(int)), d_matrix, SLOT(setColumnsWidth(int)));
-    m->saveCellsToMemory();
+    d_matrix->setColumnsWidth(d_initial_col_width);
+	close();
 }
 
 void MatrixDialog::accept()
@@ -151,7 +128,6 @@ void MatrixDialog::accept()
 
 void MatrixDialog::closeEvent(QCloseEvent* e)
 {
-    if (d_matrix)
-        d_matrix->forgetSavedCells();
+    d_matrix->forgetSavedCells();
     e->accept();
 }

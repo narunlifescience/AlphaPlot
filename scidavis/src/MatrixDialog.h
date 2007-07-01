@@ -44,31 +44,33 @@ class MatrixDialog : public QDialog
 public:
 	//! Constructor
 	/**
+	 * \param matrix associated matrix
 	 * \param parent parent widget
 	 * \param fl window flags
 	 */
-    MatrixDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    void setMatrix(Matrix *m);
+    MatrixDialog( Matrix * matrix, QWidget* parent = 0, Qt::WFlags fl = 0 );
 
 private slots:
 	//! Accept changes and quit
 	void accept();
 	//! Apply changes
 	void apply();
-	//! Activate the numeric precision choice box
-	void showPrecisionBox(int item);
-	//! Change the numeric precision (emits changeTextFormat)
+	//! Cancel and close
+	void cancel();
+	//! Change the number of decimal digits
 	void changePrecision(int precision);
 
 private:
-    Matrix *d_matrix;
-
     void closeEvent(QCloseEvent*);
 
+    Matrix *d_matrix;
     QPushButton* buttonOk;
 	QPushButton* buttonCancel, *buttonApply;
 	QSpinBox* boxColWidth, *boxPrecision;
-	QComboBox *boxFormat, *boxNumericDisplay;
+	QComboBox *boxFormat;
+
+	//! saves the initial column width
+	int d_initial_col_width;
 };
 
 #endif // MATRIXDIALOG_H

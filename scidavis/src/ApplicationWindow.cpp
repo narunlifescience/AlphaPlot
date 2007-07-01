@@ -5774,11 +5774,10 @@ void ApplicationWindow::showMatrixDialog()
 {
 	if ( ws->activeWindow() && ws->activeWindow()->isA("Matrix"))
 	{
-		Matrix* w = (Matrix*)ws->activeWindow();
+		Matrix* matrix = (Matrix*)ws->activeWindow();
 
-		MatrixDialog* md = new MatrixDialog(this);
+		MatrixDialog* md = new MatrixDialog(matrix, this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
-		md->setMatrix (w);
 		md->exec();
 	}
 }
