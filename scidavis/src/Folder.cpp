@@ -231,9 +231,9 @@ FolderListItem::FolderListItem( FolderListItem *parent, Folder *f )
 void FolderListItem::setActive( bool o )
 {
     if ( o )
-		setPixmap(0, QPixmap(":/ folder_open.xpm") );
+		setPixmap(0, QPixmap(":/folder_open.xpm") );
     else
-		setPixmap(0, QPixmap(":/ folder_closed.xpm") );
+		setPixmap(0, QPixmap(":/folder_closed.xpm") );
 
 	setSelected(o);
 }
@@ -277,7 +277,7 @@ QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
 
 QPixmap pix;
 if (item->rtti() == FolderListItem::RTTI)
-	pix = QPixmap(":/ folder_closed.xpm");
+	pix = QPixmap(":/folder_closed.xpm");
 else
 	pix = *item->pixmap (0);
 

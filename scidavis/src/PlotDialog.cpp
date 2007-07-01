@@ -1057,7 +1057,7 @@ void PlotDialog::setMultiLayer(MultiLayer *ml)
 	boxPrintCrops->setChecked(d_ml->printCropmarksEnabled());
 
     QTreeWidgetItem *item = new QTreeWidgetItem(listBox, QStringList(ml->name()));
-    item->setIcon(0, QIcon(folder_open));
+    item->setIcon(0, QIcon(":/folder_open.xpm"));
     listBox->addTopLevelItem(item);
     listBox->setCurrentItem(item);
 
@@ -2301,9 +2301,9 @@ void PlotDialog::updateTreeWidgetItem(QTreeWidgetItem *item)
         return;
 
     if (item->isExpanded())
-        item->setIcon(0, QIcon(folder_open));
+        item->setIcon(0, QIcon(":/folder_open.xpm"));
     else
-        item->setIcon(0, QIcon(folder_closed));
+        item->setIcon(0, QIcon(":/folder_closed.xpm"));
 }
 
 void PlotDialog::updateBackgroundTransparency(int alpha)

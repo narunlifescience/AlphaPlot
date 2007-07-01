@@ -31,6 +31,7 @@
  ***************************************************************************/
 #include "Table.h"
 #include "SortDialog.h"
+#include "TableDialog.h"
 
 #include <QMessageBox>
 #include <QDateTime>
@@ -92,7 +93,7 @@ void Table::init(int rows, int cols)
 	connect(d_table->verticalHeader(), SIGNAL(indexChange ( int, int, int )),
 			this, SLOT(notifyChanges()));
 
-	QVBoxLayout* hlayout = new QVBoxLayout(this);
+	QHBoxLayout* hlayout = new QHBoxLayout(this);
 	hlayout->setMargin(0);
 	hlayout->addWidget(d_table);
 
@@ -624,13 +625,13 @@ void Table::enumerateRightCols(bool checked)
 	if (!checked)
 		return;
 
-	QString oldLabel=colLabel(selectedCol);
-	QStringList oldLabels=colNames();
-	QString caption=QString(this->name())+"_";
+	QString oldLabel = colLabel(selectedCol);
+	QStringList oldLabels = colNames();
+	QString caption = QString(this->name())+"_";
 	int n=1;
-	for (int i=selectedCol; i<(int)d_table->numCols(); i++)
+	for (int i=selectedCol; i<d_table->numCols(); i++)
 	{
-		QString newLabel=oldLabel+QString::number(n);
+		QString newLabel = oldLabel + QString::number(n);
 		commands.replaceInStrings("col(\""+colLabel(i)+"\")", "col(\""+newLabel+"\")");
 		setColName(i, newLabel);
 		emit changedColHeader(caption+oldLabels[i],colName(i));
