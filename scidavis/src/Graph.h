@@ -685,6 +685,7 @@ signals:
 		void modifiedGraph();
 		void hiddenPlot(QWidget*);
 
+		void showLayerButtonContextMenu();
 		void showContextMenu();
 		void showCurveContextMenu(int);
 		void showMarkerPopupMenu();

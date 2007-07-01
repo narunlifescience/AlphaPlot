@@ -8367,6 +8367,123 @@ void ApplicationWindow::showGraphContextMenu()
 	}
 }
 
+void ApplicationWindow::showLayerButtonContextMenu()
+{
+	QWidget* w = (QWidget*)ws->activeWindow();
+	if (!w)
+		return;
+
+	if (w->isA("MultiLayer"))
+	{
+		MultiLayer *plot=(MultiLayer*)w;
+		QMenu cm(this);
+		QMenu exports(this);
+		QMenu copy(this);
+		QMenu prints(this);
+		QMenu calcul(this);
+		QMenu smooth(this);
+		QMenu filter(this);
+		QMenu decay(this);
+		QMenu translate(this);
+		QMenu multiPeakMenu(this);
+
+		Graph* ag = (Graph*)plot->activeGraph();
+
+		cm.addAction(actionAddLayer);
+		cm.addAction(actionDeleteLayer);
+		cm.insertSeparator();
+
+		if (ag->isPiePlot())
+			cm.insertItem(tr("Re&move Pie Curve"),ag, SLOT(removePie()));
+		else
+		{
+			if (ag->visibleCurves() != ag->curves())
+			{
+				cm.addAction(actionShowAllCurves);
+				cm.insertSeparator();
+			}
+			cm.addAction(actionShowCurvesDialog);
+			cm.addAction(actionAddFunctionCurve);
+
+			translate.addAction(actionTranslateVert);
+			translate.addAction(actionTranslateHor);
+			calcul.insertItem(tr("&Translate"),&translate);
+			calcul.insertSeparator();
+
+			calcul.addAction(actionDifferentiate);
+			calcul.addAction(actionShowIntDialog);
+			calcul.insertSeparator();
+			smooth.addAction(actionSmoothSavGol);
+			smooth.addAction(actionSmoothFFT);
+			smooth.addAction(actionSmoothAverage);
+			calcul.insertItem(tr("&Smooth"), &smooth);
+
+			filter.addAction(actionLowPassFilter);
+			filter.addAction(actionHighPassFilter);
+			filter.addAction(actionBandPassFilter);
+			filter.addAction(actionBandBlockFilter);
+			calcul.insertItem(tr("&FFT Filter"),&filter);
+			calcul.insertSeparator();
+			calcul.addAction(actionInterpolate);
+			calcul.addAction(actionFFT);
+			calcul.insertSeparator();
+			calcul.addAction(actionFitLinear);
+			calcul.addAction(actionShowFitPolynomDialog);
+			calcul.insertSeparator();
+			decay.addAction(actionShowExpDecayDialog);
+			decay.addAction(actionShowTwoExpDecayDialog);
+			decay.addAction(actionShowExpDecay3Dialog);
+			calcul.insertItem(tr("Fit E&xponential Decay"), &decay);
+			calcul.addAction(actionFitExpGrowth);
+			calcul.addAction(actionFitSigmoidal);
+			calcul.addAction(actionFitGauss);
+			calcul.addAction(actionFitLorentz);
+
+			multiPeakMenu.addAction(actionMultiPeakGauss);
+			multiPeakMenu.addAction(actionMultiPeakLorentz);
+			calcul.insertItem(tr("Fit &Multi-Peak"), &multiPeakMenu);
+			calcul.insertSeparator();
+			calcul.addAction(actionShowFitDialog);
+			cm.insertItem(tr("Anal&yze"), &calcul);
+		}
+
+		if (copiedLayer)
+		{
+			cm.insertSeparator();
+			cm.insertItem(QPixmap(":/paste.xpm"), tr("&Paste Layer"),this, SLOT(pasteSelection()));
+		}
+		else if (copiedMarkerType >=0 )
+		{
+			cm.insertSeparator();
+			if (copiedMarkerType == Graph::Text )
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Text"),plot, SIGNAL(pasteMarker()));
+			else if (copiedMarkerType == Graph::Arrow )
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Line/Arrow"),plot, SIGNAL(pasteMarker()));
+			else if (copiedMarkerType == Graph::Image )
+				cm.insertItem(QPixmap(":/paste.xpm"),tr("&Paste Image"),plot, SIGNAL(pasteMarker()));
+		}
+		cm.insertSeparator();
+		copy.insertItem(tr("&Layer"), this, SLOT(copyActiveLayer()));
+		copy.insertItem(tr("&Window"),plot, SLOT(copyAllLayers()));
+		cm.insertItem(QPixmap(":/copy.xpm"),tr("&Copy"), &copy);
+
+		exports.insertItem(tr("&Layer"), this, SLOT(exportLayer()));
+		exports.insertItem(tr("&Window"), this, SLOT(exportGraph()));
+		cm.insertItem(tr("E&xport"),&exports);
+
+		prints.insertItem(tr("&Layer"), plot, SLOT(printActiveLayer()));
+		prints.insertItem(tr("&Window"),plot, SLOT(print()));
+		cm.insertItem(QPixmap(":/fileprint.xpm"),tr("&Print"),&prints);
+		cm.insertSeparator();
+		cm.insertItem(QPixmap(":/resize.xpm"), tr("&Geometry..."), plot, SIGNAL(showGeometryDialog()));
+		cm.insertItem(tr("P&roperties..."), this, SLOT(showGeneralPlotDialog()));
+		cm.insertSeparator();
+		cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Layer"), plot, SLOT(confirmRemoveLayer()));
+		cm.exec(QCursor::pos());
+		
+	}
+}
+
 void ApplicationWindow::showWindowContextMenu()
 {
 	QWidget* w = (QWidget*)ws->activeWindow();
@@ -8385,7 +8502,6 @@ void ApplicationWindow::showWindowContextMenu()
 		}
 
 		cm.addAction(actionAddLayer);
-		cm.insertSeparator();
 		if (g->layers() != 0)
 		{
 			cm.addAction(actionDeleteLayer);
@@ -8394,6 +8510,7 @@ void ApplicationWindow::showWindowContextMenu()
 			cm.addAction(actionShowLayerDialog);
 			cm.insertSeparator();
 		}
+		else cm.insertSeparator();
 		cm.addAction(actionRename);
 		cm.addAction(actionCopyWindow);
 		cm.insertSeparator();
@@ -10630,6 +10747,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(showGeometryDialog()),this,SLOT(showPlotGeometryDialog()));
 	connect (g,SIGNAL(pasteMarker()),this,SLOT(pasteSelection()));
 	connect (g,SIGNAL(showGraphContextMenu()),this,SLOT(showGraphContextMenu()));
+	connect (g,SIGNAL(showLayerButtonContextMenu()),this,SLOT(showLayerButtonContextMenu()));
 	connect (g,SIGNAL(createIntensityTable(const QString&)),this,SLOT(importImage(const QString&)));
 	connect (g, SIGNAL(setPointerCursor()),this, SLOT(pickPointerCursor()));
 

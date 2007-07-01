@@ -633,6 +633,7 @@ public slots:
 	void showColumnValuesDialog();
 
 	void showGraphContextMenu();
+	void showLayerButtonContextMenu();
 	void showTableContextMenu(bool selection);
 	void showWindowContextMenu();
 	void showWindowTitleBarMenu();

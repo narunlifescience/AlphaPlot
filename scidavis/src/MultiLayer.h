@@ -190,6 +190,7 @@ signals:
 	void showAxisDialog(int);
 	void showScaleDialog(int);
 	void showGraphContextMenu();
+	void showLayerButtonContextMenu();
 	void showCurveContextMenu(int);
 	void showWindowContextMenu();
 	void showCurvesDialog();
@@ -259,6 +260,7 @@ protected:
 signals:
 	void showCurvesDialog();
 	void clicked(LayerButton*);
+	void showContextMenu();
 };
 
 #endif
