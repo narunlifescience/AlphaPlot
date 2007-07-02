@@ -111,9 +111,9 @@ protected:
     QComboBox* boxScaleType;
     QComboBox* boxMinorValue;
     QLineEdit* boxStep;
-    QCheckBox* btnStep, *btnInvert;
+    QCheckBox *btnInvert;
     QSpinBox* boxMajorValue;
-    QCheckBox* btnMajor;
+    QRadioButton *btnStep, *btnMajor;
     QListWidget* axesList;
     QWidget* gridPage;
     QCheckBox* boxMajorGrid;
@@ -156,8 +156,6 @@ public slots:
 	void updateTitleBox(int axis);
 	bool updatePlot();
 	void updateScale();
-	void stepEnabled();
-	void stepDisabled();
 	void majorGridEnabled(bool on);
 	void minorGridEnabled(bool on);
 	GridOptions getGridOptions();

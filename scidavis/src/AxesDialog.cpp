@@ -51,6 +51,7 @@
 #include <QListWidget>
 #include <QVector>
 #include <QGroupBox>
+#include <QRadioButton>
 
 #include <qwt_plot.h>
 #include <qwt_scale_widget.h>
@@ -144,7 +145,7 @@ void AxesDialog::initScalesPage()
 		QWidget * stepWidget = new QWidget();
 		QVBoxLayout * stepWidgetLayout = new QVBoxLayout( stepWidget );
 
-		btnStep = new QCheckBox();
+		btnStep = new QRadioButton(rightBox);
 		btnStep->setText( tr( "Step" ) );
 		btnStep->setChecked(true);
 		rightLayout->addWidget( btnStep, 0, 0 );
@@ -157,7 +158,7 @@ void AxesDialog::initScalesPage()
 
 		rightLayout->addWidget( stepWidget, 0, 1 );
 
-		btnMajor = new QCheckBox();
+		btnMajor = new QRadioButton(rightBox);
 		btnMajor->setText( tr( "Major Ticks" ) );
 		rightLayout->addWidget( btnMajor, 1, 0);
 
@@ -210,8 +211,10 @@ void AxesDialog::initScalesPage()
 		connect(btnInvert,SIGNAL(clicked()), this, SLOT(updatePlot()));
 		connect(axesList,SIGNAL(currentRowChanged(int)), this, SLOT(updateScale()));
 		connect(boxScaleType,SIGNAL(activated(int)), this, SLOT(updateMinorTicksList(int)));
-		connect(btnStep,SIGNAL(clicked()), this, SLOT(stepEnabled()));
-		connect(btnMajor,SIGNAL(clicked()), this, SLOT(stepDisabled()));
+
+		connect(btnStep, SIGNAL(toggled(bool)), boxStep, SLOT(setEnabled(bool)));
+		connect(btnStep, SIGNAL(toggled(bool)), boxUnit, SLOT(setEnabled(bool)));
+		connect(btnMajor, SIGNAL(toggled(bool)), boxMajorValue, SLOT(setEnabled(bool)));
 }
 
 void AxesDialog::initGridPage()
@@ -1025,22 +1028,6 @@ void AxesDialog::minorGridEnabled(bool on)
 		d_graph->setGridOptions(getGridOptions());
 	    d_graph->replot();
 		}
-}
-
-void AxesDialog::stepEnabled()
-{
-	boxStep->setEnabled(btnStep->isChecked ());
-	boxUnit->setEnabled(btnStep->isChecked ());
-	boxMajorValue->setDisabled(btnStep->isChecked ());
-	btnMajor->setChecked(!btnStep->isChecked ());
-}
-
-void AxesDialog::stepDisabled()
-{
-	boxStep->setDisabled(btnMajor->isChecked ());
-	boxUnit->setDisabled(btnMajor->isChecked ());
-	boxMajorValue->setEnabled(btnMajor->isChecked ());
-	btnStep->setChecked(!btnMajor->isChecked ());
 }
 
 void AxesDialog::setGridOptions()

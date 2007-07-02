@@ -2054,7 +2054,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 	setListViewLabel(plot->name(), fn);
 
 	plot->showNormal();
-	Graph *g = plot->addLayer(0, 0, plot->width(), plot->height()-20);
+	Graph *g = plot->addLayer(0, 0, plot->width(), plot->height());
 
 	g->setTitle("");
 	QVector<bool> axesOn(4);
@@ -2062,6 +2062,7 @@ void ApplicationWindow::loadImage(const QString& fn)
 		axesOn[j]=false;
 	g->enableAxes(axesOn);
 	g->removeLegend();
+	g->setIgnoreResizeEvents(false);
 	g->addImage(fn);
 	QApplication::restoreOverrideCursor();
 }
