@@ -3374,6 +3374,7 @@ void ApplicationWindow::open()
 
 				if (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
 						fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
+						fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
 						fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogm",Qt::CaseInsensitive) ||
 						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
 				{
@@ -3389,6 +3390,7 @@ void ApplicationWindow::open()
 					if (a){
 						a->workingDir = workingDir;
 						if (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
+							fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
 							fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
                             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive))
                             this->close();
@@ -3419,10 +3421,12 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 		return plotFile(fn);
 
 	QString fname = fn;
+	bool compressed = false;
 	if ( fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive))
 	{//decompress using zlib
 		file_uncompress((char *)fname.ascii());
 		fname = fname.left(fname.size() - 3);
+		compressed = true;
 	}
 
 	QFile f(fname);
@@ -3461,7 +3465,15 @@ ApplicationWindow* ApplicationWindow::open(const QString& fn)
 
 	ApplicationWindow* app = openProject(fname);
 
+	app->recentProjects.remove(fn);
+	app->recentProjects.push_front(fn);
+	app->updateRecentProjectsList();
+
 	f.close();
+	if (compressed)
+	{// recompress the file after loading it
+		file_compress((char *)fname.ascii(), "wb9");
+	}
 	return app;
 }
 
@@ -3500,6 +3512,7 @@ void ApplicationWindow::openRecentProject(int index)
 		saveSettings();//the recent projects must be saved
 		ApplicationWindow * a = open (fn);
 		if (a && (fn.endsWith(".sciprj",Qt::CaseInsensitive) || fn.endsWith(".sciprj~",Qt::CaseInsensitive) ||
+			fn.endsWith(".sciprj.gz",Qt::CaseInsensitive) || fn.endsWith(".qti.gz",Qt::CaseInsensitive) ||
 			fn.endsWith(".qti",Qt::CaseInsensitive) || fn.endsWith(".qti~",Qt::CaseInsensitive) ||
             fn.endsWith(".opj",Qt::CaseInsensitive) || fn.endsWith(".ogg", Qt::CaseInsensitive)))
 			this->close();
@@ -3770,10 +3783,6 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 
 	QFileInfo fi2(f);
 	QString fileName = fi2.absFilePath();
-
-	app->recentProjects.remove(fileName);
-	app->recentProjects.push_front(fileName);
-	app->updateRecentProjectsList();
 
 	app->folders->setCurrentItem(cf->folderListItem());
 	app->folders->blockSignals (false);
@@ -4848,9 +4857,12 @@ void ApplicationWindow::saveProjectAs()
 		QFileInfo fi(fn);
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
-		if (!baseName.contains("."))
+		if (!baseName.endsWith(".sciprj") && !baseName.endsWith(".sciprj.gz"))
+		{
 			fn.append(".sciprj");
-
+			if (selectedFilter.contains(".gz"))
+				fn.append(".gz");
+		}
 		projectname = fn;
 		if (saveProject())
 		{
@@ -4863,9 +4875,12 @@ void ApplicationWindow::saveProjectAs()
 			FolderListItem *item = (FolderListItem *)folders->firstChild();
 			item->setText(0, baseName);
 			item->folder()->setName(baseName);
+			if (baseName.endsWith(".gz"))
+			{
+				fn = fn.left(fn.size() - 3);
+				file_compress((char *)fn.ascii(), "wb9");
+			}
 		}
-		if (selectedFilter.contains(".gz"))
-			file_compress((char *)fn.ascii(), "wb9");
 	}
 }
 
@@ -12972,11 +12987,19 @@ void ApplicationWindow::saveFolderAsProject(Folder *f)
 		QFileInfo fi(fn);
 		workingDir = fi.dirPath(true);
 		QString baseName = fi.fileName();
-		if (!baseName.contains("."))
+		if (!baseName.endsWith(".sciprj") && !baseName.endsWith(".sciprj.gz"))
+		{
 			fn.append(".sciprj");
+		}
+		bool compress = false;
+		if (fn.endsWith(".gz"))
+		{
+			fn = fn.left(fn.length() -3);
+			compress = true;
+		}
 
 		saveFolder(f, fn);
-		if (selectedFilter.contains(".gz"))
+		if (selectedFilter.contains(".gz") || compress)
 			file_compress((char *)fn.ascii(), "wb9");
 	}
 }
