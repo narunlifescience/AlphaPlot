@@ -707,7 +707,7 @@ ApplicationWindow *sipscidavis_app()
 %ModuleHeaderCode
 class ApplicationWindow;
 ApplicationWindow *sipscidavis_app();
-#define SIPQTI_APP(sipcppexpr)\
+#define SIPSCIDAVIS_APP(sipcppexpr)\
 ApplicationWindow *app = sipscidavis_app();\
 if (app) sipCpp = sipcppexpr;\
 else { sipCpp = NULL; }
@@ -723,11 +723,11 @@ public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, bool=false);
   ExponentialFit(Graph *, const QString&, bool=false) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipExponentialFit(app, a0, *a1, a2))
+  SIPSCIDAVIS_APP(new sipExponentialFit(app, a0, *a1, a2))
 %End
   ExponentialFit(Graph *, const QString&, double, double, bool=false) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipExponentialFit(app, a0, *a1, a2, a3, a4))
+  SIPSCIDAVIS_APP(new sipExponentialFit(app, a0, *a1, a2, a3, a4))
 %End
 };
 
@@ -741,11 +741,11 @@ public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   TwoExpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipTwoExpFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipTwoExpFit(app, a0, *a1))
 %End
   TwoExpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipTwoExpFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipTwoExpFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -759,11 +759,11 @@ public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   ThreeExpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipThreeExpFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipThreeExpFit(app, a0, *a1))
 %End
   ThreeExpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipThreeExpFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipThreeExpFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -777,11 +777,11 @@ public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   SigmoidalFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipSigmoidalFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipSigmoidalFit(app, a0, *a1))
 %End
   SigmoidalFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipSigmoidalFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipSigmoidalFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -795,11 +795,11 @@ public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   GaussAmpFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipGaussAmpFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipGaussAmpFit(app, a0, *a1))
 %End
   GaussAmpFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipGaussAmpFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipGaussAmpFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -813,11 +813,11 @@ public:
   NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   NonLinearFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipNonLinearFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipNonLinearFit(app, a0, *a1))
 %End
   NonLinearFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipNonLinearFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipNonLinearFit(app, a0, *a1, a2, a3))
 %End
   void setParametersList(...) /PyName=setParameters/;
 %MethodCode
@@ -844,11 +844,11 @@ public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   PluginFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipPluginFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipPluginFit(app, a0, *a1))
 %End
   PluginFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipPluginFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipPluginFit(app, a0, *a1, a2, a3))
 %End
   bool load(const QString&);
 };
@@ -882,11 +882,11 @@ public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   LorentzFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipLorentzFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipLorentzFit(app, a0, *a1))
 %End
   LorentzFit(Graph *, const QString&, int, int) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipLorentzFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipLorentzFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -900,11 +900,11 @@ public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   GaussFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipGaussFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipGaussFit(app, a0, *a1))
 %End
   GaussFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipGaussFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipGaussFit(app, a0, *a1, a2, a3))
 %End
 };
 
@@ -918,11 +918,11 @@ public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int, int, int=2, bool=false);
   PolynomialFit(Graph *, QString&, int=2, bool=false) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipPolynomialFit(app, a0, *a1, a2, a3))
 %End
   PolynomialFit(Graph *, QString&, int, int, int=2, bool=false) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
+  SIPSCIDAVIS_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
 
   virtual QString legendInfo();
@@ -942,11 +942,11 @@ public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   LinearFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipLinearFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipLinearFit(app, a0, *a1))
 %End
   LinearFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipLinearFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipLinearFit(app, a0, *a1, a2, a3))
 %End
   void fit();
 };
@@ -978,11 +978,11 @@ public:
   Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   Differentiation(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipDifferentiation(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipDifferentiation(app, a0, *a1))
 %End
   Differentiation(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipDifferentiation(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipDifferentiation(app, a0, *a1, a2, a3))
 %End
   bool run();
 };
@@ -997,11 +997,11 @@ public:
   Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
   Integration(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipIntegration(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipIntegration(app, a0, *a1))
 %End
   Integration(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipIntegration(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipIntegration(app, a0, *a1, a2, a3))
 %End
 
   void setMethodOrder(int n);
@@ -1020,11 +1020,11 @@ public:
   Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=0);
   Interpolation(Graph *, const QString&, int=0) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipInterpolation(app, a0, *a1, a2))
+  SIPSCIDAVIS_APP(new sipInterpolation(app, a0, *a1, a2))
 %End
   Interpolation(Graph *, const QString&, double, double, int=0) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipInterpolation(app, a0, *a1, a2, a3, a4))
+  SIPSCIDAVIS_APP(new sipInterpolation(app, a0, *a1, a2, a3, a4))
 %End
 
   void setMethod(int n);
@@ -1044,11 +1044,11 @@ public:
   SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=3);
   SmoothFilter(Graph *, const QString&, int=3) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipSmoothFilter(app, a0, *a1, a2))
+  SIPSCIDAVIS_APP(new sipSmoothFilter(app, a0, *a1, a2))
 %End
   SmoothFilter(Graph *, const QString&, double, double, int=3) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipSmoothFilter(app, a0, *a1, a2, a3, a4))
+  SIPSCIDAVIS_APP(new sipSmoothFilter(app, a0, *a1, a2, a3, a4))
 %End
 
   void setMethod(int);
@@ -1072,11 +1072,11 @@ public:
   FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=1);
   FFTFilter(Graph *, const QString&, int=1) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipFFTFilter(app, a0, *a1, a2))
+  SIPSCIDAVIS_APP(new sipFFTFilter(app, a0, *a1, a2))
 %End
   FFTFilter(Graph *, const QString&, double, double, int=1) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipFFTFilter(app, a0, *a1, a2, a3, a4))
+  SIPSCIDAVIS_APP(new sipFFTFilter(app, a0, *a1, a2, a3, a4))
 %End
 
   void setFilterType(int);
@@ -1100,11 +1100,11 @@ public:
   FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
   FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipFFT(app, a0, *a1, *a2))
+  SIPSCIDAVIS_APP(new sipFFT(app, a0, *a1, *a2))
 %End
   FFT(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipFFT(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipFFT(app, a0, *a1))
 %End
 
   void setInverseFFT(bool=true);
@@ -1125,7 +1125,7 @@ public:
   Correlation(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
   Correlation(Table *, const QString&, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipCorrelation(app, a0, *a1, *a2))
+  SIPSCIDAVIS_APP(new sipCorrelation(app, a0, *a1, *a2))
 %End
 
   void setDataFromTable(Table *, const QString&, const QString&);
@@ -1142,7 +1142,7 @@ public:
   Convolution(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
   Convolution(Table *, const QString&, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipConvolution(app, a0, *a1, *a2))
+  SIPSCIDAVIS_APP(new sipConvolution(app, a0, *a1, *a2))
 %End
 
   void setDataFromTable(Table *, const QString&, const QString&);
@@ -1159,7 +1159,7 @@ public:
   Deconvolution(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString&);
   Deconvolution(Table *, const QString&, const QString&) /NoDerived/;
 %MethodCode
-  SIPQTI_APP(new sipDeconvolution(app, a0, *a1, *a2))
+  SIPSCIDAVIS_APP(new sipDeconvolution(app, a0, *a1, *a2))
 %End
 
   void setDataFromTable(Table *, const QString&, const QString&);

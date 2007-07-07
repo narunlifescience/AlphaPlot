@@ -140,6 +140,7 @@ int main( int argc, char ** argv )
 		splash->show();
 		QTimer *timer = new QTimer(&app);
 		app.connect( timer, SIGNAL(timeout()), splash, SLOT(close()) );
+		app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
 		timer->start(5000);
 		ApplicationWindow *mw = new ApplicationWindow();
 		mw->applyUserSettings();
