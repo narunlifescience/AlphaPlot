@@ -338,7 +338,7 @@ bool PythonScripting::setQObject(QObject *val, const char *name, PyObject *dict)
 			// sipTypeDef.td_cname holds the C++ class name, but is NULL if that's the same as the Python class name.
 			// sipTypeDef.td_name OTOH always holds the Python class name, but prepended by the module name ("scidavis.")
 			if (((t=sipModuleAPI_scidavis.em_types[i]->type)->td_cname && !strcmp(val->className(),t->td_cname)) ||
-					(!t->td_cname && !strcmp(val->className(),t->td_name+4)))
+					(!t->td_cname && !strcmp(val->className(),t->td_name+9)))
 			{
 				pyobj=sipConvertFromInstance(val,sipModuleAPI_scidavis.em_types[i],NULL);
 				if (!pyobj) return false;
