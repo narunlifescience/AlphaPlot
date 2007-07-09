@@ -137,6 +137,7 @@
 #include <QList>
 #include <QUrl>
 #include <QAssistantClient>
+#include <QStatusBar>
 
 #include <zlib.h>
 
@@ -352,7 +353,6 @@ void ApplicationWindow::applyUserSettings()
 	cg.setColor(QColorGroup::Text, QColor(Qt::green) );
 	cg.setColor(QColorGroup::HighlightedText, QColor(Qt::darkGreen) );
 	cg.setColor(QColorGroup::Base, QColor(Qt::black) );
-	info->setPalette(QPalette(cg, cg, cg));
 }
 
 void ApplicationWindow::initToolBars()
@@ -548,17 +548,14 @@ void ApplicationWindow::initToolBars()
 	plotTools->hide();
 	tableTools->hide();
 
-	displayBar = new QToolBar( tr( "Data Display" ), this );
-    displayBar->setAllowedAreas( Qt::TopToolBarArea | Qt::BottomToolBarArea );
-	displayBar->setObjectName("displayBar"); // this is needed for QMainWindow::restoreState()
-	info = new QLineEdit( this );
-	displayBar->addWidget( info );
-	info->setReadOnly(true);
+	d_status_info = new QLabel( this  );
+	d_status_info->setFrameStyle( QFrame::Sunken | QFrame::StyledPanel );
+	d_status_info->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ); 
+	d_status_info->setContextMenuPolicy( Qt::CustomContextMenu );
+	connect(d_status_info, SIGNAL(customContextMenuRequested(const QPoint &)), 
+		this, SLOT(showStatusBarContextMenu(const QPoint &)) );
 
-	addToolBar( Qt::TopToolBarArea, displayBar );
-	displayBar->hide();
-
-    insertToolBarBreak (displayBar);
+	statusBar()->addWidget( d_status_info, 1 );
 
 	plotMatrixBar = new QToolBar( tr( "Matrix Plot" ), this);
 	plotMatrixBar->setObjectName("plotMatrixBar");
@@ -602,7 +599,6 @@ void ApplicationWindow::insertTranslatedStrings()
 #ifdef SCRIPTING_CONSOLE
 	consoleWindow->setWindowTitle(tr("Scripting Console"));
 #endif
-	displayBar->setLabel(tr("Data Display"));
 	tableTools->setLabel(tr("Table"));
 	plotTools->setLabel(tr("Plot"));
 	fileTools->setLabel(tr("File"));
@@ -3073,7 +3069,6 @@ void ApplicationWindow::updateAppFonts()
 	fillMenu->setFont(appFont);
 	setAsMenu->setFont(appFont);
 	multiPeakMenu->setFont(appFont);
-	info->setFont(QFont(appFont.family(),2+appFont.pointSize(),QFont::Bold,false));
 }
 
 void ApplicationWindow::updateConfirmOptions(bool askTables, bool askMatrices, bool askPlots2D,
@@ -6373,8 +6368,7 @@ void ApplicationWindow::removePoints()
 					tr("Continue"),tr("Cancel"),0,1))
 		{
 			case 0:
-				g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove, info, SLOT(setText(const QString&))));
-				displayBar->show();
+				g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Remove, d_status_info, SLOT(setText(const QString&))));
 				break;
 
 			case 1:
@@ -6417,8 +6411,7 @@ void ApplicationWindow::movePoints()
 		{
 			case 0:
 				if (g){
-					g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move, info, SLOT(setText(const QString&))));
-					displayBar->show();
+					g->setActiveTool(new DataPickerTool(g, this, DataPickerTool::Move, d_status_info, SLOT(setText(const QString&))));
 				}
 				break;
 
@@ -6824,9 +6817,8 @@ void ApplicationWindow::showScreenReader()
 
 	QWidgetList graphsList=plot->graphPtrs();
 	foreach(QWidget *w, graphsList)
-		((Graph *)w)->setActiveTool(new ScreenPickerTool((Graph*)w, info, SLOT(setText(const QString&))));
+		((Graph *)w)->setActiveTool(new ScreenPickerTool((Graph*)w, d_status_info, SLOT(setText(const QString&))));
 
-	displayBar->show();
 }
 
 void ApplicationWindow::showRangeSelectors()
@@ -6862,8 +6854,7 @@ void ApplicationWindow::showRangeSelectors()
 		return;
 	}
 
-	displayBar->show();
-	g->enableRangeSelectors(info, SLOT(setText(const QString&)));
+	g->enableRangeSelectors(d_status_info, SLOT(setText(const QString&)));
 }
 
 void ApplicationWindow::showCursor()
@@ -6893,9 +6884,8 @@ void ApplicationWindow::showCursor()
 	QWidgetList graphsList=plot->graphPtrs();
 	foreach(QWidget *w, graphsList)
 		if (!((Graph *)w)->isPiePlot() && ((Graph *)w)->validCurvesDataSize())
-			((Graph *)w)->setActiveTool(new DataPickerTool((Graph*)w, this, DataPickerTool::Display, info, SLOT(setText(const QString&))));
+			((Graph *)w)->setActiveTool(new DataPickerTool((Graph*)w, this, DataPickerTool::Display, d_status_info, SLOT(setText(const QString&))));
 
-	displayBar->show();
 }
 
 void ApplicationWindow::newLegend()
@@ -7223,11 +7213,6 @@ void ApplicationWindow::copySelection()
 	if(results->hasFocus())
 	{
 		results->copy();
-		return;
-	}
-	else if(info->hasFocus())
-	{
-		info->copy();
 		return;
 	}
 
@@ -10675,9 +10660,6 @@ void ApplicationWindow::pickPointerCursor()
 
 void ApplicationWindow::disableTools()
 {
-	if (displayBar->isVisible())
-		displayBar->hide();
-
 	QWidgetList *windows = windowsList();
 	foreach(QWidget *w, *windows)
 	{
@@ -10752,7 +10734,7 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(closedWindow(MyWidget*)),this, SLOT(closeWindow(MyWidget*)));
 	connect (g,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
 	connect (g,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
-	connect (g,SIGNAL(cursorInfo(const QString&)),info,SLOT(setText(const QString&)));
+	connect (g,SIGNAL(cursorInfo(const QString&)),d_status_info,SLOT(setText(const QString&)));
 	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
@@ -11445,6 +11427,9 @@ void ApplicationWindow::createActions()
 
 	actionEditFunction = new QAction(tr("&Edit Function..."), this);
 	connect(actionEditFunction, SIGNAL(activated()), this, SLOT(showFunctionDialog()));
+
+	actionCopyStatusBarText = new QAction(tr("&Copy status bar text"), this);
+	connect(actionCopyStatusBarText, SIGNAL(activated()), this, SLOT(copyStatusBarText()));
 }
 
 void ApplicationWindow::translateActionsStrings()
@@ -11453,6 +11438,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowCurveWorksheet->setMenuText(tr("&Worksheet"));
 	actionRemoveCurve->setMenuText(tr("&Delete"));
 	actionEditFunction->setMenuText(tr("&Edit Function..."));
+	actionCopyStatusBarText->setText(tr("&Copy status bar text"));
 
 	actionCurveFullRange->setMenuText(tr("&Reset to Full Range"));
 	actionEditCurveRange->setMenuText(tr("Edit &Range..."));
@@ -12206,8 +12192,7 @@ void ApplicationWindow::translateCurveHor()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal, info, SLOT(setText(const QString&))));
-		displayBar->show();
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Horizontal, d_status_info, SLOT(setText(const QString&))));
 	}
 }
 
@@ -12242,8 +12227,7 @@ void ApplicationWindow::translateCurveVert()
 	else if (g->validCurvesDataSize())
 	{
 		btnPointer->setChecked(true);
-		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Vertical, info, SLOT(setText(const QString&))));
-		displayBar->show();
+		g->setActiveTool(new TranslateCurveTool(g, this, TranslateCurveTool::Vertical, d_status_info, SLOT(setText(const QString&))));
 	}
 }
 
@@ -12362,8 +12346,7 @@ void ApplicationWindow::fitMultiPeak(int profile)
 				tr("Peaks"), 2, 2, 1000000, 1, &ok, this);
 		if (ok && peaks)
 		{
-			g->setActiveTool(new MultiPeakFitTool(g, this, (MultiPeakFit::PeakProfile)profile, peaks, info, SLOT(setText(const QString&))));
-			displayBar->show();
+			g->setActiveTool(new MultiPeakFitTool(g, this, (MultiPeakFit::PeakProfile)profile, peaks, d_status_info, SLOT(setText(const QString&))));
 		}
 	}
 }
@@ -14100,3 +14083,16 @@ QMenu * ApplicationWindow::createToolbarsMenu()
     }
     return menu;
 }
+
+void ApplicationWindow::copyStatusBarText()
+{
+	QApplication::clipboard()->setText(d_status_info->text());
+}
+
+void ApplicationWindow::showStatusBarContextMenu( const QPoint & pos )
+{
+	QMenu cm(this);
+	cm.addAction(actionCopyStatusBarText);
+	cm.exec(d_status_info->mapToGlobal(pos));
+}
+

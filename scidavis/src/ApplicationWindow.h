@@ -63,6 +63,7 @@ class QShortcut;
 class QMenu;
 class QToolBar;
 class QAssistantClient;
+class QStatusBar;
 
 class Matrix;
 class Table;
@@ -129,11 +130,11 @@ public:
 	QTextEdit *console;
 #endif
 	QWorkspace* ws;
-    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *displayBar, *editTools, *plotMatrixBar;
+    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *editTools, *plotMatrixBar;
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
-	QLineEdit *info;
+	QLabel *d_status_info;
 	QWidget *lastModified;
 
 public:
@@ -144,6 +145,10 @@ public:
 	QString generateUniqueName(const QString& name, bool increment = true);
 
 public slots:
+	//! Copy the status bar text to the clipboard
+	void copyStatusBarText();
+	//! Show the context menu for the status bar
+	void showStatusBarContextMenu( const QPoint & pos );
 	//! \name Projects and Project Files
 	//@{
 	void open();
@@ -1048,6 +1053,7 @@ private:
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	QMenu *scriptingMenu;
+	QAction *actionCopyStatusBarText;
 	QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves, *actionHideCurve, *actionHideOtherCurves;
 	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
     QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
