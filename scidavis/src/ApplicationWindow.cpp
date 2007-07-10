@@ -164,8 +164,6 @@ void ApplicationWindow::init()
 	initGlobalConstants();
 	QPixmapCache::setCacheLimit(20*QPixmapCache::cacheLimit ());
 
-	tablesDepend = new QMenu(this);
-
 	explorerWindow = new QDockWidget( this );
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	explorerWindow->setObjectName("explorerWindow"); // this is needed for QMainWindow::restoreState()
@@ -270,8 +268,6 @@ void ApplicationWindow::init()
 	actionPrevWindow = new QAction(QIcon(QPixmap(":/prev.xpm")), tr("&Previous","previous window"), this);
 	actionPrevWindow->setShortcut( tr("F6","previous window shortcut") );
 	connect(actionPrevWindow, SIGNAL(activated()), ws, SLOT(activatePreviousWindow()));
-
-	connect(tablesDepend, SIGNAL(activated(int)), this, SLOT(showTable(int)));
 
 	connect(this, SIGNAL(modified()),this, SLOT(modifiedProject()));
 	connect(ws, SIGNAL(windowActivated (QWidget*)),this, SLOT(windowActivated(QWidget*)));
@@ -2725,7 +2721,7 @@ QWidget* ApplicationWindow::window(const QString& name)
 {
 	QWidget* w = 0;
 	QWidgetList *windows = windowsList();
-	for (int i = 0; i < int(windows->count());i++ )
+	for (int i = 0; i < windows->count();i++ )
 	{
 		if (windows->at(i)->name() == name)
 		{
@@ -3061,7 +3057,6 @@ void ApplicationWindow::updateAppFonts()
 	filter->setFont(appFont);
 	decay->setFont(appFont);
 	plotDataMenu->setFont(appFont);
-	tablesDepend->setFont(appFont);
 	tableMenu->setFont(appFont);
 	exportPlot->setFont(appFont);
 	normMenu->setFont(appFont);
@@ -7555,16 +7550,6 @@ void ApplicationWindow::hideWindow(MyWidget* w)
 	emit modified();
 }
 
-void ApplicationWindow::hideWindow()
-{
-	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w = it->window();
-	if (!w)
-		return;
-
-	hideWindow(w);
-}
-
 void ApplicationWindow::resizeActiveWindow()
 {
 	QWidget *w = (QWidget *)ws->activeWindow();
@@ -7583,8 +7568,7 @@ void ApplicationWindow::resizeActiveWindow()
 
 void ApplicationWindow::resizeWindow()
 {
-	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w = it->window();
+	MyWidget *w = qobject_cast<MyWidget *>(ws->activeWindow());
 	if (!w)
 		return;
 
@@ -7639,13 +7623,18 @@ void ApplicationWindow::maximizeWindow(Q3ListViewItem * lbi)
 
 void ApplicationWindow::maximizeWindow()
 {
-	maximizeWindow(lv->currentItem());
+	MyWidget *w = qobject_cast<MyWidget *>(ws->activeWindow());
+	if (!w)
+		return;
+
+	updateWindowLists(w);
+	w->setMaximized();
+	emit modified();
 }
 
 void ApplicationWindow::minimizeWindow()
 {
-	WindowListItem *it = (WindowListItem *)lv->currentItem();
-	MyWidget *w= it->window();
+	MyWidget *w = qobject_cast<MyWidget *>(ws->activeWindow());
 	if (!w)
 		return;
 
@@ -8072,107 +8061,7 @@ void ApplicationWindow::showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p,
 	}
 
 	MyWidget *w= ((WindowListItem *)it)->window();
-	if (w)
-	{
-		QMenu cm(this);
-		QMenu plots(this);
-
-		cm.addAction(actionActivateWindow);
-		cm.addAction(actionMinimizeWindow);
-		cm.addAction(actionMaximizeWindow);
-		cm.insertSeparator();
-		if (!hidden(w))
-			cm.addAction(actionHideWindow);
-		cm.insertItem(QPixmap(":/close.xpm"), tr("&Delete Window"), w, SLOT(close()), Qt::Key_F8);
-		cm.insertSeparator();
-		cm.insertItem(tr("&Rename Window"), this, SLOT(renameWindow()), Qt::Key_F2);
-		cm.addAction(actionResizeWindow);
-		cm.insertSeparator();
-		cm.addAction(actionPrintWindow);
-		cm.insertSeparator();
-		cm.insertItem(tr("&Properties..."), this, SLOT(windowProperties()));
-
-		if (w->isA("Table"))
-		{
-			QStringList graphs = dependingPlots(w->name());
-			if (int(graphs.count())>0)
-			{
-				cm.insertSeparator();
-				for (int i=0;i<int(graphs.count());i++)
-					plots.insertItem(graphs[i], window(graphs[i]), SLOT(showMaximized()));
-
-				cm.insertItem(tr("D&epending Graphs"),&plots);
-			}
-		}
-		else if (w->isA("Matrix"))
-		{
-			QStringList graphs = depending3DPlots((Matrix*)w);
-			if (int(graphs.count())>0)
-			{
-				cm.insertSeparator();
-				for (int i=0;i<int(graphs.count());i++)
-					plots.insertItem(graphs[i], window(graphs[i]), SLOT(showMaximized()));
-
-				cm.insertItem(tr("D&epending 3D Graphs"),&plots);
-			}
-		}
-		else if (w->isA("MultiLayer"))
-		{
-			tablesDepend->clear();
-			QStringList tbls=multilayerDependencies(w);
-			int n = int(tbls.count());
-			if (n > 0)
-			{
-				cm.insertSeparator();
-				for (int i=0; i<n; i++)
-					tablesDepend->insertItem(tbls[i], i, -1);
-
-				cm.insertItem(tr("D&epends on"), tablesDepend);
-			}
-		}
-		else if (w->isA("Graph3D"))
-		{
-			Graph3D *sp=(Graph3D*)w;
-			Matrix *m = sp->matrix();
-			QString formula = sp->formula();
-			if (!formula.isEmpty())
-			{
-				cm.insertSeparator();
-				if (formula.contains("_"))
-				{
-					QStringList tl = formula.split("_", QString::SkipEmptyParts);
-					tablesDepend->clear();
-					tablesDepend->insertItem(tl[0], 0, -1);
-					cm.insertItem(tr("D&epends on"), tablesDepend);
-				}
-				else if (m)
-				{
-					plots.insertItem(m->name(), m, SLOT(showNormal()));
-					cm.insertItem(tr("D&epends on"),&plots);
-				}
-				else
-				{
-					plots.insertItem(formula, w, SLOT(showNormal()));
-					cm.insertItem(tr("Function"), &plots);
-				}
-			}
-		}
-		cm.exec(p);
-	}
-}
-
-void ApplicationWindow::showTable(int i)
-{
-	Table *t = table(tablesDepend->text(i));
-	if (!t)
-		return;
-
-	updateWindowLists(t);
-
-	t->showMaximized();
-	Q3ListViewItem *it=lv->findItem (t->name(), 0, Q3ListView::ExactMatch | Qt::CaseSensitive );
-	if (it)
-		it->setText(2,tr("Maximized"));
+	if (w) showWindowMenu(w);
 }
 
 void ApplicationWindow::showTable(const QString& curve)
@@ -8207,23 +8096,24 @@ QStringList ApplicationWindow::depending3DPlots(Matrix *m)
 	return plots;
 }
 
+// TODO: Implement this in an elegant way
 QStringList ApplicationWindow::dependingPlots(const QString& name)
 {
 	QWidgetList *windows = windowsList();
 	QStringList onPlot, plots;
 
-	for (int i=0; i<(int)windows->count(); i++)
+	for (int i=0; i<windows->count(); i++)
 	{
 		QWidget *w = windows->at(i);
 		if (w->isA("MultiLayer"))
 		{
-			QWidgetList lst= ((MultiLayer*)w)->graphPtrs();
+			QWidgetList lst = ((MultiLayer*)w)->graphPtrs();
 			foreach(QWidget *widget, lst)
 			{
 				Graph *g = (Graph *)widget;
 				onPlot = g->curvesList();
-				onPlot = onPlot.grep (name,TRUE);
-				if (int(onPlot.count()) && plots.contains(w->name())<=0)
+				onPlot = onPlot.grep(name, true);
+				if (onPlot.count() > 0 && plots.contains(w->name()) <= 0 )
 					plots << w->name();
 			}
 		}
@@ -8576,29 +8466,10 @@ void ApplicationWindow::showWindowContextMenu()
 
 void ApplicationWindow::showWindowTitleBarMenu()
 {
-	if (!ws->activeWindow())
+	if (!qobject_cast<MyWidget *>(ws->activeWindow()))
 		return;
 
-	QMenu cm(this);
-
-	if (ws->activeWindow()->isA("Table"))
-	{
-		cm.addAction(actionShowExportASCIIDialog);
-		cm.insertSeparator();
-	}
-
-	if (ws->activeWindow()->isA("Note"))
-		cm.addAction(actionSaveNote);
-	else
-		cm.addAction(actionSaveTemplate);
-	cm.addAction(actionPrint);
-	cm.insertSeparator();
-	cm.addAction(actionRename);
-	cm.addAction(actionCopyWindow);
-	cm.insertSeparator();
-	cm.addAction(actionHideActiveWindow);
-	cm.addAction(actionCloseWindow);
-	cm.exec(QCursor::pos());
+	showWindowMenu(qobject_cast<MyWidget *>(ws->activeWindow()));
 }
 
 void ApplicationWindow::showTableContextMenu(bool selection)
@@ -11233,9 +11104,6 @@ void ApplicationWindow::createActions()
 	actionMaximizeWindow = new QAction(tr("Ma&ximize Window"), this);
 	connect(actionMaximizeWindow, SIGNAL(activated()), this, SLOT(maximizeWindow()));
 
-	actionHideWindow = new QAction(tr("&Hide Window"), this);
-	connect(actionHideWindow, SIGNAL(activated()), this, SLOT(hideWindow()));
-
 	actionResizeWindow = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("Re&size Window..."), this);
 	connect(actionResizeWindow, SIGNAL(activated()), this, SLOT(resizeWindow()));
 
@@ -11749,7 +11617,6 @@ void ApplicationWindow::translateActionsStrings()
 	actionActivateWindow->setMenuText(tr("&Activate Window"));
 	actionMinimizeWindow->setMenuText(tr("Mi&nimize Window"));
 	actionMaximizeWindow->setMenuText(tr("Ma&ximize Window"));
-	actionHideWindow->setMenuText(tr("&Hide Window"));
 	actionResizeWindow->setMenuText(tr("Re&size Window..."));
 	actionPrintWindow->setMenuText(tr("&Print Window"));
 	actionShowPlotGeometryDialog->setMenuText(tr("&Layer Geometry"));
@@ -14096,3 +13963,108 @@ void ApplicationWindow::showStatusBarContextMenu( const QPoint & pos )
 	cm.exec(d_status_info->mapToGlobal(pos));
 }
 
+void ApplicationWindow::showWindowMenu(MyWidget * widget)
+{
+	ws->setActiveWindow(widget);
+
+	QMenu cm(this);
+	QMenu depend_menu(this);
+
+	if (widget->isA("Table"))
+		cm.addAction(actionShowExportASCIIDialog);
+	else if (widget->isA("Note"))
+		cm.addAction(actionSaveNote);
+	else
+		cm.addAction(actionSaveTemplate);
+	cm.addAction(actionPrint);
+	cm.addAction(actionCopyWindow);
+	cm.insertSeparator();
+	cm.addAction(actionRename);
+	cm.addAction(actionCloseWindow);
+	if (!hidden(widget))
+		cm.addAction(actionHideActiveWindow);
+	cm.addAction(actionActivateWindow);
+	cm.addAction(actionMinimizeWindow);
+	cm.addAction(actionMaximizeWindow);
+	cm.addAction(actionResizeWindow);
+	cm.insertSeparator();
+	cm.addAction(tr("&Properties..."), this, SLOT(windowProperties()));
+
+	int n;
+	if (widget->isA("Table"))
+	{
+		QStringList graphs = dependingPlots(widget->name());
+		n = graphs.count();
+		if (n > 0)
+		{
+			cm.insertSeparator();
+			for (int i=0; i<n; i++)
+				depend_menu.addAction(graphs[i], this, SLOT(setActiveWindowFromAction()));
+
+			depend_menu.setTitle(tr("D&epending Graphs"));
+			cm.addMenu(&depend_menu);
+		}
+	}
+	else if (widget->isA("Matrix"))
+	{
+		QStringList graphs = depending3DPlots((Matrix*)widget);
+		n = graphs.count();
+		if (n > 0)
+		{
+			cm.insertSeparator();
+			for (int i=0; i<n; i++)
+				depend_menu.addAction(graphs[i], this, SLOT(setActiveWindowFromAction()));
+
+			depend_menu.setTitle(tr("D&epending 3D Graphs"));
+			cm.addMenu(&depend_menu);
+		}
+	}
+	else if (widget->isA("MultiLayer"))
+	{
+		QStringList tbls = multilayerDependencies(widget);
+		n = tbls.count();
+		if (n > 0)
+		{
+			cm.insertSeparator();
+			for (int i=0; i<n; i++)
+				depend_menu.addAction(tbls[i], this, SLOT(setActiveWindowFromAction()));
+
+			depend_menu.setTitle(tr("D&epends on"));
+			cm.addMenu(&depend_menu);
+		}
+	}
+	else if (widget->isA("Graph3D"))
+	{
+		Graph3D *sp=(Graph3D*)widget;
+		Matrix *m = sp->matrix();
+		QString formula = sp->formula();
+		if (!formula.isEmpty())
+		{
+			cm.insertSeparator();
+			if (formula.contains("_"))
+			{
+				QStringList tl = formula.split("_", QString::SkipEmptyParts);
+
+				depend_menu.addAction(tl[0], this, SLOT(setActiveWindowFromAction()));
+
+				depend_menu.setTitle(tr("D&epends on"));
+				cm.addMenu(&depend_menu);
+			}
+			else if (m)
+			{
+				depend_menu.addAction(m->name(), this, SLOT(setActiveWindowFromAction()));
+				depend_menu.setTitle(tr("D&epends on"));
+				cm.addMenu(&depend_menu);
+			}
+		}
+	}
+
+	cm.exec(QCursor::pos());
+}
+
+void ApplicationWindow::setActiveWindowFromAction()
+{
+	QAction *action = qobject_cast<QAction *>(sender());
+	if (action)
+		activateWindow( qobject_cast<MyWidget *>(window(action->text())) );
+}

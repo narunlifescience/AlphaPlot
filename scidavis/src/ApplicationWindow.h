@@ -443,7 +443,6 @@ public slots:
 	void removeWindowFromLists(MyWidget* w);
 
 	void hideWindow(MyWidget* window);
-	void hideWindow();
 	void hideActiveWindow();
 	void activateWindow();
 	void activateWindow(MyWidget *);
@@ -486,7 +485,6 @@ public slots:
 	void updateCurves(Table *t, const QString& name);
 
 	void showTable(const QString& curve);
-	void showTable(int i);
 
 	void addColToTable();
 	void cutSelection();
@@ -1031,6 +1029,8 @@ public:
 	QString defaultScriptingLang;
 
 private:
+	//! Show a context menu for the widget
+	void showWindowMenu(MyWidget * widget);
 	//! Create a menu for toggeling the toolbars
 	QMenu *createToolbarsMenu();
 
@@ -1050,7 +1050,7 @@ private:
 
 	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot, *toolbarsMenu;
 	QMenu *help,*type,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
-	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu, *tablesDepend;
+	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
 	QMenu *smooth, *normMenu, *translateMenu, *fillMenu, *setAsMenu, *multiPeakMenu;
 	QMenu *scriptingMenu;
 	QAction *actionCopyStatusBarText;
@@ -1088,7 +1088,7 @@ private:
     QAction *actionResizeActiveWindow, *actionHideActiveWindow;
     QAction *actionShowMoreWindows, *actionPixelLineProfile, *actionIntensityTable;
     QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
-    QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionHideWindow, *actionResizeWindow, *actionPrintWindow;
+    QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionResizeWindow, *actionPrintWindow;
     QAction *actionShowPlotGeometryDialog, *actionEditSurfacePlot, *actionAdd3DData;
 	QAction *actionMatrixDeterminant, *actionSetMatrixProperties;
 	QAction *actionSetMatrixDimensions, *actionConvertMatrix, *actionSetMatrixValues, *actionTransposeMatrix, *actionInvertMatrix;
@@ -1141,5 +1141,13 @@ private:
     QAction* pointstyle;
 	QAction* barstyle;
 	QAction *conestyle, *crossHairStyle;
+
+private slots:
+	//! Set the active window selected from the context menu's dependency list
+	/**
+	 * See also: http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
+	 */ 
+	void setActiveWindowFromAction();
+
 };
 #endif
