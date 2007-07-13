@@ -11,14 +11,24 @@ CONFIG           += dll
 
 DESTDIR           = ../
  
-# statically link against GSL in 3rdparty
-INCLUDEPATH += ../../3rdparty/gsl
-LIBS         += ../3rdparty/gsl/lib/libgsl.a
-LIBS         += ../3rdparty/gsl/lib/libgslcblas.a
-#dynamically link against GSL installed system-wide
-#unix:LIBS += -L /usr/lib$${libsuff} -lgsl -lgslcblas
-
-target.path=/usr/lib$${libsuff}/qtiplot/plugins
 INSTALLS += target
+
+# Statically link against GSL in 3rdparty.
+# This is used as default on Windows.
+# To use this on Linux or Mac OS X, remove
+# the "win32" and prepend '#' to the "LIBS"
+# line in the dynamic linking section.
+win32:INCLUDEPATH       += c:/gsl/include
+win32:LIBS        += c:/gsl/lib/libgsl.a
+win32:LIBS        += c:/gsl/lib/libgslcblas.a
+
+# Dynamically link against GSL installed system-wide.
+# This is used as default on unix systems such as
+# Linux, Mac OS X and *BSD.
+unix:LIBS += -L /usr/lib$${libsuff} -lgsl -lgslcblas
+
+# where to install the plugins
+unix:target.path=/usr/lib$${libsuff}/scidavis/plugins
+win32: target.path = c:/scidavis/plugins
 
 SOURCES += fitRational1.cpp
