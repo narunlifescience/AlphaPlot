@@ -48,16 +48,18 @@ unix:LIBS         += -lgsl -lgslcblas -lz
 
 #############################################################################
 ############ Default settings for Windows ###################################
-############ (static linking mostly, except Qt and Python) ##################
+############ (static linking mostly, except Qt and Python ###################
+############  and QwtPlot3D, which seems to be impossible ###################
+############  to link statically on Windows)
 #############################################################################
 
 win32:INCLUDEPATH       += c:/qwtplot3d/include
 win32:INCLUDEPATH       += c:/qwt-5.0.2/include
 win32:INCLUDEPATH       += ../3rdparty/liborigin
 win32:INCLUDEPATH       += c:/gsl/include
-win32:INCLUDEPATH       += d:/zlib/include
+win32:INCLUDEPATH       += c:/zlib/include
 
-win32:LIBS        += c:/qwtplot3d/lib/libqwtplot3d.a
+win32:LIBS        += c:/qwtplot3d/lib/qwtplot3d.dll
 win32:LIBS        += c:/qwt-5.0.2/lib/libqwt.a
 win32:LIBS        += c:/gsl/lib/libgsl.a
 win32:LIBS        += c:/gsl/lib/libgslcblas.a
