@@ -20,10 +20,13 @@ CONFIG          += release
 # what to install and where
 INSTALLS        += target
 INSTALLS        += documentation
-unix: target.path = /usr/bin
-unix: documentation.path = /usr/share/doc/scidavis
-win32: target.path = c:/scidavis
-win32: documentation.path = c:/scidavis/doc
+unix: INSTALLBASE = /usr
+win32: INSTALLBASE = c:/scidavis
+
+unix: target.path = $$INSTALLBASE/bin
+unix: documentation.path = $$INSTALLBASE/share/doc/scidavis
+win32: target.path = $$INSTALLBASE
+win32: documentation.path = $$INSTALLBASE/doc
 
 linux-g++-64: libsuff = 64
 

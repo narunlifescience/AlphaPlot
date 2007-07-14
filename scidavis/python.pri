@@ -1,5 +1,10 @@
 ##################### PYTHON + SIP + PyQT #####################
 
+  INSTALLS += pythonutils
+  pythonutils.files += scidavisrc.py scidavisUtil.py
+  unix: pythonutils.path = $$INSTALLBASE/bin
+  win32: pythonutils.path = $$INSTALLBASE
+
   DEFINES += SCRIPTING_PYTHON
   HEADERS += src/PythonScript.h src/PythonScripting.h
   SOURCES += src/PythonScript.cpp src/PythonScripting.cpp
