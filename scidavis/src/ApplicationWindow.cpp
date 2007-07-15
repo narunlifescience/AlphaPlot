@@ -6579,17 +6579,17 @@ void ApplicationWindow::showFitDialog()
 	if (!g || !g->validCurvesDataSize())
 		return;
 
-	FitDialog *fd=new FitDialog(this,"FitDialog", false);
+	FitDialog *fd=new FitDialog(this);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (fd, SIGNAL(clearFunctionsList()), this, SLOT(clearFitFunctionsList()));
 	connect (fd, SIGNAL(saveFunctionsList(const QStringList&)),
 			this, SLOT(saveFitFunctionsList(const QStringList&)));
 	connect (plot, SIGNAL(destroyed()), fd, SLOT(close()));
 
-	fd->insertFunctionsList(fitFunctions);
+	fd->addUserFunctions(fitFunctions);
 	fd->setGraph(g);
 	fd->setSrcTables(tableList());
-	fd->show();
+	fd->exec();
 }
 
 void ApplicationWindow::showFilterDialog(int filter)
