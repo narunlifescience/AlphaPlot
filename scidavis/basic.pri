@@ -15,6 +15,5 @@ QT            += opengl qt3support network svg
 
 MOC_DIR        = ../tmp/scidavis
 OBJECTS_DIR    = ../tmp/scidavis
-SIP_DIR        = ../tmp/scidavis
 DESTDIR        = ./
 

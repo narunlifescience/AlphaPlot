@@ -1,9 +1,16 @@
 ##################### PYTHON + SIP + PyQT #####################
 
-  INSTALLS += pythonutils
-  pythonutils.files += scidavisrc.py scidavisUtil.py
-  unix: pythonutils.path = $$INSTALLBASE/bin
-  win32: pythonutils.path = $$INSTALLBASE
+  INSTALLS += config
+  config.files += scidavisrc.py
+  unix: config.path = /etc
+  win32: config.path = $$INSTALLBASE
+
+  INSTALLS += shared
+  shared.files += scidavisUtil.py
+  unix: shared.path = $$INSTALLBASE/share/scidavis
+  win32: shared.path = $$INSTALLBASE
+
+  SIP_DIR = ../tmp/scidavis
 
   DEFINES += SCRIPTING_PYTHON
   HEADERS += src/PythonScript.h src/PythonScripting.h
@@ -20,7 +27,8 @@
   win32 {
     INCLUDEPATH += $$system(call python-includepath.py)
     LIBS        += $$system(call python-libs-win.py)
-    system(md $${SIP_DIR})
+	 # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
+    #system(md $${SIP_DIR})
     system($$system(call python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
   }
 
