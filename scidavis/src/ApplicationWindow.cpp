@@ -809,37 +809,42 @@ void ApplicationWindow::initMainMenu()
 	filter->addAction(actionHighPassFilter);
 	filter->addAction(actionBandPassFilter);
 	filter->addAction(actionBandBlockFilter);
-	filterMenuID = calcul->insertItem(tr("&FFT filter"),filter);
+	filterMenuID = calcul->insertItem(tr("&FFT Filter"),filter);
 
 	calcul->insertSeparator();
 	calcul->addAction(actionInterpolate);
 	calcul->addAction(actionFFT);
 	calcul->insertSeparator();
-	calcul->addAction(actionFitLinear);
-	calcul->addAction(actionShowFitPolynomDialog);
 
-	calcul->insertSeparator();
+	d_quick_fit_menu = new QMenu(this);
+	d_quick_fit_menu->setTitle(tr("&Quick Fit"));
+
+	d_quick_fit_menu->addAction(actionFitLinear);
+	d_quick_fit_menu->addAction(actionShowFitPolynomDialog);
+
+	d_quick_fit_menu->insertSeparator();
 
 	decay = new QMenu(this);
 	decay->setFont(appFont);
 	decay->addAction(actionShowExpDecayDialog);
 	decay->addAction(actionShowTwoExpDecayDialog);
 	decay->addAction(actionShowExpDecay3Dialog);
-	fitExpMenuID = calcul->insertItem(tr("Fit E&xponential Decay"), decay);
+	fitExpMenuID = d_quick_fit_menu->insertItem(tr("Fit E&xponential Decay"), decay);
 
-	calcul->addAction(actionFitExpGrowth);
-	calcul->addAction(actionFitSigmoidal);
-	calcul->addAction(actionFitGauss);
-	calcul->addAction(actionFitLorentz);
+	d_quick_fit_menu->addAction(actionFitExpGrowth);
+	d_quick_fit_menu->addAction(actionFitSigmoidal);
+	d_quick_fit_menu->addAction(actionFitGauss);
+	d_quick_fit_menu->addAction(actionFitLorentz);
 
 	multiPeakMenu = new QMenu(this);
 	multiPeakMenu->setFont(appFont);
 	multiPeakMenu->addAction(actionMultiPeakGauss);
 	multiPeakMenu->addAction(actionMultiPeakLorentz);
-	multiPeakMenuID = calcul->insertItem(tr("Fit &Multi-peak"), multiPeakMenu);
+	multiPeakMenuID = d_quick_fit_menu->insertItem(tr("Fit &Multi-peak"), multiPeakMenu);
 
-	calcul->insertSeparator();
+	d_quick_fit_menu->insertSeparator();
 
+	calcul->addMenu(d_quick_fit_menu);
 	calcul->addAction(actionShowFitDialog);
 
 	format = new QMenu(this);
@@ -11246,11 +11251,11 @@ void ApplicationWindow::createActions()
 	connect(actionTranslations, SIGNAL(activated()), this, SLOT(downloadTranslation()));
 
 #ifdef SCRIPTING_DIALOG
-	actionScriptingLang = new QAction(tr("Scripting &language"), this);
+	actionScriptingLang = new QAction(tr("Scripting &Language"), this);
 	connect(actionScriptingLang, SIGNAL(activated()), this, SLOT(showScriptingLangDialog()));
 #endif
 
-	actionRestartScripting = new QAction(tr("&Restart scripting"), this);
+	actionRestartScripting = new QAction(tr("&Restart Scripting"), this);
 	connect(actionRestartScripting, SIGNAL(activated()), this, SLOT(restartScriptingEnv()));
 
 	actionNoteExecute = new QAction(tr("E&xecute"), this);
@@ -11666,9 +11671,9 @@ void ApplicationWindow::translateActionsStrings()
 	actionTranslations->setMenuText(tr("&Translations"));
 
 #ifdef SCRIPTING_DIALOG
-	actionScriptingLang->setMenuText(tr("Scripting &language"));
+	actionScriptingLang->setMenuText(tr("Scripting &Language"));
 #endif
-	actionRestartScripting->setMenuText(tr("&Restart scripting"));
+	actionRestartScripting->setMenuText(tr("&Restart Scripting"));
 
 	actionNoteExecute->setMenuText(tr("E&xecute"));
 	actionNoteExecute->setShortcut(tr("Ctrl+J"));

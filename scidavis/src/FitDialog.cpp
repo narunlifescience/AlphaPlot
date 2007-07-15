@@ -639,7 +639,7 @@ void FitDialog::removeUserFunction()
 
 void FitDialog::showFitPage()
 {
-    d_param_table_rows = boxParams->rowCount();
+    int param_table_rows = boxParams->rowCount();
 
 	QString par = boxParam->text().simplified();
 	QStringList paramList = par.split(QRegExp("[,;]+[\\s]*"), QString::SkipEmptyParts);
@@ -651,7 +651,7 @@ void FitDialog::showFitPage()
 		parameters = 7;
 	boxParams->setMinimumHeight(4+(parameters+1)*boxParams->horizontalHeader()->height());
 
-    for (int i = d_param_table_rows; i<paramList.count(); i++)
+    for (int i = param_table_rows; i<paramList.count(); i++)
 	{
         QTableWidgetItem *it = new QTableWidgetItem(paramList[i]);
         it->setFlags(!Qt::ItemIsEditable);
@@ -1413,3 +1413,4 @@ void FitDialog::resetFunction()
 	boxParam->clear();
 	editBox->clear();
 }
+
