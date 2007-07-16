@@ -30,11 +30,10 @@
 #define PYTHON_SCRIPTING_H
 
 #include "ScriptingEnv.h"
-#include "Script.h"
 #include "PythonScript.h"
 
-#include <qobject.h>
-#include <qstring.h>
+class QObject;
+class QString;
 
 typedef struct _object PyObject;
 

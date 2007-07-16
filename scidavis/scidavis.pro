@@ -29,7 +29,7 @@ linux-g++-64: libsuff = 64
 #############################################################################
 ### Default settings for Linux / Mac OS X
 #############################################################################
-### link statically against Qwt and Qwtplot3D (in order to make sure they
+### Link statically against Qwt and Qwtplot3D (in order to make sure they
 ### are compiled against Qt4), dynamically against everything else.
 #############################################################################
 
@@ -42,7 +42,7 @@ unix:INCLUDEPATH  += ../3rdparty/qwt/src
 unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
 
 unix:LIBS         += -L /usr/lib$${libsuff}
-unix:LIBS         += -lgsl -lgslcblas -lz
+unix:LIBS         += -lgsl -lgslcblas -lz -lmuparser
 
 #############################################################################
 ### Link everything dynamically
@@ -58,7 +58,7 @@ unix:LIBS         += -lgsl -lgslcblas -lz
 #unix:LIBS         += -lqwtplot3d
 #unix:LIBS         += -lqwt
 ##dynamically link against GSL and zlib installed system-wide
-#unix:LIBS         += -lgsl -lgslcblas -lz
+#unix:LIBS         += -lgsl -lgslcblas -lz -lmuparser
 
 #############################################################################
 ### Default settings for Windows
@@ -72,12 +72,14 @@ win32:INCLUDEPATH       += c:/qwt-5.0.2/include
 win32:INCLUDEPATH       += ../3rdparty/liborigin
 win32:INCLUDEPATH       += c:/gsl/include
 win32:INCLUDEPATH       += c:/zlib/include
+win32:INCLUDEPATH       += c:/muparser/include
 
 win32:LIBS        += c:/qwtplot3d/lib/qwtplot3d.dll
 win32:LIBS        += c:/qwt-5.0.2/lib/libqwt.a
 win32:LIBS        += c:/gsl/lib/libgsl.a
 win32:LIBS        += c:/gsl/lib/libgslcblas.a
 win32:LIBS        += c:/zlib/lib/libz.a
+win32:LIBS        += c:/muparser/lib/libmuparser.a
 
 #############################################################################
 ###                    END OF USER-SERVICEABLE PART                       ###

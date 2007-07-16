@@ -25,25 +25,32 @@
 			<h1>Generic requirements</h1>
 			<p>
 			In order to compile SciDAVis, you need to install the following libraries:
-			<a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>,
-			<a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a>,
-			<a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,
-			<a href="http://sources.redhat.com/gsl/">GSL</a> and
-			<a href="http://www.zlib.net/">zlib</a>.
-			<strong>QwtPlot3D and Qwt must be compiled against Qt 4.x! If these are compiled with Qt3 the application will crash!</strong>
+			<ul>
+				<li><a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>,</li>
+				<li><a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a>,</li>
+				<li><a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,</li>
+				<li><a href="http://sources.redhat.com/gsl/">GSL</a>,</li>
+				<li><a href="http://muparser.sourceforge.net">muParser</a> and</li>
+				<li><a href="http://www.zlib.net/">zlib</a>.</li>
+			</ul>
+			<strong>QwtPlot3D and Qwt must be compiled against Qt 4.x! If these are compiled with Qt3,
+				the application will crash!</strong>
 			See below for how to ensure this.
 			</p><p>
 			This version of SciDAVis uses a modified version of
 			<a href="http://sourceforge.net/projects/liborigin/">liborigin</a> which is supplied in the "3rdparty" folder.
 			It is already included in the scidavis/scidavis.pro file and does not need to be compiled or installed separately.
-			The latest version of <a href="http://muparser.sourceforge.net/">muParser (snapshot taken between 1.27 and 1.28)</a>
-			is also included in "3rdparty/muParser", so you don't need to download, install or compile it.
-			Version 1.27 has some known issues with 64bit Linux and 1.28 has not been released yet as of this writing.
 			</p>
 
 			<h1>Linux / Mac OS X</h1>
 			<ol>
-				<li>Install <a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>, <a href="http://sources.redhat.com/gsl/">GSL</a> and <a href="http://www.zlib.net/">zlib</a>; either from your package manager or from the sources. If you are using precompiled packages, make sure you also install the corresponding development packages (*-dev or *-devel).
+				<li>Install
+				<a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>,
+				<a href="http://sources.redhat.com/gsl/">GSL</a>,
+				<a href="http://muparser.sourceforge.net">muParser</a> and
+				<a href="http://www.zlib.net/">zlib</a>;
+				either from your package manager or from the sources.
+				If you are using precompiled packages, make sure you also install the corresponding development packages (*-dev or *-devel).
 				If you want to display the manual from within SciDAVis (you can also view it with your favorite browser),
 				you need to have the Qt Assistant installed, which sometimes comes in a separate package (qt4-dev-tools for Ubuntu edgy).</li>
 				<li>Open a terminal window.</li>
@@ -71,7 +78,7 @@
 				a given version of PyQt will only work with a limited range of SIP
 				versions.
 				<br>
-				Open scidavis.pro in a text editor and remove the comment marker (#) from the line <code>SCRIPTING_LANGS += Python</code>.
+				Open scidavis.pro in a text editor and remove the comment marker (#) from the line <code>include( python.pri )</code>.
 				</li>
 				<li>Build SciDAVis:<br><code>qmake &amp;&amp; make</code></li>
 				<li>You should now be able to run SciDAVis by entering<br><code>./scidavis</code></li>

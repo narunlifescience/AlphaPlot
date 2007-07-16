@@ -29,14 +29,14 @@
 #ifndef PYTHON_SCRIPT_H
 #define PYTHON_SCRIPT_H
 
-#include "ScriptingEnv.h" 
 #include "Script.h"
 
-#include <qobject.h>
-#include <qstring.h>
+class QString;
+class QObject;
 
 typedef struct _object PyObject;
 class PythonScripting;
+class ScriptingEnv;
 
 class PythonScript : public Script
 {
