@@ -128,6 +128,10 @@
 			<a href="http://qwtplot3d.sourceforge.net/web/navigation/download_frame.html">http://qwtplot3d.sourceforge.net/web/navigation/download_frame.html</a>
 			and unpack it.
 			</li>
+			<li>Download the source code of muParser from
+			<a href="http://sourceforge.net/project/showfiles.php?group_id=137191">http://sourceforge.net/project/showfiles.php?group_id=137191</a>
+			and unpack it.
+			</li>
 			<li>Download the source code of SciDAVis from
 			<a href="http://scidavis.sourceforge.net/download.html">http://scidavis.sourceforge.net/download.html</a>
 			and unpack it.<br><br>
@@ -145,6 +149,8 @@
 			<li>Compile SIP and PyQt:
 			Go to the directory where you unpacked the SIP source code. Execute <code>python configure.py -p win32-g++</code> followed by <code>make</code> and <code>make install</code>. Now go to the directory where you unpacked PyQt and execute <code>python configure.py</code> (accept the license by typing "yes"), <code>make</code>, and <code>make install</code>.
 			</li>
+			<li>Compile muParser:
+			Go the "build" directory and execute <code>make -fmakefile.mingw</code> there.
 			<li>Compile SciDAVis:
 			Edit the <code>scidavis/scidavis.pro</code> file. You have to change the paths there to the paths where you installed the libraries described above. The corresponding lines are the ones beginning with <code>win32:INCLUDEPATH</code> and <code>win32:LIBS</code>.
 			To enable the Python support, remove the "#" before <code>include( python.pri )</code>.
