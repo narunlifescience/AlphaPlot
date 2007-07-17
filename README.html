@@ -28,10 +28,10 @@
 			<ul>
 				<li><a href="http://www.trolltech.com/products/qt/index.html">Qt (>=4.2)</a>,</li>
 				<li><a href="http://qwt.sourceforge.net/index.html">Qwt (>=5.0.0)</a>,</li>
-				<li><a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D</a>,</li>
-				<li><a href="http://sources.redhat.com/gsl/">GSL</a>,</li>
-				<li><a href="http://muparser.sourceforge.net">muParser</a> and</li>
-				<li><a href="http://www.zlib.net/">zlib</a>.</li>
+				<li><a href="http://qwtplot3d.sourceforge.net/">QwtPlot3D (>=0.2.6)</a>,</li>
+				<li><a href="http://sources.redhat.com/gsl/">GSL (>=1.8)</a>,</li>
+				<li><a href="http://muparser.sourceforge.net">muParser (>=1.28)</a> and</li>
+				<li><a href="http://www.zlib.net/">zlib (>=1.2.3)</a>.</li>
 			</ul>
 			<strong>QwtPlot3D and Qwt must be compiled against Qt 4.x! If these are compiled with Qt3,
 				the application will crash!</strong>
@@ -88,27 +88,85 @@
 
 			<h1>Windows</h1>
 
-			<p>
-			This section needs some loving care.
-			Maybe the above Linux / MacOS X list can be adapted to include all the quirks
-			of the procedure necessary for Windows.
-			Since we're mostly using Linux, someone more familiar with compilation on Windows
-			would be very welcome to rewrite the instructions below and/or to provide pre-compiled binaries.
-			</p>
-
-			You need to install the
-			<a href="http://www.trolltech.com/developer/downloads/qt/windows">Qt/Windows Open Source Edition</a> (&gt;= 4.2).
-			and use the <a href="http://www.mingw.org/">MinGW</a> compiler.<br>
-			<br>
-			The compilation of SciDAVis from sources requires the following steps:<br>
 			<ol>
-				<li>Install or compile the required libraries listed above.</li>
-				<li>Modify the 'scidavis/scidavis.pro' file with a text editor in order to set the INCLUDEPATH variables to the header files ('include' directory) of your local build of the libraries listed above. E.g. <code>INCLUDEPATH  += ../3rdparty/qwtplot3d/include</code> if you put QwtPlot3D into the "3rdparty" directory.<br>
-				Remark: Lines stating with # are comments and thus ignored by qmake.</li>
-				<li>Modify the 'scidavis/scidavis.pro' file to set the LIBS variables (those prefixed <code>win32:</code> only) to the actual directories of your library builds. E.g. <code>win32:LIBS += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a</code> if you put QwtPlot3D (as a static library) into the "3rdparty" directory.</li>
-				<li>Open a command prompt, go to the 'scidavis-X.X.X\scidavis' folder (<code>cd X:\path\to\scidavis\scidavis-X.X.X\scidavis</code>) and execute<br>
-				<code>qmake scidavis.pro</code>.</li>
-				<li>Finally type <code>mingw32-make</code> and wait until it finishes building scidavis.exe.</li>
+			<li>Download the "Qt/Windows Open Source Edition" from
+			<a href="http://trolltech.com/developer/downloads/qt/windows">http://trolltech.com/developer/downloads/qt/windows</a>.
+			It comes with a graphical installer. When the Qt installer asks you to install MinGW, say yes unless you already have it on your system. In that case you have to tell the Qt installer where to find it. In the case that PyQt (see blow) does not yet support the latest version of Qt, you can get older versions here:
+			
+			<a href="ftp://ftp.trolltech.com/qt/source/">ftp://ftp.trolltech.com/qt/source/</a>.
+			</li>
+			<li>Download Python from 
+			<a href="http://www.python.org/download/">http://www.python.org/download/</a>
+
+			and install it. 
+			</li>
+			<li>Go to the control panel, open "system properties", go to the advanced tab and edit the environment variable "Path":
+			Append 
+			<code>;D:\Qt\4.2.3\bin;D:\MinGW\bin;D:\Python25</code> (use the paths where you installed Qt, Python, and MinGW) to the existing string there.
+			</li>
+			<li>Download the SIP source code for Windows from
+			<a href="http://www.riverbankcomputing.co.uk/sip/download.php">http://www.riverbankcomputing.co.uk/sip/download.php</a>
+			and unpack it.
+			</li>
+			<li>Download the PyQt v4 source code for Windows from
+			<a href="http://www.riverbankcomputing.co.uk/pyqt/download.php">http://www.riverbankcomputing.co.uk/pyqt/download.php</a>
+			and unpack it.
+			</li>
+			<li>Download the "Developer files" of the GSL from
+			<a href="http://gnuwin32.sourceforge.net/packages/gsl.htm">http://gnuwin32.sourceforge.net/packages/gsl.htm</a>
+			and unpack them.
+			</li>
+			<li>Download the "Developer files" of zlib from
+			<a href="http://gnuwin32.sourceforge.net/packages/zlib.htm">http://gnuwin32.sourceforge.net/packages/zlib.htm</a>
+			and unpack them.
+			</li>
+			<li>Download the source code of the latest version of Qwt from
+			<a href="http://sourceforge.net/project/showfiles.php?group_id=13693">http://sourceforge.net/project/showfiles.php?group_id=13693</a>
+			an unpack it.
+			</li>
+			<li>Download the source code of QwtPlot3D from
+			<a href="http://qwtplot3d.sourceforge.net/web/navigation/download_frame.html">http://qwtplot3d.sourceforge.net/web/navigation/download_frame.html</a>
+			and unpack it.
+			</li>
+			<li>Download the source code of SciDAVis from
+			<a href="http://scidavis.sourceforge.net/download.html">http://scidavis.sourceforge.net/download.html</a>
+			and unpack it.<br><br>
+
+			Now you have everything you need and you can start compiling. Make sure you compile everything with the same version of Qt, otherwise you may encounter problems.
+			</li>
+			<li>Compile Qwt: 
+			First edit the qwtconfig.pri file. Comment out the line <code>CONFIG += QwtDll</code> by prepending a '#'. You can also comment out the line <code>CONFIG += QwtWidgets</code> since the  Qwt widgets are not used in SciDAVis. The same is true for the Qt designer plugin (comment out <code>CONFIG QwtDesigner</code>). If you want, change the line <code>INSTALLBASE = C:/Qwt-5.0.2</code> to some other folder to install to. 
+			Now open a DOS prompt and go to the folder containing qwt.pro and qwtcontig.pri using the <code>cd</code> command. Then type <code>qmake</code>. If everything goes right, no message will be displayed and a "Makefile" will be created. Next execute <code>make</code> and wait for Qwt to compile. Finally type <code>make install</code> to install Qwt in the folder specified by <code>INSTALLBASE</code>.
+			</li>
+			<li>Compile QwtPlot3D:
+			Compiling QwtPlot3D statically is hard, maybe even impossible. Therefore the easiest way is to compile it as a dll and copy it into the folder containing scidavis.exe at the end.
+			Edit the <code>qwtplot3d.pro</code> file and look for the line <code>CONFIG +=  .... debug</code>. Replace the word <code>debug</code> with <code>release</code>. Secondly, comment out the line containing <code>vclib</code>. Then go  to your DOS prompt to the directory containing qwtplot3d.pro and type <code>qmake</code> followed by <code>make</code>. 
+			</li>
+			<li>Compile SIP and PyQt:
+			Go to the directory where you unpacked the SIP source code. Execute <code>python configure.py -p win32-g++</code> followed by <code>make</code> and <code>make install</code>. Now go to the directory where you unpacked PyQt and execute <code>python configure.py</code> (accept the license by typing "yes"), <code>make</code>, and <code>make install</code>.
+			</li>
+			<li>Compile SciDAVis:
+			Edit the <code>scidavis/scidavis.pro</code> file. You have to change the paths there to the paths where you installed the libraries described above. The corresponding lines are the ones beginning with <code>win32:INCLUDEPATH</code> and <code>win32:LIBS</code>.
+			To enable the Python support, remove the "#" before <code>include( python.pri )</code>.
+			You can also customize where to install SciDAVis by replacing <code>c:/scidavis</code> in this line:
+<code>
+			win32: INSTALLBASE = c:/scidavis
+</code>.
+			If you want the fit plugins, you will have to edit the paths to GSL in the .pro files there too. The corresponding lines are these:
+<code>
+			win32:INCLUDEPATH       += c:/gsl/include
+			win32:LIBS        += c:/gsl/lib/libgsl.a
+			win32:LIBS        += c:/gsl/lib/libgslcblas.a
+</code>. If not, comment out or remove the lines "
+<code>
+SUBDIRS += fitPlugins/fitRational0\
+</code> and
+<code>
+           fitPlugins/fitRational1
+</code> in the main .pro file.
+			Then go to the base directory of the SciDAVis source and execute <code>qmake</code>, <code>make</code>, and <code>make install</code>.
+			</li>
+			<li>Copy qwtplot3d.dll to the directory where you installed scidavis.exe.
 			</ol>
 
 			<h1>Additional information</h1>
