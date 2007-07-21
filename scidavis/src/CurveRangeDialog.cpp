@@ -38,13 +38,10 @@
 #include <QLabel>
 #include <QSpinBox>
 
-CurveRangeDialog::CurveRangeDialog(QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+CurveRangeDialog::CurveRangeDialog(QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
 	setWindowTitle(tr("SciDAVis - Plot range"));
-
-    if ( !name )
-		setName( "CurveRangeDialog" );
 
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);
@@ -55,12 +52,12 @@ CurveRangeDialog::CurveRangeDialog(QWidget* parent, const char* name, bool modal
 
 	gl1->addWidget(new QLabel(tr("From row number")), 1, 0);
 	boxStart = new QSpinBox();
-	boxStart->setMinValue(1);
+	boxStart->setMinimum(1);
 	gl1->addWidget(boxStart, 1, 1);
 
 	gl1->addWidget(new QLabel(tr("To row number")), 2, 0);
 	boxEnd = new QSpinBox();
-	boxEnd->setMinValue(1);
+	boxEnd->setMinimum(1);
     gl1->addWidget(boxEnd, 2, 1);
     gl1->setRowStretch(3, 1);
 

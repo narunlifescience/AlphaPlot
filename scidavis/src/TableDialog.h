@@ -45,7 +45,7 @@ class TableDialog : public QDialog
     Q_OBJECT
 
 public:
-    TableDialog(Table *t, QWidget* parent, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    TableDialog(Table *t, QWidget* parent, Qt::WFlags fl = 0 );
 
 private slots:
 	void prevColumn();

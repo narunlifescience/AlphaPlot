@@ -47,7 +47,7 @@ class FFTDialog : public QDialog
 public:
 	enum DataType{onGraph = 0, onTable = 1};
 
-    FFTDialog(int type, QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    FFTDialog(int type, QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~FFTDialog(){};
 
 	QPushButton* buttonOK;

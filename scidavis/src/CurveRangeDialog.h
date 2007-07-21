@@ -43,7 +43,7 @@ class CurveRangeDialog : public QDialog
     Q_OBJECT
 
 public:
-    CurveRangeDialog(QWidget* parent = 0, const char* name = 0, bool modal = false, Qt::WFlags fl = 0 );
+    CurveRangeDialog(QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~CurveRangeDialog(){};
 
 	QPushButton* buttonOK;

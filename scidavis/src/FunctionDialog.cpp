@@ -43,11 +43,9 @@
 #include <QWidget>
 #include <QMessageBox>
 
-FunctionDialog::FunctionDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+FunctionDialog::FunctionDialog( QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-	if ( !name )
-		setName( "FunctionDialog" );
 	setWindowTitle( tr( "SciDAVis - Add function curve" ) );
 	setSizeGripEnabled(true);
 
@@ -263,15 +261,15 @@ void FunctionDialog::clearList()
 
 void FunctionDialog::acceptFunction()
 {
-	QString from=boxFrom->text().lower();
-	QString to=boxTo->text().lower();
-	QString points=boxPoints->text().lower();
+	QString from=boxFrom->text().toLower();
+	QString to=boxTo->text().toLower();
+	QString points=boxPoints->text().toLower();
 
 	double start, end;
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(from.ascii());
+		parser.SetExpr(from.toAscii().constData());
 		start=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -283,7 +281,7 @@ void FunctionDialog::acceptFunction()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(to.ascii());
+		parser.SetExpr(to.toAscii().constData());
 		end=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -309,7 +307,7 @@ void FunctionDialog::acceptFunction()
 	{
 		MyParser parser;
 		parser.DefineVar("x", &x);
-		parser.SetExpr(formula.ascii());
+		parser.SetExpr(formula.toAscii().constData());
 
 		x=start;
 		parser.Eval();
@@ -348,15 +346,15 @@ void FunctionDialog::acceptFunction()
 }
 void FunctionDialog::acceptParametric()
 {
-	QString from=boxParFrom->text().lower();
-	QString to=boxParTo->text().lower();
-	QString points=boxParPoints->text().lower();
+	QString from=boxParFrom->text().toLower();
+	QString to=boxParTo->text().toLower();
+	QString points=boxParPoints->text().toLower();
 
 	double start, end;
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(from.ascii());
+		parser.SetExpr(from.toAscii().constData());
 		start=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -369,7 +367,7 @@ void FunctionDialog::acceptParametric()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(to.ascii());
+		parser.SetExpr(to.toAscii().constData());
 		end=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -395,8 +393,8 @@ void FunctionDialog::acceptParametric()
 	try
 	{
 		MyParser parser;
-		parser.DefineVar((boxParameter->text()).ascii(), &parameter);
-		parser.SetExpr(xformula.ascii());
+		parser.DefineVar((boxParameter->text()).toAscii().constData(), &parameter);
+		parser.SetExpr(xformula.toAscii().constData());
 
 		parameter=start;
 		parser.Eval();
@@ -412,8 +410,8 @@ void FunctionDialog::acceptParametric()
 	try
 	{
 		MyParser parser;
-		parser.DefineVar((boxParameter->text()).ascii(), &parameter);
-		parser.SetExpr(yformula.ascii());
+		parser.DefineVar((boxParameter->text()).toAscii().constData(), &parameter);
+		parser.SetExpr(yformula.toAscii().constData());
 
 		parameter=start;
 		parser.Eval();
@@ -452,15 +450,15 @@ void FunctionDialog::acceptParametric()
 
 void FunctionDialog::acceptPolar()
 {
-	QString from=boxPolarFrom->text().lower();
-	QString to=boxPolarTo->text().lower();
-	QString points=boxPolarPoints->text().lower();
+	QString from=boxPolarFrom->text().toLower();
+	QString to=boxPolarTo->text().toLower();
+	QString points=boxPolarPoints->text().toLower();
 
 	double start, end;
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(from.ascii());
+		parser.SetExpr(from.toAscii().constData());
 		start=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -473,7 +471,7 @@ void FunctionDialog::acceptPolar()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(to.ascii());
+		parser.SetExpr(to.toAscii().constData());
 		end=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -499,8 +497,8 @@ void FunctionDialog::acceptPolar()
 	try
 	{
 		MyParser parser;
-		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);
-		parser.SetExpr(rformula.ascii());
+		parser.DefineVar((boxPolarParameter->text()).toAscii().constData(), &parameter);
+		parser.SetExpr(rformula.toAscii().constData());
 
 		parameter=start;
 		parser.Eval();
@@ -516,8 +514,8 @@ void FunctionDialog::acceptPolar()
 	try
 	{
 		MyParser parser;
-		parser.DefineVar((boxPolarParameter->text()).ascii(), &parameter);
-		parser.SetExpr(tformula.ascii());
+		parser.DefineVar((boxPolarParameter->text()).toAscii().constData(), &parameter);
+		parser.SetExpr(tformula.toAscii().constData());
 
 		parameter=start;
 		parser.Eval();

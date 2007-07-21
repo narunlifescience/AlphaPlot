@@ -56,7 +56,7 @@ double ScaleDraw::transformValue(double value) const
 			else if (formula_string.contains("y"))
 				parser.DefineVar("y", &value);
 
-			parser.SetExpr(formula_string.ascii());
+			parser.SetExpr(formula_string.toAscii().constData());
 			lbl=parser.Eval();
 			}
 		catch(mu::ParserError &)

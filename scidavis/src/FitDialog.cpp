@@ -254,7 +254,7 @@ void FitDialog::initEditPage()
     hbox1->addWidget(polynomOrderLabel);
 
 	polynomOrderBox = new QSpinBox();
-    polynomOrderBox->setMinValue(1);
+    polynomOrderBox->setMinimum(1);
 	polynomOrderBox->setValue(2);
 	polynomOrderBox->hide();
 	connect(polynomOrderBox, SIGNAL(valueChanged(int)), this, SLOT(showExpression(int)));
@@ -581,7 +581,7 @@ void FitDialog::saveUserFunction()
 
 	if (d_user_function_names.contains(name))
 	{
-		int index = d_user_function_names.findIndex(name);
+		int index = d_user_function_names.indexOf(name);
 		d_user_functions[index] = f;
 		d_user_function_params[index] = boxParam->text();
 
@@ -614,7 +614,7 @@ void FitDialog::removeUserFunction()
 	{
 		explainBox->setText(QString());
 
-		int index = d_user_function_names.findIndex(name);
+		int index = d_user_function_names.indexOf(name);
 		d_user_function_names.remove(name);
 
 		QString f = d_user_functions[index];
@@ -1039,14 +1039,14 @@ void FitDialog::accept()
 	if (!validInitialValues())
 		return;
 
-	QString from=boxFrom->text().lower();
-	QString to=boxTo->text().lower();
-	QString tolerance=boxTolerance->text().lower();
+	QString from=boxFrom->text().toLower();
+	QString to=boxTo->text().toLower();
+	QString tolerance=boxTolerance->text().toLower();
 	double start, end, eps;
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(CONFS(from).ascii());
+		parser.SetExpr(CONFS(from).toAscii().constData());
 		start=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1059,7 +1059,7 @@ void FitDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(CONFS(to).ascii());
+		parser.SetExpr(CONFS(to).toAscii().constData());
 		end=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1080,7 +1080,7 @@ void FitDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(CONFS(tolerance).ascii());
+		parser.SetExpr(CONFS(tolerance).toAscii().constData());
 		eps=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -1148,7 +1148,7 @@ void FitDialog::accept()
 				if (!cb->isChecked())
 				{
 					paramsInit[j] = QLocale().toDouble(boxParams->item(i,1)->text());
-					parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[j]);
+					parser.DefineVar(boxParams->item(i,0)->text().toAscii().constData(), &paramsInit[j]);
 					parameters << boxParams->item(i,0)->text();
 					j++;
 				}
@@ -1162,12 +1162,12 @@ void FitDialog::accept()
 			for (i=0;i<n;i++)
 			{
 				paramsInit[i] = QLocale().toDouble(boxParams->item(i,1)->text());
-				parser.DefineVar(boxParams->item(i,0)->text().ascii(), &paramsInit[i]);
+				parser.DefineVar(boxParams->item(i,0)->text().toAscii().constData(), &paramsInit[i]);
 				parameters << boxParams->item(i,0)->text();
 			}
 		}
 
-		parser.SetExpr(formula.ascii());
+		parser.SetExpr(formula.toAscii().constData());
 		double x=start;
 		parser.DefineVar("x", &x);
 		parser.Eval();
@@ -1322,7 +1322,7 @@ bool FitDialog::validInitialValues()
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(CONFS(boxParams->item(i,1)->text()).ascii());
+			parser.SetExpr(CONFS(boxParams->item(i,1)->text()).toAscii().constData());
 			parser.Eval();
 		}
 		catch (mu::ParserError &e)

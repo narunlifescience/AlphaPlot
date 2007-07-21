@@ -93,9 +93,9 @@ void NonLinearFit::setFormula(const QString& s)
 		for (int k=0; k<(int)d_p; k++)
 		{
 			param[k]=gsl_vector_get(d_param_init, k);
-			parser.DefineVar(d_param_names[k].ascii(), &param[k]);
+			parser.DefineVar(d_param_names[k].toAscii().constData(), &param[k]);
 		}
-		parser.SetExpr(s.ascii());
+		parser.SetExpr(s.toAscii().constData());
 		parser.Eval() ;
 		delete[] param;
 	}
@@ -146,11 +146,11 @@ void NonLinearFit::calculateFitCurveData(double *par, double *X, double *Y)
 {
 	MyParser parser;
 	for (int i=0; i<d_p; i++)
-		parser.DefineVar(d_param_names[i].ascii(), &par[i]);
+		parser.DefineVar(d_param_names[i].toAscii().constData(), &par[i]);
 
 	double xvar;
 	parser.DefineVar("x", &xvar);
-	parser.SetExpr(d_formula.ascii());
+	parser.SetExpr(d_formula.toAscii().constData());
 
 	if (d_gen_function)
 	{

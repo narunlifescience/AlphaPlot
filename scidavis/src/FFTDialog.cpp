@@ -45,8 +45,8 @@
 #include <QComboBox>
 #include <QLayout>
 
-FFTDialog::FFTDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
 	setWindowTitle(tr("SciDAVis - FFT Options"));
 
@@ -136,7 +136,7 @@ void FFTDialog::accept()
 	try
 	{
 		MyParser parser;
-		parser.SetExpr(boxSampling->text().ascii());
+		parser.SetExpr(boxSampling->text().toAscii().constData());
 		sampling=parser.Eval();
 	}
 	catch(mu::ParserError &e)

@@ -634,7 +634,7 @@ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 		for (int i=0; i<(int)p; i++)
 		{
 			parameters[i]=gsl_vector_get(x,i);
-			parser.DefineVar(parNames[i].ascii(), &parameters[i]);
+			parser.DefineVar(parNames[i].toAscii().constData(), &parameters[i]);
 		}	
 		parser.SetExpr(function);
 		for (int j = 0; j < (int)n; j++)
@@ -674,7 +674,7 @@ double user_d(const gsl_vector * x, void *params)
 		for (int i=0; i<(int)p; i++)
 		{
 			parameters[i]=gsl_vector_get(x,i);
-			parser.DefineVar(parNames[i].ascii(), &parameters[i]);
+			parser.DefineVar(parNames[i].toAscii().constData(), &parameters[i]);
 		}	
 		parser.SetExpr(function);
 		for (int j = 0; j < (int)n; j++)
@@ -714,7 +714,7 @@ int user_df(const gsl_vector *x, void *params, gsl_matrix *J)
 		for (int k=0; k<(int)p; k++)
 		{
 			param[k]=gsl_vector_get(x,k);
-			parser.DefineVar(parNames[k].ascii(), &param[k]);
+			parser.DefineVar(parNames[k].toAscii().constData(), &param[k]);
 		}
 
 		parser.SetExpr(function);

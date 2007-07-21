@@ -42,11 +42,9 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-PolynomFitDialog::PolynomFitDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+PolynomFitDialog::PolynomFitDialog( QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-	if ( !name )
-		setName( "PolynomFitDialog" );
 	setWindowTitle(tr("SciDAVis - Polynomial Fit Options"));
     setSizeGripEnabled( true );
 

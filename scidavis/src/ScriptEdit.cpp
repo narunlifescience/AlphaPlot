@@ -107,13 +107,13 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 	menu->addAction(actionPrint);
 	menu->addAction(actionImport);
 	menu->addAction(actionExport);
-	menu->insertSeparator();
+	menu->addSeparator();
 
 	menu->addAction(actionExecute);
 	menu->addAction(actionExecuteAll);
 	menu->addAction(actionEval);
 
-	if (parent()->isA("Note"))
+	if (parent()->inherits("Note"))
 	{
 		Note *sp = (Note*) parent();
 		QAction *actionAutoexec = new QAction( tr("Auto&exec"), menu );

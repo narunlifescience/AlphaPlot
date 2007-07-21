@@ -38,11 +38,9 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-SurfaceDialog::SurfaceDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+SurfaceDialog::SurfaceDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "SurfaceDialog" );
 	setWindowTitle(tr("SciDAVis - Define surface plot"));
     setSizeGripEnabled( true );
 
@@ -163,7 +161,7 @@ double fromX, toX, fromY,toY, fromZ,toZ;
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Xfrom.ascii());
+	parser.SetExpr(Xfrom.toAscii().constData());
 	fromX=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -175,7 +173,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Xto.ascii());
+	parser.SetExpr(Xto.toAscii().constData());
 	toX=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -188,7 +186,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Yfrom.ascii());
+	parser.SetExpr(Yfrom.toAscii().constData());
 	fromY=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -200,7 +198,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Yto.ascii());
+	parser.SetExpr(Yto.toAscii().constData());
 	toY=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -212,7 +210,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Zfrom.ascii());
+	parser.SetExpr(Zfrom.toAscii().constData());
 	fromZ=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -224,7 +222,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(Zto.ascii());
+	parser.SetExpr(Zto.toAscii().constData());
 	toZ=parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -250,7 +248,7 @@ try
 	MyParser parser;
 	parser.DefineVar("x", &x);
 	parser.DefineVar("y", &y);
-	parser.SetExpr(formula.ascii());
+	parser.SetExpr(formula.toAscii().constData());
 
 	x=fromX; y=fromY;
 	parser.Eval();

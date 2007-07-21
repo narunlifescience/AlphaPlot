@@ -49,12 +49,9 @@
 
 #include <QMessageBox>
 
-CurvesDialog::CurvesDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+CurvesDialog::CurvesDialog( QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-	if ( !name )
-		setName( "CurvesDialog" );
-
 	setWindowTitle( tr( "SciDAVis - Add/Remove curves" ) );
     setSizeGripEnabled(true);
 	setFocus();

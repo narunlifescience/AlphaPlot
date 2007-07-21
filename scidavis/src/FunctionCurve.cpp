@@ -107,8 +107,8 @@ void FunctionCurve::loadData(int points)
 		double x;
 		try
 		{
-			parser.DefineVar(d_variable.ascii(), &x);
-			parser.SetExpr(d_formulas[0].ascii());
+			parser.DefineVar(d_variable.toAscii().constData(), &x);
+			parser.SetExpr(d_formulas[0].toAscii().constData());
 
 			X[0] = d_from; x = d_from; Y[0]=parser.Eval();
 			for (int i = 1; i<points; i++ )
@@ -137,10 +137,10 @@ void FunctionCurve::loadData(int points)
 		}
 		try
 		{
-			xparser.DefineVar(d_variable.ascii(), &par);
-			yparser.DefineVar(d_variable.ascii(), &par);
-			xparser.SetExpr(aux[0].ascii());
-			yparser.SetExpr(aux[1].ascii());
+			xparser.DefineVar(d_variable.toAscii().constData(), &par);
+			yparser.DefineVar(d_variable.toAscii().constData(), &par);
+			xparser.SetExpr(aux[0].toAscii().constData());
+			yparser.SetExpr(aux[1].toAscii().constData());
 			par = d_from;
 			for (int i = 0; i<points; i++ )
 			{

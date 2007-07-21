@@ -461,13 +461,13 @@ void Table::setCommands(const QStringList& com)
 {
 	commands.clear();
 	for(int i=0; i<(int)com.size() && i<numCols(); i++)
-		commands << com[i].stripWhiteSpace();
+		commands << com[i].trimmed();
 }
 
 void Table::setCommand(int col, const QString& com)
 {
 	if(col<(int)commands.size())
-		commands[col]=com.stripWhiteSpace();
+		commands[col]=com.trimmed();
 }
 
 void Table::setCommands(const QString& com)
@@ -1920,7 +1920,7 @@ int Table::colIndex(const QString& name)
 {
 	int pos=name.find("_",false);
 	QString label=name.right(name.length()-pos-1);
-	return col_label.findIndex(label);
+	return col_label.indexOf(label);
 }
 
 void Table::setHeaderColType()
@@ -2293,7 +2293,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		if (simplifySpaces)
 			s = s.simplifyWhiteSpace();
 		else if (stripSpaces)
-			s = s.stripWhiteSpace();
+			s = s.trimmed();
 		QStringList line = s.split(sep);
 		cols = (int)line.count();
 
@@ -2346,7 +2346,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			if (simplifySpaces)
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
-				s = s.stripWhiteSpace();
+				s = s.trimmed();
 
 			line = s.split(sep, QString::SkipEmptyParts);
 			int end = startCol+(int)line.count();
@@ -2379,7 +2379,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 				if (simplifySpaces)
 					s = s.simplifyWhiteSpace();
 				else if (stripSpaces)
-					s = s.stripWhiteSpace();
+					s = s.trimmed();
 				line = s.split(sep);
 				for (int j=startCol; j<d_table->numCols(); j++)
 					d_table->setText(startRow + k, j, line[j-startCol]);
@@ -2394,7 +2394,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 			if (simplifySpaces)
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
-				s = s.stripWhiteSpace();
+				s = s.trimmed();
 			line = s.split(sep);
 			for (int j=startCol; j<d_table->numCols(); j++)
 				d_table->setText(i, j, line[j-startCol]);
@@ -2435,7 +2435,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		if (simplifySpaces)
 			s = s.simplifyWhiteSpace();
 		else if (stripSpaces)
-			s = s.stripWhiteSpace();
+			s = s.trimmed();
 
 		QStringList line = s.split(sep);
 		cols = (int)line.count();
@@ -2499,7 +2499,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			if (simplifySpaces)
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
-				s = s.stripWhiteSpace();
+				s = s.trimmed();
 			line = s.split(sep, QString::SkipEmptyParts);
 			for (i=0; i<(int)line.count(); i++)
   	        	col_label[i] = QString::null;
@@ -2539,7 +2539,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 				if (simplifySpaces)
 					s = s.simplifyWhiteSpace();
 				else if (stripSpaces)
-					s = s.stripWhiteSpace();
+					s = s.trimmed();
 				line = s.split(sep);
 				int lc = (int)line.count();
 				if (lc > cols) {
@@ -2560,7 +2560,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 			if (simplifySpaces)
 				s = s.simplifyWhiteSpace();
 			else if (stripSpaces)
-				s = s.stripWhiteSpace();
+				s = s.trimmed();
 			line = s.split(sep);
 			int lc = (int)line.count();
 			if (lc > cols) {

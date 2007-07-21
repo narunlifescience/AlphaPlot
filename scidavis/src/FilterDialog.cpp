@@ -41,14 +41,11 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-FilterDialog::FilterDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+FilterDialog::FilterDialog(int type, QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
 	setWindowTitle(tr("SciDAVis - Filter options"));
     filter_type = type;
-
-    if ( !name )
-		setName( "FilterDialog" );
 
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);
@@ -118,7 +115,7 @@ double from = 0.0, to = 0.0;
 try
 	{
 	MyParser parser;
-	parser.SetExpr(boxStart->text().replace(",", ".").ascii());
+	parser.SetExpr(boxStart->text().replace(",", ".").toAscii().constData());
 	from = parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -141,7 +138,7 @@ if (filter_type >= FFTFilter::BandPass)
 	try
 		{
 		MyParser parser;
-		parser.SetExpr(boxEnd->text().replace(",", ".").ascii());
+		parser.SetExpr(boxEnd->text().replace(",", ".").toAscii().constData());
 		to=parser.Eval();
 		}
 	catch(mu::ParserError &e)

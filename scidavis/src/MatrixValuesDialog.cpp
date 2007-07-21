@@ -41,12 +41,9 @@
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>
 
-MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl ), scripted(env)
+MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl ), scripted(env)
 {
-	if ( !name )
-		setName( "MatrixValuesDialog" );
-
 	setWindowTitle( tr( "SciDAVis - Set Matrix Values" ) );
 	setSizeGripEnabled(true);
 

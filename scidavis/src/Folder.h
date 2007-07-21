@@ -141,7 +141,6 @@ public:
     WindowListItem( Q3ListView *parent, MyWidget *w );
 
     MyWidget *window() { return myWindow; };
-	void cancelRename(int){return;};
 
 protected:
     MyWidget *myWindow;
@@ -162,7 +161,6 @@ public:
 	enum {RTTI = 1001};
 
 	void setActive( bool o );
-	void cancelRename(int){return;};
 
 	virtual int rtti() const {return (int)RTTI;};
 

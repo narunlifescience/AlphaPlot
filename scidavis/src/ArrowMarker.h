@@ -108,7 +108,7 @@ public:
 	double length();
 
     //! Returns the bounding rectangle in paint coordinates.
-	QRect rect() const {return QRect(startPoint(), endPoint()).normalize();};
+	QRect rect() const {return QRect(startPoint(), endPoint()).normalized();};
 
 	//! Returns the bounding rectangle in plot coordinates.
 	QwtDoubleRect boundingRect() const;

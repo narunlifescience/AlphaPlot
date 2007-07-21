@@ -51,7 +51,7 @@ class MatrixValuesDialog : public QDialog, public scripted
     Q_OBJECT
 
 public:
-    MatrixValuesDialog( ScriptingEnv *env, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, Qt::WFlags fl = 0 );
+    MatrixValuesDialog( ScriptingEnv *env, QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~MatrixValuesDialog();
 	
 	QSize sizeHint() const ;

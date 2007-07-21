@@ -526,7 +526,7 @@ void ConfigDialog::initAppPage()
 	boxScriptingLanguage = new QComboBox();
 	QStringList llist = ScriptingLangManager::languages();
 	boxScriptingLanguage->insertStringList(llist);
-	boxScriptingLanguage->setCurrentItem(llist.findIndex(app->defaultScriptingLang));
+	boxScriptingLanguage->setCurrentItem(llist.indexOf(app->defaultScriptingLang));
 	topBoxLayout->addWidget( boxScriptingLanguage, 3, 1 );
 
     boxSave= new QCheckBox();
@@ -1060,7 +1060,7 @@ void ConfigDialog::apply()
 	QWidgetList *windows = app->windowsList();
 	foreach(QWidget *w, *windows)
 	{
-		if (w->isA("MultiLayer"))
+		if (w->inherits("MultiLayer"))
 		{
 			((MultiLayer*)w)->setScaleLayersOnPrint(boxScaleLayersOnPrint->isChecked());
 			((MultiLayer*)w)->printCropmarks(boxPrintCropmarks->isChecked());
@@ -1106,9 +1106,9 @@ void ConfigDialog::apply()
         if (boxUpdateSeparators->isChecked()){
             QList<QWidget*> *lst = app->windowsList();
             foreach(QWidget *w, *lst){
-                if(w->isA("Table"))
+                if(w->inherits("Table"))
                     ((Table *)w)->updateDecimalSeparators();
-                else if(w->isA("Matrix"))
+                else if(w->inherits("Matrix"))
                     ((Matrix *)w)->updateDecimalSeparators();
             }
             delete lst;

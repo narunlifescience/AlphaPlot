@@ -32,11 +32,9 @@
 #include <QGroupBox>
 #include <QLabel>
 
-ImageDialog::ImageDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+ImageDialog::ImageDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-	setName( "ImageDialog" );
 	setWindowTitle( tr( "SciDAVis - Image Geometry" ) );
 	
 	QGroupBox *gb1 = new QGroupBox(tr("Origin"));

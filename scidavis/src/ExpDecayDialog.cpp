@@ -41,12 +41,9 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-	ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-: QDialog( parent, name, modal, fl )
+	ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl )
 {
-	if ( !name )
-		setName( "ExpDecayDialog" );
-
 	slopes = type;
 
 	setWindowTitle(tr("SciDAVis - Verify initial guesses"));

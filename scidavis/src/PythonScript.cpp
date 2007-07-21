@@ -101,7 +101,7 @@ bool PythonScript::compile(bool for_eval)
 	bool success=false;
 	Py_XDECREF(PyCode);
 	// Simplest case: Code is a single expression
-	PyCode = Py_CompileString(Code.ascii(), Name, Py_eval_input);
+	PyCode = Py_CompileString(Code.toAscii().constData(), Name, Py_eval_input);
 	if (PyCode) {
 		success = true;
 	} else if (for_eval) {
@@ -140,7 +140,7 @@ bool PythonScript::compile(bool for_eval)
 		// Code contains statements (or errors), but we do not need to get
 		// a return value.
 		PyErr_Clear(); // silently ignore errors
-		PyCode = Py_CompileString(Code.ascii(), Name, Py_file_input);
+		PyCode = Py_CompileString(Code.toAscii().constData(), Name, Py_file_input);
 		success = PyCode != NULL;
 	}
 	if (!success)

@@ -110,7 +110,7 @@ void ScriptWindow::initActions()
 	connect(actionRedo, SIGNAL(activated()), te, SLOT(redo()));	
 	edit->addAction(actionRedo);
 	actionRedo->setEnabled(false);
-	edit->insertSeparator();
+	edit->addSeparator();
 
 	actionCut = new QAction(QPixmap(":/cut.xpm"), tr("&Cut"), this);
 	actionCut->setShortcut( tr("Ctrl+x") );

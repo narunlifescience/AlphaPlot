@@ -35,9 +35,8 @@
 #include <QLayout>
 #include <QMessageBox>
 
-ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent, const char *name,
-		bool modal, Qt::WFlags fl )
-: QDialog(parent, name, modal, fl), scripted(env)
+ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent, Qt::WFlags fl )
+: QDialog(parent, fl), scripted(env)
 {
 	setCaption(tr("SciDAVis - Select scripting language"));
 

@@ -43,11 +43,9 @@
 #include <QComboBox>
 #include <QLayout>
 
-IntDialog::IntDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+IntDialog::IntDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-	   setName( "IntegrationDialog" );
 	setWindowTitle(tr("SciDAVis - Integration Options"));
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
@@ -120,7 +118,7 @@ if (!c || !curvesList.contains(curveName))
 try
 	{
 	mu::Parser parser;
-	parser.SetExpr(boxTol->text().ascii());
+	parser.SetExpr(boxTol->text().toAscii().constData());
 	parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -136,7 +134,7 @@ double minx = c->minXValue();
 double maxx = c->maxXValue();
 
 // Check the Xmin
-QString from = boxStart->text().lower();
+QString from = boxStart->text().toLower();
 if(from=="min")
 	{
 	boxStart->setText(QString::number(minx));
@@ -152,7 +150,7 @@ else
 	try
 		{
 		MyParser parser;
-		parser.SetExpr((boxStart->text()).ascii());
+		parser.SetExpr((boxStart->text()).toAscii().constData());
 		start=parser.Eval();
 
 		if(start<minx)
@@ -182,7 +180,7 @@ else
 	}
 
 // Check Xmax
-QString end=boxEnd->text().lower();
+QString end=boxEnd->text().toLower();
 if(end=="min")
 	{
 	boxEnd->setText(QString::number(minx));
@@ -198,7 +196,7 @@ else
 	try
 		{
 		MyParser parser;
-		parser.SetExpr((boxEnd->text()).ascii());
+		parser.SetExpr((boxEnd->text()).toAscii().constData());
 		stop = parser.Eval();
 		if(stop > maxx)
 			{

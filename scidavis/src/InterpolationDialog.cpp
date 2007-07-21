@@ -41,11 +41,9 @@
 #include <QComboBox>
 #include <QLayout>
 
-InterpolationDialog::InterpolationDialog( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+InterpolationDialog::InterpolationDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-    if ( !name )
-		setName( "InterpolationDialog" );
 	setWindowTitle(tr("SciDAVis - Interpolation Options"));
 
     QGroupBox *gb1 = new QGroupBox();
@@ -120,7 +118,7 @@ double from, to;
 try
 	{
 	MyParser parser;
-	parser.SetExpr(boxStart->text().replace(",", ".").ascii());
+	parser.SetExpr(boxStart->text().replace(",", ".").toAscii().constData());
 	from = parser.Eval();
 	}
 catch(mu::ParserError &e)
@@ -133,7 +131,7 @@ catch(mu::ParserError &e)
 try
 	{
 	MyParser parser;
-	parser.SetExpr(boxEnd->text().replace(",", ".").ascii());
+	parser.SetExpr(boxEnd->text().replace(",", ".").toAscii().constData());
 	to = parser.Eval();
 	}
 catch(mu::ParserError &e)

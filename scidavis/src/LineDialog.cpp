@@ -47,8 +47,8 @@
 #include <QColorDialog>
 #include <QTabWidget>
 
-LineDialog::LineDialog( ArrowMarker *line, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+LineDialog::LineDialog( ArrowMarker *line, QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
     setWindowTitle( tr( "SciDAVis - Line options" ) );
 
@@ -253,7 +253,7 @@ else
 
 void LineDialog::apply()
 {
-if (tw->currentPage()==(QWidget *)options)
+if (tw->currentWidget()==(QWidget *)options)
 	{
 	lm->setStyle(Graph::getPenStyle(styleBox->currentItem()));
 	lm->setColor(colorBox->color());
@@ -261,7 +261,7 @@ if (tw->currentPage()==(QWidget *)options)
 	lm->drawEndArrow(endBox->isChecked());
 	lm->drawStartArrow(startBox->isChecked());
 	}
-else if (tw->currentPage()==(QWidget *)head)
+else if (tw->currentWidget()==(QWidget *)head)
 	{
 	if (lm->headLength() != boxHeadLength->value())
 		lm->setHeadLength( boxHeadLength->value() );
@@ -272,7 +272,7 @@ else if (tw->currentPage()==(QWidget *)head)
 	if (lm->filledArrowHead() != filledBox->isChecked())
 		lm->fillArrowHead( filledBox->isChecked() );
 	}
-else if (tw->currentPage()==(QWidget *)geometry)
+else if (tw->currentWidget()==(QWidget *)geometry)
 	setCoordinates(unitBox->currentItem());
 
 QwtPlot *plot = lm->plot();

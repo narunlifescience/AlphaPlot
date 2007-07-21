@@ -113,7 +113,7 @@ void MatrixSizeDialog::accept()
 	MyParser parser;
 	try
 	{
-		parser.SetExpr(boxXStart->text().lower().ascii());
+		parser.SetExpr(boxXStart->text().toLower().toAscii().constData());
 		fromX=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -124,7 +124,7 @@ void MatrixSizeDialog::accept()
 	}
 	try
 	{
-		parser.SetExpr(boxXEnd->text().lower().ascii());
+		parser.SetExpr(boxXEnd->text().toLower().toAscii().constData());
 		toX=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -135,7 +135,7 @@ void MatrixSizeDialog::accept()
 	}
 	try
 	{
-		parser.SetExpr(boxYStart->text().lower().ascii());
+		parser.SetExpr(boxYStart->text().toLower().toAscii().constData());
 		fromY=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -146,7 +146,7 @@ void MatrixSizeDialog::accept()
 	}
 	try
 	{
-		parser.SetExpr(boxYEnd->text().lower().ascii());
+		parser.SetExpr(boxYEnd->text().toLower().toAscii().constData());
 		toY=parser.Eval();
 	}
 	catch(mu::ParserError &e)

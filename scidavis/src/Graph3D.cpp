@@ -66,7 +66,7 @@ double UserFunction::operator()(double x, double y)
 		parser.DefineVar("x", &x);
 		parser.DefineVar("y", &y);
 
-		parser.SetExpr((const std::string)formula.ascii());
+		parser.SetExpr((const std::string)formula.toAscii().constData());
 		result=parser.Eval();
 	}
 	catch(mu::ParserError &e)
@@ -575,12 +575,12 @@ void Graph3D::updateData(Table* table)
 		return;
 
 	QString name = plotAssociation;
-	int pos=name.find("_",0);
-	int posX=name.find("(",pos);
+	int pos=name.indexOf("_",0);
+	int posX=name.indexOf("(",pos);
 	QString xColName=name.mid(pos+1,posX-pos-1);
 
-	pos=name.find(",",posX);
-	posX=name.find("(",pos);
+	pos=name.indexOf(",",posX);
+	posX=name.indexOf("(",pos);
 	QString yColName=name.mid(pos+1,posX-pos-1);
 
 	int xCol=table->colIndex(xColName);
@@ -588,8 +588,8 @@ void Graph3D::updateData(Table* table)
 
 	if (name.contains("(Z)",true))
 	{
-		pos=name.find(",",posX);
-		posX=name.find("(",pos);
+		pos=name.indexOf(",",posX);
+		posX=name.indexOf("(",pos);
 		QString zColName=name.mid(pos+1,posX-pos-1);
 		int zCol=table->colIndex(zColName);
 		updateDataXYZ(table, xCol, yCol, zCol);
@@ -1394,20 +1394,20 @@ void Graph3D::updateScales(double xl, double xr, double yl, double yr, double zl
 	{
 		QString name= plotAssociation;
 
-		int pos=name.find("_",0);
-		int posX=name.find("(",pos);
+		int pos=name.indexOf("_",0);
+		int posX=name.indexOf("(",pos);
 		QString xColName=name.mid(pos+1,posX-pos-1);
 		int xCol=worksheet->colIndex(xColName);
 
-		pos=name.find(",",posX);
-		posX=name.find("(",pos);
+		pos=name.indexOf(",",posX);
+		posX=name.indexOf("(",pos);
 		QString yColName=name.mid(pos+1,posX-pos-1);
 		int yCol=worksheet->colIndex(yColName);
 
 		if (name.endsWith("(Z)",true))
 		{
-			pos=name.find(",",posX);
-			posX=name.find("(",pos);
+			pos=name.indexOf(",",posX);
+			posX=name.indexOf("(",pos);
 			QString zColName=name.mid(pos+1,posX-pos-1);
 			int zCol=worksheet->colIndex(zColName);
 
@@ -1754,22 +1754,22 @@ void Graph3D::updateColors(const QColor& meshColor,const QColor& axesColor,const
 void Graph3D::scaleFonts(double factor)
 {
 	QFont font = sp->coordinates()->axes[X1].numberFont();
-	font.setPointSizeFloat(font.pointSizeFloat()*factor);
+	font.setPointSizeF(font.pointSizeF()*factor);
 	sp->coordinates()->setNumberFont (font);
 
-	titleFnt.setPointSizeFloat(factor*titleFnt.pointSizeFloat());
+	titleFnt.setPointSizeF(factor*titleFnt.pointSizeF());
 	sp->setTitleFont(titleFnt.family(),titleFnt.pointSize(),titleFnt.weight(),titleFnt.italic());
 
 	font = xAxisLabelFont();
-	font.setPointSizeFloat(factor*font.pointSizeFloat());
+	font.setPointSizeF(factor*font.pointSizeF());
 	setXAxisLabelFont(font);
 
 	font = yAxisLabelFont();
-	font.setPointSizeFloat(factor*font.pointSizeFloat());
+	font.setPointSizeF(factor*font.pointSizeF());
 	setYAxisLabelFont(font);
 
 	font = zAxisLabelFont();
-	font.setPointSizeFloat(factor*font.pointSizeFloat());
+	font.setPointSizeF(factor*font.pointSizeF());
 	setZAxisLabelFont(font);
 }
 

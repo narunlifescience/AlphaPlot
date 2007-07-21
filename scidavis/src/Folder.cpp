@@ -135,7 +135,7 @@ MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 			else
 			{
 				QString text = s;
-				if (name == text.lower())
+				if (name == text.toLower())
 					return w;
 			}
 		}
@@ -150,7 +150,7 @@ MyWidget* Folder::findWindow(const QString& s, bool windowNames, bool labels,
 			else
 			{
 				QString text = s;
-				if (label == text.lower())
+				if (label == text.toLower())
 					return w;
 			}
 		}

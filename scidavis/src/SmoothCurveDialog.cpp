@@ -41,13 +41,11 @@
 #include <QComboBox>
 #include <QLayout>
 
-SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
 	smooth_method = method;
 
-    if ( !name )
-		setName( "SmoothCurveDialog" );
 	setWindowTitle(tr("SciDAVis - Smoothing Options"));
 
     QGroupBox *gb1 = new QGroupBox();

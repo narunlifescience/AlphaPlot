@@ -187,7 +187,7 @@ void AxesDialog::initScalesPage()
 		axesList->addItem( new QListWidgetItem(image2, tr( "Top" )));
   	    axesList->addItem( new QListWidgetItem(image3,  tr( "Right" )));
 		axesList->setIconSize(image0.size());
-		axesList->setCurrentRow(-1);
+		axesList->setCurrentRow(0);
 
 		// calculate a sensible width for the items list
 		// (default QListWidget size is 256 which looks too big)
@@ -610,7 +610,7 @@ void AxesDialog::changeMinorTicksLength (int minLength)
 		return;
 
     d_graph->changeTicksLength(minLength, boxMajorTicksLength->value());
-	boxMajorTicksLength->setMinValue(minLength);
+	boxMajorTicksLength->setMinimum(minLength);
 }
 
 void AxesDialog::changeMajorTicksLength (int majLength)
@@ -1148,15 +1148,15 @@ bool AxesDialog::updatePlot()
 {
 	if (generalDialog->currentWidget()==(QWidget*)scalesPage)
 	{
-		QString from=boxStart->text().lower();
-		QString to=boxEnd->text().lower();
-		QString step=boxStep->text().lower();
+		QString from=boxStart->text().toLower();
+		QString to=boxEnd->text().toLower();
+		QString step=boxStep->text().toLower();
         int a = mapToQwtAxis(axesList->currentRow());
 		double start, end, stp = 0;
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(from.ascii());
+			parser.SetExpr(from.toAscii().constData());
 			start=parser.Eval();
 		}
 		catch(mu::ParserError &e)
@@ -1168,7 +1168,7 @@ bool AxesDialog::updatePlot()
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(to.ascii());
+			parser.SetExpr(to.toAscii().constData());
 			end=parser.Eval();
 		}
 		catch(mu::ParserError &e)
@@ -1182,7 +1182,7 @@ bool AxesDialog::updatePlot()
 		    try
 		       {
 			    MyParser parser;
-			    parser.SetExpr(step.ascii());
+			    parser.SetExpr(step.toAscii().constData());
 			    stp=parser.Eval();
 		       }
            catch(mu::ParserError &e)
@@ -1251,7 +1251,7 @@ bool AxesDialog::updatePlot()
 		{
 			if (boxShowFormula->isChecked())
 			{
-				QString formula = boxFormula->text().lower();
+				QString formula = boxFormula->text().toLower();
 				try
 				{
 					double value = 1.0;
@@ -1260,7 +1260,7 @@ bool AxesDialog::updatePlot()
 						parser.DefineVar("x", &value);
 					else if (formula.contains("y"))
 						parser.DefineVar("y", &value);
-					parser.SetExpr(formula.ascii());
+					parser.SetExpr(formula.toAscii().constData());
 					parser.Eval();
 				}
 				catch(mu::ParserError &e)
@@ -1615,9 +1615,9 @@ switch (axisPos)
 		axis = 2;
 	break;
 	}
-if (generalDialog->currentPage()==(QWidget*)scalesPage)
+if (generalDialog->currentWidget()==(QWidget*)scalesPage)
 	axesList->setCurrentRow(axis);
-else if (generalDialog->currentPage()==(QWidget*)axesPage)
+else if (generalDialog->currentWidget()==(QWidget*)axesPage)
 	axesTitlesList->setCurrentRow(axis);
 }
 
@@ -1741,7 +1741,7 @@ void AxesDialog::initLabelsRotation(int xAngle, int yAngle)
 
 void AxesDialog::showGeneralPage()
 {
-	generalDialog->showPage (frame);
+	generalDialog->setCurrentIndex(generalDialog->indexOf(frame));
 }
 
 void AxesDialog::showFormulaBox()

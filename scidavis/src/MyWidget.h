@@ -88,7 +88,7 @@ public:
 	//! Set the caption policy
 	void setCaptionPolicy(CaptionPolicy policy) { caption_policy = policy; updateCaption(); }
  	//! Set the widget's name
-	void setName(const char *newname) { QWidget::setName(newname); updateCaption(); }
+	void setName(const char *newname) { QWidget::setObjectName(newname); updateCaption(); }
 
 	//! Return the creation date
 	QString birthDate(){return birthdate;};

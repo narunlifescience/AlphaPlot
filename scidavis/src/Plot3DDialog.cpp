@@ -49,11 +49,9 @@
 
 #include <qwt3d_color.h>
 
-Plot3DDialog::Plot3DDialog( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl )
+Plot3DDialog::Plot3DDialog( QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl )
 {
-	if ( !name )
-		setName( "Plot3DDialog" );
 	setWindowTitle( tr( "SciDAVis - Surface Plot Options" ) );
 
 	bars=0; points=0;
@@ -470,9 +468,9 @@ void Plot3DDialog::showUpperGreek()
 
 void Plot3DDialog::addSymbol(const QString& letter)
 {
-	if (generalDialog->currentPage()==(QWidget*)title)
+	if (generalDialog->currentWidget()==(QWidget*)title)
 		boxTitle->insert(letter);
-	else if (generalDialog->currentPage()==(QWidget*)axes)
+	else if (generalDialog->currentWidget()==(QWidget*)axes)
 		boxLabel->insert(letter);
 }
 
@@ -759,7 +757,7 @@ void Plot3DDialog::showLegend(bool show)
 
 void Plot3DDialog::changeZoom(int)
 {
-	if (generalDialog->currentPage() != (QWidget*)general)
+	if (generalDialog->currentWidget() != (QWidget*)general)
 		return;
 
 	emit updateZoom(boxZoom->value()*0.01);
@@ -769,7 +767,7 @@ void Plot3DDialog::changeZoom(int)
 
 void Plot3DDialog::changeTransparency(int val)
 {
-	if (generalDialog->currentPage() != (QWidget*)colors)
+	if (generalDialog->currentWidget() != (QWidget*)colors)
 		return;
 
 	emit updateTransparency(val*0.01);
@@ -779,12 +777,12 @@ bool Plot3DDialog::updatePlot()
 {
 	int axis=-1;
 
-	if (generalDialog->currentPage()==(QWidget*)bars)
+	if (generalDialog->currentWidget()==(QWidget*)bars)
 	{
 		emit updateBars(boxBarsRad->text().toDouble());
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)points)
+	if (generalDialog->currentWidget()==(QWidget*)points)
 	{
 		if (boxPointStyle->currentItem() == 0)
 			emit updatePoints(boxSize->text().toDouble(), boxSmooth->isChecked());
@@ -795,19 +793,19 @@ bool Plot3DDialog::updatePlot()
 			emit updateCones(boxConesRad->text().toDouble(), boxQuality->value());
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)title)
+	if (generalDialog->currentWidget()==(QWidget*)title)
 	{
 		emit updateTitle(boxTitle->text(),titleColor,titleFont);
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)colors)
+	if (generalDialog->currentWidget()==(QWidget*)colors)
 	{
 		emit updateTransparency(boxTransparency->value()*0.01);
 		emit updateDataColors(fromColor,toColor);
 		emit updateColors(meshColor,axesColor,numColor,labelColor,bgColor,gridColor);
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)general)
+	if (generalDialog->currentWidget()==(QWidget*)general)
 	{
 		emit showColorLegend(boxLegend->isChecked());
 		emit updateMeshLineWidth(boxMeshLineWidth->value());
@@ -820,17 +818,17 @@ bool Plot3DDialog::updatePlot()
 				boxZScale->value()*0.01);
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)scale)
+	if (generalDialog->currentWidget()==(QWidget*)scale)
 	{
 		axis=axesList->currentRow();
-		QString from=boxFrom->text().lower();
-		QString to=boxTo->text().lower();
+		QString from=boxFrom->text().toLower();
+		QString to=boxTo->text().toLower();
 		double start,end;
 		bool error=false;
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(from.ascii());
+			parser.SetExpr(from.toAscii().constData());
 			start=parser.Eval();
 		}
 		catch(mu::ParserError &e)
@@ -843,7 +841,7 @@ bool Plot3DDialog::updatePlot()
 		try
 		{
 			MyParser parser;
-			parser.SetExpr(to.ascii());
+			parser.SetExpr(to.toAscii().constData());
 			end=parser.Eval();
 		}
 		catch(mu::ParserError &e)
@@ -867,7 +865,7 @@ bool Plot3DDialog::updatePlot()
 						boxMajors->text(), boxMinors->text()));
 	}
 
-	if (generalDialog->currentPage()==(QWidget*)axes)
+	if (generalDialog->currentWidget()==(QWidget*)axes)
 	{
 		axis=axesList2->currentRow();
 		labels[axis] = boxLabel->text();
@@ -982,17 +980,17 @@ void Plot3DDialog::setScaling(double xVal, double yVal, double zVal)
 
 void Plot3DDialog::showGeneralTab()
 {
-	generalDialog->showPage(general);
+	generalDialog->setCurrentIndex(generalDialog->indexOf(general));
 }
 
 void Plot3DDialog::showTitleTab()
 {
-	generalDialog->setCurrentPage(2);
+	generalDialog->setCurrentIndex(2);
 }
 
 void Plot3DDialog::showAxisTab()
 {
-	generalDialog->setCurrentPage(1);
+	generalDialog->setCurrentIndex(1);
 }
 
 Plot3DDialog::~Plot3DDialog()

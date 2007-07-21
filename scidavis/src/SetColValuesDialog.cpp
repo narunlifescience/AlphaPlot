@@ -46,24 +46,22 @@
 #include <QTextEdit>
 #include <QTextCursor>
 
-SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )
-    : QDialog( parent, name, modal, fl ), scripted(env)
+SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
+    : QDialog( parent, fl ), scripted(env)
 {
-	if ( !name )
-		setName( "SetColValuesDialog" );
 	setWindowTitle( tr( "SciDAVis - Set column values" ) );
 	setSizeGripEnabled(true);
 
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 
 	hbox1->addWidget(new QLabel(tr("For row (i)")));
 	start = new QSpinBox();
-	start->setMinValue(1);
+	start->setMinimum(1);
 	hbox1->addWidget(start);
 
 	hbox1->addWidget(new QLabel(tr("to")));
 
 	end = new QSpinBox();
-	end->setMinValue(1);
+	end->setMinimum(1);
 	hbox1->addWidget(end);
 
 	if (sizeof(int)==2)
