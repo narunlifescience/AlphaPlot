@@ -1,0 +1,103 @@
+SciDAVis 0.1.0 project file
+<scripting-lang>	muParser
+<windows>	2
+<table>
+Table1	30	4	25 juil. 07 00:50:48
+geometry	10	8	299	277	
+header	X[X]	Y[Y]	X-error[Y]	Y-error[Y]
+ColWidth	50	50	70	70	
+<com>
+</com>
+ColType	0;0/14	0;0/14	0;0/14	0;0/14
+Comments					
+WindowLabel		2
+<data>
+0	1.0000000000000000e+00	2.0000000000000000e+00	1.0000000000000001e-01	2.0000000000000001e-01
+1	2.2000000000000002e+00	3.0000000000000000e+00	1.4999999999999999e-01	1.0000000000000001e-01
+2	3.0000000000000000e+00	5.2000000000000002e+00	2.6000000000000001e-01	5.2000000000000002e-01
+3	4.0000000000000000e+00	6.0999999999999996e+00	3.0499999999999999e-01	6.0999999999999999e-01
+4	5.5000000000000000e+00	7.2000000000000002e+00	3.5999999999999999e-01	7.1999999999999997e-01
+5	7.0000000000000000e+00	8.3000000000000007e+00	4.1499999999999998e-01	8.2999999999999996e-01
+6	9.1999999999999993e+00	6.2000000000000002e+00	3.1000000000000000e-01	6.2000000000000000e-01
+7	1.0000000000000000e+01	5.5000000000000000e+00	2.7500000000000002e-01	5.5000000000000004e-01
+8	1.1000000000000000e+01	3.2000000000000002e+00	1.6000000000000000e-01	3.2000000000000001e-01
+</data>
+</table>
+<multiLayer>
+Graph1	1	1	25 juil. 07 00:56:46
+geometry	315	5	497	422	active
+WindowLabel		2
+Margins	5	5	5	5
+Spacing	5	5
+LayerCanvasSize	448	299
+Alignement	0	0
+<graph>
+ggeometry	5	5	478	357
+PlotTitle	Simple plot with fit and error bars	#000000	4
+<Antialiasing>1</Antialiasing>
+Background	#ffffff	255
+Margin	0
+Border	0	#000000
+grid	0	0	0	0	3	0	1	18	2	1	0	0	2	0
+EnabledAxes	1	0	1	0	
+AxesTitles	X values	Y values			
+AxesTitleColors	#000000	#000000	#000000	#000000	
+AxesTitleAlignment	4	4	4	4
+TitleFont	Arial	15	75	0	0	0
+ScaleFont0	Arial	13	75	0	0	0
+ScaleFont1	Sans Serif	9	75	0	0	0
+ScaleFont2	Sans Serif	13	75	0	0	0
+ScaleFont3	Sans Serif	9	75	0	0	0
+AxisFont0	Sans Serif	12	50	0	0	0
+AxisFont1	Sans Serif	9	50	0	0	0
+AxisFont2	Sans Serif	12	50	0	0	0
+AxisFont3	Sans Serif	9	50	0	0	0
+EnabledTickLabels	1	1	1	1	
+AxesColors	#000000	#000000	#000000	#000000
+AxesNumberColors	#000000	#000000	#000000	#000000
+AxesBaseline	0	0	0	0	
+CanvasBackground	#ffffff	255
+curve	Table1_X	Table1_Y	1	0	0	0	1	9	1	0	0	0	0	0	1	2	0	0	29	1
+ErrorBars	0	Table1_X	Table1_Y	Table1_X-error	2	8	#0000ff	0	1	1
+ErrorBars	1	Table1_X	Table1_Y	Table1_Y-error	2	8	#0000ff	0	1	1
+FunctionCurve	0,PolyFit1,-1.2649042761877+2.76500095713188*x-0.210939566556281*x^2,x,1,11	100			0	1	1	0	2	0	0	0	19	0	0	0	0	2	0	0	1072693248	1
+scale	0	1	10	0	8	5	0	0
+scale	1	1	10	0	8	5	0	0
+scale	2	0	12	0	8	5	0	0
+scale	3	0	12	0	8	5	0	0
+LabelsFormat	0	4	0	4	0	4	0	4	
+AxisType	0	0	0	0	
+MajorTicks	1	1	1	1	
+MinorTicks	1	1	1	1	
+TicksLength	5	9
+DrawAxesBackbone	1
+AxesLineWidth	1
+LabelsRotation	0	0
+<legend>	0.647058823529412	10	Sans Serif	9	50	0	0	0	#000000	1	0	#ffffff	0	\c{1}Table1_Y	\c{4}PolyFit1	</legend>
+<text>	3.62727272727273	3.0506329113924	Sans Serif	10	50	0	0	0	#000000	0	0	#ffffff	0	Y=-1,265+2,765 X-0,211 X<sup>2</sup></text>
+</graph>
+</multiLayer>
+<log>
+[25 juil. 07 00:59:53	Plot: ''Graph1'']
+Polynomial fit of dataset: Table1_Y, using function: a0+a1*x+a2*x^2
+Weighting Method: Instrumental, using error bars dataset: Table1_Y-error
+From x = 1 to x = 11
+a0  = -1,2649042761877 +/- 2,3300598194638
+a1  = 2,76500095713188 +/- 0,806129674587723
+a2  = -0,210939566556281 +/- 0,0616742559918282
+--------------------------------------------------------------------------------------
+Chi^2/doF = 0,110345082719399
+R^2 = 0,98085886775828
+---------------------------------------------------------------------------------------
+[25 juil. 07 01:03:23	Plot: ''Graph1'']
+Polynomial fit of dataset: Table1_Y, using function: a0+a1*x+a2*x^2
+Weighting Method: Instrumental, using error bars dataset: Table1_Y-error
+From x = 1 to x = 11
+a0  = -1,2649042761877 +/- 2,3300598194638
+a1  = 2,76500095713188 +/- 0,806129674587723
+a2  = -0,210939566556281 +/- 0,0616742559918282
+--------------------------------------------------------------------------------------
+Chi^2/doF = 0,110345082719399
+R^2 = 0,98085886775828
+---------------------------------------------------------------------------------------
+</log>
