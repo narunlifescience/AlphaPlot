@@ -77,7 +77,7 @@
   </mediaobject>
 </figure>
 
-<para>Finally, you have to save your project in a '.qti' file with the &save-project-lnk; from the &file-menu-lnk; or with the &save-project-key; or with the &save-project-icon; icon from the &file-toolbar-lnk;. Depending on your application, you can export your plot to a standard image file with the command  &export-graph-current-lnk; from the &file-menu-lnk; (or with the &export-graph-current-key; keycode).
+<para>Finally, you have to save your project in a '.&file-ext;' file with the &save-project-lnk; from the &file-menu-lnk; or with the &save-project-key; or with the &save-project-icon; icon from the &file-toolbar-lnk;. Depending on your application, you can export your plot to a standard image file with the command  &export-graph-current-lnk; from the &file-menu-lnk; (or with the &export-graph-current-key; keycode).
 </para>
 
 <para>There are several types of plots which can be built from a table. They are presented in the &plot-menu-lnk;</para>

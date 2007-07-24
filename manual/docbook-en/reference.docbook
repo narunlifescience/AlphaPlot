@@ -20,7 +20,7 @@ The active items in the menus depend on the active window in the project. If the
        <varlistentry id="new-project-cmd">
           <term>&new-project-cmd; (&new-project-key;)</term>
           <listitem>
-             <para>Creates a new QtiPlot project file. If a project is open and saved, it will be closed. If a project is open is not saved, a dialog will be open to ask if the current project has to be saved.</para>
+             <para>Creates a new &appname; project file. If a project is open and saved, it will be closed. If a project is open is not saved, a dialog will be open to ask if the current project has to be saved.</para>
           </listitem>
        </varlistentry>
        <varlistentry id="new-table-cmd">
@@ -96,14 +96,14 @@ The active items in the menus depend on the active window in the project. If the
 <varlistentry id="open-cmd"> 
   <term>File -> &open-cmd; (&open-key;)</term>
   <listitem>
-     <para>Opens an existing QtiPlot project file (.qti). If your project has been save in a compressed format, you must select the <emphasis>.qti.gz</emphasis> file format.</para>
+     <para>Opens an existing &appname; project file (default file extension .&file-ext;). If your project has been save in a compressed format, you must select the <emphasis>.&file-ext;.gz</emphasis> file format.</para>
      <para>This command can also be used to open projects which have been built with the <emphasis>Origin</emphasis> software.</para>
   </listitem>
 </varlistentry> 
 <varlistentry id="recent-projects-cmd"> 
   <term>File-> &recent-projects-cmd;</term>
   <listitem>
-     <para>Opens a list of the most recently used QtiPlot project files. You can open one of these files by selecting it from the list. If the file doesn't exist anymore an error message will pop-out and the file will be automatically deleted from the list.</para>
+     <para>Opens a list of the most recently used &appname; project files. You can open one of these files by selecting it from the list. If the file doesn't exist anymore an error message will pop-out and the file will be automatically deleted from the list.</para>
   </listitem>
 </varlistentry> 
 <!--
@@ -136,7 +136,7 @@ The active items in the menus depend on the active window in the project. If the
   <term>File-> &save-project-cmd; (&save-project-key;)</term>
   <listitem>
      <para>Saves the actual project. If the project hasn't been saved yet ("untitled" project), a dialog will open, allowing to save the project to a specific location.In a project file all settings and all plots are stored in ASCII format.</para>
-     <para>If the project include large tables, it may be usefull to save the project in a compressed file format. The free zlib library is used to build files in gzip formats ( .qti.gz ).</para>
+     <para>If the project include large tables, it may be usefull to save the project in a compressed file format. The free zlib library is used to build files in gzip formats ( .&file-ext;.gz ).</para>
   </listitem>
 </varlistentry>
 <varlistentry id="save-project-as-cmd">

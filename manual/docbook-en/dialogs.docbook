@@ -651,7 +651,7 @@
 <sect1 id="preferences-dialog">
   <title>Preferences Dialog</title>
   <para>The preference dialog is used to customize the application. It has six different tabs. If you confirm your changes to the default behaviour of the application, the changes are saved and stored imediatelly.</para>
-  <para>The first icon can be selected to change the <emphasis>General</emphasis> options of the application. In the first tab:  <emphasis>Application</emphasis>, the style is the general decoration used for the windows. It defines the aspect of the buttons and dialog boxes, as an example all screenshots presented in this manual have been done with the Keramik style available in KDE. The available styles are part of the Qt library. The font is the general font used for the GUI (menus, dialogs, etc), it doesn't apply to the plots. You can select the language of the application in the corresponding combo-box. All the available translations can be downloaded from the following address: <ulink url="http://soft.proindependent.com/translations.html">http://soft.proindependent.com/translations.html</ulink> and must be placed in a folder called <emphasis>translations</emphasis>, situated in the same location as the QtiPlot executable, in order to be loaded by the application.</para>
+  <para>The first icon can be selected to change the <emphasis>General</emphasis> options of the application. In the first tab:  <emphasis>Application</emphasis>, the style is the general decoration used for the windows. It defines the aspect of the buttons and dialog boxes, as an example all screenshots presented in this manual have been done with the Keramik style available in KDE. The available styles are part of the Qt library. The font is the general font used for the GUI (menus, dialogs, etc), it doesn't apply to the plots. You can select the language of the application in the corresponding combo-box. All the available translations can be downloaded from the following address: <ulink url="http://soft.proindependent.com/translations.html">http://soft.proindependent.com/translations.html</ulink> and must be placed in a folder called <emphasis>translations</emphasis>, situated in the same location as the &appname; executable, in order to be loaded by the application.</para>
   <figure id="fig-preferences-dialog-1">
     <title>The preferences dialog: general parameters for the application.</title>
     <mediaobject> 
@@ -776,7 +776,7 @@
   </figure>
 
   <para>If you make some changes in the table, the values are not computed again.
-	  You have to explicitly tell QtiPlot to recalculate individual cells or whole columns or rows by selecting "Recalculate" from their context menu or pressing Control+Return.
+	  You have to explicitly tell &appname; to recalculate individual cells or whole columns or rows by selecting "Recalculate" from their context menu or pressing Control+Return.
   </para>
 
 </sect1>

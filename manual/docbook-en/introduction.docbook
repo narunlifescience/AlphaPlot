@@ -6,15 +6,16 @@ application that explains what it does and where to report
 problems. Basically a long version of the abstract.  Don't include a
 revision history. (see installation appendix comment) -->
 
-<sect1 id="sec-qtiplot-intro">
+<sect1 id="sec-scidavis-intro">
 <title>What &appname; does</title>
 
 <para>&appname; is a program for two- and three-dimensional graphical presentation of data sets and for data analysis. The plots can be produced from data sets stored in <link linkend="sec-intro-table">tables</link> or from analytical functions.</para>
-<para>The projet has been created by &ion; in 2000, and he was the only programmer between 2000 and 2005. Since 2006, new contributors have joined Ion and the project is hosted by <ulink url="www.berlios.de/projects/qtiplot/">BerliOS Developper</ulink>. The software aims to be a tool for analysis and graphical representation of data in the way of commercial software like Origin.</para>
+<para>The origin of the project is the software which has been created by &ion; in 2000, he was the only programmer between 2000 and 2005. Since 2006, new contributors have joined &ion;. In 2007, a fork has lead to the creation of the &appname; project. The project is hosted by <ulink url="&homepage">Sourceforge</ulink>.</para>
+<para>This software aims to be a tool for analysis and graphical representation of data, allowing powerfull mathematical treatment and visualization of scientific data while keeping a user-friendly graphical user interface. Another keypoint for the &appname; project is be a multi-system software, it should work on Windows, Linux, Os-X systems.</para>
 
 <para>&appname; is a dynamic tool, the plots created from data sets and the spreadsheets owing the data are interconected. When the spreadsheets are modified, all the objects in the depending plots (curves, axes scales, legends) are automatically updated. For example, deleting a spreadsheet or only some columns will automatically remove all the corresponding curves from the depending plots.</para>
 
-<para>All settings of a complete set of tables, matrix and plots can be saved in project files, having the extention ".qti". These project files may be opened using the <link linkend="specify-a-file">command line</link>, or using the <link linkend="sec-file-menu">File menu</link>, or by using the <emphasis>Open project</emphasis> icon from the <link linkend="sec-file-toolbar">File toolbar</link>.</para>
+<para>All settings of a complete set of tables, matrix and plots can be saved in project files, having the extention ".&file-ext;". These project files may be opened using the <link linkend="specify-a-file">command line</link>, or using the <link linkend="sec-file-menu">File menu</link>, or by using the <emphasis>Open project</emphasis> icon from the <link linkend="sec-file-toolbar">File toolbar</link>.</para>
 
 <para>The plots can be exported to several graphic formats such as JPEG or PNG and inserted as images in documents or presentations.</para>
 
@@ -32,16 +33,16 @@ revision history. (see installation appendix comment) -->
 <sect2 id="specify-a-file">
 <title>Specify a File</title>
 
-<para>When starting QtiPlot from the command prompt, you can supply the name of a project file:</para>
+<para>When starting &appname; from the command prompt, you can supply the name of a project file:</para>
 
 <screen>
-qtiplot file_name.qti
+&appname; file_name.&file-ext;
 </screen>
 
 <para>or the name of an ASCII file:</para>
 
 <screen>
-qtiplot ASCII_file_name
+&appname; ASCII_file_name
 </screen>
 
 <para> In this latter case a new "untitled" project will be created, containing a spreadsheet with the ASCII data in the file and a 2D plot of all columns as a function of the first column in the file. You must take care of the format of the ASCII file because it will be read with the current values of the &set-import-options-lnk; dialog. These default values are:</para>
@@ -61,11 +62,11 @@ qtiplot ASCII_file_name
 <title>General Concepts and Terms</title>
 <para>Several plots and all the data related to these plots can be save in a <emphasis>project</emphasis> file, the project is therefore the main container of &appname;. The following screenshot gives an example of a typical session. This example shows the <link linkend="sec-intro-log-window">log panel</link> at the top of the workspace, the <link linkend="sec-intro-project-explorer">project explorer</link> at the bottom, a <link linkend="sec-intro-table">table</link> and a <link linkend="sec-intro-plot-window">plot window</link> are shown while other are docked or hidden.</para>
 
-<figure id="fig-qtiplot-session">
+<figure id="fig-scidavis-session">
   <title>A typical &appname; session</title>
   <mediaobject>
     <imageobject>
-      <imagedata  format="PNG" fileref="pics/qtiplot-session.png"/>
+      <imagedata  format="PNG" fileref="pics/scidavis-session.png"/>
     </imageobject>
   </mediaobject>
 </figure>
@@ -132,7 +133,7 @@ qtiplot ASCII_file_name
 
       <indexterm><primary>table</primary></indexterm>
 <para>
-The table is the main part of QtiPlot when working with data. For controlling and converting data the spreadsheet contains a highly customizable table: all colors and font preferences can be set using the &preferences-lnk; of the &view-menu-lnk;. You can resize a table in terms of rows and columns using the &table-menu-lnk; with &rows-lnk; or &columns-lnk;. 
+The table is the main part of &appname; when working with data. For controlling and converting data the spreadsheet contains a highly customizable table: all colors and font preferences can be set using the &preferences-lnk; of the &view-menu-lnk;. You can resize a table in terms of rows and columns using the &table-menu-lnk; with &rows-lnk; or &columns-lnk;. 
 </para>
 
 <figure id="fig-the-table">

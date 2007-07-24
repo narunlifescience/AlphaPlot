@@ -2,7 +2,7 @@
 
 <title>Mathematical Expressions and Scripting</title>
 
-  <para>Starting with version 0.8.7, QtiPlot supports different interpreters
+  <para>&appname; supports different interpreters
   for evaluating mathematical expressions and for executing scripts.</para>
 
   <sect1 id="sec-muParser">
@@ -433,7 +433,7 @@
 
     <para>This module provides bindings to the <ulink
     url="http://www.python.org">Python</ulink> programming language. Basic
-    usage in the context of QtiPlot will be discussed below, but for more
+    usage in the context of &appname; will be discussed below, but for more
     in-depth information on the language itself, please refer to its excellent
     <ulink url="http://www.python.org/doc">documentation</ulink>.</para>
 
@@ -442,34 +442,34 @@
 
       <para>This file allows you to customize the Python environment, import
       modules and define functions and classes that will be available in all
-      of your projects. The default initialization file shipped with QtiPlot
+      of your projects. The default initialization file shipped with &appname;
       imports Python's <link linkend="Python-functions">standard math
       functions</link> as well as special functions from <ulink
       url="http://www.scipy.org">SciPy</ulink> (if available). Also, it
       creates some handy shortcuts, like
       <userinput>table("table1")</userinput> for
-      <userinput>qti.app.table("table1")</userinput>.</para>
+      <userinput>&python-pref;.app.table("table1")</userinput>.</para>
 
-      <para>When activating Python support, QtiPlot searches the following
+      <para>When activating Python support, &appname; searches the following
       places, executing the first file it can find:</para>
 
       <orderedlist>
         <listitem>
-          <para>~/.qtiplotrc.py[c]</para>
+          <para>~/.&python-rc;[c]</para>
         </listitem>
 
         <listitem>
-          <para>/etc/qtiplotrc.py[c]</para>
+          <para>/etc/&python-rc;[c]</para>
         </listitem>
 
         <listitem>
-          <para>./qtiplotrc.py[c]</para>
+          <para>./&python-rc;[c]</para>
         </listitem>
       </orderedlist>
 
       <para>Files ending in .pyc are compiled versions of the .py source files
       and therefore load a bit faster. The compiled version will be used if
-      the source file is older or nonexistent. Otherwise, QtiPlot will try to
+      the source file is older or nonexistent. Otherwise, &appname; will try to
       compile the source file (if you've got write permissions for the output
       file).</para>
     </sect2>
@@ -479,7 +479,7 @@
 
       <para>Mathematical expressions work largely as expected. However,
       there's one caveat, especially when switching from muParser (which has
-      been used exclusively in previous versions of QtiPlot):
+      been used exclusively in previous versions of &appname;):
       <userinput>a^b</userinput> does not mean "raise a to the power of b" but
       rather "bitwise exclusive or of a and b"; Python's power operator is **.
       Thus: <screen width="40">
@@ -536,17 +536,17 @@ def answer():
 global answer
 def answer():
 	return 42
-	</programlisting> You can add your own function to QtiPlot's function list. We'll
+	</programlisting> You can add your own function to &appname;'s function list. We'll
       also provide a documentation string that will show up, for example, in
       the "set column values" dialog: <programlisting width="40">
 global answer
 def answer():
 	"Return the answer to the ultimate question about life, the universe and everything."
 	return 42
-qti.mathFunctions["answer"] = answer
+&python-pref;.mathFunctions["answer"] = answer
 	</programlisting> If you want to remove a function from the list, do: <programlisting
       width="40">
-del qti.mathFunctions["answer"]
+del &python-pref;.mathFunctions["answer"]
 	</programlisting></para>
 
       <para>Note that functions have their own local scope. That means that if
@@ -574,7 +574,7 @@ for i in range(1, 11):
 
       <para>Python comes with some basic mathematical functions that are
       automatically imported (if you use the <link
-      linkend="Python-init">initialization file</link> shipped with QtiPlot).
+      linkend="Python-init">initialization file</link> shipped with &appname;).
       Along with them, the constants e (Euler's number) and pi (the one and
       only) are defined.</para>
 
@@ -753,11 +753,11 @@ for i in range(1, 11):
     </sect2>
 
     <sect2 id="Python-API">
-      <title>Accessing QtiPlot's functions from Python</title>
+      <title>Accessing &appname;'s functions from Python</title>
 
       <para>We will assume that you are using the <link
       linkend="Python-init">initialization file</link> shipped with
-      QtiPlot.</para>
+      &appname;.</para>
 
       <sect3>
         <title>Establishing contact</title>

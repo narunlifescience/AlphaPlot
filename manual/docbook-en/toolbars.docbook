@@ -156,13 +156,13 @@ The <emphasis>File Toolbar</emphasis> allows to access commands mainly from the 
    <entry>&open-icon;</entry>
    <entry>&open-lnk;</entry>
    <entry>&open-key;</entry>
-   <entry>Opens an existing QtiPlot project file.</entry>
+   <entry>Opens an existing &appname; project file.</entry>
   </row>
   <row>
    <entry>&open-template-icon;</entry>
    <entry>&open-template-lnk;</entry>
    <entry></entry>
-   <entry>Opens an existing template QtiPlot project file.</entry>
+   <entry>Opens an existing template &appname; project file.</entry>
   </row>
    <row>
    <entry>&save-project-icon;</entry>

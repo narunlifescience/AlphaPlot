@@ -8,6 +8,12 @@
   <!ENTITY kappdirectory "scidavis">
   <!ENTITY kappdownload "http://sourceforge.net/project/scidavis" >
   <!ENTITY pic-dir "pics/" >
+  <!ENTITY file-ext "sciprj" >
+<!--
+		for python scripting...
+-->
+  <!ENTITY python-rc "scidavisrc.py" >
+  <!ENTITY python-pref "sci" >
 
   <!ENTITY % addindex "IGNORE">
   <!ENTITY % English "INCLUDE">
@@ -607,8 +613,8 @@
   <!ENTITY help-key "<keycode>Ctrl-H</keycode>"> 
 <!ENTITY help-folder-cmd "<command>Choose Help Folder...</command>"> 
 <!ENTITY help-folder-lnk '<link linkend="help-folder-cmd"><command>Choose Help Folder...</command> command</link>'> 
-<!ENTITY qtiplot-homepage-cmd "<command>Qtiplot Homepage</command>"> 
-<!ENTITY qtiplot-homepage-lnk '<link linkend="qtiplot-homepage-cmd"><command>Qtiplot Homepage</command> command</link>'> 
+<!ENTITY project-homepage-cmd "<command>&appname; Homepage</command>"> 
+<!ENTITY project-homepage-lnk '<link linkend="project-homepage-cmd"><command>&appname; Homepage</command> command</link>'> 
 <!ENTITY search-updates-cmd "<command>Search for Updates</command>"> 
 <!ENTITY search-updates-lnk '<link linkend="search-updates-cmd"><command>Search for Updates</command> command</link>'> 
 <!ENTITY download-manual-cmd "<command>Download Manual</command>"> 
@@ -619,8 +625,8 @@
 <!ENTITY technical-support-lnk '<link linkend="technical-support-cmd"><command>Technical Support</command> command</link>'> 
 <!ENTITY make-a-donation-cmd "<command>Make a Donation</command>"> 
 <!ENTITY make-a-donation-lnk '<link linkend="make-a-donation-cmd"><command>Make a Donation</command> command</link>'> 
-<!ENTITY about-cmd "<command>About Qtiplot</command>"> 
-<!ENTITY about-lnk '<link linkend="about-cmd"><command>About Qtiplot</command> command</link>'> 
+<!ENTITY about-cmd "<command>About &appname;</command>"> 
+<!ENTITY about-lnk '<link linkend="about-cmd"><command>About &appname;</command> command</link>'> 
   <!ENTITY about-key "<keycode>F1</keycode>"> 
 <!--
               toolbar: 3d plot
