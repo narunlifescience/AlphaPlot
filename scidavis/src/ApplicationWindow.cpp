@@ -1253,9 +1253,13 @@ void ApplicationWindow::plot3DRibbon()
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	Table* w = (Table*)ws->activeWindow();
-	if(int(w->selectedColumns().count())==1)
-		w->plot3DRibbon();
+	Table* table = static_cast<Table*>(ws->activeWindow());
+	if(table->selectedColumns().count() == 1)
+	{
+		if (!validFor3DPlot(table))
+			return;
+		dataPlot3D(table, table->colName(table->selectedColumn()));
+	}
 	else
 		QMessageBox::warning(this,tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 }
@@ -1288,13 +1292,17 @@ void ApplicationWindow::plot3DBars()
 
 	if (w->inherits("Table"))
 	{
-		if(int(((Table*)w)->selectedColumns().count())==1)
-			((Table*)w)->plot3DBars();
+		Table *table = static_cast<Table *>(w);
+		if (!validFor3DPlot(table))
+			return;
+
+		if(table->selectedColumns().count() == 1)
+			dataPlotXYZ(table, table->colName(table->selectedColumn()), Graph3D::Bars);
 		else
 			QMessageBox::warning(this, tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
-	else
-		plot3DMatrix (Qwt3D::USER);
+	else if(w->inherits("Matrix"))
+		plot3DMatrix(Qwt3D::USER);
 }
 
 void ApplicationWindow::plot3DScatter()
@@ -1305,58 +1313,56 @@ void ApplicationWindow::plot3DScatter()
 
 	if (w->inherits("Table"))
 	{
-		if(int(((Table*)w)->selectedColumns().count())==1)
-			((Table*)w)->plot3DScatter();
+		Table *table = static_cast<Table *>(w);
+		if (!validFor3DPlot(table))
+			return;
+
+		if(table->selectedColumns().count() == 1)
+			dataPlotXYZ(table, table->colName(table->selectedColumn()), Graph3D::Scatter);
 		else
 			QMessageBox::warning(this, tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
 	}
-	else if (w->inherits("Matrix"))
+	else if(w->inherits("Matrix"))
 		plot3DMatrix (Qwt3D::POINTS);
 }
 
 void ApplicationWindow::plot3DTrajectory()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
+	QWidget* w = ws->activeWindow();
+	if (!w)
 		return;
 
-	Table* w = (Table*)ws->activeWindow();
-	if(int(w->selectedColumns().count())==1)
-		w->plot3DTrajectory();
-	else
-		QMessageBox::warning(this, tr("SciDAVis - Plot error"),
-				tr("You must select exactly one column for plotting!"));
+	if (w->inherits("Table"))
+	{
+		Table *table = static_cast<Table *>(w);
+		if (!validFor3DPlot(table))
+			return;
+
+		if(table->selectedColumns().count() == 1)
+			dataPlotXYZ(table, table->colName(table->selectedColumn()), Graph3D::Trajectory);
+		else
+			QMessageBox::warning(this, tr("SciDAVis - Plot error"),tr("You must select exactly one column for plotting!"));
+	}
 }
 
 void ApplicationWindow::plotVerticalBars()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotVB();
+	generate2DGraph(Graph::VerticalBars);
 }
 
 void ApplicationWindow::plotHorizontalBars()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotHB();
+	generate2DGraph(Graph::HorizontalBars);
 }
 
 void ApplicationWindow::plotHistogram()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotHistogram();
+	generate2DGraph(Graph::Histogram);
 }
 
 void ApplicationWindow::plotArea()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotArea();
+	generate2DGraph(Graph::Area);
 }
 
 void ApplicationWindow::plotPie()
@@ -1364,67 +1370,63 @@ void ApplicationWindow::plotPie()
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	if(int(((Table*)ws->activeWindow())->selectedColumns().count())==1)
-		((Table*)ws->activeWindow())->plotPie();
-	else
+	Table * table = static_cast<Table *>(ws->activeWindow());
+
+	if(table->selectedColumns().count() != 1)
+	{
 		QMessageBox::warning(this, tr("SciDAVis - Plot error"),
 				tr("You must select exactly one column for plotting!"));
+		return;
+	}
+	if (table->noXColumn())
+	{
+		QMessageBox::critical(0,tr("SciDAVis - Error"), tr("Please set a default X column for this table, first!"));
+		return;
+	}
+
+	QStringList s = table->selectedColumns();
+	if (s.count()>0)
+	{
+		Q3TableSelection sel = table->getSelection();
+		multilayerPlot(table, s, Graph::Pie, sel.topRow(), sel.bottomRow());
+	}
+	else
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select a column to plot!"));
 }
 
 void ApplicationWindow::plotL()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotL();
+	generate2DGraph(Graph::Line);
 }
 
 void ApplicationWindow::plotP()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotP();
+	generate2DGraph(Graph::Scatter);
 }
 
 void ApplicationWindow::plotLP()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotLP();
+	generate2DGraph(Graph::LineSymbols);
 }
 
 void ApplicationWindow::plotVerticalDropLines()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotVerticalDropLines();
+	generate2DGraph(Graph::VerticalDropLines);
 }
 
 void ApplicationWindow::plotSpline()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotSpline();
+	generate2DGraph(Graph::Spline);
 }
 
 void ApplicationWindow::plotVertSteps()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotVertSteps();
+	generate2DGraph(Graph::VerticalSteps);
 }
 
 void ApplicationWindow::plotHorSteps()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table*)ws->activeWindow())->plotHorSteps();
+	generate2DGraph(Graph::HorizontalSteps);
 }
 
 void ApplicationWindow::plotVectXYXY()
@@ -1432,7 +1434,19 @@ void ApplicationWindow::plotVectXYXY()
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->plotVectXYXY();
+	Table * table = static_cast<Table *>(ws->activeWindow());
+
+	if (!validFor2DPlot(table))
+		return;
+
+	QStringList s = table->selectedColumns();
+	if (s.count() == 4)
+	{
+		Q3TableSelection sel = table->getSelection();
+		multilayerPlot(table, s, Graph::VectXYXY, sel.topRow(), sel.bottomRow());
+	}
+	else
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select four columns for this operation!"));
 }
 
 void ApplicationWindow::plotVectXYAM()
@@ -1440,7 +1454,19 @@ void ApplicationWindow::plotVectXYAM()
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	((Table*)ws->activeWindow())->plotVectXYAM();
+	Table * table = static_cast<Table *>(ws->activeWindow());
+
+	if (!validFor2DPlot(table))
+		return;
+
+	QStringList s = table->selectedColumns();
+	if (s.count() == 4)
+	{
+		Q3TableSelection sel = table->getSelection();
+		multilayerPlot(table, s, Graph::VectXYAM, sel.topRow(), sel.bottomRow());
+	}
+	else
+		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select four columns for this operation!"));
 }
 
 void ApplicationWindow::renameListViewItem(const QString& oldName,const QString& newName)
@@ -2144,7 +2170,7 @@ MultiLayer* ApplicationWindow::multilayerPlot(int c, int r, int style)
 		return 0;
 
 	Table* w = (Table*)ws->activeWindow();
-	if (!w->valid2DPlot())
+	if (!validFor2DPlot(w))
 		return 0;
 
 	QStringList list=w->selectedYColumns();
@@ -5568,34 +5594,34 @@ void ApplicationWindow::showColMenu(int c)
 	if ((int)w->selectedColumns().count()==1)
 	{
 		w->setSelectedCol(c);
-		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),w, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),w, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),w,SLOT(plotLP()));
+		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),this, SLOT(plotL()));
+		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),this, SLOT(plotP()));
+		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),this,SLOT(plotLP()));
 
-		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Horizontal Steps"),w,SLOT(plotHorSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),this,SLOT(plotVerticalDropLines()));
+		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),this,SLOT(plotSpline()));
+		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Horizontal Steps"),this,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Columns"),w,SLOT(plotVB()));
-		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Rows"),w,SLOT(plotHB()));
-		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),w,SLOT(plotArea()));
+		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Vertical Bars"),this,SLOT(plotVerticalBars()));
+		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Horizontal Bars"),this,SLOT(plotHorizontalBars()));
+		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),this,SLOT(plotArea()));
 
-		plot.addAction(QIcon(QPixmap(":/pie.xpm")),tr("&Pie"),w,SLOT(plotPie()));
+		plot.addAction(QIcon(QPixmap(":/pie.xpm")),tr("&Pie"),this,SLOT(plotPie()));
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/ribbon.xpm")),tr("3D Ribbo&n"),w,SLOT(plot3DRibbon()));
-		plot.addAction(QIcon(QPixmap(":/bars.xpm")),tr("3D &Bars"),w,SLOT(plot3DBars()));
-		plot.addAction(QIcon(QPixmap(":/scatter.xpm")),tr("3&D Scatter"),w,SLOT(plot3DScatter()));
-		plot.addAction(QIcon(QPixmap(":/trajectory.xpm")),tr("3D &Trajectory"),w,SLOT(plot3DTrajectory()));
+		plot.addAction(QIcon(QPixmap(":/ribbon.xpm")),tr("3D Ribbo&n"),this,SLOT(plot3DRibbon()));
+		plot.addAction(QIcon(QPixmap(":/bars.xpm")),tr("3D &Bars"),this,SLOT(plot3DBars()));
+		plot.addAction(QIcon(QPixmap(":/scatter.xpm")),tr("3&D Scatter"),this,SLOT(plot3DScatter()));
+		plot.addAction(QIcon(QPixmap(":/trajectory.xpm")),tr("3D &Trajectory"),this,SLOT(plot3DTrajectory()));
 
 		plot.addSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),w,SLOT(plotHistogram()));
+		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),this,SLOT(plotHistogram()));
 		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
@@ -5673,26 +5699,27 @@ void ApplicationWindow::showColMenu(int c)
 	}
 	else if ((int)w->selectedColumns().count()>1)
 	{
-		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),w, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),w, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),w,SLOT(plotLP()));
+		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),this, SLOT(plotL()));
+		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),this, SLOT(plotP()));
+		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),this,SLOT(plotLP()));
 
-		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),w,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),w,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Vertical Steps"),w,SLOT(plotHorSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),this,SLOT(plotVerticalDropLines()));
+		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),this,SLOT(plotSpline()));
+		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotVertSteps()));
+		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotHorSteps()));
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Columns"),w,SLOT(plotVB()));
-		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Rows"),w,SLOT(plotHB()));
-		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),w,SLOT(plotArea()));
-		plot.addAction(QIcon(QPixmap(":/vectXYXY.xpm")),tr("Vectors &XYXY"), w, SLOT(plotVectXYXY()));
+		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Vertical Bars"),this,SLOT(plotVerticalBars()));
+		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Horizontal Bars"),this,SLOT(plotHorizontalBars()));
+		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),this,SLOT(plotArea()));
+		plot.addAction(QIcon(QPixmap(":/vectXYXY.xpm")),tr("Vectors &XYXY"), this, SLOT(plotVectXYXY()));
+		plot.addAction(QIcon(QPixmap(":/vectXYAM.xpm")),tr("Vectors &XYAM"), this, SLOT(plotVectXYAM()));
 		plot.addSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),w,SLOT(plotHistogram()));
+		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),this,SLOT(plotHistogram()));
 		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
@@ -10640,18 +10667,12 @@ void ApplicationWindow::connectTable(Table* w)
 	connect (w,SIGNAL(removedCol(const QString&)),this,SLOT(removeCurves(const QString&)));
 	connect (w,SIGNAL(modifiedData(Table *, const QString&)),
 			this,SLOT(updateCurves(Table *, const QString&)));
-	connect (w,SIGNAL(plotCol(Table*,const QStringList&, int, int, int)),
-			this, SLOT(multilayerPlot(Table*,const QStringList&, int, int, int)));
 	connect (w,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (w,SIGNAL(optionsDialog()),this,SLOT(showColumnOptionsDialog()));
 	connect (w,SIGNAL(colValuesDialog()),this,SLOT(showColumnValuesDialog()));
 	connect (w,SIGNAL(showContextMenu(bool)),this,SLOT(showTableContextMenu(bool)));
 	connect (w,SIGNAL(changedColHeader(const QString&,const QString&)),this,SLOT(updateColNames(const QString&,const QString&)));
 	connect (w,SIGNAL(createTable(const QString&,int,int,const QString&)),this,SLOT(newTable(const QString&,int,int,const QString&)));
-
-	//3d plots
-	connect( w,SIGNAL(plot3DRibbon(Table*,const QString&)),this, SLOT(dataPlot3D(Table*,const QString&)));
-	connect( w,SIGNAL(plotXYZ(Table*,const QString&, int)),this, SLOT(dataPlotXYZ(Table*,const QString&, int)));
 
 	w->askOnCloseEvent(confirmCloseTable);
 }
@@ -10896,10 +10917,10 @@ void ApplicationWindow::createActions()
 	actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")), tr("&Vertical Steps"), this);
 	connect(actionPlotVertSteps, SIGNAL(activated()), this, SLOT(plotVertSteps()));
 
-	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Columns"), this);
+	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Vertical Bars"), this);
 	connect(actionPlotVerticalBars, SIGNAL(activated()), this, SLOT(plotVerticalBars()));
 
-	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Rows"), this);
+	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Horizontal Bars"), this);
 	connect(actionPlotHorizontalBars, SIGNAL(activated()), this, SLOT(plotHorizontalBars()));
 
 	actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
@@ -10911,7 +10932,7 @@ void ApplicationWindow::createActions()
 	actionPlotVectXYAM = new QAction(QIcon(QPixmap(":/vectXYAM.xpm")), tr("Vectors XY&AM"), this);
 	connect(actionPlotVectXYAM, SIGNAL(activated()), this, SLOT(plotVectXYAM()));
 
-	actionPlotVectXYXY = new QAction(QIcon(QPixmap(":/vectXYXY.xpm")), tr("&Vectors &XYXY"), this);
+	actionPlotVectXYXY = new QAction(QIcon(QPixmap(":/vectXYXY.xpm")), tr("Vectors &XYXY"), this);
 	connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
 
 	actionPlotHistogram = new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
@@ -11504,10 +11525,10 @@ void ApplicationWindow::translateActionsStrings()
 	actionPlotVertSteps->setMenuText(tr("&Vertical Steps"));
 	actionPlotHorSteps->setMenuText(tr("&Horizontal Steps"));
 
-	actionPlotVerticalBars->setMenuText(tr("&Columns"));
+	actionPlotVerticalBars->setMenuText(tr("&Vertical Bars"));
 	actionPlotVerticalBars->setToolTip(tr("Plot with vertical bars"));
 
-	actionPlotHorizontalBars->setMenuText(tr("&Rows"));
+	actionPlotHorizontalBars->setMenuText(tr("&Horizontal Bars"));
 	actionPlotHorizontalBars->setToolTip(tr("Plot with horizontal bars"));
 
 	actionPlotArea->setMenuText(tr("&Area"));
@@ -11516,7 +11537,7 @@ void ApplicationWindow::translateActionsStrings()
 	actionPlotPie->setMenuText(tr("&Pie"));
 	actionPlotPie->setToolTip(tr("Plot pie"));
 
-	actionPlotVectXYXY->setMenuText(tr("&Vectors XYXY"));
+	actionPlotVectXYXY->setMenuText(tr("Vectors &XYXY"));
 	actionPlotVectXYXY->setToolTip(tr("Vectors XYXY"));
 
 	actionPlotVectXYAM->setMenuText(tr("Vectors XY&AM"));
@@ -12172,10 +12193,7 @@ void ApplicationWindow::disregardCol()
 
 void ApplicationWindow::plotBoxDiagram()
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
-		return;
-
-	((Table *)ws->activeWindow())->plotBoxDiagram();
+	generate2DGraph(Graph::Box);
 }
 
 void ApplicationWindow::fitMultiPeakGauss()
@@ -14075,4 +14093,64 @@ void ApplicationWindow::setActiveWindowFromAction()
 	QAction *action = qobject_cast<QAction *>(sender());
 	if (action)
 		activateWindow( qobject_cast<MyWidget *>(window(action->text())) );
+}
+
+bool ApplicationWindow::validFor3DPlot(Table *table)
+{
+	if (table->numCols()<2)
+	{
+		QMessageBox::critical(0,tr("SciDAVis - Error"),tr("You need at least two columns for this operation!"));
+		return false;
+	}
+	if (table->selectedColumn() < 0 || table->colPlotDesignation(table->selectedColumn()) != Table::Z)
+	{
+		QMessageBox::critical(0,tr("SciDAVis - Error"),tr("Please select a Z column for this operation!"));
+		return false;
+	}
+	if (table->noXColumn())
+	{
+		QMessageBox::critical(0,tr("SciDAVis - Error"),tr("You need to define a X column first!"));
+		return false;
+	}
+	if (table->noYColumn())
+	{
+		QMessageBox::critical(0,tr("SciDAVis - Error"),tr("You need to define a Y column first!"));
+		return false;
+	}
+	return true;
+}
+
+bool ApplicationWindow::validFor2DPlot(Table *table)
+{
+	if (!table->selectedYColumns().count())
+  	{
+  		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select a Y column to plot!"));
+  	    return false;
+  	}
+  	else if (table->numCols()<2)
+	{
+		QMessageBox::critical(this, tr("SciDAVis - Error"),tr("You need at least two columns for this operation!"));
+		return false;
+	}
+	else if (table->noXColumn())
+	{
+		QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Please set a default X column for this table, first!"));
+		return false;
+	}
+
+	return true;
+}
+
+void ApplicationWindow::generate2DGraph(Graph::CurveType type)
+{
+	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
+		return;
+
+	Table * table = static_cast<Table *>(ws->activeWindow());
+
+	if (!validFor2DPlot(table))
+		return;
+
+	Q3TableSelection sel = table->getSelection();
+	multilayerPlot(table, table->drawableColumnSelection(), type, sel.topRow(), sel.bottomRow());
 }

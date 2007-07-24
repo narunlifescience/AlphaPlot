@@ -120,33 +120,6 @@ public slots:
 	bool isEmptyColumn(int col);
 	int nonEmptyRows();
 
-	void plotL();
-	void plotLP();
-	void plotP();
-	void plotVB();
-	void plotHB();
-	void plotArea();
-	void plotPie();
-	void plotVerticalDropLines();
-	void plotSpline();
-	void plotVertSteps();
-    void plotHorSteps();
-	void plotHistogram();
-	void plotVectXYXY();
-	void plotVectXYAM();
-	void plotBoxDiagram();
-
-	//! \name 3D Plots
-	//@{
-	void plot3DRibbon();
-	void plot3DScatter();
-	void plot3DTrajectory();
-	void plot3DBars();
-
-	bool valid2DPlot();
-	bool valid3DPlot();
-	//@}v
-
 	void print();
 	void print(const QString& fileName);
 	void exportPDF(const QString& fileName);
@@ -358,9 +331,6 @@ public slots:
 	void colWidthModified(int, int, int);
 
 signals:
-	void plot3DRibbon(Table *,const QString&);
-	void plotXYZ(Table *,const QString&, int);
-	void plotCol(Table *,const QStringList&, int, int, int);
 	void changedColHeader(const QString&, const QString&);
 	void removedCol(const QString&);
 	void modifiedData(Table *, const QString&);

@@ -1034,6 +1034,13 @@ private:
 	//! Create a menu for toggeling the toolbars
 	QMenu *createToolbarsMenu();
 
+	//! Check whether a table is valid for a 3D plot and display an appropriate error if not
+	bool validFor3DPlot(Table *table);
+	//! Check whether a table is valid for a 2D plot and display an appropriate error if not
+	bool validFor2DPlot(Table *table);
+	//! Generate a new 2D graph
+	void generate2DGraph(Graph::CurveType type);
+
 	//! Workaround for the new colors introduced in rev 447
 	int convertOldToNewColorIndex(int cindex);
 
