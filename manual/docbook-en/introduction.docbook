@@ -10,19 +10,13 @@ revision history. (see installation appendix comment) -->
 <title>What &appname; does</title>
 
 <para>&appname; is a program for two- and three-dimensional graphical presentation of data sets and for data analysis. The plots can be produced from data sets stored in <link linkend="sec-intro-table">tables</link> or from analytical functions.</para>
-<para>The origin of the project is the software which has been created by &ion; in 2000, he was the only programmer between 2000 and 2005. Since 2006, new contributors have joined &ion;. In 2007, a fork has lead to the creation of the &appname; project. The project is hosted by <ulink url="&homepage">Sourceforge</ulink>.</para>
+<para>The origin of the project is the software which has been created by &ion; in 2000, he was the only programmer between 2000 and 2005. Since 2006, new contributors have joined &ion;. In 2007, a fork has lead to the creation of the &appname; project. The project is hosted by <ulink url="&homepage;">Sourceforge</ulink>.</para>
 <para>This software aims to be a tool for analysis and graphical representation of data, allowing powerfull mathematical treatment and visualization of scientific data while keeping a user-friendly graphical user interface. Another keypoint for the &appname; project is be a multi-system software, it should work on Windows, Linux, Os-X systems.</para>
-
 <para>&appname; is a dynamic tool, the plots created from data sets and the spreadsheets owing the data are interconected. When the spreadsheets are modified, all the objects in the depending plots (curves, axes scales, legends) are automatically updated. For example, deleting a spreadsheet or only some columns will automatically remove all the corresponding curves from the depending plots.</para>
-
 <para>All settings of a complete set of tables, matrix and plots can be saved in project files, having the extention ".&file-ext;". These project files may be opened using the <link linkend="specify-a-file">command line</link>, or using the <link linkend="sec-file-menu">File menu</link>, or by using the <emphasis>Open project</emphasis> icon from the <link linkend="sec-file-toolbar">File toolbar</link>.</para>
-
 <para>The plots can be exported to several graphic formats such as JPEG or PNG and inserted as images in documents or presentations.</para>
-
 <para>Data analysis operations (integration, interpolation, FFT, curve fitting, etc...) can be performed on the curves in a 2D plot via the Analysis menu. The results of all these operations are also stored in the project files. They can be visualized at any moment using the &results-log-lnk; and can be deleted from the project file via the &clear-log-lnk;.</para>
-
 <para>When the application is launched, a new project file is created consisting of a grey main window (the workspace) which contains an empty table. In order to be operational, this workspace must be populated with tables storing data sets, either by creating empty tables first (&new-table-lnk;) and then filling them with data, or by importing ASCII files (&import-ascii-1-lnk;), which automatically creates new tables.</para>
-
 <para>The user can easily navigate through the objects of a project file using the project explorer or the Windows menu. The project explorer also allows the user to perform various operations on the windows (tables and plots) in the workspace: hiding, minimazing, closing, renaming, printing, etc...</para>
 
 </sect1>
