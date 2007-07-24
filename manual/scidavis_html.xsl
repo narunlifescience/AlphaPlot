@@ -11,7 +11,7 @@
 	generated for each stylesheet in the order they are listed in the 
 	parameter.
 	-->	
-<xsl:param name="html.stylesheet">qtiplot.css</xsl:param>
+<xsl:param name="html.stylesheet">scidavis.css</xsl:param>
 
 	<!-- css.decoration
 	If css.decoration is turned on, then HTML elements produced by 

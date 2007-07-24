@@ -1,3 +1,3 @@
 html-en:
-	docbook2html --dsl qtiplot.dsl docbook-en/index.docbook
+	docbook2html --dsl scidavis.dsl docbook-en/index.docbook
 

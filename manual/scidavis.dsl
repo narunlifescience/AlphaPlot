@@ -1,5 +1,5 @@
 <!--
-	Style sheet for producing the HTML version of the Qtiplot manual using OpenJade
+	Style sheet for producing the HTML version of the SciDAVis manual using OpenJade
 	(http://openjade.sourceforge.net) and the Docbook stylesheets from
 	http://docbook.sourceforge.net/projects/dsssl
 -->
@@ -27,7 +27,7 @@
 
 (define %stylesheet%
 	;; CSS stylesheet to be used in HTML pages
-	"html/qtiplot.css")
+	"html/scidavis.css")
 
 (define %css-decoration%
 	;; Active l'utilisation des CSS dans le code HTML g���
@@ -49,22 +49,22 @@
 
 (define %adp-filename%
  ;; File name of Qt Assistant profile (without extension).
-  "qtiplot")
+  "scidavis")
 
 (define %htmlhelp-filename%
-	;; Base name of HTML-Help output fiels (.chm, .hhp, .hhc and .hhk)
-	"qtiplot")
+	;; Base name of HTML-Help output files (.chm, .hhp, .hhc and .hhk)
+	"scidavis")
 
 ;(define (chunk-skip-first-element-list)
 ;  ;; forces the Table of Contents on separate page
 ;  '())
 
 (define %document-name%
-	"QtiPlot_manual_en")
+	"scidavis_manual_en")
 (define %document-title%
-	"QtiPlot Help Browser")
+	"SciDAVis Help Browser")
 (define %adp-icon%
-	"./common/qtiplot_logo.png")
+	"./common/scidavis_logo.png")
 (define %adp-startpage%
 	"./index.html")
 (define %adp-aboutpage%
