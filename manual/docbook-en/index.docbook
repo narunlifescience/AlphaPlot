@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN" "/usr/share/xml/docbook/schema/dtd/4.4/docbookx.dtd" [
 
-  <!ENTITY appname "QtiPlot">
+  <!ENTITY appname "SciDAVis">
   <!ENTITY kappname "&appname;">
-  <!ENTITY kappversion "0.9.0">
   <!ENTITY version "0.9.0">
-  <!ENTITY kappdirectory "qtiplot">
-  <!ENTITY kappdownload "http://soft.proindependent.com/download.html" >
+  <!ENTITY kappversion "&version;">
+  <!ENTITY kappdirectory "scidavis">
+  <!ENTITY kappdownload "http://sourceforge.net/project/scidavis" >
   <!ENTITY pic-dir "pics/" >
 
   <!ENTITY % addindex "IGNORE">
@@ -19,7 +19,7 @@
   <!ENTITY email-tilman "thzs@gmx.net">
   <!ENTITY knut "Knut Franke">
   <!ENTITY email-knut "Knut.Franke@gmx.de">
-  <!ENTITY homepage "http://soft.proindependent.com">
+  <!ENTITY homepage "&kappdownload;">
   <!ENTITY xml  "<acronym>XML</acronym>">
   <!ENTITY xslt "<acronym>XSLT</acronym>">
   <!ENTITY html "<acronym>HTML</acronym>">
@@ -709,7 +709,7 @@
 
 <bookinfo>
 
-<date>january 2007</date>
+<date>August 2007</date>
 <releaseinfo>Version updated for &appname; &version;</releaseinfo>
 
 <title>The &appname; Handbook</title>
@@ -767,7 +767,7 @@
 
 <keywordset>
   <keyword>QT</keyword>
-  <keyword>Qtiplot</keyword>
+  <keyword>&appname;</keyword>
   <keyword>Data</keyword>
   <keyword>Analysis</keyword>
   <keyword>Plotting</keyword>
