@@ -765,8 +765,8 @@
 <abstract>
   <para>This document is a handbook for using &appname;, a program for two- and three-dimensional graphical presentation of data sets and for data analysis.</para>
   <para>This manual is organized in several chapters:</para>
-  <para>-The <link linkend="introduction">first one</link> describe the main concepts and terms which are used in &appname;.</para>
-  <para>- The <link linkend="using">second</link> is a tutorial on how to obtain plots from different data sets. It is the one you need to read first to understand the basics of &appname; and to be able to draw plots.</para>
+  <para>-The <link linkend="introduction">first one</link> describes the main concepts and terms which are used in &appname;.</para>
+  <para>- The <link linkend="using">second chapter</link> is a tutorial on how to obtain plots from different data sets. It is the one you need to read first to understand the basics of &appname; and to be able to draw plots.</para>
   <para>- The three following chapters are descriptions of all the <link linkend="reference">commands</link>, <link linkend="toolbars">buttons</link> and <link linkend="dialogs">dialogs</link> used in &appname;. These chapters are the reference manual of &appname;.</para>
   <para>- The two following chapters describe more deeply some specific possibilities of &appname;, that is the <link linkend="analysis">statistical and mathematical analysis</link> of data, and the <link linkend="scripting">scripting</link>.</para>
 </abstract>

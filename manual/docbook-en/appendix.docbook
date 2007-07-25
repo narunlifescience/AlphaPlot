@@ -16,9 +16,9 @@ file included in the KDE distribution. -->
 <para>2006-2007 &knut; <email>&email-knut;</email></para>
 
 <para>Documentation copyright:</para>
-<para>2004-2007 &ion; &email-ion;</para>
+<para>2004-2007 &ion; <email>&email-ion;</email></para>
 <para>2006-2007 &roger; <email>&email-roger;</email></para>
-<para>2006-2007 &knut; &email-knut;</para>
+<para>2006-2007 &knut; <email>&email-knut;</email></para>
 
 <para>Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.1 or any later version published by the Free Software Foundation; with no Invariant Sections, with no Front-Cover Texts, and with no Back-Cover Texts.</para>
 
@@ -114,7 +114,7 @@ Each version of the License is given a distinguishing version number. If the Doc
 <appendix id="installation">
 <title>Installation</title>
 
-<sect1 id="getting-qtiplot">
+<sect1 id="getting-scidavis">
 <title>How to obtain &appname;</title>
 
 <para>
@@ -124,14 +124,15 @@ Updates and news can be found there.
 
 <para>
 &appname; is distributed as a package with sources which have to be compiled. 
-Compiled packages for most Linux distributions, Mac OS X 10.4 and for Windows can also be obtained. 
-If you want to build QtiPlot from sources, don't forget first to download and install the 
+Compiled packages suitable for most Linux distributions, Windows, and Mac OS X 10.4 also be obtained. 
+If you want to build &appname; from sources, don't forget first to download and install the 
 <ulink url="http://www.trolltech.com/products/qt/index.html">Qt</ulink>,
 <ulink url="http://qwtplot3d.sourceforge.net/">QwtPlot3D</ulink>,
+<ulink url="http://qwt.sourceforge.net/index.html">Qwt</ulink>,
 <ulink url="http://sourceforge.net/projects/liborigin/">liborigin</ulink>,  
-<ulink url="http://www.zlib.net/">zlib</ulink> and  
+<ulink url="http://www.zlib.net/">zlib</ulink>,  
+<ulink url="http://muparser.sourceforge.net">muParser</ulink>, and
 <ulink url="http://sources.redhat.com/gsl/">GSL</ulink> libraries. 
-
 </para>
 
 </sect1>
@@ -143,36 +144,53 @@ If you want to build QtiPlot from sources, don't forget first to download and in
 
 <variablelist>
 <varlistentry>
+  <term>Qt >= 4.2</term>
+  <listitem>
+    <para>&appname; uses the <ulink url="http://www.trolltech.com/products/qt/index.html">Qt</ulink> toolkit. Version 4.2 or above is needed. It provides the necessary dynamic libraries to run the &appname; binaries and important tools to compile it.</para>
+  </listitem>
+</varlistentry>
+<varlistentry>
   <term>Qwt</term>
   <listitem>
-    <para>You must use the last release candidate of the Qwt 5 library.</para>
+    <para>You need to install the <ulink url="http://qwt.sourceforge.net/index.html">Qwt library</ulink> version 5.0.0 or above. It is recommended to use the latest release. Qwt must be compiled with Qt 4.x.</para>
   </listitem>
 </varlistentry>
 <varlistentry>
   <term>muParser</term>
   <listitem>
-    <para>The last version of the <ulink url="http://muparser.sourceforge.net/">muParser (1.26)</ulink>
-	 library is included in &appname; ("3rdparty/muParser" folder), so you don't need to download and install it.</para>
+    <para>You also need the <ulink url="http://muparser.sourceforge.net/">muParser</ulink>
+	 library 1.28 or later.</para>
   </listitem>
 </varlistentry>
 <varlistentry>
   <term>liborigin</term>
   <listitem>
-    <para>The last version of the <ulink url="http://sourceforge.net/projects/liborigin/">liborigin</ulink>
-	 allows to read OriginLab OPJ project files.</para>
+    <para>The latest version of the <ulink url="http://sourceforge.net/projects/liborigin/">liborigin</ulink>
+	 is required for the import of Origin OPJ project files.</para>
   </listitem>
 </varlistentry>
 <varlistentry>
-  <term>qwtplot3d</term>
+  <term>Qwtplot3d</term>
   <listitem>
-    <para>The last version of the <ulink url="http://sourceforge.net/projects/qwtplot3d/">qwtplot3d</ulink>
-	 is used to create the 3D plots. The library and the include files must be available.</para>
+    <para>The 3D plots in &appname; make use of <ulink url="http://sourceforge.net/projects/qwtplot3d/">qwtplot3d</ulink>. The library and must be available in version 0.2.6 or higher.</para>
   </listitem>
 </varlistentry>
 <varlistentry>
-  <term>qmake</term>
+  <term>GSL</term>
   <listitem>
-    <para>In order to build QtiPlot you also need <emphasis>qmake</emphasis>, that is official part of Qt 3.x.</para>
+    <para>Furthermore, <ulink url="http://www.gnu.org/software/gsl/">the GNU Scientific Library (GSL)</ulink> (1.8 or later) must be installed on your system.</para>
+  </listitem>
+</varlistentry>
+<varlistentry>
+  <term>Zlib</term>
+  <listitem>
+    <para>Additionally, <ulink url="http://www.zlib.net/">zlib</ulink> >=1.2.3 is required. Since this is also a requirement of Qt, installing Qt should fullfill this requirement on most systems.</para>
+  </listitem>
+</varlistentry>
+<varlistentry>
+  <term>Python scripting</term>
+  <listitem>
+    <para>If you want to use Python expressions and scripts, make sure you have the following additional dependencies installed: <ulink url="http://www.python.org/">Python</ulink> 2.5, <ulink url="http://www.riverbankcomputing.co.uk/sip">SIP</ulink> 4.5.2 or 4.6, <ulink url="http://www.riverbankcomputing.co.uk/pyqt">PyQt</ulink> 4.2. Other versions as those indicated above may or may not work.</para>
   </listitem>
 </varlistentry>
 </variablelist>
@@ -182,93 +200,15 @@ If you want to build QtiPlot from sources, don't forget first to download and in
 <sect1 id="installation-from-binary">
 <title>Installation from binary packages</title>
 
-<para>&appname; distributes a binary <ulink url="http://www.debian.org/">Debian</ulink> package and a <ulink url="http://www.rpm.org/">RPM</ulink> package for RedHat, Mandrake and SuSE distributions. The RPM package was created on an <ulink url="http://www.ubuntulinux.org/">Ubuntu</ulink> distribution.</para>
+<para>&appname; distributes binaries which can be downloaded from <ulink url="http://sourceforge.net/project/showfiles.php?group_id=199120">the &appname; page on Sourceforge</ulink>. Refer to the installation instructions and requirements there. Typically, you need at least Qt and Python installed on your system.</para>
 
-<para>To install on Linux Debian: download the package file <ulink  url="&kappdownload;">qtiplot_&kappversion;_i386.deb</ulink>,
-then login as "root" and type:</para>
-<screen>
-dpkg -i qtiplot_0.x.x_i386.deb
-</screen>
-
-<para>To install the RPM package: download the file <ulink url="&kappdownload;">qtiplot-&kappversion;-1.i386.rpm</ulink>,
-then login as "root" and type:</para>
-<screen>
-rpm -i qtiplot-0.x.x-1.i386.rpm
-</screen>
 
 </sect1>
 
 <sect1 id="compilation">
 <title>Compilation and Installation from sources</title>
 
-<sect2 id="compilation-linux">
-<title>Linux and Mac OS X</title>
-
-<para>Download the <ulink url="&kappdownload;">qtiplot archive</ulink> (.tar.bz2 or .zip file) and decompress it. Then open a terminal (console) window and go to the main folder of the decompressed archive (which should be named &kappdirectory;-&version;). You must be sure that &appname; is able to find the third party libraries it depends on. You have to go to the &kappdirectory; directory and open the file &kappdirectory;.pro. As an example, the folowing line describes the path to the QwtPlot3D library header files which should be available for the compilation:</para>
-<screen>
-unix:INCLUDEPATH  += ../3rdparty/qwtplot3d/include/
-</screen>
-<para>it should point to the correct directory. Once this is done, go back to the main directory &kappdirectory;-&version; and type:</para>
-<screen>
-qmake qtiplot.pro
-make
-</screen>
-
-<para>to install &appname;, you must login as root and type:</para>
-<screen>
-make install
-</screen>
-<para>You can then logout from root and launch the application:</para>
-<screen>
-qtiplot
-</screen>
-
-<para>If you want Python scripting support, you will also need to download and install: <ulink url="http://muparser.sourceforge.net/">Python</ulink> 2.4, <ulink url="http://www.riverbankcomputing.co.uk/sip">SIP</ulink> 4.4.5,
-and <ulink url="http://www.riverbankcomputing.co.uk/pyqt">PyQt</ulink> 3.16. All three of them are included in many Linux distributions.
-Other versions as those indicated above may or may not work.
-Specifically, there are known issues with a number of SIP versions and a given version of PyQt will only work with a limited range of SIP
-versions. Warning: You might need to edit  the "qtiplot-x.x.x/qtiplot/qtiplot.pro" file in the archive and set the path to the SIP executable to point to the correct location of SIP 4.4.5 on your computer, by changing the following line:
-"unix:system(sip -I /usr/share/sip -t Qt_3_3_0 -t WS_X11 -c $${MOC_DIR} src/qti.sip)"
-</para>
-
-
-</sect2>
-<sect2 id="compilation-windows">
-<title>Windows</title>
-
-<para>QtiPlot distributes a binary Windows package. You can download the <ulink url="&kappdownload;">qtiplot-&kappversion;.exe</ulink> file. To install, open a Windows Explorer, double click on 'qtiplot-&kappversion;.exe' icon and follow the installation instructions.</para>
-
-<para>If you want to compile the application from sources you need to purchase the <ulink url="http://www.informit.com/title/0131240722" >Qt3 official book</ulink>, that comes with a CD containing a non commercial version of Qt 3.2.1. Then, to install:</para>
-
-<orderedlist>
-  <listitem>
-    <para>Download the <ulink url="&kappdownload;">qtiplot</ulink> archive and unzip it.</para>
-  </listitem>
-  <listitem>
-    <para>Modify the 'qtiplot.pro' file in order to set the INCLUDEPATH and the LIBS variables, in the win32 section of the file, to the correct locations of all the 3rd party libraries QtiPlot depends on. Please note that on Windows only the win32 port of the GSL library, <ulink url="http://www6.in.tum.de/~kiss/WinGsl.htm">WinGSL</ulink> works correctly.</para>
-  </listitem>
-  <listitem>
-    <para>Open a MS-DOS command terminal, go to the 'qtiplot' folder and type:</para>
-    <orderedlist>
-      <listitem>
-        <para>For MSVC users with <emphasis>nmake</emphasis>:</para>
-        <screen>
-          qmake qtiplot.pro
-          nmake
-        </screen>
-      </listitem>
-      <listitem>
-        <para>For Visual Studio users, <emphasis>qmake</emphasis> can also generate '.dsp' files. All you need to do is type:</para>
-        <screen>
-          qmake -tp vc qtiplot.pro
-        </screen>
-        <para>then open the 'qtiplot.dsp' file, go to the 'Build' menu and chose 'Set active configuration...'. Choose the "qtiplot-Win32 Release' project configuration and press OK. Press the 'F7' key to build the application.</para>
-      </listitem>
-    </orderedlist>
-  </listitem>
-</orderedlist>
-
-</sect2>
+<para>To compile &appname; from sources, download the latest source distribution from <ulink url="http://sourceforge.net/project/showfiles.php?group_id=199120">the &appname; page on Sourceforge</ulink>. It comes as a zip or tar.gz achive containing detailed building instructions. If you are insterested in the current development, you can also obtain a snapshot from the <ulink url="http://sourceforge.net/svn/?group_id=199120">&appname; SVN repository</ulink>.</para>
 
 </sect1>
 
