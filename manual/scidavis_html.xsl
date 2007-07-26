@@ -34,6 +34,9 @@
 	demande la création d'un index global
 	-->
 <xsl:param name="generate.index" select="1"></xsl:param>
+<xsl:param name="index.method" select="'basic'"></xsl:param>
+<xsl:param name="index.prefer.titleabbrev" select="1"></xsl:param>
+<xsl:param name="index.term.separator" select="''"></xsl:param>
 <xsl:param name="index.on.type" select="0"></xsl:param>
 
 	<!-- 
