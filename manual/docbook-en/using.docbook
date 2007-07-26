@@ -14,7 +14,7 @@
 -->
 <sect1 id="sec-2d-plots">
 <title>2D plots</title>
-
+<indexterm><primary>Plot</primary></indexterm>
 <para>A 2D plot is based on curves which are defined by Y values as functions of X values. There are two ways to obtain a 2D plot depending on the way the (X,Y) values are defined:</para>
 
 <itemizedlist>
@@ -39,7 +39,7 @@
 -->
 <sect2 id="sec-2d-plot-from-data">
 <title>2D plot from data.</title>
-
+<indexterm><primary>Plot</primary><secondary>Create from data</secondary></indexterm>
 <para>The data must be stored in a <link linkend="sec-intro-table">table</link>. There are several possibilities to insert your (X,Y) values in the table: you can write them directly from the keyboard, or read them from a file. Here we will use the first solution, refer to the &import-ascii-lnk; to use the second one.</para>
 
 <para>The first step is to create an empty project with the &new-project-lnk; from the &file-menu-lnk;, you can also use the key &new-project-key; or the &new-project-icon; icon from the &file-toolbar-lnk;. Then create a new table with the &new-table-lnk; from the &file-menu-lnk; or with the &new-table-key; or with the &new-table-icon; icon from the &file-toolbar-lnk;.</para>
@@ -106,7 +106,7 @@
 
 <sect2 id="sec-2d-plot-from-function">
 <title>2D plot from function.</title>
-
+<indexterm><primary>Plot</primary><secondary>Create from function</secondary></indexterm>
 <para>There are two ways to obtain such a plot: you can plot directly a function or fill a table with the values calculated from this function before doing a plot in the classical way.</para>
 
 <sect3>
@@ -169,7 +169,7 @@
 -->
 <sect1 id="sec-3d-plots">
 <title>3D plots</title>
-
+<indexterm><primary>Surface plot</primary></indexterm>
 <para>3D plot are generated from data defined as Z=f(X,Y). As for 2D plots, there are two ways to obtain a 3D plot depending on the way the (X,Y,Z) values are defined:</para>
 
 <itemizedlist>
@@ -212,7 +212,7 @@ The 3D plots use OpenGL so you can easily rotate, scale and shift them with the 
 
 <sect2 id="sec-3d-plot-function">
 <title>Direct 3D plot from a function</title>
-
+<indexterm><primary>Surface plot</primary><secondary>Create from function</secondary></indexterm>
 <para>This is the simplest way to obtain a 3d plot. It is done with the &new-surface-3d-plot-lnk; from the &file-menu-lnk; or directly with the &new-surface-3d-plot-key;. This will open the folowing <link linkend="define-surface-plot-dialog">dialog box</link>:</para>
 
 <figure id="fig-define-surface-plot">
@@ -251,7 +251,7 @@ The 3D plots use OpenGL so you can easily rotate, scale and shift them with the 
 
 <sect2 id="sec-3d-plot-matrix">
 <title>3D plot from a matrix</title>
-
+<indexterm><primary>Surface plot</primary><secondary>Create from data</secondary></indexterm>
 <para>The second way to obtain a 3D plot is to use a <link linkend="sec-intro-matrix">matrix</link>. Therefore, the first step is to fill the matrix.This can be done by defining a function.</para>
 <para>The &new-matrix-lnk; create a default empty matrix with 32x32 cells. Then use the &set-dimensions-lnk; to modify the number of rows and columns of the matrix. This <link linkend="set-dimensions-dialog">dialog box</link> is also used to define the X and Y ranges. </para>
 
@@ -280,7 +280,7 @@ The 3D plots use OpenGL so you can easily rotate, scale and shift them with the 
 -->
 <sect1 id="sec-multilayer-plots">
 <title>Multilayer Plots</title>
-
+<indexterm><primary>Multilayers plot</primary></indexterm>
 <para>The multilayer windows can contain multiple plots (layers) with different characteristics. Each layer has a corresponding button, which displays a number and is pressed when the layer is the currently active layer. There is only one active layer at a time, and the plot tools (zoom, cursors, drawing tools, delete and move points) can only operate on this layer. Each plot can be made active by clicking on it or on its corresponding button.</para>
 <para>To arrange the layers use the <link linkend="arrange-layers-dialog">&arrange-layers-cmd; dialog</link>. You can add or remove layers with the &add-layer-lnk; and &remove-layer-lnk; or copy/paste layers from one multilayer window to another. All these functions can be reached via the &graph-menu-lnk;, by using the &plot-toolbar-lnk; or via the context menu (right click in the multilayer window anywhere outside a plot area).</para>
 <para>You can resize and move a layer using the Layer geometry dialog. You can also arrange and resize the plots by hand. A whole plot can be moved by drag and drop: click on the plot and keep the left mouse button pressed.</para>

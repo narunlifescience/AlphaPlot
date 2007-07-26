@@ -12,6 +12,10 @@ The active items in the menus depend on the active window in the project. If the
 
 <para>These commands can also be done by clicking on the <emphasis>New Project</emphasis> icon from the <link linkend="sec-file-toolbar">File Toolbar</link></para>
 
+<indexterm><primary>Table</primary><secondary>Create a new table</secondary></indexterm>
+<indexterm><primary>Matrix</primary><secondary>Create a new matrix</secondary></indexterm>
+<indexterm><primary>Plot</primary><secondary>Create a new plot</secondary></indexterm>
+<indexterm><primary>Surface plot</primary><secondary>Create a new surface plot</secondary></indexterm>
 <variablelist>
 <varlistentry> 
   <term>File-> New -></term>

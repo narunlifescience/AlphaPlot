@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+<indexterm><primary>Scripting</primary></indexterm>
 <title>Mathematical Expressions and Scripting</title>
 
   <para>&appname; supports different interpreters
@@ -7,7 +6,7 @@
 
   <sect1 id="sec-muParser">
     <title>muParser</title>
-
+    <indexterm><primary>Scripting</primary><secondary>MuParser</secondary></indexterm>
     <para>The constants _e=e=E and _pi=pi=PI=Pi are defined, as well as the
     following operators and functions.</para>
 
@@ -430,6 +429,7 @@
 
   <sect1 id="Python">
     <title>Python</title>
+    <indexterm><primary>Scripting</primary><secondary>Python</secondary></indexterm>
 
     <para>This module provides bindings to the <ulink
     url="http://www.python.org">Python</ulink> programming language. Basic
@@ -571,6 +571,7 @@ for i in range(1, 11):
 
     <sect2 id="Python-functions">
       <title>Mathematical Functions</title>
+    <indexterm><primary>Scripting</primary><secondary>MuParser</secondary><tertiary>Mathematical functions</tertiary></indexterm>
 
       <para>Python comes with some basic mathematical functions that are
       automatically imported (if you use the <link

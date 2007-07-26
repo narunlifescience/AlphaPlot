@@ -800,6 +800,18 @@
 <chapter id="scripting">
   &scripting-chapter;
 </chapter>
+<chapter id="credits">
 &appendix-chapter;
+</chapter>
+<chapter id="faq">
 &faq-chapter;
+</chapter>
+
+
+<index id="test">
+<title>index</title>
+</index>
+
+
+
 </book>

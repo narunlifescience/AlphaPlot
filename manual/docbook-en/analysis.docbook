@@ -10,7 +10,7 @@
 
 <sect1 id="sec-fft">
 <title>Fast Fourier Transform</title>
-
+<indexterm><primary>Curve analysis</primary><secondary>FFT</secondary></indexterm>
 <para>This function can be accessed by the command <link linkend="fft-cmd">&fft-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table or a plot is selected. The Fourier transform decomposes a signal in its elementary components by assuming that the signal x(t) can be describe as a sum:</para>
 
 <equation> 
@@ -42,7 +42,7 @@
 
 <sect1 id="sec-correlate">
 <title>Correlation</title>
-
+<indexterm><primary>Table analysis</primary><secondary>Correlation function</secondary></indexterm>
 <para>This function can be accessed by the command <link linkend="correlate-cmd">&correlate-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table is selected. The correlation function, also known as the covariance function is used to test the similarity of two signals <emphasis>x(t)</emphasis> and <emphasis>y(t)</emphasis>. It is computed by:</para>
 
 <equation> 
@@ -75,18 +75,21 @@
 
 <sect1 id="sec-convolute">
 <title>Convolution</title>
+<indexterm><primary>Table analysis</primary><secondary>Convolution</secondary></indexterm>
 <para>.</para>
 
 </sect1>
 
 <sect1 id="sec-deconvolute">
 <title>Deconvolution</title>
+<indexterm><primary>Table analysis</primary><secondary>Deconvolution</secondary></indexterm>
 <para>.</para>
 
 </sect1>
 
 <sect1 id="sec-non-linear-curve-fit">
 <title>Non Linear Curve Fit</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Non linear function</tertiary></indexterm>
 
 <para>This function can be accessed by the command <link linkend="non-linear-curve-fit-cmd">&non-linear-curve-fit-cmd;</link>. It can be found in the <link linkend="sec-analysis-menu">Analysis Menu</link> when a table is selected.</para>
 
@@ -111,6 +114,7 @@
 
 <sect2 id="sec-fit-linear">
 <title>Fitting to a line</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>line</tertiary></indexterm>
 
 <para>This command is used to fit a curve which has a linear shape.</para>
 
@@ -136,6 +140,7 @@
 
 <sect2 id="sec-fit-polynomial">
 <title>Fitting to a polynome</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Polynom</tertiary></indexterm>
 
 <para>This command is used to fit a curve which has a linear shape. The results will be given in the <link linkend="sec-intro-log-window">Log panel</link></para>
 
@@ -161,6 +166,7 @@
 
 <sect2 id="sec-fit-bolzmann">
 <title>Fitting to a Bolzmann function</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Bolzmann function</tertiary></indexterm>
 
 <para>This command is used to fit a curve which has a sigmoidal shape. The function used is:</para>
 
@@ -188,6 +194,7 @@
 
 <sect2 id="sec-fit-gaussian">
 <title>Fitting to a Gauss function</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Gaussian function</tertiary></indexterm>
 
 <para>This command is used to fit a curve which has a bell shape. The function used is:</para>
 
@@ -215,6 +222,7 @@
 
 <sect2 id="sec-fit-lorentzian">
 <title>Fitting to a Lorentz function</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Lorentz function</tertiary></indexterm>
 
 <para>This command is used to fit a curve which has a bell shape. The function used is:</para>
 
@@ -244,6 +252,7 @@
 
 <sect1 id="sec-fit-multipeak">
 <title>Multi-Peaks fitting</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve fitting</secondary><tertiary>Multi peak</tertiary></indexterm>
 
 <para>This kind of fitting allows to fit your data points to a sum of N gaussian or lorentzian functions.</para>
 <para>The first step is to specify the number of peaks. Then you must define the position of each peak on the curve. This is done by clicking on the plot, then validate your choice for each peak with the <emphasis>ENTER</emphasis> key.</para>
@@ -261,6 +270,8 @@
 
 <sect1 id="sec-filtering">
 <title>Filtering of data curves</title>
+<indexterm><primary>Filtering</primary><see>Curve analysis</see></indexterm>
+<indexterm><primary>Curve analysis</primary><secondary>Curve filtering</secondary></indexterm>
 
 <para>In this section, it will be assumed that you have the following data curve:</para>
   <informalfigure id="fig-fft-filter-signal">
@@ -282,6 +293,7 @@
 
 <sect2 id="sec-fft-filter-low">
 <title>FFT low pass filter</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve filtering</secondary><tertiary>Low pass FFT</tertiary></indexterm>
 
 <para>This filter allows to cut the high frequencies of a signal. You just have to select the cut-off frequency of the filter. Let us assume that we want to keep the frequencies below 1 Hz, we will obtain:</para>
   <figure id="fig-filter-fft-low-signal">
@@ -304,6 +316,7 @@
 
 <sect2 id="sec-fft-filter-high">
 <title>FFT high pass filter</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve filtering</secondary><tertiary>High pass FFT</tertiary></indexterm>
 
 <para>This filter allows to cut the low frequencies of a signal. You just have to select the cut-off frequency of the filter. Let us assume that we want to keep the frequencies above 1 Hz, we will obtain:</para>
   <figure id="fig-filter-fft-high-signal">
@@ -326,6 +339,7 @@
 
 <sect2 id="sec-fft-filter-band">
 <title>FFT band pass filter</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve filtering</secondary><tertiary>Band pass FFT</tertiary></indexterm>
 
 <para>This filter allows to cut the low and high frequencies of a signal. You just have to select the high and low cut-off frequencies of the filter. Let us assume that we want to keep the frequencies between 1.5 and 3.5 Hz, we will obtain:</para>
   <figure id="fig-filter-fft-band-signal">
@@ -348,6 +362,7 @@
 
 <sect2 id="sec-fft-filter-block">
 <title>FFT block band filter</title>
+<indexterm><primary>Curve analysis</primary><secondary>Curve filtering</secondary><tertiary>Block pass FFT</tertiary></indexterm>
 
 <para>This filter allows to keep the low and high frequencies of a signal. You just have to select the high and low cut-off frequencies of the filter. Let us assume that we want to remove the frequencies between 1.5 and 3.5 Hz, we will obtain:</para>
   <figure id="fig-filter-fft-block-signal">
@@ -371,6 +386,7 @@
 
 <sect1 id="sec-interpolate">
 <title>Interpolation</title>
+<indexterm><primary>Curve analysis</primary><secondary>interpolation</secondary></indexterm>
 
 <para>The interpolation command will create a new data curve with a high number of points by interpolation of your data. The dialog box allows to define this number of points (default value = 1000). Then the method used for interpolation, the interval of X-values and the color of the interpolated curve can be chosen. In addition to the new curve in the active plot, a new table will be created.</para>
   <informalfigure id="fig-interpolate-dialog-b">
