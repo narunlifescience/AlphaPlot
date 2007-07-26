@@ -646,7 +646,7 @@ int user_f(const gsl_vector * x, void *params, gsl_vector * f)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0,"SciDAVis - Input function error",QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0,"Input function error",QString::fromStdString(e.GetMsg()));
 		return GSL_EINVAL;
 	}
 	return GSL_SUCCESS;
@@ -687,7 +687,7 @@ double user_d(const gsl_vector * x, void *params)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0,"SciDAVis - Input function error",QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0,"Input function error",QString::fromStdString(e.GetMsg()));
 		return GSL_EINVAL;
 	}
 	return val;

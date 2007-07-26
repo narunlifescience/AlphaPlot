@@ -49,7 +49,7 @@
 SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl ), scripted(env)
 {
-	setWindowTitle( tr( "SciDAVis - Set column values" ) );
+	setWindowTitle( tr( "Set column values" ) );
 	setSizeGripEnabled(true);
 
 	QHBoxLayout *hbox1 = new QHBoxLayout(); 

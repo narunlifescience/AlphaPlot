@@ -68,7 +68,7 @@ AxesDialog::AxesDialog( QWidget* parent, Qt::WFlags fl )
 		QPixmap image5( ":/image5.xpm" );
 		QPixmap image6( ":/image6.xpm" );
 		QPixmap image7( ":/image7.xpm" );
-		setWindowTitle( tr( "SciDAVis - General Plot Options" ) );
+		setWindowTitle( tr( "General Plot Options" ) );
 
 		generalDialog = new QTabWidget();
 
@@ -1161,7 +1161,7 @@ bool AxesDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("Start limit error"),QString::fromStdString(e.GetMsg()));
 			boxStart->setFocus();
 			return false;
 		}
@@ -1173,7 +1173,7 @@ bool AxesDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("SciDAVis - End limit error"),QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("End limit error"),QString::fromStdString(e.GetMsg()));
 			boxEnd->setFocus();
 			return false;
 		}
@@ -1187,14 +1187,14 @@ bool AxesDialog::updatePlot()
 		       }
            catch(mu::ParserError &e)
               {
-			  QMessageBox::critical(0, tr("SciDAVis - Step input error"),QString::fromStdString(e.GetMsg()));
+			  QMessageBox::critical(0, tr("Step input error"),QString::fromStdString(e.GetMsg()));
 			  boxStep->setFocus();
 			  return false;
 		      }
 
 		      if (stp <=0)
 		      {
-			  QMessageBox::critical(0,tr("SciDAVis - Step input error"), tr("Please enter a positive step value!"));
+			  QMessageBox::critical(0,tr("Step input error"), tr("Please enter a positive step value!"));
 			  boxStep->setFocus();
 			  return false;
 		      }
@@ -1265,7 +1265,7 @@ bool AxesDialog::updatePlot()
 				}
 				catch(mu::ParserError &e)
 				{
-					QMessageBox::critical(0, tr("SciDAVis - Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
+					QMessageBox::critical(0, tr("Formula input error"), QString::fromStdString(e.GetMsg())+"\n"+
 							tr("Valid variables are 'x' for Top/Bottom axes and 'y' for Left/Right axes!"));
 					boxFormula->setFocus();
 					return false;

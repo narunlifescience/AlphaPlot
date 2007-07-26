@@ -433,7 +433,7 @@ double Matrix::determinant()
 	int cols = numCols();
 
 	if (rows != cols){
-		QMessageBox::critical(0,tr("SciDAVis - Error"),
+		QMessageBox::critical(0,tr("Error"),
 				tr("Calculation failed, the matrix is not square!"));
 		return GSL_POSINF;
 	}
@@ -464,7 +464,7 @@ void Matrix::invert()
 	int cols = numCols();
 
 	if (rows != cols){
-		QMessageBox::critical(0,tr("SciDAVis - Error"),
+		QMessageBox::critical(0,tr("Error"),
 				tr("Inversion failed, the matrix is not square!"));
 		return;
 	}

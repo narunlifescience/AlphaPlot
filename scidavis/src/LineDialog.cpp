@@ -50,7 +50,7 @@
 LineDialog::LineDialog( ArrowMarker *line, QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-    setWindowTitle( tr( "SciDAVis - Line options" ) );
+    setWindowTitle( tr( "Line options" ) );
 
 	lm = line;
 

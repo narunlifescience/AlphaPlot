@@ -41,7 +41,7 @@
 CurveRangeDialog::CurveRangeDialog(QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Plot range"));
+	setWindowTitle(tr("Plot range"));
 
     QGroupBox *gb1 = new QGroupBox();
     QGridLayout *gl1 = new QGridLayout(gb1);

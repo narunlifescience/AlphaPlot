@@ -188,7 +188,7 @@ void Integration::setMethodOrder(int n)
 {
 if (n < 1 || n > 5)
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("Error"),
         tr("Unknown integration method. Valid values must be in the range: 1 (Trapezoidal Method) to 5."));
         return;
     }

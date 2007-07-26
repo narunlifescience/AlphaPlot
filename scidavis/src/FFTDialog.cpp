@@ -48,7 +48,7 @@
 FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - FFT Options"));
+	setWindowTitle(tr("FFT Options"));
 
 	d_table = 0;
 	graph = 0;
@@ -141,7 +141,7 @@ void FFTDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Sampling value error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("Sampling value error"), QString::fromStdString(e.GetMsg()));
 		boxSampling->setFocus();
 		return;
 	}
@@ -156,7 +156,7 @@ void FFTDialog::accept()
 	{
 		if (boxReal->currentText().isEmpty())
 		{
-			QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Please choose a column for the real part of the data!"));
+			QMessageBox::critical(this, tr("Error"), tr("Please choose a column for the real part of the data!"));
 			boxReal->setFocus();
 			return;
 		}

@@ -47,7 +47,7 @@
 AssociationsDialog::AssociationsDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-    setWindowTitle( tr( "SciDAVis - Plot Associations" ) );
+    setWindowTitle( tr( "Plot Associations" ) );
 	setSizeGripEnabled(true);
 	setFocus();
 

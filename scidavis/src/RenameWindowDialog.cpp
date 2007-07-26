@@ -44,7 +44,7 @@
 RenameWindowDialog::RenameWindowDialog(QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Rename Window"));
+	setWindowTitle(tr("Rename Window"));
 
 	QGridLayout * leftLayout = new QGridLayout();
 	QVBoxLayout * rightLayout = new QVBoxLayout();
@@ -139,7 +139,7 @@ void RenameWindowDialog::accept()
 		return;
 
 	if (text.contains("_")){
-  		QMessageBox::warning(this, tr("SciDAVis - Warning"),
+  		QMessageBox::warning(this, tr("Warning"),
   	    tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
   	 
   	if (text.replace("_", "-") != name){

@@ -77,7 +77,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 
 	if(((PlotCurve *)d_selected_curve)->type() == Graph::Function){
 	    if (d_dir == Horizontal){
-            QMessageBox::warning(d_graph, tr("SciDAVis - Warning"),
+            QMessageBox::warning(d_graph, tr("Warning"),
             tr("This operation cannot be performed on function curves."));
         } else {
             FunctionCurve *func = (FunctionCurve *)d_selected_curve;
@@ -115,7 +115,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	if (!tab) return;
 	int col = tab->colIndex(col_name);
 	if (tab->columnType(col) != Table::Numeric) {
-		QMessageBox::warning(d_graph, tr("SciDAVis - Warning"),
+		QMessageBox::warning(d_graph, tr("Warning"),
 				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 		return;
 	}

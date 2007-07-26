@@ -190,7 +190,7 @@ ErrDialog::~ErrDialog()
 
 void ErrDialog::languageChange()
 {
-    setWindowTitle( tr( "SciDAVis - Error Bars" ) );
+    setWindowTitle( tr( "Error Bars" ) );
     xErrBox->setText( tr( "&X Error Bars" ) );
 	buttonAdd->setText( tr( "&Add" ) );
     textLabel1->setText( tr( "Add Error Bars to" ) );

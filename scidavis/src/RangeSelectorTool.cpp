@@ -52,7 +52,7 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 		d_selected_curve = NULL;
 	}
 	if (!d_selected_curve) {
-		QMessageBox::critical(d_graph, tr("SciDAVis - Warning"),
+		QMessageBox::critical(d_graph, tr("Warning"),
 				tr("All the curves on this plot are empty!"));
 		return;
 	}

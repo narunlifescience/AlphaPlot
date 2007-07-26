@@ -47,7 +47,7 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl ),
     d_table(t)
 {
-    setWindowTitle( tr( "SciDAVis - Column options" ) );
+    setWindowTitle( tr( "Column options" ) );
     setSizeGripEnabled(true);
 
 	QHBoxLayout *hboxa = new QHBoxLayout();
@@ -297,13 +297,13 @@ void TableDialog::changeColWidth(int width)
 void TableDialog::apply()
 {
 	if (colName->text().contains("_")){
-		QMessageBox::warning(this, tr("SciDAVis - Warning"),
+		QMessageBox::warning(this, tr("Warning"),
 				tr("For internal consistency reasons the underscore character is replaced with a minus sign."));}
 
 	QString name=colName->text().replace("-", "_");
 	if (name.contains(QRegExp("\\W")))
 	{
-		QMessageBox::warning(this,tr("SciDAVis - Error"),
+		QMessageBox::warning(this,tr("Error"),
 				tr("The column names must only contain letters and digits!"));
 		name.remove(QRegExp("\\W"));
 	}
@@ -526,7 +526,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	QApplication::restoreOverrideCursor();
 
 	if (!ok){
-		QMessageBox::critical(this, tr("SciDAVis - Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
+		QMessageBox::critical(this, tr("Error"), tr("Couldn't guess the source data format, please specify it using the 'Format' box!")+"\n\n"+
 				tr("For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!"));
 		return;
 	}

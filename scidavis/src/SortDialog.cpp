@@ -39,7 +39,7 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
     setWindowIcon(qApp->windowIcon());
-	setWindowTitle(tr("SciDAVis - Sorting Options"));
+	setWindowTitle(tr("Sorting Options"));
 	setSizeGripEnabled(true);
 
 	QGroupBox *groupBox1 = new QGroupBox();

@@ -284,7 +284,7 @@ void MultiLayer::confirmRemoveLayer()
 	if (graphs>1)
 	{
 		switch(QMessageBox::information(this,
-					tr("SciDAVis - Guess best layout?"),
+					tr("Guess best layout?"),
 					tr("Do you want SciDAVis to rearrange the remaining layers?"),
 					tr("&Yes"), tr("&No"), tr("&Cancel"),
 					0, 2) )
@@ -639,7 +639,7 @@ QPixmap MultiLayer::canvasPixmap()
 void MultiLayer::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() ){
-		QMessageBox::critical(0, tr("SciDAVis - Error"), tr("Please provide a valid file name!"));
+		QMessageBox::critical(0, tr("Error"), tr("Please provide a valid file name!"));
         return;
 	}
 
@@ -657,7 +657,7 @@ void MultiLayer::exportToFile(const QString& fileName)
 				return;
 			}
 		}
-    	QMessageBox::critical(this, tr("SciDAVis - Error"), tr("File format not handled, operation aborted!"));
+    	QMessageBox::critical(this, tr("Error"), tr("File format not handled, operation aborted!"));
 	}
 }
 
@@ -699,7 +699,7 @@ void MultiLayer::exportPDF(const QString& fname)
 void MultiLayer::exportVector(const QString& fileName, int res, bool color, bool keepAspect, QPrinter::PageSize pageSize)
 {
 	if ( fileName.isEmpty() ){
-		QMessageBox::critical(this, tr("SciDAVis - Error"),
+		QMessageBox::critical(this, tr("Error"),
 		tr("Please provide a valid file name!"));
         return;
 	}

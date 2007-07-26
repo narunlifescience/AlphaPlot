@@ -44,7 +44,7 @@
 MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl ), scripted(env)
 {
-	setWindowTitle( tr( "SciDAVis - Set Matrix Values" ) );
+	setWindowTitle( tr( "Set Matrix Values" ) );
 	setSizeGripEnabled(true);
 
 	QGridLayout *gl1 = new QGridLayout();

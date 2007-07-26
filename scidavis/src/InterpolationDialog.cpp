@@ -44,7 +44,7 @@
 InterpolationDialog::InterpolationDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Interpolation Options"));
+	setWindowTitle(tr("Interpolation Options"));
 
     QGroupBox *gb1 = new QGroupBox();
 	QGridLayout *gl1 = new QGridLayout(gb1);
@@ -107,7 +107,7 @@ QString curve = boxName->currentText();
 QStringList curvesList = graph->analysableCurvesList();
 if (!curvesList.contains(curve))
 	{
-	QMessageBox::critical(this,tr("SciDAVis - Warning"),
+	QMessageBox::critical(this,tr("Warning"),
 		tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 	boxName->clear();
 	boxName->addItems(curvesList);
@@ -123,7 +123,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(this, tr("Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxStart->setFocus();
 	return;
 	}
@@ -136,14 +136,14 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(this, tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(this, tr("End limit error"), QString::fromStdString(e.GetMsg()));
 	boxEnd->setFocus();
 	return;
 	}
 
 if (from >= to)
 	{
-	QMessageBox::critical(this, tr("SciDAVis - Input error"), tr("Please enter x limits that satisfy: from < to!"));
+	QMessageBox::critical(this, tr("Input error"), tr("Please enter x limits that satisfy: from < to!"));
 	boxEnd->setFocus();
 	return;
 	}

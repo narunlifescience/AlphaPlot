@@ -38,7 +38,7 @@
 ExportDialog::ExportDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle( tr( "SciDAVis - Export ASCII" ) );
+	setWindowTitle( tr( "Export ASCII" ) );
 	setSizeGripEnabled( true );
 	
 	QGridLayout *gl1 = new QGridLayout();
@@ -114,7 +114,7 @@ void ExportDialog::help()
 {
 	QString s = tr("The column separator can be customized. The following special codes can be used:\n\\t for a TAB character \n\\s for a SPACE");
 	s += "\n"+tr("The separator must not contain the following characters: 0-9eE.+-");
-	QMessageBox::about(0, tr("SciDAVis - Help"),s);
+	QMessageBox::about(0, tr("Help"),s);
 }
 
 void ExportDialog::setTableNames(const QStringList& names)
@@ -142,7 +142,7 @@ void ExportDialog::accept()
 
 	if (sep.contains(QRegExp("[0-9.eE+-]")))
 	{
-		QMessageBox::warning(0, tr("SciDAVis - Import options error"),
+		QMessageBox::warning(0, tr("Import options error"),
 				tr("The separator must not contain the following characters: 0-9eE.+-"));
 		return;
 	}

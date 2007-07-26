@@ -67,7 +67,7 @@ void NonLinearFit::setFormula(const QString& s)
 {
 	if (s.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(),  tr("SciDAVis - Input function error"),
+		QMessageBox::critical((ApplicationWindow *)parent(),  tr("Input function error"),
 				tr("Please enter a valid non-empty expression! Operation aborted!"));
 		d_init_err = true;
 		return;
@@ -75,7 +75,7 @@ void NonLinearFit::setFormula(const QString& s)
 
 	if (!d_p)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
 				tr("There are no parameters specified for this fit operation. Please define a list of parameters first!"));
 		d_init_err = true;
 		return;
@@ -101,7 +101,7 @@ void NonLinearFit::setFormula(const QString& s)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(),  tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(),  tr("Input function error"), QString::fromStdString(e.GetMsg()));
 		d_init_err = true;
 		return;
 	}
@@ -114,7 +114,7 @@ void NonLinearFit::setParametersList(const QStringList& lst)
 {
 	if ((int)lst.count() < 1)
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
 				tr("You must provide a list containing at least one parameter for this type of fit. Operation aborted!"));
 		d_init_err = true;
 		return;

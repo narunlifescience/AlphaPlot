@@ -383,7 +383,7 @@ void SymbolDialog::getChar(int btnIndex)
 
 void SymbolDialog::languageChange()
 {
-	setWindowTitle( tr( "SciDAVis - Choose Symbol" ) );
+	setWindowTitle( tr( "Choose Symbol" ) );
 }
 
 

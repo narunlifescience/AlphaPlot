@@ -774,7 +774,7 @@ void ConfigDialog::initConfirmationsPage()
 
 void ConfigDialog::languageChange()
 {
-	setWindowTitle( tr( "SciDAVis - Choose default settings" ) );
+	setWindowTitle( tr( "Preferences" ) );
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
 	// pages list
@@ -1022,7 +1022,7 @@ void ConfigDialog::apply()
 
 	if (sep.contains(QRegExp("[0-9.eE+-]"))!=0)
 	{
-		QMessageBox::warning(0, tr("SciDAVis - Import options error"),
+		QMessageBox::warning(0, tr("Import options error"),
 				tr("The separator must not contain the following characters: 0-9eE.+-"));
 		return;
 	}

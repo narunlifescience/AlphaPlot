@@ -119,7 +119,7 @@ int Filter::curveIndex(const QString& curveTitle, Graph *g)
 {
 	if (curveTitle.isEmpty())
 	{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Filter Error"),
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("Filter Error"),
 				tr("Please enter a valid curve name!"));
 		d_init_err = true;
 		return -1;
@@ -173,7 +173,7 @@ void Filter::setColor(const QString& colorName)
         c = QColor(Qt::darkYellow);
     if (!ColorBox::isValidColor(c))
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Color Name Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("Color Name Error"),
 				tr("The color name '%1' is not valid, a default color (red) will be used instead!").arg(colorName));
         d_curveColorIndex = 1;
         return;

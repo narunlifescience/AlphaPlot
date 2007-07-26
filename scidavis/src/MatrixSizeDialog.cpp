@@ -40,7 +40,7 @@
 MatrixSizeDialog::MatrixSizeDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-    setWindowTitle(tr("SciDAVis - Matrix Dimensions"));
+    setWindowTitle(tr("Matrix Dimensions"));
 
 	groupBox1 = new QGroupBox(tr("Dimensions"));
 	QHBoxLayout *topLayout = new QHBoxLayout(groupBox1);
@@ -118,7 +118,7 @@ void MatrixSizeDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Input error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("Input error"), QString::fromStdString(e.GetMsg()));
 		boxXStart->setFocus();
 		return;
 	}
@@ -129,7 +129,7 @@ void MatrixSizeDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Input error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("Input error"), QString::fromStdString(e.GetMsg()));
 		boxXEnd->setFocus();
 		return;
 	}
@@ -140,7 +140,7 @@ void MatrixSizeDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Input error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("Input error"), QString::fromStdString(e.GetMsg()));
 		boxYStart->setFocus();
 		return;
 	}
@@ -151,7 +151,7 @@ void MatrixSizeDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Input error"), QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("Input error"), QString::fromStdString(e.GetMsg()));
 		boxYEnd->setFocus();
 		return;
 	}

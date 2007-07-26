@@ -44,7 +44,7 @@
 ImageExportDialog::ImageExportDialog(QWidget * parent, bool vector_options, bool extended, Qt::WFlags flags)
 	: ExtensibleFileDialog( parent, extended, flags )
 {
-	setWindowTitle( tr( "SciDAVis - Choose a filename to save under" ) );
+	setWindowTitle( tr( "Choose a filename to save under" ) );
 	setAcceptMode(QFileDialog::AcceptSave);
 
 	QList<QByteArray> list = QImageWriter::supportedImageFormats();

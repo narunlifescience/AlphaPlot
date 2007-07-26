@@ -41,7 +41,7 @@
 SurfaceDialog::SurfaceDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Define surface plot"));
+	setWindowTitle(tr("Define surface plot"));
     setSizeGripEnabled( true );
 
 	boxFunction = new QComboBox();
@@ -166,7 +166,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - X Start limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("X Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxXFrom->setFocus();
 	return;
 	}
@@ -178,7 +178,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - X End limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("X End limit error"), QString::fromStdString(e.GetMsg()));
 	boxXTo->setFocus();
 	return;
 	}
@@ -191,7 +191,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Y Start limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("Y Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxYFrom->setFocus();
 	return;
 	}
@@ -203,7 +203,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Y End limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("Y End limit error"), QString::fromStdString(e.GetMsg()));
 	boxYTo->setFocus();
 	return;
 	}
@@ -215,7 +215,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Z Start limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("Z Start limit error"), QString::fromStdString(e.GetMsg()));
 	boxZFrom->setFocus();
 	return;
 	}
@@ -227,14 +227,14 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Z End limit error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("Z End limit error"), QString::fromStdString(e.GetMsg()));
 	boxZTo->setFocus();
 	return;
 	}
 
 if (fromX >= toX || fromY >= toY || fromZ >= toZ)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Input error"),
+	QMessageBox::critical(0, tr("Input error"),
 				tr("Please enter limits that satisfy: from < end!"));
 	boxXTo->setFocus();
 	return;
@@ -257,7 +257,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical(0, tr("SciDAVis - Input function error"), QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical(0, tr("Input function error"), QString::fromStdString(e.GetMsg()));
 	boxFunction->setFocus();
 	error=true;
 	}

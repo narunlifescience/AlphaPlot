@@ -35,7 +35,7 @@
 ImageDialog::ImageDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle( tr( "SciDAVis - Image Geometry" ) );
+	setWindowTitle( tr( "Image Geometry" ) );
 	
 	QGroupBox *gb1 = new QGroupBox(tr("Origin"));
 	boxX = new QSpinBox();

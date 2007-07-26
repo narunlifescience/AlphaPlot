@@ -52,7 +52,7 @@
 Plot3DDialog::Plot3DDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle( tr( "SciDAVis - Surface Plot Options" ) );
+	setWindowTitle( tr( "Surface Plot Options" ) );
 
 	bars=0; points=0;
 
@@ -833,7 +833,7 @@ bool Plot3DDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,tr("SciDAVis - Start limit error"),  QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0,tr("Start limit error"),  QString::fromStdString(e.GetMsg()));
 			boxFrom->setFocus();
 			error=true;
 			return false;
@@ -846,7 +846,7 @@ bool Plot3DDialog::updatePlot()
 		}
 		catch(mu::ParserError &e)
 		{
-			QMessageBox::critical(0,tr("SciDAVis - End limit error"), QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0,tr("End limit error"), QString::fromStdString(e.GetMsg()));
 			boxTo->setFocus();
 			error=true;
 			return false;
@@ -854,7 +854,7 @@ bool Plot3DDialog::updatePlot()
 
 		if (start>=end)
 		{
-			QMessageBox::critical(0,tr("SciDAVis - Input error"),
+			QMessageBox::critical(0,tr("Input error"),
 					tr("Please enter scale limits that satisfy: from < to!"));
 			boxTo->setFocus();
 			return false;

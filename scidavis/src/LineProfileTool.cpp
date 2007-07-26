@@ -49,7 +49,7 @@ LineProfileTool::LineProfileTool(Graph *graph, int average_pixels)
 	d_average_pixels = (average_pixels % 2) ? average_pixels : average_pixels + 1;
 	d_target = dynamic_cast<ImageMarker*>(d_graph->selectedMarkerPtr());
 	if (!d_target)
-		QMessageBox::critical(d_graph->window(),tr("SciDAVis - Pixel selection warning"),
+		QMessageBox::critical(d_graph->window(),tr("Pixel selection warning"),
 				"Please select an image marker first.");
 	d_graph->deselectMarker();
 	setGeometry(0, 0, parentWidget()->width(), parentWidget()->height());
@@ -62,7 +62,7 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 	QRect rect = d_target->rect();
 	if (!rect.contains(start) || !rect.contains(end))
 	{
-		QMessageBox::warning(d_graph, tr("SciDAVis - Pixel selection warning"),
+		QMessageBox::warning(d_graph, tr("Pixel selection warning"),
 				"Please select the end line point inside the image rectangle!");
 		return;
 	}

@@ -695,7 +695,7 @@ void Table::changeColName(const QString& text)
 
 	if (caption == text)
 	{
-		QMessageBox::critical(0,tr("SciDAVis - Error"),
+		QMessageBox::critical(0,tr("Error"),
 				tr("The column name must be different from the table name : <b>"+caption+"</b></b>!<p>Please choose another name!"));
 		return;
 	}
@@ -703,7 +703,7 @@ void Table::changeColName(const QString& text)
 	QStringList labels=colNames();
 	if (labels.contains(text)>0)
 	{
-		QMessageBox::critical(0,tr("SciDAVis - Error"),
+		QMessageBox::critical(0,tr("Error"),
 				tr("There is already a column called : <b>"+text+"</b> in table <b>"+caption+"</b>!<p>Please choose another name!"));
 		return;
 	}
@@ -1309,12 +1309,12 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 	}else{
 		int leadcol = colIndex(leadCol);
 		if (leadcol < 0){
-			QMessageBox::critical(this, tr("SciDAVis - Error"),
+			QMessageBox::critical(this, tr("Error"),
 			tr("Please indicate the name of the leading column!"));
 			return;
 		}
 		if (columnType(leadcol) == Table::Text){
-			QMessageBox::critical(this, tr("SciDAVis - Error"),
+			QMessageBox::critical(this, tr("Error"),
 			tr("The leading column has the type set to 'Text'! Operation aborted!"));
 			return;
 		}
@@ -1332,7 +1332,7 @@ void Table::sortColumns(const QStringList&s, int type, int order, const QString&
 		}
 
 		if (!non_empty_cells){
-			QMessageBox::critical(this, tr("SciDAVis - Error"),
+			QMessageBox::critical(this, tr("Error"),
 			tr("The leading column is empty! Operation aborted!"));
 			return;
 		}
@@ -2077,7 +2077,7 @@ void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, i
 		QProgressDialog progress(this);
 		int steps = int(rows/1000);
         progress.setRange(0, steps+1);
-		progress.setWindowTitle("SciDAVis - Reading file...");
+		progress.setWindowTitle("Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
 
@@ -2219,7 +2219,7 @@ void Table::importASCII(const QString &fname, const QString &sep, int ignoredLin
 		int steps = int(rows/1000);
 
 		QProgressDialog progress(this);
-		progress.setWindowTitle("SciDAVis - Reading file...");
+		progress.setWindowTitle("Reading file...");
 		progress.setLabelText(fname);
 		progress.setActiveWindow();
 		progress.setAutoClose(true);
@@ -2362,7 +2362,7 @@ bool Table::exportASCII(const QString& fname, const QString& separator,
 	QFile f(fname);
 	if ( !f.open( QIODevice::WriteOnly ) ){
 		QApplication::restoreOverrideCursor();
-		QMessageBox::critical(0, tr("SciDAVis - ASCII Export Error"),
+		QMessageBox::critical(0, tr("ASCII Export Error"),
 				tr("Could not write to file: <br><h4>"+fname+ "</h4><p>Please verify that you have the right to write to this location!").arg(fname));
 		return false;
 	}

@@ -66,7 +66,7 @@
 FitDialog::FitDialog( QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Fit Wizard"));
+	setWindowTitle(tr("Fit Wizard"));
 	setSizeGripEnabled( true );
 
     d_user_function_names = QStringList();
@@ -451,14 +451,14 @@ void FitDialog::showParametersTable()
 	QString tableName = paramTableName->text();
 	if (tableName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Error"),
+		QMessageBox::critical(this, tr("Error"),
 				tr("Please enter a valid name for the parameters table."));
 		return;
 	}
 
 	if (!d_fitter)
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Error"),
+		QMessageBox::critical(this, tr("Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -473,14 +473,14 @@ void FitDialog::showCovarianceMatrix()
 	QString matrixName = covMatrixName->text();
 	if (matrixName.isEmpty())
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Error"),
+		QMessageBox::critical(this, tr("Error"),
 				tr("Please enter a valid name for the covariance matrix."));
 		return;
 	}
 
 	if (!d_fitter)
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Error"),
+		QMessageBox::critical(this, tr("Error"),
 				tr("Please perform a fit first and try again."));
 		return;
 	}
@@ -541,20 +541,20 @@ void FitDialog::saveUserFunction()
 {
 	if (editBox->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Input function error"), tr("Please enter a valid function!"));
+		QMessageBox::critical(this, tr("Input function error"), tr("Please enter a valid function!"));
 		editBox->setFocus();
 		return;
 	}
 	else if (boxName->text().isEmpty())
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
+		QMessageBox::critical(this, tr("Input function error"),
 				tr("Please enter a function name!"));
 		boxName->setFocus();
 		return;
 	}
 	else if (boxParam->text().remove(QRegExp("[,;\\s]")).isEmpty())
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
+		QMessageBox::critical(this, tr("Input function error"),
 				tr("Please enter at least one parameter name!"));
 		boxParam->setFocus();
 		return;
@@ -562,7 +562,7 @@ void FitDialog::saveUserFunction()
 
 	if (d_built_in_function_names.contains(boxName->text()))
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Error: function name"),
+		QMessageBox::critical(this, tr("Error: function name"),
 				"<p><b>" + boxName->text() + "</b>" + tr(" is a built-in function name"
 					"<p>You must choose another name for your function!"));
 		editBox->setFocus();
@@ -570,7 +570,7 @@ void FitDialog::saveUserFunction()
 	}
 	if (editBox->text().contains(boxName->text()))
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Input function error"),
+		QMessageBox::critical(this, tr("Input function error"),
 				tr("You can't define functions recursevely!"));
 		editBox->setFocus();
 		return;
@@ -1029,7 +1029,7 @@ void FitDialog::accept()
 	QStringList curvesList = d_graph->curvesList();
 	if (curvesList.contains(curve) <= 0)
 	{
-		QMessageBox::critical(this,tr("SciDAVis - Warning"),
+		QMessageBox::critical(this,tr("Warning"),
 				tr("The curve <b> %1 </b> doesn't exist anymore! Operation aborted!").arg(curve));
 		boxCurve->clear();
 		boxCurve->addItems(curvesList);
@@ -1051,7 +1051,7 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxFrom->setFocus();
 		return;
 	}
@@ -1064,14 +1064,14 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(this, tr("SciDAVis - End limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(this, tr("End limit error"),QString::fromStdString(e.GetMsg()));
 		boxTo->setFocus();
 		return;
 	}
 
 	if (start>=end)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Input error"),
+		QMessageBox::critical(0, tr("Input error"),
 				tr("Please enter x limits that satisfy: from < end!"));
 		boxTo->setFocus();
 		return;
@@ -1085,14 +1085,14 @@ void FitDialog::accept()
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Tolerance input error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0, tr("Tolerance input error"),QString::fromStdString(e.GetMsg()));
 		boxTolerance->setFocus();
 		return;
 	}
 
 	if (eps<0 || eps>=1)
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Tolerance input error"),
+		QMessageBox::critical(0, tr("Tolerance input error"),
 				tr("The tolerance value must be positive and less than 1!"));
 		boxTolerance->setFocus();
 		return;
@@ -1181,7 +1181,7 @@ void FitDialog::accept()
 		else
 			errorMsg += tr("Please verify that you have initialized all the parameters!");
 
-		QMessageBox::critical(0, tr("SciDAVis - Input function error"), errorMsg);
+		QMessageBox::critical(0, tr("Input function error"), errorMsg);
 		boxFunction->setFocus();
 		error = true;
 	}
@@ -1313,7 +1313,7 @@ bool FitDialog::validInitialValues()
 	{
 		if(boxParams->item(i,1)->text().isEmpty())
 		{
-			QMessageBox::critical(0, tr("SciDAVis - Input error"),
+			QMessageBox::critical(0, tr("Input error"),
 					tr("Please enter initial guesses for your parameters!"));
 			boxParams->setCurrentCell (i,1);
 			return false;
@@ -1327,7 +1327,7 @@ bool FitDialog::validInitialValues()
 		}
 		catch (mu::ParserError &e)
 		{
-			QMessageBox::critical(0, tr("SciDAVis - Start limit error"), QString::fromStdString(e.GetMsg()));
+			QMessageBox::critical(0, tr("Start limit error"), QString::fromStdString(e.GetMsg()));
 			boxParams->setCurrentCell (i,1);
 			return false;
 		}

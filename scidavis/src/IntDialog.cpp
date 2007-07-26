@@ -46,7 +46,7 @@
 IntDialog::IntDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Integration Options"));
+	setWindowTitle(tr("Integration Options"));
 	setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 
     QGroupBox *gb1 = new QGroupBox();
@@ -123,7 +123,7 @@ try
 	}
 catch(mu::ParserError &e)
 	{
-	QMessageBox::critical((ApplicationWindow *)parent(),tr("SciDAVis - Tolerance value error"),QString::fromStdString(e.GetMsg()));
+	QMessageBox::critical((ApplicationWindow *)parent(),tr("Tolerance value error"),QString::fromStdString(e.GetMsg()));
 	boxTol->clear();
 	boxTol->setFocus();
 	return;
@@ -155,7 +155,7 @@ else
 
 		if(start<minx)
 			{
-			QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
 				tr("Please give a number larger or equal to the minimum value of X, for the lower limit.\n If you do not know that value, type min in the box."));
 			boxStart->clear();
 			boxStart->setFocus();
@@ -163,7 +163,7 @@ else
 		}
 		if(start > maxx)
 			{
-			QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
 				tr("Please give a number smaller or equal to the maximum value of X, for the lower limit.\n If you do not know that value, type max in the box."));
 			boxStart->clear();
 			boxStart->setFocus();
@@ -172,7 +172,7 @@ else
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical((ApplicationWindow *)parent(),tr("SciDAVis - Start limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(),tr("Start limit error"),QString::fromStdString(e.GetMsg()));
 		boxStart->clear();
 		boxStart->setFocus();
 		return;
@@ -201,7 +201,7 @@ else
 		if(stop > maxx)
 			{
 			//FIXME: I don't understand why this doesn't work for FunctionCurves!!(Ion)
-			/*QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis - Input error"),
+			/*QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
 				tr("Please give a number smaller or equal to the maximum value of X, for the upper limit.\n If you do not know that value, type max in the box."));
 			boxEnd->clear();
 			boxEnd->setFocus();
@@ -211,7 +211,7 @@ else
 			}
 		if(stop < minx)
 			{
-			QMessageBox::warning((ApplicationWindow *)parent(), tr("SciDAVis - Input error"),
+			QMessageBox::warning((ApplicationWindow *)parent(), tr("Input error"),
 				tr("Please give a number larger or equal to the minimum value of X, for the upper limit.\n If you do not know that value, type min in the box."));
 			boxEnd->clear();
 			boxEnd->setFocus();
@@ -220,7 +220,7 @@ else
 		}
 	catch(mu::ParserError &e)
 		{
-		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - End limit error"),QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical((ApplicationWindow *)parent(), tr("End limit error"),QString::fromStdString(e.GetMsg()));
 		boxEnd->clear();
 		boxEnd->setFocus();
 		return;
@@ -283,6 +283,6 @@ boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 
 void IntDialog::help()
 {
-QMessageBox::about(this, tr("SciDAVis - Help for Integration"),
+QMessageBox::about(this, tr("Help for Integration"),
 				   tr("The integration of a curve consists of the following five steps:\n 1) Choose which curve you want to integrate\n 2) Set the order of the integration. The higher it is the more accurate the calculation is\n 3) Choose the number of iterations \n 4) Choose the tolerance \n 5) Choose the lower and the upper limit.\n The code integrates the curve with an iterative algorithm. The tolerance determines the termination criteria for the solver.\n Because, sometimes we ask for too much accuracy, the number of iterations makes sure that the solver will not work for ever.\n IMPORTANT \nThe limits must be within the range of x; If you do not know the maximum (minimum) value of x, type max (min) in the boxes."));
 }

@@ -47,7 +47,7 @@
 TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	: QDialog( parent, fl )
 {
-	setWindowTitle( tr( "SciDAVis - Text options" ) );
+	setWindowTitle( tr( "Text options" ) );
 	setSizeGripEnabled( true );
 
 	textType = type;

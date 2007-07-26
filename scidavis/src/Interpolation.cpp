@@ -83,7 +83,7 @@ void Interpolation::setMethod(int m)
 {
 if (m < 0 || m > 2)
     {
-        QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Error"),
+        QMessageBox::critical((ApplicationWindow *)parent(), tr("Error"),
         tr("Unknown interpolation method, valid values are: 0 - Linear, 1 - Cubic, 2 - Akima."));
         d_init_err = true;
         return;

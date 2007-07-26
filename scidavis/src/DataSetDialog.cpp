@@ -42,7 +42,7 @@
 DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags fl )
 : QDialog( parent, fl )
 {
-	setWindowTitle(tr("SciDAVis - Select data set"));
+	setWindowTitle(tr("Select data set"));
 
 	operation = QString();
 	d_graph = 0;

@@ -71,7 +71,7 @@ double UserFunction::operator()(double x, double y)
 	}
 	catch(mu::ParserError &e)
 	{
-		QMessageBox::critical(0,"SciDAVis - Input function error",QString::fromStdString(e.GetMsg()));
+		QMessageBox::critical(0,"Input function error",QString::fromStdString(e.GetMsg()));
 	}
 	return result;
 }
@@ -2088,7 +2088,7 @@ void Graph3D::print()
 			f.remove();
 		}
 		else
-			QMessageBox::about(0,tr("SciDAVis - IO Error"),
+			QMessageBox::about(0,tr("IO Error"),
 					tr("Could not print: <h4>" + QString(name()) + "</h4>."));
 	}
 }
@@ -2146,7 +2146,7 @@ void Graph3D::exportVector(const QString& fileName, const QString& fileType)
 {
 	if ( fileName.isEmpty() )
 	{
-		QMessageBox::critical(0, tr("SciDAVis - Error"), tr("Please provide a valid file name!"));
+		QMessageBox::critical(0, tr("Error"), tr("Please provide a valid file name!"));
         return;
 	}
 

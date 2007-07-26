@@ -52,7 +52,7 @@
 CurvesDialog::CurvesDialog( QWidget* parent, Qt::WFlags fl )
 : QDialog( parent, fl )
 {
-	setWindowTitle( tr( "SciDAVis - Add/Remove curves" ) );
+	setWindowTitle( tr( "Add/Remove curves" ) );
     setSizeGripEnabled(true);
 	setFocus();
 

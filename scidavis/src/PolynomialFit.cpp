@@ -134,7 +134,7 @@ void PolynomialFit::fit()
 
 	if (d_p > d_n)
   	{
-  		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
+  		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}
@@ -244,7 +244,7 @@ void LinearFit::fit()
 
 	if (d_p > d_n)
   	{
-  		QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis - Fit Error"),
+  		QMessageBox::critical((ApplicationWindow *)parent(), tr("Fit Error"),
   	    tr("You need at least %1 data points for this fit operation. Operation aborted!").arg(d_p));
   		return;
   	}
