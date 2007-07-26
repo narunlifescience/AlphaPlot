@@ -77,7 +77,6 @@
 #include "FindDialog.h"
 #include "ScaleDraw.h"
 #include "ScriptingLangDialog.h"
-#include "ScriptWindow.h"
 #include "TableStatistics.h"
 #include "Fit.h"
 #include "MultiPeakFit.h"
@@ -138,6 +137,8 @@
 #include <QUrl>
 #include <QAssistantClient>
 #include <QStatusBar>
+#include <QToolButton>
+#include <QSignalMapper>
 
 #include <zlib.h>
 
@@ -254,8 +255,6 @@ void ApplicationWindow::init()
 	hiddenWindows = new QList<QWidget*>();
 	outWindows = new QList<QWidget*>();
 
-	scriptWindow = 0;
-
 	renamedTables = QStringList();
 	readSettings();
 	createLanguagesList();
@@ -358,75 +357,59 @@ void ApplicationWindow::initToolBars()
 	setWindowIcon(QIcon(":/appicon"));
 	QPixmap openIcon, saveIcon;
 
-	fileTools = new QToolBar( tr( "File" ), this );
-	fileTools->setObjectName("fileTools"); // this is needed for QMainWindow::restoreState()
-	fileTools->setIconSize( QSize(18,20) );
-	addToolBar( Qt::TopToolBarArea, fileTools );
+	file_tools = new QToolBar( tr( "File" ), this );
+	file_tools->setObjectName("file_tools"); // this is needed for QMainWindow::restoreState()
+	file_tools->setIconSize( QSize(18,20) );
+	addToolBar( Qt::TopToolBarArea, file_tools );
 
-	fileTools->addAction(actionNewProject);
-	fileTools->addAction(actionNewTable);
-	fileTools->addAction(actionNewMatrix);
-	fileTools->addAction(actionNewNote);
-	fileTools->addAction(actionNewGraph);
-	fileTools->addAction(actionNewFunctionPlot);
-	fileTools->addAction(actionNewSurfacePlot);
+	file_tools->addAction(actionNewProject);
 
-	fileTools->addSeparator ();
+	QMenu *menu_new_aspect = new QMenu(this);
+	menu_new_aspect->addAction(actionNewTable);
+	menu_new_aspect->addAction(actionNewMatrix);
+	menu_new_aspect->addAction(actionNewNote);
+	menu_new_aspect->addAction(actionNewGraph);
+	menu_new_aspect->addAction(actionNewFunctionPlot);
+	menu_new_aspect->addAction(actionNewSurfacePlot);
+	QToolButton *btn_new_aspect = new QToolButton(this);
+	btn_new_aspect->setMenu(menu_new_aspect);
+	btn_new_aspect->setPopupMode(QToolButton::InstantPopup);
+	btn_new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
+	btn_new_aspect->setToolTip(tr("New Aspect"));
+	file_tools->addWidget(btn_new_aspect);
 
-	fileTools->addAction(actionOpen);
-	fileTools->addAction(actionOpenTemplate);
-	fileTools->addAction(actionSaveProject);
-	fileTools->addAction(actionSaveTemplate);
+	file_tools->addAction(actionOpen);
+	file_tools->addAction(actionOpenTemplate);
+	file_tools->addAction(actionLoad);
+	file_tools->addAction(actionSaveProject);
+	file_tools->addAction(actionSaveTemplate);
 
-	fileTools->addSeparator ();
+	file_tools->addSeparator ();
 
-	fileTools->addAction(actionLoad);
+	file_tools->addAction(actionPrint);
+	file_tools->addAction(actionExportPDF);
 
-	fileTools->addSeparator ();
+	file_tools->addSeparator();
 
-	fileTools->addAction(actionCopyWindow);
-	fileTools->addAction(actionPrint);
-	fileTools->addAction(actionExportPDF);
+	file_tools->addAction(actionShowExplorer);
+	file_tools->addAction(actionShowLog);
 
-	fileTools->addSeparator();
+	edit_tools = new QToolBar( tr("Edit"), this);
+	edit_tools->setObjectName("edit_tools"); // this is needed for QMainWindow::restoreState()
+	edit_tools->setIconSize( QSize(18,20) );
+	addToolBar( edit_tools );
 
-	fileTools->addAction(actionShowExplorer);
-	fileTools->addAction(actionShowLog);
-#ifdef SCRIPTING_PYTHON
-	fileTools->addAction(actionShowScriptWindow);
-#endif
+	edit_tools->addAction(actionUndo);
+	edit_tools->addAction(actionRedo);
+	edit_tools->addAction(actionCutSelection);
+	edit_tools->addAction(actionCopySelection);
+	edit_tools->addAction(actionPasteSelection);
+	edit_tools->addAction(actionClearSelection);
 
-	editTools = new QToolBar( tr("Edit"), this);
-	editTools->setObjectName("editTools"); // this is needed for QMainWindow::restoreState()
-	editTools->setIconSize( QSize(18,20) );
-	addToolBar( editTools );
-
-	editTools->addAction(actionUndo);
-	editTools->addAction(actionRedo);
-	editTools->addAction(actionCutSelection);
-	editTools->addAction(actionCopySelection);
-	editTools->addAction(actionPasteSelection);
-	editTools->addAction(actionClearSelection);
-
-	plotTools = new QToolBar( tr("Plot"), this );
-	plotTools->setObjectName("plotTools"); // this is needed for QMainWindow::restoreState()
-	plotTools->setIconSize( QSize(16,20) );
-	addToolBar( plotTools );
-
-	plotTools->addAction(actionAddLayer);
-	plotTools->addAction(actionShowLayerDialog);
-	plotTools->addAction(actionAutomaticLayout);
-
-	plotTools->addSeparator();
-
-	plotTools->addAction(actionShowCurvesDialog);
-	plotTools->addAction(actionAddErrorBars);
-	plotTools->addAction(actionAddFunctionCurve);
-	plotTools->addAction(actionNewLegend);
-
-	plotTools->addSeparator ();
-
-	plotTools->addAction(actionUnzoom);
+	graph_tools = new QToolBar( tr("Graph"), this );
+	graph_tools->setObjectName("graph_tools"); // this is needed for QMainWindow::restoreState()
+	graph_tools->setIconSize( QSize(16,20) );
+	addToolBar( graph_tools );
 
 	dataTools = new QActionGroup( this );
 	dataTools->setExclusive( true );
@@ -436,115 +419,184 @@ void ApplicationWindow::initToolBars()
 	btnPointer->setCheckable( true );
 	btnPointer->setIcon(QIcon(QPixmap(":/pointer.xpm")) );
 	btnPointer->setChecked(true);
-	plotTools->addAction(btnPointer);
+	graph_tools->addAction(btnPointer);
 
-	btnZoomIn = new QAction(tr("&Zoom In"), this);
-	btnZoomIn->setShortcut( tr("Ctrl++") );
-	btnZoomIn->setActionGroup(dataTools);
-	btnZoomIn->setCheckable( true );
-	btnZoomIn->setIcon(QIcon(QPixmap(":/zoom.xpm")) );
-	plotTools->addAction(btnZoomIn);
+	graph_tools->addSeparator();
 
-	btnZoomOut = new QAction(tr("&Zoom Out"), this);
-	btnZoomOut->setShortcut( tr("Ctrl+-") );
-	btnZoomOut->setActionGroup(dataTools);
-	btnZoomOut->setCheckable( true );
-	btnZoomOut->setIcon(QIcon(QPixmap(":/zoomOut.xpm")) );
-	plotTools->addAction(btnZoomOut);
+	QMenu *menu_layers = new QMenu(this);
+	QToolButton *btn_layers = new QToolButton(this);
+	btn_layers->setMenu(menu_layers);
+	btn_layers->setPopupMode(QToolButton::InstantPopup);
+	btn_layers->setIcon(QPixmap(":/arrangeLayers.xpm"));
+	btn_layers->setToolTip(tr("Manage layers"));
+	graph_tools->addWidget(btn_layers);
 
-	btnCursor = new QAction(tr("&Data Reader"), this);
-	btnCursor->setShortcut( tr("CTRL+D") );
-	btnCursor->setActionGroup(dataTools);
-	btnCursor->setCheckable( true );
-	btnCursor->setIcon(QIcon(QPixmap(":/select.xpm")) );
-	plotTools->addAction(btnCursor);
+	menu_layers->addAction(actionShowLayerDialog);
+	menu_layers->addAction(actionAddLayer);
+	menu_layers->addAction(actionAutomaticLayout);
 
-	btnSelect = new QAction(tr("&Select Data Range"), this);
-	btnSelect->setShortcut( tr("ALT+S") );
-	btnSelect->setActionGroup(dataTools);
-	btnSelect->setCheckable( true );
-	btnSelect->setIcon(QIcon(QPixmap(":/cursors.xpm")) );
-	plotTools->addAction(btnSelect);
+	QMenu *menu_curves = new QMenu(this);
+	QToolButton *btn_curves = new QToolButton(this);
+	btn_curves->setMenu(menu_curves);
+	btn_curves->setPopupMode(QToolButton::InstantPopup);
+	btn_curves->setIcon(QPixmap(":/curves.xpm"));
+	btn_curves->setToolTip(tr("Add curves / error bars"));
+	graph_tools->addWidget(btn_curves);
 
-	btnPicker = new QAction(tr("S&creen Reader"), this);
-	btnPicker->setActionGroup(dataTools);
-	btnPicker->setCheckable( true );
-	btnPicker->setIcon(QIcon(QPixmap(":/cursor_16.xpm")) );
-	plotTools->addAction(btnPicker);
-
-	btnMovePoints = new QAction(tr("&Move Data Points..."), this);
-	btnMovePoints->setShortcut( tr("Ctrl+ALT+M") );
-	btnMovePoints->setActionGroup(dataTools);
-	btnMovePoints->setCheckable( true );
-	btnMovePoints->setIcon(QIcon(QPixmap(":/hand.xpm")) );
-	plotTools->addAction(btnMovePoints);
-
-	btnRemovePoints = new QAction(tr("Remove &Bad Data Points..."), this);
-	btnRemovePoints->setShortcut( tr("Alt+B") );
-	btnRemovePoints->setActionGroup(dataTools);
-	btnRemovePoints->setCheckable( true );
-	btnRemovePoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
-	plotTools->addAction(btnRemovePoints);
-
-	connect( dataTools, SIGNAL( triggered( QAction* ) ), this, SLOT( pickDataTool( QAction* ) ) );
-	plotTools->addSeparator ();
+	menu_curves->addAction(actionShowCurvesDialog);
+	menu_curves->addAction(actionAddErrorBars);
+	menu_curves->addAction(actionAddFunctionCurve);
+	
+	QMenu *menu_plot_enrichments = new QMenu(this);
+	QToolButton *btn_plot_enrichments = new QToolButton(this);
+	btn_plot_enrichments->setMenu(menu_plot_enrichments);
+	btn_plot_enrichments->setPopupMode(QToolButton::InstantPopup);
+	btn_plot_enrichments->setIcon(QPixmap(":/text.xpm"));
+	btn_plot_enrichments->setToolTip(tr("Enrichments"));
+	graph_tools->addWidget(btn_plot_enrichments);
 
 	actionAddText = new QAction(tr("Add &Text"), this);
 	actionAddText->setShortcut( tr("ALT+T") );
 	actionAddText->setIcon(QIcon(QPixmap(":/text.xpm")));
 	actionAddText->setCheckable(true);
 	connect(actionAddText, SIGNAL(activated()), this, SLOT(addText()));
-	plotTools->addAction(actionAddText);
+	menu_plot_enrichments->addAction(actionAddText);
 
 	btnArrow = new QAction(tr("Draw &Arrow"), this);
 	btnArrow->setShortcut( tr("CTRL+ALT+A") );
 	btnArrow->setActionGroup(dataTools);
 	btnArrow->setCheckable( true );
 	btnArrow->setIcon(QIcon(QPixmap(":/arrow.xpm")) );
-	plotTools->addAction(btnArrow);
+	menu_plot_enrichments->addAction(btnArrow);
 
 	btnLine = new QAction(tr("Draw &Line"), this);
 	btnLine->setShortcut( tr("CTRL+ALT+L") );
 	btnLine->setActionGroup(dataTools);
 	btnLine->setCheckable( true );
 	btnLine->setIcon(QIcon(QPixmap(":/lPlot.xpm")) );
-	plotTools->addAction(btnLine);
+	menu_plot_enrichments->addAction(btnLine);
 
-	plotTools->addAction(actionTimeStamp);
-	plotTools->addAction(actionAddImage);
+	menu_plot_enrichments->addAction(actionTimeStamp);
+	menu_plot_enrichments->addAction(actionAddImage);
+	menu_plot_enrichments->addAction(actionNewLegend);
 
-	tableTools = new QToolBar( tr( "Table" ), this );
-	tableTools->setObjectName("tableTools"); // this is needed for QMainWindow::restoreState()
-	tableTools->setIconSize( QSize(16,20) );
-	addToolBar( Qt::TopToolBarArea, tableTools );
+	graph_tools->addSeparator ();
 
-	tableTools->addAction(actionPlotL);
-	tableTools->addAction(actionPlotP);
-	tableTools->addAction(actionPlotLP);
-	tableTools->addAction(actionPlotVerticalBars);
-	tableTools->addAction(actionPlotHorizontalBars);
-	tableTools->addAction(actionPlotArea);
-	tableTools->addAction(actionPlotPie);
-	tableTools->addAction(actionPlotHistogram);
-	tableTools->addAction(actionBoxPlot);
-	tableTools->addAction(actionPlotVectXYXY);
-	tableTools->addAction(actionPlotVectXYAM);
+	btnZoomIn = new QAction(tr("&Zoom In"), this);
+	btnZoomIn->setShortcut( tr("Ctrl++") );
+	btnZoomIn->setActionGroup(dataTools);
+	btnZoomIn->setCheckable( true );
+	btnZoomIn->setIcon(QIcon(QPixmap(":/zoom.xpm")) );
+	graph_tools->addAction(btnZoomIn);
 
-	tableTools->addSeparator ();
+	btnZoomOut = new QAction(tr("&Zoom Out"), this);
+	btnZoomOut->setShortcut( tr("Ctrl+-") );
+	btnZoomOut->setActionGroup(dataTools);
+	btnZoomOut->setCheckable( true );
+	btnZoomOut->setIcon(QIcon(QPixmap(":/zoomOut.xpm")) );
+	graph_tools->addAction(btnZoomOut);
 
-	tableTools->addAction(actionPlot3DRibbon);
-	tableTools->addAction(actionPlot3DBars);
-	tableTools->addAction(actionPlot3DScatter);
-	tableTools->addAction(actionPlot3DTrajectory);
+	graph_tools->addAction(actionUnzoom);
 
-	tableTools->addSeparator ();
+	graph_tools->addSeparator();
 
-	tableTools->addAction(actionAddColToTable);
-	tableTools->addAction(actionShowColStatistics);
-	tableTools->addAction(actionShowRowStatistics);
+	btnPicker = new QAction(tr("S&creen Reader"), this);
+	btnPicker->setActionGroup(dataTools);
+	btnPicker->setCheckable( true );
+	btnPicker->setIcon(QIcon(QPixmap(":/cursor_16.xpm")) );
+	graph_tools->addAction(btnPicker);
 
-	plotTools->hide();
-	tableTools->hide();
+	btnCursor = new QAction(tr("&Data Reader"), this);
+	btnCursor->setShortcut( tr("CTRL+D") );
+	btnCursor->setActionGroup(dataTools);
+	btnCursor->setCheckable( true );
+	btnCursor->setIcon(QIcon(QPixmap(":/select.xpm")) );
+	graph_tools->addAction(btnCursor);
+
+	btnSelect = new QAction(tr("&Select Data Range"), this);
+	btnSelect->setShortcut( tr("ALT+S") );
+	btnSelect->setActionGroup(dataTools);
+	btnSelect->setCheckable( true );
+	btnSelect->setIcon(QIcon(QPixmap(":/cursors.xpm")) );
+	graph_tools->addAction(btnSelect);
+
+	btnMovePoints = new QAction(tr("&Move Data Points..."), this);
+	btnMovePoints->setShortcut( tr("Ctrl+ALT+M") );
+	btnMovePoints->setActionGroup(dataTools);
+	btnMovePoints->setCheckable( true );
+	btnMovePoints->setIcon(QIcon(QPixmap(":/hand.xpm")) );
+
+	btnRemovePoints = new QAction(tr("Remove &Bad Data Points..."), this);
+	btnRemovePoints->setShortcut( tr("Alt+B") );
+	btnRemovePoints->setActionGroup(dataTools);
+	btnRemovePoints->setCheckable( true );
+	btnRemovePoints->setIcon(QIcon(QPixmap(":/gomme.xpm")));
+
+	connect( dataTools, SIGNAL( triggered( QAction* ) ), this, SLOT( pickDataTool( QAction* ) ) );
+
+	plot_tools = new QToolBar(tr("Plot"), this);
+	plot_tools->setObjectName("plot_tools"); // this is needed for QMainWindow::restoreState()
+	plot_tools->setIconSize( QSize(16,20) );
+	addToolBar( Qt::TopToolBarArea, plot_tools );
+
+	QMenu *menu_plot_linespoints = new QMenu(this);
+	QToolButton *btn_plot_linespoints = new QToolButton(this);
+	btn_plot_linespoints->setMenu(menu_plot_linespoints);
+	btn_plot_linespoints->setPopupMode(QToolButton::InstantPopup);
+	btn_plot_linespoints->setIcon(QPixmap(":/lpPlot.xpm"));
+	btn_plot_linespoints->setToolTip(tr("Lines and/or symbols"));
+	plot_tools->addWidget(btn_plot_linespoints);
+	menu_plot_linespoints->addAction(actionPlotL);
+	menu_plot_linespoints->addAction(actionPlotP);
+	menu_plot_linespoints->addAction(actionPlotLP);
+	menu_plot_linespoints->addAction(actionPlotSpline);
+	menu_plot_linespoints->addAction(actionPlotVerticalDropLines);
+	menu_plot_linespoints->addAction(actionPlotHorSteps);
+	menu_plot_linespoints->addAction(actionPlotVertSteps);
+
+	QMenu *menu_plot_bars = new QMenu(this);
+	QToolButton *btn_plot_bars = new QToolButton(this);
+	btn_plot_bars->setMenu(menu_plot_bars);
+	btn_plot_bars->setPopupMode(QToolButton::InstantPopup);
+	btn_plot_bars->setIcon(QPixmap(":/vertBars.xpm"));
+	plot_tools->addWidget(btn_plot_bars);
+	menu_plot_bars->addAction(actionPlotVerticalBars);
+	menu_plot_bars->addAction(actionPlotHorizontalBars);
+
+	plot_tools->addAction(actionPlotArea);
+	plot_tools->addAction(actionPlotPie);
+	plot_tools->addAction(actionPlotHistogram);
+	plot_tools->addAction(actionBoxPlot);
+
+	QMenu *menu_plot_vect = new QMenu(this);
+	QToolButton *btn_plot_vect = new QToolButton(this);
+	btn_plot_vect->setMenu(menu_plot_vect);
+	btn_plot_vect->setPopupMode(QToolButton::InstantPopup);
+	btn_plot_vect->setIcon(QPixmap(":/vectXYXY.xpm"));
+	plot_tools->addWidget(btn_plot_vect);
+	menu_plot_vect->addAction(actionPlotVectXYXY);
+	menu_plot_vect->addAction(actionPlotVectXYAM);
+
+	plot_tools->addSeparator ();
+
+	plot_tools->addAction(actionPlot3DRibbon);
+	plot_tools->addAction(actionPlot3DBars);
+	plot_tools->addAction(actionPlot3DScatter);
+	plot_tools->addAction(actionPlot3DTrajectory);
+
+
+	table_tools = new QToolBar( tr( "Table" ), this );
+	table_tools->setObjectName("table_tools"); // this is needed for QMainWindow::restoreState()
+	table_tools->setIconSize( QSize(16,20) );
+	addToolBar( Qt::TopToolBarArea, table_tools );
+
+	table_tools->addAction(actionAddColToTable);
+	table_tools->addAction(actionShowColStatistics);
+	table_tools->addAction(actionShowRowStatistics);
+
+	graph_tools->hide();
+	table_tools->hide();
+	plot_tools->hide();
 
 	d_status_info = new QLabel( this  );
 	d_status_info->setFrameStyle( QFrame::Sunken | QFrame::StyledPanel );
@@ -555,27 +607,27 @@ void ApplicationWindow::initToolBars()
 
 	statusBar()->addWidget( d_status_info, 1 );
 
-	plotMatrixBar = new QToolBar( tr( "Matrix Plot" ), this);
-	plotMatrixBar->setObjectName("plotMatrixBar");
-	addToolBar(Qt::BottomToolBarArea, plotMatrixBar);
+	matrix_plot_tools = new QToolBar( tr( "Matrix Plot" ), this);
+	matrix_plot_tools->setObjectName("matrix_plot_tools");
+	addToolBar(Qt::BottomToolBarArea, matrix_plot_tools);
 
-	actionPlot3DWireFrame->addTo(plotMatrixBar);
-	actionPlot3DHiddenLine->addTo(plotMatrixBar);
+	actionPlot3DWireFrame->addTo(matrix_plot_tools);
+	actionPlot3DHiddenLine->addTo(matrix_plot_tools);
 
-	actionPlot3DPolygons->addTo(plotMatrixBar);
-	actionPlot3DWireSurface->addTo(plotMatrixBar);
+	actionPlot3DPolygons->addTo(matrix_plot_tools);
+	actionPlot3DWireSurface->addTo(matrix_plot_tools);
 
-	plotMatrixBar->addSeparator();
+	matrix_plot_tools->addSeparator();
 
-	actionPlot3DBars->addTo(plotMatrixBar);
-	actionPlot3DScatter->addTo(plotMatrixBar);
+	actionPlot3DBars->addTo(matrix_plot_tools);
+	actionPlot3DScatter->addTo(matrix_plot_tools);
 
-	plotMatrixBar->addSeparator();
-	actionColorMap->addTo(plotMatrixBar);
-	actionContourMap->addTo(plotMatrixBar);
-	actionGrayMap->addTo(plotMatrixBar);
+	matrix_plot_tools->addSeparator();
+	actionColorMap->addTo(matrix_plot_tools);
+	actionContourMap->addTo(matrix_plot_tools);
+	actionGrayMap->addTo(matrix_plot_tools);
 
-	plotMatrixBar->hide();
+	matrix_plot_tools->hide();
 }
 
 void ApplicationWindow::insertTranslatedStrings()
@@ -590,19 +642,18 @@ void ApplicationWindow::insertTranslatedStrings()
 	lv->setColumnText (4, tr("Created"));
 	lv->setColumnText (5, tr("Label"));
 
-	if (scriptWindow)
-		scriptWindow->setCaption(tr("SciDAVis - Script Window"));
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	logWindow->setWindowTitle(tr("Results Log"));
 #ifdef SCRIPTING_CONSOLE
 	consoleWindow->setWindowTitle(tr("Scripting Console"));
 #endif
-	tableTools->setLabel(tr("Table"));
-	plotTools->setLabel(tr("Plot"));
-	fileTools->setLabel(tr("File"));
-	editTools->setLabel(tr("Edit"));
-	plotMatrixBar->setLabel(tr("Matrix Plot"));
-	plot3DTools->setLabel(tr("3D Surface"));
+	table_tools->setLabel(tr("Table"));
+	plot_tools->setLabel(tr("Plot"));
+	graph_tools->setLabel(tr("Graph"));
+	file_tools->setLabel(tr("File"));
+	edit_tools->setLabel(tr("Edit"));
+	matrix_plot_tools->setLabel(tr("Matrix Plot"));
+	graph_3D_tools->setLabel(tr("3D Surface"));
 
 	file->changeItem(newMenuID, tr("&New"));
 	file->changeItem(recentMenuID, tr("&Recent Projects"));
@@ -1167,67 +1218,74 @@ void ApplicationWindow::customToolBars(QWidget* w)
 	if (w)
 	{
 		if (!projectHas3DPlots())
-			plot3DTools->hide();
+			graph_3D_tools->hide();
 		if (!projectHas2DPlots())
-			plotTools->hide();
+			graph_tools->hide();
 		if (!projectHasMatrices())
-			plotMatrixBar->hide();
-		if ((int)tableWindows.count()<=0)
-			tableTools->hide();
+			matrix_plot_tools->hide();
+		if ((int)tableWindows.count()<=0) {
+			table_tools->hide();
+			plot_tools->hide();
+		}
 
 		if (w->inherits("MultiLayer"))
 		{
-			if (plotTools->isHidden())
-				plotTools->show();
+			if (graph_tools->isHidden())
+				graph_tools->show();
 
-			plotTools->setEnabled (true);
-			plot3DTools->setEnabled (false);
-			tableTools->setEnabled(false);
-			plotMatrixBar->setEnabled (false);
+			graph_tools->setEnabled (true);
+			plot_tools->setEnabled(true);
+			graph_3D_tools->setEnabled (false);
+			table_tools->setEnabled(false);
+			matrix_plot_tools->setEnabled (false);
 		}
 		else if (w->inherits("Table"))
 		{
-			if (tableTools->isHidden())
-				tableTools->show();
+			if (table_tools->isHidden())
+				table_tools->show();
 
-			plotTools->setEnabled (false);
-			plot3DTools->setEnabled (false);
-			tableTools->setEnabled (true);
-			plotMatrixBar->setEnabled (false);
+			table_tools->setEnabled (true);
+			plot_tools->setEnabled(true);
+			graph_tools->setEnabled (false);
+			graph_3D_tools->setEnabled (false);
+			matrix_plot_tools->setEnabled (false);
 		}
 		else if (w->inherits("Matrix"))
 		{
-			if (plotMatrixBar->isHidden())
-				plotMatrixBar->show();
+			if (matrix_plot_tools->isHidden())
+				matrix_plot_tools->show();
 
-			plotTools->setEnabled (false);
-			plot3DTools->setEnabled (false);
-			tableTools->setEnabled (false);
-			plotMatrixBar->setEnabled (true);
+			graph_tools->setEnabled (false);
+			graph_3D_tools->setEnabled (false);
+			table_tools->setEnabled (false);
+			plot_tools->setEnabled(false);
+			matrix_plot_tools->setEnabled (true);
 		}
 		else if (w->inherits("Graph3D"))
 		{
-			plotTools->setEnabled (false);
-			tableTools->setEnabled (false);
-			plotMatrixBar->setEnabled (false);
+			graph_tools->setEnabled (false);
+			table_tools->setEnabled (false);
+			plot_tools->setEnabled(false);
+			matrix_plot_tools->setEnabled (false);
 
-			if (plot3DTools->isHidden())
-				plot3DTools->show();
+			if (graph_3D_tools->isHidden())
+				graph_3D_tools->show();
 
 			Graph3D* plot= (Graph3D*)w;
 			if (plot->plotStyle() == Qwt3D::NOPLOT)
-				plot3DTools->setEnabled (false);
+				graph_3D_tools->setEnabled (false);
 			else
-				plot3DTools->setEnabled (true);
+				graph_3D_tools->setEnabled (true);
 
 			custom3DActions(w);
 		}
 		else if (w->inherits("Note"))
 		{
-			plotTools->setEnabled (false);
-			plot3DTools->setEnabled (false);
-			tableTools->setEnabled (false);
-			plotMatrixBar->setEnabled (false);
+			graph_tools->setEnabled (false);
+			graph_3D_tools->setEnabled (false);
+			table_tools->setEnabled (false);
+			plot_tools->setEnabled(false);
+			matrix_plot_tools->setEnabled (false);
 		}
 
 	}
@@ -1237,15 +1295,17 @@ void ApplicationWindow::customToolBars(QWidget* w)
 
 void ApplicationWindow::hideToolbars()
 {
-	plot3DTools->hide();
-	plotTools->hide();
-	tableTools->hide();
-	plotMatrixBar->hide();
+	graph_3D_tools->hide();
+	graph_tools->hide();
+	table_tools->hide();
+	plot_tools->hide();
+	matrix_plot_tools->hide();
 
-	plotTools->setEnabled (false);
-	tableTools->setEnabled (false);
-	plot3DTools->setEnabled (false);
-	plotMatrixBar->setEnabled (false);
+	graph_tools->setEnabled (false);
+	table_tools->setEnabled (false);
+	plot_tools->setEnabled(false);
+	graph_3D_tools->setEnabled (false);
+	matrix_plot_tools->setEnabled (false);
 }
 
 void ApplicationWindow::plot3DRibbon()
@@ -1345,26 +1405,6 @@ void ApplicationWindow::plot3DTrajectory()
 	}
 }
 
-void ApplicationWindow::plotVerticalBars()
-{
-	generate2DGraph(Graph::VerticalBars);
-}
-
-void ApplicationWindow::plotHorizontalBars()
-{
-	generate2DGraph(Graph::HorizontalBars);
-}
-
-void ApplicationWindow::plotHistogram()
-{
-	generate2DGraph(Graph::Histogram);
-}
-
-void ApplicationWindow::plotArea()
-{
-	generate2DGraph(Graph::Area);
-}
-
 void ApplicationWindow::plotPie()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
@@ -1392,41 +1432,6 @@ void ApplicationWindow::plotPie()
 	}
 	else
 		QMessageBox::warning(this, tr("SciDAVis - Error"), tr("Please select a column to plot!"));
-}
-
-void ApplicationWindow::plotL()
-{
-	generate2DGraph(Graph::Line);
-}
-
-void ApplicationWindow::plotP()
-{
-	generate2DGraph(Graph::Scatter);
-}
-
-void ApplicationWindow::plotLP()
-{
-	generate2DGraph(Graph::LineSymbols);
-}
-
-void ApplicationWindow::plotVerticalDropLines()
-{
-	generate2DGraph(Graph::VerticalDropLines);
-}
-
-void ApplicationWindow::plotSpline()
-{
-	generate2DGraph(Graph::Spline);
-}
-
-void ApplicationWindow::plotVertSteps()
-{
-	generate2DGraph(Graph::VerticalSteps);
-}
-
-void ApplicationWindow::plotHorSteps()
-{
-	generate2DGraph(Graph::HorizontalSteps);
 }
 
 void ApplicationWindow::plotVectXYXY()
@@ -2021,11 +2026,11 @@ void ApplicationWindow::initPlot3D(Graph3D *plot)
 
 	addListViewItem(plot);
 
-	if (!plot3DTools->isVisible())
-		plot3DTools->show();
+	if (!graph_3D_tools->isVisible())
+		graph_3D_tools->show();
 
-	if (!plot3DTools->isEnabled())
-		plot3DTools->setEnabled(true);
+	if (!graph_3D_tools->isEnabled())
+		graph_3D_tools->setEnabled(true);
 
 	customMenu((QWidget*)plot);
 	customToolBars((QWidget*)plot);
@@ -3870,9 +3875,6 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 
 	foreach(QObject *i, findChildren<QObject*>())
 		QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
-	if (scriptWindow)
-		foreach(QObject *i, scriptWindow->findChildren<QObject*>())
-			QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 
 	return true;
 }
@@ -5594,35 +5596,34 @@ void ApplicationWindow::showColMenu(int c)
 	if ((int)w->selectedColumns().count()==1)
 	{
 		w->setSelectedCol(c);
-		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),this, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),this, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),this,SLOT(plotLP()));
+		plot.addAction(actionPlotL);
+		plot.addAction(actionPlotP);
+		plot.addAction(actionPlotLP);
 
-		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),this,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),this,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Horizontal Steps"),this,SLOT(plotHorSteps()));
+		specialPlot.addAction(actionPlotVerticalDropLines);
+		specialPlot.addAction(actionPlotSpline);
+		specialPlot.addAction(actionPlotVertSteps);
+		specialPlot.addAction(actionPlotHorSteps);
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Vertical Bars"),this,SLOT(plotVerticalBars()));
-		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Horizontal Bars"),this,SLOT(plotHorizontalBars()));
-		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),this,SLOT(plotArea()));
-
-		plot.addAction(QIcon(QPixmap(":/pie.xpm")),tr("&Pie"),this,SLOT(plotPie()));
+		plot.addAction(actionPlotVerticalBars);
+		plot.addAction(actionPlotHorizontalBars);
+		plot.addAction(actionPlotArea);
+		plot.addAction(actionPlotPie);
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/ribbon.xpm")),tr("3D Ribbo&n"),this,SLOT(plot3DRibbon()));
-		plot.addAction(QIcon(QPixmap(":/bars.xpm")),tr("3D &Bars"),this,SLOT(plot3DBars()));
-		plot.addAction(QIcon(QPixmap(":/scatter.xpm")),tr("3&D Scatter"),this,SLOT(plot3DScatter()));
-		plot.addAction(QIcon(QPixmap(":/trajectory.xpm")),tr("3D &Trajectory"),this,SLOT(plot3DTrajectory()));
+		plot.addAction(actionPlot3DRibbon);
+		plot.addAction(actionPlot3DBars);
+		plot.addAction(actionPlot3DScatter);
+		plot.addAction(actionPlot3DTrajectory);
 
 		plot.addSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),this,SLOT(plotHistogram()));
-		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
+		stat.addAction(actionPlotHistogram);
+		stat.addAction(actionPlotStackedHistograms);
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
 
@@ -5699,35 +5700,35 @@ void ApplicationWindow::showColMenu(int c)
 	}
 	else if ((int)w->selectedColumns().count()>1)
 	{
-		plot.addAction(QIcon(QPixmap(":/lPlot.xpm")),tr("&Line"),this, SLOT(plotL()));
-		plot.addAction(QIcon(QPixmap(":/pPlot.xpm")),tr("&Scatter"),this, SLOT(plotP()));
-		plot.addAction(QIcon(QPixmap(":/lpPlot.xpm")),tr("Line + S&ymbol"),this,SLOT(plotLP()));
+		plot.addAction(actionPlotL);
+		plot.addAction(actionPlotP);
+		plot.addAction(actionPlotLP);
 
-		specialPlot.addAction(QIcon(QPixmap(":/dropLines.xpm")),tr("Vertical &Drop Lines"),this,SLOT(plotVerticalDropLines()));
-		specialPlot.addAction(QIcon(QPixmap(":/spline.xpm")),tr("&Spline"),this,SLOT(plotSpline()));
-		specialPlot.addAction(QIcon(QPixmap(":/vert_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotVertSteps()));
-		specialPlot.addAction(QIcon(QPixmap(":/hor_steps.xpm")),tr("&Vertical Steps"),this,SLOT(plotHorSteps()));
+		specialPlot.addAction(actionPlotVerticalDropLines);
+		specialPlot.addAction(actionPlotSpline);
+		specialPlot.addAction(actionPlotVertSteps);
+		specialPlot.addAction(actionPlotHorSteps);
 		specialPlot.setTitle(tr("Special Line/Symb&ol"));
 		plot.addMenu(&specialPlot);
 		plot.addSeparator();
 
-		plot.addAction(QIcon(QPixmap(":/vertBars.xpm")),tr("&Vertical Bars"),this,SLOT(plotVerticalBars()));
-		plot.addAction(QIcon(QPixmap(":/hBars.xpm")),tr("&Horizontal Bars"),this,SLOT(plotHorizontalBars()));
-		plot.addAction(QIcon(QPixmap(":/area.xpm")),tr("&Area"),this,SLOT(plotArea()));
-		plot.addAction(QIcon(QPixmap(":/vectXYXY.xpm")),tr("Vectors &XYXY"), this, SLOT(plotVectXYXY()));
-		plot.addAction(QIcon(QPixmap(":/vectXYAM.xpm")),tr("Vectors &XYAM"), this, SLOT(plotVectXYAM()));
+		plot.addAction(actionPlotVerticalBars);
+		plot.addAction(actionPlotHorizontalBars);
+		plot.addAction(actionPlotArea);
+		plot.addAction(actionPlotVectXYXY);
+		plot.addAction(actionPlotVectXYAM);
 		plot.addSeparator();
 
 		stat.addAction(actionBoxPlot);
-		stat.addAction(QIcon(QPixmap(":/histogram.xpm")),tr("&Histogram"),this,SLOT(plotHistogram()));
-		stat.addAction(QIcon(QPixmap(":/stacked_hist.xpm")),tr("&Stacked Histograms"),this,SLOT(plotStackedHistograms()));
+		stat.addAction(actionPlotHistogram);
+		stat.addAction(actionPlotStackedHistograms);
 		stat.setTitle(tr("Statistical &Graphs"));
 		plot.addMenu(&stat);
 
-		panels.addAction(QIcon(QPixmap(":/panel_v2.xpm")),tr("&Vertical 2 Layers"),this, SLOT(plot2VerticalLayers()));
-		panels.addAction(QIcon(QPixmap(":/panel_h2.xpm")),tr("&Horizontal 2 Layers"),this, SLOT(plot2HorizontalLayers()));
-		panels.addAction(QIcon(QPixmap(":/panel_4.xpm")),tr("&4 Layers"),this, SLOT(plot4Layers()));
-		panels.addAction(QIcon(QPixmap(":/stacked.xpm")),tr("&Stacked Layers"),this, SLOT(plotStackedLayers()));
+		panels.addAction(actionPlot2VerticalLayers);
+		panels.addAction(actionPlot2HorizontalLayers);
+		panels.addAction(actionPlot4Layers);
+		panels.addAction(actionPlotStackedLayers);
 		panels.setTitle(tr("Pa&nel"));
 		plot.addMenu(&panels);
 
@@ -6116,7 +6117,6 @@ void ApplicationWindow::showPlotDialog(int curveKey)
 	{
 		PlotDialog* pd = new PlotDialog(d_extended_plot_dialog, this);
         pd->setAttribute(Qt::WA_DeleteOnClose);
-        pd->insertColumnsList(columnsList(Table::All));
         pd->setMultiLayer((MultiLayer*)w);
         if (curveKey >= 0)
 		{
@@ -7783,10 +7783,6 @@ void ApplicationWindow::windowsMenuAboutToShow()
 	windowsMenu->addAction(actionRename);
 	windowsMenu->addAction(actionCopyWindow);
 	windowsMenu->addSeparator();
-#ifdef SCRIPTING_PYTHON
-	windowsMenu->addAction(actionShowScriptWindow);
-	windowsMenu->addSeparator();
-#endif
 	windowsMenu->addAction(actionResizeActiveWindow);
 	windowsMenu->insertItem(tr("&Hide Window"),
 			this, SLOT(hideActiveWindow()));
@@ -9244,11 +9240,11 @@ void ApplicationWindow::custom3DGrids(int grids)
 
 void ApplicationWindow::initPlot3DToolBar()
 {
-	plot3DTools = new QToolBar( tr( "3D Surface" ), this );
-	plot3DTools->setObjectName("plot3DTools"); // this is needed for QMainWindow::restoreState()
-	plot3DTools->setIconSize( QSize(20,20) );
+	graph_3D_tools = new QToolBar( tr( "3D Surface" ), this );
+	graph_3D_tools->setObjectName("graph_3D_tools"); // this is needed for QMainWindow::restoreState()
+	graph_3D_tools->setIconSize( QSize(20,20) );
 	addToolBarBreak( Qt::TopToolBarArea );
-	addToolBar( Qt::TopToolBarArea, plot3DTools );
+	addToolBar( Qt::TopToolBarArea, graph_3D_tools );
 
 	coord = new QActionGroup( this );
 	Box = new QAction( coord );
@@ -9263,12 +9259,12 @@ void ApplicationWindow::initPlot3DToolBar()
 	None->setIcon(QIcon(QPixmap(":/no_axes.xpm")) );
 	None->setCheckable(true);
 
-	plot3DTools->addAction(Frame);
-	plot3DTools->addAction(Box);
-	plot3DTools->addAction(None);
+	graph_3D_tools->addAction(Frame);
+	graph_3D_tools->addAction(Box);
+	graph_3D_tools->addAction(None);
 	Box->setChecked( true );
 
-	plot3DTools->addSeparator();
+	graph_3D_tools->addSeparator();
 
 	// grid actions
 	grids = new QActionGroup( this );
@@ -9293,35 +9289,35 @@ void ApplicationWindow::initPlot3DToolBar()
 	floor->setCheckable( true );
 	floor->setIcon(QIcon(QPixmap(":/floorGrid.xpm")) );
 
-	plot3DTools->addAction(front);
-	plot3DTools->addAction(back);
-	plot3DTools->addAction(right);
-	plot3DTools->addAction(left);
-	plot3DTools->addAction(ceil);
-	plot3DTools->addAction(floor);
+	graph_3D_tools->addAction(front);
+	graph_3D_tools->addAction(back);
+	graph_3D_tools->addAction(right);
+	graph_3D_tools->addAction(left);
+	graph_3D_tools->addAction(ceil);
+	graph_3D_tools->addAction(floor);
 
-	plot3DTools->addSeparator();
+	graph_3D_tools->addSeparator();
 
 	actionPerspective = new QAction( this );
 	actionPerspective->setToggleAction( TRUE );
 	actionPerspective->setIconSet(QPixmap(":/perspective.xpm") );
-	actionPerspective->addTo( plot3DTools );
+	actionPerspective->addTo( graph_3D_tools );
 	actionPerspective->setOn(!orthogonal3DPlots);
 	connect(actionPerspective, SIGNAL(toggled(bool)), this, SLOT(togglePerspective(bool)));
 
 	actionResetRotation = new QAction( this );
 	actionResetRotation->setToggleAction( false );
 	actionResetRotation->setIconSet(QPixmap(":/reset_rotation.xpm"));
-	actionResetRotation->addTo( plot3DTools );
+	actionResetRotation->addTo( graph_3D_tools );
 	connect(actionResetRotation, SIGNAL(activated()), this, SLOT(resetRotation()));
 
 	actionFitFrame = new QAction( this );
 	actionFitFrame->setToggleAction( false );
 	actionFitFrame->setIconSet(QPixmap(":/fit_frame.xpm"));
-	actionFitFrame->addTo( plot3DTools );
+	actionFitFrame->addTo( graph_3D_tools );
 	connect(actionFitFrame, SIGNAL(activated()), this, SLOT(fitFrameToLayer()));
 
-	plot3DTools->addSeparator();
+	graph_3D_tools->addSeparator();
 
 	//plot style actions
 	plotstyle = new QActionGroup( this );
@@ -9356,20 +9352,20 @@ void ApplicationWindow::initPlot3DToolBar()
 	barstyle->setCheckable( true );
 	barstyle->setIcon(QIcon(QPixmap(":/plot_bars.xpm")) );
 
-	plot3DTools->addAction(barstyle);
-	plot3DTools->addAction(pointstyle);
+	graph_3D_tools->addAction(barstyle);
+	graph_3D_tools->addAction(pointstyle);
 
-	plot3DTools->addAction(conestyle);
-	plot3DTools->addAction(crossHairStyle);
-	plot3DTools->addSeparator();
+	graph_3D_tools->addAction(conestyle);
+	graph_3D_tools->addAction(crossHairStyle);
+	graph_3D_tools->addSeparator();
 
-	plot3DTools->addAction(wireframe);
-	plot3DTools->addAction(hiddenline);
-	plot3DTools->addAction(polygon);
-	plot3DTools->addAction(filledmesh);
+	graph_3D_tools->addAction(wireframe);
+	graph_3D_tools->addAction(hiddenline);
+	graph_3D_tools->addAction(polygon);
+	graph_3D_tools->addAction(filledmesh);
 	filledmesh->setChecked( true );
 
-	plot3DTools->addSeparator();
+	graph_3D_tools->addSeparator();
 
 	//floor actions
 	floorstyle = new QActionGroup( this );
@@ -9383,19 +9379,19 @@ void ApplicationWindow::initPlot3DToolBar()
 	floornone->setCheckable( true );
 	floornone->setIcon(QIcon(QPixmap(":/no_floor.xpm")));
 
-	plot3DTools->addAction(floordata);
-	plot3DTools->addAction(flooriso);
-	plot3DTools->addAction(floornone);
+	graph_3D_tools->addAction(floordata);
+	graph_3D_tools->addAction(flooriso);
+	graph_3D_tools->addAction(floornone);
 	floornone->setChecked( true );
 
-	plot3DTools->addSeparator();
+	graph_3D_tools->addSeparator();
 
 	actionAnimate = new QAction( this );
 	actionAnimate->setToggleAction( true );
 	actionAnimate->setIconSet(QPixmap(":/movie.xpm"));
-	plot3DTools->addAction(actionAnimate);
+	graph_3D_tools->addAction(actionAnimate);
 
-	plot3DTools->hide();
+	graph_3D_tools->hide();
 
 	connect(actionAnimate, SIGNAL(toggled(bool)), this, SLOT(toggle3DAnimation(bool)));
 	connect( coord, SIGNAL( triggered( QAction* ) ), this, SLOT( pickCoordSystem( QAction* ) ) );
@@ -10100,7 +10096,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 				cl.penWidth = cl.lWidth;
 
 			ag->insertFunctionCurve(curve[1], curve[2].toInt(), d_file_version);
-			ag->setCurveType(curveID, curve[5].toInt());
+			ag->setCurveType(curveID, (Graph::CurveType)curve[5].toInt(), false);
 			ag->updateCurveLayout(curveID, &cl);
 			if (d_file_version >= 88)
 			{
@@ -10896,35 +10892,48 @@ void ApplicationWindow::createActions()
 	actionAddImage->setShortcut( tr("ALT+I") );
 	connect(actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
+	QSignalMapper *plot_mapper = new QSignalMapper;
+	connect(plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
+
 	actionPlotL = new QAction(QIcon(QPixmap(":/lPlot.xpm")), tr("&Line"), this);
-	connect(actionPlotL, SIGNAL(activated()), this, SLOT(plotL()));
+	connect(actionPlotL, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotL, Graph::Line);
 
 	actionPlotP = new QAction(QIcon(QPixmap(":/pPlot.xpm")), tr("&Scatter"), this);
-	connect(actionPlotP, SIGNAL(activated()), this, SLOT(plotP()));
+	connect(actionPlotP, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotP, Graph::Scatter);
 
 	actionPlotLP = new QAction(QIcon(QPixmap(":/lpPlot.xpm")), tr("Line + S&ymbol"), this);
-	connect(actionPlotLP, SIGNAL(activated()), this, SLOT(plotLP()));
+	connect(actionPlotLP, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotLP, Graph::LineSymbols);
 
 	actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(":/dropLines.xpm")), tr("Vertical &Drop Lines"), this);
-	connect(actionPlotVerticalDropLines, SIGNAL(activated()), this, SLOT(plotVerticalDropLines()));
+	connect(actionPlotVerticalDropLines, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotVerticalDropLines, Graph::VerticalDropLines);
 
 	actionPlotSpline = new QAction(QIcon(QPixmap(":/spline.xpm")), tr("&Spline"), this);
-	connect(actionPlotSpline, SIGNAL(activated()), this, SLOT(plotSpline()));
+	connect(actionPlotSpline, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotSpline, Graph::Spline);
 
 	actionPlotHorSteps = new QAction(QPixmap(":/hor_steps.xpm"), tr("&Horizontal Steps"), this);
-	connect(actionPlotHorSteps, SIGNAL(activated()), this, SLOT(plotHorSteps()));
+	connect(actionPlotHorSteps, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotHorSteps, Graph::HorizontalSteps);
 
 	actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")), tr("&Vertical Steps"), this);
-	connect(actionPlotVertSteps, SIGNAL(activated()), this, SLOT(plotVertSteps()));
+	connect(actionPlotVertSteps, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotVertSteps, Graph::VerticalSteps);
 
 	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Vertical Bars"), this);
-	connect(actionPlotVerticalBars, SIGNAL(activated()), this, SLOT(plotVerticalBars()));
+	connect(actionPlotVerticalBars, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotVerticalBars, Graph::VerticalBars);
 
 	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Horizontal Bars"), this);
-	connect(actionPlotHorizontalBars, SIGNAL(activated()), this, SLOT(plotHorizontalBars()));
+	connect(actionPlotHorizontalBars, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotHorizontalBars, Graph::HorizontalBars);
 
 	actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
-	connect(actionPlotArea, SIGNAL(activated()), this, SLOT(plotArea()));
+	connect(actionPlotArea, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotArea, Graph::Area);
 
 	actionPlotPie = new QAction(QIcon(QPixmap(":/pie.xpm")), tr("&Pie"), this);
 	connect(actionPlotPie, SIGNAL(activated()), this, SLOT(plotPie()));
@@ -10936,7 +10945,8 @@ void ApplicationWindow::createActions()
 	connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
 
 	actionPlotHistogram = new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
-	connect(actionPlotHistogram, SIGNAL(activated()), this, SLOT(plotHistogram()));
+	connect(actionPlotHistogram, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionPlotHistogram, Graph::Histogram);
 
 	actionPlotStackedHistograms = new QAction(QIcon(QPixmap(":/stacked_hist.xpm")), tr("&Stacked Histogram"), this);
 	connect(actionPlotStackedHistograms, SIGNAL(activated()), this, SLOT(plotStackedHistograms()));
@@ -11248,7 +11258,8 @@ void ApplicationWindow::createActions()
 	connect(actionDisregardCol, SIGNAL(activated()), this, SLOT(disregardCol()));
 
 	actionBoxPlot = new QAction(QIcon(QPixmap(":/boxPlot.xpm")),tr("&Box Plot"), this);
-	connect(actionBoxPlot, SIGNAL(activated()), this, SLOT(plotBoxDiagram()));
+	connect(actionBoxPlot, SIGNAL(activated()), plot_mapper, SLOT(map()));
+	plot_mapper->setMapping(actionBoxPlot, Graph::Box);
 
 	actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
 	connect(actionMultiPeakGauss, SIGNAL(activated()), this, SLOT(fitMultiPeakGauss()));
@@ -11290,13 +11301,6 @@ void ApplicationWindow::createActions()
 
 	actionNoteEvaluate = new QAction(tr("&Evaluate Expression"), this);
 	actionNoteEvaluate->setShortcut(tr("Ctrl+Return"));
-
-#ifdef SCRIPTING_PYTHON
-	actionShowScriptWindow = new QAction(QPixmap(":/python.xpm"), tr("&Script Window"), this);
-	actionShowScriptWindow->setShortcut(tr("F3"));
-	actionShowScriptWindow->setToggleAction( true );
-	connect(actionShowScriptWindow, SIGNAL(activated()), this, SLOT(showScriptWindow()));
-#endif
 
 	actionShowCurvePlotDialog = new QAction(tr("&Plot details..."), this);
 	connect(actionShowCurvePlotDialog, SIGNAL(activated()), this, SLOT(showCurvePlotDialog()));
@@ -11432,12 +11436,6 @@ void ApplicationWindow::translateActionsStrings()
 #ifdef SCRIPTING_CONSOLE
 	actionShowConsole->setMenuText(tr("&Console"));
 	actionShowConsole->setToolTip(tr("Show Scripting console"));
-#endif
-
-#ifdef SCRIPTING_PYTHON
-	actionShowScriptWindow->setMenuText(tr("&Script Window"));
-	actionShowScriptWindow->setToolTip(tr("Script Window"));
-	actionShowScriptWindow->setShortcut(tr("F3"));
 #endif
 
 	actionAddLayer->setMenuText(tr("Add La&yer"));
@@ -12189,11 +12187,6 @@ void ApplicationWindow::disregardCol()
 		return;
 
 	((Table *)ws->activeWindow())->setPlotDesignation(Table::None);
-}
-
-void ApplicationWindow::plotBoxDiagram()
-{
-	generate2DGraph(Graph::Box);
 }
 
 void ApplicationWindow::fitMultiPeakGauss()
@@ -13840,23 +13833,6 @@ void ApplicationWindow::goToCell()
 		((Matrix *)ws->activeWindow())->goToCell(row-1, col-1);
 }
 
-void ApplicationWindow::showScriptWindow()
-{
-	if (!scriptWindow)
-	{
-		scriptWindow = new ScriptWindow(scriptEnv);
-		connect(scriptWindow, SIGNAL(visibilityChanged(bool)), actionShowScriptWindow, SLOT(setOn(bool)));
-	}
-
-	if (!scriptWindow->isVisible())
-	{
-		scriptWindow->show();
-		scriptWindow->setFocus();
-	}
-	else
-		scriptWindow->hide();
-}
-
 /*!
   Turns perspective mode on or off
   */
@@ -13897,9 +13873,6 @@ ApplicationWindow::~ApplicationWindow()
 
 	delete hiddenWindows;
 	delete outWindows;
-
-	if (scriptWindow)
-		delete scriptWindow;
 
 	QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
@@ -13953,11 +13926,11 @@ ApplicationWindow * ApplicationWindow::loadScript(const QString& fn, bool execut
 	ApplicationWindow *app= new ApplicationWindow();
 	app->applyUserSettings();
 	app->showMaximized();
-	app->showScriptWindow();
-	app->scriptWindow->open(fn);
+	Note *script_note = app->newNote(fn);
+	script_note->importASCII(fn);
 	QApplication::restoreOverrideCursor();
 	if (execute)
-		app->scriptWindow->executeAll();
+		script_note->executeAll();
 	return app;
 }
 
@@ -14141,16 +14114,20 @@ bool ApplicationWindow::validFor2DPlot(Table *table)
 	return true;
 }
 
-void ApplicationWindow::generate2DGraph(Graph::CurveType type)
+void ApplicationWindow::selectPlotType(int type)
 {
-	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
+	if (!ws->activeWindow())
 		return;
 
-	Table * table = static_cast<Table *>(ws->activeWindow());
+	Table *table = qobject_cast<Table *>(ws->activeWindow());
+	if (table && validFor2DPlot(table)) {
+		Q3TableSelection sel = table->getSelection();
+		multilayerPlot(table, table->drawableColumnSelection(), (Graph::CurveType)type, sel.topRow(), sel.bottomRow());
+	}
 
-	if (!validFor2DPlot(table))
-		return;
-
-	Q3TableSelection sel = table->getSelection();
-	multilayerPlot(table, table->drawableColumnSelection(), type, sel.topRow(), sel.bottomRow());
+	MultiLayer *ml = qobject_cast<MultiLayer*>(ws->activeWindow());
+	if (ml) {
+		Graph *g = ml->activeGraph();
+		g->setCurveType(g->curves()-1, (Graph::CurveType)type);
+	}
 }

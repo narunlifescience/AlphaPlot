@@ -231,65 +231,39 @@ void PlotDialog::editCurve()
 	}
 }
 
-void PlotDialog::changePlotType(int plotType)
+void PlotDialog::changePlotType(int new_curve_type)
 {
     CurveTreeItem *item = (CurveTreeItem *)listBox->currentItem();
-    if (!item)
-        return;
-    if (item->type() != CurveTreeItem::PlotCurveTreeItem)
+    if (!item || item->type() != CurveTreeItem::PlotCurveTreeItem)
         return;
     Graph *graph = item->graph();
     if (!graph)
         return;
 
-	int curveType = item->plotItemType();
-	if (boxPlotType->count() == 1 || (curveType == plotType))
+	int old_curve_type = item->plotItemType();
+	if (boxPlotType->count() == 1 || (old_curve_type == new_curve_type))
 		return;
 
-	if (curveType == Graph::ColorMap || curveType == Graph::ContourMap || curveType == Graph::GrayMap)
+	if (old_curve_type == Graph::ColorMap || old_curve_type == Graph::ContourMap || old_curve_type == Graph::GrayMap)
   		clearTabWidget();
-  	else if (curveType == Graph::VectXYAM || curveType == Graph::VectXYXY)
+  	else if (old_curve_type == Graph::VectXYAM || old_curve_type == Graph::VectXYXY)
 	{
-		if ((plotType && curveType == Graph::VectXYAM) ||
-				(!plotType && curveType == Graph::VectXYXY))
-			return;
-
 		clearTabWidget();
-		insertTabs(curveType);
+		insertTabs(old_curve_type);
 
-		VectorCurve *v = (VectorCurve*)item->plotItem();
-		if (plotType)
-		{
-			graph->setCurveType(item->plotItemIndex(), Graph::VectXYAM);
-			v->setVectorStyle(VectorCurve::XYAM);
-		}
-		else
-		{
-			graph->setCurveType(item->plotItemIndex(), Graph::VectXYXY);
-			v->setVectorStyle(VectorCurve::XYXY);
-		}
-		customVectorsPage(plotType);
+		graph->setCurveType(item->plotItemIndex(), (Graph::CurveType)new_curve_type);
+		customVectorsPage(new_curve_type);
 	}
 	else
 	{
 		clearTabWidget();
-		insertTabs(plotType);
+		insertTabs(new_curve_type);
 
-		graph->setCurveType(item->plotItemIndex(), plotType);
+		graph->setCurveType(item->plotItemIndex(), (Graph::CurveType)new_curve_type);
 
 		boxConnect->setCurrentIndex(1);//show line for Line and LineSymbol plots
 
-		QwtSymbol s = QwtSymbol(QwtSymbol::Ellipse, QBrush(), QPen(), QSize(9,9));
-		if (plotType == Graph::Line)
-			s.setStyle(QwtSymbol::NoSymbol);
-		else if (plotType == Graph::Scatter)
-			graph->setCurveStyle(item->plotItemIndex(), QwtPlotCurve::NoCurve);
-		else if (plotType == Graph::LineSymbols)
-			graph->setCurveStyle(item->plotItemIndex(), QwtPlotCurve::Lines);
-
-        graph->setCurveSymbol(item->plotItemIndex(), s);
-
-		if (plotType)
+		if (new_curve_type)
 		{
 			boxSymbolStyle->setCurrentIndex(1);
 			boxFillSymbol->setChecked(true);

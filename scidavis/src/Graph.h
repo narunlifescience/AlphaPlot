@@ -207,7 +207,12 @@ class Graph: public QWidget
         void updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName = true);
 
 		int curveType(int curveIndex);
-		void setCurveType(int curve, int style);
+		//! Change the type of the given curve.
+		/**
+		 * The option to disable updating is provided so as not to break the project opening code
+		 * (ApplicationWindow::openGraph()).
+		 */
+		void setCurveType(int curve, CurveType type, bool update=true);
 		void setCurveFullRange(int curveIndex);
 
 		//! \name Output: Copy/Export/Print
@@ -263,6 +268,7 @@ class Graph: public QWidget
 		//@{
 		CurveLayout initCurveLayout(int style, int curves = 0);
 		static CurveLayout initCurveLayout();
+		//! Set layout parameters of the curve given by index.
 		void updateCurveLayout(int index,const CurveLayout *cL);
 		//! Tries to guess not already used curve color and symbol style
 		void guessUniqueCurveLayout(int& colorIndex, int& symbolIndex);

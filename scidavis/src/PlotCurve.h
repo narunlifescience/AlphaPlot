@@ -57,6 +57,9 @@ public:
 	QString xColumnName(){return d_x_column;};
 	void setXColumnName(const QString& name){d_x_column = name;};
 
+	QString yColumnName() { return title().text(); }
+	void setYColumnName(const QString& name) { setTitle(name); }
+
 	Table* table(){return d_table;};
 
 	int startRow(){return d_start_row;};

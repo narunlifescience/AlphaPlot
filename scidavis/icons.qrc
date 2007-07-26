@@ -20,6 +20,7 @@
 	<file alias="newfolder.xpm">icons/newfolder.xpm</file>
 	<file alias="folder_open.xpm">icons/folder_open.xpm</file>
 	<file alias="note.xpm">icons/note.xpm</file>
+	<file alias="new_aspect.xpm">icons/new_aspect.xpm</file>
 	<file alias="new_note.xpm">icons/new_note.xpm</file>
 	<file alias="new_graph.xpm">icons/new_graph.xpm</file>
 	<file alias="vectXYAM.xpm">icons/vectXYAM.xpm</file>

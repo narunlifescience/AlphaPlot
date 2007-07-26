@@ -76,7 +76,6 @@ class FunctionDialog;
 class Folder;
 class FolderListItem;
 class FolderListView;
-class ScriptWindow;
 class Plot3DDialog;
 class MyWidget;
 class TableStatistics;
@@ -121,7 +120,6 @@ public:
 	enum ShowWindowsPolicy{HideAll, ActiveFolder, SubFolders};
 
 	QAssistantClient *assistant;
-	ScriptWindow *scriptWindow;
 	QTranslator *appTranslator, *qtTranslator;
 	QDockWidget *logWindow, *explorerWindow;
 	QTextEdit *results;
@@ -130,7 +128,7 @@ public:
 	QTextEdit *console;
 #endif
 	QWorkspace* ws;
-    QToolBar *fileTools, *plotTools, *tableTools, *plot3DTools, *editTools, *plotMatrixBar;
+	QToolBar *file_tools, *graph_tools, *table_tools, *plot_tools, *graph_3D_tools, *edit_tools, *matrix_plot_tools;
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
@@ -370,22 +368,9 @@ public slots:
 							 const QColor& textCol, const QColor& backgroundCol);
 	void setArrowDefaultSettings(int lineWidth,  const QColor& c, Qt::PenStyle style,
 								int headLength, int headAngle, bool fillHead);
-
-	void plotL();
-	void plotP();
-	void plotLP();
 	void plotPie();
-	void plotVerticalBars();
-	void plotHorizontalBars();
-	void plotArea();
-	void plotVertSteps();
-	void plotHorSteps();
-	void plotSpline();
-	void plotVerticalDropLines();
-	void plotHistogram();
 	void plotVectXYXY();
 	void plotVectXYAM();
-	void plotBoxDiagram();
 	//@}
 
 	//! \name Image Analysis
@@ -652,7 +637,6 @@ public slots:
 	//! Connected to the context menu signal from lv; it's called when there are no items selected in the list
 	void showListViewPopupMenu(const QPoint &p);
 
-	void showScriptWindow();
 	void showMoreWindows();
 	void showMarkerPopupMenu();
 	void showHelp();
@@ -1038,8 +1022,6 @@ private:
 	bool validFor3DPlot(Table *table);
 	//! Check whether a table is valid for a 2D plot and display an appropriate error if not
 	bool validFor2DPlot(Table *table);
-	//! Generate a new 2D graph
-	void generate2DGraph(Graph::CurveType type);
 
 	//! Workaround for the new colors introduced in rev 447
 	int convertOldToNewColorIndex(int cindex);
@@ -1116,7 +1098,6 @@ private:
 	QAction *actionNextWindow, *actionPrevWindow;
 	QAction *actionScriptingLang, *actionRestartScripting, *actionClearTable, *actionGoToCell;
 	QAction *actionNoteExecute, *actionNoteExecuteAll, *actionNoteEvaluate, *actionSaveNote;
-	QAction *actionShowScriptWindow;
 	QAction *actionAnimate, *actionPerspective, *actionFitFrame, *actionResetRotation;
 
 	QActionGroup* dataTools;
@@ -1156,6 +1137,13 @@ private slots:
 	 * See also: http://doc.trolltech.com/4.3/mainwindows-recentfiles-mainwindow-cpp.html
 	 */ 
 	void setActiveWindowFromAction();
+	//! Manage plot type selection.
+	/**
+	 * If the current window is a Table, generate a new graph from the selected data.
+	 * If it is a Graph, change the plot type of the last curve.
+	 * For everything else, do nothing.
+	 */
+	void selectPlotType(int type);
 
 };
 #endif
