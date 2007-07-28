@@ -95,7 +95,7 @@ void ImageExportDialog::initAdvancedOptions()
 	vector_layout->addWidget(d_resolution, 1, 1);
 
 	d_color = new QCheckBox();
-	d_color->setText(tr("&Export in &color"));
+	d_color->setText(tr("Export in &color"));
 	d_color->setChecked(app->d_export_color);
 	vector_layout->addWidget(d_color, 2, 0, 1, 2);
 

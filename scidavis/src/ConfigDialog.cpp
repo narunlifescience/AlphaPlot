@@ -843,7 +843,7 @@ void ConfigDialog::languageChange()
 	boxMinTicks->setCurrentIndex(app->minTicksStyle);
 
 	plotsTabWidget->setTabText(plotsTabWidget->indexOf(plotPrint), tr("Print"));
-	boxPrintCropmarks->setText(tr("Print Crop&marks"));
+	boxPrintCropmarks->setText(tr("Print Crop &Marks"));
 	boxScaleLayersOnPrint->setText(tr("&Scale layers to paper size"));
 
 	//confirmations page

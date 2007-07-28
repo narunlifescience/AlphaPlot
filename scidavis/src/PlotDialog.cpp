@@ -433,7 +433,7 @@ void PlotDialog::initPrintPage()
     QVBoxLayout *vl = new QVBoxLayout(gb);
 	boxScaleLayers = new QCheckBox(tr("&Scale layers to paper size"));
 	vl->addWidget(boxScaleLayers);
-	boxPrintCrops = new QCheckBox(tr("Print Crop&marks"));
+	boxPrintCrops = new QCheckBox(tr("Print Crop &Marks"));
 	vl->addWidget(boxPrintCrops);
     vl->addStretch();
 

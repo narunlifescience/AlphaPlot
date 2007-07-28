@@ -3394,7 +3394,7 @@ void ApplicationWindow::open()
 					QFileInfo fi(projectname);
 					QString pn = fi.absFilePath();
 					if (fn == pn){
-						QMessageBox::warning(this, tr("File openning error"),
+						QMessageBox::warning(this, tr("File opening error"),
 								tr("The file: <b>%1</b> is the current file!").arg(fn));
 						return;
 					}
@@ -3407,7 +3407,7 @@ void ApplicationWindow::open()
 						fn.endsWith(".ogw",Qt::CaseInsensitive) || fn.endsWith(".ogg",Qt::CaseInsensitive))
 				{
 					if (!fi.exists ()){
-						QMessageBox::critical(this, tr("File openning error"),
+						QMessageBox::critical(this, tr("File opening error"),
 								tr("The file: <b>%1</b> doesn't exist!").arg(fn));
 						return;
 					}
@@ -3424,7 +3424,7 @@ void ApplicationWindow::open()
                             this->close();
 					}
 				} else {
-					QMessageBox::critical(this,tr("File openning error"),
+					QMessageBox::critical(this,tr("File opening error"),
 							tr("The file <b>%1</b> is not a valid project file.").arg(fn));
 					return;
 				}
@@ -3529,7 +3529,7 @@ void ApplicationWindow::openRecentProject(int index)
 		QString pn = fi.absFilePath();
 		if (fn == pn)
 		{
-			QMessageBox::warning(this, tr("File openning error"),
+			QMessageBox::warning(this, tr("File opening error"),
 					tr("The file: <p><b> %1 </b><p> is the current file!").arg(fn));
 			return;
 		}
@@ -4586,7 +4586,7 @@ void ApplicationWindow::exportGraph()
 	QFile file(file_name);
 	if ( !file.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::critical(this, tr("Export error"),
+		QMessageBox::critical(this, tr("Export Error"),
 				tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(file_name));
 		return;
 	}
@@ -4641,7 +4641,7 @@ void ApplicationWindow::exportLayer()
 	QFile file(file_name);
 	if ( !file.open( QIODevice::WriteOnly ) )
 	{
-		QMessageBox::critical(this, tr("Export error"),
+		QMessageBox::critical(this, tr("Export Error"),
 				tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(file_name));
 		return;
 	}
@@ -4727,7 +4727,7 @@ void ApplicationWindow::exportAllGraphs()
 		}
 		if ( !f.open( QIODevice::WriteOnly ) ) {
 			QApplication::restoreOverrideCursor();
-			QMessageBox::critical(this, tr("Export error"),
+			QMessageBox::critical(this, tr("Export Error"),
 					tr("Could not write to file: <br><h4>%1</h4><p>"
 						"Please verify that you have the right to write to this location!").arg(file_name));
 			delete windows;
@@ -4951,7 +4951,7 @@ void ApplicationWindow::saveAsTemplate()
 		QFile f(fn);
 		if ( !f.open( QIODevice::WriteOnly ) )
 		{
-			QMessageBox::critical(this, tr("Export error"),
+			QMessageBox::critical(this, tr("Export Error"),
 			tr("Could not write to file: <br><h4> %1 </h4><p>Please verify that you have the right to write to this location!").arg(fn));
 			return;
 		}
@@ -6478,7 +6478,7 @@ void ApplicationWindow::exportPDF()
         QFile f(fname);
         if ( !f.open( QIODevice::WriteOnly ) )
         {
-            QMessageBox::critical(this, tr("Export error"),
+            QMessageBox::critical(this, tr("Export Error"),
             tr("Could not write to file: <h4>%1</h4><p>Please verify that you have the right to write to this location or that the file is not being used by another application!").arg(fname));
             return;
         }
@@ -12335,15 +12335,15 @@ void ApplicationWindow::parseCommandLineArguments(const QStringList& args)
 	if (!file_name.isEmpty()){
 		QFileInfo fi(file_name);
 		if (fi.isDir()){
-			QMessageBox::critical(this, tr("File openning error"),
+			QMessageBox::critical(this, tr("File opening error"),
 					tr("<b>%1</b> is a directory, please specify a file name!").arg(file_name));
 			return;
 		} else if (!fi.isReadable()) {
-			QMessageBox::critical(this, tr("File openning error"),
+			QMessageBox::critical(this, tr("File opening error"),
 					tr("You don't have the permission to open this file: <b>%1</b>").arg(file_name));
 			return;
 		} else if (!fi.exists()) {
-			QMessageBox::critical(this, tr("File openning error"),
+			QMessageBox::critical(this, tr("File opening error"),
 					tr("The file: <b>%1</b> doesn't exist!").arg(file_name));
 			return;
 		}
