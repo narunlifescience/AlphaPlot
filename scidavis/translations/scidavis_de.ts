@@ -7219,7 +7219,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ConfigDialog.cpp" line="990"/>
         <source>Same X as Fitting Data</source>
-        <translation>Gleiche X-Werte wie Fit-Daten</translation>
+        <translation>Gleiche X-Werte wie die Daten für die Anpassung</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1000"/>
@@ -7254,7 +7254,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ConfigDialog.cpp" line="786"/>
         <source>Fitting</source>
-        <translation>Fitten</translation>
+        <translation>Kurvenanpassung</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="884"/>
@@ -7374,7 +7374,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/ConfigDialog.cpp" line="991"/>
         <source>2 points for linear fits</source>
-        <translation>2 Punkte für lineare Fits</translation>
+        <translation>2 Punkte für lineare Anpassung</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="777"/>
@@ -8882,7 +8882,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="428"/>
         <source>You must specify a valid fit function first. Operation aborted!</source>
-        <translation>Sie müssen zuerst eine gültige Fitfunktion angeben. Abbruch!</translation>
+        <translation>Sie müssen zuerst eine gültige Anpassungsfunktion angeben. Abbruch!</translation>
     </message>
     <message>
         <location filename="../src/Fit.cpp" line="503"/>
@@ -8912,7 +8912,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="410"/>
         <source>You didn&apos;t specify a valid data set for this fit operation. Operation aborted!</source>
-        <translation>Sie haben keinen gültigen Datensatz für diesen Fit ausgewählt. Ausführung abgebrochen!</translation>
+        <translation>Sie haben keinen gültigen Datensatz für diese Anpassung ausgewählt. Ausführung abgebrochen!</translation>
     </message>
     <message>
         <location filename="../src/Fit.cpp" line="422"/>
@@ -8922,7 +8922,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="427"/>
         <source>Fit Error</source>
-        <translation>Fitfehler</translation>
+        <translation>Anpassungsfehler</translation>
     </message>
 </context>
 <context>
@@ -9217,17 +9217,17 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="827"/>
         <source>Fit with selected &amp;user function</source>
-        <translation>Mit ben&amp;utzerdefinierter Funktion fitten</translation>
+        <translation>Mit ben&amp;utzerdefinierter Funktion anpassen</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="834"/>
         <source>Fit using &amp;built-in function</source>
-        <translation>Mit einge&amp;bauter Funktion fitten</translation>
+        <translation>Mit einge&amp;bauter Funktion anpassen</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="846"/>
         <source>Fit using &amp;plugin function</source>
-        <translation>Mit &amp;Plugin-Funktion fitten</translation>
+        <translation>Mit &amp;Plugin-Funktion anpassen</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="863"/>
@@ -9287,7 +9287,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="364"/>
         <source>Generated Fit Curve</source>
-        <translation>Generierte Fitkurve</translation>
+        <translation>Generierte Anpassungskurve</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -9467,7 +9467,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="69"/>
         <source>Fit Wizard</source>
-        <translation>Fit-Assistent</translation>
+        <translation>Kurvenanpassungsassistent</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="1184"/>
@@ -12774,7 +12774,7 @@ Die Grenzen müssen innerhalb des X-Bereichs sein. Fall diese Werte nicht bekann
     <message>
         <location filename="../src/PolynomialFit.cpp" line="247"/>
         <source>Fit Error</source>
-        <translation>Fitfehler</translation>
+        <translation>Anpassungsfehler</translation>
     </message>
 </context>
 <context>
@@ -13242,7 +13242,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="243"/>
         <source>Could not allocate enough memory for the fit curves!</source>
-        <translation>Konnte nicht genug Speicher für Fit-Kurven reservieren!</translation>
+        <translation>Konnte nicht genug Speicher für Anpassungskurven reservieren!</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="296"/>
@@ -13252,7 +13252,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="297"/>
         <source>fit of</source>
-        <translation>Fit von</translation>
+        <translation>Anpassung an</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="349"/>
@@ -13282,17 +13282,17 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="73"/>
         <source>Gauss Fit</source>
-        <translation>Gauß-Fit</translation>
+        <translation>Gauß-Anpassung</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="75"/>
         <source>Lorentz Fit</source>
-        <translation>Lorentz-Fit</translation>
+        <translation>Lorentz-Anpassung</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="243"/>
         <source>Fit Error</source>
-        <translation>Fitfehler</translation>
+        <translation>Anpassungsfehler</translation>
     </message>
 </context>
 <context>
@@ -13689,7 +13689,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="118"/>
         <source>You must provide a list containing at least one parameter for this type of fit. Operation aborted!</source>
-        <translation>Sie müssen mindestens einen Parameter für diesen Typ von Fit angeben. Abbruch!</translation>
+        <translation>Sie müssen mindestens einen Parameter für diesen Typ von Anpassung angeben. Abbruch!</translation>
     </message>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="104"/>
@@ -13699,7 +13699,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="117"/>
         <source>Fit Error</source>
-        <translation>Fitfehler</translation>
+        <translation>Anpassungsfehler</translation>
     </message>
 </context>
 <context>
@@ -15581,7 +15581,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="71"/>
         <source>Fit curve Xmin</source>
-        <translation>Fitkurve min. X</translation>
+        <translation>Anpassungskurve min. X</translation>
     </message>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="72"/>
@@ -15591,7 +15591,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="75"/>
         <source>Fit curve Xmax</source>
-        <translation>Fitkurve max. X</translation>
+        <translation>Anpassungskurve max. X</translation>
     </message>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="84"/>
