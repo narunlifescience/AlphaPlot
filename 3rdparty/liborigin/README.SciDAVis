@@ -1,0 +1,11 @@
+Except for this file, this directory contains unmodified 
+copies of (the for SciDAVis relevant) files from the liborigin SVN 
+repository exported with
+"svn export https://liborigin.svn.sourceforge.net/svnroot/liborigin/[filename]".
+
+Last exported revision: 18 (Mon Jul 9 09:45:10 2007 UTC)
+
+The purpose of distributing these files along with SciDAVis is to provide
+a version that compiles cleanly with SciDAVis. Liborigin is still
+in alpha stage after all and it is unsure whether the API will change
+significantly from release to release.

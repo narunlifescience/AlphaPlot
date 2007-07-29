@@ -166,10 +166,10 @@ struct graphCurve {
 	int fillarea_pattern;
 	int fillarea_color;
 	int fillarea_pattern_color;
-	int fillarea_pattern_width;
+	double fillarea_pattern_width;
 	int fillarea_pattern_border_style;
 	int fillarea_pattern_border_color;
-	int fillarea_pattern_border_width;
+	double fillarea_pattern_border_width;
 
 
 	int symbol_type;

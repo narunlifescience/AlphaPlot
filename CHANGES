@@ -1,0 +1,9 @@
+This file is supposed to contain all future changelogs in 
+a format similar to this:
+
+=== Release 0.1.0, 33rd July 3007 ===
+Changes:
+- support for cooking coffee added
+- improved import of plutonium
+- lots of bug fixes and small improvements
+

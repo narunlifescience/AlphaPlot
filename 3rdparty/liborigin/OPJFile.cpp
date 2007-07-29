@@ -2,7 +2,7 @@
     File                 : OPJFile.cpp
     --------------------------------------------------------------------
     Copyright            : (C) 2005-2007 Stefan Gerlach
-						   (C) 2007 by Alex Kargovsky, Ion Vasilief
+                           (C) 2007 by Alex Kargovsky, Ion Vasilief
     Email (use @ for *)  : kargovsky*yumr.phys.msu.su, ion_vasilief*yahoo.fr
     Description          : Origin project import class
 
@@ -294,8 +294,8 @@ int OPJFile::ParseFormatOld() {
 				current_col=1;
 			current_col++;
 		}
-		fprintf(debug,"SPREADSHEET = %s COLUMN NAME = %s (%d) (@0x%X)\n",
-			sname, cname,current_col,(unsigned int) ftell(f));
+		fprintf(debug,"SPREADSHEET = %s COLUMN %d NAME = %s (@0x%X)\n",
+			sname, current_col, cname, (unsigned int) ftell(f));
 		fflush(debug);
 
 		if(cname == 0) {
@@ -490,6 +490,8 @@ int OPJFile::ParseFormatOld() {
 	fread(&name,25,1,f);
 
 	spread=compareSpreadnames(name);
+	if(spread == -1)
+		spread=i;
 
 	fprintf(debug,"			SPREADSHEET %d NAME : %s	(@ 0x%X) has %d columns\n",
 		spread+1,name,POS + 0x12,SPREADSHEET[spread].column.size());
@@ -1965,7 +1967,7 @@ void OPJFile::readGraphInfo(FILE *f, FILE *debug)
 	fseek(f,POS,SEEK_SET);
 }
 
-void OPJFile::skipObjectInfo(FILE *f, FILE *debug)
+void OPJFile::skipObjectInfo(FILE *f, FILE *)
 {
 	int POS=ftell(f);
 
@@ -2137,9 +2139,9 @@ void OPJFile::readGraphAxisFormatInfo(graphAxisFormat &format, FILE *f, int pos)
 void OPJFile::readGraphAxisTickLabelsInfo(graphAxisTick &tick, FILE *f, int pos) {
 	unsigned char h;
 	unsigned char h1;
-	unsigned char h2;
+	// unsigned char h2;
 	short w;
-	double p;
+	//double p;
 	fseek(f,pos+0x26,SEEK_SET);
 	fread(&h,1,1,f);
 	tick.hidden=(h==0);

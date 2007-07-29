@@ -21,8 +21,12 @@ TRANSLATIONS    = translations/scidavis_de.ts \
 ###################### DOCUMENTATION ########################################
 
 documentation.files += ../manual/html \
-                       ../README.html \
-                       ../gpl.txt \
+                       ../INSTALL.html \
+                       ../scidavis.css \
+					   ../scidavis-logo.png \
+					   ../README \
+					   ../CHANGES \
+                       ../gpl.txt 
 
 ###################### HEADERS ##############################################
 
@@ -250,12 +254,15 @@ SOURCES  += src/ApplicationWindow.cpp \
 ################# requires zlib >= 1.2.3 ######################
 ###############################################################
 
-SOURCES += ../3rdparty/zlib123/minigzip.c
+SOURCES += ../3rdparty/minigzip/minigzip.c
 
 ###############################################################
 ################# Origin Import (liborigin) ###################
 ###############################################################
 
+!dynamic_liborigin{
+INCLUDEPATH  += ../3rdparty/liborigin
+
 HEADERS += ../3rdparty/liborigin/OPJFile.h
 SOURCES += ../3rdparty/liborigin/OPJFile.cpp
-
+}
