@@ -455,30 +455,30 @@ void TableDialog::updateDisplay(int item)
 			case 2:
 				formatBox->setEditable ( true );
 
-				formatBox->addItem(tr("dd/MM/yyyy"));
-				formatBox->addItem(tr("dd.MM.yyyy"));
-				formatBox->addItem(tr("dd MM yyyy"));
-				formatBox->addItem(tr("yyyyMMdd"));
-				formatBox->addItem(tr("yyyy-MM-dd"));
+				formatBox->addItem("dd/MM/yyyy");
+				formatBox->addItem("dd.MM.yyyy");
+				formatBox->addItem("dd MM yyyy");
+				formatBox->addItem("yyyyMMdd");
+				formatBox->addItem("yyyy-MM-dd");
 				break;
 
 			case 3:
 				{
 					formatBox->setEditable ( true );
 
-					formatBox->addItem(tr("h") );
-					formatBox->addItem(tr("h ap") );
-					formatBox->addItem(tr("h AP") );
-					formatBox->addItem(tr("h:mm"));
-					formatBox->addItem(tr("h:mm ap") );
-					formatBox->addItem(tr("hh:mm"));
-					formatBox->addItem(tr("h:mm:ss") );
-					formatBox->addItem(tr("h:mm:ss.zzz") );
-					formatBox->addItem(tr("mm:ss") );
-					formatBox->addItem(tr("mm:ss.zzz") );
-					formatBox->addItem(tr("hmm") );
-					formatBox->addItem(tr("hmmss") );
-					formatBox->addItem(tr("hhmmss") );
+					formatBox->addItem("h");
+					formatBox->addItem("h ap");
+					formatBox->addItem("h AP");
+					formatBox->addItem("h:mm");
+					formatBox->addItem("h:mm ap");
+					formatBox->addItem("hh:mm");
+					formatBox->addItem("h:mm:ss");
+					formatBox->addItem("h:mm:ss.zzz");
+					formatBox->addItem("mm:ss");
+					formatBox->addItem("mm:ss.zzz");
+					formatBox->addItem("hmm");
+					formatBox->addItem("hmmss");
+					formatBox->addItem("hhmmss");
 				}
 				break;
 

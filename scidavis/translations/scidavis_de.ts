@@ -1473,7 +1473,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11369"/>
         <source>New &amp;Function Plot</source>
-        <translation>Neuer &amp;Funktionsplot</translation>
+        <translation>Neues &amp;Funktionsdiagramm</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11371"/>
@@ -2048,12 +2048,12 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11588"/>
         <source>Fit &amp;Linear</source>
-        <translation>&amp;Linearer Fit</translation>
+        <translation>&amp;Lineare Anpassung</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11589"/>
         <source>Fit &amp;Polynomial ...</source>
-        <translation>&amp;Polynomialer Fit...</translation>
+        <translation>&amp;Polynomiale Anpassung...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11590"/>
@@ -2078,12 +2078,12 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11595"/>
         <source>Fit &amp;Gaussian</source>
-        <translation>&amp;Gauss-Fit</translation>
+        <translation>&amp;Gauss-Anpassung</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11596"/>
         <source>Fit Lorent&amp;zian</source>
-        <translation>Loren&amp;z-Fit</translation>
+        <translation>Loren&amp;z-Anpassung</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -2509,7 +2509,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11593"/>
         <source>Fit Exponential Gro&amp;wth ...</source>
-        <translation> Exponentielles &amp;Wachstum fitten...</translation>
+        <translation> Exponentielles &amp;Wachstum anpassen...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11606"/>
@@ -2639,7 +2639,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="896"/>
         <source>Fit &amp;Multi-peak</source>
-        <translation>&amp;Mehrere Peaks fitten</translation>
+        <translation>Anpassung mit &amp;mehreren Scheitelpunkten</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="5735"/>
@@ -2649,7 +2649,7 @@ Operation aborted!</source>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="1675"/>
         <source>There are no available columns with plot designation set to Z!</source>
-        <translation>Es gibt keine verfügbaren Spalten mit Plotzuweisung als Z!</translation>
+        <translation>Es gibt keine verfügbaren Spalten mit Darstellungszuordnung Z!</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="5222"/>
@@ -3286,7 +3286,7 @@ Wollen Sie fortfahren?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="8463"/>
         <source>C&amp;lear</source>
-        <translation>Daten &amp;löschen</translation>
+        <translation>&amp;Leeren</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="8470"/>
@@ -3446,7 +3446,7 @@ Wollen Sie fortfahren?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11594"/>
         <source>Fit &amp;Boltzmann (Sigmoidal)</source>
-        <translation>&amp;Boltzmann fitten (Sigmoidal)</translation>
+        <translation>&amp;Boltzmann-Anpassung (Sigmoidal)</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11239"/>
@@ -3706,7 +3706,7 @@ Wollen Sie fortfahren?</translation>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12232"/>
         <source>Peaks</source>
-        <translation>Peaks</translation>
+        <translation>Scheitelpunkte</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12362"/>
@@ -3727,7 +3727,7 @@ Wollen Sie fortfahren?</translation>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1483"/>
         <source>English</source>
-        <translation>Deutsch</translation>
+        <translation type="obsolete">Deutsch</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="648"/>
@@ -4399,7 +4399,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="655"/>
         <source>Matrix Plot</source>
-        <translation>Matrix Plot</translation>
+        <translation>Matrix-Diagramm</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="3533"/>
@@ -4507,7 +4507,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
         <location filename="../src/ApplicationWindow.cpp" line="269"/>
         <source>&amp;Previous</source>
         <comment>previous window</comment>
-        <translation>&amp;Voriges</translation>
+        <translation>&amp;Vorheriges</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="270"/>
@@ -4573,12 +4573,12 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="8366"/>
         <source>Fit &amp;Multi-Peak</source>
-        <translation>&amp;Mehrere Peaks fitten</translation>
+        <translation>Anpassung mit &amp;mehreren Scheitelpunkten</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="1089"/>
         <source>Scripting</source>
-        <translation>Scripting</translation>
+        <translation>Skriptunterstützung</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="8450"/>
@@ -4719,7 +4719,7 @@ Einige Teile der Datei werden eventuell nicht wie erwartet dargestellt.</transla
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11475"/>
         <source>Delete &amp;Fit Tables</source>
-        <translation>&amp;Fit-Tabellen löschen</translation>
+        <translation>&amp;Anpassungstabellen löschen</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11477"/>
@@ -5316,7 +5316,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="873"/>
         <source>&amp;Quick Fit</source>
-        <translation>&amp;Schnellfit</translation>
+        <translation>&amp;Schnellanpassung</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="1114"/>
@@ -5468,7 +5468,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11598"/>
         <source>Fit &amp;Wizard...</source>
-        <translation>Fit-&amp;Assistent...</translation>
+        <translation>Kurvenanpassungs&amp;assistent...</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11614"/>
@@ -5818,7 +5818,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12231"/>
         <source>Enter the number of peaks</source>
-        <translation>Anzahl der Peaks eingeben</translation>
+        <translation>Anzahl der Scheitelpunkte eingeben</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="12757"/>
@@ -5854,6 +5854,12 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
         <location filename="../src/ApplicationWindow.cpp" line="13744"/>
         <source>No Updates Available</source>
         <translation>Keine Aktualisierungen verfügbar</translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigDialog.cpp" line="1483"/>
+        <source>English</source>
+        <comment>translate this to the language of the translation file, NOT to the meaning of English!</comment>
+        <translation>Deutsch</translation>
     </message>
 </context>
 <context>
@@ -5953,7 +5959,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/AssociationsDialog.cpp" line="50"/>
         <source>Plot Associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Darstellungszuordnungen</translation>
     </message>
 </context>
 <context>
@@ -7198,7 +7204,7 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ConfigDialog.cpp" line="987"/>
         <source>Generated Fit Curve</source>
-        <translation>Generierte Fitkurve</translation>
+        <translation>Generierte Anpassungskurve</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="988"/>
@@ -7218,12 +7224,12 @@ Die erste repräsentiert die Signal- und die zweite die Antwortfunktion!</transl
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1000"/>
         <source>Display Peak Curves for Multi-peak Fits</source>
-        <translation>Peak-Kurven für Mehrfach-Peak-Fits anzeigen</translation>
+        <translation>Scheitelpunktkurven für Anpassung mit mehreren Scheitelpunkten  anzeigen</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1001"/>
         <source>Peaks Color</source>
-        <translation>Peakfarben</translation>
+        <translation>Scheitelpunktfarbe</translation>
     </message>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="995"/>
@@ -8012,7 +8018,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/ExpDecayDialog.cpp" line="53"/>
         <source>Exponential Fit of</source>
-        <translation>Exponentieller Fit von</translation>
+        <translation>Exponentielle Anpassung an</translation>
     </message>
     <message>
         <location filename="../src/ExpDecayDialog.cpp" line="60"/>
@@ -8022,7 +8028,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/ExpDecayDialog.cpp" line="119"/>
         <source>&amp;Fit</source>
-        <translation>&amp;Fit</translation>
+        <translation>&amp;Anpassung</translation>
     </message>
     <message>
         <location filename="../src/ExpDecayDialog.cpp" line="112"/>
@@ -8434,7 +8440,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/FFTFilter.cpp" line="67"/>
         <source>Unknown filter type. Valid values are: 1 - Low pass, 2 - High Pass, 3 - Band Pass, 4 - Band block.</source>
-        <translation>Unbekannter Fit-Typ. Gültige Werte sind: 1 - Tiefpass, 2 - Hochpass, 3 - Bandpass, 4 - Bandsperre.</translation>
+        <translation>Unbekannter Anpassungstyp. Gültige Werte sind: 1 - Tiefpass, 2 - Hochpass, 3 - Bandpass, 4 - Bandsperre.</translation>
     </message>
     <message>
         <location filename="../src/FFTFilter.cpp" line="89"/>
@@ -8751,7 +8757,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="180"/>
         <source>fit of dataset</source>
-        <translation>Fit des Datensatzes</translation>
+        <translation>Anpassung an den Datensatz</translation>
     </message>
     <message>
         <location filename="../src/Fit.cpp" line="182"/>
@@ -8871,7 +8877,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="416"/>
         <source>There are no parameters specified for this fit operation. Operation aborted!</source>
-        <translation>Sie haben keine Parameter für die Fit-Operation ausgewählt. Abbruch!</translation>
+        <translation>Sie haben keine Parameter für die Anpassungsoperation ausgewählt. Abbruch!</translation>
     </message>
     <message>
         <location filename="../src/Fit.cpp" line="428"/>
@@ -8881,7 +8887,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="503"/>
         <source>Fit</source>
-        <translation>Fit</translation>
+        <translation>Anpassung</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -8901,7 +8907,7 @@ Die folgenden Spezialcodes können benutzt werden:
     <message>
         <location filename="../src/Fit.cpp" line="331"/>
         <source>The column %1 has less points than the fitted data set. Please choose another column!.</source>
-        <translation>Die Spalte %1 hat weniger Punkte als der Datensatz des Fits. Bitte eine andere Spalte wählen!.</translation>
+        <translation>Die Spalte %1 hat weniger Punkte als der Datensatz der Anpassung. Bitte eine andere Spalte wählen!.</translation>
     </message>
     <message>
         <location filename="../src/Fit.cpp" line="410"/>
@@ -9116,7 +9122,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="567"/>
         <source> is a built-in function name&lt;p&gt;You must choose another name for your function!</source>
-        <translation>QtiPlot-interner Funktionsname&lt;p&gt;Bitte wählen Sie einen anderen Namen für Ihre Funktion!</translation>
+        <translation>SciDAVis-interner Funktionsname&lt;p&gt;Bitte wählen Sie einen anderen Namen für Ihre Funktion!</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -9196,7 +9202,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="191"/>
         <source>&amp;Delete Fit Curves</source>
-        <translation>Fit-Kurven &amp;löschen</translation>
+        <translation>Anpassungskurven &amp;löschen</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="263"/>
@@ -9361,7 +9367,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="484"/>
         <source>Please perform a fit first and try again.</source>
-        <translation>Bitte zuerst einen Fit ausführen und dann neu versuchen.</translation>
+        <translation>Bitte zuerst eine Anpassung ausführen und dann neu versuchen.</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="483"/>
@@ -9381,7 +9387,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="962"/>
         <source>Peaks</source>
-        <translation>Peaks</translation>
+        <translation>Scheitelpunkte</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="960"/>
@@ -9396,7 +9402,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="1234"/>
         <source>MultiPeak</source>
-        <translation>Mehrere Peaks</translation>
+        <translation>Mehrere Scheitelpunkte</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="385"/>
@@ -9426,7 +9432,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/FitDialog.cpp" line="359"/>
         <source>Same X as Fitting &amp;Data</source>
-        <translation>Die selben X-Werte wie die Fit-&amp;Daten</translation>
+        <translation>Die selben X-Werte wie die Anpasungs&amp;daten</translation>
     </message>
     <message>
         <location filename="../src/FitDialog.cpp" line="374"/>
@@ -9798,7 +9804,7 @@ die Reihenfolge der Parameter ist wichtig!</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="500"/>
         <source>GaussAmp Fit</source>
-        <translation>GaussAmp Fit</translation>
+        <translation>GaussAmp-Anpassung</translation>
     </message>
 </context>
 <context>
@@ -12070,7 +12076,7 @@ Die Grenzen müssen innerhalb des X-Bereichs sein. Fall diese Werte nicht bekann
     <message>
         <location filename="../src/Integration.cpp" line="168"/>
         <source>Peak at</source>
-        <translation>Peak bei</translation>
+        <translation>Scheitelpunkt bei</translation>
     </message>
     <message>
         <location filename="../src/Integration.cpp" line="171"/>
@@ -12763,7 +12769,7 @@ Die Grenzen müssen innerhalb des X-Bereichs sein. Fall diese Werte nicht bekann
     <message>
         <location filename="../src/PolynomialFit.cpp" line="248"/>
         <source>You need at least %1 data points for this fit operation. Operation aborted!</source>
-        <translation>Es werden mindestens %1 Datenpunkte für diese Funktion benötigt. Die Ausführung wurde abgebrochen!</translation>
+        <translation>Es werden mindestens %1 Datenpunkte für diese Anpassungsfunktion benötigt. Die Ausführung wurde abgebrochen!</translation>
     </message>
     <message>
         <location filename="../src/PolynomialFit.cpp" line="247"/>
@@ -13017,12 +13023,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MatrixSizeDialog.cpp" line="43"/>
         <source>Matrix Dimensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Dimensionen der Matrix</translation>
     </message>
     <message>
         <location filename="../src/MatrixSizeDialog.cpp" line="154"/>
         <source>Input error</source>
-        <translation type="unfinished">Eingabefehler</translation>
+        <translation>Eingabefehler</translation>
     </message>
 </context>
 <context>
@@ -13095,7 +13101,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MatrixValuesDialog.cpp" line="47"/>
         <source>Set Matrix Values</source>
-        <translation type="unfinished"></translation>
+        <translation>Setze Matrix-Werte</translation>
     </message>
 </context>
 <context>
@@ -13188,17 +13194,17 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiLayer.cpp" line="288"/>
         <source>Do you want SciDAVis to rearrange the remaining layers?</source>
-        <translation type="unfinished"></translation>
+        <translation>Soll SciDAVis die übrigen Ebenen neu ausrichten?</translation>
     </message>
     <message>
         <location filename="../src/MultiLayer.cpp" line="287"/>
         <source>Guess best layout?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestes Layout automatisch bestimmen?</translation>
     </message>
     <message>
         <location filename="../src/MultiLayer.cpp" line="702"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
 </context>
 <context>
@@ -13206,7 +13212,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="42"/>
         <source>MultiPeak</source>
-        <translation>Mehrere Peaks</translation>
+        <translation>Mehrere Scheitelpunkte</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -13221,12 +13227,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="77"/>
         <source>multi-peak</source>
-        <translation>Mehrere Peaks</translation>
+        <translation>Mehrere Scheitelpunkte</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="372"/>
         <source>Peak</source>
-        <translation>Peak</translation>
+        <translation>Scheitelpunkt</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="243"/>
@@ -13241,7 +13247,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="296"/>
         <source>Fit</source>
-        <translation>Fit</translation>
+        <translation>Anpassung</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="297"/>
@@ -13251,7 +13257,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="349"/>
         <source>peak</source>
-        <translation>Peak</translation>
+        <translation>Scheitelpunkt</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="372"/>
@@ -13286,7 +13292,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFit.cpp" line="243"/>
         <source>Fit Error</source>
-        <translation type="unfinished">Fitfehler</translation>
+        <translation>Fitfehler</translation>
     </message>
 </context>
 <context>
@@ -13294,12 +13300,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MultiPeakFitTool.cpp" line="56"/>
         <source>Move cursor and click to select a point and double-click/press &apos;Enter&apos; to set the position of a peak!</source>
-        <translation>Wählen Sie einen Punkt durch einen Klick, ein Doppelklick (oder die Eingabetaste) legt die Position des Peaks fest!</translation>
+        <translation>Wählen Sie einen Punkt durch einen Klick, ein Doppelklick (oder die Eingabetaste) legt die Position des Scheitelpunktes fest!</translation>
     </message>
     <message>
         <location filename="../src/MultiPeakFitTool.cpp" line="91"/>
         <source>Peak %1 selected! Click to select a point and double-click/press &apos;Enter&apos; to set the position of the next peak!</source>
-        <translation>Peak %1 ausgewählt! Bewegen Sie den Cursor, wählen Sie durch einen Klick einen Punkt aus und bestätigen Sie durch einen Doppelklick oder der Eingabetaste den nächsten Peak!</translation>
+        <translation>Scheitelpunkt %1 ausgewählt! Bewegen Sie den Cursor, wählen Sie durch einen Klick einen Punkt aus und bestätigen Sie durch einen Doppelklick oder der Eingabetaste den nächsten Scheitelpunkt!</translation>
     </message>
 </context>
 <context>
@@ -13645,7 +13651,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/MyWidget.cpp" line="80"/>
         <source>SciDAVis</source>
-        <translation type="unfinished">SciDAVis</translation>
+        <translation>SciDAVis</translation>
     </message>
 </context>
 <context>
@@ -13678,7 +13684,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="79"/>
         <source>There are no parameters specified for this fit operation. Please define a list of parameters first!</source>
-        <translation>Es wurden keine Parameter für diese Fit-Operation ausgewählt. Bitte zuerst eine Liste von Parameters angeben!</translation>
+        <translation>Es wurden keine Parameter für diese Anpassungsoperation ausgewählt. Bitte zuerst eine Liste von Parameters angeben!</translation>
     </message>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="118"/>
@@ -13688,12 +13694,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="104"/>
         <source>Input function error</source>
-        <translation type="unfinished">Fehler bei der Funktionseingabe</translation>
+        <translation>Fehler bei der Funktionseingabe</translation>
     </message>
     <message>
         <location filename="../src/NonLinearFit.cpp" line="117"/>
         <source>Fit Error</source>
-        <translation type="unfinished">Fitfehler</translation>
+        <translation>Fitfehler</translation>
     </message>
 </context>
 <context>
@@ -13701,72 +13707,72 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="43"/>
         <source>SciDAVis project</source>
-        <translation type="unfinished">SciDAVis Projekt</translation>
+        <translation>SciDAVis Projekt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="44"/>
         <source>Compressed SciDAVis project</source>
-        <translation type="unfinished">Komprimiertes SciDAVis Projekt</translation>
+        <translation>Komprimiertes SciDAVis Projekt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="45"/>
         <source>QtiPlot project</source>
-        <translation type="unfinished">QtiPlot Projekt</translation>
+        <translation>QtiPlot Projekt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="46"/>
         <source>Compressed QtiPlot project</source>
-        <translation type="unfinished">Gepacktes QtiPlot Projekt</translation>
+        <translation>Komprimiertes QtiPlot Projekt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="47"/>
         <source>Origin project</source>
-        <translation type="unfinished">Origin Projekt</translation>
+        <translation>Origin Projekt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="48"/>
         <source>Origin matrix</source>
-        <translation type="unfinished">Origin-Matrix</translation>
+        <translation>Origin-Matrix</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="49"/>
         <source>Origin worksheet</source>
-        <translation type="unfinished">Origin-Arbeitsblatt</translation>
+        <translation>Origin-Arbeitsblatt</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="50"/>
         <source>Origin graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Origin-Grafik</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="51"/>
         <source>Backup files</source>
-        <translation type="unfinished">Backup-Dateien</translation>
+        <translation>Backup-Dateien</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="53"/>
         <source>All files</source>
-        <translation type="unfinished">Alle Dateien</translation>
+        <translation>Alle Dateien</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="59"/>
         <source>Open As</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen als</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="62"/>
         <source>New Project Window</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Projektfenster</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="63"/>
         <source>New Folder</source>
-        <translation type="unfinished">Neuer Ordner</translation>
+        <translation>Neuer Ordner</translation>
     </message>
     <message>
         <location filename="../src/OpenProjectDialog.cpp" line="40"/>
         <source>Open Project</source>
-        <translation type="unfinished"></translation>
+        <translation>Projekt öffnen</translation>
     </message>
 </context>
 <context>
@@ -14418,22 +14424,22 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="55"/>
         <source>Surface Plot Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Oberflächendigramm-Optionen</translation>
     </message>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="836"/>
         <source>Start limit error</source>
-        <translation type="unfinished">Startwertfehler</translation>
+        <translation>Startwertfehler</translation>
     </message>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="849"/>
         <source>End limit error</source>
-        <translation type="unfinished">Endwertfehler</translation>
+        <translation>Endwertfehler</translation>
     </message>
     <message>
         <location filename="../src/Plot3DDialog.cpp" line="857"/>
         <source>Input error</source>
-        <translation type="unfinished">Eingabefehler</translation>
+        <translation>Eingabefehler</translation>
     </message>
 </context>
 <context>
@@ -15211,137 +15217,137 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PlotDialog.cpp" line="281"/>
         <source>Titles</source>
-        <translation type="unfinished">Titel</translation>
+        <translation>Titel</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="282"/>
         <source>Axes Labels</source>
-        <translation type="unfinished">Achsenbeschriftungen</translation>
+        <translation>Achsenbeschriftungen</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="283"/>
         <source>Axes Numbers</source>
-        <translation type="unfinished">Achsennummerierung</translation>
+        <translation>Achsennummerierung</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="284"/>
         <source>Legends</source>
-        <translation type="unfinished">Legenden</translation>
+        <translation>Legenden</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="1318"/>
         <source>Fonts</source>
-        <translation type="unfinished"></translation>
+        <translation>Schrifarten</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="311"/>
         <source>Background Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="325"/>
         <source>Opacity</source>
-        <translation type="unfinished">Deckkraft</translation>
+        <translation>Deckkraft</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="330"/>
         <source>Transparent</source>
-        <translation type="unfinished">Transparent</translation>
+        <translation>Transparent</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="322"/>
         <source>Canvas Color</source>
-        <translation type="unfinished">Untergrundfarbe</translation>
+        <translation>Untergrundfarbe</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="333"/>
         <source>Border Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Rahmenfarbe</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="345"/>
         <source>Margin</source>
-        <translation type="unfinished"></translation>
+        <translation>Abstand</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="351"/>
         <source>Antialiasing</source>
-        <translation type="unfinished">Kantenglättung</translation>
+        <translation>Kantenglättung</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="354"/>
         <source>Apply to all layers</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf alle Ebenen anwenden</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="1309"/>
         <source>Layer</source>
-        <translation type="unfinished"></translation>
+        <translation>Ebene</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="398"/>
         <source>Border</source>
-        <translation type="unfinished">Rahmen</translation>
+        <translation>Rahmen</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="402"/>
         <source>First color</source>
-        <translation type="unfinished">Erste Farbe</translation>
+        <translation>Erste Farbe</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="410"/>
         <source>Pie radius</source>
-        <translation type="unfinished">Tortenradius</translation>
+        <translation>Tortenradius</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="419"/>
         <source>Fill</source>
-        <translation type="unfinished">Füllung</translation>
+        <translation>Füllung</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="1453"/>
         <source>Pie</source>
-        <translation type="unfinished">Tortengrafik</translation>
+        <translation>Tortengrafik</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="434"/>
         <source>&amp;Scale layers to paper size</source>
-        <translation type="unfinished">Ebenen auf die Papiergröße &amp;skalieren</translation>
+        <translation>Ebenen auf die Papiergröße &amp;skalieren</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="1317"/>
         <source>Print</source>
-        <translation type="unfinished">Drucken</translation>
+        <translation>Drucken</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="72"/>
         <source>Plot details</source>
-        <translation type="unfinished"></translation>
+        <translation>Diagrammdetails</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="2087"/>
         <source>Input error</source>
-        <translation type="unfinished">Eingabefehler</translation>
+        <translation>Eingabefehler</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="2057"/>
         <source>Start limit error</source>
-        <translation type="unfinished">Startwertfehler</translation>
+        <translation>Startwertfehler</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="2076"/>
         <source>End limit error</source>
-        <translation type="unfinished">Endwertfehler</translation>
+        <translation>Endwertfehler</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="2113"/>
         <source>Bin size input error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler bei der Intervallgröße</translation>
     </message>
     <message>
         <location filename="../src/PlotDialog.cpp" line="436"/>
         <source>Print Crop &amp;Marks</source>
-        <translation type="unfinished">Schnitt&amp;marken drucken</translation>
+        <translation>Schnitt&amp;marken drucken</translation>
     </message>
 </context>
 <context>
@@ -15489,17 +15495,17 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PlotWizard.cpp" line="276"/>
         <source>This kind of curve is not handled by SciDAVis!</source>
-        <translation type="unfinished"></translation>
+        <translation>Diese Art Kurve kann von SciDAVis nicht verarbeitet werden!</translation>
     </message>
     <message>
         <location filename="../src/PlotWizard.cpp" line="49"/>
         <source>Select Columns to Plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Darzustellende Spalten auswählen</translation>
     </message>
     <message>
         <location filename="../src/PlotWizard.cpp" line="321"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
 </context>
 <context>
@@ -15527,27 +15533,27 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PluginFit.cpp" line="76"/>
         <source>The plugin does not implement a %1 method necessary for simplex fitting.</source>
-        <translation>Dieses Plugin implementiert keine %1 Methode, die für Simplex-Fits benötigt wird.</translation>
+        <translation>Dieses Plugin implementiert keine %1 Methode, die für Simplex-Anpassungen benötigt wird.</translation>
     </message>
     <message>
         <location filename="../src/PluginFit.cpp" line="100"/>
         <source>The plugin does not implement a %1 method necessary for Levenberg-Marquardt fitting.</source>
-        <translation>Dieses Plugin implementiert keine %1 Methode, die für Levenberg-Marquardt-Fits benötigt wird.</translation>
+        <translation>Dieses Plugin implementiert keine %1 Methode, die für Levenberg-Marquardt-Anpassungen benötigt wird.</translation>
     </message>
     <message>
         <location filename="../src/PluginFit.cpp" line="56"/>
         <source>Plugin Fit</source>
-        <translation>Plugin-Fit</translation>
+        <translation>Anpassung aus Plugin</translation>
     </message>
     <message>
         <location filename="../src/PluginFit.cpp" line="63"/>
         <source>File not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei nicht gefunden</translation>
     </message>
     <message>
         <location filename="../src/PluginFit.cpp" line="99"/>
         <source>Plugin Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin-Fehler</translation>
     </message>
 </context>
 <context>
@@ -15560,7 +15566,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="53"/>
         <source>Polynomial Fit of</source>
-        <translation>Polynom-Fit an</translation>
+        <translation>Polynom-Anpassung an</translation>
     </message>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="58"/>
@@ -15570,7 +15576,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="64"/>
         <source>Fit curve # pts</source>
-        <translation>Anzahl der Punkte der Fitkurve</translation>
+        <translation>Anzahl der Punkte der Anpassungskurve</translation>
     </message>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="71"/>
@@ -15595,7 +15601,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="89"/>
         <source>&amp;Fit</source>
-        <translation>&amp;Fitten</translation>
+        <translation>&amp;Anpassung</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -15650,12 +15656,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="48"/>
         <source>Polynomial Fit Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Polynom-Anpassung: Optionen</translation>
     </message>
     <message>
         <location filename="../src/PolynomFitDialog.cpp" line="117"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
 </context>
 <context>
@@ -15678,12 +15684,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/PolynomialFit.cpp" line="138"/>
         <source>You need at least %1 data points for this fit operation. Operation aborted!</source>
-        <translation>Es werden mindestens %1 Datenpunkte für diese Funktion benötigt. Die Ausführung wurde abgebrochen!</translation>
+        <translation>Es werden mindestens %1 Datenpunkte für diese Anpassungsfunktion benötigt. Die Ausführung wurde abgebrochen!</translation>
     </message>
     <message>
         <location filename="../src/PolynomialFit.cpp" line="137"/>
         <source>Fit Error</source>
-        <translation type="unfinished">Fitfehler</translation>
+        <translation>Anpassungsfehler</translation>
     </message>
 </context>
 <context>
@@ -15751,7 +15757,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/RangeSelectorTool.cpp" line="55"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
 </context>
 <context>
@@ -15809,12 +15815,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/RenameWindowDialog.cpp" line="47"/>
         <source>Rename Window</source>
-        <translation type="unfinished">Fenster umbennen</translation>
+        <translation>Fenster umbennen</translation>
     </message>
     <message>
         <location filename="../src/RenameWindowDialog.cpp" line="142"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
 </context>
 <context>
@@ -15952,17 +15958,17 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ScriptEdit.cpp" line="293"/>
         <source>Import Text From File</source>
-        <translation type="unfinished"></translation>
+        <translation>Text aus Datei importieren</translation>
     </message>
     <message>
         <location filename="../src/ScriptEdit.cpp" line="299"/>
         <source>Error Opening File</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Öffnen der Datei</translation>
     </message>
     <message>
         <location filename="../src/ScriptEdit.cpp" line="336"/>
         <source>File Save Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Speichern der Datei</translation>
     </message>
 </context>
 <context>
@@ -16176,12 +16182,12 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/ScriptingLangDialog.cpp" line="41"/>
         <source>Select scripting language</source>
-        <translation type="unfinished"></translation>
+        <translation>Skriptsprache auswählen</translation>
     </message>
     <message>
         <location filename="../src/ScriptingLangDialog.cpp" line="79"/>
         <source>Scripting Error</source>
-        <translation type="unfinished">Skriptfehler</translation>
+        <translation>Fehler in der Skriptunterstützung</translation>
     </message>
 </context>
 <context>
@@ -16255,18 +16261,18 @@ Wollen Sie sie überschreiben?</translation>
         <location filename="../src/SetColValuesDialog.cpp" line="92"/>
         <source>&amp;&lt;&lt; Prev.</source>
         <comment>previous column</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;&lt;&lt; Vorherige</translation>
     </message>
     <message>
         <location filename="../src/SetColValuesDialog.cpp" line="97"/>
         <source>Next &amp;&gt;&gt;</source>
         <comment>next column</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nächste &amp;&gt;&gt;</translation>
     </message>
     <message>
         <location filename="../src/SetColValuesDialog.cpp" line="52"/>
         <source>Set column values</source>
-        <translation type="unfinished"></translation>
+        <translation>Spaltenwerte setzen</translation>
     </message>
 </context>
 <context>
@@ -16299,7 +16305,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SigmoidalFit.cpp" line="69"/>
         <source>Boltzmann (Sigmoidal) Fit</source>
-        <translation>Boltzmann (Sigmoidal) Fit</translation>
+        <translation>Boltzmann-Anpassung (Sigmoidal)</translation>
     </message>
 </context>
 <context>
@@ -16352,7 +16358,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SmoothCurveDialog.cpp" line="49"/>
         <source>Smoothing Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Glättungsoptionen</translation>
     </message>
 </context>
 <context>
@@ -16410,12 +16416,12 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="235"/>
         <source>Setting polynomial order is only available for Savitzky-Golay smooth filters! Ignored option!</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Polynomordnung kann nur für Savitzky-Golay-Glättungsfilter angegeben werden! Option wurde ignoriert!</translation>
     </message>
     <message>
         <location filename="../src/SmoothFilter.cpp" line="241"/>
         <source>SciDAVis</source>
-        <translation type="unfinished">SciDAVis</translation>
+        <translation>SciDAVis</translation>
     </message>
 </context>
 <context>
@@ -16483,7 +16489,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SortDialog.cpp" line="42"/>
         <source>Sorting Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortierungsoptionen</translation>
     </message>
 </context>
 <context>
@@ -16536,7 +16542,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="105"/>
         <source>Clear &amp;list</source>
-        <translation type="unfinished">&amp;Liste leeren</translation>
+        <translation>&amp;Liste leeren</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="106"/>
@@ -16601,47 +16607,47 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="44"/>
         <source>Define surface plot</source>
-        <translation type="unfinished"></translation>
+        <translation>Oberflächendiagramm erstellen</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="169"/>
         <source>X Start limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>X-Startwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="181"/>
         <source>X End limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>X-Endwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="194"/>
         <source>Y Start limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>Y-Startwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="206"/>
         <source>Y End limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>Y-Endwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="218"/>
         <source>Z Start limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>Z-Startwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="230"/>
         <source>Z End limit error</source>
-        <translation type="unfinished"></translation>
+        <translation>Z-Endwertfehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="237"/>
         <source>Input error</source>
-        <translation type="unfinished">Eingabefehler</translation>
+        <translation>Eingabefehler</translation>
     </message>
     <message>
         <location filename="../src/SurfaceDialog.cpp" line="260"/>
         <source>Input function error</source>
-        <translation type="unfinished">Fehler bei der Funktionseingabe</translation>
+        <translation>Fehler bei der Funktionseingabe</translation>
     </message>
 </context>
 <context>
@@ -16742,7 +16748,7 @@ Wollen Sie sie überschreiben?</translation>
     <message>
         <location filename="../src/SymbolDialog.cpp" line="386"/>
         <source>Choose Symbol</source>
-        <translation type="unfinished"></translation>
+        <translation>Symbol auswählen</translation>
     </message>
 </context>
 <context>
@@ -16872,17 +16878,17 @@ Wollen Sie trotzdem die Zellen einfügen?</translation>
     <message>
         <location filename="../src/Table.cpp" line="2780"/>
         <source>Rows will be deleted from the table!</source>
-        <translation type="unfinished">Es werden Zeilen aus der Tabelle gelöscht!</translation>
+        <translation>Es werden Zeilen aus der Tabelle gelöscht!</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="2817"/>
         <source>Do you really want to continue?</source>
-        <translation type="unfinished">Wollen Sie wirklich fortfahren?</translation>
+        <translation>Wollen Sie wirklich fortfahren?</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="2816"/>
         <source>Columns will be deleted from the table!</source>
-        <translation type="unfinished">Es werden Spalten aus der Tabelle gelöscht!</translation>
+        <translation>Es werden Spalten aus der Tabelle gelöscht!</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -16951,37 +16957,37 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/Table.cpp" line="1313"/>
         <source>Please indicate the name of the leading column!</source>
-        <translation type="unfinished">Bitte den Namen der führenden Spalte angeben!</translation>
+        <translation>Bitte den Namen der führenden Spalte angeben!</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="1318"/>
         <source>The leading column has the type set to &apos;Text&apos;! Operation aborted!</source>
-        <translation type="unfinished">Die führende Spalte hat den Typ &apos;Text&apos;! Operation abgebrochen!</translation>
+        <translation>Die führende Spalte hat den Typ &apos;Text&apos;! Operation abgebrochen!</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="1336"/>
         <source>The leading column is empty! Operation aborted!</source>
-        <translation type="unfinished">Die führende Spalte ist leer! Operation abgebrochen!</translation>
+        <translation>Die führende Spalte ist leer! Operation abgebrochen!</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="2366"/>
         <source>Could not write to file: &lt;br&gt;&lt;h4&gt;</source>
-        <translation type="unfinished">Konnte nicht in Datei schreiben: &lt;br&gt;&lt;h4&gt;</translation>
+        <translation>Konnte nicht in Datei schreiben: &lt;br&gt;&lt;h4&gt;</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="2818"/>
         <source>SciDAVis</source>
-        <translation type="unfinished">SciDAVis</translation>
+        <translation>SciDAVis</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="1335"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="../src/Table.cpp" line="2365"/>
         <source>ASCII Export Error</source>
-        <translation type="unfinished"></translation>
+        <translation>ASCII-Export-Fehler</translation>
     </message>
 </context>
 <context>
@@ -17009,7 +17015,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TableDialog.cpp" line="106"/>
         <source>Plot Designation:</source>
-        <translation>Plotzuweisung:</translation>
+        <translation>Darstellungszuordnung:</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="117"/>
@@ -17094,12 +17100,12 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TableDialog.cpp" line="462"/>
         <source>yyyy-MM-dd</source>
-        <translation>yyyy-MM-dd</translation>
+        <translation type="obsolete">yyyy-MM-dd</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="459"/>
         <source>dd.MM.yyyy</source>
-        <translation type="unfinished">dd.MM.aaaa</translation>
+        <translation type="obsolete">dd.MM.aaaa</translation>
     </message>
     <message>
         <location filename="" line="135763132"/>
@@ -17109,72 +17115,72 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TableDialog.cpp" line="458"/>
         <source>dd/MM/yyyy</source>
-        <translation type="unfinished">dd/MM/aaaa</translation>
+        <translation type="obsolete">dd/MM/aaaa</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="469"/>
         <source>h</source>
-        <translation>h</translation>
+        <translation type="obsolete">h</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="470"/>
         <source>h ap</source>
-        <translation>h ap</translation>
+        <translation type="obsolete">h ap</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="471"/>
         <source>h AP</source>
-        <translation>h AP</translation>
+        <translation type="obsolete">h AP</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="472"/>
         <source>h:mm</source>
-        <translation>h:mm</translation>
+        <translation type="obsolete">h:mm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="473"/>
         <source>h:mm ap</source>
-        <translation>h:mm ap</translation>
+        <translation type="obsolete">h:mm ap</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="474"/>
         <source>hh:mm</source>
-        <translation>hh:mm</translation>
+        <translation type="obsolete">hh:mm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="475"/>
         <source>h:mm:ss</source>
-        <translation>h:mm:ss</translation>
+        <translation type="obsolete">h:mm:ss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="476"/>
         <source>h:mm:ss.zzz</source>
-        <translation>h:mm:ss.zzz</translation>
+        <translation type="obsolete">h:mm:ss.zzz</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="477"/>
         <source>mm:ss</source>
-        <translation>mm:ss</translation>
+        <translation type="obsolete">mm:ss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="478"/>
         <source>mm:ss.zzz</source>
-        <translation>mm:ss.zzz</translation>
+        <translation type="obsolete">mm:ss.zzz</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="479"/>
         <source>hmm</source>
-        <translation>hmm</translation>
+        <translation type="obsolete">hmm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="480"/>
         <source>hmmss</source>
-        <translation>hmmss</translation>
+        <translation type="obsolete">hmmss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="481"/>
         <source>hhmmss</source>
-        <translation>hhmmss</translation>
+        <translation type="obsolete">hhmmss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="50"/>
@@ -17250,53 +17256,43 @@ Wollen sie Zellen einfügen?</translation>
         <location filename="../src/TableDialog.cpp" line="60"/>
         <source>&amp;&lt;&lt; Prev.</source>
         <comment>previous column</comment>
-        <translation type="unfinished"></translation>
+        <translation>&amp;&lt;&lt; Vorherige</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="69"/>
         <source>Next &amp;&gt;&gt;</source>
         <comment>next column</comment>
-        <translation type="unfinished"></translation>
+        <translation>Nächste &amp;&gt;&gt;</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="162"/>
         <source>&amp;Display Comments in Header</source>
-        <translation type="unfinished">&amp;Kommentare in Spaltenkopf anzeigen</translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="460"/>
-        <source>dd MM yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="461"/>
-        <source>yyyyMMdd</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Kommentare in Spaltenkopf anzeigen</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="529"/>
         <source>Couldn&apos;t guess the source data format, please specify it using the &apos;Format&apos; box!</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte das Quelldatenformat nicht feststellen, bitte geben Sie es im Feld &apos;Format&apos; an!</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="530"/>
         <source>For more information about the supported date/time formats please read the Qt documentation for the QDateTime class!</source>
-        <translation type="unfinished"></translation>
+        <translation>Für weitere Informationen über die unterstützten Datum/Zeit-Formate lesen Sie bitte die Qt Dokumentation für  die Klasse QDateTime!</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="50"/>
         <source>Column options</source>
-        <translation type="unfinished"></translation>
+        <translation>Spalten-Optionen</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="300"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="529"/>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
 </context>
 <context>
@@ -17407,7 +17403,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TextDialog.cpp" line="77"/>
         <source>&amp;Font</source>
-        <translation>&amp;Schrift</translation>
+        <translation>&amp;Schriftart</translation>
     </message>
     <message>
         <location filename="../src/TextDialog.cpp" line="82"/>
@@ -17567,7 +17563,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TextDialog.cpp" line="50"/>
         <source>Text options</source>
-        <translation type="unfinished"></translation>
+        <translation>Textoptionen</translation>
     </message>
 </context>
 <context>
@@ -17624,7 +17620,7 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/TranslateCurveTool.cpp" line="118"/>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
 </context>
 <context>
@@ -17700,27 +17696,27 @@ Wollen sie Zellen einfügen?</translation>
     <message>
         <location filename="../src/muParserScript.cpp" line="138"/>
         <source>tablecol() works only on tables!</source>
-        <translation type="unfinished"></translation>
+        <translation>tablecol() funktioniert nur bei Tabellen!</translation>
     </message>
     <message>
         <location filename="../src/muParserScript.cpp" line="162"/>
         <source>tablecol: wrong number of arguments (need 2, got %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>tablecol: falsche Anzahl von Argumenten (2 benötigt, %1 angegeben)</translation>
     </message>
     <message>
         <location filename="../src/muParserScript.cpp" line="164"/>
         <source>tablecol: first argument must be a string (table name)</source>
-        <translation type="unfinished"></translation>
+        <translation>tablecol: Das erste Argument muss eine Zeichenkette sein (der Tabellenname)</translation>
     </message>
     <message>
         <location filename="../src/muParserScript.cpp" line="167"/>
         <source>Couldn&apos;t find a table named %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konnte keine Tabelle namens %1 finden.</translation>
     </message>
     <message>
         <location filename="../src/muParserScript.cpp" line="214"/>
         <source>cell() works only on tables and matrices!</source>
-        <translation type="unfinished"></translation>
+        <translation>cell() funktioniert nur bei Tabellen und Matrizen!</translation>
     </message>
 </context>
 <context>

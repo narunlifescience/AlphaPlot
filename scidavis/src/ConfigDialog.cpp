@@ -1480,7 +1480,7 @@ void ConfigDialog::insertLanguagesList()
 			QTranslator translator;
 			translator.load("scidavis_"+locales[i], qmPath);
 
-			QString language = translator.translate("ApplicationWindow", "English");
+			QString language = translator.translate("ApplicationWindow", "English", "translate this to the language of the translation file, NOT to the meaning of English!");
 			if (!language.isEmpty())
 				languages.push_back(language);
 			else

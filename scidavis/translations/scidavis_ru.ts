@@ -2936,7 +2936,7 @@ Are you sure you want to continue?</source>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1483"/>
         <source>English</source>
-        <translation>Русский</translation>
+        <translation type="obsolete">Русский</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="654"/>
@@ -5261,6 +5261,12 @@ Various parts of this file may not be displayed as expected.</source>
         <location filename="../src/ApplicationWindow.cpp" line="13744"/>
         <source>No Updates Available</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigDialog.cpp" line="1483"/>
+        <source>English</source>
+        <comment>translate this to the language of the translation file, NOT to the meaning of English!</comment>
+        <translation type="unfinished">Русский</translation>
     </message>
 </context>
 <context>
@@ -14508,72 +14514,72 @@ Do you want to insert cells?</source>
     <message>
         <location filename="../src/TableDialog.cpp" line="462"/>
         <source>yyyy-MM-dd</source>
-        <translation type="unfinished">гггг-ММ-дд</translation>
+        <translation type="obsolete">гггг-ММ-дд</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="469"/>
         <source>h</source>
-        <translation type="unfinished">ч</translation>
+        <translation type="obsolete">ч</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="470"/>
         <source>h ap</source>
-        <translation type="unfinished">ч 12</translation>
+        <translation type="obsolete">ч 12</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="471"/>
         <source>h AP</source>
-        <translation type="unfinished">Ч 12</translation>
+        <translation type="obsolete">Ч 12</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="472"/>
         <source>h:mm</source>
-        <translation type="unfinished">ч:мм</translation>
+        <translation type="obsolete">ч:мм</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="473"/>
         <source>h:mm ap</source>
-        <translation type="unfinished">ч:мм 12</translation>
+        <translation type="obsolete">ч:мм 12</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="474"/>
         <source>hh:mm</source>
-        <translation type="unfinished">чч:мм</translation>
+        <translation type="obsolete">чч:мм</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="475"/>
         <source>h:mm:ss</source>
-        <translation type="unfinished">ч:мм:сс</translation>
+        <translation type="obsolete">ч:мм:сс</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="476"/>
         <source>h:mm:ss.zzz</source>
-        <translation type="unfinished">ч:мм:сс.ххх</translation>
+        <translation type="obsolete">ч:мм:сс.ххх</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="477"/>
         <source>mm:ss</source>
-        <translation type="unfinished">мм:сс</translation>
+        <translation type="obsolete">мм:сс</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="478"/>
         <source>mm:ss.zzz</source>
-        <translation type="unfinished">мм:сс.ххх</translation>
+        <translation type="obsolete">мм:сс.ххх</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="479"/>
         <source>hmm</source>
-        <translation type="unfinished">чмм</translation>
+        <translation type="obsolete">чмм</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="480"/>
         <source>hmmss</source>
-        <translation type="unfinished">чммсс</translation>
+        <translation type="obsolete">чммсс</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="481"/>
         <source>hhmmss</source>
-        <translation type="unfinished">ччммсс</translation>
+        <translation type="obsolete">ччммсс</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="60"/>
@@ -14590,26 +14596,6 @@ Do you want to insert cells?</source>
     <message>
         <location filename="../src/TableDialog.cpp" line="162"/>
         <source>&amp;Display Comments in Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="458"/>
-        <source>dd/MM/yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="459"/>
-        <source>dd.MM.yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="460"/>
-        <source>dd MM yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="461"/>
-        <source>yyyyMMdd</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

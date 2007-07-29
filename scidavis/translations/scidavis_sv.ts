@@ -3647,7 +3647,7 @@ Varning: detta kommer att arrangera om befintliga lager!</translation>
     <message>
         <location filename="../src/ConfigDialog.cpp" line="1483"/>
         <source>English</source>
-        <translation>Svenska</translation>
+        <translation type="obsolete">Svenska</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.h" line="485"/>
@@ -5173,6 +5173,12 @@ den första representerar signalen och den andra svarsfunktionen!</translation>
         <location filename="../src/ApplicationWindow.cpp" line="13744"/>
         <source>No Updates Available</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/ConfigDialog.cpp" line="1483"/>
+        <source>English</source>
+        <comment>translate this to the language of the translation file, NOT to the meaning of English!</comment>
+        <translation type="unfinished">Svenska</translation>
     </message>
 </context>
 <context>
@@ -14450,72 +14456,72 @@ den första representerar signalen och den andra svarsfunktionen!</translation>
     <message>
         <location filename="../src/TableDialog.cpp" line="462"/>
         <source>yyyy-MM-dd</source>
-        <translation type="unfinished">yyyy-mm-dd</translation>
+        <translation type="obsolete">yyyy-mm-dd</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="469"/>
         <source>h</source>
-        <translation type="unfinished">h</translation>
+        <translation type="obsolete">h</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="470"/>
         <source>h ap</source>
-        <translation type="unfinished">h ap</translation>
+        <translation type="obsolete">h ap</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="471"/>
         <source>h AP</source>
-        <translation type="unfinished">h AP</translation>
+        <translation type="obsolete">h AP</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="472"/>
         <source>h:mm</source>
-        <translation type="unfinished">h:mm</translation>
+        <translation type="obsolete">h:mm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="473"/>
         <source>h:mm ap</source>
-        <translation type="unfinished">h.mm ap</translation>
+        <translation type="obsolete">h.mm ap</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="474"/>
         <source>hh:mm</source>
-        <translation type="unfinished">hh:mm</translation>
+        <translation type="obsolete">hh:mm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="475"/>
         <source>h:mm:ss</source>
-        <translation type="unfinished">h:mm:ss</translation>
+        <translation type="obsolete">h:mm:ss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="476"/>
         <source>h:mm:ss.zzz</source>
-        <translation type="unfinished">h:mm:ss,zzz</translation>
+        <translation type="obsolete">h:mm:ss,zzz</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="477"/>
         <source>mm:ss</source>
-        <translation type="unfinished">mm:ss</translation>
+        <translation type="obsolete">mm:ss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="478"/>
         <source>mm:ss.zzz</source>
-        <translation type="unfinished">mm:ss:zzz</translation>
+        <translation type="obsolete">mm:ss:zzz</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="479"/>
         <source>hmm</source>
-        <translation type="unfinished">hmm</translation>
+        <translation type="obsolete">hmm</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="480"/>
         <source>hmmss</source>
-        <translation type="unfinished">hmmss</translation>
+        <translation type="obsolete">hmmss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="481"/>
         <source>hhmmss</source>
-        <translation type="unfinished">hhmmss</translation>
+        <translation type="obsolete">hhmmss</translation>
     </message>
     <message>
         <location filename="../src/TableDialog.cpp" line="60"/>
@@ -14532,26 +14538,6 @@ den första representerar signalen och den andra svarsfunktionen!</translation>
     <message>
         <location filename="../src/TableDialog.cpp" line="162"/>
         <source>&amp;Display Comments in Header</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="458"/>
-        <source>dd/MM/yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="459"/>
-        <source>dd.MM.yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="460"/>
-        <source>dd MM yyyy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/TableDialog.cpp" line="461"/>
-        <source>yyyyMMdd</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
