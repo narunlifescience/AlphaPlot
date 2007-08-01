@@ -1968,7 +1968,7 @@ Are you sure you want to continue?</source>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11358"/>
-        <source>New &amp;Note</source>
+		  <source>New &amp;Note / Script</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

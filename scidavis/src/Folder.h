@@ -104,9 +104,6 @@ public:
 	//! The root of the hierarchy this folder belongs to.
 	Folder* rootFolder();
 
-	//! Size of the folder as a string
-	QString sizeToString();
-
 	QString birthDate(){return birthdate;};
 	void setBirthDate(const QString& s){birthdate = s;};
 

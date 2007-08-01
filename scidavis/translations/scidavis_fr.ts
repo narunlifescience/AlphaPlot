@@ -3234,7 +3234,7 @@ Etes vous sûr de vouloir continuer ?</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11358"/>
-        <source>New &amp;Note</source>
+		  <source>New &amp;Note / Script</source>
         <translation>Commentaires</translation>
     </message>
     <message>

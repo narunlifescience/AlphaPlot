@@ -126,11 +126,6 @@ switch (w_status)
 return s;
 }
 
-QString MyWidget::sizeToString()
-{
-return QString::number(8*sizeof(this)/1024.0, 'f', 1) + " " + tr("kB");
-}
-
 // Modifying the title bar menu is somewhat more complicated in Qt4.
 // Apart from the trivial change in how we intercept the reparenting,
 // in Qt4 the title bar doesn't exist yet at this point.

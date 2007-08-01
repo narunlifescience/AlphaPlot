@@ -204,7 +204,6 @@ void ApplicationWindow::init()
 	lv->addColumn (tr("Name"),-1 );
 	lv->addColumn (tr("Type"),-1 );
 	lv->addColumn (tr("View"),-1 );
-	lv->addColumn (tr("Size"),-1 );
 	lv->addColumn (tr("Created"),-1);
 	lv->addColumn (tr("Label"),-1);
 	lv->setResizeMode(Q3ListView::LastColumn);
@@ -638,9 +637,8 @@ void ApplicationWindow::insertTranslatedStrings()
 	lv->setColumnText (0, tr("Name"));
 	lv->setColumnText (1, tr("Type"));
 	lv->setColumnText (2, tr("View"));
-	lv->setColumnText (3, tr("Size"));
-	lv->setColumnText (4, tr("Created"));
-	lv->setColumnText (5, tr("Label"));
+	lv->setColumnText (3, tr("Created"));
+	lv->setColumnText (4, tr("Label"));
 
 	explorerWindow->setWindowTitle(tr("Project Explorer"));
 	logWindow->setWindowTitle(tr("Results Log"));
@@ -1500,13 +1498,6 @@ void ApplicationWindow::setListView(const QString& caption,const QString& view)
 	Q3ListViewItem *it=lv->findItem ( caption,0, Q3ListView::ExactMatch | Qt::CaseSensitive );
 	if (it)
 		it->setText(2,view);
-}
-
-void ApplicationWindow::setListViewSize(const QString& caption,const QString& size)
-{
-	Q3ListViewItem *it=lv->findItem ( caption,0, Q3ListView::ExactMatch | Qt::CaseSensitive );
-	if (it)
-		it->setText(3,size);
 }
 
 QString ApplicationWindow::listViewDate(const QString& caption)
@@ -7479,7 +7470,6 @@ MyWidget* ApplicationWindow::clone(MyWidget* w)
 		nw->setWindowLabel(w->windowLabel());
 		nw->setCaptionPolicy(w->captionPolicy());
 		setListViewLabel(nw->name(), w->windowLabel());
-		setListViewSize(nw->name(), w->sizeToString());
 	}
 	QApplication::restoreOverrideCursor();
 	return nw;
@@ -10724,7 +10714,7 @@ void ApplicationWindow::createActions()
 	actionNewGraph->setShortcut( tr("Ctrl+G") );
 	connect(actionNewGraph, SIGNAL(activated()), this, SLOT(newGraph()));
 
-	actionNewNote = new QAction(QIcon(QPixmap(":/new_note.xpm")), tr("New &Note"), this);
+	actionNewNote = new QAction(QIcon(QPixmap(":/new_note.xpm")), tr("New &Note / Script"), this);
 	connect(actionNewNote, SIGNAL(activated()), this, SLOT(newNote()));
 
 	actionNewTable = new QAction(QIcon(QPixmap(":/table.xpm")), tr("New &Table"), this);
@@ -11355,8 +11345,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionNewGraph->setToolTip(tr("Create an empty 2D plot"));
 	actionNewGraph->setShortcut(tr("Ctrl+G"));
 
-	actionNewNote->setMenuText(tr("New &Note"));
-	actionNewNote->setToolTip(tr("Create an empty note window"));
+	actionNewNote->setMenuText(tr("New &Note / Script"));
+	actionNewNote->setToolTip(tr("Create an empty note / script window"));
 
 	actionNewTable->setMenuText(tr("New &Table"));
 	actionNewTable->setShortcut(tr("Ctrl+T"));
@@ -13180,7 +13170,6 @@ void ApplicationWindow::folderProperties()
 	s += "\n\n\n";
 	s += tr("Type") + ": " + tr("Folder")+"\n\n";
 	s += tr("Path") + ": " + current_folder->path() + "\n\n";
-	s += tr("Size") + ": " + current_folder->sizeToString() + "\n\n";
 	s += tr("Contents") + ": " + QString::number(current_folder->windowsList().count()) + " " + tr("windows");
 	s += ", " + QString::number(current_folder->subfolders().count()) + " " + tr("folders") + "\n\n";
 	//s += "\n\n\n";
@@ -13445,9 +13434,8 @@ void ApplicationWindow::addListViewItem(MyWidget *w)
 
 	it->setText(0, w->name());
     it->setText(2, w->aspect());
-	it->setText(3, w->sizeToString());
-	it->setText(4, w->birthDate());
-	it->setText(5, w->windowLabel());
+	it->setText(3, w->birthDate());
+	it->setText(4, w->windowLabel());
 }
 
 void ApplicationWindow::windowProperties()
@@ -13491,7 +13479,6 @@ void ApplicationWindow::windowProperties()
 		s +=  tr("Type") + ": " + tr("3D Graph") + "\n\n";
 	}
 	s += tr("Path") + ": " + current_folder->path() + "\n\n";
-	s += tr("Size") + ": " + w->sizeToString() + "\n\n";
 	s += tr("Created") + ": " + w->birthDate() + "\n\n";
 	s += tr("Status") + ": " + it->text(2) + "\n\n";
 	mbox->setText(s);
@@ -13507,8 +13494,7 @@ void ApplicationWindow::addFolderListViewItem(Folder *f)
 	it->setActive(false);
 	it->setText(0, f->name());
 	it->setText(1, tr("Folder"));
-	it->setText(3, f->sizeToString());
-	it->setText(4, f->birthDate());
+	it->setText(3, f->birthDate());
 }
 
 void ApplicationWindow::find(const QString& s, bool windowNames, bool labels,

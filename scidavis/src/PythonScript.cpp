@@ -109,7 +109,8 @@ bool PythonScript::compile(bool for_eval)
 		// value from it.
 		// So we wrap the code into a function definition,
 		// execute that (as Py_file_input) and store the function object in PyCode.
-		// See http://mail.python.org/pipermail/python-list/2001-June/046940.html
+		// See http://mail.python.org/pipermail/python-bugs-list/2001-June/005534.html
+		// and http://mail.python.org/pipermail/python-list/2001-June/087605.html
 		// for why there isn't an easier way to do this in Python.
 		PyErr_Clear(); // silently ignore errors
 		PyObject *key, *value;
@@ -195,7 +196,7 @@ QVariant PythonScript::eval()
 		/* bool */
 	} else if (PyBool_Check(pyret))
 		qret = QVariant(pyret==Py_True, 0);
-	// could handle advanced types (such as PyList->QValueList) here if needed
+	// could handle advanced types (such as PyList->QList) here if needed
 	/* fallback: try to convert to (unicode) string */
 	if(!qret.isValid()) {
 		PyObject *pystring = PyObject_Unicode(pyret);

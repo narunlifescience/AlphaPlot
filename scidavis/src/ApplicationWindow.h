@@ -460,7 +460,6 @@ public slots:
 	void renameListViewItem(const QString& oldName,const QString& newName);
 	void setListViewDate(const QString& caption,const QString& date);
 	QString listViewDate(const QString& caption);
-	void setListViewSize(const QString& caption,const QString& size);
 	void setListViewLabel(const QString& caption,const QString& label);
 	//@}
 

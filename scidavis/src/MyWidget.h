@@ -112,10 +112,6 @@ public:
 
 	virtual QString saveToString(const QString &){return QString();};
 
-	// TODO: make this return something useful
-	//! Size of the widget as a string
-	virtual QString sizeToString();
-
 	//!Notifies that a window was hidden by a direct user action
 	virtual void setHidden();
 

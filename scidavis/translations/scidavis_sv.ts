@@ -2119,7 +2119,7 @@ Varning: detta kommer att arrangera om befintliga lager!</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11358"/>
-        <source>New &amp;Note</source>
+		  <source>New &amp;Note / Script</source>
         <translation>Ny a&amp;nteckning</translation>
     </message>
     <message>

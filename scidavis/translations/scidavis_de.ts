@@ -3350,8 +3350,8 @@ Wollen Sie fortfahren?</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11358"/>
-        <source>New &amp;Note</source>
-        <translation>Neue &amp;Notiz</translation>
+		  <source>New &amp;Note / Script</source>
+		  <translation>Neue &amp;Notiz / Script</translation>
     </message>
     <message>
         <location filename="../src/ApplicationWindow.cpp" line="11375"/>

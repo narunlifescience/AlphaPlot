@@ -172,26 +172,6 @@ MyWidget *Folder::window(const QString &name, const char *cls, bool recursive)
 	return NULL;
 }
 
-QString Folder::sizeToString()
-{
-int size = 0;
-
-QObjectList folderList = children();
-if (!folderList.isEmpty())
-	{
-		QObject *f;
-		foreach(f,folderList)
-			size +=  sizeof(static_cast<Folder *>(f)); // FIXME: Doesn't this function add the size of pointers together? For what?
-	}
-
-
-MyWidget * w;
-foreach(w, lstWindows)
-	size += sizeof(w);
-
-return QString::number(8*size/1024.0,'f',1)+" "+tr("kB")+" ("+QString::number(8*size)+" "+tr("bytes")+")";
-}
-
 Folder* Folder::rootFolder()
 {
 	Folder *i = this;

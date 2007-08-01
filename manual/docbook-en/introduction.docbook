@@ -24,7 +24,7 @@ revision history. (see installation appendix comment) -->
 <sect1 id="command-line-options">
 <title>Command Line Parameters</title>
 <sect2 id="specify-a-file">
-<indexterm><primary>Command line parameters</primary><secondary>Specify a File</secondary></indexterm>
+	<sect2info><indexterm><primary>Command line parameters</primary><secondary>Specify a File</secondary></indexterm></sect2info>
 <title>Specify a File</title>
 
 <para>When starting &appname; from the command prompt, you can supply the name of a project file:</para>
@@ -52,7 +52,7 @@ revision history. (see installation appendix comment) -->
 </sect2>
 
 <sect2 id="scidavis-options">
-<indexterm><primary>Command line parameters</primary><secondary>Options</secondary></indexterm>
+	<sect2info><indexterm><primary>Command line parameters</primary><secondary>Options</secondary></indexterm></sect2info>
 <title>Command Line Options</title>
 
 <para>Valid options are:</para>
