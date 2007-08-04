@@ -13686,8 +13686,8 @@ void ApplicationWindow::moveFolder(FolderListItem *src, FolderListItem *dest)
 
 void ApplicationWindow::searchForUpdates()
 {
-    int choice = QMessageBox::question(this, tr("SciDAVis"),
-					tr("SciDAVis will try to download necessary information about the last available updates. Please modify your firewall settings in order to allow SciDAVis to connect to the internet!") + "\n" +
+    int choice = QMessageBox::question(this, versionString(),
+					tr("SciDAVis will now try to determine whether a new version of SciDAVis is available. Please modify your firewall settings in order to allow SciDAVis to connect to the internet.") + "\n" +
 					tr("Do you wish to continue?"),
 					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
 
@@ -13695,8 +13695,7 @@ void ApplicationWindow::searchForUpdates()
     {
         version_buffer.open(IO_WriteOnly);
         http.setHost("scidavis.sourceforge.net");
-        http.get("/version.txt", &version_buffer);
-        http.closeConnection();
+        http.get("/current_version.txt", &version_buffer);
     }
 }
 
@@ -13715,23 +13714,29 @@ void ApplicationWindow::receivedVersionFile(bool error)
 	{
 		QTextStream t( &version_buffer );
 		t.setEncoding(QTextStream::UnicodeUTF8);
-		QString version = t.readLine();
+		QString version_line = t.readLine();
 		version_buffer.close();
 
-		QString currentVersion = versionString();
+		QStringList list = version_line.split(".");
+		if(list.count() > 2)
+		{
+			int available_version = list.at(0).toInt() << 16 + list.at(1).toInt() << 8 +list.at(2).toInt();
 
-		if (currentVersion != version)
-		{
-			if(QMessageBox::question(this, tr("Updates Available"),
-						tr("There is a newer version of SciDAVis (%1) available for download. Would you like to download it?").arg(version),
-						QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
-				QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
+			if (available_version > scidavis_version)
+			{
+				if(QMessageBox::question(this, tr("Updates Available"),
+							tr("There is a newer version of SciDAVis (%1) available for download. Would you like to download it now?").arg(version_line),
+							QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
+					QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
+			}
+			else
+			{
+				QMessageBox::information(this, versionString(),
+						tr("No updates available. Your are already running the latest version."));
+			}
 		}
-		else if (!autoSearchUpdatesRequest)
-		{
-			QMessageBox::information(this, tr("No Updates Available"),
-					tr("No updates available. Your current version %1 is the last version available!").arg(version));
-		}
+		else QMessageBox::information(this, tr("Invalid version file"),
+						tr("The version file (contents: \"%1\") could not be decoded into a valid version number.").arg(version_line));
 		autoSearchUpdatesRequest = false;
 	}
 }
@@ -13867,7 +13872,8 @@ ApplicationWindow::~ApplicationWindow()
 
 QString ApplicationWindow::versionString()
 {
-	return "SciDAVis " + QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
+	return tr("SciDAVis ","usually, this should not be translated") + 
+			QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
 			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
 			QString::number(scidavis_version & 0x0000FF) + QString(extra_version);
 }
