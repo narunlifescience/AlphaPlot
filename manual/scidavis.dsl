@@ -27,7 +27,7 @@
 
 (define %stylesheet%
 	;; CSS stylesheet to be used in HTML pages
-	"html/scidavis.css")
+	"scidavis.css")
 
 (define %css-decoration%
 	;; Active l'utilisation des CSS dans le code HTML g���
