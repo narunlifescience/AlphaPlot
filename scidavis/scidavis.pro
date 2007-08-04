@@ -1,8 +1,3 @@
-### building without muParser does not work yet (but will in a future version)
-include( muparser.pri )
-### remove the comment char "#" from the following line to activate Python scripting support
-#include( python.pri )
-
 ### a console displaying output of scripts; particularly useful on Windows
 ### where running SciDAVis from a terminal is inconvenient
 DEFINES         += SCRIPTING_CONSOLE
@@ -23,6 +18,12 @@ unix: target.path = $$INSTALLBASE/bin
 unix: documentation.path = $$INSTALLBASE/share/doc/scidavis
 win32: target.path = $$INSTALLBASE
 win32: documentation.path = $$INSTALLBASE/doc
+
+### (remark: muparser.pri and python.pri must be included after defining INSTALLBASE )
+### building without muParser does not work yet (but will in a future version)
+include( muparser.pri )
+### remove the comment char "#" from the following line to activate Python scripting support
+#include( python.pri )
 
 linux-g++-64: libsuff = 64
 
