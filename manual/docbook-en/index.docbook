@@ -800,9 +800,9 @@
 <chapter id="scripting">
   &scripting-chapter;
 </chapter>
-<chapter id="credits">
+<appendix id="manual_appendix">
 &appendix-chapter;
-</chapter>
+</appendix>
 <chapter id="faq">
 &faq-chapter;
 </chapter>

@@ -1,5 +1,5 @@
-<indexterm><primary>Scripting</primary></indexterm>
 <title>Mathematical Expressions and Scripting</title>
+<indexterm><primary>Scripting</primary></indexterm>
 
   <para>&appname; supports different interpreters
   for evaluating mathematical expressions and for executing scripts.</para>

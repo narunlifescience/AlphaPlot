@@ -57,12 +57,12 @@ revision history. (see installation appendix comment) -->
 
 <para>Valid options are:</para>
 <itemizedlist>
-<listitem>-a or --about: show about dialog and exit</listitem>
-<listitem>-h or --help: show command line options</listitem>
-<listitem>-l=XX or --lang=XX: start &appname; in language XX ('en', 'fr', 'de', ...)</listitem>
-<listitem>-m or --manual: show &appname; manual in a standalone window</listitem>
-<listitem>-v or --version: print &appname; version and release date</listitem>
-<listitem>-x or --execute: execute the script file given as argument</listitem>
+<listitem><para>-a or --about: show about dialog and exit</para></listitem>
+<listitem><para>-h or --help: show command line options</para></listitem>
+<listitem><para>-l=XX or --lang=XX: start &appname; in language XX ('en', 'fr', 'de', ...)</para></listitem>
+<listitem><para>-m or --manual: show &appname; manual in a standalone window</para></listitem>
+<listitem><para>-v or --version: print &appname; version and release date</para></listitem>
+<listitem><para>-x or --execute: execute the script file given as argument</para></listitem>
 </itemizedlist>
 
 </sect2>
