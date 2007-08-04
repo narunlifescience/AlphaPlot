@@ -88,7 +88,8 @@
 	<file alias="cursors.xpm">icons/cursors.xpm</file>
 	<file alias="close.xpm">icons/close.xpm</file>
 	<file alias="hand.xpm">icons/hand.xpm</file>
-	<file alias="errors.xpm">icons/errors.xpm</file>
+	<file alias="xerror.xpm">icons/xerror.xpm</file>
+	<file alias="yerror.xpm">icons/yerror.xpm</file>
 	<file alias="curves.xpm">icons/curves.xpm</file>
 	<file alias="arrow.xpm">icons/arrow.xpm</file>
 	<file alias="legend.xpm">icons/legend.xpm</file>

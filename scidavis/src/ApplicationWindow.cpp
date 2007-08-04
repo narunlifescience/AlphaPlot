@@ -430,9 +430,10 @@ void ApplicationWindow::initToolBars()
 	btn_layers->setToolTip(tr("Manage layers"));
 	graph_tools->addWidget(btn_layers);
 
-	menu_layers->addAction(actionShowLayerDialog);
-	menu_layers->addAction(actionAddLayer);
 	menu_layers->addAction(actionAutomaticLayout);
+	menu_layers->addAction(actionAddLayer);
+	menu_layers->addAction(actionDeleteLayer);
+	menu_layers->addAction(actionShowLayerDialog);
 
 	QMenu *menu_curves = new QMenu(this);
 	QToolButton *btn_curves = new QToolButton(this);
@@ -774,7 +775,6 @@ void ApplicationWindow::initMainMenu()
 	graph->addAction(actionShowCurvesDialog);
 	graph->addAction(actionAddErrorBars);
 	graph->addAction(actionAddFunctionCurve);
-	graph->addAction(actionNewLegend);
 
 	graph->addSeparator();
 
@@ -783,8 +783,10 @@ void ApplicationWindow::initMainMenu()
 	graph->addAction(btnLine);
 	graph->addAction(actionTimeStamp);
 	graph->addAction(actionAddImage);
+	graph->addAction(actionNewLegend);
 
 	graph->addSeparator();//layers section
+	graph->addAction(actionAutomaticLayout);
 	graph->addAction(actionAddLayer);
 	graph->addAction(actionDeleteLayer);
 	graph->addAction(actionShowLayerDialog);
@@ -982,9 +984,9 @@ void ApplicationWindow::initPlotDataMenu()
 	plotDataMenu->addAction(actionUnzoom);
 	plotDataMenu->addSeparator();
 
+	plotDataMenu->addAction(btnPicker);
 	plotDataMenu->addAction(btnCursor);
 	plotDataMenu->addAction(btnSelect);
-	plotDataMenu->addAction(btnPicker);
 
 	plotDataMenu->addSeparator();
 
@@ -5631,8 +5633,8 @@ void ApplicationWindow::showColMenu(int c)
 		QAction * yColID=colType.addAction(tr("Y"), this, SLOT(setYCol()));
 		QAction * zColID=colType.addAction(tr("Z"), this, SLOT(setZCol()));
 		colType.addSeparator();
-		QAction * xErrColID =colType.addAction(tr("X Error"), this, SLOT(setXErrCol()));
-		QAction * yErrColID = colType.addAction(QIcon(QPixmap(":/errors.xpm")), tr("Y Error"), this, SLOT(setYErrCol()));
+		QAction * xErrColID =colType.addAction(QIcon(QPixmap(":/xerror.xpm")), tr("X Error"), this, SLOT(setXErrCol()));
+		QAction * yErrColID = colType.addAction(QIcon(QPixmap(":/yerror.xpm")), tr("Y Error"), this, SLOT(setYErrCol()));
 		colType.addSeparator();
 		QAction * noneID=colType.addAction(tr("None"), this, SLOT(disregardCol()));
 
@@ -10858,7 +10860,7 @@ void ApplicationWindow::createActions()
 	actionShowCurvesDialog->setShortcut( tr("ALT+C") );
 	connect(actionShowCurvesDialog, SIGNAL(activated()), this, SLOT(showCurvesDialog()));
 
-	actionAddErrorBars = new QAction(QIcon(QPixmap(":/errors.xpm")), tr("Add &Error Bars..."), this);
+	actionAddErrorBars = new QAction(QIcon(QPixmap(":/yerror.xpm")), tr("Add &Error Bars..."), this);
 	actionAddErrorBars->setShortcut( tr("Ctrl+B") );
 	connect(actionAddErrorBars, SIGNAL(activated()), this, SLOT(addErrorBars()));
 
@@ -11238,10 +11240,10 @@ void ApplicationWindow::createActions()
 	actionSetZCol = new QAction(tr("&Z"), this);
 	connect(actionSetZCol, SIGNAL(activated()), this, SLOT(setZCol()));
 
-	actionSetXErrCol = new QAction(tr("X E&rror"), this);
+	actionSetXErrCol = new QAction(QPixmap(":/xerror.xpm"), tr("X E&rror"), this);
 	connect(actionSetXErrCol, SIGNAL(activated()), this, SLOT(setXErrCol()));
 
-	actionSetYErrCol = new QAction(QIcon(QPixmap(":/errors.xpm")), tr("Y &Error"), this);
+	actionSetYErrCol = new QAction(QIcon(QPixmap(":/yerror.xpm")), tr("Y &Error"), this);
 	connect(actionSetYErrCol, SIGNAL(activated()), this, SLOT(setYErrCol()));
 
 	actionDisregardCol = new QAction(tr("&None"), this);
