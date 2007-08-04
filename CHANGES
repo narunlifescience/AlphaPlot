@@ -1,6 +1,6 @@
 SciDAVis changelog
 
-=== Release 0.1.0, 2007/08/05 ===
+=== Release 0.1.0, 2007-08-05 ===
 Most important changes (since QtiPlot 0.9-rc2):
 - improved handling of custom decimal separators
 - many improvements/additions to Python scripting
@@ -9,4 +9,4 @@ Most important changes (since QtiPlot 0.9-rc2):
 - more stable project loading/saving
 - easier ASCII import/export, improved appending of projects and Origin graphs
 - lots of small improvements and bug fixes
-
+- export to eps and pdf without large white borders

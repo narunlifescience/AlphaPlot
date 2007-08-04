@@ -207,6 +207,8 @@ class Graph: public QWidget
         void updateCurveNames(const QString& oldName, const QString& newName, bool updateTableName = true);
 
 		int curveType(int curveIndex);
+		//! Test whether curve can be converted to type using setCurveType().
+		static bool canConvertTo(QwtPlotCurve *curve, CurveType type);
 		//! Change the type of the given curve.
 		/**
 		 * The option to disable updating is provided so as not to break the project opening code

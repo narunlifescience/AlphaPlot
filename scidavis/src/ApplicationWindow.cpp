@@ -1234,10 +1234,32 @@ void ApplicationWindow::customToolBars(QWidget* w)
 				graph_tools->show();
 
 			graph_tools->setEnabled (true);
-			plot_tools->setEnabled(true);
 			graph_3D_tools->setEnabled (false);
 			table_tools->setEnabled(false);
 			matrix_plot_tools->setEnabled (false);
+
+			Graph *g = static_cast<MultiLayer*>(w)->activeGraph();
+			if (g && g->curves() > 0) {
+				plot_tools->setEnabled(true);
+				QwtPlotCurve *c = g->curve(g->curves()-1);
+				// plot tools managed by d_plot_mapper
+				for (int i=0; i<=(int)Graph::VerticalSteps; i++) {
+					QAction *a = static_cast<QAction*>(d_plot_mapper->mapping(i));
+					if (a)
+						a->setEnabled(Graph::canConvertTo(c, (Graph::CurveType)i));
+				}
+				// others
+				actionPlotPie->setEnabled(Graph::canConvertTo(c, Graph::Pie));
+				actionPlotVectXYAM->setEnabled(Graph::canConvertTo(c, Graph::VectXYAM));
+				actionPlotVectXYXY->setEnabled(Graph::canConvertTo(c, Graph::VectXYXY));
+				actionBoxPlot->setEnabled(Graph::canConvertTo(c, Graph::Box));
+				// 3D plots
+				actionPlot3DRibbon->setEnabled(false);
+				actionPlot3DScatter->setEnabled(false);
+				actionPlot3DTrajectory->setEnabled(false);
+				actionPlot3DBars->setEnabled(false);
+			} else
+				plot_tools->setEnabled(false);
 		}
 		else if (w->inherits("Table"))
 		{
@@ -1245,10 +1267,27 @@ void ApplicationWindow::customToolBars(QWidget* w)
 				table_tools->show();
 
 			table_tools->setEnabled (true);
-			plot_tools->setEnabled(true);
 			graph_tools->setEnabled (false);
 			graph_3D_tools->setEnabled (false);
 			matrix_plot_tools->setEnabled (false);
+
+			plot_tools->setEnabled(true);
+			// plot tools managed by d_plot_mapper
+			for (int i=0; i<=(int)Graph::VerticalSteps; i++) {
+				QAction *a = static_cast<QAction*>(d_plot_mapper->mapping(i));
+				if (a)
+					a->setEnabled(true);
+			}
+			// others
+			actionPlotPie->setEnabled(true);
+			actionPlotVectXYAM->setEnabled(true);
+			actionPlotVectXYXY->setEnabled(true);
+			actionBoxPlot->setEnabled(true);
+			// 3D plots
+			actionPlot3DRibbon->setEnabled(true);
+			actionPlot3DScatter->setEnabled(true);
+			actionPlot3DTrajectory->setEnabled(true);
+			actionPlot3DBars->setEnabled(true);
 		}
 		else if (w->inherits("Matrix"))
 		{
@@ -3866,7 +3905,7 @@ bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 	QApplication::sendEvent(this, sce);
 	delete sce;
 
-	foreach(QObject *i, findChildren<QObject*>())
+	foreach(QObject *i, findChildren<QWidget*>())
 		QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
 
 	return true;
@@ -10884,48 +10923,48 @@ void ApplicationWindow::createActions()
 	actionAddImage->setShortcut( tr("ALT+I") );
 	connect(actionAddImage, SIGNAL(activated()), this, SLOT(addImage()));
 
-	QSignalMapper *plot_mapper = new QSignalMapper;
-	connect(plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
+	d_plot_mapper = new QSignalMapper;
+	connect(d_plot_mapper, SIGNAL(mapped(int)), this, SLOT(selectPlotType(int)));
 
 	actionPlotL = new QAction(QIcon(QPixmap(":/lPlot.xpm")), tr("&Line"), this);
-	connect(actionPlotL, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotL, Graph::Line);
+	connect(actionPlotL, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotL, Graph::Line);
 
 	actionPlotP = new QAction(QIcon(QPixmap(":/pPlot.xpm")), tr("&Scatter"), this);
-	connect(actionPlotP, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotP, Graph::Scatter);
+	connect(actionPlotP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotP, Graph::Scatter);
 
 	actionPlotLP = new QAction(QIcon(QPixmap(":/lpPlot.xpm")), tr("Line + S&ymbol"), this);
-	connect(actionPlotLP, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotLP, Graph::LineSymbols);
+	connect(actionPlotLP, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotLP, Graph::LineSymbols);
 
 	actionPlotVerticalDropLines = new QAction(QIcon(QPixmap(":/dropLines.xpm")), tr("Vertical &Drop Lines"), this);
-	connect(actionPlotVerticalDropLines, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotVerticalDropLines, Graph::VerticalDropLines);
+	connect(actionPlotVerticalDropLines, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotVerticalDropLines, Graph::VerticalDropLines);
 
 	actionPlotSpline = new QAction(QIcon(QPixmap(":/spline.xpm")), tr("&Spline"), this);
-	connect(actionPlotSpline, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotSpline, Graph::Spline);
+	connect(actionPlotSpline, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotSpline, Graph::Spline);
 
 	actionPlotHorSteps = new QAction(QPixmap(":/hor_steps.xpm"), tr("&Horizontal Steps"), this);
-	connect(actionPlotHorSteps, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotHorSteps, Graph::HorizontalSteps);
+	connect(actionPlotHorSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotHorSteps, Graph::HorizontalSteps);
 
 	actionPlotVertSteps = new QAction(QIcon(QPixmap(":/vert_steps.xpm")), tr("&Vertical Steps"), this);
-	connect(actionPlotVertSteps, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotVertSteps, Graph::VerticalSteps);
+	connect(actionPlotVertSteps, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotVertSteps, Graph::VerticalSteps);
 
 	actionPlotVerticalBars = new QAction(QIcon(QPixmap(":/vertBars.xpm")), tr("&Vertical Bars"), this);
-	connect(actionPlotVerticalBars, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotVerticalBars, Graph::VerticalBars);
+	connect(actionPlotVerticalBars, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotVerticalBars, Graph::VerticalBars);
 
 	actionPlotHorizontalBars = new QAction(QIcon(QPixmap(":/hBars.xpm")), tr("&Horizontal Bars"), this);
-	connect(actionPlotHorizontalBars, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotHorizontalBars, Graph::HorizontalBars);
+	connect(actionPlotHorizontalBars, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotHorizontalBars, Graph::HorizontalBars);
 
 	actionPlotArea = new QAction(QIcon(QPixmap(":/area.xpm")), tr("&Area"), this);
-	connect(actionPlotArea, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotArea, Graph::Area);
+	connect(actionPlotArea, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotArea, Graph::Area);
 
 	actionPlotPie = new QAction(QIcon(QPixmap(":/pie.xpm")), tr("&Pie"), this);
 	connect(actionPlotPie, SIGNAL(activated()), this, SLOT(plotPie()));
@@ -10937,8 +10976,8 @@ void ApplicationWindow::createActions()
 	connect(actionPlotVectXYXY, SIGNAL(activated()), this, SLOT(plotVectXYXY()));
 
 	actionPlotHistogram = new QAction(QIcon(QPixmap(":/histogram.xpm")), tr("&Histogram"), this);
-	connect(actionPlotHistogram, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionPlotHistogram, Graph::Histogram);
+	connect(actionPlotHistogram, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionPlotHistogram, Graph::Histogram);
 
 	actionPlotStackedHistograms = new QAction(QIcon(QPixmap(":/stacked_hist.xpm")), tr("&Stacked Histogram"), this);
 	connect(actionPlotStackedHistograms, SIGNAL(activated()), this, SLOT(plotStackedHistograms()));
@@ -11250,8 +11289,8 @@ void ApplicationWindow::createActions()
 	connect(actionDisregardCol, SIGNAL(activated()), this, SLOT(disregardCol()));
 
 	actionBoxPlot = new QAction(QIcon(QPixmap(":/boxPlot.xpm")),tr("&Box Plot"), this);
-	connect(actionBoxPlot, SIGNAL(activated()), plot_mapper, SLOT(map()));
-	plot_mapper->setMapping(actionBoxPlot, Graph::Box);
+	connect(actionBoxPlot, SIGNAL(activated()), d_plot_mapper, SLOT(map()));
+	d_plot_mapper->setMapping(actionBoxPlot, Graph::Box);
 
 	actionMultiPeakGauss = new QAction(tr("&Gaussian..."), this);
 	connect(actionMultiPeakGauss, SIGNAL(activated()), this, SLOT(fitMultiPeakGauss()));

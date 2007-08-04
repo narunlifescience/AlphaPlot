@@ -35,6 +35,8 @@
 #include <QVarLengthArray>
 #include <QLocale>
 
+#include <qwt_plot_layout.h>
+
 QwtPieCurve::QwtPieCurve(Table *t, const char *name, int startRow, int endRow):
 	DataCurve(t, QString(), name, startRow, endRow)
 {
@@ -61,17 +63,15 @@ void QwtPieCurve::draw(QPainter *painter,
 void QwtPieCurve::drawPie(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-	int x_center = (xMap.p1() + xMap.p2())/2;
-	int y_center = (yMap.p1() + yMap.p2())/2;
-
-	int ray = (x_center - xMap.transform(d_left_coord));
-    int d = 2*ray;
+	// This has to be synced with Graph::plotPie() for now... until we have a clean solution.
+	QRect canvas_rect = plot()->plotLayout()->canvasRect();
+	int radius = 0.4*qMin(canvas_rect.width(), canvas_rect.height());
 
 	QRect pieRect;
-	pieRect.setX(x_center - ray);
-	pieRect.setY(y_center - ray);
-	pieRect.setWidth(d);
-	pieRect.setHeight(d);
+	pieRect.setX(canvas_rect.center().x() - radius);
+	pieRect.setY(canvas_rect.center().y() - radius);
+	pieRect.setWidth(2*radius);
+	pieRect.setHeight(2*radius);
 
 	double sum = 0.0;
 	for (int i = from; i <= to; i++){

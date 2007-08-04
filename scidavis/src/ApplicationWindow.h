@@ -64,6 +64,7 @@ class QMenu;
 class QToolBar;
 class QAssistantClient;
 class QStatusBar;
+class QSignalMapper;
 
 class Matrix;
 class Table;
@@ -132,7 +133,6 @@ public:
 	FolderListView *lv, *folders;
 	QToolButton *btnResults;
 	QWidgetList *hiddenWindows, *outWindows;
-	QLabel *d_status_info;
 	QWidget *lastModified;
 
 public:
@@ -1129,6 +1129,11 @@ private:
     QAction* pointstyle;
 	QAction* barstyle;
 	QAction *conestyle, *crossHairStyle;
+
+	//! Manages connection between plot actions and Graph::CurveType values (not used by all plot actions).
+	QSignalMapper *d_plot_mapper;
+
+	QLabel *d_status_info;
 
 private slots:
 	//! Set the active window selected from the context menu's dependency list

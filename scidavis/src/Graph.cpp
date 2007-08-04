@@ -2949,6 +2949,30 @@ CurveLayout Graph::initCurveLayout(int style, int curves)
 	return cl;
 }
 
+bool Graph::canConvertTo(QwtPlotCurve *c, CurveType type)
+{
+	if (!c) return false;
+	// conversion between VectXYXY and VectXYAM is possible, but not implemented
+	if (dynamic_cast<VectorCurve*>(c))
+		return false;
+	// conversion between Pie, Histogram and Box should be possible (all of them take one input column),
+	// but lots of special-casing in ApplicationWindow and Graph makes this very difficult
+	if (dynamic_cast<QwtPieCurve*>(c) || dynamic_cast<QwtHistogram*>(c) || dynamic_cast<BoxCurve*>(c))
+		return false;
+	// converting error bars doesn't make sense
+	if (dynamic_cast<QwtErrorPlotCurve*>(c))
+		return false;
+	// line/symbol, area and bar curves can be converted to each other
+	if (dynamic_cast<DataCurve*>(c))
+		return
+			type == Line || type == Scatter || type == LineSymbols || 
+			type == VerticalBars || type == HorizontalBars ||
+			type == HorizontalSteps || type == VerticalSteps ||
+			type == Area || type == VerticalDropLines ||
+			type == Spline;
+	return false;
+}
+
 void Graph::setCurveType(int curve_index, CurveType type, bool update)
 {
 	if (type == c_type[curve_index]) return;
@@ -3103,6 +3127,14 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	if (endRow < 0)
 		endRow = w->numRows() - 1;
 
+	for (int i=0; i<QwtPlot::axisCnt; i++)
+		d_plot->enableAxis(i, false);
+	scalePicker->refresh();
+
+	d_plot->setTitle(QString::null);
+
+	static_cast<QwtPlotCanvas*>(d_plot->canvas())->setLineWidth(1);
+
 	QVarLengthArray<double> Y(abs(endRow - startRow) + 1);
 	for (int i = startRow; i<= endRow; i++){
 		QString yval = w->text(i,ycol);
@@ -3119,10 +3151,6 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		return;
     Y.resize(size);
 
-	QwtPlotLayout *pLayout = d_plot->plotLayout();
-	pLayout->activate(d_plot, d_plot->rect(), 0);
-	const QRect rect = pLayout->canvasRect();
-
 	QwtPieCurve *pieCurve = new QwtPieCurve(w, name, startRow, endRow);
 	pieCurve->setData(Y.data(), Y.data(), size);
 
@@ -3132,9 +3160,9 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Pie;
 
-	const int ray = 125;
-	int xc = int(rect.width()/2 + 10);
-	int yc = int(rect.y() + rect.height()/2 + pLayout->titleRect().height() + 5);
+	// This has to be synced with QwtPieCurve::drawPie() for now... until we have a clean solution.
+	QRect canvas_rect = d_plot->plotLayout()->canvasRect();
+	float radius = 0.45*qMin(canvas_rect.width(), canvas_rect.height());
 
 	double PI = 4*atan(1.0);
 	double angle = 90;
@@ -3143,17 +3171,17 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		const double value = Y[i]/sum*360;
 		double alabel = (angle - value*0.5)*PI/180.0;
 
-		const int x = int(xc + ray*cos(alabel));
-		const int y = int(yc - ray*sin(alabel));
-
 		Legend* aux = new Legend(d_plot);
-		aux->setOrigin(QPoint(x,y));
 		aux->setFrameStyle(0);
 		aux->setText(QString::number(Y[i]/sum*100,'g',2)+"%");
 
 		int texts = d_texts.size();
 		d_texts.resize(++texts);
 		d_texts[texts-1] = d_plot->insertMarker(aux);
+
+		aux->setOrigin(canvas_rect.center() +
+				QPoint(radius*cos(alabel) - 0.5*aux->rect().width(),
+					-radius*sin(alabel) - 0.5*aux->rect().height()));
 
 		angle -= value;
 	}
@@ -3173,15 +3201,6 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		}
 	}
 
-	for (int i=0; i<QwtPlot::axisCnt; i++)
-		d_plot->enableAxis(i, false);
-
-	d_plot->setTitle(QString::null);
-
-	QwtPlotCanvas* canvas=(QwtPlotCanvas*) d_plot->canvas();
-	canvas->setLineWidth(1);
-
-	scalePicker->refresh();
 	d_plot->replot();
 	updateScale();
 }
