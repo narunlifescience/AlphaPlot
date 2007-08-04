@@ -1,9 +1,12 @@
-This file is supposed to contain all future changelogs in 
-a format similar to this:
+SciDAVis changelog
 
-=== Release 0.1.0, 33rd July 3007 ===
-Changes:
-- support for cooking coffee added
-- improved import of plutonium
-- lots of bug fixes and small improvements
+=== Release 0.1.0, 2007/08/05 ===
+Most important changes (since QtiPlot 0.9-rc2):
+- improved handling of custom decimal separators
+- many improvements/additions to Python scripting
+- improved user interface: restructured menus and tool bars, several restructured dialogs
+- script window removed since notes offer the same capabilities
+- more stable project loading/saving
+- easier ASCII import/export, improved appending of projects and Origin graphs
+- lots of small improvements and bug fixes
 
