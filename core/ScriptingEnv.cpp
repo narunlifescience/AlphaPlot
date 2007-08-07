@@ -32,12 +32,12 @@
 #include <string.h>
 
 #ifdef SCRIPTING_MUPARSER
-#include "muParserScript.h"
-#include "muParserScripting.h"
+#include "muparser/muParserScript.h"
+#include "muparser/muParserScripting.h"
 #endif
 #ifdef SCRIPTING_PYTHON
-#include "PythonScript.h"
-#include "PythonScripting.h"
+#include "python/PythonScript.h"
+#include "python/PythonScripting.h"
 #endif
 
 ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *lang_name)
