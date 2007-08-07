@@ -30,6 +30,8 @@
 
 #include <QMessageBox>
 
+#include <qwt_plot_curve.h>
+
 #include <gsl/gsl_sort.h>
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>

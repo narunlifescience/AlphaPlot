@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "InterpolationDialog.h"
-#include "Graph.h"
-#include "MyParser.h"
-#include "ColorBox.h"
 #include "Interpolation.h"
+#include "core/MyParser.h"
+#include "lib/ColorBox.h"
+#include "graph/Graph.h"
 
 #include <QGroupBox>
 #include <QSpinBox>

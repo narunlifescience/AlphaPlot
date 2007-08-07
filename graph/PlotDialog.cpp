@@ -26,21 +26,22 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ApplicationWindow.h"
+
 #include "PlotDialog.h"
-#include "ColorBox.h"
-#include "ColorButton.h"
-#include "PatternBox.h"
+#include "lib/ColorBox.h"
+#include "lib/ColorButton.h"
+#include "lib/PatternBox.h"
+#include "core/ApplicationWindow.h"
+#include "core/MyParser.h"
 #include "SymbolBox.h"
-#include "Table.h"
-#include "MyParser.h"
-#include "QwtHistogram.h"
-#include "VectorCurve.h"
-#include "QwtErrorPlotCurve.h"
-#include "BoxCurve.h"
+#include "table/Table.h"
+#include "types/QwtHistogram.h"
+#include "types/VectorCurve.h"
+#include "types/QwtErrorPlotCurve.h"
+#include "types/BoxCurve.h"
 #include "FunctionCurve.h"
-#include "Spectrogram.h"
-#include "QwtPieCurve.h"
+#include "types/Spectrogram.h"
+#include "types/QwtPieCurve.h"
 #include "ColorMapEditor.h"
 
 #include <QTreeWidget>

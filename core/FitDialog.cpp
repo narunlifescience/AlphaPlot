@@ -29,15 +29,17 @@
 #include "FitDialog.h"
 #include "MyParser.h"
 #include "ApplicationWindow.h"
-#include "ColorBox.h"
+#include "lib/ColorBox.h"
 #include "Fit.h"
-#include "MultiPeakFit.h"
-#include "ExponentialFit.h"
-#include "PolynomialFit.h"
-#include "PluginFit.h"
-#include "NonLinearFit.h"
-#include "SigmoidalFit.h"
-#include "Matrix.h"
+#include "analysis/MultiPeakFit.h"
+#include "analysis/ExponentialFit.h"
+#include "analysis/PolynomialFit.h"
+#include "analysis/PluginFit.h"
+#include "analysis/NonLinearFit.h"
+#include "analysis/SigmoidalFit.h"
+#include "matrix/Matrix.h"
+#include "table/Table.h"
+
 #include <muParserError.h>
 
 #include <QListWidget>

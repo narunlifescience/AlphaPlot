@@ -31,12 +31,11 @@
 #define DATECOLUMNDATA_H
 
 #include "AbstractColumnData.h"
-#include "AbstractDateTimeDataSource.h"
+#include "core/datatypes/AbstractDateTimeDataSource.h"
 #include <QList>
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
-class AbstractDateTimeDataSource;
 
 //! Data source that stores a list of QDateTimes (implementation)
 /**

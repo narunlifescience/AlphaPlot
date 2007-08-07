@@ -30,7 +30,7 @@
 #ifndef DOUBLEDATASOURCE_H
 #define DOUBLEDATASOURCE_H
 
-#include "AbstractDataSource.h"
+#include "../AbstractDataSource.h"
 
 //! Type-specific reading interface for a double data source
 /**

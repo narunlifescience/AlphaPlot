@@ -28,7 +28,8 @@
  ***************************************************************************/
 
 #include "TextDialog.h"
-#include "ApplicationWindow.h"
+#include "ColorButton.h"
+#include "TextFormatButtons.h"
 
 #include <QFontDialog>
 #include <QColorDialog>
@@ -161,7 +162,7 @@ TextDialog::TextDialog(TextType type, QWidget* parent, Qt::WFlags fl )
 	   */
 
 	textEditBox = new QTextEdit();
-	textEditBox->setTextFormat(Qt::PlainText);
+	textEditBox->setAcceptRichText(false);
 	textEditBox->setFont(QFont());
 
 	formatButtons =  new TextFormatButtons(textEditBox);
@@ -197,19 +198,16 @@ void TextDialog::apply()
 	{
 		QColor c = backgroundBtn->color();
 		c.setAlpha(boxBackgroundTransparency->value());
-		emit values(textEditBox->text(), angle(), backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
+
+		emit values(textEditBox->toPlainText(), angle(), backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
 	}
 }
 
 void TextDialog::setDefaultValues()
 {
-	ApplicationWindow *app = (ApplicationWindow *)this->parent();
-	if (!app)
-		return;
-	
 	QColor c = backgroundBtn->color();
 	c.setAlpha(boxBackgroundTransparency->value());
-	app->setLegendDefaultSettings(backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
+	emit defaultValues(backgroundBox->currentIndex(), selectedFont, colorBtn->color(), c);
 }
 
 void TextDialog::accept()

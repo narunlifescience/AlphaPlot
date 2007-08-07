@@ -38,6 +38,8 @@
 #include <QPainter>
 #include <QPicture>
 #include <QClipboard>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 
 #if QT_VERSION >= 0x040300
 	#include <QSvgGenerator>

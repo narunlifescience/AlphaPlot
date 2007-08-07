@@ -29,7 +29,7 @@
 #ifndef PLUGINFIT_H
 #define PLUGINFIT_H
 
-#include "Fit.h"
+#include "core/Fit.h"
 
 class PluginFit : public Fit
 {

@@ -30,7 +30,8 @@
 #ifndef DATETIMEDATASOURCE_H
 #define DATETIMEDATASOURCE_H
 
-#include "AbstractDataSource.h"
+#include "../AbstractDataSource.h"
+
 class QDate;
 class QTime;
 class QDateTime;

@@ -27,8 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "Differentiation.h"
-#include "MultiLayer.h"
-#include "Legend.h"
+#include "graph/MultiLayer.h"
+#include "graph/Legend.h"
+#include "table/Table.h"
 
 #include <QLocale>
 

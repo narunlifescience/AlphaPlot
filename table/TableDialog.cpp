@@ -160,7 +160,8 @@ TableDialog::TableDialog(Table *t, QWidget* parent, Qt::WFlags fl )
 
 	comments = new QTextEdit();
 	boxShowTableComments = new QCheckBox(tr("&Display Comments in Header"));
-	boxShowTableComments->setChecked(d_table->commentsEnabled());
+	// TODO
+	//boxShowTableComments->setChecked(d_table->commentsEnabled());
 
 	QVBoxLayout* vbox4 = new QVBoxLayout();
 	vbox4->addLayout(hbox1);
@@ -294,7 +295,8 @@ void TableDialog::updateColumn(int sc)
 void TableDialog::changeColWidth(int width)
 {
 	d_table->changeColWidth(width, applyToAllBox->isChecked());
-	d_table->setHeaderColType();
+	// TODO
+	//d_table->setHeaderColType();
 }
 
 void TableDialog::apply()

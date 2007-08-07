@@ -30,7 +30,7 @@
 #ifndef STRING2DATE_TIME_FILTER_H
 #define STRING2DATE_TIME_FILTER_H
 
-#include "AbstractSimpleFilter.h"
+#include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <QDate>
 #include <QTime>

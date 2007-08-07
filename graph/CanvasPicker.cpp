@@ -29,9 +29,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "CanvasPicker.h"
-#include "ImageMarker.h"
 #include "Legend.h"
-#include "ArrowMarker.h"
+#include "enrichments/ImageMarker.h"
+#include "enrichments/ArrowMarker.h"
 
 #include <QVector>
 

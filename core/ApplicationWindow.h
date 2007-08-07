@@ -32,25 +32,10 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 
-// TODO: check whether we can avoid some of the includes
-
 #include <QMainWindow>
-#include <q3listview.h>
-#include <Q3Header>
-#include <QHttp>
-#include <QFile>
-#include <QSplitter>
-#include <QDesktopServices>
-#include <QBuffer>
 #include <QLocale>
 
-#include "Table.h"
-#include "Graph.h"
-#include "Graph3D.h"
-#include "ScriptingEnv.h"
 #include "Script.h"
-#include "AbstractDataSource.h"
-#include "AbstractColumnData.h"
 
 class QPixmap;
 class QCloseEvent;
@@ -72,6 +57,9 @@ class QAssistantClient;
 class QStatusBar;
 class QSignalMapper;
 class QTextEdit;
+class Q3ListViewItem;
+class QSplitter;
+class QLabel;
 
 class Matrix;
 class Table;
@@ -222,7 +210,7 @@ public slots:
 	void deleteLayer();
 
 	//! Creates a new spectrogram graph
-  	MultiLayer* plotSpectrogram(Matrix *m, Graph::CurveType type);
+  	MultiLayer* plotSpectrogram(Matrix *m, int type);
   	void plotGrayScale();
   	MultiLayer* plotGrayScale(Matrix *m);
   	void plotContour();
@@ -246,7 +234,7 @@ public slots:
 	Graph3D* openMatrixPlot3D(const QString& caption, const QString& matrix_name,
 							 double xl,double xr,double yl,double yr,double zl,double zr);
 	Graph3D* dataPlot3D(Table* table,const QString& colName);
-	Graph3D* dataPlotXYZ(Table* table,const QString& zColName, Graph3D::PlotType type);
+	Graph3D* dataPlotXYZ(Table* table,const QString& zColName, int type);
 	Graph3D* dataPlot3D(const QString& caption,const QString& formula,
 						double xl, double xr, double yl, double yr, double zl, double zr);
 	Graph3D* dataPlotXYZ(const QString& caption,const QString& formula,
@@ -402,7 +390,7 @@ public slots:
 	void printAllPlots();
 	//@}
 
-	QStringList columnsList(AbstractDataSource::PlotDesignation plotType);
+	QStringList columnsList(int plotType);
 	QStringList columnsList();
 
 	void undo();
@@ -996,7 +984,7 @@ public:
 
 	//! List of tables and matrices renamed in order to avoid conflicts when appending a project to a folder
 	QStringList renamedTables;
-	Graph::MarkerType copiedMarkerType;
+	int copiedMarkerType;
 
 	//! \name variables used when user copy/paste markers
 	//@{
@@ -1037,10 +1025,8 @@ private:
 	//! Stores the pointers to the dragged items from the FolderListViews objects
 	QList<Q3ListViewItem *> draggedItems;
 
-	//! Used when checking for new versions
-	QHttp http;
-	//! Used when checking for new versions
-	QBuffer version_buffer;
+	class Private;
+	Private *d;
 
 	Graph *lastCopiedLayer;
 	QSplitter *explorerSplitter;

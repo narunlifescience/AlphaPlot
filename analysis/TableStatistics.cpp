@@ -28,6 +28,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "TableStatistics.h"
+#include "table/TableView.h"
 
 #include <QList>
 #include <gsl/gsl_vector.h>
@@ -95,7 +96,7 @@ TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base
 	int w=9*(d_table_view->horizontalHeader())->sectionSize(0);
 	int h;
 	if (rowCount()>11)
-		h=11*(d_table_viec->verticalHeader())->sectionSize(0);
+		h=11*(d_table_view->verticalHeader())->sectionSize(0);
 	else
 		h=(rowCount()+1)*(d_table_view->verticalHeader())->sectionSize(0);
 	setGeometry(50,50,w + 45, h + 45);

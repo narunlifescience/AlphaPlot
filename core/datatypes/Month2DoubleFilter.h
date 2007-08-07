@@ -30,7 +30,7 @@
 #ifndef MONTH2DOUBLE_FILTER_H
 #define MONTH2DOUBLE_FILTER_H
 
-#include "AbstractSimpleFilter.h"
+#include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 
 /**

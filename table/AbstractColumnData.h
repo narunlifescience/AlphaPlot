@@ -30,8 +30,8 @@
 #ifndef ABSTRACTCOLUMNDATA_H
 #define ABSTRACTCOLUMNDATA_H
 
-#include "AbstractDataSource.h"
-#include "IntervalAttribute.h"
+#include "core/AbstractDataSource.h"
+#include "lib/IntervalAttribute.h"
 class QString;
 #include <QObject>
 

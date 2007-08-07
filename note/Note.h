@@ -29,8 +29,9 @@
 #ifndef NOTE_H
 #define NOTE_H
 
-#include "MyWidget.h"
-#include "ScriptEdit.h"
+#include "core/MyWidget.h"
+#include "core/ScriptEdit.h"
+
 #include <qtextedit.h>
 
 class ScriptingEnv;

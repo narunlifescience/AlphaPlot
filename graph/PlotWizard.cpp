@@ -27,9 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "PlotWizard.h"
-#include "ApplicationWindow.h"
-#include "Table.h"
-#include "Graph3D.h"
+#include "core/ApplicationWindow.h"
+#include "table/Table.h"
+#include "graph-3D/Graph3D.h"
 
 #include <QApplication>
 #include <QHBoxLayout>

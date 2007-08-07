@@ -32,15 +32,16 @@
 #ifndef MULTILAYER_H
 #define MULTILAYER_H
 
-#include "MyWidget.h"
+#include "../core/MyWidget.h"
+
 #include "Graph.h"
 #include <QPushButton>
-#include <QLayout>
 #include <QPointer>
 
 class QWidget;
 class QLabel;
-class QWidget;
+class QHBoxLayout;
+
 class LayerButton;
 class SelectionMoveResizer;
 

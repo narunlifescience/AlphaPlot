@@ -29,12 +29,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataPickerTool.h"
-#include "Graph.h"
-#include "Plot.h"
-#include "FunctionCurve.h"
-#include "PlotCurve.h"
-#include "QwtErrorPlotCurve.h"
-#include "ApplicationWindow.h"
+#include "../Graph.h"
+#include "../Plot.h"
+#include "../FunctionCurve.h"
+#include "../PlotCurve.h"
+#include "../types/QwtErrorPlotCurve.h"
+#include "core/ApplicationWindow.h"
+#include "table/Table.h"
 
 #include <qwt_symbol.h>
 #include <qwt_plot_picker.h>

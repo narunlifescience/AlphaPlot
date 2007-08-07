@@ -27,7 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "FunctionCurve.h"
-#include "MyParser.h"
+#include "Graph.h"
+#include "core/MyParser.h"
 
 #include <QMessageBox>
 

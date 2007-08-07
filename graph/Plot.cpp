@@ -29,7 +29,7 @@
 #include "Plot.h"
 #include "Graph.h"
 #include "ScaleDraw.h"
-#include "Spectrogram.h"
+#include "types/Spectrogram.h"
 #include "PlotCurve.h"
 
 #include <qwt_plot.h>

@@ -29,7 +29,7 @@
 #ifndef DIFFERENTIATION_FILTER_H
 #define DIFFERENTIATION_FILTER_H
 
-#include "AbstractFilter.h"
+#include "core/AbstractFilter.h"
 #include "TruncationFilter.h"
 
 /**

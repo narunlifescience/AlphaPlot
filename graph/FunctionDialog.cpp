@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "FunctionDialog.h"
-#include "MyParser.h"
-#include "ApplicationWindow.h"
+#include "core/MyParser.h"
+#include "core/ApplicationWindow.h"
 #include "FunctionCurve.h"
 
 #include <QTextEdit>

@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "SurfaceDialog.h"
-#include "MyParser.h"
-#include "ApplicationWindow.h"
+#include "core/MyParser.h"
+#include "core/ApplicationWindow.h"
 
 #include <QMessageBox>
 #include <QLayout>

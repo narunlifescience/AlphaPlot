@@ -33,9 +33,9 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QStringList>
-#include "AbstractDataSource.h"
+#include "core/AbstractDataSource.h"
 #include "AbstractColumnData.h"
-#include "AbstractFilter.h"
+#include "core/AbstractFilter.h"
 #include <QColor>
 class QUndoStack;
 

@@ -27,9 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFT.h"
-#include "MultiLayer.h"
-#include "Plot.h"
-#include "ColorBox.h"
+#include "graph/MultiLayer.h"
+#include "graph/Plot.h"
+#include "lib/ColorBox.h"
+#include "table/Table.h"
 
 #include <QMessageBox>
 #include <QLocale>

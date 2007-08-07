@@ -29,7 +29,7 @@
 #ifndef ARROWMARKER_H
 #define ARROWMARKER_H
 
-#include "PlotEnrichement.h"
+#include "../PlotEnrichement.h"
 
 /*!\brief Draws lines and arrows on a QwtPlot.
  *

@@ -31,7 +31,7 @@
 #define STRINGCOLUMNDATA_H
 
 #include "AbstractColumnData.h"
-#include "AbstractStringDataSource.h"
+#include "core/datatypes/AbstractStringDataSource.h"
 #include <QStringList>
 
 //! Data source that stores a list of strings (implementation)

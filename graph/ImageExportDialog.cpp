@@ -30,7 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ImageExportDialog.h"
-#include "ApplicationWindow.h"
+#include "core/ApplicationWindow.h"
 
 #include <QStackedWidget>
 #include <QImageWriter>
@@ -40,6 +40,8 @@
 #include <QPrinter>
 #include <QLabel>
 #include <QComboBox>
+#include <QCheckBox>
+#include <QCloseEvent>
 
 ImageExportDialog::ImageExportDialog(QWidget * parent, bool vector_options, bool extended, Qt::WFlags flags)
 	: ExtensibleFileDialog( parent, extended, flags )

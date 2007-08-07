@@ -29,7 +29,7 @@
 #ifndef INTEGRATION_H
 #define INTEGRATION_H
 
-#include "Filter.h"
+#include "core/Filter.h"
 
 class Integration : public Filter
 {

@@ -29,9 +29,9 @@
 #ifndef OPEN_PROJECT_DIALOG_H
 #define OPEN_PROJECT_DIALOG_H
 
-#include "ExtensibleFileDialog.h"
+#include "../lib/ExtensibleFileDialog.h"
 
-#include <QComboBox>
+#include<QComboBox>
 
 class OpenProjectDialog : public ExtensibleFileDialog
 {

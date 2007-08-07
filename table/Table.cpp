@@ -37,18 +37,19 @@
 #include <QShortcut>
 #include <QApplication>
 #include <stdlib.h> // for RAND_MAX
+
 #include "TableModel.h"
 #include "TableView.h"
-#include "AbstractDataSource.h"
+#include "tablecommands.h"
+#include "core/AbstractDataSource.h"
 #include "AbstractColumnData.h"
 #include "DoubleColumnData.h"
 #include "StringColumnData.h"
 #include "DateTimeColumnData.h"
-#include "AbstractFilter.h"
-#include "String2DoubleFilter.h"
-#include "Double2StringFilter.h"
-#include "AbstractDateTimeDataSource.h"
-#include "DateTime2StringFilter.h"
+#include "core/AbstractFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/DateTime2StringFilter.h"
 
 #define OBSOLETE qDebug("obsolete Table function called");
 

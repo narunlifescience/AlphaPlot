@@ -31,7 +31,7 @@
 #define STRINGDATASOURCE_H
  
 
-#include "AbstractDataSource.h"
+#include "../AbstractDataSource.h"
 #include <QLocale>
 
 //! Type-specific reading interface for a string data source

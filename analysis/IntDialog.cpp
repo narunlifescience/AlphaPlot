@@ -27,12 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "IntDialog.h"
-#include "MyParser.h"
-#include "Graph.h"
-#include "ApplicationWindow.h"
 #include "Integration.h"
-#include "FunctionCurve.h"
-#include "Differentiation.h"
+#include "core/MyParser.h"
+#include "core/ApplicationWindow.h"
+#include "graph/Graph.h"
+#include "graph/FunctionCurve.h"
 
 #include <QGroupBox>
 #include <QSpinBox>

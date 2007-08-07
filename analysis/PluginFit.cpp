@@ -30,6 +30,7 @@
 
 #include <QLibrary>
 #include <QMessageBox>
+#include <QFile>
 
 	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g)
 : Fit(parent, g)

@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "QwtBarCurve.h"
+#include "../Graph.h"
 #include <QPainter>
 
 QwtBarCurve::QwtBarCurve(BarStyle style, Table *t, const QString& xColName, const char *name, int startRow, int endRow):

@@ -26,8 +26,9 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
+
+#include "../PlotCurve.h"
 #include <qwt_plot.h>
-#include "PlotCurve.h"
 
 //! Pie plot class
 class QwtPieCurve: public DataCurve

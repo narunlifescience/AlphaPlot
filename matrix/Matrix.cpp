@@ -402,7 +402,7 @@ int Matrix::rowCount()
 	return d_table->rowCount();
 }
 
-void Matrix::setNumRows(int rows)
+void Matrix::setRowCount(int rows)
 {
     if (rows != d_table->rowCount()){
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
@@ -417,7 +417,7 @@ int Matrix::columnCount()
 	return d_table->columnCount();
 }
 
-void Matrix::setNumCols(int cols)
+void Matrix::setColumnCount(int cols)
 {
     if (cols != d_table->columnCount()){
         QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));

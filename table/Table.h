@@ -32,14 +32,10 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-class QUndoStack;
-
-#include "MyWidget.h"
-#include "tablecommands.h"
-#include "AbstractDataSource.h"
-#include "AbstractColumnData.h"
-#include "ScriptingEnv.h"
-#include "Script.h"
+#include "core/MyWidget.h"
+#include "core/AbstractDataSource.h"
+#include "core/ScriptingEnv.h"
+#include "core/Script.h"
 class TableView;
 class TableModel;
 class QUndoStack;

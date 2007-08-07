@@ -29,8 +29,10 @@
 #ifndef PLOT3DDIALOG_H
 #define PLOT3DDIALOG_H
 
-#include "Graph3D.h"
+#include <QDialog>
 #include <QCheckBox>
+
+class Graph3D;
 
 class QComboBox;
 class QLabel;
@@ -43,9 +45,8 @@ class QTabWidget;
 class QWidget;
 class QStringList;
 class QStackedWidget;
+class QGroupBox;
 	
-using namespace Qwt3D;
-
 //! Surface plot options dialog
 class Plot3DDialog : public QDialog
 { 

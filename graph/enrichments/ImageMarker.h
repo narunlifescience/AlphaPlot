@@ -29,9 +29,9 @@
 #ifndef IMAGEMARKER_H
 #define IMAGEMARKER_H
 
-#include <qwt_plot.h>
-#include "PlotEnrichement.h"
+#include "../PlotEnrichement.h"
 
+#include <qwt_plot.h>
 #include <QPixmap>
 
 /*!\brief Draw images on a QwtPlot.

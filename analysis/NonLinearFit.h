@@ -29,7 +29,7 @@
 #ifndef NONLINEARFIT_H
 #define NONLINEARFIT_H
 
-#include "Fit.h"
+#include "core/Fit.h"
 
 class NonLinearFit : public Fit
 {

@@ -32,9 +32,9 @@
  ***************************************************************************/
 #include "muParserScript.h"
 #include "muParserScripting.h"
-#include "Table.h"
-#include "Matrix.h"
-#include "Folder.h"
+#include "table/Table.h"
+#include "matrix/Matrix.h"
+#include "core/Folder.h"
 
 #include <QStringList>
 
@@ -120,10 +120,10 @@ double muParserScript::col(const QString &arg)
 	else
 		return 0;
 	rvariables.clear();
-	if (row < 0 || row >= table->numRows())
+	if (row < 0 || row >= table->rowCount())
 		throw Parser::exception_type(tr("There's no row %1 in table %2!").
 				arg(row+1).arg(Context->name()).toAscii().constData());
-	if (col < 0 || col >= table->numCols())
+	if (col < 0 || col >= table->columnCount())
 		throw Parser::exception_type(tr("There's no column %1 in table %2!").
 				arg(col+1).arg(Context->name()).toAscii().constData());
 	if (table->text(row,col).isEmpty())
@@ -179,10 +179,10 @@ double muParserScript::tablecol(const QString &arg)
 	else
 		row = -1;
 	rvariables.clear();
-	if (row < 0 || row >= target_table->numRows())
+	if (row < 0 || row >= target_table->rowCount())
 		throw Parser::exception_type(tr("There's no row %1 in table %2!").
 				arg(row+1).arg(target_table->name()).toAscii().constData());
-	if (col < 0 || col >= target_table->numCols())
+	if (col < 0 || col >= target_table->columnCount())
 		throw Parser::exception_type(tr("There's no column %1 in table %2!").
 				arg(col+1).arg(target_table->name()).toAscii().constData());
 	if (target_table->text(row,col).isEmpty())
@@ -196,10 +196,10 @@ double muParserScript::cell(int row, int col)
 	if (!Context->inherits("Matrix"))
 		throw Parser::exception_type(tr("cell() works only on tables and matrices!").toAscii().constData());
 	Matrix *matrix = (Matrix*) Context;
-	if (row < 1 || row > matrix->numRows())
+	if (row < 1 || row > matrix->rowCount())
 		throw Parser::exception_type(tr("There's no row %1 in matrix %2!").
 				arg(row).arg(Context->objectName()).toAscii().constData());
-	if (col < 1 || col > matrix->numCols())
+	if (col < 1 || col > matrix->columnCount())
 		throw Parser::exception_type(tr("There's no column %1 in matrix %2!").
 				arg(col).arg(Context->objectName()).toAscii().constData());
 	if (matrix->text(row-1,col-1).isEmpty())
@@ -213,10 +213,10 @@ double muParserScript::tableCell(int col, int row)
 	if (!Context->inherits("Table"))
 		throw Parser::exception_type(tr("cell() works only on tables and matrices!").toAscii().constData());
 	Table *table = (Table*) Context;
-	if (row < 1 || row > table->numRows())
+	if (row < 1 || row > table->rowCount())
 		throw Parser::exception_type(tr("There's no row %1 in table %2!").
 				arg(row).arg(Context->objectName()).toAscii().constData());
-	if (col < 1 || col > table->numCols())
+	if (col < 1 || col > table->columnCount())
 		throw Parser::exception_type(tr("There's no column %1 in table %2!").
 				arg(col).arg(Context->objectName()).toAscii().constData());
 	if (table->text(row-1,col-1).isEmpty())

@@ -31,7 +31,7 @@
 #ifndef MULTI_PEAK_FIT_TOOL
 #define MULTI_PEAK_FIT_TOOL
 
-#include "PlotToolInterface.h"
+#include "graph/PlotToolInterface.h"
 #include "MultiPeakFit.h"
 #include <QObject>
 

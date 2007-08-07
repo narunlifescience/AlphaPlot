@@ -33,10 +33,8 @@
 #define MVALUESDIALOG_H
 
 #include <QDialog>
-#include "ScriptingEnv.h" 
-#include "Script.h"
-#include "ScriptEdit.h"
-#include "Matrix.h"
+
+#include "core/Script.h"
 
 class QComboBox;
 class QTextEdit;

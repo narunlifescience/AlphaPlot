@@ -30,6 +30,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "MatrixValuesDialog.h"
+#include "Matrix.h"
+#include "core/ScriptEdit.h"
 
 #include <QLayout>
 #include <QSpinBox>

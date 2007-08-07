@@ -29,7 +29,7 @@
 #ifndef FITDIALOG_H
 #define FITDIALOG_H
 
-#include "Graph.h"
+#include "graph/Graph.h"
 
 class QPushButton;
 class QLineEdit;

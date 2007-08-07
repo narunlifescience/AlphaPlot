@@ -32,14 +32,15 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include "core/MyWidget.h"
+#include "core/Script.h"
+
+#include <qwt_double_rect.h>
+
 #include <QTableWidget>
 #include <QContextMenuEvent>
 #include <QEvent>
 #include <QHeaderView>
-#include "MyWidget.h"
-#include "ScriptingEnv.h"
-#include "Script.h"
-#include <qwt_double_rect.h>
 
 // (maximum) initial matrix size
 #define _Matrix_initial_rows_ 10

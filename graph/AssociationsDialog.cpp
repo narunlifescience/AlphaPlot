@@ -27,11 +27,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "AssociationsDialog.h"
-#include "Table.h"
+#include "table/Table.h"
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
-#include "QwtErrorPlotCurve.h"
-#include "VectorCurve.h"
+#include "Graph.h"
+#include "types/QwtErrorPlotCurve.h"
+#include "types/VectorCurve.h"
 
 #include <QLabel>
 #include <QListWidget>

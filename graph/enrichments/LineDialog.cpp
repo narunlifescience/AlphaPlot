@@ -27,11 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "LineDialog.h"
-#include "ColorButton.h"
+#include "lib/ColorButton.h"
 #include "ArrowMarker.h"
-#include "Graph.h"
-#include "Plot.h"
-#include "ApplicationWindow.h"
+#include "../Graph.h"
+#include "../Plot.h"
+#include "core/ApplicationWindow.h"
 
 #include <qwt_plot.h>
 

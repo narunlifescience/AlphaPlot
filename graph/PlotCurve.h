@@ -30,7 +30,8 @@
 #define PLOTCURVE_H
 
 #include <qwt_plot_curve.h>
-#include "Table.h"
+
+class Table;
 
 //! Abstract 2D plot curve class
 class PlotCurve: public QwtPlotCurve

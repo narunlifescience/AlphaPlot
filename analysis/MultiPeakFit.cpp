@@ -28,9 +28,11 @@
  ***************************************************************************/
 #include "MultiPeakFit.h"
 #include "fit_gsl.h"
-#include "PlotCurve.h"
-#include "FunctionCurve.h"
-#include "ColorBox.h"
+#include "table/Table.h"
+#include "graph/Graph.h"
+#include "graph/PlotCurve.h"
+#include "graph/FunctionCurve.h"
+#include "lib/ColorBox.h"
 
 #include <QLocale>
 #include <QMessageBox>

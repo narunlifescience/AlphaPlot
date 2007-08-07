@@ -28,8 +28,8 @@
  ***************************************************************************/
 #include "Integration.h"
 #include "nrutil.h"
-#include "MultiLayer.h"
-#include "Legend.h"
+#include "graph/MultiLayer.h"
+#include "graph/Legend.h"
 
 #include <QMessageBox>
 #include <QDateTime>

@@ -29,7 +29,7 @@
 #ifndef MULTIPEAKFIT_H
 #define MULTIPEAKFIT_H
 
-#include "Fit.h"
+#include "core/Fit.h"
 
 class MultiPeakFit : public Fit
 {

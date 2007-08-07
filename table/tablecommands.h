@@ -35,11 +35,11 @@
 #include <QModelIndex>
 #include <QItemSelection>
 class TableModel;
-#include "AbstractDataSource.h"
+#include "core/AbstractDataSource.h"
 #include "AbstractColumnData.h"
 #include "StringColumnData.h"
-#include "AbstractFilter.h"
-#include "IntervalAttribute.h"
+#include "core/AbstractFilter.h"
+#include "lib/IntervalAttribute.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableShowCommentsCmd

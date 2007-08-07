@@ -30,7 +30,7 @@
 #ifndef STRING2DAYOFWEEK_FILTER_H
 #define STRING2DAYOFWEEK_FILTER_H
 
-#include "AbstractSimpleFilter.h"
+#include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <math.h>
 

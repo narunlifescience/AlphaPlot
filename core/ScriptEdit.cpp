@@ -30,7 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScriptEdit.h"
-#include "Note.h"
+#include "note/Note.h"
 
 #include <QAction>
 #include <QMenu>
@@ -226,7 +226,7 @@ void ScriptEdit::executeAll()
 	QString fname = "<%1>";
 	fname = fname.arg(name());
 	myScript->setName(fname);
-	myScript->setCode(text());
+	myScript->setCode(toPlainText());
 	printCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
 	myScript->exec();
 }

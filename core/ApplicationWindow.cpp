@@ -31,82 +31,88 @@
  ***************************************************************************/
 #include "globals.h"
 #include "ApplicationWindow.h"
-#include "CurvesDialog.h"
-#include "PlotDialog.h"
-#include "AxesDialog.h"
-#include "LineDialog.h"
-#include "TextDialog.h"
-#include "ExportDialog.h"
-#include "TableDialog.h"
-#include "SetColValuesDialog.h"
-#include "ErrDialog.h"
-#include "Legend.h"
-#include "ArrowMarker.h"
-#include "ImageMarker.h"
-#include "Graph.h"
-#include "Plot.h"
-#include "PlotWizard.h"
-#include "PolynomFitDialog.h"
-#include "ExpDecayDialog.h"
-#include "FunctionDialog.h"
-#include "FitDialog.h"
-#include "SurfaceDialog.h"
-#include "Graph3D.h"
-#include "Plot3DDialog.h"
-#include "ImageDialog.h"
-#include "MultiLayer.h"
-#include "LayerDialog.h"
 #include "DataSetDialog.h"
-#include "IntDialog.h"
 #include "ConfigDialog.h"
-#include "MatrixDialog.h"
-#include "MatrixSizeDialog.h"
-#include "MatrixValuesDialog.h"
-#include "importOPJ.h"
-#include "AssociationsDialog.h"
 #include "RenameWindowDialog.h"
-#include "QwtErrorPlotCurve.h"
-#include "InterpolationDialog.h"
-#include "ImportASCIIDialog.h"
-#include "ImageExportDialog.h"
-#include "SmoothCurveDialog.h"
 #include "FilterDialog.h"
-#include "FFTDialog.h"
-#include "Note.h"
 #include "Folder.h"
 #include "FindDialog.h"
-#include "ScaleDraw.h"
 #include "ScriptingLangDialog.h"
-#include "TableStatistics.h"
 #include "Fit.h"
-#include "MultiPeakFit.h"
-#include "PolynomialFit.h"
-#include "SigmoidalFit.h"
-#include "FunctionCurve.h"
-#include "QwtPieCurve.h"
-#include "Spectrogram.h"
-#include "Integration.h"
-#include "Differentiation.h"
-#include "SmoothFilter.h"
-#include "FFTFilter.h"
-#include "Convolution.h"
-#include "Correlation.h"
 #include "CurveRangeDialog.h"
-#include "ColorBox.h"
-#include "QwtHistogram.h"
 #include "OpenProjectDialog.h"
+#include "FitDialog.h"
 
-// TODO: move tool-specific code to an extension manager
-#include "ScreenPickerTool.h"
-#include "DataPickerTool.h"
-#include "TranslateCurveTool.h"
-#include "MultiPeakFitTool.h"
-#include "LineProfileTool.h"
+#include "../lib/ColorBox.h"
+#include "../lib/TextDialog.h"
+
+#include "../graph/CurvesDialog.h"
+#include "../graph/PlotDialog.h"
+#include "../graph/AxesDialog.h"
+#include "../graph/ErrDialog.h"
+#include "../graph/Legend.h"
+#include "../graph/Plot.h"
+#include "../graph/PlotWizard.h"
+#include "../graph/MultiLayer.h"
+#include "../graph/LayerDialog.h"
+#include "../graph/FunctionDialog.h"
+#include "../graph/AssociationsDialog.h"
+#include "../graph/ImageExportDialog.h"
+#include "../graph/ScaleDraw.h"
+#include "../graph/FunctionCurve.h"
+#include "../graph/types/QwtErrorPlotCurve.h"
+#include "../graph/types/QwtPieCurve.h"
+#include "../graph/types/Spectrogram.h"
+#include "../graph/types/QwtHistogram.h"
+#include "../graph/enrichments/LineDialog.h"
+#include "../graph/enrichments/ArrowMarker.h"
+#include "../graph/enrichments/ImageMarker.h"
+#include "../graph/enrichments/ImageDialog.h"
+#include "../graph/tools/ScreenPickerTool.h"
+#include "../graph/tools/DataPickerTool.h"
+#include "../graph/tools/TranslateCurveTool.h"
+#include "../graph/tools/LineProfileTool.h"
+
+#include "../graph-3D/SurfaceDialog.h"
+#include "../graph-3D/Graph3D.h"
+#include "../graph-3D/Plot3DDialog.h"
+
+#include "../table/TableDialog.h"
+#include "../table/SetColValuesDialog.h"
+#include "../table/ExportDialog.h"
+#include "../table/ImportASCIIDialog.h"
+
+#include "../analysis/PolynomFitDialog.h"
+#include "../analysis/ExpDecayDialog.h"
+#include "../analysis/IntDialog.h"
+#include "../analysis/InterpolationDialog.h"
+#include "../analysis/SmoothCurveDialog.h"
+#include "../analysis/FFTDialog.h"
+#include "../analysis/TableStatistics.h"
+#include "../analysis/MultiPeakFit.h"
+#include "../analysis/PolynomialFit.h"
+#include "../analysis/SigmoidalFit.h"
+#include "../analysis/Integration.h"
+#include "../analysis/Differentiation.h"
+#include "../analysis/SmoothFilter.h"
+#include "../analysis/FFTFilter.h"
+#include "../analysis/Convolution.h"
+#include "../analysis/Correlation.h"
+#include "../analysis/MultiPeakFitTool.h"
+
+#include "../matrix/MatrixDialog.h"
+#include "../matrix/MatrixSizeDialog.h"
+#include "../matrix/MatrixValuesDialog.h"
+
+#include "../origin/importOPJ.h"
+
+#include "../note/Note.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <q3listview.h>
+#include <Q3Header>
 
 #include <QFileDialog>
 #include <QInputDialog>
@@ -139,6 +145,10 @@
 #include <QStatusBar>
 #include <QToolButton>
 #include <QSignalMapper>
+#include <QUndoStack>
+#include <QDesktopServices>
+#include <QHttp>
+#include <QBuffer>
 
 #include <zlib.h>
 
@@ -152,8 +162,18 @@ void file_compress(char  *file, char  *mode);
 void file_uncompress(char  *file);
 }
 
+class ApplicationWindow::Private
+{
+	public:
+
+	//! Used when checking for new versions
+	QHttp http;
+	//! Used when checking for new versions
+	QBuffer version_buffer;
+};
+
 ApplicationWindow::ApplicationWindow()
-: QMainWindow(), scripted(ScriptingLangManager::newEnv(this))
+: QMainWindow(), scripted(ScriptingLangManager::newEnv(this)), d(new Private())
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	init();
@@ -292,7 +312,7 @@ void ApplicationWindow::init()
 	connect(scriptEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	connect(recent, SIGNAL(activated(int)), this, SLOT(openRecentProject(int)));
-	connect(&http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
+	connect(&d->http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
 
 	// this has to be done after connecting scriptEnv
 	scriptEnv->initialize();
@@ -1440,7 +1460,7 @@ void ApplicationWindow::plot3DTrajectory()
 		if (!validFor3DPlot(table))
 			return;
 
-		if(table->selectedColumnsCount() == 1)
+		if(table->selectedColumnCount() == 1)
 			// TODO: Columns should be passed as data source
 			dataPlotXYZ(table, table->colName(table->selectedColumn()), Graph3D::Trajectory);
 		else
@@ -1461,21 +1481,26 @@ void ApplicationWindow::plotPie()
 				tr("You must select exactly one column for plotting!"));
 		return;
 	}
+	// TODO
+	/*
 	if (table->noXColumn())
 	{
 		QMessageBox::critical(0,tr("Error"), tr("Please set a default X column for this table, first!"));
 		return;
 	}
+	*/
 
 	// TODO: rewrite this using data sources
+	/*
 	QStringList s = table->selectedColumnsOld();
 	if (s.count()>0)
 	{
-		Q3TableSelection sel = table->getSelection();
+		QTableSelection sel = table->getSelection();
 		multilayerPlot(table, s, Graph::Pie, sel.topRow(), sel.bottomRow());
 	}
 	else
 		QMessageBox::warning(this, tr("Error"), tr("Please select a column to plot!"));
+	*/
 }
 
 void ApplicationWindow::plotVectXYXY()
@@ -1488,6 +1513,7 @@ void ApplicationWindow::plotVectXYXY()
 	if (!validFor2DPlot(table))
 		return;
 
+	/* TODO: rewrite
 	QStringList s = table->selectedColumnsOld();
 	if (s.count() == 4)
 	{
@@ -1496,6 +1522,7 @@ void ApplicationWindow::plotVectXYXY()
 	}
 	else
 		QMessageBox::warning(this, tr("Error"), tr("Please select four columns for this operation!"));
+	*/
 }
 
 void ApplicationWindow::plotVectXYAM()
@@ -1508,6 +1535,7 @@ void ApplicationWindow::plotVectXYAM()
 	if (!validFor2DPlot(table))
 		return;
 
+	/* TODO: rewrite
 	QStringList s = table->selectedColumnsOld();
 	if (s.count() == 4)
 	{
@@ -1516,6 +1544,7 @@ void ApplicationWindow::plotVectXYAM()
 	}
 	else
 		QMessageBox::warning(this, tr("Error"), tr("Please select four columns for this operation!"));
+	*/
 }
 
 void ApplicationWindow::renameListViewItem(const QString& oldName,const QString& newName)
@@ -1969,7 +1998,7 @@ Graph3D* ApplicationWindow::newPlot3D()
 	return plot;
 }
 
-Graph3D* ApplicationWindow::dataPlotXYZ(Table* table, const QString& zColName, Graph3D::PlotType type)
+Graph3D* ApplicationWindow::dataPlotXYZ(Table* table, const QString& zColName, int type)
 {
 	// TODO: rewrite this
 	/*
@@ -1982,7 +2011,7 @@ Graph3D* ApplicationWindow::dataPlotXYZ(Table* table, const QString& zColName, G
 
 	Graph3D *plot=new Graph3D("", ws,0);
 	plot->setAttribute(Qt::WA_DeleteOnClose);
-	plot->addData(table, xCol, yCol, zCol, type);
+	plot->addData(table, xCol, yCol, zCol, (Graph3D::PlotType)type);
 	plot->resize(500,400);
 	plot->setWindowTitle(label);
 	plot->setName(label);
@@ -2418,7 +2447,8 @@ void ApplicationWindow::customTable(Table* w)
 	w->setTextFont(tableTextFont);
 	w->setHeaderFont(tableHeaderFont);
 	w->showComments(d_show_table_comments);
-	w->setNumericPrecision(d_decimal_digits);
+	// TODO: rewrite
+	//w->setNumericPrecision(d_decimal_digits);
 }
 
 void ApplicationWindow::setPreferences(Graph* g)
@@ -2599,15 +2629,15 @@ void ApplicationWindow::initTable(Table* table, const QString& caption)
 		name = generateUniqueName(tr("Table"));
 
 	current_folder->addWindow(table);
-	w->setFolder(current_folder);
+	table->setFolder(current_folder);
 	ws->addWindow(table);
 
 	connectTable(table);
 	customTable(table);
 
 	tableWindows << name;
-	w->setName(name);
-	w->setIcon( QPixmap(":/worksheet.xpm") );
+	table->setName(name);
+	table->setIcon( QPixmap(":/worksheet.xpm") );
 
 	addListViewItem(table);
 	emit modified();
@@ -3346,7 +3376,8 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 
 	Table* t = app->newTable(fn, app->columnSeparator, 0, true, app->strip_spaces, app->simplify_spaces);
 	t->setCaptionPolicy(MyWidget::Both);
-	app->multilayerPlot(t, t->YColumns(),Graph::LineSymbols);
+	//TODO
+	//app->multilayerPlot(t, t->YColumns(),Graph::LineSymbols);
 	QApplication::restoreOverrideCursor();
 	return 0;
 }
@@ -3385,6 +3416,8 @@ void ApplicationWindow::importASCII()
 void ApplicationWindow::importASCII(const QStringList& files, int import_mode, const QString& local_column_separator, int local_ignored_lines,
 		bool local_rename_columns, bool local_strip_spaces, bool local_simplify_spaces, bool use_custom_locale, QLocale local_separators)
 {
+	// TODO: rewrite / implement missing Table methods
+	/*
 	if (files.isEmpty())
 		return;
 
@@ -3432,9 +3465,8 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 			{
 				Table *t = (Table*) ws->activeWindow();
 				if ( t && t->inherits("Table")){
-					// TODO: implement this method
-//					t->importASCII(files[0], local_column_separator, local_ignored_lines, local_rename_columns,
-//							local_strip_spaces, local_simplify_spaces, false);
+					t->importASCII(files[0], local_column_separator, local_ignored_lines, local_rename_columns,
+							local_strip_spaces, local_simplify_spaces, false);
 					if (use_custom_locale)
 						t->updateDecimalSeparators(local_separators);
 					t->setWindowLabel(files[0]);
@@ -3454,6 +3486,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 				break;
 			}
 	}
+	*/
 }
 
 void ApplicationWindow::open()
@@ -5140,7 +5173,7 @@ bool ApplicationWindow::renameWindow(MyWidget *w, const QString &text)
 	return true;
 }
 
-QStringList ApplicationWindow::columnsList(Table::PlotDesignation plot_type)
+QStringList ApplicationWindow::columnsList(int plot_type)
 {
 	QList<QWidget*> *windows = windowsList();
 	QStringList result;
@@ -5244,6 +5277,8 @@ void ApplicationWindow::showTitleDialog()
 			connect (td,SIGNAL(changeText(const QString &)),g,SLOT(setTitle(const QString &)));
 			connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setTitleColor(const QColor &)));
 			connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setTitleAlignment(int)));
+			connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+					this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 			QwtText t = g->plotWidget()->title();
 			td->setText(t.text());
@@ -5276,6 +5311,8 @@ void ApplicationWindow::showXAxisTitleDialog()
 		connect (td,SIGNAL(changeText(const QString &)),g,SLOT(setXAxisTitle(const QString &)));
 		connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setXAxisTitleColor(const QColor &)));
 		connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setXAxisTitleAlignment(int)));
+		connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+				this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 		QStringList t=g->scalesTitles();
 		td->setText(t[0]);
@@ -5301,6 +5338,8 @@ void ApplicationWindow::showYAxisTitleDialog()
 		connect (td,SIGNAL(changeText(const QString &)),g,SLOT(setYAxisTitle(const QString &)));
 		connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setYAxisTitleColor(const QColor &)));
 		connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setYAxisTitleAlignment(int)));
+		connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+				this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 		QStringList t=g->scalesTitles();
 		td->setText(t[1]);
@@ -5326,6 +5365,8 @@ void ApplicationWindow::showRightAxisTitleDialog()
 		connect (td,SIGNAL(changeText(const QString &)),g,SLOT(setRightAxisTitle(const QString &)));
 		connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setRightAxisTitleColor(const QColor &)));
 		connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setRightAxisTitleAlignment(int)));
+		connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+				this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 		QStringList t=g->scalesTitles();
 		td->setText(t[3]);
@@ -5351,6 +5392,8 @@ void ApplicationWindow::showTopAxisTitleDialog()
 		connect (td,SIGNAL(changeText(const QString &)),g,SLOT(setTopAxisTitle(const QString &)));
 		connect (td,SIGNAL(changeColor(const QColor &)),g,SLOT(setTopAxisTitleColor(const QColor &)));
 		connect (td,SIGNAL(changeAlignment(int)),g,SLOT(setTopAxisTitleAlignment(int)));
+		connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+				this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 		QStringList t=g->scalesTitles();
 		td->setText(t[2]);
@@ -5557,7 +5600,7 @@ void ApplicationWindow::normalizeActiveTable()
 	Table* w = (Table*)ws->activeWindow();
 	if ( w && tableWindows.contains(w->name()))
 	{
-		if (int(w->selectedColumnsCount())>0)
+		if (int(w->selectedColumnCount())>0)
 			w->normalize();
 		else
 			QMessageBox::warning(this, tr("Column selection error"), tr("Please select a column first!"));
@@ -5572,7 +5615,7 @@ void ApplicationWindow::normalizeSelection()
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("Table"))
 		return;
 
-	if (int(((Table*)ws->activeWindow())->selectedColumnsCount())>0)
+	if (int(((Table*)ws->activeWindow())->selectedColumnCount())>0)
 		((Table*)ws->activeWindow())->normalizeSelection();
 	else
 		QMessageBox::warning(this, tr("Column selection error"), tr("Please select a column first!"));
@@ -5693,7 +5736,7 @@ void ApplicationWindow::showRowStatistics()
 		return;
 	Table *t = (Table*)ws->activeWindow();
 
-	if (t->numSelectedRows() > 0)
+	if (t->selectedRowCount() > 0)
 	{
 		QList<int> targets;
 		for (int i=0; i < t->rowCount(); i++)
@@ -5725,7 +5768,7 @@ void ApplicationWindow::showColMenu(int c)
 	QMenu stat(this);
 	QMenu norm(this);
 
-	if (w->selectedColumnsCount() == 1)
+	if (table->selectedColumnCount() == 1)
 	{
 		// TODO: implement support for extended selection plotting
 		//table->setSelectedCol(c);
@@ -5820,8 +5863,8 @@ void ApplicationWindow::showColMenu(int c)
 			contextMenu.addAction(tr("&Add Column"), table, SLOT(addCol()));
 			contextMenu.addSeparator();
 
-			sorting.addAction(tr("&Ascending"),w, SLOT(sortColAsc()));
-			sorting.addAction(tr("&Descending"),w, SLOT(sortColDesc()));
+			sorting.addAction(tr("&Ascending"), table, SLOT(sortColAsc()));
+			sorting.addAction(tr("&Descending"), table, SLOT(sortColDesc()));
 			sorting.setTitle(tr("Sort Colu&mn"));
 			contextMenu.addMenu(&sorting);
 
@@ -7312,6 +7355,8 @@ void ApplicationWindow::showTextDialog()
 		td->setAttribute(Qt::WA_DeleteOnClose);
 		connect (td,SIGNAL(values(const QString&,int,int,const QFont&, const QColor&, const QColor&)),
 				g,SLOT(updateTextMarker(const QString&,int,int,const QFont&, const QColor&, const QColor&)));
+		connect(td, SIGNAL(defaultValues(int,const QFont&,const QColor&,const QColor&)),
+				this, SLOT(setLegendDefaultSettings(int,const QFont&,const QColor&,const QColor&)));
 
 		td->setIcon(QPixmap(":/appicon"));
 		td->setText(m->text());
@@ -7577,7 +7622,8 @@ MyWidget* ApplicationWindow::clone(MyWidget* w)
     	nw = newTable(caption, t->rowCount(), t->columnCount());
     	((Table *)nw)->copy(t);
     	QString spec = t->saveToString("geometry\n");
-    	((Table *)nw)->setSpecifications(spec.replace(t->name(), caption));
+		// TODO: rewrite
+    	//((Table *)nw)->setSpecifications(spec.replace(t->name(), caption));
 	} else if (w->inherits("Graph3D")){
 		Graph3D *g = (Graph3D *)w;
 		if (!g->hasData()){
@@ -8645,7 +8691,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 			showColMenu(t->firstSelectedColumn());
 			return;
 		}
-		else if (t->numSelectedRows() == 1)
+		else if (t->selectedRowCount() == 1)
 		{
 			cm.addAction(actionShowColumnValuesDialog);
 			cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
@@ -8659,7 +8705,7 @@ void ApplicationWindow::showTableContextMenu(bool selection)
 			cm.addSeparator();
 			cm.addAction(actionShowRowStatistics);
 		}
-		else if (t->numSelectedRows() > 1)
+		else if (t->selectedRowCount() > 1)
 		{
 			cm.addAction(actionShowColumnValuesDialog);
 			cm.insertItem(QPixmap(":/cut.xpm"),tr("Cu&t"), t, SLOT(cutSelection()));
@@ -12075,7 +12121,7 @@ MultiLayer* ApplicationWindow::plotColorMap(Matrix *m)
 	return plotSpectrogram(m, Graph::ColorMap);
 }
 
-MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
+MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, int type)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
@@ -12083,7 +12129,7 @@ MultiLayer* ApplicationWindow::plotSpectrogram(Matrix *m, Graph::CurveType type)
 	Graph* plot = g->addLayer();
 	setPreferences(plot);
 
-	plot->plotSpectrogram(m, type);
+	plot->plotSpectrogram(m, (Graph::CurveType)type);
 	g->showNormal();
 
 	emit modified();
@@ -13841,9 +13887,9 @@ void ApplicationWindow::searchForUpdates()
 
     if (choice == QMessageBox::Yes)
     {
-        version_buffer.open(IO_WriteOnly);
-        http.setHost("scidavis.sourceforge.net");
-        http.get("/current_version.txt", &version_buffer);
+        d->version_buffer.open(IO_WriteOnly);
+        d->http.setHost("scidavis.sourceforge.net");
+        d->http.get("/current_version.txt", &d->version_buffer);
     }
 }
 
@@ -13852,18 +13898,18 @@ void ApplicationWindow::receivedVersionFile(bool error)
 	if (error)
 	{
 		QMessageBox::warning(this, tr("HTTP get version file"),
-				tr("Error while fetching version file with HTTP: %1.").arg(http.errorString()));
+				tr("Error while fetching version file with HTTP: %1.").arg(d->http.errorString()));
 		return;
 	}
 
-	version_buffer.close();
+	d->version_buffer.close();
 
-	if (version_buffer.open(IO_ReadOnly))
+	if (d->version_buffer.open(IO_ReadOnly))
 	{
-		QTextStream t( &version_buffer );
+		QTextStream t( &d->version_buffer );
 		t.setEncoding(QTextStream::UnicodeUTF8);
 		QString version_line = t.readLine();
-		version_buffer.close();
+		d->version_buffer.close();
 
 		QStringList list = version_line.split(".");
 		if(list.count() > 2)
@@ -14007,6 +14053,7 @@ ApplicationWindow::~ApplicationWindow()
 
 	delete hiddenWindows;
 	delete outWindows;
+	delete d;
 
 	QApplication::clipboard()->clear(QClipboard::Clipboard);
 }
@@ -14215,6 +14262,8 @@ bool ApplicationWindow::validFor3DPlot(Table *table)
 		QMessageBox::critical(0,tr("Error"),tr("Please select a Z column for this operation!"));
 		return false;
 	}
+	// TODO
+	/*
 	if (table->noXColumn())
 	{
 		QMessageBox::critical(0,tr("Error"),tr("You need to define a X column first!"));
@@ -14225,11 +14274,14 @@ bool ApplicationWindow::validFor3DPlot(Table *table)
 		QMessageBox::critical(0,tr("Error"),tr("You need to define a Y column first!"));
 		return false;
 	}
+	*/
 	return true;
 }
 
 bool ApplicationWindow::validFor2DPlot(Table *table)
 {
+	// TODO
+	/*
 	if (!table->selectedYColumns().count())
   	{
   		QMessageBox::warning(this, tr("Error"), tr("Please select a Y column to plot!"));
@@ -14245,6 +14297,7 @@ bool ApplicationWindow::validFor2DPlot(Table *table)
 		QMessageBox::critical(this, tr("Error"), tr("Please set a default X column for this table, first!"));
 		return false;
 	}
+	*/
 
 	return true;
 }
@@ -14254,11 +14307,13 @@ void ApplicationWindow::selectPlotType(int type)
 	if (!ws->activeWindow())
 		return;
 
+	/* TODO: rewrite
 	Table *table = qobject_cast<Table *>(ws->activeWindow());
 	if (table && validFor2DPlot(table)) {
 		Q3TableSelection sel = table->getSelection();
 		multilayerPlot(table, table->drawableColumnSelection(), (Graph::CurveType)type, sel.topRow(), sel.bottomRow());
 	}
+	*/
 
 	MultiLayer *ml = qobject_cast<MultiLayer*>(ws->activeWindow());
 	if (ml) {

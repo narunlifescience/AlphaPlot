@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "MatrixSizeDialog.h"
-#include "MyParser.h"
+#include "core/MyParser.h"
 
 #include <QPushButton>
 #include <QLabel>

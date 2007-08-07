@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "NonLinearFit.h"
-#include "MyParser.h"
+#include "core/MyParser.h"
 #include "fit_gsl.h"
 
 #include <QMessageBox>

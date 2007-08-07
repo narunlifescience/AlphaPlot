@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "LayerDialog.h"
-#include "ApplicationWindow.h"
+#include "core/ApplicationWindow.h"
 
 #include <QLayout>
 #include <QSpinBox>

@@ -28,11 +28,11 @@
  ***************************************************************************/
 #include "ConfigDialog.h"
 #include "ApplicationWindow.h"
-#include "MultiLayer.h"
-#include "Graph.h"
-#include "Matrix.h"
-#include "ColorButton.h"
-#include "ColorBox.h"
+#include "lib/ColorButton.h"
+#include "lib/ColorBox.h"
+#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
+#include "matrix/Matrix.h"
 
 #include <QLocale>
 #include <QPushButton>
@@ -1106,9 +1106,11 @@ void ConfigDialog::apply()
         if (boxUpdateSeparators->isChecked()){
             QList<QWidget*> *lst = app->windowsList();
             foreach(QWidget *w, *lst){
+					// TODO
+					/*
                 if(w->inherits("Table"))
                     ((Table *)w)->updateDecimalSeparators();
-                else if(w->inherits("Matrix"))
+                else */ if(w->inherits("Matrix"))
                     ((Matrix *)w)->updateDecimalSeparators();
             }
             delete lst;

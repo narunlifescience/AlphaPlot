@@ -32,7 +32,7 @@
 #include "StringColumnData.h"
 #include "DoubleColumnData.h"
 #include "DateTimeColumnData.h"
-#include "Interval.h"
+#include "lib/Interval.h"
 #include <QObject>
 #include <QtDebug>
 

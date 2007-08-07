@@ -35,12 +35,12 @@
 #include "StringColumnData.h"
 #include "DoubleColumnData.h"
 #include "DateTimeColumnData.h"
-#include "AbstractFilter.h"
-#include "CopyThroughFilter.h"
-#include "Double2StringFilter.h"
-#include "String2DoubleFilter.h"
-#include "DateTime2StringFilter.h"
-#include "String2DateTimeFilter.h"
+#include "core/AbstractFilter.h"
+#include "core/CopyThroughFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
 
 #include <QKeyEvent>
 #include <QtDebug>

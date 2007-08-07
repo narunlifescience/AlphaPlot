@@ -30,7 +30,7 @@
 #ifndef DOUBLE2DATE_TIME_FILTER_H
 #define DOUBLE2DATE_TIME_FILTER_H
 
-#include "AbstractSimpleFilter.h"
+#include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <QDate>
 #include <QTime>

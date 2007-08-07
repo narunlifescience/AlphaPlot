@@ -28,8 +28,12 @@
  ***************************************************************************/
 #include "PlotCurve.h"
 #include "ScaleDraw.h"
+#include "Graph.h"
+#include "table/Table.h"
+
 #include <QDateTime>
 #include <QMessageBox>
+#include <QVarLengthArray>
 #include <qwt_symbol.h>
 
 DataCurve::DataCurve(Table *t, const QString& xColName, const char *name, int startRow, int endRow):

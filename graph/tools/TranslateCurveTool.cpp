@@ -29,12 +29,14 @@
  *                                                                         *
  ***************************************************************************/
 #include "TranslateCurveTool.h"
-#include "Graph.h"
-#include "PlotCurve.h"
-#include "FunctionCurve.h"
-#include "ApplicationWindow.h"
 #include "DataPickerTool.h"
 #include "ScreenPickerTool.h"
+#include "../Graph.h"
+#include "../PlotCurve.h"
+#include "../FunctionCurve.h"
+#include "core/ApplicationWindow.h"
+#include "table/Table.h"
+
 #include <QMessageBox>
 #include <QLocale>
 #include <qwt_plot_curve.h>

@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "PolynomFitDialog.h"
-#include "Graph.h"
-#include "ColorBox.h"
-#include "ApplicationWindow.h"
 #include "PolynomialFit.h"
+#include "graph/Graph.h"
+#include "lib/ColorBox.h"
+#include "core/ApplicationWindow.h"
 
 #include <QSpinBox>
 #include <QCheckBox>

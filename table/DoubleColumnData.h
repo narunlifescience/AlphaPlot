@@ -31,7 +31,7 @@
 #define DOUBLECOLUMNDATA_H
 
 #include "AbstractColumnData.h"
-#include "AbstractDoubleDataSource.h"
+#include "core/datatypes/AbstractDoubleDataSource.h"
 #include <QVector>
 
 //! Data source that stores a vector of doubles (implementation)

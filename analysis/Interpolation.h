@@ -29,7 +29,7 @@
 #ifndef INTERPOLATION_H
 #define INTERPOLATION_H
 
-#include "Filter.h"
+#include "core/Filter.h"
 
 class QwtPlotCurve;
 class Interpolation : public Filter

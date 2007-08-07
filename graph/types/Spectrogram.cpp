@@ -32,6 +32,7 @@
 #include <qmessagebox.h>
 
 #include <qwt_scale_widget.h>
+#include <qwt_plot.h>
 
 Spectrogram::Spectrogram():
 	QwtPlotSpectrogram(),

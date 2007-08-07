@@ -27,6 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "BoxCurve.h"
+#include "../Graph.h"
+#include "table/Table.h"
+
 #include <QPainter>
 #include <QLocale>
 

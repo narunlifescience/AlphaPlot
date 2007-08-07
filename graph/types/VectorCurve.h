@@ -29,7 +29,7 @@
 #ifndef VECTORCURVE_H
 #define VECTORCURVE_H
 
-#include "PlotCurve.h"
+#include "../PlotCurve.h"
 #include <qwt_plot.h>
 
 class QwtPlot;

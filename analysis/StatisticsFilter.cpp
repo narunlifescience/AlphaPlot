@@ -78,7 +78,7 @@ void StatisticsFilter::inputDataChanged(int port)
 {
 	if (port >= d_s.size()) d_s.resize(port+1);
 	Statistics *s = &d_s[port];
-	QList< Interval<int> > valid_intervals = Interval<int>(0,d_inputs.at(port)->numRows()-1) - d_inputs.at(port)->invalidIntervals();
+	QList< Interval<int> > valid_intervals = Interval<int>(0,d_inputs.at(port)->rowCount()-1) - d_inputs.at(port)->invalidIntervals();
 	if (valid_intervals.isEmpty()) {
 		s->first_valid_row = -1;
 		return;

@@ -29,7 +29,7 @@
 #ifndef EXPONENTIALFIT_H
 #define EXPONENTIALFIT_H
 
-#include "Fit.h"
+#include "core/Fit.h"
 
 class ExponentialFit : public Fit
 {

@@ -30,9 +30,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "LineProfileTool.h"
-#include "ImageMarker.h"
-#include "ArrowMarker.h"
-#include "Graph.h"
+#include "../Graph.h"
+#include "../enrichments/ImageMarker.h"
+#include "../enrichments/ArrowMarker.h"
 
 #include <QPoint>
 #include <QImage>

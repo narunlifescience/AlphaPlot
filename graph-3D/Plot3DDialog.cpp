@@ -27,9 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "Plot3DDialog.h"
-#include "TextDialog.h"
-#include "MyParser.h"
-#include "SymbolDialog.h"
+#include "Graph3D.h"
+#include "lib/TextDialog.h"
+#include "lib/SymbolDialog.h"
+#include "core/MyParser.h"
 
 #include <QListWidget>
 #include <QLineEdit>

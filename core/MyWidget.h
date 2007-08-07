@@ -37,6 +37,7 @@ class QEvent;
 class QCloseEvent;
 class QString;
 class Folder;
+class QUndoStack;
 
 /**
  * \brief Base class of all MDI client windows.
@@ -139,6 +140,9 @@ public:
 	void setNormal();
 	void setMinimized();
 	void setMaximized();
+
+	//! Return a pointer to the undo stack
+	virtual QUndoStack *undoStack() const { return 0; }
 
 signals:
 	//! Emitted when the window was closed

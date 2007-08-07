@@ -31,7 +31,7 @@
 #ifndef TRANSLATE_CURVE_TOOL_H
 #define TRANSLATE_CURVE_TOOL_H
 
-#include "PlotToolInterface.h"
+#include "../PlotToolInterface.h"
 #include <QObject>
 #include <qwt_double_rect.h>
 

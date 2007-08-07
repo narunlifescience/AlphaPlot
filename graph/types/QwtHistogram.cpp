@@ -27,8 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 #include "QwtHistogram.h"
+#include "table/Table.h"
+
 #include <QPainter>
 #include <QLocale>
+#include <QVarLengthArray>
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_histogram.h>

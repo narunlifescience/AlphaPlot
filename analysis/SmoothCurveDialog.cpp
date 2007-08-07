@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "SmoothCurveDialog.h"
-#include "Graph.h"
-#include "MyParser.h"
-#include "ColorBox.h"
 #include "SmoothFilter.h"
+#include "graph/Graph.h"
+#include "core/MyParser.h"
+#include "lib/ColorBox.h"
 
 #include <QGroupBox>
 #include <QSpinBox>

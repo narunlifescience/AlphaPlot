@@ -27,10 +27,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "Convolution.h"
-#include "MultiLayer.h"
-#include "Plot.h"
-#include "PlotCurve.h"
-#include "ColorBox.h"
+#include "graph/MultiLayer.h"
+#include "graph/Plot.h"
+#include "graph/PlotCurve.h"
+#include "lib/ColorBox.h"
+#include "core/AbstractDataSource.h"
+#include "table/Table.h"
 
 #include <QMessageBox>
 #include <QLocale>
@@ -153,7 +155,7 @@ void Convolution::addResultCurve()
 
 	d_table->setColName(cols, tr("Index") + id);
 	d_table->setColName(cols2, label);
-	d_table->setColPlotDesignation(cols, AbstractColumnData::X);
+	d_table->setColPlotDesignation(cols, AbstractDataSource::X);
 	// TODO
 	//d_table->setHeaderColType();
 

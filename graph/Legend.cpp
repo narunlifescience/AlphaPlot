@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "Legend.h"
-#include "QwtPieCurve.h"
-#include "VectorCurve.h"
+#include "types/QwtPieCurve.h"
+#include "types/VectorCurve.h"
 
 #include <QPainter>
 #include <QPolygon>

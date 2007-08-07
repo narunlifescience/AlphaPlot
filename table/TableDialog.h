@@ -29,7 +29,7 @@
 #ifndef TABLEDIALOG_H
 #define TABLEDIALOG_H
 
-#include "Table.h"
+#include <QDialog>
 
 class QPushButton;
 class QLineEdit;
@@ -38,6 +38,7 @@ class QComboBox;
 class QLabel;
 class QTextEdit;
 class QSpinBox;
+class Table;
 
 //! Column options dialog
 class TableDialog : public QDialog

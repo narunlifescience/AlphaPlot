@@ -29,8 +29,7 @@
 #ifndef ERRORBARS_H
 #define ERRORBARS_H
 
-#include "PlotCurve.h"
-#include <qwt_plot.h>
+#include "../PlotCurve.h"
 
 //! Error bars curve
 class QwtErrorPlotCurve: public DataCurve

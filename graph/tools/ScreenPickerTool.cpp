@@ -29,8 +29,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScreenPickerTool.h"
-#include "Graph.h"
-#include "Plot.h"
+#include "../Graph.h"
+#include "../Plot.h"
 #include <qwt_symbol.h>
 
 ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, const char *status_slot)

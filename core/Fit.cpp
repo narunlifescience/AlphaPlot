@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "Fit.h"
-#include "fit_gsl.h"
-#include "Table.h"
-#include "Matrix.h"
-#include "QwtErrorPlotCurve.h"
-#include "Legend.h"
-#include "FunctionCurve.h"
-#include "ColorBox.h"
+#include "lib/ColorBox.h"
+#include "analysis/fit_gsl.h"
+#include "table/Table.h"
+#include "matrix/Matrix.h"
+#include "graph/types/QwtErrorPlotCurve.h"
+#include "graph/Legend.h"
+#include "graph/FunctionCurve.h"
 
 #include <gsl/gsl_statistics.h>
 #include <gsl/gsl_blas.h>

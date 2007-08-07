@@ -31,7 +31,7 @@
 #ifndef RANGE_SELECTOR_TOOL_H
 #define RANGE_SELECTOR_TOOL_H
 
-#include "PlotToolInterface.h"
+#include "../PlotToolInterface.h"
 #include <qwt_double_rect.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_picker.h>

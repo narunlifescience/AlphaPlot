@@ -29,7 +29,7 @@
 #ifndef SMOOTHFILTER_H
 #define SMOOTHFILTER_H
 
-#include "Filter.h"
+#include "core/Filter.h"
 
 class SmoothFilter : public Filter
 {

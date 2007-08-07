@@ -37,8 +37,8 @@
 #include <qwt_plot_canvas.h>
 
 #include "Legend.h"
-#include "ArrowMarker.h"
-#include "ImageMarker.h"
+#include "enrichments/ArrowMarker.h"
+#include "enrichments/ImageMarker.h"
 #include "PlotEnrichement.h"
 
 SelectionMoveResizer::SelectionMoveResizer(Legend *target)

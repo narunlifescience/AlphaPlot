@@ -27,10 +27,10 @@
  *                                                                         *
  ***************************************************************************/
 #include "FilterDialog.h"
-#include "Graph.h"
 #include "MyParser.h"
-#include "ColorBox.h"
-#include "FFTFilter.h"
+#include "lib/ColorBox.h"
+#include "analysis/FFTFilter.h"
+#include "graph/Graph.h"
 
 #include <QGroupBox>
 #include <QCheckBox>

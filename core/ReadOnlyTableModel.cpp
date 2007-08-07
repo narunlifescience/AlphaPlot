@@ -30,10 +30,10 @@
  ***************************************************************************/
 
 #include "ReadOnlyTableModel.h"
-#include "AbstractStringDataSource.h"
 #include "CopyThroughFilter.h"
-#include "Double2StringFilter.h"
-#include "DateTime2StringFilter.h"
+#include "datatypes/AbstractStringDataSource.h"
+#include "datatypes/Double2StringFilter.h"
+#include "datatypes/DateTime2StringFilter.h"
 
 ReadOnlyTableModel::~ReadOnlyTableModel()
 {

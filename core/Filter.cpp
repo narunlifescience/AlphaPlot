@@ -27,11 +27,12 @@
  *                                                                         *
  ***************************************************************************/
 #include "Filter.h"
-#include "Legend.h"
-#include "ColorBox.h"
-#include "Table.h"
-#include "FunctionCurve.h"
-#include "PlotCurve.h"
+#include "lib/ColorBox.h"
+
+#include "graph/Legend.h"
+#include "table/Table.h"
+#include "graph/FunctionCurve.h"
+#include "graph/PlotCurve.h"
 
 #include <QApplication>
 #include <QMessageBox>

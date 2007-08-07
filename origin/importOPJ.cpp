@@ -29,16 +29,18 @@
 #include "importOPJ.h"
 #include <OPJFile.h>
 
+#include "matrix/Matrix.h"
+#include "lib/ColorBox.h"
+#include "graph/MultiLayer.h"
+#include "note/Note.h"
+#include "graph/types/QwtHistogram.h"
+#include "table/Table.h"
+
 #include <QRegExp>
 #include <QMessageBox>
 #include <QDockWidget>
 #include <QLocale>
 #include <QDate>
-#include "Matrix.h"
-#include "ColorBox.h"
-#include "MultiLayer.h"
-#include "Note.h"
-#include "QwtHistogram.h"
 
 #define OBJECTXOFFSET 200
 
@@ -142,7 +144,8 @@ bool ImportOPJ::importTables(OPJFile opj)
 				else// label? doesn't seem to work
 					table->setText(i, j, QString((char*)opj.oData(s,j,i)));
 			}
-            table->saveToMemory(d_cells);
+			//TODO: do we really need this?
+            //table->saveToMemory(d_cells);
 
 			QString format;
 			switch(opj.colValueType(s,j))
@@ -294,7 +297,8 @@ bool ImportOPJ::importTables(OPJFile opj)
 				table->setDayFormat(format, j);
 				break;
 			}
-            table->freeMemory();
+			// TODO: do we really need this?
+            //table->freeMemory();
 
 			/*for (int i=0; i<opj.numRows(s,j); i++)
 			{

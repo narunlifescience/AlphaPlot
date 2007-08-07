@@ -32,7 +32,7 @@
 #ifndef LINE_PROFILE_TOOL_H
 #define LINE_PROFILE_TOOL_H
 
-#include "PlotToolInterface.h"
+#include "../PlotToolInterface.h"
 
 #include <QWidget>
 

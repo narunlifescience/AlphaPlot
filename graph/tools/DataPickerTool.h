@@ -31,7 +31,7 @@
 #ifndef DATA_PICKER_TOOL_H
 #define DATA_PICKER_TOOL_H
 
-#include "PlotToolInterface.h"
+#include "../PlotToolInterface.h"
 #include <qwt_plot_marker.h>
 #include <qwt_plot_picker.h>
 

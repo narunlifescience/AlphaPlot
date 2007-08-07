@@ -33,12 +33,9 @@
 #ifndef MUPARSER_SCRIPT_H
 #define MUPARSER_SCRIPT_H
 
-#include "ScriptingEnv.h" 
-#include "Script.h"
+#include "core/Script.h"
 
 #include <muParser.h>
-#include "math.h"
-#include <gsl/gsl_sf.h>
 #include <q3asciidict.h>
 
 //! TODO

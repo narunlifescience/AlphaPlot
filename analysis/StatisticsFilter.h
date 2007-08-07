@@ -29,9 +29,9 @@
 #ifndef STATISTICS_FILTER_H
 #define STATISTICS_FILTER_H
 
-#include "AbstractFilter.h"
-#include "AbstractDoubleDataSource.h"
-#include "AbstractStringDataSource.h"
+#include "core/AbstractFilter.h"
+#include "core/datatypes/AbstractDoubleDataSource.h"
+#include "core/datatypes/AbstractStringDataSource.h"
 
 /**
  * \brief Computes standard statistics on any number of inputs.

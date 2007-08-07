@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "AxesDialog.h"
-#include "TextDialog.h"
-#include "ColorBox.h"
+#include "lib/TextDialog.h"
+#include "lib/ColorBox.h"
 #include "Graph.h"
 #include "Plot.h"
-#include "MyParser.h"
-#include "ColorButton.h"
-#include "TextFormatButtons.h"
+#include "core/MyParser.h"
+#include "lib/ColorButton.h"
+#include "lib/TextFormatButtons.h"
 
 #include <QColorDialog>
 #include <QCheckBox>

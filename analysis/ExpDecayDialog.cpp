@@ -27,10 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "ExpDecayDialog.h"
-#include "Graph.h"
-#include "ColorBox.h"
-#include "ApplicationWindow.h"
-#include "Fit.h"
+#include "graph/Graph.h"
+#include "lib/ColorBox.h"
+#include "core/ApplicationWindow.h"
 #include "ExponentialFit.h"
 
 #include <QMessageBox>
@@ -41,8 +40,8 @@
 #include <QLineEdit>
 #include <QComboBox>
 
-	ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, Qt::WFlags fl )
-: QDialog( parent, fl )
+ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, Qt::WFlags fl )
+	: QDialog( parent, fl )
 {
 	slopes = type;
 

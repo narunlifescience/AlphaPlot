@@ -21,9 +21,9 @@ win32: documentation.path = $$INSTALLBASE/doc
 
 ### (remark: muparser.pri and python.pri must be included after defining INSTALLBASE )
 ### building without muParser does not work yet (but will in a future version)
-include( muparser.pri )
+include( muparser/muparser.pri )
 ### remove the comment char "#" from the following line to activate Python scripting support
-#include( python.pri )
+#include( python/python.pri )
 
 linux-g++-64: libsuff = 64
 
@@ -41,11 +41,11 @@ linux-g++-64: libsuff = 64
 ### are compiled against Qt4), dynamically against everything else.
 #############################################################################
 
-unix:INCLUDEPATH  += ../3rdparty/qwtplot3d/include
-unix:LIBS         += ../3rdparty/qwtplot3d/lib/libqwtplot3d.a
+unix:INCLUDEPATH  += 3rdparty/qwtplot3d/include
+unix:LIBS         += 3rdparty/qwtplot3d/lib/libqwtplot3d.a
 
-unix:INCLUDEPATH  += ../3rdparty/qwt/src
-unix:LIBS         += ../3rdparty/qwt/lib/libqwt.a
+unix:INCLUDEPATH  += 3rdparty/qwt/src
+unix:LIBS         += 3rdparty/qwt/lib/libqwt.a
 
 unix:LIBS         += -L /usr/lib$${libsuff}
 unix:LIBS         += -lgsl -lgslcblas -lz -lmuparser

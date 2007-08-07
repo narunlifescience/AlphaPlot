@@ -29,7 +29,7 @@
 #ifndef DOUBLE2STRING_FILTER_H
 #define DOUBLE2STRING_FILTER_H
 
-#include "AbstractSimpleFilter.h"
+#include "../AbstractSimpleFilter.h"
 #include <QLocale>
 
 //! Locale-aware conversion filter double -> QString.

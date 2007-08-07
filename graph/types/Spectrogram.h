@@ -29,11 +29,11 @@
 #ifndef SPECTROGRAM_H
 #define SPECTROGRAM_H
 
-#include "Matrix.h"
 #include <qwt_raster_data.h>
-#include <qwt_plot.h>
 #include <qwt_plot_spectrogram.h>
 #include <qwt_color_map.h>
+
+#include "matrix/Matrix.h"
 
 class MatrixData;
 

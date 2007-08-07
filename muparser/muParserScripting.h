@@ -33,14 +33,11 @@
 #ifndef MUPARSER_SCRIPTING_H
 #define MUPARSER_SCRIPTING_H
 
-#include "ScriptingEnv.h"
-#include "Script.h"
+#include "core/ScriptingEnv.h"
 #include "muParserScript.h"
 
-#include <muParser.h>
 #include "math.h"
 #include <gsl/gsl_sf.h>
-#include <q3asciidict.h>
 
 //! TODO
 class muParserScripting: public ScriptingEnv

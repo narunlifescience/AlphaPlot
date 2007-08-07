@@ -26,7 +26,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ColorMapEditor.h"
-#include "ColorButton.h"
+#include "lib/ColorButton.h"
 
 #include <QPushButton>
 #include <QTableWidget>

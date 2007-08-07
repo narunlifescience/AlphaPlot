@@ -31,15 +31,15 @@
 #ifndef IMAGEEXPORTDIALOG_H
 #define IMAGEEXPORTDIALOG_H
 
-#include "ExtensibleFileDialog.h"
+#include "lib/ExtensibleFileDialog.h"
 
 #include <QSpinBox>
 #include <QCheckBox>
-#include <QComboBox>
 #include <QPrinter>
 
 class QStackedWidget;
 class QGroupBox;
+class QComboBox;
 
 //! QFileDialog extended with options for image export
 class ImageExportDialog: public ExtensibleFileDialog

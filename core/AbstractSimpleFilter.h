@@ -31,10 +31,10 @@
 #define ABSTRACT_SIMPLE_FILTER
 
 #include "AbstractFilter.h"
-#include "AbstractDoubleDataSource.h"
-#include "AbstractStringDataSource.h"
-#include "AbstractDateTimeDataSource.h"
-#include "IntervalAttribute.h"
+#include "datatypes/AbstractDoubleDataSource.h"
+#include "datatypes/AbstractStringDataSource.h"
+#include "datatypes/AbstractDateTimeDataSource.h"
+#include "lib/IntervalAttribute.h"
 
 template<class T> class AbstractDataSourceTemplate {};
 template<> class AbstractDataSourceTemplate<double> : public AbstractDoubleDataSource {};

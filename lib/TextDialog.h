@@ -37,9 +37,8 @@ class QTextCursor;
 class QComboBox;
 class QLabel;
 class QSpinBox;
-	
-#include "ColorButton.h"
-#include "TextFormatButtons.h"
+class ColorButton;
+class TextFormatButtons;
 
 //! Options dialog for text labels/axes labels
 class TextDialog : public QDialog
@@ -123,6 +122,14 @@ signals:
 	 * \param backgroundColor the backgroundcolor
 	 */
 	void values(const QString& text, int angle, int bkg, const QFont& fnt, const QColor& textColor, const QColor& backgroundColor);
+	//! The style settings are to be remembered as defaults.
+	/**
+	 * \param bkg the background type
+	 * \param fnt the text font
+	 * \param textColor the text color
+	 * \param backgroundColor the backgroundcolor
+	 */
+	void defaultValues(int bkg, const QFont& fnt, const QColor& textColor, const QColor& backgroundColor);
 	
 	//! Signal for axes labels: change text
 	void changeText(const QString &);

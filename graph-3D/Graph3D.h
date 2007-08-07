@@ -29,19 +29,21 @@
 #ifndef GRAPH3D_H
 #define GRAPH3D_H
 
+#include "core/MyWidget.h"
+
 #include <qwt3d_surfaceplot.h>
 #include <qwt3d_function.h>
 
-#include <QTimer>
 #include <QVector>
-#include <QEvent>
+#include <QTimer>
 
-#include "Table.h"
-#include "Matrix.h"
+class Table;
+class Matrix;
+class UserFunction;
+
+class QEvent;
 
 using namespace Qwt3D;
-
-class UserFunction;
 
 /*!\brief 3D graph widget.
  *

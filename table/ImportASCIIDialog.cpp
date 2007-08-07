@@ -31,7 +31,7 @@
  ***************************************************************************/
 
 #include "ImportASCIIDialog.h"
-#include "ApplicationWindow.h"
+#include "core/ApplicationWindow.h"
 
 #include <QGridLayout>
 #include <QVBoxLayout>
@@ -40,6 +40,8 @@
 #include <QPushButton>
 #include <QRegExp>
 #include <QMessageBox>
+#include <QLabel>
+#include <QCloseEvent>
 
 ImportASCIIDialog::ImportASCIIDialog(bool import_mode_enabled, QWidget * parent, bool extended, Qt::WFlags flags )
 : ExtensibleFileDialog(parent, extended, flags )

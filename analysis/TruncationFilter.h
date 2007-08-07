@@ -29,7 +29,7 @@
 #ifndef TRUNCATION_FILTER
 #define TRUNCATION_FILTER
 
-#include "AbstractSimpleFilter.h"
+#include "core/AbstractSimpleFilter.h"
 #include <QDateTime>
 
 template<class T> class TruncationFilterBase : public AbstractSimpleFilter<T>

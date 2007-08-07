@@ -31,7 +31,7 @@
  ***************************************************************************/
 #include "SetColValuesDialog.h"
 #include "Table.h"
-#include "ScriptEdit.h"
+#include "core/ScriptEdit.h"
 
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>

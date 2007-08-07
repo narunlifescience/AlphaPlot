@@ -33,16 +33,12 @@
 #include <QPointer>
 #include <QPrinter>
 #include <QVector>
-#include <QEvent>
 
-#include <qwt_plot.h>
 #include <qwt_plot_marker.h>
-#include <qwt_plot_curve.h>
 
-#include "Plot.h"
-#include "Table.h"
-#include "AxesDialog.h"
 #include "PlotToolInterface.h"
+#include "Plot.h"
+#include "AxesDialog.h"
 
 class QwtPlotCurve;
 class QwtPlotZoomer;

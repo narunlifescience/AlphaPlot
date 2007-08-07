@@ -27,13 +27,13 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFTDialog.h"
-#include "Graph.h"
-#include "MyParser.h"
-#include "ApplicationWindow.h"
-#include "MultiLayer.h"
-#include "Table.h"
-#include "Plot.h"
 #include "FFT.h"
+#include "core/MyParser.h"
+#include "core/ApplicationWindow.h"
+#include "graph/Graph.h"
+#include "graph/MultiLayer.h"
+#include "graph/Plot.h"
+#include "table/Table.h"
 
 #include <QRadioButton>
 #include <QGroupBox>
