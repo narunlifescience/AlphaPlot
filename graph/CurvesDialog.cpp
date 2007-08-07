@@ -529,7 +529,7 @@ void CurvesDialog::showCurrentFolder(bool currentFolder)
 					continue;
 
 				Table *t = (Table *)w;
-				for (int i=0; i < t->numCols(); i++){
+				for (int i=0; i < t->columnCount(); i++){
 					if(t->colPlotDesignation(i) == AbstractDataSource::Y)
 						columns << QString(t->name()) + "_" + t->colLabel(i);
 				}

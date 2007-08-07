@@ -67,12 +67,12 @@ HEADERS += \
 SOURCES += \
 	core/AbstractFilter.cpp \
 	core/ApplicationWindow.cpp \
-	core/ConfigDialog.cpp \
+	core/PreferencesDialog.cpp \
 	core/CurveRangeDialog.cpp \
 	core/DataSetDialog.cpp \
 	core/Filter.cpp \
 	core/FilterDialog.cpp \
-	core/FindDialog.cpp \
+	core/FindWindowDialog.cpp \
 	core/Fit.cpp \
 	core/FitDialog.cpp \
 	core/Folder.cpp \
@@ -81,9 +81,9 @@ SOURCES += \
 	core/OpenProjectDialog.cpp \
 	core/ReadOnlyTableModel.cpp \
 	core/RenameWindowDialog.cpp \
-	core/Script.cpp \
+	core/AbstractScript.cpp \
 	core/ScriptEdit.cpp \
-	core/ScriptingEnv.cpp \
+	core/AbstractScriptingEngine.cpp \
 	core/ScriptingLangDialog.cpp \
 	core/main.cpp \
 
@@ -92,13 +92,13 @@ HEADERS += \
 	core/AbstractFilter.h \
 	core/AbstractSimpleFilter.h \
 	core/ApplicationWindow.h \
-	core/ConfigDialog.h \
+	core/PreferencesDialog.h \
 	core/CopyThroughFilter.h \
 	core/CurveRangeDialog.h \
 	core/DataSetDialog.h \
 	core/Filter.h \
 	core/FilterDialog.h \
-	core/FindDialog.h \
+	core/FindWindowDialog.h \
 	core/Fit.h \
 	core/FitDialog.h \
 	core/Folder.h \
@@ -107,9 +107,9 @@ HEADERS += \
 	core/OpenProjectDialog.h \
 	core/ReadOnlyTableModel.h \
 	core/RenameWindowDialog.h \
-	core/Script.h \
+	core/AbstractScript.h \
 	core/ScriptEdit.h \
-	core/ScriptingEnv.h \
+	core/AbstractScriptingEngine.h \
 	core/ScriptingLangDialog.h \
 	core/customevents.h \
 	core/globals.h \
@@ -352,8 +352,8 @@ HEADERS += \
 	graph-3D/SurfaceDialog.h \
 
 SOURCES += \
-	origin/importOPJ.cpp \
+	origin/OpjImporter.cpp \
 
 HEADERS += \
-	origin/importOPJ.h \
+	origin/OpjImporter.h \
 

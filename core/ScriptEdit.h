@@ -31,11 +31,10 @@
 #ifndef SCRIPTEDIT_H
 #define SCRIPTEDIT_H
 
-#include "ScriptingEnv.h"
-#include "Script.h"
-
-#include <QMenu>
 #include <QTextEdit>
+#include "AbstractScriptingEngine.h"
+
+class AbstractScript;
 
 class QAction;
 class QMenu;
@@ -51,7 +50,7 @@ class ScriptEdit: public QTextEdit, public scripted
   Q_OBJECT
 
   public:
-    ScriptEdit(ScriptingEnv *env, QWidget *parent=0, const char *name=0);
+    ScriptEdit(AbstractScriptingEngine *engine, QWidget *parent=0, const char *name=0);
 
     void customEvent(QEvent*);
     int lineNumber(int pos) const;
@@ -66,7 +65,7 @@ class ScriptEdit: public QTextEdit, public scripted
     QString importASCII(const QString &file=QString::null);
     void insertFunction(const QString &);
     void insertFunction(QAction * action);
-    void setContext(QObject *context) { myScript->setContext(context); }
+    void setContext(QObject *context);
     void scriptPrint(const QString&);
     void updateIndentation();
 
@@ -75,7 +74,7 @@ class ScriptEdit: public QTextEdit, public scripted
     virtual void keyPressEvent(QKeyEvent *e);
 
   private:
-    Script *myScript;
+    AbstractScript *d_script;
     QAction *actionExecute, *actionExecuteAll, *actionEval, *actionPrint, *actionImport, *actionExport;
     QMenu *functionsMenu;
     QTextCursor printCursor;

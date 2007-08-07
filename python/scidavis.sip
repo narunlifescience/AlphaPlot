@@ -36,7 +36,7 @@
 class ScriptEdit: QTextEdit
 {
 %TypeHeaderCode
-#include "src/ScriptEdit.h"
+#include "core/ScriptEdit.h"
 %End
 public slots:
   void execute();
@@ -51,7 +51,7 @@ private:
 class MyWidget: QWidget /PyName=MDIWindow/
 {
 %TypeHeaderCode
-#include "src/MyWidget.h"
+#include "core/MyWidget.h"
 %End
 public:
   enum CaptionPolicy{Name = 0, Label = 1, Both = 2};
@@ -83,13 +83,13 @@ typedef QList<MyWidget*> MDIWindowList;
 class Table: MyWidget
 {
 %TypeHeaderCode
-#include "src/Table.h"
+#include "table/Table.h"
 
 #define CHECK_TABLE_COL(arg)\
     int col;\
     if (PyInt_Check(arg)) {\
       col = (int)PyInt_AsLong(arg) - 1;\
-		if (col < 0 || col >= sipCpp->numCols()) {\
+		if (col < 0 || col >= sipCpp->columnCount()) {\
 			sipIsErr = 1;\
 			PyErr_Format(PyExc_ValueError, "There's no column %d in table %s!", col+1, sipCpp->name().toAscii().constData());\
 		}\
@@ -110,7 +110,7 @@ class Table: MyWidget
 	 }
 #define CHECK_TABLE_ROW(arg)\
    int row = arg-1;\
-	if (row < 0 || row >= sipCpp->numRows()) {\
+	if (row < 0 || row >= sipCpp->rowCount()) {\
 		sipIsErr = 1;\
 		PyErr_Format(PyExc_ValueError, "There's no row %d in table %s!", row+1, sipCpp->name().toAscii().constData());\
 	}
@@ -118,10 +118,10 @@ class Table: MyWidget
 %End
 
 public:
-  int numRows() /PyName=numRows/;
-  int numCols() /PyName=numCols/;
-  void resizeRows(int) /PyName=setNumRows/;
-  void resizeCols(int) /PyName=setNumCols/;
+  int rowCount();
+  int columnCount();
+  void setRowCount(int);
+  void setColumnCount(int);
 
   SIP_PYOBJECT text(SIP_PYOBJECT, int);
 %MethodCode
@@ -155,6 +155,8 @@ public:
 	if (sipIsErr == 0)
 		sipCpp->setText(row, col, *a2);
 %End
+	//TODO
+	/*
   void setCell(SIP_PYOBJECT, int, double);
 %MethodCode
   sipIsErr = 0;
@@ -163,9 +165,10 @@ public:
 	if (sipIsErr == 0)
 		sipCpp->setCell(row, col, a2);
 %End
+*/
   SIP_PYOBJECT colName(int);
 %MethodCode
-   if (a0 < 1 || a0 > sipCpp->numCols()) {\
+   if (a0 < 1 || a0 > sipCpp->columnCount()) {\
 		sipIsErr = 1;\
 		PyErr_SetString(PyExc_ValueError, "Invalid column argument");\
 	} else
@@ -180,6 +183,8 @@ public:
 %End
   void notifyChanges();
 
+// TODO: implement the following
+/*
   void importASCII(const QString&, const QString&="\t", int=0, bool=false, bool=true, bool=false, bool=false);
   bool exportASCII(const QString&, const QString&="\t", bool=false, bool=false);
   void normalizeCol(SIP_PYOBJECT) /PyName=normalize/;
@@ -215,6 +220,7 @@ public:
   }
   sipCpp->sortColumns(l, a1, a2, *a3);
 %End
+*/
 
 	void setCommand(SIP_PYOBJECT, const QString&);
 %MethodCode
@@ -239,25 +245,25 @@ private:
 class Matrix: MyWidget
 {
 %TypeHeaderCode
-#include "src/Matrix.h"
+#include "matrix/Matrix.h"
 #define CHECK_MATRIX_COL(arg)\
 	int col = arg-1;\
-   if (col < 0 || col >= sipCpp->numCols()) {\
+   if (col < 0 || col >= sipCpp->columnCount()) {\
 		sipIsErr = 1;\
 		PyErr_Format(PyExc_ValueError, "There's no column %d in matrix %s!", col+1, sipCpp->name().toAscii().constData());\
 	}
 #define CHECK_MATRIX_ROW(arg)\
    int row = arg-1;\
-	if (row < 0 || row >= sipCpp->numRows()) {\
+	if (row < 0 || row >= sipCpp->rowCount()) {\
 		sipIsErr = 1;\
 		PyErr_Format(PyExc_ValueError, "There's no row %d in matrix %s!", row+1, sipCpp->name().toAscii().constData());\
 	}
 %End
 public:
-  int numRows();
-  void setNumRows(int);
-  int numCols();
-  void setNumCols(int);
+  int rowCount();
+  void setRowCount(int);
+  int columnCount();
+  void setColumnCount(int);
   void setDimensions(int rows, int cols);
 
   SIP_PYOBJECT text(int, int);
@@ -315,7 +321,7 @@ private:
 class ArrowMarker // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "src/ArrowMarker.h"
+#include "graph/enrichments/ArrowMarker.h"
 %End
 public:
 
@@ -340,7 +346,7 @@ private:
 class ImageMarker // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "src/ImageMarker.h"
+#include "graph/enrichments/ImageMarker.h"
 %End
 public:
 
@@ -359,7 +365,7 @@ private:
 class Legend // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "src/Legend.h"
+#include "graph/Legend.h"
 %End
 public:
 
@@ -377,8 +383,8 @@ private:
 class Graph : QWidget /PyName=Layer/
 {
 %TypeHeaderCode
-#include "src/Graph.h"
-#include "src/Legend.h"
+#include "graph/Graph.h"
+#include "graph/Legend.h"
 %End
 public:
   bool isPiePlot();
@@ -450,7 +456,7 @@ private:
 class MultiLayer : MyWidget /PyName=Graph/
 {
 %TypeHeaderCode
-#include "src/MultiLayer.h"
+#include "graph/MultiLayer.h"
 %End
 public:
   Graph *activeGraph() /PyName=activeLayer/;
@@ -480,7 +486,7 @@ private:
 class Note: MyWidget
 {
 %TypeHeaderCode
-#include "src/Note.h"
+#include "note/Note.h"
 %End
 public:
   void execute() const;
@@ -492,7 +498,7 @@ private:
 class ApplicationWindow: QMainWindow
 {
 %TypeHeaderCode
-#include "src/ApplicationWindow.h"
+#include "core/ApplicationWindow.h"
 %End
 %ConvertToSubClassCode
 // we have to do this to override casting in qt/qobject.sip (PyQt 3.16)
@@ -593,7 +599,7 @@ private:
 class Fit : QObject
 {
 %TypeHeaderCode
-#include "src/Fit.h"
+#include "core/Fit.h"
 %End
 public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
@@ -716,7 +722,7 @@ else { sipCpp = NULL; }
 class ExponentialFit : Fit
 {
 %TypeHeaderCode
-#include "src/ExponentialFit.h"
+#include "analysis/ExponentialFit.h"
 %End
 public:
   ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
@@ -734,7 +740,7 @@ public:
 class TwoExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/ExponentialFit.h"
+#include "analysis/ExponentialFit.h"
 %End
 public:
   TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -752,7 +758,7 @@ public:
 class ThreeExpFit : Fit
 {
 %TypeHeaderCode
-#include "src/ExponentialFit.h"
+#include "analysis/ExponentialFit.h"
 %End
 public:
   ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -770,7 +776,7 @@ public:
 class SigmoidalFit : Fit
 {
 %TypeHeaderCode
-#include "src/SigmoidalFit.h"
+#include "analysis/SigmoidalFit.h"
 %End
 public:
   SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -788,7 +794,7 @@ public:
 class GaussAmpFit : Fit
 {
 %TypeHeaderCode
-#include "src/MultiPeakFit.h"
+#include "analysis/MultiPeakFit.h"
 %End
 public:
   GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -806,7 +812,7 @@ public:
 class NonLinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/NonLinearFit.h"
+#include "analysis/NonLinearFit.h"
 %End
 public:
   NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -837,7 +843,7 @@ public:
 class PluginFit : Fit
 {
 %TypeHeaderCode
-#include "src/PluginFit.h"
+#include "analysis/PluginFit.h"
 %End
 public:
   PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -856,7 +862,7 @@ public:
 class MultiPeakFit : Fit
 {
 %TypeHeaderCode
-#include "src/MultiPeakFit.h"
+#include "analysis/MultiPeakFit.h"
 %End
 public:
   enum PeakProfile{Gauss, Lorentz};
@@ -875,7 +881,7 @@ public:
 class LorentzFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/MultiPeakFit.h"
+#include "analysis/MultiPeakFit.h"
 %End
 public:
   LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -893,7 +899,7 @@ public:
 class GaussFit : MultiPeakFit
 {
 %TypeHeaderCode
-#include "src/MultiPeakFit.h"
+#include "analysis/MultiPeakFit.h"
 %End
 public:
   GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -911,7 +917,7 @@ public:
 class PolynomialFit : Fit
 {
 %TypeHeaderCode
-#include "src/PolynomialFit.h"
+#include "analysis/PolynomialFit.h"
 %End
 public:
   PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
@@ -935,7 +941,7 @@ public:
 class LinearFit : Fit
 {
 %TypeHeaderCode
-#include "src/PolynomialFit.h"
+#include "analysis/PolynomialFit.h"
 %End
 public:
   LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -954,7 +960,7 @@ public:
 class Filter : QObject
 {
 %TypeHeaderCode
-#include "src/Filter.h"
+#include "core/Filter.h"
 %End
 public:
   Filter(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
@@ -971,7 +977,7 @@ public:
 class Differentiation : Filter
 {
 %TypeHeaderCode
-#include "src/Differentiation.h"
+#include "analysis/Differentiation.h"
 %End
 public:
   Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -990,7 +996,7 @@ public:
 class Integration : Filter
 {
 %TypeHeaderCode
-#include "src/Integration.h"
+#include "analysis/Integration.h"
 %End
 public:
   Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&);
@@ -1011,7 +1017,7 @@ public:
 class Interpolation : Filter
 {
 %TypeHeaderCode
-#include "src/Interpolation.h"
+#include "analysis/Interpolation.h"
 %End
 public:
   enum InterpolationMethod{Linear, Cubic, Akima};
@@ -1035,7 +1041,7 @@ public:
 class SmoothFilter : Filter
 {
 %TypeHeaderCode
-#include "src/SmoothFilter.h"
+#include "analysis/SmoothFilter.h"
 %End
 public:
   enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
@@ -1063,7 +1069,7 @@ public:
 class FFTFilter : Filter
 {
 %TypeHeaderCode
-#include "src/FFTFilter.h"
+#include "analysis/FFTFilter.h"
 %End
 public:
   enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
@@ -1092,7 +1098,7 @@ public:
 class FFT : Filter
 {
 %TypeHeaderCode
-#include "src/FFT.h"
+#include "analysis/FFT.h"
 %End
 public:
 
@@ -1118,7 +1124,7 @@ public:
 class Correlation : Filter
 {
 %TypeHeaderCode
-#include "src/Correlation.h"
+#include "analysis/Correlation.h"
 %End
 public:
 
@@ -1135,7 +1141,7 @@ public:
 class Convolution : Filter
 {
 %TypeHeaderCode
-#include "src/Convolution.h"
+#include "analysis/Convolution.h"
 %End
 public:
 
@@ -1152,7 +1158,7 @@ public:
 class Deconvolution : Filter
 {
 %TypeHeaderCode
-#include "src/Convolution.h"
+#include "analysis/Convolution.h"
 %End
 public:
 
@@ -1167,20 +1173,20 @@ public:
 };
 
 // used for output redirection
-class PythonScripting
+class PythonScriptingEngine
 {
 %TypeHeaderCode
-#include "src/PythonScripting.h"
+#include "python/PythonScriptingEngine.h"
 %End
 public:
   void write(const QString&);
 private:
-  PythonScripting(const PythonScripting&);
+  PythonScriptingEngine(const PythonScriptingEngine&);
 };
 class PythonScript
 {
 %TypeHeaderCode
-#include "src/PythonScript.h"
+#include "python/PythonScript.h"
 %End
 public:
   void write(const QString&);
@@ -1191,7 +1197,7 @@ private:
 class Folder : QObject
 {
 %TypeHeaderCode
-#include "src/Folder.h"
+#include "core/Folder.h"
 %End
 public:
   MDIWindowList windowsList() /PyName=windows/;

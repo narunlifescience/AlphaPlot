@@ -30,10 +30,8 @@
 #ifndef SCRIPTING_LANG_DIALOG_H
 #define SCRIPTING_LANG_DIALOG_H
 
-#include "ScriptingEnv.h" 
-#include "Script.h"
-
 #include <QDialog>
+#include "AbstractScriptingEngine.h" 
 
 class ApplicationWindow;
 class QListWidget;
@@ -44,7 +42,7 @@ class ScriptingLangDialog: public QDialog, public scripted
 	Q_OBJECT
 
 	public:
-		ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent, Qt::WFlags fl = 0);
+		ScriptingLangDialog(AbstractScriptingEngine *engine, ApplicationWindow *parent, Qt::WFlags fl = 0);
 
 	public slots:
 		void updateLangList();

@@ -46,8 +46,8 @@
 #include <QTextEdit>
 #include <QTextCursor>
 
-SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
-    : QDialog( parent, fl ), scripted(env)
+SetColValuesDialog::SetColValuesDialog(AbstractScriptingEngine *engine, QWidget* parent, Qt::WFlags fl)
+    : QDialog( parent, fl ), scripted(engine)
 {
 	setWindowTitle( tr( "Set column values" ) );
 	setSizeGripEnabled(true);
@@ -116,7 +116,7 @@ SetColValuesDialog::SetColValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::
 	gl2->addLayout(hbox3, 0, 1);
 	gl2->addWidget(gb, 1, 1);
 
-	commands = new ScriptEdit( scriptEnv);
+	commands = new ScriptEdit( d_scripting_engine);
 
 	QVBoxLayout *vbox2 = new QVBoxLayout(); 
 	btnOk = new QPushButton(tr( "&OK" ));
@@ -224,12 +224,12 @@ bool SetColValuesDialog::apply()
 
 void SetColValuesDialog::setFunctions()
 {
-	functions->insertStringList(scriptEnv->mathFunctions(), -1);
+	functions->insertStringList(d_scripting_engine->mathFunctions(), -1);
 }
 
 void SetColValuesDialog::insertExplain(int index)
 {
-	explain->setText(scriptEnv->mathFunctionDoc(functions->text(index)));
+	explain->setText(d_scripting_engine->mathFunctionDoc(functions->text(index)));
 }
 
 void SetColValuesDialog::insertFunction()

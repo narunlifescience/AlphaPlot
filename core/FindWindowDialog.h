@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : ScriptingEnv.cpp
+    File                 : FindWindowDialog.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
-    Description          : Implementations of generic scripting classes
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Description          : Dialog used for searching windows by name or comment.
                            
  ***************************************************************************/
 
@@ -26,46 +26,49 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ScriptingEnv.h"
-#include "Script.h"
+#ifndef FIND_WINDOW_DIALOG_H
+#define FIND_WINDOW_DIALOG_H
 
-#include <string.h>
+#include <QDialog>
 
-#ifdef SCRIPTING_MUPARSER
-#include "muparser/muParserScript.h"
-#include "muparser/muParserScripting.h"
-#endif
-#ifdef SCRIPTING_PYTHON
-#include "python/PythonScript.h"
-#include "python/PythonScripting.h"
-#endif
+class QPushButton;
+class QCheckBox;
+class QComboBox;
+class QLabel;
 
-ScriptingEnv::ScriptingEnv(ApplicationWindow *parent, const char *lang_name)
-	: QObject(0), d_parent(parent)
+//! Find dialog
+class FindWindowDialog : public QDialog
 {
-	setObjectName(lang_name);
-	d_initialized=false;
-	d_refcount=0;
-}
+    Q_OBJECT
 
-const QString ScriptingEnv::fileFilter() const
-{
-	QStringList extensions = fileExtensions();
-	if (extensions.isEmpty())
-		return "";
-	else
-		return tr("%1 Source (*.%2);;").arg(objectName()).arg(extensions.join(" *."));
-}
+public:
+    FindWindowDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+    ~FindWindowDialog();
 
-void ScriptingEnv::incref()
-{
-	d_refcount++;
-}
+private:
+	QPushButton* buttonFind;
+	QPushButton* buttonCancel;
+	QPushButton* buttonReset;
 
-void ScriptingEnv::decref()
-{
-	d_refcount--;
-	if (d_refcount==0)
-		delete this;
-}
+	QLabel *labelStart;
+	QComboBox* boxFind;
 
+    QCheckBox* boxWindowNames;
+    QCheckBox* boxWindowLabels;
+	QCheckBox* boxFolderNames;
+
+	QCheckBox* boxCaseSensitive;
+    QCheckBox* boxPartialMatch;
+	QCheckBox* boxSubfolders;
+
+public slots:
+
+	//! Displays the project current folder path 
+	void setStartPath();
+
+protected slots:
+
+	void accept();
+};
+
+#endif // ifndef FIND_WINDOW_DIALOG_H

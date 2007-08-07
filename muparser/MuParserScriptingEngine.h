@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : muParserScripting.h
+    File                 : MuParserScriptingEngine.h
     Project              : SciDAVis
     --------------------------------------------------------------------
 
@@ -33,26 +33,26 @@
 #ifndef MUPARSER_SCRIPTING_H
 #define MUPARSER_SCRIPTING_H
 
-#include "core/ScriptingEnv.h"
-#include "muParserScript.h"
+#include "core/AbstractScriptingEngine.h"
+#include "MuParserScript.h"
 
 #include "math.h"
 #include <gsl/gsl_sf.h>
 
 //! TODO
-class muParserScripting: public ScriptingEnv
+class MuParserScriptingEngine: public AbstractScriptingEngine
 {
   Q_OBJECT
 
   public:
-    static const char *langName;
-    muParserScripting(ApplicationWindow *parent) : ScriptingEnv(parent, langName) { d_initialized=true; }
-    static ScriptingEnv *constructor(ApplicationWindow *parent) { return new muParserScripting(parent); }
+    static const char *g_lang_name;
+    MuParserScriptingEngine(ApplicationWindow *parent) : AbstractScriptingEngine(parent, g_lang_name) { d_initialized=true; }
+    static AbstractScriptingEngine *constructor(ApplicationWindow *parent) { return new MuParserScriptingEngine(parent); }
 
     bool isRunning() const { return true; }
-    Script *newScript(const QString &code, QObject *context, const QString &name="<input>")
+    AbstractScript *newScript(const QString &code, QObject *context, const QString &name="<input>")
     {
-      return new muParserScript(this, code, context, name);
+      return new MuParserScript(this, code, context, name);
     }
 
     // we do not support global variables
@@ -117,12 +117,6 @@ class muParserScripting: public ScriptingEnv
 	   { return gsl_sf_lambert_W0(x); }
 	 static double lambert_Wm1(double x)
 	   { return gsl_sf_lambert_Wm1(x); }
-};
-
-class EmptySourceError : public mu::ParserError
-{
-	public:
-		EmptySourceError() {}
 };
 
 #endif

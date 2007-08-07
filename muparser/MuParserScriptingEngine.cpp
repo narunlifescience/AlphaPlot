@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : muParserScripting.cpp
+    File                 : MuParserScriptingEngine.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
 
@@ -31,15 +31,12 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "muParserScripting.h"
+#include "MuParserScriptingEngine.h"
+#include <QStringList>
 
-#include <qstringlist.h>
+const char* MuParserScriptingEngine::g_lang_name = "muParser";
 
-using namespace mu;
-
-const char* muParserScripting::langName = "muParser";
-
-const muParserScripting::mathFunction muParserScripting::math_functions[] = {
+const MuParserScriptingEngine::mathFunction MuParserScriptingEngine::math_functions[] = {
   { "abs", 1, NULL,NULL,NULL, "abs(x):\n Absolute value of x." },
   { "acos", 1, NULL,NULL,NULL, "acos(x):\n Inverse cos function." },
   { "acosh", 1, NULL,NULL,NULL, "acosh(x):\n Hyperbolic inverse cos function." },
@@ -90,7 +87,7 @@ const muParserScripting::mathFunction muParserScripting::math_functions[] = {
   {0,0,NULL,NULL,NULL,0}
 };
   
-const QStringList muParserScripting::mathFunctions() const
+const QStringList MuParserScriptingEngine::mathFunctions() const
 {
   QStringList l;
   for (const mathFunction *i=math_functions; i->name; i++)
@@ -98,7 +95,7 @@ const QStringList muParserScripting::mathFunctions() const
   return l;
 }
 
-const QString muParserScripting::mathFunctionDoc (const QString &name) const
+const QString MuParserScriptingEngine::mathFunctionDoc (const QString &name) const
 {
   for (const mathFunction *i=math_functions; i->name; i++)
     if (name==i->name)

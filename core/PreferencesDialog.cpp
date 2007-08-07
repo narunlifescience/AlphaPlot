@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : ConfigDialog.cpp
+    File                 : PreferencesDialog.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ConfigDialog.h"
+#include "PreferencesDialog.h"
 #include "ApplicationWindow.h"
 #include "lib/ColorButton.h"
 #include "lib/ColorBox.h"
@@ -60,7 +60,7 @@
 #include <QListWidget>
 #include <QFontMetrics>
 
-ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
+PreferencesDialog::PreferencesDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
 	// get current values from app window
@@ -153,14 +153,14 @@ ConfigDialog::ConfigDialog( QWidget* parent, Qt::WFlags fl )
 	setCurrentPage(0);
 }
 
-void ConfigDialog::setCurrentPage(int index)
+void PreferencesDialog::setCurrentPage(int index)
 {
 	generalDialog->setCurrentIndex(index);
 	if(itemsList->currentItem())
 		lblPageHeader->setText(itemsList->currentItem()->text());
 }
 
-void ConfigDialog::initTablesPage()
+void PreferencesDialog::initTablesPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	tables = new QWidget();
@@ -222,7 +222,7 @@ void ConfigDialog::initTablesPage()
 	tablesPageLayout->addStretch();
 }
 
-void ConfigDialog::initPlotsPage()
+void PreferencesDialog::initPlotsPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
@@ -381,7 +381,7 @@ void ConfigDialog::initPlotsPage()
 	connect( buttonTitleFont, SIGNAL( clicked() ), this, SLOT( pickTitleFont() ) );
 }
 
-void ConfigDialog::enableScaleFonts()
+void PreferencesDialog::enableScaleFonts()
 {
 	if(boxResize->isChecked())
 		boxScaleFonts->setEnabled(false);
@@ -389,7 +389,7 @@ void ConfigDialog::enableScaleFonts()
 		boxScaleFonts->setEnabled(true);
 }
 
-void ConfigDialog::showFrameWidth(bool ok)
+void PreferencesDialog::showFrameWidth(bool ok)
 {
 	if (!ok)
 	{
@@ -403,7 +403,7 @@ void ConfigDialog::showFrameWidth(bool ok)
 	}
 }
 
-void ConfigDialog::initPlots3DPage()
+void PreferencesDialog::initPlots3DPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	plots3D = new QWidget();
@@ -489,7 +489,7 @@ void ConfigDialog::initPlots3DPage()
 	connect( btnLabelsFnt, SIGNAL( clicked() ), this, SLOT(pick3DAxesFont() ) );
 }
 
-void ConfigDialog::initAppPage()
+void PreferencesDialog::initAppPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
@@ -524,7 +524,7 @@ void ConfigDialog::initAppPage()
 	lblScriptingLanguage = new QLabel();
 	topBoxLayout->addWidget( lblScriptingLanguage, 3, 0 );
 	boxScriptingLanguage = new QComboBox();
-	QStringList llist = ScriptingLangManager::languages();
+	QStringList llist = AbstractScriptingEngine::engineNames();
 	boxScriptingLanguage->insertStringList(llist);
 	boxScriptingLanguage->setCurrentItem(llist.indexOf(app->defaultScriptingLang));
 	topBoxLayout->addWidget( boxScriptingLanguage, 3, 1 );
@@ -625,7 +625,7 @@ void ConfigDialog::initAppPage()
 	connect( boxAppPrecision, SIGNAL( valueChanged(int) ), this, SLOT(updateDecSepPreview()) );
 }
 
-void ConfigDialog::initFittingPage()
+void PreferencesDialog::initFittingPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	fitPage = new QWidget();
@@ -700,7 +700,7 @@ void ConfigDialog::initFittingPage()
 }
 
 
-void ConfigDialog::initCurvesPage()
+void PreferencesDialog::initCurvesPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 
@@ -734,7 +734,7 @@ void ConfigDialog::initCurvesPage()
 	curvesPageLayout->addWidget( curvesGroupBox );
 }
 
-void ConfigDialog::initConfirmationsPage()
+void PreferencesDialog::initConfirmationsPage()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	confirm = new QWidget();
@@ -772,7 +772,7 @@ void ConfigDialog::initConfirmationsPage()
 	confirmPageLayout->addWidget(groupBoxConfirm);
 }
 
-void ConfigDialog::languageChange()
+void PreferencesDialog::languageChange()
 {
 	setWindowTitle( tr( "Preferences" ) );
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
@@ -1001,13 +1001,13 @@ void ConfigDialog::languageChange()
 	lblPeaksColor->setText(tr("Peaks Color"));
 }
 
-void ConfigDialog::accept()
+void PreferencesDialog::accept()
 {
 	apply();
 	close();
 }
 
-void ConfigDialog::apply()
+void PreferencesDialog::apply()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	if (!app)
@@ -1162,7 +1162,7 @@ void ConfigDialog::apply()
 	itemsList->resize(itemsList->maximumWidth(),itemsList->height());
 }
 
-int ConfigDialog::curveStyle()
+int PreferencesDialog::curveStyle()
 {
 	int style = 0;
 	switch (boxCurveStyle->currentItem())
@@ -1201,7 +1201,7 @@ int ConfigDialog::curveStyle()
 	return style;
 }
 
-void ConfigDialog::pickBgColor()
+void PreferencesDialog::pickBgColor()
 {
 	QColor c = QColorDialog::getColor(buttonBackground->color(), this);
 	if ( !c.isValid() || c == buttonBackground->color())
@@ -1210,7 +1210,7 @@ void ConfigDialog::pickBgColor()
 	buttonBackground->setColor(c);
 }
 
-void ConfigDialog::pickTextColor()
+void PreferencesDialog::pickTextColor()
 {
 	QColor c = QColorDialog::getColor(buttonText->color(), this);
 	if ( !c.isValid() || c == buttonText->color())
@@ -1219,7 +1219,7 @@ void ConfigDialog::pickTextColor()
 	buttonText->setColor(c);
 }
 
-void ConfigDialog::pickHeaderColor()
+void PreferencesDialog::pickHeaderColor()
 {
 	QColor c = QColorDialog::getColor(buttonHeader->color(), this);
 	if ( !c.isValid() || c == buttonHeader->color())
@@ -1228,7 +1228,7 @@ void ConfigDialog::pickHeaderColor()
 	buttonHeader->setColor(c);
 }
 
-void ConfigDialog::pickTextFont()
+void PreferencesDialog::pickTextFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,textFont,this);
@@ -1239,7 +1239,7 @@ void ConfigDialog::pickTextFont()
 	}
 }
 
-void ConfigDialog::pickHeaderFont()
+void PreferencesDialog::pickHeaderFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,headerFont,this);
@@ -1250,7 +1250,7 @@ void ConfigDialog::pickHeaderFont()
 	}
 }
 
-void ConfigDialog::pickLegendFont()
+void PreferencesDialog::pickLegendFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,legendFont,this);
@@ -1261,7 +1261,7 @@ void ConfigDialog::pickLegendFont()
 	}
 }
 
-void ConfigDialog::pickAxesFont()
+void PreferencesDialog::pickAxesFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,axesFont,this);
@@ -1272,7 +1272,7 @@ void ConfigDialog::pickAxesFont()
 	}
 }
 
-void ConfigDialog::pickNumbersFont()
+void PreferencesDialog::pickNumbersFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,numbersFont,this);
@@ -1283,7 +1283,7 @@ void ConfigDialog::pickNumbersFont()
 	}
 }
 
-void ConfigDialog::pickTitleFont()
+void PreferencesDialog::pickTitleFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,titleFont,this);
@@ -1293,7 +1293,7 @@ void ConfigDialog::pickTitleFont()
 		return;
 }
 
-void ConfigDialog::pickApplicationFont()
+void PreferencesDialog::pickApplicationFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok,appFont,this);
@@ -1304,7 +1304,7 @@ void ConfigDialog::pickApplicationFont()
 	fontsBtn->setFont(appFont);
 }
 
-void ConfigDialog::pickPanelsTextColor()
+void PreferencesDialog::pickPanelsTextColor()
 {
 	QColor c = QColorDialog::getColor(btnPanelsText->color(), this);
 	if ( !c.isValid() || c == btnPanelsText->color())
@@ -1313,7 +1313,7 @@ void ConfigDialog::pickPanelsTextColor()
 	btnPanelsText->setColor(c);
 }
 
-void ConfigDialog::pickPanelsColor()
+void PreferencesDialog::pickPanelsColor()
 {
 	QColor c = QColorDialog::getColor(btnPanels->color(), this);
 	if ( !c.isValid() || c == btnPanels->color())
@@ -1322,7 +1322,7 @@ void ConfigDialog::pickPanelsColor()
 	btnPanels->setColor(c);
 }
 
-void ConfigDialog::pickWorkspaceColor()
+void PreferencesDialog::pickWorkspaceColor()
 {
 	QColor c = QColorDialog::getColor(btnWorkspace->color(), this);
 	if ( !c.isValid() || c == btnWorkspace->color())
@@ -1331,7 +1331,7 @@ void ConfigDialog::pickWorkspaceColor()
 	btnWorkspace->setColor(c);
 }
 
-void ConfigDialog::pickDataMaxColor()
+void PreferencesDialog::pickDataMaxColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[0]), this );
 	if ( !c.isValid() )
@@ -1340,7 +1340,7 @@ void ConfigDialog::pickDataMaxColor()
 	plot3DColors[0] = c.name();
 }
 
-void ConfigDialog::pickDataMinColor()
+void PreferencesDialog::pickDataMinColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[4]), this );
 	if ( !c.isValid() )
@@ -1349,7 +1349,7 @@ void ConfigDialog::pickDataMinColor()
 	plot3DColors[4] = c.name();
 }
 
-void ConfigDialog::pick3DBackgroundColor()
+void PreferencesDialog::pick3DBackgroundColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[7]), this );
 	if ( !c.isValid() )
@@ -1358,7 +1358,7 @@ void ConfigDialog::pick3DBackgroundColor()
 	plot3DColors[7] = c.name();
 }
 
-void ConfigDialog::pickMeshColor()
+void PreferencesDialog::pickMeshColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[2]), this );
 	if ( !c.isValid() )
@@ -1367,7 +1367,7 @@ void ConfigDialog::pickMeshColor()
 	plot3DColors[2] = c.name();
 }
 
-void ConfigDialog::pickGridColor()
+void PreferencesDialog::pickGridColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[3]), this );
 	if ( !c.isValid() )
@@ -1376,7 +1376,7 @@ void ConfigDialog::pickGridColor()
 	plot3DColors[3] = c.name();
 }
 
-void ConfigDialog::pick3DAxesColor()
+void PreferencesDialog::pick3DAxesColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[6]), this );
 	if ( !c.isValid() )
@@ -1385,7 +1385,7 @@ void ConfigDialog::pick3DAxesColor()
 	plot3DColors[6] = c.name();
 }
 
-void ConfigDialog::pick3DNumbersColor()
+void PreferencesDialog::pick3DNumbersColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[5]), this );
 	if ( !c.isValid() )
@@ -1394,7 +1394,7 @@ void ConfigDialog::pick3DNumbersColor()
 	plot3DColors[5] = c.name();
 }
 
-void ConfigDialog::pick3DLabelsColor()
+void PreferencesDialog::pick3DLabelsColor()
 {
 	QColor c = QColorDialog::getColor(QColor(plot3DColors[1]), this );
 	if ( !c.isValid() )
@@ -1403,7 +1403,7 @@ void ConfigDialog::pick3DLabelsColor()
 	plot3DColors[1] = c.name();
 }
 
-void ConfigDialog::pick3DTitleFont()
+void PreferencesDialog::pick3DTitleFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok, plot3DTitleFont,this);
@@ -1413,7 +1413,7 @@ void ConfigDialog::pick3DTitleFont()
 		return;
 }
 
-void ConfigDialog::pick3DNumbersFont()
+void PreferencesDialog::pick3DNumbersFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok, plot3DNumbersFont,this);
@@ -1423,7 +1423,7 @@ void ConfigDialog::pick3DNumbersFont()
 		return;
 }
 
-void ConfigDialog::pick3DAxesFont()
+void PreferencesDialog::pick3DAxesFont()
 {
 	bool ok;
 	QFont font = QFontDialog::getFont(&ok, plot3DAxesFont,this);
@@ -1433,7 +1433,7 @@ void ConfigDialog::pick3DAxesFont()
 		return;
 }
 
-void ConfigDialog::setColumnSeparator(const QString& sep)
+void PreferencesDialog::setColumnSeparator(const QString& sep)
 {
 	if (sep=="\t")
 		boxSeparator->setCurrentIndex(0);
@@ -1458,14 +1458,14 @@ void ConfigDialog::setColumnSeparator(const QString& sep)
 	}
 }
 
-void ConfigDialog::switchToLanguage(int param)
+void PreferencesDialog::switchToLanguage(int param)
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	app->switchToLanguage(param);
 	languageChange();
 }
 
-void ConfigDialog::insertLanguagesList()
+void PreferencesDialog::insertLanguagesList()
 {
 	ApplicationWindow *app = (ApplicationWindow *)parentWidget();
 	QString qmPath = qApp->applicationDirPath() + "/translations";
@@ -1497,7 +1497,7 @@ void ConfigDialog::insertLanguagesList()
 }
 
 
-void ConfigDialog::showPointsBox(bool)
+void PreferencesDialog::showPointsBox(bool)
 {
 	if (generatePointsBtn->isChecked())
 	{
@@ -1513,7 +1513,7 @@ void ConfigDialog::showPointsBox(bool)
 	}
 }
 
-void ConfigDialog::updateDecSepPreview()
+void PreferencesDialog::updateDecSepPreview()
 {
     QLocale locale;
     switch (boxDecimalSeparator->currentIndex())

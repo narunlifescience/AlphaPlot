@@ -33,14 +33,14 @@
 #include <Python.h>
 
 #include "PythonScript.h"
-#include "PythonScripting.h"
-#include "ApplicationWindow.h"
+#include "PythonScriptingEngine.h"
+#include "../core/ApplicationWindow.h"
 
 #include <QObject>
 #include <QVariant>
 
-PythonScript::PythonScript(PythonScripting *env, const QString &code, QObject *context, const QString &name)
-: Script(env, code, context, name)
+PythonScript::PythonScript(PythonScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
+: AbstractScript(engine, code, context, name)
 {
 	PyCode = NULL;
 	localDict = PyDict_New();
@@ -55,7 +55,7 @@ PythonScript::~PythonScript()
 
 void PythonScript::setContext(QObject *context)
 {
-	Script::setContext(context);
+	AbstractScript::setContext(context);
 	setQObject(Context, "self");
 }
 
@@ -67,7 +67,7 @@ bool PythonScript::compile(bool for_eval)
 	if(Context->inherits("Table")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
 		PyDict_SetItemString(localDict, "__builtins__",
-				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
+				PyDict_GetItemString(engine()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def col(c,*arg):\n"
 				"\ttry: return self.cell(c,arg[0])\n"
@@ -87,7 +87,7 @@ bool PythonScript::compile(bool for_eval)
 	} else if(Context->inherits("Matrix")) {
 		// A bit of a hack, but we need either IndexError or len() from __builtins__.
 		PyDict_SetItemString(localDict, "__builtins__",
-				PyDict_GetItemString(env()->globalDict(), "__builtins__"));
+				PyDict_GetItemString(engine()->globalDict(), "__builtins__"));
 		PyObject *ret = PyRun_String(
 				"def cell(*arg):\n"
 				"\ttry: return self.cell(arg[0],arg[1])\n"
@@ -130,7 +130,7 @@ bool PythonScript::compile(bool for_eval)
 		if (PyCode)
 		{
 			PyObject *tmp = PyDict_New();
-			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), tmp));
+			Py_XDECREF(PyEval_EvalCode((PyCodeObject*)PyCode, engine()->globalDict(), tmp));
 			Py_DECREF(PyCode);
 			PyCode = PyDict_GetItemString(tmp,"__doit__");
 			Py_XINCREF(PyCode);
@@ -147,7 +147,7 @@ bool PythonScript::compile(bool for_eval)
 	if (!success)
 	{
 		compiled = compileErr;
-		emit_error(env()->errorMsg(), 0);
+		emit_error(engine()->errorMsg(), 0);
 	} else
 		compiled = isCompiled;
 	return success;
@@ -166,11 +166,11 @@ QVariant PythonScript::eval()
 		pyret = PyObject_Call(PyCode, empty_tuple, localDict);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), localDict);
+		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, engine()->globalDict(), localDict);
 	endStdoutRedirect();
 	if (!pyret)
 	{
-		emit_error(env()->errorMsg(), 0);
+		emit_error(engine()->errorMsg(), 0);
 		return QVariant();
 	}
 
@@ -215,7 +215,7 @@ QVariant PythonScript::eval()
 
 	Py_DECREF(pyret);
 	if (PyErr_Occurred()) {
-		emit_error(env()->errorMsg(), 0);
+		emit_error(engine()->errorMsg(), 0);
 		return QVariant();
 	} else
 		return qret;
@@ -224,7 +224,7 @@ QVariant PythonScript::eval()
 bool PythonScript::exec()
 {
 	if (isFunction) compiled = notCompiled;
-	if (compiled != Script::isCompiled && !compile(false))
+	if (compiled != isCompiled && !compile(false))
 		return false;
 	PyObject *pyret;
 	beginStdoutRedirect();
@@ -232,37 +232,37 @@ bool PythonScript::exec()
 	{
 		PyObject *empty_tuple = PyTuple_New(0);
 		if (!empty_tuple) {
-			emit_error(env()->errorMsg(), 0);
+			emit_error(engine()->errorMsg(), 0);
 			return false;
 		}
 		pyret = PyObject_Call(PyCode,empty_tuple,localDict);
 		Py_DECREF(empty_tuple);
 	} else
-		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, env()->globalDict(), localDict);
+		pyret = PyEval_EvalCode((PyCodeObject*)PyCode, engine()->globalDict(), localDict);
 	endStdoutRedirect();
 	if (pyret) {
 		Py_DECREF(pyret);
 		return true;
 	}
-	emit_error(env()->errorMsg(), 0);
+	emit_error(engine()->errorMsg(), 0);
 	return false;
 }
 
 void PythonScript::beginStdoutRedirect()
 {
-	stdoutSave = PyDict_GetItemString(env()->sysDict(), "stdout");
+	stdoutSave = PyDict_GetItemString(engine()->sysDict(), "stdout");
 	Py_XINCREF(stdoutSave);
-	stderrSave = PyDict_GetItemString(env()->sysDict(), "stderr");
+	stderrSave = PyDict_GetItemString(engine()->sysDict(), "stderr");
 	Py_XINCREF(stderrSave);
-	env()->setQObject(this, "stdout", env()->sysDict());
-	env()->setQObject(this, "stderr", env()->sysDict());
+	engine()->setQObject(this, "stdout", engine()->sysDict());
+	engine()->setQObject(this, "stderr", engine()->sysDict());
 }
 
 void PythonScript::endStdoutRedirect()
 {
-	PyDict_SetItemString(env()->sysDict(), "stdout", stdoutSave);
+	PyDict_SetItemString(engine()->sysDict(), "stdout", stdoutSave);
 	Py_XDECREF(stdoutSave);
-	PyDict_SetItemString(env()->sysDict(), "stderr", stderrSave);
+	PyDict_SetItemString(engine()->sysDict(), "stderr", stderrSave);
 	Py_XDECREF(stderrSave);
 }
 
@@ -270,20 +270,23 @@ bool PythonScript::setQObject(QObject *val, const char *name)
 {
 	if (!PyDict_Contains(localDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setQObject(val, name, localDict);
+	return engine()->setQObject(val, name, localDict);
 }
 
 bool PythonScript::setInt(int val, const char *name)
 {
 	if (!PyDict_Contains(localDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setInt(val, name, localDict);
+	return engine()->setInt(val, name, localDict);
 }
 
 bool PythonScript::setDouble(double val, const char *name)
 {
 	if (!PyDict_Contains(localDict, PyString_FromString(name)))
 		compiled = notCompiled;
-	return env()->setDouble(val, name, localDict);
+	return engine()->setDouble(val, name, localDict);
 }
 
+PythonScriptingEngine* PythonScript::engine() {
+	return static_cast<PythonScriptingEngine*>(d_engine);
+}

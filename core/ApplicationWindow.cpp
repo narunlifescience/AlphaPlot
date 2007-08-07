@@ -32,11 +32,11 @@
 #include "globals.h"
 #include "ApplicationWindow.h"
 #include "DataSetDialog.h"
-#include "ConfigDialog.h"
+#include "PreferencesDialog.h"
 #include "RenameWindowDialog.h"
 #include "FilterDialog.h"
 #include "Folder.h"
-#include "FindDialog.h"
+#include "FindWindowDialog.h"
 #include "ScriptingLangDialog.h"
 #include "Fit.h"
 #include "CurveRangeDialog.h"
@@ -104,7 +104,7 @@
 #include "../matrix/MatrixSizeDialog.h"
 #include "../matrix/MatrixValuesDialog.h"
 
-#include "../origin/importOPJ.h"
+#include "../origin/OpjImporter.h"
 
 #include "../note/Note.h"
 
@@ -173,7 +173,7 @@ class ApplicationWindow::Private
 };
 
 ApplicationWindow::ApplicationWindow()
-: QMainWindow(), scripted(ScriptingLangManager::newEnv(this)), d(new Private())
+: QMainWindow(), scripted(AbstractScriptingEngine::create(this)), d(new Private())
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	init();
@@ -307,15 +307,15 @@ void ApplicationWindow::init()
 	connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 	connect(lv, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
 			this, SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
-	connect(scriptEnv, SIGNAL(error(const QString&,const QString&,int)),
+	connect(d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)),
 			this, SLOT(scriptError(const QString&,const QString&,int)));
-	connect(scriptEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	connect(d_scripting_engine, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	connect(recent, SIGNAL(activated(int)), this, SLOT(openRecentProject(int)));
 	connect(&d->http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
 
-	// this has to be done after connecting scriptEnv
-	scriptEnv->initialize();
+	// this has to be done after connecting d_scripting_engine
+	d_scripting_engine->initialize();
 }
 
 void ApplicationWindow::initGlobalConstants()
@@ -2509,7 +2509,7 @@ Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
 {
 	// TODO: move the ASCII import code to Table
 	/*
-	Table* w = new Table(scriptEnv, fname, sep, lines, renameCols, stripSpaces,
+	Table* w = new Table(d_scripting_engine, fname, sep, lines, renameCols, stripSpaces,
 			simplifySpaces, fname, ws, 0, 0);
 	if (w)
 	{
@@ -2526,7 +2526,7 @@ Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
  */
 Table* ApplicationWindow::newTable()
 {
-	Table* w = new Table(scriptEnv, 30, 2, "", ws, 0);
+	Table* w = new Table(d_scripting_engine, 30, 2, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, generateUniqueName(tr("Table")));
 	w->showNormal();
@@ -2538,7 +2538,7 @@ Table* ApplicationWindow::newTable()
  */
 Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 {
-	Table* w = new Table(scriptEnv, r, c, "", ws, 0);
+	Table* w = new Table(d_scripting_engine, r, c, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, caption);
 	if (w->name() != caption)//the table was renamed
@@ -2554,7 +2554,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c)
 
 Table* ApplicationWindow::newTable(int r, int c, const QString& name, const QString& legend)
 {
-	Table* w = new Table(scriptEnv, r, c, legend, ws, 0);
+	Table* w = new Table(d_scripting_engine, r, c, legend, ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initTable(w, name);
 	return w;
@@ -2569,7 +2569,7 @@ Table* ApplicationWindow::newTable(const QString& caption, int r, int c, const Q
     if (lst.count() == 2)
         legend = lst[1];
 
-	Table* w = new Table(scriptEnv, r, c, legend, ws, 0);
+	Table* w = new Table(d_scripting_engine, r, c, legend, ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
 	QStringList rows = text.split("\n", QString::SkipEmptyParts);
@@ -2595,7 +2595,7 @@ Table* ApplicationWindow::newHiddenTable(const QString& name, const QString& lab
 {
 	// TODO: rewrite this
 	/*
-	Table* w = new Table(scriptEnv, r, c, label, 0, 0);
+	Table* w = new Table(d_scripting_engine, r, c, label, 0, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 
 	if (!text.isEmpty()) {
@@ -2648,7 +2648,7 @@ void ApplicationWindow::initTable(Table* table, const QString& caption)
  */
 TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type, QList<int> target, const QString &caption)
 {
-	TableStatistics* s = new TableStatistics(scriptEnv, ws, base, (TableStatistics::Type) type, target);
+	TableStatistics* s = new TableStatistics(d_scripting_engine, ws, base, (TableStatistics::Type) type, target);
 	if (caption.isEmpty())
 		initTable(s, s->name());
 	else
@@ -2665,7 +2665,7 @@ TableStatistics *ApplicationWindow::newTableStatistics(Table *base, int type, QL
  */
 Note* ApplicationWindow::newNote(const QString& caption)
 {
-	Note* m = new Note(scriptEnv, "", ws);
+	Note* m = new Note(d_scripting_engine, "", ws);
 	if (caption.isEmpty())
 		initNote(m, generateUniqueName(tr("Notes")));
 	else
@@ -2703,7 +2703,7 @@ void ApplicationWindow::initNote(Note* m, const QString& caption)
 
 Matrix* ApplicationWindow::newMatrix(int rows, int columns)
 {
-	Matrix* m = new Matrix(scriptEnv, rows, columns, "", ws, 0);
+	Matrix* m = new Matrix(d_scripting_engine, rows, columns, "", ws, 0);
 	m->setAttribute(Qt::WA_DeleteOnClose);
 	QString caption = generateUniqueName(tr("Matrix"));
 	initMatrix(m, caption);
@@ -2713,7 +2713,7 @@ Matrix* ApplicationWindow::newMatrix(int rows, int columns)
 
 Matrix* ApplicationWindow::newMatrix(const QString& caption, int r, int c)
 {
-	Matrix* w = new Matrix(scriptEnv, r, c, "", ws,0);
+	Matrix* w = new Matrix(d_scripting_engine, r, c, "", ws,0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	initMatrix(w, caption);
 	if (w->name() != caption)//the matrix was renamed
@@ -2773,7 +2773,7 @@ Table* ApplicationWindow::convertMatrixToTable()
 	int rows = m->rowCount();
 	int cols = m->columnCount();
 
-	Table* w = new Table(scriptEnv, rows, cols, "", ws, 0);
+	Table* w = new Table(d_scripting_engine, rows, cols, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	for (int i = 0; i<rows; i++)
 	{
@@ -2831,7 +2831,7 @@ Matrix* ApplicationWindow::convertTableToMatrix()
 	int rows = m->rowCount();
 	int cols = m->columnCount();
 
-	Matrix* w = new Matrix(scriptEnv, rows, cols, "", ws, 0);
+	Matrix* w = new Matrix(d_scripting_engine, rows, cols, "", ws, 0);
 	w->setAttribute(Qt::WA_DeleteOnClose);
 	for (int i = 0; i<rows; i++)
 	{
@@ -3130,7 +3130,7 @@ void ApplicationWindow::updateCurves(Table *t, const QString& name)
 
 void ApplicationWindow::showPreferencesDialog()
 {
-	ConfigDialog* cd= new ConfigDialog(this);
+	PreferencesDialog* cd= new PreferencesDialog(this);
 	cd->setAttribute(Qt::WA_DeleteOnClose);
 	cd->setColumnSeparator(columnSeparator);
 	cd->exec();
@@ -3689,7 +3689,7 @@ ApplicationWindow* ApplicationWindow::openProject(const QString& fn)
 					tr("The file \"%1\" was created using \"%2\" as scripting language.\n\n"\
 						"Initializing support for this language FAILED; I'm using \"%3\" instead.\n"\
 						"Various parts of this file may not be displayed as expected.")\
-					.arg(fn).arg(list[1]).arg(scriptEnv->name()));
+					.arg(fn).arg(list[1]).arg(d_scripting_engine->name()));
 
 		s = t.readLine();
 		list=s.split("\t", QString::SkipEmptyParts);
@@ -3965,47 +3965,47 @@ void ApplicationWindow::scriptPrint(const QString &text)
 
 bool ApplicationWindow::setScriptingLang(const QString &lang, bool force)
 {
-	if (!force && lang == scriptEnv->name()) return true;
+	if (!force && lang == d_scripting_engine->name()) return true;
 	if (lang.isEmpty()) return false;
 
-	ScriptingEnv *newEnv = ScriptingLangManager::newEnv(lang, this);
-	if (!newEnv)
+	AbstractScriptingEngine *new_engine = AbstractScriptingEngine::create(lang, this);
+	if (!new_engine)
 		return false;
 
-	connect(newEnv, SIGNAL(error(const QString&,const QString&,int)),
+	connect(new_engine, SIGNAL(error(const QString&,const QString&,int)),
 			this, SLOT(scriptError(const QString&,const QString&,int)));
-	connect(newEnv, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
-	if (!newEnv->initialize())
+	connect(new_engine, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	if (!new_engine->initialize())
 	{
-		delete newEnv;
+		delete new_engine;
 		return false;
 	}
 
 	// notify everyone who might be interested
-	ScriptingChangeEvent *sce = new ScriptingChangeEvent(newEnv);
+	ScriptingChangeEvent *sce = new ScriptingChangeEvent(new_engine);
 	QApplication::sendEvent(this, sce);
 	delete sce;
 
 	foreach(QObject *i, findChildren<QWidget*>())
-		QApplication::postEvent(i, new ScriptingChangeEvent(newEnv));
+		QApplication::postEvent(i, new ScriptingChangeEvent(new_engine));
 
 	return true;
 }
 
 void ApplicationWindow::showScriptingLangDialog()
 {
-	ScriptingLangDialog* d = new ScriptingLangDialog(scriptEnv,this);
+	ScriptingLangDialog* d = new ScriptingLangDialog(d_scripting_engine,this);
 	d->showNormal();
 	d->setActiveWindow();
 }
 
 void ApplicationWindow::restartScriptingEnv()
 {
-	if (setScriptingLang(scriptEnv->name(), true))
+	if (setScriptingLang(d_scripting_engine->name(), true))
 		executeNotes();
 	else
 		QMessageBox::critical(this, tr("Scripting Error"),
-				tr("Scripting language \"%1\" failed to initialize.").arg(scriptEnv->name()));
+				tr("Scripting language \"%1\" failed to initialize.").arg(d_scripting_engine->name()));
 }
 
 //TODO: rewrite the template system
@@ -5541,7 +5541,7 @@ void ApplicationWindow::showColumnValuesDialog()
 		if(w->columnCount() == 0) return;
 		if (int(w->selectedColumnCount())>0 || !(w->getSelection().isEmpty()) )
 		{
-			SetColValuesDialog* vd= new SetColValuesDialog(scriptEnv,this);
+			SetColValuesDialog* vd= new SetColValuesDialog(d_scripting_engine,this);
 			vd->setAttribute(Qt::WA_DeleteOnClose);
 			vd->setTable(w);
 			vd->exec();
@@ -6023,7 +6023,7 @@ void ApplicationWindow::showMatrixValuesDialog()
 {
 	if ( ws->activeWindow() && ws->activeWindow()->inherits("Matrix"))
 	{
-		MatrixValuesDialog* md = new MatrixValuesDialog(scriptEnv, this);
+		MatrixValuesDialog* md = new MatrixValuesDialog(d_scripting_engine, this);
 		md->setAttribute(Qt::WA_DeleteOnClose);
 		md->setMatrix((Matrix*)ws->activeWindow());
 		md->exec();
@@ -8169,7 +8169,7 @@ void ApplicationWindow::customEvent(QEvent *e)
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
-		connect(scriptEnv,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
+		connect(d_scripting_engine,SIGNAL(error(const QString&,const QString&,int)),this,SLOT(scriptError(const QString&,const QString&,int)));
 	}
 }
 
@@ -9631,7 +9631,7 @@ Matrix* ApplicationWindow::importImage(const QString& fileName)
 	progress.setLabelText(fileName);
 	progress.setActiveWindow();
 
-	Matrix* m = new Matrix(scriptEnv, rows, cols, "", ws);
+	Matrix* m = new Matrix(d_scripting_engine, rows, cols, "", ws);
 	m->setAttribute(Qt::WA_DeleteOnClose);
 	m->table()->blockSignals(true);
 
@@ -12152,14 +12152,14 @@ ApplicationWindow* ApplicationWindow::importOPJ(const QString& filename)
         app->recentProjects.push_front(filename);
         app->updateRecentProjectsList();
 
-        ImportOPJ(app, filename);
+        OpjImporter(app, filename);
 
         QApplication::restoreOverrideCursor();
         return app;
     }
     else if (filename.endsWith(".ogm", Qt::CaseInsensitive) || filename.endsWith(".ogw", Qt::CaseInsensitive))
     {
-		ImportOPJ(this, filename);
+		OpjImporter(this, filename);
         recentProjects.remove(filename);
         recentProjects.push_front(filename);
         updateRecentProjectsList();
@@ -12749,7 +12749,7 @@ void ApplicationWindow::appendProject(const QString& fn)
 
 	if (fn.contains(".opj", Qt::CaseInsensitive) || fn.contains(".ogm", Qt::CaseInsensitive) ||
         fn.contains(".ogw", Qt::CaseInsensitive) || fn.contains(".ogg", Qt::CaseInsensitive))
-		ImportOPJ(this, fn);
+		OpjImporter(this, fn);
 	else
 	{
 		QFile f(fname);
@@ -13013,7 +13013,7 @@ void ApplicationWindow::saveFolder(Folder *folder, const QString& fn)
 	}
 	text += "<log>\n"+logInfo+"</log>";
 	text.prepend("<windows>\t"+QString::number(windows)+"\n");
-	text.prepend("<scripting-lang>\t"+QString(scriptEnv->name())+"\n");
+	text.prepend("<scripting-lang>\t"+QString(d_scripting_engine->name())+"\n");
 	text.prepend("SciDAVis " + 
 			QString::number((scidavis_version & 0xFF0000) >> 16)+"."+ 
 			QString::number((scidavis_version & 0x00FF00) >> 8)+"."+
@@ -13075,7 +13075,7 @@ void ApplicationWindow::showFolderPopupMenu(Q3ListViewItem *it, const QPoint &p,
 	QMenu viewWindowsMenu(this);
 	viewWindowsMenu.setCheckable ( true );
 
-	cm.insertItem(tr("&Find..."), this, SLOT(showFindDialogue()));
+	cm.insertItem(tr("&Find..."), this, SLOT(showFindWindowDialog()));
 	cm.addSeparator();
 	cm.insertItem(tr("App&end Project..."), this, SLOT(appendProject()));
 	if (((FolderListItem *)it)->folder()->parent())
@@ -13147,9 +13147,9 @@ void ApplicationWindow::setShowWindowsPolicy(int p)
 		showAllFolderWindows();
 }
 
-void ApplicationWindow::showFindDialogue()
+void ApplicationWindow::showFindWindowDialog()
 {
-	FindDialog *fd = new FindDialog(this);
+	FindWindowDialog *fd = new FindWindowDialog(this);
 	fd->setAttribute(Qt::WA_DeleteOnClose);
 	fd->exec();
 }

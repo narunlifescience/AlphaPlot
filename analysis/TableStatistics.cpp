@@ -34,8 +34,8 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_statistics.h>
 
-TableStatistics::TableStatistics(ScriptingEnv *env, QWidget *parent, Table *base, Type t, QList<int> targets)
-	: Table(env, 1, 1, "", parent, ""),
+TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *parent, Table *base, Type t, QList<int> targets)
+	: Table(engine, 1, 1, "", parent, ""),
 	d_base(base), d_type(t), d_targets(targets)
 {
 	// FIXME: Haven't found a set read-only method in Qt4 yet

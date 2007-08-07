@@ -33,14 +33,14 @@
 #define MATRIX_H
 
 #include "core/MyWidget.h"
-#include "core/Script.h"
+#include "core/AbstractScriptingEngine.h"
 
 #include <qwt_double_rect.h>
-
 #include <QTableWidget>
-#include <QContextMenuEvent>
-#include <QEvent>
 #include <QHeaderView>
+
+class QContextMenuEvent;
+class QEvent;
 
 // (maximum) initial matrix size
 #define _Matrix_initial_rows_ 10
@@ -65,7 +65,7 @@ public:
 	 * \param name window name
 	 * \param f window flags
 	 */
-	Matrix(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Matrix(AbstractScriptingEngine *engine, int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Matrix(){};
 
 	//! Return the number of rows

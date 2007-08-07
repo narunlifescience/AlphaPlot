@@ -43,8 +43,8 @@
 #include <QTableWidget>
 #include <QTableWidgetSelectionRange>
 
-MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::WFlags fl )
-: QDialog( parent, fl ), scripted(env)
+MatrixValuesDialog::MatrixValuesDialog(AbstractScriptingEngine *engine, QWidget* parent, Qt::WFlags fl )
+: QDialog( parent, fl ), scripted(engine)
 {
 	setWindowTitle( tr( "Set Matrix Values" ) );
 	setSizeGripEnabled(true);
@@ -97,7 +97,7 @@ MatrixValuesDialog::MatrixValuesDialog( ScriptingEnv *env, QWidget* parent, Qt::
 	QHBoxLayout *hbox3 = new QHBoxLayout();
 	hbox3->addWidget(new QLabel(tr( "Cell(i,j)=" )));
 
-	commands = new ScriptEdit( scriptEnv);
+	commands = new ScriptEdit( d_scripting_engine);
 	commands->setFocus();
 	hbox3->addWidget(commands);
 
@@ -193,12 +193,12 @@ void MatrixValuesDialog::setMatrix(Matrix* m)
 
 void MatrixValuesDialog::setFunctions()
 {
-	functions->insertStringList(scriptEnv->mathFunctions(), -1);
+	functions->insertStringList(d_scripting_engine->mathFunctions(), -1);
 }
 
 void MatrixValuesDialog::insertExplain(int index)
 {
-	explain->setText(scriptEnv->mathFunctionDoc(functions->text(index)));
+	explain->setText(d_scripting_engine->mathFunctionDoc(functions->text(index)));
 }
 
 void MatrixValuesDialog::insertFunction()

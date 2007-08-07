@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : muParserScript.cpp
+    File                 : MuParserScript.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
 
@@ -30,8 +30,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "muParserScript.h"
-#include "muParserScripting.h"
+#include "MuParserScript.h"
+#include "MuParserScriptingEngine.h"
 #include "table/Table.h"
 #include "matrix/Matrix.h"
 #include "core/Folder.h"
@@ -40,8 +40,14 @@
 
 using namespace mu;
 
-muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *context, const QString &name)
-  : Script(env, code, context, name)
+class EmptySourceError : public ParserError
+{
+	public:
+		EmptySourceError() {}
+};
+
+MuParserScript::MuParserScript(AbstractScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
+  : AbstractScript(engine, code, context, name)
 {
   variables.setAutoDelete(true);
   rvariables.setAutoDelete(true);
@@ -52,7 +58,7 @@ muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *
   parser.DefineConst("e", M_E);
   parser.DefineConst("E", M_E);
 
-  for (const muParserScripting::mathFunction *i=muParserScripting::math_functions; i->name; i++)
+  for (const MuParserScriptingEngine::mathFunction *i=MuParserScriptingEngine::math_functions; i->name; i++)
     if (i->numargs == 1 && i->fun1 != NULL)
       parser.DefineFun(i->name, i->fun1);
     else if (i->numargs == 2 && i->fun2 != NULL)
@@ -72,7 +78,7 @@ muParserScript::muParserScript(ScriptingEnv *env, const QString &code, QObject *
   rparser.SetVarFactory(mu_addVariableR);
 }
 
-double muParserScript::col(const QString &arg)
+double MuParserScript::col(const QString &arg)
 {
 	if (!Context->inherits("Table"))
 		throw Parser::exception_type(tr("col() works only on tables!").toAscii().constData());
@@ -132,7 +138,7 @@ double muParserScript::col(const QString &arg)
 		return table->cell(row,col);
 }
 
-double muParserScript::tablecol(const QString &arg)
+double MuParserScript::tablecol(const QString &arg)
 {
 	if (!Context->inherits("Table"))
 		throw Parser::exception_type(tr("tablecol() works only on tables!").toAscii().constData());
@@ -191,7 +197,7 @@ double muParserScript::tablecol(const QString &arg)
 		return target_table->cell(row,col);
 }
 
-double muParserScript::cell(int row, int col)
+double MuParserScript::cell(int row, int col)
 {
 	if (!Context->inherits("Matrix"))
 		throw Parser::exception_type(tr("cell() works only on tables and matrices!").toAscii().constData());
@@ -208,7 +214,7 @@ double muParserScript::cell(int row, int col)
 		return matrix->cell(row-1,col-1);
 }
 
-double muParserScript::tableCell(int col, int row)
+double MuParserScript::tableCell(int col, int row)
 {
 	if (!Context->inherits("Table"))
 		throw Parser::exception_type(tr("cell() works only on tables and matrices!").toAscii().constData());
@@ -225,7 +231,7 @@ double muParserScript::tableCell(int col, int row)
 		return table->cell(row-1,col-1);
 }
 
-double *muParserScript::addVariable(const char *name)
+double *MuParserScript::addVariable(const char *name)
 {
 	double *valptr = new double;
 	if (!valptr)
@@ -236,7 +242,7 @@ double *muParserScript::addVariable(const char *name)
 	return valptr;
 }
 
-double *muParserScript::addVariableR(const char *name)
+double *MuParserScript::addVariableR(const char *name)
 {
 	double *valptr = new double;
 	if (!valptr)
@@ -246,7 +252,7 @@ double *muParserScript::addVariableR(const char *name)
 	return valptr;
 }
 
-bool muParserScript::setDouble(double val, const char *name)
+bool MuParserScript::setDouble(double val, const char *name)
 {
   double *valptr = variables[name];
   if (!valptr)
@@ -271,17 +277,17 @@ bool muParserScript::setDouble(double val, const char *name)
   return  true;
 }
 
-bool muParserScript::setInt(int val, const char *name)
+bool MuParserScript::setInt(int val, const char *name)
 {
   return setDouble((double) val, name);
 }
 
-bool muParserScript::setQObject(QObject*, const char*)
+bool MuParserScript::setQObject(QObject*, const char*)
 {
   return false;
 }
 
-QString muParserScript::compileColArg(const QString &in)
+QString MuParserScript::compileColArg(const QString &in)
 {
 	QString out = "\"";
 	for (int i=0; i < in.size(); i++)
@@ -321,7 +327,7 @@ QString muParserScript::compileColArg(const QString &in)
 	return out + "\"";
 }
 
-bool muParserScript::compile(bool)
+bool MuParserScript::compile(bool)
 {
 	muCode.clear();
 	QString muCodeLine = "";
@@ -364,15 +370,15 @@ bool muParserScript::compile(bool)
 	muCodeLine = muCodeLine.trimmed();
 	if (!muCodeLine.isEmpty())
 		muCode += muCodeLine;
-	compiled = Script::isCompiled;
+	compiled = isCompiled;
 	return true;
 }
 
-muParserScript *muParserScript::current = NULL;
+MuParserScript *MuParserScript::current = NULL;
 
-QVariant muParserScript::eval()
+QVariant MuParserScript::eval()
 {
-	if (compiled != Script::isCompiled && !compile())
+	if (compiled != isCompiled && !compile())
 		return QVariant();
 	double val;
 	try {
@@ -390,9 +396,9 @@ QVariant muParserScript::eval()
 	return QVariant(val);
 }
 
-bool muParserScript::exec()
+bool MuParserScript::exec()
 {
-	if (compiled != Script::isCompiled && !compile())
+	if (compiled != isCompiled && !compile())
 		return false;
 	try {
 		current = this;

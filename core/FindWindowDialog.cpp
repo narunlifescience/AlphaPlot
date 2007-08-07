@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : FindDialog.cpp
+    File                 : FindWindowDialog.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Find dialog
+    Description          : Dialog used for searching windows by name or comment.
                            
  ***************************************************************************/
 
@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "FindDialog.h"
+#include "FindWindowDialog.h"
 #include "ApplicationWindow.h"
 #include "Folder.h"
 
@@ -40,7 +40,7 @@
 #include <QFrame>
 #include <QGroupBox>
 
-FindDialog::FindDialog( QWidget* parent, Qt::WFlags fl )
+FindWindowDialog::FindWindowDialog( QWidget* parent, Qt::WFlags fl )
     : QDialog( parent, fl )
 {
 	setWindowTitle (tr("SciDAVis") + " - " + tr("Find"));
@@ -117,13 +117,13 @@ FindDialog::FindDialog( QWidget* parent, Qt::WFlags fl )
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 }
 
-void FindDialog::setStartPath()
+void FindWindowDialog::setStartPath()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	labelStart->setText(app->current_folder->path());
 }
 
-void FindDialog::accept()
+void FindWindowDialog::accept()
 {
 	ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	app->find(boxFind->currentText(), boxWindowNames->isChecked(), boxWindowLabels->isChecked(),
@@ -141,6 +141,6 @@ void FindDialog::accept()
 	}
 }
 
-FindDialog::~FindDialog()
+FindWindowDialog::~FindWindowDialog()
 {
 }

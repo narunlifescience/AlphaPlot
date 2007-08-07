@@ -34,7 +34,7 @@
 #include <QtAlgorithms>
 #include <QList>
 class QString;
-#include "lib/Interval.h"
+#include "../lib/Interval.h"
 
 //! Reading interface for column-based data
 /**

@@ -31,6 +31,8 @@
  ***************************************************************************/
 #include "Matrix.h"
 
+#include "core/AbstractScript.h"
+
 #include <QtGlobal>
 #include <QTextStream>
 #include <QList>
@@ -57,8 +59,8 @@
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
 
-Matrix::Matrix(ScriptingEnv *env, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-: MyWidget(label, parent, name, f), scripted(env)
+Matrix::Matrix(AbstractScriptingEngine *engine, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+: MyWidget(label, parent, name, f), scripted(engine)
 {
 	init(r, c);
 }
@@ -130,8 +132,8 @@ void Matrix::cellEdited(int row,int col)
 		setText(row, col, locale.toString(res, txt_format.toAscii(), num_precision));
 	else
 	{
-		Script *script = scriptEnv->newScript(cell_formula, this, QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
-		connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
+		AbstractScript *script = d_scripting_engine->newScript(cell_formula, this, QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
+		connect(script, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
 
 		script->setInt(row+1, "row");
 		script->setInt(row+1, "i");
@@ -594,9 +596,9 @@ bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
 {
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
-	Script *script = scriptEnv->newScript(formula_str, this, QString("<%1>").arg(name()));
-	connect(script, SIGNAL(error(const QString&,const QString&,int)), scriptEnv, SIGNAL(error(const QString&,const QString&,int)));
-	connect(script, SIGNAL(print(const QString&)), scriptEnv, SIGNAL(print(const QString&)));
+	AbstractScript *script = d_scripting_engine->newScript(formula_str, this, QString("<%1>").arg(name()));
+	connect(script, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
+	connect(script, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
 	if (!script->compile()){
 		QApplication::restoreOverrideCursor();
 		return false;

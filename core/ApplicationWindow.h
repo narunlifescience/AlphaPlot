@@ -35,7 +35,7 @@
 #include <QMainWindow>
 #include <QLocale>
 
-#include "Script.h"
+#include "AbstractScriptingEngine.h"
 
 class QPixmap;
 class QCloseEvent;
@@ -585,7 +585,7 @@ public slots:
 
 	//! \name Dialogs
 	//@{
-	void showFindDialogue();
+	void showFindWindowDialog();
 	//! Show plot style dialog for the active MultiLayer / activeGraph / specified curve or the activeGraph options dialog if no curve is specified (curveKey = -1).
 	void showPlotDialog(int curveKey = -1);
 	QDialog* showScaleDialog();

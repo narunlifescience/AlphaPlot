@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : importOPJ.cpp
+    File                 : OpjImporter.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
@@ -26,7 +26,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "importOPJ.h"
+#include "OpjImporter.h"
 #include <OPJFile.h>
 
 #include "matrix/Matrix.h"
@@ -54,7 +54,7 @@ QString strreverse(const QString &str) //QString reversing
 	return out;
 }
 
-ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
+OpjImporter::OpjImporter(ApplicationWindow *app, const QString& filename) :
 		mw(app)
 {
 	xoffset=0;
@@ -66,7 +66,7 @@ ImportOPJ::ImportOPJ(ApplicationWindow *app, const QString& filename) :
 	mw->showResults(opj.resultsLogString(),mw->logWindow->isVisible());
 }
 
-int ImportOPJ::translateOrigin2SciDAVisLineStyle(int linestyle) {
+int OpjImporter::translateOrigin2SciDAVisLineStyle(int linestyle) {
 	int scidavisstyle=0;
 	switch (linestyle)
 	{
@@ -92,7 +92,7 @@ int ImportOPJ::translateOrigin2SciDAVisLineStyle(int linestyle) {
 	return scidavisstyle;
 }
 
-bool ImportOPJ::importTables(OPJFile opj)
+bool OpjImporter::importTables(OPJFile opj)
 {
 	int visible_count=0;
 	int SciDAVis_scaling_factor=10; //in Origin width is measured in characters while in SciDAVis - pixels --- need to be accurate
@@ -130,7 +130,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 
             double **d_cells = new double* [nr_cols];
             for ( int i = 0; i < nr_cols; ++i)
-                d_cells[i] = new double [table->numRows()];
+                d_cells[i] = new double [table->rowCount()];
 
 			for (int i=0; i<opj.numRows(s,j); i++){
 				if(strcmp(opj.colType(s,j),"LABEL")&&opj.colValueType(s,j)!=1){// number
@@ -390,7 +390,7 @@ bool ImportOPJ::importTables(OPJFile opj)
 	return true;
 }
 
-bool ImportOPJ::importNotes(OPJFile opj)
+bool OpjImporter::importNotes(OPJFile opj)
 {
 	int visible_count=0;
 	for (int n=0; n<opj.numNotes(); n++)
@@ -418,7 +418,7 @@ bool ImportOPJ::importNotes(OPJFile opj)
 	return true;
 }
 
-bool ImportOPJ::importGraphs(OPJFile opj)
+bool OpjImporter::importGraphs(OPJFile opj)
 {
 	double pi=3.141592653589793;
 	int visible_count=0;
@@ -851,7 +851,7 @@ bool ImportOPJ::importGraphs(OPJFile opj)
 	return true;
 }
 
-QString ImportOPJ::parseOriginText(const QString &str)
+QString OpjImporter::parseOriginText(const QString &str)
 {
 	QStringList lines=str.split("\n");
 	QString text="";
@@ -864,7 +864,7 @@ QString ImportOPJ::parseOriginText(const QString &str)
 	return text;
 }
 
-QString ImportOPJ::parseOriginTags(const QString &str)
+QString OpjImporter::parseOriginTags(const QString &str)
 {
 	QString line=str;
 	//replace \l(...) and %(...) tags

@@ -32,8 +32,8 @@
 #ifndef VALUESDIALOG_H
 #define VALUESDIALOG_H
 
-#include "core/Script.h"
 #include <QDialog>
+#include "core/AbstractScriptingEngine.h"
 
 class QComboBox;
 class QTextEdit;
@@ -42,7 +42,6 @@ class QPushButton;
 class QLabel;
 
 class Table;
-class ScriptingEnv;
 class ScriptEdit;
 
 	
@@ -52,7 +51,7 @@ class SetColValuesDialog : public QDialog, public scripted
     Q_OBJECT
 
 public:
-    SetColValuesDialog( ScriptingEnv *env, QWidget* parent = 0, Qt::WFlags fl = 0 );
+    SetColValuesDialog(AbstractScriptingEngine *engine, QWidget* parent = 0, Qt::WFlags fl = 0 );
     ~SetColValuesDialog();
 	
 	QSize sizeHint() const ;

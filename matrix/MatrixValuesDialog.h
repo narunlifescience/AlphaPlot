@@ -33,8 +33,7 @@
 #define MVALUESDIALOG_H
 
 #include <QDialog>
-
-#include "core/Script.h"
+#include "core/AbstractScriptingEngine.h"
 
 class QComboBox;
 class QTextEdit;
@@ -49,7 +48,7 @@ class MatrixValuesDialog : public QDialog, public scripted
     Q_OBJECT
 
 public:
-    MatrixValuesDialog( ScriptingEnv *env, QWidget* parent = 0, Qt::WFlags fl = 0 );
+    MatrixValuesDialog(AbstractScriptingEngine *engine, QWidget* parent = 0, Qt::WFlags fl = 0);
     ~MatrixValuesDialog();
 	
 	QSize sizeHint() const ;

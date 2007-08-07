@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : ConfigDialog.h
+    File                 : PreferencesDialog.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ConfigDialog_H
-#define ConfigDialog_H
+#ifndef PreferencesDialog_H
+#define PreferencesDialog_H
 
 #include <QDialog>
 #include <QCheckBox>
@@ -46,7 +46,7 @@ class ColorButton;
 class ColorBox;
 
 //! Preferences dialog
-class ConfigDialog : public QDialog
+class PreferencesDialog : public QDialog
 {
     Q_OBJECT
 
@@ -56,7 +56,7 @@ public:
 	 * \param parent parent widget (must be the application window!=
 	 * \param fl window flags
 	 */
-    ConfigDialog( QWidget* parent, Qt::WFlags fl = 0 );
+    PreferencesDialog( QWidget* parent, Qt::WFlags fl = 0 );
 
 public slots:
     virtual void languageChange();
@@ -167,4 +167,4 @@ private:
 	QCheckBox *boxAntialiasing, *boxAutoscale3DPlots, *boxTableComments;
 };
 
-#endif // CONFIGDIALOG_H
+#endif // ifndef PreferencesDialog_H

@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : importOPJ.h
+    File                 : OpjImporter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
@@ -34,10 +34,10 @@
 class OPJFile;
 
 //! Origin project import class
-class ImportOPJ
+class OpjImporter
 {
 public:
-	ImportOPJ(ApplicationWindow *app, const QString& filename);
+	OpjImporter(ApplicationWindow *app, const QString& filename);
 
 	bool importTables (OPJFile opj);
 	bool importGraphs (OPJFile opj);

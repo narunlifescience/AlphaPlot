@@ -1,6 +1,6 @@
 /***************************************************************************
-    File                 : muParserScript.h
-	Project              : SciDAVis
+    File                 : MuParserScript.h
+    Project              : SciDAVis
     --------------------------------------------------------------------
 
     Copyright            : (C) 2006 by Ion Vasilief, 
@@ -30,21 +30,22 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef MUPARSER_SCRIPT_H
-#define MUPARSER_SCRIPT_H
+#ifndef MU_PARSER_SCRIPT_H
+#define MU_PARSER_SCRIPT_H
 
-#include "core/Script.h"
+#include "core/AbstractScript.h"
 
 #include <muParser.h>
 #include <q3asciidict.h>
+#include <QStringList>
 
 //! TODO
-class muParserScript: public Script
+class MuParserScript: public AbstractScript
 {
   Q_OBJECT
     
   public:
-    muParserScript(ScriptingEnv *env, const QString &code, QObject *context=0, const QString &name="<input>");
+    MuParserScript(AbstractScriptingEngine *engine, const QString &code, QObject *context=0, const QString &name="<input>");
 	
   public slots:
     bool compile(bool asFunction=true);
@@ -75,7 +76,7 @@ class muParserScript: public Script
     QStringList muCode;
 
   public:
-    static muParserScript *current;
+    static MuParserScript *current;
 };
 
 #endif

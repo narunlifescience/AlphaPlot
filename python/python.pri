@@ -1,27 +1,28 @@
 ##################### PYTHON + SIP + PyQT #####################
 
   INSTALLS += config
-  config.files += scidavisrc.py
+  config.files += python/scidavisrc.py
   unix: config.path = /etc
   win32: config.path = $$INSTALLBASE
 
   INSTALLS += shared
-  shared.files += scidavisUtil.py
+  shared.files += python/scidavisUtil.py
   unix: shared.path = $$INSTALLBASE/share/scidavis
   win32: shared.path = $$INSTALLBASE
 
-  SIP_DIR = ../tmp/scidavis
+  SIP_DIR = tmp
+  INCLUDEPATH += $$SIP_DIR
 
   DEFINES += SCRIPTING_PYTHON
-  HEADERS += src/PythonScript.h src/PythonScripting.h
-  SOURCES += src/PythonScript.cpp src/PythonScripting.cpp
+  HEADERS += python/PythonScript.h python/PythonScriptingEngine.h
+  SOURCES += python/PythonScript.cpp python/PythonScriptingEngine.cpp
 
   unix {
     INCLUDEPATH += $$system(python python-includepath.py)
     LIBS        += $$system(python -c "\"from distutils import sysconfig; print '-lpython'+sysconfig.get_config_var('VERSION')\"")
     LIBS        += -lm
-    system(mkdir -p $${SIP_DIR})
-    system($$system(python python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
+    system(mkdir -p ../$${SIP_DIR})
+    system($$system(python python-sipcmd.py) -c ../$${SIP_DIR} scidavis.sip)
   }
 
   win32 {
@@ -29,7 +30,7 @@
     LIBS        += $$system(call python-libs-win.py)
 	 # TODO: fix the command below (only really necessary if SIP_DIR != MOC/OBJECTS_DIR)
     #system(md $${SIP_DIR})
-    system($$system(call python-sipcmd.py) -c $${SIP_DIR} src/scidavis.sip)
+    system($$system(call python-sipcmd.py) -c ../$${SIP_DIR} scidavis.sip)
   }
 
 ##################### SIP generated files #####################
@@ -46,7 +47,7 @@
              $${SIP_DIR}/sipscidavisScriptEdit.h\
              $${SIP_DIR}/sipscidavisNote.h\
              $${SIP_DIR}/sipscidavisPythonScript.h\
-             $${SIP_DIR}/sipscidavisPythonScripting.h\
+             $${SIP_DIR}/sipscidavisPythonScriptingEngine.h\
              $${SIP_DIR}/sipscidavisFolder.h\
              $${SIP_DIR}/sipscidavisQList.h\
              $${SIP_DIR}/sipscidavisFit.h \
@@ -86,7 +87,7 @@
              $${SIP_DIR}/sipscidavisScriptEdit.cpp\
              $${SIP_DIR}/sipscidavisNote.cpp\
              $${SIP_DIR}/sipscidavisPythonScript.cpp\
-             $${SIP_DIR}/sipscidavisPythonScripting.cpp\
+             $${SIP_DIR}/sipscidavisPythonScriptingEngine.cpp\
              $${SIP_DIR}/sipscidavisFolder.cpp\
              $${SIP_DIR}/sipscidavisQList.cpp\
              $${SIP_DIR}/sipscidavisFit.cpp \

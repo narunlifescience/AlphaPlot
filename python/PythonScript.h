@@ -29,21 +29,20 @@
 #ifndef PYTHON_SCRIPT_H
 #define PYTHON_SCRIPT_H
 
-#include "Script.h"
+#include "../core/AbstractScript.h"
 
 class QString;
 class QObject;
 
 typedef struct _object PyObject;
-class PythonScripting;
-class ScriptingEnv;
+class PythonScriptingEngine;
 
-class PythonScript : public Script
+class PythonScript : public AbstractScript
 {
 	Q_OBJECT
 
 	public:
-		PythonScript(PythonScripting *env, const QString &code, QObject *context=0, const QString &name="<input>");
+		PythonScript(PythonScriptingEngine *engine, const QString &code, QObject *context=0, const QString &name="<input>");
 		~PythonScript();
 
 		void write(const QString &text) { emit print(text); }
@@ -58,7 +57,7 @@ class PythonScript : public Script
 		void setContext(QObject *context);
 
 	private:
-		PythonScripting *env() { return (PythonScripting*)Env; }
+		PythonScriptingEngine *engine();
 		void beginStdoutRedirect();
 		void endStdoutRedirect();
 

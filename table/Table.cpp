@@ -30,6 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Table.h"
+
 #include <QItemSelectionModel>
 #include <QTime>
 #include <QtGlobal>
@@ -53,8 +54,8 @@
 
 #define OBSOLETE qDebug("obsolete Table function called");
 
-Table::Table(ScriptingEnv *env, int rows, int cols, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-: MyWidget(label,parent,name,f), scripted(env)
+Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+: MyWidget(label,parent,name,f), scripted(engine)
 {
 //###	d_selected_col = -1;
 //###	d_saved_cells = 0;
@@ -639,18 +640,6 @@ QString Table::colComment(int col)
 {
 	OBSOLETE
 	return columnComment(col);
-}
-
-int Table::numRows()
-{
-	OBSOLETE
-	return rowCount();
-}
-
-int Table::numCols()
-{
-	OBSOLETE
-	return columnCount();
 }
 
 void Table::columnNumericFormat(int col, char *f, int *precision)

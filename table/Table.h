@@ -33,9 +33,9 @@
 #define TABLE_H
 
 #include "core/MyWidget.h"
+#include "core/AbstractScriptingEngine.h"
 #include "core/AbstractDataSource.h"
-#include "core/ScriptingEnv.h"
-#include "core/Script.h"
+
 class TableView;
 class TableModel;
 class QUndoStack;
@@ -79,7 +79,7 @@ class Table: public MyWidget, public scripted
     Q_OBJECT
 
 public:
-	Table(ScriptingEnv *env, int rows,int cols, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Table(AbstractScriptingEngine *engine, int rows,int cols, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 
 	//! The column mode (defines output and input filter)
 	enum ColumnMode{Numeric = 0, //<! column contains doubles
@@ -235,8 +235,6 @@ public:
 	int colPlotDesignation(int col);
 	QString colLabel(int col);
 	QString colComment(int col);
-	int numRows();
-	int numCols();
 	void columnNumericFormat(int col, char *f, int *precision);
 	void columnNumericFormat(int col, int *f, int *precision);
 	void changeColWidth(int width, bool all = false);

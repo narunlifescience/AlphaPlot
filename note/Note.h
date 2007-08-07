@@ -34,7 +34,7 @@
 
 #include <qtextedit.h>
 
-class ScriptingEnv;
+class AbstractScriptingEngine;
 
 /*!\brief Notes window class.
  *
@@ -47,11 +47,11 @@ class Note: public MyWidget
 
 public:
 
-	Note(ScriptingEnv *env, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Note(AbstractScriptingEngine *engine, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	~Note(){};
 
 
-	void init(ScriptingEnv *env);
+	void init(AbstractScriptingEngine *engine);
 	void setName(const char *name);
 
 public slots:

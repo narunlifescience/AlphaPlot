@@ -1,5 +1,5 @@
 /***************************************************************************
-	File                 : PythonScripting.h
+	File                 : PythonScriptingEngine.h
 	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
@@ -29,7 +29,7 @@
 #ifndef PYTHON_SCRIPTING_H
 #define PYTHON_SCRIPTING_H
 
-#include "ScriptingEnv.h"
+#include "../core/AbstractScriptingEngine.h"
 #include "PythonScript.h"
 
 class QObject;
@@ -37,15 +37,15 @@ class QString;
 
 typedef struct _object PyObject;
 
-class PythonScripting: public ScriptingEnv
+class PythonScriptingEngine: public AbstractScriptingEngine
 {
 	Q_OBJECT
 
 	public:
-		static const char *langName;
-		PythonScripting(ApplicationWindow *parent);
-		~PythonScripting();
-		static ScriptingEnv *constructor(ApplicationWindow *parent) { return new PythonScripting(parent); }
+		static const char *g_lang_name;
+		PythonScriptingEngine(ApplicationWindow *parent);
+		~PythonScriptingEngine();
+		static AbstractScriptingEngine *constructor(ApplicationWindow *parent) { return new PythonScriptingEngine(parent); }
 		bool initialize();
 
 		void write(const QString &text) { emit print(text); }
@@ -75,7 +75,7 @@ class PythonScripting: public ScriptingEnv
 		QString errorMsg();
 
 		bool isRunning() const;
-		Script *newScript(const QString &code, QObject *context, const QString &name="<input>")
+		AbstractScript *newScript(const QString &code, QObject *context, const QString &name="<input>")
 		{
 			return new PythonScript(this, code, context, name);
 		}

@@ -35,8 +35,8 @@
 #include <QLayout>
 #include <QMessageBox>
 
-ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *parent, Qt::WFlags fl )
-: QDialog(parent, fl), scripted(env)
+ScriptingLangDialog::ScriptingLangDialog(AbstractScriptingEngine *engine, ApplicationWindow *parent, Qt::WFlags fl )
+: QDialog(parent, fl), scripted(engine)
 {
 	setCaption(tr("Select scripting language"));
 
@@ -64,8 +64,8 @@ ScriptingLangDialog::ScriptingLangDialog(ScriptingEnv *env, ApplicationWindow *p
 void ScriptingLangDialog::updateLangList()
 {
 	langList->clear();
-	langList->insertItems(0, ScriptingLangManager::languages());
-	QListWidgetItem *current = langList->findItems(scriptEnv->name(), Qt::MatchExactly).first();
+	langList->insertItems(0, AbstractScriptingEngine::engineNames());
+	QListWidgetItem *current = langList->findItems(d_scripting_engine->name(), Qt::MatchExactly).first();
 	if (current)
 		langList->setCurrentItem(current);
 }

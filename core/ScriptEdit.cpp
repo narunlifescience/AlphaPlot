@@ -30,6 +30,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScriptEdit.h"
+#include "AbstractScriptingEngine.h"
+#include "AbstractScript.h"
+// TODO: eliminate this dependency
 #include "note/Note.h"
 
 #include <QAction>
@@ -40,16 +43,15 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-ScriptEdit::ScriptEdit(ScriptingEnv *env, QWidget *parent, const char *name)
-  : QTextEdit(parent, name), scripted(env)
+ScriptEdit::ScriptEdit(AbstractScriptingEngine *engine, QWidget *parent, const char *name)
+  : QTextEdit(parent, name), scripted(engine)
 {
-	myScript = scriptEnv->newScript("", this, name);
-	connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
-	connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+	d_script = d_scripting_engine->newScript("", this, name);
+	connect(d_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+	connect(d_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 
 	setLineWrapMode(NoWrap);
-	setTextFormat(Qt::PlainText);
-	setAcceptRichText (false);
+	setAcceptRichText(false);
 	setFamily("Monospace");
 
 	printCursor = textCursor();
@@ -85,10 +87,10 @@ void ScriptEdit::customEvent(QEvent *e)
 	if (e->type() == SCRIPTING_CHANGE_EVENT)
 	{
 		scriptingChangeEvent((ScriptingChangeEvent*)e);
-		delete myScript;
-		myScript = scriptEnv->newScript("", this, name());
-		connect(myScript, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
-		connect(myScript, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
+		delete d_script;
+		d_script = d_scripting_engine->newScript("", this, name());
+		connect(d_script, SIGNAL(error(const QString&,const QString&,int)), this, SLOT(insertErrorMsg(const QString&)));
+		connect(d_script, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));
 	}
 }
 
@@ -125,7 +127,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 
 	functionsMenu->clear();
 	functionsMenu->setTearOffEnabled(true);
-	QStringList flist = scriptEnv->mathFunctions();
+	QStringList flist = d_scripting_engine->mathFunctions();
 	QMenu *submenu=NULL;
 	for (int i=0; i<flist.size(); i++)
 	{
@@ -148,7 +150,7 @@ void ScriptEdit::contextMenuEvent(QContextMenuEvent *e)
 		} else
 			newAction = functionsMenu->addAction(flist[i]);
 		newAction->setData(i);
-		newAction->setWhatsThis(scriptEnv->mathFunctionDoc(flist[i]));
+		newAction->setWhatsThis(d_scripting_engine->mathFunctionDoc(flist[i]));
 	}
 	functionsMenu->setTitle(tr("&Functions"));
 	menu->addMenu(functionsMenu);
@@ -192,7 +194,7 @@ void ScriptEdit::insertFunction(const QString &fname)
 
 void ScriptEdit::insertFunction(QAction *action)
 {
-	insertFunction(scriptEnv->mathFunctions()[action->data().toInt()]);
+	insertFunction(d_scripting_engine->mathFunctions()[action->data().toInt()]);
 }
 
 int ScriptEdit::lineNumber(int pos) const
@@ -214,21 +216,21 @@ void ScriptEdit::execute()
 	}
 	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 
-	myScript->setName(fname);
-	myScript->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
+	d_script->setName(fname);
+	d_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-	myScript->exec();
+	d_script->exec();
 }
 
 void ScriptEdit::executeAll()
 {
 	QString fname = "<%1>";
 	fname = fname.arg(name());
-	myScript->setName(fname);
-	myScript->setCode(toPlainText());
+	d_script->setName(fname);
+	d_script->setCode(toPlainText());
 	printCursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-	myScript->exec();
+	d_script->exec();
 }
 
 void ScriptEdit::evaluate()
@@ -242,11 +244,11 @@ void ScriptEdit::evaluate()
 	}
 	fname = fname.arg(lineNumber(codeCursor.selectionStart()));
 
-	myScript->setName(fname);
-	myScript->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
+	d_script->setName(fname);
+	d_script->setCode(codeCursor.selectedText().replace(QChar::ParagraphSeparator,"\n"));
 	printCursor.setPosition(codeCursor.selectionEnd(), QTextCursor::MoveAnchor);
 	printCursor.movePosition(QTextCursor::EndOfLine, QTextCursor::MoveAnchor);
-	QVariant res = myScript->eval();
+	QVariant res = d_script->eval();
 	if (res.isValid())
 		if (!res.isNull() && res.canConvert(QVariant::String)){
 			QString strVal = res.toString();
@@ -285,7 +287,7 @@ void ScriptEdit::print()
 QString ScriptEdit::importASCII(const QString &filename)
 {
 	QString filter = tr("Text") + " (*.txt *.TXT);;";
-	filter += scriptEnv->fileFilter();
+	filter += d_scripting_engine->fileFilter();
 	filter += tr("All Files")+" (*)";
 
 	QString f;
@@ -310,7 +312,7 @@ QString ScriptEdit::importASCII(const QString &filename)
 QString ScriptEdit::exportASCII(const QString &filename)
 {
 	QString filter = tr("Text") + " (*.txt *.TXT);;";
-	filter += scriptEnv->fileFilter();
+	filter += d_scripting_engine->fileFilter();
 	filter += tr("All Files")+" (*)";
 
 	QString selectedFilter;
@@ -344,6 +346,11 @@ QString ScriptEdit::exportASCII(const QString &filename)
 		f.close();
 	}
 	return fn;
+}
+
+void ScriptEdit::setContext(QObject *context)
+{
+	d_script->setContext(context);
 }
 
 void ScriptEdit::updateIndentation()

@@ -1,5 +1,5 @@
 /***************************************************************************
-	File                 : PythonScripting.cpp
+	File                 : PythonScriptingEngine.cpp
 	Project              : SciDAVis
 --------------------------------------------------------------------
 	Copyright            : (C) 2006 by Knut Franke
@@ -47,8 +47,8 @@ typedef struct _traceback {
 #endif
 
 #include "PythonScript.h"
-#include "PythonScripting.h"
-#include "ApplicationWindow.h"
+#include "PythonScriptingEngine.h"
+#include "../core/ApplicationWindow.h"
 
 #include <QObject>
 #include <QStringList>
@@ -60,9 +60,9 @@ typedef struct _traceback {
 #include "sipAPIscidavis.h"
 extern "C" void initscidavis();
 
-const char* PythonScripting::langName = "Python";
+const char* PythonScriptingEngine::g_lang_name = "Python";
 
-QString PythonScripting::toString(PyObject *object, bool decref)
+QString PythonScriptingEngine::toString(PyObject *object, bool decref)
 {
 	QString ret;
 	if (!object) return "";
@@ -74,7 +74,7 @@ QString PythonScripting::toString(PyObject *object, bool decref)
 	return ret;
 }
 
-PyObject *PythonScripting::eval(const QString &code, PyObject *argDict, const char *name)
+PyObject *PythonScriptingEngine::eval(const QString &code, PyObject *argDict, const char *name)
 {
 	PyObject *args;
 	if (argDict)
@@ -94,7 +94,7 @@ PyObject *PythonScripting::eval(const QString &code, PyObject *argDict, const ch
 	return ret;
 }
 
-bool PythonScripting::exec (const QString &code, PyObject *argDict, const char *name)
+bool PythonScriptingEngine::exec (const QString &code, PyObject *argDict, const char *name)
 {
 	PyObject *args;
 	if (argDict)
@@ -116,7 +116,7 @@ bool PythonScripting::exec (const QString &code, PyObject *argDict, const char *
 	return true;
 }
 
-QString PythonScripting::errorMsg()
+QString PythonScriptingEngine::errorMsg()
 {
 	PyObject *exception=0, *value=0, *traceback=0;
 	PyTracebackObject *excit=0;
@@ -170,8 +170,8 @@ QString PythonScripting::errorMsg()
 	return msg;
 }
 
-PythonScripting::PythonScripting(ApplicationWindow *parent)
-	: ScriptingEnv(parent, langName)
+PythonScriptingEngine::PythonScriptingEngine(ApplicationWindow *parent)
+	: AbstractScriptingEngine(parent, g_lang_name)
 {
 	PyObject *mainmod=NULL, *scidavismod=NULL, *sysmod=NULL;
 	math = NULL;
@@ -241,7 +241,7 @@ PythonScripting::PythonScripting(ApplicationWindow *parent)
 	d_initialized = true;
 }
 
-bool PythonScripting::initialize()
+bool PythonScriptingEngine::initialize()
 {
 	if (!d_initialized) return false;
 //	PyEval_AcquireLock();
@@ -265,14 +265,14 @@ bool PythonScripting::initialize()
 	return true;
 }
 
-PythonScripting::~PythonScripting()
+PythonScriptingEngine::~PythonScriptingEngine()
 {
 	Py_XDECREF(globals);
 	Py_XDECREF(math);
 	Py_XDECREF(sys);
 }
 
-bool PythonScripting::loadInitFile(const QString &path)
+bool PythonScriptingEngine::loadInitFile(const QString &path)
 {
 	QFileInfo pyFile(path+".py"), pycFile(path+".pyc");
 	bool success = false;
@@ -323,12 +323,12 @@ bool PythonScripting::loadInitFile(const QString &path)
 	return success;
 }
 
-bool PythonScripting::isRunning() const
+bool PythonScriptingEngine::isRunning() const
 {
 	return Py_IsInitialized();
 }
 
-bool PythonScripting::setQObject(QObject *val, const char *name, PyObject *dict)
+bool PythonScriptingEngine::setQObject(QObject *val, const char *name, PyObject *dict)
 {
 	if(!val) return false;
 	PyObject *pyobj=NULL;
@@ -364,7 +364,7 @@ bool PythonScripting::setQObject(QObject *val, const char *name, PyObject *dict)
 	return true;
 }
 
-bool PythonScripting::setInt(int val, const char *name, PyObject *dict)
+bool PythonScriptingEngine::setInt(int val, const char *name, PyObject *dict)
 {
 	PyObject *pyobj = Py_BuildValue("i",val);
 	if (!pyobj) return false;
@@ -376,7 +376,7 @@ bool PythonScripting::setInt(int val, const char *name, PyObject *dict)
 	return true;
 }
 
-bool PythonScripting::setDouble(double val, const char *name, PyObject *dict)
+bool PythonScriptingEngine::setDouble(double val, const char *name, PyObject *dict)
 {
 	PyObject *pyobj = Py_BuildValue("d",val);
 	if (!pyobj) return false;
@@ -388,7 +388,7 @@ bool PythonScripting::setDouble(double val, const char *name, PyObject *dict)
 	return true;
 }
 
-const QStringList PythonScripting::mathFunctions() const
+const QStringList PythonScriptingEngine::mathFunctions() const
 {
 	QStringList flist;
 	PyObject *key, *value;
@@ -404,7 +404,7 @@ const QStringList PythonScripting::mathFunctions() const
 	return flist;
 }
 
-const QString PythonScripting::mathFunctionDoc(const QString &name) const
+const QString PythonScriptingEngine::mathFunctionDoc(const QString &name) const
 {
 	PyObject *mathf = PyDict_GetItemString(math,name); // borrowed
 	if (!mathf) return "";
@@ -414,7 +414,7 @@ const QString PythonScripting::mathFunctionDoc(const QString &name) const
 	return qdocstr;
 }
 
-const QStringList PythonScripting::fileExtensions() const
+const QStringList PythonScriptingEngine::fileExtensions() const
 {
 	QStringList extensions;
 	extensions << "py" << "PY";

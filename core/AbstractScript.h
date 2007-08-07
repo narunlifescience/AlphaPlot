@@ -1,12 +1,12 @@
 /***************************************************************************
-    File                 : Script.h
+    File                 : AbstractScript.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Scripting abstraction layer
+    Description          : A chunk of scripting code.
                            
  ***************************************************************************/
 
@@ -28,36 +28,29 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef SCRIPT_H
-#define SCRIPT_H
+#ifndef ABSTRACT_SCRIPT_H
+#define ABSTRACT_SCRIPT_H
 
 #include <QVariant>
 #include <QString>
-#include <QStringList>
 #include <QObject>
-#include <QStringList>
-#include <QEvent>
-
-#include "customevents.h"
-#include "ScriptingEnv.h"
 
 class ApplicationWindow;
+class AbstractScriptingEngine;
 
-//! A chunk of scripting code. Abstract.
+//! A chunk of scripting code.
   /**
-   * Script objects represent a chunk of code, possibly together with local
+   * AbstractScript objects represent a chunk of code, possibly together with local
    * variables. The code may be changed and executed multiple times during the
    * lifetime of an object.
    */
-class Script : public QObject
+class AbstractScript : public QObject
 {
   Q_OBJECT
 
   public:
-    Script(ScriptingEnv *env, const QString &code, QObject *context=0, const QString &name="<input>")
-      : Env(env), Code(code), Name(name), compiled(notCompiled)
-      { Env->incref(); Context = context; EmitErrors=true; }
-    ~Script() { Env->decref(); }
+    AbstractScript(AbstractScriptingEngine *env, const QString &code, QObject *context=0, const QString &name="<input>");
+    ~AbstractScript();
 
     //! Return the code that will be executed when calling exec() or eval()
     const QString code() const { return Code; }
@@ -100,7 +93,7 @@ class Script : public QObject
     void print(const QString & output);
     
   protected:
-    ScriptingEnv *Env;
+    AbstractScriptingEngine *d_engine;
     QString Code, Name;
     QObject *Context;
     enum compileStatus { notCompiled, isCompiled, compileErr } compiled;
@@ -108,56 +101,6 @@ class Script : public QObject
 
     void emit_error(const QString & message, int lineNumber)
       { if(EmitErrors) emit error(message, Name, lineNumber); }
-};
-
-//! keeps a static list of available interpreters and instantiates them on demand
-class ScriptingLangManager
-{
-  public:
-    //! Return an instance of the first implementation we can find.
-    static ScriptingEnv *newEnv(ApplicationWindow *parent);
-    //! Return an instance of the implementation specified by name, NULL on failure.
-    static ScriptingEnv *newEnv(const char *name, ApplicationWindow *parent);
-    //! Return the names of available implementations.
-    static QStringList languages();
-    //! Return the number of available implementations.
-    static int numLanguages();
-
-  private:
-    typedef ScriptingEnv*(*ScriptingEnvConstructor)(ApplicationWindow*);
-    typedef struct {
-      const char *name;
-      ScriptingEnvConstructor constructor;
-    } ScriptingLang;
-//! global registry of available languages
-    static ScriptingLang langs[];
-};
-
-//! notify an object that it should update its scripting environment (see class scripted)
-class ScriptingChangeEvent : public QEvent
-{
-  public:
-    ScriptingChangeEvent(ScriptingEnv *e) : QEvent(SCRIPTING_CHANGE_EVENT), env(e) {}
-    ScriptingEnv *scriptingEnv() const { return env; }
-    Type type() const { return SCRIPTING_CHANGE_EVENT; }
-  private:
-    ScriptingEnv *env;
-};
-
-//! Interface for maintaining a reference to the current ScriptingEnv
-  /**
-   * Every class that wants to use a ScriptingEnv should subclass this one and
-   * implement slot customEvent(QEvent*) such that it forwards any
-   * ScriptingChangeEvents to scripted::scriptingChangeEvent.
-   */
-class scripted
-{
-  public:
-   scripted(ScriptingEnv* env);
-   ~scripted();
-   void scriptingChangeEvent(ScriptingChangeEvent*);
-  protected:
-    ScriptingEnv *scriptEnv;
 };
 
 #endif

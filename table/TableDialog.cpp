@@ -228,8 +228,8 @@ void TableDialog::selectColumn(int sc)
 
 void TableDialog::updateColumn(int sc)
 {
-	if(sc <0) sc = d_table->numCols() -1;
-	if(sc >= d_table->numCols()) sc = 0;
+	if(sc <0) sc = d_table->columnCount() -1;
+	if(sc >= d_table->columnCount()) sc = 0;
 
 	int colType = d_table->columnType(sc);
 
@@ -517,7 +517,7 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	bool ok = false;
 	int sc = d_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->numCols(); i++){
+		for (int i = sc; i<d_table->columnCount(); i++){
 			if (type == Table::Date)
 				ok = d_table->setDateFormat(format, i);
 			else if (type == Table::Time)
@@ -555,7 +555,7 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 	int sc = d_table->selectedColumn();
 	if (allRightColumns)
 	{
-		for (int i = sc; i<d_table->numCols(); i++)
+		for (int i = sc; i<d_table->columnCount(); i++)
 			d_table->setColNumericFormat(type, prec, i);
 	}
 	else
@@ -572,7 +572,7 @@ void TableDialog::setTextFormat(bool allRightColumns)
 	/*
 	int sc = d_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->numCols(); i++)
+		for (int i = sc; i<d_table->columnCount(); i++)
 			d_table->setTextFormat(i);
 	}
 	else
@@ -585,7 +585,7 @@ void TableDialog::setDayFormat(const QString& format, bool allRightColumns)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	int sc = d_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->numCols(); i++)
+		for (int i = sc; i<d_table->columnCount(); i++)
 			d_table->setDayFormat(format, i);
 	}
 	else
@@ -600,7 +600,7 @@ void TableDialog::setMonthFormat(const QString& format, bool allRightColumns)
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 	int sc = d_table->selectedColumn();
 	if (allRightColumns){
-		for (int i = sc; i<d_table->numCols(); i++)
+		for (int i = sc; i<d_table->columnCount(); i++)
 			d_table->setMonthFormat(format, i);
 	}
 	else

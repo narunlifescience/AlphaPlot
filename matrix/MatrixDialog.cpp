@@ -35,6 +35,7 @@
 #include <QLayout>
 #include <QGroupBox>
 #include <QSpinBox>
+#include <QCloseEvent>
 
 MatrixDialog::MatrixDialog( Matrix *matrix, QWidget *parent, Qt::WFlags fl )
     : QDialog( parent, fl ),

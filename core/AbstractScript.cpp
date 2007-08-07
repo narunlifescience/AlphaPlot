@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : Script.cpp
+    File                 : AbstractScript.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
-    Description          : Implementations of generic scripting classes
+    Description          : A chunk of scripting code.
                            
  ***************************************************************************/
 
@@ -26,88 +26,37 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ScriptingEnv.h"
-#include "Script.h"
+#include "AbstractScript.h"
+#include "AbstractScriptingEngine.h"
 
-#include <string.h>
-
-#ifdef SCRIPTING_MUPARSER
-#include "muparser/muParserScript.h"
-#include "muparser/muParserScripting.h"
-#endif
-#ifdef SCRIPTING_PYTHON
-#include "python/PythonScript.h"
-#include "python/PythonScripting.h"
-#endif
-
-ScriptingLangManager::ScriptingLang ScriptingLangManager::langs[] = {
-#ifdef SCRIPTING_MUPARSER
-	{ muParserScripting::langName, muParserScripting::constructor },
-#endif
-#ifdef SCRIPTING_PYTHON
-	{ PythonScripting::langName, PythonScripting::constructor },
-#endif
-	{ NULL, NULL }
-};
-
-ScriptingEnv *ScriptingLangManager::newEnv(ApplicationWindow *parent)
+AbstractScript::AbstractScript(AbstractScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
+	: d_engine(engine), Code(code), Name(name), compiled(notCompiled)
 {
-	if (!langs[0].constructor)
-		return NULL;
-	else
-		return langs[0].constructor(parent);
+	d_engine->incref();
+	Context = context;
+	EmitErrors=true;
 }
 
-ScriptingEnv *ScriptingLangManager::newEnv(const char *name, ApplicationWindow *parent)
+AbstractScript::~AbstractScript()
 {
-	for (ScriptingLang *i = langs; i->constructor; i++)
-		if (!strcmp(name, i->name))
-			return i->constructor(parent);
-	return NULL;
+	d_engine->decref();
 }
 
-QStringList ScriptingLangManager::languages()
+bool AbstractScript::compile(bool for_eval)
 {
-	QStringList l;
-	for (ScriptingLang *i = langs; i->constructor; i++)
-		l << i->name;
-	return l;
-}
-
-bool Script::compile(bool for_eval)
-{
-	emit_error("Script::compile called!", 0);
+	emit_error("AbstractScript::compile called!", 0);
 	return false;
 }
 
-QVariant Script::eval()
+QVariant AbstractScript::eval()
 {
-	emit_error("Script::eval called!",0);
+	emit_error("AbstractScript::eval called!",0);
 	return QVariant();
 }
 
-bool Script::exec()
+bool AbstractScript::exec()
 {
-	emit_error("Script::exec called!",0);
+	emit_error("AbstractScript::exec called!",0);
 	return false;
 }
 
-scripted::scripted(ScriptingEnv *env)
-{
-	if (env)
-		env->incref();
-	scriptEnv = env;
-}
-
-scripted::~scripted()
-{
-	if (scriptEnv)
-		scriptEnv->decref();
-}
-
-void scripted::scriptingChangeEvent(ScriptingChangeEvent *sce)
-{
-	scriptEnv->decref();
-	sce->scriptingEnv()->incref();
-	scriptEnv = sce->scriptingEnv();
-}

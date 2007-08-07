@@ -41,19 +41,19 @@
 #include <QVBoxLayout>
 #include <QPrintDialog>
 
-Note::Note(ScriptingEnv *env, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+Note::Note(AbstractScriptingEngine *engine, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 				: MyWidget(label, parent, name, f)
 {
-init(env);	
+	init(engine);
 }
 
-void Note::init(ScriptingEnv *env)
+void Note::init(AbstractScriptingEngine *engine)
 {
 autoExec = false;
 QDateTime dt = QDateTime::currentDateTime ();
 setBirthDate(dt.toString(Qt::LocalDate));
 
-te = new ScriptEdit(env, this, name());
+te = new ScriptEdit(engine, this, name());
 te->setContext(this);
 QVBoxLayout* hlayout = new QVBoxLayout(this,0,0, "hlayout1");
 hlayout->addWidget(te);
