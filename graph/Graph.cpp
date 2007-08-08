@@ -31,16 +31,16 @@
 
 #include "Graph.h"
 #include "CanvasPicker.h"
-#include "types/QwtErrorPlotCurve.h"
-#include "Legend.h"
-#include "enrichments/ArrowMarker.h"
+#include "types/ErrorCurve.h"
+#include "TextEnrichment.h"
+#include "enrichments/LineEnrichment.h"
 #include "ScalePicker.h"
 #include "TitlePicker.h"
-#include "types/QwtPieCurve.h"
-#include "enrichments/ImageMarker.h"
-#include "types/QwtBarCurve.h"
+#include "types/PieCurve.h"
+#include "enrichments/ImageEnrichment.h"
+#include "types/BarCurve.h"
 #include "types/BoxCurve.h"
-#include "types/QwtHistogram.h"
+#include "types/HistogramCurve.h"
 #include "types/VectorCurve.h"
 #include "ScaleDraw.h"
 #include "lib/ColorBox.h"
@@ -234,18 +234,18 @@ void Graph::setSelectedMarker(long mrk, bool add)
 	if (add) {
 		if (d_markers_selector) {
 			if (d_texts.contains(mrk))
-				d_markers_selector->add((Legend*)d_plot->marker(mrk));
+				d_markers_selector->add((TextEnrichment*)d_plot->marker(mrk));
 			else if (d_lines.contains(mrk))
-				d_markers_selector->add((ArrowMarker*)d_plot->marker(mrk));
+				d_markers_selector->add((LineEnrichment*)d_plot->marker(mrk));
 			else if (d_images.contains(mrk))
-				d_markers_selector->add((ImageMarker*)d_plot->marker(mrk));
+				d_markers_selector->add((ImageEnrichment*)d_plot->marker(mrk));
 		} else {
 			if (d_texts.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((Legend*)d_plot->marker(mrk));
+				d_markers_selector = new SelectionMoveResizer((TextEnrichment*)d_plot->marker(mrk));
 			else if (d_lines.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((ArrowMarker*)d_plot->marker(mrk));
+				d_markers_selector = new SelectionMoveResizer((LineEnrichment*)d_plot->marker(mrk));
 			else if (d_images.contains(mrk))
-				d_markers_selector = new SelectionMoveResizer((ImageMarker*)d_plot->marker(mrk));
+				d_markers_selector = new SelectionMoveResizer((ImageEnrichment*)d_plot->marker(mrk));
 			else
 				return;
 			connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
@@ -253,25 +253,25 @@ void Graph::setSelectedMarker(long mrk, bool add)
 	} else {
 		if (d_texts.contains(mrk)) {
 			if (d_markers_selector) {
-				if (d_markers_selector->contains((Legend*)d_plot->marker(mrk)))
+				if (d_markers_selector->contains((TextEnrichment*)d_plot->marker(mrk)))
 					return;
 				delete d_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((Legend*)d_plot->marker(mrk));
+			d_markers_selector = new SelectionMoveResizer((TextEnrichment*)d_plot->marker(mrk));
 		} else if (d_lines.contains(mrk)) {
 			if (d_markers_selector) {
-				if (d_markers_selector->contains((ArrowMarker*)d_plot->marker(mrk)))
+				if (d_markers_selector->contains((LineEnrichment*)d_plot->marker(mrk)))
 					return;
 				delete d_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((ArrowMarker*)d_plot->marker(mrk));
+			d_markers_selector = new SelectionMoveResizer((LineEnrichment*)d_plot->marker(mrk));
 		} else if (d_images.contains(mrk)) {
 			if (d_markers_selector) {
-				if (d_markers_selector->contains((ImageMarker*)d_plot->marker(mrk)))
+				if (d_markers_selector->contains((ImageEnrichment*)d_plot->marker(mrk)))
 					return;
 				delete d_markers_selector;
 			}
-			d_markers_selector = new SelectionMoveResizer((ImageMarker*)d_plot->marker(mrk));
+			d_markers_selector = new SelectionMoveResizer((ImageEnrichment*)d_plot->marker(mrk));
 		} else
 			return;
 		connect(d_markers_selector, SIGNAL(targetsChanged()), this, SIGNAL(modifiedGraph()));
@@ -1634,11 +1634,11 @@ void Graph::removeMarker()
 	{
 		if (d_markers_selector) {
 			if (d_texts.contains(selectedMarker))
-				d_markers_selector->removeAll((Legend*)d_plot->marker(selectedMarker));
+				d_markers_selector->removeAll((TextEnrichment*)d_plot->marker(selectedMarker));
 			else if (d_lines.contains(selectedMarker))
-				d_markers_selector->removeAll((ArrowMarker*)d_plot->marker(selectedMarker));
+				d_markers_selector->removeAll((LineEnrichment*)d_plot->marker(selectedMarker));
 			else if (d_images.contains(selectedMarker))
-				d_markers_selector->removeAll((ImageMarker*)d_plot->marker(selectedMarker));
+				d_markers_selector->removeAll((ImageEnrichment*)d_plot->marker(selectedMarker));
 		}
 		d_plot->removeMarker(selectedMarker);
 		d_plot->replot();
@@ -1699,12 +1699,12 @@ void Graph::copyMarker()
 	}
 
 	if (d_lines.contains(selectedMarker)){
-		ArrowMarker* mrkL=(ArrowMarker*) d_plot->marker(selectedMarker);
+		LineEnrichment* mrkL=(LineEnrichment*) d_plot->marker(selectedMarker);
 		auxMrkStart=mrkL->startPoint();
 		auxMrkEnd=mrkL->endPoint();
 		selectedMarkerType = Arrow;
 	} else if (d_images.contains(selectedMarker)){
-		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(selectedMarker);
+		ImageEnrichment* mrkI=(ImageEnrichment*) d_plot->marker(selectedMarker);
 		auxMrkStart=mrkI->origin();
 		QRect rect=mrkI->rect();
 		auxMrkEnd=rect.bottomRight();
@@ -1717,7 +1717,7 @@ void Graph::copyMarker()
 void Graph::pasteMarker()
 {
 	if (selectedMarkerType == Arrow){
-		ArrowMarker* mrkL = new ArrowMarker();
+		LineEnrichment* mrkL = new LineEnrichment();
         int linesOnPlot = (int)d_lines.size();
   	    d_lines.resize(++linesOnPlot);
   	    d_lines[linesOnPlot-1] = d_plot->insertMarker(mrkL);
@@ -1733,7 +1733,7 @@ void Graph::pasteMarker()
 		mrkL->setHeadAngle(auxArrowHeadAngle);
 		mrkL->fillArrowHead(auxFilledArrowHead);
 	} else if (selectedMarkerType==Image){
-		ImageMarker* mrk = new ImageMarker(auxMrkFileName);
+		ImageEnrichment* mrk = new ImageEnrichment(auxMrkFileName);
 		int imagesOnPlot=d_images.size();
   	    d_images.resize(++imagesOnPlot);
   	    d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
@@ -1744,7 +1744,7 @@ void Graph::pasteMarker()
 		mrk->setOrigin(o);
 		mrk->setSize(QRect(auxMrkStart,auxMrkEnd).size());
 	} else {
-		Legend* mrk=new Legend(d_plot);
+		TextEnrichment* mrk=new TextEnrichment(d_plot);
         int texts = d_texts.size();
   	    d_texts.resize(++texts);
   	    d_texts[texts-1] = d_plot->insertMarker(mrk);
@@ -1853,9 +1853,9 @@ void Graph::removeLegend()
 	}
 }
 
-void Graph::updateImageMarker(int x, int y, int w, int h)
+void Graph::updateImageEnrichment(int x, int y, int w, int h)
 {
-	ImageMarker* mrk =(ImageMarker*) d_plot->marker(selectedMarker);
+	ImageEnrichment* mrk =(ImageEnrichment*) d_plot->marker(selectedMarker);
 	mrk->setRect(x, y, w, h);
 	d_plot->replot();
 	emit modifiedGraph();
@@ -1864,7 +1864,7 @@ void Graph::updateImageMarker(int x, int y, int w, int h)
 void Graph::updateTextMarker(const QString& text,int angle, int bkg,const QFont& fnt,
 		const QColor& textColor, const QColor& backgroundColor)
 {
-	Legend* mrkL=(Legend*) d_plot->marker(selectedMarker);
+	TextEnrichment* mrkL=(TextEnrichment*) d_plot->marker(selectedMarker);
 	mrkL->setText(text);
 	mrkL->setAngle(angle);
 	mrkL->setTextColor(textColor);
@@ -1876,10 +1876,10 @@ void Graph::updateTextMarker(const QString& text,int angle, int bkg,const QFont&
 	emit modifiedGraph();
 }
 
-Legend* Graph::legend()
+TextEnrichment* Graph::legend()
 {
 	if (legendMarkerID >=0 )
-		return (Legend*) d_plot->marker(legendMarkerID);
+		return (TextEnrichment*) d_plot->marker(legendMarkerID);
 	else
 		return 0;
 }
@@ -2322,7 +2322,7 @@ QString Graph::savePieCurveLayout()
 {
 	QString s="PieCurve\t";
 
-	QwtPieCurve *pieCurve=(QwtPieCurve*)curve(0);
+	PieCurve *pieCurve=(PieCurve*)curve(0);
 	s+= pieCurve->title().text()+"\t";
 	QPen pen=pieCurve->pen();
 
@@ -2407,14 +2407,14 @@ QString Graph::saveCurveLayout(int index)
 
 	if(style == VerticalBars||style == HorizontalBars||style == Histogram)
 	{
-		QwtBarCurve *b = (QwtBarCurve*)c;
+		BarCurve *b = (BarCurve*)c;
 		s+=QString::number(b->gap())+"\t";
 		s+=QString::number(b->offset())+"\t";
 	}
 
 	if(style == Histogram)
 	{
-		QwtHistogram *h = (QwtHistogram*)c;
+		HistogramCurve *h = (HistogramCurve*)c;
 		s+=QString::number(h->autoBinning())+"\t";
 		s+=QString::number(h->binSize())+"\t";
 		s+=QString::number(h->begin())+"\t";
@@ -2491,7 +2491,7 @@ QString Graph::saveCurves()
 			}
 		    else if (c->type() == ErrorBars)
   	        {
-  	        	QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)it;
+  	        	ErrorCurve *er = (ErrorCurve *)it;
   	            s += "ErrorBars\t";
   	            s += QString::number(er->direction())+"\t";
   	            s += er->masterCurve()->xColumnName() + "\t";
@@ -2529,9 +2529,9 @@ QString Graph::saveGridOptions()
 	return s;
 }
 
-Legend* Graph::newLegend()
+TextEnrichment* Graph::newLegend()
 {
-	Legend* mrk = new Legend(d_plot);
+	TextEnrichment* mrk = new TextEnrichment(d_plot);
 	mrk->setOrigin(QPoint(10, 10));
 
 	if (isPiePlot())
@@ -2556,15 +2556,15 @@ Legend* Graph::newLegend()
 
 void Graph::addTimeStamp()
 {
-	Legend* mrk= newLegend(QDateTime::currentDateTime().toString(Qt::LocalDate));
+	TextEnrichment* mrk= newLegend(QDateTime::currentDateTime().toString(Qt::LocalDate));
 	mrk->setOrigin(QPoint(d_plot->canvas()->width()/2, 10));
 	emit modifiedGraph();
 	d_plot->replot();
 }
 
-Legend* Graph::newLegend(const QString& text)
+TextEnrichment* Graph::newLegend(const QString& text)
 {
-	Legend* mrk = new Legend(d_plot);
+	TextEnrichment* mrk = new TextEnrichment(d_plot);
 	selectedMarker = d_plot->insertMarker(mrk);
 	if(d_markers_selector)
 		delete d_markers_selector;
@@ -2590,7 +2590,7 @@ void Graph::insertLegend(const QStringList& lst, int fileVersion)
 long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 {
 	QStringList fList=list;
-	Legend* mrk = new Legend(d_plot);
+	TextEnrichment* mrk = new TextEnrichment(d_plot);
 	long key = d_plot->insertMarker(mrk);
 
 	int texts = d_texts.size();
@@ -2658,7 +2658,7 @@ long Graph::insertTextMarker(const QStringList& list, int fileVersion)
 
 void Graph::addArrow(QStringList list, int fileVersion)
 {
-	ArrowMarker* mrk= new ArrowMarker();
+	LineEnrichment* mrk= new LineEnrichment();
 	long mrkID=d_plot->insertMarker(mrk);
     int linesOnPlot = (int)d_lines.size();
 	d_lines.resize(++linesOnPlot);
@@ -2686,9 +2686,9 @@ void Graph::addArrow(QStringList list, int fileVersion)
 	}
 }
 
-void Graph::addArrow(ArrowMarker* mrk)
+void Graph::addArrow(LineEnrichment* mrk)
 {
-	ArrowMarker* aux= new ArrowMarker();
+	LineEnrichment* aux= new LineEnrichment();
     int linesOnPlot = (int)d_lines.size();
 	d_lines.resize(++linesOnPlot);
 	d_lines[linesOnPlot-1] = d_plot->insertMarker(aux);
@@ -2705,24 +2705,24 @@ void Graph::addArrow(ArrowMarker* mrk)
 	aux->fillArrowHead(mrk->filledArrowHead());
 }
 
-ArrowMarker* Graph::arrow(long id)
+LineEnrichment* Graph::arrow(long id)
 {
-	return (ArrowMarker*)d_plot->marker(id);
+	return (LineEnrichment*)d_plot->marker(id);
 }
 
-ImageMarker* Graph::imageMarker(long id)
+ImageEnrichment* Graph::imageMarker(long id)
 {
-	return (ImageMarker*)d_plot->marker(id);
+	return (ImageEnrichment*)d_plot->marker(id);
 }
 
-Legend* Graph::textMarker(long id)
+TextEnrichment* Graph::textMarker(long id)
 {
-	return (Legend*)d_plot->marker(id);
+	return (TextEnrichment*)d_plot->marker(id);
 }
 
-long Graph::insertTextMarker(Legend* mrk)
+long Graph::insertTextMarker(TextEnrichment* mrk)
 {
-	Legend* aux = new Legend(d_plot);
+	TextEnrichment* aux = new TextEnrichment(d_plot);
 	selectedMarker = d_plot->insertMarker(aux);
 	if(d_markers_selector)
 		delete d_markers_selector;
@@ -2747,7 +2747,7 @@ QString Graph::saveMarkers()
 	int t = d_texts.size(), l = d_lines.size(), im = d_images.size();
 	for (int i=0; i<im; i++)
 	{
-		ImageMarker* mrkI=(ImageMarker*) d_plot->marker(d_images[i]);
+		ImageEnrichment* mrkI=(ImageEnrichment*) d_plot->marker(d_images[i]);
 		s += "<image>\t";
 		s += mrkI->fileName()+"\t";
 		s += QString::number(mrkI->xValue(), 'g', 15)+"\t";
@@ -2758,7 +2758,7 @@ QString Graph::saveMarkers()
 
 	for (int i=0; i<l; i++)
 	{
-		ArrowMarker* mrkL=(ArrowMarker*) d_plot->marker(d_lines[i]);
+		LineEnrichment* mrkL=(LineEnrichment*) d_plot->marker(d_lines[i]);
 		s+="<line>\t";
 
 		QwtDoublePoint sp = mrkL->startPointCoord();
@@ -2781,7 +2781,7 @@ QString Graph::saveMarkers()
 
 	for (int i=0; i<t; i++)
 	{
-		Legend* mrk=(Legend*) d_plot->marker(d_texts[i]);
+		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(d_texts[i]);
 		if (d_texts[i] != legendMarkerID)
 			s+="<text>\t";
 		else
@@ -2926,7 +2926,7 @@ CurveLayout Graph::initCurveLayout(int style, int curves)
 		cl.sType = 0;
 		if (c_type[i] == Graph::VerticalBars || style == Graph::HorizontalBars)
 		{
-			QwtBarCurve *b = (QwtBarCurve*)curve(i);
+			BarCurve *b = (BarCurve*)curve(i);
 			if (b)
 			{
 				b->setGap(qRound(100*(1-1.0/(double)curves)));
@@ -2959,10 +2959,10 @@ bool Graph::canConvertTo(QwtPlotCurve *c, CurveType type)
 		return false;
 	// conversion between Pie, Histogram and Box should be possible (all of them take one input column),
 	// but lots of special-casing in ApplicationWindow and Graph makes this very difficult
-	if (dynamic_cast<QwtPieCurve*>(c) || dynamic_cast<QwtHistogram*>(c) || dynamic_cast<BoxCurve*>(c))
+	if (dynamic_cast<PieCurve*>(c) || dynamic_cast<HistogramCurve*>(c) || dynamic_cast<BoxCurve*>(c))
 		return false;
 	// converting error bars doesn't make sense
-	if (dynamic_cast<QwtErrorPlotCurve*>(c))
+	if (dynamic_cast<ErrorCurve*>(c))
 		return false;
 	// line/symbol, area and bar curves can be converted to each other
 	if (dynamic_cast<DataCurve*>(c))
@@ -3029,7 +3029,7 @@ void Graph::updateCurveLayout(int index, const CurveLayout *cL)
 	c->setBrush(brush);
 }
 
-void Graph::updateErrorBars(QwtErrorPlotCurve *er, bool xErr, int width, int cap, const QColor& c,
+void Graph::updateErrorBars(ErrorCurve *er, bool xErr, int width, int cap, const QColor& c,
 		bool plus, bool minus, bool through)
 {
 	if (!er)
@@ -3080,7 +3080,7 @@ bool Graph::addErrorBars(const QString& xColName, const QString& yColName,
 	if (!master_curve)
 		return false;
 
-	QwtErrorPlotCurve *er = new QwtErrorPlotCurve(type, errTable, errColName);
+	ErrorCurve *er = new ErrorCurve(type, errTable, errColName);
 	er->setMasterCurve(master_curve);
 	er->setCapLength(cap);
 	er->setColor(color);
@@ -3105,7 +3105,7 @@ void Graph::plotPie(Table* w, const QString& name, const QPen& pen, int brush,
 	if (endRow < 0)
 		endRow = w->rowCount() - 1;
 
-	QwtPieCurve *pieCurve = new QwtPieCurve(w, name, startRow, endRow);
+	PieCurve *pieCurve = new PieCurve(w, name, startRow, endRow);
 	pieCurve->loadData();
 	pieCurve->setPen(pen);
 	pieCurve->setRay(size);
@@ -3153,7 +3153,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		return;
     Y.resize(size);
 
-	QwtPieCurve *pieCurve = new QwtPieCurve(w, name, startRow, endRow);
+	PieCurve *pieCurve = new PieCurve(w, name, startRow, endRow);
 	pieCurve->setData(Y.data(), Y.data(), size);
 
 	c_keys.resize(++n_curves);
@@ -3162,7 +3162,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	c_type.resize(n_curves);
 	c_type[n_curves-1] = Pie;
 
-	// This has to be synced with QwtPieCurve::drawPie() for now... until we have a clean solution.
+	// This has to be synced with PieCurve::drawPie() for now... until we have a clean solution.
 	QRect canvas_rect = d_plot->plotLayout()->canvasRect();
 	float radius = 0.45*qMin(canvas_rect.width(), canvas_rect.height());
 
@@ -3173,7 +3173,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 		const double value = Y[i]/sum*360;
 		double alabel = (angle - value*0.5)*PI/180.0;
 
-		Legend* aux = new Legend(d_plot);
+		TextEnrichment* aux = new TextEnrichment(d_plot);
 		aux->setFrameStyle(0);
 		aux->setText(QString::number(Y[i]/sum*100,'g',2)+"%");
 
@@ -3189,7 +3189,7 @@ void Graph::plotPie(Table* w, const QString& name, int startRow, int endRow)
 	}
 
 	if (legendMarkerID>=0){
-		Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 		if (mrk){
 			QString text="";
 			for (int i=0; i<size; i++){
@@ -3256,7 +3256,7 @@ bool Graph::insertCurvesList(Table* w, const QStringList& names, int style, int 
                     return false;
 
                 if (w->plotDesignation(j) == AbstractDataSource::xErr)
-                    ok = addErrorBars(w->colName(ycol), w, names[i], (int)QwtErrorPlotCurve::Horizontal);
+                    ok = addErrorBars(w->colName(ycol), w, names[i], (int)ErrorCurve::Horizontal);
                 else
                     ok = addErrorBars(w->colName(ycol), w, names[i]);
 			}
@@ -3381,16 +3381,16 @@ bool Graph::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	DataCurve *c = 0;
 	if (style == VerticalBars){
-		c = new QwtBarCurve(QwtBarCurve::Vertical, w, xColName, yColName, startRow, endRow);
+		c = new BarCurve(BarCurve::Vertical, w, xColName, yColName, startRow, endRow);
 		c->setStyle(QwtPlotCurve::UserCurve);
 	}
 	else if (style == HorizontalBars){
-		c = new QwtBarCurve(QwtBarCurve::Horizontal, w, xColName, yColName, startRow, endRow);
+		c = new BarCurve(BarCurve::Horizontal, w, xColName, yColName, startRow, endRow);
 		c->setStyle(QwtPlotCurve::UserCurve);
 	}
 	else if (style == Histogram){
-		c = new QwtHistogram(w, xColName, yColName, startRow, endRow);
-		((QwtHistogram *)c)->initData(Y, size);
+		c = new HistogramCurve(w, xColName, yColName, startRow, endRow);
+		((HistogramCurve *)c)->initData(Y, size);
 		c->setStyle(QwtPlotCurve::UserCurve);
 	}
 	else
@@ -3515,7 +3515,7 @@ void Graph::updatePlot()
 	updateSecondaryAxis(QwtPlot::yRight);
 
     if (isPiePlot()){
-        QwtPieCurve *c = (QwtPieCurve *)curve(0);
+        PieCurve *c = (PieCurve *)curve(0);
         c->updateBoundingRect();
     }
 
@@ -3552,7 +3552,7 @@ void Graph::updateScale()
 
 void Graph::setBarsGap(int curve, int gapPercent, int offset)
 {
-	QwtBarCurve *bars = (QwtBarCurve *)this->curve(curve);
+	BarCurve *bars = (BarCurve *)this->curve(curve);
 	if (!bars)
 		return;
 
@@ -3567,7 +3567,7 @@ void Graph::removePie()
 {
 	if (legendMarkerID>=0)
 	{
-		Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 		if (mrk)
 			mrk->setText(QString::null);
 	}
@@ -3626,7 +3626,7 @@ void Graph::removeCurve(int index)
 	if (it->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 	{
         if (((PlotCurve *)it)->type() == ErrorBars)
-            ((QwtErrorPlotCurve *)it)->detachFromMasterCurve();
+            ((ErrorCurve *)it)->detachFromMasterCurve();
 		else if (((PlotCurve *)it)->type() != Function)
 			((DataCurve *)it)->clearErrorBars();
 
@@ -3666,7 +3666,7 @@ void Graph::removeLegendItem(int index)
 	if (legendMarkerID<0 || c_type[index] == ErrorBars)
 		return;
 
-	Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+	TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 	if (!mrk)
 		return;
 
@@ -3703,7 +3703,7 @@ void Graph::removeLegendItem(int index)
 void Graph::addLegendItem(const QString& colName)
 {
 	if (legendMarkerID >= 0 ){
-		Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 		if (mrk){
 			QString text = mrk->text();
 			if (text.endsWith ( "\n", true ) )
@@ -3796,12 +3796,12 @@ void Graph::drawText(bool on)
 	drawTextOn=on;
 }
 
-ImageMarker* Graph::addImage(ImageMarker* mrk)
+ImageEnrichment* Graph::addImage(ImageEnrichment* mrk)
 {
 	if (!mrk)
 		return 0;
 	
-	ImageMarker* mrk2 = new ImageMarker(mrk->fileName());
+	ImageEnrichment* mrk2 = new ImageEnrichment(mrk->fileName());
 
 	int imagesOnPlot = d_images.size();
 	d_images.resize(++imagesOnPlot);
@@ -3811,7 +3811,7 @@ ImageMarker* Graph::addImage(ImageMarker* mrk)
 	return mrk;
 }
 
-ImageMarker* Graph::addImage(const QString& fileName)
+ImageEnrichment* Graph::addImage(const QString& fileName)
 {
 	if (fileName.isEmpty() || !QFile::exists(fileName)){
 		QMessageBox::warning(0, tr("File open error"),
@@ -3819,7 +3819,7 @@ ImageMarker* Graph::addImage(const QString& fileName)
 		return 0;
 	}
 	
-	ImageMarker* mrk = new ImageMarker(fileName);
+	ImageEnrichment* mrk = new ImageEnrichment(fileName);
 	int imagesOnPlot = d_images.size();
 	d_images.resize(++imagesOnPlot);
 	d_images[imagesOnPlot-1] = d_plot->insertMarker(mrk);
@@ -3840,14 +3840,14 @@ ImageMarker* Graph::addImage(const QString& fileName)
 	return mrk;
 }
 
-void Graph::insertImageMarker(const QStringList& lst, int fileVersion)
+void Graph::insertImageEnrichment(const QStringList& lst, int fileVersion)
 {
 	QString fn = lst[1];
 	if (!QFile::exists(fn)){
 		QMessageBox::warning(0, tr("File open error"),
 				tr("Image file: <p><b> %1 </b><p>does not exist anymore!").arg(fn));
 	} else {
-		ImageMarker* mrk = new ImageMarker(fn);
+		ImageEnrichment* mrk = new ImageEnrichment(fn);
 		if (!mrk)
 			return;
 		
@@ -3902,7 +3902,7 @@ void Graph::modifyFunctionCurve(int curve, int type, const QStringList &formulas
 
 	if (legendMarkerID >= 0)
 	{//update the legend marker
-		Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+		TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 		if (mrk)
 		{
 			QString text = (mrk->text()).replace(oldLegend, c->legend());
@@ -4095,7 +4095,7 @@ QString Graph::saveToString(bool saveAsTemplate)
 
 void Graph::showIntensityTable()
 {
-	ImageMarker* mrk=(ImageMarker*) d_plot->marker(selectedMarker);
+	ImageEnrichment* mrk=(ImageEnrichment*) d_plot->marker(selectedMarker);
 	if (!mrk)
 		return;
 
@@ -4106,20 +4106,20 @@ void Graph::updateMarkersBoundingRect()
 {
 	for (int i=0;i<(int)d_lines.size();i++)
 	{
-		ArrowMarker* mrkL = (ArrowMarker*)d_plot->marker(d_lines[i]);
+		LineEnrichment* mrkL = (LineEnrichment*)d_plot->marker(d_lines[i]);
 		if (mrkL)
 			mrkL->updateBoundingRect();
 	}
 	for (int i=0; i<(int)d_texts.size(); i++)
 	{
-		Legend* mrkT = (Legend*) d_plot->marker(d_texts[i]);
+		TextEnrichment* mrkT = (TextEnrichment*) d_plot->marker(d_texts[i]);
 		if (mrkT)
 			mrkT->updateOrigin();
 	}
 
 	for (int i=0;i<(int)d_images.size();i++)
 	{
-		ImageMarker* mrk = (ImageMarker*) d_plot->marker(d_images[i]);
+		ImageEnrichment* mrk = (ImageEnrichment*) d_plot->marker(d_images[i]);
 		if (mrk)
 			mrk->updateBoundingRect();
 	}
@@ -4146,7 +4146,7 @@ void Graph::scaleFonts(double factor)
 {
 	for (int i=0;i<(int)d_texts.size();i++)
 	{
-		Legend* mrk = (Legend*) d_plot->marker(d_texts[i]);
+		TextEnrichment* mrk = (TextEnrichment*) d_plot->marker(d_texts[i]);
 		QFont font = mrk->font();
 		font.setPointSizeF(factor*font.pointSizeFloat());
 		mrk->setFont(font);
@@ -4574,9 +4574,9 @@ void Graph::copy(Graph* g)
 			PlotCurve *c = 0;
 			if (style == Pie)
 			{
-				c = new QwtPieCurve(cv->table(), cv->title().text(), cv->startRow(), cv->endRow());
-				((QwtPieCurve*)c)->setRay(((QwtPieCurve*)cv)->ray());
-                ((QwtPieCurve*)c)->setFirstColor(((QwtPieCurve*)cv)->firstColor());
+				c = new PieCurve(cv->table(), cv->title().text(), cv->startRow(), cv->endRow());
+				((PieCurve*)c)->setRay(((PieCurve*)cv)->ray());
+                ((PieCurve*)c)->setFirstColor(((PieCurve*)cv)->firstColor());
 			}
 			else if (style == Function)
 			{
@@ -4585,25 +4585,25 @@ void Graph::copy(Graph* g)
 			}
 			else if (style == VerticalBars || style == HorizontalBars)
 			{
-				c = new QwtBarCurve(((QwtBarCurve*)cv)->orientation(), cv->table(), cv->xColumnName(),
+				c = new BarCurve(((BarCurve*)cv)->orientation(), cv->table(), cv->xColumnName(),
 									cv->title().text(), cv->startRow(), cv->endRow());
-				((QwtBarCurve*)c)->copy((const QwtBarCurve*)cv);
+				((BarCurve*)c)->copy((const BarCurve*)cv);
 			}
 			else if (style == ErrorBars)
 			{
-				QwtErrorPlotCurve *er = (QwtErrorPlotCurve*)cv;
+				ErrorCurve *er = (ErrorCurve*)cv;
 				DataCurve *master_curve = masterCurve(er);
 				if (master_curve)
 				{
-					c = new QwtErrorPlotCurve(cv->table(), cv->title().text());
-					((QwtErrorPlotCurve*)c)->copy(er);
-					((QwtErrorPlotCurve*)c)->setMasterCurve(master_curve);
+					c = new ErrorCurve(cv->table(), cv->title().text());
+					((ErrorCurve*)c)->copy(er);
+					((ErrorCurve*)c)->setMasterCurve(master_curve);
 				}
 			}
 			else if (style == Histogram)
 			{
-				c = new QwtHistogram(cv->table(), cv->xColumnName(), cv->title().text(), cv->startRow(), cv->endRow());
-				((QwtHistogram *)c)->copy((const QwtHistogram*)cv);
+				c = new HistogramCurve(cv->table(), cv->xColumnName(), cv->title().text(), cv->startRow(), cv->endRow());
+				((HistogramCurve *)c)->copy((const HistogramCurve*)cv);
 			}
 			else if (style == VectXYXY || style == VectXYAM)
 			{
@@ -4746,11 +4746,11 @@ void Graph::copy(Graph* g)
 
 	QVector<int> imag = g->imageMarkerKeys();
 	for (i=0; i<(int)imag.size(); i++)
-		addImage((ImageMarker*)g->imageMarker(imag[i]));
+		addImage((ImageEnrichment*)g->imageMarker(imag[i]));
 	
 	QVector<int> txtMrkKeys=g->textMarkerKeys();
 	for (i=0; i<(int)txtMrkKeys.size(); i++){
-		Legend* mrk = (Legend*)g->textMarker(txtMrkKeys[i]);
+		TextEnrichment* mrk = (TextEnrichment*)g->textMarker(txtMrkKeys[i]);
 		if (!mrk)
 			continue;
 
@@ -4762,14 +4762,14 @@ void Graph::copy(Graph* g)
 
 	QVector<int> l = g->lineMarkerKeys();
 	for (i=0; i<(int)l.size(); i++){
-		ArrowMarker* lmrk=(ArrowMarker*)g->arrow(l[i]);
+		LineEnrichment* lmrk=(LineEnrichment*)g->arrow(l[i]);
 		if (lmrk)
 			addArrow(lmrk);
 	}
 	d_plot->replot();
 
     if (isPiePlot()){
-        QwtPieCurve *c = (QwtPieCurve *)curve(0);
+        PieCurve *c = (PieCurve *)curve(0);
         c->updateBoundingRect();
     }
 }
@@ -4793,7 +4793,7 @@ void Graph::plotBoxDiagram(Table *w, const QStringList& names, int startRow, int
         c->setSymbol(QwtSymbol(QwtSymbol::NoSymbol, QBrush(), QPen(ColorBox::color(j), 1), QSize(7,7)));
 	}
 
-	Legend* mrk=(Legend*) d_plot->marker(legendMarkerID);
+	TextEnrichment* mrk=(TextEnrichment*) d_plot->marker(legendMarkerID);
 	if (mrk)
 		mrk->setText(legendText());
 
@@ -4955,7 +4955,7 @@ void Graph::guessUniqueCurveLayout(int& colorIndex, int& symbolIndex)
 	int curve_index = n_curves - 1;
 	if (curve_index >= 0 && c_type[curve_index] == ErrorBars)
 	{// find out the pen color of the master curve
-		QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)d_plot->curve(c_keys[curve_index]);
+		ErrorCurve *er = (ErrorCurve *)d_plot->curve(c_keys[curve_index]);
 		DataCurve *master_curve = er->masterCurve();
 		if (master_curve)
 		{
@@ -5268,7 +5268,7 @@ void Graph::updateCurveNames(const QString& oldName, const QString& newName, boo
 
     if (legendMarkerID >= 0 )
 	{//update legend
-		Legend * mrk = (Legend*) d_plot->marker(legendMarkerID);
+		TextEnrichment * mrk = (TextEnrichment*) d_plot->marker(legendMarkerID);
 		if (mrk)
 		{
             QStringList lst = mrk->text().split("\n", QString::SkipEmptyParts);
@@ -5290,7 +5290,7 @@ void Graph::setCurveFullRange(int curveIndex)
 	}
 }
 
-DataCurve* Graph::masterCurve(QwtErrorPlotCurve *er)
+DataCurve* Graph::masterCurve(ErrorCurve *er)
 {
 	QList<int> keys = d_plot->curveKeys();
 	for (int i=0; i<(int)keys.count(); i++)

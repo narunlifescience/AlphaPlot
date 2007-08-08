@@ -31,7 +31,7 @@
 #ifndef SCREEN_PICKER_TOOL_H
 #define SCREEN_PICKER_TOOL_H
 
-#include "../PlotToolInterface.h"
+#include "../AbstractGraphTool.h"
 #include <QObject>
 #include <qwt_double_rect.h>
 #include <qwt_plot_marker.h>
@@ -42,7 +42,7 @@
  * This is a rather thin wrapper around QwtPlotPicker, providing selection of points
  * on a Graph/Plot and displaying coordinates.
  */
-class ScreenPickerTool : public QwtPlotPicker, public PlotToolInterface
+class ScreenPickerTool : public QwtPlotPicker, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:

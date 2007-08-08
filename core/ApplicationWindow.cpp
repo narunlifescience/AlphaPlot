@@ -45,42 +45,42 @@
 
 #include "../lib/ColorBox.h"
 #include "../lib/TextDialog.h"
+#include "../lib/ImageExportDialog.h"
 
 #include "../graph/CurvesDialog.h"
 #include "../graph/PlotDialog.h"
 #include "../graph/AxesDialog.h"
 #include "../graph/ErrDialog.h"
-#include "../graph/Legend.h"
+#include "../graph/TextEnrichment.h"
 #include "../graph/Plot.h"
 #include "../graph/PlotWizard.h"
 #include "../graph/MultiLayer.h"
 #include "../graph/LayerDialog.h"
 #include "../graph/FunctionDialog.h"
 #include "../graph/AssociationsDialog.h"
-#include "../graph/ImageExportDialog.h"
 #include "../graph/ScaleDraw.h"
 #include "../graph/FunctionCurve.h"
-#include "../graph/types/QwtErrorPlotCurve.h"
-#include "../graph/types/QwtPieCurve.h"
+#include "../graph/types/ErrorCurve.h"
+#include "../graph/types/PieCurve.h"
 #include "../graph/types/Spectrogram.h"
-#include "../graph/types/QwtHistogram.h"
-#include "../graph/enrichments/LineDialog.h"
-#include "../graph/enrichments/ArrowMarker.h"
-#include "../graph/enrichments/ImageMarker.h"
-#include "../graph/enrichments/ImageDialog.h"
+#include "../graph/types/HistogramCurve.h"
+#include "../graph/enrichments/LineEnrichmentDialog.h"
+#include "../graph/enrichments/LineEnrichment.h"
+#include "../graph/enrichments/ImageEnrichment.h"
+#include "../graph/enrichments/ImageEnrichmentDialog.h"
 #include "../graph/tools/ScreenPickerTool.h"
 #include "../graph/tools/DataPickerTool.h"
 #include "../graph/tools/TranslateCurveTool.h"
 #include "../graph/tools/LineProfileTool.h"
 
-#include "../graph-3D/SurfaceDialog.h"
+#include "../graph-3D/FunctionDialog3D.h"
 #include "../graph-3D/Graph3D.h"
-#include "../graph-3D/Plot3DDialog.h"
+#include "../graph-3D/PlotDialog3D.h"
 
 #include "../table/TableDialog.h"
 #include "../table/SetColValuesDialog.h"
-#include "../table/ExportDialog.h"
-#include "../table/ImportASCIIDialog.h"
+#include "../table/ExportTableDialog.h"
+#include "../table/ImportTableDialog.h"
 
 #include "../analysis/PolynomFitDialog.h"
 #include "../analysis/ExpDecayDialog.h"
@@ -1848,7 +1848,7 @@ void ApplicationWindow::editSurfacePlot()
 	{
 		Graph3D* g = (Graph3D*)ws->activeWindow();
 
-		SurfaceDialog* sd= new SurfaceDialog(this);
+		FunctionDialog3D* sd= new FunctionDialog3D(this);
 		sd->setAttribute(Qt::WA_DeleteOnClose);
 		connect (sd,SIGNAL(options(const QString&,double,double,double,double,double,double)),
 				g,SLOT(insertFunction(const QString&,double,double,double,double,double,double)));
@@ -1867,7 +1867,7 @@ void ApplicationWindow::editSurfacePlot()
 
 void ApplicationWindow::newSurfacePlot()
 {
-	SurfaceDialog* sd= new SurfaceDialog(this);
+	FunctionDialog3D* sd= new FunctionDialog3D(this);
 	sd->setAttribute(Qt::WA_DeleteOnClose);
 	connect (sd,SIGNAL(options(const QString&,double,double,double,double,double,double)),
 			this,SLOT(newPlot3D(const QString&,double,double,double,double,double,double)));
@@ -2363,12 +2363,12 @@ MultiLayer* ApplicationWindow::multilayerPlot(const QStringList& colList)
 			int posErr, errType;
 			if (s.contains("(yErr)"))
 			{
-				errType = QwtErrorPlotCurve::Vertical;
+				errType = ErrorCurve::Vertical;
 				posErr = s.find("(yErr)", posY);
 			}
 			else
 			{
-				errType = QwtErrorPlotCurve::Horizontal;
+				errType = ErrorCurve::Horizontal;
 				posErr = s.find("(xErr)",posY);
 			}
 
@@ -2986,7 +2986,7 @@ void ApplicationWindow::defineErrorBars(const QString& name, int type, const QSt
 	if (xColName.isEmpty())
 		return;
 
-	if (direction == QwtErrorPlotCurve::Horizontal)
+	if (direction == ErrorCurve::Horizontal)
 		w->addCol(AbstractDataSource::xErr);
 	else
 		w->addCol(AbstractDataSource::yErr);
@@ -3384,7 +3384,7 @@ ApplicationWindow * ApplicationWindow::plotFile(const QString& fn)
 
 void ApplicationWindow::importASCII()
 {
-	ImportASCIIDialog *import_dialog = new ImportASCIIDialog(ws->activeWindow() && ws->activeWindow()->inherits("Table"), this, d_extended_import_ASCII_dialog);
+	ImportTableDialog *import_dialog = new ImportTableDialog(ws->activeWindow() && ws->activeWindow()->inherits("Table"), this, d_extended_import_ASCII_dialog);
 	import_dialog->setDir(asciiDirPath);
 	import_dialog->selectFilter(d_ASCII_file_filter);
 	if (import_dialog->exec() != QDialog::Accepted)
@@ -3422,7 +3422,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 		return;
 
 	switch(import_mode) {
-		case ImportASCIIDialog::NewTables:
+		case ImportTableDialog::NewTables:
 			{
 				int dx, dy;
 				for (int i=0; i<files.size(); i++){
@@ -3444,8 +3444,8 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 				modifiedProject();
 				break;
 			}
-		case ImportASCIIDialog::NewColumns:
-		case ImportASCIIDialog::NewRows:
+		case ImportTableDialog::NewColumns:
+		case ImportTableDialog::NewRows:
 			{
 				Table *t = (Table*) ws->activeWindow();
 				if (t && t->inherits("Table")){
@@ -3461,7 +3461,7 @@ void ApplicationWindow::importASCII(const QStringList& files, int import_mode, c
 				}
 				break;
 			}
-		case ImportASCIIDialog::Overwrite:
+		case ImportTableDialog::Overwrite:
 			{
 				Table *t = (Table*) ws->activeWindow();
 				if ( t && t->inherits("Table")){
@@ -4201,7 +4201,7 @@ void ApplicationWindow::readSettings()
 
 	settings.beginGroup("/Dialogs");
 	d_extended_open_dialog = settings.value("/ExtendedOpenDialog", true).toBool();
-	d_extended_export_dialog = settings.value("/ExtendedExportDialog", true).toBool();
+	d_extended_export_dialog = settings.value("/ExtendedExportTableDialog", true).toBool();
 	d_extended_import_ASCII_dialog = settings.value("/ExtendedImportAsciiDialog", true).toBool();
 	d_extended_plot_dialog = settings.value("/ExtendedPlotDialog", true).toBool();//used by PlotDialog
 
@@ -4333,7 +4333,7 @@ void ApplicationWindow::readSettings()
 	settings.endGroup(); // Ticks
 
 	settings.beginGroup("/Legend");
-	legendFrameStyle = settings.value("/FrameStyle", Legend::Line).toInt();
+	legendFrameStyle = settings.value("/FrameStyle", TextEnrichment::Line).toInt();
 	legendTextColor = settings.value("/TextColor", "#000000").value<QColor>(); //default color Qt::black
 	legendBackground = settings.value("/BackgroundColor", "#ffffff").value<QColor>(); //default color Qt::white
 	legendBackground.setAlpha(settings.value("/Transparency", 0).toInt()); // transparent by default;
@@ -4451,7 +4451,7 @@ void ApplicationWindow::saveSettings()
 
 	settings.beginGroup("/Dialogs");
 	settings.setValue("/ExtendedOpenDialog", d_extended_open_dialog);
-	settings.setValue("/ExtendedExportDialog", d_extended_export_dialog);
+	settings.setValue("/ExtendedExportTableDialog", d_extended_export_dialog);
 	settings.setValue("/ExtendedImportAsciiDialog", d_extended_import_ASCII_dialog);
 	settings.setValue("/ExtendedPlotDialog", d_extended_plot_dialog);
 	settings.beginGroup("/AddRemoveCurves");
@@ -4682,11 +4682,29 @@ void ApplicationWindow::exportGraph()
 		return;
 
 	ImageExportDialog *ied = new ImageExportDialog(this, plot2D!=NULL, d_extended_export_dialog);
+
 	ied->setDir(workingDir);
-    ied->selectFilter(d_image_export_filter);
+	ied->selectFilter(d_image_export_filter);
+	ied->setResolution(d_export_resolution);
+	ied->setColorEnabled(d_export_color);
+	ied->setPageSize(d_export_vector_size);
+	ied->setKeepAspect(d_keep_plot_aspect);
+	ied->setQuality(d_export_quality);
+	ied->setTransparency(d_export_transparency);
+
 	if ( ied->exec() != QDialog::Accepted )
 		return;
+
+	d_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
+	d_image_export_filter = ied->selectedFilter();
+	d_export_resolution = ied->resolution();
+	d_export_color = ied->colorEnabled();
+	d_export_vector_size = ied->pageSize();
+	d_keep_plot_aspect = ied->keepAspect();
+	d_export_quality = ied->quality();
+	d_export_transparency = ied->transparency();
+
 	if (ied->selectedFiles().isEmpty())
 		return;
 
@@ -4708,7 +4726,7 @@ void ApplicationWindow::exportGraph()
 		if (plot3D)
 			plot3D->exportVector(file_name, selected_filter.remove("*."));
 		else if (plot2D)
-			plot2D->exportVector(file_name, ied->resolution(), ied->color(), ied->keepAspect(), ied->pageSize());
+			plot2D->exportVector(file_name, ied->resolution(), ied->colorEnabled(), ied->keepAspect(), ied->pageSize());
 	} else if (selected_filter.contains(".svg")) {
 		if (plot2D)
 			plot2D->exportSVG(file_name);
@@ -4737,11 +4755,29 @@ void ApplicationWindow::exportLayer()
 		return;
 
 	ImageExportDialog *ied = new ImageExportDialog(this, g!=NULL, d_extended_export_dialog);
+
 	ied->setDir(workingDir);
 	ied->selectFilter(d_image_export_filter);
+	ied->setResolution(d_export_resolution);
+	ied->setColorEnabled(d_export_color);
+	ied->setPageSize(d_export_vector_size);
+	ied->setKeepAspect(d_keep_plot_aspect);
+	ied->setQuality(d_export_quality);
+	ied->setTransparency(d_export_transparency);
+
 	if ( ied->exec() != QDialog::Accepted )
 		return;
+
+	d_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
+	d_image_export_filter = ied->selectedFilter();
+	d_export_resolution = ied->resolution();
+	d_export_color = ied->colorEnabled();
+	d_export_vector_size = ied->pageSize();
+	d_keep_plot_aspect = ied->keepAspect();
+	d_export_quality = ied->quality();
+	d_export_transparency = ied->transparency();
+
 	if (ied->selectedFiles().isEmpty())
 		return;
 
@@ -4760,7 +4796,7 @@ void ApplicationWindow::exportLayer()
 	}
 
 	if (selected_filter.contains(".eps") || selected_filter.contains(".pdf") || selected_filter.contains(".ps"))
-		g->exportVector(file_name, ied->resolution(), ied->color(), ied->keepAspect(), ied->pageSize());
+		g->exportVector(file_name, ied->resolution(), ied->colorEnabled(), ied->keepAspect(), ied->pageSize());
 	else if (selected_filter.contains(".svg"))
 		g->exportSVG(file_name);
 	else {
@@ -4782,11 +4818,27 @@ void ApplicationWindow::exportAllGraphs()
 	ied->setLabelText(QFileDialog::FileName, tr("Directory:"));
 
 	ied->setDir(workingDir);
-    ied->selectFilter(d_image_export_filter);
+	ied->selectFilter(d_image_export_filter);
+	ied->setResolution(d_export_resolution);
+	ied->setColorEnabled(d_export_color);
+	ied->setPageSize(d_export_vector_size);
+	ied->setKeepAspect(d_keep_plot_aspect);
+	ied->setQuality(d_export_quality);
+	ied->setTransparency(d_export_transparency);
 
 	if ( ied->exec() != QDialog::Accepted )
 		return;
+
+	d_extended_export_dialog = ied->isExtended();
 	workingDir = ied->directory().path();
+	d_image_export_filter = ied->selectedFilter();
+	d_export_resolution = ied->resolution();
+	d_export_color = ied->colorEnabled();
+	d_export_vector_size = ied->pageSize();
+	d_keep_plot_aspect = ied->keepAspect();
+	d_export_quality = ied->quality();
+	d_export_transparency = ied->transparency();
+
 	if (ied->selectedFiles().isEmpty())
 		return;
 
@@ -4850,7 +4902,7 @@ void ApplicationWindow::exportAllGraphs()
 			if (plot3D)
 				plot3D->exportVector(file_name, file_suffix.remove("."));
 			else if (plot2D)
-				plot2D->exportVector(file_name, ied->resolution(), ied->color());
+				plot2D->exportVector(file_name, ied->resolution(), ied->colorEnabled());
 		} else if (file_suffix.contains(".svg")) {
 			if (plot2D)
 				plot2D->exportSVG(file_name);
@@ -5290,7 +5342,7 @@ void ApplicationWindow::showTitleDialog()
 	}
 	else if (w->inherits("Graph3D"))
 	{
-		Plot3DDialog* pd = (Plot3DDialog*)showPlot3dDialog();
+		PlotDialog3D* pd = (PlotDialog3D*)showPlot3dDialog();
 		if (pd)
 			pd->showTitleTab();
 		delete pd;
@@ -5409,7 +5461,7 @@ void ApplicationWindow::showExportASCIIDialog()
 {
 	if ( ws->activeWindow() && ws->activeWindow()->inherits("Table"))
 	{
-		ExportDialog* ed= new ExportDialog(this,Qt::WindowContextHelpButtonHint);
+		ExportTableDialog* ed= new ExportTableDialog(this,Qt::WindowContextHelpButtonHint);
 		ed->setAttribute(Qt::WA_DeleteOnClose);
 		connect (ed, SIGNAL(exportTable(const QString&, const QString&, bool, bool)),
 				this, SLOT(exportASCII (const QString&, const QString&, bool, bool)));
@@ -6076,7 +6128,7 @@ void ApplicationWindow::showGeneralPlotDialog()
 	else if (plot->inherits("Graph3D"))
 	{
 	    QDialog* gd = showScaleDialog();
-		((Plot3DDialog*)gd)->showGeneralTab();
+		((PlotDialog3D*)gd)->showGeneralTab();
 	}
 }
 
@@ -6090,7 +6142,7 @@ void ApplicationWindow::showAxisDialog()
 	if (gd && plot->inherits("MultiLayer") && ((MultiLayer*)plot)->layers())
 		((AxesDialog*)gd)->showAxesPage();
 	else if (gd && plot->inherits("Graph3D"))
-		((Plot3DDialog*)gd)->showAxisTab();
+		((PlotDialog3D*)gd)->showAxisTab();
 }
 
 void ApplicationWindow::showGridDialog()
@@ -6178,7 +6230,7 @@ QDialog* ApplicationWindow::showPlot3dDialog()
 			return 0;
 		}
 
-		Plot3DDialog* pd= new Plot3DDialog(this);
+		PlotDialog3D* pd= new PlotDialog3D(this);
 		pd->setPlot(g);
 
 		connect (pd,SIGNAL(updateColors(const QColor&,const QColor&,const QColor&,const QColor&,const QColor&,const QColor&)),
@@ -7277,7 +7329,7 @@ void ApplicationWindow::drawArrow()
 	}
 }
 
-void ApplicationWindow::showImageDialog()
+void ApplicationWindow::showImageEnrichmentDialog()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("MultiLayer"))
 		return;
@@ -7285,14 +7337,14 @@ void ApplicationWindow::showImageDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g)
 	{
-		ImageMarker *im = (ImageMarker *) g->selectedMarkerPtr();
+		ImageEnrichment *im = (ImageEnrichment *) g->selectedMarkerPtr();
 		if (!im)
 			return;
 
-		ImageDialog *id = new ImageDialog(this);
+		ImageEnrichmentDialog *id = new ImageEnrichmentDialog(this);
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id, SIGNAL(setGeometry(int, int, int, int)),
-				g, SLOT(updateImageMarker(int, int, int, int)));
+				g, SLOT(updateImageEnrichment(int, int, int, int)));
 		id->setIcon(QPixmap(":/appicon"));
 		id->setOrigin(im->origin());
 		id->setSize(im->size());
@@ -7328,7 +7380,7 @@ void ApplicationWindow::showPlotGeometryDialog()
 	Graph* g = plot->activeGraph();
 	if (g)
 	{
-		ImageDialog *id=new ImageDialog(this);
+		ImageEnrichmentDialog *id=new ImageEnrichmentDialog(this);
 		id->setAttribute(Qt::WA_DeleteOnClose);
 		connect (id, SIGNAL(setGeometry(int,int,int,int)), plot, SLOT(setGraphGeometry(int,int,int,int)));
 		id->setIcon(QPixmap(":/appicon"));
@@ -7347,7 +7399,7 @@ void ApplicationWindow::showTextDialog()
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if ( g )
 	{
-		Legend *m = (Legend *) g->selectedMarkerPtr();
+		TextEnrichment *m = static_cast<TextEnrichment*>(g->selectedMarkerPtr());
 		if (!m)
 			return;
 
@@ -7369,18 +7421,18 @@ void ApplicationWindow::showTextDialog()
 	}
 }
 
-void ApplicationWindow::showLineDialog()
+void ApplicationWindow::showLineEnrichmentDialog()
 {
 	if (!ws->activeWindow() || !ws->activeWindow()->inherits("MultiLayer"))
 		return;
 
 	Graph* g = ((MultiLayer*)ws->activeWindow())->activeGraph();
 	if (g){
-		ArrowMarker *lm = (ArrowMarker *) g->selectedMarkerPtr();
+		LineEnrichment *lm = (LineEnrichment *) g->selectedMarkerPtr();
 		if (!lm)
 			return;
 
-		LineDialog *ld = new LineDialog(lm, this, Qt::Tool);
+		LineEnrichmentDialog *ld = new LineEnrichmentDialog(lm, this, Qt::Tool);
 		ld->setAttribute(Qt::WA_DeleteOnClose);
 		ld->exec();
 	}
@@ -7508,7 +7560,7 @@ void ApplicationWindow::copyMarker()
 
 		if (copiedMarkerType == Graph::Text)
 		{
-			Legend *m = (Legend *) g->selectedMarkerPtr();
+			TextEnrichment *m = static_cast<TextEnrichment*>(g->selectedMarkerPtr());
 			auxMrkText=m->text();
 			auxMrkColor=m->textColor();
 			auxMrkFont=m->font();
@@ -7517,7 +7569,7 @@ void ApplicationWindow::copyMarker()
 		}
 		else if (copiedMarkerType == Graph::Arrow)
 		{
-			ArrowMarker *m = (ArrowMarker *) g->selectedMarkerPtr();
+			LineEnrichment *m = (LineEnrichment *) g->selectedMarkerPtr();
 			auxMrkWidth=m->width();
 			auxMrkColor=m->color();
 			auxMrkStyle=m->style();
@@ -7529,7 +7581,7 @@ void ApplicationWindow::copyMarker()
 		}
 		else if (copiedMarkerType == Graph::Image)
 		{
-			ImageMarker *im = (ImageMarker *) g->selectedMarkerPtr();
+			ImageEnrichment *im = (ImageEnrichment *) g->selectedMarkerPtr();
 			if (im)
 				auxMrkFileName = im->fileName();
 		}
@@ -7759,7 +7811,7 @@ void ApplicationWindow::resizeActiveWindow()
 	if (!w)
 		return;
 
-	ImageDialog *id = new ImageDialog(this);
+	ImageEnrichmentDialog *id = new ImageEnrichmentDialog(this);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
 
@@ -7777,7 +7829,7 @@ void ApplicationWindow::resizeWindow()
 
 	ws->setActiveWindow ( w );
 
-	ImageDialog *id = new ImageDialog(this);
+	ImageEnrichmentDialog *id = new ImageEnrichmentDialog(this);
 	id->setAttribute(Qt::WA_DeleteOnClose);
 	connect (id, SIGNAL(setGeometry(int,int,int,int)), this, SLOT(setWindowGeometry(int,int,int,int)));
 
@@ -8006,9 +8058,9 @@ void ApplicationWindow::showMarkerPopupMenu()
 	markerMenu.insertItem(QPixmap(":/erase.xpm"), tr("&Delete"),this, SLOT(clearSelection()));
 	markerMenu.addSeparator();
 	if (g->arrowMarkerSelected())
-		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showLineDialog()));
+		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showLineEnrichmentDialog()));
 	else if (g->imageMarkerSelected())
-		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showImageDialog()));
+		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showImageEnrichmentDialog()));
 	else
 		markerMenu.insertItem(tr("&Properties..."),this, SLOT(showTextDialog()));
 
@@ -8112,7 +8164,7 @@ void ApplicationWindow::dropEvent( QDropEvent* e )
 				asciiFiles << fn;
 		}
 
-		importASCII(asciiFiles, ImportASCIIDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
+		importASCII(asciiFiles, ImportTableDialog::NewTables, columnSeparator, ignoredLines, renameColumns,
 				strip_spaces, simplify_spaces, d_use_custom_locale, d_ASCII_import_locale);
 	}
 }
@@ -10215,7 +10267,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 
 				if(plotType == Graph::Histogram)
 				{
-				    QwtHistogram *h = (QwtHistogram *)ag->curve(curveID);
+				    HistogramCurve *h = (HistogramCurve *)ag->curve(curveID);
 					if (d_file_version <= 76)
                         h->setBinning(curve[16].toInt(),curve[17].toDouble(),curve[18].toDouble(),curve[19].toDouble());
 					else
@@ -10485,10 +10537,10 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 			QStringList fList=s.remove("</line>").split("\t");
 			ag->addArrow(fList, d_file_version);
 		}
-		else if (s.contains ("ImageMarker") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
+		else if (s.contains ("ImageEnrichment") || (s.startsWith ("<image>") && s.endsWith ("</image>")))
 		{
 			QStringList fList=s.remove("</image>").split("\t");
-			ag->insertImageMarker(fList, d_file_version);
+			ag->insertImageEnrichment(fList, d_file_version);
 		}
 		else if (s.contains("AxisType"))
 		{
@@ -10525,7 +10577,7 @@ Graph* ApplicationWindow::openGraph(ApplicationWindow* app, MultiLayer *plot,
 	ag->replot();
 	if (ag->isPiePlot())
 	{
-        QwtPieCurve *c = (QwtPieCurve *)ag->curve(0);
+        PieCurve *c = (PieCurve *)ag->curve(0);
         if (c) c->updateBoundingRect();
     }
 
@@ -10823,13 +10875,13 @@ void ApplicationWindow::connectMultilayerPlot(MultiLayer *g)
 	connect (g,SIGNAL(hiddenWindow(MyWidget*)),this, SLOT(hideWindow(MyWidget*)));
 	connect (g,SIGNAL(statusChanged(MyWidget*)),this, SLOT(updateWindowStatus(MyWidget*)));
 	connect (g,SIGNAL(cursorInfo(const QString&)),d_status_info,SLOT(setText(const QString&)));
-	connect (g,SIGNAL(showImageDialog()),this,SLOT(showImageDialog()));
+	connect (g,SIGNAL(showImageEnrichmentDialog()),this,SLOT(showImageEnrichmentDialog()));
 	connect (g,SIGNAL(createTable(const QString&,int,int,const QString&)),
 			this,SLOT(newTable(const QString&,int,int,const QString&)));
 	connect (g,SIGNAL(viewTitleDialog()),this,SLOT(showTitleDialog()));
 	connect (g,SIGNAL(modifiedWindow(QWidget*)),this,SLOT(modifiedProject(QWidget*)));
 	connect (g,SIGNAL(modifiedPlot()),this,SLOT(modifiedProject()));
-	connect (g,SIGNAL(showLineDialog()),this,SLOT(showLineDialog()));
+	connect (g,SIGNAL(showLineEnrichmentDialog()),this,SLOT(showLineEnrichmentDialog()));
 	connect (g,SIGNAL(showGeometryDialog()),this,SLOT(showPlotGeometryDialog()));
 	connect (g,SIGNAL(pasteMarker()),this,SLOT(pasteSelection()));
 	connect (g,SIGNAL(showGraphContextMenu()),this,SLOT(showGraphContextMenu()));
@@ -11311,11 +11363,11 @@ void ApplicationWindow::createActions()
 	actionIntensityTable = new QAction(tr("&Intensity Table"), this);
 	connect(actionIntensityTable, SIGNAL(activated()), this, SLOT(intensityTable()));
 
-	actionShowLineDialog = new QAction(tr("&Properties"), this);
-	connect(actionShowLineDialog, SIGNAL(activated()), this, SLOT(showLineDialog()));
+	actionShowLineEnrichmentDialog = new QAction(tr("&Properties"), this);
+	connect(actionShowLineEnrichmentDialog, SIGNAL(activated()), this, SLOT(showLineEnrichmentDialog()));
 
-	actionShowImageDialog = new QAction(tr("&Properties"), this);
-	connect(actionShowImageDialog, SIGNAL(activated()), this, SLOT(showImageDialog()));
+	actionShowImageEnrichmentDialog = new QAction(tr("&Properties"), this);
+	connect(actionShowImageEnrichmentDialog, SIGNAL(activated()), this, SLOT(showImageEnrichmentDialog()));
 
 	actionShowTextDialog = new QAction(tr("&Properties"), this);
 	connect(actionShowTextDialog, SIGNAL(activated()), this, SLOT(showTextDialog()));
@@ -11824,8 +11876,8 @@ void ApplicationWindow::translateActionsStrings()
 	actionShowMoreWindows->setMenuText(tr("More Windows..."));
 	actionPixelLineProfile->setMenuText(tr("&View Pixel Line Profile"));
 	actionIntensityTable->setMenuText(tr("&Intensity Table"));
-	actionShowLineDialog->setMenuText(tr("&Properties"));
-	actionShowImageDialog->setMenuText(tr("&Properties"));
+	actionShowLineEnrichmentDialog->setMenuText(tr("&Properties"));
+	actionShowImageEnrichmentDialog->setMenuText(tr("&Properties"));
 	actionShowTextDialog->setMenuText(tr("&Properties"));
 	actionActivateWindow->setMenuText(tr("&Activate Window"));
 	actionMinimizeWindow->setMenuText(tr("Mi&nimize Window"));

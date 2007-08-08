@@ -42,7 +42,7 @@
 #include <qwt_plot_curve.h>
 
 TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir, const QObject *status_target, const char *status_slot)
-	: PlotToolInterface(graph),
+	: AbstractGraphTool(graph),
 	d_dir(dir),
 	d_app(app)
 {

@@ -29,7 +29,6 @@
 #include "Integration.h"
 #include "nrutil.h"
 #include "graph/MultiLayer.h"
-#include "graph/Legend.h"
 
 #include <QMessageBox>
 #include <QDateTime>

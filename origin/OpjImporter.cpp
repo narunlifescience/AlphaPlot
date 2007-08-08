@@ -33,7 +33,7 @@
 #include "lib/ColorBox.h"
 #include "graph/MultiLayer.h"
 #include "note/Note.h"
-#include "graph/types/QwtHistogram.h"
+#include "graph/types/HistogramCurve.h"
 #include "table/Table.h"
 
 #include <QRegExp>
@@ -675,13 +675,13 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				graph->updateCurveLayout(c, &cl);
 				if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
 				{
-					QwtBarCurve *b = (QwtBarCurve*)graph->curve(c);
+					BarCurve *b = (BarCurve*)graph->curve(c);
 					if (b)
 						b->setGap(qRound(100-opj.curveSymbolSize(g,l,c)*10));
 				}
 				else if(style == Graph::Histogram)
 				{
-					QwtHistogram *h = (QwtHistogram*)graph->curve(c);
+					HistogramCurve *h = (HistogramCurve*)graph->curve(c);
 					if (h)
 					{
 						vector<double> bin=opj.layerHistogram(g,l);

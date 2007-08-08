@@ -37,9 +37,9 @@
 
   HEADERS += $${SIP_DIR}/sipscidavisApplicationWindow.h\
              $${SIP_DIR}/sipscidavisGraph.h\
-             $${SIP_DIR}/sipscidavisArrowMarker.h\
-             $${SIP_DIR}/sipscidavisImageMarker.h\
-             $${SIP_DIR}/sipscidavisLegend.h\
+             $${SIP_DIR}/sipscidavisLineEnrichment.h\
+             $${SIP_DIR}/sipscidavisImageEnrichment.h\
+             $${SIP_DIR}/sipscidavisTextEnrichment.h\
              $${SIP_DIR}/sipscidavisMultiLayer.h\
              $${SIP_DIR}/sipscidavisTable.h\
              $${SIP_DIR}/sipscidavisMatrix.h\
@@ -57,7 +57,7 @@
              $${SIP_DIR}/sipscidavisSigmoidalFit.h \
              $${SIP_DIR}/sipscidavisGaussAmpFit.h \
              $${SIP_DIR}/sipscidavisLorentzFit.h \
-             $${SIP_DIR}/sipscidavisNonLinearFit.h \
+             $${SIP_DIR}/sipscidavisUserFunctionFit.h \
              $${SIP_DIR}/sipscidavisPluginFit.h \
              $${SIP_DIR}/sipscidavisMultiPeakFit.h \
              $${SIP_DIR}/sipscidavisPolynomialFit.h \
@@ -77,9 +77,9 @@
   SOURCES += $${SIP_DIR}/sipscidaviscmodule.cpp\
              $${SIP_DIR}/sipscidavisApplicationWindow.cpp\
              $${SIP_DIR}/sipscidavisGraph.cpp\
-             $${SIP_DIR}/sipscidavisArrowMarker.cpp\
-             $${SIP_DIR}/sipscidavisImageMarker.cpp\
-             $${SIP_DIR}/sipscidavisLegend.cpp\
+             $${SIP_DIR}/sipscidavisLineEnrichment.cpp\
+             $${SIP_DIR}/sipscidavisImageEnrichment.cpp\
+             $${SIP_DIR}/sipscidavisTextEnrichment.cpp\
              $${SIP_DIR}/sipscidavisMultiLayer.cpp\
              $${SIP_DIR}/sipscidavisTable.cpp\
              $${SIP_DIR}/sipscidavisMatrix.cpp\
@@ -97,7 +97,7 @@
              $${SIP_DIR}/sipscidavisSigmoidalFit.cpp \
              $${SIP_DIR}/sipscidavisGaussAmpFit.cpp \
              $${SIP_DIR}/sipscidavisLorentzFit.cpp \
-             $${SIP_DIR}/sipscidavisNonLinearFit.cpp \
+             $${SIP_DIR}/sipscidavisUserFunctionFit.cpp \
              $${SIP_DIR}/sipscidavisPluginFit.cpp \
              $${SIP_DIR}/sipscidavisMultiPeakFit.cpp \
              $${SIP_DIR}/sipscidavisPolynomialFit.cpp \

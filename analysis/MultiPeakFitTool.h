@@ -31,7 +31,7 @@
 #ifndef MULTI_PEAK_FIT_TOOL
 #define MULTI_PEAK_FIT_TOOL
 
-#include "graph/PlotToolInterface.h"
+#include "graph/AbstractGraphTool.h"
 #include "MultiPeakFit.h"
 #include <QObject>
 
@@ -47,7 +47,7 @@ class QwtPlotCurve;
  * Maybe some other parts of the multi-peak fitting process (namely, specifying the number of peaks and optionally
  * the peak profile) could be moved here as well.
  */
-class MultiPeakFitTool : public QObject, public PlotToolInterface
+class MultiPeakFitTool : public QObject, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:

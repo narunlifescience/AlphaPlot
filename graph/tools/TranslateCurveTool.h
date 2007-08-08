@@ -31,7 +31,7 @@
 #ifndef TRANSLATE_CURVE_TOOL_H
 #define TRANSLATE_CURVE_TOOL_H
 
-#include "../PlotToolInterface.h"
+#include "../AbstractGraphTool.h"
 #include <QObject>
 #include <qwt_double_rect.h>
 
@@ -39,7 +39,7 @@ class ApplicationWindow;
 class QwtPlotCurve;
 
 //! Plot tool for translating curves.
-class TranslateCurveTool : public QObject, public PlotToolInterface
+class TranslateCurveTool : public QObject, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:
@@ -67,7 +67,7 @@ class TranslateCurveTool : public QObject, public PlotToolInterface
 		void selectDestination(const QwtDoublePoint &point);
 	private:
 		Direction d_dir;
-		PlotToolInterface *d_sub_tool;
+		AbstractGraphTool *d_sub_tool;
 		QwtPlotCurve *d_selected_curve;
 		QwtDoublePoint d_curve_point;
 		ApplicationWindow *d_app;

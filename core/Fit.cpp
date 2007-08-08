@@ -31,8 +31,8 @@
 #include "analysis/fit_gsl.h"
 #include "table/Table.h"
 #include "matrix/Matrix.h"
-#include "graph/types/QwtErrorPlotCurve.h"
-#include "graph/Legend.h"
+#include "graph/Graph.h"
+#include "graph/types/ErrorCurve.h"
 #include "graph/FunctionCurve.h"
 
 #include <gsl/gsl_statistics.h>
@@ -144,7 +144,7 @@ void Fit::setDataCurve(int curve, double start, double end)
         QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
         foreach (DataCurve *c, lst)
         {
-            QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
+            ErrorCurve *er = (ErrorCurve *)c;
             if (!er->xErrors())
             {
                 d_weihting = Instrumental;
@@ -280,13 +280,13 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 		case Instrumental:
 			{
 				bool error = true;
-				QwtErrorPlotCurve *er = 0;
+				ErrorCurve *er = 0;
 				if (((PlotCurve *)d_curve)->type() != Graph::Function)
 				{
 					QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
                 	foreach (DataCurve *c, lst)
                 	{
-                    	er = (QwtErrorPlotCurve *)c;
+                    	er = (ErrorCurve *)c;
                     	if (!er->xErrors())
                     	{
                         	weighting_dataset = er->title().text();

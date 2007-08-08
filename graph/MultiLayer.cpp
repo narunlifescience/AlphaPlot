@@ -53,7 +53,7 @@
 
 #include "MultiLayer.h"
 #include "Plot.h"
-#include "Legend.h"
+#include "TextEnrichment.h"
 #include "SelectionMoveResizer.h"
 
 #include <gsl/gsl_vector.h>
@@ -925,7 +925,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 		QVector<int> keys=gr->textMarkerKeys();
 		for (int k=0;k<(int)keys.size();k++)
 		{
-			Legend* mrk=(Legend*)gr->textMarker(keys[k]);
+			TextEnrichment* mrk=(TextEnrichment*)gr->textMarker(keys[k]);
 			if (mrk)
 				mrk->setFont(legendFnt);
 		}
@@ -987,7 +987,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	g->setIgnoreResizeEvents(true);
 	g->setTextMarkerDefaults(defaultTextMarkerFrame, defaultTextMarkerFont,
 			defaultTextMarkerColor, defaultTextMarkerBackground);
-	Legend *mrk = g->newLegend(tr("enter your text here"));
+	TextEnrichment *mrk = g->newLegend(tr("enter your text here"));
 	QSize size = mrk->rect().size();
 	setGraphGeometry(pos.x(), pos.y(), size.width()+10, size.height()+10);
 	g->setIgnoreResizeEvents(false);

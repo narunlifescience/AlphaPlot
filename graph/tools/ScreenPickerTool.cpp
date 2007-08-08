@@ -35,7 +35,7 @@
 
 ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, const char *status_slot)
 	: QwtPlotPicker(graph->plotWidget()->canvas()),
-	PlotToolInterface(graph)
+	AbstractGraphTool(graph)
 {
 //	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush), QPen(Qt::red,1), QSize(15,15)));
 	d_selection_marker.setLineStyle(QwtPlotMarker::Cross);

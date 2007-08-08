@@ -598,7 +598,7 @@ public slots:
 	void showResults(bool ok);
 	void showResults(const QString& s, bool ok=true);
 	void showTextDialog();
-	void showLineDialog();
+	void showLineEnrichmentDialog();
 	void showTitleDialog();
 	void showExportASCIIDialog();
 	void showCurvesDialog();
@@ -650,7 +650,7 @@ public slots:
 	void showRowStatistics();
 	void showColStatistics();
 	void showFitDialog();
-	void showImageDialog();
+	void showImageEnrichmentDialog();
 	void showPlotGeometryDialog();
 	void showLayerDialog();
 	void showPreferencesDialog();
@@ -1071,7 +1071,7 @@ private:
     QAction *actionAddColToTable, *actionDeleteLayer, *actionInterpolate;
     QAction *actionResizeActiveWindow, *actionHideActiveWindow;
     QAction *actionShowMoreWindows, *actionPixelLineProfile, *actionIntensityTable;
-    QAction *actionShowLineDialog, *actionShowImageDialog, *actionShowTextDialog;
+    QAction *actionShowLineEnrichmentDialog, *actionShowImageEnrichmentDialog, *actionShowTextDialog;
     QAction *actionActivateWindow, *actionMinimizeWindow, *actionMaximizeWindow, *actionResizeWindow, *actionPrintWindow;
     QAction *actionShowPlotGeometryDialog, *actionEditSurfacePlot, *actionAdd3DData;
 	QAction *actionMatrixDeterminant, *actionSetMatrixProperties;

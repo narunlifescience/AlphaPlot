@@ -29,7 +29,7 @@
 #include "Filter.h"
 #include "lib/ColorBox.h"
 
-#include "graph/Legend.h"
+#include "graph/TextEnrichment.h"
 #include "table/Table.h"
 #include "graph/FunctionCurve.h"
 #include "graph/PlotCurve.h"
@@ -185,10 +185,10 @@ void Filter::setColor(const QString& colorName)
 
 void Filter::showLegend()
 {
-	Legend* mrk = d_graph->newLegend(legendInfo());
+	TextEnrichment* mrk = d_graph->newLegend(legendInfo());
 	if (d_graph->hasLegend())
 	{
-		Legend* legend = d_graph->legend();
+		TextEnrichment* legend = d_graph->legend();
 		QPoint p = legend->rect().bottomLeft();
 		mrk->setOrigin(QPoint(p.x(), p.y()+20));
 	}

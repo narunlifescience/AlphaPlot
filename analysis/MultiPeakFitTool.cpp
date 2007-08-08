@@ -37,7 +37,7 @@
 #include <QApplication>
 
 MultiPeakFitTool::MultiPeakFitTool(Graph *graph, ApplicationWindow *app, MultiPeakFit::PeakProfile profile, int num_peaks, const QObject *status_target, const char *status_slot)
-	: PlotToolInterface(graph),
+	: AbstractGraphTool(graph),
 	d_profile(profile),
 	d_num_peaks(num_peaks)
 {

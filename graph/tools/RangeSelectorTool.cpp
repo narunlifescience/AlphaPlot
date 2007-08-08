@@ -42,7 +42,7 @@
 
 RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target, const char *status_slot)
 	: QwtPlotPicker(graph->plotWidget()->canvas()),
-	PlotToolInterface(graph)
+	AbstractGraphTool(graph)
 {
 	d_selected_curve = NULL;
 	for (int i=d_graph->curves(); i>=0; --i) {

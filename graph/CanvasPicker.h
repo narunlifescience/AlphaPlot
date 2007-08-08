@@ -30,7 +30,7 @@
 #include "Plot.h"
 
 class Graph;
-class ArrowMarker;
+class LineEnrichment;
 
 /**
  * \brief Handles parts of the user interaction for a Plot by registering itself as an event filter for its QwtPlotCanvas.
@@ -92,8 +92,8 @@ private:
 	/*!\brief The marker that is currently being edited, or NULL.
 	 * Editing does explicitly _not_ inlude moving and resizing, which are being
 	 * handled by SelectionMoveResizer (see Graph::d_markers_selector).
-	 * Currently, only ArrowMarker provides any other form of editing, but this really
-	 * should be generalized. See ImageMarker for details.
+	 * Currently, only LineEnrichment provides any other form of editing, but this really
+	 * should be generalized. See ImageEnrichment for details.
 	 */
-	ArrowMarker *d_editing_marker;
+	LineEnrichment *d_editing_marker;
 };

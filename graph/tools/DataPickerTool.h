@@ -31,7 +31,7 @@
 #ifndef DATA_PICKER_TOOL_H
 #define DATA_PICKER_TOOL_H
 
-#include "../PlotToolInterface.h"
+#include "../AbstractGraphTool.h"
 #include <qwt_plot_marker.h>
 #include <qwt_plot_picker.h>
 
@@ -40,7 +40,7 @@ class QwtPlotCurve;
 class QPoint;
 
 //! Plot tool for selecting, moving or removing individual points of a curve.
-class DataPickerTool : public QwtPlotPicker, public PlotToolInterface
+class DataPickerTool : public QwtPlotPicker, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:

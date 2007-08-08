@@ -318,14 +318,14 @@ private:
   Matrix(const Matrix&);
 };
 
-class ArrowMarker // : QwtPlotMarker
+class LineEnrichment /PyName=ArrowMarker/ // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "graph/enrichments/ArrowMarker.h"
+#include "graph/enrichments/LineEnrichment.h"
 %End
 public:
 
-  ArrowMarker();
+  LineEnrichment();
 
   void setStartPoint(double, double) /PyName=setStart/;
   void setEndPoint(double, double) /PyName=setEnd/;
@@ -340,17 +340,17 @@ public:
   void fillArrowHead(bool = true);
 
 private:
-  ArrowMarker(const ArrowMarker&);
+  LineEnrichment(const LineEnrichment&);
 };
 
-class ImageMarker // : QwtPlotMarker
+class ImageEnrichment /PyName=ImageMarker/ // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "graph/enrichments/ImageMarker.h"
+#include "graph/enrichments/ImageEnrichment.h"
 %End
 public:
 
-  ImageMarker(const QString&);
+  ImageEnrichment(const QString&);
   QString fileName();
   
   QSize size();
@@ -359,13 +359,13 @@ public:
   void setBoundingRect(double, double, double, double) /PyName=setCoordinates/;
   
 private:
-  ImageMarker(const ImageMarker&);
+  ImageEnrichment(const ImageEnrichment&);
 };
 
-class Legend // : QwtPlotMarker
+class TextEnrichment /PyName=Legend/ // : QwtPlotMarker
 {
 %TypeHeaderCode
-#include "graph/Legend.h"
+#include "graph/TextEnrichment.h"
 %End
 public:
 
@@ -377,14 +377,14 @@ public:
   void setOriginCoord(double, double);
 
 private:
-  Legend(const Legend&);
+  TextEnrichment(const TextEnrichment&);
 };
 
 class Graph : QWidget /PyName=Layer/
 {
 %TypeHeaderCode
 #include "graph/Graph.h"
-#include "graph/Legend.h"
+#include "graph/TextEnrichment.h"
 %End
 public:
   bool isPiePlot();
@@ -404,20 +404,20 @@ public:
 		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 		  bool through = true, bool minus = true, bool plus = true);
 
-  void addArrow(ArrowMarker*);
+  void addArrow(LineEnrichment*);
 
-  ImageMarker* addImage(ImageMarker*);
-  ImageMarker* addImage(const QString& fileName);
+  ImageEnrichment* addImage(ImageEnrichment*);
+  ImageEnrichment* addImage(const QString& fileName);
   
   void setTitle(const QString& t);
-  Legend* newLegend();
-  Legend* newLegend(const QString&);
+  TextEnrichment* newLegend();
+  TextEnrichment* newLegend(const QString&);
   void setLegend(const QString&) /NoDerived/;
 %MethodCode
   sipCpp->legend()->setText(*a0);
 %End
 
-  Legend* legend();
+  TextEnrichment* legend();
 
   void removeLegend();
   void addTimeStamp();
@@ -809,21 +809,21 @@ public:
 %End
 };
 
-class NonLinearFit : Fit
+class UserFunctionFit : Fit /PyName=NonLinearFit/
 {
 %TypeHeaderCode
-#include "analysis/NonLinearFit.h"
+#include "analysis/UserFunctionFit.h"
 %End
 public:
-  NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  NonLinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  NonLinearFit(Graph *, const QString&) /NoDerived/;
+  UserFunctionFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
+  UserFunctionFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
+  UserFunctionFit(Graph *, const QString&) /NoDerived/;
 %MethodCode
-  SIPSCIDAVIS_APP(new sipNonLinearFit(app, a0, *a1))
+  SIPSCIDAVIS_APP(new sipUserFunctionFit(app, a0, *a1))
 %End
-  NonLinearFit(Graph *, const QString&, double, double) /NoDerived/;
+  UserFunctionFit(Graph *, const QString&, double, double) /NoDerived/;
 %MethodCode
-  SIPSCIDAVIS_APP(new sipNonLinearFit(app, a0, *a1, a2, a3))
+  SIPSCIDAVIS_APP(new sipUserFunctionFit(app, a0, *a1, a2, a3))
 %End
   void setParametersList(...) /PyName=setParameters/;
 %MethodCode

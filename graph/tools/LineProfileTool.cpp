@@ -31,8 +31,8 @@
  ***************************************************************************/
 #include "LineProfileTool.h"
 #include "../Graph.h"
-#include "../enrichments/ImageMarker.h"
-#include "../enrichments/ArrowMarker.h"
+#include "../enrichments/ImageEnrichment.h"
+#include "../enrichments/LineEnrichment.h"
 
 #include <QPoint>
 #include <QImage>
@@ -42,12 +42,12 @@
 
 LineProfileTool::LineProfileTool(Graph *graph, int average_pixels)
 	: QWidget(graph->plotWidget()->canvas()),
-	PlotToolInterface(graph)
+	AbstractGraphTool(graph)
 {
 	d_op_start = d_op_dp = QPoint(0,0);
 	// make sure we average over an odd number of pixels
 	d_average_pixels = (average_pixels % 2) ? average_pixels : average_pixels + 1;
-	d_target = dynamic_cast<ImageMarker*>(d_graph->selectedMarkerPtr());
+	d_target = dynamic_cast<ImageEnrichment*>(d_graph->selectedMarkerPtr());
 	if (!d_target)
 		QMessageBox::critical(d_graph->window(),tr("Pixel selection warning"),
 				"Please select an image marker first.");
@@ -176,7 +176,7 @@ int LineProfileTool::averageImagePixel(const QImage& image, int px, int py, bool
 
 void LineProfileTool::addLineMarker(const QPoint &start, const QPoint &end)
 {
-	ArrowMarker *mrk = new ArrowMarker();
+	LineEnrichment *mrk = new LineEnrichment();
 	mrk->attach(d_graph->plotWidget());
 
 	mrk->setStartPoint(start);

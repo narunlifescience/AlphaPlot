@@ -35,7 +35,7 @@
 #include "analysis/ExponentialFit.h"
 #include "analysis/PolynomialFit.h"
 #include "analysis/PluginFit.h"
-#include "analysis/NonLinearFit.h"
+#include "analysis/UserFunctionFit.h"
 #include "analysis/SigmoidalFit.h"
 #include "matrix/Matrix.h"
 #include "table/Table.h"
@@ -1210,9 +1210,9 @@ void FitDialog::accept()
 		}
 		else
 		{
-			d_fitter = new NonLinearFit(app, d_graph);
-			((NonLinearFit*)d_fitter)->setParametersList(parameters);
-			((NonLinearFit*)d_fitter)->setFormula(formula);
+			d_fitter = new UserFunctionFit(app, d_graph);
+			((UserFunctionFit*)d_fitter)->setParametersList(parameters);
+			((UserFunctionFit*)d_fitter)->setFormula(formula);
 			d_fitter->setInitialGuesses(paramsInit);
 		}
 		delete[] paramsInit;

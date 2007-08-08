@@ -33,7 +33,6 @@
 #include "../Plot.h"
 #include "../FunctionCurve.h"
 #include "../PlotCurve.h"
-#include "../types/QwtErrorPlotCurve.h"
 #include "core/ApplicationWindow.h"
 #include "table/Table.h"
 
@@ -45,7 +44,7 @@
 
 DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, const QObject *status_target, const char *status_slot) :
 	QwtPlotPicker(graph->plotWidget()->canvas()),
-	PlotToolInterface(graph),
+	AbstractGraphTool(graph),
 	d_app(app),
 	d_mode(mode),
 	d_move_mode(Free)

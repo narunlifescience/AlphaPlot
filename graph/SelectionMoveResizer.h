@@ -36,9 +36,9 @@
 
 class QPoint;
 class QwtPlotMarker;
-class Legend;
-class ArrowMarker;
-class ImageMarker;
+class TextEnrichment;
+class LineEnrichment;
+class ImageEnrichment;
 
 /*!\brief Handler for modifying one or more QWidget and/or QwtPlotMarker with mouse or keyboard.
  *
@@ -69,13 +69,13 @@ class ImageMarker;
  *     (than MultiLayer's canvas QWidget and Plot's QwtPlotCanvas)
  *     and/or targets (e.g. new QwtPlotMarker subclasses) with little to no modifications.
  *   - Differentiate between move/resize, which are generic operations, and editing (like moving the
- *     endpoints of a ArrowMarker), which requires detailed knowledge about the target.
+ *     endpoints of a LineEnrichment), which requires detailed knowledge about the target.
  *     This way, new types of markers or MultiLayer children support moving/resizing without further
- *     work. Editing can then be implemented in the targets themselves, as shown in ArrowMarker.
+ *     work. Editing can then be implemented in the targets themselves, as shown in LineEnrichment.
  *   .
  *
  * \section future_plans Future Plans
- * See the documentation of ImageMarker for ideas about replacing QwtPlotMarker with a new QwtPlotItem subclass.
+ * See the documentation of ImageEnrichment for ideas about replacing QwtPlotMarker with a new QwtPlotItem subclass.
  * For SelectionMoveResizer this would mean supporting new enrichments without modifications and being able
  * to automatically remove them upon deletion (if the new class inherits QObject).
  * Not to mention that the implementation would be a lot cleaner if we would only have to handle two target classes
@@ -92,11 +92,11 @@ class SelectionMoveResizer : public QWidget
 
 	public:
 		//! Construct a new MoveResizer with the given marker as the only target.
-		SelectionMoveResizer(Legend *target);
+		SelectionMoveResizer(TextEnrichment *target);
 		//! Construct a new MoveResizer with the given marker as the only target.
-		SelectionMoveResizer(ArrowMarker *target);
+		SelectionMoveResizer(LineEnrichment *target);
 		//! Construct a new MoveResizer with the given marker as the only target.
-		SelectionMoveResizer(ImageMarker *target);
+		SelectionMoveResizer(ImageEnrichment *target);
 		//! Construct a new MoveResizer with the given widget as the only target.
 		SelectionMoveResizer(QWidget *target);
 		//! Clean up after myself.
@@ -107,27 +107,27 @@ class SelectionMoveResizer : public QWidget
 		//! Returns true if w is one of targets, false else.
 		bool contains(QWidget *w) const { return d_widgets.contains(w); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(Legend *m) const { return d_legend_markers.contains(m); };
+		bool contains(TextEnrichment *m) const { return d_legend_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(ArrowMarker *m) const { return d_line_markers.contains(m); };
+		bool contains(LineEnrichment *m) const { return d_line_markers.contains(m); };
 		//! Returns true if m is one of targets, false else.
-		bool contains(ImageMarker *m) const { return d_image_markers.contains(m); };
+		bool contains(ImageEnrichment *m) const { return d_image_markers.contains(m); };
 
 	public slots:
 		//! Add target to the list of items to be moved/resized together.
-		void add(Legend *target);
+		void add(TextEnrichment *target);
 		//! Add target to the list of items to be moved/resized together.
-		void add(ArrowMarker *target);
+		void add(LineEnrichment *target);
 		//! Add target to the list of items to be moved/resized together.
-		void add(ImageMarker *target);
+		void add(ImageEnrichment *target);
 		//! Add target to the list of items to be moved/resized together.
 		void add(QWidget *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
-		int removeAll(Legend *target);
+		int removeAll(TextEnrichment *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
-		int removeAll(ArrowMarker *target);
+		int removeAll(LineEnrichment *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
-		int removeAll(ImageMarker *target);
+		int removeAll(ImageEnrichment *target);
 		//! Remove target from the list of items to be moved/resized together and returns the number of occurences removed.
 		int removeAll(QWidget *target);
 		//! Calculate #d_bounding_rect based on the bounding rectangles of all targets.
@@ -187,11 +187,11 @@ class SelectionMoveResizer : public QWidget
 		QRect boundingRectOf(QwtPlotMarker *target) const;
 
 		//! Target markers I'm handling.
-		QList <Legend *> d_legend_markers;
+		QList <TextEnrichment *> d_legend_markers;
 		//! Target markers I'm handling.
-		QList <ArrowMarker *> d_line_markers;
+		QList <LineEnrichment *> d_line_markers;
 		//! Target markers I'm handling.
-		QList <ImageMarker *> d_image_markers;
+		QList <ImageEnrichment *> d_image_markers;
 		//! Target widgets I'm handling.
 		QList <QWidget *> d_widgets;
 		//! Bounding rectangle of all targets taken together, in drawing coordinates.

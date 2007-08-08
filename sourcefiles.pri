@@ -52,6 +52,7 @@ SOURCES += \
 	lib/SymbolDialog.cpp \
 	lib/TextDialog.cpp \
 	lib/TextFormatButtons.cpp \
+	lib/ImageExportDialog.cpp \
 
 HEADERS += \
 	lib/ColorBox.h \
@@ -63,6 +64,7 @@ HEADERS += \
 	lib/SymbolDialog.h \
 	lib/TextDialog.h \
 	lib/TextFormatButtons.h \
+	lib/ImageExportDialog.h \
 
 SOURCES += \
 	core/AbstractFilter.cpp \
@@ -138,8 +140,8 @@ HEADERS += \
 SOURCES += \
 	table/DateTimeColumnData.cpp \
 	table/DoubleColumnData.cpp \
-	table/ExportDialog.cpp \
-	table/ImportASCIIDialog.cpp \
+	table/ExportTableDialog.cpp \
+	table/ImportTableDialog.cpp \
 	table/SetColValuesDialog.cpp \
 	table/SortDialog.cpp \
 	table/StringColumnData.cpp \
@@ -154,8 +156,8 @@ HEADERS += \
 	table/AbstractColumnData.h \
 	table/DateTimeColumnData.h \
 	table/DoubleColumnData.h \
-	table/ExportDialog.h \
-	table/ImportASCIIDialog.h \
+	table/ExportTableDialog.h \
+	table/ImportTableDialog.h \
 	table/SetColValuesDialog.h \
 	table/SortDialog.h \
 	table/StringColumnData.h \
@@ -187,7 +189,7 @@ SOURCES += \
 	analysis/InterpolationDialog.cpp \
 	analysis/MultiPeakFit.cpp \
 	analysis/MultiPeakFitTool.cpp \
-	analysis/NonLinearFit.cpp \
+	analysis/UserFunctionFit.cpp \
 	analysis/PluginFit.cpp \
 	analysis/PolynomFitDialog.cpp \
 	analysis/PolynomialFit.cpp \
@@ -216,7 +218,7 @@ HEADERS += \
 	analysis/InterpolationDialog.h \
 	analysis/MultiPeakFit.h \
 	analysis/MultiPeakFitTool.h \
-	analysis/NonLinearFit.h \
+	analysis/UserFunctionFit.h \
 	analysis/PluginFit.h \
 	analysis/PolynomFitDialog.h \
 	analysis/PolynomialFit.h \
@@ -239,14 +241,13 @@ SOURCES += \
 	graph/FunctionCurve.cpp \
 	graph/FunctionDialog.cpp \
 	graph/Graph.cpp \
-	graph/ImageExportDialog.cpp \
 	graph/LayerDialog.cpp \
-	graph/Legend.cpp \
+	graph/TextEnrichment.cpp \
 	graph/MultiLayer.cpp \
 	graph/Plot.cpp \
 	graph/PlotCurve.cpp \
 	graph/PlotDialog.cpp \
-	graph/PlotEnrichement.cpp \
+	graph/AbstractEnrichment.cpp \
 	graph/PlotWizard.cpp \
 	graph/ScaleDraw.cpp \
 	graph/ScalePicker.cpp \
@@ -264,15 +265,14 @@ HEADERS += \
 	graph/FunctionCurve.h \
 	graph/FunctionDialog.h \
 	graph/Graph.h \
-	graph/ImageExportDialog.h \
 	graph/LayerDialog.h \
-	graph/Legend.h \
+	graph/TextEnrichment.h \
 	graph/MultiLayer.h \
 	graph/Plot.h \
 	graph/PlotCurve.h \
 	graph/PlotDialog.h \
-	graph/PlotEnrichement.h \
-	graph/PlotToolInterface.h \
+	graph/AbstractEnrichment.h \
+	graph/AbstractGraphTool.h \
 	graph/PlotWizard.h \
 	graph/QwtDataFilter.h \
 	graph/ScaleDraw.h \
@@ -283,33 +283,33 @@ HEADERS += \
 
 SOURCES += \
 	graph/types/BoxCurve.cpp \
-	graph/types/QwtBarCurve.cpp \
-	graph/types/QwtErrorPlotCurve.cpp \
-	graph/types/QwtHistogram.cpp \
-	graph/types/QwtPieCurve.cpp \
+	graph/types/BarCurve.cpp \
+	graph/types/ErrorCurve.cpp \
+	graph/types/HistogramCurve.cpp \
+	graph/types/PieCurve.cpp \
 	graph/types/Spectrogram.cpp \
 	graph/types/VectorCurve.cpp \
 
 HEADERS += \
 	graph/types/BoxCurve.h \
-	graph/types/QwtBarCurve.h \
-	graph/types/QwtErrorPlotCurve.h \
-	graph/types/QwtHistogram.h \
-	graph/types/QwtPieCurve.h \
+	graph/types/BarCurve.h \
+	graph/types/ErrorCurve.h \
+	graph/types/HistogramCurve.h \
+	graph/types/PieCurve.h \
 	graph/types/Spectrogram.h \
 	graph/types/VectorCurve.h \
 
 SOURCES += \
-	graph/enrichments/ArrowMarker.cpp \
-	graph/enrichments/ImageDialog.cpp \
-	graph/enrichments/ImageMarker.cpp \
-	graph/enrichments/LineDialog.cpp \
+	graph/enrichments/LineEnrichment.cpp \
+	graph/enrichments/ImageEnrichmentDialog.cpp \
+	graph/enrichments/ImageEnrichment.cpp \
+	graph/enrichments/LineEnrichmentDialog.cpp \
 
 HEADERS += \
-	graph/enrichments/ArrowMarker.h \
-	graph/enrichments/ImageDialog.h \
-	graph/enrichments/ImageMarker.h \
-	graph/enrichments/LineDialog.h \
+	graph/enrichments/LineEnrichment.h \
+	graph/enrichments/ImageEnrichmentDialog.h \
+	graph/enrichments/ImageEnrichment.h \
+	graph/enrichments/LineEnrichmentDialog.h \
 
 SOURCES += \
 	graph/tools/DataPickerTool.cpp \
@@ -338,18 +338,18 @@ HEADERS += \
 	matrix/MatrixValuesDialog.h \
 
 SOURCES += \
-	graph-3D/Bar.cpp \
+	graph-3D/Bar3D.cpp \
 	graph-3D/Cone3D.cpp \
 	graph-3D/Graph3D.cpp \
-	graph-3D/Plot3DDialog.cpp \
-	graph-3D/SurfaceDialog.cpp \
+	graph-3D/PlotDialog3D.cpp \
+	graph-3D/FunctionDialog3D.cpp \
 
 HEADERS += \
-	graph-3D/Bar.h \
+	graph-3D/Bar3D.h \
 	graph-3D/Cone3D.h \
 	graph-3D/Graph3D.h \
-	graph-3D/Plot3DDialog.h \
-	graph-3D/SurfaceDialog.h \
+	graph-3D/PlotDialog3D.h \
+	graph-3D/FunctionDialog3D.h \
 
 SOURCES += \
 	origin/OpjImporter.cpp \

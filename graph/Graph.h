@@ -36,17 +36,16 @@
 
 #include <qwt_plot_marker.h>
 
-#include "PlotToolInterface.h"
+#include "AbstractGraphTool.h"
 #include "Plot.h"
 #include "AxesDialog.h"
 
 class QwtPlotCurve;
 class QwtPlotZoomer;
-class QwtPieCurve;
 class Table;
-class Legend;
-class ArrowMarker;
-class ImageMarker;
+class TextEnrichment;
+class LineEnrichment;
+class ImageEnrichment;
 class TitlePicker;
 class ScalePicker;
 class CanvasPicker;
@@ -56,7 +55,7 @@ class SelectionMoveResizer;
 class RangeSelectorTool;
 class DataCurve;
 class PlotCurve;
-class QwtErrorPlotCurve;
+class ErrorCurve;
 
 //! Structure containing curve layout parameters
 typedef struct{
@@ -129,9 +128,9 @@ class Graph: public QWidget
 		QString parentPlotName();
 
 		//! Change the active tool, deleting the old one if it exists.
-		void setActiveTool(PlotToolInterface *tool) { if(d_active_tool) delete d_active_tool; d_active_tool=tool; }
+		void setActiveTool(AbstractGraphTool *tool) { if(d_active_tool) delete d_active_tool; d_active_tool=tool; }
 		//! Return the active tool, or NULL if none is active.
-		PlotToolInterface* activeTool() const { return d_active_tool; }
+		AbstractGraphTool* activeTool() const { return d_active_tool; }
 
 	public slots:
 		//! Accessor method for #d_plot.
@@ -242,10 +241,10 @@ class Graph: public QWidget
 				int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
 				bool through = true, bool minus = true, bool plus = true);
 
-		void updateErrorBars(QwtErrorPlotCurve *er, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
+		void updateErrorBars(ErrorCurve *er, bool xErr,int width, int cap, const QColor& c, bool plus, bool minus, bool through);
 
 		//! Returns a valid master curve for the error bars curve.
-		DataCurve* masterCurve(QwtErrorPlotCurve *er);
+		DataCurve* masterCurve(ErrorCurve *er);
 		//! Returns a valid master curve for a plot association.
 		DataCurve* masterCurve(const QString& xColName, const QString& yColName);
 		//@}
@@ -315,7 +314,7 @@ class Graph: public QWidget
 		//@{
 		void drawText(bool on);
 		bool drawTextActive(){return drawTextOn;};
-		long insertTextMarker(Legend* mrk);
+		long insertTextMarker(TextEnrichment* mrk);
 
 		//! Used when opening a project file
 		long insertTextMarker(const QStringList& list, int fileVersion);
@@ -337,7 +336,7 @@ class Graph: public QWidget
 		void setCopiedImageName(const QString& fn){auxMrkFileName=fn;};
 		QRect copiedMarkerRect(){return QRect(auxMrkStart, auxMrkEnd);};
 		QVector<int> textMarkerKeys(){return d_texts;};
-		Legend* textMarker(long id);
+		TextEnrichment* textMarker(long id);
 
 		void addTimeStamp();
 
@@ -345,9 +344,9 @@ class Graph: public QWidget
 		void removeLegendItem(int index);
 		void addLegendItem(const QString& colName);
 		void insertLegend(const QStringList& lst, int fileVersion);
-		Legend *legend();
-		Legend *newLegend();
-		Legend *newLegend(const QString& text);
+		TextEnrichment *legend();
+		TextEnrichment *newLegend();
+		TextEnrichment *newLegend(const QString& text);
 		bool hasLegend(){return legendMarkerID >= 0;};
 
 		//! Creates a new legend text using the curves titles
@@ -356,8 +355,8 @@ class Graph: public QWidget
 
 		//! \name Line Markers
 		//@{
-		ArrowMarker* arrow(long id);
-		void addArrow(ArrowMarker* mrk);
+		LineEnrichment* arrow(long id);
+		void addArrow(LineEnrichment* mrk);
 
 		//! Used when opening a project file
 		void addArrow(QStringList list, int fileVersion);
@@ -382,14 +381,14 @@ class Graph: public QWidget
 
 		//! \name Image Markers
 		//@{
-		ImageMarker* imageMarker(long id);
+		ImageEnrichment* imageMarker(long id);
 		QVector<int> imageMarkerKeys(){return d_images;};
-		ImageMarker* addImage(ImageMarker* mrk);
-		ImageMarker* addImage(const QString& fileName);
+		ImageEnrichment* addImage(ImageEnrichment* mrk);
+		ImageEnrichment* addImage(const QString& fileName);
 
-		void insertImageMarker(const QStringList& lst, int fileVersion);
+		void insertImageEnrichment(const QStringList& lst, int fileVersion);
 		bool imageMarkerSelected();
-		void updateImageMarker(int x, int y, int width, int height);
+		void updateImageEnrichment(int x, int y, int width, int height);
 		//@}
 
 		//! \name Common to all Markers
@@ -764,6 +763,6 @@ signals:
 		//! The current curve selection, or NULL if none is active.
 		QPointer<RangeSelectorTool> d_range_selector;
 		//! The currently active tool, or NULL for default (pointer).
-		PlotToolInterface *d_active_tool;
+		AbstractGraphTool *d_active_tool;
 };
 #endif // GRAPH_H

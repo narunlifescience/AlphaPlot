@@ -31,7 +31,7 @@
 #ifndef RANGE_SELECTOR_TOOL_H
 #define RANGE_SELECTOR_TOOL_H
 
-#include "../PlotToolInterface.h"
+#include "../AbstractGraphTool.h"
 #include <qwt_double_rect.h>
 #include <qwt_plot_marker.h>
 #include <qwt_plot_picker.h>
@@ -42,16 +42,16 @@ class QEvent;
 
 /*! Plot tool for selecting ranges on curves.
  *
- * As detailed in the documentation of PlotToolInterface, this one is different
+ * As detailed in the documentation of AbstractGraphTool, this one is different
  * from most other plot tools in that other tools depend on it.
- * Thus, either RangeSelectorTool should cease to inherit from PlotToolInterface and be renamed to
+ * Thus, either RangeSelectorTool should cease to inherit from AbstractGraphTool and be renamed to
  * RangeSelector, drawing a clear destinction to the other tools, or the notion of multiple tools being
  * active in parallel and possibly depending on each other should be generalized somehow.
  *
  * In any case, gathering the code specific to range selection in a seperate class makes Graph/CanvasPicker
  * more manageable; maybe something similar can be done for zooming.
  */
-class RangeSelectorTool : public QwtPlotPicker, public PlotToolInterface
+class RangeSelectorTool : public QwtPlotPicker, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:

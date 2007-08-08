@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PreferencesDialog_H
-#define PreferencesDialog_H
+#ifndef PREFERENCES_DIALOG_H
+#define PREFERENCES_DIALOG_H
 
 #include <QDialog>
 #include <QCheckBox>
@@ -167,4 +167,4 @@ private:
 	QCheckBox *boxAntialiasing, *boxAutoscale3DPlots, *boxTableComments;
 };
 
-#endif // ifndef PreferencesDialog_H
+#endif // ifndef PREFERENCES_DIALOG_H

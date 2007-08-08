@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Graph3D.h"
-#include "Bar.h"
+#include "Bar3D.h"
 #include "Cone3D.h"
 #include "core/MyParser.h"
 #include "table/Table.h"
@@ -501,7 +501,7 @@ void Graph3D::addData(Table* table, int xCol,int yCol,int zCol, int type)
 	}
 	else
 	{
-		sp->setPlotStyle(Bar(barsRad));
+		sp->setPlotStyle(Bar3D(barsRad));
 		pointStyle=VerticalBars;
 		style_ = Qwt3D::USER;
 	}
@@ -760,7 +760,7 @@ void Graph3D::resetNonEmptyStyle()
 				break;
 
 			case VerticalBars :
-				sp->setPlotStyle(Bar(barsRad));
+				sp->setPlotStyle(Bar3D(barsRad));
 				break;
 
 			case HairCross :
@@ -1963,7 +1963,7 @@ void Graph3D::setBarsPlot()
 	style_=Qwt3D::USER;
 
 	sp->makeCurrent();
-	sp->setPlotStyle(Bar(barsRad));
+	sp->setPlotStyle(Bar3D(barsRad));
 	sp->updateData();
 	sp->updateGL();
 	QApplication::restoreOverrideCursor();
@@ -2204,7 +2204,7 @@ void Graph3D::updateBars(double rad)
 		return;
 
 	barsRad = rad;
-	sp->setPlotStyle(Bar(barsRad));
+	sp->setPlotStyle(Bar3D(barsRad));
 	update();
 }
 
@@ -2281,7 +2281,7 @@ void Graph3D::setStyle(Qwt3D::COORDSTYLE coord,Qwt3D::FLOORSTYLE floor,
 	if (point == None)
 		sp->setPlotStyle(plot);
 	else if (point == VerticalBars)
-		sp->setPlotStyle(Bar(barsRad));
+		sp->setPlotStyle(Bar3D(barsRad));
 	else if (point == Dots)
 		sp->setPlotStyle(Dot(pointSize, smooth));
 	else if (point == HairCross)
@@ -2354,7 +2354,7 @@ void Graph3D::customPlotStyle(int style)
 			{
 				pointStyle = VerticalBars;
 				style_ = Qwt3D::USER;
-				sp->setPlotStyle(Bar(barsRad));
+				sp->setPlotStyle(Bar3D(barsRad));
 				break;
 			}
 	}
@@ -2401,7 +2401,7 @@ void Graph3D::setStyle(const QStringList& st)
 	else if (st[3] =="bars")
 	{
 		barsRad = (st[4]).toDouble();
-		sp->setPlotStyle(Bar(barsRad));
+		sp->setPlotStyle(Bar3D(barsRad));
 		pointStyle = VerticalBars;
 	}
 	else if (st[3] =="cones")

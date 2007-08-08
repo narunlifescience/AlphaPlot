@@ -31,7 +31,7 @@
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
 #include "Graph.h"
-#include "types/QwtErrorPlotCurve.h"
+#include "types/ErrorCurve.h"
 #include "types/VectorCurve.h"
 
 #include <QLabel>
@@ -134,7 +134,7 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 	}
 	else if (lst.count() == 3)
 	{//curve with error bars
-		QwtErrorPlotCurve *er = (QwtErrorPlotCurve *)c;
+		ErrorCurve *er = (ErrorCurve *)c;
 		QString xColName = lst[0].remove("(X)");
 		QString yColName = lst[1].remove("(Y)");
 		QString erColName = lst[2].remove("(xErr)").remove("(yErr)");
@@ -142,9 +142,9 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 		if (!master_curve)
 			return;
 
-		int type = QwtErrorPlotCurve::Vertical;
+		int type = ErrorCurve::Vertical;
 		if (text.contains("(xErr)"))
-			type = QwtErrorPlotCurve::Horizontal;
+			type = ErrorCurve::Horizontal;
 		er->setDirection(type);
 		er->setTitle(erColName);
 		if (master_curve != er->masterCurve())

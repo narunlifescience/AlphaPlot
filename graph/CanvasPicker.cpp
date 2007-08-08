@@ -29,9 +29,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "CanvasPicker.h"
-#include "Legend.h"
-#include "enrichments/ImageMarker.h"
-#include "enrichments/ArrowMarker.h"
+#include "TextEnrichment.h"
+#include "enrichments/ImageEnrichment.h"
+#include "enrichments/LineEnrichment.h"
 
 #include <QVector>
 
@@ -166,7 +166,7 @@ bool CanvasPicker::eventFilter(QObject *object, QEvent *e)
 				Graph *g = plot();
 
 				if (g->drawLineActive()) {
-					ArrowMarker mrk;
+					LineEnrichment mrk;
 					mrk.attach(g->plotWidget());
 					mrk.setStartPoint(startLinePoint);
 					mrk.setEndPoint(QPoint(me->x(), me->y()));
@@ -232,7 +232,7 @@ void CanvasPicker::disableEditing()
 
 void CanvasPicker::drawTextMarker(const QPoint& point)
 {
-	Legend mrkT(plotWidget);
+	TextEnrichment mrkT(plotWidget);
 	mrkT.setOrigin(point);
 	mrkT.setFrameStyle(plot()->textMarkerDefaultFrame());
 	mrkT.setFont(plot()->defaultTextMarkerFont());
@@ -247,7 +247,7 @@ void CanvasPicker::drawTextMarker(const QPoint& point)
 void CanvasPicker::drawLineMarker(const QPoint& point, bool endArrow)
 {
 	plot()->plotWidget()->canvas()->repaint();
-	ArrowMarker mrk;
+	LineEnrichment mrk;
 	mrk.attach(plotWidget);
 
 	int clw = plotWidget->canvas()->lineWidth();
@@ -271,7 +271,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 {
 	const QPoint point = e->pos();
 	foreach(long i, plot()->textMarkerKeys()) {
-		Legend *m = (Legend*)plotWidget->marker(i);
+		TextEnrichment *m = (TextEnrichment*)plotWidget->marker(i);
 		if (!m) return false;
 		if (m->rect().contains(point)) {
 			if (d_editing_marker) {
@@ -283,7 +283,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		}
 	}
 	foreach(long i, plot()->imageMarkerKeys()) {
-		ImageMarker* m=(ImageMarker*)plotWidget->marker(i);
+		ImageEnrichment* m=(ImageEnrichment*)plotWidget->marker(i);
 		if (!m) return false;
 		if (m->rect().contains(point)) {
 			if (d_editing_marker) {
@@ -295,7 +295,7 @@ bool CanvasPicker::selectMarker(const QMouseEvent *e)
 		}
 	}
 	foreach(long i, plot()->lineMarkerKeys()) {
-		ArrowMarker* mrkL=(ArrowMarker*) plotWidget->marker(i);
+		LineEnrichment* mrkL=(LineEnrichment*) plotWidget->marker(i);
 		if (!mrkL)
 			return false;
 		int d=mrkL->width()+(int)floor(mrkL->headLength()*tan(M_PI*mrkL->headAngle()/180.0)+0.5);

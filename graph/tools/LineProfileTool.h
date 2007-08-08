@@ -32,17 +32,17 @@
 #ifndef LINE_PROFILE_TOOL_H
 #define LINE_PROFILE_TOOL_H
 
-#include "../PlotToolInterface.h"
+#include "../AbstractGraphTool.h"
 
 #include <QWidget>
 
 class QPoint;
 class QImage;
-class ImageMarker;
+class ImageEnrichment;
 
 /*!\brief Plot tool for calculating intensity profiles of image markers along a line.
  *
- * It is assumed that on the parent Graph an ImageMarker is selected. During initialization,
+ * It is assumed that on the parent Graph an ImageEnrichment is selected. During initialization,
  * a pointer to this marker is stored and the selection is removed. The LineProfileTool
  * adds itself as a full-sized child widget to the Graph's canvas, allowing for fast redraws
  * while selection of the line is in progress. Once the line is selected (mouse button is
@@ -55,11 +55,11 @@ class ImageMarker;
  * A cleaner approach would be to add a new MyWidget subclass (Image?) that operates on a single
  * image, providing things like line profiles, intensity tables and measuring points on scanned graphs
  * (simple <a href="http://www.frantz.fi/software/g3data.php">g3data</a>-like functionality).
- * There could be facilities for making an Image from an ImageMarker and vice versa
+ * There could be facilities for making an Image from an ImageEnrichment and vice versa
  * (if that's really needed).
  * [ postponed until after the redesign of project handling ]
  */
-class LineProfileTool : public QWidget, public PlotToolInterface
+class LineProfileTool : public QWidget, public AbstractGraphTool
 {
 	Q_OBJECT
 
@@ -98,7 +98,7 @@ class LineProfileTool : public QWidget, public PlotToolInterface
 		//! Number of image pixels over which to average.
 		int d_average_pixels;
 		//! The image marker to operate on.
-		ImageMarker *d_target;
+		ImageEnrichment *d_target;
 		/*!\brief Mouse position where an operation started.
 		 */
 		QPoint d_op_start;
