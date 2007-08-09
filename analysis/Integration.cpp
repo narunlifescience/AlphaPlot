@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "Integration.h"
 #include "nrutil.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 
 #include <QMessageBox>
 #include <QDateTime>

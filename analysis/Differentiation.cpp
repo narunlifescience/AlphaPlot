@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Differentiation.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "graph/TextEnrichment.h"
 #include "table/Table.h"
 
@@ -76,8 +76,8 @@ void Differentiation::output()
 	}
     delete[] result;
 
-    MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
-    ml->activeLayer()->insertCurve(t, tableName + "_2", 0);
-    TextEnrichment *l = ml->activeLayer()->legend();
+    Graph *graph = app->newGraph(tr("Plot")+tr("Derivative"));
+    graph->activeLayer()->insertCurve(t, tableName + "_2", 0);
+    TextEnrichment *l = graph->activeLayer()->legend();
     l->setText("\\c{1}" + tr("Derivative") + " " + tr("of","Derivative of") + " " + curveTitle);
 }

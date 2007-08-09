@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Convolution.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "graph/Plot.h"
 #include "graph/PlotCurve.h"
 #include "lib/ColorBox.h"
@@ -159,15 +159,15 @@ void Convolution::addResultCurve()
 	// TODO
 	//d_table->setHeaderColType();
 
-	MultiLayer *ml = app->newGraph(name() + tr("Plot"));
-	if (!ml)
+	Graph *graph = app->newGraph(name() + tr("Plot"));
+	if (!graph)
         return;
 
     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
 	c->setData(x_temp, d_x, d_n);
-    c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	ml->activeLayer()->insertPlotItem(c, Layer::Line);
-	ml->activeLayer()->updatePlot();
+	c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
+	graph->activeLayer()->insertPlotItem(c, Layer::Line);
+	graph->activeLayer()->updatePlot();
 }
 
 void Convolution::convlv(double *sig, int n, double *dres, int m, int sign)

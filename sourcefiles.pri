@@ -243,7 +243,7 @@ SOURCES += \
 	graph/Layer.cpp \
 	graph/LayerDialog.cpp \
 	graph/TextEnrichment.cpp \
-	graph/MultiLayer.cpp \
+	graph/Graph.cpp \
 	graph/Plot.cpp \
 	graph/PlotCurve.cpp \
 	graph/PlotDialog.cpp \
@@ -267,7 +267,7 @@ HEADERS += \
 	graph/Layer.h \
 	graph/LayerDialog.h \
 	graph/TextEnrichment.h \
-	graph/MultiLayer.h \
+	graph/Graph.h \
 	graph/Plot.h \
 	graph/PlotCurve.h \
 	graph/PlotDialog.h \

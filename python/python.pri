@@ -40,7 +40,7 @@
              $${SIP_DIR}/sipscidavisLineEnrichment.h\
              $${SIP_DIR}/sipscidavisImageEnrichment.h\
              $${SIP_DIR}/sipscidavisTextEnrichment.h\
-             $${SIP_DIR}/sipscidavisMultiLayer.h\
+             $${SIP_DIR}/sipscidavisGraph.h\
              $${SIP_DIR}/sipscidavisTable.h\
              $${SIP_DIR}/sipscidavisMatrix.h\
              $${SIP_DIR}/sipscidavisMyWidget.h\
@@ -80,7 +80,7 @@
              $${SIP_DIR}/sipscidavisLineEnrichment.cpp\
              $${SIP_DIR}/sipscidavisImageEnrichment.cpp\
              $${SIP_DIR}/sipscidavisTextEnrichment.cpp\
-             $${SIP_DIR}/sipscidavisMultiLayer.cpp\
+             $${SIP_DIR}/sipscidavisGraph.cpp\
              $${SIP_DIR}/sipscidavisTable.cpp\
              $${SIP_DIR}/sipscidavisMatrix.cpp\
              $${SIP_DIR}/sipscidavisMyWidget.cpp\

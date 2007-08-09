@@ -68,7 +68,7 @@
 
 PlotDialog::PlotDialog(bool showExtended, QWidget* parent, Qt::WFlags fl )
 : QDialog(parent, fl),
-  d_ml(0)
+  d_graph(0)
 {
 	setWindowTitle( tr( "Plot details" ) );
 
@@ -1020,14 +1020,14 @@ void PlotDialog::initVectPage()
 	privateTabWidget->insertTab( vectPage, tr( "Vector" ) );
 }
 
-void PlotDialog::setMultiLayer(MultiLayer *ml)
+void PlotDialog::setGraph(Graph *ml)
 {
     if (!ml)
         return;
 
-    d_ml = ml;
-	boxScaleLayers->setChecked(d_ml->scaleLayersOnPrint());
-	boxPrintCrops->setChecked(d_ml->printCropmarksEnabled());
+    d_graph = ml;
+	boxScaleLayers->setChecked(d_graph->scaleLayersOnPrint());
+	boxPrintCrops->setChecked(d_graph->printCropmarksEnabled());
 
     QTreeWidgetItem *item = new QTreeWidgetItem(listBox, QStringList(ml->name()));
     item->setIcon(0, QIcon(":/folder_open.xpm"));
@@ -1753,13 +1753,13 @@ bool PlotDialog::acceptParams()
 {
     if (privateTabWidget->currentWidget() == fontsPage)
     {
-		d_ml->setFonts(titleFont, axesFont, numbersFont, legendFont);
+		d_graph->setFonts(titleFont, axesFont, numbersFont, legendFont);
 		return true;
     }
 	else if (privateTabWidget->currentWidget() == printPage)
     {
-		d_ml->setScaleLayersOnPrint(boxScaleLayers->isChecked());
-		d_ml->printCropmarks(boxPrintCrops->isChecked());
+		d_graph->setScaleLayersOnPrint(boxScaleLayers->isChecked());
+		d_graph->printCropmarks(boxPrintCrops->isChecked());
 		return true;
     }
     else if (privateTabWidget->currentWidget() == layerPage)
@@ -1767,7 +1767,7 @@ bool PlotDialog::acceptParams()
 		if (!boxAll->isChecked())
 			return true;
 
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(boxBorderWidth->value(), boxBorderColor->color());
 			layer->setMargin(boxMargin->value());
@@ -2280,7 +2280,7 @@ void PlotDialog::updateBackgroundTransparency(int alpha)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if(!layer) continue;
 			layer->setBackgroundColor(c);
 		}
@@ -2300,7 +2300,7 @@ void PlotDialog::updateCanvasTransparency(int alpha)
 	c.setAlpha(boxCanvasTransparency->value());
 
 	if (boxAll->isChecked()) {
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setCanvasBackground(c);
 		}
@@ -2324,7 +2324,7 @@ void PlotDialog::pickCanvasColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if(!layer) continue;
 			layer->setCanvasBackground(c);
 			layer->replot();
@@ -2350,7 +2350,7 @@ void PlotDialog::pickBackgroundColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if(!layer) continue;
 			layer->setBackgroundColor(c);
 			layer->replot();
@@ -2375,7 +2375,7 @@ void PlotDialog::pickBorderColor()
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(boxBorderWidth->value(), c);
 		}
@@ -2386,7 +2386,7 @@ void PlotDialog::pickBorderColor()
 		if (!layer) return;
 		layer->setFrame(boxBorderWidth->value(), c);
 	}
-	d_ml->notifyChanges();
+	d_graph->notifyChanges();
 }
 
 void PlotDialog::updateAntialiasing(bool on)
@@ -2396,7 +2396,7 @@ void PlotDialog::updateAntialiasing(bool on)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setAntialiasing(on);
 		}
@@ -2416,7 +2416,7 @@ void PlotDialog::updateBorder(int width)
 
 	if (boxAll->isChecked())
 	{
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setFrame(width, boxBorderColor->color());
 		}
@@ -2427,7 +2427,7 @@ void PlotDialog::updateBorder(int width)
 		if (!layer) return;
 		layer->setFrame(width, boxBorderColor->color());
 	}
-	d_ml->notifyChanges();
+	d_graph->notifyChanges();
 }
 
 void PlotDialog::changeMargin(int width)
@@ -2437,7 +2437,7 @@ void PlotDialog::changeMargin(int width)
 
     if (boxAll->isChecked())
     {
-		foreach(Layer *layer, d_ml->layers()) {
+		foreach(Layer *layer, d_graph->layers()) {
 			if (!layer) continue;
 			layer->setMargin(width);
 		}

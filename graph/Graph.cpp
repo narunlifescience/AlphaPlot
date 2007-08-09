@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : MultiLayer.cpp
+    File                 : Graph.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
@@ -51,7 +51,7 @@
 #include <qwt_scale_widget.h>
 #include <qwt_text_label.h>
 
-#include "MultiLayer.h"
+#include "Graph.h"
 #include "Plot.h"
 #include "TextEnrichment.h"
 #include "SelectionMoveResizer.h"
@@ -82,7 +82,7 @@ void LayerButton::mouseDoubleClickEvent ( QMouseEvent * )
 	emit showCurvesDialog();
 }
 
-MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
+Graph::Graph(const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : MyWidget(label,parent,name,f)
 {
 	if ( !name )
@@ -129,12 +129,12 @@ MultiLayer::MultiLayer(const QString& label, QWidget* parent, const char* name, 
 	setFocusPolicy(Qt::StrongFocus);
 }
 
-Layer *MultiLayer::layer(int num)
+Layer *Graph::layer(int num)
 {
 	return (Layer*) d_layer_list.at(num-1);
 }
 
-LayerButton* MultiLayer::addLayerButton()
+LayerButton* Graph::addLayerButton()
 {
 	for (int i=0;i<d_button_list.count();i++)
 	{
@@ -152,7 +152,7 @@ LayerButton* MultiLayer::addLayerButton()
 	return button;
 }
 
-Layer* MultiLayer::addLayer(int x, int y, int width, int height)
+Layer* Graph::addLayer(int x, int y, int width, int height)
 {
 	addLayerButton();
 	if (!width && !height) {
@@ -172,12 +172,12 @@ Layer* MultiLayer::addLayer(int x, int y, int width, int height)
 	return g;
 }
 
-void MultiLayer::adjustSize()
+void Graph::adjustSize()
 {
     canvas->resize(size().width(), size().height() - LayerButton::btnSize());
 }
 
-void MultiLayer::activateLayer(LayerButton* button)
+void Graph::activateLayer(LayerButton* button)
 {
 	for (int i=0;i<d_button_list.count();i++)
 	{
@@ -195,7 +195,7 @@ void MultiLayer::activateLayer(LayerButton* button)
 	}
 }
 
-void MultiLayer::setActiveLayer(Layer* g)
+void Graph::setActiveLayer(Layer* g)
 {
 	if (!g || d_active_layer == g)
 		return;
@@ -219,13 +219,13 @@ void MultiLayer::setActiveLayer(Layer* g)
 	}
 }
 
-void MultiLayer::contextMenuEvent(QContextMenuEvent *e)
+void Graph::contextMenuEvent(QContextMenuEvent *e)
 {
 	emit showWindowContextMenu();
 	e->accept();
 }
 
-void MultiLayer::resizeLayers (const QResizeEvent *re)
+void Graph::resizeLayers (const QResizeEvent *re)
 {
 	QSize oldSize = re->oldSize();
 	QSize size = re->size();
@@ -251,7 +251,7 @@ void MultiLayer::resizeLayers (const QResizeEvent *re)
     resizeLayers(size, oldSize, false);
 }
 
-void MultiLayer::resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts)
+void Graph::resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts)
 {
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
@@ -281,7 +281,7 @@ void MultiLayer::resizeLayers (const QSize& size, const QSize& oldSize, bool sca
 	QApplication::restoreOverrideCursor();
 }
 
-void MultiLayer::confirmRemoveLayer()
+void Graph::confirmRemoveLayer()
 {
 	if (d_layer_count>1)
 	{
@@ -309,7 +309,7 @@ void MultiLayer::confirmRemoveLayer()
 		removeLayer();
 }
 
-void MultiLayer::removeLayer()
+void Graph::removeLayer()
 {
 	//remove corresponding button
 	LayerButton *btn=0;
@@ -364,7 +364,7 @@ void MultiLayer::removeLayer()
 	emit modifiedPlot();
 }
 
-void MultiLayer::setLayerGeometry(int x, int y, int w, int h)
+void Graph::setLayerGeometry(int x, int y, int w, int h)
 {
 	if (d_active_layer->pos() == QPoint (x,y) &&
 		d_active_layer->size() == QSize (w,h))
@@ -375,7 +375,7 @@ void MultiLayer::setLayerGeometry(int x, int y, int w, int h)
 	emit modifiedPlot();
 }
 
-QSize MultiLayer::arrangeLayers(bool userSize)
+QSize Graph::arrangeLayers(bool userSize)
 {
 	const QRect rect = canvas->geometry();
 
@@ -540,7 +540,7 @@ QSize MultiLayer::arrangeLayers(bool userSize)
 	return size;
 }
 
-void MultiLayer::findBestLayout(int &rows, int &cols)
+void Graph::findBestLayout(int &rows, int &cols)
 {
 	if(d_layer_count%2 == 0) // d_layer_count is an even number
 	{
@@ -570,7 +570,7 @@ void MultiLayer::findBestLayout(int &rows, int &cols)
 	}
 }
 
-void MultiLayer::arrangeLayers(bool fit, bool userSize)
+void Graph::arrangeLayers(bool fit, bool userSize)
 {
 	if (!d_layer_count)
 		return;
@@ -620,24 +620,24 @@ void MultiLayer::arrangeLayers(bool fit, bool userSize)
 	QApplication::restoreOverrideCursor();
 }
 
-void MultiLayer::setCols(int c)
+void Graph::setCols(int c)
 {
 	if (cols != c)
 		cols=c;
 }
 
-void MultiLayer::setRows(int r)
+void Graph::setRows(int r)
 {
 	if (rows != r)
 		rows=r;
 }
 
-QPixmap MultiLayer::canvasPixmap()
+QPixmap Graph::canvasPixmap()
 {
     return QPixmap::grabWidget(canvas);
 }
 
-void MultiLayer::exportToFile(const QString& fileName)
+void Graph::exportToFile(const QString& fileName)
 {
 	if ( fileName.isEmpty() ){
 		QMessageBox::critical(0, tr("Error"), tr("Please provide a valid file name!"));
@@ -662,7 +662,7 @@ void MultiLayer::exportToFile(const QString& fileName)
 	}
 }
 
-void MultiLayer::exportImage(const QString& fileName, int quality, bool transparent)
+void Graph::exportImage(const QString& fileName, int quality, bool transparent)
 {
 	QPixmap pic = canvasPixmap();
 	if (transparent)
@@ -692,12 +692,12 @@ void MultiLayer::exportImage(const QString& fileName, int quality, bool transpar
 	pic.save(fileName, 0, quality);
 }
 
-void MultiLayer::exportPDF(const QString& fname)
+void Graph::exportPDF(const QString& fname)
 {
 	exportVector(fname);
 }
 
-void MultiLayer::exportVector(const QString& fileName, int res, bool color, bool keepAspect, QPrinter::PageSize pageSize)
+void Graph::exportVector(const QString& fileName, int res, bool color, bool keepAspect, QPrinter::PageSize pageSize)
 {
 	if ( fileName.isEmpty() ){
 		QMessageBox::critical(this, tr("Error"),
@@ -772,7 +772,7 @@ void MultiLayer::exportVector(const QString& fileName, int res, bool color, bool
     }
 }
 
-void MultiLayer::exportSVG(const QString& fname)
+void Graph::exportSVG(const QString& fname)
 {
 	#if QT_VERSION >= 0x040300
 		QSvgGenerator generator;
@@ -792,14 +792,14 @@ void MultiLayer::exportSVG(const QString& fname)
 	#endif
 }
 
-void MultiLayer::copyAllLayers()
+void Graph::copyAllLayers()
 {
 	QPixmap pic = canvasPixmap();
 	QImage image= pic.convertToImage();
 	QApplication::clipboard()->setImage(image);
 }
 
-void MultiLayer::printActiveLayer()
+void Graph::printActiveLayer()
 {
 	if (d_active_layer)
 	{
@@ -809,7 +809,7 @@ void MultiLayer::printActiveLayer()
 	}
 }
 
-void MultiLayer::print()
+void Graph::print()
 {
 	QPrinter printer;
 	printer.setColorMode (QPrinter::Color);
@@ -830,7 +830,7 @@ void MultiLayer::print()
 	}
 }
 
-void MultiLayer::printAllLayers(QPainter *painter)
+void Graph::printAllLayers(QPainter *painter)
 {
 	if (!painter)
 		return;
@@ -901,7 +901,7 @@ void MultiLayer::printAllLayers(QPainter *painter)
 
 }
 
-void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
+void Graph::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 		const QFont& numbersFnt, const QFont& legendFnt)
 {
 	for (int i=0;i<(int)d_layer_list.count();i++)
@@ -933,7 +933,7 @@ void MultiLayer::setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 	emit modifiedPlot();
 }
 
-void MultiLayer::connectLayer(Layer *g)
+void Graph::connectLayer(Layer *g)
 {
 	connect (g,SIGNAL(drawLineEnded(bool)), this, SIGNAL(drawLineEnded(bool)));
 	connect (g,SIGNAL(drawTextOff()),this,SIGNAL(drawTextOff()));
@@ -961,7 +961,7 @@ void MultiLayer::connectLayer(Layer *g)
 			this,SIGNAL(createIntensityTable(const QString&)));
 }
 
-void MultiLayer::addTextLayer(int f, const QFont& font,
+void Graph::addTextLayer(int f, const QFont& font,
 		const QColor& textCol, const QColor& backgroundCol)
 {
 	defaultTextMarkerFont = font;
@@ -974,7 +974,7 @@ void MultiLayer::addTextLayer(int f, const QFont& font,
 	canvas->grabMouse();
 }
 
-void MultiLayer::addTextLayer(const QPoint& pos)
+void Graph::addTextLayer(const QPoint& pos)
 {
 	Layer* g=addLayer();
 	g->removeLegend();
@@ -998,7 +998,7 @@ void MultiLayer::addTextLayer(const QPoint& pos)
 	emit modifiedPlot();
 }
 
-bool MultiLayer::eventFilter(QObject *object, QEvent *e)
+bool Graph::eventFilter(QObject *object, QEvent *e)
 {
 	if(e->type() == QEvent::MouseButtonPress && object == (QObject *)canvas)
 	{
@@ -1021,7 +1021,7 @@ bool MultiLayer::eventFilter(QObject *object, QEvent *e)
 	return MyWidget::eventFilter(object, e);
 }
 
-void MultiLayer::keyPressEvent(QKeyEvent * e)
+void Graph::keyPressEvent(QKeyEvent * e)
 {
 	if (e->key() == Qt::Key_F12)
 	{
@@ -1056,7 +1056,7 @@ void MultiLayer::keyPressEvent(QKeyEvent * e)
 	}
 }
 
-void MultiLayer::wheelEvent ( QWheelEvent * e )
+void Graph::wheelEvent ( QWheelEvent * e )
 {
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
@@ -1132,7 +1132,7 @@ void MultiLayer::wheelEvent ( QWheelEvent * e )
 	QApplication::restoreOverrideCursor();
 }
 
-bool MultiLayer::isEmpty ()
+bool Graph::isEmpty ()
 {
 	if (d_layer_count <= 0)
 		return true;
@@ -1140,7 +1140,7 @@ bool MultiLayer::isEmpty ()
 		return false;
 }
 
-QString MultiLayer::saveToString(const QString& geometry)
+QString Graph::saveToString(const QString& geometry)
 {
 	QString s="<multiLayer>\n";
 	s+=QString(name())+"\t";
@@ -1163,7 +1163,7 @@ QString MultiLayer::saveToString(const QString& geometry)
 	return s+"</multiLayer>\n";
 }
 
-QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
+QString Graph::saveAsTemplate(const QString& geometryInfo)
 {
 	QString s="<multiLayer>\t";
 	s+=QString::number(rows)+"\t";
@@ -1183,7 +1183,7 @@ QString MultiLayer::saveAsTemplate(const QString& geometryInfo)
 	return s;
 }
 
-void MultiLayer::mousePressEvent ( QMouseEvent * e )
+void Graph::mousePressEvent ( QMouseEvent * e )
 {
 	int margin = 5;
 	QPoint pos = canvas->mapFromParent(e->pos());
@@ -1216,7 +1216,7 @@ void MultiLayer::mousePressEvent ( QMouseEvent * e )
 		delete d_layers_selector;
 }
 
-void MultiLayer::setMargins (int lm, int rm, int tm, int bm)
+void Graph::setMargins (int lm, int rm, int tm, int bm)
 {
 	if (left_margin != lm)
 		left_margin = lm;
@@ -1228,7 +1228,7 @@ void MultiLayer::setMargins (int lm, int rm, int tm, int bm)
 		bottom_margin = bm;
 }
 
-void MultiLayer::setSpacing (int rgap, int cgap)
+void Graph::setSpacing (int rgap, int cgap)
 {
 	if (rowsSpace != rgap)
 		rowsSpace = rgap;
@@ -1236,7 +1236,7 @@ void MultiLayer::setSpacing (int rgap, int cgap)
 		colsSpace = cgap;
 }
 
-void MultiLayer::setLayerCanvasSize (int w, int h)
+void Graph::setLayerCanvasSize (int w, int h)
 {
 	if (l_canvas_width != w)
 		l_canvas_width = w;
@@ -1244,7 +1244,7 @@ void MultiLayer::setLayerCanvasSize (int w, int h)
 		l_canvas_height = h;
 }
 
-void MultiLayer::setAlignement (int ha, int va)
+void Graph::setAlignement (int ha, int va)
 {
 	if (hor_align != ha)
 		hor_align = ha;
@@ -1253,7 +1253,7 @@ void MultiLayer::setAlignement (int ha, int va)
 		vert_align = va;
 }
 
-void MultiLayer::setLayersNumber(int n)
+void Graph::setLayersNumber(int n)
 {
 	if (d_layer_count == n)
 		return;
@@ -1310,7 +1310,7 @@ void MultiLayer::setLayersNumber(int n)
 	emit modifiedPlot();
 }
 
-void MultiLayer::copy(MultiLayer* ml)
+void Graph::copy(Graph* ml)
 {
 	hide();//FIXME: find a better way to avoid a resize event
     resize(ml->size());
@@ -1328,7 +1328,7 @@ void MultiLayer::copy(MultiLayer* ml)
 	show();
 }
 
-bool MultiLayer::focusNextPrevChild ( bool next )
+bool Graph::focusNextPrevChild ( bool next )
 {
 	if (!d_active_layer)
 		return true;
@@ -1336,7 +1336,7 @@ bool MultiLayer::focusNextPrevChild ( bool next )
 	return d_active_layer->focusNextPrevChild(next);
 }
 
-void MultiLayer::changeEvent(QEvent *event)
+void Graph::changeEvent(QEvent *event)
 {
 	if (event->type() == QEvent::WindowStateChange) {
 		if ( windowState() & Qt::WindowMaximized )
@@ -1352,7 +1352,7 @@ void MultiLayer::changeEvent(QEvent *event)
 	MyWidget::changeEvent(event);
 }
 
-void MultiLayer::setHidden()
+void Graph::setHidden()
 {
 	if (status() == MyWidget::Maximized)
 		resizeLayers(d_normal_size, d_max_size, false);

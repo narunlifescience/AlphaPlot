@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : MultiLayer.h
+    File                 : Graph.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief,
@@ -29,8 +29,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef MULTILAYER_H
-#define MULTILAYER_H
+#ifndef GRAPH_H
+#define GRAPH_H
 
 #include "../core/MyWidget.h"
 
@@ -56,19 +56,19 @@ class SelectionMoveResizer;
  *
  * The main problem to be figured out for this is how Layer would interface with the rest of the project.
  * A possible solution is outlined in the documentation of ApplicationWindow:
- * If MultiLayer exposes its parent Project to the widgets it manages, they could handle things like creating
+ * If Graph exposes its parent Project to the widgets it manages, they could handle things like creating
  * tables by calling methods of Project instead of sending signals.
  */
-class MultiLayer: public MyWidget
+class Graph: public MyWidget
 {
 	Q_OBJECT
 
 public:
-	MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	Graph (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 	QList<Layer*> layers() {return d_layer_list;};
 	Layer *layer(int num);
 	LayerButton* addLayerButton();
-	void copy(MultiLayer* ml);
+	void copy(Graph* ml);
 
 	enum HorAlignement{HCenter, Left, Right};
 	enum VertAlignement{VCenter, Top, Bottom};
@@ -262,4 +262,4 @@ signals:
 	void showContextMenu();
 };
 
-#endif
+#endif // ifndef GRAPH_H

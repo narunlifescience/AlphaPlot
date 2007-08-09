@@ -31,7 +31,7 @@
 #include "core/MyParser.h"
 #include "core/ApplicationWindow.h"
 #include "graph/Layer.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "graph/Plot.h"
 #include "table/Table.h"
 

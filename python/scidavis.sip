@@ -453,10 +453,10 @@ private:
   Layer(const Layer&);
 };
 
-class MultiLayer : MyWidget /PyName=Graph/
+class Graph : MyWidget
 {
 %TypeHeaderCode
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 %End
 public:
   Layer *activeLayer();
@@ -480,7 +480,7 @@ public:
 
   void print();
 private:
-  MultiLayer(const MultiLayer&);
+  Graph(const Graph&);
 };
 
 class Note: MyWidget
@@ -531,13 +531,13 @@ public:
 %End
   Matrix* newMatrix();
   Matrix* newMatrix(const QString&, int=32, int=32);
-  MultiLayer *plot(const QString&) /PyName=graph/;
+  Graph *plot(const QString&) /PyName=graph/;
 %MethodCode
   sipRes = sipCpp->current_folder->graph(*a0, false);
   if(!sipRes)
     sipRes = sipCpp->projectFolder()->graph(*a0, true);
 %End
-  MultiLayer* newGraph();
+  Graph* newGraph();
   Note *note(const QString&);
 %MethodCode
   sipRes = sipCpp->current_folder->note(*a0, false);
@@ -545,7 +545,7 @@ public:
     sipRes = sipCpp->projectFolder()->note(*a0, true);
 %End
   Note* newNote(const QString& = QString::null);
-  MultiLayer *multilayerPlot(Table*, SIP_PYTUPLE, int=1) /PyName=plot/;
+  Graph *multilayerPlot(Table*, SIP_PYTUPLE, int=1) /PyName=plot/;
 %MethodCode
   QStringList l;
   int n = PyTuple_Size(a1);
@@ -561,7 +561,7 @@ public:
   }
   sipRes = sipCpp->multilayerPlot(a0, l, a2);
 %End
-  MultiLayer *multiLayerPlot(Table*, const QString&, int=1) /PyName=plot/;
+  Graph *multiLayerPlot(Table*, const QString&, int=1) /PyName=plot/;
 %MethodCode
   QStringList l;
   l << *a1;
@@ -570,9 +570,9 @@ public:
 
 	Matrix* importImage();
 	Matrix* importImage(const QString&);
-	MultiLayer* plotContour(Matrix*);
-	MultiLayer* plotColorMap(Matrix*);
-	MultiLayer* plotGrayScale(Matrix*);
+	Graph* plotContour(Matrix*);
+	Graph* plotColorMap(Matrix*);
+	Graph* plotGrayScale(Matrix*);
 
   QWidgetList *windowsList() /PyName=windows/;
 
@@ -1213,7 +1213,7 @@ public:
   MyWidget *window(const QString &name, const char *cls="MyWidget", bool recursive=false);
   Table *table(const QString &name, bool recursive=false);
   Matrix *matrix(const QString &name, bool recursive=false);
-  MultiLayer *graph(const QString &name, bool recursive=false);
+  Graph *graph(const QString &name, bool recursive=false);
   Note *note(const QString &name, bool recursive=false);
 
   Folder* rootFolder();

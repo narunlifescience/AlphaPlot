@@ -31,7 +31,7 @@
 
 #include <QDialog>
 #include <QTreeWidgetItem>
-#include "MultiLayer.h"
+#include "Graph.h"
 
 class QCheckBox;
 class QComboBox;
@@ -53,7 +53,7 @@ class CurveTreeItem;
 class ColorBox;
 class PatternBox;
 class ColorButton;
-class MultiLayer;
+class Graph;
 class SymbolBox;
 class ColorMapEditor;
 class QwtPlotItem;
@@ -67,7 +67,7 @@ class PlotDialog : public QDialog
 		PlotDialog(bool showExtended, QWidget* parent = 0, Qt::WFlags fl = 0 );
 		void initFonts(const QFont& titlefont, const QFont& axesfont, const QFont& numbersfont, const QFont& legendfont);
 		void insertColumnsList(const QStringList& names){columnNames = names;};
-		void setMultiLayer(MultiLayer *ml);
+		void setGraph(Graph *ml);
 
 	public slots:
 		void showAll(bool all);
@@ -157,7 +157,7 @@ class PlotDialog : public QDialog
 
 		QFont titleFont, legendFont, axesFont, numbersFont;
 
-		MultiLayer *d_ml;
+		Graph *d_graph;
 		QStringList columnNames;
 
 		QPushButton *btnTitle, *btnAxesLabels, *btnAxesNumbers, *btnLegend;

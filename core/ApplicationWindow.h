@@ -67,7 +67,7 @@ class Layer;
 class ScalePicker;
 class Graph3D;
 class Note;
-class MultiLayer;
+class Graph;
 class FunctionDialog;
 class Folder;
 class FolderListItem;
@@ -199,28 +199,28 @@ public slots:
 
 	//! \name Multilayer Plots
 	//@{
-	MultiLayer* multilayerPlot(int c, int r, int style);
-	MultiLayer* multilayerPlot(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
+	Graph* multilayerPlot(int c, int r, int style);
+	Graph* multilayerPlot(Table* w, const QStringList& colList, int style, int startRow = 0, int endRow = -1);
 	//! used when restoring a plot from a project file
-	MultiLayer* multilayerPlot(const QString& caption);
+	Graph* multilayerPlot(const QString& caption);
 	//! used by the plot wizard
-	MultiLayer* multilayerPlot(const QStringList& colList);
-	void connectMultilayerPlot(MultiLayer *g);
+	Graph* multilayerPlot(const QStringList& colList);
+	void connectMultilayerPlot(Graph *g);
 	void addLayer();
 	void deleteLayer();
 
 	//! Creates a new spectrogram graph
-  	MultiLayer* plotSpectrogram(Matrix *m, int type);
+  	Graph* plotSpectrogram(Matrix *m, int type);
   	void plotGrayScale();
-  	MultiLayer* plotGrayScale(Matrix *m);
+  	Graph* plotGrayScale(Matrix *m);
   	void plotContour();
-  	MultiLayer* plotContour(Matrix *m);
+  	Graph* plotContour(Matrix *m);
   	void plotColorMap();
-  	MultiLayer* plotColorMap(Matrix *m);
+  	Graph* plotColorMap(Matrix *m);
 
 	//! Rearrange the layersin order to fit to the size of the plot window
   	void autoArrangeLayers();
-	void initMultilayerPlot(MultiLayer* g, const QString& name);
+	void initMultilayerPlot(Graph* g, const QString& name);
 	void polishLayer(Layer *layer, int style);
 	void plot2VerticalLayers();
 	void plot2HorizontalLayers();
@@ -478,7 +478,7 @@ public slots:
 	void newProject();
 
 	//! Creates a new empty multilayer plot
-	MultiLayer* newGraph(const QString& caption = tr("Graph"));
+	Graph* newGraph(const QString& caption = tr("Graph"));
 
 	//! \name Reading from a Project File
 	//@{
@@ -486,7 +486,7 @@ public slots:
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);
 	TableStatistics* openTableStatistics(const QStringList &flist);
 	Graph3D* openSurfacePlot(ApplicationWindow* app, const QStringList &lst);
-	Layer* openLayer(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
+	Layer* openLayer(ApplicationWindow* app, Graph *plot, const QStringList &list);
 
 	void openRecentProject(int index);
 	//@}
@@ -586,7 +586,7 @@ public slots:
 	//! \name Dialogs
 	//@{
 	void showFindWindowDialog();
-	//! Show plot style dialog for the active MultiLayer / active Layer / specified curve or the active Layer options dialog if no curve is specified (curveKey = -1).
+	//! Show plot style dialog for the active Graph / active Layer / specified curve or the active Layer options dialog if no curve is specified (curveKey = -1).
 	void showPlotDialog(int curveKey = -1);
 	QDialog* showScaleDialog();
 	QDialog* showPlot3dDialog();
@@ -1139,7 +1139,7 @@ private slots:
 	//! Manage plot type selection.
 	/**
 	 * If the current window is a Table, generate a new graph from the selected data.
-	 * If it is a MultiLayer, change the plot type of the last curve on the active layer.
+	 * If it is a Graph, change the plot type of the last curve on the active layer.
 	 * For everything else, do nothing.
 	 */
 	void selectPlotType(int type);

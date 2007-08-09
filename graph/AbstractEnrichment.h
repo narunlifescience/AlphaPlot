@@ -43,8 +43,8 @@
  * user.
  * If AbstractEnrichment would inherit from both QWidget and QwtPlotItem (which
  * is luckily no QObject) and provide a unified drawing framework, its instances could be added
- * directly to MultiLayer without the need for a dummy Layer in between.
- * Could also help to avoid the hack in MultiLayer::updateMarkersBoundingRect().
+ * directly to Graph without the need for a dummy Layer in between.
+ * Could also help to avoid the hack in Graph::updateMarkersBoundingRect().
  *
  * \sa LineEnrichment, TextEnrichment, ImageEnrichment
  */

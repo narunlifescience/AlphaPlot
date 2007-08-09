@@ -76,7 +76,7 @@ typedef struct{
 /**
  * \brief A 2D-plotting widget.
  *
- * Layers are managed by a MultiLayer, where they are sometimes referred to as "graphs" and sometimes as "layers".
+ * Layers are managed by a Graph, where they are sometimes referred to as "graphs" and sometimes as "layers".
  * Other parts of the code also call them "plots", regardless of the fact that there's also a class Plot.
  * Within the user interface, they are quite consistently called "layers".
  *
@@ -122,7 +122,7 @@ class Layer: public QWidget
 		ScalePicker *scalePicker;
 		CanvasPicker* cp;
 
-		//! Returns the name of the parent MultiLayer object.
+		//! Returns the name of the parent Graph object.
 		QString parentPlotName();
 
 		//! Change the active tool, deleting the old one if it exists.

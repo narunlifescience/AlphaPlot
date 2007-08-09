@@ -31,7 +31,7 @@
 
 #include "matrix/Matrix.h"
 #include "lib/ColorBox.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "note/Note.h"
 #include "graph/types/HistogramCurve.h"
 #include "table/Table.h"
@@ -425,7 +425,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 	int tickTypeMap[]={0,3,1,2};
 	for (int g=0; g<opj.numGraphs(); g++)
 	{
-		MultiLayer *ml = mw->multilayerPlot(opj.graphName(g));
+		Graph *ml = mw->multilayerPlot(opj.graphName(g));
 		if (!ml)
 			return false;
 

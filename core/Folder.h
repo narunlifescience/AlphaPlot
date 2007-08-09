@@ -47,7 +47,7 @@
 class FolderListItem;
 class Table;
 class Matrix;
-class MultiLayer;
+class Graph;
 class Note;
 
 class QDragEnterEvent;
@@ -94,7 +94,7 @@ public:
 	//! Return matrix named name or NULL
 	Matrix *matrix(const QString &name, bool recursive=false) { return (Matrix*) window(name, "Matrix", recursive); }
 	//! Return graph named name or NULL
-	MultiLayer *graph(const QString &name, bool recursive=false) { return (MultiLayer*) window(name, "MultiLayer", recursive); }
+	Graph *graph(const QString &name, bool recursive=false) { return (Graph*) window(name, "Graph", recursive); }
 	//! Return note named name or NULL
 	Note *note(const QString &name, bool recursive=false) { return (Note*) window(name, "Note", recursive); }
 

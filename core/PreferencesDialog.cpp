@@ -30,7 +30,7 @@
 #include "ApplicationWindow.h"
 #include "lib/ColorButton.h"
 #include "lib/ColorBox.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "graph/Layer.h"
 #include "matrix/Matrix.h"
 
@@ -1060,10 +1060,10 @@ void PreferencesDialog::apply()
 	QWidgetList *windows = app->windowsList();
 	foreach(QWidget *w, *windows)
 	{
-		if (w->inherits("MultiLayer"))
+		if (w->inherits("Graph"))
 		{
-			((MultiLayer*)w)->setScaleLayersOnPrint(boxScaleLayersOnPrint->isChecked());
-			((MultiLayer*)w)->printCropmarks(boxPrintCropmarks->isChecked());
+			((Graph*)w)->setScaleLayersOnPrint(boxScaleLayersOnPrint->isChecked());
+			((Graph*)w)->printCropmarks(boxPrintCropmarks->isChecked());
 		}
 	}
 	delete windows;

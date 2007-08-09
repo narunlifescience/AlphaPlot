@@ -181,9 +181,9 @@ void LayerDialog::enableLayoutOptions(bool ok)
 	GroupCanvasSize->setEnabled(!ok);
 }
 
-void LayerDialog::setMultiLayer(MultiLayer *g)
+void LayerDialog::setGraph(Graph *g)
 {
-	multi_layer = g;
+	d_graph = g;
 
 	layersBox->setValue(g->layerCount());
 	boxX->setValue(g->getCols());
@@ -203,14 +203,14 @@ void LayerDialog::setMultiLayer(MultiLayer *g)
 void LayerDialog::update()
 {
 		int graphs = layersBox->value();
-		int old_graphs = multi_layer->layerCount();
-		int dn = multi_layer->layerCount() - graphs;
+		int old_graphs = d_graph->layerCount();
+		int dn = d_graph->layerCount() - graphs;
 		if (dn > 0 && QMessageBox::question(0, tr("Delete Layers?"),
 					tr("You are about to delete %1 existing layers.").arg(dn)+"\n"+
 					tr("Are you sure you want to continue this operation?"),
 					tr("&Continue"), tr("&Cancel"), QString(), 0, 1 )) return;
 
-		multi_layer->setLayersNumber(graphs);
+		d_graph->setLayersNumber(graphs);
 
 		if (!graphs)
 			return;
@@ -219,7 +219,7 @@ void LayerDialog::update()
 		{// Customize new layers with user default settings
 			ApplicationWindow *app = (ApplicationWindow *)this->parent();
 			for (int i = old_graphs+1; i <= graphs; i++)
-				app->setPreferences(multi_layer->layer(i));
+				app->setPreferences(d_graph->layer(i));
 		}
 
 		int cols=boxX->value();
@@ -243,31 +243,31 @@ void LayerDialog::update()
 
 		if (!fitBox->isChecked())
 		{
-			multi_layer->setCols(cols);
-			multi_layer->setRows(rows);
+			d_graph->setCols(cols);
+			d_graph->setRows(rows);
 		}
 
 		if (GroupCanvasSize->isChecked())
-			multi_layer->setLayerCanvasSize(boxCanvasWidth->value(), boxCanvasHeight->value());
+			d_graph->setLayerCanvasSize(boxCanvasWidth->value(), boxCanvasHeight->value());
 
-		multi_layer->setAlignement(alignHorBox->currentItem(), alignVertBox->currentItem());
+		d_graph->setAlignement(alignHorBox->currentItem(), alignVertBox->currentItem());
 
-		multi_layer->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
+		d_graph->setMargins(boxLeftSpace->value(), boxRightSpace->value(),
 				boxTopSpace->value(), boxBottomSpace->value());
 
-		multi_layer->setSpacing(boxRowsGap->value(), boxColsGap->value());
-		multi_layer->arrangeLayers(fitBox->isChecked(), GroupCanvasSize->isChecked());
+		d_graph->setSpacing(boxRowsGap->value(), boxColsGap->value());
+		d_graph->arrangeLayers(fitBox->isChecked(), GroupCanvasSize->isChecked());
 
 		if (!GroupCanvasSize->isChecked())
 		{//show new layer canvas size
-			boxCanvasWidth->setValue(multi_layer->layerCanvasSize().width());
-			boxCanvasHeight->setValue(multi_layer->layerCanvasSize().height());
+			boxCanvasWidth->setValue(d_graph->layerCanvasSize().width());
+			boxCanvasHeight->setValue(d_graph->layerCanvasSize().height());
 		}
 
 		if (fitBox->isChecked())
 		{//show new grid settings
-			boxX->setValue(multi_layer->getCols());
-			boxY->setValue(multi_layer->getRows());
+			boxX->setValue(d_graph->getCols());
+			boxY->setValue(d_graph->getRows());
 		}
 }
 

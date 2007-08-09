@@ -66,11 +66,11 @@ class ImageEnrichment;
  *   - Use the same class for layer and marker handling to avoid duplicating code.
  *     Good for bugfixing and for maintaining a consistent user interface.
  *   - Keep this class generic so that it can later be used for other parents
- *     (than MultiLayer's canvas QWidget and Plot's QwtPlotCanvas)
+ *     (than Graph's canvas QWidget and Plot's QwtPlotCanvas)
  *     and/or targets (e.g. new QwtPlotMarker subclasses) with little to no modifications.
  *   - Differentiate between move/resize, which are generic operations, and editing (like moving the
  *     endpoints of a LineEnrichment), which requires detailed knowledge about the target.
- *     This way, new types of markers or MultiLayer children support moving/resizing without further
+ *     This way, new types of markers or Graph children support moving/resizing without further
  *     work. Editing can then be implemented in the targets themselves, as shown in LineEnrichment.
  *   .
  *

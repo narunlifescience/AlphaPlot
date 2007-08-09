@@ -29,7 +29,7 @@
 #ifndef LAYERDIALOG_H
 #define LAYERDIALOG_H
 
-#include "MultiLayer.h"
+#include "Graph.h"
 
 class QGroupBox;
 class QPushButton;
@@ -44,7 +44,7 @@ class LayerDialog : public QDialog
 
 public:
     LayerDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-	void setMultiLayer(MultiLayer *g);
+	void setGraph(Graph *g);
 
 protected slots:
 	void accept();
@@ -52,7 +52,7 @@ protected slots:
 	void enableLayoutOptions(bool ok);
 
 private:
-	MultiLayer *multi_layer;
+	Graph *d_graph;
 
 	QPushButton* buttonOk;
 	QPushButton* buttonCancel;

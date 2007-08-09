@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "FFT.h"
-#include "graph/MultiLayer.h"
+#include "graph/Graph.h"
 #include "graph/Plot.h"
 #include "lib/ColorBox.h"
 #include "table/Table.h"
@@ -272,11 +272,11 @@ void FFT::output(const QString &text)
     ApplicationWindow *app = (ApplicationWindow *)parent();
     QString tableName = app->generateUniqueName(QString(name()));
     Table *t = app->newHiddenTable(tableName, d_explanation, d_n, 5, text);
-	MultiLayer *ml = app->multilayerPlot(t, QStringList() << tableName + "_" + tr("Amplitude"), 0);
-   	if (!ml)
+	Graph *graph = app->multilayerPlot(t, QStringList() << tableName + "_" + tr("Amplitude"), 0);
+   	if (!graph)
 		return;
 
-	Layer* layer = ml->activeLayer();
+	Layer* layer = graph->activeLayer();
 	if (layer)
 	{
 		layer->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
@@ -291,7 +291,7 @@ void FFT::output(const QString &text)
 		plot->setAxisTitle(QwtPlot::yLeft, tr("Amplitude"));
 		plot->replot();
 	}
-	ml->showMaximized();
+	graph->showMaximized();
 }
 
 void FFT::setDataFromTable(Table *t, const QString& realColName, const QString& imagColName)
