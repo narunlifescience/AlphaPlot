@@ -234,14 +234,14 @@ class LayerItem : public QTreeWidgetItem
 {
 	public:
 		enum {LayerTreeItem = 1001};
-		LayerItem(Graph *g, QTreeWidgetItem *parent, const QString& s);
+		LayerItem(Layer *g, QTreeWidgetItem *parent, const QString& s);
 
-		Graph *graph() { return d_graph; };
+		Layer *layer() { return d_layer; };
 		void setActive(bool select);
 
 	protected:
 		void insertCurvesList();
-		Graph *d_graph;
+		Layer *d_layer;
 };
 
 /*****************************************************************************
@@ -256,7 +256,7 @@ class CurveTreeItem : public QTreeWidgetItem
 		enum {PlotCurveTreeItem = 1002};
 		CurveTreeItem(const QwtPlotItem *curve, LayerItem *parent, const QString& s);
 
-		Graph* graph(){return ((LayerItem *)parent())->graph();};
+		Layer* layer(){return ((LayerItem *)parent())->layer();};
 		void setActive(bool on);
 
 		const QwtPlotItem *plotItem() { return d_curve; };

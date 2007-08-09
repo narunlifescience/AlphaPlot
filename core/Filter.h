@@ -34,7 +34,7 @@
 #include "ApplicationWindow.h"
 
 class QwtPlotCurve;
-class Graph;
+class Layer;
 class Table;
 
 //! Abstract base class for data analysis operations
@@ -44,15 +44,15 @@ class Filter : public QObject
 
 	public:
         Filter(ApplicationWindow *parent, Table *t = 0, const char * name = 0);
-		Filter(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
+		Filter(ApplicationWindow *parent, Layer *layer = 0, const char * name = 0);
 		~Filter();
 
 		//! Actually does the job. Should be reimplemented in derived classes.
 		virtual bool run();
 
         virtual void setDataCurve(int curve, double start, double end);
-		bool setDataFromCurve(const QString& curveTitle, Graph *g = 0);
-		bool setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g = 0);
+		bool setDataFromCurve(const QString& curveTitle, Layer *layer = 0);
+		bool setDataFromCurve(const QString& curveTitle, double from, double to, Layer *layer = 0);
 
 		//! Changes the data range if the source curve was already assigned. Provided for convenience.
 		void setInterval(double from, double to);
@@ -99,7 +99,7 @@ class Filter : public QObject
         QwtPlotCurve* addResultCurve(double *x, double *y);
 
         //! Performs checks and returns the index of the source data curve if OK, -1 otherwise
-        int curveIndex(const QString& curveTitle, Graph *g);
+        int curveIndex(const QString& curveTitle, Layer *layer);
 
         //! Output string added to the log pannel of the application
         virtual QString logInfo(){return QString();};
@@ -111,7 +111,7 @@ class Filter : public QObject
 		virtual void calculateOutputData(double *X, double *Y) { Q_UNUSED(X) Q_UNUSED(Y) };
 
 		//! The graph where the result curve should be displayed
-		Graph *d_graph;
+		Layer *d_layer;
 
         //! A table source of data
 		Table *d_table;

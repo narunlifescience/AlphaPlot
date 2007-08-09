@@ -36,8 +36,8 @@ class SmoothFilter : public Filter
 Q_OBJECT
 
 public:
-	SmoothFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int m = 3);
-	SmoothFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end, int m = 3);
+	SmoothFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, int m = 3);
+	SmoothFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end, int m = 3);
 
     enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
 

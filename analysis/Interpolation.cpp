@@ -36,16 +36,16 @@
 #include <gsl/gsl_spline.h>
 #include <gsl/gsl_interp.h>
 
-Interpolation::Interpolation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int m)
-: Filter(parent, g)
+Interpolation::Interpolation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, int m)
+: Filter(parent, layer)
 {
 	init(m);
 	setDataFromCurve(curveTitle);
 }
 
-Interpolation::Interpolation(ApplicationWindow *parent, Graph *g, const QString& curveTitle,
+Interpolation::Interpolation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle,
                              double start, double end, int m)
-: Filter(parent, g)
+: Filter(parent, layer)
 {
 	init(m);
 	setDataFromCurve(curveTitle, start, end);

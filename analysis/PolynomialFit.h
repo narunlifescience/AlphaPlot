@@ -36,9 +36,9 @@ class PolynomialFit : public Fit
 	Q_OBJECT
 
 	public:
-		PolynomialFit(ApplicationWindow *parent, Graph *g, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order = 2, bool legend = false);
-		PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Layer *layer, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Layer *layer, QString& curveTitle, int order = 2, bool legend = false);
+		PolynomialFit(ApplicationWindow *parent, Layer *layer, QString& curveTitle, double start, double end, int order = 2, bool legend = false);
 
 		virtual QString legendInfo();
 		void fit();
@@ -59,9 +59,9 @@ class LinearFit : public Fit
 	Q_OBJECT
 
 	public:
-		LinearFit(ApplicationWindow *parent, Graph *g);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+		LinearFit(ApplicationWindow *parent, Layer *layer);
+		LinearFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+		LinearFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
 		void fit();
 

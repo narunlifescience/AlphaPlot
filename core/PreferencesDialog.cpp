@@ -31,7 +31,7 @@
 #include "lib/ColorButton.h"
 #include "lib/ColorBox.h"
 #include "graph/MultiLayer.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "matrix/Matrix.h"
 
 #include <QLocale>
@@ -940,25 +940,25 @@ void PreferencesDialog::languageChange()
 	boxCurveStyle->addItem( QPixmap(":/hBars.xpm"), tr( " Horizontal Bars" ) );
 
 	int style = app->defaultCurveStyle;
-	if (style == Graph::Line)
+	if (style == Layer::Line)
 		boxCurveStyle->setCurrentItem(0);
-	else if (style == Graph::Scatter)
+	else if (style == Layer::Scatter)
 		boxCurveStyle->setCurrentItem(1);
-	else if (style == Graph::LineSymbols)
+	else if (style == Layer::LineSymbols)
 		boxCurveStyle->setCurrentItem(2);
-	else if (style == Graph::VerticalDropLines)
+	else if (style == Layer::VerticalDropLines)
 		boxCurveStyle->setCurrentItem(3);
-	else if (style == Graph::Spline)
+	else if (style == Layer::Spline)
 		boxCurveStyle->setCurrentItem(4);
-	else if (style == Graph::VerticalSteps)
+	else if (style == Layer::VerticalSteps)
 		boxCurveStyle->setCurrentItem(5);
-	else if (style == Graph::HorizontalSteps)
+	else if (style == Layer::HorizontalSteps)
 		boxCurveStyle->setCurrentItem(6);
-	else if (style == Graph::Area)
+	else if (style == Layer::Area)
 		boxCurveStyle->setCurrentItem(7);
-	else if (style == Graph::VerticalBars)
+	else if (style == Layer::VerticalBars)
 		boxCurveStyle->setCurrentItem(8);
-	else if (style == Graph::HorizontalBars)
+	else if (style == Layer::HorizontalBars)
 		boxCurveStyle->setCurrentItem(9);
 
 	//plots 3D
@@ -1168,34 +1168,34 @@ int PreferencesDialog::curveStyle()
 	switch (boxCurveStyle->currentItem())
 	{
 		case 0:
-			style = Graph::Line;
+			style = Layer::Line;
 			break;
 		case 1:
-			style = Graph::Scatter;
+			style = Layer::Scatter;
 			break;
 		case 2:
-			style = Graph::LineSymbols;
+			style = Layer::LineSymbols;
 			break;
 		case 3:
-			style = Graph::VerticalDropLines;
+			style = Layer::VerticalDropLines;
 			break;
 		case 4:
-			style = Graph::Spline;
+			style = Layer::Spline;
 			break;
 		case 5:
-			style = Graph::VerticalSteps;
+			style = Layer::VerticalSteps;
 			break;
 		case 6:
-			style = Graph::HorizontalSteps;
+			style = Layer::HorizontalSteps;
 			break;
 		case 7:
-			style = Graph::Area;
+			style = Layer::Area;
 			break;
 		case 8:
-			style = Graph::VerticalBars;
+			style = Layer::VerticalBars;
 			break;
 		case 9:
-			style = Graph::HorizontalBars;
+			style = Layer::HorizontalBars;
 			break;
 	}
 	return style;

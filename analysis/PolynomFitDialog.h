@@ -36,7 +36,7 @@ class QSpinBox;
 class QPushButton;
 class QLineEdit;
 class QComboBox;
-class Graph;
+class Layer;
 class ColorBox;
 
 //! Fit polynomial dialog
@@ -49,12 +49,12 @@ public:
 
 public slots:
 	void fit();
-	void setGraph(Graph *g);
+	void setLayer(Layer *layer);
 	void activateCurve(const QString& curveName);
 	void changeDataRange();
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 
     QPushButton* buttonFit;
 	QPushButton* buttonCancel;

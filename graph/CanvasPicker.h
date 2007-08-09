@@ -29,26 +29,26 @@
 #include <QObject>
 #include "Plot.h"
 
-class Graph;
+class Layer;
 class LineEnrichment;
 
 /**
  * \brief Handles parts of the user interaction for a Plot by registering itself as an event filter for its QwtPlotCanvas.
  *
- * CanvasPicker relies heavily on its parent being the Graph that owns the Plot it operates on.
- * Additionally, parts of the code use Graph::plotWidget instead of CanvasPicker::plotWidget.
+ * CanvasPicker relies heavily on its parent being the Layer that owns the Plot it operates on.
+ * Additionally, parts of the code use Layer::plotWidget instead of CanvasPicker::plotWidget.
  */
 class CanvasPicker: public QObject
 {
     Q_OBJECT
 public:
-	 CanvasPicker(Graph *plot);
+	 CanvasPicker(Layer *layer);
 	 virtual bool eventFilter(QObject *, QEvent *);
 	 void selectPoints(int n);
 	 void selectPeak(const QPoint& p);
 
 	 //! Disable editing of #d_editing_marker on a TAB-key event.
-	 /*!\brief Called by Graph::focusNextPrevChild ()
+	 /*!\brief Called by Layer::focusNextPrevChild ()
 	 */
 	void disableEditing();
 
@@ -63,16 +63,14 @@ private:
 	bool selectMarker(const QMouseEvent *e);
 
 	/**
-	 * \brief Return my parent as a Graph.
-	 *
-	 * %Note that contrary to the method name, this does NOT return the Plot I operate on.
+	 * \brief Return my parent as a Layer.
 	 */
-	Graph *plot() { return (Graph *)parent(); }
+	Layer *layer() { return (Layer *)parent(); }
 
 	/**
 	 * \brief The Plot I handle user interaction for.
 	 *
-	 * %Note that this has to be owned by my parent Graph.
+	 * %Note that this has to be owned by my parent Layer.
 	 */
 	Plot* plotWidget;
 	QPoint startLinePoint, endLinePoint;
@@ -91,7 +89,7 @@ private:
 	bool pointSelected;
 	/*!\brief The marker that is currently being edited, or NULL.
 	 * Editing does explicitly _not_ inlude moving and resizing, which are being
-	 * handled by SelectionMoveResizer (see Graph::d_markers_selector).
+	 * handled by SelectionMoveResizer (see Layer::d_markers_selector).
 	 * Currently, only LineEnrichment provides any other form of editing, but this really
 	 * should be generalized. See ImageEnrichment for details.
 	 */

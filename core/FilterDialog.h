@@ -35,7 +35,7 @@ class QPushButton;
 class QLineEdit;
 class QComboBox;
 class QCheckBox;
-class Graph;
+class Layer;
 class ColorBox;
 	
 //! Filter options dialog
@@ -56,11 +56,11 @@ public:
 	ColorBox* boxColor;
 
 public slots:
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 	void filter();
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 	int filter_type;
 };
 

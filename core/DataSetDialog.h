@@ -37,7 +37,7 @@ class QCheckBox;
 class QLineEdit;
 class QComboBox;
 
-class Graph;
+class Layer;
 
 //! Multi purpose dialog for choosing a data set
 class DataSetDialog : public QDialog
@@ -59,7 +59,7 @@ public slots:
 	void setCurveNames(const QStringList& names);
 	void setOperationType(const QString& s){operation=s;};
 	void setCurentDataSet(const QString& s);
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 
 signals:
 	void options(const QString&);
@@ -67,7 +67,7 @@ signals:
 private:
 	QString operation;
 	QString windowTitle;
-	Graph *d_graph;
+	Layer *d_layer;
 };
 
 #endif

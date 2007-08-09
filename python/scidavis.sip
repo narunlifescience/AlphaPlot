@@ -380,10 +380,10 @@ private:
   TextEnrichment(const TextEnrichment&);
 };
 
-class Graph : QWidget /PyName=Layer/
+class Layer : QWidget
 {
 %TypeHeaderCode
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "graph/TextEnrichment.h"
 %End
 public:
@@ -398,7 +398,7 @@ public:
   void removeCurve(int);
   void removeCurve(const QString&);
   void deleteFitCurves();
-  int curves() /PyName=numCurves/;
+  int curveCount() /PyName=numCurves/;
 
   void addErrorBars(const QString&, Table *, const QString&,
 		  int type = 1, int width = 1, int cap = 8, const QColor& color = QColor(Qt::black),
@@ -450,7 +450,7 @@ public:
   void setAntialiasing(bool on = true, bool update = true);
 
 private:
-  Graph(const Graph&);
+  Layer(const Layer&);
 };
 
 class MultiLayer : MyWidget /PyName=Graph/
@@ -459,11 +459,11 @@ class MultiLayer : MyWidget /PyName=Graph/
 #include "graph/MultiLayer.h"
 %End
 public:
-  Graph *activeGraph() /PyName=activeLayer/;
-  void setActiveGraph(Graph*) /PyName=setActiveLayer/;
-  int layers() /PyName=numLayers/;
-  Graph* layer(int num);
-  Graph* addLayer(int = 0, int = 0, int = 0, int = 0);
+  Layer *activeLayer();
+  void setActiveLayer(Layer*);
+  int layerCount() /PyName=numLayers/;
+  Layer* layer(int num);
+  Layer* addLayer(int = 0, int = 0, int = 0, int = 0);
 
   void setCols(int);
   void setRows(int);
@@ -588,7 +588,7 @@ public:
   Folder* projectFolder() /PyName=rootFolder/;
 
   void renameWindow(MyWidget *, const QString &);
-  void setPreferences(Graph*);
+  void setPreferences(Layer*);
 
   MyWidget* clone(MyWidget*);
 
@@ -605,15 +605,15 @@ public:
   enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
   enum WeightingMethod{NoWeighting, Instrumental, Statistical, Dataset};
 
-  Fit(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
+  Fit(ApplicationWindow* /TransferThis/, Layer*=0, const char*=0);
   ~Fit();
 
   virtual void fit();
 
   bool setWeightingData(WeightingMethod, const QString&=QString::null);
 
-  bool setDataFromCurve(const QString&, Graph*=0);
-  bool setDataFromCurve(const QString&, double, double, Graph*=0);
+  bool setDataFromCurve(const QString&, Layer*=0);
+  bool setDataFromCurve(const QString&, double, double, Layer*=0);
 
   void setInterval(double from, double to);
 
@@ -725,13 +725,13 @@ class ExponentialFit : Fit
 #include "analysis/ExponentialFit.h"
 %End
 public:
-  ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, bool=false);
-  ExponentialFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, bool=false);
-  ExponentialFit(Graph *, const QString&, bool=false) /NoDerived/;
+  ExponentialFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, bool=false);
+  ExponentialFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double, bool=false);
+  ExponentialFit(Layer *, const QString&, bool=false) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipExponentialFit(app, a0, *a1, a2))
 %End
-  ExponentialFit(Graph *, const QString&, double, double, bool=false) /NoDerived/;
+  ExponentialFit(Layer *, const QString&, double, double, bool=false) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipExponentialFit(app, a0, *a1, a2, a3, a4))
 %End
@@ -743,13 +743,13 @@ class TwoExpFit : Fit
 #include "analysis/ExponentialFit.h"
 %End
 public:
-  TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  TwoExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  TwoExpFit(Graph *, const QString&) /NoDerived/;
+  TwoExpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  TwoExpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  TwoExpFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipTwoExpFit(app, a0, *a1))
 %End
-  TwoExpFit(Graph *, const QString&, double, double) /NoDerived/;
+  TwoExpFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipTwoExpFit(app, a0, *a1, a2, a3))
 %End
@@ -761,13 +761,13 @@ class ThreeExpFit : Fit
 #include "analysis/ExponentialFit.h"
 %End
 public:
-  ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  ThreeExpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  ThreeExpFit(Graph *, const QString&) /NoDerived/;
+  ThreeExpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  ThreeExpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  ThreeExpFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipThreeExpFit(app, a0, *a1))
 %End
-  ThreeExpFit(Graph *, const QString&, double, double) /NoDerived/;
+  ThreeExpFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipThreeExpFit(app, a0, *a1, a2, a3))
 %End
@@ -779,13 +779,13 @@ class SigmoidalFit : Fit
 #include "analysis/SigmoidalFit.h"
 %End
 public:
-  SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  SigmoidalFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  SigmoidalFit(Graph *, const QString&) /NoDerived/;
+  SigmoidalFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  SigmoidalFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  SigmoidalFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipSigmoidalFit(app, a0, *a1))
 %End
-  SigmoidalFit(Graph *, const QString&, double, double) /NoDerived/;
+  SigmoidalFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipSigmoidalFit(app, a0, *a1, a2, a3))
 %End
@@ -797,13 +797,13 @@ class GaussAmpFit : Fit
 #include "analysis/MultiPeakFit.h"
 %End
 public:
-  GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  GaussAmpFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  GaussAmpFit(Graph *, const QString&) /NoDerived/;
+  GaussAmpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  GaussAmpFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  GaussAmpFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipGaussAmpFit(app, a0, *a1))
 %End
-  GaussAmpFit(Graph *, const QString&, double, double) /NoDerived/;
+  GaussAmpFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipGaussAmpFit(app, a0, *a1, a2, a3))
 %End
@@ -815,13 +815,13 @@ class UserFunctionFit : Fit /PyName=NonLinearFit/
 #include "analysis/UserFunctionFit.h"
 %End
 public:
-  UserFunctionFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  UserFunctionFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  UserFunctionFit(Graph *, const QString&) /NoDerived/;
+  UserFunctionFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  UserFunctionFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  UserFunctionFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipUserFunctionFit(app, a0, *a1))
 %End
-  UserFunctionFit(Graph *, const QString&, double, double) /NoDerived/;
+  UserFunctionFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipUserFunctionFit(app, a0, *a1, a2, a3))
 %End
@@ -846,13 +846,13 @@ class PluginFit : Fit
 #include "analysis/PluginFit.h"
 %End
 public:
-  PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  PluginFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  PluginFit(Graph *, const QString&) /NoDerived/;
+  PluginFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  PluginFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  PluginFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipPluginFit(app, a0, *a1))
 %End
-  PluginFit(Graph *, const QString&, double, double) /NoDerived/;
+  PluginFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipPluginFit(app, a0, *a1, a2, a3))
 %End
@@ -866,7 +866,7 @@ class MultiPeakFit : Fit
 %End
 public:
   enum PeakProfile{Gauss, Lorentz};
-  MultiPeakFit(ApplicationWindow * /TransferThis/, Graph *, PeakProfile=Gauss, int=1);
+  MultiPeakFit(ApplicationWindow * /TransferThis/, Layer *, PeakProfile=Gauss, int=1);
 
   int peaks() /PyName=numPeaks/;
   void setNumPeaks(int);
@@ -884,13 +884,13 @@ class LorentzFit : MultiPeakFit
 #include "analysis/MultiPeakFit.h"
 %End
 public:
-  LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  LorentzFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  LorentzFit(Graph *, const QString&) /NoDerived/;
+  LorentzFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  LorentzFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  LorentzFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipLorentzFit(app, a0, *a1))
 %End
-  LorentzFit(Graph *, const QString&, int, int) /NoDerived/;
+  LorentzFit(Layer *, const QString&, int, int) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipLorentzFit(app, a0, *a1, a2, a3))
 %End
@@ -902,13 +902,13 @@ class GaussFit : MultiPeakFit
 #include "analysis/MultiPeakFit.h"
 %End
 public:
-  GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  GaussFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  GaussFit(Graph *, const QString&) /NoDerived/;
+  GaussFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  GaussFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  GaussFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipGaussFit(app, a0, *a1))
 %End
-  GaussFit(Graph *, const QString&, double, double) /NoDerived/;
+  GaussFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipGaussFit(app, a0, *a1, a2, a3))
 %End
@@ -920,13 +920,13 @@ class PolynomialFit : Fit
 #include "analysis/PolynomialFit.h"
 %End
 public:
-  PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int=2, bool=false);
-  PolynomialFit(ApplicationWindow * /TransferThis/, Graph *, QString&, int, int, int=2, bool=false);
-  PolynomialFit(Graph *, QString&, int=2, bool=false) /NoDerived/;
+  PolynomialFit(ApplicationWindow * /TransferThis/, Layer *, QString&, int=2, bool=false);
+  PolynomialFit(ApplicationWindow * /TransferThis/, Layer *, QString&, int, int, int=2, bool=false);
+  PolynomialFit(Layer *, QString&, int=2, bool=false) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipPolynomialFit(app, a0, *a1, a2, a3))
 %End
-  PolynomialFit(Graph *, QString&, int, int, int=2, bool=false) /NoDerived/;
+  PolynomialFit(Layer *, QString&, int, int, int=2, bool=false) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipPolynomialFit(app, a0, *a1, a2, a3, a4, a5))
 %End
@@ -944,13 +944,13 @@ class LinearFit : Fit
 #include "analysis/PolynomialFit.h"
 %End
 public:
-  LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  LinearFit(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  LinearFit(Graph *, const QString&) /NoDerived/;
+  LinearFit(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  LinearFit(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  LinearFit(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipLinearFit(app, a0, *a1))
 %End
-  LinearFit(Graph *, const QString&, double, double) /NoDerived/;
+  LinearFit(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipLinearFit(app, a0, *a1, a2, a3))
 %End
@@ -963,7 +963,7 @@ class Filter : QObject
 #include "core/Filter.h"
 %End
 public:
-  Filter(ApplicationWindow* /TransferThis/, Graph*=0, const char*=0);
+  Filter(ApplicationWindow* /TransferThis/, Layer*=0, const char*=0);
   ~Filter();
 
   void setOutputPoints(int);
@@ -980,13 +980,13 @@ class Differentiation : Filter
 #include "analysis/Differentiation.h"
 %End
 public:
-  Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  Differentiation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  Differentiation(Graph *, const QString&) /NoDerived/;
+  Differentiation(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  Differentiation(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  Differentiation(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipDifferentiation(app, a0, *a1))
 %End
-  Differentiation(Graph *, const QString&, double, double) /NoDerived/;
+  Differentiation(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipDifferentiation(app, a0, *a1, a2, a3))
 %End
@@ -999,13 +999,13 @@ class Integration : Filter
 #include "analysis/Integration.h"
 %End
 public:
-  Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&);
-  Integration(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double);
-  Integration(Graph *, const QString&) /NoDerived/;
+  Integration(ApplicationWindow * /TransferThis/, Layer *, const QString&);
+  Integration(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double);
+  Integration(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipIntegration(app, a0, *a1))
 %End
-  Integration(Graph *, const QString&, double, double) /NoDerived/;
+  Integration(Layer *, const QString&, double, double) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipIntegration(app, a0, *a1, a2, a3))
 %End
@@ -1022,13 +1022,13 @@ class Interpolation : Filter
 public:
   enum InterpolationMethod{Linear, Cubic, Akima};
 
-  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=0);
-  Interpolation(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=0);
-  Interpolation(Graph *, const QString&, int=0) /NoDerived/;
+  Interpolation(ApplicationWindow * /TransferThis/, Layer *, const QString&, int=0);
+  Interpolation(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double, int=0);
+  Interpolation(Layer *, const QString&, int=0) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipInterpolation(app, a0, *a1, a2))
 %End
-  Interpolation(Graph *, const QString&, double, double, int=0) /NoDerived/;
+  Interpolation(Layer *, const QString&, double, double, int=0) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipInterpolation(app, a0, *a1, a2, a3, a4))
 %End
@@ -1046,13 +1046,13 @@ class SmoothFilter : Filter
 public:
   enum SmoothMethod{SavitzkyGolay = 1, FFT = 2, Average = 3};
 
-  SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=3);
-  SmoothFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=3);
-  SmoothFilter(Graph *, const QString&, int=3) /NoDerived/;
+  SmoothFilter(ApplicationWindow * /TransferThis/, Layer *, const QString&, int=3);
+  SmoothFilter(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double, int=3);
+  SmoothFilter(Layer *, const QString&, int=3) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipSmoothFilter(app, a0, *a1, a2))
 %End
-  SmoothFilter(Graph *, const QString&, double, double, int=3) /NoDerived/;
+  SmoothFilter(Layer *, const QString&, double, double, int=3) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipSmoothFilter(app, a0, *a1, a2, a3, a4))
 %End
@@ -1074,13 +1074,13 @@ class FFTFilter : Filter
 public:
   enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
 
-  FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, int=1);
-  FFTFilter(ApplicationWindow * /TransferThis/, Graph *, const QString&, double, double, int=1);
-  FFTFilter(Graph *, const QString&, int=1) /NoDerived/;
+  FFTFilter(ApplicationWindow * /TransferThis/, Layer *, const QString&, int=1);
+  FFTFilter(ApplicationWindow * /TransferThis/, Layer *, const QString&, double, double, int=1);
+  FFTFilter(Layer *, const QString&, int=1) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipFFTFilter(app, a0, *a1, a2))
 %End
-  FFTFilter(Graph *, const QString&, double, double, int=1) /NoDerived/;
+  FFTFilter(Layer *, const QString&, double, double, int=1) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipFFTFilter(app, a0, *a1, a2, a3, a4))
 %End
@@ -1103,12 +1103,12 @@ class FFT : Filter
 public:
 
   FFT(ApplicationWindow * /TransferThis/, Table *, const QString&, const QString& = QString());
-  FFT(ApplicationWindow * /TransferThis/, Graph *, const QString&);
+  FFT(ApplicationWindow * /TransferThis/, Layer *, const QString&);
   FFT(Table *, const QString&, const QString& = QString()) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipFFT(app, a0, *a1, *a2))
 %End
-  FFT(Graph *, const QString&) /NoDerived/;
+  FFT(Layer *, const QString&) /NoDerived/;
 %MethodCode
   SIPSCIDAVIS_APP(new sipFFT(app, a0, *a1))
 %End

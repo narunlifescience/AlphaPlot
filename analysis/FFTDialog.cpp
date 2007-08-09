@@ -30,7 +30,7 @@
 #include "FFT.h"
 #include "core/MyParser.h"
 #include "core/ApplicationWindow.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "graph/MultiLayer.h"
 #include "graph/Plot.h"
 #include "table/Table.h"
@@ -51,7 +51,7 @@ FFTDialog::FFTDialog(int type, QWidget* parent, Qt::WFlags fl )
 	setWindowTitle(tr("FFT Options"));
 
 	d_table = 0;
-	graph = 0;
+	d_layer = 0;
 	d_type = type;
 
 	forwardBtn = new QRadioButton(tr("&Forward"));
@@ -147,13 +147,11 @@ void FFTDialog::accept()
 	}
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
-    FFT *fft;
-	if (graph)
+	FFT *fft = 0;
+	if (d_layer)
 	{
-        fft = new FFT(app, graph, boxName->currentText());
-	}
-	else if (d_table)
-	{
+        fft = new FFT(app, d_layer, boxName->currentText());
+	} else if (d_table) {
 		if (boxReal->currentText().isEmpty())
 		{
 			QMessageBox::critical(this, tr("Error"), tr("Please choose a column for the real part of the data!"));
@@ -162,27 +160,31 @@ void FFTDialog::accept()
 		}
         fft = new FFT(app, d_table, boxReal->currentText(), boxImaginary->currentText());
 	}
-    fft->setInverseFFT(backwardBtn->isChecked());
-    fft->setSampling(sampling);
-    fft->normalizeAmplitudes(boxNormalize->isChecked());
-    fft->shiftFrequencies(boxOrder->isChecked());
-    fft->run();
-    delete fft;
+	if (!fft) {
+		close();
+		return;
+	}
+	fft->setInverseFFT(backwardBtn->isChecked());
+	fft->setSampling(sampling);
+	fft->normalizeAmplitudes(boxNormalize->isChecked());
+	fft->shiftFrequencies(boxOrder->isChecked());
+	fft->run();
+	delete fft;
 	close();
 }
 
-void FFTDialog::setGraph(Graph *g)
+void FFTDialog::setLayer(Layer *layer)
 {
-	graph = g;
-	boxName->insertStringList (g->analysableCurvesList());
+	d_layer = layer;
+	boxName->insertStringList (layer->analysableCurvesList());
 	activateCurve(boxName->currentText());
 };
 
 void FFTDialog::activateCurve(const QString& curveName)
 {
-	if (graph)
+	if (d_layer)
 	{
-		QwtPlotCurve *c = graph->curve(curveName);
+		QwtPlotCurve *c = d_layer->curve(curveName);
 		if (!c)
 			return;
 

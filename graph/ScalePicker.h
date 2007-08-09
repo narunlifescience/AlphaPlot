@@ -35,8 +35,8 @@ class QwtScaleWidget;
 	
 /*!\brief Handles user interaction with a QwtScaleWidget.
  *
- * This class is used by Graph to catch events for the scales on its Plot.
- * ScalePicker doesn't take any actions beyond emitting signals, which are then processed by Graph.
+ * This class is used by Layer to catch events for the scales on its Plot.
+ * ScalePicker doesn't take any actions beyond emitting signals, which are then processed by Layer.
  */
 class ScalePicker: public QObject
 {

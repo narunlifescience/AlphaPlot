@@ -36,7 +36,6 @@
 #include <qwt_array.h>
 #include <qwt_text.h>
 
-#include "Graph.h"
 #include "Plot.h"
 #include "AbstractEnrichment.h"
 

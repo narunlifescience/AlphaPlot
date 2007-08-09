@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "CurvesDialog.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
 #include "core/ApplicationWindow.h"
@@ -165,7 +165,7 @@ CurvesDialog::CurvesDialog( QWidget* parent, Qt::WFlags fl )
 
 void CurvesDialog::showCurveBtn(int)
 {
-	QwtPlotItem *it = d_graph->plotItem(contents->currentRow());
+	QwtPlotItem *it = d_layer->plotItem(contents->currentRow());
 	if (!it)
 		return;
 
@@ -178,7 +178,7 @@ void CurvesDialog::showCurveBtn(int)
     }
 
     PlotCurve *c = (PlotCurve *)it;
-	if (c->type() == Graph::Function)
+	if (c->type() == Layer::Function)
 	{
 		btnEditFunction->setEnabled(true);
 		btnAssociations->setEnabled(false);
@@ -189,7 +189,7 @@ void CurvesDialog::showCurveBtn(int)
     btnAssociations->setEnabled(true);
 
     btnRange->setEnabled(true);
-	if (c->type() == Graph::ErrorBars)
+	if (c->type() == Layer::ErrorBars)
   		btnRange->setEnabled(false);
 }
 
@@ -202,7 +202,7 @@ void CurvesDialog::showCurveRangeDialog()
     ApplicationWindow *app = (ApplicationWindow *)this->parent();
     if (app)
     {
-        CurveRangeDialog *crd = app->showCurveRangeDialog(d_graph, curve);
+        CurveRangeDialog *crd = app->showCurveRangeDialog(d_layer, curve);
         connect((QObject *)crd, SIGNAL(destroyed()), this, SLOT(updateCurveRange()));
     }
 }
@@ -227,7 +227,7 @@ void CurvesDialog::showFunctionDialog()
     close();
 
     if (app)
-        app->showFunctionDialog(d_graph, currentRow);
+        app->showFunctionDialog(d_layer, currentRow);
 }
 
 QSize CurvesDialog::sizeHint() const
@@ -281,25 +281,25 @@ void CurvesDialog::init()
         }
 
         int style = app->defaultCurveStyle;
-        if (style == Graph::Line)
+        if (style == Layer::Line)
             boxStyle->setCurrentItem(0);
-        else if (style == Graph::Scatter)
+        else if (style == Layer::Scatter)
             boxStyle->setCurrentItem(1);
-        else if (style == Graph::LineSymbols)
+        else if (style == Layer::LineSymbols)
             boxStyle->setCurrentItem(2);
-        else if (style == Graph::VerticalDropLines)
+        else if (style == Layer::VerticalDropLines)
             boxStyle->setCurrentItem(3);
-        else if (style == Graph::Spline)
+        else if (style == Layer::Spline)
             boxStyle->setCurrentItem(4);
-        else if (style == Graph::VerticalSteps)
+        else if (style == Layer::VerticalSteps)
             boxStyle->setCurrentItem(5);
-        else if (style == Graph::HorizontalSteps)
+        else if (style == Layer::HorizontalSteps)
             boxStyle->setCurrentItem(6);
-        else if (style == Graph::Area)
+        else if (style == Layer::Area)
             boxStyle->setCurrentItem(7);
-        else if (style == Graph::VerticalBars)
+        else if (style == Layer::VerticalBars)
             boxStyle->setCurrentItem(8);
-        else if (style == Graph::HorizontalBars)
+        else if (style == Layer::HorizontalBars)
             boxStyle->setCurrentItem(9);
     }
 
@@ -307,12 +307,12 @@ void CurvesDialog::init()
 		btnAdd->setDisabled(true);
 }
 
-void CurvesDialog::setGraph(Graph *graph)
+void CurvesDialog::setLayer(Layer *layer)
 {
-	d_graph = graph;
-	contents->addItems(d_graph->plotItemsList());
+	d_layer = layer;
+	contents->addItems(d_layer->plotItemsList());
 	enableRemoveBtn();
-    enableAddBtn();
+	enableAddBtn();
 }
 
 void CurvesDialog::addCurves()
@@ -326,8 +326,8 @@ void CurvesDialog::addCurves()
 				emptyColumns << text;
 			}
     }
-	d_graph->updatePlot();
-	Graph::showPlotErrorMessage(this, emptyColumns);
+	d_layer->updatePlot();
+	Layer::showPlotErrorMessage(this, emptyColumns);
 
 	showCurveRange(boxShowRange->isChecked());
 }
@@ -348,13 +348,13 @@ bool CurvesDialog::addCurve(const QString& name)
         switch (boxMatrixStyle->currentIndex())
         {
             case 0:
-                d_graph->plotSpectrogram(m, Graph::ColorMap);
+                d_layer->plotSpectrogram(m, Layer::ColorMap);
             break;
             case 1:
-                d_graph->plotSpectrogram(m, Graph::ContourMap);
+                d_layer->plotSpectrogram(m, Layer::ContourMap);
             break;
             case 2:
-                d_graph->plotSpectrogram(m, Graph::GrayMap);
+                d_layer->plotSpectrogram(m, Layer::GrayMap);
             break;
         }
 
@@ -364,11 +364,11 @@ bool CurvesDialog::addCurve(const QString& name)
 
 	int style = curveStyle();
 	Table* t = app->table(name);
-	if (t && d_graph->insertCurve(t, name, style))
+	if (t && d_layer->insertCurve(t, name, style))
 	{
-		CurveLayout cl = Graph::initCurveLayout();
+		CurveLayout cl = Layer::initCurveLayout();
 		int color, symbol;
-		d_graph->guessUniqueCurveLayout(color, symbol);
+		d_layer->guessUniqueCurveLayout(color, symbol);
 
 		cl.lCol = color;
 		cl.symCol = color;
@@ -377,32 +377,32 @@ bool CurvesDialog::addCurve(const QString& name)
 		cl.sSize = app->defaultSymbolSize;
 		cl.sType = symbol;
 
-		if (style == Graph::Line)
+		if (style == Layer::Line)
 			cl.sType = 0;
-		else if (style==Graph::VerticalBars || style==Graph::HorizontalBars )
+		else if (style==Layer::VerticalBars || style==Layer::HorizontalBars )
 		{
 			cl.filledArea=1;
 			cl.lCol=0;
 			cl.aCol=color;
 			cl.sType = 0;
 		}
-		else if (style==Graph::Area )
+		else if (style==Layer::Area )
 		{
 			cl.filledArea=1;
 			cl.aCol=color;
 			cl.sType = 0;
 		}
-		else if (style == Graph::VerticalDropLines)
+		else if (style == Layer::VerticalDropLines)
 			cl.connectType=2;
-		else if (style == Graph::VerticalSteps || style == Graph::HorizontalSteps)
+		else if (style == Layer::VerticalSteps || style == Layer::HorizontalSteps)
 		{
 			cl.connectType=3;
 			cl.sType = 0;
 		}
-		else if (style == Graph::Spline)
+		else if (style == Layer::Spline)
 			cl.connectType=5;
 
-		d_graph->updateCurveLayout(d_graph->curves() - 1, &cl);
+		d_layer->updateCurveLayout(d_layer->curveCount() - 1, &cl);
 
 		contents->addItem(name);
 		return true;
@@ -420,11 +420,11 @@ void CurvesDialog::removeCurves()
             QStringList lst = s.split("[");
             s = lst[0];
         }
-        d_graph->removeCurve(s);
+        d_layer->removeCurve(s);
     }
 
 	showCurveRange(boxShowRange->isChecked());
-	d_graph->updatePlot();
+	d_layer->updatePlot();
 }
 
 void CurvesDialog::enableAddBtn()
@@ -443,34 +443,34 @@ int CurvesDialog::curveStyle()
 	switch (boxStyle->currentItem())
 	{
 		case 0:
-			style = Graph::Line;
+			style = Layer::Line;
 			break;
 		case 1:
-			style = Graph::Scatter;
+			style = Layer::Scatter;
 			break;
 		case 2:
-			style = Graph::LineSymbols;
+			style = Layer::LineSymbols;
 			break;
 		case 3:
-			style = Graph::VerticalDropLines;
+			style = Layer::VerticalDropLines;
 			break;
 		case 4:
-			style = Graph::Spline;
+			style = Layer::Spline;
 			break;
 		case 5:
-			style = Graph::VerticalSteps;
+			style = Layer::VerticalSteps;
 			break;
 		case 6:
-			style = Graph::HorizontalSteps;
+			style = Layer::HorizontalSteps;
 			break;
 		case 7:
-			style = Graph::Area;
+			style = Layer::Area;
 			break;
 		case 8:
-			style = Graph::VerticalBars;
+			style = Layer::VerticalBars;
 			break;
 		case 9:
-			style = Graph::HorizontalBars;
+			style = Layer::HorizontalBars;
 			break;
 	}
 	return style;
@@ -483,13 +483,13 @@ void CurvesDialog::showCurveRange(bool on )
     if (on)
     {
         QStringList lst = QStringList();
-        for (int i=0; i<d_graph->curves(); i++)
+        for (int i=0; i<d_layer->curveCount(); i++)
         {
-            QwtPlotItem *it = d_graph->plotItem(i);
+            QwtPlotItem *it = d_layer->plotItem(i);
             if (!it)
                 continue;
 
-            if (it->rtti() == QwtPlotItem::Rtti_PlotCurve && ((PlotCurve *)it)->type() != Graph::Function)
+            if (it->rtti() == QwtPlotItem::Rtti_PlotCurve && ((PlotCurve *)it)->type() != Layer::Function)
             {
                 DataCurve *c = (DataCurve *)it;
                 lst << c->title().text() + "[" + QString::number(c->startRow()+1) + ":" + QString::number(c->endRow()+1) + "]";
@@ -500,7 +500,7 @@ void CurvesDialog::showCurveRange(bool on )
         contents->addItems(lst);
     }
     else
-        contents->addItems(d_graph->plotItemsList());
+        contents->addItems(d_layer->plotItemsList());
 
     contents->setCurrentRow(row);
     enableRemoveBtn();

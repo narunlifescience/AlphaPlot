@@ -506,14 +506,14 @@ void FitDialog::showPointsBox(bool)
 	}
 }
 
-void FitDialog::setGraph(Graph *g)
+void FitDialog::setLayer(Layer *g)
 {
 	if (!g)
 		return;
 
-	d_graph = g;
+	d_layer = g;
 	boxCurve->clear();
-	boxCurve->addItems(d_graph->analysableCurvesList());
+	boxCurve->addItems(d_layer->analysableCurvesList());
 
     QString selectedCurve = g->selectedCurveTitle();
 	if (!selectedCurve.isEmpty())
@@ -523,18 +523,18 @@ void FitDialog::setGraph(Graph *g)
 	}
     activateCurve(boxCurve->currentText());
 
-	connect (d_graph, SIGNAL(closedGraph()), this, SLOT(close()));
-	connect (d_graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void FitDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = d_graph->curve(curveName);
+	QwtPlotCurve *c = d_layer->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-    d_graph->range(d_graph->curveIndex(curveName), &start, &end);
+    d_layer->range(d_layer->curveIndex(curveName), &start, &end);
     boxFrom->setText(QLocale().toString(QMIN(start, end), 'g', 15));
     boxTo->setText(QLocale().toString(QMAX(start, end), 'g', 15));
 };
@@ -1028,7 +1028,7 @@ void FitDialog::pasteFunctionName()
 void FitDialog::accept()
 {
 	QString curve = boxCurve->currentText();
-	QStringList curvesList = d_graph->curvesList();
+	QStringList curvesList = d_layer->curvesList();
 	if (curvesList.contains(curve) <= 0)
 	{
 		QMessageBox::critical(this,tr("Warning"),
@@ -1202,7 +1202,7 @@ void FitDialog::accept()
 			fitBuiltInFunction(funcBox->currentItem()->text(), paramsInit);
 		else if (boxUseBuiltIn->isChecked() && categoryBox->currentRow() == 3)
 		{
-			d_fitter = new PluginFit(app, d_graph);
+			d_fitter = new PluginFit(app, d_layer);
 			if (!((PluginFit*)d_fitter)->load(d_plugin_files_list[funcBox->currentRow()])){
 				d_fitter  = 0;
 				return;}
@@ -1210,7 +1210,7 @@ void FitDialog::accept()
 		}
 		else
 		{
-			d_fitter = new UserFunctionFit(app, d_graph);
+			d_fitter = new UserFunctionFit(app, d_layer);
 			((UserFunctionFit*)d_fitter)->setParametersList(parameters);
 			((UserFunctionFit*)d_fitter)->setFormula(formula);
 			d_fitter->setInitialGuesses(paramsInit);
@@ -1265,36 +1265,36 @@ void FitDialog::fitBuiltInFunction(const QString& function, double* initVal)
 	if (function == "ExpDecay1")
 	{
 		initVal[1] = 1/initVal[1];
-		d_fitter = new ExponentialFit(app, d_graph);
+		d_fitter = new ExponentialFit(app, d_layer);
 	}
 	else if (function == "ExpGrowth")
 	{
 		initVal[1] = -1/initVal[1];
-		d_fitter = new ExponentialFit(app, d_graph, true);
+		d_fitter = new ExponentialFit(app, d_layer, true);
 	}
 	else if (function == "ExpDecay2")
 	{
 		initVal[1] = 1/initVal[1];
 		initVal[3] = 1/initVal[3];
-		d_fitter = new TwoExpFit(app, d_graph);
+		d_fitter = new TwoExpFit(app, d_layer);
 	}
 	else if (function == "ExpDecay3")
 	{
 		initVal[1] = 1/initVal[1];
 		initVal[3] = 1/initVal[3];
 		initVal[5] = 1/initVal[5];
-		d_fitter = new ThreeExpFit(app, d_graph);
+		d_fitter = new ThreeExpFit(app, d_layer);
 	}
 	else if (function == "Boltzmann")
-		d_fitter = new SigmoidalFit(app, d_graph);
+		d_fitter = new SigmoidalFit(app, d_layer);
 	else if (function == "GaussAmp")
-		d_fitter = new GaussAmpFit(app, d_graph);
+		d_fitter = new GaussAmpFit(app, d_layer);
 	else if (function == "Gauss")
-		d_fitter = new MultiPeakFit(app, d_graph, MultiPeakFit::Gauss, polynomOrderBox->value());
+		d_fitter = new MultiPeakFit(app, d_layer, MultiPeakFit::Gauss, polynomOrderBox->value());
 	else if (function == "Lorentz")
-		d_fitter = new MultiPeakFit(app, d_graph, MultiPeakFit::Lorentz, polynomOrderBox->value());
+		d_fitter = new MultiPeakFit(app, d_layer, MultiPeakFit::Lorentz, polynomOrderBox->value());
 	else if (function == tr("Polynomial"))
-		d_fitter = new PolynomialFit(app, d_graph, polynomOrderBox->value());
+		d_fitter = new PolynomialFit(app, d_layer, polynomOrderBox->value());
 
 	if (function != tr("Polynomial"))
 		d_fitter->setInitialGuesses(initVal);
@@ -1339,8 +1339,8 @@ bool FitDialog::validInitialValues()
 
 void FitDialog::changeDataRange()
 {
-	double start = d_graph->selectedXStartValue();
-	double end = d_graph->selectedXEndValue();
+	double start = d_layer->selectedXStartValue();
+	double end = d_layer->selectedXEndValue();
 	boxFrom->setText(QString::number(QMIN(start, end), 'g', 15));
 	boxTo->setText(QString::number(QMAX(start, end), 'g', 15));
 }
@@ -1404,9 +1404,9 @@ void FitDialog::enableApplyChanges(int)
 
 void FitDialog::deleteFitCurves()
 {
-	d_graph->deleteFitCurves();
+	d_layer->deleteFitCurves();
 	boxCurve->clear();
-	boxCurve->addItems(d_graph->curvesList());
+	boxCurve->addItems(d_layer->curvesList());
 }
 
 void FitDialog::resetFunction()

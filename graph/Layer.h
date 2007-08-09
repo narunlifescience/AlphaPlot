@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : Graph.h
+    File                 : Layer.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Graph widget
+    Description          : Layer widget
 
  ***************************************************************************/
 
@@ -26,8 +26,8 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef GRAPH_H
-#define GRAPH_H
+#ifndef LAYER_H
+#define LAYER_H
 
 #include <QList>
 #include <QPointer>
@@ -76,7 +76,7 @@ typedef struct{
 /**
  * \brief A 2D-plotting widget.
  *
- * Graphs are managed by a MultiLayer, where they are sometimes referred to as "graphs" and sometimes as "layers".
+ * Layers are managed by a MultiLayer, where they are sometimes referred to as "graphs" and sometimes as "layers".
  * Other parts of the code also call them "plots", regardless of the fact that there's also a class Plot.
  * Within the user interface, they are quite consistently called "layers".
  *
@@ -84,33 +84,31 @@ typedef struct{
  * as well as the pickers #d_zoomer (a QwtPlotZoomer), #titlePicker (a TitlePicker), #scalePicker (a ScalePicker) and #cp (a CanvasPicker),
  * which handle various parts of the user interaction.
  *
- * Graph contains support for various curve types (see #CurveType),
+ * Layer contains support for various curve types (see #CurveType),
  * some of them relying on SciDAVis-specific QwtPlotCurve subclasses for parts of the functionality.
  *
- * %Note that some of Graph's methods are implemented in analysis.cpp.
+ * %Note that some of Layer's methods are implemented in analysis.cpp.
  *
  * \section future_plans Future Plans
  * Merge with Plot and CanvasPicker.
  * Think about merging in TitlePicker and ScalePicker.
- * On the other hand, things like range selection, peak selection or (re)moving data points could be split out into tool classes
- * like QwtPlotZoomer or SelectionMoveResizer.
  *
  * What definitely should be split out are plot types like histograms and pie charts (TODO: which others?).
  * We need a generic framework for this in any case so that new plot types can be implemented in plugins,
- * and Graph could do with a little diet. Especially after merging in Plot and CanvasPicker.
+ * and Layer could do with a little diet. Especially after merging in Plot and CanvasPicker.
  * [ Framework needs to support plug-ins; assigned to knut ]
  *
  * Add support for floating-point line widths of curves and axes (request 2300).
  * [ assigned to thzs ]
  */
 
-class Graph: public QWidget
+class Layer: public QWidget
 {
 	Q_OBJECT
 
 	public:
-		Graph (QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-		~Graph();
+		Layer (QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+		~Layer();
 
 		enum AxisType{Numeric = 0, Txt = 1, Day = 2, Month = 3, Time = 4, Date = 5, ColHeader = 6};
 		enum MarkerType{None = -1, Text = 0, Arrow = 1, Image = 2};
@@ -135,11 +133,11 @@ class Graph: public QWidget
 	public slots:
 		//! Accessor method for #d_plot.
 		Plot* plotWidget(){return d_plot;};
-		void copy(Graph* g);
+		void copy(Layer* g);
 
 		//! \name Pie Curves
 		//@{
-		//! Returns true if this Graph is a pie plot, false otherwise.
+		//! Returns true if this Layer is a pie plot, false otherwise.
 		bool isPiePlot(){return (c_type.count() == 1 && c_type[0] == Pie);};
 		void plotPie(Table* w,const QString& name, int startRow = 0, int endRow = -1);
 		//! Used when restoring a pie plot from a project file
@@ -172,7 +170,7 @@ class Graph: public QWidget
 
 		void updateCurvesData(Table* w, const QString& yColName);
 
-		int curves(){return n_curves;};
+		int curveCount(){return n_curves;};
 		bool validCurvesDataSize();
 		double selectedXStartValue();
 		double selectedXEndValue();
@@ -207,7 +205,7 @@ class Graph: public QWidget
 		//! Change the type of the given curve.
 		/**
 		 * The option to disable updating is provided so as not to break the project opening code
-		 * (ApplicationWindow::openGraph()).
+		 * (ApplicationWindow::openLayer()).
 		 */
 		void setCurveType(int curve, CurveType type, bool update=true);
 		void setCurveFullRange(int curveIndex);
@@ -327,7 +325,7 @@ class Graph: public QWidget
 		int textMarkerDefaultFrame(){return defaultMarkerFrame;};
 		void setTextMarkerDefaults(int f, const QFont &font, const QColor& textCol, const QColor& backgroundCol);
 
-		void setCopiedMarkerType(Graph::MarkerType type){selectedMarkerType=type;};
+		void setCopiedMarkerType(MarkerType type){selectedMarkerType=type;};
 		void setCopiedMarkerEnds(const QPoint& start, const QPoint& end);
 		void setCopiedTextOptions(int bkg, const QString& text, const QFont& font,
 				const QColor& color, const QColor& bkgColor);
@@ -599,7 +597,7 @@ class Graph: public QWidget
         //! Provided for convenience in scripts.
 		void createTable(const QString& curveName);
         void createTable(const QwtPlotCurve* curve);
-		void activateGraph();
+		void activate();
 
 		//! \name Vector Curves
 		//@{
@@ -673,8 +671,8 @@ class Graph: public QWidget
 		void setAntialiasing(bool on = true, bool update = true);
 
 signals:
-		void selectedGraph (Graph*);
-		void closedGraph();
+		void selected(Layer*);
+		void closed();
 		void drawTextOff();
 		void drawLineEnded(bool);
 		void cursorInfo(const QString&);
@@ -685,7 +683,7 @@ signals:
 		void viewTextDialog();
 		void viewLineDialog();
 		void viewTitleDialog();
-		void modifiedGraph();
+		void modified();
 		void hiddenPlot(QWidget*);
 
 		void showLayerButtonContextMenu();
@@ -765,4 +763,4 @@ signals:
 		//! The currently active tool, or NULL for default (pointer).
 		AbstractGraphTool *d_active_tool;
 };
-#endif // GRAPH_H
+#endif // LAYER_H

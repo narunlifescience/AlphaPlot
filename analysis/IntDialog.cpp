@@ -30,7 +30,7 @@
 #include "Integration.h"
 #include "core/MyParser.h"
 #include "core/ApplicationWindow.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "graph/FunctionCurve.h"
 
 #include <QGroupBox>
@@ -103,8 +103,8 @@ IntDialog::IntDialog( QWidget* parent, Qt::WFlags fl )
 void IntDialog::accept()
 {
 QString curveName = boxName->currentText();
-QwtPlotCurve *c = graph->curve(curveName);
-QStringList curvesList = graph->analysableCurvesList();
+QwtPlotCurve *c = d_layer->curve(curveName);
+QStringList curvesList = d_layer->analysableCurvesList();
 if (!c || !curvesList.contains(curveName))
 	{
 	QMessageBox::critical((ApplicationWindow *)parent(), tr("SciDAVis") +" - "+ tr("Warning"),
@@ -226,7 +226,7 @@ else
 		}
 	}
 
-Integration *i = new Integration((ApplicationWindow *)this->parent(), graph, curveName,
+Integration *i = new Integration((ApplicationWindow *)this->parent(), d_layer, curveName,
                                  boxStart->text().toDouble(), boxEnd->text().toDouble());
 i->setTolerance(boxTol->text().toDouble());
 i->setMaximumIterations(boxSteps->value());
@@ -235,21 +235,21 @@ i->run();
 delete i;
 }
 
-void IntDialog::setGraph(Graph *g)
+void IntDialog::setLayer(Layer *layer)
 {
-    graph = g;
-    boxName->insertStringList (g->analysableCurvesList());
+	d_layer = layer;
+	boxName->insertStringList (d_layer->analysableCurvesList());
 
-    QString selectedCurve = g->selectedCurveTitle();
+	QString selectedCurve = d_layer->selectedCurveTitle();
 	if(!selectedCurve.isEmpty())
 	{
-	    int index = boxName->findText(selectedCurve);
+		int index = boxName->findText(selectedCurve);
 		boxName->setCurrentItem(index);
 	}
-    activateCurve(boxName->currentText());
+	activateCurve(boxName->currentText());
 
-    connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
-    connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 }
 
 void IntDialog::activateCurve(const QString& curveName)
@@ -258,12 +258,12 @@ void IntDialog::activateCurve(const QString& curveName)
     if(!app)
         return;
 
-	QwtPlotCurve *c = graph->curve(curveName);
+	QwtPlotCurve *c = d_layer->curve(curveName);
 	if (!c)
 		return;
 
 	double start, end;
-	graph->range(graph->curveIndex(curveName), &start, &end);
+	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
 	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 };
@@ -274,8 +274,8 @@ ApplicationWindow *app = (ApplicationWindow *)parent();
 if(!app)
     return;
 
-double start = graph->selectedXStartValue();
-double end = graph->selectedXEndValue();
+double start = d_layer->selectedXStartValue();
+double end = d_layer->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
 boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 }

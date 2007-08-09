@@ -29,7 +29,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "RangeSelectorTool.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../Plot.h"
 #include "../PlotCurve.h"
 #include "table/Table.h"
@@ -40,20 +40,20 @@
 #include <QEvent>
 #include <QLocale>
 
-RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target, const char *status_slot)
-	: QwtPlotPicker(graph->plotWidget()->canvas()),
-	AbstractGraphTool(graph)
+RangeSelectorTool::RangeSelectorTool(Layer *layer, const QObject *status_target, const char *status_slot)
+	: QwtPlotPicker(layer->plotWidget()->canvas()),
+	AbstractGraphTool(layer)
 {
 	d_selected_curve = NULL;
-	for (int i=d_graph->curves(); i>=0; --i) {
-		d_selected_curve = d_graph->curve(i);
+	for (int i=d_layer->curveCount(); i>=0; --i) {
+		d_selected_curve = d_layer->curve(i);
 		if (d_selected_curve && d_selected_curve->rtti() == QwtPlotItem::Rtti_PlotCurve
 				&& d_selected_curve->dataSize() > 0)
 			break;
 		d_selected_curve = NULL;
 	}
 	if (!d_selected_curve) {
-		QMessageBox::critical(d_graph, tr("Warning"),
+		QMessageBox::critical(d_layer, tr("Warning"),
 				tr("All the curves on this plot are empty!"));
 		return;
 	}
@@ -79,14 +79,14 @@ RangeSelectorTool::RangeSelectorTool(Graph *graph, const QObject *status_target,
 			d_selected_curve->y(d_active_point));
 	d_inactive_marker.setValue(d_selected_curve->x(d_inactive_point),
 			d_selected_curve->y(d_inactive_point));
-	d_active_marker.attach(d_graph->plotWidget());
-	d_inactive_marker.attach(d_graph->plotWidget());
+	d_active_marker.attach(d_layer->plotWidget());
+	d_inactive_marker.attach(d_layer->plotWidget());
 
 	setTrackerMode(QwtPicker::AlwaysOn);
 	setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/vizor.xpm"), -1, -1));
-	d_graph->plotWidget()->canvas()->setFocus();
-	d_graph->plotWidget()->replot();
+	d_layer->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/vizor.xpm"), -1, -1));
+	d_layer->plotWidget()->canvas()->setFocus();
+	d_layer->plotWidget()->replot();
 
 	if (status_target)
 		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);
@@ -97,17 +97,17 @@ RangeSelectorTool::~RangeSelectorTool()
 {
 	d_active_marker.detach();
 	d_inactive_marker.detach();
-	d_graph->plotWidget()->canvas()->unsetCursor();
-	d_graph->plotWidget()->replot();
+	d_layer->plotWidget()->canvas()->unsetCursor();
+	d_layer->plotWidget()->replot();
 }
 
 void RangeSelectorTool::pointSelected(const QPoint &pos)
 {
 	int dist, point;
-	const int curve_key = d_graph->plotWidget()->closestCurve(pos.x(), pos.y(), dist, point);
+	const int curve_key = d_layer->plotWidget()->closestCurve(pos.x(), pos.y(), dist, point);
 	if (curve_key < 0 || dist >= 5) // 5 pixels tolerance
 		return;
-	QwtPlotCurve *curve = (QwtPlotCurve *)d_graph->plotWidget()->curve(curve_key);
+	QwtPlotCurve *curve = (QwtPlotCurve *)d_layer->plotWidget()->curve(curve_key);
 	if (!curve)
 		return;
 
@@ -143,7 +143,7 @@ void RangeSelectorTool::pointSelected(const QPoint &pos)
 		emitStatusText();
 		emit changed();
 	}
-	d_graph->plotWidget()->replot();
+	d_layer->plotWidget()->replot();
 }
 
 void RangeSelectorTool::setSelectedCurve(QwtPlotCurve *curve)
@@ -171,7 +171,7 @@ void RangeSelectorTool::setActivePoint(int point)
 
 void RangeSelectorTool::emitStatusText()
 {
-    if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+    if (((PlotCurve *)d_selected_curve)->type() == Layer::Function)
     {
          emit statusText(QString("%1 <=> %2[%3]: x=%4; y=%5")
 			.arg(d_active_marker.xValue() > d_inactive_marker.xValue() ? tr("Right") : tr("Left"))
@@ -205,7 +205,7 @@ void RangeSelectorTool::switchActiveMarker()
 	int tmp2 = d_active_point;
 	d_active_point = d_inactive_point;
 	d_inactive_point = tmp2;
-	d_graph->plotWidget()->replot();
+	d_layer->plotWidget()->replot();
 
 	emitStatusText();
 }
@@ -228,26 +228,26 @@ bool RangeSelectorTool::keyEventFilter(QKeyEvent *ke)
 	switch(ke->key()) {
 		case Qt::Key_Up:
 			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + 1;
+				int n_curves = d_layer->curveCount();
+				int start = d_layer->curveIndex(d_selected_curve) + 1;
 				for (int i = start; i < start + n_curves; ++i)
-					if (d_graph->curve(i % n_curves)->dataSize() > 0) {
-						setSelectedCurve(d_graph->curve(i % n_curves));
+					if (d_layer->curve(i % n_curves)->dataSize() > 0) {
+						setSelectedCurve(d_layer->curve(i % n_curves));
 						break;
 					}
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 				return true;
 			}
 		case Qt::Key_Down:
 			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + n_curves - 1;
+				int n_curves = d_layer->curveCount();
+				int start = d_layer->curveIndex(d_selected_curve) + n_curves - 1;
 				for (int i = start; i > start - n_curves; --i)
-					if (d_graph->curve(i % n_curves)->dataSize() > 0) {
-						setSelectedCurve(d_graph->curve(i % n_curves));
+					if (d_layer->curve(i % n_curves)->dataSize() > 0) {
+						setSelectedCurve(d_layer->curve(i % n_curves));
 						break;
 					}
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 				return true;
 			}
 		case Qt::Key_Right:
@@ -256,7 +256,7 @@ bool RangeSelectorTool::keyEventFilter(QKeyEvent *ke)
 				if (ke->modifiers() & Qt::ControlModifier) {
 					int n_points = d_selected_curve->dataSize();
 					setActivePoint((d_active_point + 1) % n_points);
-					d_graph->plotWidget()->replot();
+					d_layer->plotWidget()->replot();
 				} else
 					switchActiveMarker();
 				return true;
@@ -267,7 +267,7 @@ bool RangeSelectorTool::keyEventFilter(QKeyEvent *ke)
 				if (ke->modifiers() & Qt::ControlModifier) {
 					int n_points = d_selected_curve->dataSize();
 					setActivePoint((d_active_point - 1 + n_points) % n_points);
-					d_graph->plotWidget()->replot();
+					d_layer->plotWidget()->replot();
 				} else
 					switchActiveMarker();
 				return true;

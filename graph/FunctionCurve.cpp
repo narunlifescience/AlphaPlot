@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "FunctionCurve.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "core/MyParser.h"
 
 #include <QMessageBox>
@@ -36,7 +36,7 @@ FunctionCurve::FunctionCurve(const char *name):
 	PlotCurve(name)
 {
 	d_variable = "x";
-	setType(Graph::Function);
+	setType(Layer::Function);
 }
 
 FunctionCurve::FunctionCurve(const FunctionType& t, const char *name):
@@ -44,7 +44,7 @@ FunctionCurve::FunctionCurve(const FunctionType& t, const char *name):
 	d_function_type(t)
 {
 	d_variable = "x";
-	setType(Graph::Function);
+	setType(Layer::Function);
 }
 
 void FunctionCurve::setRange(double from, double to)

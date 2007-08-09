@@ -31,7 +31,7 @@
 #include "analysis/fit_gsl.h"
 #include "table/Table.h"
 #include "matrix/Matrix.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "graph/types/ErrorCurve.h"
 #include "graph/FunctionCurve.h"
 
@@ -43,8 +43,8 @@
 #include <QDateTime>
 #include <QLocale>
 
-Fit::Fit( ApplicationWindow *parent, Graph *g, const char * name)
-: Filter( parent, g, name)
+Fit::Fit( ApplicationWindow *parent, Layer *layer, const char * name)
+: Filter( parent, layer, name)
 {
 	d_p = 0;
 	d_n = 0;
@@ -139,7 +139,7 @@ void Fit::setDataCurve(int curve, double start, double end)
     Filter::setDataCurve(curve, start, end);
 
     d_w = new double[d_n];
-    if (d_graph && d_curve && ((PlotCurve *)d_curve)->type() != Graph::Function)
+    if (d_layer && d_curve && ((PlotCurve *)d_curve)->type() != Layer::Function)
     {
         QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
         foreach (DataCurve *c, lst)
@@ -281,7 +281,7 @@ bool Fit::setWeightingData(WeightingMethod w, const QString& colName)
 			{
 				bool error = true;
 				ErrorCurve *er = 0;
-				if (((PlotCurve *)d_curve)->type() != Graph::Function)
+				if (((PlotCurve *)d_curve)->type() != Layer::Function)
 				{
 					QList<DataCurve *> lst = ((DataCurve *)d_curve)->errorBarsList();
                 	foreach (DataCurve *c, lst)
@@ -402,7 +402,7 @@ void Fit::storeCustomFitResults(double *par)
 
 void Fit::fit()
 {
-	if (!d_graph || d_init_err)
+	if (!d_layer || d_init_err)
 		return;
 
 	if (!d_n)
@@ -483,7 +483,7 @@ void Fit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, iterations, status, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, iterations, status, d_layer->parentPlotName()));
 
 	generateFitCurve(par);
 	QApplication::restoreOverrideCursor();
@@ -502,17 +502,17 @@ void Fit::generateFitCurve(double *par)
 	if (d_gen_function)
 	{
 		insertFitFunctionCurve(QString(name()) + tr("Fit"), X, Y);
-		d_graph->replot();
+		d_layer->replot();
 		delete[] X;
 		delete[] Y;
 	}
 	else
-        d_graph->addFitCurve(addResultCurve(X, Y));
+        d_layer->addFitCurve(addResultCurve(X, Y));
 }
 
 void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int penWidth)
 {
-    QString title = d_graph->generateFunctionName(name);
+    QString title = d_layer->generateFunctionName(name);
 	FunctionCurve *c = new FunctionCurve(FunctionCurve::Normal, title);
 	c->setPen(QPen(ColorBox::color(d_curveColorIndex), penWidth));
 	c->setData(x, y, d_points);
@@ -525,8 +525,8 @@ void Fit::insertFitFunctionCurve(const QString& name, double *x, double *y, int 
 		formula.replace(d_param_names[j], parameter);
 	}
 	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
-	d_graph->insertPlotItem(c, Graph::Line);
-	d_graph->addFitCurve(c);
+	d_layer->insertPlotItem(c, Layer::Line);
+	d_layer->addFitCurve(c);
 }
 
 Fit::~Fit()

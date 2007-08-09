@@ -36,7 +36,7 @@
 ##################### SIP generated files #####################
 
   HEADERS += $${SIP_DIR}/sipscidavisApplicationWindow.h\
-             $${SIP_DIR}/sipscidavisGraph.h\
+             $${SIP_DIR}/sipscidavisLayer.h\
              $${SIP_DIR}/sipscidavisLineEnrichment.h\
              $${SIP_DIR}/sipscidavisImageEnrichment.h\
              $${SIP_DIR}/sipscidavisTextEnrichment.h\
@@ -76,7 +76,7 @@
 
   SOURCES += $${SIP_DIR}/sipscidaviscmodule.cpp\
              $${SIP_DIR}/sipscidavisApplicationWindow.cpp\
-             $${SIP_DIR}/sipscidavisGraph.cpp\
+             $${SIP_DIR}/sipscidavisLayer.cpp\
              $${SIP_DIR}/sipscidavisLineEnrichment.cpp\
              $${SIP_DIR}/sipscidavisImageEnrichment.cpp\
              $${SIP_DIR}/sipscidavisTextEnrichment.cpp\

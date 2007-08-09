@@ -29,7 +29,9 @@
 #ifndef FUNCTIONDIALOG_H
 #define FUNCTIONDIALOG_H
 
-#include "Graph.h"
+#include <QDialog>
+
+class Layer;
 
 class QStackedWidget;
 class QWidget;
@@ -83,18 +85,18 @@ public slots:
 	void acceptFunction();
 	void acceptParametric();
 	void acceptPolar();
-	void setCurveToModify(Graph *g, int curve);
+	void setCurveToModify(Layer *layer, int curve);
 	void insertParamFunctionsList(const QStringList& xList, const QStringList& yList);
 	void insertPolarFunctionsList(const QStringList& rList, const QStringList& thetaList);
 	void clearList();
-	void setGraph(Graph *g){graph = g;};
+	void setLayer(Layer *layer){d_layer = layer;};
 
 signals:
 	void clearParamFunctionsList();
 	void clearPolarFunctionsList();
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 	int curveID;
 };
 

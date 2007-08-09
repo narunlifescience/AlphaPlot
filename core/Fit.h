@@ -55,7 +55,7 @@ class Fit : public Filter
 		enum Algorithm{ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex};
 		enum WeightingMethod{NoWeighting, Instrumental, Statistical, Dataset};
 
-		Fit(ApplicationWindow *parent, Graph *g = 0, const char * name = 0);
+		Fit(ApplicationWindow *parent, Layer *layer = 0, const char * name = 0);
 		~Fit();
 
 		//! Actually does the fit. Should be reimplemented in derived classes.

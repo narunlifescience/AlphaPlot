@@ -35,14 +35,14 @@
  *
  *****************************************************************************/
 
-	ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, bool expGrowth)
+	ExponentialFit::ExponentialFit(ApplicationWindow *parent, Layer *g, bool expGrowth)
 : Fit(parent, g),
 	is_exp_growth(expGrowth)
 {
 	init();
 }
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, bool expGrowth)
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, Layer *g, const QString& curveTitle, bool expGrowth)
 : Fit(parent, g),
   is_exp_growth(expGrowth)
 {
@@ -50,7 +50,7 @@ ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g, const QStrin
 	setDataFromCurve(curveTitle);
 }
 
-ExponentialFit::ExponentialFit(ApplicationWindow *parent, Graph *g,
+ExponentialFit::ExponentialFit(ApplicationWindow *parent, Layer *g,
 		const QString& curveTitle, double start, double end, bool expGrowth)
 : Fit(parent, g),
 	is_exp_growth(expGrowth)
@@ -130,20 +130,20 @@ void ExponentialFit::calculateFitCurveData(double *par, double *X, double *Y)
  *
  *****************************************************************************/
 
-	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g)
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Layer *g)
 : Fit(parent, g)
 {
 	init();
 }
 
-	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Layer *g, const QString& curveTitle)
 : Fit(parent, g)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
+	TwoExpFit::TwoExpFit(ApplicationWindow *parent, Layer *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();
@@ -207,20 +207,20 @@ void TwoExpFit::calculateFitCurveData(double *par, double *X, double *Y)
  *
  *****************************************************************************/
 
-	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g)
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Layer *g)
 : Fit(parent, g)
 {
 	init();
 }
 
-	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Layer *g, const QString& curveTitle)
 : Fit(parent, g)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
+	ThreeExpFit::ThreeExpFit(ApplicationWindow *parent, Layer *g, const QString& curveTitle, double start, double end)
 : Fit(parent, g)
 {
 	init();

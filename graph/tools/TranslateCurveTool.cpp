@@ -31,7 +31,7 @@
 #include "TranslateCurveTool.h"
 #include "DataPickerTool.h"
 #include "ScreenPickerTool.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../PlotCurve.h"
 #include "../FunctionCurve.h"
 #include "core/ApplicationWindow.h"
@@ -41,18 +41,18 @@
 #include <QLocale>
 #include <qwt_plot_curve.h>
 
-TranslateCurveTool::TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir, const QObject *status_target, const char *status_slot)
-	: AbstractGraphTool(graph),
+TranslateCurveTool::TranslateCurveTool(Layer *layer, ApplicationWindow *app, Direction dir, const QObject *status_target, const char *status_slot)
+	: AbstractGraphTool(layer),
 	d_dir(dir),
 	d_app(app)
 {
 	if (status_target)
 		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);
-	//d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(vizor_xpm), -1, -1));
+	//d_layer->plotWidget()->canvas()->setCursor(QCursor(QPixmap(vizor_xpm), -1, -1));
 	//emit statusText(tr("Double-click on plot to select a data point!"));
 
 	// Phase 1: select curve point
-	d_sub_tool = new DataPickerTool(d_graph, app, DataPickerTool::Display, this, SIGNAL(statusText(const QString&)));
+	d_sub_tool = new DataPickerTool(d_layer, app, DataPickerTool::Display, this, SIGNAL(statusText(const QString&)));
 	connect((DataPickerTool*)d_sub_tool, SIGNAL(selected(QwtPlotCurve*,int)),
 			this, SLOT(selectCurvePoint(QwtPlotCurve*,int)));
 }
@@ -64,7 +64,7 @@ void TranslateCurveTool::selectCurvePoint(QwtPlotCurve *curve, int point_index)
 	delete d_sub_tool;
 
 	// Phase 2: select destination
-	d_sub_tool = new ScreenPickerTool(d_graph, this, SIGNAL(statusText(const QString&)));
+	d_sub_tool = new ScreenPickerTool(d_layer, this, SIGNAL(statusText(const QString&)));
 	connect((ScreenPickerTool*)d_sub_tool, SIGNAL(selected(const QwtDoublePoint&)), this, SLOT(selectDestination(const QwtDoublePoint&)));
 	emit statusText(tr("Curve selected! Move cursor and click to choose a point and double-click/press 'Enter' to finish!"));
 }
@@ -77,9 +77,9 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 
 	// Phase 3: execute the translation
 
-	if(((PlotCurve *)d_selected_curve)->type() == Graph::Function){
+	if(((PlotCurve *)d_selected_curve)->type() == Layer::Function){
 	    if (d_dir == Horizontal){
-            QMessageBox::warning(d_graph, tr("Warning"),
+            QMessageBox::warning(d_layer, tr("Warning"),
             tr("This operation cannot be performed on function curves."));
         } else {
             FunctionCurve *func = (FunctionCurve *)d_selected_curve;
@@ -93,7 +93,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
                 func->loadData();
             }
         }
-	    d_graph->setActiveTool(NULL);
+	    d_layer->setActiveTool(NULL);
 	    return;
     } else {
     	DataCurve *c = (DataCurve *)d_selected_curve;
@@ -117,7 +117,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	if (!tab) return;
 	int col = tab->colIndex(col_name);
 	if (tab->columnType(col) != Table::Numeric) {
-		QMessageBox::warning(d_graph, tr("Warning"),
+		QMessageBox::warning(d_layer, tr("Warning"),
 				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 		return;
 	}
@@ -133,7 +133,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	}
 	d_app->updateCurves(tab, col_name);
 	d_app->modifiedProject();
-	d_graph->setActiveTool(NULL);
+	d_layer->setActiveTool(NULL);
 	// attention: I'm now deleted. Maybe there is a cleaner solution...*/
     }
 }

@@ -33,21 +33,21 @@
 
 #include <QLocale>
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g)
-: Filter(parent, g)
+Differentiation::Differentiation(ApplicationWindow *parent, Layer *layer)
+: Filter(parent, layer)
 {
 	init();
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Filter(parent, g)
+Differentiation::Differentiation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Filter(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-Differentiation::Differentiation(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Filter(parent, g)
+Differentiation::Differentiation(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Filter(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -77,7 +77,7 @@ void Differentiation::output()
     delete[] result;
 
     MultiLayer *ml = app->newGraph(tr("Plot")+tr("Derivative"));
-    ml->activeGraph()->insertCurve(t, tableName + "_2", 0);
-    TextEnrichment *l = ml->activeGraph()->legend();
+    ml->activeLayer()->insertCurve(t, tableName + "_2", 0);
+    TextEnrichment *l = ml->activeLayer()->legend();
     l->setText("\\c{1}" + tr("Derivative") + " " + tr("of","Derivative of") + " " + curveTitle);
 }

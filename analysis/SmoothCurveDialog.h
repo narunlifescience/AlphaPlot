@@ -34,7 +34,7 @@
 class QPushButton;
 class QComboBox;
 class QSpinBox;
-class Graph;
+class Layer;
 class ColorBox;
 
 //! Smoothing options dialog
@@ -53,12 +53,12 @@ public:
 	ColorBox* boxColor;
 
 public slots:
-	void setGraph(Graph *g);
+	void setLayer(Layer *layer);
 	void smooth();
 	void activateCurve(const QString& curveName);
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 	int smooth_method;
 };
 

@@ -35,7 +35,7 @@ class QPushButton;
 class QLineEdit;
 class QComboBox;
 class QSpinBox;
-class Graph;
+class Layer;
 class ColorBox;
 
 //! Interpolation options dialog
@@ -58,12 +58,12 @@ public:
 
 public slots:
 	void activateCurve(const QString& curveName);
-	void setGraph(Graph *g);
+	void setLayer(Layer *layer);
 	void interpolate();
 	void changeDataRange();
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 };
 
 #endif

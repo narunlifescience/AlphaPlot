@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "PlotCurve.h"
 #include "ScaleDraw.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "table/Table.h"
 
 #include <QDateTime>
@@ -121,7 +121,7 @@ bool DataCurve::updateData(Table *t, const QString& colName)
 
 void DataCurve::loadData()
 {
-	Graph *g = (Graph *)plot()->parent();
+	Layer *g = (Layer *)plot()->parent();
 	if (!g)
 		return;
 
@@ -201,7 +201,7 @@ void DataCurve::loadData()
 		remove();
 		return;
 	} else {
-		if (d_type == Graph::HorizontalBars){
+		if (d_type == Layer::HorizontalBars){
 			setData(Y.data(), X.data(), size);
 			foreach(DataCurve *c, d_error_bars)
                 c->setData(Y.data(), X.data(), size);
@@ -212,34 +212,34 @@ void DataCurve::loadData()
 		}
 
 		if (xColType == Table::Text){
-			if (d_type == Graph::HorizontalBars)
-				g->setLabelsTextFormat(QwtPlot::yLeft, Graph::Txt, d_x_column, xLabels);
+			if (d_type == Layer::HorizontalBars)
+				g->setLabelsTextFormat(QwtPlot::yLeft, Layer::Txt, d_x_column, xLabels);
 			else
-                g->setLabelsTextFormat(QwtPlot::xBottom, Graph::Txt, d_x_column, xLabels);
+                g->setLabelsTextFormat(QwtPlot::xBottom, Layer::Txt, d_x_column, xLabels);
 		} else if (xColType == Table::Time ){
-			if (d_type == Graph::HorizontalBars){
+			if (d_type == Layer::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = time0.toString() + ";" + lst[1];
-				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Time, fmtInfo);
+				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Layer::Time, fmtInfo);
 			} else {
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
 				QString fmtInfo = time0.toString() + ";" + lst[1];
-				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Time, fmtInfo);
+				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Layer::Time, fmtInfo);
 			}
 		} else if (xColType == Table::Date ) {
-			if (d_type == Graph::HorizontalBars){
+			if (d_type == Layer::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
-				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Graph::Date, fmtInfo);
+				g->setLabelsDateTimeFormat(QwtPlot::yLeft, Layer::Date, fmtInfo);
 			} else {
 				QStringList lst = g->axisFormatInfo(QwtPlot::xBottom).split(";");
 				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
-				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Graph::Date, fmtInfo);
+				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Layer::Date, fmtInfo);
 			}
 		}
 
 		if (yColType == Table::Text)
-            g->setLabelsTextFormat(QwtPlot::yLeft, Graph::Txt, title().text(), yLabels);
+            g->setLabelsTextFormat(QwtPlot::yLeft, Layer::Txt, title().text(), yLabels);
 	}
 }
 
@@ -264,7 +264,7 @@ void DataCurve::clearErrorBars()
 
 void DataCurve::remove()
 {
-	Graph *g = (Graph *)plot()->parent();
+	Layer *g = (Layer *)plot()->parent();
 	if (!g)
 		return;
 
@@ -296,7 +296,7 @@ int DataCurve::tableRow(int point)
         for (int i = d_start_row; i <= d_end_row; i++ ){
             QDate d = QDate::fromString (d_table->text(i, xcol), format);
             if (d.isValid()){
-                if (d_type == Graph::HorizontalBars && date0.daysTo(d) == y(point) && d_table->cell(i, ycol) == x(point))
+                if (d_type == Layer::HorizontalBars && date0.daysTo(d) == y(point) && d_table->cell(i, ycol) == x(point))
                     return i;
                 else if (date0.daysTo(d) == x(point) && d_table->cell(i, ycol) == y(point))
                     return i;
@@ -308,7 +308,7 @@ int DataCurve::tableRow(int point)
         for (int i = d_start_row; i <= d_end_row; i++ ){
             QTime t = QTime::fromString (d_table->text(i, xcol), format);
             if (t.isValid()){
-                if (d_type == Graph::HorizontalBars && t0.msecsTo(t) == y(point) && d_table->cell(i, ycol) == x(point))
+                if (d_type == Layer::HorizontalBars && t0.msecsTo(t) == y(point) && d_table->cell(i, ycol) == x(point))
                     return i;
                 if (t0.msecsTo(t) == x(point) && d_table->cell(i, ycol) == y(point))
                     return i;

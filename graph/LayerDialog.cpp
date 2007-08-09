@@ -185,7 +185,7 @@ void LayerDialog::setMultiLayer(MultiLayer *g)
 {
 	multi_layer = g;
 
-	layersBox->setValue(g->layers());
+	layersBox->setValue(g->layerCount());
 	boxX->setValue(g->getCols());
 	boxY->setValue(g->getRows());
 	boxColsGap->setValue(g->colsSpacing());
@@ -202,9 +202,9 @@ void LayerDialog::setMultiLayer(MultiLayer *g)
 
 void LayerDialog::update()
 {
-        int graphs = layersBox->value();
-		int old_graphs = multi_layer->layers();
-		int dn = multi_layer->layers() - graphs;
+		int graphs = layersBox->value();
+		int old_graphs = multi_layer->layerCount();
+		int dn = multi_layer->layerCount() - graphs;
 		if (dn > 0 && QMessageBox::question(0, tr("Delete Layers?"),
 					tr("You are about to delete %1 existing layers.").arg(dn)+"\n"+
 					tr("Are you sure you want to continue this operation?"),

@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "DataSetDialog.h"
 #include "ApplicationWindow.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 
 #include <QPushButton>
 #include <QCheckBox>
@@ -45,7 +45,7 @@ DataSetDialog::DataSetDialog( const QString& text, QWidget* parent,  Qt::WFlags 
 	setWindowTitle(tr("Select data set"));
 
 	operation = QString();
-	d_graph = 0;
+	d_layer = 0;
 
 	QVBoxLayout * mainLayout = new QVBoxLayout( this );
 	QHBoxLayout * bottomLayout = new QHBoxLayout();
@@ -78,11 +78,11 @@ void DataSetDialog::accept()
 {
 	if (operation.isEmpty())
 		emit options(boxName->currentText());
-	else if (d_graph)
+	else if (d_layer)
 	{
 	    ApplicationWindow *app = (ApplicationWindow *)this->parent();
 	    if (app)
-            app->analyzeCurve(d_graph, operation, boxName->currentText());
+            app->analyzeCurve(d_layer, operation, boxName->currentText());
 	}
 	close();
 }
@@ -98,11 +98,11 @@ void DataSetDialog::setCurentDataSet(const QString& s)
 	boxName->setCurrentIndex(row);
 }
 
-void DataSetDialog::setGraph(Graph *g)
+void DataSetDialog::setLayer(Layer *g)
 {
     if (!g)
         return;
 
-   d_graph = g;
+   d_layer = g;
    boxName->addItems(g->analysableCurvesList());
 }

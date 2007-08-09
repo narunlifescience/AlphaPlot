@@ -29,7 +29,7 @@
 #include "AxesDialog.h"
 #include "lib/TextDialog.h"
 #include "lib/ColorBox.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "Plot.h"
 #include "core/MyParser.h"
 #include "lib/ColorButton.h"
@@ -609,7 +609,7 @@ void AxesDialog::changeMinorTicksLength (int minLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_graph->changeTicksLength(minLength, boxMajorTicksLength->value());
+    d_layer->changeTicksLength(minLength, boxMajorTicksLength->value());
 	boxMajorTicksLength->setMinimum(minLength);
 }
 
@@ -618,7 +618,7 @@ void AxesDialog::changeMajorTicksLength (int majLength)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_graph->changeTicksLength(boxMinorTicksLength->value(), majLength);
+    d_layer->changeTicksLength(boxMinorTicksLength->value(), majLength);
 	boxMinorTicksLength->setMaxValue(majLength);
 }
 
@@ -627,7 +627,7 @@ void AxesDialog::drawAxesBackbones(bool draw)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-	d_graph->drawAxesBackbones(draw);
+	d_layer->drawAxesBackbones(draw);
 }
 
 void AxesDialog::changeAxesLinewidth(int width)
@@ -635,7 +635,7 @@ void AxesDialog::changeAxesLinewidth(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_graph->setAxesLinewidth(width);
+    d_layer->setAxesLinewidth(width);
 }
 
 void AxesDialog::drawFrame(bool framed)
@@ -643,7 +643,7 @@ void AxesDialog::drawFrame(bool framed)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-	d_graph->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
+	d_layer->drawCanvasFrame(framed, boxFrameWidth->value(), boxFrameColor->color());
 }
 
 void AxesDialog::updateFrame(int width)
@@ -651,7 +651,7 @@ void AxesDialog::updateFrame(int width)
 	if (generalDialog->currentWidget() != frame)
 		return;
 
-    d_graph->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
+    d_layer->drawCanvasFrame(boxFramed->isChecked(), width, boxFrameColor->color());
 }
 
 void AxesDialog::pickCanvasFrameColor()
@@ -661,7 +661,7 @@ void AxesDialog::pickCanvasFrameColor()
 			return;
 
 	boxFrameColor->setColor ( c ) ;
-	d_graph->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
+	d_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), c);
 }
 
 void AxesDialog::showAxisFormatOptions(int format)
@@ -690,7 +690,7 @@ void AxesDialog::showAxisFormatOptions(int format)
 			boxFormat->insertItem(tr( "Decimal: 100.0" ) );
 			boxFormat->insertItem(tr( "Scientific: 1e2" ) );
 			boxFormat->insertItem(tr( "Scientific: 10^2" ) );
-			boxFormat->setCurrentIndex(d_graph->plotWidget()->axisLabelFormat(axis));
+			boxFormat->setCurrentIndex(d_layer->plotWidget()->axisLabelFormat(axis));
 
 			label3->show();
 			boxPrecision->show();
@@ -1012,8 +1012,8 @@ void AxesDialog::majorGridEnabled(bool on)
 
 	if (generalDialog->currentWidget()==gridPage)
 		{
-		d_graph->setGridOptions(getGridOptions());
-		d_graph->replot();
+		d_layer->setGridOptions(getGridOptions());
+		d_layer->replot();
 		}
 }
 
@@ -1025,8 +1025,8 @@ void AxesDialog::minorGridEnabled(bool on)
 
 	if (generalDialog->currentWidget()==gridPage)
 		{
-		d_graph->setGridOptions(getGridOptions());
-	    d_graph->replot();
+		d_layer->setGridOptions(getGridOptions());
+	    d_layer->replot();
 		}
 }
 
@@ -1119,8 +1119,8 @@ GridOptions AxesDialog::getGridOptions()
 void AxesDialog::updateAxisColor(int)
 {
 	int a = mapToQwtAxisId();
-    boxAxisColor->setColor(d_graph->axisColor(a));
-    boxAxisNumColor->setColor(d_graph->axisNumbersColor(a));
+    boxAxisColor->setColor(d_layer->axisColor(a));
+    boxAxisNumColor->setColor(d_layer->axisNumbersColor(a));
 }
 
 void AxesDialog::changeBaselineDist(int baseline)
@@ -1199,7 +1199,7 @@ bool AxesDialog::updatePlot()
 			  return false;
 		      }
 
-           if (axesType[a] == Graph::Time)
+           if (axesType[a] == Layer::Time)
 		      {
 		      switch (boxUnit->currentIndex())
                  {
@@ -1216,7 +1216,7 @@ bool AxesDialog::updatePlot()
 		         break;
 			     }
 		      }
-	       else if (axesType[a] == Graph::Date)
+	       else if (axesType[a] == Layer::Date)
 		        {
 		        switch (boxUnit->currentIndex())
                     {
@@ -1229,14 +1229,14 @@ bool AxesDialog::updatePlot()
 	             }
           }
 
-		d_graph->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->currentText().toInt(),
+		d_layer->setScale(a, start, end, stp, boxMajorValue->value(), boxMinorValue->currentText().toInt(),
                              boxScaleType->currentIndex(), btnInvert->isChecked());
-		d_graph->notifyChanges();
+		d_layer->notifyChanges();
 	}
 	else if (generalDialog->currentWidget()==gridPage)
 	{
-		d_graph->setGridOptions(getGridOptions());
-		d_graph->replot();
+		d_layer->setGridOptions(getGridOptions());
+		d_layer->replot();
 	}
 	else if (generalDialog->currentWidget()==(QWidget*)axesPage)
 	{
@@ -1247,7 +1247,7 @@ bool AxesDialog::updatePlot()
 		int baseline = boxBaseline->value();
 		axesBaseline[axis] = baseline;
 
-		if (format == Graph::Numeric)
+		if (format == Layer::Numeric)
 		{
 			if (boxShowFormula->isChecked())
 			{
@@ -1272,16 +1272,16 @@ bool AxesDialog::updatePlot()
 				}
 			}
 		}
-		else if (format == Graph::Time || format == Graph::Date)
+		else if (format == Layer::Time || format == Layer::Date)
 		{
 			QStringList lst = formatInfo[axis].split(";", QString::KeepEmptyParts);
 			if ((int)lst.count() >= 2)
 				lst[1] = boxFormat->currentText();
 			formatInfo[axis]  = lst.join(";");
 		}
-		else if (format == Graph::Day || format == Graph::Month)
+		else if (format == Layer::Day || format == Layer::Month)
 			formatInfo[axis] = QString::number(boxFormat->currentIndex());
-		else if (format == Graph::ColHeader)
+		else if (format == Layer::ColHeader)
 			formatInfo[axis] = boxTableName->currentText();
 		else
 			formatInfo[axis] = boxColName->currentText();
@@ -1308,29 +1308,29 @@ bool AxesDialog::updatePlot()
 	}
 	else if (generalDialog->currentWidget()==(QWidget*)frame)
 	{
-		d_graph->setAxesLinewidth(boxAxesLinewidth->value());
-        d_graph->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
-        d_graph->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
-        d_graph->drawAxesBackbones(boxBackbones->isChecked());
+		d_layer->setAxesLinewidth(boxAxesLinewidth->value());
+        d_layer->changeTicksLength(boxMinorTicksLength->value(), boxMajorTicksLength->value());
+        d_layer->drawCanvasFrame(boxFramed->isChecked(), boxFrameWidth->value(), boxFrameColor->color());
+        d_layer->drawAxesBackbones(boxBackbones->isChecked());
 	}
 
 	return true;
 }
 
-void AxesDialog::setGraph(Graph *g)
+void AxesDialog::setLayer(Layer *g)
 {
 	if (!g)
         return;
 
-	d_graph = g;
-	Plot *p = d_graph->plotWidget();
+	d_layer = g;
+	Plot *p = d_layer->plotWidget();
 
 	boxAxesLinewidth->setValue(p->axesLinewidth());
-    boxBackbones->setChecked (d_graph->axesBackbones());
+    boxBackbones->setChecked (d_layer->axesBackbones());
 
-	boxFramed->setChecked(d_graph->framed());
-	boxFrameColor->setColor(d_graph->canvasFrameColor());
-	boxFrameWidth->setValue(d_graph->canvasFrameWidth());
+	boxFramed->setChecked(d_layer->framed());
+	boxFrameColor->setColor(d_layer->canvasFrameColor());
+	boxFrameWidth->setValue(d_layer->canvasFrameWidth());
 
 	boxMinorTicksLength->setValue(p->minorTickLength());
 	boxMajorTicksLength->setValue(p->majorTickLength());
@@ -1372,17 +1372,17 @@ boxStep->clear();
 boxUnit->hide();
 boxUnit->clear();
 
-Plot *d_plot = d_graph->plotWidget();
+Plot *d_plot = d_layer->plotWidget();
 int a = mapToQwtAxis(axis);
 const QwtScaleDiv *scDiv=d_plot->axisScaleDiv(a);
 boxStart->setText(QString::number(QMIN(scDiv->lBound(), scDiv->hBound())));
 boxEnd->setText(QString::number(QMAX(scDiv->lBound(), scDiv->hBound())));
 
 QwtValueList lst = scDiv->ticks (QwtScaleDiv::MajorTick);
-boxStep->setText(QString::number(d_graph->axisStep(a)));
+boxStep->setText(QString::number(d_layer->axisStep(a)));
 boxMajorValue->setValue(lst.count());
 
-if (axesType[a] == Graph::Time)
+if (axesType[a] == Layer::Time)
 	{
 	boxUnit->show();
 	boxUnit->insertItem(tr("millisec."));
@@ -1390,14 +1390,14 @@ if (axesType[a] == Graph::Time)
 	boxUnit->insertItem(tr("min."));
 	boxUnit->insertItem(tr("hours"));
 	}
-else if (axesType[a] == Graph::Date)
+else if (axesType[a] == Layer::Date)
 	{
 	boxUnit->show();
 	boxUnit->insertItem(tr("days"));
 	boxUnit->insertItem(tr("weeks"));
 	}
 
-if (d_graph->axisStep(a) != 0.0)
+if (d_layer->axisStep(a) != 0.0)
 	{
 	btnStep->setChecked(true);
 	boxStep->setEnabled(true);
@@ -1577,9 +1577,9 @@ void AxesDialog::updateTickLabelsList(bool on)
 	tickLabelsOn[axis]=QString::number(on);
 
 	int type = boxAxisType->currentIndex();
-	if (type == Graph::Day || type == Graph::Month)
+	if (type == Layer::Day || type == Layer::Month)
 		formatInfo[axis] = QString::number(boxFormat->currentIndex());
-	else if (type == Graph::Time || type == Graph::Date)
+	else if (type == Layer::Time || type == Layer::Date)
 	{
 		QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
 		lst[1] = boxFormat->currentText();
@@ -1637,8 +1637,8 @@ void AxesDialog::updateGrid(int)
 {
 	if (generalDialog->currentWidget()==gridPage)
 	{
-		d_graph->setGridOptions(getGridOptions());
-			d_graph->replot();
+		d_layer->setGridOptions(getGridOptions());
+			d_layer->replot();
 	}
 }
 
@@ -1649,9 +1649,9 @@ void AxesDialog::setLabelsNumericFormat(int)
 	int prec = boxPrecision->value();
 	int format = boxFormat->currentIndex();
 
-	Plot *plot = d_graph->plotWidget();
+	Plot *plot = d_layer->plotWidget();
 
-	if (type == Graph::Numeric)
+	if (type == Layer::Numeric)
 	{
 		if (plot->axisLabelFormat(axis) == format &&
 			plot->axisLabelPrecision(axis) == prec)
@@ -1662,9 +1662,9 @@ void AxesDialog::setLabelsNumericFormat(int)
 		else
 			boxPrecision->setEnabled(true);
 		}
-	else if (type == Graph::Day || type == Graph::Month)
+	else if (type == Layer::Day || type == Layer::Month)
 		formatInfo[axis] = QString::number(format);
-	else if (type == Graph::Time || type == Graph::Date)
+	else if (type == Layer::Time || type == Layer::Date)
 	{
 		QStringList lst = formatInfo[axis].split(";", QString::SkipEmptyParts);
 		lst[1] = boxFormat->currentText();
@@ -1686,7 +1686,7 @@ void AxesDialog::setLabelsNumericFormat(int)
 
 void AxesDialog::showAxisFormula(int axis)
 {
-	QStringList l = d_graph->getAxesFormulas();
+	QStringList l = d_layer->getAxesFormulas();
 		QString formula = l[axis];
 		if (!formula.isEmpty())
 		{
@@ -1704,20 +1704,20 @@ void AxesDialog::showAxisFormula(int axis)
 
 void AxesDialog::updateLabelsFormat(int)
 {
-        if (boxAxisType->currentIndex() != Graph::Numeric)
+        if (boxAxisType->currentIndex() != Layer::Numeric)
         	return;
 
 		int a = mapToQwtAxisId();
-		int format = d_graph->plotWidget()->axisLabelFormat(a);
+		int format = d_layer->plotWidget()->axisLabelFormat(a);
         boxFormat->setCurrentIndex(format);
-		boxPrecision->setValue(d_graph->plotWidget()->axisLabelPrecision(a));
+		boxPrecision->setValue(d_layer->plotWidget()->axisLabelPrecision(a));
 
         if (format == 0)
         	boxPrecision->setEnabled(false);
         else
         	boxPrecision->setEnabled(true);
 
-        QStringList l = d_graph->getAxesFormulas();
+        QStringList l = d_layer->getAxesFormulas();
         QString formula = l[a];
         if (!formula.isEmpty())
         {
@@ -1756,10 +1756,10 @@ void AxesDialog::customAxisLabelFont()
 {
 	int axis = mapToQwtAxisId();
 		bool okF;
-		QFont oldFont = d_graph->axisTitleFont(axis);
+		QFont oldFont = d_layer->axisTitleFont(axis);
 	QFont fnt = QFontDialog::getFont( &okF, oldFont,this);
 	if (okF && fnt != oldFont)
-		d_graph->setAxisTitleFont(axis, fnt);
+		d_layer->setAxisTitleFont(axis, fnt);
 }
 
 void AxesDialog::pageChanged ( QWidget *page )
@@ -1798,5 +1798,5 @@ void AxesDialog::updateMinorTicksList(int scaleType)
 		boxMinorValue->addItems(QStringList()<<"0"<<"1"<<"4"<<"9"<<"14"<<"19");
 
 	int a = mapToQwtAxis(axesList->currentRow());
-	boxMinorValue->setEditText(QString::number(d_graph->plotWidget()->axisMaxMinor(a)));
+	boxMinorValue->setEditText(QString::number(d_layer->plotWidget()->axisMaxMinor(a)));
 }

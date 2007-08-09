@@ -50,7 +50,7 @@ class QWidget;
 class QStringList;
 class ColorBox;
 class ColorButton;
-class Graph;
+class Layer;
 class TextFormatButtons;
 
 //! Structure containing grid properties
@@ -89,7 +89,7 @@ public:
 	//! Destructor
     ~AxesDialog(){};
 
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 
 protected:
 	//! generate UI for the axes page
@@ -233,7 +233,7 @@ protected:
 	bool xAxisOn,yAxisOn,topAxisOn,rightAxisOn;
 	int xBottomLabelsRotation, xTopLabelsRotation;
 
-	Graph* d_graph;
+	Layer* d_layer;
 	//! Last selected tab
   	QWidget* lastPage;
 };

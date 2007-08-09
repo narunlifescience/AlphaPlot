@@ -433,14 +433,14 @@ bool OpjImporter::importGraphs(OPJFile opj)
 		ml->setWindowLabel(opj.graphLabel(g));
 		for(int l=0; l<opj.numLayers(g); l++)
 		{
-			Graph *graph=ml->addLayer();
-			if(!graph)
+			Layer *layer=ml->addLayer();
+			if(!layer)
 				return false;
 
-			graph->setXAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l))));
-			graph->setYAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l))));
+			layer->setXAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerXAxisTitle(g,l))));
+			layer->setYAxisTitle(parseOriginText(QString::fromLocal8Bit(opj.layerYAxisTitle(g,l))));
 			if(strlen(opj.layerLegend(g,l))>0)
-				graph->newLegend(parseOriginText(QString::fromLocal8Bit(opj.layerLegend(g,l))));
+				layer->newLegend(parseOriginText(QString::fromLocal8Bit(opj.layerLegend(g,l))));
 			int auto_color=0;
 			int auto_color1=0;
 			int style=0;
@@ -451,26 +451,26 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				switch(opj.curveType(g,l,c))
 				{
 				case OPJFile::Line:
-					style=Graph::Line;
+					style=Layer::Line;
 					break;
 				case OPJFile::Scatter:
-					style=Graph::Scatter;
+					style=Layer::Scatter;
 					break;
 				case OPJFile::LineSymbol:
-					style=Graph::LineSymbols;
+					style=Layer::LineSymbols;
 					break;
 				case OPJFile::ErrorBar:
 				case OPJFile::XErrorBar:
-					style=Graph::ErrorBars;
+					style=Layer::ErrorBars;
 					break;
 				case OPJFile::Column:
-					style=Graph::VerticalBars;
+					style=Layer::VerticalBars;
 					break;
 				case OPJFile::Bar:
-					style=Graph::HorizontalBars;
+					style=Layer::HorizontalBars;
 					break;
 				case OPJFile::Histogram:
-					style=Graph::Histogram;
+					style=Layer::Histogram;
 					break;
 				default:
 					continue;
@@ -480,17 +480,17 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				{
 				case 'T':
 					tableName = data.right(data.length()-2);
-					if(style==Graph::ErrorBars)
+					if(style==Layer::ErrorBars)
 					{
 						int flags=opj.curveSymbolType(g,l,c);
-						graph->addErrorBars(tableName + "_" + opj.curveXColName(g,l,c), mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c),
+						layer->addErrorBars(tableName + "_" + opj.curveXColName(g,l,c), mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c),
 							((flags&0x10)==0x10?0:1), ceil(opj.curveLineWidth(g,l,c)), ceil(opj.curveSymbolSize(g,l,c)), QColor(Qt::black),
 							(flags&0x40)==0x40, (flags&2)==2, (flags&1)==1);
 					}
-					else if(style==Graph::Histogram)
-						graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c), style);
+					else if(style==Layer::Histogram)
+						layer->insertCurve(mw->table(tableName), tableName + "_" + opj.curveYColName(g,l,c), style);
 					else
-						graph->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
+						layer->insertCurve(mw->table(tableName), tableName + "_" + opj.curveXColName(g,l,c), tableName + "_" + opj.curveYColName(g,l,c), style);
 					break;
 				case 'F':
 					QStringList formulas;
@@ -509,17 +509,17 @@ bool OpjImporter::importGraphs(OPJFile opj)
 						formulas << opj.functionFormula(s);
 						ranges << opj.functionBegin(s) << opj.functionEnd(s);
 					}
-					graph->addFunctionCurve(type, formulas, "x", ranges, opj.functionPoints(s), opj.functionName(s));
+					layer->addFunctionCurve(type, formulas, "x", ranges, opj.functionPoints(s), opj.functionName(s));
 
 					mw->updateFunctionLists(type, formulas);
 					break;
 				}
 
-				CurveLayout cl = graph->initCurveLayout(style, opj.numCurves(g,l));
+				CurveLayout cl = layer->initCurveLayout(style, opj.numCurves(g,l));
 				cl.sSize = ceil(opj.curveSymbolSize(g,l,c));
 				cl.penWidth=opj.curveSymbolThickness(g,l,c);
 				color=opj.curveSymbolColor(g,l,c);
-				if((style==Graph::Scatter||style==Graph::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
+				if((style==Layer::Scatter||style==Layer::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
 					color=auto_color++;
 				cl.symCol=color;
 				switch(opj.curveSymbolType(g,l,c)&0xFF)
@@ -587,7 +587,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				case 10:
 				case 11:
 					color=opj.curveSymbolFillColor(g,l,c);
-					if((style==Graph::Scatter||style==Graph::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
+					if((style==Layer::Scatter||style==Layer::LineSymbols)&&color==0xF7)//0xF7 -Automatic color
 						color=17;// depend on Origin settings - not stored in file
 					cl.fillCol=color;
 					break;
@@ -599,7 +599,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				color=opj.curveLineColor(g,l,c);
 				cl.lCol=(color==0xF7?0:color); //0xF7 -Automatic color
 				int linestyle=opj.curveLineStyle(g,l,c);
-				cl.filledArea=(opj.curveIsFilledArea(g,l,c)||style==Graph::VerticalBars||style==Graph::HorizontalBars||style==Graph::Histogram)?1:0;
+				cl.filledArea=(opj.curveIsFilledArea(g,l,c)||style==Layer::VerticalBars||style==Layer::HorizontalBars||style==Layer::Histogram)?1:0;
 				if(cl.filledArea)
 				{
 					switch(opj.curveFillPattern(g,l,c))
@@ -640,7 +640,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 					}
 					color=(cl.aStyle==0 ? opj.curveFillAreaColor(g,l,c) : opj.curveFillPatternColor(g,l,c));
 					cl.aCol=(color==0xF7?0:color); //0xF7 -Automatic color
-					if (style == Graph::VerticalBars || style == Graph::HorizontalBars || style == Graph::Histogram)
+					if (style == Layer::VerticalBars || style == Layer::HorizontalBars || style == Layer::Histogram)
 					{
 						color=opj.curveFillPatternBorderColor(g,l,c);
 						cl.lCol = (color==0xF7?0:color); //0xF7 -Automatic color
@@ -672,16 +672,16 @@ bool OpjImporter::importGraphs(OPJFile opj)
 						break;
 				}
 
-				graph->updateCurveLayout(c, &cl);
-				if (style == Graph::VerticalBars || style == Graph::HorizontalBars)
+				layer->updateCurveLayout(c, &cl);
+				if (style == Layer::VerticalBars || style == Layer::HorizontalBars)
 				{
-					BarCurve *b = (BarCurve*)graph->curve(c);
+					BarCurve *b = (BarCurve*)layer->curve(c);
 					if (b)
 						b->setGap(qRound(100-opj.curveSymbolSize(g,l,c)*10));
 				}
-				else if(style == Graph::Histogram)
+				else if(style == Layer::Histogram)
 				{
-					HistogramCurve *h = (HistogramCurve*)graph->curve(c);
+					HistogramCurve *h = (HistogramCurve*)layer->curve(c);
 					if (h)
 					{
 						vector<double> bin=opj.layerHistogram(g,l);
@@ -693,23 +693,23 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				switch(opj.curveLineConnect(g,l,c))
 				{
 				case OPJFile::NoLine:
-					graph->setCurveStyle(c, QwtPlotCurve::NoCurve);
+					layer->setCurveStyle(c, QwtPlotCurve::NoCurve);
 					break;
 				case OPJFile::Straight:
-					graph->setCurveStyle(c, QwtPlotCurve::Lines);
+					layer->setCurveStyle(c, QwtPlotCurve::Lines);
 					break;
 				case OPJFile::BSpline:
 				case OPJFile::Bezier:
 				case OPJFile::Spline:
-					graph->setCurveStyle(c, 5);
+					layer->setCurveStyle(c, 5);
 					break;
 				case OPJFile::StepHorizontal:
 				case OPJFile::StepHCenter:
-					graph->setCurveStyle(c, QwtPlotCurve::Steps);
+					layer->setCurveStyle(c, QwtPlotCurve::Steps);
 					break;
 				case OPJFile::StepVertical:
 				case OPJFile::StepVCenter:
-					graph->setCurveStyle(c, 6);
+					layer->setCurveStyle(c, 6);
 					break;
 				}
 
@@ -718,15 +718,15 @@ bool OpjImporter::importGraphs(OPJFile opj)
 			vector<int>    ticksX=opj.layerXTicks(g,l);
 			vector<double> rangeY=opj.layerYRange(g,l);
 			vector<int>	   ticksY=opj.layerYTicks(g,l);
-			if(style==Graph::HorizontalBars)
+			if(style==Layer::HorizontalBars)
 			{
-				graph->setScale(0,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
-				graph->setScale(2,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
+				layer->setScale(0,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
+				layer->setScale(2,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
 			}
 			else
 			{
-				graph->setScale(2,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
-				graph->setScale(0,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
+				layer->setScale(2,rangeX[0],rangeX[1],rangeX[2],ticksX[0],ticksX[1],opj.layerXScale(g,l));
+				layer->setScale(0,rangeY[0],rangeY[1],rangeY[2],ticksY[0],ticksY[1],opj.layerYScale(g,l));
 			}
 
 			//grid
@@ -746,7 +746,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 			grid.yZeroOn=0;
 			grid.xAxis=2;
 			grid.yAxis=0;
-			graph->setGridOptions(grid);
+			layer->setGridOptions(grid);
 
 			vector<graphAxisFormat> formats=opj.layerAxisFormat(g,l);
 			vector<graphAxisTick> ticks=opj.layerAxisTickLabels(g,l);
@@ -762,7 +762,7 @@ bool OpjImporter::importGraphs(OPJFile opj)
 				switch(ticks[i].value_type)
 				{
 				case OPJFile::Numeric:
-					type=Graph::Numeric;
+					type=Layer::Numeric;
 					switch(ticks[i].value_type_specification)
 					{
 					case 0: //Decimal 1000
@@ -780,24 +780,24 @@ bool OpjImporter::importGraphs(OPJFile opj)
 						prec=2;
 					break;
 				case OPJFile::Text: //Text
-					type=Graph::Txt;
+					type=Layer::Txt;
 					break;
 				case 2: // Date
-					type=Graph::Date;
+					type=Layer::Date;
 					break;
 				case 3: // Time
-					type=Graph::Time;
+					type=Layer::Time;
 					break;
 				case OPJFile::Month: // Month
-					type=Graph::Month;
+					type=Layer::Month;
 					format=ticks[i].value_type_specification;
 					break;
 				case OPJFile::Day: // Day
-					type=Graph::Day;
+					type=Layer::Day;
 					format=ticks[i].value_type_specification;
 					break;
 				case OPJFile::ColumnHeading:
-					type=Graph::ColHeader;
+					type=Layer::ColHeader;
 					switch(ticks[i].value_type_specification)
 					{
 					case 0: //Decimal 1000
@@ -814,20 +814,20 @@ bool OpjImporter::importGraphs(OPJFile opj)
 					prec=2;
 					break;
 				default:
-					type=Graph::Numeric;
+					type=Layer::Numeric;
 					format=0;
 					prec=2;
 				}
 
-				graph->showAxis(i, type, tableName, mw->table(tableName), !(formats[i].hidden),
+				layer->showAxis(i, type, tableName, mw->table(tableName), !(formats[i].hidden),
 					tickTypeMap[formats[i].majorTicksType], tickTypeMap[formats[i].minorTicksType],
 					!(ticks[i].hidden),	ColorBox::color(formats[i].color), format, prec,
 					ticks[i].rotation, 0, "", (ticks[i].color==0xF7 ? ColorBox::color(formats[i].color) : ColorBox::color(ticks[i].color)));
 			}
 
 
-			graph->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
-        	graph->setIgnoreResizeEvents(!mw->autoResizeLayers);
+			layer->setAutoscaleFonts(mw->autoScaleFonts);//restore user defined fonts behaviour
+        	layer->setIgnoreResizeEvents(!mw->autoResizeLayers);
 		}
 		//cascade the graphs
 		if(!opj.graphHidden(g))

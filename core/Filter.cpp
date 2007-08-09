@@ -33,6 +33,7 @@
 #include "table/Table.h"
 #include "graph/FunctionCurve.h"
 #include "graph/PlotCurve.h"
+#include "graph/Layer.h"
 
 #include <QApplication>
 #include <QMessageBox>
@@ -40,11 +41,11 @@
 
 #include <gsl/gsl_sort.h>
 
-Filter::Filter( ApplicationWindow *parent, Graph *g, const char * name)
+Filter::Filter( ApplicationWindow *parent, Layer *g, const char * name)
 : QObject( parent, name)
 {
 	init();
-	d_graph = g;
+	d_layer = g;
 }
 
 Filter::Filter( ApplicationWindow *parent, Table *t, const char * name)
@@ -67,7 +68,7 @@ void Filter::init()
     d_sort_data = false;
     d_min_points = 2;
     d_explanation = QString(name());
-    d_graph = 0;
+    d_layer = 0;
     d_table = 0;
 }
 
@@ -91,7 +92,7 @@ void Filter::setDataCurve(int curve, double start, double end)
 	}
 
 	d_init_err = false;
-	d_curve = d_graph->curve(curve);
+	d_curve = d_layer->curve(curve);
     if (d_sort_data)
         d_n = sortedCurveData(d_curve, start, end, &d_x, &d_y);
     else
@@ -116,7 +117,7 @@ void Filter::setDataCurve(int curve, double start, double end)
     d_to = end;
 }
 
-int Filter::curveIndex(const QString& curveTitle, Graph *g)
+int Filter::curveIndex(const QString& curveTitle, Layer *g)
 {
 	if (curveTitle.isEmpty())
 	{
@@ -127,18 +128,18 @@ int Filter::curveIndex(const QString& curveTitle, Graph *g)
 	}
 
 	if (g)
-		d_graph = g;
+		d_layer = g;
 
-	if (!d_graph)
+	if (!d_layer)
 	{
 		d_init_err = true;
 		return -1;
 	}
 
-	return d_graph->curveIndex(curveTitle);
+	return d_layer->curveIndex(curveTitle);
 }
 
-bool Filter::setDataFromCurve(const QString& curveTitle, Graph *g)
+bool Filter::setDataFromCurve(const QString& curveTitle, Layer *g)
 {
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
@@ -147,12 +148,12 @@ bool Filter::setDataFromCurve(const QString& curveTitle, Graph *g)
 		return false;
 	}
 
-  	d_graph->range(index, &d_from, &d_to);
+  	d_layer->range(index, &d_from, &d_to);
     setDataCurve(index, d_from, d_to);
 	return true;
 }
 
-bool Filter::setDataFromCurve(const QString& curveTitle, double from, double to, Graph *g)
+bool Filter::setDataFromCurve(const QString& curveTitle, double from, double to, Layer *g)
 {
 	int index = curveIndex(curveTitle, g);
 	if (index < 0)
@@ -185,14 +186,14 @@ void Filter::setColor(const QString& colorName)
 
 void Filter::showLegend()
 {
-	TextEnrichment* mrk = d_graph->newLegend(legendInfo());
-	if (d_graph->hasLegend())
+	TextEnrichment* mrk = d_layer->newLegend(legendInfo());
+	if (d_layer->hasLegend())
 	{
-		TextEnrichment* legend = d_graph->legend();
+		TextEnrichment* legend = d_layer->legend();
 		QPoint p = legend->rect().bottomLeft();
 		mrk->setOrigin(QPoint(p.x(), p.y()+20));
 	}
-	d_graph->replot();
+	d_layer->replot();
 }
 
 bool Filter::run()
@@ -315,8 +316,8 @@ QwtPlotCurve* Filter::addResultCurve(double *x, double *y)
 	DataCurve *c = new DataCurve(t, tableName + "_1", tableName + "_2");
 	c->setData(x, y, d_points);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	d_graph->insertPlotItem(c, Graph::Line);
-    d_graph->updatePlot();
+	d_layer->insertPlotItem(c, Layer::Line);
+    d_layer->updatePlot();
 
     delete[] x;
 	delete[] y;

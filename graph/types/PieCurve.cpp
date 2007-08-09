@@ -29,7 +29,7 @@
 #include "PieCurve.h"
 #include "lib/ColorBox.h"
 #include "table/Table.h"
-#include "../Graph.h"
+#include "../Layer.h"
 
 #include <QPaintDevice>
 #include <QPainter>
@@ -46,7 +46,7 @@ PieCurve::PieCurve(Table *t, const char *name, int startRow, int endRow):
 	setPen(QPen(QColor(Qt::black), 1, Qt::SolidLine));
 	setBrush(QBrush(Qt::black, Qt::SolidPattern));
 
-	setType(Graph::Pie);
+	setType(Layer::Pie);
 }
 
 void PieCurve::draw(QPainter *painter,
@@ -64,7 +64,7 @@ void PieCurve::draw(QPainter *painter,
 void PieCurve::drawPie(QPainter *painter,
 		const QwtScaleMap &xMap, const QwtScaleMap &yMap, int from, int to) const
 {
-	// This has to be synced with Graph::plotPie() for now... until we have a clean solution.
+	// This has to be synced with Layer::plotPie() for now... until we have a clean solution.
 	QRect canvas_rect = plot()->plotLayout()->canvasRect();
 	int radius = 0.4*qMin(canvas_rect.width(), canvas_rect.height());
 

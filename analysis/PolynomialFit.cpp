@@ -27,7 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "PolynomialFit.h"
-#include "graph/Graph.h"
+
+#include "graph/Layer.h"
 
 #include <QMessageBox>
 #include <QLocale>
@@ -35,21 +36,21 @@
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_fit.h>
 
-	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, int order, bool legend)
-: Fit(parent, g), d_order(order), show_legend(legend)
+	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Layer *layer, int order, bool legend)
+: Fit(parent, layer), d_order(order), show_legend(legend)
 {
 	init();
 }
 
-	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, int order, bool legend)
-: Fit(parent, g), d_order(order), show_legend(legend)
+	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Layer *layer, QString& curveTitle, int order, bool legend)
+: Fit(parent, layer), d_order(order), show_legend(legend)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Graph *g, QString& curveTitle, double start, double end, int order, bool legend)
-: Fit(parent, g), d_order(order), show_legend(legend)
+	PolynomialFit::PolynomialFit(ApplicationWindow *parent, Layer *layer, QString& curveTitle, double start, double end, int order, bool legend)
+: Fit(parent, layer), d_order(order), show_legend(legend)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -167,7 +168,7 @@ void PolynomialFit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, 0, 0, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, 0, 0, d_layer->parentPlotName()));
 
 	if (show_legend)
 		showLegend();
@@ -202,21 +203,21 @@ QString PolynomialFit::legendInfo()
  *
  *****************************************************************************/
 
-	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g)
-: Fit(parent, g)
+	LinearFit::LinearFit(ApplicationWindow *parent, Layer *layer)
+: Fit(parent, layer)
 {
 	init();
 }
 
-	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Fit(parent, g)
+	LinearFit::LinearFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	LinearFit::LinearFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Fit(parent, g)
+	LinearFit::LinearFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -269,7 +270,7 @@ void LinearFit::fit()
 
 	ApplicationWindow *app = (ApplicationWindow *)parent();
 	if (app->writeFitResultsToLog)
-		app->updateLog(logFitInfo(d_results, 0, 0, d_graph->parentPlotName()));
+		app->updateLog(logFitInfo(d_results, 0, 0, d_layer->parentPlotName()));
 
 	generateFitCurve(d_results);
 }

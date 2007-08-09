@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "ErrorCurve.h"
 #include "BarCurve.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "table/Table.h"
 
 #include <qwt_painter.h>
@@ -46,7 +46,7 @@ ErrorCurve::ErrorCurve(int orientation, Table *t, const char *name):
 	plus = true;
 	minus = true;
 	through = false;
-	setType(Graph::ErrorBars);
+	setType(Layer::ErrorBars);
 }
 
 ErrorCurve::ErrorCurve(Table *t, const char *name):
@@ -58,7 +58,7 @@ ErrorCurve::ErrorCurve(Table *t, const char *name):
 	plus = true;
 	minus = true;
 	through = false;
-	setType(Graph::ErrorBars);
+	setType(Layer::ErrorBars);
 }
 
 void ErrorCurve::copy(const ErrorCurve *e)
@@ -99,9 +99,9 @@ void ErrorCurve::drawErrorBars(QPainter *painter,
 
 	double d_xOffset = 0.0;
 	double d_yOffset = 0.0;
-	if (d_master_curve->type() == Graph::VerticalBars)
+	if (d_master_curve->type() == Layer::VerticalBars)
 		d_xOffset = ((BarCurve *)d_master_curve)->dataOffset();
-	else if (d_master_curve->type() == Graph::HorizontalBars)
+	else if (d_master_curve->type() == Layer::HorizontalBars)
 		d_yOffset = ((BarCurve *)d_master_curve)->dataOffset();
 
 	for (int i = from; i <= to; i++){

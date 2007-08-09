@@ -108,7 +108,7 @@ There is also a section with some notes about \ref future "future plans".
   - Improved import of Origin project files
   - More import/export filters including Open Document spreadsheets (plugin)
 
-  \sa ApplicationWindow, MultiLayer, Graph, Graph3D, ImageMarker, Legend, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, Table
+  \sa ApplicationWindow, MultiLayer, Layer, Graph3D, ImageMarker, Legend, MyWidget, SelectionMoveResizer, MyParser, Note, ScriptEdit, Table
 
   \page style Coding Style
   The following rules are not used everywhere (yet), but are intended as guidelines for new code and eventually

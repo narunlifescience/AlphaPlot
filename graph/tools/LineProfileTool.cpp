@@ -30,7 +30,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "LineProfileTool.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../enrichments/ImageEnrichment.h"
 #include "../enrichments/LineEnrichment.h"
 
@@ -40,18 +40,18 @@
 #include <QPainter>
 #include <qwt_plot_canvas.h>
 
-LineProfileTool::LineProfileTool(Graph *graph, int average_pixels)
-	: QWidget(graph->plotWidget()->canvas()),
-	AbstractGraphTool(graph)
+LineProfileTool::LineProfileTool(Layer *layer, int average_pixels)
+	: QWidget(layer->plotWidget()->canvas()),
+	AbstractGraphTool(layer)
 {
 	d_op_start = d_op_dp = QPoint(0,0);
 	// make sure we average over an odd number of pixels
 	d_average_pixels = (average_pixels % 2) ? average_pixels : average_pixels + 1;
-	d_target = dynamic_cast<ImageEnrichment*>(d_graph->selectedMarkerPtr());
+	d_target = dynamic_cast<ImageEnrichment*>(d_layer->selectedMarkerPtr());
 	if (!d_target)
-		QMessageBox::critical(d_graph->window(),tr("Pixel selection warning"),
+		QMessageBox::critical(d_layer->window(),tr("Pixel selection warning"),
 				"Please select an image marker first.");
-	d_graph->deselectMarker();
+	d_layer->deselectMarker();
 	setGeometry(0, 0, parentWidget()->width(), parentWidget()->height());
 	show();
 	setFocus();
@@ -62,7 +62,7 @@ void LineProfileTool::calculateLineProfile(const QPoint& start, const QPoint& en
 	QRect rect = d_target->rect();
 	if (!rect.contains(start) || !rect.contains(end))
 	{
-		QMessageBox::warning(d_graph, tr("Pixel selection warning"),
+		QMessageBox::warning(d_layer, tr("Pixel selection warning"),
 				"Please select the end line point inside the image rectangle!");
 		return;
 	}
@@ -177,7 +177,7 @@ int LineProfileTool::averageImagePixel(const QImage& image, int px, int py, bool
 void LineProfileTool::addLineMarker(const QPoint &start, const QPoint &end)
 {
 	LineEnrichment *mrk = new LineEnrichment();
-	mrk->attach(d_graph->plotWidget());
+	mrk->attach(d_layer->plotWidget());
 
 	mrk->setStartPoint(start);
 	mrk->setEndPoint(end);
@@ -187,9 +187,9 @@ void LineProfileTool::addLineMarker(const QPoint &start, const QPoint &end)
 	mrk->drawEndArrow(false);
 	mrk->drawStartArrow(false);
 
-	d_graph->addArrow(mrk);
+	d_layer->addArrow(mrk);
 	mrk->detach();
-	d_graph->replot();
+	d_layer->replot();
 }
 
 void LineProfileTool::paintEvent(QPaintEvent *)
@@ -218,6 +218,6 @@ void LineProfileTool::mouseReleaseEvent(QMouseEvent *e)
 {
 	calculateLineProfile(d_op_start, e->pos());
 	addLineMarker(d_op_start, e->pos());
-	d_graph->setActiveTool(NULL);
+	d_layer->setActiveTool(NULL);
 	// attention: I'm now deleted
 }

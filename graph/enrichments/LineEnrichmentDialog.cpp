@@ -29,7 +29,7 @@
 #include "LineEnrichmentDialog.h"
 #include "lib/ColorButton.h"
 #include "LineEnrichment.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../Plot.h"
 #include "core/ApplicationWindow.h"
 
@@ -255,7 +255,7 @@ void LineEnrichmentDialog::apply()
 {
 if (tw->currentWidget()==(QWidget *)options)
 	{
-	lm->setStyle(Graph::getPenStyle(styleBox->currentItem()));
+	lm->setStyle(Layer::getPenStyle(styleBox->currentItem()));
 	lm->setColor(colorBox->color());
 	lm->setWidth(widthBox->currentText().toInt());
 	lm->drawEndArrow(endBox->isChecked());
@@ -276,9 +276,9 @@ else if (tw->currentWidget()==(QWidget *)geometry)
 	setCoordinates(unitBox->currentItem());
 
 QwtPlot *plot = lm->plot();
-Graph *g = (Graph *)plot->parent();
+Layer *layer = (Layer *)plot->parent();
 plot->replot();
-g->notifyChanges();
+layer->notifyChanges();
 
 enableHeadTab();
 }
@@ -327,7 +327,7 @@ if (!app)
 	return;
 
 app->setArrowDefaultSettings(widthBox->currentText().toInt(), colorBox->color(),
-							Graph::getPenStyle(styleBox->currentItem()),
+							Layer::getPenStyle(styleBox->currentItem()),
 							boxHeadLength->value(), boxHeadAngle->value(), filledBox->isChecked());
 }
 

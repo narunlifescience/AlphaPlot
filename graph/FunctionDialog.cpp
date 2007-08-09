@@ -30,6 +30,7 @@
 #include "core/MyParser.h"
 #include "core/ApplicationWindow.h"
 #include "FunctionCurve.h"
+#include "Layer.h"
 
 #include <QTextEdit>
 #include <QLineEdit>
@@ -176,7 +177,7 @@ FunctionDialog::FunctionDialog( QWidget* parent, Qt::WFlags fl )
 	connect( buttonClear, SIGNAL( clicked() ), this, SLOT(clearList() ) );
 
 	curveID = -1;
-	graph = 0;
+	d_layer = 0;
 }
 
 void FunctionDialog::raiseWidget(int index)
@@ -189,14 +190,13 @@ void FunctionDialog::raiseWidget(int index)
 	optionStack->setCurrentIndex(index);
 }
 
-void FunctionDialog::setCurveToModify(Graph *g, int curve)
+void FunctionDialog::setCurveToModify(Layer *layer, int curve)
 {
-	if (!g)
+	if (!layer)
 		return;
+	d_layer = layer;
 
-	graph = g;
-
-	FunctionCurve *c = (FunctionCurve *)graph->curve(curve);
+	FunctionCurve *c = (FunctionCurve *)d_layer->curve(curve);
 	if (!c)
 		return;
 
@@ -332,14 +332,14 @@ void FunctionDialog::acceptFunction()
 	{
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		app->updateFunctionLists(type,formulas);
-		if (!graph)
+		if (!d_layer)
 			app->newFunctionPlot(type, formulas, "x", ranges, boxPoints->value());
 		else
 		{
 			if (curveID >= 0)
-				graph->modifyFunctionCurve(curveID, type, formulas, "x", ranges, boxPoints->value());
+				d_layer->modifyFunctionCurve(curveID, type, formulas, "x", ranges, boxPoints->value());
 			else
-				graph->addFunctionCurve(type,formulas, "x", ranges, boxPoints->value());
+				d_layer->addFunctionCurve(type,formulas, "x", ranges, boxPoints->value());
 		}
 	}
 
@@ -436,14 +436,14 @@ void FunctionDialog::acceptParametric()
 	{
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		app->updateFunctionLists(type,formulas);
-		if (!graph)
+		if (!d_layer)
 			app->newFunctionPlot(type, formulas, boxParameter->text(),ranges, boxParPoints->value());
 		else
 		{
 			if (curveID >= 0)
-				graph->modifyFunctionCurve(curveID, type, formulas, boxParameter->text(),ranges, boxParPoints->value());
+				d_layer->modifyFunctionCurve(curveID, type, formulas, boxParameter->text(),ranges, boxParPoints->value());
 			else
-				graph->addFunctionCurve(type,formulas, boxParameter->text(),ranges, boxParPoints->value());
+				d_layer->addFunctionCurve(type,formulas, boxParameter->text(),ranges, boxParPoints->value());
 		}
 	}
 }
@@ -541,14 +541,14 @@ void FunctionDialog::acceptPolar()
 		ApplicationWindow *app = (ApplicationWindow *)this->parent();
 		app->updateFunctionLists(type,formulas);
 
-		if (!graph)
+		if (!d_layer)
 			app->newFunctionPlot(type, formulas, boxPolarParameter->text(),ranges, boxPolarPoints->value());
 		else
 		{
 			if (curveID >= 0)
-				graph->modifyFunctionCurve(curveID, type, formulas, boxPolarParameter->text(),ranges, boxPolarPoints->value());
+				d_layer->modifyFunctionCurve(curveID, type, formulas, boxPolarParameter->text(),ranges, boxPolarPoints->value());
 			else
-				graph->addFunctionCurve(type, formulas, boxPolarParameter->text(),ranges, boxPolarPoints->value());
+				d_layer->addFunctionCurve(type, formulas, boxPolarParameter->text(),ranges, boxPolarPoints->value());
 		}
 	}
 }

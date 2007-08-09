@@ -36,7 +36,7 @@ class QCheckBox;
 class QLineEdit;
 class QComboBox;
 class QSpinBox;
-class Graph;
+class Layer;
 
 //! Integration options dialog
 class IntDialog : public QDialog
@@ -60,7 +60,7 @@ public:
 
 public slots:
 	void accept();
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 	void activateCurve(const QString& curveName);
 	void help();
 	void changeDataRange();
@@ -69,7 +69,7 @@ signals:
 	void integrate(int,int,int,double,double,double);
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 };
 
 #endif

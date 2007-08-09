@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "CurveRangeDialog.h"
 #include "graph/PlotCurve.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "table/Table.h"
 
 #include <QGroupBox>
@@ -86,18 +86,18 @@ void CurveRangeDialog::accept()
 	int start = boxStart->value() - 1;
 	int end = boxEnd->value() - 1;
 	d_curve->setRowRange(QMIN(start, end), QMAX(start, end));
-	d_graph->updatePlot();
-	d_graph->notifyChanges();
+	d_layer->updatePlot();
+	d_layer->notifyChanges();
 	close();
 }
 
-void CurveRangeDialog::setCurveToModify(Graph *g, int curve)
+void CurveRangeDialog::setCurveToModify(Layer *layer, int curve)
 {
-	if (!g)
+	if (!layer)
 		return;
 
-	d_graph = g;
-	d_curve = (DataCurve *)d_graph->curve(curve);
+	d_layer = layer;
+	d_curve = (DataCurve *)d_layer->curve(curve);
 	if (!d_curve)
 		return;
 

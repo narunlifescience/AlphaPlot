@@ -37,7 +37,7 @@ class QPushButton;
 class QTableWidget;
 class QStringList;
 class Table;
-class Graph;
+class Layer;
 
 //! Plot associations dialog
 class AssociationsDialog : public QDialog
@@ -49,7 +49,7 @@ public:
     ~AssociationsDialog();
 
     void initTablesList(QWidgetList* lst, int curve);
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 
 private slots:
     void updateTable(int index);
@@ -67,7 +67,7 @@ private:
 
 	QWidgetList* tables;
 	Table *active_table;
-	Graph *graph;
+	Layer *d_layer;
 	QStringList plotAssociationsList;
 
     QLabel* tableCaptionLabel;

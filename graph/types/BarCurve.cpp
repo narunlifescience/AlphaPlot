@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "BarCurve.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include <QPainter>
 
 BarCurve::BarCurve(BarStyle style, Table *t, const QString& xColName, const char *name, int startRow, int endRow):
@@ -41,9 +41,9 @@ setPen(QPen(Qt::black, 1, Qt::SolidLine));
 setBrush(QBrush(Qt::red));
 
 if (bar_style == Vertical)
-	setType(Graph::VerticalBars);
+	setType(Layer::VerticalBars);
 else
-	setType(Graph::HorizontalBars);
+	setType(Layer::HorizontalBars);
 }
 
 void BarCurve::copy(const BarCurve *b)

@@ -34,7 +34,7 @@
 
 #include "../core/MyWidget.h"
 
-#include "Graph.h"
+#include "Layer.h"
 #include <QPushButton>
 #include <QPointer>
 
@@ -46,18 +46,15 @@ class LayerButton;
 class SelectionMoveResizer;
 
 /**
- * \brief An MDI window (MyWidget) managing one or more Graph objects.
- *
- * %Note that several parts of the code, as well as the user interface, refer to MultiLayer as "graph" or "plot",
- * practically guaranteeing confusion with the classes Graph and Plot.
+ * \brief An MDI window (MyWidget) managing one or more Layer objects.
  *
  * \section future_plans Future Plans
- * Manage any QWidget instead of only Graph.
+ * Manage any QWidget instead of only Layer.
  * This would allow 3D graphs to be added as well, so you could produce mixed 2D/3D arrangements.
  * It would also allow text labels to be added directly instead of having to complicate things by wrapping them
- * up in a Graph (see documentation of ImageMarker for details) (see documentation of ImageMarker for details).
+ * up in a Layer (see documentation of ImageMarker for details) (see documentation of ImageMarker for details).
  *
- * The main problem to be figured out for this is how Graph would interface with the rest of the project.
+ * The main problem to be figured out for this is how Layer would interface with the rest of the project.
  * A possible solution is outlined in the documentation of ApplicationWindow:
  * If MultiLayer exposes its parent Project to the widgets it manages, they could handle things like creating
  * tables by calling methods of Project instead of sending signals.
@@ -67,9 +64,9 @@ class MultiLayer: public MyWidget
 	Q_OBJECT
 
 public:
-    MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	QWidgetList graphPtrs(){return graphsList;};
-	Graph *layer(int num);
+	MultiLayer (const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+	QList<Layer*> layers() {return d_layer_list;};
+	Layer *layer(int num);
 	LayerButton* addLayerButton();
 	void copy(MultiLayer* ml);
 
@@ -100,7 +97,7 @@ public:
 	void setHidden();
 
 public slots:
-	Graph* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
+	Layer* addLayer(int x = 0, int y = 0, int width = 0, int height = 0);
 	void setLayersNumber(int n);
 
 	bool isEmpty();
@@ -117,18 +114,18 @@ public slots:
 	void addTextLayer(int f, const QFont& font, const QColor& textCol, const QColor& backgroundCol);
 	/*!\brief Finish adding a text layer.
 	 *
-	 * An empty Graph is created and added to me.
+	 * An empty Layer is created and added to me.
 	 * Legend, title and axes are removed and a new Legend is added with a placeholder text.
 	 *
 	 * \sa #defaultTextMarkerFont, #defaultTextMarkerFrame, #defaultTextMarkerColor, #defaultTextMarkerBackground, addTextLayer(int,const QFont&,const QColor&,const QColor&)
 	 */
 	void addTextLayer(const QPoint& pos);
 
-	Graph* activeGraph(){return active_graph;};
-	void setActiveGraph(Graph* g);
-	void activateGraph(LayerButton* button);
+	Layer* activeLayer(){return d_active_layer;};
+	void setActiveLayer(Layer* g);
+	void activateLayer(LayerButton* button);
 
-	void setGraphGeometry(int x, int y, int w, int h);
+	void setLayerGeometry(int x, int y, int w, int h);
 
 	void findBestLayout(int &rows, int &cols);
 
@@ -159,7 +156,7 @@ public slots:
 	int verticalAlignement(){return vert_align;};
 	void setAlignement (int ha, int va);
 
-	int layers(){return graphs;};
+	int layerCount() { return d_layer_count; };
 
 	//! \name Print and Export
 	//@{
@@ -180,7 +177,7 @@ public slots:
 	void setFonts(const QFont& titleFnt, const QFont& scaleFnt,
 							const QFont& numbersFnt, const QFont& legendFnt);
 
-	void connectLayer(Graph *g);
+	void connectLayer(Layer *g);
 
 	QString saveToString(const QString& geometry);
 	QString saveAsTemplate(const QString& geometryInfo);
@@ -190,7 +187,7 @@ signals:
 	void showPlotDialog(int);
 	void showAxisDialog(int);
 	void showScaleDialog(int);
-	void showGraphContextMenu();
+	void showLayerContextMenu();
 	void showLayerButtonContextMenu();
 	void showCurveContextMenu(int);
 	void showWindowContextMenu();
@@ -217,9 +214,9 @@ private:
 	void resizeLayers (const QResizeEvent *re);
 	void resizeLayers (const QSize& size, const QSize& oldSize, bool scaleFonts);
 
-	Graph* active_graph;
+	Layer* d_active_layer;
 	//! Used for resizing of layers.
-	int graphs, cols, rows, graph_width, graph_height, colsSpace, rowsSpace;
+	int d_layer_count, cols, rows, d_layer_default_width, d_layer_default_height, colsSpace, rowsSpace;
 	int left_margin, right_margin, top_margin, bottom_margin;
 	int l_canvas_width, l_canvas_height, hor_align, vert_align;
 	bool addTextOn;
@@ -230,16 +227,17 @@ private:
 	QFont defaultTextMarkerFont;
 	QColor defaultTextMarkerColor, defaultTextMarkerBackground;
 
-    QWidgetList buttonsList, graphsList;
+	QWidgetList d_button_list;
+	QList<Layer*> d_layer_list;
 	QHBoxLayout *layerButtonsBox;
-    QWidget *canvas;
+	QWidget *canvas;
 
 	QPointer<SelectionMoveResizer> d_layers_selector;
 	int d_open_maximized;
 	//! Stores the size of the widget in the Qt::WindowMaximized state.
 	QSize d_max_size;
 	//! Stores the size of the widget in Qt::WindowNoState (normal state).
-    QSize d_normal_size;
+	QSize d_normal_size;
 };
 
 

@@ -166,8 +166,8 @@ void Convolution::addResultCurve()
     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
 	c->setData(x_temp, d_x, d_n);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	ml->activeGraph()->insertPlotItem(c, Graph::Line);
-	ml->activeGraph()->updatePlot();
+	ml->activeLayer()->insertPlotItem(c, Layer::Line);
+	ml->activeLayer()->updatePlot();
 }
 
 void Convolution::convlv(double *sig, int n, double *dres, int m, int sign)

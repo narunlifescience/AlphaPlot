@@ -30,7 +30,7 @@
 #include "Interpolation.h"
 #include "core/MyParser.h"
 #include "lib/ColorBox.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 
 #include <QGroupBox>
 #include <QSpinBox>
@@ -104,7 +104,7 @@ InterpolationDialog::InterpolationDialog( QWidget* parent, Qt::WFlags fl )
 void InterpolationDialog::interpolate()
 {
 QString curve = boxName->currentText();
-QStringList curvesList = graph->analysableCurvesList();
+QStringList curvesList = d_layer->analysableCurvesList();
 if (!curvesList.contains(curve))
 	{
 	QMessageBox::critical(this,tr("Warning"),
@@ -148,7 +148,7 @@ if (from >= to)
 	return;
 	}
 
-Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), graph, curve,
+Interpolation *i = new Interpolation((ApplicationWindow *)this->parent(), d_layer, curve,
                                       from, to, boxMethod->currentIndex());
 i->setOutputPoints(boxPoints->value());
 i->setColor(boxColor->currentIndex());
@@ -156,27 +156,27 @@ i->run();
 delete i;
 }
 
-void InterpolationDialog::setGraph(Graph *g)
+void InterpolationDialog::setLayer(Layer *layer)
 {
-	graph = g;
-	boxName->addItems(g->analysableCurvesList());
+	d_layer = layer;
+	boxName->addItems(d_layer->analysableCurvesList());
 
-    QString selectedCurve = g->selectedCurveTitle();
+	QString selectedCurve = d_layer->selectedCurveTitle();
 	if (!selectedCurve.isEmpty())
 	{
-	    int index = boxName->findText (selectedCurve);
+		int index = boxName->findText (selectedCurve);
 		boxName->setCurrentItem(index);
 	}
 
-    activateCurve(boxName->currentText());
+	activateCurve(boxName->currentText());
 
-	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
-	connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (d_layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (d_layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void InterpolationDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = graph->curve(curveName);
+	QwtPlotCurve *c = d_layer->curve(curveName);
 	if (!c)
 		return;
 
@@ -185,7 +185,7 @@ void InterpolationDialog::activateCurve(const QString& curveName)
         return;
 
 	double start, end;
-	graph->range(graph->curveIndex(curveName), &start, &end);
+	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
 	boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 };
@@ -196,8 +196,8 @@ ApplicationWindow *app = (ApplicationWindow *)parent();
 if(!app)
     return;
 
-double start = graph->selectedXStartValue();
-double end = graph->selectedXEndValue();
+double start = d_layer->selectedXStartValue();
+double end = d_layer->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', app->d_decimal_digits));
 boxEnd->setText(QString::number(QMAX(start, end), 'g', app->d_decimal_digits));
 }

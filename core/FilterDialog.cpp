@@ -30,7 +30,7 @@
 #include "MyParser.h"
 #include "lib/ColorBox.h"
 #include "analysis/FFTFilter.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 
 #include <QGroupBox>
 #include <QCheckBox>
@@ -165,7 +165,7 @@ if (filter_type >= FFTFilter::BandPass)
 		}
 	}
 
-FFTFilter *f = new FFTFilter((ApplicationWindow *)this->parent(), graph, boxName->currentText(), filter_type);
+FFTFilter *f = new FFTFilter((ApplicationWindow *)this->parent(), d_layer, boxName->currentText(), filter_type);
 if (filter_type == FFTFilter::BandPass)
     {
     f->setBand(from, to);
@@ -184,8 +184,8 @@ f->run();
 delete f;
 }
 
-void FilterDialog::setGraph(Graph *g)
+void FilterDialog::setLayer(Layer *layer)
 {
-graph = g;
-boxName->addItems (g->analysableCurvesList());
+layer = layer;
+boxName->addItems (layer->analysableCurvesList());
 };

@@ -36,8 +36,8 @@ class FFTFilter : public Filter
 Q_OBJECT
 
 public:
-	FFTFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int m = 1);
-	FFTFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end, int m = 1);
+	FFTFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, int m = 1);
+	FFTFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end, int m = 1);
 
     enum FilterType{LowPass = 1, HighPass = 2, BandPass = 3, BandBlock = 4};
 

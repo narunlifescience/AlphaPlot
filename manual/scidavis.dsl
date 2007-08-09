@@ -52,8 +52,10 @@
   "scidavis")
 
 (define %htmlhelp-filename%
-	;; Base name of HTML-Help output files (.chm, .hhp, .hhc and .hhk)
+	;; Base name of HTML-Help output files (.hhp, .hhc and .hhk)
 	"scidavis")
+; The final .chm file has to be generated from the above using MS HTML Help Workshop
+; see http://msdn2.microsoft.com/en-us/library/ms670169.aspx
 
 ;(define (chunk-skip-first-element-list)
 ;  ;; forces the Table of Contents on separate page

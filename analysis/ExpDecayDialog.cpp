@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "ExpDecayDialog.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "lib/ColorBox.h"
 #include "core/ApplicationWindow.h"
 #include "ExponentialFit.h"
@@ -135,31 +135,30 @@ ExpDecayDialog::ExpDecayDialog(int type, QWidget* parent, Qt::WFlags fl )
 	connect( buttonCancel, SIGNAL( clicked() ), this, SLOT(close()));
 }
 
-void ExpDecayDialog::setGraph(Graph *g)
+void ExpDecayDialog::setLayer(Layer *layer)
 {
-	if (!g)
+	if (!layer)
 		return;
 
-    fitter = 0;
-	graph = g;
+	fitter = 0;
 
-	boxName->addItems(graph->analysableCurvesList());
+	boxName->addItems(layer->analysableCurvesList());
 
-    QString selectedCurve = g->selectedCurveTitle();
+	QString selectedCurve = layer->selectedCurveTitle();
 	if (!selectedCurve.isEmpty())
 	{
-	    int index = boxName->findText (selectedCurve);
+		int index = boxName->findText (selectedCurve);
 		boxName->setCurrentItem(index);
 	}
-    activateCurve(boxName->currentText());
+	activateCurve(boxName->currentText());
 
-	connect (graph, SIGNAL(closedGraph()), this, SLOT(close()));
-    connect (graph, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
+	connect (layer, SIGNAL(closed()), this, SLOT(close()));
+	connect (layer, SIGNAL(dataRangeChanged()), this, SLOT(changeDataRange()));
 };
 
 void ExpDecayDialog::activateCurve(const QString& curveName)
 {
-	QwtPlotCurve *c = graph->curve(curveName);
+	QwtPlotCurve *c = d_layer->curve(curveName);
 	if (!c)
 		return;
 
@@ -169,7 +168,7 @@ void ExpDecayDialog::activateCurve(const QString& curveName)
 
 	int precision = app->fit_output_precision;
 	double start, end;
-	graph->range(graph->curveIndex(curveName), &start, &end);
+	d_layer->range(d_layer->curveIndex(curveName), &start, &end);
 	boxStart->setText(QString::number(QMIN(start, end)));
 	boxYOffset->setText(QString::number(c->minYValue(), 'g', precision));
 	if (slopes < 2)
@@ -179,16 +178,16 @@ void ExpDecayDialog::activateCurve(const QString& curveName)
 
 void ExpDecayDialog::changeDataRange()
 {
-double start = graph->selectedXStartValue();
-double end = graph->selectedXEndValue();
+double start = d_layer->selectedXStartValue();
+double end = d_layer->selectedXEndValue();
 boxStart->setText(QString::number(QMIN(start, end), 'g', 15));
 }
 
 void ExpDecayDialog::fit()
 {
 	QString curve = boxName->currentText();
-	QwtPlotCurve *c = graph->curve(curve);
-	QStringList curvesList = graph->analysableCurvesList();
+	QwtPlotCurve *c = d_layer->curve(curve);
+	QStringList curvesList = d_layer->analysableCurvesList();
 	if (!c || !curvesList.contains(curve))
 	{
 		QMessageBox::critical(this,tr("Warning"),
@@ -211,20 +210,20 @@ void ExpDecayDialog::fit()
 	{
 		double x_init[7] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			1.0, boxThird->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ThreeExpFit(app, graph);
+		fitter = new ThreeExpFit(app, d_layer);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 2)
 	{
 		double x_init[5] = {1.0, boxFirst->text().toDouble(), 1.0, boxSecond->text().toDouble(),
 			boxYOffset->text().toDouble()};
-		fitter = new TwoExpFit(app, graph);
+		fitter = new TwoExpFit(app, d_layer);
 		fitter->setInitialGuesses(x_init);
 	}
 	else if (slopes == 1 || slopes == -1)
 	{
 		double x_init[3] = {boxAmplitude->text().toDouble(), slopes/boxFirst->text().toDouble(), boxYOffset->text().toDouble()};
-		fitter = new ExponentialFit(app, graph, slopes == -1);
+		fitter = new ExponentialFit(app, d_layer, slopes == -1);
 		fitter->setInitialGuesses(x_init);
 	}
 

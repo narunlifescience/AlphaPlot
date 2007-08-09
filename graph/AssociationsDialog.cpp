@@ -30,7 +30,7 @@
 #include "table/Table.h"
 #include "FunctionCurve.h"
 #include "PlotCurve.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "types/ErrorCurve.h"
 #include "types/VectorCurve.h"
 
@@ -104,21 +104,21 @@ close();
 
 void AssociationsDialog::updateCurves()
 {
-	if (!graph)
+	if (!d_layer)
 		return;
 
 	QApplication::setOverrideCursor(Qt::waitCursor);
 
 	for (int i = 0; i < associations->count(); i++)
 		changePlotAssociation(i, plotAssociation(associations->item(i)->text()));
-	graph->updatePlot();
+	d_layer->updatePlot();
 
 	QApplication::restoreOverrideCursor();
 }
 
 void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 {
-	DataCurve *c = (DataCurve *)graph->curve(curve); //c_keys[curve]);
+	DataCurve *c = (DataCurve *)d_layer->curve(curve); //c_keys[curve]);
 	if (!c)
         return;
 
@@ -138,7 +138,7 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 		QString xColName = lst[0].remove("(X)");
 		QString yColName = lst[1].remove("(Y)");
 		QString erColName = lst[2].remove("(xErr)").remove("(yErr)");
-		DataCurve *master_curve = graph->masterCurve(xColName, yColName);
+		DataCurve *master_curve = d_layer->masterCurve(xColName, yColName);
 		if (!master_curve)
 			return;
 
@@ -165,7 +165,7 @@ void AssociationsDialog::changePlotAssociation(int curve, const QString& text)
 		else
 			v->loadData();
 	}
-	graph->notifyChanges();
+	d_layer->notifyChanges();
 }
 
 QString AssociationsDialog::plotAssociation(const QString& text)
@@ -352,19 +352,19 @@ for (int i=0; i < table->rowCount(); i++ )
 	}
 }
 
-void AssociationsDialog::setGraph(Graph *g)
+void AssociationsDialog::setLayer(Layer *g)
 {
-graph = g;
+d_layer = g;
 
-for (int i=0; i<graph->curves(); i++)
+for (int i=0; i<d_layer->curveCount(); i++)
 	{
-    const QwtPlotItem *it = (QwtPlotItem *)graph->plotItem(i);
+    const QwtPlotItem *it = (QwtPlotItem *)d_layer->plotItem(i);
     if (!it)
         continue;
     if (it->rtti() != QwtPlotItem::Rtti_PlotCurve)
         continue;
 
-    if (((DataCurve *)it)->type() != Graph::Function)
+    if (((DataCurve *)it)->type() != Layer::Function)
         {
         QString s = ((DataCurve *)it)->plotAssociation();
         QString table = ((DataCurve *)it)->table()->name();

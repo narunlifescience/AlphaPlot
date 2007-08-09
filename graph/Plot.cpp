@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "Plot.h"
-#include "Graph.h"
+#include "Layer.h"
 #include "ScaleDraw.h"
 #include "types/Spectrogram.h"
 #include "PlotCurve.h"
@@ -436,7 +436,7 @@ int Plot::closestCurve(int xpos, int ypos, int &dist, int &point)
 				double cx = map[c->xAxis()].xTransform(c->x(i)) - double(xpos);
 				double cy = map[c->yAxis()].xTransform(c->y(i)) - double(ypos);
 				double f = qwtSqr(cx) + qwtSqr(cy);
-				if (f < dmin && c->type() != Graph::ErrorBars)
+				if (f < dmin && c->type() != Layer::ErrorBars)
 				{
 					dmin = f;
 					key = iter.key();
@@ -463,7 +463,7 @@ int Plot::insertMarker(QwtPlotMarker *m)
 	marker_key++;
 	if (!d_markers.contains(marker_key))
 		d_markers.insert (marker_key, m);
-	m->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
+	m->setRenderHint(QwtPlotItem::RenderAntialiased, ((Layer *)parent())->antialiasing());
 	m->attach(((QwtPlot *)this));
 	return marker_key;
 }
@@ -476,7 +476,7 @@ int Plot::insertCurve(QwtPlotItem *c)
 	if (c->rtti() != QwtPlotItem::Rtti_PlotSpectrogram)
 		((QwtPlotCurve *)c)->setPaintAttribute(QwtPlotCurve::PaintFiltered);
 
-	c->setRenderHint(QwtPlotItem::RenderAntialiased, ((Graph *)parent())->antialiasing());
+	c->setRenderHint(QwtPlotItem::RenderAntialiased, ((Layer *)parent())->antialiasing());
 	c->attach(this);
 	return curve_key;
 }

@@ -36,9 +36,9 @@ class Integration : public Filter
 Q_OBJECT
 
 public:
-	Integration(ApplicationWindow *parent, Graph *g);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-	Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+	Integration(ApplicationWindow *parent, Layer *layer);
+	Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+	Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
     int method(){return d_method;};
     void setMethodOrder(int n);

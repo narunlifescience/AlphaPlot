@@ -35,7 +35,7 @@ class QPushButton;
 class QLineEdit;
 class QComboBox;
 class QLabel;
-class Graph;
+class Layer;
 class ColorBox;
 class Fit;
 
@@ -50,7 +50,7 @@ public:
 
 public slots:
 	void fit();
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 
 private slots:
     void activateCurve(const QString& curveName);
@@ -65,7 +65,7 @@ private:
     void closeEvent (QCloseEvent *);
 
     Fit *fitter;
-	Graph *graph;
+	Layer *d_layer;
 	int slopes;
 
 	QPushButton* buttonFit;

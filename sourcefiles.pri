@@ -240,7 +240,7 @@ SOURCES += \
 	graph/ErrDialog.cpp \
 	graph/FunctionCurve.cpp \
 	graph/FunctionDialog.cpp \
-	graph/Graph.cpp \
+	graph/Layer.cpp \
 	graph/LayerDialog.cpp \
 	graph/TextEnrichment.cpp \
 	graph/MultiLayer.cpp \
@@ -264,7 +264,7 @@ HEADERS += \
 	graph/ErrDialog.h \
 	graph/FunctionCurve.h \
 	graph/FunctionDialog.h \
-	graph/Graph.h \
+	graph/Layer.h \
 	graph/LayerDialog.h \
 	graph/TextEnrichment.h \
 	graph/MultiLayer.h \

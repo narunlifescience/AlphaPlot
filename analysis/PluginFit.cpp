@@ -32,21 +32,21 @@
 #include <QMessageBox>
 #include <QFile>
 
-	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g)
-: Fit(parent, g)
+	PluginFit::PluginFit(ApplicationWindow *parent, Layer *layer)
+: Fit(parent, layer)
 {
 	init();
 }
 
-	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Fit(parent, g)
+	PluginFit::PluginFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	PluginFit::PluginFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Fit(parent, g)
+	PluginFit::PluginFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);

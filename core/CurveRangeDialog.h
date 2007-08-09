@@ -34,7 +34,7 @@
 class QPushButton;
 class QLabel;
 class QSpinBox;
-class Graph;
+class Layer;
 class DataCurve;
 
 //! Curve range dialog
@@ -53,12 +53,12 @@ public:
 	QSpinBox* boxEnd;
 
 public slots:
-	void setCurveToModify(Graph *g, int curve);
+	void setCurveToModify(Layer *g, int curve);
 	void accept();
 
 private:
 	DataCurve *d_curve;
-	Graph *d_graph;
+	Layer *d_layer;
 };
 
 #endif

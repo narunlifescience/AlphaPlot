@@ -40,13 +40,13 @@
 /*!Plot tool for selecting arbitrary points.
  *
  * This is a rather thin wrapper around QwtPlotPicker, providing selection of points
- * on a Graph/Plot and displaying coordinates.
+ * on a Layer/Plot and displaying coordinates.
  */
 class ScreenPickerTool : public QwtPlotPicker, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:
-		ScreenPickerTool(Graph *graph, const QObject *status_target=NULL, const char *status_slot="");
+		ScreenPickerTool(Layer *Layer, const QObject *status_target=NULL, const char *status_slot="");
 		virtual ~ScreenPickerTool();
 		virtual bool eventFilter(QObject *obj, QEvent *event);
 	signals:

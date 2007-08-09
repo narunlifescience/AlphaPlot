@@ -36,9 +36,9 @@ class UserFunctionFit : public Fit
 	Q_OBJECT
 
 	public:
-		UserFunctionFit(ApplicationWindow *parent, Graph *g);
-		UserFunctionFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		UserFunctionFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+		UserFunctionFit(ApplicationWindow *parent, Layer *layer);
+		UserFunctionFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+		UserFunctionFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
 		void setParametersList(const QStringList& lst);
 		void setFormula(const QString& s);

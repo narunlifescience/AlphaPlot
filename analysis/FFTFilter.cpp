@@ -33,16 +33,16 @@
 
 #include <gsl/gsl_fft_halfcomplex.h>
 
-FFTFilter::FFTFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle, int m)
-: Filter(parent, g)
+FFTFilter::FFTFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, int m)
+: Filter(parent, layer)
 {
 	setDataFromCurve(curveTitle);
 	init(m);
 }
 
-FFTFilter::FFTFilter(ApplicationWindow *parent, Graph *g, const QString& curveTitle,
+FFTFilter::FFTFilter(ApplicationWindow *parent, Layer *layer, const QString& curveTitle,
                              double start, double end, int m)
-: Filter(parent, g)
+: Filter(parent, layer)
 {
 	setDataFromCurve(curveTitle, start, end);
     init(m);

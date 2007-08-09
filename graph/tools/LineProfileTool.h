@@ -42,13 +42,13 @@ class ImageEnrichment;
 
 /*!\brief Plot tool for calculating intensity profiles of image markers along a line.
  *
- * It is assumed that on the parent Graph an ImageEnrichment is selected. During initialization,
+ * It is assumed that on the parent Layer an ImageEnrichment is selected. During initialization,
  * a pointer to this marker is stored and the selection is removed. The LineProfileTool
- * adds itself as a full-sized child widget to the Graph's canvas, allowing for fast redraws
+ * adds itself as a full-sized child widget to the Layer's canvas, allowing for fast redraws
  * while selection of the line is in progress. Once the line is selected (mouse button is
  * released), the profile is calculate and displayed, a new LineMarker denoting the selected
- * profile line is added to the Graph and the LineProfileTool deletes itself by setting the
- * Graph's active tool to NULL.
+ * profile line is added to the Layer and the LineProfileTool deletes itself by setting the
+ * Layer's active tool to NULL.
  *
  * \section future_plans Future Plans
  * Actually, image analysis doesn't fit terribly well into the Graph framework.
@@ -65,7 +65,7 @@ class LineProfileTool : public QWidget, public AbstractGraphTool
 
 	public:
 		//! Standard constructor.
-		LineProfileTool(Graph *graph, int average_pixels);
+		LineProfileTool(Layer *layer, int average_pixels);
 		void calculateLineProfile(const QPoint &start, const QPoint &end);
 
 	signals:

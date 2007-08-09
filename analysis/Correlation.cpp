@@ -180,6 +180,6 @@ void Correlation::addResultCurve()
     DataCurve *c = new DataCurve(d_table, d_table->colName(cols), d_table->colName(cols2));
 	c->setData(x_temp, y_temp, rows);
     c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
-	ml->activeGraph()->insertPlotItem(c, Graph::Line);
-	ml->activeGraph()->updatePlot();
+	ml->activeLayer()->insertPlotItem(c, Layer::Line);
+	ml->activeLayer()->updatePlot();
 }

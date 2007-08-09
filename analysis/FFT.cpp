@@ -45,8 +45,8 @@ FFT::FFT(ApplicationWindow *parent, Table *t, const QString& realColName, const 
     setDataFromTable(t, realColName, imagColName);
 }
 
-FFT::FFT(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Filter(parent, g)
+FFT::FFT(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Filter(parent, layer)
 {
 	init();
     setDataFromCurve(curveTitle);
@@ -258,7 +258,7 @@ QString FFT::fftTable()
 void FFT::output()
 {
     QString text;
-    if (d_graph && d_curve)
+    if (d_layer && d_curve)
         text = fftCurve();
     else if (d_table)
         text = fftTable();
@@ -276,12 +276,12 @@ void FFT::output(const QString &text)
    	if (!ml)
 		return;
 
-	Graph* g = ml->activeGraph();
-	if ( g )
+	Layer* layer = ml->activeLayer();
+	if (layer)
 	{
-		g->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
+		layer->setCurvePen(0, QPen(ColorBox::color(d_curveColorIndex), 1));
 
-        Plot* plot = g->plotWidget();
+        Plot* plot = layer->plotWidget();
 		plot->setTitle(QString());
 		if (!d_inverse)
 			plot->setAxisTitle(QwtPlot::xBottom, tr("Frequency") + " (" + tr("Hz") + ")");

@@ -37,7 +37,7 @@ class MultiPeakFit : public Fit
 
 	public:		
 		enum PeakProfile{Gauss, Lorentz};
-		MultiPeakFit(ApplicationWindow *parent, Graph *g = 0, PeakProfile profile = Gauss, int peaks = 1);
+		MultiPeakFit(ApplicationWindow *parent, Layer *layer = 0, PeakProfile profile = Gauss, int peaks = 1);
 
 		int peaks(){return d_peaks;};
 		void setNumPeaks(int n);
@@ -78,9 +78,9 @@ class LorentzFit : public MultiPeakFit
 	Q_OBJECT
 
 	public:
-		LorentzFit(ApplicationWindow *parent, Graph *g);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+		LorentzFit(ApplicationWindow *parent, Layer *layer);
+		LorentzFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+		LorentzFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
 	private:
 		void init();
@@ -91,9 +91,9 @@ class GaussFit : public MultiPeakFit
 	Q_OBJECT
 
 	public:
-		GaussFit(ApplicationWindow *parent, Graph *g);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+		GaussFit(ApplicationWindow *parent, Layer *layer);
+		GaussFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+		GaussFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
 	private:
 		void init();
@@ -104,9 +104,9 @@ class GaussAmpFit : public Fit
 	Q_OBJECT
 
 	public:
-		GaussAmpFit(ApplicationWindow *parent, Graph *g);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
-		GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end);
+		GaussAmpFit(ApplicationWindow *parent, Layer *layer);
+		GaussAmpFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
+		GaussAmpFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end);
 
 	private:
 		void init();

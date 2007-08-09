@@ -37,7 +37,7 @@ Q_OBJECT
 
 public:
     FFT(ApplicationWindow *parent, Table *t, const QString& realColName, const QString& imagColName = QString());
-	FFT(ApplicationWindow *parent, Graph *g, const QString& curveTitle);
+	FFT(ApplicationWindow *parent, Layer *layer, const QString& curveTitle);
 
     void setInverseFFT(bool inverse = true){d_inverse = inverse;};
     void setSampling(double sampling){d_sampling = sampling;};

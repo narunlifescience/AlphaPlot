@@ -63,7 +63,7 @@ class QLabel;
 
 class Matrix;
 class Table;
-class Graph;
+class Layer;
 class ScalePicker;
 class Graph3D;
 class Note;
@@ -155,7 +155,7 @@ public slots:
 	 *
 	 * \param fn is read as a data file with the default column separator (as set by the user)
 	 * and inserted as a table into a new, empty project.
-	 * This table is then plotted with the Graph::LineSymbols style.
+	 * This table is then plotted with the Layer::LineSymbols style.
 	 */
 	ApplicationWindow * plotFile(const QString& fn);
 
@@ -221,7 +221,7 @@ public slots:
 	//! Rearrange the layersin order to fit to the size of the plot window
   	void autoArrangeLayers();
 	void initMultilayerPlot(MultiLayer* g, const QString& name);
-	void polishGraph(Graph *g, int style);
+	void polishLayer(Layer *layer, int style);
 	void plot2VerticalLayers();
 	void plot2HorizontalLayers();
 	void plot4Layers();
@@ -284,7 +284,7 @@ public slots:
 
 	FunctionDialog* functionDialog();
 	void showFunctionDialog();
-	void showFunctionDialog(Graph * g, int curve);
+	void showFunctionDialog(Layer *layer, int curve);
 	void addFunctionCurve();
 	void clearFitFunctionsList();
 	void saveFitFunctionsList(const QStringList& l);
@@ -358,7 +358,7 @@ public slots:
 
 	//! \name Graphs
 	//@{
-	void setPreferences(Graph* g);
+	void setPreferences(Layer* g);
 	void setGraphDefaultSettings(bool autoscale,bool scaleFonts,bool resizeLayers,bool antialiasing);
 	void setLegendDefaultSettings(int frame, const QFont& font,
 							 const QColor& textCol, const QColor& backgroundCol);
@@ -486,7 +486,7 @@ public slots:
 	Table* openTable(ApplicationWindow* app, const QStringList &flist);
 	TableStatistics* openTableStatistics(const QStringList &flist);
 	Graph3D* openSurfacePlot(ApplicationWindow* app, const QStringList &lst);
-	Graph* openGraph(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
+	Layer* openLayer(ApplicationWindow* app, MultiLayer *plot, const QStringList &list);
 
 	void openRecentProject(int index);
 	//@}
@@ -564,7 +564,7 @@ public slots:
 	//@{
 	void differentiate();
 	void analysis(const QString& whichFit);
-	void analyzeCurve(Graph *g, const QString& whichFit, const QString& curveTitle);
+	void analyzeCurve(Layer *layer, const QString& whichFit, const QString& curveTitle);
 	void showDataSetDialog(const QString& whichFit);
 	//@}
 
@@ -586,7 +586,7 @@ public slots:
 	//! \name Dialogs
 	//@{
 	void showFindWindowDialog();
-	//! Show plot style dialog for the active MultiLayer / activeGraph / specified curve or the activeGraph options dialog if no curve is specified (curveKey = -1).
+	//! Show plot style dialog for the active MultiLayer / active Layer / specified curve or the active Layer options dialog if no curve is specified (curveKey = -1).
 	void showPlotDialog(int curveKey = -1);
 	QDialog* showScaleDialog();
 	QDialog* showPlot3dDialog();
@@ -603,7 +603,7 @@ public slots:
 	void showExportASCIIDialog();
 	void showCurvesDialog();
 	void showCurveRangeDialog();
-	CurveRangeDialog* showCurveRangeDialog(Graph *g, int curve);
+	CurveRangeDialog* showCurveRangeDialog(Layer *layer, int curve);
 	void showPlotAssociations(int curve);
 
 	void showXAxisTitleDialog();
@@ -624,7 +624,7 @@ public slots:
 	void showCurveContextMenu(int curveKey);
 	void showCurvePlotDialog();
 	void showCurveWorksheet();
-    void showCurveWorksheet(Graph *g, int curveIndex);
+	void showCurveWorksheet(Layer *layer, int curveIndex);
 	void showWindowPopupMenu(Q3ListViewItem *it, const QPoint &p, int);
 
 	//! Connected to the context menu signal from lv; it's called when there are several items selected in the list
@@ -1028,10 +1028,10 @@ private:
 	class Private;
 	Private *d;
 
-	Graph *lastCopiedLayer;
+	Layer *lastCopiedLayer;
 	QSplitter *explorerSplitter;
 
-	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *exportPlot, *toolbarsMenu;
+	QMenu *windowsMenu,*view,*graph,*file,*format,*calcul,*edit,*dataMenu,*recent, *d_export_graph_menu, *toolbarsMenu;
 	QMenu *d_quick_fit_menu;
 	QMenu *help,*type,*plot2D,*plot3D, *specialPlot, *panels,*stat,*decay, *filter;
 	QMenu *matrixMenu, *plot3DMenu, *plotDataMenu, *tableMenu;
@@ -1040,7 +1040,7 @@ private:
 	QAction *actionCopyStatusBarText;
 	QAction *actionEditCurveRange, *actionCurveFullRange, *actionShowAllCurves, *actionHideCurve, *actionHideOtherCurves;
 	QAction *actionEditFunction, *actionRemoveCurve, *actionShowCurveWorksheet, *actionShowCurvePlotDialog;
-    QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
+	QAction *actionNewProject, *actionNewNote, *actionNewTable, *actionNewFunctionPlot, *actionNewSurfacePlot, *actionNewMatrix, *actionNewGraph;
     QAction *actionOpen, *actionLoadImage, *actionSaveProject, *actionSaveProjectAs, *actionImportImage;
     QAction *actionLoad, *actionUndo, *actionRedo;
     QAction *actionCopyWindow;
@@ -1050,7 +1050,7 @@ private:
     QAction *actionShowConsole;
 #endif
 
-    QAction *actionExportGraph, *actionExportAllGraphs, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
+    QAction *d_export_layer_action, *d_export_graph_action, *actionPrint, *actionPrintAllPlots, *actionShowExportASCIIDialog;
     QAction *actionExportPDF;
     QAction *actionCloseAllWindows, *actionClearLogInfo, *actionShowPlotWizard, *actionShowConfigureDialog;
     QAction *actionShowCurvesDialog, *actionAddErrorBars, *actionAddFunctionCurve, *actionUnzoom, *actionNewLegend, *actionAddImage, *actionAddText;
@@ -1125,7 +1125,7 @@ private:
 	QAction* barstyle;
 	QAction *conestyle, *crossHairStyle;
 
-	//! Manages connection between plot actions and Graph::CurveType values (not used by all plot actions).
+	//! Manages connection between plot actions and Layer::CurveType values (not used by all plot actions).
 	QSignalMapper *d_plot_mapper;
 
 	QLabel *d_status_info;

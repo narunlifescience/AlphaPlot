@@ -29,7 +29,7 @@
 #include "MultiPeakFit.h"
 #include "fit_gsl.h"
 #include "table/Table.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "graph/PlotCurve.h"
 #include "graph/FunctionCurve.h"
 #include "lib/ColorBox.h"
@@ -37,8 +37,8 @@
 #include <QLocale>
 #include <QMessageBox>
 
-	MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, Graph *g, PeakProfile profile, int peaks)
-: Fit(parent, g),
+	MultiPeakFit::MultiPeakFit(ApplicationWindow *parent, Layer *layer, PeakProfile profile, int peaks)
+: Fit(parent, layer),
 	d_profile(profile)
 {
 	setName(tr("MultiPeak"));
@@ -205,7 +205,7 @@ void MultiPeakFit::storeCustomFitResults(double *par)
 
 void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 {
-	QStringList curves = d_graph->curvesList();
+	QStringList curves = d_layer->curvesList();
 	int index = 0;
 	for (int i = 0; i<(int)curves.count(); i++ )
 	{
@@ -229,8 +229,8 @@ void MultiPeakFit::insertPeakFunctionCurve(double *x, double *y, int peak)
 		formula.replace(d_param_names[p], parameter);
 	}
 	c->setFormula(formula.replace("--", "+").replace("-+", "-").replace("+-", "-"));
-	d_graph->insertPlotItem(c, Graph::Line);
-	d_graph->addFitCurve(c);
+	d_layer->insertPlotItem(c, Layer::Line);
+	d_layer->addFitCurve(c);
 }
 
 void MultiPeakFit::generateFitCurve(double *par)
@@ -338,8 +338,8 @@ void MultiPeakFit::generateFitCurve(double *par)
 		else
 			c->setPen(QPen(ColorBox::color(d_curveColorIndex), 1));
 		c->setData(X, Y, d_points);
-		d_graph->insertPlotItem(c, Graph::Line);
-		d_graph->addFitCurve(c);
+		d_layer->insertPlotItem(c, Layer::Line);
+		d_layer->addFitCurve(c);
 
 		if (generate_peak_curves)
 		{
@@ -352,12 +352,12 @@ void MultiPeakFit::generateFitCurve(double *par)
 				c = new DataCurve(t, tableName + "_1", label);
 				c->setPen(QPen(ColorBox::color(d_peaks_color), 1));
 				c->setData(X, Y, d_points);
-				d_graph->insertPlotItem(c, Graph::Line);
-				d_graph->addFitCurve(c);
+				d_layer->insertPlotItem(c, Layer::Line);
+				d_layer->addFitCurve(c);
 			}
 		}
 	}
-	d_graph->replot();
+	d_layer->replot();
 
 	delete[] par;
 	delete[] X;
@@ -396,21 +396,21 @@ QString MultiPeakFit::logFitInfo(double *par, int iterations, int status, const 
  *
  *****************************************************************************/
 
-	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g)
-: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Layer *layer)
+: MultiPeakFit(parent, layer, MultiPeakFit::Lorentz, 1)
 {
 	init();
 }
 
-	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: MultiPeakFit(parent, layer, MultiPeakFit::Lorentz, 1)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	LorentzFit::LorentzFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: MultiPeakFit(parent, g, MultiPeakFit::Lorentz, 1)
+	LorentzFit::LorentzFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: MultiPeakFit(parent, layer, MultiPeakFit::Lorentz, 1)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -429,23 +429,23 @@ void LorentzFit::init()
  *
  *****************************************************************************/
 
-	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g)
-: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+	GaussFit::GaussFit(ApplicationWindow *parent, Layer *layer)
+: MultiPeakFit(parent, layer, MultiPeakFit::Gauss, 1)
 {
 	setName("Gauss");
 	d_explanation = tr("Gauss");
 	d_param_explain << tr("(area)") << tr("(center)") << tr("(width)") << tr("(offset)");
 }
 
-	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+	GaussFit::GaussFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: MultiPeakFit(parent, layer, MultiPeakFit::Gauss, 1)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	GaussFit::GaussFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: MultiPeakFit(parent, g, MultiPeakFit::Gauss, 1)
+	GaussFit::GaussFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: MultiPeakFit(parent, layer, MultiPeakFit::Gauss, 1)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -464,21 +464,21 @@ void GaussFit::init()
  *
  *****************************************************************************/
 
-	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g)
-: Fit(parent, g)
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Layer *layer)
+: Fit(parent, layer)
 {
 	init();
 }
 
-	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Fit(parent, g)
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Fit(parent, g)
+	GaussAmpFit::GaussAmpFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);

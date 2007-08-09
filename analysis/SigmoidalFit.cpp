@@ -31,21 +31,21 @@
 
 #include <QMessageBox>
 
-	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g)
-: Fit(parent, g)
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Layer *layer)
+: Fit(parent, layer)
 {
 	init();
 }
 
-	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Fit(parent, g)
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Fit(parent, g)
+	SigmoidalFit::SigmoidalFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);

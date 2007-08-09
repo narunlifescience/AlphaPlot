@@ -28,7 +28,7 @@
  ***************************************************************************/
 #include "SmoothCurveDialog.h"
 #include "SmoothFilter.h"
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 #include "core/MyParser.h"
 #include "lib/ColorBox.h"
 
@@ -117,7 +117,7 @@ SmoothCurveDialog::SmoothCurveDialog(int method, QWidget* parent, Qt::WFlags fl 
 
 void SmoothCurveDialog::smooth()
 {
-    SmoothFilter *sf = new SmoothFilter((ApplicationWindow *)this->parent(), graph,
+    SmoothFilter *sf = new SmoothFilter((ApplicationWindow *)this->parent(), d_layer,
                                         boxName->currentText(), smooth_method);
     if (smooth_method == SmoothFilter::SavitzkyGolay)
     {
@@ -132,10 +132,10 @@ void SmoothCurveDialog::smooth()
     delete sf;
 }
 
-void SmoothCurveDialog::setGraph(Graph *g)
+void SmoothCurveDialog::setLayer(Layer *layer)
 {
-    graph = g;
-    boxName->addItems (g->analysableCurvesList());
+    d_layer = layer;
+    boxName->addItems (d_layer->analysableCurvesList());
     activateCurve(boxName->currentText());
 }
 
@@ -143,7 +143,7 @@ void SmoothCurveDialog::activateCurve(const QString& curveName)
 {
     if (smooth_method == SmoothFilter::Average)
 	{
-	QwtPlotCurve *c = graph->curve(curveName);
+	QwtPlotCurve *c = d_layer->curve(curveName);
 	if (!c || c->rtti() != QwtPlotItem::Rtti_PlotCurve)
 		return;
 

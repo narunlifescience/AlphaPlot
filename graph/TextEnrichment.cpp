@@ -29,6 +29,7 @@
 #include "TextEnrichment.h"
 #include "types/PieCurve.h"
 #include "types/VectorCurve.h"
+#include "Layer.h"
 
 #include <QPainter>
 #include <QPolygon>
@@ -217,7 +218,7 @@ void TextEnrichment::drawFrame(QPainter *p, int type, const QRect& rect) const
 
 void TextEnrichment::drawVector(QPainter *p, int x, int y, int l, int curveIndex) const
 {
-	Graph *g = (Graph *)d_plot->parent();
+	Layer *g = (Layer *)d_plot->parent();
 	if (!g)
 		return;
 
@@ -252,7 +253,7 @@ void TextEnrichment::drawVector(QPainter *p, int x, int y, int l, int curveIndex
 void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 		QwtArray<long> height, int symbolLineLength) const
 {
-	Graph *g = (Graph *) d_plot->parent();
+	Layer *g = (Layer *) d_plot->parent();
 
 	int w = rect.x() + 10;
 	int l = symbolLineLength + 20;
@@ -282,7 +283,7 @@ void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 			if (cv < 0)
 				continue;
 
-			if (g->curveType(cv) == Graph :: VectXYXY || g->curveType(cv) == Graph :: VectXYAM)
+			if (g->curveType(cv) == Layer :: VectXYXY || g->curveType(cv) == Layer :: VectXYAM)
 				drawVector(p, w, height[i], l, cv);
 			else
 			{
@@ -298,7 +299,7 @@ void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 					if (curve->style()!=0)
 					{
 						p->setPen (pen);
-						if (br.style() != Qt::NoBrush || g->curveType(cv) == Graph::Box)
+						if (br.style() != Qt::NoBrush || g->curveType(cv) == Layer::Box)
 						{
 							QRect lr=QRect(w,height[i]-4,l,10);
 							p->setBrush(br);
@@ -326,7 +327,7 @@ void TextEnrichment::drawSymbols(QPainter *p, const QRect& rect,
 
 			int id=aux.toInt();
 
-			Graph* g=(Graph*)d_plot->parent();
+			Layer* g=(Layer*)d_plot->parent();
 			if (g->isPiePlot())
 			{
 				PieCurve *curve = (PieCurve *)d_plot->curve(1);
@@ -470,7 +471,7 @@ QString TextEnrichment::parse(const QString& str) const
         int pos2 = s.find(")",pos);
         int cv = s.mid(pos+2, pos2-pos-2).toInt() - 1;
         if (cv >= 0){
-			Graph *g = (Graph *)d_plot->parent();
+			Layer *g = (Layer *)d_plot->parent();
 			if (g){
             	const QwtPlotCurve *c = (QwtPlotCurve *)g->curve(cv);
             	if (c)

@@ -29,7 +29,7 @@
 #ifndef FITDIALOG_H
 #define FITDIALOG_H
 
-#include "graph/Graph.h"
+#include "graph/Layer.h"
 
 class QPushButton;
 class QLineEdit;
@@ -107,7 +107,7 @@ public slots:
 	//! Check whether the given function contains a user-defined function
 	bool containsUserFunctionName(const QString& function);
 	//! Set the graph that is to be fitted
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 	//! Read the range of curve 'curveName' and set the from/to fields
 	void activateCurve(const QString& curveName);
 	//! Let the user select the Plugin folder
@@ -148,7 +148,7 @@ signals:
 
 private:
     Fit *d_fitter;
-	Graph *d_graph;
+	Layer *d_layer;
 	QStringList d_user_functions, d_user_function_names, d_user_function_params;
 	QStringList d_built_in_function_names, d_built_in_functions;
 	QStringList d_plugin_function_names, d_plugin_functions, d_plugin_files_list, d_plugin_params;

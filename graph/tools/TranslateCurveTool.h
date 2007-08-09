@@ -45,7 +45,7 @@ class TranslateCurveTool : public QObject, public AbstractGraphTool
 	public:
 		enum Direction { Vertical, Horizontal };
 		/*!\brief Standard constructor.
-		 * \param graph the Graph to operate on (or rather, on whose image markers to operate on)
+		 * \param layer the Layer to operate on (or rather, on whose image markers to operate on)
 		 * \param app parent window of graph
 		 * \param dir the direction in which to translate curves
 		 * \param status_target target to which the statusText(const QString&) signal will be connected
@@ -53,7 +53,7 @@ class TranslateCurveTool : public QObject, public AbstractGraphTool
 		 * The status_target/status_slot arguments are provided, because statusText(const QString&) is emitted
 		 * during initialization, before there's any other chance of connecting to it.
 		 */
-		TranslateCurveTool(Graph *graph, ApplicationWindow *app, Direction dir, const QObject *status_target=NULL, const char *status_slot="");
+		TranslateCurveTool(Layer *layer, ApplicationWindow *app, Direction dir, const QObject *status_target=NULL, const char *status_slot="");
 	signals:
 		/*!\brief Emitted whenever a new message should be presented to the user.
 		 *

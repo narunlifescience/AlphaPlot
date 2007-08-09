@@ -29,20 +29,20 @@
  *                                                                         *
  ***************************************************************************/
 #include "ScreenPickerTool.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../Plot.h"
 #include <qwt_symbol.h>
 
-ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, const char *status_slot)
-	: QwtPlotPicker(graph->plotWidget()->canvas()),
-	AbstractGraphTool(graph)
+ScreenPickerTool::ScreenPickerTool(Layer *layer, const QObject *status_target, const char *status_slot)
+	: QwtPlotPicker(layer->plotWidget()->canvas()),
+	AbstractGraphTool(layer)
 {
 //	d_selection_marker.setSymbol(QwtSymbol(QwtSymbol::Cross, QBrush(Qt::NoBrush), QPen(Qt::red,1), QSize(15,15)));
 	d_selection_marker.setLineStyle(QwtPlotMarker::Cross);
 	d_selection_marker.setLinePen(QPen(Qt::red,1));
 	setTrackerMode(QwtPicker::AlwaysOn);
 	setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-	d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/cursor.xpm"), -1, -1));
+	d_layer->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/cursor.xpm"), -1, -1));
 
 	if (status_target)
 		connect(this, SIGNAL(statusText(const QString&)), status_target, status_slot);
@@ -52,8 +52,8 @@ ScreenPickerTool::ScreenPickerTool(Graph *graph, const QObject *status_target, c
 ScreenPickerTool::~ScreenPickerTool()
 {
 	d_selection_marker.detach();
-	d_graph->plotWidget()->canvas()->unsetCursor();
-	d_graph->plotWidget()->replot();
+	d_layer->plotWidget()->canvas()->unsetCursor();
+	d_layer->plotWidget()->replot();
 }
 
 void ScreenPickerTool::append(const QPoint &point)
@@ -67,8 +67,8 @@ void ScreenPickerTool::append(const QPoint &point)
 
 	d_selection_marker.setValue(pos);
 	if (d_selection_marker.plot() == NULL)
-		d_selection_marker.attach(d_graph->plotWidget());
-	d_graph->plotWidget()->replot();
+		d_selection_marker.attach(d_layer->plotWidget());
+	d_layer->plotWidget()->replot();
 }
 
 bool ScreenPickerTool::eventFilter(QObject *obj, QEvent *event)

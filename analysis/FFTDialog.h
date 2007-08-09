@@ -36,7 +36,7 @@ class QRadioButton;
 class QLineEdit;
 class QComboBox;
 class QCheckBox;
-class Graph;
+class Layer;
 class Table;
 
 //! Fast Fourier transform options dialog
@@ -58,13 +58,13 @@ public:
 	QCheckBox* boxNormalize, *boxOrder;
 
 public slots:
-	void setGraph(Graph *g);
+	void setLayer(Layer *g);
 	void setTable(Table *t);
 	void activateCurve(const QString& curveName);
 	void accept();
 
 private:
-	Graph *graph;
+	Layer *d_layer;
 	Table *d_table;
 	int d_type;
 };

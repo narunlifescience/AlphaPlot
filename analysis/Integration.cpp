@@ -38,21 +38,21 @@
 #include <gsl/gsl_interp.h>
 #include <gsl/gsl_vector.h>
 
-Integration::Integration(ApplicationWindow *parent, Graph *g)
-: Filter(parent, g)
+Integration::Integration(ApplicationWindow *parent, Layer *layer)
+: Filter(parent, layer)
 {
 	init();
 }
 
-Integration::Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-: Filter(parent, g)
+Integration::Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+: Filter(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-Integration::Integration(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-: Filter(parent, g)
+Integration::Integration(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+: Filter(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);
@@ -144,7 +144,7 @@ QString Integration::logInfo()
 		if(success) break;
 	}
 
-	QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) + "\t" + tr("Plot")+ ": ''" + d_graph->parentPlotName() + "'']\n";
+	QString logInfo = "[" + QDateTime::currentDateTime().toString(Qt::LocalDate) + "\t" + tr("Plot")+ ": ''" + d_layer->parentPlotName() + "'']\n";
 	logInfo += "\n" + tr("Numerical integration of") + ": " + d_curve->title().text() + " " + tr("using a %1 order method").arg(d_method)+"\n";
 	if(success)
 		logInfo += tr("Iterations") + ": " + QString::number(j)+"\n";

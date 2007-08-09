@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Ion Vasilief, Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, knut.franke*gmx.de
-    Description          : Abstract enrichement class for 2D Plots
+    Description          : Abstract enrichement class for 2D Graphs
 
  ***************************************************************************/
 
@@ -32,11 +32,7 @@
 #include <qwt_plot.h>
 #include <qwt_plot_marker.h>
 
-/*!\brief Draw images on a QwtPlot.
- *
- * AbstractEnrichment draws #d_pic at the position specified by #d_pos,
- * scaled to #d_size. #d_file_name isn't used internally, but only provided to help
- * Graph manage save/restore.
+/*!\brief Objects you can add on top of Graphs.
  *
  * \section future_plans Future Plans
  * Enrichments (usually) don't really mark a specific point in a plot and they don't
@@ -47,10 +43,10 @@
  * user.
  * If AbstractEnrichment would inherit from both QWidget and QwtPlotItem (which
  * is luckily no QObject) and provide a unified drawing framework, its instances could be added
- * directly to MultiLayer without the need for a dummy Graph in between.
+ * directly to MultiLayer without the need for a dummy Layer in between.
  * Could also help to avoid the hack in MultiLayer::updateMarkersBoundingRect().
  *
- * \sa LineEnrichment, TextEnrichment
+ * \sa LineEnrichment, TextEnrichment, ImageEnrichment
  */
 class AbstractEnrichment: public QwtPlotMarker
 {

@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "BoxCurve.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "table/Table.h"
 
 #include <QPainter>
@@ -52,7 +52,7 @@ BoxCurve::BoxCurve(Table *t, const char *name, int startRow, int endRow):
 	w_coeff = 95.0;
 	b_width = 80;
 
-	setType(Graph::Box);
+	setType(Layer::Box);
 }
 
 void BoxCurve::copy(const BoxCurve *b)

@@ -32,21 +32,21 @@
 
 #include <QMessageBox>
 
-UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Graph *g)
-	: Fit(parent, g)
+UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Layer *layer)
+	: Fit(parent, layer)
 {
 	init();
 }
 
-UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle)
-	: Fit(parent, g)
+UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle)
+	: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle);
 }
 
-UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Graph *g, const QString& curveTitle, double start, double end)
-	: Fit(parent, g)
+UserFunctionFit::UserFunctionFit(ApplicationWindow *parent, Layer *layer, const QString& curveTitle, double start, double end)
+	: Fit(parent, layer)
 {
 	init();
 	setDataFromCurve(curveTitle, start, end);

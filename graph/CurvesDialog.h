@@ -35,27 +35,27 @@ class QComboBox;
 class QListWidget;
 class QPushButton;
 class QCheckBox;
-class Graph;
+class Layer;
 
 //! Add/remove curves dialog
 class CurvesDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
 public:
-    CurvesDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+	CurvesDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
 
-	void setGraph(Graph *graph);
+	void setLayer(Layer *layer);
 
-private slots:
-	void addCurves();
+	private slots:
+		void addCurves();
 	void removeCurves();
 	int curveStyle();
 	void showCurveRangeDialog();
 	void showPlotAssociations();
 	void showFunctionDialog();
 	void showCurveBtn(int);
-    void enableAddBtn();
+	void enableAddBtn();
 	void enableRemoveBtn();
 	void showCurveRange(bool);
 	void updateCurveRange();
@@ -64,23 +64,23 @@ private slots:
 private:
 	void closeEvent(QCloseEvent*);
 
-    void init();
-    bool addCurve(const QString& name);
-    QSize sizeHint() const;
-    void contextMenuEvent(QContextMenuEvent *);
+	void init();
+	bool addCurve(const QString& name);
+	QSize sizeHint() const;
+	void contextMenuEvent(QContextMenuEvent *);
 
 	int defaultCurveLineWidth, defaultSymbolSize;
-	Graph *d_graph;
+	Layer *d_layer;
 
-    QPushButton* btnAdd;
-    QPushButton* btnRemove;
-    QPushButton* btnOK;
-    QPushButton* btnCancel;
+	QPushButton* btnAdd;
+	QPushButton* btnRemove;
+	QPushButton* btnOK;
+	QPushButton* btnCancel;
 	QPushButton* btnAssociations;
 	QPushButton* btnEditFunction;
 	QPushButton* btnRange;
-    QListWidget* available;
-    QListWidget* contents;
+	QListWidget* available;
+	QListWidget* contents;
 	QComboBox* boxStyle;
 	QComboBox* boxMatrixStyle;
 	QCheckBox* boxShowRange;

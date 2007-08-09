@@ -29,7 +29,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "DataPickerTool.h"
-#include "../Graph.h"
+#include "../Layer.h"
 #include "../Plot.h"
 #include "../FunctionCurve.h"
 #include "../PlotCurve.h"
@@ -42,9 +42,9 @@
 #include <QMessageBox>
 #include <QLocale>
 
-DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, const QObject *status_target, const char *status_slot) :
-	QwtPlotPicker(graph->plotWidget()->canvas()),
-	AbstractGraphTool(graph),
+DataPickerTool::DataPickerTool(Layer *layer, ApplicationWindow *app, Mode mode, const QObject *status_target, const char *status_slot) :
+	QwtPlotPicker(layer->plotWidget()->canvas()),
+	AbstractGraphTool(layer),
 	d_app(app),
 	d_mode(mode),
 	d_move_mode(Free)
@@ -58,10 +58,10 @@ DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, 
 	setTrackerMode(QwtPicker::AlwaysOn);
 	if (d_mode == Move) {
 		setSelectionFlags(QwtPicker::PointSelection | QwtPicker::DragSelection);
-		d_graph->plotWidget()->canvas()->setCursor(Qt::pointingHandCursor);
+		d_layer->plotWidget()->canvas()->setCursor(Qt::pointingHandCursor);
 	} else {
 		setSelectionFlags(QwtPicker::PointSelection | QwtPicker::ClickSelection);
-		d_graph->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/vizor.xpm"), -1, -1));
+		d_layer->plotWidget()->canvas()->setCursor(QCursor(QPixmap(":/vizor.xpm"), -1, -1));
 	}
 
 	if (status_target)
@@ -82,18 +82,18 @@ DataPickerTool::DataPickerTool(Graph *graph, ApplicationWindow *app, Mode mode, 
 DataPickerTool::~DataPickerTool()
 {
 	d_selection_marker.detach();
-	d_graph->plotWidget()->canvas()->unsetCursor();
+	d_layer->plotWidget()->canvas()->unsetCursor();
 }
 
 void DataPickerTool::append(const QPoint &pos)
 {
 	int dist, point_index;
-	const int curve = d_graph->plotWidget()->closestCurve(pos.x(), pos.y(), dist, point_index);
+	const int curve = d_layer->plotWidget()->closestCurve(pos.x(), pos.y(), dist, point_index);
 	if (curve <= 0 || dist >= 5) { // 5 pixels tolerance
 		setSelection(NULL, 0);
 		return;
 	}
-	setSelection((QwtPlotCurve *)d_graph->plotWidget()->curve(curve), point_index);
+	setSelection((QwtPlotCurve *)d_layer->plotWidget()->curve(curve), point_index);
 	if (!d_selected_curve) return;
 
 	QwtPlotPicker::append(transform(QwtDoublePoint(d_selected_curve->x(d_selected_point),
@@ -110,7 +110,7 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 
 	if (!d_selected_curve) {
 		d_selection_marker.detach();
-		d_graph->plotWidget()->replot();
+		d_layer->plotWidget()->replot();
 		return;
 	}
 
@@ -119,7 +119,7 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
     d_restricted_move_pos = QPoint(plot()->transform(xAxis(), d_selected_curve->x(d_selected_point)),
                                     plot()->transform(yAxis(), d_selected_curve->y(d_selected_point)));
 
-    if (((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+    if (((PlotCurve *)d_selected_curve)->type() == Layer::Function)
     {
          emit statusText(QString("%1[%2]: x=%3; y=%4")
 			.arg(d_selected_curve->title().text())
@@ -145,8 +145,8 @@ void DataPickerTool::setSelection(QwtPlotCurve *curve, int point_index)
 	QwtDoublePoint selected_point_value(d_selected_curve->x(d_selected_point), d_selected_curve->y(d_selected_point));
 	d_selection_marker.setValue(selected_point_value);
 	if (d_selection_marker.plot() == NULL)
-		d_selection_marker.attach(d_graph->plotWidget());
-	d_graph->plotWidget()->replot();
+		d_selection_marker.attach(d_layer->plotWidget());
+	d_layer->plotWidget()->replot();
 }
 
 bool DataPickerTool::eventFilter(QObject *obj, QEvent *event)
@@ -192,27 +192,27 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 
 		case Qt::Key_Up:
 			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + 1;
+				int n_curves = d_layer->curveCount();
+				int start = d_layer->curveIndex(d_selected_curve) + 1;
 				for (int i = start; i < start + n_curves; ++i)
-					if (d_graph->curve(i % n_curves)->dataSize() > 0) {
-						setSelection(d_graph->curve(i % n_curves), 0);
+					if (d_layer->curve(i % n_curves)->dataSize() > 0) {
+						setSelection(d_layer->curve(i % n_curves), 0);
 						break;
 					}
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 				return true;
 			}
 
 		case Qt::Key_Down:
 			{
-				int n_curves = d_graph->curves();
-				int start = d_graph->curveIndex(d_selected_curve) + n_curves - 1;
+				int n_curves = d_layer->curveCount();
+				int start = d_layer->curveIndex(d_selected_curve) + n_curves - 1;
 				for (int i = start; i > start - n_curves; --i)
-					if (d_graph->curve(i % n_curves)->dataSize() > 0) {
-						setSelection(d_graph->curve(i % n_curves), 0);
+					if (d_layer->curve(i % n_curves)->dataSize() > 0) {
+						setSelection(d_layer->curve(i % n_curves), 0);
 						break;
 					}
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 				return true;
 			}
 
@@ -221,9 +221,9 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 			if (d_selected_curve) {
 				int n_points = d_selected_curve->dataSize();
 				setSelection(d_selected_curve, (d_selected_point + 1) % n_points);
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 			} else
-				setSelection(d_graph->curve(0), 0);
+				setSelection(d_layer->curve(0), 0);
 			return true;
 
 		case Qt::Key_Left:
@@ -231,9 +231,9 @@ bool DataPickerTool::keyEventFilter(QKeyEvent *ke)
 			if (d_selected_curve) {
 				int n_points = d_selected_curve->dataSize();
 				setSelection(d_selected_curve, (d_selected_point - 1 + n_points) % n_points);
-				d_graph->plotWidget()->replot();
+				d_layer->plotWidget()->replot();
 			} else
-				setSelection(d_graph->curve(d_graph->curves()-1), 0);
+				setSelection(d_layer->curve(d_layer->curveCount()-1), 0);
 			return true;
 
 		// The following keys represent a direction, they are
@@ -298,8 +298,8 @@ void DataPickerTool::removePoint()
 	/*
 	if ( !d_selected_curve )
 		return;
-	if (((PlotCurve *)d_selected_curve)->type() == Graph::Function){
-		QMessageBox::critical(d_graph, tr("Remove point error"),
+	if (((PlotCurve *)d_selected_curve)->type() == Layer::Function){
+		QMessageBox::critical(d_layer, tr("Remove point error"),
 				tr("Sorry, but removing points of a function is not possible."));
 		return;
 	}
@@ -312,13 +312,13 @@ void DataPickerTool::removePoint()
 	if (t->columnType(col) == Table::Numeric)
 		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
 	else {
-		QMessageBox::warning(d_graph, tr("Warning"),
+		QMessageBox::warning(d_layer, tr("Warning"),
 					tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 	}
 
 	d_selection_marker.detach();
-	d_graph->plotWidget()->replot();
-	d_graph->setFocus();
+	d_layer->plotWidget()->replot();
+	d_layer->setFocus();
 	d_selected_curve = NULL;
 	*/
 }
@@ -327,9 +327,9 @@ void DataPickerTool::movePoint(const QPoint &pos)
 {
 	if ( !d_selected_curve )
 		return;
-	if ( ((PlotCurve *)d_selected_curve)->type() == Graph::Function)
+	if ( ((PlotCurve *)d_selected_curve)->type() == Layer::Function)
 	{
-		QMessageBox::critical(d_graph, tr("Move point error"),
+		QMessageBox::critical(d_layer, tr("Move point error"),
 				tr("Sorry, but moving points of a function is not possible."));
 		return;
 	}
@@ -337,8 +337,8 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	if (!t)
 		return;
 
-	double new_x_val = d_graph->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
-	double new_y_val = d_graph->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
+	double new_x_val = d_layer->plotWidget()->invTransform(d_selected_curve->xAxis(), pos.x());
+	double new_y_val = d_layer->plotWidget()->invTransform(d_selected_curve->yAxis(), pos.y());
 
 	switch (d_move_mode){
         case Free:
@@ -354,7 +354,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 
     d_selection_marker.setValue(new_x_val, new_y_val);
 	if (d_selection_marker.plot() == NULL)
-		d_selection_marker.attach(d_graph->plotWidget());
+		d_selection_marker.attach(d_layer->plotWidget());
 
 	int row = ((DataCurve *)d_selected_curve)->tableRow(d_selected_point);
 	int xcol = t->colIndex(((DataCurve *)d_selected_curve)->xColumnName());
@@ -367,7 +367,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 		d_app->modifiedProject();
 	}
 	else
-		QMessageBox::warning(d_graph, tr("Warning"),
+		QMessageBox::warning(d_layer, tr("Warning"),
 				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 
 

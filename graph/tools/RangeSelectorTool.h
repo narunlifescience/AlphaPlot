@@ -48,14 +48,14 @@ class QEvent;
  * RangeSelector, drawing a clear destinction to the other tools, or the notion of multiple tools being
  * active in parallel and possibly depending on each other should be generalized somehow.
  *
- * In any case, gathering the code specific to range selection in a seperate class makes Graph/CanvasPicker
+ * In any case, gathering the code specific to range selection in a seperate class makes Layer/CanvasPicker
  * more manageable; maybe something similar can be done for zooming.
  */
 class RangeSelectorTool : public QwtPlotPicker, public AbstractGraphTool
 {
 	Q_OBJECT
 	public:
-		RangeSelectorTool(Graph *graph, const QObject *status_target=NULL, const char *status_slot="");
+		RangeSelectorTool(Layer *layer, const QObject *status_target=NULL, const char *status_slot="");
 		virtual ~RangeSelectorTool();
 		double minXValue() const { return qMin(d_active_marker.xValue(), d_inactive_marker.xValue()); }
 		double maxXValue() const { return qMax(d_active_marker.xValue(), d_inactive_marker.xValue()); }
