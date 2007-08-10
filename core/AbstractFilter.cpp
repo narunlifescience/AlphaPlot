@@ -67,7 +67,7 @@ void AbstractFilterSlotMachine::inputAboutToBeDestroyed(AbstractDataSource *sour
 
 bool AbstractFilter::input(int port, AbstractDataSource *source)
 {
-	if (port<0 || (numInputs()>=0 && port>=numInputs())) return false;
+	if (port<0 || (inputCount()>=0 && port>=inputCount())) return false;
 	if (source && !inputAcceptable(port, source)) return false;
 	if (d_inputs.size() <= port) d_inputs.resize(port+1);
 	AbstractDataSource *old_input = d_inputs.value(port);
@@ -118,7 +118,7 @@ bool AbstractFilter::input(AbstractFilter* sources)
 {
 	if (!sources) return false;
 	bool result = true;
-	for (int i=0; i<sources->numOutputs(); i++)
+	for (int i=0; i<sources->outputCount(); i++)
 		if (!input(i, sources->output(i)))
 			result = false;
 	return result;

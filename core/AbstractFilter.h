@@ -83,7 +83,7 @@ class AbstractFilterSlotMachine : public QObject {
  * Ownership of the data sources always stays with the class which is providing the data,
  * that is, neither input() nor output() transfer ownership.
  *
- * Furthermore, you can use numInputs() and numOutputs() to query the number of
+ * Furthermore, you can use inputCount() and outputCount() to query the number of
  * input and output ports, respectively and you can obtain label strings for inputs (via
  * inputLabel()) and outputs (via AbstractDataSource::label()). This allows generic filter
  * handling routines to be written, which is important for using filters provided by plugins.
@@ -122,21 +122,21 @@ class AbstractFilter
 		virtual ~AbstractFilter() {}
 
 		//! Return the number of input ports supported by the filter or -1 if any number of inputs is acceptable.
-		virtual int numInputs() const = 0;
+		virtual int inputCount() const = 0;
 		/**
 		 * \brief Return the number of output ports provided by the filter.
 		 *
 		 * %Note that this number need not be static, but can be dynamically determined, for example
 		 * based on the inputs provided to the filter.
 		 */
-		virtual int numOutputs() const = 0;
+		virtual int outputCount() const = 0;
 		/**
 		 * \brief Connect the provided data source to the specified input port.
 		 * \param port the port number to which to connect
 		 * \param source the data source to connect to the input port
 		 * \returns true if the connection was accepted, false otherwise.
 		 *
-		 * The port number is checked for validity against numInputs() and both port number and data
+		 * The port number is checked for validity against inputCount() and both port number and data
 		 * source are passed to inputAcceptable() for review. If both checks succeed,the
 		 * source is recorded in #d_inputs.
 		 * If applicable, the previously connected data source is disconnected before replacing it.
@@ -177,7 +177,7 @@ class AbstractFilter
 		/**
 		 * \brief Give implementations a chance to reject connections to their input ports.
 		 *
-		 * If not reimplemented, all connections to ports within [0, numInputs()-1] will be accepted.
+		 * If not reimplemented, all connections to ports within [0, inputCount()-1] will be accepted.
 		 */
 		virtual bool inputAcceptable(int port, AbstractDataSource *source) {
 			Q_UNUSED(port); Q_UNUSED(source); return true;

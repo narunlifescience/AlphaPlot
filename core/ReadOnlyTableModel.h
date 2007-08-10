@@ -58,8 +58,8 @@ class ReadOnlyTableModel : public QAbstractItemModel, public AbstractFilter
 
 	//! \name Reimplemented from AbstractFilter
 	//@{
-	virtual int numInputs() const;
-	virtual int numOutputs() const;
+	virtual int inputCount() const;
+	virtual int outputCount() const;
 	virtual AbstractDataSource* output(int) const;
 
 	protected:

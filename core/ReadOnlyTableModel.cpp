@@ -104,7 +104,7 @@ QModelIndex ReadOnlyTableModel::parent(const QModelIndex &) const
 	return QModelIndex(); 
 }
 
-int ReadOnlyTableModel::numInputs() const 
+int ReadOnlyTableModel::inputCount() const 
 { 	
 	return -1; 
 }
@@ -116,7 +116,7 @@ bool ReadOnlyTableModel::inputAcceptable(int, AbstractDataSource *source)
 		source->inherits("AbstractDateTimeDataSource");
 }
 
-int ReadOnlyTableModel::numOutputs() const 
+int ReadOnlyTableModel::outputCount() const 
 { 
 	return 0; 
 }

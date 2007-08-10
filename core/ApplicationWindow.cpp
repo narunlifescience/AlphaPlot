@@ -3034,7 +3034,7 @@ void ApplicationWindow::defineErrorBars(const QString& curveName, const QString&
 	}
 
 	Table *errTable=table(errColumnName);
-	if (w->rowCount() != errTable->numRows())
+	if (w->rowCount() != errTable->rowCount())
 	{
 		QMessageBox::critical(this,tr("Error"),
 				tr("The selected columns have different numbers of rows!"));

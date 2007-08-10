@@ -126,9 +126,9 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 {
 	public:
 		//! Default to one input port.
-		virtual int numInputs() const { return 1; }
+		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
-		virtual int numOutputs() const { return 1; }
+		virtual int outputCount() const { return 1; }
 		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
 		virtual AbstractDataSource* output(int port) const {
 			return port == 0 ? const_cast<AbstractSimpleFilter<T>*>(this) : 0;
