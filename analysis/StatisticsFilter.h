@@ -48,9 +48,9 @@ class StatisticsFilter : public AbstractFilter {
 		//! Destructor.
 		virtual ~StatisticsFilter();
 		//! Accept any number of inputs.
-		virtual int numInputs() const { return -1; }
+		virtual int inputCount() const { return -1; }
 		//! Currently, 11 statistics items are computed (see the private StatItem enum).
-		virtual int numOutputs() const { return 11; }
+		virtual int outputCount() const { return 11; }
 		virtual AbstractDataSource *output(int port) const;
 		//! Number of rows = number of inputs that have been provided.
 		int rowCount() const;

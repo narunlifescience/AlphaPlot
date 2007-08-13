@@ -48,8 +48,8 @@ class DoubleTransposeFilter : public AbstractFilter {
 			foreach(OutputColumn *o, d_output_columns)
 				delete o;
 		}
-		virtual int numInputs() const { return -1; }
-		virtual int numOutputs() const {
+		virtual int inputCount() const { return -1; }
+		virtual int outputCount() const {
 			if (!d_inputs.value(0)) return 0;
 			int result = -1;
 			foreach(AbstractDataSource *i, d_inputs) {
@@ -77,7 +77,7 @@ class DoubleTransposeFilter : public AbstractFilter {
 		}
 		virtual void inputDataChanged(AbstractDataSource*) {
 			int old_num_columns = d_output_columns.size();
-			int new_num_columns = numOutputs();
+			int new_num_columns = outputCount();
 			if (new_num_columns > old_num_columns) {
 				d_output_columns.resize(new_num_columns);
 				for (int i = old_num_columns; i < new_num_columns; i++)

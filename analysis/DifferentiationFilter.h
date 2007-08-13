@@ -47,8 +47,8 @@ class DifferentiationFilter : public AbstractDoubleDataSource, public AbstractFi
 
 // Filter interface
 	public:
-		virtual int numInputs() const { return 2; }
-		virtual int numOutputs() const { return 2; }
+		virtual int inputCount() const { return 2; }
+		virtual int outputCount() const { return 2; }
 		virtual AbstractDataSource* output(int port) const {
 			switch(port) {
 				case 0: return const_cast<TruncationFilter<double>*>(&d_x_truncator);

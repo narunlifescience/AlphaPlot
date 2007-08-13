@@ -129,7 +129,7 @@ def lookup(tab, col, txt):
 	  search column col of SciDAVis table tab for a cell with text content txt,
 	  returning the row of the first match; None on failure.
 	"""
-	for i in range(1,tab.numRows()+1):
+	for i in range(1,tab.rowCount()+1):
 		if tab.text(col, i) == txt: return i
 
 class vec4:
@@ -190,18 +190,18 @@ def exportTableToTeX(t, filename=None):
 	if not filename:
 		filename=QFileDialog.getSaveFileName(scidavis.app,"SciDAVis - Export TeX table","","All files *;;TeX documents (*.tex *.TEX);;");
 	f=open(filename,'w')
-	f.write('\\begin{tabular}{|' + 'c|'*t.numCols() + '}\\hline\n')
-	for col in range(1,t.numCols()):
+	f.write('\\begin{tabular}{|' + 'c|'*t.columnCount() + '}\\hline\n')
+	for col in range(1,t.columnCount()):
 		f.write(t.colName(col) + ' & ')
-	f.write(t.colName(t.numCols()) + ' \\\\\\hline\n')
+	f.write(t.colName(t.columnCount()) + ' \\\\\\hline\n')
 	for row in range(1,t.numRows()+1):
 		val = False
-		for col in range(1,t.numCols()+1):
+		for col in range(1,t.columnCount()+1):
 			if t.text(col,row) != "": val = True
 		if val:
-			for col in range(1,t.numCols()):
+			for col in range(1,t.columnCount()):
 				f.write(t.text(col,row) + ' & ')
-			f.write(t.text(t.numCols(),row) + ' \\\\\n')
+			f.write(t.text(t.columnCount(),row) + ' \\\\\n')
 	f.write('\\hline\n\\end{tabular}\n')
 	f.close()
 

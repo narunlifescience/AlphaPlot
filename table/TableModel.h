@@ -92,9 +92,9 @@ public:
 	//! \name Other functions
 	//@{
 	//! Overloaded from AbstractFilter
-	virtual int numInputs() const { return 0; }
+	virtual int inputCount() const { return 0; }
 	//! Overloaded from AbstractFilter
-	virtual int numOutputs() const { return d_column_count; }
+	virtual int outputCount() const { return d_column_count; }
 	//! Return a pointer to the data source at column number 'port'
 	/**
 	 * \return returns a pointer to the column data source or zero if 'port' is invalid

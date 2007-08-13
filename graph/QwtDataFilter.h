@@ -49,8 +49,8 @@ class QwtDataFilter : public QwtData, public AbstractFilter
 
 		//! \name Reimplemented from AbstractFilter
 		//@{
-		virtual int numInputs() const { return 2; }
-		virtual int numOutputs() const { return 0; }
+		virtual int inputCount() const { return 2; }
+		virtual int outputCount() const { return 0; }
 		virtual AbstractDataSource* const output(int) { return 0; }
 		virtual QString inputLabel(int port) const {
 			return port == 0 ? "X" : "Y";
