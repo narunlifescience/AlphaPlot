@@ -788,7 +788,7 @@ void Layer::setLabelsTextFormat(int axis, int type, const QString& labelsColName
 		axesFormatInfo[axis] = table->name();
 		for (int i=0; i<table->columnCount(); i++)
 		{
-			if (table->plotDesignation(i) == AbstractDataSource::Y)
+			if (table->plotDesignation(i) == SciDAVis::Y)
 				list<<table->colLabel(i);
 		}
 	}
@@ -3236,7 +3236,7 @@ bool Layer::insertCurvesList(Table* w, const QStringList& names, int style, int 
         for (int i=0; i<curves; i++)
         {//We rearrange the list so that the error bars are placed at the end
         	int j = w->colIndex(names[i]);
-  	        if (w->plotDesignation(j) == AbstractDataSource::xErr || w->plotDesignation(j) == AbstractDataSource::yErr)
+  	        if (w->plotDesignation(j) == SciDAVis::xErr || w->plotDesignation(j) == SciDAVis::yErr)
 			{
 				errCurves++;
 				lst << names[i];
@@ -3249,13 +3249,13 @@ bool Layer::insertCurvesList(Table* w, const QStringList& names, int style, int 
 		{
             int j = w->colIndex(names[i]);
             bool ok = false;
-            if (w->plotDesignation(j) == AbstractDataSource::xErr || w->plotDesignation(j) == AbstractDataSource::yErr)
+            if (w->plotDesignation(j) == SciDAVis::xErr || w->plotDesignation(j) == SciDAVis::yErr)
 			{
 				int ycol = w->colY(w->colIndex(names[i]));
                 if (ycol < 0)
                     return false;
 
-                if (w->plotDesignation(j) == AbstractDataSource::xErr)
+                if (w->plotDesignation(j) == SciDAVis::xErr)
                     ok = addErrorBars(w->colName(ycol), w, names[i], (int)ErrorCurve::Horizontal);
                 else
                     ok = addErrorBars(w->colName(ycol), w, names[i]);
@@ -3315,7 +3315,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 
 	int r = abs(endRow - startRow) + 1;
     QVector<double> X(r), Y(r);
-	if (xColType == Table::Time){
+	if (xColType == SciDAVis::Time){
 		for (i = startRow; i<=endRow; i++ ){
 			QString xval=w->text(i,xcol);
 			if (!xval.isEmpty()){
@@ -3325,7 +3325,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			}
 		}
 	}
-	else if (xColType == Table::Date){
+	else if (xColType == SciDAVis::Date){
 		for (i = startRow; i<=endRow; i++ ){
 			QString xval=w->text(i,xcol);
 			if (!xval.isEmpty()){
@@ -3341,19 +3341,19 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 		QString yval=w->text(i,ycol);
 		if (!xval.isEmpty() && !yval.isEmpty()){
 		    bool valid_data = true;
-			if (xColType == Table::Text){
+			if (xColType == SciDAVis::Text){
 				if (xLabels.contains(xval) == 0)
 					xLabels << xval;
 				X[size] = (double)(xLabels.indexOf(xval)+1);
 			}
-			else if (xColType == Table::Time){
+			else if (xColType == SciDAVis::Time){
 				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size] = time0.msecsTo (time);
 				else
 					X[size] = 0;
 			}
-			else if (xColType == Table::Date){
+			else if (xColType == SciDAVis::Date){
 				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
 					X[size] = (double) date0.daysTo(d);
@@ -3361,7 +3361,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			else
                 X[size] = QLocale().toDouble(xval, &valid_data);
 
-			if (yColType == Table::Text){
+			if (yColType == SciDAVis::Text){
 				yLabels << yval;
 				Y[size] = (double) (size + 1);
 			}
@@ -3408,7 +3408,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 	else if (style != Histogram)
 		c->setData(X.data(), Y.data(), size);
 
-	if (xColType == Table::Text ){
+	if (xColType == SciDAVis::Text ){
 		if (style == HorizontalBars){
 			axesFormatInfo[QwtPlot::yLeft] = xColName;
 			axesFormatInfo[QwtPlot::yRight] = xColName;
@@ -3422,14 +3422,14 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			d_plot->setAxisScaleDraw (QwtPlot::xBottom, new QwtTextScaleDraw(xLabels));
 		}
 	}
-	else if (xColType == Table::Time){
+	else if (xColType == SciDAVis::Time){
 		QString fmtInfo = time0.toString() + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Time, fmtInfo);
 		else
 			setLabelsDateTimeFormat(QwtPlot::xBottom, Time, fmtInfo);
 	}
-	else if (xColType == Table::Date ){
+	else if (xColType == SciDAVis::Date ){
 		QString fmtInfo = date0.toString(Qt::ISODate) + ";" + date_time_fmt;
 		if (style == HorizontalBars)
 			setLabelsDateTimeFormat(QwtPlot::yLeft, Date, fmtInfo);
@@ -3437,7 +3437,7 @@ bool Layer::insertCurve(Table* w, const QString& xColName, const QString& yColNa
 			setLabelsDateTimeFormat(QwtPlot::xBottom, Date, fmtInfo);
 	}
 
-	if (yColType == Table::Text){
+	if (yColType == SciDAVis::Text){
 		axesFormatInfo[QwtPlot::yLeft] = yColName;
 		axesFormatInfo[QwtPlot::yRight] = yColName;
 		axisType[QwtPlot::yLeft] = Txt;

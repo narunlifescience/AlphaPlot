@@ -79,7 +79,7 @@ class StatisticsFilter : public AbstractFilter {
 				virtual int rowCount() const { return d_parent->rowCount(); }
 				virtual double valueAt(int row) const;
 				virtual QString label() const; 
-				virtual PlotDesignation plotDesignation() const { return noDesignation; }
+				virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::noDesignation; }
 			private:
 				friend class StatisticsFilter;
 				const StatisticsFilter *d_parent;
@@ -93,7 +93,7 @@ class StatisticsFilter : public AbstractFilter {
 				virtual int rowCount() const { return d_parent->rowCount(); }
 				virtual QString textAt(int row) const;
 				virtual QString label() const;
-				virtual PlotDesignation plotDesignation() const { return noDesignation; }
+				virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::noDesignation; }
 			private:
 				friend class StatisticsFilter;
 				const StatisticsFilter *d_parent;

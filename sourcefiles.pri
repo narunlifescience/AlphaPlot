@@ -88,6 +88,7 @@ SOURCES += \
 	core/AbstractScriptingEngine.cpp \
 	core/ScriptingLangDialog.cpp \
 	core/main.cpp \
+	core/globals.cpp \
 
 HEADERS += \
 	core/AbstractDataSource.h \

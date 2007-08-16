@@ -73,7 +73,7 @@ private:
 class TableSetColumnPlotDesignationCmd : public QUndoCommand
 {
 public:
-	TableSetColumnPlotDesignationCmd(TableModel * model, int col, AbstractDataSource::PlotDesignation pd, QUndoCommand * parent = 0 );
+	TableSetColumnPlotDesignationCmd(TableModel * model, int col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
 
 	virtual void redo();
 	virtual void undo();
@@ -82,9 +82,9 @@ private:
 	//! The changed column's index
 	int d_col;
 	//! New plot designation
-	AbstractDataSource::PlotDesignation d_new_pd;
+	SciDAVis::PlotDesignation d_new_pd;
 	//! Old plot designation
-	AbstractDataSource::PlotDesignation d_old_pd;
+	SciDAVis::PlotDesignation d_old_pd;
 	//! The model to modify
 	TableModel * d_model;
 };
@@ -487,6 +487,111 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableReplaceColumnsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableReplaceFilterCmd
+///////////////////////////////////////////////////////////////////////////
+//! Replace input and/or output filter of a column
+/*
+ * If one of the two filters shall not be replaced, set it to 0.
+ */
+class TableReplaceFilterCmd : public QUndoCommand
+{
+public:
+	TableReplaceFilterCmd( TableModel * model, int col, AbstractFilter * in_filter, 
+		AbstractFilter * out_filter, QUndoCommand * parent = 0 );
+	~TableReplaceFilterCmd();
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The model to modify
+	TableModel * d_model;
+	//! The column whose filters to replace
+	int d_col;
+	//! The new input filter
+	AbstractFilter * d_in_filter;
+	//! The new output filter
+	AbstractFilter * d_out_filter;
+	//! The old input filter
+	AbstractFilter * d_old_in_filter;
+	//! The old output filter
+	AbstractFilter * d_old_out_filter;
+	//! Flag to determine whether the columns can be deleted in the dtor
+	bool d_undone;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableReplaceFilterCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableSetColumnNumericDisplayCmd
+///////////////////////////////////////////////////////////////////////////
+//! Sets a double columns numeric display parameters (format and displayed digits)
+/*
+ * \sa Double2StringFilter
+ */
+class TableSetColumnNumericDisplayCmd : public QUndoCommand
+{
+public:
+	TableSetColumnNumericDisplayCmd(TableModel * model, int col, char format, int digits, QUndoCommand * parent = 0 );
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The model to modify
+	TableModel * d_model;
+	//! The changed column's index
+	int d_col;
+	//! New numeric format
+	char d_format;
+	//! Old numeric format
+	char d_old_format;
+	//! New number of displayed digits
+	int d_digits;
+	//! Old number of displayed digits
+	int d_old_digits;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableSetColumnNumericDisplayCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableSetFormulaCmd
+///////////////////////////////////////////////////////////////////////////
+//! Sets a formula for a given interval
+class TableSetFormulaCmd : public QUndoCommand
+{
+public:
+	TableSetFormulaCmd(TableModel * model, int col, Interval<int> interval, const QString& formula, QUndoCommand * parent = 0 );
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The changed column's index
+	int d_col;
+	//! The interval
+	Interval<int> d_interval;
+	//! New formula
+	QString d_formula;
+	//! The old intervals
+	QList< Interval<int> > d_old_intervals;
+	//! Old formulas
+	QList<QString> d_old_formulas;
+	//! The model to modify
+	TableModel * d_model;
+	//! Flag to determine whether undo has be executed before
+	bool d_undone;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 
 #endif // ifndef TABLE_COMMANDS_H

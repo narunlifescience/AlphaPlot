@@ -101,7 +101,7 @@ TableStatistics::TableStatistics(AbstractScriptingEngine *engine, QWidget *paren
 		h=(rowCount()+1)*(d_table_view->verticalHeader())->sectionSize(0);
 	setGeometry(50,50,w + 45, h + 45);
 
-	setColPlotDesignation(0, AbstractDataSource::X);
+	setColPlotDesignation(0, SciDAVis::X);
 	// TODO
 	//setHeaderColType();
 }
@@ -118,7 +118,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 			int i = d_targets[r];
 			int m = 0;
 			for (j = 0; j < cols; j++)
-				if (!d_base->text(i, j).isEmpty() && d_base->columnType(j) == Numeric)
+				if (!d_base->text(i, j).isEmpty() && d_base->columnType(j) == SciDAVis::Numeric)
 					m++;
 
 			if (!m)
@@ -135,7 +135,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 				for (j = 0; j<cols; j++)
 				{
 					QString text = d_base->text(i,j);
-					if (!text.isEmpty() && d_base->columnType(j) == Numeric)
+					if (!text.isEmpty() && d_base->columnType(j) == SciDAVis::Numeric)
 					{					
 						double val = d_base->cell(i,j);
 						gsl_vector_set (y, aux, val);
@@ -165,7 +165,7 @@ void TableStatistics::update(Table *t, const QString& colName)
 			if (colName == QString(d_base->name())+"_"+text(c, 0))
 			{
 				int i = d_base->colIndex(colName);
-				if (d_base->columnType(i) != Numeric) return;
+				if (d_base->columnType(i) != SciDAVis::Numeric) return;
 
 				int rows = d_base->rowCount();
 				int start = -1, m = 0;

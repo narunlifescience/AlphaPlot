@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Definition of global constants
+    Description          : Definition of global constants and enums
 
  ***************************************************************************/
 
@@ -27,18 +27,73 @@
  *                                                                         *
  ***************************************************************************/
 
-//  Don't forget to change the Doxyfile when changing these!
-//! SciDAVis version number
-/**
- * 0xMMmmbb means MM.mm.bb with<br>
- * MM = major version
- * mm = minor version
- * bb = bugfix version
- */
-int scidavis_version = 0x000100;
-//! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
-const char * extra_version = "";
-//! Copyright string containing the author names etc.
-const char * copyright_string = "Developers (alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nDocumentation:\nRoger Gadiou\n\nSpecial thanks to (alphabetical order):\nQuentin Denis\nGudjon I. Gudjonsson\nAlex Kargovsky\nIon Vasilief\n\nThanks to (no particular order):\nthe developers of Qt, Qwt, QwtPlot3D, GSL, muParser, zlib, Python, PyQt, and liborigin\nall bug reporters, translators and other contributors";
-//! Release date as a string
-const char * release_date = " 2007/08/05";
+#ifndef SCIDAVIS_GLOBALS_H
+#define SCIDAVIS_GLOBALS_H
+
+#include <QString>
+
+//! Definition of global constants and enums
+class SciDAVis
+{
+	public:
+		//! Types of plot designations
+		enum PlotDesignation
+		{
+			noDesignation = 0, //!< no plot designation
+			X = 1,  //!< x values
+			Y = 2, //!< y values 
+			Z = 3, //!< z values
+			xErr = 4, //!< x errors
+			yErr = 5 //!< y errors
+		};
+
+		//! The column mode (defines output and input filter for table columns)
+		enum ColumnMode
+		{
+			Numeric = 0, //<! column contains doubles
+			Text = 1, //!< column contains strings
+			Date = 2,//!< obsolete legacy value, use DateTime instead
+			Time = 3, //!< obsolete legacy value, use DateTime instead
+			Month = 4, //!< column contains month names
+			Day = 5, //!< column containts day of week names
+			DateTime = 6 //!< column contains dates and/or times
+		};
+
+		//! Return the SciDAVis version number
+		static int version();
+
+		//! Return the SciDAVis version string ("SciDAVis x.y.z" without extra version)
+		static QString versionString();
+
+		//! Return the extra version as a string
+		static QString extraVersion();
+
+		//! Return the copyright string
+		static QString copyrightString();
+
+		//! Return the release date as a string
+		static QString releaseDateString();
+
+		//! Show about dialog
+		static void about();
+
+	private:
+		//  Don't forget to change the Doxyfile when changing these!
+		//! SciDAVis version number
+		/**
+		 * 0xMMmmbb means MM.mm.bb with<br>
+		 * MM = major version
+		 * mm = minor version
+		 * bb = bugfix version
+		 */
+		static const int scidavis_version;
+		//! Extra version information string (like "-alpha", "-beta", "-rc1", etc...)
+		static const char * extra_version;
+		//! Copyright string containing the author names etc.
+		static const char * copyright_string;
+		//! Release date as a string
+		static const char * release_date;
+};
+
+#endif
+

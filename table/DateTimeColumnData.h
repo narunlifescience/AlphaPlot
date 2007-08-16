@@ -105,7 +105,7 @@ public:
 	//! Set the column comment
 	virtual void setComment(const QString& comment);
 	//! Set the column plot designation
-	virtual void setPlotDesignation(AbstractDataSource::PlotDesignation pd);
+	virtual void setPlotDesignation(SciDAVis::PlotDesignation pd);
 	//! Insert some empty rows
 	virtual void insertEmptyRows(int before, int count);
 	//! Remove 'count' rows starting from row 'first'
@@ -123,7 +123,7 @@ public:
 	//! Return the column comment
 	virtual QString comment() const;
 	//! Return the column plot designation
-	virtual AbstractDataSource::PlotDesignation plotDesignation() const;
+	virtual SciDAVis::PlotDesignation plotDesignation() const;
 	//! Return the list size
 	virtual int rowCount() const;
 	//! Return the date part of row 'row'
@@ -229,7 +229,7 @@ protected:
 	//! The column comment
 	QString d_comment;
 	//! The plot designation
-	AbstractDataSource::PlotDesignation d_plot_designation;
+	SciDAVis::PlotDesignation d_plot_designation;
 };
 
 #endif

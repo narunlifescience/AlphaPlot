@@ -143,7 +143,7 @@ void DataCurve::loadData()
 	QTime time0;
 	QDate date0;
 	QString date_time_fmt = d_table->columnFormat(xcol);
-	if (xColType == Table::Time){
+	if (xColType == SciDAVis::Time){
 		for (int i = d_start_row; i <= d_end_row; i++ ){
 			QString xval=d_table->text(i,xcol);
 			if (!xval.isEmpty()){
@@ -152,7 +152,7 @@ void DataCurve::loadData()
 					break;
 			}
 		}
-	} else if (xColType == Table::Date){
+	} else if (xColType == SciDAVis::Date){
 		for (int i = d_start_row; i <= d_end_row; i++ ){
 			QString xval=d_table->text(i,xcol);
 			if (!xval.isEmpty()){
@@ -169,21 +169,21 @@ void DataCurve::loadData()
 		QString yval = d_table->text(i,ycol);
 		if (!xval.isEmpty() && !yval.isEmpty()){
 		    bool valid_data = true;
-			if (xColType == Table::Text){
+			if (xColType == SciDAVis::Text){
 				xLabels << xval;
 				X[size] = (double)(size + 1);
-			} else if (xColType == Table::Time){
+			} else if (xColType == SciDAVis::Time){
 				QTime time = QTime::fromString (xval, date_time_fmt);
 				if (time.isValid())
 					X[size]= time0.msecsTo (time);
-			} else if (xColType == Table::Date){
+			} else if (xColType == SciDAVis::Date){
 				QDate d = QDate::fromString (xval, date_time_fmt);
 				if (d.isValid())
 					X[size] = (double) date0.daysTo(d);
 			} else
 				X[size] = QLocale().toDouble(xval, &valid_data);
 
-			if (yColType == Table::Text){
+			if (yColType == SciDAVis::Text){
 				yLabels << yval;
 				Y[size] = (double)(size + 1);
 			} else
@@ -211,12 +211,12 @@ void DataCurve::loadData()
                 c->setData(X.data(), Y.data(), size);
 		}
 
-		if (xColType == Table::Text){
+		if (xColType == SciDAVis::Text){
 			if (d_type == Layer::HorizontalBars)
 				g->setLabelsTextFormat(QwtPlot::yLeft, Layer::Txt, d_x_column, xLabels);
 			else
                 g->setLabelsTextFormat(QwtPlot::xBottom, Layer::Txt, d_x_column, xLabels);
-		} else if (xColType == Table::Time ){
+		} else if (xColType == SciDAVis::Time ){
 			if (d_type == Layer::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = time0.toString() + ";" + lst[1];
@@ -226,7 +226,7 @@ void DataCurve::loadData()
 				QString fmtInfo = time0.toString() + ";" + lst[1];
 				g->setLabelsDateTimeFormat(QwtPlot::xBottom, Layer::Time, fmtInfo);
 			}
-		} else if (xColType == Table::Date ) {
+		} else if (xColType == SciDAVis::Date ) {
 			if (d_type == Layer::HorizontalBars){
 				QStringList lst = g->axisFormatInfo(QwtPlot::yLeft).split(";");
 				QString fmtInfo = date0.toString(Qt::ISODate) + ";" + lst[1];
@@ -238,7 +238,7 @@ void DataCurve::loadData()
 			}
 		}
 
-		if (yColType == Table::Text)
+		if (yColType == SciDAVis::Text)
             g->setLabelsTextFormat(QwtPlot::yLeft, Layer::Txt, title().text(), yLabels);
 	}
 }
@@ -290,7 +290,7 @@ int DataCurve::tableRow(int point)
 		return -1;
 
     int xColType = d_table->columnType(xcol);
-    if (xColType == Table::Date){
+    if (xColType == SciDAVis::Date){
         QString format = d_table->columnFormat(xcol);
         QDate date0 = QDate::fromString (d_table->text(d_start_row, xcol), format);
         for (int i = d_start_row; i <= d_end_row; i++ ){
@@ -302,7 +302,7 @@ int DataCurve::tableRow(int point)
                     return i;
             }
         }
-    } else if (xColType == Table::Time){
+    } else if (xColType == SciDAVis::Time){
         QString format = d_table->columnFormat(xcol);
         QTime t0 = QTime::fromString (d_table->text(d_start_row, xcol), format);
         for (int i = d_start_row; i <= d_end_row; i++ ){

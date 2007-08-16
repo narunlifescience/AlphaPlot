@@ -5,7 +5,7 @@
 #include <QIcon>
 
 Notes::Notes(const QString &name)
-	: d_model(new QTextDocument()), AbstractAspect(name)
+	: AbstractAspect(name), d_model(new QTextDocument())
 {
 }
 

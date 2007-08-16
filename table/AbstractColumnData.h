@@ -121,7 +121,7 @@ public:
 	//! Set the column comment
 	virtual void setComment(const QString& comment) = 0;
 	//! Set the column plot designation
-	virtual void setPlotDesignation(AbstractDataSource::PlotDesignation pd) = 0;
+	virtual void setPlotDesignation(SciDAVis::PlotDesignation pd) = 0;
 	//! Insert some empty (or initialized with zero) rows
 	virtual void insertEmptyRows(int before, int count) = 0;
 	//! Remove 'count' rows starting from row 'first'

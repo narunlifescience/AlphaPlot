@@ -42,6 +42,7 @@
 #include "TableModel.h"
 #include "TableView.h"
 #include "tablecommands.h"
+#include "table/SortDialog.h"
 #include "core/AbstractDataSource.h"
 #include "AbstractColumnData.h"
 #include "DoubleColumnData.h"
@@ -51,12 +52,21 @@
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/String2DayOfWeekFilter.h"
+#include "core/datatypes/String2MonthFilter.h"
+#include "core/datatypes/Double2DateTimeFilter.h"
+#include "core/datatypes/Double2MonthFilter.h"
+#include "core/datatypes/Double2DayOfWeekFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+#include "core/datatypes/DateTime2DoubleFilter.h"
+#include "core/CopyThroughFilter.h"
 
 #define OBSOLETE qDebug("obsolete Table function called");
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : MyWidget(label,parent,name,f), scripted(engine)
 {
+// TODO: check the lines marked with ### whether they can be removed
 //###	d_selected_col = -1;
 //###	d_saved_cells = 0;
 
@@ -92,10 +102,10 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString&
 	for (int i=0; i<cols; i++)
 	{
 		d_table_model->setColumnLabel(i, QString::number(i+1));
-		d_table_model->setColumnPlotDesignation(i, AbstractDataSource::Y);
+		d_table_model->setColumnPlotDesignation(i, SciDAVis::Y);
 	}
 	if(cols > 0)
-		d_table_model->setColumnPlotDesignation(0, AbstractDataSource::X);
+		d_table_model->setColumnPlotDesignation(0, SciDAVis::X);
 
 	// calculate initial geometry
 	int w=4*h_header->sectionSize(0);
@@ -135,13 +145,13 @@ int Table::selectedColumnCount(bool full)
 	return count;
 }
 
-int Table::selectedColumnCount(AbstractDataSource::PlotDesignation pd)
+int Table::selectedColumnCount(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
-		if( (columnPlotDesignation(i) == pd) && (isColumnSelected(i, false)) ) count++;
-	
+		if( (plotDesignation(i) == pd) && (isColumnSelected(i, false)) ) count++;
+			
 	return count;
 }
 
@@ -175,22 +185,12 @@ void Table::setColumnComment(int col, const QString& comment)
 	undoStack()->push( new TableSetColumnCommentCmd(d_table_model, col, comment) );
 }
 
-AbstractDataSource::PlotDesignation Table::columnPlotDesignation(int col)
-{
-	return d_table_model->output(col)->plotDesignation();
-}
-
-void Table::setPlotDesignation(int col, AbstractDataSource::PlotDesignation pd)
-{
-	undoStack()->push( new TableSetColumnPlotDesignationCmd( d_table_model, col, pd) );
-}
-
-int Table::columnCount(AbstractDataSource::PlotDesignation pd)
+int Table::columnCount(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
-		if(columnPlotDesignation(i) == pd) count++;
+		if(plotDesignation(i) == pd) count++;
 	
 	return count;
 }
@@ -416,6 +416,26 @@ int Table::lastSelectedColumn(bool full)
 	return -1;
 }
 
+int Table::firstSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for (int i=0; i<rows; i++)
+	{
+		if(isRowSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int Table::lastSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for(int i=rows-1; i>=0; i--)
+		if(isRowSelected(i, full)) return i;
+
+	return -1;
+}
+
 
 bool Table::isCellSelected(int row, int col)
 {
@@ -430,14 +450,10 @@ bool Table::isCellSelected(int row, int col)
 	// model there should be at most a slight speed difference, if any. - thzs
 }
 
-void Table::setPlotDesignation(AbstractDataSource::PlotDesignation pd, int col)
+void Table::setPlotDesignation(int col, SciDAVis::PlotDesignation pd)
 {
-	if( col >= 0 && col <= columnCount() )
+	if( col >= 0 && col < columnCount() )
 		undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, col, pd));
-	else
-		for(int i=0;i<columnCount(); i++)
-			if(isColumnSelected(i, false))
-				undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, i, pd));
 }
 
 void Table::clearColumn(int col)
@@ -453,7 +469,7 @@ void Table::clear()
 		clearColumn(i);
 }
 
-AbstractDataSource::PlotDesignation Table::plotDesignation(int col)
+SciDAVis::PlotDesignation Table::plotDesignation(int col)
 {
 	return d_table_model->columnPlotDesignation(col);
 }
@@ -470,13 +486,13 @@ int Table::colX(int col)
 {
 	for(int i=col-1; i>=0; i--)
 	{
-		if (d_table_model->columnPlotDesignation(i) == AbstractDataSource::X)
+		if (d_table_model->columnPlotDesignation(i) == SciDAVis::X)
 			return i;
 	}
 	int cols = columnCount();
 	for(int i=col+1; i<cols; i++)
 	{
-		if (d_table_model->columnPlotDesignation(i) == AbstractDataSource::X)
+		if (d_table_model->columnPlotDesignation(i) == SciDAVis::X)
 			return i;
 	}
 	return -1;
@@ -488,20 +504,180 @@ int Table::colY(int col)
 	// look to the right first
 	for(int i=col+1; i<cols; i++)
 	{
-		if (d_table_model->columnPlotDesignation(i) == AbstractDataSource::Y)
+		if (d_table_model->columnPlotDesignation(i) == SciDAVis::Y)
 			return i;
 	}
 	for(int i=col-1; i>=0; i--)
 	{
-		if (d_table_model->columnPlotDesignation(i) == AbstractDataSource::Y)
+		if (d_table_model->columnPlotDesignation(i) == SciDAVis::Y)
 			return i;
 	}
 	return -1;
 }
 
-Table::ColumnMode Table::columnMode(int col)
+SciDAVis::ColumnMode Table::columnMode(int col)
 {
-	// TODO
+	AbstractDataSource * col_ptr = d_table_model->output(col);
+
+	if(col_ptr->inherits("DoubleColumnData"))
+		return SciDAVis::Numeric;
+	
+	if(col_ptr->inherits("DateTimeColumnData"))
+	{
+		AbstractFilter * filter = d_table_model->inputFilter(col);
+		if(dynamic_cast<String2MonthFilter *>(filter))
+			return SciDAVis::Month;
+		if(dynamic_cast<String2DayOfWeekFilter *>(filter))
+			return SciDAVis::Day;
+		return SciDAVis::DateTime;
+	}
+	
+	return SciDAVis::Text;
+}
+
+void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
+{
+	AbstractDataSource * old_col = d_table_model->output(col);
+	// TODO more formula() to DataSource to make this unnecessary
+	AbstractColumnData * old_col_ptr = d_table_model->columnPointer(col);
+	AbstractColumnData * new_col = 0;
+	AbstractFilter *filter, *new_in_filter, *new_out_filter;
+
+	// convert the column
+	if(old_col->inherits("DoubleColumnData"))
+	{
+		switch(mode)
+		{		
+			case SciDAVis::Numeric:
+				return;
+			case SciDAVis::Text:
+				filter = new Double2StringFilter();
+				new_col = new StringColumnData();
+				break;
+			case SciDAVis::Date:
+			case SciDAVis::Time:
+			case SciDAVis::DateTime:
+				filter = new Double2DateTimeFilter();
+				new_col = new DateTimeColumnData();
+				break;
+			case SciDAVis::Month:
+				filter = new Double2MonthFilter();
+				new_col = new DateTimeColumnData();
+				break;
+			case SciDAVis::Day:
+				filter = new Double2DayOfWeekFilter();
+				new_col = new DateTimeColumnData();
+				break;
+		} // switch(mode)
+	}
+	else if(old_col->inherits("StringColumnData"))
+	{
+		switch(mode)
+		{		
+			case SciDAVis::Text:
+				return;
+			case SciDAVis::Numeric:
+				filter = new String2DoubleFilter();
+				new_col = new DoubleColumnData();
+				break;
+			case SciDAVis::Date:
+			case SciDAVis::Time:
+			case SciDAVis::DateTime:
+				filter = new String2DateTimeFilter();
+				new_col = new DateTimeColumnData();
+				break;
+			case SciDAVis::Month:
+				filter = new String2MonthFilter();
+				new_col = new DateTimeColumnData();
+				break;
+			case SciDAVis::Day:
+				filter = new String2DayOfWeekFilter();
+				new_col = new DateTimeColumnData();
+				break;
+		} // switch(mode)
+	}
+	else if(old_col->inherits("DateColumnData"))
+	{
+		switch(mode)
+		{		
+			case SciDAVis::Date:
+			case SciDAVis::Time:
+			case SciDAVis::DateTime:
+				return;
+			case SciDAVis::Text:
+				filter = new DateTime2StringFilter();
+				new_col = new StringColumnData();
+				break;
+			case SciDAVis::Numeric:
+				filter = new DateTime2DoubleFilter();
+				new_col = new DoubleColumnData();
+				break;
+			case SciDAVis::Month:
+				filter = new CopyThroughFilter();
+				new_col = new DateTimeColumnData();
+				break;
+			case SciDAVis::Day:
+				filter = new CopyThroughFilter();
+				new_col = new DateTimeColumnData();
+				break;
+		} // switch(mode)
+	}
+
+	// determine the new input and output filters
+	switch(mode)
+	{		
+		case SciDAVis::Numeric:
+			new_in_filter = new String2DoubleFilter();
+			new_out_filter = new Double2StringFilter();
+			break;
+		case SciDAVis::Text:
+			new_in_filter = new CopyThroughFilter();
+			new_out_filter = new CopyThroughFilter();
+			break;
+		case SciDAVis::Date:
+		case SciDAVis::Time:
+		case SciDAVis::DateTime:
+			new_in_filter = new String2DateTimeFilter();
+			new_out_filter = new DateTime2StringFilter();
+			break;
+		case SciDAVis::Month:
+			new_in_filter = new String2MonthFilter();
+			new_out_filter = new DateTime2StringFilter();
+			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("MMMM");
+			break;
+		case SciDAVis::Day:
+			new_in_filter = new String2DayOfWeekFilter();
+			new_out_filter = new DateTime2StringFilter();
+			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("dddd");
+			break;
+	} // switch(mode)
+
+
+	if(new_col == 0) return;
+		
+	// copy the filtered, i.e. converted, column
+	filter->input(0, old_col);
+	new_col->copy(filter->output(0));
+	// keep the designation, label and comment
+	new_col->setPlotDesignation(old_col->plotDesignation());
+	new_col->setLabel(old_col->label());
+	new_col->setComment(old_col->comment());
+	// keep the formulas
+	QList< Interval<int> > formulas = old_col_ptr->formulaIntervals();
+	foreach(Interval<int> i, formulas)
+		new_col->setFormula(i, old_col_ptr->formula(i.start()));
+
+	// replace the old column
+	QList<AbstractColumnData *> cols;
+	QList<AbstractFilter *> in_filters;
+	QList<AbstractFilter *> out_filters;
+	cols.append(new_col);
+	in_filters.append(new_in_filter);
+	out_filters.append(new_out_filter);
+	// TODO: For DataTime<->Day/Month conversion a ChangeInputFilterCmd could be used to save memory
+	QUndoCommand * cmd = new TableReplaceColumnsCmd(d_table_model, col, cols, in_filters, out_filters);
+	cmd->setText(tr("change column type")); 
+	undoStack()->push(cmd);
 }
 
 int Table::columnWidth(int col)
@@ -543,11 +719,11 @@ int Table::columnType(int col)
 	OBSOLETE
 	AbstractDataSource * ptr = d_table_model->output(col);
 	if(ptr->inherits("DoubleDataSource"))
-		return Table::Numeric;
+		return SciDAVis::Numeric;
 	if(ptr->inherits("StringDataSource"))
-		return Table::Text;
+		return SciDAVis::Text;
 	if(ptr->inherits("DateTimeDataSource"))
-		return Table::Date;
+		return SciDAVis::Date;
 }
 
 QString Table::columnFormat(int col)
@@ -567,7 +743,7 @@ QStringList Table::selectedYLabels()
 	QStringList names;
 	for (int i=0; i<columnCount(); i++)
 	{
-		if(isColumnSelected (i) && plotDesignation(i) == AbstractDataSource::Y)
+		if(isColumnSelected (i) && plotDesignation(i) == SciDAVis::Y)
 			names << columnLabel(i);
 	}
 	return names;
@@ -624,7 +800,7 @@ int Table::colPlotDesignation(int col)
 	return int(plotDesignation(col));
 }
 
-void Table::setColPlotDesignation(int col, AbstractDataSource::PlotDesignation pd)
+void Table::setColPlotDesignation(int col, SciDAVis::PlotDesignation pd)
 {
 	OBSOLETE
 	setPlotDesignation(col, pd);
@@ -786,7 +962,7 @@ int Table::firstXCol()
 	OBSOLETE
 	for (int j=0; j<columnCount(); j++)
 	{
-		if (plotDesignation(j) == AbstractDataSource::X)
+		if (plotDesignation(j) == SciDAVis::X)
 			return j;
 	}
 	return -1;
@@ -803,9 +979,352 @@ QStringList Table::selectedColumnsOld()
 	return list;
 }
 
-void Table::addCol()
+void Table::addCol(SciDAVis::PlotDesignation pd)
 {
 	OBSOLETE
 	setColumnCount(columnCount() + 1);
+	setPlotDesignation(columnCount()-1, pd);
+}
+
+bool Table::noXColumn()
+{
+	OBSOLETE
+	return columnCount(SciDAVis::X) == 0;
+}
+
+bool Table::noYColumn()
+{
+	OBSOLETE
+	return columnCount(SciDAVis::Y) == 0;
+}
+
+QStringList Table::selectedYColumns()
+{
+	OBSOLETE
+	QStringList list;
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+		if ( (plotDesignation(i) == SciDAVis::Y) && isColumnSelected(i) )
+			list << columnLabel(i);
+
+	return list;
+}
+
+void Table::setNumericPrecision(int prec)
+{
+	OBSOLETE
+	for (int i=0; i<columnCount(); i++)
+	{
+        if(d_table_model->output(i)->inherits("DoubleColumnData"))
+		{
+			char format = static_cast<Double2StringFilter *>(d_table_model->outputFilter(i))->numericFormat();
+			undoStack()->push(new TableSetColumnNumericDisplayCmd(d_table_model, i, format, prec));
+		}
+	}
+	
+}
+
+QVarLengthArray<double> Table::col(int ycol)
+{
+	OBSOLETE
+	int i;
+	int rows = rowCount();
+	int cols = columnCount();
+	QVarLengthArray<double> Y(rows);
+
+	if (ycol<=cols)
+	{
+		// TODO: Improve this fast hack
+		for (i=0;i<rows;i++)
+			Y[i] = text(i,ycol).toDouble();
+	}
+	return Y;
+}
+
+bool Table::isEmptyColumn(int col)
+{
+	OBSOLETE
+	return d_table_model->output(col)->rowCount() == 0;
+}
+
+QStringList Table::YColumns()
+{
+	OBSOLETE
+	QStringList list;
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+		if (plotDesignation(i) == SciDAVis::Y)
+			list << columnLabel(i);
+
+	return list;
+}
+	
+void Table::updateDecimalSeparators(const QLocale& oldSeparators)
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::updateDecimalSeparators()
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
+		bool renameCols, bool stripSpaces, bool simplifySpaces,
+		int importFileAs)
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::importASCII(const QString &fname, const QString &sep, int ignoredLines,
+		bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable)
+{
+	OBSOLETE
+	// TODO
+}
+
+bool Table::exportASCII(const QString& fname, const QString& separator,
+		bool withLabels,bool exportSelection)
+{
+	OBSOLETE
+	// TODO
+	return false;
+}
+
+bool Table::calculate(int col, int startRow, int endRow)
+{
+	OBSOLETE
+	// TODO
+	return false;
+}
+
+bool Table::calculate()
+{
+	OBSOLETE
+	// TODO
+	return false;
+}
+
+void Table::sortTableDialog()
+{
+	OBSOLETE
+	// TODO: merge sortTableDialog and sortColumnsDialog
+	SortDialog *sortd = new SortDialog(this);
+	sortd->setAttribute(Qt::WA_DeleteOnClose);
+	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sort(int, int, const QString&)));
+	sortd->insertColumnsList(colNames());
+	sortd->exec();
+}
+
+void Table::sortColumnsDialog()
+{
+	OBSOLETE
+	SortDialog *sortd = new SortDialog(this);
+	sortd->setAttribute(Qt::WA_DeleteOnClose);
+	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sortColumns(int, int, const QString&)));
+	sortd->insertColumnsList(selectedColumnsOld());
+	sortd->exec();
+}
+
+void Table::normalizeSelection()
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::normalize()
+{
+	OBSOLETE
+	// TODO: normalization should be done by a filter
+	for (int i=0; i<columnCount(); i++)
+		normalizeCol(i);
+}
+
+void Table::normalizeCol(int col)
+{
+	OBSOLETE
+	if (col<0) col = firstSelectedColumn();
+	double max = text(0,col).toDouble();
+	double aux = 0.0;
+	int rows = rowCount();
+	for (int i=0; i<rows; i++)
+	{
+		QString the_text = text(i,col);
+		aux = the_text.toDouble();
+		if (!the_text.isEmpty() && fabs(aux)>fabs(max))
+			max=aux;
+	}
+
+	if (max == 1.0)
+		return;
+
+    int prec;
+    char f;
+    columnNumericFormat(col, &f, &prec);
+
+	for (int i=0; i<rows; i++)
+	{
+		QString the_text = text(i, col);
+		aux = the_text.toDouble();
+		if ( !the_text.isEmpty() )
+			setText(i, col, QLocale().toString(aux/max, f, prec));
+	}
+}
+
+
+QStringList Table::drawableColumnSelection()
+{
+	OBSOLETE
+  	QStringList names;
+  	for (int i=0; i<columnCount(); i++)
+  	{
+	if(isColumnSelected(i) && plotDesignation(i) == SciDAVis::Y)
+		names << QString(name()) + "_" + columnLabel(i);
+    }
+
+  	for (int i=0; i<columnCount(); i++)
+  	{
+  	 	if(isColumnSelected(i) && (plotDesignation(i) == SciDAVis::yErr || plotDesignation(i) == SciDAVis::xErr))
+  	    	names << QString(name()) + "_" + columnLabel(i);
+  	}
+	return names;
+}
+
+void Table::clearSelection()
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::copySelection()
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::cutSelection()
+{
+	OBSOLETE
+	// TODO
+}
+
+void Table::pasteSelection()
+{
+	OBSOLETE
+	// TODO
+}
+
+
+void Table::loadHeader(QStringList header)
+{
+	OBSOLETE
+	QStringList col_label;
+	QList<SciDAVis::PlotDesignation> col_plot_type;
+	for (int i=0; i<header.count();i++)
+	{
+		if (header.at(i).isEmpty())
+			continue;
+
+		QString s = header.at(i);
+		s.replace("_","-");
+		if (s.contains("[X]"))
+		{
+			col_label << s.remove("[X]");
+			col_plot_type << SciDAVis::X;
+		}
+		else if (s.contains("[Y]"))
+		{
+			col_label << s.remove("[Y]");
+			col_plot_type << SciDAVis::Y;
+		}
+		else if (s.contains("[Z]"))
+		{
+			col_label << s.remove("[Z]");
+			col_plot_type << SciDAVis::Z;
+		}
+		else if (s.contains("[xEr]"))
+		{
+			col_label << s.remove("[xEr]");
+			col_plot_type << SciDAVis::xErr;
+		}
+		else if (s.contains("[yEr]"))
+		{
+			col_label << s.remove("[yEr]");
+			col_plot_type << SciDAVis::yErr;
+		}
+		else
+		{
+			col_label << s;
+			col_plot_type << SciDAVis::noDesignation;
+		}
+	}
+	setHeader(col_label);
+	for (int i=0; i<col_plot_type.count();i++)
+	{
+		setColPlotDesignation(i, col_plot_type.at(i));
+	}
+}
+
+void Table::setColWidths(const QStringList& widths)
+{
+	OBSOLETE
+	for (int i=0;i<(int)widths.count();i++)
+		d_table_view->setColumnWidth(i, widths[i].toInt() );
+}
+
+void Table::setCommands(const QStringList& com)
+{
+	OBSOLETE
+	for(int i=0; i<com.size() && i<columnCount(); i++)
+		undoStack()->push(new TableSetFormulaCmd(d_table_model, i, 
+			Interval<int>(0, d_table_model->output(i)->rowCount()-1), com.at(i).trimmed()));
+}
+
+void Table::setCommands(const QString& com)
+{
+	OBSOLETE
+	QStringList lst = com.split("\t");
+	lst.pop_front();
+	setCommands(lst);
+}
+
+void Table::setColumnTypes(const QStringList& ctl)
+{
+	OBSOLETE
+	int n = qMin(ctl.count(), columnCount());
+
+	for (int i=0; i<n; i++)
+	{
+		QStringList l = ctl[i].split(";");
+		setColumnMode(i, (SciDAVis::ColumnMode)l[0].toInt());
+	}
+}
+
+void Table::setCell(int row, int col, double val)
+{
+	OBSOLETE
+	char format;
+    int prec;
+    columnNumericFormat(col, &format, &prec);
+    setText(row, col, QLocale().toString(val, format, prec));
+}
+
+
+void Table::setColComments(const QStringList& lst)
+{
+	OBSOLETE
+	for(int i=0; i<lst.size() && i<columnCount(); i++)
+		undoStack()->push(new TableSetColumnCommentCmd(d_table_model, i, lst.at(i)));
+}
+
+void Table::setPlotDesignation(SciDAVis::PlotDesignation pd)
+{
+	OBSOLETE
+	for(int i=0;i<columnCount(); i++)
+		if(isColumnSelected(i, false))
+			undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, i, pd));
 }
 

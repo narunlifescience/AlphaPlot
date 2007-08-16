@@ -309,7 +309,7 @@ void DataPickerTool::removePoint()
 		return;
 
 	int col = t->colIndex(d_selected_curve->title().text());
-	if (t->columnType(col) == Table::Numeric)
+	if (t->columnType(col) == SciDAVis::Numeric)
 		t->clearCell(((DataCurve *)d_selected_curve)->tableRow(d_selected_point), col);
 	else {
 		QMessageBox::warning(d_layer, tr("Warning"),
@@ -359,7 +359,7 @@ void DataPickerTool::movePoint(const QPoint &pos)
 	int row = ((DataCurve *)d_selected_curve)->tableRow(d_selected_point);
 	int xcol = t->colIndex(((DataCurve *)d_selected_curve)->xColumnName());
 	int ycol = t->colIndex(d_selected_curve->title().text());
-	if (t->columnType(xcol) == Table::Numeric && t->columnType(ycol) == Table::Numeric)
+	if (t->columnType(xcol) == SciDAVis::Numeric && t->columnType(ycol) == SciDAVis::Numeric)
 	{
 		t->setText(row, xcol, QLocale().toString(new_x_val));
 		t->setText(row, ycol, QLocale().toString(new_y_val));

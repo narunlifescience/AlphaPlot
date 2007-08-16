@@ -253,7 +253,7 @@ void TableDialog::updateColumn(int sc)
 	// TODO not implemented yet in the new Table
 	//### d_table->saveToMemory();
 
-	if (colType == Table::Numeric)
+	if (colType == SciDAVis::Numeric)
 	{
 		int f, prec;
 		d_table->columnNumericFormat(sc, &f, &prec);
@@ -262,7 +262,7 @@ void TableDialog::updateColumn(int sc)
 		precisionBox->setValue(prec);
 		enablePrecision(f);
 	}
-	else if (colType == Table::Time || colType == Table::Date)
+	else if (colType == SciDAVis::Time || colType == SciDAVis::Date)
 	{
 		QString format = d_table->columnFormat(sc);
 		if (formatBox->findText(format) < 0)
@@ -270,7 +270,7 @@ void TableDialog::updateColumn(int sc)
 
 		formatBox->setCurrentText(format);
 	}
-	else if (colType == Table::Day)
+	else if (colType == SciDAVis::Day)
 	{
 		QString format = d_table->columnFormat(sc);
 		if (format == "ddd")
@@ -280,7 +280,7 @@ void TableDialog::updateColumn(int sc)
 		else if (format == "d")
 			formatBox->setCurrentIndex(2);
 	}
-	else if (colType == Table::Month)
+	else if (colType == SciDAVis::Month)
 	{
 		QString format = d_table->columnFormat(sc);
 		if (format == "MMM")
@@ -379,27 +379,27 @@ void TableDialog::setPlotDesignation(int i)
 	switch(i)
 	{
 		case 0:
-			d_table->setPlotDesignation(AbstractDataSource::noDesignation);
+			d_table->setPlotDesignation(SciDAVis::noDesignation);
 			break;
 
 		case 1:
-			d_table->setPlotDesignation(AbstractDataSource::X);
+			d_table->setPlotDesignation(SciDAVis::X);
 			break;
 
 		case 2:
-			d_table->setPlotDesignation(AbstractDataSource::Y);
+			d_table->setPlotDesignation(SciDAVis::Y);
 			break;
 
 		case 3:
-			d_table->setPlotDesignation(AbstractDataSource::Z);
+			d_table->setPlotDesignation(SciDAVis::Z);
 			break;
 
 		case 4:
-			d_table->setPlotDesignation(AbstractDataSource::xErr);
+			d_table->setPlotDesignation(SciDAVis::xErr);
 			break;
 
 		case 5:
-			d_table->setPlotDesignation(AbstractDataSource::yErr);
+			d_table->setPlotDesignation(SciDAVis::yErr);
 			break;
 	}
 }
@@ -518,17 +518,17 @@ void TableDialog::setDateTimeFormat(int type, const QString& format, bool allRig
 	int sc = d_table->selectedColumn();
 	if (allRightColumns){
 		for (int i = sc; i<d_table->columnCount(); i++){
-			if (type == Table::Date)
+			if (type == SciDAVis::Date)
 				ok = d_table->setDateFormat(format, i);
-			else if (type == Table::Time)
+			else if (type == SciDAVis::Time)
 				ok = d_table->setTimeFormat(format, i);
 			if (!ok)
 				break;
 		}
 	}
-	else if (type == Table::Date)
+	else if (type == SciDAVis::Date)
 		ok = d_table->setDateFormat(format, sc);
-	else if (type == Table::Time)
+	else if (type == SciDAVis::Time)
 		ok = d_table->setTimeFormat(format, sc);
 
 	QApplication::restoreOverrideCursor();

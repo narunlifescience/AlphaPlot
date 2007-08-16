@@ -99,7 +99,7 @@ QString StringColumnData::comment() const
 	return d_comment;
 }
 
-AbstractDataSource::PlotDesignation StringColumnData::plotDesignation() const
+SciDAVis::PlotDesignation StringColumnData::plotDesignation() const
 { 
 	return d_plot_designation;
 }
@@ -118,7 +118,7 @@ void StringColumnData::setComment(const QString& comment)
 	emit descriptionChanged(this);
 }
 
-void StringColumnData::setPlotDesignation(AbstractDataSource::PlotDesignation pd) 
+void StringColumnData::setPlotDesignation(SciDAVis::PlotDesignation pd) 
 { 
 	emit plotDesignationAboutToChange(this);
 	d_plot_designation = pd; 

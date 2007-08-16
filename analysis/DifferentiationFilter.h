@@ -98,7 +98,7 @@ class DifferentiationFilter : public AbstractDoubleDataSource, public AbstractFi
 		virtual QString comment() const {
 			return d_inputs.value(1) ? tr("Derivative of %1").arg(d_inputs[1]->label()) :
 				QString(); }
-		virtual PlotDesignation plotDesignation() const { return Y; }
+		virtual SciDAVis::PlotDesignation plotDesignation() const { return SciDAVis::Y; }
 
 // specific to this class
 	private:

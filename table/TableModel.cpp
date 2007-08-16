@@ -420,35 +420,35 @@ void TableModel::updateHorizontalHeader(int start_col, int end_col)
 	while(d_horizontal_header_data.size() < d_column_count)
 		d_horizontal_header_data << QString();
 
-	if(numColsWithPD(AbstractDataSource::X)>1)
+	if(numColsWithPD(SciDAVis::X)>1)
 	{
 		int x_cols = 0;
 		for (int i=0; i<d_column_count; i++)
 		{
-			if (columnPlotDesignation(i) == AbstractDataSource::X)
+			if (columnPlotDesignation(i) == SciDAVis::X)
 				composeColumnHeader(i, columnLabel(i)+"[X" + QString::number(++x_cols) +"]");
-			else if (columnPlotDesignation(i) == AbstractDataSource::Y)
+			else if (columnPlotDesignation(i) == SciDAVis::Y)
 			{
 				if(x_cols>0)
 					composeColumnHeader(i, columnLabel(i)+"[Y"+ QString::number(x_cols) +"]");
 				else
 					composeColumnHeader(i, columnLabel(i)+"[Y]");
 			}
-			else if (columnPlotDesignation(i) == AbstractDataSource::Z)
+			else if (columnPlotDesignation(i) == SciDAVis::Z)
 			{
 				if(x_cols>0)
 					composeColumnHeader(i, columnLabel(i)+"[Z"+ QString::number(x_cols) +"]");
 				else
 					composeColumnHeader(i, columnLabel(i)+"[Z]");
 			}
-			else if (columnPlotDesignation(i) == AbstractDataSource::xErr)
+			else if (columnPlotDesignation(i) == SciDAVis::xErr)
 			{
 				if(x_cols>0)
 					composeColumnHeader(i, columnLabel(i)+"[xEr"+ QString::number(x_cols) +"]");
 				else
 					composeColumnHeader(i, columnLabel(i)+"[xEr]");
 			}
-			else if (columnPlotDesignation(i) == AbstractDataSource::yErr)
+			else if (columnPlotDesignation(i) == SciDAVis::yErr)
 			{
 				if(x_cols>0)
 					composeColumnHeader(i, columnLabel(i)+"[yEr"+ QString::number(x_cols) +"]");
@@ -463,15 +463,15 @@ void TableModel::updateHorizontalHeader(int start_col, int end_col)
 	{
 		for (int i=0; i<d_column_count; i++)
 		{
-			if (columnPlotDesignation(i) == AbstractDataSource::X)
+			if (columnPlotDesignation(i) == SciDAVis::X)
 				composeColumnHeader(i, columnLabel(i)+"[X]");
-			else if(columnPlotDesignation(i) == AbstractDataSource::Y)
+			else if(columnPlotDesignation(i) == SciDAVis::Y)
 				composeColumnHeader(i, columnLabel(i)+"[Y]");
-			else if(columnPlotDesignation(i) == AbstractDataSource::Z)
+			else if(columnPlotDesignation(i) == SciDAVis::Z)
 				composeColumnHeader(i, columnLabel(i)+"[Z]");
-			else if(columnPlotDesignation(i) == AbstractDataSource::xErr)
+			else if(columnPlotDesignation(i) == SciDAVis::xErr)
 				composeColumnHeader(i, columnLabel(i)+"[xEr]");
-			else if(columnPlotDesignation(i) == AbstractDataSource::yErr)
+			else if(columnPlotDesignation(i) == SciDAVis::yErr)
 				composeColumnHeader(i, columnLabel(i)+"[yEr]");
 			else
 				composeColumnHeader(i, columnLabel(i));
@@ -518,13 +518,13 @@ QString TableModel::columnComment(int column) const
 	return d_columns.at(column)->asDataSource()->comment();
 }
 
-void TableModel::setColumnPlotDesignation(int column, AbstractDataSource::PlotDesignation pd)
+void TableModel::setColumnPlotDesignation(int column, SciDAVis::PlotDesignation pd)
 {
 	d_columns.at(column)->setPlotDesignation(pd);
 	updateHorizontalHeader(column, d_column_count-1);
 }
 	
-AbstractDataSource::PlotDesignation TableModel::columnPlotDesignation(int column) const
+SciDAVis::PlotDesignation TableModel::columnPlotDesignation(int column) const
 {
 	return d_columns.at(column)->asDataSource()->plotDesignation();
 }
@@ -548,7 +548,7 @@ QString TableModel::columnHeader(int col)
 	return headerData(col, Qt::Horizontal, Qt::DisplayRole).toString();
 }
 
-int TableModel::numColsWithPD(AbstractDataSource::PlotDesignation pd)
+int TableModel::numColsWithPD(SciDAVis::PlotDesignation pd)
 {
 	int count = 0;
 	

@@ -33,6 +33,7 @@
 #include "DoubleColumnData.h"
 #include "DateTimeColumnData.h"
 #include "lib/Interval.h"
+#include "core/datatypes/Double2StringFilter.h"
 #include <QObject>
 #include <QtDebug>
 
@@ -66,7 +67,7 @@ void TableShowCommentsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class TableSetColumnPlotDesignationCmd
 ///////////////////////////////////////////////////////////////////////////
-TableSetColumnPlotDesignationCmd::TableSetColumnPlotDesignationCmd( TableModel * model, int col, AbstractDataSource::PlotDesignation pd , QUndoCommand * parent )
+TableSetColumnPlotDesignationCmd::TableSetColumnPlotDesignationCmd( TableModel * model, int col, SciDAVis::PlotDesignation pd , QUndoCommand * parent )
  : QUndoCommand( parent ), d_col(col), d_new_pd(pd), d_model(model)
 {
 		setText(QObject::tr("set column plot designation"));
@@ -662,5 +663,123 @@ void TableReplaceColumnsCmd::undo()
 
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableReplaceColumnsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableReplaceFilterCmd
+///////////////////////////////////////////////////////////////////////////
+TableReplaceFilterCmd::TableReplaceFilterCmd( TableModel * model, int col, AbstractFilter * in_filter, 
+		AbstractFilter * out_filter, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_model(model), d_col(col), d_in_filter(in_filter), d_out_filter(out_filter)
+{
+	setText(QObject::tr("change column type mode"));
+	d_old_in_filter = 0;
+	d_old_out_filter = 0;
+	d_undone = false;
+}
+
+TableReplaceFilterCmd::~TableReplaceFilterCmd()
+{
+	if(d_undone)
+	{
+		if(d_in_filter) delete d_in_filter;
+		if(d_out_filter) delete d_out_filter;
+	}
+	else
+	{
+		if(d_in_filter) delete d_old_in_filter;
+		if(d_out_filter) delete d_old_out_filter;
+	}
+}
+
+void TableReplaceFilterCmd::redo()
+{
+	if(!d_undone)
+	{
+		d_old_in_filter = d_model->inputFilter(d_col);
+		d_old_out_filter = d_model->outputFilter(d_col);
+	}
+	if(d_in_filter)	d_model->setInputFilter(d_col, d_in_filter);
+	if(d_out_filter) d_model->setOutputFilter(d_col, d_out_filter);
+	d_undone = false;
+}
+
+void TableReplaceFilterCmd::undo()
+{
+	if(d_in_filter)	d_model->setInputFilter(d_col, d_old_in_filter);
+	if(d_out_filter) d_model->setOutputFilter(d_col, d_old_out_filter);
+	d_undone = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableReplaceFilterCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableSetColumnNumericDisplayCmd
+///////////////////////////////////////////////////////////////////////////
+TableSetColumnNumericDisplayCmd::TableSetColumnNumericDisplayCmd(TableModel * model, int col, char format, int digits, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_model(model), d_col(col), d_format(format), d_digits(digits)
+{
+	setText(QObject::tr("set column numeric display"));
+}
+
+void TableSetColumnNumericDisplayCmd::redo()
+{
+	d_old_format = static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->numericFormat();
+	d_old_digits = static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->numDigits();
+	static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->setNumericFormat(d_format);
+	static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->setNumDigits(d_digits);
+}
+
+void TableSetColumnNumericDisplayCmd::undo()
+{
+	static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->setNumericFormat(d_old_format);
+	static_cast<Double2StringFilter *>(d_model->outputFilter(d_col))->setNumDigits(d_old_digits);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableSetColumnNumericDisplayCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableSetFormulaCmd
+///////////////////////////////////////////////////////////////////////////
+TableSetFormulaCmd::TableSetFormulaCmd(TableModel * model, int col, Interval<int> interval, const QString& formula, QUndoCommand * parent)
+: QUndoCommand( parent ), d_col(col), d_interval(interval), d_formula(formula)
+{
+	setText(QObject::tr("set formula"));
+	d_undone = false;
+}
+
+void TableSetFormulaCmd::redo()
+{
+	AbstractColumnData * ptr = d_model->columnPointer(d_col);
+	if(!d_undone)
+	{
+		d_old_intervals = ptr->formulaIntervals();
+		for(int i=0; i<d_old_intervals.size(); i++)
+		{
+			if(!d_old_intervals.at(i).intersects(d_interval))
+				d_old_intervals.removeAt(i--);
+		}
+		foreach(Interval<int> i, d_old_intervals)
+			d_old_formulas.append(ptr->formula(i.start()));
+	}
+	ptr->setFormula(d_interval, d_formula);
+}
+
+void TableSetFormulaCmd::undo()
+{
+	AbstractColumnData * ptr = d_model->columnPointer(d_col);
+	for(int i=0; i<d_old_intervals.size(); i++)
+	{
+		ptr->setFormula(d_old_intervals.at(i), d_old_formulas.at(i));
+	}
+	d_undone = true;
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 

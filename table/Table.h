@@ -35,6 +35,7 @@
 #include "core/MyWidget.h"
 #include "core/AbstractScriptingEngine.h"
 #include "core/AbstractDataSource.h"
+#include <QVarLengthArray> // TODO remove this with the transition functions
 
 class TableView;
 class TableModel;
@@ -81,16 +82,6 @@ class Table: public MyWidget, public scripted
 public:
 	Table(AbstractScriptingEngine *engine, int rows,int cols, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
 
-	//! The column mode (defines output and input filter)
-	enum ColumnMode{Numeric = 0, //<! column contains doubles
-	Text = 1, //!< column contains strings
-	Date = 2,//!< obsolete legacy value, use DateTime instead
-	Time = 3, //!< obsolete legacy value, use DateTime instead
-	Month = 4, //!< column contains month names
-	Day = 5, //!< column containts day of week names
-	DateTime = 6 //!< column contains dates and/or times
-	};
-
 	//! Return a pointer to the undo stack
 	virtual QUndoStack *undoStack() const;
 	//! Return all selected columns
@@ -106,7 +97,7 @@ public:
 	*/
 	int selectedColumnCount(bool full = false);
 	//! Return how many columns with the given plot designation are (at least partly) selected
-	int selectedColumnCount(AbstractDataSource::PlotDesignation pd);
+	int selectedColumnCount(SciDAVis::PlotDesignation pd);
 	//! Returns true if column 'col' is selected; otherwise false
 	/**
 	 * If full is true, this function only returns true if the whole 
@@ -133,10 +124,8 @@ public:
 	QString columnComment(int col);
 	//! The the column's comment
 	void setColumnComment(int col, const QString& comment);
-	//! Return a column's plot designation
-	AbstractDataSource::PlotDesignation columnPlotDesignation(int col);
 	//! Return the number of columns matching the given designation
-	int columnCount(AbstractDataSource::PlotDesignation pd);
+	int columnCount(SciDAVis::PlotDesignation pd);
 	//! Return the total number of columns in the table
 	int columnCount();
 	//! Return the total number of rows in the table
@@ -177,18 +166,24 @@ public:
 	 * selected columns.
 	*/
 	int lastSelectedColumn(bool full = false);
+	//! Return the index of the first selected row
+	/**
+	 * If full is true, this function only looks for fully 
+	 * selected rows.
+	*/
+	int firstSelectedRow(bool full = false);
+	//! Return the index of the last selected row
+	/**
+	 * If full is true, this function only looks for fully 
+	 * selected rows.
+	*/
+	int lastSelectedRow(bool full = false);
 	//! Return whether a cell is selected
 	bool isCellSelected(int row, int col);
-	//! Set the plot designation for a given column or all selected
-	/*
-	 *  If 'col' is -1 (the default), the plot designation is set for all
-	 *  (at least partially) selected columns.
-	 */
-	void setPlotDesignation(AbstractDataSource::PlotDesignation pd, int col = -1);
+	//! Set the plot designation for a given column
+	void setPlotDesignation(int col, SciDAVis::PlotDesignation pd);
 	//! Return the plot designation for the given column
-	AbstractDataSource::PlotDesignation plotDesignation(int col);
-	//! Set the plot designation for the given column
-	void setPlotDesignation(int col, AbstractDataSource::PlotDesignation pd);
+	SciDAVis::PlotDesignation plotDesignation(int col);
 	//! Clear the given column
 	void clearColumn(int col);
 	//! Clear the whole table
@@ -200,7 +195,9 @@ public:
 	//! Determine the corresponding Y column
 	int colY(int col);
 	//! Return the column mode
-	Table::ColumnMode columnMode(int col);
+	SciDAVis::ColumnMode columnMode(int col);
+	//! Set the column mode
+	void setColumnMode(int col, SciDAVis::ColumnMode mode);
 	//! Return the width of column 'col' in pixels
 	int columnWidth(int col);
 
@@ -243,7 +240,7 @@ public:
 	void changeColName(const QString& new_name);
 	void setColName(int col,const QString& new_name);
 	void setCommand(int col, const QString& com);
-	void setColPlotDesignation(int col, AbstractDataSource::PlotDesignation pd);
+	void setColPlotDesignation(int col, SciDAVis::PlotDesignation pd);
 	void setColNumericFormat(int f, int prec, int col);
 	void setTextFormat(int col);
 	void setDateFormat(const QString& format, int col);
@@ -255,7 +252,42 @@ public:
 	QStringList columnsList();
 	QStringList selectedColumnsOld();
 	int firstXCol();
-	void addCol();
+	void addCol(SciDAVis::PlotDesignation pd = SciDAVis::Y);
+	bool noXColumn();
+	bool noYColumn();
+	QStringList selectedYColumns();
+	void setNumericPrecision(int prec);
+	QVarLengthArray<double> col(int ycol);
+	bool isEmptyColumn(int col);
+	QStringList YColumns();
+	void updateDecimalSeparators();
+	void updateDecimalSeparators(const QLocale& oldSeparators);
+	void importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
+					bool renameCols, bool stripSpaces, bool simplifySpaces, int importFileAs);
+	void importASCII(const QString &fname, const QString &sep, int ignoredLines,
+						bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable);
+	bool exportASCII(const QString& fname, const QString& separator,
+					bool withLabels = false, bool exportSelection = false);
+	bool calculate(int col, int startRow, int endRow);
+	bool calculate();
+	void sortTableDialog();
+	void sortColumnsDialog();
+	void normalizeCol(int col=-1);
+	void normalizeSelection();
+	void normalize();
+	QStringList drawableColumnSelection();
+	void cutSelection();
+	void copySelection();
+	void clearSelection();
+	void pasteSelection();
+	void loadHeader(QStringList header);
+	void setColWidths(const QStringList& widths);
+	void setCommands(const QStringList& com);
+	void setCommands(const QString& com);
+	void setColumnTypes(const QStringList& ctl);
+	void setCell(int row, int col, double val);
+	void setColComments(const QStringList& lst);
+	void setPlotDesignation(SciDAVis::PlotDesignation pd);
 
 };
 

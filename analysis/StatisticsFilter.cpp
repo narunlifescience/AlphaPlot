@@ -47,7 +47,7 @@ StatisticsFilter::~StatisticsFilter()
 
 AbstractDataSource *StatisticsFilter::output(int port) const
 {
-	if (port < 0 || port >= numOutputs()) return 0;
+	if (port < 0 || port >= outputCount()) return 0;
 	if (port <= 1) return d_strings[port];
 	return d_doubles[port-2];
 }

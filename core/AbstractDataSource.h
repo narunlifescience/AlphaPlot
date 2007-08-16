@@ -34,7 +34,8 @@
 #include <QtAlgorithms>
 #include <QList>
 class QString;
-#include "../lib/Interval.h"
+#include "lib/Interval.h"
+#include "core/globals.h"
 
 //! Reading interface for column-based data
 /**
@@ -70,16 +71,6 @@ public:
 	//! Dtor
 	virtual ~AbstractDataSource() { emit aboutToBeDestroyed(this); }
 
-	//! Types of plot designations
-	enum PlotDesignation{
-	noDesignation = 0, //!< no plot designation
-	X = 1,  //!< x values
-	Y = 2, //!< y values 
-	Z = 3, //!< z values
-	xErr = 4, //!< x errors
-	yErr = 5 //!< y errors
-	};
-
 	//! Return the data vector size
 	/**
 	 * \sa AbstractColumnData::setNumRows()
@@ -90,7 +81,7 @@ public:
 	//! Return the column comment
 	virtual QString comment() const { return QString(); }
 	//! Return the column plot designation
-	virtual AbstractDataSource::PlotDesignation plotDesignation() const = 0;
+	virtual SciDAVis::PlotDesignation plotDesignation() const = 0;
 	
 	//! \name IntervalAttribute related functions
 	//@{

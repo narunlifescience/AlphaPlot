@@ -268,12 +268,12 @@ void ErrorCurve::loadData()
 		QString errval = d_table->text(i, errcol);
 		if (!xval.isEmpty() && !yval.isEmpty() && !errval.isEmpty()){
 		    bool ok = true;
-			if (xColType == Table::Text)
+			if (xColType == SciDAVis::Text)
 				X[data_size] = (double)(data_size + 1);
 			else
 				X[data_size] = QLocale().toDouble(xval, &ok);
 
-			if (yColType == Table::Text)
+			if (yColType == SciDAVis::Text)
 				Y[data_size] = (double)(data_size + 1);
 			else
 				Y[data_size] = QLocale().toDouble(yval, &ok);

@@ -1,4 +1,5 @@
 TEMPLATE = app
+CONFIG += debug
 TARGET = 
 DEPENDPATH += . ../core
 INCLUDEPATH += . ../core

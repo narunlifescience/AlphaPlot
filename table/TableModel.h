@@ -202,9 +202,9 @@ public:
 	//! Return a column's comment
 	QString columnComment(int column) const;
 	//! Set a column's plot designation
-	void setColumnPlotDesignation(int column, AbstractDataSource::PlotDesignation pd);
+	void setColumnPlotDesignation(int column, SciDAVis::PlotDesignation pd);
 	//! Return a column's plot designation
-	AbstractDataSource::PlotDesignation columnPlotDesignation(int column) const;
+	SciDAVis::PlotDesignation columnPlotDesignation(int column) const;
 	//! Show or hide (if on = false) the column comments
 	void showComments(bool on = true);
 	//! Return whether comments are show currently
@@ -212,7 +212,7 @@ public:
 	//! Return the full column header string
 	QString columnHeader(int col);
 	//! Return the number of columns with a given plot designation
-	int numColsWithPD(AbstractDataSource::PlotDesignation pd);
+	int numColsWithPD(SciDAVis::PlotDesignation pd);
 	//! This must be called whenever columns were changed directly
 	/**
 	 * \param top first modified row

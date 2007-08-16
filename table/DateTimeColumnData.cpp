@@ -99,7 +99,7 @@ QString DateTimeColumnData::comment() const
 	return d_comment;
 }
 
-AbstractDataSource::PlotDesignation DateTimeColumnData::plotDesignation() const
+SciDAVis::PlotDesignation DateTimeColumnData::plotDesignation() const
 { 
 	return d_plot_designation;
 }
@@ -118,7 +118,7 @@ void DateTimeColumnData::setComment(const QString& comment)
 	emit descriptionChanged(this);
 }
 
-void DateTimeColumnData::setPlotDesignation(AbstractDataSource::PlotDesignation pd) 
+void DateTimeColumnData::setPlotDesignation(SciDAVis::PlotDesignation pd) 
 { 
 	emit plotDesignationAboutToChange(this);
 	d_plot_designation = pd; 

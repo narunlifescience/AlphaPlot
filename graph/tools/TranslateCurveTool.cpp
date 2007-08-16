@@ -116,7 +116,7 @@ void TranslateCurveTool::selectDestination(const QwtDoublePoint &point)
 	Table *tab = d_app->table(col_name);
 	if (!tab) return;
 	int col = tab->colIndex(col_name);
-	if (tab->columnType(col) != Table::Numeric) {
+	if (tab->columnType(col) != SciDAVis::Numeric) {
 		QMessageBox::warning(d_layer, tr("Warning"),
 				tr("This operation cannot be performed on curves plotted from columns having a non-numerical format."));
 		return;

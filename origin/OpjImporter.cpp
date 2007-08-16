@@ -116,17 +116,17 @@ bool OpjImporter::importTables(OPJFile opj)
 			table->changeColWidth(opj.colWidth(s,j)*SciDAVis_scaling_factor, j);
 
 			if (QString(opj.colType(s,j)) == "X")
-				table->setColPlotDesignation(j, AbstractDataSource::X);
+				table->setColPlotDesignation(j, SciDAVis::X);
 			else if (QString(opj.colType(s,j)) == "Y")
-				table->setColPlotDesignation(j, AbstractDataSource::Y);
+				table->setColPlotDesignation(j, SciDAVis::Y);
 			else if (QString(opj.colType(s,j)) == "Z")
-				table->setColPlotDesignation(j, AbstractDataSource::Z);
+				table->setColPlotDesignation(j, SciDAVis::Z);
 			else if (QString(opj.colType(s,j)) == "DX")
-				table->setColPlotDesignation(j, AbstractDataSource::xErr);
+				table->setColPlotDesignation(j, SciDAVis::xErr);
 			else if (QString(opj.colType(s,j)) == "DY")
-				table->setColPlotDesignation(j, AbstractDataSource::yErr);
+				table->setColPlotDesignation(j, SciDAVis::yErr);
 			else
-				table->setColPlotDesignation(j, AbstractDataSource::noDesignation);
+				table->setColPlotDesignation(j, SciDAVis::noDesignation);
 
             double **d_cells = new double* [nr_cols];
             for ( int i = 0; i < nr_cols; ++i)
@@ -308,7 +308,7 @@ bool OpjImporter::importTables(OPJFile opj)
 					if(fabs(*val)>0 && fabs(*val)<2.0e-300)// empty entry
 						continue;
 
-                    //if (table->columnType(j) == Table::Date)
+                    //if (table->columnType(j) == SciDAVis::Date)
                         //QMessageBox::about(0, "", QDate::fromJulianDay(int(*val)+1).toString("dd/MM/yyyy"));
 
 					table->setText(i, j, QLocale().toString(*val));

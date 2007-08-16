@@ -98,7 +98,7 @@ QString DoubleColumnData::comment() const
 	return d_comment;
 }
 
-AbstractDataSource::PlotDesignation DoubleColumnData::plotDesignation() const
+SciDAVis::PlotDesignation DoubleColumnData::plotDesignation() const
 { 
 	return d_plot_designation;
 }
@@ -117,7 +117,7 @@ void DoubleColumnData::setComment(const QString& comment)
 	emit descriptionChanged(this);
 }
 
-void DoubleColumnData::setPlotDesignation(AbstractDataSource::PlotDesignation pd) 
+void DoubleColumnData::setPlotDesignation(SciDAVis::PlotDesignation pd) 
 { 
 	emit plotDesignationAboutToChange(this);
 	d_plot_designation = pd; 

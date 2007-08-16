@@ -169,7 +169,7 @@ void Correlation::addResultCurve()
 
 	d_table->setColName(cols, tr("Lag") + id);
 	d_table->setColName(cols2, label);
-	d_table->setColPlotDesignation(cols, AbstractDataSource::X);
+	d_table->setColPlotDesignation(cols, SciDAVis::X);
 	// TODO
 	//d_table->setHeaderColType();
 

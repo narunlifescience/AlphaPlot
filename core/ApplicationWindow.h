@@ -35,6 +35,7 @@
 #include <QMainWindow>
 #include <QLocale>
 
+#include "core/globals.h"
 #include "AbstractScriptingEngine.h"
 
 class QPixmap;
@@ -390,7 +391,7 @@ public slots:
 	void printAllPlots();
 	//@}
 
-	QStringList columnsList(int plotType);
+	QStringList columnsList(int plotType); 
 	QStringList columnsList();
 
 	void undo();
@@ -433,8 +434,6 @@ public slots:
 
 	//! Show about dialog
 	static void about();
-	//! Return a version string ("SciDAVis x.y.z")
-	static QString versionString();
 	void windowsMenuAboutToShow();
 	void windowsMenuActivated( int id );
 	void removeCurves(const QString& name);
@@ -984,7 +983,7 @@ public:
 
 	//! List of tables and matrices renamed in order to avoid conflicts when appending a project to a folder
 	QStringList renamedTables;
-	int copiedMarkerType;
+	int copiedMarkerType; 
 
 	//! \name variables used when user copy/paste markers
 	//@{

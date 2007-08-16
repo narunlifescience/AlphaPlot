@@ -138,10 +138,10 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 			return d_inputs.value(0) ? d_inputs.at(0)->label() : QString();
 		}
 		//! Copy plot designation of input port 0.
-		virtual AbstractDataSource::PlotDesignation plotDesignation() const {
+		virtual SciDAVis::PlotDesignation plotDesignation() const {
 			return d_inputs.value(0) ?
 				d_inputs.at(0)->plotDesignation() :
-				AbstractDataSource::noDesignation;
+				SciDAVis::noDesignation;
 		}
 		//!\name assuming a 1:1 correspondence between input and output rows
 		//@{
