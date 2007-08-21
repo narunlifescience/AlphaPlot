@@ -306,7 +306,8 @@ void ApplicationWindow::init()
 	connect(lv, SIGNAL(deleteSelection()), this, SLOT(deleteSelectedItems()));
 	connect(lv, SIGNAL(itemRenamed(Q3ListViewItem *, int, const QString &)),
 			this, SLOT(renameWindow(Q3ListViewItem *, int, const QString &)));
-	// FIXME: crash because d_scripting_engine == 0
+	// TODO: This will cause a crash when d_scripting_engine == 0; a proper error message should be
+	// displayed if no scripting engine is found
 	connect(d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)),
 			this, SLOT(scriptError(const QString&,const QString&,int)));
 	connect(d_scripting_engine, SIGNAL(print(const QString&)), this, SLOT(scriptPrint(const QString&)));

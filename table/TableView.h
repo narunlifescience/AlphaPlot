@@ -58,8 +58,6 @@ public:
 		
 protected:
 	//! Overloaded function (cf. Qt documentation)
-    virtual void contextMenuEvent( QContextMenuEvent * );
-	//! Overloaded function (cf. Qt documentation)
 	virtual void keyPressEvent( QKeyEvent * event );
 
 protected slots:

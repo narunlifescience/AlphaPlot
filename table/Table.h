@@ -200,19 +200,18 @@ public:
 	void setColumnMode(int col, SciDAVis::ColumnMode mode);
 	//! Return the width of column 'col' in pixels
 	int columnWidth(int col);
-
 	
 protected:
 	//! The table widget
 	TableView *d_table_view;
 	//! The model storing the data
 	TableModel *d_table_model;
+	void contextMenuEvent(QContextMenuEvent *e);
 
 private:
 	//! Initialize table
 	void init(int rows, int cols);
 
-signals:
 
 	
 public:
@@ -289,6 +288,15 @@ public:
 	void setColComments(const QStringList& lst);
 	void setPlotDesignation(SciDAVis::PlotDesignation pd);
 
+signals:
+	void changedColHeader(const QString&, const QString&);
+	void removedCol(const QString&);
+	void modifiedData(Table *, const QString&);
+	void optionsDialog();
+	void colValuesDialog();
+	void resizedTable(QWidget*);
+	void showContextMenu(bool selection);
+	void createTable(const QString&,int,int,const QString&);
 };
 
 #endif

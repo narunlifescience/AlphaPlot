@@ -37,8 +37,10 @@
 #include <QHBoxLayout>
 #include <QShortcut>
 #include <QApplication>
+#include <QContextMenuEvent>
 #include <stdlib.h> // for RAND_MAX
 
+#include "core/AbstractScript.h"
 #include "TableModel.h"
 #include "TableView.h"
 #include "tablecommands.h"
@@ -86,6 +88,8 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString&
 	// header stuff
 	QHeaderView * v_header = d_table_view->verticalHeader();
 	QHeaderView * h_header = d_table_view->horizontalHeader();
+
+	h_header->viewport()->installEventFilter(this);
 
 //###	connect(h_header, SIGNAL(sectionDoubleClicked(int)),
 //###			this, SLOT(headerDoubleClickedHandler(int)));
@@ -273,6 +277,8 @@ void Table::setRowCount(int new_size)
 		undoStack()->push(new TableAppendRowsCmd(d_table_model, new_size-rows) );
 		QApplication::restoreOverrideCursor();
 	}
+	//TODO: remove this later
+	emit modifiedWindow(this);
 }
 
 void Table::setColumnCount(int new_size)
@@ -344,6 +350,8 @@ bool Table::isRowSelected(int row, bool full)
 
 void Table::setAscendingValues()
 {
+	if(selectedColumnCount() < 1) return;
+
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int rows = rowCount();
@@ -351,7 +359,7 @@ void Table::setAscendingValues()
 	QStringList data;
 
 	int end = lastSelectedColumn();
-	for(int i=firstSelectedColumn(); i<end; i++)
+	for(int i=firstSelectedColumn(); i<=end; i++)
 	{
 		if(isColumnSelected(i))
 		{
@@ -365,11 +373,15 @@ void Table::setAscendingValues()
 		}
 	}
 
+	// TODO: remove this later
+	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 }
 
 void Table::setRandomValues()
 {
+	if(selectedColumnCount() < 1) return;
+
 	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
 
 	int rows = rowCount();
@@ -379,7 +391,7 @@ void Table::setRandomValues()
 	QStringList data;
 
 	int end = lastSelectedColumn();
-	for(int i=firstSelectedColumn(); i<end; i++)
+	for(int i=firstSelectedColumn(); i<=end; i++)
 	{
 		if(isColumnSelected(i))
 		{
@@ -393,6 +405,8 @@ void Table::setRandomValues()
 		}
 	}
 
+	// TODO: remove this later
+	emit modifiedWindow(this);
 	QApplication::restoreOverrideCursor();
 }
 
@@ -460,6 +474,9 @@ void Table::clearColumn(int col)
 {
 	if( col >= 0 && col <= columnCount() )
 		undoStack()->push(new TableClearColumnCmd(d_table_model, col));
+	
+	//TODO: remove this later
+	emit modifiedWindow(this);
 }
 
 void Table::clear()
@@ -467,6 +484,9 @@ void Table::clear()
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
 		clearColumn(i);
+	
+	//TODO: remove this later
+	emit modifiedWindow(this);
 }
 
 SciDAVis::PlotDesignation Table::plotDesignation(int col)
@@ -538,7 +558,7 @@ SciDAVis::ColumnMode Table::columnMode(int col)
 void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
 {
 	AbstractDataSource * old_col = d_table_model->output(col);
-	// TODO more formula() to DataSource to make this unnecessary
+	// TODO move formula() to DataSource to make this unnecessary
 	AbstractColumnData * old_col_ptr = d_table_model->columnPointer(col);
 	AbstractColumnData * new_col = 0;
 	AbstractFilter *filter, *new_in_filter, *new_out_filter;
@@ -684,6 +704,21 @@ int Table::columnWidth(int col)
 {
 	return d_table_view->columnWidth(col);
 }
+
+void Table::contextMenuEvent(QContextMenuEvent *e)
+{
+	int right;
+	right = d_table_view->columnViewportPosition(columnCount()-1) +
+		d_table_view->columnWidth(columnCount()-1) - 1;
+
+	setFocus();
+	if (e->pos().x() > right + d_table_view->verticalHeader()->width()) // outside rightmost column
+		emit showContextMenu(false);
+	else
+		emit showContextMenu(true);
+	e->accept();
+}
+
 
 
 // -------------------------------------------------------------------------
@@ -870,10 +905,13 @@ void Table::changeColWidth(int width, bool all)
 	{
 		for (int i=0;i<cols;i++)
 			d_table_view->setColumnWidth(i, width);
+		emit modifiedWindow(this);
 	}
 	else
 	{
-		d_table_view->setColumnWidth(firstSelectedColumn(), width);
+		if(firstSelectedColumn() >= 0)
+			d_table_view->setColumnWidth(firstSelectedColumn(), width);
+		emit modifiedWindow(this);
 	}
 }
 
@@ -892,7 +930,12 @@ void Table::setColComment(int col, const QString& s)
 void Table::changeColName(const QString& new_name)
 {
 	OBSOLETE
+	if(selectedColumnCount() < 1) return;
+
+	QString old_name = columnLabel(firstSelectedColumn());
 	setColumnLabel(firstSelectedColumn(), new_name);
+	emit changedColHeader(old_name, new_name);
+	emit modifiedWindow(this);
 }
 
 void Table::setColName(int col,const QString& new_name)
@@ -904,6 +947,8 @@ void Table::setColName(int col,const QString& new_name)
 void Table::setCommand(int col, const QString& com)
 {
 	OBSOLETE
+	undoStack()->push(new TableSetFormulaCmd(d_table_model, col, 
+			Interval<int>(0, d_table_model->output(col)->rowCount()-1), com.trimmed()));
 }
 
 void Table::setColNumericFormat(int f, int prec, int col)
@@ -914,6 +959,9 @@ void Table::setColNumericFormat(int f, int prec, int col)
 void Table::setTextFormat(int col)
 {
 	OBSOLETE
+	if (col >= 0 && col < columnCount())
+		setColumnMode(col, SciDAVis::Text);
+	emit modifiedWindow(this);
 }
 
 void Table::setDateFormat(const QString& format, int col)
@@ -984,6 +1032,7 @@ void Table::addCol(SciDAVis::PlotDesignation pd)
 	OBSOLETE
 	setColumnCount(columnCount() + 1);
 	setPlotDesignation(columnCount()-1, pd);
+	emit modifiedWindow(this);
 }
 
 bool Table::noXColumn()
@@ -1062,13 +1111,13 @@ QStringList Table::YColumns()
 void Table::updateDecimalSeparators(const QLocale& oldSeparators)
 {
 	OBSOLETE
-	// TODO
+	d_table_view->update();
 }
 
 void Table::updateDecimalSeparators()
 {
 	OBSOLETE
-	// TODO
+	d_table_view->update();
 }
 
 void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
@@ -1097,15 +1146,56 @@ bool Table::exportASCII(const QString& fname, const QString& separator,
 bool Table::calculate(int col, int startRow, int endRow)
 {
 	OBSOLETE
-	// TODO
-	return false;
+	QApplication::setOverrideCursor(Qt::WaitCursor);
+
+	AbstractScript *colscript =  d_scripting_engine->newScript(d_table_model->columnPointer(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
+	connect(colscript, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
+	connect(colscript, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
+
+	if (!colscript->compile())
+	{
+		QApplication::restoreOverrideCursor();
+		return false;
+	}
+	if (endRow >= rowCount())
+		setRowCount(endRow + 1);
+
+	colscript->setInt(col+1, "j");
+	colscript->setInt(startRow+1, "sr");
+	colscript->setInt(endRow+1, "er");
+	QVariant ret;
+	for (int i=startRow; i<=endRow; i++)
+	{
+		colscript->setInt(i+1,"i");
+		ret = colscript->eval();
+		if(ret.type()==QVariant::Double) {
+			int prec;
+			char f;
+			columnNumericFormat(col, &f, &prec);
+			setText(i, col, QLocale().toString(ret.toDouble(), f, prec));
+		} else if(ret.canConvert(QVariant::String))
+			setText(i, col, ret.toString());
+		else {
+			QApplication::restoreOverrideCursor();
+			return false;
+		}
+	}
+
+	emit modifiedData(this, colName(col));
+	emit modifiedWindow(this);
+	QApplication::restoreOverrideCursor();
+	return true;
 }
 
 bool Table::calculate()
 {
 	OBSOLETE
-	// TODO
-	return false;
+	bool success = true;
+	if(selectedColumnCount() < 1) return false;
+	for (int col = firstSelectedColumn(); col<=lastSelectedColumn(); col++)
+		if (!calculate(col, firstSelectedRow(), lastSelectedRow()))
+			success = false;
+	return success;
 }
 
 void Table::sortTableDialog()
@@ -1132,7 +1222,11 @@ void Table::sortColumnsDialog()
 void Table::normalizeSelection()
 {
 	OBSOLETE
-	// TODO
+	// TODO: normalization should be done by a filter
+	if(selectedColumnCount() < 1) return;
+	for (int i=firstSelectedColumn(); i<=lastSelectedColumn(); i++)
+		normalizeCol(i);
+	emit modifiedWindow(this);
 }
 
 void Table::normalize()
@@ -1141,12 +1235,17 @@ void Table::normalize()
 	// TODO: normalization should be done by a filter
 	for (int i=0; i<columnCount(); i++)
 		normalizeCol(i);
+	emit modifiedWindow(this);
 }
 
 void Table::normalizeCol(int col)
 {
 	OBSOLETE
-	if (col<0) col = firstSelectedColumn();
+	if (col<0) 
+	{
+		col = firstSelectedColumn();
+		if(selectedColumnCount() < 1) return;
+	}
 	double max = text(0,col).toDouble();
 	double aux = 0.0;
 	int rows = rowCount();
@@ -1172,6 +1271,9 @@ void Table::normalizeCol(int col)
 		if ( !the_text.isEmpty() )
 			setText(i, col, QLocale().toString(aux/max, f, prec));
 	}
+
+	QString name=colName(col);
+	emit modifiedData(this, name);
 }
 
 

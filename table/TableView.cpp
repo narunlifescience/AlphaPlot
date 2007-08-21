@@ -132,19 +132,6 @@ TableView::~TableView()
 	delete d_delegate;
 }
 
-
-void TableView::contextMenuEvent(QContextMenuEvent *)
-{
-    qDebug("void TableView::contextMenuEvent()");
-    
-	QHeaderView * hdr = horizontalHeader();
-	QRect rect = hdr->geometry();
-	rect.setHeight(200);
-	hdr->setGeometry(rect);
-
-    return ;
-}
-	
 void TableView::keyPressEvent(QKeyEvent * event)
 {
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
@@ -157,7 +144,7 @@ void TableView::keyPressEvent(QKeyEvent * event)
 QSize TableView::minimumSizeHint () const
 {
 	// This size will be used for new windows and when cascading etc.
-	return QSize(640,480);
+	return QSize(320,240);
 }
 
 void TableView::advanceCell()

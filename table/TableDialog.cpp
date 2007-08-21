@@ -313,7 +313,10 @@ void TableDialog::apply()
 		name.remove(QRegExp("\\W"));
 	}
 	d_table->changeColWidth(colWidth->value(), applyToAllBox->isChecked());
-	d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\n", " ").replace("\t", " "));
+	// FIXME: allowing line breaks in comments may brake the file format
+	// old code: d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\n", " ").replace("\t", " "));
+	d_table->setColComment(d_table->selectedColumn(), comments->text().replace("\t", " "));
+
 	d_table->changeColName(name.replace("_", "-"));
 	d_table->enumerateRightCols(enumerateAllBox->isChecked());
 	enumerateAllBox->setChecked(false);
@@ -568,16 +571,14 @@ void TableDialog::setNumericFormat(int type, int prec, bool allRightColumns)
 
 void TableDialog::setTextFormat(bool allRightColumns)
 {
-	// TODO
-	/*
 	int sc = d_table->selectedColumn();
-	if (allRightColumns){
+// TODO
+/*	if (allRightColumns){
 		for (int i = sc; i<d_table->columnCount(); i++)
 			d_table->setTextFormat(i);
 	}
-	else
+	else*/
 		d_table->setTextFormat(sc);
-	*/
 }
 
 void TableDialog::setDayFormat(const QString& format, bool allRightColumns)
