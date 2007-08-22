@@ -105,6 +105,8 @@ public:
 	 * \param num_rows the number of rows to copy
 	 */ 
 	virtual bool copy(const AbstractDataSource * source, int source_start, int dest_start, int num_rows) = 0;
+	//! Copy label, comment and plot designation
+	virtual bool copyDescription(const AbstractDataSource * source) = 0;
 	//! Expand the vector by the specified number of rows
 	/**
 	 * Since selecting and masking rows higher than the
@@ -117,7 +119,7 @@ public:
 	 */
 	virtual void expand(int new_rows) = 0;
 	//! Set the column label
-	virtual void setLabel(const QString& label) = 0; 
+	virtual void setLabel(const QString& label) = 0;
 	//! Set the column comment
 	virtual void setComment(const QString& comment) = 0;
 	//! Set the column plot designation
@@ -167,31 +169,14 @@ public:
 	
 	//! \name Formula related functions
 	//@{
-	//! Return the formula associated with row 'row' 	 
-	QString formula(int row) const { return d_formulas.value(row); }
 	//! Set a formula string for an interval of rows
-	void setFormula(Interval<int> i, QString formula) { d_formulas.setValue(i, formula); }
+	virtual void setFormula(Interval<int> i, QString formula) = 0;
 	//! Overloaded function for convenience
-	void setFormula(int row, QString formula) { setFormula(Interval<int>(row,row), formula); }
-	//! Return the intervals that have associated formulas
-	/**
-	 * This can be used to make a list of formulas with their intervals.
-	 * Here is some example code:
-	 *
-	 * \code
-	 * QStringList list;
-	 * QList< Interval<int> > intervals = my_column.formulaIntervals();
-	 * foreach(Interval<int> interval, intervals)
-	 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
-	 * \endcode
-	 */
-	QList< Interval<int> > formulaIntervals() const { return d_formulas.intervals(); }
+	virtual void setFormula(int row, QString formula) = 0;
 	//! Clear all formulas
-	void clearFormulas();
+	virtual void clearFormulas() = 0;
 	//@}
 
-protected:
-	IntervalAttribute<QString> d_formulas;
 };
 
 #endif

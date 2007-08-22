@@ -78,6 +78,13 @@ public:
 	 * \param num_rows the number of rows to copy
 	 */ 
 	virtual bool copy(const AbstractDataSource * other, int source_start, int dest_start, int num_rows);
+	//! Copy label, comment and plot designation
+	virtual bool copyDescription(const AbstractDataSource * source) 
+	{ 
+		d_label = source->label();
+		d_comment = source->comment();
+		d_plot_designation = source->plotDesignation();
+	}
 	//! Expand the vector by the specified number of rows
 	/**
 	 * Since selecting and masking rows higher than the
@@ -126,6 +133,31 @@ public:
 	virtual const double * constDataPointer() const;
 	//@}
 
+	//! \name Formula related functions
+	//@{
+	//! Return the formula associated with row 'row' 	 
+	virtual QString formula(int row) const { return d_formulas.value(row); }
+	//! Set a formula string for an interval of rows
+	virtual void setFormula(Interval<int> i, QString formula) { d_formulas.setValue(i, formula); }
+	//! Overloaded function for convenience
+	virtual void setFormula(int row, QString formula) { setFormula(Interval<int>(row,row), formula); }
+	//! Return the intervals that have associated formulas
+	/**
+	 * This can be used to make a list of formulas with their intervals.
+	 * Here is some example code:
+	 *
+	 * \code
+	 * QStringList list;
+	 * QList< Interval<int> > intervals = my_column.formulaIntervals();
+	 * foreach(Interval<int> interval, intervals)
+	 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
+	 * \endcode
+	 */
+	virtual QList< Interval<int> > formulaIntervals() const { return d_formulas.intervals(); }
+	//! Clear all formulas
+	virtual void clearFormulas() { d_formulas.clear(); };
+	//@}
+	
 	//! \name IntervalAttribute related reading functions
 	//@{
 	//! Return whether a certain row contains an invalid value 	 
@@ -216,6 +248,7 @@ protected:
 	IntervalAttribute<bool> d_validity;
 	IntervalAttribute<bool> d_selection;
 	IntervalAttribute<bool> d_masking;
+	IntervalAttribute<QString> d_formulas;
 	//! The column label
 	QString d_label;
 	//! The column comment

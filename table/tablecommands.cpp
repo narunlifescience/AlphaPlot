@@ -169,13 +169,11 @@ void TableClearColumnCmd::redo()
 			d_cleared_col = new DateTimeColumnData();
 
 		// keep the designation, label and comment
-		d_cleared_col->setPlotDesignation(d_orig_col->asDataSource()->plotDesignation());
-		d_cleared_col->setLabel(d_orig_col->asDataSource()->label());
-		d_cleared_col->setComment(d_orig_col->asDataSource()->comment());
+		d_cleared_col->copyDescription(d_orig_col->asDataSource());
 		// keep the formulas
-		QList< Interval<int> > formulas = d_orig_col->formulaIntervals();
+		QList< Interval<int> > formulas = d_orig_col->asDataSource()->formulaIntervals();
 		foreach(Interval<int> i, formulas)
-			d_cleared_col->setFormula(i, d_orig_col->formula(i.start()));
+			d_cleared_col->setFormula(i, d_orig_col->asDataSource()->formula(i.start()));
 	}
 	// replace the column with the cleared one
 	QList<AbstractColumnData *> list;
@@ -305,7 +303,7 @@ void TableRemoveRowsCmd::redo()
 			}
 
 			// copy formulas
-			AbstractColumnData * fsrc = d_model->columnPointer(i);
+			AbstractDataSource * fsrc = d_model->output(i);
 			QList< Interval<int> > formula_ivs = fsrc->formulaIntervals();
 			Interval<int>::restrictList(&formula_ivs, Interval<int>(d_first, d_first + d_count -1));
 	 		foreach(Interval<int> fiv, formula_ivs)
@@ -339,7 +337,7 @@ void TableRemoveRowsCmd::undo()
 		}
 
 		// copy formulas
-		AbstractColumnData * fsrc = d_old_cols.at(i);
+		AbstractDataSource * fsrc = d_old_cols.at(i)->asDataSource();
 		QList< Interval<int> > formula_ivs = fsrc->formulaIntervals();
 		foreach(Interval<int> fiv, formula_ivs)
 		{
@@ -757,14 +755,14 @@ void TableSetFormulaCmd::redo()
 	AbstractColumnData * ptr = d_model->columnPointer(d_col);
 	if(!d_undone)
 	{
-		d_old_intervals = ptr->formulaIntervals();
+		d_old_intervals = ptr->asDataSource()->formulaIntervals();
 		for(int i=0; i<d_old_intervals.size(); i++)
 		{
 			if(!d_old_intervals.at(i).intersects(d_interval))
 				d_old_intervals.removeAt(i--);
 		}
 		foreach(Interval<int> i, d_old_intervals)
-			d_old_formulas.append(ptr->formula(i.start()));
+			d_old_formulas.append(ptr->asDataSource()->formula(i.start()));
 	}
 	ptr->setFormula(d_interval, d_formula);
 }

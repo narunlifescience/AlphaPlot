@@ -73,7 +73,7 @@ public:
 
 	//! Return the data vector size
 	/**
-	 * \sa AbstractColumnData::setNumRows()
+	 * \sa AbstractColumnData::expand()
 	 */ 
 	virtual int rowCount() const = 0;
 	//! Return the column label
@@ -105,6 +105,24 @@ public:
 	virtual QList< Interval<int> > maskedIntervals() const { return QList< Interval<int> >(); } 	 
 	//@}
 
+	//! \name Formula related functions
+	//@{
+	//! Return the formula associated with row 'row' 	 
+	virtual QString formula(int row) const { Q_UNUSED(row); return QString(); }
+	//! Return the intervals that have associated formulas
+	/**
+	 * This can be used to make a list of formulas with their intervals.
+	 * Here is some example code:
+	 *
+	 * \code
+	 * QStringList list;
+	 * QList< Interval<int> > intervals = my_column.formulaIntervals();
+	 * foreach(Interval<int> interval, intervals)
+	 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
+	 * \endcode
+	 */
+	virtual QList< Interval<int> > formulaIntervals() const { return QList< Interval<int> >(); }
+	//@}
 signals: 
 	//! Column label and/or comment will be changed
 	/**

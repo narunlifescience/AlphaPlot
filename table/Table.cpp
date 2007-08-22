@@ -558,8 +558,6 @@ SciDAVis::ColumnMode Table::columnMode(int col)
 void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
 {
 	AbstractDataSource * old_col = d_table_model->output(col);
-	// TODO move formula() to DataSource to make this unnecessary
-	AbstractColumnData * old_col_ptr = d_table_model->columnPointer(col);
 	AbstractColumnData * new_col = 0;
 	AbstractFilter *filter, *new_in_filter, *new_out_filter;
 
@@ -679,13 +677,11 @@ void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
 	filter->input(0, old_col);
 	new_col->copy(filter->output(0));
 	// keep the designation, label and comment
-	new_col->setPlotDesignation(old_col->plotDesignation());
-	new_col->setLabel(old_col->label());
-	new_col->setComment(old_col->comment());
+	new_col->copyDescription(old_col);
 	// keep the formulas
-	QList< Interval<int> > formulas = old_col_ptr->formulaIntervals();
+	QList< Interval<int> > formulas = old_col->formulaIntervals();
 	foreach(Interval<int> i, formulas)
-		new_col->setFormula(i, old_col_ptr->formula(i.start()));
+		new_col->setFormula(i, old_col->formula(i.start()));
 
 	// replace the old column
 	QList<AbstractColumnData *> cols;
@@ -1148,7 +1144,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 	OBSOLETE
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	AbstractScript *colscript =  d_scripting_engine->newScript(d_table_model->columnPointer(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
+	AbstractScript *colscript =  d_scripting_engine->newScript(d_table_model->output(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
 	connect(colscript, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
 	connect(colscript, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
 
