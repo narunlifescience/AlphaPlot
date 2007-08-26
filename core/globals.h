@@ -35,6 +35,10 @@
 //! Definition of global constants and enums
 class SciDAVis
 {
+	Q_OBJECT
+	Q_ENUMS(PlotDesignation)
+	Q_ENUMS(ColumnMode)
+
 	public:
 		//! Types of plot designations
 		enum PlotDesignation
@@ -56,7 +60,17 @@ class SciDAVis
 			Time = 3, //!< obsolete legacy value, use DateTime instead
 			Month = 4, //!< column contains month names
 			Day = 5, //!< column containts day of week names
-			DateTime = 6 //!< column contains dates and/or times
+			DateTime = 6, //!< column contains dates and/or times
+			UndefinedMode = 99 //!< mode not yet defined
+		};
+
+		//! Column data type
+		enum ColumnDataType
+		{
+			UndefinedType = 0,
+			TypeDouble = 1,
+			TypeQString = 2,
+			TypeQDateTime = 3
 		};
 
 		//! Return the SciDAVis version number
