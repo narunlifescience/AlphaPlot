@@ -33,20 +33,23 @@
 #include <QLocale>
 
 //! Locale-aware conversion filter QString -> double.
-class String2DoubleFilter : public AbstractSimpleFilter<double>
+class String2DoubleFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
 	public:
 		virtual double valueAt(int row) const {
 			if (!d_inputs.value(0)) return 0;
-			return QLocale().toDouble(stringInput()->textAt(row));
+			return QLocale().toDouble(d_inputs.value(0)->textAt(row));
 		}
+
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
 
 	protected:
 		//! Using typed ports: only string inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractStringDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQString;
 		}
 };
 

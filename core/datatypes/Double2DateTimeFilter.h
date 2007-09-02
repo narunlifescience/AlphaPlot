@@ -2,8 +2,8 @@
     File                 : Double2DateTimeFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
     Description          : Conversion filter double -> QDateTime, interpreting
                            the input numbers as (fractional) Julian days.
                            
@@ -36,18 +36,18 @@
 #include <QTime>
 
 //! Conversion filter double -> QDateTime, interpreting the input numbers as (fractional) Julian days.
-class Double2DateTimeFilter : public AbstractSimpleFilter<QDateTime>
+class Double2DateTimeFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
 	public:
 		virtual QDate dateAt(int row) const {
 			if (!d_inputs.value(0)) return QDate();
-			return QDate::fromJulianDay(qRound(doubleInput()->valueAt(row)));
+			return QDate::fromJulianDay(qRound(d_inputs.value(0)->valueAt(row)));
 		}
 		virtual QTime timeAt(int row) const {
 			if (!d_inputs.value(0)) return QTime();
-			double input_value = doubleInput()->valueAt(row);
+			double input_value = d_inputs.value(0)->valueAt(row);
 			// we only want the digits behind the dot and 
 			// convert them from fraction of day to milliseconds
 			return QTime(12,0,0,0).addMSecs(int( (input_value - int(input_value)) * 86400000.0 ));
@@ -56,10 +56,13 @@ class Double2DateTimeFilter : public AbstractSimpleFilter<QDateTime>
 			return QDateTime(dateAt(row), timeAt(row));
 		}
 
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
+
 	protected:
 		//! Using typed ports: only double inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractDoubleDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeDouble;
 		}
 };
 

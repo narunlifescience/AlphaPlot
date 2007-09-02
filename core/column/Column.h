@@ -31,7 +31,7 @@
 #define COLUMN_H
 
 #include "core/AbstractAspect.h"
-#include "core/AbstractFilter.h"
+#include "core/AbstractSimpleFilter.h"
 #include "lib/IntervalAttribute.h"
 #include "column/ColumnPrivate.h"
 #include "column/columncommands.h"
@@ -163,13 +163,13 @@ class Column : public AbstractAspect, public AbstractColumn
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		AbstractFilter * inputFilter() const { return d->inputFilter(); }
+		AbstractSimpleFilter * inputFilter() const { return d->inputFilter(); }
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		AbstractFilter * outputFilter() const { return d->outputFilter(); }
+		AbstractSimpleFilter * outputFilter() const { return d->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -312,8 +312,6 @@ class Column : public AbstractAspect, public AbstractColumn
 		friend class ColumnSetFormulaCmd;
 
 	private:
-		//! Internal utility function
-		void connectPrivateObject();
 		//! Pointer to the private interface and all private data
 		ColumnPrivate * d;
 };

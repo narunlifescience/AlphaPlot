@@ -35,7 +35,7 @@
 #include <math.h>
 
 //! Conversion filter String -> QDateTime, interpreting the input as months of the year (either numeric or "Jan" etc).
-class String2MonthFilter : public AbstractSimpleFilter<QDateTime>
+class String2MonthFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
@@ -54,7 +54,7 @@ class String2MonthFilter : public AbstractSimpleFilter<QDateTime>
 		{
 			if (!d_inputs.value(0)) return QDateTime();
 
-			QString input_value = stringInput()->textAt(row);
+			QString input_value = d_inputs.value(0)->textAt(row);
 			bool ok;
 			int month_value = input_value.toInt(&ok);
 			if(!ok)
@@ -75,9 +75,12 @@ class String2MonthFilter : public AbstractSimpleFilter<QDateTime>
 			return QDateTime(result_date, result_time);
 		}
 
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
+
 	protected:
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractStringDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQString;
 		}
 };
 

@@ -35,7 +35,7 @@
 #include <QRegExp>
 
 //! Conversion filter QDateTime -> QString.
-class DateTime2StringFilter : public AbstractSimpleFilter<QString>
+class DateTime2StringFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
@@ -51,6 +51,9 @@ class DateTime2StringFilter : public AbstractSimpleFilter<QString>
 		 */
 		QString format() const { return d_format; }
 
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
+
 	private:
 		//! The format string.
 		QString d_format;
@@ -59,7 +62,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter<QString>
 	public:
 		virtual QString textAt(int row) const {
 			if (!d_inputs.value(0)) return QString();
-			QDateTime input_value = dateTimeInput()->dateTimeAt(row);
+			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
 			if(!input_value.date().isValid() && input_value.time().isValid())
 				input_value.setDate(QDate(1900,1,1));
 			// QDate::toString produces shortened year numbers for "yyyy"
@@ -75,8 +78,8 @@ class DateTime2StringFilter : public AbstractSimpleFilter<QString>
 		}
 	protected:
 		//! Using typed ports: only DateTime inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractDateTimeDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQDateTime;
 		}
 };
 

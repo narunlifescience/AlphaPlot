@@ -2,8 +2,8 @@
     File                 : Double2StringFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
     Description          : Locale-aware conversion filter double -> QString.
                            
  ***************************************************************************/
@@ -33,7 +33,7 @@
 #include <QLocale>
 
 //! Locale-aware conversion filter double -> QString.
-class Double2StringFilter : public AbstractSimpleFilter<QString>
+class Double2StringFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
@@ -49,6 +49,9 @@ class Double2StringFilter : public AbstractSimpleFilter<QString>
 		//! Get number of displayed digits
 		int numDigits() const { return d_digits; }
 
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
+
 	private:
 		//! Format character as in QString::number 
 		char d_format;
@@ -59,14 +62,14 @@ class Double2StringFilter : public AbstractSimpleFilter<QString>
 	public:
 		virtual QString textAt(int row) const {
 			if (!d_inputs.value(0)) return QString();
-			if (doubleInput()->rowCount() <= row) return QString();
-			return QLocale().toString(doubleInput()->valueAt(row), d_format, d_digits);
+			if (d_inputs.value(0)->rowCount() <= row) return QString();
+			return QLocale().toString(d_inputs.value(0)->valueAt(row), d_format, d_digits);
 		}
 
 	protected:
 		//! Using typed ports: only double inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractDoubleDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeDouble;
 		}
 };
 

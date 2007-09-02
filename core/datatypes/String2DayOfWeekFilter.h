@@ -35,7 +35,7 @@
 #include <math.h>
 
 //! Conversion filter String -> QDateTime, interpreting the input as days of the week (either numeric or "Mon" etc).
-class String2DayOfWeekFilter : public AbstractSimpleFilter<QDateTime>
+class String2DayOfWeekFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
@@ -54,13 +54,13 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter<QDateTime>
 		{
 			if (!d_inputs.value(0)) return QDateTime();
 
-			QString input_value = stringInput()->textAt(row);
+			QString input_value = d_inputs.value(0)->textAt(row);
 			bool ok;
 			int day_value = input_value.toInt(&ok);
 			if(!ok)
 			{
-#if QT_VERSION <= 0x040300  // TODO: adjust this with every new Qt version until QDate::fromString(..., "dddd"); is fixed
-				// workaround for Qt bug
+#if QT_VERSION <= 0x040300  
+				// workaround for Qt bug #171920
 				QDate temp = QDate(1900,1,1);
 				for(int i=1; i<=7; i++)
 					if( (input_value.toLower() == QDate::longDayName(i).toLower())
@@ -70,7 +70,7 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter<QDateTime>
 						break;
 					}
 
-#else // this will hopefully work in some future Qt version
+#else 
 				QDate temp = QDate::fromString(input_value, "ddd");
 				if(!temp.isValid())
 					temp = QDate::fromString(input_value, "dddd");
@@ -88,9 +88,12 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter<QDateTime>
 			return QDateTime(result_date, result_time);
 		}
 
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
+
 	protected:
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractStringDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQString;
 		}
 };
 

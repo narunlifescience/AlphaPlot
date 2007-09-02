@@ -2,8 +2,8 @@
     File                 : MonthDoubleFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
     Description          : Conversion filter QDateTime -> double, translating
                            dates into months (January -> 1).
                            
@@ -38,20 +38,23 @@
  *
  * \sa QDate::month()
  */
-class Month2DoubleFilter : public AbstractSimpleFilter<double>
+class Month2DoubleFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
 	public:
 		virtual double valueAt(int row) const {
 			if (!d_inputs.value(0)) return 0;
-			return double(dateTimeInput()->dateAt(row).month());
+			return double(d_inputs.value(0)->dateAt(row).month());
 		}
+
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
 
 	protected:
 		//! Using typed ports: only date-time inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractDateTimeDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQDateTime;
 		}
 };
 

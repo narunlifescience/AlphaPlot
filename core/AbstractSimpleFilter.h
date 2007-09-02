@@ -2,8 +2,8 @@
     File                 : AbstractSimpleFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Simplified filter interface for filters with
                            only one output port.
 
@@ -30,17 +30,13 @@
 #ifndef ABSTRACT_SIMPLE_FILTER
 #define ABSTRACT_SIMPLE_FILTER
 
-#include "AbstractFilter.h"
-#include "datatypes/AbstractDoubleDataSource.h"
-#include "datatypes/AbstractStringDataSource.h"
-#include "datatypes/AbstractDateTimeDataSource.h"
+#include <QtGlobal>
+#include "core/AbstractFilter.h"
+#include "core/AbstractColumn.h"
+#include "core/AbstractAspect.h"
 #include "lib/IntervalAttribute.h"
 
-template<class T> class AbstractDataSourceTemplate {};
-template<> class AbstractDataSourceTemplate<double> : public AbstractDoubleDataSource {};
-template<> class AbstractDataSourceTemplate<QString> : public AbstractStringDataSource {};
-template<> class AbstractDataSourceTemplate<QDateTime> : public AbstractDateTimeDataSource {};
-
+// TODO: revise description
 /**
  * \brief Simplified filter interface for filters with only one output port.
  *
@@ -67,7 +63,7 @@ template<> class AbstractDataSourceTemplate<QDateTime> : public AbstractDateTime
  * 02 class TutorialFilter1 : public AbstractSimpleFilter<double>
  * 03 {
  * 04	protected:
- * 05		virtual bool inputAcceptable(int, AbstractDataSource *source) {
+ * 05		virtual bool inputAcceptable(int, AbstractColumn *source) {
  * 06			return source->inherits("AbstractDoubleDataSource");
  * 07		}
  * 08	public:
@@ -109,7 +105,7 @@ template<> class AbstractDataSourceTemplate<QDateTime> : public AbstractDateTime
  * 02 class TutorialFilter2 : public AbstractSimpleFilter<double>
  * 03 {
  * 04	protected:
- * 05		virtual bool inputAcceptable(int, AbstractDataSource *source) {
+ * 05		virtual bool inputAcceptable(int, AbstractColumn *source) {
  * 06			return source->inherits("AbstractDoubleDataSource");
  * 07		}
  * \endcode
@@ -122,20 +118,26 @@ template<> class AbstractDataSourceTemplate<QDateTime> : public AbstractDateTime
  * 12 	}
  * \endcode
  */
-template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate<T>, public AbstractFilter
+class AbstractSimpleFilter : public AbstractAspect, public AbstractFilter, public AbstractColumn 
 {
+	Q_OBJECT
+
 	public:
+		//! Ctor
+		AbstractSimpleFilter() : AbstractAspect(QString("SimpleFilter")) {}
+		//! Ctor
+		AbstractSimpleFilter(const QString& label) : AbstractAspect(label) {}
 		//! Default to one input port.
 		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
 		virtual int outputCount() const { return 1; }
 		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
-		virtual AbstractDataSource* output(int port) const {
-			return port == 0 ? const_cast<AbstractSimpleFilter<T>*>(this) : 0;
+		virtual AbstractColumn* output(int port) const {
+			return port == 0 ? const_cast<AbstractSimpleFilter*>(this) : 0;
 		}
 		//! Copy label of input port 0.
-		virtual QString label() const {
-			return d_inputs.value(0) ? d_inputs.at(0)->label() : QString();
+		virtual QString columnLabel() const {
+			return d_inputs.value(0) ? d_inputs.at(0)->columnLabel() : QString();
 		}
 		//! Copy plot designation of input port 0.
 		virtual SciDAVis::PlotDesignation plotDesignation() const {
@@ -143,6 +145,98 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 				d_inputs.at(0)->plotDesignation() :
 				SciDAVis::noDesignation;
 		}
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->dataType();
+		}
+		//! Return the column mode
+		/**
+		 * This function is most used by tables but can also be used
+		 * by plots. The column mode specifies how to interpret 
+		 * the values in the column additional to the data type.
+		 */ 
+		virtual SciDAVis::ColumnMode columnMode() const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->columnMode();
+		}
+		//! Does nothing (no comment support for filters so far)
+		virtual QString columnComment() const { return QString(); }
+		//! Set the column label (not supported)
+		virtual void setColumnLabel(const QString& label) { Q_UNUSED(label); }
+		//! Set the column comment (not supported)
+		virtual void setColumnComment(const QString& comment) { Q_UNUSED(comment); }
+		//! Return the content of row 'row'.
+		/**
+		 * Use this only when dataType() is QString
+		 */
+		virtual QString textAt(int row) const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->textAt(row);
+		}
+		//! Return the date part of row 'row'
+		/**
+		 * Use this only when dataType() is QDateTime
+		 */
+		virtual QDate dateAt(int row) const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->dateAt(row);
+		}
+		//! Return the time part of row 'row'
+		/**
+		 * Use this only when dataType() is QDateTime
+		 */
+		virtual QTime timeAt(int row) const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->timeAt(row);
+		}
+		//! Set the content of row 'row'
+		/**
+		 * Use this only when dataType() is QDateTime
+		 */
+		virtual QDateTime dateTimeAt(int row) const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->dateTimeAt(row);
+		}
+		//! Return the double value in row 'row'
+		/**
+		 * Use this only when dataType() is double
+		 */
+		virtual double valueAt(int row) const
+		{
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.at(0)->valueAt(row);
+		}
+		// TODO: Implement these functions in a decent way when integrating it into the aspect framework
+		//! \name aspect related functions
+		//@{
+		//! Return my parent Aspect or 0 if I currently don't have one.
+		virtual AbstractAspect *parentAspect() const { return 0; }
+		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
+		virtual Project *project() const { return 0; }
+		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
+		virtual QString path() const { return QString(); }
+		//! Construct a standard view on me.
+		/**
+		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
+		 * ownership. If no parent is given, the caller receives ownership of the view.
+		 * 
+		 * This method may be called multiple times during the life time of an Aspect, or it might not get
+		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 */
+		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
+		//! Remove me from my parent's list of children.
+		virtual void remove() {}
+		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
+		virtual QUndoStack *undoStack() const { return 0; }
+		//@}
+
 		//!\name assuming a 1:1 correspondence between input and output rows
 		//@{
 		virtual int rowCount() const {
@@ -151,6 +245,7 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 		virtual QList< Interval<int> > dependentRows(Interval<int> input_range) const { return QList< Interval<int> >() << input_range; }
 		//@}
 
+		// TODO: Implement commands
 		//!\name Masking
 		//@{
 		//! Return whether a certain row is masked
@@ -162,9 +257,9 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 		//! Clear all masking information
 		virtual void clearMasks()
 		{
-			emit maskingAboutToChange(this);	
+			emit d_sender->maskingAboutToChange(this);	
 			d_masking.clear();
-			emit maskingChanged(this);	
+			emit d_sender->maskingChanged(this);	
 		}
 		//! Set an interval masked
 		/**
@@ -173,9 +268,9 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 		 */ 
 		virtual void setMasked(Interval<int> i, bool mask = true)
 		{
-			emit maskingAboutToChange(this);	
+			emit d_sender->maskingAboutToChange(this);	
 			d_masking.setValue(i, mask);
-			emit maskingChanged(this);	
+			emit d_sender->maskingChanged(this);	
 		}
 		//! Overloaded function for convenience
 		virtual void setMasked(int row, bool mask = true) { setMasked(Interval<int>(row,row), mask); }
@@ -184,73 +279,31 @@ template<class T> class AbstractSimpleFilter : public AbstractDataSourceTemplate
 	protected:
 		IntervalAttribute<bool> d_masking;
 
-		/**
-		 * \brief Only use this if you are sure that an AbstractDoubleDataSource is connected to the given port.
-		 *
-		 * The standard way of ensuring this is reimplementing AbstractFilter::inputAcceptable():
-		 *
-		 * \code
-		 * virtual bool inputAcceptable(int, AbstractDataSource *source) {
-		 * 	return source->inherits("AbstractDoubleDataSource");
-		 * }
-		 * \endcode
-		 */
-		AbstractDoubleDataSource *doubleInput(int port=0) const {
-			return static_cast<AbstractDoubleDataSource*>(d_inputs.value(port));
-		}
-		/**
-		 * \brief Only use this if you are sure that an AbstractStringDataSource is connected to the given port.
-		 *
-		 * The standard way of ensuring this is reimplementing AbstractFilter::inputAcceptable():
-		 *
-		 * \code
-		 * virtual bool inputAcceptable(int, AbstractDataSource *source) {
-		 * 	return source->inherits("AbstractStringDataSource");
-		 * }
-		 * \endcode
-		 */
-		AbstractStringDataSource *stringInput(int port=0) const {
-			return static_cast<AbstractStringDataSource*>(d_inputs.value(port));
-		}
-		/**
-		 * \brief Only use this if you are sure that an AbstractDateTimeDataSource is connected to the given port.
-		 *
-		 * The standard way of ensuring this is reimplementing AbstractFilter::inputAcceptable():
-		 *
-		 * \code
-		 * virtual bool inputAcceptable(int, AbstractDataSource *source) {
-		 * 	return source->inherits("AbstractDateTimeDataSource");
-		 * }
-		 * \endcode
-		 */
-		AbstractDateTimeDataSource *dateTimeInput(int port=0) const {
-			return static_cast<AbstractDateTimeDataSource*>(d_inputs.value(port));
-		}
-
 		//!\name signal handlers
 		//@{
-		virtual void inputDescriptionAboutToChange(AbstractDataSource*) { emit descriptionAboutToChange(this); }
-		virtual void inputDescriptionChanged(AbstractDataSource*) { emit descriptionChanged(this); }
-		virtual void inputPlotDesignationAboutToChange(AbstractDataSource*) { emit plotDesignationAboutToChange(this); }
-		virtual void inputPlotDesignationChanged(AbstractDataSource*) { emit plotDesignationChanged(this); }
-		virtual void inputDataAboutToChange(AbstractDataSource*) { emit dataAboutToChange(this); }
-		virtual void inputDataChanged(AbstractDataSource*) { emit dataChanged(this); }
+		// TODO: determine how to handle description changes
+		virtual void inputDescriptionAboutToChange(AbstractColumn*) { /*emit descriptionAboutToChange(this);*/ }
+		virtual void inputDescriptionChanged(AbstractColumn*) { /*emit descriptionChanged(this);*/ }
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn*) { emit d_sender->plotDesignationAboutToChange(this); }
+		virtual void inputPlotDesignationChanged(AbstractColumn*) { emit d_sender->plotDesignationChanged(this); }
+		virtual void inputDataAboutToChange(AbstractColumn*) { emit d_sender->dataAboutToChange(this); }
+		virtual void inputDataChanged(AbstractColumn*) { emit d_sender->dataChanged(this); }
 
-		virtual void inputRowsAboutToBeInserted(AbstractDataSource*, Interval<int> range) {
+		virtual void inputRowsAboutToBeInserted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit rowsAboutToBeInserted(this, output_range.start(), output_range.size());
+				emit d_sender->rowsAboutToBeInserted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsInserted(AbstractDataSource*, Interval<int> range) {
+		virtual void inputRowsInserted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit rowsInserted(this, output_range.start(), output_range.size());
+				emit d_sender->rowsInserted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsAboutToBeDeleted(AbstractDataSource*, Interval<int> range) {
+		virtual void inputRowsAboutToBeDeleted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit rowsAboutToBeDeleted(this, output_range.start(), output_range.size());
+				emit d_sender->rowsAboutToBeDeleted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsDeleted(AbstractDataSource*, Interval<int> range) {
+		virtual void inputRowsDeleted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit rowsDeleted(this, output_range.start(), output_range.size());
+				emit d_sender->rowsDeleted(this, output_range.start(), output_range.size());
 		}
 		//@}
 };

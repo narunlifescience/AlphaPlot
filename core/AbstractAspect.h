@@ -88,7 +88,7 @@ class AbstractAspectObserver
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
  */
-class AbstractAspect : private QObject, public AbstractAspectObserver
+class AbstractAspect : public QObject, public AbstractAspectObserver
 {
 	Q_OBJECT
 
@@ -97,7 +97,7 @@ class AbstractAspect : private QObject, public AbstractAspectObserver
 		virtual ~AbstractAspect();
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
-		AbstractAspect *parent() const { return static_cast<AbstractAspect*>(QObject::parent()); }
+		virtual AbstractAspect *parentAspect() const = 0; //{ return static_cast<AbstractAspect*>(QObject::parent()); }
 		//! Add the given Aspect to my list of children.
 		void addChild(AbstractAspect *child);
 		//! Remove the given Aspect from my list of children.
@@ -109,7 +109,7 @@ class AbstractAspect : private QObject, public AbstractAspectObserver
 		//! Return the position of child in my list of children.
 		int indexOfChild(const AbstractAspect *child) const;
 		//! Return my position in my parent's list of children.
-		int index() const { return parent() ? parent()->indexOfChild(this) : 0; }
+		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
 
 		//! See QMetaObject::className().
 		const char* className() const { return metaObject()->className(); }
@@ -117,11 +117,11 @@ class AbstractAspect : private QObject, public AbstractAspectObserver
 		bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
-		virtual Project *project() const { return parent() ? parent()->project() : 0; }
+		virtual Project *project() const = 0; //{ return parent() ? parent()->project() : 0; }
 		//! Execute the given command, pushing it on the undoStack() if available.
 		void exec(QUndoCommand *command);
 		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
-		virtual QString path() const { return parent() ? "" : parent()->path() + "/" + name(); }
+		virtual QString path() const = 0; //{ return parent() ? "" : parent()->path() + "/" + name(); }
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
@@ -204,7 +204,9 @@ class AbstractAspect : private QObject, public AbstractAspectObserver
 		 */
 		void setCaptionSpec(const QString &value);
 		//! Remove me from my parent's list of children.
-		void remove() { if(parent()) parent()->removeChild(this); }
+		virtual void remove() = 0; // { if(parent()) parent()->removeChild(this); }
+		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
+		virtual QUndoStack *undoStack() const = 0; // { return parent() ? parent()->undoStack() : 0; }
 
 	private:
 		AspectModel *d_model;
@@ -219,8 +221,6 @@ class AbstractAspect : private QObject, public AbstractAspectObserver
 
 		//! Wrapper around QObject::setParent() which also updates the list of observers.
 		void setParentPrivate(AbstractAspect *new_parent);
-		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
-		virtual QUndoStack *undoStack() const { return parent() ? parent()->undoStack() : 0; }
 };
 
 #endif // ifndef ABSTRACT_ASPECT_H

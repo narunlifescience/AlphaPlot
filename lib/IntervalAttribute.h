@@ -177,6 +177,16 @@ template<class T> class IntervalAttribute
 
 		QList< Interval<int> > intervals() const { return d_intervals; }
 		QList<T> values() const { return d_values; }
+		IntervalAttribute<T>& operator=(const IntervalAttribute<T>& other) 
+		{
+			d_intervals.clear();
+			d_values.clear();
+			foreach( Interval<int> iv, other.intervals())
+				d_intervals.append(iv);
+			foreach( T value, other.values())
+				d_values.append(value);
+			return *this;
+		}
 
 	private:
 		QList<T> d_values;
@@ -189,6 +199,13 @@ template<> class IntervalAttribute<bool>
 	public:
 		IntervalAttribute<bool>() {}
 		IntervalAttribute<bool>(QList< Interval<int> > intervals) : d_intervals(intervals) {}
+		IntervalAttribute<bool>& operator=(const IntervalAttribute<bool>& other) 
+		{
+			d_intervals.clear();
+			foreach( Interval<int> iv, other.intervals())
+				d_intervals.append(iv);
+			return *this;
+		}
 
 		void setValue(Interval<int> i, bool value=true) 
 		{

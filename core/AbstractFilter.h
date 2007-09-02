@@ -29,7 +29,7 @@
 #ifndef ABSTRACT_FILTER_H
 #define ABSTRACT_FILTER_H
 
-#include "AbstractDataSource.h"
+#include "core/AbstractColumn.h"
 #include <QVector>
 
 // forward declaration, class follows
@@ -48,22 +48,22 @@ class AbstractFilterSlotMachine : public QObject {
 	public:
 		AbstractFilterSlotMachine(AbstractFilter *parent) : d_parent(parent) {}
 		public slots:
-			void inputDescriptionAboutToChange(AbstractDataSource* source);
-			void inputDescriptionChanged(AbstractDataSource* source);
-			void inputPlotDesignationAboutToChange(AbstractDataSource* source);
-			void inputPlotDesignationChanged(AbstractDataSource* source);
-			void inputDataAboutToChange(AbstractDataSource* source);
-			void inputDataChanged(AbstractDataSource* source);
-			void inputAboutToBeReplaced(AbstractDataSource* source, AbstractDataSource* replacement);
-			void inputRowsAboutToBeInserted(AbstractDataSource* source, int before, int count);
-			void inputRowsInserted(AbstractDataSource* source, int before, int count);
-			void inputRowsAboutToBeDeleted(AbstractDataSource* source, int first, int count);
-			void inputRowsDeleted(AbstractDataSource* source, int first, int count);
-			void inputValidityAboutToChange(AbstractDataSource* source);
-			void inputValidityChanged(AbstractDataSource* source);
-			void inputMaskingAboutToChange(AbstractDataSource* source);
-			void inputMaskingChanged(AbstractDataSource* source);
-			void inputAboutToBeDestroyed(AbstractDataSource* source);
+			void inputDescriptionAboutToChange(AbstractColumn* source);
+			void inputDescriptionChanged(AbstractColumn* source);
+			void inputPlotDesignationAboutToChange(AbstractColumn* source);
+			void inputPlotDesignationChanged(AbstractColumn* source);
+			void inputDataAboutToChange(AbstractColumn* source);
+			void inputDataChanged(AbstractColumn* source);
+			void inputAboutToBeReplaced(AbstractColumn* source, AbstractColumn* replacement);
+			void inputRowsAboutToBeInserted(AbstractColumn* source, int before, int count);
+			void inputRowsInserted(AbstractColumn* source, int before, int count);
+			void inputRowsAboutToBeDeleted(AbstractColumn* source, int first, int count);
+			void inputRowsDeleted(AbstractColumn* source, int first, int count);
+			void inputValidityAboutToChange(AbstractColumn* source);
+			void inputValidityChanged(AbstractColumn* source);
+			void inputMaskingAboutToChange(AbstractColumn* source);
+			void inputMaskingChanged(AbstractColumn* source);
+			void inputAboutToBeDestroyed(AbstractColumn* source);
 	private:
 		AbstractFilter *d_parent;
 };
@@ -76,16 +76,16 @@ class AbstractFilterSlotMachine : public QObject {
  * a number of input and output ports (obviously, those numbers do not necessarily agree).
  * 
  * \section using Using AbstractFilter
- * You can connect one AbstractDataSource to each input port using
- * input(int port, AbstractDataSource *source). Every output(int port) is realized
- * again by an AbstractDataSource, which you can connect to as many other filters, tables
+ * You can connect one AbstractColumn to each input port using
+ * input(int port, AbstractColumn *source). Every output(int port) is realized
+ * again by an AbstractColumn, which you can connect to as many other filters, tables
  * or plots as you like.
  * Ownership of the data sources always stays with the class which is providing the data,
  * that is, neither input() nor output() transfer ownership.
  *
  * Furthermore, you can use inputCount() and outputCount() to query the number of
  * input and output ports, respectively and you can obtain label strings for inputs (via
- * inputLabel()) and outputs (via AbstractDataSource::label()). This allows generic filter
+ * inputLabel()) and outputs (via AbstractColumn::label()). This allows generic filter
  * handling routines to be written, which is important for using filters provided by plugins.
  *
  * Its simplicity of use notwithstanding, AbstractFilter provides a powerful and versatile
@@ -102,7 +102,7 @@ class AbstractFilterSlotMachine : public QObject {
  * AbstractFilter directly, which is slightly more involved, because at least one additional
  * class (subclassing AbstractDoubleDataSource, AbstractStringDataSource or
  * AbstractDateTimeDataSource) has to be written in order to supply the output ports and in
- * addition to data transfer between these classes the signals defined by AbstractDataSource
+ * addition to data transfer between these classes the signals defined by AbstractColumn
  * have to be handled on both inputs and outputs. Signals from data sources connected to the input
  * ports are automatically connected to a matching set of virtual methods, which can be
  * reimplemented by subclasses to handle these events.
@@ -146,7 +146,7 @@ class AbstractFilter
 		 *
 		 * \sa inputAcceptable(), #d_inputs
 		 */
-		bool input(int port, AbstractDataSource *source);
+		bool input(int port, AbstractColumn *source);
 		/**
 		 * \brief Connect all outputs of the provided filter to the corresponding inputs of this filter.
 		 * \returns true if all connections were accepted, false otherwise
@@ -160,7 +160,7 @@ class AbstractFilter
 		 * Default labels are In1, In2, ... (or translated equivalents), but implementations can
 		 * reimplement this method to produce more meaningful labels.
 		 *
-		 * Output ports are implicitly labeled through AbstractDataSource::label().
+		 * Output ports are implicitly labeled through AbstractColumn::label().
 		 */
 		virtual QString inputLabel(int port) const;
 		/**
@@ -169,7 +169,7 @@ class AbstractFilter
 		 * The returned pointer may be 0 even for valid port numbers, for example if not all required
 		 * input ports have been connected.
 		 */
-		virtual AbstractDataSource* output(int port=0) const = 0;
+		virtual AbstractColumn* output(int port=0) const = 0;
 		// virtual void saveTo(QXmlStreamWriter *) = 0;
 		// virtual void loadFrom(QXmlStreamReader *) = 0;
 
@@ -179,7 +179,7 @@ class AbstractFilter
 		 *
 		 * If not reimplemented, all connections to ports within [0, inputCount()-1] will be accepted.
 		 */
-		virtual bool inputAcceptable(int port, AbstractDataSource *source) {
+		virtual bool inputAcceptable(int port, AbstractColumn *source) {
 			Q_UNUSED(port); Q_UNUSED(source); return true;
 		}
 		/**
@@ -188,7 +188,7 @@ class AbstractFilter
 		 * This is only to notify implementations of the event, the default implementation is a
 		 * no-op.
 		 */
-		virtual void inputAboutToBeDisconnected(AbstractDataSource* source) { Q_UNUSED(source); }
+		virtual void inputAboutToBeDisconnected(AbstractColumn* source) { Q_UNUSED(source); }
 
 		//!\name signal handlers
 		//@{
@@ -197,7 +197,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionAboutToChange(AbstractDataSource* source);
+		virtual void inputDescriptionAboutToChange(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDescriptionAboutToChange(int port) { Q_UNUSED(port); }
 		//! 
@@ -206,7 +206,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionChanged(AbstractDataSource* source);
+		virtual void inputDescriptionChanged(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDescriptionChanged(int port) { Q_UNUSED(port); }
 		/**
@@ -214,7 +214,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationAboutToChange(AbstractDataSource* source);
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputPlotDesignationAboutToChange(int port) { Q_UNUSED(port); }
 		/**
@@ -222,7 +222,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationChanged(AbstractDataSource* source);
+		virtual void inputPlotDesignationChanged(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputPlotDesignationChanged(int port) { Q_UNUSED(port); }
 		/**
@@ -230,7 +230,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataAboutToChange(AbstractDataSource* source);
+		virtual void inputDataAboutToChange(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDataAboutToChange(int port) { Q_UNUSED(port); }
 		/**
@@ -238,50 +238,50 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataChanged(AbstractDataSource* source);
+		virtual void inputDataChanged(AbstractColumn* source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDataChanged(int port) { Q_UNUSED(port); }
 		/**
 		 * \brief An input is about to be replaced.
 		 *
-		 * This signal is handled by AbstractFilter and mapped to input(int,AbstractDataSource*),
+		 * This signal is handled by AbstractFilter and mapped to input(int,AbstractColumn*),
 		 * which calls inputDescriptionAboutToChange(), inputPlotDesignationAboutToChange(),
-		 * inputDataAboutToChange(AbstractDataSource*), inputDescripionChanged(),
-		 * inputPlotDesignationChanged() and inputDataChanged(AbstractDataSource*).
+		 * inputDataAboutToChange(AbstractColumn*), inputDescripionChanged(),
+		 * inputPlotDesignationChanged() and inputDataChanged(AbstractColumn*).
 		 * Thus, filter implementations won't have to bother with it most of the time.
 		 */
-		virtual void inputAboutToBeReplaced(AbstractDataSource* source, AbstractDataSource* replacement);
-		virtual void inputRowsAboutToBeInserted(AbstractDataSource* source, int before, int count) {
+		virtual void inputAboutToBeReplaced(AbstractColumn* source, AbstractColumn* replacement);
+		virtual void inputRowsAboutToBeInserted(AbstractColumn* source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsInserted(AbstractDataSource* source, int before, int count) {
+		virtual void inputRowsInserted(AbstractColumn* source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsAboutToBeDeleted(AbstractDataSource* source, int first, int count) {
+		virtual void inputRowsAboutToBeDeleted(AbstractColumn* source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputRowsDeleted(AbstractDataSource* source, int first, int count) {
+		virtual void inputRowsDeleted(AbstractColumn* source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputValidityAboutToChange(AbstractDataSource* source) {
+		virtual void inputValidityAboutToChange(AbstractColumn* source) {
 			inputDataAboutToChange(source);
 		}
-		virtual void inputValidityChanged(AbstractDataSource* source) {
+		virtual void inputValidityChanged(AbstractColumn* source) {
 			inputDataChanged(source);
 		}
-		virtual void inputMaskingAboutToChange(AbstractDataSource* source) {
+		virtual void inputMaskingAboutToChange(AbstractColumn* source) {
 			Q_UNUSED(source);
 		}
-		virtual void inputMaskingChanged(AbstractDataSource* source) {
+		virtual void inputMaskingChanged(AbstractColumn* source) {
 			Q_UNUSED(source);
 		}
-		void inputAboutToBeDestroyed(AbstractDataSource* source) {
+		void inputAboutToBeDestroyed(AbstractColumn* source) {
 			input(d_inputs.indexOf(source), 0);
 		}
 		//@}
 
 		//! The data sources connected to my input ports.
-		QVector<AbstractDataSource*> d_inputs;
+		QVector<AbstractColumn*> d_inputs;
 
 	private:
 		friend class AbstractFilterSlotMachine;

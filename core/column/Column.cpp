@@ -35,46 +35,24 @@ Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)
 {
 	d = new ColumnPrivate(this, mode);
-	connectPrivateObject();
 }
 
 Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
 	d = new ColumnPrivate(this, SciDAVis::TypeDouble, SciDAVis::Numeric, new QVector<double>(data), validity);
-	connectPrivateObject();
 }
 
 Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
 	d = new ColumnPrivate(this, SciDAVis::TypeQString, SciDAVis::Text, new QStringList(data), validity);
-	connectPrivateObject();
 }
 
 Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
 	d = new ColumnPrivate(this, SciDAVis::TypeQDateTime, SciDAVis::DateTime, new QList<QDateTime>(data), validity);
-	connectPrivateObject();
-}
-
-void Column::connectPrivateObject()
-{
-	// map all signals 1:1
-	connect(d, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(plotDesignationAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(plotDesignationChanged(AbstractColumn *)), signalSender(), SIGNAL(plotDesignationChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(modeAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(modeAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(modeChanged(AbstractColumn *)), signalSender(), SIGNAL(modeChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(dataAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(dataAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(dataChanged(AbstractColumn *)), signalSender(), SIGNAL(dataChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)), signalSender(), SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)) ); 
-	connect(d, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsInserted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsInserted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsDeleted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsDeleted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(maskingAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(maskingAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(maskingChanged(AbstractColumn *)), signalSender(), SIGNAL(maskingChanged(AbstractColumn *)) ); 
 }
 
 Column::~Column()

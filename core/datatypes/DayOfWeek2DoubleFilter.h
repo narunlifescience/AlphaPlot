@@ -2,8 +2,8 @@
     File                 : DayOfWeek2DoubleFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
     Description          : Conversion filter QDateTime -> double, translating
                            dates into days of the week (Monday -> 1).
                            
@@ -34,16 +34,16 @@
 #include <QDateTime>
 
 //! Conversion filter QDateTime -> double, translating dates into days of the week (Monday -> 1).
-class DayOfWeek2DoubleFilter : public AbstractSimpleFilter<double>
+class DayOfWeek2DoubleFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
 	public:
 		virtual double valueAt(int row) const {
 			if (!d_inputs.value(0)) return 0;
-			return double(dateTimeInput()->dateAt(row).dayOfWeek());
+			return double(d_inputs.value(0)->dateAt(row).dayOfWeek());
 			/*
-			QDateTime input_value = dateTimeInput()->dateTimeAt(row);
+			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
 			return double(input_value.date().toJulianDay() + 1) +
 				double( -input_value.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
 			*/
@@ -51,8 +51,8 @@ class DayOfWeek2DoubleFilter : public AbstractSimpleFilter<double>
 
 	protected:
 		//! Using typed ports: only date-time inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractDateTimeDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQDateTime;
 		}
 };
 

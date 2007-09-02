@@ -45,7 +45,7 @@ AbstractAspect::~AbstractAspect()
 
 void AbstractAspect::setParentPrivate(AbstractAspect *new_parent)
 {
-	if (parent()) removeAspectObserver(parent());
+	if (parentAspect()) removeAspectObserver(parentAspect());
 	QObject::setParent(new_parent);
 	if (new_parent)
 		addAspectObserver(new_parent);

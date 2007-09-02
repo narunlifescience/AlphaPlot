@@ -36,7 +36,7 @@
  * \brief Filter which copies all provided inputs unaltered to an equal number of outputs.
  *
  * This is probably the simplest filter you can possibly write.
- * It accepts an arbitrary number of inputs and provides the same AbstractDataSource objects
+ * It accepts an arbitrary number of inputs and provides the same AbstractColumn objects
  * as outputs again.
  */
 class CopyThroughFilter : public AbstractFilter
@@ -47,7 +47,7 @@ class CopyThroughFilter : public AbstractFilter
 	//! Provide as many output ports as inputs have been connected.
 	virtual int outputCount() const { return d_inputs.size(); }
 	//! When asked for an output port, just return the corresponding input port.
-	virtual AbstractDataSource* output(int port) const { return d_inputs.value(port); }
+	virtual AbstractColumn* output(int port) const { return d_inputs.value(port); }
 };
 
 #endif // ifndef COPY_THROUGH_FILTER_H

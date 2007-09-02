@@ -29,7 +29,7 @@
 
 #include "ColumnPrivate.h"
 #include "Column.h"
-#include "core/AbstractFilter.h"
+#include "core/AbstractSimpleFilter.h"
 #include "core/CopyThroughFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
@@ -129,7 +129,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	void * old_data = d_data;
 	// remark: the deletion of the old data will be done in the dtor of a command
 
-	AbstractFilter *filter, *new_in_filter, *new_out_filter;
+	AbstractSimpleFilter *filter, *new_in_filter, *new_out_filter;
 	Column * temp_col = 0;
 
 	// determine the conversion filter and allocate the new data vector
@@ -278,7 +278,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 }
 
 void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data, 
-	AbstractFilter * in_filter, AbstractFilter * out_filter, IntervalAttribute<bool> validity)
+	AbstractSimpleFilter * in_filter, AbstractSimpleFilter * out_filter, IntervalAttribute<bool> validity)
 {
 	emit d_owner_sender->modeAboutToChange(d_owner);
 	d_column_mode = mode;

@@ -44,7 +44,7 @@
  * tries to guess the format, using internal lists of common date and time formats (#date_formats
  * and #time_formats).
  */
-class String2DateTimeFilter : public AbstractSimpleFilter<QDateTime>
+class String2DateTimeFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
@@ -59,6 +59,9 @@ class String2DateTimeFilter : public AbstractSimpleFilter<QDateTime>
 		 * \sa QDate::toString()
 		 */
 		QString format() const { return d_format; }
+
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
 
 	private:
 		//! The format string.
@@ -75,8 +78,8 @@ class String2DateTimeFilter : public AbstractSimpleFilter<QDateTime>
 
 	protected:
 		//! Using typed ports: only string inputs are accepted.
-		virtual bool inputAcceptable(int, AbstractDataSource *source) {
-			return source->inherits("AbstractStringDataSource");
+		virtual bool inputAcceptable(int, AbstractColumn *source) {
+			return source->dataType() == SciDAVis::TypeQString;
 		}
 };
 
