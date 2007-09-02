@@ -31,58 +31,50 @@
 #include "ColumnPrivate.h"
 #include "columncommands.h"
 
-Column::Column()
+Column::Column(const QString& label, SciDAVis::ColumnMode mode)
+ : AbstractAspect(label)
 {
-	createPrivateObject();
+	d = new ColumnPrivate(this, mode);
+	connectPrivateObject();
 }
 
-Column::Column(QVector<double> data, IntervalAttribute<bool> validity)
+Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
+ : AbstractAspect(label)
 {
-	createPrivateObject();
-	d->d_data_type = SciDAVis::TypeDouble;
-	d->d_column_mode = SciDAVis::Numeric;
-	d->d_data = new QVector<double>();
-	*(static_cast< QVector<double>* >(d->d_data)) = data;
-	d->d_validity = validity;
+	d = new ColumnPrivate(this, SciDAVis::TypeDouble, SciDAVis::Numeric, new QVector<double>(data), validity);
+	connectPrivateObject();
 }
 
-Column::Column(QStringList data, IntervalAttribute<bool> validity)
+Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
+ : AbstractAspect(label)
 {
-	createPrivateObject();
-	d->d_data_type = SciDAVis::TypeQString;
-	d->d_column_mode = SciDAVis::Text;
-	d->d_data = new StringList();
-	*(static_cast< QStringList* >(d->d_data)) = data;
-	d->d_validity = validity;
+	d = new ColumnPrivate(this, SciDAVis::TypeQString, SciDAVis::Text, new QStringList(data), validity);
+	connectPrivateObject();
 }
 
-Column::Column(QList<QDateTime> data, IntervalAttribute<bool> validity)
+Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
+ : AbstractAspect(label)
 {
-	createPrivateObject();
-	d->d_data_type = SciDAVis::TypeQDateTime;
-	d->d_column_mode = SciDAVis::DateTime;
-	d->d_data = new QList<QDateTime>();
-	*(static_cast< QList<QDateTime>* >(d->d_data)) = data;
-	d->d_validity = validity;
+	d = new ColumnPrivate(this, SciDAVis::TypeQDateTime, SciDAVis::DateTime, new QList<QDateTime>(data), validity);
+	connectPrivateObject();
 }
 
-Column::createPrivateObject()
+void Column::connectPrivateObject()
 {
-	d = new ColumnPrivate();
 	// map all signals 1:1
-	connect(d, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)), this, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(plotDesignationChanged(AbstractColumn *)), this, SIGNAL(plotDesignationChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(modeAboutToChange(AbstractColumn *)), this, SIGNAL(modeAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(modeChanged(AbstractColumn *)), this, SIGNAL(modeChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(dataAboutToChange(AbstractColumn *)), this, SIGNAL(dataAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(dataChanged(AbstractColumn *)), this, SIGNAL(dataChanged(AbstractColumn *)) ); 
-	connect(d, SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)), this, SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)) ); 
-	connect(d, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, SIGNAL(rowsInserted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), this, SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(rowsDeleted(AbstractColumn *, int, int)), this, SIGNAL(rowsDeleted(AbstractColumn *, int, int)) ); 
-	connect(d, SIGNAL(maskingAboutToChange(AbstractColumn *)), this, SIGNAL(maskingAboutToChange(AbstractColumn *)) ); 
-	connect(d, SIGNAL(maskingChanged(AbstractColumn *)), this, SIGNAL(maskingChanged(AbstractColumn *)) ); 
+	connect(d, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(plotDesignationAboutToChange(AbstractColumn *)) ); 
+	connect(d, SIGNAL(plotDesignationChanged(AbstractColumn *)), signalSender(), SIGNAL(plotDesignationChanged(AbstractColumn *)) ); 
+	connect(d, SIGNAL(modeAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(modeAboutToChange(AbstractColumn *)) ); 
+	connect(d, SIGNAL(modeChanged(AbstractColumn *)), signalSender(), SIGNAL(modeChanged(AbstractColumn *)) ); 
+	connect(d, SIGNAL(dataAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(dataAboutToChange(AbstractColumn *)) ); 
+	connect(d, SIGNAL(dataChanged(AbstractColumn *)), signalSender(), SIGNAL(dataChanged(AbstractColumn *)) ); 
+	connect(d, SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)), signalSender(), SIGNAL(aboutToBeReplaced(AbstractColumn *, AbstractColumn *)) ); 
+	connect(d, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)) ); 
+	connect(d, SIGNAL(rowsInserted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsInserted(AbstractColumn *, int, int)) ); 
+	connect(d, SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)) ); 
+	connect(d, SIGNAL(rowsDeleted(AbstractColumn *, int, int)), signalSender(), SIGNAL(rowsDeleted(AbstractColumn *, int, int)) ); 
+	connect(d, SIGNAL(maskingAboutToChange(AbstractColumn *)), signalSender(), SIGNAL(maskingAboutToChange(AbstractColumn *)) ); 
+	connect(d, SIGNAL(maskingChanged(AbstractColumn *)), signalSender(), SIGNAL(maskingChanged(AbstractColumn *)) ); 
 }
 
 Column::~Column()
@@ -98,82 +90,81 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 
 bool Column::copy(const AbstractColumn * other)
 {
- // TODO
+	if(other->dataType() != dataType()) return false;
+	exec(new ColumnFullCopyCmd(this, other));
+	return true;
 }
 
 bool Column::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
- // TODO
-}
-
-void Column::expand(int new_rows)
-{
- // TODO
+	if(source->dataType() != dataType()) return false;
+	exec(new ColumnPartialCopyCmd(this, source, source_start, dest_start, num_rows));
+	return true;
 }
 
 void Column::insertEmptyRows(int before, int count)
 {
- // TODO
+	exec(new ColumnInsertRowsCmd(this, before, count));
 }
 
 void Column::removeRows(int first, int count)
 {
- // TODO
+	exec(new ColumnRemoveRowsCmd(this, first, count));
 }
 
 void Column::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
- // TODO
+	exec(new ColumnSetPlotDesignationCmd(this, pd));
 }
 
 void Column::clear()
 {
- // TODO
+	exec(new ColumnClearCmd(this));
 }
 
 void Column::notifyReplacement(AbstractColumn * replacement)
 {
-	emit aboutToBeReplaced(this, replacement); 
+	emit d_sender->aboutToBeReplaced(this, replacement); 
 }
 
 void Column::clearValidity()
 {
- // TODO
+	exec(new ColumnClearValidityCmd(this));
 }
 
 void Column::clearMasks()
 {
- // TODO
+	exec(new ColumnClearMasksCmd(this));
 }
 
-void Column::setInvalid(Interval<int> i, bool invalid = true)
+void Column::setInvalid(Interval<int> i, bool invalid)
 {
- // TODO
+	exec(new ColumnSetInvalidCmd(this, i, invalid));
 }
 
-void Column::setInvalid(int row, bool invalid = true)
+void Column::setInvalid(int row, bool invalid)
 {
- // TODO
+	setInvalid(Interval<int>(row,row), invalid);
 }
 
-void Column::setMasked(Interval<int> i, bool mask = true)
+void Column::setMasked(Interval<int> i, bool mask)
 {
- // TODO
+	exec(new ColumnSetMaskedCmd(this, i, mask));
 }
 
-void Column::setMasked(int row, bool mask = true)
+void Column::setMasked(int row, bool mask)
 {
- // TODO
+	setMasked(Interval<int>(row,row), mask);
 }
 
 void Column::setFormula(Interval<int> i, QString formula)
 {
- // TODO
+	exec(new ColumnSetFormulaCmd(this, i, formula));
 }
 
 void Column::setFormula(int row, QString formula)
 {
- // TODO
+	setFormula(Interval<int>(row, row), formula);
 }
 
 void Column::clearFormulas()
@@ -223,29 +214,26 @@ void Column::replaceValues(int first, int num_rows, const double * new_values)
 
 QString Column::textAt(int row) const
 {
-	if(data_type != SciDAVis::TypeQString) return QString();
-	return static_cast< QStringList* >(D_PTR->data)->value(row);
+	return d->textAt(row);
 }
 
 QDate Column::dateAt(int row) const
 {
-	return dateTimeAt(row).date();
+	return d->dateAt(row);
 }
 
 QTime Column::timeAt(int row) const
 {
-	return dateTimeAt(row).time();
+	return d->timeAt(row);
 }
 
 QDateTime Column::dateTimeAt(int row) const
 {
-	if(data_type != SciDAVis::TypeQDateTime) return QDateTime();
-	return static_cast< QList<QDateTime>* >(D_PTR->data)->value(row);
+	return d->dateTimeAt(row);
 }
 
 double Column::valueAt(int row) const
 {
-	if(data_type != SciDAVis::TypeDouble) return 0.0;
-	return static_cast< QVector<double>* >(D_PTR->data)->value(row);
+	return d->valueAt(row);
 }
 

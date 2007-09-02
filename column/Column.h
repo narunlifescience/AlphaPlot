@@ -27,14 +27,15 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef COLUMN_H
 #define COLUMN_H
 
-#include "AbstractColumn.h"
 #include "core/AbstractAspect.h"
-class ColumnPrivate;
-class ColumnSetModeCmd;
+#include "core/AbstractFilter.h"
+#include "lib/IntervalAttribute.h"
+#include "column/ColumnPrivate.h"
+#include "column/columncommands.h"
+class QString;
 
 //! Table column class
 /**
@@ -45,53 +46,77 @@ class ColumnSetModeCmd;
   functions members except utility functions are defined in ColumnPrivate.
   All commands working on a Column must be declared as friend classes.
  */
-class Column : public AbstractColumn, public AbstractAspect
+class Column : public AbstractAspect, public AbstractColumn
 {
 	Q_OBJECT
 
-// TODO: integrate input/output filters
-
 	public:
 		//! Ctor
-		Column();
+		/**
+		 * \param label the column label (= aspect name)
+		 * \param mode initial column mode
+		 */
+		Column(const QString& label, SciDAVis::ColumnMode mode);
 		//! Ctor
 		/**
+		 * \param label the column label (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
+		Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
 		//! Ctor
 		/**
+		 * \param label the column label (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()); 
+		Column(const QString& label, QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()); 
 		//! Ctor
 		/**
+		 * \param label the column label (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
+		Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
 		//! Dtor
-		virtual ~Column();
+		~Column();
+
+		//! \name aspect related functions
+		//@{
+		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
+		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
+		//! Return the parent aspect
+		virtual AbstractAspect *parentAspect() const { return dynamic_cast<AbstractAspect*>(parent()); }
+		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
+		virtual QString path() const { return parentAspect() ? "" : parentAspect()->path() + "/" + name(); }
+		//! Remove me from my parent's list of children.
+		void remove() { if(parentAspect()) parentAspect()->removeChild(this); }
+		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
+		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
+		//! This will always return zero as columns don't have a view
+		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
+
+		//@}
 
 		//! Return the data type of the column
-		virtual SciDAVis::ColumnDataType dataType() const { return d->dataType(); }
+		SciDAVis::ColumnDataType dataType() const { return d->dataType(); }
 		//! Return whether the object is read-only
-		virtual bool isReadOnly() const { return false; };
+		bool isReadOnly() const { return false; };
 		//! Return the column mode
-		/*
+		/**
 		 * This function is most used by tables but can also be used
 		 * by plots. The column mode specifies how to interpret 
 		 * the values in the column additional to the data type.
 		 */ 
-		virtual SciDAVis::ColumnMode columnMode() const { return d->columnMode(); }
+		SciDAVis::ColumnMode columnMode() const { return d->columnMode(); }
 		//! Set the column mode
-		/*
+		/**
 		 * This sets the column mode and, if
 		 * necessary, converts it to another datatype.
+		 * Remark: setting the mode back to undefined (the 
+		 * initial value) is not supported.
 		 */
-		virtual void setColumnMode(SciDAVis::ColumnMode mode);
+		void setColumnMode(SciDAVis::ColumnMode mode);
 		//! Copy another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -99,7 +124,7 @@ class Column : public AbstractColumn, public AbstractAspect
 		 * The validity information for the rows is also copied.
 		 * Use a filter to convert a column to another type.
 		 */
-		virtual bool copy(const AbstractColumn * other);
+		bool copy(const AbstractColumn * other);
 		//! Copies part of another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -110,85 +135,82 @@ class Column : public AbstractColumn, public AbstractAspect
 		 * \param dest_start first row to copy in
 		 * \param num_rows the number of rows to copy
 		 */ 
-		virtual bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
-
+		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
 		//! Return the data vector size
-		/**
-		 * \sa AbstractColumn::expand()
-		 */ 
-		virtual int rowCount() const { return d->rowCount(); }
-		//! Expand the vector by the specified number of rows
-		/**
-		 * Since selecting and masking rows higher than the
-		 * real internal number of rows is supported, this
-		 * does not change the interval attributes. Also
-		 * no signal is emitted. If the new rows are filled
-		 * with values AbstractColumn::dataChanged()
-		 * must be emitted.
-		 * \sa AbstractColumn::dataChanged()
-		 */
-		virtual void expand(int new_rows);
+		int rowCount() const { return d->rowCount(); }
 		//! Insert some empty (or initialized with zero) rows
-		virtual void insertEmptyRows(int before, int count);
+		void insertEmptyRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
-		virtual void removeRows(int first, int count);
+		void removeRows(int first, int count);
 		//! Return the column label
-		virtual QString columnLabel() const { return name(); }
+		QString columnLabel() const { return name(); }
 		//! Return the column comment
-		virtual QString columnComment() const { return comment(); }
+		QString columnComment() const { return comment(); }
 		//! Set the column label
-		virtual void setColumnLabel(const QString& label);
+		void setColumnLabel(const QString& label) { setName(label); }
 		//! Set the column comment
-		virtual void setColumnComment(const QString& comment);
+		void setColumnComment(const QString& comment) { setComment(comment); }
 		//! Return the column plot designation
-		virtual SciDAVis::PlotDesignation plotDesignation() const { return d->plotDesignation(); }
+		SciDAVis::PlotDesignation plotDesignation() const { return d->plotDesignation(); }
 		//! Set the column plot designation
-		virtual void setPlotDesignation(SciDAVis::PlotDesignation pd);
+		void setPlotDesignation(SciDAVis::PlotDesignation pd);
 		//! Clear the whole column
-		virtual void clear();
+		void clear();
 		//! This must be called before the column is replaced by another
-		virtual void notifyReplacement(AbstractColumn * replacement);
+		void notifyReplacement(AbstractColumn * replacement);
+		//! Return the input filter (for string -> data type conversion)
+		/**
+		 * This method is mainly used to get a filter that can convert
+		 * user input (strings) to the column's data type.
+		 */
+		AbstractFilter * inputFilter() const { return d->inputFilter(); }
+		//! Return the output filter (for data type -> string  conversion)
+		/**
+		 * This method is mainly used to get a filter that can convert
+		 * the column's data type to strings (usualy to display in a view).
+		 */
+		AbstractFilter * outputFilter() const { return d->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
 		//! Return whether a certain row contains an invalid value 	 
-		virtual bool isInvalid(int row) const { return d->isInvalid(row); }
+		bool isInvalid(int row) const { return d->isInvalid(row); }
 		//! Return whether a certain interval of rows contains only invalid values 	 
-		virtual bool isInvalid(Interval<int> i) const { return d->isInvalid(i); }
+		bool isInvalid(Interval<int> i) const { return d->isInvalid(i); }
 		//! Return all intervals of invalid rows
-		virtual QList< Interval<int> > invalidIntervals() const { return d->invalidIntervals(); }
+		QList< Interval<int> > invalidIntervals() const { return d->invalidIntervals(); }
 		//! Return whether a certain row is masked 	 
-		virtual bool isMasked(int row) const { return d->isMasked(row); }
+		bool isMasked(int row) const { return d->isMasked(row); }
 		//! Return whether a certain interval of rows rows is fully masked 	 
-		virtual bool isMasked(Interval<int> i) const { return d->isMasked(i); }
+		bool isMasked(Interval<int> i) const { return d->isMasked(i); }
 		//! Return all intervals of masked rows
-		virtual QList< Interval<int> > maskedIntervals() const { return d->maskedIntervals(); }
+		QList< Interval<int> > maskedIntervals() const { return d->maskedIntervals(); }
 		//! Clear all validity information
-		virtual void clearValidity();
+		void clearValidity();
 		//! Clear all masking information
-		virtual void clearMasks();
+		void clearMasks();
 		//! Set an interval invalid or valid
 		/**
 		 * \param i the interval
 		 * \param invalid true: set invalid, false: set valid
 		 */ 
-		virtual void setInvalid(Interval<int> i, bool invalid = true);
+		void setInvalid(Interval<int> i, bool invalid = true);
 		//! Overloaded function for convenience
-		virtual void setInvalid(int row, bool invalid = true);
+		void setInvalid(int row, bool invalid = true);
 		//! Set an interval masked
 		/**
 		 * \param i the interval
 		 * \param mask true: mask, false: unmask
 		 */ 
-		virtual void setMasked(Interval<int> i, bool mask = true);
+		void setMasked(Interval<int> i, bool mask = true);
 		//! Overloaded function for convenience
-		virtual void setMasked(int row, bool mask = true);
+		void setMasked(int row, bool mask = true);
 		//@}
 
 		//! \name Formula related functions
 		//@{
 		//! Return the formula associated with row 'row' 	 
-		virtual QString formula(int row) const { return d->formula(row); }
+		QString formula(int row) const { return d->formula(row); }
 		//! Return the intervals that have associated formulas
 		/**
 		 * This can be used to make a list of formulas with their intervals.
@@ -201,13 +223,13 @@ class Column : public AbstractColumn, public AbstractAspect
 		 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
 		 * \endcode
 		 */
-		virtual QList< Interval<int> > formulaIntervals() const { return d->formulaIntervals(); }
+		QList< Interval<int> > formulaIntervals() const { return d->formulaIntervals(); }
 		//! Set a formula string for an interval of rows
-		virtual void setFormula(Interval<int> i, QString formula);
+		void setFormula(Interval<int> i, QString formula);
 		//! Overloaded function for convenience
-		virtual void setFormula(int row, QString formula);
+		void setFormula(int row, QString formula);
 		//! Clear all formulas
-		virtual void clearFormulas();
+		void clearFormulas();
 		//@}
 		
 		//! \name type specific functions
@@ -216,72 +238,82 @@ class Column : public AbstractColumn, public AbstractAspect
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual QString textAt(int row) const;
+		QString textAt(int row) const;
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual void setTextAt(int row, QString new_value);
+		void setTextAt(int row, QString new_value);
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual void replaceTexts(int first, QStringList new_values);
+		void replaceTexts(int first, QStringList new_values);
 		//! Return the date part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QDate dateAt(int row) const;
+		QDate dateAt(int row) const;
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateAt(int row, QDate new_value);
+		void setDateAt(int row, QDate new_value);
 		//! Return the time part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QTime timeAt(int row) const;
+		QTime timeAt(int row) const;
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setTimeAt(int row, QTime new_value);
+		void setTimeAt(int row, QTime new_value);
 		//! Return the QDateTime in row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QDateTime dateTimeAt(int row) const;
+		QDateTime dateTimeAt(int row) const;
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateTimeAt(int row, QDateTime new_value);
+		void setDateTimeAt(int row, QDateTime new_value);
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void replaceDateTimes(int first, QList<QDateTime> new_values);
+		void replaceDateTimes(int first, QList<QDateTime> new_values);
 		//! Return the double value in row 'row'
-		virtual double valueAt(int row) const;
+		double valueAt(int row) const;
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual void setValueAt(int row, double new_value);
+		void setValueAt(int row, double new_value);
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual void replaceValues(int first, int num_rows, const double * new_values);
+		void replaceValues(int first, int num_rows, const double * new_values);
 		//@}
 
-	friend class ColumnSetModeCmd;	
-	// TODO: add all column commands
-	
+		friend class ColumnSetModeCmd;	
+		friend class ColumnFullCopyCmd;
+		friend class ColumnPartialCopyCmd;
+		friend class ColumnInsertRowsCmd;
+		friend class ColumnRemoveRowsCmd;
+		friend class ColumnSetPlotDesignationCmd;
+		friend class ColumnClearCmd;
+		friend class ColumnClearValidityCmd;
+		friend class ColumnClearMasksCmd;
+		friend class ColumnSetInvalidCmd;
+		friend class ColumnSetMaskedCmd;
+		friend class ColumnSetFormulaCmd;
+
 	private:
 		//! Internal utility function
-		void createPrivateObject();
+		void connectPrivateObject();
 		//! Pointer to the private interface and all private data
 		ColumnPrivate * d;
 };

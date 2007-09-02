@@ -30,16 +30,25 @@
 #ifndef SCIDAVIS_GLOBALS_H
 #define SCIDAVIS_GLOBALS_H
 
+#include <QObject>
 #include <QString>
 
 //! Definition of global constants and enums
-class SciDAVis
+/**
+ * This class must not be instanced. All members are static.
+ */
+class SciDAVis : public QObject
 {
 	Q_OBJECT
 	Q_ENUMS(PlotDesignation)
 	Q_ENUMS(ColumnMode)
+	Q_ENUMS(ColumnDataType)
+
+	private:
+		SciDAVis() {} // don't allow instancing
 
 	public:
+		virtual ~SciDAVis() {} // avoid the warning message
 		//! Types of plot designations
 		enum PlotDesignation
 		{
@@ -61,13 +70,11 @@ class SciDAVis
 			Month = 4, //!< column contains month names
 			Day = 5, //!< column containts day of week names
 			DateTime = 6, //!< column contains dates and/or times
-			UndefinedMode = 99 //!< mode not yet defined
 		};
 
 		//! Column data type
 		enum ColumnDataType
 		{
-			UndefinedType = 0,
 			TypeDouble = 1,
 			TypeQString = 2,
 			TypeQDateTime = 3
