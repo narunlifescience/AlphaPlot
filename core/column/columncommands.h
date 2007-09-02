@@ -33,7 +33,7 @@
 #include <QUndoCommand>
 #include "Column.h"
 #include "ColumnPrivate.h"
-#include "core/AbstractSimpleFilter.h"
+#include "core/AbstractFilter.h"
 #include "lib/IntervalAttribute.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -69,13 +69,13 @@ private:
 	//! Pointer to new data
 	void * d_new_data;
 	//! The new input filter
-	AbstractSimpleFilter * d_new_in_filter;
+	AbstractFilter * d_new_in_filter;
 	//! The new output filter
-	AbstractSimpleFilter * d_new_out_filter;
+	AbstractFilter * d_new_out_filter;
 	//! The old input filter
-	AbstractSimpleFilter * d_old_in_filter;
+	AbstractFilter * d_old_in_filter;
 	//! The old output filter
-	AbstractSimpleFilter * d_old_out_filter;
+	AbstractFilter * d_old_out_filter;
 	//! The old validity information
 	IntervalAttribute<bool> d_old_validity;
 	//! The new validity information
@@ -348,7 +348,6 @@ private:
 // end of class ColumnClearMasksCmd
 ///////////////////////////////////////////////////////////////////////////
 
-
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnSetInvalidCmd
 ///////////////////////////////////////////////////////////////////////////
@@ -450,5 +449,236 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnClearFormulasCmd
+///////////////////////////////////////////////////////////////////////////
+//! Clear all associated formulas 
+class ColumnClearFormulasCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnClearFormulasCmd(Column * col, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnClearFormulasCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The old formulas
+	IntervalAttribute<QString> d_formulas;
+	//! A status flag
+	bool b_copied;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnClearFormulasCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnSetTextCmd
+///////////////////////////////////////////////////////////////////////////
+//! Set the text for a string cell 
+class ColumnSetTextCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnSetTextCmd(Column * col, int row, const QString& new_value, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnSetTextCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The row to modify
+	int d_row;
+	//! The new value
+	QString d_new_value;
+	//! The old value
+	QString d_old_value;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnSetTextCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnSetValueCmd
+///////////////////////////////////////////////////////////////////////////
+//! Set the value for a double cell 
+class ColumnSetValueCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnSetValueCmd(Column * col, int row, double new_value, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnSetValueCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The row to modify
+	int d_row;
+	//! The new value
+	double d_new_value;
+	//! The old value
+	double d_old_value;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnSetValueCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnSetDateTimeCmd
+///////////////////////////////////////////////////////////////////////////
+//! Set the value of a date-time cell 
+class ColumnSetDateTimeCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnSetDateTimeCmd(Column * col, int row, const QDateTime& new_value, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnSetDateTimeCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The row to modify
+	int d_row;
+	//! The new value
+	QDateTime d_new_value;
+	//! The old value
+	QDateTime d_old_value;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnSetDateTimeCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnReplaceTextsCmd
+///////////////////////////////////////////////////////////////////////////
+//! Replace a range of strings in a string column 
+class ColumnReplaceTextsCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnReplaceTextsCmd(Column * col, int first, const QStringList& new_values, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnReplaceTextsCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The first row to replace
+	int d_first;
+	//! The new values
+	QStringList d_new_values;
+	//! The old values
+	QStringList d_old_values;
+	//! Status flag
+	bool d_copied;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnReplaceTextsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnReplaceValuesCmd
+///////////////////////////////////////////////////////////////////////////
+//! Replace a range of doubles in a double column 
+class ColumnReplaceValuesCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnReplaceValuesCmd(Column * col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnReplaceValuesCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The first row to replace
+	int d_first;
+	//! The new values
+	QVector<double> d_new_values;
+	//! The old values
+	QVector<double> d_old_values;
+	//! Status flag
+	bool d_copied;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnReplaceValuesCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class ColumnReplaceDateTimesCmd
+///////////////////////////////////////////////////////////////////////////
+//! Replace a range of date-times in a date-time column 
+class ColumnReplaceDateTimesCmd : public QUndoCommand
+{
+public:
+	//! Ctor
+	ColumnReplaceDateTimesCmd(Column * col, int first, const QList<QDateTime>& new_values, QUndoCommand * parent = 0 );
+	//! Dtor
+	~ColumnReplaceDateTimesCmd();
+
+	//! Execute the command
+	virtual void redo();
+	//! Undo the command
+	virtual void undo();
+
+private:
+	//! The column to modify
+	Column * d_col;
+	//! The first row to replace
+	int d_first;
+	//! The new values
+	QList<QDateTime> d_new_values;
+	//! The old values
+	QList<QDateTime> d_old_values;
+	//! Status flag
+	bool d_copied;
+
+};
+///////////////////////////////////////////////////////////////////////////
+// end of class ColumnReplaceDateTimesCmd
+///////////////////////////////////////////////////////////////////////////
+
+
+
 
 #endif

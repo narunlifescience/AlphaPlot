@@ -361,7 +361,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual void replaceTexts(int first, QStringList new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
+		virtual void replaceTexts(int first, const QStringList& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//! Return the date part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -396,7 +396,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void replaceDateTimes(int first, QList<QDateTime> new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
+		virtual void replaceDateTimes(int first, const QList<QDateTime>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//! Return the double value in row 'row'
 		/**
 		 * Use this only when dataType() is double
@@ -411,7 +411,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual void replaceValues(int first, int num_rows, const double * new_values) { Q_UNUSED(first) Q_UNUSED(num_rows) Q_UNUSED(new_values) };
+		virtual void replaceValues(int first, const QVector<double>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//@}
 
 		AbstractColumnSignalSender *  signalSender() { return d_sender; }

@@ -31,7 +31,7 @@
 #define COLUMN_H
 
 #include "core/AbstractAspect.h"
-#include "core/AbstractSimpleFilter.h"
+#include "core/AbstractFilter.h"
 #include "lib/IntervalAttribute.h"
 #include "column/ColumnPrivate.h"
 #include "column/columncommands.h"
@@ -163,13 +163,13 @@ class Column : public AbstractAspect, public AbstractColumn
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		AbstractSimpleFilter * inputFilter() const { return d->inputFilter(); }
+		AbstractFilter * inputFilter() const { return d->inputFilter(); }
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		AbstractSimpleFilter * outputFilter() const { return d->outputFilter(); }
+		AbstractFilter * outputFilter() const { return d->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -248,7 +248,7 @@ class Column : public AbstractAspect, public AbstractColumn
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		void replaceTexts(int first, QStringList new_values);
+		void replaceTexts(int first, const QStringList& new_values);
 		//! Return the date part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -283,7 +283,7 @@ class Column : public AbstractAspect, public AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		void replaceDateTimes(int first, QList<QDateTime> new_values);
+		void replaceDateTimes(int first, const QList<QDateTime>& new_values);
 		//! Return the double value in row 'row'
 		double valueAt(int row) const;
 		//! Set the content of row 'row'
@@ -295,7 +295,7 @@ class Column : public AbstractAspect, public AbstractColumn
 		/**
 		 * Use this only when dataType() is double
 		 */
-		void replaceValues(int first, int num_rows, const double * new_values);
+		virtual void replaceValues(int first, const QVector<double>& new_values);
 		//@}
 
 		friend class ColumnSetModeCmd;	
@@ -310,6 +310,13 @@ class Column : public AbstractAspect, public AbstractColumn
 		friend class ColumnSetInvalidCmd;
 		friend class ColumnSetMaskedCmd;
 		friend class ColumnSetFormulaCmd;
+		friend class ColumnClearFormulasCmd;
+		friend class ColumnSetTextCmd;
+		friend class ColumnSetValueCmd;
+		friend class ColumnSetDateTimeCmd;
+		friend class ColumnReplaceTextsCmd;
+		friend class ColumnReplaceValuesCmd;
+		friend class ColumnReplaceDateTimesCmd;
 
 	private:
 		//! Pointer to the private interface and all private data

@@ -29,7 +29,7 @@
 
 #include "ColumnPrivate.h"
 #include "Column.h"
-#include "core/AbstractSimpleFilter.h"
+#include "core/AbstractFilter.h"
 #include "core/CopyThroughFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
@@ -129,7 +129,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	void * old_data = d_data;
 	// remark: the deletion of the old data will be done in the dtor of a command
 
-	AbstractSimpleFilter *filter, *new_in_filter, *new_out_filter;
+	AbstractFilter *filter, *new_in_filter, *new_out_filter;
 	Column * temp_col = 0;
 
 	// determine the conversion filter and allocate the new data vector
@@ -278,7 +278,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 }
 
 void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data, 
-	AbstractSimpleFilter * in_filter, AbstractSimpleFilter * out_filter, IntervalAttribute<bool> validity)
+	AbstractFilter * in_filter, AbstractFilter * out_filter, IntervalAttribute<bool> validity)
 {
 	emit d_owner_sender->modeAboutToChange(d_owner);
 	d_column_mode = mode;
@@ -568,7 +568,7 @@ void ColumnPrivate::setTextAt(int row, QString new_value)
 	emit d_owner_sender->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceTexts(int first, QStringList new_values)
+void ColumnPrivate::replaceTexts(int first, const QStringList& new_values)
 {
 	if(d_data_type != SciDAVis::TypeQString) return;
 	
@@ -608,7 +608,7 @@ void ColumnPrivate::setDateTimeAt(int row, QDateTime new_value)
 	emit d_owner_sender->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceDateTimes(int first, QList<QDateTime> new_values)
+void ColumnPrivate::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 	
@@ -634,17 +634,18 @@ void ColumnPrivate::setValueAt(int row, double new_value)
 	emit d_owner_sender->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceValues(int first, int num_rows, const double * new_values)
+void ColumnPrivate::replaceValues(int first, const QVector<double>& new_values)
 {
 	if(d_data_type != SciDAVis::TypeDouble) return;
 	
 	emit d_owner_sender->dataAboutToChange(d_owner);
+	int num_rows = new_values.size();
 	if (first + num_rows > rowCount())
 		expand(first + num_rows - rowCount());
 
 	double * ptr = static_cast< QVector<double>* >(d_data)->data();
 	for(int i=0; i<num_rows; i++)
-		ptr[first+i] = new_values[i];
+		ptr[first+i] = new_values.at(i);
 	emit d_owner_sender->dataChanged(d_owner);
 }
 

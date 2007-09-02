@@ -147,47 +147,47 @@ void Column::setFormula(int row, QString formula)
 
 void Column::clearFormulas()
 {
- // TODO
+	exec(new ColumnClearFormulasCmd(this));
 }
 
 void Column::setTextAt(int row, QString new_value)
 {
- // TODO
+	exec(new ColumnSetTextCmd(this, row, new_value));
 }
 
-void Column::replaceTexts(int first, QStringList new_values)
+void Column::replaceTexts(int first, const QStringList& new_values)
 {
- // TODO
+	exec(new ColumnReplaceTextsCmd(this, first, new_values));
 }
 
 void Column::setDateAt(int row, QDate new_value)
 {
- // TODO
+	setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
 void Column::setTimeAt(int row, QTime new_value)
 {
- // TODO
+	setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
 void Column::setDateTimeAt(int row, QDateTime new_value)
 {
- // TODO
+	exec(new ColumnSetDateTimeCmd(this, row, new_value));
 }
 
-void Column::replaceDateTimes(int first, QList<QDateTime> new_values)
+void Column::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
- // TODO
+	exec(new ColumnReplaceDateTimesCmd(this, first, new_values));
 }
 
 void Column::setValueAt(int row, double new_value)
 {
- // TODO
+	exec(new ColumnSetValueCmd(this, row, new_value));
 }
 
-void Column::replaceValues(int first, int num_rows, const double * new_values)
+void Column::replaceValues(int first, const QVector<double>& new_values)
 {
- // TODO
+	exec(new ColumnReplaceValuesCmd(this, first, new_values));
 }
 
 QString Column::textAt(int row) const

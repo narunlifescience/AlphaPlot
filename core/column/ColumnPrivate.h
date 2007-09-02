@@ -33,7 +33,7 @@
 #include <QObject>
 #include "lib/IntervalAttribute.h"
 #include "core/AbstractColumn.h"
-class AbstractSimpleFilter;
+class AbstractFilter;
 class Column;
 class QString;
 
@@ -128,15 +128,15 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		//! Return the data pointer
 		void * dataPointer() const { return d_data; }
 		//! Return the input filter (for string -> data type conversion)
-		AbstractSimpleFilter * inputFilter() const { return d_input_filter; }
+		AbstractFilter * inputFilter() const { return d_input_filter; }
 		//! Return the output filter (for data type -> string  conversion)
-		AbstractSimpleFilter * outputFilter() const { return d_output_filter; }
+		AbstractFilter * outputFilter() const { return d_output_filter; }
 		//! Replace all mode related members
 		/** 
 		 * Replace column mode, data type, data pointer, validity and filters directly 
 		 */
 		void replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data,
-			AbstractSimpleFilter * in_filter, AbstractSimpleFilter * out_filter, IntervalAttribute<bool> validity);
+			AbstractFilter * in_filter, AbstractFilter * out_filter, IntervalAttribute<bool> validity);
 		//! Replace data pointer and validity
 		void replaceData(void * data, IntervalAttribute<bool> validity);
 		//! Return the validity interval attribute
@@ -227,7 +227,7 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		void replaceTexts(int first, QStringList new_values);
+		void replaceTexts(int first, const QStringList& new_values);
 		//! Return the date part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -262,7 +262,7 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		void replaceDateTimes(int first, QList<QDateTime> new_values);
+		void replaceDateTimes(int first, const QList<QDateTime>& new_values);
 		//! Return the double value in row 'row'
 		double valueAt(int row) const;
 		//! Set the content of row 'row'
@@ -274,7 +274,7 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		/**
 		 * Use this only when dataType() is double
 		 */
-		void replaceValues(int first, int num_rows, const double * new_values);
+		virtual void replaceValues(int first, const QVector<double>& new_values);
 		//@}
 
 
@@ -299,9 +299,9 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		 */
 		void * d_data;
 		//! The input filter (for string -> data type conversion)
-		AbstractSimpleFilter * d_input_filter;
+		AbstractFilter * d_input_filter;
 		//! The output filter (for data type -> string conversion)
-		AbstractSimpleFilter * d_output_filter;
+		AbstractFilter * d_output_filter;
 		IntervalAttribute<bool> d_validity;
 		IntervalAttribute<bool> d_masking;
 		IntervalAttribute<QString> d_formulas;
