@@ -163,7 +163,7 @@ template<class T> class IntervalAttribute
 					if( d_intervals.at(cc).touches(i) &&
 							d_values.at(cc) == value )
 					{
-						d_intervals.replace(c, Interval<int>::merge(d_intervals.at(cc),i));
+						d_intervals.replace(cc, Interval<int>::merge(d_intervals.at(cc),i));
 						return;
 					}
 				}

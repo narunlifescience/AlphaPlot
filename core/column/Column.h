@@ -137,6 +137,11 @@ class Column : public AbstractAspect, public AbstractColumn
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
 		//! Return the data vector size
+		/**
+		 * This returns the number of rows that actually contain data. 
+		 * Rows beyond this can be masked etc. but should be ignored by filters,
+		 * plots etc.
+		 */
 		int rowCount() const { return d->rowCount(); }
 		//! Insert some empty (or initialized with zero) rows
 		void insertEmptyRows(int before, int count);

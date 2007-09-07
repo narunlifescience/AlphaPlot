@@ -44,6 +44,7 @@
 #include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include <QString>
+#include <QtDebug>
 
 
 ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
@@ -99,6 +100,33 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 	d_data = data;
 	d_validity = validity;
 
+	switch(mode)
+	{		
+		case SciDAVis::Numeric:
+			d_input_filter = new String2DoubleFilter();
+			d_output_filter = new Double2StringFilter();
+			break;
+		case SciDAVis::Text:
+			d_input_filter = new CopyThroughFilter();
+			d_output_filter = new CopyThroughFilter();
+			break;
+		case SciDAVis::Date:
+		case SciDAVis::Time:
+		case SciDAVis::DateTime:
+			d_input_filter = new String2DateTimeFilter();
+			d_output_filter = new DateTime2StringFilter();
+			break;
+		case SciDAVis::Month:
+			d_input_filter = new String2MonthFilter();
+			d_output_filter = new DateTime2StringFilter();
+			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("MMMM");
+			break;
+		case SciDAVis::Day:
+			d_input_filter = new String2DayOfWeekFilter();
+			d_output_filter = new DateTime2StringFilter();
+			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("dddd");
+			break;
+	} // switch(mode)
 	d_owner_sender = owner->signalSender();
 }
 
@@ -132,6 +160,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	AbstractFilter *filter, *new_in_filter, *new_out_filter;
 	Column * temp_col = 0;
 
+	emit d_owner_sender->modeAboutToChange(d_owner);
+
 	// determine the conversion filter and allocate the new data vector
 	switch(d_data_type)
 	{
@@ -142,29 +172,29 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 					break;
 				case SciDAVis::Text:
 					filter = new Double2StringFilter();
+					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					d_data = new QStringList();
 					d_data_type = SciDAVis::TypeQString;
-					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Date:
 				case SciDAVis::Time:
 				case SciDAVis::DateTime:
 					filter = new Double2DateTimeFilter();
+					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Month:
 					filter = new Double2MonthFilter();
+					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Day:
 					filter = new Double2DayOfWeekFilter();
+					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 			} // switch(mode)
 			break;
@@ -176,29 +206,29 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 					break;
 				case SciDAVis::Numeric:
 					filter = new String2DoubleFilter();
+					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					d_data = new QVector<double>();
 					d_data_type = SciDAVis::TypeDouble;
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Date:
 				case SciDAVis::Time:
 				case SciDAVis::DateTime:
 					filter = new String2DateTimeFilter();
+					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Month:
 					filter = new String2MonthFilter();
+					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Day:
 					filter = new String2DayOfWeekFilter();
+					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					d_data = new QList<QDateTime>();
 					d_data_type = SciDAVis::TypeQDateTime;
-					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					break;
 			} // switch(mode)
 			break;
@@ -212,15 +242,15 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 					break;
 				case SciDAVis::Text:
 					filter = new DateTime2StringFilter();
+					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					d_data = new QStringList();
 					d_data_type = SciDAVis::TypeQString;
-					temp_col = new Column("temp_col", *(static_cast< QStringList* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Numeric:
 					filter = new DateTime2DoubleFilter();
+					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					d_data = new QVector<double>();
 					d_data_type = SciDAVis::TypeDouble;
-					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					break;
 				case SciDAVis::Month:
 				case SciDAVis::Day:
@@ -257,9 +287,12 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			break;
 	} // switch(mode)
 
+	d_column_mode = mode;
 
-	emit d_owner_sender->modeAboutToChange(d_owner);
-	
+	d_input_filter = new_in_filter;
+	d_output_filter = new_out_filter;
+	// remark: the deletion of the old filters will be done in the dtor of a command
+
 	if(temp_col) // if temp_col == 0, only the input/output filters need to be changed
 	{
 		// copy the filtered, i.e. converted, column
@@ -269,11 +302,6 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		delete filter; 
 	}
 
-	d_input_filter = new_in_filter;
-	d_output_filter = new_out_filter;
-	// remark: the deletion of the old filters will be done in the dtor of a command
-
-	d_column_mode = mode;
 	emit d_owner_sender->modeChanged(d_owner);
 }
 
@@ -306,7 +334,7 @@ bool ColumnPrivate::copy(const AbstractColumn * other)
 	if(num_rows > rowCount())
 	{
 		emit d_owner_sender->dataAboutToChange(d_owner);
-		expand(num_rows - rowCount()); 
+		resizeTo(num_rows); 
 	}
 	else
 	{
@@ -352,7 +380,7 @@ bool ColumnPrivate::copy(const AbstractColumn * source, int source_start, int de
 
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	if(dest_start + num_rows > rowCount())
-		expand(dest_start + num_rows - rowCount()); 
+		resizeTo(dest_start + num_rows); 
 
 	// copy the data
 	switch(d_data_type)
@@ -397,69 +425,107 @@ int ColumnPrivate::rowCount() const
 	return 0;
 }
 
-void ColumnPrivate::expand(int new_rows)
+void ColumnPrivate::resizeTo(int new_size)
 {
-	if(new_rows < 1) return;
+	if(new_size == rowCount()) return;
 
 	switch(d_data_type)
 	{
 		case SciDAVis::TypeDouble:
-			static_cast< QVector<double>* >(d_data)->resize(rowCount() + new_rows);
+			static_cast< QVector<double>* >(d_data)->resize(new_size);
 			break;
 		case SciDAVis::TypeQDateTime:
-			for(int i=0; i<new_rows; i++)
-				static_cast< QList<QDateTime>* >(d_data)->append(QDateTime());
-			break;
+			{
+				int new_rows = new_size - rowCount();
+				if(new_rows > 0)
+				{
+					for(int i=0; i<new_rows; i++)
+						static_cast< QList<QDateTime>* >(d_data)->append(QDateTime());
+				}
+				else
+				{
+					for(int i=0; i<-new_rows; i++)
+						static_cast< QList<QDateTime>* >(d_data)->removeLast();
+				}
+				break;
+			}
 		case SciDAVis::TypeQString:
-			for(int i=0; i<new_rows; i++)
-				static_cast< QStringList* >(d_data)->append(QString());
-			break;
+			{
+				int new_rows = new_size - rowCount();
+				if(new_rows > 0)
+				{
+					for(int i=0; i<new_rows; i++)
+						static_cast< QStringList* >(d_data)->append(QString());
+				}
+				else
+				{
+					for(int i=0; i<-new_rows; i++)
+						static_cast< QStringList* >(d_data)->removeLast();
+				}
+				break;
+			}
 	}
 }
 
 void ColumnPrivate::insertEmptyRows(int before, int count)
 {
+	if(count == 0) return;
+
 	emit d_owner_sender->rowsAboutToBeInserted(d_owner, before, count);
-	switch(d_data_type)
-	{
-		case SciDAVis::TypeDouble:
-			static_cast< QVector<double>* >(d_data)->insert(before, count, 0.0);
-			break;
-		case SciDAVis::TypeQDateTime:
-			for(int i=0; i<count; i++)
-				static_cast< QList<QDateTime>* >(d_data)->insert(before, QDateTime());
-			break;
-		case SciDAVis::TypeQString:
-			for(int i=0; i<count; i++)
-				static_cast< QStringList* >(d_data)->insert(before, QString());
-			break;
-	}
 	d_validity.insertRows(before, count);
 	d_masking.insertRows(before, count);
 	d_formulas.insertRows(before, count);
+
+	if(before <= rowCount()) 
+	{
+		switch(d_data_type)
+		{
+			case SciDAVis::TypeDouble:
+				static_cast< QVector<double>* >(d_data)->insert(before, count, 0.0);
+				break;
+			case SciDAVis::TypeQDateTime:
+				for(int i=0; i<count; i++)
+					static_cast< QList<QDateTime>* >(d_data)->insert(before, QDateTime());
+				break;
+			case SciDAVis::TypeQString:
+				for(int i=0; i<count; i++)
+					static_cast< QStringList* >(d_data)->insert(before, QString());
+				break;
+		}
+	}
 	emit d_owner_sender->rowsInserted(d_owner, before, count);
 }
 
 void ColumnPrivate::removeRows(int first, int count)
 {
+	if(count == 0) return;
+
 	emit d_owner_sender->rowsAboutToBeDeleted(d_owner, first, count);
-	switch(d_data_type)
-	{
-		case SciDAVis::TypeDouble:
-			static_cast< QVector<double>* >(d_data)->remove(first, count);
-			break;
-		case SciDAVis::TypeQDateTime:
-			for(int i=0; i<count; i++)
-				static_cast< QList<QDateTime>* >(d_data)->removeAt(first);
-			break;
-		case SciDAVis::TypeQString:
-			for(int i=0; i<count; i++)
-				static_cast< QStringList* >(d_data)->removeAt(first);
-			break;
-	}
 	d_validity.removeRows(first, count);
 	d_masking.removeRows(first, count);
 	d_formulas.removeRows(first, count);
+
+	if(first < rowCount()) 
+	{
+		int corrected_count = count;
+		if(first + count > rowCount()) 
+			corrected_count = rowCount() - first;
+
+		switch(d_data_type)
+		{
+			case SciDAVis::TypeDouble:
+				static_cast< QVector<double>* >(d_data)->remove(first, corrected_count);
+				break;
+			case SciDAVis::TypeQDateTime:
+				for(int i=0; i<corrected_count; i++)
+					static_cast< QList<QDateTime>* >(d_data)->removeAt(first);
+				break;
+			case SciDAVis::TypeQString:
+				for(int i=0; i<corrected_count; i++)
+					static_cast< QStringList* >(d_data)->removeAt(first);
+				break;
+		}
+	}
 	emit d_owner_sender->rowsDeleted(d_owner, first, count);
 }
 
@@ -562,7 +628,7 @@ void ColumnPrivate::setTextAt(int row, QString new_value)
 
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	if(row >= rowCount())
-		expand(row+1 - rowCount()); 
+		resizeTo(row+1); 
 
 	static_cast< QStringList* >(d_data)->replace(row, new_value);
 	emit d_owner_sender->dataChanged(d_owner);
@@ -575,7 +641,7 @@ void ColumnPrivate::replaceTexts(int first, const QStringList& new_values)
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
 	if (first + num_rows > rowCount())
-		expand(first + num_rows - rowCount());
+		resizeTo(first + num_rows);
 
 	for(int i=0; i<num_rows; i++)
 		static_cast< QStringList* >(d_data)->replace(first+i, new_values.at(i));
@@ -602,7 +668,7 @@ void ColumnPrivate::setDateTimeAt(int row, QDateTime new_value)
 
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	if(row >= rowCount())
-		expand(row+1 - rowCount()); 
+		resizeTo(row+1); 
 
 	static_cast< QList<QDateTime>* >(d_data)->replace(row, new_value);
 	emit d_owner_sender->dataChanged(d_owner);
@@ -615,7 +681,7 @@ void ColumnPrivate::replaceDateTimes(int first, const QList<QDateTime>& new_valu
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
 	if (first + num_rows > rowCount())
-		expand(first + num_rows - rowCount());
+		resizeTo(first + num_rows);
 
 	for(int i=0; i<num_rows; i++)
 		static_cast< QList<QDateTime>* >(d_data)->replace(first+i, new_values.at(i));
@@ -628,7 +694,7 @@ void ColumnPrivate::setValueAt(int row, double new_value)
 
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	if(row >= rowCount())
-		expand(row+1 - rowCount()); 
+		resizeTo(row+1); 
 
 	static_cast< QVector<double>* >(d_data)->replace(row, new_value);
 	emit d_owner_sender->dataChanged(d_owner);
@@ -641,7 +707,7 @@ void ColumnPrivate::replaceValues(int first, const QVector<double>& new_values)
 	emit d_owner_sender->dataAboutToChange(d_owner);
 	int num_rows = new_values.size();
 	if (first + num_rows > rowCount())
-		expand(first + num_rows - rowCount());
+		resizeTo(first + num_rows);
 
 	double * ptr = static_cast< QVector<double>* >(d_data)->data();
 	for(int i=0; i<num_rows; i++)

@@ -191,10 +191,7 @@ void ColumnPartialCopyCmd::redo()
 		d_col_backup = new Column("d_col_backup", d_col->d->columnMode());
 		d_col_backup->d->copy(d_col, d_dest_start, 0, d_num_rows);
 	}
-	else
-	{
-		d_col->d->copy(d_src_backup, 0, d_dest_start, d_num_rows);
-	}
+	d_col->d->copy(d_src_backup, 0, d_dest_start, d_num_rows);
 }
 
 void ColumnPartialCopyCmd::undo()
@@ -253,8 +250,13 @@ void ColumnRemoveRowsCmd::redo()
 {
 	if(!d_backup)
 	{
+		if(d_first + d_count > d_col->d->rowCount()) 
+			d_data_row_count = d_col->d->rowCount() - d_first;
+		else
+			d_data_row_count = d_count;
+
 		d_backup = new Column("d_backup", d_col->d->columnMode());
-		d_backup->d->copy(d_col, d_first, 0, d_count);
+		d_backup->d->copy(d_col, d_first, 0, d_data_row_count);
 	}
 	d_col->d->removeRows(d_first, d_count);
 }
@@ -262,7 +264,9 @@ void ColumnRemoveRowsCmd::redo()
 void ColumnRemoveRowsCmd::undo()
 {
 	d_col->d->insertEmptyRows(d_first, d_count);
-	d_col->d->copy(d_backup, 0, d_first, d_count);
+	d_col->d->copy(d_backup, 0, d_first, d_data_row_count);
+	if(d_data_row_count < d_count)
+		d_col->d->resizeTo(d_col->d->rowCount() - (d_count - d_data_row_count));
 }
 
 ///////////////////////////////////////////////////////////////////////////

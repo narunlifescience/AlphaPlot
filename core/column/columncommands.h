@@ -214,6 +214,8 @@ private:
 	int d_first;
 	//! The number of rows to be removed
 	int d_count;
+	//! Number of removed rows actually containing data
+	int d_data_row_count;
 	//! Column saving the removed rows
 	Column * d_backup;
 };

@@ -95,8 +95,13 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
 		//! Return the data vector size
+		/**
+		 * This returns the number of rows that actually contain data. 
+		 * Rows beyond this can be masked etc. but should be ignored by filters,
+		 * plots etc.
+		 */
 		int rowCount() const;
-		//! Expand the vector by the specified number of rows
+		//! Resize the vector to the specified number of rows
 		/**
 		 * Since selecting and masking rows higher than the
 		 * real internal number of rows is supported, this
@@ -104,9 +109,8 @@ class ColumnPrivate : public AbstractColumnSignalSender, public AbstractColumn
 		 * no signal is emitted. If the new rows are filled
 		 * with values AbstractColumn::dataChanged()
 		 * must be emitted.
-		 * \sa AbstractColumn::dataChanged()
 		 */
-		void expand(int new_rows);
+		void resizeTo(int new_size);
 		//! Insert some empty (or initialized with zero) rows
 		void insertEmptyRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'

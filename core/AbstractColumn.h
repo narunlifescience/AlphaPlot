@@ -111,7 +111,6 @@ class AbstractColumnSignalSender : public QObject
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
-		 * \sa AbstractColumn::expand()
 		 */
 		void dataChanged(AbstractColumn * source); 
 		//! The column will be replaced
