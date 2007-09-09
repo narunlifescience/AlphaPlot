@@ -1,12 +1,12 @@
 /***************************************************************************
-    File                 : Double2MonthFilter.h
+    File                 : SimpleCopyThroughFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs@gmx.net
-    Description          : Conversion filter double -> QDateTime, interpreting
-                           the input numbers as months of the year.
-                           
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
+    Description          : Filter which copies the provided input unaltered
+                           to the output
+
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,42 +27,70 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef DOUBLE2MONTH_FILTER_H
-#define DOUBLE2MONTH_FILTER_H
+#ifndef SIMPLE_COPY_THROUGH_FILTER_H
+#define SIMPLE_COPY_THROUGH_FILTER_H
 
-#include "../AbstractSimpleFilter.h"
-#include <QDateTime>
-#include <math.h>
+#include "core/AbstractSimpleFilter.h"
 
-//! Conversion filter double -> QDateTime, interpreting the input numbers as months of the year.
-class Double2MonthFilter : public AbstractSimpleFilter
+/**
+ * \brief Filter which copies the provided input unaltered to the output
+ *
+ * The difference between this filter and CopyThroughFilter is that
+ * this inherits AbstractColumn and thus can be directly used
+ * as input for other filters and plot functions.
+ */
+class SimpleCopyThroughFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
+
 	public:
-		virtual QDate dateAt(int row) const {
+		virtual double valueAt(int row) const 
+		{
+			if (!d_inputs.value(0)) return 0.0;
+			return d_inputs.value(0)->valueAt(row);
+		}
+
+		virtual QString textAt(int row) const 
+		{
+			if (!d_inputs.value(0)) return QString();
+			return d_inputs.value(0)->textAt(row);
+		}
+
+		virtual QDate dateAt(int row) const 
+		{
 			return dateTimeAt(row).date();
 		}
-		virtual QTime timeAt(int row) const {
+
+		virtual QTime timeAt(int row) const 
+		{
 			return dateTimeAt(row).time();
 		}
-		virtual QDateTime dateTimeAt(int row) const {
+
+		virtual QDateTime dateTimeAt(int row) const
+		{
 			if (!d_inputs.value(0)) return QDateTime();
-			double input_value = d_inputs.value(0)->valueAt(row);
-			// Don't use Julian days here since support for years < 1 is bad
-			// Use 1900-01-01 instead
-			QDate result_date = QDate(1900,1,1).addMonths(qRound(input_value - 1.0));
-			QTime result_time = QTime(0,0,0,0);
-			return QDateTime(result_date, result_time);
+
+			return d_inputs.value(0)->dateTimeAt(row);
 		}
 
-		//! Return the data type of the column
-		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
+		//! Return the data type of the output
+		/**
+		 * You must connect the input before using this
+		 * function.
+		 */
+		virtual SciDAVis::ColumnDataType dataType() const 
+		{ 
+			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
+			return d_inputs.value(0)->dataType();
+		}
 
 	protected:
-		virtual bool inputAcceptable(int, AbstractColumn *source) {
-			return source->dataType() == SciDAVis::TypeDouble;
+		//! All types are accepted.
+		virtual bool inputAcceptable(int, AbstractColumn *source) 
+		{
+			return true;
 		}
 };
 
-#endif // ifndef DOUBLE2MONTH_FILTER_H
+#endif // ifndef COPY_THROUGH_FILTER_H
 

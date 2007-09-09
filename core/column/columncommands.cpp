@@ -44,8 +44,10 @@ ColumnSetModeCmd::~ColumnSetModeCmd()
 {
 	if(d_undone)
 	{
-		delete d_new_in_filter;
-		delete d_new_out_filter;
+		if(d_new_in_filter != d_old_in_filter)	
+			delete d_new_in_filter;
+		if(d_new_out_filter != d_old_out_filter)	
+			delete d_new_out_filter;
 		if(d_new_data != d_old_data)
 		{
 			if(d_new_type == SciDAVis::TypeDouble)
@@ -58,8 +60,10 @@ ColumnSetModeCmd::~ColumnSetModeCmd()
 	}
 	else
 	{
-		delete d_old_in_filter;
-		delete d_old_out_filter;
+		if(d_new_in_filter != d_old_in_filter)	
+			delete d_old_in_filter;
+		if(d_new_out_filter != d_old_out_filter)	
+			delete d_old_out_filter;
 		if(d_new_data != d_old_data)
 		{
 			{

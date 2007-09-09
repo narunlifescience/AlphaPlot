@@ -19,6 +19,7 @@ HEADERS += \
 			  IntervalAttribute.h \
 			  AbstractFilter.h \
 			  AbstractSimpleFilter.h \
+			  SimpleCopyThroughFilter.h \
 			  DateTime2DoubleFilter.h \
 			  DateTime2StringFilter.h \
 			  DayOfWeek2DoubleFilter.h \

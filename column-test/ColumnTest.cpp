@@ -6,6 +6,7 @@
 #include "Double2StringFilter.h"
 #include <QtGlobal>
 #include <QLocale>
+#include <QtDebug>
 
 #define EPSILON (1e-6)
 
@@ -343,81 +344,253 @@ class ColumnTest : public CppUnit::TestFixture {
 /* ------------------------------------------------------------------------------ */
 		void testConversion() 
 		{
+			double dbl_temp;
+			QVector<double> dbls;
+			QDateTime date_temp;
+			QList<QDateTime> dts;
+			QString str_temp;
+			QStringList strs;
+
 			// test setColumnMode, inputFilter, outputFilter
 			// 1) double -> string
-			column[0]->setValueAt(0, 1.231);
-			dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumericFormat('f');
-			dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumDigits(2);
-			column[0]->setColumnMode(SciDAVis::Text);
-			CPPUNIT_ASSERT_EQUAL(QLocale().toString(1.231, 'f', 2), column[0]->textAt(0));
-			CPPUNIT_ASSERT_EQUAL(column[0]->columnMode(), SciDAVis::Text);
-			CPPUNIT_ASSERT_EQUAL(column[0]->dataType(), SciDAVis::TypeQString);
-			column[0]->setTextAt(0, QString("foo bar"));
-			column[0]->inputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(column[0]->dataType(), column[0]->inputFilter()->output(0)->dataType());
-			column[0]->outputFilter()->input(0, column[0]);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[0]->outputFilter()->output(0)->dataType());
-			CPPUNIT_ASSERT_EQUAL(column[0]->textAt(0), QString("foo bar"));
+			dbls.clear();
+			dbls << 1.231 << 0.99 << -15.1 << -10.8;
+			foreach(dbl_temp, dbls)
+			{
+				column[0]->setColumnMode(SciDAVis::Numeric);
+				column[0]->setValueAt(0, dbl_temp);
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumericFormat('f');
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumDigits(2);
+				column[0]->setColumnMode(SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(QLocale().toString(dbl_temp, 'f', 2), column[0]->textAt(0));
+				CPPUNIT_ASSERT_EQUAL(column[0]->columnMode(), SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(column[0]->dataType(), SciDAVis::TypeQString);
+				column[0]->setTextAt(0, QString("foo bar"));
+				CPPUNIT_ASSERT_EQUAL(column[0]->textAt(0), QString("foo bar"));
+				column[0]->inputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(column[0]->dataType(), column[0]->inputFilter()->output(0)->dataType());
+				column[0]->outputFilter()->input(0, column[0]);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[0]->outputFilter()->output(0)->dataType());
+			}
 
 			// 2) double -> date-time
-			QDateTime temp_date(QDate(1888,7,6), QTime(12,0,0,100));
-			double dbl_temp = double(temp_date.date().toJulianDay()) +
-				double( -temp_date.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
-			column[1]->setValueAt(2, dbl_temp);
-			column[1]->setColumnMode(SciDAVis::DateTime);
-			CPPUNIT_ASSERT_EQUAL(column[1]->columnMode(), SciDAVis::DateTime);
-			CPPUNIT_ASSERT_EQUAL(column[1]->dataType(), SciDAVis::TypeQDateTime);
-			column[1]->inputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(column[1]->dataType(), column[1]->inputFilter()->output(0)->dataType());
-			column[1]->outputFilter()->input(0, column[1]);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[1]->outputFilter()->output(0)->dataType());
-			CPPUNIT_ASSERT_EQUAL(temp_date, column[1]->dateTimeAt(2));
-			
+			dts.clear();
+			dts << QDateTime(QDate(1888,7,6), QTime(12,0,0,100));
+			dts << QDateTime(QDate(888,12,12), QTime(1,0,0,200));
+			dts << QDateTime(QDate(2111,11,11),QTime(11,11,11,11));
+			foreach(date_temp, dts)
+			{
+				dbl_temp = double(date_temp.date().toJulianDay()) +
+					double( -date_temp.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
+				column[1]->setColumnMode(SciDAVis::Numeric);
+				column[1]->setValueAt(2, dbl_temp);
+				column[1]->setColumnMode(SciDAVis::DateTime);
+				CPPUNIT_ASSERT_EQUAL(column[1]->columnMode(), SciDAVis::DateTime);
+				CPPUNIT_ASSERT_EQUAL(column[1]->dataType(), SciDAVis::TypeQDateTime);
+				column[1]->inputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(column[1]->dataType(), column[1]->inputFilter()->output(0)->dataType());
+				column[1]->outputFilter()->input(0, column[1]);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[1]->outputFilter()->output(0)->dataType());
+				CPPUNIT_ASSERT_EQUAL(date_temp, column[1]->dateTimeAt(2));
+			}
+
 			// 3) string -> month
-			column[2]->setColumnMode(SciDAVis::Month);
-			CPPUNIT_ASSERT_EQUAL(column[2]->columnMode(), SciDAVis::Month);
-			CPPUNIT_ASSERT_EQUAL(column[2]->dataType(), SciDAVis::TypeQDateTime);
-			column[2]->inputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(column[2]->dataType(), column[2]->inputFilter()->output(0)->dataType());
-			column[2]->outputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[2]->outputFilter()->output(0)->dataType());
+			strs.clear();
+			strs << QLocale().monthName(12);
+			strs << QLocale().monthName(1);
+			strs << QLocale().monthName(6);
+			foreach(str_temp, strs)
+			{
+				column[2]->setColumnMode(SciDAVis::Text);
+				column[2]->setTextAt(5, str_temp);
+				column[2]->setColumnMode(SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(column[2]->columnMode(), SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(column[2]->dataType(), SciDAVis::TypeQDateTime);
+				column[2]->inputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(column[2]->dataType(), column[2]->inputFilter()->output(0)->dataType());
+				column[2]->outputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[2]->outputFilter()->output(0)->dataType());
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(str_temp, "MMMM"), column[2]->dateTimeAt(5));
+			}
 
 			// 4) string -> day
-			column[3]->setColumnMode(SciDAVis::Day);
-			CPPUNIT_ASSERT_EQUAL(column[3]->columnMode(), SciDAVis::Day);
-			CPPUNIT_ASSERT_EQUAL(column[3]->dataType(), SciDAVis::TypeQDateTime);
-			column[3]->inputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(column[3]->dataType(), column[3]->inputFilter()->output(0)->dataType());
-			column[3]->outputFilter()->input(0, column[3]);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[3]->outputFilter()->output(0)->dataType());
-			for(int i=1; i<=3; i++)
+			strs.clear();
+			strs << QLocale().dayName(5);
+			strs << QLocale().dayName(1);
+			strs << QLocale().dayName(7);
+			foreach(str_temp, strs)
 			{
-				column[i]->setDateTimeAt(0, QDateTime(QDate(2111,11,11),QTime(11,11,11,11)));
-				CPPUNIT_ASSERT_EQUAL(column[i]->dateTimeAt(0), QDateTime(QDate(2111,11,11),QTime(11,11,11,11)));
+				column[3]->setColumnMode(SciDAVis::Text);
+				column[3]->setTextAt(4, str_temp);
+				column[3]->setColumnMode(SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(column[3]->columnMode(), SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(column[3]->dataType(), SciDAVis::TypeQDateTime);
+				column[3]->inputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(column[3]->dataType(), column[3]->inputFilter()->output(0)->dataType());
+				column[3]->outputFilter()->input(0, column[3]);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[3]->outputFilter()->output(0)->dataType());
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(str_temp, "dddd"), column[3]->dateTimeAt(4));
 			}
 
 			// 5) day -> string
-			column[3]->setDateTimeAt(0, QDateTime::fromString(QLocale().dayName(2), "dddd"));
-			column[3]->setColumnMode(SciDAVis::Text);
-			CPPUNIT_ASSERT_EQUAL(QLocale().dayName(2), column[3]->textAt(0));
+			strs.clear();
+			strs << QLocale().dayName(1);
+			strs << QLocale().dayName(2);
+			strs << QLocale().dayName(7);
+			foreach(str_temp, strs)
+			{
+				column[3]->setColumnMode(SciDAVis::Day);
+				column[3]->setDateTimeAt(0, QDateTime::fromString(str_temp, "dddd"));
+				column[3]->setColumnMode(SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(str_temp, column[3]->textAt(0));
+			}
 
 			// 6) month -> string
-			column[2]->setDateTimeAt(0, QDateTime::fromString(QLocale().monthName(11), "MMMM"));
-			column[2]->setColumnMode(SciDAVis::Text);
-			CPPUNIT_ASSERT_EQUAL(QLocale().monthName(11), column[2]->textAt(0));
-			
+			strs.clear();
+			strs << QLocale().monthName(1);
+			strs << QLocale().monthName(11);
+			strs << QLocale().monthName(12);
+			foreach(str_temp, strs)
+			{
+				column[2]->setColumnMode(SciDAVis::Month);
+				column[2]->setDateTimeAt(0, QDateTime::fromString(str_temp, "MMMM"));
+				column[2]->setColumnMode(SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(str_temp, column[2]->textAt(0));
+			}
+
 			// 7) date-time -> double
-			column[4]->setDateTimeAt(1, temp_date);
-			column[4]->setColumnMode(SciDAVis::Numeric);
-			CPPUNIT_ASSERT_EQUAL(column[4]->columnMode(), SciDAVis::Numeric);
-			CPPUNIT_ASSERT_EQUAL(column[4]->dataType(), SciDAVis::TypeDouble);
-			column[4]->inputFilter()->input(0, column[2]);
-			CPPUNIT_ASSERT_EQUAL(column[4]->dataType(), column[4]->inputFilter()->output(0)->dataType());
-			column[4]->outputFilter()->input(0, column[4]);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[4]->outputFilter()->output(0)->dataType());
-			column[4]->setValueAt(0, 11.11);
-			CPPUNIT_ASSERT_DOUBLES_EQUAL(column[4]->valueAt(0), 11.11, EPSILON);
-			CPPUNIT_ASSERT_DOUBLES_EQUAL(dbl_temp, column[4]->valueAt(1), EPSILON);
+			dts.clear();
+			dts << QDateTime(QDate(1888,7,6), QTime(12,0,0,100));
+			dts << QDateTime(QDate(888,12,12), QTime(1,0,0,200));
+			dts << QDateTime(QDate(2111,11,11),QTime(11,11,11,11));
+			foreach(date_temp, dts)
+			{
+				dbl_temp = double(date_temp.date().toJulianDay()) +
+					double( -date_temp.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
+				column[4]->setColumnMode(SciDAVis::DateTime);
+				column[4]->setDateTimeAt(1, date_temp);
+				column[4]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_EQUAL(column[4]->columnMode(), SciDAVis::Numeric);
+				CPPUNIT_ASSERT_EQUAL(column[4]->dataType(), SciDAVis::TypeDouble);
+				column[4]->inputFilter()->input(0, column[2]);
+				CPPUNIT_ASSERT_EQUAL(column[4]->dataType(), column[4]->inputFilter()->output(0)->dataType());
+				column[4]->outputFilter()->input(0, column[4]);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::TypeQString, column[4]->outputFilter()->output(0)->dataType());
+				column[4]->setValueAt(0, 11.11);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(column[4]->valueAt(0), 11.11, EPSILON);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(dbl_temp, column[4]->valueAt(1), EPSILON);
+			}
+
+			// 8) day -> double
+			dbls.clear();
+			dbls << 0.8 << 1.1 << 1.9 << 4.1 << 5.7 << 14.3 << 12.5 << 99.7;
+			foreach(dbl_temp, dbls)
+			{
+				column[8]->setColumnMode(SciDAVis::Day);
+				str_temp = QLocale().dayName((qRound(dbl_temp)-1)%7+1);
+				column[8]->setDateTimeAt(0, QDateTime::fromString(str_temp, "dddd"));
+				column[8]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(double((qRound(dbl_temp)-1)%7+1), column[8]->valueAt(0), EPSILON);
+			}
+			
+			// 9) month -> double
+			dbls.clear();
+			dbls << 0.8 << 1.1 << 1.9 << 4.1 << 5.7 << 14.3 << 12.5 << 99.7;
+			foreach(dbl_temp, dbls)
+			{
+				str_temp = QLocale().monthName((qRound(dbl_temp)-1)%12+1);
+				column[6]->setColumnMode(SciDAVis::Month);
+				column[6]->setDateTimeAt(0, QDateTime::fromString(str_temp, "MMMM"));
+				column[6]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(double((qRound(dbl_temp)-1)%12+1), column[6]->valueAt(0), EPSILON);
+			}
+
+			// 10) double -> day
+			dbls.clear();
+			dbls << 0.8 << 1.1 << 1.9 << 4.1 << 5.7 << 31.3 << 33.5 << 40.7 << -5.0;
+			foreach(dbl_temp, dbls)
+			{
+				column[10]->setColumnMode(SciDAVis::Numeric);
+				column[10]->setValueAt(0, dbl_temp);
+				column[10]->setColumnMode(SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(QDateTime(QDate(1900,1,1).addDays(qRound(dbl_temp - 1.0)), QTime()), column[10]->dateTimeAt(0));
+				int temp = (qRound(dbl_temp)-1)%7+1;
+				while(temp < 0) temp += 7;
+				CPPUNIT_ASSERT_EQUAL(temp, column[10]->dateTimeAt(0).date().dayOfWeek());
+			}
+
+			// 11) double -> month
+			dbls.clear();
+			dbls << 0.8 << 1.1 << 4.9 << 6.1 << 12.4 << 15.3 << 31.3 << 33.5 << 40.7 << -5.0;
+			foreach(dbl_temp, dbls)
+			{
+				column[10]->setColumnMode(SciDAVis::Numeric);
+				column[10]->setValueAt(0, dbl_temp);
+				column[10]->setColumnMode(SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(QDateTime(QDate(1900,1,1).addMonths(qRound(dbl_temp - 1.0)),QTime(0,0,0,0)), column[10]->dateTimeAt(0));
+				int temp = (qRound(dbl_temp)-1)%12+1;
+				while(temp < 0) temp += 12;
+					CPPUNIT_ASSERT_EQUAL(temp, column[10]->dateTimeAt(0).date().month());
+			}
+
+			// 12) string -> double
+			dbls.clear();
+			dbls << 7.7829 << -12.331233 << 100.123123 << -47.123123 << 0.0;
+			foreach(dbl_temp, dbls)
+			{
+				column[0]->setColumnMode(SciDAVis::Text);
+				column[0]->setTextAt(99, QLocale().toString(dbl_temp, 'f', 3));
+				column[0]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(double(qRound(dbl_temp*1000.0))/1000.0, column[0]->valueAt(99), EPSILON);
+			}
+
+			// 13) text -> month -> date-time -> month -> text
+			for(int int_temp = 1; int_temp <= 12; int_temp++)
+			{
+				str_temp = QLocale().monthName(int_temp);
+				column[10]->setColumnMode(SciDAVis::Text);
+				column[10]->setTextAt(0, str_temp);
+				column[10]->setColumnMode(SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(str_temp, "MMMM"), column[10]->dateTimeAt(0));
+				column[10]->setColumnMode(SciDAVis::DateTime);
+				CPPUNIT_ASSERT_EQUAL(QDateTime(QDate(1900,int_temp,1),QTime(0,0,0,0)), column[10]->dateTimeAt(0));
+				column[10]->setColumnMode(SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(str_temp, "MMMM"), column[10]->dateTimeAt(0));
+				column[10]->setColumnMode(SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(QLocale().monthName(int_temp), column[10]->textAt(0));
+			}
+
+			// 13) double -> day -> date-time -> day -> double
+			dbls.clear();
+			dbls << 7.7829 << 12.331233 << 100.123123 << 47.123123 << 1.0;
+			foreach(dbl_temp, dbls)
+			{
+				column[10]->setColumnMode(SciDAVis::Numeric);
+				column[10]->setValueAt(0, dbl_temp);
+				column[10]->setColumnMode(SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(QLocale().dayName((qRound(dbl_temp)-1)%7+1), "dddd").date().dayOfWeek(), 
+						column[10]->dateTimeAt(0).date().dayOfWeek());
+				column[10]->setColumnMode(SciDAVis::DateTime);
+				CPPUNIT_ASSERT_EQUAL(QDateTime(QDate(1900,1,1).addDays(qRound(dbl_temp - 1.0)),QTime(0,0,0,0)), column[10]->dateTimeAt(0));
+				column[10]->setColumnMode(SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(QDateTime::fromString(QLocale().dayName((qRound(dbl_temp)-1)%7+1), "dddd").date().dayOfWeek(), 
+						column[10]->dateTimeAt(0).date().dayOfWeek());
+				column[10]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_DOUBLES_EQUAL(double((qRound(dbl_temp)-1)%7+1), column[10]->valueAt(0), EPSILON);
+			}
+
+				// apply all conversions twice
+				column[0]->setColumnMode(SciDAVis::Numeric);
+				column[0]->setColumnMode(SciDAVis::Numeric);
+				column[0]->setColumnMode(SciDAVis::Text);
+				column[0]->setColumnMode(SciDAVis::Text);
+				column[0]->setColumnMode(SciDAVis::DateTime);
+				column[0]->setColumnMode(SciDAVis::DateTime);
+				column[0]->setColumnMode(SciDAVis::Month);
+				column[0]->setColumnMode(SciDAVis::Month);
+				column[0]->setColumnMode(SciDAVis::Day);
+				column[0]->setColumnMode(SciDAVis::Day);
+				column[0]->setColumnMode(SciDAVis::Numeric);
 		}
 /* ------------------------------------------------------------------------------ */
 		void testUndo()

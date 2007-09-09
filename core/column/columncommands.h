@@ -33,7 +33,7 @@
 #include <QUndoCommand>
 #include "Column.h"
 #include "ColumnPrivate.h"
-#include "core/AbstractFilter.h"
+#include "core/AbstractSimpleFilter.h"
 #include "lib/IntervalAttribute.h"
 
 ///////////////////////////////////////////////////////////////////////////
@@ -69,13 +69,13 @@ private:
 	//! Pointer to new data
 	void * d_new_data;
 	//! The new input filter
-	AbstractFilter * d_new_in_filter;
+	AbstractSimpleFilter * d_new_in_filter;
 	//! The new output filter
-	AbstractFilter * d_new_out_filter;
+	AbstractSimpleFilter * d_new_out_filter;
 	//! The old input filter
-	AbstractFilter * d_old_in_filter;
+	AbstractSimpleFilter * d_old_in_filter;
 	//! The old output filter
-	AbstractFilter * d_old_out_filter;
+	AbstractSimpleFilter * d_old_out_filter;
 	//! The old validity information
 	IntervalAttribute<bool> d_old_validity;
 	//! The new validity information

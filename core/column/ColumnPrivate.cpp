@@ -29,8 +29,8 @@
 
 #include "ColumnPrivate.h"
 #include "Column.h"
-#include "core/AbstractFilter.h"
-#include "core/CopyThroughFilter.h"
+#include "core/AbstractSimpleFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
 #include "core/datatypes/Double2DateTimeFilter.h"
@@ -43,6 +43,8 @@
 #include "core/datatypes/String2DayOfWeekFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
+#include "core/datatypes/DayOfWeek2DoubleFilter.h"
+#include "core/datatypes/Month2DoubleFilter.h"
 #include <QString>
 #include <QtDebug>
 
@@ -60,8 +62,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_data = new QVector<double>();
 			break;
 		case SciDAVis::Text:
-			d_input_filter = new CopyThroughFilter();
-			d_output_filter = new CopyThroughFilter();
+			d_input_filter = new SimpleCopyThroughFilter();
+			d_output_filter = new SimpleCopyThroughFilter();
 			d_data_type = SciDAVis::TypeQString;
 			d_data = new QStringList();
 			break;
@@ -107,8 +109,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 			d_output_filter = new Double2StringFilter();
 			break;
 		case SciDAVis::Text:
-			d_input_filter = new CopyThroughFilter();
-			d_output_filter = new CopyThroughFilter();
+			d_input_filter = new SimpleCopyThroughFilter();
+			d_output_filter = new SimpleCopyThroughFilter();
 			break;
 		case SciDAVis::Date:
 		case SciDAVis::Time:
@@ -157,15 +159,15 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	void * old_data = d_data;
 	// remark: the deletion of the old data will be done in the dtor of a command
 
-	AbstractFilter *filter, *new_in_filter, *new_out_filter;
+	AbstractSimpleFilter *filter, *new_in_filter, *new_out_filter;
 	Column * temp_col = 0;
 
 	emit d_owner_sender->modeAboutToChange(d_owner);
 
 	// determine the conversion filter and allocate the new data vector
-	switch(d_data_type)
+	switch(d_column_mode)
 	{
-		case SciDAVis::TypeDouble:
+		case SciDAVis::Numeric:
 			switch(mode)
 			{		
 				case SciDAVis::Numeric:
@@ -199,7 +201,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			} // switch(mode)
 			break;
 
-		case SciDAVis::TypeQString:
+		case SciDAVis::Text:
 			switch(mode)
 			{		
 				case SciDAVis::Text:
@@ -233,7 +235,11 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			} // switch(mode)
 			break;
 
-		case SciDAVis::TypeQDateTime:
+		case SciDAVis::Date:
+		case SciDAVis::Time:
+		case SciDAVis::DateTime:
+		case SciDAVis::Month:
+		case SciDAVis::Day:
 			switch(mode)
 			{		
 				case SciDAVis::Date:
@@ -247,7 +253,12 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 					d_data_type = SciDAVis::TypeQString;
 					break;
 				case SciDAVis::Numeric:
-					filter = new DateTime2DoubleFilter();
+					if(d_column_mode == SciDAVis::Month)
+						filter = new Month2DoubleFilter();
+					else if(d_column_mode == SciDAVis::Day)
+						filter = new DayOfWeek2DoubleFilter();
+					else
+						filter = new DateTime2DoubleFilter();
 					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					d_data = new QVector<double>();
 					d_data_type = SciDAVis::TypeDouble;
@@ -256,6 +267,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 				case SciDAVis::Day:
 					break;
 			} // switch(mode)
+			break;
+
 	}
 
 	// determine the new input and output filters
@@ -266,8 +279,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			new_out_filter = new Double2StringFilter();
 			break;
 		case SciDAVis::Text:
-			new_in_filter = new CopyThroughFilter();
-			new_out_filter = new CopyThroughFilter();
+			new_in_filter = new SimpleCopyThroughFilter();
+			new_out_filter = new SimpleCopyThroughFilter();
 			break;
 		case SciDAVis::Date:
 		case SciDAVis::Time:
@@ -308,7 +321,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 }
 
 void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data, 
-	AbstractFilter * in_filter, AbstractFilter * out_filter, IntervalAttribute<bool> validity)
+	AbstractSimpleFilter * in_filter, AbstractSimpleFilter * out_filter, IntervalAttribute<bool> validity)
 {
 	emit d_owner_sender->modeAboutToChange(d_owner);
 	d_column_mode = mode;

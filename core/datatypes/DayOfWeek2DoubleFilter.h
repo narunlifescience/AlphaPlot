@@ -42,12 +42,10 @@ class DayOfWeek2DoubleFilter : public AbstractSimpleFilter
 		virtual double valueAt(int row) const {
 			if (!d_inputs.value(0)) return 0;
 			return double(d_inputs.value(0)->dateAt(row).dayOfWeek());
-			/*
-			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
-			return double(input_value.date().toJulianDay() + 1) +
-				double( -input_value.time().msecsTo(QTime(12,0,0,0)) ) / 86400000.0;
-			*/
 		}
+
+		//! Return the data type of the column
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
 
 	protected:
 		//! Using typed ports: only date-time inputs are accepted.

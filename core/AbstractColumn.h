@@ -161,7 +161,7 @@ class AbstractColumnSignalSender : public QObject
 		/**
 		 * \param source the object emitting this signal
 		 *
-		 * This is need by AbstractFilter. QObject::destroyed() does not work there because its argument
+		 * This is needed by AbstractFilter. QObject::destroyed() does not work there because its argument
 		 * can't be cast to AbstractColumn properly (qobject_cast and lookup of the pointer in
 		 * AbstractFilter::d_inputs fail).
 		 */
