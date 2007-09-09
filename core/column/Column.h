@@ -306,7 +306,7 @@ class Column : public AbstractAspect, public AbstractColumn
 		friend class ColumnSetModeCmd;	
 		friend class ColumnFullCopyCmd;
 		friend class ColumnPartialCopyCmd;
-		friend class ColumnInsertRowsCmd;
+		friend class ColumnInsertEmptyRowsCmd;
 		friend class ColumnRemoveRowsCmd;
 		friend class ColumnSetPlotDesignationCmd;
 		friend class ColumnClearCmd;

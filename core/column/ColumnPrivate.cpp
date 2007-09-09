@@ -171,7 +171,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 				case SciDAVis::Numeric:
 					break;
 				case SciDAVis::Text:
-					filter = new Double2StringFilter();
+					filter = outputFilter();
 					temp_col = new Column("temp_col", *(static_cast< QVector<double>* >(old_data)), d_validity);
 					d_data = new QStringList();
 					d_data_type = SciDAVis::TypeQString;
@@ -241,7 +241,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 				case SciDAVis::DateTime:
 					break;
 				case SciDAVis::Text:
-					filter = new DateTime2StringFilter();
+					filter = outputFilter();
 					temp_col = new Column("temp_col", *(static_cast< QList<QDateTime>* >(old_data)), d_validity);
 					d_data = new QStringList();
 					d_data_type = SciDAVis::TypeQString;
@@ -299,7 +299,9 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		filter->input(0, temp_col);
 		copy(filter->output(0));
 		delete temp_col;
-		delete filter; 
+
+		if(mode != SciDAVis::Text) // in case of text the output filter is used
+			delete filter; 
 	}
 
 	emit d_owner_sender->modeChanged(d_owner);
@@ -331,16 +333,8 @@ bool ColumnPrivate::copy(const AbstractColumn * other)
 	if(other->dataType() != dataType()) return false;
 	int num_rows = other->rowCount();
 
-	if(num_rows > rowCount())
-	{
-		emit d_owner_sender->dataAboutToChange(d_owner);
-		resizeTo(num_rows); 
-	}
-	else
-	{
-		removeRows(num_rows, rowCount() - num_rows);
-		emit d_owner_sender->dataAboutToChange(d_owner);
-	}
+	emit d_owner_sender->dataAboutToChange(d_owner);
+	resizeTo(num_rows); 
 
 	// copy the data
 	switch(d_data_type)

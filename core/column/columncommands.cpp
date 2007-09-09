@@ -204,30 +204,30 @@ void ColumnPartialCopyCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class ColumnInsertRowsCmd
+// class ColumnInsertEmptyRowsCmd
 ///////////////////////////////////////////////////////////////////////////
-	ColumnInsertRowsCmd::ColumnInsertRowsCmd(Column * col, int before, int count, QUndoCommand * parent )
+	ColumnInsertEmptyRowsCmd::ColumnInsertEmptyRowsCmd(Column * col, int before, int count, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_before(before), d_count(count)
 {
 	setText(QObject::tr("insert rows into column %1").arg(col->d->columnLabel()));
 }
 
-ColumnInsertRowsCmd::~ColumnInsertRowsCmd()
+ColumnInsertEmptyRowsCmd::~ColumnInsertEmptyRowsCmd()
 {
 }
 
-void ColumnInsertRowsCmd::redo()
+void ColumnInsertEmptyRowsCmd::redo()
 {
 	d_col->d->insertEmptyRows(d_before, d_count);
 }
 
-void ColumnInsertRowsCmd::undo()
+void ColumnInsertEmptyRowsCmd::undo()
 {
 	d_col->d->removeRows(d_before, d_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// end of class ColumnInsertRowsCmd
+// end of class ColumnInsertEmptyRowsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 
@@ -257,6 +257,8 @@ void ColumnRemoveRowsCmd::redo()
 
 		d_backup = new Column("d_backup", d_col->d->columnMode());
 		d_backup->d->copy(d_col, d_first, 0, d_data_row_count);
+		d_masking = d_col->d->maskingAttribute();
+		d_formulas = d_col->d->formulaAttribute();
 	}
 	d_col->d->removeRows(d_first, d_count);
 }
@@ -267,6 +269,8 @@ void ColumnRemoveRowsCmd::undo()
 	d_col->d->copy(d_backup, 0, d_first, d_data_row_count);
 	if(d_data_row_count < d_count)
 		d_col->d->resizeTo(d_col->d->rowCount() - (d_count - d_data_row_count));
+	d_col->d->replaceMasking(d_masking);
+	d_col->d->replaceFormulas(d_formulas);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -375,7 +379,7 @@ void ColumnClearCmd::undo()
 : QUndoCommand( parent ), d_col(col)
 {
 	setText(QObject::tr("set column %1 valid").arg(col->d->columnLabel()));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnClearValidityCmd::~ColumnClearValidityCmd()
@@ -384,10 +388,10 @@ ColumnClearValidityCmd::~ColumnClearValidityCmd()
 
 void ColumnClearValidityCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_validity = d_col->d->validityAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->clearValidity();
 }
@@ -408,7 +412,7 @@ void ColumnClearValidityCmd::undo()
 : QUndoCommand( parent ), d_col(col)
 {
 	setText(QObject::tr("clear masks of column %1").arg(col->d->columnLabel()));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnClearMasksCmd::~ColumnClearMasksCmd()
@@ -417,10 +421,10 @@ ColumnClearMasksCmd::~ColumnClearMasksCmd()
 
 void ColumnClearMasksCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_masking = d_col->d->maskingAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->clearMasks();
 }
@@ -444,7 +448,7 @@ void ColumnClearMasksCmd::undo()
 		setText(QObject::tr("set cells invalid"));
 	else
 		setText(QObject::tr("set cells valid"));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnSetInvalidCmd::~ColumnSetInvalidCmd()
@@ -453,10 +457,10 @@ ColumnSetInvalidCmd::~ColumnSetInvalidCmd()
 
 void ColumnSetInvalidCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_validity = d_col->d->validityAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->setInvalid(d_interval, d_invalid);
 }
@@ -480,7 +484,7 @@ void ColumnSetInvalidCmd::undo()
 		setText(QObject::tr("mask cells"));
 	else
 		setText(QObject::tr("unmask cells"));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnSetMaskedCmd::~ColumnSetMaskedCmd()
@@ -489,10 +493,10 @@ ColumnSetMaskedCmd::~ColumnSetMaskedCmd()
 
 void ColumnSetMaskedCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_masking = d_col->d->maskingAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->setMasked(d_interval, d_masked);
 }
@@ -513,7 +517,7 @@ void ColumnSetMaskedCmd::undo()
 : QUndoCommand( parent ), d_col(col), d_interval(interval), d_formula(formula)
 {
 	setText(QObject::tr("set the formula for cell(s)"));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnSetFormulaCmd::~ColumnSetFormulaCmd()
@@ -522,10 +526,10 @@ ColumnSetFormulaCmd::~ColumnSetFormulaCmd()
 
 void ColumnSetFormulaCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_formulas = d_col->d->formulaAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->setFormula(d_interval, d_formula);
 }
@@ -546,7 +550,7 @@ void ColumnSetFormulaCmd::undo()
 : QUndoCommand( parent ), d_col(col)
 {
 	setText(QObject::tr("clear all formulas of column %1").arg(col->d->columnLabel()));
-	b_copied = false;
+	d_copied = false;
 }
 
 ColumnClearFormulasCmd::~ColumnClearFormulasCmd()
@@ -555,10 +559,10 @@ ColumnClearFormulasCmd::~ColumnClearFormulasCmd()
 
 void ColumnClearFormulasCmd::redo()
 {
-	if(!b_copied)
+	if(!d_copied)
 	{
 		d_formulas = d_col->d->formulaAttribute();
-		b_copied = true;
+		d_copied = true;
 	}
 	d_col->d->clearFormulas();
 }
@@ -588,12 +592,14 @@ ColumnSetTextCmd::~ColumnSetTextCmd()
 void ColumnSetTextCmd::redo()
 {
 	d_old_value = d_col->d->textAt(d_row);
+	d_row_count = d_col->d->rowCount();
 	d_col->d->setTextAt(d_row, d_new_value);
 }
 
 void ColumnSetTextCmd::undo()
 {
 	d_col->d->setTextAt(d_row, d_old_value);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -616,12 +622,14 @@ ColumnSetValueCmd::~ColumnSetValueCmd()
 void ColumnSetValueCmd::redo()
 {
 	d_old_value = d_col->d->valueAt(d_row);
+	d_row_count = d_col->d->rowCount();
 	d_col->d->setValueAt(d_row, d_new_value);
 }
 
 void ColumnSetValueCmd::undo()
 {
 	d_col->d->setValueAt(d_row, d_old_value);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -644,12 +652,14 @@ ColumnSetDateTimeCmd::~ColumnSetDateTimeCmd()
 void ColumnSetDateTimeCmd::redo()
 {
 	d_old_value = d_col->d->dateTimeAt(d_row);
+	d_row_count = d_col->d->rowCount();
 	d_col->d->setDateTimeAt(d_row, d_new_value);
 }
 
 void ColumnSetDateTimeCmd::undo()
 {
 	d_col->d->setDateTimeAt(d_row, d_old_value);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -673,13 +683,18 @@ ColumnReplaceTextsCmd::~ColumnReplaceTextsCmd()
 void ColumnReplaceTextsCmd::redo()
 {
 	if(!d_copied)
+	{
 		d_old_values = static_cast< QStringList* >(d_col->d->dataPointer())->mid(d_first, d_new_values.count());
+		d_row_count = d_col->d->rowCount();
+		d_copied = true;
+	}
 	d_col->d->replaceTexts(d_first, d_new_values);
 }
 
 void ColumnReplaceTextsCmd::undo()
 {
 	d_col->d->replaceTexts(d_first, d_old_values);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -703,13 +718,18 @@ ColumnReplaceValuesCmd::~ColumnReplaceValuesCmd()
 void ColumnReplaceValuesCmd::redo()
 {
 	if(!d_copied)
+	{
 		d_old_values = static_cast< QVector<double>* >(d_col->d->dataPointer())->mid(d_first, d_new_values.count());
+		d_row_count = d_col->d->rowCount();
+		d_copied = true;
+	}
 	d_col->d->replaceValues(d_first, d_new_values);
 }
 
 void ColumnReplaceValuesCmd::undo()
 {
 	d_col->d->replaceValues(d_first, d_old_values);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -733,13 +753,18 @@ ColumnReplaceDateTimesCmd::~ColumnReplaceDateTimesCmd()
 void ColumnReplaceDateTimesCmd::redo()
 {
 	if(!d_copied)
+	{
 		d_old_values = static_cast< QList<QDateTime>* >(d_col->d->dataPointer())->mid(d_first, d_new_values.count());
+		d_row_count = d_col->d->rowCount();
+		d_copied = true;
+	}
 	d_col->d->replaceDateTimes(d_first, d_new_values);
 }
 
 void ColumnReplaceDateTimesCmd::undo()
 {
 	d_col->d->replaceDateTimes(d_first, d_old_values);
+	d_col->d->resizeTo(d_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////

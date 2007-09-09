@@ -106,7 +106,7 @@ class AbstractColumnSignalSender : public QObject
 		//! Data (including validity) of the column has changed
 		/**
 		 * Important: When data has changed also the number
-		 * of rows in the column may have increased without
+		 * of rows in the column may have changed without
 		 * any other signal emission.
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use

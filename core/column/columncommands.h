@@ -161,16 +161,16 @@ private:
 
 
 ///////////////////////////////////////////////////////////////////////////
-// class ColumnInsertRowsCmd
+// class ColumnInsertEmptyRowsCmd
 ///////////////////////////////////////////////////////////////////////////
 //! Insert empty rows 
-class ColumnInsertRowsCmd : public QUndoCommand
+class ColumnInsertEmptyRowsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnInsertRowsCmd(Column * col, int before, int count, QUndoCommand * parent = 0 );
+	ColumnInsertEmptyRowsCmd(Column * col, int before, int count, QUndoCommand * parent = 0 );
 	//! Dtor
-	~ColumnInsertRowsCmd();
+	~ColumnInsertEmptyRowsCmd();
 
 	//! Execute the command
 	virtual void redo();
@@ -187,7 +187,7 @@ private:
 
 };
 ///////////////////////////////////////////////////////////////////////////
-// end of class ColumnInsertRowsCmd
+// end of class ColumnInsertEmptyRowsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
@@ -218,6 +218,10 @@ private:
 	int d_data_row_count;
 	//! Column saving the removed rows
 	Column * d_backup;
+	//! Backup of the masking attribute
+	IntervalAttribute<bool> d_masking;
+	//! Backup of the formula attribute
+	IntervalAttribute<QString> d_formulas;
 };
 ///////////////////////////////////////////////////////////////////////////
 // end of class ColumnRemoveRowsCmd
@@ -313,7 +317,7 @@ private:
 	//! The old validity
 	IntervalAttribute<bool> d_validity;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -343,7 +347,7 @@ private:
 	//! The old masks
 	IntervalAttribute<bool> d_masking;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -377,7 +381,7 @@ private:
 	//! Interval attribute backup
 	IntervalAttribute<bool> d_validity;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -411,7 +415,7 @@ private:
 	//! Interval attribute backup
 	IntervalAttribute<bool> d_masking;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -445,7 +449,7 @@ private:
 	//! Interval attribute backup
 	IntervalAttribute<QString> d_formulas;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -475,7 +479,7 @@ private:
 	//! The old formulas
 	IntervalAttribute<QString> d_formulas;
 	//! A status flag
-	bool b_copied;
+	bool d_copied;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -508,6 +512,8 @@ private:
 	QString d_new_value;
 	//! The old value
 	QString d_old_value;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -540,6 +546,8 @@ private:
 	double d_new_value;
 	//! The old value
 	double d_old_value;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -572,6 +580,8 @@ private:
 	QDateTime d_new_value;
 	//! The old value
 	QDateTime d_old_value;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -606,6 +616,8 @@ private:
 	QStringList d_old_values;
 	//! Status flag
 	bool d_copied;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -640,6 +652,8 @@ private:
 	QVector<double> d_old_values;
 	//! Status flag
 	bool d_copied;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -674,6 +688,8 @@ private:
 	QList<QDateTime> d_old_values;
 	//! Status flag
 	bool d_copied;
+	//! The old number of rows
+	int d_row_count;
 
 };
 ///////////////////////////////////////////////////////////////////////////
