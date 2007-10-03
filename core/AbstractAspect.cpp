@@ -34,19 +34,27 @@
 #include <QMenu>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_model(new AspectModel(name))
+	: d_model(new AspectModel(name)), d_wrapper(new AbstractAspectWrapper(this))
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
 	delete d_model;
+	delete d_wrapper;
+
+	while(childCount() > 0)
+	{
+		AbstractAspect * temp_ptr = child(0);
+		removeChild(child(0));
+		delete temp_ptr;
+	}
 }
 
 void AbstractAspect::setParentPrivate(AbstractAspect *new_parent)
 {
 	if (parentAspect()) removeAspectObserver(parentAspect());
-	QObject::setParent(new_parent);
+	d_parent = new_parent;	
 	if (new_parent)
 		addAspectObserver(new_parent);
 }
@@ -139,7 +147,7 @@ QMenu *AbstractAspect::createContextMenu()
 {
 	QMenu *menu = new QMenu();
 
-	menu->addAction(QPixmap(":/close.xpm"), tr("&Remove"), this, SLOT(remove()), tr("Ctrl+W"));
+	menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
 
 	return menu;
 }

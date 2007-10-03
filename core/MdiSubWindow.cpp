@@ -75,8 +75,8 @@ void MdiSubWindow::closeEvent(QCloseEvent *event)
 {
 	if (!d_closing) {
 		d_closing = true;
-		if (d_aspect->parent())
-			d_aspect->parent()->removeChild(d_aspect);
+		if (d_aspect->parentAspect())
+			d_aspect->parentAspect()->removeChild(d_aspect);
 	}
 	event->accept();
 }

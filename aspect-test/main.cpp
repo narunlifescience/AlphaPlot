@@ -12,12 +12,14 @@ int main(int argc, char **argv)
 	p.view()->show();
 	Folder f1("test");
 	p.addChild(&f1);
-	//f1.setComment("Hello World");
+	f1.setComment("Hello World");
 	Folder f2("abba");
 	p.addChild(&f2);
 	f2.setCaptionSpec("%n (%t)");
 	Notes notes("something");
-	f2.addChild(&notes);
+	p.addChild(&notes);
+	Notes notes2("something more");
+	f2.addChild(&notes2);
 	notes.setComment("A demo note window");
 
 	for (int i=0; i<50; i++)

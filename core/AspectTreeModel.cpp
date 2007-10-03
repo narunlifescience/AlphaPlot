@@ -54,8 +54,8 @@ QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &paren
 QModelIndex AspectTreeModel::parent(const QModelIndex &index) const
 {
 	if (!index.isValid()) return QModelIndex();
-	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(index.internalPointer())->parent();
-	if (!parent_aspect || !parent_aspect->parent()) return QModelIndex();
+	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(index.internalPointer())->parentAspect();
+	if (!parent_aspect || !parent_aspect->parentAspect()) return QModelIndex();
 	return indexOfAspect(parent_aspect);
 }
 
@@ -131,12 +131,12 @@ void AspectTreeModel::aspectAdded(AbstractAspect *aspect)
 {
 	Q_UNUSED(aspect);
 	endInsertRows();
-	emit dataChanged(indexOfAspect(aspect->parent()), indexOfAspect(aspect->parent(),3));
+	emit dataChanged(indexOfAspect(aspect->parentAspect()), indexOfAspect(aspect->parentAspect(),3));
 }
 
 void AspectTreeModel::aspectAboutToBeRemoved(AbstractAspect *aspect)
 {
-	beginRemoveRows(indexOfAspect(aspect->parent()), aspect->index(), aspect->index());
+	beginRemoveRows(indexOfAspect(aspect->parentAspect()), aspect->index(), aspect->index());
 }
 
 void AspectTreeModel::aspectRemoved(AbstractAspect *parent, int index)

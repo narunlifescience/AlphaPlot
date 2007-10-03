@@ -92,7 +92,7 @@ void ProjectWindow::aspectDescriptionChanged(AbstractAspect *aspect)
 
 void ProjectWindow::aspectAdded(AbstractAspect *aspect)
 {
-	if (!aspect->parent()->inherits("Folder")) return;
+	if (!aspect->parentAspect()->inherits("Folder")) return;
 	QWidget *view = aspect->view();
 	if (!view) return;
 	d_mdi->addSubWindow(new MdiSubWindow(aspect, view));
