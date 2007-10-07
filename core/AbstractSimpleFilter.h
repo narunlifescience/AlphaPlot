@@ -118,7 +118,7 @@
  * 12 	}
  * \endcode
  */
-class AbstractSimpleFilter : public AbstractAspect, public AbstractFilter, public AbstractColumn 
+class AbstractSimpleFilter : public QObject, public AbstractAspect, public AbstractFilter, public AbstractColumn 
 {
 	Q_OBJECT
 
@@ -275,6 +275,13 @@ class AbstractSimpleFilter : public AbstractAspect, public AbstractFilter, publi
 		//! Overloaded function for convenience
 		virtual void setMasked(int row, bool mask = true) { setMasked(Interval<int>(row,row), mask); }
 		//@}
+
+		// TODO: Implement this in the derived classes
+		//! See QMetaObject::className().
+		virtual const char* className() const { return "AbstractSimpleFilter"; }
+		// TODO: Fix this
+		//! See QObject::inherits().
+		virtual bool inherits(const char *class_name) const { return false; }
 
 	protected:
 		IntervalAttribute<bool> d_masking;

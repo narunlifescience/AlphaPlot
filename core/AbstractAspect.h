@@ -137,6 +137,7 @@ class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInter
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
 		virtual AbstractAspect *parentAspect() const { return d_parent; }
+		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
 		void addChild(AbstractAspect *child);
 		//! Remove the given Aspect from my list of children.

@@ -46,7 +46,7 @@ class QString;
   functions members except utility functions are defined in ColumnPrivate.
   All commands working on a Column must be declared as friend classes.
  */
-class Column : public AbstractAspect, public AbstractColumn
+class Column : public QObject, public AbstractAspect, public AbstractColumn
 {
 	Q_OBJECT
 
@@ -83,19 +83,16 @@ class Column : public AbstractAspect, public AbstractColumn
 
 		//! \name aspect related functions
 		//@{
-		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
-		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
-		//! Return the parent aspect
-		virtual AbstractAspect *parentAspect() const { return dynamic_cast<AbstractAspect*>(parent()); }
-		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
-		virtual QString path() const { return parentAspect() ? "" : parentAspect()->path() + "/" + name(); }
-		//! Remove me from my parent's list of children.
-		void remove() { if(parentAspect()) parentAspect()->removeChild(this); }
-		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
-		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
+		//! Return the QObject that is responsible for emitting signals
+		virtual const QObject *signalEmitter() const { return this; }
+		//! Return the QObject that is responsible for receiving signals
+		virtual const QObject *signalReceiver() const { return this; }
+		//! See QMetaObject::className().
+		virtual const char* className() const { return metaObject()->className(); }
+		//! See QObject::inherits().
+		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! This will always return zero as columns don't have a view
 		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
-
 		//@}
 
 		//! Return the data type of the column

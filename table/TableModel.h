@@ -33,8 +33,7 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QStringList>
-#include "core/AbstractDataSource.h"
-#include "AbstractColumnData.h"
+#include "core/column/Column.h"
 #include "core/AbstractFilter.h"
 #include <QColor>
 class QUndoStack;
@@ -46,17 +45,16 @@ class QUndoStack;
   This model class provides the interface to column based data 
   (i.e. 1D vector based data like x-values and y-values for a plot).
   It contains the overloaded functions of QAbstractItemModel to be 
-  called from views as well as functions for fast, direct access
-  to the saved data.
+  called from views as well as functions for manipulating the
+  data using the Column class.
 
-  Each column is represented by an object from a class derived from
-  AbstractColumnData and can be directly accessed by the pointer 
-  returned by output(). Most of the column manipulation is done 
-  directly to the columns using the table commands. The commands
-  are also responsible for calling emitDataChanged() when any
+  Each column is represented by a Column object and can be directly 
+  accessed by the pointer returned by output(). Most of the column 
+  manipulation is done directly to the columns using the table commands. 
+  The commands are also responsible for calling emitDataChanged() when any
   cells changed.
 
-  For every column two filters are saved: An input filter that
+  In every column two filters are always present: An input filter that
   can convert a string (e.g. entered by the user in a cell) to
   the column's data type and an output filter that delivers
   the correct string representation to display in a table.
@@ -95,72 +93,30 @@ public:
 	virtual int inputCount() const { return 0; }
 	//! Overloaded from AbstractFilter
 	virtual int outputCount() const { return d_column_count; }
-	//! Return a pointer to the data source at column number 'port'
+	//! Return a pointer to the column at index 'port'
 	/**
-	 * \return returns a pointer to the column data source or zero if 'port' is invalid
+	 * \return returns a pointer to the column or zero if 'port' is invalid
 	 */
-	virtual AbstractDataSource *output(int port) const;
-	//! Return a pointer to the column data at column number 'col'
-	/**
-	 * This is mainly used be the table commands.
-	 *
-	 * \return returns a pointer to the column data or zero if 'col' is invalid
-	 */
-	AbstractColumnData *columnPointer(int col) const;
-	//! Return the output filter for column 'col'
-	AbstractFilter * outputFilter(int col) const;
-	//! Return the input filter for column 'col'
-	AbstractFilter * inputFilter(int col) const;
-	//! Set the input filter for column 'col'
-	/**
-	 * Input filters must be filters that convert
-	 * from string to the type of the corresponding
-	 * column. Input filters are automatically
-	 * deleted when replaced. Each column needs its
-	 * own filter object.
-	 */
-	void setInputFilter(int col, AbstractFilter * filter);
-	//! Set the output filter for column 'col'
-	/**
-	 * Output filters must be filters that convert
-	 * from the type of the corresponding
-	 * column to string. Output filters are automatically
-	 * deleted when replaced.
-	 */
-	void setOutputFilter(int col, AbstractFilter * filter);
+	virtual AbstractColumn *output(int port) const;
 	//! Replace columns completely
 	/**
-	 * The new columns must have the same types, otherwise the
-	 * filters have to be replaced as well.
 	 * TableModel takes over ownership of the new columns.
 	 * \param first the first column to be replaced
 	 * \param new_cols list of the columns that replace the old ones
 	 * This does not delete the replaced columns.
 	 */
-	void replaceColumns(int first, QList<AbstractColumnData *> new_cols);
-	//! Replace columns and their filters completely
-	/**
-	 * TableModel takes over ownership of the new columns.
-	 * \param first the first column to be replaced
-	 * \param new_cols list of the columns that replace the old ones
-	 * \param in the corresponding input filters
-	 * \param out the corresponding output filters
-	 * This does not delete the replaced columns.
-	 */
-	void replaceColumns(int first, QList<AbstractColumnData *> new_col, QList<AbstractFilter *> in, QList<AbstractFilter *> out);
+	void replaceColumns(int first, QList<Column *> new_cols);
 	//! Insert columns before column number 'before'
 	/**
 	 * If 'first' is higher than (current number of columns -1),
 	 * the columns will be appended.
-	 * TableModel takes over ownership of the columns. For each column
-	 * an appropriate input and output filter must be given.
+	 * TableModel takes over ownership of the columns. 
 	 * \param before index of the column to insert before
 	 * \param cols a list of column data objects
 	 * \param in_filter a list of the corresponding input filters
 	 * \param out_filter a list of the corresponding output filters
 	 */
-	void insertColumns(int before, QList<AbstractColumnData *> cols, QList<AbstractFilter *> in_filters,
-		QList<AbstractFilter *> out_filters);
+	void insertColumns(int before, QList<Column *> cols);
 	//! Remove Columns
 	 /**
 	  * This does not delete the removed columns because this
@@ -187,24 +143,11 @@ public:
 	 *
 	 * \sa insertColumns()
 	 */
-	void appendColumns(QList<AbstractColumnData *> cols, QList<AbstractFilter *> in_filters,
-		QList<AbstractFilter *> out_filters);
+	void appendColumns(QList<Column *> cols);
 	//! Return the number of columns in the table
 	int columnCount() const { return d_column_count; }
 	//! Return the number of rows in the table
 	int rowCount() const { return d_row_count; }
-	//! Set a column's label
-	void setColumnLabel(int column, const QString& label);
-	//! Return a column's label
-	QString columnLabel(int column) const;
-	//! Set a column's comment
-	void setColumnComment(int column, const QString& comment);
-	//! Return a column's comment
-	QString columnComment(int column) const;
-	//! Set a column's plot designation
-	void setColumnPlotDesignation(int column, SciDAVis::PlotDesignation pd);
-	//! Return a column's plot designation
-	SciDAVis::PlotDesignation columnPlotDesignation(int column) const;
 	//! Show or hide (if on = false) the column comments
 	void showComments(bool on = true);
 	//! Return whether comments are show currently
@@ -221,13 +164,12 @@ public:
 	 * \param right last modified column
 	 */
 	void emitDataChanged(int top, int left, int bottom, int right);
-	//! Return a pointer to the undo stack
-	virtual QUndoStack *undoStack() const;
 	//@}
 	
 public slots:
+// FIXME:
 	//! Push a command on the undo stack to provide undo for user input in cells
-	void handleUserInput(const QModelIndex& index);
+//	void handleUserInput(const QModelIndex& index);
 
 private:
 	//! The number of columns
@@ -239,15 +181,9 @@ private:
 	//! Horizontal header data
 	QStringList d_horizontal_header_data;
 	//! List of pointers to the column data vectors
-	QList<AbstractColumnData *> d_columns;	
-	//! List of pointers to the input filters (one for each column)
-	QList<AbstractFilter *> d_input_filters;	
-	//! List of pointers to the output filters (one for each column)
-	QList<AbstractFilter *> d_output_filters;	
+	QList<Column *> d_columns;	
 	//! Flag: show/high column comments
 	bool d_show_comments;
-	//! The undo stack
-	QUndoStack *d_undo_stack;
 	
 	//! Update the vertical header labels
 	/**

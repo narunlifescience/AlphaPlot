@@ -32,23 +32,25 @@
 
 #include <QIcon>
 #include <QMenu>
+#include <QtDebug>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_model(new AspectModel(name)), d_wrapper(new AbstractAspectWrapper(this))
+	: d_model(new AspectModel(name)), d_parent(0), d_wrapper(new AbstractAspectWrapper(this)) 
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
-	delete d_model;
-	delete d_wrapper;
-
 	while(childCount() > 0)
 	{
 		AbstractAspect * temp_ptr = child(0);
 		removeChild(child(0));
 		delete temp_ptr;
 	}
+
+	delete d_model;
+	delete d_wrapper;
+
 }
 
 void AbstractAspect::setParentPrivate(AbstractAspect *new_parent)

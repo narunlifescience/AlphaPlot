@@ -28,10 +28,7 @@
  ***************************************************************************/
 
 #include "TableModel.h"
-#include "tablecommands.h"
-#include "StringColumnData.h"
-#include "DoubleColumnData.h"
-#include "DateTimeColumnData.h"
+//#include "tablecommands.h"
 #include <QString>
 #include <QDate>
 #include <QTime>
@@ -47,18 +44,13 @@ TableModel::TableModel( QObject * parent )
 	d_column_count = 0;
 	d_row_count = 0;
 	d_show_comments = false;
-	d_undo_stack = new QUndoStack(this);
 }
 
 TableModel::~TableModel()
 {
-	// delete the columns and filters
-	foreach(AbstractColumnData *i, d_columns)
-		if(i) delete i;
-	foreach(AbstractFilter *i, d_input_filters)
-		if(i) delete i;
-	foreach(AbstractFilter *i, d_output_filters)
-		if(i) delete i;
+	// delete the columns
+	foreach(Column *col, d_columns)
+		if(col) delete col;
 }
 
 Qt::ItemFlags TableModel::flags(const QModelIndex & index ) const
@@ -77,46 +69,39 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 	
 	int row = index.row();
 	int column = index.column();
-	AbstractColumnData * col_ptr = d_columns.value(column);
+	Column * col_ptr = d_columns.value(column);
 	if(!col_ptr)
 		return QVariant();
-	AbstractDataSource * col_src = col_ptr->asDataSource();
 
 	QString postfix;
 	switch(role)
 	{
 		case Qt::ToolTipRole:
-				if(col_src->isMasked(row))
+				if(col_ptr->isMasked(row))
 					postfix = " " + tr("(masked)");
-				if(col_src->isInvalid(row))
+				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid cell","tooltip string for invalid rows") + postfix);
 		case Qt::EditRole:
-				if(col_src->isInvalid(row))
+				if(col_ptr->isInvalid(row))
 					return QVariant();
 		case Qt::DisplayRole:
 			{
-				if(col_src->isInvalid(row))
+				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid","string for invalid rows"));
 				
-				AbstractFilter * out_fltr = outputFilter(column);
-				out_fltr->input(0, col_src);
-				AbstractStringDataSource * sds = dynamic_cast<AbstractStringDataSource *>(out_fltr->output(0));
-				if(!sds) return QVariant();
-				// TODO: remove testing code that marks selected cells with []
-				if( col_src->isSelected(row) && role != Qt::EditRole)
-					return QVariant(QString("[" + sds->textAt(index.row()) + "]"));
-
-				return QVariant(sds->textAt(row) + postfix);
+				AbstractSimpleFilter * out_fltr = col_ptr->outputFilter();
+				out_fltr->input(0, col_ptr);
+				return QVariant(out_fltr->textAt(row) + postfix);
 			}
 		case Qt::ForegroundRole:
 			{
-				if(col_src->isInvalid(index.row()))
-					return QVariant(QBrush(QColor(0xff,0,0)));
+				if(col_ptr->isInvalid(index.row()))
+					return QVariant(QBrush(QColor(0xff,0,0))); // invalid -> red letters
 				else
 					return QVariant(QBrush(QColor(0,0,0)));
 			}
 		case MaskingRole:
-			return QVariant(col_src->isMasked(row));
+			return QVariant(col_ptr->isMasked(row));
 	}
 
 	return QVariant();
@@ -158,14 +143,10 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 	
 	if(role == Qt::EditRole)
 	{  
-			AbstractColumnData * col_ptr = d_columns.at(index.column());
-			int size = col_ptr->asDataSource()->rowCount();
-			if(row >= size)
-				col_ptr->expand(row + 1 - size);
-
-			AbstractFilter * in_fltr = inputFilter(index.column());
-			StringColumnData sd;
-			sd << value.toString();
+			Column * col_ptr = d_columns.at(index.column());
+			AbstractSimpleFilter * in_fltr = d_columns.at(index.column())->inputFilter();
+			Column sd("temp", SciDAVis::Text);
+			sd.setTextAt(0, value.toString());
 			in_fltr->input(0, &sd);
 			// remark: the validity of the cell is determined by the input filter
 			col_ptr->copy(in_fltr->output(0), 0, row, 1);  
@@ -189,49 +170,15 @@ QModelIndex TableModel::parent(const QModelIndex & child) const
 }
 
 
-AbstractDataSource * TableModel::output(int port) const
+AbstractColumn *TableModel::output(int port) const
 {
 	if( (port < 0) || (port >= d_column_count) || !d_columns.value(port))
 		return 0;
 	
-	return d_columns.at(port)->asDataSource();
+	return d_columns.at(port);
 }
 
-AbstractColumnData * TableModel::columnPointer(int col) const
-{
-	if( (col < 0) || (col >= d_column_count) )
-		return 0;
-	
-	return d_columns.value(col);
-}
-
-void TableModel::setOutputFilter(int col, AbstractFilter * filter)
-{
-	d_output_filters[col] = filter;
-}
-
-AbstractFilter * TableModel::outputFilter(int col) const
-{
-	if( (col < 0) || (col >= d_column_count) )
-		return 0;
-	
-	return d_output_filters[col];
-}
-
-void TableModel::setInputFilter(int col, AbstractFilter * filter)
-{
-	d_input_filters[col] = filter;
-}
-
-AbstractFilter * TableModel::inputFilter(int col) const
-{
-	if( (col < 0) || (col >= d_column_count) )
-		return 0;
-	
-	return d_input_filters[col];
-}
-
-void TableModel::replaceColumns(int first, QList<AbstractColumnData *> new_cols)
+void TableModel::replaceColumns(int first, QList<Column *> new_cols)
 {
 	if( (first < 0) || (first + new_cols.size() > d_column_count) )
 		return;
@@ -239,37 +186,14 @@ void TableModel::replaceColumns(int first, QList<AbstractColumnData *> new_cols)
 	int count = new_cols.size();
 	for(int i=0; i<count; i++)
 	{
-		int rows = new_cols.at(i)->asDataSource()->rowCount();
+		int rows = new_cols.at(i)->rowCount();
 		if(rows > d_row_count)
 			appendRows(rows-d_row_count); // append rows to resize table
 
 		if(d_columns.at(first+i))
-			d_columns.at(first+i)->notifyReplacement(new_cols.at(i)->asDataSource());
+			d_columns.at(first+i)->notifyReplacement(new_cols.at(i));
 
 		d_columns[first+i] = new_cols.at(i);
-	}
-	updateHorizontalHeader(first, first+count-1);
-	emit dataChanged(index(0, first, QModelIndex()), index(d_row_count-1, first+count-1, QModelIndex()));
-}
-
-void TableModel::replaceColumns(int first, QList<AbstractColumnData *> new_cols, QList<AbstractFilter *> in, QList<AbstractFilter *> out)
-{
-	if( (first < 0) || (first + new_cols.size() > d_column_count) )
-		return;
-	
-	int count = new_cols.size();
-	for(int i=0; i<count; i++)
-	{
-		int rows = new_cols.at(i)->asDataSource()->rowCount();
-		if(rows > d_row_count)
-			appendRows(rows-d_row_count); // append rows to resize table
-
-		if(d_columns.at(first+i))
-			d_columns.at(first+i)->notifyReplacement(new_cols.at(i)->asDataSource());
-
-		d_columns[first+i] = new_cols.at(i);
-		d_input_filters[first+i] = in.at(i);
-		d_output_filters[first+i] = out.at(i);
 	}
 	updateHorizontalHeader(first, first+count-1);
 	emit dataChanged(index(0, first, QModelIndex()), index(d_row_count-1, first+count-1, QModelIndex()));
@@ -280,8 +204,7 @@ void TableModel::emitDataChanged(int top, int left, int bottom, int right)
 	emit dataChanged(index(top, left, QModelIndex()), index(bottom, right, QModelIndex()));
 }
 
-void TableModel::insertColumns(int before, QList<AbstractColumnData *> cols, QList<AbstractFilter *> in_filters,
-		QList<AbstractFilter *> out_filters)
+void TableModel::insertColumns(int before, QList<Column *> cols)
 {
 	int count = cols.count();
 
@@ -296,18 +219,14 @@ void TableModel::insertColumns(int before, QList<AbstractColumnData *> cols, QLi
 	int i, rows;
 	for(i=0; i<count; i++)
 	{
-		rows = cols.at(i)->asDataSource()->rowCount();
+		rows = cols.at(i)->rowCount();
 		if(rows > d_row_count)
 			appendRows(rows-d_row_count); // append rows to resize table
 	}
 
 	beginInsertColumns(QModelIndex(), before, before+count-1);
 	for(int i=count-1; i>=0; i--)
-	{
 		d_columns.insert(before, cols.at(i));
-		d_input_filters.insert(before, in_filters.at(i));
-		d_output_filters.insert(before, out_filters.at(i));
-	}
 	d_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
 	endInsertColumns();	
@@ -327,20 +246,15 @@ void TableModel::removeColumns(int first, int count)
 
 	beginRemoveColumns(QModelIndex(), first, first+count-1);
 	for(int i=count-1; i>=0; i--)
-	{
 		d_columns.removeAt(first);
-		d_input_filters.removeAt(first);
-		d_output_filters.removeAt(first);
-	}
 	d_column_count -= count;
 	updateHorizontalHeader(first, d_column_count);
 	endRemoveColumns();	
 }
 
-void TableModel::appendColumns(QList<AbstractColumnData *> cols, QList<AbstractFilter *> in_filters,
-		QList<AbstractFilter *> out_filters)
+void TableModel::appendColumns(QList<Column *> cols)
 {
-	insertColumns(d_column_count, cols, in_filters, out_filters);
+	insertColumns(d_column_count, cols);
 }
 
 void TableModel::removeRows(int first, int count)
@@ -354,7 +268,7 @@ void TableModel::removeRows(int first, int count)
 	beginRemoveRows(QModelIndex(), first, first+count-1);
 	for(int col=0; col<d_column_count; col++)
 	{
-		int row_count = d_columns.at(col)->asDataSource()->rowCount();
+		int row_count = d_columns.at(col)->rowCount();
 		if(row_count > first)
 		{
 			int current_count = count;
@@ -383,7 +297,7 @@ void TableModel::insertRows(int first, int count)
 		beginInsertRows(QModelIndex(), first, first+count-1);
 		for(int col=0; col<d_column_count; col++)
 		{
-			if(d_columns.at(col)->asDataSource()->rowCount() <= first) // no need to append empty rows
+			if(d_columns.at(col)->rowCount() <= first) // no need to append empty rows
 				continue;
 			d_columns.at(col)->insertEmptyRows(first, count);
 		}
@@ -425,56 +339,56 @@ void TableModel::updateHorizontalHeader(int start_col, int end_col)
 		int x_cols = 0;
 		for (int i=0; i<d_column_count; i++)
 		{
-			if (columnPlotDesignation(i) == SciDAVis::X)
-				composeColumnHeader(i, columnLabel(i)+"[X" + QString::number(++x_cols) +"]");
-			else if (columnPlotDesignation(i) == SciDAVis::Y)
+			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X" + QString::number(++x_cols) +"]");
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Y)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, columnLabel(i)+"[Y"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, columnLabel(i)+"[Y]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
 			}
-			else if (columnPlotDesignation(i) == SciDAVis::Z)
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Z)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, columnLabel(i)+"[Z"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, columnLabel(i)+"[Z]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
 			}
-			else if (columnPlotDesignation(i) == SciDAVis::xErr)
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, columnLabel(i)+"[xEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, columnLabel(i)+"[xEr]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
 			}
-			else if (columnPlotDesignation(i) == SciDAVis::yErr)
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, columnLabel(i)+"[yEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, columnLabel(i)+"[yEr]");
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
 			}
 			else
-				composeColumnHeader(i, columnLabel(i));
+				composeColumnHeader(i, d_columns.at(i)->columnLabel());
 		}
 	}
 	else
 	{
 		for (int i=0; i<d_column_count; i++)
 		{
-			if (columnPlotDesignation(i) == SciDAVis::X)
-				composeColumnHeader(i, columnLabel(i)+"[X]");
-			else if(columnPlotDesignation(i) == SciDAVis::Y)
-				composeColumnHeader(i, columnLabel(i)+"[Y]");
-			else if(columnPlotDesignation(i) == SciDAVis::Z)
-				composeColumnHeader(i, columnLabel(i)+"[Z]");
-			else if(columnPlotDesignation(i) == SciDAVis::xErr)
-				composeColumnHeader(i, columnLabel(i)+"[xEr]");
-			else if(columnPlotDesignation(i) == SciDAVis::yErr)
-				composeColumnHeader(i, columnLabel(i)+"[yEr]");
+			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Y)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Z)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
 			else
-				composeColumnHeader(i, columnLabel(i));
+				composeColumnHeader(i, d_columns.at(i)->columnLabel());
 		}
 	}
 	emit headerDataChanged(Qt::Horizontal, start_col, end_col);	
@@ -487,7 +401,7 @@ void TableModel::composeColumnHeader(int col, const QString& label)
 	{
 		int lines = 10; // TODO: this needs improvement
 		s.remove("\n");
-		s += "\n" + QString(lines, '_') + "\n"  + columnComment(col);
+		s += "\n" + QString(lines, '_') + "\n"  + d_columns.at(col)->columnComment();
 	}
 	
 	if (col >= d_horizontal_header_data.size())
@@ -496,39 +410,33 @@ void TableModel::composeColumnHeader(int col, const QString& label)
 		d_horizontal_header_data.replace(col, s);
 }
 
+//TODO: header update must be done by a signal connection
+/*
 void TableModel::setColumnLabel(int column, const QString& label)
 {
 	d_columns.at(column)->setLabel(label);
 	updateHorizontalHeader(column, column);
 }
-	
-QString TableModel::columnLabel(int column) const
-{
-	return d_columns.at(column)->asDataSource()->label();
-}
+*/
 
+//TODO: header update must be done by a signal connection 
+/*
 void TableModel::setColumnComment(int column, const QString& comment)
 {
 	d_columns.at(column)->setComment(comment);
 	updateHorizontalHeader(column, column);
 }
-	
-QString TableModel::columnComment(int column) const
-{
-	return d_columns.at(column)->asDataSource()->comment();
-}
+*/
 
+//TODO: header update must be done by a signal connection 
+/*
 void TableModel::setColumnPlotDesignation(int column, SciDAVis::PlotDesignation pd)
 {
 	d_columns.at(column)->setPlotDesignation(pd);
 	updateHorizontalHeader(column, d_column_count-1);
 }
+*/
 	
-SciDAVis::PlotDesignation TableModel::columnPlotDesignation(int column) const
-{
-	return d_columns.at(column)->asDataSource()->plotDesignation();
-}
-
 void TableModel::showComments(bool on)
 {
 	if (d_show_comments == on)
@@ -553,20 +461,15 @@ int TableModel::numColsWithPD(SciDAVis::PlotDesignation pd)
 	int count = 0;
 	
 	for (int i=0; i<d_column_count; i++)
-		if(columnPlotDesignation(i) == pd)
+		if(d_columns.at(i)->plotDesignation() == pd)
 			count++;
 	
 	return count;
 }
 
-
-QUndoStack *TableModel::undoStack() const
-{
-	return d_undo_stack;
-}
-
-void TableModel::handleUserInput(const QModelIndex& index)
-{
-		d_undo_stack->push(new TableUserInputCmd(this, index) );		
-}
+// TODO: this must be done elsewhere
+//void TableModel::handleUserInput(const QModelIndex& index)
+//{
+//		d_undo_stack->push(new TableUserInputCmd(this, index) );		
+//}
 
