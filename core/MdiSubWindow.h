@@ -2,8 +2,8 @@
     File                 : MdiSubWindow.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : An MDI sub window which manages views on an
                            AbstractAspect.
 
@@ -41,15 +41,16 @@
  * AbstractAspect::caption() changes, removes the Aspect when the MDI window is closed
  * and vice versa, and provides access to the Aspect's context menu.
  */
-class MdiSubWindow : public QMdiSubWindow, public AbstractAspectObserver
+class MdiSubWindow : public QMdiSubWindow
 {
 	Q_OBJECT
 
 	public:
 		//! Construct a window managing view on aspect.
-		MdiSubWindow(AbstractAspect *aspect, QWidget *view);
+		MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view);
 		~MdiSubWindow();
 
+	public slots:
 		//! Keep my window title in sync with AbstractAspect::caption().
 		void aspectDescriptionChanged(AbstractAspect *aspect);
 		//! Close me before my Aspect is removed.
@@ -62,7 +63,7 @@ class MdiSubWindow : public QMdiSubWindow, public AbstractAspectObserver
 
 	private:
 		//! The aspect who's view I'm managing.
-		AbstractAspect *d_aspect;
+		shared_ptr<AbstractAspect> d_aspect;
 		//! Whether I'm just being closed.
 		/**
 		 * Depending on whether an Aspect is removed programatically or by closing its

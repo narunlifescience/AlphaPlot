@@ -34,90 +34,92 @@
 Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)
 {
-	d = new ColumnPrivate(this, mode);
+	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, mode));
 }
 
 Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = new ColumnPrivate(this, SciDAVis::TypeDouble, SciDAVis::Numeric, new QVector<double>(data), validity);
+	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeDouble, 
+		SciDAVis::Numeric, new QVector<double>(data), validity));
 }
 
 Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = new ColumnPrivate(this, SciDAVis::TypeQString, SciDAVis::Text, new QStringList(data), validity);
+	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQString,
+		SciDAVis::Text, new QStringList(data), validity));
 }
 
 Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = new ColumnPrivate(this, SciDAVis::TypeQDateTime, SciDAVis::DateTime, new QList<QDateTime>(data), validity);
+	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
+		SciDAVis::DateTime, new QList<QDateTime>(data), validity));
 }
 
 Column::~Column()
 {
-	delete d;
 }
 
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	exec(new ColumnSetModeCmd(this, mode));
+	exec(new ColumnSetModeCmd(d, mode));
 }
 
 
 bool Column::copy(const AbstractColumn * other)
 {
 	if(other->dataType() != dataType()) return false;
-	exec(new ColumnFullCopyCmd(this, other));
+	exec(new ColumnFullCopyCmd(d, other));
 	return true;
 }
 
 bool Column::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
 	if(source->dataType() != dataType()) return false;
-	exec(new ColumnPartialCopyCmd(this, source, source_start, dest_start, num_rows));
+	exec(new ColumnPartialCopyCmd(d, source, source_start, dest_start, num_rows));
 	return true;
 }
 
 void Column::insertEmptyRows(int before, int count)
 {
-	exec(new ColumnInsertEmptyRowsCmd(this, before, count));
+	exec(new ColumnInsertEmptyRowsCmd(d, before, count));
 }
 
 void Column::removeRows(int first, int count)
 {
-	exec(new ColumnRemoveRowsCmd(this, first, count));
+	exec(new ColumnRemoveRowsCmd(d, first, count));
 }
 
 void Column::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
-	exec(new ColumnSetPlotDesignationCmd(this, pd));
+	exec(new ColumnSetPlotDesignationCmd(d, pd));
 }
 
 void Column::clear()
 {
-	exec(new ColumnClearCmd(this));
+	exec(new ColumnClearCmd(d));
 }
 
-void Column::notifyReplacement(AbstractColumn * replacement)
+void Column::notifyReplacement(shared_ptr<AbstractColumn> replacement)
 {
 	emit d_sender->aboutToBeReplaced(this, replacement); 
 }
 
 void Column::clearValidity()
 {
-	exec(new ColumnClearValidityCmd(this));
+	exec(new ColumnClearValidityCmd(d));
 }
 
 void Column::clearMasks()
 {
-	exec(new ColumnClearMasksCmd(this));
+	exec(new ColumnClearMasksCmd(d));
 }
 
 void Column::setInvalid(Interval<int> i, bool invalid)
 {
-	exec(new ColumnSetInvalidCmd(this, i, invalid));
+	exec(new ColumnSetInvalidCmd(d, i, invalid));
 }
 
 void Column::setInvalid(int row, bool invalid)
@@ -127,7 +129,7 @@ void Column::setInvalid(int row, bool invalid)
 
 void Column::setMasked(Interval<int> i, bool mask)
 {
-	exec(new ColumnSetMaskedCmd(this, i, mask));
+	exec(new ColumnSetMaskedCmd(d, i, mask));
 }
 
 void Column::setMasked(int row, bool mask)
@@ -137,7 +139,7 @@ void Column::setMasked(int row, bool mask)
 
 void Column::setFormula(Interval<int> i, QString formula)
 {
-	exec(new ColumnSetFormulaCmd(this, i, formula));
+	exec(new ColumnSetFormulaCmd(d, i, formula));
 }
 
 void Column::setFormula(int row, QString formula)
@@ -147,17 +149,17 @@ void Column::setFormula(int row, QString formula)
 
 void Column::clearFormulas()
 {
-	exec(new ColumnClearFormulasCmd(this));
+	exec(new ColumnClearFormulasCmd(d));
 }
 
 void Column::setTextAt(int row, QString new_value)
 {
-	exec(new ColumnSetTextCmd(this, row, new_value));
+	exec(new ColumnSetTextCmd(d, row, new_value));
 }
 
 void Column::replaceTexts(int first, const QStringList& new_values)
 {
-	exec(new ColumnReplaceTextsCmd(this, first, new_values));
+	exec(new ColumnReplaceTextsCmd(d, first, new_values));
 }
 
 void Column::setDateAt(int row, QDate new_value)
@@ -172,22 +174,22 @@ void Column::setTimeAt(int row, QTime new_value)
 
 void Column::setDateTimeAt(int row, QDateTime new_value)
 {
-	exec(new ColumnSetDateTimeCmd(this, row, new_value));
+	exec(new ColumnSetDateTimeCmd(d, row, new_value));
 }
 
 void Column::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
-	exec(new ColumnReplaceDateTimesCmd(this, first, new_values));
+	exec(new ColumnReplaceDateTimesCmd(d, first, new_values));
 }
 
 void Column::setValueAt(int row, double new_value)
 {
-	exec(new ColumnSetValueCmd(this, row, new_value));
+	exec(new ColumnSetValueCmd(d, row, new_value));
 }
 
 void Column::replaceValues(int first, const QVector<double>& new_values)
 {
-	exec(new ColumnReplaceValuesCmd(this, first, new_values));
+	exec(new ColumnReplaceValuesCmd(d, first, new_values));
 }
 
 QString Column::textAt(int row) const

@@ -2,8 +2,8 @@
     File                 : AbstractFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Base class for all analysis operations.
 
  ***************************************************************************/
@@ -32,6 +32,17 @@
 #include "core/AbstractColumn.h"
 #include <QVector>
 
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+using std::tr1::enable_shared_from_this;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+using boost::shared_ptr;
+using boost::enable_shared_from_this;
+#endif
+
 // forward declaration, class follows
 class AbstractFilter;
 /**
@@ -43,32 +54,32 @@ class AbstractFilter;
  * would get considerably more complicated if it couldn't inherit from both AbstractFilter
  * and AbstractDoubleDataSource.
  */
-class AbstractFilterSlotMachine : public QObject {
+class AbstractFilterWrapper : public QObject {
 	Q_OBJECT
 	public:
-		AbstractFilterSlotMachine(AbstractFilter *parent) : d_parent(parent) {}
+		AbstractFilterWrapper(AbstractFilter *parent) : d_parent(parent) {}
 		public slots:
-			void inputDescriptionAboutToChange(AbstractColumn* source);
-			void inputDescriptionChanged(AbstractColumn* source);
-			void inputPlotDesignationAboutToChange(AbstractColumn* source);
-			void inputPlotDesignationChanged(AbstractColumn* source);
-			void inputDataAboutToChange(AbstractColumn* source);
-			void inputDataChanged(AbstractColumn* source);
-			void inputAboutToBeReplaced(AbstractColumn* source, AbstractColumn* replacement);
-			void inputRowsAboutToBeInserted(AbstractColumn* source, int before, int count);
-			void inputRowsInserted(AbstractColumn* source, int before, int count);
-			void inputRowsAboutToBeDeleted(AbstractColumn* source, int first, int count);
-			void inputRowsDeleted(AbstractColumn* source, int first, int count);
-			void inputValidityAboutToChange(AbstractColumn* source);
-			void inputValidityChanged(AbstractColumn* source);
-			void inputMaskingAboutToChange(AbstractColumn* source);
-			void inputMaskingChanged(AbstractColumn* source);
-			void inputAboutToBeDestroyed(AbstractColumn* source);
+			void inputDescriptionAboutToChange(AbstractColumn * source);
+			void inputDescriptionChanged(AbstractColumn * source);
+			void inputPlotDesignationAboutToChange(AbstractColumn * source);
+			void inputPlotDesignationChanged(AbstractColumn * source);
+			void inputDataAboutToChange(AbstractColumn * source);
+			void inputDataChanged(AbstractColumn * source);
+			void inputAboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> replacement);
+			void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count);
+			void inputRowsInserted(AbstractColumn * source, int before, int count);
+			void inputRowsAboutToBeDeleted(AbstractColumn * source, int first, int count);
+			void inputRowsDeleted(AbstractColumn * source, int first, int count);
+			void inputValidityAboutToChange(AbstractColumn * source);
+			void inputValidityChanged(AbstractColumn * source);
+			void inputMaskingAboutToChange(AbstractColumn * source);
+			void inputMaskingChanged(AbstractColumn * source);
+			void inputAboutToBeDestroyed(AbstractColumn * source);
 	private:
 		AbstractFilter *d_parent;
 };
 
-/**
+/*
  * \brief Base class for all analysis operations.
  *
  * AbstractFilter provides an abstraction for analysis operations. It is modelled on an
@@ -77,7 +88,7 @@ class AbstractFilterSlotMachine : public QObject {
  * 
  * \section using Using AbstractFilter
  * You can connect one AbstractColumn to each input port using
- * input(int port, AbstractColumn *source). Every output(int port) is realized
+ * input(int port, shared_ptr<AbstractColumn> source). Every output(int port) is realized
  * again by an AbstractColumn, which you can connect to as many other filters, tables
  * or plots as you like.
  * Ownership of the data sources always stays with the class which is providing the data,
@@ -97,7 +108,7 @@ class AbstractFilterSlotMachine : public QObject {
  * \section subclassing Subclassing AbstractFilter
  * The main design goal was to make implementing new filters as easy as possible.
  * To this end, a little additional complexity has been accepted in the form of
- * AbstractFilterSlotMachine, which on the other hand greatly simplifies filters with only one
+ * AbstractFilterWrapper, which on the other hand greatly simplifies filters with only one
  * output port (see AbstractSimpleFilter). Filters with more than one output port have to subclass
  * AbstractFilter directly, which is slightly more involved, because at least one additional
  * class (subclassing AbstractDoubleDataSource, AbstractStringDataSource or
@@ -117,9 +128,9 @@ class AbstractFilter
 {
 	public:
 		//! Standard constructor.
-		AbstractFilter() : d_slot_machine(this) {}
+		AbstractFilter() : d_wrapper(new AbstractFilterWrapper(this)) {}
 		//! Destructor.
-		virtual ~AbstractFilter() {}
+		virtual ~AbstractFilter() { delete d_wrapper; }
 
 		//! Return the number of input ports supported by the filter or -1 if any number of inputs is acceptable.
 		virtual int inputCount() const = 0;
@@ -146,14 +157,14 @@ class AbstractFilter
 		 *
 		 * \sa inputAcceptable(), #d_inputs
 		 */
-		bool input(int port, AbstractColumn *source);
+		bool input(int port, shared_ptr<AbstractColumn> source);
 		/**
 		 * \brief Connect all outputs of the provided filter to the corresponding inputs of this filter.
 		 * \returns true if all connections were accepted, false otherwise
 		 *
 		 * Overloaded method provided for convenience.
 		 */
-		bool input(AbstractFilter *sources);
+		bool input(shared_ptr<AbstractFilter> sources);
 		/**
 		 * \brief Return the label associated to the given input port.
 		 *
@@ -169,7 +180,7 @@ class AbstractFilter
 		 * The returned pointer may be 0 even for valid port numbers, for example if not all required
 		 * input ports have been connected.
 		 */
-		virtual AbstractColumn* output(int port=0) const = 0;
+		virtual shared_ptr<AbstractColumn> output(int port=0) const = 0;
 		// virtual void saveTo(QXmlStreamWriter *) = 0;
 		// virtual void loadFrom(QXmlStreamReader *) = 0;
 
@@ -179,7 +190,7 @@ class AbstractFilter
 		 *
 		 * If not reimplemented, all connections to ports within [0, inputCount()-1] will be accepted.
 		 */
-		virtual bool inputAcceptable(int port, AbstractColumn *source) {
+		virtual bool inputAcceptable(int port, shared_ptr<AbstractColumn> source) {
 			Q_UNUSED(port); Q_UNUSED(source); return true;
 		}
 		/**
@@ -188,7 +199,7 @@ class AbstractFilter
 		 * This is only to notify implementations of the event, the default implementation is a
 		 * no-op.
 		 */
-		virtual void inputAboutToBeDisconnected(AbstractColumn* source) { Q_UNUSED(source); }
+		virtual void inputAboutToBeDisconnected(AbstractColumn * source) { Q_UNUSED(source); }
 
 		//!\name signal handlers
 		//@{
@@ -197,7 +208,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionAboutToChange(AbstractColumn* source);
+		virtual void inputDescriptionAboutToChange(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDescriptionAboutToChange(int port) { Q_UNUSED(port); }
 		//! 
@@ -206,7 +217,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionChanged(AbstractColumn* source);
+		virtual void inputDescriptionChanged(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDescriptionChanged(int port) { Q_UNUSED(port); }
 		/**
@@ -214,7 +225,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn* source);
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputPlotDesignationAboutToChange(int port) { Q_UNUSED(port); }
 		/**
@@ -222,7 +233,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationChanged(AbstractColumn* source);
+		virtual void inputPlotDesignationChanged(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputPlotDesignationChanged(int port) { Q_UNUSED(port); }
 		/**
@@ -230,7 +241,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataAboutToChange(AbstractColumn* source);
+		virtual void inputDataAboutToChange(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDataAboutToChange(int port) { Q_UNUSED(port); }
 		/**
@@ -238,7 +249,7 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataChanged(AbstractColumn* source);
+		virtual void inputDataChanged(AbstractColumn * source);
 		//! Overloaded method provided for convenience.
 		virtual void inputDataChanged(int port) { Q_UNUSED(port); }
 		/**
@@ -250,42 +261,50 @@ class AbstractFilter
 		 * inputPlotDesignationChanged() and inputDataChanged(AbstractColumn*).
 		 * Thus, filter implementations won't have to bother with it most of the time.
 		 */
-		virtual void inputAboutToBeReplaced(AbstractColumn* source, AbstractColumn* replacement);
-		virtual void inputRowsAboutToBeInserted(AbstractColumn* source, int before, int count) {
+		virtual void inputAboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> replacement);
+		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsInserted(AbstractColumn* source, int before, int count) {
+		virtual void inputRowsInserted(AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsAboutToBeDeleted(AbstractColumn* source, int first, int count) {
+		virtual void inputRowsAboutToBeDeleted(AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputRowsDeleted(AbstractColumn* source, int first, int count) {
+		virtual void inputRowsDeleted(AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputValidityAboutToChange(AbstractColumn* source) {
+		virtual void inputValidityAboutToChange(AbstractColumn * source) {
 			inputDataAboutToChange(source);
 		}
-		virtual void inputValidityChanged(AbstractColumn* source) {
+		virtual void inputValidityChanged(AbstractColumn * source) {
 			inputDataChanged(source);
 		}
-		virtual void inputMaskingAboutToChange(AbstractColumn* source) {
+		virtual void inputMaskingAboutToChange(AbstractColumn * source) {
 			Q_UNUSED(source);
 		}
-		virtual void inputMaskingChanged(AbstractColumn* source) {
+		virtual void inputMaskingChanged(AbstractColumn * source) {
 			Q_UNUSED(source);
 		}
-		void inputAboutToBeDestroyed(AbstractColumn* source) {
-			input(d_inputs.indexOf(source), 0);
+		void inputAboutToBeDestroyed(AbstractColumn * source) {
+			input(indexOf(source), shared_ptr<AbstractColumn>());
 		}
 		//@}
 
 		//! The data sources connected to my input ports.
-		QVector<AbstractColumn*> d_inputs;
+		QVector< shared_ptr<AbstractColumn> > d_inputs;
 
 	private:
-		friend class AbstractFilterSlotMachine;
-		AbstractFilterSlotMachine d_slot_machine;
+		friend class AbstractFilterWrapper;
+		AbstractFilterWrapper *d_wrapper;
+
+		//! Helper function
+		int indexOf(AbstractColumn * elem)
+		{
+			for(int i=0; i<d_inputs.size(); i++)
+				if(d_inputs.at(i).get() == elem) return i;
+			return -1;
+		}
 };
 
 #endif // ifndef ABSTRACT_FILTER_H

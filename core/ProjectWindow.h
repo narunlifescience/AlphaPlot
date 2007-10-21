@@ -2,8 +2,8 @@
     File                 : ProjectWindow.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
 
  ***************************************************************************/
@@ -36,19 +36,21 @@ class Project;
 class QMdiArea;
 
 //! Standard view on a Project; main window.
-class ProjectWindow : public QMainWindow, public AbstractAspectObserver
+class ProjectWindow : public QMainWindow
 {
 	Q_OBJECT
 
 	public:
-		ProjectWindow(Project *project);
+		ProjectWindow(shared_ptr<Project> project);
 		~ProjectWindow();
-		void aspectAdded(AbstractAspect *aspect);
+	
+	public slots:
+		void aspectAdded(AbstractAspect *parent, int index);
 		void aspectDescriptionChanged(AbstractAspect *aspect);
 
 	private:
-		Project *d_project;
-		QMdiArea *d_mdi;
+		shared_ptr<Project> d_project;
+		QMdiArea * d_mdi;
 };
 
 #endif // ifndef PROJECT_WINDOW_H

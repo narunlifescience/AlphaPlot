@@ -44,7 +44,7 @@ class ColumnSetModeCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetModeCmd(Column * col, SciDAVis::ColumnMode mode, QUndoCommand * parent = 0 );
+	ColumnSetModeCmd(shared_ptr<ColumnPrivate> col, SciDAVis::ColumnMode mode, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetModeCmd();
 
@@ -55,7 +55,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The previous mode
 	SciDAVis::ColumnMode d_old_mode;	
 	//! The new mode
@@ -69,13 +69,13 @@ private:
 	//! Pointer to new data
 	void * d_new_data;
 	//! The new input filter
-	AbstractSimpleFilter * d_new_in_filter;
+	shared_ptr<AbstractSimpleFilter> d_new_in_filter;
 	//! The new output filter
-	AbstractSimpleFilter * d_new_out_filter;
+	shared_ptr<AbstractSimpleFilter> d_new_out_filter;
 	//! The old input filter
-	AbstractSimpleFilter * d_old_in_filter;
+	shared_ptr<AbstractSimpleFilter> d_old_in_filter;
 	//! The old output filter
-	AbstractSimpleFilter * d_old_out_filter;
+	shared_ptr<AbstractSimpleFilter> d_old_out_filter;
 	//! The old validity information
 	IntervalAttribute<bool> d_old_validity;
 	//! The new validity information
@@ -98,7 +98,9 @@ class ColumnFullCopyCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnFullCopyCmd(Column * col, const AbstractColumn * src, QUndoCommand * parent = 0 );
+	ColumnFullCopyCmd(shared_ptr<ColumnPrivate> col, const AbstractColumn * src, QUndoCommand * parent = 0 );
+	//! Ctor
+	ColumnFullCopyCmd(shared_ptr<ColumnPrivate> col, shared_ptr<AbstractColumn> src, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnFullCopyCmd();
 
@@ -109,11 +111,11 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The column to copy
-	const  AbstractColumn * d_src;
+	const AbstractColumn * d_src;
 	//! A backup column
-	Column * d_backup;
+	shared_ptr<ColumnPrivate> d_backup;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -128,7 +130,9 @@ class ColumnPartialCopyCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnPartialCopyCmd(Column * col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent = 0 );
+	ColumnPartialCopyCmd(shared_ptr<ColumnPrivate> col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent = 0 );
+	//! Ctor
+	ColumnPartialCopyCmd(shared_ptr<ColumnPrivate> col, shared_ptr<AbstractColumn> src, int src_start, int dest_start, int num_rows, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnPartialCopyCmd();
 
@@ -139,13 +143,13 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The column to copy
 	const AbstractColumn * d_src;
 	//! A backup of the orig. column
-	Column * d_col_backup;
+	shared_ptr<ColumnPrivate> d_col_backup;
 	//! A backup of the source column
-	Column * d_src_backup;
+	shared_ptr<ColumnPrivate> d_src_backup;
 	//! Start index in source column
 	int d_src_start;
 	//! Start index in destination column
@@ -168,7 +172,7 @@ class ColumnInsertEmptyRowsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnInsertEmptyRowsCmd(Column * col, int before, int count, QUndoCommand * parent = 0 );
+	ColumnInsertEmptyRowsCmd(shared_ptr<ColumnPrivate> col, int before, int count, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnInsertEmptyRowsCmd();
 
@@ -179,7 +183,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! Row to insert before
 	int d_before;
 	//! Number of rows
@@ -198,7 +202,7 @@ class ColumnRemoveRowsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnRemoveRowsCmd(Column * col, int first, int count, QUndoCommand * parent = 0 );
+	ColumnRemoveRowsCmd(shared_ptr<ColumnPrivate> col, int first, int count, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnRemoveRowsCmd();
 
@@ -209,7 +213,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The first row
 	int d_first;
 	//! The number of rows to be removed
@@ -217,7 +221,7 @@ private:
 	//! Number of removed rows actually containing data
 	int d_data_row_count;
 	//! Column saving the removed rows
-	Column * d_backup;
+	shared_ptr<ColumnPrivate> d_backup;
 	//! Backup of the masking attribute
 	IntervalAttribute<bool> d_masking;
 	//! Backup of the formula attribute
@@ -235,7 +239,7 @@ class ColumnSetPlotDesignationCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetPlotDesignationCmd(Column * col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
+	ColumnSetPlotDesignationCmd(shared_ptr<ColumnPrivate> col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetPlotDesignationCmd();
 
@@ -246,7 +250,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! New plot designation
 	SciDAVis::PlotDesignation d_new_pd;
 	//! Old plot designation
@@ -265,7 +269,7 @@ class ColumnClearCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearCmd(Column * col, QUndoCommand * parent = 0 );
+	ColumnClearCmd(shared_ptr<ColumnPrivate> col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearCmd();
 
@@ -276,7 +280,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The column's data type
 	SciDAVis::ColumnDataType d_type;
 	//! Pointer to the old data pointer
@@ -302,7 +306,7 @@ class ColumnClearValidityCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearValidityCmd(Column * col, QUndoCommand * parent = 0 );
+	ColumnClearValidityCmd(shared_ptr<ColumnPrivate> col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearValidityCmd();
 
@@ -313,7 +317,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The old validity
 	IntervalAttribute<bool> d_validity;
 	//! A status flag
@@ -332,7 +336,7 @@ class ColumnClearMasksCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearMasksCmd(Column * col, QUndoCommand * parent = 0 );
+	ColumnClearMasksCmd(shared_ptr<ColumnPrivate> col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearMasksCmd();
 
@@ -343,7 +347,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The old masks
 	IntervalAttribute<bool> d_masking;
 	//! A status flag
@@ -362,7 +366,7 @@ class ColumnSetInvalidCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetInvalidCmd(Column * col, Interval<int> interval, bool invalid, QUndoCommand * parent = 0 );
+	ColumnSetInvalidCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, bool invalid, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetInvalidCmd();
 
@@ -373,7 +377,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! Valid/invalid flag
@@ -396,7 +400,7 @@ class ColumnSetMaskedCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetMaskedCmd(Column * col, Interval<int> interval, bool masked, QUndoCommand * parent = 0 );
+	ColumnSetMaskedCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, bool masked, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetMaskedCmd();
 
@@ -407,7 +411,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! Mask/unmask flag
@@ -430,7 +434,7 @@ class ColumnSetFormulaCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetFormulaCmd(Column * col, Interval<int> interval, QString formula, QUndoCommand * parent = 0 );
+	ColumnSetFormulaCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, QString formula, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetFormulaCmd();
 
@@ -441,7 +445,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! The new formula
@@ -464,7 +468,7 @@ class ColumnClearFormulasCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearFormulasCmd(Column * col, QUndoCommand * parent = 0 );
+	ColumnClearFormulasCmd(shared_ptr<ColumnPrivate> col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearFormulasCmd();
 
@@ -475,7 +479,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The old formulas
 	IntervalAttribute<QString> d_formulas;
 	//! A status flag
@@ -494,7 +498,7 @@ class ColumnSetTextCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetTextCmd(Column * col, int row, const QString& new_value, QUndoCommand * parent = 0 );
+	ColumnSetTextCmd(shared_ptr<ColumnPrivate> col, int row, const QString& new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetTextCmd();
 
@@ -505,7 +509,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -528,7 +532,7 @@ class ColumnSetValueCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetValueCmd(Column * col, int row, double new_value, QUndoCommand * parent = 0 );
+	ColumnSetValueCmd(shared_ptr<ColumnPrivate> col, int row, double new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetValueCmd();
 
@@ -539,7 +543,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -562,7 +566,7 @@ class ColumnSetDateTimeCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetDateTimeCmd(Column * col, int row, const QDateTime& new_value, QUndoCommand * parent = 0 );
+	ColumnSetDateTimeCmd(shared_ptr<ColumnPrivate> col, int row, const QDateTime& new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetDateTimeCmd();
 
@@ -573,7 +577,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -596,7 +600,7 @@ class ColumnReplaceTextsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceTextsCmd(Column * col, int first, const QStringList& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceTextsCmd(shared_ptr<ColumnPrivate> col, int first, const QStringList& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceTextsCmd();
 
@@ -607,7 +611,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values
@@ -632,7 +636,7 @@ class ColumnReplaceValuesCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceValuesCmd(Column * col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceValuesCmd(shared_ptr<ColumnPrivate> col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceValuesCmd();
 
@@ -643,7 +647,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values
@@ -668,7 +672,7 @@ class ColumnReplaceDateTimesCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceDateTimesCmd(Column * col, int first, const QList<QDateTime>& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceDateTimesCmd(shared_ptr<ColumnPrivate> col, int first, const QList<QDateTime>& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceDateTimesCmd();
 
@@ -679,7 +683,7 @@ public:
 
 private:
 	//! The column to modify
-	Column * d_col;
+	shared_ptr<ColumnPrivate> d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values

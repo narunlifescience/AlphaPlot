@@ -2,8 +2,8 @@
     File                 : AspectTreeModel.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Represents a tree of AbstractAspect objects as a
                            Qt item model.
 
@@ -47,12 +47,12 @@
  * For views which support this (currently ProjectExplorer), the menu created by
  * AbstractAspect::createContextMenu() is made availabel via the custom role ContextMenuRole.
  */
-class AspectTreeModel : public QAbstractItemModel, public AbstractAspectObserver
+class AspectTreeModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
 	public:
-		AspectTreeModel(AbstractAspect *root, QObject *parent=0);
+		AspectTreeModel(shared_ptr<AbstractAspect> root, QObject *parent=0);
 		~AspectTreeModel();
 
 		//! Custom data roles used in addition to Qt::ItemDataRole
@@ -69,20 +69,21 @@ class AspectTreeModel : public QAbstractItemModel, public AbstractAspectObserver
 		bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 		Qt::ItemFlags flags(const QModelIndex &index) const;
 
+	public slots:
 		void aspectDescriptionChanged(AbstractAspect *aspect);
 		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
-		void aspectAdded(AbstractAspect *aspect);
-		void aspectAboutToBeRemoved(AbstractAspect *aspect);
+		void aspectAdded(AbstractAspect *parent, int index);
+		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
 		void aspectRemoved(AbstractAspect *parent, int index);
 
 	protected:
 		//! Convenience wrapper around QAbstractItemModel::createIndex().
-		QModelIndex indexOfAspect(AbstractAspect *aspect, int column=0) const {
+		QModelIndex modelIndexOfAspect(AbstractAspect *aspect, int column=0) const {
 			return createIndex(aspect->index(), column, aspect);
 		}
 
 	private:
-		AbstractAspect *d_root;
+		shared_ptr<AbstractAspect> d_root;
 };
 
 #endif // ifndef ASPECT_TREE_MODEL_H

@@ -37,16 +37,26 @@
 #include "column/columncommands.h"
 class QString;
 
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+using std::tr1::enable_shared_from_this;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+using boost::shared_ptr;
+using boost::enable_shared_from_this;
+#endif
+
 //! Table column class
 /**
   This class represents a column in a table. It has a public reading and
   (undo aware) writing interface defined in AbstractColumn and a private
-  interface, which is only to be used by commands, defined
+  interface (which is only to be used by commands) defined
   by ColumnPrivate and accessed by the d pointer. All private data and
   functions members except utility functions are defined in ColumnPrivate.
-  All commands working on a Column must be declared as friend classes.
  */
-class Column : public QObject, public AbstractAspect, public AbstractColumn
+class Column : public QObject, public AbstractAspect, public AbstractColumn, public enable_shared_from_this<Column>
 {
 	Q_OBJECT
 
@@ -83,10 +93,6 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn
 
 		//! \name aspect related functions
 		//@{
-		//! Return the QObject that is responsible for emitting signals
-		virtual const QObject *signalEmitter() const { return this; }
-		//! Return the QObject that is responsible for receiving signals
-		virtual const QObject *signalReceiver() const { return this; }
 		//! See QMetaObject::className().
 		virtual const char* className() const { return metaObject()->className(); }
 		//! See QObject::inherits().
@@ -122,6 +128,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn
 		 * Use a filter to convert a column to another type.
 		 */
 		bool copy(const AbstractColumn * other);
+		bool copy(shared_ptr<Column> col) { return copy(col.get()); }
 		//! Copies part of another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -133,6 +140,10 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn
 		 * \param num_rows the number of rows to copy
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
+		bool copy(shared_ptr<Column> source, int source_start, int dest_start, int num_rows) 
+		{ 
+			return copy(source.get(), source_start, dest_start, num_rows); 
+		}
 		//! Return the data vector size
 		/**
 		 * This returns the number of rows that actually contain data. 
@@ -159,19 +170,19 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn
 		//! Clear the whole column
 		void clear();
 		//! This must be called before the column is replaced by another
-		void notifyReplacement(AbstractColumn * replacement);
+		void notifyReplacement(shared_ptr<AbstractColumn> replacement);
 		//! Return the input filter (for string -> data type conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		AbstractSimpleFilter * inputFilter() const { return d->inputFilter(); }
+		shared_ptr<AbstractSimpleFilter> inputFilter() const { return d->inputFilter(); }
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		AbstractSimpleFilter * outputFilter() const { return d->outputFilter(); }
+		shared_ptr<AbstractSimpleFilter> outputFilter() const { return d->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -300,29 +311,10 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn
 		virtual void replaceValues(int first, const QVector<double>& new_values);
 		//@}
 
-		friend class ColumnSetModeCmd;	
-		friend class ColumnFullCopyCmd;
-		friend class ColumnPartialCopyCmd;
-		friend class ColumnInsertEmptyRowsCmd;
-		friend class ColumnRemoveRowsCmd;
-		friend class ColumnSetPlotDesignationCmd;
-		friend class ColumnClearCmd;
-		friend class ColumnClearValidityCmd;
-		friend class ColumnClearMasksCmd;
-		friend class ColumnSetInvalidCmd;
-		friend class ColumnSetMaskedCmd;
-		friend class ColumnSetFormulaCmd;
-		friend class ColumnClearFormulasCmd;
-		friend class ColumnSetTextCmd;
-		friend class ColumnSetValueCmd;
-		friend class ColumnSetDateTimeCmd;
-		friend class ColumnReplaceTextsCmd;
-		friend class ColumnReplaceValuesCmd;
-		friend class ColumnReplaceDateTimesCmd;
-
 	private:
 		//! Pointer to the private interface and all private data
-		ColumnPrivate * d;
+		shared_ptr<ColumnPrivate> d;
+
 };
 
 #endif

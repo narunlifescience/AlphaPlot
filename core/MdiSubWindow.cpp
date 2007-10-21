@@ -2,8 +2,8 @@
     File                 : MdiSubWindow.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : An MDI sub window which manages views on an
                            AbstractAspect.
 
@@ -33,15 +33,18 @@
 #include <QIcon>
 #include <QMenu>
 
-MdiSubWindow::MdiSubWindow(AbstractAspect *aspect, QWidget *view)
+MdiSubWindow::MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view)
 	: d_aspect(aspect), d_closing(false)
 {
 	setWidget(view);
-	aspectDescriptionChanged(d_aspect);
+	aspectDescriptionChanged(d_aspect.get());
 	setWindowIcon(d_aspect->icon());
 	// TODO: doesn't work... bug in Qt?
 	//setSystemMenu(d_aspect->createContextMenu());
-	d_aspect->addAspectObserver(this);
+	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
+	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
+		this, SLOT(aspectAboutToBeRemoved(AbstractAspect *))); 
 }
 
 void MdiSubWindow::contextMenuEvent(QContextMenuEvent *event)
@@ -54,19 +57,19 @@ void MdiSubWindow::contextMenuEvent(QContextMenuEvent *event)
 
 MdiSubWindow::~MdiSubWindow()
 {
-	d_aspect->removeAspectObserver(this);
+	disconnect(d_aspect->abstractAspectSignalEmitter(), 0, this, 0);
 }
 
 void MdiSubWindow::aspectDescriptionChanged(AbstractAspect *aspect)
 {
-	if (aspect != d_aspect) return;
+	if (aspect != d_aspect.get()) return;
 	setWindowTitle(d_aspect->caption());
 	update();
 }
 
 void MdiSubWindow::aspectAboutToBeRemoved(AbstractAspect *aspect)
 {
-	if (aspect != d_aspect || d_closing) return;
+	if (aspect != d_aspect.get() || d_closing) return;
 	d_closing = true;
 	close();
 }

@@ -7,8 +7,30 @@
 #include <QtGlobal>
 #include <QLocale>
 #include <QtDebug>
+#include <QUndoStack>
 
 #define EPSILON (1e-6)
+
+class ColumnWrapper : public Column
+{
+	
+	public:
+		virtual QUndoStack *undoStack() const 
+		{ 
+			static QUndoStack * undo_stack = 0;
+			if(!undo_stack) undo_stack = new QUndoStack();
+			return undo_stack; 
+		}
+
+
+		ColumnWrapper(const QString& label, SciDAVis::ColumnMode mode) : Column(label, mode) {};
+		ColumnWrapper(const QString& label, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
+			: Column(label, data, validity) {};
+		ColumnWrapper(const QString& label, QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()) 
+			: Column(label, data, validity) {};
+		ColumnWrapper(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
+			: Column(label, data, validity) {};
+};
 
 class ColumnTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST_SUITE(ColumnTest);
@@ -34,26 +56,26 @@ class ColumnTest : public CppUnit::TestFixture {
 			IntervalAttribute<bool> temp_validity;
 			temp_validity.setValue(Interval<int>(1,2));
 
-			column[0] = new Column("col0", SciDAVis::Numeric);
-			column[1] = new Column("col1", double_temp, temp_validity);
-			column[2] = new Column("col2", SciDAVis::Text);
-			column[3] = new Column("col3", strl_temp, temp_validity);
-			column[4] = new Column("col4", SciDAVis::DateTime);
-			column[5] = new Column("col5", dtl_temp, temp_validity);
-			column[6] = new Column("col6", SciDAVis::Month);
-			column[7] = new Column("col7", SciDAVis::Month);
-			column[8] = new Column("col8", SciDAVis::Day);
-			column[9] = new Column("col9", SciDAVis::Day);
-			column[10] = new Column("col10", double_temp);
+			column[0] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col0", SciDAVis::Numeric));
+			column[1] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col1", double_temp, temp_validity));
+			column[2] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col2", SciDAVis::Text));
+			column[3] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col3", strl_temp, temp_validity));
+			column[4] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col4", SciDAVis::DateTime));
+			column[5] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col5", dtl_temp, temp_validity));
+			column[6] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col6", SciDAVis::Month));
+			column[7] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col7", SciDAVis::Month));
+			column[8] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col8", SciDAVis::Day));
+			column[9] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col9", SciDAVis::Day));
+			column[10] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col10", double_temp));
 		}
 		
 		void tearDown() 
 		{
-			for(int i=0; i<=9; i++) delete column[i];
+//			for(int i=0; i<=9; i++) delete column[i];
 		}
 
 	private:
-		Column * column[11];
+		shared_ptr<ColumnWrapper> column[11];
 
 /* ------------------------------------------------------------------------------ */
 		void testGeneralMethods() 
@@ -152,7 +174,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1*(double)i, column[1]->valueAt(i-1), EPSILON);
 
 			// test full copy
-			column[0]->copy(column[1]);
+			column[0]->copy(column[1].get());
 			CPPUNIT_ASSERT_EQUAL(column[0]->rowCount(), column[1]->rowCount());
 			for(int i=0; i<column[0]->rowCount(); i++)
 				CPPUNIT_ASSERT_DOUBLES_EQUAL(column[1]->valueAt(i) , column[0]->valueAt(i), EPSILON);
@@ -165,7 +187,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT(column[1]->valueAt(i) != column[0]->valueAt(i)); 
 
 			// test partial copy
-			column[1]->copy(column[0], 0, 1, 2);
+			column[1]->copy(column[0].get(), 0, 1, 2);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1 , column[1]->valueAt(0), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(column[0]->valueAt(0) , column[1]->valueAt(1), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(column[0]->valueAt(1) , column[1]->valueAt(2), EPSILON);
@@ -359,8 +381,8 @@ class ColumnTest : public CppUnit::TestFixture {
 			{
 				column[0]->setColumnMode(SciDAVis::Numeric);
 				column[0]->setValueAt(0, dbl_temp);
-				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumericFormat('f');
-				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumDigits(2);
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter().get())->setNumericFormat('f');
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter().get())->setNumDigits(2);
 				column[0]->setColumnMode(SciDAVis::Text);
 				CPPUNIT_ASSERT_EQUAL(QLocale().toString(dbl_temp, 'f', 2), column[0]->textAt(0));
 				CPPUNIT_ASSERT_EQUAL(column[0]->columnMode(), SciDAVis::Text);
@@ -615,353 +637,156 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[5]->setFormula(Interval<int>(0,20), "foo bar foo");
 			column[5]->setFormula(Interval<int>(5,15), "bar baz foo");
 
+
 			// test set mode
-			ColumnSetModeCmd * cmd1 = new ColumnSetModeCmd(column[1], SciDAVis::Text);
-			cmd1->redo();
-			cmd1->undo();
-			undoTestInternal();
-			cmd1->redo();
-			cmd1->undo();
-			delete cmd1;
+			column[1]->setColumnMode(SciDAVis::Text);
 			undoTestInternal();
 
-			ColumnSetModeCmd * cmd2 = new ColumnSetModeCmd(column[3], SciDAVis::DateTime);
-			cmd2->redo();
-			cmd2->undo();
-			undoTestInternal();
-			cmd2->redo();
-			cmd2->undo();
-			delete cmd2;
+			column[3]->setColumnMode(SciDAVis::DateTime);
 			undoTestInternal();
 
-			ColumnSetModeCmd * cmd3 = new ColumnSetModeCmd(column[5], SciDAVis::Numeric);
-			cmd3->redo();
-			cmd3->undo();
-			undoTestInternal();
-			cmd3->redo();
-			cmd3->undo();
-			delete cmd3;
+			column[5]->setColumnMode(SciDAVis::Numeric);
 			undoTestInternal();
 
 			// test full copy
-			ColumnFullCopyCmd * ccmd1 = new ColumnFullCopyCmd(column[1], column[0]);
-			ccmd1->redo();
-			ccmd1->undo();
-			undoTestInternal();
-			ccmd1->redo();
-			ccmd1->undo();
-			delete ccmd1;
+			column[1]->copy(column[0]);
 			undoTestInternal();
 			
-			ColumnFullCopyCmd * ccmd2 = new ColumnFullCopyCmd(column[3], column[2]);
-			ccmd2->redo();
-			ccmd2->undo();
-			undoTestInternal();
-			ccmd2->redo();
-			ccmd2->undo();
-			delete ccmd2;
+			column[3]->copy(column[2]);
 			undoTestInternal();
 
-			ColumnFullCopyCmd * ccmd3 = new ColumnFullCopyCmd(column[5], column[4]);
-			ccmd3->redo();
-			ccmd3->undo();
-			undoTestInternal();
-			ccmd3->redo();
-			ccmd3->undo();
-			delete ccmd3;
+			column[5]->copy(column[4]);
 			undoTestInternal();
 
 			// test partial copy
-			ColumnPartialCopyCmd * pccmd1 = new ColumnPartialCopyCmd(column[1], column[0], 1, 0, 1);
-			pccmd1->redo();
-			pccmd1->undo();
-			undoTestInternal();
-			pccmd1->redo();
-			pccmd1->undo();
-			delete pccmd1;
+			column[1]->copy(column[0], 1, 0, 1);
 			undoTestInternal();
 			
-			ColumnPartialCopyCmd * pccmd2 = new ColumnPartialCopyCmd(column[3], column[2], 1, 0, 1);
-			pccmd2->redo();
-			pccmd2->undo();
-			undoTestInternal();
-			pccmd2->redo();
-			pccmd2->undo();
-			delete pccmd2;
+			column[3]->copy(column[2], 1, 0, 1);
 			undoTestInternal();
 
-			ColumnPartialCopyCmd * pccmd3 = new ColumnPartialCopyCmd(column[5], column[4], 1, 0, 1);
-			pccmd3->redo();
-			pccmd3->undo();
-			undoTestInternal();
-			pccmd3->redo();
-			pccmd3->undo();
-			delete pccmd3;
+			column[5]->copy(column[4], 1, 0, 1);
 			undoTestInternal();
 
 			// test insert rows
-			ColumnInsertEmptyRowsCmd * ircmd1 = new ColumnInsertEmptyRowsCmd(column[1], 0, 100);
-			ircmd1->redo();
-			ircmd1->undo();
-			undoTestInternal();
-			ircmd1->redo();
-			ircmd1->undo();
-			delete ircmd1;
+			column[1]->insertEmptyRows(0, 100);
 			undoTestInternal();
 			
-			ColumnInsertEmptyRowsCmd * ircmd2 = new ColumnInsertEmptyRowsCmd(column[3], 0, 100);
-			ircmd2->redo();
-			ircmd2->undo();
-			undoTestInternal();
-			ircmd2->redo();
-			ircmd2->undo();
-			delete ircmd2;
+			column[3]->insertEmptyRows(0, 100);
 			undoTestInternal();
 
-			ColumnInsertEmptyRowsCmd * ircmd3 = new ColumnInsertEmptyRowsCmd(column[5], 0, 100);
-			ircmd3->redo();
-			ircmd3->undo();
-			undoTestInternal();
-			ircmd3->redo();
-			ircmd3->undo();
-			delete ircmd3;
+			column[5]->insertEmptyRows(0, 100);
 			undoTestInternal();
 
 			// test remove rows
-			ColumnRemoveRowsCmd * rrcmd1 = new ColumnRemoveRowsCmd(column[1], 1, 100);
-			rrcmd1->redo();
-			rrcmd1->undo();
-			undoTestInternal();
-			rrcmd1->redo();
-			rrcmd1->undo();
-			delete rrcmd1;
+			column[1]->removeRows(1, 100);
 			undoTestInternal();
 			
-			ColumnRemoveRowsCmd * rrcmd2 = new ColumnRemoveRowsCmd(column[3], 1, 100);
-			rrcmd2->redo();
-			rrcmd2->undo();
-			undoTestInternal();
-			rrcmd2->redo();
-			rrcmd2->undo();
-			delete rrcmd2;
+			column[3]->removeRows(1, 100);
 			undoTestInternal();
 
-			ColumnRemoveRowsCmd * rrcmd3 = new ColumnRemoveRowsCmd(column[5], 1, 100);
-			rrcmd3->redo();
-			rrcmd3->undo();
-			undoTestInternal();
-			rrcmd3->redo();
-			rrcmd3->undo();
-			delete rrcmd3;
+			column[5]->removeRows(1, 100);
 			undoTestInternal();
 
 			// test plot designation
-			ColumnSetPlotDesignationCmd * pdcmd = new ColumnSetPlotDesignationCmd(column[0], SciDAVis::xErr);
-			pdcmd->redo();
-			pdcmd->undo();
-			undoTestInternal();
-			pdcmd->redo();
-			pdcmd->undo();
-			delete pdcmd;
+			column[0]->setPlotDesignation(SciDAVis::xErr);
 			undoTestInternal();
 
 			// test clear
-			ColumnClearCmd * clearcmd1 = new ColumnClearCmd(column[1]);
-			clearcmd1->redo();
-			clearcmd1->undo();
-			undoTestInternal();
-			clearcmd1->redo();
-			clearcmd1->undo();
-			delete clearcmd1;
+			column[1]->clear();
 			undoTestInternal();
 			
-			ColumnClearCmd * clearcmd2 = new ColumnClearCmd(column[3]);
-			clearcmd2->redo();
-			clearcmd2->undo();
-			undoTestInternal();
-			clearcmd2->redo();
-			clearcmd2->undo();
-			delete clearcmd2;
+			column[3]->clear();
 			undoTestInternal();
 
-			ColumnClearCmd * clearcmd3 = new ColumnClearCmd(column[5]);
-			clearcmd3->redo();
-			clearcmd3->undo();
-			undoTestInternal();
-			clearcmd3->redo();
-			clearcmd3->undo();
-			delete clearcmd3;
+			column[5]->clear();
 			undoTestInternal();
 
 			// test clear validity
-			ColumnClearValidityCmd * clvcmd1 = new ColumnClearValidityCmd(column[1]);
-			clvcmd1->redo();
-			clvcmd1->undo();
-			undoTestInternal();
-			clvcmd1->redo();
-			clvcmd1->undo();
-			delete clvcmd1;
+			column[1]->clearValidity();
 			undoTestInternal();
 			
-			ColumnClearValidityCmd * clvcmd2 = new ColumnClearValidityCmd(column[3]);
-			clvcmd2->redo();
-			clvcmd2->undo();
-			undoTestInternal();
-			clvcmd2->redo();
-			clvcmd2->undo();
-			delete clvcmd2;
+			column[3]->clearValidity();
 			undoTestInternal();
 
-			ColumnClearValidityCmd * clvcmd3 = new ColumnClearValidityCmd(column[5]);
-			clvcmd3->redo();
-			clvcmd3->undo();
-			undoTestInternal();
-			clvcmd3->redo();
-			clvcmd3->undo();
-			delete clvcmd3;
+			column[5]->clearValidity();
 			undoTestInternal();
 
 			// test clear masking
-			ColumnClearMasksCmd * clmcmd1 = new ColumnClearMasksCmd(column[1]);
-			clmcmd1->redo();
-			clmcmd1->undo();
-			undoTestInternal();
-			clmcmd1->redo();
-			clmcmd1->undo();
-			delete clmcmd1;
+			column[1]->clearMasks();
 			undoTestInternal();
 			
-			ColumnClearMasksCmd * clmcmd2 = new ColumnClearMasksCmd(column[3]);
-			clmcmd2->redo();
-			clmcmd2->undo();
-			undoTestInternal();
-			clmcmd2->redo();
-			clmcmd2->undo();
-			delete clmcmd2;
+			column[3]->clearMasks();
 			undoTestInternal();
 
-			ColumnClearMasksCmd * clmcmd3 = new ColumnClearMasksCmd(column[5]);
-			clmcmd3->redo();
-			clmcmd3->undo();
-			undoTestInternal();
-			clmcmd3->redo();
-			clmcmd3->undo();
-			delete clmcmd3;
+			column[5]->clearMasks();
 			undoTestInternal();
 
 			// test set invalid
-			ColumnSetInvalidCmd * sinvcmd = new ColumnSetInvalidCmd(column[1], Interval<int>(0,20), true);
-			sinvcmd->redo();
-			sinvcmd->undo();
-			undoTestInternal();
-			sinvcmd->redo();
-			sinvcmd->undo();
-			delete sinvcmd;
+			column[1]->setInvalid(Interval<int>(0,20), true);
 			undoTestInternal();
 
 			// test set masked
-			ColumnSetMaskedCmd * smcmd = new ColumnSetMaskedCmd(column[1], Interval<int>(0,20), true);
-			smcmd->redo();
-			smcmd->undo();
+			column[1]->setMasked(Interval<int>(0,20), true);
 			undoTestInternal();
-			smcmd->redo();
-			smcmd->undo();
-			delete smcmd;
-			undoTestInternal(); 
 
 			// test set formula
-			ColumnSetFormulaCmd * setfcmd = new ColumnSetFormulaCmd(column[1], Interval<int>(0,20), QString("cos(exp(x))"));
-			setfcmd->redo();
-			setfcmd->undo();
-			undoTestInternal();
-			setfcmd->redo();
-			setfcmd->undo();
-			delete setfcmd;
+			column[1]->setFormula(Interval<int>(0,20), QString("cos(exp(x))"));
 			undoTestInternal();
 
 			// test clear formulas
-			ColumnClearFormulasCmd * clfcmd1 = new ColumnClearFormulasCmd(column[1]);
-			clfcmd1->redo();
-			clfcmd1->undo();
-			undoTestInternal();
-			clfcmd1->redo();
-			clfcmd1->undo();
-			delete clfcmd1;
+			column[1]->clearFormulas();
 			undoTestInternal();
 
 			// test set value 
-			ColumnSetValueCmd * setdcmd = new ColumnSetValueCmd(column[1], 200, 1.5);
-			setdcmd->redo();
-			setdcmd->undo();
-			undoTestInternal();
-			setdcmd->redo();
-			setdcmd->undo();
-			delete setdcmd;
+			column[1]->setValueAt(200, 1.5);
 			undoTestInternal();
 
 			// test replace values
 			QVector<double> vec;
 			vec << 123.13 << 123.123 << 0.123123;
-			ColumnReplaceValuesCmd * repdcmd = new ColumnReplaceValuesCmd(column[1], 2, vec);
-			repdcmd->redo();
-			repdcmd->undo();
-			undoTestInternal();
-			repdcmd->redo();
-			repdcmd->undo();
-			delete repdcmd;
+			column[1]->replaceValues(2, vec);
 			undoTestInternal();
 
 			// test set text 
-			ColumnSetTextCmd * settcmd = new ColumnSetTextCmd(column[3], 200, QString("foo foo"));
-			settcmd->redo();
-			settcmd->undo();
-			undoTestInternal();
-			settcmd->redo();
-			settcmd->undo();
-			delete settcmd;
+			column[3]->setTextAt(200, QString("foo foo"));
 			undoTestInternal();
 
 			// test replace text 
 			QStringList list;
 			list << "foo 1" << "bar 2" << "baz 3";
-			ColumnReplaceTextsCmd * reptcmd = new ColumnReplaceTextsCmd(column[3], 2, list);
-			reptcmd->redo();
-			reptcmd->undo();
-			undoTestInternal();
-			reptcmd->redo();
-			reptcmd->undo();
-			delete reptcmd;
+			column[3]->replaceTexts(2, list);
 			undoTestInternal();
 
 			// test set date-time
-			ColumnSetDateTimeCmd * setdtcmd = new ColumnSetDateTimeCmd(column[5], 200, QDateTime(QDate(1919,9,9),QTime(1,1,1,1)));
-			setdtcmd->redo();
-			setdtcmd->undo();
+			column[5]->setDateTimeAt(200, QDateTime(QDate(1919,9,9),QTime(1,1,1,1)));
 			undoTestInternal();
-			setdtcmd->redo();
-			setdtcmd->undo();
-			delete setdtcmd;
-			undoTestInternal();
-
+						
 			// test replace date-time
 			QList<QDateTime> dtlist;
 			dtlist << QDateTime(QDate(1919,9,9),QTime(1,1,1,1));
 			dtlist << QDateTime(QDate(1919,9,9),QTime(1,1,1,1));
 			dtlist << QDateTime(QDate(1919,9,9),QTime(1,1,1,1));
-			ColumnReplaceDateTimesCmd * repdtcmd = new ColumnReplaceDateTimesCmd(column[5], 2, dtlist);
-			repdtcmd->redo();
-			repdtcmd->undo();
-			undoTestInternal();
-			repdtcmd->redo();
-			repdtcmd->undo();
-			delete repdtcmd;
+			column[5]->replaceDateTimes(2, dtlist);
 			undoTestInternal();
 
 		}
 
 		void undoTestInternal()
 		{
+			QUndoStack * us = column[0]->undoStack();
 
+			us->redo();
+			us->undo();
+			undoTestInternal2();
+			us->redo();
+			us->undo();
+			us->clear();
+			undoTestInternal2();
+		}
+
+		void undoTestInternal2()
+		{
 			// check column 1
 			CPPUNIT_ASSERT_EQUAL(3, column[1]->rowCount());
 			CPPUNIT_ASSERT_EQUAL(column[1]->columnMode(), SciDAVis::Numeric);	
@@ -1016,7 +841,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(0),  QString("foo bar foo"));
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(4),  QString("foo bar foo"));
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(16),  QString("foo bar foo"));
-			CPPUNIT_ASSERT_EQUAL(column[5]->formula(20),  QString("foo bar foo"));
+			CPPUNIT_ASSERT_EQUAL(column[5]->formula(20),  QString("foo bar foo"));	
 		}
 /* ------------------------------------------------------------------------------ */
 };

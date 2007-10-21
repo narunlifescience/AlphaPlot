@@ -2,8 +2,8 @@
     File                 : Project.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Represents a SciDAVis project.
 
  ***************************************************************************/
@@ -32,12 +32,23 @@
 // TODO: replace old Folder.{h,cpp} in core
 #include "../aspect-test/Folder.h"
 
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+using std::tr1::enable_shared_from_this;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+using boost::shared_ptr;
+using boost::enable_shared_from_this;
+#endif
+
 //! Represents a SciDAVis project.
 /**
  * Project manages an undo stack and is responsible for creating ProjectWindow instances
  * as views on itself.
  */
-class Project : public Folder
+class Project : public Folder, public enable_shared_from_this<Project>
 {
 	Q_OBJECT
 

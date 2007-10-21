@@ -2,8 +2,8 @@
     File                 : Project.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Represents a SciDAVis project.
 
  ***************************************************************************/
@@ -49,5 +49,5 @@ QUndoStack *Project::undoStack() const
 QWidget *Project::view(QWidget *parent)
 {
 	Q_UNUSED(parent);
-	return new ProjectWindow(this);
+	return new ProjectWindow(shared_from_this());
 }

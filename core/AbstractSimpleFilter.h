@@ -36,6 +36,20 @@
 #include "core/AbstractAspect.h"
 #include "lib/IntervalAttribute.h"
 
+#ifndef _NO_TR1_
+#include "tr1/memory" 
+using std::tr1::enable_shared_from_this;
+using std::tr1::static_pointer_cast;
+using std::tr1::dynamic_pointer_cast;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+using boost::enable_shared_from_this;
+using boost::static_pointer_cast;
+using boost::dynamic_pointer_cast;
+#endif
+
+
 // TODO: revise description
 /**
  * \brief Simplified filter interface for filters with only one output port.
@@ -118,7 +132,8 @@
  * 12 	}
  * \endcode
  */
-class AbstractSimpleFilter : public QObject, public AbstractAspect, public AbstractFilter, public AbstractColumn 
+class AbstractSimpleFilter : public QObject, public AbstractAspect, public AbstractFilter, public AbstractColumn, public enable_shared_from_this<AbstractSimpleFilter>
+
 {
 	Q_OBJECT
 
@@ -132,8 +147,8 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		//! We manage only one output port (don't override unless you really know what you are doing).
 		virtual int outputCount() const { return 1; }
 		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
-		virtual AbstractColumn* output(int port) const {
-			return port == 0 ? const_cast<AbstractSimpleFilter*>(this) : 0;
+		virtual shared_ptr<AbstractColumn> output(int port) const {
+			return port == 0 ? const_cast<AbstractSimpleFilter *>(this)->sharedAbstractColumnPtrFromThis() : shared_ptr<AbstractColumn>();
 		}
 		//! Copy label of input port 0.
 		virtual QString columnLabel() const {
@@ -279,9 +294,8 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		// TODO: Implement this in the derived classes
 		//! See QMetaObject::className().
 		virtual const char* className() const { return "AbstractSimpleFilter"; }
-		// TODO: Fix this
 		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return false; }
+		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
 	protected:
 		IntervalAttribute<bool> d_masking;
@@ -313,6 +327,14 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 				emit d_sender->rowsDeleted(this, output_range.start(), output_range.size());
 		}
 		//@}
+	
+	private:
+		//! Helper function
+		shared_ptr<AbstractColumn> sharedAbstractColumnPtrFromThis()
+		{
+			return dynamic_pointer_cast<AbstractColumn>(shared_from_this());
+		}
+
 };
 
 #endif // ifndef ABSTRACT_SIMPLE_FILTER

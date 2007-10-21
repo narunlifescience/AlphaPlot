@@ -86,7 +86,7 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 
 	protected:
 		//! All types are accepted.
-		virtual bool inputAcceptable(int, AbstractColumn *source) 
+		virtual bool inputAcceptable(int, AbstractColumn *) 
 		{
 			return true;
 		}

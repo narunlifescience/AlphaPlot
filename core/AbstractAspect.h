@@ -2,8 +2,8 @@
     File                 : AbstractAspect.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Base class for all persistent objects in a Project.
 
  ***************************************************************************/
@@ -31,8 +31,15 @@
 
 #include <QObject>
 
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+using boost::shared_ptr;
+#endif
+
 class AbstractAspect;
-class AbstractAspectWrapper;
 class AspectModel;
 class Project;
 class QUndoStack;
@@ -43,69 +50,51 @@ class QUndoCommand;
 class QIcon;
 class QMenu;
 
-typedef QList<AbstractAspect*> AspectList;
-
-//! Interface for receiving messages about changes in the Aspect hierarchy.
-class AbstractAspectObserver
-{
-	public:
-		virtual ~AbstractAspectObserver() {}
-		virtual void aspectDescriptionChanged(AbstractAspect *aspect) {
-			Q_UNUSED(aspect);
-		}
-		virtual void aspectAboutToBeAdded(AbstractAspect *parent, int index) {
-			Q_UNUSED(parent); Q_UNUSED(index);
-		}
-		virtual void aspectAdded(AbstractAspect *aspect) {
-			Q_UNUSED(aspect);
-		}
-		virtual void aspectAboutToBeRemoved(AbstractAspect *aspect) {
-			Q_UNUSED(aspect);
-		}
-		virtual void aspectRemoved(AbstractAspect *parent, int index) {
-			Q_UNUSED(parent); Q_UNUSED(index);
-		}
-};
-
-//! Interface class for AbstractAspect
+//! Wrapper class for AbstractAspect (receives and sends signals for it)
 /**
  * See: http://doc.trolltech.com/qq/qq15-academic.html
  */
-class AbstractAspectInterface 
-{
-	public: 
-		// AbstractAspectInterface();
-		virtual ~AbstractAspectInterface() {}
-
-		virtual void setName(const QString &value) = 0;
-		virtual void setComment(const QString &value) = 0;
-		virtual void setCaptionSpec(const QString &value) = 0;
-		virtual void remove() = 0;
-};
-
-//! Wrapper class for AbstractAspect
-/**
- * See: http://doc.trolltech.com/qq/qq15-academic.html
- */
-class AbstractAspectWrapper : public QObject, public AbstractAspectInterface
+class AbstractAspectWrapper : public QObject
 {
 	Q_OBJECT
 
 	public:
-		AbstractAspectWrapper(AbstractAspectInterface * aspect) 
+		AbstractAspectWrapper(AbstractAspect * aspect) 
 	         : QObject(0), d_aspect(aspect) {}
 		virtual ~AbstractAspectWrapper() {}
 
 	public slots:
-		void setName(const QString &value) { d_aspect->setName(value); }
-		void setComment(const QString &value) { d_aspect->setComment(value); }
-		void setCaptionSpec(const QString &value) { d_aspect->setCaptionSpec(value); }
-		void remove() { d_aspect->remove(); }
+		void setName(const QString &value);
+		void setComment(const QString &value);
+		void setCaptionSpec(const QString &value);
+		void remove();
+
+	signals:
+		//! Emit this when the name, comment or caption spec changed
+		void aspectDescriptionChanged(AbstractAspect *aspect);
+		//! Emit this when a parent aspect is about to get a new child inserted
+		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
+		//! Emit this from a newly added aspect
+		void aspectAdded(AbstractAspect *aspect);
+		//! Emit this from a parent after adding a new child to it
+		void aspectAdded(AbstractAspect *parent, int index);
+		//! Emit this from an aspect about to be removed from its parent's children
+		void aspectAboutToBeRemoved(AbstractAspect *aspect);
+		//! Emit this from a parent before removing its child
+		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
+		//! Emit this from the parent after removing a child
+		void aspectRemoved(AbstractAspect *parent, int index);
 
 	private:
-		AbstractAspectInterface *d_aspect;
+		AbstractAspect * d_aspect;
+		
+		// Undo commands need access to the signals
+		friend class AspectNameChangeCmd;
+		friend class AspectCommentChangeCmd;
+		friend class AspectCaptionSpecChangeCmd;
+		friend class AspectChildRemoveCmd;
+		friend class AspectChildAddCmd;
 };
-
 
 //! Base class of all persistent objects in a Project.
 /**
@@ -129,32 +118,36 @@ class AbstractAspectWrapper : public QObject, public AbstractAspectInterface
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
  */
-class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInterface
+class AbstractAspect 
 {
 	public:
 		AbstractAspect(const QString &name);
 		virtual ~AbstractAspect();
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
-		virtual AbstractAspect *parentAspect() const { return d_parent; }
+		virtual AbstractAspect * parentAspect() const { return d_parent; }
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
-		void addChild(AbstractAspect *child);
+		void addChild(shared_ptr<AbstractAspect> child);
 		//! Remove the given Aspect from my list of children.
-		void removeChild(AbstractAspect *child);
+		void removeChild(shared_ptr<AbstractAspect> child);
+		//! Remove the Aspect at the given index from my list of children.
+		void removeChild(int index);
 		//! Get a child by its position in my list of children.
-		AbstractAspect *child(int index) const;
+		shared_ptr<AbstractAspect> child(int index) const;
 		//! Return the number of child Aspects.
 		int childCount() const;
 		//! Return the position of child in my list of children.
-		int indexOfChild(const AbstractAspect *child) const;
+		int indexOfChild(const AbstractAspect * child) const;
+		//! Return the position of child in my list of children.
+		int indexOfChild(shared_ptr<AbstractAspect> child) const { return indexOfChild(child.get()); }
 		//! Return my position in my parent's list of children.
 		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
 
 		//! See QMetaObject::className().
-		virtual const char* className() const = 0; //{ return metaObject()->className(); }
+		virtual const char* className() const { return "AbstractAspect"; }
 		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const = 0; //{ return QObject::inherits(class_name); }
+		virtual bool inherits(const char *class_name) const { return (QString(class_name) == QString("AbstractAspect")); }
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
 		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
@@ -180,14 +173,6 @@ class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInter
 		 */
 		virtual QWidget *view(QWidget *parent = 0) = 0;
 
-//		Q_PROPERTY(QString name READ name WRITE setName);
-//		Q_PROPERTY(QString comment READ comment WRITE setComment);
-//		Q_PROPERTY(QString caption_spec READ captionSpec WRITE setCaptionSpec);
-		// requires #include<QDateTime> and most classes including AbstractAspect.h
-		// won't need it... hmm.. TODO: decide what to do
-		//Q_PROPERTY(QDateTime creation_time READ creationTime);
-//		Q_PROPERTY(QString caption READ caption);
-
 		QString name() const;
 		QString comment() const;
 		//! Return the specification string used for constructing the caption().
@@ -198,51 +183,26 @@ class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInter
 		QDateTime creationTime() const;
 		QString caption() const;
 
-		void addAspectObserver(AbstractAspectObserver *observer) {
-			d_observers << observer;
-		}
-		void removeAspectObserver(AbstractAspectObserver *observer) {
-			d_observers.removeAll(observer);
-		}
-		virtual void aspectDescriptionChanged(AbstractAspect *aspect = 0) {
-			if (!aspect) aspect = this;
-			foreach(AbstractAspectObserver *observer, d_observers)
-				observer->aspectDescriptionChanged(aspect);
-		}
-		virtual void aspectAboutToBeAdded(AbstractAspect *parent, int index) {
-			foreach(AbstractAspectObserver *observer, d_observers)
-				observer->aspectAboutToBeAdded(parent, index);
-		}
-		virtual void aspectAdded(AbstractAspect *aspect) {
-			foreach(AbstractAspectObserver *observer, d_observers)
-				observer->aspectAdded(aspect);
-		}
-		virtual void aspectAboutToBeRemoved(AbstractAspect *aspect) {
-			foreach(AbstractAspectObserver *observer, d_observers)
-				observer->aspectAboutToBeRemoved(aspect);
-		}
-		virtual void aspectRemoved(AbstractAspect *parent, int index) {
-			foreach(AbstractAspectObserver *observer, d_observers)
-				observer->aspectRemoved(parent, index);
-		}
-
 		//! Return the QObject that is responsible for emitting signals
 		/**
 		 * Using this mechanism avoids the need to have QObject as a base class and
 		 * thus avoids multiple inheritance problems with classes derived from
 		 * AbstractAspect
 		 */
-		virtual const QObject *signalEmitter() const { return d_wrapper; }
+		AbstractAspectWrapper *abstractAspectSignalEmitter() const { return d_wrapper; }
 		//! Return the QObject that is responsible for receiving signals
 		/**
 		 * Using this mechanism avoids the need to have QObject as a base class and
 		 * thus avoids multiple inheritance problems with classes derived from
 		 * AbstractAspect
 		 */
-		virtual const QObject *signalReceiver() const { return d_wrapper; }
+		AbstractAspectWrapper *abstractApectSignalReceiver() const { return d_wrapper; }
 
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
+
+		//! Set the parent aspect 
+		void setParent(AbstractAspect * new_parent);
 
 	// wrapped slots 
 	public: 
@@ -263,13 +223,12 @@ class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInter
 		 */
 		void setCaptionSpec(const QString &value);
 		//! Remove me from my parent's list of children.
-		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(this); }
+		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 
 	private:
-		AspectModel *d_model;
-		AbstractAspect *d_parent;
+		shared_ptr<AspectModel> d_model;
+		AbstractAspect * d_parent; // making this a shared_ptr would lead to circular references
 		AbstractAspectWrapper *d_wrapper;
-		QList<AbstractAspectObserver*> d_observers;
 
 		// Undo commands need direct access to the model.
 		friend class AspectNameChangeCmd;
@@ -277,9 +236,6 @@ class AbstractAspect : public AbstractAspectObserver, public AbstractAspectInter
 		friend class AspectCaptionSpecChangeCmd;
 		friend class AspectChildRemoveCmd;
 		friend class AspectChildAddCmd;
-
-		//! Set a new parent aspect updates the list of observers.
-		void setParentPrivate(AbstractAspect *new_parent);
 };
 
 #endif // ifndef ABSTRACT_ASPECT_H

@@ -14,10 +14,6 @@ class Notes : public QObject, public AbstractAspect
 		QWidget *view(QWidget *parent_widget=0);
 		QIcon icon() const;
 
-		//! Return the QObject that is responsible for emitting signals
-		virtual const QObject *signalEmitter() const { return this; }
-		//! Return the QObject that is responsible for receiving signals
-		virtual const QObject *signalReceiver() const { return this; }
 		//! See QMetaObject::className().
 		virtual const char* className() const { return metaObject()->className(); }
 		//! See QObject::inherits().

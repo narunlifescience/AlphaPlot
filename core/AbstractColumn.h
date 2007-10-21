@@ -41,6 +41,14 @@
 #include "lib/Interval.h"
 #include "core/globals.h"
 
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+using boost::shared_ptr;
+#endif
+
 class AbstractColumn;
 class Column;
 class AbstractSimpleFilter;
@@ -51,14 +59,14 @@ class AbstractSimpleFilter;
  * inheriting from QObject (to avoid multiple inheritance).
  * If you connect any signal of AbstractColumn do it like this:
  * <code>
- * connect(column->signalSender(), SIGNAL(...), ...);
+ * connect(column->abstractColumnSignalEmitter(), SIGNAL(...), ...);
  * </code>
  * All classes using this mechanism need to be declared as friend 
  * classes here.
  *
  * Recommended read: http://doc.trolltech.com/qq/qq15-academic.html
  */
-class AbstractColumnSignalSender : public QObject
+class AbstractColumnSignalEmitter : public QObject
 {
 	Q_OBJECT
 
@@ -124,7 +132,7 @@ class AbstractColumnSignalSender : public QObject
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void aboutToBeReplaced(AbstractColumn * source, AbstractColumn * new_col); 
+		void aboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> new_col); 
 		//! Rows will be inserted
 		/**
 		 *	\param source the column that emitted the signal
@@ -191,8 +199,8 @@ class AbstractColumnSignalSender : public QObject
   function) or return some default value (reading functions).
 
   This class also defines all signals which indicate a data change. The signals
-  are defined in AbstractColumnSignalSender to avoid having to inherit from
-  QObject. Use "connect(column->signalSender(), ...)" to connect the signals.
+  are defined in AbstractColumnSignalEmitter to avoid having to inherit from
+  QObject. Use "connect(column->signalEmitter(), ...)" to connect the signals.
   Any class whose output values are subject to change over time must emit
   the according signals. These signals notify any object working with the
   column before and after a change of the column.
@@ -206,11 +214,11 @@ class AbstractColumnSignalSender : public QObject
   writing interface. Changing name and comment should be implemented even
   for read only columns, usually using the AbstractAspect interface.
   */
-class AbstractColumn
+class AbstractColumn 
 {
 	public:
 		//! Ctor
-		AbstractColumn() { d_sender = new AbstractColumnSignalSender(); }
+		AbstractColumn() { d_sender = new AbstractColumnSignalEmitter(); }
 		//! Dtor
 		virtual ~AbstractColumn() { d_sender->aboutToBeDestroyed(this); delete d_sender; }
 
@@ -240,7 +248,7 @@ class AbstractColumn
 		 * The validity information for the rows is also copied.
 		 * Use a filter to convert a column to another type.
 		 */
-		virtual bool copy(const AbstractColumn * other) { Q_UNUSED(other) return false; };
+		virtual bool copy(AbstractColumn * other) { Q_UNUSED(other) return false; };
 		//! Copies part of another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -251,7 +259,7 @@ class AbstractColumn
 		 * \param dest_start first row to copy in
 		 * \param num_rows the number of rows to copy
 		 */ 
-		virtual bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows) 
+		virtual bool copy(AbstractColumn * source, int source_start, int dest_start, int num_rows) 
 		{
 			Q_UNUSED(source)
 			Q_UNUSED(source_start)
@@ -281,7 +289,7 @@ class AbstractColumn
 		//! Clear the whole column
 		virtual void clear() {};
 		//! This must be called before the column is replaced by another
-		virtual void notifyReplacement(AbstractColumn * replacement) { d_sender->aboutToBeReplaced(this, replacement); }
+		virtual void notifyReplacement(shared_ptr<AbstractColumn> replacement) { d_sender->aboutToBeReplaced(this, replacement); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -413,10 +421,10 @@ class AbstractColumn
 		virtual void replaceValues(int first, const QVector<double>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//@}
 
-		AbstractColumnSignalSender *  signalSender() { return d_sender; }
+		AbstractColumnSignalEmitter *  abstractColumnSignalEmitter() { return d_sender; }
 		
 	protected:
-		AbstractColumnSignalSender * d_sender;
+		AbstractColumnSignalEmitter * d_sender;
 };
 
 #endif

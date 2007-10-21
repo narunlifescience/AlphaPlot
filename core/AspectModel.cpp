@@ -2,8 +2,8 @@
     File                 : AspectModel.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Private model data managed by AbstractAspect.
 
  ***************************************************************************/
@@ -35,22 +35,24 @@ AspectModel::AspectModel(const QString& name)
 	d_creation_time = QDateTime::currentDateTime();
 }
 
-void AspectModel::addChild(AbstractAspect *child)
+void AspectModel::addChild(shared_ptr<AbstractAspect> child)
 {
 	d_children << child;
 }
 
-void AspectModel::insertChild(int index, AbstractAspect *child)
+void AspectModel::insertChild(int index, shared_ptr<AbstractAspect> child)
 {
 	d_children.insert(index, child);
 }
 
 int AspectModel::indexOfChild(const AbstractAspect *child) const
 {
-	return d_children.indexOf(const_cast<AbstractAspect*>(child));
+	for(int i=0; i<d_children.size(); i++)
+		if(d_children.at(i).get() == child) return i;
+	return -1;
 }
 
-void AspectModel::removeChild(AbstractAspect *child)
+void AspectModel::removeChild(shared_ptr<AbstractAspect> child)
 {
 	d_children.removeAll(child);
 }
@@ -60,9 +62,10 @@ int AspectModel::childCount() const
 	return d_children.count();
 }
 
-AbstractAspect* AspectModel::child(int index)
+shared_ptr<AbstractAspect> AspectModel::child(int index)
 {
-	return d_children.value(index);
+	Q_ASSERT(index >= 0 && index <= childCount());
+	return d_children.at(index);
 }
 
 QString AspectModel::name() const

@@ -2,8 +2,8 @@
     File                 : ProjectWindow.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
 
  ***************************************************************************/
@@ -42,7 +42,7 @@
 #include <QUndoStack>
 #include <QUndoView>
 
-ProjectWindow::ProjectWindow(Project *project)
+ProjectWindow::ProjectWindow(shared_ptr<Project> project)
 	: d_project(project)
 {
 	setAttribute(Qt::WA_DeleteOnClose);
@@ -75,24 +75,28 @@ ProjectWindow::ProjectWindow(Project *project)
 
 	d_mdi->addSubWindow(new QUndoView(d_project->undoStack()))->setWindowTitle(tr("History"));
 
-	d_project->addAspectObserver(this);
-	aspectDescriptionChanged(d_project);
+	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
+	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectAdded(AbstractAspect *, int)), 
+		this, SLOT(aspectAdded(AbstractAspect *, int)));
+
+	aspectDescriptionChanged(d_project.get());
 }
 
 ProjectWindow::~ProjectWindow()
 {
-	d_project->removeAspectObserver(this);
+	disconnect(d_project->abstractAspectSignalEmitter(), 0, this, 0);
 }
 
 void ProjectWindow::aspectDescriptionChanged(AbstractAspect *aspect)
 {
-	if (aspect != d_project) return;
+	if (aspect != static_cast<AbstractAspect *>(d_project.get())) return;
 	setWindowTitle(d_project->caption() + " - SciDAVis");
 }
 
-void ProjectWindow::aspectAdded(AbstractAspect *aspect)
+void ProjectWindow::aspectAdded(AbstractAspect *parent, int index)
 {
-	if (!aspect->parentAspect()->inherits("Folder")) return;
+	shared_ptr<AbstractAspect> aspect = parent->child(index);
 	QWidget *view = aspect->view();
 	if (!view) return;
 	d_mdi->addSubWindow(new MdiSubWindow(aspect, view));
