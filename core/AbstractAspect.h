@@ -40,7 +40,7 @@ using boost::shared_ptr;
 #endif
 
 class AbstractAspect;
-class AspectModel;
+class AspectPrivate;
 class Project;
 class QUndoStack;
 class QString;
@@ -226,7 +226,7 @@ class AbstractAspect
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 
 	private:
-		shared_ptr<AspectModel> d_model;
+		AspectPrivate * d;
 		AbstractAspect * d_parent; // making this a shared_ptr would lead to circular references
 		AbstractAspectWrapper *d_wrapper;
 

@@ -10,7 +10,7 @@ HEADERS += \
 	AbstractAspect.h \
 	ProjectWindow.h \
 	aspectcommands.h \
-	AspectModel.h \
+	AspectPrivate.h \
 	AspectTreeModel.h \
 	Notes.h \
 	Project.h \
@@ -21,7 +21,7 @@ HEADERS += \
 SOURCES += \
 	AbstractAspect.cpp \
 	ProjectWindow.cpp \
-	AspectModel.cpp \
+	AspectPrivate.cpp \
 	AspectTreeModel.cpp \
 	main.cpp \
 	Notes.cpp \

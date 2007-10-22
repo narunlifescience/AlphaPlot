@@ -71,7 +71,6 @@ class ColumnTest : public CppUnit::TestFixture {
 		
 		void tearDown() 
 		{
-//			for(int i=0; i<=9; i++) delete column[i];
 		}
 
 	private:

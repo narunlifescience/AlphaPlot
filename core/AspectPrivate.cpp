@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectModel.cpp
+    File                 : AspectPrivate.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private model data managed by AbstractAspect.
+    Description          : Private data managed by AbstractAspect.
 
  ***************************************************************************/
 
@@ -26,79 +26,80 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "AspectModel.h"
+#include "AbstractAspect.h"
+#include "AspectPrivate.h"
 #include <QRegExp>
 
-AspectModel::AspectModel(const QString& name)
-	: d_name(name), d_caption_spec("%n%C{ - }%c")
+AspectPrivate::AspectPrivate(const QString& name, AbstractAspect * owner)
+	: d_name(name), d_caption_spec("%n%C{ - }%c"), d_owner(owner)
 {
 	d_creation_time = QDateTime::currentDateTime();
 }
 
-void AspectModel::addChild(shared_ptr<AbstractAspect> child)
+void AspectPrivate::addChild(shared_ptr<AbstractAspect> child)
 {
 	d_children << child;
 }
 
-void AspectModel::insertChild(int index, shared_ptr<AbstractAspect> child)
+void AspectPrivate::insertChild(int index, shared_ptr<AbstractAspect> child)
 {
 	d_children.insert(index, child);
 }
 
-int AspectModel::indexOfChild(const AbstractAspect *child) const
+int AspectPrivate::indexOfChild(const AbstractAspect *child) const
 {
 	for(int i=0; i<d_children.size(); i++)
 		if(d_children.at(i).get() == child) return i;
 	return -1;
 }
 
-void AspectModel::removeChild(shared_ptr<AbstractAspect> child)
+void AspectPrivate::removeChild(shared_ptr<AbstractAspect> child)
 {
 	d_children.removeAll(child);
 }
 
-int AspectModel::childCount() const
+int AspectPrivate::childCount() const
 {
 	return d_children.count();
 }
 
-shared_ptr<AbstractAspect> AspectModel::child(int index)
+shared_ptr<AbstractAspect> AspectPrivate::child(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
 	return d_children.at(index);
 }
 
-QString AspectModel::name() const
+QString AspectPrivate::name() const
 {
 	return d_name;
 }
 
-void AspectModel::setName(const QString &value)
+void AspectPrivate::setName(const QString &value)
 {
 	d_name = value;
 }
 
-QString AspectModel::comment() const
+QString AspectPrivate::comment() const
 {
 	return d_comment;
 }
 
-void AspectModel::setComment(const QString &value)
+void AspectPrivate::setComment(const QString &value)
 {
 	d_comment = value;
 }
 
-QString AspectModel::captionSpec() const
+QString AspectPrivate::captionSpec() const
 {
 	return d_caption_spec;
 }
 
-void AspectModel::setCaptionSpec(const QString &value)
+void AspectPrivate::setCaptionSpec(const QString &value)
 {
 	d_caption_spec = value;
 }
 
-int AspectModel::indexOfMatchingBrace(const QString &str, int start)
+int AspectPrivate::indexOfMatchingBrace(const QString &str, int start)
 {
 	int result = str.indexOf('}', start);
 	if (result < 0)
@@ -106,7 +107,7 @@ int AspectModel::indexOfMatchingBrace(const QString &str, int start)
 	return result;
 }
 
-QString AspectModel::caption() const
+QString AspectPrivate::caption() const
 {
 	QString result = d_caption_spec;
 	QRegExp magic("%(.)");
@@ -129,7 +130,7 @@ QString AspectModel::caption() const
 	return result;
 }
 
-QDateTime AspectModel::creationTime() const
+QDateTime AspectPrivate::creationTime() const
 {
 	return d_creation_time;
 }

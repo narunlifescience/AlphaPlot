@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectModel.h
+    File                 : AspectPrivate.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private model data managed by AbstractAspect.
+    Description          : Private data managed by AbstractAspect.
 
  ***************************************************************************/
 
@@ -43,11 +43,11 @@ using boost::shared_ptr;
 
 class AbstractAspect;
 
-//! Private model data managed by AbstractAspect.
-class AspectModel
+//! Private data managed by AbstractAspect.
+class AspectPrivate
 {
 	public:
-		AspectModel(const QString& name);
+		AspectPrivate(const QString& name, AbstractAspect * owner);
 
 		void addChild(shared_ptr<AbstractAspect> child);
 		void insertChild(int index, shared_ptr<AbstractAspect> child);
@@ -66,12 +66,14 @@ class AspectModel
 		QDateTime creationTime() const;
 
 		QString caption() const;
+		AbstractAspect * owner() { return d_owner; }
 	
 	private:
 		static int indexOfMatchingBrace(const QString &str, int start);
 		QList< shared_ptr<AbstractAspect> > d_children;
 		QString d_name, d_comment, d_caption_spec;
 		QDateTime d_creation_time;
+		AbstractAspect * d_owner;
 
 		// Undo commands need access to the signals
 		friend class AspectNameChangeCmd;

@@ -27,7 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 #include "AbstractAspect.h"
-#include "AspectModel.h"
+#include "AspectPrivate.h"
 #include "aspectcommands.h"
 
 #include <QIcon>
@@ -35,15 +35,16 @@
 #include <QtDebug>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_model(shared_ptr<AspectModel>(new AspectModel(name))), d_parent(0), d_wrapper(new AbstractAspectWrapper(this))
+	: d(new AspectPrivate(name, this)), d_parent(0), d_wrapper(new AbstractAspectWrapper(this))
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
 	for(int i=0; i<childCount(); i++)
-		d_model->child(i)->setParent(0);
+		d->child(i)->setParent(0);
 	delete d_wrapper;
+	delete d;
 }
 
 void AbstractAspect::setParent(AbstractAspect * new_parent)
@@ -72,35 +73,35 @@ void AbstractAspect::setParent(AbstractAspect * new_parent)
 
 void AbstractAspect::addChild(shared_ptr<AbstractAspect> child)
 {
-	exec(new AspectChildAddCmd(this, child, d_model->childCount()));
+	exec(new AspectChildAddCmd(d, child, d->childCount()));
 }
 
 void AbstractAspect::removeChild(shared_ptr<AbstractAspect> child)
 {
 	Q_ASSERT(indexOfChild(child) != -1);
-	exec(new AspectChildRemoveCmd(this, child));
+	exec(new AspectChildRemoveCmd(d, child));
 }
 
 void AbstractAspect::removeChild(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
-	exec(new AspectChildRemoveCmd(this, d_model->child(index)));
+	exec(new AspectChildRemoveCmd(d, d->child(index)));
 }
 
 shared_ptr<AbstractAspect> AbstractAspect::child(int index) const
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
-	return d_model->child(index);
+	return d->child(index);
 }
 
 int AbstractAspect::childCount() const
 {
-	return d_model->childCount();
+	return d->childCount();
 }
 
 int AbstractAspect::indexOfChild(const AbstractAspect *child) const
 {
-	return d_model->indexOfChild(child);
+	return d->indexOfChild(child);
 }
 
 void AbstractAspect::exec(QUndoCommand *cmd)
@@ -116,45 +117,45 @@ void AbstractAspect::exec(QUndoCommand *cmd)
 
 QString AbstractAspect::name() const
 {
-	return d_model->name();
+	return d->name();
 }
 
 void AbstractAspect::setName(const QString &value)
 {
-	if (value == d_model->name()) return;
-	exec(new AspectNameChangeCmd(this, value));
+	if (value == d->name()) return;
+	exec(new AspectNameChangeCmd(d, value));
 }
 
 QString AbstractAspect::comment() const
 {
-	return d_model->comment();
+	return d->comment();
 }
 
 void AbstractAspect::setComment(const QString &value)
 {
-	if (value == d_model->comment()) return;
-	exec(new AspectCommentChangeCmd(this, value));
+	if (value == d->comment()) return;
+	exec(new AspectCommentChangeCmd(d, value));
 }
 
 QString AbstractAspect::captionSpec() const
 {
-	return d_model->captionSpec();
+	return d->captionSpec();
 }
 
 void AbstractAspect::setCaptionSpec(const QString &value)
 {
-	if (value == d_model->captionSpec()) return;
-	exec(new AspectCaptionSpecChangeCmd(this, value));
+	if (value == d->captionSpec()) return;
+	exec(new AspectCaptionSpecChangeCmd(d, value));
 }
 
 QDateTime AbstractAspect::creationTime() const
 {
-	return d_model->creationTime();
+	return d->creationTime();
 }
 
 QString AbstractAspect::caption() const
 {
-	return d_model->caption();
+	return d->caption();
 }
 
 QIcon AbstractAspect::icon() const

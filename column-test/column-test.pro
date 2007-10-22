@@ -10,7 +10,7 @@ HEADERS += \
 			  globals.h \
 			  AbstractAspect.h \
 			  aspectcommands.h \
-			  AspectModel.h \
+			  AspectPrivate.h \
 			  Interval.h \
 			  AbstractColumn.h \
 			  Column.h \
@@ -36,7 +36,7 @@ HEADERS += \
 
 SOURCES += \
 			  AbstractAspect.cpp \
-			  AspectModel.cpp \
+			  AspectPrivate.cpp \
 			  globals.cpp \
 			  String2DateTimeFilter.cpp \
 			  AbstractFilter.cpp \
