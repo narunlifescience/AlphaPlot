@@ -63,149 +63,157 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 {
 	Q_OBJECT
 
-public:
-    //! Constructor
-    explicit TableModel( QObject * parent = 0 );
-    //! Destructor
-    ~TableModel();
+	public:
+		//! Constructor
+		explicit TableModel( QObject * parent = 0 );
+		//! Destructor
+		~TableModel();
 
-	 //! Custom data roles used in addition to Qt::ItemDataRole
-	 enum CustomDataRole {
-		 MaskingRole = Qt::UserRole, //!< bool determining whether the cell is masked
-	 };
+		//! Custom data roles used in addition to Qt::ItemDataRole
+		enum CustomDataRole {
+			MaskingRole = Qt::UserRole, //!< bool determining whether the cell is masked
+		};
 
-	//! \name Overloaded functions from QAbstractItemModel
-	//@{
-	Qt::ItemFlags flags( const QModelIndex & index ) const;
-	QVariant data(const QModelIndex &index, int role) const;
-	QVariant headerData(int section, 
-			Qt::Orientation orientation,int role) const;
-	int rowCount(const QModelIndex &parent) const;
-	int columnCount(const QModelIndex & parent) const;
-	bool setData(const QModelIndex & index, const QVariant & value, int role);
-	QModelIndex index(int row, int column, const QModelIndex &parent) const;
-	QModelIndex parent(const QModelIndex & child) const;
-	//@}
+		//! \name Overloaded functions from QAbstractItemModel
+		//@{
+		Qt::ItemFlags flags( const QModelIndex & index ) const;
+		QVariant data(const QModelIndex &index, int role) const;
+		QVariant headerData(int section, 
+				Qt::Orientation orientation,int role) const;
+		int rowCount(const QModelIndex &parent) const;
+		int columnCount(const QModelIndex & parent) const;
+		bool setData(const QModelIndex & index, const QVariant & value, int role);
+		QModelIndex index(int row, int column, const QModelIndex &parent) const;
+		QModelIndex parent(const QModelIndex & child) const;
+		//@}
 
-	//! \name Other functions
-	//@{
-	//! Overloaded from AbstractFilter
-	virtual int inputCount() const { return 0; }
-	//! Overloaded from AbstractFilter
-	virtual int outputCount() const { return d_column_count; }
-	//! Return a pointer to the column at index 'port'
-	/**
-	 * \return returns a pointer to the column or zero if 'port' is invalid
-	 */
-	virtual AbstractColumn *output(int port) const;
-	//! Replace columns completely
-	/**
-	 * TableModel takes over ownership of the new columns.
-	 * \param first the first column to be replaced
-	 * \param new_cols list of the columns that replace the old ones
-	 * This does not delete the replaced columns.
-	 */
-	void replaceColumns(int first, QList<Column *> new_cols);
-	//! Insert columns before column number 'before'
-	/**
-	 * If 'first' is higher than (current number of columns -1),
-	 * the columns will be appended.
-	 * TableModel takes over ownership of the columns. 
-	 * \param before index of the column to insert before
-	 * \param cols a list of column data objects
-	 * \param in_filter a list of the corresponding input filters
-	 * \param out_filter a list of the corresponding output filters
-	 */
-	void insertColumns(int before, QList<Column *> cols);
-	//! Remove Columns
-	 /**
-	  * This does not delete the removed columns because this
-	  * must be handled by the undo/redo system.
-	  * \param first index of the first column to be removed
-	  * \param count number of columns to remove
-	 */
-	void removeColumns(int first, int count);
-	//! Insert rows before row number 'first'
-	/**
-	 * If first is higher than (current number of rows -1),
-	 * the rows will be appended.
-	 * \param first index of the row to insert before
-	 * \param count number of rows to insert
-	 */
-	void insertRows(int first, int count);
-	//! Append rows to the table
-	void appendRows(int count);
-	//! Remove rows from the table
-	void removeRows(int first, int count);
-	//! Append columns to the table
-	/**
-	 * TableModel takes over ownership of the column.
-	 *
-	 * \sa insertColumns()
-	 */
-	void appendColumns(QList<Column *> cols);
-	//! Return the number of columns in the table
-	int columnCount() const { return d_column_count; }
-	//! Return the number of rows in the table
-	int rowCount() const { return d_row_count; }
-	//! Show or hide (if on = false) the column comments
-	void showComments(bool on = true);
-	//! Return whether comments are show currently
-	bool areCommentsShown();
-	//! Return the full column header string
-	QString columnHeader(int col);
-	//! Return the number of columns with a given plot designation
-	int numColsWithPD(SciDAVis::PlotDesignation pd);
-	//! This must be called whenever columns were changed directly
-	/**
-	 * \param top first modified row
-	 * \param left first modified column
-	 * \param bottom last modified row
-	 * \param right last modified column
-	 */
-	void emitDataChanged(int top, int left, int bottom, int right);
-	//@}
-	
-public slots:
-// FIXME:
-	//! Push a command on the undo stack to provide undo for user input in cells
-//	void handleUserInput(const QModelIndex& index);
+		//! \name Other functions
+		//@{
+		//! Overloaded from AbstractFilter
+		virtual int inputCount() const { return 0; }
+		//! Overloaded from AbstractFilter
+		virtual int outputCount() const { return d_column_count; }
+		//! Return a pointer to the column at index 'port'
+		/**
+		 * \return returns a pointer to the column or zero if 'port' is invalid
+		 */
+		virtual shared_ptr<AbstractColumn> output(int port) const;
+		//! Replace columns completely
+		/**
+		 * TableModel takes over ownership of the new columns.
+		 * \param first the first column to be replaced
+		 * \param new_cols list of the columns that replace the old ones
+		 * This does not delete the replaced columns.
+		 */
+		void replaceColumns(int first, QList< shared_ptr<Column> > new_cols);
+		//! Insert columns before column number 'before'
+		/**
+		 * If 'first' is higher than (current number of columns -1),
+		 * the columns will be appended.
+		 * TableModel takes over ownership of the columns. 
+		 * \param before index of the column to insert before
+		 * \param cols a list of column data objects
+		 * \param in_filter a list of the corresponding input filters
+		 * \param out_filter a list of the corresponding output filters
+		 */
+		void insertColumns(int before, QList< shared_ptr<Column> > cols);
+		//! Remove Columns
+		/**
+		 * This does not delete the removed columns because this
+		 * must be handled by the undo/redo system.
+		 * \param first index of the first column to be removed
+		 * \param count number of columns to remove
+		 */
+		void removeColumns(int first, int count);
+		//! Insert rows before row number 'first'
+		/**
+		 * If first is higher than (current number of rows -1),
+		 * the rows will be appended.
+		 * \param first index of the row to insert before
+		 * \param count number of rows to insert
+		 */
+		void insertRows(int first, int count);
+		//! Append rows to the table
+		void appendRows(int count);
+		//! Remove rows from the table
+		void removeRows(int first, int count);
+		//! Append columns to the table
+		/**
+		 * TableModel takes over ownership of the column.
+		 *
+		 * \sa insertColumns()
+		 */
+		void appendColumns(QList< shared_ptr<Column> > cols);
+		//! Return the number of columns in the table
+		int columnCount() const { return d_column_count; }
+		//! Return the number of rows in the table
+		int rowCount() const { return d_row_count; }
+		//! Show or hide (if on = false) the column comments
+		void showComments(bool on = true);
+		//! Return whether comments are show currently
+		bool areCommentsShown();
+		//! Return the full column header string
+		QString columnHeader(int col);
+		//! Return the number of columns with a given plot designation
+		int numColsWithPD(SciDAVis::PlotDesignation pd);
+		//! This must be called whenever columns were changed directly
+		/**
+		 * \param top first modified row
+		 * \param left first modified column
+		 * \param bottom last modified row
+		 * \param right last modified column
+		 */
+		void emitDataChanged(int top, int left, int bottom, int right);
+		//@}
 
-private:
-	//! The number of columns
-	int d_column_count;
-	//! The maximum number of rows of all columns
-	int d_row_count;
-	//! Vertical header data
-	QStringList d_vertical_header_data;
-	//! Horizontal header data
-	QStringList d_horizontal_header_data;
-	//! List of pointers to the column data vectors
-	QList<Column *> d_columns;	
-	//! Flag: show/high column comments
-	bool d_show_comments;
-	
-	//! Update the vertical header labels
-	/**
-	 * This must be called whenever rows are added
-	 * or removed.
-	 * \param start_row first row that needs to be updated
-	 */
-	void updateVerticalHeader(int start_row);
-	//! Update the horizontal header labels
-	/**
-	 * This must be called whenever columns are added or
-	 * removed and when comments, labels, and column types
-	 * change.
-	 * \param start_col first column that needs to be updated
-	 * \param end_col last column that needs to be updated
-	 */
-	void updateHorizontalHeader(int start_col, int end_col);
-	//! Internal function to put together the column header
-	/**
-	 * Don't use this outside updateHorizontalHeader()
-	 */
-	void composeColumnHeader(int col, const QString& label);
+	signals:
+		void columnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
+		void columnsInserted(int first, int count);
+		void columnsAboutToBeReplaced(int first, int count);
+		void columnsReplaced(int first, int count);
+		void columnsAboutToBeRemoved(int first, int count);
+		void columnsRemoved(int first, int count);
+
+	public slots:
+			// FIXME:
+			//! Push a command on the undo stack to provide undo for user input in cells
+			//	void handleUserInput(const QModelIndex& index);
+
+	private:
+			//! The number of columns
+			int d_column_count;
+			//! The maximum number of rows of all columns
+			int d_row_count;
+			//! Vertical header data
+			QStringList d_vertical_header_data;
+			//! Horizontal header data
+			QStringList d_horizontal_header_data;
+			//! List of pointers to the column data vectors
+			QList< shared_ptr<Column> > d_columns;	
+			//! Flag: show/high column comments
+			bool d_show_comments;
+
+			//! Update the vertical header labels
+			/**
+			 * This must be called whenever rows are added
+			 * or removed.
+			 * \param start_row first row that needs to be updated
+			 */
+			void updateVerticalHeader(int start_row);
+			//! Update the horizontal header labels
+			/**
+			 * This must be called whenever columns are added or
+			 * removed and when comments, labels, and column types
+			 * change.
+			 * \param start_col first column that needs to be updated
+			 * \param end_col last column that needs to be updated
+			 */
+			void updateHorizontalHeader(int start_col, int end_col);
+			//! Internal function to put together the column header
+			/**
+			 * Don't use this outside updateHorizontalHeader()
+			 */
+			void composeColumnHeader(int col, const QString& label);
 }; 
 
 #endif

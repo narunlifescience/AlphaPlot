@@ -1,15 +1,15 @@
 TEMPLATE = app
 TARGET = table-test
 CONFIG += debug
-DEPENDPATH += . .. ../lib ../core ../core/datatypes ../core/column ../table
-INCLUDEPATH += . .. ../lib ../core ../core/datatypes ../core/column ../table
+DEPENDPATH += . .. ../lib ../core ../core/datatypes ../core/column ../table  ../tests
+INCLUDEPATH += . .. ../lib ../core ../core/datatypes ../core/column ../table ../tests
 unix:LIBS += -lcppunit
 
 HEADERS += \
 			  globals.h \
 			  AbstractAspect.h \
 			  aspectcommands.h \
-			  AspectModel.h \
+			  AspectPrivate.h \
 			  Interval.h \
 			  AbstractColumn.h \
 			  Column.h \
@@ -32,11 +32,13 @@ HEADERS += \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
 			  TableModel.h \
+			  assertion_traits.h
+
 
 
 SOURCES += \
 			  AbstractAspect.cpp \
-			  AspectModel.cpp \
+			  AspectPrivate.cpp \
 			  globals.cpp \
 			  String2DateTimeFilter.cpp \
 			  AbstractFilter.cpp \

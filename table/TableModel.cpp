@@ -48,9 +48,6 @@ TableModel::TableModel( QObject * parent )
 
 TableModel::~TableModel()
 {
-	// delete the columns
-	foreach(Column *col, d_columns)
-		if(col) delete col;
 }
 
 Qt::ItemFlags TableModel::flags(const QModelIndex & index ) const
@@ -69,7 +66,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 	
 	int row = index.row();
 	int column = index.column();
-	Column * col_ptr = d_columns.value(column);
+	shared_ptr<Column> col_ptr = d_columns.value(column);
 	if(!col_ptr)
 		return QVariant();
 
@@ -89,7 +86,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid","string for invalid rows"));
 				
-				AbstractSimpleFilter * out_fltr = col_ptr->outputFilter();
+				shared_ptr<AbstractSimpleFilter> out_fltr = col_ptr->outputFilter();
 				out_fltr->input(0, col_ptr);
 				return QVariant(out_fltr->textAt(row) + postfix);
 			}
@@ -143,11 +140,11 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 	
 	if(role == Qt::EditRole)
 	{  
-			Column * col_ptr = d_columns.at(index.column());
-			AbstractSimpleFilter * in_fltr = d_columns.at(index.column())->inputFilter();
-			Column sd("temp", SciDAVis::Text);
-			sd.setTextAt(0, value.toString());
-			in_fltr->input(0, &sd);
+			shared_ptr<Column> col_ptr = d_columns.at(index.column());
+			shared_ptr<AbstractSimpleFilter> in_fltr = d_columns.at(index.column())->inputFilter();
+			shared_ptr<Column> sd(new Column("temp", SciDAVis::Text));
+			sd->setTextAt(0, value.toString());
+			in_fltr->input(0, sd);
 			// remark: the validity of the cell is determined by the input filter
 			col_ptr->copy(in_fltr->output(0), 0, row, 1);  
 			emit dataChanged(index, index);
@@ -170,20 +167,21 @@ QModelIndex TableModel::parent(const QModelIndex & child) const
 }
 
 
-AbstractColumn *TableModel::output(int port) const
+shared_ptr<AbstractColumn> TableModel::output(int port) const
 {
 	if( (port < 0) || (port >= d_column_count) || !d_columns.value(port))
-		return 0;
+		return shared_ptr<AbstractColumn>();
 	
 	return d_columns.at(port);
 }
 
-void TableModel::replaceColumns(int first, QList<Column *> new_cols)
+void TableModel::replaceColumns(int first, QList< shared_ptr<Column> > new_cols)
 {
 	if( (first < 0) || (first + new_cols.size() > d_column_count) )
 		return;
 
 	int count = new_cols.size();
+	emit columnsAboutToBeReplaced(first, new_cols.count());
 	for(int i=0; i<count; i++)
 	{
 		int rows = new_cols.at(i)->rowCount();
@@ -196,6 +194,7 @@ void TableModel::replaceColumns(int first, QList<Column *> new_cols)
 		d_columns[first+i] = new_cols.at(i);
 	}
 	updateHorizontalHeader(first, first+count-1);
+	emit columnsReplaced(first, new_cols.count());
 	emit dataChanged(index(0, first, QModelIndex()), index(d_row_count-1, first+count-1, QModelIndex()));
 }
 
@@ -204,7 +203,7 @@ void TableModel::emitDataChanged(int top, int left, int bottom, int right)
 	emit dataChanged(index(top, left, QModelIndex()), index(bottom, right, QModelIndex()));
 }
 
-void TableModel::insertColumns(int before, QList<Column *> cols)
+void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 {
 	int count = cols.count();
 
@@ -225,10 +224,12 @@ void TableModel::insertColumns(int before, QList<Column *> cols)
 	}
 
 	beginInsertColumns(QModelIndex(), before, before+count-1);
+	emit columnsAboutToBeInserted(before, cols);
 	for(int i=count-1; i>=0; i--)
 		d_columns.insert(before, cols.at(i));
 	d_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
+	columnsInserted(before, cols.count());
 	endInsertColumns();	
 }
 
@@ -245,14 +246,16 @@ void TableModel::removeColumns(int first, int count)
 		count = d_column_count - first;
 
 	beginRemoveColumns(QModelIndex(), first, first+count-1);
+	emit columnsAboutToBeRemoved(first, count);
 	for(int i=count-1; i>=0; i--)
 		d_columns.removeAt(first);
 	d_column_count -= count;
 	updateHorizontalHeader(first, d_column_count);
+	emit columnsRemoved(first, count);
 	endRemoveColumns();	
 }
 
-void TableModel::appendColumns(QList<Column *> cols)
+void TableModel::appendColumns(QList< shared_ptr<Column>  > cols)
 {
 	insertColumns(d_column_count, cols);
 }

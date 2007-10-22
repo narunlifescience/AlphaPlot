@@ -1,8 +1,8 @@
 TEMPLATE = app
 TARGET = column-test
 CONFIG += debug
-DEPENDPATH += . .. ../lib ../core ../core/datatypes ../core/column
-INCLUDEPATH += . .. ../lib ../core ../core/datatypes ../core/column
+DEPENDPATH += . .. ../lib ../core ../core/datatypes ../core/column ../tests
+INCLUDEPATH += . .. ../lib ../core ../core/datatypes ../core/column ../tests
 unix:LIBS += -lcppunit
 
 # units used
