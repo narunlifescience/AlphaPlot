@@ -76,6 +76,20 @@ class AbstractColumnSignalEmitter : public QObject
 	friend class AbstractSimpleFilter;
 
 	signals: 
+		//! Column description (name/comment) will be changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void descriptionAboutToChange(AbstractColumn * source); 
+		//! Column description (name/comment) changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void descriptionChanged(AbstractColumn * source); 
 		//! Column plot designation will be changed
 		/**
 		 * 'source' is always the this pointer of the column that
@@ -165,13 +179,12 @@ class AbstractColumnSignalEmitter : public QObject
 		void maskingAboutToChange(AbstractColumn * source); 
 		//! IntervalAttribute related signal
 		void maskingChanged(AbstractColumn * source); 
+		// TODO: Check whether aboutToBeDestroyed is needed 
 		//! Emitted shortly before this data source is deleted.
 		/**
 		 * \param source the object emitting this signal
 		 *
-		 * This is needed by AbstractFilter. QObject::destroyed() does not work there because its argument
-		 * can't be cast to AbstractColumn properly (qobject_cast and lookup of the pointer in
-		 * AbstractFilter::d_inputs fail).
+		 * This is needed by AbstractFilter. 
 		 */
 		void aboutToBeDestroyed(AbstractColumn * source);
 
@@ -184,7 +197,7 @@ class AbstractColumnSignalEmitter : public QObject
   It only defines the interface but has no data members itself. 
 
   Classes derived from this are typically table columns or filters
-  that can be chained between table columns and plots. From the
+  which can be chained between table columns and plots. From the
   point of view of the plot functions there will be no difference 
   between a table column and a filter since both use this interface.
 
@@ -200,7 +213,7 @@ class AbstractColumnSignalEmitter : public QObject
 
   This class also defines all signals which indicate a data change. The signals
   are defined in AbstractColumnSignalEmitter to avoid having to inherit from
-  QObject. Use "connect(column->signalEmitter(), ...)" to connect the signals.
+  QObject. Use "connect(column->abstractColumnSignalEmitter(), ...)" to connect the signals.
   Any class whose output values are subject to change over time must emit
   the according signals. These signals notify any object working with the
   column before and after a change of the column.
@@ -423,7 +436,7 @@ class AbstractColumn
 
 		AbstractColumnSignalEmitter *  abstractColumnSignalEmitter() { return d_sender; }
 		
-	protected:
+	private:
 		AbstractColumnSignalEmitter * d_sender;
 };
 

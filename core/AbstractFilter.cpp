@@ -96,7 +96,7 @@ void AbstractFilterWrapper::inputAboutToBeDestroyed(AbstractColumn *source)
 bool AbstractFilter::input(int port, shared_ptr<AbstractColumn> source)
 {
 	if (port<0 || (inputCount()>=0 && port>=inputCount())) return false;
-	if (source && !inputAcceptable(port, source)) return false;
+	if (source && !inputAcceptable(port, source.get())) return false;
 	if (d_inputs.size() <= port) d_inputs.resize(port+1);
 	shared_ptr<AbstractColumn> old_input = d_inputs.value(port);
 	if (old_input)  // disconnect the old input's signals
@@ -113,10 +113,10 @@ bool AbstractFilter::input(int port, shared_ptr<AbstractColumn> source)
 		inputPlotDesignationChanged(source.get());
 		inputDataChanged(source.get());
 		// connect the source's signals
-		/*QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(descriptionAboutToChange(AbstractColumn *)),
+		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(descriptionAboutToChange(AbstractColumn *)),
 				d_wrapper, SLOT(inputDescriptionAboutToChange(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(descriptionChanged(AbstractColumn *)),
-				d_wrapper, SLOT(inputDescriptionChanged(AbstractColumn *)));*/
+				d_wrapper, SLOT(inputDescriptionChanged(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(plotDesignationAboutToChange(AbstractColumn *)),
 				d_wrapper, SLOT(inputPlotDesignationAboutToChange(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(plotDesignationChanged(AbstractColumn *)),

@@ -53,8 +53,15 @@ using boost::enable_shared_from_this;
   This class represents a column in a table. It has a public reading and
   (undo aware) writing interface defined in AbstractColumn and a private
   interface (which is only to be used by commands) defined
-  by ColumnPrivate and accessed by the d pointer. All private data and
-  functions members except utility functions are defined in ColumnPrivate.
+  by ColumnPrivate and accessed via the d pointer. All private data and
+  function members are defined in ColumnPrivate.
+
+  Instances of Column are intended to be managed by shared_ptr.
+
+  Column inherits from AbstractAspect and is intended to be a child
+  of the corresponding table in the aspect hierarchy. Column label and
+  comment are identical to the aspect name and comment. Columns don't 
+  have a view as they are intended to be displayed inside a table.
  */
 class Column : public QObject, public AbstractAspect, public AbstractColumn, public enable_shared_from_this<Column>
 {
@@ -128,8 +135,15 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * Use a filter to convert a column to another type.
 		 */
 		bool copy(const AbstractColumn * other);
+		//! Copy another column of the same type
+		/**
+		 * This function will return false if the data type
+		 * of 'other' is not the same as the type of 'this'.
+		 * The validity information for the rows is also copied.
+		 * Use a filter to convert a column to another type.
+		 */
 		bool copy(shared_ptr<Column> col) { return copy(col.get()); }
-		//! Copies part of another column of the same type
+		//! Copies a part of another column of the same type
 		/**
 		 * This function will return false if the data type
 		 * of 'other' is not the same as the type of 'this'.
@@ -140,6 +154,16 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * \param num_rows the number of rows to copy
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
+		//! Copies a part of another column of the same type
+		/**
+		 * This function will return false if the data type
+		 * of 'other' is not the same as the type of 'this'.
+		 * The validity information for the rows is also copied.
+		 * \param other pointer to the column to copy
+		 * \param src_start first row to copy in the column to copy
+		 * \param dest_start first row to copy in
+		 * \param num_rows the number of rows to copy
+		 */ 
 		bool copy(shared_ptr<Column> source, int source_start, int dest_start, int num_rows) 
 		{ 
 			return copy(source.get(), source_start, dest_start, num_rows); 

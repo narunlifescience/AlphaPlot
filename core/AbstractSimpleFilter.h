@@ -49,14 +49,12 @@ using boost::static_pointer_cast;
 using boost::dynamic_pointer_cast;
 #endif
 
-
-// TODO: revise description
 /**
  * \brief Simplified filter interface for filters with only one output port.
  *
  * This class is only meant to simplify implementation of a restricted subtype of filter.
- * It should not be used as type for variables, which should always use either
- * AbstractFilter or (if necessary) an actual (non-abstract) implementation.
+ * It should not be instantiated directly. You should always use either inherit
+ * AbstractFilter or (if necessary) provide an actual (non-abstract) implementation.
  *
  * The trick here is that, in a sense, the filter is its own output port. This means you
  * can implement a complete filter in only one class and don't have to coordinate data
@@ -64,45 +62,50 @@ using boost::dynamic_pointer_cast;
  * Additionaly, AbstractSimpleFilter offers some useful convenience methods which make writing
  * filters as painless as possible.
  *
- * For the template argument T (the data type of the output port), only double, QString and
- * QDateTime are supported.
+ * For the data type of the output, all types supported by AbstractColumn (currently double, QString and
+ * QDateTime) are supported.
+ *
+ * AbstractSimpleFilter also implements AbstractAspect to allow including the filters in the
+ * aspect hierarchy.
  *
  * \section tutorial1 Tutorial, Step 1
  * The simplest filter you can write assumes there's also only one input port and rows on the
  * input correspond 1:1 to rows in the output. All you need to specify is what data type you
- * want to have on the input port and how to compute the output values:
+ * want to have (in this example double) on the input port and how to compute the output values:
  *
  * \code
  * 01 #include "AbstractSimpleFilter.h"
- * 02 class TutorialFilter1 : public AbstractSimpleFilter<double>
+ * 02 class TutorialFilter1 : public AbstractSimpleFilter
  * 03 {
  * 04	protected:
  * 05		virtual bool inputAcceptable(int, AbstractColumn *source) {
- * 06			return source->inherits("AbstractDoubleDataSource");
+ * 06			return (source->dataType() == SciDAVis::TypeDouble);
  * 07		}
  * 08	public:
- * 09		virtual double valueAt(int row) const {
- * 10			if (!doubleInput()) return 0;
- * 11			double input_value = doubleInput()->valueAt(row);
- * 12			return input_value * input_value;
- * 13		}
- * 14 };
+ * 09		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
+ * 10
+ * 11		virtual double valueAt(int row) const {
+ * 12			if (!d_inputs.value(0)) return 0.0;
+ * 13			double input_value = d_inputs.value(0)->valueAt(row);
+ * 14			return input_value * input_value;
+ * 15		}
+ * 16 };
  * \endcode
  *
- * This filter reads an input value (line 11) and returns its square (line 12).
- * Before you call doubleInput(), don't forget to make sure that the data source really is of type
- * double (lines 5 to 7). Before you actually use doubleInput(), make sure that the input port has
- * been connected to a data source (line 10).
- * Otherwise line 11 would result in a crash. That's it, we've already written a
+ * This filter reads an input value (line 13) and returns its square (line 14).
+ * Reimplementing inputAcceptable() makes sure that the data source really is of type
+ * double (lines 5 to 7). Otherwise, the source will be rejected by AbstractFilter::input().
+ * The output type is repoted by reimplementing dataType() (line 09).
+ * Before you actually use d_inputs.value(0), make sure that the input port has
+ * been connected to a data source (line 12).
+ * Otherwise line 13 would result in a crash. That's it, we've already written a
  * fully-functional filter!
  *
  * Equivalently, you can write 1:1-filters for QString or QDateTime inputs by checking for
- * "AbstractStringDataSource" or "AbstractDateTimeDataSource" in line 6. You would then use
- * stringInput()->textAt(row) or dateTimeInput()->dateTimeAt(row) to access the input data.
- * In order to provide QString output, substitute "QString" for "double" in line 2 and
- * implement QString textAt(int row) const instead of valueAt() in line 9.
- * For QDateTime output, you have to implement three methods (in addition to changing
- * line 2 accordingly):
+ * SciDAVis::TypeQString or SciDAVis::TypeQDateTime in line 6. You would then use
+ * AbstractColumn::textAt(row) or AbstractColumn::dateTimeAt(row) in line 13 to access the input data.
+ * For QString output, you need to implement AbstractColumn::textAt(row). 
+ * For QDateTime output, you have to implement three methods:
  * \code
  * virtual QDateTime dateTimeAt(int row) const;
  * virtual QDate dateAt(int row) const;
@@ -116,24 +119,25 @@ using boost::dynamic_pointer_cast;
  * We'll use double-typed input and output again:
  * \code
  * 01 #include "AbstractSimpleFilter.h"
- * 02 class TutorialFilter2 : public AbstractSimpleFilter<double>
+ * 02 class TutorialFilter2 : public AbstractSimpleFilter
  * 03 {
  * 04	protected:
  * 05		virtual bool inputAcceptable(int, AbstractColumn *source) {
- * 06			return source->inherits("AbstractDoubleDataSource");
+ * 06			return (source->dataType() == SciDAVis::TypeDouble);
  * 07		}
+ * 08	public:
+ * 09		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeDouble; }
  * \endcode
  * Even rows (including row 0) get dropped, odd rows are renumbered:
  * \code
- * 08	public:
- * 09 	virtual double valueAt(int row) const {
- * 10 		if (!doubleInput()) return 0;
- * 11 		return doubleInput()->valueAt(2*row + 1);
- * 12 	}
+ * 10	public:
+ * 11 	virtual double valueAt(int row) const {
+ * 12		if (!d_inputs.value(0)) return 0.0;
+ * 13 		return d_inputs.value(0)->valueAt(2*row + 1);
+ * 14 	}
  * \endcode
  */
 class AbstractSimpleFilter : public QObject, public AbstractAspect, public AbstractFilter, public AbstractColumn, public enable_shared_from_this<AbstractSimpleFilter>
-
 {
 	Q_OBJECT
 
@@ -160,7 +164,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 				d_inputs.at(0)->plotDesignation() :
 				SciDAVis::noDesignation;
 		}
-		//! Return the data type of the column
+		//! Return the data type of the input
 		virtual SciDAVis::ColumnDataType dataType() const
 		{
 			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
@@ -228,28 +232,15 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
 			return d_inputs.at(0)->valueAt(row);
 		}
-		// TODO: Implement these functions in a decent way when integrating it into the aspect framework
 		//! \name aspect related functions
 		//@{
-		//! Return my parent Aspect or 0 if I currently don't have one.
-		virtual AbstractAspect *parentAspect() const { return 0; }
-		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
-		virtual Project *project() const { return 0; }
-		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
-		virtual QString path() const { return QString(); }
 		//! Construct a standard view on me.
 		/**
-		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
-		 * ownership. If no parent is given, the caller receives ownership of the view.
-		 * 
-		 * This method may be called multiple times during the life time of an Aspect, or it might not get
-		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 * This returns 0 if not overloaded.
+		 * \sa AbstractAspect::view()
 		 */
 		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
 		//! Remove me from my parent's list of children.
-		virtual void remove() {}
-		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
-		virtual QUndoStack *undoStack() const { return 0; }
 		//@}
 
 		//!\name assuming a 1:1 correspondence between input and output rows
@@ -272,9 +263,9 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		//! Clear all masking information
 		virtual void clearMasks()
 		{
-			emit d_sender->maskingAboutToChange(this);	
+			emit abstractColumnSignalEmitter()->maskingAboutToChange(this);	
 			d_masking.clear();
-			emit d_sender->maskingChanged(this);	
+			emit abstractColumnSignalEmitter()->maskingChanged(this);	
 		}
 		//! Set an interval masked
 		/**
@@ -283,17 +274,16 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */ 
 		virtual void setMasked(Interval<int> i, bool mask = true)
 		{
-			emit d_sender->maskingAboutToChange(this);	
+			emit abstractColumnSignalEmitter()->maskingAboutToChange(this);	
 			d_masking.setValue(i, mask);
-			emit d_sender->maskingChanged(this);	
+			emit abstractColumnSignalEmitter()->maskingChanged(this);	
 		}
 		//! Overloaded function for convenience
 		virtual void setMasked(int row, bool mask = true) { setMasked(Interval<int>(row,row), mask); }
 		//@}
 
-		// TODO: Implement this in the derived classes
 		//! See QMetaObject::className().
-		virtual const char* className() const { return "AbstractSimpleFilter"; }
+		virtual const char* className() const { return metaObject()->className(); }
 		//! See QObject::inherits().
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
@@ -302,29 +292,47 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 
 		//!\name signal handlers
 		//@{
-		// TODO: determine how to handle description changes
-		virtual void inputDescriptionAboutToChange(AbstractColumn*) { /*emit descriptionAboutToChange(this);*/ }
-		virtual void inputDescriptionChanged(AbstractColumn*) { /*emit descriptionChanged(this);*/ }
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn*) { emit d_sender->plotDesignationAboutToChange(this); }
-		virtual void inputPlotDesignationChanged(AbstractColumn*) { emit d_sender->plotDesignationChanged(this); }
-		virtual void inputDataAboutToChange(AbstractColumn*) { emit d_sender->dataAboutToChange(this); }
-		virtual void inputDataChanged(AbstractColumn*) { emit d_sender->dataChanged(this); }
+		virtual void inputDescriptionAboutToChange(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->descriptionAboutToChange(this); 
+		}
+		virtual void inputDescriptionChanged(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->descriptionChanged(this); 
+			emit abstractAspectSignalEmitter()->aspectDescriptionChanged(this);
+		}
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->plotDesignationAboutToChange(this); 
+		}
+		virtual void inputPlotDesignationChanged(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->plotDesignationChanged(this); 
+		}
+		virtual void inputDataAboutToChange(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->dataAboutToChange(this); 
+		}
+		virtual void inputDataChanged(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->dataChanged(this); 
+		}
 
 		virtual void inputRowsAboutToBeInserted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit d_sender->rowsAboutToBeInserted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsAboutToBeInserted(this, output_range.start(), output_range.size());
 		}
 		virtual void inputRowsInserted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit d_sender->rowsInserted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsInserted(this, output_range.start(), output_range.size());
 		}
 		virtual void inputRowsAboutToBeDeleted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit d_sender->rowsAboutToBeDeleted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsAboutToBeDeleted(this, output_range.start(), output_range.size());
 		}
 		virtual void inputRowsDeleted(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit d_sender->rowsDeleted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsDeleted(this, output_range.start(), output_range.size());
 		}
 		//@}
 	

@@ -69,7 +69,6 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		virtual QDateTime dateTimeAt(int row) const
 		{
 			if (!d_inputs.value(0)) return QDateTime();
-
 			return d_inputs.value(0)->dateTimeAt(row);
 		}
 
@@ -92,5 +91,5 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		}
 };
 
-#endif // ifndef COPY_THROUGH_FILTER_H
+#endif // ifndef SIMPLE_COPY_THROUGH_FILTER_H
 

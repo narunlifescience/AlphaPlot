@@ -50,9 +50,7 @@ class AbstractFilter;
  *
  * This class makes it possible for AbstractFilter to receive signals without being a QObject.
  * This way, it can provide standard reactions to changes in input data and still allow filter
- * classes to inherit from QObjects. See TruncatedDoubleDataSource for a typical example that
- * would get considerably more complicated if it couldn't inherit from both AbstractFilter
- * and AbstractDoubleDataSource.
+ * classes to inherit from QObjects. 
  */
 class AbstractFilterWrapper : public QObject {
 	Q_OBJECT
@@ -110,9 +108,7 @@ class AbstractFilterWrapper : public QObject {
  * To this end, a little additional complexity has been accepted in the form of
  * AbstractFilterWrapper, which on the other hand greatly simplifies filters with only one
  * output port (see AbstractSimpleFilter). Filters with more than one output port have to subclass
- * AbstractFilter directly, which is slightly more involved, because at least one additional
- * class (subclassing AbstractDoubleDataSource, AbstractStringDataSource or
- * AbstractDateTimeDataSource) has to be written in order to supply the output ports and in
+ * AbstractFilter directly, which is slightly more involved, because in
  * addition to data transfer between these classes the signals defined by AbstractColumn
  * have to be handled on both inputs and outputs. Signals from data sources connected to the input
  * ports are automatically connected to a matching set of virtual methods, which can be
@@ -183,6 +179,8 @@ class AbstractFilter
 		virtual shared_ptr<AbstractColumn> output(int port=0) const = 0;
 		// virtual void saveTo(QXmlStreamWriter *) = 0;
 		// virtual void loadFrom(QXmlStreamReader *) = 0;
+		
+		AbstractFilterWrapper *abstractFilterSignalReceiver() { return d_wrapper; }
 
 	protected:
 		/**
@@ -190,7 +188,7 @@ class AbstractFilter
 		 *
 		 * If not reimplemented, all connections to ports within [0, inputCount()-1] will be accepted.
 		 */
-		virtual bool inputAcceptable(int port, shared_ptr<AbstractColumn> source) {
+		virtual bool inputAcceptable(int port, AbstractColumn *source) {
 			Q_UNUSED(port); Q_UNUSED(source); return true;
 		}
 		/**

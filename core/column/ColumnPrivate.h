@@ -40,7 +40,7 @@ class QString;
 //! Private interface and members for class Column
 /**
  This class contains all private members of class Column. The interface
- defined here is only to be used by commands and Column contructors.
+ defined here is only to be used by column commands and Column contructors.
 */
 class ColumnPrivate : public QObject, public AbstractColumn
 {
@@ -83,7 +83,7 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		 * Use a filter to convert a column to another type.
 		 */
 		bool copy(const AbstractColumn * other);
-		//! Copies part of another column of the same type
+		//! Copies a part of another column of the same type
 		/**
 		 * This function will return false if the data type
 		 * of 'other' is not the same as the type of 'this'.

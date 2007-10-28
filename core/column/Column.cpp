@@ -104,7 +104,7 @@ void Column::clear()
 
 void Column::notifyReplacement(shared_ptr<AbstractColumn> replacement)
 {
-	emit d_sender->aboutToBeReplaced(this, replacement); 
+	emit abstractColumnSignalEmitter()->aboutToBeReplaced(this, replacement); 
 }
 
 void Column::clearValidity()

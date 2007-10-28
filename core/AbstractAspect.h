@@ -88,6 +88,7 @@ class AbstractAspectWrapper : public QObject
 	private:
 		AbstractAspect * d_aspect;
 		
+		friend class AbstractSimpleFilter;
 		// Undo commands need access to the signals
 		friend class AspectNameChangeCmd;
 		friend class AspectCommentChangeCmd;
@@ -117,6 +118,20 @@ class AbstractAspectWrapper : public QObject
  * This allows views to automatically create views on new childs of their Aspect. Optionally,
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
+ *
+ * AbstractAspect also defines signals and slots in a wrapper class AbstractAspectWrapper. This
+ * can be queried by abstractAspectSignalEmitter() and abstractAspectSignalReceiver() which
+ * both return the same pointer but should be used depending on the situation to make
+ * the purpose of the returned pointer very clear. The reason why AbstractAspect does not 
+ * inherit from QObject is to avoid multiple inheritance from QObject in classes derived
+ * from AbstractAspect. The functions inherits() and className() are provided nonetheless.
+ *
+ * The private data of AbstractAspect is contained in a separate class AbstractAspectPrivate. 
+ * The write access to AbstractAspectPrivate should always be done using aspect commands
+ * to allow undo/redo.
+ *
+ * The children of an aspect are addressed by smart pointers (shared_ptr) which take
+ * care of deleting the children when necessary. 
  */
 class AbstractAspect 
 {
@@ -196,7 +211,7 @@ class AbstractAspect
 		 * thus avoids multiple inheritance problems with classes derived from
 		 * AbstractAspect
 		 */
-		AbstractAspectWrapper *abstractApectSignalReceiver() const { return d_wrapper; }
+		AbstractAspectWrapper *abstractAspectSignalReceiver() const { return d_wrapper; }
 
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
