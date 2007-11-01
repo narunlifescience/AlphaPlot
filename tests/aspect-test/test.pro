@@ -1,10 +1,10 @@
 TEMPLATE = app
 CONFIG += debug
 TARGET = 
-DEPENDPATH += . ../core
-INCLUDEPATH += . ../core
+DEPENDPATH += . ../../core
+INCLUDEPATH += . ../../core
 
-RESOURCES += ../icons.qrc
+RESOURCES += ../../icons.qrc
 
 HEADERS += \
 	AbstractAspect.h \

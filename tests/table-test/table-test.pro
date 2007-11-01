@@ -1,11 +1,10 @@
 TEMPLATE = app
-TARGET = column-test
+TARGET = table-test
 CONFIG += debug
-DEPENDPATH += . .. ../lib ../core ../core/datatypes ../core/column ../tests
-INCLUDEPATH += . .. ../lib ../core ../core/datatypes ../core/column ../tests
+DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table  ..
+INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table ..
 unix:LIBS += -lcppunit
 
-# units used
 HEADERS += \
 			  globals.h \
 			  AbstractAspect.h \
@@ -32,6 +31,10 @@ HEADERS += \
 			  String2DayOfWeekFilter.h \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
+			  TableModel.h \
+			  assertion_traits.h\
+			  test_wrappers.h
+
 
 
 SOURCES += \
@@ -43,14 +46,11 @@ SOURCES += \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \
+			  TableModel.cpp
 
-
-# test cases
-HEADERS += \
-	assertion_traits.h \
 
 SOURCES += main.cpp \
-	ColumnTest.cpp \
+	TableTest.cpp \
 	
 
 
