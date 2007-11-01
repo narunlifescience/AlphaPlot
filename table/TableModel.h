@@ -129,10 +129,10 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		/**
 		 * If first is higher than (current number of rows -1),
 		 * the rows will be appended.
-		 * \param first index of the row to insert before
+		 * \param before index of the row to insert before
 		 * \param count number of rows to insert
 		 */
-		void insertRows(int first, int count);
+		void insertRows(int before, int count);
 		//! Append rows to the table
 		void appendRows(int count);
 		//! Remove rows from the table
@@ -164,7 +164,24 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * \param right last modified column
 		 */
 		void emitDataChanged(int top, int left, int bottom, int right);
+		shared_ptr<Column> column(int index) const { return d_columns.at(index); }
+		int columnIndex(Column * col) const 
+		{ 
+			for(int i=0; i<d_columns.size(); i++)
+				if(d_columns.at(i).get() == col) return i;
+			return -1;
+		}
+
 		//@}
+
+	private slots:
+		void handleDescriptionChange(AbstractColumn * col);
+		void handlePlotDesignationChange(AbstractColumn * col);
+		void handleDataChange(AbstractColumn * col);
+		void handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count);
+		void handleRowsInserted(AbstractColumn * col, int before, int count);
+		void handleRowsAboutToBeDeleted(AbstractColumn * col, int first, int count);
+		void handleRowsDeleted(AbstractColumn * col, int first, int count);
 
 	signals:
 		void columnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
@@ -173,6 +190,15 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		void columnsReplaced(int first, int count);
 		void columnsAboutToBeRemoved(int first, int count);
 		void columnsRemoved(int first, int count);
+		//! Request resize command
+		/*
+		 *	Emit this signal to request the owner of the model 
+		 *	to apply a resize command to it. This gives the
+		 *	owner the chance to do the resize in an undo
+		 *	aware way. If the signal is ignored, the model
+		 *	will resize itself.
+		 */
+		void requestResize(int new_rows);
 
 	public slots:
 			// FIXME:
@@ -214,6 +240,10 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 			 * Don't use this outside updateHorizontalHeader()
 			 */
 			void composeColumnHeader(int col, const QString& label);
+			//! Internal function to connect all column signals
+			void connectColumn(shared_ptr<Column> col);
+			//! Internal funciton to disconnect a column
+			void disconnectColumn(shared_ptr<Column> col);
 }; 
 
 #endif

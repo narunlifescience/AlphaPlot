@@ -82,7 +82,7 @@ bool Column::copy(const AbstractColumn * source, int source_start, int dest_star
 	return true;
 }
 
-void Column::insertEmptyRows(int before, int count)
+void Column::insertRows(int before, int count)
 {
 	exec(new ColumnInsertEmptyRowsCmd(d, before, count));
 }

@@ -32,7 +32,8 @@ HEADERS += \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
 			  TableModel.h \
-			  assertion_traits.h
+			  assertion_traits.h\
+			  test_wrappers.h
 
 
 

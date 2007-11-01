@@ -9,33 +9,15 @@
 #include <QMainWindow>
 #include <QTableView>
 
+#include "test_wrappers.h"
+
 #define EPSILON (1e-6)
-
-class ColumnWrapper : public Column
-{
-	
-	public:
-		virtual QUndoStack *undoStack() const 
-		{ 
-			static QUndoStack * undo_stack = 0;
-			if(!undo_stack) undo_stack = new QUndoStack();
-			return undo_stack; 
-		}
-
-
-		ColumnWrapper(const QString& label, SciDAVis::ColumnMode mode) : Column(label, mode) {};
-		ColumnWrapper(const QString& label, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
-			: Column(label, data, validity) {};
-		ColumnWrapper(const QString& label, QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()) 
-			: Column(label, data, validity) {};
-		ColumnWrapper(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
-			: Column(label, data, validity) {};
-};
 
 class TableTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST_SUITE(TableTest);
 		CPPUNIT_TEST(testTableModelUI);
 		CPPUNIT_TEST(testTableModel);
+		CPPUNIT_TEST(testTableModelConnections);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void setUp() 
@@ -51,17 +33,17 @@ class TableTest : public CppUnit::TestFixture {
 			IntervalAttribute<bool> temp_validity;
 			temp_validity.setValue(Interval<int>(1,2));
 
-			column[0] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col0", SciDAVis::Numeric));
-			column[1] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col1", double_temp, temp_validity));
-			column[2] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col2", SciDAVis::Text));
-			column[3] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col3", strl_temp, temp_validity));
-			column[4] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col4", SciDAVis::DateTime));
-			column[5] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col5", dtl_temp, temp_validity));
-			column[6] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col6", SciDAVis::Month));
-			column[7] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col7", SciDAVis::Month));
-			column[8] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col8", SciDAVis::Day));
-			column[9] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col9", SciDAVis::Day));
-			column[10] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col10", double_temp));
+			column[0] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col0", SciDAVis::Numeric));
+			column[1] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col1", double_temp, temp_validity));
+			column[2] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col2", SciDAVis::Text));
+			column[3] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col3", strl_temp, temp_validity));
+			column[4] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col4", SciDAVis::DateTime));
+			column[5] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col5", dtl_temp, temp_validity));
+			column[6] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col6", SciDAVis::Month));
+			column[7] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col7", SciDAVis::Month));
+			column[8] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col8", SciDAVis::Day));
+			column[9] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col9", SciDAVis::Day));
+			column[10] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col10", double_temp));
 		}
 		
 		void tearDown() 
@@ -69,7 +51,7 @@ class TableTest : public CppUnit::TestFixture {
 		}
 
 	private:
-		shared_ptr<ColumnWrapper> column[11];
+		shared_ptr<ColumnTestWrapper> column[11];
 
 /* ------------------------------------------------------------------------------ */
 		void testTableModelUI() 
@@ -79,23 +61,26 @@ class TableTest : public CppUnit::TestFixture {
 			QApplication app(argc,argv);
 			QMainWindow mw;
 			TableModel * table_model = new TableModel();
-			QTableView * table_view = new QTableView();
+			TableViewTestWrapper * table_view = new TableViewTestWrapper(column);
 			table_view->setModel(table_model);
 
 			QList<  shared_ptr<Column> > list;
 
-			// expand column 0 to 10 rows
+			// expand column 0 and 2to 10 rows
 			for(int i=0; i<10; i++)
 				column[0]->setValueAt(i,i*11.0);
+			for(int i=0; i<10; i++)
+				column[2]->setTextAt(i,QString::number(i*11));
 
 			// insert all columns into the model
 			for(int i=0; i<11; i++)
 				list << column[i];
 			table_model->insertColumns(0,list);
-			
+
 			mw.setCentralWidget(table_view);
 
 			mw.show();
+			mw.resize(800,600);
 			app.exec();
 		}
 		/* ----------------------------------------------------------- */
@@ -116,10 +101,10 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(11, table_model->columnCount());
 			CPPUNIT_ASSERT_EQUAL(10, table_model->rowCount());
 
-			shared_ptr<ColumnWrapper> temp_col[6];
-			temp_col[0] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col0", SciDAVis::Numeric));
-			temp_col[1] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col1", SciDAVis::Text));
-			temp_col[2] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col2", SciDAVis::DateTime));
+			shared_ptr<ColumnTestWrapper> temp_col[6];
+			temp_col[0] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col0", SciDAVis::Numeric));
+			temp_col[1] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col1", SciDAVis::Text));
+			temp_col[2] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col2", SciDAVis::DateTime));
 			list.clear();
 			for(int i=0; i<3; i++)
 				list << temp_col[i];
@@ -131,9 +116,9 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::Text, table_model->output(9)->columnMode());
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, table_model->output(10)->columnMode());
 
-			temp_col[3] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col4", SciDAVis::Numeric));
-			temp_col[4] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col5", SciDAVis::Text));
-			temp_col[5] = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col6", SciDAVis::DateTime));
+			temp_col[3] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col4", SciDAVis::Numeric));
+			temp_col[4] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col5", SciDAVis::Text));
+			temp_col[5] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("temp_col6", SciDAVis::DateTime));
 			for(int i=0; i<15; i++)
 				temp_col[3]->setValueAt(i,i*11.0);
 			list.clear();
@@ -150,6 +135,20 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::Text, table_model->output(9)->columnMode());
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, table_model->output(10)->columnMode());
 
+			table_model->appendRows(2);
+			CPPUNIT_ASSERT_EQUAL(17, table_model->rowCount());
+			table_model->removeRows(6,10);
+			CPPUNIT_ASSERT_EQUAL(7, table_model->rowCount());
+			table_model->insertRows(1,2);
+			int max_rows = 0;
+			for(int i=0; i<table_model->columnCount(); i++)
+				if(column[i]->rowCount() >  max_rows) max_rows = column[i]->rowCount();
+			CPPUNIT_ASSERT( max_rows <= table_model->rowCount() );
+			
+		}
+		/* ----------------------------------------------------------- */
+		void testTableModelConnections() 
+		{
 			
 		}
 };

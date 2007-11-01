@@ -176,7 +176,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 */
 		int rowCount() const { return d->rowCount(); }
 		//! Insert some empty (or initialized with zero) rows
-		void insertEmptyRows(int before, int count);
+		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		void removeRows(int first, int count);
 		//! Return the column label

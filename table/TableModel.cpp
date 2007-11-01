@@ -146,7 +146,7 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 			sd->setTextAt(0, value.toString());
 			in_fltr->input(0, sd);
 			// remark: the validity of the cell is determined by the input filter
-			col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+			col_ptr->copy(in_fltr->output(0).get(), 0, row, 1);  
 			emit dataChanged(index, index);
 			return true;
 	}
@@ -192,6 +192,7 @@ void TableModel::replaceColumns(int first, QList< shared_ptr<Column> > new_cols)
 			d_columns.at(first+i)->notifyReplacement(new_cols.at(i));
 
 		d_columns[first+i] = new_cols.at(i);
+		connectColumn(new_cols.at(i));
 	}
 	updateHorizontalHeader(first, first+count-1);
 	emit columnsReplaced(first, new_cols.count());
@@ -207,13 +208,10 @@ void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 {
 	int count = cols.count();
 
-	if(count < 1) 
+	if( (count < 1) || (before > d_column_count) )
 		return;
 
-	if(before < 0)
-		before = 0;
-	if(before > d_column_count)
-		before = d_column_count;
+	Q_ASSERT(before >= 0);
 
 	int i, rows;
 	for(i=0; i<count; i++)
@@ -226,7 +224,10 @@ void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 	beginInsertColumns(QModelIndex(), before, before+count-1);
 	emit columnsAboutToBeInserted(before, cols);
 	for(int i=count-1; i>=0; i--)
+	{
 		d_columns.insert(before, cols.at(i));
+		connectColumn(cols.at(i));
+	}
 	d_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
 	columnsInserted(before, cols.count());
@@ -235,12 +236,10 @@ void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 
 void TableModel::removeColumns(int first, int count)
 {
-	if(count < 1) 
+	if( (count < 1) || (first >= d_column_count) )
 		return;
-	if(first >= d_column_count)
-		return;
-	if(first < 0)
-		return;
+
+	Q_ASSERT(first >= 0);
 
 	if(first+count > d_column_count)
 		count = d_column_count - first;
@@ -248,7 +247,10 @@ void TableModel::removeColumns(int first, int count)
 	beginRemoveColumns(QModelIndex(), first, first+count-1);
 	emit columnsAboutToBeRemoved(first, count);
 	for(int i=count-1; i>=0; i--)
+	{
+		disconnectColumn(d_columns.at(first));
 		d_columns.removeAt(first);
+	}
 	d_column_count -= count;
 	updateHorizontalHeader(first, d_column_count);
 	emit columnsRemoved(first, count);
@@ -262,53 +264,31 @@ void TableModel::appendColumns(QList< shared_ptr<Column>  > cols)
 
 void TableModel::removeRows(int first, int count)
 {
-	if( (count < 1) || (first < 0) || (first >= d_row_count) )
+	if( (count < 1) || (first >= d_row_count) )
 		return;
+
+	Q_ASSERT(first >= 0);
 
 	if(first+count > d_row_count)
 		count = d_row_count - first;
 
 	beginRemoveRows(QModelIndex(), first, first+count-1);
 	for(int col=0; col<d_column_count; col++)
-	{
-		int row_count = d_columns.at(col)->rowCount();
-		if(row_count > first)
-		{
-			int current_count = count;
-			if(first+current_count > row_count)
-				current_count = row_count - first;
-			d_columns.at(col)->removeRows(first, current_count);
-		}
-	}
+		d_columns.at(col)->removeRows(first, count);
 	d_row_count -= count;
 	updateVerticalHeader(first);
 	endRemoveRows();
 }
 
-void TableModel::insertRows(int first, int count)
+void TableModel::insertRows(int before, int count)
 {
-	if(count < 1) 
+	if( (count < 1) || (before > d_row_count))
 		return;
 
-	if(first < 0)
-		first = 0;
+	Q_ASSERT(before >= 0);
 
-	if(first > d_row_count)
-		appendRows(count);
-	else
-	{
-		beginInsertRows(QModelIndex(), first, first+count-1);
-		for(int col=0; col<d_column_count; col++)
-		{
-			if(d_columns.at(col)->rowCount() <= first) // no need to append empty rows
-				continue;
-			d_columns.at(col)->insertEmptyRows(first, count);
-		}
-		d_row_count += count;
-		updateVerticalHeader(first);
-		endInsertRows();
-	}
-
+	for(int col=0; col<d_column_count; col++)
+		d_columns.at(col)->insertRows(before, count); 
 }
 
 void TableModel::appendRows(int count)
@@ -413,33 +393,6 @@ void TableModel::composeColumnHeader(int col, const QString& label)
 		d_horizontal_header_data.replace(col, s);
 }
 
-//TODO: header update must be done by a signal connection
-/*
-void TableModel::setColumnLabel(int column, const QString& label)
-{
-	d_columns.at(column)->setLabel(label);
-	updateHorizontalHeader(column, column);
-}
-*/
-
-//TODO: header update must be done by a signal connection 
-/*
-void TableModel::setColumnComment(int column, const QString& comment)
-{
-	d_columns.at(column)->setComment(comment);
-	updateHorizontalHeader(column, column);
-}
-*/
-
-//TODO: header update must be done by a signal connection 
-/*
-void TableModel::setColumnPlotDesignation(int column, SciDAVis::PlotDesignation pd)
-{
-	d_columns.at(column)->setPlotDesignation(pd);
-	updateHorizontalHeader(column, d_column_count-1);
-}
-*/
-	
 void TableModel::showComments(bool on)
 {
 	if (d_show_comments == on)
@@ -470,9 +423,84 @@ int TableModel::numColsWithPD(SciDAVis::PlotDesignation pd)
 	return count;
 }
 
-// TODO: this must be done elsewhere
-//void TableModel::handleUserInput(const QModelIndex& index)
-//{
-//		d_undo_stack->push(new TableUserInputCmd(this, index) );		
-//}
+void TableModel::connectColumn(shared_ptr<Column> col)
+{
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(descriptionChanged(AbstractColumn *)), this, 
+	SLOT(handleDescriptionChange(AbstractColumn *)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
+	SLOT(handlePlotDesignationChange(AbstractColumn *)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)), this, 
+	SLOT(handleDataChange(AbstractColumn *)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(dataChanged(AbstractColumn *)), this, 
+	SLOT(handleDataChange(AbstractColumn *)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
+		SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
+	SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), this, 
+		SLOT(handleRowsAboutToBeDeleted(AbstractColumn *,int,int))); 
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsDeleted(AbstractColumn *, int, int)), this, 
+	SLOT(handleRowsDeleted(AbstractColumn *,int,int))); 
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(maskingChanged(AbstractColumn *)), this, 
+	SLOT(handleDataChange(AbstractColumn *))); 
+}
 
+void TableModel::disconnectColumn(shared_ptr<Column> col)
+{
+	disconnect(col->abstractColumnSignalEmitter(), 0, this, 0);
+}
+
+void TableModel::handleDescriptionChange(AbstractColumn * col)
+{
+	int index = columnIndex(static_cast<Column *>(col));
+	updateHorizontalHeader(index, index);
+}
+
+void TableModel::handlePlotDesignationChange(AbstractColumn * col)
+{
+	int index = columnIndex(static_cast<Column *>(col));
+	updateHorizontalHeader(index, d_column_count-1);
+}
+
+void TableModel::handleDataChange(AbstractColumn * col)
+{
+	int index = columnIndex(static_cast<Column *>(col));
+	emitDataChanged(0, index, d_row_count-1, index);	
+}
+
+void TableModel::handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count)
+{
+	int new_size = col->rowCount() + count; 
+	if(before <= col->rowCount() && new_size > d_row_count)
+	{
+		emit requestResize(new_size - d_row_count);
+		if(d_row_count != new_size) // request was ignored
+			appendRows(new_size - d_row_count);
+	}
+}
+
+void TableModel::handleRowsInserted(AbstractColumn * col, int before, int count)
+{
+	Q_UNUSED(count);
+	int index = columnIndex(static_cast<Column *>(col));
+	if(before <= col->rowCount())
+		emitDataChanged(before, index, col->rowCount()-1, index);
+}
+
+
+void TableModel::handleRowsAboutToBeDeleted(AbstractColumn * col, int first, int count)
+{
+	Q_UNUSED(col);
+	Q_UNUSED(first);
+	Q_UNUSED(count);
+}
+
+void TableModel::handleRowsDeleted(AbstractColumn * col, int first, int count)
+{
+	Q_UNUSED(count);
+	int index = columnIndex(static_cast<Column *>(col));
+	if(first <= col->rowCount())
+		emitDataChanged(first, index, col->rowCount()-1, index);
+	else
+		emitDataChanged(col->rowCount()-1, index, d_row_count-1, index);
+}

@@ -112,7 +112,7 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		 */
 		void resizeTo(int new_size);
 		//! Insert some empty (or initialized with zero) rows
-		void insertEmptyRows(int before, int count);
+		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		void removeRows(int first, int count);
 		//! Return the column label

@@ -120,7 +120,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT(column[0]->isInvalid(10));
 			column[0]->removeRows(10,5);
 			CPPUNIT_ASSERT(!column[0]->isInvalid(19));
-			column[0]->insertEmptyRows(5,5);
+			column[0]->insertRows(5,5);
 			CPPUNIT_ASSERT(!column[0]->isInvalid(5));
 			CPPUNIT_ASSERT(column[0]->isInvalid(19));
 			column[0]->setInvalid(Interval<int>(10,20), false);
@@ -138,7 +138,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT(column[0]->isMasked(10));
 			column[0]->removeRows(10,5);
 			CPPUNIT_ASSERT(!column[0]->isMasked(19));
-			column[0]->insertEmptyRows(5,5);
+			column[0]->insertRows(5,5);
 			CPPUNIT_ASSERT(!column[0]->isMasked(5));
 			CPPUNIT_ASSERT(column[0]->isMasked(19));
 			column[0]->setMasked(Interval<int>(10,20), false);
@@ -196,14 +196,14 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(12.75 , column[1]->valueAt(column[1]->rowCount()-2), EPSILON);
 
 			// test insert/delete
-			column[0]->insertEmptyRows(0, 5);
+			column[0]->insertRows(0, 5);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, column[0]->valueAt(0), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, column[0]->valueAt(4), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(12.75, column[0]->valueAt(5), EPSILON);
 			temp = column[0]->rowCount();
-			column[0]->insertEmptyRows(temp, 1); // append 1 row
-			column[0]->insertEmptyRows(temp + 3, 2); // should to nothing to the number of rows 
-			column[0]->insertEmptyRows(temp + 99, 2); // should to nothing to the number of rows 
+			column[0]->insertRows(temp, 1); // append 1 row
+			column[0]->insertRows(temp + 3, 2); // should to nothing to the number of rows 
+			column[0]->insertRows(temp + 99, 2); // should to nothing to the number of rows 
 			CPPUNIT_ASSERT_EQUAL(temp + 1, column[0]->rowCount());
 			temp = column[0]->rowCount();
 			column[0]->removeRows(temp, 10); // should do nothing
@@ -263,14 +263,14 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[3]->textAt(column[3]->rowCount()-2), QString("bla"));
 
 			// test insert/delete
-			column[2]->insertEmptyRows(0, 5);
+			column[2]->insertRows(0, 5);
 			CPPUNIT_ASSERT_EQUAL(QString(""), column[2]->textAt(0));
 			CPPUNIT_ASSERT_EQUAL(QString(""), column[2]->textAt(4));
 			CPPUNIT_ASSERT_EQUAL(QString("bla"), column[2]->textAt(5));
 			temp = column[2]->rowCount();
-			column[2]->insertEmptyRows(temp, 1); // append 1 row
-			column[2]->insertEmptyRows(temp + 3, 2); // should to nothing to the number of rows 
-			column[2]->insertEmptyRows(temp + 99, 2); // should to nothing to the number of rows 
+			column[2]->insertRows(temp, 1); // append 1 row
+			column[2]->insertRows(temp + 3, 2); // should to nothing to the number of rows 
+			column[2]->insertRows(temp + 99, 2); // should to nothing to the number of rows 
 			CPPUNIT_ASSERT_EQUAL(temp + 1, column[2]->rowCount());
 			temp = column[2]->rowCount();
 			column[2]->removeRows(temp, 10); // should do nothing
@@ -336,14 +336,14 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[5]->dateTimeAt(column[5]->rowCount()-2), QDateTime(QDate(1955,5,5),QTime(10,10,10,10)));
 
 			// test insert/delete
-			column[4]->insertEmptyRows(0, 5);
+			column[4]->insertRows(0, 5);
 			CPPUNIT_ASSERT_EQUAL(QDateTime(), column[4]->dateTimeAt(0));
 			CPPUNIT_ASSERT_EQUAL(QDateTime(), column[4]->dateTimeAt(4));
 			CPPUNIT_ASSERT_EQUAL(QDateTime(QDate(1955,5,5),QTime(10,10,10,10)), column[4]->dateTimeAt(5));
 			temp = column[4]->rowCount();
-			column[4]->insertEmptyRows(temp, 1); // append 1 row
-			column[4]->insertEmptyRows(temp + 3, 2); // should to nothing to the number of rows 
-			column[4]->insertEmptyRows(temp + 99, 2); // should to nothing to the number of rows 
+			column[4]->insertRows(temp, 1); // append 1 row
+			column[4]->insertRows(temp + 3, 2); // should to nothing to the number of rows 
+			column[4]->insertRows(temp + 99, 2); // should to nothing to the number of rows 
 			CPPUNIT_ASSERT_EQUAL(temp + 1, column[4]->rowCount());
 			temp = column[4]->rowCount();
 			column[4]->removeRows(temp, 10); // should do nothing
@@ -668,13 +668,13 @@ class ColumnTest : public CppUnit::TestFixture {
 			undoTestInternal();
 
 			// test insert rows
-			column[1]->insertEmptyRows(0, 100);
+			column[1]->insertRows(0, 100);
 			undoTestInternal();
 			
-			column[3]->insertEmptyRows(0, 100);
+			column[3]->insertRows(0, 100);
 			undoTestInternal();
 
-			column[5]->insertEmptyRows(0, 100);
+			column[5]->insertRows(0, 100);
 			undoTestInternal();
 
 			// test remove rows

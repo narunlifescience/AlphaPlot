@@ -284,7 +284,7 @@ class AbstractColumn
 		//! Return the data vector size
 		virtual int rowCount() const = 0;
 		//! Insert some empty (or initialized with zero) rows
-		virtual void insertEmptyRows(int before, int count) { Q_UNUSED(before) Q_UNUSED(count) };
+		virtual void insertRows(int before, int count) { Q_UNUSED(before) Q_UNUSED(count) };
 		//! Remove 'count' rows starting from row 'first'
 		virtual void removeRows(int first, int count) { Q_UNUSED(first) Q_UNUSED(count) };
 		//! Return the column label

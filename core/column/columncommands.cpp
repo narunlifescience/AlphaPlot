@@ -218,7 +218,7 @@ ColumnInsertEmptyRowsCmd::~ColumnInsertEmptyRowsCmd()
 
 void ColumnInsertEmptyRowsCmd::redo()
 {
-	d_col->insertEmptyRows(d_before, d_count);
+	d_col->insertRows(d_before, d_count);
 }
 
 void ColumnInsertEmptyRowsCmd::undo()
@@ -263,7 +263,7 @@ void ColumnRemoveRowsCmd::redo()
 
 void ColumnRemoveRowsCmd::undo()
 {
-	d_col->insertEmptyRows(d_first, d_count);
+	d_col->insertRows(d_first, d_count);
 	d_col->copy(d_backup.get(), 0, d_first, d_data_row_count);
 	if(d_data_row_count < d_count)
 		d_col->resizeTo(d_col->rowCount() - (d_count - d_data_row_count));

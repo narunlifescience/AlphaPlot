@@ -476,7 +476,7 @@ void ColumnPrivate::resizeTo(int new_size)
 	}
 }
 
-void ColumnPrivate::insertEmptyRows(int before, int count)
+void ColumnPrivate::insertRows(int before, int count)
 {
 	if(count == 0) return;
 
