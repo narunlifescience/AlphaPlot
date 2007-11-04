@@ -38,18 +38,16 @@
 #include <QShortcut>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <stdlib.h> // for RAND_MAX
+#include <climits> // for RAND_MAX
+#include <QMenu>
 
-#include "core/AbstractScript.h"
+#include "AbstractScript.h"
+#include "AspectPrivate.h"
 #include "TableModel.h"
 #include "TableView.h"
 #include "tablecommands.h"
 #include "table/SortDialog.h"
-#include "core/AbstractDataSource.h"
-#include "AbstractColumnData.h"
-#include "DoubleColumnData.h"
-#include "StringColumnData.h"
-#include "DateTimeColumnData.h"
+#include "Column.h"
 #include "core/AbstractFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
@@ -61,9 +59,137 @@
 #include "core/datatypes/Double2DayOfWeekFilter.h"
 #include "core/datatypes/String2DateTimeFilter.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
-#include "core/CopyThroughFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+
+#ifndef _NO_TR1_
+#include "tr1/memory" 
+using std::tr1::dynamic_pointer_cast;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+using boost::dynamic_pointer_cast;
+#endif
 
 #define OBSOLETE qDebug("obsolete Table function called");
+
+Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
+: AbstractAspect(name), scripted(engine)
+{
+	d_model = new TableModel(this);
+	connect(d_model, SIGNAL(requestResize(int)),
+			this, SLOT(handleModelResizeRequest(int)));
+
+	connect(d_model, SIGNAL(columnsAboutToBeInserted(int, QList< shared_ptr<Column> >)),
+			this, SLOT(handleColumnsAboutToBeInserted(int, QList< shared_ptr<Column> >)));
+	connect(d_model, SIGNAL(columnsInserted(int, int)),
+			this, SLOT(handleColumnsInserted(int, int)));
+	connect(d_model, SIGNAL(columnsAboutToBeReplaced(int, int)),
+			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
+	connect(d_model, SIGNAL(columnsReplaced(int, int)),
+			this, SLOT(handleColumnsInserted(int, int)));
+	connect(d_model, SIGNAL(columnsAboutToBeRemoved(int, int)),
+				this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
+	connect(d_model, SIGNAL(columnsRemoved(int, int)),
+			this, SLOT(handleColumnsRemoved(int, int)));
+
+	// set initial number of rows and columns
+	QList< shared_ptr<Column> > cols;
+	for(int i=0; i<columns; i++)
+		cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+	d_model->appendColumns(cols);
+	d_model->appendRows(rows);
+
+}
+
+Table::~Table()
+{
+
+}
+
+QMenu *Table::createContextMenu()
+{
+	QMenu *menu = AbstractAspect::createContextMenu();
+
+	// TODO menu->addAction( ....
+	
+	return menu;
+}
+		
+QWidget *Table::view(QWidget *parent_widget)
+{
+	TableView * table_view = new TableView(parent_widget, d_model);
+	connect(table_view, SIGNAL(requestContextMenu(TableView *,const QPoint&)), 
+		this, SLOT(handleViewContextMenuRequest(TableView *,const QPoint&)));
+
+	return table_view;
+}
+
+void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
+{
+	QMenu context_menu;
+
+	context_menu.addAction(undoStack()->createUndoAction(&context_menu));
+	context_menu.addAction(undoStack()->createRedoAction(&context_menu));
+	context_menu.addSeparator();
+
+	context_menu.exec(view->viewport()->mapToGlobal(pos));
+}
+
+void Table::handleModelResizeRequest(int new_rows)
+{
+	exec(new TableAppendRowsCmd(d_model, new_rows));
+}
+
+void Table::handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols)
+{
+	Q_UNUSED(before)
+	Q_UNUSED(new_cols)
+}
+
+void Table::handleColumnsInserted(int first, int count)
+{
+	for(int i=first; i<first+count; i++)
+	{
+		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
+		int index = d->childCount();
+		emit abstractAspectSignalEmitter()->aspectAboutToBeAdded(this, index);
+		d->insertChild(index, dynamic_pointer_cast<AbstractAspect>(child));
+		child->setParentAspect(this);
+		emit abstractAspectSignalEmitter()->aspectAdded(this, index);
+		emit child->abstractAspectSignalEmitter()->aspectAdded(child.get());
+	}
+}
+
+void Table::handleColumnsAboutToBeRemoved(int first, int count)
+{
+	for(int i=first; i<first+count; i++)
+	{
+		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
+		int index = d->indexOfChild(child);
+		Q_ASSERT(index != -1);
+		emit abstractAspectSignalEmitter()->aspectAboutToBeRemoved(this, index);
+		emit child->abstractAspectSignalEmitter()->aspectAboutToBeRemoved(child.get());
+		d->removeChild(child);
+		child->setParentAspect(0);
+		emit abstractAspectSignalEmitter()->aspectRemoved(this, index);
+	}
+}
+
+void Table::handleColumnsRemoved(int first, int count)
+{
+	Q_UNUSED(first)
+	Q_UNUSED(count)
+}
+
+void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
+{
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QString("insert %1 columns").arg(new_cols.size()));
+	stack->push(new TableInsertColumnsCmd(d_model, before, new_cols));
+	stack->endMacro();
+}
+
+#if false
+
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
 : MyWidget(label,parent,name,f), scripted(engine)
@@ -1425,4 +1551,7 @@ void Table::setPlotDesignation(SciDAVis::PlotDesignation pd)
 		if(isColumnSelected(i, false))
 			undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, i, pd));
 }
+
+
+#endif
 

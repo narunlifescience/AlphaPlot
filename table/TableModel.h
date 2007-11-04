@@ -191,7 +191,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		void columnsAboutToBeRemoved(int first, int count);
 		void columnsRemoved(int first, int count);
 		//! Request resize command
-		/*
+		/**
 		 *	Emit this signal to request the owner of the model 
 		 *	to apply a resize command to it. This gives the
 		 *	owner the chance to do the resize in an undo

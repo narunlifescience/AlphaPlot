@@ -29,11 +29,9 @@
 
 #include "tablecommands.h"
 #include "TableModel.h"
-#include "StringColumnData.h"
-#include "DoubleColumnData.h"
-#include "DateTimeColumnData.h"
-#include "lib/Interval.h"
-#include "core/datatypes/Double2StringFilter.h"
+#include "Column.h"
+#include "Interval.h"
+#include "Double2StringFilter.h"
 #include <QObject>
 #include <QtDebug>
 
@@ -65,175 +63,36 @@ void TableShowCommentsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnPlotDesignationCmd
+// class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
-TableSetColumnPlotDesignationCmd::TableSetColumnPlotDesignationCmd( TableModel * model, int col, SciDAVis::PlotDesignation pd , QUndoCommand * parent )
- : QUndoCommand( parent ), d_col(col), d_new_pd(pd), d_model(model)
+TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_model(model), d_before(before), d_cols(cols)
 {
-		setText(QObject::tr("set column plot designation"));
+	setText(QObject::tr("insert columns"));
+	d_undone = false;
 }
 
-void TableSetColumnPlotDesignationCmd::redo()
-{
-	d_old_pd = d_model->columnPlotDesignation(d_col);
-	d_model->setColumnPlotDesignation(d_col, d_new_pd);
-}
-
-void TableSetColumnPlotDesignationCmd::undo()
-{
-	d_model->setColumnPlotDesignation(d_col, d_old_pd);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnPlotDesignationCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnLabelCmd
-///////////////////////////////////////////////////////////////////////////
-TableSetColumnLabelCmd::TableSetColumnLabelCmd( TableModel * model, int col, const QString& label , QUndoCommand * parent )
- : QUndoCommand( parent ), d_col(col), d_new_label(label), d_model(model)
-{
-		setText(QObject::tr("set column label"));
-}
-
-void TableSetColumnLabelCmd::redo()
-{
-	d_old_label = d_model->columnLabel(d_col);
-	d_model->setColumnLabel(d_col, d_new_label);
-}
-
-void TableSetColumnLabelCmd::undo()
-{
-	d_model->setColumnLabel(d_col, d_old_label);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnLabelCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnCommentCmd
-///////////////////////////////////////////////////////////////////////////
-TableSetColumnCommentCmd::TableSetColumnCommentCmd( TableModel * model, int col, const QString& comment , QUndoCommand * parent )
- : QUndoCommand( parent ), d_col(col), d_new_comment(comment), d_model(model)
-{
-		setText(QObject::tr("set column comment"));
-}
-
-void TableSetColumnCommentCmd::redo()
-{
-	d_old_comment = d_model->columnComment(d_col);
-	d_model->setColumnComment(d_col, d_new_comment);
-}
-
-void TableSetColumnCommentCmd::undo()
-{
-	d_model->setColumnComment(d_col, d_old_comment);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnCommentCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableClearColumnCmd
-///////////////////////////////////////////////////////////////////////////
-TableClearColumnCmd::TableClearColumnCmd( TableModel * model, int col, QUndoCommand * parent )
- : QUndoCommand( parent ), d_col(col), d_model(model)
-{
-	d_orig_col = 0;
-	d_cleared_col = 0;
-	setText(QObject::tr("clear column"));
-}
-TableClearColumnCmd::~TableClearColumnCmd()
-{
-	if(d_orig_col)
-		delete d_orig_col;
-	if(d_cleared_col)
-		delete d_cleared_col;
-}
-
-void TableClearColumnCmd::redo()
-{
-	d_orig_col = d_model->columnPointer(d_col);
-
-	if(!d_cleared_col) // no previous undo
-	{
-		// create a column of the correct type
-		if(qobject_cast<StringColumnData *>(d_model->columnPointer(d_col)->asQObject()))
-			d_cleared_col = new StringColumnData();
-		else if(qobject_cast<DoubleColumnData *>(d_model->columnPointer(d_col)->asQObject()))
-			d_cleared_col = new DoubleColumnData();
-		else
-			d_cleared_col = new DateTimeColumnData();
-
-		// keep the designation, label and comment
-		d_cleared_col->copyDescription(d_orig_col->asDataSource());
-		// keep the formulas
-		QList< Interval<int> > formulas = d_orig_col->asDataSource()->formulaIntervals();
-		foreach(Interval<int> i, formulas)
-			d_cleared_col->setFormula(i, d_orig_col->asDataSource()->formula(i.start()));
-	}
-	// replace the column with the cleared one
-	QList<AbstractColumnData *> list;
-	list << d_cleared_col;
-	d_model->replaceColumns(d_col, list);
-	d_cleared_col = 0; // don't delete the active col in dtor
-}
-
-void TableClearColumnCmd::undo()
-{
-	d_cleared_col = d_model->columnPointer(d_col);
-	QList<AbstractColumnData *> list;
-	list << d_orig_col;
-	d_model->replaceColumns(d_col, list);
-	d_orig_col = 0; // don't delete the active col in dtor
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableClearColumnCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableUserInputCmd
-///////////////////////////////////////////////////////////////////////////
-TableUserInputCmd::TableUserInputCmd( TableModel * model, const QModelIndex& index, QUndoCommand * parent )
- : QUndoCommand( parent ), d_index(index), d_model(model)
-{
-	d_previous_undo = false;
-	setText(QObject::tr("user input"));
-}
-
-TableUserInputCmd::~TableUserInputCmd()
+TableInsertColumnsCmd::~TableInsertColumnsCmd()
 {
 }
 
-void TableUserInputCmd::redo()
+void TableInsertColumnsCmd::redo()
 {
-	if(d_previous_undo) 
-	{
-		d_model->setData(d_index, d_new_data, Qt::EditRole); 
-		d_model->columnPointer(d_index.column())->setInvalid(d_index.row(), d_invalid_after);
-	}
-	else
-	{
-		d_old_data = d_model->data(d_index, Qt::EditRole);
-		d_invalid_before = d_model->output(d_index.column())->isInvalid(d_index.row());
-	}
+//	d_rows_before = d_model->rowCount();
+	d_model->insertColumns(d_before, d_cols);
+	d_undone = false;
 }
 
-void TableUserInputCmd::undo()
+void TableInsertColumnsCmd::undo()
 {
-		d_new_data = d_model->data(d_index, Qt::EditRole);
-		d_invalid_after = d_model->output(d_index.column())->isInvalid(d_index.row());
-		d_model->setData(d_index, d_old_data, Qt::EditRole); 
-		d_model->columnPointer(d_index.column())->setInvalid(d_index.row(), d_invalid_before);
-		d_previous_undo = true;
+	d_model->removeColumns(d_before, d_cols.size());
+//	if(d_rows_before < d_model->rowCount())
+//		d_model->removeRows(d_rows_before, d_model->rowCount() - d_rows_before);
+	d_undone = true;
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// end of class TableUserInputCmd
+// end of class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
@@ -262,6 +121,8 @@ void TableAppendRowsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableAppendRowsCmd
 ///////////////////////////////////////////////////////////////////////////
+
+#if false
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableRemoveRowsCmd
@@ -458,47 +319,6 @@ void TableAppendColumnsCmd::undo()
 
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableAppendColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableInsertColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList<AbstractColumnData *> cols,
-		QList<AbstractFilter *> in_filters, QList<AbstractFilter *> out_filters, QUndoCommand * parent)
- : QUndoCommand( parent ), d_model(model), d_before(before), d_cols(cols), d_in_filters(in_filters), d_out_filters(out_filters)
-{
-	setText(QObject::tr("insert columns"));
-	d_undone = false;
-}
-
-TableInsertColumnsCmd::~TableInsertColumnsCmd()
-{
-	if(d_undone) // if the columns are not needed anymore, delete them
-		for(int i=0; i<d_cols.size(); i++)
-		{
-			delete d_cols.at(i);
-			delete d_in_filters.at(i);
-			delete d_out_filters.at(i);
-		}
-}
-
-void TableInsertColumnsCmd::redo()
-{
-	d_rows_before = d_model->rowCount();
-	d_model->insertColumns(d_before, d_cols, d_in_filters, d_out_filters);
-	d_undone = false;
-}
-
-void TableInsertColumnsCmd::undo()
-{
-	d_model->removeColumns(d_before, d_cols.size());
-	if(d_rows_before < d_model->rowCount())
-		d_model->removeRows(d_rows_before, d_model->rowCount() - d_rows_before);
-	d_undone = true;
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
@@ -781,3 +601,4 @@ void TableSetFormulaCmd::undo()
 // end of class TableSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 
+#endif

@@ -31,9 +31,20 @@ HEADERS += \
 			  String2DayOfWeekFilter.h \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
+			  TableView.h \
+			  TableItemDelegate.h \
 			  TableModel.h \
+			  Table.h \
+			  tablecommands.h \
 			  assertion_traits.h\
-			  test_wrappers.h
+			  AbstractScriptingEngine.h \
+			  test_wrappers.h \
+			  Project.h \
+			  aspect-test/Folder.h \
+			  ProjectWindow.h \
+			  AspectTreeModel.h \
+			  MdiSubWindow.h \
+			  ProjectExplorer.h \
 
 
 
@@ -46,7 +57,19 @@ SOURCES += \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \
-			  TableModel.cpp
+			  TableView.cpp \
+			  TableItemDelegate.cpp \
+			  Table.cpp \
+			  tablecommands.cpp \
+			  TableModel.cpp \
+			  AbstractScriptingEngine.cpp \
+			  Project.cpp \
+			  aspect-test/Folder.cpp \
+			  ProjectWindow.cpp \
+			  AspectTreeModel.cpp \
+			  MdiSubWindow.cpp \
+			  ProjectExplorer.cpp \
+
 
 
 SOURCES += main.cpp \

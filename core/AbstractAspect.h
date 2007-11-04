@@ -95,6 +95,7 @@ class AbstractAspectWrapper : public QObject
 		friend class AspectCaptionSpecChangeCmd;
 		friend class AspectChildRemoveCmd;
 		friend class AspectChildAddCmd;
+		friend class Table;
 };
 
 //! Base class of all persistent objects in a Project.
@@ -217,7 +218,7 @@ class AbstractAspect
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
 
 		//! Set the parent aspect 
-		void setParent(AbstractAspect * new_parent);
+		void setParentAspect(AbstractAspect * new_parent);
 
 	// wrapped slots 
 	public: 
@@ -240,7 +241,7 @@ class AbstractAspect
 		//! Remove me from my parent's list of children.
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 
-	private:
+	protected:
 		AspectPrivate * d;
 		AbstractAspect * d_parent; // making this a shared_ptr would lead to circular references
 		AbstractAspectWrapper *d_wrapper;

@@ -7,7 +7,7 @@
                            Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
-    Description          : Table worksheet class
+    Description          : Table aspect class
 
  ***************************************************************************/
 
@@ -32,49 +32,99 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-#include "core/MyWidget.h"
-#include "core/AbstractScriptingEngine.h"
-#include "core/AbstractDataSource.h"
-#include <QVarLengthArray> // TODO remove this with the transition functions
+#include "AbstractScriptingEngine.h"
+#include "Column.h"
+#include "AbstractAspect.h"
+#include <QObject>
+#include <QModelIndex>
+#include <QPoint>
+#include <QList>
+#include <QIcon>
 
 class TableView;
 class TableModel;
 class QUndoStack;
 
-/*!\brief MDI window providing a spreadsheet table with column logic.
+/*!\brief Aspect providing a spreadsheet table with column logic.
  *
 \section Class Table, the model/view architecture and the undo framework
 To use Qt's model/view framework, increase the performance for large datasets, 
-and to prepare class Table for the upcoming undo/redo framework, this class 
-has been rewritten using the following design:<br>
-The whole functionality is split up into several classes each having its special
+and support full undo/redo, this class 
+has been rewritten using a design very similar to the model/view/presenter paradigm.<br>
+The whole functionality is split up into three classes each having its special
 purpose:
 <ul>
-<li> class Table: This class communicates with the application, the main window, plot
-windows and dialogs, i.e. provide the functionality of an MDI window. It handles script
-evaluation, import/export, and saving and loading of a complete table. Most of the communication
-with plot windows has been moved out of this class. The underlying model must not 
-be visible to the plot windows since the undo/redo framework sits between the 
-GUI (Table and TableView) and the model.</li>
-<li> class TableView: This class is purely a GUI handling user input and displaying of
-the table. It should not contain any data that would be saved in project file. It should
-also not have any methods to be called from outside Table.</li>
-<li> class TableDataModel: This class stores all data using column logic. It's supposed
-to contain all data that would be saved to project file (except things like the 
-geometry of Table). It receives commands from Table though the undo stack.</li>
-<li> classes derived from AbstractColumnData: These classes store the data related
-to one column. Each of them is optimized to store a special type of data (doubles, 
-strings, dates, times). TableDataModel wraps around these classes but it is also 
-possible to read them directly if this leads to a significant speed increase or 
-column type specific data shall be read. The speed advantage mostly applies 
-to double columns which can be accessed as contiguous arrays. Writing directly 
-to columns is not a good idea since the undo/redo framework must have 
-control over all changes.</li>
+<li> class Table: This class is on the one hand the presenter of the table functionality
+and on the other hand one aspect in the projet hierarchy. It handles all interaction with
+with the application and other aspects as well as user input. This includes script
+evaluation, import/export, and saving and loading of a complete table. 
+The underlying model is not visible to any non table related classes with one exeption:
+Pointers to columns can be passed around an manipulated directly. The owner table will
+be notified by emission of signals and react accordings. All method calls to table
+and the columns are undo aware. The manipulation of the data in TableModel is done
+by commands derived from QUndoCommand. If the table has an undo stack associated to it (usually 
+by the project root aspect) all commands can be undone (and redone).
+/li>
+<li> class TableView: This class is purely for displaying the table contents. It relays
+all user input to the presenter, i.e., Table. It is notfied by the model whenever changes occur.
+</li>
+<li> class TableModel: This class stores all data belonging to the table using column logic. 
+Most of the data is contained in objects of class Column. Pointers to individual columns 
+can be passed to the rest of the application. All operations of Column have undo support. The 
+columns notify TableModel of any changes to them.
 </ul>
-The undo/redo framework works as a layer between Table/TableView
-and TableDataModel/...ColumnData. Table and TableView send commands to TableDataModel that
-can then be undone.
 */
+class Table: public QObject, public AbstractAspect, public scripted
+{
+	Q_OBJECT
+
+	public:
+		Table(AbstractScriptingEngine *engine, int rows, int columns, const QString &name);
+		~Table();
+
+		//! \name aspect related functions
+		//@{
+		//! See QMetaObject::className().
+		virtual const char* className() const { return metaObject()->className(); }
+		//! See QObject::inherits().
+		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
+		//! Return an icon to be used for decorating my views.
+		virtual QIcon icon() const { return QIcon(":/table.xpm"); }
+		//! Return a new context menu for my views.
+		/**
+		 * Caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu();
+		//! Construct a standard view on me.
+		/**
+		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
+		 * ownership. If no parent is given, the caller receives ownership of the view.
+		 * 
+		 * This method may be called multiple times during the life time of an Aspect, or it might not get
+		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 */
+		virtual QWidget *view(QWidget *parent = 0);
+		//@}
+		
+		void insertColumns(int before, QList< shared_ptr<Column> > new_cols);
+
+	private slots:
+		//! Handles context menu requests from TableView
+		void handleViewContextMenuRequest(TableView * view, const QPoint& pos);
+		//! Handles a request from the model to execute a resize command
+		void handleModelResizeRequest(int new_rows);
+
+		void handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
+		void handleColumnsInserted(int first, int count);
+		void handleColumnsAboutToBeRemoved(int first, int count);
+		void handleColumnsRemoved(int first, int count);
+
+	protected:
+		//! The model storing the data
+		TableModel *d_model;
+};
+
+#if false
 class Table: public MyWidget, public scripted
 {
     Q_OBJECT
@@ -299,4 +349,6 @@ signals:
 	void createTable(const QString&,int,int,const QString&);
 };
 
+
+#endif
 #endif

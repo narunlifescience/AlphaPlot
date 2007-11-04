@@ -125,7 +125,7 @@ class AspectChildRemoveCmd : public QUndoCommand
 			emit owner->abstractAspectSignalEmitter()->aspectAboutToBeRemoved(owner, d_index);
 			emit d_child->abstractAspectSignalEmitter()->aspectAboutToBeRemoved(d_child.get());
 			d_target->removeChild(d_child);
-			d_child->setParent(0);
+			d_child->setParentAspect(0);
 			emit owner->abstractAspectSignalEmitter()->aspectRemoved(owner, d_index);
 		}
 
@@ -134,7 +134,7 @@ class AspectChildRemoveCmd : public QUndoCommand
 			AbstractAspect * owner = d_target->owner();
 			emit owner->abstractAspectSignalEmitter()->aspectAboutToBeAdded(owner, d_index);
 			d_target->insertChild(d_index, d_child);
-			d_child->setParent(owner);
+			d_child->setParentAspect(owner);
 			emit owner->abstractAspectSignalEmitter()->aspectAdded(owner, d_index);
 			emit d_child->abstractAspectSignalEmitter()->aspectAdded(d_child.get());
 		}

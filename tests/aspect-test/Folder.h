@@ -17,10 +17,6 @@ class Folder : public QObject, public AbstractAspect
 			return 0;
 		}
 
-		//! Return the QObject that is responsible for emitting signals
-		virtual const QObject *signalEmitter() const { return this; }
-		//! Return the QObject that is responsible for receiving signals
-		virtual const QObject *signalReceiver() const { return this; }
 		//! See QMetaObject::className().
 		virtual const char* className() const { return metaObject()->className(); }
 		//! See QObject::inherits().

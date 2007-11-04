@@ -48,17 +48,15 @@ class TableView : public QTableView
 public:
     //! Constructor
     TableView(QWidget * parent, TableModel * model );
-    //! Constructor
-    TableView(QWidget * parent, TableModel * model, int rows, int columns );
     //! Destructor
     virtual ~TableView();
 
-	//! Overloaded function: give decent size hint
-    QSize minimumSizeHint () const;
-		
 protected:
 	//! Overloaded function (cf. Qt documentation)
 	virtual void keyPressEvent( QKeyEvent * event );
+
+signals:
+	void requestContextMenu(TableView * view, const QPoint& pos);
 
 protected slots:
 	//! Advance current cell after [Return] or [Enter] was pressed
@@ -67,6 +65,7 @@ protected slots:
 	void updateHeaderGeometry(Qt::Orientation o, int first, int last);
 	//! Selection change handler
 	void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected );
+	void emitContextMenuRequest(const QPoint& pos);
 
 protected:
 	//! Pointer to the item delegate

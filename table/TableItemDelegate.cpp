@@ -37,13 +37,6 @@ TableItemDelegate::TableItemDelegate()
 	d_masking_color = QColor(0xff,0,0);
 }
 
-void TableItemDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                    const QModelIndex &index) const
-{
-	 emit userInput(index);
-	 QItemDelegate::setModelData(editor, model, index);
-}
-
 void TableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 		const QModelIndex &index) const
 {

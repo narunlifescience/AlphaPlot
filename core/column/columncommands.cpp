@@ -118,13 +118,13 @@ void ColumnSetModeCmd::undo()
 	ColumnFullCopyCmd::ColumnFullCopyCmd(shared_ptr<ColumnPrivate> col, const AbstractColumn * src, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_src(src)
 {
-	setText(QObject::tr("copy values into column %1").arg(col->columnLabel()));
+	setText(QObject::tr("change cell value(s) in column %1").arg(col->columnLabel()));
 }
 
 	ColumnFullCopyCmd::ColumnFullCopyCmd(shared_ptr<ColumnPrivate> col, shared_ptr<AbstractColumn> src, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_src(src.get())
 {
-	setText(QObject::tr("copy values into column %1").arg(col->columnLabel()));
+	setText(QObject::tr("change cell value(s) in column %1").arg(col->columnLabel()));
 }
 
 ColumnFullCopyCmd::~ColumnFullCopyCmd()
@@ -168,13 +168,13 @@ void ColumnFullCopyCmd::undo()
 	ColumnPartialCopyCmd::ColumnPartialCopyCmd(shared_ptr<ColumnPrivate> col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_src(src), d_src_start(src_start), d_dest_start(dest_start), d_num_rows(num_rows)
 {
-	setText(QObject::tr("copy values into column %1").arg(col->columnLabel()));
+	setText(QObject::tr("change cell value(s) in column %1").arg(col->columnLabel()));
 }
 
 	ColumnPartialCopyCmd::ColumnPartialCopyCmd(shared_ptr<ColumnPrivate> col, shared_ptr<AbstractColumn> src, int src_start, int dest_start, int num_rows, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_src(src.get()), d_src_start(src_start), d_dest_start(dest_start), d_num_rows(num_rows)
 {
-	setText(QObject::tr("copy values into column %1").arg(col->columnLabel()));
+	setText(QObject::tr("change cell value(s) in column %1").arg(col->columnLabel()));
 }
 
 ColumnPartialCopyCmd::~ColumnPartialCopyCmd()

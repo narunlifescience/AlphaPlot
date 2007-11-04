@@ -32,11 +32,9 @@
 #include "TableItemDelegate.h"
 #include "tablecommands.h"
 
-#include "StringColumnData.h"
-#include "DoubleColumnData.h"
-#include "DateTimeColumnData.h"
+#include "Column.h"
 #include "core/AbstractFilter.h"
-#include "core/CopyThroughFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
 #include "core/datatypes/Double2StringFilter.h"
 #include "core/datatypes/String2DoubleFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
@@ -52,19 +50,6 @@
 #include <QItemSelectionModel>
 #include <QItemSelection>
 
-//! Internal class for TableView
-class AutoResizeHHeader : public QHeaderView
-{ 
-public:
-	AutoResizeHHeader() : QHeaderView(Qt::Horizontal) {}
-	virtual QSize sizeHint() const
-	{
-		qDebug() << "sizeHint :" << QHeaderView::sizeHint();
-		return QHeaderView::sizeHint();
-	}
-};
-
-
 TableView::TableView(QWidget * parent, TableModel * model )
  : QTableView( parent ), d_model(model)
 {
@@ -78,7 +63,6 @@ void TableView::init(TableModel * model)
 	d_delegate = new TableItemDelegate;
 	setItemDelegate(d_delegate);
 	
-//	setHorizontalHeader(new AutoResizeHHeader);
 	QHeaderView * v_header = verticalHeader();
 	QHeaderView * h_header = horizontalHeader();
 	// Remark: ResizeToContents works in Qt 4.2.3 but is broken in 4.3.0
@@ -90,33 +74,12 @@ void TableView::init(TableModel * model)
 	h_header->setResizeMode(QHeaderView::Interactive);
 	h_header->setMovable(false);
 
-	connect(d_delegate, SIGNAL(userInput(const QModelIndex&)), d_model, SLOT(handleUserInput(const QModelIndex&)) );
 	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
 
-    setContextMenuPolicy(Qt::DefaultContextMenu);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(emitContextMenuRequest(const QPoint&)));
 }
 	
-TableView::TableView(QWidget * parent, TableModel * model, int rows, int columns )
- : QTableView( parent ), d_model(model) 
-{
-	init(model);
-
-	QList<AbstractColumnData *> cols;
-	QList<AbstractFilter *> in_filters;
-	QList<AbstractFilter *> out_filters;
-	
-	for(int i=0; i<columns; i++)
-	{
-		cols << new DoubleColumnData();
-		cols.at(i)->setLabel(QString::number(i+1));
-		in_filters << new String2DoubleFilter();
-		out_filters << new Double2StringFilter();
-	}
-
-	d_model->appendColumns(cols, in_filters, out_filters);
-	d_model->appendRows(rows);
-}
-
 void TableView::updateHeaderGeometry(Qt::Orientation o, int first, int last)
 {
 	Q_UNUSED(first)
@@ -139,25 +102,20 @@ void TableView::keyPressEvent(QKeyEvent * event)
 	QTableView::keyPressEvent(event);
 }
 
-
-
-QSize TableView::minimumSizeHint () const
-{
-	// This size will be used for new windows and when cascading etc.
-	return QSize(320,240);
-}
-
 void TableView::advanceCell()
 {
 	QModelIndex idx = currentIndex();
-    if(idx.row()+1 >= d_model->rowCount())
-        d_model->undoStack()->push(new TableAppendRowsCmd(d_model, 1) );
+	// TODO
+//    if(idx.row()+1 >= d_model->rowCount())
+//        d_model->undoStack()->push(new TableAppendRowsCmd(d_model, 1) );
 
-	setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
+//	setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void TableView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected )
 {
+	//TODO
+	/*
 	int left, right, top, bottom, i, col;
 	for(i=0; i<selected.size(); i++)
 	{
@@ -179,5 +137,12 @@ void TableView::selectionChanged(const QItemSelection & selected, const QItemSel
 		for(col=left; col<=right && col>= 0; col++)
 			d_model->columnPointer(col)->setSelected(Interval<int>(top, bottom), false);
 	}
+	*/
 	QTableView::selectionChanged(selected, deselected);
 }
+
+void TableView::emitContextMenuRequest(const QPoint& pos)
+{
+	emit requestContextMenu(this, pos);
+}
+

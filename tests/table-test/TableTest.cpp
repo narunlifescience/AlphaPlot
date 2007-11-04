@@ -3,11 +3,15 @@
 
 #include "Column.h"
 #include "TableModel.h"
+#include "TableView.h"
+#include "Table.h"
+#include "Project.h"
 #include <QtGlobal>
 #include <QtDebug>
 #include <QApplication>
 #include <QMainWindow>
-#include <QTableView>
+#include <QMdiArea>
+#include <QUndoView>
 
 #include "test_wrappers.h"
 
@@ -15,7 +19,8 @@
 
 class TableTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST_SUITE(TableTest);
-		CPPUNIT_TEST(testTableModelUI);
+//		CPPUNIT_TEST(testTableModelGUI);
+		CPPUNIT_TEST(testTableGUI);
 		CPPUNIT_TEST(testTableModel);
 		CPPUNIT_TEST(testTableModelConnections);
 		CPPUNIT_TEST_SUITE_END();
@@ -44,6 +49,7 @@ class TableTest : public CppUnit::TestFixture {
 			column[8] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col8", SciDAVis::Day));
 			column[9] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col9", SciDAVis::Day));
 			column[10] = shared_ptr<ColumnTestWrapper>(new ColumnTestWrapper("col10", double_temp));
+			column[1]->setMasked(Interval<int>(3,5));
 		}
 		
 		void tearDown() 
@@ -54,19 +60,18 @@ class TableTest : public CppUnit::TestFixture {
 		shared_ptr<ColumnTestWrapper> column[11];
 
 /* ------------------------------------------------------------------------------ */
-		void testTableModelUI() 
+		void testTableModelGUI() 
 		{
 			int argc=0;
 			char ** argv=0;
 			QApplication app(argc,argv);
 			QMainWindow mw;
 			TableModel * table_model = new TableModel();
-			TableViewTestWrapper * table_view = new TableViewTestWrapper(column);
-			table_view->setModel(table_model);
+			TableViewTestWrapper * table_view = new TableViewTestWrapper(column, table_model);
 
 			QList<  shared_ptr<Column> > list;
 
-			// expand column 0 and 2to 10 rows
+			// expand column 0 and 2 to 10 rows
 			for(int i=0; i<10; i++)
 				column[0]->setValueAt(i,i*11.0);
 			for(int i=0; i<10; i++)
@@ -78,6 +83,40 @@ class TableTest : public CppUnit::TestFixture {
 			table_model->insertColumns(0,list);
 
 			mw.setCentralWidget(table_view);
+
+			mw.show();
+			mw.resize(800,600);
+			app.exec();
+		}
+		/* ----------------------------------------------------------- */
+		void testTableGUI() 
+		{
+			int argc=0;
+			char ** argv=0;
+			QApplication app(argc,argv);
+			QMainWindow mw;
+			shared_ptr<Table> table(new Table(0, 5, 2, "table1"));
+			Project prj;
+			prj.addChild(table);
+
+			QList<  shared_ptr<Column> > list;
+
+			// expand column 0 and 2 to 10 rows
+			for(int i=0; i<10; i++)
+				column[0]->setValueAt(i,i*11.0);
+			for(int i=0; i<10; i++)
+				column[2]->setTextAt(i,QString::number(i*11));
+
+			// insert all columns into the model
+			for(int i=0; i<11; i++)
+				list << column[i];
+			table->insertColumns(0,list);
+
+			QMdiArea mdiArea;
+			mdiArea.addSubWindow(table->view());
+			mdiArea.addSubWindow(new QUndoView(prj.undoStack()));	
+
+			mw.setCentralWidget(&mdiArea);
 
 			mw.show();
 			mw.resize(800,600);

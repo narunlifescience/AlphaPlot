@@ -28,7 +28,7 @@
  ***************************************************************************/
 
 #include "TableModel.h"
-//#include "tablecommands.h"
+#include "tablecommands.h"
 #include <QString>
 #include <QDate>
 #include <QTime>
@@ -426,23 +426,23 @@ int TableModel::numColsWithPD(SciDAVis::PlotDesignation pd)
 void TableModel::connectColumn(shared_ptr<Column> col)
 {
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(descriptionChanged(AbstractColumn *)), this, 
-	SLOT(handleDescriptionChange(AbstractColumn *)));
+			SLOT(handleDescriptionChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
-	SLOT(handlePlotDesignationChange(AbstractColumn *)));
+			SLOT(handlePlotDesignationChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)), this, 
-	SLOT(handleDataChange(AbstractColumn *)));
+			SLOT(handleDataChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(dataChanged(AbstractColumn *)), this, 
-	SLOT(handleDataChange(AbstractColumn *)));
+			SLOT(handleDataChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
-		SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
+			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
-	SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
+			SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), this, 
-		SLOT(handleRowsAboutToBeDeleted(AbstractColumn *,int,int))); 
+			SLOT(handleRowsAboutToBeDeleted(AbstractColumn *,int,int))); 
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsDeleted(AbstractColumn *, int, int)), this, 
-	SLOT(handleRowsDeleted(AbstractColumn *,int,int))); 
+			SLOT(handleRowsDeleted(AbstractColumn *,int,int))); 
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(maskingChanged(AbstractColumn *)), this, 
-	SLOT(handleDataChange(AbstractColumn *))); 
+			SLOT(handleDataChange(AbstractColumn *))); 
 }
 
 void TableModel::disconnectColumn(shared_ptr<Column> col)

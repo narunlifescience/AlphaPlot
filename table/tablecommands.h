@@ -35,11 +35,9 @@
 #include <QModelIndex>
 #include <QItemSelection>
 class TableModel;
-#include "core/AbstractDataSource.h"
-#include "AbstractColumnData.h"
-#include "StringColumnData.h"
-#include "core/AbstractFilter.h"
-#include "lib/IntervalAttribute.h"
+#include "Column.h"
+#include "AbstractFilter.h"
+#include "IntervalAttribute.h"
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableShowCommentsCmd
@@ -67,155 +65,37 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnPlotDesignationCmd
+// class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
-//! Sets a column's plot designation
-class TableSetColumnPlotDesignationCmd : public QUndoCommand
-{
-public:
-	TableSetColumnPlotDesignationCmd(TableModel * model, int col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The changed column's index
-	int d_col;
-	//! New plot designation
-	SciDAVis::PlotDesignation d_new_pd;
-	//! Old plot designation
-	SciDAVis::PlotDesignation d_old_pd;
-	//! The model to modify
-	TableModel * d_model;
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnPlotDesignationCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnLabelCmd
-///////////////////////////////////////////////////////////////////////////
-//! Sets a column's label
-class TableSetColumnLabelCmd : public QUndoCommand
-{
-public:
-	TableSetColumnLabelCmd(TableModel * model, int col, const QString& label, QUndoCommand * parent = 0 );
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The changed column's index
-	int d_col;
-	//! New column label
-	QString d_new_label;
-	//! Old column label
-	QString d_old_label;
-	//! The model to modify
-	TableModel * d_model;
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnLabelCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableSetColumnCommentCmd
-///////////////////////////////////////////////////////////////////////////
-//! Sets a column's comment
-class TableSetColumnCommentCmd : public QUndoCommand
-{
-public:
-	TableSetColumnCommentCmd(TableModel * model, int col, const QString& comment, QUndoCommand * parent = 0 );
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The changed column's index
-	int d_col;
-	//! New column comment
-	QString d_new_comment;
-	//! Old column comment
-	QString d_old_comment;
-	//! The model to modify
-	TableModel * d_model;
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableSetColumnCommentCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableClearColumnCmd
-///////////////////////////////////////////////////////////////////////////
-//! Removes all data from a column
+//! Insert columns
 /**
- * This command removes all data from a column except the label, the comment,
- * the plot designation and the formulas. It replaces the column with an
- * empty one, therefore the old column never needs to be copied. So this command
- * should be pretty fast in redo() as well as undo().
+ * The number of inserted columns is cols.size().
  */
-class TableClearColumnCmd : public QUndoCommand
+class TableInsertColumnsCmd : public QUndoCommand
 {
 public:
-	TableClearColumnCmd( TableModel * model, int col, QUndoCommand * parent = 0 );
-	~TableClearColumnCmd();
+	TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent = 0 );
+	~TableInsertColumnsCmd();
 
 	virtual void redo();
 	virtual void undo();
 
 private:
-	//! The cleared column's index
-	int d_col;
-	//! The original column
-	AbstractColumnData * d_orig_col;
-	//! The cleared column
-	AbstractColumnData * d_cleared_col;
 	//! The model to modify
 	TableModel * d_model;
+	//! Column to insert before
+	int d_before;
+	//! The new columns
+	QList< shared_ptr<Column> > d_cols;
+	//! Flag to determine whether the columns can be deleted in the dtor
+	bool d_undone;
+	//! Row count before the command
+	int d_rows_before;
+
 };
 
 ///////////////////////////////////////////////////////////////////////////
-// end of class TableClearColumnCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableUserInputCmd
-///////////////////////////////////////////////////////////////////////////
-//! Handles user input
-class TableUserInputCmd : public QUndoCommand
-{
-public:
-	TableUserInputCmd( TableModel * model, const QModelIndex& index, QUndoCommand * parent = 0 );
-	~TableUserInputCmd();
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The model index of the edited cell
-	QModelIndex d_index;
-	//! The previous data
-	QVariant d_old_data;
-	//! The previous data
-	QVariant d_new_data;
-	//! Validity flag for undo
-	bool d_invalid_before;
-	//! Validity flag for redo
-	bool d_invalid_after;
-	//! The state flag 
-	/**
-	 * true means that his command has been undone at least once
-	 */
-	bool d_previous_undo;
-	//! The model to modify
-	TableModel * d_model;
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableUserInputCmd
+// end of class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
@@ -241,6 +121,8 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableAppendRowsCmd
 ///////////////////////////////////////////////////////////////////////////
+
+#if false
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableRemoveRowsCmd
@@ -357,45 +239,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableAppendColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableInsertColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-//! Insert columns
-/**
- * The number of inserted columns is cols.size().
- */
-class TableInsertColumnsCmd : public QUndoCommand
-{
-public:
-	TableInsertColumnsCmd( TableModel * model, int before, QList<AbstractColumnData *> cols,
-		QList<AbstractFilter *> in_filters, QList<AbstractFilter *> out_filters, QUndoCommand * parent = 0 );
-	~TableInsertColumnsCmd();
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The model to modify
-	TableModel * d_model;
-	//! Column to insert before
-	int d_before;
-	//! The new columns
-	QList<AbstractColumnData *> d_cols;
-	//! The input filters
-	QList<AbstractFilter *> d_in_filters;
-	//! The output filters
-	QList<AbstractFilter *> d_out_filters;
-	//! Flag to determine whether the columns can be deleted in the dtor
-	bool d_undone;
-	//! Row count before the command
-	int d_rows_before;
-
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
@@ -594,4 +437,5 @@ private:
 // end of class TableSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 
+#endif
 #endif // ifndef TABLE_COMMANDS_H

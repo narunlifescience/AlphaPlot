@@ -42,12 +42,12 @@ AbstractAspect::AbstractAspect(const QString &name)
 AbstractAspect::~AbstractAspect()
 {
 	for(int i=0; i<childCount(); i++)
-		d->child(i)->setParent(0);
+		d->child(i)->setParentAspect(0);
 	delete d_wrapper;
 	delete d;
 }
 
-void AbstractAspect::setParent(AbstractAspect * new_parent)
+void AbstractAspect::setParentAspect(AbstractAspect * new_parent)
 {
 	if(d_parent)
 		QObject::disconnect(d_wrapper, 0, d_parent->abstractAspectSignalEmitter(), 0);

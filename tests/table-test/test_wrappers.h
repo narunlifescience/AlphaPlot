@@ -1,5 +1,7 @@
 #include "Column.h"
 #include "TableModel.h"
+#include "TableView.h"
+#include "Table.h"
 #include <QTableView>
 #include <QInputDialog>
 #include <QMessageBox>
@@ -8,10 +10,13 @@
 
 class ColumnTestWrapper : public Column
 {
-	
 	public:
 		virtual QUndoStack *undoStack() const 
 		{ 
+			return staticUndoStack(); 
+		}
+		static QUndoStack *staticUndoStack()
+		{
 			static QUndoStack * undo_stack = 0;
 			if(!undo_stack) undo_stack = new QUndoStack();
 			return undo_stack; 
@@ -28,13 +33,13 @@ class ColumnTestWrapper : public Column
 };
 
 
-class TableViewTestWrapper : public QTableView
+class TableViewTestWrapper : public TableView
 {
 	Q_OBJECT
 
 	public:
-		TableViewTestWrapper(shared_ptr<ColumnTestWrapper> * cols, QWidget * parent = 0) 
-			: QTableView(parent), column(cols) {};
+		TableViewTestWrapper(shared_ptr<ColumnTestWrapper> * cols, TableModel * model, QWidget * parent = 0) 
+			: TableView(parent,model), column(cols) { setContextMenuPolicy(Qt::DefaultContextMenu); }
 		~TableViewTestWrapper() {};
 
 	public slots:

@@ -30,11 +30,6 @@
 #include <QItemDelegate>
 
 //! Item delegate for TableView
-/**
- * This class makes sure the undo system of
- * is notified when a user finished editing
- * a cell.
- */ 
 class TableItemDelegate : public QItemDelegate
 {
     Q_OBJECT
@@ -42,8 +37,6 @@ class TableItemDelegate : public QItemDelegate
 public:
 	//! Standard constructor.
 	TableItemDelegate();
-	//! Wrapper function that emits userInput()
-	virtual void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 	//! Custom cell painting.
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	//! Set the color for masked cells
