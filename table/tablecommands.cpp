@@ -42,9 +42,9 @@ TableShowCommentsCmd::TableShowCommentsCmd( TableModel * model, bool show, QUndo
  : QUndoCommand( parent ), d_new_state(show), d_model(model)
 {
 	if(show)
-		setText(QObject::tr("show column comments"));
+		setText(QObject::tr("%1: show column comments").arg(d_model->name()));
 	else
-		setText(QObject::tr("hide column comments"));
+		setText(QObject::tr("%1: hide column comments").arg(d_model->name()));
 }
 
 void TableShowCommentsCmd::redo()
@@ -68,8 +68,7 @@ void TableShowCommentsCmd::undo()
 TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_before(before), d_cols(cols)
 {
-	setText(QObject::tr("insert columns"));
-	d_undone = false;
+	setText(QObject::tr("%1: insert %2 columns").arg(d_model->name()).arg(d_cols.size()));
 }
 
 TableInsertColumnsCmd::~TableInsertColumnsCmd()
@@ -78,17 +77,14 @@ TableInsertColumnsCmd::~TableInsertColumnsCmd()
 
 void TableInsertColumnsCmd::redo()
 {
-//	d_rows_before = d_model->rowCount();
+	d_rows_before = d_model->rowCount();
 	d_model->insertColumns(d_before, d_cols);
-	d_undone = false;
 }
 
 void TableInsertColumnsCmd::undo()
 {
 	d_model->removeColumns(d_before, d_cols.size());
-//	if(d_rows_before < d_model->rowCount())
-//		d_model->removeRows(d_rows_before, d_model->rowCount() - d_rows_before);
-	d_undone = true;
+	d_model->setRowCount(d_rows_before);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -96,30 +92,62 @@ void TableInsertColumnsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableAppendRowsCmd
+// class TableSetNumberOfRowsCmd
 ///////////////////////////////////////////////////////////////////////////
-TableAppendRowsCmd::TableAppendRowsCmd( TableModel * model, int count, QUndoCommand * parent )
- : QUndoCommand( parent ), d_model(model), d_count(count)
+TableSetNumberOfRowsCmd::TableSetNumberOfRowsCmd( TableModel * model, int rows, QUndoCommand * parent )
+ : QUndoCommand( parent ), d_model(model), d_rows(rows)
 {
-	setText(QObject::tr("append rows"));
+	setText(QObject::tr("%1: set the number of rows to %2").arg(d_model->name()).arg(rows));
 }
 
-TableAppendRowsCmd::~TableAppendRowsCmd()
+TableSetNumberOfRowsCmd::~TableSetNumberOfRowsCmd()
 {
 }
 
-void TableAppendRowsCmd::redo()
+void TableSetNumberOfRowsCmd::redo()
 {
-	d_model->appendRows(d_count);
+	d_old_rows = d_model->rowCount();
+	d_model->setRowCount(d_rows);
 }
 
-void TableAppendRowsCmd::undo()
+void TableSetNumberOfRowsCmd::undo()
 {
-	d_model->removeRows(d_model->rowCount()-d_count, d_count);
+	d_model->setRowCount(d_old_rows);
 }
 
 ///////////////////////////////////////////////////////////////////////////
-// end of class TableAppendRowsCmd
+// end of class TableSetNumberOfRowsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableRemoveColumnsCmd
+///////////////////////////////////////////////////////////////////////////
+TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
+ : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
+{
+	setText(QObject::tr("%1: remove columns").arg(d_model->name()));
+}
+
+TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
+{
+}
+
+void TableRemoveColumnsCmd::redo()
+{
+	if(d_old_cols.isEmpty())
+		for(int i=d_first; i<(d_first+d_count); i++)
+			d_old_cols.append(dynamic_pointer_cast<Column>(d_model->output(i)));
+
+	d_model->removeColumns(d_first, d_count);
+}
+
+void TableRemoveColumnsCmd::undo()
+{
+	d_model->insertColumns(d_first, d_old_cols);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 #if false
@@ -130,7 +158,7 @@ void TableAppendRowsCmd::undo()
 TableRemoveRowsCmd::TableRemoveRowsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
  : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
 {
-	setText(QObject::tr("remove rows"));
+	setText(QObject::tr("%1: remove %2 rows").arg(d_model->name()).arg(d_count));
 }
 
 TableRemoveRowsCmd::~TableRemoveRowsCmd()
@@ -214,55 +242,12 @@ void TableRemoveRowsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableRemoveColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
- : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
-{
-	setText(QObject::tr("remove columns"));
-}
-
-TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
-{
-	for(int i=0; i<d_old_cols.size(); i++)
-	{
-		delete d_old_cols.at(i);
-		delete d_in_filters.at(i);
-		delete d_out_filters.at(i);
-	}
-}
-
-void TableRemoveColumnsCmd::redo()
-{
-	for(int i=d_first; i<(d_first+d_count); i++)
-	{
-		d_old_cols.append(d_model->columnPointer(i));
-		d_in_filters.append(d_model->inputFilter(i));
-		d_out_filters.append(d_model->outputFilter(i));
-	}
-
-	d_model->removeColumns(d_first, d_count);
-}
-
-void TableRemoveColumnsCmd::undo()
-{
-	d_model->insertColumns(d_first, d_old_cols, d_in_filters, d_out_filters);
-	d_old_cols.clear();
-	d_in_filters.clear();
-	d_out_filters.clear();
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableRemoveColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
 // class TableInsertRowsCmd
 ///////////////////////////////////////////////////////////////////////////
 TableInsertRowsCmd::TableInsertRowsCmd( TableModel * model, int before, int count, QUndoCommand * parent )
  : QUndoCommand( parent ), d_model(model), d_before(before), d_count(count)
 {
-	setText(QObject::tr("insert rows"));
+	setText(QObject::tr("%1: insert rows").arg(d_model->name()));
 }
 
 TableInsertRowsCmd::~TableInsertRowsCmd()
@@ -290,7 +275,7 @@ TableAppendColumnsCmd::TableAppendColumnsCmd( TableModel * model, QList<Abstract
 		QList<AbstractFilter *> in_filters, QList<AbstractFilter *> out_filters, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_cols(cols), d_in_filters(in_filters), d_out_filters(out_filters)
 {
-	setText(QObject::tr("append columns"));
+	setText(QObject::tr("%1: append columns").arg(d_model->name()));
 	d_undone = false;
 }
 
@@ -330,7 +315,7 @@ TableSetColumnValuesCmd::TableSetColumnValuesCmd( TableModel * model, int col,
 {
 	d_data = new StringColumnData(data);
 	d_backup = new StringColumnData();
-	setText(QObject::tr("set column values"));
+	setText(QObject::tr("%1: set column values").arg(d_model->name()));
 }
 
 TableSetColumnValuesCmd::~TableSetColumnValuesCmd()
@@ -432,7 +417,7 @@ TableReplaceColumnsCmd::TableReplaceColumnsCmd( TableModel * model, int first, Q
 		QList<AbstractFilter *> in_filters, QList<AbstractFilter *> out_filters, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_first(first), d_cols(cols), d_in_filters(in_filters), d_out_filters(out_filters)
 {
-	setText(QObject::tr("replace columns"));
+	setText(QObject::tr("%1: replace columns").arg(d_model->name()));
 	d_undone = false;
 }
 
@@ -490,7 +475,7 @@ TableReplaceFilterCmd::TableReplaceFilterCmd( TableModel * model, int col, Abstr
 		AbstractFilter * out_filter, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_col(col), d_in_filter(in_filter), d_out_filter(out_filter)
 {
-	setText(QObject::tr("change column type mode"));
+	setText(QObject::tr("%1: change column type mode").arg(d_model->name()));
 	d_old_in_filter = 0;
 	d_old_out_filter = 0;
 	d_undone = false;
@@ -539,7 +524,7 @@ void TableReplaceFilterCmd::undo()
 TableSetColumnNumericDisplayCmd::TableSetColumnNumericDisplayCmd(TableModel * model, int col, char format, int digits, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_col(col), d_format(format), d_digits(digits)
 {
-	setText(QObject::tr("set column numeric display"));
+	setText(QObject::tr("%1: set column numeric display").arg(d_model->name()));
 }
 
 void TableSetColumnNumericDisplayCmd::redo()
@@ -566,7 +551,7 @@ void TableSetColumnNumericDisplayCmd::undo()
 TableSetFormulaCmd::TableSetFormulaCmd(TableModel * model, int col, Interval<int> interval, const QString& formula, QUndoCommand * parent)
 : QUndoCommand( parent ), d_col(col), d_interval(interval), d_formula(formula)
 {
-	setText(QObject::tr("set formula"));
+	setText(QObject::tr("%1: set formula").arg(d_model->name()));
 	d_undone = false;
 }
 

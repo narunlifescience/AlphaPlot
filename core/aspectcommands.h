@@ -45,7 +45,7 @@ class AspectNameChangeCmd : public QUndoCommand
 	public:
 		AspectNameChangeCmd(AspectPrivate *target, const QString &new_name)
 			: d_target(target), d_other_name(new_name) {
-				setText(QObject::tr("rename %1 to %2").arg(d_target->name()).arg(new_name));
+				setText(QObject::tr("%1: rename to %2").arg(d_target->name()).arg(new_name));
 			}
 
 		virtual void redo() {
@@ -68,7 +68,7 @@ class AspectCommentChangeCmd : public QUndoCommand
 	public:
 		AspectCommentChangeCmd(AspectPrivate *target, const QString &new_comment)
 			: d_target(target), d_other_comment(new_comment) {
-				setText(QObject::tr("change comment of %1").arg(d_target->name()));
+				setText(QObject::tr("%1: change comment").arg(d_target->name()));
 			}
 
 		virtual void redo() {
@@ -91,7 +91,7 @@ class AspectCaptionSpecChangeCmd : public QUndoCommand
 	public:
 		AspectCaptionSpecChangeCmd(AspectPrivate *target, const QString &new_caption_spec)
 			: d_target(target), d_other_caption_spec(new_caption_spec) {
-				setText(QObject::tr("change caption of %1").arg(d_target->name()));
+				setText(QObject::tr("%1: change caption").arg(d_target->name()));
 			}
 
 		virtual void redo() {
@@ -115,7 +115,7 @@ class AspectChildRemoveCmd : public QUndoCommand
 	public:
 		AspectChildRemoveCmd(AspectPrivate * target, shared_ptr<AbstractAspect> child)
 			: d_target(target), d_child(child) {
-				setText(QObject::tr("remove %1").arg(d_child->name()));
+				setText(QObject::tr("%1: remove %2").arg(d_target->name()).arg(d_child->name()));
 			}
 
 		virtual void redo() {
@@ -150,7 +150,7 @@ class AspectChildAddCmd : public AspectChildRemoveCmd
 	public:
 		AspectChildAddCmd(AspectPrivate * target, shared_ptr<AbstractAspect> child, int index)
 			: AspectChildRemoveCmd(target, child) {
-				setText(QObject::tr("add %1").arg(d_child->name()));
+				setText(QObject::tr("%1: add %2").arg(d_target->name()).arg(d_child->name()));
 				d_index = index;
 			}
 

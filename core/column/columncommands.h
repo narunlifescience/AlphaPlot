@@ -220,6 +220,8 @@ private:
 	int d_count;
 	//! Number of removed rows actually containing data
 	int d_data_row_count;
+	//! The number of rows before the removal
+	int d_old_size;
 	//! Column saving the removed rows
 	shared_ptr<ColumnPrivate> d_backup;
 	//! Backup of the masking attribute

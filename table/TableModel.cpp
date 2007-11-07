@@ -44,6 +44,7 @@ TableModel::TableModel( QObject * parent )
 	d_column_count = 0;
 	d_row_count = 0;
 	d_show_comments = false;
+	d_name = "TableModel";
 }
 
 TableModel::~TableModel()
@@ -186,7 +187,7 @@ void TableModel::replaceColumns(int first, QList< shared_ptr<Column> > new_cols)
 	{
 		int rows = new_cols.at(i)->rowCount();
 		if(rows > d_row_count)
-			appendRows(rows-d_row_count); // append rows to resize table
+			setRowCount(rows); 
 
 		if(d_columns.at(first+i))
 			d_columns.at(first+i)->notifyReplacement(new_cols.at(i));
@@ -218,7 +219,7 @@ void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 	{
 		rows = cols.at(i)->rowCount();
 		if(rows > d_row_count)
-			appendRows(rows-d_row_count); // append rows to resize table
+			setRowCount(rows); 
 	}
 
 	beginInsertColumns(QModelIndex(), before, before+count-1);
@@ -241,8 +242,7 @@ void TableModel::removeColumns(int first, int count)
 
 	Q_ASSERT(first >= 0);
 
-	if(first+count > d_column_count)
-		count = d_column_count - first;
+	Q_ASSERT(first+count <= d_column_count);
 
 	beginRemoveColumns(QModelIndex(), first, first+count-1);
 	emit columnsAboutToBeRemoved(first, count);
@@ -262,44 +262,25 @@ void TableModel::appendColumns(QList< shared_ptr<Column>  > cols)
 	insertColumns(d_column_count, cols);
 }
 
-void TableModel::removeRows(int first, int count)
+void TableModel::setRowCount(int rows)
 {
-	if( (count < 1) || (first >= d_row_count) )
+	int diff = rows - d_row_count;
+	if(diff == 0) 
 		return;
 
-	Q_ASSERT(first >= 0);
-
-	if(first+count > d_row_count)
-		count = d_row_count - first;
-
-	beginRemoveRows(QModelIndex(), first, first+count-1);
-	for(int col=0; col<d_column_count; col++)
-		d_columns.at(col)->removeRows(first, count);
-	d_row_count -= count;
-	updateVerticalHeader(first);
-	endRemoveRows();
-}
-
-void TableModel::insertRows(int before, int count)
-{
-	if( (count < 1) || (before > d_row_count))
-		return;
-
-	Q_ASSERT(before >= 0);
-
-	for(int col=0; col<d_column_count; col++)
-		d_columns.at(col)->insertRows(before, count); 
-}
-
-void TableModel::appendRows(int count)
-{
-	if(count < 1) 
-		return;
-
-	beginInsertRows(QModelIndex(), d_row_count, d_row_count+count-1);
-	d_row_count += count;
-	updateVerticalHeader(d_row_count - count);
-	endInsertRows();
+	if(diff > 0)
+	{
+		beginInsertRows(QModelIndex(), d_row_count, rows-1);
+		d_row_count = rows;
+		updateVerticalHeader(d_row_count - diff);
+		endInsertRows();
+	}
+	else
+	{
+		beginRemoveRows(QModelIndex(), rows, d_row_count-1);
+		d_row_count = rows;
+		endRemoveRows();
+	}
 }
 
 void TableModel::updateVerticalHeader(int start_row)
@@ -473,9 +454,9 @@ void TableModel::handleRowsAboutToBeInserted(AbstractColumn * col, int before, i
 	int new_size = col->rowCount() + count; 
 	if(before <= col->rowCount() && new_size > d_row_count)
 	{
-		emit requestResize(new_size - d_row_count);
+		emit requestResize(new_size);
 		if(d_row_count != new_size) // request was ignored
-			appendRows(new_size - d_row_count);
+			setRowCount(new_size);
 	}
 }
 
@@ -499,8 +480,5 @@ void TableModel::handleRowsDeleted(AbstractColumn * col, int first, int count)
 {
 	Q_UNUSED(count);
 	int index = columnIndex(static_cast<Column *>(col));
-	if(first <= col->rowCount())
-		emitDataChanged(first, index, col->rowCount()-1, index);
-	else
-		emitDataChanged(col->rowCount()-1, index, d_row_count-1, index);
+	emitDataChanged(first, index, d_row_count-1, index);
 }

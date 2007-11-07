@@ -46,18 +46,27 @@ class QUndoStack;
   (i.e. 1D vector based data like x-values and y-values for a plot).
   It contains the overloaded functions of QAbstractItemModel to be 
   called from views as well as functions for manipulating the
-  data using the Column class.
+  wraped data using the Column class.
 
   Each column is represented by a Column object and can be directly 
   accessed by the pointer returned by output(). Most of the column 
-  manipulation is done directly to the columns using the table commands. 
-  The commands are also responsible for calling emitDataChanged() when any
-  cells changed.
+  manipulation is done directly to the columns. The signals of
+  the columns are connected to various handlers in TableModel which
+  acts according to all changes made to the columns.
 
   In every column two filters are always present: An input filter that
   can convert a string (e.g. entered by the user in a cell) to
   the column's data type and an output filter that delivers
   the correct string representation to display in a table.
+
+  The number of columns in the table will always be equal to
+  d_columns.size(). The number of rows is generally indepenent
+  of the number of rows in the wrapped columns. It should however
+  be large enough to display the longest column. When columns
+  are inserted, resized etc., the table is resized automatically.
+
+  TableModel also implements AbstractFilter and thus acts
+  as a filter with no inputs and columnCount() outputs. 
   */
 class TableModel : public QAbstractItemModel, public AbstractFilter 
 {
@@ -125,18 +134,6 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * \param count number of columns to remove
 		 */
 		void removeColumns(int first, int count);
-		//! Insert rows before row number 'first'
-		/**
-		 * If first is higher than (current number of rows -1),
-		 * the rows will be appended.
-		 * \param before index of the row to insert before
-		 * \param count number of rows to insert
-		 */
-		void insertRows(int before, int count);
-		//! Append rows to the table
-		void appendRows(int count);
-		//! Remove rows from the table
-		void removeRows(int first, int count);
 		//! Append columns to the table
 		/**
 		 * TableModel takes over ownership of the column.
@@ -148,6 +145,8 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		int columnCount() const { return d_column_count; }
 		//! Return the number of rows in the table
 		int rowCount() const { return d_row_count; }
+		//! Set the number of rows of the table
+		void setRowCount(int count);
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
 		//! Return whether comments are show currently
@@ -171,7 +170,8 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 				if(d_columns.at(i).get() == col) return i;
 			return -1;
 		}
-
+		QString name() const { return d_name; }
+		void setName(const QString& name) { d_name = name; }
 		//@}
 
 	private slots:
@@ -200,11 +200,6 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 */
 		void requestResize(int new_rows);
 
-	public slots:
-			// FIXME:
-			//! Push a command on the undo stack to provide undo for user input in cells
-			//	void handleUserInput(const QModelIndex& index);
-
 	private:
 			//! The number of columns
 			int d_column_count;
@@ -218,6 +213,8 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 			QList< shared_ptr<Column> > d_columns;	
 			//! Flag: show/high column comments
 			bool d_show_comments;
+			//! Table name (== aspect name of corresponding Table)
+			QString d_name;
 
 			//! Update the vertical header labels
 			/**

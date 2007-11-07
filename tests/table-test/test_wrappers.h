@@ -38,7 +38,7 @@ class TableViewTestWrapper : public TableView
 	Q_OBJECT
 
 	public:
-		TableViewTestWrapper(shared_ptr<ColumnTestWrapper> * cols, TableModel * model, QWidget * parent = 0) 
+		TableViewTestWrapper(shared_ptr<Column> * cols, TableModel * model, QWidget * parent = 0) 
 			: TableView(parent,model), column(cols) { setContextMenuPolicy(Qt::DefaultContextMenu); }
 		~TableViewTestWrapper() {};
 
@@ -82,6 +82,6 @@ class TableViewTestWrapper : public TableView
 		}
 		
 	private:
-		shared_ptr<ColumnTestWrapper> *column;
+		shared_ptr<Column> *column;
 };
 

@@ -4,6 +4,7 @@ CONFIG += debug
 DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table  ..
 INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table ..
 unix:LIBS += -lcppunit
+QMAKE_CXX = distcc
 
 HEADERS += \
 			  globals.h \

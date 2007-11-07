@@ -87,8 +87,6 @@ private:
 	int d_before;
 	//! The new columns
 	QList< shared_ptr<Column> > d_cols;
-	//! Flag to determine whether the columns can be deleted in the dtor
-	bool d_undone;
 	//! Row count before the command
 	int d_rows_before;
 
@@ -99,14 +97,14 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableAppendRowsCmd
+// class TableSetNumberOfRowsCmd
 ///////////////////////////////////////////////////////////////////////////
-//! Append rows
-class TableAppendRowsCmd : public QUndoCommand
+//! Set the number of rows in the table
+class TableSetNumberOfRowsCmd : public QUndoCommand
 {
 public:
-	TableAppendRowsCmd( TableModel * model, int count, QUndoCommand * parent = 0 );
-	~TableAppendRowsCmd();
+	TableSetNumberOfRowsCmd( TableModel * model, int rows, QUndoCommand * parent = 0 );
+	~TableSetNumberOfRowsCmd();
 
 	virtual void redo();
 	virtual void undo();
@@ -115,11 +113,41 @@ private:
 	//! The model to modify
 	TableModel * d_model;
 	//! Number of rows
-	int d_count;
+	int d_rows;
+	//! Number of rows before
+	int d_old_rows;
 };
 
 ///////////////////////////////////////////////////////////////////////////
-// end of class TableAppendRowsCmd
+// end of class TableSetNumberOfRowsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class TableRemoveColumnsCmd
+///////////////////////////////////////////////////////////////////////////
+//! Remove columns
+class TableRemoveColumnsCmd : public QUndoCommand
+{
+public:
+	TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent = 0 );
+	~TableRemoveColumnsCmd();
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The model to modify
+	TableModel * d_model;
+	//! The first column
+	int d_first;
+	//! The number of columns to be removed
+	int d_count;
+	//! The removed columns
+	QList< shared_ptr<Column> > d_old_cols;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 #if false
@@ -150,38 +178,6 @@ private:
 
 ///////////////////////////////////////////////////////////////////////////
 // end of class TableRemoveRowsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableRemoveColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-//! Remove columns
-class TableRemoveColumnsCmd : public QUndoCommand
-{
-public:
-	TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent = 0 );
-	~TableRemoveColumnsCmd();
-
-	virtual void redo();
-	virtual void undo();
-
-private:
-	//! The model to modify
-	TableModel * d_model;
-	//! The first column
-	int d_first;
-	//! The number of columns to be removed
-	int d_count;
-	//! The removed columns
-	QList<AbstractColumnData *> d_old_cols;
-	//! The removed input filters
-	QList<AbstractFilter *> d_in_filters;
-	//! The removed output filters
-	QList<AbstractFilter *> d_out_filters;
-};
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////

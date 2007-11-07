@@ -71,6 +71,9 @@ using boost::dynamic_pointer_cast;
 
 #define OBSOLETE qDebug("obsolete Table function called");
 
+#define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
+#define RESET_CURSOR QApplication::restoreOverrideCursor()
+
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 : AbstractAspect(name), scripted(engine)
 {
@@ -91,18 +94,27 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	connect(d_model, SIGNAL(columnsRemoved(int, int)),
 			this, SLOT(handleColumnsRemoved(int, int)));
 
+	setModelName();
+	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
+		this, SLOT(setModelName()));
+
 	// set initial number of rows and columns
 	QList< shared_ptr<Column> > cols;
 	for(int i=0; i<columns; i++)
 		cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+	d_model->setRowCount(rows);
 	d_model->appendColumns(cols);
-	d_model->appendRows(rows);
 
 }
 
 Table::~Table()
 {
 
+}
+
+void Table::setModelName()
+{
+	d_model->setName(name());
 }
 
 QMenu *Table::createContextMenu()
@@ -134,9 +146,9 @@ void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 	context_menu.exec(view->viewport()->mapToGlobal(pos));
 }
 
-void Table::handleModelResizeRequest(int new_rows)
+void Table::handleModelResizeRequest(int new_size)
 {
-	exec(new TableAppendRowsCmd(d_model, new_rows));
+	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
 }
 
 void Table::handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols)
@@ -182,10 +194,70 @@ void Table::handleColumnsRemoved(int first, int count)
 
 void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
 {
+	WAIT_CURSOR;
 	QUndoStack * stack = undoStack();
-	stack->beginMacro(QString("insert %1 columns").arg(new_cols.size()));
+	stack->beginMacro(QObject::tr("%1: insert %2 columns").arg(name()).arg(new_cols.size()));
 	stack->push(new TableInsertColumnsCmd(d_model, before, new_cols));
 	stack->endMacro();
+	RESET_CURSOR;
+}
+
+void Table::removeColumns(int first, int count)
+{
+	WAIT_CURSOR;
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QObject::tr("%1: remove %2 columns").arg(name()).arg(count));
+	stack->push(new TableRemoveColumnsCmd(d_model, first, count));
+	stack->endMacro();
+	RESET_CURSOR;
+}
+
+void Table::removeRows(int first, int count)
+{
+	WAIT_CURSOR;
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QObject::tr("%1: remove %2 rows").arg(name()).arg(count));
+	int end = d_model->columnCount();
+	for(int col=0; col<end; col++)
+		d_model->output(col)->removeRows(first, count);
+	stack->push(new TableSetNumberOfRowsCmd(d_model, d_model->rowCount()-count));
+	stack->endMacro();
+	RESET_CURSOR;
+}
+
+void Table::insertRows(int before, int count)
+{
+	WAIT_CURSOR;
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QObject::tr("%1: insert %2 rows").arg(name()).arg(count));
+	int end = d_model->columnCount();
+	for(int col=0; col<end; col++)
+		d_model->output(col)->insertRows(before, count);
+	// the table will be resized automatically if necessary
+	stack->endMacro();
+	RESET_CURSOR;
+}
+
+void Table::setRowCount(int new_size)
+{
+	WAIT_CURSOR;
+	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
+	RESET_CURSOR;
+}
+
+int Table::columnCount()
+{
+	return d_model->columnCount();
+}
+
+int Table::rowCount()
+{
+	return d_model->rowCount();
+}
+
+void Table::showComments(bool on)
+{
+	exec(new TableShowCommentsCmd(d_model, on));
 }
 
 #if false
@@ -202,8 +274,8 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString&
 	setBirthDate(dt.toString(Qt::LocalDate));
 
 	// create model and view
-	d_table_model = new TableModel(this);
-	d_table_view = new TableView(this, d_table_model, rows, cols);
+	d_model = new TableModel(this);
+	d_table_view = new TableView(this, d_model, rows, cols);
 	d_table_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
 	d_table_view->setFocusPolicy(Qt::StrongFocus);
@@ -231,11 +303,11 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString&
 	// initialized the columns
 	for (int i=0; i<cols; i++)
 	{
-		d_table_model->setColumnLabel(i, QString::number(i+1));
-		d_table_model->setColumnPlotDesignation(i, SciDAVis::Y);
+		d_model->setColumnLabel(i, QString::number(i+1));
+		d_model->setColumnPlotDesignation(i, SciDAVis::Y);
 	}
 	if(cols > 0)
-		d_table_model->setColumnPlotDesignation(0, SciDAVis::X);
+		d_model->setColumnPlotDesignation(0, SciDAVis::X);
 
 	// calculate initial geometry
 	int w=4*h_header->sectionSize(0);
@@ -251,17 +323,12 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString&
 	connect(sel_all, SIGNAL(activated()), d_table_view, SLOT(selectAll()));
 }
 
-QUndoStack *Table::undoStack() const
-{
-	return d_table_model->undoStack();
-}
-
 QList<AbstractDataSource *> Table::selectedColumns(bool full)
 {
 	QList<AbstractDataSource *> list;
 	int cols = columnCount();
 	for (int i=0; i<cols; i++)
-		if(isColumnSelected(i, full)) list << d_table_model->output(i);
+		if(isColumnSelected(i, full)) list << d_model->output(i);
 
 	return list;
 }
@@ -297,22 +364,22 @@ bool Table::isColumnSelected(int col, bool full)
 
 QString Table::columnLabel(int col)
 {
-	return d_table_model->columnLabel(col);
+	return d_model->columnLabel(col);
 }
 
 void Table::setColumnLabel(int col, const QString& label)
 {
-	undoStack()->push( new TableSetColumnLabelCmd(d_table_model, col, label) );
+	undoStack()->push( new TableSetColumnLabelCmd(d_model, col, label) );
 }
 
 QString Table::columnComment(int col)
 {
-	return d_table_model->columnComment(col);
+	return d_model->columnComment(col);
 }
 
 void Table::setColumnComment(int col, const QString& comment)
 {
-	undoStack()->push( new TableSetColumnCommentCmd(d_table_model, col, comment) );
+	undoStack()->push( new TableSetColumnCommentCmd(d_model, col, comment) );
 }
 
 int Table::columnCount(SciDAVis::PlotDesignation pd)
@@ -323,16 +390,6 @@ int Table::columnCount(SciDAVis::PlotDesignation pd)
 		if(plotDesignation(i) == pd) count++;
 	
 	return count;
-}
-
-int Table::columnCount()
-{
-	return d_table_model->columnCount();
-}
-
-int Table::rowCount()
-{
-	return d_table_model->rowCount();
 }
 
 void Table::setBackgroundColor(const QColor& col)
@@ -370,41 +427,14 @@ void Table::setHeaderFont(const QFont& fnt)
 	d_table_view->horizontalHeader()->setFont(fnt);
 }
 
-void Table::showComments(bool on)
-{
-	undoStack()->push(new TableShowCommentsCmd(d_table_model, on));
-}
-
 QStringList Table::columnLabels()
 {
 	QStringList list;
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
-		list << d_table_model->columnLabel(i);
+		list << d_model->columnLabel(i);
 
 	return list;
-}
-
-void Table::setRowCount(int new_size)
-{
-	int rows = rowCount();
-	if (rows == new_size)
-		return;
-
-	if (new_size < rows)
-	{
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		undoStack()->push(new TableRemoveRowsCmd(d_table_model, new_size, rows-new_size));
-		QApplication::restoreOverrideCursor();
-	}
-	else
-	{
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		undoStack()->push(new TableAppendRowsCmd(d_table_model, new_size-rows) );
-		QApplication::restoreOverrideCursor();
-	}
-	//TODO: remove this later
-	emit modifiedWindow(this);
 }
 
 void Table::setColumnCount(int new_size)
@@ -416,7 +446,7 @@ void Table::setColumnCount(int new_size)
 	if (new_size < old_size)
 	{
 		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		undoStack()->push(new TableRemoveColumnsCmd(d_table_model, new_size, old_size-new_size));
+		undoStack()->push(new TableRemoveColumnsCmd(d_model, new_size, old_size-new_size));
 		QApplication::restoreOverrideCursor();
 	}
 	else
@@ -446,7 +476,7 @@ void Table::setColumnCount(int new_size)
 			in_filters << new String2DoubleFilter();
 			out_filters << new Double2StringFilter();
 		}
-		undoStack()->push(new TableAppendColumnsCmd(d_table_model, cols, in_filters, out_filters) );
+		undoStack()->push(new TableAppendColumnsCmd(d_model, cols, in_filters, out_filters) );
 		QApplication::restoreOverrideCursor();
 	}
 }
@@ -495,7 +525,7 @@ void Table::setAscendingValues()
 				if(isCellSelected(j, i))
 					data << QString::number(j+1);
 			}
-			undoStack()->push(new TableSetColumnValuesCmd(d_table_model, i, data) );
+			undoStack()->push(new TableSetColumnValuesCmd(d_model, i, data) );
 		}
 	}
 
@@ -527,7 +557,7 @@ void Table::setRandomValues()
 				if(isCellSelected(j, i))
 					data << QString::number(double(qrand())/double(RAND_MAX));
 			}
-			undoStack()->push(new TableSetColumnValuesCmd(d_table_model, i, data) );
+			undoStack()->push(new TableSetColumnValuesCmd(d_model, i, data) );
 		}
 	}
 
@@ -581,10 +611,10 @@ bool Table::isCellSelected(int row, int col)
 {
 	if(row < 0 || col < 0 || row >= rowCount() || col >= columnCount()) return false;
 
-	return d_table_model->output(col)->isSelected(row);
+	return d_model->output(col)->isSelected(row);
 	// Remark: This could also be done like this:
 	// <code>
-	// return d_table_view->selectionModel()->isSelected( d_table_model->index(row, col, QModelIndex()) );
+	// return d_table_view->selectionModel()->isSelected( d_model->index(row, col, QModelIndex()) );
 	// </code>
 	// But since the selection is synchronized between columns and selection
 	// model there should be at most a slight speed difference, if any. - thzs
@@ -593,13 +623,13 @@ bool Table::isCellSelected(int row, int col)
 void Table::setPlotDesignation(int col, SciDAVis::PlotDesignation pd)
 {
 	if( col >= 0 && col < columnCount() )
-		undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, col, pd));
+		undoStack()->push(new TableSetColumnPlotDesignationCmd(d_model, col, pd));
 }
 
 void Table::clearColumn(int col)
 {
 	if( col >= 0 && col <= columnCount() )
-		undoStack()->push(new TableClearColumnCmd(d_table_model, col));
+		undoStack()->push(new TableClearColumnCmd(d_model, col));
 	
 	//TODO: remove this later
 	emit modifiedWindow(this);
@@ -617,7 +647,7 @@ void Table::clear()
 
 SciDAVis::PlotDesignation Table::plotDesignation(int col)
 {
-	return d_table_model->columnPlotDesignation(col);
+	return d_model->columnPlotDesignation(col);
 }
 
 void Table::goToCell(int row, int col)
@@ -625,20 +655,20 @@ void Table::goToCell(int row, int col)
 	if( (row < 0) || (row >= rowCount()) ) return;
 	if( (col < 0) || (col >= columnCount()) ) return;
 
-	d_table_view->scrollTo(d_table_model->index(row, col, QModelIndex()), QAbstractItemView::PositionAtCenter);
+	d_table_view->scrollTo(d_model->index(row, col, QModelIndex()), QAbstractItemView::PositionAtCenter);
 }
 
 int Table::colX(int col)
 {
 	for(int i=col-1; i>=0; i--)
 	{
-		if (d_table_model->columnPlotDesignation(i) == SciDAVis::X)
+		if (d_model->columnPlotDesignation(i) == SciDAVis::X)
 			return i;
 	}
 	int cols = columnCount();
 	for(int i=col+1; i<cols; i++)
 	{
-		if (d_table_model->columnPlotDesignation(i) == SciDAVis::X)
+		if (d_model->columnPlotDesignation(i) == SciDAVis::X)
 			return i;
 	}
 	return -1;
@@ -650,12 +680,12 @@ int Table::colY(int col)
 	// look to the right first
 	for(int i=col+1; i<cols; i++)
 	{
-		if (d_table_model->columnPlotDesignation(i) == SciDAVis::Y)
+		if (d_model->columnPlotDesignation(i) == SciDAVis::Y)
 			return i;
 	}
 	for(int i=col-1; i>=0; i--)
 	{
-		if (d_table_model->columnPlotDesignation(i) == SciDAVis::Y)
+		if (d_model->columnPlotDesignation(i) == SciDAVis::Y)
 			return i;
 	}
 	return -1;
@@ -663,14 +693,14 @@ int Table::colY(int col)
 
 SciDAVis::ColumnMode Table::columnMode(int col)
 {
-	AbstractDataSource * col_ptr = d_table_model->output(col);
+	AbstractDataSource * col_ptr = d_model->output(col);
 
 	if(col_ptr->inherits("DoubleColumnData"))
 		return SciDAVis::Numeric;
 	
 	if(col_ptr->inherits("DateTimeColumnData"))
 	{
-		AbstractFilter * filter = d_table_model->inputFilter(col);
+		AbstractFilter * filter = d_model->inputFilter(col);
 		if(dynamic_cast<String2MonthFilter *>(filter))
 			return SciDAVis::Month;
 		if(dynamic_cast<String2DayOfWeekFilter *>(filter))
@@ -683,7 +713,7 @@ SciDAVis::ColumnMode Table::columnMode(int col)
 
 void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
 {
-	AbstractDataSource * old_col = d_table_model->output(col);
+	AbstractDataSource * old_col = d_model->output(col);
 	AbstractColumnData * new_col = 0;
 	AbstractFilter *filter, *new_in_filter, *new_out_filter;
 
@@ -817,7 +847,7 @@ void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
 	in_filters.append(new_in_filter);
 	out_filters.append(new_out_filter);
 	// TODO: For DataTime<->Day/Month conversion a ChangeInputFilterCmd could be used to save memory
-	QUndoCommand * cmd = new TableReplaceColumnsCmd(d_table_model, col, cols, in_filters, out_filters);
+	QUndoCommand * cmd = new TableReplaceColumnsCmd(d_model, col, cols, in_filters, out_filters);
 	cmd->setText(tr("change column type")); 
 	undoStack()->push(cmd);
 }
@@ -852,14 +882,14 @@ int Table::colIndex(const QString& name)
 	int pos=name.find("_",false);
 	QString label=name.right(name.length()-pos-1);
 	for(int i=0; i<columnCount(); i++)
-		if(d_table_model->columnLabel(i) == label)
+		if(d_model->columnLabel(i) == label)
 			return i;
 }
 
 QString Table::text(int row, int col)
 {
 	OBSOLETE
-	return d_table_model->data(d_table_model->index(row, col, QModelIndex()), Qt::EditRole).toString();
+	return d_model->data(d_model->index(row, col, QModelIndex()), Qt::EditRole).toString();
 }
 
 QString Table::colName(int col)
@@ -868,13 +898,13 @@ QString Table::colName(int col)
 	if (col<0 || col >= columnCount())
 		return QString();
 
-	return QString(this->name())+"_"+d_table_model->columnLabel(col);
+	return QString(this->name())+"_"+d_model->columnLabel(col);
 }
 
 int Table::columnType(int col)
 {
 	OBSOLETE
-	AbstractDataSource * ptr = d_table_model->output(col);
+	AbstractDataSource * ptr = d_model->output(col);
 	if(ptr->inherits("DoubleDataSource"))
 		return SciDAVis::Numeric;
 	if(ptr->inherits("StringDataSource"))
@@ -886,7 +916,7 @@ int Table::columnType(int col)
 QString Table::columnFormat(int col)
 {
 	OBSOLETE
-	AbstractFilter * fltr = d_table_model->outputFilter(col);
+	AbstractFilter * fltr = d_model->outputFilter(col);
 	QObject * ptr = dynamic_cast<QObject *>(fltr);
 	if(ptr && ptr->inherits("DateTime2StringFilter"))
 		return static_cast<DateTime2StringFilter *>(ptr)->format();
@@ -909,7 +939,7 @@ QStringList Table::selectedYLabels()
 double Table::cell(int row, int col)
 {
 	OBSOLETE
-	return d_table_model->data(d_table_model->index(row, col, QModelIndex()), Qt::EditRole).toDouble();
+	return d_model->data(d_model->index(row, col, QModelIndex()), Qt::EditRole).toDouble();
 }
 
 int Table::selectedColumn()
@@ -939,16 +969,16 @@ QStringList Table::colNames()
 void Table::setText(int row, int col, QString text)
 {
 	OBSOLETE
-	QModelIndex index = d_table_model->index(row, col, QModelIndex());
-	d_table_model->setData(index, text, Qt::EditRole);
-	undoStack()->push(new TableUserInputCmd(d_table_model, index) );		
+	QModelIndex index = d_model->index(row, col, QModelIndex());
+	d_model->setData(index, text, Qt::EditRole);
+	undoStack()->push(new TableUserInputCmd(d_model, index) );		
 }
 
 void Table::setHeader(QStringList header)
 {
 	OBSOLETE
 	for(int i=0; i<header.size(); i++)
-		undoStack()->push(new TableSetColumnLabelCmd(d_table_model, i, header.at(i)) );		
+		undoStack()->push(new TableSetColumnLabelCmd(d_model, i, header.at(i)) );		
 }
 
 int Table::colPlotDesignation(int col)
@@ -978,7 +1008,7 @@ QString Table::colComment(int col)
 void Table::columnNumericFormat(int col, char *f, int *precision)
 {
 	OBSOLETE
-	AbstractFilter * fltr = d_table_model->outputFilter(col);
+	AbstractFilter * fltr = d_model->outputFilter(col);
 	QObject * ptr = dynamic_cast<QObject *>(fltr);
 
 	if( ptr && ptr->inherits("Double2StringFilter"))
@@ -1069,8 +1099,8 @@ void Table::setColName(int col,const QString& new_name)
 void Table::setCommand(int col, const QString& com)
 {
 	OBSOLETE
-	undoStack()->push(new TableSetFormulaCmd(d_table_model, col, 
-			Interval<int>(0, d_table_model->output(col)->rowCount()-1), com.trimmed()));
+	undoStack()->push(new TableSetFormulaCmd(d_model, col, 
+			Interval<int>(0, d_model->output(col)->rowCount()-1), com.trimmed()));
 }
 
 void Table::setColNumericFormat(int f, int prec, int col)
@@ -1186,10 +1216,10 @@ void Table::setNumericPrecision(int prec)
 	OBSOLETE
 	for (int i=0; i<columnCount(); i++)
 	{
-        if(d_table_model->output(i)->inherits("DoubleColumnData"))
+        if(d_model->output(i)->inherits("DoubleColumnData"))
 		{
-			char format = static_cast<Double2StringFilter *>(d_table_model->outputFilter(i))->numericFormat();
-			undoStack()->push(new TableSetColumnNumericDisplayCmd(d_table_model, i, format, prec));
+			char format = static_cast<Double2StringFilter *>(d_model->outputFilter(i))->numericFormat();
+			undoStack()->push(new TableSetColumnNumericDisplayCmd(d_model, i, format, prec));
 		}
 	}
 	
@@ -1215,7 +1245,7 @@ QVarLengthArray<double> Table::col(int ycol)
 bool Table::isEmptyColumn(int col)
 {
 	OBSOLETE
-	return d_table_model->output(col)->rowCount() == 0;
+	return d_model->output(col)->rowCount() == 0;
 }
 
 QStringList Table::YColumns()
@@ -1270,7 +1300,7 @@ bool Table::calculate(int col, int startRow, int endRow)
 	OBSOLETE
 	QApplication::setOverrideCursor(Qt::WaitCursor);
 
-	AbstractScript *colscript =  d_scripting_engine->newScript(d_table_model->output(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
+	AbstractScript *colscript =  d_scripting_engine->newScript(d_model->output(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
 	connect(colscript, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
 	connect(colscript, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
 
@@ -1503,8 +1533,8 @@ void Table::setCommands(const QStringList& com)
 {
 	OBSOLETE
 	for(int i=0; i<com.size() && i<columnCount(); i++)
-		undoStack()->push(new TableSetFormulaCmd(d_table_model, i, 
-			Interval<int>(0, d_table_model->output(i)->rowCount()-1), com.at(i).trimmed()));
+		undoStack()->push(new TableSetFormulaCmd(d_model, i, 
+			Interval<int>(0, d_model->output(i)->rowCount()-1), com.at(i).trimmed()));
 }
 
 void Table::setCommands(const QString& com)
@@ -1541,7 +1571,7 @@ void Table::setColComments(const QStringList& lst)
 {
 	OBSOLETE
 	for(int i=0; i<lst.size() && i<columnCount(); i++)
-		undoStack()->push(new TableSetColumnCommentCmd(d_table_model, i, lst.at(i)));
+		undoStack()->push(new TableSetColumnCommentCmd(d_model, i, lst.at(i)));
 }
 
 void Table::setPlotDesignation(SciDAVis::PlotDesignation pd)
@@ -1549,7 +1579,7 @@ void Table::setPlotDesignation(SciDAVis::PlotDesignation pd)
 	OBSOLETE
 	for(int i=0;i<columnCount(); i++)
 		if(isColumnSelected(i, false))
-			undoStack()->push(new TableSetColumnPlotDesignationCmd(d_table_model, i, pd));
+			undoStack()->push(new TableSetColumnPlotDesignationCmd(d_model, i, pd));
 }
 
 

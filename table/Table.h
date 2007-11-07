@@ -107,17 +107,31 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//@}
 		
 		void insertColumns(int before, QList< shared_ptr<Column> > new_cols);
+		void removeColumns(int first, int count);
+		void removeRows(int first, int count);
+		void insertRows(int before, int count);
+		//! Set the number of rows
+		void setRowCount(int new_size);
+		//! Return the total number of columns in the table
+		int columnCount();
+		//! Return the total number of rows in the table
+		int rowCount();
+		//! Show or hide (if on = false) the column comments
+		void showComments(bool on = true);
 
 	private slots:
 		//! Handles context menu requests from TableView
 		void handleViewContextMenuRequest(TableView * view, const QPoint& pos);
 		//! Handles a request from the model to execute a resize command
-		void handleModelResizeRequest(int new_rows);
+		void handleModelResizeRequest(int new_size);
 
 		void handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
 		void handleColumnsInserted(int first, int count);
 		void handleColumnsAboutToBeRemoved(int first, int count);
 		void handleColumnsRemoved(int first, int count);
+
+		//! The the model name to the table name
+		void setModelName();
 
 	protected:
 		//! The model storing the data
@@ -176,10 +190,6 @@ public:
 	void setColumnComment(int col, const QString& comment);
 	//! Return the number of columns matching the given designation
 	int columnCount(SciDAVis::PlotDesignation pd);
-	//! Return the total number of columns in the table
-	int columnCount();
-	//! Return the total number of rows in the table
-	int rowCount();
 	//! Set the color of the table background
 	void setBackgroundColor(const QColor& col);
 	//! Set the text color
@@ -190,12 +200,8 @@ public:
 	void setTextFont(const QFont& fnt);
 	//! Set the font for both headers
 	void setHeaderFont(const QFont& fnt);
-	//! Show or hide (if on = false) the column comments
-	void showComments(bool on = true);
 	//! Return a list of all column labels
 	QStringList columnLabels();
-	//! Set the number of rows
-	void setRowCount(int new_size);
 	//! Set the number of columns
 	void setColumnCount(int new_size);
 	//! Copy another table
