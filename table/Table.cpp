@@ -40,6 +40,7 @@
 #include <QContextMenuEvent>
 #include <climits> // for RAND_MAX
 #include <QMenu>
+#include <QItemSelection>
 
 #include "AbstractScript.h"
 #include "AspectPrivate.h"
@@ -104,7 +105,6 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 		cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
 	d_model->setRowCount(rows);
 	d_model->appendColumns(cols);
-
 }
 
 Table::~Table()
@@ -131,6 +131,8 @@ QWidget *Table::view(QWidget *parent_widget)
 	TableView * table_view = new TableView(parent_widget, d_model);
 	connect(table_view, SIGNAL(requestContextMenu(TableView *,const QPoint&)), 
 		this, SLOT(handleViewContextMenuRequest(TableView *,const QPoint&)));
+	connect(table_view, SIGNAL(requestResize(int)),
+			this, SLOT(handleModelResizeRequest(int)));
 
 	return table_view;
 }
@@ -138,10 +140,23 @@ QWidget *Table::view(QWidget *parent_widget)
 void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 {
 	QMenu context_menu;
+	QItemSelection selection = view->selectionModel()->selection();
 
 	context_menu.addAction(undoStack()->createUndoAction(&context_menu));
 	context_menu.addAction(undoStack()->createRedoAction(&context_menu));
 	context_menu.addSeparator();
+	QString action_name;
+	if(areCommentsShown()) 
+		action_name = tr("Hide Comments");
+	else
+		action_name = tr("Show Comments");
+	context_menu.addAction(action_name, this, SLOT(toggleComments()));
+	context_menu.addAction(tr("Add Column"), this, SLOT(addColumn()));
+	context_menu.addAction(tr("Clear Table"), this, SLOT(clear()));
+	context_menu.addAction(tr("Clear Masks"), this, SLOT(clearMasks()));
+	context_menu.addAction(tr("Select All"), view, SLOT(selectAll()));
+
+	// TODO: selection related stuff
 
 	context_menu.exec(view->viewport()->mapToGlobal(pos));
 }
@@ -194,9 +209,10 @@ void Table::handleColumnsRemoved(int first, int count)
 
 void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
 {
+	if( new_cols.size() < 1 || before < 0 || before > columnCount()) return;
 	WAIT_CURSOR;
 	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: insert %2 columns").arg(name()).arg(new_cols.size()));
+	stack->beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
 	stack->push(new TableInsertColumnsCmd(d_model, before, new_cols));
 	stack->endMacro();
 	RESET_CURSOR;
@@ -204,9 +220,10 @@ void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
 
 void Table::removeColumns(int first, int count)
 {
+	if( count < 1 || first < 0 || first+count > columnCount()) return;
 	WAIT_CURSOR;
 	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: remove %2 columns").arg(name()).arg(count));
+	stack->beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
 	stack->push(new TableRemoveColumnsCmd(d_model, first, count));
 	stack->endMacro();
 	RESET_CURSOR;
@@ -214,12 +231,13 @@ void Table::removeColumns(int first, int count)
 
 void Table::removeRows(int first, int count)
 {
+	if( count < 1 || first < 0 || first+count > rowCount()) return;
 	WAIT_CURSOR;
 	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: remove %2 rows").arg(name()).arg(count));
+	stack->beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
 	int end = d_model->columnCount();
 	for(int col=0; col<end; col++)
-		d_model->output(col)->removeRows(first, count);
+		d_model->column(col)->removeRows(first, count);
 	stack->push(new TableSetNumberOfRowsCmd(d_model, d_model->rowCount()-count));
 	stack->endMacro();
 	RESET_CURSOR;
@@ -227,12 +245,13 @@ void Table::removeRows(int first, int count)
 
 void Table::insertRows(int before, int count)
 {
+	if( count < 1 || before < 0 || before > rowCount()) return;
 	WAIT_CURSOR;
 	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: insert %2 rows").arg(name()).arg(count));
+	stack->beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
 	int end = d_model->columnCount();
 	for(int col=0; col<end; col++)
-		d_model->output(col)->insertRows(before, count);
+		d_model->column(col)->insertRows(before, count);
 	// the table will be resized automatically if necessary
 	stack->endMacro();
 	RESET_CURSOR;
@@ -240,24 +259,113 @@ void Table::insertRows(int before, int count)
 
 void Table::setRowCount(int new_size)
 {
+	if( new_size < 0 ) return;
 	WAIT_CURSOR;
 	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
 	RESET_CURSOR;
 }
 
-int Table::columnCount()
+int Table::columnCount() const
 {
 	return d_model->columnCount();
 }
 
-int Table::rowCount()
+int Table::rowCount() const
 {
 	return d_model->rowCount();
 }
 
 void Table::showComments(bool on)
 {
+	WAIT_CURSOR;
 	exec(new TableShowCommentsCmd(d_model, on));
+	RESET_CURSOR;
+}
+
+int Table::columnCount(SciDAVis::PlotDesignation pd) const
+{
+	int count = 0;
+	int cols = columnCount();
+	for(int i=0; i<cols; i++)
+		if(column(i)->plotDesignation() == pd) count++;
+	
+	return count;
+}
+
+void Table::setColumnCount(int new_size)
+{
+	int old_size = columnCount();
+	if ( old_size == new_size || new_size < 0 )
+		return;
+
+	WAIT_CURSOR;
+	if (new_size < old_size)
+		exec(new TableRemoveColumnsCmd(d_model, new_size, old_size-new_size));
+	else
+	{
+		QList< shared_ptr<Column> > cols;
+		for(int i=0; i<new_size-old_size; i++)
+			cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+		appendColumns(cols);
+	}
+	RESET_CURSOR;
+}
+		
+shared_ptr<Column> Table::column(int index) const 
+{ 
+	if( index >= 0 & index < columnCount() )
+		return d_model->column(index); 
+	else
+		return shared_ptr<Column>();
+}
+
+int Table::columnIndex(Column * col) const 
+{ 
+	return d_model->columnIndex(col); 
+}
+
+int Table::columnIndex(shared_ptr<Column> col) const 
+{ 
+	return columnIndex(col.get()); 
+}
+
+void Table::clear()
+{
+	WAIT_CURSOR;
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QObject::tr("%1: clear").arg(name()));
+	int cols = columnCount();
+	for(int i=0; i<cols; i++)
+		column(i)->clear();
+	stack->endMacro();
+	RESET_CURSOR;
+}
+
+void Table::clearMasks()
+{
+	WAIT_CURSOR;
+	QUndoStack * stack = undoStack();
+	stack->beginMacro(QObject::tr("%1: clear masks").arg(name()));
+	int cols = columnCount();
+	for(int i=0; i<cols; i++)
+		column(i)->clearMasks();
+	stack->endMacro();
+	RESET_CURSOR;
+}
+
+bool Table::areCommentsShown() const
+{
+	return d_model->areCommentsShown();
+}
+
+void Table::toggleComments()
+{
+	showComments(!areCommentsShown());
+}
+
+void Table::addColumn()
+{
+	setColumnCount(columnCount()+1);
 }
 
 #if false
@@ -362,36 +470,6 @@ bool Table::isColumnSelected(int col, bool full)
 		return sel_model->columnIntersectsSelection(col, QModelIndex());
 }
 
-QString Table::columnLabel(int col)
-{
-	return d_model->columnLabel(col);
-}
-
-void Table::setColumnLabel(int col, const QString& label)
-{
-	undoStack()->push( new TableSetColumnLabelCmd(d_model, col, label) );
-}
-
-QString Table::columnComment(int col)
-{
-	return d_model->columnComment(col);
-}
-
-void Table::setColumnComment(int col, const QString& comment)
-{
-	undoStack()->push( new TableSetColumnCommentCmd(d_model, col, comment) );
-}
-
-int Table::columnCount(SciDAVis::PlotDesignation pd)
-{
-	int count = 0;
-	int cols = columnCount();
-	for(int i=0; i<cols; i++)
-		if(plotDesignation(i) == pd) count++;
-	
-	return count;
-}
-
 void Table::setBackgroundColor(const QColor& col)
 {
 	QPalette pal = d_table_view->palette();
@@ -435,50 +513,6 @@ QStringList Table::columnLabels()
 		list << d_model->columnLabel(i);
 
 	return list;
-}
-
-void Table::setColumnCount(int new_size)
-{
-	int old_size = columnCount();
-	if (old_size == new_size)
-		return;
-
-	if (new_size < old_size)
-	{
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		undoStack()->push(new TableRemoveColumnsCmd(d_model, new_size, old_size-new_size));
-		QApplication::restoreOverrideCursor();
-	}
-	else
-	{
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		// determine the highest number used as a column name
-		int index, max=0;
-		for (int i=0; i<old_size; i++)
-		{
-			if (!columnLabel(i).contains(QRegExp("\\D")))
-			{
-				index = columnLabel(i).toInt();
-				if (index > max)
-					max = index;
-			}
-		}
-		max++;
-
-		QList<AbstractColumnData *> cols;
-		QList<AbstractFilter *> in_filters;
-		QList<AbstractFilter *> out_filters;
-
-		for(int i=0; i<new_size-old_size; i++)
-		{
-			cols << new DoubleColumnData();
-			cols.at(i)->setLabel(QString::number(max++));
-			in_filters << new String2DoubleFilter();
-			out_filters << new Double2StringFilter();
-		}
-		undoStack()->push(new TableAppendColumnsCmd(d_model, cols, in_filters, out_filters) );
-		QApplication::restoreOverrideCursor();
-	}
 }
 
 void Table::copy(Table * other)
@@ -620,12 +654,6 @@ bool Table::isCellSelected(int row, int col)
 	// model there should be at most a slight speed difference, if any. - thzs
 }
 
-void Table::setPlotDesignation(int col, SciDAVis::PlotDesignation pd)
-{
-	if( col >= 0 && col < columnCount() )
-		undoStack()->push(new TableSetColumnPlotDesignationCmd(d_model, col, pd));
-}
-
 void Table::clearColumn(int col)
 {
 	if( col >= 0 && col <= columnCount() )
@@ -643,11 +671,6 @@ void Table::clear()
 	
 	//TODO: remove this later
 	emit modifiedWindow(this);
-}
-
-SciDAVis::PlotDesignation Table::plotDesignation(int col)
-{
-	return d_model->columnPlotDesignation(col);
 }
 
 void Table::goToCell(int row, int col)

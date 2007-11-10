@@ -156,6 +156,8 @@ private:
 	int d_dest_start;
 	//! Number of rows to copy
 	int d_num_rows;
+	//! Previous number of rows in the destination column
+	int d_old_row_count;
 	
 
 };

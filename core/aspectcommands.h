@@ -49,10 +49,11 @@ class AspectNameChangeCmd : public QUndoCommand
 			}
 
 		virtual void redo() {
+			AbstractAspect * owner = d_target->owner();
+			emit owner->abstractAspectSignalEmitter()->aspectDescriptionAboutToChange(owner);
 			QString tmp = d_target->name();
 			d_target->setName(d_other_name);
 			d_other_name = tmp;
-			AbstractAspect * owner = d_target->owner();
 			emit owner->abstractAspectSignalEmitter()->aspectDescriptionChanged(owner);
 		}
 
@@ -72,10 +73,11 @@ class AspectCommentChangeCmd : public QUndoCommand
 			}
 
 		virtual void redo() {
+			AbstractAspect * owner = d_target->owner();
+			emit owner->abstractAspectSignalEmitter()->aspectDescriptionAboutToChange(owner);
 			QString tmp = d_target->comment();
 			d_target->setComment(d_other_comment);
 			d_other_comment = tmp;
-			AbstractAspect * owner = d_target->owner();
 			emit owner->abstractAspectSignalEmitter()->aspectDescriptionChanged(owner);
 		}
 
@@ -95,10 +97,11 @@ class AspectCaptionSpecChangeCmd : public QUndoCommand
 			}
 
 		virtual void redo() {
+			AbstractAspect * owner = d_target->owner();
+			emit owner->abstractAspectSignalEmitter()->aspectDescriptionAboutToChange(owner);
 			QString tmp = d_target->captionSpec();
 			d_target->setCaptionSpec(d_other_caption_spec);
 			d_other_caption_spec = tmp;
-			AbstractAspect * owner = d_target->owner();
 			emit owner->abstractAspectSignalEmitter()->aspectDescriptionChanged(owner);
 		}
 

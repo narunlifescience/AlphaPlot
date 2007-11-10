@@ -190,6 +190,7 @@ void ColumnPartialCopyCmd::redo()
 		d_src_backup->copy(d_src, d_src_start, 0, d_num_rows);
 		d_col_backup = shared_ptr<ColumnPrivate>(new ColumnPrivate(0, d_col->columnMode()));
 		d_col_backup->copy(d_col.get(), d_dest_start, 0, d_num_rows);
+		d_old_row_count = d_col->rowCount();
 	}
 	d_col->copy(d_src_backup.get(), 0, d_dest_start, d_num_rows);
 }
@@ -197,6 +198,7 @@ void ColumnPartialCopyCmd::redo()
 void ColumnPartialCopyCmd::undo()
 {
 	d_col->copy(d_col_backup.get(), 0, d_dest_start, d_num_rows);
+	d_col->resizeTo(d_old_row_count);
 }
 
 ///////////////////////////////////////////////////////////////////////////
@@ -209,7 +211,7 @@ void ColumnPartialCopyCmd::undo()
 	ColumnInsertEmptyRowsCmd::ColumnInsertEmptyRowsCmd(shared_ptr<ColumnPrivate> col, int before, int count, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_before(before), d_count(count)
 {
-	setText(QObject::tr("%1: insert %2 rows").arg(col->columnLabel()).arg(count));
+	setText(QObject::tr("%1: insert %2 row(s)").arg(col->columnLabel()).arg(count));
 }
 
 ColumnInsertEmptyRowsCmd::~ColumnInsertEmptyRowsCmd()
@@ -237,7 +239,7 @@ void ColumnInsertEmptyRowsCmd::undo()
 	ColumnRemoveRowsCmd::ColumnRemoveRowsCmd(shared_ptr<ColumnPrivate> col, int first, int count, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_first(first), d_count(count)
 {
-	setText(QObject::tr("%1: remove %2 rows").arg(col->columnLabel()).arg(count));
+	setText(QObject::tr("%1: remove %2 row(s)").arg(col->columnLabel()).arg(count));
 }
 
 ColumnRemoveRowsCmd::~ColumnRemoveRowsCmd()

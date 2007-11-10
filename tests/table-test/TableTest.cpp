@@ -12,6 +12,8 @@
 #include <QMainWindow>
 #include <QMdiArea>
 #include <QUndoView>
+#include <QDockWidget>
+#include <QMdiSubWindow>
 
 #include "test_wrappers.h"
 
@@ -25,8 +27,8 @@ class TableTest : public CppUnit::TestFixture {
 	public:
 		void setUp() 
 		{
-			int argc=0;
-			char ** argv=0;
+			int argc = 1;
+			char *argv[1] = { "./table-test" };
 			app = new QApplication(argc,argv);
 			mw = new QMainWindow();
 
@@ -99,35 +101,6 @@ class TableTest : public CppUnit::TestFixture {
 		QMainWindow * mw;
 
 /* ------------------------------------------------------------------------------ */
-		void testTableGUI() 
-		{
-			table->showComments(true);
-			table->showComments(false);
-			table->showComments(true);
-			table->setRowCount(11);
-			CPPUNIT_ASSERT_EQUAL(11, table->rowCount());
-			table->setRowCount(12);
-			CPPUNIT_ASSERT_EQUAL(12, table->rowCount());
-			table->setRowCount(10);
-			CPPUNIT_ASSERT_EQUAL(10, table->rowCount());
-			column[0]->insertRows(2,2);
-			CPPUNIT_ASSERT_EQUAL(12, table->rowCount());
-			table->removeRows(0,2);
-			table->removeRows(5,5);
-			table->insertRows(5,3);
-			table->removeColumns(6,table->columnCount()-1-6);
-
-			QMdiArea mdiArea;
-			mdiArea.addSubWindow(table->view());
-			mdiArea.addSubWindow(new QUndoView(prj->undoStack()));	
-
-			mw->setCentralWidget(&mdiArea);
-
-			mw->show();
-			mw->resize(800,600);
-			app->exec();
-		}
-		/* ----------------------------------------------------------- */
 		void testTableModel() 
 		{
 			TableModel * table_model = static_cast<TableModel *>(static_cast<TableView *>(table->view())->model());
@@ -173,6 +146,56 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::Text, table_model->output(9)->columnMode());
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, table_model->output(10)->columnMode());
 			
+		}
+		/* ----------------------------------------------------------- */
+		void testTableGUI() 
+		{
+			QMdiArea * mdiArea = new QMdiArea(mw);
+			QMdiSubWindow * table_window = mdiArea->addSubWindow(table->view());
+
+			mw->setCentralWidget(mdiArea);
+			QDockWidget * undo_dock = new QDockWidget("History", mw);
+			QUndoView * undo_view = new QUndoView(prj->undoStack());
+			undo_dock->setWidget(undo_view);
+			mw->addDockWidget(Qt::RightDockWidgetArea, undo_dock);
+
+			mw->show();
+			table_window->showMaximized();
+			mw->showMaximized();
+
+			table->showComments(true);
+			table->showComments(false);
+			table->showComments(true);
+			table->setRowCount(11);
+			CPPUNIT_ASSERT_EQUAL(11, table->rowCount());
+			table->setRowCount(12);
+			CPPUNIT_ASSERT_EQUAL(12, table->rowCount());
+			table->setRowCount(10);
+			CPPUNIT_ASSERT_EQUAL(10, table->rowCount());
+			column[0]->insertRows(2,2);
+			CPPUNIT_ASSERT_EQUAL(12, table->rowCount());
+			table->removeRows(0,2);
+			table->removeRows(5,5);
+			table->insertRows(5,3);
+			table->removeColumns(6,table->columnCount()-1-6);
+			table->showComments(true);
+			table->column(1)->setColumnLabel("column one");
+			table->column(0)->setColumnComment("this is column zero\nnew line");
+			CPPUNIT_ASSERT_EQUAL(QString("column one"), table->column(1)->columnLabel());
+			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line"), table->column(0)->columnComment());
+			CPPUNIT_ASSERT_EQUAL(2, table->columnCount(SciDAVis::X));
+			CPPUNIT_ASSERT_EQUAL(4, table->columnCount(SciDAVis::Y));
+			CPPUNIT_ASSERT_EQUAL(0, table->columnCount(SciDAVis::Z));
+			int temp = table->columnCount();
+			table->setColumnCount(temp-1);
+			CPPUNIT_ASSERT_EQUAL(temp-1, table->columnCount());
+			table->setColumnCount(temp+1);
+  			CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, table->column(temp-1)->columnMode());
+			CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, table->column(temp)->columnMode());
+			table->clear();
+			table->clearMasks();
+
+			app->exec();
 		}
 };
 

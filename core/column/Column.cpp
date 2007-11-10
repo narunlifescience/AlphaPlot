@@ -35,6 +35,7 @@ Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)
 {
 	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, mode));
+	init();
 }
 
 Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
@@ -42,6 +43,7 @@ Column::Column(const QString& label, QVector<double> data, IntervalAttribute<boo
 {
 	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity));
+	init();
 }
 
 Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
@@ -49,6 +51,7 @@ Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> v
 {
 	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity));
+	init();
 }
 
 Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
@@ -56,6 +59,27 @@ Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bo
 {
 	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity));
+	init();
+}
+
+void Column::init()
+{
+	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
+		this, SLOT(emitDescriptionAboutToChange(AbstractAspect *)));
+	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
+		this, SLOT(emitDescriptionChanged(AbstractAspect *)));
+}
+
+void Column::emitDescriptionAboutToChange(AbstractAspect * aspect)
+{
+	if (aspect != static_cast<AbstractAspect *>(this)) return;
+	emit abstractColumnSignalEmitter()->descriptionAboutToChange(this);
+}
+
+void Column::emitDescriptionChanged(AbstractAspect * aspect)
+{
+	if (aspect != static_cast<AbstractAspect *>(this)) return;
+	emit abstractColumnSignalEmitter()->descriptionChanged(this);
 }
 
 Column::~Column()
@@ -217,3 +241,12 @@ double Column::valueAt(int row) const
 	return d->valueAt(row);
 }
 
+void Column::setColumnLabel(const QString& label) 
+{ 
+	setName(label); 
+}
+
+void Column::setColumnComment(const QString& comment) 
+{ 
+	setComment(comment); 
+}

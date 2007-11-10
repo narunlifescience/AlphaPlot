@@ -70,6 +70,8 @@ class AbstractAspectWrapper : public QObject
 		void remove();
 
 	signals:
+		//! Emit this before the name, comment or caption spec is changed
+		void aspectDescriptionAboutToChange(AbstractAspect *aspect);
 		//! Emit this when the name, comment or caption spec changed
 		void aspectDescriptionChanged(AbstractAspect *aspect);
 		//! Emit this when a parent aspect is about to get a new child inserted

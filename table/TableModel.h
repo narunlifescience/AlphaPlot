@@ -150,7 +150,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
 		//! Return whether comments are show currently
-		bool areCommentsShown();
+		bool areCommentsShown() const;
 		//! Return the full column header string
 		QString columnHeader(int col);
 		//! Return the number of columns with a given plot designation
@@ -193,12 +193,13 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		//! Request resize command
 		/**
 		 *	Emit this signal to request the owner of the model 
-		 *	to apply a resize command to it. This gives the
+		 *	to apply a resize command to it (change 
+		 *	the number of rows). This gives the
 		 *	owner the chance to do the resize in an undo
 		 *	aware way. If the signal is ignored, the model
 		 *	will resize itself.
 		 */
-		void requestResize(int new_rows);
+		void requestResize(int new_row_count);
 
 	private:
 			//! The number of columns

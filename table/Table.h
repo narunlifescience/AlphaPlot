@@ -106,18 +106,46 @@ class Table: public QObject, public AbstractAspect, public scripted
 		virtual QWidget *view(QWidget *parent = 0);
 		//@}
 		
+		//! Insert columns
+		/**
+		 * If before == columnCount() this will do the same as appendColumns();
+		 */
 		void insertColumns(int before, QList< shared_ptr<Column> > new_cols);
+		//! Append columns
+		/*
+		 * Convenience function, same as:
+		 * <code>
+		 * insertColumns(columnCount(), new_cols);
+		 * </code>
+		 */
+		void appendColumns(QList< shared_ptr<Column> > new_cols) { insertColumns(columnCount(), new_cols); }
 		void removeColumns(int first, int count);
 		void removeRows(int first, int count);
 		void insertRows(int before, int count);
 		//! Set the number of rows
 		void setRowCount(int new_size);
 		//! Return the total number of columns in the table
-		int columnCount();
+		int columnCount() const;
 		//! Return the total number of rows in the table
-		int rowCount();
+		int rowCount() const;
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
+		//! Return whether comments are show currently
+		bool areCommentsShown() const;
+		//! Return the number of columns matching the given designation
+		int columnCount(SciDAVis::PlotDesignation pd) const;
+		shared_ptr<Column> column(int index) const;
+		int columnIndex(Column * col) const;
+		int columnIndex(shared_ptr<Column> col) const;
+		//! Set the number of columns
+		void setColumnCount(int new_size);
+
+	public slots:
+		//! Clear the whole table
+		void clear();
+		//! Clear all mask in the table
+		void clearMasks();
+
 
 	private slots:
 		//! Handles context menu requests from TableView
@@ -132,6 +160,9 @@ class Table: public QObject, public AbstractAspect, public scripted
 
 		//! The the model name to the table name
 		void setModelName();
+
+		void toggleComments();
+		void addColumn();
 
 	protected:
 		//! The model storing the data
@@ -180,16 +211,6 @@ public:
 	 * row is selected.
 	*/
 	bool isRowSelected(int row, bool full = false);
-	//! Return a column's label
-	QString columnLabel(int col);
-	//! The the column's label
-	void setColumnLabel(int col, const QString& label);
-	//! Return the column's comment
-	QString columnComment(int col);
-	//! The the column's comment
-	void setColumnComment(int col, const QString& comment);
-	//! Return the number of columns matching the given designation
-	int columnCount(SciDAVis::PlotDesignation pd);
 	//! Set the color of the table background
 	void setBackgroundColor(const QColor& col);
 	//! Set the text color
@@ -202,8 +223,6 @@ public:
 	void setHeaderFont(const QFont& fnt);
 	//! Return a list of all column labels
 	QStringList columnLabels();
-	//! Set the number of columns
-	void setColumnCount(int new_size);
 	//! Copy another table
 	void copy(Table * other);
 	//! Fill the selected cells with row numbers
@@ -236,14 +255,6 @@ public:
 	int lastSelectedRow(bool full = false);
 	//! Return whether a cell is selected
 	bool isCellSelected(int row, int col);
-	//! Set the plot designation for a given column
-	void setPlotDesignation(int col, SciDAVis::PlotDesignation pd);
-	//! Return the plot designation for the given column
-	SciDAVis::PlotDesignation plotDesignation(int col);
-	//! Clear the given column
-	void clearColumn(int col);
-	//! Clear the whole table
-	void clear();
 	//! Scroll to the specified cell
 	void goToCell(int row, int col);
 	//! Determine the corresponding X column

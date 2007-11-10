@@ -184,9 +184,9 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! Return the column comment
 		QString columnComment() const { return comment(); }
 		//! Set the column label
-		void setColumnLabel(const QString& label) { setName(label); }
+		void setColumnLabel(const QString& label);
 		//! Set the column comment
-		void setColumnComment(const QString& comment) { setComment(comment); }
+		void setColumnComment(const QString& comment);
 		//! Return the column plot designation
 		SciDAVis::PlotDesignation plotDesignation() const { return d->plotDesignation(); }
 		//! Set the column plot designation
@@ -338,6 +338,12 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 	private:
 		//! Pointer to the private interface and all private data
 		shared_ptr<ColumnPrivate> d;
+
+		void init();
+	
+	private slots:
+		void emitDescriptionAboutToChange(AbstractAspect * aspect);
+		void emitDescriptionChanged(AbstractAspect * aspect);
 
 };
 

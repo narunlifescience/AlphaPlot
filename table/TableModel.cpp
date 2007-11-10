@@ -383,7 +383,7 @@ void TableModel::showComments(bool on)
 	updateHorizontalHeader(0, d_column_count-1);
 }
 
-bool TableModel::areCommentsShown()
+bool TableModel::areCommentsShown() const
 {
 	return d_show_comments;
 }

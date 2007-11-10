@@ -45,37 +45,45 @@ class TableView : public QTableView
 {
     Q_OBJECT
 
-public:
-    //! Constructor
-    TableView(QWidget * parent, TableModel * model );
-    //! Destructor
-    virtual ~TableView();
+	public:
+		//! Constructor
+		TableView(QWidget * parent, TableModel * model );
+		//! Destructor
+		virtual ~TableView();
 
-protected:
-	//! Overloaded function (cf. Qt documentation)
-	virtual void keyPressEvent( QKeyEvent * event );
+	protected:
+		//! Overloaded function (cf. Qt documentation)
+		virtual void keyPressEvent( QKeyEvent * event );
 
-signals:
-	void requestContextMenu(TableView * view, const QPoint& pos);
+	signals:
+		void requestContextMenu(TableView * view, const QPoint& pos);
+		//! Request resize command
+		/**
+		 *	Emit this signal to request the owner of the view's
+		 *	model to apply a resize command to its model (change 
+		 *	the number of rows). This gives the
+		 *	owner the chance to do the resize in an undo
+		 *	aware way. If the signal is ignored, the model
+		 *	will be resized by the view.
+		 */
+		void requestResize(int new_rows);
 
-protected slots:
-	//! Advance current cell after [Return] or [Enter] was pressed
-	void advanceCell();
-	//! Cause a repaint of the header
-	void updateHeaderGeometry(Qt::Orientation o, int first, int last);
-	//! Selection change handler
-	void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected );
-	void emitContextMenuRequest(const QPoint& pos);
+	protected slots:
+		//! Advance current cell after [Return] or [Enter] was pressed
+		void advanceCell();
+		//! Cause a repaint of the header
+		void updateHeaderGeometry(Qt::Orientation o, int first, int last);
+		void emitContextMenuRequest(const QPoint& pos);
 
-protected:
-	//! Pointer to the item delegate
-	TableItemDelegate * d_delegate;
-	//! Pointer to the current underlying model
-	TableModel * d_model;
+	protected:
+		//! Pointer to the item delegate
+		TableItemDelegate * d_delegate;
+		//! Pointer to the current underlying model
+		TableModel * d_model;
 
-private:
-	//! Initialization common to all ctors
-	void init(TableModel * model);
+	private:
+		//! Initialization common to all ctors
+		void init(TableModel * model);
 
 };
 

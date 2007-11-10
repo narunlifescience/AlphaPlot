@@ -49,6 +49,7 @@
 #include <QFont>
 #include <QItemSelectionModel>
 #include <QItemSelection>
+#include <QShortcut>
 
 TableView::TableView(QWidget * parent, TableModel * model )
  : QTableView( parent ), d_model(model)
@@ -63,6 +64,13 @@ void TableView::init(TableModel * model)
 	d_delegate = new TableItemDelegate;
 	setItemDelegate(d_delegate);
 	
+	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+
+	setFocusPolicy(Qt::StrongFocus);
+	setFocus();
+
+	setSelectionMode(QAbstractItemView::ExtendedSelection);
+
 	QHeaderView * v_header = verticalHeader();
 	QHeaderView * h_header = horizontalHeader();
 	// Remark: ResizeToContents works in Qt 4.2.3 but is broken in 4.3.0
@@ -78,6 +86,10 @@ void TableView::init(TableModel * model)
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(emitContextMenuRequest(const QPoint&)));
+	
+	// keyboard shortcuts
+	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), this);
+	connect(sel_all, SIGNAL(activated()), this, SLOT(selectAll()));
 }
 	
 void TableView::updateHeaderGeometry(Qt::Orientation o, int first, int last)
@@ -105,40 +117,15 @@ void TableView::keyPressEvent(QKeyEvent * event)
 void TableView::advanceCell()
 {
 	QModelIndex idx = currentIndex();
-	// TODO
-//    if(idx.row()+1 >= d_model->rowCount())
-//        d_model->undoStack()->push(new TableAppendRowsCmd(d_model, 1) );
-
-//	setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
-}
-
-void TableView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected )
-{
-	//TODO
-	/*
-	int left, right, top, bottom, i, col;
-	for(i=0; i<selected.size(); i++)
+    if(idx.row()+1 >= d_model->rowCount())
 	{
-		QItemSelectionRange range = selected.at(i);
-		left = range.left();
-		right = range.right();
-		top = range.top();
-		bottom = range.bottom();
-		for(col=left; col<=right && col>= 0; col++)
-			d_model->columnPointer(col)->setSelected(Interval<int>(top, bottom));
+		int new_size = d_model->rowCount()+1;
+		emit requestResize(new_size);
+		if(d_model->rowCount() != new_size) // request was ignored
+			d_model->setRowCount(new_size);
+
 	}
-	for(i=0; i<deselected.size(); i++)
-	{
-		QItemSelectionRange range = deselected.at(i);
-		left = range.left();
-		right = range.right();
-		top = range.top();
-		bottom = range.bottom();
-		for(col=left; col<=right && col>= 0; col++)
-			d_model->columnPointer(col)->setSelected(Interval<int>(top, bottom), false);
-	}
-	*/
-	QTableView::selectionChanged(selected, deselected);
+	setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void TableView::emitContextMenuRequest(const QPoint& pos)

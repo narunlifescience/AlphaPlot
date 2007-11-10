@@ -37,8 +37,8 @@ MdiSubWindow::MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view)
 	: d_aspect(aspect), d_closing(false)
 {
 	setWidget(view);
-	aspectDescriptionChanged(d_aspect.get());
 	setWindowIcon(d_aspect->icon());
+	aspectDescriptionChanged(d_aspect.get());
 	// TODO: doesn't work... bug in Qt?
 	//setSystemMenu(d_aspect->createContextMenu());
 	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 

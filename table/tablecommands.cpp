@@ -68,7 +68,7 @@ void TableShowCommentsCmd::undo()
 TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_before(before), d_cols(cols)
 {
-	setText(QObject::tr("%1: insert %2 columns").arg(d_model->name()).arg(d_cols.size()));
+	setText(QObject::tr("%1: insert %2 column(s)").arg(d_model->name()).arg(d_cols.size()));
 }
 
 TableInsertColumnsCmd::~TableInsertColumnsCmd()
@@ -125,7 +125,7 @@ void TableSetNumberOfRowsCmd::undo()
 TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
  : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
 {
-	setText(QObject::tr("%1: remove columns").arg(d_model->name()));
+	setText(QObject::tr("%1: remove %2 column(s)").arg(d_model->name()).arg(count));
 }
 
 TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
@@ -151,160 +151,6 @@ void TableRemoveColumnsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 
 #if false
-
-///////////////////////////////////////////////////////////////////////////
-// class TableRemoveRowsCmd
-///////////////////////////////////////////////////////////////////////////
-TableRemoveRowsCmd::TableRemoveRowsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
- : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
-{
-	setText(QObject::tr("%1: remove %2 rows").arg(d_model->name()).arg(d_count));
-}
-
-TableRemoveRowsCmd::~TableRemoveRowsCmd()
-{
-	for(int i=0; i<d_old_cols.size(); i++)
-		delete d_old_cols.at(i);
-}
-
-void TableRemoveRowsCmd::redo()
-{
-	int cols = d_model->columnCount();
-	if(d_old_cols.size() == 0) // no previous undo
-		for(int i=0; i<cols; i++)
-		{
-			AbstractDataSource * src = d_model->output(i);
-			if(qobject_cast<AbstractDoubleDataSource *>(src))
-				d_old_cols.append(new DoubleColumnData());
-			else if(qobject_cast<AbstractStringDataSource *>(src))
-				d_old_cols.append(new StringColumnData());
-			else
-				d_old_cols.append(new DateTimeColumnData());
-			d_old_cols.at(i)->copy(src, d_first, 0, d_count);
-			
-			// copy masking 
-			QList< Interval<int> > masking = src->maskedIntervals();
-			Interval<int>::restrictList(&masking, Interval<int>(d_first, d_first + d_count -1));
-			foreach(Interval<int> mask_iv, masking)
-			{	
-				mask_iv.translate(-d_first);
-				d_old_cols.at(i)->setMasked( mask_iv );
-			}
-
-			// copy formulas
-			AbstractDataSource * fsrc = d_model->output(i);
-			QList< Interval<int> > formula_ivs = fsrc->formulaIntervals();
-			Interval<int>::restrictList(&formula_ivs, Interval<int>(d_first, d_first + d_count -1));
-	 		foreach(Interval<int> fiv, formula_ivs)
-			{
-				QString formula = fsrc->formula(fiv.start());
-				fiv.translate(-d_first);
-				d_old_cols.at(i)->setFormula( fiv, formula );
-			}
-		} // end for all cols
-
-	d_model->removeRows(d_first, d_count);
-}
-
-void TableRemoveRowsCmd::undo()
-{
-	d_model->insertRows(d_first, d_count);
-
-	int cols = d_model->columnCount();
-	for(int i=0; i<cols; i++)
-	{
-		AbstractDataSource * src = d_old_cols.at(i)->asDataSource();
-		AbstractColumnData * dest = d_model->columnPointer(i);
-		dest->copy(src, 0, d_first, d_count);
-
-		// copy masking 
-		QList< Interval<int> > masking = src->maskedIntervals();
-		foreach(Interval<int> mask_iv, masking)
-		{	
-			mask_iv.translate(d_first);
-			dest->setMasked( mask_iv );
-		}
-
-		// copy formulas
-		AbstractDataSource * fsrc = d_old_cols.at(i)->asDataSource();
-		QList< Interval<int> > formula_ivs = fsrc->formulaIntervals();
-		foreach(Interval<int> fiv, formula_ivs)
-		{
-			QString formula = fsrc->formula(fiv.start());
-			fiv.translate(d_first);
-			dest->setFormula( fiv, formula );
-		}
-	}
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableRemoveRowsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableInsertRowsCmd
-///////////////////////////////////////////////////////////////////////////
-TableInsertRowsCmd::TableInsertRowsCmd( TableModel * model, int before, int count, QUndoCommand * parent )
- : QUndoCommand( parent ), d_model(model), d_before(before), d_count(count)
-{
-	setText(QObject::tr("%1: insert rows").arg(d_model->name()));
-}
-
-TableInsertRowsCmd::~TableInsertRowsCmd()
-{
-}
-
-void TableInsertRowsCmd::redo()
-{
-	d_model->insertRows(d_before, d_count);
-}
-
-void TableInsertRowsCmd::undo()
-{
-	d_model->removeRows(d_before, d_count);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableInsertRowsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
-// class TableAppendColumnsCmd
-///////////////////////////////////////////////////////////////////////////
-TableAppendColumnsCmd::TableAppendColumnsCmd( TableModel * model, QList<AbstractColumnData *> cols,
-		QList<AbstractFilter *> in_filters, QList<AbstractFilter *> out_filters, QUndoCommand * parent)
- : QUndoCommand( parent ), d_model(model), d_cols(cols), d_in_filters(in_filters), d_out_filters(out_filters)
-{
-	setText(QObject::tr("%1: append columns").arg(d_model->name()));
-	d_undone = false;
-}
-
-TableAppendColumnsCmd::~TableAppendColumnsCmd()
-{
-	if(d_undone) // if the columns are not needed anymore, delete them
-		for(int i=0; i<d_cols.size(); i++)
-		{
-			delete d_cols.at(i);
-			delete d_in_filters.at(i);
-			delete d_out_filters.at(i);
-		}
-}
-
-void TableAppendColumnsCmd::redo()
-{
-	d_model->appendColumns(d_cols, d_in_filters, d_out_filters);
-	d_undone = false;
-}
-
-void TableAppendColumnsCmd::undo()
-{
-	d_model->removeColumns(d_model->columnCount()-d_cols.size(), d_cols.size());
-	d_undone = true;
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableAppendColumnsCmd
-///////////////////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////////////////
 // class TableSetColumnValuesCmd

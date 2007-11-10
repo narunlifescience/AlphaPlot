@@ -91,6 +91,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			break;
 	} // switch(mode)
 
+	d_plot_designation = SciDAVis::noDesignation;
 	if(d_owner)
 		d_owner_sender = owner->abstractColumnSignalEmitter();
 	else
@@ -133,6 +134,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 			break;
 	} // switch(mode)
 
+	d_plot_designation = SciDAVis::noDesignation;
 	if(d_owner)
 		d_owner_sender = owner->abstractColumnSignalEmitter();
 	else
