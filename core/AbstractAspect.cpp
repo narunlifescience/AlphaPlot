@@ -32,7 +32,7 @@
 
 #include <QIcon>
 #include <QMenu>
-#include <QtDebug>
+#include <QMessageBox>
 
 AbstractAspect::AbstractAspect(const QString &name)
 	: d(new AspectPrivate(name, this)), d_parent(0), d_wrapper(new AbstractAspectWrapper(this))
@@ -168,8 +168,25 @@ QMenu *AbstractAspect::createContextMenu()
 	QMenu *menu = new QMenu();
 
 	menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
+	menu->addSeparator();
+	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_wrapper, SLOT(showProperties()) );
 
 	return menu;
+}
+
+void AbstractAspect::showProperties()
+{
+	QString message;
+	message += QObject::tr("Name: ") + name() + "\n\n";
+	message += QObject::tr("Comment: ") + comment() + "\n\n";
+	message += QObject::tr("Type: ") + QString(className()) + "\n\n";
+	message += QObject::tr("Path: ") + path() + "\n\n";
+	message += QObject::tr("Created: ") + creationTime().toString(QString("yyyy-MM-dd hh:mm:ss")) + "\n\n";
+
+	QMessageBox * mbox = new QMessageBox( QMessageBox::Information, QObject::tr("Properties"), message, QMessageBox::Ok);
+	mbox->setIconPixmap(icon().pixmap(32, QIcon::Normal, QIcon::On));
+	mbox->setAttribute(Qt::WA_DeleteOnClose);
+	mbox->show();
 }
 		
 void AbstractAspectWrapper::setName(const QString &value) 
@@ -190,5 +207,10 @@ void AbstractAspectWrapper::setCaptionSpec(const QString &value)
 void AbstractAspectWrapper::remove() 
 {
 	d_aspect->remove(); 
+}
+
+void AbstractAspectWrapper::showProperties()
+{
+	d_aspect->showProperties();
 }
 

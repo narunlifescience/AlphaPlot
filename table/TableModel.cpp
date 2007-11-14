@@ -36,6 +36,7 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QUndoStack>
+#include <QItemSelectionModel>
 
 
 TableModel::TableModel( QObject * parent )
@@ -45,6 +46,7 @@ TableModel::TableModel( QObject * parent )
 	d_row_count = 0;
 	d_show_comments = false;
 	d_name = "TableModel";
+	d_selection_model = new QItemSelectionModel(this, this);
 }
 
 TableModel::~TableModel()

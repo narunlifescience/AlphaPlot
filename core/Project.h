@@ -57,7 +57,7 @@ class Project : public Folder, public enable_shared_from_this<Project>
 
 		virtual Project *project() const { return const_cast<Project*>(this); }
 		virtual QUndoStack *undoStack() const;
-		virtual QString path() const { return "/"; }
+		virtual QString path() const { return name(); }
 		virtual AbstractAspect *parentAspect() const { return 0; }
 
 		virtual QWidget *view(QWidget *parent = 0);

@@ -36,7 +36,7 @@ class TableItemDelegate : public QItemDelegate
 
 public:
 	//! Standard constructor.
-	TableItemDelegate();
+	TableItemDelegate(QObject * parent = 0);
 	//! Custom cell painting.
 	virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 	//! Set the color for masked cells

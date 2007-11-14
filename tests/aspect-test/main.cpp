@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QWidget>
+#include <QtDebug>
 
 int main(int argc, char **argv)
 {

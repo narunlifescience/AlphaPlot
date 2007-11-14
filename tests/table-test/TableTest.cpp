@@ -5,6 +5,7 @@
 #include "TableModel.h"
 #include "TableView.h"
 #include "Table.h"
+#include "MdiSubWindow.h"
 #include "Project.h"
 #include <QtGlobal>
 #include <QtDebug>
@@ -90,7 +91,6 @@ class TableTest : public CppUnit::TestFixture {
 		void tearDown() 
 		{
 			delete app;
-			delete mw;
 		}
 
 	private:
@@ -151,11 +151,13 @@ class TableTest : public CppUnit::TestFixture {
 		void testTableGUI() 
 		{
 			QMdiArea * mdiArea = new QMdiArea(mw);
-			QMdiSubWindow * table_window = mdiArea->addSubWindow(table->view());
+			MdiSubWindow * table_window = new MdiSubWindow(table, table->view());
+			mdiArea->addSubWindow(table_window);
 
 			mw->setCentralWidget(mdiArea);
 			QDockWidget * undo_dock = new QDockWidget("History", mw);
 			QUndoView * undo_view = new QUndoView(prj->undoStack());
+			undo_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 			undo_dock->setWidget(undo_view);
 			mw->addDockWidget(Qt::RightDockWidgetArea, undo_dock);
 

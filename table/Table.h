@@ -89,7 +89,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! See QObject::inherits().
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! Return an icon to be used for decorating my views.
-		virtual QIcon icon() const { return QIcon(":/table.xpm"); }
+		virtual QIcon icon() const { return QIcon(":/worksheet.xpm"); }
 		//! Return a new context menu for my views.
 		/**
 		 * Caller takes ownership of the menu.
@@ -140,16 +140,134 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! Set the number of columns
 		void setColumnCount(int new_size);
 
+		// TODO: move this to abstract aspect?
+		//! Create a menu for the main application window
+		QMenu * createApplicationWindowMenu();
+		//! Create a menu with selection related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createSelectionMenu(QMenu * append_to = 0);
+		//! Create a menu with column related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createColumnMenu(QMenu * append_to = 0);
+		//! Create a menu with row related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createRowMenu(QMenu * append_to = 0);
+		//! Create a menu with table related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createTableMenu(QMenu * append_to = 0);
+
+		//! Return how many columns are selected
+		/**
+		 * If full is true, this function only returns the number of fully 
+		 * selected columns.
+		 */
+		int selectedColumnCount(bool full = false);
+		//! Return how many columns with the given plot designation are (at least partly) selected
+		int selectedColumnCount(SciDAVis::PlotDesignation pd);
+		//! Returns true if column 'col' is selected; otherwise false
+		/**
+		 * If full is true, this function only returns true if the whole 
+		 * column is selected.
+		 */
+		bool isColumnSelected(int col, bool full = false);
+		//! Return all selected columns
+		/**
+		 * If full is true, this function only returns a column if the whole 
+		 * column is selected.
+		 */
+		QList< shared_ptr<Column> > selectedColumns(bool full = false);
+		void setSelectionAs(SciDAVis::PlotDesignation pd);
+		//! Return how many rows are (at least partly) selected
+		/**
+		 * If full is true, this function only returns the number of fully 
+		 * selected rows.
+		 */
+		int selectedRowCount(bool full = false);
+		//! Returns true if row 'row' is selected; otherwise false
+		/**
+		 * If full is true, this function only returns true if the whole 
+		 * row is selected.
+		 */
+		bool isRowSelected(int row, bool full = false);
+
 	public slots:
 		//! Clear the whole table
 		void clear();
 		//! Clear all mask in the table
 		void clearMasks();
 
+		void toggleComments();
+		//! Append one column
+		void addColumn();
+		//! Append as many columns as are selected
+		void addColumns();
+		void addRows();
+		void cutSelection();
+		void copySelection();
+		void pasteIntoSelection();
+		void clearSelectedCells();
+		void goToCell();
+		void maskSelection();
+		void unmaskSelection();
+		void setFormulaForSelection();
+		void recalculateSelectedCells();
+		void fillSelectedCellsWithRowNumbers();
+		void fillSelectedCellsWithRandomNumbers();
+		void sortTable();
+		void insertEmptyColumns();
+		void removeSelectedColumns();
+		void clearSelectedColumns();
+		void clearSelectedRows();
+		void setSelectedColumnsAsX();
+		void setSelectedColumnsAsY();
+		void setSelectedColumnsAsZ();
+		void setSelectedColumnsAsXError();
+		void setSelectedColumnsAsYError();
+		void setSelectedColumnsAsNone();
+		void normalizeSelectedColumns();
+		void sortSelectedColumns();
+		void statisticsOnSelectedColumns();
+		void statisticsOnSelectedRows();
+		void insertEmptyRows();
+		void removeSelectedRows();
+		void selectAll();
+		void convertSelectedColumns();
 
 	private slots:
 		//! Handles context menu requests from TableView
+		/**
+		 * \param view the view in which the context menu should be displayed
+		 * \param pos global position of the event 
+		*/
 		void handleViewContextMenuRequest(TableView * view, const QPoint& pos);
+		//! Handles context menu requests from TableView's horizontal header
+		/**
+		 * \param view the view in which the context menu should be displayed
+		 * \param pos global position of the event 
+		*/
+		void handleViewColumnContextMenuRequest(TableView * view, const QPoint& pos);
+		//! Handles context menu requests from TableView's vertical header
+		/**
+		 * \param view the view in which the context menu should be displayed
+		 * \param pos global position of the event 
+		*/
+		void handleViewRowContextMenuRequest(TableView * view, const QPoint& pos);
 		//! Handles a request from the model to execute a resize command
 		void handleModelResizeRequest(int new_size);
 
@@ -161,8 +279,63 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! The the model name to the table name
 		void setModelName();
 
-		void toggleComments();
-		void addColumn();
+
+	signals:
+		void scrollToIndex(const QModelIndex& index);
+		void toggleOptionTabBar();
+
+	private:
+		void createActions();
+
+		//! \name selection related actions
+		//@{
+		QAction * action_cut_selection;
+		QAction * action_copy_selection;
+		QAction * action_paste_into_selection;
+		QAction * action_mask_selection;
+		QAction * action_unmask_selection;
+		QAction * action_set_formula;
+		QAction * action_clear_selection;
+		QAction * action_recalculate;
+		QAction * action_fill_row_numbers;
+		QAction * action_fill_random;
+		//@}
+		//! \name table related actions
+		//@{
+		QAction * action_toggle_comments;
+		QAction * action_toggle_tabbar;
+		QAction * action_select_all;
+		QAction * action_add_column;
+		QAction * action_clear_table;
+		QAction * action_clear_masks;
+		QAction * action_sort_table;
+		QAction * action_go_to_cell;
+		//@}
+		//! \name column related actions
+		//@{
+		QAction * action_insert_columns;
+		QAction * action_remove_columns;
+		QAction * action_clear_columns;
+		QAction * action_add_columns;
+		QAction * action_set_as_x;
+		QAction * action_set_as_y;
+		QAction * action_set_as_z;
+		QAction * action_set_as_xerr;
+		QAction * action_set_as_yerr;
+		QAction * action_set_as_none;
+		QAction * action_normalize_columns;
+		QAction * action_sort_columns;
+		QAction * action_statistics_columns;
+		QAction * action_convert_columns;
+		//@}
+		//! \name row related actions
+		//@{
+		QAction * action_insert_rows;
+		QAction * action_remove_rows;
+		QAction * action_clear_rows;
+		QAction * action_add_rows;
+		QAction * action_statistics_rows;
+		//@}
 
 	protected:
 		//! The model storing the data
@@ -179,38 +352,6 @@ public:
 
 	//! Return a pointer to the undo stack
 	virtual QUndoStack *undoStack() const;
-	//! Return all selected columns
-	/**
-	 * If full is true, this function only returns a column if the whole 
-	 * column is selected.
-	*/
-	QList<AbstractDataSource *> selectedColumns(bool full = false);
-	//! Return how many columns are selected
-	/**
-	 * If full is true, this function only returns the number of fully 
-	 * selected columns.
-	*/
-	int selectedColumnCount(bool full = false);
-	//! Return how many columns with the given plot designation are (at least partly) selected
-	int selectedColumnCount(SciDAVis::PlotDesignation pd);
-	//! Returns true if column 'col' is selected; otherwise false
-	/**
-	 * If full is true, this function only returns true if the whole 
-	 * column is selected.
-	*/
-	bool isColumnSelected(int col, bool full = false);
-	//! Return how many rows are (at least partly) selected
-	/**
-	 * If full is true, this function only returns the number of fully 
-	 * selected rows.
-	*/
-	int selectedRowCount(bool full = false);
-	//! Returns true if row 'row' is selected; otherwise false
-	/**
-	 * If full is true, this function only returns true if the whole 
-	 * row is selected.
-	*/
-	bool isRowSelected(int row, bool full = false);
 	//! Set the color of the table background
 	void setBackgroundColor(const QColor& col);
 	//! Set the text color

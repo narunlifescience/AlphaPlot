@@ -6,6 +6,13 @@ INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/colu
 unix:LIBS += -lcppunit
 QMAKE_CXX = distcc
 
+RESOURCES += \
+	appicons.qrc \
+	icons.qrc \
+
+FORMS += optionstabs.ui \
+
+
 HEADERS += \
 			  globals.h \
 			  AbstractAspect.h \

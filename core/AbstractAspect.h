@@ -68,6 +68,7 @@ class AbstractAspectWrapper : public QObject
 		void setComment(const QString &value);
 		void setCaptionSpec(const QString &value);
 		void remove();
+		void showProperties();
 
 	signals:
 		//! Emit this before the name, comment or caption spec is changed
@@ -172,7 +173,7 @@ class AbstractAspect
 		//! Execute the given command, pushing it on the undoStack() if available.
 		void exec(QUndoCommand *command);
 		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
-		virtual QString path() const { return parentAspect() ? "" : parentAspect()->path() + "/" + name(); }
+		virtual QString path() const { return parentAspect() ? parentAspect()->path() + "/" + name() : "";  }
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
@@ -242,6 +243,8 @@ class AbstractAspect
 		void setCaptionSpec(const QString &value);
 		//! Remove me from my parent's list of children.
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
+		//! Show info about the aspect
+		void showProperties();
 
 	protected:
 		AspectPrivate * d;

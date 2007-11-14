@@ -32,7 +32,8 @@
 #include "TableItemDelegate.h"
 #include "TableModel.h"
 
-TableItemDelegate::TableItemDelegate()
+TableItemDelegate::TableItemDelegate(QObject * parent)
+ : QItemDelegate(parent)
 {
 	d_masking_color = QColor(0xff,0,0);
 }

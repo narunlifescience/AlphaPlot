@@ -141,5 +141,7 @@
 	<file alias="image5.xpm">icons/image5.xpm</file>
 	<file alias="image6.xpm">icons/image6.xpm</file>
 	<file alias="image7.xpm">icons/image7.xpm</file>
+	<file alias="unmask.xpm">icons/unmask.xpm</file>
+	<file alias="mask.xpm">icons/mask.xpm</file>
 </qresource>
 </RCC>

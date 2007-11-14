@@ -36,12 +36,48 @@
 #include <QMessageBox>
 #include <QHeaderView>
 #include <QSize>
+#include <QTabWidget>
+#include <QPushButton>
+#include <QToolButton>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QTextEdit>
+#include <QPushButton>
+#include <QComboBox>
+#include <QSpinBox> 
+#include <QScrollArea>
+#include "ui_optionstabs.h"
 
 class TableModel;
 class TableItemDelegate;
 
+//! Helper class for TableView
+class TableViewWidget : public QTableView
+{
+    Q_OBJECT
+
+	public:
+		//! Constructor
+		TableViewWidget(QWidget * parent = 0) : QTableView(parent) {};
+
+	protected:
+		//! Overloaded function (cf. Qt documentation)
+		virtual void keyPressEvent( QKeyEvent * event );
+
+signals:
+		void advanceCell();
+
+		protected slots:
+			//! Cause a repaint of the header
+			void updateHeaderGeometry(Qt::Orientation o, int first, int last);
+		public slots:
+			void selectAll();
+};
+
 //! View class for table data
-class TableView : public QTableView
+class TableView : public QWidget
 {
     Q_OBJECT
 
@@ -50,13 +86,20 @@ class TableView : public QTableView
 		TableView(QWidget * parent, TableModel * model );
 		//! Destructor
 		virtual ~TableView();
+		bool eventFilter(QObject *object, QEvent *e);
+		void setSelectionModel(QItemSelectionModel * selectionModel) { d_view->setSelectionModel(selectionModel); }
+		TableModel * model() { return d_model; }
+		bool isOptionTabBarVisible() { return d_tool_box->isVisible(); }
 
-	protected:
-		//! Overloaded function (cf. Qt documentation)
-		virtual void keyPressEvent( QKeyEvent * event );
+	public slots:
+		void scrollToIndex(const QModelIndex & index);
+		void selectAll();
+		void toggleOptionTabBar();
 
 	signals:
 		void requestContextMenu(TableView * view, const QPoint& pos);
+		void requestColumnContextMenu(TableView * view, const QPoint& pos);
+		void requestRowContextMenu(TableView * view, const QPoint& pos);
 		//! Request resize command
 		/**
 		 *	Emit this signal to request the owner of the view's
@@ -71,8 +114,6 @@ class TableView : public QTableView
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
-		//! Cause a repaint of the header
-		void updateHeaderGeometry(Qt::Orientation o, int first, int last);
 		void emitContextMenuRequest(const QPoint& pos);
 
 	protected:
@@ -81,7 +122,26 @@ class TableView : public QTableView
 		//! Pointer to the current underlying model
 		TableModel * d_model;
 
+		virtual void changeEvent(QEvent * event);
+		void retranslateStrings();
+
+
 	private:
+		//! UI with options tabs (description, format, formula etc.)
+		Ui::OptionsTabs ui;
+		//! The table view (first part of the UI)
+		TableViewWidget * d_view;
+		//! The second part of the UI containing #d_tool_box and #d_hide_button
+		QWidget * d_options_bar;
+		//! Scroll area containing the option tabs widget
+		QScrollArea * d_tool_box;
+		//! Widget that contains the options tabs UI from #ui
+		QWidget * d_options_tabs;
+		//! Button to toogle the visibility of #d_tool_box
+		QToolButton * d_hide_button;
+		QVBoxLayout * d_main_layout;
+		QVBoxLayout * d_sub_layout;
+
 		//! Initialization common to all ctors
 		void init(TableModel * model);
 

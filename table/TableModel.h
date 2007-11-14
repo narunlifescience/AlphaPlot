@@ -36,9 +36,8 @@
 #include "core/column/Column.h"
 #include "core/AbstractFilter.h"
 #include <QColor>
+class QItemSelectionModel;
 class QUndoStack;
-
-#include <QtDebug>
 
 //! Model storing data for a table
 /**
@@ -172,6 +171,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		}
 		QString name() const { return d_name; }
 		void setName(const QString& name) { d_name = name; }
+		QItemSelectionModel * selectionModel() { return d_selection_model; };
 		//@}
 
 	private slots:
@@ -216,6 +216,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 			bool d_show_comments;
 			//! Table name (== aspect name of corresponding Table)
 			QString d_name;
+			QItemSelectionModel * d_selection_model;
 
 			//! Update the vertical header labels
 			/**
