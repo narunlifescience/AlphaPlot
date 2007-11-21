@@ -53,6 +53,9 @@ HEADERS += \
 			  AspectTreeModel.h \
 			  MdiSubWindow.h \
 			  ProjectExplorer.h \
+			  SortDialog.h \
+			  TableFormulaEditorView.h \
+			  TableFormulaEditorModel.h \
 
 
 
@@ -77,7 +80,10 @@ SOURCES += \
 			  AspectTreeModel.cpp \
 			  MdiSubWindow.cpp \
 			  ProjectExplorer.cpp \
-
+			  SortDialog.cpp \
+			  TableFormulaEditorView.cpp \
+			  TableFormulaEditorModel.cpp \
+		
 
 
 SOURCES += main.cpp \

@@ -36,6 +36,7 @@
 #include "core/column/Column.h"
 #include "core/AbstractFilter.h"
 #include <QColor>
+
 class QItemSelectionModel;
 class QUndoStack;
 
@@ -80,6 +81,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		//! Custom data roles used in addition to Qt::ItemDataRole
 		enum CustomDataRole {
 			MaskingRole = Qt::UserRole, //!< bool determining whether the cell is masked
+			FormulaRole = Qt::UserRole+1, //!< the cells formula
 		};
 
 		//! \name Overloaded functions from QAbstractItemModel
@@ -140,6 +142,8 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * \sa insertColumns()
 		 */
 		void appendColumns(QList< shared_ptr<Column> > cols);
+		//! Move a column to another position
+		void moveColumn(int from, int to);
 		//! Return the number of columns in the table
 		int columnCount() const { return d_column_count; }
 		//! Return the number of rows in the table
@@ -202,47 +206,47 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		void requestResize(int new_row_count);
 
 	private:
-			//! The number of columns
-			int d_column_count;
-			//! The maximum number of rows of all columns
-			int d_row_count;
-			//! Vertical header data
-			QStringList d_vertical_header_data;
-			//! Horizontal header data
-			QStringList d_horizontal_header_data;
-			//! List of pointers to the column data vectors
-			QList< shared_ptr<Column> > d_columns;	
-			//! Flag: show/high column comments
-			bool d_show_comments;
-			//! Table name (== aspect name of corresponding Table)
-			QString d_name;
-			QItemSelectionModel * d_selection_model;
+		//! The number of columns
+		int d_column_count;
+		//! The maximum number of rows of all columns
+		int d_row_count;
+		//! Vertical header data
+		QStringList d_vertical_header_data;
+		//! Horizontal header data
+		QStringList d_horizontal_header_data;
+		//! List of pointers to the column data vectors
+		QList< shared_ptr<Column> > d_columns;	
+		//! Flag: show/high column comments
+		bool d_show_comments;
+		//! Table name (== aspect name of corresponding Table)
+		QString d_name;
+		QItemSelectionModel * d_selection_model;
 
-			//! Update the vertical header labels
-			/**
-			 * This must be called whenever rows are added
-			 * or removed.
-			 * \param start_row first row that needs to be updated
-			 */
-			void updateVerticalHeader(int start_row);
-			//! Update the horizontal header labels
-			/**
-			 * This must be called whenever columns are added or
-			 * removed and when comments, labels, and column types
-			 * change.
-			 * \param start_col first column that needs to be updated
-			 * \param end_col last column that needs to be updated
-			 */
-			void updateHorizontalHeader(int start_col, int end_col);
-			//! Internal function to put together the column header
-			/**
-			 * Don't use this outside updateHorizontalHeader()
-			 */
-			void composeColumnHeader(int col, const QString& label);
-			//! Internal function to connect all column signals
-			void connectColumn(shared_ptr<Column> col);
-			//! Internal funciton to disconnect a column
-			void disconnectColumn(shared_ptr<Column> col);
+		//! Update the vertical header labels
+		/**
+		 * This must be called whenever rows are added
+		 * or removed.
+		 * \param start_row first row that needs to be updated
+		 */
+		void updateVerticalHeader(int start_row);
+		//! Update the horizontal header labels
+		/**
+		 * This must be called whenever columns are added or
+		 * removed and when comments, labels, and column types
+		 * change.
+		 * \param start_col first column that needs to be updated
+		 * \param end_col last column that needs to be updated
+		 */
+		void updateHorizontalHeader(int start_col, int end_col);
+		//! Internal function to put together the column header
+		/**
+		 * Don't use this outside updateHorizontalHeader()
+		 */
+		void composeColumnHeader(int col, const QString& label);
+		//! Internal function to connect all column signals
+		void connectColumn(shared_ptr<Column> col);
+		//! Internal funciton to disconnect a column
+		void disconnectColumn(shared_ptr<Column> col);
 }; 
 
 #endif

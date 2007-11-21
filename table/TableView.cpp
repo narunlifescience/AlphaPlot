@@ -64,6 +64,8 @@ void TableView::init(TableModel * model)
 {
 	d_view = new TableViewWidget();
 	d_view->setModel(model);
+	connect(d_view, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
+
 	d_main_layout = new QVBoxLayout(this);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
@@ -95,6 +97,9 @@ void TableView::init(TableModel * model)
 	d_view->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocus();
+#if QT_VERSION >= 0x040300
+	d_view->setCornerButtonEnabled(true);
+#endif
 
 	d_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -107,7 +112,9 @@ void TableView::init(TableModel * model)
 	v_header->setMovable(false);
 	h_header->setDefaultAlignment(Qt::AlignTop);
 	h_header->setResizeMode(QHeaderView::Interactive);
-	h_header->setMovable(false);
+	h_header->setMovable(true);
+	h_header->setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
+	connect(h_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
 	h_header->viewport()->installEventFilter(this);
 	v_header->viewport()->installEventFilter(this);
 
@@ -232,5 +239,18 @@ void TableViewWidget::keyPressEvent(QKeyEvent * event)
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
 		emit advanceCell();
 	QTableView::keyPressEvent(event);
+}
+
+void TableView::horizontalSectionMovedHandler(int index, int from, int to)
+{
+	static bool inside = false;
+	if(inside) return;
+
+	Q_ASSERT(index == from);
+
+	inside = true;
+	d_view->horizontalHeader()->moveSection(to, from);
+	inside = false;
+	emit columnMoved(from, to);
 }
 

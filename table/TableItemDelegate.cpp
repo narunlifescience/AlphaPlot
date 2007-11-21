@@ -49,3 +49,14 @@ void TableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 	painter->fillRect(option.rect, QBrush(d_masking_color, Qt::BDiagPattern));
 	painter->restore();
 }
+
+void TableItemDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, const QModelIndex & index ) const
+{
+	model->setData(index, editor->metaObject()->userProperty().read(editor), Qt::EditRole);
+}
+
+void TableItemDelegate::setEditorData ( QWidget * editor, const QModelIndex & index ) const
+{
+	editor->metaObject()->userProperty().write(editor, index.data(Qt::EditRole));
+}
+

@@ -30,6 +30,7 @@
 #include "Column.h"
 #include "ColumnPrivate.h"
 #include "columncommands.h"
+#include <QIcon>
 
 Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)
@@ -250,3 +251,18 @@ void Column::setColumnComment(const QString& comment)
 { 
 	setComment(comment); 
 }
+
+QIcon Column::icon() const
+{
+	switch(dataType())
+	{
+		case SciDAVis::TypeDouble:
+			return QIcon(QPixmap(":/numerictype.png"));
+		case SciDAVis::TypeQString:
+			return QIcon(QPixmap(":/texttype.png"));
+		case SciDAVis::TypeQDateTime:
+			return QIcon(QPixmap(":/datetype.png"));
+	}
+	return QIcon();
+}
+

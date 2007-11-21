@@ -71,9 +71,11 @@ class TableTest : public CppUnit::TestFixture {
 			}
 
 			table = shared_ptr<Table>(new Table(0, 5, 2, "table1"));
+			table->setPlotMenu(new QMenu("Plot"));
 			prj = shared_ptr<Project>(new Project());
 			prj->setName("project");
 			prj->addChild(table);
+			prj->undoStack()->clear();
 
 			column[4]->copy(column[2]);
 			dtl_temp << QDateTime(QDate(2000,1,1),QTime(1,2,3,4));

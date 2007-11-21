@@ -65,6 +65,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 			QDateTime input_value = d_inputs.value(0)->dateTimeAt(row);
 			if(!input_value.date().isValid() && input_value.time().isValid())
 				input_value.setDate(QDate(1900,1,1));
+#if QT_VERSION < 0x040302 // the bug seems to be fixed in Qt 4.3.2
 			// QDate::toString produces shortened year numbers for "yyyy"
 			// in violation of ISO 8601 and ambiguous with respect to "yy" format
 			QString format(d_format);
@@ -75,6 +76,9 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 			result.replace(QRegExp("YYYY(-)?(\\d\\d)YYYY"), "\\100\\2");
 			result.replace(QRegExp("YYYY(-)?(\\d)YYYY"), "\\1000\\2");
 			return result;
+#else
+			return input_value.toString(d_format);
+#endif
 		}
 	protected:
 		//! Using typed ports: only DateTime inputs are accepted.

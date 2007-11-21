@@ -30,6 +30,9 @@
  *                                                                         *
  ***************************************************************************/
 #include "Table.h"
+#include "Project.h"
+#include "TableFormulaEditorView.h"
+#include "TableFormulaEditorModel.h"
 
 #include <QItemSelectionModel>
 #include <QTime>
@@ -44,6 +47,9 @@
 #include <QModelIndex>
 #include <QModelIndexList>
 #include <QInputDialog>
+#include <QMapIterator>
+#include <QDialog>
+#include <QMenuBar>
 
 #include "AbstractScript.h"
 #include "AspectPrivate.h"
@@ -65,6 +71,8 @@
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include "core/datatypes/SimpleCopyThroughFilter.h"
 
+#include <QtDebug>
+
 #ifndef _NO_TR1_
 #include "tr1/memory" 
 using std::tr1::dynamic_pointer_cast;
@@ -79,7 +87,7 @@ using boost::dynamic_pointer_cast;
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractAspect(name), scripted(engine)
+: AbstractAspect(name), scripted(engine), d_plot_menu(0)
 {
 	d_model = new TableModel(this);
 	connect(d_model, SIGNAL(requestResize(int)),
@@ -133,6 +141,8 @@ QWidget *Table::view(QWidget *parent_widget)
 		this, SLOT(handleViewRowContextMenuRequest(TableView *,const QPoint&)));
 	connect(table_view, SIGNAL(requestResize(int)),
 			this, SLOT(handleModelResizeRequest(int)));
+	connect(table_view, SIGNAL(columnMoved(int,int)),
+			this, SLOT(moveColumn(int,int)));
 	table_view->setSelectionModel(d_model->selectionModel());
 
 	return table_view;
@@ -188,10 +198,9 @@ void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
 {
 	if( new_cols.size() < 1 || before < 0 || before > columnCount()) return;
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
-	stack->push(new TableInsertColumnsCmd(d_model, before, new_cols));
-	stack->endMacro();
+	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
+	exec(new TableInsertColumnsCmd(d_model, before, new_cols));
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -199,10 +208,9 @@ void Table::removeColumns(int first, int count)
 {
 	if( count < 1 || first < 0 || first+count > columnCount()) return;
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
-	stack->push(new TableRemoveColumnsCmd(d_model, first, count));
-	stack->endMacro();
+	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
+	exec(new TableRemoveColumnsCmd(d_model, first, count));
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -210,13 +218,12 @@ void Table::removeRows(int first, int count)
 {
 	if( count < 1 || first < 0 || first+count > rowCount()) return;
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
+	beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
 	int end = d_model->columnCount();
 	for(int col=0; col<end; col++)
 		d_model->column(col)->removeRows(first, count);
-	stack->push(new TableSetNumberOfRowsCmd(d_model, d_model->rowCount()-count));
-	stack->endMacro();
+	exec(new TableSetNumberOfRowsCmd(d_model, d_model->rowCount()-count));
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -224,13 +231,12 @@ void Table::insertRows(int before, int count)
 {
 	if( count < 1 || before < 0 || before > rowCount()) return;
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
+	beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
 	int end = d_model->columnCount();
 	for(int col=0; col<end; col++)
 		d_model->column(col)->insertRows(before, count);
 	// the table will be resized automatically if necessary
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -309,24 +315,22 @@ int Table::columnIndex(shared_ptr<Column> col) const
 void Table::clear()
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: clear").arg(name()));
+	beginMacro(QObject::tr("%1: clear").arg(name()));
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
 		column(i)->clear();
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::clearMasks()
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: clear masks").arg(name()));
+	beginMacro(QObject::tr("%1: clear masks").arg(name()));
 	int cols = columnCount();
 	for(int i=0; i<cols; i++)
 		column(i)->clearMasks();
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -345,27 +349,36 @@ void Table::toggleComments()
 void Table::addColumn()
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: add column").arg(name()));
+	beginMacro(QObject::tr("%1: add column").arg(name()));
 	setColumnCount(columnCount()+1);
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::addColumns()
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
 	int count = selectedColumnCount(false);
-	stack->beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));
+	beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));
 	setColumnCount(columnCount() + count);
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::cutSelection()
 {
-	// TODO
+	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
+
+	WAIT_CURSOR;
+	beginMacro(tr("%1: cut selected cell(s)").arg(name()));
+	foreach(QModelIndex index, list)
+	{
+		if(column(index.column())->rowCount() > index.row())
+			d_model->setData(index, QString(""), Qt::EditRole);
+	}
+	// TODO copy
+	endMacro();
+	RESET_CURSOR;
 }
 
 void Table::copySelection()
@@ -383,10 +396,10 @@ void Table::maskSelection()
 	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
 
 	WAIT_CURSOR;
-	undoStack()->beginMacro(tr("%1: mask selected cell(s)").arg(name()));
+	beginMacro(tr("%1: mask selected cell(s)").arg(name()));
 	foreach(QModelIndex index, list)
 		column(index.column())->setMasked(index.row());
-	undoStack()->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -395,10 +408,10 @@ void Table::unmaskSelection()
 	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
 
 	WAIT_CURSOR;
-	undoStack()->beginMacro(tr("%1: unmask selected cell(s)").arg(name()));
+	beginMacro(tr("%1: unmask selected cell(s)").arg(name()));
 	foreach(QModelIndex index, list)
 		column(index.column())->setMasked(index.row(), false);
-	undoStack()->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -419,10 +432,10 @@ void Table::fillSelectedCellsWithRowNumbers()
 	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
 
 	WAIT_CURSOR;
-	undoStack()->beginMacro(tr("%1: fill cells with row numbers").arg(name()));
+	beginMacro(tr("%1: fill cells with row numbers").arg(name()));
 	foreach(QModelIndex index, list)
 		d_model->setData(index, QString::number(index.row()+1), Qt::EditRole);
-	undoStack()->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -433,28 +446,61 @@ void Table::fillSelectedCellsWithRandomNumbers()
 	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
 
 	WAIT_CURSOR;
-	undoStack()->beginMacro(tr("%1: fill cells with random values").arg(name()));
+	beginMacro(tr("%1: fill cells with random values").arg(name()));
 	qsrand(QTime::currentTime().msec());
 	foreach(QModelIndex index, list)
 	{
 		double value = double(qrand())/double(RAND_MAX);
 		if (column(index.column())->columnMode() == SciDAVis::Numeric)
 			column(index.column())->setValueAt(index.row(), value);
+		else if (column(index.column())->dataType() == SciDAVis::TypeQDateTime)
+		{
+			QDate date(1,1,1);
+			QTime time(0,0,0,0);
+			int days = (int)( (double)date.daysTo(QDate(2999,12,31)) * value );
+			qint64 msecs = (qint64)(value * 1000.0 * 60.0 * 60.0 * 24.0);
+			column(index.column())->setDateTimeAt(index.row(), QDateTime(date.addDays(days), time.addMSecs(msecs)));
+		}
 		else
 			d_model->setData(index, QString::number(value), Qt::EditRole);
 	}
-	undoStack()->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::sortTable()
 {
-	// TODO
+	QList< shared_ptr<Column> > cols;
+	
+	for(int i=0; i<columnCount(); i++)
+		cols.append(column(i));
+
+	sortDialog(cols);
 }
 
 void Table::insertEmptyColumns()
 {
-	// TODO
+	int first = firstSelectedColumn();
+	int last = lastSelectedColumn();
+	int count, current = first;
+	QList< shared_ptr<Column> > cols;
+
+	if( first < 0 ) return;
+
+	while( current <= last )
+	{
+		current = first+1;
+		while( current <= last && isColumnSelected(current) ) current++;
+		count = current-first;
+		for(int i=0; i<count; i++)
+			cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+		insertColumns(first, cols);
+		cols.clear();
+		current += count;
+		last += count;
+		while( current <= last && !isColumnSelected(current) ) current++;
+		first = current;
+	}
 }
 
 void Table::removeSelectedColumns()
@@ -470,14 +516,13 @@ void Table::clearSelectedColumns()
 void Table::setSelectionAs(SciDAVis::PlotDesignation pd)
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
-	stack->beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
+	beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
 
 	QList< shared_ptr<Column> > list = selectedColumns();
 	foreach(shared_ptr<Column> ptr, list)
 		ptr->setPlotDesignation(pd);
 
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -518,7 +563,8 @@ void Table::normalizeSelectedColumns()
 
 void Table::sortSelectedColumns()
 {
-	// TODO
+	QList< shared_ptr<Column> > cols = selectedColumns();
+	sortDialog(cols);
 }
 
 void Table::statisticsOnSelectedColumns()
@@ -546,7 +592,12 @@ void Table::clearSelectedRows()
 	// TODO
 }
 
-void Table::convertSelectedColumns()
+void Table::editTypeAndFormatOfSelectedColumns()
+{
+	// TODO
+}
+
+void Table::editDescriptionOfCurrentColumn()
 {
 	// TODO
 }
@@ -554,11 +605,10 @@ void Table::convertSelectedColumns()
 void Table::addRows()
 {
 	WAIT_CURSOR;
-	QUndoStack * stack = undoStack();
 	int count = selectedRowCount(false);
-	stack->beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
+	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
 	exec(new TableSetNumberOfRowsCmd(d_model, rowCount() + count));
-	stack->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -567,13 +617,13 @@ void Table::clearSelectedCells()
 	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
 
 	WAIT_CURSOR;
-	undoStack()->beginMacro(tr("%1: clear selected cell(s)").arg(name()));
+	beginMacro(tr("%1: clear selected cell(s)").arg(name()));
 	foreach(QModelIndex index, list)
 	{
 		if(column(index.column())->rowCount() > index.row())
 			d_model->setData(index, QString(""), Qt::EditRole);
 	}
-	undoStack()->endMacro();
+	endMacro();
 	RESET_CURSOR;
 }
 
@@ -602,25 +652,25 @@ QMenu *Table::createContextMenu()
 void Table::createActions()
 {
 	// selection related actions
-	action_cut_selection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cut"), this);
+	action_cut_selection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
 	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
 
-	action_copy_selection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("Copy"), this);
+	action_copy_selection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy"), this);
 	connect(action_copy_selection, SIGNAL(triggered()), this, SLOT(copySelection()));
 
-	action_paste_into_selection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Paste"), this);
+	action_paste_into_selection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Past&e"), this);
 	connect(action_paste_into_selection, SIGNAL(triggered()), this, SLOT(pasteIntoSelection()));
 
-	action_mask_selection = new QAction(QIcon(QPixmap(":/mask.xpm")), tr("Mask","mask selection"), this);
+	action_mask_selection = new QAction(QIcon(QPixmap(":/mask.xpm")), tr("&Mask","mask selection"), this);
 	connect(action_mask_selection, SIGNAL(triggered()), this, SLOT(maskSelection()));
 
-	action_unmask_selection = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("Unmask","unmask selection"), this);
+	action_unmask_selection = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("&Unmask","unmask selection"), this);
 	connect(action_unmask_selection, SIGNAL(triggered()), this, SLOT(unmaskSelection()));
 
-	action_set_formula = new QAction(QIcon(QPixmap()), tr("Set Formula"), this);
+	action_set_formula = new QAction(QIcon(QPixmap(":/fx.xpm")), tr("Set &Formula"), this);
 	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(setFormulaForSelection()));
 
-	action_clear_selection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clear","clear selection"), this);
+	action_clear_selection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r","clear selection"), this);
 	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
 
 	action_recalculate = new QAction(QIcon(QPixmap()), tr("Recalculate"), this);
@@ -641,7 +691,7 @@ void Table::createActions()
 	action_select_all = new QAction(QIcon(QPixmap()), tr("Select All"), this);
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
 
-	action_add_column = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("Add Column"), this);
+	action_add_column = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("&Add Column"), this);
 	connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
 
 	action_clear_table = new QAction(QIcon(QPixmap(":/erase")), tr("Clear Table"), this);
@@ -650,23 +700,26 @@ void Table::createActions()
 	action_clear_masks = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("Clear Masks"), this);
 	connect(action_clear_masks, SIGNAL(triggered()), this, SLOT(clearMasks()));
 
-	action_sort_table = new QAction(QIcon(QPixmap()), tr("Sort Table"), this);
+	action_sort_table = new QAction(QIcon(QPixmap()), tr("&Sort Table"), this);
 	connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
 
-	action_go_to_cell = new QAction(QIcon(QPixmap()), tr("Go to Cell"), this);
+	action_go_to_cell = new QAction(QIcon(QPixmap()), tr("&Go to Cell"), this);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
 
+	action_formula_editor = new QAction(QIcon(QPixmap()), tr("Formula Editor"), this);
+	connect(action_formula_editor, SIGNAL(triggered()), this, SLOT(openFormulaEditor()));
+
 	// column related actions
-	action_insert_columns = new QAction(QIcon(QPixmap()), tr("Insert Empty Columns"), this);
+	action_insert_columns = new QAction(QIcon(QPixmap()), tr("&Insert Empty Columns"), this);
 	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
 
-	action_remove_columns = new QAction(QIcon(QPixmap()), tr("Remove"), this);
+	action_remove_columns = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Remo&ve"), this);
 	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
 
-	action_clear_columns = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clear"), this);
+	action_clear_columns = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r"), this);
 	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
 
-	action_add_columns = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("Add Columns"), this);
+	action_add_columns = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("&Add Columns"), this);
 	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
 
 	action_set_as_x = new QAction(QIcon(QPixmap()), tr("X","plot designation"), this);
@@ -687,48 +740,64 @@ void Table::createActions()
 	action_set_as_none = new QAction(QIcon(QPixmap()), tr("None","plot designation"), this);;
 	connect(action_set_as_none, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsNone()));
 
-	action_normalize_columns = new QAction(QIcon(QPixmap()), tr("Normalize"), this);;
+	action_normalize_columns = new QAction(QIcon(QPixmap()), tr("&Normalize"), this);;
 	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
 
-	action_sort_columns = new QAction(QIcon(QPixmap()), tr("Sort"), this);;
+	action_sort_columns = new QAction(QIcon(QPixmap()), tr("&Sort"), this);;
 	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
 
-	action_statistics_columns = new QAction(QIcon(QPixmap()), tr("Statistics"), this);;
+	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
 
-	action_convert_columns = new QAction(QIcon(QPixmap()), tr("Convert"), this);;
-	connect(action_convert_columns, SIGNAL(triggered()), this, SLOT(convertSelectedColumns()));
+	action_type_format = new QAction(QIcon(QPixmap()), tr("&Type && Format"), this);;
+	connect(action_type_format, SIGNAL(triggered()), this, SLOT(editTypeAndFormatOfSelectedColumns()));
+
+	action_edit_description = new QAction(QIcon(QPixmap()), tr("Edit Column &Description"), this);;
+	connect(action_edit_description, SIGNAL(triggered()), this, SLOT(editDescriptionOfCurrentColumn()));
 
 	// row related actions
-	action_insert_rows = new QAction(QIcon(QPixmap()), tr("Insert Empty Rows"), this);;
+	action_insert_rows = new QAction(QIcon(QPixmap()), tr("&Insert Empty Rows"), this);;
 	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
 
-	action_remove_rows = new QAction(QIcon(QPixmap()), tr("Remove"), this);;
+	action_remove_rows = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Remo&ve"), this);;
 	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
 
-	action_clear_rows = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clear"), this);;
+	action_clear_rows = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r"), this);;
 	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
 
-	action_add_rows = new QAction(QIcon(QPixmap()), tr("Add Rows"), this);;
+	action_add_rows = new QAction(QIcon(QPixmap()), tr("&Add Rows"), this);;
 	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
 
-	action_statistics_rows = new QAction(QIcon(QPixmap()), tr("Statistics"), this);;
+	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
+
+}
+
+void Table::addUndoToMenu(QMenu * menu)
+{
+	QAction * temp_action;
+	if(undoStack())
+	{
+		temp_action = undoStack()->createUndoAction(menu);
+		temp_action->setIcon(QIcon(QPixmap(":/undo.xpm")));
+		if(project())
+			temp_action->setShortcut(project()->queryShortcut("undo"));
+		menu->addAction(temp_action);
+		temp_action = undoStack()->createRedoAction(menu);
+		temp_action->setIcon(QIcon(QPixmap(":/redo.xpm")));
+		if(project())
+			temp_action->setShortcut(project()->queryShortcut("redo"));
+		menu->addAction(temp_action);
+		menu->addSeparator();
+	}
 
 }
 
 void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 {
 	QMenu context_menu;
-	QAction * temp_action;
-
-	temp_action = undoStack()->createUndoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	context_menu.addAction(temp_action);
-	temp_action = undoStack()->createRedoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	context_menu.addAction(temp_action);
-	context_menu.addSeparator();
+	
+	addUndoToMenu(&context_menu);
 
 	createSelectionMenu(&context_menu);
 	context_menu.addSeparator();
@@ -758,16 +827,16 @@ void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 
 void Table::handleViewColumnContextMenuRequest(TableView *view, const QPoint& pos)
 {
+	Q_UNUSED(view);
 	QMenu context_menu;
-	QAction * temp_action;
+	
+	addUndoToMenu(&context_menu);
 
-	temp_action = undoStack()->createUndoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	context_menu.addAction(temp_action);
-	temp_action = undoStack()->createRedoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	context_menu.addAction(temp_action);
-	context_menu.addSeparator();
+	if(d_plot_menu)
+	{
+		context_menu.addMenu(d_plot_menu);
+		context_menu.addSeparator();
+	}
 
 	createColumnMenu(&context_menu);
 	context_menu.addSeparator();
@@ -777,16 +846,10 @@ void Table::handleViewColumnContextMenuRequest(TableView *view, const QPoint& po
 
 void Table::handleViewRowContextMenuRequest(TableView *view, const QPoint& pos)
 {
+	Q_UNUSED(view);
 	QMenu context_menu;
-	QAction * temp_action;
-
-	temp_action = undoStack()->createUndoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	context_menu.addAction(temp_action);
-	temp_action = undoStack()->createRedoAction(&context_menu);
-	temp_action->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	context_menu.addAction(temp_action);
-	context_menu.addSeparator();
+	
+	addUndoToMenu(&context_menu);
 
 	createRowMenu(&context_menu);
 
@@ -822,9 +885,10 @@ QMenu * Table::createSelectionMenu(QMenu * append_to)
 	menu->addSeparator();
 	menu->addAction(action_set_formula);
 	menu->addAction(action_recalculate);
+	menu->addAction(action_formula_editor);
 	menu->addSeparator();
 
-	QMenu * submenu = new QMenu("Fill with");
+	QMenu * submenu = new QMenu("Fi&ll with");
 	submenu->addAction(action_fill_row_numbers);
 	submenu->addAction(action_fill_random);
 	menu->addMenu(submenu);
@@ -845,7 +909,7 @@ QMenu * Table::createColumnMenu(QMenu * append_to)
 	menu->addAction(action_add_columns);
 	menu->addSeparator();
 	
-	QMenu * submenu = new QMenu("Set As");
+	QMenu * submenu = new QMenu("S&et As");
 
 	submenu->addAction(action_set_as_x);
 	submenu->addAction(action_set_as_y);
@@ -854,6 +918,9 @@ QMenu * Table::createColumnMenu(QMenu * append_to)
 	submenu->addAction(action_set_as_yerr);
 	submenu->addAction(action_set_as_none);
 	menu->addMenu(submenu);
+	menu->addSeparator();
+	menu->addAction(action_edit_description);
+	menu->addAction(action_type_format);
 	menu->addSeparator();
 
 	menu->addAction(action_normalize_columns);
@@ -980,6 +1047,359 @@ void Table::selectAll()
 }
 
 
+int Table::firstSelectedColumn(bool full)
+{
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+	{
+		if(isColumnSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int Table::lastSelectedColumn(bool full)
+{
+	int cols = columnCount();
+	for(int i=cols-1; i>=0; i--)
+		if(isColumnSelected(i, full)) return i;
+
+	return -1;
+}
+
+int Table::firstSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for (int i=0; i<rows; i++)
+	{
+		if(isRowSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int Table::lastSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for(int i=rows-1; i>=0; i--)
+		if(isRowSelected(i, full)) return i;
+
+	return -1;
+}
+
+bool Table::isCellSelected(int row, int col)
+{
+	if(row < 0 || col < 0 || row >= rowCount() || col >= columnCount()) return false;
+
+	return d_model->selectionModel()->isSelected( d_model->index(row, col, QModelIndex()) );
+}
+
+
+void Table::moveColumn(int from, int to)
+{
+	exec(new TableMoveColumnCmd(d_model, from, to));	
+}
+
+void Table::copy(Table * other)
+{
+	Q_UNUSED(other);
+	// TODO
+}
+
+int Table::colX(int col)
+{
+	for(int i=col-1; i>=0; i--)
+	{
+		if (column(i)->plotDesignation() == SciDAVis::X)
+			return i;
+	}
+	int cols = columnCount();
+	for(int i=col+1; i<cols; i++)
+	{
+		if (column(i)->plotDesignation() == SciDAVis::X)
+			return i;
+	}
+	return -1;
+}
+
+int Table::colY(int col)
+{
+	int cols = columnCount();
+	// look to the right first
+	for(int i=col+1; i<cols; i++)
+	{
+		if (column(i)->plotDesignation() == SciDAVis::Y)
+			return i;
+	}
+	for(int i=col-1; i>=0; i--)
+	{
+		if (column(i)->plotDesignation() == SciDAVis::Y)
+			return i;
+	}
+	return -1;
+}
+
+void Table::setPlotMenu(QMenu * menu)
+{
+	d_plot_menu = menu;
+}
+
+void Table::sortDialog(QList< shared_ptr<Column> > cols)
+{
+	if(cols.isEmpty()) return;
+
+	SortDialog *sortd = new SortDialog();
+	sortd->setAttribute(Qt::WA_DeleteOnClose);
+	connect(sortd, SIGNAL(sort(shared_ptr<Column>,QList< shared_ptr<Column> >,bool)), this, SLOT(sortColumns(shared_ptr<Column>,QList< shared_ptr<Column> >,bool)));
+	sortd->setColumnsList(cols);
+	sortd->exec();
+}
+
+
+void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > cols, bool ascending)
+{
+	if(cols.isEmpty()) return;
+
+	// the normal QPair comparison does not work properly with descending sorting
+	// thefore we use our own compare functions
+	class CompareFunctions{ 
+		public:
+			static bool doubleLess(const QPair<double, int>& a, const QPair<double, int>& b)
+			{
+				return a.first < b.first;
+			}
+			static bool doubleGreater(const QPair<double, int>& a, const QPair<double, int>& b)
+			{
+				return a.first > b.first;
+			}
+			static bool QStringLess(const QPair<QString, int>& a, const QPair<QString, int>& b)
+			{
+				return a < b;
+			}
+			static bool QStringGreater(const QPair<QString, int>& a, const QPair<QString, int>& b)
+			{
+				return a > b;
+			}
+			static bool QDateTimeLess(const QPair<QDateTime, int>& a, const QPair<QDateTime, int>& b)
+			{
+				return a < b;
+			}
+			static bool QDateTimeGreater(const QPair<QDateTime, int>& a, const QPair<QDateTime, int>& b)
+			{
+				return a > b;
+			}
+	};
+
+	WAIT_CURSOR;
+	beginMacro(tr("%1: sort column(s)").arg(name()));
+
+	if(leading == 0) // sort separately
+	{
+		for(int i=0; i<cols.size(); i++)
+		{
+			shared_ptr<Column> col = cols.at(i);
+
+			if(col->dataType() == SciDAVis::TypeDouble)
+			{
+				int rows = col->rowCount();
+				QList< QPair<double, int> > map;
+
+				for(int j=0; j<rows; j++)
+					map.append(QPair<double, int>(col->valueAt(j), j));
+	
+				if(ascending)
+					qStableSort(map.begin(), map.end(), CompareFunctions::doubleLess);
+				else
+					qStableSort(map.begin(), map.end(), CompareFunctions::doubleGreater);
+
+				QListIterator< QPair<double, int> > it(map);
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				
+				int k=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->setMasked(col->isMasked(it.next().second));
+					k++;
+				}
+				// copy the sorted column
+				col->copy(temp_col.get(), 0, 0, rows);
+			}
+			else if(col->dataType() == SciDAVis::TypeQString)
+			{
+				int rows = col->rowCount();
+				QList< QPair<QString, int> > map;
+
+				for(int j=0; j<rows; j++)
+					map.append(QPair<QString, int>(col->textAt(j), j));
+	
+				if(ascending)
+					qStableSort(map.begin(), map.end(), CompareFunctions::QStringLess);
+				else
+					qStableSort(map.begin(), map.end(), CompareFunctions::QStringGreater);
+
+				QListIterator< QPair<QString, int> > it(map);
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				
+				int k=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->setMasked(col->isMasked(it.next().second));
+					k++;
+				}
+				// copy the sorted column
+				col->copy(temp_col.get(), 0, 0, rows);
+			}
+			else if(col->dataType() == SciDAVis::TypeQDateTime)
+			{
+				int rows = col->rowCount();
+				QList< QPair<QDateTime, int> > map;
+
+				for(int j=0; j<rows; j++)
+					map.append(QPair<QDateTime, int>(col->dateTimeAt(j), j));
+	
+				if(ascending)
+					qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
+				else
+					qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeGreater);
+
+				QListIterator< QPair<QDateTime, int> > it(map);
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				
+				int k=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->setMasked(col->isMasked(it.next().second));
+					k++;
+				}
+				// copy the sorted column
+				col->copy(temp_col.get(), 0, 0, rows);
+			}
+		}
+		
+	}
+	else // sort with leading column
+	{
+		if(leading->dataType() == SciDAVis::TypeDouble)
+		{
+			QList< QPair<double, int> > map;
+			int rows = leading->rowCount();
+
+			for(int i=0; i<rows; i++)
+				map.append(QPair<double, int>(leading->valueAt(i), i));
+
+			if(ascending)
+				qStableSort(map.begin(), map.end(), CompareFunctions::doubleLess);
+			else
+				qStableSort(map.begin(), map.end(), CompareFunctions::doubleGreater);
+			QListIterator< QPair<double, int> > it(map);
+
+			for(int i=0; i<cols.size(); i++) 
+			{
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				it.toFront();
+				int j=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
+					j++;
+				}
+				// copy the sorted column
+				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+			}
+		}
+		else if(leading->dataType() == SciDAVis::TypeQString)
+		{
+			QList< QPair<QString, int> > map;
+			int rows = leading->rowCount();
+
+			for(int i=0; i<rows; i++)
+				map.append(QPair<QString, int>(leading->textAt(i), i));
+
+			if(ascending)
+				qStableSort(map.begin(), map.end(), CompareFunctions::QStringLess);
+			else
+				qStableSort(map.begin(), map.end(), CompareFunctions::QStringGreater);
+			QListIterator< QPair<QString, int> > it(map);
+
+			for(int i=0; i<cols.size(); i++) 
+			{
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				it.toFront();
+				int j=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
+					j++;
+				}
+				// copy the sorted column
+				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+			}
+		}
+		else if(leading->dataType() == SciDAVis::TypeQDateTime)
+		{
+			QList< QPair<QDateTime, int> > map;
+			int rows = leading->rowCount();
+
+			for(int i=0; i<rows; i++)
+				map.append(QPair<QDateTime, int>(leading->dateTimeAt(i), i));
+
+			if(ascending)
+				qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeLess);
+			else
+				qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeGreater);
+			QListIterator< QPair<QDateTime, int> > it(map);
+
+			for(int i=0; i<cols.size(); i++) 
+			{
+				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				it.toFront();
+				int j=0;
+				// put the values in the right order into temp_col
+				while(it.hasNext())
+				{
+					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
+					j++;
+				}
+				// copy the sorted column
+				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+			}
+		}
+	}
+	endMacro();
+	RESET_CURSOR;
+} // end of sortColumns()
+
+
+void Table::openFormulaEditor()
+{
+	// TODO: add context menu and buttons or menu to the formula editor
+	QDialog dialog;
+//	QMenuBar mb;
+//	mb.addMenu(new QMenu("test"));
+	TableFormulaEditorModel model(d_model);
+	//TableFormulaEditorView view(&dialog);
+	QTableView view(&dialog);
+	view.setModel(&model);
+	QVBoxLayout lo(&dialog);
+	lo.setContentsMargins(0, 0, 0, 0);
+	lo.setSpacing(0);
+//	lo.addWidget(&mb);
+	lo.addWidget(&view);
+	dialog.setWindowTitle(tr("Formula Editor (%1)").arg(name()));
+	dialog.exec();
+}
+
 #if false
 
 
@@ -1088,11 +1508,6 @@ QStringList Table::columnLabels()
 	return list;
 }
 
-void Table::copy(Table * other)
-{
-	// TODO
-}
-
 void Table::setAscendingValues()
 {
 	if(selectedColumnCount() < 1) return;
@@ -1154,59 +1569,6 @@ void Table::setRandomValues()
 	QApplication::restoreOverrideCursor();
 }
 
-int Table::firstSelectedColumn(bool full)
-{
-	int cols = columnCount();
-	for (int i=0; i<cols; i++)
-	{
-		if(isColumnSelected(i, full))
-			return i;
-	}
-	return -1;
-}
-
-int Table::lastSelectedColumn(bool full)
-{
-	int cols = columnCount();
-	for(int i=cols-1; i>=0; i--)
-		if(isColumnSelected(i, full)) return i;
-
-	return -1;
-}
-
-int Table::firstSelectedRow(bool full)
-{
-	int rows = rowCount();
-	for (int i=0; i<rows; i++)
-	{
-		if(isRowSelected(i, full))
-			return i;
-	}
-	return -1;
-}
-
-int Table::lastSelectedRow(bool full)
-{
-	int rows = rowCount();
-	for(int i=rows-1; i>=0; i--)
-		if(isRowSelected(i, full)) return i;
-
-	return -1;
-}
-
-
-bool Table::isCellSelected(int row, int col)
-{
-	if(row < 0 || col < 0 || row >= rowCount() || col >= columnCount()) return false;
-
-	return d_model->output(col)->isSelected(row);
-	// Remark: This could also be done like this:
-	// <code>
-	// return d_table_view->selectionModel()->isSelected( d_model->index(row, col, QModelIndex()) );
-	// </code>
-	// But since the selection is synchronized between columns and selection
-	// model there should be at most a slight speed difference, if any. - thzs
-}
 
 void Table::clearColumn(int col)
 {
@@ -1233,200 +1595,6 @@ void Table::goToCell(int row, int col)
 	if( (col < 0) || (col >= columnCount()) ) return;
 
 	d_table_view->scrollTo(d_model->index(row, col, QModelIndex()), QAbstractItemView::PositionAtCenter);
-}
-
-int Table::colX(int col)
-{
-	for(int i=col-1; i>=0; i--)
-	{
-		if (d_model->columnPlotDesignation(i) == SciDAVis::X)
-			return i;
-	}
-	int cols = columnCount();
-	for(int i=col+1; i<cols; i++)
-	{
-		if (d_model->columnPlotDesignation(i) == SciDAVis::X)
-			return i;
-	}
-	return -1;
-}
-
-int Table::colY(int col)
-{
-	int cols = columnCount();
-	// look to the right first
-	for(int i=col+1; i<cols; i++)
-	{
-		if (d_model->columnPlotDesignation(i) == SciDAVis::Y)
-			return i;
-	}
-	for(int i=col-1; i>=0; i--)
-	{
-		if (d_model->columnPlotDesignation(i) == SciDAVis::Y)
-			return i;
-	}
-	return -1;
-}
-
-SciDAVis::ColumnMode Table::columnMode(int col)
-{
-	AbstractDataSource * col_ptr = d_model->output(col);
-
-	if(col_ptr->inherits("DoubleColumnData"))
-		return SciDAVis::Numeric;
-
-	if(col_ptr->inherits("DateTimeColumnData"))
-	{
-		AbstractFilter * filter = d_model->inputFilter(col);
-		if(dynamic_cast<String2MonthFilter *>(filter))
-			return SciDAVis::Month;
-		if(dynamic_cast<String2DayOfWeekFilter *>(filter))
-			return SciDAVis::Day;
-		return SciDAVis::DateTime;
-	}
-
-	return SciDAVis::Text;
-}
-
-void Table::setColumnMode(int col, SciDAVis::ColumnMode mode)
-{
-	AbstractDataSource * old_col = d_model->output(col);
-	AbstractColumnData * new_col = 0;
-	AbstractFilter *filter, *new_in_filter, *new_out_filter;
-
-	// convert the column
-	if(old_col->inherits("DoubleColumnData"))
-	{
-		switch(mode)
-		{		
-			case SciDAVis::Numeric:
-				return;
-			case SciDAVis::Text:
-				filter = new Double2StringFilter();
-				new_col = new StringColumnData();
-				break;
-			case SciDAVis::Date:
-			case SciDAVis::Time:
-			case SciDAVis::DateTime:
-				filter = new Double2DateTimeFilter();
-				new_col = new DateTimeColumnData();
-				break;
-			case SciDAVis::Month:
-				filter = new Double2MonthFilter();
-				new_col = new DateTimeColumnData();
-				break;
-			case SciDAVis::Day:
-				filter = new Double2DayOfWeekFilter();
-				new_col = new DateTimeColumnData();
-				break;
-		} // switch(mode)
-	}
-	else if(old_col->inherits("StringColumnData"))
-	{
-		switch(mode)
-		{		
-			case SciDAVis::Text:
-				return;
-			case SciDAVis::Numeric:
-				filter = new String2DoubleFilter();
-				new_col = new DoubleColumnData();
-				break;
-			case SciDAVis::Date:
-			case SciDAVis::Time:
-			case SciDAVis::DateTime:
-				filter = new String2DateTimeFilter();
-				new_col = new DateTimeColumnData();
-				break;
-			case SciDAVis::Month:
-				filter = new String2MonthFilter();
-				new_col = new DateTimeColumnData();
-				break;
-			case SciDAVis::Day:
-				filter = new String2DayOfWeekFilter();
-				new_col = new DateTimeColumnData();
-				break;
-		} // switch(mode)
-	}
-	else if(old_col->inherits("DateColumnData"))
-	{
-		switch(mode)
-		{		
-			case SciDAVis::Date:
-			case SciDAVis::Time:
-			case SciDAVis::DateTime:
-				return;
-			case SciDAVis::Text:
-				filter = new DateTime2StringFilter();
-				new_col = new StringColumnData();
-				break;
-			case SciDAVis::Numeric:
-				filter = new DateTime2DoubleFilter();
-				new_col = new DoubleColumnData();
-				break;
-			case SciDAVis::Month:
-				filter = new CopyThroughFilter();
-				new_col = new DateTimeColumnData();
-				break;
-			case SciDAVis::Day:
-				filter = new CopyThroughFilter();
-				new_col = new DateTimeColumnData();
-				break;
-		} // switch(mode)
-	}
-
-	// determine the new input and output filters
-	switch(mode)
-	{		
-		case SciDAVis::Numeric:
-			new_in_filter = new String2DoubleFilter();
-			new_out_filter = new Double2StringFilter();
-			break;
-		case SciDAVis::Text:
-			new_in_filter = new CopyThroughFilter();
-			new_out_filter = new CopyThroughFilter();
-			break;
-		case SciDAVis::Date:
-		case SciDAVis::Time:
-		case SciDAVis::DateTime:
-			new_in_filter = new String2DateTimeFilter();
-			new_out_filter = new DateTime2StringFilter();
-			break;
-		case SciDAVis::Month:
-			new_in_filter = new String2MonthFilter();
-			new_out_filter = new DateTime2StringFilter();
-			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("MMMM");
-			break;
-		case SciDAVis::Day:
-			new_in_filter = new String2DayOfWeekFilter();
-			new_out_filter = new DateTime2StringFilter();
-			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("dddd");
-			break;
-	} // switch(mode)
-
-
-	if(new_col == 0) return;
-
-	// copy the filtered, i.e. converted, column
-	filter->input(0, old_col);
-	new_col->copy(filter->output(0));
-	// keep the designation, label and comment
-	new_col->copyDescription(old_col);
-	// keep the formulas
-	QList< Interval<int> > formulas = old_col->formulaIntervals();
-	foreach(Interval<int> i, formulas)
-		new_col->setFormula(i, old_col->formula(i.start()));
-
-	// replace the old column
-	QList<AbstractColumnData *> cols;
-	QList<AbstractFilter *> in_filters;
-	QList<AbstractFilter *> out_filters;
-	cols.append(new_col);
-	in_filters.append(new_in_filter);
-	out_filters.append(new_out_filter);
-	// TODO: For DataTime<->Day/Month conversion a ChangeInputFilterCmd could be used to save memory
-	QUndoCommand * cmd = new TableReplaceColumnsCmd(d_model, col, cols, in_filters, out_filters);
-	cmd->setText(tr("change column type")); 
-	undoStack()->push(cmd);
 }
 
 int Table::columnWidth(int col)

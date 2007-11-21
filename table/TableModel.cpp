@@ -34,6 +34,8 @@
 #include <QTime>
 #include <QBrush>
 #include <QFont>
+#include <QIcon>
+#include <QPixmap>
 #include <QFontMetrics>
 #include <QUndoStack>
 #include <QItemSelectionModel>
@@ -102,6 +104,8 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 			}
 		case MaskingRole:
 			return QVariant(col_ptr->isMasked(row));
+		case FormulaRole:
+			return QVariant(col_ptr->formula(row));
 	}
 
 	return QVariant();
@@ -110,12 +114,18 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 		int role) const
 {
-	if( !( (role == Qt::ToolTipRole) ||
+
+	if( !( (role == Qt::ToolTipRole) || (role == Qt::DecorationRole) ||
 	       (role == Qt::DisplayRole || role == Qt::EditRole) ) )
 		return QVariant();
 		
 	if(orientation == Qt::Horizontal)
-		return d_horizontal_header_data.at(section);
+	{
+		if( role == Qt::DecorationRole) 
+			return QVariant(d_columns.at(section)->icon());
+		else 
+			return d_horizontal_header_data.at(section);
+	}
 	else if (orientation == Qt::Vertical)
 		return d_vertical_header_data.at(section);
 
@@ -136,22 +146,37 @@ int TableModel::columnCount(const QModelIndex & parent) const
 
 bool TableModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
-    if (!index.isValid())
+	if (!index.isValid())
 		return false;
 
 	int row = index.row();
-	
-	if(role == Qt::EditRole)
+
+	switch(role)
 	{  
-			shared_ptr<Column> col_ptr = d_columns.at(index.column());
-			shared_ptr<AbstractSimpleFilter> in_fltr = d_columns.at(index.column())->inputFilter();
-			shared_ptr<Column> sd(new Column("temp", SciDAVis::Text));
-			sd->setTextAt(0, value.toString());
-			in_fltr->input(0, sd);
-			// remark: the validity of the cell is determined by the input filter
-			col_ptr->copy(in_fltr->output(0).get(), 0, row, 1);  
-			emit dataChanged(index, index);
-			return true;
+		case Qt::EditRole:
+			{
+				shared_ptr<Column> col_ptr = d_columns.at(index.column());
+				shared_ptr<AbstractSimpleFilter> in_fltr = d_columns.at(index.column())->inputFilter();
+				shared_ptr<Column> sd(new Column("temp", SciDAVis::Text));
+				sd->setTextAt(0, value.toString());
+				in_fltr->input(0, sd);
+				// remark: the validity of the cell is determined by the input filter
+				col_ptr->copy(in_fltr->output(0).get(), 0, row, 1);  
+				emit dataChanged(index, index);
+				return true;
+			}
+		case MaskingRole:
+			{
+				d_columns.at(index.column())->setMasked(row, value.toBool());  
+				emit dataChanged(index, index);
+				return true;
+			}
+		case FormulaRole:
+			{
+				d_columns.at(index.column())->setFormula(row, value.toString());  
+				emit dataChanged(index, index);
+				return true;
+			}
 	}
 	
 	return false;
@@ -484,3 +509,15 @@ void TableModel::handleRowsDeleted(AbstractColumn * col, int first, int count)
 	int index = columnIndex(static_cast<Column *>(col));
 	emitDataChanged(first, index, d_row_count-1, index);
 }
+
+void TableModel::moveColumn(int from, int to)
+{
+	if( from < 0 || from >= d_column_count) return;
+	if( to < 0 || to >= d_column_count) return;
+	
+	d_columns.move(from, to);
+	updateHorizontalHeader(from, to);
+	emitDataChanged(0, from, d_column_count-1, to);
+}
+
+

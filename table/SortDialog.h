@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Superscript extension of QwtScaleDraw
+    Description          : Sorting options dialog
 
  ***************************************************************************/
 
@@ -29,6 +29,7 @@
 #ifndef SORTDIALOG_H
 #define SORTDIALOG_H
 
+#include "Column.h"
 #include <QDialog>
 
 class QPushButton;
@@ -37,26 +38,32 @@ class QComboBox;
 //! Sorting options dialog
 class SortDialog : public QDialog
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-    SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-    void insertColumnsList(const QStringList& cols);
+	public:
+		SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
+		void setColumnsList(QList< shared_ptr<Column> > list);
 
-private slots:
-	void accept();
-	void changeType(int index);
+		enum { Separately=0, Together=1 };
+		enum { Ascending=0, Descending=1 };
 
-signals:
-	void sort(int, int, const QString&);
+	private slots:
+		void accept();
+		void changeType(int index);
 
-private:
-    QPushButton* buttonOk;
-	QPushButton* buttonCancel;
-	QPushButton* buttonHelp;
-	QComboBox* boxType;
-	QComboBox* boxOrder;
-	QComboBox *columnsList;
+	signals:
+		void sort(shared_ptr<Column> leading,QList< shared_ptr<Column> > cols, bool ascending);
+
+	private:
+		QList< shared_ptr<Column> > d_columns_list;
+		struct {
+		QPushButton* button_ok;
+		QPushButton* button_cancel;
+		QPushButton* button_help;
+		QComboBox* box_type;
+		QComboBox* box_order;
+		QComboBox *columns_list;
+		} ui;
 };
 
 #endif

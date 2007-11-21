@@ -43,6 +43,10 @@ using boost::shared_ptr;
 using boost::enable_shared_from_this;
 #endif
 
+#include <QHash>
+#include <QKeySequence>
+class QString;
+
 //! Represents a SciDAVis project.
 /**
  * Project manages an undo stack and is responsible for creating ProjectWindow instances
@@ -59,12 +63,19 @@ class Project : public Folder, public enable_shared_from_this<Project>
 		virtual QUndoStack *undoStack() const;
 		virtual QString path() const { return name(); }
 		virtual AbstractAspect *parentAspect() const { return 0; }
+		//! Query a keyboard shortcut for a given action
+		/*
+		 * This is used for application wide keyboard shortcuts.
+		 */
+		virtual QKeySequence queryShortcut(const QString& action_string);
 
 		virtual QWidget *view(QWidget *parent = 0);
 
 	private:
 		class Private;
 		Private *d;
+		//! Applicationwide keyboard shortcuts
+		QHash<QString, QKeySequence> keyboard_shortcuts;
 };
 
 #endif // ifndef PROJECT_H

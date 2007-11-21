@@ -150,6 +150,33 @@ void TableRemoveColumnsCmd::undo()
 // end of class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////
+// class TableMoveColumnCmd
+///////////////////////////////////////////////////////////////////////////
+TableMoveColumnCmd::TableMoveColumnCmd( TableModel * model, int from, int to, QUndoCommand * parent )
+ : QUndoCommand( parent ), d_model(model), d_from(from), d_to(to)
+{
+	setText(QObject::tr("%1: move column %2 from position %3 to %4").arg(d_model->name()).arg(d_model->column(from)->columnLabel()).arg(d_from+1).arg(d_to+1));
+}
+
+TableMoveColumnCmd::~TableMoveColumnCmd()
+{
+}
+
+void TableMoveColumnCmd::redo()
+{
+	d_model->moveColumn(d_from, d_to);
+}
+
+void TableMoveColumnCmd::undo()
+{
+	d_model->moveColumn(d_to, d_from);
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class TableMoveColumnCmd
+///////////////////////////////////////////////////////////////////////////
+
 #if false
 
 ///////////////////////////////////////////////////////////////////////////

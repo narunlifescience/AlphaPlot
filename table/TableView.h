@@ -110,11 +110,13 @@ class TableView : public QWidget
 		 *	will be resized by the view.
 		 */
 		void requestResize(int new_rows);
+		void columnMoved(int from, int to);
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
 		void emitContextMenuRequest(const QPoint& pos);
+		void horizontalSectionMovedHandler(int index, int from, int to);
 
 	protected:
 		//! Pointer to the item delegate
@@ -144,6 +146,7 @@ class TableView : public QWidget
 
 		//! Initialization common to all ctors
 		void init(TableModel * model);
+		
 
 };
 

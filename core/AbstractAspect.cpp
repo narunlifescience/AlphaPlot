@@ -115,6 +115,20 @@ void AbstractAspect::exec(QUndoCommand *cmd)
 	}
 }
 
+void AbstractAspect::beginMacro(const QString& text)
+{
+	QUndoStack *stack = undoStack();
+	if (stack)
+		stack->beginMacro(text);
+}
+
+void AbstractAspect::endMacro()
+{
+	QUndoStack *stack = undoStack();
+	if (stack)
+		stack->endMacro();
+}
+
 QString AbstractAspect::name() const
 {
 	return d->name();

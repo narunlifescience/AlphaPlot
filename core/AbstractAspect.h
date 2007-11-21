@@ -172,6 +172,10 @@ class AbstractAspect
 		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
 		//! Execute the given command, pushing it on the undoStack() if available.
 		void exec(QUndoCommand *command);
+		//! Begin an undo stack macro (series of commands)
+		void beginMacro(const QString& text);
+		//! End the undo stack macro
+		void endMacro();
 		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
 		virtual QString path() const { return parentAspect() ? parentAspect()->path() + "/" + name() : "";  }
 

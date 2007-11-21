@@ -42,62 +42,67 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
 	setWindowTitle(tr("Sorting Options"));
 	setSizeGripEnabled(true);
 
-	QGroupBox *groupBox1 = new QGroupBox();
-	QGridLayout * topLayout = new QGridLayout(groupBox1);
+	QGroupBox *group_box1 = new QGroupBox();
+	QGridLayout * top_layout = new QGridLayout(group_box1);
 	QHBoxLayout * hl = new QHBoxLayout();
 	hl->addStretch();
 
-	topLayout->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
-	boxType = new QComboBox();
-	boxType->addItem(tr("Separately"));
-	boxType->addItem(tr("Together"));
-	topLayout->addWidget(boxType, 0, 1 );
+	top_layout->addWidget( new QLabel(tr("Sort columns")), 0, 0 );
+	ui.box_type = new QComboBox();
+	ui.box_type->addItem(tr("Separately"));
+	ui.box_type->addItem(tr("Together"));
+	top_layout->addWidget(ui.box_type, 0, 1 );
+	ui.box_type->setCurrentIndex(Together);
 
-	topLayout->addWidget( new QLabel( tr("Order")), 1, 0 );
-	boxOrder = new QComboBox();
-    boxOrder->addItem(tr("Ascending"));
-	boxOrder->addItem(tr("Descending"));
-	topLayout->addWidget(boxOrder, 1, 1 );
+	top_layout->addWidget( new QLabel( tr("Order")), 1, 0 );
+	ui.box_order = new QComboBox();
+    ui.box_order->addItem(tr("Ascending"));
+	ui.box_order->addItem(tr("Descending"));
+	top_layout->addWidget(ui.box_order, 1, 1 );
 
-	topLayout->addWidget( new QLabel(tr("Leading column")), 2, 0 );
-	columnsList = new QComboBox();
-	topLayout->addWidget(columnsList, 2, 1);
-	topLayout->setRowStretch(3, 1);
+	top_layout->addWidget( new QLabel(tr("Leading column")), 2, 0 );
+	ui.columns_list = new QComboBox();
+	top_layout->addWidget(ui.columns_list, 2, 1);
+	top_layout->setRowStretch(3, 1);
 
-	buttonOk = new QPushButton(tr("&Sort"));
-    buttonOk->setDefault( true );
-	hl->addWidget(buttonOk);
+	ui.button_ok = new QPushButton(tr("&Sort"));
+    ui.button_ok->setDefault( true );
+	hl->addWidget(ui.button_ok);
 
-    buttonCancel = new QPushButton(tr("&Close"));
-	hl->addWidget(buttonCancel);
+    ui.button_cancel = new QPushButton(tr("&Cancel"));
+	hl->addWidget(ui.button_cancel);
 
 	QVBoxLayout * mainlayout = new QVBoxLayout(this);
-    mainlayout->addWidget(groupBox1);
+    mainlayout->addWidget(group_box1);
 	mainlayout->addLayout(hl);
 
-    connect( buttonOk, SIGNAL( clicked() ), this, SLOT( accept() ) );
-    connect( buttonCancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
-    connect( boxType, SIGNAL( activated(int) ), this, SLOT(changeType(int)));
+    connect( ui.button_ok, SIGNAL( clicked() ), this, SLOT( accept() ) );
+    connect( ui.button_cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
+    connect( ui.box_type, SIGNAL( currentIndexChanged(int) ), this, SLOT(changeType(int)));
 }
 
 void SortDialog::accept()
 {
-	emit sort(boxType->currentIndex(),boxOrder->currentIndex(),columnsList->currentText());
+	shared_ptr<Column> leading;
+	if(ui.box_type->currentIndex() == Together) 
+		leading = d_columns_list.at(ui.columns_list->currentIndex());
+	emit sort(leading, d_columns_list, ui.box_order->currentIndex() == Ascending );
+	//close();
 }
 
-void SortDialog::insertColumnsList(const QStringList& cols)
+void SortDialog::setColumnsList(QList< shared_ptr<Column> > list)
 {
-	columnsList->addItems(cols);
-	columnsList->setCurrentIndex(0);
+	d_columns_list = list;
 
-	boxType->setCurrentIndex(1);
+	for(int i=0; i<list.size(); i++)
+		ui.columns_list->addItem( list.at(i)->columnLabel() );
+	ui.columns_list->setCurrentIndex(0);
 }
 
 void SortDialog::changeType(int Type)
 {
-	boxType->setCurrentIndex(Type);
-	if(Type==1)
-		columnsList->setEnabled(true);
+	if(Type == Together)
+		ui.columns_list->setEnabled(true);
 	else
-		columnsList->setEnabled(false);
+		ui.columns_list->setEnabled(false);
 }

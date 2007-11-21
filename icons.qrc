@@ -143,5 +143,8 @@
 	<file alias="image7.xpm">icons/image7.xpm</file>
 	<file alias="unmask.xpm">icons/unmask.xpm</file>
 	<file alias="mask.xpm">icons/mask.xpm</file>
+	<file alias="numerictype.png">icons/numerictype.png</file>
+	<file alias="texttype.png">icons/texttype.png</file>
+	<file alias="datetype.png">icons/datetype.png</file>
 </qresource>
 </RCC>

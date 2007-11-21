@@ -44,6 +44,7 @@
 class TableView;
 class TableModel;
 class QUndoStack;
+class QMenu;
 
 /*!\brief Aspect providing a spreadsheet table with column logic.
  *
@@ -205,6 +206,43 @@ class Table: public QObject, public AbstractAspect, public scripted
 		 * row is selected.
 		 */
 		bool isRowSelected(int row, bool full = false);
+		//! Return the index of the first selected column
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected columns.
+		 */
+		int firstSelectedColumn(bool full = false);
+		//! Return the index of the last selected column
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected columns.
+		 */
+		int lastSelectedColumn(bool full = false);
+		//! Return the index of the first selected row
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected rows.
+		 */
+		int firstSelectedRow(bool full = false);
+		//! Return the index of the last selected row
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected rows.
+		 */
+		int lastSelectedRow(bool full = false);
+		//! Return whether a cell is selected
+		bool isCellSelected(int row, int col);
+		//! Determine the corresponding X column
+		int colX(int col);
+		//! Determine the corresponding Y column
+		int colY(int col);
+		//! Set a plot menu 
+		/**
+		 * The table takes ownership of the menu.
+		 */
+		void setPlotMenu(QMenu * menu);
+		//! Open the sort dialog for the given columns
+		void sortDialog(QList< shared_ptr<Column> > cols);
 
 	public slots:
 		//! Clear the whole table
@@ -229,6 +267,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 		void recalculateSelectedCells();
 		void fillSelectedCellsWithRowNumbers();
 		void fillSelectedCellsWithRandomNumbers();
+		//! Open the sort dialog for all columns
 		void sortTable();
 		void insertEmptyColumns();
 		void removeSelectedColumns();
@@ -247,7 +286,16 @@ class Table: public QObject, public AbstractAspect, public scripted
 		void insertEmptyRows();
 		void removeSelectedRows();
 		void selectAll();
-		void convertSelectedColumns();
+		void editTypeAndFormatOfSelectedColumns();
+		void editDescriptionOfCurrentColumn();
+		void moveColumn(int from, int to);
+		void copy(Table * other);
+		//! Sort the given list of column
+		/*
+		 * If 'leading' is a null pointer, each column is sorted separately.
+		 */
+		void sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > cols, bool ascending);
+		void openFormulaEditor();
 
 	private slots:
 		//! Handles context menu requests from TableView
@@ -286,6 +334,9 @@ class Table: public QObject, public AbstractAspect, public scripted
 
 	private:
 		void createActions();
+		//! Internal helper function
+		void addUndoToMenu(QMenu * menu);
+		QMenu * d_plot_menu;
 
 		//! \name selection related actions
 		//@{
@@ -310,6 +361,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 		QAction * action_clear_masks;
 		QAction * action_sort_table;
 		QAction * action_go_to_cell;
+		QAction * action_formula_editor;
 		//@}
 		//! \name column related actions
 		//@{
@@ -326,7 +378,8 @@ class Table: public QObject, public AbstractAspect, public scripted
 		QAction * action_normalize_columns;
 		QAction * action_sort_columns;
 		QAction * action_statistics_columns;
-		QAction * action_convert_columns;
+		QAction * action_type_format;
+		QAction * action_edit_description;
 		//@}
 		//! \name row related actions
 		//@{
@@ -340,6 +393,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 	protected:
 		//! The model storing the data
 		TableModel *d_model;
+
 };
 
 #if false
@@ -370,38 +424,8 @@ public:
 	void setAscendingValues();
 	//! Fill the selected cells random values
 	void setRandomValues();
-	//! Return the index of the first selected column
-	/**
-	 * If full is true, this function only looks for fully 
-	 * selected columns.
-	*/
-	int firstSelectedColumn(bool full = false);
-	//! Return the index of the last selected column
-	/**
-	 * If full is true, this function only looks for fully 
-	 * selected columns.
-	*/
-	int lastSelectedColumn(bool full = false);
-	//! Return the index of the first selected row
-	/**
-	 * If full is true, this function only looks for fully 
-	 * selected rows.
-	*/
-	int firstSelectedRow(bool full = false);
-	//! Return the index of the last selected row
-	/**
-	 * If full is true, this function only looks for fully 
-	 * selected rows.
-	*/
-	int lastSelectedRow(bool full = false);
-	//! Return whether a cell is selected
-	bool isCellSelected(int row, int col);
 	//! Scroll to the specified cell
 	void goToCell(int row, int col);
-	//! Determine the corresponding X column
-	int colX(int col);
-	//! Determine the corresponding Y column
-	int colY(int col);
 	//! Return the column mode
 	SciDAVis::ColumnMode columnMode(int col);
 	//! Set the column mode

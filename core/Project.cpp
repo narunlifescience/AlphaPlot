@@ -29,6 +29,8 @@
 #include "Project.h"
 #include "ProjectWindow.h"
 #include <QUndoStack>
+#include <QString>
+#include <QKeySequence>
 
 class Project::Private
 {
@@ -50,4 +52,16 @@ QWidget *Project::view(QWidget *parent)
 {
 	Q_UNUSED(parent);
 	return new ProjectWindow(shared_from_this());
+}
+
+QKeySequence Project::queryShortcut(const QString& action_string)
+{
+	QString str = action_string.toLower();
+	// TODO: implement a customization dialog for this
+
+	keyboard_shortcuts.insert("undo", QKeySequence(QObject::tr("Ctrl+Z")));
+	keyboard_shortcuts.insert("redo", QKeySequence(QObject::tr("Ctrl+Y")));
+	
+	return keyboard_shortcuts.value(str, QKeySequence());
+	
 }
