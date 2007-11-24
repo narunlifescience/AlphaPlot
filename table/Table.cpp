@@ -669,11 +669,19 @@ void Table::createActions()
 	action_unmask_selection = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("&Unmask","unmask selection"), this);
 	connect(action_unmask_selection, SIGNAL(triggered()), this, SLOT(unmaskSelection()));
 
-	action_set_formula = new QAction(QIcon(QPixmap(":/fx.xpm")), tr("Set &Formula"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/fx.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/fx.png"));
+	action_set_formula = new QAction(*icon_temp, tr("Set &Formula"), this);
 	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(setFormulaForSelection()));
+	delete icon_temp;
 
-	action_clear_selection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r","clear selection"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear.png"));
+	action_clear_selection = new QAction(*icon_temp, tr("Clea&r","clear selection"), this);
 	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
+	delete icon_temp;
 
 	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
@@ -703,22 +711,22 @@ void Table::createActions()
 	delete icon_temp;
 
 	icon_temp = new QIcon();
-	icon_temp->addPixmap(QPixmap(":/16x16/selectall.png"));
-	icon_temp->addPixmap(QPixmap(":/32x32/selectall.png"));
+	icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/select_all.png"));
 	action_select_all = new QAction(*icon_temp, tr("Select All"), this);
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
-	icon_temp->addPixmap(QPixmap(":/16x16/addcolumn.png"));
-	icon_temp->addPixmap(QPixmap(":/32x32/addcolumn.png"));
+	icon_temp->addPixmap(QPixmap(":/16x16/add_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_column.png"));
 	action_add_column = new QAction(*icon_temp, tr("&Add Column"), this);
 	connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
-	icon_temp->addPixmap(QPixmap(":/16x16/cleartable.png"));
-	icon_temp->addPixmap(QPixmap(":/32x32/cleartable.png"));
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_table.png"));
 	action_clear_table = new QAction(*icon_temp, tr("Clear Table"), this);
 	connect(action_clear_table, SIGNAL(triggered()), this, SLOT(clear()));
 	delete icon_temp;
@@ -734,8 +742,8 @@ void Table::createActions()
 	delete icon_temp;
 
 	icon_temp = new QIcon();
-	icon_temp->addPixmap(QPixmap(":/16x16/gotocell.png"));
-	icon_temp->addPixmap(QPixmap(":/32x32/gotocell.png"));
+	icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
 	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
 	delete icon_temp;
@@ -748,17 +756,33 @@ void Table::createActions()
 	delete icon_temp;
 
 	// column related actions
-	action_insert_columns = new QAction(QIcon(QPixmap()), tr("&Insert Empty Columns"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_column.png"));
+	action_insert_columns = new QAction(*icon_temp, tr("&Insert Empty Columns"), this);
 	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
+	delete icon_temp;
 
-	action_remove_columns = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Remo&ve"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_column.png"));
+	action_remove_columns = new QAction(*icon_temp, tr("Remo&ve Columns"), this);
 	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
+	delete icon_temp;
 
-	action_clear_columns = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_column.png"));
+	action_clear_columns = new QAction(*icon_temp, tr("Clea&r Columns"), this);
 	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
+	delete icon_temp;
 
-	action_add_columns = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("&Add Columns"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_columns.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_columns.png"));
+	action_add_columns = new QAction(*icon_temp, tr("&Add Columns"), this);
 	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
+	delete icon_temp;
 
 	action_set_as_x = new QAction(QIcon(QPixmap()), tr("X","plot designation"), this);
 	connect(action_set_as_x, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsX()));
@@ -769,46 +793,82 @@ void Table::createActions()
 	action_set_as_z = new QAction(QIcon(QPixmap()), tr("Z","plot designation"), this);
 	connect(action_set_as_z, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsZ()));
 
-	action_set_as_xerr = new QAction(QIcon(QPixmap(":/xerror.xpm")), tr("X Error","plot designation"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/x_error.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/x_error.png"));
+	action_set_as_xerr = new QAction(*icon_temp, tr("X Error","plot designation"), this);
 	connect(action_set_as_xerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsXError()));
+	delete icon_temp;
 
-	action_set_as_yerr = new QAction(QIcon(QPixmap(":/yerror.xpm")), tr("Y Error","plot designation"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/y_error.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/y_error.png"));
+	action_set_as_yerr = new QAction(*icon_temp, tr("Y Error","plot designation"), this);
 	connect(action_set_as_yerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsYError()));
+	delete icon_temp;
 
 	action_set_as_none = new QAction(QIcon(QPixmap()), tr("None","plot designation"), this);;
 	connect(action_set_as_none, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsNone()));
 
-	action_normalize_columns = new QAction(QIcon(QPixmap()), tr("&Normalize"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/normalize.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/normalize.png"));
+	action_normalize_columns = new QAction(*icon_temp, tr("&Normalize Columns"), this);;
 	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
+	delete icon_temp;
 
 	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
-	action_sort_columns = new QAction(*icon_temp, tr("&Sort"), this);;
+	action_sort_columns = new QAction(*icon_temp, tr("&Sort Columns"), this);;
 	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
 	delete icon_temp;
 
 	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
 
-	action_type_format = new QAction(QIcon(QPixmap()), tr("&Type && Format"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/column_format_type.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/column_format_type.png"));
+	action_type_format = new QAction(*icon_temp, tr("&Type && Format"), this);;
 	connect(action_type_format, SIGNAL(triggered()), this, SLOT(editTypeAndFormatOfSelectedColumns()));
+	delete icon_temp;
 
-	action_edit_description = new QAction(QIcon(QPixmap()), tr("Edit Column &Description"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/column_description.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/column_description.png"));
+	action_edit_description = new QAction(*icon_temp, tr("Edit Column &Description"), this);;
 	connect(action_edit_description, SIGNAL(triggered()), this, SLOT(editDescriptionOfCurrentColumn()));
+	delete icon_temp;
 
 	// row related actions
-	action_insert_rows = new QAction(QIcon(QPixmap()), tr("&Insert Empty Rows"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_row.png"));
+	action_insert_rows = new QAction(*icon_temp ,tr("&Insert Empty Rows"), this);;
 	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
+	delete icon_temp;
 
-	action_remove_rows = new QAction(QIcon(QPixmap(":/close.xpm")), tr("Remo&ve"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_row.png"));
+	action_remove_rows = new QAction(*icon_temp, tr("Remo&ve Rows"), this);;
 	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
+	delete icon_temp;
 
-	action_clear_rows = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_row.png"));
+	action_clear_rows = new QAction(*icon_temp, tr("Clea&r Rows"), this);;
 	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
+	delete icon_temp;
 
-	action_add_rows = new QAction(QIcon(QPixmap()), tr("&Add Rows"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
+	action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);;
 	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+	delete icon_temp;
 
 	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
