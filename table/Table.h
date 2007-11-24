@@ -90,7 +90,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! See QObject::inherits().
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! Return an icon to be used for decorating my views.
-		virtual QIcon icon() const { return QIcon(":/worksheet.xpm"); }
+		virtual QIcon icon() const;
 		//! Return a new context menu for my views.
 		/**
 		 * Caller takes ownership of the menu.

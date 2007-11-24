@@ -651,6 +651,8 @@ QMenu *Table::createContextMenu()
 
 void Table::createActions()
 {
+	QIcon * icon_temp;
+
 	// selection related actions
 	action_cut_selection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
 	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
@@ -673,8 +675,12 @@ void Table::createActions()
 	action_clear_selection = new QAction(QIcon(QPixmap(":/erase.xpm")), tr("Clea&r","clear selection"), this);
 	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
 
-	action_recalculate = new QAction(QIcon(QPixmap()), tr("Recalculate"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
+	action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
 	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculateSelectedCells()));
+	delete icon_temp;
 
 	action_fill_row_numbers = new QAction(QIcon(QPixmap(":/rowNumbers.xpm")), tr("Row Numbers"), this);
 	connect(action_fill_row_numbers, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRowNumbers()));
@@ -683,31 +689,63 @@ void Table::createActions()
 	connect(action_fill_random, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRandomNumbers()));
 	
 	//table related actions
-	action_toggle_comments = new QAction(QIcon(QPixmap()), QString(), this); // show/hide column comments
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/table_header.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/table_header.png"));
+	action_toggle_comments = new QAction(*icon_temp, QString(), this); // show/hide column comments
 	connect(action_toggle_comments, SIGNAL(triggered()), this, SLOT(toggleComments()));
+	delete icon_temp;
 
-	action_toggle_tabbar = new QAction(QIcon(QPixmap()), QString(), this); // show/hide sidebar
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
+	action_toggle_tabbar = new QAction(*icon_temp, QString(), this); // show/hide options tabs
+	delete icon_temp;
 
-	action_select_all = new QAction(QIcon(QPixmap()), tr("Select All"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/selectall.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/selectall.png"));
+	action_select_all = new QAction(*icon_temp, tr("Select All"), this);
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
+	delete icon_temp;
 
-	action_add_column = new QAction(QIcon(QPixmap(":/addCol.xpm")), tr("&Add Column"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/addcolumn.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/addcolumn.png"));
+	action_add_column = new QAction(*icon_temp, tr("&Add Column"), this);
 	connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
+	delete icon_temp;
 
-	action_clear_table = new QAction(QIcon(QPixmap(":/erase")), tr("Clear Table"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/cleartable.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/cleartable.png"));
+	action_clear_table = new QAction(*icon_temp, tr("Clear Table"), this);
 	connect(action_clear_table, SIGNAL(triggered()), this, SLOT(clear()));
+	delete icon_temp;
 
 	action_clear_masks = new QAction(QIcon(QPixmap(":/unmask.xpm")), tr("Clear Masks"), this);
 	connect(action_clear_masks, SIGNAL(triggered()), this, SLOT(clearMasks()));
 
-	action_sort_table = new QAction(QIcon(QPixmap()), tr("&Sort Table"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
+	action_sort_table = new QAction(*icon_temp, tr("&Sort Table"), this);
 	connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
+	delete icon_temp;
 
-	action_go_to_cell = new QAction(QIcon(QPixmap()), tr("&Go to Cell"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/gotocell.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/gotocell.png"));
+	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
+	delete icon_temp;
 
-	action_formula_editor = new QAction(QIcon(QPixmap()), tr("Formula Editor"), this);
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/formula_editor.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/formula_editor.png"));
+	action_formula_editor = new QAction(*icon_temp, tr("Formula Editor"), this);
 	connect(action_formula_editor, SIGNAL(triggered()), this, SLOT(openFormulaEditor()));
+	delete icon_temp;
 
 	// column related actions
 	action_insert_columns = new QAction(QIcon(QPixmap()), tr("&Insert Empty Columns"), this);
@@ -743,8 +781,12 @@ void Table::createActions()
 	action_normalize_columns = new QAction(QIcon(QPixmap()), tr("&Normalize"), this);;
 	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
 
-	action_sort_columns = new QAction(QIcon(QPixmap()), tr("&Sort"), this);;
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/sort.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/sort.png"));
+	action_sort_columns = new QAction(*icon_temp, tr("&Sort"), this);;
 	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
+	delete icon_temp;
 
 	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
@@ -1398,6 +1440,15 @@ void Table::openFormulaEditor()
 	lo.addWidget(&view);
 	dialog.setWindowTitle(tr("Formula Editor (%1)").arg(name()));
 	dialog.exec();
+}
+
+QIcon Table::icon() const
+{
+	QIcon ico;
+	ico.addPixmap(QPixmap(":/16x16/table.png"));
+	ico.addPixmap(QPixmap(":/24x24/table.png"));
+	ico.addPixmap(QPixmap(":/32x32/table.png"));
+	return ico;
 }
 
 #if false

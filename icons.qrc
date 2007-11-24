@@ -146,5 +146,26 @@
 	<file alias="numerictype.png">icons/numerictype.png</file>
 	<file alias="texttype.png">icons/texttype.png</file>
 	<file alias="datetype.png">icons/datetype.png</file>
+	<file alias="16x16/gotocell.png">icons/16x16/gotocell.png</file>
+	<file alias="32x32/gotocell.png">icons/32x32/gotocell.png</file>
+	<file alias="16x16/addcolumn.png">icons/16x16/addcolumn.png</file>
+	<file alias="32x32/addcolumn.png">icons/32x32/addcolumn.png</file>
+	<file alias="16x16/sort.png">icons/16x16/sort.png</file>
+	<file alias="32x32/sort.png">icons/32x32/sort.png</file>
+	<file alias="16x16/selectall.png">icons/16x16/selectall.png</file>
+	<file alias="32x32/selectall.png">icons/32x32/selectall.png</file>
+	<file alias="16x16/table.png">icons/16x16/table.png</file>
+	<file alias="24x24/table.png">icons/24x24/table.png</file>
+	<file alias="32x32/table.png">icons/32x32/table.png</file>
+	<file alias="16x16/cleartable.png">icons/16x16/cleartable.png</file>
+	<file alias="32x32/cleartable.png">icons/32x32/cleartable.png</file>
+	<file alias="16x16/table_options.png">icons/16x16/table_options.png</file>
+	<file alias="32x32/table_options.png">icons/32x32/table_options.png</file>
+	<file alias="16x16/table_header.png">icons/16x16/table_header.png</file>
+	<file alias="32x32/table_header.png">icons/32x32/table_header.png</file>
+	<file alias="16x16/recalculate.png">icons/16x16/recalculate.png</file>
+	<file alias="32x32/recalculate.png">icons/32x32/recalculate.png</file>
+	<file alias="16x16/formula_editor.png">icons/16x16/formula_editor.png</file>
+	<file alias="32x32/formula_editor.png">icons/32x32/formula_editor.png</file>
 </qresource>
 </RCC>
