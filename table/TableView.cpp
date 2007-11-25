@@ -31,6 +31,7 @@
 #include "TableModel.h"
 #include "TableItemDelegate.h"
 #include "tablecommands.h"
+#include "TableDoubleHeaderView.h"
 
 #include "Column.h"
 #include "core/AbstractFilter.h"
@@ -64,11 +65,18 @@ void TableView::init(TableModel * model)
 {
 	d_view = new TableViewWidget();
 	d_view->setModel(model);
+	d_view->setSelectionModel(model->selectionModel());
 	connect(d_view, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
 
 	d_main_layout = new QVBoxLayout(this);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	
+	d_horizontal_header = new TableDoubleHeaderView();
+    d_horizontal_header->setClickable(true);
+    d_horizontal_header->setHighlightSections(true);
+	d_view->setHorizontalHeader(d_horizontal_header);
+
 	d_main_layout->addWidget(d_view);
 
 	d_options_bar = new QWidget();
@@ -104,18 +112,15 @@ void TableView::init(TableModel * model)
 	d_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
 	QHeaderView * v_header = d_view->verticalHeader();
-	QHeaderView * h_header = d_view->horizontalHeader();
 	// Remark: ResizeToContents works in Qt 4.2.3 but is broken in 4.3.0
 	// Should be fixed in 4.3.1 though, see:
 	// http://trolltech.com/developer/task-tracker/index_html?method=entry&id=165567
 	v_header->setResizeMode(QHeaderView::ResizeToContents);
 	v_header->setMovable(false);
-	h_header->setDefaultAlignment(Qt::AlignTop);
-	h_header->setResizeMode(QHeaderView::Interactive);
-	h_header->setMovable(true);
-	h_header->setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
-	connect(h_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
-	h_header->viewport()->installEventFilter(this);
+	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
+	d_horizontal_header->setMovable(true);
+	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
+	d_horizontal_header->viewport()->installEventFilter(this);
 	v_header->viewport()->installEventFilter(this);
 
 	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
@@ -176,16 +181,15 @@ void TableView::scrollToIndex(const QModelIndex & index)
 bool TableView::eventFilter(QObject *object, QEvent *e)
 {
 	QHeaderView * v_header = d_view->verticalHeader();
-	QHeaderView * h_header = d_view->horizontalHeader();
 
 	if (e->type() == QEvent::MouseButtonPress) 
 	{
 		const QMouseEvent *me = static_cast<const QMouseEvent *>(e);
 		if (me->button() == Qt::RightButton) 
 		{
-			if(object == static_cast<QObject *>(h_header->viewport())) 
+			if(object == static_cast<QObject *>(d_horizontal_header->viewport())) 
 			{
-				QPoint pos = h_header->viewport()->mapToGlobal(me->pos());
+				QPoint pos = d_horizontal_header->viewport()->mapToGlobal(me->pos());
 				emit requestColumnContextMenu(this, pos);
 				return true;
 			}
@@ -252,5 +256,20 @@ void TableView::horizontalSectionMovedHandler(int index, int from, int to)
 	d_view->horizontalHeader()->moveSection(to, from);
 	inside = false;
 	emit columnMoved(from, to);
+}
+
+bool TableView::areCommentsShown() const
+{
+	return d_horizontal_header->areCommentsShown();
+}
+
+void TableView::toggleComments()
+{
+	showComments(!areCommentsShown());
+}
+
+void TableView::showComments(bool on)
+{
+	d_horizontal_header->showComments(on);
 }
 

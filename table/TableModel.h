@@ -150,10 +150,6 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		int rowCount() const { return d_row_count; }
 		//! Set the number of rows of the table
 		void setRowCount(int count);
-		//! Show or hide (if on = false) the column comments
-		void showComments(bool on = true);
-		//! Return whether comments are show currently
-		bool areCommentsShown() const;
 		//! Return the full column header string
 		QString columnHeader(int col);
 		//! Return the number of columns with a given plot designation
@@ -216,8 +212,6 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		QStringList d_horizontal_header_data;
 		//! List of pointers to the column data vectors
 		QList< shared_ptr<Column> > d_columns;	
-		//! Flag: show/high column comments
-		bool d_show_comments;
 		//! Table name (== aspect name of corresponding Table)
 		QString d_name;
 		QItemSelectionModel * d_selection_model;

@@ -112,7 +112,7 @@ bool TableFormulaEditorModel::setData(const QModelIndex & index, const QVariant 
 	int row = index.row();
 	int col = index.column();
 
-	if(col % 2 != 0) return;
+	if(col % 2 != 0) return false;
 
 	switch(role)
 	{  

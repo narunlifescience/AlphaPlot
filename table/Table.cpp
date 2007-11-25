@@ -87,7 +87,7 @@ using boost::dynamic_pointer_cast;
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractAspect(name), scripted(engine), d_plot_menu(0)
+: AbstractAspect(name), scripted(engine), d_plot_menu(0), d_default_comment_visibility(false)
 {
 	d_model = new TableModel(this);
 	connect(d_model, SIGNAL(requestResize(int)),
@@ -143,7 +143,8 @@ QWidget *Table::view(QWidget *parent_widget)
 			this, SLOT(handleModelResizeRequest(int)));
 	connect(table_view, SIGNAL(columnMoved(int,int)),
 			this, SLOT(moveColumn(int,int)));
-	table_view->setSelectionModel(d_model->selectionModel());
+
+	table_view->showComments(d_default_comment_visibility);
 
 	return table_view;
 }
@@ -258,13 +259,6 @@ int Table::rowCount() const
 	return d_model->rowCount();
 }
 
-void Table::showComments(bool on)
-{
-	WAIT_CURSOR;
-	exec(new TableShowCommentsCmd(d_model, on));
-	RESET_CURSOR;
-}
-
 int Table::columnCount(SciDAVis::PlotDesignation pd) const
 {
 	int count = 0;
@@ -331,18 +325,6 @@ void Table::clearMasks()
 	for(int i=0; i<cols; i++)
 		column(i)->clearMasks();
 	endMacro();
-	RESET_CURSOR;
-}
-
-bool Table::areCommentsShown() const
-{
-	return d_model->areCommentsShown();
-}
-
-void Table::toggleComments()
-{
-	WAIT_CURSOR;
-	showComments(!areCommentsShown());
 	RESET_CURSOR;
 }
 
@@ -701,7 +683,6 @@ void Table::createActions()
 	icon_temp->addPixmap(QPixmap(":/16x16/table_header.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/table_header.png"));
 	action_toggle_comments = new QAction(*icon_temp, QString(), this); // show/hide column comments
-	connect(action_toggle_comments, SIGNAL(triggered()), this, SLOT(toggleComments()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
@@ -907,7 +888,7 @@ void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 	context_menu.addSeparator();
 
 	QString action_name;
-	if(areCommentsShown()) 
+	if(view->areCommentsShown()) 
 		action_name = tr("Hide Comments");
 	else
 		action_name = tr("Show Comments");
@@ -922,9 +903,11 @@ void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 	// connections for "Go to Cell" and "Show/Hide OptionTabBar" to the relevant view
 	connect(this, SIGNAL(scrollToIndex(const QModelIndex&)), view, SLOT(scrollToIndex(const QModelIndex&)));
 	connect(action_toggle_tabbar, SIGNAL(triggered()), view, SLOT(toggleOptionTabBar()));
+	connect(action_toggle_comments, SIGNAL(triggered()), view, SLOT(toggleComments()));
 	context_menu.exec(pos);
 	disconnect(this, SIGNAL(scrollToIndex(const QModelIndex&)), view, SLOT(scrollToIndex(const QModelIndex&)));
 	disconnect(action_toggle_tabbar, SIGNAL(triggered()), view, SLOT(toggleOptionTabBar()));
+	disconnect(action_toggle_comments, SIGNAL(triggered()), view, SLOT(toggleComments()));
 }
 
 void Table::handleViewColumnContextMenuRequest(TableView *view, const QPoint& pos)

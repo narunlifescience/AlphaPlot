@@ -36,33 +36,6 @@
 #include <QtDebug>
 
 ///////////////////////////////////////////////////////////////////////////
-// class TableShowCommentsCmd
-///////////////////////////////////////////////////////////////////////////
-TableShowCommentsCmd::TableShowCommentsCmd( TableModel * model, bool show, QUndoCommand * parent )
- : QUndoCommand( parent ), d_new_state(show), d_model(model)
-{
-	if(show)
-		setText(QObject::tr("%1: show column comments").arg(d_model->name()));
-	else
-		setText(QObject::tr("%1: hide column comments").arg(d_model->name()));
-}
-
-void TableShowCommentsCmd::redo()
-{
-	d_old_state = d_model->areCommentsShown();
-	d_model->showComments(d_new_state);
-}
-
-void TableShowCommentsCmd::undo()
-{
-	d_model->showComments(d_old_state);
-}
-
-///////////////////////////////////////////////////////////////////////////
-// end of class TableShowCommentsCmd
-///////////////////////////////////////////////////////////////////////////
-
-///////////////////////////////////////////////////////////////////////////
 // class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
 TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent)

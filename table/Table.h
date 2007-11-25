@@ -243,6 +243,10 @@ class Table: public QObject, public AbstractAspect, public scripted
 		void setPlotMenu(QMenu * menu);
 		//! Open the sort dialog for the given columns
 		void sortDialog(QList< shared_ptr<Column> > cols);
+		//! Set default for comment visibility for table views
+		void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
+		//! Return the default for comment visibility for table views
+		bool defaultCommentVisibility() { return d_default_comment_visibility; }
 
 	public slots:
 		//! Clear the whole table
@@ -250,7 +254,6 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! Clear all mask in the table
 		void clearMasks();
 
-		void toggleComments();
 		//! Append one column
 		void addColumn();
 		//! Append as many columns as are selected
@@ -327,7 +330,6 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! The the model name to the table name
 		void setModelName();
 
-
 	signals:
 		void scrollToIndex(const QModelIndex& index);
 		void toggleOptionTabBar();
@@ -337,6 +339,7 @@ class Table: public QObject, public AbstractAspect, public scripted
 		//! Internal helper function
 		void addUndoToMenu(QMenu * menu);
 		QMenu * d_plot_menu;
+		bool d_default_comment_visibility;
 
 		//! \name selection related actions
 		//@{

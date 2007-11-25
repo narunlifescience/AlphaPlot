@@ -46,7 +46,6 @@ TableModel::TableModel( QObject * parent )
 {
 	d_column_count = 0;
 	d_row_count = 0;
-	d_show_comments = false;
 	d_name = "TableModel";
 	d_selection_model = new QItemSelectionModel(this, this);
 }
@@ -387,32 +386,10 @@ void TableModel::updateHorizontalHeader(int start_col, int end_col)
 
 void TableModel::composeColumnHeader(int col, const QString& label)
 {
-	QString s = label;
-	if (d_show_comments)
-	{
-		int lines = 10; // TODO: this needs improvement
-		s.remove("\n");
-		s += "\n" + QString(lines, '_') + "\n"  + d_columns.at(col)->columnComment();
-	}
-	
 	if (col >= d_horizontal_header_data.size())
-		d_horizontal_header_data << s;
+		d_horizontal_header_data << label;
 	else
-		d_horizontal_header_data.replace(col, s);
-}
-
-void TableModel::showComments(bool on)
-{
-	if (d_show_comments == on)
-		return;
-
-	d_show_comments = on;
-	updateHorizontalHeader(0, d_column_count-1);
-}
-
-bool TableModel::areCommentsShown() const
-{
-	return d_show_comments;
+		d_horizontal_header_data.replace(col, label);
 }
 
 QString TableModel::columnHeader(int col)
@@ -519,5 +496,4 @@ void TableModel::moveColumn(int from, int to)
 	updateHorizontalHeader(from, to);
 	emitDataChanged(0, from, d_column_count-1, to);
 }
-
 

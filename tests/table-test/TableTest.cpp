@@ -25,14 +25,11 @@ class TableTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST(testTableModel);
 		CPPUNIT_TEST(testTableGUI);
 		CPPUNIT_TEST_SUITE_END();
+
 	public:
+
 		void setUp() 
 		{
-			int argc = 1;
-			char *argv[1] = { "./table-test" };
-			app = new QApplication(argc,argv);
-			mw = new QMainWindow();
-
 			QVector<double> double_temp;
 			for(int i=0; i<10; i++)
 				double_temp << i*11.0;
@@ -92,7 +89,6 @@ class TableTest : public CppUnit::TestFixture {
 		
 		void tearDown() 
 		{
-			delete app;
 		}
 
 	private:
@@ -152,8 +148,12 @@ class TableTest : public CppUnit::TestFixture {
 		/* ----------------------------------------------------------- */
 		void testTableGUI() 
 		{
+			app = globals::app;
+			mw = globals::mw;
+
 			QMdiArea * mdiArea = new QMdiArea(mw);
-			MdiSubWindow * table_window = new MdiSubWindow(table, table->view());
+			TableView * table_view = static_cast<TableView *>(table->view());
+			MdiSubWindow * table_window = new MdiSubWindow(table, table_view);
 			mdiArea->addSubWindow(table_window);
 
 			mw->setCentralWidget(mdiArea);
@@ -167,9 +167,9 @@ class TableTest : public CppUnit::TestFixture {
 			table_window->showMaximized();
 			mw->showMaximized();
 
-			table->showComments(true);
-			table->showComments(false);
-			table->showComments(true);
+			table_view->showComments(true);
+			table_view->showComments(false);
+			table_view->showComments(true);
 			table->setRowCount(11);
 			CPPUNIT_ASSERT_EQUAL(11, table->rowCount());
 			table->setRowCount(12);
@@ -182,11 +182,11 @@ class TableTest : public CppUnit::TestFixture {
 			table->removeRows(5,5);
 			table->insertRows(5,3);
 			table->removeColumns(6,table->columnCount()-1-6);
-			table->showComments(true);
+			table_view->showComments(true);
 			table->column(1)->setColumnLabel("column one");
-			table->column(0)->setColumnComment("this is column zero\nnew line");
+			table->column(0)->setColumnComment("this is column zero\nnew line\nthird line\nforth line");
 			CPPUNIT_ASSERT_EQUAL(QString("column one"), table->column(1)->columnLabel());
-			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line"), table->column(0)->columnComment());
+			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line\nthird line\nforth line"), table->column(0)->columnComment());
 			CPPUNIT_ASSERT_EQUAL(2, table->columnCount(SciDAVis::X));
 			CPPUNIT_ASSERT_EQUAL(4, table->columnCount(SciDAVis::Y));
 			CPPUNIT_ASSERT_EQUAL(0, table->columnCount(SciDAVis::Z));

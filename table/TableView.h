@@ -27,7 +27,6 @@
  *                                                                         *
  ***************************************************************************/
 
-
 #ifndef TABLEVIEW_H
 #define TABLEVIEW_H
 
@@ -49,9 +48,11 @@
 #include <QSpinBox> 
 #include <QScrollArea>
 #include "ui_optionstabs.h"
+#include <QtDebug>
 
 class TableModel;
 class TableItemDelegate;
+class TableDoubleHeaderView;
 
 //! Helper class for TableView
 class TableViewWidget : public QTableView
@@ -87,14 +88,18 @@ class TableView : public QWidget
 		//! Destructor
 		virtual ~TableView();
 		bool eventFilter(QObject *object, QEvent *e);
-		void setSelectionModel(QItemSelectionModel * selectionModel) { d_view->setSelectionModel(selectionModel); }
 		TableModel * model() { return d_model; }
 		bool isOptionTabBarVisible() { return d_tool_box->isVisible(); }
+		//! Show or hide (if on = false) the column comments
+		void showComments(bool on = true);
+		//! Return whether comments are show currently
+		bool areCommentsShown() const;
 
 	public slots:
 		void scrollToIndex(const QModelIndex & index);
 		void selectAll();
 		void toggleOptionTabBar();
+		void toggleComments();
 
 	signals:
 		void requestContextMenu(TableView * view, const QPoint& pos);
@@ -143,11 +148,11 @@ class TableView : public QWidget
 		QToolButton * d_hide_button;
 		QVBoxLayout * d_main_layout;
 		QVBoxLayout * d_sub_layout;
+		TableDoubleHeaderView * d_horizontal_header;
 
 		//! Initialization common to all ctors
 		void init(TableModel * model);
 		
-
 };
 
 

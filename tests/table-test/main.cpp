@@ -4,9 +4,19 @@
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/BriefTestProgressListener.h>
 #include <cppunit/extensions/TestFactoryRegistry.h>
+#include <QtDebug>
 
-int main()
+#include "test_wrappers.h"
+
+
+QApplication * globals::app;
+QMainWindow * globals::mw;
+
+int main(int argc, char **argv)
 {
+	globals::app = new QApplication(argc, argv);
+	globals::mw = new QMainWindow();
+
 	CppUnit::TestResult result;
 	CppUnit::TestResultCollector collector;
 	CppUnit::BriefTestProgressListener listener;

@@ -56,6 +56,8 @@ HEADERS += \
 			  SortDialog.h \
 			  TableFormulaEditorView.h \
 			  TableFormulaEditorModel.h \
+			  TableDoubleHeaderView.h \
+			  TableCommentsHeaderModel.h  \
 
 
 
@@ -83,6 +85,8 @@ SOURCES += \
 			  SortDialog.cpp \
 			  TableFormulaEditorView.cpp \
 			  TableFormulaEditorModel.cpp \
+			  TableDoubleHeaderView.cpp \
+			  TableCommentsHeaderModel.cpp  \
 		
 
 
