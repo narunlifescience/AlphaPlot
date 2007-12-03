@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = column-test
 CONFIG += debug
+QT += xml
 DEPENDPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column 
 INCLUDEPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column 
 unix:LIBS += -lcppunit

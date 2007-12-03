@@ -353,12 +353,12 @@ void Table::cutSelection()
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: cut selected cell(s)").arg(name()));
+	copySelection();
 	foreach(QModelIndex index, list)
 	{
 		if(column(index.column())->rowCount() > index.row())
 			d_model->setData(index, QString(""), Qt::EditRole);
 	}
-	// TODO copy
 	endMacro();
 	RESET_CURSOR;
 }

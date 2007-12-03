@@ -12,6 +12,8 @@
 #include <QMessageBox>
 #include <QIcon>
 #include <QObject>
+#include <QMetaObject>
+#include <QMetaEnum>
 
 //  Don't forget to change the Doxyfile when changing these!
 const int SciDAVis::scidavis_version = 0x000100;
@@ -65,3 +67,20 @@ QString SciDAVis::releaseDateString()
 {
 	return release_date;
 }
+
+QString SciDAVis::enumValueToString(int key, const QString& enum_name)
+{
+	int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+	if(index == -1) return QString("invalid");
+	QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+	return QString(meta_enum.valueToKey(key));
+}
+
+int SciDAVis::enumStringToValue(const QString& string, const QString& enum_name)
+{
+	int index = staticMetaObject.indexOfEnumerator(enum_name.toAscii());
+	if(index == -1) return -1;
+	QMetaEnum meta_enum = staticMetaObject.enumerator(index);
+	return meta_enum.keyToValue(string.toAscii());
+}
+

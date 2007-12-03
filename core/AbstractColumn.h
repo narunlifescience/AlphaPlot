@@ -247,11 +247,9 @@ class AbstractColumn
 		 */ 
 		virtual SciDAVis::ColumnMode columnMode() const = 0;
 		//! Set the column mode
-		/*
-		 * This only sets the saved column mode and, if
+		/**
+		 * This sets the column mode and, if
 		 * necessary, converts it to another datatype.
-		 * Remark: setting the mode back to undefined (the 
-		 * initial value) is not supported.
 		 */
 		virtual void setColumnMode(SciDAVis::ColumnMode mode) { Q_UNUSED(mode) };
 		//! Copy another column of the same type

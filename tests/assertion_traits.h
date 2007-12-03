@@ -5,6 +5,7 @@
 #include <QString>
 #include <QDateTime>
 #include "Interval.h"
+#include "Column.h"
 
 namespace CppUnit {
 
@@ -60,6 +61,7 @@ namespace CppUnit {
 			return result.toStdString();
 		}
 	};
+	
 };
 
 #endif // ifndef ASSERTION_TRATS_H

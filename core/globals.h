@@ -83,6 +83,9 @@ class SciDAVis : public QObject
 		//! Return the SciDAVis version number
 		static int version();
 
+		static QString enumValueToString(int key, const QString& enum_name);
+		static int enumStringToValue(const QString& string, const QString& enum_name);
+
 		//! Return the SciDAVis version string ("SciDAVis x.y.z" without extra version)
 		static QString versionString();
 

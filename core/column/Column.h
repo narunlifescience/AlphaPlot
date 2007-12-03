@@ -125,8 +125,6 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		/**
 		 * This sets the column mode and, if
 		 * necessary, converts it to another datatype.
-		 * Remark: setting the mode back to undefined (the 
-		 * initial value) is not supported.
 		 */
 		void setColumnMode(SciDAVis::ColumnMode mode);
 		//! Copy another column of the same type
@@ -335,6 +333,22 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * Use this only when dataType() is double
 		 */
 		virtual void replaceValues(int first, const QVector<double>& new_values);
+		//@}
+
+		//! \name XML related functions
+		//@{
+		//! Save the column as XML
+		void save(QXmlStreamWriter * writer);
+		//! Load the column from XML
+		bool load(QXmlStreamReader * reader);
+		//! Read XML comment element
+		bool XmlReadComment(QXmlStreamReader * reader);
+		//! Read XML mask element
+		bool XmlReadMask(QXmlStreamReader * reader);
+		//! Read XML formula element
+		bool XmlReadFormula(QXmlStreamReader * reader);
+		//! Read XML row element
+		bool XmlReadRow(QXmlStreamReader * reader);
 		//@}
 
 	private:

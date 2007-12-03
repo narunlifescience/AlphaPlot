@@ -30,6 +30,9 @@
 #define ABSTRACT_ASPECT_H
 
 #include <QObject>
+#include <QXmlStreamWriter>
+#include <QXmlStreamReader>
+#include <QXmlStreamAttributes>
 
 #ifndef _NO_TR1_
 #include "tr1/memory"

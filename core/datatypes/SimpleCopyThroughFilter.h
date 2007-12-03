@@ -72,17 +72,6 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 			return d_inputs.value(0)->dateTimeAt(row);
 		}
 
-		//! Return the data type of the output
-		/**
-		 * You must connect the input before using this
-		 * function.
-		 */
-		virtual SciDAVis::ColumnDataType dataType() const 
-		{ 
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.value(0)->dataType();
-		}
-
 	protected:
 		//! All types are accepted.
 		virtual bool inputAcceptable(int, AbstractColumn *) 

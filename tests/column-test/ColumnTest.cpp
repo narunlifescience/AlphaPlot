@@ -30,6 +30,26 @@ class ColumnWrapper : public Column
 			: Column(label, data, validity) {};
 		ColumnWrapper(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
 			: Column(label, data, validity) {};
+	
+		bool equals(shared_ptr<ColumnWrapper> other)
+		{
+			if(plotDesignation() != other->plotDesignation()) return false;
+			if(rowCount() != other->rowCount()) return false;
+			if(dataType() != other->dataType()) return false;
+			if(columnMode() != other->columnMode()) return false;
+			for(int i=0; i<rowCount(); i++)
+			{
+				if((valueAt(i) - other->valueAt(i)) > EPSILON) return false;
+				if(textAt(i) != other->textAt(i)) return false;
+				if(dateTimeAt(i) != other->dateTimeAt(i)) return false;
+				if(isInvalid(i) != other->isInvalid(i)) return false;
+				if(isMasked(i) != other->isMasked(i)) return false;
+				if(formula(i) != other->formula(i)) return false;
+			}
+
+			return true;
+		}
+
 };
 
 class ColumnTest : public CppUnit::TestFixture {
@@ -41,6 +61,7 @@ class ColumnTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST(testDateTimeColumn);
 		CPPUNIT_TEST(testConversion);
 		CPPUNIT_TEST(testUndo);
+		CPPUNIT_TEST(testSave);
 		CPPUNIT_TEST_SUITE_END();
 	public:
 		void setUp() 
@@ -841,6 +862,40 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(4),  QString("foo bar foo"));
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(16),  QString("foo bar foo"));
 			CPPUNIT_ASSERT_EQUAL(column[5]->formula(20),  QString("foo bar foo"));	
+		}
+/* ------------------------------------------------------------------------------ */
+		void testSave() 
+		{
+			shared_ptr<ColumnWrapper> temp_col = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col", SciDAVis::Numeric));
+
+			QString output;
+			QXmlStreamWriter * writer;
+			QXmlStreamReader * reader;
+
+			for(int i=0; i<11; i++)
+			{
+				writer = new QXmlStreamWriter(&output);
+				column[i]->save(writer);
+				// qDebug() << "now reading column " << column[i]->columnLabel();
+				// qDebug() << output;
+				reader = new QXmlStreamReader(output);
+				reader->readNext();
+				CPPUNIT_ASSERT(reader->isStartDocument());
+				reader->readNext();
+				if(!temp_col->load(reader))
+				{
+                          qDebug() << QString("Parse error in column %1 at line %2, column %3:\n%4")
+							  .arg(column[i]->columnLabel())
+                              .arg(reader->lineNumber())
+                              .arg(reader->columnNumber())
+                              .arg(reader->errorString());
+				}
+				CPPUNIT_ASSERT(column[i]->equals(temp_col));
+				delete writer;
+				delete reader;
+				output.clear();
+			}
+				
 		}
 /* ------------------------------------------------------------------------------ */
 };
