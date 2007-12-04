@@ -511,7 +511,7 @@ void ColumnPrivate::removeRows(int first, int count)
 {
 	if(count == 0) return;
 
-	if(d_owner_sender) emit d_owner_sender->rowsAboutToBeDeleted(d_owner, first, count);
+	if(d_owner_sender) emit d_owner_sender->rowsAboutToBeRemoved(d_owner, first, count);
 	d_validity.removeRows(first, count);
 	d_masking.removeRows(first, count);
 	d_formulas.removeRows(first, count);
@@ -537,7 +537,7 @@ void ColumnPrivate::removeRows(int first, int count)
 				break;
 		}
 	}
-	if(d_owner_sender) emit d_owner_sender->rowsDeleted(d_owner, first, count);
+	if(d_owner_sender) emit d_owner_sender->rowsRemoved(d_owner, first, count);
 }
 
 void ColumnPrivate::setPlotDesignation(SciDAVis::PlotDesignation pd)

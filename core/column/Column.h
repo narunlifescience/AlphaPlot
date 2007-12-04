@@ -53,7 +53,7 @@ using boost::enable_shared_from_this;
   This class represents a column in a table. It has a public reading and
   (undo aware) writing interface defined in AbstractColumn and a private
   interface (which is only to be used by commands) defined
-  by ColumnPrivate and accessed via the d pointer. All private data and
+  by ColumnPrivate and accessed via the d_column_private pointer. All private data and
   function members are defined in ColumnPrivate.
 
   Instances of Column are intended to be managed by shared_ptr.
@@ -111,7 +111,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//@}
 
 		//! Return the data type of the column
-		SciDAVis::ColumnDataType dataType() const { return d->dataType(); }
+		SciDAVis::ColumnDataType dataType() const { return d_column_private->dataType(); }
 		//! Return whether the object is read-only
 		bool isReadOnly() const { return false; };
 		//! Return the column mode
@@ -120,7 +120,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * by plots. The column mode specifies how to interpret 
 		 * the values in the column additional to the data type.
 		 */ 
-		SciDAVis::ColumnMode columnMode() const { return d->columnMode(); }
+		SciDAVis::ColumnMode columnMode() const { return d_column_private->columnMode(); }
 		//! Set the column mode
 		/**
 		 * This sets the column mode and, if
@@ -174,7 +174,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * Rows beyond this can be masked etc. but should be ignored by filters,
 		 * plots etc.
 		 */
-		int rowCount() const { return d->rowCount(); }
+		int rowCount() const { return d_column_private->rowCount(); }
 		//! Insert some empty (or initialized with zero) rows
 		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
@@ -188,7 +188,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! Set the column comment
 		void setColumnComment(const QString& comment);
 		//! Return the column plot designation
-		SciDAVis::PlotDesignation plotDesignation() const { return d->plotDesignation(); }
+		SciDAVis::PlotDesignation plotDesignation() const { return d_column_private->plotDesignation(); }
 		//! Set the column plot designation
 		void setPlotDesignation(SciDAVis::PlotDesignation pd);
 		//! Clear the whole column
@@ -200,28 +200,28 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		shared_ptr<AbstractSimpleFilter> inputFilter() const { return d->inputFilter(); }
+		shared_ptr<AbstractSimpleFilter> inputFilter() const { return d_column_private->inputFilter(); }
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		shared_ptr<AbstractSimpleFilter> outputFilter() const { return d->outputFilter(); }
+		shared_ptr<AbstractSimpleFilter> outputFilter() const { return d_column_private->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
 		//! Return whether a certain row contains an invalid value 	 
-		bool isInvalid(int row) const { return d->isInvalid(row); }
+		bool isInvalid(int row) const { return d_column_private->isInvalid(row); }
 		//! Return whether a certain interval of rows contains only invalid values 	 
-		bool isInvalid(Interval<int> i) const { return d->isInvalid(i); }
+		bool isInvalid(Interval<int> i) const { return d_column_private->isInvalid(i); }
 		//! Return all intervals of invalid rows
-		QList< Interval<int> > invalidIntervals() const { return d->invalidIntervals(); }
+		QList< Interval<int> > invalidIntervals() const { return d_column_private->invalidIntervals(); }
 		//! Return whether a certain row is masked 	 
-		bool isMasked(int row) const { return d->isMasked(row); }
+		bool isMasked(int row) const { return d_column_private->isMasked(row); }
 		//! Return whether a certain interval of rows rows is fully masked 	 
-		bool isMasked(Interval<int> i) const { return d->isMasked(i); }
+		bool isMasked(Interval<int> i) const { return d_column_private->isMasked(i); }
 		//! Return all intervals of masked rows
-		QList< Interval<int> > maskedIntervals() const { return d->maskedIntervals(); }
+		QList< Interval<int> > maskedIntervals() const { return d_column_private->maskedIntervals(); }
 		//! Clear all validity information
 		void clearValidity();
 		//! Clear all masking information
@@ -247,7 +247,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! \name Formula related functions
 		//@{
 		//! Return the formula associated with row 'row' 	 
-		QString formula(int row) const { return d->formula(row); }
+		QString formula(int row) const { return d_column_private->formula(row); }
 		//! Return the intervals that have associated formulas
 		/**
 		 * This can be used to make a list of formulas with their intervals.
@@ -260,7 +260,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
 		 * \endcode
 		 */
-		QList< Interval<int> > formulaIntervals() const { return d->formulaIntervals(); }
+		QList< Interval<int> > formulaIntervals() const { return d_column_private->formulaIntervals(); }
 		//! Set a formula string for an interval of rows
 		void setFormula(Interval<int> i, QString formula);
 		//! Overloaded function for convenience
@@ -353,7 +353,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 
 	private:
 		//! Pointer to the private interface and all private data
-		shared_ptr<ColumnPrivate> d;
+		shared_ptr<ColumnPrivate> d_column_private;
 
 		void init();
 	

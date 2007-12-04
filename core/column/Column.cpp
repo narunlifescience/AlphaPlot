@@ -35,14 +35,14 @@
 Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)
 {
-	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, mode));
+	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, mode));
 	init();
 }
 
 Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeDouble, 
+	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity));
 	init();
 }
@@ -50,7 +50,7 @@ Column::Column(const QString& label, QVector<double> data, IntervalAttribute<boo
 Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQString,
+	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity));
 	init();
 }
@@ -58,7 +58,7 @@ Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> v
 Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
  : AbstractAspect(label)
 {
-	d = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
+	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity));
 	init();
 }
@@ -89,42 +89,42 @@ Column::~Column()
 
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	exec(new ColumnSetModeCmd(d, mode));
+	exec(new ColumnSetModeCmd(d_column_private, mode));
 }
 
 
 bool Column::copy(const AbstractColumn * other)
 {
 	if(other->dataType() != dataType()) return false;
-	exec(new ColumnFullCopyCmd(d, other));
+	exec(new ColumnFullCopyCmd(d_column_private, other));
 	return true;
 }
 
 bool Column::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
 	if(source->dataType() != dataType()) return false;
-	exec(new ColumnPartialCopyCmd(d, source, source_start, dest_start, num_rows));
+	exec(new ColumnPartialCopyCmd(d_column_private, source, source_start, dest_start, num_rows));
 	return true;
 }
 
 void Column::insertRows(int before, int count)
 {
-	exec(new ColumnInsertEmptyRowsCmd(d, before, count));
+	exec(new ColumnInsertEmptyRowsCmd(d_column_private, before, count));
 }
 
 void Column::removeRows(int first, int count)
 {
-	exec(new ColumnRemoveRowsCmd(d, first, count));
+	exec(new ColumnRemoveRowsCmd(d_column_private, first, count));
 }
 
 void Column::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
-	exec(new ColumnSetPlotDesignationCmd(d, pd));
+	exec(new ColumnSetPlotDesignationCmd(d_column_private, pd));
 }
 
 void Column::clear()
 {
-	exec(new ColumnClearCmd(d));
+	exec(new ColumnClearCmd(d_column_private));
 }
 
 void Column::notifyReplacement(shared_ptr<AbstractColumn> replacement)
@@ -134,17 +134,17 @@ void Column::notifyReplacement(shared_ptr<AbstractColumn> replacement)
 
 void Column::clearValidity()
 {
-	exec(new ColumnClearValidityCmd(d));
+	exec(new ColumnClearValidityCmd(d_column_private));
 }
 
 void Column::clearMasks()
 {
-	exec(new ColumnClearMasksCmd(d));
+	exec(new ColumnClearMasksCmd(d_column_private));
 }
 
 void Column::setInvalid(Interval<int> i, bool invalid)
 {
-	exec(new ColumnSetInvalidCmd(d, i, invalid));
+	exec(new ColumnSetInvalidCmd(d_column_private, i, invalid));
 }
 
 void Column::setInvalid(int row, bool invalid)
@@ -154,7 +154,7 @@ void Column::setInvalid(int row, bool invalid)
 
 void Column::setMasked(Interval<int> i, bool mask)
 {
-	exec(new ColumnSetMaskedCmd(d, i, mask));
+	exec(new ColumnSetMaskedCmd(d_column_private, i, mask));
 }
 
 void Column::setMasked(int row, bool mask)
@@ -164,7 +164,7 @@ void Column::setMasked(int row, bool mask)
 
 void Column::setFormula(Interval<int> i, QString formula)
 {
-	exec(new ColumnSetFormulaCmd(d, i, formula));
+	exec(new ColumnSetFormulaCmd(d_column_private, i, formula));
 }
 
 void Column::setFormula(int row, QString formula)
@@ -174,17 +174,17 @@ void Column::setFormula(int row, QString formula)
 
 void Column::clearFormulas()
 {
-	exec(new ColumnClearFormulasCmd(d));
+	exec(new ColumnClearFormulasCmd(d_column_private));
 }
 
 void Column::setTextAt(int row, QString new_value)
 {
-	exec(new ColumnSetTextCmd(d, row, new_value));
+	exec(new ColumnSetTextCmd(d_column_private, row, new_value));
 }
 
 void Column::replaceTexts(int first, const QStringList& new_values)
 {
-	exec(new ColumnReplaceTextsCmd(d, first, new_values));
+	exec(new ColumnReplaceTextsCmd(d_column_private, first, new_values));
 }
 
 void Column::setDateAt(int row, QDate new_value)
@@ -199,47 +199,47 @@ void Column::setTimeAt(int row, QTime new_value)
 
 void Column::setDateTimeAt(int row, QDateTime new_value)
 {
-	exec(new ColumnSetDateTimeCmd(d, row, new_value));
+	exec(new ColumnSetDateTimeCmd(d_column_private, row, new_value));
 }
 
 void Column::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
-	exec(new ColumnReplaceDateTimesCmd(d, first, new_values));
+	exec(new ColumnReplaceDateTimesCmd(d_column_private, first, new_values));
 }
 
 void Column::setValueAt(int row, double new_value)
 {
-	exec(new ColumnSetValueCmd(d, row, new_value));
+	exec(new ColumnSetValueCmd(d_column_private, row, new_value));
 }
 
 void Column::replaceValues(int first, const QVector<double>& new_values)
 {
-	exec(new ColumnReplaceValuesCmd(d, first, new_values));
+	exec(new ColumnReplaceValuesCmd(d_column_private, first, new_values));
 }
 
 QString Column::textAt(int row) const
 {
-	return d->textAt(row);
+	return d_column_private->textAt(row);
 }
 
 QDate Column::dateAt(int row) const
 {
-	return d->dateAt(row);
+	return d_column_private->dateAt(row);
 }
 
 QTime Column::timeAt(int row) const
 {
-	return d->timeAt(row);
+	return d_column_private->timeAt(row);
 }
 
 QDateTime Column::dateTimeAt(int row) const
 {
-	return d->dateTimeAt(row);
+	return d_column_private->dateTimeAt(row);
 }
 
 double Column::valueAt(int row) const
 {
-	return d->valueAt(row);
+	return d_column_private->valueAt(row);
 }
 
 void Column::setColumnLabel(const QString& label) 

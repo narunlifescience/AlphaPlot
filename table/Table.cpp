@@ -165,9 +165,9 @@ void Table::handleColumnsInserted(int first, int count)
 	for(int i=first; i<first+count; i++)
 	{
 		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
-		int index = d->childCount();
+		int index = d_aspect_private->childCount();
 		emit abstractAspectSignalEmitter()->aspectAboutToBeAdded(this, index);
-		d->insertChild(index, dynamic_pointer_cast<AbstractAspect>(child));
+		d_aspect_private->insertChild(index, dynamic_pointer_cast<AbstractAspect>(child));
 		child->setParentAspect(this);
 		emit abstractAspectSignalEmitter()->aspectAdded(this, index);
 		emit child->abstractAspectSignalEmitter()->aspectAdded(child.get());
@@ -179,11 +179,11 @@ void Table::handleColumnsAboutToBeRemoved(int first, int count)
 	for(int i=first; i<first+count; i++)
 	{
 		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
-		int index = d->indexOfChild(child);
+		int index = d_aspect_private->indexOfChild(child);
 		Q_ASSERT(index != -1);
 		emit abstractAspectSignalEmitter()->aspectAboutToBeRemoved(this, index);
 		emit child->abstractAspectSignalEmitter()->aspectAboutToBeRemoved(child.get());
-		d->removeChild(child);
+		d_aspect_private->removeChild(child);
 		child->setParentAspect(0);
 		emit abstractAspectSignalEmitter()->aspectRemoved(this, index);
 	}

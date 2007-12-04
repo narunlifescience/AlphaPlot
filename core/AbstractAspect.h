@@ -147,7 +147,7 @@ class AbstractAspect
 		virtual ~AbstractAspect();
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
-		virtual AbstractAspect * parentAspect() const { return d_parent; }
+		virtual AbstractAspect * parentAspect() const { return d_parent_aspect; }
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
 		void addChild(shared_ptr<AbstractAspect> child);
@@ -215,14 +215,14 @@ class AbstractAspect
 		 * thus avoids multiple inheritance problems with classes derived from
 		 * AbstractAspect
 		 */
-		AbstractAspectWrapper *abstractAspectSignalEmitter() const { return d_wrapper; }
+		AbstractAspectWrapper *abstractAspectSignalEmitter() const { return d_aspect_wrapper; }
 		//! Return the QObject that is responsible for receiving signals
 		/**
 		 * Using this mechanism avoids the need to have QObject as a base class and
 		 * thus avoids multiple inheritance problems with classes derived from
 		 * AbstractAspect
 		 */
-		AbstractAspectWrapper *abstractAspectSignalReceiver() const { return d_wrapper; }
+		AbstractAspectWrapper *abstractAspectSignalReceiver() const { return d_aspect_wrapper; }
 
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
@@ -254,9 +254,9 @@ class AbstractAspect
 		void showProperties();
 
 	protected:
-		AspectPrivate * d;
-		AbstractAspect * d_parent; // making this a shared_ptr would lead to circular references
-		AbstractAspectWrapper *d_wrapper;
+		AspectPrivate * d_aspect_private;
+		AbstractAspect * d_parent_aspect; // making this a shared_ptr would lead to circular references
+		AbstractAspectWrapper *d_aspect_wrapper;
 
 		// Undo commands need direct access to the model.
 		friend class AspectNameChangeCmd;

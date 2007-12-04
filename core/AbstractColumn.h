@@ -167,14 +167,14 @@ class AbstractColumnSignalEmitter : public QObject
 		 *	\param first the first row to be deleted
 		 *	\param count the number of rows to be deleted
 		 */
-		void rowsAboutToBeDeleted(AbstractColumn * source, int first, int count); 
+		void rowsAboutToBeRemoved(AbstractColumn * source, int first, int count); 
 		//! Rows have been deleted
 		/**
 		 *	\param source the column that emitted the signal
 		 *	\param first the first row that was deleted
 		 *	\param count the number of deleted rows
 		 */
-		void rowsDeleted(AbstractColumn * source, int first, int count); 
+		void rowsRemoved(AbstractColumn * source, int first, int count); 
 		//! IntervalAttribute related signal
 		void maskingAboutToChange(AbstractColumn * source); 
 		//! IntervalAttribute related signal
@@ -231,9 +231,9 @@ class AbstractColumn
 {
 	public:
 		//! Ctor
-		AbstractColumn() { d_sender = new AbstractColumnSignalEmitter(); }
+		AbstractColumn() { d_abstract_column_signal_emitter = new AbstractColumnSignalEmitter(); }
 		//! Dtor
-		virtual ~AbstractColumn() { d_sender->aboutToBeDestroyed(this); delete d_sender; }
+		virtual ~AbstractColumn() { d_abstract_column_signal_emitter->aboutToBeDestroyed(this); delete d_abstract_column_signal_emitter; }
 
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const = 0;
@@ -300,7 +300,7 @@ class AbstractColumn
 		//! Clear the whole column
 		virtual void clear() {};
 		//! This must be called before the column is replaced by another
-		virtual void notifyReplacement(shared_ptr<AbstractColumn> replacement) { d_sender->aboutToBeReplaced(this, replacement); }
+		virtual void notifyReplacement(shared_ptr<AbstractColumn> replacement) { d_abstract_column_signal_emitter->aboutToBeReplaced(this, replacement); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -432,10 +432,10 @@ class AbstractColumn
 		virtual void replaceValues(int first, const QVector<double>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//@}
 
-		AbstractColumnSignalEmitter *  abstractColumnSignalEmitter() { return d_sender; }
+		AbstractColumnSignalEmitter *  abstractColumnSignalEmitter() { return d_abstract_column_signal_emitter; }
 		
 	private:
-		AbstractColumnSignalEmitter * d_sender;
+		AbstractColumnSignalEmitter * d_abstract_column_signal_emitter;
 };
 
 #endif

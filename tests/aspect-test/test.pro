@@ -1,6 +1,7 @@
 TEMPLATE = app
 CONFIG += debug
 TARGET = 
+QT += xml
 DEPENDPATH += . ../../core
 INCLUDEPATH += . ../../core
 

@@ -180,8 +180,8 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		void handleDataChange(AbstractColumn * col);
 		void handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count);
 		void handleRowsInserted(AbstractColumn * col, int before, int count);
-		void handleRowsAboutToBeDeleted(AbstractColumn * col, int first, int count);
-		void handleRowsDeleted(AbstractColumn * col, int first, int count);
+		void handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count);
+		void handleRowsRemoved(AbstractColumn * col, int first, int count);
 
 	signals:
 		void columnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);

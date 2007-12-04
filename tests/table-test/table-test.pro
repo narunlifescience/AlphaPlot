@@ -1,6 +1,7 @@
 TEMPLATE = app
 TARGET = table-test
 CONFIG += debug
+QT += xml
 DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table  ..
 INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table ..
 unix:LIBS += -lcppunit

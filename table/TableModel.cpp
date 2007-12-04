@@ -422,10 +422,10 @@ void TableModel::connectColumn(shared_ptr<Column> col)
 			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeDeleted(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsAboutToBeDeleted(AbstractColumn *,int,int))); 
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsDeleted(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsDeleted(AbstractColumn *,int,int))); 
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeRemoved(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsAboutToBeRemoved(AbstractColumn *,int,int))); 
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsRemoved(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsRemoved(AbstractColumn *,int,int))); 
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(maskingChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *))); 
 }
@@ -473,14 +473,14 @@ void TableModel::handleRowsInserted(AbstractColumn * col, int before, int count)
 }
 
 
-void TableModel::handleRowsAboutToBeDeleted(AbstractColumn * col, int first, int count)
+void TableModel::handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count)
 {
 	Q_UNUSED(col);
 	Q_UNUSED(first);
 	Q_UNUSED(count);
 }
 
-void TableModel::handleRowsDeleted(AbstractColumn * col, int first, int count)
+void TableModel::handleRowsRemoved(AbstractColumn * col, int first, int count)
 {
 	Q_UNUSED(count);
 	int index = columnIndex(static_cast<Column *>(col));

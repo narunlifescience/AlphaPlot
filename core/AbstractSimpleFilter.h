@@ -53,7 +53,7 @@ using boost::dynamic_pointer_cast;
  * \brief Simplified filter interface for filters with only one output port.
  *
  * This class is only meant to simplify implementation of a restricted subtype of filter.
- * It should not be instantiated directly. You should always use either inherit
+ * It should not be instantiated directly. You should always either derive from
  * AbstractFilter or (if necessary) provide an actual (non-abstract) implementation.
  *
  * The trick here is that, in a sense, the filter is its own output port. This means you
@@ -158,6 +158,10 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		virtual QString columnLabel() const {
 			return d_inputs.value(0) ? d_inputs.at(0)->columnLabel() : QString();
 		}
+		//! Copy comment of input port 0.
+		virtual QString columnComment() const {
+			return d_inputs.value(0) ? d_inputs.at(0)->columnComment() : QString();
+		}
 		//! Copy plot designation of input port 0.
 		virtual SciDAVis::PlotDesignation plotDesignation() const {
 			return d_inputs.value(0) ?
@@ -181,11 +185,9 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
 			return d_inputs.at(0)->columnMode();
 		}
-		//! Does nothing (no comment support for filters so far)
-		virtual QString columnComment() const { return QString(); }
-		//! Set the column label (not supported)
+		//! Set the column label (does nothing in the standard implementation)
 		virtual void setColumnLabel(const QString& label) { Q_UNUSED(label); }
-		//! Set the column comment (not supported)
+		//! Set the column comment (does nothing in the standard implementation)
 		virtual void setColumnComment(const QString& comment) { Q_UNUSED(comment); }
 		//! Return the content of row 'row'.
 		/**
@@ -299,7 +301,6 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		virtual void inputDescriptionChanged(AbstractColumn*) 
 		{ 
 			emit abstractColumnSignalEmitter()->descriptionChanged(this); 
-			emit abstractAspectSignalEmitter()->aspectDescriptionChanged(this);
 		}
 		virtual void inputPlotDesignationAboutToChange(AbstractColumn*) 
 		{ 
@@ -308,6 +309,14 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		virtual void inputPlotDesignationChanged(AbstractColumn*) 
 		{ 
 			emit abstractColumnSignalEmitter()->plotDesignationChanged(this); 
+		}
+		virtual void inputModeAboutToChange(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->dataAboutToChange(this); 
+		}
+		virtual void inputModeChanged(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->dataChanged(this); 
 		}
 		virtual void inputDataAboutToChange(AbstractColumn*) 
 		{ 
@@ -326,13 +335,13 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 			foreach(Interval<int> output_range, dependentRows(range))
 				emit abstractColumnSignalEmitter()->rowsInserted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsAboutToBeDeleted(AbstractColumn*, Interval<int> range) {
+		virtual void inputRowsAboutToBeRemoved(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit abstractColumnSignalEmitter()->rowsAboutToBeDeleted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsAboutToBeRemoved(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsDeleted(AbstractColumn*, Interval<int> range) {
+		virtual void inputRowsRemoved(AbstractColumn*, Interval<int> range) {
 			foreach(Interval<int> output_range, dependentRows(range))
-				emit abstractColumnSignalEmitter()->rowsDeleted(this, output_range.start(), output_range.size());
+				emit abstractColumnSignalEmitter()->rowsRemoved(this, output_range.start(), output_range.size());
 		}
 		//@}
 	

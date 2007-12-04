@@ -44,6 +44,14 @@ void AbstractFilterWrapper::inputPlotDesignationChanged(AbstractColumn * source)
 {
 	d_parent->inputPlotDesignationChanged(source);
 }
+void AbstractFilterWrapper::inputModeAboutToChange(AbstractColumn * source)
+{
+	d_parent->inputModeAboutToChange(source);
+}
+void AbstractFilterWrapper::inputModeChanged(AbstractColumn * source)
+{
+	d_parent->inputModeChanged(source);
+}
 void AbstractFilterWrapper::inputDataAboutToChange(AbstractColumn * source)
 {
 	d_parent->inputDataAboutToChange(source);
@@ -64,21 +72,13 @@ void AbstractFilterWrapper::inputRowsInserted(AbstractColumn *source, int before
 {
 	d_parent->inputRowsInserted(source, before, count);
 }
-void AbstractFilterWrapper::inputRowsAboutToBeDeleted(AbstractColumn *source, int before, int count)
+void AbstractFilterWrapper::inputRowsAboutToBeRemoved(AbstractColumn *source, int before, int count)
 {
-	d_parent->inputRowsAboutToBeDeleted(source, before, count);
+	d_parent->inputRowsAboutToBeRemoved(source, before, count);
 }
-void AbstractFilterWrapper::inputRowsDeleted(AbstractColumn *source, int before, int count)
+void AbstractFilterWrapper::inputRowsRemoved(AbstractColumn *source, int before, int count)
 {
-	d_parent->inputRowsDeleted(source, before, count);
-}
-void AbstractFilterWrapper::inputValidityAboutToChange(AbstractColumn *source)
-{
-	d_parent->inputValidityAboutToChange(source);
-}
-void AbstractFilterWrapper::inputValidityChanged(AbstractColumn *source)
-{
-	d_parent->inputValidityChanged(source);
+	d_parent->inputRowsRemoved(source, before, count);
 }
 void AbstractFilterWrapper::inputMaskingAboutToChange(AbstractColumn *source)
 {
@@ -99,36 +99,64 @@ bool AbstractFilter::input(int port, shared_ptr<AbstractColumn> source)
 	if (source && !inputAcceptable(port, source.get())) return false;
 	if (d_inputs.size() <= port) d_inputs.resize(port+1);
 	shared_ptr<AbstractColumn> old_input = d_inputs.value(port);
-	if (old_input)  // disconnect the old input's signals
-		old_input->abstractColumnSignalEmitter()->disconnect(d_wrapper); // disconnect all signals
-	// replace input, notifying the filter implementation of the changes
-	inputDescriptionAboutToChange(old_input.get());
-	inputPlotDesignationAboutToChange(old_input.get());
-	inputDataAboutToChange(old_input.get());
+	if (old_input) 
+	{
+		old_input->abstractColumnSignalEmitter()->disconnect(d_abstract_filter_wrapper); // disconnect all signals
+		// replace input, notifying the filter implementation of the changes
+		inputDescriptionAboutToChange(old_input.get());
+		inputPlotDesignationAboutToChange(old_input.get());
+		inputMaskingAboutToChange(old_input.get());
+		inputDataAboutToChange(old_input.get());
+		if(source && source->columnMode() != old_input->columnMode())
+			inputModeAboutToChange(old_input.get());
+	}
 	if (!source)
 		inputAboutToBeDisconnected(old_input.get());
 	d_inputs[port] = source;
 	if (source) { // we have a new source
-		inputDescriptionChanged(source.get());
-		inputPlotDesignationChanged(source.get());
+		if(old_input && source->columnMode() != old_input->columnMode())
+			inputModeAboutToChange(source.get());
 		inputDataChanged(source.get());
+		inputMaskingChanged(source.get());
+		inputPlotDesignationChanged(source.get());
+		inputDescriptionChanged(source.get());
 		// connect the source's signals
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(descriptionAboutToChange(AbstractColumn *)),
-				d_wrapper, SLOT(inputDescriptionAboutToChange(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputDescriptionAboutToChange(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(descriptionChanged(AbstractColumn *)),
-				d_wrapper, SLOT(inputDescriptionChanged(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputDescriptionChanged(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(plotDesignationAboutToChange(AbstractColumn *)),
-				d_wrapper, SLOT(inputPlotDesignationAboutToChange(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputPlotDesignationAboutToChange(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(plotDesignationChanged(AbstractColumn *)),
-				d_wrapper, SLOT(inputPlotDesignationChanged(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputPlotDesignationChanged(AbstractColumn *)));
+		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(modeAboutToChange(AbstractColumn *)),
+				d_abstract_filter_wrapper, SLOT(inputModeAboutToChange(AbstractColumn *)));
+		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)),
+				d_abstract_filter_wrapper, SLOT(inputModeChanged(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(dataAboutToChange(AbstractColumn *)),
-				d_wrapper, SLOT(inputDataAboutToChange(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputDataAboutToChange(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(dataChanged(AbstractColumn *)),
-				d_wrapper, SLOT(inputDataChanged(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputDataChanged(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(aboutToBeReplaced(AbstractColumn *,shared_ptr<AbstractColumn>)),
-				d_wrapper, SLOT(inputAboutToBeReplaced(AbstractColumn *,shared_ptr<AbstractColumn>)));
+				d_abstract_filter_wrapper, SLOT(inputAboutToBeReplaced(AbstractColumn *,shared_ptr<AbstractColumn>)));
+		QObject::connect(source->abstractColumnSignalEmitter(), 
+			SIGNAL(rowsAboutToBeInserted(AbstractColumn *,int,int)),
+			d_abstract_filter_wrapper, SLOT(inputRowsAboutToBeInserted(AbstractColumn *,int,int)));
+		QObject::connect(source->abstractColumnSignalEmitter(), 
+			SIGNAL(rowsInserted(AbstractColumn *,int,int)),
+			d_abstract_filter_wrapper, SLOT(inputRowsInserted(AbstractColumn *,int,int)));
+		QObject::connect(source->abstractColumnSignalEmitter(), 
+			SIGNAL(rowsAboutToBeRemoved(AbstractColumn *,int,int)),
+			d_abstract_filter_wrapper, SLOT(inputRowsAboutToBeRemoved(AbstractColumn *,int,int)));
+		QObject::connect(source->abstractColumnSignalEmitter(), 
+			SIGNAL(rowsRemoved(AbstractColumn *, int, int)),
+			d_abstract_filter_wrapper, SLOT(inputRowsRemoved(AbstractColumn *,int,int)));
+		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(maskingAboutToChange(AbstractColumn *)),
+				d_abstract_filter_wrapper, SLOT(inputMaskingAboutToChange(AbstractColumn *)));
+		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(maskingChanged(AbstractColumn *)),
+				d_abstract_filter_wrapper, SLOT(inputMaskingChanged(AbstractColumn *)));
 		QObject::connect(source->abstractColumnSignalEmitter(), SIGNAL(aboutToBeDestroyed(AbstractColumn *)),
-				d_wrapper, SLOT(inputAboutToBeDestroyed(AbstractColumn *)));
+				d_abstract_filter_wrapper, SLOT(inputAboutToBeDestroyed(AbstractColumn *)));
 	} else { // source==0, that is, the input port has been disconnected
 		// try to shrink d_inputs
 		int num_connected_inputs = d_inputs.size();
@@ -157,32 +185,8 @@ QString AbstractFilter::inputLabel(int port) const
 	return QObject::tr("In%1").arg(port + 1);
 }
 
-void AbstractFilter::inputDescriptionAboutToChange(AbstractColumn * source)
-{
-	inputDescriptionAboutToChange(indexOf(source));
-}
-void AbstractFilter::inputDescriptionChanged(AbstractColumn * source)
-{
-	inputDescriptionChanged(indexOf(source));
-}
-void AbstractFilter::inputPlotDesignationAboutToChange(AbstractColumn * source)
-{
-	inputPlotDesignationAboutToChange(indexOf(source));
-}
-void AbstractFilter::inputPlotDesignationChanged(AbstractColumn * source)
-{
-	inputPlotDesignationChanged(indexOf(source));
-}
-void AbstractFilter::inputDataAboutToChange(AbstractColumn * source)
-{
-	inputDataAboutToChange(indexOf(source));
-}
-void AbstractFilter::inputDataChanged(AbstractColumn * source)
-{
-	inputDataChanged(indexOf(source));
-}
 void AbstractFilter::inputAboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> replacement)
 {
-	input(indexOf(source), replacement);
+	input(portIndexOf(source), replacement);
 }
 

@@ -61,15 +61,15 @@ class AbstractFilterWrapper : public QObject {
 			void inputDescriptionChanged(AbstractColumn * source);
 			void inputPlotDesignationAboutToChange(AbstractColumn * source);
 			void inputPlotDesignationChanged(AbstractColumn * source);
+			void inputModeAboutToChange(AbstractColumn * source);
+			void inputModeChanged(AbstractColumn * source);
 			void inputDataAboutToChange(AbstractColumn * source);
 			void inputDataChanged(AbstractColumn * source);
 			void inputAboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> replacement);
 			void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count);
 			void inputRowsInserted(AbstractColumn * source, int before, int count);
-			void inputRowsAboutToBeDeleted(AbstractColumn * source, int first, int count);
-			void inputRowsDeleted(AbstractColumn * source, int first, int count);
-			void inputValidityAboutToChange(AbstractColumn * source);
-			void inputValidityChanged(AbstractColumn * source);
+			void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count);
+			void inputRowsRemoved(AbstractColumn * source, int first, int count);
 			void inputMaskingAboutToChange(AbstractColumn * source);
 			void inputMaskingChanged(AbstractColumn * source);
 			void inputAboutToBeDestroyed(AbstractColumn * source);
@@ -124,9 +124,9 @@ class AbstractFilter
 {
 	public:
 		//! Standard constructor.
-		AbstractFilter() : d_wrapper(new AbstractFilterWrapper(this)) {}
+		AbstractFilter() : d_abstract_filter_wrapper(new AbstractFilterWrapper(this)) {}
 		//! Destructor.
-		virtual ~AbstractFilter() { delete d_wrapper; }
+		virtual ~AbstractFilter() { delete d_abstract_filter_wrapper; }
 
 		//! Return the number of input ports supported by the filter or -1 if any number of inputs is acceptable.
 		virtual int inputCount() const = 0;
@@ -180,7 +180,15 @@ class AbstractFilter
 		// virtual void saveTo(QXmlStreamWriter *) = 0;
 		// virtual void loadFrom(QXmlStreamReader *) = 0;
 		
-		AbstractFilterWrapper *abstractFilterSignalReceiver() { return d_wrapper; }
+		AbstractFilterWrapper *abstractFilterSignalReceiver() { return d_abstract_filter_wrapper; }
+
+		//! Return the input port to which the column is connected or -1 if it's not connected yet
+		int portIndexOf(AbstractColumn * column)
+		{
+			for(int i=0; i<d_inputs.size(); i++)
+				if(d_inputs.at(i).get() == column) return i;
+			return -1;
+		}
 
 	protected:
 		/**
@@ -206,77 +214,76 @@ class AbstractFilter
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionAboutToChange(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputDescriptionAboutToChange(int port) { Q_UNUSED(port); }
+		virtual void inputDescriptionAboutToChange(AbstractColumn * source) { Q_UNUSED(source); } 
 		//! 
 		/**
 		 * \brief Column label and/or comment of an input changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionChanged(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputDescriptionChanged(int port) { Q_UNUSED(port); }
+		virtual void inputDescriptionChanged(AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The plot designation of an input is about to change.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputPlotDesignationAboutToChange(int port) { Q_UNUSED(port); }
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
+;
 		/**
 		 * \brief The plot designation of an input changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationChanged(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputPlotDesignationChanged(int port) { Q_UNUSED(port); }
+		virtual void inputPlotDesignationChanged(AbstractColumn * source) { Q_UNUSED(source); }
+		/**
+		 * \brief The display mode and possibly the data type of an input is about to change.
+		 *
+		 * \param source is always the this pointer of the column that emitted the signal.
+		 */
+		virtual void inputModeAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
+		/**
+		 * \brief The display mode and possibly the data type has changed.
+		 *
+		 * \param source is always the this pointer of the column that emitted the signal.
+		 */
+		virtual void inputModeChanged(AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The data of an input is about to change.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataAboutToChange(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputDataAboutToChange(int port) { Q_UNUSED(port); }
+		virtual void inputDataAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The data of an input has changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataChanged(AbstractColumn * source);
-		//! Overloaded method provided for convenience.
-		virtual void inputDataChanged(int port) { Q_UNUSED(port); }
+		virtual void inputDataChanged(AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief An input is about to be replaced.
 		 *
 		 * This signal is handled by AbstractFilter and mapped to input(int,AbstractColumn*),
 		 * which calls inputDescriptionAboutToChange(), inputPlotDesignationAboutToChange(),
-		 * inputDataAboutToChange(AbstractColumn*), inputDescripionChanged(),
-		 * inputPlotDesignationChanged() and inputDataChanged(AbstractColumn*).
+		 * inputDataAboutToChange(), inputMaskingAboutToChange(), 
+		 * inputDescripionChanged(), inputMaskingChanged()
+		 * inputPlotDesignationChanged() and inputDataChanged().
+		 * inputModeAboutToChange() and inputModeChanged() are
+		 * called if the new column has a different mode (and thereby possibly data type).
 		 * Thus, filter implementations won't have to bother with it most of the time.
 		 */
 		virtual void inputAboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> replacement);
+
 		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
 		virtual void inputRowsInserted(AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsAboutToBeDeleted(AbstractColumn * source, int first, int count) {
+		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputRowsDeleted(AbstractColumn * source, int first, int count) {
+		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
-		}
-		virtual void inputValidityAboutToChange(AbstractColumn * source) {
-			inputDataAboutToChange(source);
-		}
-		virtual void inputValidityChanged(AbstractColumn * source) {
-			inputDataChanged(source);
 		}
 		virtual void inputMaskingAboutToChange(AbstractColumn * source) {
 			Q_UNUSED(source);
@@ -285,7 +292,7 @@ class AbstractFilter
 			Q_UNUSED(source);
 		}
 		void inputAboutToBeDestroyed(AbstractColumn * source) {
-			input(indexOf(source), shared_ptr<AbstractColumn>());
+			input(portIndexOf(source), shared_ptr<AbstractColumn>());
 		}
 		//@}
 
@@ -294,15 +301,8 @@ class AbstractFilter
 
 	private:
 		friend class AbstractFilterWrapper;
-		AbstractFilterWrapper *d_wrapper;
+		AbstractFilterWrapper *d_abstract_filter_wrapper;
 
-		//! Helper function
-		int indexOf(AbstractColumn * elem)
-		{
-			for(int i=0; i<d_inputs.size(); i++)
-				if(d_inputs.at(i).get() == elem) return i;
-			return -1;
-		}
 };
 
 #endif // ifndef ABSTRACT_FILTER_H
