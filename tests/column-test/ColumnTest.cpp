@@ -3,6 +3,7 @@
 
 #include "Column.h"
 #include "Interval.h"
+#include "SimpleMappingFilter.h"
 #include "Double2StringFilter.h"
 #include <QtGlobal>
 #include <QLocale>
@@ -31,7 +32,7 @@ class ColumnWrapper : public Column
 		ColumnWrapper(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
 			: Column(label, data, validity) {};
 	
-		bool equals(shared_ptr<ColumnWrapper> other)
+		bool equals(AbstractColumn * other)
 		{
 			if(plotDesignation() != other->plotDesignation()) return false;
 			if(rowCount() != other->rowCount()) return false;
@@ -49,6 +50,64 @@ class ColumnWrapper : public Column
 
 			return true;
 		}
+		bool equalsDebug(AbstractColumn * other)
+		{
+			if(plotDesignation() != other->plotDesignation())
+			{
+				qDebug() << "plot designation differs";
+				return false;
+			}
+			if(rowCount() != other->rowCount())
+			{
+				qDebug() << "row count differs";
+				return false;
+			}
+			if(dataType() != other->dataType())
+			{
+				qDebug() << "data type differs";
+				return false;
+			}
+			if(columnMode() != other->columnMode()) 
+			{
+				qDebug() << "column mode differs";
+				return false;
+			}
+			for(int i=0; i<rowCount(); i++)
+			{
+				if((valueAt(i) - other->valueAt(i)) > EPSILON)
+				{
+					qDebug() << QString("double value differs in row %1").arg(i);
+					return false;
+				}
+				if(textAt(i) != other->textAt(i))
+				{
+					qDebug() << QString("text differs in row %1").arg(i);
+					return false;
+				}
+				if(dateTimeAt(i) != other->dateTimeAt(i))
+				{
+					qDebug() << QString("date-time differs in row %1").arg(i);
+					return false;
+				}
+				if(isInvalid(i) != other->isInvalid(i))
+				{
+					qDebug() << QString("validity differs in row %1").arg(i);
+					return false;
+				}
+				if(isMasked(i) != other->isMasked(i))
+				{
+					qDebug() << QString("masking differs in row %1").arg(i);
+					return false;
+				}
+				if(formula(i) != other->formula(i))
+				{
+					qDebug() << QString("formula differs in row %1").arg(i);
+					return false;
+				}
+			}
+
+			return true;
+		}
 
 };
 
@@ -60,6 +119,7 @@ class ColumnTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST(testStringColumn);
 		CPPUNIT_TEST(testDateTimeColumn);
 		CPPUNIT_TEST(testConversion);
+		CPPUNIT_TEST(testMappingFilter);
 		CPPUNIT_TEST(testUndo);
 		CPPUNIT_TEST(testSave);
 		CPPUNIT_TEST_SUITE_END();
@@ -890,7 +950,7 @@ class ColumnTest : public CppUnit::TestFixture {
                               .arg(reader->columnNumber())
                               .arg(reader->errorString());
 				}
-				CPPUNIT_ASSERT(column[i]->equals(temp_col));
+				CPPUNIT_ASSERT(column[i]->equals(temp_col.get()));
 				delete writer;
 				delete reader;
 				output.clear();
@@ -898,6 +958,310 @@ class ColumnTest : public CppUnit::TestFixture {
 				
 		}
 /* ------------------------------------------------------------------------------ */
+		void testMappingFilter()
+		{
+			shared_ptr<ColumnWrapper> col1 = shared_ptr<ColumnWrapper>(new ColumnWrapper("col1", SciDAVis::Text));
+			shared_ptr<SimpleMappingFilter> col2 = shared_ptr<SimpleMappingFilter>(new SimpleMappingFilter());
+			shared_ptr<ColumnWrapper> col3 = shared_ptr<ColumnWrapper>(new ColumnWrapper("col3", SciDAVis::Numeric));
+
+			col2->input(0, dynamic_pointer_cast<AbstractColumn>(col1));
+
+			CPPUNIT_ASSERT_EQUAL(col1->dataType(), col2->dataType());
+			CPPUNIT_ASSERT_EQUAL(col1->columnMode(), col2->columnMode());
+			CPPUNIT_ASSERT(col2->isReadOnly() == false);
+
+			col2->setColumnMode(SciDAVis::Numeric);
+			CPPUNIT_ASSERT_EQUAL(col1->dataType(), col2->dataType());
+			CPPUNIT_ASSERT_EQUAL(col1->columnMode(), col2->columnMode());
+			CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, col2->columnMode());
+
+			for(int i=0; i<10; i++)
+				col3->setValueAt(i, (double)i);
+			
+			for(int i=0; i<10; i++)
+				col2->addMapping(i, i);
+
+			col2->copy(col3.get());
+			CPPUNIT_ASSERT_EQUAL(col1->rowCount(), col2->rowCount());
+			CPPUNIT_ASSERT(col1->equalsDebug(col3.get()));
+			CPPUNIT_ASSERT(col1->equalsDebug(col2.get()));
+
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+			
+			CPPUNIT_ASSERT_EQUAL(5, col2->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
+			
+			col2->copy(col3.get(), 2, 1, 3);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col1->valueAt(6),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(7),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(8),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(9),EPSILON);
+			
+			col1->copy(col3);
+			col2->insertRows(4, 2);
+			CPPUNIT_ASSERT_EQUAL(7, col2->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col2->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col2->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col2->valueAt(6),EPSILON);
+
+			CPPUNIT_ASSERT_EQUAL(12, col1->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(6),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(7),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col1->valueAt(8),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(9),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(10),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(11),EPSILON);
+
+			col2->removeRows(1, 2);
+			CPPUNIT_ASSERT_EQUAL(5, col2->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col2->valueAt(4),EPSILON);
+
+			CPPUNIT_ASSERT_EQUAL(10, col1->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col1->valueAt(6),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(7),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(8),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(9),EPSILON);
+
+			CPPUNIT_ASSERT_EQUAL(col1->columnLabel(), col2->columnLabel());
+			col2->setColumnLabel("foo");
+			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->columnLabel());
+			col2->setColumnComment("bar");
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->columnComment());
+			col2->setPlotDesignation(SciDAVis::Z);
+			CPPUNIT_ASSERT_EQUAL(SciDAVis::Z, col1->plotDesignation());
+
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+
+			col2->insertRows(5, 2);  // insert 2 rows after row 4
+			CPPUNIT_ASSERT_EQUAL(7, col2->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col2->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col2->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col2->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(6),EPSILON);
+
+			CPPUNIT_ASSERT_EQUAL(12, col1->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col1->valueAt(6),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(7),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(8),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(9),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(10),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(11),EPSILON);
+
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+
+			col2->clear();
+			CPPUNIT_ASSERT_EQUAL(6, col1->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(5),EPSILON);
+
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+			
+			col2->setInvalid(Interval<int>(1,2));
+			CPPUNIT_ASSERT(!col1->isInvalid(0));
+			CPPUNIT_ASSERT(!col1->isInvalid(1));
+			CPPUNIT_ASSERT(!col1->isInvalid(2));
+			CPPUNIT_ASSERT(col1->isInvalid(3));
+			CPPUNIT_ASSERT(!col1->isInvalid(4));
+			CPPUNIT_ASSERT(col1->isInvalid(5));
+			CPPUNIT_ASSERT(!col1->isInvalid(6));
+			CPPUNIT_ASSERT(!col1->isInvalid(7));
+			CPPUNIT_ASSERT(!col1->isInvalid(8));
+			CPPUNIT_ASSERT(!col1->isInvalid(9));
+
+			QList< Interval<int> > ivs = col2->invalidIntervals();
+			CPPUNIT_ASSERT_EQUAL(1, ivs.count());
+			CPPUNIT_ASSERT_EQUAL(Interval<int>(1,2), ivs.at(0));
+			
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+			
+			col2->setMasked(Interval<int>(1,4));
+			CPPUNIT_ASSERT(!col1->isMasked(0));
+			CPPUNIT_ASSERT(!col1->isMasked(1));
+			CPPUNIT_ASSERT(!col1->isMasked(2));
+			CPPUNIT_ASSERT(col1->isMasked(3));
+			CPPUNIT_ASSERT(!col1->isMasked(4));
+			CPPUNIT_ASSERT(col1->isMasked(5));
+			CPPUNIT_ASSERT(col1->isMasked(6));
+			CPPUNIT_ASSERT(!col1->isMasked(7));
+			CPPUNIT_ASSERT(!col1->isMasked(8));
+			CPPUNIT_ASSERT(!col1->isMasked(9));
+
+			ivs = col2->maskedIntervals();
+			CPPUNIT_ASSERT_EQUAL(2, ivs.count());
+			Interval<int> i1 = ivs.at(0);
+			Interval<int> i2 = ivs.at(1);
+			if(i1.start() > i2.start())
+			{
+				i1 = ivs.at(1);
+				i2 = ivs.at(0);
+			}
+			CPPUNIT_ASSERT_EQUAL(Interval<int>(1,2), i1);
+			CPPUNIT_ASSERT_EQUAL(Interval<int>(4,4), i2);
+			
+			
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+
+			col1->setInvalid(Interval<int>(0,9));
+			col1->setMasked(Interval<int>(0,9));
+			col2->clearValidity();
+			col2->clearMasks();
+
+			CPPUNIT_ASSERT(col1->isMasked(0));
+			CPPUNIT_ASSERT(!col1->isMasked(1));
+			CPPUNIT_ASSERT(col1->isMasked(2));
+			CPPUNIT_ASSERT(!col1->isMasked(3));
+			CPPUNIT_ASSERT(col1->isMasked(4));
+			CPPUNIT_ASSERT(!col1->isMasked(5));
+			CPPUNIT_ASSERT(!col1->isMasked(6));
+			CPPUNIT_ASSERT(col1->isMasked(7));
+			CPPUNIT_ASSERT(col1->isMasked(8));
+			CPPUNIT_ASSERT(col1->isMasked(9));
+
+			CPPUNIT_ASSERT(col1->isInvalid(0));
+			CPPUNIT_ASSERT(!col1->isInvalid(1));
+			CPPUNIT_ASSERT(col1->isInvalid(2));
+			CPPUNIT_ASSERT(!col1->isInvalid(3));
+			CPPUNIT_ASSERT(col1->isInvalid(4));
+			CPPUNIT_ASSERT(!col1->isInvalid(5));
+			CPPUNIT_ASSERT(!col1->isInvalid(6));
+			CPPUNIT_ASSERT(col1->isInvalid(7));
+			CPPUNIT_ASSERT(col1->isInvalid(8));
+			CPPUNIT_ASSERT(col1->isInvalid(9));
+
+			col1->clearFormulas();
+			col2->setFormula(Interval<int>(0,4), "foo");
+
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(0));
+			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->formula(1));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(2));
+			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->formula(3));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(4));
+			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->formula(5));
+			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->formula(6));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(7));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(8));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(9));
+
+			ivs = col2->formulaIntervals();
+			CPPUNIT_ASSERT_EQUAL(2, ivs.count());
+			ivs = col1->formulaIntervals();
+			CPPUNIT_ASSERT_EQUAL(3, ivs.count());
+
+			col1->setFormula(Interval<int>(0,9), "bar");
+			col2->clearFormulas();
+
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(0));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(1));
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(2));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(3));
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(4));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(5));
+			CPPUNIT_ASSERT_EQUAL(QString(""), col1->formula(6));
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(7));
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(8));
+			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->formula(9));
+			
+			for(int i=0; i<col2->rowCount(); i++)
+				col2->setValueAt(i, (double)i+200.14342);
+
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(col1->valueAt(1), col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(col1->valueAt(3), col2->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(col1->valueAt(5), col2->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(col1->valueAt(6), col2->valueAt(4),EPSILON);
+
+			QVector<double> values;
+			values << 15.5 << -16.7 << 37.22 << 22.2 << 100.22;
+
+			col2->replaceValues(0, values);
+
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(15.5, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(-16.7, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(37.22, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(100.22, col1->valueAt(6),EPSILON);
+			
+			col1->copy(col3);
+			col2->clearMappings();
+			col2->addMapping(1,0);
+			col2->addMapping(3,1);
+			col2->addMapping(5,2);
+			col2->addMapping(6,4);
+
+			col2->removeMappingFrom(6);
+			CPPUNIT_ASSERT_EQUAL(3, col2->rowCount());
+			col1->setValueAt(1, 1.3);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.3, col2->valueAt(0),EPSILON);
+			col2->removeMappingTo(0);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_EQUAL(3, col2->rowCount());
+		}
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION( ColumnTest );

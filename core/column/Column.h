@@ -280,7 +280,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		void setTextAt(int row, QString new_value);
+		void setTextAt(int row, const QString& new_value);
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QString
@@ -295,7 +295,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		void setDateAt(int row, QDate new_value);
+		void setDateAt(int row, const QDate& new_value);
 		//! Return the time part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -305,7 +305,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		void setTimeAt(int row, QTime new_value);
+		void setTimeAt(int row, const QTime& new_value);
 		//! Return the QDateTime in row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -315,7 +315,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		void setDateTimeAt(int row, QDateTime new_value);
+		void setDateTimeAt(int row, const QDateTime& new_value);
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QDateTime

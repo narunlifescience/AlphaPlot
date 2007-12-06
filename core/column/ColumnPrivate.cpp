@@ -633,7 +633,7 @@ double ColumnPrivate::valueAt(int row) const
 	return static_cast< QVector<double>* >(d_data)->value(row);
 }
 
-void ColumnPrivate::setTextAt(int row, QString new_value)
+void ColumnPrivate::setTextAt(int row, const QString& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQString) return;
 
@@ -659,21 +659,21 @@ void ColumnPrivate::replaceTexts(int first, const QStringList& new_values)
 	if(d_owner_sender) emit d_owner_sender->dataChanged(d_owner);
 }
 
-void ColumnPrivate::setDateAt(int row, QDate new_value)
+void ColumnPrivate::setDateAt(int row, const QDate& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 
 	setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
-void ColumnPrivate::setTimeAt(int row, QTime new_value)
+void ColumnPrivate::setTimeAt(int row, const QTime& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 	
 	setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
-void ColumnPrivate::setDateTimeAt(int row, QDateTime new_value)
+void ColumnPrivate::setDateTimeAt(int row, const QDateTime& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 

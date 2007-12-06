@@ -2,8 +2,8 @@ TEMPLATE = app
 TARGET = column-test
 CONFIG += debug
 QT += xml
-DEPENDPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column 
-INCLUDEPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column 
+DEPENDPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../core/filters
+INCLUDEPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../core/filters 
 unix:LIBS += -lcppunit
 
 # units used
@@ -33,6 +33,7 @@ HEADERS += \
 			  String2DayOfWeekFilter.h \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
+			  SimpleMappingFilter.h \
 
 
 SOURCES += \
@@ -44,6 +45,7 @@ SOURCES += \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \
+			  SimpleMappingFilter.cpp \
 
 
 # test cases

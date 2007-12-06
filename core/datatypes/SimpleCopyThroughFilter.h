@@ -35,42 +35,30 @@
 /**
  * \brief Filter which copies the provided input unaltered to the output
  *
+ * Most of the necessary methods for this filter are already implemented
+ * in AbstractSimpleFilter.
+ *
  * The difference between this filter and CopyThroughFilter is that
  * this inherits AbstractColumn and thus can be directly used
- * as input for other filters and plot functions.
+ * as input for other filters and plot functions. 
  */
 class SimpleCopyThroughFilter : public AbstractSimpleFilter
 {
 	Q_OBJECT
 
 	public:
-		virtual double valueAt(int row) const 
+		//!\name Masking
+		//@{
+		//! Return whether a certain row is masked
+		virtual bool isMasked(int row) const { return d_inputs.value(0) ? d_inputs.at(0)->isMasked(row) : false; }
+		//! Return whether a certain interval of rows rows is fully masked
+		virtual bool isMasked(Interval<int> i) const { return d_inputs.value(0) ? d_inputs.at(0)->isMasked(i) : false; }
+		//! Return all intervals of masked rows
+		virtual QList< Interval<int> > maskedIntervals() const 
 		{
-			if (!d_inputs.value(0)) return 0.0;
-			return d_inputs.value(0)->valueAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
-
-		virtual QString textAt(int row) const 
-		{
-			if (!d_inputs.value(0)) return QString();
-			return d_inputs.value(0)->textAt(row);
-		}
-
-		virtual QDate dateAt(int row) const 
-		{
-			return dateTimeAt(row).date();
-		}
-
-		virtual QTime timeAt(int row) const 
-		{
-			return dateTimeAt(row).time();
-		}
-
-		virtual QDateTime dateTimeAt(int row) const
-		{
-			if (!d_inputs.value(0)) return QDateTime();
-			return d_inputs.value(0)->dateTimeAt(row);
-		}
+		//@}
 
 	protected:
 		//! All types are accepted.
@@ -78,6 +66,18 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		{
 			return true;
 		}
+
+		//!\name signal handlers
+		//@{
+		virtual void inputMaskingAboutToChange(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->maskingAboutToChange(this); 
+		}
+		virtual void inputMaskingChanged(AbstractColumn*) 
+		{ 
+			emit abstractColumnSignalEmitter()->maskingChanged(this); 
+		}
+		//@}
 };
 
 #endif // ifndef SIMPLE_COPY_THROUGH_FILTER_H

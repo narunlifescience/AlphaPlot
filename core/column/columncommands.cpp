@@ -515,7 +515,7 @@ void ColumnSetMaskedCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
-	ColumnSetFormulaCmd::ColumnSetFormulaCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, QString formula, QUndoCommand * parent )
+	ColumnSetFormulaCmd::ColumnSetFormulaCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, const QString& formula, QUndoCommand * parent )
 : QUndoCommand( parent ), d_col(col), d_interval(interval), d_formula(formula)
 {
 	setText(QObject::tr("%1: set cell formula").arg(col->columnLabel()));

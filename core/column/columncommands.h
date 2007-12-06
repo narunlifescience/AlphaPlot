@@ -438,7 +438,7 @@ class ColumnSetFormulaCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetFormulaCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, QString formula, QUndoCommand * parent = 0 );
+	ColumnSetFormulaCmd(shared_ptr<ColumnPrivate> col, Interval<int> interval, const QString& formula, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetFormulaCmd();
 

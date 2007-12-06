@@ -177,7 +177,7 @@ void Column::clearFormulas()
 	exec(new ColumnClearFormulasCmd(d_column_private));
 }
 
-void Column::setTextAt(int row, QString new_value)
+void Column::setTextAt(int row, const QString& new_value)
 {
 	exec(new ColumnSetTextCmd(d_column_private, row, new_value));
 }
@@ -187,17 +187,17 @@ void Column::replaceTexts(int first, const QStringList& new_values)
 	exec(new ColumnReplaceTextsCmd(d_column_private, first, new_values));
 }
 
-void Column::setDateAt(int row, QDate new_value)
+void Column::setDateAt(int row, const QDate& new_value)
 {
 	setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
-void Column::setTimeAt(int row, QTime new_value)
+void Column::setTimeAt(int row,const QTime& new_value)
 {
 	setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
-void Column::setDateTimeAt(int row, QDateTime new_value)
+void Column::setDateTimeAt(int row, const QDateTime& new_value)
 {
 	exec(new ColumnSetDateTimeCmd(d_column_private, row, new_value));
 }

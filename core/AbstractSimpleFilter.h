@@ -65,9 +65,6 @@ using boost::dynamic_pointer_cast;
  * For the data type of the output, all types supported by AbstractColumn (currently double, QString and
  * QDateTime) are supported.
  *
- * AbstractSimpleFilter also implements AbstractAspect to allow including the filters in the
- * aspect hierarchy.
- *
  * \section tutorial1 Tutorial, Step 1
  * The simplest filter you can write assumes there's also only one input port and rows on the
  * input correspond 1:1 to rows in the output. All you need to specify is what data type you
@@ -133,19 +130,17 @@ using boost::dynamic_pointer_cast;
  * 10	public:
  * 11 	virtual double valueAt(int row) const {
  * 12		if (!d_inputs.value(0)) return 0.0;
- * 13 		return d_inputs.value(0)->valueAt(2*row + 1);
+ * 13		return d_inputs.value(0)->valueAt(2*row + 1);
  * 14 	}
  * \endcode
  */
-class AbstractSimpleFilter : public QObject, public AbstractAspect, public AbstractFilter, public AbstractColumn, public enable_shared_from_this<AbstractSimpleFilter>
+class AbstractSimpleFilter : public QObject, public AbstractFilter, public AbstractColumn, public enable_shared_from_this<AbstractSimpleFilter>
 {
 	Q_OBJECT
 
 	public:
 		//! Ctor
-		AbstractSimpleFilter() : AbstractAspect(QString("SimpleFilter")) {}
-		//! Ctor
-		AbstractSimpleFilter(const QString& label) : AbstractAspect(label) {}
+		AbstractSimpleFilter() {}
 		//! Default to one input port.
 		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
@@ -171,8 +166,10 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		//! Return the data type of the input
 		virtual SciDAVis::ColumnDataType dataType() const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->dataType();
+			// calling this function while d_input is empty is a sign of very bad code
+			// nevertheless it will return some rather meaningless value to
+			// avoid crashes
+			return d_inputs.value(0) ? d_inputs.at(0)->dataType() : SciDAVis::TypeQString;
 		}
 		//! Return the column mode
 		/**
@@ -182,8 +179,10 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */ 
 		virtual SciDAVis::ColumnMode columnMode() const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->columnMode();
+			// calling this function while d_input is empty is a sign of very bad code
+			// nevertheless it will return some rather meaningless value to
+			// avoid crashes
+			return d_inputs.value(0) ? d_inputs.at(0)->columnMode() : SciDAVis::Text;
 		}
 		//! Set the column label (does nothing in the standard implementation)
 		virtual void setColumnLabel(const QString& label) { Q_UNUSED(label); }
@@ -195,8 +194,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */
 		virtual QString textAt(int row) const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->textAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->textAt(row) : QString();
 		}
 		//! Return the date part of row 'row'
 		/**
@@ -204,8 +202,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */
 		virtual QDate dateAt(int row) const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->dateAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->dateAt(row) : QDate();
 		}
 		//! Return the time part of row 'row'
 		/**
@@ -213,8 +210,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */
 		virtual QTime timeAt(int row) const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->timeAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->timeAt(row) : QTime();
 		}
 		//! Set the content of row 'row'
 		/**
@@ -222,8 +218,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */
 		virtual QDateTime dateTimeAt(int row) const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->dateTimeAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->dateTimeAt(row) : QDateTime();
 		}
 		//! Return the double value in row 'row'
 		/**
@@ -231,8 +226,7 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		 */
 		virtual double valueAt(int row) const
 		{
-			Q_ASSERT(d_inputs.value(0) != 0); // calling this function while d_input is empty is a sign of very bad code
-			return d_inputs.at(0)->valueAt(row);
+			return d_inputs.value(0) ? d_inputs.at(0)->valueAt(row) : 0.0;
 		}
 		//! \name aspect related functions
 		//@{
@@ -253,7 +247,6 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		virtual QList< Interval<int> > dependentRows(Interval<int> input_range) const { return QList< Interval<int> >() << input_range; }
 		//@}
 
-		// TODO: Implement commands
 		//!\name Masking
 		//@{
 		//! Return whether a certain row is masked
@@ -288,6 +281,16 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 		virtual const char* className() const { return metaObject()->className(); }
 		//! See QObject::inherits().
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
+
+		//! Return whether a certain row contains an invalid value 	 
+		virtual bool isInvalid(int row) const { return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(row) : false; }
+		//! Return whether a certain interval of rows contains only invalid values 	 
+		virtual bool isInvalid(Interval<int> i) const { return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(i) : false; }
+		//! Return all intervals of invalid rows
+		virtual QList< Interval<int> > invalidIntervals() const 
+		{
+			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
+		}
 
 	protected:
 		IntervalAttribute<bool> d_masking;
@@ -327,20 +330,26 @@ class AbstractSimpleFilter : public QObject, public AbstractAspect, public Abstr
 			emit abstractColumnSignalEmitter()->dataChanged(this); 
 		}
 
-		virtual void inputRowsAboutToBeInserted(AbstractColumn*, Interval<int> range) {
-			foreach(Interval<int> output_range, dependentRows(range))
+		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count) {
+			Q_UNUSED(source);
+			Q_UNUSED(count);
+			foreach(Interval<int> output_range, dependentRows(Interval<int>(before, before)))
 				emit abstractColumnSignalEmitter()->rowsAboutToBeInserted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsInserted(AbstractColumn*, Interval<int> range) {
-			foreach(Interval<int> output_range, dependentRows(range))
+		virtual void inputRowsInserted(AbstractColumn * source, int before, int count) {
+			Q_UNUSED(source);
+			Q_UNUSED(count);
+			foreach(Interval<int> output_range, dependentRows(Interval<int>(before, before)))
 				emit abstractColumnSignalEmitter()->rowsInserted(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsAboutToBeRemoved(AbstractColumn*, Interval<int> range) {
-			foreach(Interval<int> output_range, dependentRows(range))
+		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count) {
+			Q_UNUSED(source);
+			foreach(Interval<int> output_range, dependentRows(Interval<int>(first, first+count-1)))
 				emit abstractColumnSignalEmitter()->rowsAboutToBeRemoved(this, output_range.start(), output_range.size());
 		}
-		virtual void inputRowsRemoved(AbstractColumn*, Interval<int> range) {
-			foreach(Interval<int> output_range, dependentRows(range))
+		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count) {
+			Q_UNUSED(source);
+			foreach(Interval<int> output_range, dependentRows(Interval<int>(first, first+count-1)))
 				emit abstractColumnSignalEmitter()->rowsRemoved(this, output_range.start(), output_range.size());
 		}
 		//@}

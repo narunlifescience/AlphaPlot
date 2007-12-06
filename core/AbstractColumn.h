@@ -74,16 +74,18 @@ class AbstractColumnSignalEmitter : public QObject
 	friend class Column;
 	friend class ColumnPrivate;
 	friend class AbstractSimpleFilter;
+	friend class SimpleMappingFilter;
+	friend class SimpleCopyThroughFilter;
 
 	signals: 
-		//! Column description (name/comment) will be changed
+		//! Column description (label/comment) will be changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
 		void descriptionAboutToChange(AbstractColumn * source); 
-		//! Column description (name/comment) changed
+		//! Column description (label/comment) changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
@@ -224,7 +226,7 @@ class AbstractColumnSignalEmitter : public QObject
 
   All writing functions have a "do nothing" standard implementation to
   make deriving a read-only class very easy without bothering about the
-  writing interface. Changing name and comment should be implemented even
+  writing interface. Changing label and comment should be implemented even
   for read only columns, usually using the AbstractAspect interface.
   */
 class AbstractColumn 
@@ -259,7 +261,7 @@ class AbstractColumn
 		 * The validity information for the rows is also copied.
 		 * Use a filter to convert a column to another type.
 		 */
-		virtual bool copy(AbstractColumn * other) { Q_UNUSED(other) return false; };
+		virtual bool copy(const AbstractColumn * other) { Q_UNUSED(other) return false; };
 		//! Copies part of another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -270,7 +272,7 @@ class AbstractColumn
 		 * \param dest_start first row to copy in
 		 * \param num_rows the number of rows to copy
 		 */ 
-		virtual bool copy(AbstractColumn * source, int source_start, int dest_start, int num_rows) 
+		virtual bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows) 
 		{
 			Q_UNUSED(source)
 			Q_UNUSED(source_start)
@@ -374,7 +376,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual void setTextAt(int row, QString new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		virtual void setTextAt(int row, const QString& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QString
@@ -389,7 +391,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateAt(int row, QDate new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		virtual void setDateAt(int row, const QDate& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Return the time part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -399,7 +401,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setTimeAt(int row, QTime new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		virtual void setTimeAt(int row, const QTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Return the QDateTime in row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -409,7 +411,7 @@ class AbstractColumn
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateTimeAt(int row, QDateTime new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		virtual void setDateTimeAt(int row, const QDateTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QDateTime
