@@ -266,15 +266,20 @@ QIcon Column::icon() const
 	return QIcon();
 }
 
-void Column::save(QXmlStreamWriter * writer)
+void Column::save(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("column");
 	// TODO: write AbstractAspect stuff
-	// TODO: add saving of in/out filters
 	writer->writeAttribute("label", columnLabel());
 	writer->writeAttribute("type", SciDAVis::enumValueToString(dataType(), "ColumnDataType"));
 	writer->writeAttribute("mode", SciDAVis::enumValueToString(columnMode(), "ColumnMode"));
 	writer->writeAttribute("plot_designation", SciDAVis::enumValueToString(plotDesignation(), "PlotDesignation"));
+	writer->writeStartElement("input_filter");
+	inputFilter()->save(writer);
+	writer->writeEndElement();
+	writer->writeStartElement("output_filter");
+	outputFilter()->save(writer);
+	writer->writeEndElement();
 	writer->writeStartElement("comment");
 	writer->writeCharacters(columnComment());
 	writer->writeEndElement();
@@ -417,6 +422,10 @@ bool Column::load(QXmlStreamReader * reader)
 				bool ret_val = true;
 				if (reader->name() == "comment")
 					ret_val = XmlReadComment(reader);
+				else if(reader->name() == "input_filter")
+					ret_val = XmlReadInputFilter(reader);
+				else if(reader->name() == "output_filter")
+					ret_val = XmlReadOutputFilter(reader);
 				else if(reader->name() == "mask")
 					ret_val = XmlReadMask(reader);
 				else if(reader->name() == "formula")
@@ -441,6 +450,27 @@ bool Column::XmlReadComment(QXmlStreamReader * reader)
 	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
 	setColumnComment(reader->readElementText());
 	return true;
+}
+
+bool Column::XmlReadInputFilter(QXmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
+	// TODO: implement undo for input and output filter
+	reader->readNext();
+	bool result = inputFilter()->load(reader);	
+	reader->readNext();
+	Q_ASSERT(reader->isEndElement() && reader->name() == "input_filter");
+	return result;
+}
+
+bool Column::XmlReadOutputFilter(QXmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "output_filter");
+	reader->readNext();
+	bool result = outputFilter()->load(reader);	
+	reader->readNext();
+	Q_ASSERT(reader->isEndElement() && reader->name() == "output_filter");
+	return result;
 }
 
 bool Column::XmlReadMask(QXmlStreamReader * reader)
@@ -555,5 +585,4 @@ bool Column::XmlReadRow(QXmlStreamReader * reader)
 
 	return true;
 }
-
 

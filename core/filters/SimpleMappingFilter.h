@@ -242,6 +242,15 @@ class SimpleMappingFilter : public SimpleCopyThroughFilter
 		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count);
 		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count);
 		//@}
+
+		//! \name XML related functions
+		//@{
+		//! Save the column as XML
+		virtual void save(QXmlStreamWriter * writer) const;
+		//! Load the column from XML
+		virtual bool load(QXmlStreamReader * reader);
+		//@}
+
 	private:
 		QList<int> d_source_rows;
 		QList<int> d_dest_rows;

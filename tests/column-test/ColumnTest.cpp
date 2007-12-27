@@ -936,6 +936,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			{
 				writer = new QXmlStreamWriter(&output);
 				column[i]->save(writer);
+				// qDebug() << "i = " << i;
 				// qDebug() << "now reading column " << column[i]->columnLabel();
 				// qDebug() << output;
 				reader = new QXmlStreamReader(output);
@@ -950,7 +951,7 @@ class ColumnTest : public CppUnit::TestFixture {
                               .arg(reader->columnNumber())
                               .arg(reader->errorString());
 				}
-				CPPUNIT_ASSERT(column[i]->equals(temp_col.get()));
+				CPPUNIT_ASSERT(column[i]->equalsDebug(temp_col.get()));
 				delete writer;
 				delete reader;
 				output.clear();
@@ -1091,6 +1092,51 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(10),EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(11),EPSILON);
 
+			QString output;
+			QXmlStreamWriter * writer;
+			QXmlStreamReader * reader;
+
+			writer = new QXmlStreamWriter(&output);
+			col2->save(writer);
+			// qDebug() << output;
+			reader = new QXmlStreamReader(output);
+			reader->readNext();
+			CPPUNIT_ASSERT(reader->isStartDocument());
+			reader->readNext();
+			if(!col2->load(reader))
+			{
+				qDebug() << QString("Parse error in mapping filter at line %1, column %2:\n%3")
+					.arg(reader->lineNumber())
+					.arg(reader->columnNumber())
+					.arg(reader->errorString());
+			}
+			delete writer;
+			delete reader;
+			output.clear();
+
+			CPPUNIT_ASSERT_EQUAL(7, col2->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col2->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col2->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col2->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col2->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(6),EPSILON);
+
+			CPPUNIT_ASSERT_EQUAL(12, col1->rowCount());
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(3.0, col1->valueAt(3),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(4.0, col1->valueAt(4),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, col1->valueAt(5),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(6.0, col1->valueAt(6),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(7),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(8),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(7.0, col1->valueAt(9),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(10),EPSILON);
+			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(11),EPSILON);
+			
 			col1->copy(col3);
 			col2->clearMappings();
 			col2->addMapping(1,0);

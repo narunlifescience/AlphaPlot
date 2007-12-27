@@ -338,11 +338,15 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! \name XML related functions
 		//@{
 		//! Save the column as XML
-		void save(QXmlStreamWriter * writer);
+		void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
 		bool load(QXmlStreamReader * reader);
 		//! Read XML comment element
 		bool XmlReadComment(QXmlStreamReader * reader);
+		//! Read XML input filter element
+		bool XmlReadInputFilter(QXmlStreamReader * reader);
+		//! Read XML output filter element
+		bool XmlReadOutputFilter(QXmlStreamReader * reader);
 		//! Read XML mask element
 		bool XmlReadMask(QXmlStreamReader * reader);
 		//! Read XML formula element

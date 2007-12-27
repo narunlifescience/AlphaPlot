@@ -2,8 +2,8 @@ TEMPLATE = app
 TARGET = table-test
 CONFIG += debug
 QT += xml
-DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table  ..
-INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../table ..
+DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/filters ../../core/column ../../table ..
+INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/filters ../../core/column ../../table ..
 unix:LIBS += -lcppunit
 QMAKE_CXX = distcc
 
@@ -59,6 +59,7 @@ HEADERS += \
 			  TableFormulaEditorModel.h \
 			  TableDoubleHeaderView.h \
 			  TableCommentsHeaderModel.h  \
+			  SimpleMappingFilter.h \
 
 
 
@@ -88,6 +89,7 @@ SOURCES += \
 			  TableFormulaEditorModel.cpp \
 			  TableDoubleHeaderView.cpp \
 			  TableCommentsHeaderModel.cpp  \
+			  SimpleMappingFilter.cpp \
 		
 
 

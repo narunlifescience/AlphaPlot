@@ -501,3 +501,68 @@ void SimpleMappingFilter::replaceValues(int first, const QVector<double>& new_va
 		setValueAt(first+i, new_values.at(i));
 }
 
+void SimpleMappingFilter::save(QXmlStreamWriter * writer) const
+{
+	writer->writeStartElement("simple_filter");
+	writer->writeAttribute("filter_name", "SimpleMappingFilter");
+	for(int i=0; i<d_source_rows.size(); i++)
+	{
+		writer->writeStartElement("mapping");
+		writer->writeAttribute("source_row", QString::number(d_source_rows.at(i)));
+		writer->writeAttribute("destination_row", QString::number(d_dest_rows.at(i)));
+		writer->writeEndElement();	
+	}
+	writer->writeEndElement();
+}
+
+bool SimpleMappingFilter::load(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	clearMappings();
+
+	if(reader->isStartElement() && reader->name() == "simple_filter") 
+	{
+		QXmlStreamAttributes attribs = reader->attributes();
+		QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
+		if(str != "SimpleMappingFilter")
+			reader->raiseError(prefix+tr("incompatible filter type")+postfix);
+
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				if(reader->name() == "mapping")
+				{
+					QXmlStreamAttributes attribs = reader->attributes();
+					QString src_str = attribs.value(reader->namespaceUri().toString(), "source_row").toString();
+					QString dest_str = attribs.value(reader->namespaceUri().toString(), "destination_row").toString();
+					bool ok1, ok2;
+					int src_row = src_str.toInt(&ok1);
+					int dest_row = dest_str.toInt(&ok2);
+					if( !ok1 || !ok2 )
+					{
+						reader->raiseError(prefix+tr("invalid mapping element")+postfix);
+						return false;
+					}
+					else
+						addMapping(src_row, dest_row);	
+					reader->readNext(); // read end element of mapping
+				}
+				else
+					reader->readElementText(); // unknown element
+			} 
+		}
+		reader->readNext(); // read end element of simple_filter
+	}
+	else
+		reader->raiseError(prefix+tr("no simple filter element found")+postfix);
+
+	return !reader->error();
+}

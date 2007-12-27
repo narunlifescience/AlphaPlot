@@ -30,7 +30,7 @@
 #ifndef STRING2DATE_TIME_FILTER_H
 #define STRING2DATE_TIME_FILTER_H
 
-#include "../AbstractSimpleFilter.h"
+#include "AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
@@ -63,6 +63,39 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQDateTime; }
 
+		//! \name XML related functions
+		//@{
+		//! Save the column as XML
+		virtual void save(QXmlStreamWriter * writer) const
+		{
+			writer->writeStartElement("simple_filter");
+			writer->writeAttribute("filter_name", "String2DateTimeFilter");
+			writer->writeAttribute("format", format());
+			writer->writeEndElement();
+		}
+		//! Load the column from XML
+		virtual bool load(QXmlStreamReader * reader)
+		{
+			QString prefix(tr("XML read error: ","prefix for XML error messages"));
+			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+			if(reader->isStartElement() && reader->name() == "simple_filter") 
+			{
+				QXmlStreamAttributes attribs = reader->attributes();
+				QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
+				if(str != "String2DateTimeFilter")
+					reader->raiseError(prefix+tr("incompatible filter type")+postfix);
+				else
+					setFormat(attribs.value(reader->namespaceUri().toString(), "format").toString());
+				reader->readNext(); // read the end element
+			}
+			else
+				reader->raiseError(prefix+tr("no simple filter element found")+postfix);
+
+			return !reader->error();
+		}
+		//@}
+
 	private:
 		//! The format string.
 		QString d_format;
@@ -70,7 +103,6 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		static const char * date_formats[];
 		static const char * time_formats[];
 
-// simplified filter interface
 	public:
 		virtual QDateTime dateTimeAt(int row) const;
 		virtual QDate dateAt(int row) const { return dateTimeAt(row).date(); }

@@ -292,6 +292,14 @@ class AbstractSimpleFilter : public QObject, public AbstractFilter, public Abstr
 			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
 
+		//! \name XML related functions
+		//@{
+		//! Save the column as XML
+		virtual void save(QXmlStreamWriter * writer) const = 0;
+		//! Load the column from XML
+		virtual bool load(QXmlStreamReader * reader) = 0;
+		//@}
+
 	protected:
 		IntervalAttribute<bool> d_masking;
 
@@ -353,7 +361,7 @@ class AbstractSimpleFilter : public QObject, public AbstractFilter, public Abstr
 				emit abstractColumnSignalEmitter()->rowsRemoved(this, output_range.start(), output_range.size());
 		}
 		//@}
-	
+
 	private:
 		//! Helper function
 		shared_ptr<AbstractColumn> sharedAbstractColumnPtrFromThis()
