@@ -69,6 +69,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			break;
 		case SciDAVis::Date:
 		case SciDAVis::Time:
+			d_column_mode = SciDAVis::DateTime;
 		case SciDAVis::DateTime:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DateTimeFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
@@ -96,6 +97,9 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 		d_owner_sender = owner->abstractColumnSignalEmitter();
 	else
 		d_owner_sender = 0;
+		
+	d_input_filter->setOwnerAspect(d_owner);
+	d_output_filter->setOwnerAspect(d_owner);
 }
 
 ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciDAVis::ColumnMode mode, 
@@ -118,6 +122,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 			break;
 		case SciDAVis::Date:
 		case SciDAVis::Time:
+			d_column_mode = SciDAVis::DateTime;
 		case SciDAVis::DateTime:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DateTimeFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
@@ -139,6 +144,9 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 		d_owner_sender = owner->abstractColumnSignalEmitter();
 	else
 		d_owner_sender = 0;
+	
+	d_input_filter->setOwnerAspect(d_owner);
+	d_output_filter->setOwnerAspect(d_owner);
 }
 
 ColumnPrivate::~ColumnPrivate()
@@ -310,9 +318,15 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	} // switch(mode)
 
 	d_column_mode = mode;
+	if(mode == SciDAVis::Date || mode == SciDAVis::Time) // these values are obsolete	
+		d_column_mode = SciDAVis::DateTime;
 
+	d_input_filter->setOwnerAspect(0);
+	d_output_filter->setOwnerAspect(0);
 	d_input_filter = new_in_filter;
 	d_output_filter = new_out_filter;
+	d_input_filter->setOwnerAspect(d_owner);
+	d_output_filter->setOwnerAspect(d_owner);
 
 	if(temp_col) // if temp_col == 0, only the input/output filters need to be changed
 	{
@@ -329,10 +343,16 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 {
 	if(d_owner_sender) emit d_owner_sender->modeAboutToChange(d_owner);
 	d_column_mode = mode;
+	if(mode == SciDAVis::Date || mode == SciDAVis::Time) // these values are obsolete	
+		d_column_mode = SciDAVis::DateTime;
 	d_data_type = type;
 	d_data = data;
+	d_input_filter->setOwnerAspect(0);
+	d_output_filter->setOwnerAspect(0);
 	d_input_filter = in_filter;
 	d_output_filter = out_filter;
+	d_input_filter->setOwnerAspect(d_owner);
+	d_output_filter->setOwnerAspect(d_owner);
 	d_validity = validity;
 	if(d_owner_sender) emit d_owner_sender->modeChanged(d_owner);
 }

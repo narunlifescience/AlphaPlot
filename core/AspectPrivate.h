@@ -64,6 +64,7 @@ class AspectPrivate
 		QString captionSpec() const;
 		void setCaptionSpec(const QString &value);
 		QDateTime creationTime() const;
+		void setCreationTime(const QDateTime& time);
 
 		QString caption() const;
 		AbstractAspect * owner() { return d_owner; }

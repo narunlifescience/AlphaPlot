@@ -269,7 +269,8 @@ QIcon Column::icon() const
 void Column::save(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("column");
-	// TODO: write AbstractAspect stuff
+	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
+	writer->writeAttribute("caption_spec", captionSpec());
 	writer->writeAttribute("label", columnLabel());
 	writer->writeAttribute("type", SciDAVis::enumValueToString(dataType(), "ColumnDataType"));
 	writer->writeAttribute("mode", SciDAVis::enumValueToString(columnMode(), "ColumnMode"));
@@ -365,6 +366,13 @@ bool Column::load(QXmlStreamReader * reader)
 			return false;
 		}
 		setColumnLabel(str);
+		// read creation time
+		str = attribs.value(reader->namespaceUri().toString(), "creation_time").toString();
+		if(!str.isEmpty())
+			setCreationTime(QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz"));
+		// read caption spec
+		str = attribs.value(reader->namespaceUri().toString(), "caption_spec").toString();
+		setCaptionSpec(str);
 		// read type
 		str = attribs.value(reader->namespaceUri().toString(), "type").toString();
 		if(str.isEmpty())

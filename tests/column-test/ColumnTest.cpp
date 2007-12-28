@@ -5,6 +5,7 @@
 #include "Interval.h"
 #include "SimpleMappingFilter.h"
 #include "Double2StringFilter.h"
+#include "DateTime2StringFilter.h"
 #include <QtGlobal>
 #include <QLocale>
 #include <QtDebug>
@@ -681,18 +682,30 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT_DOUBLES_EQUAL(double((qRound(dbl_temp)-1)%7+1), column[10]->valueAt(0), EPSILON);
 			}
 
-				// apply all conversions twice
+				// apply all conversions twice (test for segfaults etc.)
 				column[0]->setColumnMode(SciDAVis::Numeric);
 				column[0]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::Text);
 				column[0]->setColumnMode(SciDAVis::Text);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::Text, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::DateTime);
 				column[0]->setColumnMode(SciDAVis::DateTime);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::Month);
 				column[0]->setColumnMode(SciDAVis::Month);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::Month, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::Day);
 				column[0]->setColumnMode(SciDAVis::Day);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::Day, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::Numeric);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, column[0]->columnMode());
+
+				// Check conversion from obsolete values to DateTime
+				column[0]->setColumnMode(SciDAVis::Date);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, column[0]->columnMode());
+				column[0]->setColumnMode(SciDAVis::Time);
+				CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, column[0]->columnMode());
 		}
 /* ------------------------------------------------------------------------------ */
 		void testUndo()
@@ -708,6 +721,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[3]->setMasked(2);
 			column[4]->setDateTimeAt(0, QDateTime());
 			column[4]->setDateTimeAt(1, QDateTime());
+			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("yyyy-MM-dd");
 			column[5]->setPlotDesignation(SciDAVis::Z);
 			column[5]->setMasked(2);
 			column[1]->setFormula(Interval<int>(0,20), "foo bar");
@@ -850,13 +864,16 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[5]->replaceDateTimes(2, dtlist);
 			undoTestInternal();
 
+			// test undo for DateTime2StringFilter
+			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("dd.MM.yyyy");
+			undoTestInternal();
+
 		}
 
 		void undoTestInternal()
 		{
 			QUndoStack * us = column[0]->undoStack();
 
-			us->redo();
 			us->undo();
 			undoTestInternal2();
 			us->redo();
@@ -903,6 +920,9 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(4),  QString("foo bar bla"));
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(16),  QString("foo bar bla"));
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(20),  QString("foo bar bla"));
+
+			// check column 4
+			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->format());
 
 			// check column 5
 			CPPUNIT_ASSERT_EQUAL(3, column[5]->rowCount());

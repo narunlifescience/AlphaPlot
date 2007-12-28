@@ -99,6 +99,11 @@ void AspectPrivate::setCaptionSpec(const QString &value)
 	d_caption_spec = value;
 }
 
+void AspectPrivate::setCreationTime(const QDateTime &time)
+{
+	d_creation_time = time;
+}
+
 int AspectPrivate::indexOfMatchingBrace(const QString &str, int start)
 {
 	int result = str.indexOf('}', start);

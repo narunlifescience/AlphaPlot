@@ -30,9 +30,11 @@
 #ifndef DATE_TIME2STRING_FILTER_H
 #define DATE_TIME2STRING_FILTER_H
 
-#include "../AbstractSimpleFilter.h"
+#include "AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <QRegExp>
+
+class DateTime2StringFilterSetFormatCmd;
 
 //! Conversion filter QDateTime -> QString.
 class DateTime2StringFilter : public AbstractSimpleFilter
@@ -43,7 +45,8 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		//! Standard constructor.
 		explicit DateTime2StringFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : d_format(format) {}
 		//! Set the format string to be used for conversion.
-		void setFormat(QString format) { d_format = format; }
+		void setFormat(const QString& format);
+
 		//! Return the format string
 		/**
 		 * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
@@ -55,6 +58,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
 
 	private:
+		friend class DateTime2StringFilterSetFormatCmd;
 		//! The format string.
 		QString d_format;
 
@@ -118,6 +122,19 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		virtual bool inputAcceptable(int, AbstractColumn *source) {
 			return source->dataType() == SciDAVis::TypeQDateTime;
 		}
+};
+
+class DateTime2StringFilterSetFormatCmd : public QUndoCommand
+{
+	public:
+		DateTime2StringFilterSetFormatCmd(shared_ptr<DateTime2StringFilter> target, const QString &new_format);
+
+		virtual void redo();
+		virtual void undo();
+
+	private:
+		shared_ptr<DateTime2StringFilter> d_target;
+		QString d_other_format;
 };
 
 #endif // ifndef DATE_TIME2STRING_FILTER_H

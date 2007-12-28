@@ -46,6 +46,7 @@ SOURCES += \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \
 			  SimpleMappingFilter.cpp \
+			  DateTime2StringFilter.cpp \
 
 
 # test cases

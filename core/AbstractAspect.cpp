@@ -162,6 +162,12 @@ void AbstractAspect::setCaptionSpec(const QString &value)
 	exec(new AspectCaptionSpecChangeCmd(d_aspect_private, value));
 }
 
+void AbstractAspect::setCreationTime(const QDateTime& time)
+{
+	if (time == d_aspect_private->creationTime()) return;
+	exec(new AspectCreationTimeChangeCmd(d_aspect_private, time));
+}
+
 QDateTime AbstractAspect::creationTime() const
 {
 	return d_aspect_private->creationTime();

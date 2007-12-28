@@ -31,10 +31,12 @@
 #define ABSTRACT_SIMPLE_FILTER
 
 #include <QtGlobal>
-#include "core/AbstractFilter.h"
-#include "core/AbstractColumn.h"
-#include "core/AbstractAspect.h"
-#include "lib/IntervalAttribute.h"
+#include "AbstractFilter.h"
+#include "AbstractColumn.h"
+#include "AbstractAspect.h"
+#include "IntervalAttribute.h"
+#include <QUndoCommand>
+#include <QUndoStack>
 
 #ifndef _NO_TR1_
 #include "tr1/memory" 

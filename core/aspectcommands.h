@@ -113,6 +113,28 @@ class AspectCaptionSpecChangeCmd : public QUndoCommand
 };
 
 
+class AspectCreationTimeChangeCmd : public QUndoCommand
+{
+	public:
+		AspectCreationTimeChangeCmd(AspectPrivate *target, const QDateTime &new_creation_time)
+			: d_target(target), d_other_creation_time(new_creation_time) {
+				setText(QObject::tr("%1: set creation time").arg(d_target->name()));
+			}
+
+		virtual void redo() {
+			QDateTime tmp = d_target->creationTime();
+			d_target->setCreationTime(d_other_creation_time);
+			d_other_creation_time = tmp;
+		}
+
+		virtual void undo() { redo(); }
+
+	private:
+		AspectPrivate *d_target;
+		QDateTime d_other_creation_time;
+};
+
+
 class AspectChildRemoveCmd : public QUndoCommand
 {
 	public:

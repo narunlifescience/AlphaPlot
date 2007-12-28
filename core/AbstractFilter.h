@@ -29,7 +29,8 @@
 #ifndef ABSTRACT_FILTER_H
 #define ABSTRACT_FILTER_H
 
-#include "core/AbstractColumn.h"
+#include "AbstractColumn.h"
+#include "AbstractAspect.h"
 #include <QVector>
 
 #ifndef _NO_TR1_
@@ -124,7 +125,7 @@ class AbstractFilter
 {
 	public:
 		//! Standard constructor.
-		AbstractFilter() : d_abstract_filter_wrapper(new AbstractFilterWrapper(this)) {}
+		AbstractFilter() : d_abstract_filter_wrapper(new AbstractFilterWrapper(this)) ,d_owner_aspect(0) {}
 		//! Destructor.
 		virtual ~AbstractFilter() { delete d_abstract_filter_wrapper; }
 
@@ -189,6 +190,24 @@ class AbstractFilter
 				if(d_inputs.at(i).get() == column) return i;
 			return -1;
 		}
+
+		//! Set the owner aspect
+		/*
+		 * This function allows to set an aspect owning the filter. 
+		 * By default this is a null pointer. The idea behind this
+		 * is to allow the filter to access the undo stack of the
+		 * owner aspect without having to inherit from AbstractAsepect.
+		 * Making every filter and aspect visible in the project
+		 * explorer will surely confuse the user. The intended 
+		 * approach therefore is to allow aspects to own a certain
+		 * number filters and manage a view for them.
+		 */
+		void setOwnerAspect(AbstractAspect * owner) { d_owner_aspect = owner; }
+		//! Return the owner aspect
+		/*
+		 * \sa setOwnerAspect()
+		 */
+		AbstractAspect * ownerAspect() { return d_owner_aspect; }
 
 	protected:
 		/**
@@ -302,6 +321,9 @@ class AbstractFilter
 	private:
 		friend class AbstractFilterWrapper;
 		AbstractFilterWrapper *d_abstract_filter_wrapper;
+
+	protected:
+		AbstractAspect *d_owner_aspect;
 
 };
 

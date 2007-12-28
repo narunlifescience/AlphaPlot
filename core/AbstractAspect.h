@@ -238,9 +238,9 @@ class AbstractAspect
 		/**
 		 * The caption is constructed by substituting some magic tokens in the specification:
 		 *
-		 * * %n - name()
-		 * * %c - comment()
-		 * * %t - creationTime()
+		 * - \%n - name()
+		 * - \%c - comment()
+		 * - \%t - creationTime()
 		 *
 		 * Additionally, you can use the construct %C{<text>}. <text> is only shown in the caption
 		 * if comment() is not empty (name and creation time should never be empty).
@@ -248,6 +248,13 @@ class AbstractAspect
 		 * The default caption specification is "%n%C{ - }%c".
 		 */
 		void setCaptionSpec(const QString &value);
+		//! Set the creation time
+		/**
+		 * The creation time will automatically be set when the aspect object
+		 * is created. This function is usually only needed when the aspect
+		 * is loaded from a file.
+		 */
+		void setCreationTime(const QDateTime& time);
 		//! Remove me from my parent's list of children.
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 		//! Show info about the aspect
