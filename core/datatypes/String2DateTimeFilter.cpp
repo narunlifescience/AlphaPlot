@@ -105,3 +105,67 @@ QDateTime String2DateTimeFilter::dateTimeAt(int row) const
 													// QDateTime::fromString("00:00","hh:mm");
 	return QDateTime(date_result, time_result);
 }
+
+void String2DateTimeFilter::save(QXmlStreamWriter * writer) const
+{
+	writer->writeStartElement("simple_filter");
+	writer->writeAttribute("filter_name", "String2DateTimeFilter");
+	writer->writeAttribute("format", format());
+	writer->writeEndElement();
+}
+
+bool String2DateTimeFilter::load(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	if(reader->isStartElement() && reader->name() == "simple_filter") 
+	{
+		QXmlStreamAttributes attribs = reader->attributes();
+		QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
+		if(str != "String2DateTimeFilter")
+			reader->raiseError(prefix+tr("incompatible filter type")+postfix);
+		else
+			setFormat(attribs.value(reader->namespaceUri().toString(), "format").toString());
+		reader->readNext(); // read the end element
+	}
+	else
+		reader->raiseError(prefix+tr("no simple filter element found")+postfix);
+
+	return !reader->error();
+}
+
+void String2DateTimeFilter::setFormat(const QString& format) 
+{ 
+	String2DateTimeFilterSetFormatCmd * cmd = new String2DateTimeFilterSetFormatCmd(shared_from_this(), format);
+	QUndoStack * stack;
+	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
+			stack->push(cmd);
+	else 
+	{
+		cmd->redo();
+		delete cmd;
+	}
+}
+
+String2DateTimeFilterSetFormatCmd::String2DateTimeFilterSetFormatCmd(shared_ptr<String2DateTimeFilter> target, const QString &new_format)
+	: d_target(target), d_other_format(new_format) 
+{
+	if(d_target->ownerAspect())
+		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->ownerAspect()->name()).arg(new_format));
+	else
+		setText(QObject::tr("set date-time format to %1").arg(new_format));
+}
+
+void String2DateTimeFilterSetFormatCmd::redo() 
+{
+	QString tmp = d_target->d_format;
+	d_target->d_format = d_other_format;
+	d_other_format = tmp;
+}
+
+void String2DateTimeFilterSetFormatCmd::undo() 
+{ 
+	redo(); 
+}
+

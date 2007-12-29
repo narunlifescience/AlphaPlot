@@ -47,6 +47,7 @@ SOURCES += \
 			  columncommands.cpp \
 			  SimpleMappingFilter.cpp \
 			  DateTime2StringFilter.cpp \
+			  Double2StringFilter.cpp \
 
 
 # test cases

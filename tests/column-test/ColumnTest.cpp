@@ -6,6 +6,7 @@
 #include "SimpleMappingFilter.h"
 #include "Double2StringFilter.h"
 #include "DateTime2StringFilter.h"
+#include "String2DateTimeFilter.h"
 #include <QtGlobal>
 #include <QLocale>
 #include <QtDebug>
@@ -713,6 +714,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			// initialization
 			column[0]->setValueAt(0, 100.1);
 			column[0]->setValueAt(1, 200.2);
+			dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->setNumericFormat('g');
 			column[1]->setPlotDesignation(SciDAVis::X);
 			column[1]->setMasked(2);
 			column[2]->setTextAt(0,"foo foo");
@@ -722,6 +724,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[4]->setDateTimeAt(0, QDateTime());
 			column[4]->setDateTimeAt(1, QDateTime());
 			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("yyyy-MM-dd");
+			dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->setFormat("yyyy-MM-dd");
 			column[5]->setPlotDesignation(SciDAVis::Z);
 			column[5]->setMasked(2);
 			column[1]->setFormula(Interval<int>(0,20), "foo bar");
@@ -864,8 +867,12 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[5]->replaceDateTimes(2, dtlist);
 			undoTestInternal();
 
-			// test undo for DateTime2StringFilter
+			// test undo for input/output filters
 			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("dd.MM.yyyy");
+			undoTestInternal();
+			dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->setFormat("dd.MM.yyyy");
+			undoTestInternal();
+			dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->setNumericFormat('e');
 			undoTestInternal();
 
 		}
@@ -873,6 +880,8 @@ class ColumnTest : public CppUnit::TestFixture {
 		void undoTestInternal()
 		{
 			QUndoStack * us = column[0]->undoStack();
+
+			// qDebug() << "cmd to be undone: " << us->undoText();
 
 			us->undo();
 			undoTestInternal2();
@@ -921,8 +930,10 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(16),  QString("foo bar bla"));
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(20),  QString("foo bar bla"));
 
-			// check column 4
+			// check input/output filters
+			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->format());
 			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->format());
+			CPPUNIT_ASSERT_EQUAL('g', dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->numericFormat());
 
 			// check column 5
 			CPPUNIT_ASSERT_EQUAL(3, column[5]->rowCount());

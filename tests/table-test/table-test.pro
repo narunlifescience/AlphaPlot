@@ -67,7 +67,6 @@ SOURCES += \
 			  AbstractAspect.cpp \
 			  AspectPrivate.cpp \
 			  globals.cpp \
-			  String2DateTimeFilter.cpp \
 			  AbstractFilter.cpp \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
@@ -90,6 +89,9 @@ SOURCES += \
 			  TableDoubleHeaderView.cpp \
 			  TableCommentsHeaderModel.cpp  \
 			  SimpleMappingFilter.cpp \
+			  DateTime2StringFilter.cpp \
+			  String2DateTimeFilter.cpp \
+			  Double2StringFilter.cpp \
 		
 
 

@@ -87,34 +87,9 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		//! \name XML related functions
 		//@{
 		//! Save the column as XML
-		virtual void save(QXmlStreamWriter * writer) const
-		{
-			writer->writeStartElement("simple_filter");
-			writer->writeAttribute("filter_name", "DateTime2StringFilter");
-			writer->writeAttribute("format", format());
-			writer->writeEndElement();
-		}
+		virtual void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
-		{
-			QString prefix(tr("XML read error: ","prefix for XML error messages"));
-			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
-			if(reader->isStartElement() && reader->name() == "simple_filter") 
-			{
-				QXmlStreamAttributes attribs = reader->attributes();
-				QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
-				if(str != "DateTime2StringFilter")
-					reader->raiseError(prefix+tr("incompatible filter type")+postfix);
-				else
-					setFormat(attribs.value(reader->namespaceUri().toString(), "format").toString());
-				reader->readNext(); // read the end element
-			}
-			else
-				reader->raiseError(prefix+tr("no simple filter element found")+postfix);
-
-			return !reader->error();
-		}
+		virtual bool load(QXmlStreamReader * reader);
 		//@}
 
 	protected:

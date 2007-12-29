@@ -52,7 +52,7 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		//! Standard constructor.
 		explicit String2DateTimeFilter(QString format="yyyy-MM-dd hh:mm:ss.zzz") : d_format(format) {}
 		//! Set the format string to be used for conversion.
-		void setFormat(QString format) { d_format = format; }
+		void setFormat(const QString& format);
 		//! Return the format string
 		/**
 		 * The default format string is "yyyy-MM-dd hh:mm:ss.zzz".
@@ -66,37 +66,13 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		//! \name XML related functions
 		//@{
 		//! Save the column as XML
-		virtual void save(QXmlStreamWriter * writer) const
-		{
-			writer->writeStartElement("simple_filter");
-			writer->writeAttribute("filter_name", "String2DateTimeFilter");
-			writer->writeAttribute("format", format());
-			writer->writeEndElement();
-		}
+		virtual void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
-		{
-			QString prefix(tr("XML read error: ","prefix for XML error messages"));
-			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
-			if(reader->isStartElement() && reader->name() == "simple_filter") 
-			{
-				QXmlStreamAttributes attribs = reader->attributes();
-				QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
-				if(str != "String2DateTimeFilter")
-					reader->raiseError(prefix+tr("incompatible filter type")+postfix);
-				else
-					setFormat(attribs.value(reader->namespaceUri().toString(), "format").toString());
-				reader->readNext(); // read the end element
-			}
-			else
-				reader->raiseError(prefix+tr("no simple filter element found")+postfix);
-
-			return !reader->error();
-		}
+		virtual bool load(QXmlStreamReader * reader);
 		//@}
 
 	private:
+		friend class String2DateTimeFilterSetFormatCmd;
 		//! The format string.
 		QString d_format;
 
@@ -113,6 +89,19 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		virtual bool inputAcceptable(int, AbstractColumn *source) {
 			return source->dataType() == SciDAVis::TypeQString;
 		}
+};
+
+class String2DateTimeFilterSetFormatCmd : public QUndoCommand
+{
+	public:
+		String2DateTimeFilterSetFormatCmd(shared_ptr<String2DateTimeFilter> target, const QString &new_format);
+
+		virtual void redo();
+		virtual void undo();
+
+	private:
+		shared_ptr<String2DateTimeFilter> d_target;
+		QString d_other_format;
 };
 
 #endif // ifndef STRING2DATE_TIME_FILTER_H

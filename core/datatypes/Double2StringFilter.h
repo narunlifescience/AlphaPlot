@@ -42,9 +42,9 @@ class Double2StringFilter : public AbstractSimpleFilter
 		//! Standard constructor.
 		explicit Double2StringFilter(char format='e', int digits=6) : d_format(format), d_digits(digits) {}
 		//! Set format character as in QString::number
-		void setNumericFormat(char format) { d_format = format; }
+		void setNumericFormat(char format);
 		//! Set number of displayed digits
-		void setNumDigits(int digits) { d_digits = digits; }
+		void setNumDigits(int digits);
 		//! Get format character as in QString::number
 		char numericFormat() const { return d_format; }
 		//! Get number of displayed digits
@@ -54,6 +54,8 @@ class Double2StringFilter : public AbstractSimpleFilter
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
 
 	private:
+		friend class Double2StringFilterSetFormatCmd;
+		friend class Double2StringFilterSetDigitsCmd;
 		//! Format character as in QString::number 
 		char d_format;
 		//! Display digits or precision as in QString::number  
@@ -63,48 +65,9 @@ class Double2StringFilter : public AbstractSimpleFilter
 		//! \name XML related functions
 		//@{
 		//! Save the column as XML
-		virtual void save(QXmlStreamWriter * writer) const
-		{
-			writer->writeStartElement("simple_filter");
-			writer->writeAttribute("filter_name", "Double2StringFilter");
-			writer->writeAttribute("format", QString(QChar(numericFormat())));
-			writer->writeAttribute("digits", QString::number(numDigits()));
-			writer->writeEndElement();
-		}
+		virtual void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
-		{
-			QString prefix(tr("XML read error: ","prefix for XML error messages"));
-			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
-			if(reader->isStartElement() && reader->name() == "simple_filter") 
-			{
-				QXmlStreamAttributes attribs = reader->attributes();
-				QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
-				if(str != "Double2StringFilter")
-					reader->raiseError(prefix+tr("incompatible filter type")+postfix);
-				
-				if(!reader->error())
-				{
-					QString format_str = attribs.value(reader->namespaceUri().toString(), "format").toString();
-					QString digits_str = attribs.value(reader->namespaceUri().toString(), "digits").toString();
-					bool ok;
-					int digits = digits_str.toInt(&ok);
-					if( (format_str.size() != 1) || !ok )
-						reader->raiseError(prefix+tr("missing format attribute(s)")+postfix);
-					else
-					{
-						setNumericFormat( format_str.at(0).toAscii() );
-						setNumDigits( digits );
-					}
-				}
-				reader->readNext(); // read the end element
-			}
-			else
-				reader->raiseError(prefix+tr("no simple filter element found")+postfix);
-
-			return !reader->error();
-		}
+		virtual bool load(QXmlStreamReader * reader);
 		//@}
 
 	public:
@@ -120,6 +83,33 @@ class Double2StringFilter : public AbstractSimpleFilter
 			return source->dataType() == SciDAVis::TypeDouble;
 		}
 };
+
+class Double2StringFilterSetFormatCmd : public QUndoCommand
+{
+	public:
+		Double2StringFilterSetFormatCmd(shared_ptr<Double2StringFilter> target, char new_format);
+
+		virtual void redo();
+		virtual void undo();
+
+	private:
+		shared_ptr<Double2StringFilter> d_target;
+		char d_other_format;
+};
+
+class Double2StringFilterSetDigitsCmd : public QUndoCommand
+{
+	public:
+		Double2StringFilterSetDigitsCmd(shared_ptr<Double2StringFilter> target, int new_digits);
+
+		virtual void redo();
+		virtual void undo();
+
+	private:
+		shared_ptr<Double2StringFilter> d_target;
+		int d_other_digits;
+};
+
 
 #endif // ifndef DOUBLE2STRING_FILTER_H
 
