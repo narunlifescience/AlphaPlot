@@ -28,9 +28,9 @@
  ***************************************************************************/
 #include <QApplication>
 #include <QAction>
-#include "ApplicationWindow.h"
 #include <QSplashScreen>
 #include <QTimer>
+#include "Project.h"
 
 // The following stuff is for the doxygen title page
 /*!  \mainpage SciDAVis - Scientific Data Analysis and Visualization - API documentation
@@ -127,6 +127,19 @@ int main( int argc, char ** argv )
 {
     QApplication app( argc, argv );
 
+	// show splash screen
+	QSplashScreen *splash = new QSplashScreen(QPixmap(":/appsplash"));
+	splash->show();
+	QTimer *timer = new QTimer(&app);
+	app.connect( timer, SIGNAL(timeout()), splash, SLOT(close()) );
+	app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
+	timer->start(5000); // autoclose after 5 seconds
+
+	// create initial empty project
+	shared_ptr<Project> p(new Project());
+	p->view()->showMaximized();
+
+#if 0
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name
 
@@ -153,6 +166,8 @@ int main( int argc, char ** argv )
 		}
 		mw->parseCommandLineArguments(args);
 	}
+#endif
+
 	app.connect( &app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()) );
 	return app.exec();
 }

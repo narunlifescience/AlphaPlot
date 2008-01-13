@@ -29,8 +29,7 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-// TODO: replace old Folder.{h,cpp} in core
-#include "../aspect-test/Folder.h"
+#include "Folder.h"
 
 #ifndef _NO_TR1_
 #include "tr1/memory"

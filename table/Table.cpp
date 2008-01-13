@@ -88,7 +88,7 @@ using boost::dynamic_pointer_cast;
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractAspect(name), scripted(engine), d_plot_menu(0), d_default_comment_visibility(false)
+: AbstractAspect(name), d_plot_menu(0), d_default_comment_visibility(false)// TODO:, scripted(engine)
 {
 	d_model = new TableModel(this);
 	connect(d_model, SIGNAL(requestResize(int)),

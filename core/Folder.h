@@ -2,9 +2,10 @@
     File                 : Folder.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Folder for the project explorer
+    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
+                           Knut Franke
+    Email (use @ for *)  : thzs*gmx.net, knut.franke*gmx.de
+    Description          : Folder in a project
 
  ***************************************************************************/
 
@@ -29,187 +30,29 @@
 #ifndef FOLDER_H
 #define FOLDER_H
 
-#include <qobject.h>
-#include <q3listview.h>
-#include <q3iconview.h>
-//Added by qt3to4:
-#include <QDragEnterEvent>
-#include <QMouseEvent>
-#include <QDragLeaveEvent>
-#include <QDragMoveEvent>
-#include <QKeyEvent>
-#include <QEvent>
-#include <QDropEvent>
-#include <Q3PtrList>
+#include "AbstractAspect.h"
 
-#include "MyWidget.h"
-
-class FolderListItem;
-class Table;
-class Matrix;
-class Graph;
-class Note;
-
-class QDragEnterEvent;
-class QDragMoveEvent;
-class QDragLeaveEvent;
-class QDropEvent;
-class Q3DragObject;
-
-//! Folder for the project explorer
-class Folder : public QObject
+//! Folder in a project
+class Folder : public QObject, public AbstractAspect
 {
-    Q_OBJECT
+	Q_OBJECT
 
-public:
-    Folder( Folder *parent, const QString &name );
+	public:
+		Folder(const QString &name)
+			: AbstractAspect(name) {}
 
-	QList<MyWidget *> windowsList(){return lstWindows;};
+		//! Currently, Folder does not have a default view (returns 0).
+		virtual QWidget *view(QWidget *parent_widget = 0) {
+			Q_UNUSED(parent_widget);
+			return 0;
+		}
 
-    void addWindow( MyWidget *w ){ lstWindows.append( w );};
-	void removeWindow( MyWidget *w ){ lstWindows.takeAt( lstWindows.indexOf(w) );};
+		//! See QMetaObject::className().
+		virtual const char* className() const { return metaObject()->className(); }
+		//! See QObject::inherits().
+		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
-	//! The list of subfolder names, including first generation children only
-	QStringList subfolders();
-
-	//! The list of subfolders
-	QList<Folder*> folders();
-
-	//! Pointer to the subfolder called s
-	Folder* findSubfolder(const QString& s, bool caseSensitive = true, bool partialMatch = false);
-
-	//! Pointer to the first window matching the search criteria
-	MyWidget* findWindow(const QString& s, bool windowNames, bool labels,
-							 bool caseSensitive, bool partialMatch);
-
-	//! get a window by name
-	  /**
-	   * Returns the first window with given name that inherits class cls;
-	   * NULL on failure. If recursive is true, do a depth-first recursive
-	   * search.
-	   */
-	MyWidget *window(const QString &name, const char *cls="myWidget", bool recursive=false);
-	//! Return table named name or NULL
-	Table *table(const QString &name, bool recursive=false) { return (Table*) window(name, "Table", recursive); }
-	//! Return matrix named name or NULL
-	Matrix *matrix(const QString &name, bool recursive=false) { return (Matrix*) window(name, "Matrix", recursive); }
-	//! Return graph named name or NULL
-	Graph *graph(const QString &name, bool recursive=false) { return (Graph*) window(name, "Graph", recursive); }
-	//! Return note named name or NULL
-	Note *note(const QString &name, bool recursive=false) { return (Note*) window(name, "Note", recursive); }
-
-	//! The complete path of the folder in the project tree
-	QString path();
-
-	//! The root of the hierarchy this folder belongs to.
-	Folder* rootFolder();
-
-	QString birthDate(){return birthdate;};
-	void setBirthDate(const QString& s){birthdate = s;};
-
-	QString modificationDate(){return modifDate;};
-	void setModificationDate(const QString& s){modifDate = s;};
-
-	//! Pointer to the corresponding QListViewItem in the main application
-	FolderListItem * folderListItem(){return myFolderListItem;};
-	void setFolderListItem(FolderListItem *it){myFolderListItem = it;};
-
-    MyWidget *activeWindow(){return d_active_window;};
-    void setActiveWindow(MyWidget *w){d_active_window = w;};
-
-protected:
-    QString birthdate, modifDate;
-    QList<MyWidget *> lstWindows;
-	FolderListItem *myFolderListItem;
-
-	//! Pointer to the active window in the folder
-	MyWidget *d_active_window;
+		virtual QIcon icon() const;
 };
 
-/*****************************************************************************
- *
- * Class WindowListItem
- *
- *****************************************************************************/
-//! Windows list item class
-class WindowListItem : public Q3ListViewItem
-{
-public:
-    WindowListItem( Q3ListView *parent, MyWidget *w );
-
-    MyWidget *window() { return myWindow; };
-
-protected:
-    MyWidget *myWindow;
-};
-
-/*****************************************************************************
- *
- * Class FolderListItem
- *
- *****************************************************************************/
-//! Folders list item class
-class FolderListItem : public Q3ListViewItem
-{
-public:
-    FolderListItem( Q3ListView *parent, Folder *f );
-    FolderListItem( FolderListItem *parent, Folder *f );
-
-	enum {RTTI = 1001};
-
-	void setActive( bool o );
-
-	virtual int rtti() const {return (int)RTTI;};
-
-    Folder *folder() { return myFolder; };
-
-	//! Checks weather the folder item is a grandchild of the source folder
-	/**
-	 * \param src source folder item
-	 */
-	bool isChildOf(FolderListItem *src);
-
-protected:
-    Folder *myFolder;
-};
-
-/*****************************************************************************
- *
- * Class FolderListView
- *
- *****************************************************************************/
-//! Folder list view class
-class FolderListView : public Q3ListView
-{
-    Q_OBJECT
-
-public:
-    FolderListView( QWidget *parent = 0, const char *name = 0 );
-
-public slots:
-	void adjustColumns();
-
-protected:
-	void startDrag();
-
-    void contentsDropEvent( QDropEvent *e );
-    void contentsMouseMoveEvent( QMouseEvent *e );
-    void contentsMousePressEvent( QMouseEvent *e );
-	void contentsMouseDoubleClickEvent( QMouseEvent* e );
-	void keyPressEvent ( QKeyEvent * e );
-    void contentsMouseReleaseEvent( QMouseEvent *){mousePressed = false;};
-	void enterEvent(QEvent *){mousePressed = false;};
-
-signals:
-	void dragItems(QList<Q3ListViewItem *> items);
-	void dropItems(Q3ListViewItem *dest);
-	void renameItem(Q3ListViewItem *item);
-	void addFolderItem();
-	void deleteSelection();
-
-private:
-	bool mousePressed;
-	QPoint presspos;
-};
-
-#endif
+#endif // ifndef FOLDER_H

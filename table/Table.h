@@ -75,7 +75,7 @@ can be passed to the rest of the application. All operations of Column have undo
 columns notify TableModel of any changes to them.
 </ul>
 */
-class Table: public QObject, public AbstractAspect, public scripted
+class Table: public QObject, public AbstractAspect// TODO:, public scripted
 {
 	Q_OBJECT
 

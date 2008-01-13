@@ -3,6 +3,8 @@
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+                           some parts written 2004-2007 by Ion Vasilief
+                           (from former ApplicationWindow class)
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
 
@@ -34,6 +36,11 @@
 
 class Project;
 class QMdiArea;
+class QToolBar;
+class QMenu;
+class ProjectExplorer;
+class QUndoView;
+class QToolButton;
 
 //! Standard view on a Project; main window.
 class ProjectWindow : public QMainWindow
@@ -44,13 +51,54 @@ class ProjectWindow : public QMainWindow
 		ProjectWindow(shared_ptr<Project> project);
 		~ProjectWindow();
 	
+	protected:
+		//! \name Initialization
+		//@{
+		void init();
+		void initDockWidgets();
+		void initToolBars();
+		void initMenus();
+		void initActions();
+		//@}
+	
 	public slots:
 		void aspectAdded(AbstractAspect *parent, int index);
 		void aspectDescriptionChanged(AbstractAspect *aspect);
+		void addNewTable();
 
 	private:
 		shared_ptr<Project> d_project;
-		QMdiArea * d_mdi;
+		QMdiArea * d_mdi_area;
+
+		struct {
+		QToolBar 
+			*file;
+		} d_toolbars;
+
+		struct {
+		QMenu 
+			*file,
+			*edit,
+			*new_aspect;
+		} d_menus;
+		
+		struct {
+		QAction 
+			*quit,
+			*undo,
+			*redo,
+			*new_table;
+		} d_actions;
+
+		struct {
+		QToolButton 
+			*new_aspect;
+		} d_buttons;
+		
+		QDockWidget * d_project_explorer_dock;
+		ProjectExplorer * d_project_explorer;
+		QDockWidget * d_history_dock;
+		QUndoView * d_undo_view;
 };
 
 #endif // ifndef PROJECT_WINDOW_H
