@@ -102,9 +102,9 @@ Double2StringFilterSetFormatCmd::Double2StringFilterSetFormatCmd(shared_ptr<Doub
 	: d_target(target), d_other_format(new_format) 
 {
 	if(d_target->ownerAspect())
-		setText(QObject::tr("%1: set numeric format to %2").arg(d_target->ownerAspect()->name()).arg(new_format));
+		setText(QObject::tr("%1: set numeric format to '%2'").arg(d_target->ownerAspect()->name()).arg(new_format));
 	else
-		setText(QObject::tr("set numeric format to %1").arg(new_format));
+		setText(QObject::tr("set numeric format to '%1'").arg(new_format));
 }
 
 void Double2StringFilterSetFormatCmd::redo() 
@@ -112,6 +112,7 @@ void Double2StringFilterSetFormatCmd::redo()
 	char tmp = d_target->d_format;
 	d_target->d_format = d_other_format;
 	d_other_format = tmp;
+	emit d_target->formatChanged();
 }
 
 void Double2StringFilterSetFormatCmd::undo() 
@@ -133,6 +134,7 @@ void Double2StringFilterSetDigitsCmd::redo()
 	int tmp = d_target->d_digits;
 	d_target->d_digits = d_other_digits;
 	d_other_digits = tmp;
+	emit d_target->formatChanged();
 }
 
 void Double2StringFilterSetDigitsCmd::undo() 

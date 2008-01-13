@@ -100,6 +100,14 @@ class TableView : public QWidget
 		void selectAll();
 		void toggleOptionTabBar();
 		void toggleComments();
+		void currentColumnChanged(const QModelIndex & current, const QModelIndex & previous);
+		void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+		void showOptionsDescriptionTab();
+		void showOptionsTypeTab();
+		void showOptionsFormulaTab();
+		void applyDescription();
+		void applyType();
+
 
 	signals:
 		void requestContextMenu(TableView * view, const QPoint& pos);
@@ -122,6 +130,8 @@ class TableView : public QWidget
 		void advanceCell();
 		void emitContextMenuRequest(const QPoint& pos);
 		void horizontalSectionMovedHandler(int index, int from, int to);
+		void updateTypeInfo();
+		void updateFormatBox();
 
 	protected:
 		//! Pointer to the item delegate

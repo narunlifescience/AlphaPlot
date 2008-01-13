@@ -39,9 +39,7 @@
 #include "core/datatypes/String2DateTimeFilter.h"
 #include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/String2MonthFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/String2DayOfWeekFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include "core/datatypes/DayOfWeek2DoubleFilter.h"
 #include "core/datatypes/Month2DoubleFilter.h"
@@ -58,6 +56,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 		case SciDAVis::Numeric:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DoubleFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new Double2StringFilter());
+			connect(static_cast<Double2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeDouble;
 			d_data = new QVector<double>();
 			break;
@@ -73,6 +73,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 		case SciDAVis::DateTime:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DateTimeFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -80,6 +82,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2MonthFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(d_output_filter.get())->setFormat("MMMM");
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -87,6 +91,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DayOfWeekFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(d_output_filter.get())->setFormat("dddd");
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -115,6 +121,8 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 		case SciDAVis::Numeric:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DoubleFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new Double2StringFilter());
+			connect(static_cast<Double2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Text:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new SimpleCopyThroughFilter());
@@ -126,16 +134,22 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 		case SciDAVis::DateTime:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DateTimeFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Month:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2MonthFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(d_output_filter.get())->setFormat("MMMM");
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Day:
 			d_input_filter = shared_ptr<AbstractSimpleFilter>(new String2DayOfWeekFilter());
 			d_output_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(d_output_filter.get())->setFormat("dddd");
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 	} // switch(mode)
 
@@ -185,6 +199,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	switch(d_column_mode)
 	{
 		case SciDAVis::Numeric:
+			disconnect(static_cast<Double2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			switch(mode)
 			{		
 				case SciDAVis::Numeric:
@@ -257,6 +273,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		case SciDAVis::DateTime:
 		case SciDAVis::Month:
 		case SciDAVis::Day:
+			disconnect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			switch(mode)
 			{		
 				case SciDAVis::Date:
@@ -294,6 +312,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		case SciDAVis::Numeric:
 			new_in_filter = shared_ptr<AbstractSimpleFilter>(new String2DoubleFilter());
 			new_out_filter = shared_ptr<AbstractSimpleFilter>(new Double2StringFilter());
+			connect(static_cast<Double2StringFilter *>(new_out_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Text:
 			new_in_filter = shared_ptr<AbstractSimpleFilter>(new SimpleCopyThroughFilter());
@@ -304,16 +324,22 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		case SciDAVis::DateTime:
 			new_in_filter = shared_ptr<AbstractSimpleFilter>(new String2DateTimeFilter());
 			new_out_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
+			connect(static_cast<DateTime2StringFilter *>(new_out_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Month:
 			new_in_filter = shared_ptr<AbstractSimpleFilter>(new String2MonthFilter());
 			new_out_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(new_out_filter.get())->setFormat("MMMM");
+			connect(static_cast<DateTime2StringFilter *>(new_out_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Day:
 			new_in_filter = shared_ptr<AbstractSimpleFilter>(new String2DayOfWeekFilter());
 			new_out_filter = shared_ptr<AbstractSimpleFilter>(new DateTime2StringFilter());
 			static_cast<DateTime2StringFilter *>(new_out_filter.get())->setFormat("dddd");
+			connect(static_cast<DateTime2StringFilter *>(new_out_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
 			break;
 	} // switch(mode)
 
@@ -342,6 +368,21 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 	shared_ptr<AbstractSimpleFilter> in_filter, shared_ptr<AbstractSimpleFilter> out_filter, IntervalAttribute<bool> validity)
 {
 	if(d_owner_sender) emit d_owner_sender->modeAboutToChange(d_owner);
+	// disconnect formatChanged()
+	switch(d_column_mode)
+	{
+		case SciDAVis::Numeric:
+			disconnect(static_cast<Double2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
+		case SciDAVis::Date:
+		case SciDAVis::Time:
+		case SciDAVis::DateTime:
+		case SciDAVis::Month:
+		case SciDAVis::Day:
+			disconnect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
+	}
+
 	d_column_mode = mode;
 	if(mode == SciDAVis::Date || mode == SciDAVis::Time) // these values are obsolete	
 		d_column_mode = SciDAVis::DateTime;
@@ -353,6 +394,24 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 	d_output_filter = out_filter;
 	d_input_filter->setOwnerAspect(d_owner);
 	d_output_filter->setOwnerAspect(d_owner);
+
+	// connect formatChanged()
+	switch(d_column_mode)
+	{		
+		case SciDAVis::Numeric:
+			connect(static_cast<Double2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
+			break;
+		case SciDAVis::Date:
+		case SciDAVis::Time:
+		case SciDAVis::DateTime:
+		case SciDAVis::Month:
+		case SciDAVis::Day:
+			connect(static_cast<DateTime2StringFilter *>(d_output_filter.get()), SIGNAL(formatChanged()),
+				this, SLOT(notifyDisplayChange()));
+			break;
+	} 
+
 	d_validity = validity;
 	if(d_owner_sender) emit d_owner_sender->modeChanged(d_owner);
 }
@@ -777,4 +836,10 @@ void ColumnPrivate::setColumnLabel(const QString& label)
 void ColumnPrivate::setColumnComment(const QString& comment)
 { 
 	d_owner->setComment(comment);
+}
+
+void ColumnPrivate::notifyDisplayChange()
+{
+	if(d_owner_sender) emit d_owner_sender->dataChanged(d_owner); // all cells must be repainted
+	if(d_owner_sender) emit d_owner_sender->descriptionChanged(d_owner); // the icon for the type changed
 }

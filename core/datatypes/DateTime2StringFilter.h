@@ -57,6 +57,9 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
 
+	signals:
+		void formatChanged();
+
 	private:
 		friend class DateTime2StringFilterSetFormatCmd;
 		//! The format string.

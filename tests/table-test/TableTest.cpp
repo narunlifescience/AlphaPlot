@@ -198,6 +198,7 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, table->column(temp)->columnMode());
 			table->clear();
 			table->clearMasks();
+			table->setRowCount(4096);
 
 			app->exec();
 		}

@@ -97,8 +97,9 @@ bool AbstractFilter::input(int port, shared_ptr<AbstractColumn> source)
 {
 	if (port<0 || (inputCount()>=0 && port>=inputCount())) return false;
 	if (source && !inputAcceptable(port, source.get())) return false;
-	if (d_inputs.size() <= port) d_inputs.resize(port+1);
+	if (port >= d_inputs.size()) d_inputs.resize(port+1);
 	shared_ptr<AbstractColumn> old_input = d_inputs.value(port);
+	if (source == old_input) return true;
 	if (old_input) 
 	{
 		old_input->abstractColumnSignalEmitter()->disconnect(d_abstract_filter_wrapper); // disconnect all signals

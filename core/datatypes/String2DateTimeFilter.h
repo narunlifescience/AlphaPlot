@@ -71,6 +71,9 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		virtual bool load(QXmlStreamReader * reader);
 		//@}
 
+	signals:
+		void formatChanged();
+
 	private:
 		friend class String2DateTimeFilterSetFormatCmd;
 		//! The format string.

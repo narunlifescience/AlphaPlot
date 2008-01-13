@@ -80,8 +80,7 @@ void TableView::init(TableModel * model)
 	d_main_layout->addWidget(d_view);
 
 	d_options_bar = new QWidget();
-	d_main_layout->addWidget(d_options_bar);
-	d_sub_layout =  new QVBoxLayout(d_options_bar);
+	d_sub_layout = new QVBoxLayout(d_options_bar);
 	d_sub_layout->setSpacing(0);
 	d_sub_layout->setContentsMargins(0, 0, 0, 0);
 	d_hide_button = new QToolButton();
@@ -94,11 +93,14 @@ void TableView::init(TableModel * model)
     ui.setupUi(d_options_tabs);
 	d_tool_box = new QScrollArea();
 	d_tool_box->setWidget(d_options_tabs);
+	d_options_tabs->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	d_tool_box->setWidgetResizable(true);
 	d_sub_layout->addWidget(d_tool_box);
 
 	d_delegate = new TableItemDelegate(d_view);
 	d_view->setItemDelegate(d_delegate);
 	
+	d_main_layout->addWidget(d_options_bar);
 	d_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	d_main_layout->setStretchFactor(d_view, 1);
 
@@ -132,7 +134,21 @@ void TableView::init(TableModel * model)
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view);
 	connect(sel_all, SIGNAL(activated()), d_view, SLOT(selectAll()));
 
+	connect(ui.type_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatBox()));
+	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
+	connect(ui.digits_box, SIGNAL(valueChanged(int)), this, SLOT(updateTypeInfo()));
 	retranslateStrings();
+
+	QItemSelectionModel * sel_model = model->selectionModel();
+
+	connect(sel_model, SIGNAL(currentColumnChanged(const QModelIndex&, const QModelIndex&)), 
+		this, SLOT(currentColumnChanged(const QModelIndex&, const QModelIndex&)));
+	connect(sel_model, SIGNAL(selectionChanged(const QItemSelection&,const QItemSelection&)),
+		this, SLOT(selectionChanged(const QItemSelection&,const QItemSelection&)));
+	connect(ui.button_set_description, SIGNAL(pressed()), 
+		this, SLOT(applyDescription()));
+	connect(ui.button_set_type, SIGNAL(pressed()),
+		this, SLOT(applyType()));
 }
 
 void TableView::changeEvent(QEvent * event)
@@ -147,6 +163,18 @@ void TableView::retranslateStrings()
 {
 	d_hide_button->setToolTip(tr("Show/hide options"));
     ui.retranslateUi(d_tool_box);
+
+	ui.type_box->clear();
+	ui.type_box->addItem(tr("Numeric"), QVariant(int(SciDAVis::Numeric)));
+	ui.type_box->addItem(tr("Text"), QVariant(int(SciDAVis::Text)));
+	ui.type_box->addItem(tr("Month names"), QVariant(int(SciDAVis::Month)));
+	ui.type_box->addItem(tr("Day names"), QVariant(int(SciDAVis::Day)));
+	ui.type_box->addItem(tr("Date and time"), QVariant(int(SciDAVis::DateTime)));
+
+	ui.type_box->setCurrentIndex(0);
+
+	// TODO: implement formula stuff
+	ui.formula_info->document()->setPlainText("not implemented yet");
 }
 	
 TableView::~TableView() 
@@ -273,3 +301,217 @@ void TableView::showComments(bool on)
 	d_horizontal_header->showComments(on);
 }
 
+void TableView::currentColumnChanged(const QModelIndex & current, const QModelIndex & previous)
+{
+	Q_UNUSED(previous);
+	int col = current.column();	
+	if(col < 0 || col >= d_model->columnCount()) return;
+	shared_ptr<Column> col_ptr = d_model->column(col);
+
+	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
+		.arg(col_ptr->columnLabel()).arg(col+1);
+		
+	ui.column_info->document()->setPlainText(str);
+	ui.name_edit->setText(col_ptr->columnLabel());
+	ui.comment_box->document()->setPlainText(col_ptr->columnComment());
+}
+
+void TableView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
+{
+	
+
+}
+
+void TableView::updateFormatBox()
+{
+	int type_index = ui.type_box->currentIndex();
+	if(type_index < 0) return; // should never happen
+	ui.format_box->clear();
+	ui.digits_box->setEnabled(false);
+	switch(ui.type_box->itemData(type_index).toInt())
+	{
+		case SciDAVis::Numeric:
+			ui.digits_box->setEnabled(true);
+			ui.format_box->addItem(tr("Decimal"), QVariant('f'));
+			ui.format_box->addItem(tr("Scientific"), QVariant('E'));
+			break;
+		case SciDAVis::Text:
+			ui.format_box->addItem(tr("Text"), QVariant());
+			break;
+		case SciDAVis::Month:
+			ui.format_box->addItem(tr("Number without leading zero"), QVariant("M"));
+			ui.format_box->addItem(tr("Number with leading zero"), QVariant("MM"));
+			ui.format_box->addItem(tr("Abbreviated month name"), QVariant("MMM"));
+			ui.format_box->addItem(tr("Full month name"), QVariant("MMMM"));
+			break;
+		case SciDAVis::Day:
+			ui.format_box->addItem(tr("Number without leading zero"), QVariant("d"));
+			ui.format_box->addItem(tr("Number with leading zero"), QVariant("dd"));
+			ui.format_box->addItem(tr("Abbreviated day name"), QVariant("ddd"));
+			ui.format_box->addItem(tr("Full day name"), QVariant("dddd"));
+			break;
+		case SciDAVis::DateTime:
+			{
+				// TODO: allow adding of the combo box entries here
+				const char * date_strings[] = {
+					"yyyy-MM-dd", 	
+					"yyyy/MM/dd", 
+					"dd/MM/yyyy", 
+					"dd/MM/yy", 
+					"dd.MM.yyyy", 	
+					"dd.MM.yy",
+					"MM/yyyy",
+					"dd.MM.", 
+					"yyyyMMdd",
+					0
+				};
+
+				const char * time_strings[] = {
+					"hh",
+					"hh ap",
+					"hh:mm",
+					"hh:mm ap",
+					"hh:mm:ss",
+					"hh:mm:ss.zzz",
+					"hh:mm:ss:zzz",
+					"mm:ss.zzz",
+					"hhmmss",
+					0
+				};
+				int j,i;
+				for(i=0; date_strings[i] != 0; i++)
+					ui.format_box->addItem(QString(date_strings[i]), QVariant(date_strings[i]));
+				for(j=0; time_strings[j] != 0; j++)
+					ui.format_box->addItem(QString(time_strings[j]), QVariant(time_strings[j]));
+				for(i=0; date_strings[i] != 0; i++)
+					for(j=0; time_strings[j] != 0; j++)
+						ui.format_box->addItem(QString("%1 %2").arg(date_strings[i]).arg(time_strings[j]), 
+							QVariant(QString(date_strings[i]) + " " + QString(time_strings[j])));
+				break;
+			}
+		default:
+			ui.format_box->addItem(QString()); // just for savety to have at least one item in any case
+	}
+	ui.format_box->setCurrentIndex(0);
+}
+
+void TableView::updateTypeInfo()
+{
+	int format_index = ui.format_box->currentIndex();
+	int type_index = ui.type_box->currentIndex();
+
+	QString str = tr("Selected column type:\n");
+	if(format_index >= 0 && type_index >= 0)
+	{
+		int type = ui.type_box->itemData(type_index).toInt();
+		switch(type)
+		{
+			case SciDAVis::Numeric:
+				str += tr("Double precision\nfloating point values\n");
+				ui.digits_box->setEnabled(true);
+				break;
+			case SciDAVis::Text:
+				str += tr("Text\n");
+				break;
+			case SciDAVis::Month:
+				str += tr("Month names\n");
+				break;
+			case SciDAVis::Day:
+				str += tr("Days of the week\n");
+				break;
+			case SciDAVis::DateTime:
+				str += tr("Dates and/or times\n");
+				break;
+		}
+		str += tr("Example: ");
+		switch(type)
+		{
+			case SciDAVis::Numeric:
+				str += QString::number(123.1234567890123456, ui.format_box->itemData(format_index).toChar().toLatin1(), ui.digits_box->value());
+				break;
+			case SciDAVis::Text:
+				str += tr("Hello world!\n");
+				break;
+			case SciDAVis::Month:
+				str += QLocale().toString(QDate(1900,1,1), ui.format_box->itemData(format_index).toString());
+				break;
+			case SciDAVis::Day:
+				str += QLocale().toString(QDate(1900,1,1), ui.format_box->itemData(format_index).toString());
+				break;
+			case SciDAVis::DateTime:
+				str += QDateTime(QDate(1900,1,1), QTime(23,59,59,999)).toString(ui.format_box->itemData(format_index).toString());
+				break;
+		}
+	}
+	ui.type_info->setText(str);
+}
+
+void TableView::showOptionsDescriptionTab()
+{
+	d_tool_box->setVisible(true);
+	d_hide_button->setArrowType(Qt::DownArrow);
+	ui.tab_widget->setCurrentIndex(0);
+}
+
+void TableView::showOptionsTypeTab()
+{
+	d_tool_box->setVisible(true);
+	d_hide_button->setArrowType(Qt::DownArrow);
+	ui.tab_widget->setCurrentIndex(1);
+}
+
+void TableView::showOptionsFormulaTab()
+{
+	d_tool_box->setVisible(true);
+	d_hide_button->setArrowType(Qt::DownArrow);
+	ui.tab_widget->setCurrentIndex(2);
+}
+
+void TableView::applyDescription()
+{
+	QItemSelectionModel * sel_model = d_model->selectionModel();
+	int index = sel_model->currentIndex().column();
+	if(index >= 0)
+	{
+		d_model->column(index)->setColumnLabel(ui.name_edit->text());
+		d_model->column(index)->setColumnComment(ui.comment_box->document()->toPlainText());
+	}
+}
+
+void TableView::applyType()
+{
+	int format_index = ui.format_box->currentIndex();
+	int type_index = ui.type_box->currentIndex();
+	if(format_index < 0 && type_index < 0) return;
+
+	SciDAVis::ColumnMode mode = (SciDAVis::ColumnMode)ui.type_box->itemData(type_index).toInt();
+	QList< shared_ptr<Column> > list = d_model->selectedColumns();
+	switch(mode)
+	{
+		case SciDAVis::Numeric:
+			foreach(shared_ptr<Column> col, list)
+			{
+				col->setColumnMode(mode);
+				shared_ptr<Double2StringFilter> filter = static_pointer_cast<Double2StringFilter>(col->outputFilter());
+				filter->setNumericFormat(ui.format_box->itemData(format_index).toChar().toLatin1());
+				filter->setNumDigits(ui.digits_box->value());
+				d_model->emitColumnChanged(col); // filter changes will not be visible without this
+			}
+			break;
+		case SciDAVis::Text:
+			foreach(shared_ptr<Column> col, list)
+				col->setColumnMode(mode);
+			break;
+		case SciDAVis::Month:
+		case SciDAVis::Day:
+		case SciDAVis::DateTime:
+			foreach(shared_ptr<Column> col, list)
+			{
+				col->setColumnMode(mode);
+				shared_ptr<DateTime2StringFilter> filter = static_pointer_cast<DateTime2StringFilter>(col->outputFilter());
+				filter->setFormat(ui.format_box->itemData(format_index).toString());
+				d_model->emitColumnChanged(col); // filter changes will not be visible without this
+			}
+			break;
+	}
+}

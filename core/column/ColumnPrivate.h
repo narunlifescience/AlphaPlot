@@ -281,6 +281,8 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		virtual void replaceValues(int first, const QVector<double>& new_values);
 		//@}
 
+	private slots:
+		void notifyDisplayChange();
 
 	private:
 		//! \name data members

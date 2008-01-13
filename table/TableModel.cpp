@@ -155,9 +155,8 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 		case Qt::EditRole:
 			{
 				shared_ptr<Column> col_ptr = d_columns.at(index.column());
-				shared_ptr<AbstractSimpleFilter> in_fltr = d_columns.at(index.column())->inputFilter();
-				shared_ptr<Column> sd(new Column("temp", SciDAVis::Text));
-				sd->setTextAt(0, value.toString());
+				shared_ptr<AbstractSimpleFilter> in_fltr = col_ptr->inputFilter();
+				shared_ptr<Column> sd( new Column("temp", QStringList(value.toString())) );
 				in_fltr->input(0, sd);
 				// remark: the validity of the cell is determined by the input filter
 				col_ptr->copy(in_fltr->output(0).get(), 0, row, 1);  
@@ -223,12 +222,18 @@ void TableModel::replaceColumns(int first, QList< shared_ptr<Column> > new_cols)
 	}
 	updateHorizontalHeader(first, first+count-1);
 	emit columnsReplaced(first, new_cols.count());
-	emit dataChanged(index(0, first, QModelIndex()), index(d_row_count-1, first+count-1, QModelIndex()));
+	emit dataChanged(index(0, first), index(d_row_count-1, first+count-1));
 }
 
 void TableModel::emitDataChanged(int top, int left, int bottom, int right)
 {
-	emit dataChanged(index(top, left, QModelIndex()), index(bottom, right, QModelIndex()));
+	emit dataChanged(index(top, left), index(bottom, right));
+}
+
+void TableModel::emitColumnChanged(Column * col)
+{
+	int index = columnIndex(col);
+	emitDataChanged(0, index, col->rowCount()-1, index);
 }
 
 void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
@@ -496,4 +501,112 @@ void TableModel::moveColumn(int from, int to)
 	updateHorizontalHeader(from, to);
 	emitDataChanged(0, from, d_column_count-1, to);
 }
+
+int TableModel::selectedColumnCount(bool full)
+{
+	int count = 0;
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+		if(isColumnSelected(i, full)) count++;
+	return count;
+}
+
+int TableModel::selectedColumnCount(SciDAVis::PlotDesignation pd)
+{
+	int count = 0;
+	int cols = columnCount();
+	for(int i=0; i<cols; i++)
+		if( isColumnSelected(i, false) && (column(i)->plotDesignation() == pd) ) count++;
+
+	return count;
+}
+
+bool TableModel::isColumnSelected(int col, bool full)
+{
+	if(full)
+		return d_selection_model->isColumnSelected(col, QModelIndex());
+	else
+		return d_selection_model->columnIntersectsSelection(col, QModelIndex());
+}
+
+QList< shared_ptr<Column> > TableModel::selectedColumns(bool full)
+{
+	QList< shared_ptr<Column> > list;
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+		if(isColumnSelected(i, full)) list << column(i);
+
+	return list;
+}
+
+int TableModel::selectedRowCount(bool full)
+{
+	int count = 0;
+	int rows = rowCount();
+	for (int i=0; i<rows; i++)
+		if(isRowSelected(i, full)) count++;
+	return count;
+}
+
+bool TableModel::isRowSelected(int row, bool full)
+{
+	if(full)
+		return d_selection_model->isRowSelected(row, QModelIndex());
+	else
+		return d_selection_model->rowIntersectsSelection(row, QModelIndex());
+}
+
+void TableModel::selectAll()
+{
+	QItemSelection sel(index(0, 0), index(rowCount()-1, columnCount()-1));
+	d_selection_model->select(sel, QItemSelectionModel::Select);
+}
+
+int TableModel::firstSelectedColumn(bool full)
+{
+	int cols = columnCount();
+	for (int i=0; i<cols; i++)
+	{
+		if(isColumnSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int TableModel::lastSelectedColumn(bool full)
+{
+	int cols = columnCount();
+	for(int i=cols-1; i>=0; i--)
+		if(isColumnSelected(i, full)) return i;
+
+	return -1;
+}
+
+int TableModel::firstSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for (int i=0; i<rows; i++)
+	{
+		if(isRowSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int TableModel::lastSelectedRow(bool full)
+{
+	int rows = rowCount();
+	for(int i=rows-1; i>=0; i--)
+		if(isRowSelected(i, full)) return i;
+
+	return -1;
+}
+
+bool TableModel::isCellSelected(int row, int col)
+{
+	if(row < 0 || col < 0 || row >= rowCount() || col >= columnCount()) return false;
+
+	return d_selection_model->isSelected( index(row, col) );
+}
+
 

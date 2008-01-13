@@ -53,6 +53,9 @@ class Double2StringFilter : public AbstractSimpleFilter
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
 
+	signals:
+		void formatChanged();
+
 	private:
 		friend class Double2StringFilterSetFormatCmd;
 		friend class Double2StringFilterSetDigitsCmd;

@@ -121,8 +121,11 @@ class Table: public QObject, public AbstractAspect, public scripted
 		 */
 		void appendColumns(QList< shared_ptr<Column> > new_cols) { insertColumns(columnCount(), new_cols); }
 		void removeColumns(int first, int count);
+		void removeColumn(Column * col);
+		void removeColumn(shared_ptr<Column> col) { removeColumn(col.get()); }
 		void removeRows(int first, int count);
 		void insertRows(int before, int count);
+		void appendRows(int count) { insertRows(rowCount(), count); }
 		//! Set the number of rows
 		void setRowCount(int new_size);
 		//! Return the total number of columns in the table
@@ -173,65 +176,6 @@ class Table: public QObject, public AbstractAspect, public scripted
 		 */
 		QMenu * createTableMenu(QMenu * append_to = 0);
 
-		//! Return how many columns are selected
-		/**
-		 * If full is true, this function only returns the number of fully 
-		 * selected columns.
-		 */
-		int selectedColumnCount(bool full = false);
-		//! Return how many columns with the given plot designation are (at least partly) selected
-		int selectedColumnCount(SciDAVis::PlotDesignation pd);
-		//! Returns true if column 'col' is selected; otherwise false
-		/**
-		 * If full is true, this function only returns true if the whole 
-		 * column is selected.
-		 */
-		bool isColumnSelected(int col, bool full = false);
-		//! Return all selected columns
-		/**
-		 * If full is true, this function only returns a column if the whole 
-		 * column is selected.
-		 */
-		QList< shared_ptr<Column> > selectedColumns(bool full = false);
-		void setSelectionAs(SciDAVis::PlotDesignation pd);
-		//! Return how many rows are (at least partly) selected
-		/**
-		 * If full is true, this function only returns the number of fully 
-		 * selected rows.
-		 */
-		int selectedRowCount(bool full = false);
-		//! Returns true if row 'row' is selected; otherwise false
-		/**
-		 * If full is true, this function only returns true if the whole 
-		 * row is selected.
-		 */
-		bool isRowSelected(int row, bool full = false);
-		//! Return the index of the first selected column
-		/**
-		 * If full is true, this function only looks for fully 
-		 * selected columns.
-		 */
-		int firstSelectedColumn(bool full = false);
-		//! Return the index of the last selected column
-		/**
-		 * If full is true, this function only looks for fully 
-		 * selected columns.
-		 */
-		int lastSelectedColumn(bool full = false);
-		//! Return the index of the first selected row
-		/**
-		 * If full is true, this function only looks for fully 
-		 * selected rows.
-		 */
-		int firstSelectedRow(bool full = false);
-		//! Return the index of the last selected row
-		/**
-		 * If full is true, this function only looks for fully 
-		 * selected rows.
-		 */
-		int lastSelectedRow(bool full = false);
-		//! Return whether a cell is selected
-		bool isCellSelected(int row, int col);
 		//! Determine the corresponding X column
 		int colX(int col);
 		//! Determine the corresponding Y column
@@ -247,6 +191,9 @@ class Table: public QObject, public AbstractAspect, public scripted
 		void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
 		//! Return the default for comment visibility for table views
 		bool defaultCommentVisibility() { return d_default_comment_visibility; }
+		//! Return the text displayed in the given cell
+		QString text(int row, int col);
+		void setSelectionAs(SciDAVis::PlotDesignation pd);
 
 	public slots:
 		//! Clear the whole table
@@ -333,6 +280,9 @@ class Table: public QObject, public AbstractAspect, public scripted
 	signals:
 		void scrollToIndex(const QModelIndex& index);
 		void toggleOptionTabBar();
+		void showOptionsDescriptionTab();
+		void showOptionsTypeTab();
+		void showOptionsFormulaTab();
 
 	private:
 		void createActions();
@@ -452,7 +402,6 @@ private:
 public:
 	// obsolete transition functions (to be removed or rewritten later)
 	int colIndex(const QString& name);
-	QString text(int row, int col);
 	QString colName(int col);
 	int columnType(int col);
 	QString columnFormat(int col);

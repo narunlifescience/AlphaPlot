@@ -89,7 +89,8 @@ Column::~Column()
 
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	exec(new ColumnSetModeCmd(d_column_private, mode));
+	if(mode != columnMode())
+		exec(new ColumnSetModeCmd(d_column_private, mode));
 }
 
 
@@ -109,17 +110,20 @@ bool Column::copy(const AbstractColumn * source, int source_start, int dest_star
 
 void Column::insertRows(int before, int count)
 {
-	exec(new ColumnInsertEmptyRowsCmd(d_column_private, before, count));
+	if(count > 0)
+		exec(new ColumnInsertEmptyRowsCmd(d_column_private, before, count));
 }
 
 void Column::removeRows(int first, int count)
 {
-	exec(new ColumnRemoveRowsCmd(d_column_private, first, count));
+	if(count > 0)
+		exec(new ColumnRemoveRowsCmd(d_column_private, first, count));
 }
 
 void Column::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
-	exec(new ColumnSetPlotDesignationCmd(d_column_private, pd));
+	if(pd != plotDesignation())
+		exec(new ColumnSetPlotDesignationCmd(d_column_private, pd));
 }
 
 void Column::clear()
