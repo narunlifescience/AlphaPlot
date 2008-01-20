@@ -32,6 +32,12 @@
 
 #include <QContextMenuEvent>
 #include <QMenu>
+#include <QWidget>
+
+ProjectExplorer::ProjectExplorer(QWidget *parent) 
+	: QTreeView(parent) 
+{
+}
 
 void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 {
@@ -41,3 +47,17 @@ void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 	menu->exec(event->globalPos());
 	delete menu;
 }
+		
+void ProjectExplorer::setCurrentAspect(AbstractAspect * aspect)
+{
+	AspectTreeModel * tree_model = static_cast<AspectTreeModel *>(model());
+	if(tree_model) setCurrentIndex(tree_model->modelIndexOfAspect(aspect));
+}
+
+void ProjectExplorer::currentChanged(const QModelIndex & current, const QModelIndex & previous)
+{
+	QTreeView::currentChanged(current, previous);
+	emit currentAspectChanged(static_cast<AbstractAspect *>(current.internalPointer()));
+}
+
+

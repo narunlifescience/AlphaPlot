@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : ProjectExplorer.h
+    File                 : Project.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
-    Description          : A tree view for displaying and editing an
-                           AspectTreeModel.
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
+    Description          : Represents a SciDAVis project.
 
  ***************************************************************************/
 
@@ -27,34 +26,56 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_EXPLORER_H
-#define PROJECT_EXPLORER_H
+#ifndef PROJECT_H
+#define PROJECT_H
 
-#include <QTreeView>
-#include "AbstractAspect.h"
+// TODO: replace old Folder.{h,cpp} in core
+#include "../aspect-test/Folder.h"
 
-//! A tree view for displaying and editing an AspectTreeModel.
+#ifndef _NO_TR1_
+#include "tr1/memory"
+using std::tr1::shared_ptr;
+using std::tr1::enable_shared_from_this;
+#else // if your compiler does not have TR1 support, you can use boost instead:
+#include <boost/shared_ptr.hpp>
+#include <boost/enable_shared_from_this.hpp>
+using boost::shared_ptr;
+using boost::enable_shared_from_this;
+#endif
+
+#include <QHash>
+#include <QKeySequence>
+class QString;
+
+//! Represents a SciDAVis project.
 /**
- * Currently, the only functionality provided in addition to that of QTreeView
- * is usage of the context menus provided by AspectTreeModel.
+ * Project manages an undo stack and is responsible for creating ProjectWindow instances
+ * as views on itself.
  */
-class ProjectExplorer : public QTreeView
+class Project : public Folder, public enable_shared_from_this<Project>
 {
 	Q_OBJECT
 
 	public:
-		ProjectExplorer(QWidget *parent = 0);
+		Project();
 
-		void setCurrentAspect(AbstractAspect * aspect);
+		virtual Project *project() const { return const_cast<Project*>(this); }
+		virtual QUndoStack *undoStack() const;
+		virtual QString path() const { return name(); }
+		virtual AbstractAspect *parentAspect() const { return 0; }
+		//! Query a keyboard shortcut for a given action
+		/*
+		 * This is used for application wide keyboard shortcuts.
+		 */
+		virtual QKeySequence queryShortcut(const QString& action_string);
 
-	protected slots:
-		virtual void currentChanged(const QModelIndex & current, const QModelIndex & previous);
+		virtual QWidget *view(QWidget *parent = 0);
 
-	signals:
-		void currentAspectChanged(AbstractAspect * aspect);
-
-	protected:
-		virtual void contextMenuEvent(QContextMenuEvent *event);
+	private:
+		class Private;
+		Private *d;
+		//! Applicationwide keyboard shortcuts
+		QHash<QString, QKeySequence> keyboard_shortcuts;
 };
 
-#endif // ifndef PROJECT_EXPLORER_H
+#endif // ifndef PROJECT_H

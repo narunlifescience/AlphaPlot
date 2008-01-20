@@ -32,7 +32,6 @@
 #include <QCloseEvent>
 #include <QIcon>
 #include <QMenu>
-#include <QMessageBox>
 
 MdiSubWindow::MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view)
 	: d_aspect(aspect), d_closing(false)
@@ -46,19 +45,14 @@ MdiSubWindow::MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view)
 		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
 	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
 		this, SLOT(aspectAboutToBeRemoved(AbstractAspect *))); 
-
-	d_aspect->createContextMenu(QMdiSubWindow::systemMenu());
 }
 
 void MdiSubWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-	/*
 	QMenu *menu = d_aspect->createContextMenu();
 	Q_CHECK_PTR(menu);
 	menu->exec(event->globalPos());
-	*/
-	QMdiSubWindow::systemMenu()->exec(event->globalPos());
-	// delete menu;
+	delete menu;
 }
 
 MdiSubWindow::~MdiSubWindow()
@@ -84,8 +78,6 @@ void MdiSubWindow::closeEvent(QCloseEvent *event)
 {
 	if (!d_closing) {
 		d_closing = true;
-
-//	d_aspect->remove();
 		if (d_aspect->parentAspect())
 			d_aspect->parentAspect()->removeChild(d_aspect);
 	}

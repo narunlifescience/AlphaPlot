@@ -31,6 +31,7 @@
 #include <QUndoStack>
 #include <QString>
 #include <QKeySequence>
+#include <QMenu>
 
 class Project::Private
 {
@@ -65,3 +66,16 @@ QKeySequence Project::queryShortcut(const QString& action_string)
 	return keyboard_shortcuts.value(str, QKeySequence());
 	
 }
+
+QMenu *Project::createContextMenu(QMenu * append_to)
+{
+	QMenu * menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+
+	menu->addSeparator();
+	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_aspect_wrapper, SLOT(showProperties()) );
+
+	return menu;
+}
+

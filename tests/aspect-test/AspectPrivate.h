@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : Project.h
+    File                 : AspectPrivate.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Represents a SciDAVis project.
+    Description          : Private data managed by AbstractAspect.
 
  ***************************************************************************/
 
@@ -26,57 +26,62 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_H
-#define PROJECT_H
+#ifndef ASPECT_MODEL_H
+#define ASPECT_MODEL_H
 
-#include "Folder.h"
+#include <QString>
+#include <QDateTime>
+#include <QList>
 
 #ifndef _NO_TR1_
 #include "tr1/memory"
 using std::tr1::shared_ptr;
-using std::tr1::enable_shared_from_this;
 #else // if your compiler does not have TR1 support, you can use boost instead:
 #include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
 using boost::shared_ptr;
-using boost::enable_shared_from_this;
 #endif
 
-#include <QHash>
-#include <QKeySequence>
-class QString;
+class AbstractAspect;
 
-//! Represents a SciDAVis project.
-/**
- * Project manages an undo stack and is responsible for creating ProjectWindow instances
- * as views on itself.
- */
-class Project : public Folder, public enable_shared_from_this<Project>
+//! Private data managed by AbstractAspect.
+class AspectPrivate
 {
-	Q_OBJECT
-
 	public:
-		Project();
+		AspectPrivate(const QString& name, AbstractAspect * owner);
 
-		virtual Project *project() const { return const_cast<Project*>(this); }
-		virtual QUndoStack *undoStack() const;
-		virtual QString path() const { return name(); }
-		virtual AbstractAspect *parentAspect() const { return 0; }
-		//! Query a keyboard shortcut for a given action
-		/*
-		 * This is used for application wide keyboard shortcuts.
-		 */
-		virtual QKeySequence queryShortcut(const QString& action_string);
+		void addChild(shared_ptr<AbstractAspect> child);
+		void insertChild(int index, shared_ptr<AbstractAspect> child);
+		int indexOfChild(const AbstractAspect *child) const;
+		int indexOfChild(shared_ptr<AbstractAspect> child) const { return indexOfChild(child.get()); }
+		void removeChild(shared_ptr<AbstractAspect> child);
+		int childCount() const;
+		shared_ptr<AbstractAspect> child(int index);
 
-		virtual QWidget *view(QWidget *parent = 0);
+		QString name() const;
+		void setName(const QString &value);
+		QString comment() const;
+		void setComment(const QString &value);
+		QString captionSpec() const;
+		void setCaptionSpec(const QString &value);
+		QDateTime creationTime() const;
+		void setCreationTime(const QDateTime& time);
 
-		virtual QMenu *createContextMenu(QMenu * append_to = 0);
-
+		QString caption() const;
+		AbstractAspect * owner() { return d_owner; }
+	
 	private:
-		class Private;
-		Private *d;
-		//! Applicationwide keyboard shortcuts
-		QHash<QString, QKeySequence> keyboard_shortcuts;
+		static int indexOfMatchingBrace(const QString &str, int start);
+		QList< shared_ptr<AbstractAspect> > d_children;
+		QString d_name, d_comment, d_caption_spec;
+		QDateTime d_creation_time;
+		AbstractAspect * d_owner;
+
+		// Undo commands need access to the signals
+		friend class AspectNameChangeCmd;
+		friend class AspectCommentChangeCmd;
+		friend class AspectCaptionSpecChangeCmd;
+		friend class AspectChildRemoveCmd;
+		friend class AspectChildAddCmd;
 };
 
-#endif // ifndef PROJECT_H
+#endif // ifndef ASPECT_MODEL_H

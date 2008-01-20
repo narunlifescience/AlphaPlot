@@ -69,12 +69,6 @@ class AspectTreeModel : public QAbstractItemModel
 		bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 		Qt::ItemFlags flags(const QModelIndex &index) const;
 
-		//! Convenience wrapper around QAbstractItemModel::createIndex().
-		QModelIndex modelIndexOfAspect(AbstractAspect *aspect, int column=0) const 
-		{
-			return createIndex(aspect->index(), column, aspect);
-		}
-
 	public slots:
 		void aspectDescriptionChanged(AbstractAspect *aspect);
 		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
@@ -82,6 +76,11 @@ class AspectTreeModel : public QAbstractItemModel
 		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
 		void aspectRemoved(AbstractAspect *parent, int index);
 
+	protected:
+		//! Convenience wrapper around QAbstractItemModel::createIndex().
+		QModelIndex modelIndexOfAspect(AbstractAspect *aspect, int column=0) const {
+			return createIndex(aspect->index(), column, aspect);
+		}
 
 	private:
 		shared_ptr<AbstractAspect> d_root;

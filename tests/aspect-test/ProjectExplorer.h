@@ -31,7 +31,6 @@
 #define PROJECT_EXPLORER_H
 
 #include <QTreeView>
-#include "AbstractAspect.h"
 
 //! A tree view for displaying and editing an AspectTreeModel.
 /**
@@ -43,15 +42,7 @@ class ProjectExplorer : public QTreeView
 	Q_OBJECT
 
 	public:
-		ProjectExplorer(QWidget *parent = 0);
-
-		void setCurrentAspect(AbstractAspect * aspect);
-
-	protected slots:
-		virtual void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-
-	signals:
-		void currentAspectChanged(AbstractAspect * aspect);
+		ProjectExplorer(QWidget *parent = 0) : QTreeView(parent) {}
 
 	protected:
 		virtual void contextMenuEvent(QContextMenuEvent *event);

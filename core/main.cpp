@@ -139,6 +139,7 @@ int main( int argc, char ** argv )
 	shared_ptr<Project> p(new Project());
 	p->view()->showMaximized();
 
+
 #if 0
 	QStringList args = app.arguments();
 	args.removeFirst(); // remove application name

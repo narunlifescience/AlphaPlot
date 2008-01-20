@@ -29,7 +29,6 @@
 #include "AbstractAspect.h"
 #include "AspectPrivate.h"
 #include "aspectcommands.h"
-#include "Folder.h"
 
 #include <QIcon>
 #include <QMenu>
@@ -184,13 +183,10 @@ QIcon AbstractAspect::icon() const
 	return QIcon();
 }
 
-QMenu *AbstractAspect::createContextMenu(QMenu * append_to)
+QMenu *AbstractAspect::createContextMenu()
 {
-	QMenu * menu = append_to;
-	if(!menu)
-		menu = new QMenu();
+	QMenu *menu = new QMenu();
 
-	menu->addSeparator();
 	menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
 	menu->addSeparator();
 	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_aspect_wrapper, SLOT(showProperties()) );
@@ -238,11 +234,3 @@ void AbstractAspectWrapper::showProperties()
 	d_aspect->showProperties();
 }
 
-Folder * AbstractAspect::folder()
-{
-	if(inherits("Folder")) return static_cast<Folder *>(this);
-	AbstractAspect * parent_aspect = parentAspect();
-	while(parent_aspect && !parent_aspect->inherits("Folder")) 
-		parent_aspect = parent_aspect->parentAspect();
-	return static_cast<Folder *>(parent_aspect);	
-}

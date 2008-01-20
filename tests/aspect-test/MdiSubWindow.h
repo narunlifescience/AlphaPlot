@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : MdiSubWindow.cpp
+    File                 : MdiSubWindow.h
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
@@ -27,67 +27,52 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "MdiSubWindow.h"
+#ifndef MDI_SUB_WINDOW_H
+#define MDI_SUB_WINDOW_H
 
-#include <QCloseEvent>
-#include <QIcon>
-#include <QMenu>
-#include <QMessageBox>
+#include <QMdiSubWindow>
+#include "AbstractAspect.h"
 
-MdiSubWindow::MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view)
-	: d_aspect(aspect), d_closing(false)
+//! An MDI sub window which manages views on an AbstractAspect.
+/**
+ * Instances of this class are meant to be wrapped around views on an AbstractAspect
+ * before they are added to a QMdiArea. In addition to the functionality provided
+ * by QMdiSubWindow, MdiSubWindow automatically updates the window title when
+ * AbstractAspect::caption() changes, removes the Aspect when the MDI window is closed
+ * and vice versa, and provides access to the Aspect's context menu.
+ */
+class MdiSubWindow : public QMdiSubWindow
 {
-	setWidget(view);
-	setWindowIcon(d_aspect->icon());
-	aspectDescriptionChanged(d_aspect.get());
-	// TODO: doesn't work... bug in Qt?
-	//setSystemMenu(d_aspect->createContextMenu());
-	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
-	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
-		this, SLOT(aspectAboutToBeRemoved(AbstractAspect *))); 
+	Q_OBJECT
 
-	d_aspect->createContextMenu(QMdiSubWindow::systemMenu());
-}
+	public:
+		//! Construct a window managing view on aspect.
+		MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view);
+		~MdiSubWindow();
 
-void MdiSubWindow::contextMenuEvent(QContextMenuEvent *event)
-{
-	/*
-	QMenu *menu = d_aspect->createContextMenu();
-	Q_CHECK_PTR(menu);
-	menu->exec(event->globalPos());
-	*/
-	QMdiSubWindow::systemMenu()->exec(event->globalPos());
-	// delete menu;
-}
+	public slots:
+		//! Keep my window title in sync with AbstractAspect::caption().
+		void aspectDescriptionChanged(AbstractAspect *aspect);
+		//! Close me before my Aspect is removed.
+		void aspectAboutToBeRemoved(AbstractAspect *aspect);
 
-MdiSubWindow::~MdiSubWindow()
-{
-	disconnect(d_aspect->abstractAspectSignalEmitter(), 0, this, 0);
-}
+	protected:
+		//! When I'm being closed, remove my Aspect from its parent.
+		virtual void closeEvent(QCloseEvent *event);
+		void contextMenuEvent(QContextMenuEvent *event);
 
-void MdiSubWindow::aspectDescriptionChanged(AbstractAspect *aspect)
-{
-	if (aspect != d_aspect.get()) return;
-	setWindowTitle(d_aspect->caption());
-	update();
-}
+	private:
+		//! The aspect who's view I'm managing.
+		shared_ptr<AbstractAspect> d_aspect;
+		//! Whether I'm just being closed.
+		/**
+		 * Depending on whether an Aspect is removed programatically or by closing its
+		 * default view (held by me), either aspectAboutToBeRemoved() generates a close
+		 * event for me or closeEvent() removes #d_aspect from its parent. Before one causes
+		 * the other to be called, #d_closing is set to true so as to avoid infinite
+		 * recursion.
+		 */
+		bool d_closing;
+};
 
-void MdiSubWindow::aspectAboutToBeRemoved(AbstractAspect *aspect)
-{
-	if (aspect != d_aspect.get() || d_closing) return;
-	d_closing = true;
-	close();
-}
-
-void MdiSubWindow::closeEvent(QCloseEvent *event)
-{
-	if (!d_closing) {
-		d_closing = true;
-
-//	d_aspect->remove();
-		if (d_aspect->parentAspect())
-			d_aspect->parentAspect()->removeChild(d_aspect);
-	}
-	event->accept();
-}
+#endif // ifndef MDI_SUB_WINDOW_H

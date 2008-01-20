@@ -2,8 +2,8 @@ TEMPLATE = app
 CONFIG += debug
 TARGET = 
 QT += xml
-DEPENDPATH += . ../../core
-INCLUDEPATH += . ../../core
+DEPENDPATH += . 
+INCLUDEPATH += .
 
 RESOURCES += ../../icons.qrc
 

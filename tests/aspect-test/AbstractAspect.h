@@ -52,7 +52,6 @@ class QDateTime;
 class QUndoCommand;
 class QIcon;
 class QMenu;
-class Folder;
 
 //! Wrapper class for AbstractAspect (receives and sends signals for it)
 /**
@@ -149,12 +148,6 @@ class AbstractAspect
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
 		virtual AbstractAspect * parentAspect() const { return d_parent_aspect; }
-		//! Return the folder the Aspect is contained in or 0 if not.
-		/**
-		 * The returned folder may be the aspect itself if it inherits Folder.
-		*/
-		virtual Folder * folder();
-
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
 		void addChild(shared_ptr<AbstractAspect> child);
@@ -193,12 +186,9 @@ class AbstractAspect
 		virtual QIcon icon() const;
 		//! Return a new context menu for my views.
 		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 * Otherwise the caller takes ownership of the menu.
+		 * Caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu(QMenu * append_to = 0);
+		virtual QMenu *createContextMenu();
 		//! Construct a standard view on me.
 		/**
 		 * If a parent is specified, the view is added to it as a child widget and the parent takes over

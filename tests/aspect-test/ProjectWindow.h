@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : ProjectExplorer.h
+    File                 : ProjectWindow.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
-    Description          : A tree view for displaying and editing an
-                           AspectTreeModel.
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
+    Description          : Standard view on a Project; main window.
 
  ***************************************************************************/
 
@@ -27,34 +26,31 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_EXPLORER_H
-#define PROJECT_EXPLORER_H
+#ifndef PROJECT_WINDOW_H
+#define PROJECT_WINDOW_H
 
-#include <QTreeView>
+#include <QMainWindow>
 #include "AbstractAspect.h"
 
-//! A tree view for displaying and editing an AspectTreeModel.
-/**
- * Currently, the only functionality provided in addition to that of QTreeView
- * is usage of the context menus provided by AspectTreeModel.
- */
-class ProjectExplorer : public QTreeView
+class Project;
+class QMdiArea;
+
+//! Standard view on a Project; main window.
+class ProjectWindow : public QMainWindow
 {
 	Q_OBJECT
 
 	public:
-		ProjectExplorer(QWidget *parent = 0);
+		ProjectWindow(shared_ptr<Project> project);
+		~ProjectWindow();
+	
+	public slots:
+		void aspectAdded(AbstractAspect *parent, int index);
+		void aspectDescriptionChanged(AbstractAspect *aspect);
 
-		void setCurrentAspect(AbstractAspect * aspect);
-
-	protected slots:
-		virtual void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-
-	signals:
-		void currentAspectChanged(AbstractAspect * aspect);
-
-	protected:
-		virtual void contextMenuEvent(QContextMenuEvent *event);
+	private:
+		shared_ptr<Project> d_project;
+		QMdiArea * d_mdi;
 };
 
-#endif // ifndef PROJECT_EXPLORER_H
+#endif // ifndef PROJECT_WINDOW_H

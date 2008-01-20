@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : ProjectExplorer.h
+    File                 : Project.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
-    Email (use @ for *)  : knut.franke*gmx.de
-    Description          : A tree view for displaying and editing an
-                           AspectTreeModel.
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
+    Description          : Represents a SciDAVis project.
 
  ***************************************************************************/
 
@@ -27,34 +26,42 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_EXPLORER_H
-#define PROJECT_EXPLORER_H
+#include "Project.h"
+#include "ProjectWindow.h"
+#include <QUndoStack>
+#include <QString>
+#include <QKeySequence>
 
-#include <QTreeView>
-#include "AbstractAspect.h"
-
-//! A tree view for displaying and editing an AspectTreeModel.
-/**
- * Currently, the only functionality provided in addition to that of QTreeView
- * is usage of the context menus provided by AspectTreeModel.
- */
-class ProjectExplorer : public QTreeView
+class Project::Private
 {
-	Q_OBJECT
-
 	public:
-		ProjectExplorer(QWidget *parent = 0);
-
-		void setCurrentAspect(AbstractAspect * aspect);
-
-	protected slots:
-		virtual void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-
-	signals:
-		void currentAspectChanged(AbstractAspect * aspect);
-
-	protected:
-		virtual void contextMenuEvent(QContextMenuEvent *event);
+		QUndoStack undo_stack;
 };
 
-#endif // ifndef PROJECT_EXPLORER_H
+Project::Project()
+	: Folder(tr("Unnamed")), d(new Private())
+{
+}
+
+QUndoStack *Project::undoStack() const
+{
+	return &d->undo_stack;
+}
+
+QWidget *Project::view(QWidget *parent)
+{
+	Q_UNUSED(parent);
+	return new ProjectWindow(shared_from_this());
+}
+
+QKeySequence Project::queryShortcut(const QString& action_string)
+{
+	QString str = action_string.toLower();
+	// TODO: implement a customization dialog for this
+
+	keyboard_shortcuts.insert("undo", QKeySequence(QObject::tr("Ctrl+Z")));
+	keyboard_shortcuts.insert("redo", QKeySequence(QObject::tr("Ctrl+Y")));
+	
+	return keyboard_shortcuts.value(str, QKeySequence());
+	
+}

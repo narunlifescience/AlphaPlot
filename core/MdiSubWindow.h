@@ -50,6 +50,8 @@ class MdiSubWindow : public QMdiSubWindow
 		MdiSubWindow(shared_ptr<AbstractAspect> aspect, QWidget *view);
 		~MdiSubWindow();
 
+		shared_ptr<AbstractAspect> aspect() const { return d_aspect; }
+
 	public slots:
 		//! Keep my window title in sync with AbstractAspect::caption().
 		void aspectDescriptionChanged(AbstractAspect *aspect);

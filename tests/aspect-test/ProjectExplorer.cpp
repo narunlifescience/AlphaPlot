@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : ProjectExplorer.h
+    File                 : ProjectExplorer.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke
@@ -27,34 +27,17 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_EXPLORER_H
-#define PROJECT_EXPLORER_H
+#include "ProjectExplorer.h"
+#include "AspectTreeModel.h"
 
-#include <QTreeView>
-#include "AbstractAspect.h"
+#include <QContextMenuEvent>
+#include <QMenu>
 
-//! A tree view for displaying and editing an AspectTreeModel.
-/**
- * Currently, the only functionality provided in addition to that of QTreeView
- * is usage of the context menus provided by AspectTreeModel.
- */
-class ProjectExplorer : public QTreeView
+void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 {
-	Q_OBJECT
-
-	public:
-		ProjectExplorer(QWidget *parent = 0);
-
-		void setCurrentAspect(AbstractAspect * aspect);
-
-	protected slots:
-		virtual void currentChanged(const QModelIndex & current, const QModelIndex & previous);
-
-	signals:
-		void currentAspectChanged(AbstractAspect * aspect);
-
-	protected:
-		virtual void contextMenuEvent(QContextMenuEvent *event);
-};
-
-#endif // ifndef PROJECT_EXPLORER_H
+	QVariant menu_value = model()->data(indexAt(event->pos()), AspectTreeModel::ContextMenuRole);
+	QMenu *menu = static_cast<QMenu*>(menu_value.value<QWidget*>());
+	if (!menu) return;
+	menu->exec(event->globalPos());
+	delete menu;
+}

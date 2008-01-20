@@ -31,6 +31,17 @@
 
 #include <QIcon>
 
+Folder::Folder(const QString &name)
+	: AbstractAspect(name)
+{
+	d_mdi_area = new QMdiArea();
+}
+
+Folder::~Folder()
+{
+	delete d_mdi_area;
+}
+
 QIcon Folder::icon() const
 {
 	QIcon result;

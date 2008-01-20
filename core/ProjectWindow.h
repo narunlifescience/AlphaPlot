@@ -41,6 +41,7 @@ class QMenu;
 class ProjectExplorer;
 class QUndoView;
 class QToolButton;
+class QMdiSubWindow;
 
 //! Standard view on a Project; main window.
 class ProjectWindow : public QMainWindow
@@ -50,7 +51,7 @@ class ProjectWindow : public QMainWindow
 	public:
 		ProjectWindow(shared_ptr<Project> project);
 		~ProjectWindow();
-	
+
 	protected:
 		//! \name Initialization
 		//@{
@@ -61,14 +62,25 @@ class ProjectWindow : public QMainWindow
 		void initActions();
 		//@}
 	
+		QMenu * createToolbarsMenu();
+		QMenu * createDockWidgetsMenu();
+	
 	public slots:
-		void aspectAdded(AbstractAspect *parent, int index);
-		void aspectDescriptionChanged(AbstractAspect *aspect);
 		void addNewTable();
+		void addNewFolder();
+	
+	private slots:
+		void handleAspectAdded(AbstractAspect *parent, int index);
+		void handleAspectRemoved(AbstractAspect *parent, int index);
+		void handleAspectDescriptionChanged(AbstractAspect *aspect);
+		void handleMdiSubWindowActivated(QMdiSubWindow *window);
+		void handleCurrentAspectChanged(AbstractAspect *aspect);
 
 	private:
+		//! Add a new aspect in the current folder
+		void addNewAspect(shared_ptr<AbstractAspect> aspect);
+
 		shared_ptr<Project> d_project;
-		QMdiArea * d_mdi_area;
 
 		struct {
 		QToolBar 
@@ -79,7 +91,10 @@ class ProjectWindow : public QMainWindow
 		QMenu 
 			*file,
 			*edit,
-			*new_aspect;
+			*view,
+			*new_aspect,
+			*toolbars,
+			*dockwidgets;
 		} d_menus;
 		
 		struct {
@@ -87,7 +102,8 @@ class ProjectWindow : public QMainWindow
 			*quit,
 			*undo,
 			*redo,
-			*new_table;
+			*new_table,
+			*new_folder;
 		} d_actions;
 
 		struct {

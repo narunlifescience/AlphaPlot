@@ -54,12 +54,7 @@ AspectTreeModel::~AspectTreeModel()
 QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
 	if (!hasIndex(row, column, parent)) return QModelIndex();
-	if(!parent.isValid())
-	{
-		if(row != 0) return QModelIndex();
-		return createIndex(row, column, d_root.get());
-	}
-	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(parent.internalPointer());
+	AbstractAspect *parent_aspect = parent.isValid() ? static_cast<AbstractAspect*>(parent.internalPointer()) : d_root.get();
 	AbstractAspect *child_aspect = parent_aspect->child(row).get();
 	if (!child_aspect) return QModelIndex();
 	return createIndex(row, column, child_aspect);
@@ -69,14 +64,13 @@ QModelIndex AspectTreeModel::parent(const QModelIndex &index) const
 {
 	if (!index.isValid()) return QModelIndex();
 	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(index.internalPointer())->parentAspect();
-	if (!parent_aspect) return QModelIndex();
+	if (!parent_aspect || !parent_aspect->parentAspect()) return QModelIndex();
 	return modelIndexOfAspect(parent_aspect);
 }
 
 int AspectTreeModel::rowCount(const QModelIndex &parent) const
 {
-	if (!parent.isValid()) return 1;
-	AbstractAspect *parent_aspect =  static_cast<AbstractAspect*>(parent.internalPointer());
+	AbstractAspect *parent_aspect = parent.isValid() ? static_cast<AbstractAspect*>(parent.internalPointer()) : d_root.get();
 	return parent_aspect->childCount();
 }
 
