@@ -74,7 +74,8 @@ bool Double2StringFilter::load(QXmlStreamReader * reader)
 
 void Double2StringFilter::setNumericFormat(char format) 
 { 
-	Double2StringFilterSetFormatCmd * cmd = new Double2StringFilterSetFormatCmd(shared_from_this(), format);
+	Double2StringFilterSetFormatCmd * cmd = new Double2StringFilterSetFormatCmd(
+			static_pointer_cast<Double2StringFilter>(shared_from_this()), format);
 	QUndoStack * stack;
 	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
 			stack->push(cmd);
@@ -87,7 +88,8 @@ void Double2StringFilter::setNumericFormat(char format)
 
 void Double2StringFilter::setNumDigits(int digits) 
 { 
-	Double2StringFilterSetDigitsCmd * cmd = new Double2StringFilterSetDigitsCmd(shared_from_this(), digits);
+	Double2StringFilterSetDigitsCmd * cmd = new Double2StringFilterSetDigitsCmd(
+			static_pointer_cast<Double2StringFilter>(shared_from_this()), digits);
 	QUndoStack * stack;
 	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
 			stack->push(cmd);

@@ -210,7 +210,7 @@ class AbstractColumnSignalEmitter : public QObject
   AbstractColumn defines all access functions for all supported data 
   types but only those corresponding to the return value of dataType() 
   will return a meaningful value. Calling functions not belonging to 
-  the data type of the column is save, but will do nothing (writing
+  the data type of the column is safe, but will do nothing (writing
   function) or return some default value (reading functions).
 
   This class also defines all signals which indicate a data change. The signals

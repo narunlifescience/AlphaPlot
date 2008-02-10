@@ -32,7 +32,8 @@
 
 void DateTime2StringFilter::setFormat(const QString& format) 
 { 
-	DateTime2StringFilterSetFormatCmd * cmd = new DateTime2StringFilterSetFormatCmd(shared_from_this(), format);
+	DateTime2StringFilterSetFormatCmd * cmd = new DateTime2StringFilterSetFormatCmd(
+			static_pointer_cast<DateTime2StringFilter>(shared_from_this()), format);
 	QUndoStack * stack;
 	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
 			stack->push(cmd);
