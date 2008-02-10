@@ -33,6 +33,9 @@
 
 #include <QMainWindow>
 #include "AbstractAspect.h"
+#include "AspectView.h"
+#include "Table.h"
+#include "TableView.h"
 
 class Project;
 class QMdiArea;
@@ -72,9 +75,13 @@ class ProjectWindow : public QMainWindow
 	private slots:
 		void handleAspectAdded(AbstractAspect *parent, int index);
 		void handleAspectRemoved(AbstractAspect *parent, int index);
+		void handleAspectAboutToBeRemoved(AbstractAspect *aspect);
 		void handleAspectDescriptionChanged(AbstractAspect *aspect);
-		void handleMdiSubWindowActivated(QMdiSubWindow *window);
 		void handleCurrentAspectChanged(AbstractAspect *aspect);
+		//! Show hide mdi windows depending on the currend folder
+		void updateMdiWindowVisibility();
+		void hideAllMdiWindows();
+		void showAllMdiWindows();
 
 	private:
 		//! Add a new aspect in the current folder
@@ -115,6 +122,9 @@ class ProjectWindow : public QMainWindow
 		ProjectExplorer * d_project_explorer;
 		QDockWidget * d_history_dock;
 		QUndoView * d_undo_view;
+		QMdiArea * d_mdi_area;
+		AbstractAspect * d_current_aspect;
+		Folder * d_current_folder;
 };
 
 #endif // ifndef PROJECT_WINDOW_H

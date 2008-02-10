@@ -34,6 +34,8 @@
 #include <QIcon>
 #include <QMenu>
 #include <QMessageBox>
+#include <QStyle>
+#include <QApplication>
 
 AbstractAspect::AbstractAspect(const QString &name)
 	: d_aspect_private(new AspectPrivate(name, this)), d_parent_aspect(0), d_aspect_wrapper(new AbstractAspectWrapper(this))
@@ -189,9 +191,15 @@ QMenu *AbstractAspect::createContextMenu(QMenu * append_to)
 	QMenu * menu = append_to;
 	if(!menu)
 		menu = new QMenu();
+    
+	const QStyle *widget_style = qApp->style();
+	QAction *action_temp;
 
 	menu->addSeparator();
-	menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
+	action_temp = menu->addAction(QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()));
+	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
+   	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
+
 	menu->addSeparator();
 	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_aspect_wrapper, SLOT(showProperties()) );
 
@@ -246,3 +254,16 @@ Folder * AbstractAspect::folder()
 		parent_aspect = parent_aspect->parentAspect();
 	return static_cast<Folder *>(parent_aspect);	
 }
+
+bool AbstractAspect::isDescendantOf(AbstractAspect *other)
+{
+	if(other == this) return true;
+	AbstractAspect * parent_aspect = parentAspect();
+	while(parent_aspect)
+	{
+		if(parent_aspect == other) return true;
+		parent_aspect = parent_aspect->parentAspect();
+	}
+	return false;
+}
+

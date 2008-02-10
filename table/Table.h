@@ -1,13 +1,12 @@
 /***************************************************************************
-    File                 : Table.h
+    File                 : Table.cpp
     Project              : SciDAVis
+    Description          : Table worksheet class
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Hoener zu Siederdissen,
-                           Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
-                           knut.franke*gmx.de
-    Description          : Table aspect class
+    Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -91,11 +90,14 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
-		//! Return a new context menu for my views.
+		//! Return a new context menu
 		/**
-		 * Caller takes ownership of the menu.
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 * Otherwise the caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu();
+		virtual QMenu *createContextMenu(QMenu * append_to = 0);
 		//! Construct a standard view on me.
 		/**
 		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
@@ -104,7 +106,7 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
-		virtual QWidget *view(QWidget *parent = 0);
+		virtual AspectView *view();
 		//@}
 		
 		//! Insert columns
@@ -188,12 +190,14 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		//! Open the sort dialog for the given columns
 		void sortDialog(QList< shared_ptr<Column> > cols);
 		//! Set default for comment visibility for table views
-		void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
+		static void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
 		//! Return the default for comment visibility for table views
-		bool defaultCommentVisibility() { return d_default_comment_visibility; }
+		static bool defaultCommentVisibility() { return d_default_comment_visibility; }
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void setSelectionAs(SciDAVis::PlotDesignation pd);
+		TableModel *model() { return d_model; }
+		void copy(Table * other);
 
 	public slots:
 		//! Clear the whole table
@@ -239,36 +243,31 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		void editTypeAndFormatOfSelectedColumns();
 		void editDescriptionOfCurrentColumn();
 		void moveColumn(int from, int to);
-		void copy(Table * other);
 		//! Sort the given list of column
 		/*
 		 * If 'leading' is a null pointer, each column is sorted separately.
 		 */
 		void sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > cols, bool ascending);
 		void openFormulaEditor();
+		//! Show a context menu for the selected cells
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected columns
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewColumnContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected rows
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showTableViewRowContextMenu(const QPoint& pos);
 
 	private slots:
-		//! Handles context menu requests from TableView
-		/**
-		 * \param view the view in which the context menu should be displayed
-		 * \param pos global position of the event 
-		*/
-		void handleViewContextMenuRequest(TableView * view, const QPoint& pos);
-		//! Handles context menu requests from TableView's horizontal header
-		/**
-		 * \param view the view in which the context menu should be displayed
-		 * \param pos global position of the event 
-		*/
-		void handleViewColumnContextMenuRequest(TableView * view, const QPoint& pos);
-		//! Handles context menu requests from TableView's vertical header
-		/**
-		 * \param view the view in which the context menu should be displayed
-		 * \param pos global position of the event 
-		*/
-		void handleViewRowContextMenuRequest(TableView * view, const QPoint& pos);
 		//! Handles a request from the model to execute a resize command
 		void handleModelResizeRequest(int new_size);
-
 		void handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
 		void handleColumnsInserted(int first, int count);
 		void handleColumnsAboutToBeRemoved(int first, int count);
@@ -277,19 +276,12 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		//! The the model name to the table name
 		void setModelName();
 
-	signals:
-		void scrollToIndex(const QModelIndex& index);
-		void toggleOptionTabBar();
-		void showOptionsDescriptionTab();
-		void showOptionsTypeTab();
-		void showOptionsFormulaTab();
-
 	private:
 		void createActions();
 		//! Internal helper function
 		void addUndoToMenu(QMenu * menu);
 		QMenu * d_plot_menu;
-		bool d_default_comment_visibility;
+		static bool d_default_comment_visibility;
 
 		//! \name selection related actions
 		//@{
@@ -346,7 +338,7 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 	protected:
 		//! The model storing the data
 		TableModel *d_model;
-
+		TableView *d_view;
 };
 
 #if false

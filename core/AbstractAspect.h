@@ -53,6 +53,7 @@ class QUndoCommand;
 class QIcon;
 class QMenu;
 class Folder;
+class AspectView;
 
 //! Wrapper class for AbstractAspect (receives and sends signals for it)
 /**
@@ -154,6 +155,12 @@ class AbstractAspect
 		 * The returned folder may be the aspect itself if it inherits Folder.
 		*/
 		virtual Folder * folder();
+		//! Return whether the there is a path upwards to the given aspect
+		/**
+		 * This also returns true if other==this.
+		 */
+		virtual bool isDescendantOf(AbstractAspect *other);
+
 
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
@@ -191,7 +198,7 @@ class AbstractAspect
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
-		//! Return a new context menu for my views.
+		//! Return a new context menu
 		/**
 		 * \param append_to if a pointer to a QMenu is passed
 		 * to the function, the actions are appended to
@@ -207,7 +214,7 @@ class AbstractAspect
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
-		virtual QWidget *view(QWidget *parent = 0) = 0;
+		virtual AspectView *view() = 0;
 
 		QString name() const;
 		QString comment() const;

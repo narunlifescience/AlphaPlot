@@ -1,4 +1,5 @@
 #include "Notes.h"
+#include "AspectView.h"
 
 #include <QTextDocument>
 #include <QTextEdit>
@@ -9,11 +10,13 @@ Notes::Notes(const QString &name)
 {
 }
 
-QWidget *Notes::view(QWidget *parent_widget)
+AspectView *Notes::view(QWidget *parent_widget)
 {
 	QTextEdit *editor = new QTextEdit(parent_widget);
 	editor->setDocument(d_model);
-	return editor;
+	AspectView *aspect_view = new AspectView(this);
+	aspect_view->setWidget(editor);
+	return aspect_view;
 }
 
 QIcon Notes::icon() const

@@ -1,13 +1,12 @@
 /***************************************************************************
     File                 : Table.cpp
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Hoener zu Siederdissen,
-                           Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
-                           knut.franke*gmx.de
     Description          : Table worksheet class
+    --------------------------------------------------------------------
+    Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -87,8 +86,10 @@ using boost::dynamic_pointer_cast;
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
+bool Table::d_default_comment_visibility = false;
+
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractAspect(name), d_plot_menu(0), d_default_comment_visibility(false)// TODO:, scripted(engine)
+: AbstractAspect(name), d_plot_menu(0) // TODO:, scripted(engine)
 {
 	d_model = new TableModel(this);
 	connect(d_model, SIGNAL(requestResize(int)),
@@ -103,7 +104,7 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	connect(d_model, SIGNAL(columnsReplaced(int, int)),
 			this, SLOT(handleColumnsInserted(int, int)));
 	connect(d_model, SIGNAL(columnsAboutToBeRemoved(int, int)),
-				this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
+			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
 	connect(d_model, SIGNAL(columnsRemoved(int, int)),
 			this, SLOT(handleColumnsRemoved(int, int)));
 
@@ -118,12 +119,15 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	d_model->setRowCount(rows);
 	d_model->appendColumns(cols);
 
+	d_view = new TableView(this);
 	createActions();
+	d_view->showComments(d_default_comment_visibility);
+	connect(d_view, SIGNAL(requestResize(int)),
+		this, SLOT(handleModelResizeRequest(int)));
 }
 
 Table::~Table()
 {
-
 }
 
 void Table::setModelName()
@@ -131,30 +135,9 @@ void Table::setModelName()
 	d_model->setName(name());
 }
 
-QWidget *Table::view(QWidget *parent_widget)
+AspectView *Table::view()
 {
-	TableView * table_view = new TableView(parent_widget, d_model);
-	connect(table_view, SIGNAL(requestContextMenu(TableView *,const QPoint&)), 
-		this, SLOT(handleViewContextMenuRequest(TableView *,const QPoint&)));
-	connect(table_view, SIGNAL(requestColumnContextMenu(TableView *,const QPoint&)), 
-		this, SLOT(handleViewColumnContextMenuRequest(TableView *,const QPoint&)));
-	connect(table_view, SIGNAL(requestRowContextMenu(TableView *,const QPoint&)), 
-		this, SLOT(handleViewRowContextMenuRequest(TableView *,const QPoint&)));
-	connect(table_view, SIGNAL(requestResize(int)),
-		this, SLOT(handleModelResizeRequest(int)));
-	connect(table_view, SIGNAL(columnMoved(int,int)),
-		this, SLOT(moveColumn(int,int)));
-	connect(this, SIGNAL(showOptionsDescriptionTab()),
-		table_view, SLOT(showOptionsDescriptionTab()));
-	connect(this, SIGNAL(showOptionsTypeTab()),
-		table_view, SLOT(showOptionsTypeTab()));
-	connect(this, SIGNAL(showOptionsFormulaTab()),
-		table_view, SLOT(showOptionsFormulaTab()));
-
-
-	table_view->showComments(d_default_comment_visibility);
-
-	return table_view;
+	return d_view;
 }
 
 void Table::handleModelResizeRequest(int new_size)
@@ -513,7 +496,7 @@ void Table::unmaskSelection()
 
 void Table::setFormulaForSelection()
 {
-	emit showOptionsFormulaTab();
+	d_view->showOptionsFormulaTab();
 }
 
 void Table::recalculateSelectedCells()
@@ -762,12 +745,12 @@ void Table::clearSelectedRows()
 
 void Table::editTypeAndFormatOfSelectedColumns()
 {
-	emit showOptionsTypeTab();
+	d_view->showOptionsTypeTab();
 }
 
 void Table::editDescriptionOfCurrentColumn()
 {
-	emit showOptionsDescriptionTab();
+	d_view->showOptionsDescriptionTab();
 }
 
 void Table::addRows()
@@ -795,10 +778,14 @@ void Table::clearSelectedCells()
 	RESET_CURSOR;
 }
 
-QMenu *Table::createContextMenu()
+QMenu *Table::createContextMenu(QMenu * append_to)
 {
-	QMenu *menu = AbstractAspect::createContextMenu();
 
+	QMenu *menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+	
+	new QAction(tr("E&xport to ASCII"), menu);
 	// TODO menu->addAction( ....
 
 	// Export to ASCII
@@ -869,12 +856,14 @@ void Table::createActions()
 	icon_temp->addPixmap(QPixmap(":/16x16/table_header.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/table_header.png"));
 	action_toggle_comments = new QAction(*icon_temp, QString(), this); // show/hide column comments
+	connect(action_toggle_comments, SIGNAL(triggered()), d_view, SLOT(toggleComments()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
 	action_toggle_tabbar = new QAction(*icon_temp, QString(), this); // show/hide options tabs
+	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleOptionTabBar()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
@@ -1039,7 +1028,6 @@ void Table::createActions()
 
 	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Statisti&cs"), this);;
 	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
-
 }
 
 void Table::addUndoToMenu(QMenu * menu)
@@ -1062,7 +1050,7 @@ void Table::addUndoToMenu(QMenu * menu)
 
 }
 
-void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
+void Table::showTableViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
@@ -1074,31 +1062,23 @@ void Table::handleViewContextMenuRequest(TableView *view, const QPoint& pos)
 	context_menu.addSeparator();
 
 	QString action_name;
-	if(view->areCommentsShown()) 
+	if(d_view->areCommentsShown()) 
 		action_name = tr("Hide Comments");
 	else
 		action_name = tr("Show Comments");
 	action_toggle_comments->setText(action_name);
 
-	if(view->isOptionTabBarVisible()) 
+	if(d_view->isOptionTabBarVisible()) 
 		action_name = tr("Hide Options");
 	else
 		action_name = tr("Show Options");
 	action_toggle_tabbar->setText(action_name);
 
-	// connections for "Go to Cell" and "Show/Hide OptionTabBar" to the relevant view
-	connect(this, SIGNAL(scrollToIndex(const QModelIndex&)), view, SLOT(scrollToIndex(const QModelIndex&)));
-	connect(action_toggle_tabbar, SIGNAL(triggered()), view, SLOT(toggleOptionTabBar()));
-	connect(action_toggle_comments, SIGNAL(triggered()), view, SLOT(toggleComments()));
 	context_menu.exec(pos);
-	disconnect(this, SIGNAL(scrollToIndex(const QModelIndex&)), view, SLOT(scrollToIndex(const QModelIndex&)));
-	disconnect(action_toggle_tabbar, SIGNAL(triggered()), view, SLOT(toggleOptionTabBar()));
-	disconnect(action_toggle_comments, SIGNAL(triggered()), view, SLOT(toggleComments()));
 }
 
-void Table::handleViewColumnContextMenuRequest(TableView *view, const QPoint& pos)
+void Table::showTableViewColumnContextMenu(const QPoint& pos)
 {
-	Q_UNUSED(view);
 	QMenu context_menu;
 	
 	addUndoToMenu(&context_menu);
@@ -1115,9 +1095,8 @@ void Table::handleViewColumnContextMenuRequest(TableView *view, const QPoint& po
 	context_menu.exec(pos);
 }
 
-void Table::handleViewRowContextMenuRequest(TableView *view, const QPoint& pos)
+void Table::showTableViewRowContextMenu(const QPoint& pos)
 {
-	Q_UNUSED(view);
 	QMenu context_menu;
 	
 	addUndoToMenu(&context_menu);
@@ -1144,7 +1123,6 @@ QMenu * Table::createSelectionMenu(QMenu * append_to)
 	QMenu * menu = append_to;
 	if(!menu)
 		menu = new QMenu();
-
 
 	menu->addAction(action_cut_selection);
 	menu->addAction(action_copy_selection);
@@ -1251,7 +1229,7 @@ void Table::goToCell()
 			1, 1, rowCount(), 1, &ok);
 	if ( !ok ) return;
 
-	emit scrollToIndex(d_model->index(row-1, col-1));
+	d_view->scrollToIndex(d_model->index(row-1, col-1));
 }
 
 void Table::moveColumn(int from, int to)
@@ -1578,6 +1556,8 @@ void Table::selectAll()
 {
 	d_model->selectAll();
 }
+
+
 #if false
 
 

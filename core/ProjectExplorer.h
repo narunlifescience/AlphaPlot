@@ -4,6 +4,8 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007-2008 by Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : thzs*gmx.net
     Description          : A tree view for displaying and editing an
                            AspectTreeModel.
 

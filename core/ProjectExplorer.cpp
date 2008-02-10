@@ -4,6 +4,8 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
+    Copyright            : (C) 2007-2008 by Tilman Hoener zu Siederdissen
+    Email (use @ for *)  : thzs*gmx.net
     Description          : A tree view for displaying and editing an
                            AspectTreeModel.
 
@@ -37,10 +39,15 @@
 ProjectExplorer::ProjectExplorer(QWidget *parent) 
 	: QTreeView(parent) 
 {
+	setAnimated(true);
+	setAlternatingRowColors(true);
+	setSelectionBehavior(QAbstractItemView::SelectRows);
+	setSelectionMode(QAbstractItemView::SingleSelection);
 }
 
 void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 {
+	if(!model()) return;
 	QVariant menu_value = model()->data(indexAt(event->pos()), AspectTreeModel::ContextMenuRole);
 	QMenu *menu = static_cast<QMenu*>(menu_value.value<QWidget*>());
 	if (!menu) return;
@@ -50,7 +57,7 @@ void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 		
 void ProjectExplorer::setCurrentAspect(AbstractAspect * aspect)
 {
-	AspectTreeModel * tree_model = static_cast<AspectTreeModel *>(model());
+	AspectTreeModel * tree_model = qobject_cast<AspectTreeModel *>(model());
 	if(tree_model) setCurrentIndex(tree_model->modelIndexOfAspect(aspect));
 }
 

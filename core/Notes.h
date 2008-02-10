@@ -11,7 +11,7 @@ class Notes : public QObject, public AbstractAspect
 
 	public:
 		Notes(const QString &name);
-		QWidget *view(QWidget *parent_widget=0);
+		AspectView *view(QWidget *parent_widget=0);
 		QIcon icon() const;
 
 		//! See QMetaObject::className().

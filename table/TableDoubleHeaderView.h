@@ -48,7 +48,8 @@ class TableCommentsHeaderView : public QHeaderView
 	Q_OBJECT
 
 	public:
-		TableCommentsHeaderView();
+		TableCommentsHeaderView(QWidget *parent = 0);
+		virtual ~TableCommentsHeaderView();
 
 	virtual void setModel(QAbstractItemModel * model);
 
@@ -90,6 +91,8 @@ class TableDoubleHeaderView : public QHeaderView
 		// React to a header data change
 		void headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast);
 
+	protected slots:
+		void sectionsInserted(const QModelIndex & parent, int logicalFirst, int logicalLast);
 
 	protected:
 		virtual void paintSection(QPainter * painter, const QRect & rect, int logicalIndex) const;

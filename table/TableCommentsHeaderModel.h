@@ -43,7 +43,7 @@ class TableCommentsHeaderModel : public QAbstractTableModel
 		//! Constructor
 		explicit TableCommentsHeaderModel( TableModel * table_model, QObject * parent = 0 );
 		//! Destructor
-		~TableCommentsHeaderModel();
+		virtual ~TableCommentsHeaderModel();
 
 		//! \name Overloaded functions from QAbstractItemModel
 		//@{

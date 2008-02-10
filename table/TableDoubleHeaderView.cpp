@@ -33,23 +33,32 @@
 #include <QEvent>
 #include <QLayout>
 
-TableCommentsHeaderView::TableCommentsHeaderView() 
-	: QHeaderView(Qt::Horizontal, 0) 
+TableCommentsHeaderView::TableCommentsHeaderView(QWidget *parent) 
+	: QHeaderView(Qt::Horizontal, parent) 
 {
+}
+
+TableCommentsHeaderView::~TableCommentsHeaderView() 
+{	
+	delete model();
 }
 
 void TableCommentsHeaderView::setModel(QAbstractItemModel * model)
 {
 	Q_ASSERT(model->inherits("TableModel"));
-	delete QHeaderView::model();
-	QHeaderView::setModel(new TableCommentsHeaderModel(static_cast<TableModel *>(model)));
+	QAbstractItemModel *old_model = QHeaderView::model();
+	TableCommentsHeaderModel *new_model = new TableCommentsHeaderModel(static_cast<TableModel *>(model));
+	QHeaderView::setModel(new_model);
+    QObject::disconnect(new_model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+   		this, SLOT(sectionsInserted(QModelIndex,int,int))); // We have to make sure sectionsInserted is called in the right order
+	delete old_model;
 }
 
 TableDoubleHeaderView::TableDoubleHeaderView(QWidget * parent) 
 : QHeaderView(Qt::Horizontal, parent)
 { 
 	setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
-	d_slave = new TableCommentsHeaderView(); 
+	d_slave = new TableCommentsHeaderView(this); 
 	d_slave->setDefaultAlignment(Qt::AlignLeft | Qt::AlignTop);
 	d_show_comments = true;
 }
@@ -118,4 +127,11 @@ void TableDoubleHeaderView::headerDataChanged(Qt::Orientation orientation, int l
 	if(orientation == Qt::Horizontal)
 		refresh();
 }
-
+		
+void TableDoubleHeaderView::sectionsInserted(const QModelIndex & parent, int logicalFirst, int logicalLast )
+{
+	d_slave->sectionsInserted(parent, logicalFirst, logicalLast);
+	QHeaderView::sectionsInserted(parent, logicalFirst, logicalLast);
+	Q_ASSERT(d_slave->count() == QHeaderView::count());
+}
+		

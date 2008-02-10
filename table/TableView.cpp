@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : TableView.cpp
     Project              : SciDAVis
+    Description          : View class for Table
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : View class for table data
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "Table.h"
 #include "TableView.h"
 #include "TableModel.h"
 #include "TableItemDelegate.h"
@@ -45,6 +46,7 @@
 #include <QtDebug>
 #include <QHeaderView>
 #include <QRect>
+#include <QPoint>
 #include <QSize>
 #include <QFontMetrics>
 #include <QFont>
@@ -54,30 +56,33 @@
 #include <QModelIndex>
 #include <QGridLayout>
 #include <QScrollArea>
+#include <QMenu>
 
-TableView::TableView(QWidget * parent, TableModel * model )
- : QWidget( parent ), d_model(model)
+TableView::TableView(Table *table)
+ : AspectView(static_cast<AbstractAspect *>(table)), d_table(table) 
 {
-	init(model);
+	d_model = d_table->model();
+	init(d_model);
 }
 
 void TableView::init(TableModel * model)
 {
-	d_view = new TableViewWidget();
+	d_main_widget = new QWidget();
+	d_main_layout = new QVBoxLayout(d_main_widget);
+	d_main_layout->setSpacing(0);
+	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	
+	d_view = new TableViewWidget(d_main_widget);
 	d_view->setModel(model);
 	d_view->setSelectionModel(model->selectionModel());
 	connect(d_view, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
-
-	d_main_layout = new QVBoxLayout(this);
-	d_main_layout->setSpacing(0);
-	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	d_main_layout->addWidget(d_view);
 	
 	d_horizontal_header = new TableDoubleHeaderView();
     d_horizontal_header->setClickable(true);
     d_horizontal_header->setHighlightSections(true);
 	d_view->setHorizontalHeader(d_horizontal_header);
 
-	d_main_layout->addWidget(d_view);
 
 	d_options_bar = new QWidget();
 	d_sub_layout = new QVBoxLayout(d_options_bar);
@@ -104,6 +109,9 @@ void TableView::init(TableModel * model)
 	d_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	d_main_layout->setStretchFactor(d_view, 1);
 
+	d_main_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	setWidget(d_main_widget);
+
 	d_view->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocus();
@@ -122,13 +130,10 @@ void TableView::init(TableModel * model)
 	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
 	d_horizontal_header->setMovable(true);
 	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
-	d_horizontal_header->viewport()->installEventFilter(this);
-	v_header->viewport()->installEventFilter(this);
-
+	
 	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
+	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
 
-    setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(emitContextMenuRequest(const QPoint&)));
 	
 	// keyboard shortcuts
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view);
@@ -155,8 +160,7 @@ void TableView::changeEvent(QEvent * event)
 {
 	if (event->type() == QEvent::LanguageChange) 
 		retranslateStrings();
-	else
-         QWidget::changeEvent(event);	
+	AspectView::changeEvent(event);	
 }
 
 void TableView::retranslateStrings()
@@ -195,42 +199,74 @@ void TableView::advanceCell()
 	d_view->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
-void TableView::emitContextMenuRequest(const QPoint& pos)
+void TableView::contextMenuEvent(QContextMenuEvent *event)
 {
-	emit requestContextMenu(this, mapToGlobal(pos));
+	QHeaderView * v_header = d_view->verticalHeader();
+
+	QRect view_rect, vh_rect, hh_rect;
+
+/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view, d_view->geometry()));
+	hh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(v_header, v_header->geometry())));*/
+/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view, d_view->geometry()));
+	hh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(v_header, v_header->geometry())));
+*/
+/*	view_rect = mapToGlobal(d_view, d_view->geometry());
+	hh_rect = mapToGlobal(d_horizontal_header, d_horizontal_header->geometry());
+	vh_rect = mapToGlobal(v_header, v_header->geometry()); */
+	view_rect = d_view->geometry();
+	hh_rect = d_horizontal_header->geometry();
+	QRect hh2 = mapToParent(d_horizontal_header, hh_rect);
+	vh_rect = v_header->geometry(); 
+	QRect vh2 = mapToParent(v_header, vh_rect);
+
+	QPoint pos = event->pos(), global_pos = event->globalPos();
+	if(view_rect.contains(global_pos))	
+	{
+		if(vh_rect.contains(global_pos))
+			d_table->showTableViewRowContextMenu(global_pos);
+		else if(hh_rect.contains(global_pos))
+			d_table->showTableViewColumnContextMenu(global_pos);
+		else
+			d_table->showTableViewContextMenu(global_pos);
+		event->accept();
+	}
+	else
+		AspectView::contextMenuEvent(event);
+}
+		
+QRect TableView::mapToGlobal(QWidget *widget, const QRect& rect)
+{
+	QPoint top_left = rect.topLeft();
+	QPoint bottom_right = rect.bottomRight();
+	top_left = widget->mapToGlobal(top_left);
+	bottom_right = widget->mapToGlobal(bottom_right);
+	return QRect(top_left, bottom_right);
+}
+
+QRect TableView::mapToParent(QWidget *widget, const QRect& rect)
+{
+	QPoint top_left = rect.topLeft();
+	QPoint bottom_right = rect.bottomRight();
+	top_left = widget->mapToParent(top_left);
+	bottom_right = widget->mapToParent(bottom_right);
+	return QRect(top_left, bottom_right);
+}
+
+QRect TableView::mapToThis(QWidget *widget, const QRect& rect)
+{
+	QPoint top_left = rect.topLeft();
+	QPoint bottom_right = rect.bottomRight();
+	top_left = widget->mapTo(this, top_left);
+	bottom_right = widget->mapTo(this, bottom_right);
+	return QRect(top_left, bottom_right);
 }
 
 void TableView::scrollToIndex(const QModelIndex & index)
 {
 	d_view->scrollTo(index);
 	d_view->setCurrentIndex(index);
-}
-
-bool TableView::eventFilter(QObject *object, QEvent *e)
-{
-	QHeaderView * v_header = d_view->verticalHeader();
-
-	if (e->type() == QEvent::MouseButtonPress) 
-	{
-		const QMouseEvent *me = static_cast<const QMouseEvent *>(e);
-		if (me->button() == Qt::RightButton) 
-		{
-			if(object == static_cast<QObject *>(d_horizontal_header->viewport())) 
-			{
-				QPoint pos = d_horizontal_header->viewport()->mapToGlobal(me->pos());
-				emit requestColumnContextMenu(this, pos);
-				return true;
-			}
-			else if (object == static_cast<QObject *>(v_header->viewport())) 
-			{
-				QPoint pos = v_header->viewport()->mapToGlobal(me->pos());
-				emit requestRowContextMenu(this, pos);
-				return true;
-			}
-		}
-	}
-
-	return QWidget::eventFilter(object, e);
 }
 
 void TableView::selectAll()
@@ -247,32 +283,6 @@ void TableView::toggleOptionTabBar()
 		d_hide_button->setArrowType(Qt::UpArrow);
 }
 
-
-void TableViewWidget::selectAll()
-{
-	TableModel * table_model = static_cast<TableModel *>(model());
-	QItemSelectionModel * sel_model = table_model->selectionModel();
-	QItemSelection sel(table_model->index(0, 0, QModelIndex()), table_model->index(table_model->rowCount()-1, table_model->columnCount()-1, QModelIndex()));
-	sel_model->select(sel, QItemSelectionModel::Select);
-}
-
-void TableViewWidget::updateHeaderGeometry(Qt::Orientation o, int first, int last)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(last)
-	if(o != Qt::Horizontal) return;
-	horizontalHeader()->setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
-	horizontalHeader()->updateGeometry();
-	horizontalHeader()->setStretchLastSection(false); // ugly hack part 2
-}
-
-void TableViewWidget::keyPressEvent(QKeyEvent * event)
-{
-    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-		emit advanceCell();
-	QTableView::keyPressEvent(event);
-}
-
 void TableView::horizontalSectionMovedHandler(int index, int from, int to)
 {
 	static bool inside = false;
@@ -283,7 +293,7 @@ void TableView::horizontalSectionMovedHandler(int index, int from, int to)
 	inside = true;
 	d_view->horizontalHeader()->moveSection(to, from);
 	inside = false;
-	emit columnMoved(from, to);
+	d_table->moveColumn(from, to);
 }
 
 bool TableView::areCommentsShown() const
@@ -306,6 +316,12 @@ void TableView::currentColumnChanged(const QModelIndex & current, const QModelIn
 	Q_UNUSED(previous);
 	int col = current.column();	
 	if(col < 0 || col >= d_model->columnCount()) return;
+	setColumnForDescriptionTab(col);
+}
+
+void TableView::setColumnForDescriptionTab(int col)
+{
+	if(col < 0 || col >= d_model->columnCount()) return;
 	shared_ptr<Column> col_ptr = d_model->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
@@ -318,8 +334,8 @@ void TableView::currentColumnChanged(const QModelIndex & current, const QModelIn
 
 void TableView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
 {
-	
-
+	Q_UNUSED(selected);
+	Q_UNUSED(deselected);
 }
 
 void TableView::updateFormatBox()
@@ -515,3 +531,42 @@ void TableView::applyType()
 			break;
 	}
 }
+		
+void TableView::handleHeaderDataChanged(Qt::Orientation orientation, int first, int last)
+{
+	if(orientation != Qt::Horizontal) return;
+
+	QItemSelectionModel * sel_model = d_model->selectionModel();
+
+	int col = sel_model->currentIndex().column();
+	if(col < first || col > last) return;
+	setColumnForDescriptionTab(col);
+}
+
+/* ================== TableViewWidget ================ */
+
+void TableViewWidget::selectAll()
+{
+	TableModel * table_model = static_cast<TableModel *>(model());
+	QItemSelectionModel * sel_model = table_model->selectionModel();
+	QItemSelection sel(table_model->index(0, 0, QModelIndex()), table_model->index(table_model->rowCount()-1, table_model->columnCount()-1, QModelIndex()));
+	sel_model->select(sel, QItemSelectionModel::Select);
+}
+
+void TableViewWidget::updateHeaderGeometry(Qt::Orientation o, int first, int last)
+{
+	Q_UNUSED(first)
+	Q_UNUSED(last)
+	if(o != Qt::Horizontal) return;
+	horizontalHeader()->setStretchLastSection(true);  // ugly hack (flaw in Qt? Does anyone know a better way?)
+	horizontalHeader()->updateGeometry();
+	horizontalHeader()->setStretchLastSection(false); // ugly hack part 2
+}
+
+void TableViewWidget::keyPressEvent(QKeyEvent * event)
+{
+    if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+		emit advanceCell();
+	QTableView::keyPressEvent(event);
+}
+

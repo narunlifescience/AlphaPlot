@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : TableView.h
     Project              : SciDAVis
+    Description          : View class for Table
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : View class for table data
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -49,7 +49,9 @@
 #include <QScrollArea>
 #include "ui_optionstabs.h"
 #include <QtDebug>
+#include "AspectView.h"
 
+class Table;
 class TableModel;
 class TableItemDelegate;
 class TableDoubleHeaderView;
@@ -65,9 +67,9 @@ class TableViewWidget : public QTableView
 
 	protected:
 		//! Overloaded function (cf. Qt documentation)
-		virtual void keyPressEvent( QKeyEvent * event );
+		virtual void keyPressEvent(QKeyEvent * event);
 
-signals:
+	signals:
 		void advanceCell();
 
 		protected slots:
@@ -77,17 +79,16 @@ signals:
 			void selectAll();
 };
 
-//! View class for table data
-class TableView : public QWidget
+//! View class for Table
+class TableView : public AspectView
 {
     Q_OBJECT
 
 	public:
 		//! Constructor
-		TableView(QWidget * parent, TableModel * model );
+		TableView(Table *table);
 		//! Destructor
 		virtual ~TableView();
-		bool eventFilter(QObject *object, QEvent *e);
 		TableModel * model() { return d_model; }
 		bool isOptionTabBarVisible() { return d_tool_box->isVisible(); }
 		//! Show or hide (if on = false) the column comments
@@ -100,19 +101,11 @@ class TableView : public QWidget
 		void selectAll();
 		void toggleOptionTabBar();
 		void toggleComments();
-		void currentColumnChanged(const QModelIndex & current, const QModelIndex & previous);
-		void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
 		void showOptionsDescriptionTab();
 		void showOptionsTypeTab();
 		void showOptionsFormulaTab();
-		void applyDescription();
-		void applyType();
-
 
 	signals:
-		void requestContextMenu(TableView * view, const QPoint& pos);
-		void requestColumnContextMenu(TableView * view, const QPoint& pos);
-		void requestRowContextMenu(TableView * view, const QPoint& pos);
 		//! Request resize command
 		/**
 		 *	Emit this signal to request the owner of the view's
@@ -123,15 +116,18 @@ class TableView : public QWidget
 		 *	will be resized by the view.
 		 */
 		void requestResize(int new_rows);
-		void columnMoved(int from, int to);
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
-		void emitContextMenuRequest(const QPoint& pos);
 		void horizontalSectionMovedHandler(int index, int from, int to);
 		void updateTypeInfo();
 		void updateFormatBox();
+		void handleHeaderDataChanged(Qt::Orientation orientation, int first, int last);
+		void currentColumnChanged(const QModelIndex & current, const QModelIndex & previous);
+		void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+		void applyDescription();
+		void applyType();
 
 	protected:
 		//! Pointer to the item delegate
@@ -139,11 +135,16 @@ class TableView : public QWidget
 		//! Pointer to the current underlying model
 		TableModel * d_model;
 
+		virtual void contextMenuEvent(QContextMenuEvent *event);
 		virtual void changeEvent(QEvent * event);
 		void retranslateStrings();
+		void setColumnForDescriptionTab(int col);
 
+		static QRect mapToGlobal(QWidget *widget, const QRect& rect);
+		static QRect mapToParent(QWidget *widget, const QRect& rect);
+		QRect mapToThis(QWidget *widget, const QRect& rect);
 
-	private:
+	public:
 		//! UI with options tabs (description, format, formula etc.)
 		Ui::OptionsTabs ui;
 		//! The table view (first part of the UI)
@@ -159,6 +160,8 @@ class TableView : public QWidget
 		QVBoxLayout * d_main_layout;
 		QVBoxLayout * d_sub_layout;
 		TableDoubleHeaderView * d_horizontal_header;
+		Table * d_table;
+		QWidget * d_main_widget;
 
 		//! Initialization common to all ctors
 		void init(TableModel * model);

@@ -138,7 +138,7 @@ bool String2DateTimeFilter::load(QXmlStreamReader * reader)
 void String2DateTimeFilter::setFormat(const QString& format) 
 { 
 	String2DateTimeFilterSetFormatCmd * cmd = new String2DateTimeFilterSetFormatCmd(
-			static_pointer_cast<String2DateTimeFilter>(shared_from_this()), format);
+		static_pointer_cast<String2DateTimeFilter>(shared_from_this()), format);
 	QUndoStack * stack;
 	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
 			stack->push(cmd);

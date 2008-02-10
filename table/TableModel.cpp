@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : TableModel.cpp
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
     Description          : Model storing data for a table
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -262,7 +262,7 @@ void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
 	}
 	d_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
-	columnsInserted(before, cols.count());
+	emit columnsInserted(before, cols.count());
 	endInsertColumns();	
 }
 
@@ -423,6 +423,8 @@ void TableModel::connectColumn(shared_ptr<Column> col)
 			SLOT(handleDataChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(dataChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *)));
+	connect(col->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)), this, 
+			SLOT(handleDescriptionChange(AbstractColumn *)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
 	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 

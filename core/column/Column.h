@@ -105,7 +105,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! See QObject::inherits().
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! This will always return zero as columns don't have a view
-		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
+		virtual AspectView *view() { return 0; }
 		//! Return an icon to be used for decorating the views and table column headers
 		virtual QIcon icon() const;
 		//@}

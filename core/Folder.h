@@ -1,11 +1,11 @@
 /***************************************************************************
     File                 : Folder.h
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-                           Knut Franke
-    Email (use @ for *)  : thzs*gmx.net, knut.franke*gmx.de
     Description          : Folder in a project
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -31,7 +31,6 @@
 #define FOLDER_H
 
 #include "AbstractAspect.h"
-#include <QMdiArea>
 
 //! Folder in a project
 class Folder : public QObject, public AbstractAspect
@@ -42,10 +41,7 @@ class Folder : public QObject, public AbstractAspect
 		Folder(const QString &name);
 
 		//! Currently, Folder does not have a default view (returns 0).
-		virtual QWidget *view(QWidget *parent_widget = 0) {
-			Q_UNUSED(parent_widget);
-			return 0;
-		}
+		virtual AspectView *view() { return 0; }
 
 		virtual ~Folder();
 
@@ -55,12 +51,6 @@ class Folder : public QObject, public AbstractAspect
 		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
 		virtual QIcon icon() const;
-
-		QMdiArea * mdiArea() const { return d_mdi_area; }
-	
-	private:
-		QMdiArea * d_mdi_area;
-		
 };
 
 #endif // ifndef FOLDER_H

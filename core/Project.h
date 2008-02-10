@@ -1,10 +1,11 @@
 /***************************************************************************
     File                 : Project.h
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Represents a SciDAVis project.
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -44,7 +45,9 @@ using boost::enable_shared_from_this;
 
 #include <QHash>
 #include <QKeySequence>
+#include <QAction>
 class QString;
+class ProjectWindow;
 
 //! Represents a SciDAVis project.
 /**
@@ -56,7 +59,21 @@ class Project : public Folder, public enable_shared_from_this<Project>
 	Q_OBJECT
 
 	public:
+		enum MdiWindowControlPolicy 
+		{
+			folderOnly,
+			folderAndSubfolders,
+			manual
+		};
+
+	signals:
+		void updateMdiWindows();
+		void showAllMdiWindows();
+		void hideAllMdiWindows();
+
+	public:
 		Project();
+		~Project();
 
 		virtual Project *project() const { return const_cast<Project*>(this); }
 		virtual QUndoStack *undoStack() const;
@@ -68,15 +85,20 @@ class Project : public Folder, public enable_shared_from_this<Project>
 		 */
 		virtual QKeySequence queryShortcut(const QString& action_string);
 
-		virtual QWidget *view(QWidget *parent = 0);
+		virtual AspectView *view();
+		virtual ProjectWindow *projectWindow(QWidget *parent = 0);
 
 		virtual QMenu *createContextMenu(QMenu * append_to = 0);
+
+		void setMdiWindowControlPolicy(Project::MdiWindowControlPolicy policy);
+		Project::MdiWindowControlPolicy mdiWindowControlPolicy() const;
+	
+	private slots:
+		void setMdiWindowControlPolicy(QAction * action);
 
 	private:
 		class Private;
 		Private *d;
-		//! Applicationwide keyboard shortcuts
-		QHash<QString, QKeySequence> keyboard_shortcuts;
 };
 
 #endif // ifndef PROJECT_H

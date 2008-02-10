@@ -1,11 +1,11 @@
 /***************************************************************************
     File                 : Folder.cpp
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-                           Knut Franke
-    Email (use @ for *)  : thzs*gmx.net, knut.franke*gmx.de
     Description          : Folder in a project
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -30,23 +30,23 @@
 #include "Folder.h"
 
 #include <QIcon>
+#include <QApplication>
+#include <QStyle>
 
 Folder::Folder(const QString &name)
 	: AbstractAspect(name)
 {
-	d_mdi_area = new QMdiArea();
 }
 
 Folder::~Folder()
 {
-	delete d_mdi_area;
 }
 
 QIcon Folder::icon() const
 {
 	QIcon result;
 	result.addFile(":/folder_closed.xpm", QSize(), QIcon::Normal, QIcon::Off);
-	result.addFile(":/folder_open.xpm", QSize(), QIcon::Normal, QIcon::On);
+	result.addFile(":/folder_open.xpm", QSize(), QIcon::Normal, QIcon::On);	
 	return result;
 }
 

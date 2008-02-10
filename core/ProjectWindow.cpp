@@ -4,7 +4,7 @@
     --------------------------------------------------------------------
     Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
                            some parts written 2004-2007 by Ion Vasilief
-                           (from former ProjectWindow class)
+                           (from former ApplicationWindow class)
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
 
@@ -32,9 +32,8 @@
 
 #include "Project.h"
 #include "AspectTreeModel.h"
-#include "MdiSubWindow.h"
+#include "AspectView.h"
 #include "ProjectExplorer.h"
-#include "Table.h"
 
 #include <QAction>
 #include <QMenuBar>
@@ -48,6 +47,41 @@
 #include <QToolButton>
 #include <QtDebug>
 
+
+
+
+
+
+#include "Table.h"
+#include "TableView.h"
+#include "TableModel.h"
+#include "TableItemDelegate.h"
+#include "tablecommands.h"
+#include "TableDoubleHeaderView.h"
+
+#include "Column.h"
+#include "core/AbstractFilter.h"
+#include "core/datatypes/SimpleCopyThroughFilter.h"
+#include "core/datatypes/Double2StringFilter.h"
+#include "core/datatypes/String2DoubleFilter.h"
+#include "core/datatypes/DateTime2StringFilter.h"
+#include "core/datatypes/String2DateTimeFilter.h"
+
+#include <QKeyEvent>
+#include <QtDebug>
+#include <QHeaderView>
+#include <QRect>
+#include <QSize>
+#include <QFontMetrics>
+#include <QFont>
+#include <QItemSelectionModel>
+#include <QItemSelection>
+#include <QShortcut>
+#include <QModelIndex>
+#include <QGridLayout>
+#include <QScrollArea>
+
+
 ProjectWindow::ProjectWindow(shared_ptr<Project> project)
 	: d_project(project)
 {
@@ -59,7 +93,10 @@ void ProjectWindow::init()
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowIcon(QIcon(":/appicon"));
 
-//	setCentralWidget(d_mdi_area);
+	d_mdi_area = new QMdiArea();
+	setCentralWidget(d_mdi_area);
+	d_current_aspect = d_project.get();
+	d_current_folder = d_project.get();
 
 	initDockWidgets();
 	initActions();
@@ -74,15 +111,17 @@ void ProjectWindow::init()
 		this, SLOT(handleAspectAdded(AbstractAspect *, int)));
 	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(AbstractAspect *, int)));
-//	connect(d_mdi_area, SIGNAL(subWindowActivated(QMdiSubWindow *)),
-//		this, SLOT(handleMdiSubWindowActivated(QMdiSubWindow *)));
+	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
+		this, SLOT(handleAspectAboutToBeRemoved(AbstractAspect *)));
+	connect(d_project.get(), SIGNAL(updateMdiWindows()), this, SLOT(updateMdiWindowVisibility()));
+	connect(d_project.get(), SIGNAL(hideAllMdiWindows()), this, SLOT(hideAllMdiWindows()));
+	connect(d_project.get(), SIGNAL(showAllMdiWindows()), this, SLOT(showAllMdiWindows()));
 
 	handleAspectDescriptionChanged(d_project.get());
 }
 
 ProjectWindow::~ProjectWindow()
 {
-	setCentralWidget(0); // the mdi area objects are deleted in the folder dtor
 	disconnect(d_project->abstractAspectSignalEmitter(), 0, this, 0);
 }
 
@@ -94,23 +133,29 @@ void ProjectWindow::handleAspectDescriptionChanged(AbstractAspect *aspect)
 
 void ProjectWindow::handleAspectAdded(AbstractAspect *parent, int index)
 {
-	// TODO: this goes to folder
 	shared_ptr<AbstractAspect> aspect = parent->child(index);
-	QWidget *view = aspect->view();
+	AspectView *view = aspect->view();
 	if (!view) return;
-	
-	QModelIndex current_index = d_project_explorer->currentIndex();
-	if(!current_index.isValid()) return;
-
-	Folder * folder = static_cast<AbstractAspect *>(current_index.internalPointer())->folder();
-	folder->mdiArea()->addSubWindow(new MdiSubWindow(aspect, view));
+	d_mdi_area->addSubWindow(view);
 	view->show();
+	updateMdiWindowVisibility();
 }
 
 void ProjectWindow::handleAspectRemoved(AbstractAspect *parent, int index)
 {
 	Q_UNUSED(index);
 	d_project_explorer->setCurrentAspect(parent);
+}
+
+void ProjectWindow::handleAspectAboutToBeRemoved(AbstractAspect *aspect)
+{
+	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	foreach(QMdiSubWindow *window, windows)
+	{
+		AspectView *aspect_view = static_cast<AspectView *>(window);
+		if(aspect_view->aspect() == aspect)
+			d_mdi_area->removeSubWindow(aspect_view);
+	}
 }
 
 void ProjectWindow::initDockWidgets()
@@ -120,8 +165,6 @@ void ProjectWindow::initDockWidgets()
 	d_project_explorer_dock->setWindowTitle(tr("Project Explorer"));
 	d_project_explorer = new ProjectExplorer(d_project_explorer_dock);
 	d_project_explorer->setModel(new AspectTreeModel(d_project, this));
-	d_project_explorer->setAnimated(true);
-	d_project_explorer->setAlternatingRowColors(true);
 	d_project_explorer_dock->setWidget(d_project_explorer);
 	addDockWidget(Qt::BottomDockWidgetArea, d_project_explorer_dock);
 	connect(d_project_explorer, SIGNAL(currentAspectChanged(AbstractAspect *)),
@@ -245,14 +288,6 @@ QMenu * ProjectWindow::createDockWidgetsMenu()
     return menu;
 }
 
-void ProjectWindow::handleMdiSubWindowActivated(QMdiSubWindow *window)
-{
-	if(!window) return;
-	MdiSubWindow * mdi_win = static_cast<MdiSubWindow *>(window);
-	shared_ptr<AbstractAspect> aspect = mdi_win->aspect();
-	d_project_explorer->setCurrentAspect(aspect.get());
-}
-
 void ProjectWindow::addNewAspect(shared_ptr<AbstractAspect> aspect)
 {
 	QModelIndex index = d_project_explorer->currentIndex();
@@ -269,13 +304,59 @@ void ProjectWindow::addNewAspect(shared_ptr<AbstractAspect> aspect)
 
 void ProjectWindow::handleCurrentAspectChanged(AbstractAspect *aspect)
 {
-	QMdiArea * mdi_area = aspect->folder()->mdiArea();
-	if(static_cast<QWidget *>(mdi_area) != centralWidget())
+	if(!aspect) aspect = d_project.get(); // should never happen, just in case
+	if(aspect->folder() != d_current_folder)
 	{
-		QWidget * widget = centralWidget();
-		if(widget) widget->hide();
-		setCentralWidget(mdi_area);
-		mdi_area->show();
+		d_current_folder = aspect->folder();
+		updateMdiWindowVisibility();
 	}
+	if(aspect != d_current_aspect)
+	{
+		QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+		foreach(QMdiSubWindow *window, windows)
+		{
+			AspectView * aspect_view = static_cast<AspectView *>(window);
+			if(aspect_view->aspect() == aspect)
+				d_mdi_area->setActiveSubWindow(aspect_view);
+		}
+	}
+	d_current_aspect = aspect;
+}
+
+void ProjectWindow::updateMdiWindowVisibility()
+{
+	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	if(d_project->mdiWindowControlPolicy() == Project::folderOnly)
+		foreach(QMdiSubWindow *window, windows)
+		{
+			AspectView * aspect_view = static_cast<AspectView *>(window);
+			if(aspect_view->aspect()->folder() == d_current_folder)
+				aspect_view->show();
+			else
+				aspect_view->hide();
+		}
+	else if(d_project->mdiWindowControlPolicy() == Project::folderAndSubfolders)
+		foreach(QMdiSubWindow *window, windows)
+		{
+			AspectView * aspect_view = static_cast<AspectView *>(window);
+			if(aspect_view->aspect()->isDescendantOf(d_current_folder))
+				aspect_view->show();
+			else
+				aspect_view->hide();
+		}
+}
+
+void ProjectWindow::hideAllMdiWindows()
+{
+	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	foreach(QMdiSubWindow *window, windows)
+		window->hide();
+}
+
+void ProjectWindow::showAllMdiWindows()
+{
+	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
+	foreach(QMdiSubWindow *window, windows)
+		window->show();
 }
 

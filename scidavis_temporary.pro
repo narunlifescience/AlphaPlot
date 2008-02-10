@@ -51,7 +51,7 @@ HEADERS += \
 	Folder.h \
 	ProjectWindow.h \
 	AspectTreeModel.h \
-	MdiSubWindow.h \
+	AspectView.h \
 	ProjectExplorer.h \
 	SortDialog.h \
 	TableFormulaEditorView.h \
@@ -80,7 +80,7 @@ SOURCES += \
 	Project.cpp \
 	ProjectWindow.cpp \
 	AspectTreeModel.cpp \
-	MdiSubWindow.cpp \
+	AspectView.cpp \
 	ProjectExplorer.cpp \
 	SortDialog.cpp \
 	TableFormulaEditorView.cpp \

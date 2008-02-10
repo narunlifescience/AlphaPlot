@@ -31,6 +31,7 @@
 #include <QSplashScreen>
 #include <QTimer>
 #include "Project.h"
+#include "ProjectWindow.h"
 
 // The following stuff is for the doxygen title page
 /*!  \mainpage SciDAVis - Scientific Data Analysis and Visualization - API documentation
@@ -128,16 +129,16 @@ int main( int argc, char ** argv )
     QApplication app( argc, argv );
 
 	// show splash screen
-	QSplashScreen *splash = new QSplashScreen(QPixmap(":/appsplash"));
-	splash->show();
+	QSplashScreen splash(QPixmap(":/appsplash"));
+	splash.show();
 	QTimer *timer = new QTimer(&app);
-	app.connect( timer, SIGNAL(timeout()), splash, SLOT(close()) );
+	app.connect( timer, SIGNAL(timeout()), &splash, SLOT(close()) );
 	app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
 	timer->start(5000); // autoclose after 5 seconds
 
 	// create initial empty project
 	shared_ptr<Project> p(new Project());
-	p->view()->showMaximized();
+	p->projectWindow()->showMaximized();
 
 
 #if 0
