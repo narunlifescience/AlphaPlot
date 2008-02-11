@@ -31,6 +31,8 @@
 #define SIMPLE_COPY_THROUGH_FILTER_H
 
 #include "core/AbstractSimpleFilter.h"
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 /**
  * \brief Filter which copies the provided input unaltered to the output

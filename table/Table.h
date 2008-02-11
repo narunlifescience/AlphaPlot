@@ -60,9 +60,9 @@ with the application and other aspects as well as user input. This includes scri
 evaluation, import/export, and saving and loading of a complete table. 
 The underlying model is not visible to any non table related classes with one exeption:
 Pointers to columns can be passed around an manipulated directly. The owner table will
-be notified by emission of signals and react accordings. All method calls to table
-and the columns are undo aware. The manipulation of the data in TableModel is done
-by commands derived from QUndoCommand. If the table has an undo stack associated to it (usually 
+be notified by emission of signals and react accordingly. All public methods of table
+and columns are undo aware. The manipulation of the data in TableModel is done
+by commands derived from QUndoCommand. If the table has an undo stack associated with it (usually 
 by the project root aspect) all commands can be undone (and redone).
 /li>
 <li> class TableView: This class is purely for displaying the table contents. It relays

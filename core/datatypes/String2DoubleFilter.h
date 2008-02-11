@@ -31,6 +31,8 @@
 
 #include "../AbstractSimpleFilter.h"
 #include <QLocale>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 //! Locale-aware conversion filter QString -> double.
 class String2DoubleFilter : public AbstractSimpleFilter

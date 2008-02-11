@@ -104,7 +104,7 @@ private:
 class TableRemoveColumnsCmd : public QUndoCommand
 {
 public:
-	TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent = 0 );
+	TableRemoveColumnsCmd( TableModel * model, int first, int count, QList< shared_ptr<Column> > cols, QUndoCommand * parent = 0 );
 	~TableRemoveColumnsCmd();
 
 	virtual void redo();

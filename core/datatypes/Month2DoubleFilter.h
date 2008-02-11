@@ -32,6 +32,8 @@
 
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 /**
  * \brief Conversion filter QDateTime -> double, translating dates into months (January -> 1).

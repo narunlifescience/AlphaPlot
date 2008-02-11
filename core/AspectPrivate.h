@@ -75,13 +75,6 @@ class AspectPrivate
 		QString d_name, d_comment, d_caption_spec;
 		QDateTime d_creation_time;
 		AbstractAspect * d_owner;
-
-		// Undo commands need access to the signals
-		friend class AspectNameChangeCmd;
-		friend class AspectCommentChangeCmd;
-		friend class AspectCaptionSpecChangeCmd;
-		friend class AspectChildRemoveCmd;
-		friend class AspectChildAddCmd;
 };
 
 #endif // ifndef ASPECT_MODEL_H

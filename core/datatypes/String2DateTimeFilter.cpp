@@ -29,6 +29,8 @@
  ***************************************************************************/
 #include "String2DateTimeFilter.h"
 #include <QStringList>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 const char * String2DateTimeFilter::date_formats[] = {
 	"yyyy-M-d", // ISO 8601 w/ and w/o leading zeros

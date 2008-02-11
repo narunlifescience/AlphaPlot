@@ -30,9 +30,6 @@
 #define ABSTRACT_ASPECT_H
 
 #include <QObject>
-#include <QXmlStreamWriter>
-#include <QXmlStreamReader>
-#include <QXmlStreamAttributes>
 
 #ifndef _NO_TR1_
 #include "tr1/memory"
@@ -54,6 +51,8 @@ class QIcon;
 class QMenu;
 class Folder;
 class AspectView;
+class QXmlStreamReader;
+class QXmlStreamWriter;
 
 //! Wrapper class for AbstractAspect (receives and sends signals for it)
 /**
@@ -96,14 +95,12 @@ class AbstractAspectWrapper : public QObject
 	private:
 		AbstractAspect * d_aspect;
 		
-		friend class AbstractSimpleFilter;
 		// Undo commands need access to the signals
 		friend class AspectNameChangeCmd;
 		friend class AspectCommentChangeCmd;
 		friend class AspectCaptionSpecChangeCmd;
 		friend class AspectChildRemoveCmd;
 		friend class AspectChildAddCmd;
-		friend class Table;
 };
 
 //! Base class of all persistent objects in a Project.
@@ -244,8 +241,13 @@ class AbstractAspect
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
 
-		//! Set the parent aspect 
-		void setParentAspect(AbstractAspect * new_parent);
+		//! \name XML related functions
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const {}; //= 0;
+		//! Load from XML
+		virtual bool load(QXmlStreamReader *) { return false; }; //= 0;
+		//@}
 
 	// wrapped slots 
 	public: 
@@ -277,7 +279,10 @@ class AbstractAspect
 		//! Show info about the aspect
 		void showProperties();
 
-	protected:
+	private:
+		//! Set #d_parent_aspect, handling signal connections (but not undo/redo).
+		void setParentAspect(AbstractAspect * new_parent);
+
 		AspectPrivate * d_aspect_private;
 		AbstractAspect * d_parent_aspect; // making this a shared_ptr would lead to circular references
 		AbstractAspectWrapper *d_aspect_wrapper;

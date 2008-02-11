@@ -33,6 +33,8 @@
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <math.h>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 //! Conversion filter double -> QDateTime, interpreting the input numbers as months of the year.
 class Double2MonthFilter : public AbstractSimpleFilter

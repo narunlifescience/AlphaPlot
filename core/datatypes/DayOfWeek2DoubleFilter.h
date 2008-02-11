@@ -32,6 +32,8 @@
 
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 //! Conversion filter QDateTime -> double, translating dates into days of the week (Monday -> 1).
 class DayOfWeek2DoubleFilter : public AbstractSimpleFilter

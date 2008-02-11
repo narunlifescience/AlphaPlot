@@ -31,6 +31,8 @@
 #include "ColumnPrivate.h"
 #include "columncommands.h"
 #include <QIcon>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 Column::Column(const QString& label, SciDAVis::ColumnMode mode)
  : AbstractAspect(label)

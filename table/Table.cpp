@@ -116,8 +116,8 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	QList< shared_ptr<Column> > cols;
 	for(int i=0; i<columns; i++)
 		cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+	appendColumns(cols);
 	d_model->setRowCount(rows);
-	d_model->appendColumns(cols);
 
 	d_view = new TableView(this);
 	createActions();
@@ -153,31 +153,14 @@ void Table::handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column>
 
 void Table::handleColumnsInserted(int first, int count)
 {
-	for(int i=first; i<first+count; i++)
-	{
-		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
-		int index = d_aspect_private->childCount();
-		emit abstractAspectSignalEmitter()->aspectAboutToBeAdded(this, index);
-		d_aspect_private->insertChild(index, dynamic_pointer_cast<AbstractAspect>(child));
-		child->setParentAspect(this);
-		emit abstractAspectSignalEmitter()->aspectAdded(this, index);
-		emit child->abstractAspectSignalEmitter()->aspectAdded(child.get());
-	}
+	Q_UNUSED(first)
+	Q_UNUSED(count)
 }
 
 void Table::handleColumnsAboutToBeRemoved(int first, int count)
 {
-	for(int i=first; i<first+count; i++)
-	{
-		shared_ptr<AbstractAspect> child = dynamic_pointer_cast<AbstractAspect>(d_model->output(i));
-		int index = d_aspect_private->indexOfChild(child);
-		Q_ASSERT(index != -1);
-		emit abstractAspectSignalEmitter()->aspectAboutToBeRemoved(this, index);
-		emit child->abstractAspectSignalEmitter()->aspectAboutToBeRemoved(child.get());
-		d_aspect_private->removeChild(child);
-		child->setParentAspect(0);
-		emit abstractAspectSignalEmitter()->aspectRemoved(this, index);
-	}
+	Q_UNUSED(first)
+	Q_UNUSED(count)
 }
 
 void Table::handleColumnsRemoved(int first, int count)
@@ -191,6 +174,8 @@ void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
 	if( new_cols.size() < 1 || before < 0 || before > columnCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
+	foreach(shared_ptr<Column> col, new_cols)
+		addChild(dynamic_pointer_cast<AbstractAspect>(col));
 	exec(new TableInsertColumnsCmd(d_model, before, new_cols));
 	endMacro();
 	RESET_CURSOR;
@@ -201,18 +186,19 @@ void Table::removeColumns(int first, int count)
 	if( count < 1 || first < 0 || first+count > columnCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
-	exec(new TableRemoveColumnsCmd(d_model, first, count));
+	QList< shared_ptr<Column> > cols;
+	for(int i=first; i<(first+count); i++)
+		cols.append(dynamic_pointer_cast<Column>(d_model->output(i)));
+	exec(new TableRemoveColumnsCmd(d_model, first, count, cols));
+	foreach(shared_ptr<Column> col, cols)
+		removeChild(static_pointer_cast<AbstractAspect>(col));
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::removeColumn(Column * col)
 {
-	int index = columnIndex(col);
-	if(index < 0) return;
-	WAIT_CURSOR;
-	exec(new TableRemoveColumnsCmd(d_model, index, 1));
-	RESET_CURSOR;
+	removeColumns(columnIndex(col), 1);
 }
 
 void Table::removeRows(int first, int count)
@@ -278,7 +264,7 @@ void Table::setColumnCount(int new_size)
 
 	WAIT_CURSOR;
 	if (new_size < old_size)
-		exec(new TableRemoveColumnsCmd(d_model, new_size, old_size-new_size));
+		removeColumns(new_size, old_size-new_size);
 	else
 	{
 		QList< shared_ptr<Column> > cols;

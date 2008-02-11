@@ -95,8 +95,8 @@ void TableSetNumberOfRowsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
-TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QUndoCommand * parent )
- : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count)
+TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QList< shared_ptr<Column> > cols, QUndoCommand * parent )
+ : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count), d_old_cols(cols)
 {
 	setText(QObject::tr("%1: remove %2 column(s)").arg(d_model->name()).arg(count));
 }
@@ -107,10 +107,6 @@ TableRemoveColumnsCmd::~TableRemoveColumnsCmd()
 
 void TableRemoveColumnsCmd::redo()
 {
-	if(d_old_cols.isEmpty())
-		for(int i=d_first; i<(d_first+d_count); i++)
-			d_old_cols.append(dynamic_pointer_cast<Column>(d_model->output(i)));
-
 	d_model->removeColumns(d_first, d_count);
 }
 

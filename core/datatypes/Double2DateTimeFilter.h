@@ -34,6 +34,8 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 //! Conversion filter double -> QDateTime, interpreting the input numbers as (fractional) Julian days.
 class Double2DateTimeFilter : public AbstractSimpleFilter

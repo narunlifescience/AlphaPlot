@@ -28,6 +28,8 @@
  ***************************************************************************/
 
 #include "Double2StringFilter.h"
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 void Double2StringFilter::save(QXmlStreamWriter * writer) const
 {

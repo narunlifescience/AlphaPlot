@@ -129,7 +129,7 @@ QMenu *Project::createContextMenu(QMenu * append_to)
 	// New Aspect ->
 	// ----
 	//
-	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_aspect_wrapper, SLOT(showProperties()) );
+	menu->addAction(QPixmap(), QObject::tr("&Properties"), abstractAspectSignalReceiver(), SLOT(showProperties()) );
 
 	return menu;
 }
