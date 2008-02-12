@@ -38,7 +38,7 @@
 ///////////////////////////////////////////////////////////////////////////
 // class TableInsertColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
-TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent)
+TableInsertColumnsCmd::TableInsertColumnsCmd( TableModel * model, int before, QList<Column*> cols, QUndoCommand * parent)
  : QUndoCommand( parent ), d_model(model), d_before(before), d_cols(cols)
 {
 	setText(QObject::tr("%1: insert %2 column(s)").arg(d_model->name()).arg(d_cols.size()));
@@ -95,7 +95,7 @@ void TableSetNumberOfRowsCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class TableRemoveColumnsCmd
 ///////////////////////////////////////////////////////////////////////////
-TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QList< shared_ptr<Column> > cols, QUndoCommand * parent )
+TableRemoveColumnsCmd::TableRemoveColumnsCmd( TableModel * model, int first, int count, QList<Column*> cols, QUndoCommand * parent )
  : QUndoCommand( parent ), d_model(model), d_first(first), d_count(count), d_old_cols(cols)
 {
 	setText(QObject::tr("%1: remove %2 column(s)").arg(d_model->name()).arg(count));

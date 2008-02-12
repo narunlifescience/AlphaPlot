@@ -95,8 +95,8 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	connect(d_model, SIGNAL(requestResize(int)),
 			this, SLOT(handleModelResizeRequest(int)));
 
-	connect(d_model, SIGNAL(columnsAboutToBeInserted(int, QList< shared_ptr<Column> >)),
-			this, SLOT(handleColumnsAboutToBeInserted(int, QList< shared_ptr<Column> >)));
+	connect(d_model, SIGNAL(columnsAboutToBeInserted(int, QList<Column*>)),
+			this, SLOT(handleColumnsAboutToBeInserted(int, QList<Column*>)));
 	connect(d_model, SIGNAL(columnsInserted(int, int)),
 			this, SLOT(handleColumnsInserted(int, int)));
 	connect(d_model, SIGNAL(columnsAboutToBeReplaced(int, int)),
@@ -109,13 +109,13 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 			this, SLOT(handleColumnsRemoved(int, int)));
 
 	setModelName();
-	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
+	connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
 		this, SLOT(setModelName()));
 
 	// set initial number of rows and columns
-	QList< shared_ptr<Column> > cols;
+	QList<Column*> cols;
 	for(int i=0; i<columns; i++)
-		cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+		cols << new Column(QString::number(i+1), SciDAVis::Numeric);
 	appendColumns(cols);
 	d_model->setRowCount(rows);
 
@@ -145,7 +145,7 @@ void Table::handleModelResizeRequest(int new_size)
 	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
 }
 
-void Table::handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols)
+void Table::handleColumnsAboutToBeInserted(int before, QList<Column*> new_cols)
 {
 	Q_UNUSED(before)
 	Q_UNUSED(new_cols)
@@ -169,13 +169,13 @@ void Table::handleColumnsRemoved(int first, int count)
 	Q_UNUSED(count)
 }
 
-void Table::insertColumns(int before, QList< shared_ptr<Column> > new_cols)
+void Table::insertColumns(int before, QList<Column*> new_cols)
 {
 	if( new_cols.size() < 1 || before < 0 || before > columnCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
-	foreach(shared_ptr<Column> col, new_cols)
-		addChild(dynamic_pointer_cast<AbstractAspect>(col));
+	foreach(Column* col, new_cols)
+		addChild(col);
 	exec(new TableInsertColumnsCmd(d_model, before, new_cols));
 	endMacro();
 	RESET_CURSOR;
@@ -186,12 +186,12 @@ void Table::removeColumns(int first, int count)
 	if( count < 1 || first < 0 || first+count > columnCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
-	QList< shared_ptr<Column> > cols;
+	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
-		cols.append(dynamic_pointer_cast<Column>(d_model->output(i)));
+		cols.append(dynamic_cast<Column*>(d_model->output(i)));
 	exec(new TableRemoveColumnsCmd(d_model, first, count, cols));
-	foreach(shared_ptr<Column> col, cols)
-		removeChild(static_pointer_cast<AbstractAspect>(col));
+	foreach(Column* col, cols)
+		removeChild(col);
 	endMacro();
 	RESET_CURSOR;
 }
@@ -267,30 +267,25 @@ void Table::setColumnCount(int new_size)
 		removeColumns(new_size, old_size-new_size);
 	else
 	{
-		QList< shared_ptr<Column> > cols;
+		QList<Column*> cols;
 		for(int i=0; i<new_size-old_size; i++)
-			cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+			cols << new Column(QString::number(i+1), SciDAVis::Numeric);
 		appendColumns(cols);
 	}
 	RESET_CURSOR;
 }
 		
-shared_ptr<Column> Table::column(int index) const 
+Column* Table::column(int index) const 
 { 
 	if( index >= 0 & index < columnCount() )
 		return d_model->column(index); 
 	else
-		return shared_ptr<Column>();
+		return 0;
 }
 
 int Table::columnIndex(Column * col) const 
 { 
 	return d_model->columnIndex(col); 
-}
-
-int Table::columnIndex(shared_ptr<Column> col) const 
-{ 
-	return columnIndex(col.get()); 
 }
 
 void Table::clear()
@@ -428,9 +423,9 @@ void Table::pasteIntoSelection()
 			// resize the table if necessary
 			if(last_col >= columnCount())
 			{
-				QList< shared_ptr<Column> > cols;
+				QList<Column*> cols;
 				for(int i=0; i<last_col+1-columnCount(); i++)
-					cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Text));
+					cols << new Column(QString::number(i+1), SciDAVis::Text);
 				appendColumns(cols);
 			}
 			if(last_row >= rowCount())
@@ -536,7 +531,7 @@ void Table::fillSelectedCellsWithRandomNumbers()
 
 void Table::sortTable()
 {
-	QList< shared_ptr<Column> > cols;
+	QList<Column*> cols;
 	
 	for(int i=0; i<columnCount(); i++)
 		cols.append(column(i));
@@ -549,7 +544,7 @@ void Table::insertEmptyColumns()
 	int first = d_model->firstSelectedColumn();
 	int last = d_model->lastSelectedColumn();
 	int count, current = first;
-	QList< shared_ptr<Column> > cols;
+	QList<Column*> cols;
 
 	if( first < 0 ) return;
 
@@ -561,7 +556,7 @@ void Table::insertEmptyColumns()
 		while( current <= last && d_model->isColumnSelected(current) ) current++;
 		count = current-first;
 		for(int i=0; i<count; i++)
-			cols << shared_ptr<Column>(new Column(QString::number(i+1), SciDAVis::Numeric));
+			cols << new Column(QString::number(i+1), SciDAVis::Numeric);
 		insertColumns(first, cols);
 		cols.clear();
 		current += count;
@@ -578,8 +573,8 @@ void Table::removeSelectedColumns()
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove selected column(s)").arg(name()));
 
-	QList< shared_ptr<Column> > list = d_model->selectedColumns();
-	foreach(shared_ptr<Column> ptr, list)
+	QList< Column* > list = d_model->selectedColumns();
+	foreach(Column* ptr, list)
 		removeColumn(ptr);
 
 	endMacro();
@@ -591,8 +586,8 @@ void Table::clearSelectedColumns()
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 
-	QList< shared_ptr<Column> > list = d_model->selectedColumns();
-	foreach(shared_ptr<Column> ptr, list)
+	QList< Column* > list = d_model->selectedColumns();
+	foreach(Column* ptr, list)
 		ptr->clear();
 
 	endMacro();
@@ -604,8 +599,8 @@ void Table::setSelectionAs(SciDAVis::PlotDesignation pd)
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
 
-	QList< shared_ptr<Column> > list = d_model->selectedColumns();
-	foreach(shared_ptr<Column> ptr, list)
+	QList< Column* > list = d_model->selectedColumns();
+	foreach(Column* ptr, list)
 		ptr->setPlotDesignation(pd);
 
 	endMacro();
@@ -650,7 +645,7 @@ void Table::normalizeSelectedColumns()
 
 void Table::sortSelectedColumns()
 {
-	QList< shared_ptr<Column> > cols = d_model->selectedColumns();
+	QList< Column* > cols = d_model->selectedColumns();
 	sortDialog(cols);
 }
 
@@ -1268,19 +1263,19 @@ void Table::setPlotMenu(QMenu * menu)
 	d_plot_menu = menu;
 }
 
-void Table::sortDialog(QList< shared_ptr<Column> > cols)
+void Table::sortDialog(QList<Column*> cols)
 {
 	if(cols.isEmpty()) return;
 
 	SortDialog *sortd = new SortDialog();
 	sortd->setAttribute(Qt::WA_DeleteOnClose);
-	connect(sortd, SIGNAL(sort(shared_ptr<Column>,QList< shared_ptr<Column> >,bool)), this, SLOT(sortColumns(shared_ptr<Column>,QList< shared_ptr<Column> >,bool)));
+	connect(sortd, SIGNAL(sort(Column*,QList<Column*>,bool)), this, SLOT(sortColumns(Column*,QList<Column*>,bool)));
 	sortd->setColumnsList(cols);
 	sortd->exec();
 }
 
 
-void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > cols, bool ascending)
+void Table::sortColumns(Column *leading, QList<Column*> cols, bool ascending)
 {
 	if(cols.isEmpty()) return;
 
@@ -1321,7 +1316,7 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 	{
 		for(int i=0; i<cols.size(); i++)
 		{
-			shared_ptr<Column> col = cols.at(i);
+			Column* col = cols.at(i);
 
 			if(col->dataType() == SciDAVis::TypeDouble)
 			{
@@ -1337,18 +1332,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 					qStableSort(map.begin(), map.end(), CompareFunctions::doubleGreater);
 
 				QListIterator< QPair<double, int> > it(map);
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				Column *temp_col = new Column("temp", col->columnMode());
 				
 				int k=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->copy(col, it.peekNext().second, k, 1);
 					temp_col->setMasked(col->isMasked(it.next().second));
 					k++;
 				}
 				// copy the sorted column
-				col->copy(temp_col.get(), 0, 0, rows);
+				col->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 			else if(col->dataType() == SciDAVis::TypeQString)
 			{
@@ -1364,18 +1360,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 					qStableSort(map.begin(), map.end(), CompareFunctions::QStringGreater);
 
 				QListIterator< QPair<QString, int> > it(map);
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				Column *temp_col = new Column("temp", col->columnMode());
 				
 				int k=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->copy(col, it.peekNext().second, k, 1);
 					temp_col->setMasked(col->isMasked(it.next().second));
 					k++;
 				}
 				// copy the sorted column
-				col->copy(temp_col.get(), 0, 0, rows);
+				col->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 			else if(col->dataType() == SciDAVis::TypeQDateTime)
 			{
@@ -1391,18 +1388,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 					qStableSort(map.begin(), map.end(), CompareFunctions::QDateTimeGreater);
 
 				QListIterator< QPair<QDateTime, int> > it(map);
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", col->columnMode()));
+				Column *temp_col = new Column("temp", col->columnMode());
 				
 				int k=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(col.get(), it.peekNext().second, k, 1);
+					temp_col->copy(col, it.peekNext().second, k, 1);
 					temp_col->setMasked(col->isMasked(it.next().second));
 					k++;
 				}
 				// copy the sorted column
-				col->copy(temp_col.get(), 0, 0, rows);
+				col->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 		}
 		
@@ -1425,18 +1423,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 
 			for(int i=0; i<cols.size(); i++) 
 			{
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				Column *temp_col = new Column("temp", cols.at(i)->columnMode());
 				it.toFront();
 				int j=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->copy(cols.at(i), it.peekNext().second, j, 1);
 					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
 					j++;
 				}
 				// copy the sorted column
-				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+				cols.at(i)->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 		}
 		else if(leading->dataType() == SciDAVis::TypeQString)
@@ -1455,18 +1454,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 
 			for(int i=0; i<cols.size(); i++) 
 			{
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				Column *temp_col = new Column("temp", cols.at(i)->columnMode());
 				it.toFront();
 				int j=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->copy(cols.at(i), it.peekNext().second, j, 1);
 					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
 					j++;
 				}
 				// copy the sorted column
-				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+				cols.at(i)->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 		}
 		else if(leading->dataType() == SciDAVis::TypeQDateTime)
@@ -1485,18 +1485,19 @@ void Table::sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > 
 
 			for(int i=0; i<cols.size(); i++) 
 			{
-				shared_ptr<Column> temp_col = shared_ptr<Column>(new Column("temp", cols.at(i)->columnMode()));
+				Column *temp_col = new Column("temp", cols.at(i)->columnMode());
 				it.toFront();
 				int j=0;
 				// put the values in the right order into temp_col
 				while(it.hasNext())
 				{
-					temp_col->copy(cols.at(i).get(), it.peekNext().second, j, 1);
+					temp_col->copy(cols.at(i), it.peekNext().second, j, 1);
 					temp_col->setMasked(cols.at(i)->isMasked(it.next().second));
 					j++;
 				}
 				// copy the sorted column
-				cols.at(i)->copy(temp_col.get(), 0, 0, rows);
+				cols.at(i)->copy(temp_col, 0, 0, rows);
+				delete temp_col;
 			}
 		}
 	}

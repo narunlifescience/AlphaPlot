@@ -70,7 +70,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 	
 	int row = index.row();
 	int column = index.column();
-	shared_ptr<Column> col_ptr = d_columns.value(column);
+	Column* col_ptr = d_columns.value(column);
 	if(!col_ptr)
 		return QVariant();
 
@@ -90,7 +90,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid","string for invalid rows"));
 				
-				shared_ptr<AbstractSimpleFilter> out_fltr = col_ptr->outputFilter();
+				AbstractSimpleFilter *out_fltr = col_ptr->outputFilter();
 				out_fltr->input(0, col_ptr);
 				return QVariant(out_fltr->textAt(row) + postfix);
 			}
@@ -154,12 +154,12 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 	{  
 		case Qt::EditRole:
 			{
-				shared_ptr<Column> col_ptr = d_columns.at(index.column());
-				shared_ptr<AbstractSimpleFilter> in_fltr = col_ptr->inputFilter();
-				shared_ptr<Column> sd( new Column("temp", QStringList(value.toString())) );
+				Column* col_ptr = d_columns.at(index.column());
+				AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+				Column* sd( new Column("temp", QStringList(value.toString())) );
 				in_fltr->input(0, sd);
 				// remark: the validity of the cell is determined by the input filter
-				col_ptr->copy(in_fltr->output(0).get(), 0, row, 1);  
+				col_ptr->copy(in_fltr->output(0), 0, row, 1);  
 				emit dataChanged(index, index);
 				return true;
 			}
@@ -193,15 +193,15 @@ QModelIndex TableModel::parent(const QModelIndex & child) const
 }
 
 
-shared_ptr<AbstractColumn> TableModel::output(int port) const
+AbstractColumn* TableModel::output(int port) const
 {
 	if( (port < 0) || (port >= d_column_count) || !d_columns.value(port))
-		return shared_ptr<AbstractColumn>();
+		return 0;
 	
 	return d_columns.at(port);
 }
 
-void TableModel::replaceColumns(int first, QList< shared_ptr<Column> > new_cols)
+void TableModel::replaceColumns(int first, QList<Column*> new_cols)
 {
 	if( (first < 0) || (first + new_cols.size() > d_column_count) )
 		return;
@@ -236,7 +236,7 @@ void TableModel::emitColumnChanged(Column * col)
 	emitDataChanged(0, index, col->rowCount()-1, index);
 }
 
-void TableModel::insertColumns(int before, QList< shared_ptr<Column> > cols)
+void TableModel::insertColumns(int before, QList<Column*> cols)
 {
 	int count = cols.count();
 
@@ -288,7 +288,7 @@ void TableModel::removeColumns(int first, int count)
 	endRemoveColumns();	
 }
 
-void TableModel::appendColumns(QList< shared_ptr<Column>  > cols)
+void TableModel::appendColumns(QList<Column*> cols)
 {
 	insertColumns(d_column_count, cols);
 }
@@ -413,33 +413,33 @@ int TableModel::numColsWithPD(SciDAVis::PlotDesignation pd)
 	return count;
 }
 
-void TableModel::connectColumn(shared_ptr<Column> col)
+void TableModel::connectColumn(Column* col)
 {
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(descriptionChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(descriptionChanged(AbstractColumn *)), this, 
 			SLOT(handleDescriptionChange(AbstractColumn *)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
 			SLOT(handlePlotDesignationChange(AbstractColumn *)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(dataChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(dataChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(modeChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
 			SLOT(handleDescriptionChange(AbstractColumn *)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
+	connect(col, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
+	connect(col, SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsAboutToBeRemoved(AbstractColumn *, int, int)), this, 
+	connect(col, SIGNAL(rowsAboutToBeRemoved(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsAboutToBeRemoved(AbstractColumn *,int,int))); 
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(rowsRemoved(AbstractColumn *, int, int)), this, 
+	connect(col, SIGNAL(rowsRemoved(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsRemoved(AbstractColumn *,int,int))); 
-	connect(col->abstractColumnSignalEmitter(), SIGNAL(maskingChanged(AbstractColumn *)), this, 
+	connect(col, SIGNAL(maskingChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *))); 
 }
 
-void TableModel::disconnectColumn(shared_ptr<Column> col)
+void TableModel::disconnectColumn(Column* col)
 {
-	disconnect(col->abstractColumnSignalEmitter(), 0, this, 0);
+	disconnect(col, 0, this, 0);
 }
 
 void TableModel::handleDescriptionChange(AbstractColumn * col)
@@ -531,9 +531,9 @@ bool TableModel::isColumnSelected(int col, bool full)
 		return d_selection_model->columnIntersectsSelection(col, QModelIndex());
 }
 
-QList< shared_ptr<Column> > TableModel::selectedColumns(bool full)
+QList<Column*> TableModel::selectedColumns(bool full)
 {
-	QList< shared_ptr<Column> > list;
+	QList<Column*> list;
 	int cols = columnCount();
 	for (int i=0; i<cols; i++)
 		if(isColumnSelected(i, full)) list << column(i);

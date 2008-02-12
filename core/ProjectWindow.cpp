@@ -82,7 +82,7 @@
 #include <QScrollArea>
 
 
-ProjectWindow::ProjectWindow(shared_ptr<Project> project)
+ProjectWindow::ProjectWindow(Project* project)
 	: d_project(project)
 {
 	init();
@@ -95,8 +95,8 @@ void ProjectWindow::init()
 
 	d_mdi_area = new QMdiArea();
 	setCentralWidget(d_mdi_area);
-	d_current_aspect = d_project.get();
-	d_current_folder = d_project.get();
+	d_current_aspect = d_project;
+	d_current_folder = d_project;
 
 	initDockWidgets();
 	initActions();
@@ -105,35 +105,35 @@ void ProjectWindow::init()
 	d_buttons.new_aspect->setMenu(d_menus.new_aspect);
 	// TODO: move all strings to one method to be called on a language change
 	
-	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+	connect(d_project, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
 		this, SLOT(handleAspectDescriptionChanged(AbstractAspect *)));
-	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectAdded(AbstractAspect *, int)), 
+	connect(d_project, SIGNAL(aspectAdded(AbstractAspect *, int)), 
 		this, SLOT(handleAspectAdded(AbstractAspect *, int)));
-	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectRemoved(AbstractAspect *, int)), 
+	connect(d_project, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(AbstractAspect *, int)));
-	connect(d_project->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
+	connect(d_project, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
 		this, SLOT(handleAspectAboutToBeRemoved(AbstractAspect *)));
-	connect(d_project.get(), SIGNAL(updateMdiWindows()), this, SLOT(updateMdiWindowVisibility()));
-	connect(d_project.get(), SIGNAL(hideAllMdiWindows()), this, SLOT(hideAllMdiWindows()));
-	connect(d_project.get(), SIGNAL(showAllMdiWindows()), this, SLOT(showAllMdiWindows()));
+	connect(d_project, SIGNAL(updateMdiWindows()), this, SLOT(updateMdiWindowVisibility()));
+	connect(d_project, SIGNAL(hideAllMdiWindows()), this, SLOT(hideAllMdiWindows()));
+	connect(d_project, SIGNAL(showAllMdiWindows()), this, SLOT(showAllMdiWindows()));
 
-	handleAspectDescriptionChanged(d_project.get());
+	handleAspectDescriptionChanged(d_project);
 }
 
 ProjectWindow::~ProjectWindow()
 {
-	disconnect(d_project->abstractAspectSignalEmitter(), 0, this, 0);
+	disconnect(d_project, 0, this, 0);
 }
 
 void ProjectWindow::handleAspectDescriptionChanged(AbstractAspect *aspect)
 {
-	if (aspect != static_cast<AbstractAspect *>(d_project.get())) return;
+	if (aspect != static_cast<AbstractAspect *>(d_project)) return;
 	setWindowTitle(d_project->caption() + " - SciDAVis");
 }
 
 void ProjectWindow::handleAspectAdded(AbstractAspect *parent, int index)
 {
-	shared_ptr<AbstractAspect> aspect = parent->child(index);
+	AbstractAspect *aspect = parent->child(index);
 	AspectView *view = aspect->view();
 	if (!view) return;
 	d_mdi_area->addSubWindow(view);
@@ -169,7 +169,7 @@ void ProjectWindow::initDockWidgets()
 	addDockWidget(Qt::BottomDockWidgetArea, d_project_explorer_dock);
 	connect(d_project_explorer, SIGNAL(currentAspectChanged(AbstractAspect *)),
 		this, SLOT(handleCurrentAspectChanged(AbstractAspect *)));
-	d_project_explorer->setCurrentAspect(d_project.get());
+	d_project_explorer->setCurrentAspect(d_project);
 
 	// undo history
 	d_history_dock = new QDockWidget(this);
@@ -248,12 +248,12 @@ void ProjectWindow::initToolBars()
 
 void ProjectWindow::addNewTable()
 {
-	addNewAspect(shared_ptr<Table>(new Table(0, 20, 2, "Table1")));
+	addNewAspect(new Table(0, 20, 2, "Table1"));
 }
 
 void ProjectWindow::addNewFolder()
 {
-	addNewAspect(shared_ptr<Folder>(new Folder("Folder1")));
+	addNewAspect(new Folder("Folder1"));
 }
 
 QMenu * ProjectWindow::createToolbarsMenu()
@@ -288,7 +288,7 @@ QMenu * ProjectWindow::createDockWidgetsMenu()
     return menu;
 }
 
-void ProjectWindow::addNewAspect(shared_ptr<AbstractAspect> aspect)
+void ProjectWindow::addNewAspect(AbstractAspect* aspect)
 {
 	QModelIndex index = d_project_explorer->currentIndex();
 
@@ -304,7 +304,7 @@ void ProjectWindow::addNewAspect(shared_ptr<AbstractAspect> aspect)
 
 void ProjectWindow::handleCurrentAspectChanged(AbstractAspect *aspect)
 {
-	if(!aspect) aspect = d_project.get(); // should never happen, just in case
+	if(!aspect) aspect = d_project; // should never happen, just in case
 	if(aspect->folder() != d_current_folder)
 	{
 		d_current_folder = aspect->folder();

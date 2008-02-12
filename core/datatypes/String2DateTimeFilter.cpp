@@ -139,23 +139,14 @@ bool String2DateTimeFilter::load(QXmlStreamReader * reader)
 
 void String2DateTimeFilter::setFormat(const QString& format) 
 { 
-	String2DateTimeFilterSetFormatCmd * cmd = new String2DateTimeFilterSetFormatCmd(
-		static_pointer_cast<String2DateTimeFilter>(shared_from_this()), format);
-	QUndoStack * stack;
-	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
-			stack->push(cmd);
-	else 
-	{
-		cmd->redo();
-		delete cmd;
-	}
+	exec(new String2DateTimeFilterSetFormatCmd(this, format));
 }
 
-String2DateTimeFilterSetFormatCmd::String2DateTimeFilterSetFormatCmd(shared_ptr<String2DateTimeFilter> target, const QString &new_format)
+String2DateTimeFilterSetFormatCmd::String2DateTimeFilterSetFormatCmd(String2DateTimeFilter* target, const QString &new_format)
 	: d_target(target), d_other_format(new_format) 
 {
-	if(d_target->ownerAspect())
-		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->ownerAspect()->name()).arg(new_format));
+	if(d_target->parentAspect())
+		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set date-time format to %1").arg(new_format));
 }

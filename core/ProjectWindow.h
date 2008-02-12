@@ -33,9 +33,6 @@
 
 #include <QMainWindow>
 #include "AbstractAspect.h"
-#include "AspectView.h"
-#include "Table.h"
-#include "TableView.h"
 
 class Project;
 class QMdiArea;
@@ -52,7 +49,7 @@ class ProjectWindow : public QMainWindow
 	Q_OBJECT
 
 	public:
-		ProjectWindow(shared_ptr<Project> project);
+		ProjectWindow(Project* project);
 		~ProjectWindow();
 
 	protected:
@@ -85,9 +82,9 @@ class ProjectWindow : public QMainWindow
 
 	private:
 		//! Add a new aspect in the current folder
-		void addNewAspect(shared_ptr<AbstractAspect> aspect);
+		void addNewAspect(AbstractAspect* aspect);
 
-		shared_ptr<Project> d_project;
+		Project* d_project;
 
 		struct {
 		QToolBar 

@@ -90,26 +90,26 @@ class Double2StringFilter : public AbstractSimpleFilter
 class Double2StringFilterSetFormatCmd : public QUndoCommand
 {
 	public:
-		Double2StringFilterSetFormatCmd(shared_ptr<Double2StringFilter> target, char new_format);
+		Double2StringFilterSetFormatCmd(Double2StringFilter* target, char new_format);
 
 		virtual void redo();
 		virtual void undo();
 
 	private:
-		shared_ptr<Double2StringFilter> d_target;
+		Double2StringFilter* d_target;
 		char d_other_format;
 };
 
 class Double2StringFilterSetDigitsCmd : public QUndoCommand
 {
 	public:
-		Double2StringFilterSetDigitsCmd(shared_ptr<Double2StringFilter> target, int new_digits);
+		Double2StringFilterSetDigitsCmd(Double2StringFilter* target, int new_digits);
 
 		virtual void redo();
 		virtual void undo();
 
 	private:
-		shared_ptr<Double2StringFilter> d_target;
+		Double2StringFilter* d_target;
 		int d_other_digits;
 };
 

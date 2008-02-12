@@ -33,13 +33,6 @@
 #include <QDateTime>
 #include <QList>
 
-#ifndef _NO_TR1_
-#include "tr1/memory"
-using std::tr1::shared_ptr;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-using boost::shared_ptr;
-#endif
 
 class AbstractAspect;
 
@@ -49,13 +42,12 @@ class AspectPrivate
 	public:
 		AspectPrivate(const QString& name, AbstractAspect * owner);
 
-		void addChild(shared_ptr<AbstractAspect> child);
-		void insertChild(int index, shared_ptr<AbstractAspect> child);
+		void addChild(AbstractAspect* child);
+		void insertChild(int index, AbstractAspect* child);
 		int indexOfChild(const AbstractAspect *child) const;
-		int indexOfChild(shared_ptr<AbstractAspect> child) const { return indexOfChild(child.get()); }
-		void removeChild(shared_ptr<AbstractAspect> child);
+		void removeChild(AbstractAspect* child);
 		int childCount() const;
-		shared_ptr<AbstractAspect> child(int index);
+		AbstractAspect* child(int index);
 
 		QString name() const;
 		void setName(const QString &value);
@@ -71,7 +63,7 @@ class AspectPrivate
 	
 	private:
 		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< shared_ptr<AbstractAspect> > d_children;
+		QList< AbstractAspect* > d_children;
 		QString d_name, d_comment, d_caption_spec;
 		QDateTime d_creation_time;
 		AbstractAspect * d_owner;

@@ -32,17 +32,6 @@
 
 #include "Folder.h"
 
-#ifndef _NO_TR1_
-#include "tr1/memory"
-using std::tr1::shared_ptr;
-using std::tr1::enable_shared_from_this;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using boost::shared_ptr;
-using boost::enable_shared_from_this;
-#endif
-
 #include <QHash>
 #include <QKeySequence>
 #include <QAction>
@@ -54,7 +43,7 @@ class ProjectWindow;
  * Project manages an undo stack and is responsible for creating ProjectWindow instances
  * as views on itself.
  */
-class Project : public Folder, public enable_shared_from_this<Project>
+class Project : public Folder
 {
 	Q_OBJECT
 

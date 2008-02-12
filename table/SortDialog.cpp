@@ -83,14 +83,14 @@ SortDialog::SortDialog( QWidget* parent, Qt::WFlags fl )
 
 void SortDialog::accept()
 {
-	shared_ptr<Column> leading;
+	Column* leading;
 	if(ui.box_type->currentIndex() == Together) 
 		leading = d_columns_list.at(ui.columns_list->currentIndex());
 	emit sort(leading, d_columns_list, ui.box_order->currentIndex() == Ascending );
 	//close();
 }
 
-void SortDialog::setColumnsList(QList< shared_ptr<Column> > list)
+void SortDialog::setColumnsList(QList<Column*> list)
 {
 	d_columns_list = list;
 

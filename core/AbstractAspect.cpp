@@ -38,48 +38,47 @@
 #include <QApplication>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_aspect_private(new AspectPrivate(name, this)), d_parent_aspect(0), d_aspect_wrapper(new AbstractAspectWrapper(this))
+	: d_aspect_private(new AspectPrivate(name, this)), d_parent_aspect(0)
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
 	for(int i=0; i<childCount(); i++)
-		d_aspect_private->child(i)->setParentAspect(0);
-	delete d_aspect_wrapper;
+		delete d_aspect_private->child(i);
 	delete d_aspect_private;
 }
 
 void AbstractAspect::setParentAspect(AbstractAspect * new_parent)
 {
 	if(d_parent_aspect)
-		QObject::disconnect(d_aspect_wrapper, 0, d_parent_aspect->abstractAspectSignalEmitter(), 0);
+		QObject::disconnect(this, 0, d_parent_aspect, 0);
 	d_parent_aspect = new_parent;	
 	if(d_parent_aspect)
 	{
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectAdded(AbstractAspect *, int)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAdded(AbstractAspect *, int)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectRemoved(AbstractAspect *, int)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)));
-		QObject::connect(d_aspect_wrapper, SIGNAL(aspectAdded(AbstractAspect *)), 
-				d_parent_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectAdded(AbstractAspect *)));
+		QObject::connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+				d_parent_aspect, SIGNAL(aspectDescriptionChanged(AbstractAspect *)));
+		QObject::connect(this, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
+				d_parent_aspect, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)));
+		QObject::connect(this, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
+				d_parent_aspect, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)));
+		QObject::connect(this, SIGNAL(aspectAdded(AbstractAspect *, int)), 
+				d_parent_aspect, SIGNAL(aspectAdded(AbstractAspect *, int)));
+		QObject::connect(this, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
+				d_parent_aspect, SIGNAL(aspectRemoved(AbstractAspect *, int)));
+		QObject::connect(this, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
+				d_parent_aspect, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)));
+		QObject::connect(this, SIGNAL(aspectAdded(AbstractAspect *)), 
+				d_parent_aspect, SIGNAL(aspectAdded(AbstractAspect *)));
 	}
 }
 
-void AbstractAspect::addChild(shared_ptr<AbstractAspect> child)
+void AbstractAspect::addChild(AbstractAspect* child)
 {
 	exec(new AspectChildAddCmd(d_aspect_private, child, d_aspect_private->childCount()));
 }
 
-void AbstractAspect::removeChild(shared_ptr<AbstractAspect> child)
+void AbstractAspect::removeChild(AbstractAspect* child)
 {
 	Q_ASSERT(indexOfChild(child) != -1);
 	exec(new AspectChildRemoveCmd(d_aspect_private, child));
@@ -91,7 +90,7 @@ void AbstractAspect::removeChild(int index)
 	exec(new AspectChildRemoveCmd(d_aspect_private, d_aspect_private->child(index)));
 }
 
-shared_ptr<AbstractAspect> AbstractAspect::child(int index) const
+AbstractAspect* AbstractAspect::child(int index) const
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
 	return d_aspect_private->child(index);
@@ -196,12 +195,12 @@ QMenu *AbstractAspect::createContextMenu(QMenu * append_to)
 	QAction *action_temp;
 
 	menu->addSeparator();
-	action_temp = menu->addAction(QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()));
-	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), d_aspect_wrapper, SLOT(remove()), QObject::tr("Ctrl+W"));
+	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
+	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), this, SLOT(remove()), QObject::tr("Ctrl+W"));
    	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
 
 	menu->addSeparator();
-	menu->addAction(QPixmap(), QObject::tr("&Properties"), d_aspect_wrapper, SLOT(showProperties()) );
+	menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
 
 	return menu;
 }
@@ -211,7 +210,7 @@ void AbstractAspect::showProperties()
 	QString message;
 	message += QObject::tr("Name: ") + name() + "\n\n";
 	message += QObject::tr("Comment: ") + comment() + "\n\n";
-	message += QObject::tr("Type: ") + QString(className()) + "\n\n";
+	message += QObject::tr("Type: ") + QString(metaObject()->className()) + "\n\n";
 	message += QObject::tr("Path: ") + path() + "\n\n";
 	message += QObject::tr("Created: ") + creationTime().toString(QString("yyyy-MM-dd hh:mm:ss")) + "\n\n";
 
@@ -219,31 +218,6 @@ void AbstractAspect::showProperties()
 	mbox->setIconPixmap(icon().pixmap(32, QIcon::Normal, QIcon::On));
 	mbox->setAttribute(Qt::WA_DeleteOnClose);
 	mbox->show();
-}
-		
-void AbstractAspectWrapper::setName(const QString &value) 
-{ 
-	d_aspect->setName(value); 
-}
-
-void AbstractAspectWrapper::setComment(const QString &value) 
-{ 
-	d_aspect->setComment(value); 
-}
-
-void AbstractAspectWrapper::setCaptionSpec(const QString &value) 
-{ 
-	d_aspect->setCaptionSpec(value); 
-}
-
-void AbstractAspectWrapper::remove() 
-{
-	d_aspect->remove(); 
-}
-
-void AbstractAspectWrapper::showProperties()
-{
-	d_aspect->showProperties();
 }
 
 Folder * AbstractAspect::folder()

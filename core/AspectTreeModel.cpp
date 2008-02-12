@@ -33,24 +33,24 @@
 #include <QIcon>
 #include <QMenu>
 
-AspectTreeModel::AspectTreeModel(shared_ptr<AbstractAspect> root, QObject *parent)
+AspectTreeModel::AspectTreeModel(AbstractAspect* root, QObject *parent)
 	: QAbstractItemModel(parent), d_root(root)
 {
-	connect(d_root->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+	connect(d_root, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
 		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
-	connect(d_root->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
+	connect(d_root, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
 		this, SLOT(aspectAboutToBeAdded(AbstractAspect *, int)));
-	connect(d_root->abstractAspectSignalEmitter(), SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
+	connect(d_root, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
 		this, SLOT(aspectAboutToBeRemoved(AbstractAspect *, int)));
-	connect(d_root->abstractAspectSignalEmitter(), SIGNAL(aspectAdded(AbstractAspect *, int)), 
+	connect(d_root, SIGNAL(aspectAdded(AbstractAspect *, int)), 
 		this, SLOT(aspectAdded(AbstractAspect *, int)));
-	connect(d_root->abstractAspectSignalEmitter(), SIGNAL(aspectRemoved(AbstractAspect *, int)), 
+	connect(d_root, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 		this, SLOT(aspectRemoved(AbstractAspect *, int)));
 }
 
 AspectTreeModel::~AspectTreeModel()
 {
-	disconnect(d_root->abstractAspectSignalEmitter(),0,this,0);
+	disconnect(d_root,0,this,0);
 }
 
 QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &parent) const
@@ -59,10 +59,10 @@ QModelIndex AspectTreeModel::index(int row, int column, const QModelIndex &paren
 	if(!parent.isValid())
 	{
 		if(row != 0) return QModelIndex();
-		return createIndex(row, column, d_root.get());
+		return createIndex(row, column, d_root);
 	}
 	AbstractAspect *parent_aspect = static_cast<AbstractAspect*>(parent.internalPointer());
-	AbstractAspect *child_aspect = parent_aspect->child(row).get();
+	AbstractAspect *child_aspect = parent_aspect->child(row);
 	if (!child_aspect) return QModelIndex();
 	return createIndex(row, column, child_aspect);
 }
@@ -109,7 +109,7 @@ QVariant AspectTreeModel::data(const QModelIndex &index, int role) const
 		case Qt::EditRole:
 			switch(index.column()) {
 				case 0: return aspect->name();
-				case 1: return aspect->className();
+				case 1: return aspect->metaObject()->className();
 				case 2: return aspect->creationTime().toString();
 				case 3: return aspect->comment();
 				default: return QVariant();

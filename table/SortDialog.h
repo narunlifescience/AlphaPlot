@@ -42,7 +42,7 @@ class SortDialog : public QDialog
 
 	public:
 		SortDialog( QWidget* parent = 0, Qt::WFlags fl = 0 );
-		void setColumnsList(QList< shared_ptr<Column> > list);
+		void setColumnsList(QList<Column*> list);
 
 		enum { Separately=0, Together=1 };
 		enum { Ascending=0, Descending=1 };
@@ -52,10 +52,10 @@ class SortDialog : public QDialog
 		void changeType(int index);
 
 	signals:
-		void sort(shared_ptr<Column> leading,QList< shared_ptr<Column> > cols, bool ascending);
+		void sort(Column *leading, QList<Column*> cols, bool ascending);
 
 	private:
-		QList< shared_ptr<Column> > d_columns_list;
+		QList<Column*> d_columns_list;
 		struct {
 		QPushButton* button_ok;
 		QPushButton* button_cancel;

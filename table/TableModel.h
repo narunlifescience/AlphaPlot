@@ -54,6 +54,10 @@ class QUndoStack;
   the columns are connected to various handlers in TableModel which
   acts according to all changes made to the columns.
 
+  TableModel does never take over ownership of the Column objects.
+  It merely organizes them for a Table which owns both the TableModel
+  and all of its columns.
+
   In every column two filters are always present: An input filter that
   can convert a string (e.g. entered by the user in a cell) to
   the column's data type and an output filter that delivers
@@ -64,11 +68,8 @@ class QUndoStack;
   of the number of rows in the wrapped columns. It should however
   be large enough to display the longest column. When columns
   are inserted, resized etc., the table is resized automatically.
-
-  TableModel also implements AbstractFilter and thus acts
-  as a filter with no inputs and columnCount() outputs. 
   */
-class TableModel : public QAbstractItemModel, public AbstractFilter 
+class TableModel : public QAbstractItemModel
 {
 	Q_OBJECT
 
@@ -99,15 +100,13 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 
 		//! \name Other functions
 		//@{
-		//! Overloaded from AbstractFilter
-		virtual int inputCount() const { return 0; }
-		//! Overloaded from AbstractFilter
+		//! Return the number of columns managed.
 		virtual int outputCount() const { return d_column_count; }
 		//! Return a pointer to the column at index 'port'
 		/**
 		 * \return returns a pointer to the column or zero if 'port' is invalid
 		 */
-		virtual shared_ptr<AbstractColumn> output(int port) const;
+		virtual AbstractColumn* output(int port) const;
 		//! Replace columns completely
 		/**
 		 * TableModel takes over ownership of the new columns.
@@ -115,7 +114,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * \param new_cols list of the columns that replace the old ones
 		 * This does not delete the replaced columns.
 		 */
-		void replaceColumns(int first, QList< shared_ptr<Column> > new_cols);
+		void replaceColumns(int first, QList<Column*> new_cols);
 		//! Insert columns before column number 'before'
 		/**
 		 * If 'first' is higher than (current number of columns -1),
@@ -126,7 +125,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * \param in_filter a list of the corresponding input filters
 		 * \param out_filter a list of the corresponding output filters
 		 */
-		void insertColumns(int before, QList< shared_ptr<Column> > cols);
+		void insertColumns(int before, QList<Column*> cols);
 		//! Remove Columns
 		/**
 		 * This does not delete the removed columns because this
@@ -141,7 +140,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 *
 		 * \sa insertColumns()
 		 */
-		void appendColumns(QList< shared_ptr<Column> > cols);
+		void appendColumns(QList<Column*> cols);
 		//! Move a column to another position
 		void moveColumn(int from, int to);
 		//! Return the number of columns in the table
@@ -163,12 +162,11 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 */
 		void emitDataChanged(int top, int left, int bottom, int right);
 		void emitColumnChanged(Column * col);
-		void emitColumnChanged(shared_ptr<Column> col) { emitColumnChanged(col.get()); }
-		shared_ptr<Column> column(int index) const { return d_columns.at(index); }
+		Column* column(int index) const { return d_columns.at(index); }
 		int columnIndex(Column * col) const 
 		{ 
 			for(int i=0; i<d_columns.size(); i++)
-				if(d_columns.at(i).get() == col) return i;
+				if(d_columns.at(i) == col) return i;
 			return -1;
 		}
 		QString name() const { return d_name; }
@@ -197,7 +195,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 * If full is true, this function only returns a column if the whole 
 		 * column is selected.
 		 */
-		QList< shared_ptr<Column> > selectedColumns(bool full = false);
+		QList<Column*> selectedColumns(bool full = false);
 		//! Return how many rows are (at least partly) selected
 		/**
 		 * If full is true, this function only returns the number of fully 
@@ -251,7 +249,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		void handleRowsRemoved(AbstractColumn * col, int first, int count);
 
 	signals:
-		void columnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
+		void columnsAboutToBeInserted(int before, QList<Column*> new_cols);
 		void columnsInserted(int first, int count);
 		void columnsAboutToBeReplaced(int first, int count);
 		void columnsReplaced(int first, int count);
@@ -278,7 +276,7 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		//! Horizontal header data
 		QStringList d_horizontal_header_data;
 		//! List of pointers to the column data vectors
-		QList< shared_ptr<Column> > d_columns;	
+		QList<Column*> d_columns;	
 		//! Table name (== aspect name of corresponding Table)
 		QString d_name;
 		QItemSelectionModel * d_selection_model;
@@ -305,9 +303,9 @@ class TableModel : public QAbstractItemModel, public AbstractFilter
 		 */
 		void composeColumnHeader(int col, const QString& label);
 		//! Internal function to connect all column signals
-		void connectColumn(shared_ptr<Column> col);
+		void connectColumn(Column* col);
 		//! Internal funciton to disconnect a column
-		void disconnectColumn(shared_ptr<Column> col);
+		void disconnectColumn(Column* col);
 }; 
 
 #endif

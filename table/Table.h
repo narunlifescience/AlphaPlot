@@ -1,5 +1,5 @@
 /***************************************************************************
-    File                 : Table.cpp
+    File                 : Table.h
     Project              : SciDAVis
     Description          : Table worksheet class
     --------------------------------------------------------------------
@@ -74,7 +74,7 @@ can be passed to the rest of the application. All operations of Column have undo
 columns notify TableModel of any changes to them.
 </ul>
 */
-class Table: public QObject, public AbstractAspect// TODO:, public scripted
+class Table: public AbstractAspect// TODO:, public scripted
 {
 	Q_OBJECT
 
@@ -84,10 +84,6 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 
 		//! \name aspect related functions
 		//@{
-		//! See QMetaObject::className().
-		virtual const char* className() const { return metaObject()->className(); }
-		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
 		//! Return a new context menu
@@ -111,9 +107,11 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		
 		//! Insert columns
 		/**
+		 * Ownership of the columns is transferred to this Table.
+		 *
 		 * If before == columnCount() this will do the same as appendColumns();
 		 */
-		void insertColumns(int before, QList< shared_ptr<Column> > new_cols);
+		void insertColumns(int before, QList<Column *> new_cols);
 		//! Append columns
 		/*
 		 * Convenience function, same as:
@@ -121,10 +119,9 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		 * insertColumns(columnCount(), new_cols);
 		 * </code>
 		 */
-		void appendColumns(QList< shared_ptr<Column> > new_cols) { insertColumns(columnCount(), new_cols); }
+		void appendColumns(QList<Column*> new_cols) { insertColumns(columnCount(), new_cols); }
 		void removeColumns(int first, int count);
 		void removeColumn(Column * col);
-		void removeColumn(shared_ptr<Column> col) { removeColumn(col.get()); }
 		void removeRows(int first, int count);
 		void insertRows(int before, int count);
 		void appendRows(int count) { insertRows(rowCount(), count); }
@@ -140,9 +137,8 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		bool areCommentsShown() const;
 		//! Return the number of columns matching the given designation
 		int columnCount(SciDAVis::PlotDesignation pd) const;
-		shared_ptr<Column> column(int index) const;
+		Column* column(int index) const;
 		int columnIndex(Column * col) const;
-		int columnIndex(shared_ptr<Column> col) const;
 		//! Set the number of columns
 		void setColumnCount(int new_size);
 
@@ -188,7 +184,7 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		 */
 		void setPlotMenu(QMenu * menu);
 		//! Open the sort dialog for the given columns
-		void sortDialog(QList< shared_ptr<Column> > cols);
+		void sortDialog(QList<Column*> cols);
 		//! Set default for comment visibility for table views
 		static void setDefaultCommentVisibility(bool visible) { d_default_comment_visibility = visible; }
 		//! Return the default for comment visibility for table views
@@ -247,7 +243,7 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 		/*
 		 * If 'leading' is a null pointer, each column is sorted separately.
 		 */
-		void sortColumns(shared_ptr<Column> leading, QList< shared_ptr<Column> > cols, bool ascending);
+		void sortColumns(Column * leading, QList<Column*> cols, bool ascending);
 		void openFormulaEditor();
 		//! Show a context menu for the selected cells
 		/**
@@ -268,7 +264,7 @@ class Table: public QObject, public AbstractAspect// TODO:, public scripted
 	private slots:
 		//! Handles a request from the model to execute a resize command
 		void handleModelResizeRequest(int new_size);
-		void handleColumnsAboutToBeInserted(int before, QList< shared_ptr<Column> > new_cols);
+		void handleColumnsAboutToBeInserted(int before, QList<Column*> new_cols);
 		void handleColumnsInserted(int first, int count);
 		void handleColumnsAboutToBeRemoved(int first, int count);
 		void handleColumnsRemoved(int first, int count);

@@ -34,65 +34,74 @@
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
-Column::Column(const QString& label, SciDAVis::ColumnMode mode)
- : AbstractAspect(label)
+Column::Column(const QString& name, SciDAVis::ColumnMode mode)
+ : AbstractColumn(name)
 {
-	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, mode));
+	d_column_private = new ColumnPrivate(this, mode);
 	init();
 }
 
-Column::Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity)
- : AbstractAspect(label)
+Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
+ : AbstractColumn(name)
 {
-	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeDouble, 
-		SciDAVis::Numeric, new QVector<double>(data), validity));
+	d_column_private = new ColumnPrivate(this, SciDAVis::TypeDouble, 
+		SciDAVis::Numeric, new QVector<double>(data), validity);
 	init();
 }
 
-Column::Column(const QString& label, QStringList data, IntervalAttribute<bool> validity)
- : AbstractAspect(label)
+Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> validity)
+ : AbstractColumn(name)
 {
-	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQString,
-		SciDAVis::Text, new QStringList(data), validity));
+	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQString,
+		SciDAVis::Text, new QStringList(data), validity);
 	init();
 }
 
-Column::Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity)
- : AbstractAspect(label)
+Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity)
+ : AbstractColumn(name)
 {
-	d_column_private = shared_ptr<ColumnPrivate>(new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
-		SciDAVis::DateTime, new QList<QDateTime>(data), validity));
+	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
+		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
 	init();
 }
 
 void Column::init()
 {
-	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
+	addChild(d_column_private->inputFilter());
+	addChild(d_column_private->outputFilter());
+	connect(this, SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
 		this, SLOT(emitDescriptionAboutToChange(AbstractAspect *)));
-	connect(abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
+	connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
 		this, SLOT(emitDescriptionChanged(AbstractAspect *)));
 }
 
 void Column::emitDescriptionAboutToChange(AbstractAspect * aspect)
 {
 	if (aspect != static_cast<AbstractAspect *>(this)) return;
-	emit abstractColumnSignalEmitter()->descriptionAboutToChange(this);
+	emit this->descriptionAboutToChange(this);
 }
 
 void Column::emitDescriptionChanged(AbstractAspect * aspect)
 {
 	if (aspect != static_cast<AbstractAspect *>(this)) return;
-	emit abstractColumnSignalEmitter()->descriptionChanged(this);
+	emit descriptionChanged(this);
 }
 
 Column::~Column()
 {
+	delete d_column_private;
 }
 
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	if(mode != columnMode())
-		exec(new ColumnSetModeCmd(d_column_private, mode));
+	if(mode == columnMode()) return;
+	beginMacro(QObject::tr("%1: change column type").arg(columnLabel()));
+	AbstractSimpleFilter *old_in_filter = inputFilter();
+	AbstractSimpleFilter *old_out_filter = outputFilter();
+	exec(new ColumnSetModeCmd(d_column_private, mode));
+	removeChild(old_in_filter);
+	removeChild(old_out_filter);
+	endMacro();
 }
 
 
@@ -133,9 +142,9 @@ void Column::clear()
 	exec(new ColumnClearCmd(d_column_private));
 }
 
-void Column::notifyReplacement(shared_ptr<AbstractColumn> replacement)
+void Column::notifyReplacement(AbstractColumn* replacement)
 {
-	emit abstractColumnSignalEmitter()->aboutToBeReplaced(this, replacement); 
+	emit aboutToBeReplaced(this, replacement); 
 }
 
 void Column::clearValidity()
@@ -248,9 +257,9 @@ double Column::valueAt(int row) const
 	return d_column_private->valueAt(row);
 }
 
-void Column::setColumnLabel(const QString& label) 
+void Column::setColumnLabel(const QString& name) 
 { 
-	setName(label); 
+	setName(name); 
 }
 
 void Column::setColumnComment(const QString& comment) 

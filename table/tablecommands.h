@@ -49,7 +49,7 @@ class TableModel;
 class TableInsertColumnsCmd : public QUndoCommand
 {
 public:
-	TableInsertColumnsCmd( TableModel * model, int before, QList< shared_ptr<Column> > cols, QUndoCommand * parent = 0 );
+	TableInsertColumnsCmd( TableModel * model, int before, QList<Column*> cols, QUndoCommand * parent = 0 );
 	~TableInsertColumnsCmd();
 
 	virtual void redo();
@@ -61,7 +61,7 @@ private:
 	//! Column to insert before
 	int d_before;
 	//! The new columns
-	QList< shared_ptr<Column> > d_cols;
+	QList<Column*> d_cols;
 	//! Row count before the command
 	int d_rows_before;
 
@@ -104,7 +104,7 @@ private:
 class TableRemoveColumnsCmd : public QUndoCommand
 {
 public:
-	TableRemoveColumnsCmd( TableModel * model, int first, int count, QList< shared_ptr<Column> > cols, QUndoCommand * parent = 0 );
+	TableRemoveColumnsCmd( TableModel * model, int first, int count, QList<Column*> cols, QUndoCommand * parent = 0 );
 	~TableRemoveColumnsCmd();
 
 	virtual void redo();
@@ -118,7 +118,7 @@ private:
 	//! The number of columns to be removed
 	int d_count;
 	//! The removed columns
-	QList< shared_ptr<Column> > d_old_cols;
+	QList<Column*> d_old_cols;
 };
 
 ///////////////////////////////////////////////////////////////////////////

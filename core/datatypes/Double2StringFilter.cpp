@@ -76,37 +76,19 @@ bool Double2StringFilter::load(QXmlStreamReader * reader)
 
 void Double2StringFilter::setNumericFormat(char format) 
 { 
-	Double2StringFilterSetFormatCmd * cmd = new Double2StringFilterSetFormatCmd(
-			static_pointer_cast<Double2StringFilter>(shared_from_this()), format);
-	QUndoStack * stack;
-	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
-			stack->push(cmd);
-	else 
-	{
-		cmd->redo();
-		delete cmd;
-	}
+	exec(new Double2StringFilterSetFormatCmd(this, format));
 }
 
 void Double2StringFilter::setNumDigits(int digits) 
 { 
-	Double2StringFilterSetDigitsCmd * cmd = new Double2StringFilterSetDigitsCmd(
-			static_pointer_cast<Double2StringFilter>(shared_from_this()), digits);
-	QUndoStack * stack;
-	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
-			stack->push(cmd);
-	else 
-	{
-		cmd->redo();
-		delete cmd;
-	}
+	exec(new Double2StringFilterSetDigitsCmd(this, digits));
 }
 
-Double2StringFilterSetFormatCmd::Double2StringFilterSetFormatCmd(shared_ptr<Double2StringFilter> target, char new_format)
+Double2StringFilterSetFormatCmd::Double2StringFilterSetFormatCmd(Double2StringFilter* target, char new_format)
 	: d_target(target), d_other_format(new_format) 
 {
-	if(d_target->ownerAspect())
-		setText(QObject::tr("%1: set numeric format to '%2'").arg(d_target->ownerAspect()->name()).arg(new_format));
+	if(d_target->parentAspect())
+		setText(QObject::tr("%1: set numeric format to '%2'").arg(d_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set numeric format to '%1'").arg(new_format));
 }
@@ -124,11 +106,11 @@ void Double2StringFilterSetFormatCmd::undo()
 	redo(); 
 }
 
-Double2StringFilterSetDigitsCmd::Double2StringFilterSetDigitsCmd(shared_ptr<Double2StringFilter> target, int new_digits)
+Double2StringFilterSetDigitsCmd::Double2StringFilterSetDigitsCmd(Double2StringFilter* target, int new_digits)
 	: d_target(target), d_other_digits(new_digits) 
 {
-	if(d_target->ownerAspect())
-		setText(QObject::tr("%1: set decimal digits to %2").arg(d_target->ownerAspect()->name()).arg(new_digits));
+	if(d_target->parentAspect())
+		setText(QObject::tr("%1: set decimal digits to %2").arg(d_target->parentAspect()->name()).arg(new_digits));
 	else
 		setText(QObject::tr("set decimal digits to %1").arg(new_digits));
 }

@@ -73,7 +73,7 @@ AspectView *Project::view()
 ProjectWindow *Project::projectWindow(QWidget *parent)
 {
 	Q_UNUSED(parent);
-	return new ProjectWindow(shared_from_this());
+	return new ProjectWindow(this);
 }
 
 QKeySequence Project::queryShortcut(const QString& action_string)
@@ -129,7 +129,7 @@ QMenu *Project::createContextMenu(QMenu * append_to)
 	// New Aspect ->
 	// ----
 	//
-	menu->addAction(QPixmap(), QObject::tr("&Properties"), abstractAspectSignalReceiver(), SLOT(showProperties()) );
+	menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
 
 	return menu;
 }

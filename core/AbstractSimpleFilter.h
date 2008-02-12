@@ -38,18 +38,8 @@
 #include <QUndoCommand>
 #include <QUndoStack>
 
-#ifndef _NO_TR1_
-#include "tr1/memory" 
-using std::tr1::enable_shared_from_this;
-using std::tr1::static_pointer_cast;
-using std::tr1::dynamic_pointer_cast;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using boost::enable_shared_from_this;
-using boost::static_pointer_cast;
-using boost::dynamic_pointer_cast;
-#endif
+// forward declaration - class follows
+class SimpleFilterColumn;
 
 /**
  * \brief Simplified filter interface for filters with only one output port.
@@ -136,21 +126,19 @@ using boost::dynamic_pointer_cast;
  * 14 	}
  * \endcode
  */
-class AbstractSimpleFilter : public QObject, public AbstractFilter, public AbstractColumn, public enable_shared_from_this<AbstractSimpleFilter>
+class AbstractSimpleFilter : public AbstractFilter
 {
 	Q_OBJECT
 
 	public:
 		//! Ctor
-		AbstractSimpleFilter() {}
+		AbstractSimpleFilter();
 		//! Default to one input port.
 		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
 		virtual int outputCount() const { return 1; }
 		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
-		virtual shared_ptr<AbstractColumn> output(int port) const {
-			return port == 0 ? const_cast<AbstractSimpleFilter *>(this)->sharedAbstractColumnPtrFromThis() : shared_ptr<AbstractColumn>();
-		}
+		virtual AbstractColumn* output(int port) const;
 		//! Copy label of input port 0.
 		virtual QString columnLabel() const {
 			return d_inputs.value(0) ? d_inputs.at(0)->columnLabel() : QString();
@@ -237,8 +225,7 @@ class AbstractSimpleFilter : public QObject, public AbstractFilter, public Abstr
 		 * This returns 0 if not overloaded.
 		 * \sa AbstractAspect::view()
 		 */
-		virtual QWidget *view(QWidget *parent = 0) { Q_UNUSED(parent) return 0; }
-		//! Remove me from my parent's list of children.
+		virtual AspectView *view() { return 0; }
 		//@}
 
 		//!\name assuming a 1:1 correspondence between input and output rows
@@ -258,31 +245,16 @@ class AbstractSimpleFilter : public QObject, public AbstractFilter, public Abstr
 		//! Return all intervals of masked rows
 		virtual QList< Interval<int> > maskedIntervals() const { return d_masking.intervals(); }
 		//! Clear all masking information
-		virtual void clearMasks()
-		{
-			emit abstractColumnSignalEmitter()->maskingAboutToChange(this);	
-			d_masking.clear();
-			emit abstractColumnSignalEmitter()->maskingChanged(this);	
-		}
+		virtual void clearMasks();
 		//! Set an interval masked
 		/**
 		 * \param i the interval
 		 * \param mask true: mask, false: unmask
 		 */ 
-		virtual void setMasked(Interval<int> i, bool mask = true)
-		{
-			emit abstractColumnSignalEmitter()->maskingAboutToChange(this);	
-			d_masking.setValue(i, mask);
-			emit abstractColumnSignalEmitter()->maskingChanged(this);	
-		}
+		virtual void setMasked(Interval<int> i, bool mask = true);
 		//! Overloaded function for convenience
 		virtual void setMasked(int row, bool mask = true) { setMasked(Interval<int>(row,row), mask); }
 		//@}
-
-		//! See QMetaObject::className().
-		virtual const char* className() const { return metaObject()->className(); }
-		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
 		//! Return whether a certain row contains an invalid value 	 
 		virtual bool isInvalid(int row) const { return d_inputs.value(0) ? d_inputs.at(0)->isInvalid(row) : false; }
@@ -307,70 +279,56 @@ class AbstractSimpleFilter : public QObject, public AbstractFilter, public Abstr
 
 		//!\name signal handlers
 		//@{
-		virtual void inputDescriptionAboutToChange(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->descriptionAboutToChange(this); 
-		}
-		virtual void inputDescriptionChanged(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->descriptionChanged(this); 
-		}
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->plotDesignationAboutToChange(this); 
-		}
-		virtual void inputPlotDesignationChanged(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->plotDesignationChanged(this); 
-		}
-		virtual void inputModeAboutToChange(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->dataAboutToChange(this); 
-		}
-		virtual void inputModeChanged(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->dataChanged(this); 
-		}
-		virtual void inputDataAboutToChange(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->dataAboutToChange(this); 
-		}
-		virtual void inputDataChanged(AbstractColumn*) 
-		{ 
-			emit abstractColumnSignalEmitter()->dataChanged(this); 
-		}
+		virtual void inputDescriptionAboutToChange(AbstractColumn*);
+		virtual void inputDescriptionChanged(AbstractColumn*);
+		virtual void inputPlotDesignationAboutToChange(AbstractColumn*);
+		virtual void inputPlotDesignationChanged(AbstractColumn*);
+		virtual void inputModeAboutToChange(AbstractColumn*);
+		virtual void inputModeChanged(AbstractColumn*);
+		virtual void inputDataAboutToChange(AbstractColumn*);
+		virtual void inputDataChanged(AbstractColumn*);
 
-		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count) {
-			Q_UNUSED(source);
-			Q_UNUSED(count);
-			foreach(Interval<int> output_range, dependentRows(Interval<int>(before, before)))
-				emit abstractColumnSignalEmitter()->rowsAboutToBeInserted(this, output_range.start(), output_range.size());
-		}
-		virtual void inputRowsInserted(AbstractColumn * source, int before, int count) {
-			Q_UNUSED(source);
-			Q_UNUSED(count);
-			foreach(Interval<int> output_range, dependentRows(Interval<int>(before, before)))
-				emit abstractColumnSignalEmitter()->rowsInserted(this, output_range.start(), output_range.size());
-		}
-		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count) {
-			Q_UNUSED(source);
-			foreach(Interval<int> output_range, dependentRows(Interval<int>(first, first+count-1)))
-				emit abstractColumnSignalEmitter()->rowsAboutToBeRemoved(this, output_range.start(), output_range.size());
-		}
-		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count) {
-			Q_UNUSED(source);
-			foreach(Interval<int> output_range, dependentRows(Interval<int>(first, first+count-1)))
-				emit abstractColumnSignalEmitter()->rowsRemoved(this, output_range.start(), output_range.size());
-		}
+		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count);
+		virtual void inputRowsInserted(AbstractColumn * source, int before, int count);
+		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count);
+		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count);
 		//@}
+		
+		mutable SimpleFilterColumn *d_output_column;
+};
+
+class SimpleFilterColumn : public AbstractColumn
+{
+	Q_OBJECT
+
+	public:
+		SimpleFilterColumn(AbstractSimpleFilter *owner) : AbstractColumn(owner->name()), d_owner(owner) {}
+
+		virtual SciDAVis::ColumnDataType dataType() const { return d_owner->dataType(); }
+		virtual SciDAVis::ColumnMode columnMode() const { return d_owner->columnMode(); }
+		virtual int rowCount() const { return d_owner->rowCount(); }
+		virtual QString columnLabel() const { return d_owner->columnLabel(); }
+		virtual QString columnComment() const { return d_owner->columnComment(); }
+		virtual void setColumnLabel(const QString& label) { d_owner->setColumnLabel(label); }
+		virtual void setColumnComment(const QString& comment) { d_owner->setColumnComment(comment); }
+		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
+		virtual bool isInvalid(int row) const { return d_owner->isInvalid(row); }
+		virtual bool isInvalid(Interval<int> i) const { return d_owner->isInvalid(i); }
+		virtual QList< Interval<int> > invalidIntervals() const { return d_owner->invalidIntervals(); }
+		virtual bool isMasked(int row) const { return d_owner->isMasked(row); }
+		virtual bool isMasked(Interval<int> i) const { return d_owner->isMasked(i); }
+		virtual QList< Interval<int> > maskedIntervals() const { return d_owner->maskedIntervals(); }
+		virtual void clearMasks() { d_owner->clearMasks(); }
+		virtual QString textAt(int row) const { return d_owner->textAt(row); }
+		virtual QDate dateAt(int row) const { return d_owner->dateAt(row); }
+		virtual QTime timeAt(int row) const { return d_owner->timeAt(row); }
+		virtual QDateTime dateTimeAt(int row) const { return d_owner->dateTimeAt(row); }
+		virtual double valueAt(int row) const { return d_owner->valueAt(row); }
 
 	private:
-		//! Helper function
-		shared_ptr<AbstractColumn> sharedAbstractColumnPtrFromThis()
-		{
-			return dynamic_pointer_cast<AbstractColumn>(shared_from_this());
-		}
+		AbstractSimpleFilter *d_owner;
 
+	friend class AbstractSimpleFilter;
 };
 
 #endif // ifndef ABSTRACT_SIMPLE_FILTER

@@ -103,11 +103,11 @@ class SimpleCopyThroughFilter : public AbstractSimpleFilter
 		//@{
 		virtual void inputMaskingAboutToChange(AbstractColumn*) 
 		{ 
-			emit abstractColumnSignalEmitter()->maskingAboutToChange(this); 
+			emit d_output_column->maskingAboutToChange(d_output_column); 
 		}
 		virtual void inputMaskingChanged(AbstractColumn*) 
 		{ 
-			emit abstractColumnSignalEmitter()->maskingChanged(this); 
+			emit d_output_column->maskingChanged(d_output_column); 
 		}
 		//@}
 };

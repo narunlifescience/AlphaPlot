@@ -137,7 +137,7 @@ int main( int argc, char ** argv )
 	timer->start(5000); // autoclose after 5 seconds
 
 	// create initial empty project
-	shared_ptr<Project> p(new Project());
+	Project* p(new Project());
 	p->projectWindow()->showMaximized();
 
 

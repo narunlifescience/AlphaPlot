@@ -33,7 +33,7 @@
 #include "AbstractAspect.h"
 
 //! Folder in a project
-class Folder : public QObject, public AbstractAspect
+class Folder : public AbstractAspect
 {
 	Q_OBJECT
 
@@ -44,11 +44,6 @@ class Folder : public QObject, public AbstractAspect
 		virtual AspectView *view() { return 0; }
 
 		virtual ~Folder();
-
-		//! See QMetaObject::className().
-		virtual const char* className() const { return metaObject()->className(); }
-		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 
 		virtual QIcon icon() const;
 };

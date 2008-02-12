@@ -30,7 +30,6 @@
 #ifndef ABSTRACTCOLUMN_H
 #define ABSTRACTCOLUMN_H
 
-#include <QObject>
 #include <QtAlgorithms>
 #include <QList>
 #include <QString>
@@ -40,157 +39,10 @@
 #include <QTime>
 #include "lib/Interval.h"
 #include "core/globals.h"
+#include "core/AbstractAspect.h"
 
-#ifndef _NO_TR1_
-#include "tr1/memory"
-using std::tr1::shared_ptr;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-using boost::shared_ptr;
-#endif
-
-class AbstractColumn;
 class Column;
 class AbstractSimpleFilter;
-
-//! Signal sender object for AbstractColumn
-/**
- * This class is used to allow AbstractColumn to emit signals without 
- * inheriting from QObject (to avoid multiple inheritance).
- * If you connect any signal of AbstractColumn do it like this:
- * <code>
- * connect(column->abstractColumnSignalEmitter(), SIGNAL(...), ...);
- * </code>
- * All classes using this mechanism need to be declared as friend 
- * classes here.
- *
- * Recommended read: http://doc.trolltech.com/qq/qq15-academic.html
- */
-class AbstractColumnSignalEmitter : public QObject
-{
-	Q_OBJECT
-
-	friend class AbstractColumn;
-	friend class Column;
-	friend class ColumnPrivate;
-	friend class AbstractSimpleFilter;
-	friend class SimpleMappingFilter;
-	friend class SimpleCopyThroughFilter;
-
-	signals: 
-		//! Column description (label/comment) will be changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void descriptionAboutToChange(AbstractColumn * source); 
-		//! Column description (label/comment) changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void descriptionChanged(AbstractColumn * source); 
-		//! Column plot designation will be changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void plotDesignationAboutToChange(AbstractColumn * source); 
-		//! Column plot designation changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void plotDesignationChanged(AbstractColumn * source); 
-		//! Column mode (possibly also the data type) will be changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void modeAboutToChange(AbstractColumn * source); 
-		//! Column mode (possibly also the data type) changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void modeChanged(AbstractColumn * source); 
-		//! Data (including validity) of the column will be changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void dataAboutToChange(AbstractColumn * source); 
-		//! Data (including validity) of the column has changed
-		/**
-		 * Important: When data has changed also the number
-		 * of rows in the column may have changed without
-		 * any other signal emission.
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void dataChanged(AbstractColumn * source); 
-		//! The column will be replaced
-		/**
-		 * This is used then a column is replaced by another
-		 * column, possibly of another type. 
-		 *
-		 * \param new_col Pointer to the column this one is to be replaced with.
-		 *
-		 * \param source is always a pointer to the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void aboutToBeReplaced(AbstractColumn * source, shared_ptr<AbstractColumn> new_col); 
-		//! Rows will be inserted
-		/**
-		 *	\param source the column that emitted the signal
-		 *	\param before the row to insert before
-		 *	\param count the number of rows to be inserted
-		 */
-		void rowsAboutToBeInserted(AbstractColumn * source, int before, int count); 
-		//! Rows have been inserted
-		/**
-		 *	\param source the column that emitted the signal
-		 *	\param before the row to insert before
-		 *	\param count the number of rows to be inserted
-		 */
-		void rowsInserted(AbstractColumn * source, int before, int count); 
-		//! Rows will be deleted
-		/**
-		 *	\param source the column that emitted the signal
-		 *	\param first the first row to be deleted
-		 *	\param count the number of rows to be deleted
-		 */
-		void rowsAboutToBeRemoved(AbstractColumn * source, int first, int count); 
-		//! Rows have been deleted
-		/**
-		 *	\param source the column that emitted the signal
-		 *	\param first the first row that was deleted
-		 *	\param count the number of deleted rows
-		 */
-		void rowsRemoved(AbstractColumn * source, int first, int count); 
-		//! IntervalAttribute related signal
-		void maskingAboutToChange(AbstractColumn * source); 
-		//! IntervalAttribute related signal
-		void maskingChanged(AbstractColumn * source); 
-		// TODO: Check whether aboutToBeDestroyed is needed 
-		//! Emitted shortly before this data source is deleted.
-		/**
-		 * \param source the object emitting this signal
-		 *
-		 * This is needed by AbstractFilter. 
-		 */
-		void aboutToBeDestroyed(AbstractColumn * source);
-
-};
 
 //! Interface definition for data with column logic
 /**
@@ -213,9 +65,7 @@ class AbstractColumnSignalEmitter : public QObject
   the data type of the column is safe, but will do nothing (writing
   function) or return some default value (reading functions).
 
-  This class also defines all signals which indicate a data change. The signals
-  are defined in AbstractColumnSignalEmitter to avoid having to inherit from
-  QObject. Use "connect(column->abstractColumnSignalEmitter(), ...)" to connect the signals.
+  This class also defines all signals which indicate a data change.
   Any class whose output values are subject to change over time must emit
   the according signals. These signals notify any object working with the
   column before and after a change of the column.
@@ -229,13 +79,15 @@ class AbstractColumnSignalEmitter : public QObject
   writing interface. Changing label and comment should be implemented even
   for read only columns, usually using the AbstractAspect interface.
   */
-class AbstractColumn 
+class AbstractColumn : public AbstractAspect
 {
+	Q_OBJECT
+
 	public:
 		//! Ctor
-		AbstractColumn() { d_abstract_column_signal_emitter = new AbstractColumnSignalEmitter(); }
+		AbstractColumn(const QString& name) : AbstractAspect(name) {}
 		//! Dtor
-		virtual ~AbstractColumn() { d_abstract_column_signal_emitter->aboutToBeDestroyed(this); delete d_abstract_column_signal_emitter; }
+		virtual ~AbstractColumn() { aboutToBeDestroyed(this);}
 
 		//! Return the data type of the column
 		virtual SciDAVis::ColumnDataType dataType() const = 0;
@@ -302,7 +154,7 @@ class AbstractColumn
 		//! Clear the whole column
 		virtual void clear() {};
 		//! This must be called before the column is replaced by another
-		virtual void notifyReplacement(shared_ptr<AbstractColumn> replacement) { d_abstract_column_signal_emitter->aboutToBeReplaced(this, replacement); }
+		virtual void notifyReplacement(AbstractColumn *replacement) { aboutToBeReplaced(this, replacement); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -434,10 +286,126 @@ class AbstractColumn
 		virtual void replaceValues(int first, const QVector<double>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//@}
 
-		AbstractColumnSignalEmitter *  abstractColumnSignalEmitter() { return d_abstract_column_signal_emitter; }
-		
-	private:
-		AbstractColumnSignalEmitter * d_abstract_column_signal_emitter;
+		virtual AspectView *view() { return 0; }
+
+	signals: 
+		//! Column description (label/comment) will be changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void descriptionAboutToChange(AbstractColumn * source); 
+		//! Column description (label/comment) changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void descriptionChanged(AbstractColumn * source); 
+		//! Column plot designation will be changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void plotDesignationAboutToChange(AbstractColumn * source); 
+		//! Column plot designation changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void plotDesignationChanged(AbstractColumn * source); 
+		//! Column mode (possibly also the data type) will be changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void modeAboutToChange(AbstractColumn * source); 
+		//! Column mode (possibly also the data type) changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void modeChanged(AbstractColumn * source); 
+		//! Data (including validity) of the column will be changed
+		/**
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void dataAboutToChange(AbstractColumn * source); 
+		//! Data (including validity) of the column has changed
+		/**
+		 * Important: When data has changed also the number
+		 * of rows in the column may have changed without
+		 * any other signal emission.
+		 * 'source' is always the this pointer of the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void dataChanged(AbstractColumn * source); 
+		//! The column will be replaced
+		/**
+		 * This is used then a column is replaced by another
+		 * column, possibly of another type. 
+		 *
+		 * \param new_col Pointer to the column this one is to be replaced with.
+		 *
+		 * \param source is always a pointer to the column that
+		 * emitted this signal. This way it's easier to use
+		 * one handler for lots of columns.
+		 */
+		void aboutToBeReplaced(AbstractColumn * source, AbstractColumn* new_col); 
+		//! Rows will be inserted
+		/**
+		 *	\param source the column that emitted the signal
+		 *	\param before the row to insert before
+		 *	\param count the number of rows to be inserted
+		 */
+		void rowsAboutToBeInserted(AbstractColumn * source, int before, int count); 
+		//! Rows have been inserted
+		/**
+		 *	\param source the column that emitted the signal
+		 *	\param before the row to insert before
+		 *	\param count the number of rows to be inserted
+		 */
+		void rowsInserted(AbstractColumn * source, int before, int count); 
+		//! Rows will be deleted
+		/**
+		 *	\param source the column that emitted the signal
+		 *	\param first the first row to be deleted
+		 *	\param count the number of rows to be deleted
+		 */
+		void rowsAboutToBeRemoved(AbstractColumn * source, int first, int count); 
+		//! Rows have been deleted
+		/**
+		 *	\param source the column that emitted the signal
+		 *	\param first the first row that was deleted
+		 *	\param count the number of deleted rows
+		 */
+		void rowsRemoved(AbstractColumn * source, int first, int count); 
+		//! IntervalAttribute related signal
+		void maskingAboutToChange(AbstractColumn * source); 
+		//! IntervalAttribute related signal
+		void maskingChanged(AbstractColumn * source); 
+		// TODO: Check whether aboutToBeDestroyed is needed 
+		//! Emitted shortly before this data source is deleted.
+		/**
+		 * \param source the object emitting this signal
+		 *
+		 * This is needed by AbstractFilter. 
+		 */
+		void aboutToBeDestroyed(AbstractColumn * source);
+
+	friend class Column;
+	friend class ColumnPrivate;
+	friend class AbstractSimpleFilter;
+	friend class SimpleMappingFilter;
+	friend class SimpleCopyThroughFilter;
 };
 
 #endif

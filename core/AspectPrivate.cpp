@@ -36,12 +36,12 @@ AspectPrivate::AspectPrivate(const QString& name, AbstractAspect * owner)
 	d_creation_time = QDateTime::currentDateTime();
 }
 
-void AspectPrivate::addChild(shared_ptr<AbstractAspect> child)
+void AspectPrivate::addChild(AbstractAspect* child)
 {
 	d_children << child;
 }
 
-void AspectPrivate::insertChild(int index, shared_ptr<AbstractAspect> child)
+void AspectPrivate::insertChild(int index, AbstractAspect* child)
 {
 	d_children.insert(index, child);
 }
@@ -49,11 +49,11 @@ void AspectPrivate::insertChild(int index, shared_ptr<AbstractAspect> child)
 int AspectPrivate::indexOfChild(const AbstractAspect *child) const
 {
 	for(int i=0; i<d_children.size(); i++)
-		if(d_children.at(i).get() == child) return i;
+		if(d_children.at(i) == child) return i;
 	return -1;
 }
 
-void AspectPrivate::removeChild(shared_ptr<AbstractAspect> child)
+void AspectPrivate::removeChild(AbstractAspect* child)
 {
 	d_children.removeAll(child);
 }
@@ -63,7 +63,7 @@ int AspectPrivate::childCount() const
 	return d_children.count();
 }
 
-shared_ptr<AbstractAspect> AspectPrivate::child(int index)
+AbstractAspect* AspectPrivate::child(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
 	return d_children.at(index);

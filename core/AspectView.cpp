@@ -45,7 +45,7 @@ AspectView::AspectView(AbstractAspect *aspect)
 {
 	setWindowIcon(d_aspect->icon());
 	handleAspectDescriptionChanged(d_aspect);
-	connect(d_aspect->abstractAspectSignalEmitter(), SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+	connect(d_aspect, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
 		this, SLOT(handleAspectDescriptionChanged(AbstractAspect *)));
 }
 

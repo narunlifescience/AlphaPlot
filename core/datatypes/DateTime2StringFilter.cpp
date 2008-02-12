@@ -34,23 +34,14 @@
 
 void DateTime2StringFilter::setFormat(const QString& format) 
 { 
-	DateTime2StringFilterSetFormatCmd * cmd = new DateTime2StringFilterSetFormatCmd(
-			static_pointer_cast<DateTime2StringFilter>(shared_from_this()), format);
-	QUndoStack * stack;
-	if(d_owner_aspect && (stack = d_owner_aspect->undoStack()) )
-			stack->push(cmd);
-	else 
-	{
-		cmd->redo();
-		delete cmd;
-	}
+	exec(new DateTime2StringFilterSetFormatCmd(static_cast<DateTime2StringFilter*>(this), format));
 }
 
-DateTime2StringFilterSetFormatCmd::DateTime2StringFilterSetFormatCmd(shared_ptr<DateTime2StringFilter> target, const QString &new_format)
+DateTime2StringFilterSetFormatCmd::DateTime2StringFilterSetFormatCmd(DateTime2StringFilter* target, const QString &new_format)
 	: d_target(target), d_other_format(new_format) 
 {
-	if(d_target->ownerAspect())
-		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->ownerAspect()->name()).arg(new_format));
+	if(d_target->parentAspect())
+		setText(QObject::tr("%1: set date-time format to %2").arg(d_target->parentAspect()->name()).arg(new_format));
 	else
 		setText(QObject::tr("set date-time format to %1").arg(new_format));
 }

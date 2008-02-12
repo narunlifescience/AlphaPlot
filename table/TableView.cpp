@@ -322,7 +322,7 @@ void TableView::currentColumnChanged(const QModelIndex & current, const QModelIn
 void TableView::setColumnForDescriptionTab(int col)
 {
 	if(col < 0 || col >= d_model->columnCount()) return;
-	shared_ptr<Column> col_ptr = d_model->column(col);
+	Column *col_ptr = d_model->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
 		.arg(col_ptr->columnLabel()).arg(col+1);
@@ -501,30 +501,30 @@ void TableView::applyType()
 	if(format_index < 0 && type_index < 0) return;
 
 	SciDAVis::ColumnMode mode = (SciDAVis::ColumnMode)ui.type_box->itemData(type_index).toInt();
-	QList< shared_ptr<Column> > list = d_model->selectedColumns();
+	QList<Column*> list = d_model->selectedColumns();
 	switch(mode)
 	{
 		case SciDAVis::Numeric:
-			foreach(shared_ptr<Column> col, list)
+			foreach(Column* col, list)
 			{
 				col->setColumnMode(mode);
-				shared_ptr<Double2StringFilter> filter = static_pointer_cast<Double2StringFilter>(col->outputFilter());
+				Double2StringFilter * filter = static_cast<Double2StringFilter*>(col->outputFilter());
 				filter->setNumericFormat(ui.format_box->itemData(format_index).toChar().toLatin1());
 				filter->setNumDigits(ui.digits_box->value());
 				d_model->emitColumnChanged(col); // filter changes will not be visible without this
 			}
 			break;
 		case SciDAVis::Text:
-			foreach(shared_ptr<Column> col, list)
+			foreach(Column* col, list)
 				col->setColumnMode(mode);
 			break;
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 		case SciDAVis::DateTime:
-			foreach(shared_ptr<Column> col, list)
+			foreach(Column* col, list)
 			{
 				col->setColumnMode(mode);
-				shared_ptr<DateTime2StringFilter> filter = static_pointer_cast<DateTime2StringFilter>(col->outputFilter());
+				DateTime2StringFilter * filter = static_cast<DateTime2StringFilter*>(col->outputFilter());
 				filter->setFormat(ui.format_box->itemData(format_index).toString());
 				d_model->emitColumnChanged(col); // filter changes will not be visible without this
 			}

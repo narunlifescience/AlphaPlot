@@ -105,13 +105,13 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 class DateTime2StringFilterSetFormatCmd : public QUndoCommand
 {
 	public:
-		DateTime2StringFilterSetFormatCmd(shared_ptr<DateTime2StringFilter> target, const QString &new_format);
+		DateTime2StringFilterSetFormatCmd(DateTime2StringFilter* target, const QString &new_format);
 
 		virtual void redo();
 		virtual void undo();
 
 	private:
-		shared_ptr<DateTime2StringFilter> d_target;
+		DateTime2StringFilter* d_target;
 		QString d_other_format;
 };
 

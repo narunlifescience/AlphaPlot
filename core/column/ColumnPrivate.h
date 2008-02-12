@@ -42,7 +42,7 @@ class QString;
  This class contains all private members of class Column. The interface
  defined here is only to be used by column commands and Column contructors.
 */
-class ColumnPrivate : public QObject, public AbstractColumn
+class ColumnPrivate : public AbstractColumn
 {
 	Q_OBJECT
 
@@ -132,15 +132,15 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		//! Return the data pointer
 		void * dataPointer() const { return d_data; }
 		//! Return the input filter (for string -> data type conversion)
-		shared_ptr<AbstractSimpleFilter> inputFilter() const { return d_input_filter; }
+		AbstractSimpleFilter* inputFilter() const { return d_input_filter; }
 		//! Return the output filter (for data type -> string  conversion)
-		shared_ptr<AbstractSimpleFilter> outputFilter() const { return d_output_filter; }
+		AbstractSimpleFilter* outputFilter() const { return d_output_filter; }
 		//! Replace all mode related members
 		/** 
 		 * Replace column mode, data type, data pointer, validity and filters directly 
 		 */
 		void replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data,
-			shared_ptr<AbstractSimpleFilter> in_filter, shared_ptr<AbstractSimpleFilter> out_filter, IntervalAttribute<bool> validity);
+			AbstractSimpleFilter *in_filter, AbstractSimpleFilter *out_filter, IntervalAttribute<bool> validity);
 		//! Replace data pointer and validity
 		void replaceData(void * data, IntervalAttribute<bool> validity);
 		//! Return the validity interval attribute
@@ -305,9 +305,9 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		 */
 		void * d_data;
 		//! The input filter (for string -> data type conversion)
-		shared_ptr<AbstractSimpleFilter> d_input_filter;
+		AbstractSimpleFilter* d_input_filter;
 		//! The output filter (for data type -> string conversion)
-		shared_ptr<AbstractSimpleFilter> d_output_filter;
+		AbstractSimpleFilter* d_output_filter;
 		IntervalAttribute<bool> d_validity;
 		IntervalAttribute<bool> d_masking;
 		IntervalAttribute<QString> d_formulas;
@@ -315,8 +315,6 @@ class ColumnPrivate : public QObject, public AbstractColumn
 		SciDAVis::PlotDesignation d_plot_designation;
 		//! The owner column
 		Column * d_owner;
-		//! The sender object of the owner columng
-		AbstractColumnSignalEmitter * d_owner_sender;
 		//@}
 		
 };

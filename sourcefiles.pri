@@ -68,6 +68,7 @@ HEADERS += \
 
 SOURCES += \
 	core/AbstractFilter.cpp \
+	core/AbstractSimpleFilter.cpp \
 	core/ApplicationWindow.cpp \
 	core/PreferencesDialog.cpp \
 	core/CurveRangeDialog.cpp \

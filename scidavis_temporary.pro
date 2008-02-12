@@ -68,6 +68,7 @@ SOURCES += \
 	AspectPrivate.cpp \
 	globals.cpp \
 	AbstractFilter.cpp \
+	AbstractSimpleFilter.cpp \
 	Column.cpp \
 	ColumnPrivate.cpp \
 	columncommands.cpp \

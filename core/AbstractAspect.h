@@ -31,15 +31,6 @@
 
 #include <QObject>
 
-#ifndef _NO_TR1_
-#include "tr1/memory"
-using std::tr1::shared_ptr;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-using boost::shared_ptr;
-#endif
-
-class AbstractAspect;
 class AspectPrivate;
 class Project;
 class QUndoStack;
@@ -53,55 +44,6 @@ class Folder;
 class AspectView;
 class QXmlStreamReader;
 class QXmlStreamWriter;
-
-//! Wrapper class for AbstractAspect (receives and sends signals for it)
-/**
- * See: http://doc.trolltech.com/qq/qq15-academic.html
- */
-class AbstractAspectWrapper : public QObject
-{
-	Q_OBJECT
-
-	public:
-		AbstractAspectWrapper(AbstractAspect * aspect) 
-	         : QObject(0), d_aspect(aspect) {}
-		virtual ~AbstractAspectWrapper() {}
-
-	public slots:
-		void setName(const QString &value);
-		void setComment(const QString &value);
-		void setCaptionSpec(const QString &value);
-		void remove();
-		void showProperties();
-
-	signals:
-		//! Emit this before the name, comment or caption spec is changed
-		void aspectDescriptionAboutToChange(AbstractAspect *aspect);
-		//! Emit this when the name, comment or caption spec changed
-		void aspectDescriptionChanged(AbstractAspect *aspect);
-		//! Emit this when a parent aspect is about to get a new child inserted
-		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
-		//! Emit this from a newly added aspect
-		void aspectAdded(AbstractAspect *aspect);
-		//! Emit this from a parent after adding a new child to it
-		void aspectAdded(AbstractAspect *parent, int index);
-		//! Emit this from an aspect about to be removed from its parent's children
-		void aspectAboutToBeRemoved(AbstractAspect *aspect);
-		//! Emit this from a parent before removing its child
-		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
-		//! Emit this from the parent after removing a child
-		void aspectRemoved(AbstractAspect *parent, int index);
-
-	private:
-		AbstractAspect * d_aspect;
-		
-		// Undo commands need access to the signals
-		friend class AspectNameChangeCmd;
-		friend class AspectCommentChangeCmd;
-		friend class AspectCaptionSpecChangeCmd;
-		friend class AspectChildRemoveCmd;
-		friend class AspectChildAddCmd;
-};
 
 //! Base class of all persistent objects in a Project.
 /**
@@ -125,13 +67,6 @@ class AbstractAspectWrapper : public QObject
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
  *
- * AbstractAspect also defines signals and slots in a wrapper class AbstractAspectWrapper. This
- * can be queried by abstractAspectSignalEmitter() and abstractAspectSignalReceiver() which
- * both return the same pointer but should be used depending on the situation to make
- * the purpose of the returned pointer very clear. The reason why AbstractAspect does not 
- * inherit from QObject is to avoid multiple inheritance from QObject in classes derived
- * from AbstractAspect. The functions inherits() and className() are provided nonetheless.
- *
  * The private data of AbstractAspect is contained in a separate class AbstractAspectPrivate. 
  * The write access to AbstractAspectPrivate should always be done using aspect commands
  * to allow undo/redo.
@@ -139,8 +74,10 @@ class AbstractAspectWrapper : public QObject
  * The children of an aspect are addressed by smart pointers (shared_ptr) which take
  * care of deleting the children when necessary. 
  */
-class AbstractAspect 
+class AbstractAspect : public QObject
 {
+	Q_OBJECT
+
 	public:
 		AbstractAspect(const QString &name);
 		virtual ~AbstractAspect();
@@ -161,26 +98,19 @@ class AbstractAspect
 
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
-		void addChild(shared_ptr<AbstractAspect> child);
+		void addChild(AbstractAspect* child);
 		//! Remove the given Aspect from my list of children.
-		void removeChild(shared_ptr<AbstractAspect> child);
+		void removeChild(AbstractAspect* child);
 		//! Remove the Aspect at the given index from my list of children.
 		void removeChild(int index);
 		//! Get a child by its position in my list of children.
-		shared_ptr<AbstractAspect> child(int index) const;
+		AbstractAspect* child(int index) const;
 		//! Return the number of child Aspects.
 		int childCount() const;
 		//! Return the position of child in my list of children.
 		int indexOfChild(const AbstractAspect * child) const;
-		//! Return the position of child in my list of children.
-		int indexOfChild(shared_ptr<AbstractAspect> child) const { return indexOfChild(child.get()); }
 		//! Return my position in my parent's list of children.
 		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
-
-		//! See QMetaObject::className().
-		virtual const char* className() const { return "AbstractAspect"; }
-		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return (QString(class_name) == QString("AbstractAspect")); }
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
 		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
@@ -223,21 +153,6 @@ class AbstractAspect
 		QDateTime creationTime() const;
 		QString caption() const;
 
-		//! Return the QObject that is responsible for emitting signals
-		/**
-		 * Using this mechanism avoids the need to have QObject as a base class and
-		 * thus avoids multiple inheritance problems with classes derived from
-		 * AbstractAspect
-		 */
-		AbstractAspectWrapper *abstractAspectSignalEmitter() const { return d_aspect_wrapper; }
-		//! Return the QObject that is responsible for receiving signals
-		/**
-		 * Using this mechanism avoids the need to have QObject as a base class and
-		 * thus avoids multiple inheritance problems with classes derived from
-		 * AbstractAspect
-		 */
-		AbstractAspectWrapper *abstractAspectSignalReceiver() const { return d_aspect_wrapper; }
-
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
 
@@ -249,8 +164,7 @@ class AbstractAspect
 		virtual bool load(QXmlStreamReader *) { return false; }; //= 0;
 		//@}
 
-	// wrapped slots 
-	public: 
+	public slots:
 		void setName(const QString &value);
 		void setComment(const QString &value);
 		//! Set the specification string used for constructing the caption().
@@ -279,15 +193,32 @@ class AbstractAspect
 		//! Show info about the aspect
 		void showProperties();
 
+	signals:
+		//! Emit this before the name, comment or caption spec is changed
+		void aspectDescriptionAboutToChange(AbstractAspect *aspect);
+		//! Emit this when the name, comment or caption spec changed
+		void aspectDescriptionChanged(AbstractAspect *aspect);
+		//! Emit this when a parent aspect is about to get a new child inserted
+		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
+		//! Emit this from a newly added aspect
+		void aspectAdded(AbstractAspect *aspect);
+		//! Emit this from a parent after adding a new child to it
+		void aspectAdded(AbstractAspect *parent, int index);
+		//! Emit this from an aspect about to be removed from its parent's children
+		void aspectAboutToBeRemoved(AbstractAspect *aspect);
+		//! Emit this from a parent before removing its child
+		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
+		//! Emit this from the parent after removing a child
+		void aspectRemoved(AbstractAspect *parent, int index);
+
 	private:
 		//! Set #d_parent_aspect, handling signal connections (but not undo/redo).
 		void setParentAspect(AbstractAspect * new_parent);
 
 		AspectPrivate * d_aspect_private;
-		AbstractAspect * d_parent_aspect; // making this a shared_ptr would lead to circular references
-		AbstractAspectWrapper *d_aspect_wrapper;
+		AbstractAspect * d_parent_aspect;
 
-		// Undo commands need direct access to the model.
+		// Undo commands need direct access to the private data.
 		friend class AspectNameChangeCmd;
 		friend class AspectCommentChangeCmd;
 		friend class AspectCaptionSpecChangeCmd;

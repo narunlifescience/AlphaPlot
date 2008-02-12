@@ -52,7 +52,7 @@ class AspectTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
 	public:
-		AspectTreeModel(shared_ptr<AbstractAspect> root, QObject *parent=0);
+		AspectTreeModel(AbstractAspect* root, QObject *parent=0);
 		~AspectTreeModel();
 
 		//! Custom data roles used in addition to Qt::ItemDataRole
@@ -84,7 +84,7 @@ class AspectTreeModel : public QAbstractItemModel
 
 
 	private:
-		shared_ptr<AbstractAspect> d_root;
+		AbstractAspect* d_root;
 };
 
 #endif // ifndef ASPECT_TREE_MODEL_H

@@ -35,7 +35,7 @@ void SimpleMappingFilter::addMapping(int src_row, int dest_row)
 {
 	int dest_pos = d_dest_rows.indexOf(dest_row);
 
-	emit abstractColumnSignalEmitter()->dataAboutToChange(this);
+	emit d_output_column->dataAboutToChange(d_output_column);
 	if(dest_pos != -1)
 	{
 		d_source_rows.removeAt(dest_pos);
@@ -50,12 +50,12 @@ void SimpleMappingFilter::addMapping(int src_row, int dest_row)
 	}
 	d_source_rows.append(src_row);
 	d_dest_rows.append(dest_row);
-	emit abstractColumnSignalEmitter()->dataChanged(this);
+	emit d_output_column->dataChanged(d_output_column);
 }
 
 void SimpleMappingFilter::removeMappingTo(int dest_row)
 {
-	emit abstractColumnSignalEmitter()->dataAboutToChange(this);
+	emit d_output_column->dataAboutToChange(d_output_column);
 	int dest_pos = d_dest_rows.indexOf(dest_row);
 
 	if(dest_pos != -1)
@@ -63,12 +63,12 @@ void SimpleMappingFilter::removeMappingTo(int dest_row)
 		d_source_rows.removeAt(dest_pos);
 		d_dest_rows.removeAt(dest_pos);
 	}
-	emit abstractColumnSignalEmitter()->dataChanged(this);
+	emit d_output_column->dataChanged(d_output_column);
 }
 
 void SimpleMappingFilter::removeMappingFrom(int src_row)
 {
-	emit abstractColumnSignalEmitter()->dataAboutToChange(this);
+	emit d_output_column->dataAboutToChange(d_output_column);
 	int src_pos = d_source_rows.indexOf(src_row);
 
 	if(src_pos != -1)
@@ -76,7 +76,7 @@ void SimpleMappingFilter::removeMappingFrom(int src_row)
 		d_source_rows.removeAt(src_pos);
 		d_dest_rows.removeAt(src_pos);
 	}
-	emit abstractColumnSignalEmitter()->dataChanged(this);
+	emit d_output_column->dataChanged(d_output_column);
 }
 
 void SimpleMappingFilter::clearMappings() 
@@ -178,7 +178,7 @@ void SimpleMappingFilter::insertRows(int before, int count)
 	else
 		src_row = d_source_rows.at(index);
 
-	emit abstractColumnSignalEmitter()->rowsAboutToBeInserted(this, before, count);
+	emit d_output_column->rowsAboutToBeInserted(d_output_column, before, count);
 	d_inputs.at(0)->insertRows(src_row, count);
 
 	for(int i=0; i<d_dest_rows.count(); i++)
@@ -190,14 +190,14 @@ void SimpleMappingFilter::insertRows(int before, int count)
 
 	for(int i=0; i<count; i++)
 		addMapping(src_row+i, before+i);
-	emit abstractColumnSignalEmitter()->rowsInserted(this, before, count);
+	emit d_output_column->rowsInserted(d_output_column, before, count);
 }
 
 void SimpleMappingFilter::removeRows(int first, int count)
 {
 	if(!d_inputs.value(0)) return;
 	if(isReadOnly()) return;
-	emit abstractColumnSignalEmitter()->rowsAboutToBeRemoved(this, first, count);
+	emit d_output_column->rowsAboutToBeRemoved(d_output_column, first, count);
 	for(int i=0; i<count; i++)
 	{
 		int index = d_dest_rows.indexOf(first+i);
@@ -210,7 +210,7 @@ void SimpleMappingFilter::removeRows(int first, int count)
 		if(dest_row >= first) 
 			d_dest_rows.replace(i, dest_row - count);
 	}
-	emit abstractColumnSignalEmitter()->rowsRemoved(this, first, count);
+	emit d_output_column->rowsRemoved(d_output_column, first, count);
 }
 void SimpleMappingFilter::setColumnLabel(const QString& label)
 {

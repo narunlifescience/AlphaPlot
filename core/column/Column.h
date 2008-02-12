@@ -37,16 +37,6 @@
 #include "column/columncommands.h"
 class QString;
 
-#ifndef _NO_TR1_
-#include "tr1/memory"
-using std::tr1::shared_ptr;
-using std::tr1::enable_shared_from_this;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-#include <boost/enable_shared_from_this.hpp>
-using boost::shared_ptr;
-using boost::enable_shared_from_this;
-#endif
 
 //! Table column class
 /**
@@ -63,7 +53,7 @@ using boost::enable_shared_from_this;
   comment are identical to the aspect name and comment. Columns don't 
   have a view as they are intended to be displayed inside a table.
  */
-class Column : public QObject, public AbstractAspect, public AbstractColumn, public enable_shared_from_this<Column>
+class Column : public AbstractColumn
 {
 	Q_OBJECT
 
@@ -100,10 +90,6 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 
 		//! \name aspect related functions
 		//@{
-		//! See QMetaObject::className().
-		virtual const char* className() const { return metaObject()->className(); }
-		//! See QObject::inherits().
-		virtual bool inherits(const char *class_name) const { return QObject::inherits(class_name); }
 		//! This will always return zero as columns don't have a view
 		virtual AspectView *view() { return 0; }
 		//! Return an icon to be used for decorating the views and table column headers
@@ -135,14 +121,6 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * Use a filter to convert a column to another type.
 		 */
 		bool copy(const AbstractColumn * other);
-		//! Copy another column of the same type
-		/**
-		 * This function will return false if the data type
-		 * of 'other' is not the same as the type of 'this'.
-		 * The validity information for the rows is also copied.
-		 * Use a filter to convert a column to another type.
-		 */
-		bool copy(shared_ptr<Column> col) { return copy(col.get()); }
 		//! Copies a part of another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -154,20 +132,6 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		 * \param num_rows the number of rows to copy
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
-		//! Copies a part of another column of the same type
-		/**
-		 * This function will return false if the data type
-		 * of 'other' is not the same as the type of 'this'.
-		 * The validity information for the rows is also copied.
-		 * \param other pointer to the column to copy
-		 * \param src_start first row to copy in the column to copy
-		 * \param dest_start first row to copy in
-		 * \param num_rows the number of rows to copy
-		 */ 
-		bool copy(shared_ptr<Column> source, int source_start, int dest_start, int num_rows) 
-		{ 
-			return copy(source.get(), source_start, dest_start, num_rows); 
-		}
 		//! Return the data vector size
 		/**
 		 * This returns the number of rows that actually contain data. 
@@ -194,19 +158,19 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 		//! Clear the whole column
 		void clear();
 		//! This must be called before the column is replaced by another
-		void notifyReplacement(shared_ptr<AbstractColumn> replacement);
+		void notifyReplacement(AbstractColumn* replacement);
 		//! Return the input filter (for string -> data type conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		shared_ptr<AbstractSimpleFilter> inputFilter() const { return d_column_private->inputFilter(); }
+		AbstractSimpleFilter * inputFilter() const { return d_column_private->inputFilter(); }
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		shared_ptr<AbstractSimpleFilter> outputFilter() const { return d_column_private->outputFilter(); }
+		AbstractSimpleFilter * outputFilter() const { return d_column_private->outputFilter(); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -357,7 +321,7 @@ class Column : public QObject, public AbstractAspect, public AbstractColumn, pub
 
 	private:
 		//! Pointer to the private interface and all private data
-		shared_ptr<ColumnPrivate> d_column_private;
+		ColumnPrivate* d_column_private;
 
 		void init();
 	
