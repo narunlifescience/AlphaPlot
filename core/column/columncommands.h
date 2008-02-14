@@ -113,7 +113,14 @@ private:
 	//! The column to copy
 	const AbstractColumn * d_src;
 	//! A backup column
-	ColumnPrivate* d_backup;
+	ColumnPrivate * d_backup;
+	//! A dummy owner for the backup column
+	/**
+	 * This is needed because a ColumnPrivate must have an owner. We want access
+	 * to the ColumnPrivate object to access its data pointer for fast data
+	 * replacement without too much copying.
+	 */
+	Column * d_backup_owner;
 
 };
 ///////////////////////////////////////////////////////////////////////////
@@ -143,9 +150,23 @@ private:
 	//! The column to copy
 	const AbstractColumn * d_src;
 	//! A backup of the orig. column
-	ColumnPrivate* d_col_backup;
+	ColumnPrivate * d_col_backup;
 	//! A backup of the source column
-	ColumnPrivate* d_src_backup;
+	ColumnPrivate * d_src_backup;
+	//! A dummy owner for the backup column
+	/**
+	 * This is needed because a ColumnPrivate must have an owner and
+	 * we must have a ColumnPrivate object as backup.
+	 * Using a Column object as backup would lead to an inifinite loop.
+	 */
+	Column * d_col_backup_owner;
+	//! A dummy owner for the source backup column
+	/**
+	 * This is needed because a ColumnPrivate must have an owner and
+	 * we must have a ColumnPrivate object as backup.
+	 * Using a Column object as backup would lead to an inifinite loop.
+	 */
+	Column * d_src_backup_owner;
 	//! Start index in source column
 	int d_src_start;
 	//! Start index in destination column
@@ -221,7 +242,7 @@ private:
 	//! The number of rows before the removal
 	int d_old_size;
 	//! Column saving the removed rows
-	ColumnPrivate* d_backup;
+	Column * d_backup;
 	//! Backup of the masking attribute
 	IntervalAttribute<bool> d_masking;
 	//! Backup of the formula attribute

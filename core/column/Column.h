@@ -37,7 +37,6 @@
 #include "column/columncommands.h"
 class QString;
 
-
 //! Table column class
 /**
   This class represents a column in a table. It has a public reading and

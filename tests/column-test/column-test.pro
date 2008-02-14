@@ -42,6 +42,7 @@ SOURCES += \
 			  globals.cpp \
 			  String2DateTimeFilter.cpp \
 			  AbstractFilter.cpp \
+			  AbstractSimpleFilter.cpp \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \

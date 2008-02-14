@@ -115,29 +115,31 @@ void ColumnSetModeCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnFullCopyCmd
 ///////////////////////////////////////////////////////////////////////////
-	ColumnFullCopyCmd::ColumnFullCopyCmd(ColumnPrivate* col, const AbstractColumn * src, QUndoCommand * parent )
-: QUndoCommand( parent ), d_col(col), d_src(src), d_backup(0)
+ColumnFullCopyCmd::ColumnFullCopyCmd(ColumnPrivate* col, const AbstractColumn * src, QUndoCommand * parent )
+: QUndoCommand( parent ), d_col(col), d_src(src), d_backup(0), d_backup_owner(0)
 {
 	setText(QObject::tr("%1: change cell value(s)").arg(col->columnLabel()));
 }
 
 ColumnFullCopyCmd::~ColumnFullCopyCmd()
 {
-	if (d_backup) delete d_backup;
+	delete d_backup;
+	delete d_backup_owner;
 }
 
 void ColumnFullCopyCmd::redo()
 {
 	if(d_backup == 0)
 	{
-		d_backup = new ColumnPrivate(0, d_src->columnMode());
+		d_backup_owner = new Column("temp", d_src->columnMode());
+		d_backup = new ColumnPrivate(d_backup_owner, d_src->columnMode()); 
 		d_backup->copy(d_col);
 		d_col->copy(d_src);
 	}
 	else
 	{
 		// swap data + validity of orig. column and backup
-		IntervalAttribute<bool> val_temp = d_col->validityAttribute();
+		IntervalAttribute<bool> val_temp = d_col->invalidIntervals();
 		void * data_temp = d_col->dataPointer();
 		d_col->replaceData(d_backup->dataPointer(), d_backup->validityAttribute());
 		d_backup->replaceData(data_temp, val_temp);
@@ -160,16 +162,18 @@ void ColumnFullCopyCmd::undo()
 ///////////////////////////////////////////////////////////////////////////
 // class ColumnPartialCopyCmd
 ///////////////////////////////////////////////////////////////////////////
-	ColumnPartialCopyCmd::ColumnPartialCopyCmd(ColumnPrivate* col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent )
-: QUndoCommand( parent ), d_col(col), d_src(src), d_src_start(src_start), d_dest_start(dest_start), d_num_rows(num_rows), d_col_backup(0), d_src_backup(0)
+ColumnPartialCopyCmd::ColumnPartialCopyCmd(ColumnPrivate* col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent )
+: QUndoCommand( parent ), d_col(col), d_src(src), d_src_start(src_start), d_dest_start(dest_start), d_num_rows(num_rows), d_col_backup(0), d_src_backup(0), d_col_backup_owner(0), d_src_backup_owner(0)
 {
 	setText(QObject::tr("%1: change cell value(s)").arg(col->columnLabel()));
 }
 
 ColumnPartialCopyCmd::~ColumnPartialCopyCmd()
 {
-	if(d_src_backup) delete d_src_backup;
-	if(d_col_backup) delete d_col_backup;
+	delete d_src_backup;
+	delete d_col_backup;
+	delete d_src_backup_owner;
+	delete d_col_backup_owner;
 }
 
 void ColumnPartialCopyCmd::redo()
@@ -177,9 +181,11 @@ void ColumnPartialCopyCmd::redo()
 	if(d_src_backup == 0)
 	{
 		// copy the relevant rows of source and destination column into backup columns
-		d_src_backup = new ColumnPrivate(0, d_col->columnMode());
+		d_src_backup_owner = new Column("temp", d_col->columnMode());
+		d_src_backup = new ColumnPrivate(d_src_backup_owner, d_col->columnMode());
 		d_src_backup->copy(d_src, d_src_start, 0, d_num_rows);
-		d_col_backup = new ColumnPrivate(0, d_col->columnMode());
+		d_col_backup_owner = new Column("temp", d_col->columnMode());
+		d_col_backup = new ColumnPrivate(d_col_backup_owner, d_col->columnMode());
 		d_col_backup->copy(d_col, d_dest_start, 0, d_num_rows);
 		d_old_row_count = d_col->rowCount();
 	}
@@ -235,7 +241,7 @@ void ColumnInsertEmptyRowsCmd::undo()
 
 ColumnRemoveRowsCmd::~ColumnRemoveRowsCmd()
 {
-	if (d_backup) delete d_backup;
+	delete d_backup;
 }
 
 void ColumnRemoveRowsCmd::redo()
@@ -250,7 +256,7 @@ void ColumnRemoveRowsCmd::redo()
 			d_data_row_count = d_count;
 
 		d_old_size = d_col->rowCount();
-		d_backup = new ColumnPrivate(0, d_col->columnMode());
+		d_backup = new Column("temp", d_col->columnMode());
 		d_backup->copy(d_col, d_first, 0, d_data_row_count);
 		d_masking = d_col->maskingAttribute();
 		d_formulas = d_col->formulaAttribute();

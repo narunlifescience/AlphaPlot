@@ -67,8 +67,6 @@ Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<boo
 
 void Column::init()
 {
-	addChild(d_column_private->inputFilter());
-	addChild(d_column_private->outputFilter());
 	connect(this, SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
 		this, SLOT(emitDescriptionAboutToChange(AbstractAspect *)));
 	connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
@@ -96,11 +94,7 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == columnMode()) return;
 	beginMacro(QObject::tr("%1: change column type").arg(columnLabel()));
-	AbstractSimpleFilter *old_in_filter = inputFilter();
-	AbstractSimpleFilter *old_out_filter = outputFilter();
 	exec(new ColumnSetModeCmd(d_column_private, mode));
-	removeChild(old_in_filter);
-	removeChild(old_out_filter);
 	endMacro();
 }
 

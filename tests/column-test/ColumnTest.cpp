@@ -139,25 +139,27 @@ class ColumnTest : public CppUnit::TestFixture {
 			IntervalAttribute<bool> temp_validity;
 			temp_validity.setValue(Interval<int>(1,2));
 
-			column[0] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col0", SciDAVis::Numeric));
-			column[1] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col1", double_temp, temp_validity));
-			column[2] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col2", SciDAVis::Text));
-			column[3] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col3", strl_temp, temp_validity));
-			column[4] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col4", SciDAVis::DateTime));
-			column[5] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col5", dtl_temp, temp_validity));
-			column[6] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col6", SciDAVis::Month));
-			column[7] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col7", SciDAVis::Month));
-			column[8] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col8", SciDAVis::Day));
-			column[9] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col9", SciDAVis::Day));
-			column[10] = shared_ptr<ColumnWrapper>(new ColumnWrapper("col10", double_temp));
+			column[0] = new ColumnWrapper("col0", SciDAVis::Numeric);
+			column[1] = new ColumnWrapper("col1", double_temp, temp_validity);
+			column[2] = new ColumnWrapper("col2", SciDAVis::Text);
+			column[3] = new ColumnWrapper("col3", strl_temp, temp_validity);
+			column[4] = new ColumnWrapper("col4", SciDAVis::DateTime);
+			column[5] = new ColumnWrapper("col5", dtl_temp, temp_validity);
+			column[6] = new ColumnWrapper("col6", SciDAVis::Month);
+			column[7] = new ColumnWrapper("col7", SciDAVis::Month);
+			column[8] = new ColumnWrapper("col8", SciDAVis::Day);
+			column[9] = new ColumnWrapper("col9", SciDAVis::Day);
+			column[10] = new ColumnWrapper("col10", double_temp);
 		}
 		
 		void tearDown() 
 		{
+			for(int i=0; i<11; i++)
+				delete column[i];
 		}
 
 	private:
-		shared_ptr<ColumnWrapper> column[11];
+		ColumnWrapper *column[11];
 
 /* ------------------------------------------------------------------------------ */
 		void testGeneralMethods() 
@@ -256,7 +258,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1*(double)i, column[1]->valueAt(i-1), EPSILON);
 
 			// test full copy
-			column[0]->copy(column[1].get());
+			column[0]->copy(column[1]);
 			CPPUNIT_ASSERT_EQUAL(column[0]->rowCount(), column[1]->rowCount());
 			for(int i=0; i<column[0]->rowCount(); i++)
 				CPPUNIT_ASSERT_DOUBLES_EQUAL(column[1]->valueAt(i) , column[0]->valueAt(i), EPSILON);
@@ -269,7 +271,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT(column[1]->valueAt(i) != column[0]->valueAt(i)); 
 
 			// test partial copy
-			column[1]->copy(column[0].get(), 0, 1, 2);
+			column[1]->copy(column[0], 0, 1, 2);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.1 , column[1]->valueAt(0), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(column[0]->valueAt(0) , column[1]->valueAt(1), EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(column[0]->valueAt(1) , column[1]->valueAt(2), EPSILON);
@@ -463,8 +465,8 @@ class ColumnTest : public CppUnit::TestFixture {
 			{
 				column[0]->setColumnMode(SciDAVis::Numeric);
 				column[0]->setValueAt(0, dbl_temp);
-				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter().get())->setNumericFormat('f');
-				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter().get())->setNumDigits(2);
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumericFormat('f');
+				dynamic_cast<Double2StringFilter*>(column[0]->outputFilter())->setNumDigits(2);
 				column[0]->setColumnMode(SciDAVis::Text);
 				CPPUNIT_ASSERT_EQUAL(QLocale().toString(dbl_temp, 'f', 2), column[0]->textAt(0));
 				CPPUNIT_ASSERT_EQUAL(column[0]->columnMode(), SciDAVis::Text);
@@ -714,7 +716,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			// initialization
 			column[0]->setValueAt(0, 100.1);
 			column[0]->setValueAt(1, 200.2);
-			dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->setNumericFormat('g');
+			dynamic_cast<Double2StringFilter *>(column[0]->outputFilter())->setNumericFormat('g');
 			column[1]->setPlotDesignation(SciDAVis::X);
 			column[1]->setMasked(2);
 			column[2]->setTextAt(0,"foo foo");
@@ -723,8 +725,8 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[3]->setMasked(2);
 			column[4]->setDateTimeAt(0, QDateTime());
 			column[4]->setDateTimeAt(1, QDateTime());
-			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("yyyy-MM-dd");
-			dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->setFormat("yyyy-MM-dd");
+			dynamic_cast<DateTime2StringFilter *>(column[4]->outputFilter())->setFormat("yyyy-MM-dd");
+			dynamic_cast<String2DateTimeFilter *>(column[4]->inputFilter())->setFormat("yyyy-MM-dd");
 			column[5]->setPlotDesignation(SciDAVis::Z);
 			column[5]->setMasked(2);
 			column[1]->setFormula(Interval<int>(0,20), "foo bar");
@@ -868,11 +870,11 @@ class ColumnTest : public CppUnit::TestFixture {
 			undoTestInternal();
 
 			// test undo for input/output filters
-			dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->setFormat("dd.MM.yyyy");
+			dynamic_cast<DateTime2StringFilter *>(column[4]->outputFilter())->setFormat("dd.MM.yyyy");
 			undoTestInternal();
-			dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->setFormat("dd.MM.yyyy");
+			dynamic_cast<String2DateTimeFilter *>(column[4]->inputFilter())->setFormat("dd.MM.yyyy");
 			undoTestInternal();
-			dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->setNumericFormat('e');
+			dynamic_cast<Double2StringFilter *>(column[0]->outputFilter())->setNumericFormat('e');
 			undoTestInternal();
 
 		}
@@ -931,9 +933,9 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(column[3]->formula(20),  QString("foo bar bla"));
 
 			// check input/output filters
-			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_pointer_cast<String2DateTimeFilter>(column[4]->inputFilter())->format());
-			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_pointer_cast<DateTime2StringFilter>(column[4]->outputFilter())->format());
-			CPPUNIT_ASSERT_EQUAL('g', dynamic_pointer_cast<Double2StringFilter>(column[0]->outputFilter())->numericFormat());
+			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_cast<String2DateTimeFilter *>(column[4]->inputFilter())->format());
+			CPPUNIT_ASSERT_EQUAL(QString("yyyy-MM-dd"), dynamic_cast<DateTime2StringFilter *>(column[4]->outputFilter())->format());
+			CPPUNIT_ASSERT_EQUAL('g', dynamic_cast<Double2StringFilter *>(column[0]->outputFilter())->numericFormat());
 
 			// check column 5
 			CPPUNIT_ASSERT_EQUAL(3, column[5]->rowCount());
@@ -957,7 +959,7 @@ class ColumnTest : public CppUnit::TestFixture {
 /* ------------------------------------------------------------------------------ */
 		void testSave() 
 		{
-			shared_ptr<ColumnWrapper> temp_col = shared_ptr<ColumnWrapper>(new ColumnWrapper("temp_col", SciDAVis::Numeric));
+			ColumnWrapper *temp_col = new ColumnWrapper("temp_col", SciDAVis::Numeric);
 
 			QString output;
 			QXmlStreamWriter * writer;
@@ -982,21 +984,21 @@ class ColumnTest : public CppUnit::TestFixture {
                               .arg(reader->columnNumber())
                               .arg(reader->errorString());
 				}
-				CPPUNIT_ASSERT(column[i]->equalsDebug(temp_col.get()));
+				CPPUNIT_ASSERT(column[i]->equalsDebug(temp_col));
 				delete writer;
 				delete reader;
 				output.clear();
 			}
-				
+			delete temp_col;	
 		}
 /* ------------------------------------------------------------------------------ */
 		void testMappingFilter()
 		{
-			shared_ptr<ColumnWrapper> col1 = shared_ptr<ColumnWrapper>(new ColumnWrapper("col1", SciDAVis::Text));
-			shared_ptr<SimpleMappingFilter> col2 = shared_ptr<SimpleMappingFilter>(new SimpleMappingFilter());
-			shared_ptr<ColumnWrapper> col3 = shared_ptr<ColumnWrapper>(new ColumnWrapper("col3", SciDAVis::Numeric));
+			ColumnWrapper *col1 = new ColumnWrapper("col1", SciDAVis::Text);
+			SimpleMappingFilter *col2 = new SimpleMappingFilter();
+			ColumnWrapper *col3 = new ColumnWrapper("col3", SciDAVis::Numeric);
 
-			col2->input(0, dynamic_pointer_cast<AbstractColumn>(col1));
+			col2->input(0, dynamic_cast<AbstractColumn *>(col1));
 
 			CPPUNIT_ASSERT_EQUAL(col1->dataType(), col2->dataType());
 			CPPUNIT_ASSERT_EQUAL(col1->columnMode(), col2->columnMode());
@@ -1013,10 +1015,10 @@ class ColumnTest : public CppUnit::TestFixture {
 			for(int i=0; i<10; i++)
 				col2->addMapping(i, i);
 
-			col2->copy(col3.get());
+			col2->copy(col3);
 			CPPUNIT_ASSERT_EQUAL(col1->rowCount(), col2->rowCount());
-			CPPUNIT_ASSERT(col1->equalsDebug(col3.get()));
-			CPPUNIT_ASSERT(col1->equalsDebug(col2.get()));
+			CPPUNIT_ASSERT(col1->equalsDebug(col3));
+			CPPUNIT_ASSERT(col1->equalsDebug(col2->output(0)));
 
 			col2->clearMappings();
 			col2->addMapping(1,0);
@@ -1027,7 +1029,7 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(5, col2->rowCount());
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(3),EPSILON);
 			
-			col2->copy(col3.get(), 2, 1, 3);
+			col2->copy(col3, 2, 1, 3);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col1->valueAt(0),EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, col1->valueAt(1),EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(2.0, col1->valueAt(2),EPSILON);
@@ -1338,6 +1340,10 @@ class ColumnTest : public CppUnit::TestFixture {
 			col2->removeMappingTo(0);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, col2->valueAt(0),EPSILON);
 			CPPUNIT_ASSERT_EQUAL(3, col2->rowCount());
+
+			delete col1;
+			delete col2;
+			delete col3;
 		}
 };
 
