@@ -61,28 +61,31 @@
 TableView::TableView(Table *table)
  : AspectView(static_cast<AbstractAspect *>(table)), d_table(table) 
 {
-	d_model = d_table->model();
-	init(d_model);
+	d_model = new TableModel(table);
+	init();
 }
 
-void TableView::init(TableModel * model)
+TableView::~TableView() 
+{
+	delete d_model;
+}
+
+void TableView::init()
 {
 	d_main_widget = new QWidget();
 	d_main_layout = new QVBoxLayout(d_main_widget);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
 	
-	d_view = new TableViewWidget(d_main_widget);
-	d_view->setModel(model);
-	d_view->setSelectionModel(model->selectionModel());
-	connect(d_view, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
-	d_main_layout->addWidget(d_view);
+	d_view_widget = new TableViewWidget(d_main_widget);
+	d_view_widget->setModel(d_model);
+	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
+	d_main_layout->addWidget(d_view_widget);
 	
 	d_horizontal_header = new TableDoubleHeaderView();
     d_horizontal_header->setClickable(true);
     d_horizontal_header->setHighlightSections(true);
-	d_view->setHorizontalHeader(d_horizontal_header);
-
+	d_view_widget->setHorizontalHeader(d_horizontal_header);
 
 	d_options_bar = new QWidget();
 	d_sub_layout = new QVBoxLayout(d_options_bar);
@@ -102,26 +105,26 @@ void TableView::init(TableModel * model)
 	d_tool_box->setWidgetResizable(true);
 	d_sub_layout->addWidget(d_tool_box);
 
-	d_delegate = new TableItemDelegate(d_view);
-	d_view->setItemDelegate(d_delegate);
+	d_delegate = new TableItemDelegate(d_view_widget);
+	d_view_widget->setItemDelegate(d_delegate);
 	
 	d_main_layout->addWidget(d_options_bar);
-	d_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	d_main_layout->setStretchFactor(d_view, 1);
+	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	d_main_layout->setStretchFactor(d_view_widget, 1);
 
 	d_main_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	setWidget(d_main_widget);
 
-	d_view->setFocusPolicy(Qt::StrongFocus);
+	d_view_widget->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
 	setFocus();
 #if QT_VERSION >= 0x040300
-	d_view->setCornerButtonEnabled(true);
+	d_view_widget->setCornerButtonEnabled(true);
 #endif
 
-	d_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	d_view_widget->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	QHeaderView * v_header = d_view->verticalHeader();
+	QHeaderView * v_header = d_view_widget->verticalHeader();
 	// Remark: ResizeToContents works in Qt 4.2.3 but is broken in 4.3.0
 	// Should be fixed in 4.3.1 though, see:
 	// http://trolltech.com/developer/task-tracker/index_html?method=entry&id=165567
@@ -131,20 +134,20 @@ void TableView::init(TableModel * model)
 	d_horizontal_header->setMovable(true);
 	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
 	
-	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
+	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view_widget, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
 	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
 
 	
 	// keyboard shortcuts
-	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view);
-	connect(sel_all, SIGNAL(activated()), d_view, SLOT(selectAll()));
+	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view_widget);
+	connect(sel_all, SIGNAL(activated()), d_view_widget, SLOT(selectAll()));
 
 	connect(ui.type_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatBox()));
 	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
 	connect(ui.digits_box, SIGNAL(valueChanged(int)), this, SLOT(updateTypeInfo()));
 	retranslateStrings();
 
-	QItemSelectionModel * sel_model = model->selectionModel();
+	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
 
 	connect(sel_model, SIGNAL(currentColumnChanged(const QModelIndex&, const QModelIndex&)), 
 		this, SLOT(currentColumnChanged(const QModelIndex&, const QModelIndex&)));
@@ -181,41 +184,39 @@ void TableView::retranslateStrings()
 	ui.formula_info->document()->setPlainText("not implemented yet");
 }
 	
-TableView::~TableView() 
-{
-}
-
 void TableView::advanceCell()
 {
-	QModelIndex idx = d_view->currentIndex();
-    if(idx.row()+1 >= d_model->rowCount())
+	QModelIndex idx = d_view_widget->currentIndex();
+    if(idx.row()+1 >= d_table->rowCount())
 	{
-		int new_size = d_model->rowCount()+1;
-		emit requestResize(new_size);
-		if(d_model->rowCount() != new_size) // request was ignored
-			d_model->setRowCount(new_size);
-
+		int new_size = d_table->rowCount()+1;
+		d_table->setRowCount(new_size);
 	}
-	d_view->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
+	d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void TableView::contextMenuEvent(QContextMenuEvent *event)
 {
-	QHeaderView * v_header = d_view->verticalHeader();
+	QHeaderView * v_header = d_view_widget->verticalHeader();
 
 	QRect view_rect, vh_rect, hh_rect;
 
-/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view, d_view->geometry()));
-	hh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(v_header, v_header->geometry())));*/
-/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view, d_view->geometry()));
-	hh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(d_main_widget, mapToParent(d_view, mapToParent(v_header, v_header->geometry())));
+	// TODO: There seem to be problems mapping coordinates in a QMdiSubWindow
+	// which is handled by X11. The handling of context menus for the headers
+	// does not work properly yet due to this reason. I hope this problem
+	// goes away once QMdiWindow is not a part of TableView anymore. - thzs
+
+/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, d_view_widget->geometry()));
+	hh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));*/
+/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, d_view_widget->geometry()));
+	hh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));
 */
-/*	view_rect = mapToGlobal(d_view, d_view->geometry());
+/*	view_rect = mapToGlobal(d_view_widget, d_view_widget->geometry());
 	hh_rect = mapToGlobal(d_horizontal_header, d_horizontal_header->geometry());
 	vh_rect = mapToGlobal(v_header, v_header->geometry()); */
-	view_rect = d_view->geometry();
+	view_rect = d_view_widget->geometry();
 	hh_rect = d_horizontal_header->geometry();
 	QRect hh2 = mapToParent(d_horizontal_header, hh_rect);
 	vh_rect = v_header->geometry(); 
@@ -263,15 +264,22 @@ QRect TableView::mapToThis(QWidget *widget, const QRect& rect)
 	return QRect(top_left, bottom_right);
 }
 
+void TableView::goToCell(int row, int col)
+{
+	QModelIndex index = d_model->index(row, col);
+	d_view_widget->scrollTo(index);
+	d_view_widget->setCurrentIndex(index);
+}
+
 void TableView::scrollToIndex(const QModelIndex & index)
 {
-	d_view->scrollTo(index);
-	d_view->setCurrentIndex(index);
+	d_view_widget->scrollTo(index);
+	d_view_widget->setCurrentIndex(index);
 }
 
 void TableView::selectAll()
 {
-	d_view->selectAll();
+	d_view_widget->selectAll();
 }
 
 void TableView::toggleOptionTabBar() 
@@ -291,7 +299,7 @@ void TableView::horizontalSectionMovedHandler(int index, int from, int to)
 	Q_ASSERT(index == from);
 
 	inside = true;
-	d_view->horizontalHeader()->moveSection(to, from);
+	d_view_widget->horizontalHeader()->moveSection(to, from);
 	inside = false;
 	d_table->moveColumn(from, to);
 }
@@ -315,14 +323,14 @@ void TableView::currentColumnChanged(const QModelIndex & current, const QModelIn
 {
 	Q_UNUSED(previous);
 	int col = current.column();	
-	if(col < 0 || col >= d_model->columnCount()) return;
+	if(col < 0 || col >= d_table->columnCount()) return;
 	setColumnForDescriptionTab(col);
 }
 
 void TableView::setColumnForDescriptionTab(int col)
 {
-	if(col < 0 || col >= d_model->columnCount()) return;
-	Column *col_ptr = d_model->column(col);
+	if(col < 0 || col >= d_table->columnCount()) return;
+	Column *col_ptr = d_table->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
 		.arg(col_ptr->columnLabel()).arg(col+1);
@@ -485,12 +493,12 @@ void TableView::showOptionsFormulaTab()
 
 void TableView::applyDescription()
 {
-	QItemSelectionModel * sel_model = d_model->selectionModel();
+	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
 	int index = sel_model->currentIndex().column();
 	if(index >= 0)
 	{
-		d_model->column(index)->setColumnLabel(ui.name_edit->text());
-		d_model->column(index)->setColumnComment(ui.comment_box->document()->toPlainText());
+		d_table->column(index)->setColumnLabel(ui.name_edit->text());
+		d_table->column(index)->setColumnComment(ui.comment_box->document()->toPlainText());
 	}
 }
 
@@ -501,7 +509,7 @@ void TableView::applyType()
 	if(format_index < 0 && type_index < 0) return;
 
 	SciDAVis::ColumnMode mode = (SciDAVis::ColumnMode)ui.type_box->itemData(type_index).toInt();
-	QList<Column*> list = d_model->selectedColumns();
+	QList<Column*> list = selectedColumns();
 	switch(mode)
 	{
 		case SciDAVis::Numeric:
@@ -511,8 +519,9 @@ void TableView::applyType()
 				Double2StringFilter * filter = static_cast<Double2StringFilter*>(col->outputFilter());
 				filter->setNumericFormat(ui.format_box->itemData(format_index).toChar().toLatin1());
 				filter->setNumDigits(ui.digits_box->value());
-				d_model->emitColumnChanged(col); // filter changes will not be visible without this
-			}
+				// TODO: make sure this is done by a signal from the filter to the column on to the table
+	//			d_model->emitColumnChanged(col); 
+				}
 			break;
 		case SciDAVis::Text:
 			foreach(Column* col, list)
@@ -526,7 +535,8 @@ void TableView::applyType()
 				col->setColumnMode(mode);
 				DateTime2StringFilter * filter = static_cast<DateTime2StringFilter*>(col->outputFilter());
 				filter->setFormat(ui.format_box->itemData(format_index).toString());
-				d_model->emitColumnChanged(col); // filter changes will not be visible without this
+				// TODO: make sure this is done by a signal from the filter to the column on to the table
+	//			d_model->emitColumnChanged(col); 
 			}
 			break;
 	}
@@ -536,20 +546,149 @@ void TableView::handleHeaderDataChanged(Qt::Orientation orientation, int first, 
 {
 	if(orientation != Qt::Horizontal) return;
 
-	QItemSelectionModel * sel_model = d_model->selectionModel();
+	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
 
 	int col = sel_model->currentIndex().column();
 	if(col < first || col > last) return;
 	setColumnForDescriptionTab(col);
 }
 
+int TableView::selectedColumnCount(bool full)
+{
+	int count = 0;
+	int cols = d_table->columnCount();
+	for (int i=0; i<cols; i++)
+		if(isColumnSelected(i, full)) count++;
+	return count;
+}
+
+int TableView::selectedColumnCount(SciDAVis::PlotDesignation pd)
+{
+	int count = 0;
+	int cols = d_table->columnCount();
+	for(int i=0; i<cols; i++)
+		if( isColumnSelected(i, false) && (d_table->column(i)->plotDesignation() == pd) ) count++;
+
+	return count;
+}
+
+bool TableView::isColumnSelected(int col, bool full)
+{
+	if(full)
+		return d_view_widget->selectionModel()->isColumnSelected(col, QModelIndex());
+	else
+		return d_view_widget->selectionModel()->columnIntersectsSelection(col, QModelIndex());
+}
+
+QList<Column*> TableView::selectedColumns(bool full)
+{
+	QList<Column*> list;
+	int cols = d_table->columnCount();
+	for (int i=0; i<cols; i++)
+		if(isColumnSelected(i, full)) list << d_table->column(i);
+
+	return list;
+}
+
+int TableView::selectedRowCount(bool full)
+{
+	int count = 0;
+	int rows = d_table->rowCount();
+	for (int i=0; i<rows; i++)
+		if(isRowSelected(i, full)) count++;
+	return count;
+}
+
+bool TableView::isRowSelected(int row, bool full)
+{
+	if(full)
+		return d_view_widget->selectionModel()->isRowSelected(row, QModelIndex());
+	else
+		return d_view_widget->selectionModel()->rowIntersectsSelection(row, QModelIndex());
+}
+
+int TableView::firstSelectedColumn(bool full)
+{
+	int cols = d_table->columnCount();
+	for (int i=0; i<cols; i++)
+	{
+		if(isColumnSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int TableView::lastSelectedColumn(bool full)
+{
+	int cols = d_table->columnCount();
+	for(int i=cols-1; i>=0; i--)
+		if(isColumnSelected(i, full)) return i;
+
+	return -1;
+}
+
+int TableView::firstSelectedRow(bool full)
+{
+	int rows = d_table->rowCount();
+	for (int i=0; i<rows; i++)
+	{
+		if(isRowSelected(i, full))
+			return i;
+	}
+	return -1;
+}
+
+int TableView::lastSelectedRow(bool full)
+{
+	int rows = d_table->rowCount();
+	for(int i=rows-1; i>=0; i--)
+		if(isRowSelected(i, full)) return i;
+
+	return -1;
+}
+
+bool TableView::isCellSelected(int row, int col)
+{
+	if(row < 0 || col < 0 || row >= d_table->rowCount() || col >= d_table->columnCount()) return false;
+
+	return d_view_widget->selectionModel()->isSelected(d_model->index(row, col));
+}
+
+void TableView::setCellSelected(int row, int col)
+{
+	 d_view_widget->selectionModel()->select(d_model->index(row, col), QItemSelectionModel::Select);
+}
+
+void TableView::setCellsSelected(int first_row, int first_col, int last_row, int last_col)
+{
+	QModelIndex top_left = d_model->index(first_row, first_col);
+	QModelIndex bottom_right = d_model->index(last_row, last_col);
+	d_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), QItemSelectionModel::SelectCurrent);
+}
+
+void TableView::getCurrentCell(int * row, int * col)
+{
+	QModelIndex index = d_view_widget->selectionModel()->currentIndex();
+	if(index.isValid()) 
+	{
+		*row = index.row();
+		*col = index.column();
+	}
+	else
+	{
+		*row = -1;
+		*col = -1;
+	}
+}
+
 /* ================== TableViewWidget ================ */
 
 void TableViewWidget::selectAll()
 {
-	TableModel * table_model = static_cast<TableModel *>(model());
-	QItemSelectionModel * sel_model = table_model->selectionModel();
-	QItemSelection sel(table_model->index(0, 0, QModelIndex()), table_model->index(table_model->rowCount()-1, table_model->columnCount()-1, QModelIndex()));
+	// the original QTableView::selectAll() toggles all cells which is strange behavior IMHO - thzs
+	QItemSelectionModel * sel_model = selectionModel();
+	QItemSelection sel(model()->index(0, 0, QModelIndex()), model()->index(model()->rowCount()-1, 
+		model()->columnCount()-1, QModelIndex()));
 	sel_model->select(sel, QItemSelectionModel::Select);
 }
 

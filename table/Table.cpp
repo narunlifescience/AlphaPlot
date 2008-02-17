@@ -1,7 +1,7 @@
 /***************************************************************************
     File                 : Table.cpp
     Project              : SciDAVis
-    Description          : Table worksheet class
+    Description          : Aspect providing a spreadsheet table with column logic
     --------------------------------------------------------------------
     Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
     Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
@@ -30,8 +30,6 @@
  ***************************************************************************/
 #include "Table.h"
 #include "Project.h"
-#include "TableFormulaEditorView.h"
-#include "TableFormulaEditorModel.h"
 
 #include <QItemSelectionModel>
 #include <QTime>
@@ -71,18 +69,6 @@
 #include "core/datatypes/DateTime2DoubleFilter.h"
 #include "core/datatypes/SimpleCopyThroughFilter.h"
 
-#include <QtDebug>
-
-#ifndef _NO_TR1_
-#include "tr1/memory" 
-using std::tr1::dynamic_pointer_cast;
-#else // if your compiler does not have TR1 support, you can use boost instead:
-#include <boost/shared_ptr.hpp>
-using boost::dynamic_pointer_cast;
-#endif
-
-#define OBSOLETE qDebug("obsolete Table function called");
-
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
@@ -91,82 +77,32 @@ bool Table::d_default_comment_visibility = false;
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 : AbstractAspect(name), d_plot_menu(0) // TODO:, scripted(engine)
 {
-	d_model = new TableModel(this);
-	connect(d_model, SIGNAL(requestResize(int)),
-			this, SLOT(handleModelResizeRequest(int)));
-
-	connect(d_model, SIGNAL(columnsAboutToBeInserted(int, QList<Column*>)),
-			this, SLOT(handleColumnsAboutToBeInserted(int, QList<Column*>)));
-	connect(d_model, SIGNAL(columnsInserted(int, int)),
-			this, SLOT(handleColumnsInserted(int, int)));
-	connect(d_model, SIGNAL(columnsAboutToBeReplaced(int, int)),
-			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
-	connect(d_model, SIGNAL(columnsReplaced(int, int)),
-			this, SLOT(handleColumnsInserted(int, int)));
-	connect(d_model, SIGNAL(columnsAboutToBeRemoved(int, int)),
-			this, SLOT(handleColumnsAboutToBeRemoved(int, int)));
-	connect(d_model, SIGNAL(columnsRemoved(int, int)),
-			this, SLOT(handleColumnsRemoved(int, int)));
-
-	setModelName();
-	connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
-		this, SLOT(setModelName()));
+	d_private_object = new Private(this);
 
 	// set initial number of rows and columns
 	QList<Column*> cols;
 	for(int i=0; i<columns; i++)
 		cols << new Column(QString::number(i+1), SciDAVis::Numeric);
 	appendColumns(cols);
-	d_model->setRowCount(rows);
+	setRowCount(rows);
 
 	d_view = new TableView(this);
 	createActions();
 	d_view->showComments(d_default_comment_visibility);
-	connect(d_view, SIGNAL(requestResize(int)),
-		this, SLOT(handleModelResizeRequest(int)));
 }
 
 Table::~Table()
 {
 }
 
-void Table::setModelName()
-{
-	d_model->setName(name());
+Column * Table::column(int index) const
+{ 
+	return d_private_object->column(index); 
 }
 
 AspectView *Table::view()
 {
 	return d_view;
-}
-
-void Table::handleModelResizeRequest(int new_size)
-{
-	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
-}
-
-void Table::handleColumnsAboutToBeInserted(int before, QList<Column*> new_cols)
-{
-	Q_UNUSED(before)
-	Q_UNUSED(new_cols)
-}
-
-void Table::handleColumnsInserted(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-}
-
-void Table::handleColumnsAboutToBeRemoved(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
-}
-
-void Table::handleColumnsRemoved(int first, int count)
-{
-	Q_UNUSED(first)
-	Q_UNUSED(count)
 }
 
 void Table::insertColumns(int before, QList<Column*> new_cols)
@@ -176,7 +112,7 @@ void Table::insertColumns(int before, QList<Column*> new_cols)
 	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
 	foreach(Column* col, new_cols)
 		addChild(col);
-	exec(new TableInsertColumnsCmd(d_model, before, new_cols));
+	exec(new TableInsertColumnsCmd(d_private_object, before, new_cols));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -188,8 +124,8 @@ void Table::removeColumns(int first, int count)
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
 	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
-		cols.append(dynamic_cast<Column*>(d_model->output(i)));
-	exec(new TableRemoveColumnsCmd(d_model, first, count, cols));
+		cols.append(dynamic_cast<Column*>(d_private_object->column(i)));
+	exec(new TableRemoveColumnsCmd(d_private_object, first, count, cols));
 	foreach(Column* col, cols)
 		removeChild(col);
 	endMacro();
@@ -206,10 +142,10 @@ void Table::removeRows(int first, int count)
 	if( count < 1 || first < 0 || first+count > rowCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
-	int end = d_model->columnCount();
+	int end = d_private_object->columnCount();
 	for(int col=0; col<end; col++)
-		d_model->column(col)->removeRows(first, count);
-	exec(new TableSetNumberOfRowsCmd(d_model, d_model->rowCount()-count));
+		d_private_object->column(col)->removeRows(first, count);
+	exec(new TableSetNumberOfRowsCmd(d_private_object, d_private_object->rowCount()-count));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -220,9 +156,9 @@ void Table::insertRows(int before, int count)
 	WAIT_CURSOR;
 	int new_row_count = rowCount() + count;
 	beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
-	int end = d_model->columnCount();
+	int end = d_private_object->columnCount();
 	for(int col=0; col<end; col++)
-		d_model->column(col)->insertRows(before, count);
+		d_private_object->column(col)->insertRows(before, count);
 	setRowCount(new_row_count);
 	endMacro();
 	RESET_CURSOR;
@@ -232,18 +168,18 @@ void Table::setRowCount(int new_size)
 {
 	if( (new_size < 0) || (new_size == rowCount()) ) return;
 	WAIT_CURSOR;
-	exec(new TableSetNumberOfRowsCmd(d_model, new_size));
+	exec(new TableSetNumberOfRowsCmd(d_private_object, new_size));
 	RESET_CURSOR;
 }
 
 int Table::columnCount() const
 {
-	return d_model->columnCount();
+	return d_private_object->columnCount();
 }
 
 int Table::rowCount() const
 {
-	return d_model->rowCount();
+	return d_private_object->rowCount();
 }
 
 int Table::columnCount(SciDAVis::PlotDesignation pd) const
@@ -275,17 +211,9 @@ void Table::setColumnCount(int new_size)
 	RESET_CURSOR;
 }
 		
-Column* Table::column(int index) const 
-{ 
-	if( index >= 0 & index < columnCount() )
-		return d_model->column(index); 
-	else
-		return 0;
-}
-
 int Table::columnIndex(Column * col) const 
 { 
-	return d_model->columnIndex(col); 
+	return d_private_object->columnIndex(col); 
 }
 
 void Table::clear()
@@ -322,7 +250,7 @@ void Table::addColumn()
 void Table::addColumns()
 {
 	WAIT_CURSOR;
-	int count = d_model->selectedColumnCount(false);
+	int count = d_view->selectedColumnCount(false);
 	beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));
 	setColumnCount(columnCount() + count);
 	endMacro();
@@ -331,29 +259,38 @@ void Table::addColumns()
 
 void Table::cutSelection()
 {
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: cut selected cell(s)").arg(name()));
 	copySelection();
-	foreach(QModelIndex index, list)
+	QList<Column*> list = d_view->selectedColumns();
+	Column * temp = new Column("temp", QStringList(QString()));
+	foreach(Column * col_ptr, list)
 	{
-		if(column(index.column())->rowCount() > index.row())
-			d_model->setData(index, QString(""), Qt::EditRole);
+		AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
+		in_fltr->input(0, temp);
+		int col = columnIndex(col_ptr);
+		for(int row=first; row<last; row++)
+			if(d_view->isCellSelected(row, col)) col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+		in_fltr->input(0, 0);
 	}
+	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::copySelection()
 {
-	int first_col = d_model->firstSelectedColumn(false);
+	int first_col = d_view->firstSelectedColumn(false);
 	if(first_col == -1) return;
-	int last_col = d_model->lastSelectedColumn(false);
+	int last_col = d_view->lastSelectedColumn(false);
 	if(last_col == -1) return;
-	int first_row = d_model->firstSelectedRow(false);
+	int first_row = d_view->firstSelectedRow(false);
 	if(first_row == -1)	return;
-	int last_row = d_model->lastSelectedRow(false);
+	int last_row = d_view->lastSelectedRow(false);
 	if(last_row == -1) return;
 	int cols = last_col - first_col +1;
 	int rows = last_row - first_row +1;
@@ -365,7 +302,7 @@ void Table::copySelection()
 	{
 		for(int c=0; c<cols; c++)
 		{
-			if(d_model->isCellSelected(first_row + r, first_col + c))
+			if(d_view->isCellSelected(first_row + r, first_col + c))
 				output_str += text(first_row + r, first_col + c);
 			if(c < cols-1)
 				output_str += "\t";
@@ -380,15 +317,15 @@ void Table::copySelection()
 void Table::pasteIntoSelection()
 {
 	if(columnCount() < 1 || rowCount() < 1) return;
+
 	WAIT_CURSOR;
 	beginMacro(tr("%1: paste from clipboard").arg(name()));
-	QItemSelectionModel * sel_model = d_model->selectionModel();
 	const QMimeData * mime_data = QApplication::clipboard()->mimeData();
 
-	int first_col = d_model->firstSelectedColumn(false);
-	int last_col = d_model->lastSelectedColumn(false);
-	int first_row = d_model->firstSelectedRow(false);
-	int last_row = d_model->lastSelectedRow(false);
+	int first_col = d_view->firstSelectedColumn(false);
+	int last_col = d_view->lastSelectedColumn(false);
+	int first_row = d_view->firstSelectedRow(false);
+	int last_row = d_view->lastSelectedRow(false);
 	int input_row_count = 0;
 	int input_col_count = 0;
 	int rows, cols;
@@ -411,13 +348,13 @@ void Table::pasteIntoSelection()
 		// if the is no selection or only one cell selected, the
 		// selection will be expanded to the needed size from the current cell
 		{
-			QModelIndex index = sel_model->currentIndex();
-			if(index.isValid()) 
-				sel_model->select(index, QItemSelectionModel::SelectCurrent);
-			else
-				sel_model->select(d_model->index(0, 0), QItemSelectionModel::Select);
-			first_col = index.column();
-			first_row = index.row();
+			int current_row, current_col;
+			d_view->getCurrentCell(&current_row, &current_col);
+			if(current_row == -1) current_row = 0;
+			if(current_col == -1) current_col = 0;
+			d_view->setCellSelected(current_row, current_col);
+			first_col = current_col;
+			first_row = current_row;
 			last_row = first_row + input_row_count -1;
 			last_col = first_col + input_col_count -1;
 			// resize the table if necessary
@@ -431,21 +368,28 @@ void Table::pasteIntoSelection()
 			if(last_row >= rowCount())
 				appendRows(last_row+1-rowCount());
 			// select the rectangle to be pasted in
-			QModelIndex top_left = d_model->index(first_row, first_col);
-			QModelIndex bottom_right = d_model->index(last_row, last_col);
-			sel_model->select(QItemSelection(top_left, bottom_right), QItemSelectionModel::SelectCurrent);
+			d_view->setCellsSelected(first_row, first_col, last_row, last_col);
 		}
 
 		rows = last_row - first_row + 1;
 		cols = last_col - first_col + 1;
+		Column * temp = new Column("temp", QStringList(QString()));
 		for(int r=0; r<rows && r<input_row_count; r++)
 		{
 			for(int c=0; c<cols && c<input_col_count; c++)
 			{
-				if(d_model->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
-					d_model->setData(d_model->index(first_row+r, first_col+c), cell_texts.at(r).at(c), Qt::EditRole);
+				if(d_view->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
+				{
+					Column * col_ptr = d_private_object->column(first_col + c);
+					AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
+					temp->setTextAt(0, cell_texts.at(r).at(c));
+					in_fltr->input(0, temp);
+					col_ptr->copy(in_fltr->output(0), 0, first_row+c, 1);  
+					in_fltr->input(0,0);
+				}
 			}
 		}
+		delete temp;
 	}
 	endMacro();
 	RESET_CURSOR;
@@ -453,24 +397,38 @@ void Table::pasteIntoSelection()
 
 void Table::maskSelection()
 {
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: mask selected cell(s)").arg(name()));
-	foreach(QModelIndex index, list)
-		column(index.column())->setMasked(index.row());
+	QList<Column*> list = d_view->selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = columnIndex(col_ptr);
+		for(int row=first; row<last; row++)
+			if(d_view->isCellSelected(row, col)) col_ptr->setMasked(row);  
+	}
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::unmaskSelection()
 {
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: unmask selected cell(s)").arg(name()));
-	foreach(QModelIndex index, list)
-		column(index.column())->setMasked(index.row(), false);
+	QList<Column*> list = d_view->selectedColumns();
+	foreach(Column * col_ptr, list)
+	{
+		int col = columnIndex(col_ptr);
+		for(int row=first; row<last; row++)
+			if(d_view->isCellSelected(row, col)) col_ptr->setMasked(row, false);  
+	}
 	endMacro();
 	RESET_CURSOR;
 }
@@ -488,42 +446,63 @@ void Table::recalculateSelectedCells()
 
 void Table::fillSelectedCellsWithRowNumbers()
 {
-	if(d_model->selectedColumnCount() < 1) return;
+	if(d_view->selectedColumnCount() < 1) return;
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 	
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
-
 	WAIT_CURSOR;
 	beginMacro(tr("%1: fill cells with row numbers").arg(name()));
-	foreach(QModelIndex index, list)
-		d_model->setData(index, QString::number(index.row()+1), Qt::EditRole);
+	QList<Column*> list = d_view->selectedColumns();
+	Column * temp = new Column("temp", QStringList(QString()));
+	foreach(Column * col_ptr, list)
+	{
+		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+		in_fltr->input(0, temp);
+		int col = columnIndex(col_ptr);
+		for(int row=first; row<last; row++)
+			if(d_view->isCellSelected(row, col)) 
+			{
+				temp->setTextAt(0, QString::number(row+1));
+				col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+			}
+		in_fltr->input(0, 0);
+	}
+	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::fillSelectedCellsWithRandomNumbers()
 {
-	if(d_model->selectedColumnCount() < 1) return;
+	if(d_view->selectedColumnCount() < 1) return;
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 	
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
-
 	WAIT_CURSOR;
 	beginMacro(tr("%1: fill cells with random values").arg(name()));
 	qsrand(QTime::currentTime().msec());
-	foreach(QModelIndex index, list)
+	QList<Column*> list = d_view->selectedColumns();
+	foreach(Column * col_ptr, list)
 	{
-		double value = double(qrand())/double(RAND_MAX);
-		if (column(index.column())->columnMode() == SciDAVis::Numeric)
-			column(index.column())->setValueAt(index.row(), value);
-		else if (column(index.column())->dataType() == SciDAVis::TypeQDateTime)
-		{
-			QDate date(1,1,1);
-			QTime time(0,0,0,0);
-			int days = (int)( (double)date.daysTo(QDate(2999,12,31)) * value );
-			qint64 msecs = (qint64)(value * 1000.0 * 60.0 * 60.0 * 24.0);
-			column(index.column())->setDateTimeAt(index.row(), QDateTime(date.addDays(days), time.addMSecs(msecs)));
-		}
-		else
-			d_model->setData(index, QString::number(value), Qt::EditRole);
+		int col = columnIndex(col_ptr);
+		for(int row=first; row<last; row++)
+			if(d_view->isCellSelected(row, col)) 
+			{
+				if (col_ptr->columnMode() == SciDAVis::Numeric)
+					col_ptr->setValueAt(row, double(qrand())/double(RAND_MAX));
+				else if (col_ptr->dataType() == SciDAVis::TypeQDateTime)
+				{
+					QDate date(1,1,1);
+					QTime time(0,0,0,0);
+					int days = (int)( (double)date.daysTo(QDate(2999,12,31)) * double(qrand())/double(RAND_MAX) );
+					qint64 msecs = (qint64)(double(qrand())/double(RAND_MAX) * 1000.0 * 60.0 * 60.0 * 24.0);
+					col_ptr->setDateTimeAt(row, QDateTime(date.addDays(days), time.addMSecs(msecs)));
+				}
+				else
+					col_ptr->setTextAt(row, QString::number(double(qrand())/double(RAND_MAX)));
+			}
 	}
 	endMacro();
 	RESET_CURSOR;
@@ -541,19 +520,18 @@ void Table::sortTable()
 
 void Table::insertEmptyColumns()
 {
-	int first = d_model->firstSelectedColumn();
-	int last = d_model->lastSelectedColumn();
+	int first = d_view->firstSelectedColumn();
+	int last = d_view->lastSelectedColumn();
+	if( first < 0 ) return;
 	int count, current = first;
 	QList<Column*> cols;
-
-	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: insert empty column(s)").arg(name()));
 	while( current <= last )
 	{
 		current = first+1;
-		while( current <= last && d_model->isColumnSelected(current) ) current++;
+		while( current <= last && d_view->isColumnSelected(current) ) current++;
 		count = current-first;
 		for(int i=0; i<count; i++)
 			cols << new Column(QString::number(i+1), SciDAVis::Numeric);
@@ -561,7 +539,7 @@ void Table::insertEmptyColumns()
 		cols.clear();
 		current += count;
 		last += count;
-		while( current <= last && !d_model->isColumnSelected(current) ) current++;
+		while( current <= last && !d_view->isColumnSelected(current) ) current++;
 		first = current;
 	}
 	endMacro();
@@ -573,7 +551,7 @@ void Table::removeSelectedColumns()
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove selected column(s)").arg(name()));
 
-	QList< Column* > list = d_model->selectedColumns();
+	QList< Column* > list = d_view->selectedColumns();
 	foreach(Column* ptr, list)
 		removeColumn(ptr);
 
@@ -586,7 +564,7 @@ void Table::clearSelectedColumns()
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 
-	QList< Column* > list = d_model->selectedColumns();
+	QList< Column* > list = d_view->selectedColumns();
 	foreach(Column* ptr, list)
 		ptr->clear();
 
@@ -599,7 +577,7 @@ void Table::setSelectionAs(SciDAVis::PlotDesignation pd)
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
 
-	QList< Column* > list = d_model->selectedColumns();
+	QList< Column* > list = d_view->selectedColumns();
 	foreach(Column* ptr, list)
 		ptr->setPlotDesignation(pd);
 
@@ -645,7 +623,7 @@ void Table::normalizeSelectedColumns()
 
 void Table::sortSelectedColumns()
 {
-	QList< Column* > cols = d_model->selectedColumns();
+	QList< Column* > cols = d_view->selectedColumns();
 	sortDialog(cols);
 }
 
@@ -663,8 +641,8 @@ void Table::statisticsOnSelectedRows()
 
 void Table::insertEmptyRows()
 {
-	int first = d_model->firstSelectedRow();
-	int last = d_model->lastSelectedRow();
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
 	int count, current = first;
 
 	if( first < 0 ) return;
@@ -674,12 +652,12 @@ void Table::insertEmptyRows()
 	while( current <= last )
 	{
 		current = first+1;
-		while( current <= last && d_model->isRowSelected(current) ) current++;
+		while( current <= last && d_view->isRowSelected(current) ) current++;
 		count = current-first;
 		insertRows(first, count);
 		current += count;
 		last += count;
-		while( current <= last && !d_model->isRowSelected(current) ) current++;
+		while( current <= last && !d_view->isRowSelected(current) ) current++;
 		first = current;
 	}
 	endMacro();
@@ -688,38 +666,43 @@ void Table::insertEmptyRows()
 
 void Table::removeSelectedRows()
 {
-	int first = d_model->firstSelectedRow();
-	int last = d_model->lastSelectedRow();
-
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove selected rows(s)").arg(name()));
 	for(int i=last; i>=first; i--)
-		if(d_model->isRowSelected(i, false)) removeRows(i, 1);
+		if(d_view->isRowSelected(i, false)) removeRows(i, 1);
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::clearSelectedRows()
 {
-	int first = d_model->firstSelectedRow();
-	int last = d_model->lastSelectedRow();
-
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
+
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected rows(s)").arg(name()));
-	for(int row=last; row>=first; row--)
-		if(d_model->isRowSelected(row, false))
-		{
-			for(int col=0; col<columnCount(); col++)
+	QList<Column*> list = d_view->selectedColumns();
+	Column * temp = new Column("temp", QStringList(QString()));
+	foreach(Column * col_ptr, list)
+	{
+		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+		in_fltr->input(0, temp);
+		for(int row=last; row>=first; row--)
+			if(d_view->isRowSelected(row, false))
 			{
-				if(row == (column(col)->rowCount()-1) )
-					column(col)->removeRows(row,1);
-				else if(row < column(col)->rowCount())
-					d_model->setData(d_model->index(row, col), QString(""), Qt::EditRole);
+				if(row == (col_ptr->rowCount()-1) )
+					col_ptr->removeRows(row,1);
+				else if(row < col_ptr->rowCount())
+					col_ptr->copy(in_fltr->output(0), 0, row, 1);  
 			}
-		}
+		in_fltr->input(0, 0);
+	}
+	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
@@ -737,24 +720,39 @@ void Table::editDescriptionOfCurrentColumn()
 void Table::addRows()
 {
 	WAIT_CURSOR;
-	int count = d_model->selectedRowCount(false);
+	int count = d_view->selectedRowCount(false);
 	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
-	exec(new TableSetNumberOfRowsCmd(d_model, rowCount() + count));
+	exec(new TableSetNumberOfRowsCmd(d_private_object, rowCount() + count));
 	endMacro();
 	RESET_CURSOR;
 }
 
 void Table::clearSelectedCells()
 {
-	QModelIndexList list = d_model->selectionModel()->selectedIndexes();
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
 
 	WAIT_CURSOR;
 	beginMacro(tr("%1: clear selected cell(s)").arg(name()));
-	foreach(QModelIndex index, list)
+	QList<Column*> list = d_view->selectedColumns();
+	Column * temp = new Column("temp", QStringList(QString()));
+	foreach(Column * col_ptr, list)
 	{
-		if(column(index.column())->rowCount() > index.row())
-			d_model->setData(index, QString(""), Qt::EditRole);
+		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+		in_fltr->input(0, temp);
+		int col = columnIndex(col_ptr);
+		for(int row=last; row>=first; row--)
+			if(d_view->isCellSelected(row, col))
+			{
+				if(row == (col_ptr->rowCount()-1) )
+					col_ptr->removeRows(row,1);
+				else if(row < col_ptr->rowCount())
+					col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+			}
+		in_fltr->input(0, 0);
 	}
+	delete temp;
 	endMacro();
 	RESET_CURSOR;
 }
@@ -883,13 +881,6 @@ void Table::createActions()
 	icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
 	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-	delete icon_temp;
-
-	icon_temp = new QIcon();
-	icon_temp->addPixmap(QPixmap(":/16x16/formula_editor.png"));
-	icon_temp->addPixmap(QPixmap(":/32x32/formula_editor.png"));
-	action_formula_editor = new QAction(*icon_temp, tr("Formula Editor"), this);
-	connect(action_formula_editor, SIGNAL(triggered()), this, SLOT(openFormulaEditor()));
 	delete icon_temp;
 
 	// column related actions
@@ -1115,7 +1106,6 @@ QMenu * Table::createSelectionMenu(QMenu * append_to)
 	menu->addSeparator();
 	menu->addAction(action_set_formula);
 	menu->addAction(action_recalculate);
-	menu->addAction(action_formula_editor);
 	menu->addSeparator();
 
 	QMenu * submenu = new QMenu("Fi&ll with");
@@ -1210,12 +1200,12 @@ void Table::goToCell()
 			1, 1, rowCount(), 1, &ok);
 	if ( !ok ) return;
 
-	d_view->scrollToIndex(d_model->index(row-1, col-1));
+	d_view->goToCell(row-1, col-1);
 }
 
 void Table::moveColumn(int from, int to)
 {
-	exec(new TableMoveColumnCmd(d_model, from, to));	
+	exec(new TableMoveColumnCmd(d_private_object, from, to));	
 }
 
 void Table::copy(Table * other)
@@ -1506,25 +1496,6 @@ void Table::sortColumns(Column *leading, QList<Column*> cols, bool ascending)
 } // end of sortColumns()
 
 
-void Table::openFormulaEditor()
-{
-	// TODO: add context menu and buttons or menu to the formula editor
-	QDialog dialog;
-//	QMenuBar mb;
-//	mb.addMenu(new QMenu("test"));
-	TableFormulaEditorModel model(d_model);
-	//TableFormulaEditorView view(&dialog);
-	QTableView view(&dialog);
-	view.setModel(&model);
-	QVBoxLayout lo(&dialog);
-	lo.setContentsMargins(0, 0, 0, 0);
-	lo.setSpacing(0);
-//	lo.addWidget(&mb);
-	lo.addWidget(&view);
-	dialog.setWindowTitle(tr("Formula Editor (%1)").arg(name()));
-	dialog.exec();
-}
-
 QIcon Table::icon() const
 {
 	QIcon ico;
@@ -1536,942 +1507,338 @@ QIcon Table::icon() const
 
 QString Table::text(int row, int col)
 {
-	return d_model->data(d_model->index(row, col), Qt::EditRole).toString();
+	Column * col_ptr = column(col);
+	if(!col_ptr)
+		return QString();
+	if(col_ptr->isInvalid(row))
+		return QString();
+
+	AbstractSimpleFilter * out_fltr = col_ptr->outputFilter();
+	out_fltr->input(0, col_ptr);
+	return out_fltr->output(0)->textAt(row);
 }
 
 void Table::selectAll()
 {
-	d_model->selectAll();
+	d_view->selectAll();
 }
 
-
-#if false
-
-
-	Table::Table(AbstractScriptingEngine *engine, int rows, int cols, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-: MyWidget(label,parent,name,f), scripted(engine)
-{
-	// TODO: check the lines marked with ### whether they can be removed
-	//###	d_selected_col = -1;
-	//###	d_saved_cells = 0;
-
-	QDateTime dt = QDateTime::currentDateTime();
-	setBirthDate(dt.toString(Qt::LocalDate));
-
-	// create model and view
-	d_model = new TableModel(this);
-	d_table_view = new TableView(this, d_model, rows, cols);
-	d_table_view->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-
-	d_table_view->setFocusPolicy(Qt::StrongFocus);
-	d_table_view->setFocus();
-
-	d_table_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
-	// header stuff
-	QHeaderView * v_header = d_table_view->verticalHeader();
-	QHeaderView * h_header = d_table_view->horizontalHeader();
-
-	h_header->viewport()->installEventFilter(this);
-
-	//###	connect(h_header, SIGNAL(sectionDoubleClicked(int)),
-	//###			this, SLOT(headerDoubleClickedHandler(int)));
-
-	//###	connect(h_header, SIGNAL(sectionResized(int, int, int)),
-	//###			this, SLOT(colWidthModified(int, int, int)));
-
-	// main layout
-	QHBoxLayout* main_layout = new QHBoxLayout(this);
-	main_layout->setMargin(0);
-	main_layout->addWidget(d_table_view);
-
-	// initialized the columns
-	for (int i=0; i<cols; i++)
-	{
-		d_model->setColumnLabel(i, QString::number(i+1));
-		d_model->setColumnPlotDesignation(i, SciDAVis::Y);
-	}
-	if(cols > 0)
-		d_model->setColumnPlotDesignation(0, SciDAVis::X);
-
-	// calculate initial geometry
-	int w=4*h_header->sectionSize(0);
-	int h;
-	if (rows>11)
-		h=11*v_header->sectionSize(0);
-	else
-		h=(rows+1)*v_header->sectionSize(0);
-	setGeometry(50, 50, w + 45, h);
-
-	// keyboard shortcuts
-	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), this);
-	connect(sel_all, SIGNAL(activated()), d_table_view, SLOT(selectAll()));
-}
-
-void Table::setBackgroundColor(const QColor& col)
-{
-	QPalette pal = d_table_view->palette();
-	pal.setColor(QPalette::Base, col);
-	d_table_view->setPalette(pal);
-}
-
-void Table::setTextColor(const QColor& col)
-{
-	QPalette pal = d_table_view->palette();
-	pal.setColor(QPalette::Text, col);
-	d_table_view->setPalette(pal);
-}
-
-void Table::setTextFont(const QFont& fnt)
-{
-	d_table_view->setFont(fnt);
-}
-
-void Table::setHeaderColor(const QColor& col)
-{
-	QPalette pal = d_table_view->horizontalHeader()->palette();
-	pal.setColor(QPalette::ButtonText, col);
-	d_table_view->horizontalHeader()->setPalette(pal);
-
-	pal = d_table_view->verticalHeader()->palette();
-	pal.setColor(QPalette::ButtonText, col);
-	d_table_view->verticalHeader()->setPalette(pal);
-}
-
-void Table::setHeaderFont(const QFont& fnt)
-{
-	d_table_view->horizontalHeader()->setFont(fnt);
-}
-
-QStringList Table::columnLabels()
-{
-	QStringList list;
-	int cols = columnCount();
-	for(int i=0; i<cols; i++)
-		list << d_model->columnLabel(i);
-
-	return list;
-}
-
-void Table::setAscendingValues()
-{
-	if(selectedColumnCount() < 1) return;
-
-	WAIT_CURSOR;
-	int rows = rowCount();
-
-	QStringList data;
-
-	int end = lastSelectedColumn();
-	for(int i=firstSelectedColumn(); i<=end; i++)
-	{
-		if(isColumnSelected(i))
-		{
-			data.clear();
-			for(int j=0; j<rows; j++)
-			{
-				if(isCellSelected(j, i))
-					data << QString::number(j+1);
-			}
-			undoStack()->push(new TableSetColumnValuesCmd(d_model, i, data) );
-		}
-	}
-
-	// TODO: remove this later
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
-}
-
-void Table::setRandomValues()
-{
-	if(selectedColumnCount() < 1) return;
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	int rows = rowCount();
-
-	qsrand(QTime::currentTime().msec());
-
-	QStringList data;
-
-	int end = lastSelectedColumn();
-	for(int i=firstSelectedColumn(); i<=end; i++)
-	{
-		if(isColumnSelected(i))
-		{
-			data.clear();
-			for(int j=0; j<rows; j++)
-			{
-				if(isCellSelected(j, i))
-					data << QString::number(double(qrand())/double(RAND_MAX));
-			}
-			undoStack()->push(new TableSetColumnValuesCmd(d_model, i, data) );
-		}
-	}
-
-	// TODO: remove this later
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
-}
-
-
-void Table::clearColumn(int col)
-{
-	if( col >= 0 && col <= columnCount() )
-		undoStack()->push(new TableClearColumnCmd(d_model, col));
-
-	//TODO: remove this later
-	emit modifiedWindow(this);
-}
-
-void Table::clear()
-{
-	int cols = columnCount();
-	for(int i=0; i<cols; i++)
-		clearColumn(i);
-
-	//TODO: remove this later
-	emit modifiedWindow(this);
-}
-
-void Table::goToCell(int row, int col)
-{
-	if( (row < 0) || (row >= rowCount()) ) return;
-	if( (col < 0) || (col >= columnCount()) ) return;
-
-	d_table_view->scrollTo(d_model->index(row, col), QAbstractItemView::PositionAtCenter);
-}
-
-int Table::columnWidth(int col)
-{
-	return d_table_view->columnWidth(col);
-}
-
-void Table::contextMenuEvent(QContextMenuEvent *e)
-{
-	int right;
-	right = d_table_view->columnViewportPosition(columnCount()-1) +
-		d_table_view->columnWidth(columnCount()-1) - 1;
-
-	setFocus();
-	if (e->pos().x() > right + d_table_view->verticalHeader()->width()) // outside rightmost column
-		emit showContextMenu(false);
-	else
-		emit showContextMenu(true);
-	e->accept();
-}
-
-
-
-// -------------------------------------------------------------------------
-// transition functions
-// -------------------------------------------------------------------------
-int Table::colIndex(const QString& name)
-{
-	OBSOLETE
-		int pos=name.find("_",false);
-	QString label=name.right(name.length()-pos-1);
-	for(int i=0; i<columnCount(); i++)
-		if(d_model->columnLabel(i) == label)
-			return i;
-}
-
-QString Table::text(int row, int col)
-{
-	OBSOLETE
-		return d_model->data(d_model->index(row, col), Qt::EditRole).toString();
-}
-
-QString Table::colName(int col)
-{ //returns the table name + underscore + column label
-	OBSOLETE
-		if (col<0 || col >= columnCount())
-			return QString();
-
-	return QString(this->name())+"_"+d_model->columnLabel(col);
-}
-
-int Table::columnType(int col)
-{
-	OBSOLETE
-		AbstractDataSource * ptr = d_model->output(col);
-	if(ptr->inherits("DoubleDataSource"))
-		return SciDAVis::Numeric;
-	if(ptr->inherits("StringDataSource"))
-		return SciDAVis::Text;
-	if(ptr->inherits("DateTimeDataSource"))
-		return SciDAVis::Date;
-}
-
-QString Table::columnFormat(int col)
-{
-	OBSOLETE
-		AbstractFilter * fltr = d_model->outputFilter(col);
-	QObject * ptr = dynamic_cast<QObject *>(fltr);
-	if(ptr && ptr->inherits("DateTime2StringFilter"))
-		return static_cast<DateTime2StringFilter *>(ptr)->format();
-	else
-		return QString();
-}
-
-QStringList Table::selectedYLabels()
-{
-	OBSOLETE
-		QStringList names;
-	for (int i=0; i<columnCount(); i++)
-	{
-		if(isColumnSelected (i) && plotDesignation(i) == SciDAVis::Y)
-			names << columnLabel(i);
-	}
-	return names;
-}
-
-double Table::cell(int row, int col)
-{
-	OBSOLETE
-		return d_model->data(d_model->index(row, col), Qt::EditRole).toDouble();
-}
-
-int Table::selectedColumn()
-{
-	OBSOLETE
-		return firstSelectedColumn();
-}
-
-
-void Table::setSelectedCol(int col)
-{
-	OBSOLETE
-		Q_UNUSED(col)
-}
-
-QStringList Table::colNames()
-{
-	OBSOLETE
-		QStringList names;
-	for (int i=0; i<columnCount(); i++)
-	{
-		names << columnLabel(i);
-	}
-	return names;
-}
-
-void Table::setText(int row, int col, QString text)
-{
-	OBSOLETE
-		QModelIndex index = d_model->index(row, col);
-	d_model->setData(index, text, Qt::EditRole);
-	undoStack()->push(new TableUserInputCmd(d_model, index) );		
-}
-
-void Table::setHeader(QStringList header)
-{
-	OBSOLETE
-		for(int i=0; i<header.size(); i++)
-			undoStack()->push(new TableSetColumnLabelCmd(d_model, i, header.at(i)) );		
-}
-
-int Table::colPlotDesignation(int col)
-{
-	OBSOLETE
-		return int(plotDesignation(col));
-}
-
-void Table::setColPlotDesignation(int col, SciDAVis::PlotDesignation pd)
-{
-	OBSOLETE
-		setPlotDesignation(col, pd);
-}
-
-QString Table::colLabel(int col)
-{
-	OBSOLETE
-		return columnLabel(col);
-}
-
-QString Table::colComment(int col)
-{
-	OBSOLETE
-		return columnComment(col);
-}
-
-void Table::columnNumericFormat(int col, char *f, int *precision)
-{
-	OBSOLETE
-		AbstractFilter * fltr = d_model->outputFilter(col);
-	QObject * ptr = dynamic_cast<QObject *>(fltr);
-
-	if( ptr && ptr->inherits("Double2StringFilter"))
-	{
-		Double2StringFilter * d2sf = static_cast<Double2StringFilter *>(ptr);
-		*f = d2sf->numericFormat();
-		*precision = d2sf->numDigits();
-	}
-	else
-	{
-		*f = 0;
-		*precision = 0;
-	}
-}
-
-void Table::columnNumericFormat(int col, int *f, int *precision)
-{
-	OBSOLETE
-		char format;
-	columnNumericFormat(col, &format, precision);
-
-	if( !format )
-		*f = 0;
-	else
-		switch(format)
-		{
-			case 'g':
-				*f = 0;
-				break;
-
-			case 'f':
-				*f = 1;
-				break;
-
-			case 'e':
-				*f = 2;
-				break;
-		}
-}
-
-void Table::changeColWidth(int width, bool all)
-{
-	OBSOLETE
-		int cols = columnCount();
-	if (all)
-	{
-		for (int i=0;i<cols;i++)
-			d_table_view->setColumnWidth(i, width);
-		emit modifiedWindow(this);
-	}
-	else
-	{
-		if(firstSelectedColumn() >= 0)
-			d_table_view->setColumnWidth(firstSelectedColumn(), width);
-		emit modifiedWindow(this);
-	}
-}
-
-void Table::enumerateRightCols(bool checked)
-{
-	OBSOLETE
-}
-
-
-void Table::setColComment(int col, const QString& s)
-{
-	OBSOLETE
-		setColumnComment(col, s);
-}
-
-void Table::changeColName(const QString& new_name)
-{
-	OBSOLETE
-		if(selectedColumnCount() < 1) return;
-
-	QString old_name = columnLabel(firstSelectedColumn());
-	setColumnLabel(firstSelectedColumn(), new_name);
-	emit changedColHeader(old_name, new_name);
-	emit modifiedWindow(this);
-}
-
-void Table::setColName(int col,const QString& new_name)
-{
-	OBSOLETE
-		setColumnLabel(col, new_name);
-}
-
-void Table::setCommand(int col, const QString& com)
-{
-	OBSOLETE
-		undoStack()->push(new TableSetFormulaCmd(d_model, col, 
-					Interval<int>(0, d_model->output(col)->rowCount()-1), com.trimmed()));
-}
-
-void Table::setColNumericFormat(int f, int prec, int col)
-{
-	OBSOLETE
-}
-
-void Table::setTextFormat(int col)
-{
-	OBSOLETE
-		if (col >= 0 && col < columnCount())
-			setColumnMode(col, SciDAVis::Text);
-	emit modifiedWindow(this);
-}
-
-void Table::setDateFormat(const QString& format, int col)
-{
-	OBSOLETE
-}
-
-void Table::setTimeFormat(const QString& format, int col)
-{
-	OBSOLETE
-}
-
-void Table::setMonthFormat(const QString& format, int col)
+void Table::handleDescriptionChange(AbstractColumn * col)
 {
-	OBSOLETE
+	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1)
+		d_private_object->updateHorizontalHeader(index, index);
 }
 
-void Table::setDayFormat(const QString& format, int col)
+void Table::handlePlotDesignationChange(AbstractColumn * col)
 {
-	OBSOLETE
+	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1)
+		d_private_object->updateHorizontalHeader(index, columnCount()-1);
 }
 
-bool Table::setDateTimeFormat(int col, int f, const QString& format)
+void Table::handleDataChange(AbstractColumn * col)
 {
-	OBSOLETE
+	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1)
+		emit dataChanged(0, index, col->rowCount()-1, index);	
 }
 
-int Table::verticalHeaderWidth()
+void Table::handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count)
 {
-	OBSOLETE
-		return d_table_view->verticalHeader()->width();
+	int new_size = col->rowCount() + count; 
+	if(before <= col->rowCount() && new_size > rowCount())
+		setRowCount(new_size);
 }
 
-QStringList Table::columnsList()
+void Table::handleRowsInserted(AbstractColumn * col, int before, int count)
 {
-	OBSOLETE
-		QStringList names;
-	for (int i=0;i<columnCount();i++)
-		names << QString(name())+"_"+columnLabel(i);
-
-	return names;
-}
-
-int Table::firstXCol()
-{
-	OBSOLETE
-		for (int j=0; j<columnCount(); j++)
-		{
-			if (plotDesignation(j) == SciDAVis::X)
-				return j;
-		}
-	return -1;
-}
-
-QStringList Table::selectedColumnsOld()
-{
-	OBSOLETE
-		QStringList list;
-	int cols = columnCount();
-	for (int i=0; i<cols; i++)
-		if(isColumnSelected(i)) list << columnLabel(i);
-
-	return list;
-}
-
-void Table::addCol(SciDAVis::PlotDesignation pd)
-{
-	OBSOLETE
-		setColumnCount(columnCount() + 1);
-	setPlotDesignation(columnCount()-1, pd);
-	emit modifiedWindow(this);
-}
-
-bool Table::noXColumn()
-{
-	OBSOLETE
-		return columnCount(SciDAVis::X) == 0;
-}
-
-bool Table::noYColumn()
-{
-	OBSOLETE
-		return columnCount(SciDAVis::Y) == 0;
-}
-
-QStringList Table::selectedYColumns()
-{
-	OBSOLETE
-		QStringList list;
-	int cols = columnCount();
-	for (int i=0; i<cols; i++)
-		if ( (plotDesignation(i) == SciDAVis::Y) && isColumnSelected(i) )
-			list << columnLabel(i);
-
-	return list;
-}
-
-void Table::setNumericPrecision(int prec)
-{
-	OBSOLETE
-		for (int i=0; i<columnCount(); i++)
-		{
-			if(d_model->output(i)->inherits("DoubleColumnData"))
-			{
-				char format = static_cast<Double2StringFilter *>(d_model->outputFilter(i))->numericFormat();
-				undoStack()->push(new TableSetColumnNumericDisplayCmd(d_model, i, format, prec));
-			}
-		}
-
-}
-
-QVarLengthArray<double> Table::col(int ycol)
-{
-	OBSOLETE
-		int i;
-	int rows = rowCount();
-	int cols = columnCount();
-	QVarLengthArray<double> Y(rows);
-
-	if (ycol<=cols)
-	{
-		// TODO: Improve this fast hack
-		for (i=0;i<rows;i++)
-			Y[i] = text(i,ycol).toDouble();
-	}
-	return Y;
-}
-
-bool Table::isEmptyColumn(int col)
-{
-	OBSOLETE
-		return d_model->output(col)->rowCount() == 0;
-}
-
-QStringList Table::YColumns()
-{
-	OBSOLETE
-		QStringList list;
-	int cols = columnCount();
-	for (int i=0; i<cols; i++)
-		if (plotDesignation(i) == SciDAVis::Y)
-			list << columnLabel(i);
-
-	return list;
-}
-
-void Table::updateDecimalSeparators(const QLocale& oldSeparators)
-{
-	OBSOLETE
-		d_table_view->update();
-}
-
-void Table::updateDecimalSeparators()
-{
-	OBSOLETE
-		d_table_view->update();
+	Q_UNUSED(count);
+	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1 && before <= col->rowCount())
+		emit dataChanged(before, index, col->rowCount()-1, index);
 }
 
-void Table::importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
-		bool renameCols, bool stripSpaces, bool simplifySpaces,
-		int importFileAs)
-{
-	OBSOLETE
-		// TODO
-}
-
-void Table::importASCII(const QString &fname, const QString &sep, int ignoredLines,
-		bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable)
-{
-	OBSOLETE
-		// TODO
-}
 
-bool Table::exportASCII(const QString& fname, const QString& separator,
-		bool withLabels,bool exportSelection)
+void Table::handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count)
 {
-	OBSOLETE
-		// TODO
-		return false;
+	Q_UNUSED(col);
+	Q_UNUSED(first);
+	Q_UNUSED(count);
 }
 
-bool Table::calculate(int col, int startRow, int endRow)
+void Table::handleRowsRemoved(AbstractColumn * col, int first, int count)
 {
-	OBSOLETE
-		QApplication::setOverrideCursor(Qt::WaitCursor);
-
-	AbstractScript *colscript =  d_scripting_engine->newScript(d_model->output(col)->formula(0), this,  QString("<%1>").arg(colName(col)));
-	connect(colscript, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
-	connect(colscript, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
-
-	if (!colscript->compile())
-	{
-		QApplication::restoreOverrideCursor();
-		return false;
-	}
-	if (endRow >= rowCount())
-		setRowCount(endRow + 1);
-
-	colscript->setInt(col+1, "j");
-	colscript->setInt(startRow+1, "sr");
-	colscript->setInt(endRow+1, "er");
-	QVariant ret;
-	for (int i=startRow; i<=endRow; i++)
-	{
-		colscript->setInt(i+1,"i");
-		ret = colscript->eval();
-		if(ret.type()==QVariant::Double) {
-			int prec;
-			char f;
-			columnNumericFormat(col, &f, &prec);
-			setText(i, col, QLocale().toString(ret.toDouble(), f, prec));
-		} else if(ret.canConvert(QVariant::String))
-			setText(i, col, ret.toString());
-		else {
-			QApplication::restoreOverrideCursor();
-			return false;
-		}
-	}
-
-	emit modifiedData(this, colName(col));
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
-	return true;
+	Q_UNUSED(count);
+	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1)
+		emit dataChanged(first, index, col->rowCount()-1, index);
 }
 
-bool Table::calculate()
+void Table::connectColumn(Column* col)
 {
-	OBSOLETE
-		bool success = true;
-	if(selectedColumnCount() < 1) return false;
-	for (int col = firstSelectedColumn(); col<=lastSelectedColumn(); col++)
-		if (!calculate(col, firstSelectedRow(), lastSelectedRow()))
-			success = false;
-	return success;
+	connect(col, SIGNAL(descriptionChanged(AbstractColumn *)), this, 
+			SLOT(handleDescriptionChange(AbstractColumn *)));
+	connect(col, SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
+			SLOT(handlePlotDesignationChange(AbstractColumn *)));
+	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
+			SLOT(handleDataChange(AbstractColumn *)));
+	connect(col, SIGNAL(dataChanged(AbstractColumn *)), this, 
+			SLOT(handleDataChange(AbstractColumn *)));
+	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
+			SLOT(handleDescriptionChange(AbstractColumn *)));
+	connect(col, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
+	connect(col, SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(rowsAboutToBeRemoved(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsAboutToBeRemoved(AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(rowsRemoved(AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsRemoved(AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(maskingChanged(AbstractColumn *)), this, 
+			SLOT(handleDataChange(AbstractColumn *))); 
 }
 
-void Table::sortTableDialog()
+void Table::disconnectColumn(Column* col)
 {
-	OBSOLETE
-		// TODO: merge sortTableDialog and sortColumnsDialog
-		SortDialog *sortd = new SortDialog(this);
-	sortd->setAttribute(Qt::WA_DeleteOnClose);
-	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sort(int, int, const QString&)));
-	sortd->insertColumnsList(colNames());
-	sortd->exec();
+	disconnect(col, 0, this, 0);
 }
 
-void Table::sortColumnsDialog()
+QVariant Table::headerData(int section, Qt::Orientation orientation,int role) const
 {
-	OBSOLETE
-		SortDialog *sortd = new SortDialog(this);
-	sortd->setAttribute(Qt::WA_DeleteOnClose);
-	connect (sortd, SIGNAL(sort(int, int, const QString&)), this, SLOT(sortColumns(int, int, const QString&)));
-	sortd->insertColumnsList(selectedColumnsOld());
-	sortd->exec();
+	return d_private_object->headerData(section, orientation, role);
 }
 
-void Table::normalizeSelection()
-{
-	OBSOLETE
-		// TODO: normalization should be done by a filter
-		if(selectedColumnCount() < 1) return;
-	for (int i=firstSelectedColumn(); i<=lastSelectedColumn(); i++)
-		normalizeCol(i);
-	emit modifiedWindow(this);
-}
+/* ========================== Table::Private ====================== */
 
-void Table::normalize()
-{
-	OBSOLETE
-		// TODO: normalization should be done by a filter
-		for (int i=0; i<columnCount(); i++)
-			normalizeCol(i);
-	emit modifiedWindow(this);
-}
 
-void Table::normalizeCol(int col)
+void Table::Private::replaceColumns(int first, QList<Column*> new_cols)
 {
-	OBSOLETE
-		if (col<0) 
-		{
-			col = firstSelectedColumn();
-			if(selectedColumnCount() < 1) return;
-		}
-	double max = text(0,col).toDouble();
-	double aux = 0.0;
-	int rows = rowCount();
-	for (int i=0; i<rows; i++)
-	{
-		QString the_text = text(i,col);
-		aux = the_text.toDouble();
-		if (!the_text.isEmpty() && fabs(aux)>fabs(max))
-			max=aux;
-	}
-
-	if (max == 1.0)
+	if( (first < 0) || (first + new_cols.size() > d_column_count) )
 		return;
 
-	int prec;
-	char f;
-	columnNumericFormat(col, &f, &prec);
-
-	for (int i=0; i<rows; i++)
+	int count = new_cols.size();
+	emit d_owner->columnsAboutToBeReplaced(first, new_cols.count());
+	for(int i=0; i<count; i++)
 	{
-		QString the_text = text(i, col);
-		aux = the_text.toDouble();
-		if ( !the_text.isEmpty() )
-			setText(i, col, QLocale().toString(aux/max, f, prec));
+		int rows = new_cols.at(i)->rowCount();
+		if(rows > d_row_count)
+			setRowCount(rows); 
+
+		if(d_columns.at(first+i))
+			d_columns.at(first+i)->notifyReplacement(new_cols.at(i));
+
+		d_columns[first+i] = new_cols.at(i);
+		d_owner->connectColumn(new_cols.at(i));
+	}
+	updateHorizontalHeader(first, first+count-1);
+	emit d_owner->columnsReplaced(first, new_cols.count());
+	emit d_owner->dataChanged(0, first, d_row_count-1, first+count-1);
+}
+
+void Table::Private::insertColumns(int before, QList<Column*> cols)
+{
+	int count = cols.count();
+
+	if( (count < 1) || (before > d_column_count) )
+		return;
+
+	Q_ASSERT(before >= 0);
+
+	int i, rows;
+	for(i=0; i<count; i++)
+	{
+		rows = cols.at(i)->rowCount();
+		if(rows > d_row_count)
+			setRowCount(rows); 
 	}
 
-	QString name=colName(col);
-	emit modifiedData(this, name);
-}
-
-
-QStringList Table::drawableColumnSelection()
-{
-	OBSOLETE
-		QStringList names;
-	for (int i=0; i<columnCount(); i++)
+	emit d_owner->columnsAboutToBeInserted(before, cols);
+	for(int i=count-1; i>=0; i--)
 	{
-		if(isColumnSelected(i) && plotDesignation(i) == SciDAVis::Y)
-			names << QString(name()) + "_" + columnLabel(i);
+		d_columns.insert(before, cols.at(i));
+		d_owner->connectColumn(cols.at(i));
 	}
+	d_column_count += count;
+	updateHorizontalHeader(before, before+count-1);
+	emit d_owner->columnsInserted(before, cols.count());
+}
 
-	for (int i=0; i<columnCount(); i++)
+void Table::Private::removeColumns(int first, int count)
+{
+	if( (count < 1) || (first >= d_column_count) )
+		return;
+
+	Q_ASSERT(first >= 0);
+
+	Q_ASSERT(first+count <= d_column_count);
+
+	emit d_owner->columnsAboutToBeRemoved(first, count);
+	for(int i=count-1; i>=0; i--)
 	{
-		if(isColumnSelected(i) && (plotDesignation(i) == SciDAVis::yErr || plotDesignation(i) == SciDAVis::xErr))
-			names << QString(name()) + "_" + columnLabel(i);
+		d_owner->disconnectColumn(d_columns.at(first));
+		d_columns.removeAt(first);
 	}
-	return names;
+	d_column_count -= count;
+	updateHorizontalHeader(first, d_column_count);
+	emit d_owner->columnsRemoved(first, count);
 }
 
-void Table::clearSelection()
+void Table::Private::appendColumns(QList<Column*> cols)
 {
-	OBSOLETE
-		// TODO
+	insertColumns(d_column_count, cols);
 }
 
-void Table::copySelection()
+void Table::Private::moveColumn(int from, int to)
 {
-	OBSOLETE
-		// TODO
+	if( from < 0 || from >= d_column_count) return;
+	if( to < 0 || to >= d_column_count) return;
+	
+	d_columns.move(from, to);
+	updateHorizontalHeader(from, to);
+	emit d_owner->dataChanged(0, from, d_row_count-1, from);
+	emit d_owner->dataChanged(0, to, d_row_count-1, to);
 }
 
-void Table::cutSelection()
+void Table::Private::setRowCount(int rows)
 {
-	OBSOLETE
-		// TODO
-}
+	int diff = rows - d_row_count;
+	int old_row_count = d_row_count;
+	if(diff == 0) 
+		return;
 
-void Table::pasteSelection()
-{
-	OBSOLETE
-		// TODO
-}
-
-
-void Table::loadHeader(QStringList header)
-{
-	OBSOLETE
-		QStringList col_label;
-	QList<SciDAVis::PlotDesignation> col_plot_type;
-	for (int i=0; i<header.count();i++)
+	if(diff > 0)
 	{
-		if (header.at(i).isEmpty())
-			continue;
-
-		QString s = header.at(i);
-		s.replace("_","-");
-		if (s.contains("[X]"))
-		{
-			col_label << s.remove("[X]");
-			col_plot_type << SciDAVis::X;
-		}
-		else if (s.contains("[Y]"))
-		{
-			col_label << s.remove("[Y]");
-			col_plot_type << SciDAVis::Y;
-		}
-		else if (s.contains("[Z]"))
-		{
-			col_label << s.remove("[Z]");
-			col_plot_type << SciDAVis::Z;
-		}
-		else if (s.contains("[xEr]"))
-		{
-			col_label << s.remove("[xEr]");
-			col_plot_type << SciDAVis::xErr;
-		}
-		else if (s.contains("[yEr]"))
-		{
-			col_label << s.remove("[yEr]");
-			col_plot_type << SciDAVis::yErr;
-		}
-		else
-		{
-			col_label << s;
-			col_plot_type << SciDAVis::noDesignation;
-		}
+		emit d_owner->rowsAboutToBeInserted(d_row_count, diff);
+		d_row_count = rows;
+		updateVerticalHeader(d_row_count - diff);
+		emit d_owner->rowsInserted(old_row_count, diff);
 	}
-	setHeader(col_label);
-	for (int i=0; i<col_plot_type.count();i++)
+	else
 	{
-		setColPlotDesignation(i, col_plot_type.at(i));
+		emit d_owner->rowsAboutToBeRemoved(rows, -diff);
+		d_row_count = rows;
+		emit d_owner->rowsRemoved(rows, -diff);
 	}
 }
 
-void Table::setColWidths(const QStringList& widths)
+QString Table::Private::columnHeader(int col)
 {
-	OBSOLETE
-		for (int i=0;i<(int)widths.count();i++)
-			d_table_view->setColumnWidth(i, widths[i].toInt() );
+	return headerData(col, Qt::Horizontal, Qt::DisplayRole).toString();
 }
 
-void Table::setCommands(const QStringList& com)
+int Table::Private::numColsWithPD(SciDAVis::PlotDesignation pd)
 {
-	OBSOLETE
-		for(int i=0; i<com.size() && i<columnCount(); i++)
-			undoStack()->push(new TableSetFormulaCmd(d_model, i, 
-						Interval<int>(0, d_model->output(i)->rowCount()-1), com.at(i).trimmed()));
+	int count = 0;
+	
+	for (int i=0; i<d_column_count; i++)
+		if(d_columns.at(i)->plotDesignation() == pd)
+			count++;
+	
+	return count;
 }
 
-void Table::setCommands(const QString& com)
+void Table::Private::updateVerticalHeader(int start_row)
 {
-	OBSOLETE
-		QStringList lst = com.split("\t");
-	lst.pop_front();
-	setCommands(lst);
+	int current_size = d_vertical_header_data.size(), i;
+	for(i=start_row; i<current_size; i++)
+		d_vertical_header_data.replace(i, QString::number(i+1));
+	for(; i<d_row_count; i++)
+		d_vertical_header_data << QString::number(i+1);
+	emit d_owner->headerDataChanged(Qt::Vertical, start_row, d_row_count -1);	
 }
 
-void Table::setColumnTypes(const QStringList& ctl)
+void Table::Private::updateHorizontalHeader(int start_col, int end_col)
 {
-	OBSOLETE
-		int n = qMin(ctl.count(), columnCount());
+	while(d_horizontal_header_data.size() < d_column_count)
+		d_horizontal_header_data << QString();
 
-	for (int i=0; i<n; i++)
+	if(numColsWithPD(SciDAVis::X)>1)
 	{
-		QStringList l = ctl[i].split(";");
-		setColumnMode(i, (SciDAVis::ColumnMode)l[0].toInt());
+		int x_cols = 0;
+		for (int i=0; i<d_column_count; i++)
+		{
+			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X" + QString::number(++x_cols) +"]");
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Y)
+			{
+				if(x_cols>0)
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y"+ QString::number(x_cols) +"]");
+				else
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
+			}
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Z)
+			{
+				if(x_cols>0)
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z"+ QString::number(x_cols) +"]");
+				else
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
+			}
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
+			{
+				if(x_cols>0)
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr"+ QString::number(x_cols) +"]");
+				else
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
+			}
+			else if (d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
+			{
+				if(x_cols>0)
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr"+ QString::number(x_cols) +"]");
+				else
+					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
+			}
+			else
+				composeColumnHeader(i, d_columns.at(i)->columnLabel());
+		}
 	}
+	else
+	{
+		for (int i=0; i<d_column_count; i++)
+		{
+			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Y)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Z)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
+			else if(d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
+				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
+			else
+				composeColumnHeader(i, d_columns.at(i)->columnLabel());
+		}
+	}
+	emit d_owner->headerDataChanged(Qt::Horizontal, start_col, end_col);	
 }
 
-void Table::setCell(int row, int col, double val)
+void Table::Private::composeColumnHeader(int col, const QString& label)
 {
-	OBSOLETE
-		char format;
-	int prec;
-	columnNumericFormat(col, &format, &prec);
-	setText(row, col, QLocale().toString(val, format, prec));
+	if (col >= d_horizontal_header_data.size())
+		d_horizontal_header_data << label;
+	else
+		d_horizontal_header_data.replace(col, label);
 }
 
-
-void Table::setColComments(const QStringList& lst)
+QVariant Table::Private::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	OBSOLETE
-		for(int i=0; i<lst.size() && i<columnCount(); i++)
-			undoStack()->push(new TableSetColumnCommentCmd(d_model, i, lst.at(i)));
+	if( !( (role == Qt::ToolTipRole) || (role == Qt::DecorationRole) ||
+	       (role == Qt::DisplayRole || role == Qt::EditRole) ) )
+		return QVariant();
+		
+	if(orientation == Qt::Horizontal)
+	{
+		if( role == Qt::DecorationRole) 
+			return QVariant(d_columns.at(section)->icon());
+		else if(role == TableModel::CommentRole) 
+			return d_columns.at(section)->columnComment();
+		else 
+			return d_horizontal_header_data.at(section);
+	}
+	else if (orientation == Qt::Vertical)
+		return d_vertical_header_data.at(section);
+
+	return QVariant();
 }
-
-void Table::setPlotDesignation(SciDAVis::PlotDesignation pd)
-{
-	OBSOLETE
-		for(int i=0;i<columnCount(); i++)
-			if(isColumnSelected(i, false))
-				undoStack()->push(new TableSetColumnPlotDesignationCmd(d_model, i, pd));
-}
-
-
-#endif
 

@@ -50,6 +50,8 @@
 #include "ui_optionstabs.h"
 #include <QtDebug>
 #include "AspectView.h"
+#include "globals.h"
+#include "Column.h"
 
 class Table;
 class TableModel;
@@ -89,15 +91,82 @@ class TableView : public AspectView
 		TableView(Table *table);
 		//! Destructor
 		virtual ~TableView();
-		TableModel * model() { return d_model; }
 		bool isOptionTabBarVisible() { return d_tool_box->isVisible(); }
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
 		//! Return whether comments are show currently
 		bool areCommentsShown() const;
 
+		//! \name selection related functions
+		//@{
+		//! Return how many columns are selected
+		/**
+		 * If full is true, this function only returns the number of fully 
+		 * selected columns.
+		 */
+		int selectedColumnCount(bool full = false);
+		//! Return how many columns with the given plot designation are (at least partly) selected
+		int selectedColumnCount(SciDAVis::PlotDesignation pd);
+		//! Returns true if column 'col' is selected; otherwise false
+		/**
+		 * If full is true, this function only returns true if the whole 
+		 * column is selected.
+		 */
+		bool isColumnSelected(int col, bool full = false);
+		//! Return all selected columns
+		/**
+		 * If full is true, this function only returns a column if the whole 
+		 * column is selected.
+		 */
+		QList<Column *> selectedColumns(bool full = false);
+		//! Return how many rows are (at least partly) selected
+		/**
+		 * If full is true, this function only returns the number of fully 
+		 * selected rows.
+		 */
+		int selectedRowCount(bool full = false);
+		//! Returns true if row 'row' is selected; otherwise false
+		/**
+		 * If full is true, this function only returns true if the whole 
+		 * row is selected.
+		 */
+		bool isRowSelected(int row, bool full = false);
+		//! Return the index of the first selected column
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected columns.
+		 */
+		int firstSelectedColumn(bool full = false);
+		//! Return the index of the last selected column
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected columns.
+		 */
+		int lastSelectedColumn(bool full = false);
+		//! Return the index of the first selected row
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected rows.
+		 */
+		int firstSelectedRow(bool full = false);
+		//! Return the index of the last selected row
+		/**
+		 * If full is true, this function only looks for fully 
+		 * selected rows.
+		 */
+		int lastSelectedRow(bool full = false);
+		//! Return whether a cell is selected
+		bool isCellSelected(int row, int col);
+		//! Select a cell
+		void setCellSelected(int row, int col);
+		//! Select a range of cells
+		void setCellsSelected(int first_row, int first_col, int last_row, int last_col);
+		//! Determine the current cell (-1 if no cell is designated as the current)
+		void getCurrentCell(int * row, int * col);
+		//@}
+
 	public slots:
-		void scrollToIndex(const QModelIndex & index);
+		void goToCell(int row, int col);
 		void selectAll();
 		void toggleOptionTabBar();
 		void toggleComments();
@@ -105,19 +174,8 @@ class TableView : public AspectView
 		void showOptionsTypeTab();
 		void showOptionsFormulaTab();
 
-	signals:
-		//! Request resize command
-		/**
-		 *	Emit this signal to request the owner of the view's
-		 *	model to apply a resize command to its model (change 
-		 *	the number of rows). This gives the
-		 *	owner the chance to do the resize in an undo
-		 *	aware way. If the signal is ignored, the model
-		 *	will be resized by the view.
-		 */
-		void requestResize(int new_rows);
-
 	protected slots:
+		void scrollToIndex(const QModelIndex & index);
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
 		void horizontalSectionMovedHandler(int index, int from, int to);
@@ -144,11 +202,11 @@ class TableView : public AspectView
 		static QRect mapToParent(QWidget *widget, const QRect& rect);
 		QRect mapToThis(QWidget *widget, const QRect& rect);
 
-	public:
+	private:
 		//! UI with options tabs (description, format, formula etc.)
 		Ui::OptionsTabs ui;
 		//! The table view (first part of the UI)
-		TableViewWidget * d_view;
+		TableViewWidget * d_view_widget;
 		//! The second part of the UI containing #d_tool_box and #d_hide_button
 		QWidget * d_options_bar;
 		//! Scroll area containing the option tabs widget
@@ -163,9 +221,8 @@ class TableView : public AspectView
 		Table * d_table;
 		QWidget * d_main_widget;
 
-		//! Initialization common to all ctors
-		void init(TableModel * model);
-		
+		//! Initialization
+		void init();
 };
 
 

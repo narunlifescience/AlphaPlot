@@ -1,7 +1,7 @@
 /***************************************************************************
     File                 : Table.h
     Project              : SciDAVis
-    Description          : Table worksheet class
+    Description          : Aspect providing a spreadsheet table with column logic
     --------------------------------------------------------------------
     Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
     Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
@@ -41,44 +41,39 @@
 #include <QIcon>
 
 class TableView;
-class TableModel;
 class QUndoStack;
 class QMenu;
 
 /*!\brief Aspect providing a spreadsheet table with column logic.
  *
-\section Class Table, the model/view architecture and the undo framework
-To use Qt's model/view framework, increase the performance for large datasets, 
-and support full undo/redo, this class 
-has been rewritten using a design very similar to the model/view/presenter paradigm.<br>
-The whole functionality is split up into three classes each having its special
-purpose:
-<ul>
-<li> class Table: This class is on the one hand the presenter of the table functionality
-and on the other hand one aspect in the projet hierarchy. It handles all interaction with
-with the application and other aspects as well as user input. This includes script
-evaluation, import/export, and saving and loading of a complete table. 
-The underlying model is not visible to any non table related classes with one exeption:
-Pointers to columns can be passed around an manipulated directly. The owner table will
-be notified by emission of signals and react accordingly. All public methods of table
-and columns are undo aware. The manipulation of the data in TableModel is done
-by commands derived from QUndoCommand. If the table has an undo stack associated with it (usually 
-by the project root aspect) all commands can be undone (and redone).
-/li>
-<li> class TableView: This class is purely for displaying the table contents. It relays
-all user input to the presenter, i.e., Table. It is notfied by the model whenever changes occur.
-</li>
-<li> class TableModel: This class stores all data belonging to the table using column logic. 
-Most of the data is contained in objects of class Column. Pointers to individual columns 
-can be passed to the rest of the application. All operations of Column have undo support. The 
-columns notify TableModel of any changes to them.
-</ul>
+This class (incl. Table::Private and its commands) is one aspect in the projet hierarchy
+that represents a spreadsheet table with column logic. Table provides the public API while
+Table::Private completely encapsulates the data. The table commands (derived from QUndoCommand) 
+encapsulate all write operations which can be undone and redone, if the table has an undo stack 
+associated with it (usually by the project root aspect).
+
+The underlying private data object is not visible to any classes other then those meantioned
+above with one exeption:
+Pointers to columns can be passed around an manipulated directly. The owner Table (parent aspect
+of the Column objects) will be notified by emission of signals and react accordingly. 
+All public methods of Table and Column are undo aware. 
+
+Table also manages its main view of class TableView. Table and TableView can call each others
+API in both directions. User interaction ist party handled in TableView and translated into 
+Table API calls (e.g., when a user edits a cell this will be handled by the delegate of
+TableView and Table will not know whether a script or a user changed the data.). Other parts 
+of the user interaction are handled by actions provides by Table, e.g., via a context menu.
+
+Selections are handled by TableView and can be queried by Table.
 */
 class Table: public AbstractAspect// TODO:, public scripted
 {
 	Q_OBJECT
 
 	public:
+		class Private; // This could also be private, but then all commands need to be friend classes
+		friend class Private;
+
 		Table(AbstractScriptingEngine *engine, int rows, int columns, const QString &name);
 		~Table();
 
@@ -141,6 +136,7 @@ class Table: public AbstractAspect// TODO:, public scripted
 		int columnIndex(Column * col) const;
 		//! Set the number of columns
 		void setColumnCount(int new_size);
+		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
 
 		// TODO: move this to abstract aspect?
 		//! Create a menu for the main application window
@@ -192,7 +188,6 @@ class Table: public AbstractAspect// TODO:, public scripted
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void setSelectionAs(SciDAVis::PlotDesignation pd);
-		TableModel *model() { return d_model; }
 		void copy(Table * other);
 
 	public slots:
@@ -244,7 +239,6 @@ class Table: public AbstractAspect// TODO:, public scripted
 		 * If 'leading' is a null pointer, each column is sorted separately.
 		 */
 		void sortColumns(Column * leading, QList<Column*> cols, bool ascending);
-		void openFormulaEditor();
 		//! Show a context menu for the selected cells
 		/**
 		 * \param pos global position of the event 
@@ -261,16 +255,37 @@ class Table: public AbstractAspect// TODO:, public scripted
 		*/
 		void showTableViewRowContextMenu(const QPoint& pos);
 
-	private slots:
-		//! Handles a request from the model to execute a resize command
-		void handleModelResizeRequest(int new_size);
-		void handleColumnsAboutToBeInserted(int before, QList<Column*> new_cols);
-		void handleColumnsInserted(int first, int count);
-		void handleColumnsAboutToBeRemoved(int first, int count);
-		void handleColumnsRemoved(int first, int count);
+	private:
+		//! Internal function to connect all column signals
+		void connectColumn(Column* col);
+		//! Internal function to disconnect a column
+		void disconnectColumn(Column* col);
 
-		//! The the model name to the table name
-		void setModelName();
+	private slots:
+		//! \name Column event handlers
+		//@{
+		void handleDescriptionChange(AbstractColumn * col);
+		void handlePlotDesignationChange(AbstractColumn * col);
+		void handleDataChange(AbstractColumn * col);
+		void handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count);
+		void handleRowsInserted(AbstractColumn * col, int before, int count);
+		void handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count);
+		void handleRowsRemoved(AbstractColumn * col, int first, int count);
+		//@}
+
+	signals:
+		void columnsAboutToBeInserted(int before, QList<Column*> new_cols);
+		void columnsInserted(int first, int count);
+		void columnsAboutToBeReplaced(int first, int count);
+		void columnsReplaced(int first, int count);
+		void columnsAboutToBeRemoved(int first, int count);
+		void columnsRemoved(int first, int count);
+		void rowsAboutToBeInserted(int before, int count);
+		void rowsInserted(int first, int count);
+		void rowsAboutToBeRemoved(int first, int count);
+		void rowsRemoved(int first, int count);
+		void dataChanged(int top, int left, int bottom, int right);
+		void headerDataChanged(Qt::Orientation orientation, int first, int last);
 
 	private:
 		void createActions();
@@ -302,7 +317,6 @@ class Table: public AbstractAspect// TODO:, public scripted
 		QAction * action_clear_masks;
 		QAction * action_sort_table;
 		QAction * action_go_to_cell;
-		QAction * action_formula_editor;
 		//@}
 		//! \name column related actions
 		//@{
@@ -331,146 +345,133 @@ class Table: public AbstractAspect// TODO:, public scripted
 		QAction * action_statistics_rows;
 		//@}
 
-	protected:
-		//! The model storing the data
-		TableModel *d_model;
 		TableView *d_view;
+		Private *d_private_object;
 };
 
-#if false
-class Table: public MyWidget, public scripted
+/**
+  This private class manages column based data (i.e., 1D vector based 
+  data such as x-values and y-values for a plot) for a Table. Its
+  API is to be called by Table and table commands only. Table 
+  may only call the reading functions to ensure that undo/redo
+  is possible for all data changing operations.
+
+  Each column is represented by a Column object and can be directly 
+  accessed by the pointer returned by column(). Most of the column 
+  manipulation is done directly to the columns. The signals of
+  the columns are connected to various handlers in Table which
+  acts according to all changes made to the columns.
+
+  The Column objects are managed as child aspects by Table.
+
+  Every column has two filters as children: An input filter that
+  can convert a string (e.g., entered by the user in a cell) to
+  the column's data type and an output filter that delivers
+  the correct string representation to display in a table.
+
+  The number of columns in the Table will always be equal to
+  d_columns.size(). The number of rows is generally indepenent
+  of the number of rows in the wrapped columns. It is however
+  always adjusted to be large enough to display the longest column. 
+  When columns are inserted, resized etc., the table is resized 
+  automatically.
+  */
+class Table::Private
 {
-    Q_OBJECT
+	public:
+		Private(Table *owner) : d_owner(owner), d_column_count(0), d_row_count(0) {}
+		//! Replace columns completely
+		/**
+		 * \param first the first column to be replaced
+		 * \param new_cols list of the columns that replace the old ones
+		 * This does not delete the replaced columns.
+		 */
+		void replaceColumns(int first, QList<Column*> new_cols);
+		//! Insert columns before column number 'before'
+		/**
+		 * If 'first' is higher than (current number of columns -1),
+		 * the columns will be appended.
+		 * \param before index of the column to insert before
+		 * \param cols a list of column data objects
+		 * \param in_filter a list of the corresponding input filters
+		 * \param out_filter a list of the corresponding output filters
+		 */
+		void insertColumns(int before, QList<Column*> cols);
+		//! Remove Columns
+		/**
+		 * This does not delete the removed columns because this
+		 * must be handled by the undo/redo system.
+		 * \param first index of the first column to be removed
+		 * \param count number of columns to remove
+		 */
+		void removeColumns(int first, int count);
+		//! Append columns to the table
+		/**
+		 * \sa insertColumns()
+		 */
+		void appendColumns(QList<Column*> cols);
+		//! Move a column to another position
+		void moveColumn(int from, int to);
+		//! Return the number of columns in the table
+		int columnCount() const { return d_column_count; }
+		//! Return the number of rows in the table
+		int rowCount() const { return d_row_count; }
+		//! Set the number of rows of the table
+		void setRowCount(int count);
+		//! Return the full column header string
+		QString columnHeader(int col);
+		//! Return the number of columns with a given plot designation
+		int numColsWithPD(SciDAVis::PlotDesignation pd);
+		Column* column(int index) const { return d_columns.value(index); }
+		//! Return the index of the given column in the table.
+		/**
+		 * \return the index or -1 if the column is not in the table
+		 */
+		int columnIndex(Column * col) const 
+		{ 
+			for(int i=0; i<d_columns.size(); i++)
+				if(d_columns.at(i) == col) return i;
+			return -1;
+		}
+		QString name() const { return d_owner->name(); }
+		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
 
-public:
-	Table(AbstractScriptingEngine *engine, int rows,int cols, const QString &label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+		//! Update the vertical header labels
+		/**
+		 * This must be called whenever rows are added
+		 * or removed.
+		 * \param start_row first row that needs to be updated
+		 */
+		void updateVerticalHeader(int start_row);
+		//! Update the horizontal header labels
+		/**
+		 * This must be called whenever columns are added or
+		 * removed and when comments, labels, and column types
+		 * change.
+		 * \param start_col first column that needs to be updated
+		 * \param end_col last column that needs to be updated
+		 */
+		void updateHorizontalHeader(int start_col, int end_col);
 
-	//! Return a pointer to the undo stack
-	virtual QUndoStack *undoStack() const;
-	//! Set the color of the table background
-	void setBackgroundColor(const QColor& col);
-	//! Set the text color
-	void setTextColor(const QColor& col);
-	//! Set the header color
-	void setHeaderColor(const QColor& col);
-	//! Set the cell text font
-	void setTextFont(const QFont& fnt);
-	//! Set the font for both headers
-	void setHeaderFont(const QFont& fnt);
-	//! Return a list of all column labels
-	QStringList columnLabels();
-	//! Copy another table
-	void copy(Table * other);
-	//! Fill the selected cells with row numbers
-	void setAscendingValues();
-	//! Fill the selected cells random values
-	void setRandomValues();
-	//! Scroll to the specified cell
-	void goToCell(int row, int col);
-	//! Return the column mode
-	SciDAVis::ColumnMode columnMode(int col);
-	//! Set the column mode
-	void setColumnMode(int col, SciDAVis::ColumnMode mode);
-	//! Return the width of column 'col' in pixels
-	int columnWidth(int col);
-	
-protected:
-	//! The table widget
-	TableView *d_table_view;
-	//! The model storing the data
-	TableModel *d_table_model;
-	void contextMenuEvent(QContextMenuEvent *e);
-
-private:
-	//! Initialize table
-	void init(int rows, int cols);
-
-
-	
-public:
-	// obsolete transition functions (to be removed or rewritten later)
-	int colIndex(const QString& name);
-	QString colName(int col);
-	int columnType(int col);
-	QString columnFormat(int col);
-	QStringList selectedYLabels();
-	double cell(int row, int col);
-	int selectedColumn();
-	void setSelectedCol(int col);
-	QStringList colNames();
-	void setText(int row, int col, QString text);
-	void setHeader(QStringList header);
-	int colPlotDesignation(int col);
-	QString colLabel(int col);
-	QString colComment(int col);
-	void columnNumericFormat(int col, char *f, int *precision);
-	void columnNumericFormat(int col, int *f, int *precision);
-	void changeColWidth(int width, bool all = false);
-	void enumerateRightCols(bool checked);
-	void setColComment(int col, const QString& s);
-	void changeColName(const QString& new_name);
-	void setColName(int col,const QString& new_name);
-	void setCommand(int col, const QString& com);
-	void setColPlotDesignation(int col, SciDAVis::PlotDesignation pd);
-	void setColNumericFormat(int f, int prec, int col);
-	void setTextFormat(int col);
-	void setDateFormat(const QString& format, int col);
-	void setTimeFormat(const QString& format, int col);
-	void setMonthFormat(const QString& format, int col);
-	void setDayFormat(const QString& format, int col);
-	bool setDateTimeFormat(int col, int f, const QString& format);
-	int verticalHeaderWidth();
-	QStringList columnsList();
-	QStringList selectedColumnsOld();
-	int firstXCol();
-	void addCol(SciDAVis::PlotDesignation pd = SciDAVis::Y);
-	bool noXColumn();
-	bool noYColumn();
-	QStringList selectedYColumns();
-	void setNumericPrecision(int prec);
-	QVarLengthArray<double> col(int ycol);
-	bool isEmptyColumn(int col);
-	QStringList YColumns();
-	void updateDecimalSeparators();
-	void updateDecimalSeparators(const QLocale& oldSeparators);
-	void importMultipleASCIIFiles(const QString &fname, const QString &sep, int ignoredLines,
-					bool renameCols, bool stripSpaces, bool simplifySpaces, int importFileAs);
-	void importASCII(const QString &fname, const QString &sep, int ignoredLines,
-						bool renameCols, bool stripSpaces, bool simplifySpaces, bool newTable);
-	bool exportASCII(const QString& fname, const QString& separator,
-					bool withLabels = false, bool exportSelection = false);
-	bool calculate(int col, int startRow, int endRow);
-	bool calculate();
-	void sortTableDialog();
-	void sortColumnsDialog();
-	void normalizeCol(int col=-1);
-	void normalizeSelection();
-	void normalize();
-	QStringList drawableColumnSelection();
-	void cutSelection();
-	void copySelection();
-	void clearSelection();
-	void pasteSelection();
-	void loadHeader(QStringList header);
-	void setColWidths(const QStringList& widths);
-	void setCommands(const QStringList& com);
-	void setCommands(const QString& com);
-	void setColumnTypes(const QStringList& ctl);
-	void setCell(int row, int col, double val);
-	void setColComments(const QStringList& lst);
-	void setPlotDesignation(SciDAVis::PlotDesignation pd);
-
-signals:
-	void changedColHeader(const QString&, const QString&);
-	void removedCol(const QString&);
-	void modifiedData(Table *, const QString&);
-	void optionsDialog();
-	void colValuesDialog();
-	void resizedTable(QWidget*);
-	void showContextMenu(bool selection);
-	void createTable(const QString&,int,int,const QString&);
+	private:
+		//! The owner aspect
+		Table *d_owner;
+		//! The number of columns
+		int d_column_count;
+		//! The maximum number of rows of all columns
+		int d_row_count;
+		//! Vertical header data
+		QStringList d_vertical_header_data;
+		//! Horizontal header data
+		QStringList d_horizontal_header_data;
+		//! List of pointers to the column data vectors
+		QList<Column *> d_columns;	
+		//! Internal function to put together the column header
+		/**
+		 * Don't use this outside updateHorizontalHeader()
+		 */
+		void composeColumnHeader(int col, const QString& label);
 };
 
+#endif
 
-#endif
-#endif

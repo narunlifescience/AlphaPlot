@@ -52,11 +52,8 @@ HEADERS += \
 			  aspect-test/Folder.h \
 			  ProjectWindow.h \
 			  AspectTreeModel.h \
-			  MdiSubWindow.h \
 			  ProjectExplorer.h \
 			  SortDialog.h \
-			  TableFormulaEditorView.h \
-			  TableFormulaEditorModel.h \
 			  TableDoubleHeaderView.h \
 			  TableCommentsHeaderModel.h  \
 			  SimpleMappingFilter.h \
@@ -81,11 +78,8 @@ SOURCES += \
 			  aspect-test/Folder.cpp \
 			  ProjectWindow.cpp \
 			  AspectTreeModel.cpp \
-			  MdiSubWindow.cpp \
 			  ProjectExplorer.cpp \
 			  SortDialog.cpp \
-			  TableFormulaEditorView.cpp \
-			  TableFormulaEditorModel.cpp \
 			  TableDoubleHeaderView.cpp \
 			  TableCommentsHeaderModel.cpp  \
 			  SimpleMappingFilter.cpp \

@@ -73,7 +73,7 @@ QVariant TableCommentsHeaderModel::headerData(int section, Qt::Orientation orien
 	if( orientation != Qt::Horizontal || role != Qt::DisplayRole || section < 0 || section >= columnCount())
 		return QVariant();
 
-	return QVariant(d_table_model->column(section)->columnComment());
+	return QVariant(d_table_model->headerData(section, Qt::Horizontal, TableModel::CommentRole));
 }
 
 int TableCommentsHeaderModel::rowCount(const QModelIndex &parent) const

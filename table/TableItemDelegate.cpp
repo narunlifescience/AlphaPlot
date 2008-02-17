@@ -57,6 +57,7 @@ void TableItemDelegate::setModelData ( QWidget * editor, QAbstractItemModel * mo
 
 void TableItemDelegate::setEditorData ( QWidget * editor, const QModelIndex & index ) const
 {
+	// TODO: idea: the delegate could be switched between two modes: "edit value" and "edit formula"
 	editor->metaObject()->userProperty().write(editor, index.data(Qt::EditRole));
 }
 

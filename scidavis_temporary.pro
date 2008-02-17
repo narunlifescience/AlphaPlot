@@ -54,8 +54,6 @@ HEADERS += \
 	AspectView.h \
 	ProjectExplorer.h \
 	SortDialog.h \
-	TableFormulaEditorView.h \
-	TableFormulaEditorModel.h \
 	TableDoubleHeaderView.h \
 	TableCommentsHeaderModel.h  \
 	SimpleMappingFilter.h \
@@ -84,8 +82,6 @@ SOURCES += \
 	AspectView.cpp \
 	ProjectExplorer.cpp \
 	SortDialog.cpp \
-	TableFormulaEditorView.cpp \
-	TableFormulaEditorModel.cpp \
 	TableDoubleHeaderView.cpp \
 	TableCommentsHeaderModel.cpp  \
 	SimpleMappingFilter.cpp \
