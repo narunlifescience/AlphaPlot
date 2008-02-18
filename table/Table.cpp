@@ -1184,7 +1184,7 @@ void Table::goToCell()
 
 void Table::moveColumn(int from, int to)
 {
-	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_private_object->column(from)->columnLabel()).arg(from+1).arg(to+1));
+	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_private_object->column(from)->name()).arg(from+1).arg(to+1));
 	moveChild(from, to);
 	exec(new TableMoveColumnCmd(d_private_object, from, to));	
 	endMacro();
@@ -1505,9 +1505,16 @@ void Table::selectAll()
 	d_view->selectAll();
 }
 
-void Table::handleDescriptionChange(AbstractColumn * col)
+void Table::handleModeChange(AbstractColumn * col)
 {
 	int index = columnIndex(static_cast<Column *>(col));
+	if(index != -1)
+		d_private_object->updateHorizontalHeader(index, index);
+}
+
+void Table::handleDescriptionChange(AbstractAspect * aspect)
+{
+	int index = columnIndex(static_cast<Column *>(aspect));
 	if(index != -1)
 		d_private_object->updateHorizontalHeader(index, index);
 }
@@ -1559,8 +1566,8 @@ void Table::handleRowsRemoved(AbstractColumn * col, int first, int count)
 
 void Table::connectColumn(Column* col)
 {
-	connect(col, SIGNAL(descriptionChanged(AbstractColumn *)), this, 
-			SLOT(handleDescriptionChange(AbstractColumn *)));
+	connect(col, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), this, 
+			SLOT(handleDescriptionChange(AbstractAspect *)));
 	connect(col, SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
 			SLOT(handlePlotDesignationChange(AbstractColumn *)));
 	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
@@ -1568,7 +1575,7 @@ void Table::connectColumn(Column* col)
 	connect(col, SIGNAL(dataChanged(AbstractColumn *)), this, 
 			SLOT(handleDataChange(AbstractColumn *)));
 	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
-			SLOT(handleDescriptionChange(AbstractColumn *)));
+			SLOT(handleModeChange(AbstractColumn *)));
 	connect(col, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
 			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
 	connect(col, SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
@@ -1741,37 +1748,37 @@ void Table::Private::updateHorizontalHeader(int start_col, int end_col)
 		for (int i=0; i<d_column_count; i++)
 		{
 			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X" + QString::number(++x_cols) +"]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[X" + QString::number(++x_cols) +"]");
 			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Y)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[Y"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[Y]");
 			}
 			else if (d_columns.at(i)->plotDesignation() == SciDAVis::Z)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[Z"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[Z]");
 			}
 			else if (d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[xEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[xEr]");
 			}
 			else if (d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
 			{
 				if(x_cols>0)
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr"+ QString::number(x_cols) +"]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[yEr"+ QString::number(x_cols) +"]");
 				else
-					composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
+					composeColumnHeader(i, d_columns.at(i)->name()+"[yEr]");
 			}
 			else
-				composeColumnHeader(i, d_columns.at(i)->columnLabel());
+				composeColumnHeader(i, d_columns.at(i)->name());
 		}
 	}
 	else
@@ -1779,17 +1786,17 @@ void Table::Private::updateHorizontalHeader(int start_col, int end_col)
 		for (int i=0; i<d_column_count; i++)
 		{
 			if (d_columns.at(i)->plotDesignation() == SciDAVis::X)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[X]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[X]");
 			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Y)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Y]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[Y]");
 			else if(d_columns.at(i)->plotDesignation() == SciDAVis::Z)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[Z]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[Z]");
 			else if(d_columns.at(i)->plotDesignation() == SciDAVis::xErr)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[xEr]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[xEr]");
 			else if(d_columns.at(i)->plotDesignation() == SciDAVis::yErr)
-				composeColumnHeader(i, d_columns.at(i)->columnLabel()+"[yEr]");
+				composeColumnHeader(i, d_columns.at(i)->name()+"[yEr]");
 			else
-				composeColumnHeader(i, d_columns.at(i)->columnLabel());
+				composeColumnHeader(i, d_columns.at(i)->name());
 		}
 	}
 	emit d_owner->headerDataChanged(Qt::Horizontal, start_col, end_col);	
@@ -1805,22 +1812,28 @@ void Table::Private::composeColumnHeader(int col, const QString& label)
 
 QVariant Table::Private::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if( !( (role == Qt::ToolTipRole) || (role == Qt::DecorationRole) ||
-	       (role == Qt::DisplayRole || role == Qt::EditRole) ) )
-		return QVariant();
-		
-	if(orientation == Qt::Horizontal)
-	{
-		if( role == Qt::DecorationRole) 
-			return QVariant(d_columns.at(section)->icon());
-		else if(role == TableModel::CommentRole) 
-			return d_columns.at(section)->columnComment();
-		else 
-			return d_horizontal_header_data.at(section);
+	switch(orientation) {
+		case Qt::Horizontal:
+			switch(role) {
+				case Qt::DisplayRole:
+				case Qt::ToolTipRole:
+				case Qt::EditRole:
+					return d_horizontal_header_data.at(section);
+				case Qt::DecorationRole:
+					return d_columns.at(section)->icon();
+				case TableModel::CommentRole:
+					return d_columns.at(section)->comment();
+				default:
+					return QVariant();
+			}
+		case Qt::Vertical:
+			switch(role) {
+				case Qt::DisplayRole:
+				case Qt::ToolTipRole:
+					return d_vertical_header_data.at(section);
+				default:
+					return QVariant();
+			}
 	}
-	else if (orientation == Qt::Vertical)
-		return d_vertical_header_data.at(section);
-
-	return QVariant();
 }
 

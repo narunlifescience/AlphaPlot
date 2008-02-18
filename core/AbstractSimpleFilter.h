@@ -139,14 +139,6 @@ class AbstractSimpleFilter : public AbstractFilter
 		virtual int outputCount() const { return 1; }
 		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
 		virtual AbstractColumn* output(int port) const;
-		//! Copy label of input port 0.
-		virtual QString columnLabel() const {
-			return d_inputs.value(0) ? d_inputs.at(0)->columnLabel() : QString();
-		}
-		//! Copy comment of input port 0.
-		virtual QString columnComment() const {
-			return d_inputs.value(0) ? d_inputs.at(0)->columnComment() : QString();
-		}
 		//! Copy plot designation of input port 0.
 		virtual SciDAVis::PlotDesignation plotDesignation() const {
 			return d_inputs.value(0) ?
@@ -307,10 +299,6 @@ class SimpleFilterColumn : public AbstractColumn
 		virtual SciDAVis::ColumnDataType dataType() const { return d_owner->dataType(); }
 		virtual SciDAVis::ColumnMode columnMode() const { return d_owner->columnMode(); }
 		virtual int rowCount() const { return d_owner->rowCount(); }
-		virtual QString columnLabel() const { return d_owner->columnLabel(); }
-		virtual QString columnComment() const { return d_owner->columnComment(); }
-		virtual void setColumnLabel(const QString& label) { d_owner->setColumnLabel(label); }
-		virtual void setColumnComment(const QString& comment) { d_owner->setColumnComment(comment); }
 		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
 		virtual bool isInvalid(int row) const { return d_owner->isInvalid(row); }
 		virtual bool isInvalid(Interval<int> i) const { return d_owner->isInvalid(i); }

@@ -38,7 +38,6 @@ Column::Column(const QString& name, SciDAVis::ColumnMode mode)
  : AbstractColumn(name)
 {
 	d_column_private = new ColumnPrivate(this, mode);
-	init();
 }
 
 Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
@@ -46,7 +45,6 @@ Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool
 {
 	d_column_private = new ColumnPrivate(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity);
-	init();
 }
 
 Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> validity)
@@ -54,7 +52,6 @@ Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> va
 {
 	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity);
-	init();
 }
 
 Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity)
@@ -62,27 +59,6 @@ Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<boo
 {
 	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
-	init();
-}
-
-void Column::init()
-{
-	connect(this, SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
-		this, SLOT(emitDescriptionAboutToChange(AbstractAspect *)));
-	connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
-		this, SLOT(emitDescriptionChanged(AbstractAspect *)));
-}
-
-void Column::emitDescriptionAboutToChange(AbstractAspect * aspect)
-{
-	if (aspect != static_cast<AbstractAspect *>(this)) return;
-	emit this->descriptionAboutToChange(this);
-}
-
-void Column::emitDescriptionChanged(AbstractAspect * aspect)
-{
-	if (aspect != static_cast<AbstractAspect *>(this)) return;
-	emit descriptionChanged(this);
 }
 
 Column::~Column()
@@ -93,7 +69,7 @@ Column::~Column()
 void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == columnMode()) return;
-	beginMacro(QObject::tr("%1: change column type").arg(columnLabel()));
+	beginMacro(QObject::tr("%1: change column type").arg(name()));
 	exec(new ColumnSetModeCmd(d_column_private, mode));
 	endMacro();
 }
@@ -251,16 +227,6 @@ double Column::valueAt(int row) const
 	return d_column_private->valueAt(row);
 }
 
-void Column::setColumnLabel(const QString& name) 
-{ 
-	setName(name); 
-}
-
-void Column::setColumnComment(const QString& comment) 
-{ 
-	setComment(comment); 
-}
-
 QIcon Column::icon() const
 {
 	switch(dataType())
@@ -280,7 +246,7 @@ void Column::save(QXmlStreamWriter * writer) const
 	writer->writeStartElement("column");
 	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
 	writer->writeAttribute("caption_spec", captionSpec());
-	writer->writeAttribute("label", columnLabel());
+	writer->writeAttribute("label", name());
 	writer->writeAttribute("type", SciDAVis::enumValueToString(dataType(), "ColumnDataType"));
 	writer->writeAttribute("mode", SciDAVis::enumValueToString(columnMode(), "ColumnMode"));
 	writer->writeAttribute("plot_designation", SciDAVis::enumValueToString(plotDesignation(), "PlotDesignation"));
@@ -291,7 +257,7 @@ void Column::save(QXmlStreamWriter * writer) const
 	outputFilter()->save(writer);
 	writer->writeEndElement();
 	writer->writeStartElement("comment");
-	writer->writeCharacters(columnComment());
+	writer->writeCharacters(comment());
 	writer->writeEndElement();
 	QList< Interval<int> > masks = maskedIntervals();
 	foreach(Interval<int> interval, masks)
@@ -361,7 +327,7 @@ bool Column::load(QXmlStreamReader * reader)
 	clearValidity();
 	clearFormulas();
 	clearMasks();
-	setColumnComment(QString());
+	setComment(QString());
 	if(reader->isStartElement() && reader->name() == "column") 
 	{
 		QXmlStreamAttributes attribs = reader->attributes();
@@ -374,7 +340,7 @@ bool Column::load(QXmlStreamReader * reader)
 			reader->raiseError(prefix+tr("column label missing")+postfix);
 			return false;
 		}
-		setColumnLabel(str);
+		setName(str);
 		// read creation time
 		str = attribs.value(reader->namespaceUri().toString(), "creation_time").toString();
 		if(!str.isEmpty())
@@ -465,7 +431,7 @@ bool Column::load(QXmlStreamReader * reader)
 bool Column::XmlReadComment(QXmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
-	setColumnComment(reader->readElementText());
+	setComment(reader->readElementText());
 	return true;
 }
 

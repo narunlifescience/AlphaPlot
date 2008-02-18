@@ -34,6 +34,7 @@
 AbstractSimpleFilter::AbstractSimpleFilter()
 	: AbstractFilter("SimpleFilter"), d_output_column(new SimpleFilterColumn(this))
 {
+	addChild(d_output_column);
 }
 
 void AbstractSimpleFilter::clearMasks()
@@ -52,12 +53,17 @@ void AbstractSimpleFilter::setMasked(Interval<int> i, bool mask)
 
 void AbstractSimpleFilter::inputDescriptionAboutToChange(AbstractColumn*)
 {
-	emit d_output_column->descriptionAboutToChange(d_output_column);
+	emit d_output_column->aspectDescriptionAboutToChange(d_output_column);
 }
 
 void AbstractSimpleFilter::inputDescriptionChanged(AbstractColumn*)
 {
-	emit d_output_column->descriptionChanged(d_output_column);
+	d_output_column->blockSignals(true);
+	d_output_column->setName(d_inputs.at(0)->name());
+	d_output_column->setComment(d_inputs.at(0)->comment());
+	d_output_column->setCaptionSpec(d_inputs.at(0)->captionSpec());
+	d_output_column->blockSignals(false);
+	emit d_output_column->aspectDescriptionChanged(d_output_column);
 }
 
 void AbstractSimpleFilter::inputPlotDesignationAboutToChange(AbstractColumn*)

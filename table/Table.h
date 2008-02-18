@@ -264,7 +264,8 @@ class Table: public AbstractPart // TODO:, public scripted
 	private slots:
 		//! \name Column event handlers
 		//@{
-		void handleDescriptionChange(AbstractColumn * col);
+		void handleDescriptionChange(AbstractAspect * aspect);
+		void handleModeChange(AbstractColumn * col);
 		void handlePlotDesignationChange(AbstractColumn * col);
 		void handleDataChange(AbstractColumn * col);
 		void handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count);

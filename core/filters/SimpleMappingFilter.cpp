@@ -213,19 +213,6 @@ void SimpleMappingFilter::removeRows(int first, int count)
 	}
 	emit d_output_column->rowsRemoved(d_output_column, first, count);
 }
-void SimpleMappingFilter::setColumnLabel(const QString& label)
-{
-	if(!d_inputs.value(0)) return;
-	if(isReadOnly()) return;
-	d_inputs.at(0)->setColumnLabel(label);	
-}
-
-void SimpleMappingFilter::setColumnComment(const QString& comment)
-{
-	if(!d_inputs.value(0)) return;
-	if(isReadOnly()) return;
-	d_inputs.at(0)->setColumnComment(comment);	
-}
 
 void SimpleMappingFilter::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {

@@ -165,18 +165,26 @@ class AbstractFilter : public AbstractAspect
 		//!\name signal handlers
 		//@{
 		/**
-		 * \brief Column label and/or comment of an input will be changed.
+		 * \brief Name and/or comment of an input will be changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
 		virtual void inputDescriptionAboutToChange(AbstractColumn * source) { Q_UNUSED(source); } 
+		void inputDescriptionAboutToChange(AbstractAspect * aspect) {
+			AbstractColumn * col = qobject_cast<AbstractColumn*>(aspect);
+			if (col) inputDescriptionAboutToChange(col);
+		}
 		//! 
 		/**
-		 * \brief Column label and/or comment of an input changed.
+		 * \brief Name and/or comment of an input changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
 		virtual void inputDescriptionChanged(AbstractColumn * source) { Q_UNUSED(source); }
+		void inputDescriptionChanged(AbstractAspect * aspect) {
+			AbstractColumn * col = qobject_cast<AbstractColumn*>(aspect);
+			if (col) inputDescriptionChanged(col);
+		}
 		/**
 		 * \brief The plot designation of an input is about to change.
 		 *

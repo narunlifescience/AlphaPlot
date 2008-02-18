@@ -96,10 +96,6 @@ class SimpleMappingFilter : public SimpleCopyThroughFilter
 		virtual void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		virtual void removeRows(int first, int count);
-		//! Set the column label
-		virtual void setColumnLabel(const QString& label);
-		//! Set the column comment
-		virtual void setColumnComment(const QString& comment);
 		//! Set the column plot designation
 		virtual void setPlotDesignation(SciDAVis::PlotDesignation pd);
 		//! Clear the whole column

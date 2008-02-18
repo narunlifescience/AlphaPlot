@@ -847,5 +847,5 @@ void ColumnPrivate::setColumnComment(const QString& comment)
 void ColumnPrivate::notifyDisplayChange()
 {
 	emit d_owner->dataChanged(d_owner); // all cells must be repainted
-	emit d_owner->descriptionChanged(d_owner); // the icon for the type changed
+	emit d_owner->aspectDescriptionChanged(d_owner); // the icon for the type changed
 }

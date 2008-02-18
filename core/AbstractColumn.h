@@ -138,14 +138,6 @@ class AbstractColumn : public AbstractAspect
 		virtual void insertRows(int before, int count) { Q_UNUSED(before) Q_UNUSED(count) };
 		//! Remove 'count' rows starting from row 'first'
 		virtual void removeRows(int first, int count) { Q_UNUSED(first) Q_UNUSED(count) };
-		//! Return the column label
-		virtual QString columnLabel() const = 0;
-		//! Return the column comment
-		virtual QString columnComment() const = 0;
-		//! Set the column label
-		virtual void setColumnLabel(const QString& label) = 0;
-		//! Set the column comment
-		virtual void setColumnComment(const QString& comment) = 0;
 		//! Return the column plot designation
 		virtual SciDAVis::PlotDesignation plotDesignation() const = 0;
 		//! Set the column plot designation
@@ -288,20 +280,6 @@ class AbstractColumn : public AbstractAspect
 		virtual AspectView *view() { return 0; }
 
 	signals: 
-		//! Column description (label/comment) will be changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void descriptionAboutToChange(AbstractColumn * source); 
-		//! Column description (label/comment) changed
-		/**
-		 * 'source' is always the this pointer of the column that
-		 * emitted this signal. This way it's easier to use
-		 * one handler for lots of columns.
-		 */
-		void descriptionChanged(AbstractColumn * source); 
 		//! Column plot designation will be changed
 		/**
 		 * 'source' is always the this pointer of the column that

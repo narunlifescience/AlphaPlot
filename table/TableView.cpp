@@ -331,11 +331,11 @@ void TableView::setColumnForDescriptionTab(int col)
 	Column *col_ptr = d_table->column(col);
 
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
-		.arg(col_ptr->columnLabel()).arg(col+1);
+		.arg(col_ptr->name()).arg(col+1);
 		
 	ui.column_info->document()->setPlainText(str);
-	ui.name_edit->setText(col_ptr->columnLabel());
-	ui.comment_box->document()->setPlainText(col_ptr->columnComment());
+	ui.name_edit->setText(col_ptr->name());
+	ui.comment_box->document()->setPlainText(col_ptr->comment());
 }
 
 void TableView::selectionChanged(const QItemSelection & selected, const QItemSelection & deselected)
@@ -495,8 +495,8 @@ void TableView::applyDescription()
 	int index = sel_model->currentIndex().column();
 	if(index >= 0)
 	{
-		d_table->column(index)->setColumnLabel(ui.name_edit->text());
-		d_table->column(index)->setColumnComment(ui.comment_box->document()->toPlainText());
+		d_table->column(index)->setName(ui.name_edit->text());
+		d_table->column(index)->setComment(ui.comment_box->document()->toPlainText());
 	}
 }
 

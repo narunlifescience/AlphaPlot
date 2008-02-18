@@ -125,7 +125,10 @@ void TableRemoveColumnsCmd::undo()
 TableMoveColumnCmd::TableMoveColumnCmd( Table::Private * private_obj, int from, int to, QUndoCommand * parent )
  : QUndoCommand( parent ), d_private_obj(private_obj), d_from(from), d_to(to)
 {
-	setText(QObject::tr("%1: move column %2 from position %3 to %4").arg(d_private_obj->name()).arg(d_private_obj->column(from)->columnLabel()).arg(d_from+1).arg(d_to+1));
+	setText(QObject::tr("%1: move column %2 from position %3 to %4")
+			.arg(d_private_obj->name())
+			.arg(d_private_obj->column(from)->name())
+			.arg(d_from+1).arg(d_to+1));
 }
 
 TableMoveColumnCmd::~TableMoveColumnCmd()

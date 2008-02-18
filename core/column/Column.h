@@ -48,8 +48,7 @@ class QString;
   Instances of Column are intended to be managed by shared_ptr.
 
   Column inherits from AbstractAspect and is intended to be a child
-  of the corresponding table in the aspect hierarchy. Column label and
-  comment are identical to the aspect name and comment. Columns don't 
+  of the corresponding table in the aspect hierarchy. Columns don't 
   have a view as they are intended to be displayed inside a table.
  */
 class Column : public AbstractColumn
@@ -59,31 +58,31 @@ class Column : public AbstractColumn
 	public:
 		//! Ctor
 		/**
-		 * \param label the column label (= aspect name)
+		 * \param name the column name (= aspect name)
 		 * \param mode initial column mode
 		 */
-		Column(const QString& label, SciDAVis::ColumnMode mode);
+		Column(const QString& name, SciDAVis::ColumnMode mode);
 		//! Ctor
 		/**
-		 * \param label the column label (= aspect name)
+		 * \param name the column name (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(const QString& label, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
+		Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
 		//! Ctor
 		/**
-		 * \param label the column label (= aspect name)
+		 * \param name the column name (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(const QString& label, QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()); 
+		Column(const QString& name, QStringList data, IntervalAttribute<bool> validity = IntervalAttribute<bool>()); 
 		//! Ctor
 		/**
-		 * \param label the column label (= aspect name)
+		 * \param name the column name (= aspect name)
 		 * \param data initial data vector
 		 * \param validity a list of invalid intervals (optional)
 		 */
-		Column(const QString& label, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
+		Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>());
 		//! Dtor
 		~Column();
 
@@ -142,14 +141,6 @@ class Column : public AbstractColumn
 		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		void removeRows(int first, int count);
-		//! Return the column label
-		QString columnLabel() const { return name(); }
-		//! Return the column comment
-		QString columnComment() const { return comment(); }
-		//! Set the column label
-		void setColumnLabel(const QString& label);
-		//! Set the column comment
-		void setColumnComment(const QString& comment);
 		//! Return the column plot designation
 		SciDAVis::PlotDesignation plotDesignation() const { return d_column_private->plotDesignation(); }
 		//! Set the column plot designation
@@ -321,13 +312,6 @@ class Column : public AbstractColumn
 	private:
 		//! Pointer to the private interface and all private data
 		ColumnPrivate* d_column_private;
-
-		void init();
-	
-	private slots:
-		void emitDescriptionAboutToChange(AbstractAspect * aspect);
-		void emitDescriptionChanged(AbstractAspect * aspect);
-
 };
 
 #endif

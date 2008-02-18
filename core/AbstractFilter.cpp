@@ -57,10 +57,10 @@ bool AbstractFilter::input(int port, AbstractColumn* source)
 		inputPlotDesignationChanged(source);
 		inputDescriptionChanged(source);
 		// connect the source's signals
-		QObject::connect(source, SIGNAL(descriptionAboutToChange(AbstractColumn *)),
-				this, SLOT(inputDescriptionAboutToChange(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(descriptionChanged(AbstractColumn *)),
-				this, SLOT(inputDescriptionChanged(AbstractColumn *)));
+		QObject::connect(source, SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
+				this, SLOT(inputDescriptionAboutToChange(AbstractAspect *)));
+		QObject::connect(source, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
+				this, SLOT(inputDescriptionChanged(AbstractAspect *)));
 		QObject::connect(source, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)),
 				this, SLOT(inputPlotDesignationAboutToChange(AbstractColumn *)));
 		QObject::connect(source, SIGNAL(plotDesignationChanged(AbstractColumn *)),
