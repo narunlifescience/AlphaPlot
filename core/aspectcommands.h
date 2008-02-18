@@ -182,3 +182,44 @@ class AspectChildAddCmd : public AspectChildRemoveCmd
 
 		virtual void undo() { AspectChildRemoveCmd::redo(); }
 };
+
+class AspectChildMoveCmd : public QUndoCommand
+{
+	public:
+		AspectChildMoveCmd(AspectPrivate * target, int from, int to)
+			: d_target(target), d_from(from), d_to(to) {
+				setText(QObject::tr("%1: move child from position %2 to %3.").arg(d_target->name()).arg(d_from+1).arg(d_to+1));
+			}
+
+		virtual void redo() {
+			AbstractAspect * owner = d_target->owner();
+			AbstractAspect * child = d_target->child(d_from);
+			// Moving in one go confuses QTreeView, so we would need another two signals
+			// to be mapped to QAbstractItemModel::layoutAboutToBeChanged() and ::layoutChanged().
+			emit owner->aspectAboutToBeRemoved(owner, d_from);
+			emit child->aspectAboutToBeRemoved(child);
+			d_target->removeChild(child);
+			emit owner->aspectRemoved(owner, d_from);
+			emit owner->aspectAboutToBeAdded(owner, d_to);
+			d_target->insertChild(d_to, child);
+			emit owner->aspectAdded(owner, d_to);
+			emit child->aspectAdded(child);
+		}
+
+		virtual void undo() {
+			AbstractAspect * owner = d_target->owner();
+			AbstractAspect * child = d_target->child(d_to);
+			emit owner->aspectAboutToBeRemoved(owner, d_to);
+			emit child->aspectAboutToBeRemoved(child);
+			d_target->removeChild(child);
+			emit owner->aspectRemoved(owner, d_to);
+			emit owner->aspectAboutToBeAdded(owner, d_from);
+			d_target->insertChild(d_from, child);
+			emit owner->aspectAdded(owner, d_from);
+			emit child->aspectAdded(child);
+		}
+
+	private:
+		AspectPrivate *d_target;
+		int d_from, d_to;
+};

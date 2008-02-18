@@ -32,8 +32,8 @@
 #define PROJECT_WINDOW_H
 
 #include <QMainWindow>
-#include "AbstractAspect.h"
 
+class AbstractAspect;
 class Project;
 class QMdiArea;
 class QToolBar;
@@ -42,6 +42,9 @@ class ProjectExplorer;
 class QUndoView;
 class QToolButton;
 class QMdiSubWindow;
+class Folder;
+class QSignalMapper;
+class AbstractPart;
 
 //! Standard view on a Project; main window.
 class ProjectWindow : public QMainWindow
@@ -51,6 +54,13 @@ class ProjectWindow : public QMainWindow
 	public:
 		ProjectWindow(Project* project);
 		~ProjectWindow();
+
+	public slots:
+		//! Add a new Part in the current folder.
+		/**
+		 * The argument object can be either a PartMaker or an AbstractAspect.
+		 */
+		void addNewAspect(QObject *obj);
 
 	protected:
 		//! \name Initialization
@@ -66,29 +76,29 @@ class ProjectWindow : public QMainWindow
 		QMenu * createDockWidgetsMenu();
 	
 	public slots:
-		void addNewTable();
 		void addNewFolder();
-	
-	private slots:
-		void handleAspectAdded(AbstractAspect *parent, int index);
-		void handleAspectRemoved(AbstractAspect *parent, int index);
-		void handleAspectAboutToBeRemoved(AbstractAspect *aspect);
-		void handleAspectDescriptionChanged(AbstractAspect *aspect);
-		void handleCurrentAspectChanged(AbstractAspect *aspect);
 		//! Show hide mdi windows depending on the currend folder
 		void updateMdiWindowVisibility();
 		void hideAllMdiWindows();
 		void showAllMdiWindows();
 
-	private:
-		//! Add a new aspect in the current folder
-		void addNewAspect(AbstractAspect* aspect);
+	signals:
+		void partActivated(AbstractPart*);
+	
+	private slots:
+		void handleAspectAdded(AbstractAspect *parent, int index);
+		void handleAspectRemoved(AbstractAspect *parent, int index);
+		void handleAspectDescriptionChanged(AbstractAspect *aspect);
+		void handleCurrentAspectChanged(AbstractAspect *aspect);
+		void handleCurrentSubWindowChanged(QMdiSubWindow*);
 
+	private:
 		Project* d_project;
 
 		struct {
 		QToolBar 
-			*file;
+			*file,
+			*edit;
 		} d_toolbars;
 
 		struct {
@@ -104,11 +114,11 @@ class ProjectWindow : public QMainWindow
 		struct {
 		QAction 
 			*quit,
-			*undo,
-			*redo,
-			*new_table,
 			*new_folder;
 		} d_actions;
+
+		QList<QAction*> d_part_makers;
+		QSignalMapper *d_part_maker_map;
 
 		struct {
 		QToolButton 

@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : AbstractPart.cpp
     Project              : SciDAVis
+    Description          : Base class of Aspects with MDI windows as views.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email address)
 
  ***************************************************************************/
 
@@ -26,48 +26,42 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
+#include "AbstractPart.h"
+#include "PartMdiView.h"
+#include <QMenu>
+#include <QStyle>
 
-
-class AbstractAspect;
-
-//! Private data managed by AbstractAspect.
-class AspectPrivate
+PartMdiView* AbstractPart::mdiSubWindow()
 {
-	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
+	if (!d_mdi_window)
+		d_mdi_window = new PartMdiView(this, view());
+	return d_mdi_window;
+}
 
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
+QMenu* AbstractPart::createContextMenu() const
+{
+	QMenu * menu = AbstractAspect::createContextMenu();
+	Q_ASSERT(menu);
+	const QStyle *widget_style = d_mdi_window->style();
+   	
+	QAction *action_temp;
+	if(d_mdi_window->windowState() & (Qt::WindowMinimized | Qt::WindowMaximized))
+	{
+		action_temp = menu->addAction(tr("&Restore"), d_mdi_window, SLOT(showNormal()));
+		action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TitleBarNormalButton));
+	}
+	if(!(d_mdi_window->windowState() & Qt::WindowMinimized))
+	{
+		action_temp = menu->addAction(tr("Mi&nimize"), d_mdi_window, SLOT(showMinimized()));
+		action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TitleBarMinButton));
+	}
+	if(!(d_mdi_window->windowState() & Qt::WindowMaximized))
+	{
+		action_temp = menu->addAction(tr("Ma&ximize"), d_mdi_window, SLOT(showMaximized()));
+		action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TitleBarMaxButton));
+	}
 
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
+	return menu;
+}
 
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-};
-
-#endif // ifndef ASPECT_MODEL_H

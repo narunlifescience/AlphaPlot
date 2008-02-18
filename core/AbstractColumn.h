@@ -30,10 +30,8 @@
 #ifndef ABSTRACTCOLUMN_H
 #define ABSTRACTCOLUMN_H
 
-#include <QtAlgorithms>
 #include <QList>
 #include <QString>
-#include <QStringList>
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
@@ -43,6 +41,7 @@
 
 class Column;
 class AbstractSimpleFilter;
+class QStringList;
 
 //! Interface definition for data with column logic
 /**
@@ -401,7 +400,6 @@ class AbstractColumn : public AbstractAspect
 		 */
 		void aboutToBeDestroyed(AbstractColumn * source);
 
-	friend class Column;
 	friend class ColumnPrivate;
 	friend class AbstractSimpleFilter;
 	friend class SimpleMappingFilter;

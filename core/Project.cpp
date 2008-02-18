@@ -40,8 +40,6 @@ class Project::Private
 {
 	public:
 		QUndoStack undo_stack;
-		//! Applicationwide keyboard shortcuts
-		QHash<QString, QKeySequence> keyboard_shortcuts;
 
 		//! Settings global in the project
 		struct {
@@ -50,7 +48,7 @@ class Project::Private
 };
 
 Project::Project()
-	: Folder(tr("Unnamed")), d(new Private())
+	: Folder(tr("Unnamed")), d(new Private()), d_primary_view(0)
 {
 	setMdiWindowControlPolicy(Project::folderOnly);
 }
@@ -65,36 +63,19 @@ QUndoStack *Project::undoStack() const
 	return &d->undo_stack;
 }
 
-AspectView *Project::view()
+ProjectWindow *Project::view()
 {
-	return 0;
+	if (!d_primary_view)
+		d_primary_view = new ProjectWindow(this);
+	return d_primary_view;
 }
 
-ProjectWindow *Project::projectWindow(QWidget *parent)
+QMenu *Project::createContextMenu() const
 {
-	Q_UNUSED(parent);
-	return new ProjectWindow(this);
-}
-
-QKeySequence Project::queryShortcut(const QString& action_string)
-{
-	QString str = action_string.toLower();
-	// TODO: implement a customization dialog for this
-
-	d->keyboard_shortcuts.insert("undo", QKeySequence(QObject::tr("Ctrl+Z")));
-	d->keyboard_shortcuts.insert("redo", QKeySequence(QObject::tr("Ctrl+Y")));
-	
-	return d->keyboard_shortcuts.value(str, QKeySequence());
-	
-}
-
-QMenu *Project::createContextMenu(QMenu * append_to)
-{
-	QMenu * menu = append_to;
-	if(!menu)
-		menu = new QMenu();
-
+	QMenu * menu = AbstractAspect::createContextMenu();
+	Q_ASSERT(menu);
 	menu->addSeparator();
+
 	// Find
 	// ----
 	// Append Project
@@ -142,7 +123,7 @@ void Project::setMdiWindowControlPolicy(QAction * action)
 void Project::setMdiWindowControlPolicy(Project::MdiWindowControlPolicy policy)
 { 
 	d->global_settings.mdi_policy = policy; 
-	emit updateMdiWindows();
+	view()->updateMdiWindowVisibility();
 }
 		
 Project::MdiWindowControlPolicy Project::mdiWindowControlPolicy() const 

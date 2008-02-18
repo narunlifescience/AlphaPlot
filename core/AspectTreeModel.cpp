@@ -28,7 +28,6 @@
  *                                                                         *
  ***************************************************************************/
 #include "AspectTreeModel.h"
-#include "AspectView.h"
 #include <QDateTime>
 #include <QIcon>
 #include <QMenu>
@@ -119,12 +118,7 @@ QVariant AspectTreeModel::data(const QModelIndex &index, int role) const
 		case Qt::DecorationRole:
 			return index.column() == 0 ? aspect->icon() : QIcon();
 		case ContextMenuRole:
-			{
-				QMenu *menu = new QMenu();
-				if(aspect->view()) aspect->view()->createContextMenu(menu);
-				aspect->createContextMenu(menu);
-				return QVariant::fromValue(static_cast<QWidget *>(menu));
-			}
+			return QVariant::fromValue(static_cast<QWidget*>(aspect->createContextMenu()));
 		default:
 			return QVariant();
 	}

@@ -31,18 +31,18 @@
 #ifndef TABLE_H
 #define TABLE_H
 
+#include "AbstractPart.h"
 #include "AbstractScriptingEngine.h"
-#include "Column.h"
-#include "AbstractAspect.h"
-#include <QObject>
-#include <QModelIndex>
-#include <QPoint>
+#include "globals.h"
 #include <QList>
-#include <QIcon>
 
 class TableView;
 class QUndoStack;
 class QMenu;
+class Column;
+class QPoint;
+class QAction;
+class AbstractColumn;
 
 /*!\brief Aspect providing a spreadsheet table with column logic.
  *
@@ -66,7 +66,7 @@ of the user interaction are handled by actions provides by Table, e.g., via a co
 
 Selections are handled by TableView and can be queried by Table.
 */
-class Table: public AbstractAspect// TODO:, public scripted
+class Table: public AbstractPart // TODO:, public scripted
 {
 	Q_OBJECT
 
@@ -88,7 +88,7 @@ class Table: public AbstractAspect// TODO:, public scripted
 		 * it instead of the creation of a new menu.
 		 * Otherwise the caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu(QMenu * append_to = 0);
+		virtual QMenu *createContextMenu();
 		//! Construct a standard view on me.
 		/**
 		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
@@ -97,7 +97,7 @@ class Table: public AbstractAspect// TODO:, public scripted
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
-		virtual AspectView *view();
+		virtual QWidget *view();
 		//@}
 		
 		//! Insert columns
@@ -289,8 +289,6 @@ class Table: public AbstractAspect// TODO:, public scripted
 
 	private:
 		void createActions();
-		//! Internal helper function
-		void addUndoToMenu(QMenu * menu);
 		QMenu * d_plot_menu;
 		static bool d_default_comment_visibility;
 

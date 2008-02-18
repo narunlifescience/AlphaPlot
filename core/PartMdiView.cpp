@@ -1,10 +1,12 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : PartMdiView.cpp
     Project              : SciDAVis
+    Description          : MDI sub window to be wrapped around views of
+                           AbstractPart.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -26,48 +28,55 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
+#include "PartMdiView.h"
+#include "AbstractPart.h"
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
+#include <QCloseEvent>
+#include <QMenu>
 
-
-class AbstractAspect;
-
-//! Private data managed by AbstractAspect.
-class AspectPrivate
+PartMdiView::PartMdiView(AbstractPart *part, QWidget * embedded_view)
+	: QMdiSubWindow(0), d_part(part), d_closing(false)
 {
-	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
+	setWindowIcon(d_part->icon());
+	handleAspectDescriptionChanged(d_part);
+	connect(d_part, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+		this, SLOT(handleAspectDescriptionChanged(AbstractAspect *)));
+	connect(d_part, SIGNAL(aspectAboutToBeRemoved(AbstractAspect*)),
+			this, SLOT(handleAspectAboutToBeRemoved(AbstractAspect*)));
+	setWidget(embedded_view);
+}
 
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
+void PartMdiView::contextMenuEvent(QContextMenuEvent *event)
+{
+	QMenu *menu = d_part->createContextMenu();
+	menu->exec(event->globalPos());
+	delete menu;
+}
 
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
+PartMdiView::~PartMdiView()
+{
+}
 
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-};
+void PartMdiView::handleAspectDescriptionChanged(AbstractAspect *aspect)
+{
+	if (aspect != d_part) return;
+	setWindowTitle(d_part->caption());
+	update();
+}
 
-#endif // ifndef ASPECT_MODEL_H
+void PartMdiView::handleAspectAboutToBeRemoved(AbstractAspect *aspect)
+{
+	if (aspect != d_part) return;
+	d_closing = true;
+	close();
+}
+
+void PartMdiView::closeEvent(QCloseEvent *event)
+{
+	if (!d_closing) {
+		d_closing = true;
+		d_part->remove();
+		event->accept();
+	}
+	d_closing = false;
+}

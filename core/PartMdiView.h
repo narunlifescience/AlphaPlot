@@ -1,11 +1,11 @@
 /***************************************************************************
-    File                 : AspectView.h
+    File                 : PartMdiView.h
     Project              : SciDAVis
-    Description          : MDI sub window that implements functions common
-                           to all aspect views
+    Description          : MDI sub window to be wrapped around views of
+                           AbstractPart.
     --------------------------------------------------------------------
     Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2007,2008 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 
  ***************************************************************************/
@@ -32,7 +32,9 @@
 #define ASPECT_VIEW_H
 
 #include <QMdiSubWindow>
-#include "AbstractAspect.h"
+
+class AbstractAspect;
+class AbstractPart;
 
 //! MDI sub window that implements functions common to all aspect views
 /**
@@ -43,28 +45,22 @@
  * is closed (the user is asked then whether he wants to hide the window
  * or remove the aspect). It also provides access to the aspect's context menu.
  */
-class AspectView : public QMdiSubWindow
+class PartMdiView : public QMdiSubWindow
 {
 	Q_OBJECT
 
 	public:
 		//! Construct a view owned by the given aspect
-		AspectView(AbstractAspect * aspect);
-		virtual ~AspectView();
+		PartMdiView(AbstractPart * part, QWidget * embedded_view);
+		virtual ~PartMdiView();
 
-		//! Returns the aspect that owns the view
-		AbstractAspect *aspect() const { return d_aspect; }
+		//! Returns the part that owns the view
+		AbstractPart *part() const { return d_part; }
 
-		//! Create a context menu for the view
-		/**
-		 * In the standard implementation this creates
-		 * actions for restore, maximize, minimize and close.
-		 */
-		virtual QMenu *createContextMenu(QMenu *append_to);
-
-	public slots:
+	private slots:
 		//! Keep my window title in sync with AbstractAspect::caption().
 		void handleAspectDescriptionChanged(AbstractAspect *aspect);
+		void handleAspectAboutToBeRemoved(AbstractAspect *aspect);
 
 	protected:
 		//! When I'm being closed, remove my Aspect from its parent.
@@ -79,12 +75,12 @@ class AspectView : public QMdiSubWindow
 
 	private:
 		//! The aspect that owns the view
-		AbstractAspect *d_aspect;
+		AbstractPart *d_part;
 		//! Whether I'm just being closed.
 		/**
 		 * Depending on whether an Aspect is removed programatically or by closing its
 		 * default view (held by me), either aspectAboutToBeRemoved() generates a close
-		 * event for me or closeEvent() removes #d_aspect from its parent. Before one causes
+		 * event for me or closeEvent() removes #d_part from its parent. Before one causes
 		 * the other to be called, #d_closing is set to true so as to avoid infinite
 		 * recursion.
 		 */

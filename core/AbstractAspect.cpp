@@ -106,6 +106,15 @@ int AbstractAspect::indexOfChild(const AbstractAspect *child) const
 	return d_aspect_private->indexOfChild(child);
 }
 
+void AbstractAspect::moveChild(int from, int to)
+{
+	Q_ASSERT(from >= 0);
+	Q_ASSERT(to >= 0);
+	Q_ASSERT(d_aspect_private->childCount() > from);
+	Q_ASSERT(d_aspect_private->childCount() > to);
+	exec(new AspectChildMoveCmd(d_aspect_private, from, to));
+}
+
 void AbstractAspect::exec(QUndoCommand *cmd)
 {
 	QUndoStack *stack = undoStack();
@@ -185,22 +194,45 @@ QIcon AbstractAspect::icon() const
 	return QIcon();
 }
 
-QMenu *AbstractAspect::createContextMenu(QMenu * append_to)
+QAction *AbstractAspect::undoAction(QObject *parent) const
 {
-	QMenu * menu = append_to;
-	if(!menu)
-		menu = new QMenu();
+	if (!undoStack()) return 0;
+	QAction *result = undoStack()->createUndoAction(parent);
+	result->setIcon(QIcon(QPixmap(":/undo.xpm")));
+	// TODO: make this customizable via preferences dialog.
+	// Maybe use a singleton settings manager for stuff that applies to the application rather than
+	// a specific project.
+	result->setShortcut(tr("Ctrl+Z"));
+	return result;
+}
+
+QAction *AbstractAspect::redoAction(QObject *parent) const
+{
+	if (!undoStack()) return 0;
+	QAction *result = undoStack()->createRedoAction(parent);
+	result->setIcon(QIcon(QPixmap(":/redo.xpm")));
+	result->setShortcut(tr("Ctrl+Y"));
+	return result;
+}
+
+QMenu *AbstractAspect::createContextMenu() const
+{
+	QMenu * menu = new QMenu();
     
 	const QStyle *widget_style = qApp->style();
 	QAction *action_temp;
 
-	menu->addSeparator();
-	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
-	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), this, SLOT(remove()), QObject::tr("Ctrl+W"));
-   	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
+	menu->addAction(undoAction(menu));
+	menu->addAction(redoAction(menu));
 
 	menu->addSeparator();
-	menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
+
+	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
+	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), this, SLOT(remove()), QObject::tr("Ctrl+W"));
+	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
+
+	//TODO: Is there any need for this? It just displays the same info as the project explorer.
+	//menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
 
 	return menu;
 }

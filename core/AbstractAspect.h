@@ -44,6 +44,7 @@ class Folder;
 class AspectView;
 class QXmlStreamReader;
 class QXmlStreamWriter;
+class QAction;
 
 //! Base class of all persistent objects in a Project.
 /**
@@ -70,9 +71,6 @@ class QXmlStreamWriter;
  * The private data of AbstractAspect is contained in a separate class AbstractAspectPrivate. 
  * The write access to AbstractAspectPrivate should always be done using aspect commands
  * to allow undo/redo.
- *
- * The children of an aspect are addressed by smart pointers (shared_ptr) which take
- * care of deleting the children when necessary. 
  */
 class AbstractAspect : public QObject
 {
@@ -83,17 +81,17 @@ class AbstractAspect : public QObject
 		virtual ~AbstractAspect();
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
-		virtual AbstractAspect * parentAspect() const { return d_parent_aspect; }
+		AbstractAspect * parentAspect() const { return d_parent_aspect; }
 		//! Return the folder the Aspect is contained in or 0 if not.
 		/**
 		 * The returned folder may be the aspect itself if it inherits Folder.
 		*/
-		virtual Folder * folder();
+		Folder * folder();
 		//! Return whether the there is a path upwards to the given aspect
 		/**
 		 * This also returns true if other==this.
 		 */
-		virtual bool isDescendantOf(AbstractAspect *other);
+		bool isDescendantOf(AbstractAspect *other);
 
 
 		// TODO: add unique name checking
@@ -111,15 +109,11 @@ class AbstractAspect : public QObject
 		int indexOfChild(const AbstractAspect * child) const;
 		//! Return my position in my parent's list of children.
 		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
+		//! Change the positon of a child in my list of children.
+		void moveChild(int from, int to);
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
 		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
-		//! Execute the given command, pushing it on the undoStack() if available.
-		void exec(QUndoCommand *command);
-		//! Begin an undo stack macro (series of commands)
-		void beginMacro(const QString& text);
-		//! End the undo stack macro
-		void endMacro();
 		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
 		virtual QString path() const { return parentAspect() ? parentAspect()->path() + "/" + name() : "";  }
 
@@ -132,16 +126,7 @@ class AbstractAspect : public QObject
 		 * it instead of the creation of a new menu.
 		 * Otherwise the caller takes ownership of the menu.
 		 */
-		virtual QMenu *createContextMenu(QMenu * append_to = 0);
-		//! Construct a standard view on me.
-		/**
-		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
-		 * ownership. If no parent is given, the caller receives ownership of the view.
-		 * 
-		 * This method may be called multiple times during the life time of an Aspect, or it might not get
-		 * called at all. Aspects must not depend on the existence of a view for their operation.
-		 */
-		virtual AspectView *view() = 0;
+		virtual QMenu *createContextMenu() const;
 
 		QString name() const;
 		QString comment() const;
@@ -153,15 +138,43 @@ class AbstractAspect : public QObject
 		QDateTime creationTime() const;
 		QString caption() const;
 
+		//! \name undo related
+		//@{
 		//! Return the undo stack of the Project, or 0 if this Aspect is not part of a Project.
+		/**
+		 * It's also possible to construct undo-enabled Aspect trees without Project.
+		 * The only requirement is that the root Aspect reimplements undoStack() to get the
+		 * undo stack from somewhere (the default implementation just delegates to parentAspect()).
+		 */
 		virtual QUndoStack *undoStack() const { return parentAspect() ? parentAspect()->undoStack() : 0; }
+		//! Execute the given command, pushing it on the undoStack() if available.
+		void exec(QUndoCommand *command);
+		//! Begin an undo stack macro (series of commands)
+		void beginMacro(const QString& text);
+		//! End the undo stack macro
+		void endMacro();
+		//! Produce an undo action owned by the specified parent.
+		/**
+		 * This undo action is already included in AbstractAspect's context menu (see createContextMenu()).
+		 * The point of this method is to allow the same action (with consistent shortcut, icon etc.)
+		 * to be included in other places, like context menus for parts of views.
+		 *
+		 * \sa redoAction()
+		 */
+		QAction *undoAction(QObject *parent) const;
+		//! Produce a redo action owned by the specified parent.
+		/**
+		 * See undoAction() for details.
+		 */
+		QAction *redoAction(QObject *parent) const;
+		//@}
 
-		//! \name XML related functions
+		//! \name serialize/deserialize
 		//@{
 		//! Save as XML
-		virtual void save(QXmlStreamWriter *) const {}; //= 0;
+		virtual void save(QXmlStreamWriter *) const {};
 		//! Load from XML
-		virtual bool load(QXmlStreamReader *) { return false; }; //= 0;
+		virtual bool load(QXmlStreamReader *) { return false; };
 		//@}
 
 	public slots:
@@ -181,13 +194,6 @@ class AbstractAspect : public QObject
 		 * The default caption specification is "%n%C{ - }%c".
 		 */
 		void setCaptionSpec(const QString &value);
-		//! Set the creation time
-		/**
-		 * The creation time will automatically be set when the aspect object
-		 * is created. This function is usually only needed when the aspect
-		 * is loaded from a file.
-		 */
-		void setCreationTime(const QDateTime& time);
 		//! Remove me from my parent's list of children.
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 		//! Show info about the aspect
@@ -211,6 +217,15 @@ class AbstractAspect : public QObject
 		//! Emit this from the parent after removing a child
 		void aspectRemoved(AbstractAspect *parent, int index);
 
+	protected:
+		//! Set the creation time
+		/**
+		 * The creation time will automatically be set when the aspect object
+		 * is created. This function is usually only needed when the aspect
+		 * is loaded from a file.
+		 */
+		void setCreationTime(const QDateTime& time);
+
 	private:
 		//! Set #d_parent_aspect, handling signal connections (but not undo/redo).
 		void setParentAspect(AbstractAspect * new_parent);
@@ -224,6 +239,7 @@ class AbstractAspect : public QObject
 		friend class AspectCaptionSpecChangeCmd;
 		friend class AspectChildRemoveCmd;
 		friend class AspectChildAddCmd;
+		friend class AspectChildMoveCmd;
 };
 
 #endif // ifndef ABSTRACT_ASPECT_H

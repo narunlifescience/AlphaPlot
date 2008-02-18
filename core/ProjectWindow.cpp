@@ -32,10 +32,11 @@
 
 #include "Project.h"
 #include "AspectTreeModel.h"
-#include "AspectView.h"
+#include "AbstractPart.h"
+#include "PartMdiView.h"
 #include "ProjectExplorer.h"
+#include "interfaces.h"
 
-#include <QAction>
 #include <QMenuBar>
 #include <QMenu>
 #include <QMdiArea>
@@ -45,42 +46,8 @@
 #include <QUndoStack>
 #include <QUndoView>
 #include <QToolButton>
-#include <QtDebug>
-
-
-
-
-
-
-#include "Table.h"
-#include "TableView.h"
-#include "TableModel.h"
-#include "TableItemDelegate.h"
-#include "tablecommands.h"
-#include "TableDoubleHeaderView.h"
-
-#include "Column.h"
-#include "core/AbstractFilter.h"
-#include "core/datatypes/SimpleCopyThroughFilter.h"
-#include "core/datatypes/Double2StringFilter.h"
-#include "core/datatypes/String2DoubleFilter.h"
-#include "core/datatypes/DateTime2StringFilter.h"
-#include "core/datatypes/String2DateTimeFilter.h"
-
-#include <QKeyEvent>
-#include <QtDebug>
-#include <QHeaderView>
-#include <QRect>
-#include <QSize>
-#include <QFontMetrics>
-#include <QFont>
-#include <QItemSelectionModel>
-#include <QItemSelection>
-#include <QShortcut>
-#include <QModelIndex>
-#include <QGridLayout>
-#include <QScrollArea>
-
+#include <QPluginLoader>
+#include <QSignalMapper>
 
 ProjectWindow::ProjectWindow(Project* project)
 	: d_project(project)
@@ -95,6 +62,8 @@ void ProjectWindow::init()
 
 	d_mdi_area = new QMdiArea();
 	setCentralWidget(d_mdi_area);
+	connect(d_mdi_area, SIGNAL(subWindowActivated(QMdiSubWindow*)),
+			this, SLOT(handleCurrentSubWindowChanged(QMdiSubWindow*)));
 	d_current_aspect = d_project;
 	d_current_folder = d_project;
 
@@ -111,11 +80,6 @@ void ProjectWindow::init()
 		this, SLOT(handleAspectAdded(AbstractAspect *, int)));
 	connect(d_project, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(AbstractAspect *, int)));
-	connect(d_project, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
-		this, SLOT(handleAspectAboutToBeRemoved(AbstractAspect *)));
-	connect(d_project, SIGNAL(updateMdiWindows()), this, SLOT(updateMdiWindowVisibility()));
-	connect(d_project, SIGNAL(hideAllMdiWindows()), this, SLOT(hideAllMdiWindows()));
-	connect(d_project, SIGNAL(showAllMdiWindows()), this, SLOT(showAllMdiWindows()));
 
 	handleAspectDescriptionChanged(d_project);
 }
@@ -133,11 +97,12 @@ void ProjectWindow::handleAspectDescriptionChanged(AbstractAspect *aspect)
 
 void ProjectWindow::handleAspectAdded(AbstractAspect *parent, int index)
 {
-	AbstractAspect *aspect = parent->child(index);
-	AspectView *view = aspect->view();
-	if (!view) return;
-	d_mdi_area->addSubWindow(view);
-	view->show();
+	AbstractPart *part = qobject_cast<AbstractPart*>(parent->child(index));
+	if (!part) return;
+	QMdiSubWindow *win = part->mdiSubWindow();
+	Q_ASSERT(win);
+	d_mdi_area->addSubWindow(win);
+	win->show();
 	updateMdiWindowVisibility();
 }
 
@@ -145,17 +110,6 @@ void ProjectWindow::handleAspectRemoved(AbstractAspect *parent, int index)
 {
 	Q_UNUSED(index);
 	d_project_explorer->setCurrentAspect(parent);
-}
-
-void ProjectWindow::handleAspectAboutToBeRemoved(AbstractAspect *aspect)
-{
-	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
-	foreach(QMdiSubWindow *window, windows)
-	{
-		AspectView *aspect_view = static_cast<AspectView *>(window);
-		if(aspect_view->aspect() == aspect)
-			d_mdi_area->removeSubWindow(aspect_view);
-	}
 }
 
 void ProjectWindow::initDockWidgets()
@@ -186,36 +140,36 @@ void ProjectWindow::initActions()
 	d_actions.quit->setShortcut(tr("Ctrl+Q"));
 	connect(d_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
 		
-	d_actions.new_table = new QAction(tr("New &Table"), this);
-	d_actions.new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
-//	d_actions.new_table->setShortcut(d_project->queryShortcut("new table"));
-	connect(d_actions.new_table, SIGNAL(triggered(bool)), this, SLOT(addNewTable()));
-
 	d_actions.new_folder = new QAction(tr("New F&older"), this);
 	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
 	connect(d_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
 
-	d_actions.undo = d_project->undoStack()->createUndoAction(this);
-	d_actions.undo->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	d_actions.undo->setShortcut(d_project->queryShortcut("undo"));
-
-	d_actions.redo = d_project->undoStack()->createRedoAction(this);
-	d_actions.redo->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	d_actions.redo->setShortcut(d_project->queryShortcut("redo"));
+	d_part_maker_map = new QSignalMapper(this);
+	connect(d_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
+	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
+		PartMaker *maker = qobject_cast<PartMaker*>(plugin);
+		if (maker) {
+			QAction *make = maker->makeAction(this);
+			connect(make, SIGNAL(triggered()), d_part_maker_map, SLOT(map()));
+			d_part_maker_map->setMapping(make, plugin);
+			d_part_makers << make;
+		}
+	}
 }
 
 void ProjectWindow::initMenus()
 {
 	d_menus.file = menuBar()->addMenu(tr("&File"));
 	d_menus.new_aspect = d_menus.file->addMenu(tr("&New"));
-	d_menus.new_aspect->addAction(d_actions.new_table);
 	d_menus.new_aspect->addAction(d_actions.new_folder);
+	foreach(QAction *a, d_part_makers)
+		d_menus.new_aspect->addAction(a);
 
 	d_menus.file->addAction(d_actions.quit);
 
 	d_menus.edit = menuBar()->addMenu(tr("&Edit"));
-	d_menus.edit->addAction(d_actions.undo);
-	d_menus.edit->addAction(d_actions.redo);
+	d_menus.edit->addAction(d_project->undoAction(d_menus.edit));
+	d_menus.edit->addAction(d_project->redoAction(d_menus.edit));
 	d_menus.edit->addSeparator();
 
 	d_menus.view = menuBar()->addMenu(tr("&View"));
@@ -231,6 +185,12 @@ void ProjectWindow::initMenus()
 	d_menus.view->addMenu(d_menus.toolbars);
 	d_menus.view->addMenu(d_menus.dockwidgets);
 	d_menus.view->addSeparator();
+
+	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
+		ProjectMenuMaker *maker = qobject_cast<ProjectMenuMaker*>(plugin);
+		if(maker)
+			menuBar()->addMenu(maker->makeProjectMenu(this));
+	}
 }
 
 void ProjectWindow::initToolBars()
@@ -244,11 +204,13 @@ void ProjectWindow::initToolBars()
 	d_buttons.new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
 	d_buttons.new_aspect->setToolTip(tr("New Aspect"));
 	d_toolbars.file->addWidget(d_buttons.new_aspect);
-}
 
-void ProjectWindow::addNewTable()
-{
-	addNewAspect(new Table(0, 20, 2, "Table1"));
+	d_toolbars.edit = new QToolBar( tr("Edit"), this);
+	d_toolbars.edit->setObjectName("edit_toolbar");
+	addToolBar(Qt::TopToolBarArea, d_toolbars.edit);
+
+	d_toolbars.edit->addAction(d_project->undoAction(d_toolbars.edit));
+	d_toolbars.edit->addAction(d_project->redoAction(d_toolbars.edit));
 }
 
 void ProjectWindow::addNewFolder()
@@ -288,8 +250,14 @@ QMenu * ProjectWindow::createDockWidgetsMenu()
     return menu;
 }
 
-void ProjectWindow::addNewAspect(AbstractAspect* aspect)
+void ProjectWindow::addNewAspect(QObject* obj)
 {
+	AbstractAspect *aspect = qobject_cast<AbstractAspect*>(obj);
+	if (!aspect) {
+		PartMaker *maker = qobject_cast<PartMaker*>(obj);
+		if (!maker) return;
+		aspect = maker->makePart();
+	}
 	QModelIndex index = d_project_explorer->currentIndex();
 
 	if(!index.isValid()) 
@@ -312,38 +280,42 @@ void ProjectWindow::handleCurrentAspectChanged(AbstractAspect *aspect)
 	}
 	if(aspect != d_current_aspect)
 	{
-		QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
-		foreach(QMdiSubWindow *window, windows)
-		{
-			AspectView * aspect_view = static_cast<AspectView *>(window);
-			if(aspect_view->aspect() == aspect)
-				d_mdi_area->setActiveSubWindow(aspect_view);
-		}
+		AbstractPart * part = qobject_cast<AbstractPart*>(aspect);
+		if (part)
+			d_mdi_area->setActiveSubWindow(part->mdiSubWindow());
 	}
 	d_current_aspect = aspect;
+}
+
+void ProjectWindow::handleCurrentSubWindowChanged(QMdiSubWindow* win) {
+	PartMdiView *view = qobject_cast<PartMdiView*>(win);
+	if (!view) return;
+	emit partActivated(view->part());
 }
 
 void ProjectWindow::updateMdiWindowVisibility()
 {
 	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
-	if(d_project->mdiWindowControlPolicy() == Project::folderOnly)
-		foreach(QMdiSubWindow *window, windows)
-		{
-			AspectView * aspect_view = static_cast<AspectView *>(window);
-			if(aspect_view->aspect()->folder() == d_current_folder)
-				aspect_view->show();
-			else
-				aspect_view->hide();
-		}
-	else if(d_project->mdiWindowControlPolicy() == Project::folderAndSubfolders)
-		foreach(QMdiSubWindow *window, windows)
-		{
-			AspectView * aspect_view = static_cast<AspectView *>(window);
-			if(aspect_view->aspect()->isDescendantOf(d_current_folder))
-				aspect_view->show();
-			else
-				aspect_view->hide();
-		}
+	PartMdiView * part_view;
+	switch(d_project->mdiWindowControlPolicy()) {
+		case Project::folderOnly:
+			foreach(QMdiSubWindow *window, windows) {
+				part_view = qobject_cast<PartMdiView *>(window);
+				Q_ASSERT(part_view);
+				if(part_view->part()->folder() == d_current_folder)
+					part_view->show();
+				else
+					part_view->hide();
+			}
+		case Project::folderAndSubfolders:
+			foreach(QMdiSubWindow *window, windows) {
+				part_view = qobject_cast<PartMdiView *>(window);
+				if(part_view->part()->isDescendantOf(d_current_folder))
+					part_view->show();
+				else
+					part_view->hide();
+			}
+	}
 }
 
 void ProjectWindow::hideAllMdiWindows()

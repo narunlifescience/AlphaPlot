@@ -2,7 +2,7 @@
     File                 : AbstractFit.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke
+    Copyright            : (C) 2007,2008 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
     Description          : Base class for doing fits using the algorithms
                            provided by GSL.
@@ -32,6 +32,11 @@
 
 #include "AbstractFilter.h"
 
+class gsl_vector;
+class gsl_matrix;
+
+class FitSetAlgorithmCmd;
+
 /**
  * \brief Base class for doing fits using the algorithms provided by GSL.
  *
@@ -55,12 +60,25 @@ class AbstractFit : public AbstractFilter
 	public:
 		enum Algorithm { ScaledLevenbergMarquardt, UnscaledLevenbergMarquardt, NelderMeadSimplex };
 		//! Possible sources for weighting data.
-		enum  {
-			NoWeighting, //!< Use 1.0 as weight for all points (?!)
-			Instrumental, //!< Use data source of error bars for weighting.
-			Statistical, //!< Assume data follows Poisson distribution (weight with sqrt(N)).
-			Dataset //!< Use weighting data from a user-specified data source.
+		enum Weighting {
+			NoWeighting, //!< Use 1.0 as weight for all points (=> cannot produce sensible error estimates)
+			Poisson,     //!< Assume data follows Poisson distribution (weight with sqrt(N)).
+			Dataset      //!< Use weighting data from a user-specified data source.
 		};
+		static QString nameOf(Algorithm algo) {
+			switch(algo) {
+				case ScaledLevenbergMarquardt: return tr("scaled Levenberg-Marquardt");
+				case UnscaledLevenbergMarquardt: return tr("unscaled Levenberg-Marquardt");
+				case NelderMeadSimplex: return tr("Nelder-Mead / simplex");
+			}
+		};
+		static QString nameOf(Weighting weighting) {
+			switch(weighting) {
+				case NoWeighting: return tr("no weighting");
+				case Poisson: return tr("Poisson / sqrt(N)");
+				case Dataset: return tr("user-supplied");
+			}
+		}
 		AbstractFit() : d_algorithm(ScaledLevenbergMarquardt), d_tolerance(1e-8), d_maxiter(1000), d_auto_refit(false), d_outdated(true) {}
 		virtual ~AbstractFit() {}
 		bool isOutdated() const { return d_outdated; }
@@ -78,6 +96,7 @@ class AbstractFit : public AbstractFilter
 	public:
 		virtual int inputCount() const { return 2; }
 		virtual QString inputName(int port) const { return port==0 ? "X" : "Y"; }
+		virtual int outputCount() const { return 3; }
 	protected:
 		virtual void dataChanged(AbstractDataSource*) {
 		}
@@ -103,6 +122,8 @@ class AbstractFit : public AbstractFilter
 		bool d_auto_refit;
 		//! If #d_auto_refit is false, this is true when the input data has changed since the last fit.
 		bool d_outdated;
+
+	friend class FitSetAlgorithmCmd;
 };
 
 #endif // ifndef ABSTRACT_FIT_H

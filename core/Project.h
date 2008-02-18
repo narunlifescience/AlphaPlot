@@ -32,11 +32,9 @@
 
 #include "Folder.h"
 
-#include <QHash>
-#include <QKeySequence>
-#include <QAction>
 class QString;
 class ProjectWindow;
+class QAction;
 
 //! Represents a SciDAVis project.
 /**
@@ -55,11 +53,6 @@ class Project : public Folder
 			manual
 		};
 
-	signals:
-		void updateMdiWindows();
-		void showAllMdiWindows();
-		void hideAllMdiWindows();
-
 	public:
 		Project();
 		~Project();
@@ -68,16 +61,10 @@ class Project : public Folder
 		virtual QUndoStack *undoStack() const;
 		virtual QString path() const { return name(); }
 		virtual AbstractAspect *parentAspect() const { return 0; }
-		//! Query a keyboard shortcut for a given action
-		/*
-		 * This is used for application wide keyboard shortcuts.
-		 */
-		virtual QKeySequence queryShortcut(const QString& action_string);
 
-		virtual AspectView *view();
-		virtual ProjectWindow *projectWindow(QWidget *parent = 0);
+		virtual ProjectWindow *view();
 
-		virtual QMenu *createContextMenu(QMenu * append_to = 0);
+		virtual QMenu *createContextMenu() const;
 
 		void setMdiWindowControlPolicy(Project::MdiWindowControlPolicy policy);
 		Project::MdiWindowControlPolicy mdiWindowControlPolicy() const;
@@ -88,6 +75,7 @@ class Project : public Folder
 	private:
 		class Private;
 		Private *d;
+		ProjectWindow *d_primary_view;
 };
 
 #endif // ifndef PROJECT_H

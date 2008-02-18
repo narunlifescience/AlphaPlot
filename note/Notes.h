@@ -1,17 +1,17 @@
 #ifndef NOTES_H
 #define NOTES_H
 
-#include "AbstractAspect.h"
+#include "AbstractPart.h"
 
 class QTextDocument;
 
-class Notes : public AbstractAspect
+class Notes : public AbstractPart
 {
 	Q_OBJECT
 
 	public:
 		Notes(const QString &name);
-		AspectView *view(QWidget *parent_widget=0);
+		QWidget *view();
 		QIcon icon() const;
 
 	private:

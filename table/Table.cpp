@@ -75,7 +75,7 @@
 bool Table::d_default_comment_visibility = false;
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractAspect(name), d_plot_menu(0) // TODO:, scripted(engine)
+: AbstractPart(name), d_plot_menu(0) // TODO:, scripted(engine)
 {
 	d_private_object = new Private(this);
 
@@ -100,7 +100,7 @@ Column * Table::column(int index) const
 	return d_private_object->column(index); 
 }
 
-AspectView *Table::view()
+QWidget *Table::view()
 {
 	return d_view;
 }
@@ -757,27 +757,23 @@ void Table::clearSelectedCells()
 	RESET_CURSOR;
 }
 
-QMenu *Table::createContextMenu(QMenu * append_to)
+QMenu *Table::createContextMenu()
 {
-
-	QMenu *menu = append_to;
-	if(!menu)
-		menu = new QMenu();
+	QMenu *menu = AbstractPart::createContextMenu();
+	Q_ASSERT(menu);
+	menu->addSeparator();
 	
 	new QAction(tr("E&xport to ASCII"), menu);
 	// TODO menu->addAction( ....
 
 	// Export to ASCII
-	// Print
+	// Print --> maybe should go to AbstractPart::createContextMenu()
 	// ----
-	// Rename
-	// Duplicate
-	// Hide/Show
+	// Rename --> AbstractAspect::createContextMenu(); maybe call this "Properties" and include changing comment/caption spec
+	// Duplicate --> AbstractPart::createContextMenu()
+	// Hide/Show --> Do we need hiding of views (in addition to minimizing)? How do we avoid confusion with hiding of Aspects?
 	// Activate ?
-	// Resize
-	// Close
-	// ----
-	// Properties
+	// Resize --> AbstractPart::createContextMenu()
 	
 	return menu;
 }
@@ -1002,31 +998,12 @@ void Table::createActions()
 	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
 }
 
-void Table::addUndoToMenu(QMenu * menu)
-{
-	QAction * temp_action;
-	if(undoStack())
-	{
-		temp_action = undoStack()->createUndoAction(menu);
-		temp_action->setIcon(QIcon(QPixmap(":/undo.xpm")));
-		if(project())
-			temp_action->setShortcut(project()->queryShortcut("undo"));
-		menu->addAction(temp_action);
-		temp_action = undoStack()->createRedoAction(menu);
-		temp_action->setIcon(QIcon(QPixmap(":/redo.xpm")));
-		if(project())
-			temp_action->setShortcut(project()->queryShortcut("redo"));
-		menu->addAction(temp_action);
-		menu->addSeparator();
-	}
-
-}
-
 void Table::showTableViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	addUndoToMenu(&context_menu);
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
 
 	createSelectionMenu(&context_menu);
 	context_menu.addSeparator();
@@ -1053,7 +1030,8 @@ void Table::showTableViewColumnContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	addUndoToMenu(&context_menu);
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
 
 	if(d_plot_menu)
 	{
@@ -1071,7 +1049,8 @@ void Table::showTableViewRowContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	addUndoToMenu(&context_menu);
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
 
 	createRowMenu(&context_menu);
 
@@ -1205,7 +1184,10 @@ void Table::goToCell()
 
 void Table::moveColumn(int from, int to)
 {
+	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_private_object->column(from)->columnLabel()).arg(from+1).arg(to+1));
+	moveChild(from, to);
 	exec(new TableMoveColumnCmd(d_private_object, from, to));	
+	endMacro();
 }
 
 void Table::copy(Table * other)

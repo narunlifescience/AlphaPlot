@@ -59,7 +59,7 @@
 #include <QMenu>
 
 TableView::TableView(Table *table)
- : AspectView(static_cast<AbstractAspect *>(table)), d_table(table) 
+ : d_table(table) 
 {
 	d_model = new TableModel(table);
 	init();
@@ -72,12 +72,11 @@ TableView::~TableView()
 
 void TableView::init()
 {
-	d_main_widget = new QWidget();
-	d_main_layout = new QVBoxLayout(d_main_widget);
+	d_main_layout = new QVBoxLayout(this);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
 	
-	d_view_widget = new TableViewWidget(d_main_widget);
+	d_view_widget = new TableViewWidget(this);
 	d_view_widget->setModel(d_model);
 	connect(d_view_widget, SIGNAL(advanceCell()), this, SLOT(advanceCell()));
 	d_main_layout->addWidget(d_view_widget);
@@ -112,8 +111,7 @@ void TableView::init()
 	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	d_main_layout->setStretchFactor(d_view_widget, 1);
 
-	d_main_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	setWidget(d_main_widget);
+	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 
 	d_view_widget->setFocusPolicy(Qt::StrongFocus);
 	setFocusPolicy(Qt::StrongFocus);
@@ -163,7 +161,7 @@ void TableView::changeEvent(QEvent * event)
 {
 	if (event->type() == QEvent::LanguageChange) 
 		retranslateStrings();
-	AspectView::changeEvent(event);	
+	QWidget::changeEvent(event);	
 }
 
 void TableView::retranslateStrings()
@@ -206,12 +204,12 @@ void TableView::contextMenuEvent(QContextMenuEvent *event)
 	// does not work properly yet due to this reason. I hope this problem
 	// goes away once QMdiWindow is not a part of TableView anymore. - thzs
 
-/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, d_view_widget->geometry()));
-	hh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));*/
-/*	view_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, d_view_widget->geometry()));
-	hh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(d_main_widget, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));
+/*	view_rect = mapToParent(this, mapToParent(d_view_widget, d_view_widget->geometry()));
+	hh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));*/
+/*	view_rect = mapToParent(this, mapToParent(d_view_widget, d_view_widget->geometry()));
+	hh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
+	vh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));
 */
 /*	view_rect = mapToGlobal(d_view_widget, d_view_widget->geometry());
 	hh_rect = mapToGlobal(d_horizontal_header, d_horizontal_header->geometry());
@@ -234,7 +232,7 @@ void TableView::contextMenuEvent(QContextMenuEvent *event)
 		event->accept();
 	}
 	else
-		AspectView::contextMenuEvent(event);
+		QWidget::contextMenuEvent(event);
 }
 		
 QRect TableView::mapToGlobal(QWidget *widget, const QRect& rect)
@@ -530,6 +528,8 @@ void TableView::applyType()
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 		case SciDAVis::DateTime:
+		case SciDAVis::Date:
+		case SciDAVis::Time:
 			foreach(Column* col, list)
 			{
 				col->setColumnMode(mode);

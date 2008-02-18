@@ -49,7 +49,6 @@
 #include <QScrollArea>
 #include "ui_optionstabs.h"
 #include <QtDebug>
-#include "AspectView.h"
 #include "globals.h"
 #include "Column.h"
 
@@ -82,7 +81,7 @@ class TableViewWidget : public QTableView
 };
 
 //! View class for Table
-class TableView : public AspectView
+class TableView : public QWidget
 {
     Q_OBJECT
 
@@ -219,7 +218,6 @@ class TableView : public AspectView
 		QVBoxLayout * d_sub_layout;
 		TableDoubleHeaderView * d_horizontal_header;
 		Table * d_table;
-		QWidget * d_main_widget;
 
 		//! Initialization
 		void init();

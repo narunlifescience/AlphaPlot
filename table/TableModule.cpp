@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : TableModule.cpp
     Project              : SciDAVis
+    Description          : Module providing the table Part and support classes.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email address)
 
  ***************************************************************************/
 
@@ -26,48 +26,43 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
+#include "TableModule.h"
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
+#include "Table.h"
+#include "Project.h"
+#include "ProjectWindow.h"
+#include <QAction>
+#include <QPixmap>
 
-
-class AbstractAspect;
-
-//! Private data managed by AbstractAspect.
-class AspectPrivate
+AbstractPart * TableModule::makePart()
 {
-	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
+	return new Table(0, 20, 2, tr("Table %1").arg(1));
+}
 
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
+QAction * TableModule::makeAction(QObject *parent)
+{
+	QAction *new_table = new QAction(tr("New &Table"), parent);
+	new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
+	return new_table;
+}
 
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
+QMenu * TableModule::makeProjectMenu(ProjectWindow *win)
+{
+	TableMenu *menu = new TableMenu(win);
+	return menu;
+}
 
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-};
+TableMenu::TableMenu(ProjectWindow *win) : QMenu(tr("Table"))
+{
+	setEnabled(false);
+	connect(win, SIGNAL(partActivated(AbstractPart*)),
+			this, SLOT(handlePartActivated(AbstractPart*)));
+}
 
-#endif // ifndef ASPECT_MODEL_H
+void TableMenu::handlePartActivated(AbstractPart* part)
+{
+	setEnabled(part->inherits("Table"));
+}
+
+
+Q_EXPORT_PLUGIN2(scidavis_table, TableModule)

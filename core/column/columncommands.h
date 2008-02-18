@@ -31,6 +31,7 @@
 #define COLUMNCOMMANDS_H
 
 #include <QUndoCommand>
+#include <QStringList>
 #include "Column.h"
 #include "ColumnPrivate.h"
 #include "core/AbstractSimpleFilter.h"

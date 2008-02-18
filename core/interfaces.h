@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : interfaces.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 by Knut Franke
+    Email (use @ for *)  : knut.franke*gmx.de
+    Description          : Interfaces the kernel uses to talk to modules
 
  ***************************************************************************/
 
@@ -26,48 +26,42 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
+#ifndef INTERFACES_H
+#define INTERFACES_H
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
+#include <QtPlugin>
 
+class AbstractPart;
+class QAction;
+class QMenu;
+class ProjectWindow;
 
-class AbstractAspect;
-
-//! Private data managed by AbstractAspect.
-class AspectPrivate
+//! Factory for AbstractPart objects.
+class PartMaker
 {
 	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
-
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
-
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
-
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
+		virtual ~PartMaker() {}
+		//! The factory method.
+		virtual AbstractPart *makePart() = 0;
+		//! The action to be used for making new parts.
+		/**
+		 * The caller recieves ownership of the action and takes care of connecting it.
+		 * Implementations should only set things like name and icon.
+		 */
+		virtual QAction *makeAction(QObject *parent) = 0;
 };
 
-#endif // ifndef ASPECT_MODEL_H
+Q_DECLARE_INTERFACE(PartMaker, "net.sf.scidavis.partmaker/0.1")
+
+//! Factory for Menus to be added to a ProjectWindow.
+class ProjectMenuMaker
+{
+	public:
+		virtual ~ProjectMenuMaker() {}
+		//! The factory method.
+		virtual QMenu *makeProjectMenu(ProjectWindow *) = 0;
+};
+
+Q_DECLARE_INTERFACE(ProjectMenuMaker, "net.sf.scidavis.projectmenumaker/0.1")
+
+#endif // ifndef INTERFACES_H

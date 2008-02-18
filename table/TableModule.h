@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : TableModule.h
     Project              : SciDAVis
+    Description          : Module providing the table Part and support classes.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email address)
 
  ***************************************************************************/
 
@@ -26,48 +26,33 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
+#ifndef TABLE_MODULE_H
+#define TABLE_MODULE_H
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
+#include "core/interfaces.h"
+#include <QMenu>
 
-
-class AbstractAspect;
-
-//! Private data managed by AbstractAspect.
-class AspectPrivate
+class TableModule : public QObject, public PartMaker, public ProjectMenuMaker
 {
+	Q_OBJECT
+	Q_INTERFACES(PartMaker ProjectMenuMaker)
+
 	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
-
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
-
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
-
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
+		virtual AbstractPart * makePart();
+		virtual QAction * makeAction(QObject *parent);
+		virtual QMenu * makeProjectMenu(ProjectWindow *win);
 };
 
-#endif // ifndef ASPECT_MODEL_H
+class TableMenu : public QMenu
+{
+	Q_OBJECT
+	
+	public:
+		TableMenu(ProjectWindow *win);
+
+	private slots:
+		void handlePartActivated(AbstractPart *part);
+};
+
+#endif // ifndef TABLE_MODULE_H
+

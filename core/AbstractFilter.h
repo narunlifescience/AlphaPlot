@@ -56,8 +56,6 @@
  * Its simplicity of use notwithstanding, AbstractFilter provides a powerful and versatile
  * basis also for analysis operations that would not commonly be referred to as "filter".
  * An example of such a more advanced filter implementation is StatisticsFilter.
- * It even provides the basis for TableModel (which has no input ports) and ReadOnlyTableModel
- * (which has no output ports).
  *
  * \section subclassing Subclassing AbstractFilter
  * The main design goal was to make implementing new filters as easy as possible.
@@ -137,7 +135,7 @@ class AbstractFilter : public AbstractAspect
 		// virtual void saveTo(QXmlStreamWriter *) = 0;
 		// virtual void loadFrom(QXmlStreamReader *) = 0;
 		
-		//! Return the input port to which the column is connected or -1 if it's not connected yet
+		//! Return the input port to which the column is connected or -1 if it's not connected
 		int portIndexOf(AbstractColumn * column)
 		{
 			for(int i=0; i<d_inputs.size(); i++)

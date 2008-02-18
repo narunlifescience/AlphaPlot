@@ -84,9 +84,10 @@ FILE_PATTERNS          = *.c \
                          *.HH \
                          *.H++ \
                          *.C \
-                         *.H
+                         *.H \
+								 *.dox
 RECURSIVE              = yes
-EXCLUDE                =
+EXCLUDE                = tests 3rdparty
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = *moc_*
 EXAMPLE_PATH           =

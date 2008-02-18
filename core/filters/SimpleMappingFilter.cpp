@@ -30,6 +30,7 @@
 #include "SimpleMappingFilter.h"
 #include "Interval.h"
 #include "IntervalAttribute.h"
+#include <QStringList>
 
 void SimpleMappingFilter::addMapping(int src_row, int dest_row)
 {

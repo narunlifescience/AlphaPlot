@@ -63,6 +63,11 @@ int AspectPrivate::childCount() const
 	return d_children.count();
 }
 
+void AspectPrivate::moveChild(int from, int to)
+{
+	d_children.move(from, to);
+}
+
 AbstractAspect* AspectPrivate::child(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
