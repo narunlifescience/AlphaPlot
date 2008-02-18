@@ -35,6 +35,7 @@
 #include <QModelIndex>
 #include <QItemSelection>
 #include "Column.h"
+#include "ColumnPrivate.h"
 #include "Table.h"
 #include "AbstractFilter.h"
 #include "IntervalAttribute.h"

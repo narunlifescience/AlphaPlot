@@ -50,8 +50,8 @@
 #include "ui_optionstabs.h"
 #include <QtDebug>
 #include "globals.h"
-#include "Column.h"
 
+class Column;
 class Table;
 class TableModel;
 class TableItemDelegate;

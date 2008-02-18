@@ -123,7 +123,9 @@ void TableDoubleHeaderView::refresh()
 }
 
 void TableDoubleHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast)
-{
+{	
+	Q_UNUSED(logicalFirst);
+	Q_UNUSED(logicalLast);
 	if(orientation == Qt::Horizontal)
 		refresh();
 }

@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : Column.h
     Project              : SciDAVis
+    Description          : Aspect that manages a column
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : Table column class
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -33,22 +33,20 @@
 #include "core/AbstractAspect.h"
 #include "core/AbstractSimpleFilter.h"
 #include "lib/IntervalAttribute.h"
-#include "column/ColumnPrivate.h"
-#include "column/columncommands.h"
 class QString;
 
-//! Table column class
+//! Aspect that manages a column
 /**
-  This class represents a column in a table. It has a public reading and
-  (undo aware) writing interface defined in AbstractColumn and a private
-  interface (which is only to be used by commands) defined
-  by ColumnPrivate and accessed via the d_column_private pointer. All private data and
-  function members are defined in ColumnPrivate.
-
-  Instances of Column are intended to be managed by shared_ptr.
+  This class represents a column, i.e., (mathematically) a 1D vector of 
+  values with a header. It provides a public reading and (undo aware) writing 
+  interface as defined in AbstractColumn. It manages special attributes
+  of column rows such as masking and a validity flag. A column
+  can have one of currently three data types: double, QString, or
+  QDateTime. The string representation of the values can differ depending
+  on the mode of the column.
 
   Column inherits from AbstractAspect and is intended to be a child
-  of the corresponding table in the aspect hierarchy. Columns don't 
+  of the corresponding Table in the aspect hierarchy. Columns don't
   have a view as they are intended to be displayed inside a table.
  */
 class Column : public AbstractColumn
@@ -56,6 +54,8 @@ class Column : public AbstractColumn
 	Q_OBJECT
 
 	public:
+		class Private;
+		friend class Private;
 		//! Ctor
 		/**
 		 * \param name the column name (= aspect name)
@@ -88,14 +88,12 @@ class Column : public AbstractColumn
 
 		//! \name aspect related functions
 		//@{
-		//! This will always return zero as columns don't have a view
-		virtual AspectView *view() { return 0; }
 		//! Return an icon to be used for decorating the views and table column headers
 		virtual QIcon icon() const;
 		//@}
 
 		//! Return the data type of the column
-		SciDAVis::ColumnDataType dataType() const { return d_column_private->dataType(); }
+		SciDAVis::ColumnDataType dataType() const;
 		//! Return whether the object is read-only
 		bool isReadOnly() const { return false; };
 		//! Return the column mode
@@ -104,7 +102,7 @@ class Column : public AbstractColumn
 		 * by plots. The column mode specifies how to interpret 
 		 * the values in the column additional to the data type.
 		 */ 
-		SciDAVis::ColumnMode columnMode() const { return d_column_private->columnMode(); }
+		SciDAVis::ColumnMode columnMode() const;
 		//! Set the column mode
 		/**
 		 * This sets the column mode and, if
@@ -136,13 +134,13 @@ class Column : public AbstractColumn
 		 * Rows beyond this can be masked etc. but should be ignored by filters,
 		 * plots etc.
 		 */
-		int rowCount() const { return d_column_private->rowCount(); }
+		int rowCount() const;
 		//! Insert some empty (or initialized with zero) rows
 		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		void removeRows(int first, int count);
 		//! Return the column plot designation
-		SciDAVis::PlotDesignation plotDesignation() const { return d_column_private->plotDesignation(); }
+		SciDAVis::PlotDesignation plotDesignation() const;
 		//! Set the column plot designation
 		void setPlotDesignation(SciDAVis::PlotDesignation pd);
 		//! Clear the whole column
@@ -154,28 +152,28 @@ class Column : public AbstractColumn
 		 * This method is mainly used to get a filter that can convert
 		 * user input (strings) to the column's data type.
 		 */
-		AbstractSimpleFilter * inputFilter() const { return d_column_private->inputFilter(); }
+		AbstractSimpleFilter * inputFilter() const;
 		//! Return the output filter (for data type -> string  conversion)
 		/**
 		 * This method is mainly used to get a filter that can convert
 		 * the column's data type to strings (usualy to display in a view).
 		 */
-		AbstractSimpleFilter * outputFilter() const { return d_column_private->outputFilter(); }
+		AbstractSimpleFilter * outputFilter() const;
 
 		//! \name IntervalAttribute related functions
 		//@{
 		//! Return whether a certain row contains an invalid value 	 
-		bool isInvalid(int row) const { return d_column_private->isInvalid(row); }
+		bool isInvalid(int row) const;
 		//! Return whether a certain interval of rows contains only invalid values 	 
-		bool isInvalid(Interval<int> i) const { return d_column_private->isInvalid(i); }
+		bool isInvalid(Interval<int> i) const;
 		//! Return all intervals of invalid rows
-		QList< Interval<int> > invalidIntervals() const { return d_column_private->invalidIntervals(); }
+		QList< Interval<int> > invalidIntervals() const;
 		//! Return whether a certain row is masked 	 
-		bool isMasked(int row) const { return d_column_private->isMasked(row); }
+		bool isMasked(int row) const;
 		//! Return whether a certain interval of rows rows is fully masked 	 
-		bool isMasked(Interval<int> i) const { return d_column_private->isMasked(i); }
+		bool isMasked(Interval<int> i) const;
 		//! Return all intervals of masked rows
-		QList< Interval<int> > maskedIntervals() const { return d_column_private->maskedIntervals(); }
+		QList< Interval<int> > maskedIntervals() const;
 		//! Clear all validity information
 		void clearValidity();
 		//! Clear all masking information
@@ -201,7 +199,7 @@ class Column : public AbstractColumn
 		//! \name Formula related functions
 		//@{
 		//! Return the formula associated with row 'row' 	 
-		QString formula(int row) const { return d_column_private->formula(row); }
+		QString formula(int row) const;
 		//! Return the intervals that have associated formulas
 		/**
 		 * This can be used to make a list of formulas with their intervals.
@@ -214,7 +212,7 @@ class Column : public AbstractColumn
 		 * 	list << QString(interval.toString() + ": " + my_column.formula(interval.start()));
 		 * \endcode
 		 */
-		QList< Interval<int> > formulaIntervals() const { return d_column_private->formulaIntervals(); }
+		QList< Interval<int> > formulaIntervals() const;
 		//! Set a formula string for an interval of rows
 		void setFormula(Interval<int> i, QString formula);
 		//! Overloaded function for convenience
@@ -295,6 +293,7 @@ class Column : public AbstractColumn
 		void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
 		bool load(QXmlStreamReader * reader);
+	private:
 		//! Read XML comment element
 		bool XmlReadComment(QXmlStreamReader * reader);
 		//! Read XML input filter element
@@ -309,9 +308,12 @@ class Column : public AbstractColumn
 		bool XmlReadRow(QXmlStreamReader * reader);
 		//@}
 
+	private slots:
+		void notifyDisplayChange();
+
 	private:
-		//! Pointer to the private interface and all private data
-		ColumnPrivate* d_column_private;
+		//! Pointer to the private data object
+		Private * d_column_private;
 };
 
 #endif

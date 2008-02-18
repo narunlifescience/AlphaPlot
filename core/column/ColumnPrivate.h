@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : ColumnPrivate.h
     Project              : SciDAVis
+    Description          : Private data class of Column
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : Private members for Class Column
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -32,27 +32,23 @@
 
 #include <QObject>
 #include "lib/IntervalAttribute.h"
-#include "core/AbstractColumn.h"
+#include "core/column/Column.h"
 class AbstractSimpleFilter;
-class Column;
 class QString;
 
-//! Private interface and members for class Column
+//! Private data class of Column
 /**
- This class contains all private members of class Column. The interface
- defined here is only to be used by column commands and Column contructors.
+ The writing interface defined here is only to be used by column commands and Column contructors.
 */
-class ColumnPrivate : public AbstractColumn
+class Column::Private
 {
-	Q_OBJECT
-
 	public:
 		//! Ctor
-		ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode);
+		Private(Column * owner, SciDAVis::ColumnMode mode);
 		//! Dtor
-		~ColumnPrivate();
+		~Private();
 		//! Special ctor (to be called from Column only!)
-		ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciDAVis::ColumnMode mode, 
+		Private(Column * owner, SciDAVis::ColumnDataType type, SciDAVis::ColumnMode mode, 
 				void * data, IntervalAttribute<bool> validity);
 
 		//! Return the data type of the column
@@ -94,6 +90,25 @@ class ColumnPrivate : public AbstractColumn
 		 * \param num_rows the number of rows to copy
 		 */ 
 		bool copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows);
+		//! Copy another column of the same type
+		/**
+		 * This function will return false if the data type
+		 * of 'other' is not the same as the type of 'this'.
+		 * The validity information for the rows is also copied.
+		 * Use a filter to convert a column to another type.
+		 */
+		bool copy(const Private * other);
+		//! Copies a part of another column of the same type
+		/**
+		 * This function will return false if the data type
+		 * of 'other' is not the same as the type of 'this'.
+		 * The validity information for the rows is also copied.
+		 * \param other pointer to the column to copy
+		 * \param src_start first row to copy in the column to copy
+		 * \param dest_start first row to copy in
+		 * \param num_rows the number of rows to copy
+		 */ 
+		bool copy(const Private * source, int source_start, int dest_start, int num_rows);
 		//! Return the data vector size
 		/**
 		 * This returns the number of rows that actually contain data. 
@@ -115,14 +130,10 @@ class ColumnPrivate : public AbstractColumn
 		void insertRows(int before, int count);
 		//! Remove 'count' rows starting from row 'first'
 		void removeRows(int first, int count);
-		//! Return the column label
-		QString columnLabel() const;
+		//! Return the column name/label
+		QString name() const;
 		//! Return the column comment
-		QString columnComment() const;
-		//! Set the column label
-		void setColumnLabel(const QString& label);
-		//! Set the column comment
-		void setColumnComment(const QString& comment);
+		QString comment() const;
 		//! Return the column plot designation
 		SciDAVis::PlotDesignation plotDesignation() const { return d_plot_designation; };
 		//! Set the column plot designation
@@ -280,9 +291,6 @@ class ColumnPrivate : public AbstractColumn
 		 */
 		virtual void replaceValues(int first, const QVector<double>& new_values);
 		//@}
-
-	private slots:
-		void notifyDisplayChange();
 
 	private:
 		//! \name data members

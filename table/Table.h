@@ -3,8 +3,8 @@
     Project              : SciDAVis
     Description          : Aspect providing a spreadsheet table with column logic
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
     Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
                            (replace * with @ in the email addresses) 
 
@@ -345,7 +345,7 @@ class Table: public AbstractPart // TODO:, public scripted
 		//@}
 
 		TableView *d_view;
-		Private *d_private_object;
+		Private *d_table_private;
 };
 
 /**

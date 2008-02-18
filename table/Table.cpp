@@ -3,8 +3,8 @@
     Project              : SciDAVis
     Description          : Aspect providing a spreadsheet table with column logic
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2006 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
     Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
                            (replace * with @ in the email addresses) 
 
@@ -77,7 +77,7 @@ bool Table::d_default_comment_visibility = false;
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 : AbstractPart(name), d_plot_menu(0) // TODO:, scripted(engine)
 {
-	d_private_object = new Private(this);
+	d_table_private = new Private(this);
 
 	// set initial number of rows and columns
 	QList<Column*> cols;
@@ -97,7 +97,7 @@ Table::~Table()
 
 Column * Table::column(int index) const
 { 
-	return d_private_object->column(index); 
+	return d_table_private->column(index); 
 }
 
 QWidget *Table::view()
@@ -112,7 +112,7 @@ void Table::insertColumns(int before, QList<Column*> new_cols)
 	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
 	foreach(Column* col, new_cols)
 		addChild(col);
-	exec(new TableInsertColumnsCmd(d_private_object, before, new_cols));
+	exec(new TableInsertColumnsCmd(d_table_private, before, new_cols));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -124,8 +124,8 @@ void Table::removeColumns(int first, int count)
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
 	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
-		cols.append(dynamic_cast<Column*>(d_private_object->column(i)));
-	exec(new TableRemoveColumnsCmd(d_private_object, first, count, cols));
+		cols.append(dynamic_cast<Column*>(d_table_private->column(i)));
+	exec(new TableRemoveColumnsCmd(d_table_private, first, count, cols));
 	foreach(Column* col, cols)
 		removeChild(col);
 	endMacro();
@@ -142,10 +142,10 @@ void Table::removeRows(int first, int count)
 	if( count < 1 || first < 0 || first+count > rowCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
-	int end = d_private_object->columnCount();
+	int end = d_table_private->columnCount();
 	for(int col=0; col<end; col++)
-		d_private_object->column(col)->removeRows(first, count);
-	exec(new TableSetNumberOfRowsCmd(d_private_object, d_private_object->rowCount()-count));
+		d_table_private->column(col)->removeRows(first, count);
+	exec(new TableSetNumberOfRowsCmd(d_table_private, d_table_private->rowCount()-count));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -156,9 +156,9 @@ void Table::insertRows(int before, int count)
 	WAIT_CURSOR;
 	int new_row_count = rowCount() + count;
 	beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
-	int end = d_private_object->columnCount();
+	int end = d_table_private->columnCount();
 	for(int col=0; col<end; col++)
-		d_private_object->column(col)->insertRows(before, count);
+		d_table_private->column(col)->insertRows(before, count);
 	setRowCount(new_row_count);
 	endMacro();
 	RESET_CURSOR;
@@ -168,18 +168,18 @@ void Table::setRowCount(int new_size)
 {
 	if( (new_size < 0) || (new_size == rowCount()) ) return;
 	WAIT_CURSOR;
-	exec(new TableSetNumberOfRowsCmd(d_private_object, new_size));
+	exec(new TableSetNumberOfRowsCmd(d_table_private, new_size));
 	RESET_CURSOR;
 }
 
 int Table::columnCount() const
 {
-	return d_private_object->columnCount();
+	return d_table_private->columnCount();
 }
 
 int Table::rowCount() const
 {
-	return d_private_object->rowCount();
+	return d_table_private->rowCount();
 }
 
 int Table::columnCount(SciDAVis::PlotDesignation pd) const
@@ -213,7 +213,7 @@ void Table::setColumnCount(int new_size)
 		
 int Table::columnIndex(Column * col) const 
 { 
-	return d_private_object->columnIndex(col); 
+	return d_table_private->columnIndex(col); 
 }
 
 void Table::clear()
@@ -380,7 +380,7 @@ void Table::pasteIntoSelection()
 			{
 				if(d_view->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
 				{
-					Column * col_ptr = d_private_object->column(first_col + c);
+					Column * col_ptr = d_table_private->column(first_col + c);
 					AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
 					temp->setTextAt(0, cell_texts.at(r).at(c));
 					in_fltr->input(0, temp);
@@ -722,7 +722,7 @@ void Table::addRows()
 	WAIT_CURSOR;
 	int count = d_view->selectedRowCount(false);
 	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
-	exec(new TableSetNumberOfRowsCmd(d_private_object, rowCount() + count));
+	exec(new TableSetNumberOfRowsCmd(d_table_private, rowCount() + count));
 	endMacro();
 	RESET_CURSOR;
 }
@@ -1184,9 +1184,9 @@ void Table::goToCell()
 
 void Table::moveColumn(int from, int to)
 {
-	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_private_object->column(from)->name()).arg(from+1).arg(to+1));
+	beginMacro(tr("%1: move column %2 from position %3 to %4.").arg(name()).arg(d_table_private->column(from)->name()).arg(from+1).arg(to+1));
 	moveChild(from, to);
-	exec(new TableMoveColumnCmd(d_private_object, from, to));	
+	exec(new TableMoveColumnCmd(d_table_private, from, to));	
 	endMacro();
 }
 
@@ -1509,21 +1509,21 @@ void Table::handleModeChange(AbstractColumn * col)
 {
 	int index = columnIndex(static_cast<Column *>(col));
 	if(index != -1)
-		d_private_object->updateHorizontalHeader(index, index);
+		d_table_private->updateHorizontalHeader(index, index);
 }
 
 void Table::handleDescriptionChange(AbstractAspect * aspect)
 {
 	int index = columnIndex(static_cast<Column *>(aspect));
 	if(index != -1)
-		d_private_object->updateHorizontalHeader(index, index);
+		d_table_private->updateHorizontalHeader(index, index);
 }
 
 void Table::handlePlotDesignationChange(AbstractColumn * col)
 {
 	int index = columnIndex(static_cast<Column *>(col));
 	if(index != -1)
-		d_private_object->updateHorizontalHeader(index, columnCount()-1);
+		d_table_private->updateHorizontalHeader(index, columnCount()-1);
 }
 
 void Table::handleDataChange(AbstractColumn * col)
@@ -1595,7 +1595,7 @@ void Table::disconnectColumn(Column* col)
 
 QVariant Table::headerData(int section, Qt::Orientation orientation,int role) const
 {
-	return d_private_object->headerData(section, orientation, role);
+	return d_table_private->headerData(section, orientation, role);
 }
 
 /* ========================== Table::Private ====================== */
@@ -1823,17 +1823,14 @@ QVariant Table::Private::headerData(int section, Qt::Orientation orientation, in
 					return d_columns.at(section)->icon();
 				case TableModel::CommentRole:
 					return d_columns.at(section)->comment();
-				default:
-					return QVariant();
 			}
 		case Qt::Vertical:
 			switch(role) {
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
 					return d_vertical_header_data.at(section);
-				default:
-					return QVariant();
 			}
 	}
+	return QVariant();
 }
 

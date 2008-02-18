@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : Column.cpp
     Project              : SciDAVis
+    Description          : Aspect that manages a column
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : Table column class
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -37,28 +37,36 @@
 Column::Column(const QString& name, SciDAVis::ColumnMode mode)
  : AbstractColumn(name)
 {
-	d_column_private = new ColumnPrivate(this, mode);
+	d_column_private = new Private(this, mode);
+	addChild(inputFilter());
+	addChild(outputFilter());
 }
 
 Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new ColumnPrivate(this, SciDAVis::TypeDouble, 
+	d_column_private = new Private(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity);
+	addChild(inputFilter());
+	addChild(outputFilter());
 }
 
 Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQString,
+	d_column_private = new Private(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity);
+	addChild(inputFilter());
+	addChild(outputFilter());
 }
 
 Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<bool> validity)
  : AbstractColumn(name)
 {
-	d_column_private = new ColumnPrivate(this, SciDAVis::TypeQDateTime, 
+	d_column_private = new Private(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
+	addChild(inputFilter());
+	addChild(outputFilter());
 }
 
 Column::~Column()
@@ -70,7 +78,19 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == columnMode()) return;
 	beginMacro(QObject::tr("%1: change column type").arg(name()));
+	AbstractSimpleFilter * old_input_filter = inputFilter();
+	AbstractSimpleFilter * old_output_filter = outputFilter();
 	exec(new ColumnSetModeCmd(d_column_private, mode));
+	if (inputFilter() != old_input_filter) 
+	{
+		removeChild(old_input_filter);
+		addChild(inputFilter());
+	}
+	if (outputFilter() != old_output_filter) 
+	{
+		removeChild(old_output_filter);
+		addChild(outputFilter());
+	}
 	endMacro();
 }
 
@@ -438,7 +458,6 @@ bool Column::XmlReadComment(QXmlStreamReader * reader)
 bool Column::XmlReadInputFilter(QXmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
-	// TODO: implement undo for input and output filter
 	reader->readNext();
 	bool result = inputFilter()->load(reader);	
 	reader->readNext();
@@ -567,5 +586,79 @@ bool Column::XmlReadRow(QXmlStreamReader * reader)
 	}
 
 	return true;
+}
+SciDAVis::ColumnDataType Column::dataType() const 
+{ 
+	return d_column_private->dataType(); 
+}
+
+SciDAVis::ColumnMode Column::columnMode() const 
+{ 
+	return d_column_private->columnMode(); 
+}
+int Column::rowCount() const 
+{ 
+	return d_column_private->rowCount(); 
+}
+
+SciDAVis::PlotDesignation Column::plotDesignation() const
+{ 
+	return d_column_private->plotDesignation(); 
+}
+
+AbstractSimpleFilter * Column::inputFilter() const 
+{ 
+	return d_column_private->inputFilter(); 
+}
+
+AbstractSimpleFilter * Column::outputFilter() const 
+{ 
+	return d_column_private->outputFilter(); 
+}
+
+bool Column::isInvalid(int row) const 
+{ 
+	return d_column_private->isInvalid(row); 
+}
+
+bool Column::isInvalid(Interval<int> i) const 
+{ 
+	return d_column_private->isInvalid(i); 
+}
+
+QList< Interval<int> > Column::invalidIntervals() const 
+{ 
+	return d_column_private->invalidIntervals(); 
+}
+
+bool Column::isMasked(int row) const 
+{ 
+	return d_column_private->isMasked(row); 
+}
+
+bool Column::isMasked(Interval<int> i) const 
+{ 
+	return d_column_private->isMasked(i); 
+}
+
+QList< Interval<int> > Column::maskedIntervals() const 
+{ 
+	return d_column_private->maskedIntervals(); 
+}
+
+QString Column::formula(int row) const 
+{ 
+	return d_column_private->formula(row); 
+}
+
+QList< Interval<int> > Column::formulaIntervals() const 
+{ 
+	return d_column_private->formulaIntervals(); 
+}
+
+void Column::notifyDisplayChange()
+{
+	emit dataChanged(this); // all cells must be repainted
+	emit aspectDescriptionChanged(this); // the icon for the type changed
 }
 

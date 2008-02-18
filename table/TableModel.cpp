@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 
+#include "Column.h"
 #include "Table.h"
 #include "TableModel.h"
 #include <QString>

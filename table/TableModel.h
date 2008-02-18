@@ -33,10 +33,10 @@
 #include <QAbstractItemModel>
 #include <QList>
 #include <QStringList>
-#include "core/column/Column.h"
 #include "core/AbstractFilter.h"
 #include <QColor>
 
+class Column;
 class Table;
 
 //! Model for the access to a Table

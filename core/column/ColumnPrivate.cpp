@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : ColumnPrivate.cpp
     Project              : SciDAVis
+    Description          : Private data class of Column
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : Private members for Class Column
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -44,13 +44,14 @@
 #include "core/datatypes/DayOfWeek2DoubleFilter.h"
 #include "core/datatypes/Month2DoubleFilter.h"
 #include <QString>
+#include <QStringList>
 #include <QtDebug>
 
 
-ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
- : AbstractColumn(owner->name()), d_owner(owner)
+Column::Private::Private(Column * owner, SciDAVis::ColumnMode mode)
+ : d_owner(owner)
 {
-	Q_ASSERT(owner != 0); // a ColumnPrivate without owner is not allowed 
+	Q_ASSERT(owner != 0); // a Column::Private without owner is not allowed 
 					      // because the owner must become the parent aspect of the input and output filters
 	d_column_mode = mode;
 	switch(mode)
@@ -59,7 +60,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_input_filter = new String2DoubleFilter();
 			d_output_filter = new Double2StringFilter();
 			connect(static_cast<Double2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeDouble;
 			d_data = new QVector<double>();
 			break;
@@ -76,7 +77,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_input_filter = new String2DateTimeFilter();
 			d_output_filter = new DateTime2StringFilter();
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -85,7 +86,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_output_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("MMMM");
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -94,7 +95,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 			d_output_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("dddd");
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			d_data_type = SciDAVis::TypeQDateTime;
 			d_data = new QList<QDateTime>();
 			break;
@@ -103,12 +104,10 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnMode mode)
 	d_plot_designation = SciDAVis::noDesignation;
 	d_input_filter->setName("InputFilter");
 	d_output_filter->setName("OutputFilter");
-	d_owner->addChild(d_input_filter);
-	d_owner->addChild(d_output_filter);
 }
 
-ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciDAVis::ColumnMode mode, 
-	void * data, IntervalAttribute<bool> validity) : AbstractColumn(owner->name()), d_owner(owner)
+Column::Private::Private(Column * owner, SciDAVis::ColumnDataType type, SciDAVis::ColumnMode mode, 
+	void * data, IntervalAttribute<bool> validity) 
 {
 	d_data_type = type;
 	d_column_mode = mode;
@@ -121,7 +120,7 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 			d_input_filter = new String2DoubleFilter();
 			d_output_filter = new Double2StringFilter();
 			connect(static_cast<Double2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Text:
 			d_input_filter = new SimpleCopyThroughFilter();
@@ -134,32 +133,30 @@ ColumnPrivate::ColumnPrivate(Column * owner, SciDAVis::ColumnDataType type, SciD
 			d_input_filter = new String2DateTimeFilter();
 			d_output_filter = new DateTime2StringFilter();
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Month:
 			d_input_filter = new String2MonthFilter();
 			d_output_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("MMMM");
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Day:
 			d_input_filter = new String2DayOfWeekFilter();
 			d_output_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(d_output_filter)->setFormat("dddd");
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 	} // switch(mode)
 
 	d_plot_designation = SciDAVis::noDesignation;
 	d_input_filter->setName("InputFilter");
 	d_output_filter->setName("OutputFilter");
-	d_owner->addChild(d_input_filter);
-	d_owner->addChild(d_output_filter);
 }
 
-ColumnPrivate::~ColumnPrivate()
+Column::Private::~Private()
 {
 	if(!d_data) return;
 
@@ -179,7 +176,7 @@ ColumnPrivate::~ColumnPrivate()
 	} // switch(d_data_type)
 }
 
-void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
+void Column::Private::setColumnMode(SciDAVis::ColumnMode mode)
 {
 	if(mode == d_column_mode) return;
 
@@ -197,7 +194,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	{
 		case SciDAVis::Numeric:
 			disconnect(static_cast<Double2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			switch(mode)
 			{		
 				case SciDAVis::Numeric:
@@ -271,7 +268,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 			disconnect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			switch(mode)
 			{		
 				case SciDAVis::Date:
@@ -311,7 +308,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			new_in_filter = new String2DoubleFilter();
 			new_out_filter = new Double2StringFilter();
 			connect(static_cast<Double2StringFilter *>(new_out_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Text:
 			new_in_filter = new SimpleCopyThroughFilter();
@@ -323,21 +320,21 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 			new_in_filter = new String2DateTimeFilter();
 			new_out_filter = new DateTime2StringFilter();
 			connect(static_cast<DateTime2StringFilter *>(new_out_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Month:
 			new_in_filter = new String2MonthFilter();
 			new_out_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("MMMM");
 			connect(static_cast<DateTime2StringFilter *>(new_out_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Day:
 			new_in_filter = new String2DayOfWeekFilter();
 			new_out_filter = new DateTime2StringFilter();
 			static_cast<DateTime2StringFilter *>(new_out_filter)->setFormat("dddd");
 			connect(static_cast<DateTime2StringFilter *>(new_out_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 	} // switch(mode)
 
@@ -347,12 +344,8 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 
 	new_in_filter->setName("InputFilter");
 	new_out_filter->setName("OutputFilter");
-	d_owner->removeChild(d_input_filter);
-	d_owner->removeChild(d_output_filter);
 	d_input_filter = new_in_filter;
 	d_output_filter = new_out_filter;
-	d_owner->addChild(d_input_filter);
-	d_owner->addChild(d_output_filter);
 
 	if(temp_col) // if temp_col == 0, only the input/output filters need to be changed
 	{
@@ -367,7 +360,7 @@ void ColumnPrivate::setColumnMode(SciDAVis::ColumnMode mode)
 	emit d_owner->modeChanged(d_owner);
 }
 
-void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data, 
+void Column::Private::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnDataType type, void * data, 
 	AbstractSimpleFilter * in_filter, AbstractSimpleFilter * out_filter, IntervalAttribute<bool> validity)
 {
 	emit d_owner->modeAboutToChange(d_owner);
@@ -376,14 +369,14 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 	{
 		case SciDAVis::Numeric:
 			disconnect(static_cast<Double2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 		case SciDAVis::Date:
 		case SciDAVis::Time:
 		case SciDAVis::DateTime:
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 			disconnect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 	}
 
 	d_column_mode = mode;
@@ -394,19 +387,15 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 
 	in_filter->setName("InputFilter");
 	out_filter->setName("OutputFilter");
-	d_owner->removeChild(d_input_filter);
-	d_owner->removeChild(d_output_filter);
 	d_input_filter = in_filter;
 	d_output_filter = out_filter;
-	d_owner->addChild(d_input_filter);
-	d_owner->addChild(d_output_filter);
 
 	// connect formatChanged()
 	switch(d_column_mode)
 	{		
 		case SciDAVis::Numeric:
 			connect(static_cast<Double2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 		case SciDAVis::Date:
 		case SciDAVis::Time:
@@ -414,7 +403,7 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 			connect(static_cast<DateTime2StringFilter *>(d_output_filter), SIGNAL(formatChanged()),
-				this, SLOT(notifyDisplayChange()));
+				d_owner, SLOT(notifyDisplayChange()));
 			break;
 	} 
 
@@ -422,7 +411,7 @@ void ColumnPrivate::replaceModeData(SciDAVis::ColumnMode mode, SciDAVis::ColumnD
 	emit d_owner->modeChanged(d_owner);
 }
 
-void ColumnPrivate::replaceData(void * data, IntervalAttribute<bool> validity)
+void Column::Private::replaceData(void * data, IntervalAttribute<bool> validity)
 {
 	emit d_owner->dataAboutToChange(d_owner);
 	d_data = data;
@@ -430,7 +419,7 @@ void ColumnPrivate::replaceData(void * data, IntervalAttribute<bool> validity)
 	emit d_owner->dataChanged(d_owner);
 }
 
-bool ColumnPrivate::copy(const AbstractColumn * other)
+bool Column::Private::copy(const AbstractColumn * other)
 {
 	if(other->dataType() != dataType()) return false;
 	int num_rows = other->rowCount();
@@ -469,7 +458,7 @@ bool ColumnPrivate::copy(const AbstractColumn * other)
 	return true;
 }
 
-bool ColumnPrivate::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
+bool Column::Private::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
 	if(source->dataType() != dataType()) return false;
 	if(num_rows == 0) return true;
@@ -506,7 +495,83 @@ bool ColumnPrivate::copy(const AbstractColumn * source, int source_start, int de
 	return true;
 }
 
-int ColumnPrivate::rowCount() const
+bool Column::Private::copy(const Private * other)
+{
+	if(other->dataType() != dataType()) return false;
+	int num_rows = other->rowCount();
+
+	emit d_owner->dataAboutToChange(d_owner);
+	resizeTo(num_rows); 
+
+	// copy the data
+	switch(d_data_type)
+	{
+		case SciDAVis::TypeDouble:
+			{
+				double * ptr = static_cast< QVector<double>* >(d_data)->data();
+				for(int i=0; i<num_rows; i++)
+					ptr[i] = other->valueAt(i);
+				break;
+			}
+		case SciDAVis::TypeQString:
+			{
+				for(int i=0; i<num_rows; i++)
+					static_cast< QStringList* >(d_data)->replace(i, other->textAt(i));
+				break;
+			}
+		case SciDAVis::TypeQDateTime:
+			{
+				for(int i=0; i<num_rows; i++)
+					static_cast< QList<QDateTime>* >(d_data)->replace(i, other->dateTimeAt(i));
+				break;
+			}
+	}
+	// copy the validity information
+	d_validity = other->invalidIntervals();
+
+	emit d_owner->dataChanged(d_owner);
+
+	return true;
+}
+
+bool Column::Private::copy(const Private * source, int source_start, int dest_start, int num_rows)
+{
+	if(source->dataType() != dataType()) return false;
+	if(num_rows == 0) return true;
+
+	emit d_owner->dataAboutToChange(d_owner);
+	if(dest_start + num_rows > rowCount())
+		resizeTo(dest_start + num_rows); 
+
+	// copy the data
+	switch(d_data_type)
+	{
+		case SciDAVis::TypeDouble:
+			{
+				double * ptr = static_cast< QVector<double>* >(d_data)->data();
+				for(int i=0; i<num_rows; i++)
+					ptr[dest_start+i] = source->valueAt(source_start + i);
+				break;
+			}
+		case SciDAVis::TypeQString:
+				for(int i=0; i<num_rows; i++)
+					static_cast< QStringList* >(d_data)->replace(dest_start+i, source->textAt(source_start + i));
+				break;
+		case SciDAVis::TypeQDateTime:
+				for(int i=0; i<num_rows; i++)
+					static_cast< QList<QDateTime>* >(d_data)->replace(dest_start+i, source->dateTimeAt(source_start + i));
+				break;
+	}
+	// copy the validity information
+	for(int i=0; i<num_rows; i++)
+		setInvalid(dest_start+i, source->isInvalid(source_start+i));
+
+	emit d_owner->dataChanged(d_owner);
+
+	return true;
+}
+
+int Column::Private::rowCount() const
 {
 	switch(d_data_type)
 	{
@@ -521,7 +586,7 @@ int ColumnPrivate::rowCount() const
 	return 0;
 }
 
-void ColumnPrivate::resizeTo(int new_size)
+void Column::Private::resizeTo(int new_size)
 {
 	if(new_size == rowCount()) return;
 
@@ -563,7 +628,7 @@ void ColumnPrivate::resizeTo(int new_size)
 	}
 }
 
-void ColumnPrivate::insertRows(int before, int count)
+void Column::Private::insertRows(int before, int count)
 {
 	if(count == 0) return;
 
@@ -592,7 +657,7 @@ void ColumnPrivate::insertRows(int before, int count)
 	emit d_owner->rowsInserted(d_owner, before, count);
 }
 
-void ColumnPrivate::removeRows(int first, int count)
+void Column::Private::removeRows(int first, int count)
 {
 	if(count == 0) return;
 
@@ -625,100 +690,100 @@ void ColumnPrivate::removeRows(int first, int count)
 	emit d_owner->rowsRemoved(d_owner, first, count);
 }
 
-void ColumnPrivate::setPlotDesignation(SciDAVis::PlotDesignation pd)
+void Column::Private::setPlotDesignation(SciDAVis::PlotDesignation pd)
 {
 	emit d_owner->plotDesignationAboutToChange(d_owner);
 	d_plot_designation = pd; 
 	emit d_owner->plotDesignationChanged(d_owner);
 }
 
-void ColumnPrivate::clear()
+void Column::Private::clear()
 {
 	removeRows(0, rowCount());
 }
 
-void ColumnPrivate::clearValidity()
+void Column::Private::clearValidity()
 {
 	emit d_owner->dataAboutToChange(d_owner);	
 	d_validity.clear();
 	emit d_owner->dataChanged(d_owner);	
 }
 
-void ColumnPrivate::clearMasks()
+void Column::Private::clearMasks()
 {
 	emit d_owner->maskingAboutToChange(d_owner);	
 	d_masking.clear();
 	emit d_owner->maskingChanged(d_owner);	
 }
 
-void ColumnPrivate::setInvalid(Interval<int> i, bool invalid)
+void Column::Private::setInvalid(Interval<int> i, bool invalid)
 {
 	emit d_owner->dataAboutToChange(d_owner);	
 	d_validity.setValue(i, invalid);
 	emit d_owner->dataChanged(d_owner);	
 }
 
-void ColumnPrivate::setInvalid(int row, bool invalid)
+void Column::Private::setInvalid(int row, bool invalid)
 {
 	setInvalid(Interval<int>(row,row), invalid);
 }
 
-void ColumnPrivate::setMasked(Interval<int> i, bool mask)
+void Column::Private::setMasked(Interval<int> i, bool mask)
 {
 		emit d_owner->maskingAboutToChange(d_owner);	
 		d_masking.setValue(i, mask);
 		emit d_owner->maskingChanged(d_owner);	
 }
 
-void ColumnPrivate::setMasked(int row, bool mask)
+void Column::Private::setMasked(int row, bool mask)
 {
 	setMasked(Interval<int>(row,row), mask);
 }
 
-void ColumnPrivate::setFormula(Interval<int> i, QString formula)
+void Column::Private::setFormula(Interval<int> i, QString formula)
 {
 	d_formulas.setValue(i, formula);
 }
 
-void ColumnPrivate::setFormula(int row, QString formula)
+void Column::Private::setFormula(int row, QString formula)
 {
 	setFormula(Interval<int>(row,row), formula);
 }
 
-void ColumnPrivate::clearFormulas()
+void Column::Private::clearFormulas()
 {
 	d_formulas.clear();
 }
 
-QString ColumnPrivate::textAt(int row) const
+QString Column::Private::textAt(int row) const
 {
 	if(d_data_type != SciDAVis::TypeQString) return QString();
 	return static_cast< QStringList* >(d_data)->value(row);
 }
 
-QDate ColumnPrivate::dateAt(int row) const
+QDate Column::Private::dateAt(int row) const
 {
 	return dateTimeAt(row).date();
 }
 
-QTime ColumnPrivate::timeAt(int row) const
+QTime Column::Private::timeAt(int row) const
 {
 	return dateTimeAt(row).time();
 }
 
-QDateTime ColumnPrivate::dateTimeAt(int row) const
+QDateTime Column::Private::dateTimeAt(int row) const
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return QDateTime();
 	return static_cast< QList<QDateTime>* >(d_data)->value(row);
 }
 
-double ColumnPrivate::valueAt(int row) const
+double Column::Private::valueAt(int row) const
 {
 	if(d_data_type != SciDAVis::TypeDouble) return 0.0;
 	return static_cast< QVector<double>* >(d_data)->value(row);
 }
 
-void ColumnPrivate::setTextAt(int row, const QString& new_value)
+void Column::Private::setTextAt(int row, const QString& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQString) return;
 
@@ -730,7 +795,7 @@ void ColumnPrivate::setTextAt(int row, const QString& new_value)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceTexts(int first, const QStringList& new_values)
+void Column::Private::replaceTexts(int first, const QStringList& new_values)
 {
 	if(d_data_type != SciDAVis::TypeQString) return;
 	
@@ -744,21 +809,21 @@ void ColumnPrivate::replaceTexts(int first, const QStringList& new_values)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::setDateAt(int row, const QDate& new_value)
+void Column::Private::setDateAt(int row, const QDate& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 
 	setDateTimeAt(row, QDateTime(new_value, timeAt(row)));
 }
 
-void ColumnPrivate::setTimeAt(int row, const QTime& new_value)
+void Column::Private::setTimeAt(int row, const QTime& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 	
 	setDateTimeAt(row, QDateTime(dateAt(row), new_value));
 }
 
-void ColumnPrivate::setDateTimeAt(int row, const QDateTime& new_value)
+void Column::Private::setDateTimeAt(int row, const QDateTime& new_value)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 
@@ -770,7 +835,7 @@ void ColumnPrivate::setDateTimeAt(int row, const QDateTime& new_value)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceDateTimes(int first, const QList<QDateTime>& new_values)
+void Column::Private::replaceDateTimes(int first, const QList<QDateTime>& new_values)
 {
 	if(d_data_type != SciDAVis::TypeQDateTime) return;
 	
@@ -784,7 +849,7 @@ void ColumnPrivate::replaceDateTimes(int first, const QList<QDateTime>& new_valu
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::setValueAt(int row, double new_value)
+void Column::Private::setValueAt(int row, double new_value)
 {
 	if(d_data_type != SciDAVis::TypeDouble) return;
 
@@ -796,7 +861,7 @@ void ColumnPrivate::setValueAt(int row, double new_value)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceValues(int first, const QVector<double>& new_values)
+void Column::Private::replaceValues(int first, const QVector<double>& new_values)
 {
 	if(d_data_type != SciDAVis::TypeDouble) return;
 	
@@ -811,41 +876,25 @@ void ColumnPrivate::replaceValues(int first, const QVector<double>& new_values)
 	emit d_owner->dataChanged(d_owner);
 }
 
-void ColumnPrivate::replaceMasking(IntervalAttribute<bool> masking)
+void Column::Private::replaceMasking(IntervalAttribute<bool> masking)
 {
 	emit d_owner->maskingAboutToChange(d_owner);
 	d_masking = masking;
 	emit d_owner->maskingChanged(d_owner);
 }
 
-void ColumnPrivate::replaceFormulas(IntervalAttribute<QString> formulas)
+void Column::Private::replaceFormulas(IntervalAttribute<QString> formulas)
 {
 	d_formulas = formulas;
 }
 
-
-QString ColumnPrivate::columnLabel() const
+QString Column::Private::name() const
 { 
 	return d_owner->name();
 }
 
-QString ColumnPrivate::columnComment() const
+QString Column::Private::comment() const
 {
 	return d_owner->comment();
 }
 
-void ColumnPrivate::setColumnLabel(const QString& label)
-{ 
-	d_owner->setName(label);
-}
-
-void ColumnPrivate::setColumnComment(const QString& comment)
-{ 
-	d_owner->setComment(comment);
-}
-
-void ColumnPrivate::notifyDisplayChange()
-{
-	emit d_owner->dataChanged(d_owner); // all cells must be repainted
-	emit d_owner->aspectDescriptionChanged(d_owner); // the icon for the type changed
-}

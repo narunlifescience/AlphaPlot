@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : AbstractColumn.h
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
     Description          : Interface definition for data with column logic
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -49,10 +49,10 @@ class QStringList;
   i.e. mathematically a vector or technically a 1D array or list.
   It only defines the interface but has no data members itself. 
 
-  Classes derived from this are typically table columns or filters
-  which can be chained between table columns and plots. From the
-  point of view of the plot functions there will be no difference 
-  between a table column and a filter since both use this interface.
+  Classes derived from this are typically table columns or outputs
+  of filters which can be chained between table columns and plots. 
+  From the point of view of the plot functions there will be no difference 
+  between a table column and a filter output since both use this interface.
 
   Classes derived from this will either store a 
   vector with entries of one certain data type, e.g. double, QString, 
@@ -75,8 +75,7 @@ class QStringList;
 
   All writing functions have a "do nothing" standard implementation to
   make deriving a read-only class very easy without bothering about the
-  writing interface. Changing label and comment should be implemented even
-  for read only columns, usually using the AbstractAspect interface.
+  writing interface. 
   */
 class AbstractColumn : public AbstractAspect
 {

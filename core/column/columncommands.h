@@ -1,10 +1,10 @@
 /***************************************************************************
     File                 : columncommands.h
     Project              : SciDAVis
+    Description          : Commands to be called by Column to modify Column::Private
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
-    Email (use @ for *)  : thzs*gmx.net
-    Description          : Commands to be called by Column to modify ColumnPrivate
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -33,7 +33,6 @@
 #include <QUndoCommand>
 #include <QStringList>
 #include "Column.h"
-#include "ColumnPrivate.h"
 #include "core/AbstractSimpleFilter.h"
 #include "lib/IntervalAttribute.h"
 
@@ -45,7 +44,7 @@ class ColumnSetModeCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetModeCmd(ColumnPrivate* col, SciDAVis::ColumnMode mode, QUndoCommand * parent = 0 );
+	ColumnSetModeCmd(Column::Private * col, SciDAVis::ColumnMode mode, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetModeCmd();
 
@@ -55,8 +54,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The previous mode
 	SciDAVis::ColumnMode d_old_mode;	
 	//! The new mode
@@ -99,7 +98,7 @@ class ColumnFullCopyCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnFullCopyCmd(ColumnPrivate * col, const AbstractColumn * src, QUndoCommand * parent = 0 );
+	ColumnFullCopyCmd(Column::Private * col, const AbstractColumn * src, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnFullCopyCmd();
 
@@ -109,16 +108,16 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The column to copy
 	const AbstractColumn * d_src;
 	//! A backup column
-	ColumnPrivate * d_backup;
+	Column::Private * d_backup;
 	//! A dummy owner for the backup column
 	/**
-	 * This is needed because a ColumnPrivate must have an owner. We want access
-	 * to the ColumnPrivate object to access its data pointer for fast data
+	 * This is needed because a Column::Private must have an owner. We want access
+	 * to the Column::Private object to access its data pointer for fast data
 	 * replacement without too much copying.
 	 */
 	Column * d_backup_owner;
@@ -136,7 +135,7 @@ class ColumnPartialCopyCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnPartialCopyCmd(ColumnPrivate* col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent = 0 );
+	ColumnPartialCopyCmd(Column::Private * col, const AbstractColumn * src, int src_start, int dest_start, int num_rows, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnPartialCopyCmd();
 
@@ -146,25 +145,25 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The column to copy
 	const AbstractColumn * d_src;
 	//! A backup of the orig. column
-	ColumnPrivate * d_col_backup;
+	Column::Private * d_col_backup;
 	//! A backup of the source column
-	ColumnPrivate * d_src_backup;
+	Column::Private * d_src_backup;
 	//! A dummy owner for the backup column
 	/**
-	 * This is needed because a ColumnPrivate must have an owner and
-	 * we must have a ColumnPrivate object as backup.
+	 * This is needed because a Column::Private must have an owner and
+	 * we must have a Column::Private object as backup.
 	 * Using a Column object as backup would lead to an inifinite loop.
 	 */
 	Column * d_col_backup_owner;
 	//! A dummy owner for the source backup column
 	/**
-	 * This is needed because a ColumnPrivate must have an owner and
-	 * we must have a ColumnPrivate object as backup.
+	 * This is needed because a Column::Private must have an owner and
+	 * we must have a Column::Private object as backup.
 	 * Using a Column object as backup would lead to an inifinite loop.
 	 */
 	Column * d_src_backup_owner;
@@ -192,7 +191,7 @@ class ColumnInsertEmptyRowsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnInsertEmptyRowsCmd(ColumnPrivate* col, int before, int count, QUndoCommand * parent = 0 );
+	ColumnInsertEmptyRowsCmd(Column::Private * col, int before, int count, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnInsertEmptyRowsCmd();
 
@@ -202,8 +201,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! Row to insert before
 	int d_before;
 	//! Number of rows
@@ -222,7 +221,7 @@ class ColumnRemoveRowsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnRemoveRowsCmd(ColumnPrivate* col, int first, int count, QUndoCommand * parent = 0 );
+	ColumnRemoveRowsCmd(Column::Private * col, int first, int count, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnRemoveRowsCmd();
 
@@ -232,8 +231,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The first row
 	int d_first;
 	//! The number of rows to be removed
@@ -243,7 +242,14 @@ private:
 	//! The number of rows before the removal
 	int d_old_size;
 	//! Column saving the removed rows
-	Column * d_backup;
+	Column::Private * d_backup;
+	//! A dummy owner for the backup column
+	/**
+	 * This is needed because a Column::Private must have an owner. We want access
+	 * to the Column::Private object to access its data pointer for fast data
+	 * replacement without too much copying.
+	 */
+	Column * d_backup_owner;
 	//! Backup of the masking attribute
 	IntervalAttribute<bool> d_masking;
 	//! Backup of the formula attribute
@@ -261,7 +267,7 @@ class ColumnSetPlotDesignationCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetPlotDesignationCmd(ColumnPrivate* col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
+	ColumnSetPlotDesignationCmd(Column::Private * col, SciDAVis::PlotDesignation pd, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetPlotDesignationCmd();
 
@@ -271,8 +277,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! New plot designation
 	SciDAVis::PlotDesignation d_new_pd;
 	//! Old plot designation
@@ -291,7 +297,7 @@ class ColumnClearCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearCmd(ColumnPrivate* col, QUndoCommand * parent = 0 );
+	ColumnClearCmd(Column::Private * col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearCmd();
 
@@ -301,8 +307,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The column's data type
 	SciDAVis::ColumnDataType d_type;
 	//! Pointer to the old data pointer
@@ -328,7 +334,7 @@ class ColumnClearValidityCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearValidityCmd(ColumnPrivate* col, QUndoCommand * parent = 0 );
+	ColumnClearValidityCmd(Column::Private * col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearValidityCmd();
 
@@ -338,8 +344,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The old validity
 	IntervalAttribute<bool> d_validity;
 	//! A status flag
@@ -358,7 +364,7 @@ class ColumnClearMasksCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearMasksCmd(ColumnPrivate* col, QUndoCommand * parent = 0 );
+	ColumnClearMasksCmd(Column::Private * col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearMasksCmd();
 
@@ -368,8 +374,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The old masks
 	IntervalAttribute<bool> d_masking;
 	//! A status flag
@@ -388,7 +394,7 @@ class ColumnSetInvalidCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetInvalidCmd(ColumnPrivate * col, Interval<int> interval, bool invalid, QUndoCommand * parent = 0 );
+	ColumnSetInvalidCmd(Column::Private * col, Interval<int> interval, bool invalid, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetInvalidCmd();
 
@@ -398,8 +404,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! Valid/invalid flag
@@ -422,7 +428,7 @@ class ColumnSetMaskedCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetMaskedCmd(ColumnPrivate * col, Interval<int> interval, bool masked, QUndoCommand * parent = 0 );
+	ColumnSetMaskedCmd(Column::Private * col, Interval<int> interval, bool masked, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetMaskedCmd();
 
@@ -432,8 +438,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! Mask/unmask flag
@@ -456,7 +462,7 @@ class ColumnSetFormulaCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetFormulaCmd(ColumnPrivate * col, Interval<int> interval, const QString& formula, QUndoCommand * parent = 0 );
+	ColumnSetFormulaCmd(Column::Private * col, Interval<int> interval, const QString& formula, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetFormulaCmd();
 
@@ -466,8 +472,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The interval
 	Interval<int> d_interval;
 	//! The new formula
@@ -490,7 +496,7 @@ class ColumnClearFormulasCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnClearFormulasCmd(ColumnPrivate* col, QUndoCommand * parent = 0 );
+	ColumnClearFormulasCmd(Column::Private * col, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnClearFormulasCmd();
 
@@ -500,8 +506,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The old formulas
 	IntervalAttribute<QString> d_formulas;
 	//! A status flag
@@ -520,7 +526,7 @@ class ColumnSetTextCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetTextCmd(ColumnPrivate* col, int row, const QString& new_value, QUndoCommand * parent = 0 );
+	ColumnSetTextCmd(Column::Private * col, int row, const QString& new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetTextCmd();
 
@@ -530,8 +536,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -554,7 +560,7 @@ class ColumnSetValueCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetValueCmd(ColumnPrivate* col, int row, double new_value, QUndoCommand * parent = 0 );
+	ColumnSetValueCmd(Column::Private * col, int row, double new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetValueCmd();
 
@@ -564,8 +570,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -588,7 +594,7 @@ class ColumnSetDateTimeCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnSetDateTimeCmd(ColumnPrivate* col, int row, const QDateTime& new_value, QUndoCommand * parent = 0 );
+	ColumnSetDateTimeCmd(Column::Private * col, int row, const QDateTime& new_value, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnSetDateTimeCmd();
 
@@ -598,8 +604,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The row to modify
 	int d_row;
 	//! The new value
@@ -622,7 +628,7 @@ class ColumnReplaceTextsCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceTextsCmd(ColumnPrivate* col, int first, const QStringList& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceTextsCmd(Column::Private * col, int first, const QStringList& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceTextsCmd();
 
@@ -632,8 +638,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values
@@ -658,7 +664,7 @@ class ColumnReplaceValuesCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceValuesCmd(ColumnPrivate * col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceValuesCmd(Column::Private * col, int first, const QVector<double>& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceValuesCmd();
 
@@ -668,8 +674,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values
@@ -694,7 +700,7 @@ class ColumnReplaceDateTimesCmd : public QUndoCommand
 {
 public:
 	//! Ctor
-	ColumnReplaceDateTimesCmd(ColumnPrivate * col, int first, const QList<QDateTime>& new_values, QUndoCommand * parent = 0 );
+	ColumnReplaceDateTimesCmd(Column::Private * col, int first, const QList<QDateTime>& new_values, QUndoCommand * parent = 0 );
 	//! Dtor
 	~ColumnReplaceDateTimesCmd();
 
@@ -704,8 +710,8 @@ public:
 	virtual void undo();
 
 private:
-	//! The column to modify
-	ColumnPrivate* d_col;
+	//! The private column data to modify
+	Column::Private * d_col;
 	//! The first row to replace
 	int d_first;
 	//! The new values
