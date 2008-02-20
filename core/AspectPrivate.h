@@ -26,29 +26,28 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_MODEL_H
-#define ASPECT_MODEL_H
+#ifndef ASPECT_PRIVATE_H
+#define ASPECT_PRIVATE_H
+
+#include "AbstractAspect.h"
 
 #include <QString>
 #include <QDateTime>
 #include <QList>
 
-
-class AbstractAspect;
-
 //! Private data managed by AbstractAspect.
-class AspectPrivate
+class AbstractAspect::Private
 {
 	public:
-		AspectPrivate(const QString& name, AbstractAspect * owner);
+		Private(AbstractAspect * owner, const QString &name);
+		~Private();
 
 		void addChild(AbstractAspect* child);
 		void insertChild(int index, AbstractAspect* child);
 		int indexOfChild(const AbstractAspect *child) const;
-		void removeChild(AbstractAspect* child);
+		int removeChild(AbstractAspect* child);
 		int childCount() const;
 		AbstractAspect* child(int index);
-		void moveChild(int from, int to);
 
 		QString name() const;
 		void setName(const QString &value);
@@ -61,6 +60,7 @@ class AspectPrivate
 
 		QString caption() const;
 		AbstractAspect * owner() { return d_owner; }
+		AbstractAspect * parent() { return d_parent; }
 	
 	private:
 		static int indexOfMatchingBrace(const QString &str, int start);
@@ -68,6 +68,7 @@ class AspectPrivate
 		QString d_name, d_comment, d_caption_spec;
 		QDateTime d_creation_time;
 		AbstractAspect * d_owner;
+		AbstractAspect * d_parent;
 };
 
-#endif // ifndef ASPECT_MODEL_H
+#endif // ifndef ASPECT_PRIVATE_H

@@ -1,19 +1,24 @@
+include(../common.pri)
 TEMPLATE = app
 TARGET = ../scidavis
-CONFIG += debug
-QT += xml
 DEPENDPATH += .. ../lib datatypes column filters
 INCLUDEPATH += .. ../lib datatypes column filters
 
-MOC_DIR        = ../tmp
-OBJECTS_DIR    = ../tmp
+# For debugging purposes, link modules dynamically and make sure they are found in the directory
+# containing the executable. This allows testing changes to one module without re-linking the
+# application.
+debug:unix:LIBS += -Wl,-rpath,\'\$$ORIGIN\'
+
+# link in modules
+LIBS += -L..
+for(mod, MODULES):LIBS += -lscidavis_$${mod}
+# make moules known to Qt's plugin system (also see staticplugins.cpp)
+for(mod, MODULES):mods += Q_IMPORT_PLUGIN(scidavis_$${mod})
+DEFINES += IMPORT_SCIDAVIS_MODULES='\'$${mods}\''
 
 RESOURCES += \
 	../appicons.qrc \
 	../icons.qrc \
-
-LIBS += -L../table -lscidavis_table
-LIBS += -L../note -lscidavis_notes
 
 HEADERS += \
 	globals.h \

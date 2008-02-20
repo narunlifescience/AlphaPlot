@@ -97,9 +97,7 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid","string for invalid rows"));
 				
-				AbstractSimpleFilter *out_fltr = col_ptr->outputFilter();
-				out_fltr->input(0, col_ptr);
-				return QVariant(out_fltr->output(0)->textAt(row) + postfix);
+				return QVariant(col_ptr->asStringColumn()->textAt(row) + postfix);
 			}
 		case Qt::ForegroundRole:
 			{
@@ -146,13 +144,8 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 		case Qt::EditRole:
 			{
 				Column* col_ptr = d_table->column(index.column());
-				AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-				Column* temp = new Column("temp", QStringList(value.toString()));
-				in_fltr->input(0, temp);
 				// remark: the validity of the cell is determined by the input filter
-				col_ptr->copy(in_fltr->output(0), 0, row, 1);  
-				in_fltr->input(0, 0);
-				delete temp;
+				col_ptr->asStringColumn()->setTextAt(row, value.toString());
 				return true;
 			}
 		case MaskingRole:

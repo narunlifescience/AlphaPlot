@@ -129,3 +129,4 @@ AbstractColumn *AbstractSimpleFilter::output(int port) const
 {
 	return port == 0 ? static_cast<AbstractColumn*>(d_output_column) : 0;
 }
+

@@ -1,5 +1,5 @@
+include(common.pri)
 TEMPLATE = subdirs
-SUBDIRS = \
-	table \
-	note \
-	core # this must always be the last
+CONFIG += ordered
+
+SUBDIRS = $${MODULES} core

@@ -77,11 +77,14 @@ class AbstractAspect : public QObject
 	Q_OBJECT
 
 	public:
+		class Private;
+		friend class Private;
+
 		AbstractAspect(const QString &name);
 		virtual ~AbstractAspect();
 
 		//! Return my parent Aspect or 0 if I currently don't have one.
-		AbstractAspect * parentAspect() const { return d_parent_aspect; }
+		AbstractAspect * parentAspect() const;
 		//! Return the folder the Aspect is contained in or 0 if not.
 		/**
 		 * The returned folder may be the aspect itself if it inherits Folder.
@@ -97,6 +100,8 @@ class AbstractAspect : public QObject
 		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
 		void addChild(AbstractAspect* child);
+		//! Insert the given Aspect at a specific position in my list of children.
+		void insertChild(AbstractAspect *child, int index);
 		//! Remove the given Aspect from my list of children.
 		void removeChild(AbstractAspect* child);
 		//! Remove the Aspect at the given index from my list of children.
@@ -225,21 +230,23 @@ class AbstractAspect : public QObject
 		 * is loaded from a file.
 		 */
 		void setCreationTime(const QDateTime& time);
+		//! Called after a new child has been added.
+		/**
+		 * Unlike the aspectAdded() signals, this method does not get called inside undo/redo actions;
+		 * allowing subclasses to execute undo commands of their own.
+		 * TODO: find a better name for this method
+		 */
+		virtual void aspectAddedOuter(AbstractAspect*) {}
+		//! Called before a child is removed.
+		/**
+		 * Unlike the aspectAboutToBeRemoved() signals, this method does not get called inside undo/redo actions;
+		 * allowing subclasses to execute undo commands of their own.
+		 * TODO: find a better name for this method
+		 */
+		virtual void aspectAboutToBeRemovedOuter(AbstractAspect*) {}
 
 	private:
-		//! Set #d_parent_aspect, handling signal connections (but not undo/redo).
-		void setParentAspect(AbstractAspect * new_parent);
-
-		AspectPrivate * d_aspect_private;
-		AbstractAspect * d_parent_aspect;
-
-		// Undo commands need direct access to the private data.
-		friend class AspectNameChangeCmd;
-		friend class AspectCommentChangeCmd;
-		friend class AspectCaptionSpecChangeCmd;
-		friend class AspectChildRemoveCmd;
-		friend class AspectChildAddCmd;
-		friend class AspectChildMoveCmd;
+		Private * d_aspect_private;
 };
 
 #endif // ifndef ABSTRACT_ASPECT_H

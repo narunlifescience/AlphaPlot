@@ -29,8 +29,8 @@
 #ifndef ABSTRACT_FILTER_H
 #define ABSTRACT_FILTER_H
 
-#include "AbstractColumn.h"
 #include "AbstractAspect.h"
+#include "AbstractColumn.h"
 #include <QVector>
 
 /*
@@ -93,6 +93,15 @@ class AbstractFilter : public AbstractAspect
 		 */
 		virtual int outputCount() const = 0;
 		/**
+		 * \brief Return the index of the highest input port that is connected.
+		 *
+		 * Note that this is different from both the number of ports that <em>could</em> be connected,
+		 * inputCount(), and the number of ports that actually <em>have been</em> connected, which are
+		 * not necessarily sequential. In conjunction with input(int), this method can be used to
+		 * traverse the connected inputs.
+		 */
+		int highestConnectedInput() const { return d_inputs.count() - 1; }
+		/**
 		 * \brief Connect the provided data source to the specified input port.
 		 * \param port the port number to which to connect
 		 * \param source the data source to connect to the input port
@@ -116,13 +125,15 @@ class AbstractFilter : public AbstractAspect
 		 * Overloaded method provided for convenience.
 		 */
 		bool input(AbstractFilter* sources);
+		//! Return the input currently connected to the specified port, or 0.
+		AbstractColumn *input(int port) const { return d_inputs.value(port); }
 		/**
 		 * \brief Return the label associated to the given input port.
 		 *
 		 * Default labels are In1, In2, ... (or translated equivalents), but implementations can
 		 * reimplement this method to produce more meaningful labels.
 		 *
-		 * Output ports are implicitly labeled through AbstractColumn::label().
+		 * Output ports are implicitly labeled through AbstractAspect::name().
 		 */
 		virtual QString inputLabel(int port) const;
 		/**
@@ -132,8 +143,6 @@ class AbstractFilter : public AbstractAspect
 		 * input ports have been connected.
 		 */
 		virtual AbstractColumn* output(int port=0) const = 0;
-		// virtual void saveTo(QXmlStreamWriter *) = 0;
-		// virtual void loadFrom(QXmlStreamReader *) = 0;
 		
 		//! Return the input port to which the column is connected or -1 if it's not connected
 		int portIndexOf(AbstractColumn * column)
@@ -160,7 +169,7 @@ class AbstractFilter : public AbstractAspect
 		 */
 		virtual void inputAboutToBeDisconnected(AbstractColumn * source) { Q_UNUSED(source); }
 
-	public slots:
+	protected slots:
 
 		//!\name signal handlers
 		//@{
@@ -183,7 +192,7 @@ class AbstractFilter : public AbstractAspect
 		virtual void inputDescriptionChanged(AbstractColumn * source) { Q_UNUSED(source); }
 		void inputDescriptionChanged(AbstractAspect * aspect) {
 			AbstractColumn * col = qobject_cast<AbstractColumn*>(aspect);
-			if (col) inputDescriptionChanged(col);
+			if (col && d_inputs.contains(col)) inputDescriptionChanged(col);
 		}
 		/**
 		 * \brief The plot designation of an input is about to change.

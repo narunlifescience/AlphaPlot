@@ -38,6 +38,9 @@ Column::Column(const QString& name, SciDAVis::ColumnMode mode)
  : AbstractColumn(name)
 {
 	d_column_private = new Private(this, mode);
+	d_string_io = new ColumnStringIO(this);
+	inputFilter()->input(0,d_string_io);
+	outputFilter()->input(0,this);
 	addChild(inputFilter());
 	addChild(outputFilter());
 }
@@ -47,6 +50,9 @@ Column::Column(const QString& name, QVector<double> data, IntervalAttribute<bool
 {
 	d_column_private = new Private(this, SciDAVis::TypeDouble, 
 		SciDAVis::Numeric, new QVector<double>(data), validity);
+	d_string_io = new ColumnStringIO(this);
+	inputFilter()->input(0,d_string_io);
+	outputFilter()->input(0,this);
 	addChild(inputFilter());
 	addChild(outputFilter());
 }
@@ -56,6 +62,9 @@ Column::Column(const QString& name, QStringList data, IntervalAttribute<bool> va
 {
 	d_column_private = new Private(this, SciDAVis::TypeQString,
 		SciDAVis::Text, new QStringList(data), validity);
+	d_string_io = new ColumnStringIO(this);
+	inputFilter()->input(0,d_string_io);
+	outputFilter()->input(0,this);
 	addChild(inputFilter());
 	addChild(outputFilter());
 }
@@ -65,6 +74,9 @@ Column::Column(const QString& name, QList<QDateTime> data, IntervalAttribute<boo
 {
 	d_column_private = new Private(this, SciDAVis::TypeQDateTime, 
 		SciDAVis::DateTime, new QList<QDateTime>(data), validity);
+	d_string_io = new ColumnStringIO(this);
+	inputFilter()->input(0,d_string_io);
+	outputFilter()->input(0,this);
 	addChild(inputFilter());
 	addChild(outputFilter());
 }
@@ -85,11 +97,13 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 	{
 		removeChild(old_input_filter);
 		addChild(inputFilter());
+		inputFilter()->input(0,d_string_io);
 	}
 	if (outputFilter() != old_output_filter) 
 	{
 		removeChild(old_output_filter);
 		addChild(outputFilter());
+		outputFilter()->input(0, this);
 	}
 	endMacro();
 }
@@ -97,6 +111,7 @@ void Column::setColumnMode(SciDAVis::ColumnMode mode)
 
 bool Column::copy(const AbstractColumn * other)
 {
+	Q_CHECK_PTR(other);
 	if(other->dataType() != dataType()) return false;
 	exec(new ColumnFullCopyCmd(d_column_private, other));
 	return true;
@@ -104,6 +119,7 @@ bool Column::copy(const AbstractColumn * other)
 
 bool Column::copy(const AbstractColumn * source, int source_start, int dest_start, int num_rows)
 {
+	Q_CHECK_PTR(source);
 	if(source->dataType() != dataType()) return false;
 	exec(new ColumnPartialCopyCmd(d_column_private, source, source_start, dest_start, num_rows));
 	return true;

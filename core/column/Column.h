@@ -35,6 +35,8 @@
 #include "lib/IntervalAttribute.h"
 class QString;
 
+class ColumnStringIO;
+
 //! Aspect that manages a column
 /**
   This class represents a column, i.e., (mathematically) a 1D vector of 
@@ -159,6 +161,8 @@ class Column : public AbstractColumn
 		 * the column's data type to strings (usualy to display in a view).
 		 */
 		AbstractSimpleFilter * outputFilter() const;
+		//! Return a wrapper column object used for String I/O.
+		ColumnStringIO * asStringColumn() const { return d_string_io; }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -314,6 +318,44 @@ class Column : public AbstractColumn
 	private:
 		//! Pointer to the private data object
 		Private * d_column_private;
+		ColumnStringIO * d_string_io;
+};
+
+//! String-IO interface of Column.
+class ColumnStringIO : public AbstractColumn
+{
+	Q_OBJECT
+	
+	public:
+		ColumnStringIO(Column * owner) : AbstractColumn(tr("as string")), d_owner(owner), d_setting(false) {}
+		virtual SciDAVis::ColumnMode columnMode() const { return SciDAVis::Text; }
+		virtual SciDAVis::ColumnDataType dataType() const { return SciDAVis::TypeQString; }
+		virtual SciDAVis::PlotDesignation plotDesignation() const { return d_owner->plotDesignation(); }
+		virtual int rowCount() const { return d_owner->rowCount(); }
+		virtual QString textAt(int row) const {
+			if (d_setting)
+				return d_to_set;
+			else
+				return d_owner->outputFilter()->output(0)->textAt(row);
+		}
+		virtual void setTextAt(int row, const QString &value) {
+			d_setting = true;
+			d_to_set = value;
+			d_owner->copy(d_owner->inputFilter()->output(0), 0, row, 1);
+			d_setting = false;
+			d_to_set.clear();
+		}
+		virtual bool isInvalid(int row) const {
+			if (d_setting)
+				return false;
+			else
+				return d_owner->isInvalid(row);
+		}
+
+	private:
+		Column * d_owner;
+		bool d_setting;
+		QString d_to_set;
 };
 
 #endif

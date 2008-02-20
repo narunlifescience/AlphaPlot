@@ -210,15 +210,6 @@ class AbstractSimpleFilter : public AbstractFilter
 		{
 			return d_inputs.value(0) ? d_inputs.at(0)->valueAt(row) : 0.0;
 		}
-		//! \name aspect related functions
-		//@{
-		//! Construct a standard view on me.
-		/**
-		 * This returns 0 if not overloaded.
-		 * \sa AbstractAspect::view()
-		 */
-		virtual AspectView *view() { return 0; }
-		//@}
 
 		//!\name assuming a 1:1 correspondence between input and output rows
 		//@{

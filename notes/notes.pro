@@ -1,11 +1,13 @@
+include(../common.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-
 INCLUDEPATH += .. ../core
-TARGET = $$qtLibraryTarget(scidavis_notes)
+TARGET = ../$$qtLibraryTarget(scidavis_notes)
 
-MOC_DIR        = ../tmp
-OBJECTS_DIR    = ../tmp
+debug {
+	CONFIG -= static
+	DEFINES += QT_STATICPLUGIN
+}
 
 HEADERS += \
 	NotesModule.h \

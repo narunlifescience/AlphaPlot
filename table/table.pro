@@ -1,11 +1,13 @@
+include(../common.pri)
 TEMPLATE = lib
 CONFIG += plugin static
-QT += xml
 INCLUDEPATH += .. ../core ../core/column ../lib ../core/datatypes
-TARGET = $$qtLibraryTarget(scidavis_table)
+TARGET = ../$$qtLibraryTarget(scidavis_table)
 
-MOC_DIR        = ../tmp
-OBJECTS_DIR    = ../tmp
+debug {
+	CONFIG -= static
+	DEFINES += QT_STATICPLUGIN
+}
 
 FORMS += optionstabs.ui \
 

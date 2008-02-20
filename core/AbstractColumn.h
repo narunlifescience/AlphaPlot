@@ -213,7 +213,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual QString textAt(int row) const = 0;
+		virtual QString textAt(int row) const { Q_UNUSED(row); return ""; }
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QString
@@ -228,7 +228,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QDate dateAt(int row) const = 0;
+		virtual QDate dateAt(int row) const { Q_UNUSED(row); return QDate(); };
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -238,7 +238,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QTime timeAt(int row) const = 0;
+		virtual QTime timeAt(int row) const { Q_UNUSED(row); return QTime(); };
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -248,7 +248,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual QDateTime dateTimeAt(int row) const = 0;
+		virtual QDateTime dateTimeAt(int row) const { Q_UNUSED(row); return QDateTime(); };
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -263,7 +263,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual double valueAt(int row) const = 0;
+		virtual double valueAt(int row) const { Q_UNUSED(row); return 0; };
 		//! Set the content of row 'row'
 		/**
 		 * Use this only when dataType() is double
@@ -275,8 +275,6 @@ class AbstractColumn : public AbstractAspect
 		 */
 		virtual void replaceValues(int first, const QVector<double>& new_values) { Q_UNUSED(first) Q_UNUSED(new_values) };
 		//@}
-
-		virtual AspectView *view() { return 0; }
 
 	signals: 
 		//! Column plot designation will be changed

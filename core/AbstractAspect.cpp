@@ -38,56 +38,51 @@
 #include <QApplication>
 
 AbstractAspect::AbstractAspect(const QString &name)
-	: d_aspect_private(new AspectPrivate(name, this)), d_parent_aspect(0)
+	: d_aspect_private(new Private(this, name))
 {
 }
 
 AbstractAspect::~AbstractAspect()
 {
-	for(int i=0; i<childCount(); i++)
-		delete d_aspect_private->child(i);
 	delete d_aspect_private;
 }
 
-void AbstractAspect::setParentAspect(AbstractAspect * new_parent)
+AbstractAspect * AbstractAspect::parentAspect() const
 {
-	if(d_parent_aspect)
-		QObject::disconnect(this, 0, d_parent_aspect, 0);
-	d_parent_aspect = new_parent;	
-	if(d_parent_aspect)
-	{
-		QObject::connect(this, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-				d_parent_aspect, SIGNAL(aspectDescriptionChanged(AbstractAspect *)));
-		QObject::connect(this, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
-				d_parent_aspect, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)));
-		QObject::connect(this, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
-				d_parent_aspect, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)));
-		QObject::connect(this, SIGNAL(aspectAdded(AbstractAspect *, int)), 
-				d_parent_aspect, SIGNAL(aspectAdded(AbstractAspect *, int)));
-		QObject::connect(this, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
-				d_parent_aspect, SIGNAL(aspectRemoved(AbstractAspect *, int)));
-		QObject::connect(this, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
-				d_parent_aspect, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)));
-		QObject::connect(this, SIGNAL(aspectAdded(AbstractAspect *)), 
-				d_parent_aspect, SIGNAL(aspectAdded(AbstractAspect *)));
-	}
+	return d_aspect_private->parent();
 }
 
 void AbstractAspect::addChild(AbstractAspect* child)
 {
+	Q_CHECK_PTR(child);
+	beginMacro(tr("%1: add %2.").arg(name()).arg(child->name()));
 	exec(new AspectChildAddCmd(d_aspect_private, child, d_aspect_private->childCount()));
+	aspectAddedOuter(child);
+	endMacro();
+}
+
+void AbstractAspect::insertChild(AbstractAspect* child, int index)
+{
+	Q_CHECK_PTR(child);
+	beginMacro(tr("%1: insert %2 at position %3.").arg(name()).arg(child->name()).arg(index+1));
+	exec(new AspectChildAddCmd(d_aspect_private, child, index));
+	aspectAddedOuter(child);
+	endMacro();
 }
 
 void AbstractAspect::removeChild(AbstractAspect* child)
 {
 	Q_ASSERT(indexOfChild(child) != -1);
+	beginMacro(tr("%1: remove %2.").arg(name()).arg(child->name()));
+	aspectAboutToBeRemovedOuter(child);
 	exec(new AspectChildRemoveCmd(d_aspect_private, child));
+	endMacro();
 }
 
 void AbstractAspect::removeChild(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
-	exec(new AspectChildRemoveCmd(d_aspect_private, d_aspect_private->child(index)));
+	removeChild(d_aspect_private->child(index));
 }
 
 AbstractAspect* AbstractAspect::child(int index) const
@@ -108,15 +103,14 @@ int AbstractAspect::indexOfChild(const AbstractAspect *child) const
 
 void AbstractAspect::moveChild(int from, int to)
 {
-	Q_ASSERT(from >= 0);
-	Q_ASSERT(to >= 0);
-	Q_ASSERT(d_aspect_private->childCount() > from);
-	Q_ASSERT(d_aspect_private->childCount() > to);
+	Q_ASSERT(0 <= from < d_aspect_private->childCount());
+	Q_ASSERT(0 <= to   < d_aspect_private->childCount());
 	exec(new AspectChildMoveCmd(d_aspect_private, from, to));
 }
 
 void AbstractAspect::exec(QUndoCommand *cmd)
 {
+	Q_CHECK_PTR(cmd);
 	QUndoStack *stack = undoStack();
 	if (stack)
 		stack->push(cmd);
