@@ -51,7 +51,7 @@ effects (orthogonality) and c) don't require call protocols (they are atomic). B
 will provide direct read access to the %data in Private (layer 0) and translate write access into
 instantiations of appropriate undo commands (layer 1). Actions that require changes to multiple
 Private objects are a bit more subtle, since they require multiple undo commands to be
-instantiated and packaged into a macro; eventually with some simple logic to connect them.
+instantiated and packaged into a macro; possibly with some simple logic to connect them.
 As opposed to layers 0 and 1, layer 2 may also use the public API of other Aspects in the hierarchy
 without restrictions. Part of the public API are also signals sent to views and other Aspects in
 order to notify them of changes in the %data.
@@ -73,7 +73,7 @@ input. An Aspect and its primary view know about each other and call each other'
 actions in the project explorer (like "maximize") always act on the primary view. The primary view
 class of an Aspect class MyAspect is called MyAspectView. Most users will not notice a difference or
 have to make a distinction between an Aspect and its primary view, whereas secondary views are
-represented as distinct intities (typically modeless dialogs) to the user. Showing and hiding of the
+represented as distinct entities (typically modeless dialogs) to the user. Showing and hiding of the
 primary view is done via the public API of the Aspect so as to be available via the Aspect's context
 menu.
 
@@ -118,9 +118,9 @@ handle all kinds of data sources.
 AbstractFilter is the base class for all analysis operations. It is modelled on integrated circuits,
 which is to say, a filter is basically a black box with input and output ports. Input ports accept
 their data in the form of AbstractColumn instances; output ports provide their data in the same
-form. Typically filters generate their data lazily, that is, only when asked for data on an output
-port, they will start reading from their inputs. This is not true for all filters, however;
-StatisticsFilter being a noteworthy exception. Changes to the input data are propagated in the
-form of signals.
+form. Typically filters generate their data lazily; that is, only when asked for data on an output
+port they will start reading from their inputs. This is not true for all filters, however;
+StatisticsFilter being a noteworthy exception. Notification of changes to the input data is
+propagated in the form of signals.
 
 */

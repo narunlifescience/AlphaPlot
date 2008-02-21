@@ -48,6 +48,7 @@
 #include <QToolButton>
 #include <QPluginLoader>
 #include <QSignalMapper>
+#include <QStatusBar>
 
 ProjectWindow::ProjectWindow(Project* project)
 	: d_project(project)
@@ -80,6 +81,8 @@ void ProjectWindow::init()
 		this, SLOT(handleAspectAdded(AbstractAspect *, int)));
 	connect(d_project, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(AbstractAspect *, int)));
+	connect(d_project, SIGNAL(statusInfo(const QString&)),
+			statusBar(), SLOT(showMessage(const QString&)));
 
 	handleAspectDescriptionChanged(d_project);
 }

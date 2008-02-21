@@ -35,19 +35,20 @@ class AspectPrivate;
 class Project;
 class QUndoStack;
 class QString;
-class QWidget;
 class QDateTime;
 class QUndoCommand;
 class QIcon;
 class QMenu;
 class Folder;
-class AspectView;
 class QXmlStreamReader;
 class QXmlStreamWriter;
 class QAction;
 
 //! Base class of all persistent objects in a Project.
 /**
+ * Before going into the details, it's useful to understand the ideas behind the
+ * \ref aspect "Aspect Framework".
+ *
  * Aspects organize themselves into trees, where a parent takes ownership of its children. Usually,
  * though not necessarily, a Project instance will sit at the root of the tree (without a Project
  * ancestor, project() will return 0 and undo does not work). Children are organized using
@@ -68,8 +69,8 @@ class QAction;
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
  *
- * The private data of AbstractAspect is contained in a separate class AbstractAspectPrivate. 
- * The write access to AbstractAspectPrivate should always be done using aspect commands
+ * The private data of AbstractAspect is contained in a separate class AbstractAspect::Private. 
+ * The write access to AbstractAspect::Private should always be done using aspect commands
  * to allow undo/redo.
  */
 class AbstractAspect : public QObject
@@ -96,8 +97,6 @@ class AbstractAspect : public QObject
 		 */
 		bool isDescendantOf(AbstractAspect *other);
 
-
-		// TODO: add unique name checking
 		//! Add the given Aspect to my list of children.
 		void addChild(AbstractAspect* child);
 		//! Insert the given Aspect at a specific position in my list of children.
@@ -124,12 +123,9 @@ class AbstractAspect : public QObject
 
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
-		//! Return a new context menu
+		//! Return a new context menu.
 		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 * Otherwise the caller takes ownership of the menu.
+		 * The caller takes ownership of the menu.
 		 */
 		virtual QMenu *createContextMenu() const;
 
@@ -203,6 +199,8 @@ class AbstractAspect : public QObject
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
 		//! Show info about the aspect
 		void showProperties();
+		//! Make the specified name unique among my children by incrementing a trailing number.
+		QString uniqueNameFor(const QString &current_name) const;
 
 	signals:
 		//! Emit this before the name, comment or caption spec is changed
@@ -221,6 +219,8 @@ class AbstractAspect : public QObject
 		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
 		//! Emit this from the parent after removing a child
 		void aspectRemoved(AbstractAspect *parent, int index);
+		//! Emit this to give status information to the user.
+		void statusInfo(const QString &text);
 
 	protected:
 		//! Set the creation time
@@ -244,6 +244,13 @@ class AbstractAspect : public QObject
 		 * TODO: find a better name for this method
 		 */
 		virtual void aspectAboutToBeRemovedOuter(AbstractAspect*) {}
+		//! Implementations should call this whenever status information should be given to the user.
+		/**
+		 * This will cause statusInfo() to be emitted. Typically, this will cause the specified string
+		 * to be displayed in a status bar, a log window or some similar non-blocking way so as not to
+		 * disturb the workflow.
+		 */
+		void info(const QString &text) { emit statusInfo(text); }
 
 	private:
 		Private * d_aspect_private;

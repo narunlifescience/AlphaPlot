@@ -249,21 +249,11 @@ class AbstractSimpleFilter : public AbstractFilter
 			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
 
-		//! \name XML related functions
-		//@{
-		//! Save the column as XML
-		virtual void save(QXmlStreamWriter * writer) const = 0;
-		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader) = 0;
-		//@}
-
 	protected:
 		IntervalAttribute<bool> d_masking;
 
 		//!\name signal handlers
 		//@{
-		virtual void inputDescriptionAboutToChange(AbstractColumn*);
-		virtual void inputDescriptionChanged(AbstractColumn*);
 		virtual void inputPlotDesignationAboutToChange(AbstractColumn*);
 		virtual void inputPlotDesignationChanged(AbstractColumn*);
 		virtual void inputModeAboutToChange(AbstractColumn*);

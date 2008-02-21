@@ -35,6 +35,7 @@
 #include <QContextMenuEvent>
 #include <QMenu>
 #include <QWidget>
+#include <QHeaderView>
 
 ProjectExplorer::ProjectExplorer(QWidget *parent) 
 	: QTreeView(parent) 
@@ -67,4 +68,10 @@ void ProjectExplorer::currentChanged(const QModelIndex & current, const QModelIn
 	emit currentAspectChanged(static_cast<AbstractAspect *>(current.internalPointer()));
 }
 
-
+void ProjectExplorer::setModel(QAbstractItemModel * model)
+{
+	QTreeView::setModel(model);
+	for(int i=0; i<header()->length(); ++i)
+		setColumnWidth(i, model->headerData(i, Qt::Horizontal, Qt::SizeHintRole).toSize().width());
+	// beats me why QHeaderView doesn't do this... it does use the height() part, though
+}

@@ -55,7 +55,12 @@ AbstractAspect * AbstractAspect::parentAspect() const
 void AbstractAspect::addChild(AbstractAspect* child)
 {
 	Q_CHECK_PTR(child);
-	beginMacro(tr("%1: add %2.").arg(name()).arg(child->name()));
+	QString new_name = d_aspect_private->uniqueNameFor(child->name());
+	beginMacro(tr("%1: add %2.").arg(name()).arg(new_name));
+	if (new_name != child->name()) {
+		info(tr("Renaming \"%1\" to \"%2\" in order to avoid name collision.").arg(child->name()).arg(new_name));
+		child->setName(new_name);
+	}
 	exec(new AspectChildAddCmd(d_aspect_private, child, d_aspect_private->childCount()));
 	aspectAddedOuter(child);
 	endMacro();
@@ -64,7 +69,12 @@ void AbstractAspect::addChild(AbstractAspect* child)
 void AbstractAspect::insertChild(AbstractAspect* child, int index)
 {
 	Q_CHECK_PTR(child);
-	beginMacro(tr("%1: insert %2 at position %3.").arg(name()).arg(child->name()).arg(index+1));
+	QString new_name = d_aspect_private->uniqueNameFor(child->name());
+	beginMacro(tr("%1: insert %2 at position %3.").arg(name()).arg(new_name).arg(index+1));
+	if (new_name != child->name()) {
+		info(tr("Renaming \"%1\" to \"%2\" in order to avoid name collision.").arg(child->name()).arg(new_name));
+		child->setName(new_name);
+	}
 	exec(new AspectChildAddCmd(d_aspect_private, child, index));
 	aspectAddedOuter(child);
 	endMacro();
@@ -142,7 +152,13 @@ QString AbstractAspect::name() const
 void AbstractAspect::setName(const QString &value)
 {
 	if (value == d_aspect_private->name()) return;
-	exec(new AspectNameChangeCmd(d_aspect_private, value));
+	if (d_aspect_private->parent()) {
+		QString new_name = d_aspect_private->parent()->uniqueNameFor(value);
+		if (new_name != value)
+			info(tr("Intended name \"%1\" diverted to \"%2\" in order to avoid name collision.").arg(value).arg(new_name));
+		exec(new AspectNameChangeCmd(d_aspect_private, new_name));
+	} else
+		exec(new AspectNameChangeCmd(d_aspect_private, value));
 }
 
 QString AbstractAspect::comment() const
@@ -267,3 +283,7 @@ bool AbstractAspect::isDescendantOf(AbstractAspect *other)
 	return false;
 }
 
+QString AbstractAspect::uniqueNameFor(const QString &current_name) const
+{
+	return d_aspect_private->uniqueNameFor(current_name);
+}

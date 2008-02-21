@@ -61,6 +61,8 @@ class AbstractAspect::Private
 		QString caption() const;
 		AbstractAspect * owner() { return d_owner; }
 		AbstractAspect * parent() { return d_parent; }
+
+		QString uniqueNameFor(const QString &current_name) const;
 	
 	private:
 		static int indexOfMatchingBrace(const QString &str, int start);

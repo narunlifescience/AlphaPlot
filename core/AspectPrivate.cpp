@@ -29,6 +29,7 @@
 #include "AbstractAspect.h"
 #include "AspectPrivate.h"
 #include <QRegExp>
+#include <QStringList>
 
 AbstractAspect::Private::Private(AbstractAspect * owner, const QString& name)
 	: d_name(name), d_caption_spec("%n%C{ - }%c"), d_owner(owner), d_parent(0)
@@ -55,20 +56,22 @@ void AbstractAspect::Private::insertChild(int index, AbstractAspect* child)
 	// Can't handle this case here since two undo commands have to be created.
 	Q_ASSERT(child->d_aspect_private->d_parent == 0);
 	child->d_aspect_private->d_parent = d_owner;
-	QObject::connect(child, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
+	connect(child, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
 			d_owner, SIGNAL(aspectDescriptionChanged(AbstractAspect *)));
-	QObject::connect(child, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
+	connect(child, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
 			d_owner, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)));
-	QObject::connect(child, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
+	connect(child, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
 			d_owner, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)));
-	QObject::connect(child, SIGNAL(aspectAdded(AbstractAspect *, int)), 
+	connect(child, SIGNAL(aspectAdded(AbstractAspect *, int)), 
 			d_owner, SIGNAL(aspectAdded(AbstractAspect *, int)));
-	QObject::connect(child, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
+	connect(child, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
 			d_owner, SIGNAL(aspectRemoved(AbstractAspect *, int)));
-	QObject::connect(child, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
+	connect(child, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)), 
 			d_owner, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *)));
-	QObject::connect(child, SIGNAL(aspectAdded(AbstractAspect *)), 
+	connect(child, SIGNAL(aspectAdded(AbstractAspect *)), 
 			d_owner, SIGNAL(aspectAdded(AbstractAspect *)));
+	connect(child, SIGNAL(statusInfo(const QString&)),
+			d_owner, SIGNAL(statusInfo(const QString&)));
 	emit d_owner->aspectAdded(d_owner, index);
 	emit child->aspectAdded(child);
 }
@@ -181,3 +184,28 @@ QDateTime AbstractAspect::Private::creationTime() const
 	return d_creation_time;
 }
 
+QString AbstractAspect::Private::uniqueNameFor(const QString &current_name) const
+{
+	QStringList child_names;
+	foreach(AbstractAspect * child, d_children)
+		child_names << child->name();
+
+	if (!child_names.contains(current_name))
+		return current_name;
+
+	QString base = current_name;
+	int last_non_digit;
+	for (int last_non_digit = base.size()-1; last_non_digit>=0 &&
+			base[last_non_digit].category() == QChar::Number_DecimalDigit; --last_non_digit)
+		base.chop(1);
+	if (last_non_digit >=0 && base[last_non_digit].category() != QChar::Separator_Space)
+		base.append(" ");
+
+	int new_nr = current_name.right(current_name.size() - base.size()).toInt();
+	QString new_name;
+	do
+		new_name = base + QString::number(++new_nr);
+	while (child_names.contains(new_name));
+
+	return new_name;
+}

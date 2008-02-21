@@ -89,13 +89,26 @@ int AspectTreeModel::columnCount(const QModelIndex &parent) const
 
 QVariant AspectTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-	if(orientation != Qt::Horizontal || role != Qt::DisplayRole) return QVariant();
-	switch(section) {
-		case 0: return tr("Name");
-		case 1: return tr("Type");
-		case 2: return tr("Created");
-		case 3: return tr("Comment");
-		default: return QVariant();
+	if(orientation != Qt::Horizontal) return QVariant();
+	switch(role) {
+		case Qt::DisplayRole:
+			switch(section) {
+				case 0: return tr("Name");
+				case 1: return tr("Type");
+				case 2: return tr("Created");
+				case 3: return tr("Comment");
+				default: return QVariant();
+			}
+		case Qt::SizeHintRole:
+			switch(section) {
+				case 0: return QSize(300,20);
+				case 1: return QSize(80,20);
+				case 2: return QSize(160,20);
+				case 3: return QSize(400,20);
+				default: return QVariant();
+			}
+		default:
+			return QVariant();
 	}
 }
 

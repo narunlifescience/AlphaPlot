@@ -72,7 +72,7 @@ TableView::~TableView()
 
 void TableView::init()
 {
-	d_main_layout = new QVBoxLayout(this);
+	d_main_layout = new QHBoxLayout(this);
 	d_main_layout->setSpacing(0);
 	d_main_layout->setContentsMargins(0, 0, 0, 0);
 	
@@ -86,28 +86,19 @@ void TableView::init()
     d_horizontal_header->setHighlightSections(true);
 	d_view_widget->setHorizontalHeader(d_horizontal_header);
 
-	d_options_bar = new QWidget();
-	d_sub_layout = new QVBoxLayout(d_options_bar);
-	d_sub_layout->setSpacing(0);
-	d_sub_layout->setContentsMargins(0, 0, 0, 0);
 	d_hide_button = new QToolButton();
-	d_hide_button->setArrowType(Qt::DownArrow);
-	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+	d_hide_button->setArrowType(Qt::RightArrow);
+	d_hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding));
 	d_hide_button->setCheckable(false);
-	d_sub_layout->addWidget(d_hide_button);
-	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleOptionTabBar()));
-	d_options_tabs = new QWidget();
-    ui.setupUi(d_options_tabs);
-	d_tool_box = new QScrollArea();
-	d_tool_box->setWidget(d_options_tabs);
-	d_options_tabs->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-	d_tool_box->setWidgetResizable(true);
-	d_sub_layout->addWidget(d_tool_box);
+	d_main_layout->addWidget(d_hide_button);
+	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
+	d_control_tabs = new QWidget();
+    ui.setupUi(d_control_tabs);
+	d_main_layout->addWidget(d_control_tabs);
 
 	d_delegate = new TableItemDelegate(d_view_widget);
 	d_view_widget->setItemDelegate(d_delegate);
 	
-	d_main_layout->addWidget(d_options_bar);
 	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
 	d_main_layout->setStretchFactor(d_view_widget, 1);
 
@@ -167,7 +158,7 @@ void TableView::changeEvent(QEvent * event)
 void TableView::retranslateStrings()
 {
 	d_hide_button->setToolTip(tr("Show/hide options"));
-    ui.retranslateUi(d_tool_box);
+    ui.retranslateUi(d_control_tabs);
 
 	ui.type_box->clear();
 	ui.type_box->addItem(tr("Numeric"), QVariant(int(SciDAVis::Numeric)));
@@ -179,7 +170,7 @@ void TableView::retranslateStrings()
 	ui.type_box->setCurrentIndex(0);
 
 	// TODO: implement formula stuff
-	ui.formula_info->document()->setPlainText("not implemented yet");
+	//ui.formula_info->document()->setPlainText("not implemented yet");
 }
 	
 void TableView::advanceCell()
@@ -280,13 +271,13 @@ void TableView::selectAll()
 	d_view_widget->selectAll();
 }
 
-void TableView::toggleOptionTabBar() 
+void TableView::toggleControlTabBar() 
 { 
-	d_tool_box->setVisible(!d_tool_box->isVisible());
-	if(d_tool_box->isVisible())
-		d_hide_button->setArrowType(Qt::DownArrow);
+	d_control_tabs->setVisible(!d_control_tabs->isVisible());
+	if(d_control_tabs->isVisible())
+		d_hide_button->setArrowType(Qt::RightArrow);
 	else
-		d_hide_button->setArrowType(Qt::UpArrow);
+		d_hide_button->setArrowType(Qt::LeftArrow);
 }
 
 void TableView::horizontalSectionMovedHandler(int index, int from, int to)
@@ -333,7 +324,8 @@ void TableView::setColumnForDescriptionTab(int col)
 	QString str = QString(tr("Current column:\nName: %1\nPosition: %2"))\
 		.arg(col_ptr->name()).arg(col+1);
 		
-	ui.column_info->document()->setPlainText(str);
+	// TODO: currently, this eats up considerable screen space for duplicate information - do we need it?
+	//ui.column_info->document()->setPlainText(str);
 	ui.name_edit->setText(col_ptr->name());
 	ui.comment_box->document()->setPlainText(col_ptr->comment());
 }
@@ -468,23 +460,23 @@ void TableView::updateTypeInfo()
 	ui.type_info->setText(str);
 }
 
-void TableView::showOptionsDescriptionTab()
+void TableView::showControlDescriptionTab()
 {
-	d_tool_box->setVisible(true);
+	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::DownArrow);
 	ui.tab_widget->setCurrentIndex(0);
 }
 
-void TableView::showOptionsTypeTab()
+void TableView::showControlTypeTab()
 {
-	d_tool_box->setVisible(true);
+	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::DownArrow);
 	ui.tab_widget->setCurrentIndex(1);
 }
 
-void TableView::showOptionsFormulaTab()
+void TableView::showControlFormulaTab()
 {
-	d_tool_box->setVisible(true);
+	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::DownArrow);
 	ui.tab_widget->setCurrentIndex(2);
 }
@@ -528,8 +520,6 @@ void TableView::applyType()
 		case SciDAVis::Month:
 		case SciDAVis::Day:
 		case SciDAVis::DateTime:
-		case SciDAVis::Date:
-		case SciDAVis::Time:
 			foreach(Column* col, list)
 			{
 				col->setColumnMode(mode);

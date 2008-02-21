@@ -9,7 +9,7 @@ debug {
 	DEFINES += QT_STATICPLUGIN
 }
 
-FORMS += optionstabs.ui \
+FORMS += controltabs.ui \
 
 HEADERS += \
 	TableModule.h \

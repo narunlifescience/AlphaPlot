@@ -435,7 +435,7 @@ void Table::unmaskSelection()
 
 void Table::setFormulaForSelection()
 {
-	d_view->showOptionsFormulaTab();
+	d_view->showControlFormulaTab();
 }
 
 void Table::recalculateSelectedCells()
@@ -460,7 +460,7 @@ void Table::fillSelectedCellsWithRowNumbers()
 		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
 		in_fltr->input(0, temp);
 		int col = columnIndex(col_ptr);
-		for(int row=first; row<last; row++)
+		for(int row=first; row<=last; row++)
 			if(d_view->isCellSelected(row, col)) 
 			{
 				temp->setTextAt(0, QString::number(row+1));
@@ -709,12 +709,12 @@ void Table::clearSelectedRows()
 
 void Table::editTypeAndFormatOfSelectedColumns()
 {
-	d_view->showOptionsTypeTab();
+	d_view->showControlTypeTab();
 }
 
 void Table::editDescriptionOfCurrentColumn()
 {
-	d_view->showOptionsDescriptionTab();
+	d_view->showControlDescriptionTab();
 }
 
 void Table::addRows()
@@ -838,7 +838,7 @@ void Table::createActions()
 	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
 	action_toggle_tabbar = new QAction(*icon_temp, QString(), this); // show/hide options tabs
-	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleOptionTabBar()));
+	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
 	delete icon_temp;
 
 	icon_temp = new QIcon();
@@ -1017,10 +1017,10 @@ void Table::showTableViewContextMenu(const QPoint& pos)
 		action_name = tr("Show Comments");
 	action_toggle_comments->setText(action_name);
 
-	if(d_view->isOptionTabBarVisible()) 
-		action_name = tr("Hide Options");
+	if(d_view->isControlTabBarVisible()) 
+		action_name = tr("Hide Controls");
 	else
-		action_name = tr("Show Options");
+		action_name = tr("Show Controls");
 	action_toggle_tabbar->setText(action_name);
 
 	context_menu.exec(pos);
@@ -1063,7 +1063,7 @@ QMenu * Table::createApplicationWindowMenu()
 	QMenu * menu = new QMenu(tr("Table"));
 
 	// [Context Menu]
-	// Show/Hide Column Options (Dock)
+	// Show/Hide Column Controls (Dock)
 	// Set Dimensions
 	// Convert to Matrix
 	return menu;

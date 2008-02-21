@@ -47,7 +47,7 @@
 #include <QComboBox>
 #include <QSpinBox> 
 #include <QScrollArea>
-#include "ui_optionstabs.h"
+#include "ui_controltabs.h"
 #include <QtDebug>
 #include "globals.h"
 
@@ -90,7 +90,7 @@ class TableView : public QWidget
 		TableView(Table *table);
 		//! Destructor
 		virtual ~TableView();
-		bool isOptionTabBarVisible() { return d_tool_box->isVisible(); }
+		bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
 		//! Show or hide (if on = false) the column comments
 		void showComments(bool on = true);
 		//! Return whether comments are show currently
@@ -167,11 +167,11 @@ class TableView : public QWidget
 	public slots:
 		void goToCell(int row, int col);
 		void selectAll();
-		void toggleOptionTabBar();
+		void toggleControlTabBar();
 		void toggleComments();
-		void showOptionsDescriptionTab();
-		void showOptionsTypeTab();
-		void showOptionsFormulaTab();
+		void showControlDescriptionTab();
+		void showControlTypeTab();
+		void showControlFormulaTab();
 
 	protected slots:
 		void scrollToIndex(const QModelIndex & index);
@@ -203,19 +203,14 @@ class TableView : public QWidget
 
 	private:
 		//! UI with options tabs (description, format, formula etc.)
-		Ui::OptionsTabs ui;
+		Ui::ControlTabs ui;
 		//! The table view (first part of the UI)
 		TableViewWidget * d_view_widget;
-		//! The second part of the UI containing #d_tool_box and #d_hide_button
-		QWidget * d_options_bar;
-		//! Scroll area containing the option tabs widget
-		QScrollArea * d_tool_box;
-		//! Widget that contains the options tabs UI from #ui
-		QWidget * d_options_tabs;
+		//! Widget that contains the control tabs UI from #ui
+		QWidget * d_control_tabs;
 		//! Button to toogle the visibility of #d_tool_box
 		QToolButton * d_hide_button;
-		QVBoxLayout * d_main_layout;
-		QVBoxLayout * d_sub_layout;
+		QHBoxLayout * d_main_layout;
 		TableDoubleHeaderView * d_horizontal_header;
 		Table * d_table;
 
