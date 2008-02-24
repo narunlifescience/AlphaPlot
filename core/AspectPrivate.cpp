@@ -195,7 +195,7 @@ QString AbstractAspect::Private::uniqueNameFor(const QString &current_name) cons
 
 	QString base = current_name;
 	int last_non_digit;
-	for (int last_non_digit = base.size()-1; last_non_digit>=0 &&
+	for (last_non_digit = base.size()-1; last_non_digit>=0 &&
 			base[last_non_digit].category() == QChar::Number_DecimalDigit; --last_non_digit)
 		base.chop(1);
 	if (last_non_digit >=0 && base[last_non_digit].category() != QChar::Separator_Space)

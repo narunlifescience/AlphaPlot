@@ -110,8 +110,9 @@ void Table::insertColumns(int before, QList<Column*> new_cols)
 	if( new_cols.size() < 1 || before < 0 || before > columnCount()) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(new_cols.size()));
+	int pos=before;
 	foreach(Column* col, new_cols)
-		addChild(col);
+		insertChild(col, pos++);
 	exec(new TableInsertColumnsCmd(d_table_private, before, new_cols));
 	endMacro();
 	RESET_CURSOR;
@@ -124,7 +125,7 @@ void Table::removeColumns(int first, int count)
 	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
 	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
-		cols.append(dynamic_cast<Column*>(d_table_private->column(i)));
+		cols.append(d_table_private->column(i));
 	exec(new TableRemoveColumnsCmd(d_table_private, first, count, cols));
 	foreach(Column* col, cols)
 		removeChild(col);
