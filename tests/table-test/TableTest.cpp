@@ -183,10 +183,10 @@ class TableTest : public CppUnit::TestFixture {
 			table->insertRows(5,3);
 			table->removeColumns(6,table->columnCount()-1-6);
 			table_view->showComments(true);
-			table->column(1)->setColumnLabel("column one");
-			table->column(0)->setColumnComment("this is column zero\nnew line\nthird line\nforth line");
-			CPPUNIT_ASSERT_EQUAL(QString("column one"), table->column(1)->columnLabel());
-			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line\nthird line\nforth line"), table->column(0)->columnComment());
+			table->column(1)->setName("column one");
+			table->column(0)->setComment("this is column zero\nnew line\nthird line\nforth line");
+			CPPUNIT_ASSERT_EQUAL(QString("column one"), table->column(1)->name());
+			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line\nthird line\nforth line"), table->column(0)->comment());
 			CPPUNIT_ASSERT_EQUAL(2, table->columnCount(SciDAVis::X));
 			CPPUNIT_ASSERT_EQUAL(4, table->columnCount(SciDAVis::Y));
 			CPPUNIT_ASSERT_EQUAL(0, table->columnCount(SciDAVis::Z));

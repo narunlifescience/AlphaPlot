@@ -1,6 +1,7 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "assertion_traits.h"
 
+#include "Project.h"
 #include "Column.h"
 #include "Interval.h"
 #include "SimpleMappingFilter.h"
@@ -11,20 +12,24 @@
 #include <QLocale>
 #include <QtDebug>
 #include <QUndoStack>
+#include <QStringList>
+#include <QApplication>
+#include <QMainWindow>
 
 #define EPSILON (1e-6)
+
+class globals
+{
+	public:
+		static QApplication * app;
+		static QMainWindow * mw;
+		
+};
 
 class ColumnWrapper : public Column
 {
 	
 	public:
-		virtual QUndoStack *undoStack() const 
-		{ 
-			static QUndoStack * undo_stack = 0;
-			if(!undo_stack) undo_stack = new QUndoStack();
-			return undo_stack; 
-		}
-
 
 		ColumnWrapper(const QString& label, SciDAVis::ColumnMode mode) : Column(label, mode) {};
 		ColumnWrapper(const QString& label, QVector<double> data, IntervalAttribute<bool> validity = IntervalAttribute<bool>())
@@ -128,6 +133,7 @@ class ColumnTest : public CppUnit::TestFixture {
 	public:
 		void setUp() 
 		{
+			prj = new Project();
 			QVector<double> double_temp;
 			double_temp << 1.1 << 2.2 << 3.3;
 			QStringList strl_temp;
@@ -150,16 +156,18 @@ class ColumnTest : public CppUnit::TestFixture {
 			column[8] = new ColumnWrapper("col8", SciDAVis::Day);
 			column[9] = new ColumnWrapper("col9", SciDAVis::Day);
 			column[10] = new ColumnWrapper("col10", double_temp);
+			for(int i=0; i<11; i++)
+				prj->addChild(column[i]);
 		}
 		
 		void tearDown() 
 		{
-			for(int i=0; i<11; i++)
-				delete column[i];
+			delete prj;
 		}
 
 	private:
 		ColumnWrapper *column[11];
+		Project *prj;
 
 /* ------------------------------------------------------------------------------ */
 		void testGeneralMethods() 
@@ -176,10 +184,10 @@ class ColumnTest : public CppUnit::TestFixture {
 
 
 			// test label and comment
-			column[0]->setColumnLabel("foo bar!");
-			CPPUNIT_ASSERT_EQUAL(QString("foo bar!"), column[0]->columnLabel());
-			column[0]->setColumnComment("comment!");
-			CPPUNIT_ASSERT_EQUAL(QString("comment!"), column[0]->columnComment());
+			column[0]->setName("foo bar!");
+			CPPUNIT_ASSERT_EQUAL(QString("foo bar!"), column[0]->name());
+			column[0]->setComment("comment!");
+			CPPUNIT_ASSERT_EQUAL(QString("comment!"), column[0]->comment());
 
 
 		}
@@ -246,10 +254,10 @@ class ColumnTest : public CppUnit::TestFixture {
 /* ------------------------------------------------------------------------------ */
 		void testDoubleColumn() 
 		{
-			CPPUNIT_ASSERT_EQUAL(column[0]->columnLabel(), QString("col0"));	
+			CPPUNIT_ASSERT_EQUAL(column[0]->name(), QString("col0"));	
 			CPPUNIT_ASSERT_EQUAL(column[0]->columnMode(), SciDAVis::Numeric);	
 			CPPUNIT_ASSERT_EQUAL(column[0]->dataType(), SciDAVis::TypeDouble);	
-			CPPUNIT_ASSERT_EQUAL(column[1]->columnLabel(), QString("col1"));	
+			CPPUNIT_ASSERT_EQUAL(column[1]->name(), QString("col1"));	
 			CPPUNIT_ASSERT_EQUAL(column[1]->columnMode(), SciDAVis::Numeric);	
 			CPPUNIT_ASSERT_EQUAL(column[1]->dataType(), SciDAVis::TypeDouble);	
 
@@ -312,10 +320,10 @@ class ColumnTest : public CppUnit::TestFixture {
 /* ------------------------------------------------------------------------------ */
 		void testStringColumn() 
 		{
-			CPPUNIT_ASSERT_EQUAL(column[2]->columnLabel(), QString("col2"));	
+			CPPUNIT_ASSERT_EQUAL(column[2]->name(), QString("col2"));	
 			CPPUNIT_ASSERT_EQUAL(column[2]->columnMode(), SciDAVis::Text);	
 			CPPUNIT_ASSERT_EQUAL(column[2]->dataType(), SciDAVis::TypeQString);	
-			CPPUNIT_ASSERT_EQUAL(column[3]->columnLabel(), QString("col3"));	
+			CPPUNIT_ASSERT_EQUAL(column[3]->name(), QString("col3"));	
 			CPPUNIT_ASSERT_EQUAL(column[3]->columnMode(), SciDAVis::Text);	
 			CPPUNIT_ASSERT_EQUAL(column[3]->dataType(), SciDAVis::TypeQString);	
 
@@ -376,12 +384,12 @@ class ColumnTest : public CppUnit::TestFixture {
 /* ------------------------------------------------------------------------------ */
 		void testDateTimeColumn() 
 		{
-			CPPUNIT_ASSERT_EQUAL(column[4]->columnLabel(), QString("col4"));	
-			CPPUNIT_ASSERT_EQUAL(column[5]->columnLabel(), QString("col5"));	
-			CPPUNIT_ASSERT_EQUAL(column[6]->columnLabel(), QString("col6"));	
-			CPPUNIT_ASSERT_EQUAL(column[7]->columnLabel(), QString("col7"));	
-			CPPUNIT_ASSERT_EQUAL(column[8]->columnLabel(), QString("col8"));	
-			CPPUNIT_ASSERT_EQUAL(column[9]->columnLabel(), QString("col9"));	
+			CPPUNIT_ASSERT_EQUAL(column[4]->name(), QString("col4"));	
+			CPPUNIT_ASSERT_EQUAL(column[5]->name(), QString("col5"));	
+			CPPUNIT_ASSERT_EQUAL(column[6]->name(), QString("col6"));	
+			CPPUNIT_ASSERT_EQUAL(column[7]->name(), QString("col7"));	
+			CPPUNIT_ASSERT_EQUAL(column[8]->name(), QString("col8"));	
+			CPPUNIT_ASSERT_EQUAL(column[9]->name(), QString("col9"));	
 
 			CPPUNIT_ASSERT_EQUAL(column[4]->columnMode(), SciDAVis::DateTime);	
 			CPPUNIT_ASSERT_EQUAL(column[5]->columnMode(), SciDAVis::DateTime);	
@@ -703,12 +711,6 @@ class ColumnTest : public CppUnit::TestFixture {
 				CPPUNIT_ASSERT_EQUAL(SciDAVis::Day, column[0]->columnMode());
 				column[0]->setColumnMode(SciDAVis::Numeric);
 				CPPUNIT_ASSERT_EQUAL(SciDAVis::Numeric, column[0]->columnMode());
-
-				// Check conversion from obsolete values to DateTime
-				column[0]->setColumnMode(SciDAVis::Date);
-				CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, column[0]->columnMode());
-				column[0]->setColumnMode(SciDAVis::Time);
-				CPPUNIT_ASSERT_EQUAL(SciDAVis::DateTime, column[0]->columnMode());
 		}
 /* ------------------------------------------------------------------------------ */
 		void testUndo()
@@ -970,7 +972,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				writer = new QXmlStreamWriter(&output);
 				column[i]->save(writer);
 				// qDebug() << "i = " << i;
-				// qDebug() << "now reading column " << column[i]->columnLabel();
+				// qDebug() << "now reading column " << column[i]->name();
 				// qDebug() << output;
 				reader = new QXmlStreamReader(output);
 				reader->readNext();
@@ -979,7 +981,7 @@ class ColumnTest : public CppUnit::TestFixture {
 				if(!temp_col->load(reader))
 				{
                           qDebug() << QString("Parse error in column %1 at line %2, column %3:\n%4")
-							  .arg(column[i]->columnLabel())
+							  .arg(column[i]->name())
                               .arg(reader->lineNumber())
                               .arg(reader->columnNumber())
                               .arg(reader->errorString());
@@ -1086,13 +1088,8 @@ class ColumnTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, col1->valueAt(8),EPSILON);
 			CPPUNIT_ASSERT_DOUBLES_EQUAL(9.0, col1->valueAt(9),EPSILON);
 
-			CPPUNIT_ASSERT_EQUAL(col1->columnLabel(), col2->columnLabel());
-			col2->setColumnLabel("foo");
-			CPPUNIT_ASSERT_EQUAL(QString("foo"), col1->columnLabel());
-			col2->setColumnComment("bar");
-			CPPUNIT_ASSERT_EQUAL(QString("bar"), col1->columnComment());
-			col2->setPlotDesignation(SciDAVis::Z);
-			CPPUNIT_ASSERT_EQUAL(SciDAVis::Z, col1->plotDesignation());
+			col1->setPlotDesignation(SciDAVis::Z);
+			CPPUNIT_ASSERT_EQUAL(SciDAVis::Z, col2->output(0)->plotDesignation());
 
 			col1->copy(col3);
 			col2->clearMappings();

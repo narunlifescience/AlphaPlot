@@ -122,29 +122,32 @@ class AspectChildRemoveCmd : public QUndoCommand
 {
 	public:
 		AspectChildRemoveCmd(AbstractAspect::Private * target, AbstractAspect* child)
-			: d_target(target), d_child(child) {
+			: d_target(target), d_child(child), d_removed(false) {
 				setText(QObject::tr("%1: remove %2").arg(d_target->name()).arg(d_child->name()));
 			}
 		~AspectChildRemoveCmd() {
-			if (!d_child->parentAspect())
+			if (d_removed)			
 				delete d_child;
 		}
 
 		// calling redo transfers ownership of d_child to the undo command
 		virtual void redo() {
 			d_index = d_target->removeChild(d_child);
+			d_removed = true;
 		}
 
 		// calling undo transfers ownership of d_child back to its parent aspect
 		virtual void undo() {
 			Q_ASSERT(d_index != -1); // d_child must be a child of d_target->owner()
 			d_target->insertChild(d_index, d_child);
+			d_removed = false;
 		}
 
 	protected:
 		AbstractAspect::Private * d_target;
 		AbstractAspect* d_child;
 		int d_index;
+		bool d_removed;
 };
 
 class AspectChildAddCmd : public AspectChildRemoveCmd

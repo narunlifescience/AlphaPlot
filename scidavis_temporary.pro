@@ -12,7 +12,7 @@ RESOURCES += \
 	appicons.qrc \
 	icons.qrc \
 
-FORMS += optionstabs.ui \
+FORMS += controltabs.ui \
 
 HEADERS += \
 	Notes.h \

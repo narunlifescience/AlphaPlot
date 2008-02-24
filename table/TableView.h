@@ -192,14 +192,11 @@ class TableView : public QWidget
 		//! Pointer to the current underlying model
 		TableModel * d_model;
 
-		virtual void contextMenuEvent(QContextMenuEvent *event);
 		virtual void changeEvent(QEvent * event);
 		void retranslateStrings();
 		void setColumnForDescriptionTab(int col);
 
-		static QRect mapToGlobal(QWidget *widget, const QRect& rect);
-		static QRect mapToParent(QWidget *widget, const QRect& rect);
-		QRect mapToThis(QWidget *widget, const QRect& rect);
+		bool eventFilter( QObject * watched, QEvent * event);
 
 	private:
 		//! UI with options tabs (description, format, formula etc.)

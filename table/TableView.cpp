@@ -122,9 +122,15 @@ void TableView::init()
 	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
 	d_horizontal_header->setMovable(true);
 	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
-	
-	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view_widget, SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
-	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
+
+	v_header->installEventFilter(this);
+	d_horizontal_header->installEventFilter(this);
+	d_view_widget->installEventFilter(this);
+
+	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), d_view_widget, 
+		SLOT(updateHeaderGeometry(Qt::Orientation,int,int)) ); 
+	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, 
+		SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
 
 	
 	// keyboard shortcuts
@@ -182,75 +188,6 @@ void TableView::advanceCell()
 		d_table->setRowCount(new_size);
 	}
 	d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
-}
-
-void TableView::contextMenuEvent(QContextMenuEvent *event)
-{
-	QHeaderView * v_header = d_view_widget->verticalHeader();
-
-	QRect view_rect, vh_rect, hh_rect;
-
-	// TODO: There seem to be problems mapping coordinates in a QMdiSubWindow
-	// which is handled by X11. The handling of context menus for the headers
-	// does not work properly yet due to this reason. I hope this problem
-	// goes away once QMdiWindow is not a part of TableView anymore. - thzs
-
-/*	view_rect = mapToParent(this, mapToParent(d_view_widget, d_view_widget->geometry()));
-	hh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));*/
-/*	view_rect = mapToParent(this, mapToParent(d_view_widget, d_view_widget->geometry()));
-	hh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(d_horizontal_header, d_horizontal_header->geometry())));
-	vh_rect = mapToParent(this, mapToParent(d_view_widget, mapToParent(v_header, v_header->geometry())));
-*/
-/*	view_rect = mapToGlobal(d_view_widget, d_view_widget->geometry());
-	hh_rect = mapToGlobal(d_horizontal_header, d_horizontal_header->geometry());
-	vh_rect = mapToGlobal(v_header, v_header->geometry()); */
-	view_rect = d_view_widget->geometry();
-	hh_rect = d_horizontal_header->geometry();
-	QRect hh2 = mapToParent(d_horizontal_header, hh_rect);
-	vh_rect = v_header->geometry(); 
-	QRect vh2 = mapToParent(v_header, vh_rect);
-
-	QPoint pos = event->pos(), global_pos = event->globalPos();
-	if(view_rect.contains(global_pos))	
-	{
-		if(vh_rect.contains(global_pos))
-			d_table->showTableViewRowContextMenu(global_pos);
-		else if(hh_rect.contains(global_pos))
-			d_table->showTableViewColumnContextMenu(global_pos);
-		else
-			d_table->showTableViewContextMenu(global_pos);
-		event->accept();
-	}
-	else
-		QWidget::contextMenuEvent(event);
-}
-		
-QRect TableView::mapToGlobal(QWidget *widget, const QRect& rect)
-{
-	QPoint top_left = rect.topLeft();
-	QPoint bottom_right = rect.bottomRight();
-	top_left = widget->mapToGlobal(top_left);
-	bottom_right = widget->mapToGlobal(bottom_right);
-	return QRect(top_left, bottom_right);
-}
-
-QRect TableView::mapToParent(QWidget *widget, const QRect& rect)
-{
-	QPoint top_left = rect.topLeft();
-	QPoint bottom_right = rect.bottomRight();
-	top_left = widget->mapToParent(top_left);
-	bottom_right = widget->mapToParent(bottom_right);
-	return QRect(top_left, bottom_right);
-}
-
-QRect TableView::mapToThis(QWidget *widget, const QRect& rect)
-{
-	QPoint top_left = rect.topLeft();
-	QPoint bottom_right = rect.bottomRight();
-	top_left = widget->mapTo(this, top_left);
-	bottom_right = widget->mapTo(this, bottom_right);
-	return QRect(top_left, bottom_right);
 }
 
 void TableView::goToCell(int row, int col)
@@ -671,6 +608,29 @@ void TableView::getCurrentCell(int * row, int * col)
 	}
 }
 
+bool TableView::eventFilter(QObject * watched, QEvent * event)
+{
+	QHeaderView * v_header = d_view_widget->verticalHeader();
+
+	if (event->type() == QEvent::ContextMenu) 
+	{
+		QContextMenuEvent *cm_event = static_cast<QContextMenuEvent *>(event);
+		QPoint global_pos = cm_event->globalPos();
+		if(watched == v_header)	
+			d_table->showTableViewRowContextMenu(global_pos);
+		else if(watched == d_horizontal_header)
+			d_table->showTableViewColumnContextMenu(global_pos);
+		else if(watched == d_view_widget)
+			d_table->showTableViewContextMenu(global_pos);
+		else
+			return QWidget::eventFilter(watched, event);
+
+		return true;
+	} 
+	else 
+		return QWidget::eventFilter(watched, event);
+}
+	
 /* ================== TableViewWidget ================ */
 
 void TableViewWidget::selectAll()

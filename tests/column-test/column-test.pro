@@ -34,6 +34,13 @@ HEADERS += \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
 			  SimpleMappingFilter.h \
+			  Project.h \
+			  Folder.h \
+			  ProjectWindow.h \
+			  AbstractPart.h \
+			  PartMdiView.h \
+			  ProjectExplorer.h \
+			  AspectTreeModel.h \
 
 
 SOURCES += \
@@ -49,7 +56,13 @@ SOURCES += \
 			  SimpleMappingFilter.cpp \
 			  DateTime2StringFilter.cpp \
 			  Double2StringFilter.cpp \
-
+			  Project.cpp \
+			  Folder.cpp \
+			  ProjectWindow.cpp \
+			  AbstractPart.cpp \
+			  PartMdiView.cpp \
+			  ProjectExplorer.cpp \
+			  AspectTreeModel.cpp \
 
 # test cases
 HEADERS += \

@@ -11,7 +11,7 @@ RESOURCES += \
 	appicons.qrc \
 	icons.qrc \
 
-FORMS += optionstabs.ui \
+FORMS += controltabs.ui \
 
 
 HEADERS += \
@@ -49,7 +49,7 @@ HEADERS += \
 			  AbstractScriptingEngine.h \
 			  test_wrappers.h \
 			  Project.h \
-			  aspect-test/Folder.h \
+			  Folder.h \
 			  ProjectWindow.h \
 			  AspectTreeModel.h \
 			  ProjectExplorer.h \
@@ -57,6 +57,8 @@ HEADERS += \
 			  TableDoubleHeaderView.h \
 			  TableCommentsHeaderModel.h  \
 			  SimpleMappingFilter.h \
+			  AbstractPart.h \
+			  PartMdiView.h \
 
 
 
@@ -75,7 +77,7 @@ SOURCES += \
 			  TableModel.cpp \
 			  AbstractScriptingEngine.cpp \
 			  Project.cpp \
-			  aspect-test/Folder.cpp \
+			  Folder.cpp \
 			  ProjectWindow.cpp \
 			  AspectTreeModel.cpp \
 			  ProjectExplorer.cpp \
@@ -86,7 +88,9 @@ SOURCES += \
 			  DateTime2StringFilter.cpp \
 			  String2DateTimeFilter.cpp \
 			  Double2StringFilter.cpp \
-		
+			  AbstractSimpleFilter.cpp \
+			  AbstractPart.cpp \
+			  PartMdiView.cpp \
 
 
 SOURCES += main.cpp \

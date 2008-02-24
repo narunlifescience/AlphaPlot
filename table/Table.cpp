@@ -837,7 +837,7 @@ void Table::createActions()
 	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
-	action_toggle_tabbar = new QAction(*icon_temp, QString(), this); // show/hide options tabs
+	action_toggle_tabbar = new QAction(*icon_temp, QString(), this); // show/hide control tabs
 	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
 	delete icon_temp;
 

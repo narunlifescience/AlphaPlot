@@ -50,8 +50,8 @@ TableModel::TableModel(Table * table)
 			this, SLOT(handleRowsInserted(int, int)));
 	connect(d_table, SIGNAL(rowsAboutToBeRemoved(int, int)),
 			this, SLOT(handleRowsAboutToBeRemoved(int, int)));
-	connect(d_table, SIGNAL(rowsInserted(int, int)),
-			this, SLOT(handleRowsInserted(int, int)));
+	connect(d_table, SIGNAL(rowsRemoved(int, int)),
+			this, SLOT(handleRowsRemoved(int, int)));
 	connect(d_table, SIGNAL(dataChanged(int, int, int, int)),
 			this, SLOT(handleDataChanged(int, int, int, int)));
 	connect(d_table, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
