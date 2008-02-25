@@ -82,12 +82,6 @@ class Table: public AbstractPart // TODO:, public scripted
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
 		//! Return a new context menu
-		/**
-		 * \param append_to if a pointer to a QMenu is passed
-		 * to the function, the actions are appended to
-		 * it instead of the creation of a new menu.
-		 * Otherwise the caller takes ownership of the menu.
-		 */
 		virtual QMenu *createContextMenu();
 		//! Construct a standard view on me.
 		/**

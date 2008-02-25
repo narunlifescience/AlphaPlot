@@ -56,6 +56,10 @@ HEADERS += \
 	PartMdiView.h \
 	ProjectExplorer.h \
 	SimpleMappingFilter.h \
+	AbstractImportFilter.h \
+	AbstractExportFilter.h \
+	ExtensibleFileDialog.h \
+	ImportDialog.h \
 
 SOURCES += \
 	main.cpp \
@@ -80,3 +84,5 @@ SOURCES += \
 	String2DateTimeFilter.cpp \
 	Double2StringFilter.cpp \
 	staticplugins.cpp \
+	ExtensibleFileDialog.cpp \
+	ImportDialog.cpp \

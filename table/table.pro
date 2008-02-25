@@ -21,6 +21,7 @@ HEADERS += \
 	SortDialog.h \
 	TableDoubleHeaderView.h \
 	TableCommentsHeaderModel.h  \
+	AsciiTableImportFilter.h \
 
 SOURCES += \
 	TableModule.cpp \
@@ -32,4 +33,5 @@ SOURCES += \
 	SortDialog.cpp \
 	TableDoubleHeaderView.cpp \
 	TableCommentsHeaderModel.cpp  \
+	AsciiTableImportFilter.cpp \
 

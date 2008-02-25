@@ -51,7 +51,7 @@ class AbstractPart : public AbstractAspect
 		 * The caller recieves ownership of the view.
 		 *
 		 * This method may be called multiple times during the life time of a Part, or it might not get
-		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 * called at all. Parts must not depend on the existence of a view for their operation.
 		 */
 		virtual QWidget * view() = 0;
 		//! Wrap the view() into a PartMdiView.
@@ -60,6 +60,7 @@ class AbstractPart : public AbstractAspect
 		 * after that, a pointer to the pre-existing view is returned.
 		 */
 		PartMdiView * mdiSubWindow();
+		//! Return AbstractAspect::createContextMenu() plus operations on the primary view.
 		virtual QMenu * createContextMenu() const;
 
 	public slots:

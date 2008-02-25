@@ -221,6 +221,11 @@ template<> class IntervalAttribute<bool>
 			}
 		}
 
+		void setValue(int row, bool value) 
+		{
+			setValue(Interval<int>(row, row), value);
+		}
+
 		bool isSet(int row) const 
 		{
 			foreach(Interval<int> iv, d_intervals)

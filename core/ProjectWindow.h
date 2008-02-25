@@ -81,6 +81,7 @@ class ProjectWindow : public QMainWindow
 		void updateMdiWindowVisibility();
 		void hideAllMdiWindows();
 		void showAllMdiWindows();
+		void importAspect();
 
 	signals:
 		void partActivated(AbstractPart*);
@@ -114,6 +115,7 @@ class ProjectWindow : public QMainWindow
 		struct {
 		QAction 
 			*quit,
+			*import_aspect,
 			*new_folder;
 		} d_actions;
 

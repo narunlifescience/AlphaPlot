@@ -2468,7 +2468,6 @@ Table* ApplicationWindow::newTable(const QString& fname, const QString &sep,
 		int lines, bool renameCols, bool stripSpaces,
 		bool simplifySpaces)
 {
-	// TODO: implement ASCII import in Table
 	/*
 	Table* w = new Table(d_scripting_engine, fname, sep, lines, renameCols, stripSpaces,
 			simplifySpaces, fname, ws, 0, 0);

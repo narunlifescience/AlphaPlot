@@ -35,6 +35,9 @@ class AbstractPart;
 class QAction;
 class QMenu;
 class ProjectWindow;
+class AbstractFilter;
+class AbstractImportFilter;
+class AbstractExportFilter;
 
 //! Factory for AbstractPart objects.
 class PartMaker
@@ -45,7 +48,8 @@ class PartMaker
 		virtual AbstractPart *makePart() = 0;
 		//! The action to be used for making new parts.
 		/**
-		 * The caller recieves ownership of the action and takes care of connecting it.
+		 * The caller takes care of connecting the action. If the parent argument is zero, it
+		 * also recieves ownership of the action.
 		 * Implementations should only set things like name and icon.
 		 */
 		virtual QAction *makeAction(QObject *parent) = 0;
@@ -63,5 +67,31 @@ class ProjectMenuMaker
 };
 
 Q_DECLARE_INTERFACE(ProjectMenuMaker, "net.sf.scidavis.projectmenumaker/0.1")
+
+//! Factory for filters.
+/**
+ * A FilterMaker introduces one or more filters to the kernel.
+ */
+class FilterMaker
+{
+	public:
+		virtual ~FilterMaker() {}
+		virtual AbstractFilter * makeFilter(int id=0) = 0;
+		virtual int filterCount() const { return 1; }
+		virtual QAction *makeAction(QObject *parent, int id=0) = 0;
+};
+
+Q_DECLARE_INTERFACE(FilterMaker, "net.sf.scidavis.filtermaker/0.1")
+
+//! Factory for import/export filters.
+class FileFormat
+{
+	public:
+		virtual ~FileFormat() {}
+		virtual AbstractImportFilter * makeImportFilter() = 0;
+		virtual AbstractExportFilter * makeExportFilter() = 0;
+};
+
+Q_DECLARE_INTERFACE(FileFormat, "net.sf.scidavis.fileformat/0.1")
 
 #endif // ifndef INTERFACES_H

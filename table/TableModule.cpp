@@ -31,6 +31,7 @@
 #include "Table.h"
 #include "Project.h"
 #include "ProjectWindow.h"
+#include "AsciiTableImportFilter.h"
 #include <QAction>
 #include <QPixmap>
 
@@ -64,5 +65,15 @@ void TableMenu::handlePartActivated(AbstractPart* part)
 	setEnabled(part->inherits("Table"));
 }
 
+AbstractImportFilter * TableModule::makeImportFilter()
+{
+	return new AsciiTableImportFilter();
+}
+
+AbstractExportFilter * TableModule::makeExportFilter()
+{
+	// TODO
+	return 0;
+}
 
 Q_EXPORT_PLUGIN2(scidavis_table, TableModule)

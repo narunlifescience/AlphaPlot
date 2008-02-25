@@ -36,6 +36,8 @@
 #include "PartMdiView.h"
 #include "ProjectExplorer.h"
 #include "interfaces.h"
+#include "ImportDialog.h"
+#include "AbstractImportFilter.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -158,6 +160,11 @@ void ProjectWindow::initActions()
 			d_part_makers << make;
 		}
 	}
+
+	d_actions.import_aspect = new QAction(tr("&Import"), this);
+	// TODO: we need a new icon for generic imports
+	d_actions.import_aspect->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
+	connect(d_actions.import_aspect, SIGNAL(triggered()), this, SLOT(importAspect()));
 }
 
 void ProjectWindow::initMenus()
@@ -207,6 +214,8 @@ void ProjectWindow::initToolBars()
 	d_buttons.new_aspect->setIcon(QPixmap(":/new_aspect.xpm"));
 	d_buttons.new_aspect->setToolTip(tr("New Aspect"));
 	d_toolbars.file->addWidget(d_buttons.new_aspect);
+
+	d_toolbars.file->addAction(d_actions.import_aspect);
 
 	d_toolbars.edit = new QToolBar( tr("Edit"), this);
 	d_toolbars.edit->setObjectName("edit_toolbar");
@@ -335,3 +344,65 @@ void ProjectWindow::showAllMdiWindows()
 		window->show();
 }
 
+void ProjectWindow::importAspect()
+{
+	QMap<QString, AbstractImportFilter*> filter_map;
+
+	foreach(QObject * plugin, QPluginLoader::staticInstances()) {
+		FileFormat * ff = qobject_cast<FileFormat*>(plugin);
+		if (!ff) continue;
+		AbstractImportFilter *filter = ff->makeImportFilter();
+		filter_map[filter->nameAndPatterns()] = filter;
+	}
+
+	ImportDialog *id = new ImportDialog(filter_map, this);
+	if (id->exec() != QDialog::Accepted)
+		return;
+
+	AbstractImportFilter * filter = filter_map[id->selectedFilter()];
+	QFile file;
+	switch (id->destination()) {
+		case ImportDialog::CurrentProject:
+			foreach(QString file_name, id->selectedFiles()) {
+				file.setFileName(file_name);
+				if (!file.open(QIODevice::ReadOnly)) {
+					statusBar()->showMessage(tr("Could not open file \"%1\".").arg(file_name));
+					return;
+				}
+				AbstractAspect * aspect = filter->importAspect(&file);
+				file.close();
+				if (aspect->inherits("Project")) {
+					Folder * folder = new Folder(aspect->name());
+					folder->setComment(aspect->comment());
+					folder->setCaptionSpec(aspect->captionSpec());
+					for (int i=0; i<aspect->childCount(); i++) {
+						// TODO: implement reparenting of Aspects
+					}
+					addNewAspect(folder);
+					delete aspect;
+				} else
+					addNewAspect(aspect);
+			}
+			break;
+		case ImportDialog::NewProjects:
+			foreach(QString file_name, id->selectedFiles()) {
+				file.setFileName(file_name);
+				if (!file.open(QIODevice::ReadOnly)) {
+					statusBar()->showMessage(tr("Could not open file \"%1\".").arg(file_name));
+					return;
+				}
+				AbstractAspect * aspect = filter->importAspect(&file);
+				file.close();
+				if (aspect->inherits("Project")) {
+					static_cast<Project*>(aspect)->view()->showMaximized();
+				} else {
+					Project * project = new Project();
+					project->addChild(aspect);
+					project->view()->showMaximized();
+				}
+			}
+			break;
+	}
+	qDeleteAll(filter_map);
+	delete id;
+}

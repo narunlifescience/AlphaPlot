@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : TableModule.h
+    File                 : AbstractExportFilter.h
     Project              : SciDAVis
-    Description          : Module providing the table Part and support classes.
     --------------------------------------------------------------------
-    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email address)
+    Copyright            : (C) 2008 Knut Franke
+    Email (use @ for *)  : Knut.Franke*gmx.net
+    Description          : Interface for export operations.
 
  ***************************************************************************/
 
@@ -26,35 +26,35 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef TABLE_MODULE_H
-#define TABLE_MODULE_H
 
-#include "core/interfaces.h"
-#include <QMenu>
+#ifndef ABSTRACT_EXPORT_FILTER_H
+#define ABSTRACT_EXPORT_FILTER_H
 
-class TableModule : public QObject, public PartMaker, public ProjectMenuMaker, public FileFormat
+class AbstractAspect;
+class QIODevice;
+class QStringList;
+
+//! Interface for export operations.
+/**
+ * This is analogous to AbstractImportFilter.
+ */
+class AbstractExportFilter
 {
-	Q_OBJECT
-	Q_INTERFACES(PartMaker ProjectMenuMaker FileFormat)
-
 	public:
-		virtual AbstractPart * makePart();
-		virtual QAction * makeAction(QObject *parent);
-		virtual QMenu * makeProjectMenu(ProjectWindow *win);
-		virtual AbstractImportFilter * makeImportFilter();
-		virtual AbstractExportFilter * makeExportFilter();
+		virtual ~AbstractExportFilter() {}
+		//! Export object to output.
+		/**
+		 * \return true if export was sucessfull, false otherwise
+		 */
+		virtual bool exportAspect(AbstractAspect * object, QIODevice * output) = 0;
+		//! The file extension(s) typically associated with the handled format.
+		virtual QStringList fileExtensions() const = 0;
+		//! A (localized) name for the filter.
+		virtual QString name() const = 0;
+		//! Uses name() and fileExtensions() to produce a filter specification as used by QFileDialog.
+		QString nameAndPatterns() const {
+			return name() + " (*." + fileExtensions().join(" *.") + ")";
+		}
 };
 
-class TableMenu : public QMenu
-{
-	Q_OBJECT
-	
-	public:
-		TableMenu(ProjectWindow *win);
-
-	private slots:
-		void handlePartActivated(AbstractPart *part);
-};
-
-#endif // ifndef TABLE_MODULE_H
-
+#endif // ifndef ABSTRACT_EXPORT_FILTER_H
