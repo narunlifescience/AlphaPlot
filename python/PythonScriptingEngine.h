@@ -2,7 +2,7 @@
 	File                 : PythonScriptingEngine.h
 	Project              : SciDAVis
 --------------------------------------------------------------------
-	Copyright            : (C) 2006 by Knut Franke
+	Copyright            : (C) 2006,2008 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de
 	Description          : Execute Python code from within SciDAVis
 
@@ -40,13 +40,13 @@ typedef struct _object PyObject;
 class PythonScriptingEngine: public AbstractScriptingEngine
 {
 	Q_OBJECT
+	Q_INTERFACES(AbstractScriptingEngine)
 
 	public:
 		static const char *g_lang_name;
-		PythonScriptingEngine(ApplicationWindow *parent);
+		PythonScriptingEngine();
 		~PythonScriptingEngine();
-		static AbstractScriptingEngine *constructor(ApplicationWindow *parent) { return new PythonScriptingEngine(parent); }
-		bool initialize();
+		void initialize();
 
 		void write(const QString &text) { emit print(text); }
 
@@ -75,7 +75,7 @@ class PythonScriptingEngine: public AbstractScriptingEngine
 		QString errorMsg();
 
 		bool isRunning() const;
-		AbstractScript *newScript(const QString &code, QObject *context, const QString &name="<input>")
+		AbstractScript *makeScript(const QString &code, QObject *context, const QString &name="<input>")
 		{
 			return new PythonScript(this, code, context, name);
 		}
@@ -89,15 +89,15 @@ class PythonScriptingEngine: public AbstractScriptingEngine
 		const QString mathFunctionDoc (const QString &name) const;
 		const QStringList fileExtensions() const;
 
-		PyObject *globalDict() { return globals; }
-		PyObject *sysDict() { return sys; }
+		PyObject *globalDict() { return d_globals; }
+		PyObject *sysDict() { return d_sys; }
 
 	private:
 		bool loadInitFile(const QString &path);
 
-		PyObject *globals;		// PyDict of global environment
-		PyObject *math;		// PyDict of math functions
-		PyObject *sys;		// PyDict of sys module
+		PyObject *d_globals;  // PyDict of global environment
+		PyObject *d_math;     // PyDict of math functions
+		PyObject *d_sys;      // PyDict of sys module
 };
 
 #endif

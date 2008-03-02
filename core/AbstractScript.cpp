@@ -30,33 +30,13 @@
 #include "AbstractScriptingEngine.h"
 
 AbstractScript::AbstractScript(AbstractScriptingEngine *engine, const QString &code, QObject *context, const QString &name)
-	: d_engine(engine), Code(code), Name(name), compiled(notCompiled)
+	: d_engine(engine), d_code(code), d_name(name), d_compiled(notCompiled), d_context(context), d_emit_errors(true)
 {
 	d_engine->incref();
-	Context = context;
-	EmitErrors=true;
 }
 
 AbstractScript::~AbstractScript()
 {
 	d_engine->decref();
-}
-
-bool AbstractScript::compile(bool for_eval)
-{
-	emit_error("AbstractScript::compile called!", 0);
-	return false;
-}
-
-QVariant AbstractScript::eval()
-{
-	emit_error("AbstractScript::eval called!",0);
-	return QVariant();
-}
-
-bool AbstractScript::exec()
-{
-	emit_error("AbstractScript::exec called!",0);
-	return false;
 }
 

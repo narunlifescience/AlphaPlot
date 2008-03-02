@@ -1,8 +1,9 @@
-include(../common.pri)
+include(../config.pri)
 TEMPLATE = lib
 CONFIG += plugin static
 INCLUDEPATH += .. ../core ../core/column ../lib ../core/datatypes
 TARGET = ../$$qtLibraryTarget(scidavis_table)
+QT += xml
 
 debug {
 	CONFIG -= static
@@ -22,6 +23,11 @@ HEADERS += \
 	TableDoubleHeaderView.h \
 	TableCommentsHeaderModel.h  \
 	AsciiTableImportFilter.h \
+	# TODO: port or remove the following files
+	#ExportTableDialog.h \
+	#ImportTableDialog.h \
+	#SetColValuesDialog.h \
+	#TableDialog.h \
 
 SOURCES += \
 	TableModule.cpp \
@@ -34,4 +40,9 @@ SOURCES += \
 	TableDoubleHeaderView.cpp \
 	TableCommentsHeaderModel.cpp  \
 	AsciiTableImportFilter.cpp \
+	# TODO: port or remove the following files
+	#ExportTableDialog.cpp \ -> superseded by core/ExportDialog (yet to be written)
+	#ImportTableDialog.cpp \ -> superseded by core/ImportDialog
+	#SetColValuesDialog.cpp \
+	#TableDialog.cpp \
 

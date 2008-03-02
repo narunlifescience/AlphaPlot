@@ -2,7 +2,7 @@
 	File                 : PythonScript.h
 	Project              : SciDAVis
 --------------------------------------------------------------------
-	Copyright            : (C) 2006 by Knut Franke
+	Copyright            : (C) 2006,2008 by Knut Franke
 	Email (use @ for *)  : knut.franke*gmx.de
 	Description          : Execute Python code from within SciDAVis
 
@@ -47,7 +47,7 @@ class PythonScript : public AbstractScript
 
 		void write(const QString &text) { emit print(text); }
 
-		public slots:
+	public slots:
 		bool compile(bool for_eval=true);
 		QVariant eval();
 		bool exec();
@@ -61,8 +61,8 @@ class PythonScript : public AbstractScript
 		void beginStdoutRedirect();
 		void endStdoutRedirect();
 
-		PyObject *PyCode, *localDict, *stdoutSave, *stderrSave;
-		bool isFunction;
+		PyObject *d_py_code, *d_local_dict, *d_stdout_save, *d_stderr_save;
+		bool d_compiled_for_eval;
 };
 
 

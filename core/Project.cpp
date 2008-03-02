@@ -29,6 +29,7 @@
  ***************************************************************************/
 #include "Project.h"
 #include "ProjectWindow.h"
+#include "ScriptingEngineManager.h"
 #include <QUndoStack>
 #include <QString>
 #include <QKeySequence>
@@ -39,18 +40,23 @@
 class Project::Private
 {
 	public:
+		Private() : mdi_window_visibility(folderOnly), primary_view(0), scripting_engine(0) {}
+		~Private() {
+			if (primary_view) delete primary_view;
+		}
 		QUndoStack undo_stack;
-
-		//! Settings global in the project
-		struct {
-			Project::MdiWindowControlPolicy mdi_policy;
-		} global_settings;
+		MdiWindowVisibility mdi_window_visibility;
+		ProjectWindow * primary_view;
+		AbstractScriptingEngine * scripting_engine;
 };
 
 Project::Project()
-	: Folder(tr("Unnamed")), d(new Private()), d_primary_view(0)
+	: Folder(tr("Unnamed")), d(new Private())
 {
-	setMdiWindowControlPolicy(Project::folderOnly);
+	// TODO: intelligent engine choosing
+	Q_ASSERT(ScriptingEngineManager::instance()->engineNames().size() > 0);
+	QString engine_name = ScriptingEngineManager::instance()->engineNames()[0];
+	d->scripting_engine = ScriptingEngineManager::instance()->engine(engine_name);
 }
 	
 Project::~Project()
@@ -65,9 +71,9 @@ QUndoStack *Project::undoStack() const
 
 ProjectWindow *Project::view()
 {
-	if (!d_primary_view)
-		d_primary_view = new ProjectWindow(this);
-	return d_primary_view;
+	if (!d->primary_view)
+		d->primary_view = new ProjectWindow(this);
+	return d->primary_view;
 }
 
 QMenu *Project::createContextMenu() const
@@ -92,16 +98,16 @@ QMenu *Project::createContextMenu() const
 	QAction * action = new QAction(tr("Current &Folder Only"), policy_action_group);
 	action->setCheckable(true);
 	action->setData(Project::folderOnly);
-	if(d->global_settings.mdi_policy == Project::folderOnly) action->setChecked(true);
+	if(d->mdi_window_visibility == Project::folderOnly) action->setChecked(true);
 	action = new QAction(tr("Current Folder and &Subfolders"), policy_action_group);
 	action->setCheckable(true);
 	action->setData(Project::folderAndSubfolders);
-	if(d->global_settings.mdi_policy == Project::folderAndSubfolders) action->setChecked(true);
+	if(d->mdi_window_visibility == Project::folderAndSubfolders) action->setChecked(true);
 	action = new QAction(tr("&Manual showing/hiding"), policy_action_group);
 	action->setCheckable(true);
 	action->setData(Project::manual);
-	if(d->global_settings.mdi_policy == Project::manual) action->setChecked(true);
-	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowControlPolicy(QAction*)));
+	if(d->mdi_window_visibility == Project::manual) action->setChecked(true);
+	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowVisibility(QAction*)));
 	win_policy_menu->addActions(policy_action_group->actions());
 	menu->addMenu(win_policy_menu);
 	menu->addSeparator();
@@ -115,20 +121,23 @@ QMenu *Project::createContextMenu() const
 	return menu;
 }
 
-void Project::setMdiWindowControlPolicy(QAction * action) 
+void Project::setMdiWindowVisibility(QAction * action) 
 {
-	setMdiWindowControlPolicy((Project::MdiWindowControlPolicy)(action->data().toInt()));
+	setMdiWindowVisibility((MdiWindowVisibility)(action->data().toInt()));
 }
 		
-void Project::setMdiWindowControlPolicy(Project::MdiWindowControlPolicy policy)
+void Project::setMdiWindowVisibility(MdiWindowVisibility visibility)
 { 
-	d->global_settings.mdi_policy = policy; 
+	d->mdi_window_visibility = visibility; 
 	view()->updateMdiWindowVisibility();
 }
 		
-Project::MdiWindowControlPolicy Project::mdiWindowControlPolicy() const 
+Project::MdiWindowVisibility Project::mdiWindowVisibility() const 
 { 
-	return d->global_settings.mdi_policy; 
+	return d->mdi_window_visibility; 
 }
 
-
+AbstractScriptingEngine * Project::scriptingEngine() const
+{
+	return d->scripting_engine;
+}

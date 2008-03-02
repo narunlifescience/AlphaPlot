@@ -309,7 +309,7 @@ void ProjectWindow::updateMdiWindowVisibility()
 {
 	QList<QMdiSubWindow *> windows = d_mdi_area->subWindowList();
 	PartMdiView * part_view;
-	switch(d_project->mdiWindowControlPolicy()) {
+	switch(d_project->mdiWindowVisibility()) {
 		case Project::folderOnly:
 			foreach(QMdiSubWindow *window, windows) {
 				part_view = qobject_cast<PartMdiView *>(window);

@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : Project.h
+    File                 : ScriptingEngineManager.cpp
     Project              : SciDAVis
-    Description          : Represents a SciDAVis project.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email addresses) 
+    Copyright            : (C) 2008 Knut Franke
+    Email (use @ for *)  : Knut.Franke*gmx.net
+    Description          : Entry point for dealing with scripting.
 
  ***************************************************************************/
 
@@ -27,57 +26,47 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_H
-#define PROJECT_H
 
-#include "Folder.h"
+#include "ScriptingEngineManager.h"
+#include "AbstractScriptingEngine.h"
 
-class QString;
-class ProjectWindow;
-class QAction;
-class AbstractScriptingEngine;
+#include <QPluginLoader>
+#include <QStringList>
 
-//! Represents a SciDAVis project.
-/**
- * Project manages an undo stack and is responsible for creating ProjectWindow instances
- * as views on itself.
- */
-class Project : public Folder
+ScriptingEngineManager * ScriptingEngineManager::instance()
 {
-	Q_OBJECT
+	static ScriptingEngineManager the_instance;
+	return &the_instance;
+}
 
-	public:
-		enum MdiWindowVisibility
-		{
-			folderOnly,
-			folderAndSubfolders,
-			manual
-		};
+ScriptingEngineManager::ScriptingEngineManager()
+{
+	foreach(QObject * plugin, QPluginLoader::staticInstances()) {
+		AbstractScriptingEngine * engine = qobject_cast<AbstractScriptingEngine*>(plugin);
+		if (engine) d_engines << engine;
+	}
+}
 
-	public:
-		Project();
-		~Project();
+ScriptingEngineManager::~ScriptingEngineManager()
+{
+	qDeleteAll(d_engines);
+}
 
-		//!\name Reimplemented from AbstractAspect
-		//@{
-		virtual Project *project() const { return const_cast<Project*>(this); }
-		virtual QUndoStack *undoStack() const;
-		virtual QString path() const { return name(); }
-		virtual ProjectWindow *view();
-		virtual QMenu *createContextMenu() const;
-		//@}
+QStringList ScriptingEngineManager::engineNames() const
+{
+	QStringList result;
+	foreach(AbstractScriptingEngine * engine, d_engines)
+		result << engine->objectName();
+	return result;
+}
 
-		AbstractScriptingEngine * scriptingEngine() const;
-
-		void setMdiWindowVisibility(MdiWindowVisibility visibility);
-		MdiWindowVisibility mdiWindowVisibility() const;
-	
-	private slots:
-		void setMdiWindowVisibility(QAction * action);
-
-	private:
-		class Private;
-		Private *d;
-};
-
-#endif // ifndef PROJECT_H
+AbstractScriptingEngine * ScriptingEngineManager::engine(const QString &name)
+{
+	foreach(AbstractScriptingEngine * engine, d_engines)
+		if (engine->objectName() == name) {
+			if (!engine->initialized())
+				engine->initialize();
+			return engine->initialized() ? engine : 0;
+		}
+	return 0;
+}

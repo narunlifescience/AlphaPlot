@@ -1,8 +1,10 @@
-include(../common.pri)
+include(../config.pri)
 TEMPLATE = app
 TARGET = ../scidavis
 DEPENDPATH += .. ../lib datatypes column filters
 INCLUDEPATH += .. ../lib datatypes column filters
+QT += xml network
+CONFIG += assistant
 
 # For debugging purposes, link modules dynamically and make sure they are found in the directory
 # containing the executable. This allows testing changes to one module without re-linking the
@@ -16,21 +18,21 @@ for(mod, MODULES):LIBS += -lscidavis_$${mod}
 for(mod, MODULES):mods += Q_IMPORT_PLUGIN(scidavis_$${mod})
 DEFINES += IMPORT_SCIDAVIS_MODULES='\'$${mods}\''
 
+# ICONS
 RESOURCES += \
 	../appicons.qrc \
 	../icons.qrc \
 
 HEADERS += \
 	globals.h \
+	customevents.h \
 	AbstractAspect.h \
 	aspectcommands.h \
 	AspectPrivate.h \
-	Interval.h \
 	AbstractColumn.h \
 	Column.h \
 	ColumnPrivate.h \
 	columncommands.h \
-	IntervalAttribute.h \
 	AbstractFilter.h \
 	AbstractSimpleFilter.h \
 	SimpleCopyThroughFilter.h \
@@ -47,7 +49,10 @@ HEADERS += \
 	String2DoubleFilter.h \
 	String2MonthFilter.h \
 	interfaces.h \
-#	AbstractScriptingEngine.h \
+	AbstractScriptingEngine.h \
+	AbstractScript.h \
+	ScriptingEngineManager.h \
+	ScriptEdit.h \
 	Project.h \
 	Folder.h \
 	ProjectWindow.h \
@@ -58,8 +63,24 @@ HEADERS += \
 	SimpleMappingFilter.h \
 	AbstractImportFilter.h \
 	AbstractExportFilter.h \
-	ExtensibleFileDialog.h \
 	ImportDialog.h \
+	# TODO: port or delete the following files
+	#ApplicationWindow.h \
+	#PreferencesDialog.h \
+	#CopyThroughFilter.h \
+	#CurveRangeDialog.h \
+	#DataSetDialog.h \
+	#Filter.h \
+	#FilterDialog.h \
+	#FindWindowDialog.h \
+	#Fit.h \
+	#FitDialog.h \
+	#MyParser.h \
+	#MyWidget.h \
+	#OpenProjectDialog.h \
+	#ReadOnlyTableModel.h \
+	#RenameWindowDialog.h \
+	#ScriptingLangDialog.h \
 
 SOURCES += \
 	main.cpp \
@@ -72,7 +93,10 @@ SOURCES += \
 	Column.cpp \
 	ColumnPrivate.cpp \
 	columncommands.cpp \
-#	AbstractScriptingEngine.cpp \
+	AbstractScriptingEngine.cpp \
+	AbstractScript.cpp \
+	ScriptingEngineManager.cpp \
+	ScriptEdit.cpp \
 	Project.cpp \
 	ProjectWindow.cpp \
 	AspectTreeModel.cpp \
@@ -84,5 +108,43 @@ SOURCES += \
 	String2DateTimeFilter.cpp \
 	Double2StringFilter.cpp \
 	staticplugins.cpp \
-	ExtensibleFileDialog.cpp \
 	ImportDialog.cpp \
+	# TODO: port or delete the following files
+	#ApplicationWindow.cpp \
+	#PreferencesDialog.cpp \
+	#CurveRangeDialog.cpp \
+	#DataSetDialog.cpp \
+	#Filter.cpp \
+	#FilterDialog.cpp \
+	#FindWindowDialog.cpp \
+	#Fit.cpp \
+	#FitDialog.cpp \
+	#Folder.cpp \
+	#MyParser.cpp \
+	#MyWidget.cpp \
+	#OpenProjectDialog.cpp \
+	#ReadOnlyTableModel.cpp \
+	#ScriptingLangDialog.cpp \
+	#../3rdparty/minigzip/minigzip.c -> maybe we can do without this
+
+SOURCES += \
+	../lib/ColorBox.cpp \
+	../lib/ColorButton.cpp \
+	../lib/ExtensibleFileDialog.cpp \
+	../lib/PatternBox.cpp \
+	../lib/SymbolDialog.cpp \
+	../lib/TextDialog.cpp \
+	../lib/TextFormatButtons.cpp \
+	../lib/ImageExportDialog.cpp \
+
+HEADERS += \
+	../lib/ColorBox.h \
+	../lib/ColorButton.h \
+	../lib/ExtensibleFileDialog.h \
+	../lib/Interval.h \
+	../lib/IntervalAttribute.h \
+	../lib/PatternBox.h \
+	../lib/SymbolDialog.h \
+	../lib/TextDialog.h \
+	../lib/TextFormatButtons.h \
+	../lib/ImageExportDialog.h \

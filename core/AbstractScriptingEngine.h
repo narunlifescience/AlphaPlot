@@ -5,6 +5,7 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
+    Copyright            : (C) 2008 by Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Scripting abstraction layer
@@ -32,20 +33,20 @@
 #ifndef ABSTRACT_SCRIPTING_ENGINE_H
 #define ABSTRACT_SCRIPTING_ENGINE_H
 
-#include <QString>
-#include <QStringList>
 #include <QObject>
 #include <QEvent>
+#include <QtPlugin>
+#include <QStringList>
 
 #include "customevents.h"
 
-class ApplicationWindow;
 class AbstractScript;
+class QString;
 
 //! An interpreter for evaluating scripting code.
   /**
    * AbstractScriptingEngine objects represent a running interpreter, possibly with global
-   * variables, and are responsible for generating Script objects (which do
+   * variables, and are responsible for generating AbstractScript objects (which do
    * the actual evaluation of code).
 	*
 	* The class also keeps a static list of available interpreters and instantiates
@@ -56,28 +57,41 @@ class AbstractScriptingEngine : public QObject
   Q_OBJECT
 
   public:
-    AbstractScriptingEngine(ApplicationWindow *parent, const char *lang_name);
-    //! Part of the initialization is deferred from the constructor until after the signals have been connected.
-    virtual bool initialize() { return true; };
+    //! Only initialize general information here.
+	 /**
+	  * All AbstractScriptingEngine subclasses are instantiated at startup (more precisely: when
+	  * instantiating ScriptingEngineManager). Therefor, loading the actual interpreter is done
+	  * in initialize().
+	  */
+    AbstractScriptingEngine(const char *lang_name);
+    //! Initialize the scripting environment.
+	 /**
+	  * Don't forget to set d_initialized to true in implemenations after a successfull
+	  * initialization.
+	  */
+    virtual void initialize() = 0;
     //! initialization of the interpreter may fail; or there could be other errors setting up the environment
     bool initialized() const { return d_initialized; }
     //! whether asynchronuous execution is enabled (if supported by the implementation)
     virtual bool isRunning() const { return false; }
     
     //! Instantiate the AbstractScript subclass matching the AbstractScriptingEngine subclass.
-    virtual AbstractScript *newScript(const QString&, QObject*, const QString&) { return 0; }
+    virtual AbstractScript *makeScript(const QString&, QObject*, const QString&) = 0;
       
     //! If an exception / error occured, return a nicely formated stack backtrace.
     virtual QString stackTraceString() { return QString::null; }
 
-    //! Return a list of supported mathematical functions. These should be imported into the global namespace.
+    //! Return a list of supported mathematical functions.
+	 /**
+	  * These should be imported into the global namespace.
+	  */
     virtual const QStringList mathFunctions() const { return QStringList(); }
     //! Return a documentation string for the given mathematical function.
     virtual const QString mathFunctionDoc(const QString&) const { return QString::null; }
     //! Return a list of file extensions commonly used for this language.
     virtual const QStringList fileExtensions() const { return QStringList(); };
-    //! Construct a filter expression from fileExtension(), suitable for QFileDialog.
-    const QString fileFilter() const;
+    //! Construct a filter expression from fileExtensions(), suitable for QFileDialog.
+    const QString nameAndPatterns() const;
 
 //    virtual QSyntaxHighlighter syntaxHighlighter(QTextEdit *textEdit) const;
 
@@ -87,16 +101,25 @@ class AbstractScriptingEngine : public QObject
     virtual bool setInt(int, const char*) { return false; }
     virtual bool setDouble(double, const char*) { return false; }
 
-    //! Clear the global environment. What exactly happens depends on the implementation.
+    //! Clear the global environment.
+	 /**
+	  * What exactly happens depends on the implementation.
+	  */
     virtual void clear() {}
     //! If the implementation supports asynchronuos execution, deactivate it.
     virtual void stopExecution() {}
     //! If the implementation supports asynchronuos execution, activate it.
     virtual void startExecution() {}
 
-    //! Increase the reference count. This should only be called by scripted and Script to avoid memory leaks.
+    //! Increase the reference count.
+	 /**
+	  * This should only be called by scripted and Script to avoid memory leaks.
+	  */
     void incref();
-    //! Decrease the reference count. This should only be called by scripted and Script to avoid segfaults.
+    //! Decrease the reference count.
+	 /**
+	  * This should only be called by scripted and Script to avoid segfaults.
+	  */
     void decref();
 
   signals:
@@ -108,32 +131,13 @@ class AbstractScriptingEngine : public QObject
   protected:
     //! whether the interpreter has been successfully initialized
     bool d_initialized;
-    //! the context in which we are running
-    ApplicationWindow *d_parent;
 
   private:
     //! the reference counter
     int d_refcount;
-
-  public:
-    //! Return an instance of the first implementation we can find.
-    static AbstractScriptingEngine *create(ApplicationWindow *parent);
-    //! Return an instance of the implementation specified by name, NULL on failure.
-    static AbstractScriptingEngine *create(const char *name, ApplicationWindow *parent);
-    //! Return the names of available implementations.
-    static QStringList engineNames();
-    //! Return the number of available implementations.
-    static int engineCount();
-
-  private:
-    typedef AbstractScriptingEngine*(*ScriptingEngineConstructor)(ApplicationWindow*);
-    typedef struct {
-      const char *name;
-      ScriptingEngineConstructor constructor;
-    } ScriptingEngineEntry;
-	 //! global registry of available interpreters
-    static ScriptingEngineEntry g_engines[];
 };
+
+Q_DECLARE_INTERFACE(AbstractScriptingEngine, "net.sf.scidavis.scriptingengine/0.1")
 
 /******************************************************************************\
  *Helper classes for managing instances of AbstractScriptingEngine subclasses.*

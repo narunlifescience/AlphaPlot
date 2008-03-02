@@ -64,7 +64,7 @@ class QIODevice;
  * filter options are simply declared as Qt properties; the implementation does not have to bother
  * with providing a GUI for its options (this task is taken over by ImportDialog). This approach
  * allows fast prototyping of import filters, but leaves some things to be desired usability-wise
- * (localized option labels, tool tips, intelligent layout, etc.). Some of these deficiences could
+ * (localized option labels, tool tips, intelligent layout, etc.). Some of these deficiencies could
  * be overcome by adding extra methods to filters
  * (e.g. Qstring labelText(const char * property_name)), but presumably one will want to replace the
  * auto-generated GUI with a custom one once the filter is completely implemented and tested. This

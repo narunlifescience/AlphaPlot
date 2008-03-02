@@ -5,8 +5,10 @@
     Copyright            : (C) 2006 by Ion Vasilief,
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Scripting classes
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
+                           knut.franke*gmx.de
+    Description          : Editor widget with support for evaluating expressions
+                           and executing code.
 
  ***************************************************************************/
 
@@ -43,7 +45,8 @@ class QMenu;
  *
  * \section future_plans Future Plans
  * - Display line numbers.
- * - syntax highlighting, indentation, auto-completion etc. (maybe using QScintilla)
+ * - syntax highlighting, indentation, auto-completion etc. (maybe using QScintilla
+ *   or KatePart)
  */
 class ScriptEdit: public QTextEdit, public scripted
 {

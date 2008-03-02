@@ -2,7 +2,7 @@
     File                 : AbstractScriptingEngine.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Knut Franke
+    Copyright            : (C) 2006,2008 by Knut Franke
     Email (use @ for *)  : knut.franke*gmx.de
     Description          : Implementations of generic scripting classes
                            
@@ -28,72 +28,20 @@
  ***************************************************************************/
 #include "AbstractScriptingEngine.h"
 
-#include <string>
-
-/******************************************************************************\
- * Static part: implementation registry                                       *
-\******************************************************************************/
-
-#ifdef SCRIPTING_MUPARSER
-#include "muparser/MuParserScriptingEngine.h"
-#endif
-#ifdef SCRIPTING_PYTHON
-#include "python/PythonScriptingEngine.h"
-#endif
-
-AbstractScriptingEngine::ScriptingEngineEntry AbstractScriptingEngine::g_engines[] = {
-#ifdef SCRIPTING_MUPARSER
-	{ MuParserScriptingEngine::g_lang_name, MuParserScriptingEngine::constructor },
-#endif
-#ifdef SCRIPTING_PYTHON
-	{ PythonScriptingEngine::g_lang_name, PythonScriptingEngine::constructor },
-#endif
-	{ NULL, NULL }
-};
-
-AbstractScriptingEngine* AbstractScriptingEngine::create(ApplicationWindow *parent)
-{
-	if(g_engines[0].constructor)
-		return g_engines[0].constructor(parent);
-	else
-		return 0;
-}
-
-AbstractScriptingEngine* AbstractScriptingEngine::create(const char *name, ApplicationWindow *parent)
-{
-	for(ScriptingEngineEntry *i = g_engines; i->constructor; i++)
-		if (!strcmp(name, i->name))
-			return i->constructor(parent);
-	return 0;
-}
-
-QStringList AbstractScriptingEngine::engineNames()
-{
-	QStringList result;
-	for (ScriptingEngineEntry *i = g_engines; i->constructor; i++)
-		result << i->name;
-	return result;
-}
-
-/******************************************************************************\
- * Non-static part: generic engine methods.                                   *
-\******************************************************************************/
-
-AbstractScriptingEngine::AbstractScriptingEngine(ApplicationWindow *parent, const char *lang_name)
-	: QObject(0), d_parent(parent)
+AbstractScriptingEngine::AbstractScriptingEngine(const char *lang_name)
 {
 	setObjectName(lang_name);
 	d_initialized=false;
 	d_refcount=0;
 }
 
-const QString AbstractScriptingEngine::fileFilter() const
+const QString AbstractScriptingEngine::nameAndPatterns() const
 {
 	QStringList extensions = fileExtensions();
 	if (extensions.isEmpty())
 		return "";
 	else
-		return tr("%1 Source (*.%2);;").arg(objectName()).arg(extensions.join(" *."));
+		return tr("%1 Source (*.%2)").arg(objectName()).arg(extensions.join(" *."));
 }
 
 void AbstractScriptingEngine::incref()

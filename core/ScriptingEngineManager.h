@@ -1,11 +1,10 @@
 /***************************************************************************
-    File                 : Project.h
+    File                 : ScriptingEngineManager.h
     Project              : SciDAVis
-    Description          : Represents a SciDAVis project.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email addresses) 
+    Copyright            : (C) 2008 Knut Franke
+    Email (use @ for *)  : Knut.Franke*gmx.net
+    Description          : Entry point for dealing with scripting.
 
  ***************************************************************************/
 
@@ -27,57 +26,29 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef PROJECT_H
-#define PROJECT_H
 
-#include "Folder.h"
+#ifndef SCRIPTING_ENGINE_MANAGER_H
+#define SCRIPTING_ENGINE_MANAGER_H
 
-class QString;
-class ProjectWindow;
-class QAction;
+#include <QList>
+
 class AbstractScriptingEngine;
+class QStringList;
 
-//! Represents a SciDAVis project.
-/**
- * Project manages an undo stack and is responsible for creating ProjectWindow instances
- * as views on itself.
- */
-class Project : public Folder
+//! Entry point for dealing with scripting.
+class ScriptingEngineManager
 {
-	Q_OBJECT
-
-	public:
-		enum MdiWindowVisibility
-		{
-			folderOnly,
-			folderAndSubfolders,
-			manual
-		};
-
-	public:
-		Project();
-		~Project();
-
-		//!\name Reimplemented from AbstractAspect
-		//@{
-		virtual Project *project() const { return const_cast<Project*>(this); }
-		virtual QUndoStack *undoStack() const;
-		virtual QString path() const { return name(); }
-		virtual ProjectWindow *view();
-		virtual QMenu *createContextMenu() const;
-		//@}
-
-		AbstractScriptingEngine * scriptingEngine() const;
-
-		void setMdiWindowVisibility(MdiWindowVisibility visibility);
-		MdiWindowVisibility mdiWindowVisibility() const;
-	
-	private slots:
-		void setMdiWindowVisibility(QAction * action);
-
 	private:
-		class Private;
-		Private *d;
+		ScriptingEngineManager();
+		ScriptingEngineManager(const ScriptingEngineManager&) {}
+
+		QList<AbstractScriptingEngine*> d_engines;
+
+	public:
+		static ScriptingEngineManager * instance();
+		~ScriptingEngineManager();
+		QStringList engineNames() const;
+		AbstractScriptingEngine * engine(const QString &name);
 };
 
-#endif // ifndef PROJECT_H
+#endif // ifndef SCRIPTING_ENGINE_MANAGER_H

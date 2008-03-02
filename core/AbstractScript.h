@@ -5,7 +5,9 @@
     Copyright            : (C) 2006 by Ion Vasilief, 
                            Tilman Hoener zu Siederdissen,
                            Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
+    Copyright            : (C) 2008 by Knut Franke
+    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
+                           knut.franke*gmx.de
     Description          : A chunk of scripting code.
                            
  ***************************************************************************/
@@ -52,32 +54,36 @@ class AbstractScript : public QObject
     AbstractScript(AbstractScriptingEngine *env, const QString &code, QObject *context=0, const QString &name="<input>");
     ~AbstractScript();
 
-    //! Return the code that will be executed when calling exec() or eval()
-    const QString code() const { return Code; }
+    //! Return the code that will be executed/evaluated when calling exec() or eval()
+    const QString code() const { return d_code; }
     //! Return the context in which the code is to be executed.
-    const QObject* context() const { return Context; }
+    const QObject* context() const { return d_context; }
     //! Like QObject::name, but with unicode support.
-    const QString name() const { return Name; }
+    const QString name() const { return d_name; }
     //! Return whether errors / exceptions are to be emitted or silently ignored
-    const bool emitErrors() const { return EmitErrors; }
+    const bool emitErrors() const { return d_emit_errors; }
     //! Append to the code that will be executed when calling exec() or eval()
-    virtual void addCode(const QString &code) { Code.append(code); compiled = notCompiled; emit codeChanged(); }
+    virtual void addCode(const QString &code) { d_code.append(code); d_compiled = notCompiled; emit codeChanged(); }
     //! Set the code that will be executed when calling exec() or eval()
-    virtual void setCode(const QString &code) { Code=code; compiled = notCompiled; emit codeChanged(); }
+    virtual void setCode(const QString &code) { d_code=code; d_compiled = notCompiled; emit codeChanged(); }
     //! Set the context in which the code is to be executed.
-    virtual void setContext(QObject *context) { Context = context; compiled = notCompiled; }
+    virtual void setContext(QObject *context) { d_context = context; d_compiled = notCompiled; }
     //! Like QObject::setName, but with unicode support.
-    void setName(const QString &name) { Name = name; compiled = notCompiled; }
+    void setName(const QString &name) { d_name = name; d_compiled = notCompiled; }
     //! Set whether errors / exceptions are to be emitted or silently ignored
-    void setEmitErrors(bool yes) { EmitErrors = yes; }
+    void setEmitErrors(bool value) { d_emit_errors = value; }
 
   public slots:
-    //! Compile the Code. Return true if the implementation doesn't support compilation.
-    virtual bool compile(bool for_eval=true);
-    //! Evaluate the Code, returning QVariant() on an error / exception.
-    virtual QVariant eval();
-    //! Execute the Code, returning false on an error / exception.
-    virtual bool exec();
+    //! Compile the content of #d_code.
+	 /**
+	  * \param for_eval whether the code is to be evaluated later on (as opposed to executed)
+	  * \return True iff compilation was successful or the implementation doesn't support compilation.
+	  */
+    virtual bool compile(bool for_eval=true) { Q_UNUSED(for_eval); return true; }
+    //! Evaluate #d_code, returning QVariant() on an error / exception.
+    virtual QVariant eval() = 0;
+    //! Execute #d_code, returning false on an error / exception.
+    virtual bool exec() = 0;
 
     // local variables
     virtual bool setQObject(const QObject*, const char*) { return false; }
@@ -94,13 +100,13 @@ class AbstractScript : public QObject
     
   protected:
     AbstractScriptingEngine *d_engine;
-    QString Code, Name;
-    QObject *Context;
-    enum compileStatus { notCompiled, isCompiled, compileErr } compiled;
-    bool EmitErrors;
+    QString d_code, d_name;
+    QObject *d_context;
+    enum compileStatus { notCompiled, isCompiled, compileErr } d_compiled;
+    bool d_emit_errors;
 
-    void emit_error(const QString & message, int lineNumber)
-      { if(EmitErrors) emit error(message, Name, lineNumber); }
+    void emit_error(const QString & message, int line_number)
+      { if(d_emit_errors) emit error(message, d_name, line_number); }
 };
 
 #endif
