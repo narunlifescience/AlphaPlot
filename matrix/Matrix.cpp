@@ -1,13 +1,12 @@
 /***************************************************************************
     File                 : Matrix.cpp
     Project              : SciDAVis
+    Description          : Aspect providing a spreadsheet to manage MxN matrix data
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Hoener zu Siederdissen,
-                           Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-                           knut.franke*gmx.de
-    Description          : Matrix worksheet class
+    Copyright            : (C) 2006-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -30,8 +29,8 @@
  *                                                                         *
  ***************************************************************************/
 #include "Matrix.h"
-
 #include "core/AbstractScript.h"
+#include "matrixcommands.h"
 
 #include <QtGlobal>
 #include <QTextStream>
@@ -40,17 +39,16 @@
 #include <QContextMenuEvent>
 #include <QVBoxLayout>
 #include <QMouseEvent>
-#include <QHeaderView>
-#include <QDateTime>
 #include <QApplication>
 #include <QMessageBox>
-#include <QVarLengthArray>
 #include <QClipboard>
 #include <QShortcut>
 #include <QPrinter>
 #include <QPrintDialog>
 #include <QPainter>
 #include <QLocale>
+#include <QMenu>
+#include <QInputDialog>
 
 #include <stdlib.h>
 #include <math.h>
@@ -59,1121 +57,561 @@
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_math.h>
 
-Matrix::Matrix(AbstractScriptingEngine *engine, int r, int c, const QString& label, QWidget* parent, const char* name, Qt::WFlags f)
-: MyWidget(label, parent, name, f), scripted(engine)
+
+#define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
+#define RESET_CURSOR QApplication::restoreOverrideCursor()
+
+Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QString& name)
+	: AbstractPart(name), d_plot_menu(0), scripted(engine)
 {
-	init(r, c);
+	d_matrix_private = new Private(this);
+
+	// set initial number of rows and columns
+	appendColumns(cols);
+	appendRows(rows);
+
+	d_view = new MatrixView(this); 
+	createActions();
 }
 
-void Matrix::init(int rows, int cols)
+Matrix::~Matrix()
 {
-	formula_str = "";
-	txt_format = 'f';
-	num_precision = 6;
-	x_start = 1.0;
-	x_end = 10.0;
-	y_start = 1.0;
-	y_end = 10.0;
-	dMatrix = 0;
-
-	QDateTime dt = QDateTime::currentDateTime();
-	setBirthDate(dt.toString(Qt::LocalDate));
-
-	// create the main table widget
-	d_table = new QTableWidget(rows, cols, 0);
-	d_table->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
-	d_table->setFocusPolicy(Qt::StrongFocus);
-	d_table->setFocus();
-	// only one contiguous selection supported
-	d_table->setSelectionMode(QAbstractItemView::ContiguousSelection);
-	d_table->verticalHeader()->setMovable(true);
-
-	// background color to yellow to distinguish between matrix and table
-	QPalette pal = d_table->palette();
-	pal.setColor(QColorGroup::Base, QColor(255, 255, 128));
-	d_table->setPalette(pal);
-
-	// give all space to the table widget
-	QVBoxLayout* main_layout = new QVBoxLayout(this);
-	main_layout->setMargin(0);
-	main_layout->addWidget(d_table);
-
-	// set header properties
-	QHeaderView* hHeader=(QHeaderView*)d_table->horizontalHeader();
-	hHeader->setMovable(false);
-	hHeader->setResizeMode(QHeaderView::Fixed);
-	QHeaderView* vHeader=(QHeaderView*)d_table->verticalHeader();
-	vHeader->setMovable(false);
-	vHeader->setResizeMode(QHeaderView::ResizeToContents);
-
-	// resize the table
-	setGeometry(50, 50, qMin(_Matrix_initial_columns_, cols)*hHeader->sectionSize(0) + 55,
-                (qMin(_Matrix_initial_rows_,rows)+1)*vHeader->sectionSize(0));
-
-	// keyboard shortcuts
-	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Matrix: select all")), this);
-	connect(sel_all, SIGNAL(activated()), d_table, SLOT(selectAll()));
-	// remark: the [TAB] behaviour is now nicely done by Qt4
-
-	connect(d_table, SIGNAL(cellChanged(int,int)), this, SLOT(cellEdited(int,int)));
 }
 
-void Matrix::cellEdited(int row,int col)
+QWidget *Matrix::view()
 {
-	QString cell_text = text(row,col);
-	if(cell_text.isEmpty()) return;
-
-	QString cell_formula = cell_text;
-
-	bool ok = true;
-    QLocale locale;
-  	double res = locale.toDouble(cell_text, &ok);
-	if (ok)
-		setText(row, col, locale.toString(res, txt_format.toAscii(), num_precision));
-	else
-	{
-		AbstractScript *script = d_scripting_engine->newScript(cell_formula, this, QString("<%1_%2_%3>").arg(name()).arg(row).arg(col));
-		connect(script, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
-
-		script->setInt(row+1, "row");
-		script->setInt(row+1, "i");
-		script->setInt(col+1, "col");
-		script->setInt(col+1, "j");
-
-		QVariant ret = script->eval();
-		if(ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
-				|| ret.type()==QVariant::ULongLong)
-			setText(row, col, ret.toString());
-		else if(ret.canConvert(QVariant::Double))
-			setText(row, col, locale.toString(ret.toDouble(), txt_format.toAscii(), num_precision));
-		else
-			setText(row, col, "");
-	}
-
-    if(row+1 >= rowCount())
-        d_table->setRowCount(row + 2);
-
-	d_table->setCurrentCell(row+1, col);
-
-    emit modifiedWindow(this);
+	return d_view;
 }
 
-double Matrix::cell(int row, int col)
+void Matrix::insertColumns(int before, int count)
 {
-	if(dMatrix)
-		return dMatrix[row][col];
-	else {
-		if(d_table->item(row, col))
-		    return QLocale().toDouble(d_table->item(row, col)->text());
-		else
-			return 0.0;
-	}
+	if( count < 1 || before < 0 || before > columnCount()) return;
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: insert %2 column(s)").arg(name()).arg(count));
+	exec(new MatrixInsertColumnsCmd(d_matrix_private, before, count));
+	endMacro();
+	RESET_CURSOR;
 }
 
-void Matrix::setCell(int row, int col, double value)
+void Matrix::removeColumns(int first, int count)
 {
-	if(d_table->item(row, col))
-		d_table->item(row, col)->setText(QLocale().toString(value, txt_format.toAscii(), num_precision));
-	else
-		d_table->setItem(row, col, new QTableWidgetItem(QLocale().toString(value, txt_format.toAscii(), num_precision)));
+	if( count < 1 || first < 0 || first+count > columnCount()) return;
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: remove %2 column(s)").arg(name()).arg(count));
+	exec(new MatrixRemoveColumnsCmd(d_matrix_private, first, count));
+	endMacro();
+	RESET_CURSOR;
 }
 
-QString Matrix::text(int row, int col)
+void Matrix::removeRows(int first, int count)
 {
-		if(d_table->item(row, col))
-			return d_table->item(row, col)->text();
-		else
-			return QString("");
+	if( count < 1 || first < 0 || first+count > rowCount()) return;
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: remove %2 row(s)").arg(name()).arg(count));
+	exec(new MatrixRemoveRowsCmd(d_matrix_private, first, count));
+	endMacro();
+	RESET_CURSOR;
 }
 
-void Matrix::setText (int row, int col, const QString & new_text )
+void Matrix::insertRows(int before, int count)
 {
-	if(d_table->item(row, col))
-		d_table->item(row, col)->setText(new_text);
-	else
-		d_table->setItem(row, col, new QTableWidgetItem(new_text));
-}
-
-bool Matrix::isEmptyRow(int row)
-{
-	int cols = d_table->columnCount();
-
-	for(int i=0; i<cols; i++)
-		if (!text(row, i).isEmpty())
-			return false;
-
-	return true;
-}
-
-void Matrix::setCoordinates(double xs, double xe, double ys, double ye)
-{
-	if (x_start == xs && x_end == xe &&	y_start == ys && y_end == ye)
-		return;
-
-	x_start = xs;
-	x_end = xe;
-	y_start = ys;
-	y_end = ye;
-
-	emit modifiedWindow(this);
-}
-
-QString Matrix::saveToString(const QString &info)
-{
-	QString s = "<matrix>\n";
-	s += QString(name()) + "\t";
-	s += QString::number(rowCount())+"\t";
-	s += QString::number(columnCount())+"\t";
-	s += birthDate() + "\n";
-	s += info;
-	s += "ColWidth\t" + QString::number(d_table->columnWidth(0))+"\n";
-	s += "<formula>\n" + formula_str + "\n</formula>\n";
-	s += "TextFormat\t" + QString(txt_format) + "\t" + QString::number(num_precision) + "\n";
-	s += "WindowLabel\t" + windowLabel() + "\t" + QString::number(captionPolicy()) + "\n";
-	s += "Coordinates\t" + QString::number(x_start,'g',15) + "\t" +QString::number(x_end,'g',15) + "\t";
-	s += QString::number(y_start,'g',15) + "\t" + QString::number(y_end,'g',15) + "\n";
-	s += saveText();
-	s +="</matrix>\n";
-	return s;
-}
-
-QString Matrix::saveAsTemplate(const QString &info)
-{
-	QString s= "<matrix>\t";
-	s+= QString::number(rowCount())+"\t";
-	s+= QString::number(columnCount())+"\n";
-	s+= info;
-	s+= "ColWidth\t" + QString::number(d_table->columnWidth(0))+"\n";
-	s+= "<formula>\n" + formula_str + "\n</formula>\n";
-	s+= "TextFormat\t" + QString(txt_format) + "\t" + QString::number(num_precision) + "\n";
-	s+= "Coordinates\t" + QString::number(x_start,'g',15) + "\t" +QString::number(x_end,'g',15) + "\t";
-	s+= QString::number(y_start,'g',15) + "\t" + QString::number(y_end,'g',15) + "\n";
-	return s;
-}
-
-void Matrix::restore(const QStringList &lst)
-{
-	QStringList l;
-	QStringList::const_iterator i = lst.begin();
-
-	l= (*i++).split("\t");
-	setColumnsWidth(l[1].toInt());
-
-	l= (*i++).split("\t");
-	if (l[0] == "Formula")
-		formula_str = l[1];
-	else if (l[0] == "<formula>")
-	{
-		for(formula_str=""; i != lst.end() && *i != "</formula>"; i++)
-			formula_str += *i + "\n";
-		formula_str.truncate(formula_str.length()-1);
-		i++;
-	}
-
-	l= (*i++).split("\t");
-	if (l[1] == "f")
-		setTextFormat('f', l[2].toInt());
-	else
-		setTextFormat('e', l[2].toInt());
-
-	l= (*i++).split("\t");
-	x_start = l[1].toDouble();
-	x_end = l[2].toDouble();
-	y_start = l[3].toDouble();
-	y_end = l[4].toDouble();
-}
-
-QString Matrix::saveText()
-{
-	QString out_text = "<data>\n";
-	int cols = d_table->columnCount();
-	for(int i=0; i<d_table->rowCount(); i++)
-	{
-		if (!isEmptyRow(i))
-		{
-			out_text += QString::number(i)+"\t";
-			for (int j=0; j<cols-1; j++)
-				out_text += QString::number(cell(i,j), 'e', 16)+"\t";
-
-			out_text += QString::number(cell(i,cols-1), 'e', 16)+"\n";
-		}
-	}
-	return out_text + "</data>\n";
-}
-
-void Matrix::setFormula(const QString &s)
-{
-	formula_str = s;
-}
-
-QString Matrix::formula()
-{
-	return formula_str;
-}
-
-// TODO: Port this class to the model/view framework and make
-// sure the diplayed precision and the saved precision
-// are independent
-void Matrix::setNumericFormat(const QChar& f, int prec)
-{
-	if (txt_format == f && num_precision == prec)
-		return;
-
-    d_table->blockSignals(true);
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	txt_format = f;
-	num_precision = prec;
-
-	int rows = rowCount();
-	int cols = columnCount();
-	for(int i=0; i<rows; i++){
-		for(int j=0; j<cols; j++){
-			QString t = text(i, j);
-			if (!t.isEmpty())
-				setCell(i, j, dMatrix[i][j]);
-		}
-	}
-    d_table->blockSignals(false);
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
-}
-
-void Matrix::setTextFormat(const QChar &format, int precision)
-{
-	txt_format = format;
-	num_precision = precision;
-}
-
-int Matrix::columnsWidth()
-{
-	return d_table->columnWidth(0);
-}
-
-void Matrix::setColumnsWidth(int width)
-{
-	if (width == columnsWidth())
-		return;
-
-	for(int i=0; i<d_table->columnCount(); i++)
-		d_table->setColumnWidth(i, width);
-
-	emit modifiedWindow(this);
+	if( count < 1 || before < 0 || before > rowCount()) return;
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: insert %2 row(s)").arg(name()).arg(count));
+	exec(new MatrixInsertRowsCmd(d_matrix_private, before, count));
+	endMacro();
+	RESET_CURSOR;
 }
 
 void Matrix::setDimensions(int rows, int cols)
 {
-	int r = rowCount();
-	int c = columnCount();
-
-	if (r == rows && c == cols)
-		return;
-
-	if (rows < r || cols < c){
-		QString msg_text = tr("Deleting rows/columns from the matrix!","set matrix dimensions");
-		msg_text += tr("<p>Do you really want to continue?","set matrix dimensions");
-		switch( QMessageBox::information(0, tr("SciDAVis"), msg_text,tr("Yes"), tr("Cancel"), 0, 1 ) )
-		{
-			case 0: // Yes
-				QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-				if (cols != c)
-					d_table->setColumnCount(cols);
-				if (rows != r)
-					d_table->setRowCount(rows);
-				QApplication::restoreOverrideCursor();
-				emit modifiedWindow(this);
-				break;
-
-			case 1: // Cancel
-				return;
-				break;
-		}
-	} else {
-		QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-		if (cols != c)
-			d_table->setColumnCount(cols);
-		if (rows != r)
-			d_table->setRowCount(rows);
-		QApplication::restoreOverrideCursor();
-		emit modifiedWindow(this);
-	}
+	if( (rows < 0) || (cols < 0 ) || (rows == rowCount() && cols == columnCount()) ) return;
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: set matrix size to %2x%3").arg(name()).arg(rows).arg(cols));
+	int col_diff = columnCount() - cols;
+	int row_diff = rowCount() - rows;
+	if(col_diff > 0)
+		exec(new MatrixInsertColumnsCmd(d_matrix_private, columnCount(), col_diff));
+	else if(col_diff < 0)
+		exec(new MatrixRemoveColumnsCmd(d_matrix_private, columnCount()+col_diff, -col_diff));
+	if(row_diff > 0)
+		exec(new MatrixInsertRowsCmd(d_matrix_private, rowCount(), row_diff));
+	else if(row_diff < 0)
+		exec(new MatrixRemoveRowsCmd(d_matrix_private, rowCount()+row_diff, -row_diff));
+	endMacro();
+	RESET_CURSOR;
 }
 
-int Matrix::rowCount()
+int Matrix::columnCount() const
 {
-	return d_table->rowCount();
+	return d_matrix_private->columnCount();
 }
 
-void Matrix::setRowCount(int rows)
+int Matrix::rowCount() const
 {
-    if (rows != d_table->rowCount()){
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        d_table->setRowCount(rows);
-        QApplication::restoreOverrideCursor();
-        emit modifiedWindow(this);
-    }
+	return d_matrix_private->rowCount();
 }
 
-int Matrix::columnCount()
+void Matrix::clear()
 {
-	return d_table->columnCount();
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: clear").arg(name()));
+	exec(new MatrixClearCmd(d_matrix_private));
+	endMacro();
+	RESET_CURSOR;
 }
 
-void Matrix::setColumnCount(int cols)
+double Matrix::cell(int row, int col)
 {
-    if (cols != d_table->columnCount()){
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        d_table->setColumnCount(cols);
-        QApplication::restoreOverrideCursor();
-        emit modifiedWindow(this);
-    }
-}
-
-double Matrix::determinant()
-{
-	int rows = rowCount();
-	int cols = columnCount();
-
-	if (rows != cols){
-		QMessageBox::critical(0,tr("Error"),
-				tr("Calculation failed, the matrix is not square!"));
-		return GSL_POSINF;
-	}
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	gsl_matrix *A = gsl_matrix_alloc(rows, cols);
-	int i;
-	for(i=0; i<rows; i++)
-		for(int j=0; j<cols; j++)
-			gsl_matrix_set(A, i, j, cell(i, j));
-
-	gsl_permutation * p = gsl_permutation_alloc(rows);
-	gsl_linalg_LU_decomp(A, p, &i);
-
-	double det = gsl_linalg_LU_det(A, i);
-
-	gsl_matrix_free(A);
-	gsl_permutation_free(p);
-
-	QApplication::restoreOverrideCursor();
-	return det;
-}
-
-void Matrix::invert()
-{
-	int rows = rowCount();
-	int cols = columnCount();
-
-	if (rows != cols){
-		QMessageBox::critical(0,tr("Error"),
-				tr("Inversion failed, the matrix is not square!"));
-		return;
-	}
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	gsl_matrix *A = gsl_matrix_alloc(rows, cols);
-	int i;
-	for(i=0; i<rows; i++){
-		for(int j=0; j<cols; j++)
-			gsl_matrix_set(A, i, j, cell(i, j));
-	}
-
-	gsl_permutation * p = gsl_permutation_alloc(cols);
-	gsl_linalg_LU_decomp(A, p, &i);
-
-	gsl_matrix *inverse = gsl_matrix_alloc(rows, cols);
-	gsl_linalg_LU_invert(A, p, inverse);
-
-	gsl_matrix_free(A);
-	gsl_permutation_free(p);
-
-    d_table->blockSignals(true);
-	for(i=0; i<rows; i++){
-		for(int j=0; j<cols; j++)
-			setCell(i, j, gsl_matrix_get(inverse, i, j));
-	}
-    d_table->blockSignals(false);
-
-	gsl_matrix_free(inverse);
-	QApplication::restoreOverrideCursor();
-	emit modifiedWindow(this);
-}
-
-// TODO: Mirror matrix horizontally/vertically would also be nice
-void Matrix::transpose()
-{
-	int rows = rowCount();
-	int cols = columnCount();
-	int temp_size = qMax(rows, cols);
-	QString temp;
-
-	// blow up matrix to a square one
-	d_table->setColumnCount(temp_size);
-	d_table->setRowCount(temp_size);
-    d_table->blockSignals(true);
-	for(int i = 0; i<temp_size; i++)
-		for(int j = 0; j<=i; j++){
-			temp = text(i,j);
-			setText(i, j, text(j,i));
-			setText(j, i, temp);
-		}
-    d_table->blockSignals(false);
-
-	// shrink matrix to desired size
-	d_table->setColumnCount(rows);
-	d_table->setRowCount(cols);
-	emit modifiedWindow(this);
-}
-
-void Matrix::saveCellsToMemory()
-{
-	int rows = rowCount();
-	int cols = columnCount();
-	dMatrix = allocateMatrixData(rows, cols);
-	for(int i=0; i<rows; i++)
-	{// initialize the matrix to zero
-		for(int j=0; j<cols; j++)
-			dMatrix[i][j] = 0.0;
-	}
-
-    bool ok = true;
-	for (int i=0; i<rows; i++)
-	{
-        for (int j=0; j<cols; j++)
-        {
-            dMatrix[i][j] = QLocale().toDouble(text(i, j), &ok);
-            if (!ok)
-                break;
-        }
-	}
-	if (!ok){// fall back to C locale
-	    ok = true;
-        for (int i=0; i<rows; i++)
-        {
-            for (int j=0; j<cols; j++)
-            {
-                dMatrix[i][j] = QLocale::c().toDouble(text(i, j), &ok);
-                if (!ok)
-                    break;
-            }
-        }
-	}
-	if (!ok){// fall back to German locale
-	    ok = true;
-        for (int i=0; i<rows; i++)
-        {
-            for (int j=0; j<cols; j++)
-            {
-                dMatrix[i][j] = QLocale(QLocale::German).toDouble(text(i, j), &ok);
-                if (!ok)
-                    break;
-            }
-        }
-	}
-	if (!ok){// fall back to French locale
-	    ok = true;
-        for (int i=0; i<rows; i++)
-        {
-            for (int j=0; j<cols; j++)
-            {
-                dMatrix[i][j] = QLocale(QLocale::French).toDouble(text(i, j), &ok);
-                if (!ok)
-                    break;
-            }
-        }
-	}
-}
-
-void Matrix::forgetSavedCells()
-{
-	freeMatrixData(dMatrix, rowCount());
-	dMatrix = 0;
-}
-
-bool Matrix::calculate(int startRow, int endRow, int startCol, int endCol)
-{
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	AbstractScript *script = d_scripting_engine->newScript(formula_str, this, QString("<%1>").arg(name()));
-	connect(script, SIGNAL(error(const QString&,const QString&,int)), d_scripting_engine, SIGNAL(error(const QString&,const QString&,int)));
-	connect(script, SIGNAL(print(const QString&)), d_scripting_engine, SIGNAL(print(const QString&)));
-	if (!script->compile()){
-		QApplication::restoreOverrideCursor();
-		return false;
-	}
-
-    d_table->blockSignals(true);
-	int rows = rowCount();
-	int cols = columnCount();
-
-	if (endRow < 0)
-		endRow = rows - 1;
-	if (endCol < 0)
-		endCol = cols - 1;
-	if (endCol >= cols)
-		d_table->setColumnCount(endCol+1);
-	if (endRow >= rows)
-		d_table->setRowCount(endRow+1);
-
-	QVariant ret;
-	saveCellsToMemory();
-	double dx = fabs(x_end-x_start)/(double)(rowCount()-1);
-	double dy = fabs(y_end-y_start)/(double)(columnCount()-1);
-	for(int row = startRow; row <= endRow; row++)
-		for(int col = startCol; col <= endCol; col++)
-		{
-			script->setInt(row+1, "i");
-			script->setInt(row+1, "row");
-			script->setDouble(y_start+row*dy, "y");
-			script->setInt(col+1, "j");
-			script->setInt(col+1, "col");
-			script->setDouble(x_start+col*dx, "x");
-			ret = script->eval();
-			if (ret.type()==QVariant::Int || ret.type()==QVariant::UInt || ret.type()==QVariant::LongLong
-					|| ret.type()==QVariant::ULongLong)
-				setText(row, col, ret.toString());
-			else if (ret.canConvert(QVariant::Double))
-				setText(row, col, QLocale().toString(ret.toDouble(), txt_format.toAscii(), num_precision));
-			else{
-				setText(row, col, "");
-				d_table->blockSignals(false);
-				QApplication::restoreOverrideCursor();
-				return false;
-			}
-		}
-	forgetSavedCells();
-
-    d_table->blockSignals(false);
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
-	return true;
-}
-
-void Matrix::clearSelection()
-{
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
-
-    d_table->blockSignals(true);
-	if( it.hasNext() ){
-		cur = it.next();
-		for(int i = cur.topRow(); i <= cur.bottomRow(); i++)
-			for(int j = cur.leftColumn(); j<= cur.rightColumn();j++)
-				setText(i, j, "");
-	}
-    d_table->blockSignals(false);
-	emit modifiedWindow(this);
-}
-
-
-void Matrix::copySelection()
-{
-	QString the_text;
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	if (sel.isEmpty())
-		the_text = text(d_table->currentRow(),d_table->currentColumn());
-	else{
-		QListIterator<QTableWidgetSelectionRange> it(sel);
-		QTableWidgetSelectionRange cur;
-
-		if(!it.hasNext())return;
-		cur = it.next();
-
-		int top = cur.topRow();
-		int bottom = cur.bottomRow();
-		int left = cur.leftColumn();
-		int right = cur.rightColumn();
-		for(int i=top; i<=bottom; i++){
-			for(int j=left; j<right; j++)
-				the_text += text(i,j)+"\t";
-			the_text += text(i,right)+"\n";
-		}
-	}
-
-	// Copy text into the clipboard
-	QApplication::clipboard()->setText(the_text);
+	return d_matrix_private->cell(row, col);
 }
 
 void Matrix::cutSelection()
 {
+	int first = d_view->firstSelectedRow();
+	if( first < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(tr("%1: cut selected cell(s)").arg(name()));
 	copySelection();
-	clearSelection();
+	clearSelectedCells();
+	endMacro();
+	RESET_CURSOR;
 }
 
-bool Matrix::rowsSelected()
+void Matrix::copySelection()
 {
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
+	int first_col = d_view->firstSelectedColumn(false);
+	if(first_col == -1) return;
+	int last_col = d_view->lastSelectedColumn(false);
+	if(last_col == -1) return;
+	int first_row = d_view->firstSelectedRow(false);
+	if(first_row == -1)	return;
+	int last_row = d_view->lastSelectedRow(false);
+	if(last_row == -1) return;
+	int cols = last_col - first_col +1;
+	int rows = last_row - first_row +1;
+	
+	WAIT_CURSOR;
+	QString output_str;
 
-	if( it.hasNext() )
+	for(int r=0; r<rows; r++)
 	{
-		cur = it.next();
-		for(int i=cur.topRow(); i<=cur.bottomRow(); i++)
+		for(int c=0; c<cols; c++)
 		{
-			if (!isRowSelected (i, true))
-				return false;
+			if(d_view->isCellSelected(first_row + r, first_col + c))
+				output_str += text(first_row + r, first_col + c);
+			if(c < cols-1)
+				output_str += "\t";
+		}
+		if(r < rows-1)
+			output_str += "\n";
+	}
+	QApplication::clipboard()->setText(output_str);
+	RESET_CURSOR;
+}
+
+void Matrix::pasteIntoSelection()
+{
+	if(columnCount() < 1 || rowCount() < 1) return;
+
+	WAIT_CURSOR;
+	beginMacro(tr("%1: paste from clipboard").arg(name()));
+	const QMimeData * mime_data = QApplication::clipboard()->mimeData();
+
+	int first_col = d_view->firstSelectedColumn(false);
+	int last_col = d_view->lastSelectedColumn(false);
+	int first_row = d_view->firstSelectedRow(false);
+	int last_row = d_view->lastSelectedRow(false);
+	int input_row_count = 0;
+	int input_col_count = 0;
+	int rows, cols;
+
+	if(mime_data->hasFormat("text/plain"))
+	{
+		QString input_str = QString(mime_data->data("text/plain"));
+		QList< QStringList > cell_texts;
+		QStringList input_rows(input_str.split("\n"));
+		input_row_count = input_rows.count();
+		input_col_count = 0;
+		for(int i=0; i<input_row_count; i++)
+		{
+			cell_texts.append(input_rows.at(i).split("\t"));
+			if(cell_texts.at(i).count() > input_col_count) input_col_count = cell_texts.at(i).count();
+		}
+
+		if( (first_col == -1 || first_row == -1) ||
+			(last_row == first_row && last_col == first_col) )
+		// if the is no selection or only one cell selected, the
+		// selection will be expanded to the needed size from the current cell
+		{
+			int current_row, current_col;
+			d_view->getCurrentCell(&current_row, &current_col);
+			if(current_row == -1) current_row = 0;
+			if(current_col == -1) current_col = 0;
+			d_view->setCellSelected(current_row, current_col);
+			first_col = current_col;
+			first_row = current_row;
+			last_row = first_row + input_row_count -1;
+			last_col = first_col + input_col_count -1;
+			// resize the matrix if necessary
+			if(last_col >= columnCount())
+				appendColumns(last_col+1-columnCount());
+			if(last_row >= rowCount())
+				appendRows(last_row+1-rowCount());
+			// select the rectangle to be pasted in
+			d_view->setCellsSelected(first_row, first_col, last_row, last_col);
+		}
+
+		rows = last_row - first_row + 1;
+		cols = last_col - first_col + 1;
+		for(int r=0; r<rows && r<input_row_count; r++)
+		{
+			for(int c=0; c<cols && c<input_col_count; c++)
+			{
+				if(d_view->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
+				{
+					setCell(first_row + c, first_col + c, cell_texts.at(r).at(c).toDouble());
+				}
+			}
 		}
 	}
-	return true;
+	endMacro();
+	RESET_CURSOR;
 }
 
-void Matrix::deleteSelectedRows()
+void Matrix::insertEmptyColumns()
 {
-	QVarLengthArray<int> rows(1);
-	int n=0;
-	for (int i=0; i<rowCount(); i++)
+	int first = d_view->firstSelectedColumn();
+	int last = d_view->lastSelectedColumn();
+	if( first < 0 ) return;
+	int count, current = first;
+
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: insert empty column(s)").arg(name()));
+	while( current <= last )
 	{
-		if (isRowSelected(i, true))
-		{
-			n++;
-			rows.resize(n);
-			rows[n-1]= i;
-		}
+		current = first+1;
+		while( current <= last && d_view->isColumnSelected(current) ) current++;
+		count = current-first;
+		insertColumns(first, count);
+		current += count;
+		last += count;
+		while( current <= last && !d_view->isColumnSelected(current) ) current++;
+		first = current;
 	}
-
-	// rows need to be removed from bottom to top
-	for(int i=rows.count()-1; i>=0; i--)
-		d_table->removeRow(rows[i]);
-	emit modifiedWindow(this);
+	endMacro();
+	RESET_CURSOR;
 }
 
-// TODO: Maybe change this to insertColumns and make the
-// number of inserted columns depend on the number
-// of selected columns
-void Matrix::insertColumn()
+void Matrix::removeSelectedColumns()
 {
-	int cc = d_table->currentColumn();
-	d_table->insertColumn(cc);
-	emit modifiedWindow(this);
+	int first = d_view->firstSelectedColumn();
+	int last = d_view->lastSelectedColumn();
+	if( first < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: remove selected column(s)").arg(name()));
+	for(int i=last; i>=first; i--)
+		if(d_view->isColumnSelected(i, false)) removeColumns(i, 1);
+	endMacro();
+	RESET_CURSOR;
 }
 
-bool Matrix::columnsSelected()
+void Matrix::clearSelectedColumns()
 {
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 	for(int i=0; i<columnCount(); i++)
+		if(d_view->isColumnSelected(i, false))
+			exec(new MatrixClearColumnCmd(d_matrix_private, i));
+	endMacro();
+	RESET_CURSOR;
+}
+
+void Matrix::insertEmptyRows()
+{
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	int count, current = first;
+
+	if( first < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: insert empty rows(s)").arg(name()));
+	while( current <= last )
 	{
-		if (isColumnSelected (i, true))
-			return true;
+		current = first+1;
+		while( current <= last && d_view->isRowSelected(current) ) current++;
+		count = current-first;
+		insertRows(first, count);
+		current += count;
+		last += count;
+		while( current <= last && !d_view->isRowSelected(current) ) current++;
+		first = current;
 	}
-	return false;
+	endMacro();
+	RESET_CURSOR;
 }
 
-void Matrix::deleteSelectedColumns()
+void Matrix::removeSelectedRows()
 {
-	QVarLengthArray<int> cols(1);
-	int n=0;
-	for (int i=0; i<columnCount(); i++)
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: remove selected rows(s)").arg(name()));
+	for(int i=last; i>=first; i--)
+		if(d_view->isRowSelected(i, false)) removeRows(i, 1);
+	endMacro();
+	RESET_CURSOR;
+}
+
+void Matrix::clearSelectedRows()
+{
+	int first = d_view->firstSelectedRow();
+	int last = d_view->lastSelectedRow();
+	if( first < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: clear selected rows(s)").arg(name()));
+	for(int i=first; i<=last; i++)
 	{
-		if (isColumnSelected(i, true))
-		{
-			n++;
-			cols.resize(n);
-			cols[n-1]= i;
-		}
+		if(d_view->isRowSelected(i))
+			for(int j=0; j<columnCount(); j++)
+				exec(new MatrixSetCellValueCmd(d_matrix_private, i, j, 0.0));
 	}
-
-	// columns need to be removed from right to left
-	for(int i=cols.count()-1; i>=0; i--)
-		d_table->removeColumn(cols[i]);
-	emit modifiedWindow(this);
+	endMacro();
+	RESET_CURSOR;
 }
 
-int Matrix::numSelectedRows()
+void Matrix::clearSelectedCells()
 {
-	int r=0;
-	for(int i=0; i<rowCount(); i++)
-		if (isRowSelected(i, true))
-			r++;
-	return r;
+	int first_row = d_view->firstSelectedRow();
+	int last_row = d_view->lastSelectedRow();
+	if( first_row < 0 ) return;
+	int first_col = d_view->firstSelectedColumn();
+	int last_col = d_view->lastSelectedColumn();
+	if( first_col < 0 ) return;
+
+	WAIT_CURSOR;
+	beginMacro(tr("%1: clear selected cell(s)").arg(name()));
+	for(int i=first_row; i<=last_row; i++)
+		for(int j=first_col; j<=last_col; j++)
+			if(d_view->isCellSelected(i, j))
+				exec(new MatrixSetCellValueCmd(d_matrix_private, i, j, 0.0));
+	endMacro();
+	RESET_CURSOR;
 }
 
-int Matrix::numSelectedColumns()
+QMenu *Matrix::createContextMenu() const
 {
-	int c=0;
-	for(int i=0; i<columnCount(); i++)
-		if (isColumnSelected(i, true))
-			c++;
-	return c;
+	QMenu *menu = AbstractPart::createContextMenu();
+	Q_ASSERT(menu);
+	menu->addSeparator();
+	
+	new QAction(tr("E&xport to ASCII"), menu);
+	// TODO menu->addAction( ....
+
+	return menu;
 }
 
-// TODO: Maybe change this to insertRows and make the
-// number of inserted rows depend on the number
-// of selected row
-void Matrix::insertRow()
+void Matrix::createActions()
 {
-	int cr = d_table->currentRow();
-	d_table->insertRow(cr);
-	emit modifiedWindow(this);
+	//TODO
 }
 
-void Matrix::pasteSelection()
+void Matrix::showMatrixViewContextMenu(const QPoint& pos)
 {
-	QString the_text = QApplication::clipboard()->text();
-	if (the_text.isEmpty())
+	QMenu context_menu;
+	
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
+
+	//TODO
+}
+
+void Matrix::showMatrixViewColumnContextMenu(const QPoint& pos)
+{
+	QMenu context_menu;
+	
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
+
+	//TODO
+}
+
+void Matrix::showMatrixViewRowContextMenu(const QPoint& pos)
+{
+	QMenu context_menu;
+	
+	context_menu.addAction(undoAction(&context_menu));
+	context_menu.addAction(redoAction(&context_menu));
+
+	//TODO
+}
+
+// This probably needs to be moved to the main window
+QMenu * Matrix::createApplicationWindowMenu()
+{
+	QMenu * menu = new QMenu(tr("Matrix"));
+
+	//TODO
+	// [Context Menu]
+	// Show/Hide Matrix Controls (Dock)
+	// Set Dimensions
+	// Convert to Table
+	return menu;
+}
+
+void Matrix::goToCell()
+{
+	bool ok;
+
+	int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"),
+			1, 1, columnCount(), 1, &ok);
+	if ( !ok ) return;
+
+	int row = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter row"),
+			1, 1, rowCount(), 1, &ok);
+	if ( !ok ) return;
+
+	d_view->goToCell(row-1, col-1);
+}
+
+void Matrix::copy(Matrix * other)
+{
+	Q_UNUSED(other);
+	// TODO
+	QMessageBox::information(0, "info", "not yet implemented");
+}
+
+void Matrix::setPlotMenu(QMenu * menu)
+{
+	d_plot_menu = menu;
+}
+
+QIcon Matrix::icon() const
+{
+	QIcon ico;
+	ico.addPixmap(QPixmap(":/16x16/matrix.png"));
+	ico.addPixmap(QPixmap(":/24x24/matrix.png"));
+	ico.addPixmap(QPixmap(":/32x32/matrix.png"));
+	return ico;
+}
+
+QString Matrix::text(int row, int col)
+{
+	return QString::number(cell(row,col), d_matrix_private->numericFormat(), d_matrix_private->displayedDigits());
+}
+
+void Matrix::selectAll()
+{
+	d_view->selectAll();
+}
+
+
+/* ========================== Matrix::Private ====================== */
+
+void Matrix::Private::insertColumns(int before, int count)
+{
+	Q_ASSERT(before >= 0);
+	Q_ASSERT(before <= d_column_count);
+
+	emit d_owner->columnsAboutToBeInserted(before, count);
+	for(int i=0; i<count; i++)
+		d_data.insert(before+i, QVector<double>(d_row_count));
+
+	d_column_count += count;
+	emit d_owner->columnsInserted(before, count);
+}
+
+void Matrix::Private::removeColumns(int first, int count)
+{
+	emit d_owner->columnsAboutToBeRemoved(first, count);
+	Q_ASSERT(first >= 0);
+	Q_ASSERT(first+count <= d_column_count);
+	d_data.remove(first, count);
+	d_column_count -= count;
+	emit d_owner->columnsRemoved(first, count);
+}
+
+void Matrix::Private::insertRows(int before, int count)
+{
+	emit d_owner->rowsAboutToBeInserted(before, count);
+	Q_ASSERT(before >= 0);
+	Q_ASSERT(before <= d_row_count);
+	for(int col=0; col<d_column_count; col++)
+		for(int i=0; i<count; i++)
+			d_data.at(col).insert(before+i, 0.0);
+
+	d_row_count += count;
+	emit d_owner->rowsInserted(before, count);
+}
+
+void Matrix::Private::removeRows(int first, int count)
+{
+	emit d_owner->rowsAboutToBeRemoved(first, count);
+	Q_ASSERT(first >= 0);
+	Q_ASSERT(first+count <= d_row_count);
+	for(int col=0; col<d_column_count; col++)
+		d_data.at(col).remove(first, count);
+
+	d_row_count -= count;
+	emit d_owner->rowsRemoved(first, count);
+}
+
+double Matrix::Private::cell(int row, int col)
+{
+	Q_ASSERT(row >= 0 && row < d_row_count);
+	Q_ASSERT(col >= 0 && col < d_column_count);
+	return d_data.at(col).at(row);
+}
+
+void Matrix::Private::setCell(int row, int col, double value)
+{
+	Q_ASSERT(row >= 0 && row < d_row_count);
+	Q_ASSERT(col >= 0 && col < d_column_count);
+	d_data[col][row] = value;
+	emit d_owner->dataChanged(row, col, row, col);
+}
+
+QVector<double> Matrix::Private::columnCells(int col, int first_row, int last_row)
+{
+	Q_ASSERT(first_row >= 0 && first_row < d_row_count);
+	Q_ASSERT(last_row >= 0 && last_row < d_row_count);
+
+	if(first_row == 0 && last_row == d_row_count-1)
+		return d_data.at(col);
+
+	QVector<double> result;
+	for(int i=first_row; i<=last_row; i++)
+		result.append(d_data.at(col).at(i));
+	return result;
+}
+
+void Matrix::Private::setColumnCells(int col, int first_row, int last_row, QVector<double> values)
+{
+	Q_ASSERT(first_row >= 0 && first_row < d_row_count);
+	Q_ASSERT(last_row >= 0 && last_row < d_row_count);
+	Q_ASSERT(values.count() > last_row - first_row);
+
+	if(first_row == 0 && last_row == d_row_count-1)
+	{
+		d_data[col] = values;
+		d_data[col].resize(d_row_count);  // values may be larger
 		return;
-
-	QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-
-	QTextStream ts( &the_text, QIODevice::ReadOnly );
-	QString s = ts.readLine();
-	QStringList cellTexts = s.split("\t");
-	int cols = cellTexts.count();
-	int rows = 1;
-	while(!ts.atEnd()){
-		rows++;
-		s = ts.readLine();
-	}
-	ts.reset();
-
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
-
-    int top, left, firstCol;
-	if (!sel.isEmpty()){
-		cur = it.next();
-		top = cur.topRow();
-		left = cur.leftColumn();
-	} else {
-		top = 0;
-		left = 0;
-
-		firstCol = firstSelectedColumn();
-
-		if (firstCol >= 0){ // columns are selected
-			left = firstCol;
-			int selectedColsNumber = 0;
-			for(int i=0; i<columnCount(); i++) {
-				if (isColumnSelected(i, true))
-					selectedColsNumber++;
-			}
-		}
 	}
 
-	QTextStream ts2( &the_text, QIODevice::ReadOnly );
-
-    d_table->blockSignals(true);
-	if (top + rows > d_table->rowCount())
-        d_table->setRowCount(top + rows);
-    if (left + cols > d_table->columnCount())
-        d_table->setColumnCount(left + cols);
-
-	bool numeric;
-	QLocale system_locale = QLocale::system();
-	for(int i=top; i<top+rows; i++){
-		s = ts2.readLine();
-		cellTexts=s.split("\t");
-		for(int j=left; j<left+cols; j++){
-			double value = system_locale.toDouble(cellTexts[j-left], &numeric);
-			if (numeric)
-				setText(i, j, QLocale().toString(value, txt_format.toAscii(), num_precision));
-			else
-				setText(i, j, cellTexts[j-left]);
-		}
-	}
-
-	d_table->blockSignals(false);
-	emit modifiedWindow(this);
-	QApplication::restoreOverrideCursor();
+	for(int i=first_row; i<=last_row; i++)
+		d_data[col][i] = values.at(i-first_row);
+	emit d_owner->dataChanged(first_row, col, last_row, col);
 }
 
-void Matrix::contextMenuEvent(QContextMenuEvent *e)
+void Matrix::Private::clearColumn(int col)
 {
-	emit showContextMenu();
-	e->accept();
+	d_data[col].fill(0.0);
+	emit d_owner->dataChanged(0, col, d_row_count-1, col);
 }
 
-void Matrix::customEvent(QEvent *e)
-{
-	if (e->type() == SCRIPTING_CHANGE_EVENT)
-		scriptingChangeEvent((ScriptingChangeEvent*)e);
-}
-
-bool Matrix::eventFilter(QObject *object, QEvent *e)
-{
-	if (e->type()==QEvent::ContextMenu && object == titleBar)
-	{
-		emit showTitleBarMenu();
-		((QContextMenuEvent*)e)->accept();
-		return true;
-	}
-
-	return MyWidget::eventFilter(object, e);
-}
-
-void Matrix::exportPDF(const QString& fileName)
-{
-	print(fileName);
-}
-
-void Matrix::print()
-{
-    print(QString());
-}
-
-void Matrix::print(const QString& fileName)
-{
-	QPrinter printer;
-	printer.setColorMode (QPrinter::GrayScale);
-
-	if (!fileName.isEmpty())
-	{
-	    printer.setCreator("SciDAVis");
-	    printer.setOutputFormat(QPrinter::PdfFormat);
-        printer.setOutputFileName(fileName);
-	}
-    else
-    {
-        QPrintDialog printDialog(&printer);
-        if (printDialog.exec() != QDialog::Accepted)
-            return;
-    }
-		printer.setFullPage( true );
-		QPainter p;
-		if ( !p.begin(&printer ) )
-			return; // paint on printer
-		int dpiy = printer.logicalDpiY();
-		const int margin = (int) ( (1/2.54)*dpiy ); // 1 cm margins
-
-		QHeaderView *vHeader = d_table->verticalHeader();
-
-		int rows = rowCount();
-		int cols = columnCount();
-		int height = margin;
-		int i, vertHeaderWidth = vHeader->width();
-		int right = margin + vertHeaderWidth;
-
-		// print header
-		p.setFont(QFont());
-		QString header_label = d_table->model()->headerData(0, Qt::Horizontal).toString();
-		QRect br = p.boundingRect(br, Qt::AlignCenter, header_label);
-		p.drawLine(right, height, right, height+br.height());
-		QRect tr(br);
-
-		for(i=0;i<cols;i++)
-		{
-			int w = d_table->columnWidth(i);
-			tr.setTopLeft(QPoint(right,height));
-			tr.setWidth(w);
-			tr.setHeight(br.height());
-			header_label = d_table->model()->headerData(i, Qt::Horizontal).toString();
-			p.drawText(tr, Qt::AlignCenter, header_label,-1);
-			right += w;
-			p.drawLine(right, height, right, height+tr.height());
-
-			if (right >= printer.width()-2*margin )
-				break;
-		}
-
-		p.drawLine(margin + vertHeaderWidth, height, right-1, height);//first horizontal line
-		height += tr.height();
-		p.drawLine(margin, height, right-1, height);
-
-		// print table values
-		for(i=0;i<rows;i++)
-		{
-			right = margin;
-			QString cell_text = d_table->model()->headerData(i, Qt::Horizontal).toString()+"\t";
-			tr = p.boundingRect(tr, Qt::AlignCenter, cell_text);
-			p.drawLine(right, height, right, height+tr.height());
-
-			br.setTopLeft(QPoint(right,height));
-			br.setWidth(vertHeaderWidth);
-			br.setHeight(tr.height());
-			p.drawText(br,Qt::AlignCenter,cell_text,-1);
-			right += vertHeaderWidth;
-			p.drawLine(right, height, right, height+tr.height());
-
-			for(int j=0;j<cols;j++)
-			{
-				int w = d_table->columnWidth (j);
-				cell_text = text(i,j)+"\t";
-				tr = p.boundingRect(tr,Qt::AlignCenter,cell_text);
-				br.setTopLeft(QPoint(right,height));
-				br.setWidth(w);
-				br.setHeight(tr.height());
-				p.drawText(br, Qt::AlignCenter, cell_text, -1);
-				right += w;
-				p.drawLine(right, height, right, height+tr.height());
-
-				if (right >= printer.width()-2*margin )
-					break;
-			}
-			height += br.height();
-			p.drawLine(margin, height, right-1, height);
-
-			if (height >= printer.height()-margin )
-			{
-				printer.newPage();
-				height = margin;
-				p.drawLine(margin, height, right, height);
-			}
-		}
-}
-
-void Matrix::range(double *min, double *max)
-{
-	double d_min = cell(0, 0);
-	double d_max = d_min;
-
-	for(int i=0; i<rowCount(); i++)
-	{
-		for(int j=0; j<columnCount(); j++)
-		{
-			double aux = cell(i, j);
-			if (aux <= d_min)
-				d_min = aux;
-
-			if (aux >= d_max)
-				d_max = aux;
-		}
-	}
-
-	*min = d_min;
-	*max = d_max;
-}
-
-bool Matrix::isColumnSelected(int col, bool full)
-{
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
-
-	if ( !full )
-	{
-		if( it.hasNext() )
-		{
-			cur = it.next();
-			if ( (col >= cur.leftColumn()) && (col <= cur.rightColumn() ) )
-				return true;
-		}
-	}
-	else
-	{
-		if( it.hasNext() )
-		{
-			cur = it.next();
-			if ( col >= cur.leftColumn() &&
-					col <= cur.rightColumn() &&
-					cur.topRow() == 0 &&
-					cur.bottomRow() == rowCount() - 1 )
-				return true;
-		}
-	}
-	return false;
-}
-
-bool Matrix::isRowSelected(int row, bool full)
-{
-	QList<QTableWidgetSelectionRange> sel = d_table->selectedRanges();
-	QListIterator<QTableWidgetSelectionRange> it(sel);
-	QTableWidgetSelectionRange cur;
-
-	if ( !full )
-	{
-		if( it.hasNext() )
-		{
-			cur = it.next();
-			if ( (row >= cur.topRow()) && (row <= cur.bottomRow() ) )
-				return true;
-		}
-	}
-	else
-	{
-		if( it.hasNext() )
-		{
-			cur = it.next();
-			if ( row >= cur.topRow() &&
-					row <= cur.bottomRow() &&
-					cur.leftColumn() == 0 &&
-					cur.rightColumn() == columnCount() - 1 )
-				return true;
-		}
-	}
-	return false;
-}
-
-
-int Matrix::firstSelectedColumn()
-{
-	for(int i=0;i<columnCount();i++)
-	{
-		if(isColumnSelected(i,true))
-			return i;
-	}
-	return -1;
-}
-
-double** Matrix::allocateMatrixData(int rows, int columns)
-{
-	double** data = new double* [rows];
-	for ( int i = 0; i < rows; ++i)
-		data[i] = new double [columns];
-
-	return data;
-}
-
-void Matrix::freeMatrixData(double **data, int rows)
-{
-	for ( int i = 0; i < rows; i++)
-		delete [] data[i];
-
-	delete [] data;
-}
-
-void Matrix::goToCell(int row, int col)
-{
-	if( (row < 0) || (row >= rowCount()) ) return;
-	if( (col < 0) || (col >= columnCount()) ) return;
-
-	QTableWidgetItem * the_item = d_table->item(row, col);
-	if(!the_item)
-	{
-		the_item = new QTableWidgetItem("");
-		d_table->setItem(row, col, the_item);
-	}
-
-	d_table->scrollToItem(the_item);
-	d_table->setCurrentCell(row, col);
-}
-
-void Matrix::updateDecimalSeparators()
-{
-    saveCellsToMemory();
-
-    d_table->blockSignals(true);
-    for(int i=0; i<d_table->rowCount(); i++)
-	{
-		for(int j=0; j<d_table->columnCount(); j++)
-		{
-			if (!text(i, j).isEmpty())
-				setCell(i, j, dMatrix[i][j]);
-		}
-	}
-    d_table->blockSignals(false);
-    forgetSavedCells();
-}
-
-void Matrix::copy(Matrix *m)
-{
-	if (!m)
-        return;
-
-	x_start = m->xStart();
-	x_end = m->xEnd();
-	y_start = m->yStart();
-	y_end = m->yEnd();
-
-	d_table->blockSignals(true);
-    for (int i=0; i<m->rowCount(); i++)
-        for (int j=0; j<m->columnCount(); j++)
-            setText(i, j, m->text(i,j));
-    d_table->blockSignals(false);
-
-	setColumnsWidth(m->columnsWidth());
-	formula_str = m->formula();
-	setTextFormat(m->textFormat(), m->precision());
-}

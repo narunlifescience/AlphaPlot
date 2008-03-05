@@ -1,13 +1,12 @@
 /***************************************************************************
     File                 : Matrix.h
     Project              : SciDAVis
+    Description          : Aspect providing a spreadsheet to manage MxN matrix data
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Hoener zu Siederdissen
-                           Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
-                           knut.franke*gmx.de
-    Description          : Matrix worksheet class
+    Copyright            : (C) 2006-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -32,266 +31,278 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "core/MyWidget.h"
 #include "core/AbstractScriptingEngine.h"
-
-#include <qwt_double_rect.h>
-#include <QTableWidget>
-#include <QHeaderView>
+#include "core/AbstractPart.h"
+#include "MatrixView.h"
 
 class QContextMenuEvent;
 class QEvent;
 
-// (maximum) initial matrix size
+// (maximum) initial matrix size (this is the size of the window, not the number of cells)
 #define _Matrix_initial_rows_ 10
 #define _Matrix_initial_columns_ 3
 
-//! Matrix worksheet class
-class Matrix: public MyWidget, public scripted
+// TODO: move all selection related stuff to the primary view
+
+//! Aspect providing a spreadsheet to manage MxN matrix data
+class Matrix : public AbstractPart, public scripted
 {
     Q_OBJECT
 
-public:
+	public:
+		class Private; 
+		friend class Private;
 
-	/*!
-	 * \brief Constructor
-	 *
-	 * \param env scripting interpreter
-	 * \param r initial number of rows
-	 * \param c initial number of columns
-	 * \param label window label
-	 * \param parent parent object
-	 * \param name
-	 * \param name window name
-	 * \param f window flags
-	 */
-	Matrix(AbstractScriptingEngine *engine, int r, int c, const QString& label, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
-	~Matrix(){};
+		/*!
+		 * \brief Constructor
+		 *
+		 * \param engine scripting engine
+		 * \param rows initial number of rows
+		 * \param cols initial number of columns
+		 * \param name object name
+		 */
+		Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QString& name);
+		~Matrix();
 
-	//! Return the number of rows
-	int rowCount();
-	void setRowCount(int rows);
+		//! \name aspect related functions
+		//@{
+		//! Return an icon to be used for decorating my views.
+		virtual QIcon icon() const;
+		//! Return a new context menu.
+		/**
+		 * The caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu() const;
+		//! Construct a primary view on me.
+		/**
+		 * This method may be called multiple times during the life time of an Aspect, or it might not get
+		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 */
+		virtual QWidget *view();
+		//@}
 
-	//! Return the number of columns
-	int columnCount();
-	void setColumnCount(int cols);
+		void insertColumns(int before, int count);
+		void appendColumns(int count) { insertColumns(columnCount(), count); }
+		void removeColumns(int first, int count);
+		void insertRows(int before, int count);
+		void appendRows(int count) { insertRows(rowCount(), count); }
+		void removeRows(int first, int count);
+		//! Set the number of rows and columns
+		void setDimensions(int rows, int cols);
+		//! Return the total number of columns
+		int columnCount() const;
+		//! Return the total number of rows
+		int rowCount() const;
+		// TODO: move this to abstract aspect?
+		//! Create a menu for the main application window
+		QMenu * createApplicationWindowMenu();
 
-	//! Returns whether the row is empty or not
-	bool isEmptyRow(int row);
+		//! Set a plot menu 
+		/**
+		 * The matrix takes ownership of the menu.
+		 */
+		void setPlotMenu(QMenu * menu);
+		//! Return the value in the given cell
+		double cell(int row, int col);
+		//! Set the value of the cell
+		void setCell(int row, int col, double value );
+		//! Return the text displayed in the given cell
+		QString text(int row, int col);
+		void copy(Matrix * other);
 
-	//event handlers
-	/*!
-	 * \brief Event filter
-	 *
-	 * Currently only reacts to events of the
-	 * title bar.
-	 */
-	bool eventFilter(QObject *object, QEvent *e);
-	//! Context menu event handler
-	void contextMenuEvent(QContextMenuEvent *e);
-	//! Custom event handler
-	/**
-	 * Currently handles SCRIPTING_CHANGE_EVENT only.
-	 */
-	void customEvent(QEvent *e);
+	public slots:
+		//! Clear the whole matrix (i.e. set all cells to 0.0)
+		void clear();
 
-	void updateDecimalSeparators();
+		void cutSelection();
+		void copySelection();
+		void pasteIntoSelection();
+		void clearSelectedCells();
+		void goToCell();
+		//! Insert columns depending on the selection
+		void insertEmptyColumns();
+		//! Insert rows depending on the selection
+		void insertEmptyRows();
+		void removeSelectedColumns();
+		void removeSelectedRows();
+		void clearSelectedColumns();
+		void clearSelectedRows();
+		void selectAll();
+		//! Show a context menu for the selected cells
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showMatrixViewContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected columns
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showMatrixViewColumnContextMenu(const QPoint& pos);
+		//! Show a context menu for the selected rows
+		/**
+		 * \param pos global position of the event 
+		*/
+		void showMatrixViewRowContextMenu(const QPoint& pos);
 
-public slots:
-	void exportPDF(const QString& fileName);
-	//! Print the Matrix
-	void print();
-	//! Print the Matrix to fileName
-	void print(const QString& fileName);
-	//! Called if any cell value was changed
-	void cellEdited(int,int);
+	signals:
+		void columnsAboutToBeInserted(int before, int count);
+		void columnsInserted(int first, int count);
+		void columnsAboutToBeRemoved(int first, int count);
+		void columnsRemoved(int first, int count);
+		void rowsAboutToBeInserted(int before, int count);
+		void rowsInserted(int first, int count);
+		void rowsAboutToBeRemoved(int first, int count);
+		void rowsRemoved(int first, int count);
+		void dataChanged(int top, int left, int bottom, int right);
 
-	//! Return the width of all columns
-	int columnsWidth();
-	//! Set the width of all columns
-	void setColumnsWidth(int width);
+	private:
+		void createActions();
+		QMenu * d_plot_menu;
 
-	//! Set the Matrix size
-	void setDimensions(int rows, int cols);
-	//! Transpose the matrix
-	void transpose();
-	//! Invert the matrix
-	void invert();
-	//! Calculate the determinant of the matrix
-	double determinant();
+// TODO: define matrix actions, this is stuff from table
+/*
+		//! \name selection related actions
+		//@{
+		QAction * action_cut_selection;
+		QAction * action_copy_selection;
+		QAction * action_paste_into_selection;
+		QAction * action_mask_selection;
+		QAction * action_unmask_selection;
+		QAction * action_set_formula;
+		QAction * action_clear_selection;
+		QAction * action_recalculate;
+		QAction * action_fill_row_numbers;
+		QAction * action_fill_random;
+		//@}
+		//! \name table related actions
+		//@{
+		QAction * action_toggle_comments;
+		QAction * action_toggle_tabbar;
+		QAction * action_select_all;
+		QAction * action_add_column;
+		QAction * action_clear_table;
+		QAction * action_clear_masks;
+		QAction * action_sort_table;
+		QAction * action_go_to_cell;
+		//@}
+		//! \name column related actions
+		//@{
+		QAction * action_insert_columns;
+		QAction * action_remove_columns;
+		QAction * action_clear_columns;
+		QAction * action_add_columns;
+		QAction * action_set_as_x;
+		QAction * action_set_as_y;
+		QAction * action_set_as_z;
+		QAction * action_set_as_xerr;
+		QAction * action_set_as_yerr;
+		QAction * action_set_as_none;
+		QAction * action_normalize_columns;
+		QAction * action_sort_columns;
+		QAction * action_statistics_columns;
+		QAction * action_type_format;
+		QAction * action_edit_description;
+		//@}
+		//! \name row related actions
+		//@{
+		QAction * action_insert_rows;
+		QAction * action_remove_rows;
+		QAction * action_clear_rows;
+		QAction * action_add_rows;
+		QAction * action_statistics_rows;
+		//@}
+*/
+		MatrixView *d_view;
+		Private *d_matrix_private;
+};
 
-	//! Calculate matrix values using the #formula_str
-	bool calculate(int startRow = 0, int endRow = -1, int startCol = 0, int endCol = -1);
+/**
+  This private class manages matrix based data (i.e., mathematically
+  a MxN matrix with M rows, N columns). These data are typically
+  used to for 3D plots.
+  
+  The API of this private class is to be called by Matrix and matrix
+  commands only. Matrix may only call the reading functions to ensure 
+  that undo/redo is possible for all data changing operations.
 
-	//! Return the content of the cell as a string
-	QString text(int row, int col);
-	//! Set the content of the cell as a string
-	void setText(int row, int col, const QString & new_text );
-	//! Return the value of the cell as a double
-	double cell(int row, int col);
-	//! Set the value of the cell
-	void setCell(int row, int col, double value );
+  The values of the matrix are stored as double precision values. They
+  are managed by QVector<double> objects. Although rows and columns
+  are equally important in a matrix, the columns are chosen to
+  be contiguous in memory to allow easier copying between
+  column and matrix data.
+  */
+class Matrix::Private
+{
+	public:
+		Private(Matrix *owner) : d_owner(owner), d_column_count(0), d_row_count(0) {}
+		//! Insert columns before column number 'before'
+		/**
+		 * If 'first' is equal to the current number of columns,
+		 * the columns will be appended.
+		 * \param before index of the column to insert before
+		 * \param count the number of columns to be inserted
+		 */
+		void insertColumns(int before, int count);
+		//! Remove Columns
+		/**
+		 * \param first index of the first column to be removed
+		 * \param count number of columns to remove
+		 */
+		void removeColumns(int first, int count);
+		//! Insert rows before row number 'before'
+		/**
+		 * If 'first' is equal to the current number of rows,
+		 * the rows will be appended.
+		 * \param before index of the row to insert before
+		 * \param count the number of rows to be inserted
+		 */
+		void insertRows(int before, int count);
+		//! Remove Columns
+		/**
+		 * \param first index of the first row to be removed
+		 * \param count number of rows to remove
+		 */
+		void removeRows(int first, int count);
+		//! Return the number of columns in the table
+		int columnCount() const { return d_column_count; }
+		//! Return the number of rows in the table
+		int rowCount() const { return d_row_count; }
+		QString name() const { return d_owner->name(); }
+		//! Return the value in the given cell
+		double cell(int row, int col);
+		//! Set the value in the given cell
+		void setCell(int row, int col, double value);
+		//! Return the values in the given cells as double vector
+		QVector<double> columnCells(int col, int first_row, int last_row);
+		//! Return the values in the given cells as double vector
+		void setColumnCells(int col, int first_row, int last_row, QVector<double> values);
+		char numericFormat() const { return d_numeric_format; }
+		void setNumericFormat(char format) { d_numeric_format = format; }
+		int displayedDigits()  const { return d_displayed_digits; }
+		void setDisplayedDigits(int digits) { d_displayed_digits = digits; }
+		//! Fill column with zeroes
+		void clearColumn(int col);
 
-	/*!
-	 * \brief Return the text format code ('e', 'f', ...)
-	 *
-	 * \sa setNumerFormat(), setTextFormat()
-	 */
-	QChar textFormat(){return txt_format;};
-	/*!
-	 * \brief Return the number precision digits
-	 *
-	 * See arguments of setNumericFormat().
-	 * \sa setNumericFormat(), setTextFormat()
-	 */
-	int precision(){return num_precision;};
-	/*!
-	 * \brief Set the number of significant digits
-	 *
-	 * \sa precision(), setNumericFormat(), setTextFormat()
-	 */
-	void setNumericPrecision(int prec){num_precision = prec;};
+	private:
+		//! The owner aspect
+		Matrix *d_owner;
+		//! The number of columns
+		int d_column_count;
+		//! The number of rows
+		int d_row_count;
+		//! The matrix data
+		QVector< QVector<double> > d_data;	
+		//! Last formula used to calculate cell values
+		QString d_formula; // TODO: should we support interval/rectangle based formulas?
+		//! Format code for displaying numbers
+		char d_numeric_format;
+		//! Number of significant digits
+		int d_displayed_digits;
+		double d_x_start, //!< X value corresponding to column 1
+			   d_x_end,  //!< X value corresponding to the last column
+			   d_y_start,  //!< Y value corresponding to row 1
+			   d_y_end;  //!< Y value corresponding to the last row
 
-	/*!
-	 * \brief Set the number format for the cells
-	 *
-	 * This method should only be called before any user
-	 * interaction was done. Use setTextFormat() if you
-	 * want to change it from a dialog.
-	 * \sa setTextFormat()
-	 */
-	void setTextFormat(const QChar &format, int precision);
-	/*!
-	  \brief Set the number format for the cells
-
-	  You must call saveCellsToMemory() before and
-	  forgetSavedCells() after calling this!
-	  Format character and precision have the same meaning as for
-	  sprintf().
-	  \param f format character 'e', 'f', 'g'
-	  \param prec
-	  - for 'e', 'f': the number of digits after the radix character (point)
-	  - for 'g': the maximum number of significant digits
-
-	  \sa saveCellsToMemory(), forgetSavedCells(), dMatrix
-	  */
-	void setNumericFormat(const QChar & f, int prec);
-
-	//! Return the matrix formula
-	QString formula();
-	//! Set the matrix forumla
-	void setFormula(const QString &s);
-
-	//! Load the matrix from a string list (i.e. lines from a project file)
-	void restore(const QStringList &l);
-	//! Format the matrix format in a string to save it in a template file
-	QString saveAsTemplate(const QString &info);
-
-	//! Return a string to save the matrix in a project file (\<matrix\> section)
-	QString saveToString(const QString &info);
-	//! Return a string conaining the data of the matrix (\<data\> section)
-	QString saveText();
-
-	// selection operations
-	//! Standard cut operation
-	void cutSelection();
-	//! Standard copy operation
-	void copySelection();
-	//! Clear cells
-	void clearSelection();
-	//! Standard paste operation
-	void pasteSelection();
-
-	//! Insert a row before the current cell
-	void insertRow();
-	//! Return whether any rows are fully selected
-	bool rowsSelected();
-	//! Delete the selected rows
-	void deleteSelectedRows();
-	//! Return the number of selected rows
-	int numSelectedRows();
-
-	//! Insert a column before the current cell
-	void insertColumn();
-	//! Return whether any columns are fully selected
-	bool columnsSelected();
-	//! Delte the selected columns
-	void deleteSelectedColumns();
-	//! Return the number of selected columns
-	int numSelectedColumns();
-	//! Returns whether a column contains selected cells (full=false) or is fully selected (full=true)
-	bool isColumnSelected(int col, bool full=false);
-	//! Returns whether a row contains selected cells (full=false) or is fully selected (full=true)
-	bool isRowSelected(int row, bool full=false);
-	//! Return the first fully selected column or -1 if no column is fully selected
-	int firstSelectedColumn();
-
-	/*!
-	 * \brief Temporally save the cell values to memory
-	 *
-	 * \sa setNumericFormat(), forgetSavedCells(), dMatrix
-	 */
-	void saveCellsToMemory();
-	/*!
-	 * \ brief Free memory of saved cells
-	 *
-	 * \sa setNumericFormat(), saveCellsToMemory(), dMatrix
-	 */
-	void forgetSavedCells();
-
-	//! Return the X value corresponding to column 1
-	double xStart(){return x_start;};
-	//! Return the X value corresponding to the last column
-	double xEnd(){return x_end;};
-	//! Return the Y value corresponding to row 1
-	double yStart(){return y_start;};
-	//! Return the Y value corresponding to the last row
-	double yEnd(){return y_end;};
-
-	//! Returns the bounding rect of the matrix coordinates
-  	QwtDoubleRect boundingRect(){return QwtDoubleRect(x_start, y_start, x_end-x_start, y_end-y_start).normalized();};
-	//! Set the X and Y coordinate intervals
-	void setCoordinates(double xs, double xe, double ys, double ye);
-
-	 //! Min and max values of the matrix.
-  	void range(double *min, double *max);
-	//! Return a pointer to the QTableWidget
-	QTableWidget* table(){return d_table;};
-
-	//! Scroll to cell
-	void goToCell(int row, int col);
-
-	//! Allocate memory for a matrix buffer
-	static double** allocateMatrixData(int rows, int columns);
-	//! Free memory used for a matrix buffer
-	static void freeMatrixData(double **data, int rows);
-
-	int verticalHeaderWidth(){return table()->verticalHeader()->width();}
-
-    void copy(Matrix *m);
-
-signals:
-	//! Show the context menu
-	void showContextMenu();
-
-private:
-	//! Initialize the matrix
-	void init(int rows, int cols);
-
-	//! Pointer to the table widget
-	QTableWidget *d_table;
-	//! Last formula used to calculate cell values
-	QString formula_str;
-	//! Format code for displaying numbers
-	QChar txt_format;
-	//! Number of significant digits
-	int num_precision;
-	//! Stores the matrix data only before the user opens the matrix dialog in order to avoid data loses during number format changes.
-	double **dMatrix;
-	double x_start, //!< X value corresponding to column 1
-	x_end,  //!< X value corresponding to the last column
-	y_start,  //!< Y value corresponding to row 1
-	y_end;  //!< Y value corresponding to the last row
 };
 
 #endif

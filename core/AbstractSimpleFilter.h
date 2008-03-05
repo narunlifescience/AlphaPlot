@@ -34,7 +34,7 @@
 #include "AbstractFilter.h"
 #include "AbstractColumn.h"
 #include "AbstractAspect.h"
-#include "IntervalAttribute.h"
+#include "lib/IntervalAttribute.h"
 #include <QUndoCommand>
 #include <QUndoStack>
 

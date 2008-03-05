@@ -1,0 +1,63 @@
+<ui version="4.0" >
+ <class>MatrixControlTabs</class>
+ <widget class="QWidget" name="MatrixControlTabs" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>238</width>
+    <height>365</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" >
+   <item>
+    <widget class="QTabWidget" name="tabWidget" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="tab" >
+      <attribute name="title" >
+       <string>Tab 1</string>
+      </attribute>
+      <widget class="QLabel" name="label" >
+       <property name="geometry" >
+        <rect>
+         <x>80</x>
+         <y>110</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>TODO</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="tab_2" >
+      <attribute name="title" >
+       <string>Tab 2</string>
+      </attribute>
+      <widget class="QLabel" name="label_2" >
+       <property name="geometry" >
+        <rect>
+         <x>80</x>
+         <y>110</y>
+         <width>57</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text" >
+        <string>TODO</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

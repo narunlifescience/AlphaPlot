@@ -1,9 +1,9 @@
 /***************************************************************************
-    File                 : TableView.h
+    File                 : MatrixView.h
     Project              : SciDAVis
-    Description          : View class for Table
+    Description          : View class for Matrix
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
 
  ***************************************************************************/
@@ -27,8 +27,8 @@
  *                                                                         *
  ***************************************************************************/
 
-#ifndef TABLEVIEW_H
-#define TABLEVIEW_H
+#ifndef MATRIXVIEW_H
+#define MATRIXVIEW_H
 
 #include <QWidget>
 #include <QTableView>
@@ -47,24 +47,19 @@
 #include <QComboBox>
 #include <QSpinBox> 
 #include <QScrollArea>
-#include "ui_controltabs.h"
-#include <QtDebug>
 #include "globals.h"
 
-class Column;
-class Table;
-class TableModel;
-class TableItemDelegate;
-class TableDoubleHeaderView;
+class Matrix;
+class MatrixModel;
 
-//! Helper class for TableView
-class TableViewWidget : public QTableView
+//! Helper class for MatrixView
+class MatrixViewWidget : public QTableView
 {
     Q_OBJECT
 
 	public:
 		//! Constructor
-		TableViewWidget(QWidget * parent = 0) : QTableView(parent) {};
+		MatrixViewWidget(QWidget * parent = 0) : QTableView(parent) {};
 
 	protected:
 		//! Overloaded function (cf. Qt documentation)
@@ -73,28 +68,22 @@ class TableViewWidget : public QTableView
 	signals:
 		void advanceCell();
 
-		protected slots:
-			//! Cause a repaint of the header
-			void updateHeaderGeometry(Qt::Orientation o, int first, int last);
 		public slots:
 			void selectAll();
 };
 
-//! View class for Table
-class TableView : public QWidget
+//! View class for Matrix
+class MatrixView : public QWidget
 {
     Q_OBJECT
 
 	public:
 		//! Constructor
-		TableView(Table *table);
+		MatrixView(Matrix *matrix);
 		//! Destructor
-		virtual ~TableView();
+		virtual ~MatrixView();
+		// TODO: control bar for matrix
 		bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
-		//! Show or hide (if on = false) the column comments
-		void showComments(bool on = true);
-		//! Return whether comments are show currently
-		bool areCommentsShown() const;
 
 		//! \name selection related functions
 		//@{
@@ -104,20 +93,12 @@ class TableView : public QWidget
 		 * selected columns.
 		 */
 		int selectedColumnCount(bool full = false);
-		//! Return how many columns with the given plot designation are (at least partly) selected
-		int selectedColumnCount(SciDAVis::PlotDesignation pd);
 		//! Returns true if column 'col' is selected; otherwise false
 		/**
 		 * If full is true, this function only returns true if the whole 
 		 * column is selected.
 		 */
 		bool isColumnSelected(int col, bool full = false);
-		//! Return all selected columns
-		/**
-		 * If full is true, this function only returns a column if the whole 
-		 * column is selected.
-		 */
-		QList<Column *> selectedColumns(bool full = false);
 		//! Return how many rows are (at least partly) selected
 		/**
 		 * If full is true, this function only returns the number of fully 
@@ -167,48 +148,37 @@ class TableView : public QWidget
 	public slots:
 		void goToCell(int row, int col);
 		void selectAll();
+		// TODO: control bar for matrix
 		void toggleControlTabBar();
-		void toggleComments();
-		void showControlDescriptionTab();
-		void showControlTypeTab();
-		void showControlFormulaTab();
+	//	void showControlDescriptionTab();
+	//	void showControlTypeTab();
+	//	void showControlFormulaTab();
 
 	protected slots:
+		void scrollToIndex(const QModelIndex & index);
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
-		void horizontalSectionMovedHandler(int index, int from, int to);
-		void updateTypeInfo();
-		void updateFormatBox();
-		void handleHeaderDataChanged(Qt::Orientation orientation, int first, int last);
-		void currentColumnChanged(const QModelIndex & current, const QModelIndex & previous);
-		void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
-		void applyDescription();
-		void applyType();
 
 	protected:
-		//! Pointer to the item delegate
-		TableItemDelegate * d_delegate;
 		//! Pointer to the current underlying model
-		TableModel * d_model;
+		MatrixModel * d_model;
 
 		virtual void changeEvent(QEvent * event);
 		void retranslateStrings();
-		void setColumnForDescriptionTab(int col);
 
 		bool eventFilter( QObject * watched, QEvent * event);
 
 	private:
-		//! UI with options tabs (description, format, formula etc.)
-		Ui::ControlTabs ui;
-		//! The table view (first part of the UI)
-		TableViewWidget * d_view_widget;
+		// TODO
+	//	Ui::ControlTabs ui;
+		//! The matrix view (first part of the UI)
+		MatrixViewWidget * d_view_widget;
 		//! Widget that contains the control tabs UI from #ui
 		QWidget * d_control_tabs;
 		//! Button to toogle the visibility of #d_tool_box
 		QToolButton * d_hide_button;
 		QHBoxLayout * d_main_layout;
-		TableDoubleHeaderView * d_horizontal_header;
-		Table * d_table;
+		Matrix * d_matrix;
 
 		//! Initialization
 		void init();

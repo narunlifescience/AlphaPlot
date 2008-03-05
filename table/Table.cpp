@@ -74,8 +74,10 @@
 
 bool Table::d_default_comment_visibility = false;
 
+// TODO: move all selection related stuff to the primary view
+
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
-: AbstractPart(name), d_plot_menu(0) // TODO:, scripted(engine)
+	: AbstractPart(name), d_plot_menu(0), scripted(engine)
 {
 	d_table_private = new Private(this);
 
@@ -86,7 +88,7 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	appendColumns(cols);
 	setRowCount(rows);
 
-	d_view = new TableView(this);
+	d_view = new TableView(this); 
 	createActions();
 	d_view->showComments(d_default_comment_visibility);
 }
@@ -758,7 +760,7 @@ void Table::clearSelectedCells()
 	RESET_CURSOR;
 }
 
-QMenu *Table::createContextMenu()
+QMenu *Table::createContextMenu() const
 {
 	QMenu *menu = AbstractPart::createContextMenu();
 	Q_ASSERT(menu);

@@ -66,7 +66,7 @@ of the user interaction are handled by actions provides by Table, e.g., via a co
 
 Selections are handled by TableView and can be queried by Table.
 */
-class Table: public AbstractPart // TODO:, public scripted
+class Table : public AbstractPart, public scripted
 {
 	Q_OBJECT
 
@@ -81,13 +81,13 @@ class Table: public AbstractPart // TODO:, public scripted
 		//@{
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
-		//! Return a new context menu
-		virtual QMenu *createContextMenu();
-		//! Construct a standard view on me.
+		//! Return a new context menu.
 		/**
-		 * If a parent is specified, the view is added to it as a child widget and the parent takes over
-		 * ownership. If no parent is given, the caller receives ownership of the view.
-		 * 
+		 * The caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu() const;
+		//! Construct a primary view on me.
+		/**
 		 * This method may be called multiple times during the life time of an Aspect, or it might not get
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
@@ -208,6 +208,7 @@ class Table: public AbstractPart // TODO:, public scripted
 		void fillSelectedCellsWithRandomNumbers();
 		//! Open the sort dialog for all columns
 		void sortTable();
+		//! Insert columns depending on the selection
 		void insertEmptyColumns();
 		void removeSelectedColumns();
 		void clearSelectedColumns();
@@ -222,6 +223,7 @@ class Table: public AbstractPart // TODO:, public scripted
 		void sortSelectedColumns();
 		void statisticsOnSelectedColumns();
 		void statisticsOnSelectedRows();
+		//! Insert rows depending on the selection
 		void insertEmptyRows();
 		void removeSelectedRows();
 		void selectAll();
@@ -382,12 +384,10 @@ class Table::Private
 		void replaceColumns(int first, QList<Column*> new_cols);
 		//! Insert columns before column number 'before'
 		/**
-		 * If 'first' is higher than (current number of columns -1),
+		 * If 'first' is equal to the number of columns,
 		 * the columns will be appended.
 		 * \param before index of the column to insert before
 		 * \param cols a list of column data objects
-		 * \param in_filter a list of the corresponding input filters
-		 * \param out_filter a list of the corresponding output filters
 		 */
 		void insertColumns(int before, QList<Column*> cols);
 		//! Remove Columns

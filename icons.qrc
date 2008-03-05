@@ -157,6 +157,9 @@
 	<file alias="16x16/table.png">icons/16x16/table.png</file>
 	<file alias="24x24/table.png">icons/24x24/table.png</file>
 	<file alias="32x32/table.png">icons/32x32/table.png</file>
+	<file alias="16x16/matrix.png">icons/16x16/matrix.png</file>
+	<file alias="24x24/matrix.png">icons/24x24/matrix.png</file>
+	<file alias="32x32/matrix.png">icons/32x32/matrix.png</file>
 	<file alias="16x16/clear_table.png">icons/16x16/clear_table.png</file>
 	<file alias="32x32/clear_table.png">icons/32x32/clear_table.png</file>
 	<file alias="16x16/table_options.png">icons/16x16/table_options.png</file>

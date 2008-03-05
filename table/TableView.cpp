@@ -163,7 +163,7 @@ void TableView::changeEvent(QEvent * event)
 
 void TableView::retranslateStrings()
 {
-	d_hide_button->setToolTip(tr("Show/hide options"));
+	d_hide_button->setToolTip(tr("Show/hide control tabs"));
     ui.retranslateUi(d_control_tabs);
 
 	ui.type_box->clear();
@@ -193,12 +193,6 @@ void TableView::advanceCell()
 void TableView::goToCell(int row, int col)
 {
 	QModelIndex index = d_model->index(row, col);
-	d_view_widget->scrollTo(index);
-	d_view_widget->setCurrentIndex(index);
-}
-
-void TableView::scrollToIndex(const QModelIndex & index)
-{
 	d_view_widget->scrollTo(index);
 	d_view_widget->setCurrentIndex(index);
 }

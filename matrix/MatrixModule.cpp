@@ -1,9 +1,10 @@
 /***************************************************************************
-    File                 : TableModule.cpp
+    File                 : MatrixModule.cpp
     Project              : SciDAVis
-    Description          : Module providing the table Part and support classes.
+    Description          : Module providing the matrix Part and support classes.
     --------------------------------------------------------------------
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
                            (replace * with @ in the email address)
 
  ***************************************************************************/
@@ -26,54 +27,44 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "TableModule.h"
+#include "MatrixModule.h"
 
-#include "Table.h"
+#include "Matrix.h"
 #include "Project.h"
 #include "ProjectWindow.h"
-#include "AsciiTableImportFilter.h"
 #include <QAction>
 #include <QPixmap>
 
-AbstractPart * TableModule::makePart()
+AbstractPart * MatrixModule::makePart()
 {
-	return new Table(0, 30, 2, tr("Table %1").arg(1));
+	return new Matrix(0, 20, 2, tr("Matrix %1").arg(1));
 }
 
-QAction * TableModule::makeAction(QObject *parent)
+QAction * MatrixModule::makeAction(QObject *parent)
 {
-	QAction *new_table = new QAction(tr("New &Table"), parent);
-	new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
-	return new_table;
+	QAction *new_matrix = new QAction(tr("New &Matrix"), parent);
+	new_matrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
+	return new_matrix;
 }
 
-QMenu * TableModule::makeProjectMenu(ProjectWindow *win)
+QMenu * MatrixModule::makeProjectMenu(ProjectWindow *win)
 {
-	TableMenu *menu = new TableMenu(win);
+	MatrixMenu *menu = new MatrixMenu(win);
 	return menu;
 }
 
-TableMenu::TableMenu(ProjectWindow *win) : QMenu(tr("Table"))
+MatrixMenu::MatrixMenu(ProjectWindow *win) : QMenu(tr("Matrix"))
 {
 	setEnabled(false);
 	connect(win, SIGNAL(partActivated(AbstractPart*)),
 			this, SLOT(handlePartActivated(AbstractPart*)));
 }
 
-void TableMenu::handlePartActivated(AbstractPart* part)
+void MatrixMenu::handlePartActivated(AbstractPart* part)
 {
-	setEnabled(part->inherits("Table"));
+	setEnabled(part->inherits("Matrix"));
 }
 
-AbstractImportFilter * TableModule::makeImportFilter()
-{
-	return new AsciiTableImportFilter();
-}
 
-AbstractExportFilter * TableModule::makeExportFilter()
-{
-	// TODO
-	return 0;
-}
+Q_EXPORT_PLUGIN2(scidavis_matrix, MatrixModule)
 
-Q_EXPORT_PLUGIN2(scidavis_table, TableModule)
