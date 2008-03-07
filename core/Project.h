@@ -60,7 +60,8 @@ class Project : public Folder
 
 		//!\name Reimplemented from AbstractAspect
 		//@{
-		virtual Project *project() const { return const_cast<Project*>(this); }
+		virtual const Project *project() const { return this; }
+		virtual Project *project() { return this; }
 		virtual QUndoStack *undoStack() const;
 		virtual QString path() const { return name(); }
 		virtual ProjectWindow *view();

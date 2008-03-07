@@ -39,10 +39,10 @@ PartMdiView::PartMdiView(AbstractPart *part, QWidget * embedded_view)
 {
 	setWindowIcon(d_part->icon());
 	handleAspectDescriptionChanged(d_part);
-	connect(d_part, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-		this, SLOT(handleAspectDescriptionChanged(AbstractAspect *)));
-	connect(d_part, SIGNAL(aspectAboutToBeRemoved(AbstractAspect*)),
-			this, SLOT(handleAspectAboutToBeRemoved(AbstractAspect*)));
+	connect(d_part, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
+		this, SLOT(handleAspectDescriptionChanged(const AbstractAspect *)));
+	connect(d_part, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect*)),
+			this, SLOT(handleAspectAboutToBeRemoved(const AbstractAspect*)));
 	setWidget(embedded_view);
 }
 
@@ -57,14 +57,14 @@ PartMdiView::~PartMdiView()
 {
 }
 
-void PartMdiView::handleAspectDescriptionChanged(AbstractAspect *aspect)
+void PartMdiView::handleAspectDescriptionChanged(const AbstractAspect *aspect)
 {
 	if (aspect != d_part) return;
 	setWindowTitle(d_part->caption());
 	update();
 }
 
-void PartMdiView::handleAspectAboutToBeRemoved(AbstractAspect *aspect)
+void PartMdiView::handleAspectAboutToBeRemoved(const AbstractAspect *aspect)
 {
 	if (aspect != d_part) return;
 	d_closing = true;

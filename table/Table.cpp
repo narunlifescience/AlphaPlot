@@ -214,7 +214,7 @@ void Table::setColumnCount(int new_size)
 	RESET_CURSOR;
 }
 		
-int Table::columnIndex(Column * col) const 
+int Table::columnIndex(const Column * col) const 
 { 
 	return d_table_private->columnIndex(col); 
 }
@@ -1508,90 +1508,90 @@ void Table::selectAll()
 	d_view->selectAll();
 }
 
-void Table::handleModeChange(AbstractColumn * col)
+void Table::handleModeChange(const AbstractColumn * col)
 {
-	int index = columnIndex(static_cast<Column *>(col));
+	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
 		d_table_private->updateHorizontalHeader(index, index);
 }
 
-void Table::handleDescriptionChange(AbstractAspect * aspect)
+void Table::handleDescriptionChange(const AbstractAspect * aspect)
 {
-	int index = columnIndex(static_cast<Column *>(aspect));
+	int index = columnIndex(static_cast<const Column *>(aspect));
 	if(index != -1)
 		d_table_private->updateHorizontalHeader(index, index);
 }
 
-void Table::handlePlotDesignationChange(AbstractColumn * col)
+void Table::handlePlotDesignationChange(const AbstractColumn * col)
 {
-	int index = columnIndex(static_cast<Column *>(col));
+	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
 		d_table_private->updateHorizontalHeader(index, columnCount()-1);
 }
 
-void Table::handleDataChange(AbstractColumn * col)
+void Table::handleDataChange(const AbstractColumn * col)
 {
-	int index = columnIndex(static_cast<Column *>(col));
+	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
 		emit dataChanged(0, index, col->rowCount()-1, index);	
 }
 
-void Table::handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count)
+void Table::handleRowsAboutToBeInserted(const AbstractColumn * col, int before, int count)
 {
 	int new_size = col->rowCount() + count; 
 	if(before <= col->rowCount() && new_size > rowCount())
 		setRowCount(new_size);
 }
 
-void Table::handleRowsInserted(AbstractColumn * col, int before, int count)
+void Table::handleRowsInserted(const AbstractColumn * col, int before, int count)
 {
 	Q_UNUSED(count);
-	int index = columnIndex(static_cast<Column *>(col));
+	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1 && before <= col->rowCount())
 		emit dataChanged(before, index, col->rowCount()-1, index);
 }
 
 
-void Table::handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count)
+void Table::handleRowsAboutToBeRemoved(const AbstractColumn * col, int first, int count)
 {
 	Q_UNUSED(col);
 	Q_UNUSED(first);
 	Q_UNUSED(count);
 }
 
-void Table::handleRowsRemoved(AbstractColumn * col, int first, int count)
+void Table::handleRowsRemoved(const AbstractColumn * col, int first, int count)
 {
 	Q_UNUSED(count);
-	int index = columnIndex(static_cast<Column *>(col));
+	int index = columnIndex(static_cast<const Column *>(col));
 	if(index != -1)
 		emit dataChanged(first, index, col->rowCount()-1, index);
 }
 
-void Table::connectColumn(Column* col)
+void Table::connectColumn(const Column* col)
 {
-	connect(col, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), this, 
-			SLOT(handleDescriptionChange(AbstractAspect *)));
-	connect(col, SIGNAL(plotDesignationChanged(AbstractColumn *)), this, 
-			SLOT(handlePlotDesignationChange(AbstractColumn *)));
-	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
-			SLOT(handleDataChange(AbstractColumn *)));
-	connect(col, SIGNAL(dataChanged(AbstractColumn *)), this, 
-			SLOT(handleDataChange(AbstractColumn *)));
-	connect(col, SIGNAL(modeChanged(AbstractColumn *)), this, 
-			SLOT(handleModeChange(AbstractColumn *)));
-	connect(col, SIGNAL(rowsAboutToBeInserted(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsAboutToBeInserted(AbstractColumn *,int,int)));
-	connect(col, SIGNAL(rowsInserted(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsInserted(AbstractColumn *,int,int))); 
-	connect(col, SIGNAL(rowsAboutToBeRemoved(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsAboutToBeRemoved(AbstractColumn *,int,int))); 
-	connect(col, SIGNAL(rowsRemoved(AbstractColumn *, int, int)), this, 
-			SLOT(handleRowsRemoved(AbstractColumn *,int,int))); 
-	connect(col, SIGNAL(maskingChanged(AbstractColumn *)), this, 
-			SLOT(handleDataChange(AbstractColumn *))); 
+	connect(col, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), this, 
+			SLOT(handleDescriptionChange(const AbstractAspect *)));
+	connect(col, SIGNAL(plotDesignationChanged(const AbstractColumn *)), this, 
+			SLOT(handlePlotDesignationChange(const AbstractColumn *)));
+	connect(col, SIGNAL(modeChanged(const AbstractColumn *)), this, 
+			SLOT(handleDataChange(const AbstractColumn *)));
+	connect(col, SIGNAL(dataChanged(const AbstractColumn *)), this, 
+			SLOT(handleDataChange(const AbstractColumn *)));
+	connect(col, SIGNAL(modeChanged(const AbstractColumn *)), this, 
+			SLOT(handleModeChange(const AbstractColumn *)));
+	connect(col, SIGNAL(rowsAboutToBeInserted(const AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsAboutToBeInserted(const AbstractColumn *,int,int)));
+	connect(col, SIGNAL(rowsInserted(const AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsInserted(const AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(rowsAboutToBeRemoved(const AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsAboutToBeRemoved(const AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(rowsRemoved(const AbstractColumn *, int, int)), this, 
+			SLOT(handleRowsRemoved(const AbstractColumn *,int,int))); 
+	connect(col, SIGNAL(maskingChanged(const AbstractColumn *)), this, 
+			SLOT(handleDataChange(const AbstractColumn *))); 
 }
 
-void Table::disconnectColumn(Column* col)
+void Table::disconnectColumn(const Column* col)
 {
 	disconnect(col, 0, this, 0);
 }

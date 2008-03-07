@@ -117,7 +117,9 @@ class AbstractAspect : public QObject
 		void moveChild(int from, int to);
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
-		virtual Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
+		virtual const Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
+		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
+		virtual Project *project() { return parentAspect() ? parentAspect()->project() : 0; }
 		//! Return the path that leads from the top-most Aspect (usually a Project) to me.
 		virtual QString path() const { return parentAspect() ? parentAspect()->path() + "/" + name() : "";  }
 
@@ -204,21 +206,21 @@ class AbstractAspect : public QObject
 
 	signals:
 		//! Emit this before the name, comment or caption spec is changed
-		void aspectDescriptionAboutToChange(AbstractAspect *aspect);
+		void aspectDescriptionAboutToChange(const AbstractAspect *aspect);
 		//! Emit this when the name, comment or caption spec changed
-		void aspectDescriptionChanged(AbstractAspect *aspect);
+		void aspectDescriptionChanged(const AbstractAspect *aspect);
 		//! Emit this when a parent aspect is about to get a new child inserted
-		void aspectAboutToBeAdded(AbstractAspect *parent, int index);
+		void aspectAboutToBeAdded(const AbstractAspect *parent, int index);
 		//! Emit this from a newly added aspect
-		void aspectAdded(AbstractAspect *aspect);
+		void aspectAdded(const AbstractAspect *aspect);
 		//! Emit this from a parent after adding a new child to it
-		void aspectAdded(AbstractAspect *parent, int index);
+		void aspectAdded(const AbstractAspect *parent, int index);
 		//! Emit this from an aspect about to be removed from its parent's children
-		void aspectAboutToBeRemoved(AbstractAspect *aspect);
+		void aspectAboutToBeRemoved(const AbstractAspect *aspect);
 		//! Emit this from a parent before removing its child
-		void aspectAboutToBeRemoved(AbstractAspect *parent, int index);
+		void aspectAboutToBeRemoved(const AbstractAspect *parent, int index);
 		//! Emit this from the parent after removing a child
-		void aspectRemoved(AbstractAspect *parent, int index);
+		void aspectRemoved(const AbstractAspect *parent, int index);
 		//! Emit this to give status information to the user.
 		void statusInfo(const QString &text);
 

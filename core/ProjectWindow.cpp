@@ -77,12 +77,12 @@ void ProjectWindow::init()
 	d_buttons.new_aspect->setMenu(d_menus.new_aspect);
 	// TODO: move all strings to one method to be called on a language change
 	
-	connect(d_project, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-		this, SLOT(handleAspectDescriptionChanged(AbstractAspect *)));
-	connect(d_project, SIGNAL(aspectAdded(AbstractAspect *, int)), 
-		this, SLOT(handleAspectAdded(AbstractAspect *, int)));
-	connect(d_project, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
-		this, SLOT(handleAspectRemoved(AbstractAspect *, int)));
+	connect(d_project, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
+		this, SLOT(handleAspectDescriptionChanged(const AbstractAspect *)));
+	connect(d_project, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
+		this, SLOT(handleAspectAdded(const AbstractAspect *, int)));
+	connect(d_project, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
+		this, SLOT(handleAspectRemoved(const AbstractAspect *, int)));
 	connect(d_project, SIGNAL(statusInfo(const QString&)),
 			statusBar(), SLOT(showMessage(const QString&)));
 
@@ -94,13 +94,13 @@ ProjectWindow::~ProjectWindow()
 	disconnect(d_project, 0, this, 0);
 }
 
-void ProjectWindow::handleAspectDescriptionChanged(AbstractAspect *aspect)
+void ProjectWindow::handleAspectDescriptionChanged(const AbstractAspect *aspect)
 {
 	if (aspect != static_cast<AbstractAspect *>(d_project)) return;
 	setWindowTitle(d_project->caption() + " - SciDAVis");
 }
 
-void ProjectWindow::handleAspectAdded(AbstractAspect *parent, int index)
+void ProjectWindow::handleAspectAdded(const AbstractAspect *parent, int index)
 {
 	AbstractPart *part = qobject_cast<AbstractPart*>(parent->child(index));
 	if (!part) return;
@@ -111,7 +111,7 @@ void ProjectWindow::handleAspectAdded(AbstractAspect *parent, int index)
 	updateMdiWindowVisibility();
 }
 
-void ProjectWindow::handleAspectRemoved(AbstractAspect *parent, int index)
+void ProjectWindow::handleAspectRemoved(const AbstractAspect *parent, int index)
 {
 	Q_UNUSED(index);
 	d_project_explorer->setCurrentAspect(parent);

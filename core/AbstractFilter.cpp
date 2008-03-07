@@ -28,16 +28,16 @@
  ***************************************************************************/
 #include "AbstractFilter.h"
 
-bool AbstractFilter::input(int port, AbstractColumn* source)
+bool AbstractFilter::input(int port, const AbstractColumn* source)
 {
 	if (port<0 || (inputCount()>=0 && port>=inputCount())) return false;
 	if (source && !inputAcceptable(port, source)) return false;
 	if (port >= d_inputs.size()) d_inputs.resize(port+1);
-	AbstractColumn* old_input = d_inputs.value(port);
+	const AbstractColumn* old_input = d_inputs.value(port);
 	if (source == old_input) return true;
 	if (old_input) 
 	{
-		old_input->disconnect(this); // disconnect all signals
+		disconnect(old_input, 0, this, 0);
 		// replace input, notifying the filter implementation of the changes
 		inputDescriptionAboutToChange(old_input);
 		inputPlotDesignationAboutToChange(old_input);
@@ -57,42 +57,42 @@ bool AbstractFilter::input(int port, AbstractColumn* source)
 		inputPlotDesignationChanged(source);
 		inputDescriptionChanged(source);
 		// connect the source's signals
-		QObject::connect(source, SIGNAL(aspectDescriptionAboutToChange(AbstractAspect *)),
-				this, SLOT(inputDescriptionAboutToChange(AbstractAspect *)));
-		QObject::connect(source, SIGNAL(aspectDescriptionChanged(AbstractAspect *)),
-				this, SLOT(inputDescriptionChanged(AbstractAspect *)));
-		QObject::connect(source, SIGNAL(plotDesignationAboutToChange(AbstractColumn *)),
-				this, SLOT(inputPlotDesignationAboutToChange(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(plotDesignationChanged(AbstractColumn *)),
-				this, SLOT(inputPlotDesignationChanged(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(modeAboutToChange(AbstractColumn *)),
-				this, SLOT(inputModeAboutToChange(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(modeChanged(AbstractColumn *)),
-				this, SLOT(inputModeChanged(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(dataAboutToChange(AbstractColumn *)),
-				this, SLOT(inputDataAboutToChange(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(dataChanged(AbstractColumn *)),
-				this, SLOT(inputDataChanged(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(aboutToBeReplaced(AbstractColumn *,AbstractColumn*)),
-				this, SLOT(inputAboutToBeReplaced(AbstractColumn *,AbstractColumn*)));
+		QObject::connect(source, SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)),
+				this, SLOT(inputDescriptionAboutToChange(const AbstractAspect *)));
+		QObject::connect(source, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)),
+				this, SLOT(inputDescriptionChanged(const AbstractAspect *)));
+		QObject::connect(source, SIGNAL(plotDesignationAboutToChange(const AbstractColumn *)),
+				this, SLOT(inputPlotDesignationAboutToChange(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(plotDesignationChanged(const AbstractColumn *)),
+				this, SLOT(inputPlotDesignationChanged(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(modeAboutToChange(const AbstractColumn *)),
+				this, SLOT(inputModeAboutToChange(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(modeChanged(const AbstractColumn *)),
+				this, SLOT(inputModeChanged(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(dataAboutToChange(const AbstractColumn *)),
+				this, SLOT(inputDataAboutToChange(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(dataChanged(const AbstractColumn *)),
+				this, SLOT(inputDataChanged(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(aboutToBeReplaced(const AbstractColumn *,const AbstractColumn*)),
+				this, SLOT(inputAboutToBeReplaced(const AbstractColumn *,const AbstractColumn*)));
 		QObject::connect(source, 
-			SIGNAL(rowsAboutToBeInserted(AbstractColumn *,int,int)),
-			this, SLOT(inputRowsAboutToBeInserted(AbstractColumn *,int,int)));
+			SIGNAL(rowsAboutToBeInserted(const AbstractColumn *,int,int)),
+			this, SLOT(inputRowsAboutToBeInserted(const AbstractColumn *,int,int)));
 		QObject::connect(source, 
-			SIGNAL(rowsInserted(AbstractColumn *,int,int)),
-			this, SLOT(inputRowsInserted(AbstractColumn *,int,int)));
+			SIGNAL(rowsInserted(const AbstractColumn *,int,int)),
+			this, SLOT(inputRowsInserted(const AbstractColumn *,int,int)));
 		QObject::connect(source, 
-			SIGNAL(rowsAboutToBeRemoved(AbstractColumn *,int,int)),
-			this, SLOT(inputRowsAboutToBeRemoved(AbstractColumn *,int,int)));
+			SIGNAL(rowsAboutToBeRemoved(const AbstractColumn *,int,int)),
+			this, SLOT(inputRowsAboutToBeRemoved(const AbstractColumn *,int,int)));
 		QObject::connect(source, 
-			SIGNAL(rowsRemoved(AbstractColumn *, int, int)),
-			this, SLOT(inputRowsRemoved(AbstractColumn *,int,int)));
-		QObject::connect(source, SIGNAL(maskingAboutToChange(AbstractColumn *)),
-				this, SLOT(inputMaskingAboutToChange(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(maskingChanged(AbstractColumn *)),
-				this, SLOT(inputMaskingChanged(AbstractColumn *)));
-		QObject::connect(source, SIGNAL(aboutToBeDestroyed(AbstractColumn *)),
-				this, SLOT(inputAboutToBeDestroyed(AbstractColumn *)));
+			SIGNAL(rowsRemoved(const AbstractColumn *, int, int)),
+			this, SLOT(inputRowsRemoved(const AbstractColumn *,int,int)));
+		QObject::connect(source, SIGNAL(maskingAboutToChange(const AbstractColumn *)),
+				this, SLOT(inputMaskingAboutToChange(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(maskingChanged(const AbstractColumn *)),
+				this, SLOT(inputMaskingChanged(const AbstractColumn *)));
+		QObject::connect(source, SIGNAL(aboutToBeDestroyed(const AbstractColumn *)),
+				this, SLOT(inputAboutToBeDestroyed(const AbstractColumn *)));
 	} else { // source==0, that is, the input port has been disconnected
 		// try to shrink d_inputs
 		int num_connected_inputs = d_inputs.size();
@@ -106,7 +106,7 @@ bool AbstractFilter::input(int port, AbstractColumn* source)
 	return true;
 }
 
-bool AbstractFilter::input(AbstractFilter* sources)
+bool AbstractFilter::input(const AbstractFilter* sources)
 {
 	if (!sources) return false;
 	bool result = true;
@@ -121,7 +121,7 @@ QString AbstractFilter::inputLabel(int port) const
 	return QObject::tr("In%1").arg(port + 1);
 }
 
-void AbstractFilter::inputAboutToBeReplaced(AbstractColumn * source, AbstractColumn* replacement)
+void AbstractFilter::inputAboutToBeReplaced(const AbstractColumn * source, const AbstractColumn* replacement)
 {
 	input(portIndexOf(source), replacement);
 }

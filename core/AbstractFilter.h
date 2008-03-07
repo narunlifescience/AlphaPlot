@@ -117,16 +117,16 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * \sa inputAcceptable(), #d_inputs
 		 */
-		bool input(int port, AbstractColumn* source);
+		bool input(int port, const AbstractColumn* source);
 		/**
 		 * \brief Connect all outputs of the provided filter to the corresponding inputs of this filter.
 		 * \returns true if all connections were accepted, false otherwise
 		 *
 		 * Overloaded method provided for convenience.
 		 */
-		bool input(AbstractFilter* sources);
+		bool input(const AbstractFilter* sources);
 		//! Return the input currently connected to the specified port, or 0.
-		AbstractColumn *input(int port) const { return d_inputs.value(port); }
+		const AbstractColumn *input(int port) const { return d_inputs.value(port); }
 		/**
 		 * \brief Return the label associated to the given input port.
 		 *
@@ -142,10 +142,12 @@ class AbstractFilter : public AbstractAspect
 		 * The returned pointer may be 0 even for valid port numbers, for example if not all required
 		 * input ports have been connected.
 		 */
-		virtual AbstractColumn* output(int port=0) const = 0;
+		virtual AbstractColumn* output(int port=0) = 0;
+		//! Overloaded method for const access.
+		virtual const AbstractColumn* output(int port=0) const = 0;
 		
 		//! Return the input port to which the column is connected or -1 if it's not connected
-		int portIndexOf(AbstractColumn * column)
+		int portIndexOf(const AbstractColumn * column)
 		{
 			for(int i=0; i<d_inputs.size(); i++)
 				if(d_inputs.at(i) == column) return i;
@@ -158,7 +160,7 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * If not reimplemented, all connections to ports within [0, inputCount()-1] will be accepted.
 		 */
-		virtual bool inputAcceptable(int port, AbstractColumn *source) {
+		virtual bool inputAcceptable(int port, const AbstractColumn *source) {
 			Q_UNUSED(port); Q_UNUSED(source); return true;
 		}
 		/**
@@ -167,7 +169,7 @@ class AbstractFilter : public AbstractAspect
 		 * This is only to notify implementations of the event, the default implementation is a
 		 * no-op.
 		 */
-		virtual void inputAboutToBeDisconnected(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputAboutToBeDisconnected(const AbstractColumn * source) { Q_UNUSED(source); }
 
 	protected slots:
 
@@ -178,9 +180,9 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionAboutToChange(AbstractColumn * source) { Q_UNUSED(source); } 
-		void inputDescriptionAboutToChange(AbstractAspect * aspect) {
-			AbstractColumn * col = qobject_cast<AbstractColumn*>(aspect);
+		virtual void inputDescriptionAboutToChange(const AbstractColumn * source) { Q_UNUSED(source); } 
+		void inputDescriptionAboutToChange(const AbstractAspect * aspect) {
+			const AbstractColumn * col = qobject_cast<const AbstractColumn*>(aspect);
 			if (col) inputDescriptionAboutToChange(col);
 		}
 		//! 
@@ -189,9 +191,9 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDescriptionChanged(AbstractColumn * source) { Q_UNUSED(source); }
-		void inputDescriptionChanged(AbstractAspect * aspect) {
-			AbstractColumn * col = qobject_cast<AbstractColumn*>(aspect);
+		virtual void inputDescriptionChanged(const AbstractColumn * source) { Q_UNUSED(source); }
+		void inputDescriptionChanged(const AbstractAspect * aspect) {
+			const AbstractColumn * col = qobject_cast<const AbstractColumn*>(aspect);
 			if (col && d_inputs.contains(col)) inputDescriptionChanged(col);
 		}
 		/**
@@ -199,38 +201,38 @@ class AbstractFilter : public AbstractAspect
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputPlotDesignationAboutToChange(const AbstractColumn * source) { Q_UNUSED(source); }
 ;
 		/**
 		 * \brief The plot designation of an input changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputPlotDesignationChanged(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputPlotDesignationChanged(const AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The display mode and possibly the data type of an input is about to change.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputModeAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputModeAboutToChange(const AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The display mode and possibly the data type has changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputModeChanged(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputModeChanged(const AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The data of an input is about to change.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataAboutToChange(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputDataAboutToChange(const AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief The data of an input has changed.
 		 *
 		 * \param source is always the this pointer of the column that emitted the signal.
 		 */
-		virtual void inputDataChanged(AbstractColumn * source) { Q_UNUSED(source); }
+		virtual void inputDataChanged(const AbstractColumn * source) { Q_UNUSED(source); }
 		/**
 		 * \brief An input is about to be replaced.
 		 *
@@ -243,34 +245,34 @@ class AbstractFilter : public AbstractAspect
 		 * called if the new column has a different mode (and thereby possibly data type).
 		 * Thus, filter implementations won't have to bother with it most of the time.
 		 */
-		virtual void inputAboutToBeReplaced(AbstractColumn * source, AbstractColumn* replacement);
+		virtual void inputAboutToBeReplaced(const AbstractColumn * source, const AbstractColumn* replacement);
 
-		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count) {
+		virtual void inputRowsAboutToBeInserted(const AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsInserted(AbstractColumn * source, int before, int count) {
+		virtual void inputRowsInserted(const AbstractColumn * source, int before, int count) {
 			Q_UNUSED(source); Q_UNUSED(before); Q_UNUSED(count);
 		}
-		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count) {
+		virtual void inputRowsAboutToBeRemoved(const AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count) {
+		virtual void inputRowsRemoved(const AbstractColumn * source, int first, int count) {
 			Q_UNUSED(source); Q_UNUSED(first); Q_UNUSED(count);
 		}
-		virtual void inputMaskingAboutToChange(AbstractColumn * source) {
+		virtual void inputMaskingAboutToChange(const AbstractColumn * source) {
 			Q_UNUSED(source);
 		}
-		virtual void inputMaskingChanged(AbstractColumn * source) {
+		virtual void inputMaskingChanged(const AbstractColumn * source) {
 			Q_UNUSED(source);
 		}
-		void inputAboutToBeDestroyed(AbstractColumn * source) {
+		void inputAboutToBeDestroyed(const AbstractColumn * source) {
 			input(portIndexOf(source), 0);
 		}
 		//@}
 
 	protected:
 		//! The data sources connected to my input ports.
-		QVector<AbstractColumn*> d_inputs;
+		QVector<const AbstractColumn*> d_inputs;
 };
 
 #endif // ifndef ABSTRACT_FILTER_H

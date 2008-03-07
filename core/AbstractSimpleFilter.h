@@ -30,13 +30,10 @@
 #ifndef ABSTRACT_SIMPLE_FILTER
 #define ABSTRACT_SIMPLE_FILTER
 
-#include <QtGlobal>
 #include "AbstractFilter.h"
 #include "AbstractColumn.h"
-#include "AbstractAspect.h"
 #include "lib/IntervalAttribute.h"
 #include <QUndoCommand>
-#include <QUndoStack>
 
 // forward declaration - class follows
 class SimpleFilterColumn;
@@ -137,8 +134,9 @@ class AbstractSimpleFilter : public AbstractFilter
 		virtual int inputCount() const { return 1; }
 		//! We manage only one output port (don't override unless you really know what you are doing).
 		virtual int outputCount() const { return 1; }
-		//! Return a pointer to myself on port 0 (don't override unless you really know what you are doing).
-		virtual AbstractColumn* output(int port) const;
+		//! Return a pointer to #d_output_column on port 0 (don't override unless you really know what you are doing).
+		virtual AbstractColumn* output(int port);
+		virtual const AbstractColumn * output(int port) const;
 		//! Copy plot designation of input port 0.
 		virtual SciDAVis::PlotDesignation plotDesignation() const {
 			return d_inputs.value(0) ?
@@ -166,10 +164,6 @@ class AbstractSimpleFilter : public AbstractFilter
 			// avoid crashes
 			return d_inputs.value(0) ? d_inputs.at(0)->columnMode() : SciDAVis::Text;
 		}
-		//! Set the column label (does nothing in the standard implementation)
-		virtual void setColumnLabel(const QString& label) { Q_UNUSED(label); }
-		//! Set the column comment (does nothing in the standard implementation)
-		virtual void setColumnComment(const QString& comment) { Q_UNUSED(comment); }
 		//! Return the content of row 'row'.
 		/**
 		 * Use this only when dataType() is QString
@@ -254,20 +248,20 @@ class AbstractSimpleFilter : public AbstractFilter
 
 		//!\name signal handlers
 		//@{
-		virtual void inputPlotDesignationAboutToChange(AbstractColumn*);
-		virtual void inputPlotDesignationChanged(AbstractColumn*);
-		virtual void inputModeAboutToChange(AbstractColumn*);
-		virtual void inputModeChanged(AbstractColumn*);
-		virtual void inputDataAboutToChange(AbstractColumn*);
-		virtual void inputDataChanged(AbstractColumn*);
+		virtual void inputPlotDesignationAboutToChange(const AbstractColumn*);
+		virtual void inputPlotDesignationChanged(const AbstractColumn*);
+		virtual void inputModeAboutToChange(const AbstractColumn*);
+		virtual void inputModeChanged(const AbstractColumn*);
+		virtual void inputDataAboutToChange(const AbstractColumn*);
+		virtual void inputDataChanged(const AbstractColumn*);
 
-		virtual void inputRowsAboutToBeInserted(AbstractColumn * source, int before, int count);
-		virtual void inputRowsInserted(AbstractColumn * source, int before, int count);
-		virtual void inputRowsAboutToBeRemoved(AbstractColumn * source, int first, int count);
-		virtual void inputRowsRemoved(AbstractColumn * source, int first, int count);
+		virtual void inputRowsAboutToBeInserted(const AbstractColumn * source, int before, int count);
+		virtual void inputRowsInserted(const AbstractColumn * source, int before, int count);
+		virtual void inputRowsAboutToBeRemoved(const AbstractColumn * source, int first, int count);
+		virtual void inputRowsRemoved(const AbstractColumn * source, int first, int count);
 		//@}
 		
-		mutable SimpleFilterColumn *d_output_column;
+		SimpleFilterColumn *d_output_column;
 };
 
 class SimpleFilterColumn : public AbstractColumn

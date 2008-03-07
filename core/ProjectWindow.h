@@ -87,9 +87,9 @@ class ProjectWindow : public QMainWindow
 		void partActivated(AbstractPart*);
 	
 	private slots:
-		void handleAspectAdded(AbstractAspect *parent, int index);
-		void handleAspectRemoved(AbstractAspect *parent, int index);
-		void handleAspectDescriptionChanged(AbstractAspect *aspect);
+		void handleAspectAdded(const AbstractAspect *parent, int index);
+		void handleAspectRemoved(const AbstractAspect *parent, int index);
+		void handleAspectDescriptionChanged(const AbstractAspect *aspect);
 		void handleCurrentAspectChanged(AbstractAspect *aspect);
 		void handleCurrentSubWindowChanged(QMdiSubWindow*);
 

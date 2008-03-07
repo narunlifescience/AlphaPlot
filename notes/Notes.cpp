@@ -4,15 +4,24 @@
 #include <QTextEdit>
 #include <QIcon>
 
+struct Notes::Private {
+	QTextDocument model;
+};
+
 Notes::Notes(const QString &name)
-	: AbstractPart(name), d_model(new QTextDocument())
+	: AbstractPart(name), d(new Private)
 {
+}
+
+Notes::~Notes()
+{
+	delete d;
 }
 
 QWidget *Notes::view()
 {
 	QTextEdit *editor = new QTextEdit();
-	editor->setDocument(d_model);
+	editor->setDocument(&d->model);
 	return editor;
 }
 

@@ -56,7 +56,7 @@ void ProjectExplorer::contextMenuEvent(QContextMenuEvent *event)
 	delete menu;
 }
 		
-void ProjectExplorer::setCurrentAspect(AbstractAspect * aspect)
+void ProjectExplorer::setCurrentAspect(const AbstractAspect * aspect)
 {
 	AspectTreeModel * tree_model = qobject_cast<AspectTreeModel *>(model());
 	if(tree_model) setCurrentIndex(tree_model->modelIndexOfAspect(aspect));

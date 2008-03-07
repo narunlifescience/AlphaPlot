@@ -103,7 +103,7 @@ class AbstractColumn : public AbstractAspect
 		 * This sets the column mode and, if
 		 * necessary, converts it to another datatype.
 		 */
-		virtual void setColumnMode(SciDAVis::ColumnMode mode) { Q_UNUSED(mode) };
+		//virtual void setColumnMode(SciDAVis::ColumnMode mode) { Q_UNUSED(mode) };
 		//! Copy another column of the same type
 		/**
 		 * This function will return false if the data type
@@ -140,11 +140,11 @@ class AbstractColumn : public AbstractAspect
 		//! Return the column plot designation
 		virtual SciDAVis::PlotDesignation plotDesignation() const = 0;
 		//! Set the column plot designation
-		virtual void setPlotDesignation(SciDAVis::PlotDesignation pd) { Q_UNUSED(pd) };
+		//virtual void setPlotDesignation(SciDAVis::PlotDesignation pd) { Q_UNUSED(pd) };
 		//! Clear the whole column
 		virtual void clear() {};
 		//! This must be called before the column is replaced by another
-		virtual void notifyReplacement(AbstractColumn *replacement) { aboutToBeReplaced(this, replacement); }
+		virtual void notifyReplacement(const AbstractColumn *replacement) { aboutToBeReplaced(this, replacement); }
 
 		//! \name IntervalAttribute related functions
 		//@{
@@ -169,17 +169,17 @@ class AbstractColumn : public AbstractAspect
 		 * \param i the interval
 		 * \param invalid true: set invalid, false: set valid
 		 */ 
-		virtual void setInvalid(Interval<int> i, bool invalid = true) { Q_UNUSED(i) Q_UNUSED(invalid) };
+		//virtual void setInvalid(Interval<int> i, bool invalid = true) { Q_UNUSED(i) Q_UNUSED(invalid) };
 		//! Overloaded function for convenience
-		virtual void setInvalid(int row, bool invalid = true) { Q_UNUSED(row) Q_UNUSED(invalid) };
+		//virtual void setInvalid(int row, bool invalid = true) { Q_UNUSED(row) Q_UNUSED(invalid) };
 		//! Set an interval masked
 		/**
 		 * \param i the interval
 		 * \param mask true: mask, false: unmask
 		 */ 
-		virtual void setMasked(Interval<int> i, bool mask = true) { Q_UNUSED(i) Q_UNUSED(mask) };
+		//virtual void setMasked(Interval<int> i, bool mask = true) { Q_UNUSED(i) Q_UNUSED(mask) };
 		//! Overloaded function for convenience
-		virtual void setMasked(int row, bool mask = true) { Q_UNUSED(row) Q_UNUSED(mask) };
+		//virtual void setMasked(int row, bool mask = true) { Q_UNUSED(row) Q_UNUSED(mask) };
 		//@}
 
 		//! \name Formula related functions
@@ -200,9 +200,9 @@ class AbstractColumn : public AbstractAspect
 		 */
 		virtual QList< Interval<int> > formulaIntervals() const { return QList< Interval<int> >(); }
 		//! Set a formula string for an interval of rows
-		virtual void setFormula(Interval<int> i, QString formula) { Q_UNUSED(i) Q_UNUSED(formula) };
+		//virtual void setFormula(Interval<int> i, QString formula) { Q_UNUSED(i) Q_UNUSED(formula) };
 		//! Overloaded function for convenience
-		virtual void setFormula(int row, QString formula) { Q_UNUSED(row) Q_UNUSED(formula) };
+		//virtual void setFormula(int row, QString formula) { Q_UNUSED(row) Q_UNUSED(formula) };
 		//! Clear all formulas
 		virtual void clearFormulas() {};
 		//@}
@@ -218,7 +218,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QString
 		 */
-		virtual void setTextAt(int row, const QString& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		//virtual void setTextAt(int row, const QString& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QString
@@ -233,7 +233,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateAt(int row, const QDate& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		//virtual void setDateAt(int row, const QDate& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Return the time part of row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -243,7 +243,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setTimeAt(int row, const QTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		//virtual void setTimeAt(int row, const QTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Return the QDateTime in row 'row'
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -253,7 +253,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is QDateTime
 		 */
-		virtual void setDateTimeAt(int row, const QDateTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		//virtual void setDateTimeAt(int row, const QDateTime& new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is QDateTime
@@ -268,7 +268,7 @@ class AbstractColumn : public AbstractAspect
 		/**
 		 * Use this only when dataType() is double
 		 */
-		virtual void setValueAt(int row, double new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
+		//virtual void setValueAt(int row, double new_value) { Q_UNUSED(row) Q_UNUSED(new_value) };
 		//! Replace a range of values 
 		/**
 		 * Use this only when dataType() is double
@@ -283,35 +283,35 @@ class AbstractColumn : public AbstractAspect
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void plotDesignationAboutToChange(AbstractColumn * source); 
+		void plotDesignationAboutToChange(const AbstractColumn * source); 
 		//! Column plot designation changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void plotDesignationChanged(AbstractColumn * source); 
+		void plotDesignationChanged(const AbstractColumn * source); 
 		//! Column mode (possibly also the data type) will be changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void modeAboutToChange(AbstractColumn * source); 
+		void modeAboutToChange(const AbstractColumn * source); 
 		//! Column mode (possibly also the data type) changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void modeChanged(AbstractColumn * source); 
+		void modeChanged(const AbstractColumn * source); 
 		//! Data (including validity) of the column will be changed
 		/**
 		 * 'source' is always the this pointer of the column that
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void dataAboutToChange(AbstractColumn * source); 
+		void dataAboutToChange(const AbstractColumn * source); 
 		//! Data (including validity) of the column has changed
 		/**
 		 * Important: When data has changed also the number
@@ -321,7 +321,7 @@ class AbstractColumn : public AbstractAspect
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void dataChanged(AbstractColumn * source); 
+		void dataChanged(const AbstractColumn * source); 
 		//! The column will be replaced
 		/**
 		 * This is used then a column is replaced by another
@@ -333,39 +333,39 @@ class AbstractColumn : public AbstractAspect
 		 * emitted this signal. This way it's easier to use
 		 * one handler for lots of columns.
 		 */
-		void aboutToBeReplaced(AbstractColumn * source, AbstractColumn* new_col); 
+		void aboutToBeReplaced(const AbstractColumn * source, const AbstractColumn* new_col); 
 		//! Rows will be inserted
 		/**
 		 *	\param source the column that emitted the signal
 		 *	\param before the row to insert before
 		 *	\param count the number of rows to be inserted
 		 */
-		void rowsAboutToBeInserted(AbstractColumn * source, int before, int count); 
+		void rowsAboutToBeInserted(const AbstractColumn * source, int before, int count); 
 		//! Rows have been inserted
 		/**
 		 *	\param source the column that emitted the signal
 		 *	\param before the row to insert before
 		 *	\param count the number of rows to be inserted
 		 */
-		void rowsInserted(AbstractColumn * source, int before, int count); 
+		void rowsInserted(const AbstractColumn * source, int before, int count); 
 		//! Rows will be deleted
 		/**
 		 *	\param source the column that emitted the signal
 		 *	\param first the first row to be deleted
 		 *	\param count the number of rows to be deleted
 		 */
-		void rowsAboutToBeRemoved(AbstractColumn * source, int first, int count); 
+		void rowsAboutToBeRemoved(const AbstractColumn * source, int first, int count); 
 		//! Rows have been deleted
 		/**
 		 *	\param source the column that emitted the signal
 		 *	\param first the first row that was deleted
 		 *	\param count the number of deleted rows
 		 */
-		void rowsRemoved(AbstractColumn * source, int first, int count); 
+		void rowsRemoved(const AbstractColumn * source, int first, int count); 
 		//! IntervalAttribute related signal
-		void maskingAboutToChange(AbstractColumn * source); 
+		void maskingAboutToChange(const AbstractColumn * source); 
 		//! IntervalAttribute related signal
-		void maskingChanged(AbstractColumn * source); 
+		void maskingChanged(const AbstractColumn * source); 
 		// TODO: Check whether aboutToBeDestroyed is needed 
 		//! Emitted shortly before this data source is deleted.
 		/**
@@ -373,7 +373,7 @@ class AbstractColumn : public AbstractAspect
 		 *
 		 * This is needed by AbstractFilter. 
 		 */
-		void aboutToBeDestroyed(AbstractColumn * source);
+		void aboutToBeDestroyed(const AbstractColumn * source);
 
 	friend class ColumnPrivate;
 	friend class AbstractSimpleFilter;

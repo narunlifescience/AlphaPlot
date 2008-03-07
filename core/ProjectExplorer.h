@@ -47,7 +47,7 @@ class ProjectExplorer : public QTreeView
 	public:
 		ProjectExplorer(QWidget *parent = 0);
 
-		void setCurrentAspect(AbstractAspect * aspect);
+		void setCurrentAspect(const AbstractAspect * aspect);
 		virtual void setModel(QAbstractItemModel * model);
 
 	protected slots:

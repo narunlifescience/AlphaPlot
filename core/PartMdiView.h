@@ -59,8 +59,8 @@ class PartMdiView : public QMdiSubWindow
 
 	private slots:
 		//! Keep my window title in sync with AbstractAspect::caption().
-		void handleAspectDescriptionChanged(AbstractAspect *aspect);
-		void handleAspectAboutToBeRemoved(AbstractAspect *aspect);
+		void handleAspectDescriptionChanged(const AbstractAspect *aspect);
+		void handleAspectAboutToBeRemoved(const AbstractAspect *aspect);
 
 	protected:
 		//! When I'm being closed, remove my Aspect from its parent.

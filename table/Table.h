@@ -127,7 +127,7 @@ class Table : public AbstractPart, public scripted
 		//! Return the number of columns matching the given designation
 		int columnCount(SciDAVis::PlotDesignation pd) const;
 		Column* column(int index) const;
-		int columnIndex(Column * col) const;
+		int columnIndex(const Column * col) const;
 		//! Set the number of columns
 		void setColumnCount(int new_size);
 		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
@@ -253,21 +253,21 @@ class Table : public AbstractPart, public scripted
 
 	private:
 		//! Internal function to connect all column signals
-		void connectColumn(Column* col);
+		void connectColumn(const Column* col);
 		//! Internal function to disconnect a column
-		void disconnectColumn(Column* col);
+		void disconnectColumn(const Column* col);
 
 	private slots:
 		//! \name Column event handlers
 		//@{
-		void handleDescriptionChange(AbstractAspect * aspect);
-		void handleModeChange(AbstractColumn * col);
-		void handlePlotDesignationChange(AbstractColumn * col);
-		void handleDataChange(AbstractColumn * col);
-		void handleRowsAboutToBeInserted(AbstractColumn * col, int before, int count);
-		void handleRowsInserted(AbstractColumn * col, int before, int count);
-		void handleRowsAboutToBeRemoved(AbstractColumn * col, int first, int count);
-		void handleRowsRemoved(AbstractColumn * col, int first, int count);
+		void handleDescriptionChange(const AbstractAspect * aspect);
+		void handleModeChange(const AbstractColumn * col);
+		void handlePlotDesignationChange(const AbstractColumn * col);
+		void handleDataChange(const AbstractColumn * col);
+		void handleRowsAboutToBeInserted(const AbstractColumn * col, int before, int count);
+		void handleRowsInserted(const AbstractColumn * col, int before, int count);
+		void handleRowsAboutToBeRemoved(const AbstractColumn * col, int first, int count);
+		void handleRowsRemoved(const AbstractColumn * col, int first, int count);
 		//@}
 
 	signals:
@@ -420,7 +420,7 @@ class Table::Private
 		/**
 		 * \return the index or -1 if the column is not in the table
 		 */
-		int columnIndex(Column * col) const 
+		int columnIndex(const Column * col) const 
 		{ 
 			for(int i=0; i<d_columns.size(); i++)
 				if(d_columns.at(i) == col) return i;

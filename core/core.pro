@@ -60,7 +60,7 @@ HEADERS += \
 	AbstractPart.h \
 	PartMdiView.h \
 	ProjectExplorer.h \
-	SimpleMappingFilter.h \
+	#SimpleMappingFilter.h \
 	AbstractImportFilter.h \
 	AbstractExportFilter.h \
 	ImportDialog.h \
@@ -103,7 +103,7 @@ SOURCES += \
 	AbstractPart.cpp \
 	PartMdiView.cpp \
 	ProjectExplorer.cpp \
-	SimpleMappingFilter.cpp \
+	#SimpleMappingFilter.cpp \
 	DateTime2StringFilter.cpp \
 	String2DateTimeFilter.cpp \
 	Double2StringFilter.cpp \

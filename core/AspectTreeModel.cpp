@@ -35,16 +35,16 @@
 AspectTreeModel::AspectTreeModel(AbstractAspect* root, QObject *parent)
 	: QAbstractItemModel(parent), d_root(root)
 {
-	connect(d_root, SIGNAL(aspectDescriptionChanged(AbstractAspect *)), 
-		this, SLOT(aspectDescriptionChanged(AbstractAspect *)));
-	connect(d_root, SIGNAL(aspectAboutToBeAdded(AbstractAspect *, int)), 
-		this, SLOT(aspectAboutToBeAdded(AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectAboutToBeRemoved(AbstractAspect *, int)), 
-		this, SLOT(aspectAboutToBeRemoved(AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectAdded(AbstractAspect *, int)), 
-		this, SLOT(aspectAdded(AbstractAspect *, int)));
-	connect(d_root, SIGNAL(aspectRemoved(AbstractAspect *, int)), 
-		this, SLOT(aspectRemoved(AbstractAspect *, int)));
+	connect(d_root, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
+		this, SLOT(aspectDescriptionChanged(const AbstractAspect *)));
+	connect(d_root, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)), 
+		this, SLOT(aspectAboutToBeAdded(const AbstractAspect *, int)));
+	connect(d_root, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
+		this, SLOT(aspectAboutToBeRemoved(const AbstractAspect *, int)));
+	connect(d_root, SIGNAL(aspectAdded(const AbstractAspect *, int)), 
+		this, SLOT(aspectAdded(const AbstractAspect *, int)));
+	connect(d_root, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
+		this, SLOT(aspectRemoved(const AbstractAspect *, int)));
 }
 
 AspectTreeModel::~AspectTreeModel()
@@ -146,29 +146,29 @@ Qt::ItemFlags AspectTreeModel::flags(const QModelIndex &index) const
 	return result;
 }
 
-void AspectTreeModel::aspectDescriptionChanged(AbstractAspect *aspect)
+void AspectTreeModel::aspectDescriptionChanged(const AbstractAspect *aspect)
 {
 	emit dataChanged(modelIndexOfAspect(aspect), modelIndexOfAspect(aspect, 3));
 }
 
-void AspectTreeModel::aspectAboutToBeAdded(AbstractAspect *parent, int index)
+void AspectTreeModel::aspectAboutToBeAdded(const AbstractAspect *parent, int index)
 {
 	beginInsertRows(modelIndexOfAspect(parent), index, index);
 }
 
-void AspectTreeModel::aspectAdded(AbstractAspect *parent, int index)
+void AspectTreeModel::aspectAdded(const AbstractAspect *parent, int index)
 {
 	Q_UNUSED(index)
 	endInsertRows();
 	emit dataChanged(modelIndexOfAspect(parent), modelIndexOfAspect(parent, 3));
 }
 
-void AspectTreeModel::aspectAboutToBeRemoved(AbstractAspect *parent, int index)
+void AspectTreeModel::aspectAboutToBeRemoved(const AbstractAspect *parent, int index)
 {
 	beginRemoveRows(modelIndexOfAspect(parent), index, index);
 }
 
-void AspectTreeModel::aspectRemoved(AbstractAspect *parent, int index)
+void AspectTreeModel::aspectRemoved(const AbstractAspect *parent, int index)
 {
 	Q_UNUSED(parent); Q_UNUSED(index);
 	endRemoveRows();
