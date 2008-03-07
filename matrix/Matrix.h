@@ -234,7 +234,7 @@ class Matrix : public AbstractPart, public scripted
 class Matrix::Private
 {
 	public:
-		Private(Matrix *owner) : d_owner(owner), d_column_count(0), d_row_count(0) {}
+		Private(Matrix *owner); 
 		//! Insert columns before column number 'before'
 		/**
 		 * If 'first' is equal to the current number of columns,

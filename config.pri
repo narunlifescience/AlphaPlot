@@ -10,7 +10,7 @@ CONFIG += warn_on
 
 ### modules to be compiled in
 ### basic modules you most probably don't want to exclude
-MODULES = table notes
+MODULES = table notes matrix
 ### support for Python scripting
 MODULES += python
 

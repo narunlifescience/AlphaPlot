@@ -163,6 +163,8 @@ void Matrix::clear()
 
 double Matrix::cell(int row, int col)
 {
+	if(row < 0 || row >= rowCount() ||
+	   col < 0 || col >= columnCount()) return 0.0;
 	return d_matrix_private->cell(row, col);
 }
 
@@ -511,8 +513,21 @@ void Matrix::selectAll()
 	d_view->selectAll();
 }
 
+void Matrix::setCell(int row, int col, double value)
+{
+	if(row < 0 || row >= rowCount()) return;
+	if(col < 0 || col >= columnCount()) return;
+	exec(new MatrixSetCellValueCmd(d_matrix_private, row, col, value));
+}
 
 /* ========================== Matrix::Private ====================== */
+
+Matrix::Private::Private(Matrix *owner) 
+	: d_owner(owner), d_column_count(0), d_row_count(0) 
+{
+	d_numeric_format = 'f';
+	d_displayed_digits = 6;
+}
 
 void Matrix::Private::insertColumns(int before, int count)
 {

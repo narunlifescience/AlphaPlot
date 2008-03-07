@@ -155,7 +155,6 @@ class MatrixView : public QWidget
 	//	void showControlFormulaTab();
 
 	protected slots:
-		void scrollToIndex(const QModelIndex & index);
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
 

@@ -192,7 +192,7 @@ void MatrixClearCmd::undo()
 MatrixClearColumnCmd::MatrixClearColumnCmd( Matrix::Private * private_obj, int col, QUndoCommand * parent)
  : QUndoCommand( parent ), d_private_obj(private_obj), d_col(col)
 {
-	setText(QObject::tr("%1: clear column %d").arg(d_private_obj->name()).arg(d_col+1));
+	setText(QObject::tr("%1: clear column %2").arg(d_private_obj->name()).arg(d_col+1));
 }
 
 MatrixClearColumnCmd::~MatrixClearColumnCmd()
@@ -220,7 +220,7 @@ void MatrixClearColumnCmd::undo()
 MatrixSetCellValueCmd::MatrixSetCellValueCmd( Matrix::Private * private_obj, int row, int col, double value, QUndoCommand * parent)
  : QUndoCommand( parent ), d_private_obj(private_obj), d_row(row), d_col(col), d_value(value)
 {
-	setText(QObject::tr("%1: set cell (%d,%d) to %e").arg(d_private_obj->name()).arg(d_row+1).arg(d_col+1).arg(d_value));
+	setText(QObject::tr("%1: set cell (%2,%3) to %4").arg(d_private_obj->name()).arg(d_row+1).arg(d_col+1).arg(d_value));
 }
 
 MatrixSetCellValueCmd::~MatrixSetCellValueCmd()

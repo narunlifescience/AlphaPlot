@@ -37,7 +37,7 @@
 
 AbstractPart * MatrixModule::makePart()
 {
-	return new Matrix(0, 20, 2, tr("Matrix %1").arg(1));
+	return new Matrix(0, 32, 32, tr("Matrix %1").arg(1));
 }
 
 QAction * MatrixModule::makeAction(QObject *parent)

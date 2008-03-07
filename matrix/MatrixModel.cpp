@@ -76,13 +76,12 @@ QVariant MatrixModel::data(const QModelIndex &index, int role) const
 	int row = index.row();
 	int col = index.column();
 
-	QString postfix;
 	switch(role)
 	{
 		case Qt::ToolTipRole:
 		case Qt::EditRole:
 		case Qt::DisplayRole:
-			return QVariant(d_matrix->cell(row, col));
+			return QVariant(d_matrix->text(row, col));
 		case Qt::BackgroundRole:
 			return QVariant(QBrush(QColor(0xff,0xff,0x77))); // yellow color to distinguish a matrix from a table
 	}
@@ -91,9 +90,25 @@ QVariant MatrixModel::data(const QModelIndex &index, int role) const
 }
 
 QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int role) const
-{	
-	Q_UNUSED(orientation);
-	return QVariant(QString::number(section+1));
+{
+	switch(orientation) 
+	{
+		case Qt::Horizontal:
+			switch(role) 
+			{
+				case Qt::DisplayRole:
+				case Qt::ToolTipRole:
+					return QVariant(QString::number(section+1));
+			}
+		case Qt::Vertical:
+			switch(role) 
+			{
+				case Qt::DisplayRole:
+				case Qt::ToolTipRole:
+					return QVariant(QString::number(section+1));
+			}
+	}
+	return QVariant();
 }
 
 int MatrixModel::rowCount(const QModelIndex &parent) const
