@@ -33,7 +33,7 @@
 #include "AbstractColumn.h"
 #include <QVector>
 
-/*
+/**
  * \brief Base class for all analysis operations.
  *
  * AbstractFilter provides an abstraction for analysis operations. It is modelled on an

@@ -559,7 +559,7 @@ void Matrix::Private::insertRows(int before, int count)
 	Q_ASSERT(before <= d_row_count);
 	for(int col=0; col<d_column_count; col++)
 		for(int i=0; i<count; i++)
-			d_data.at(col).insert(before+i, 0.0);
+			d_data[col].insert(before+i, 0.0);
 
 	d_row_count += count;
 	emit d_owner->rowsInserted(before, count);
@@ -571,7 +571,7 @@ void Matrix::Private::removeRows(int first, int count)
 	Q_ASSERT(first >= 0);
 	Q_ASSERT(first+count <= d_row_count);
 	for(int col=0; col<d_column_count; col++)
-		d_data.at(col).remove(first, count);
+		d_data[col].remove(first, count);
 
 	d_row_count -= count;
 	emit d_owner->rowsRemoved(first, count);

@@ -14,9 +14,19 @@ debug:unix:LIBS += -Wl,-rpath,\'\$$ORIGIN\'
 # link in modules
 LIBS += -L..
 for(mod, MODULES):LIBS += -lscidavis_$${mod}
-# make moules known to Qt's plugin system (also see staticplugins.cpp)
+
+# Changes to config.pri could mean MODULES changed, in which case staticplugins.cpp needs to be
+# recompiled. Therefore, this file is not included in SOURCES but recieves special handling.
+# Mostly this is supposed to mimic qmake's default handling of C++ source files, except for
+# declaring config.pri as additional dependency and a preprocessor macro containing the code to
+# register the modules with Qt's plugin system.
+unix:staticplugins.target = $${OBJECTS_DIR}/staticplugins.o
+win32:staticplugins.target = $${OBJECTS_DIR}/staticplugins.obj
+staticplugins.depends = staticplugins.cpp ../config.pri
 for(mod, MODULES):mods += Q_IMPORT_PLUGIN(scidavis_$${mod})
-DEFINES += IMPORT_SCIDAVIS_MODULES='\'$${mods}\''
+staticplugins.commands = $(CXX) -c $(CXXFLAGS) -DIMPORT_SCIDAVIS_MODULES='\'$${mods}\'' $(INCPATH) -o $$staticplugins.target staticplugins.cpp
+QMAKE_EXTRA_TARGETS += staticplugins
+OBJECTS += $$staticplugins.target
 
 # ICONS
 RESOURCES += \
@@ -107,7 +117,6 @@ SOURCES += \
 	DateTime2StringFilter.cpp \
 	String2DateTimeFilter.cpp \
 	Double2StringFilter.cpp \
-	staticplugins.cpp \
 	ImportDialog.cpp \
 	# TODO: port or delete the following files
 	#ApplicationWindow.cpp \
