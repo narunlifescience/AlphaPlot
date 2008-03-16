@@ -38,6 +38,7 @@ class ProjectWindow;
 class AbstractFilter;
 class AbstractImportFilter;
 class AbstractExportFilter;
+class ActionManager;
 
 //! Factory for AbstractPart objects.
 class PartMaker
@@ -93,5 +94,17 @@ class FileFormat
 };
 
 Q_DECLARE_INTERFACE(FileFormat, "net.sf.scidavis.fileformat/0.1")
+
+//! A module (typically a PartMaker) that has an ActionManager
+class ActionManagerOwner
+{
+	public:
+		//! Return the action manager of the module
+		virtual ActionManager * actionManager() = 0;
+		//! Method that contains initialization that has to be done after loading the plugin
+		virtual void initActionManager() {}
+};
+
+Q_DECLARE_INTERFACE(ActionManagerOwner, "net.sf.scidavis.actionmanagerowner/0.1")
 
 #endif // ifndef INTERFACES_H

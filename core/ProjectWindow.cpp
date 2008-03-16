@@ -1,12 +1,14 @@
 /***************************************************************************
     File                 : ProjectWindow.cpp
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-                           some parts written 2004-2007 by Ion Vasilief
-                           (from former ApplicationWindow class)
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2007-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+                           (some parts taken from former ApplicationWindow class
+						    (C) 2004-2007 by Ion Vasilief (ion_vasilief*yahoo.fr))
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -38,6 +40,8 @@
 #include "interfaces.h"
 #include "ImportDialog.h"
 #include "AbstractImportFilter.h"
+#include "lib/ActionManager.h"
+#include "lib/ShortcutsDialog.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -87,6 +91,14 @@ void ProjectWindow::init()
 			statusBar(), SLOT(showMessage(const QString&)));
 
 	handleAspectDescriptionChanged(d_project);
+
+	// init action managers
+	foreach(QObject *plugin, QPluginLoader::staticInstances()) 
+	{
+		ActionManagerOwner * manager_owner = qobject_cast<ActionManagerOwner *>(plugin);
+		if (manager_owner) 
+			manager_owner->initActionManager();
+	}
 }
 
 ProjectWindow::~ProjectWindow()
@@ -149,6 +161,9 @@ void ProjectWindow::initActions()
 	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
 	connect(d_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
 
+	d_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
+	connect(d_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
+
 	d_part_maker_map = new QSignalMapper(this);
 	connect(d_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
 	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
@@ -181,6 +196,7 @@ void ProjectWindow::initMenus()
 	d_menus.edit->addAction(d_project->undoAction(d_menus.edit));
 	d_menus.edit->addAction(d_project->redoAction(d_menus.edit));
 	d_menus.edit->addSeparator();
+	d_menus.edit->addAction(d_actions.keyboard_shortcuts_dialog);
 
 	d_menus.view = menuBar()->addMenu(tr("&View"));
 
@@ -405,4 +421,20 @@ void ProjectWindow::importAspect()
 	}
 	qDeleteAll(filter_map);
 	delete id;
+}
+
+void ProjectWindow::showKeyboardShortcutsDialog()
+{
+	QList<ActionManager *> managers;
+	// TODO: add action manager for project window first
+	foreach(QObject *plugin, QPluginLoader::staticInstances()) 
+	{
+		ActionManagerOwner * manager_owner = qobject_cast<ActionManagerOwner *>(plugin);
+		if (manager_owner) 
+			managers.append(manager_owner->actionManager());
+	}
+	ShortcutsDialog dialog(managers, this);
+	dialog.setWindowTitle(tr("Customize Keyboard Shortcuts"));
+	dialog.resize(width()-width()/5, height()-height()/5);
+	dialog.exec();
 }

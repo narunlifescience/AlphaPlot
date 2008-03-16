@@ -30,12 +30,13 @@
 #define TABLE_MODULE_H
 
 #include "core/interfaces.h"
+#include "table/Table.h"
 #include <QMenu>
 
-class TableModule : public QObject, public PartMaker, public ProjectMenuMaker, public FileFormat
+class TableModule : public QObject, public PartMaker, public ProjectMenuMaker, public FileFormat, public ActionManagerOwner
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ProjectMenuMaker FileFormat)
+	Q_INTERFACES(PartMaker ProjectMenuMaker FileFormat ActionManagerOwner)
 
 	public:
 		virtual AbstractPart * makePart();
@@ -43,6 +44,8 @@ class TableModule : public QObject, public PartMaker, public ProjectMenuMaker, p
 		virtual QMenu * makeProjectMenu(ProjectWindow *win);
 		virtual AbstractImportFilter * makeImportFilter();
 		virtual AbstractExportFilter * makeExportFilter();
+		virtual ActionManager * actionManager() { return Table::actionManager(); }
+		virtual void initActionManager();
 };
 
 class TableMenu : public QMenu

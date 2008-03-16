@@ -43,6 +43,7 @@ class Column;
 class QPoint;
 class QAction;
 class AbstractColumn;
+class ActionManager;
 
 /*!\brief Aspect providing a spreadsheet table with column logic.
  *
@@ -184,6 +185,14 @@ class Table : public AbstractPart, public scripted
 		void setSelectionAs(SciDAVis::PlotDesignation pd);
 		void copy(Table * other);
 
+	public:
+		static ActionManager * actionManager();
+		static void initActionManager();
+	private:
+		static ActionManager * action_manager;
+		//! Private ctor for initActionManager() only
+		Table();
+
 	public slots:
 		//! Clear the whole table
 		void clear();
@@ -251,6 +260,7 @@ class Table : public AbstractPart, public scripted
 		*/
 		void showTableViewRowContextMenu(const QPoint& pos);
 
+
 	private:
 		//! Internal function to connect all column signals
 		void connectColumn(const Column* col);
@@ -286,6 +296,7 @@ class Table : public AbstractPart, public scripted
 
 	private:
 		void createActions();
+		void connectActions();
 		QMenu * d_plot_menu;
 		static bool d_default_comment_visibility;
 

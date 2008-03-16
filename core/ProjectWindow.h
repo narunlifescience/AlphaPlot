@@ -1,12 +1,14 @@
 /***************************************************************************
     File                 : ProjectWindow.h
     Project              : SciDAVis
-    --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
-                           some parts written 2004-2007 by Ion Vasilief
-                           (from former ApplicationWindow class)
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Standard view on a Project; main window.
+    --------------------------------------------------------------------
+    Copyright            : (C) 2007-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2007-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+                           (some parts taken from former ApplicationWindow class
+						    (C) 2004-2007 by Ion Vasilief (ion_vasilief*yahoo.fr))
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -82,6 +84,7 @@ class ProjectWindow : public QMainWindow
 		void hideAllMdiWindows();
 		void showAllMdiWindows();
 		void importAspect();
+		void showKeyboardShortcutsDialog();
 
 	signals:
 		void partActivated(AbstractPart*);
@@ -116,7 +119,8 @@ class ProjectWindow : public QMainWindow
 		QAction 
 			*quit,
 			*import_aspect,
-			*new_folder;
+			*new_folder,
+			*keyboard_shortcuts_dialog;
 		} d_actions;
 
 		QList<QAction*> d_part_makers;

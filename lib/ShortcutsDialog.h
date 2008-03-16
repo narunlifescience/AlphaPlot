@@ -1,11 +1,11 @@
 /***************************************************************************
-    File                 : TableModule.cpp
+    File                 : ShortcutsDialog.h
     Project              : SciDAVis
-    Description          : Module providing the table Part and support classes.
+    Description          : Customize keyboard shortcuts dialog
     --------------------------------------------------------------------
-    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
-                           (replace * with @ in the email address)
-
+    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+                           (replace * with @ in the email addresses) 
+                           
  ***************************************************************************/
 
 /***************************************************************************
@@ -26,60 +26,43 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "TableModule.h"
 
-#include "Table.h"
-#include "Project.h"
-#include "ProjectWindow.h"
-#include "AsciiTableImportFilter.h"
-#include <QAction>
-#include <QPixmap>
-#include <QtDebug>
+#ifndef SHORTCUTSDIALOG_H
+#define SHORTCUTSDIALOG_H
 
-void TableModule::initActionManager()
+#include <QDialog>
+class RecordShortcutDelegate;
+class ActionManager;
+class QTreeView;
+class QModelIndex;
+
+// TODO: implement check for conflicts due to multiply assigned shortcuts
+
+//! Customize keyboard shortcuts dialog
+/**
+ * This dialog is used to let the user assign a primary and a secondary
+ * keyboard shortcut to the actions managed by the given action managers.
+ * The dialog mainly contains a tree view with three columns:
+ * action text, (primarty) shortcut, alternative shortcut. The actions are 
+ * displayed as children of their managers (represented by their titles).
+ * See ActionManager for details on the organization of the actions.
+ */
+class ShortcutsDialog : public QDialog
 {
-	Table::initActionManager();
-}
+	Q_OBJECT
 
-AbstractPart * TableModule::makePart()
-{
-	return new Table(0, 30, 2, tr("Table %1").arg(1));
-}
+	public:
+		ShortcutsDialog(QList<ActionManager *> action_managers, QWidget * parent = 0);
+		~ShortcutsDialog();
 
-QAction * TableModule::makeAction(QObject *parent)
-{
-	QAction *new_table = new QAction(tr("New &Table"), parent);
-	new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
-	return new_table;
-}
+	private:
+		RecordShortcutDelegate * d_delegate;
+		QTreeView * d_tree_view;
 
-QMenu * TableModule::makeProjectMenu(ProjectWindow *win)
-{
-	TableMenu *menu = new TableMenu(win);
-	return menu;
-}
+	private slots:
+		void resizeColumns(const QModelIndex & index);
+		void resizeColumns(const QModelIndex & top_left, const QModelIndex & bottom_right);
+};
 
-TableMenu::TableMenu(ProjectWindow *win) : QMenu(tr("Table"))
-{
-	setEnabled(false);
-	connect(win, SIGNAL(partActivated(AbstractPart*)),
-			this, SLOT(handlePartActivated(AbstractPart*)));
-}
 
-void TableMenu::handlePartActivated(AbstractPart* part)
-{
-	setEnabled(part->inherits("Table"));
-}
-
-AbstractImportFilter * TableModule::makeImportFilter()
-{
-	return new AsciiTableImportFilter();
-}
-
-AbstractExportFilter * TableModule::makeExportFilter()
-{
-	// TODO
-	return 0;
-}
-
-Q_EXPORT_PLUGIN2(scidavis_table, TableModule)
+#endif // SHORTCUTSDIALOG_H
