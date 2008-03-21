@@ -30,17 +30,11 @@
 #ifndef ACTIONMANAGER_H
 #define ACTIONMANAGER_H
 
-#define BASIC_ACCESSOR(type, var, method, Method) \
-	type method() const { return var; }; \
-	void set ## Method(const type value) { var = value; }
-#define CLASS_ACCESSOR(type, var, method, Method) \
-	type method() const { return var; }; \
-	void set ## Method(const type & value) { var = value; }
-
 #include <QObject>
 #include <QAction>
 #include <QList>
 #include <QMap>
+#include "lib/macros.h"
 class QString;
 class QKeySequence;
 

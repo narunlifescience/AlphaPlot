@@ -4,7 +4,7 @@
     Description          : MDI sub window to be wrapped around views of
                            AbstractPart.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
     Copyright            : (C) 2007,2008 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 
@@ -33,9 +33,10 @@
 
 #include <QCloseEvent>
 #include <QMenu>
+#include <QMdiArea>
 
 PartMdiView::PartMdiView(AbstractPart *part, QWidget * embedded_view)
-	: QMdiSubWindow(0), d_part(part), d_closing(false)
+	: QMdiSubWindow(0), d_part(part), d_closing(false), d_status(Closed)
 {
 	setWindowIcon(d_part->icon());
 	handleAspectDescriptionChanged(d_part);
@@ -79,4 +80,25 @@ void PartMdiView::closeEvent(QCloseEvent *event)
 		event->accept();
 	}
 	d_closing = false;
+	
+	SubWindowStatus old_status = d_status;
+	d_status = Closed;
+	emit statusChanged(this, old_status, d_status);
 }
+
+void PartMdiView::hideEvent(QHideEvent *event)
+{
+	SubWindowStatus old_status = d_status;
+	d_status = Hidden;
+	emit statusChanged(this, old_status, d_status);
+	event->accept();
+}
+
+void PartMdiView::showEvent(QShowEvent *event)
+{
+	SubWindowStatus old_status = d_status;
+	d_status = Visible;
+	emit statusChanged(this, old_status, d_status);
+	event->accept();
+}
+

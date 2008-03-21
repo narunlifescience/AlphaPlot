@@ -36,11 +36,6 @@
 #include <QPixmap>
 #include <QtDebug>
 
-void TableModule::initActionManager()
-{
-	Table::initActionManager();
-}
-
 AbstractPart * TableModule::makePart()
 {
 	return new Table(0, 30, 2, tr("Table %1").arg(1));
@@ -53,24 +48,6 @@ QAction * TableModule::makeAction(QObject *parent)
 	return new_table;
 }
 
-QMenu * TableModule::makeProjectMenu(ProjectWindow *win)
-{
-	TableMenu *menu = new TableMenu(win);
-	return menu;
-}
-
-TableMenu::TableMenu(ProjectWindow *win) : QMenu(tr("Table"))
-{
-	setEnabled(false);
-	connect(win, SIGNAL(partActivated(AbstractPart*)),
-			this, SLOT(handlePartActivated(AbstractPart*)));
-}
-
-void TableMenu::handlePartActivated(AbstractPart* part)
-{
-	setEnabled(part->inherits("Table"));
-}
-
 AbstractImportFilter * TableModule::makeImportFilter()
 {
 	return new AsciiTableImportFilter();
@@ -80,6 +57,11 @@ AbstractExportFilter * TableModule::makeExportFilter()
 {
 	// TODO
 	return 0;
+}
+
+void TableModule::initActionManager()
+{
+	Table::initActionManager();
 }
 
 Q_EXPORT_PLUGIN2(scidavis_table, TableModule)

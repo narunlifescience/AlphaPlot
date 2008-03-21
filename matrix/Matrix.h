@@ -37,6 +37,7 @@
 
 class QContextMenuEvent;
 class QEvent;
+class ActionManager;
 
 // (maximum) initial matrix size (this is the size of the window, not the number of cells)
 #define _Matrix_initial_rows_ 10
@@ -64,8 +65,6 @@ class Matrix : public AbstractPart, public scripted
 		Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QString& name);
 		~Matrix();
 
-		//! \name aspect related functions
-		//@{
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
 		//! Return a new context menu.
@@ -79,7 +78,11 @@ class Matrix : public AbstractPart, public scripted
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
 		virtual QWidget *view();
-		//@}
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \return true on success, otherwise false (e.g. part has no actions).
+		 */
+		virtual bool fillProjectMenu(QMenu * menu);
 
 		void insertColumns(int before, int count);
 		void appendColumns(int count) { insertColumns(columnCount(), count); }
@@ -109,6 +112,14 @@ class Matrix : public AbstractPart, public scripted
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void copy(Matrix * other);
+
+	public:
+		static ActionManager * actionManager();
+		static void initActionManager();
+	private:
+		static ActionManager * action_manager;
+		//! Private ctor for initActionManager() only
+		Matrix();
 
 	public slots:
 		//! Clear the whole matrix (i.e. set all cells to 0.0)

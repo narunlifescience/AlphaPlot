@@ -58,17 +58,6 @@ class PartMaker
 
 Q_DECLARE_INTERFACE(PartMaker, "net.sf.scidavis.partmaker/0.1")
 
-//! Factory for Menus to be added to a ProjectWindow.
-class ProjectMenuMaker
-{
-	public:
-		virtual ~ProjectMenuMaker() {}
-		//! The factory method.
-		virtual QMenu *makeProjectMenu(ProjectWindow *) = 0;
-};
-
-Q_DECLARE_INTERFACE(ProjectMenuMaker, "net.sf.scidavis.projectmenumaker/0.1")
-
 //! Factory for filters.
 /**
  * A FilterMaker introduces one or more filters to the kernel.

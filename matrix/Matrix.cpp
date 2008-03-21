@@ -31,6 +31,7 @@
 #include "Matrix.h"
 #include "core/AbstractScript.h"
 #include "matrixcommands.h"
+#include "lib/ActionManager.h"
 
 #include <QtGlobal>
 #include <QTextStream>
@@ -71,6 +72,12 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QStrin
 	appendRows(rows);
 
 	d_view = new MatrixView(this); 
+	createActions();
+}
+
+Matrix::Matrix()
+	: AbstractPart("temp"), scripted(0)
+{
 	createActions();
 }
 
@@ -424,6 +431,15 @@ void Matrix::createActions()
 	//TODO
 }
 
+bool Matrix::fillProjectMenu(QMenu * menu)
+{
+	menu->setTitle(tr("&Matrix"));
+	// TODO: this is not yet the final selection of actions for the menu
+	menu->addAction("dummy1");
+	menu->addAction("dummy2");
+	return true;
+}
+
 void Matrix::showMatrixViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
@@ -518,6 +534,27 @@ void Matrix::setCell(int row, int col, double value)
 	if(row < 0 || row >= rowCount()) return;
 	if(col < 0 || col >= columnCount()) return;
 	exec(new MatrixSetCellValueCmd(d_matrix_private, row, col, value));
+}
+
+/* ========================= static methods ======================= */
+ActionManager * Matrix::action_manager = 0;
+
+ActionManager * Matrix::actionManager()
+{
+	if (!action_manager)
+		initActionManager();
+	
+	return action_manager;
+}
+
+void Matrix::initActionManager()
+{
+	if (!action_manager)
+		action_manager = new ActionManager();
+
+	action_manager->setTitle(tr("Matrix"));
+	volatile Matrix * action_creator = new Matrix(); // initialize the action texts
+	delete action_creator;
 }
 
 /* ========================== Matrix::Private ====================== */

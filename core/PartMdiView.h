@@ -4,7 +4,7 @@
     Description          : MDI sub window to be wrapped around views of
                            AbstractPart.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
     Copyright            : (C) 2007,2008 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 
@@ -32,6 +32,7 @@
 #define ASPECT_VIEW_H
 
 #include <QMdiSubWindow>
+#include "lib/macros.h"
 
 class AbstractAspect;
 class AbstractPart;
@@ -57,6 +58,18 @@ class PartMdiView : public QMdiSubWindow
 		//! Returns the part that owns the view
 		AbstractPart *part() const { return d_part; }
 
+		enum SubWindowStatus 
+		{ 
+			Closed,
+			Hidden,
+			Visible
+		};
+
+		SubWindowStatus status() const { return d_status; }
+	
+	signals:
+		void statusChanged(PartMdiView *view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to);
+
 	private slots:
 		//! Keep my window title in sync with AbstractAspect::caption().
 		void handleAspectDescriptionChanged(const AbstractAspect *aspect);
@@ -65,6 +78,8 @@ class PartMdiView : public QMdiSubWindow
 	protected:
 		//! When I'm being closed, remove my Aspect from its parent.
 		virtual void closeEvent(QCloseEvent *event);
+		virtual void hideEvent(QHideEvent *event);
+		virtual void showEvent(QShowEvent *event);
 		//! Show a context menu for the view and the aspect
 		/**
 		 * This creates a view context menu with createContextMenu
@@ -85,6 +100,7 @@ class PartMdiView : public QMdiSubWindow
 		 * recursion.
 		 */
 		bool d_closing;
+		SubWindowStatus d_status;
 };
 
 #endif // ifndef ASPECT_VIEW_H

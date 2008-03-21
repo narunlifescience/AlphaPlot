@@ -31,30 +31,20 @@
 #define MATRIX_MODULE_H
 
 #include "core/interfaces.h"
+#include "Matrix.h"
 #include <QMenu>
 
 //! Module providing the matrix Part and support classes.
-class MatrixModule : public QObject, public PartMaker, public ProjectMenuMaker
+class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ProjectMenuMaker)
+	Q_INTERFACES(PartMaker ActionManagerOwner)
 
 	public:
 		virtual AbstractPart * makePart();
 		virtual QAction * makeAction(QObject *parent);
-		virtual QMenu * makeProjectMenu(ProjectWindow *win);
-};
-
-//! Matrix menu for the main window.
-class MatrixMenu : public QMenu
-{
-	Q_OBJECT
-	
-	public:
-		MatrixMenu(ProjectWindow *win);
-
-	private slots:
-		void handlePartActivated(AbstractPart *part);
+		virtual ActionManager * actionManager() { return Matrix::actionManager(); }
+		virtual void initActionManager();
 };
 
 #endif // ifndef MATRIX_MODULE_H

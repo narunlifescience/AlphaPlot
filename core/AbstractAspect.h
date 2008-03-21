@@ -199,8 +199,6 @@ class AbstractAspect : public QObject
 		void setCaptionSpec(const QString &value);
 		//! Remove me from my parent's list of children.
 		virtual void remove() { if(parentAspect()) parentAspect()->removeChild(parentAspect()->indexOfChild(this)); }
-		//! Show info about the aspect
-		void showProperties();
 		//! Make the specified name unique among my children by incrementing a trailing number.
 		QString uniqueNameFor(const QString &current_name) const;
 
@@ -232,20 +230,18 @@ class AbstractAspect : public QObject
 		 * is loaded from a file.
 		 */
 		void setCreationTime(const QDateTime& time);
-		//! Called after a new child has been added.
+		//! Called after a new child has been inserted or added.
 		/**
 		 * Unlike the aspectAdded() signals, this method does not get called inside undo/redo actions;
 		 * allowing subclasses to execute undo commands of their own.
-		 * TODO: find a better name for this method
 		 */
-		virtual void aspectAddedOuter(AbstractAspect*) {}
+		virtual void completeAspectInsertion(AbstractAspect * aspect, int index) {}
 		//! Called before a child is removed.
 		/**
 		 * Unlike the aspectAboutToBeRemoved() signals, this method does not get called inside undo/redo actions;
 		 * allowing subclasses to execute undo commands of their own.
-		 * TODO: find a better name for this method
 		 */
-		virtual void aspectAboutToBeRemovedOuter(AbstractAspect*) {}
+		virtual void prepareAspectRemoval(AbstractAspect*) {}
 		//! Implementations should call this whenever status information should be given to the user.
 		/**
 		 * This will cause statusInfo() to be emitted. Typically, this will cause the specified string

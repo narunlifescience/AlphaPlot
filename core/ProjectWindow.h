@@ -47,6 +47,7 @@ class QMdiSubWindow;
 class Folder;
 class QSignalMapper;
 class AbstractPart;
+#include "core/PartMdiView.h"
 
 //! Standard view on a Project; main window.
 class ProjectWindow : public QMainWindow
@@ -91,10 +92,12 @@ class ProjectWindow : public QMainWindow
 	
 	private slots:
 		void handleAspectAdded(const AbstractAspect *parent, int index);
+		void handleAspectAboutToBeRemoved(const AbstractAspect *parent, int index);
 		void handleAspectRemoved(const AbstractAspect *parent, int index);
 		void handleAspectDescriptionChanged(const AbstractAspect *aspect);
 		void handleCurrentAspectChanged(AbstractAspect *aspect);
 		void handleCurrentSubWindowChanged(QMdiSubWindow*);
+		void handleSubWindowStatusChange(PartMdiView * view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to);
 
 	private:
 		Project* d_project;
@@ -112,7 +115,8 @@ class ProjectWindow : public QMainWindow
 			*view,
 			*new_aspect,
 			*toolbars,
-			*dockwidgets;
+			*dockwidgets,
+			*part;
 		} d_menus;
 		
 		struct {

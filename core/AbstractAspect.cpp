@@ -62,7 +62,7 @@ void AbstractAspect::addChild(AbstractAspect* child)
 		child->setName(new_name);
 	}
 	exec(new AspectChildAddCmd(d_aspect_private, child, d_aspect_private->childCount()));
-	aspectAddedOuter(child);
+	completeAspectInsertion(child, d_aspect_private->childCount()-1);
 	endMacro();
 }
 
@@ -76,7 +76,7 @@ void AbstractAspect::insertChild(AbstractAspect* child, int index)
 		child->setName(new_name);
 	}
 	exec(new AspectChildAddCmd(d_aspect_private, child, index));
-	aspectAddedOuter(child);
+	completeAspectInsertion(child, index);
 	endMacro();
 }
 
@@ -84,7 +84,7 @@ void AbstractAspect::removeChild(AbstractAspect* child)
 {
 	Q_ASSERT(indexOfChild(child) != -1);
 	beginMacro(tr("%1: remove %2.").arg(name()).arg(child->name()));
-	aspectAboutToBeRemovedOuter(child);
+	prepareAspectRemoval(child);
 	exec(new AspectChildRemoveCmd(d_aspect_private, child));
 	endMacro();
 }
@@ -238,28 +238,9 @@ QMenu *AbstractAspect::createContextMenu() const
 	menu->addSeparator();
 
 	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
-	//menu->addAction(QPixmap(":/close.xpm"), QObject::tr("&Remove"), this, SLOT(remove()), QObject::tr("Ctrl+W"));
 	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
 
-	//TODO: Is there any need for this? It just displays the same info as the project explorer.
-	//menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
-
 	return menu;
-}
-
-void AbstractAspect::showProperties()
-{
-	QString message;
-	message += QObject::tr("Name: ") + name() + "\n\n";
-	message += QObject::tr("Comment: ") + comment() + "\n\n";
-	message += QObject::tr("Type: ") + QString(metaObject()->className()) + "\n\n";
-	message += QObject::tr("Path: ") + path() + "\n\n";
-	message += QObject::tr("Created: ") + creationTime().toString(QString("yyyy-MM-dd hh:mm:ss")) + "\n\n";
-
-	QMessageBox * mbox = new QMessageBox( QMessageBox::Information, QObject::tr("Properties"), message, QMessageBox::Ok);
-	mbox->setIconPixmap(icon().pixmap(32, QIcon::Normal, QIcon::On));
-	mbox->setAttribute(Qt::WA_DeleteOnClose);
-	mbox->show();
 }
 
 Folder * AbstractAspect::folder()

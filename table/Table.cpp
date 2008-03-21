@@ -123,7 +123,7 @@ void Table::insertColumns(int before, QList<Column*> new_cols)
 	int pos=before;
 	foreach(Column* col, new_cols)
 		insertChild(col, pos++);
-	exec(new TableInsertColumnsCmd(d_table_private, before, new_cols));
+	// remark: the TableInsertColumnsCmd will be created in completeAspectInsertion()
 	endMacro();
 	RESET_CURSOR;
 }
@@ -136,7 +136,7 @@ void Table::removeColumns(int first, int count)
 	QList<Column*> cols;
 	for(int i=first; i<(first+count); i++)
 		cols.append(d_table_private->column(i));
-	exec(new TableRemoveColumnsCmd(d_table_private, first, count, cols));
+	// remark:  the TableRemoveColumnsCmd will be created in prepareAspectRemoval()
 	foreach(Column* col, cols)
 		removeChild(col);
 	endMacro();
@@ -768,14 +768,26 @@ void Table::clearSelectedCells()
 	RESET_CURSOR;
 }
 
+bool Table::fillProjectMenu(QMenu * menu)
+{
+	menu->setTitle(tr("&Table"));
+	// TODO: this is not yet the final selection of actions for the menu
+	createTableMenu(menu); 
+	return true;
+
+	// TODO:
+	// Set Dimensions
+	// Convert to Matrix
+}
+
 QMenu *Table::createContextMenu() const
 {
 	QMenu *menu = AbstractPart::createContextMenu();
 	Q_ASSERT(menu);
 	menu->addSeparator();
 	
-	new QAction(tr("E&xport to ASCII"), menu);
-	// TODO menu->addAction( ....
+	// TODO: add real actions here
+	menu->addAction(new QAction(tr("E&xport to ASCII"), d_view));
 
 	// Export to ASCII
 	// Print --> maybe should go to AbstractPart::createContextMenu()
@@ -1146,18 +1158,6 @@ void Table::showTableViewRowContextMenu(const QPoint& pos)
 	createRowMenu(&context_menu);
 
 	context_menu.exec(pos);
-}
-
-// This probably needs to be moved to the main window
-QMenu * Table::createApplicationWindowMenu()
-{
-	QMenu * menu = new QMenu(tr("Table"));
-
-	// [Context Menu]
-	// Show/Hide Column Controls (Dock)
-	// Set Dimensions
-	// Convert to Matrix
-	return menu;
 }
 
 QMenu * Table::createSelectionMenu(QMenu * append_to)
@@ -1687,6 +1687,25 @@ void Table::disconnectColumn(const Column* col)
 QVariant Table::headerData(int section, Qt::Orientation orientation,int role) const
 {
 	return d_table_private->headerData(section, orientation, role);
+}
+
+void Table::completeAspectInsertion(AbstractAspect * aspect, int index)
+{
+	Column * column = qobject_cast<Column *>(aspect);
+	if (!column) return;
+	QList<Column*> cols;
+	cols.append(column);
+	exec(new TableInsertColumnsCmd(d_table_private, index, cols));
+}
+
+void Table::prepareAspectRemoval(AbstractAspect * aspect)
+{
+	Column * column = qobject_cast<Column *>(aspect);
+	if (!column) return;
+	int first = columnIndex(column);
+	QList<Column*> cols;
+	cols.append(column);
+	exec(new TableRemoveColumnsCmd(d_table_private, first, 1, cols));
 }
 
 /* ========================= static methods ======================= */

@@ -1,12 +1,12 @@
 /***************************************************************************
-    File                 : MatrixModule.cpp
+    File                 : macros.h
     Project              : SciDAVis
-    Description          : Module providing the matrix Part and support classes.
+    Description          : Various preprocessor macros
     --------------------------------------------------------------------
-    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
     Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-                           (replace * with @ in the email address)
-
+    Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+                           (replace * with @ in the email addresses) 
+                           
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,31 +27,15 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "MatrixModule.h"
 
-#include "Matrix.h"
-#include "Project.h"
-#include "ProjectWindow.h"
-#include <QAction>
-#include <QPixmap>
+#ifndef MACROS_H
+#define MACROS_H
 
-AbstractPart * MatrixModule::makePart()
-{
-	return new Matrix(0, 32, 32, tr("Matrix %1").arg(1));
-}
+#define BASIC_ACCESSOR(type, var, method, Method) \
+	type method() const { return var; }; \
+	void set ## Method(const type value) { var = value; }
+#define CLASS_ACCESSOR(type, var, method, Method) \
+	type method() const { return var; }; \
+	void set ## Method(const type & value) { var = value; }
 
-QAction * MatrixModule::makeAction(QObject *parent)
-{
-	QAction *new_matrix = new QAction(tr("New &Matrix"), parent);
-	new_matrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
-	return new_matrix;
-}
-
-void MatrixModule::initActionManager()
-{
-	Matrix::initActionManager();
-}
-
-
-Q_EXPORT_PLUGIN2(scidavis_matrix, MatrixModule)
-
+#endif // MACROS_H

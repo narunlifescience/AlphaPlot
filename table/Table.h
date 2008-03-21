@@ -78,8 +78,6 @@ class Table : public AbstractPart, public scripted
 		Table(AbstractScriptingEngine *engine, int rows, int columns, const QString &name);
 		~Table();
 
-		//! \name aspect related functions
-		//@{
 		//! Return an icon to be used for decorating my views.
 		virtual QIcon icon() const;
 		//! Return a new context menu.
@@ -93,7 +91,6 @@ class Table : public AbstractPart, public scripted
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
 		virtual QWidget *view();
-		//@}
 		
 		//! Insert columns
 		/**
@@ -133,9 +130,6 @@ class Table : public AbstractPart, public scripted
 		void setColumnCount(int new_size);
 		QVariant headerData(int section, Qt::Orientation orientation,int role) const;
 
-		// TODO: move this to abstract aspect?
-		//! Create a menu for the main application window
-		QMenu * createApplicationWindowMenu();
 		//! Create a menu with selection related operations
 		/**
 		 * \param append_to if a pointer to a QMenu is passed
@@ -164,6 +158,11 @@ class Table : public AbstractPart, public scripted
 		 * it instead of the creation of a new menu.
 		 */
 		QMenu * createTableMenu(QMenu * append_to = 0);
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \return true on success, otherwise false (e.g. part has no actions).
+		 */
+		virtual bool fillProjectMenu(QMenu * menu);
 
 		//! Determine the corresponding X column
 		int colX(int col);
@@ -260,6 +259,19 @@ class Table : public AbstractPart, public scripted
 		*/
 		void showTableViewRowContextMenu(const QPoint& pos);
 
+	protected:
+		//! Called after a new child has been inserted or added.
+		/**
+		 * Unlike the aspectAdded() signals, this method does not get called inside undo/redo actions;
+		 * allowing subclasses to execute undo commands of their own.
+		 */
+		virtual void completeAspectInsertion(AbstractAspect * aspect, int index);
+		//! Called before a child is removed.
+		/**
+		 * Unlike the aspectAboutToBeRemoved() signals, this method does not get called inside undo/redo actions;
+		 * allowing subclasses to execute undo commands of their own.
+		 */
+		virtual void prepareAspectRemoval(AbstractAspect * aspect);
 
 	private:
 		//! Internal function to connect all column signals

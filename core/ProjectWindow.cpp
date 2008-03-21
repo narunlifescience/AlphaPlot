@@ -87,6 +87,8 @@ void ProjectWindow::init()
 		this, SLOT(handleAspectAdded(const AbstractAspect *, int)));
 	connect(d_project, SIGNAL(aspectRemoved(const AbstractAspect *, int)), 
 		this, SLOT(handleAspectRemoved(const AbstractAspect *, int)));
+	connect(d_project, SIGNAL(aspectAboutToBeRemoved(const AbstractAspect *, int)), 
+		this, SLOT(handleAspectAboutToBeRemoved(const AbstractAspect *, int)));
 	connect(d_project, SIGNAL(statusInfo(const QString&)),
 			statusBar(), SLOT(showMessage(const QString&)));
 
@@ -116,11 +118,31 @@ void ProjectWindow::handleAspectAdded(const AbstractAspect *parent, int index)
 {
 	AbstractPart *part = qobject_cast<AbstractPart*>(parent->child(index));
 	if (!part) return;
-	QMdiSubWindow *win = part->mdiSubWindow();
+	PartMdiView *win = part->mdiSubWindow();
 	Q_ASSERT(win);
 	d_mdi_area->addSubWindow(win);
 	win->show();
+	d_menus.part->clear();
+	d_menus.part->setEnabled(part->fillProjectMenu(d_menus.part)); 
+	connect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
+		this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
 	updateMdiWindowVisibility();
+}
+
+void ProjectWindow::handleAspectAboutToBeRemoved(const AbstractAspect *parent, int index)
+{
+	AbstractPart *part = qobject_cast<AbstractPart*>(parent->child(index));
+	if (!part) return;
+	PartMdiView *win = part->mdiSubWindow();
+	Q_ASSERT(win);
+	disconnect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
+		this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
+	d_mdi_area->removeSubWindow(win);
+	if (d_mdi_area->currentSubWindow() == 0)
+	{
+		d_menus.part->clear();
+		d_menus.part->setEnabled(false);
+	}
 }
 
 void ProjectWindow::handleAspectRemoved(const AbstractAspect *parent, int index)
@@ -212,11 +234,8 @@ void ProjectWindow::initMenus()
 	d_menus.view->addMenu(d_menus.dockwidgets);
 	d_menus.view->addSeparator();
 
-	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
-		ProjectMenuMaker *maker = qobject_cast<ProjectMenuMaker*>(plugin);
-		if(maker)
-			menuBar()->addMenu(maker->makeProjectMenu(this));
-	}
+	d_menus.part = menuBar()->addMenu(QString());
+	d_menus.part->hide();
 }
 
 void ProjectWindow::initToolBars()
@@ -315,10 +334,27 @@ void ProjectWindow::handleCurrentAspectChanged(AbstractAspect *aspect)
 	d_current_aspect = aspect;
 }
 
-void ProjectWindow::handleCurrentSubWindowChanged(QMdiSubWindow* win) {
+void ProjectWindow::handleCurrentSubWindowChanged(QMdiSubWindow* win) 
+{
 	PartMdiView *view = qobject_cast<PartMdiView*>(win);
+	d_menus.part->clear();
+	d_menus.part->setEnabled(false);
 	if (!view) return;
 	emit partActivated(view->part());
+	if (view->status() == PartMdiView::Visible)
+		d_menus.part->setEnabled(view->part()->fillProjectMenu(d_menus.part)); 
+}
+
+void ProjectWindow::handleSubWindowStatusChange(PartMdiView * view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to) 
+{
+	if (view == d_mdi_area->currentSubWindow())
+	{
+		d_menus.part->clear();
+		if (from == PartMdiView::Hidden && to == PartMdiView::Visible)
+			d_menus.part->setEnabled(view->part()->fillProjectMenu(d_menus.part)); 
+		else if (to == PartMdiView::Hidden && from == PartMdiView::Visible)
+			d_menus.part->setEnabled(false);
+	}
 }
 
 void ProjectWindow::updateMdiWindowVisibility()
