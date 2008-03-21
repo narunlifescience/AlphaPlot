@@ -58,6 +58,9 @@ class ProjectWindow : public QMainWindow
 		ProjectWindow(Project* project);
 		~ProjectWindow();
 
+		QMenu *createContextMenu() const;
+		QMenu *createFolderContextMenu(const Folder * folder) const;
+
 	public slots:
 		//! Add a new Part in the current folder.
 		/**
@@ -82,8 +85,6 @@ class ProjectWindow : public QMainWindow
 		void addNewFolder();
 		//! Show hide mdi windows depending on the currend folder
 		void updateMdiWindowVisibility();
-		void hideAllMdiWindows();
-		void showAllMdiWindows();
 		void importAspect();
 		void showKeyboardShortcutsDialog();
 
@@ -98,6 +99,10 @@ class ProjectWindow : public QMainWindow
 		void handleCurrentAspectChanged(AbstractAspect *aspect);
 		void handleCurrentSubWindowChanged(QMdiSubWindow*);
 		void handleSubWindowStatusChange(PartMdiView * view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to);
+		void handleWindowsMenuAboutToShow();
+		void handleWindowsPolicyMenuAboutToShow();
+		void setMdiWindowVisibility(QAction * action);
+
 
 	private:
 		Project* d_project;
@@ -116,7 +121,9 @@ class ProjectWindow : public QMainWindow
 			*new_aspect,
 			*toolbars,
 			*dockwidgets,
-			*part;
+			*part,
+			*windows,
+			*win_policy_menu;
 		} d_menus;
 		
 		struct {
@@ -124,7 +131,16 @@ class ProjectWindow : public QMainWindow
 			*quit,
 			*import_aspect,
 			*new_folder,
-			*keyboard_shortcuts_dialog;
+			*keyboard_shortcuts_dialog,
+			*next_subwindow,
+			*previous_subwindow,
+			*cascade_windows,
+			*close_current_window,
+			*close_all_windows,
+			*tile_windows,
+			*visibility_folder,
+			*visibility_subfolders,
+			*visibility_all;
 		} d_actions;
 
 		QList<QAction*> d_part_makers;

@@ -235,13 +235,13 @@ class AbstractAspect : public QObject
 		 * Unlike the aspectAdded() signals, this method does not get called inside undo/redo actions;
 		 * allowing subclasses to execute undo commands of their own.
 		 */
-		virtual void completeAspectInsertion(AbstractAspect * aspect, int index) {}
+		virtual void completeAspectInsertion(AbstractAspect * aspect, int index) { Q_UNUSED(aspect); Q_UNUSED(index); }
 		//! Called before a child is removed.
 		/**
 		 * Unlike the aspectAboutToBeRemoved() signals, this method does not get called inside undo/redo actions;
 		 * allowing subclasses to execute undo commands of their own.
 		 */
-		virtual void prepareAspectRemoval(AbstractAspect*) {}
+		virtual void prepareAspectRemoval(AbstractAspect * aspect) { Q_UNUSED(aspect); }
 		//! Implementations should call this whenever status information should be given to the user.
 		/**
 		 * This will cause statusInfo() to be emitted. Typically, this will cause the specified string

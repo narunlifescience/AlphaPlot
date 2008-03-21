@@ -51,7 +51,7 @@ class Project : public Folder
 		{
 			folderOnly,
 			folderAndSubfolders,
-			manual
+			all
 		};
 
 	public:
@@ -67,15 +67,13 @@ class Project : public Folder
 		virtual ProjectWindow *view();
 		virtual QMenu *createContextMenu() const;
 		//@}
+		virtual QMenu *createFolderContextMenu(const Folder * folder) const;
 
 		AbstractScriptingEngine * scriptingEngine() const;
 
 		void setMdiWindowVisibility(MdiWindowVisibility visibility);
 		MdiWindowVisibility mdiWindowVisibility() const;
 	
-	private slots:
-		void setMdiWindowVisibility(QAction * action);
-
 	private:
 		class Private;
 		Private *d;

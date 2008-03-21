@@ -43,6 +43,11 @@ class Folder : public AbstractAspect
 		virtual ~Folder();
 
 		virtual QIcon icon() const;
+		//! Return a new context menu.
+		/**
+		 * The caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu() const;
 };
 
 #endif // ifndef FOLDER_H

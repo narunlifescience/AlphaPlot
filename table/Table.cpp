@@ -771,13 +771,24 @@ void Table::clearSelectedCells()
 bool Table::fillProjectMenu(QMenu * menu)
 {
 	menu->setTitle(tr("&Table"));
-	// TODO: this is not yet the final selection of actions for the menu
-	createTableMenu(menu); 
+
+	menu->addAction(action_toggle_comments);
+	menu->addAction(action_toggle_tabbar);
+	menu->addSeparator();
+	menu->addAction(action_clear_table);
+	menu->addAction(action_clear_masks);
+	menu->addAction(action_sort_table);
+	menu->addSeparator();
+	menu->addAction(action_add_column);
+	menu->addAction(action_dimensions_dialog);
+	menu->addSeparator();
+	menu->addAction(action_go_to_cell);
+
 	return true;
 
 	// TODO:
-	// Set Dimensions
 	// Convert to Matrix
+	// Export 
 }
 
 QMenu *Table::createContextMenu() const
@@ -901,6 +912,9 @@ void Table::createActions()
 	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
 	actionManager()->addAction(action_go_to_cell, "go_to_cell"); 
 	delete icon_temp;
+
+	action_dimensions_dialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Dimensions", "table size"), this);
+	actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog"); 
 
 	// column related actions
 	icon_temp = new QIcon();
@@ -1059,6 +1073,8 @@ void Table::connectActions()
 	d_view->addAction(action_sort_table);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
 	d_view->addAction(action_go_to_cell);
+	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
+	d_view->addAction(action_dimensions_dialog);
 	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
 	d_view->addAction(action_insert_columns);
 	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
@@ -1105,8 +1121,9 @@ void Table::showTableViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+// TODO: Does undo/redo really be belong into a context menu?
+//	context_menu.addAction(undoAction(&context_menu));
+//	context_menu.addAction(redoAction(&context_menu));
 
 	createSelectionMenu(&context_menu);
 	context_menu.addSeparator();
@@ -1271,6 +1288,22 @@ void Table::goToCell()
 	if ( !ok ) return;
 
 	d_view->goToCell(row-1, col-1);
+}
+
+void Table::dimensionsDialog()
+{
+	bool ok;
+
+	int cols = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of columns"),
+			columnCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+
+	int rows = QInputDialog::getInteger(0, tr("Set Table Dimensions"), tr("Enter number of rows"),
+			rowCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+	
+	setColumnCount(cols);
+	setRowCount(rows);
 }
 
 void Table::moveColumn(int from, int to)

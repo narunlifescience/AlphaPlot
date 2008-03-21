@@ -232,10 +232,11 @@ QMenu *AbstractAspect::createContextMenu() const
 	const QStyle *widget_style = qApp->style();
 	QAction *action_temp;
 
-	menu->addAction(undoAction(menu));
-	menu->addAction(redoAction(menu));
-
-	menu->addSeparator();
+// TODO: Does undo/redo really be belong into a context menu?
+//	menu->addAction(undoAction(menu));
+//	menu->addAction(redoAction(menu));
+//
+//	menu->addSeparator();
 
 	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
 	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
@@ -268,3 +269,4 @@ QString AbstractAspect::uniqueNameFor(const QString &current_name) const
 {
 	return d_aspect_private->uniqueNameFor(current_name);
 }
+

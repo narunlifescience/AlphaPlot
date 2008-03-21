@@ -42,7 +42,7 @@ class Project::Private
 	public:
 		Private() : mdi_window_visibility(folderOnly), primary_view(0), scripting_engine(0) {}
 		~Private() {
-			if (primary_view) delete primary_view;
+			delete primary_view;
 		}
 		QUndoStack undo_stack;
 		MdiWindowVisibility mdi_window_visibility;
@@ -78,54 +78,14 @@ ProjectWindow *Project::view()
 
 QMenu *Project::createContextMenu() const
 {
-	QMenu * menu = AbstractAspect::createContextMenu();
-	Q_ASSERT(menu);
-	menu->addSeparator();
-
-	// Find
-	// ----
-	// Append Project
-	// Save Project As
-	// ----
-	
-	menu->addAction(tr("&Show All Windows"), this, SIGNAL(showAllMdiWindows()));
-	menu->addAction(tr("&Hide All Windows"), this, SIGNAL(hideAllMdiWindows()));
-
-	QMenu * win_policy_menu = new QMenu(tr("Show &Windows"));
-	QActionGroup * policy_action_group = new QActionGroup(menu);
-	policy_action_group->setExclusive(true);
-
-	QAction * action = new QAction(tr("Current &Folder Only"), policy_action_group);
-	action->setCheckable(true);
-	action->setData(Project::folderOnly);
-	if(d->mdi_window_visibility == Project::folderOnly) action->setChecked(true);
-	action = new QAction(tr("Current Folder and &Subfolders"), policy_action_group);
-	action->setCheckable(true);
-	action->setData(Project::folderAndSubfolders);
-	if(d->mdi_window_visibility == Project::folderAndSubfolders) action->setChecked(true);
-	action = new QAction(tr("&Manual showing/hiding"), policy_action_group);
-	action->setCheckable(true);
-	action->setData(Project::manual);
-	if(d->mdi_window_visibility == Project::manual) action->setChecked(true);
-	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowVisibility(QAction*)));
-	win_policy_menu->addActions(policy_action_group->actions());
-	menu->addMenu(win_policy_menu);
-	menu->addSeparator();
-	
-	// --- 
-	// New Aspect ->
-	// ----
-	//
-	menu->addAction(QPixmap(), QObject::tr("&Properties"), this, SLOT(showProperties()) );
-
-	return menu;
-}
-
-void Project::setMdiWindowVisibility(QAction * action) 
-{
-	setMdiWindowVisibility((MdiWindowVisibility)(action->data().toInt()));
+	return const_cast<Project *>(this)->view()->createContextMenu();
 }
 		
+QMenu *Project::createFolderContextMenu(const Folder * folder) const
+{
+	return const_cast<Project *>(this)->view()->createFolderContextMenu(folder);
+}
+
 void Project::setMdiWindowVisibility(MdiWindowVisibility visibility)
 { 
 	d->mdi_window_visibility = visibility; 

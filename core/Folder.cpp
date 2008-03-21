@@ -27,6 +27,7 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
+#include "Project.h"
 #include "Folder.h"
 
 #include <QIcon>
@@ -48,5 +49,11 @@ QIcon Folder::icon() const
 	result.addFile(":/folder_closed.xpm", QSize(), QIcon::Normal, QIcon::Off);
 	result.addFile(":/folder_open.xpm", QSize(), QIcon::Normal, QIcon::On);	
 	return result;
+}
+
+QMenu *Folder::createContextMenu() const
+{
+	if (project())
+		return project()->createFolderContextMenu(this);
 }
 
