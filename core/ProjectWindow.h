@@ -47,6 +47,7 @@ class QMdiSubWindow;
 class Folder;
 class QSignalMapper;
 class AbstractPart;
+class ActionManager;
 #include "core/PartMdiView.h"
 
 //! Standard view on a Project; main window.
@@ -105,7 +106,7 @@ class ProjectWindow : public QMainWindow
 
 
 	private:
-		Project* d_project;
+		Project * d_project;
 
 		struct {
 		QToolBar 
@@ -158,6 +159,8 @@ class ProjectWindow : public QMainWindow
 		QMdiArea * d_mdi_area;
 		AbstractAspect * d_current_aspect;
 		Folder * d_current_folder;
+
+		static ActionManager * action_manager;
 };
 
 #endif // ifndef PROJECT_WINDOW_H

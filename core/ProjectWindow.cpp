@@ -56,6 +56,8 @@
 #include <QSignalMapper>
 #include <QStatusBar>
 
+ActionManager * ProjectWindow::action_manager = 0;
+
 ProjectWindow::ProjectWindow(Project* project)
 	: d_project(project)
 {
@@ -66,6 +68,11 @@ void ProjectWindow::init()
 {
 	setAttribute(Qt::WA_DeleteOnClose);
 	setWindowIcon(QIcon(":/appicon"));
+
+	if (!action_manager)
+		action_manager = new ActionManager();
+
+	action_manager->setTitle(tr("global", "global/ProjectWindow keyboard shortcuts"));
 
 	d_mdi_area = new QMdiArea();
 	setCentralWidget(d_mdi_area);
@@ -177,13 +184,16 @@ void ProjectWindow::initActions()
 {
 	d_actions.quit = new QAction(tr("&Quit"), this);
 	d_actions.quit->setShortcut(tr("Ctrl+Q"));
+	action_manager->addAction(d_actions.quit, "quit");
 	connect(d_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
 		
 	d_actions.new_folder = new QAction(tr("New F&older"), this);
+	action_manager->addAction(d_actions.new_folder, "new_folder");
 	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
 	connect(d_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
 
 	d_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
+	action_manager->addAction(d_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
 	connect(d_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
 
 	d_part_maker_map = new QSignalMapper(this);
@@ -199,32 +209,39 @@ void ProjectWindow::initActions()
 	}
 
 	d_actions.import_aspect = new QAction(tr("&Import"), this);
+	action_manager->addAction(d_actions.import_aspect, "import_aspect");
 	// TODO: we need a new icon for generic imports
 	d_actions.import_aspect->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
 	connect(d_actions.import_aspect, SIGNAL(triggered()), this, SLOT(importAspect()));
 
 	d_actions.cascade_windows = new QAction(tr("&Cascade"), this);
+	action_manager->addAction(d_actions.cascade_windows, "cascade_windows");
 	connect(d_actions.cascade_windows, SIGNAL(triggered()), d_mdi_area, SLOT(cascadeSubWindows()));
 	
 	d_actions.tile_windows = new QAction(tr("&Tile"), this);
+	action_manager->addAction(d_actions.tile_windows, "tile_windows");
 	connect(d_actions.tile_windows, SIGNAL(triggered()), d_mdi_area, SLOT(tileSubWindows()));
 
 	d_actions.next_subwindow = new QAction(tr("&Next","next window"), this);
 	d_actions.next_subwindow->setIcon(QIcon(QPixmap(":/next.xpm")));
 	d_actions.next_subwindow->setShortcut(tr("F5","next window shortcut"));
+	action_manager->addAction(d_actions.next_subwindow, "next_subwindow");
 	connect(d_actions.next_subwindow, SIGNAL(triggered()), d_mdi_area, SLOT(activateNextSubWindow()));
 
 	d_actions.previous_subwindow = new QAction(tr("&Previous","previous window"), this);
 	d_actions.previous_subwindow->setIcon(QIcon(QPixmap(":/prev.xpm")));
 	d_actions.previous_subwindow->setShortcut(tr("F6", "previous window shortcut"));
+	action_manager->addAction(d_actions.previous_subwindow, "previous_subwindow");
 	connect(d_actions.previous_subwindow, SIGNAL(triggered()), d_mdi_area, SLOT(activatePreviousSubWindow()));
 
 	d_actions.close_current_window = new QAction(tr("Close &Window"), this);
 	d_actions.close_current_window->setIcon(QIcon(QPixmap(":/close.xpm")));
 	d_actions.close_current_window->setShortcut(tr("Ctrl+W", "close window shortcut"));
+	action_manager->addAction(d_actions.close_current_window, "close_current_window");
 	connect(d_actions.close_current_window, SIGNAL(triggered()), d_mdi_area, SLOT(closeActiveSubWindow()));
 
 	d_actions.close_all_windows = new QAction(tr("Close &All Windows"), this);
+	action_manager->addAction(d_actions.close_all_windows, "close_all_windows");
 	connect(d_actions.close_all_windows, SIGNAL(triggered()), d_mdi_area, SLOT(closeAllSubWindows()));
 
 	// TODO: duplicate action (or maybe in the part menu?)
@@ -271,12 +288,15 @@ void ProjectWindow::initMenus()
 	policy_action_group->setExclusive(true);
 
 	d_actions.visibility_folder = new QAction(tr("Current &Folder Only"), policy_action_group);
+	action_manager->addAction(d_actions.visibility_folder, "visibility_folder");
 	d_actions.visibility_folder->setCheckable(true);
 	d_actions.visibility_folder->setData(Project::folderOnly);
 	d_actions.visibility_subfolders = new QAction(tr("Current Folder and &Subfolders"), policy_action_group);
+	action_manager->addAction(d_actions.visibility_subfolders, "visibility_subfolders");
 	d_actions.visibility_subfolders->setCheckable(true);
 	d_actions.visibility_subfolders->setData(Project::folderAndSubfolders);
 	d_actions.visibility_all = new QAction(tr("&All"), policy_action_group);
+	action_manager->addAction(d_actions.visibility_all, "visibility_all");
 	d_actions.visibility_all->setCheckable(true);
 	d_actions.visibility_all->setData(Project::all);
 	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowVisibility(QAction*)));
@@ -509,6 +529,7 @@ void ProjectWindow::importAspect()
 void ProjectWindow::showKeyboardShortcutsDialog()
 {
 	QList<ActionManager *> managers;
+	managers.append(action_manager);
 	// TODO: add action manager for project window first
 	foreach(QObject *plugin, QPluginLoader::staticInstances()) 
 	{
