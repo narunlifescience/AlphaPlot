@@ -241,9 +241,90 @@ void MatrixSetCellValueCmd::undo()
 // end of class MatrixSetCellValueCmd
 ///////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetCoordinatesCmd
+///////////////////////////////////////////////////////////////////////////
+MatrixSetCoordinatesCmd::MatrixSetCoordinatesCmd( Matrix::Private * private_obj, double x1, double x2, double y1, double y2, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_private_obj(private_obj), d_new_x1(x1), d_new_x2(x2), d_new_y1(y1), d_new_y2(y2)
+{
+	setText(QObject::tr("%1: set matrix coordinates").arg(d_private_obj->name()));
+}
 
+MatrixSetCoordinatesCmd::~MatrixSetCoordinatesCmd()
+{
+}
 
+void MatrixSetCoordinatesCmd::redo()
+{
+	d_old_x1 = d_private_obj->xStart();
+	d_old_x2 = d_private_obj->xEnd();
+	d_old_y1 = d_private_obj->yStart();
+	d_old_y2 = d_private_obj->yEnd();
+	d_private_obj->setXStart(d_new_x1);
+	d_private_obj->setXEnd(d_new_x2);
+	d_private_obj->setYStart(d_new_y1);
+	d_private_obj->setYEnd(d_new_y2);
+}
 
+void MatrixSetCoordinatesCmd::undo()
+{
+	d_private_obj->setXStart(d_old_x1);
+	d_private_obj->setXEnd(d_old_x2);
+	d_private_obj->setYStart(d_old_y1);
+	d_private_obj->setYEnd(d_old_y2);
+}
 
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixSetCoordinatesCmd
+///////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetFormatCmd
+///////////////////////////////////////////////////////////////////////////
+MatrixSetFormatCmd::MatrixSetFormatCmd(Matrix::Private * private_obj, char new_format)
+	: d_private_obj(private_obj), d_other_format(new_format) 
+{
+	setText(QObject::tr("%1: set numeric format to '%2'").arg(d_private_obj->name()).arg(new_format));
+}
+
+void MatrixSetFormatCmd::redo() 
+{
+	char tmp = d_private_obj->numericFormat();
+	d_private_obj->setNumericFormat(d_other_format);
+	d_other_format = tmp;
+}
+
+void MatrixSetFormatCmd::undo() 
+{ 
+	redo(); 
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixClearCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetDigitsCmd
+///////////////////////////////////////////////////////////////////////////
+MatrixSetDigitsCmd::MatrixSetDigitsCmd(Matrix::Private * private_obj, int new_digits)
+	: d_private_obj(private_obj), d_other_digits(new_digits) 
+{
+	setText(QObject::tr("%1: set decimal digits to %2").arg(d_private_obj->name()).arg(new_digits));
+}
+
+void MatrixSetDigitsCmd::redo() 
+{
+	int tmp = d_private_obj->displayedDigits();
+	d_private_obj->setDisplayedDigits(d_other_digits);
+	d_other_digits = tmp;
+}
+
+void MatrixSetDigitsCmd::undo() 
+{ 
+	redo(); 
+}
+
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixClearCmd
+///////////////////////////////////////////////////////////////////////////
 

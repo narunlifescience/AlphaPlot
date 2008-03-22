@@ -34,6 +34,7 @@
 #include "core/AbstractScriptingEngine.h"
 #include "core/AbstractPart.h"
 #include "MatrixView.h"
+#include "lib/macros.h"
 
 class QContextMenuEvent;
 class QEvent;
@@ -78,6 +79,34 @@ class Matrix : public AbstractPart, public scripted
 		 * called at all. Aspects must not depend on the existence of a view for their operation.
 		 */
 		virtual QWidget *view();
+		//! Create a menu with selection related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createSelectionMenu(QMenu * append_to = 0);
+		//! Create a menu with column related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createColumnMenu(QMenu * append_to = 0);
+		//! Create a menu with row related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createRowMenu(QMenu * append_to = 0);
+		//! Create a menu with table related operations
+		/**
+		 * \param append_to if a pointer to a QMenu is passed
+		 * to the function, the actions are appended to
+		 * it instead of the creation of a new menu.
+		 */
+		QMenu * createMatrixMenu(QMenu * append_to = 0);
 		//! Fill the part specific menu for the main window including setting the title
 		/**
 		 * \return true on success, otherwise false (e.g. part has no actions).
@@ -96,9 +125,6 @@ class Matrix : public AbstractPart, public scripted
 		int columnCount() const;
 		//! Return the total number of rows
 		int rowCount() const;
-		// TODO: move this to abstract aspect?
-		//! Create a menu for the main application window
-		QMenu * createApplicationWindowMenu();
 
 		//! Set a plot menu 
 		/**
@@ -112,6 +138,19 @@ class Matrix : public AbstractPart, public scripted
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void copy(Matrix * other);
+		double xStart();
+		double yStart();
+		double xEnd();
+		double yEnd();
+		void setXStart(double x);
+		void setXEnd(double x);
+		void setYStart(double y);
+		void setYEnd(double y);
+		void setCoordinates(double x1, double x2, double y1, double y2);
+		char numericFormat() const;
+		int displayedDigits()  const;
+		void setNumericFormat(char format);
+		void setDisplayedDigits(int digits);
 
 	public:
 		static ActionManager * actionManager();
@@ -129,6 +168,7 @@ class Matrix : public AbstractPart, public scripted
 		void copySelection();
 		void pasteIntoSelection();
 		void clearSelectedCells();
+		void dimensionsDialog();
 		void goToCell();
 		//! Insert columns depending on the selection
 		void insertEmptyColumns();
@@ -154,6 +194,13 @@ class Matrix : public AbstractPart, public scripted
 		 * \param pos global position of the event 
 		*/
 		void showMatrixViewRowContextMenu(const QPoint& pos);
+		void editFormat();
+		void editCoordinates();
+		void editFormula();
+		//! Append as many columns as are selected
+		void addColumns();
+		//! Append as many rows as are selected
+		void addRows();
 
 	signals:
 		void columnsAboutToBeInserted(int before, int count);
@@ -168,33 +215,27 @@ class Matrix : public AbstractPart, public scripted
 
 	private:
 		void createActions();
+		void connectActions();
 		QMenu * d_plot_menu;
 
-// TODO: define matrix actions, this is stuff from table
-/*
 		//! \name selection related actions
 		//@{
 		QAction * action_cut_selection;
 		QAction * action_copy_selection;
 		QAction * action_paste_into_selection;
-		QAction * action_mask_selection;
-		QAction * action_unmask_selection;
-		QAction * action_set_formula;
 		QAction * action_clear_selection;
-		QAction * action_recalculate;
-		QAction * action_fill_row_numbers;
-		QAction * action_fill_random;
 		//@}
-		//! \name table related actions
+		//! \name matrix related actions
 		//@{
-		QAction * action_toggle_comments;
 		QAction * action_toggle_tabbar;
 		QAction * action_select_all;
-		QAction * action_add_column;
-		QAction * action_clear_table;
-		QAction * action_clear_masks;
-		QAction * action_sort_table;
+		QAction * action_clear_matrix;
 		QAction * action_go_to_cell;
+		QAction * action_dimensions_dialog;
+		QAction * action_edit_format;
+		QAction * action_edit_coordinates;
+		QAction * action_set_formula;
+		QAction * action_recalculate;
 		//@}
 		//! \name column related actions
 		//@{
@@ -202,17 +243,6 @@ class Matrix : public AbstractPart, public scripted
 		QAction * action_remove_columns;
 		QAction * action_clear_columns;
 		QAction * action_add_columns;
-		QAction * action_set_as_x;
-		QAction * action_set_as_y;
-		QAction * action_set_as_z;
-		QAction * action_set_as_xerr;
-		QAction * action_set_as_yerr;
-		QAction * action_set_as_none;
-		QAction * action_normalize_columns;
-		QAction * action_sort_columns;
-		QAction * action_statistics_columns;
-		QAction * action_type_format;
-		QAction * action_edit_description;
 		//@}
 		//! \name row related actions
 		//@{
@@ -220,9 +250,8 @@ class Matrix : public AbstractPart, public scripted
 		QAction * action_remove_rows;
 		QAction * action_clear_rows;
 		QAction * action_add_rows;
-		QAction * action_statistics_rows;
 		//@}
-*/
+
 		MatrixView *d_view;
 		Private *d_matrix_private;
 };
@@ -293,7 +322,14 @@ class Matrix::Private
 		void setDisplayedDigits(int digits) { d_displayed_digits = digits; }
 		//! Fill column with zeroes
 		void clearColumn(int col);
+		BASIC_ACCESSOR(double, d_x_start, xStart, XStart);
+		BASIC_ACCESSOR(double, d_y_start, yStart, YStart);
+		BASIC_ACCESSOR(double, d_x_end, xEnd, XEnd);
+		BASIC_ACCESSOR(double, d_y_end, yEnd, YEnd);
 
+
+		// TODO: signals for format change etc.
+		
 	private:
 		//! The owner aspect
 		Matrix *d_owner;

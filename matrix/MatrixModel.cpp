@@ -91,6 +91,7 @@ QVariant MatrixModel::data(const QModelIndex &index, int role) const
 
 QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+	QString result;
 	switch(orientation) 
 	{
 		case Qt::Horizontal:
@@ -98,14 +99,42 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int r
 			{
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
-					return QVariant(QString::number(section+1));
+					result += QString::number(section+1) + QString(" (");
+					double diff = d_matrix->xEnd() - d_matrix->xStart();
+					double step = 0.0;
+					if (d_matrix->columnCount() > 1)
+						step = diff/double(d_matrix->columnCount()-1);
+					// TODO: implement decent double == 0 check
+					if (diff < 1e-10)
+						result += QLocale().toString(d_matrix->xStart(), 
+								d_matrix->numericFormat(), d_matrix->displayedDigits());
+					else
+						result += QLocale().toString(d_matrix->xStart()+double(section)*step, 
+								d_matrix->numericFormat(), d_matrix->displayedDigits());
+
+					result += QString(")");
+					return QVariant(result);
 			}
 		case Qt::Vertical:
 			switch(role) 
 			{
 				case Qt::DisplayRole:
 				case Qt::ToolTipRole:
-					return QVariant(QString::number(section+1));
+					result += QString::number(section+1) + QString(" (");
+					double diff = d_matrix->yEnd() - d_matrix->yStart();
+					double step = 0.0;
+					if (d_matrix->rowCount() > 1)
+						step = diff/double(d_matrix->rowCount()-1);
+					// TODO: implement decent double == 0 check
+					if (diff < 1e-10)
+						result += QLocale().toString(d_matrix->yStart(), 
+								d_matrix->numericFormat(), d_matrix->displayedDigits());
+					else
+						result += QLocale().toString(d_matrix->yStart()+double(section)*step, 
+								d_matrix->numericFormat(), d_matrix->displayedDigits());
+
+					result += QString(")");
+					return QVariant(result);
 			}
 	}
 	return QVariant();

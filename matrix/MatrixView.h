@@ -48,6 +48,7 @@
 #include <QSpinBox> 
 #include <QScrollArea>
 #include "globals.h"
+#include "ui_matrixcontroltabs.h"
 
 class Matrix;
 class MatrixModel;
@@ -82,7 +83,6 @@ class MatrixView : public QWidget
 		MatrixView(Matrix *matrix);
 		//! Destructor
 		virtual ~MatrixView();
-		// TODO: control bar for matrix
 		bool isControlTabBarVisible() { return d_control_tabs->isVisible(); }
 
 		//! \name selection related functions
@@ -148,11 +148,10 @@ class MatrixView : public QWidget
 	public slots:
 		void goToCell(int row, int col);
 		void selectAll();
-		// TODO: control bar for matrix
 		void toggleControlTabBar();
-	//	void showControlDescriptionTab();
-	//	void showControlTypeTab();
-	//	void showControlFormulaTab();
+		void showControlCoordinatesTab();
+		void showControlFormatTab();
+		void showControlFormulaTab();
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
@@ -168,8 +167,7 @@ class MatrixView : public QWidget
 		bool eventFilter( QObject * watched, QEvent * event);
 
 	private:
-		// TODO
-	//	Ui::ControlTabs ui;
+		Ui::MatrixControlTabs ui;
 		//! The matrix view (first part of the UI)
 		MatrixViewWidget * d_view_widget;
 		//! Widget that contains the control tabs UI from #ui

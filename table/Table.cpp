@@ -1150,8 +1150,9 @@ void Table::showTableViewColumnContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+// TODO: Does undo/redo really be belong into a context menu?
+//	context_menu.addAction(undoAction(&context_menu));
+//	context_menu.addAction(redoAction(&context_menu));
 
 	if(d_plot_menu)
 	{
@@ -1169,8 +1170,9 @@ void Table::showTableViewRowContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+// TODO: Does undo/redo really be belong into a context menu?
+//	context_menu.addAction(undoAction(&context_menu));
+//	context_menu.addAction(redoAction(&context_menu));
 
 	createRowMenu(&context_menu);
 

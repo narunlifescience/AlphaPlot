@@ -394,21 +394,21 @@ void TableView::updateTypeInfo()
 void TableView::showControlDescriptionTab()
 {
 	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::DownArrow);
+	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(0);
 }
 
 void TableView::showControlTypeTab()
 {
 	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::DownArrow);
+	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(1);
 }
 
 void TableView::showControlFormulaTab()
 {
 	d_control_tabs->setVisible(true);
-	d_hide_button->setArrowType(Qt::DownArrow);
+	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(2);
 }
 

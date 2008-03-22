@@ -411,6 +411,7 @@ void ProjectWindow::handleCurrentSubWindowChanged(QMdiSubWindow* win)
 	emit partActivated(view->part());
 	if (view->status() == PartMdiView::Visible)
 		d_menus.part->setEnabled(view->part()->fillProjectMenu(d_menus.part)); 
+	d_project_explorer->setCurrentAspect(view->part());
 }
 
 void ProjectWindow::handleSubWindowStatusChange(PartMdiView * view, PartMdiView::SubWindowStatus from, PartMdiView::SubWindowStatus to) 

@@ -1,6 +1,14 @@
 <ui version="4.0" >
  <class>ControlTabs</class>
  <widget class="QWidget" name="ControlTabs" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>260</width>
+    <height>230</height>
+   </rect>
+  </property>
   <property name="sizePolicy" >
    <sizepolicy vsizetype="MinimumExpanding" hsizetype="Minimum" >
     <horstretch>0</horstretch>
@@ -337,7 +345,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="2" column="0" colspan="2" >
-        <widget class="QComboBox" name="comboBox_5" >
+        <widget class="QComboBox" name="add_function_combobox" >
          <property name="minimumSize" >
           <size>
            <width>120</width>
@@ -366,7 +374,7 @@ p, li { white-space: pre-wrap; }
         </widget>
        </item>
        <item row="3" column="0" colspan="2" >
-        <widget class="QComboBox" name="comboBox_4" >
+        <widget class="QComboBox" name="add_reference_combobox" >
          <property name="minimumSize" >
           <size>
            <width>120</width>

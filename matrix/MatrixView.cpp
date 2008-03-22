@@ -80,7 +80,7 @@ void MatrixView::init()
 	d_main_layout->addWidget(d_hide_button);
 	connect(d_hide_button, SIGNAL(pressed()), this, SLOT(toggleControlTabBar()));
 	d_control_tabs = new QWidget();
-//    ui.setupUi(d_control_tabs);
+    ui.setupUi(d_control_tabs);
 	d_main_layout->addWidget(d_control_tabs);
 
 	d_view_widget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -126,7 +126,7 @@ void MatrixView::changeEvent(QEvent * event)
 void MatrixView::retranslateStrings()
 {
 	d_hide_button->setToolTip(tr("Show/hide control tabs"));
-//TODO    ui.retranslateUi(d_control_tabs);
+    ui.retranslateUi(d_control_tabs);
 }
 	
 void MatrixView::advanceCell()
@@ -290,6 +290,27 @@ bool MatrixView::eventFilter(QObject * watched, QEvent * event)
 		return QWidget::eventFilter(watched, event);
 }
 	
+void MatrixView::showControlCoordinatesTab()
+{
+	d_control_tabs->setVisible(true);
+	d_hide_button->setArrowType(Qt::RightArrow);
+	ui.tab_widget->setCurrentIndex(0);
+}
+
+void MatrixView::showControlFormatTab()
+{
+	d_control_tabs->setVisible(true);
+	d_hide_button->setArrowType(Qt::RightArrow);
+	ui.tab_widget->setCurrentIndex(1);
+}
+
+void MatrixView::showControlFormulaTab()
+{
+	d_control_tabs->setVisible(true);
+	d_hide_button->setArrowType(Qt::RightArrow);
+	ui.tab_widget->setCurrentIndex(2);
+}
+
 /* ================== MatrixViewWidget ================ */
 
 void MatrixViewWidget::selectAll()

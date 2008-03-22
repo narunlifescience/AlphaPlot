@@ -73,6 +73,7 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QStrin
 
 	d_view = new MatrixView(this); 
 	createActions();
+	connectActions();
 }
 
 Matrix::Matrix()
@@ -135,8 +136,8 @@ void Matrix::setDimensions(int rows, int cols)
 	if( (rows < 0) || (cols < 0 ) || (rows == rowCount() && cols == columnCount()) ) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: set matrix size to %2x%3").arg(name()).arg(rows).arg(cols));
-	int col_diff = columnCount() - cols;
-	int row_diff = rowCount() - rows;
+	int col_diff = cols - columnCount();
+	int row_diff = rows - rowCount();
 	if(col_diff > 0)
 		exec(new MatrixInsertColumnsCmd(d_matrix_private, columnCount(), col_diff));
 	else if(col_diff < 0)
@@ -280,7 +281,7 @@ void Matrix::pasteIntoSelection()
 			{
 				if(d_view->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
 				{
-					setCell(first_row + c, first_col + c, cell_texts.at(r).at(c).toDouble());
+					setCell(first_row + r, first_col + c, cell_texts.at(r).at(c).toDouble());
 				}
 			}
 		}
@@ -426,61 +427,312 @@ QMenu *Matrix::createContextMenu() const
 	return menu;
 }
 
+QMenu * Matrix::createSelectionMenu(QMenu * append_to)
+{
+	QMenu * menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_cut_selection);
+	menu->addAction(action_copy_selection);
+	menu->addAction(action_paste_into_selection);
+	menu->addAction(action_clear_selection);
+
+	return menu;
+}
+
+
+QMenu * Matrix::createColumnMenu(QMenu * append_to)
+{
+	QMenu * menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_insert_columns);
+	menu->addAction(action_remove_columns);
+	menu->addAction(action_clear_columns);
+	menu->addSeparator();
+	menu->addAction(action_edit_coordinates);
+	
+	return menu;
+}
+
+QMenu * Matrix::createMatrixMenu(QMenu * append_to) 
+{
+	QMenu * menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_toggle_tabbar);
+	menu->addSeparator();
+	menu->addAction(action_select_all);
+	menu->addAction(action_clear_matrix);
+	menu->addSeparator();
+	menu->addAction(action_set_formula);
+	menu->addAction(action_recalculate);
+	menu->addSeparator();
+	menu->addAction(action_edit_format);
+	menu->addSeparator();
+	menu->addAction(action_go_to_cell);
+
+	return menu;
+}
+
+QMenu * Matrix::createRowMenu(QMenu * append_to) 
+{
+	QMenu * menu = append_to;
+	if(!menu)
+		menu = new QMenu();
+
+	menu->addAction(action_insert_rows);
+	menu->addAction(action_remove_rows);
+	menu->addAction(action_clear_rows);
+	menu->addSeparator();
+	menu->addAction(action_edit_coordinates);
+
+	return menu;
+}
+
+
 void Matrix::createActions()
 {
-	//TODO
+	QIcon * icon_temp;
+
+	// selection related actions
+	action_cut_selection = new QAction(QIcon(QPixmap(":/cut.xpm")), tr("Cu&t"), this);
+	actionManager()->addAction(action_cut_selection, "cut_selection");
+
+	action_copy_selection = new QAction(QIcon(QPixmap(":/copy.xpm")), tr("&Copy"), this);
+	actionManager()->addAction(action_copy_selection, "copy_selection");
+
+	action_paste_into_selection = new QAction(QIcon(QPixmap(":/paste.xpm")), tr("Past&e"), this);
+	actionManager()->addAction(action_paste_into_selection, "paste_into_selection"); 
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear.png"));
+	action_clear_selection = new QAction(*icon_temp, tr("Clea&r","clear selection"), this);
+	actionManager()->addAction(action_clear_selection, "clear_selection"); 
+	delete icon_temp;
+
+	// matrix related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/fx.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/fx.png"));
+	action_set_formula = new QAction(*icon_temp, tr("Assign &Formula"), this);
+	actionManager()->addAction(action_set_formula, "set_formula"); 
+	delete icon_temp;
+	
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
+	action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
+	actionManager()->addAction(action_recalculate, "recalculate"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/table_options.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/table_options.png"));
+	action_toggle_tabbar = new QAction(*icon_temp, QString("Show/Hide Controls"), this); // show/hide control tabs
+	actionManager()->addAction(action_toggle_tabbar, "toggle_tabbar"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/select_all.png"));
+	action_select_all = new QAction(*icon_temp, tr("Select All"), this);
+	actionManager()->addAction(action_select_all, "select_all"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_table.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_table.png"));
+	action_clear_matrix = new QAction(*icon_temp, tr("Clear Matrix"), this);
+	actionManager()->addAction(action_clear_matrix, "clear_matrix"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
+	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
+	actionManager()->addAction(action_go_to_cell, "go_to_cell"); 
+	delete icon_temp;
+
+	action_dimensions_dialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Dimensions", "matrix size"), this);
+	actionManager()->addAction(action_dimensions_dialog, "dimensions_dialog"); 
+	
+	action_edit_coordinates = new QAction(tr("Set &Coordinates"), this);
+	actionManager()->addAction(action_edit_coordinates, "edit_coordinates"); 
+	
+	action_edit_format = new QAction(tr("Set Display &Format"), this);
+	actionManager()->addAction(action_edit_format, "edit_format"); 
+
+	// column related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_column.png"));
+	action_insert_columns = new QAction(*icon_temp, tr("&Insert Empty Columns"), this);
+	actionManager()->addAction(action_insert_columns, "insert_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_column.png"));
+	action_remove_columns = new QAction(*icon_temp, tr("Remo&ve Columns"), this);
+	actionManager()->addAction(action_remove_columns, "remove_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_column.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_column.png"));
+	action_clear_columns = new QAction(*icon_temp, tr("Clea&r Columns"), this);
+	actionManager()->addAction(action_clear_columns, "clear_columns"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_columns.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_columns.png"));
+	action_add_columns = new QAction(*icon_temp, tr("&Add Columns"), this);
+	actionManager()->addAction(action_add_columns, "add_columns"); 
+	delete icon_temp;
+
+	// row related actions
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/insert_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/insert_row.png"));
+	action_insert_rows = new QAction(*icon_temp ,tr("&Insert Empty Rows"), this);;
+	actionManager()->addAction(action_insert_rows, "insert_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/remove_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/remove_row.png"));
+	action_remove_rows = new QAction(*icon_temp, tr("Remo&ve Rows"), this);;
+	actionManager()->addAction(action_remove_rows, "remove_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/clear_row.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/clear_row.png"));
+	action_clear_rows = new QAction(*icon_temp, tr("Clea&r Rows"), this);;
+	actionManager()->addAction(action_clear_rows, "clear_rows"); 
+	delete icon_temp;
+
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
+	action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);;
+	actionManager()->addAction(action_add_rows, "add_rows"); 
+	delete icon_temp;
 }
+
+void Matrix::connectActions()
+{
+	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
+	d_view->addAction(action_cut_selection);
+	connect(action_copy_selection, SIGNAL(triggered()), this, SLOT(copySelection()));
+	d_view->addAction(action_copy_selection);
+	connect(action_paste_into_selection, SIGNAL(triggered()), this, SLOT(pasteIntoSelection()));
+	d_view->addAction(action_paste_into_selection);
+	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(editFormula()));
+	d_view->addAction(action_set_formula);
+	connect(action_edit_coordinates, SIGNAL(triggered()), this, SLOT(editCoordinates()));
+	d_view->addAction(action_edit_coordinates);
+	connect(action_edit_format, SIGNAL(triggered()), this, SLOT(editFormat()));
+	d_view->addAction(action_edit_format);
+	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
+	d_view->addAction(action_clear_selection);
+// TODO: Formula support
+//	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculate()));
+	d_view->addAction(action_recalculate);
+	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
+	d_view->addAction(action_toggle_tabbar);
+	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
+	d_view->addAction(action_select_all);
+	connect(action_clear_matrix, SIGNAL(triggered()), this, SLOT(clear()));
+	d_view->addAction(action_clear_matrix);
+	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
+	d_view->addAction(action_go_to_cell);
+	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
+	d_view->addAction(action_dimensions_dialog);
+	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
+	d_view->addAction(action_insert_columns);
+	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
+	d_view->addAction(action_remove_columns);
+	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
+	d_view->addAction(action_clear_columns);
+	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
+	d_view->addAction(action_insert_rows);
+	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
+	d_view->addAction(action_remove_rows);
+	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
+	d_view->addAction(action_clear_rows);
+	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
+	d_view->addAction(action_add_columns);
+	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+	d_view->addAction(action_add_rows);
+}
+
 
 bool Matrix::fillProjectMenu(QMenu * menu)
 {
 	menu->setTitle(tr("&Matrix"));
-	// TODO: this is not yet the final selection of actions for the menu
-	menu->addAction("dummy1");
-	menu->addAction("dummy2");
+
+	menu->addAction(action_toggle_tabbar);
+	menu->addSeparator();
+	menu->addAction(action_edit_coordinates);
+	menu->addAction(action_dimensions_dialog);
+	menu->addAction(action_edit_format);
+	menu->addSeparator();
+	menu->addAction(action_set_formula);
+	menu->addAction(action_recalculate);
+	menu->addSeparator();
+	menu->addAction(action_clear_matrix);
+	menu->addSeparator();
+	menu->addAction(action_go_to_cell);
+
 	return true;
+
+	// TODO:
+	// Convert to Table
+	// Export 
 }
 
 void Matrix::showMatrixViewContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+	createSelectionMenu(&context_menu);
+	context_menu.addSeparator();
+	createMatrixMenu(&context_menu);
+	context_menu.addSeparator();
 
-	//TODO
+	QString action_name;
+	if(d_view->isControlTabBarVisible()) 
+		action_name = tr("Hide Controls");
+	else
+		action_name = tr("Show Controls");
+	action_toggle_tabbar->setText(action_name);
+
+	context_menu.exec(pos);
 }
 
 void Matrix::showMatrixViewColumnContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+	createColumnMenu(&context_menu);
 
-	//TODO
+	context_menu.exec(pos);
 }
 
 void Matrix::showMatrixViewRowContextMenu(const QPoint& pos)
 {
 	QMenu context_menu;
 	
-	context_menu.addAction(undoAction(&context_menu));
-	context_menu.addAction(redoAction(&context_menu));
+	createRowMenu(&context_menu);
 
-	//TODO
-}
-
-// This probably needs to be moved to the main window
-QMenu * Matrix::createApplicationWindowMenu()
-{
-	QMenu * menu = new QMenu(tr("Matrix"));
-
-	//TODO
-	// [Context Menu]
-	// Show/Hide Matrix Controls (Dock)
-	// Set Dimensions
-	// Convert to Table
-	return menu;
+	context_menu.exec(pos);
 }
 
 void Matrix::goToCell()
@@ -521,7 +773,7 @@ QIcon Matrix::icon() const
 
 QString Matrix::text(int row, int col)
 {
-	return QString::number(cell(row,col), d_matrix_private->numericFormat(), d_matrix_private->displayedDigits());
+	return QLocale().toString(cell(row,col), d_matrix_private->numericFormat(), d_matrix_private->displayedDigits());
 }
 
 void Matrix::selectAll()
@@ -535,6 +787,136 @@ void Matrix::setCell(int row, int col, double value)
 	if(col < 0 || col >= columnCount()) return;
 	exec(new MatrixSetCellValueCmd(d_matrix_private, row, col, value));
 }
+
+void Matrix::dimensionsDialog()
+{
+	bool ok;
+
+	int cols = QInputDialog::getInteger(0, tr("Set Matrix Dimensions"), tr("Enter number of columns"),
+			columnCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+
+	int rows = QInputDialog::getInteger(0, tr("Set Matrix Dimensions"), tr("Enter number of rows"),
+			rowCount(), 1, 1e9, 1, &ok);
+	if ( !ok ) return;
+	
+	setDimensions(rows, cols);
+}
+
+void Matrix::editFormat()
+{
+	d_view->showControlFormatTab();
+}
+
+void Matrix::editCoordinates()
+{
+	d_view->showControlCoordinatesTab();
+}
+
+void Matrix::editFormula()
+{
+	d_view->showControlFormulaTab();
+}
+
+void Matrix::addRows()
+{
+	WAIT_CURSOR;
+	int count = d_view->selectedRowCount(false);
+	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
+	exec(new MatrixInsertRowsCmd(d_matrix_private, rowCount(), count));
+	endMacro();
+	RESET_CURSOR;
+}
+
+void Matrix::addColumns()
+{
+	WAIT_CURSOR;
+	int count = d_view->selectedRowCount(false);
+	beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));
+	exec(new MatrixInsertColumnsCmd(d_matrix_private, columnCount(), count));
+	endMacro();
+	RESET_CURSOR;
+}
+
+void Matrix::setXStart(double x)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetCoordinatesCmd(d_matrix_private, x, xEnd(), yStart(), yEnd()));
+	RESET_CURSOR;
+}
+
+void Matrix::setXEnd(double x)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetCoordinatesCmd(d_matrix_private, xStart(), x, yStart(), yEnd()));
+	RESET_CURSOR;
+}
+
+void Matrix::setYStart(double y)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetCoordinatesCmd(d_matrix_private, xStart(), xEnd(), y, yEnd()));
+	RESET_CURSOR;
+}
+
+void Matrix::setYEnd(double y)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetCoordinatesCmd(d_matrix_private, xStart(), xEnd(), yStart(), y));
+	RESET_CURSOR;
+}
+
+void Matrix::setCoordinates(double x1, double x2, double y1, double y2)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetCoordinatesCmd(d_matrix_private, x1, x2, y1, y2));
+	RESET_CURSOR;
+}
+
+void Matrix::setNumericFormat(char format)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetFormatCmd(d_matrix_private, format));
+	RESET_CURSOR;
+}
+
+void Matrix::setDisplayedDigits(int digits)
+{
+	WAIT_CURSOR;
+	exec(new MatrixSetDigitsCmd(d_matrix_private, digits));
+	RESET_CURSOR;
+}
+
+double Matrix::xStart() 
+{ 
+	return d_matrix_private->xStart(); 
+}
+
+double Matrix::yStart() 
+{ 
+	return d_matrix_private->yStart(); 
+}
+
+double Matrix::xEnd() 
+{ 
+	return d_matrix_private->xEnd(); 
+}
+
+double Matrix::yEnd() 
+{ 
+	return d_matrix_private->yEnd(); 
+}
+
+char Matrix::numericFormat() const 
+{ 
+	return d_matrix_private->numericFormat(); 
+}
+
+int Matrix::displayedDigits() const 
+{ 
+	return d_matrix_private->displayedDigits(); 
+}
+
 
 /* ========================= static methods ======================= */
 ActionManager * Matrix::action_manager = 0;
@@ -564,6 +946,10 @@ Matrix::Private::Private(Matrix *owner)
 {
 	d_numeric_format = 'f';
 	d_displayed_digits = 6;
+	d_x_start = 0.0;
+	d_x_end = 1.0;  
+	d_y_start = 0.0; 
+	d_y_end = 1.0;
 }
 
 void Matrix::Private::insertColumns(int before, int count)

@@ -202,6 +202,7 @@ class Table : public AbstractPart, public scripted
 		void addColumn();
 		//! Append as many columns as are selected
 		void addColumns();
+		//! Append as many rows as are selected
 		void addRows();
 		void cutSelection();
 		void copySelection();
