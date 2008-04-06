@@ -110,6 +110,17 @@ Column * Table::column(int index) const
 	return d_table_private->column(index); 
 }
 
+Column * Table::column(const QString & name) const
+{ 
+	for (int i=0; i<columnCount(); i++)
+	{
+		if (d_table_private->column(i)->name() == name); 
+			return d_table_private->column(i);
+	}
+
+	return NULL;
+}
+
 QWidget *Table::view()
 {
 	return d_view;
@@ -1766,6 +1777,10 @@ void Table::initActionManager()
 
 /* ========================== Table::Private ====================== */
 
+Column * Table::Private::column(int index) const		
+{ 
+	return d_columns.value(index); 
+}
 
 void Table::Private::replaceColumns(int first, QList<Column*> new_cols)
 {

@@ -124,7 +124,15 @@ class Table : public AbstractPart, public scripted
 		bool areCommentsShown() const;
 		//! Return the number of columns matching the given designation
 		int columnCount(SciDAVis::PlotDesignation pd) const;
+		//! Return column number 'index'
 		Column* column(int index) const;
+		//! Return the column determined by the given name
+		/**
+		 * This method should not be used unless absolutely necessary. 
+		 * Columns should be addressed by their index. 
+		 * This method is mainly meant to be used in scripts.
+		 */
+		Column* column(const QString & name) const;
 		int columnIndex(const Column * col) const;
 		//! Set the number of columns
 		void setColumnCount(int new_size);
@@ -441,7 +449,8 @@ class Table::Private
 		QString columnHeader(int col);
 		//! Return the number of columns with a given plot designation
 		int numColsWithPD(SciDAVis::PlotDesignation pd);
-		Column* column(int index) const { return d_columns.value(index); }
+		//! Return column number 'index'
+		Column* column(int index) const;
 		//! Return the index of the given column in the table.
 		/**
 		 * \return the index or -1 if the column is not in the table

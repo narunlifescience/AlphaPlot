@@ -104,13 +104,8 @@ QVariant MatrixModel::headerData(int section, Qt::Orientation orientation, int r
 					double step = 0.0;
 					if (d_matrix->columnCount() > 1)
 						step = diff/double(d_matrix->columnCount()-1);
-					// TODO: implement decent double == 0 check
-					if (diff < 1e-10)
-						result += QLocale().toString(d_matrix->xStart(), 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
-					else
-						result += QLocale().toString(d_matrix->xStart()+double(section)*step, 
-								d_matrix->numericFormat(), d_matrix->displayedDigits());
+					result += QLocale().toString(d_matrix->xStart()+double(section)*step, 
+							d_matrix->numericFormat(), d_matrix->displayedDigits());
 
 					result += QString(")");
 					return QVariant(result);
