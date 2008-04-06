@@ -135,7 +135,7 @@ emit clearFunctionsList();
 
 void FunctionDialog3D::setFunction(const QString& s)
 {
-boxFunction->setCurrentText(s);
+	boxFunction->setItemText(boxFunction->currentIndex(), s);
 }
 
 void FunctionDialog3D::setLimits(double xs, double xe, double ys, double ye, double zs, double ze)
@@ -150,12 +150,12 @@ void FunctionDialog3D::setLimits(double xs, double xe, double ys, double ye, dou
 
 void FunctionDialog3D::accept()
 {
-QString Xfrom=boxXFrom->text().lower();
-QString Xto=boxXTo->text().lower();
-QString Yfrom=boxYFrom->text().lower();
-QString Yto=boxYTo->text().lower();
-QString Zfrom=boxZFrom->text().lower();
-QString Zto=boxZTo->text().lower();
+QString Xfrom=boxXFrom->text().toLower();
+QString Xto=boxXTo->text().toLower();
+QString Yfrom=boxYFrom->text().toLower();
+QString Yto=boxYTo->text().toLower();
+QString Zfrom=boxZFrom->text().toLower();
+QString Zto=boxZTo->text().toLower();
 
 double fromX, toX, fromY,toY, fromZ,toZ;
 try
@@ -275,7 +275,7 @@ if (!error)
 
 void FunctionDialog3D::insertFunctionsList(const QStringList& list)
 {
-boxFunction->insertStringList (list, 1);
+	boxFunction->insertItems(1, list);
 }
 
 FunctionDialog3D::~FunctionDialog3D()

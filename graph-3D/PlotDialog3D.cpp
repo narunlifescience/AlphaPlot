@@ -138,7 +138,7 @@ void PlotDialog3D::initScalesPage()
 
     scale = new QWidget();
     scale->setLayout(hb);
-	generalDialog->insertTab(scale, tr( "&Scale" ) );
+	generalDialog->addTab(scale, tr( "&Scale" ) );
 }
 
 void PlotDialog3D::initAxesPage()
@@ -183,7 +183,7 @@ void PlotDialog3D::initAxesPage()
 
     axes = new QWidget();
     axes->setLayout(hb2);
-	generalDialog->insertTab(axes, tr( "&Axis" ) );
+	generalDialog->addTab(axes, tr( "&Axis" ) );
 
 	connect( buttonAxisLowerGreek, SIGNAL(clicked()), this, SLOT(showLowerGreek()));
 	connect( buttonAxisUpperGreek, SIGNAL(clicked()), this, SLOT(showUpperGreek()));
@@ -214,7 +214,7 @@ void PlotDialog3D::initTitlePage()
 
     title = new QWidget();
     title->setLayout(vl);
-	generalDialog->insertTab(title, tr( "&Title" ) );
+	generalDialog->addTab(title, tr( "&Title" ) );
 
 	connect( btnTitleColor, SIGNAL(clicked()), this, SLOT(pickTitleColor() ) );
 	connect( btnTitleFont, SIGNAL(clicked()), this, SLOT(pickTitleFont() ) );
@@ -279,7 +279,7 @@ void PlotDialog3D::initColorsPage()
 
     colors = new QWidget();
     colors->setLayout(vl);
-	generalDialog->insertTab(colors, tr( "&Colors" ) );
+	generalDialog->addTab(colors, tr( "&Colors" ) );
 
 	connect( btnAxes, SIGNAL( clicked() ), this, SLOT(pickAxesColor() ) );
 	connect( btnLabels, SIGNAL( clicked() ), this, SLOT(pickLabelColor() ) );
@@ -361,7 +361,7 @@ void PlotDialog3D::initGeneralPage()
 
     general = new QWidget();
     general->setLayout(hl);
-	generalDialog->insertTab(general, tr( "&General" ) );
+	generalDialog->addTab(general, tr( "&General" ) );
 
 	connect( boxResolution, SIGNAL(valueChanged(int)), this, SIGNAL(updateResolution(int)));
 	connect( boxDistance, SIGNAL(valueChanged(int)), this, SIGNAL(adjustLabels(int)));
@@ -445,7 +445,7 @@ void PlotDialog3D::initPointsOptionsStack()
     points = new QWidget();
     points->setLayout(vl);
 
-	generalDialog->insertTab(points, tr( "Points" ),4 );
+	generalDialog->insertTab(4, points, tr( "Points" ));
 	connect( boxPointStyle, SIGNAL( activated(int) ), optionStack, SLOT( setCurrentIndex(int) ) );
 }
 
@@ -455,7 +455,7 @@ void PlotDialog3D::showLowerGreek()
 	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
 	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
 	greekLetters->show();
-	greekLetters->setActiveWindow();
+	greekLetters->activateWindow();
 }
 
 void PlotDialog3D::showUpperGreek()
@@ -464,7 +464,7 @@ void PlotDialog3D::showUpperGreek()
 	greekLetters->setAttribute(Qt::WA_DeleteOnClose);
 	connect(greekLetters, SIGNAL(addLetter(const QString&)), this, SLOT(addSymbol(const QString&)));
 	greekLetters->show();
-	greekLetters->setActiveWindow();
+	greekLetters->activateWindow();
 }
 
 void PlotDialog3D::addSymbol(const QString& letter)
@@ -498,7 +498,7 @@ void PlotDialog3D::disableGridOptions()
 void PlotDialog3D::disableAxesOptions()
 {
 	TicksGroupBox->setDisabled(true);
-	generalDialog->setTabEnabled(axes,false);
+	generalDialog->setTabEnabled(generalDialog->indexOf(axes),false);
 	AxesColorGroupBox->setDisabled(true);
 	boxDistance->setDisabled(true);
 	btnNumbersFont->setDisabled(true);
@@ -512,12 +512,12 @@ void PlotDialog3D::showBarsTab(double rad)
 	boxBarsRad = new QLineEdit();
 	boxBarsRad->setText(QString::number(rad));
 
-	generalDialog->insertTab(bars, tr( "Bars" ),4 );
+	generalDialog->insertTab(4, bars, tr( "Bars" ));
 }
 
 void PlotDialog3D::showPointsTab(double rad, bool smooth)
 {
-	boxPointStyle->setCurrentItem(0);
+	boxPointStyle->setCurrentIndex(0);
 	boxSize->setText(QString::number(rad));
 	boxSmooth->setChecked(smooth);
 	optionStack->setCurrentIndex (0);
@@ -525,7 +525,7 @@ void PlotDialog3D::showPointsTab(double rad, bool smooth)
 
 void PlotDialog3D::showConesTab(double rad, int quality)
 {
-	boxPointStyle->setCurrentItem(2);
+	boxPointStyle->setCurrentIndex(2);
 	boxConesRad->setText(QString::number(rad));
 	boxQuality->setValue(quality);
 	optionStack->setCurrentIndex (2);
@@ -533,7 +533,7 @@ void PlotDialog3D::showConesTab(double rad, int quality)
 
 void PlotDialog3D::showCrossHairTab(double rad, double linewidth, bool smooth, bool boxed)
 {
-	boxPointStyle->setCurrentItem(1);
+	boxPointStyle->setCurrentIndex(1);
 	boxCrossRad->setText(QString::number(rad));
 	boxCrossLinewidth->setText(QString::number(linewidth));
 	boxCrossSmooth->setChecked(smooth);
@@ -559,7 +559,7 @@ void PlotDialog3D::setLabelsDistance(int dist)
 
 void PlotDialog3D::pickDataColorMap()
 {
-QString fn = QFileDialog::getOpenFileName(d_plot->colorMap(), tr("Colormap files") + " (*.map *.MAP)", this);
+QString fn = QFileDialog::getOpenFileName(this, tr("Select color map"), d_plot->colorMap(), tr("Colormap files") + " (*.map *.MAP)");
 if (!fn.isEmpty())
    emit setDataColorMap(fn);
 }
@@ -687,7 +687,7 @@ void PlotDialog3D::setScales(const QStringList& list)
 	boxTo->setText(scales[1]);
 	boxMajors->setValue(scales[2].toInt());
 	boxMinors->setValue(scales[3].toInt());
-	boxType->setCurrentItem(scales[4].toInt());
+	boxType->setCurrentIndex(scales[4].toInt());
 }
 
 void PlotDialog3D::setAxesTickLengths(const QStringList& list)
@@ -703,7 +703,7 @@ void PlotDialog3D::viewScaleLimits(int axis)
 	boxTo->setText(scales[5*axis+1]);
 	boxMajors->setValue(scales[5*axis+2].toInt());
 	boxMinors->setValue(scales[5*axis+3].toInt());
-	boxType->setCurrentItem(scales[5*axis+4].toInt());
+	boxType->setCurrentIndex(scales[5*axis+4].toInt());
 }
 
 void PlotDialog3D::setTitle(const QString& title)
@@ -785,12 +785,12 @@ bool PlotDialog3D::updatePlot()
 
 	if (generalDialog->currentWidget()==(QWidget*)points)
 	{
-		if (boxPointStyle->currentItem() == 0)
+		if (boxPointStyle->currentIndex() == 0)
 			emit updatePoints(boxSize->text().toDouble(), boxSmooth->isChecked());
-		else if (boxPointStyle->currentItem() == 1)
+		else if (boxPointStyle->currentIndex() == 1)
 			emit updateCross(boxCrossRad->text().toDouble(), boxCrossLinewidth->text().toDouble(),
 					boxCrossSmooth->isChecked(), boxBoxed->isChecked());
-		else if (boxPointStyle->currentItem() == 2)
+		else if (boxPointStyle->currentIndex() == 2)
 			emit updateCones(boxConesRad->text().toDouble(), boxQuality->value());
 	}
 
@@ -886,7 +886,7 @@ QStringList PlotDialog3D::scaleOptions(int axis, double start, double end,
 	l<<QString::number(end);
 	l<<majors;
 	l<<minors;
-	l<<QString::number(boxType->currentItem());
+	l<<QString::number(boxType->currentIndex());
 
 	for (int i=0;i<5;i++)
 		scales[5*axis+i]=l[i];
