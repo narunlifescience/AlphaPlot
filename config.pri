@@ -14,6 +14,8 @@ MODULES = table notes matrix
 ### support for Python scripting
 MODULES += python
 
+#MODULES += graph3D
+
 ### what to install and where
 INSTALLS += documentation
 unix: INSTALLBASE = /usr
@@ -93,7 +95,7 @@ win32:LIBS         += c:/qwt-5.0.2/lib/libqwt.a
 ### GRAPH-3D MODULE OPTIONS
 ################################################################################
 
-contains(MODULES, graph-3d) {
+contains(MODULES, graph3D) {
 
 ### Default for Linux / Mac OS X:
 ### Link statically againts Qwtplot3D (in order to make sure it's compiled
@@ -101,12 +103,18 @@ contains(MODULES, graph-3d) {
 
 unix:INCLUDEPATH  += 3rdparty/qwtplot3d/include
 unix:LIBS         += 3rdparty/qwtplot3d/lib/libqwtplot3d.a
+unix:LIBS			 += -lmuparser # the dependency on muparser needs to be removed
 
 ### Link dynamically against system-wide installation of Qwtplot3D.
 ### WARNING: Make sure Qwtplot3D is compiled against Qt >= 4.2 if you use this.
 ### WARNING: Mixing Qt 4.2 and Qt >= 4.3 compiled stuff may also cause
 ### WARNING: problems.
 #unix:LIBS		+= -lqwtplot3d
+
+### use this on Debian
+#unix:INCLUDEPATH  += /usr/include/qwtplot3d-qt4
+#unix:LIBS		+= -lqwtplot3d-qt4
+
 
 ### Paths to Qwtplot3D on Windows (it seems to be impossible to link this
 ### statically).

@@ -32,7 +32,7 @@
 #define GRAPH3D_MODULE_H
 
 #include "core/interfaces.h"
-#include "graph-3D/Graph3D.h"
+#include "Graph3D.h"
 #include <QMenu>
 
 class Graph3DModule : public QObject, public PartMaker, public ActionManagerOwner
