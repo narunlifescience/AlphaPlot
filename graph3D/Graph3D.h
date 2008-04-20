@@ -43,6 +43,7 @@ class UserFunction;
 class ActionManager;
 
 class QEvent;
+class QVBoxLayout;
 
 using namespace Qwt3D;
 
@@ -82,7 +83,19 @@ class Graph3D: public AbstractPart
 		 * This method may be called multiple times during the life time of a Part, or it might not get
 		 * called at all. Parts must not depend on the existence of a view for their operation.
 		 */
-		virtual QWidget * view() { return d_view; }
+		virtual QWidget * view();
+		//! Return a new context menu.
+		/**
+		 * The caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu() const;
+		//! Fill the part specific menu for the main window including setting the title
+		/**
+		 * \return true on success, otherwise false (e.g. part has no actions).
+		 */
+		virtual bool fillProjectMenu(QMenu * menu);
+		//! Return an icon to be used for decorating my views.
+		virtual QIcon icon() const;
 
 	public slots:
 		void copy(Graph3D* g);
@@ -367,6 +380,14 @@ class Graph3D: public AbstractPart
 		//! Enables/Disables autoscaling using findBestLayout().
 		void setAutoscale(bool on = true){d_autoscale = on;};
 
+		void plot3DWireframe();
+		void plot3DHiddenLine();
+		void plot3DPolygons();
+		void plot3DWireSurface();
+		void plot3DMatrix(int style);
+
+		Matrix * selectMatrix();
+
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();
@@ -382,6 +403,8 @@ class Graph3D: public AbstractPart
 		void custom3DActions(QWidget*);
 
 	private:
+		void createActions();
+		void connectActions();
 		static Qwt3D::Triple** allocateData(int columns, int rows);
 		static void deleteData(Qwt3D::Triple **data, int columns);
 		//! Allocate memory for a matrix buffer
@@ -434,6 +457,13 @@ class Graph3D: public AbstractPart
 		Matrix *d_matrix;
 		Qwt3D::PLOTSTYLE style_;
 		QWidget *d_view;
+		QWidget *d_view_widget;
+		QVBoxLayout * d_main_layout;
+
+		QAction * action_plot_wire_frame;
+		QAction * action_plot_hidden_line;
+		QAction * action_plot_polygons;
+		QAction * action_plot_wire_surface;
 };
 
 //! Class for user defined functions

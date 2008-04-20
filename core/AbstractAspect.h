@@ -115,6 +115,8 @@ class AbstractAspect : public QObject
 		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
 		//! Change the positon of a child in my list of children.
 		void moveChild(int from, int to);
+		//! Get all descendents that inherit the given class
+		QList<AbstractAspect *> descendantsThatInherit(const char *class_name);
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
 		virtual const Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }

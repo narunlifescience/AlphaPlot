@@ -270,3 +270,13 @@ QString AbstractAspect::uniqueNameFor(const QString &current_name) const
 	return d_aspect_private->uniqueNameFor(current_name);
 }
 
+QList<AbstractAspect *> AbstractAspect::descendantsThatInherit(const char * class_name)
+{
+	QList<AbstractAspect *> list;
+	if (inherits(class_name))
+		list << this;
+	for (int i=0; i<childCount(); i++)
+		list << child(i)->descendantsThatInherit(class_name);
+	return list;
+}
+

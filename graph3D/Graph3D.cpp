@@ -33,7 +33,7 @@
 #include "table/Table.h"
 #include "matrix/Matrix.h"
 #include "core/column/Column.h"
-#include "Project.h"
+#include "core/Project.h"
 #include "lib/ActionManager.h"
 
 #include <QApplication>
@@ -47,12 +47,34 @@
 #include <QCursor>
 #include <QImageWriter>
 #include <QtGlobal>
+#include <QMenu>
+#include <QComboBox>
+#include <QDialogButtonBox>
 
 #include <qwt3d_io_gl2ps.h>
 #include <qwt3d_coordsys.h>
 
 #include <gsl/gsl_vector.h>
 #include <fstream>
+
+#define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
+#define RESET_CURSOR QApplication::restoreOverrideCursor()
+
+/**
+ * Helper class: Widget with default size 400x300.
+ */
+class Graph3DWidget : public QWidget
+{
+	public:
+	Graph3DWidget( QWidget * parent = 0, Qt::WindowFlags f = 0 ) : QWidget(parent, f) 
+	{
+		setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
+	}
+	virtual QSize sizeHint () const
+	{
+		return QSize(300,300);
+	}
+};
 
 UserFunction::UserFunction(const QString& s, SurfacePlot& pw)
 : Function(pw)
@@ -89,8 +111,18 @@ UserFunction::~UserFunction()
 Graph3D::Graph3D(const QString & name)
 	: AbstractPart(name)
 {
-	d_view = new QWidget(); 
+	d_view_widget = new Graph3DWidget();	
+	d_view = new QWidget();
+	d_main_layout = new QVBoxLayout(d_view);
+	d_main_layout->addWidget(d_view_widget);
+	d_main_layout->setSpacing(0);
+	d_main_layout->setContentsMargins(0, 0, 0, 0);
+	
 	initPlot();
+	createActions();
+	connectActions();
+	d_view_widget->installEventFilter(this);
+	d_view_widget->setMinimumSize(10, 10);
 }
 
 Graph3D::Graph3D()
@@ -98,7 +130,52 @@ Graph3D::Graph3D()
 {
 	func = 0;
 	sp = 0;
-	// TODO:	createActions();
+	createActions();
+}
+
+QWidget * Graph3D::view()
+{ 
+	return d_view; 
+}
+
+void Graph3D::createActions()
+{
+	QIcon * icon_temp;
+
+	action_plot_wire_frame = new QAction(QIcon(QPixmap(":/lineMesh.xpm")), tr("3D &Wire Frame"), this);
+	actionManager()->addAction(action_plot_wire_frame, "action_plot_wire_frame");
+
+	action_plot_hidden_line = new QAction(QIcon(QPixmap(":/grid_only.xpm")), tr("3D &Hidden Line"), this);
+	actionManager()->addAction(action_plot_hidden_line, "action_plot_hidden_line");
+
+	action_plot_polygons = new QAction(QIcon(QPixmap(":/no_grid.xpm")), tr("3D &Polygons"), this);
+	actionManager()->addAction(action_plot_polygons, "action_plot_polygons");
+
+	action_plot_wire_surface = new QAction(QIcon(QPixmap(":/grid_poly.xpm")), tr("3D Wire &Surface"), this);
+	actionManager()->addAction(action_plot_wire_surface, "action_plot_wire_surface");
+
+// template for multisize icons:
+/*
+	icon_temp = new QIcon();
+	icon_temp->addPixmap(QPixmap(":/16x16/add_rows.png"));
+	icon_temp->addPixmap(QPixmap(":/32x32/add_rows.png"));
+	action_add_rows = new QAction(*icon_temp, tr("&Add Rows"), this);;
+	actionManager()->addAction(action_add_rows, "add_rows"); 
+	delete icon_temp;
+*/
+}
+
+void Graph3D::connectActions()
+{
+	connect(action_plot_hidden_line, SIGNAL(triggered()), this, SLOT(plot3DHiddenLine()));
+	connect(action_plot_wire_frame, SIGNAL(triggered()), this, SLOT(plot3DWireframe()));
+	connect(action_plot_polygons, SIGNAL(triggered()), this, SLOT(plot3DPolygons()));
+	connect(action_plot_wire_surface, SIGNAL(triggered()), this, SLOT(plot3DWireSurface()));
+
+	d_view->addAction(action_plot_wire_frame);
+	d_view->addAction(action_plot_hidden_line);
+	d_view->addAction(action_plot_polygons);
+	d_view->addAction(action_plot_wire_surface);
 }
 
 void Graph3D::initPlot()
@@ -113,7 +190,7 @@ void Graph3D::initPlot()
     connect(d_timer, SIGNAL(timeout()), this, SLOT(rotate()) );
 	ignoreFonts = false;
 
-	sp = new SurfacePlot(d_view);
+	sp = new SurfacePlot(d_view_widget);
 	sp->resize(500,400);
 	sp->installEventFilter(this);
 	sp->setRotation(30,0,15);
@@ -218,7 +295,7 @@ void Graph3D::addFunction(const QString& s,double xl,double xr,double yl,
 		double yr,double zl,double zr)
 {
 	sp->makeCurrent();
-	sp->resize(d_view->size());
+	sp->resize(d_view_widget->size());
 
 	func= new UserFunction(s, *sp);
 
@@ -1951,12 +2028,13 @@ void Graph3D::resizeEvent ( QResizeEvent *e)
 	{
 		QSize oldSize=e->oldSize();
 		double ratio=(double)size.height()/(double)oldSize.height();
-		scaleFonts(ratio);
+		if (ratio > 0)
+			scaleFonts(ratio);
 	}
 
 	sp->updateGL();
 //	emit resizedWindow(this); TODO: is this needed ?
-	emit modified();
+//	emit modified();
 }
 
 void Graph3D::contextMenuEvent(QContextMenuEvent *e)
@@ -2340,6 +2418,11 @@ bool Graph3D::eventFilter(QObject *object, QEvent *e)
 	{
 		emit showOptionsDialog();
 		return true;
+	}
+	if (e->type() == QEvent::Resize && object == (QObject *)d_view_widget)
+	{
+		resizeEvent(static_cast<QResizeEvent *>(e));
+		return false; // don't stop the event handling here
 	}
 // old code:
 //	return MyWidget::eventFilter(object, e);
@@ -3254,27 +3337,6 @@ Graph3D::~Graph3D()
 	delete sp;
 }
 
-/* ========================= static methods ======================= */
-ActionManager * Graph3D::action_manager = 0;
-
-ActionManager * Graph3D::actionManager()
-{
-	if (!action_manager)
-		initActionManager();
-	
-	return action_manager;
-}
-
-void Graph3D::initActionManager()
-{
-	if (!action_manager)
-		action_manager = new ActionManager();
-
-	action_manager->setTitle(tr("Graph3D"));
-	volatile Graph3D * action_creator = new Graph3D(); // initialize the action texts
-	delete action_creator;
-}
-
 Qwt3D::Triple** Graph3D::allocateData(int columns, int rows)
 {
 	Qwt3D::Triple** data = new Qwt3D::Triple* [columns];
@@ -3310,5 +3372,173 @@ void Graph3D::freeMatrixData(double **data, int rows)
 		delete [] data[i];
 
 	delete [] data;
+}
+
+QMenu *Graph3D::createContextMenu() const
+{
+	QMenu *menu = AbstractPart::createContextMenu();
+	Q_ASSERT(menu);
+	menu->addSeparator();
+	
+	// TODO
+	new QAction(tr("TODO"), menu);
+	// TODO menu->addAction( ....
+
+	return menu;
+}
+
+bool Graph3D::fillProjectMenu(QMenu * menu)
+{
+	menu->setTitle(tr("3D &Plot"));
+
+	menu->addAction(action_plot_wire_frame);
+	menu->addAction(action_plot_hidden_line);
+	menu->addAction(action_plot_polygons);
+	menu->addAction(action_plot_wire_surface);
+
+	return true;
+
+	// TODO: add more actions
+}
+
+QIcon Graph3D::icon() const
+{
+	QIcon ico;
+	ico.addPixmap(QPixmap(":/trajectory.xpm"));
+	return ico;
+}
+
+void Graph3D::plot3DWireframe()
+{
+	plot3DMatrix (Qwt3D::WIREFRAME);
+}
+
+void Graph3D::plot3DHiddenLine()
+{
+	plot3DMatrix (Qwt3D::HIDDENLINE);
+}
+
+void Graph3D::plot3DPolygons()
+{
+	plot3DMatrix (Qwt3D::FILLED);
+}
+
+void Graph3D::plot3DWireSurface()
+{
+	plot3DMatrix (Qwt3D::FILLEDMESH);
+}
+
+void Graph3D::plot3DMatrix(int style)
+{
+	Matrix * matrix = selectMatrix();
+	if (!matrix) 
+		return;
+	
+	WAIT_CURSOR;
+
+	addMatrixData(matrix);
+	customPlotStyle(style);
+
+// TODO: save and read settings
+	QStringList plot3DColors;
+	plot3DColors << QColor("blue").name();
+	plot3DColors << QColor("#000000").name();
+	plot3DColors << QColor("#000000").name();
+	plot3DColors << QColor("#000000").name();
+	plot3DColors << QColor("red").name();
+	plot3DColors << QColor("#000000").name();
+	plot3DColors << QColor("#000000").name();
+	plot3DColors << QColor("#ffffff").name();
+
+	setDataColors(QColor(plot3DColors[4]), QColor(plot3DColors[0]));
+	updateColors(QColor(plot3DColors[2]), QColor(plot3DColors[6]),
+			QColor(plot3DColors[5]), QColor(plot3DColors[1]),
+			QColor(plot3DColors[7]), QColor(plot3DColors[3]));
+
+
+	bool showPlot3DLegend = true;
+	bool showPlot3DProjection = false;
+	bool smooth3DMesh = true;
+	int plot3DResolution = 1;
+	bool orthogonal3DPlots = false;
+	bool autoscale3DPlots = true;
+
+	setResolution(plot3DResolution);
+	showColorLegend(showPlot3DLegend);
+	setSmoothMesh(smooth3DMesh);
+	setOrtho(orthogonal3DPlots);
+	if (showPlot3DProjection)
+		setFloorData();
+
+// TODO
+#if 0
+	setNumbersFont(plot3DNumbersFont);
+	setXAxisLabelFont(plot3DAxesFont);
+	setYAxisLabelFont(plot3DAxesFont);
+	setZAxisLabelFont(plot3DAxesFont);
+	setTitleFont(plot3DTitleFont);
+#endif
+
+	sp->makeCurrent();
+	sp->updateGL();
+	d_view->update();
+
+	RESET_CURSOR;
+}
+		
+Matrix * Graph3D::selectMatrix()
+{
+	Project * prj = project();
+	if (!prj) return 0;
+	
+	QList<AbstractAspect *> list = prj->descendantsThatInherit("Matrix");
+	if (list.isEmpty()) return 0;
+	
+	// TODO: make a nicer dialog
+	QDialog dialog;
+	QVBoxLayout layout(&dialog);
+	QLabel label(tr("Choose Matrix"));
+	QComboBox selection;
+	for (int i=0; i<list.size(); i++)
+		selection.addItem(list.at(i)->name(), i);
+
+    QDialogButtonBox button_box(&dialog);
+    button_box.setOrientation(Qt::Horizontal);
+    button_box.setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
+    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+	layout.addWidget(&label);
+	layout.addWidget(&selection);
+	layout.addWidget(&button_box);
+
+	if (dialog.exec() != QDialog::Accepted)
+		return 0;
+	int index = selection.currentIndex();
+	if (index >= 0 && index < list.size())
+		return static_cast<Matrix *>(list.at(index));
+	else
+		return 0;
+}
+
+/* ========================= static methods ======================= */
+ActionManager * Graph3D::action_manager = 0;
+
+ActionManager * Graph3D::actionManager()
+{
+	if (!action_manager)
+		initActionManager();
+	
+	return action_manager;
+}
+
+void Graph3D::initActionManager()
+{
+	if (!action_manager)
+		action_manager = new ActionManager();
+
+	action_manager->setTitle(tr("Graph3D"));
+	volatile Graph3D * action_creator = new Graph3D(); // initialize the action texts
+	delete action_creator;
 }
 
