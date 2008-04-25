@@ -29,6 +29,8 @@
 #ifndef INTERFACES_H
 #define INTERFACES_H
 
+#include "lib/ConfigPageWidget.h"
+
 #include <QtPlugin>
 
 class AbstractPart;
@@ -95,5 +97,18 @@ class ActionManagerOwner
 };
 
 Q_DECLARE_INTERFACE(ActionManagerOwner, "net.sf.scidavis.actionmanagerowner/0.1")
+
+//! A module with application-wide settings
+class ConfigPageMaker {
+	public:
+		virtual ConfigPageWidget * makeConfigPage() = 0;
+		virtual QString configPageLabel() = 0;
+		virtual void loadSettings() = 0;
+		virtual void saveSettings() = 0;
+		// TODO (maybe): icons instead of tabs to select the pages
+		//		virtual QIcon icon() = 0;
+};
+
+Q_DECLARE_INTERFACE(ConfigPageMaker, "net.sf.scidavis.configpagemaker/0.1")
 
 #endif // ifndef INTERFACES_H

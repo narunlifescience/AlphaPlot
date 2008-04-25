@@ -12,6 +12,7 @@ debug {
 }
 
 FORMS += controltabs.ui \
+	TableConfigPage.ui \
 
 HEADERS += \
 	TableModule.h \

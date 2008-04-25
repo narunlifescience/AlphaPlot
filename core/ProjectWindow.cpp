@@ -55,6 +55,9 @@
 #include <QPluginLoader>
 #include <QSignalMapper>
 #include <QStatusBar>
+#include <QVBoxLayout>
+#include <QDialogButtonBox>
+#include <QTabWidget>
 
 ActionManager * ProjectWindow::action_manager = 0;
 
@@ -196,6 +199,10 @@ void ProjectWindow::initActions()
 	action_manager->addAction(d_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
 	connect(d_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
 
+	d_actions.preferences_dialog = new QAction(tr("&Preferences"), this);
+	action_manager->addAction(d_actions.preferences_dialog, "preferences_dialog");
+	connect(d_actions.preferences_dialog, SIGNAL(triggered(bool)), this, SLOT(showPreferencesDialog()));
+
 	d_part_maker_map = new QSignalMapper(this);
 	connect(d_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
 	foreach(QObject *plugin, QPluginLoader::staticInstances()) {
@@ -262,6 +269,7 @@ void ProjectWindow::initMenus()
 	d_menus.edit->addAction(d_project->redoAction(d_menus.edit));
 	d_menus.edit->addSeparator();
 	d_menus.edit->addAction(d_actions.keyboard_shortcuts_dialog);
+	d_menus.edit->addAction(d_actions.preferences_dialog);
 
 	d_menus.view = menuBar()->addMenu(tr("&View"));
 
@@ -298,7 +306,7 @@ void ProjectWindow::initMenus()
 	d_actions.visibility_all = new QAction(tr("&All"), policy_action_group);
 	action_manager->addAction(d_actions.visibility_all, "visibility_all");
 	d_actions.visibility_all->setCheckable(true);
-	d_actions.visibility_all->setData(Project::all);
+	d_actions.visibility_all->setData(Project::allMdiWindows);
 	connect(policy_action_group, SIGNAL(triggered(QAction*)), this, SLOT(setMdiWindowVisibility(QAction*)));
 	d_menus.win_policy_menu->addActions(policy_action_group->actions());
 	connect( d_menus.win_policy_menu, SIGNAL(aboutToShow()), this, SLOT(handleWindowsPolicyMenuAboutToShow()) );
@@ -432,7 +440,7 @@ void ProjectWindow::updateMdiWindowVisibility()
 	PartMdiView * part_view;
 	switch(d_project->mdiWindowVisibility()) 
 	{
-		case Project::all:
+		case Project::allMdiWindows:
 			foreach(QMdiSubWindow *window, windows) 
 			{
 				part_view = qobject_cast<PartMdiView *>(window);
@@ -542,6 +550,46 @@ void ProjectWindow::showKeyboardShortcutsDialog()
 	dialog.setWindowTitle(tr("Customize Keyboard Shortcuts"));
 	dialog.resize(width()-width()/5, height()-height()/5);
 	dialog.exec();
+}
+
+void ProjectWindow::showPreferencesDialog()
+{
+	QDialog dialog;
+	QVBoxLayout layout(&dialog);
+
+    QDialogButtonBox button_box;
+	button_box.setOrientation(Qt::Horizontal);
+    button_box.setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
+    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+	QTabWidget tab_widget;
+	QList<ConfigPageWidget *> widgets;
+	ConfigPageWidget * current;
+
+	current = Project::makeConfigPage();
+	tab_widget.addTab(current, Project::configPageLabel());
+	widgets.append(current);
+
+	foreach(QObject * plugin, QPluginLoader::staticInstances()) 
+	{
+		ConfigPageMaker * ctm = qobject_cast<ConfigPageMaker*>(plugin);
+		if (!ctm) continue;
+		current = ctm->makeConfigPage();
+		tab_widget.addTab(current, ctm->configPageLabel());
+		widgets.append(current);
+	}
+
+	layout.addWidget(&tab_widget);
+	layout.addWidget(&button_box);
+
+	dialog.setWindowTitle(tr("Preferences"));
+	if (dialog.exec() != QDialog::Accepted)
+		return;
+
+	foreach(current, widgets)
+		current->apply();
+	Project::saveSettings();
 }
 
 void ProjectWindow::handleWindowsMenuAboutToShow()

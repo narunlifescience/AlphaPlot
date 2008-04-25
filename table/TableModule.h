@@ -33,10 +33,10 @@
 #include "table/Table.h"
 #include <QMenu>
 
-class TableModule : public QObject, public PartMaker, public FileFormat, public ActionManagerOwner
+class TableModule : public QObject, public PartMaker, public FileFormat, public ActionManagerOwner, public ConfigPageMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner)
+	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner ConfigPageMaker)
 
 	public:
 		virtual AbstractPart * makePart();
@@ -45,7 +45,29 @@ class TableModule : public QObject, public PartMaker, public FileFormat, public 
 		virtual AbstractExportFilter * makeExportFilter();
 		virtual ActionManager * actionManager() { return Table::actionManager(); }
 		virtual void initActionManager();
+		virtual ConfigPageWidget * makeConfigPage();
+		virtual QString configPageLabel();
+		virtual void loadSettings();
+		virtual void saveSettings();
 };
+
+#include "ui_TableConfigPage.h"
+
+//! Helper class for TableModule
+class TableConfigPage : public ConfigPageWidget
+{
+	Q_OBJECT
+
+	public:
+		TableConfigPage();
+
+	public slots:
+		virtual void apply();
+
+	private:
+		Ui::TableConfigPage ui;
+};
+
 
 #endif // ifndef TABLE_MODULE_H
 

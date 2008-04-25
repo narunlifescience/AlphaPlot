@@ -35,6 +35,17 @@
 #include <QAction>
 #include <QPixmap>
 #include <QtDebug>
+#include <QSettings>
+
+TableConfigPage::TableConfigPage() 
+{
+	ui.setupUi(this);
+}
+
+void TableConfigPage::apply()
+{
+	// TODO: read setting from ui and change them in Table
+}
 
 AbstractPart * TableModule::makePart()
 {
@@ -64,4 +75,40 @@ void TableModule::initActionManager()
 	Table::initActionManager();
 }
 
+ConfigPageWidget * TableModule::makeConfigPage()
+{
+	return new TableConfigPage();
+}
+		
+QString TableModule::configPageLabel()
+{
+	return QObject::tr("Table");
+}
+
+void TableModule::loadSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Table");
+	settings.endGroup();
+}
+
+void TableModule::saveSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Table");
+	settings.endGroup();
+}
+
 Q_EXPORT_PLUGIN2(scidavis_table, TableModule)
+
+

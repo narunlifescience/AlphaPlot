@@ -149,6 +149,7 @@ SOURCES += \
     ../lib/RecordShortcutDelegate.cpp \
     ../lib/ActionManager.cpp \
     ../lib/ShortcutsDialog.cpp \
+    ../lib/ConfigPageWidget.cpp \
 
 HEADERS += \
 	../lib/ColorBox.h \
@@ -165,4 +166,5 @@ HEADERS += \
     ../lib/RecordShortcutDelegate.h \
     ../lib/ActionManager.h \
     ../lib/ShortcutsDialog.h \
+    ../lib/ConfigPageWidget.h \
 

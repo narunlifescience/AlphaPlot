@@ -1,12 +1,11 @@
 /***************************************************************************
-    File                 : Folder.cpp
+    File                 : ConfigPageWidget.h
     Project              : SciDAVis
-    Description          : Folder in a project
+    Description          : Widget for configuration pages that has an apply slot
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
-
+                           
  ***************************************************************************/
 
 /***************************************************************************
@@ -27,34 +26,18 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "Project.h"
-#include "Folder.h"
 
-#include <QIcon>
-#include <QApplication>
-#include <QStyle>
+#include <QWidget>
 
-Folder::Folder(const QString &name)
-	: AbstractAspect(name)
+//! Widget for configuration pages that has an apply slot
+class ConfigPageWidget : public QWidget
 {
-}
+	Q_OBJECT
 
-Folder::~Folder()
-{
-}
+	public:
+		ConfigPageWidget(QWidget * parent = 0, Qt::WindowFlags f = 0);
 
-QIcon Folder::icon() const
-{
-	QIcon result;
-	result.addFile(":/folder_closed.xpm", QSize(), QIcon::Normal, QIcon::Off);
-	result.addFile(":/folder_open.xpm", QSize(), QIcon::Normal, QIcon::On);	
-	return result;
-}
-
-QMenu *Folder::createContextMenu() const
-{
-	if (project())
-		return project()->createFolderContextMenu(this);
-	return 0;
-}
+	public slots:
+		virtual void apply() = 0;
+};
 

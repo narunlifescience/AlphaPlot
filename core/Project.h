@@ -30,7 +30,8 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
-#include "Folder.h"
+#include "core/Folder.h"
+#include "core/interfaces.h"
 
 class QString;
 class ProjectWindow;
@@ -47,11 +48,12 @@ class Project : public Folder
 	Q_OBJECT
 
 	public:
+		//! MDI subwindow visibility setting
 		enum MdiWindowVisibility
 		{
 			folderOnly,
 			folderAndSubfolders,
-			all
+			allMdiWindows
 		};
 
 	public:
@@ -74,9 +76,33 @@ class Project : public Folder
 		void setMdiWindowVisibility(MdiWindowVisibility visibility);
 		MdiWindowVisibility mdiWindowVisibility() const;
 	
+		static ConfigPageWidget * makeConfigPage();
+		static QString configPageLabel();
+		static void loadSettings();
+		static void saveSettings();
+	
+
 	private:
 		class Private;
 		Private *d;
+
+		friend class ProjectConfigPage;
+};
+
+#include "ui_ProjectConfigPage.h"
+
+//! Helper class for Project
+class ProjectConfigPage : public ConfigPageWidget
+{
+	Q_OBJECT
+
+	public:
+		ProjectConfigPage();
+
+	public slots:
+		virtual void apply();
+	private:
+		Ui::ProjectConfigPage ui;
 };
 
 #endif // ifndef PROJECT_H

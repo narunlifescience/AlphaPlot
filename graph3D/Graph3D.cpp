@@ -72,7 +72,7 @@ class Graph3DWidget : public QWidget
 	}
 	virtual QSize sizeHint () const
 	{
-		return QSize(300,300);
+		return QSize(400,300);
 	}
 };
 

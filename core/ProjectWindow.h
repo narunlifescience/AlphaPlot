@@ -88,6 +88,7 @@ class ProjectWindow : public QMainWindow
 		void updateMdiWindowVisibility();
 		void importAspect();
 		void showKeyboardShortcutsDialog();
+		void showPreferencesDialog();
 
 	signals:
 		void partActivated(AbstractPart*);
@@ -133,6 +134,7 @@ class ProjectWindow : public QMainWindow
 			*import_aspect,
 			*new_folder,
 			*keyboard_shortcuts_dialog,
+			*preferences_dialog,
 			*next_subwindow,
 			*previous_subwindow,
 			*cascade_windows,

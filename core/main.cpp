@@ -70,6 +70,9 @@ int main( int argc, char ** argv )
 	app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
 	timer->start(5000); // autoclose after 5 seconds
 
+	// load global settings
+	Project::loadSettings();
+
 	// create initial empty project
 	Project* p(new Project());
 	p->view()->showMaximized();

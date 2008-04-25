@@ -114,7 +114,7 @@ Column * Table::column(const QString & name) const
 { 
 	for (int i=0; i<columnCount(); i++)
 	{
-		if (d_table_private->column(i)->name() == name); 
+		if (d_table_private->column(i)->name() == name)
 			return d_table_private->column(i);
 	}
 
