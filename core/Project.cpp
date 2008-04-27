@@ -176,7 +176,7 @@ ConfigPageWidget * Project::makeConfigPage()
 
 QString Project::configPageLabel()
 {
-	return QObject::tr("Project");
+	return QObject::tr("General");
 }
 
 void Project::loadSettings()

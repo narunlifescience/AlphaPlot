@@ -36,6 +36,24 @@
 #include <QAction>
 #include <QPixmap>
 #include <QtDebug>
+#include <QSettings>
+#include "ui_Graph3DConfigPage.h"
+
+Graph3DConfigPage::Graph3DConfigPage() 
+{
+	ui = new Ui_Graph3DConfigPage();
+	ui->setupUi(this);
+}
+
+Graph3DConfigPage::~Graph3DConfigPage() 
+{
+	delete ui;
+}
+
+void Graph3DConfigPage::apply()
+{
+	// TODO: read setting from ui and change them in Graph3D
+}
 
 AbstractPart * Graph3DModule::makePart()
 {
@@ -52,6 +70,40 @@ QAction * Graph3DModule::makeAction(QObject *parent)
 void Graph3DModule::initActionManager()
 {
 	Graph3D::initActionManager();
+}
+
+ConfigPageWidget * Graph3DModule::makeConfigPage()
+{
+	return new Graph3DConfigPage();
+}
+		
+QString Graph3DModule::configPageLabel()
+{
+	return QObject::tr("Graph3D");
+}
+
+void Graph3DModule::loadSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Graph3D");
+	settings.endGroup();
+}
+
+void Graph3DModule::saveSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Graph3D");
+	settings.endGroup();
 }
 
 Q_EXPORT_PLUGIN2(scidavis_graph3D, Graph3DModule)

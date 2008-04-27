@@ -11,6 +11,8 @@ debug {
 	DEFINES += QT_STATICPLUGIN
 }
 
+FORMS += Graph3DConfigPage.ui
+
 HEADERS += \
 	Graph3D.h \
 	Graph3DModule.h \

@@ -3,6 +3,8 @@
 
 #include "AbstractPart.h"
 
+class ActionManager;
+
 class Notes : public AbstractPart
 {
 	Q_OBJECT
@@ -12,6 +14,14 @@ class Notes : public AbstractPart
 		~Notes();
 		QWidget *view();
 		QIcon icon() const;
+
+	public:
+		static ActionManager * actionManager();
+		static void initActionManager();
+	private:
+		static ActionManager * action_manager;
+		//! Private ctor for initActionManager() only
+		Notes();
 
 	private:
 		struct Private;

@@ -10,6 +10,8 @@ debug {
 	DEFINES += QT_STATICPLUGIN
 }
 
+FORMS += NotesConfigPage.ui
+
 HEADERS += \
 	NotesModule.h \
 	Notes.h \

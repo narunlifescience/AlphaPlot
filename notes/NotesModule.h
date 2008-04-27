@@ -30,15 +30,40 @@
 #define NOTES_MODULE_H
 
 #include "core/interfaces.h"
+#include "notes/Notes.h"
 
-class NotesModule : public QObject, public PartMaker
+class NotesModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker)
+	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker)
 
 	public:
 		virtual AbstractPart * makePart();
 		virtual QAction * makeAction(QObject *parent);
+		virtual ActionManager * actionManager() { return Notes::actionManager(); }
+		virtual void initActionManager();
+		virtual ConfigPageWidget * makeConfigPage();
+		virtual QString configPageLabel();
+		virtual void loadSettings();
+		virtual void saveSettings();
+};
+
+class Ui_NotesConfigPage;
+
+//! Helper class for NotesModule
+class NotesConfigPage : public ConfigPageWidget
+{
+	Q_OBJECT
+
+	public:
+		NotesConfigPage();
+		~NotesConfigPage();
+
+	public slots:
+		virtual void apply();
+
+	private:
+		Ui_NotesConfigPage *ui;
 };
 
 #endif // ifndef NOTES_MODULE_H

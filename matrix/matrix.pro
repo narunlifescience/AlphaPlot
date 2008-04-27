@@ -12,6 +12,7 @@ debug {
 }
 
 FORMS += matrixcontroltabs.ui \
+	MatrixConfigPage.ui \
 
 SOURCES += \
 	Matrix.cpp \

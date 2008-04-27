@@ -10,11 +10,9 @@ CONFIG += warn_on
 
 ### modules to be compiled in
 ### basic modules you most probably don't want to exclude
-MODULES = table notes matrix
+MODULES = table notes matrix graph3D
 ### support for Python scripting
 MODULES += python
-
-#MODULES += graph3D
 
 ### what to install and where
 INSTALLS += documentation

@@ -35,16 +35,38 @@
 #include <QMenu>
 
 //! Module providing the matrix Part and support classes.
-class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner
+class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ActionManagerOwner)
+	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker)
 
 	public:
 		virtual AbstractPart * makePart();
 		virtual QAction * makeAction(QObject *parent);
 		virtual ActionManager * actionManager() { return Matrix::actionManager(); }
 		virtual void initActionManager();
+		virtual ConfigPageWidget * makeConfigPage();
+		virtual QString configPageLabel();
+		virtual void loadSettings();
+		virtual void saveSettings();
+};
+
+class Ui_MatrixConfigPage;
+
+//! Helper class for MatrixModule
+class MatrixConfigPage : public ConfigPageWidget
+{
+	Q_OBJECT
+
+	public:
+		MatrixConfigPage();
+		~MatrixConfigPage();
+
+	public slots:
+		virtual void apply();
+
+	private:
+		Ui_MatrixConfigPage *ui;
 };
 
 #endif // ifndef MATRIX_MODULE_H

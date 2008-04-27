@@ -35,16 +35,38 @@
 #include "Graph3D.h"
 #include <QMenu>
 
-class Graph3DModule : public QObject, public PartMaker, public ActionManagerOwner
+class Graph3DModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ActionManagerOwner)
+	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker)
 
 	public:
 		virtual AbstractPart * makePart();
 		virtual QAction * makeAction(QObject *parent);
 		virtual ActionManager * actionManager() { return Graph3D::actionManager(); }
 		virtual void initActionManager();
+		virtual ConfigPageWidget * makeConfigPage();
+		virtual QString configPageLabel();
+		virtual void loadSettings();
+		virtual void saveSettings();
+};
+
+class Ui_Graph3DConfigPage;
+
+//! Helper class for Graph3DModule
+class Graph3DConfigPage : public ConfigPageWidget
+{
+	Q_OBJECT
+
+	public:
+		Graph3DConfigPage();
+		~Graph3DConfigPage();
+
+	public slots:
+		virtual void apply();
+
+	private:
+		Ui_Graph3DConfigPage *ui;
 };
 
 #endif // ifndef GRAPH3D_MODULE_H

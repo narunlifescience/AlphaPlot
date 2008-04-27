@@ -31,6 +31,24 @@
 
 #include "Notes.h"
 #include <QAction>
+#include <QSettings>
+#include "ui_NotesConfigPage.h"
+
+NotesConfigPage::NotesConfigPage() 
+{
+	ui = new Ui_NotesConfigPage();
+	ui->setupUi(this);
+}
+
+NotesConfigPage::~NotesConfigPage() 
+{
+	delete ui;
+}
+
+void NotesConfigPage::apply()
+{
+	// TODO: read setting from ui and change them in Notes
+}
 
 AbstractPart * NotesModule::makePart()
 {
@@ -42,6 +60,45 @@ QAction * NotesModule::makeAction(QObject *parent)
 	QAction *new_notes = new QAction(tr("New &Notes"), parent);
 	new_notes->setIcon(QIcon(QPixmap(":/new_note.xpm")));
 	return new_notes;
+}
+
+void NotesModule::initActionManager()
+{
+	Notes::initActionManager();
+}
+
+ConfigPageWidget * NotesModule::makeConfigPage()
+{
+	return new NotesConfigPage();
+}
+		
+QString NotesModule::configPageLabel()
+{
+	return QObject::tr("Notes");
+}
+
+void NotesModule::loadSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Notes");
+	settings.endGroup();
+}
+
+void NotesModule::saveSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Notes");
+	settings.endGroup();
 }
 
 Q_EXPORT_PLUGIN2(scidavis_notes, NotesModule)

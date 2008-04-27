@@ -34,6 +34,24 @@
 #include "ProjectWindow.h"
 #include <QAction>
 #include <QPixmap>
+#include <QSettings>
+#include "ui_MatrixConfigPage.h"
+
+MatrixConfigPage::MatrixConfigPage() 
+{
+	ui = new Ui_MatrixConfigPage();
+	ui->setupUi(this);
+}
+
+MatrixConfigPage::~MatrixConfigPage() 
+{
+	delete ui;
+}
+
+void MatrixConfigPage::apply()
+{
+	// TODO: read setting from ui and change them in Matrix
+}
 
 AbstractPart * MatrixModule::makePart()
 {
@@ -52,6 +70,39 @@ void MatrixModule::initActionManager()
 	Matrix::initActionManager();
 }
 
+ConfigPageWidget * MatrixModule::makeConfigPage()
+{
+	return new MatrixConfigPage();
+}
+		
+QString MatrixModule::configPageLabel()
+{
+	return QObject::tr("Matrix");
+}
+
+void MatrixModule::loadSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Matrix");
+	settings.endGroup();
+}
+
+void MatrixModule::saveSettings()
+{
+#ifdef Q_OS_MAC // Mac
+	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+
+	settings.beginGroup("Matrix");
+	settings.endGroup();
+}
 
 Q_EXPORT_PLUGIN2(scidavis_matrix, MatrixModule)
 
