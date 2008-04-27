@@ -36,10 +36,17 @@
 #include <QPixmap>
 #include <QtDebug>
 #include <QSettings>
+#include "ui_TableConfigPage.h"
 
 TableConfigPage::TableConfigPage() 
 {
-	ui.setupUi(this);
+	ui = new Ui_TableConfigPage();
+	ui->setupUi(this);
+}
+
+TableConfigPage::~TableConfigPage() 
+{
+	delete ui;
 }
 
 void TableConfigPage::apply()

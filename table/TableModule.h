@@ -51,7 +51,7 @@ class TableModule : public QObject, public PartMaker, public FileFormat, public 
 		virtual void saveSettings();
 };
 
-#include "ui_TableConfigPage.h"
+class Ui_TableConfigPage;
 
 //! Helper class for TableModule
 class TableConfigPage : public ConfigPageWidget
@@ -60,14 +60,14 @@ class TableConfigPage : public ConfigPageWidget
 
 	public:
 		TableConfigPage();
+		~TableConfigPage();
 
 	public slots:
 		virtual void apply();
 
 	private:
-		Ui::TableConfigPage ui;
+		Ui_TableConfigPage *ui;
 };
-
 
 #endif // ifndef TABLE_MODULE_H
 

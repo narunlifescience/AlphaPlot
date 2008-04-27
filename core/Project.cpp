@@ -38,6 +38,7 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QComboBox>
+#include "ui_ProjectConfigPage.h"
 
 #define NOT_IMPL (QMessageBox::information(0, "info", "not yet implemented"))
 
@@ -90,14 +91,20 @@ QString Project::Private::images_path;
 
 ProjectConfigPage::ProjectConfigPage() 
 {
-	ui.setupUi(this);
-	ui.default_subwindow_visibility_combobox->setCurrentIndex((int)Project::Private::default_mdi_window_visibility);
+	ui = new Ui_ProjectConfigPage();
+	ui->setupUi(this);
+	ui->default_subwindow_visibility_combobox->setCurrentIndex((int)Project::Private::default_mdi_window_visibility);
 	// TODO: set the ui according to the global settings in Project::Private
+}
+
+ProjectConfigPage::~ProjectConfigPage() 
+{
+	delete ui;
 }
 
 void ProjectConfigPage::apply() 
 {
-	int index = ui.default_subwindow_visibility_combobox->currentIndex();
+	int index = ui->default_subwindow_visibility_combobox->currentIndex();
 	switch (index)
 	{
 		case 0:

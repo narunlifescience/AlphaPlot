@@ -28,6 +28,8 @@ staticplugins.commands = $(CXX) -c $(CXXFLAGS) -DIMPORT_SCIDAVIS_MODULES='\'$${m
 QMAKE_EXTRA_TARGETS += staticplugins
 OBJECTS += $$staticplugins.target
 
+FORMS += ProjectConfigPage.ui
+
 # ICONS
 RESOURCES += \
 	../appicons.qrc \

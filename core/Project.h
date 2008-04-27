@@ -89,7 +89,7 @@ class Project : public Folder
 		friend class ProjectConfigPage;
 };
 
-#include "ui_ProjectConfigPage.h"
+class Ui_ProjectConfigPage;
 
 //! Helper class for Project
 class ProjectConfigPage : public ConfigPageWidget
@@ -98,11 +98,12 @@ class ProjectConfigPage : public ConfigPageWidget
 
 	public:
 		ProjectConfigPage();
+		~ProjectConfigPage();
 
 	public slots:
 		virtual void apply();
 	private:
-		Ui::ProjectConfigPage ui;
+		Ui_ProjectConfigPage *ui;
 };
 
 #endif // ifndef PROJECT_H
