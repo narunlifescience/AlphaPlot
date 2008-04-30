@@ -10,9 +10,11 @@ CONFIG += warn_on
 
 ### modules to be compiled in
 ### basic modules you most probably don't want to exclude
-MODULES = table notes matrix graph3D
+MODULES = table notes matrix
 ### support for Python scripting
 MODULES += python
+
+MODULES += graph3D
 
 ### what to install and where
 INSTALLS += documentation
@@ -99,9 +101,10 @@ contains(MODULES, graph3D) {
 ### Link statically againts Qwtplot3D (in order to make sure it's compiled
 ### against Qt4).
 
-unix:INCLUDEPATH  += 3rdparty/qwtplot3d/include
-unix:LIBS         += 3rdparty/qwtplot3d/lib/libqwtplot3d.a
-unix:LIBS			 += -lmuparser # the dependency on muparser needs to be removed
+#unix:INCLUDEPATH  += 3rdparty/qwtplot3d/include
+#unix:LIBS         += 3rdparty/qwtplot3d/lib/libqwtplot3d.a
+#unix:LIBS			 += -lmuparser # the dependency on muparser needs to be removed
+unix:LIBS			 += -lmuparserd # the dependency on muparser needs to be removed
 
 ### Link dynamically against system-wide installation of Qwtplot3D.
 ### WARNING: Make sure Qwtplot3D is compiled against Qt >= 4.2 if you use this.
@@ -110,8 +113,8 @@ unix:LIBS			 += -lmuparser # the dependency on muparser needs to be removed
 #unix:LIBS		+= -lqwtplot3d
 
 ### use this on Debian
-#unix:INCLUDEPATH  += /usr/include/qwtplot3d-qt4
-#unix:LIBS		+= -lqwtplot3d-qt4
+unix:INCLUDEPATH  += /usr/include/qwtplot3d-qt4
+unix:LIBS		+= -lqwtplot3d-qt4
 
 
 ### Paths to Qwtplot3D on Windows (it seems to be impossible to link this

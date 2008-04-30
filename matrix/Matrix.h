@@ -132,16 +132,18 @@ class Matrix : public AbstractPart, public scripted
 		 */
 		void setPlotMenu(QMenu * menu);
 		//! Return the value in the given cell
-		double cell(int row, int col);
+		double cell(int row, int col) const;
 		//! Set the value of the cell
 		void setCell(int row, int col, double value );
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void copy(Matrix * other);
-		double xStart();
-		double yStart();
-		double xEnd();
-		double yEnd();
+		double xStart() const;
+		double yStart() const;
+		double xEnd() const;
+		double yEnd() const;
+		QString formula() const;
+		void setFormula(const QString & formula);
 		void setXStart(double x);
 		void setXEnd(double x);
 		void setYStart(double y);
@@ -151,6 +153,14 @@ class Matrix : public AbstractPart, public scripted
 		int displayedDigits()  const;
 		void setNumericFormat(char format);
 		void setDisplayedDigits(int digits);
+
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(QXmlStreamReader *);
+		//@}
 
 	public:
 		static ActionManager * actionManager();
@@ -216,6 +226,18 @@ class Matrix : public AbstractPart, public scripted
 	private:
 		void createActions();
 		void connectActions();
+
+		//! Read XML comment element
+		bool XmlReadComment(QXmlStreamReader * reader);
+		//! Read XML display element
+		bool XmlReadDisplay(QXmlStreamReader * reader);
+		//! Read XML coodinates element
+		bool XmlReadCoordinates(QXmlStreamReader * reader);
+		//! Read XML formula element
+		bool XmlReadFormula(QXmlStreamReader * reader);
+		//! Read XML cell element
+		bool XmlReadCell(QXmlStreamReader * reader);
+
 		QMenu * d_plot_menu;
 
 		//! \name selection related actions
@@ -309,7 +331,7 @@ class Matrix::Private
 		int rowCount() const { return d_row_count; }
 		QString name() const { return d_owner->name(); }
 		//! Return the value in the given cell
-		double cell(int row, int col);
+		double cell(int row, int col) const;
 		//! Set the value in the given cell
 		void setCell(int row, int col, double value);
 		//! Return the values in the given cells as double vector
@@ -326,7 +348,7 @@ class Matrix::Private
 		BASIC_ACCESSOR(double, d_y_start, yStart, YStart);
 		BASIC_ACCESSOR(double, d_x_end, xEnd, XEnd);
 		BASIC_ACCESSOR(double, d_y_end, yEnd, YEnd);
-
+		CLASS_ACCESSOR(QString, d_formula, formula, Formula)
 
 		// TODO: signals for format change etc.
 		

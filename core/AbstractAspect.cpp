@@ -36,6 +36,8 @@
 #include <QMessageBox>
 #include <QStyle>
 #include <QApplication>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 
 AbstractAspect::AbstractAspect(const QString &name)
 	: d_aspect_private(new Private(this, name))
@@ -45,6 +47,69 @@ AbstractAspect::AbstractAspect(const QString &name)
 AbstractAspect::~AbstractAspect()
 {
 	delete d_aspect_private;
+}
+
+void AbstractAspect::resetToDefaultValues()
+{
+	setComment(QString());
+	setCreationTime(QDateTime::currentDateTime());
+	setCaptionSpec("%n%C{ - }%c");
+	// better don't delete the children here and
+	// leave that to the derived aspect
+}
+
+void AbstractAspect::writeCommentElement(QXmlStreamWriter * writer) const
+{
+	writer->writeStartElement("comment");
+	writer->writeCharacters(comment());
+	writer->writeEndElement();
+}
+
+bool AbstractAspect::readCommentElement(QXmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
+	setComment(reader->readElementText());
+	return true;
+}
+
+void AbstractAspect::writeBasicAttributes(QXmlStreamWriter * writer) const
+{
+	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
+	writer->writeAttribute("caption_spec", captionSpec());
+	writer->writeAttribute("name", name());
+}
+
+bool AbstractAspect::readBasicAttributes(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	QXmlStreamAttributes attribs = reader->attributes();
+	QString str;
+
+	// read name
+	str = attribs.value(reader->namespaceUri().toString(), "name").toString();
+	if(str.isEmpty())
+	{
+		reader->raiseError(prefix+tr("aspect name missing")+postfix);
+		return false;
+	}
+	setName(str);
+	// read creation time
+	str = attribs.value(reader->namespaceUri().toString(), "creation_time").toString();
+	QDateTime creation_time = QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz");
+	if(str.isEmpty() || !creation_time.isValid())
+	{
+		reader->raiseError(prefix+tr("invalid creation date")+postfix);
+		return false;
+	}
+	else
+		setCreationTime(creation_time);
+	// read caption spec
+	str = attribs.value(reader->namespaceUri().toString(), "caption_spec").toString();
+	setCaptionSpec(str);
+
+	return true;
 }
 
 AbstractAspect * AbstractAspect::parentAspect() const

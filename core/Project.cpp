@@ -38,6 +38,9 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QComboBox>
+#include <QFile>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
 #include "ui_ProjectConfigPage.h"
 
 #define NOT_IMPL (QMessageBox::information(0, "info", "not yet implemented"))
@@ -53,6 +56,7 @@ class Project::Private
 		MdiWindowVisibility mdi_window_visibility;
 		ProjectWindow * primary_view;
 		AbstractScriptingEngine * scripting_engine;
+		QString file_name;
 
 		// global settings
 		static Project::MdiWindowVisibility default_mdi_window_visibility;
@@ -261,4 +265,91 @@ void Project::saveSettings()
 		if (!ctm) continue;
 		ctm->saveSettings();
 	}
+}
+
+void Project::setFileName(const QString & file_name)
+{
+	d->file_name = file_name;
+}
+
+QString Project::fileName() const
+{
+	return d->file_name;
+}
+
+void Project::save()
+{
+	if (fileName().isEmpty())
+		return;
+	QFile file(fileName());
+	// TODO: ask whether to override or not
+	file.open(QIODevice::WriteOnly);
+	QXmlStreamWriter writer(&file);
+	save(&writer);
+	file.close();
+}
+
+void Project::load(const QString & file_name)
+{
+	if (file_name.isEmpty())
+		return;
+
+	QFile file(file_name);
+	file.open(QIODevice::ReadOnly);
+	QXmlStreamReader reader(&file);
+	load(&reader);
+	file.close();
+}
+
+void Project::save(QXmlStreamWriter * writer) const
+{
+	writer->writeStartDocument();
+	writer->writeStartElement("scidavis_project");
+	// TODO: write project attributes
+	writer->writeStartElement("project_root");
+	Folder::save(writer);
+	writer->writeEndElement(); // "project_root"
+	writer->writeEndElement(); // "scidavis_project"
+	writer->writeEndDocument();
+}
+
+bool Project::load(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	if(reader->isStartElement() && reader->name() == "folder") 
+	{
+		resetToDefaultValues();
+
+		if (!readBasicAttributes(reader)) return false;
+
+		QXmlStreamAttributes attribs = reader->attributes();
+		QString str;
+
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				bool ret_val = true;
+				if (reader->name() == "comment")
+					ret_val = readCommentElement(reader);
+				else if(reader->name() == "child_aspect")
+					ret_val = readChildAspectElement(reader);
+				else
+					reader->readElementText(); // unknown element
+				if(!ret_val)
+					return false;
+			} 
+		}
+	}
+	else // no folder element
+		reader->raiseError(prefix+tr("no folder element found")+postfix);
+
+	return !reader->error();
 }

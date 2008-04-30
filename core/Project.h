@@ -75,12 +75,23 @@ class Project : public Folder
 
 		void setMdiWindowVisibility(MdiWindowVisibility visibility);
 		MdiWindowVisibility mdiWindowVisibility() const;
+		void setFileName(const QString & file_name);
+		QString fileName() const;
+		void save();
+		void load(const QString & file_name);
 	
 		static ConfigPageWidget * makeConfigPage();
 		static QString configPageLabel();
 		static void loadSettings();
 		static void saveSettings();
 	
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(QXmlStreamReader *);
+		//@}
 
 	private:
 		class Private;

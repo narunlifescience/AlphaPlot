@@ -189,7 +189,21 @@ void ProjectWindow::initActions()
 	d_actions.quit->setShortcut(tr("Ctrl+Q"));
 	action_manager->addAction(d_actions.quit, "quit");
 	connect(d_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
-		
+	
+	d_actions.open_project = new QAction(tr("&Open Project"), this);
+	d_actions.open_project->setShortcut(tr("Ctrl+O"));
+	action_manager->addAction(d_actions.open_project, "open_project");
+	connect(d_actions.open_project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
+
+	d_actions.save_project = new QAction(tr("&Save Project"), this);
+	d_actions.save_project->setShortcut(tr("Ctrl+S"));
+	action_manager->addAction(d_actions.save_project, "save_project");
+	connect(d_actions.save_project, SIGNAL(triggered(bool)), this, SLOT(saveProject()));
+
+	d_actions.save_project_as = new QAction(tr("Save Project &As"), this);
+	action_manager->addAction(d_actions.save_project_as, "save_project_as");
+	connect(d_actions.save_project_as, SIGNAL(triggered(bool)), this, SLOT(saveProjectAs()));
+
 	d_actions.new_folder = new QAction(tr("New F&older"), this);
 	action_manager->addAction(d_actions.new_folder, "new_folder");
 	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
@@ -262,6 +276,9 @@ void ProjectWindow::initMenus()
 	foreach(QAction *a, d_part_makers)
 		d_menus.new_aspect->addAction(a);
 
+	d_menus.file->addAction(d_actions.open_project);
+	d_menus.file->addAction(d_actions.save_project);
+	d_menus.file->addAction(d_actions.save_project_as);
 	d_menus.file->addAction(d_actions.quit);
 
 	d_menus.edit = menuBar()->addMenu(tr("&Edit"));
@@ -338,7 +355,59 @@ void ProjectWindow::initToolBars()
 
 void ProjectWindow::addNewFolder()
 {
-	addNewAspect(new Folder("Folder1"));
+	addNewAspect(new Folder(tr("Folder 1")));
+}
+
+void ProjectWindow::openProject()
+{
+	QString filter = tr("SciDAVis project")+" (*.sciprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sciprj.gz)";
+
+	QString working_dir = qApp->applicationDirPath();
+	QString selected_filter;
+	QString fn = QFileDialog::getOpenFileName(this, tr("Open project"), working_dir, filter, &selected_filter);
+	d_project->load(fn);
+}
+
+void ProjectWindow::saveProject()
+{
+	if (d_project->fileName().isEmpty())
+		saveProjectAs();
+	else
+		d_project->save();
+}
+
+void ProjectWindow::saveProjectAs()
+{
+	QString filter = tr("SciDAVis project")+" (*.sciprj);;";
+	filter += tr("Compressed SciDAVis project")+" (*.sciprj.gz)";
+
+	QString working_dir = qApp->applicationDirPath();
+	QString selected_filter;
+	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), working_dir, filter, &selected_filter);
+	if ( !fn.isEmpty() )
+	{
+			QFileInfo fi(fn);
+		// TODO: remember path
+		//		working_dir = fi.dirPath(true);
+		QString base_name = fi.fileName();
+		if (!base_name.endsWith(".sciprj") && !base_name.endsWith(".sciprj.gz"))
+		{
+			fn.append(".sciprj");
+		}
+		bool compress = false;
+		if (fn.endsWith(".gz"))
+		{
+			fn = fn.left(fn.length() -3);
+			compress = true;
+		}
+		
+		d_project->setFileName(fn);
+		saveProject();
+		// TODO: activate this code later
+//		if (selected_filter.contains(".gz") || compress)
+//			file_compress((char *)fn.toAscii().constData(), "wb9");
+	}
 }
 
 QMenu * ProjectWindow::createToolbarsMenu()

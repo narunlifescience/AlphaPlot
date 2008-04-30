@@ -30,8 +30,10 @@
 #define INTERFACES_H
 
 #include "lib/ConfigPageWidget.h"
+#include "core/AbstractAspect.h"
 
 #include <QtPlugin>
+#include <QXmlStreamReader>
 
 class AbstractPart;
 class QAction;
@@ -110,5 +112,18 @@ class ConfigPageMaker {
 };
 
 Q_DECLARE_INTERFACE(ConfigPageMaker, "net.sf.scidavis.configpagemaker/0.1")
+
+//! Factory that creates an aspect out of an XML element.
+class XmlElementAspectMaker
+{
+	public:
+		virtual ~XmlElementAspectMaker() {}
+		//! Determine whether the loader can handle the given element.
+		virtual bool canCreate(const QString & elementName) = 0;
+		//! The factory method.
+		virtual AbstractAspect * createAspectFromXml(QXmlStreamReader * reader) = 0;
+};
+
+Q_DECLARE_INTERFACE(XmlElementAspectMaker, "net.sf.scidavis.xmlelementaspectmaker/0.1")
 
 #endif // ifndef INTERFACES_H

@@ -48,6 +48,25 @@ class Folder : public AbstractAspect
 		 * The caller takes ownership of the menu.
 		 */
 		virtual QMenu *createContextMenu() const;
+
+		//! Reset the aspect to the default values.
+		/**
+		 * Use this for example before loading the aspect
+		 * from an XML stream. This does not change the
+		 * aspects name.
+		 */
+		virtual void resetToDefaultValues();
+
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(QXmlStreamReader *);
+	protected:
+		//! Read child aspect from XML
+		bool readChildAspectElement(QXmlStreamReader * reader);
+		//@}
 };
 
 #endif // ifndef FOLDER_H

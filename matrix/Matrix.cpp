@@ -50,6 +50,9 @@
 #include <QLocale>
 #include <QMenu>
 #include <QInputDialog>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QDateTime>
 
 #include <stdlib.h>
 #include <math.h>
@@ -169,7 +172,7 @@ void Matrix::clear()
 	RESET_CURSOR;
 }
 
-double Matrix::cell(int row, int col)
+double Matrix::cell(int row, int col) const
 {
 	if(row < 0 || row >= rowCount() ||
 	   col < 0 || col >= columnCount()) return 0.0;
@@ -887,24 +890,34 @@ void Matrix::setDisplayedDigits(int digits)
 	RESET_CURSOR;
 }
 
-double Matrix::xStart() 
+double Matrix::xStart() const
 { 
 	return d_matrix_private->xStart(); 
 }
 
-double Matrix::yStart() 
+double Matrix::yStart() const
 { 
 	return d_matrix_private->yStart(); 
 }
 
-double Matrix::xEnd() 
+double Matrix::xEnd() const
 { 
 	return d_matrix_private->xEnd(); 
 }
 
-double Matrix::yEnd() 
+double Matrix::yEnd() const
 { 
 	return d_matrix_private->yEnd(); 
+}
+
+QString Matrix::formula() const
+{ 
+	return d_matrix_private->formula(); 
+}
+
+void Matrix::setFormula(const QString & formula)
+{
+//	TODO
 }
 
 char Matrix::numericFormat() const 
@@ -917,6 +930,254 @@ int Matrix::displayedDigits() const
 	return d_matrix_private->displayedDigits(); 
 }
 
+void Matrix::save(QXmlStreamWriter * writer) const
+{
+	int cols = columnCount();
+	int rows = rowCount();
+	writer->writeStartElement("matrix");
+	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
+	writer->writeAttribute("caption_spec", captionSpec());
+	writer->writeAttribute("name", name());
+	writer->writeAttribute("columns", QString::number(cols));
+	writer->writeAttribute("rows", QString::number(rows));
+	writer->writeStartElement("comment");
+	writer->writeCharacters(comment());
+	writer->writeEndElement();
+	writer->writeStartElement("formula");
+	writer->writeCharacters(formula());
+	writer->writeEndElement();
+	writer->writeStartElement("display");
+	writer->writeAttribute("numeric_format", QString(QChar(numericFormat())));
+	writer->writeAttribute("displayed_digits", QString::number(displayedDigits()));
+	writer->writeEndElement();
+	writer->writeStartElement("coordinates");
+	writer->writeAttribute("x_start", QString::number(xStart()));
+	writer->writeAttribute("x_end", QString::number(xEnd()));
+	writer->writeAttribute("y_start", QString::number(yStart()));
+	writer->writeAttribute("y_end", QString::number(yEnd()));
+	writer->writeEndElement();
+
+	for (int col=0; col<cols; col++)
+		for (int row=0; row<rows; row++)
+		{
+			writer->writeStartElement("cell");
+			writer->writeAttribute("row", QString::number(row));
+			writer->writeAttribute("column", QString::number(col));
+			writer->writeCharacters(QString::number(cell(row, col), 'e', 16));
+			writer->writeEndElement();
+		}
+	writer->writeEndElement(); // "matrix"
+}
+
+
+bool Matrix::load(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	clear();
+	setFormula(QString());
+	setComment(QString());
+
+	if(reader->isStartElement() && reader->name() == "matrix") 
+	{
+		QXmlStreamAttributes attribs = reader->attributes();
+		QString str;
+
+		// read name
+		str = attribs.value(reader->namespaceUri().toString(), "name").toString();
+		if(str.isEmpty())
+		{
+			reader->raiseError(prefix+tr("matrix name missing")+postfix);
+			return false;
+		}
+		setName(str);
+		// read creation time
+		str = attribs.value(reader->namespaceUri().toString(), "creation_time").toString();
+		if(!str.isEmpty())
+			setCreationTime(QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz"));
+		// read caption spec
+		str = attribs.value(reader->namespaceUri().toString(), "caption_spec").toString();
+		setCaptionSpec(str);
+		// read dimensions
+		QString str_rows = attribs.value(reader->namespaceUri().toString(), "rows").toString();
+		QString str_cols = attribs.value(reader->namespaceUri().toString(), "columns").toString();
+		if(str_rows.isEmpty() || str_cols.isEmpty()) 
+			reader->raiseError(prefix+tr("missing row or column count")+postfix);
+		bool ok1, ok2;
+		int rows, cols;
+		rows = str_rows.toInt(&ok1);
+		cols = str_cols.toInt(&ok2);
+		if(!ok1 || !ok2) 
+			reader->raiseError(prefix+tr("invalid row or column count")+postfix);
+		setDimensions(rows, cols);
+
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				bool ret_val = true;
+				if (reader->name() == "comment")
+					ret_val = XmlReadComment(reader);
+				else if(reader->name() == "formula")
+					ret_val = XmlReadFormula(reader);
+				else if(reader->name() == "display")
+					ret_val = XmlReadDisplay(reader);
+				else if(reader->name() == "coordinates")
+					ret_val = XmlReadCoordinates(reader);
+				else if(reader->name() == "cell")
+					ret_val = XmlReadCell(reader);
+				else
+					reader->readElementText(); // unknown element
+				if(!ret_val)
+					return false;
+			} 
+		}
+	}
+	else // no column element
+		reader->raiseError(prefix+tr("no column element found")+postfix);
+
+	return !reader->error();
+}
+
+bool Matrix::XmlReadComment(QXmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
+	setComment(reader->readElementText());
+	return true;
+}
+
+bool Matrix::XmlReadDisplay(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	Q_ASSERT(reader->isStartElement() && reader->name() == "display");
+	QXmlStreamAttributes attribs = reader->attributes();
+
+	QString str;
+	str = attribs.value(reader->namespaceUri().toString(), "numeric_format").toString();
+	if(str.isEmpty() || str.length() != 1)
+	{
+		reader->raiseError(prefix+tr("invalid numeric format")+postfix);
+		return false;
+	}
+	setNumericFormat(str.at(0).toAscii());
+	
+	str = attribs.value(reader->namespaceUri().toString(), "displayed_digits").toString();
+	bool ok;
+	int digits = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid number of displayed digits")+postfix);
+		return false;
+	}
+	setDisplayedDigits(digits);
+
+	return true;
+}
+
+bool Matrix::XmlReadCoordinates(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	Q_ASSERT(reader->isStartElement() && reader->name() == "coordinates");
+	QXmlStreamAttributes attribs = reader->attributes();
+
+	QString str;
+	bool ok;
+	int val;
+
+	str = attribs.value(reader->namespaceUri().toString(), "x_start").toString();
+	val = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid x start value")+postfix);
+		return false;
+	}
+	setXStart(val);
+
+	str = attribs.value(reader->namespaceUri().toString(), "x_end").toString();
+	val = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid x end value")+postfix);
+		return false;
+	}
+	setXEnd(val);
+
+	str = attribs.value(reader->namespaceUri().toString(), "y_start").toString();
+	val = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid y start value")+postfix);
+		return false;
+	}
+	setYStart(val);
+
+	str = attribs.value(reader->namespaceUri().toString(), "y_end").toString();
+	val = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid y end value")+postfix);
+		return false;
+	}
+	setYEnd(val);
+
+	return true;
+}
+
+bool Matrix::XmlReadFormula(QXmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "formula");
+	setFormula(reader->readElementText());
+	return true;
+}
+
+bool Matrix::XmlReadCell(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	Q_ASSERT(reader->isStartElement() && reader->name() == "cell");
+	
+	QString str;
+	int row, col;
+	bool ok;
+
+	QXmlStreamAttributes attribs = reader->attributes();
+	str = attribs.value(reader->namespaceUri().toString(), "row").toString();
+	row = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid or missing row index")+postfix);
+		return false;
+	}
+	str = attribs.value(reader->namespaceUri().toString(), "column").toString();
+	col = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid or missing column index")+postfix);
+		return false;
+	}
+
+	str = reader->readElementText();
+	double value = str.toDouble(&ok);
+	if(!ok)
+	{
+		reader->raiseError(prefix+tr("invalid cell value")+postfix);
+		return false;
+	}
+	setCell(row, col, value);
+
+	return true;
+}
 
 /* ========================= static methods ======================= */
 ActionManager * Matrix::action_manager = 0;
@@ -1000,7 +1261,7 @@ void Matrix::Private::removeRows(int first, int count)
 	emit d_owner->rowsRemoved(first, count);
 }
 
-double Matrix::Private::cell(int row, int col)
+double Matrix::Private::cell(int row, int col) const
 {
 	Q_ASSERT(row >= 0 && row < d_row_count);
 	Q_ASSERT(col >= 0 && col < d_column_count);

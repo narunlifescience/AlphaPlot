@@ -89,6 +89,9 @@ class ProjectWindow : public QMainWindow
 		void importAspect();
 		void showKeyboardShortcutsDialog();
 		void showPreferencesDialog();
+		void openProject();
+		void saveProject();
+		void saveProjectAs();
 
 	signals:
 		void partActivated(AbstractPart*);
@@ -132,6 +135,9 @@ class ProjectWindow : public QMainWindow
 		QAction 
 			*quit,
 			*import_aspect,
+			*open_project,
+			*save_project,
+			*save_project_as,
 			*new_folder,
 			*keyboard_shortcuts_dialog,
 			*preferences_dialog,

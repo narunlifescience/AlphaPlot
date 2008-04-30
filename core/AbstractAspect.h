@@ -174,12 +174,35 @@ class AbstractAspect : public QObject
 		QAction *redoAction(QObject *parent) const;
 		//@}
 
+		//! Reset the aspect to the default values.
+		/**
+		 * Use this for example before loading the aspect
+		 * from an XML stream. This does not change the
+		 * aspects name.
+		 */
+		virtual void resetToDefaultValues();
+		
 		//! \name serialize/deserialize
 		//@{
 		//! Save as XML
 		virtual void save(QXmlStreamWriter *) const {};
 		//! Load from XML
+		/**
+		 * \return false on error
+		 */
 		virtual bool load(QXmlStreamReader *) { return false; };
+	protected:
+		//! Load name, creation time and caption spec from XML
+		/**
+		 * \return false on error
+		 */
+		bool readBasicAttributes(QXmlStreamReader * reader);
+		//! Save name, creation time and caption spec to XML
+		void writeBasicAttributes(QXmlStreamWriter * writer) const;
+		//! Save the comment to XML
+		void writeCommentElement(QXmlStreamWriter * writer) const;
+		//! Load comment from an XML element
+		bool readCommentElement(QXmlStreamReader * reader);
 		//@}
 
 	public slots:

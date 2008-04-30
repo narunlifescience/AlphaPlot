@@ -33,6 +33,9 @@
 #include <QIcon>
 #include <QApplication>
 #include <QStyle>
+#include <QXmlStreamReader>
+#include <QXmlStreamWriter>
+#include <QPluginLoader>
 
 Folder::Folder(const QString &name)
 	: AbstractAspect(name)
@@ -56,5 +59,118 @@ QMenu *Folder::createContextMenu() const
 	if (project())
 		return project()->createFolderContextMenu(this);
 	return 0;
+}
+
+void Folder::resetToDefaultValues()
+{
+	AbstractAspect::resetToDefaultValues();
+	for (int i=childCount()-1; i >= 0; i--) 
+		removeChild(i);
+}
+
+void Folder::save(QXmlStreamWriter * writer) const
+{
+	writer->writeStartElement("folder");
+	writeBasicAttributes(writer);
+	writeCommentElement(writer);
+
+	int child_count = childCount();
+	for (int i=0; i<child_count; i++)
+	{
+		writer->writeStartElement("child_aspect");
+		writer->writeAttribute("index", QString::number(i));
+		child(i)->save(writer);
+		writer->writeEndElement(); // "child_aspect"
+	}
+	writer->writeEndElement(); // "folder"
+}
+
+bool Folder::load(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	if(reader->isStartElement() && reader->name() == "folder") 
+	{
+		resetToDefaultValues();
+
+		if (!readBasicAttributes(reader)) return false;
+
+		QXmlStreamAttributes attribs = reader->attributes();
+		QString str;
+
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				bool ret_val = true;
+				if (reader->name() == "comment")
+					ret_val = readCommentElement(reader);
+				else if(reader->name() == "child_aspect")
+					ret_val = readChildAspectElement(reader);
+				else
+					reader->readElementText(); // unknown element
+				if(!ret_val)
+					return false;
+			} 
+		}
+	}
+	else // no folder element
+		reader->raiseError(prefix+tr("no folder element found")+postfix);
+
+	return !reader->error();
+}
+
+bool Folder::readChildAspectElement(QXmlStreamReader * reader)
+{
+	QString prefix(tr("XML read error: ","prefix for XML error messages"));
+	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+
+	bool result = false, ok;
+	Q_ASSERT(reader->isStartElement() && reader->name() == "child_aspect");
+	QXmlStreamAttributes attribs = reader->attributes();
+	QString str;
+
+	str = attribs.value(reader->namespaceUri().toString(), "index").toString();
+	int index = str.toInt(&ok);
+	if(str.isEmpty() || !ok)
+	{
+		reader->raiseError(prefix+tr("invalid or missing child index")+postfix);
+		return false;
+	}
+
+	reader->readNext();
+	if (reader->name() == "folder")
+	{
+		Folder * folder = new Folder(tr("Folder 1"));
+		folder->load(reader);
+		insertChild(folder, index);
+		result = true;
+	}
+	else
+		foreach(QObject * plugin, QPluginLoader::staticInstances()) 
+		{
+			XmlElementAspectMaker * maker = qobject_cast<XmlElementAspectMaker *>(plugin);
+			if (maker && maker->canCreate(reader->name().toString()))
+			{
+				AbstractAspect * aspect = maker->createAspectFromXml(reader);
+				if (aspect)
+				{
+					insertChild(aspect, index);
+					result = true;
+				}
+				break;
+			}
+		}
+	if (!result)
+		reader->raiseError(prefix+tr("no plugin for aspect '%1' found").arg(reader->name().toString())+postfix);
+	reader->readNext();
+	Q_ASSERT(reader->isEndElement() && reader->name() == "child_element");
+	return result;
 }
 

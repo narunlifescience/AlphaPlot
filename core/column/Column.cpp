@@ -506,10 +506,10 @@ bool Column::XmlReadMask(QXmlStreamReader * reader)
 	if(str_start.isEmpty() || str_end.isEmpty()) 
 		reader->raiseError(prefix+tr("missing start or end row")+postfix);
 
-	bool ok1,ok2;
-	int start,end;
+	bool ok1, ok2;
+	int start, end;
 	start = str_start.toInt(&ok1);
-	end = str_start.toInt(&ok1);
+	end = str_start.toInt(&ok2);
 	if(!ok1 || !ok2) 
 		reader->raiseError(prefix+tr("invalid start or end row")+postfix);
 
