@@ -77,13 +77,12 @@ class Project : public Folder
 		MdiWindowVisibility mdiWindowVisibility() const;
 		void setFileName(const QString & file_name);
 		QString fileName() const;
-		void save();
-		void load(const QString & file_name);
 	
 		static ConfigPageWidget * makeConfigPage();
 		static QString configPageLabel();
 		static void loadSettings();
 		static void saveSettings();
+		void resetToDefaultValues();
 	
 		//! \name serialize/deserialize
 		//@{

@@ -16,13 +16,13 @@
 #include <QMetaEnum>
 
 //  Don't forget to change the Doxyfile when changing these!
-const int SciDAVis::scidavis_version = 0x000100;
+const int SciDAVis::scidavis_version = 0x000300;
 
 const char * SciDAVis::extra_version = "";
 
 const char * SciDAVis::copyright_string = "Developers (alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nDocumentation:\nRoger Gadiou\n\nSpecial thanks to (alphabetical order):\nQuentin Denis\nGudjon I. Gudjonsson\nAlex Kargovsky\nIon Vasilief\n\nThanks to (no particular order):\nthe developers of Qt, Qwt, QwtPlot3D, GSL, muParser, zlib, Python, PyQt, and liborigin\nall bug reporters, translators and other contributors";
 
-const char * SciDAVis::release_date = " 2007-08-05";
+const char * SciDAVis::release_date = " XXXX-XX-XX";
 
 int SciDAVis::version()
 {

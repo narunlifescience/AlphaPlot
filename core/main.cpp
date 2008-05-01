@@ -77,6 +77,8 @@ int main( int argc, char ** argv )
 	Project* p(new Project());
 	p->view()->showMaximized();
 
+	// TODO: who deletes projects that get closed?
+
 
 #if 0
 	QStringList args = app.arguments();

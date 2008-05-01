@@ -27,10 +27,12 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "Project.h"
-#include "ProjectWindow.h"
-#include "ScriptingEngineManager.h"
+#include "core/Project.h"
+#include "core/ProjectWindow.h"
+#include "core/ScriptingEngineManager.h"
 #include "core/interfaces.h"
+#include "core/globals.h"
+#include "ui_ProjectConfigPage.h"
 #include <QUndoStack>
 #include <QString>
 #include <QKeySequence>
@@ -41,7 +43,7 @@
 #include <QFile>
 #include <QXmlStreamReader>
 #include <QXmlStreamWriter>
-#include "ui_ProjectConfigPage.h"
+#include <QtDebug>
 
 #define NOT_IMPL (QMessageBox::information(0, "info", "not yet implemented"))
 
@@ -127,6 +129,12 @@ Project::Project()
 	Q_ASSERT(ScriptingEngineManager::instance()->engineNames().size() > 0);
 	QString engine_name = ScriptingEngineManager::instance()->engineNames()[0];
 	d->scripting_engine = ScriptingEngineManager::instance()->engine(engine_name);
+}
+
+void Project::resetToDefaultValues()
+{
+	setFileName(QString());
+	Folder::resetToDefaultValues();
 }
 	
 Project::~Project()
@@ -277,34 +285,11 @@ QString Project::fileName() const
 	return d->file_name;
 }
 
-void Project::save()
-{
-	if (fileName().isEmpty())
-		return;
-	QFile file(fileName());
-	// TODO: ask whether to override or not
-	file.open(QIODevice::WriteOnly);
-	QXmlStreamWriter writer(&file);
-	save(&writer);
-	file.close();
-}
-
-void Project::load(const QString & file_name)
-{
-	if (file_name.isEmpty())
-		return;
-
-	QFile file(file_name);
-	file.open(QIODevice::ReadOnly);
-	QXmlStreamReader reader(&file);
-	load(&reader);
-	file.close();
-}
-
 void Project::save(QXmlStreamWriter * writer) const
 {
 	writer->writeStartDocument();
 	writer->writeStartElement("scidavis_project");
+	writer->writeAttribute("version", QString::number(SciDAVis::version()));
 	// TODO: write project attributes
 	writer->writeStartElement("project_root");
 	Folder::save(writer);
@@ -318,38 +303,62 @@ bool Project::load(QXmlStreamReader * reader)
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
 
-	if(reader->isStartElement() && reader->name() == "folder") 
+	while (!(reader->isStartDocument() || reader->atEnd()))
+		reader->readNext();
+	if(!reader->atEnd())
 	{
-		resetToDefaultValues();
-
-		if (!readBasicAttributes(reader)) return false;
-
-		QXmlStreamAttributes attribs = reader->attributes();
-		QString str;
-
-		// read child elements
-		while (!reader->atEnd()) 
+		reader->readNext();
+		if (reader->isStartElement() && reader->name() == "scidavis_project") 
 		{
-			reader->readNext();
+			resetToDefaultValues();
+			QXmlStreamAttributes attribs = reader->attributes();
+			QString str;
 
-			if (reader->isEndElement()) break;
-
-			if (reader->isStartElement()) 
+			str = attribs.value(reader->namespaceUri().toString(), "version").toString();
+			if(str.isEmpty())
 			{
-				bool ret_val = true;
-				if (reader->name() == "comment")
-					ret_val = readCommentElement(reader);
-				else if(reader->name() == "child_aspect")
-					ret_val = readChildAspectElement(reader);
-				else
-					reader->readElementText(); // unknown element
-				if(!ret_val)
-					return false;
-			} 
+				reader->raiseError(prefix+tr("missing project version")+postfix);
+				return false;
+			}
+			bool ok;
+			int version = str.toInt(&ok);
+			if(!ok) 
+			{
+				reader->raiseError(prefix+tr("invalid project version")+postfix);
+				return false;
+			}
+
+			// version dependent staff goes here
+			
+			while (!reader->atEnd()) 
+			{
+				reader->readNext();
+
+				if (reader->isEndElement()) break;
+
+				if (reader->isStartElement()) 
+				{
+					bool ret_val = true;
+					if (reader->name() == "project_root")
+					{
+						reader->readNext();
+						ret_val = Folder::load(reader);
+						reader->readNext();
+						Q_ASSERT(reader->isEndElement() && reader->name() == "project_root");
+					}
+					else
+						reader->readElementText(); // unknown element
+
+					if(!ret_val)
+						return false;
+				} 
+			}
 		}
+		else // no project element
+			reader->raiseError(prefix+tr("no scidavis_project element found")+postfix);
 	}
-	else // no folder element
-		reader->raiseError(prefix+tr("no folder element found")+postfix);
+	else // no start document
+		reader->raiseError(prefix+tr("no valid XML document found")+postfix);
 
 	return !reader->error();
 }

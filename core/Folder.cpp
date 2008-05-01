@@ -170,7 +170,7 @@ bool Folder::readChildAspectElement(QXmlStreamReader * reader)
 	if (!result)
 		reader->raiseError(prefix+tr("no plugin for aspect '%1' found").arg(reader->name().toString())+postfix);
 	reader->readNext();
-	Q_ASSERT(reader->isEndElement() && reader->name() == "child_element");
+	Q_ASSERT(reader->isEndElement() && reader->name() == "child_aspect");
 	return result;
 }
 

@@ -58,6 +58,7 @@
 #include <QVBoxLayout>
 #include <QDialogButtonBox>
 #include <QTabWidget>
+#include <QMessageBox>
 
 ActionManager * ProjectWindow::action_manager = 0;
 
@@ -365,8 +366,34 @@ void ProjectWindow::openProject()
 
 	QString working_dir = qApp->applicationDirPath();
 	QString selected_filter;
-	QString fn = QFileDialog::getOpenFileName(this, tr("Open project"), working_dir, filter, &selected_filter);
-	d_project->load(fn);
+	QString file_name = QFileDialog::getOpenFileName(this, tr("Open project"), working_dir, filter, &selected_filter);
+	// TODO: determine whether it is a 0.1.x project and run an import filter if it is
+	//
+	//
+
+	if (file_name.isEmpty())
+		return;
+
+	QFile file(file_name);
+	if (!file.open(QIODevice::ReadOnly)) 
+	{
+		QString msg_text = tr("Could not open file \"%1\".").arg(file_name);
+		QMessageBox::critical(this, tr("Error opening project"), msg_text);
+		statusBar()->showMessage(msg_text);
+		return;
+	}
+	QXmlStreamReader reader(&file);
+	Project * prj(new Project());
+	if (!(prj->load(&reader)))
+	{
+			QString msg_text = reader.errorString();
+			QMessageBox::critical(this, tr("Error opening project"), msg_text);
+			statusBar()->showMessage(msg_text);
+			delete prj;
+			return;
+	}
+	prj->view()->showMaximized();
+	file.close();
 }
 
 void ProjectWindow::saveProject()
@@ -374,7 +401,19 @@ void ProjectWindow::saveProject()
 	if (d_project->fileName().isEmpty())
 		saveProjectAs();
 	else
-		d_project->save();
+	{
+		QFile file(d_project->fileName());
+		if (!file.open(QIODevice::WriteOnly)) 
+		{
+			QString msg_text = tr("Could not open file \"%1\".").arg(d_project->fileName());
+			QMessageBox::critical(this, tr("Error saving project"), msg_text);
+			statusBar()->showMessage(msg_text);
+			return;
+		}
+		QXmlStreamWriter writer(&file);
+		d_project->save(&writer);
+		file.close();
+	}
 }
 
 void ProjectWindow::saveProjectAs()
