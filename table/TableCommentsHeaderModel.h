@@ -2,7 +2,7 @@
     File                 : TableCommentsHeaderModel.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
+    Copyright            : (C) 2007 by Tilman Benkert,
     Email (use @ for *)  : thzs*gmx.net
     Description          : Model wrapping a TableModel to display column 
                            comments in a TableCommentsHeaderView

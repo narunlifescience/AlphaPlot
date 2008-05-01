@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : View class for Table
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
 
  ***************************************************************************/

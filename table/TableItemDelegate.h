@@ -2,7 +2,7 @@
     File                 : TableItemDelegate.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
+    Copyright            : (C) 2007 by Tilman Benkert,
     Email (use @ for *)  : thzs*gmx.net
     Description          : Item delegate for TableView
 

@@ -2,7 +2,7 @@
     File                 : SimpleCopyThroughFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Filter which copies the provided input unaltered
                            to the output

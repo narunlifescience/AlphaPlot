@@ -4,6 +4,7 @@
     Description          : Module providing the notes Part and support classes.
     --------------------------------------------------------------------
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email address)
 
  ***************************************************************************/

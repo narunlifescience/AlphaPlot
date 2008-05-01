@@ -2,7 +2,7 @@
     File                 : String2MonthFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Conversion filter String -> QDateTime, interpreting
                            the input as months of the year (either numeric or "Jan" etc).

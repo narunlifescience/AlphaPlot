@@ -2,7 +2,7 @@
     File                 : OpjImporter.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006-2007 by Ion Vasilief, Alex Kargovsky, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, kargovsky*yumr.phys.msu.su, thzs*gmx.net
     Description          : Origin project import class
 

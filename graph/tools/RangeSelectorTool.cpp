@@ -3,7 +3,7 @@
     Project              : SciDAVis
     --------------------------------------------------------------------
     Copyright            : (C) 2006,2007 by Ion Vasilief,
-                           Tilman Hoener zu Siederdissen, Knut Franke
+                           Tilman Benkert, Knut Franke
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
                            knut.franke*gmx.de
     Description          : Plot tool for selecting ranges on curves.

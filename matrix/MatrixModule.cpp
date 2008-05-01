@@ -4,7 +4,7 @@
     Description          : Module providing the matrix Part and support classes.
     --------------------------------------------------------------------
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
-    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email address)
 
  ***************************************************************************/
@@ -27,11 +27,11 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "MatrixModule.h"
-
-#include "Matrix.h"
-#include "Project.h"
-#include "ProjectWindow.h"
+#include "matrix/MatrixModule.h"
+#include "matrix/Matrix.h"
+#include "core/Project.h"
+#include "core/ProjectWindow.h"
+#include "lib/ActionManager.h"
 #include <QAction>
 #include <QPixmap>
 #include <QSettings>
@@ -61,7 +61,9 @@ AbstractPart * MatrixModule::makePart()
 QAction * MatrixModule::makeAction(QObject *parent)
 {
 	QAction *new_matrix = new QAction(tr("New &Matrix"), parent);
+	new_matrix->setShortcut(tr("Ctrl+M", "new matrix shortcut"));
 	new_matrix->setIcon(QIcon(QPixmap(":/new_matrix.xpm")));
+	Matrix::actionManager()->addAction(new_matrix, "new_matrix");
 	return new_matrix;
 }
 

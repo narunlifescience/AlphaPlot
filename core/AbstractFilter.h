@@ -2,7 +2,7 @@
     File                 : AbstractFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007,2008 by Knut Franke, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007,2008 by Knut Franke, Tilman Benkert
     Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
     Description          : Base class for all analysis operations.
 

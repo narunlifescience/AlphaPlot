@@ -2,7 +2,7 @@
     File                 : SimpleMappingFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007 by Tilman Benkert
     Email                : thzs@gmx.net
     Description          : Filter that maps rows indices of a column
                            

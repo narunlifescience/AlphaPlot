@@ -28,10 +28,11 @@
  ***************************************************************************/
 #include "TableModule.h"
 
-#include "Table.h"
-#include "Project.h"
-#include "ProjectWindow.h"
-#include "AsciiTableImportFilter.h"
+#include "table/Table.h"
+#include "table/AsciiTableImportFilter.h"
+#include "core/Project.h"
+#include "core/ProjectWindow.h"
+#include "lib/ActionManager.h"
 #include <QAction>
 #include <QPixmap>
 #include <QtDebug>
@@ -62,7 +63,9 @@ AbstractPart * TableModule::makePart()
 QAction * TableModule::makeAction(QObject *parent)
 {
 	QAction *new_table = new QAction(tr("New &Table"), parent);
+	new_table->setShortcut(tr("Ctrl+T", "new table shortcut"));
 	new_table->setIcon(QIcon(QPixmap(":/table.xpm")));
+	Table::actionManager()->addAction(new_table, "new_table");
 	return new_table;
 }
 

@@ -4,8 +4,8 @@
     Description          : Standard view on a Project; main window.
     --------------------------------------------------------------------
     Copyright            : (C) 2007-2008 Knut Franke (knut.franke*gmx.de)
-    Copyright            : (C) 2007-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007-2008 Tilman Benkert (thzs*gmx.net)
+    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
                            (some parts taken from former ApplicationWindow class
 						    (C) 2004-2007 by Ion Vasilief (ion_vasilief*yahoo.fr))
                            (replace * with @ in the email addresses) 
@@ -210,6 +210,17 @@ void ProjectWindow::initActions()
 	d_actions.new_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
 	connect(d_actions.new_folder, SIGNAL(triggered(bool)), this, SLOT(addNewFolder()));
 
+	d_actions.new_project = new QAction(tr("New &Project"), this);
+	d_actions.new_project->setShortcut(tr("Ctrl+N"));
+	action_manager->addAction(d_actions.new_project, "new_project");
+	d_actions.new_project->setIcon(QIcon(QPixmap(":/new.xpm")));
+	connect(d_actions.new_project, SIGNAL(triggered(bool)), this, SLOT(newProject()));
+
+	d_actions.close_project = new QAction(tr("&Close Project"), this);
+	action_manager->addAction(d_actions.close_project, "close_project");
+	d_actions.close_project->setIcon(QIcon(QPixmap(":/close.xpm")));
+	connect(d_actions.close_project, SIGNAL(triggered(bool)), this, SLOT(close()));
+
 	d_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
 	action_manager->addAction(d_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
 	connect(d_actions.keyboard_shortcuts_dialog, SIGNAL(triggered(bool)), this, SLOT(showKeyboardShortcutsDialog()));
@@ -273,6 +284,7 @@ void ProjectWindow::initMenus()
 {
 	d_menus.file = menuBar()->addMenu(tr("&File"));
 	d_menus.new_aspect = d_menus.file->addMenu(tr("&New"));
+	d_menus.new_aspect->addAction(d_actions.new_project);
 	d_menus.new_aspect->addAction(d_actions.new_folder);
 	foreach(QAction *a, d_part_makers)
 		d_menus.new_aspect->addAction(a);
@@ -280,6 +292,8 @@ void ProjectWindow::initMenus()
 	d_menus.file->addAction(d_actions.open_project);
 	d_menus.file->addAction(d_actions.save_project);
 	d_menus.file->addAction(d_actions.save_project_as);
+	d_menus.file->addAction(d_actions.close_project);
+	d_menus.file->addSeparator();
 	d_menus.file->addAction(d_actions.quit);
 
 	d_menus.edit = menuBar()->addMenu(tr("&Edit"));
@@ -359,6 +373,12 @@ void ProjectWindow::addNewFolder()
 	addNewAspect(new Folder(tr("Folder 1")));
 }
 
+void ProjectWindow::newProject()
+{
+	Project * prj = new Project();
+	prj->view()->showMaximized();
+}
+
 void ProjectWindow::openProject()
 {
 	QString filter = tr("SciDAVis project")+" (*.sciprj);;";
@@ -383,7 +403,7 @@ void ProjectWindow::openProject()
 		return;
 	}
 	QXmlStreamReader reader(&file);
-	Project * prj(new Project());
+	Project * prj = new Project();
 	if (!(prj->load(&reader)))
 	{
 			QString msg_text = reader.errorString();

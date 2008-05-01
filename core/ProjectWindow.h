@@ -4,8 +4,8 @@
     Description          : Standard view on a Project; main window.
     --------------------------------------------------------------------
     Copyright            : (C) 2007-2008 Knut Franke (knut.franke*gmx.de)
-    Copyright            : (C) 2007-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
-    Copyright            : (C) 2007 by Knut Franke, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2007-2008 Tilman Benkert (thzs*gmx.net)
+    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
                            (some parts taken from former ApplicationWindow class
 						    (C) 2004-2007 by Ion Vasilief (ion_vasilief*yahoo.fr))
                            (replace * with @ in the email addresses) 
@@ -84,6 +84,7 @@ class ProjectWindow : public QMainWindow
 	
 	public slots:
 		void addNewFolder();
+		void newProject();
 		//! Show hide mdi windows depending on the currend folder
 		void updateMdiWindowVisibility();
 		void importAspect();
@@ -136,9 +137,11 @@ class ProjectWindow : public QMainWindow
 			*quit,
 			*import_aspect,
 			*open_project,
+			*close_project,
 			*save_project,
 			*save_project_as,
 			*new_folder,
+			*new_project,
 			*keyboard_shortcuts_dialog,
 			*preferences_dialog,
 			*next_subwindow,

@@ -2,7 +2,7 @@
     File                 : IntDialog.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, Vasileios Gkanis, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Integration options dialog
 

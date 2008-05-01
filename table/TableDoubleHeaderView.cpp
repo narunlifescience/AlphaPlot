@@ -2,7 +2,7 @@
     File                 : TableDoubleHeaderView.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
+    Copyright            : (C) 2007 by Tilman Benkert,
     Email (use @ for *)  : thzs*gmx.net
     Description          : Horizontal header for TableView displaying comments in a second header
 

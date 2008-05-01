@@ -4,7 +4,7 @@
     Description          : MDI sub window to be wrapped around views of
                            AbstractPart.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2007,2008 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 

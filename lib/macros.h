@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Various preprocessor macros
     --------------------------------------------------------------------
-    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
                            

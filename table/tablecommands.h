@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Commands used in Table (part of the undo/redo framework)
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
                            
  ***************************************************************************/

@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Commands to be called by Column to modify Column::Private
     --------------------------------------------------------------------
-    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
                            
  ***************************************************************************/

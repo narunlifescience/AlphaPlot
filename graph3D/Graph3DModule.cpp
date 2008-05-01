@@ -4,7 +4,7 @@
     Description          : Module providing the 3D graph Part and support classes.
     --------------------------------------------------------------------
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
-    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email address)
 
  ***************************************************************************/
@@ -28,11 +28,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Graph3DModule.h"
-
-#include "Graph3D.h"
-#include "Project.h"
-#include "ProjectWindow.h"
+#include "graph3D/Graph3DModule.h"
+#include "graph3D/Graph3D.h"
+#include "core/Project.h"
+#include "core/ProjectWindow.h"
+#include "lib/ActionManager.h"
 #include <QAction>
 #include <QPixmap>
 #include <QtDebug>
@@ -64,6 +64,7 @@ QAction * Graph3DModule::makeAction(QObject *parent)
 {
 	QAction *new_graph3D = new QAction(tr("New &Graph3D"), parent);
 	new_graph3D->setIcon(QIcon(QPixmap(":/grid_poly.xpm")));  // TODO: make a better icon
+	Graph3D::actionManager()->addAction(new_graph3D, "new_graph3D");
 	return new_graph3D;
 }
 

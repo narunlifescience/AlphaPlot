@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Represents a SciDAVis project.
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2007 Knut Franke (knut.franke*gmx.de)
                            (replace * with @ in the email addresses) 
 
@@ -58,6 +58,7 @@ class Project::Private
 		MdiWindowVisibility mdi_window_visibility;
 		ProjectWindow * primary_view;
 		AbstractScriptingEngine * scripting_engine;
+		// TODO: sync filename <-> aspect name
 		QString file_name;
 
 		// global settings

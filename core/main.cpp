@@ -2,7 +2,7 @@
     File                 : main.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : SciDAVis main function
 
@@ -74,7 +74,7 @@ int main( int argc, char ** argv )
 	Project::loadSettings();
 
 	// create initial empty project
-	Project* p(new Project());
+	Project* p = new Project();
 	p->view()->showMaximized();
 
 	// TODO: who deletes projects that get closed?

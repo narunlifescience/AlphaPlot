@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Definition of global constants and enums
     --------------------------------------------------------------------
-    Copyright            : (C) 2006-2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Tilman Benkert (thzs*gmx.net)
     Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
                            (replace * with @ in the email addresses) 
 

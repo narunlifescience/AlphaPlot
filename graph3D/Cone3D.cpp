@@ -2,7 +2,7 @@
     File                 : Cone3D.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : 3D cone class (code from Cone class  in QwtPlot3D library with modified destructor)
                            

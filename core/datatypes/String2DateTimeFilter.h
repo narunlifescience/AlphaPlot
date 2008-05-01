@@ -2,7 +2,7 @@
     File                 : String2DateTimeFilter.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Tilman Hoener zu Siederdissen,
+    Copyright            : (C) 2007 by Tilman Benkert,
                            Knut Franke
     Email (use @ for *)  : thzs*gmx.net, knut.franke*gmx.de
     Description          : Conversion filter QString -> QDateTime.

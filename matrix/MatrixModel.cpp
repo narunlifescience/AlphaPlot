@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Model for the access to a Matrix
     --------------------------------------------------------------------
-    Copyright            : (C) 2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
 
  ***************************************************************************/

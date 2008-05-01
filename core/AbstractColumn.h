@@ -3,7 +3,7 @@
     Project              : SciDAVis
     Description          : Interface definition for data with column logic
     --------------------------------------------------------------------
-    Copyright            : (C) 2007,2008 Tilman Hoener zu Siederdissen (thzs*gmx.net)
+    Copyright            : (C) 2007,2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email addresses) 
 
  ***************************************************************************/

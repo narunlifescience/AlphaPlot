@@ -4,6 +4,7 @@
     Description          : Module providing the notes Part and support classes.
     --------------------------------------------------------------------
     Copyright            : (C) 2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2008 Tilman Benkert (thzs*gmx.net)
                            (replace * with @ in the email address)
 
  ***************************************************************************/
@@ -27,9 +28,9 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "NotesModule.h"
-
-#include "Notes.h"
+#include "notes/NotesModule.h"
+#include "notes/Notes.h"
+#include "lib/ActionManager.h"
 #include <QAction>
 #include <QSettings>
 #include "ui_NotesConfigPage.h"
@@ -59,6 +60,7 @@ QAction * NotesModule::makeAction(QObject *parent)
 {
 	QAction *new_notes = new QAction(tr("New &Notes"), parent);
 	new_notes->setIcon(QIcon(QPixmap(":/new_note.xpm")));
+	Notes::actionManager()->addAction(new_notes, "new_notes");
 	return new_notes;
 }
 

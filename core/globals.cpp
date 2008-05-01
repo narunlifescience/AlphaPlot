@@ -2,7 +2,7 @@
     File                 : globals.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Hoener zu Siederdissen
+    Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
     Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
     Description          : Definition of global constants and enums
 
@@ -20,7 +20,7 @@ const int SciDAVis::scidavis_version = 0x000300;
 
 const char * SciDAVis::extra_version = "";
 
-const char * SciDAVis::copyright_string = "Developers (alphabetical order):\nKnut Franke\nTilman Hoener zu Siederdissen\n\nDocumentation:\nRoger Gadiou\n\nSpecial thanks to (alphabetical order):\nQuentin Denis\nGudjon I. Gudjonsson\nAlex Kargovsky\nIon Vasilief\n\nThanks to (no particular order):\nthe developers of Qt, Qwt, QwtPlot3D, GSL, muParser, zlib, Python, PyQt, and liborigin\nall bug reporters, translators and other contributors";
+const char * SciDAVis::copyright_string = "Developers (alphabetical order):\nKnut Franke\nTilman Benkert\n\nDocumentation:\nRoger Gadiou\n\nSpecial thanks to (alphabetical order):\nQuentin Denis\nGudjon I. Gudjonsson\nAlex Kargovsky\nIon Vasilief\n\nThanks to (no particular order):\nthe developers of Qt, Qwt, QwtPlot3D, GSL, muParser, zlib, Python, PyQt, and liborigin\nall bug reporters, translators and other contributors";
 
 const char * SciDAVis::release_date = " XXXX-XX-XX";
 
