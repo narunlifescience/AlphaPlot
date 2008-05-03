@@ -331,7 +331,7 @@ bool Project::load(XmlStreamReader * reader)
 					else // unknown element
 					{
 						reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
-						reader->skipToEndElement(); 
+						if (!reader->skipToEndElement()) return false;
 					}
 				} 
 			}

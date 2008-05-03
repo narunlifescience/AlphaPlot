@@ -192,6 +192,14 @@ class Table : public AbstractPart, public scripted
 		void setSelectionAs(SciDAVis::PlotDesignation pd);
 		void copy(Table * other);
 
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(XmlStreamReader *);
+		//@}
+		
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();

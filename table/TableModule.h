@@ -33,10 +33,11 @@
 #include "table/Table.h"
 #include <QMenu>
 
-class TableModule : public QObject, public PartMaker, public FileFormat, public ActionManagerOwner, public ConfigPageMaker
+class TableModule : public QObject, public PartMaker, public FileFormat, public ActionManagerOwner, public ConfigPageMaker, 
+	public XmlElementAspectMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner ConfigPageMaker)
+	Q_INTERFACES(PartMaker FileFormat ActionManagerOwner ConfigPageMaker XmlElementAspectMaker)
 
 	public:
 		virtual AbstractPart * makePart();
@@ -49,6 +50,8 @@ class TableModule : public QObject, public PartMaker, public FileFormat, public 
 		virtual QString configPageLabel();
 		virtual void loadSettings();
 		virtual void saveSettings();
+		virtual bool canCreate(const QString & element_name);
+		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader);
 };
 
 class Ui_TableConfigPage;

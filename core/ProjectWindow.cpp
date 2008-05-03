@@ -433,6 +433,7 @@ void ProjectWindow::openProject()
 	file.close();
 	prj->undoStack()->clear();
 	prj->view()->showMaximized();
+	prj->setFileName(file_name);
 }
 
 void ProjectWindow::saveProject()
@@ -451,6 +452,7 @@ void ProjectWindow::saveProject()
 		}
 		QXmlStreamWriter writer(&file);
 		d_project->save(&writer);
+		d_project->undoStack()->clear();
 		file.close();
 	}
 }

@@ -119,6 +119,23 @@ void TableModule::saveSettings()
 	settings.endGroup();
 }
 
+bool TableModule::canCreate(const QString & element_name)
+{	
+	return element_name == "table";
+}
+
+AbstractAspect * TableModule::createAspectFromXml(XmlStreamReader * reader)
+{
+	Table * table = new Table(0, 0, 0, tr("Table %1").arg(1));
+	if (!(table->load(reader)))
+	{
+		delete table;
+		return NULL;
+	}
+	else
+		return table;
+}
+
 Q_EXPORT_PLUGIN2(scidavis_table, TableModule)
 
 

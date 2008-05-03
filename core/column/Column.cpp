@@ -280,20 +280,16 @@ QIcon Column::icon() const
 void Column::save(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("column");
-	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
-	writer->writeAttribute("caption_spec", captionSpec());
-	writer->writeAttribute("label", name());
+	writeBasicAttributes(writer);
 	writer->writeAttribute("type", SciDAVis::enumValueToString(dataType(), "ColumnDataType"));
 	writer->writeAttribute("mode", SciDAVis::enumValueToString(columnMode(), "ColumnMode"));
 	writer->writeAttribute("plot_designation", SciDAVis::enumValueToString(plotDesignation(), "PlotDesignation"));
+	writeCommentElement(writer);
 	writer->writeStartElement("input_filter");
 	inputFilter()->save(writer);
 	writer->writeEndElement();
 	writer->writeStartElement("output_filter");
 	outputFilter()->save(writer);
-	writer->writeEndElement();
-	writer->writeStartElement("comment");
-	writer->writeCharacters(comment());
 	writer->writeEndElement();
 	QList< Interval<int> > masks = maskedIntervals();
 	foreach(Interval<int> interval, masks)
@@ -356,64 +352,43 @@ void Column::save(QXmlStreamWriter * writer) const
 
 bool Column::load(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
-	clear();
-	clearValidity();
-	clearFormulas();
-	clearMasks();
-	setComment(QString());
 	if(reader->isStartElement() && reader->name() == "column") 
 	{
+		if (!readBasicAttributes(reader)) return false;
+
 		QXmlStreamAttributes attribs = reader->attributes();
 		QString str;
 
-		// read label
-		str = attribs.value(reader->namespaceUri().toString(), "label").toString();
-		if(str.isEmpty())
-		{
-			reader->raiseError(prefix+tr("column label missing")+postfix);
-			return false;
-		}
-		setName(str);
-		// read creation time
-		str = attribs.value(reader->namespaceUri().toString(), "creation_time").toString();
-		if(!str.isEmpty())
-			setCreationTime(QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz"));
-		// read caption spec
-		str = attribs.value(reader->namespaceUri().toString(), "caption_spec").toString();
-		setCaptionSpec(str);
 		// read type
 		str = attribs.value(reader->namespaceUri().toString(), "type").toString();
 		if(str.isEmpty())
 		{
-			reader->raiseError(prefix+tr("column type missing")+postfix);
+			reader->raiseError(tr("column type missing"));
 			return false;
 		}
 		int type_code = SciDAVis::enumStringToValue(str, "ColumnDataType");
 		if(type_code == -1)
 		{
-			reader->raiseError(prefix+tr("column type invalid")+postfix);
+			reader->raiseError(tr("column type invalid"));
 			return false;
 		}
 		// read mode
 		str = attribs.value(reader->namespaceUri().toString(), "mode").toString();
 		if(str.isEmpty())
 		{
-			reader->raiseError(prefix+tr("column mode missing")+postfix);
+			reader->raiseError(tr("column mode missing"));
 			return false;
 		}
 		int mode_code = SciDAVis::enumStringToValue(str, "ColumnMode");
 		if(mode_code == -1)
 		{
-			reader->raiseError(prefix+tr("column mode invalid")+postfix);
+			reader->raiseError(tr("column mode invalid"));
 			return false;
 		}
 		setColumnMode((SciDAVis::ColumnMode)mode_code);
 		if(type_code != int(dataType()))
 		{
-			reader->raiseError(prefix+tr("column type or mode invalid")+postfix);
+			reader->raiseError(tr("column type or mode invalid"));
 			return false;
 		}
 		// read plot designation
@@ -423,7 +398,7 @@ bool Column::load(XmlStreamReader * reader)
 			setPlotDesignation(SciDAVis::noDesignation);
 		else if(pd_code == -1)
 		{
-			reader->raiseError(prefix+tr("column plot designation invalid")+postfix);
+			reader->raiseError(tr("column plot designation invalid"));
 			return false;
 		}
 		else
@@ -440,7 +415,7 @@ bool Column::load(XmlStreamReader * reader)
 			{
 				bool ret_val = true;
 				if (reader->name() == "comment")
-					ret_val = XmlReadComment(reader);
+					ret_val = readCommentElement(reader);
 				else if(reader->name() == "input_filter")
 					ret_val = XmlReadInputFilter(reader);
 				else if(reader->name() == "output_filter")
@@ -451,103 +426,81 @@ bool Column::load(XmlStreamReader * reader)
 					ret_val = XmlReadFormula(reader);
 				else if(reader->name() == "row")
 					ret_val = XmlReadRow(reader);
-				else
-					reader->readElementText(); // unknown element
+				else // unknown element
+				{
+					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
+					if (!reader->skipToEndElement()) return false;
+				}
 				if(!ret_val)
 					return false;
 			} 
 		}
 	}
 	else // no column element
-		reader->raiseError(prefix+tr("no column element found")+postfix);
+		reader->raiseError(tr("no column element found"));
 
 	return !reader->error();
 }
 					
-bool Column::XmlReadComment(XmlStreamReader * reader)
-{
-	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
-	setComment(reader->readElementText());
-	return true;
-}
-
 bool Column::XmlReadInputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
-	reader->readNext();
-	bool result = inputFilter()->load(reader);	
-	reader->readNext();
+	if (!reader->skipToNextTag()) return false;
+	if (!inputFilter()->load(reader)) return false;
+	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "input_filter");
-	return result;
+	return true;
 }
 
 bool Column::XmlReadOutputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "output_filter");
-	reader->readNext();
-	bool result = outputFilter()->load(reader);	
-	reader->readNext();
+	if (!reader->skipToNextTag()) return false;
+	if (!outputFilter()->load(reader)) return false;
+	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "output_filter");
-	return result;
+	return true;
 }
 
 bool Column::XmlReadMask(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
 	Q_ASSERT(reader->isStartElement() && reader->name() == "mask");
-
-	QXmlStreamAttributes attribs = reader->attributes();
-	QString str_start,str_end;
-
-	str_start = attribs.value(reader->namespaceUri().toString(), "start_row").toString();
-	str_end = attribs.value(reader->namespaceUri().toString(), "end_row").toString();
-	if(str_start.isEmpty() || str_end.isEmpty()) 
-		reader->raiseError(prefix+tr("missing start or end row")+postfix);
 
 	bool ok1, ok2;
 	int start, end;
-	start = str_start.toInt(&ok1);
-	end = str_start.toInt(&ok2);
+	start = reader->readAttributeInt("start_row", &ok1);
+	end = reader->readAttributeInt("end_row", &ok2);
 	if(!ok1 || !ok2) 
-		reader->raiseError(prefix+tr("invalid start or end row")+postfix);
-
+	{
+		reader->raiseError(tr("invalid or missing start or end row"));
+		return false;
+	}
 	setMasked(Interval<int>(start,end));
+	if (!reader->skipToEndElement()) return false;
+
 	return true;
 }
 
 bool Column::XmlReadFormula(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
 	Q_ASSERT(reader->isStartElement() && reader->name() == "formula");
 
-	QXmlStreamAttributes attribs = reader->attributes();
-	QString str_start,str_end;
-
-	str_start = attribs.value(reader->namespaceUri().toString(), "start_row").toString();
-	str_end = attribs.value(reader->namespaceUri().toString(), "end_row").toString();
-	if(str_start.isEmpty() || str_end.isEmpty()) 
-		reader->raiseError(prefix+tr("missing start or end row")+postfix);
-
-	bool ok1,ok2;
-	int start,end;
-	start = str_start.toInt(&ok1);
-	end = str_start.toInt(&ok1);
+	bool ok1, ok2;
+	int start, end;
+	start = reader->readAttributeInt("start_row", &ok1);
+	end = reader->readAttributeInt("end_row", &ok2);
 	if(!ok1 || !ok2) 
-		reader->raiseError(prefix+tr("invalid start or end row")+postfix);
+	{
+		reader->raiseError(tr("invalid or missing start or end row"));
+		return false;
+	}
+	setFormula(Interval<int>(start,end), reader->readElementText());
 
-	setFormula(Interval<int>(start,end),reader->readElementText());
 	return true;
 }
 
 bool Column::XmlReadRow(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
 	Q_ASSERT(reader->isStartElement() && reader->name() == "row");
 	
 	QString str;
@@ -557,45 +510,42 @@ bool Column::XmlReadRow(XmlStreamReader * reader)
 	// verfiy type
 	str = attribs.value(reader->namespaceUri().toString(), "type").toString();
 	type_code = SciDAVis::enumStringToValue(str, "ColumnDataType");
-	bool ok;
 	if(str.isEmpty() || type_code == -1 || type_code != int(dataType()))
 	{
-		reader->raiseError(prefix+tr("invalid or missing row type")+postfix);
+		reader->raiseError(tr("invalid or missing row type"));
 		return false;
 	}
 	
-	str = attribs.value(reader->namespaceUri().toString(), "index").toString();
-	int index = str.toInt(&ok);
-	if(str.isEmpty() || !ok)
+	bool ok;
+	int index = reader->readAttributeInt("index", &ok);
+	if(!ok)
 	{
-		reader->raiseError(prefix+tr("invalid or missing row index")+postfix);
+		reader->raiseError(tr("invalid or missing row index"));
 		return false;
 	}
 
 	str = attribs.value(reader->namespaceUri().toString(), "invalid").toString();
 	if(str == "yes") setInvalid(index);
 
+	str = reader->readElementText();
 	switch(dataType())
 	{
 		case SciDAVis::TypeDouble:
 			{
-			str = reader->readElementText();
-			double value = str.toDouble(&ok);
-			if(!ok)
-			{
-				reader->raiseError(prefix+tr("invalid row value")+postfix);
-				return false;
-			}
-			setValueAt(index, value);
-			break;
+				double value = str.toDouble(&ok);
+				if(!ok)
+				{
+					reader->raiseError(tr("invalid row value"));
+					return false;
+				}
+				setValueAt(index, value);
+				break;
 			}
 		case SciDAVis::TypeQString:
-			str = reader->readElementText();
 			setTextAt(index, str);
 			break;
 
 		case SciDAVis::TypeQDateTime:
-			str = reader->readElementText();
 			QDateTime date_time = QDateTime::fromString(str,"yyyy-dd-MM hh:mm:ss:zzz");
 			setDateTimeAt(index, date_time);
 			break;

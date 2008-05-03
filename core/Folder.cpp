@@ -107,7 +107,7 @@ bool Folder::load(XmlStreamReader * reader)
 				else // unknown element
 				{
 					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
-					reader->skipToEndElement(); 
+					if (!reader->skipToEndElement()) return false;
 				}
 			} 
 		}
@@ -173,7 +173,7 @@ bool Folder::readChildAspectElement(XmlStreamReader * reader)
 	if (!loaded)
 	{
 		reader->raiseWarning(tr("no plugin to load element '%1' found").arg(element_name));
-		reader->skipToEndElement(); 
+		if (!reader->skipToEndElement()) return false;
 	}
 	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "child_aspect");

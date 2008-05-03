@@ -936,14 +936,10 @@ void Matrix::save(QXmlStreamWriter * writer) const
 	int cols = columnCount();
 	int rows = rowCount();
 	writer->writeStartElement("matrix");
-	writer->writeAttribute("creation_time" , creationTime().toString("yyyy-dd-MM hh:mm:ss:zzz"));
-	writer->writeAttribute("caption_spec", captionSpec());
-	writer->writeAttribute("name", name());
+	writeBasicAttributes(writer);
 	writer->writeAttribute("columns", QString::number(cols));
 	writer->writeAttribute("rows", QString::number(rows));
-	writer->writeStartElement("comment");
-	writer->writeCharacters(comment());
-	writer->writeEndElement();
+	writeCommentElement(writer);
 	writer->writeStartElement("formula");
 	writer->writeCharacters(formula());
 	writer->writeEndElement();
@@ -1000,7 +996,7 @@ bool Matrix::load(XmlStreamReader * reader)
 			{
 				bool ret_val = true;
 				if (reader->name() == "comment")
-					ret_val = XmlReadComment(reader);
+					ret_val = readCommentElement(reader);
 				else if(reader->name() == "formula")
 					ret_val = XmlReadFormula(reader);
 				else if(reader->name() == "display")
@@ -1012,23 +1008,16 @@ bool Matrix::load(XmlStreamReader * reader)
 				else // unknown element
 				{
 					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
-					reader->skipToEndElement(); 
+					if (!reader->skipToEndElement()) return false;
 				}
 				if(!ret_val) return false;
 			} 
 		}
 	}
-	else // no column element
-		reader->raiseError(tr("no column element found"));
+	else // no matrix element
+		reader->raiseError(tr("no matrix element found"));
 
 	return !reader->hasError();
-}
-
-bool Matrix::XmlReadComment(XmlStreamReader * reader)
-{
-	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
-	setComment(reader->readElementText());
-	return true;
 }
 
 bool Matrix::XmlReadDisplay(XmlStreamReader * reader)
@@ -1052,7 +1041,7 @@ bool Matrix::XmlReadDisplay(XmlStreamReader * reader)
 		return false;
 	}
 	setDisplayedDigits(digits);
-	reader->skipToEndElement();
+	if (!reader->skipToEndElement()) return false;
 
 	return true;
 }
@@ -1095,7 +1084,7 @@ bool Matrix::XmlReadCoordinates(XmlStreamReader * reader)
 		return false;
 	}
 	setYEnd(val);
-	reader->skipToEndElement();
+	if (!reader->skipToEndElement()) return false;
 
 	return true;
 }

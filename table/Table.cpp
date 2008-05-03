@@ -1754,6 +1754,79 @@ void Table::prepareAspectRemoval(AbstractAspect * aspect)
 	exec(new TableRemoveColumnsCmd(d_table_private, first, 1, cols));
 }
 
+void Table::save(QXmlStreamWriter * writer) const
+{
+	int cols = columnCount();
+	int rows = rowCount();
+	writer->writeStartElement("table");
+	writeBasicAttributes(writer);
+	writer->writeAttribute("columns", QString::number(cols));
+	writer->writeAttribute("rows", QString::number(rows));
+	writeCommentElement(writer);
+
+	for (int col=0; col<cols; col++)
+		column(col)->save(writer);
+	writer->writeEndElement(); // "table"
+}
+
+bool Table::load(XmlStreamReader * reader)
+{
+	if(reader->isStartElement() && reader->name() == "table") 
+	{
+		if (!readBasicAttributes(reader)) return false;
+
+		// read dimensions
+		bool ok1, ok2;
+		int rows, cols;
+		rows = reader->readAttributeInt("rows", &ok1);
+		cols = reader->readAttributeInt("columns", &ok2);
+		if(!ok1 || !ok2) 
+		{
+			reader->raiseError(tr("invalid row or column count"));
+			return false;
+		}
+		setRowCount(rows);
+
+		QList<Column *> columns;
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				if (reader->name() == "comment")
+				{
+					if (!readCommentElement(reader)) return false;
+				}
+				else if(reader->name() == "column")
+				{
+					Column * column = new Column(tr("Column %1").arg(1), SciDAVis::Text);
+					columns.append(column);
+					if (!column->load(reader))
+					{
+						qDeleteAll(columns);
+						return false;
+					}
+				}
+				else // unknown element
+				{
+					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
+					if (!reader->skipToEndElement()) return false;
+				}
+			} 
+		}
+		appendColumns(columns);
+		if (cols != columnCount())
+			reader->raiseWarning(tr("columns attribute and number of read columns do not match"));
+	}
+	else // no table element
+		reader->raiseError(tr("no table element found"));
+
+	return !reader->hasError();
+}
 /* ========================= static methods ======================= */
 ActionManager * Table::action_manager = 0;
 

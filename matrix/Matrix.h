@@ -227,8 +227,6 @@ class Matrix : public AbstractPart, public scripted
 		void createActions();
 		void connectActions();
 
-		//! Read XML comment element
-		bool XmlReadComment(XmlStreamReader * reader);
 		//! Read XML display element
 		bool XmlReadDisplay(XmlStreamReader * reader);
 		//! Read XML coodinates element

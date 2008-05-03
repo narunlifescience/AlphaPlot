@@ -299,8 +299,6 @@ class Column : public AbstractColumn
 		//! Load the column from XML
 		bool load(XmlStreamReader * reader);
 	private:
-		//! Read XML comment element
-		bool XmlReadComment(XmlStreamReader * reader);
 		//! Read XML input filter element
 		bool XmlReadInputFilter(XmlStreamReader * reader);
 		//! Read XML output filter element

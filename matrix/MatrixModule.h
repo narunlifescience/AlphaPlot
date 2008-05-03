@@ -35,7 +35,8 @@
 #include <QMenu>
 
 //! Module providing the matrix Part and support classes.
-class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker, public XmlElementAspectMaker
+class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker, 
+	public XmlElementAspectMaker
 {
 	Q_OBJECT
 	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker XmlElementAspectMaker)
@@ -49,9 +50,7 @@ class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner
 		virtual QString configPageLabel();
 		virtual void loadSettings();
 		virtual void saveSettings();
-		//! Determine whether the loader can handle the given element.
 		virtual bool canCreate(const QString & element_name);
-		//! The factory method.
 		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader);
 };
 
