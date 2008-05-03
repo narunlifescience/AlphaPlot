@@ -28,7 +28,7 @@
  ***************************************************************************/
 
 #include "Double2StringFilter.h"
-#include <QXmlStreamReader>
+#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
 void Double2StringFilter::save(QXmlStreamWriter * writer) const
@@ -40,7 +40,7 @@ void Double2StringFilter::save(QXmlStreamWriter * writer) const
 	writer->writeEndElement();
 }
 
-bool Double2StringFilter::load(QXmlStreamReader * reader)
+bool Double2StringFilter::load(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

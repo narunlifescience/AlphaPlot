@@ -127,17 +127,26 @@ void ProjectWindow::handleAspectDescriptionChanged(const AbstractAspect *aspect)
 
 void ProjectWindow::handleAspectAdded(const AbstractAspect *parent, int index)
 {
-	AbstractPart *part = qobject_cast<AbstractPart*>(parent->child(index));
-	if (!part) return;
-	PartMdiView *win = part->mdiSubWindow();
-	Q_ASSERT(win);
-	d_mdi_area->addSubWindow(win);
-	win->show();
-	d_menus.part->clear();
-	d_menus.part->setEnabled(part->fillProjectMenu(d_menus.part)); 
-	connect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
-		this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
+	handleAspectAddedInternal(parent->child(index));
 	updateMdiWindowVisibility();
+	handleCurrentSubWindowChanged(d_mdi_area->currentSubWindow());
+}
+
+void ProjectWindow::handleAspectAddedInternal(AbstractAspect * aspect)
+{
+	int count = aspect->childCount();
+	for (int i=0; i<count; i++)
+		handleAspectAddedInternal(aspect->child(i));
+
+	AbstractPart *part = qobject_cast<AbstractPart*>(aspect);
+	if (part)
+	{
+		PartMdiView *win = part->mdiSubWindow();
+		Q_ASSERT(win);
+		d_mdi_area->addSubWindow(win);
+		connect(win, SIGNAL(statusChanged(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)), 
+				this, SLOT(handleSubWindowStatusChange(PartMdiView *, PartMdiView::SubWindowStatus, PartMdiView::SubWindowStatus)));
+	}
 }
 
 void ProjectWindow::handleAspectAboutToBeRemoved(const AbstractAspect *parent, int index)
@@ -219,7 +228,7 @@ void ProjectWindow::initActions()
 	d_actions.close_project = new QAction(tr("&Close Project"), this);
 	action_manager->addAction(d_actions.close_project, "close_project");
 	d_actions.close_project->setIcon(QIcon(QPixmap(":/close.xpm")));
-	connect(d_actions.close_project, SIGNAL(triggered(bool)), this, SLOT(close()));
+	connect(d_actions.close_project, SIGNAL(triggered(bool)), this, SLOT(close())); // TODO: capture closeEvent for saving
 
 	d_actions.keyboard_shortcuts_dialog = new QAction(tr("&Keyboard Shortcuts"), this);
 	action_manager->addAction(d_actions.keyboard_shortcuts_dialog, "keyboard_shortcuts_dialog");
@@ -370,7 +379,7 @@ void ProjectWindow::initToolBars()
 
 void ProjectWindow::addNewFolder()
 {
-	addNewAspect(new Folder(tr("Folder 1")));
+	addNewAspect(new Folder(tr("Folder %1").arg(1)));
 }
 
 void ProjectWindow::newProject()
@@ -402,9 +411,10 @@ void ProjectWindow::openProject()
 		statusBar()->showMessage(msg_text);
 		return;
 	}
-	QXmlStreamReader reader(&file);
+	XmlStreamReader reader(&file);
 	Project * prj = new Project();
-	if (!(prj->load(&reader)))
+	prj->view(); // ensure the view (ProjectWindow) is created
+	if (prj->load(&reader) == false)
 	{
 			QString msg_text = reader.errorString();
 			QMessageBox::critical(this, tr("Error opening project"), msg_text);
@@ -412,8 +422,17 @@ void ProjectWindow::openProject()
 			delete prj;
 			return;
 	}
-	prj->view()->showMaximized();
+	if (reader.hasWarnings())
+	{
+			QString msg_text = tr("The following problems occured when loading the project:\n");
+			QStringList warnings = reader.warningStrings();
+			foreach(QString str, warnings)
+				msg_text += str + "\n";
+			QMessageBox::warning(this, tr("Project loading partly failed"), msg_text);
+	}
 	file.close();
+	prj->undoStack()->clear();
+	prj->view()->showMaximized();
 }
 
 void ProjectWindow::saveProject()

@@ -33,7 +33,7 @@
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <math.h>
-#include <QXmlStreamReader>
+#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
 //! Conversion filter String -> QDateTime, interpreting the input as days of the week (either numeric or "Mon" etc).
@@ -103,7 +103,7 @@ class String2DayOfWeekFilter : public AbstractSimpleFilter
 			writer->writeEndElement();
 		}
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
+		virtual bool load(XmlStreamReader * reader)
 		{
 			QString prefix(tr("XML read error: ","prefix for XML error messages"));
 			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

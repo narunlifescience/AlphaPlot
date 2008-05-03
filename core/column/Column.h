@@ -33,6 +33,7 @@
 #include "core/AbstractAspect.h"
 #include "core/AbstractSimpleFilter.h"
 #include "lib/IntervalAttribute.h"
+#include "lib/XmlStreamReader.h"
 class QString;
 
 class ColumnStringIO;
@@ -296,20 +297,20 @@ class Column : public AbstractColumn
 		//! Save the column as XML
 		void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
-		bool load(QXmlStreamReader * reader);
+		bool load(XmlStreamReader * reader);
 	private:
 		//! Read XML comment element
-		bool XmlReadComment(QXmlStreamReader * reader);
+		bool XmlReadComment(XmlStreamReader * reader);
 		//! Read XML input filter element
-		bool XmlReadInputFilter(QXmlStreamReader * reader);
+		bool XmlReadInputFilter(XmlStreamReader * reader);
 		//! Read XML output filter element
-		bool XmlReadOutputFilter(QXmlStreamReader * reader);
+		bool XmlReadOutputFilter(XmlStreamReader * reader);
 		//! Read XML mask element
-		bool XmlReadMask(QXmlStreamReader * reader);
+		bool XmlReadMask(XmlStreamReader * reader);
 		//! Read XML formula element
-		bool XmlReadFormula(QXmlStreamReader * reader);
+		bool XmlReadFormula(XmlStreamReader * reader);
 		//! Read XML row element
-		bool XmlReadRow(QXmlStreamReader * reader);
+		bool XmlReadRow(XmlStreamReader * reader);
 		//@}
 
 	private slots:

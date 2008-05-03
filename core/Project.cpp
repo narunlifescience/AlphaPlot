@@ -32,6 +32,7 @@
 #include "core/ScriptingEngineManager.h"
 #include "core/interfaces.h"
 #include "core/globals.h"
+#include "lib/XmlStreamReader.h"
 #include "ui_ProjectConfigPage.h"
 #include <QUndoStack>
 #include <QString>
@@ -41,7 +42,6 @@
 #include <QPluginLoader>
 #include <QComboBox>
 #include <QFile>
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QtDebug>
 
@@ -58,9 +58,9 @@ class Project::Private
 		MdiWindowVisibility mdi_window_visibility;
 		ProjectWindow * primary_view;
 		AbstractScriptingEngine * scripting_engine;
-		// TODO: sync filename <-> aspect name
 		QString file_name;
 
+		// TODO: this is still not a really good solution for the global settings
 		// global settings
 		static Project::MdiWindowVisibility default_mdi_window_visibility;
 		static bool auto_search_updates;
@@ -132,12 +132,6 @@ Project::Project()
 	d->scripting_engine = ScriptingEngineManager::instance()->engine(engine_name);
 }
 
-void Project::resetToDefaultValues()
-{
-	setFileName(QString());
-	Folder::resetToDefaultValues();
-}
-	
 Project::~Project()
 {
 	delete d;
@@ -299,33 +293,21 @@ void Project::save(QXmlStreamWriter * writer) const
 	writer->writeEndDocument();
 }
 
-bool Project::load(QXmlStreamReader * reader)
+bool Project::load(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
 	while (!(reader->isStartDocument() || reader->atEnd()))
 		reader->readNext();
-	if(!reader->atEnd())
+	if(!(reader->atEnd()))
 	{
-		reader->readNext();
-		if (reader->isStartElement() && reader->name() == "scidavis_project") 
-		{
-			resetToDefaultValues();
-			QXmlStreamAttributes attribs = reader->attributes();
-			QString str;
+		if (!reader->skipToNextTag()) return false;
 
-			str = attribs.value(reader->namespaceUri().toString(), "version").toString();
-			if(str.isEmpty())
-			{
-				reader->raiseError(prefix+tr("missing project version")+postfix);
-				return false;
-			}
+		if (reader->name() == "scidavis_project") 
+		{
 			bool ok;
-			int version = str.toInt(&ok);
+			int version = reader->readAttributeInt("version", &ok);
 			if(!ok) 
 			{
-				reader->raiseError(prefix+tr("invalid project version")+postfix);
+				reader->raiseError(tr("invalid or missing project version"));
 				return false;
 			}
 
@@ -339,27 +321,26 @@ bool Project::load(QXmlStreamReader * reader)
 
 				if (reader->isStartElement()) 
 				{
-					bool ret_val = true;
 					if (reader->name() == "project_root")
 					{
-						reader->readNext();
-						ret_val = Folder::load(reader);
-						reader->readNext();
+						if (!reader->skipToNextTag()) return false;
+						if (!Folder::load(reader)) return false;
+						if (!reader->skipToNextTag()) return false;
 						Q_ASSERT(reader->isEndElement() && reader->name() == "project_root");
 					}
-					else
-						reader->readElementText(); // unknown element
-
-					if(!ret_val)
-						return false;
+					else // unknown element
+					{
+						reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
+						reader->skipToEndElement(); 
+					}
 				} 
 			}
 		}
 		else // no project element
-			reader->raiseError(prefix+tr("no scidavis_project element found")+postfix);
+			reader->raiseError(tr("no scidavis_project element found"));
 	}
 	else // no start document
-		reader->raiseError(prefix+tr("no valid XML document found")+postfix);
+		reader->raiseError(tr("no valid XML document found"));
 
-	return !reader->error();
+	return !reader->hasError();
 }

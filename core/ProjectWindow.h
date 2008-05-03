@@ -109,6 +109,8 @@ class ProjectWindow : public QMainWindow
 		void handleWindowsPolicyMenuAboutToShow();
 		void setMdiWindowVisibility(QAction * action);
 
+	protected:
+		void handleAspectAddedInternal(AbstractAspect *aspect);
 
 	private:
 		Project * d_project;

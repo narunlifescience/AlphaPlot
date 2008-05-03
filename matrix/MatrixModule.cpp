@@ -106,5 +106,22 @@ void MatrixModule::saveSettings()
 	settings.endGroup();
 }
 
+bool MatrixModule::canCreate(const QString & element_name)
+{	
+	return element_name == "matrix";
+}
+
+AbstractAspect * MatrixModule::createAspectFromXml(XmlStreamReader * reader)
+{
+	Matrix * matrix = new Matrix(0, 0, 0, tr("Matrix %1").arg(1));
+	if (!(matrix->load(reader)))
+	{
+		delete matrix;
+		return NULL;
+	}
+	else
+		return matrix;
+}
+
 Q_EXPORT_PLUGIN2(scidavis_matrix, MatrixModule)
 

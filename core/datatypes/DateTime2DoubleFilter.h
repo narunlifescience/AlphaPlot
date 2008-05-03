@@ -34,7 +34,7 @@
 #include <QDateTime>
 #include <QDate>
 #include <QTime>
-#include <QXmlStreamReader>
+#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
 //! Conversion filter QDateTime -> double (using Julian day).
@@ -63,7 +63,7 @@ class DateTime2DoubleFilter : public AbstractSimpleFilter
 			writer->writeEndElement();
 		}
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
+		virtual bool load(XmlStreamReader * reader)
 		{
 			QString prefix(tr("XML read error: ","prefix for XML error messages"));
 			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

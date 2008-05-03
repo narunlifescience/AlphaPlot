@@ -31,9 +31,9 @@
 
 #include "lib/ConfigPageWidget.h"
 #include "core/AbstractAspect.h"
+#include "lib/XmlStreamReader.h"
 
 #include <QtPlugin>
-#include <QXmlStreamReader>
 
 class AbstractPart;
 class QAction;
@@ -119,9 +119,9 @@ class XmlElementAspectMaker
 	public:
 		virtual ~XmlElementAspectMaker() {}
 		//! Determine whether the loader can handle the given element.
-		virtual bool canCreate(const QString & elementName) = 0;
+		virtual bool canCreate(const QString & element_name) = 0;
 		//! The factory method.
-		virtual AbstractAspect * createAspectFromXml(QXmlStreamReader * reader) = 0;
+		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader) = 0;
 };
 
 Q_DECLARE_INTERFACE(XmlElementAspectMaker, "net.sf.scidavis.xmlelementaspectmaker/0.1")

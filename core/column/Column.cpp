@@ -27,11 +27,11 @@
  *                                                                         *
  ***************************************************************************/
 
-#include "Column.h"
-#include "ColumnPrivate.h"
-#include "columncommands.h"
+#include "core/column/Column.h"
+#include "core/column/ColumnPrivate.h"
+#include "core/column/columncommands.h"
+#include "lib/XmlStreamReader.h"
 #include <QIcon>
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 Column::Column(const QString& name, SciDAVis::ColumnMode mode)
@@ -354,7 +354,7 @@ void Column::save(QXmlStreamWriter * writer) const
 }
 
 
-bool Column::load(QXmlStreamReader * reader)
+bool Column::load(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
@@ -464,14 +464,14 @@ bool Column::load(QXmlStreamReader * reader)
 	return !reader->error();
 }
 					
-bool Column::XmlReadComment(QXmlStreamReader * reader)
+bool Column::XmlReadComment(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
 	setComment(reader->readElementText());
 	return true;
 }
 
-bool Column::XmlReadInputFilter(QXmlStreamReader * reader)
+bool Column::XmlReadInputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "input_filter");
 	reader->readNext();
@@ -481,7 +481,7 @@ bool Column::XmlReadInputFilter(QXmlStreamReader * reader)
 	return result;
 }
 
-bool Column::XmlReadOutputFilter(QXmlStreamReader * reader)
+bool Column::XmlReadOutputFilter(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "output_filter");
 	reader->readNext();
@@ -491,7 +491,7 @@ bool Column::XmlReadOutputFilter(QXmlStreamReader * reader)
 	return result;
 }
 
-bool Column::XmlReadMask(QXmlStreamReader * reader)
+bool Column::XmlReadMask(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
@@ -517,7 +517,7 @@ bool Column::XmlReadMask(QXmlStreamReader * reader)
 	return true;
 }
 
-bool Column::XmlReadFormula(QXmlStreamReader * reader)
+bool Column::XmlReadFormula(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
@@ -543,7 +543,7 @@ bool Column::XmlReadFormula(QXmlStreamReader * reader)
 	return true;
 }
 
-bool Column::XmlReadRow(QXmlStreamReader * reader)
+bool Column::XmlReadRow(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

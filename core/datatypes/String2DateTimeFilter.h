@@ -68,7 +68,7 @@ class String2DateTimeFilter : public AbstractSimpleFilter
 		//! Save the column as XML
 		virtual void save(QXmlStreamWriter * writer) const;
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader);
+		virtual bool load(XmlStreamReader * reader);
 		//@}
 
 	signals:

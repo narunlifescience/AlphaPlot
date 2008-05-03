@@ -61,6 +61,7 @@ HEADERS += \
 	String2DoubleFilter.h \
 	String2MonthFilter.h \
 	interfaces.h \
+	XmlStreamReader.h \
 	AbstractScriptingEngine.h \
 	AbstractScript.h \
 	ScriptingEngineManager.h \
@@ -105,6 +106,7 @@ SOURCES += \
 	Column.cpp \
 	ColumnPrivate.cpp \
 	columncommands.cpp \
+	XmlStreamReader.cpp \
 	AbstractScriptingEngine.cpp \
 	AbstractScript.cpp \
 	ScriptingEngineManager.cpp \

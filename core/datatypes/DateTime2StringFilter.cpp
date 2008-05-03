@@ -29,7 +29,7 @@
  ***************************************************************************/
 
 #include "DateTime2StringFilter.h"
-#include <QXmlStreamReader>
+#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
 void DateTime2StringFilter::setFormat(const QString& format) 
@@ -67,7 +67,7 @@ void DateTime2StringFilter::save(QXmlStreamWriter * writer) const
 	writer->writeEndElement();
 }
 
-bool DateTime2StringFilter::load(QXmlStreamReader * reader)
+bool DateTime2StringFilter::load(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

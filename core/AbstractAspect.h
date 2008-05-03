@@ -40,7 +40,7 @@ class QUndoCommand;
 class QIcon;
 class QMenu;
 class Folder;
-class QXmlStreamReader;
+class XmlStreamReader;
 class QXmlStreamWriter;
 class QAction;
 
@@ -117,6 +117,8 @@ class AbstractAspect : public QObject
 		void moveChild(int from, int to);
 		//! Get all descendents that inherit the given class
 		QList<AbstractAspect *> descendantsThatInherit(const char *class_name);
+		//! Remove all child aspects
+		virtual void removeAllChildAspects();
 
 		//! Return the Project this Aspect belongs to, or 0 if it is currently not part of one.
 		virtual const Project *project() const { return parentAspect() ? parentAspect()->project() : 0; }
@@ -173,36 +175,38 @@ class AbstractAspect : public QObject
 		 */
 		QAction *redoAction(QObject *parent) const;
 		//@}
-
-		//! Reset the aspect to the default values.
-		/**
-		 * Use this for example before loading the aspect
-		 * from an XML stream. This does not change the
-		 * aspects name.
-		 */
-		virtual void resetToDefaultValues();
-		
 		//! \name serialize/deserialize
 		//@{
 		//! Save as XML
 		virtual void save(QXmlStreamWriter *) const {};
 		//! Load from XML
 		/**
+		 * XmlStreamReader supports errors as well as warnings. If only
+		 * warnings (non-critial errors) occur, this function must return 
+		 * the reader at the end element corresponding to the current 
+		 * element at the time the function was called. 
+		 *
+		 * This function is normally intended to be called directly 
+		 * after the ctor. If you want to call load on an aspect that
+		 * has been altered, you must make sure beforehand that
+		 * it is in the same state as after creation, e.g., remove
+		 * all its child aspects.
+		 *
 		 * \return false on error
 		 */
-		virtual bool load(QXmlStreamReader *) { return false; };
+		virtual bool load(XmlStreamReader *) { return false; };
 	protected:
 		//! Load name, creation time and caption spec from XML
 		/**
 		 * \return false on error
 		 */
-		bool readBasicAttributes(QXmlStreamReader * reader);
+		bool readBasicAttributes(XmlStreamReader * reader);
 		//! Save name, creation time and caption spec to XML
 		void writeBasicAttributes(QXmlStreamWriter * writer) const;
 		//! Save the comment to XML
 		void writeCommentElement(QXmlStreamWriter * writer) const;
 		//! Load comment from an XML element
-		bool readCommentElement(QXmlStreamReader * reader);
+		bool readCommentElement(XmlStreamReader * reader);
 		//@}
 
 	public slots:

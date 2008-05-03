@@ -33,7 +33,7 @@
 #include "../AbstractSimpleFilter.h"
 #include <QDateTime>
 #include <math.h>
-#include <QXmlStreamReader>
+#include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
 //! Conversion filter String -> QDateTime, interpreting the input as months of the year (either numeric or "Jan" etc).
@@ -90,7 +90,7 @@ class String2MonthFilter : public AbstractSimpleFilter
 			writer->writeEndElement();
 		}
 		//! Load the column from XML
-		virtual bool load(QXmlStreamReader * reader)
+		virtual bool load(XmlStreamReader * reader)
 		{
 			QString prefix(tr("XML read error: ","prefix for XML error messages"));
 			QString postfix(tr(" (loading failed)", "postfix for XML error messages"));

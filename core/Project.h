@@ -82,14 +82,13 @@ class Project : public Folder
 		static QString configPageLabel();
 		static void loadSettings();
 		static void saveSettings();
-		void resetToDefaultValues();
 	
 		//! \name serialize/deserialize
 		//@{
 		//! Save as XML
 		virtual void save(QXmlStreamWriter *) const;
 		//! Load from XML
-		virtual bool load(QXmlStreamReader *);
+		virtual bool load(XmlStreamReader *);
 		//@}
 
 	private:

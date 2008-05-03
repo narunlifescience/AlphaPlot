@@ -159,7 +159,7 @@ class Matrix : public AbstractPart, public scripted
 		//! Save as XML
 		virtual void save(QXmlStreamWriter *) const;
 		//! Load from XML
-		virtual bool load(QXmlStreamReader *);
+		virtual bool load(XmlStreamReader *);
 		//@}
 
 	public:
@@ -228,15 +228,15 @@ class Matrix : public AbstractPart, public scripted
 		void connectActions();
 
 		//! Read XML comment element
-		bool XmlReadComment(QXmlStreamReader * reader);
+		bool XmlReadComment(XmlStreamReader * reader);
 		//! Read XML display element
-		bool XmlReadDisplay(QXmlStreamReader * reader);
+		bool XmlReadDisplay(XmlStreamReader * reader);
 		//! Read XML coodinates element
-		bool XmlReadCoordinates(QXmlStreamReader * reader);
+		bool XmlReadCoordinates(XmlStreamReader * reader);
 		//! Read XML formula element
-		bool XmlReadFormula(QXmlStreamReader * reader);
+		bool XmlReadFormula(XmlStreamReader * reader);
 		//! Read XML cell element
-		bool XmlReadCell(QXmlStreamReader * reader);
+		bool XmlReadCell(XmlStreamReader * reader);
 
 		QMenu * d_plot_menu;
 

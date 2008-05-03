@@ -27,15 +27,17 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "Project.h"
-#include "Folder.h"
+#include "core/Project.h"
+#include "core/Folder.h"
+#include "lib/XmlStreamReader.h"
+#include "core/column/Column.h"
 
 #include <QIcon>
 #include <QApplication>
 #include <QStyle>
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 #include <QPluginLoader>
+#include <QtDebug>
 
 Folder::Folder(const QString &name)
 	: AbstractAspect(name)
@@ -61,13 +63,6 @@ QMenu *Folder::createContextMenu() const
 	return 0;
 }
 
-void Folder::resetToDefaultValues()
-{
-	AbstractAspect::resetToDefaultValues();
-	for (int i=childCount()-1; i >= 0; i--) 
-		removeChild(i);
-}
-
 void Folder::save(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("folder");
@@ -78,26 +73,17 @@ void Folder::save(QXmlStreamWriter * writer) const
 	for (int i=0; i<child_count; i++)
 	{
 		writer->writeStartElement("child_aspect");
-		writer->writeAttribute("index", QString::number(i));
 		child(i)->save(writer);
 		writer->writeEndElement(); // "child_aspect"
 	}
 	writer->writeEndElement(); // "folder"
 }
 
-bool Folder::load(QXmlStreamReader * reader)
+bool Folder::load(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
 	if(reader->isStartElement() && reader->name() == "folder") 
 	{
-		resetToDefaultValues();
-
 		if (!readBasicAttributes(reader)) return false;
-
-		QXmlStreamAttributes attribs = reader->attributes();
-		QString str;
 
 		// read child elements
 		while (!reader->atEnd()) 
@@ -108,69 +94,89 @@ bool Folder::load(QXmlStreamReader * reader)
 
 			if (reader->isStartElement()) 
 			{
-				bool ret_val = true;
 				if (reader->name() == "comment")
-					ret_val = readCommentElement(reader);
+				{
+					if (!readCommentElement(reader))
+						return false;
+				}
 				else if(reader->name() == "child_aspect")
-					ret_val = readChildAspectElement(reader);
-				else
-					reader->readElementText(); // unknown element
-				if(!ret_val)
-					return false;
+				{
+					if (!readChildAspectElement(reader))
+						return false;
+				}
+				else // unknown element
+				{
+					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
+					reader->skipToEndElement(); 
+				}
 			} 
 		}
 	}
 	else // no folder element
-		reader->raiseError(prefix+tr("no folder element found")+postfix);
+		reader->raiseError(tr("no folder element found"));
 
-	return !reader->error();
+	return !reader->hasError();
 }
 
-bool Folder::readChildAspectElement(QXmlStreamReader * reader)
+bool Folder::readChildAspectElement(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
-
-	bool result = false, ok;
+	bool loaded = false;
 	Q_ASSERT(reader->isStartElement() && reader->name() == "child_aspect");
-	QXmlStreamAttributes attribs = reader->attributes();
-	QString str;
 
-	str = attribs.value(reader->namespaceUri().toString(), "index").toString();
-	int index = str.toInt(&ok);
-	if(str.isEmpty() || !ok)
+	if (!reader->skipToNextTag()) return false;
+	if (reader->isEndElement() && reader->name() == "child_aspect") return true; // empty element tag
+	QString element_name = reader->name().toString();
+	if (element_name == "folder")
 	{
-		reader->raiseError(prefix+tr("invalid or missing child index")+postfix);
-		return false;
+		Folder * folder = new Folder(tr("Folder %1").arg(1));
+		if (!folder->load(reader))
+		{
+			delete folder;
+			return false;
+		}
+		addChild(folder);
+		loaded = true;
 	}
-
-	reader->readNext();
-	if (reader->name() == "folder")
+	else if (element_name == "column")
 	{
-		Folder * folder = new Folder(tr("Folder 1"));
-		folder->load(reader);
-		insertChild(folder, index);
-		result = true;
+		Column * column = new Column(tr("Column %1").arg(1), SciDAVis::Text);
+		if (!column->load(reader))
+		{
+			delete column;
+			return false;
+		}
+		addChild(column);
+		loaded = true;
 	}
 	else
+	{
 		foreach(QObject * plugin, QPluginLoader::staticInstances()) 
 		{
 			XmlElementAspectMaker * maker = qobject_cast<XmlElementAspectMaker *>(plugin);
-			if (maker && maker->canCreate(reader->name().toString()))
+			if (maker && maker->canCreate(element_name))
 			{
 				AbstractAspect * aspect = maker->createAspectFromXml(reader);
 				if (aspect)
 				{
-					insertChild(aspect, index);
-					result = true;
+					addChild(aspect);
+					loaded = true;
+					break;
 				}
-				break;
+				else
+				{
+					reader->raiseError(tr("creation of aspect from element '%1' failed").arg(element_name));
+					return false;
+				}
 			}
 		}
-	if (!result)
-		reader->raiseError(prefix+tr("no plugin for aspect '%1' found").arg(reader->name().toString())+postfix);
-	reader->readNext();
+	}
+	if (!loaded)
+	{
+		reader->raiseWarning(tr("no plugin to load element '%1' found").arg(element_name));
+		reader->skipToEndElement(); 
+	}
+	if (!reader->skipToNextTag()) return false;
 	Q_ASSERT(reader->isEndElement() && reader->name() == "child_aspect");
-	return result;
+	return !reader->hasError();
 }
 

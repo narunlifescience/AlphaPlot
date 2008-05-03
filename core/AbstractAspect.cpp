@@ -26,17 +26,17 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "AbstractAspect.h"
-#include "AspectPrivate.h"
-#include "aspectcommands.h"
-#include "Folder.h"
+#include "core/AbstractAspect.h"
+#include "core/AspectPrivate.h"
+#include "core/aspectcommands.h"
+#include "core/Folder.h"
+#include "lib/XmlStreamReader.h"
 
 #include <QIcon>
 #include <QMenu>
 #include <QMessageBox>
 #include <QStyle>
 #include <QApplication>
-#include <QXmlStreamReader>
 #include <QXmlStreamWriter>
 
 AbstractAspect::AbstractAspect(const QString &name)
@@ -49,23 +49,14 @@ AbstractAspect::~AbstractAspect()
 	delete d_aspect_private;
 }
 
-void AbstractAspect::resetToDefaultValues()
-{
-	setComment(QString());
-	setCreationTime(QDateTime::currentDateTime());
-	setCaptionSpec("%n%C{ - }%c");
-	// better don't delete the children here and
-	// leave that to the derived aspect
-}
-
 void AbstractAspect::writeCommentElement(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("comment");
-	writer->writeCharacters(comment());
+	writer->writeCDATA(comment());
 	writer->writeEndElement();
 }
 
-bool AbstractAspect::readCommentElement(QXmlStreamReader * reader)
+bool AbstractAspect::readCommentElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
 	setComment(reader->readElementText());
@@ -79,7 +70,7 @@ void AbstractAspect::writeBasicAttributes(QXmlStreamWriter * writer) const
 	writer->writeAttribute("name", name());
 }
 
-bool AbstractAspect::readBasicAttributes(QXmlStreamReader * reader)
+bool AbstractAspect::readBasicAttributes(XmlStreamReader * reader)
 {
 	QString prefix(tr("XML read error: ","prefix for XML error messages"));
 	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
@@ -100,8 +91,8 @@ bool AbstractAspect::readBasicAttributes(QXmlStreamReader * reader)
 	QDateTime creation_time = QDateTime::fromString(str, "yyyy-dd-MM hh:mm:ss:zzz");
 	if(str.isEmpty() || !creation_time.isValid())
 	{
-		reader->raiseError(prefix+tr("invalid creation date")+postfix);
-		return false;
+		reader->raiseWarning(tr("Invalid creation time for '%1'. Using current time.").arg(name()));
+		setCreationTime(QDateTime::currentDateTime());
 	}
 	else
 		setCreationTime(creation_time);
@@ -343,5 +334,13 @@ QList<AbstractAspect *> AbstractAspect::descendantsThatInherit(const char * clas
 	for (int i=0; i<childCount(); i++)
 		list << child(i)->descendantsThatInherit(class_name);
 	return list;
+}
+
+void AbstractAspect::removeAllChildAspects()
+{
+	beginMacro(tr("%1: remove all children.").arg(name()));
+	for (int i=childCount()-1; i >= 0; i--) 
+		removeChild(i);
+	endMacro();
 }
 
