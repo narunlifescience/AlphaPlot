@@ -3512,6 +3512,7 @@ Matrix * Graph3D::selectMatrix()
 	layout.addWidget(&selection);
 	layout.addWidget(&button_box);
 
+	dialog.setWindowTitle(label.text());
 	if (dialog.exec() != QDialog::Accepted)
 		return 0;
 	int index = selection.currentIndex();

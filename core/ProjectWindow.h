@@ -81,6 +81,10 @@ class ProjectWindow : public QMainWindow
 	
 		QMenu * createToolbarsMenu();
 		QMenu * createDockWidgetsMenu();
+
+	protected slots:
+		//! Connected to the done(bool) signal of the http object
+		void receivedVersionFile(bool error);
 	
 	public slots:
 		void addNewFolder();
@@ -88,11 +92,27 @@ class ProjectWindow : public QMainWindow
 		//! Show hide mdi windows depending on the currend folder
 		void updateMdiWindowVisibility();
 		void importAspect();
+		void chooseFolder();
 		void showKeyboardShortcutsDialog();
 		void showPreferencesDialog();
 		void openProject();
 		void saveProject();
 		void saveProjectAs();
+		void showAboutDialog();
+		void showHelp();
+		void chooseHelpFolder();
+		//! Open SciDAVis homepage in external browser
+		void showHomePage();
+		//! Open forums page in external browser
+		void showForums();
+		//! Open bug tracking system in external browser
+		void showBugTracker();
+		//! Show download page in external browser
+		void downloadManual();
+		//! Show translations page in external browser
+		void downloadTranslation();
+		//! Check for a new version
+		void searchForUpdates();
 
 	signals:
 		void partActivated(AbstractPart*);
@@ -115,6 +135,9 @@ class ProjectWindow : public QMainWindow
 	private:
 		Project * d_project;
 
+		class Private;
+		Private *d;
+
 		struct {
 		QToolBar 
 			*file,
@@ -131,6 +154,7 @@ class ProjectWindow : public QMainWindow
 			*dockwidgets,
 			*part,
 			*windows,
+			*help,
 			*win_policy_menu;
 		} d_menus;
 		
@@ -152,9 +176,19 @@ class ProjectWindow : public QMainWindow
 			*close_current_window,
 			*close_all_windows,
 			*tile_windows,
+			*choose_folder,
 			*visibility_folder,
 			*visibility_subfolders,
-			*visibility_all;
+			*visibility_all,
+			*show_manual,
+			*select_manual_folder,
+			*show_homepage,
+			*check_updates,
+			*download_manual,
+			*download_translations,
+			*show_forums,
+			*show_bugtracker,
+			*about;
 		} d_actions;
 
 		QList<QAction*> d_part_makers;

@@ -30,18 +30,19 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#include "ProjectWindow.h"
+#include "core/ProjectWindow.h"
 
-#include "Project.h"
-#include "AspectTreeModel.h"
-#include "AbstractPart.h"
-#include "PartMdiView.h"
-#include "ProjectExplorer.h"
-#include "interfaces.h"
-#include "ImportDialog.h"
-#include "AbstractImportFilter.h"
+#include "core/Project.h"
+#include "core/AspectTreeModel.h"
+#include "core/AbstractPart.h"
+#include "core/PartMdiView.h"
+#include "core/ProjectExplorer.h"
+#include "core/interfaces.h"
+#include "core/ImportDialog.h"
+#include "core/AbstractImportFilter.h"
 #include "lib/ActionManager.h"
 #include "lib/ShortcutsDialog.h"
+#include "core/globals.h"
 
 #include <QMenuBar>
 #include <QMenu>
@@ -59,11 +60,31 @@
 #include <QDialogButtonBox>
 #include <QTabWidget>
 #include <QMessageBox>
+#include <QDialog>
+#include <QVBoxLayout>
+#include <QLabel>
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QHttp>
+#include <QBuffer>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QTextStream>
 
 ActionManager * ProjectWindow::action_manager = 0;
 
+class ProjectWindow::Private
+{
+	public:
+
+		//! Used when checking for new versions
+		QHttp http;
+		//! Used when checking for new versions
+		QBuffer version_buffer;
+}
+;
 ProjectWindow::ProjectWindow(Project* project)
-	: d_project(project)
+	: d_project(project), d(new Private())
 {
 	init();
 }
@@ -112,6 +133,7 @@ void ProjectWindow::init()
 		if (manager_owner) 
 			manager_owner->initActionManager();
 	}
+	connect(&d->http, SIGNAL(done(bool)), this, SLOT(receivedVersionFile(bool)));
 }
 
 ProjectWindow::~ProjectWindow()
@@ -196,16 +218,19 @@ void ProjectWindow::initDockWidgets()
 void ProjectWindow::initActions()
 {
 	d_actions.quit = new QAction(tr("&Quit"), this);
+	d_actions.quit->setIcon(QIcon(QPixmap(":/quit.xpm")));
 	d_actions.quit->setShortcut(tr("Ctrl+Q"));
 	action_manager->addAction(d_actions.quit, "quit");
 	connect(d_actions.quit, SIGNAL(triggered(bool)), qApp, SLOT(closeAllWindows()));
 	
 	d_actions.open_project = new QAction(tr("&Open Project"), this);
+	d_actions.open_project->setIcon(QIcon(QPixmap(":/fileopen.xpm")));
 	d_actions.open_project->setShortcut(tr("Ctrl+O"));
 	action_manager->addAction(d_actions.open_project, "open_project");
 	connect(d_actions.open_project, SIGNAL(triggered(bool)), this, SLOT(openProject()));
 
 	d_actions.save_project = new QAction(tr("&Save Project"), this);
+	d_actions.save_project->setIcon(QIcon(QPixmap(":/filesave.xpm")));
 	d_actions.save_project->setShortcut(tr("Ctrl+S"));
 	action_manager->addAction(d_actions.save_project, "save_project");
 	connect(d_actions.save_project, SIGNAL(triggered(bool)), this, SLOT(saveProject()));
@@ -264,6 +289,11 @@ void ProjectWindow::initActions()
 	action_manager->addAction(d_actions.tile_windows, "tile_windows");
 	connect(d_actions.tile_windows, SIGNAL(triggered()), d_mdi_area, SLOT(tileSubWindows()));
 
+	d_actions.choose_folder = new QAction(tr("Select &Folder"), this);
+	d_actions.choose_folder->setIcon(QIcon(QPixmap(":/folder_closed.xpm")));
+	action_manager->addAction(d_actions.choose_folder, "choose_folder");
+	connect(d_actions.choose_folder, SIGNAL(triggered()), this, SLOT(chooseFolder()));
+
 	d_actions.next_subwindow = new QAction(tr("&Next","next window"), this);
 	d_actions.next_subwindow->setIcon(QIcon(QPixmap(":/next.xpm")));
 	d_actions.next_subwindow->setShortcut(tr("F5","next window shortcut"));
@@ -287,6 +317,44 @@ void ProjectWindow::initActions()
 	connect(d_actions.close_all_windows, SIGNAL(triggered()), d_mdi_area, SLOT(closeAllSubWindows()));
 
 	// TODO: duplicate action (or maybe in the part menu?)
+	
+	d_actions.about = new QAction(tr("&About SciDAVis"), this);
+	d_actions.about->setShortcut( tr("Shift+F1") );
+	action_manager->addAction(d_actions.about, "action_about");
+	connect(d_actions.about, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
+
+	d_actions.show_manual = new QAction(tr("&Help"), this);
+	d_actions.show_manual->setShortcut( tr("F1") );
+	action_manager->addAction(d_actions.show_manual, "action_show_manual");
+	connect(d_actions.show_manual, SIGNAL(triggered()), this, SLOT(showHelp()));
+
+	d_actions.select_manual_folder = new QAction(tr("&Choose Help Folder..."), this);
+	action_manager->addAction(d_actions.select_manual_folder, "action_select_manual_folder");
+	connect(d_actions.select_manual_folder, SIGNAL(triggered()), this, SLOT(chooseHelpFolder()));
+
+	d_actions.show_homepage = new QAction(tr("&SciDAVis Homepage"), this);
+	action_manager->addAction(d_actions.show_homepage, "action_show_homepage");
+	connect(d_actions.show_homepage, SIGNAL(triggered()), this, SLOT(showHomePage()));
+
+	d_actions.show_forums = new QAction(tr("SciDAVis &Forums"), this);
+	action_manager->addAction(d_actions.show_forums, "action_show_forums");
+	connect(d_actions.show_forums, SIGNAL(triggered()), this, SLOT(showForums()));
+
+	d_actions.show_bugtracker = new QAction(tr("Report a &Bug"), this);
+	action_manager->addAction(d_actions.show_bugtracker, "action_show_bugtracker");
+	connect(d_actions.show_bugtracker, SIGNAL(triggered()), this, SLOT(showBugTracker()));
+
+	d_actions.download_manual = new QAction(tr("Download &Manual"), this);
+	action_manager->addAction(d_actions.download_manual, "action_download_manual");
+	connect(d_actions.download_manual, SIGNAL(triggered()), this, SLOT(downloadManual()));
+
+	d_actions.download_translations = new QAction(tr("Download &Translations"), this);
+	action_manager->addAction(d_actions.download_translations, "action_download_translations");
+	connect(d_actions.download_translations, SIGNAL(triggered()), this, SLOT(downloadTranslation()));
+
+	d_actions.check_updates = new QAction(tr("Search for &Updates"), this);
+	action_manager->addAction(d_actions.check_updates, "action_check_updates");
+	connect(d_actions.check_updates, SIGNAL(triggered()), this, SLOT(searchForUpdates()));
 }
 
 void ProjectWindow::initMenus()
@@ -353,6 +421,20 @@ void ProjectWindow::initMenus()
 	connect( d_menus.win_policy_menu, SIGNAL(aboutToShow()), this, SLOT(handleWindowsPolicyMenuAboutToShow()) );
 	
 	d_menus.view->addMenu(d_menus.win_policy_menu);
+
+	d_menus.help = menuBar()->addMenu(tr("&Help"));
+	d_menus.help->addAction(d_actions.show_manual);
+	d_menus.help->addAction(d_actions.select_manual_folder);
+	d_menus.help->addSeparator();
+	d_menus.help->addAction(d_actions.show_homepage);
+	d_menus.help->addAction(d_actions.check_updates);
+	d_menus.help->addAction(d_actions.download_manual);
+	d_menus.help->addAction(d_actions.download_translations);
+	d_menus.help->addSeparator();
+	d_menus.help->addAction(d_actions.show_forums);
+	d_menus.help->addAction(d_actions.show_bugtracker);
+	d_menus.help->addSeparator();
+	d_menus.help->addAction(d_actions.about);
 }
 
 void ProjectWindow::initToolBars()
@@ -753,6 +835,8 @@ void ProjectWindow::handleWindowsMenuAboutToShow()
 	d_menus.windows->addAction(d_actions.close_current_window);
 	d_menus.windows->addAction(d_actions.close_all_windows);
 	d_menus.windows->addSeparator();
+	d_menus.windows->addAction(d_actions.choose_folder);
+	d_menus.windows->addSeparator();
 
 	d_actions.close_current_window->setEnabled(d_mdi_area->currentSubWindow() != 0 && d_mdi_area->currentSubWindow()->isVisible());
 
@@ -822,3 +906,177 @@ void ProjectWindow::setMdiWindowVisibility(QAction * action)
 	d_project->setMdiWindowVisibility((Project::MdiWindowVisibility)(action->data().toInt()));
 }
 		
+void ProjectWindow::chooseFolder()
+{
+	QList<AbstractAspect *> list = d_project->descendantsThatInherit("Folder");
+	if (list.isEmpty()) return;
+	
+	// TODO: make a nicer dialog
+	QDialog dialog;
+	QVBoxLayout layout(&dialog);
+	QLabel label(tr("Select Folder"));
+	QComboBox selection;
+	for (int i=0; i<list.size(); i++)
+		selection.addItem(list.at(i)->path(), i);
+
+    QDialogButtonBox button_box(&dialog);
+    button_box.setOrientation(Qt::Horizontal);
+    button_box.setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
+    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+	layout.addWidget(&label);
+	layout.addWidget(&selection);
+	layout.addWidget(&button_box);
+
+	dialog.setWindowTitle(label.text());
+	if (dialog.exec() != QDialog::Accepted)
+		return;
+	int index = selection.currentIndex();
+	if (index >= 0 && index < list.size())
+		d_project_explorer->setCurrentAspect(list.at(index));
+}
+
+void ProjectWindow::showAboutDialog()
+{
+	SciDAVis::about();
+}
+
+void ProjectWindow::showHelp()
+{
+// TODO
+/*
+	QFile helpFile(helpFilePath);
+	if (!helpFile.exists())
+	{
+		QMessageBox::critical(this,tr("Help Files Not Found!"),
+				tr("Please indicate the location of the help file!")+"<br>"+
+				tr("The manual can be downloaded from the following internet address:")+
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
+		QString fn = QFileDialog::getOpenFileName(QDir::currentDirPath(), "*.html", this );
+		if (!fn.isEmpty())
+		{
+			QFileInfo fi(fn);
+			helpFilePath=fi.absFilePath();
+			saveSettings();
+		}
+	}
+
+	QFileInfo fi(helpFilePath);
+	QString profilePath = QString(fi.dirPath(true)+"/scidavis.adp");
+	if (!QFile(profilePath).exists())
+	{
+		QMessageBox::critical(this,tr("Help Profile Not Found!"),
+				tr("The assistant could not start because the file <b>%1</b> was not found in the help file directory!").arg("scidavis.adp")+"<br>"+
+				tr("This file is provided with the SciDAVis manual which can be downloaded from the following internet address:")+
+				"<p><a href = http://sourceforge.net/project/showfiles.php?group_id=199120>http://sourceforge.net/project/showfiles.php?group_id=199120</a></p>");
+		return;
+	}
+
+	QStringList cmdLst = QStringList() << "-profile" << profilePath;
+	assistant->setArguments( cmdLst );
+	assistant->showPage(helpFilePath);
+*/
+}
+
+void ProjectWindow::chooseHelpFolder()
+{
+// TODO
+/*
+	QString dir = QFileDialog::getExistingDirectory(this, tr("Choose the location of the SciDAVis help folder!"),
+			qApp->applicationDirPath());
+
+	if (!dir.isEmpty())
+	{
+		helpFilePath = dir + "/index.html";
+
+		QFile helpFile(helpFilePath);
+		if (!helpFile.exists())
+		{
+			QMessageBox::critical(this, tr("index.html File Not Found!"),
+					tr("There is no file called <b>index.html</b> in this folder.<br>Please choose another folder!"));
+		}
+	}
+	*/
+}
+
+void ProjectWindow::downloadManual()
+{
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
+}
+
+void ProjectWindow::downloadTranslation()
+{
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
+}
+
+void ProjectWindow::showHomePage()
+{
+	QDesktopServices::openUrl(QUrl("http://scidavis.sf.net"));
+}
+
+void ProjectWindow::showForums()
+{
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/forum/?group_id=199120"));
+}
+
+void ProjectWindow::showBugTracker()
+{
+	QDesktopServices::openUrl(QUrl("http://sourceforge.net/tracker/?group_id=199120&atid=968214"));
+}
+
+void ProjectWindow::searchForUpdates()
+{
+    int choice = QMessageBox::question(this, SciDAVis::versionString() + SciDAVis::extraVersion(),
+					tr("SciDAVis will now try to determine whether a new version of SciDAVis is available. Please modify your firewall settings in order to allow SciDAVis to connect to the internet.") + "\n" +
+					tr("Do you wish to continue?"),
+					QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape);
+
+    if (choice == QMessageBox::Yes)
+    {
+        d->version_buffer.open(QIODevice::WriteOnly);
+        d->http.setHost("scidavis.sourceforge.net");
+        d->http.get("/current_version.txt", &d->version_buffer);
+    }
+}
+
+void ProjectWindow::receivedVersionFile(bool error)
+{
+	if (error)
+	{
+		QMessageBox::warning(this, tr("HTTP get version file"),
+				tr("Error while fetching version file with HTTP: %1.").arg(d->http.errorString()));
+		return;
+	}
+
+	d->version_buffer.close();
+
+	if (d->version_buffer.open(QIODevice::ReadOnly))
+	{
+		QTextStream t( &d->version_buffer );
+		t.setCodec("UTF-8");
+		QString version_line = t.readLine();
+		d->version_buffer.close();
+
+		QStringList list = version_line.split(".");
+		if(list.count() > 2)
+		{
+			int available_version = list.at(0).toInt() << 16 + list.at(1).toInt() << 8 +list.at(2).toInt();
+
+			if (available_version > SciDAVis::version())
+			{
+				if(QMessageBox::question(this, tr("Updates Available"),
+							tr("There is a newer version of SciDAVis (%1) available for download. Would you like to download it now?").arg(version_line),
+							QMessageBox::Yes|QMessageBox::Default, QMessageBox::No|QMessageBox::Escape) == QMessageBox::Yes)
+					QDesktopServices::openUrl(QUrl("http://sourceforge.net/project/showfiles.php?group_id=199120"));
+			}
+			else
+			{
+				QMessageBox::information(this, SciDAVis::versionString() + SciDAVis::extraVersion(),
+						tr("No updates available. Your are already running the latest version."));
+			}
+		}
+		else QMessageBox::information(this, tr("Invalid version file"),
+						tr("The version file (contents: \"%1\") could not be decoded into a valid version number.").arg(version_line));
+	}
+}
