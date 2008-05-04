@@ -103,4 +103,21 @@ void NotesModule::saveSettings()
 	settings.endGroup();
 }
 
+bool NotesModule::canCreate(const QString & element_name)
+{	
+	return element_name == "notes";
+}
+
+AbstractAspect * NotesModule::createAspectFromXml(XmlStreamReader * reader)
+{
+	Notes * notes = new Notes(tr("Notes %1").arg(1));
+	if (!(notes->load(reader)))
+	{
+		delete notes;
+		return NULL;
+	}
+	else
+		return notes;
+}
+
 Q_EXPORT_PLUGIN2(scidavis_notes, NotesModule)

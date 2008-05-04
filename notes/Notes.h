@@ -15,6 +15,17 @@ class Notes : public AbstractPart
 		QWidget *view();
 		QIcon icon() const;
 
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(XmlStreamReader *);
+		//@}
+
+		QString text() const;
+		void setText(const QString & new_text);
+
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();

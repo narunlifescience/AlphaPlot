@@ -4,6 +4,7 @@
 #include <QTextEdit>
 #include <QIcon>
 #include "lib/ActionManager.h"
+#include "lib/XmlStreamReader.h"
 
 struct Notes::Private {
 	QTextDocument model;
@@ -37,6 +38,68 @@ QIcon Notes::icon() const
 {
 	return QPixmap(":/note.xpm");
 }
+
+QString Notes::text() const
+{
+	return d->model.toPlainText();
+}
+
+void Notes::setText(const QString & new_text)
+{
+	// TODO: use commands
+	d->model.setPlainText(new_text);
+}
+
+void Notes::save(QXmlStreamWriter * writer) const
+{
+	writer->writeStartElement("notes");
+	writeBasicAttributes(writer);
+	writeCommentElement(writer);
+	writer->writeStartElement("text");
+	QString contents = text();
+	contents.replace(QString("]]>"), QString("] ]>")); // just in case ...
+	writer->writeCDATA(contents);
+	writer->writeEndElement(); // "text"
+	writer->writeEndElement(); // "notes"
+}
+
+bool Notes::load(XmlStreamReader * reader)
+{
+	if(reader->isStartElement() && reader->name() == "notes") 
+	{
+		if (!readBasicAttributes(reader)) return false;
+
+		// read child elements
+		while (!reader->atEnd()) 
+		{
+			reader->readNext();
+
+			if (reader->isEndElement()) break;
+
+			if (reader->isStartElement()) 
+			{
+				if (reader->name() == "comment")
+				{
+					if (!readCommentElement(reader)) return false;
+				}
+				else if(reader->name() == "text")
+				{
+					setText(reader->readElementText());
+				}
+				else // unknown element
+				{
+					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
+					if (!reader->skipToEndElement()) return false;
+				}
+			} 
+		}
+	}
+	else // no notes element
+		reader->raiseError(tr("no notes element found"));
+
+	return !reader->hasError();
+}
+
 
 /* ========================= static methods ======================= */
 ActionManager * Notes::action_manager = 0;

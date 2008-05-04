@@ -33,10 +33,11 @@
 #include "core/interfaces.h"
 #include "notes/Notes.h"
 
-class NotesModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker
+class NotesModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker,
+	public XmlElementAspectMaker
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker)
+	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker XmlElementAspectMaker)
 
 	public:
 		virtual AbstractPart * makePart();
@@ -47,6 +48,8 @@ class NotesModule : public QObject, public PartMaker, public ActionManagerOwner,
 		virtual QString configPageLabel();
 		virtual void loadSettings();
 		virtual void saveSettings();
+		virtual bool canCreate(const QString & element_name);
+		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader);
 };
 
 class Ui_NotesConfigPage;
