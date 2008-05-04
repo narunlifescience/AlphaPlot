@@ -524,7 +524,7 @@ void Table::fillSelectedCellsWithRandomNumbers()
 	foreach(Column * col_ptr, list)
 	{
 		int col = columnIndex(col_ptr);
-		for(int row=first; row<last; row++)
+		for(int row=first; row<=last; row++)
 			if(d_view->isCellSelected(row, col)) 
 			{
 				if (col_ptr->columnMode() == SciDAVis::Numeric)
