@@ -89,9 +89,7 @@ class DateTime2StringFilter : public AbstractSimpleFilter
 
 		//! \name XML related functions
 		//@{
-		//! Save the column as XML
-		virtual void save(QXmlStreamWriter * writer) const;
-		//! Load the column from XML
+		virtual void writeExtraAttributes(QXmlStreamWriter * writer) const;
 		virtual bool load(XmlStreamReader * reader);
 		//@}
 

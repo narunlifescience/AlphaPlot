@@ -59,31 +59,21 @@ void DateTime2StringFilterSetFormatCmd::undo()
 	redo(); 
 }
 
-void DateTime2StringFilter::save(QXmlStreamWriter * writer) const
+void DateTime2StringFilter::writeExtraAttributes(QXmlStreamWriter * writer) const
 {
-	writer->writeStartElement("simple_filter");
-	writer->writeAttribute("filter_name", "DateTime2StringFilter");
 	writer->writeAttribute("format", format());
-	writer->writeEndElement();
 }
 
 bool DateTime2StringFilter::load(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+	QXmlStreamAttributes attribs = reader->attributes();
+	QString str = attribs.value(reader->namespaceUri().toString(), "format").toString();
 
-	if(reader->isStartElement() && reader->name() == "simple_filter") 
-	{
-		QXmlStreamAttributes attribs = reader->attributes();
-		QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
-		if(str != "DateTime2StringFilter")
-			reader->raiseError(prefix+tr("incompatible filter type")+postfix);
-		else
-			setFormat(attribs.value(reader->namespaceUri().toString(), "format").toString());
-		reader->readNext(); // read the end element
-	}
+	if (AbstractSimpleFilter::load(reader))
+		setFormat(str);
 	else
-		reader->raiseError(prefix+tr("no simple filter element found")+postfix);
+		return false;
 
-	return !reader->error();
+	return !reader->hasError();
 }
+

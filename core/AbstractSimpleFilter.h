@@ -33,7 +33,9 @@
 #include "AbstractFilter.h"
 #include "AbstractColumn.h"
 #include "lib/IntervalAttribute.h"
+#include "lib/XmlStreamReader.h"
 #include <QUndoCommand>
+#include <QXmlStreamWriter>
 
 // forward declaration - class follows
 class SimpleFilterColumn;
@@ -242,6 +244,16 @@ class AbstractSimpleFilter : public AbstractFilter
 		{
 			return d_inputs.value(0) ? d_inputs.at(0)->maskedIntervals() : QList< Interval<int> >(); 
 		}
+
+		//! \name XML related functions
+		//@{
+		//! Save to XML
+		virtual void save(QXmlStreamWriter * writer) const;
+		//! Load from XML
+		virtual bool load(XmlStreamReader * reader);
+		//! Override this in derived classes if they have other attributes than filter_name
+		virtual void writeExtraAttributes(QXmlStreamWriter * writer) const {}
+		//@}
 
 	protected:
 		IntervalAttribute<bool> d_masking;

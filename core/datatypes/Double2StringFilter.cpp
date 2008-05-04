@@ -31,47 +31,34 @@
 #include "lib/XmlStreamReader.h"
 #include <QXmlStreamWriter>
 
-void Double2StringFilter::save(QXmlStreamWriter * writer) const
+void Double2StringFilter::writeExtraAttributes(QXmlStreamWriter * writer) const
 {
-	writer->writeStartElement("simple_filter");
-	writer->writeAttribute("filter_name", "Double2StringFilter");
 	writer->writeAttribute("format", QString(QChar(numericFormat())));
 	writer->writeAttribute("digits", QString::number(numDigits()));
-	writer->writeEndElement();
 }
 
 bool Double2StringFilter::load(XmlStreamReader * reader)
 {
-	QString prefix(tr("XML read error: ","prefix for XML error messages"));
-	QString postfix(tr(" (loading failed)", "postfix for XML error messages"));
+	QXmlStreamAttributes attribs = reader->attributes();
+	QString format_str = attribs.value(reader->namespaceUri().toString(), "format").toString();
+	QString digits_str = attribs.value(reader->namespaceUri().toString(), "digits").toString();
 
-	if(reader->isStartElement() && reader->name() == "simple_filter") 
+	if (AbstractSimpleFilter::load(reader))
 	{
-		QXmlStreamAttributes attribs = reader->attributes();
-		QString str = attribs.value(reader->namespaceUri().toString(), "filter_name").toString();
-		if(str != "Double2StringFilter")
-			reader->raiseError(prefix+tr("incompatible filter type")+postfix);
-
-		if(!reader->error())
+		bool ok;
+		int digits = digits_str.toInt(&ok);
+		if( (format_str.size() != 1) || !ok )
+			reader->raiseError(tr("missing or invalid format attribute(s)"));
+		else
 		{
-			QString format_str = attribs.value(reader->namespaceUri().toString(), "format").toString();
-			QString digits_str = attribs.value(reader->namespaceUri().toString(), "digits").toString();
-			bool ok;
-			int digits = digits_str.toInt(&ok);
-			if( (format_str.size() != 1) || !ok )
-				reader->raiseError(prefix+tr("missing format attribute(s)")+postfix);
-			else
-			{
-				setNumericFormat( format_str.at(0).toAscii() );
-				setNumDigits( digits );
-			}
+			setNumericFormat( format_str.at(0).toAscii() );
+			setNumDigits( digits );
 		}
-		reader->readNext(); // read the end element
 	}
 	else
-		reader->raiseError(prefix+tr("no simple filter element found")+postfix);
+		return false;
 
-	return !reader->error();
+	return !reader->hasError();
 }
 
 void Double2StringFilter::setNumericFormat(char format) 
