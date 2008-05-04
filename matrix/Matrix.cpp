@@ -92,6 +92,11 @@ Matrix::~Matrix()
 
 QWidget *Matrix::view()
 {
+	if (!d_view)
+	{
+		d_view = new MatrixView(this); 
+		addActionsToView();
+	}
 	return d_view;
 }
 
@@ -182,6 +187,7 @@ double Matrix::cell(int row, int col) const
 
 void Matrix::cutSelection()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	if( first < 0 ) return;
 
@@ -195,6 +201,7 @@ void Matrix::cutSelection()
 
 void Matrix::copySelection()
 {
+	if (!d_view) return;
 	int first_col = d_view->firstSelectedColumn(false);
 	if(first_col == -1) return;
 	int last_col = d_view->lastSelectedColumn(false);
@@ -227,6 +234,7 @@ void Matrix::copySelection()
 
 void Matrix::pasteIntoSelection()
 {
+	if (!d_view) return;
 	if(columnCount() < 1 || rowCount() < 1) return;
 
 	WAIT_CURSOR;
@@ -296,6 +304,7 @@ void Matrix::pasteIntoSelection()
 
 void Matrix::insertEmptyColumns()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedColumn();
 	int last = d_view->lastSelectedColumn();
 	if( first < 0 ) return;
@@ -320,6 +329,7 @@ void Matrix::insertEmptyColumns()
 
 void Matrix::removeSelectedColumns()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedColumn();
 	int last = d_view->lastSelectedColumn();
 	if( first < 0 ) return;
@@ -334,6 +344,7 @@ void Matrix::removeSelectedColumns()
 
 void Matrix::clearSelectedColumns()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 	for(int i=0; i<columnCount(); i++)
@@ -345,6 +356,7 @@ void Matrix::clearSelectedColumns()
 
 void Matrix::insertEmptyRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	int count, current = first;
@@ -370,6 +382,7 @@ void Matrix::insertEmptyRows()
 
 void Matrix::removeSelectedRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -384,6 +397,7 @@ void Matrix::removeSelectedRows()
 
 void Matrix::clearSelectedRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -402,6 +416,7 @@ void Matrix::clearSelectedRows()
 
 void Matrix::clearSelectedCells()
 {
+	if (!d_view) return;
 	int first_row = d_view->firstSelectedRow();
 	int last_row = d_view->lastSelectedRow();
 	if( first_row < 0 ) return;
@@ -633,47 +648,53 @@ void Matrix::createActions()
 void Matrix::connectActions()
 {
 	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
-	d_view->addAction(action_cut_selection);
 	connect(action_copy_selection, SIGNAL(triggered()), this, SLOT(copySelection()));
-	d_view->addAction(action_copy_selection);
 	connect(action_paste_into_selection, SIGNAL(triggered()), this, SLOT(pasteIntoSelection()));
-	d_view->addAction(action_paste_into_selection);
 	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(editFormula()));
-	d_view->addAction(action_set_formula);
 	connect(action_edit_coordinates, SIGNAL(triggered()), this, SLOT(editCoordinates()));
-	d_view->addAction(action_edit_coordinates);
 	connect(action_edit_format, SIGNAL(triggered()), this, SLOT(editFormat()));
-	d_view->addAction(action_edit_format);
 	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
-	d_view->addAction(action_clear_selection);
 // TODO: Formula support
 //	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculate()));
-	d_view->addAction(action_recalculate);
-	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
-	d_view->addAction(action_toggle_tabbar);
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
-	d_view->addAction(action_select_all);
 	connect(action_clear_matrix, SIGNAL(triggered()), this, SLOT(clear()));
-	d_view->addAction(action_clear_matrix);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-	d_view->addAction(action_go_to_cell);
 	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
-	d_view->addAction(action_dimensions_dialog);
 	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
-	d_view->addAction(action_insert_columns);
 	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
-	d_view->addAction(action_remove_columns);
 	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
-	d_view->addAction(action_clear_columns);
 	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
-	d_view->addAction(action_insert_rows);
 	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
-	d_view->addAction(action_remove_rows);
 	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
-	d_view->addAction(action_clear_rows);
 	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
-	d_view->addAction(action_add_columns);
 	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
+}
+
+void Matrix::addActionsToView()
+{
+	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
+
+	d_view->addAction(action_cut_selection);
+	d_view->addAction(action_copy_selection);
+	d_view->addAction(action_paste_into_selection);
+	d_view->addAction(action_set_formula);
+	d_view->addAction(action_edit_coordinates);
+	d_view->addAction(action_edit_format);
+	d_view->addAction(action_clear_selection);
+	// TODO: Formula support
+	//		d_view->addAction(action_recalculate);
+	d_view->addAction(action_toggle_tabbar);
+	d_view->addAction(action_select_all);
+	d_view->addAction(action_clear_matrix);
+	d_view->addAction(action_go_to_cell);
+	d_view->addAction(action_dimensions_dialog);
+	d_view->addAction(action_insert_columns);
+	d_view->addAction(action_remove_columns);
+	d_view->addAction(action_clear_columns);
+	d_view->addAction(action_insert_rows);
+	d_view->addAction(action_remove_rows);
+	d_view->addAction(action_clear_rows);
+	d_view->addAction(action_add_columns);
 	d_view->addAction(action_add_rows);
 }
 
@@ -704,6 +725,7 @@ bool Matrix::fillProjectMenu(QMenu * menu)
 
 void Matrix::showMatrixViewContextMenu(const QPoint& pos)
 {
+	if (!d_view) return;
 	QMenu context_menu;
 	
 	createSelectionMenu(&context_menu);
@@ -741,6 +763,7 @@ void Matrix::showMatrixViewRowContextMenu(const QPoint& pos)
 
 void Matrix::goToCell()
 {
+	if (!d_view) return;
 	bool ok;
 
 	int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"),
@@ -782,6 +805,7 @@ QString Matrix::text(int row, int col)
 
 void Matrix::selectAll()
 {
+	if (!d_view) return;
 	d_view->selectAll();
 }
 
@@ -809,21 +833,25 @@ void Matrix::dimensionsDialog()
 
 void Matrix::editFormat()
 {
+	if (!d_view) return;
 	d_view->showControlFormatTab();
 }
 
 void Matrix::editCoordinates()
 {
+	if (!d_view) return;
 	d_view->showControlCoordinatesTab();
 }
 
 void Matrix::editFormula()
 {
+	if (!d_view) return;
 	d_view->showControlFormulaTab();
 }
 
 void Matrix::addRows()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	int count = d_view->selectedRowCount(false);
 	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
@@ -834,6 +862,7 @@ void Matrix::addRows()
 
 void Matrix::addColumns()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	int count = d_view->selectedRowCount(false);
 	beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));

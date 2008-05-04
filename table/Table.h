@@ -65,7 +65,8 @@ Table API calls (e.g., when a user edits a cell this will be handled by the dele
 TableView and Table will not know whether a script or a user changed the data.). Other parts 
 of the user interaction are handled by actions provides by Table, e.g., via a context menu.
 
-Selections are handled by TableView and can be queried by Table.
+Selections are handled by TableView and can be queried by Table. All selection based functions
+do nothing unless the view exists. The view is created by the first call to view();
 */
 class Table : public AbstractPart, public scripted
 {
@@ -327,6 +328,7 @@ class Table : public AbstractPart, public scripted
 	private:
 		void createActions();
 		void connectActions();
+		void addActionsToView();
 		QMenu * d_plot_menu;
 		static bool d_default_comment_visibility;
 

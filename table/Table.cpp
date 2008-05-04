@@ -89,10 +89,9 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	appendColumns(cols);
 	setRowCount(rows);
 
-	d_view = new TableView(this); 
+	d_view = NULL; 
 	createActions();
 	connectActions();
-	d_view->showComments(d_default_comment_visibility);
 }
 
 Table::Table()
@@ -123,6 +122,12 @@ Column * Table::column(const QString & name) const
 
 QWidget *Table::view()
 {
+	if (!d_view)
+	{
+		d_view = new TableView(this); 
+		addActionsToView();
+		d_view->showComments(d_default_comment_visibility);
+	}
 	return d_view;
 }
 
@@ -271,6 +276,7 @@ void Table::addColumn()
 
 void Table::addColumns()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	int count = d_view->selectedColumnCount(false);
 	beginMacro(QObject::tr("%1: add %2 column(s)").arg(name()).arg(count));
@@ -281,6 +287,7 @@ void Table::addColumns()
 
 void Table::cutSelection()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -306,6 +313,7 @@ void Table::cutSelection()
 
 void Table::copySelection()
 {
+	if (!d_view) return;
 	int first_col = d_view->firstSelectedColumn(false);
 	if(first_col == -1) return;
 	int last_col = d_view->lastSelectedColumn(false);
@@ -338,6 +346,7 @@ void Table::copySelection()
 
 void Table::pasteIntoSelection()
 {
+	if (!d_view) return;
 	if(columnCount() < 1 || rowCount() < 1) return;
 
 	WAIT_CURSOR;
@@ -419,6 +428,7 @@ void Table::pasteIntoSelection()
 
 void Table::maskSelection()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -438,6 +448,7 @@ void Table::maskSelection()
 
 void Table::unmaskSelection()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -457,17 +468,20 @@ void Table::unmaskSelection()
 
 void Table::setFormulaForSelection()
 {
+	if (!d_view) return;
 	d_view->showControlFormulaTab();
 }
 
 void Table::recalculateSelectedCells()
 {
+	if (!d_view) return;
 	// TODO
 	QMessageBox::information(0, "info", "not yet implemented");
 }
 
 void Table::fillSelectedCellsWithRowNumbers()
 {
+	if (!d_view) return;
 	if(d_view->selectedColumnCount() < 1) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
@@ -497,6 +511,7 @@ void Table::fillSelectedCellsWithRowNumbers()
 
 void Table::fillSelectedCellsWithRandomNumbers()
 {
+	if (!d_view) return;
 	if(d_view->selectedColumnCount() < 1) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
@@ -542,6 +557,7 @@ void Table::sortTable()
 
 void Table::insertEmptyColumns()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedColumn();
 	int last = d_view->lastSelectedColumn();
 	if( first < 0 ) return;
@@ -570,6 +586,7 @@ void Table::insertEmptyColumns()
 
 void Table::removeSelectedColumns()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: remove selected column(s)").arg(name()));
 
@@ -583,6 +600,7 @@ void Table::removeSelectedColumns()
 
 void Table::clearSelectedColumns()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 
@@ -596,6 +614,7 @@ void Table::clearSelectedColumns()
 
 void Table::setSelectionAs(SciDAVis::PlotDesignation pd)
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	beginMacro(QObject::tr("%1: set plot designation(s)").arg(name()));
 
@@ -645,6 +664,7 @@ void Table::normalizeSelectedColumns()
 
 void Table::sortSelectedColumns()
 {
+	if (!d_view) return;
 	QList< Column* > cols = d_view->selectedColumns();
 	sortDialog(cols);
 }
@@ -663,6 +683,7 @@ void Table::statisticsOnSelectedRows()
 
 void Table::insertEmptyRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	int count, current = first;
@@ -688,6 +709,7 @@ void Table::insertEmptyRows()
 
 void Table::removeSelectedRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -702,6 +724,7 @@ void Table::removeSelectedRows()
 
 void Table::clearSelectedRows()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -731,16 +754,19 @@ void Table::clearSelectedRows()
 
 void Table::editTypeAndFormatOfSelectedColumns()
 {
+	if (!d_view) return;
 	d_view->showControlTypeTab();
 }
 
 void Table::editDescriptionOfCurrentColumn()
 {
+	if (!d_view) return;
 	d_view->showControlDescriptionTab();
 }
 
 void Table::addRows()
 {
+	if (!d_view) return;
 	WAIT_CURSOR;
 	int count = d_view->selectedRowCount(false);
 	beginMacro(QObject::tr("%1: add %2 rows(s)").arg(name()).arg(count));
@@ -751,6 +777,7 @@ void Table::addRows()
 
 void Table::clearSelectedCells()
 {
+	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
 	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
@@ -808,9 +835,7 @@ QMenu *Table::createContextMenu() const
 	Q_ASSERT(menu);
 	menu->addSeparator();
 	
-	// TODO: add real actions here
-	menu->addAction(new QAction(tr("E&xport to ASCII"), d_view));
-
+	// TODO
 	// Export to ASCII
 	// Print --> maybe should go to AbstractPart::createContextMenu()
 	// ----
@@ -1049,87 +1074,93 @@ void Table::createActions()
 void Table::connectActions()
 {
 	connect(action_cut_selection, SIGNAL(triggered()), this, SLOT(cutSelection()));
-	d_view->addAction(action_cut_selection);
 	connect(action_copy_selection, SIGNAL(triggered()), this, SLOT(copySelection()));
-	d_view->addAction(action_copy_selection);
 	connect(action_paste_into_selection, SIGNAL(triggered()), this, SLOT(pasteIntoSelection()));
-	d_view->addAction(action_paste_into_selection);
 	connect(action_mask_selection, SIGNAL(triggered()), this, SLOT(maskSelection()));
-	d_view->addAction(action_mask_selection);
 	connect(action_unmask_selection, SIGNAL(triggered()), this, SLOT(unmaskSelection()));
-	d_view->addAction(action_unmask_selection);
 	connect(action_set_formula, SIGNAL(triggered()), this, SLOT(setFormulaForSelection()));
-	d_view->addAction(action_set_formula);
 	connect(action_clear_selection, SIGNAL(triggered()), this, SLOT(clearSelectedCells()));
-	d_view->addAction(action_clear_selection);
 	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculateSelectedCells()));
-	d_view->addAction(action_recalculate);
 	connect(action_fill_row_numbers, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRowNumbers()));
-	d_view->addAction(action_fill_row_numbers);
 	connect(action_fill_random, SIGNAL(triggered()), this, SLOT(fillSelectedCellsWithRandomNumbers()));
-	d_view->addAction(action_fill_random);
-	connect(action_toggle_comments, SIGNAL(triggered()), d_view, SLOT(toggleComments()));
-	d_view->addAction(action_toggle_comments);
-	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
-	d_view->addAction(action_toggle_tabbar);
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
-	d_view->addAction(action_select_all);
 	connect(action_add_column, SIGNAL(triggered()), this, SLOT(addColumn()));
-	d_view->addAction(action_add_column);
 	connect(action_clear_table, SIGNAL(triggered()), this, SLOT(clear()));
-	d_view->addAction(action_clear_table);
 	connect(action_clear_masks, SIGNAL(triggered()), this, SLOT(clearMasks()));
-	d_view->addAction(action_clear_masks);
 	connect(action_sort_table, SIGNAL(triggered()), this, SLOT(sortTable()));
-	d_view->addAction(action_sort_table);
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
-	d_view->addAction(action_go_to_cell);
 	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
-	d_view->addAction(action_dimensions_dialog);
 	connect(action_insert_columns, SIGNAL(triggered()), this, SLOT(insertEmptyColumns()));
-	d_view->addAction(action_insert_columns);
 	connect(action_remove_columns, SIGNAL(triggered()), this, SLOT(removeSelectedColumns()));
-	d_view->addAction(action_remove_columns);
 	connect(action_clear_columns, SIGNAL(triggered()), this, SLOT(clearSelectedColumns()));
-	d_view->addAction(action_clear_columns);
 	connect(action_add_columns, SIGNAL(triggered()), this, SLOT(addColumns()));
-	d_view->addAction(action_add_columns);
 	connect(action_set_as_x, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsX()));
-	d_view->addAction(action_set_as_x);
 	connect(action_set_as_y, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsY()));
-	d_view->addAction(action_set_as_y);
 	connect(action_set_as_z, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsZ()));
-	d_view->addAction(action_set_as_z);
 	connect(action_set_as_xerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsXError()));
-	d_view->addAction(action_set_as_xerr);
 	connect(action_set_as_yerr, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsYError()));
-	d_view->addAction(action_set_as_yerr);
 	connect(action_set_as_none, SIGNAL(triggered()), this, SLOT(setSelectedColumnsAsNone()));
-	d_view->addAction(action_set_as_none);
 	connect(action_normalize_columns, SIGNAL(triggered()), this, SLOT(normalizeSelectedColumns()));
-	d_view->addAction(action_normalize_columns);
 	connect(action_sort_columns, SIGNAL(triggered()), this, SLOT(sortSelectedColumns()));
-	d_view->addAction(action_sort_columns);
 	connect(action_statistics_columns, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedColumns()));
-	d_view->addAction(action_statistics_columns);
 	connect(action_type_format, SIGNAL(triggered()), this, SLOT(editTypeAndFormatOfSelectedColumns()));
-	d_view->addAction(action_type_format);
 	connect(action_edit_description, SIGNAL(triggered()), this, SLOT(editDescriptionOfCurrentColumn()));
-	d_view->addAction(action_edit_description);
 	connect(action_insert_rows, SIGNAL(triggered()), this, SLOT(insertEmptyRows()));
-	d_view->addAction(action_insert_rows);
 	connect(action_remove_rows, SIGNAL(triggered()), this, SLOT(removeSelectedRows()));
-	d_view->addAction(action_remove_rows);
 	connect(action_clear_rows, SIGNAL(triggered()), this, SLOT(clearSelectedRows()));
-	d_view->addAction(action_clear_rows);
 	connect(action_add_rows, SIGNAL(triggered()), this, SLOT(addRows()));
-	d_view->addAction(action_add_rows);
 	connect(action_statistics_rows, SIGNAL(triggered()), this, SLOT(statisticsOnSelectedRows()));
+}
+
+void Table::addActionsToView()
+{
+	connect(action_toggle_comments, SIGNAL(triggered()), d_view, SLOT(toggleComments()));
+	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
+
+	d_view->addAction(action_cut_selection);
+	d_view->addAction(action_copy_selection);
+	d_view->addAction(action_paste_into_selection);
+	d_view->addAction(action_mask_selection);
+	d_view->addAction(action_unmask_selection);
+	d_view->addAction(action_set_formula);
+	d_view->addAction(action_clear_selection);
+	d_view->addAction(action_recalculate);
+	d_view->addAction(action_fill_row_numbers);
+	d_view->addAction(action_fill_random);
+	d_view->addAction(action_toggle_comments);
+	d_view->addAction(action_toggle_tabbar);
+	d_view->addAction(action_select_all);
+	d_view->addAction(action_add_column);
+	d_view->addAction(action_clear_table);
+	d_view->addAction(action_clear_masks);
+	d_view->addAction(action_sort_table);
+	d_view->addAction(action_go_to_cell);
+	d_view->addAction(action_dimensions_dialog);
+	d_view->addAction(action_insert_columns);
+	d_view->addAction(action_remove_columns);
+	d_view->addAction(action_clear_columns);
+	d_view->addAction(action_add_columns);
+	d_view->addAction(action_set_as_x);
+	d_view->addAction(action_set_as_y);
+	d_view->addAction(action_set_as_z);
+	d_view->addAction(action_set_as_xerr);
+	d_view->addAction(action_set_as_yerr);
+	d_view->addAction(action_set_as_none);
+	d_view->addAction(action_normalize_columns);
+	d_view->addAction(action_sort_columns);
+	d_view->addAction(action_statistics_columns);
+	d_view->addAction(action_type_format);
+	d_view->addAction(action_edit_description);
+	d_view->addAction(action_insert_rows);
+	d_view->addAction(action_remove_rows);
+	d_view->addAction(action_clear_rows);
+	d_view->addAction(action_add_rows);
 	d_view->addAction(action_statistics_rows);
 }
 
 void Table::showTableViewContextMenu(const QPoint& pos)
 {
+	if (!d_view) return;
 	QMenu context_menu;
 	
 // TODO: Does undo/redo really be belong into a context menu?
@@ -1159,6 +1190,7 @@ void Table::showTableViewContextMenu(const QPoint& pos)
 
 void Table::showTableViewColumnContextMenu(const QPoint& pos)
 {
+	if (!d_view) return;
 	QMenu context_menu;
 	
 // TODO: Does undo/redo really be belong into a context menu?
@@ -1179,6 +1211,7 @@ void Table::showTableViewColumnContextMenu(const QPoint& pos)
 
 void Table::showTableViewRowContextMenu(const QPoint& pos)
 {
+	if (!d_view) return;
 	QMenu context_menu;
 	
 // TODO: Does undo/redo really be belong into a context menu?
@@ -1290,6 +1323,7 @@ QMenu * Table::createRowMenu(QMenu * append_to)
 
 void Table::goToCell()
 {
+	if (!d_view) return;
 	bool ok;
 
 	int col = QInputDialog::getInteger(0, tr("Go to Cell"), tr("Enter column"),
@@ -1639,6 +1673,7 @@ QString Table::text(int row, int col)
 
 void Table::selectAll()
 {
+	if (!d_view) return;
 	d_view->selectAll();
 }
 

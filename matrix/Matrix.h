@@ -226,6 +226,7 @@ class Matrix : public AbstractPart, public scripted
 	private:
 		void createActions();
 		void connectActions();
+		void addActionsToView();
 
 		//! Read XML display element
 		bool XmlReadDisplay(XmlStreamReader * reader);
