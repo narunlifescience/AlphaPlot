@@ -75,7 +75,7 @@
 
 bool Table::d_default_comment_visibility = false;
 
-// TODO: move all selection related stuff to the primary view
+// TODO: move all selection related stuff to the primary view ?
 
 Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QString& name)
 	: AbstractPart(name), d_plot_menu(0), scripted(engine)

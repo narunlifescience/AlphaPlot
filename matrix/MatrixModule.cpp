@@ -50,7 +50,7 @@ MatrixConfigPage::~MatrixConfigPage()
 
 void MatrixConfigPage::apply()
 {
-	// TODO: read setting from ui and change them in Matrix
+	// TODO: read settings from ui and change them in Matrix
 }
 
 AbstractPart * MatrixModule::makePart()

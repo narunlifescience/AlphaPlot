@@ -546,7 +546,12 @@ void ProjectWindow::saveProjectAs()
 
 	QString working_dir = qApp->applicationDirPath();
 	QString selected_filter;
-	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), working_dir, filter, &selected_filter);
+	QString path;
+	if (!d_project->fileName().isEmpty())
+		path = d_project->fileName();
+	else
+		path = working_dir + QString("/") + d_project->name() + ".sciprj";
+	QString fn = QFileDialog::getSaveFileName(this, tr("Save project as"), path, filter, &selected_filter);
 	if ( !fn.isEmpty() )
 	{
 			QFileInfo fi(fn);

@@ -1,13 +1,12 @@
 /***************************************************************************
     File                 : Graph.h
     Project              : SciDAVis
+    Description          : Aspect providing a 2d plotting functionality
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief,
-                           Tilman Benkert,
-                           Knut Franke
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net,
-                           knut.franke*gmx.de
-    Description          : Multi layer widget
+    Copyright            : (C) 2006-2008 Tilman Benkert (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -32,6 +31,71 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
+#include "core/AbstractPart.h"
+#include "lib/ActionManager.h"
+
+class GraphView;
+
+/**
+ * Temporary 2d plot solution. to be replaced asap.
+ */
+class Graph : public AbstractPart
+{
+	Q_OBJECT
+
+	public:
+		Graph(const QString &name);
+		~Graph();
+
+		//! Return an icon to be used for decorating my views.
+		virtual QIcon icon() const;
+		//! Return a new context menu.
+		/**
+		 * The caller takes ownership of the menu.
+		 */
+		virtual QMenu *createContextMenu() const;
+		//! Construct a primary view on me.
+		/**
+		 * This method may be called multiple times during the life time of an Aspect, or it might not get
+		 * called at all. Aspects must not depend on the existence of a view for their operation.
+		 */
+		virtual QWidget *view();
+		
+		//! \name serialize/deserialize
+		//@{
+		//! Save as XML
+		virtual void save(QXmlStreamWriter *) const;
+		//! Load from XML
+		virtual bool load(XmlStreamReader *);
+		//@}
+		
+	public:
+		static ActionManager * actionManager();
+		static void initActionManager();
+	private:
+		static ActionManager * action_manager;
+		//! Private ctor for initActionManager() only
+		Graph();
+
+	private:
+		void createActions();
+		void connectActions();
+		void addActionsToView();
+
+		GraphView *d_view;
+};
+
+
+
+
+
+
+
+
+
+
+// old code, to be ported
+#if 0
 #include "../core/MyWidget.h"
 
 #include "Layer.h"
@@ -261,5 +325,6 @@ signals:
 	void clicked(LayerButton*);
 	void showContextMenu();
 };
+#endif
 
 #endif // ifndef GRAPH_H

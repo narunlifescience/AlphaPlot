@@ -1,10 +1,12 @@
 /***************************************************************************
     File                 : Graph.cpp
     Project              : SciDAVis
+    Description          : Aspect providing a 2d plotting functionality
     --------------------------------------------------------------------
-    Copyright            : (C) 2006 by Ion Vasilief, Tilman Benkert
-    Email (use @ for *)  : ion_vasilief*yahoo.fr, thzs*gmx.net
-    Description          : Multi layer widget
+    Copyright            : (C) 2006-2008 Tilman Benkert (thzs*gmx.net)
+    Copyright            : (C) 2006-2008 Knut Franke (knut.franke*gmx.de)
+    Copyright            : (C) 2006-2007 Ion Vasilief (ion_vasilief*yahoo.fr)
+                           (replace * with @ in the email addresses) 
 
  ***************************************************************************/
 
@@ -26,6 +28,107 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
+
+#include "graph/Graph.h"
+#include "graph/GraphView.h"
+
+Graph::Graph(const QString& name)
+	: AbstractPart(name)
+{
+	d_view = NULL; 
+	createActions();
+	connectActions();
+}
+
+Graph::Graph()
+	: AbstractPart("temp")
+{
+	createActions();
+}
+
+Graph::~Graph()
+{
+}
+
+QIcon Graph::icon() const
+{
+	QIcon ico;
+	ico.addPixmap(QPixmap(":/graph.xpm"));
+	return ico;
+}
+
+QMenu *Graph::createContextMenu() const
+{
+	QMenu *menu = AbstractPart::createContextMenu();
+	Q_ASSERT(menu);
+	
+	// TODO
+	
+	return menu;
+}
+
+QWidget *Graph::view()
+{
+	if (!d_view)
+	{
+		d_view = new GraphView(this); 
+		addActionsToView();
+	}
+	return d_view;
+}
+
+void Graph::save(QXmlStreamWriter * writer) const
+{
+	// TODO
+}
+
+bool Graph::load(XmlStreamReader * reader)
+{
+	// TODO: save graph as CDATA in old format
+	return false;
+}
+
+void Graph::createActions()
+{
+	// TODO
+}
+void Graph::connectActions()
+{
+	// TODO
+}
+
+void Graph::addActionsToView()
+{
+	// TODO
+}
+
+/* ========================= static methods ======================= */
+ActionManager * Graph::action_manager = 0;
+
+ActionManager * Graph::actionManager()
+{
+	if (!action_manager)
+		initActionManager();
+	
+	return action_manager;
+}
+
+void Graph::initActionManager()
+{
+	if (!action_manager)
+		action_manager = new ActionManager();
+
+	action_manager->setTitle(tr("Graph"));
+	volatile Graph * action_creator = new Graph(); // initialize the action texts
+	delete action_creator;
+}
+
+
+
+
+// old code, to be ported
+#if 0
+
 #include <QVector>
 #include <QWidgetList>
 #include <QPrinter>
@@ -1359,3 +1462,4 @@ void Graph::setHidden()
 
 	MyWidget::setHidden();
 }
+#endif

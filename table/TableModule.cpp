@@ -52,7 +52,7 @@ TableConfigPage::~TableConfigPage()
 
 void TableConfigPage::apply()
 {
-	// TODO: read setting from ui and change them in Table
+	// TODO: read settings from ui and change them in Table
 }
 
 AbstractPart * TableModule::makePart()
