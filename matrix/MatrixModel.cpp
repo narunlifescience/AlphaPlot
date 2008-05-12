@@ -54,6 +54,10 @@ MatrixModel::MatrixModel(Matrix * matrix)
 			this, SLOT(handleRowsRemoved(int, int)));
 	connect(d_matrix, SIGNAL(dataChanged(int, int, int, int)),
 			this, SLOT(handleDataChanged(int, int, int, int)));
+	connect(d_matrix, SIGNAL(coordinatesChanged()),
+			this, SLOT(handleCoordinatesChanged()));
+	connect(d_matrix, SIGNAL(formatChanged()),
+			this, SLOT(handleFormatChanged()));
 }
 
 MatrixModel::~MatrixModel()
@@ -226,5 +230,17 @@ void MatrixModel::handleRowsRemoved(int first, int count)
 void MatrixModel::handleDataChanged(int top, int left, int bottom, int right)
 {
 	emit dataChanged(index(top, left), index(bottom, right));
+}
+
+void MatrixModel::handleCoordinatesChanged()
+{
+	emit headerDataChanged(Qt::Horizontal, 0, columnCount()-1); 
+	emit headerDataChanged(Qt::Vertical, 0, rowCount()-1); 
+}
+
+void MatrixModel::handleFormatChanged()
+{
+	handleCoordinatesChanged();
+	handleDataChanged(0, 0, rowCount()-1, columnCount()-1); 
 }
 

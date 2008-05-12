@@ -144,6 +144,12 @@ class MatrixView : public QWidget
 		//! Determine the current cell (-1 if no cell is designated as the current)
 		void getCurrentCell(int * row, int * col);
 		//@}
+		
+		void setRowHeight(int row, int height);
+		void setColumnWidth(int col, int width);
+		int rowHeight(int row) const;
+		int columnWidth(int col) const;
+
 
 	public slots:
 		void goToCell(int row, int col);
@@ -152,6 +158,14 @@ class MatrixView : public QWidget
 		void showControlCoordinatesTab();
 		void showControlFormatTab();
 		void showControlFormulaTab();
+		void applyCoordinates();
+		void updateCoordinatesTab();
+		void updateFormulaTab();
+		void applyFormula();
+		void updateFormatTab();
+		void applyFormat();
+		void handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize); 
+		void handleVerticalSectionResized(int logicalIndex, int oldSize, int newSize); 
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed

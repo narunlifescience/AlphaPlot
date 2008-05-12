@@ -66,6 +66,9 @@
 #define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
+int Matrix::default_column_width = 120;
+int Matrix::default_row_height = 20;
+
 Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QString& name)
 	: AbstractPart(name), d_plot_menu(0), scripted(engine)
 {
@@ -908,6 +911,7 @@ void Matrix::setCoordinates(double x1, double x2, double y1, double y2)
 
 void Matrix::setNumericFormat(char format)
 {
+	if (format == numericFormat()) return;
 	WAIT_CURSOR;
 	exec(new MatrixSetFormatCmd(d_matrix_private, format));
 	RESET_CURSOR;
@@ -915,6 +919,7 @@ void Matrix::setNumericFormat(char format)
 
 void Matrix::setDisplayedDigits(int digits)
 {
+	if (digits == displayedDigits()) return;
 	WAIT_CURSOR;
 	exec(new MatrixSetDigitsCmd(d_matrix_private, digits));
 	RESET_CURSOR;
@@ -947,7 +952,9 @@ QString Matrix::formula() const
 
 void Matrix::setFormula(const QString & formula)
 {
-//	TODO
+	WAIT_CURSOR;
+	exec(new MatrixSetFormulaCmd(d_matrix_private, formula));
+	RESET_CURSOR;
 }
 
 char Matrix::numericFormat() const 
@@ -992,6 +999,20 @@ void Matrix::save(QXmlStreamWriter * writer) const
 			writer->writeCharacters(QString::number(cell(row, col), 'e', 16));
 			writer->writeEndElement();
 		}
+	for (int col=0; col<cols; col++)
+	{
+		writer->writeStartElement("column_width");
+		writer->writeAttribute("column", QString::number(col));
+		writer->writeCharacters(QString::number(columnWidth(col)));
+		writer->writeEndElement();
+	}
+	for (int row=0; row<rows; row++)
+	{
+		writer->writeStartElement("row_height");
+		writer->writeAttribute("row", QString::number(row));
+		writer->writeCharacters(QString::number(rowHeight(row)));
+		writer->writeEndElement();
+	}
 	writer->writeEndElement(); // "matrix"
 }
 
@@ -1034,6 +1055,10 @@ bool Matrix::load(XmlStreamReader * reader)
 					ret_val = XmlReadCoordinates(reader);
 				else if(reader->name() == "cell")
 					ret_val = XmlReadCell(reader);
+				else if(reader->name() == "row_height")
+					ret_val = XmlReadRowHeight(reader);
+				else if(reader->name() == "column_width")
+					ret_val = XmlReadColumnWidth(reader);
 				else // unknown element
 				{
 					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
@@ -1125,6 +1150,54 @@ bool Matrix::XmlReadFormula(XmlStreamReader * reader)
 	return true;
 }
 
+bool Matrix::XmlReadRowHeight(XmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "row_height");
+	bool ok;
+	int row = reader->readAttributeInt("row", &ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid or missing row index"));
+		return false;
+	}
+	QString str = reader->readElementText();
+	int value = str.toInt(&ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid row height"));
+		return false;
+	}
+	if (d_view)
+		d_view->setRowHeight(row, value);
+	else
+		setRowHeight(row, value);
+	return true;
+}
+
+bool Matrix::XmlReadColumnWidth(XmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "column_width");
+	bool ok;
+	int col = reader->readAttributeInt("column", &ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid or missing column index"));
+		return false;
+	}
+	QString str = reader->readElementText();
+	int value = str.toInt(&ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid column width"));
+		return false;
+	}
+	if (d_view)
+		d_view->setColumnWidth(col, value);
+	else
+		setColumnWidth(col, value);
+	return true;
+}
+
 bool Matrix::XmlReadCell(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "cell");
@@ -1157,6 +1230,26 @@ bool Matrix::XmlReadCell(XmlStreamReader * reader)
 	setCell(row, col, value);
 
 	return true;
+}
+
+void Matrix::setRowHeight(int row, int height) 
+{ 
+	d_matrix_private->setRowHeight(row, height); 
+}
+
+void Matrix::setColumnWidth(int col, int width) 
+{ 
+	d_matrix_private->setColumnWidth(col, width); 
+}
+
+int Matrix::rowHeight(int row) const 
+{ 
+	return d_matrix_private->rowHeight(row); 
+}
+
+int Matrix::columnWidth(int col) const 
+{ 
+	return d_matrix_private->columnWidth(col); 
 }
 
 /* ========================= static methods ======================= */
@@ -1200,7 +1293,10 @@ void Matrix::Private::insertColumns(int before, int count)
 
 	emit d_owner->columnsAboutToBeInserted(before, count);
 	for(int i=0; i<count; i++)
+	{
 		d_data.insert(before+i, QVector<double>(d_row_count));
+		d_column_widths.insert(before+i, Matrix::defaultColumnWidth());
+	}
 
 	d_column_count += count;
 	emit d_owner->columnsInserted(before, count);
@@ -1212,6 +1308,8 @@ void Matrix::Private::removeColumns(int first, int count)
 	Q_ASSERT(first >= 0);
 	Q_ASSERT(first+count <= d_column_count);
 	d_data.remove(first, count);
+	for (int i=0; i<count; i++)
+		d_column_widths.removeAt(first);
 	d_column_count -= count;
 	emit d_owner->columnsRemoved(first, count);
 }
@@ -1224,6 +1322,8 @@ void Matrix::Private::insertRows(int before, int count)
 	for(int col=0; col<d_column_count; col++)
 		for(int i=0; i<count; i++)
 			d_data[col].insert(before+i, 0.0);
+	for(int i=0; i<count; i++)
+		d_row_heights.insert(before+i, Matrix::defaultRowHeight());
 
 	d_row_count += count;
 	emit d_owner->rowsInserted(before, count);
@@ -1236,6 +1336,8 @@ void Matrix::Private::removeRows(int first, int count)
 	Q_ASSERT(first+count <= d_row_count);
 	for(int col=0; col<d_column_count; col++)
 		d_data[col].remove(first, count);
+	for (int i=0; i<count; i++)
+		d_row_heights.removeAt(first);
 
 	d_row_count -= count;
 	emit d_owner->rowsRemoved(first, count);
@@ -1293,4 +1395,61 @@ void Matrix::Private::clearColumn(int col)
 	d_data[col].fill(0.0);
 	emit d_owner->dataChanged(0, col, d_row_count-1, col);
 }
+
+double Matrix::Private::xStart() const
+{
+	return d_x_start;
+}
+
+double Matrix::Private::yStart() const
+{
+	return d_y_start;
+}
+
+double Matrix::Private::xEnd() const
+{ 
+	return d_x_end;
+}
+
+double Matrix::Private::yEnd() const
+{ 
+	return d_y_end;
+}
+
+void Matrix::Private::setXStart(double x)
+{ 
+	d_x_start = x;
+	emit d_owner->coordinatesChanged();
+}
+
+void Matrix::Private::setXEnd(double x)
+{ 
+	d_x_end = x;
+	emit d_owner->coordinatesChanged();
+}
+
+void Matrix::Private::setYStart(double y)
+{ 
+	d_y_start = y;
+	emit d_owner->coordinatesChanged();
+}
+
+void Matrix::Private::setYEnd(double y)
+{ 
+	d_y_end = y;
+	emit d_owner->coordinatesChanged();
+}
+
+QString Matrix::Private::formula() const
+{ 
+	return d_formula;
+}
+
+void Matrix::Private::setFormula(const QString & formula)
+{ 
+	d_formula = formula;
+	emit d_owner->formulaChanged();
+}
+
+
 

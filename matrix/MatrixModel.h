@@ -79,6 +79,8 @@ class MatrixModel : public QAbstractItemModel
 		void handleRowsAboutToBeRemoved(int first, int count);
 		void handleRowsRemoved(int first, int count);
 		void handleDataChanged(int top, int left, int bottom, int right);
+		void handleCoordinatesChanged();
+		void handleFormatChanged();
 		//@}
 
 	private:

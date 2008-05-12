@@ -162,13 +162,34 @@ class Matrix : public AbstractPart, public scripted
 		virtual bool load(XmlStreamReader *);
 		//@}
 
+		//! This method should only be called by the view.
+		/** This method does not change the view, it only changes the
+		 * values that are saved when the matrix is saved. The view
+		 * has to take care of reading and applying these values */
+		void setRowHeight(int row, int height);
+		//! This method should only be called by the view.
+		/** This method does not change the view, it only changes the
+		 * values that are saved when the matrix is saved. The view
+		 * has to take care of reading and applying these values */
+		void setColumnWidth(int col, int width);
+		int rowHeight(int row) const;
+		int columnWidth(int col) const;
+
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();
+		static int defaultColumnWidth() { return default_column_width; }
+		static int defaultRowHeight() { return default_row_height; }
+		static void setDefaultColumnWidth(int width) { default_column_width = width; }
+		static void setDefaultRowHeight(int height) { default_row_height = height; }
+
 	private:
 		static ActionManager * action_manager;
 		//! Private ctor for initActionManager() only
 		Matrix();
+		// TODO: the default sizes are to be controlled by the global Matrix settings
+		static int default_column_width;
+		static int default_row_height;
 
 	public slots:
 		//! Clear the whole matrix (i.e. set all cells to 0.0)
@@ -222,6 +243,9 @@ class Matrix : public AbstractPart, public scripted
 		void rowsAboutToBeRemoved(int first, int count);
 		void rowsRemoved(int first, int count);
 		void dataChanged(int top, int left, int bottom, int right);
+		void coordinatesChanged();
+		void formulaChanged();
+		void formatChanged();
 
 	private:
 		void createActions();
@@ -236,6 +260,8 @@ class Matrix : public AbstractPart, public scripted
 		bool XmlReadFormula(XmlStreamReader * reader);
 		//! Read XML cell element
 		bool XmlReadCell(XmlStreamReader * reader);
+		bool XmlReadRowHeight(XmlStreamReader * reader);
+		bool XmlReadColumnWidth(XmlStreamReader * reader);
 
 		QMenu * d_plot_menu;
 
@@ -338,18 +364,25 @@ class Matrix::Private
 		//! Return the values in the given cells as double vector
 		void setColumnCells(int col, int first_row, int last_row, QVector<double> values);
 		char numericFormat() const { return d_numeric_format; }
-		void setNumericFormat(char format) { d_numeric_format = format; }
+		void setNumericFormat(char format) { d_numeric_format = format; emit d_owner->formatChanged(); }
 		int displayedDigits()  const { return d_displayed_digits; }
-		void setDisplayedDigits(int digits) { d_displayed_digits = digits; }
+		void setDisplayedDigits(int digits) { d_displayed_digits = digits;  emit d_owner->formatChanged(); }
 		//! Fill column with zeroes
 		void clearColumn(int col);
-		BASIC_ACCESSOR(double, d_x_start, xStart, XStart);
-		BASIC_ACCESSOR(double, d_y_start, yStart, YStart);
-		BASIC_ACCESSOR(double, d_x_end, xEnd, XEnd);
-		BASIC_ACCESSOR(double, d_y_end, yEnd, YEnd);
-		CLASS_ACCESSOR(QString, d_formula, formula, Formula)
-
-		// TODO: signals for format change etc.
+		double xStart() const;
+		double yStart() const;
+		double xEnd() const;
+		double yEnd() const;
+		QString formula() const;
+		void setFormula(const QString & formula);
+		void setXStart(double x);
+		void setXEnd(double x);
+		void setYStart(double y);
+		void setYEnd(double y);
+		void setRowHeight(int row, int height) { d_row_heights[row] = height; }
+		void setColumnWidth(int col, int width) { d_column_widths[col] = width; }
+		int rowHeight(int row) const { return d_row_heights.at(row); }
+		int columnWidth(int col) const { return d_column_widths.at(col); }
 		
 	private:
 		//! The owner aspect
@@ -360,6 +393,10 @@ class Matrix::Private
 		int d_row_count;
 		//! The matrix data
 		QVector< QVector<double> > d_data;	
+		//! Row widths
+		QList<int> d_row_heights;
+		//! Columns widths
+		QList<int> d_column_widths;
 		//! Last formula used to calculate cell values
 		QString d_formula; // TODO: should we support interval/rectangle based formulas?
 		//! Format code for displaying numbers
