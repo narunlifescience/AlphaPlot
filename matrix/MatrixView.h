@@ -167,9 +167,13 @@ class MatrixView : public QWidget
 		void handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize); 
 		void handleVerticalSectionResized(int logicalIndex, int oldSize, int newSize); 
 
+	signals:
+		void controlTabBarStatusChanged(bool visible);
+
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
+		void updateTypeInfo();
 
 	protected:
 		//! Pointer to the current underlying model

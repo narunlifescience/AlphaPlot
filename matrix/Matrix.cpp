@@ -78,7 +78,7 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QStrin
 	appendColumns(cols);
 	appendRows(rows);
 
-	d_view = new MatrixView(this); 
+	d_view = NULL;
 	createActions();
 	connectActions();
 }
@@ -99,6 +99,8 @@ QWidget *Matrix::view()
 	{
 		d_view = new MatrixView(this); 
 		addActionsToView();
+		connect(d_view, SIGNAL(controlTabBarStatusChanged(bool)), this, SLOT(adjustTabBarAction(bool)));
+		adjustTabBarAction(true);
 	}
 	return d_view;
 }
@@ -736,13 +738,6 @@ void Matrix::showMatrixViewContextMenu(const QPoint& pos)
 	createMatrixMenu(&context_menu);
 	context_menu.addSeparator();
 
-	QString action_name;
-	if(d_view->isControlTabBarVisible()) 
-		action_name = tr("Hide Controls");
-	else
-		action_name = tr("Show Controls");
-	action_toggle_tabbar->setText(action_name);
-
 	context_menu.exec(pos);
 }
 
@@ -844,6 +839,7 @@ void Matrix::editCoordinates()
 {
 	if (!d_view) return;
 	d_view->showControlCoordinatesTab();
+	d_view->toggleControlTabBar();
 }
 
 void Matrix::editFormula()
@@ -1252,6 +1248,14 @@ int Matrix::columnWidth(int col) const
 	return d_matrix_private->columnWidth(col); 
 }
 
+void Matrix::adjustTabBarAction(bool visible)
+{
+	if(visible) 
+		action_toggle_tabbar->setText(tr("Hide Controls"));
+	else
+		action_toggle_tabbar->setText(tr("Show Controls"));
+}
+
 /* ========================= static methods ======================= */
 ActionManager * Matrix::action_manager = 0;
 
@@ -1450,6 +1454,4 @@ void Matrix::Private::setFormula(const QString & formula)
 	d_formula = formula;
 	emit d_owner->formulaChanged();
 }
-
-
 

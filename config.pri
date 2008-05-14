@@ -14,7 +14,7 @@ MODULES = table notes matrix
 ### support for Python scripting
 MODULES += python
 
-MODULES += graph3D
+MODULES += graph3D #graph
 
 ### what to install and where
 INSTALLS += documentation
@@ -75,15 +75,15 @@ contains(MODULES, graph) {
 ### Default for Linux / Mac OS X:
 ### Link statically againts Qwt (in order to make sure it's compiled against
 ### Qt4).
-unix:INCLUDEPATH  += 3rdparty/qwt/src
-unix:LIBS         += 3rdparty/qwt/lib/libqwt.a
+#unix:INCLUDEPATH  += 3rdparty/qwt/src
+#unix:LIBS         += 3rdparty/qwt/lib/libqwt.a
 
 ### Link dynamically against system-wide installation of Qwt.
 ### WARNING: Make sure Qwt is compiled against Qt >= 4.2 if you use this.
 ### WARNING: Mixing Qt 4.2 and Qt >= 4.3 compiled stuff may also cause
 ### WARNING: problems.
-#unix:INCLUDEPATH	+= /usr/include/qwt5
-#unix:LIBS				+= -lqwt
+unix:INCLUDEPATH	+= /usr/include/qwt-qt4
+unix:LIBS				+= -lqwt-qt4
 
 ### Paths to Qwt on Windows
 win32:INCLUDEPATH  += c:/qwt-5.0.2/include

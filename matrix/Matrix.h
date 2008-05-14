@@ -247,6 +247,9 @@ class Matrix : public AbstractPart, public scripted
 		void formulaChanged();
 		void formatChanged();
 
+	private slots:
+		void adjustTabBarAction(bool visible);
+
 	private:
 		void createActions();
 		void connectActions();

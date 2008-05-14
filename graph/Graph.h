@@ -68,7 +68,12 @@ class Graph : public AbstractPart
 		//! Load from XML
 		virtual bool load(XmlStreamReader *);
 		//@}
-		
+	
+	public slots:
+		void showCanvasContextMenu(const QPoint& pos);
+		void showMarkerPopupMenu(const QPoint& pos);
+	
+
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();
@@ -78,11 +83,15 @@ class Graph : public AbstractPart
 		Graph();
 
 	private:
+		friend class GraphView; // this only temporary to make porting to the aspect framework faster
 		void createActions();
 		void connectActions();
 		void addActionsToView();
 
 		GraphView *d_view;
+		QList<Layer*> d_layer_list;
+		//! Used for resizing of layers.
+		int d_layer_count, cols, rows, d_layer_default_width, d_layer_default_height, colsSpace, rowsSpace;
 };
 
 
@@ -293,8 +302,6 @@ private:
 
 	QWidgetList d_button_list;
 	QList<Layer*> d_layer_list;
-	QHBoxLayout *layerButtonsBox;
-	QWidget *canvas;
 
 	QPointer<SelectionMoveResizer> d_layers_selector;
 	int d_open_maximized;

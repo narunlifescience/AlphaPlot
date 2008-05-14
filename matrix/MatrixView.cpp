@@ -144,6 +144,8 @@ void MatrixView::init()
 		this, SLOT(applyFormula()));
 	connect(ui.button_set_format, SIGNAL(pressed()), 
 		this, SLOT(applyFormat()));
+	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
+	connect(ui.digits_box, SIGNAL(valueChanged(int)), this, SLOT(updateTypeInfo()));
 
 	connect(d_matrix, SIGNAL(coordinatesChanged()), this, SLOT(updateCoordinatesTab()));
 	connect(d_matrix, SIGNAL(formulaChanged()), this, SLOT(updateFormulaTab()));
@@ -168,9 +170,8 @@ void MatrixView::retranslateStrings()
 void MatrixView::advanceCell()
 {
 	QModelIndex idx = d_view_widget->currentIndex();
-    if(idx.row()+1 >= d_matrix->rowCount())
-		d_matrix->setDimensions(d_matrix->rowCount()+1, d_matrix->columnCount());
-	d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
+    if(idx.row()+1 < d_matrix->rowCount())
+		d_view_widget->setCurrentIndex(idx.sibling(idx.row()+1, idx.column()));
 }
 
 void MatrixView::goToCell(int row, int col)
@@ -192,6 +193,7 @@ void MatrixView::toggleControlTabBar()
 		d_hide_button->setArrowType(Qt::RightArrow);
 	else
 		d_hide_button->setArrowType(Qt::LeftArrow);
+	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
 }
 
 int MatrixView::selectedColumnCount(bool full)
@@ -331,6 +333,7 @@ void MatrixView::showControlCoordinatesTab()
 	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(0);
+	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
 }
 
 void MatrixView::showControlFormatTab()
@@ -338,6 +341,7 @@ void MatrixView::showControlFormatTab()
 	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(1);
+	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
 }
 
 void MatrixView::showControlFormulaTab()
@@ -345,6 +349,7 @@ void MatrixView::showControlFormulaTab()
 	d_control_tabs->setVisible(true);
 	d_hide_button->setArrowType(Qt::RightArrow);
 	ui.tab_widget->setCurrentIndex(2);
+	emit controlTabBarStatusChanged(d_control_tabs->isVisible());
 }
 
 void MatrixView::applyCoordinates()
@@ -444,6 +449,13 @@ int MatrixView::columnWidth(int col) const
 	return h_header->sectionSize(col);
 }
 
+void MatrixView::updateTypeInfo()
+{
+	int digits = ui.digits_box->value();
+	char format = ui.format_box->currentIndex() == 1 ? 'e' : 'f';
+	ui.type_info->setText(tr("Example: %1").arg(QString::number(100.1234567890123456, format, digits)));
+}
+
 /* ================== MatrixViewWidget ================ */
 
 void MatrixViewWidget::selectAll()
@@ -457,11 +469,8 @@ void MatrixViewWidget::selectAll()
 
 void MatrixViewWidget::keyPressEvent(QKeyEvent * event)
 {
-// remark: disabled this since to me it seems to make little sense in matrices - thzs
-#if 0
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
 		emit advanceCell();
-#endif
 	QTableView::keyPressEvent(event);
 }
 
