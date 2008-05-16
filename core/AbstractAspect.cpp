@@ -169,8 +169,8 @@ int AbstractAspect::indexOfChild(const AbstractAspect *child) const
 
 void AbstractAspect::moveChild(int from, int to)
 {
-	Q_ASSERT(0 <= from < d_aspect_private->childCount());
-	Q_ASSERT(0 <= to   < d_aspect_private->childCount());
+	Q_ASSERT(0 <= from && from < d_aspect_private->childCount());
+	Q_ASSERT(0 <= to   && to   < d_aspect_private->childCount());
 	exec(new AspectChildMoveCmd(d_aspect_private, from, to));
 }
 
@@ -342,5 +342,25 @@ void AbstractAspect::removeAllChildAspects()
 	for (int i=childCount()-1; i >= 0; i--) 
 		removeChild(i);
 	endMacro();
+}
+
+QVariant AbstractAspect::global(const QString &key)
+{
+	QString qualified_key = QString(staticMetaObject.className()) + "/" + key;
+	QVariant result = Private::g_settings->value(qualified_key);
+	if (result.isValid())
+		return result;
+	else
+		return Private::g_defaults[qualified_key];
+}
+
+void AbstractAspect::setGlobal(const QString &key, const QVariant &value)
+{
+	Private::g_settings->setValue(QString(staticMetaObject.className()) + "/" + key, value);
+}
+
+void AbstractAspect::setGlobalDefault(const QString &key, const QVariant &value)
+{
+	Private::g_defaults[QString(staticMetaObject.className()) + "/" + key] = value;
 }
 

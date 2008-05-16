@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : ProjectConfigPage.h
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 Tilman Benkert
+    Email (use @ for *)  : thzs*gmx.net
+    Description          : Project settings page for preferences dialog.
 
  ***************************************************************************/
 
@@ -26,56 +26,24 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_PRIVATE_H
-#define ASPECT_PRIVATE_H
+#ifndef PROJECT_CONFIG_PAGE_H
+#define PROJECT_CONFIG_PAGE_H
 
-#include "AbstractAspect.h"
+#include "ui_ProjectConfigPage.h"
+#include "lib/ConfigPageWidget.h"
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
-#include <QSettings>
-#include <QHash>
-
-//! Private data managed by AbstractAspect.
-class AbstractAspect::Private
+//! Helper class for Project
+class ProjectConfigPage : public ConfigPageWidget
 {
+	Q_OBJECT
+
 	public:
-		Private(AbstractAspect * owner, const QString &name);
-		~Private();
+		ProjectConfigPage();
 
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		int removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
-
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
-
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-		AbstractAspect * parent() { return d_parent; }
-
-		QString uniqueNameFor(const QString &current_name) const;
-
-		static QSettings * g_settings;
-		static QHash<QString, QVariant> g_defaults;
-	
+	public slots:
+		virtual void apply();
 	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-		AbstractAspect * d_parent;
+		Ui::ProjectConfigPage ui;
 };
 
-#endif // ifndef ASPECT_PRIVATE_H
+#endif // ifndef PROJECT_CONFIG_PAGE_H

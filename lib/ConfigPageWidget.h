@@ -27,6 +27,9 @@
  *                                                                         *
  ***************************************************************************/
 
+#ifndef CONFIG_PAGE_WIDGET
+#define CONFIG_PAGE_WIDGET
+
 #include <QWidget>
 
 //! Widget for configuration pages that has an apply slot
@@ -40,4 +43,6 @@ class ConfigPageWidget : public QWidget
 	public slots:
 		virtual void apply() = 0;
 };
+
+#endif // ifndef CONFIG_PAGE_WIDGET
 

@@ -1,10 +1,10 @@
 /***************************************************************************
-    File                 : AspectPrivate.h
+    File                 : ProjectConfigPage.cpp
     Project              : SciDAVis
     --------------------------------------------------------------------
-    Copyright            : (C) 2007 by Knut Franke, Tilman Benkert
-    Email (use @ for *)  : knut.franke*gmx.de, thzs*gmx.net
-    Description          : Private data managed by AbstractAspect.
+    Copyright            : (C) 2008 Tilman Benkert
+    Email (use @ for *)  : thzs*gmx.net
+    Description          : Project settings page for preferences dialog.
 
  ***************************************************************************/
 
@@ -26,56 +26,28 @@
  *   Boston, MA  02110-1301  USA                                           *
  *                                                                         *
  ***************************************************************************/
-#ifndef ASPECT_PRIVATE_H
-#define ASPECT_PRIVATE_H
 
-#include "AbstractAspect.h"
+#include "ProjectConfigPage.h"
+#include "Project.h"
 
-#include <QString>
-#include <QDateTime>
-#include <QList>
-#include <QSettings>
-#include <QHash>
-
-//! Private data managed by AbstractAspect.
-class AbstractAspect::Private
+ProjectConfigPage::ProjectConfigPage() 
 {
-	public:
-		Private(AbstractAspect * owner, const QString &name);
-		~Private();
+	ui.setupUi(this);
+	ui.default_subwindow_visibility_combobox->setCurrentIndex(Project::global("default_mdi_window_visibility").toInt());
+	// TODO: set the ui according to the global settings in Project::Private
+}
 
-		void addChild(AbstractAspect* child);
-		void insertChild(int index, AbstractAspect* child);
-		int indexOfChild(const AbstractAspect *child) const;
-		int removeChild(AbstractAspect* child);
-		int childCount() const;
-		AbstractAspect* child(int index);
+void ProjectConfigPage::apply() 
+{
+	int index = ui.default_subwindow_visibility_combobox->currentIndex();
+	switch (index)
+	{
+		case 0:
+		case 1:
+		case 2: 
+			Project::setGlobal("default_mdi_window_visibility", index);
+			break;
+	}
+	// TODO: read settings from ui and change them in Project::Private
+}
 
-		QString name() const;
-		void setName(const QString &value);
-		QString comment() const;
-		void setComment(const QString &value);
-		QString captionSpec() const;
-		void setCaptionSpec(const QString &value);
-		QDateTime creationTime() const;
-		void setCreationTime(const QDateTime& time);
-
-		QString caption() const;
-		AbstractAspect * owner() { return d_owner; }
-		AbstractAspect * parent() { return d_parent; }
-
-		QString uniqueNameFor(const QString &current_name) const;
-
-		static QSettings * g_settings;
-		static QHash<QString, QVariant> g_defaults;
-	
-	private:
-		static int indexOfMatchingBrace(const QString &str, int start);
-		QList< AbstractAspect* > d_children;
-		QString d_name, d_comment, d_caption_spec;
-		QDateTime d_creation_time;
-		AbstractAspect * d_owner;
-		AbstractAspect * d_parent;
-};
-
-#endif // ifndef ASPECT_PRIVATE_H

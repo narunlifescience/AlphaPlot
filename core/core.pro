@@ -35,6 +35,9 @@ RESOURCES += \
 	../appicons.qrc \
 	../icons.qrc \
 
+FORMS += \
+	ProjectConfigPage.ui \
+
 HEADERS += \
 	globals.h \
 	customevents.h \
@@ -77,6 +80,7 @@ HEADERS += \
 	AbstractImportFilter.h \
 	AbstractExportFilter.h \
 	ImportDialog.h \
+	ProjectConfigPage.h \
 	# TODO: port or delete the following files
 	#ApplicationWindow.h \
 	#PreferencesDialog.h \
@@ -122,6 +126,7 @@ SOURCES += \
 	String2DateTimeFilter.cpp \
 	Double2StringFilter.cpp \
 	ImportDialog.cpp \
+	ProjectConfigPage.cpp \
 	# TODO: port or delete the following files
 	#ApplicationWindow.cpp \
 	#PreferencesDialog.cpp \

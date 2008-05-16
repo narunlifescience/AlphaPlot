@@ -825,7 +825,6 @@ void ProjectWindow::showPreferencesDialog()
 
 	foreach(current, widgets)
 		current->apply();
-	Project::saveSettings();
 }
 
 void ProjectWindow::handleWindowsMenuAboutToShow()

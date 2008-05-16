@@ -31,6 +31,14 @@
 #include <QRegExp>
 #include <QStringList>
 
+QSettings * AbstractAspect::Private::g_settings =
+#ifdef Q_OS_MAC
+	new QSettings(QSettings::IniFormat, QSettings::UserScope, "SciDAVis", "SciDAVis");
+#else
+	new QSettings(QSettings::NativeFormat, QSettings::UserScope, "SciDAVis", "SciDAVis");
+#endif
+QHash<QString, QVariant> AbstractAspect::Private::g_defaults;
+
 AbstractAspect::Private::Private(AbstractAspect * owner, const QString& name)
 	: d_name(name), d_caption_spec("%n%C{ - }%c"), d_owner(owner), d_parent(0)
 {

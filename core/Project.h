@@ -80,8 +80,6 @@ class Project : public Folder
 	
 		static ConfigPageWidget * makeConfigPage();
 		static QString configPageLabel();
-		static void loadSettings();
-		static void saveSettings();
 	
 		//! \name serialize/deserialize
 		//@{
@@ -96,23 +94,6 @@ class Project : public Folder
 		Private *d;
 
 		friend class ProjectConfigPage;
-};
-
-class Ui_ProjectConfigPage;
-
-//! Helper class for Project
-class ProjectConfigPage : public ConfigPageWidget
-{
-	Q_OBJECT
-
-	public:
-		ProjectConfigPage();
-		~ProjectConfigPage();
-
-	public slots:
-		virtual void apply();
-	private:
-		Ui_ProjectConfigPage *ui;
 };
 
 #endif // ifndef PROJECT_H

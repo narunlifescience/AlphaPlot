@@ -60,12 +60,11 @@ class QAction;
  * of setCaptionSpec().
  *
  * If an undoStack() can be found (usually it is managed by Project), changes to the properties
- * as well as adding/removing childs support multi-level undo/redo. In order to support undo/redo
+ * as well as adding/removing children support multi-level undo/redo. In order to support undo/redo
  * for problem-specific data in derived classes, make sure that all changes to your data are done
  * by handing appropriate commands to exec().
  *
- * The only thing that's mandatory when deriving from AbstractAspect is to implement view().
- * This allows views to automatically create views on new childs of their Aspect. Optionally,
+ * Optionally,
  * you can supply an icon() to be used by different views (including the ProjectExplorer)
  * and/or reimplement createContextMenu() for a custom context menu of views.
  *
@@ -175,6 +174,14 @@ class AbstractAspect : public QObject
 		 */
 		QAction *redoAction(QObject *parent) const;
 		//@}
+
+		//! Retrieve a global setting.
+		static QVariant global(const QString &key);
+		//! Update a global setting.
+		static void setGlobal(const QString &key, const QVariant &value);
+		//! Set default value for a global setting.
+		static void setGlobalDefault(const QString &key, const QVariant &value);
+
 		//! \name serialize/deserialize
 		//@{
 		//! Save as XML

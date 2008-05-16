@@ -33,7 +33,7 @@
 #include "core/interfaces.h"
 #include "core/globals.h"
 #include "lib/XmlStreamReader.h"
-#include "ui_ProjectConfigPage.h"
+#include "ProjectConfigPage.h"
 #include <QUndoStack>
 #include <QString>
 #include <QKeySequence>
@@ -50,7 +50,10 @@
 class Project::Private
 {
 	public:
-		Private() : mdi_window_visibility(folderOnly), primary_view(0), scripting_engine(0) {}
+		Private() :
+			mdi_window_visibility(static_cast<MdiWindowVisibility>(Project::global("default_mdi_window_visibility").toInt())),
+			primary_view(0),
+			scripting_engine(0) {}
 		~Private() {
 			delete primary_view;
 		}
@@ -59,69 +62,7 @@ class Project::Private
 		ProjectWindow * primary_view;
 		AbstractScriptingEngine * scripting_engine;
 		QString file_name;
-
-		// TODO: this is still not a really good solution for the global settings
-		// global settings
-		static Project::MdiWindowVisibility default_mdi_window_visibility;
-		static bool auto_search_updates;
-		static QString language;
-		static QStringList recent_projects;
-		static QString style;
-		static bool auto_save;
-		static int auto_save_interval;
-		static QString default_scripting_language;
-		static QLocale locale;
-		static bool locale_use_group_separator;
-		static QString help_path;
-		static QString fit_plugins_path;
-		static QString templates_path;
-		static QString ascii_path;
-		static QString images_path;
 };
-
-// global settings
-Project::MdiWindowVisibility Project::Private::default_mdi_window_visibility = Project::folderOnly;
-bool Project::Private::auto_search_updates = false;
-QString Project::Private::language = QString("en");
-QStringList Project::Private::recent_projects;
-QString Project::Private::style;
-bool Project::Private::auto_save = true;
-int Project::Private::auto_save_interval = 15;
-QString Project::Private::default_scripting_language = "muParser";
-QLocale Project::Private::locale;
-bool Project::Private::locale_use_group_separator = false;
-QString Project::Private::help_path;
-QString Project::Private::fit_plugins_path;
-QString Project::Private::templates_path;
-QString Project::Private::ascii_path;
-QString Project::Private::images_path;
-
-ProjectConfigPage::ProjectConfigPage() 
-{
-	ui = new Ui_ProjectConfigPage();
-	ui->setupUi(this);
-	ui->default_subwindow_visibility_combobox->setCurrentIndex((int)Project::Private::default_mdi_window_visibility);
-	// TODO: set the ui according to the global settings in Project::Private
-}
-
-ProjectConfigPage::~ProjectConfigPage() 
-{
-	delete ui;
-}
-
-void ProjectConfigPage::apply() 
-{
-	int index = ui->default_subwindow_visibility_combobox->currentIndex();
-	switch (index)
-	{
-		case 0:
-		case 1:
-		case 2: 
-			Project::Private::default_mdi_window_visibility = (Project::MdiWindowVisibility)index;
-			break;
-	}
-	// TODO: read settings from ui and change them in Project::Private
-}
 
 Project::Project()
 	: Folder(tr("Unnamed")), d(new Private())
@@ -130,6 +71,17 @@ Project::Project()
 	Q_ASSERT(ScriptingEngineManager::instance()->engineNames().size() > 0);
 	QString engine_name = ScriptingEngineManager::instance()->engineNames()[0];
 	d->scripting_engine = ScriptingEngineManager::instance()->engine(engine_name);
+
+	// TODO: how to do something like this statically?
+	// defaults for global settings
+	Project::setGlobalDefault("default_mdi_window_visibility", Project::folderOnly);
+	Project::setGlobalDefault("auto_save", true);
+	Project::setGlobalDefault("auto_save_interval", 15);
+	Project::setGlobalDefault("default_scripting_language", QString("muParser"));
+	// TODO: not really Project-specific; maybe put these somewhere else:
+	Project::setGlobalDefault("language", QString("en"));
+	Project::setGlobalDefault("auto_search_updates", false);
+	Project::setGlobalDefault("locale_use_group_separator", false);
 }
 
 Project::~Project()
@@ -184,90 +136,6 @@ ConfigPageWidget * Project::makeConfigPage()
 QString Project::configPageLabel()
 {
 	return QObject::tr("General");
-}
-
-void Project::loadSettings()
-{
-#ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#endif
-
-	settings.beginGroup("General");
-
-	Private::default_mdi_window_visibility = static_cast<Project::MdiWindowVisibility>(settings.value("default_mdi_window_visibility", Project::folderOnly).toInt());
-	Private::auto_search_updates = settings.value("auto_search_updates", false).toBool();
-	Private::language = settings.value("language", QLocale::system().name().section('_', 0, 0)).toString();
-	Private::recent_projects = settings.value("recent_projects").toStringList();
-	Private::style = settings.value("/Style", qApp->style()->objectName()).toString();
-	Private::auto_save = settings.value("auto_save", true).toBool();
-	Private::auto_save_interval = settings.value("auto_save_interval", 15).toInt();
-	Private::default_scripting_language = settings.value("default_scripting_language", "muParser").toString();
-
-	QLocale temp_locale = QLocale(settings.value("locale", QLocale::system().name()).toString());
-	Private::locale_use_group_separator = settings.value("locale_use_group_separator", false).toBool();
-	if (Private::locale_use_group_separator)
-		temp_locale.setNumberOptions(temp_locale.numberOptions() & ~QLocale::OmitGroupSeparator);
-	else
-		temp_locale.setNumberOptions(temp_locale.numberOptions() | QLocale::OmitGroupSeparator);
-	Private::locale = temp_locale;
-	QLocale::setDefault(Private::locale);
-
-	// TODO: use changes from stable branch here; set resonable defaults 
-	Private::help_path = settings.value("help_path", "").toString();
-	Private::fit_plugins_path = settings.value("fit_plugins_path", "").toString();
-	Private::templates_path = settings.value("templates_path", "").toString();
-	Private::ascii_path = settings.value("ascii_path", "").toString();
-	Private::images_path = settings.value("images_path", "").toString();
-
-	settings.endGroup();
-	
-	// TODO: set language, style, scripting according to theses settings (in the project ctor probably)
-
-	foreach(QObject * plugin, QPluginLoader::staticInstances()) 
-	{
-		ConfigPageMaker * ctm = qobject_cast<ConfigPageMaker*>(plugin);
-		if (!ctm) continue;
-		ctm->loadSettings();
-	}
-}
-
-void Project::saveSettings()
-{
-#ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#endif
-
-	settings.beginGroup("General");
-
-	settings.setValue("default_mdi_window_visibility", Project::Private::default_mdi_window_visibility);
-	settings.setValue("auto_search_updates", Private::auto_search_updates);
-	settings.setValue("language", Private::language);
-	settings.setValue("recent_projects", Private::recent_projects);
-	settings.setValue("style", Private::style);
-	settings.setValue("auto_save", Private::auto_save);
-	settings.setValue("auto_save_interval", Private::auto_save_interval);
-	settings.setValue("default_scripting_language", Private::default_scripting_language);
-	settings.setValue("locale", QLocale().name());
-	settings.setValue("locale_use_group_separator", bool(!(QLocale().numberOptions() & QLocale::OmitGroupSeparator)));
-
-	settings.setValue("help_path", Private::help_path);
-	settings.setValue("fit_plugins_path", Private::fit_plugins_path);
-	settings.setValue("templates_path", Private::templates_path);
-	settings.setValue("ascii_path", Private::ascii_path);
-	settings.setValue("images_path", Private::images_path);
-
-	settings.endGroup();
-
-	foreach(QObject * plugin, QPluginLoader::staticInstances()) 
-	{
-		ConfigPageMaker * ctm = qobject_cast<ConfigPageMaker*>(plugin);
-		if (!ctm) continue;
-		ctm->saveSettings();
-	}
 }
 
 void Project::setFileName(const QString & file_name)
