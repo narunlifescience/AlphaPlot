@@ -165,6 +165,10 @@ void MatrixView::retranslateStrings()
 {
 	d_hide_button->setToolTip(tr("Show/hide control tabs"));
     ui.retranslateUi(d_control_tabs);
+	ui.format_box->clear();
+	ui.format_box->addItem(tr("Decimal"), QVariant('f'));
+	ui.format_box->addItem(tr("Scientific (e)"), QVariant('e'));
+	ui.format_box->addItem(tr("Scientific (E)"), QVariant('E'));
 }
 	
 void MatrixView::advanceCell()
@@ -379,18 +383,20 @@ void MatrixView::applyFormula()
 void MatrixView::updateFormatTab()
 {
 	ui.digits_box->setValue(d_matrix->displayedDigits());
-	if (d_matrix->numericFormat() == 'e')
-		ui.format_box->setCurrentIndex(1);
-	else
-		ui.format_box->setCurrentIndex(0);
+	int format_index = ui.format_box->findData(d_matrix->numericFormat());
+	ui.format_box->setCurrentIndex(format_index);
 }
 
 void MatrixView::applyFormat()
 {
 	int digits = ui.digits_box->value();
-	char format = ui.format_box->currentIndex() == 1 ? 'e' : 'f';
+	int format_index = ui.format_box->currentIndex();
+	if (format_index >= 0)
+	{
+		char format = ui.format_box->itemData(format_index).toChar().toLatin1();
+		d_matrix->setNumericFormat(format);
+	}
 	d_matrix->setDisplayedDigits(digits);
-	d_matrix->setNumericFormat(format);
 }
 
 void MatrixView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
@@ -452,8 +458,12 @@ int MatrixView::columnWidth(int col) const
 void MatrixView::updateTypeInfo()
 {
 	int digits = ui.digits_box->value();
-	char format = ui.format_box->currentIndex() == 1 ? 'e' : 'f';
-	ui.type_info->setText(tr("Example: %1").arg(QString::number(100.1234567890123456, format, digits)));
+	int format_index = ui.format_box->currentIndex();
+	if (format_index >= 0)
+	{
+		char format = ui.format_box->itemData(format_index).toChar().toLatin1();
+		ui.type_info->setText(tr("Example: %1").arg(QString::number(100.1234567890123456, format, digits)));
+	}
 }
 
 /* ================== MatrixViewWidget ================ */

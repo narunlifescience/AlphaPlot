@@ -220,7 +220,9 @@ void MatrixClearColumnCmd::undo()
 MatrixSetCellValueCmd::MatrixSetCellValueCmd( Matrix::Private * private_obj, int row, int col, double value, QUndoCommand * parent)
  : QUndoCommand( parent ), d_private_obj(private_obj), d_row(row), d_col(col), d_value(value)
 {
-	setText(QObject::tr("%1: set cell (%2,%3) to %4").arg(d_private_obj->name()).arg(d_row+1).arg(d_col+1).arg(d_value));
+	// remark: don't use many QString::arg() calls in ctors of commands that might be called often,
+	// they use a lot of execution time
+	setText(QObject::tr("%1: set cell value").arg(d_private_obj->name()));
 }
 
 MatrixSetCellValueCmd::~MatrixSetCellValueCmd()

@@ -205,14 +205,6 @@ void ProjectWindow::initDockWidgets()
 	connect(d_project_explorer, SIGNAL(currentAspectChanged(AbstractAspect *)),
 		this, SLOT(handleCurrentAspectChanged(AbstractAspect *)));
 	d_project_explorer->setCurrentAspect(d_project);
-
-	// undo history
-	d_history_dock = new QDockWidget(this);
-	d_history_dock->setWindowTitle(tr("History"));
-	d_undo_view = new QUndoView(d_project->undoStack());
-	d_history_dock->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-	d_history_dock->setWidget(d_undo_view);
-	addDockWidget(Qt::RightDockWidgetArea, d_history_dock);
 }
 
 void ProjectWindow::initActions()
@@ -262,6 +254,10 @@ void ProjectWindow::initActions()
 	d_actions.preferences_dialog = new QAction(tr("&Preferences"), this);
 	action_manager->addAction(d_actions.preferences_dialog, "preferences_dialog");
 	connect(d_actions.preferences_dialog, SIGNAL(triggered(bool)), this, SLOT(showPreferencesDialog()));
+
+	d_actions.show_history = new QAction(tr("Undo/Redo &History"), this);
+	action_manager->addAction(d_actions.show_history, "show_history");
+	connect(d_actions.show_history, SIGNAL(triggered(bool)), this, SLOT(showHistory()));
 
 	d_part_maker_map = new QSignalMapper(this);
 	connect(d_part_maker_map, SIGNAL(mapped(QObject*)), this, SLOT(addNewAspect(QObject*)));
@@ -320,41 +316,58 @@ void ProjectWindow::initActions()
 	
 	d_actions.about = new QAction(tr("&About SciDAVis"), this);
 	d_actions.about->setShortcut( tr("Shift+F1") );
-	action_manager->addAction(d_actions.about, "action_about");
+	action_manager->addAction(d_actions.about, "about");
 	connect(d_actions.about, SIGNAL(triggered()), this, SLOT(showAboutDialog()));
 
 	d_actions.show_manual = new QAction(tr("&Help"), this);
 	d_actions.show_manual->setShortcut( tr("F1") );
-	action_manager->addAction(d_actions.show_manual, "action_show_manual");
+	action_manager->addAction(d_actions.show_manual, "show_manual");
 	connect(d_actions.show_manual, SIGNAL(triggered()), this, SLOT(showHelp()));
 
 	d_actions.select_manual_folder = new QAction(tr("&Choose Help Folder..."), this);
-	action_manager->addAction(d_actions.select_manual_folder, "action_select_manual_folder");
+	action_manager->addAction(d_actions.select_manual_folder, "select_manual_folder");
 	connect(d_actions.select_manual_folder, SIGNAL(triggered()), this, SLOT(chooseHelpFolder()));
 
 	d_actions.show_homepage = new QAction(tr("&SciDAVis Homepage"), this);
-	action_manager->addAction(d_actions.show_homepage, "action_show_homepage");
+	action_manager->addAction(d_actions.show_homepage, "show_homepage");
 	connect(d_actions.show_homepage, SIGNAL(triggered()), this, SLOT(showHomePage()));
 
 	d_actions.show_forums = new QAction(tr("SciDAVis &Forums"), this);
-	action_manager->addAction(d_actions.show_forums, "action_show_forums");
+	action_manager->addAction(d_actions.show_forums, "show_forums");
 	connect(d_actions.show_forums, SIGNAL(triggered()), this, SLOT(showForums()));
 
 	d_actions.show_bugtracker = new QAction(tr("Report a &Bug"), this);
-	action_manager->addAction(d_actions.show_bugtracker, "action_show_bugtracker");
+	action_manager->addAction(d_actions.show_bugtracker, "show_bugtracker");
 	connect(d_actions.show_bugtracker, SIGNAL(triggered()), this, SLOT(showBugTracker()));
 
 	d_actions.download_manual = new QAction(tr("Download &Manual"), this);
-	action_manager->addAction(d_actions.download_manual, "action_download_manual");
+	action_manager->addAction(d_actions.download_manual, "download_manual");
 	connect(d_actions.download_manual, SIGNAL(triggered()), this, SLOT(downloadManual()));
 
 	d_actions.download_translations = new QAction(tr("Download &Translations"), this);
-	action_manager->addAction(d_actions.download_translations, "action_download_translations");
+	action_manager->addAction(d_actions.download_translations, "download_translations");
 	connect(d_actions.download_translations, SIGNAL(triggered()), this, SLOT(downloadTranslation()));
 
 	d_actions.check_updates = new QAction(tr("Search for &Updates"), this);
-	action_manager->addAction(d_actions.check_updates, "action_check_updates");
+	action_manager->addAction(d_actions.check_updates, "check_updates");
 	connect(d_actions.check_updates, SIGNAL(triggered()), this, SLOT(searchForUpdates()));
+
+	Q_ASSERT(d_project->undoStack());
+	d_actions.undo = new QAction(tr("&Undo"), this);
+	action_manager->addAction(d_actions.undo, "undo");
+	d_actions.undo->setIcon(QIcon(QPixmap(":/undo.xpm")));
+	d_actions.undo->setShortcut(tr("Ctrl+Z"));
+	d_actions.undo->setEnabled(d_project->undoStack()->canUndo());
+	connect(d_actions.undo, SIGNAL(triggered()), d_project->undoStack(), SLOT(undo()));
+	connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), d_actions.undo, SLOT(setEnabled(bool)));
+
+	d_actions.redo = new QAction(tr("&Redo"), this);
+	action_manager->addAction(d_actions.redo, "redo");
+	d_actions.redo->setIcon(QIcon(QPixmap(":/redo.xpm")));
+	d_actions.redo->setShortcut(tr("Ctrl+Y"));
+	d_actions.redo->setEnabled(d_project->undoStack()->canRedo());
+	connect(d_actions.redo, SIGNAL(triggered()), d_project->undoStack(), SLOT(redo()));
+	connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), d_actions.redo, SLOT(setEnabled(bool)));
 }
 
 void ProjectWindow::initMenus()
@@ -374,8 +387,11 @@ void ProjectWindow::initMenus()
 	d_menus.file->addAction(d_actions.quit);
 
 	d_menus.edit = menuBar()->addMenu(tr("&Edit"));
-	d_menus.edit->addAction(d_project->undoAction(d_menus.edit));
-	d_menus.edit->addAction(d_project->redoAction(d_menus.edit));
+	d_menus.edit->addAction(d_actions.undo);
+	d_menus.edit->addAction(d_actions.redo);
+	connect(d_menus.edit, SIGNAL(aboutToShow()), this, SLOT(nameUndoRedo()));
+	connect(d_menus.edit, SIGNAL(aboutToHide()), this, SLOT(renameUndoRedo()));
+	d_menus.edit->addAction(d_actions.show_history);
 	d_menus.edit->addSeparator();
 	d_menus.edit->addAction(d_actions.keyboard_shortcuts_dialog);
 	d_menus.edit->addAction(d_actions.preferences_dialog);
@@ -455,8 +471,8 @@ void ProjectWindow::initToolBars()
 	d_toolbars.edit->setObjectName("edit_toolbar");
 	addToolBar(Qt::TopToolBarArea, d_toolbars.edit);
 
-	d_toolbars.edit->addAction(d_project->undoAction(d_toolbars.edit));
-	d_toolbars.edit->addAction(d_project->redoAction(d_toolbars.edit));
+	d_toolbars.edit->addAction(d_actions.undo);
+	d_toolbars.edit->addAction(d_actions.redo);
 }
 
 void ProjectWindow::addNewFolder()
@@ -827,6 +843,32 @@ void ProjectWindow::showPreferencesDialog()
 		current->apply();
 }
 
+void ProjectWindow::showHistory()
+{
+	if (!d_project->undoStack()) return;
+	QDialog dialog;
+	QVBoxLayout layout(&dialog);
+
+    QDialogButtonBox button_box;
+	button_box.setOrientation(Qt::Horizontal);
+    button_box.setStandardButtons(QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok);
+    QObject::connect(&button_box, SIGNAL(accepted()), &dialog, SLOT(accept()));
+    QObject::connect(&button_box, SIGNAL(rejected()), &dialog, SLOT(reject()));
+
+	int index = d_project->undoStack()->index();
+	QUndoView undo_view(d_project->undoStack());
+
+	layout.addWidget(&undo_view);
+	layout.addWidget(&button_box);
+
+	dialog.setWindowTitle(tr("Undo/Redo History"));
+	if (dialog.exec() == QDialog::Accepted)
+		return;
+
+	d_project->undoStack()->setIndex(index);
+}
+
+
 void ProjectWindow::handleWindowsMenuAboutToShow()
 {
 	d_menus.windows->clear();
@@ -1084,3 +1126,17 @@ void ProjectWindow::receivedVersionFile(bool error)
 						tr("The version file (contents: \"%1\") could not be decoded into a valid version number.").arg(version_line));
 	}
 }
+
+void ProjectWindow::nameUndoRedo()
+{
+	d_actions.undo->setText(tr("&Undo") + " " + d_project->undoStack()->undoText());
+	d_actions.redo->setText(tr("&Redo") + " " + d_project->undoStack()->redoText());
+}
+
+void ProjectWindow::renameUndoRedo()
+{
+	d_actions.undo->setText(tr("&Undo"));
+	d_actions.redo->setText(tr("&Redo"));
+}
+
+

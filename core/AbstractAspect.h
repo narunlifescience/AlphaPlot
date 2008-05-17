@@ -159,20 +159,6 @@ class AbstractAspect : public QObject
 		void beginMacro(const QString& text);
 		//! End the undo stack macro
 		void endMacro();
-		//! Produce an undo action owned by the specified parent.
-		/**
-		 * This undo action is already included in AbstractAspect's context menu (see createContextMenu()).
-		 * The point of this method is to allow the same action (with consistent shortcut, icon etc.)
-		 * to be included in other places, like context menus for parts of views.
-		 *
-		 * \sa redoAction()
-		 */
-		QAction *undoAction(QObject *parent) const;
-		//! Produce a redo action owned by the specified parent.
-		/**
-		 * See undoAction() for details.
-		 */
-		QAction *redoAction(QObject *parent) const;
 		//@}
 
 		//! Retrieve a global setting.

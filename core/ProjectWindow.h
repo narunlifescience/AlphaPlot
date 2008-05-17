@@ -95,6 +95,7 @@ class ProjectWindow : public QMainWindow
 		void chooseFolder();
 		void showKeyboardShortcutsDialog();
 		void showPreferencesDialog();
+		void showHistory();
 		void openProject();
 		void saveProject();
 		void saveProjectAs();
@@ -128,6 +129,9 @@ class ProjectWindow : public QMainWindow
 		void handleWindowsMenuAboutToShow();
 		void handleWindowsPolicyMenuAboutToShow();
 		void setMdiWindowVisibility(QAction * action);
+
+		void nameUndoRedo();
+		void renameUndoRedo();
 
 	protected:
 		void handleAspectAddedInternal(AbstractAspect *aspect);
@@ -188,7 +192,10 @@ class ProjectWindow : public QMainWindow
 			*download_translations,
 			*show_forums,
 			*show_bugtracker,
-			*about;
+			*about,
+			*show_history,
+			*undo,
+			*redo;
 		} d_actions;
 
 		QList<QAction*> d_part_makers;
@@ -201,8 +208,6 @@ class ProjectWindow : public QMainWindow
 		
 		QDockWidget * d_project_explorer_dock;
 		ProjectExplorer * d_project_explorer;
-		QDockWidget * d_history_dock;
-		QUndoView * d_undo_view;
 		QMdiArea * d_mdi_area;
 		AbstractAspect * d_current_aspect;
 		Folder * d_current_folder;

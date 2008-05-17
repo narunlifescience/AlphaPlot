@@ -278,7 +278,8 @@ void TableView::updateFormatBox()
 		case SciDAVis::Numeric:
 			ui.digits_box->setEnabled(true);
 			ui.format_box->addItem(tr("Decimal"), QVariant('f'));
-			ui.format_box->addItem(tr("Scientific"), QVariant('E'));
+			ui.format_box->addItem(tr("Scientific (e)"), QVariant('e'));
+			ui.format_box->addItem(tr("Scientific (E)"), QVariant('E'));
 			break;
 		case SciDAVis::Text:
 			ui.format_box->addItem(tr("Text"), QVariant());

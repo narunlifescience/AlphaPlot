@@ -260,39 +260,12 @@ QIcon AbstractAspect::icon() const
 	return QIcon();
 }
 
-QAction *AbstractAspect::undoAction(QObject *parent) const
-{
-	if (!undoStack()) return 0;
-	QAction *result = undoStack()->createUndoAction(parent);
-	result->setIcon(QIcon(QPixmap(":/undo.xpm")));
-	// TODO: make this customizable via preferences dialog.
-	// Maybe use a singleton settings manager for stuff that applies to the application rather than
-	// a specific project.
-	result->setShortcut(tr("Ctrl+Z"));
-	return result;
-}
-
-QAction *AbstractAspect::redoAction(QObject *parent) const
-{
-	if (!undoStack()) return 0;
-	QAction *result = undoStack()->createRedoAction(parent);
-	result->setIcon(QIcon(QPixmap(":/redo.xpm")));
-	result->setShortcut(tr("Ctrl+Y"));
-	return result;
-}
-
 QMenu *AbstractAspect::createContextMenu() const
 {
 	QMenu * menu = new QMenu();
     
 	const QStyle *widget_style = qApp->style();
 	QAction *action_temp;
-
-// TODO: Does undo/redo really be belong into a context menu?
-//	menu->addAction(undoAction(menu));
-//	menu->addAction(redoAction(menu));
-//
-//	menu->addSeparator();
 
 	action_temp = menu->addAction(QObject::tr("&Remove"), this, SLOT(remove()));
 	action_temp->setIcon(widget_style->standardIcon(QStyle::SP_TrashIcon));
