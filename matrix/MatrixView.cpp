@@ -479,8 +479,11 @@ void MatrixViewWidget::selectAll()
 
 void MatrixViewWidget::keyPressEvent(QKeyEvent * event)
 {
+	bool advance = false;
     if(event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
-		emit advanceCell();
+		advance = true;
 	QTableView::keyPressEvent(event);
+	if (advance)
+		emit advanceCell();
 }
 
