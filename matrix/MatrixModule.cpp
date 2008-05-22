@@ -82,30 +82,6 @@ QString MatrixModule::configPageLabel()
 	return QObject::tr("Matrix");
 }
 
-void MatrixModule::loadSettings()
-{
-#ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#endif
-
-	settings.beginGroup("Matrix");
-	settings.endGroup();
-}
-
-void MatrixModule::saveSettings()
-{
-#ifdef Q_OS_MAC // Mac
-	QSettings settings(QSettings::IniFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#else
-	QSettings settings(QSettings::NativeFormat,QSettings::UserScope, "SciDAVis", "SciDAVis");
-#endif
-
-	settings.beginGroup("Matrix");
-	settings.endGroup();
-}
-
 bool MatrixModule::canCreate(const QString & element_name)
 {	
 	return element_name == "matrix";
@@ -121,6 +97,11 @@ AbstractAspect * MatrixModule::createAspectFromXml(XmlStreamReader * reader)
 	}
 	else
 		return matrix;
+}
+
+void MatrixModule::staticInit()
+{
+	Matrix::setGlobalDefault("images_path", QApplication::applicationDirPath()); 
 }
 
 Q_EXPORT_PLUGIN2(scidavis_matrix, MatrixModule)

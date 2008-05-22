@@ -314,5 +314,69 @@ class MatrixSetFormulaCmd : public QUndoCommand
 // end of class MatrixSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetColumnCellsCmd
+///////////////////////////////////////////////////////////////////////////
+//! Set cell values for (a part of) a column at once
+class MatrixSetColumnCellsCmd : public QUndoCommand
+{
+public:
+	MatrixSetColumnCellsCmd( Matrix::Private * private_obj, int col, int first_row, int last_row, const QVector<double> & values, QUndoCommand * parent = 0 );
+	~MatrixSetColumnCellsCmd();
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The private object to modify
+	Matrix::Private * d_private_obj;
+	//! The index of the column
+	int d_col;
+	//! The index of the first row
+	int d_first_row;
+	//! The index of the last row
+	int d_last_row;
+	//! New cell values
+	QVector<double> d_values;
+	//! Backup of the changed values
+	QVector<double> d_old_values;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixSetColumnCellsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetRowCellsCmd
+///////////////////////////////////////////////////////////////////////////
+//! Set cell values for (a part of) a row at once
+class MatrixSetRowCellsCmd : public QUndoCommand
+{
+public:
+	MatrixSetRowCellsCmd( Matrix::Private * private_obj, int row, int first_column, int last_column, const QVector<double> & values, QUndoCommand * parent = 0 );
+	~MatrixSetRowCellsCmd();
+
+	virtual void redo();
+	virtual void undo();
+
+private:
+	//! The private object to modify
+	Matrix::Private * d_private_obj;
+	//! The index of the row
+	int d_row;
+	//! The index of the first column
+	int d_first_column;
+	//! The index of the last column
+	int d_last_column;
+	//! New cell values
+	QVector<double> d_values;
+	//! Backup of the changed values
+	QVector<double> d_old_values;
+};
+
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixSetRowCellsCmd
+///////////////////////////////////////////////////////////////////////////
+
 
 #endif // MATRIX_COMMANDS_H

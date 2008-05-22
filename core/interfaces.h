@@ -105,8 +105,6 @@ class ConfigPageMaker {
 	public:
 		virtual ConfigPageWidget * makeConfigPage() = 0;
 		virtual QString configPageLabel() = 0;
-		virtual void loadSettings() = 0;
-		virtual void saveSettings() = 0;
 		// TODO (maybe): icons instead of tabs to select the pages
 		//		virtual QIcon icon() = 0;
 };
@@ -125,5 +123,14 @@ class XmlElementAspectMaker
 };
 
 Q_DECLARE_INTERFACE(XmlElementAspectMaker, "net.sf.scidavis.xmlelementaspectmaker/0.1")
+
+//! Module the needs to be initialized at application startup
+class NeedsStaticInit
+{
+	public:
+		virtual void staticInit() = 0;
+};
+
+Q_DECLARE_INTERFACE(NeedsStaticInit, "net.sf.scidavis.needsstaticinit/0.1")
 
 #endif // ifndef INTERFACES_H

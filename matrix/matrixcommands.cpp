@@ -355,3 +355,63 @@ void MatrixSetFormulaCmd::undo()
 // end of class MatrixSetFormulaCmd
 ///////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetColumnCellsCmd
+///////////////////////////////////////////////////////////////////////////
+MatrixSetColumnCellsCmd::MatrixSetColumnCellsCmd( Matrix::Private * private_obj, int col, int first_row, 
+		int last_row, const QVector<double> & values, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_private_obj(private_obj), d_col(col), d_first_row(first_row), 
+ 		d_last_row(last_row), d_values(values)
+{
+	setText(QObject::tr("%1: set cell values").arg(d_private_obj->name()));
+}
+
+MatrixSetColumnCellsCmd::~MatrixSetColumnCellsCmd()
+{
+}
+
+void MatrixSetColumnCellsCmd::redo()
+{
+	if (d_old_values.isEmpty())
+		d_old_values = d_private_obj->columnCells(d_col, d_first_row, d_last_row);
+	d_private_obj->setColumnCells(d_col, d_first_row, d_last_row, d_values);
+}
+
+void MatrixSetColumnCellsCmd::undo()
+{
+	d_private_obj->setColumnCells(d_col, d_first_row, d_last_row, d_old_values);
+}
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixSetColumnCellsCmd
+///////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////
+// class MatrixSetRowCellsCmd
+///////////////////////////////////////////////////////////////////////////
+MatrixSetRowCellsCmd::MatrixSetRowCellsCmd( Matrix::Private * private_obj, int row, int first_column, 
+		int last_column, const QVector<double> & values, QUndoCommand * parent)
+ : QUndoCommand( parent ), d_private_obj(private_obj), d_row(row), d_first_column(first_column), 
+ 		d_last_column(last_column), d_values(values)
+{
+	setText(QObject::tr("%1: set cell values").arg(d_private_obj->name()));
+}
+
+MatrixSetRowCellsCmd::~MatrixSetRowCellsCmd()
+{
+}
+
+void MatrixSetRowCellsCmd::redo()
+{
+	if (d_old_values.isEmpty())
+		d_old_values = d_private_obj->rowCells(d_row, d_first_column, d_last_column);
+	d_private_obj->setRowCells(d_row, d_first_column, d_last_column, d_values);
+}
+
+void MatrixSetRowCellsCmd::undo()
+{
+	d_private_obj->setRowCells(d_row, d_first_column, d_last_column, d_old_values);
+}
+///////////////////////////////////////////////////////////////////////////
+// end of class MatrixSetRowCellsCmd
+///////////////////////////////////////////////////////////////////////////
+

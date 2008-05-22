@@ -30,6 +30,7 @@
 #include <QAction>
 #include <QSplashScreen>
 #include <QTimer>
+#include <QPluginLoader>
 #include "Project.h"
 #include "ProjectWindow.h"
 
@@ -69,6 +70,16 @@ int main( int argc, char ** argv )
 	app.connect( timer, SIGNAL(timeout()), &splash, SLOT(close()) );
 	app.connect( timer, SIGNAL(timeout()), timer, SLOT(stop()) );
 	timer->start(5000); // autoclose after 5 seconds
+
+	// module initialization
+	Project::staticInit();
+	foreach(QObject *plugin, QPluginLoader::staticInstances()) 
+	{
+		NeedsStaticInit * module = qobject_cast<NeedsStaticInit *>(plugin);
+		if (module) 
+			module->staticInit();
+	}
+	//
 
 	// create initial empty project
 	Project* p = new Project();

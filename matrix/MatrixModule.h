@@ -36,10 +36,10 @@
 
 //! Module providing the matrix Part and support classes.
 class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner, public ConfigPageMaker, 
-	public XmlElementAspectMaker
+	public XmlElementAspectMaker, public NeedsStaticInit
 {
 	Q_OBJECT
-	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker XmlElementAspectMaker)
+	Q_INTERFACES(PartMaker ActionManagerOwner ConfigPageMaker XmlElementAspectMaker NeedsStaticInit)
 
 	public:
 		virtual AbstractPart * makePart();
@@ -48,10 +48,9 @@ class MatrixModule : public QObject, public PartMaker, public ActionManagerOwner
 		virtual void initActionManager();
 		virtual ConfigPageWidget * makeConfigPage();
 		virtual QString configPageLabel();
-		virtual void loadSettings();
-		virtual void saveSettings();
 		virtual bool canCreate(const QString & element_name);
 		virtual AbstractAspect * createAspectFromXml(XmlStreamReader * reader);
+		virtual void staticInit();
 };
 
 class Ui_MatrixConfigPage;

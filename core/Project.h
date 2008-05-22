@@ -80,6 +80,7 @@ class Project : public Folder
 	
 		static ConfigPageWidget * makeConfigPage();
 		static QString configPageLabel();
+		static void staticInit();
 	
 		//! \name serialize/deserialize
 		//@{

@@ -135,6 +135,14 @@ class Matrix : public AbstractPart, public scripted
 		double cell(int row, int col) const;
 		//! Set the value of the cell
 		void setCell(int row, int col, double value );
+		//! Return the values in the given cells as double vector
+		QVector<double> columnCells(int col, int first_row, int last_row);
+		//! Set the values in the given cells from a double vector
+		void setColumnCells(int col, int first_row, int last_row, const QVector<double> & values);
+		//! Return the values in the given cells as double vector
+		QVector<double> rowCells(int row, int first_column, int last_column);
+		//! Set the values in the given cells from a double vector
+		void setRowCells(int row, int first_column, int last_column, const QVector<double> & values);
 		//! Return the text displayed in the given cell
 		QString text(int row, int col);
 		void copy(Matrix * other);
@@ -190,6 +198,8 @@ class Matrix : public AbstractPart, public scripted
 		// TODO: the default sizes are to be controlled by the global Matrix settings
 		static int default_column_width;
 		static int default_row_height;
+	public:
+		static Matrix * fromImage(const QImage & image);
 
 	public slots:
 		//! Clear the whole matrix (i.e. set all cells to 0.0)
@@ -232,6 +242,9 @@ class Matrix : public AbstractPart, public scripted
 		void addColumns();
 		//! Append as many rows as are selected
 		void addRows();
+		void importImageDialog();
+		//! Duplicate the matrix inside its folder
+		void duplicate();
 
 	signals:
 		void columnsAboutToBeInserted(int before, int count);
@@ -286,6 +299,8 @@ class Matrix : public AbstractPart, public scripted
 		QAction * action_edit_coordinates;
 		QAction * action_set_formula;
 		QAction * action_recalculate;
+		QAction * action_import_image;
+		QAction * action_duplicate;
 		//@}
 		//! \name column related actions
 		//@{
@@ -364,8 +379,12 @@ class Matrix::Private
 		void setCell(int row, int col, double value);
 		//! Return the values in the given cells as double vector
 		QVector<double> columnCells(int col, int first_row, int last_row);
+		//! Set the values in the given cells from a double vector
+		void setColumnCells(int col, int first_row, int last_row, const QVector<double> & values);
 		//! Return the values in the given cells as double vector
-		void setColumnCells(int col, int first_row, int last_row, QVector<double> values);
+		QVector<double> rowCells(int row, int first_column, int last_column);
+		//! Set the values in the given cells from a double vector
+		void setRowCells(int row, int first_column, int last_column, const QVector<double> & values);
 		char numericFormat() const { return d_numeric_format; }
 		void setNumericFormat(char format) { d_numeric_format = format; emit d_owner->formatChanged(); }
 		int displayedDigits()  const { return d_displayed_digits; }

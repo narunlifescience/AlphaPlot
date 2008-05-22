@@ -124,15 +124,7 @@ void MatrixView::init()
 	h_header->installEventFilter(this);
 	d_view_widget->installEventFilter(this);
 
-	int cols = d_matrix->columnCount();
-	for (int i=0; i<cols; i++)
-		h_header->resizeSection(i, d_matrix->columnWidth(i));
-	int rows = d_matrix->rowCount();
-	for (int i=0; i<rows; i++)
-		v_header->resizeSection(i, d_matrix->rowHeight(i));
-		
-	connect(v_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleVerticalSectionResized(int, int, int)));
-	connect(h_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+	rereadSectionSizes();
 
 	// keyboard shortcuts
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Matrix: select all")), d_view_widget);
@@ -152,6 +144,25 @@ void MatrixView::init()
 	connect(d_matrix, SIGNAL(formatChanged()), this, SLOT(updateFormatTab()));
 
 	retranslateStrings();
+}
+
+void MatrixView::rereadSectionSizes()
+{
+	QHeaderView * h_header = d_view_widget->horizontalHeader();
+	QHeaderView * v_header = d_view_widget->verticalHeader();
+
+	disconnect(v_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleVerticalSectionResized(int, int, int)));
+	disconnect(h_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+
+	int cols = d_matrix->columnCount();
+	for (int i=0; i<cols; i++)
+		h_header->resizeSection(i, d_matrix->columnWidth(i));
+	int rows = d_matrix->rowCount();
+	for (int i=0; i<rows; i++)
+		v_header->resizeSection(i, d_matrix->rowHeight(i));
+		
+	connect(v_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleVerticalSectionResized(int, int, int)));
+	connect(h_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
 }
 
 void MatrixView::changeEvent(QEvent * event)
