@@ -204,6 +204,9 @@ class Matrix : public AbstractPart, public scripted
 	public slots:
 		//! Clear the whole matrix (i.e. set all cells to 0.0)
 		void clear();
+		void transpose();
+		void mirrorVertically();
+		void mirrorHorizontally();
 
 		void cutSelection();
 		void copySelection();
@@ -301,6 +304,9 @@ class Matrix : public AbstractPart, public scripted
 		QAction * action_recalculate;
 		QAction * action_import_image;
 		QAction * action_duplicate;
+		QAction * action_transpose;
+		QAction * action_mirror_vertically;
+		QAction * action_mirror_horizontally;
 		//@}
 		//! \name column related actions
 		//@{
@@ -405,6 +411,22 @@ class Matrix::Private
 		void setColumnWidth(int col, int width) { d_column_widths[col] = width; }
 		int rowHeight(int row) const { return d_row_heights.at(row); }
 		int columnWidth(int col) const { return d_column_widths.at(col); }
+		//! Enable/disable the emission of dataChanged signals.
+		/** This can be used to suppress the emission of dataChanged signals
+		 * temporally. It does not suppress any other signals however.
+		 * Typical code:
+		 * <code>
+		 * d_matrix_private->blockChangeSignals(true);
+		 * for (...)
+		 *     for(...)
+		 *         setCell(...);
+		 * d_matrix_private->blockChangeSignals(false);
+		 * emit dataChanged(0, 0, rowCount()-1, columnCount()-1);
+		 * </code>
+		 */
+		void blockChangeSignals(bool block) { d_block_change_signals = block; }
+		//! Access to the dataChanged signal for commands
+		void emitDataChanged(int top, int left, int bottom, int right) { emit d_owner->dataChanged(top, left, bottom, right); }
 		
 	private:
 		//! The owner aspect
@@ -429,6 +451,7 @@ class Matrix::Private
 			   d_x_end,  //!< X value corresponding to the last column
 			   d_y_start,  //!< Y value corresponding to row 1
 			   d_y_end;  //!< Y value corresponding to the last row
+		bool d_block_change_signals;
 
 };
 

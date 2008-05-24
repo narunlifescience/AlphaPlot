@@ -73,6 +73,9 @@
 
 ActionManager * ProjectWindow::action_manager = 0;
 
+#define WAIT_CURSOR QApplication::setOverrideCursor(QCursor(Qt::WaitCursor))
+#define RESET_CURSOR QApplication::restoreOverrideCursor()
+
 class ProjectWindow::Private
 {
 	public:
@@ -358,7 +361,7 @@ void ProjectWindow::initActions()
 	d_actions.undo->setIcon(QIcon(QPixmap(":/undo.xpm")));
 	d_actions.undo->setShortcut(tr("Ctrl+Z"));
 	d_actions.undo->setEnabled(d_project->undoStack()->canUndo());
-	connect(d_actions.undo, SIGNAL(triggered()), d_project->undoStack(), SLOT(undo()));
+	connect(d_actions.undo, SIGNAL(triggered()), this, SLOT(undo()));
 	connect(d_project->undoStack(), SIGNAL(canUndoChanged(bool)), d_actions.undo, SLOT(setEnabled(bool)));
 
 	d_actions.redo = new QAction(tr("&Redo"), this);
@@ -366,7 +369,7 @@ void ProjectWindow::initActions()
 	d_actions.redo->setIcon(QIcon(QPixmap(":/redo.xpm")));
 	d_actions.redo->setShortcut(tr("Ctrl+Y"));
 	d_actions.redo->setEnabled(d_project->undoStack()->canRedo());
-	connect(d_actions.redo, SIGNAL(triggered()), d_project->undoStack(), SLOT(redo()));
+	connect(d_actions.redo, SIGNAL(triggered()), this, SLOT(redo()));
 	connect(d_project->undoStack(), SIGNAL(canRedoChanged(bool)), d_actions.redo, SLOT(setEnabled(bool)));
 }
 
@@ -1137,6 +1140,20 @@ void ProjectWindow::renameUndoRedo()
 {
 	d_actions.undo->setText(tr("&Undo"));
 	d_actions.redo->setText(tr("&Redo"));
+}
+
+void ProjectWindow::undo()
+{
+	WAIT_CURSOR;
+	d_project->undoStack()->undo();
+	RESET_CURSOR;
+}
+
+void ProjectWindow::redo()
+{
+	WAIT_CURSOR;
+	d_project->undoStack()->redo();
+	RESET_CURSOR;
 }
 
 

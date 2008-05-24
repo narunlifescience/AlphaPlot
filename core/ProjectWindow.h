@@ -114,6 +114,8 @@ class ProjectWindow : public QMainWindow
 		void downloadTranslation();
 		//! Check for a new version
 		void searchForUpdates();
+		void undo();
+		void redo();
 
 	signals:
 		void partActivated(AbstractPart*);

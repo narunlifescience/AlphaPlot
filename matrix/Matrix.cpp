@@ -57,7 +57,6 @@ Matrix::Matrix(AbstractScriptingEngine *engine, int rows, int cols, const QStrin
 	: AbstractPart(name), d_plot_menu(0), scripted(engine)
 {
 	d_matrix_private = new Private(this);
-
 	// set initial number of rows and columns
 	appendColumns(cols);
 	appendRows(rows);
@@ -566,10 +565,19 @@ void Matrix::createActions()
 	actionManager()->addAction(action_go_to_cell, "go_to_cell"); 
 	delete icon_temp;
 
+	action_transpose = new QAction(tr("&Transpose"), this);
+	actionManager()->addAction(action_transpose, "transpose"); 
+
+	action_mirror_horizontally = new QAction(tr("Mirror &Horizontally"), this);
+	actionManager()->addAction(action_mirror_horizontally, "mirror_horizontally"); 
+
+	action_mirror_vertically = new QAction(tr("Mirror &Vertically"), this);
+	actionManager()->addAction(action_mirror_vertically, "mirror_vertically"); 
+
 	action_import_image = new QAction(tr("&Import Image", "import image as matrix"), this);
 	actionManager()->addAction(action_import_image, "import_image"); 
 	
-	action_duplicate = new QAction(tr("&Duplicate", "duplicate matrix"), this);
+	action_duplicate = new QAction(QIcon(QPixmap(":/duplicate.xpm")), tr("&Duplicate", "duplicate matrix"), this);
 	actionManager()->addAction(action_duplicate, "duplicate"); 
 	
 	action_dimensions_dialog = new QAction(QIcon(QPixmap(":/resize.xpm")), tr("&Dimensions", "matrix size"), this);
@@ -653,6 +661,9 @@ void Matrix::connectActions()
 //	connect(action_recalculate, SIGNAL(triggered()), this, SLOT(recalculate()));
 	connect(action_select_all, SIGNAL(triggered()), this, SLOT(selectAll()));
 	connect(action_clear_matrix, SIGNAL(triggered()), this, SLOT(clear()));
+	connect(action_transpose, SIGNAL(triggered()), this, SLOT(transpose()));
+	connect(action_mirror_horizontally, SIGNAL(triggered()), this, SLOT(mirrorHorizontally()));
+	connect(action_mirror_vertically, SIGNAL(triggered()), this, SLOT(mirrorVertically()));
 	connect(action_go_to_cell, SIGNAL(triggered()), this, SLOT(goToCell()));
 	connect(action_dimensions_dialog, SIGNAL(triggered()), this, SLOT(dimensionsDialog()));
 	connect(action_import_image, SIGNAL(triggered()), this, SLOT(importImageDialog()));
@@ -683,6 +694,9 @@ void Matrix::addActionsToView()
 	d_view->addAction(action_toggle_tabbar);
 	d_view->addAction(action_select_all);
 	d_view->addAction(action_clear_matrix);
+	d_view->addAction(action_transpose);
+	d_view->addAction(action_mirror_horizontally);
+	d_view->addAction(action_mirror_vertically);
 	d_view->addAction(action_go_to_cell);
 	d_view->addAction(action_dimensions_dialog);
 	d_view->addAction(action_import_image);
@@ -712,6 +726,9 @@ bool Matrix::fillProjectMenu(QMenu * menu)
 	menu->addAction(action_recalculate);
 	menu->addSeparator();
 	menu->addAction(action_clear_matrix);
+	menu->addAction(action_transpose);
+	menu->addAction(action_mirror_horizontally);
+	menu->addAction(action_mirror_vertically);
 	menu->addSeparator();
 	menu->addAction(action_duplicate);
 	menu->addAction(action_import_image);
@@ -783,12 +800,15 @@ void Matrix::copy(Matrix * other)
 		setRowHeight(i, other->rowHeight(i));
 	for (int i=0; i<columns; i++)
 		setColumnWidth(i, other->columnWidth(i));
+	d_matrix_private->blockChangeSignals(true);
 	for (int i=0; i<columns; i++)
 		setColumnCells(i, 0, rows-1, other->columnCells(i, 0, rows-1));
 	setCoordinates(other->xStart(), other->xEnd(), other->yStart(), other->yEnd());
 	setNumericFormat(other->numericFormat());
 	setDisplayedDigits(other->displayedDigits());
 	setFormula(other->formula());
+	d_matrix_private->blockChangeSignals(false);
+	emit dataChanged(0, 0, rows-1, columns-1);
 	if (d_view) d_view->rereadSectionSizes();
 	endMacro();
 	RESET_CURSOR;
@@ -1331,6 +1351,27 @@ void Matrix::setRowCells(int row, int first_column, int last_column, const QVect
 	RESET_CURSOR;
 }
 
+void Matrix::transpose()
+{
+	WAIT_CURSOR;
+	exec(new MatrixTransposeCmd(d_matrix_private));
+	RESET_CURSOR;
+}
+
+void Matrix::mirrorHorizontally()
+{
+	WAIT_CURSOR;
+	exec(new MatrixMirrorHorizontallyCmd(d_matrix_private));
+	RESET_CURSOR;
+}
+
+void Matrix::mirrorVertically()
+{
+	WAIT_CURSOR;
+	exec(new MatrixMirrorVerticallyCmd(d_matrix_private));
+	RESET_CURSOR;
+}
+
 /* ========================= static methods ======================= */
 ActionManager * Matrix::action_manager = 0;
 
@@ -1397,6 +1438,7 @@ Matrix * Matrix::fromImage(const QImage & image)
 Matrix::Private::Private(Matrix *owner) 
 	: d_owner(owner), d_column_count(0), d_row_count(0) 
 {
+	d_block_change_signals = false;
 	d_numeric_format = 'f';
 	d_displayed_digits = 6;
 	d_x_start = 0.0;
@@ -1474,7 +1516,8 @@ void Matrix::Private::setCell(int row, int col, double value)
 	Q_ASSERT(row >= 0 && row < d_row_count);
 	Q_ASSERT(col >= 0 && col < d_column_count);
 	d_data[col][row] = value;
-	emit d_owner->dataChanged(row, col, row, col);
+	if (!d_block_change_signals)
+		emit d_owner->dataChanged(row, col, row, col);
 }
 
 QVector<double> Matrix::Private::columnCells(int col, int first_row, int last_row)
@@ -1501,12 +1544,15 @@ void Matrix::Private::setColumnCells(int col, int first_row, int last_row, const
 	{
 		d_data[col] = values;
 		d_data[col].resize(d_row_count);  // values may be larger
+		if (!d_block_change_signals)
+			emit d_owner->dataChanged(first_row, col, last_row, col);
 		return;
 	}
 
 	for(int i=first_row; i<=last_row; i++)
 		d_data[col][i] = values.at(i-first_row);
-	emit d_owner->dataChanged(first_row, col, last_row, col);
+	if (!d_block_change_signals)
+		emit d_owner->dataChanged(first_row, col, last_row, col);
 }
 
 QVector<double> Matrix::Private::rowCells(int row, int first_column, int last_column)
@@ -1528,13 +1574,15 @@ void Matrix::Private::setRowCells(int row, int first_column, int last_column, co
 
 	for(int i=first_column; i<=last_column; i++)
 		d_data[i][row] = values.at(i-first_column);
-	emit d_owner->dataChanged(row, first_column, row, last_column);
+	if (!d_block_change_signals)
+		emit d_owner->dataChanged(row, first_column, row, last_column);
 }
 
 void Matrix::Private::clearColumn(int col)
 {
 	d_data[col].fill(0.0);
-	emit d_owner->dataChanged(0, col, d_row_count-1, col);
+	if (!d_block_change_signals)
+		emit d_owner->dataChanged(0, col, d_row_count-1, col);
 }
 
 double Matrix::Private::xStart() const
