@@ -910,7 +910,6 @@ void Matrix::editCoordinates()
 {
 	if (!d_view) return;
 	d_view->showControlCoordinatesTab();
-	d_view->toggleControlTabBar();
 }
 
 void Matrix::editFormula()
