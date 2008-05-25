@@ -534,6 +534,7 @@ void Matrix::createActions()
 	icon_temp->addPixmap(QPixmap(":/16x16/recalculate.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/recalculate.png"));
 	action_recalculate = new QAction(*icon_temp, tr("Recalculate"), this);
+	action_recalculate->setShortcut(tr("Ctrl+Return"));
 	actionManager()->addAction(action_recalculate, "recalculate"); 
 	delete icon_temp;
 
@@ -562,6 +563,7 @@ void Matrix::createActions()
 	icon_temp->addPixmap(QPixmap(":/16x16/go_to_cell.png"));
 	icon_temp->addPixmap(QPixmap(":/32x32/go_to_cell.png"));
 	action_go_to_cell = new QAction(*icon_temp, tr("&Go to Cell"), this);
+	action_go_to_cell->setShortcut(tr("Ctrl+Alt+G"));
 	actionManager()->addAction(action_go_to_cell, "go_to_cell"); 
 	delete icon_temp;
 

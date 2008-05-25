@@ -2,5 +2,6 @@
 <qresource>
      <file alias="appicon">icons/scidavis-icon.png</file>
      <file alias="appsplash">icons/scidavis-splash.png</file>
+     <file alias="applogo">scidavis-logo.png</file>
 </qresource>
 </RCC>
