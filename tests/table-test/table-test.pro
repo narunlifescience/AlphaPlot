@@ -1,7 +1,8 @@
 TEMPLATE = app
 TARGET = table-test
 CONFIG += debug
-QT += xml
+QT += xml network
+DEFINES += SUPPRESS_SCRIPTING_INIT
 DEPENDPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/filters ../../core/column ../../table ..
 INCLUDEPATH += . ../.. ../../lib ../../core ../../core/datatypes ../../core/filters ../../core/column ../../table ..
 unix:LIBS += -lcppunit
@@ -11,7 +12,8 @@ RESOURCES += \
 	appicons.qrc \
 	icons.qrc \
 
-FORMS += controltabs.ui \
+FORMS += 	controltabs.ui \
+			ProjectConfigPage.ui \
 
 
 HEADERS += \
@@ -56,9 +58,19 @@ HEADERS += \
 			  SortDialog.h \
 			  TableDoubleHeaderView.h \
 			  TableCommentsHeaderModel.h  \
-			  SimpleMappingFilter.h \
+#			  SimpleMappingFilter.h \
 			  AbstractPart.h \
 			  PartMdiView.h \
+			  ShortcutsDialogModel.h \
+			  RecordShortcutDelegate.h \
+			  ActionManager.h \
+			  ShortcutsDialog.h \
+			  ConfigPageWidget.h \
+			  XmlStreamReader.h \
+			  ProjectConfigPage.h \
+			  ScriptingEngineManager.h \
+			  ImportDialog.h \
+			  ExtensibleFileDialog.h \
 
 
 
@@ -84,13 +96,23 @@ SOURCES += \
 			  SortDialog.cpp \
 			  TableDoubleHeaderView.cpp \
 			  TableCommentsHeaderModel.cpp  \
-			  SimpleMappingFilter.cpp \
+#			  SimpleMappingFilter.cpp \
 			  DateTime2StringFilter.cpp \
 			  String2DateTimeFilter.cpp \
 			  Double2StringFilter.cpp \
 			  AbstractSimpleFilter.cpp \
 			  AbstractPart.cpp \
 			  PartMdiView.cpp \
+			  ShortcutsDialogModel.cpp \
+			  RecordShortcutDelegate.cpp \
+			  ActionManager.cpp \
+			  ShortcutsDialog.cpp \
+			  ConfigPageWidget.cpp \
+			  XmlStreamReader.cpp \
+			  ProjectConfigPage.cpp \
+			  ScriptingEngineManager.cpp \
+			  ImportDialog.cpp \
+			  ExtensibleFileDialog.cpp \
 
 
 SOURCES += main.cpp \

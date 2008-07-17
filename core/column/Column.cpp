@@ -417,6 +417,12 @@ bool Column::load(XmlStreamReader * reader)
 		else
 			setPlotDesignation((SciDAVis::PlotDesignation)pd_code);
 
+		setComment("");
+		if (rowCount() > 0)
+			removeRows(0, rowCount());		
+		clearValidity();
+		clearMasks();
+		clearFormulas();
 		// read child elements
 		while (!reader->atEnd()) 
 		{

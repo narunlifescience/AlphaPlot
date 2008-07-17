@@ -252,7 +252,7 @@ class AbstractSimpleFilter : public AbstractFilter
 		//! Load from XML
 		virtual bool load(XmlStreamReader * reader);
 		//! Override this in derived classes if they have other attributes than filter_name
-		virtual void writeExtraAttributes(QXmlStreamWriter * writer) const {}
+		virtual void writeExtraAttributes(QXmlStreamWriter * writer) const { Q_UNUSED(writer) }
 		//@}
 
 	protected:

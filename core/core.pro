@@ -28,8 +28,6 @@ staticplugins.commands = $(CXX) -c $(CXXFLAGS) -DIMPORT_SCIDAVIS_MODULES='\'$${m
 QMAKE_EXTRA_TARGETS += staticplugins
 OBJECTS += $$staticplugins.target
 
-FORMS += ProjectConfigPage.ui
-
 # ICONS
 RESOURCES += \
 	../appicons.qrc \
@@ -64,7 +62,6 @@ HEADERS += \
 	String2DoubleFilter.h \
 	String2MonthFilter.h \
 	interfaces.h \
-	XmlStreamReader.h \
 	AbstractScriptingEngine.h \
 	AbstractScript.h \
 	ScriptingEngineManager.h \
@@ -110,7 +107,6 @@ SOURCES += \
 	Column.cpp \
 	ColumnPrivate.cpp \
 	columncommands.cpp \
-	XmlStreamReader.cpp \
 	AbstractScriptingEngine.cpp \
 	AbstractScript.cpp \
 	ScriptingEngineManager.cpp \
@@ -159,6 +155,7 @@ SOURCES += \
     ../lib/ActionManager.cpp \
     ../lib/ShortcutsDialog.cpp \
     ../lib/ConfigPageWidget.cpp \
+	../lib/XmlStreamReader.cpp \
 
 HEADERS += \
 	../lib/ColorBox.h \
@@ -176,4 +173,5 @@ HEADERS += \
     ../lib/ActionManager.h \
     ../lib/ShortcutsDialog.h \
     ../lib/ConfigPageWidget.h \
+	../lib/XmlStreamReader.h \
 

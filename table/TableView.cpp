@@ -202,6 +202,11 @@ void TableView::selectAll()
 	d_view_widget->selectAll();
 }
 
+void TableView::deselectAll()
+{
+	d_view_widget->clearSelection();
+}
+
 void TableView::toggleControlTabBar() 
 { 
 	d_control_tabs->setVisible(!d_control_tabs->isVisible());
@@ -576,16 +581,18 @@ bool TableView::isCellSelected(int row, int col)
 	return d_view_widget->selectionModel()->isSelected(d_model->index(row, col));
 }
 
-void TableView::setCellSelected(int row, int col)
+void TableView::setCellSelected(int row, int col, bool select)
 {
-	 d_view_widget->selectionModel()->select(d_model->index(row, col), QItemSelectionModel::Select);
+	 d_view_widget->selectionModel()->select(d_model->index(row, col), 
+			 select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
 }
 
-void TableView::setCellsSelected(int first_row, int first_col, int last_row, int last_col)
+void TableView::setCellsSelected(int first_row, int first_col, int last_row, int last_col, bool select)
 {
 	QModelIndex top_left = d_model->index(first_row, first_col);
 	QModelIndex bottom_right = d_model->index(last_row, last_col);
-	d_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), QItemSelectionModel::SelectCurrent);
+	d_view_widget->selectionModel()->select(QItemSelection(top_left, bottom_right), 
+			select ? QItemSelectionModel::SelectCurrent : QItemSelectionModel::Deselect);
 }
 
 void TableView::getCurrentCell(int * row, int * col)

@@ -119,10 +119,6 @@ class Table : public AbstractPart, public scripted
 		int columnCount() const;
 		//! Return the total number of rows in the table
 		int rowCount() const;
-		//! Show or hide (if on = false) the column comments
-		void showComments(bool on = true);
-		//! Return whether comments are show currently
-		bool areCommentsShown() const;
 		//! Return the number of columns matching the given designation
 		int columnCount(SciDAVis::PlotDesignation pd) const;
 		//! Return column number 'index'

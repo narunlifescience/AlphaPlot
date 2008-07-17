@@ -19,6 +19,8 @@
 
 #define EPSILON (1e-6)
 
+// TODO: TableTest is quit outdated, a lot has changed since this was written
+
 class TableTest : public CppUnit::TestFixture {
 		CPPUNIT_TEST_SUITE(TableTest);
 //		CPPUNIT_TEST(testTableModel);
@@ -188,7 +190,7 @@ class TableTest : public CppUnit::TestFixture {
 			CPPUNIT_ASSERT_EQUAL(QString("column one"), table->column(1)->name());
 			CPPUNIT_ASSERT_EQUAL(QString("this is column zero\nnew line\nthird line\nforth line"), table->column(0)->comment());
 			CPPUNIT_ASSERT_EQUAL(2, table->columnCount(SciDAVis::X));
-			CPPUNIT_ASSERT_EQUAL(4, table->columnCount(SciDAVis::Y));
+			CPPUNIT_ASSERT_EQUAL(5, table->columnCount(SciDAVis::Y));
 			CPPUNIT_ASSERT_EQUAL(0, table->columnCount(SciDAVis::Z));
 			int temp = table->columnCount();
 			table->setColumnCount(temp-1);

@@ -85,7 +85,11 @@ Table::Table(AbstractScriptingEngine *engine, int rows, int columns, const QStri
 	// set initial number of rows and columns
 	QList<Column*> cols;
 	for(int i=0; i<columns; i++)
-		cols << new Column(QString::number(i+1), SciDAVis::Numeric);
+	{
+		Column * new_col = new Column(QString::number(i+1), SciDAVis::Numeric);
+		new_col->setPlotDesignation(i == 0 ? SciDAVis::X : SciDAVis::Y);
+		cols << new_col;
+	}
 	appendColumns(cols);
 	setRowCount(rows);
 
@@ -232,7 +236,11 @@ void Table::setColumnCount(int new_size)
 	{
 		QList<Column*> cols;
 		for(int i=0; i<new_size-old_size; i++)
-			cols << new Column(QString::number(i+1), SciDAVis::Numeric);
+		{
+			Column * new_col = new Column(QString::number(i+1), SciDAVis::Numeric);
+			new_col->setPlotDesignation(SciDAVis::Y);
+			cols << new_col;
+		}
 		appendColumns(cols);
 	}
 	RESET_CURSOR;
@@ -393,7 +401,11 @@ void Table::pasteIntoSelection()
 			{
 				QList<Column*> cols;
 				for(int i=0; i<last_col+1-columnCount(); i++)
-					cols << new Column(QString::number(i+1), SciDAVis::Text);
+				{
+					Column * new_col = new Column(QString::number(i+1), SciDAVis::Text);
+					new_col->setPlotDesignation(SciDAVis::Y);
+					cols << new_col;
+				}
 				appendColumns(cols);
 			}
 			if(last_row >= rowCount())
@@ -572,7 +584,11 @@ void Table::insertEmptyColumns()
 		while( current <= last && d_view->isColumnSelected(current) ) current++;
 		count = current-first;
 		for(int i=0; i<count; i++)
-			cols << new Column(QString::number(i+1), SciDAVis::Numeric);
+		{
+			Column * new_col = new Column(QString::number(i+1), SciDAVis::Numeric);
+			new_col->setPlotDesignation(SciDAVis::Y);
+			cols << new_col;
+		}
 		insertColumns(first, cols);
 		cols.clear();
 		current += count;
@@ -1272,6 +1288,11 @@ QMenu * Table::createColumnMenu(QMenu * append_to)
 	submenu->addAction(action_set_as_none);
 	menu->addMenu(submenu);
 	menu->addSeparator();
+	submenu = new QMenu("Fi&ll with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
+	menu->addSeparator();
 	menu->addAction(action_edit_description);
 	menu->addAction(action_type_format);
 	menu->addSeparator();
@@ -1315,6 +1336,11 @@ QMenu * Table::createRowMenu(QMenu * append_to)
 	menu->addAction(action_remove_rows);
 	menu->addAction(action_clear_rows);
 	menu->addAction(action_add_rows);
+	menu->addSeparator();
+	QMenu *submenu = new QMenu("Fi&ll with");
+	submenu->addAction(action_fill_row_numbers);
+	submenu->addAction(action_fill_random);
+	menu->addMenu(submenu);
 	menu->addSeparator();
 	menu->addAction(action_statistics_rows);
 

@@ -67,10 +67,12 @@ class Project::Private
 Project::Project()
 	: Folder(tr("Unnamed")), d(new Private())
 {
+#ifndef SUPPRESS_SCRIPTING_INIT
 	// TODO: intelligent engine choosing
 	Q_ASSERT(ScriptingEngineManager::instance()->engineNames().size() > 0);
 	QString engine_name = ScriptingEngineManager::instance()->engineNames()[0];
 	d->scripting_engine = ScriptingEngineManager::instance()->engine(engine_name);
+#endif
 }
 
 Project::~Project()

@@ -156,10 +156,10 @@ class TableView : public QWidget
 		int lastSelectedRow(bool full = false);
 		//! Return whether a cell is selected
 		bool isCellSelected(int row, int col);
-		//! Select a cell
-		void setCellSelected(int row, int col);
-		//! Select a range of cells
-		void setCellsSelected(int first_row, int first_col, int last_row, int last_col);
+		//! Select/Deselect a cell
+		void setCellSelected(int row, int col, bool select = true);
+		//! Select/Deselect a range of cells
+		void setCellsSelected(int first_row, int first_col, int last_row, int last_col, bool select = true);
 		//! Determine the current cell (-1 if no cell is designated as the current)
 		void getCurrentCell(int * row, int * col);
 		//@}
@@ -167,6 +167,7 @@ class TableView : public QWidget
 	public slots:
 		void goToCell(int row, int col);
 		void selectAll();
+		void deselectAll();
 		void toggleControlTabBar();
 		void toggleComments();
 		void showControlDescriptionTab();

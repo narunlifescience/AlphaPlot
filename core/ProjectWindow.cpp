@@ -1110,7 +1110,7 @@ void ProjectWindow::receivedVersionFile(bool error)
 		QStringList list = version_line.split(".");
 		if(list.count() > 2)
 		{
-			int available_version = list.at(0).toInt() << 16 + list.at(1).toInt() << 8 +list.at(2).toInt();
+			int available_version = (list.at(0).toInt() << 16) + (list.at(1).toInt() << 8) + (list.at(2).toInt());
 
 			if (available_version > SciDAVis::version())
 			{

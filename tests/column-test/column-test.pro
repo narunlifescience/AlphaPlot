@@ -1,10 +1,14 @@
 TEMPLATE = app
 TARGET = column-test
 CONFIG += debug
-QT += xml
+QT += xml network
+DEFINES += SUPPRESS_SCRIPTING_INIT
 DEPENDPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../core/filters
 INCLUDEPATH += . .. ../.. ../../lib ../../core ../../core/datatypes ../../core/column ../../core/filters 
 unix:LIBS += -lcppunit
+
+FORMS += \
+	ProjectConfigPage.ui \
 
 # units used
 HEADERS += \
@@ -33,7 +37,7 @@ HEADERS += \
 			  String2DayOfWeekFilter.h \
 			  String2DoubleFilter.h \
 			  String2MonthFilter.h \
-			  SimpleMappingFilter.h \
+#			  SimpleMappingFilter.h \
 			  Project.h \
 			  Folder.h \
 			  ProjectWindow.h \
@@ -41,6 +45,16 @@ HEADERS += \
 			  PartMdiView.h \
 			  ProjectExplorer.h \
 			  AspectTreeModel.h \
+			  XmlStreamReader.h \
+			  ScriptingEngineManager.h \
+			  ProjectConfigPage.h \
+    		  ConfigPageWidget.h \
+			  ShortcutsDialogModel.h \
+			  RecordShortcutDelegate.h \
+			  ActionManager.h \
+			  ShortcutsDialog.h \
+			  ImportDialog.h \
+			  ExtensibleFileDialog.h \
 
 
 SOURCES += \
@@ -53,7 +67,7 @@ SOURCES += \
 			  Column.cpp \
 			  ColumnPrivate.cpp \
 			  columncommands.cpp \
-			  SimpleMappingFilter.cpp \
+#			  SimpleMappingFilter.cpp \
 			  DateTime2StringFilter.cpp \
 			  Double2StringFilter.cpp \
 			  Project.cpp \
@@ -63,6 +77,16 @@ SOURCES += \
 			  PartMdiView.cpp \
 			  ProjectExplorer.cpp \
 			  AspectTreeModel.cpp \
+			  XmlStreamReader.cpp \
+			  ScriptingEngineManager.cpp \
+			  ProjectConfigPage.cpp \
+    		  ConfigPageWidget.cpp \
+			  ShortcutsDialogModel.cpp \
+			  RecordShortcutDelegate.cpp \
+			  ActionManager.cpp \
+			  ShortcutsDialog.cpp \
+			  ImportDialog.cpp \
+			  ExtensibleFileDialog.cpp \
 
 # test cases
 HEADERS += \

@@ -27,6 +27,7 @@
  *                                                                         *
  ***************************************************************************/
 
+// TODO: SimpleMappingFilter is broken since we changed the filter design the last time
 #include "SimpleMappingFilter.h"
 #include "Interval.h"
 #include "IntervalAttribute.h"
@@ -93,7 +94,7 @@ bool SimpleMappingFilter::isReadOnly() const
 
 void SimpleMappingFilter::setColumnMode(SciDAVis::ColumnMode mode)
 {
-	if(d_inputs.value(0) && !isReadOnly()) d_inputs.at(0)->setColumnMode(mode); 
+	if(d_inputs.value(0) && !isReadOnly()) d_inputs[0]->setColumnMode(mode); 
 }
 
 

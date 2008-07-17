@@ -103,7 +103,7 @@ class AbstractColumn : public AbstractAspect
 		 * This sets the column mode and, if
 		 * necessary, converts it to another datatype.
 		 */
-		//virtual void setColumnMode(SciDAVis::ColumnMode mode) { Q_UNUSED(mode) };
+		virtual void setColumnMode(SciDAVis::ColumnMode mode) { Q_UNUSED(mode) };
 		//! Copy another column of the same type
 		/**
 		 * This function will return false if the data type
