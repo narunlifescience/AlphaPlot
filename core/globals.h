@@ -64,11 +64,12 @@ class SciDAVis : public QObject
 		//! The column mode (defines output and input filter for table columns)
 		enum ColumnMode
 		{
-			Numeric = 0, //!< column contains doubles
-			Text,        //!< column contains strings
-			Month,       //!< column contains month names
-			Day,         //!< column containts day of week names
-			DateTime,    //!< column contains dates and/or times
+			Numeric = 0, 	//!< column contains doubles
+			Text = 1,       //!< column contains strings
+			Month = 4,      //!< column contains month names
+			Day = 5,        //!< column containts day of week names
+			DateTime = 6,   //!< column contains dates and/or times
+			// 2 and 3 are skipped to avoid problems with old obsolete values
 		};
 
 		//! Column data type
