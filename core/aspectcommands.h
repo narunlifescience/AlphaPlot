@@ -122,7 +122,7 @@ class AspectChildRemoveCmd : public QUndoCommand
 {
 	public:
 		AspectChildRemoveCmd(AbstractAspect::Private * target, AbstractAspect* child)
-			: d_target(target), d_child(child), d_removed(false) {
+			: d_target(target), d_child(child), d_index(-1), d_removed(false) {
 				setText(QObject::tr("%1: remove %2").arg(d_target->name()).arg(d_child->name()));
 			}
 		~AspectChildRemoveCmd() {
@@ -190,3 +190,38 @@ class AspectChildMoveCmd : public QUndoCommand
 		AbstractAspect::Private *d_target;
 		int d_from, d_to;
 };
+
+class AspectChildReparentCmd : public QUndoCommand
+{
+	public:
+		AspectChildReparentCmd(AbstractAspect::Private * target, AbstractAspect::Private * new_parent, 
+				AbstractAspect* child, int new_index)
+			: d_target(target), d_new_parent(new_parent), d_child(child), d_index(-1), d_new_index(new_index)
+		{
+			setText(QObject::tr("%1: move %2 to %3.").arg(d_target->name()).arg(d_child->name()).arg(d_new_parent->name()));
+		}
+		~AspectChildReparentCmd() {}
+
+		// calling redo transfers ownership of d_child to the new parent aspect
+		virtual void redo() 
+		{
+			d_index = d_target->removeChild(d_child);
+			d_new_parent->insertChild(d_new_index, d_child);
+		}
+
+		// calling undo transfers ownership of d_child back to its previous parent aspect
+		virtual void undo() 
+		{
+			Q_ASSERT(d_index != -1); 
+			d_new_parent->removeChild(d_child);
+			d_target->insertChild(d_index, d_child);
+		}
+
+	protected:
+		AbstractAspect::Private * d_target;
+		AbstractAspect::Private * d_new_parent;
+		AbstractAspect* d_child;
+		int d_index;
+		int d_new_index;
+};
+

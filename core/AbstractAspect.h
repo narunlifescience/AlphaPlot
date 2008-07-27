@@ -101,8 +101,18 @@ class AbstractAspect : public QObject
 		//! Insert the given Aspect at a specific position in my list of children.
 		void insertChild(AbstractAspect *child, int index);
 		//! Remove the given Aspect from my list of children.
+		/**
+		 * The ownership of the child is transfered to the undo command,
+		 * i.e., the aspect is deleted by the undo command.
+		 * \sa reparentChild()
+		 */
 		void removeChild(AbstractAspect* child);
 		//! Remove the Aspect at the given index from my list of children.
+		/**
+		 * The ownership of the child is transfered to the undo command,
+		 * i.e., the aspect is deleted by the undo command.
+		 * \sa reparentChild()
+		 */
 		void removeChild(int index);
 		//! Get a child by its position in my list of children.
 		AbstractAspect* child(int index) const;
@@ -114,6 +124,10 @@ class AbstractAspect : public QObject
 		int index() const { return parentAspect() ? parentAspect()->indexOfChild(this) : 0; }
 		//! Change the positon of a child in my list of children.
 		void moveChild(int from, int to);
+		//! Move a child to another aspect and transfer ownership.
+		void reparentChild(AbstractAspect *new_parent, AbstractAspect *child, int d_new_index);
+		//! Move a child to another aspect and transfer ownership.
+		void reparentChild(AbstractAspect *new_parent, AbstractAspect *child);
 		//! Get all descendents that inherit the given class
 		QList<AbstractAspect *> descendantsThatInherit(const char *class_name);
 		//! Remove all child aspects

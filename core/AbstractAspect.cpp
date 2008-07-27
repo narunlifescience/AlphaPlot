@@ -145,6 +145,24 @@ void AbstractAspect::removeChild(AbstractAspect* child)
 	endMacro();
 }
 
+void AbstractAspect::reparentChild(AbstractAspect *new_parent, AbstractAspect *child)
+{
+	Q_ASSERT(new_parent != NULL);
+	reparentChild(new_parent, child, new_parent->childCount());
+}
+
+void AbstractAspect::reparentChild(AbstractAspect *new_parent, AbstractAspect *child, int new_index)
+{
+	Q_ASSERT(indexOfChild(child) != -1);
+	Q_ASSERT(new_index > 0 && new_index <= new_parent->childCount());
+	Q_ASSERT(new_parent != NULL);
+	beginMacro(tr("%1: move %2 to %3.").arg(name()).arg(child->name()).arg(new_parent->name()));
+	prepareAspectRemoval(child);
+	exec(new AspectChildReparentCmd(d_aspect_private, new_parent->d_aspect_private, child, new_index));
+	new_parent->completeAspectInsertion(child, new_index);
+	endMacro();
+}
+
 void AbstractAspect::removeChild(int index)
 {
 	Q_ASSERT(index >= 0 && index <= childCount());
