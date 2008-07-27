@@ -272,15 +272,15 @@ class Matrix : public AbstractPart, public scripted
 		void addActionsToView();
 
 		//! Read XML display element
-		bool XmlReadDisplay(XmlStreamReader * reader);
+		bool readDisplayElement(XmlStreamReader * reader);
 		//! Read XML coodinates element
-		bool XmlReadCoordinates(XmlStreamReader * reader);
+		bool readCoordinatesElement(XmlStreamReader * reader);
 		//! Read XML formula element
-		bool XmlReadFormula(XmlStreamReader * reader);
+		bool readFormulaElement(XmlStreamReader * reader);
 		//! Read XML cell element
-		bool XmlReadCell(XmlStreamReader * reader);
-		bool XmlReadRowHeight(XmlStreamReader * reader);
-		bool XmlReadColumnWidth(XmlStreamReader * reader);
+		bool readCellElement(XmlStreamReader * reader);
+		bool readRowHeightElement(XmlStreamReader * reader);
+		bool readColumnWidthElement(XmlStreamReader * reader);
 
 		QMenu * d_plot_menu;
 

@@ -1116,17 +1116,17 @@ bool Matrix::load(XmlStreamReader * reader)
 				if (reader->name() == "comment")
 					ret_val = readCommentElement(reader);
 				else if(reader->name() == "formula")
-					ret_val = XmlReadFormula(reader);
+					ret_val = readFormulaElement(reader);
 				else if(reader->name() == "display")
-					ret_val = XmlReadDisplay(reader);
+					ret_val = readDisplayElement(reader);
 				else if(reader->name() == "coordinates")
-					ret_val = XmlReadCoordinates(reader);
+					ret_val = readCoordinatesElement(reader);
 				else if(reader->name() == "cell")
-					ret_val = XmlReadCell(reader);
+					ret_val = readCellElement(reader);
 				else if(reader->name() == "row_height")
-					ret_val = XmlReadRowHeight(reader);
+					ret_val = readRowHeightElement(reader);
 				else if(reader->name() == "column_width")
-					ret_val = XmlReadColumnWidth(reader);
+					ret_val = readColumnWidthElement(reader);
 				else // unknown element
 				{
 					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
@@ -1142,7 +1142,7 @@ bool Matrix::load(XmlStreamReader * reader)
 	return !reader->hasError();
 }
 
-bool Matrix::XmlReadDisplay(XmlStreamReader * reader)
+bool Matrix::readDisplayElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "display");
 	QXmlStreamAttributes attribs = reader->attributes();
@@ -1168,7 +1168,7 @@ bool Matrix::XmlReadDisplay(XmlStreamReader * reader)
 	return true;
 }
 
-bool Matrix::XmlReadCoordinates(XmlStreamReader * reader)
+bool Matrix::readCoordinatesElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "coordinates");
 
@@ -1211,14 +1211,14 @@ bool Matrix::XmlReadCoordinates(XmlStreamReader * reader)
 	return true;
 }
 
-bool Matrix::XmlReadFormula(XmlStreamReader * reader)
+bool Matrix::readFormulaElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "formula");
 	setFormula(reader->readElementText());
 	return true;
 }
 
-bool Matrix::XmlReadRowHeight(XmlStreamReader * reader)
+bool Matrix::readRowHeightElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "row_height");
 	bool ok;
@@ -1242,7 +1242,7 @@ bool Matrix::XmlReadRowHeight(XmlStreamReader * reader)
 	return true;
 }
 
-bool Matrix::XmlReadColumnWidth(XmlStreamReader * reader)
+bool Matrix::readColumnWidthElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "column_width");
 	bool ok;
@@ -1266,7 +1266,7 @@ bool Matrix::XmlReadColumnWidth(XmlStreamReader * reader)
 	return true;
 }
 
-bool Matrix::XmlReadCell(XmlStreamReader * reader)
+bool Matrix::readCellElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "cell");
 	
