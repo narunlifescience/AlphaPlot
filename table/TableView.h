@@ -164,8 +164,12 @@ class TableView : public QWidget
 		void getCurrentCell(int * row, int * col);
 		//@}
 
+		void setColumnWidth(int col, int width);
+		int columnWidth(int col) const;
+
 	public slots:
 		void goToCell(int row, int col);
+		void rereadSectionSizes();
 		void selectAll();
 		void deselectAll();
 		void toggleControlTabBar();
@@ -173,6 +177,7 @@ class TableView : public QWidget
 		void showControlDescriptionTab();
 		void showControlTypeTab();
 		void showControlFormulaTab();
+		void handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize); 
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed

@@ -122,6 +122,8 @@ void TableView::init()
 	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
 	d_horizontal_header->setMovable(true);
 	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
+	
+	d_horizontal_header->setDefaultSectionSize(Table::defaultColumnWidth());
 
 	v_header->installEventFilter(this);
 	d_horizontal_header->installEventFilter(this);
@@ -132,6 +134,7 @@ void TableView::init()
 	connect(d_model, SIGNAL(headerDataChanged(Qt::Orientation,int,int)), this, 
 		SLOT(handleHeaderDataChanged(Qt::Orientation,int,int)) ); 
 
+	rereadSectionSizes();
 	
 	// keyboard shortcuts
 	QShortcut * sel_all = new QShortcut(QKeySequence(tr("Ctrl+A", "Table: select all")), d_view_widget);
@@ -152,6 +155,42 @@ void TableView::init()
 		this, SLOT(applyDescription()));
 	connect(ui.button_set_type, SIGNAL(pressed()),
 		this, SLOT(applyType()));
+}
+
+void TableView::rereadSectionSizes()
+{
+	disconnect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+
+	int cols = d_table->columnCount();
+	for (int i=0; i<cols; i++)
+		d_horizontal_header->resizeSection(i, d_table->columnWidth(i));
+		
+	connect(d_horizontal_header, SIGNAL(sectionResized(int, int, int)), this, SLOT(handleHorizontalSectionResized(int, int, int)));
+}
+
+void TableView::setColumnWidth(int col, int width) 
+{ 
+	d_horizontal_header->resizeSection(col, width);
+}
+
+int TableView::columnWidth(int col) const 
+{ 
+	return d_horizontal_header->sectionSize(col);
+}
+
+void TableView::handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize)
+{
+	static bool inside = false;
+	d_table->setColumnWidth(logicalIndex, newSize);
+	if (inside) return;
+	inside = true;
+
+	int cols = d_table->columnCount();
+	for (int i=0; i<cols; i++)
+		if(isColumnSelected(i, true)) 
+			d_horizontal_header->resizeSection(i, newSize);
+
+	inside = false;
 }
 
 void TableView::changeEvent(QEvent * event)

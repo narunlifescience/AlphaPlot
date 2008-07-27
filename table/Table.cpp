@@ -74,6 +74,7 @@
 #define RESET_CURSOR QApplication::restoreOverrideCursor()
 
 bool Table::d_default_comment_visibility = false;
+int Table::default_column_width = 120;
 
 // TODO: move all selection related stuff to the primary view ?
 
@@ -1389,9 +1390,34 @@ void Table::moveColumn(int from, int to)
 
 void Table::copy(Table * other)
 {
-	Q_UNUSED(other);
-	// TODO
-	QMessageBox::information(0, "info", "not yet implemented");
+	WAIT_CURSOR;
+	beginMacro(QObject::tr("%1: copy %2").arg(name()).arg(other->name()));
+	
+	removeColumns(0, columnCount());
+	QList<Column *> columns;
+	for (int i=0; i<other->columnCount(); i++)
+	{
+		Column * src_col = other->column(i);
+		Column * new_col = new Column(src_col->name(), src_col->columnMode());
+		new_col->copy(src_col);
+		new_col->setPlotDesignation(src_col->plotDesignation());
+		QList< Interval<int> > masks = src_col->maskedIntervals();
+		foreach(Interval<int> iv, masks)
+			new_col->setMasked(iv);
+		QList< Interval<int> > formulas = src_col->formulaIntervals();
+		foreach(Interval<int> iv, formulas)
+			new_col->setFormula(iv, src_col->formula(iv.start()));
+		columns.append(new_col);
+	}
+	appendColumns(columns);
+	setCaptionSpec(other->captionSpec());
+	setComment(other->comment());
+	for (int i=0; i<columnCount(); i++)
+		setColumnWidth(i, other->columnWidth(i));
+	if (d_view) d_view->rereadSectionSizes();
+
+	endMacro();
+	RESET_CURSOR;
 }
 
 int Table::colX(int col)
@@ -1827,6 +1853,13 @@ void Table::save(QXmlStreamWriter * writer) const
 
 	for (int col=0; col<cols; col++)
 		column(col)->save(writer);
+	for (int col=0; col<cols; col++)
+	{
+		writer->writeStartElement("column_width");
+		writer->writeAttribute("column", QString::number(col));
+		writer->writeCharacters(QString::number(columnWidth(col)));
+		writer->writeEndElement();
+	}
 	writer->writeEndElement(); // "table"
 }
 
@@ -1872,6 +1905,10 @@ bool Table::load(XmlStreamReader * reader)
 						return false;
 					}
 				}
+				else if(reader->name() == "column_width")
+				{
+					if (!readColumnWidthElement(reader)) return false;
+				}
 				else // unknown element
 				{
 					reader->raiseWarning(tr("unknown element '%1'").arg(reader->name().toString()));
@@ -1888,6 +1925,42 @@ bool Table::load(XmlStreamReader * reader)
 
 	return !reader->hasError();
 }
+
+bool Table::readColumnWidthElement(XmlStreamReader * reader)
+{
+	Q_ASSERT(reader->isStartElement() && reader->name() == "column_width");
+	bool ok;
+	int col = reader->readAttributeInt("column", &ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid or missing column index"));
+		return false;
+	}
+	QString str = reader->readElementText();
+	int value = str.toInt(&ok);
+	if(!ok)
+	{
+		reader->raiseError(tr("invalid column width"));
+		return false;
+	}
+	if (d_view)
+		d_view->setColumnWidth(col, value);
+	else
+		setColumnWidth(col, value);
+	return true;
+}
+
+void Table::setColumnWidth(int col, int width) 
+{ 
+	d_table_private->setColumnWidth(col, width); 
+}
+
+int Table::columnWidth(int col) const 
+{ 
+	return d_table_private->columnWidth(col); 
+}
+
+
 /* ========================= static methods ======================= */
 ActionManager * Table::action_manager = 0;
 
@@ -1962,6 +2035,7 @@ void Table::Private::insertColumns(int before, QList<Column*> cols)
 	{
 		d_columns.insert(before, cols.at(i));
 		d_owner->connectColumn(cols.at(i));
+		d_column_widths.insert(before, Table::defaultColumnWidth());
 	}
 	d_column_count += count;
 	updateHorizontalHeader(before, before+count-1);
@@ -1982,6 +2056,7 @@ void Table::Private::removeColumns(int first, int count)
 	{
 		d_owner->disconnectColumn(d_columns.at(first));
 		d_columns.removeAt(first);
+		d_column_widths.removeAt(first);
 	}
 	d_column_count -= count;
 	updateHorizontalHeader(first, d_column_count);
@@ -1999,9 +2074,11 @@ void Table::Private::moveColumn(int from, int to)
 	if( to < 0 || to >= d_column_count) return;
 	
 	d_columns.move(from, to);
+	d_column_widths.move(from, to);
 	updateHorizontalHeader(from, to);
 	emit d_owner->dataChanged(0, from, d_row_count-1, from);
 	emit d_owner->dataChanged(0, to, d_row_count-1, to);
+	if (d_owner->d_view) d_owner->d_view->rereadSectionSizes();
 }
 
 void Table::Private::setRowCount(int rows)

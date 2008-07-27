@@ -195,13 +195,18 @@ class Table : public AbstractPart, public scripted
 		virtual void save(QXmlStreamWriter *) const;
 		//! Load from XML
 		virtual bool load(XmlStreamReader *);
+		bool readColumnWidthElement(XmlStreamReader * reader);
 		//@}
 		
 	public:
 		static ActionManager * actionManager();
 		static void initActionManager();
+		static int defaultColumnWidth() { return default_column_width; }
+		static void setDefaultColumnWidth(int width) { default_column_width = width; }
 	private:
 		static ActionManager * action_manager;
+		// TODO: the default sizes are to be controlled by the global Table settings
+		static int default_column_width;
 		//! Private ctor for initActionManager() only
 		Table();
 
@@ -287,6 +292,14 @@ class Table : public AbstractPart, public scripted
 		 * allowing subclasses to execute undo commands of their own.
 		 */
 		virtual void prepareAspectRemoval(AbstractAspect * aspect);
+
+	public:
+		//! This method should only be called by the view.
+		/** This method does not change the view, it only changes the
+		 * values that are saved when the table is saved. The view
+		 * has to take care of reading and applying these values */
+		void setColumnWidth(int col, int width);
+		int columnWidth(int col) const;
 
 	private:
 		//! Internal function to connect all column signals
@@ -486,6 +499,8 @@ class Table::Private
 		 * \param end_col last column that needs to be updated
 		 */
 		void updateHorizontalHeader(int start_col, int end_col);
+		void setColumnWidth(int col, int width) { d_column_widths[col] = width; }
+		int columnWidth(int col) const { return d_column_widths.at(col); }
 
 	private:
 		//! The owner aspect
@@ -505,6 +520,8 @@ class Table::Private
 		 * Don't use this outside updateHorizontalHeader()
 		 */
 		void composeColumnHeader(int col, const QString& label);
+		//! Columns widths
+		QList<int> d_column_widths;
 };
 
 #endif
