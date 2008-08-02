@@ -1089,6 +1089,13 @@ bool Matrix::load(XmlStreamReader * reader)
 {
 	if(reader->isStartElement() && reader->name() == "matrix") 
 	{
+		setDimensions(0, 0);
+		setComment("");
+		setFormula("");
+		setNumericFormat('f');
+		setDisplayedDigits(6);
+		setCoordinates(0.0, 1.0, 0.0, 1.0);
+
 		if (!readBasicAttributes(reader)) return false;
 
 		// read dimensions

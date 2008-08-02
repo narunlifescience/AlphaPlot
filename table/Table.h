@@ -113,7 +113,7 @@ class Table : public AbstractPart, public scripted
 		void removeRows(int first, int count);
 		void insertRows(int before, int count);
 		void appendRows(int count) { insertRows(rowCount(), count); }
-		//! Set the number of rows
+		//! Set the number of rows of the table
 		void setRowCount(int new_size);
 		//! Return the total number of columns in the table
 		int columnCount() const;
