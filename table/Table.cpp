@@ -352,9 +352,21 @@ void Table::copySelection()
 	for(int r=0; r<rows; r++)
 	{
 		for(int c=0; c<cols; c++)
-		{
+		{	
+			Column *col_ptr = column(first_col + c);
 			if(d_view->isCellSelected(first_row + r, first_col + c))
-				output_str += text(first_row + r, first_col + c);
+			{
+				if (col_ptr->dataType() == SciDAVis::TypeDouble)
+				{
+					Double2StringFilter * out_fltr = static_cast<Double2StringFilter *>(col_ptr->outputFilter());
+					output_str += QLocale().toString(col_ptr->valueAt(first_row + r), 
+							out_fltr->numericFormat(), 16); // copy with max. precision
+				}
+				else
+				{
+					output_str += text(first_row + r, first_col + c);
+				}
+			}
 			if(c < cols-1)
 				output_str += "\t";
 		}
@@ -440,7 +452,7 @@ void Table::pasteIntoSelection()
 					AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
 					temp->setTextAt(0, cell_texts.at(r).at(c));
 					in_fltr->input(0, temp);
-					col_ptr->copy(in_fltr->output(0), 0, first_row+c, 1);  
+					col_ptr->copy(in_fltr->output(0), 0, first_row+r, 1);  
 					in_fltr->input(0,0);
 				}
 			}
@@ -1050,7 +1062,7 @@ void Table::createActions()
 	actionManager()->addAction(action_sort_columns, "sort_columns"); 
 	delete icon_temp;
 
-	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Statisti&cs"), this);;
+	action_statistics_columns = new QAction(QIcon(QPixmap(":/col_stat.xpm")), tr("Column Statisti&cs"), this);;
 	actionManager()->addAction(action_statistics_columns, "statistics_columns"); 
 
 	icon_temp = new QIcon();
@@ -1096,7 +1108,7 @@ void Table::createActions()
 	actionManager()->addAction(action_add_rows, "add_rows"); 
 	delete icon_temp;
 
-	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Statisti&cs"), this);;
+	action_statistics_rows = new QAction(QIcon(QPixmap(":/stat_rows.xpm")), tr("Row Statisti&cs"), this);;
 	actionManager()->addAction(action_statistics_rows, "statistics_rows"); 
 }
 

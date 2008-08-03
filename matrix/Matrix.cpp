@@ -209,7 +209,8 @@ void Matrix::copySelection()
 		for(int c=0; c<cols; c++)
 		{
 			if(d_view->isCellSelected(first_row + r, first_col + c))
-				output_str += text(first_row + r, first_col + c);
+				output_str += QLocale().toString(cell(first_row + r, first_col + c), 
+						d_matrix_private->numericFormat(), 16); // copy with max. precision
 			if(c < cols-1)
 				output_str += "\t";
 		}
