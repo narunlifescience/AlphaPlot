@@ -2024,9 +2024,9 @@ void Table::Private::replaceColumns(int first, QList<Column*> new_cols)
 		d_columns[first+i] = new_cols.at(i);
 		d_owner->connectColumn(new_cols.at(i));
 	}
-	updateHorizontalHeader(first, first+count-1);
 	emit d_owner->columnsReplaced(first, new_cols.count());
 	emit d_owner->dataChanged(0, first, d_row_count-1, first+count-1);
+	updateHorizontalHeader(first, first+count-1);
 }
 
 void Table::Private::insertColumns(int before, QList<Column*> cols)
@@ -2054,8 +2054,8 @@ void Table::Private::insertColumns(int before, QList<Column*> cols)
 		d_column_widths.insert(before, Table::defaultColumnWidth());
 	}
 	d_column_count += count;
-	updateHorizontalHeader(before, before+count-1);
 	emit d_owner->columnsInserted(before, cols.count());
+	updateHorizontalHeader(before, before+count-1);
 }
 
 void Table::Private::removeColumns(int first, int count)
@@ -2075,8 +2075,8 @@ void Table::Private::removeColumns(int first, int count)
 		d_column_widths.removeAt(first);
 	}
 	d_column_count -= count;
-	updateHorizontalHeader(first, d_column_count-1);
 	emit d_owner->columnsRemoved(first, count);
+	updateHorizontalHeader(first, d_column_count-1);
 }
 
 void Table::Private::appendColumns(QList<Column*> cols)
@@ -2091,10 +2091,10 @@ void Table::Private::moveColumn(int from, int to)
 	
 	d_columns.move(from, to);
 	d_column_widths.move(from, to);
-	updateHorizontalHeader(from, to);
 	emit d_owner->dataChanged(0, from, d_row_count-1, from);
 	emit d_owner->dataChanged(0, to, d_row_count-1, to);
 	if (d_owner->d_view) d_owner->d_view->rereadSectionSizes();
+	updateHorizontalHeader(from, to);
 }
 
 void Table::Private::setRowCount(int rows)
