@@ -52,14 +52,18 @@ AbstractAspect::~AbstractAspect()
 void AbstractAspect::writeCommentElement(QXmlStreamWriter * writer) const
 {
 	writer->writeStartElement("comment");
-	writer->writeCDATA(comment());
+	QString temp = comment();
+	temp.replace("\n", "\\n");
+	writer->writeCDATA(temp);
 	writer->writeEndElement();
 }
 
 bool AbstractAspect::readCommentElement(XmlStreamReader * reader)
 {
 	Q_ASSERT(reader->isStartElement() && reader->name() == "comment");
-	setComment(reader->readElementText());
+	QString temp = reader->readElementText();
+	temp.replace("\\n", "\n");
+	setComment(temp);
 	return true;
 }
 
