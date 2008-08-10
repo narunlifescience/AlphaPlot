@@ -1178,9 +1178,11 @@ void FitDialog::accept()
 	{
 		QString errorMsg = boxFunction->text() + " = " + formula + "\n" + QString::fromStdString(e.GetMsg()) + "\n";
 		
+#if 0 // muParser 1.30 does not use ecUNEXPECTED_COMMA anymore
 		if(e.GetCode() == ecUNEXPECTED_COMMA)
 			errorMsg += tr("You have to use a dot as decimal separator in formulas.");
 		else
+#endif
 			errorMsg += tr("Please verify that you have initialized all the parameters!");
 
 		QMessageBox::critical(0, tr("Input function error"), errorMsg);

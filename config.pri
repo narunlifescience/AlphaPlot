@@ -104,7 +104,9 @@ contains(MODULES, graph3D) {
 #unix:INCLUDEPATH  += 3rdparty/qwtplot3d/include
 #unix:LIBS         += 3rdparty/qwtplot3d/lib/libqwtplot3d.a
 #unix:LIBS			 += -lmuparser # the dependency on muparser needs to be removed
-unix:LIBS			 += -lmuparserd # the dependency on muparser needs to be removed
+#unix:LIBS			 += -lmuparserd # the dependency on muparser needs to be removed
+unix:LIBS         += /usr/local/lib/libmuparser.a
+unix:INCLUDEPATH  += /usr/local/include
 
 ### Link dynamically against system-wide installation of Qwtplot3D.
 ### WARNING: Make sure Qwtplot3D is compiled against Qt >= 4.2 if you use this.
@@ -131,7 +133,10 @@ win32:LIBS         += c:/qwtplot3d/lib/qwtplot3d.dll
 contains(MODULES, muparser) {
 
 ### You probably don't need to change this on Linux and Mac OS X.
-unix:LIBS			 += -lmuparser
+#unix:LIBS			 += -lmuparser
+unix:LIBS         += -L/usr/local/lib$${libsuff}
+unix:LIBS         += /usr/local/lib/libmuparser.a
+unix:INCLUDEPATH  += /usr/local/include
 
 ### Path to muParser on Windows.
 win32:INCLUDEPATH  += c:/muparser/include

@@ -64,6 +64,8 @@ void AbstractAspect::Private::insertChild(int index, AbstractAspect* child)
 	// Can't handle this case here since two undo commands have to be created.
 	Q_ASSERT(child->d_aspect_private->d_parent == 0);
 	child->d_aspect_private->d_parent = d_owner;
+	connect(child, SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)), 
+			d_owner, SIGNAL(aspectDescriptionAboutToChange(const AbstractAspect *)));
 	connect(child, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)), 
 			d_owner, SIGNAL(aspectDescriptionChanged(const AbstractAspect *)));
 	connect(child, SIGNAL(aspectAboutToBeAdded(const AbstractAspect *, int)), 
