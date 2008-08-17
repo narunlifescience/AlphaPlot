@@ -310,7 +310,6 @@ void Table::cutSelection()
 {
 	if (!d_view) return;
 	int first = d_view->firstSelectedRow();
-	int last = d_view->lastSelectedRow();
 	if( first < 0 ) return;
 
 	WAIT_CURSOR;
@@ -345,7 +344,11 @@ void Table::copySelection()
 			Column *col_ptr = column(first_col + c);
 			if(d_view->isCellSelected(first_row + r, first_col + c))
 			{
-				if (col_ptr->dataType() == SciDAVis::TypeDouble)
+				if (d_view->formulaModeActive())
+				{
+					output_str += col_ptr->formula(first_row + r);
+				}
+				else if (col_ptr->dataType() == SciDAVis::TypeDouble)
 				{
 					Double2StringFilter * out_fltr = static_cast<Double2StringFilter *>(col_ptr->outputFilter());
 					output_str += QLocale().toString(col_ptr->valueAt(first_row + r), 
@@ -438,11 +441,18 @@ void Table::pasteIntoSelection()
 				if(d_view->isCellSelected(first_row + r, first_col + c) && (c < cell_texts.at(r).count()) )
 				{
 					Column * col_ptr = d_table_private->column(first_col + c);
-					AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
-					temp->setTextAt(0, cell_texts.at(r).at(c));
-					in_fltr->input(0, temp);
-					col_ptr->copy(in_fltr->output(0), 0, first_row+r, 1);  
-					in_fltr->input(0,0);
+					if (d_view->formulaModeActive())
+					{
+						col_ptr->setFormula(first_row + r, cell_texts.at(r).at(c));  
+					}
+					else
+					{
+						AbstractSimpleFilter * in_fltr = col_ptr->inputFilter();
+						temp->setTextAt(0, cell_texts.at(r).at(c));
+						in_fltr->input(0, temp);
+						col_ptr->copy(in_fltr->output(0), 0, first_row+r, 1);  
+						in_fltr->input(0,0);
+					}
 				}
 			}
 		}
@@ -465,7 +475,7 @@ void Table::maskSelection()
 	foreach(Column * col_ptr, list)
 	{
 		int col = columnIndex(col_ptr);
-		for(int row=first; row<last; row++)
+		for(int row=first; row<=last; row++)
 			if(d_view->isCellSelected(row, col)) col_ptr->setMasked(row);  
 	}
 	endMacro();
@@ -485,7 +495,7 @@ void Table::unmaskSelection()
 	foreach(Column * col_ptr, list)
 	{
 		int col = columnIndex(col_ptr);
-		for(int row=first; row<last; row++)
+		for(int row=first; row<=last; row++)
 			if(d_view->isCellSelected(row, col)) col_ptr->setMasked(row, false);  
 	}
 	endMacro();
@@ -635,8 +645,16 @@ void Table::clearSelectedColumns()
 	beginMacro(QObject::tr("%1: clear selected column(s)").arg(name()));
 
 	QList< Column* > list = d_view->selectedColumns();
-	foreach(Column* ptr, list)
-		ptr->clear();
+	if (d_view->formulaModeActive())
+	{
+		foreach(Column* ptr, list)
+			ptr->clearFormulas();
+	}
+	else
+	{
+		foreach(Column* ptr, list)
+			ptr->clear();
+	}
 
 	endMacro();
 	RESET_CURSOR;
@@ -765,17 +783,28 @@ void Table::clearSelectedRows()
 	Column * temp = new Column("temp", QStringList(QString()));
 	foreach(Column * col_ptr, list)
 	{
-		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-		in_fltr->input(0, temp);
-		for(int row=last; row>=first; row--)
-			if(d_view->isRowSelected(row, false))
-			{
-				if(row == (col_ptr->rowCount()-1) )
-					col_ptr->removeRows(row,1);
-				else if(row < col_ptr->rowCount())
-					col_ptr->copy(in_fltr->output(0), 0, row, 1);  
-			}
-		in_fltr->input(0, 0);
+		if (d_view->formulaModeActive())
+		{
+			for(int row=last; row>=first; row--)
+				if(d_view->isRowSelected(row, false))
+				{
+					col_ptr->setFormula(row, "");  
+				}
+		}
+		else
+		{
+			AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+			in_fltr->input(0, temp);
+			for(int row=last; row>=first; row--)
+				if(d_view->isRowSelected(row, false))
+				{
+					if(row == (col_ptr->rowCount()-1) )
+						col_ptr->removeRows(row,1);
+					else if(row < col_ptr->rowCount())
+						col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+				}
+			in_fltr->input(0, 0);
+		}
 	}
 	delete temp;
 	endMacro();
@@ -818,18 +847,30 @@ void Table::clearSelectedCells()
 	Column * temp = new Column("temp", QStringList(QString()));
 	foreach(Column * col_ptr, list)
 	{
-		AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
-		in_fltr->input(0, temp);
-		int col = columnIndex(col_ptr);
-		for(int row=last; row>=first; row--)
-			if(d_view->isCellSelected(row, col))
-			{
-				if(row == (col_ptr->rowCount()-1) )
-					col_ptr->removeRows(row,1);
-				else if(row < col_ptr->rowCount())
-					col_ptr->copy(in_fltr->output(0), 0, row, 1);  
-			}
-		in_fltr->input(0, 0);
+		if (d_view->formulaModeActive())
+		{
+			int col = columnIndex(col_ptr);
+			for(int row=last; row>=first; row--)
+				if(d_view->isCellSelected(row, col))
+				{
+					col_ptr->setFormula(row, "");  
+				}
+		}
+		else
+		{
+			AbstractSimpleFilter *in_fltr = col_ptr->inputFilter();
+			in_fltr->input(0, temp);
+			int col = columnIndex(col_ptr);
+			for(int row=last; row>=first; row--)
+				if(d_view->isCellSelected(row, col))
+				{
+					if(row == (col_ptr->rowCount()-1) )
+						col_ptr->removeRows(row,1);
+					else if(row < col_ptr->rowCount())
+						col_ptr->copy(in_fltr->output(0), 0, row, 1);  
+				}
+			in_fltr->input(0, 0);
+		}
 	}
 	delete temp;
 	endMacro();
@@ -842,6 +883,7 @@ bool Table::fillProjectMenu(QMenu * menu)
 
 	menu->addAction(action_toggle_comments);
 	menu->addAction(action_toggle_tabbar);
+	menu->addAction(action_formula_mode);
 	menu->addSeparator();
 	menu->addAction(action_clear_table);
 	menu->addAction(action_clear_masks);
@@ -940,6 +982,10 @@ void Table::createActions()
 	action_toggle_tabbar = new QAction(*icon_temp, QString("Show/Hide Controls"), this); // show/hide control tabs
 	actionManager()->addAction(action_toggle_tabbar, "toggle_tabbar"); 
 	delete icon_temp;
+
+	action_formula_mode = new QAction(tr("Formula Edit Mode"), this);
+	action_formula_mode->setCheckable(true);
+	actionManager()->addAction(action_formula_mode, "formula_mode"); 
 
 	icon_temp = new QIcon();
 	icon_temp->addPixmap(QPixmap(":/16x16/select_all.png"));
@@ -1146,6 +1192,7 @@ void Table::addActionsToView()
 {
 	connect(action_toggle_comments, SIGNAL(triggered()), d_view, SLOT(toggleComments()));
 	connect(action_toggle_tabbar, SIGNAL(triggered()), d_view, SLOT(toggleControlTabBar()));
+	connect(action_formula_mode, SIGNAL(toggled(bool)), d_view, SLOT(activateFormulaMode(bool)));
 
 	d_view->addAction(action_cut_selection);
 	d_view->addAction(action_copy_selection);
@@ -1159,6 +1206,7 @@ void Table::addActionsToView()
 	d_view->addAction(action_fill_random);
 	d_view->addAction(action_toggle_comments);
 	d_view->addAction(action_toggle_tabbar);
+	d_view->addAction(action_formula_mode);
 	d_view->addAction(action_select_all);
 	d_view->addAction(action_add_column);
 	d_view->addAction(action_clear_table);
@@ -1327,6 +1375,7 @@ QMenu * Table::createTableMenu(QMenu * append_to)
 
 	menu->addAction(action_toggle_comments);
 	menu->addAction(action_toggle_tabbar);
+	menu->addAction(action_formula_mode);
 	menu->addSeparator();
 	menu->addAction(action_select_all);
 	menu->addAction(action_clear_table);

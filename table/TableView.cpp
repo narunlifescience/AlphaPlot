@@ -671,7 +671,18 @@ bool TableView::eventFilter(QObject * watched, QEvent * event)
 	else 
 		return QWidget::eventFilter(watched, event);
 }
-	
+
+bool TableView::formulaModeActive() const 
+{ 
+	return d_model->formulaModeActive(); 
+}
+
+void TableView::activateFormulaMode(bool on) 
+{ 
+	d_model->activateFormulaMode(on); 
+}
+
+
 /* ================== TableViewWidget ================ */
 
 void TableViewWidget::selectAll()

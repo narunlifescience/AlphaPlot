@@ -365,6 +365,7 @@ class Table : public AbstractPart, public scripted
 		QAction * action_sort_table;
 		QAction * action_go_to_cell;
 		QAction * action_dimensions_dialog;
+		QAction * action_formula_mode;
 		//@}
 		//! \name column related actions
 		//@{

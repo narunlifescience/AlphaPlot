@@ -199,5 +199,6 @@
 	<file alias="32x32/x_error.png">icons/32x32/x_error.png</file>
 	<file alias="16x16/y_error.png">icons/16x16/y_error.png</file>
 	<file alias="32x32/y_error.png">icons/32x32/y_error.png</file>
+	<file alias="equals.png">icons/equals.png</file>
 </qresource>
 </RCC>

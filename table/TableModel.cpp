@@ -32,9 +32,11 @@
 #include "TableModel.h"
 #include <QString>
 #include <QBrush>
+#include <QIcon>
+#include <QPixmap>
 
 TableModel::TableModel(Table * table)
-	: QAbstractItemModel(0), d_table(table)
+	: QAbstractItemModel(0), d_table(table), d_formula_mode(false)
 {
 	connect(d_table, SIGNAL(columnsAboutToBeInserted(int, QList<Column *>)),
 			this, SLOT(handleColumnsAboutToBeInserted(int, QList<Column *>)));
@@ -90,10 +92,12 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid cell","tooltip string for invalid rows") + postfix);
 		case Qt::EditRole:
-				if(col_ptr->isInvalid(row))
+				if(!d_formula_mode && col_ptr->isInvalid(row))
 					return QVariant();
 		case Qt::DisplayRole:
 			{
+				if(d_formula_mode)
+					return QVariant(col_ptr->formula(row));
 				if(col_ptr->isInvalid(row))
 					return QVariant(tr("invalid","string for invalid rows"));
 				
@@ -110,6 +114,10 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
 			return QVariant(col_ptr->isMasked(row));
 		case FormulaRole:
 			return QVariant(col_ptr->formula(row));
+		case Qt::DecorationRole:
+			if(d_formula_mode)
+				return QIcon(QPixmap(":/equals.png"));
+			break;
 	}
 
 	return QVariant();
@@ -145,7 +153,10 @@ bool TableModel::setData(const QModelIndex & index, const QVariant & value, int 
 			{
 				Column* col_ptr = d_table->column(index.column());
 				// remark: the validity of the cell is determined by the input filter
-				col_ptr->asStringColumn()->setTextAt(row, value.toString());
+				if (d_formula_mode)
+					col_ptr->setFormula(row, value.toString());
+				else
+					col_ptr->asStringColumn()->setTextAt(row, value.toString());
 				return true;
 			}
 		case MaskingRole:
