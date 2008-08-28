@@ -180,11 +180,14 @@ class TableView : public QWidget
 		void showControlTypeTab();
 		void showControlFormulaTab();
 		void handleHorizontalSectionResized(int logicalIndex, int oldSize, int newSize); 
+		void goToNextColumn();
+		void goToPreviousColumn();
 
 	protected slots:
 		//! Advance current cell after [Return] or [Enter] was pressed
 		void advanceCell();
-		void horizontalSectionMovedHandler(int index, int from, int to);
+		void handleHorizontalSectionMoved(int index, int from, int to);
+		void handleHorizontalHeaderDoubleClicked(int index);
 		void updateTypeInfo();
 		void updateFormatBox();
 		void handleHeaderDataChanged(Qt::Orientation orientation, int first, int last);

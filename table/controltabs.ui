@@ -60,13 +60,43 @@
       <attribute name="title" >
        <string>Description</string>
       </attribute>
-      <layout class="QVBoxLayout" >
+      <layout class="QVBoxLayout" name="verticalLayout" >
        <item>
-        <widget class="QPushButton" name="button_set_description" >
-         <property name="text" >
-          <string>&amp;Apply</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout" >
+         <item>
+          <widget class="QToolButton" name="previous_column_button" >
+           <property name="toolTip" >
+            <string>go to previous column</string>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+           <property name="arrowType" >
+            <enum>Qt::LeftArrow</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QToolButton" name="next_column_button" >
+           <property name="toolTip" >
+            <string>go to next column</string>
+           </property>
+           <property name="text" >
+            <string>...</string>
+           </property>
+           <property name="arrowType" >
+            <enum>Qt::RightArrow</enum>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="button_set_description" >
+           <property name="text" >
+            <string>&amp;Apply</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="QWidget" native="1" name="widget" >

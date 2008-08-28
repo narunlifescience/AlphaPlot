@@ -2141,7 +2141,7 @@ void Table::Private::moveColumn(int from, int to)
 	
 	d_columns.move(from, to);
 	d_column_widths.move(from, to);
-	updateHorizontalHeader(from, to);
+	updateHorizontalHeader(qMin(from, to), qMax(from, to));
 	emit d_owner->dataChanged(0, from, d_row_count-1, from);
 	emit d_owner->dataChanged(0, to, d_row_count-1, to);
 	if (d_owner->d_view) d_owner->d_view->rereadSectionSizes();

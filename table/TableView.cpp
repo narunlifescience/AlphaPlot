@@ -121,7 +121,8 @@ void TableView::init()
 	v_header->setMovable(false);
 	d_horizontal_header->setResizeMode(QHeaderView::Interactive);
 	d_horizontal_header->setMovable(true);
-	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(horizontalSectionMovedHandler(int,int,int)));
+	connect(d_horizontal_header, SIGNAL(sectionMoved(int,int,int)), this, SLOT(handleHorizontalSectionMoved(int,int,int)));
+	connect(d_horizontal_header, SIGNAL(sectionDoubleClicked(int)), this, SLOT(handleHorizontalHeaderDoubleClicked(int)));
 	
 	d_horizontal_header->setDefaultSectionSize(Table::defaultColumnWidth());
 
@@ -143,6 +144,8 @@ void TableView::init()
 	connect(ui.type_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateFormatBox()));
 	connect(ui.format_box, SIGNAL(currentIndexChanged(int)), this, SLOT(updateTypeInfo()));
 	connect(ui.digits_box, SIGNAL(valueChanged(int)), this, SLOT(updateTypeInfo()));
+	connect(ui.previous_column_button, SIGNAL(clicked()), this, SLOT(goToPreviousColumn()));
+	connect(ui.next_column_button, SIGNAL(clicked()), this, SLOT(goToNextColumn()));
 	retranslateStrings();
 
 	QItemSelectionModel * sel_model = d_view_widget->selectionModel();
@@ -255,7 +258,7 @@ void TableView::toggleControlTabBar()
 		d_hide_button->setArrowType(Qt::LeftArrow);
 }
 
-void TableView::horizontalSectionMovedHandler(int index, int from, int to)
+void TableView::handleHorizontalSectionMoved(int index, int from, int to)
 {
 	static bool inside = false;
 	if(inside) return;
@@ -266,6 +269,12 @@ void TableView::horizontalSectionMovedHandler(int index, int from, int to)
 	d_view_widget->horizontalHeader()->moveSection(to, from);
 	inside = false;
 	d_table->moveColumn(from, to);
+}
+
+void TableView::handleHorizontalHeaderDoubleClicked(int index)
+{
+	Q_UNUSED(index);
+	showControlDescriptionTab();
 }
 
 bool TableView::areCommentsShown() const
@@ -680,6 +689,28 @@ bool TableView::formulaModeActive() const
 void TableView::activateFormulaMode(bool on) 
 { 
 	d_model->activateFormulaMode(on); 
+}
+
+void TableView::goToNextColumn()
+{
+	if (d_table->columnCount() == 0) return;
+
+	QModelIndex idx = d_view_widget->currentIndex();
+	int col = idx.column()+1;
+    if (col >= d_table->columnCount())
+		col = 0;
+	d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
+}
+
+void TableView::goToPreviousColumn()
+{
+	if (d_table->columnCount() == 0) return;
+
+	QModelIndex idx = d_view_widget->currentIndex();
+	int col = idx.column()-1;
+    if (col < 0)
+		col = d_table->columnCount()-1;
+	d_view_widget->setCurrentIndex(idx.sibling(idx.row(), col));
 }
 
 
